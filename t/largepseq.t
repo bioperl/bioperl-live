@@ -10,32 +10,32 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
     }
-    use Test;
-    plan tests => 22;
+    use Test::More;
+    plan tests => 27;
+	use_ok('Bio::Seq::LargePrimarySeq');
+	use_ok('Bio::Seq::LargeSeq');
+	use_ok('Bio::Location::Simple');
+	use_ok('Bio::Location::Fuzzy');
+	use_ok('Bio::Location::Split');
 }
-use Bio::Seq::LargePrimarySeq;
-use Bio::Seq::LargeSeq;
-use Bio::Location::Simple;
-use Bio::Location::Fuzzy;
-use Bio::Location::Split;
 
 my $pseq = Bio::Seq::LargePrimarySeq->new();
 ok $pseq;
 $pseq->add_sequence_as_string('ATGGGGTGGGGTGAAACCCTTTGGGGGTGGGGTAAAT');
 $pseq->add_sequence_as_string('GTTTGGGGTTAAACCCCTTTGGGGGGT');
 
-ok $pseq->display_id('hello'), 'hello';
+is $pseq->display_id('hello'), 'hello';
 
-ok $pseq->seq, 'ATGGGGTGGGGTGAAACCCTTTGGGGGTGGGGTAAATGTTTGGGGTTAAACCCCTTTGGGGGGT' , "Sequence is " . $pseq->seq;
+is $pseq->seq, 'ATGGGGTGGGGTGAAACCCTTTGGGGGTGGGGTAAATGTTTGGGGTTAAACCCCTTTGGGGGGT' , "Sequence is " . $pseq->seq;
 
-ok $pseq->subseq(3,7), 'GGGGT', "Subseq is ".$pseq->subseq(3,7);
+is $pseq->subseq(3,7), 'GGGGT', "Subseq is ".$pseq->subseq(3,7);
 my $location = new Bio::Location::Simple(-start => 4, -end => 8,
 					 -strand => 1);
-ok($pseq->subseq($location), 'GGGTG');
+is($pseq->subseq($location), 'GGGTG');
 
 my $splitlocation = new Bio::Location::Split;
 
@@ -47,45 +47,45 @@ $splitlocation->add_sub_Location( new Bio::Location::Simple('-start' => 21,
 							    '-end'   => 27,
 							    '-strand' => -1));
 
-ok( $pseq->subseq($splitlocation), 'ATGGGGTGGGGTGAACCCCCAA');
+is( $pseq->subseq($splitlocation), 'ATGGGGTGGGGTGAACCCCCAA');
 
 my $fuzzy = new Bio::Location::Fuzzy(-start => '<10',
 				     -end   => '18',
 				     -strand => 1);
 
-ok( $pseq->subseq($fuzzy), 'GGTGAAACC');
+is( $pseq->subseq($fuzzy), 'GGTGAAACC');
 
 
-ok($pseq->trunc(8,15)->seq, 'GGGGTGAA', 
+is($pseq->trunc(8,15)->seq, 'GGGGTGAA', 
     'trunc seq was ' . $pseq->trunc(8,15)->seq);
 
 
-ok $pseq->alphabet('dna'), 'dna'; # so translate will not complain
-ok $pseq->translate()->seq, 'MGWGETLWGWGKCLGLNPFGG';
+is $pseq->alphabet('dna'), 'dna'; # so translate will not complain
+is $pseq->translate()->seq, 'MGWGETLWGWGKCLGLNPFGG';
 
 
 my $seq = new Bio::Seq::LargeSeq(-primaryseq => $pseq );
 
-ok $seq->display_id('hello'), 'hello';
+is $seq->display_id('hello'), 'hello';
 
-ok $seq->seq, 'ATGGGGTGGGGTGAAACCCTTTGGGGGTGGGGTAAATGTTTGGGGTTAAACCCCTTTGGGGGGT' , "Sequence is " . $seq->seq;
+is $seq->seq, 'ATGGGGTGGGGTGAAACCCTTTGGGGGTGGGGTAAATGTTTGGGGTTAAACCCCTTTGGGGGGT' , "Sequence is " . $seq->seq;
 
-ok $seq->subseq(3,7), 'GGGGT', "Subseq is ".$seq->subseq(3,7);
-ok ($seq->trunc(8,15)->seq, 'GGGGTGAA', 
+is $seq->subseq(3,7), 'GGGGT', "Subseq is ".$seq->subseq(3,7);
+is ($seq->trunc(8,15)->seq, 'GGGGTGAA', 
     'trunc seq was ' . $seq->trunc(8,15)->seq);
 
-ok $seq->alphabet('dna'), 'dna'; # so translate will not complain
-ok $seq->translate()->seq, 'MGWGETLWGWGKCLGLNPFGG';
+is $seq->alphabet('dna'), 'dna'; # so translate will not complain
+is $seq->translate()->seq, 'MGWGETLWGWGKCLGLNPFGG';
 
 $seq = new Bio::Seq::LargeSeq( -display_id => 'hello');
 $seq->seq('ATGGGGTGGGGT');
-ok $seq->display_id, 'hello';
+is $seq->display_id, 'hello';
 
-ok $seq->seq, 'ATGGGGTGGGGT' , "Sequence is " . $seq->seq;
+is $seq->seq, 'ATGGGGTGGGGT' , "Sequence is " . $seq->seq;
 
-ok $seq->subseq(3,7), 'GGGGT', "Subseq is ".$seq->subseq(3,7);
-ok ($seq->trunc(8,12)->seq, 'GGGGT', 
+is $seq->subseq(3,7), 'GGGGT', "Subseq is ".$seq->subseq(3,7);
+is ($seq->trunc(8,12)->seq, 'GGGGT', 
     'trunc seq was ' . $seq->trunc(8,12)->seq);
 
-ok $seq->alphabet('dna'), 'dna'; # so translate will not complain
-ok $seq->translate()->seq, 'MGWG';
+is $seq->alphabet('dna'), 'dna'; # so translate will not complain
+is $seq->translate()->seq, 'MGWG';

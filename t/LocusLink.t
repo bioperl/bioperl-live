@@ -6,37 +6,28 @@ use vars qw($DEBUG $NUMTESTS $HAVEGRAPHDIRECTED);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
-	eval { require Test; };
+	eval { require Test::More; };
 	if( $@ ) {
-		use lib 't';
+		use lib 't/lib';
 	}
-	use Test;
+	use Test::More;
 	eval {
 		require Graph::Directed; 
-		$HAVEGRAPHDIRECTED=1;
 	};
 	if ($@) {
-		$HAVEGRAPHDIRECTED = 0;
-		warn "Graph::Directed not installed, skipping tests\n";
+		plan skip_all => "Graph::Directed not installed, skipping tests";
+	} else {
+		plan tests => ($NUMTESTS = 26);
 	}
-	plan tests => ($NUMTESTS = 23);
+	use_ok('Bio::SeqIO');
+	use_ok('Bio::Root::IO');
+	use_ok('Bio::SeqFeature::Generic');
+	use_ok('Bio::SeqFeature::AnnotationAdaptor');
 }
 
 END {
-	foreach ( $Test::ntest..$NUMTESTS) {
-		skip('Cannot complete LocusLink tests, skipping',1);
-	}
 	unlink("locuslink-test.out.embl") if -e "locuslink-test.out.embl";
 }
-
-exit(0) unless $HAVEGRAPHDIRECTED;
-
-use Bio::SeqIO;
-use Bio::Root::IO;
-use Bio::SeqFeature::Generic;
-use Bio::SeqFeature::AnnotationAdaptor;
-
-ok(1);
 
 my $seqin = Bio::SeqIO->new(-file => Bio::Root::IO->catfile("t","data",
 							 "LL-sample.seq"),
@@ -66,41 +57,41 @@ while(my $seq = $seqin->next_seq()) {
     $seqout->write_seq($seq);
 }
 
-ok (scalar(@seqs), 2);
+is (scalar(@seqs), 2);
 
-ok ($seqs[0]->desc,
+is ($seqs[0]->desc,
     "amiloride binding protein 1 (amine oxidase (copper-containing))");
-ok ($seqs[0]->accession, "26");
-ok ($seqs[0]->display_id, "ABP1");
-ok ($seqs[0]->species->binomial, "Homo sapiens");
+is ($seqs[0]->accession, "26");
+is ($seqs[0]->display_id, "ABP1");
+is ($seqs[0]->species->binomial, "Homo sapiens");
 
 
 my @dblinks = $seqs[0]->annotation->get_Annotations('dblink');
 my %counts = map { ($_->database(),0) } @dblinks;
 foreach (@dblinks) { $counts{$_->database()}++; }
 
-ok ($counts{GenBank}, 11);
-ok ($counts{RefSeq}, 4);
-ok ($counts{UniGene}, 1);
-ok ($counts{Pfam}, 1);
-ok ($counts{STS}, 2);
-ok ($counts{MIM}, 1);
-ok ($counts{PUBMED}, 6);
-ok (scalar(@dblinks), 27);
+is ($counts{GenBank}, 11);
+is ($counts{RefSeq}, 4);
+is ($counts{UniGene}, 1);
+is ($counts{Pfam}, 1);
+is ($counts{STS}, 2);
+is ($counts{MIM}, 1);
+is ($counts{PUBMED}, 6);
+is (scalar(@dblinks), 27);
 
-ok ($seqs[1]->desc, "v-abl Abelson murine leukemia viral oncogene homolog 2 (arg, Abelson-related gene)");
-ok ($seqs[1]->display_id, "ABL2");
+is ($seqs[1]->desc, "v-abl Abelson murine leukemia viral oncogene homolog 2 (arg, Abelson-related gene)");
+is ($seqs[1]->display_id, "ABL2");
 
 my $ac = $seqs[1]->annotation;
 my @keys = $ac->get_all_annotation_keys();
-ok (scalar(@keys), 19);
+is (scalar(@keys), 19);
 
 my ($cmt) = $ac->get_Annotations('comment');
-ok (length($cmt->text), 403);
+is (length($cmt->text), 403);
 
 my @isoforms = qw(a b);
 foreach ($ac->get_Annotations('PRODUCT')) {
-    ok ($_->value,
+    is ($_->value,
 	"v-abl Abelson murine leukemia viral oncogene homolog 2 isoform ".
 	shift(@isoforms));
 }
@@ -112,8 +103,8 @@ foreach my $k (@keys) {
 	push(@goann, $ann);
     }
 }
-ok (scalar(@goann), 4);
+is (scalar(@goann), 4);
 @goann = sort { $a->as_text() cmp $b->as_text() } @goann;
-ok ($goann[2]->as_text, "cellular component|cytoplasm|");
+is ($goann[2]->as_text, "cellular component|cytoplasm|");
 
 

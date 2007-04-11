@@ -4,32 +4,24 @@ use strict;
 
 my $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 BEGIN {
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) { 
-	use lib 't';
+	use lib 't/lib';
     }
-    use Test;
+    use Test::More;
     plan tests => 8;
+	use_ok('Bio::Seq::LargeLocatableSeq');
 }
-
-
-use Bio::Seq::LargeLocatableSeq;
-use Data::Dumper;
-ok 1;
 
 ok my $llseq  = Bio::Seq::LargeLocatableSeq->new(-seq => 'at-cg',
                                                  -display_id => 'seq1');
 
-print Dumper $llseq if $DEBUG;
+isa_ok $llseq, "Bio::Seq::LargeSeqI";
 
-ok $llseq->isa("Bio::Seq::LargeSeqI");
+is $llseq->seq, 'at-cg';
+is $llseq->add_sequence_as_string('atcc'), 9;
 
-ok $llseq->seq, 'at-cg';
-ok $llseq->add_sequence_as_string('atcc'), 9;
+is $llseq->start, 1;
 
-ok $llseq->start, 1;
-
-ok $llseq->end, 8;
-ok $llseq->length, 9;
-
-1;
+is $llseq->end, 8;
+is $llseq->length, 9;

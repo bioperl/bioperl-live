@@ -5,20 +5,19 @@
 use strict;
 use vars qw($NUMTESTS);
 BEGIN {
-	$NUMTESTS = 11;
+	$NUMTESTS = 13;
 	# to handle systems with no installed Test module
 	# we include the t dir (where a copy of Test.pm is located)
 	# as a fallback
-	eval { require Test; };
+	eval { require Test::More; };
 	if ( $@ ) {
-		use lib 't';
+		use lib 't/lib';
 	}
-	use Test;
+	use Test::More;
 	plan tests => $NUMTESTS;
+	use_ok('Bio::SeqIO::raw');
+	use_ok('Bio::Root::IO');	
 }
-
-use Bio::SeqIO::raw;
-use Bio::Root::IO;
 
 my $verbose = $ENV{'BIOPERLDEBUG'};
 
@@ -37,14 +36,14 @@ ok($io);
 my $seq;
 
 ok($seq = $io->next_seq);
-ok($seq->length, 12*3);
-ok($seq->subseq(1,12) eq 'ATCGATCGATCG');
+is($seq->length, 12*3);
+is($seq->subseq(1,12), 'ATCGATCGATCG');
 
 ok($seq = $io->next_seq);
-ok($seq->length, 200);
+is($seq->length, 200);
 
 ok($seq = $io->next_seq);
-ok($seq->length, 70*5+12);
+is($seq->length, 70*5+12);
 
 ok(not defined $io->next_seq);
 
@@ -63,5 +62,5 @@ ok($io);
 eval { 
   $io->next_seq;
 };
-ok($@ =~ m/unexpected end of file/i);
+like($@, qr/unexpected end of file/i);
 
