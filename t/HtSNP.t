@@ -6,16 +6,15 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) { 
-        use lib 't';
+        use lib 't/lib';
     }
-    use Test;
+    use Test::More;
 
-    plan tests => 7;
+    plan tests => 8;
+    use_ok('Bio::PopGen::HtSNP');
 }
-
-use Bio::PopGen::HtSNP;
 
 my $hap = [
      'acgt?cact',
@@ -46,22 +45,22 @@ my $obj = Bio::PopGen::HtSNP->new(-haplotype_block => $hap,
 
 
 # check lenght of the haplotype
-ok($obj->hap_length,9); # length of the haplotype must be 9 
+is($obj->hap_length,9); # length of the haplotype must be 9 
 
 # check silent SNPs
-ok( (join ' ', @{$obj->silent_snp}) ,'s4'); # the silent snp is in position 4 (counting from 1)
+is( (join ' ', @{$obj->silent_snp}) ,'s4'); # the silent snp is in position 4 (counting from 1)
 
 # check degenerated SNPs 
-ok( (join ' ', @{$obj->deg_snp}) ,'s7 s5 s3'); # degenerate SNPs 
+is( (join ' ', @{$obj->deg_snp}) ,'s7 s5 s3'); # degenerate SNPs 
 
 # check useful SNP's
-ok( (join ' ', @{$obj->useful_snp}) ,'s1 s2 s6 s8 s9'); # degenerate SNPs 
+is( (join ' ', @{$obj->useful_snp}) ,'s1 s2 s6 s8 s9'); # degenerate SNPs 
 
 # check the SNP code
-ok( (join ' ',@{$obj->snp_type_code}),'36 63 36 75 36'); # code for SNPs
+is( (join ' ',@{$obj->snp_type_code}),'36 63 36 75 36'); # code for SNPs
 
 # check the HtType 
-ok( (join ' ',@{$obj->ht_type}),'36 63 75'); # min snp_code 
+is( (join ' ',@{$obj->ht_type}),'36 63 75'); # min snp_code 
 
 my $tmp = $obj->deg_pattern();
 my $err=0;
