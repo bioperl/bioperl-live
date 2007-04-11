@@ -12,24 +12,18 @@ BEGIN {
 	# to handle systems with no installed Test module
 	# we include the t dir (where a copy of Test.pm is located)
 	# as a fallback
-	eval { require Test; };
+	eval { require Test::More; };
 	if( $@ ) {
-		use lib 't';
+		use lib 't/lib';
 	}
 
-	use Test;
-	plan tests => 4;
+	use Test::More;
+	plan tests => 5;
+	use_ok('Bio::SeqIO');
+	use_ok('Bio::Root::IO');
 }
-
-if( $error == 1 ) {
-	exit(0);
-}
-
-use Bio::SeqIO;
-use Bio::Root::IO;
 
 my $verbose = $ENV{'BIOPERLDEBUG'};
-ok(1);
 
 # test DOS linefeeds in gcg parser
 my $str = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
@@ -37,6 +31,7 @@ my $str = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
 								  -verbose => $verbose,
 								  -format => 'GCG');
 ok($str);
-ok ( my $seq = $str->next_seq());
-ok(length($seq->seq) > 0 );
+my $seq = $str->next_seq();
+isa_ok ($seq, 'Bio::SeqI');
+is(length($seq->seq), $seq->length);
 print "Sequence 1 of 1 from GCG stream:\n", $seq->seq, "\n" if( $verbose);

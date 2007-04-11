@@ -10,21 +10,21 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-        use lib 't';
+        use lib 't/lib';
     }
-    use Test;
-    plan test => 2;
+    use Test::More;
+    plan tests => 5;
+    use_ok('Bio::SearchIO');
+    use_ok('Bio::SearchIO::Writer::GbrowseGFF');
+    use_ok('Bio::Root::IO');
 }
-
-use Bio::SearchIO;
-use Bio::SearchIO::Writer::GbrowseGFF;
-use Bio::Root::IO;
 
 END {
     unlink(Bio::Root::IO->catfile(qw(t data gbrowsegff.out)) );
 }
+
 my $in = Bio::SearchIO->new(-format => 'blast',
 			    -file   => Bio::Root::IO->catfile(
 				 qw(t data brassica_ATH.WUBLASTN)));
