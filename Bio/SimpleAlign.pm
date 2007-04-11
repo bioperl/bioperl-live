@@ -901,20 +901,41 @@ sub select {
 =head2 select_noncont
 
  Title     : select_noncont
- Usage     : $aln2 = $aln->select_noncont(1, 3) # 1st and 3rd sequences
- Function  : Creates a new alignment from a subset of
-             sequences.  Numbering starts from 1.  Sequence positions
-             larger than no_sequences() will thow an error.
+ Usage     : # 1st and 3rd sequences, sorted
+             $aln2 = $aln->select_noncont(1, 3)
+             
+             # 1st and 3rd sequences, sorted (same as first)
+             $aln2 = $aln->select_noncont(3, 1)
+             
+             # 1st and 3rd sequences, unsorted
+             $aln2 = $aln->select_noncont('nosort',3, 1)
+             
+ Function  : Creates a new alignment from a subset of sequences.  Numbering
+             starts from 1.  Sequence positions larger than no_sequences() will
+             throw an error.  Sorts the order added to new alignment by default,
+             to prevent sorting pass 'nosort' as the first argument in the list.
  Returns   : a Bio::SimpleAlign object
- Args      : array of integers for the sequences
+ Args      : array of integers for the sequences.  If the string 'nosort' is
+             passed as the first argument, the sequences will not be sorted
+             in the new alignment but will appear in the order listed.
 
 =cut
 
 sub select_noncont {
 	my $self = shift;
+    my $nosort = 0;
+    my $cr = sub {$a <=> $b};
 	my (@pos) = @_;
+    if ($pos[0] !~ m{^\d+$}) {
+        my $sortcmd = shift @pos;
+        if ($sortcmd eq 'nosort') {
+            $nosort = 1;
+        } else {
+            $self->throw("Command not recognized: $sortcmd.  Only 'nosort' implemented at this time.");
+        }
+    }
 	my $end = $self->no_sequences;
-	@pos = sort @pos;
+	@pos = sort {$a <=> $b} @pos unless $nosort;
 	foreach ( @pos ) {
 		$self->throw("position must be a positive integer, > 0 and <= $end not [$_]")
 		  unless( /^\d+$/ && $_ > 0 && $_ <= $end );

@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 109;
+use constant NUMTESTS => 113;
 use vars qw($DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
@@ -41,10 +41,17 @@ my $aln2 = $aln->select(1,3);
 isa_ok($aln2, 'Bio::Align::AlignI');
 is($aln2->no_sequences, 3, 'no_sequences');
 
-# test select non continous
-$aln2 = $aln->select_noncont(8,2,7);
-is($aln2->no_sequences, 3, 'no_sequences');
-is($aln2->get_seq_by_pos(2)->id, $aln->get_seq_by_pos(7)->id, 'get+seq_by_pos');
+# test select non continuous-sorted by default
+$aln2 = $aln->select_noncont(6,7,8,9,10,1,2,3,4,5);
+is($aln2->no_sequences, 10, 'no_sequences');
+is($aln2->get_seq_by_pos(2)->id, $aln->get_seq_by_pos(2)->id, 'select_noncont');
+is($aln2->get_seq_by_pos(8)->id, $aln->get_seq_by_pos(8)->id, 'select_noncont');
+
+# test select non continuous-nosort option
+$aln2 = $aln->select_noncont('nosort',6,7,8,9,10,1,2,3,4,5);
+is($aln2->no_sequences, 10, 'no_sequences');
+is($aln2->get_seq_by_pos(2)->id, $aln->get_seq_by_pos(7)->id, 'select_noncont');
+is($aln2->get_seq_by_pos(8)->id, $aln->get_seq_by_pos(3)->id, 'select_noncont');
 
 @seqs = $aln->each_seq();
 is scalar @seqs, 16, 'each_seq';
