@@ -4,26 +4,22 @@
 
 use strict;
 BEGIN {
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-        use lib 't';
+        use lib 't/lib';
     }
-    use Test;
+    use Test::More;
 
-    plan tests => 22;
+    plan tests => 23;
+    use_ok('Bio::Tools::Lucy');
+    use_ok('Bio::Root::IO');
 }
-
-
-use Bio::Tools::Lucy;
-use Bio::Root::IO;
-
-ok(1);
 
 my @params = (adv_stderr => 1, seqfile => Bio::Root::IO->catfile("t","data","lucy.seq"), rev_desig => 'R'); 
 # Bio::Tools::Lucy will find .qual, .info, and .stderr files in this folder 
 
 my $lucyObj = Bio::Tools::Lucy->new(@params);
-ok $lucyObj->isa('Bio::Tools::Lucy');
+isa_ok $lucyObj,'Bio::Tools::Lucy';
 ok $lucyObj->seqfile();
 $lucyObj->adv_stderr(1);
 my $stderr = $lucyObj->adv_stderr();
@@ -31,15 +27,15 @@ ok $stderr;
 my $names =$lucyObj->get_sequence_names();
 ok $names;
 my $seq = shift @$names;
-ok $seq, 'TaLr1010B10R';
-ok $lucyObj->length_raw("$seq"), 1060;
-ok $lucyObj->length_clear("$seq"), 420;
-ok $lucyObj->start_clear("$seq"), 86;
-ok $lucyObj->end_clear("$seq"), 505;
+is $seq, 'TaLr1010B10R';
+is $lucyObj->length_raw("$seq"), 1060;
+is $lucyObj->length_clear("$seq"), 420;
+is $lucyObj->start_clear("$seq"), 86;
+is $lucyObj->end_clear("$seq"), 505;
 ok $lucyObj->avg_quality("$seq");
 ok $lucyObj->full_length("$seq");
 ok $lucyObj->polyA("$seq");
-ok $lucyObj->direction("$seq"), 'R';
+is $lucyObj->direction("$seq"), 'R';
 ok $lucyObj->per_GC("$seq");
 ok $lucyObj->sequence("$seq");
 ok $lucyObj->quality("$seq");
@@ -51,5 +47,5 @@ ok $seqObjs;
 my $rejects = $lucyObj->get_rejects();
 ok $rejects;
 my ($key) = (sort keys %$rejects);
-ok $key, 'TaLr1011A07R';
-ok $rejects->{$key}, 'Q'; 
+is $key, 'TaLr1011A07R';
+is $rejects->{$key}, 'Q'; 
