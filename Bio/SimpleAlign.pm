@@ -924,7 +924,6 @@ sub select {
 sub select_noncont {
 	my $self = shift;
     my $nosort = 0;
-    my $cr = sub {$a <=> $b};
 	my (@pos) = @_;
     if ($pos[0] !~ m{^\d+$}) {
         my $sortcmd = shift @pos;
@@ -934,12 +933,15 @@ sub select_noncont {
             $self->throw("Command not recognized: $sortcmd.  Only 'nosort' implemented at this time.");
         }
     }
-	my $end = $self->no_sequences;
-	@pos = sort {$a <=> $b} @pos unless $nosort;
-	foreach ( @pos ) {
+	
+    my $end = $self->no_sequences;
+    foreach ( @pos ) {
 		$self->throw("position must be a positive integer, > 0 and <= $end not [$_]")
 		  unless( /^\d+$/ && $_ > 0 && $_ <= $end );
 	}
+    
+	@pos = sort {$a <=> $b} @pos unless $nosort;
+	
 	my $aln = $self->new;
 	foreach my $p (@pos) {
 		$aln->add_seq($self->get_seq_by_pos($p));
