@@ -8,11 +8,11 @@ my $NUMTESTS;
 my $error;
 
 BEGIN {
-   eval { require Test; };
+   eval { require Test::More; };
    if( $@ ) {
-      use lib 't';
+      use lib 't/lib';
    }
-   use Test;
+   use Test::More;
    $error = 0;
    # SeqIO::game needs XML::Writer and XML::Parser::PerlSAX
    eval {require XML::Writer; require XML::Parser::PerlSAX;};
@@ -20,21 +20,18 @@ BEGIN {
       print STDERR "XML::Writer or XML::Parser::PerlSAX not found, skipping game test\n";
       $error = 1;
    }
-   $NUMTESTS = ($error == 1) ? 44 : 46;
+   $NUMTESTS = ($error == 1) ? 48 : 50;
    plan tests => $NUMTESTS;
+   use_ok('Bio::SeqIO');
+   use_ok('Bio::AlignIO');
+   use_ok('Bio::Tools::GuessSeqFormat');
+   use_ok('Data::Dumper');
 }
 
 my @seqformats = qw{ ace embl fasta gcg genbank mase
                         pfam pir raw swiss tab };
 
 push @seqformats,"game" if ($error == 0);
-
-use Bio::SeqIO;
-use Bio::AlignIO;
-use Bio::Tools::GuessSeqFormat;
-use Data::Dumper;
-
-ok 1;
 
 my $format;
 my $verbose =1;
@@ -48,13 +45,18 @@ my %no_seqio_module = map {$_=>1} qw {gcgblast gcgfasta mase pfam};
 
 my $guessed_format = new Bio::Tools::GuessSeqFormat
         (-file => Bio::Root::IO->catfile("t","data","test.waba"))->guess;
-ok $guessed_format, undef ;
+is $guessed_format, undef ;
+
+my $seq;
 
 eval {
-    my $input = Bio::SeqIO->new
-        (-file=>Bio::Root::IO->catfile("t","data","test.waba"));
-    ok my $seq = $input->next_seq();
+   my $input = Bio::SeqIO->new
+       (-file=>Bio::Root::IO->catfile("t","data","test.waba"));
+   $seq = $input->next_seq();
 };
+
+ok !$seq;
+
 $@ ? ok 1 : ok 0;
 
 foreach $format (@seqformats) {
@@ -63,17 +65,21 @@ foreach $format (@seqformats) {
          #-verbose=> $verbose;
         )->guess;
     $format =~ s/\..*$//;
-    ok $guessed_format, $format;
+    is $guessed_format, $format, "Guessed:$format";
     next if $no_seqio_module{$format};
 
     eval {
         my $input = Bio::SeqIO->new
             (-file=>Bio::Root::IO->catfile("t","data","test.$format"));
-        ok my $seq = $input->next_seq();
+        $seq = $input->next_seq();
     };
-    ok 0, 1, $@ if $@;
+    
+    my $implemented = $format eq 'ace' ? 'Bio::PrimarySeqI' : 'Bio::SeqI';
+    
+    isa_ok $seq, $implemented;
+    
+    is 0, 1, $@ if $@;
 }
-
 
 #
 # AlignIO formats
@@ -97,9 +103,11 @@ foreach my $ext (@seqformats) {
     eval {
         my $input = Bio::AlignIO->new
             (-file=>Bio::Root::IO->catfile("t","data","testaln.$ext"));
-        ok my $seq = $input->next_aln();
+        $seq = $input->next_aln();
     };
-    ok 0, 1, $@ if $@;
+    
+    isa_ok $seq, 'Bio::Align::AlignI';
+    #ok 0, 1, $@ if $@;
 }
 
 
