@@ -11,22 +11,18 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-        use lib 't';
+        use lib 't/lib';
     }
-    use Test;
-    plan tests => 6;
+    use Test::More;
+    plan tests => 9;
+	use_ok('Bio::Map::SimpleMap');
+	use_ok('Bio::Map::Position');
+	use_ok('Bio::Map::Microsatellite');
 }
 
-#END {
-#}
-
-require 'dumpvar.pl';
-use Bio::Map::SimpleMap;
-use Bio::Map::Position;
-use Bio::Map::Microsatellite;
-ok(1);
+require_ok 'dumpvar.pl';
 
 my $map = new Bio::Map::SimpleMap(-units => 'MB',
 				  -type  => 'oo-121');
@@ -43,11 +39,11 @@ my $o_usat = new Bio::Map::Microsatellite
      -position => $position,
      );
 
-ok($o_usat->get_leading_flank(), "gctgactgatc");
-ok($o_usat->get_trailing_flank(), "cgcgatcgtgatttt");
-ok($o_usat->motif(), 'at');
-ok($o_usat->repeats(), 15);
-ok($o_usat->repeat_start_position, 12);
+is($o_usat->get_leading_flank(), "gctgactgatc");
+is($o_usat->get_trailing_flank(), "cgcgatcgtgatttt");
+is($o_usat->motif(), 'at');
+is($o_usat->repeats(), 15);
+is($o_usat->repeat_start_position, 12);
 
 
 #dumpValue($o_usat);

@@ -11,12 +11,12 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-        use lib 't';
+        use lib 't/lib';
     }
-    use Test;
-    plan tests => 141;
+    use Test::More;
+    plan tests => 147;
 }
 
 ###
@@ -30,117 +30,120 @@ BEGIN {
 # Test map basics
 my $map;
 {
-    use Bio::Map::SimpleMap;
-    ok 1;
+    use_ok 'Bio::Map::SimpleMap';
     
     ok $map = new Bio::Map::SimpleMap(-name  => 'my');
     ok $map->type('cyto');
-    ok $map->type, 'cyto';
-    ok $map->units, '';
-    ok $map->length, 0, "Length is ". $map->length;
-    ok $map->name, 'my';
-    ok $map->species('human'), 'human';
-    ok $map->species, 'human';
-    ok $map->unique_id, '1';
+    is $map->type, 'cyto';
+    is $map->units, '';
+    is $map->length, 0, "Length is ". $map->length;
+    is $map->name, 'my';
+    is $map->species('human'), 'human';
+    is $map->species, 'human';
+    is $map->unique_id, '1';
 }
 
 # Test marker basics
 my $marker;
 {
-    use Bio::Map::Marker;
-    ok 1;
+    use_ok 'Bio::Map::Marker';
     
     # make a plane one and add details after
     ok $marker = new Bio::Map::Marker();
-    ok $marker->name('gene1'), 'gene1';
+    is $marker->name('gene1'), 'gene1';
     ok $marker->position($map, 100);
-    ok $marker->position->value, 100;
-    ok $marker->map, $map;
+    is $marker->position->value, 100;
+    is $marker->map, $map;
     
     # make positions a little easier to add by setting a default map first
     ok my $marker2 = new Bio::Map::Marker(-name => 'gene3');
     ok $map->add_element($marker2); # one way of setting default
-    ok $marker2->default_map, $map;
+    is $marker2->default_map, $map;
     $marker2 = new Bio::Map::Marker(-name => 'gene3');
     ok $marker2->default_map($map); # the other way of setting default
-    ok $marker2->default_map, $map;
+    is $marker2->default_map, $map;
     ok $marker2->position(300);
-    ok $marker2->position->value, 300;
+    is $marker2->position->value, 300;
     ok my $position = $marker2->position();
-    ok $position->value, 300;
+    is $position->value, 300;
     
     # make one with details set in new()
     ok my $marker3 = new Bio::Map::Marker(-name => 'gene2', -position => [$map, 200]);
-    ok $marker3->default_map, $map;
-    ok $marker3->position->value, 200;
+    is $marker3->default_map, $map;
+    is $marker3->position->value, 200;
     
     # make one with multiple positions on multiple maps
     my $map2 = new Bio::Map::SimpleMap();
     $marker2->positions([[$map, 150], [$map, 200], [$map2, 200], [$map2, 400]]);
     my @p = map($_->numeric, $marker2->each_position);
-    ok $p[0] == 150 && $p[1] == 200 && $p[2] == 200 && $p[3] == 300 && $p[4] == 400;
+    is $p[0], 150;
+    is $p[1], 200;
+    is $p[2], 200;
+    is $p[3], 300;
+    is $p[4], 400;
     $marker2->purge_positions($map2);
     @p = map($_->numeric, $marker2->each_position);
-    ok $p[0] == 150 && $p[1] == 200 && $p[2] == 300;
+    is $p[0], 150;
+    is $p[1], 200;
+    is $p[2], 300;
 }
 
 # Test position basics
 my $pos;
 {
-    use Bio::Map::Position;
-    ok 1;
+    use_ok 'Bio::Map::Position';
     
     ok $pos = new Bio::Map::Position();
     ok $pos->map($map);
-    ok $pos->map(), $map;
+    is $pos->map(), $map;
     ok $pos->element($marker);
-    ok $pos->element(), $marker;
+    is $pos->element(), $marker;
     
     ok $pos->value('10');
-    ok $pos->value(), '10';
-    ok $pos->numeric, 10;
-    ok $pos->sortable, 10;
-    ok $pos->start, 10;
-    ok $pos->end, 10;
+    is $pos->value(), '10';
+    is $pos->numeric, 10;
+    is $pos->sortable, 10;
+    is $pos->start, 10;
+    is $pos->end, 10;
     
     # give a marker a single position with explicit position creation
     ok $pos = new Bio::Map::Position(-map => $map, -value => 500);
     ok $marker->position($pos);
     ok my $got_pos = $marker->position();
-    ok $got_pos eq $pos;
-    ok $marker->position->value, 500;
+    is $got_pos, $pos;
+    is $marker->position->value, 500;
     
     # add a position
     my $map2 = new Bio::Map::SimpleMap(-name => 'genethon', -type => 'Genetic');
     my $pos2 = new Bio::Map::Position(-map => $map2, -value => 100);
     $marker->add_position($pos2);
     ok my @positions = $marker->get_positions($map2);
-    ok @positions, 1;
-    ok $positions[0]->value, 100;
+    is @positions, 1;
+    is $positions[0]->value, 100;
 }
 
 # Test interaction of Markers and Maps via Positions
 {
     # markers know what maps they are on
     $marker->purge_positions;
-    ok $marker->known_maps, 0;
+    is $marker->known_maps, 0;
     $pos->element($marker);
-    ok $marker->known_maps, 1;
+    is $marker->known_maps, 1;
     ok $marker->in_map(1);
     ok $marker->in_map($map);
     
     # maps know what markers are on themselves
     $map->purge_positions;
     my @els = $map->get_elements;
-    ok @els, 0;
+    is @els, 0;
     $pos->map($map);
     ok my @elements = $map->get_elements;
-    ok @elements, 1;
-    ok $elements[0], $marker;
+    is @elements, 1;
+    is $elements[0], $marker;
     
     # positions know what marker they are for and what map they are on
-    ok $pos->map, $map;
-    ok $pos->element, $marker;
+    is $pos->map, $map;
+    is $pos->element, $marker;
 }
 
 # We can compare Map objects to their own kind
@@ -182,39 +185,38 @@ my $pos;
         
         # scenario 1 answer:
         ok my @factors = $human->common_elements([$mouse, $chicken, $aardvark]);
-        ok @factors, 1;
+        is @factors, 1;
         ok @factors = $human->common_elements([$mouse, $chicken, $aardvark], -min_percent => 50);
-        ok @factors, 3;
+        is @factors, 3;
         ok @factors = $human->common_elements([$mouse, $chicken, $aardvark], -min_percent => 50, -min_num => 3);
-        ok @factors, 2;
+        is @factors, 2;
         ok @factors = $chicken->common_elements([$mouse, $human, $aardvark], -min_percent => 50, -require_self => 1);
-        ok @factors, 2;
+        is @factors, 2;
         ok @factors = Bio::Map::SimpleMap->common_elements([$human, $mouse, $human, $aardvark], -min_percent => 50, -required => [$aardvark]);
-        ok @factors, 1;
+        is @factors, 1;
     }
 }
 
 # Test relative positions
 {
-    use Bio::Map::Relative;
-    ok 1;
+    use_ok 'Bio::Map::Relative';
     
     my $map = new Bio::Map::SimpleMap;
     my $pos1 = new Bio::Map::Position(-map => $map, -start => 50, -length => 5);
     my $pos2 = new Bio::Map::Position(-map => $map, -start => 100, -length => 5);
     ok my $relative = new Bio::Map::Relative (-position => $pos2);
     ok $pos1->relative($relative);
-    ok $pos1->start, 50;
-    ok $pos1->absolute(1), 1;
-    ok $pos1->start, 150;
-    ok $pos1->absolute(0), 0;
+    is $pos1->start, 50;
+    is $pos1->absolute(1), 1;
+    is $pos1->start, 150;
+    is $pos1->absolute(0), 0;
     ok my $relative2 = new Bio::Map::Relative (-map => 10);
     my $pos3 = new Bio::Map::Position(-map => $map, -element => $marker, -start => -5, -length => 5);
     $pos3->relative($relative2);
     my $relative3 = new Bio::Map::Relative (-position => $pos3);
-    ok $pos1->start($relative3), 145;
-    ok $pos1->numeric($relative3), 145;
-    ok $pos1->end($relative3), 149;
+    is $pos1->start($relative3), 145;
+    is $pos1->numeric($relative3), 145;
+    is $pos1->end($relative3), 149;
     
     # Test the RangeI-related methods on relative positions
     {
@@ -242,25 +244,25 @@ my $pos;
         # Try the other methods briefly
         ok my $i = $pos1->intersection($pos2); # returns a mappable
         ($i) = $i->get_positions; # but we're just interested in the first (and only) position of mappable
-        ok $i->toString, '100..104';
+        is $i->toString, '100..104';
         ok $i = $pos1->intersection($pos2, undef, $relative2);
         ($i) = $i->get_positions;
-        ok $i->toString, '-100..-96';
-        ok $i->map, $map;
-        ok $i->relative, $relative2;
+        is $i->toString, '-100..-96';
+        is $i->map, $map;
+        is $i->relative, $relative2;
         $i->absolute(1);
-        ok $i->toString, '100..104';
+        is $i->toString, '100..104';
         
         ok my $u = $pos1->union($pos2);
         ($u) = $u->get_positions;
-        ok $u->toString, '95..109';
+        is $u->toString, '95..109';
         ok $u = $pos1->union($pos2, $relative2);
         ($u) = $u->get_positions;
-        ok $u->toString, '-105..-91';
-        ok $u->map, $map;
-        ok $u->relative, $relative2;
+        is $u->toString, '-105..-91';
+        is $u->map, $map;
+        is $u->relative, $relative2;
         $u->absolute(1);
-        ok $u->toString, '95..109';
+        is $u->toString, '95..109';
         
         ok ! $pos1->contains($pos2);
         $pos2->end(104);
@@ -275,8 +277,7 @@ my $pos;
 
 # Test Mappables
 {
-    use Bio::Map::Mappable;
-    ok 1;
+    use_ok 'Bio::Map::Mappable';
     
     ok my $gene = new Bio::Map::Mappable;
     my $human = new Bio::Map::SimpleMap;
@@ -323,34 +324,34 @@ my $pos;
         # scenario 1b answer:
         my $predictions = [$perfect_prediction, $good_prediction, $ok_prediction, $bad_prediction];
         ok my @groups = $factor->overlapping_groups($predictions, -relative => $gene_rel);
-        ok @groups, 2;
-        ok ${$groups[0]}[0], $pos7;
-        ok ${$groups[1]}[0], $pos6;
-        ok ${$groups[1]}[1], $pos5;
-        ok ${$groups[1]}[2]->toString($gene_rel), $pos4->toString($gene_rel);
-        ok ${$groups[1]}[3]->toString($gene_rel), $pos3->toString($gene_rel);
+        is @groups, 2;
+        is ${$groups[0]}[0], $pos7;
+        is ${$groups[1]}[0], $pos6;
+        is ${$groups[1]}[1], $pos5;
+        is ${$groups[1]}[2]->toString($gene_rel), $pos4->toString($gene_rel);
+        is ${$groups[1]}[3]->toString($gene_rel), $pos3->toString($gene_rel);
         ok my $di = $factor->disconnected_intersections($predictions, -relative => $gene_rel, -min_mappables_num => 3);
         my @di = $di->get_positions;
-        ok @di, 1;
-        ok $di[0]->toString, '-25..-21';
+        is @di, 1;
+        is $di[0]->toString, '-25..-21';
         ok my $du = $factor->disconnected_unions($predictions, -relative => $gene_rel, -min_mappables_num => 3);
         my @du = $du->get_positions;
-        ok @du, 1;
-        ok $du[0]->toString, '-30..-16';
+        is @du, 1;
+        is $du[0]->toString, '-30..-16';
         
         # test the flags on overlapping_groups a bit more
         @groups = $factor->overlapping_groups($predictions, -relative => $gene_rel, -min_pos_num => 2);
-        ok @groups, 1;
+        is @groups, 1;
         @groups = $factor->overlapping_groups($predictions, -relative => $gene_rel, -min_pos_num => 1, -min_mappables_num => 2);
-        ok @groups, 1;
+        is @groups, 1;
         @groups = $factor->overlapping_groups($predictions, -relative => $gene_rel, -min_pos_num => 1, -min_mappables_num => 1, -min_mappables_percent => 50);
-        ok @groups, 1;
+        is @groups, 1;
         @groups = $factor->overlapping_groups($predictions, -relative => $gene_rel, -min_pos_num => 1, -min_mappables_num => 1, -min_mappables_percent => 5);
-        ok @groups, 2;
+        is @groups, 2;
         @groups = $factor->overlapping_groups($predictions, -relative => $gene_rel, -require_self => 1);
-        ok @groups, 1;
+        is @groups, 1;
         @groups = $factor->overlapping_groups($predictions, -relative => $gene_rel, -required => [$factor]);
-        ok @groups, 1;
+        is @groups, 1;
         
         # scenario 2 answer:
         ok ! $human_prediction->overlaps($mouse_prediction);

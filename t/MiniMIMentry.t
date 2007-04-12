@@ -10,43 +10,41 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-        use lib 't';
+        use lib 't/lib';
     }
-    use Test;
-    plan tests => 14;
+    use Test::More;
+    plan tests => 15;
+    use_ok('Bio::Phenotype::OMIM::MiniMIMentry');
 }
-
-use Bio::Phenotype::OMIM::MiniMIMentry;
   
 my  $mm = Bio::Phenotype::OMIM::MiniMIMentry->new( -description  => "The central form of ...",
                                                    -created      => "Victor A. McKusick: 6/4/1986",
                                                    -contributors => "Kelly A. Przylepa - revised: 03/18/2002",
                                                    -edited       => "alopez: 06/03/1997" );
 
-ok( $mm->isa( "Bio::Phenotype::OMIM::MiniMIMentry" ) );
+isa_ok( $mm, "Bio::Phenotype::OMIM::MiniMIMentry");
 
 ok( $mm->to_string() );
 
-
-ok( $mm->description(), "The central form of ..." );
-ok( $mm->created(), "Victor A. McKusick: 6/4/1986" );
-ok( $mm->contributors(), "Kelly A. Przylepa - revised: 03/18/2002" );
-ok( $mm->edited(), "alopez: 06/03/1997" );
+is( $mm->description(), "The central form of ..." );
+is( $mm->created(), "Victor A. McKusick: 6/4/1986" );
+is( $mm->contributors(), "Kelly A. Przylepa - revised: 03/18/2002" );
+is( $mm->edited(), "alopez: 06/03/1997" );
 
 $mm->init();
 
-ok( $mm->description(), "" );
-ok( $mm->created(), "" );
-ok( $mm->contributors(), "" );
-ok( $mm->edited(), "" );
+is( $mm->description(), "" );
+is( $mm->created(), "" );
+is( $mm->contributors(), "" );
+is( $mm->edited(), "" );
 
 
-ok( $mm->description( "A" ), "A" );
-ok( $mm->created( "B" ), "B" );
-ok( $mm->contributors( "C" ), "C" );
-ok( $mm->edited( "D" ), "D" );
+is( $mm->description( "A" ), "A" );
+is( $mm->created( "B" ), "B" );
+is( $mm->contributors( "C" ), "C" );
+is( $mm->edited( "D" ), "D" );
 
 
 

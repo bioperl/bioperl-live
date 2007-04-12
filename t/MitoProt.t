@@ -11,41 +11,29 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-	eval { require Test; };
+	eval { require Test::More; };
 	$ERROR = 0;
 	if( $@ ) {
-		use lib 't';
+		use lib 't/lib';
 	}
-	use Test;
+	use Test::More;
 
-	$NUMTESTS = 8;
-	plan tests => $NUMTESTS;
-
+	$NUMTESTS = 10;
 	eval {
 		require IO::String; 
 		require LWP::UserAgent;
 	};
 	if( $@ ) {
-		warn("IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests\n");
-		$ERROR = 1;
-	}
+		plan skip_all => "IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests";
+	} else {
+		plan tests => $NUMTESTS
+	};
+	use_ok 'Bio::Tools::Analysis::Protein::Mitoprot';
+	use_ok 'Bio::PrimarySeq';
+	use_ok 'Bio::WebAgent';
 }
-
-END {
-	foreach ( $Test::ntest..$NUMTESTS) {
-		skip('unable to complete MitoProt tests, skipping',1);
-	}
-}
-
-exit 0 if $ERROR ==  1;
 
 use Data::Dumper;
-
-require Bio::Tools::Analysis::Protein::Mitoprot;
-use Bio::PrimarySeq;
-require Bio::WebAgent;
-
-ok 1;
 
 my $verbose = 0;
 $verbose = 1 if $DEBUG;
@@ -57,15 +45,15 @@ my $seq = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDSFFGSDFDGDS'.
                                -display_id => 'test2');
 
 ok $tool = Bio::Tools::Analysis::Protein::Mitoprot->new( -seq=>$seq);
-if( $DEBUG ) { 
-    ok $tool->run ();
-    exit if $tool->status eq 'TERMINATED_BY_ERROR';
-    ok my $raw = $tool->result('');
-    ok my $parsed = $tool->result('parsed');
-    ok ($parsed->{'charge'}, -13);
-    ok my @res = $tool->result('Bio::SeqFeatureI');
-} else { 
-    for ( $Test::ntest..$NUMTESTS) {
-	skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",1);
-    }
+SKIP: {
+	if( $DEBUG ) { 
+		ok $tool->run ();
+		exit if $tool->status eq 'TERMINATED_BY_ERROR';
+		ok my $raw = $tool->result('');
+		ok my $parsed = $tool->result('parsed');
+		is ($parsed->{'charge'}, -13);
+		ok my @res = $tool->result('Bio::SeqFeatureI');
+	} else { 
+		skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",5);
+	}
 }

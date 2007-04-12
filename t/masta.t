@@ -7,22 +7,21 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
     }
-    use Test;
+    use Test::More;
 
-    plan tests => 16;
+    plan tests => 17;
+	use_ok('Bio::Matrix::PSM::IO');
+	use_ok('Bio::Root::IO');
 }
 
-use Bio::Matrix::PSM::IO;
-use Bio::Root::IO;
-
-ok(1);
 END {
  unlink(Bio::Root::IO->catfile(qw(t data masta_w.dat)));
 }
+
 #Let's try masta formats here
 my $mio =  new Bio::Matrix::PSM::IO(-format=>'masta', 
 				      -file=>Bio::Root::IO->catfile(qw(t data masta.dat)));
@@ -38,9 +37,9 @@ while (my $site=$mio->next_matrix) {
 	push @cons,$site->consensus;	
 	$carry=$site if ($site->id eq 'm1logs');
 } 
-ok $cons[0],'CAGAAAAATNGAATNCCCACCCCCC';
-ok $cons[1],'CAGAAAAATAGAATCCCCACCCCCC';
-ok $cons[2],'CAGAAAAATNNAATNCCCACCNCCC';
+is $cons[0],'CAGAAAAATNGAATNCCCACCCCCC';
+is $cons[1],'CAGAAAAATAGAATCCCCACCCCCC';
+is $cons[2],'CAGAAAAATNNAATNCCCACCNCCC';
 
 $wmio->write_psm($carry,'PWM');
 $carry->id('m1freq');
@@ -52,11 +51,11 @@ my $chio=new Bio::Matrix::PSM::IO(-format=>'masta',
 				      -file=>Bio::Root::IO->catfile(qw(t data masta_w.dat)));
 ok $chio;
 my $site=$chio->next_matrix;
-ok $site->id,'m1logs';
-ok $site->consensus,'CAGAAAAATAGAATCCCCACCCCCC';	
+is $site->id,'m1logs';
+is $site->consensus,'CAGAAAAATAGAATCCCCACCCCCC';	
 $site=$chio->next_matrix;
-ok $site->id,'m1freq';
-ok $site->consensus,'CAGAAAAATAGAATCCCCACCCCCC';  
+is $site->id,'m1freq';
+is $site->consensus,'CAGAAAAATAGAATCCCCACCCCCC';  
 $site=$chio->next_matrix;
-ok $site->id,'m1seq';
-ok $site->consensus,'CAGAAAAATAGAATCCCCACCCCCC';
+is $site->id,'m1seq';
+is $site->consensus,'CAGAAAAATAGAATCCCCACCCCCC';

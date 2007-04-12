@@ -4,18 +4,15 @@
 use strict;
 
 BEGIN {
-	eval { require Test; };
+	eval { require Test::More; };
 	if ( $@ ) {
-		use lib 't';
+		use lib 't/lib';
 	}
-	use Test;
-	plan tests => 3;
+	use Test::More;
+	plan tests => 4;	
+	use_ok('Bio::SeqIO');
+	use_ok('Bio::SeqIO::MultiFile');
 }
-
-use Bio::SeqIO;
-use Bio::SeqIO::MultiFile;
-
-ok(1);
 
 my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
 
@@ -31,7 +28,6 @@ my $count = 0;
 eval {
 	while (my $seq = $mf->next_seq() ) {
 		$count++;
-		# $temp = $seq->display_id;
 	}
 };
-ok( $count,12 );
+is( $count,12 );

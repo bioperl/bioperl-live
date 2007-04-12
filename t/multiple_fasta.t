@@ -1,18 +1,17 @@
-
-
+# -*-Perl-*- mode (to keep my emacs happy)
+# $Id$
 
 use strict;
 BEGIN {     
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
     }
-    use Test;
-    plan tests => 8;
+    use Test::More;
+    plan tests => 10;
+	use_ok('Bio::SeqIO');
+	use_ok('Bio::Root::IO');
 }
-
-use Bio::SeqIO;
-use Bio::Root::IO;
 
 my $in = Bio::SeqIO->new(-file => "<".Bio::Root::IO->catfile("t","data", 
 	"multifa.seq") , '-format' => 'Fasta');
@@ -22,4 +21,4 @@ while ( my $seq = $in->next_seq() ) {
     ok($seq);
     $c++;
 }
-ok $c,6, " missing sequences in the file";
+is $c,6, "all sequences in the file";

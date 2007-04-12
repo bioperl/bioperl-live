@@ -6,23 +6,18 @@
 use strict;
 use vars qw($NUMTESTS);
 BEGIN {
-	$NUMTESTS = 4;
-	# to handle systems with no installed Test module
-	# we include the t dir (where a copy of Test.pm is located)
-	# as a fallback
-	eval { require Test; };
+	$NUMTESTS = 5;
+	eval { require Test::More; };
 	if ( $@ ) {
-		use lib 't';
+		use lib 't/lib';
 	}
-	use Test;
+	use Test::More;
 	plan tests => $NUMTESTS;
+	use_ok('Bio::SeqIO::metafasta');
+	use_ok('Bio::Root::IO');
 }
 
-use Bio::SeqIO::metafasta;
-use Bio::Root::IO;
-
 my $verbose = $ENV{'BIOPERLDEBUG'};
-ok(1);
 
 my $io = Bio::SeqIO->new(-format => 'metafasta',
 								 -verbose => $verbose,
@@ -30,5 +25,5 @@ my $io = Bio::SeqIO->new(-format => 'metafasta',
 								 (qw(t data test.metafasta) ));
 
 ok(my $seq = $io->next_seq);
-ok($seq->seq, "ABCDEFHIJKLMNOPQRSTUVWXYZ");
-ok($seq->display_id,'test');
+is($seq->seq, "ABCDEFHIJKLMNOPQRSTUVWXYZ");
+is($seq->display_id,'test');

@@ -12,23 +12,19 @@ BEGIN {
 	# to handle systems with no installed Test module
 	# we include the t dir (where a copy of Test.pm is located)
 	# as a fallback
-	eval { require Test; };
+	eval { require Test::More; };
 	if( $@ ) {
-		use lib 't';
+		use lib 't/lib';
 	}
 
-	use Test;
-	plan tests => 51; 
+	use Test::More;
+	plan tests => 52; 
+	use_ok('Bio::MapIO');
+	use_ok('Bio::Root::IO');
 }
 
-if( $error == 1 ) {
-	exit(0);
-}
 
-use Bio::MapIO;
-use Bio::Root::IO;
 my $verbose = $ENV{'BIOPERLDEBUG'};
-ok 1;
 
 ok my $mapio = new Bio::MapIO(-verbose => $verbose,
 										-format => 'mapmaker',
@@ -37,32 +33,32 @@ ok my $mapio = new Bio::MapIO(-verbose => $verbose,
 
 my $map = $mapio->next_map;
 
-ok(ref($map) && $map->isa('Bio::Map::MapI'));
+isa_ok($map, 'Bio::Map::MapI');
 
-ok $map->units, 'cM';
-ok $map->type, 'Genetic';
-ok $map->name('test map'), 'test map'; # map name is unset for this data type
+is $map->units, 'cM';
+is $map->type, 'Genetic';
+is $map->name('test map'), 'test map'; # map name is unset for this data type
 
 my $count;
 foreach my $marker ( $map->each_element ) {
 	$count++;
-	ok($marker->position->order,$count);
+	is($marker->position->order,$count);
 }
-ok $count,18;
+is $count,18;
 
 ok $mapio = new Bio::MapIO(-format => 'mapmaker',
 									-file   => Bio::Root::IO->catfile
 									('t','data','mapmaker.txt'));
 
 $map = $mapio->next_map;
-ok $map->length,382.5;
+is $map->length,382.5;
 
 $count = 0;
 foreach my $marker ( $map->each_element ) {
 	$count++;
-	ok($marker->position->order,$count);
+	is($marker->position->order,$count);
 }
-ok $count,13;
+is $count,13;
 
 ok $mapio = Bio::MapIO->new(-format => 'fpc',
 									-file   => Bio::Root::IO->catfile
@@ -70,19 +66,19 @@ ok $mapio = Bio::MapIO->new(-format => 'fpc',
 
 $map = $mapio->next_map;
 
-ok($map->length, 0);
-ok($map->version, 7.2);
-ok($map->modification_user, 'cari');
-ok($map->group_type, 'Chromosome');
-ok($map->group_abbr, 'Chr');
-ok($map->core_exists, 0);
+is($map->length, 0);
+is($map->version, 7.2);
+is($map->modification_user, 'cari');
+is($map->group_type, 'Chromosome');
+is($map->group_abbr, 'Chr');
+is($map->core_exists, 0);
 
 $count = 0;
 foreach my $marker ($map->each_markerid) {
 	$count++;
 }
 
-ok($count,150);
+is($count,150);
 
 # add tests for get_markerobj
 
@@ -91,7 +87,7 @@ foreach my $clone ($map->each_cloneid) {
 	$count++;
 }
 
-ok($count,618);
+is($count,618);
 
 # add tests for get_cloneobj
 
@@ -100,7 +96,7 @@ foreach my $contig ($map->each_contigid) {
 	$count++;
 }
 
-ok($count,2);
+is($count,2);
 
 # add tests for get_contigobj
 

@@ -10,15 +10,14 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-        use lib 't';
+        use lib 't/lib';
     }
-    use Test;
-    plan tests => 20;
+    use Test::More;
+    plan tests => 21;
+    use_ok 'Bio::Phenotype::Measure';
 }
-
-use Bio::Phenotype::Measure;
   
 my $measure = Bio::Phenotype::Measure->new( -context     => "height",
                                             -description => "desc",
@@ -27,32 +26,32 @@ my $measure = Bio::Phenotype::Measure->new( -context     => "height",
                                             -unit        => "cm",
                                             -comment     => "comment" );
 
-ok( $measure->isa( "Bio::Phenotype::Measure" ) );
+isa_ok( $measure, "Bio::Phenotype::Measure" );
 
 ok( $measure->to_string() );
 
-ok( $measure->context(), "height" );
-ok( $measure->description(), "desc" );
-ok( $measure->start(), 10 );
-ok( $measure->end(), 150 );
-ok( $measure->unit(), "cm" );
-ok( $measure->comment(), "comment" );
+is( $measure->context(), "height" );
+is( $measure->description(), "desc" );
+is( $measure->start(), 10 );
+is( $measure->end(), 150 );
+is( $measure->unit(), "cm" );
+is( $measure->comment(), "comment" );
 
 $measure->init();
 
-ok( $measure->context(), "" );
-ok( $measure->description(), "" );
-ok( $measure->start(), "" );
-ok( $measure->end(), "" );
-ok( $measure->unit(), "" );
-ok( $measure->comment(), "" );
+is( $measure->context(), "" );
+is( $measure->description(), "" );
+is( $measure->start(), "" );
+is( $measure->end(), "" );
+is( $measure->unit(), "" );
+is( $measure->comment(), "" );
 
-ok( $measure->context( "A" ), "A" );
-ok( $measure->description( "B" ), "B" );
-ok( $measure->start( "C" ), "C" );
-ok( $measure->end( "D" ), "D" );
-ok( $measure->unit( "E" ), "E" );
-ok( $measure->comment( "F" ), "F" );
+is( $measure->context( "A" ), "A" );
+is( $measure->description( "B" ), "B" );
+is( $measure->start( "C" ), "C" );
+is( $measure->end( "D" ), "D" );
+is( $measure->unit( "E" ), "E" );
+is( $measure->comment( "F" ), "F" );
 
 
 
