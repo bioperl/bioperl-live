@@ -3,7 +3,6 @@
 ## $Id$
 #
 
-
 use strict;
 use vars qw($DEBUG);
 use Bio::Root::IO;

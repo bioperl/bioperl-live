@@ -7,7 +7,7 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use vars qw($NUMTESTS $DEBUG $BIODBTESTS);
+use vars qw($NUMTESTS $DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 my $error;
@@ -16,36 +16,29 @@ BEGIN {
 	# to handle systems with no installed Test module
 	# we include the t dir (where a copy of Test.pm is located)
 	# as a fallback
-	eval { require Test; };
-	$error = 0;
+	eval { require Test::More; };
 	if( $@ ) {
-		use lib 't';
+		use lib 't/lib';
 	}
-	use Test;
+	use Test::More;
 
-	$NUMTESTS = 14;
-	$BIODBTESTS = 5;
+	$NUMTESTS = 30;
 	plan tests => $NUMTESTS;
 	eval { require IO::String };
 	if( $@ ) {
-		print STDERR "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping some tests.\n";
-		for( 1..$BIODBTESTS ) {
-			skip("IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping some tests",1);
-		}
-		$error = 1;
+		$error = "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping some tests.";
+		$DEBUG = 0;
+	} elsif (!$DEBUG) {
+		$error = "BIOPERLDEBUG must be set to 1 for running tests requiring network access. Skipping some tests.";
 	}
+	use_ok('Bio::Perl');
+	use_ok('File::Spec');
 }
 
 END {
 	# clean up after oneself
 	unlink (  'Perltmp' );
-	for ( $Test::ntest..$NUMTESTS ) {
-		skip("Unable to run database access tests",1);
-	}
 }
-
-use Bio::Perl;
-use File::Spec;
 
 ## End of black magic.
 ##
@@ -55,88 +48,115 @@ use File::Spec;
 
 my ($seq_object,$filename,@seq_object_array);
 
-
-
 # will guess file format from extension
 $filename = File::Spec->catfile(qw(t data cysprot1.fa));
-ok ($seq_object = read_sequence($filename)); 
+ok ($seq_object = read_sequence($filename));
+isa_ok $seq_object, 'Bio::SeqI';
+
 # forces genbank format
 $filename = File::Spec->catfile(qw(t data AF165282.gb));
-ok  ($seq_object = read_sequence($filename,'genbank')); 
+ok  ($seq_object = read_sequence($filename,'genbank'));
+isa_ok $seq_object, 'Bio::SeqI';
+
 # reads an array of sequences
 $filename = File::Spec->catfile(qw(t data amino.fa));
-ok (@seq_object_array = read_all_sequences($filename,'fasta'), 2); 
+is (@seq_object_array = read_all_sequences($filename,'fasta'), 2);
+isa_ok $seq_object_array[0], 'Bio::SeqI';
+isa_ok $seq_object_array[1], 'Bio::SeqI';
+
 $filename = 'Perltmp';
 ok write_sequence(">$filename",'genbank',$seq_object);
 ok ($seq_object = new_sequence("ATTGGTTTGGGGACCCAATTTGTGTGTTATATGTA","myname","AL12232"));
+isa_ok $seq_object, 'Bio::SeqI';
 
 my $trans;
 
 ok ($trans = translate($seq_object));
 
+isa_ok $trans, 'Bio::SeqI';
+
 ok ($trans = translate("ATTGGTTTGGGGACCCAATTTGTGTGTTATATGTA"));
+
+isa_ok $trans, 'Bio::PrimarySeqI';
 
 ok ($trans = translate_as_string($seq_object));
 
+is $trans, 'IGLGTQFVCYM';
+
+$trans = '';
+
 ok ($trans = translate_as_string("ATTGGTTTGGGGACCCAATTTGTGTGTTATATGTA"));
 
+is $trans, 'IGLGTQFVCYM';
 
 # we need to keep tests that depend on net connection at the end
+# these now run only with BIOPERLDEBUG set
 
-unless ( $error ) {
-    # swissprot
-    eval {
-	ok ($seq_object = get_sequence('swissprot',"ROA1_HUMAN"));
-    };
-    if ($@) {
-	if($DEBUG) {
-	    warn "Warning: Couldn't connect to SWISS-PROT! Do you have network access?\n";
-        }
-	exit 0;
-    }
+SKIP: {
+	skip($error, 10) unless $DEBUG;
 
+	# swissprot
+	SKIP: {
+		eval {
+			$seq_object = get_sequence('swissprot',"ROA1_HUMAN");
+		};
+		if ($@) {
+			skip("problem connecting to SwissProt:$@",2);
+		} else {
+			ok $seq_object;
+			isa_ok $seq_object, 'Bio::SeqI';
+		}
+	}
+	
     # embl
-    eval {
-	ok ($seq_object = get_sequence('embl',"BUM"));
-    };
-    if ($@) {
-	if($DEBUG ) {
-	    warn "Warning: Couldn't connect to EMBL! Do you have network access?\n";
+	SKIP: {
+		eval {
+			$seq_object = get_sequence('embl',"BUM");
+		};
+		if ($@) {
+			skip("problem connecting to EMBL:$@",2);
+		} else {
+			ok $seq_object;
+			isa_ok $seq_object, 'Bio::SeqI';
+		}
 	}
-        exit 0;
-    }
 
-    # genbank
-    eval {
-	ok ($seq_object = get_sequence('genbank',"AI129902"));
-    };
-    if ($@) {
-	if($DEBUG) {
-	    warn "Warning: Couldn't connect to GenBank! Do you have network access?\n";
+	# genbank	
+	SKIP: {
+		eval {
+			$seq_object = get_sequence('genbank',"AI129902");
+		};
+		if ($@) {
+			skip("problem connecting to GenBank:$@",2);
+		} else {
+			ok $seq_object;
+			isa_ok $seq_object, 'Bio::SeqI';
+		}
 	}
-        exit 0;
-    }
 
     # refseq
-    eval {
-	ok ($seq_object = get_sequence('genbank',"NM_006732"));
-    };
-    if ($@) {
-	if( $DEBUG ) {
-	    warn "Warning: Couldn't connect to RefSeq! Do you have network access?\n";
+	SKIP: {
+		eval {
+			$seq_object = get_sequence('genbank',"NM_006732");
+		};
+		if( $@ ) {
+			skip("problem connecting to RefSeq:$@",2);
+		} else {
+			ok $seq_object;
+			isa_ok $seq_object, 'Bio::SeqI';
+		}
 	}
-        exit 0;
-    }
-
-        # genbank
-    eval {
-	ok ($seq_object = get_sequence('genpept',"AAC06201"));
-    };
-    if ($@) {
-	if($DEBUG) {
-	    warn "Warning: Couldn't connect to GenPept! Do you have network access?\n";
+	
+	# genpept
+	SKIP: {
+		eval {
+			$seq_object = get_sequence('genpept',"AAC06201");
+		};
+		if ($@) {
+			skip("problem connecting to RefSeq:$@",2);
+		} else {
+			ok $seq_object;
+			isa_ok $seq_object, 'Bio::SeqI';
+		}
 	}
-        exit 0;
-    }
-
 }

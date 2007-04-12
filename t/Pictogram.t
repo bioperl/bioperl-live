@@ -7,33 +7,26 @@ use strict;
 use vars qw($NTESTS $SVG_AVAIL);
 
 BEGIN {
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-        use lib 't';
+        use lib 't/lib';
     }
-    use Test;
-    $NTESTS = 3;
-    plan tests => $NTESTS;
+    use Test::More;
+    $NTESTS = 5;
+    
     eval {
 		 require Bio::Graphics::Pictogram;
 		 require SVG;
-	 };
-    $SVG_AVAIL = $@ ? 0 : 1;
-}
-
-END {
-	for ( $Test::ntest..$NTESTS ) {
-		skip("Cannot complete Pictogram tests. Skipping. ",1);
+	};
+	if ($@) {
+		plan skip_all => "SVG not installed, skipping tests";
+	} else {
+		plan tests => $NTESTS;
 	}
+	use_ok('Bio::SeqIO');
+	use_ok('Bio::Matrix::PSM::IO');
 }
 
-if(!$SVG_AVAIL){
-	warn("SVG not installed, skipping tests");
-	exit;
-}
-
-use Bio::SeqIO;
-use Bio::Matrix::PSM::IO;
 
 my $file =  Bio::Root::IO->catfile("t","data","pictogram.fa");
 my $sio = Bio::SeqIO->new(-file=>$file,-format=>'fasta');
@@ -48,7 +41,7 @@ my $picto = Bio::Graphics::Pictogram->new(-width=>"800",
                                                    'G'=>'blue',
                                                    'C'=>'green',
                                                    'T'=>'magenta'});
-ok $picto->isa("Bio::Graphics::Pictogram");
+isa_ok $picto,"Bio::Graphics::Pictogram";
 
 my $svg = $picto->make_svg(\@seq);
 ok $svg->xmlify;
@@ -67,8 +60,6 @@ $picto = Bio::Graphics::Pictogram->new(-width=>"800",
 my $psm = $psmIO->next_psm;
 $svg = $picto->make_svg($psm);
 ok $svg->xmlify;
-
-
 
 
 

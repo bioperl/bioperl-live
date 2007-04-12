@@ -7,44 +7,38 @@ use strict;
 
 BEGIN {
     use vars qw($DEBUG);
-    $DEBUG = $ENV{'BIOPERLDEBUG'};
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
+    $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+    eval { require Test::More; };
     if( $@ ) {
-        use lib 't';
+        use lib 't/lib';
     }
-    use Test;
-    plan tests => 38;
+    use Test::More;
+    plan tests => 42;
+    use_ok('Bio::Map::Clone');
+    use_ok('Bio::Map::Contig');
+    use_ok('Bio::Map::FPCMarker');
+    use_ok('Bio::Map::OrderedPositionWithDistance');
+    use_ok('Bio::Map::Physical');
 }
 
-use Bio::Map::Clone;
-use Bio::Map::Contig;
-use Bio::Map::FPCMarker;
-use Bio::Map::OrderedPositionWithDistance;
-
-use Bio::Map::Physical;
-ok 1;
-
 ok my $phm = new Bio::Map::Physical;
-ok $phm->version(2), 2;
-ok $phm->version(), 2;
-ok $phm->modification_user('me'), 'me';
-ok $phm->modification_user(), 'me';
+is $phm->version(2), 2;
+is $phm->version(), 2;
+is $phm->modification_user('me'), 'me';
+is $phm->modification_user(), 'me';
 
-ok $phm->group_type('xx'), 'xx';
-ok $phm->group_type(), 'xx';
+is $phm->group_type('xx'), 'xx';
+is $phm->group_type(), 'xx';
 
-ok $phm->group_abbr('xx'), 'xx';
-ok $phm->group_abbr(), 'xx';
+is $phm->group_abbr('xx'), 'xx';
+is $phm->group_abbr(), 'xx';
 
-ok $phm->core_exists, undef, 'code holds and returns a string, definition requires a boolean';
+is $phm->core_exists, undef, 'code holds and returns a string, definition requires a boolean';
 
-ok $phm->core_exists(3), 1, 'code holds and returns a string, definition requires a boolean';
+is $phm->core_exists(3), 1, 'code holds and returns a string, definition requires a boolean';
 
-ok $phm->core_exists(1), 1;
-ok $phm->core_exists(), 1;
+is $phm->core_exists(1), 1;
+is $phm->core_exists(), 1;
 
 
 use Bio::MapIO::fpc;
@@ -54,8 +48,8 @@ my $fpcpath = Bio::Root::IO->catfile('t','data','biofpc.fpc');
 my $mapio = new Bio::MapIO(-format => "fpc", -species => 'demo', -readcor => 1, -file => $fpcpath);
 my $fobj = $mapio->next_map();
 
-ok $fobj->group_abbr(), "Chr";
-ok $fobj->core_exists(), 1;
+is $fobj->group_abbr(), "Chr";
+is $fobj->core_exists(), 1;
 
 test_clones($fobj);
 test_contigs($fobj);
@@ -81,7 +75,7 @@ sub test_markers
         my $mobj = $f->get_markerobj($mid);
         if (not defined $mobj)
         {
-            ok 1, 0;
+            is 1, 0;
             next;
         }
         my @remarks = split /\n/, $mobj->remark();
@@ -102,14 +96,14 @@ sub test_markers
             $ctgpos += $mobj->position($ctgid);
         }
     }
-    ok $nmrk, 15;
-    ok $nrem, 17;
-    ok scalar(keys %types), 2;
-    ok $nanch, 9;
-    ok $nfrm, 7;
-    ok scalar (keys %grps), 4;
-    ok $pos, 36;
-    ok $ctgpos, 1249;
+    is $nmrk, 15;
+    is $nrem, 17;
+    is scalar(keys %types), 2;
+    is $nanch, 9;
+    is $nfrm, 7;
+    is scalar (keys %grps), 4;
+    is $pos, 36;
+    is $ctgpos, 1249;
 }
 
 #########################################################
@@ -131,7 +125,7 @@ sub test_contigs
         my $cobj = $f->get_contigobj($cid);
         if (not defined $cobj)
         {
-            ok 1, 0;
+            is 1, 0;
             next;
         }
         if ($cobj->chr_remark() ne "")
@@ -156,13 +150,13 @@ sub test_contigs
             $grps{$cobj->group()} = 1;
         }
     }
-    ok $nctg, 11;
-    ok $nchr, 3;
-    ok $nuser, 1;
-    ok $ntrace, 1;
-    ok $ncb, 880; 
-    ok $psum, 15.55;
-    ok scalar(keys %grps), 3;
+    is $nctg, 11;
+    is $nchr, 3;
+    is $nuser, 1;
+    is $ntrace, 1;
+    is $ncb, 880; 
+    is $psum, 15.55;
+    is scalar(keys %grps), 3;
 }
 
 #########################################################
@@ -183,7 +177,7 @@ sub test_clones
         my $cobj = $f->get_cloneobj($cid);
         if (not defined $cobj)
         {
-            ok 1, 0;
+            is 1, 0;
             next;
         }
         my $pbands = $cobj->bands();
@@ -195,7 +189,7 @@ sub test_clones
                 not defined $cobj->range()->end() or
                 $cobj->range()->end() < $cobj->range()->start())
             {
-                ok 1, 0;
+                is 1, 0;
             }
         }
         foreach my $mid ($cobj->each_markerid())
@@ -213,11 +207,11 @@ sub test_clones
         }
         $stati{$cobj->sequence_status()} = 1 if $cobj->sequence_status;
     }
-    ok $nclones, 355;
-    ok $nbands, 9772;
-    ok scalar(keys %ctgs), 11;
-    ok $nmrkhits, 46;
-    ok $nrem, 12;
-    ok $nfprem, 162;
-    ok scalar(keys %stati), 5;
+    is $nclones, 355;
+    is $nbands, 9772;
+    is scalar(keys %ctgs), 11;
+    is $nmrkhits, 46;
+    is $nrem, 12;
+    is $nfprem, 162;
+    is scalar(keys %stati), 5;
 }
