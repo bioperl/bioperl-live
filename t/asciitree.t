@@ -10,9 +10,6 @@ BEGIN {
 	$NUMTESTS = 3;
 	use File::Spec;
 	$out_file = File::Spec->catfile(qw(t data tmp-asciitree));
-	# to handle systems with no installed Test module
-	# we include the t dir (where a copy of Test.pm is located)
-	# as a fallback
 	eval { require Test::More; };
 	if ( $@ ) {
 		use lib 't/lib';
@@ -23,15 +20,13 @@ BEGIN {
 	use_ok('Bio::Root::IO');
 }
 
-
-
 my $verbose = $ENV{'BIOPERLDEBUG'};
 
 # asciitree is a write-only format
 my $in = Bio::SeqIO->new(-format => 'genbank',
-								 -verbose => $verbose,
-								 -file => Bio::Root::IO->catfile
-								 qw(t data AE003644_Adh-genomic.gb) );
+						-verbose => $verbose,
+						-file => Bio::Root::IO->catfile
+						qw(t data AE003644_Adh-genomic.gb) );
 my $seq = $in->next_seq;
 
 my $out = Bio::SeqIO->new(-file => ">$out_file",

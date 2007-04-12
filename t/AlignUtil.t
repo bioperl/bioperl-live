@@ -9,12 +9,9 @@ my $error = 0;
 
 use strict;
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     eval { require Test::More; };
     if( $@ ) {
-	use lib 't/lib';
+		use lib 't/lib';
     }
 
     use Test::More;
@@ -23,10 +20,6 @@ BEGIN {
 	use_ok('Bio::AlignIO');
 	use_ok('Bio::Root::IO');
 	use_ok('Bio::SeqIO');
-}
-
-if( $error == 1 ) {
-    exit(0);
 }
 
 my $debug = -1;

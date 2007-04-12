@@ -9,25 +9,15 @@ my $error = 0;
 
 use strict;
 BEGIN {
-	# to handle systems with no installed Test module
-	# we include the t dir (where a copy of Test.pm is located)
-	# as a fallback
 	eval { require Test::More; };
 	if( $@ ) {
 		use lib 't/lib';
 	}
-
 	use Test::More;
 	plan tests => 8;
 	use_ok('Bio::SeqIO');
 	use_ok('Bio::Root::IO');
 }
-
-if( $error == 1 ) {
-	exit(0);
-}
-
-
 
 my $verbose = $ENV{'BIOPERLDEBUG'};
 

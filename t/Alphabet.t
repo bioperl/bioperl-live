@@ -5,22 +5,20 @@
 use strict;
 
 BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     eval { require Test::More; };
     if( $@ ) {
 	use lib 't/lib';
     }
     use Test::More;
 
-    plan tests => 96;
+    plan tests => 100;
+	
+	use_ok('Bio::Symbol::Alphabet');
+	use_ok('Bio::Symbol::Symbol');
+	use_ok('Bio::Symbol::DNAAlphabet');
+	use_ok('Bio::Symbol::ProteinAlphabet');
 }
 
-use Bio::Symbol::Alphabet;
-use Bio::Symbol::Symbol;
-use Bio::Symbol::DNAAlphabet;
-use Bio::Symbol::ProteinAlphabet;
 
 my $A = new Bio::Symbol::Symbol(-token => 'A' );
 my $U = new Bio::Symbol::Symbol(-token => 'U' );

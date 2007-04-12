@@ -4,9 +4,6 @@
 
 use strict;
 BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     eval { require Test::More; };
     if( $@ ) { 
 	use lib 't/lib';
@@ -16,8 +13,6 @@ BEGIN {
     plan tests => 16;
 	use_ok('Bio::Variation::AAReverseMutate');
 }
-
-
 
 my $obj = new Bio::Variation::AAReverseMutate
     ('-aa_ori' => 'F', 

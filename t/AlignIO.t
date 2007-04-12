@@ -1,5 +1,6 @@
 # This is -*-Perl-*- code
 # $Id$
+
 use strict;
 use Data::Dumper;
 my $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;

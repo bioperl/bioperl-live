@@ -10,12 +10,9 @@ use vars qw($HAVEGRAPHDIRECTED $DEBUG $NUMTESTS);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     eval { require Test::More; };
     if( $@ ) { 
-	use lib 't/lib';
+		use lib 't/lib';
     }
     use Test::More;
     plan tests => ($NUMTESTS = 108);

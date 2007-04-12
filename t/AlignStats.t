@@ -9,28 +9,19 @@ my $error = 0;
 
 use strict;
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     eval { require Test::More; };
     if( $@ ) {
 	use lib 't/lib';
     }
-
     use Test::More;
-    plan tests => 40; 
-}
-
-if( $error == 1 ) {
-    exit(0);
+    plan tests => 40;
+	use_ok('Bio::Align::DNAStatistics');
+	use_ok('Bio::Align::ProteinStatistics');
+	use_ok('Bio::AlignIO');
+	use_ok('Bio::Root::IO');
 }
 
 my $debug = -1;
-
-use_ok('Bio::Align::DNAStatistics');
-use_ok('Bio::Align::ProteinStatistics');
-use_ok('Bio::AlignIO');
-use_ok('Bio::Root::IO');
 
 my $in = new Bio::AlignIO(-format => 'emboss',
 			  -file   => Bio::Root::IO->catfile('t', 'data',
