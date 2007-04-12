@@ -4,17 +4,15 @@
 use strict;
 
 BEGIN {
-	eval { require Test; };
+	eval { require Test::More; };
 	if ( $@ ) {
-		use lib 't';
+		use lib 't/lib';
 	}
-	use Test;
+	use Test::More;
 	plan tests => 8;
 }
 
-use Bio::SeqIO;
-
-ok(1);
+use_ok('Bio::SeqIO', 'Bio::SeqIO can be used ' );
 
 my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
 
@@ -22,12 +20,13 @@ my $str = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
 								  ("t","data","seqfile.pir"),
 								  -verbose => $verbose,
 								  -format => 'pir');
-ok $str;
+
+ok ( defined $str, 'new instance is defined ');
+
 my $out = new Bio::SeqIO(-format => 'pir',
 								 -fh => \*STDOUT);
 
 while (my $seq = $str->next_seq()) {
-	# ok($seq->id, qr /^[PF]1/ );
-	ok($seq->length > 1);
+	ok( $seq->length > 1, 'checked length');
 	$out->write_seq($seq) if $verbose > 0;
 }
