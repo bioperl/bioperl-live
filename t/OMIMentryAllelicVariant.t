@@ -10,15 +10,14 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-        use lib 't';
+        use lib 't/lib';
     }
-    use Test;
-    plan tests => 26;
+    use Test::More;
+    plan tests => 27;
+    use_ok 'Bio::Phenotype::OMIM::OMIMentryAllelicVariant';
 }
-
-use Bio::Phenotype::OMIM::OMIMentryAllelicVariant;
 
 my $av = Bio::Phenotype::OMIM::OMIMentryAllelicVariant->new( -number               => ".0001",
                                                              -title                => "ALCOHOL INTOLERANCE",
@@ -29,38 +28,38 @@ my $av = Bio::Phenotype::OMIM::OMIMentryAllelicVariant->new( -number            
                                                              -position             => 487,
                                                              -additional_mutations => "IVS4DS, G-A, +1" );  
 
-ok( $av->isa( "Bio::Phenotype::OMIM::OMIMentryAllelicVariant" ) );
+isa_ok( $av, "Bio::Phenotype::OMIM::OMIMentryAllelicVariant" );
 
 ok( $av->to_string() );
 
-ok( $av->number(), ".0001" );
-ok( $av->title(), "ALCOHOL INTOLERANCE" );
-ok( $av->symbol(), "ALDH2*2" );
-ok( $av->description(), "The ALDH2*2-encoded ..." );
-ok( $av->aa_ori(), "GLU" );
-ok( $av->aa_mut(), "LYS" );
-ok( $av->position(), 487 );
-ok( $av->additional_mutations(), "IVS4DS, G-A, +1" );
+is( $av->number(), ".0001" );
+is( $av->title(), "ALCOHOL INTOLERANCE" );
+is( $av->symbol(), "ALDH2*2" );
+is( $av->description(), "The ALDH2*2-encoded ..." );
+is( $av->aa_ori(), "GLU" );
+is( $av->aa_mut(), "LYS" );
+is( $av->position(), 487 );
+is( $av->additional_mutations(), "IVS4DS, G-A, +1" );
 
 $av->init();
 
-ok( $av->number(), "" );
-ok( $av->title(), "" );
-ok( $av->symbol(), "" );
-ok( $av->description(), "" );
-ok( $av->aa_ori(), "" );
-ok( $av->aa_mut(), "" );
-ok( $av->position(), "" );
-ok( $av->additional_mutations(), "" );
+is( $av->number(), "" );
+is( $av->title(), "" );
+is( $av->symbol(), "" );
+is( $av->description(), "" );
+is( $av->aa_ori(), "" );
+is( $av->aa_mut(), "" );
+is( $av->position(), "" );
+is( $av->additional_mutations(), "" );
 
-ok( $av->number( "A" ), "A" );
-ok( $av->title( "B" ), "B" );
-ok( $av->symbol( "C" ), "C" );
-ok( $av->description( "D" ), "D" );
-ok( $av->aa_ori( "E" ), "E" );
-ok( $av->aa_mut( "F" ), "F" );
-ok( $av->position( "G" ), "G" );
-ok( $av->additional_mutations( "H" ), "H" );
+is( $av->number( "A" ), "A" );
+is( $av->title( "B" ), "B" );
+is( $av->symbol( "C" ), "C" );
+is( $av->description( "D" ), "D" );
+is( $av->aa_ori( "E" ), "E" );
+is( $av->aa_mut( "F" ), "F" );
+is( $av->position( "G" ), "G" );
+is( $av->additional_mutations( "H" ), "H" );
 
 
 

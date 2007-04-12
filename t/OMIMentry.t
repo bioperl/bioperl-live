@@ -10,71 +10,69 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-        use lib 't';
+        use lib 't/lib';
     }
-    use Test;
-    plan tests => 145;
+    use Test::More;
+    plan tests => 153;
+    use_ok('Bio::Phenotype::OMIM::OMIMentry');
+    use_ok('Bio::Phenotype::OMIM::MiniMIMentry');
+    use_ok('Bio::Species');
+    use_ok('Bio::Annotation::Reference');
+    use_ok('Bio::Map::CytoPosition');
+    use_ok('Bio::Phenotype::Correlate');
+    use_ok('Bio::Phenotype::Measure');
+    use_ok('Bio::Annotation::DBLink');
 }
-
-use Bio::Phenotype::OMIM::OMIMentry;
-use Bio::Phenotype::OMIM::MiniMIMentry;
-use Bio::Species;
-use Bio::Annotation::Reference;
-use Bio::Map::CytoPosition;
-use Bio::Phenotype::Correlate;
-use Bio::Phenotype::Measure;
-use Bio::Annotation::DBLink;
-
 
 my $obj = Bio::Phenotype::OMIM::OMIMentry->new();
 
-ok( $obj->isa( "Bio::Phenotype::OMIM::OMIMentry" ) );
+isa_ok( $obj, "Bio::Phenotype::OMIM::OMIMentry" );
 
 ok( $obj->to_string() );
 
 ok( $obj->MIM_number( "100050" ) );
-ok( $obj->MIM_number(), "100050" );
+is( $obj->MIM_number(), "100050" );
 
 ok( $obj->title( "AARSKOG SYNDROME" ) );
-ok( $obj->title(), "AARSKOG SYNDROME" );
+is( $obj->title(), "AARSKOG SYNDROME" );
 
 
 ok( $obj->more_than_two_genes( 1 ) );
-ok( $obj->more_than_two_genes(), 1 );
+is( $obj->more_than_two_genes(), 1 );
 
 ok( $obj->is_separate( 1 ) );
-ok( $obj->is_separate(), 1 );
+is( $obj->is_separate(), 1 );
 
 ok( $obj->alternative_titles_and_symbols( "AORTIC ANEURYSM, ABDOMINAL" ) );
-ok( $obj->alternative_titles_and_symbols(), "AORTIC ANEURYSM, ABDOMINAL" );
+is( $obj->alternative_titles_and_symbols(), "AORTIC ANEURYSM, ABDOMINAL" );
 
 ok( $obj->mapping_method( "PCR of somatic cell hybrid DNA" ) );
-ok( $obj->mapping_method(), "PCR of somatic cell hybrid DNA" );
+is( $obj->mapping_method(), "PCR of somatic cell hybrid DNA" );
 
 ok( $obj->gene_status( "I" ) );
-ok( $obj->gene_status(), "I" );
+is( $obj->gene_status(), "I" );
 
 
 ok( $obj->clinical_symptoms_raw( "Patients with ..." ) );
-ok( $obj->clinical_symptoms_raw(), "Patients with ..." );
+is( $obj->clinical_symptoms_raw(), "Patients with ..." );
 
 
 ok( $obj->created( "Victor A. McKusick: 6/4/1986" ) );
-ok( $obj->created(), "Victor A. McKusick: 6/4/1986" );
+is( $obj->created(), "Victor A. McKusick: 6/4/1986" );
 
 ok( $obj->contributors( "Kelly A. Przylepa - revised: 03/18/2002" ) );
-ok( $obj->contributors(), "Kelly A. Przylepa - revised: 03/18/2002" );
+is( $obj->contributors(), "Kelly A. Przylepa - revised: 03/18/2002" );
 
 ok( $obj->edited( "alopez: 06/03/1997" ) );
-ok( $obj->edited(), "alopez: 06/03/1997" );
+is( $obj->edited(), "alopez: 06/03/1997" );
 
 
 my $mm = Bio::Phenotype::OMIM::MiniMIMentry->new();
 
 ok( $obj->miniMIM( $mm ) );
-ok( $obj->miniMIM(), $mm );
+is( $obj->miniMIM(), $mm );
 
 
 
@@ -83,22 +81,22 @@ my $av2 = Bio::Phenotype::OMIM::OMIMentryAllelicVariant->new();
 
 ok( $av1->description( "dedxsc" ) );
 
-ok( $obj->each_AllelicVariant(), 0 );
+is( $obj->each_AllelicVariant(), 0 );
 
 ok( $obj->add_AllelicVariants( ( $av1, $av2 ) ) );
-ok( $obj->each_AllelicVariant(), 2 );
+is( $obj->each_AllelicVariant(), 2 );
 my @avs = $obj->each_AllelicVariant();
-ok( $avs[ 0 ], $av1 );
-ok( $avs[ 1 ], $av2 );
-ok( $avs[ 0 ]->description, "dedxsc" );
-ok( $obj->each_AllelicVariant(), 2 );
+is( $avs[ 0 ], $av1 );
+is( $avs[ 1 ], $av2 );
+is( $avs[ 0 ]->description, "dedxsc" );
+is( $obj->each_AllelicVariant(), 2 );
 
 my @avs2 = $obj->remove_AllelicVariants();
-ok( $avs2[ 0 ], $av1 );
-ok( $avs2[ 1 ], $av2 );
+is( $avs2[ 0 ], $av1 );
+is( $avs2[ 1 ], $av2 );
 
-ok( $obj->each_AllelicVariant(), 0 );
-ok( $obj->remove_AllelicVariants(), 0 );
+is( $obj->each_AllelicVariant(), 0 );
+is( $obj->remove_AllelicVariants(), 0 );
 
 
 
@@ -106,36 +104,36 @@ ok( $obj->remove_AllelicVariants(), 0 );
 
 
 ok( $obj->name( "r1" ) );
-ok( $obj->name(), "r1" );
+is( $obj->name(), "r1" );
 
 ok( $obj->description( "This is ..." ) );
-ok( $obj->description(), "This is ..." );
+is( $obj->description(), "This is ..." );
 
 my $mouse = Bio::Species->new();
 $mouse->classification( qw( musculus Mus ) );
 ok( $obj->species( $mouse ) );
-ok( $obj->species()->binomial(), "Mus musculus" );
+is( $obj->species()->binomial(), "Mus musculus" );
 
 ok( $obj->comment( "putative" ) );
-ok( $obj->comment(), "putative" );
+is( $obj->comment(), "putative" );
 
 
 
-ok( $obj->each_gene_symbol(), 0 );
+is( $obj->each_gene_symbol(), 0 );
 
 ok( $obj->add_gene_symbols( ( "A", "B" ) ) );
-ok( $obj->each_gene_symbol(), 2 );
+is( $obj->each_gene_symbol(), 2 );
 my @gs = $obj->each_gene_symbol();
-ok( $gs[ 0 ], "A" );
-ok( $gs[ 1 ], "B" );
-ok( $obj->each_gene_symbol(), 2 );
+is( $gs[ 0 ], "A" );
+is( $gs[ 1 ], "B" );
+is( $obj->each_gene_symbol(), 2 );
 
 my @gs2 = $obj->remove_gene_symbols();
-ok( $gs2[ 0 ], "A" );
-ok( $gs2[ 1 ], "B" );
+is( $gs2[ 0 ], "A" );
+is( $gs2[ 1 ], "B" );
 
-ok( $obj->each_gene_symbol(), 0 );
-ok( $obj->remove_gene_symbols(), 0 );
+is( $obj->each_gene_symbol(), 0 );
+is( $obj->remove_gene_symbols(), 0 );
 
 
 
@@ -144,22 +142,22 @@ my $v2 = Bio::Variation::VariantI->new();
 
 $v1->length( "123" );
 
-ok( $obj->each_Variant(), 0 );
+is( $obj->each_Variant(), 0 );
 
 ok( $obj->add_Variants( ( $v1, $v2 ) ) );
-ok( $obj->each_Variant(), 2 );
+is( $obj->each_Variant(), 2 );
 my @vs = $obj->each_Variant();
-ok( $vs[ 0 ], $v1 );
-ok( $vs[ 1 ], $v2 );
-ok( $vs[ 0 ]->length(), "123" );
-ok( $obj->each_Variant(), 2 );
+is( $vs[ 0 ], $v1 );
+is( $vs[ 1 ], $v2 );
+is( $vs[ 0 ]->length(), "123" );
+is( $obj->each_Variant(), 2 );
 
 my @vs2 = $obj->remove_Variants();
-ok( $vs2[ 0 ], $v1 );
-ok( $vs2[ 1 ], $v2 );
+is( $vs2[ 0 ], $v1 );
+is( $vs2[ 1 ], $v2 );
 
-ok( $obj->each_Variant(), 0 );
-ok( $obj->remove_Variants(), 0 );
+is( $obj->each_Variant(), 0 );
+is( $obj->remove_Variants(), 0 );
 
 
 
@@ -169,22 +167,22 @@ my $r2 = Bio::Annotation::Reference->new();
 
 $r1->title( "title" );
 
-ok( $obj->each_Reference(), 0 );
+is( $obj->each_Reference(), 0 );
 
 ok( $obj->add_References( ( $r1, $r2 ) ) );
-ok( $obj->each_Reference(), 2 );
+is( $obj->each_Reference(), 2 );
 my @rs = $obj->each_Reference();
-ok( $rs[ 0 ], $r1 );
-ok( $rs[ 1 ], $r2 );
-ok( $rs[ 0 ]->title(), "title" );
-ok( $obj->each_Reference(), 2 );
+is( $rs[ 0 ], $r1 );
+is( $rs[ 1 ], $r2 );
+is( $rs[ 0 ]->title(), "title" );
+is( $obj->each_Reference(), 2 );
 
 my @rs2 = $obj->remove_References();
-ok( $rs2[ 0 ], $r1 );
-ok( $rs2[ 1 ], $r2 );
+is( $rs2[ 0 ], $r1 );
+is( $rs2[ 1 ], $r2 );
 
-ok( $obj->each_Reference(), 0 );
-ok( $obj->remove_References(), 0 );
+is( $obj->each_Reference(), 0 );
+is( $obj->remove_References(), 0 );
 
 
 
@@ -194,22 +192,22 @@ my $c2 = Bio::Map::CytoPosition->new();
 
 $c1->chr( "12" );
 
-ok( $obj->each_CytoPosition(), 0 );
+is( $obj->each_CytoPosition(), 0 );
 
 ok( $obj->add_CytoPositions( ( $c1, $c2 ) ) );
-ok( $obj->each_CytoPosition(), 2 );
+is( $obj->each_CytoPosition(), 2 );
 my @cs = $obj->each_CytoPosition();
-ok( $cs[ 0 ], $c1 );
-ok( $cs[ 1 ], $c2 );
-ok( $cs[ 0 ]->chr(), "12" );
-ok( $obj->each_CytoPosition(), 2 );
+is( $cs[ 0 ], $c1 );
+is( $cs[ 1 ], $c2 );
+is( $cs[ 0 ]->chr(), "12" );
+is( $obj->each_CytoPosition(), 2 );
 
 my @cs2 = $obj->remove_CytoPositions();
-ok( $cs2[ 0 ], $c1 );
-ok( $cs2[ 1 ], $c2 );
+is( $cs2[ 0 ], $c1 );
+is( $cs2[ 1 ], $c2 );
 
-ok( $obj->each_CytoPosition(), 0 );
-ok( $obj->remove_CytoPositions(), 0 );
+is( $obj->each_CytoPosition(), 0 );
+is( $obj->remove_CytoPositions(), 0 );
 
 
 
@@ -219,22 +217,22 @@ my $co2 = Bio::Phenotype::Correlate->new();
 
 ok( $co1->name( "name" ) );
 
-ok( $obj->each_Correlate(), 0 );
+is( $obj->each_Correlate(), 0 );
 
 ok( $obj->add_Correlates( ( $co1, $co2 ) ) );
-ok( $obj->each_Correlate(), 2 );
+is( $obj->each_Correlate(), 2 );
 my @cos = $obj->each_Correlate();
-ok( $cos[ 0 ], $co1 );
-ok( $cos[ 1 ], $co2 );
-ok( $cos[ 0 ]->name, "name" );
-ok( $obj->each_Correlate(), 2 );
+is( $cos[ 0 ], $co1 );
+is( $cos[ 1 ], $co2 );
+is( $cos[ 0 ]->name, "name" );
+is( $obj->each_Correlate(), 2 );
 
 my @cos2 = $obj->remove_Correlates();
-ok( $cos2[ 0 ], $co1 );
-ok( $cos2[ 1 ], $co2 );
+is( $cos2[ 0 ], $co1 );
+is( $cos2[ 1 ], $co2 );
 
-ok( $obj->each_Correlate(), 0 );
-ok( $obj->remove_Correlates(), 0 );
+is( $obj->each_Correlate(), 0 );
+is( $obj->remove_Correlates(), 0 );
 
 
 
@@ -244,40 +242,40 @@ my $m2 = Bio::Phenotype::Measure->new();
 
 ok( $m1->description( "desc" ) );
 
-ok( $obj->each_Measure(), 0 );
+is( $obj->each_Measure(), 0 );
 
 ok( $obj->add_Measures( ( $m1, $m2 ) ) );
-ok( $obj->each_Measure(), 2 );
+is( $obj->each_Measure(), 2 );
 my @ms = $obj->each_Measure();
-ok( $ms[ 0 ], $m1 );
-ok( $ms[ 1 ], $m2 );
-ok( $ms[ 0 ]->description, "desc" );
-ok( $obj->each_Measure(), 2 );
+is( $ms[ 0 ], $m1 );
+is( $ms[ 1 ], $m2 );
+is( $ms[ 0 ]->description, "desc" );
+is( $obj->each_Measure(), 2 );
 
 my @ms2 = $obj->remove_Measures();
-ok( $ms2[ 0 ], $m1 );
-ok( $ms2[ 1 ], $m2 );
+is( $ms2[ 0 ], $m1 );
+is( $ms2[ 1 ], $m2 );
 
-ok( $obj->each_Measure(), 0 );
-ok( $obj->remove_Measures(), 0 );
+is( $obj->each_Measure(), 0 );
+is( $obj->remove_Measures(), 0 );
 
 
 
-ok( $obj->each_keyword(), 0 );
+is( $obj->each_keyword(), 0 );
 
 ok( $obj->add_keywords( ( "A", "B" ) ) );
-ok( $obj->each_keyword(), 2 );
+is( $obj->each_keyword(), 2 );
 my @ks = $obj->each_keyword();
-ok( $ks[ 0 ], "A" );
-ok( $ks[ 1 ], "B" );
-ok( $obj->each_keyword(), 2 );
+is( $ks[ 0 ], "A" );
+is( $ks[ 1 ], "B" );
+is( $obj->each_keyword(), 2 );
 
 my @ks2 = $obj->remove_keywords();
-ok( $ks2[ 0 ], "A" );
-ok( $ks2[ 1 ], "B" );
+is( $ks2[ 0 ], "A" );
+is( $ks2[ 1 ], "B" );
 
-ok( $obj->each_keyword(), 0 );
-ok( $obj->remove_keywords(), 0 );
+is( $obj->each_keyword(), 0 );
+is( $obj->remove_keywords(), 0 );
 
 
 
@@ -286,40 +284,40 @@ my $l2 = Bio::Annotation::DBLink->new();
 
 ok( $l1->comment( "comment" ) );
 
-ok( $obj->each_DBLink(), 0 );
+is( $obj->each_DBLink(), 0 );
 
 ok( $obj->add_DBLinks( ( $l1, $l2 ) ) );
-ok( $obj->each_DBLink(), 2 );
+is( $obj->each_DBLink(), 2 );
 my @ls = $obj->each_DBLink();
-ok( $ls[ 0 ], $l1 );
-ok( $ls[ 1 ], $l2 );
-ok( $ls[ 0 ]->comment(), "comment" );
-ok( $obj->each_DBLink(), 2 );
+is( $ls[ 0 ], $l1 );
+is( $ls[ 1 ], $l2 );
+is( $ls[ 0 ]->comment(), "comment" );
+is( $obj->each_DBLink(), 2 );
 
 my @ls2 = $obj->remove_DBLinks();
-ok( $ls2[ 0 ], $l1 );
-ok( $ls2[ 1 ], $l2 );
+is( $ls2[ 0 ], $l1 );
+is( $ls2[ 1 ], $l2 );
 
-ok( $obj->each_DBLink(), 0 );
-ok( $obj->remove_DBLinks(), 0 );
+is( $obj->each_DBLink(), 0 );
+is( $obj->remove_DBLinks(), 0 );
 
 
 
-ok( $obj->each_Genotype(), 0 );
+is( $obj->each_Genotype(), 0 );
 
 ok( $obj->add_Genotypes( ( "A", "B" ) ) );
-ok( $obj->each_Genotype(), 2 );
+is( $obj->each_Genotype(), 2 );
 my @gts = $obj->each_Genotype();
-ok( $gts[ 0 ], "A" );
-ok( $gts[ 1 ], "B" );
-ok( $obj->each_Genotype(), 2 );
+is( $gts[ 0 ], "A" );
+is( $gts[ 1 ], "B" );
+is( $obj->each_Genotype(), 2 );
 
 my @gts2 = $obj->remove_Genotypes();
-ok( $gts2[ 0 ], "A" );
-ok( $gts2[ 1 ], "B" );
+is( $gts2[ 0 ], "A" );
+is( $gts2[ 1 ], "B" );
 
-ok( $obj->each_Genotype(), 0 );
-ok( $obj->remove_Genotypes(), 0 );
+is( $obj->each_Genotype(), 0 );
+is( $obj->remove_Genotypes(), 0 );
 
 
 

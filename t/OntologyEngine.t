@@ -11,40 +11,32 @@ BEGIN {
 	# to handle systems with no installed Test module
 	# we include the t dir (where a copy of Test.pm is located)
 	# as a fallback
-	eval { require Test; };
+	eval { require Test::More; };
 	if( $@ ) {
-		use lib 't';
+		use lib 't/lib';
 	}
-	use Test;
+	use Test::More;
 	eval {
 		require Graph::Directed;
-		$HAVEGRAPHDIRECTED=1;
 	};
 	if ($@) {
-		$HAVEGRAPHDIRECTED = 0;
-		warn "Cannot run tests, Graph::Directed not installed\n";
+		plan skip_all => "Cannot run tests, Graph::Directed not installed\n";
+	} else {
+		plan tests => ($NUMTESTS = 27);
 	}
-	plan tests => ($NUMTESTS = 22);
+	use_ok('Bio::Ontology::Term');
+	use_ok('Bio::Ontology::Relationship');
+	use_ok('Bio::Ontology::RelationshipType');
+	use_ok('Bio::Ontology::SimpleOntologyEngine');
+	use_ok('Bio::Ontology::Ontology');
 }
-
-END {
-	foreach ( $Test::ntest..$NUMTESTS) {
-		skip('Cannot run OntologyEngine tests, skipping',1);
-	}
-}
-exit(0) unless $HAVEGRAPHDIRECTED;
-require Bio::Ontology::Term;
-require Bio::Ontology::Relationship;
-require Bio::Ontology::RelationshipType;
-require Bio::Ontology::SimpleOntologyEngine;
-require Bio::Ontology::Ontology;
 
 my $ont = Bio::Ontology::Ontology->new(-name => "My Ontology");
 
 my $eng = Bio::Ontology::SimpleOntologyEngine->new();
 $ont->engine($eng);
-ok( $eng->isa( "Bio::Ontology::OntologyEngineI" ) );
-ok ($ont->engine, $eng);
+isa_ok( $eng,"Bio::Ontology::OntologyEngineI" );
+is ($ont->engine, $eng);
 
 my @terms = (
 	     [-identifier => "IPR000001",
@@ -107,45 +99,45 @@ for(my $i = 0; $i < @rels; $i++) {
 
 my @child_terms = sort { $a->identifier() cmp $b->identifier();
 		     } $ont->get_child_terms($terms[0]);
-ok (scalar(@child_terms), 2);
-ok( $child_terms[0], $terms[1] );
+is (scalar(@child_terms), 2);
+is( $child_terms[0], $terms[1] );
 my @child_terms1 = sort { $a->identifier() cmp $b->identifier();
 		      } $ont->get_child_terms($terms[0], $rel_type);
-ok (scalar(@child_terms), 2);
-ok( $child_terms1[0], $terms[1] );
-ok (scalar($ont->get_child_terms($terms[0], $rel_type1)), 0);
+is (scalar(@child_terms), 2);
+is( $child_terms1[0], $terms[1] );
+is (scalar($ont->get_child_terms($terms[0], $rel_type1)), 0);
 
 my @descendant_terms = sort { $a->identifier() cmp $b->identifier();
 			  } $ont->get_descendant_terms($terms[0]);
-ok( scalar(@descendant_terms), 3);
-ok( $descendant_terms[1], $terms[2] );
+is( scalar(@descendant_terms), 3);
+is( $descendant_terms[1], $terms[2] );
 
 my @descendant_terms1 = sort { $a->identifier() cmp $b->identifier();
 			   } $ont->get_descendant_terms($terms[0], $rel_type);
-ok( $descendant_terms1[1], $terms[2] );
-ok (scalar(@descendant_terms1), 3);
-ok (scalar($ont->get_descendant_terms($terms[0], $rel_type1)), 0);
+is( $descendant_terms1[1], $terms[2] );
+is (scalar(@descendant_terms1), 3);
+is (scalar($ont->get_descendant_terms($terms[0], $rel_type1)), 0);
 
 my @parent_terms = sort { $a->identifier() cmp $b->identifier();
 		      } $ont->get_parent_terms($terms[1]);
-ok (scalar(@parent_terms), 1);
-ok( $parent_terms[0], $terms[0] );
+is (scalar(@parent_terms), 1);
+is( $parent_terms[0], $terms[0] );
 
 my @ancestor_terms = sort { $a->identifier() cmp $b->identifier();
 			} $ont->get_ancestor_terms($terms[2]);
-ok( $ancestor_terms[0], $terms[0] );
-ok (scalar(@ancestor_terms), 3);
-ok (scalar($ont->get_ancestor_terms($terms[2], $rel_type)), 3);
-ok (scalar($ont->get_ancestor_terms($terms[2], $rel_type1)), 0);
+is( $ancestor_terms[0], $terms[0] );
+is (scalar(@ancestor_terms), 3);
+is (scalar($ont->get_ancestor_terms($terms[2], $rel_type)), 3);
+is (scalar($ont->get_ancestor_terms($terms[2], $rel_type1)), 0);
 
 my @leaf_terms = $ont->get_leaf_terms();
 # print scalar(@leaf_terms)."\n";
-ok (scalar(@leaf_terms), 1);
-ok( $leaf_terms[0], $terms[2]);
+is (scalar(@leaf_terms), 1);
+is( $leaf_terms[0], $terms[2]);
 
 my @root_terms = $ont->get_root_terms();
 # print scalar(@root_terms)."\n";
-ok (scalar(@root_terms), 1);
-ok( $root_terms[0], $terms[0]);
+is (scalar(@root_terms), 1);
+is( $root_terms[0], $terms[0]);
 
 #print $ont->engine->to_string();
