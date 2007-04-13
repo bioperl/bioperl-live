@@ -7,20 +7,17 @@
 use strict;
 use Bio::Root::IO;
 use FindBin '$Bin';
-use constant TEST_COUNT => 52;
+use constant TEST_COUNT => 53;
 use constant GFF_FILE    => Bio::Root::IO->catfile('t','data',
 					   'seqfeaturedb','test.gff3');
 
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-        use lib 't';
+        use lib 't/lib';
     }
-    use Test;
-    plan test => TEST_COUNT;
+    use Test::More;
+    plan tests => TEST_COUNT;
     $ENV{ORACLE_HOME} ||= '/home/oracle/Home';
 }
 
@@ -37,7 +34,7 @@ sub bail ($;$) {
   exit 0;
 }
 
-sub fail ($) {
+sub fail (;$) {
   my $count = shift;
   for (1..$count) {
     ok(0);
@@ -65,32 +62,32 @@ ok($loader->load(GFF_FILE));
 
 # there should be one gene named 'abc-1'
 @f = $db->get_features_by_name('abc-1');
-ok(@f==1);
+is(@f,1);
 
 $f = $f[0];
 # there should be three subfeatures of type "exon" and three of type "CDS"
-ok($f->get_SeqFeatures('exon')==3);
-ok($f->get_SeqFeatures('CDS')==3);
+is($f->get_SeqFeatures('exon'),3);
+is($f->get_SeqFeatures('CDS'),3);
 
 # the sequence of feature abc-1 should match the sequence of the first exon at the beginning
 $seq1 = $f->seq->seq;
 $seq2 = (sort {$a->start<=>$b->start} $f->get_SeqFeatures('exon'))[0]->seq->seq;
-ok(substr($seq1,0,length $seq2) eq $seq2);
+is(substr($seq1,0,length $seq2),$seq2);
 
 # sequence lengths should match
-ok(length $seq1 == $f->length);
+is(length $seq1, $f->length);
 
 # if we pull out abc-1 again we should get the same object
 ($s) = $db->get_features_by_name('abc-1');
-ok($f eq $s);
+is($f, $s);
 
 # we should get two objects when we ask for abc-1 using get_features_by_alias
 # this also depends on selective subfeature indexing
 @f = $db->get_features_by_alias('abc-1');
-ok(@f==2);
+is(@f,2);
 
 # the two features should be different
-ok($f[0] ne $f[1]);
+isnt($f[0], $f[1]);
 
 # test that targets are working
 ($f) = $db->get_features_by_name('match1');
@@ -99,7 +96,7 @@ $s = $f->target;
 ok(defined $s);
 ok($s->seq_id  eq 'CEESC13F');
 $seq1 = $s->seq->seq;
-ok(substr($seq1,0,10) eq 'ttgcgttcgg');
+is(substr($seq1,0,10), 'ttgcgttcgg');
 
 # can we fetch subfeatures?
 # gene3.a has the Index=1 attribute, so we should fetch it
@@ -114,24 +111,24 @@ ok(!$f);
 ($f) = $db->get_features_by_name('gene3');
 ok($f);
 my @transcripts = $f->get_SeqFeatures;
-ok(@transcripts == 2);
-ok($transcripts[0]->method eq 'mRNA');
-ok($transcripts[0]->source eq 'confirmed');
+is(@transcripts, 2);
+is($transcripts[0]->method,'mRNA');
+is($transcripts[0]->source,'confirmed');
 
 # test that exon #2 is shared between the two transcripts
 my @exons1      = $transcripts[0]->get_SeqFeatures('CDS');
-ok(@exons1 == 3);
+is(@exons1, 3);
 my @exons2      = $transcripts[1]->get_SeqFeatures('CDS');
 my ($shared1)   = grep {$_->display_name||'' eq 'shared_exon'} @exons1;
 my ($shared2)   = grep {$_->display_name||'' eq 'shared_exon'} @exons2;
 ok($shared1 && $shared2);
-ok($shared1 eq $shared2);
-ok($shared1->primary_id eq $shared2->primary_id);
+is($shared1, $shared2);
+is($shared1->primary_id, $shared2->primary_id);
 
 # test attributes
-ok($shared1->phase == 0);
-ok($shared1->strand eq +1);
-ok(($f->attributes('expressed'))[0] eq 'yes');
+is($shared1->phase, 0);
+is($shared1->strand, +1);
+is(($f->attributes('expressed'))[0], 'yes');
 
 # test autoloading
 my ($gene3a) = grep { $_->display_name eq 'gene3.a'} @transcripts;
@@ -145,38 +142,38 @@ ok(!$gene3b->Is_expressed);
 # different (not recommended but supported by the GFF3 spec). In the
 # first case, there are two 3'UTRs existing as independent
 # features. In the second, there is one UTR with a split location.
-ok($gene3a->Three_prime_UTR == 2);
-ok($gene3b->Three_prime_UTR == 1);
+is($gene3a->Three_prime_UTR, 2);
+is($gene3b->Three_prime_UTR, 1);
 my ($utr) = $gene3b->Three_prime_UTR;
-ok($utr->segments == 2);
+is($utr->segments, 2);
 my $location = $utr->location;
-ok($location->isa('Bio::Location::Split'));
-ok($location->sub_Location == 2);
+isa_ok($location, 'Bio::Location::Split');
+is($location->sub_Location,2);
 
 # ok, test that queries are working properly.
 # find all features with the attribute "expressed"
 @f = $db->get_features_by_attribute({expressed=>'yes'});
-ok(@f == 2);
+is(@f, 2);
 
 # find all top-level features on Contig3 -- there should be two
 @f = $db->get_features_by_location(-seq_id=>'Contig3');
-ok(@f == 2);
+is(@f, 2);
 
 # find all top-level features on Contig3 of type 'assembly_component'
 @f = $db->features(-seq_id=>'Contig3',-type=>'assembly_component');
-ok(@f==1);
+is(@f, 1);
 
 # test iteration
 @f = $db->features;
 my $feature_count = @f;
-ok($feature_count > 0);
+cmp_ok($feature_count, '>', 0);
 
 my $i = $db->get_seq_stream;
 ok($i);
 
 my $count;
 while ($i->next_seq) { $count++ }
-ok($feature_count == $count);
+is($feature_count,$count);
 
 # regression test on bug in which get_SeqFeatures('type') did not filter inline segments
 @f = $db->get_features_by_name('agt830.3');
@@ -184,18 +181,19 @@ ok(@f && !$f[0]->get_SeqFeatures('exon'));
 ok(@f && $f[0]->get_SeqFeatures('EST_match'));
 
 # regression test on bug in which the load_id disappeared
-ok(@f && $f[0]->load_id eq 'Match2');
+is(@f && $f[0]->load_id, 'Match2');
 
 # regress on proper handling of multiple ID features
 my ($alignment) = $db->get_features_by_name('agt830.5');
 ok($alignment);
-ok($alignment->target->start == 1 && $alignment->target->end == 654);
-ok($alignment->get_SeqFeatures == 2);
+is($alignment->target->start,1);
+is($alignment->target->end, 654);
+is($alignment->get_SeqFeatures, 2);
 my $gff3 = $alignment->gff3_string(1);
 my @lines = split "\n",$gff3;
-ok (@lines == 2);
-ok ("@lines" !~ /Parent=/s);
-ok ("@lines" =~ /ID=/s);
+is (@lines, 2);
+ok("@lines" !~ /Parent=/s);
+ok("@lines" =~ /ID=/s);
 
 1;
 
