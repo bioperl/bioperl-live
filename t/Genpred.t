@@ -12,7 +12,7 @@ BEGIN {
 	use lib 't/lib';
     }
     use Test::More;
-    plan tests => 187;
+    plan tests => 188;
     use_ok('Bio::Tools::Genscan');
     use_ok('Bio::Tools::Genemark');
     use_ok('Bio::Tools::Glimmer');
@@ -243,6 +243,8 @@ while ($g3gene = $glimmer_3->next_prediction) {
         is($g3gene->start, 14781);
         is($g3gene->end, 13804);
         is($g3gene->strand, -1);
+        my ($orfid) = $g3gene->annotation->get_Annotations('Group');
+        is($orfid, 'GenePrediction_00015');
     }
 }
 is($i, 27);

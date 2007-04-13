@@ -413,10 +413,10 @@ sub _parse_prokaryotic {
                 \[([\+\-])\d{1}\s+ # strand
                 /ox ) ||
                # Glimmer 3.X prediction
-               (/\w+(\d+)\s+       # orf (numeric portion)
+               (/^[^\d]+(\d+)\s+    # orf (numeric portion)
                 (\d+)\s+(\d+)\s+   # start, end
                 ([\+\-])\d{1}\s+   # strand
-               /ox)) {
+                /ox)) {
 	    my ($genenum,$start,$end,$strand) = 
 		( $1,$2,$3,$4 );
 
