@@ -89,8 +89,6 @@ methods. Internal methods are usually preceded with a _
 package Bio::SeqFeature::Computation;
 use strict;
 
-use Bio::Root::Root;
-
 use base qw(Bio::SeqFeature::Generic);
 						     
 sub new {
