@@ -5,13 +5,14 @@
 use strict;
 
 BEGIN {
-    use lib 't/lib';
+    eval { require Test::More; };
+    if( $@ ) {
+        use lib 't/lib';
+    }
     use Test::More;
     plan tests => 4;
 	use_ok('Bio::SearchIO');
 }
-
-# END { }
 
 my $searchio = new Bio::SearchIO(
 	 -format => 'blast',
