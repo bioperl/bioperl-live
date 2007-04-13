@@ -359,6 +359,9 @@ sub get_lca {
     
     my @paths;
     foreach my $node (@nodes) {
+	unless(ref($node) && $node->isa('Bio::Tree::NodeI')) {
+	    $self->throw("Cannot process get_lca() with a non-NodeI object ($node)\n");
+	}
         my @path = ($self->get_lineage_nodes($node), $node);
         push(@paths, \@path);
     }
