@@ -5,31 +5,33 @@
 
 use strict;
 use vars qw($NUMTESTS);
+
 BEGIN {
-	$NUMTESTS = 5;
+	$NUMTESTS = 6;
 	# to handle systems with no installed Test module
 	# we include the t dir (where a copy of Test.pm is located)
 	# as a fallback
-	eval { require Test; };
+	eval { require Test::More ; };
 	if ( $@ ) {
-		use lib 't';
+		use lib 't/lib';
 	}
-	use Test;
+	use Test::More;
 	plan tests => $NUMTESTS;
 }
 
-use Bio::SeqIO::raw;
-use Bio::Root::IO;
+use_ok('Bio::SeqIO::raw','Bio::SeqIO::raw can be used' ) ;
+use_ok('Bio::Root::IO', 'Bio::Root::IO can be used' ) ;
 
 my $verbose = $ENV{'BIOPERLDEBUG'};
-ok(1);
 
 my $io = Bio::SeqIO->new(-format => 'raw',
 								 -verbose => $verbose,
 								 -file => Bio::Root::IO->catfile
 								 (qw(t data test.raw) ));
 
-ok(my $seq = $io->next_seq);
-ok($seq->length, 358);
-ok($seq = $io->next_seq);
-ok($seq->length, 158);
+my $seq ; 
+
+ok( $seq = $io->next_seq, 'got next seq');
+is( $seq->length, 358, 'checked seq length');
+ok( $seq = $io->next_seq, 'got next seq');
+is( $seq->length, 158, 'checked seq length');
