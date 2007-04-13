@@ -28,12 +28,11 @@ BEGIN {
 		plan skip_all => 'IO::String or LWP::UserAgent or HTTP::Request not installed. This means the Bio::DB::* modules are not usable. Skipping tests';
 	}
     elsif (!$DEBUG) {
-		plan skip_all => 'Skipping all tests since they require network access, set BIOPERLDEBUG=1 to test';
+		plan skip_all => 'Must set BIOPERLDEBUG=1 for network tests';
 	}
 	else {
 		plan tests => $NUMTESTS;
 	}
-	
 	use_ok('Bio::DB::GenBank');
 	use_ok('Bio::DB::GenPept');
 	use_ok('Bio::DB::SwissProt');
@@ -73,7 +72,7 @@ my ($gb, $seq, $seqio, $seqin, $query);
 #
 # Bio::DB::GenBank
 #
-ok $gb = new Bio::DB::GenBank('-delay'=>0);
+ok $gb = new Bio::DB::GenBank('-delay'=>0), 'Bio::DB::GenBank';
 
 # get a single seq
 SKIP: {
@@ -103,6 +102,7 @@ SKIP: {
         $done++;
     }
     is $done, 3;
+    skip('No seqs returned',3) if !$done;
 }
 
 $seq = $seqio = undef;
@@ -130,6 +130,7 @@ SKIP: {
         $done++;
     }
     is $done, 3;
+    skip('No seqs returned',3) if !$done;
 }
 
 $seq = $seqio = undef;
@@ -153,6 +154,7 @@ SKIP: {
         $done++;
     }
     is $done, 3;
+    skip('No seqs returned',3) if !$done;
 }
 
 $seq = $seqio = undef;
@@ -161,12 +163,12 @@ $seq = $seqio = undef;
 ok $query = Bio::DB::Query::GenBank->new('-db'      => 'nucleotide',
                                          '-query'   => 'Onchocerca volvulus[Organism]',
                                          '-mindate' => '2002/1/1',
-                                         '-maxdate' => '2002/12/31');
+                                         '-maxdate' => '2002/12/31'), 'Bio::DB::Query::GenBank';
 SKIP: {
-    ok $query->count > 0;
+    cmp_ok $query->count, '>', 0;
     my @ids = $query->ids;
-    ok @ids > 0;
-    ok @ids == $query->count;
+    cmp_ok @ids, '>', 0;
+    is @ids, $query->count;
     ok $gb = Bio::DB::GenBank->new('-delay' => 0);
     eval {$seqio = $gb->get_Stream_by_query($query);};
     skip "Couldn't connect to complete GenBank query tests. Skipping those tests", 5 if $@;
@@ -178,6 +180,7 @@ SKIP: {
         $done++;
     }
     is $done, 4;
+    skip('No seqs returned',4) if !$done;
 }
 
 $seq = $seqio = undef;
@@ -186,10 +189,10 @@ $seq = $seqio = undef;
 ok $query = Bio::DB::Query::GenBank->new('-db'  => 'nucleotide',
                                          '-ids' => [qw(J00522 AF303112 2981014)]);
 SKIP: {
-    ok $query->count > 0;
+    cmp_ok $query->count, '>', 0;
     my @ids = $query->ids;
-    ok @ids > 0;
-    ok @ids == $query->count;
+    cmp_ok @ids, '>', 0;
+    is @ids, $query->count;
     $gb = Bio::DB::GenBank->new('-delay' => 0);
     eval {$seqio = $gb->get_Stream_by_query($query);};
     skip "Couldn't connect to complete GenBank query tests. Skipping those tests: $@", 4 if $@;
@@ -199,6 +202,7 @@ SKIP: {
         $done++;
     }
     is $done, 3;
+    skip('No seqs returned',3) if !$done;
     $seqio->close(); # the key to preventing errors during make test, no idea why
 }
 
@@ -257,6 +261,7 @@ SKIP: {
 		delete $result{$acc};
     }
 	is $ct, 3;
+    skip('No seqs returned',4) if !$ct;
     is %result, 0;
 }
 
@@ -279,6 +284,7 @@ SKIP: {
 		delete $result{$acc};
     }
 	is $ct, 3;
+    skip('No seqs returned',4) if !$ct;
     is %result, 0;
 }
 
@@ -300,7 +306,7 @@ SKIP: {
         $done++;
     }
     is $done, 2;
-    
+    skip('No seqs returned',7) if !$done;
     # swissprot genpept parsing   
     eval {$seq = $gb->get_Seq_by_acc('2AAA_YEAST');};
     skip "Couldn't connect to Genbank with Bio::DB::GenPept.pm. Skipping those tests", 5 if $@;
