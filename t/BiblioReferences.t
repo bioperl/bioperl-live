@@ -11,25 +11,17 @@ use vars qw($NUMTESTS);
 my $error;
 
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     eval { require Test::More; };
     $error = 0;
     if( $@ ) {
 	use lib 't/lib';
     }
     use Test::More;
-
     $NUMTESTS = 537;
     plan tests => $NUMTESTS;
 }
 
 ## End of black magic.
-##
-## Insert additional test code below but remember to change
-## the print "1..x\n" in the BEGIN block to reflect the
-## total number of tests that will be run. 
 
 my ($biblio, $count, $str, @args);
 my ($citation, $provider);

@@ -10,12 +10,9 @@ use vars qw($error $NUMTESTS);
 BEGIN {
 	$NUMTESTS = 16;
 	$error = 0;
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     eval { require Test::More; };
     if ( $@ ) {
-		use lib 't\lib';
+		use lib 't/lib';
     }
     use Test::More;
 	
@@ -30,10 +27,9 @@ BEGIN {
 	else {
 		plan tests => $NUMTESTS;
 	}
+	use_ok('Bio::SeqIO');
+	use_ok('Bio::Root::IO');
 }
-
-use_ok('Bio::SeqIO');
-use_ok('Bio::Root::IO');
 
 my $verbose = $ENV{'BIOPERLDEBUG'};
 

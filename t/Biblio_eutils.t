@@ -11,44 +11,38 @@ use vars qw($NUMTESTS $DEBUG $error $msg);
 
 BEGIN { 
     $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     eval { require Test::More; };
-    $error = 0;
+    $error = $DEBUG ? '' : 'Must set BIOPERLDEBUG=1 for network tests';
     if( $@ ) {
 	use lib 't/lib';
     }
     use Test::More;
-    
-    plan tests => ($NUMTESTS = 6);
-
+    eval { require IO::String; };
+	if( $@ ) {
+		$error = "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests.";
+	} 
+	eval { require LWP::Simple; };
+	if( $@ ) {
+		$error = "LWP::Simple not installed. This means the Bio::DB::* modules are not usable. Skipping tests.";
+	}
+	
+	if ($error) {
+		plan skip_all => $error;
+	} else {
+		plan tests => ($NUMTESTS = 6);
+	}
 	use_ok('Bio::Biblio');
 }
 
 ## End of black magic.
-##
-## Insert additional test code below but remember to change
-## the print "1..x\n" in the BEGIN block to reflect the
-## total number of tests that will be run. 
 
 my $db;
 
 my $verbose =  $DEBUG || 0;
-
 SKIP: {
-	eval { require IO::String; };
-	if( $@ ) {
-	skip( "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests.",5);
-	} 
-	eval { require LWP::Simple; };
-	if( $@ ) {
-	skip( "LWP::Simple not installed. This means the Bio::DB::* modules are not usable. Skipping tests.",5);
-	}
-	
-	eval { 
-		ok ($db = new Bio::Biblio (-access => 'eutils',
+	ok ($db = new Bio::Biblio (-access => 'eutils',
 					   -verbose=>$verbose));
+	eval { 
 		ok(defined($db->find('"Day A"[AU] AND ("Database Management Systems"[MH] OR "Databases, Genetic"[MH] OR "Software"[MH] OR "Software Design"[MH])')));
 	};
 	
