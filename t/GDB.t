@@ -10,9 +10,6 @@ use strict;
 use vars qw($NUMTESTS $DEBUG);
 
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     $NUMTESTS = 12;
 	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 	

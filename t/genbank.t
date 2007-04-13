@@ -9,12 +9,10 @@ BEGIN {
         use lib 't/lib';
     }
     use Test::More;
-    plan tests => 246;
+    plan tests => 245;
     use_ok('Bio::SeqIO');
     use_ok('Bio::Root::IO');
 }
-
-ok(1);
 
 my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
 

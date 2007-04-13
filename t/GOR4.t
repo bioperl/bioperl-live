@@ -23,8 +23,9 @@ BEGIN {
 	};
 	if ($@) {
 		plan skip_all => 'IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests';
-	}
-	else {
+	} elsif (!$DEBUG) {
+        plan skip_all => 'Must set BIOPERLDEBUG=1 for network tests';
+    } else {
 		plan tests => $NUMTESTS;
 	}
 	
@@ -43,7 +44,6 @@ my $seq = Bio::Seq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQ
 ok my $tool = Bio::Tools::Analysis::Protein::GOR4->new(-seq=>$seq->primary_seq);
 
 SKIP: {
-	skip "Skipping tests which require remote servers, set BIOPERLDEBUG=1 to test", 10 unless $DEBUG;
     ok $tool->run();
 	skip "Skipping tests since we got terminated by a server error", 9 if $tool->status eq 'TERMINATED_BY_ERROR';
     ok my $raw = $tool->result('');

@@ -7,9 +7,6 @@
 use strict;
 
 BEGIN {     
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     eval { require Test::More; };
     if( $@ ) {
         use lib 't/lib';
@@ -22,7 +19,7 @@ BEGIN {
 }
 
 END {
-    unlink(Bio::Root::IO->catfile(qw(t data gbrowsegff.out)) );
+    #unlink(Bio::Root::IO->catfile(qw(t data gbrowsegff.out)) );
 }
 
 my $in = Bio::SearchIO->new(-format => 'blast',

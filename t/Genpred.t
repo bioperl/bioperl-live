@@ -7,9 +7,6 @@
 
 use strict;
 BEGIN {     
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     eval { require Test::More; };
     if( $@ ) {
 	use lib 't/lib';
@@ -23,7 +20,6 @@ BEGIN {
     use_ok('Bio::SeqIO');
     use_ok('Bio::Root::IO');
 }
-
 
 # Genscan report
 my $genscan = Bio::Tools::Genscan->new('-file' => Bio::Root::IO->catfile("t","data","genomic-seq.genscan"));

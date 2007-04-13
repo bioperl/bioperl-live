@@ -5,13 +5,8 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
-my $error = 0;
-
 use strict;
 BEGIN {
-	# to handle systems with no installed Test module
-	# we include the t dir (where a copy of Test.pm is located)
-	# as a fallback
 	eval { require Test::More; };
 	if( $@ ) {
 		use lib 't/lib';

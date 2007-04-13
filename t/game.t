@@ -11,50 +11,30 @@ use vars qw($DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'};
 
 BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+        use lib 't/lib';
     }
-    use Test;
+    use Test::More;
     use vars qw($TESTCOUNT);
-    $TESTCOUNT = 23;
-    plan tests => $TESTCOUNT;
+    $TESTCOUNT = 26;
     
-    $error  = 0;
     eval { require XML::Parser::PerlSAX; };
     if( $@ ) {
-	print STDERR "XML::Parser::PerlSAX not loaded. This means game test cannot be executed. Skipping\n";
-	foreach ( $Test::ntest..$TESTCOUNT ) {
-	    skip('XML::Parser::PerlSAX installed',1);
-	}
-	$error = 1;
-    } 
-    # make sure we can load it, assuming that the prerequisites are really met
-
-    if( $error == 0 ) {
-	eval { require Bio::SeqIO::game; };
-	if( $@ ) {
-	    print STDERR "game.pm not loaded. This means game test cannot be executed. Skipping\n";
-	    foreach ( $Test::ntest..$TESTCOUNT ) {
-		skip('game.pm not loaded because XML::Writer not loaded',1);
-	    }
-	    $error = 1;
-	} 
+        plan skip_all => "XML::Parser::PerlSAX not loaded. This means game test cannot be executed. Skipping";
+    } else {
+        plan tests => $TESTCOUNT;
     }
-}
-
-if( $error == 1 ) {
-    exit(0);
+    # make sure we can load it, assuming that the prerequisites are really met
+	use_ok('Bio::SeqIO::game');
+    use_ok('Bio::SeqIO');
+    use_ok('Bio::Root::IO');
 }
 
 END{ 
     unlink('testgameout.game')
 }
-use Bio::SeqIO;
-use Bio::Root::IO;
+
 my $verbose = $DEBUG ? 1 : -1;
 my $str = Bio::SeqIO->new('-file'=> Bio::Root::IO->catfile("t","data","test.game"), 
 			  '-format' => 'game',
@@ -71,25 +51,25 @@ $str = new Bio::SeqIO(
 $seq = $str->next_seq;
 ok(defined $seq);
 ok(defined $seq->seq);
-ok($seq->alphabet, 'dna');
-ok($seq->display_id, 'L16622');
-ok($seq->length, 28735);
-ok($seq->species->binomial, 'Caenorhabditis elegans');
+is($seq->alphabet, 'dna');
+is($seq->display_id, 'L16622');
+is($seq->length, 28735);
+is($seq->species->binomial, 'Caenorhabditis elegans');
 my @feats = $seq->get_SeqFeatures;
-ok(scalar(@feats), 7);
+is(scalar(@feats), 7);
 my $source = grep { $_->primary_tag eq 'source' } @feats;
 ok($source);
 my @genes = grep { $_->primary_tag eq 'gene' } @feats;
-ok(scalar(@genes), 3);
+is(scalar(@genes), 3);
 ok($genes[0]->has_tag('gene'));
 my $gname;
 if ( $genes[0]->has_tag('gene') ) {
     ($gname) = $genes[0]->get_tag_values('gene');
 }
-ok($gname, 'C02D5.3');
-ok($genes[0]->strand, 1);
+is($gname, 'C02D5.3');
+is($genes[0]->strand, 1);
 my $cds   = grep { $_->primary_tag eq 'CDS' } @feats;
-ok($cds, 3);
+is($cds, 3);
 
 # make sure we can read what we write
 # test XML-writing
@@ -103,14 +83,14 @@ $str = new Bio::SeqIO(-format =>'game', -file => $testfile);
 $seq = $str->next_seq;
 ok(defined $seq);
 ok(defined $seq->seq);
-ok($seq->alphabet, 'dna');
-ok($seq->display_id, 'L16622');
-ok($seq->length, 28735);
-ok($seq->species->binomial, 'Caenorhabditis elegans');
+is($seq->alphabet, 'dna');
+is($seq->display_id, 'L16622');
+is($seq->length, 28735);
+is($seq->species->binomial, 'Caenorhabditis elegans');
 
 my $genes = grep { $_->primary_tag eq 'gene' } @feats;
 $cds   = grep { $_->primary_tag eq 'CDS' } @feats;
-ok($genes, 3);
-ok($cds, 3);
+is($genes, 3);
+is($cds, 3);
 unlink $testfile;
 
