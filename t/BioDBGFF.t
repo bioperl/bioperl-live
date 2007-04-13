@@ -19,17 +19,17 @@ BEGIN {
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-        use lib 't';
+        use lib 't/lib';
     }
-    use Test;
-    plan test => TEST_COUNT;
+    use Test::More;
+    plan tests => TEST_COUNT;
 }
 
 sub bail ($;$);
 sub user_prompt ($;$);
-sub fail ($);
+sub fail (;$);
 use lib '.','..','./blib/lib';
 use Bio::DB::GFF;
 use Bio::SeqIO;
@@ -76,8 +76,8 @@ for my $FILE (GFF_FILE1,GFF_FILE2) {
   # set the preferred groups
   $db->preferred_groups( [ 'transcript', 'gene', 'mRNA' ] );
   my @pg = $db->preferred_groups;
-  ok(scalar(@pg), 3);
-  ok($pg[1], 'gene'); 
+  is(scalar(@pg), 3);
+  is($pg[1], 'gene'); 
 
   # exercise the loader
   ok($db->initialize(1));
@@ -86,89 +86,89 @@ for my $FILE (GFF_FILE1,GFF_FILE2) {
 
   # exercise db->types
   my @types = sort $db->types;
-  ok(scalar @types,11);
-  ok($types[0],'CDS:confirmed');
-  ok($types[-1],'transposon:tc1');
+  is(scalar @types,11);
+  is($types[0],'CDS:confirmed');
+  is($types[-1],'transposon:tc1');
   my %types = $db->types('-enumerate'=>1);
-  ok($types{'transposon:tc1'},2);
+  is($types{'transposon:tc1'},2);
 
   # exercise segment
   my $segment1 = $db->segment('Contig1');
 
   ok($segment1);
-  ok($segment1->length,37450);
-  ok($segment1->start,1);
-  ok($segment1->end,37450);
-  ok($segment1->strand,1);
+  is($segment1->length,37450);
+  is($segment1->start,1);
+  is($segment1->end,37450);
+  is($segment1->strand,1);
   
   my $segment2  = $db->segment('Contig1',1=>1000);
-  ok($segment2->length,1000);
-  ok($segment2->start,1);
-  ok($segment2->end,1000);
-  ok($segment2->strand,1);
+  is($segment2->length,1000);
+  is($segment2->start,1);
+  is($segment2->end,1000);
+  is($segment2->strand,1);
   
   my $segment3 = $db->segment('Contig1',10=>1);
-  ok($segment3->start,10);
-  ok($segment3->end,1);
-  ok($segment3->strand,-1);
+  is($segment3->start,10);
+  is($segment3->end,1);
+  is($segment3->strand,-1);
 
   # exercise attribute fetching
   my @t = $db->fetch_feature_by_name(Transcript => 'trans-1');
   my ($t) = grep {$_->type eq 'transcript:confirmed'} @t;
-  ok($t->attributes('Note'),'function unknown');
-  ok(join(' ',sort $t->attributes('Gene')),'abc-1 xyz-2');
+  is($t->attributes('Note'),'function unknown');
+  is(join(' ',sort $t->attributes('Gene')),'abc-1 xyz-2');
   my $att = $t->attributes;
-  ok(scalar @{$att->{Gene}},2);
+  is(scalar @{$att->{Gene}},2);
   @t = sort {$a->display_name cmp $b->display_name} $db->fetch_feature_by_attribute('Gene'=>'abc-1');
-  ok(@t>0);
-  ok($t[0] eq $t);
+  cmp_ok(@t,'>',0);
+  is($t[0], $t);
   my $seg = $db->segment('Contig1');
   @t = $seg->features(-attributes=>{'Gene'=>'abc-1'});
-  ok(@t>0);
-  ok($seg->feature_count, 17);
+  cmp_ok(@t,'>',0);
+  is($seg->feature_count, 17);
   @t = $seg->features(-attributes=>{'Gene'=>'xyz-2',Note=>'Terribly interesting'});
-  ok(@t==1);
+  is(@t,1);
 
   # exercise dna() a bit
   my $dna = $segment2->dna;
-  ok(length $dna,1000);
-  ok(substr($dna,0,10),'gcctaagcct');
-  ok($segment3->dna,'aggcttaggc');
-  ok($segment1->dna eq $db->dna($segment1->ref));
+  is(length $dna,1000);
+  is(substr($dna,0,10),'gcctaagcct');
+  is($segment3->dna,'aggcttaggc');
+  is($segment1->dna, $db->dna($segment1->ref));
 
   # exercise ref()
   my $segment4 = $db->segment('-name'=>'c128.1','-class'=>'Transposon');
-  ok($segment4->length,1000);
-  ok($segment4->start,1);
-  ok($segment4->end,1000);
-  ok($segment4->ref,'c128.1');
-  ok($segment4->strand,1);
+  is($segment4->length,1000);
+  is($segment4->start,1);
+  is($segment4->end,1000);
+  is($segment4->ref,'c128.1');
+  is($segment4->strand,1);
   ok(!$segment4->absolute);
 
   $segment4->absolute(1);
   ok($segment4->absolute);
-  ok($segment4->ref,'Contig1');
-  ok($segment4->start,5001);
+  is($segment4->ref,'Contig1');
+  is($segment4->start,5001);
   $segment4->absolute(0);
   my $tmp = $db->segment('Contig1',5001=>6000);
-  ok($segment4->dna,$tmp->dna);
+  is($segment4->dna,$tmp->dna);
 
   $segment4->ref('Contig1');
-  ok($segment4->ref,'Contig1');
-  ok($segment4->start,5001);
-  ok($segment4->end,6000);
+  is($segment4->ref,'Contig1');
+  is($segment4->start,5001);
+  is($segment4->end,6000);
 
   my $segment5 = $db->segment('-name'=>'c128.2','-class'=>'Transposon');
-  ok($segment5->length,1000);
-  ok($segment5->start,1);
-  ok($segment5->end,1000);
-  ok($segment5->ref,'c128.2');
-  ok($segment5->strand,1);
+  is($segment5->length,1000);
+  is($segment5->start,1);
+  is($segment5->end,1000);
+  is($segment5->ref,'c128.2');
+  is($segment5->strand,1);
 
   $tmp = $db->segment('Contig1',9000,8001);
-  ok($segment5->dna,$tmp->dna);
+  is($segment5->dna,$tmp->dna);
   $segment5->absolute(1);
-  ok($segment5->strand,-1);
+  is($segment5->strand,-1);
 
   # rel/rel addressing
   # first two positive strand features
@@ -177,53 +177,53 @@ for my $FILE (GFF_FILE1,GFF_FILE2) {
   $segment5  = $db->segment('Transcript' => 'trans-1');
   my $start5 = $segment5->abs_start;
   $segment4->ref($segment5);
-  ok($segment4->strand,1);
-  ok($segment4->start,$start4-$start5+1);
-  ok($segment4->stop,$start4-$start5+$segment4->length);
+  is($segment4->strand,1);
+  is($segment4->start,$start4-$start5+1);
+  is($segment4->stop,$start4-$start5+$segment4->length);
 
   $segment4->ref('Transposon' => 'c128.1');
   $segment5->ref('Transcript' => 'trans-1');
   $segment5->ref($segment4);
-  ok($segment5->start,$start5-$start4+1);
+  is($segment5->start,$start5-$start4+1);
 
   # now a positive on a negative strand feature
   my $segment6 = $db->segment('Transcript'=>'trans-2');
   my $start6 = $segment6->abs_start;
-  ok($segment6->strand,1);
-  ok($segment6->abs_strand,-1);
+  is($segment6->strand,1);
+  is($segment6->abs_strand,-1);
   $segment6->ref($segment4);
-  ok($segment6->start,$start6-$start4+1);
-  ok($segment6->strand,-1);
+  is($segment6->start,$start6-$start4+1);
+  is($segment6->strand,-1);
 
   $segment4->ref($segment6);
-  ok($segment4->start,$start6-$start4+1);
-  ok($segment4->strand,-1);
-  ok($segment4->ref eq $segment6);
+  is($segment4->start,$start6-$start4+1);
+  is($segment4->strand,-1);
+  is($segment4->ref,$segment6);
 
   # the reference sequence shouldn't affect the dna
   $segment6 = $db->segment('Transcript'=>'trans-2');
   $dna = $segment6->dna;
   $segment6->ref($segment4);
-  ok($segment6->dna,$dna);
+  is($segment6->dna,$dna);
 
   # segments should refuse to accept a reference sequence on a foreign segment
   undef $@;
   my $result = eval { $segment6->ref('Contig2') };
   ok(!$result);
-  ok("$@" =~ /are on different sequence segments/);
+  like($@, qr/are on different sequence segments/);
 
   # types across a segment
   $segment1 = $db->segment('Contig1');
   @types = sort $segment1->types;
-  ok(scalar @types,6);
-  ok($types[0],'CDS:confirmed');
-  ok($types[-1],'transposon:tc1');
+  is(scalar @types,6);
+  is($types[0],'CDS:confirmed');
+  is($types[-1],'transposon:tc1');
   %types = $segment1->types('-enumerate'=>1);
-  ok($types{'similarity:est'},3);
+  is($types{'similarity:est'},3);
 
   # features across a segment
   my @features = $segment1->features('-automerge'=>0);
-  ok(scalar @features,17);
+  is(scalar @features,17);
   my %types_seen;
   foreach (@features) {
     $types_seen{$_->type}++;
@@ -235,22 +235,22 @@ for my $FILE (GFF_FILE1,GFF_FILE2) {
   ok(!$inconsistency);
 
   @features = sort {$a->start<=>$b->start} @features;
-  ok($features[0]->type,'Component:reference');
-  ok($features[-1]->type,'exon:confirmed');
+  is($features[0]->type,'Component:reference');
+  is($features[-1]->type,'exon:confirmed');
 
   # make sure that we can use features to get at dna
-  ok($features[0]->dna,$db->segment('Contig1',$features[0]->start,$features[0]->end)->dna);
+  is($features[0]->dna,$db->segment('Contig1',$features[0]->start,$features[0]->end)->dna);
 
   # check three forward features and three reverse features
   # (This depends on the test.gff data)
   for (1..3,-3..-1) {
     $segment2 = $db->segment($features[$_],50,100);
     if ($features[$_]->strand >= 0) {
-      ok($segment2->dna,$db->segment('Contig1',
+      is($segment2->dna,$db->segment('Contig1',
 				     $features[$_]->start+50-1,
 				     $features[$_]->start+100-1)->dna)
     } else {
-      ok($segment2->dna,$db->segment('Contig1',
+      is($segment2->dna,$db->segment('Contig1',
 				     $features[$_]->start-50+1,
 				     $features[$_]->start-100+1)->dna)
     }
@@ -263,15 +263,15 @@ for my $FILE (GFF_FILE1,GFF_FILE2) {
   $db->add_aggregator($aggregator);
   $segment1 = $db->segment('Contig1');
   @features = sort $segment1->features('aggregated_transcript');  # sort so that trans-1 comes first
-  ok(scalar @features,2);
-  ok($features[0]->Exon > 0);
-  ok($features[0]->Cds > 0);
+  is(scalar @features,2);
+  cmp_ok($features[0]->Exon, '>', 0);
+  cmp_ok($features[0]->Cds,'>', 0);
 
   # Test that sorting is correct.  The way that test.gff is set up, the lower one is
   # on the + strand and the higher is on the -.
   @features = sort {$a->start <=> $b->start} @features;
-  ok($features[0]->strand,1);
-  ok($features[1]->strand,-1);
+  is($features[0]->strand,1);
+  is($features[1]->strand,-1);
 
   my $last = 0;
   $inconsistency = 0;
@@ -294,36 +294,36 @@ for my $FILE (GFF_FILE1,GFF_FILE2) {
   my $transcript1 = $db->segment($features[0]);
   $transcript1->ref($features[0]);
   my @overlap     = sort {$a->start <=> $b->start } $transcript1->features;
-  ok(scalar(@overlap),5);
-  ok($overlap[0]->start,-999);
+  is(scalar(@overlap),5);
+  is($overlap[0]->start,-999);
 
   $transcript1 = $db->segment('Transcript' => 'trans-1');
   @overlap     = sort {$a->start <=> $b->start } $transcript1->features;
-  ok($overlap[0]->start,-999);
+  is($overlap[0]->start,-999);
 
   # test strandedness of features
   $segment1 = $db->segment('-class' => 'Transcript',
 			   '-name'  => 'trans-3',
 			   '-start' => 1,
 			   '-stop'  => 6000);
-  ok($segment1->strand,1);
+  is($segment1->strand,1);
   @overlap  = sort {$a->start <=> $b->start} $segment1->features('transcript');
-  ok(scalar(@overlap),2);
-  ok($overlap[0]->name,'trans-3');
-  ok($overlap[1]->name,'trans-4');
-  ok($overlap[0]->strand,1);
-  ok($overlap[1]->strand,-1);
+  is(scalar(@overlap),2);
+  is($overlap[0]->name,'trans-3');
+  is($overlap[1]->name,'trans-4');
+  is($overlap[0]->strand,1);
+  is($overlap[1]->strand,-1);
 
   # testing feature id and group_id
   my $tf = $overlap[0];
   ok(defined $tf->id);
   my $t1 = $db->fetch_feature_by_id($tf->id);
-  ok($t1->id,$tf->id);
+  is($t1->id,$tf->id);
 
   if (defined $tf->group_id) {
     my $t2 = $db->fetch_feature_by_gid($tf->group_id);
-    ok($t2->group_id,$tf->group_id);
-    ok($t2->group_id,$t1->group_id);
+    is($t2->group_id,$tf->group_id);
+    is($t2->group_id,$t1->group_id);
   } else {
     skip("fetch_feature_by_gid() not implemented by this adaptor",1);
     skip("fetch_feature_by_gid() not implemented by this adaptor",1);
@@ -333,26 +333,28 @@ for my $FILE (GFF_FILE1,GFF_FILE2) {
 			   '-name'  => 'trans-4',
 			   '-start' => 1,
 			   '-stop'  => 6000);
-  ok($segment1->strand,1);
+  is($segment1->strand,1);
   @overlap = sort {$a->start <=> $b->start} $segment1->features('transcript');
-  ok($overlap[0]->name,'trans-4');
-  ok($overlap[1]->name,'trans-3');
-  ok($overlap[0]->strand,1);
-  ok($overlap[1]->strand,-1);
+  is($overlap[0]->name,'trans-4');
+  is($overlap[1]->name,'trans-3');
+  is($overlap[0]->strand,1);
+  is($overlap[1]->strand,-1);
 
   @overlap = sort {$a->start <=> $b->start} $segment1->features('Component');
-  ok($overlap[0]->strand,0);
+  is($overlap[0]->strand,0);
 
+SKIP: {
   # test preferred group assignments
   if ($FILE =~ /\.gff$/) {
     my @gene = $db->get_feature_by_name( gene => 'gene-9' );
     my @mrna = $db->get_feature_by_name( mRNA => 'trans-9' );
-    ok($gene[0]->ref, 'Contig4');
-    ok(scalar(@gene), 2);
-    ok(scalar(@mrna), 1);
+    is($gene[0]->ref, 'Contig4');
+    is(scalar(@gene), 2);
+    is(scalar(@mrna), 1);
   } else {
-    skip('preferred groups are not supported by gff3',1) for 1..3;
+    skip('preferred groups are not supported by gff3',3);
   }
+}
 
   # test iterator across a segment
   $segment1 = $db->segment('Contig1');
@@ -361,7 +363,7 @@ for my $FILE (GFF_FILE1,GFF_FILE2) {
   while (my $s = $i->next_feature) {
     $strand{$s->strand}++;
   }
-  ok(keys %strand == 3);
+  is(keys %strand, 3);
 
   # test iterator across entire database
   $i = $db->features('-automerge'=>0,'-iterator'=>1);
@@ -369,7 +371,7 @@ for my $FILE (GFF_FILE1,GFF_FILE2) {
   while (my $s = $i->next_feature) {
     $strand{$s->strand}++;
   }
-  ok(keys %strand == 3);
+  is(keys %strand, 3);
 
   # test iterator across a segment, limited by an attribute
   $i = $seg->get_feature_stream(-attributes=>{'Gene'=>'abc-1',Note=>'function unknown'});
@@ -377,16 +379,16 @@ for my $FILE (GFF_FILE1,GFF_FILE2) {
   while ($i->next_seq) {
     $count++;
   }
-  ok($count,2);
+  is($count,2);
 
   # test that aliases work
   my $st1 = $db->segment(Transcript => 'trans-3');
   ok($st1);
   my $st2 = $db->segment(Transcript => 'trans-18');  # this is an alias!
   ok($st2);
-  ok($st1 eq $st2);
+  is($st1,$st2);
   my @transcripts = $st1->features('transcript');
-  ok(($transcripts[0]->aliases)[0] eq 'trans-18');
+  is(($transcripts[0]->aliases)[0],'trans-18');
 
   # test truncation
   $db->strict_bounds_checking(1);
@@ -402,29 +404,29 @@ for my $FILE (GFF_FILE1,GFF_FILE2) {
   $db->clear_aggregators;
   $db->add_aggregator('processed_transcript');
   my @f = $db->fetch_feature_by_name(mRNA => 'trans-8');
-  ok(scalar @f,1);
-  ok($f[0]->length,35000-32000+1);
-  ok(scalar $f[0]->CDS,3);
-  ok(scalar $f[0]->UTR,2);
+  is(scalar @f,1);
+  is($f[0]->length,35000-32000+1);
+  is(scalar $f[0]->CDS,3);
+  is(scalar $f[0]->UTR,2);
 
   # test deletions
   # segment delete() method
   my $clone = $db->segment(Clone=>'M7.3');
   my $overlapping_feature_count = $clone->features(-range_type =>'overlaps');
   my $contained_feature_count   = $clone->features(-range_type =>'contains');
-  ok(scalar $clone->delete(-range_type=>'contains'),$contained_feature_count);
-  ok(scalar $clone->features,$overlapping_feature_count - $contained_feature_count);
+  is(scalar $clone->delete(-range_type=>'contains'),$contained_feature_count);
+  is(scalar $clone->features,$overlapping_feature_count - $contained_feature_count);
 
   # database delete() method
-  ok($db->delete(-type=>['mRNA:confirmed','transposon:tc1']),4);
-  ok($db->delete(-type=>'UTR',-ref=>'Contig29'),undef);
-  ok($db->delete(-type=>'CDS',-ref=>'AL12345.2',-class=>'Clone'),3);
-  ok($db->delete_features(1,2,3),3);
+  is($db->delete(-type=>['mRNA:confirmed','transposon:tc1']),4);
+  is($db->delete(-type=>'UTR',-ref=>'Contig29'),undef);
+  is($db->delete(-type=>'CDS',-ref=>'AL12345.2',-class=>'Clone'),3);
+  is($db->delete_features(1,2,3),3);
 
   $result = eval {
-    ok($db->delete_groups(1,2,3,4,5),5);
+    is($db->delete_groups(1,2,3,4,5),5);
     my @features = $db->get_feature_by_name(Sequence => 'Contig2');
-    ok($db->delete_groups(@features),1);
+    is($db->delete_groups(@features),1);
     1;
   };
   if (!$result && $@ =~ /not implemented/i) {
@@ -433,7 +435,7 @@ for my $FILE (GFF_FILE1,GFF_FILE2) {
   }
   ok(!defined eval{$db->delete()});
   ok($db->delete(-force=>1));
-  ok(scalar $db->features,0);
+  is(scalar $db->features,0);
   ok(!$db->segment('Contig1'));
 }
 
@@ -450,7 +452,7 @@ sub bail ($;$) {
   exit 0;
 }
 
-sub fail ($) {
+sub fail (;$) {
   my $count = shift;
   for (1..$count) {
     ok(0);
