@@ -8,9 +8,6 @@ use strict;
 use vars qw($NUMTESTS $DEBUG $ERROR);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
 	eval { require Test::More; };
 	$ERROR = 0;
 	if( $@ ) {
@@ -25,7 +22,9 @@ BEGIN {
 	};
 	if( $@ ) {
 		plan skip_all => "IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests";
-	} else {
+	} elsif (!$DEBUG) {
+        plan skip_all => 'Must set BIOPERLDEBUG=1 for network tests';
+    } else {
 		plan tests => $NUMTESTS
 	};
 	use_ok 'Bio::Tools::Analysis::Protein::Mitoprot';
@@ -45,15 +44,10 @@ my $seq = Bio::PrimarySeq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDSFFGSDFDGDS'.
                                -display_id => 'test2');
 
 ok $tool = Bio::Tools::Analysis::Protein::Mitoprot->new( -seq=>$seq);
-SKIP: {
-	if( $DEBUG ) { 
-		ok $tool->run ();
-		exit if $tool->status eq 'TERMINATED_BY_ERROR';
-		ok my $raw = $tool->result('');
-		ok my $parsed = $tool->result('parsed');
-		is ($parsed->{'charge'}, -13);
-		ok my @res = $tool->result('Bio::SeqFeatureI');
-	} else { 
-		skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",5);
-	}
-}
+ok $tool->run ();
+exit if $tool->status eq 'TERMINATED_BY_ERROR';
+ok my $raw = $tool->result('');
+ok my $parsed = $tool->result('parsed');
+is ($parsed->{'charge'}, -13);
+ok my @res = $tool->result('Bio::SeqFeatureI');
+

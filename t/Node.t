@@ -5,9 +5,6 @@
 my $error;
 use strict;
 BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     $error = 0; 
     eval { require Test::More; };
     if( $@ ) {

@@ -8,8 +8,6 @@
 
 use strict;
 use vars qw($NUMTESTS $DEBUG);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-
 my $error;
 
 BEGIN {
@@ -19,19 +17,10 @@ BEGIN {
 		use lib 't';
 	}
 	use Test::More;
-	$NUMTESTS = 25;
-	eval { require IO::String; 
-			 require LWP::UserAgent;
-			 require HTTP::Request::Common;
-       };
-	if( $@ ) {
-		plan skip_all => "IO::String or LWP::UserAgent or HTTP::Request not installed. This means the MeSH modules are not usable. Skipping tests.";
-	} else {
-		plan tests => $NUMTESTS;
-	}		
+	$NUMTESTS = 24;
+    plan tests => $NUMTESTS;
 	use_ok('Bio::Phenotype::MeSH::Term');
 	use_ok('Bio::Phenotype::MeSH::Twig');
-	use_ok('Bio::DB::MeSH');
 }
 # For tests of Bio::DB::MeSH see t/DB.t
 
