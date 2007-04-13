@@ -7,22 +7,18 @@
 
 use strict;
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     eval { require Test::More; };
     if ( $@ ) {
 		use lib 't/lib';
     }
     use Test::More;
     plan tests => 275;
+    use_ok('Bio::Factory::FTLocationFactory');
+    use_ok('Bio::Factory::LocationFactoryI');
+    use_ok('Bio::Location::Simple');
+    use_ok('Bio::Location::Split');
+    use_ok('Bio::Location::Fuzzy');
 }
-
-use_ok('Bio::Factory::FTLocationFactory');
-use_ok('Bio::Factory::LocationFactoryI');
-use_ok('Bio::Location::Simple');
-use_ok('Bio::Location::Split');
-use_ok('Bio::Location::Fuzzy');
 
 my $simple_impl = "Bio::Location::Simple";
 my $fuzzy_impl = "Bio::Location::Fuzzy";

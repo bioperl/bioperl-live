@@ -136,9 +136,8 @@ my $cache = Bio::DB::InMemoryCache->new( -seqdb => $gb_ind );
 
 ok ( $cache->get_Seq_by_id('AI129902') );
 
-eval { require Bio::DB::FileCache };
-
 SKIP: {
+   eval { require Bio::DB::FileCache };
    skip('Bio::DB::FileCache not loaded because one or more of Storable, Fcntl, DB_File or File::Temp not installed',22) if $@;
 
    $cache = Bio::DB::FileCache->new(-seqdb => $gb_ind,

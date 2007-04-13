@@ -11,9 +11,7 @@ use vars qw($NUMTESTS $DEBUG $HAVEGRAPHDIRECTED $errmsg);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
-	$errmsg = 'Unable to run Interpro Tests';
 	eval { require Test::More; };
-	$error = 0;
 	if( $@ ) {
 	   use lib 't/lib';
 	}
