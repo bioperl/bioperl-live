@@ -19,7 +19,7 @@ BEGIN {
 }
 
 END {
-    #unlink(Bio::Root::IO->catfile(qw(t data gbrowsegff.out)) );
+    unlink(Bio::Root::IO->catfile(qw(t data gbrowsegff.out)) );
 }
 
 my $in = Bio::SearchIO->new(-format => 'blast',
