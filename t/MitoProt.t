@@ -6,8 +6,9 @@
 # `make test'. After `make install' it should work as `perl test.t'
 use strict;
 use vars qw($NUMTESTS $DEBUG $ERROR);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+
 BEGIN {
+    $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 	eval { require Test::More; };
 	$ERROR = 0;
 	if( $@ ) {

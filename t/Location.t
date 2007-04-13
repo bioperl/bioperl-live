@@ -12,7 +12,7 @@ BEGIN {
 		use lib 't/lib';
     }
     use Test::More;
-    plan tests => 104;
+    plan tests => 103;
     use_ok('Bio::Location::Simple');
     use_ok('Bio::Location::Split');
     use_ok('Bio::Location::Fuzzy');
