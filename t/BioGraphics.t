@@ -9,92 +9,85 @@
 use strict;
 use vars qw($NUMTESTS $DEBUG);
 
-use File::Spec;
-use constant IMAGES => File::Spec->catfile(qw(t data biographics));
-use constant FILES => File::Spec->catfile(qw(t data biographics));
-use constant IMAGE_TESTS => 0;
-
 my $error;
 
 BEGIN { 
     $error = 0;
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
+	use constant IMAGE_TESTS => 0;
     eval { require Test::More; };
     if( $@ ) {
 	use lib 't/lib';
     }
     use Test::More;
 
-    $NUMTESTS = 16 + (IMAGE_TESTS ? 3 : 0);
-    plan tests => $NUMTESTS;
-    
-    require_ok('Bio::Graphics::FeatureFile');
-    require_ok('Bio::Graphics');
-}
-
-exit 0 if $error;
-
-SKIP: {
+    $NUMTESTS = 17 + (IMAGE_TESTS ? 3 : 0);
     eval {
         require GD;
         require Text::Shellwords;
     };
     if( $@ ) {
-        skip("GD or Text::Shellwords modules are not installed. ".
+        plan skip_all => "GD or Text::Shellwords modules are not installed. ".
         "This means that Bio::Graphics module is unusable. ".
-        "Skipping tests.",$NUMTESTS-2);
-    }
-    my $verbose = -1;
-    my $write   = 0;
-    
-    ## End of black magic.
-    ##
-    ## Insert additional test code below but remember to change
-    ## the print "1..x\n" in the BEGIN block to reflect the
-    ## total number of tests that will be run. 
-    
-    my @images = IMAGE_TESTS ? qw(t1 t2 t3) : ();
-    
-    # parse command line arguments
-    while (@ARGV && $ARGV[0] =~ /^--?(\w+)/) {
-      my $arg = $1;
-      if ($arg eq 'write') {
-        warn "Writing regression test images into ",IMAGES,".........\n";
-        $write++;
-      }
-      shift;
-    }
-    
-    
-    foreach (@images) {
-      if ($write) { warn "$_...\n"; do_write($_) } else { eval { do_compare($_) } }
-    }
-    
-    my $data  = Bio::Graphics::FeatureFile->new(-file => FILES . "/feature_data.txt") or die;
-    ok defined $data;
-    is $data->render, 5;
-    is $data->setting(general=>'pixels'), 750;
-    is $data->setting('general'), 4;
-    is $data->setting, 6;
-    is $data->glyph('EST'), 'segments';
-    
-    my %style = $data->style('EST');
-    is $style{-connector}, 'solid';
-    is $style{-height}, 5;
-    is $style{-bgcolor}, 'yellow';
-    
-    is $data->configured_types, 5;
-    is @{$data->features('EST')}, 5;
-    
-    my $thing = $data->features('EST');
-    
-    my ($feature) = grep {$_->name eq 'Predicted gene 1'} @{$data->features('FGENESH')};
-    ok $feature;
-    is $feature->desc, "Pfam";
-    is $feature->score, 20;
+        "Skipping tests.";
+    } else {
+		plan tests => $NUMTESTS;
+	}
+    use_ok('Bio::Graphics::FeatureFile');
+    use_ok('Bio::Graphics');
+	use_ok('File::Spec');
 }
+
+use constant IMAGES => File::Spec->catfile(qw(t data biographics));
+use constant FILES => File::Spec->catfile(qw(t data biographics));
+
+my $verbose = -1;
+my $write   = 0;
+
+## End of black magic.
+##
+## Insert additional test code below but remember to change
+## the print "1..x\n" in the BEGIN block to reflect the
+## total number of tests that will be run. 
+
+my @images = IMAGE_TESTS ? qw(t1 t2 t3) : ();
+
+# parse command line arguments
+while (@ARGV && $ARGV[0] =~ /^--?(\w+)/) {
+  my $arg = $1;
+  if ($arg eq 'write') {
+	warn "Writing regression test images into ",IMAGES,".........\n";
+	$write++;
+  }
+  shift;
+}
+
+
+foreach (@images) {
+  if ($write) { warn "$_...\n"; do_write($_) } else { eval { do_compare($_) } }
+}
+
+my $data  = Bio::Graphics::FeatureFile->new(-file => FILES . "/feature_data.txt") or die;
+ok defined $data;
+is $data->render, 5;
+is $data->setting(general=>'pixels'), 750;
+is $data->setting('general'), 4;
+is $data->setting, 6;
+is $data->glyph('EST'), 'segments';
+
+my %style = $data->style('EST');
+is $style{-connector}, 'solid';
+is $style{-height}, 5;
+is $style{-bgcolor}, 'yellow';
+
+is $data->configured_types, 5;
+is @{$data->features('EST')}, 5;
+
+my $thing = $data->features('EST');
+
+my ($feature) = grep {$_->name eq 'Predicted gene 1'} @{$data->features('FGENESH')};
+ok $feature;
+is $feature->desc, "Pfam";
+is $feature->score, 20;
 
 sub do_write {
   my $test = shift;
