@@ -11,16 +11,12 @@ use strict;
 use lib '.';
 
 BEGIN {     
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     eval { require Test::More; };
     if( $@ ) {
 	use lib 't/lib';
     }
     use vars qw($NTESTS);
-    $NTESTS = 49;
-    $error = 0;
+    $NTESTS = 48;
     use Test::More;
     plan tests => $NTESTS;
 	use_ok('Bio::SearchIO');
@@ -29,7 +25,6 @@ BEGIN {
 	use_ok('Bio::SearchIO::Writer::HTMLResultWriter');
 }
 
-ok(1);
 my ($searchio, $result,$hit,$hsp);
 
 $searchio = new Bio::SearchIO(-file => 

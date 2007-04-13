@@ -28,8 +28,9 @@ BEGIN {
 	};
 	if ($@) {
 		plan skip_all => 'IO::String, LWP::UserAgent, Bio::WebAgent, HTML::HeadParser, or HTTP::Request::Common not installed. This means that the module is not usable. Skipping tests';
-	}
-	else {
+	} elsif (!$DEBUG) {
+		plan skip_all => 'Must set BIOPERLDEBUG=1 for network tests';
+	} else {
 		plan tests => $NUMTESTS;
 	}
 	
@@ -45,7 +46,6 @@ my $seq = Bio::PrimarySeq->new(-id=>'bioperl',
 ok my $tool = Bio::Tools::Analysis::DNA::ESEfinder->new(-seq => $seq);
 
 SKIP: {
-	skip "Skipping tests which require remote servers, set BIOPERLDEBUG=1 to test", 9 unless $DEBUG;
 	eval {$tool->run;};
 	skip "Could not connect to ESEfinder server, skipping those tests", 9 if $@;
     ok my @res = $tool->result('Bio::SeqFeatureI');

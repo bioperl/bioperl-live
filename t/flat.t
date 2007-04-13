@@ -9,25 +9,19 @@
 use strict;
 use vars qw($NUMTESTS);
 
-my $error;
 
 BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     eval { require Test::More; };
-    $error = 0;
     if( $@ ) {
-	use lib 't/lib';
+		use lib 't/lib';
     }
     use Test::More;
 
-    $NUMTESTS = 18;
+    $NUMTESTS = 19;
     eval { 
-	require DB_File; 
-	require Bio::DB::Flat; 
-	require Bio::Root::IO; 
-	1;
+		require DB_File; 
+		require Bio::DB::Flat; 
+		require Bio::Root::IO; 
     };
     if( $@ ) {
 		plan skip_all => "DB_File not loaded. This means flat.t test cannot be executed. Skipping";
@@ -35,6 +29,7 @@ BEGIN {
 	    plan tests => $NUMTESTS;	
     }
 	use_ok('Bio::Root::IO');
+	use_ok('Bio::DB::Flat');
 	use_ok('Cwd');
 }
 
@@ -42,11 +37,6 @@ my $testnum;
 my $verbose = 0;
 
 ## End of black magic.
-##
-## Insert additional test code below but remember to change
-## the print "1..x\n" in the BEGIN block to reflect the
-## total number of tests that will be run. 
-
 
 #First of all we need to create an flat db
 

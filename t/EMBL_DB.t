@@ -12,9 +12,6 @@ use vars qw($NUMTESTS $DEBUG);
 my $error;
 
 BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t/lib dir (where a copy of Test::More is located)
-    # as a fallback
     eval { require Test::More; };
     if( $@ ) {
 	use lib 't/lib';
@@ -28,14 +25,13 @@ BEGIN {
 	    plan skip_all => "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests";
 	}
     elsif (!$DEBUG) {
-		plan skip_all => 'Skipping all tests since they require network access, set BIOPERLDEBUG=1 to test';
+		plan skip_all => 'Must set BIOPERLDEBUG=1 for network tests';
 	}
 	else {
 		plan tests => $NUMTESTS;
 	}
+	use_ok('Bio::DB::EMBL');
 }
-
-require_ok('Bio::DB::EMBL');
 
 my $verbose = 0;
 

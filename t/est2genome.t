@@ -8,13 +8,9 @@ use strict;
 use vars qw($TESTCOUNT);
 
 BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    $error = 0; 
     eval { require Test::More; };
     if( $@ ) {
-	use lib 't/lib';
+		use lib 't/lib';
     }
     use Test::More;
     $TESTCOUNT = 61;

@@ -10,7 +10,6 @@ BEGIN {
   if( $@ ) {
 	  use lib 't/lib';
   }
-  $error = 0;
   use Test::More;
   eval {require Graph;};
   if ($@) {

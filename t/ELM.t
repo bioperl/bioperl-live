@@ -8,9 +8,6 @@ use strict;
 use vars qw($NUMTESTS $DEBUG $ERROR);
 
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     eval { require Test::More; };
 
     $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
@@ -20,7 +17,7 @@ BEGIN {
     }
     use Test::More;
 
-    $NUMTESTS = 17;
+    $NUMTESTS = 16;
 
     eval {
 	require IO::String; 
@@ -31,20 +28,18 @@ BEGIN {
 		plan skip_all => "IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests";
 	}
     elsif (!$DEBUG) {
-		plan skip_all => 'Skipping all tests since they require network access, set BIOPERLDEBUG=1 to test';
+		plan skip_all => 'Must set BIOPERLDEBUG=1 for network tests';
 	}
 	else {
 		plan tests => $NUMTESTS;
 	}	
-	require_ok('Bio::Tools::Analysis::Protein::ELM');
+	use_ok('Bio::Tools::Analysis::Protein::ELM');
 	use_ok('Bio::SeqIO');
 	use_ok('Bio::PrimarySeq');
-	require_ok('Bio::WebAgent');
+	use_ok('Bio::WebAgent');
 }
 
 use Data::Dumper;
-
-ok 1;
 
 my $verbose = 0;
 $verbose = 1 if $DEBUG;

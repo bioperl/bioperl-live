@@ -1,7 +1,6 @@
 # -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
 
-
 use strict;
 BEGIN {
     eval { require Test::More; };
