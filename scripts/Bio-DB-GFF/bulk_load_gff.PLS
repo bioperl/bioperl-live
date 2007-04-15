@@ -1,6 +1,5 @@
 #!/usr/bin/perl
-# $Id: bulk_load_gff.PLS,v 1.43 2006-06-26 17:40:27 lstein Exp $
-
+# $Id: bulk_load_gff.PLS,v 1.44 2007-04-15 15:38:26 bosborne Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -9,8 +8,8 @@ use IO::File;
 use Getopt::Long;
 use Bio::DB::GFF;
 use Bio::DB::GFF::Util::Binning 'bin';
-use constant MYSQL => 'mysql';
 
+use constant MYSQL => 'mysql';
 use constant FDATA      => 'fdata';
 use constant FTYPE      => 'ftype';
 use constant FGROUP     => 'fgroup';
@@ -90,7 +89,7 @@ e.g. -d instead of --database.
    --long_list           Directory containing a very large number of 
                          GFF and/or FASTA files
    --password            Password to use for authentication
-                           (Doesn't work with Postgres, password must be
+                           (Does not work with Postgres, password must be
                            supplied interactively)
    --maxbin              Set the value of the maximum bin size
    --local               Flag to indicate that the data source is local
