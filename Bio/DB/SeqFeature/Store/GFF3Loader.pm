@@ -515,6 +515,12 @@ sub handle_feature {
   $unreserved->{Gap}    = $reserved->{Gap}    if exists $reserved->{Gap};
   $unreserved->{load_id}= $reserved->{ID}     if exists $reserved->{ID};
 
+  # mec@stowers-institute.org, wondering why not all attributes are
+  # carried forward, adds ID tag in particular service of
+  # round-tripping ID, which, though present in database as load_id
+  # attribute, was getting lost as itself
+  # $unreserved->{ID}= $reserved->{ID}     if exists $reserved->{ID}; 
+
   # TEMPORARY HACKS TO SIMPLIFY DEBUGGING
   push @{$unreserved->{Alias}},$feature_id  if $has_loadid;
   $unreserved->{parent_id} = \@parent_ids   if @parent_ids;
@@ -679,7 +685,8 @@ sub build_object_tree_in_tables {
   my $ld    = $self->{load_data};
 
   while (my ($load_id,$children) = each %{$ld->{Parent2Child}}) {
-    my $parent_id = $ld->{Local2GlobalID}{$load_id} or $self->throw("$load_id doesn't have a primary id");
+    die $self->throw("$load_id doesn't have a primary id") unless exists  $ld->{Local2GlobalID}{$load_id};
+    my $parent_id = $ld->{Local2GlobalID}{$load_id};
     my @children  = map {$ld->{Local2GlobalID}{$_}} @$children;
 
     # this updates the table that keeps track of parent/child relationships,
