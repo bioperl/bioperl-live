@@ -9,39 +9,40 @@
 use strict;
 use vars qw($NUMTESTS $DEBUG);
 
-my $error;
+use lib '.';
 
-BEGIN { 
-    $error = 0;
-	use constant IMAGE_TESTS => 0;
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-
-    $NUMTESTS = 17 + (IMAGE_TESTS ? 3 : 0);
-    eval {
-        require GD;
-        require Text::Shellwords;
-    };
-    if( $@ ) {
-        plan skip_all => "GD or Text::Shellwords modules are not installed. ".
-        "This means that Bio::Graphics module is unusable. ".
-        "Skipping tests.";
-    } else {
-		plan tests => $NUMTESTS;
-	}
-    use_ok('Bio::Graphics::FeatureFile');
-    use_ok('Bio::Graphics');
-	use_ok('File::Spec');
-}
-
+use File::Spec;
 use constant IMAGES => File::Spec->catfile(qw(t data biographics));
 use constant FILES => File::Spec->catfile(qw(t data biographics));
+use constant IMAGE_TESTS => 1;
 
-my $verbose = -1;
-my $write   = 0;
+my ($error,$write);
+
+BEGIN { 
+  $error = 0;
+  eval { require Test::More; };
+  if( $@ ) {
+    use lib 't/lib';
+  }
+  use Test::More;
+
+  $NUMTESTS = 35 + (IMAGE_TESTS ? 3 : 0);
+  eval {
+    require GD;
+    require Text::Shellwords;
+  };
+  if ($@) {
+    plan skip_all => "GD or Text::Shellwords modules are not installed. ".
+      "This means that Bio::Graphics module is unusable. ".
+        "Skipping tests.",$NUMTESTS-2;
+  }
+  plan tests => $NUMTESTS;
+  my $verbose = -1;
+  $write   = 0;
+
+  require_ok('Bio::Graphics::FeatureFile');
+  require_ok('Bio::Graphics');
+}
 
 ## End of black magic.
 ##
@@ -55,12 +56,11 @@ my @images = IMAGE_TESTS ? qw(t1 t2 t3) : ();
 while (@ARGV && $ARGV[0] =~ /^--?(\w+)/) {
   my $arg = $1;
   if ($arg eq 'write') {
-	warn "Writing regression test images into ",IMAGES,".........\n";
-	$write++;
+    warn "Writing regression test images into ",IMAGES,".........\n";
+    $write++;
   }
   shift;
 }
-
 
 foreach (@images) {
   if ($write) { warn "$_...\n"; do_write($_) } else { eval { do_compare($_) } }
@@ -89,15 +89,67 @@ ok $feature;
 is $feature->desc, "Pfam";
 is $feature->score, 20;
 
+# test FeatureBase
+my $bfg   = 'Bio::Graphics::FeatureBase';
+$feature  = $bfg->new(-seq_id=>'chr2',-start=>201,-end=>300,-strand=>1);
+is $feature->seq_id,'chr2';
+is $feature->start,201;
+is $feature->end,300;
+is $feature->strand,1;
+
+# plus strand feature, plus strand ref sequence
+my $ref   = $bfg->new(-seq_id=>'chr2',-start=>201,-end=>300,-strand=>1);
+$feature->refseq($ref);
+is $feature->start,1;
+is $feature->end,100;
+is $feature->strand,1;
+is $feature->abs_start,201;
+is $feature->abs_end,300;
+is $feature->abs_strand,1;
+
+# plus strand feature, minus strand ref sequence
+$ref      = $bfg->new(-seq_id=>'chr2',-start=>201,-end=>300,-strand=>-1);
+$feature->refseq($ref);
+is $feature->start,100;   # expect flipping so that start > end
+is $feature->end,1;
+is $feature->strand,-1;
+
+# minus strand feature, plus strand ref
+$feature = $bfg->new(-seq_id=>'chr2',-start=>201,-end=>300,-strand=>-1);
+$ref   = $bfg->new(-seq_id=>'chr2',-start=>201,-end=>300,-strand=>1);
+$feature->refseq($ref);
+is $feature->start,1;
+is $feature->end,100;
+is $feature->strand,-1;
+
+# minus strand feature, minus strand ref
+$ref      = $bfg->new(-seq_id=>'chr2',-start=>201,-end=>300,-strand=>-1);
+$feature->refseq($ref);
+is $feature->start,100;   # expect flipping so that start > end
+is $feature->end,1;
+is $feature->strand,1;
+
+exit 0;
+
 sub do_write {
   my $test = shift;
   my $canpng = GD::Image->can('png');
-  my $output_file = IMAGES . ($canpng ? "/$test.png" : "/$test.gif");
+  my $cangif = GD::Image->can('gif');
   my $test_sub    = $test;
-  my $panel       = eval "$test_sub()" or die "Couldn't run test: $@";
-  open OUT,">$output_file" or die "Couldn't open $output_file for writing: $!";
-  print OUT $canpng ? $panel->gd->png : $panel->gd->gif;
-  close OUT;
+  if ($canpng) {
+    my $output_file = IMAGES . "/$test.png";
+    my $panel       = eval "$test_sub()" or die "Couldn't run test: $@";
+    open OUT,">$output_file" or die "Couldn't open $output_file for writing: $!";
+    print OUT $panel->gd->png;
+    close OUT;
+  }
+  if ($cangif) {
+    my $output_file = IMAGES . "/$test.gif";
+    my $panel       = eval "$test_sub()" or die "Couldn't run test: $@";
+    open OUT,">$output_file" or die "Couldn't open $output_file for writing: $!";
+    print OUT $panel->gd->gif;
+    close OUT;
+  }
 }
 
 sub do_compare {

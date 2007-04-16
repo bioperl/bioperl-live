@@ -33,9 +33,6 @@ use base qw(Bio::Root::Root Bio::SeqFeatureI Bio::LocationI Bio::SeqI Bio::Range
 *add_SeqFeature = \&add_segment;
 *get_all_tags   = \&all_tags;
 *abs_ref        = \&ref;
-*abs_start      = \&start;
-*abs_end        = \&end;
-*abs_strand     = \&strand;
 
 # implement Bio::SeqI and FeatureHolderI interface
 
@@ -216,20 +213,52 @@ sub start    {
   my $self = shift;
   my $d = $self->{start};
   $self->{start} = shift if @_;
-  $d;
+  if (my $rs = $self->{refseq}) {
+    my $strand = $rs->strand || 1;
+    return $strand >= 0 ? ($d - $rs->start + 1) : ($rs->end - $d + 1);
+  } else {
+    return $d;
+  }
 }
 sub end    {
   my $self = shift;
   my $d = $self->{stop};
   $self->{stop} = shift if @_;
+  if (my $rs = $self->{refseq}) {
+    my $strand = $rs->strand || 1;
+    return $strand >= 0 ? ($d - $rs->start + 1) : ($rs->end - $d + 1);
+  }
   $d;
 }
 sub strand {
   my $self = shift;
   my $d = $self->{strand};
   $self->{strand} = shift if @_;
+  if (my $rs = $self->{refseq}) {
+    my $rstrand = $rs->strand;
+    return  0 unless $d;
+    return  1 if $rstrand == $d;
+    return -1 if $rstrand != $d;
+  }
   $d;
 }
+
+sub abs_start {
+  my $self = shift;
+  local $self->{refseq} = undef;
+  $self->start(@_);
+}
+sub abs_end {
+  my $self = shift;
+  local $self->{refseq} = undef;
+  $self->end(@_);
+}
+sub abs_strand {
+  my $self = shift;
+  local $self->{refseq} = undef;
+  $self->strand(@_);
+}
+
 sub length {
   my $self = shift;
   return $self->end - $self->start + 1;
@@ -635,10 +664,6 @@ sub format_attributes {
   return join ';',@result;
 }
 
-sub DESTROY { }
-
-1;
-
 =head2 clone
 
  Title   : clone
@@ -661,6 +686,41 @@ sub clone {
   return $clone;
 }
 
+=head2 refseq
+
+ Title   : refseq
+ Usage   : $ref = $s->refseq([$newseq] [,$newseqclass])
+ Function: get/set reference sequence
+ Returns : current reference sequence
+ Args    : new reference sequence and class (optional)
+ Status  : Public
+
+This method will get or set the reference sequence.  Called with no
+arguments, it returns the current reference sequence.  Called with any
+Bio::SeqFeatureI object that provides the seq_id(), start(), end() and
+strand() methods.
+
+The method will generate an exception if you attempt to set the
+reference sequence to a sequence that has a different seq_id from the
+current feature.
+
+=cut
+
+sub refseq {
+  my $self = shift;
+  my $d    = $self->{refseq};
+  if (@_) {
+    my $newref = shift;
+    $self->throw("attempt to set refseq using a feature that does not share the same seq_id")
+      unless $newref->seq_id eq $self->seq_id;
+    $self->{refseq} = $newref;
+  }
+  return $d;
+}
+
+sub DESTROY { }
+
+1;
 
 __END__
 

@@ -561,6 +561,7 @@ package Bio::DB::GFF;
 
 use strict;
 
+use IO::File;
 use Bio::DB::GFF::Util::Rearrange;
 use Bio::DB::GFF::RelSegment;
 use Bio::DB::GFF::Feature;
@@ -1792,6 +1793,28 @@ sub load_gff {
 
 *load = \&load_gff;
 
+=head2 load_gff_file
+
+ Title   : load_gff_file
+ Usage   : $db->load_gff_file($file [,$verbose]);
+ Function: load GFF data into database
+ Returns : count of records loaded
+ Args    : a path to a file
+ Status  : Public
+
+This is provided as an alternative to load_gff_file. It doesn't munge
+STDIN or play tricks with ARGV.
+
+=cut
+
+sub load_gff_file {
+  my $self     = shift;
+  my $file     = shift;
+  my $verbose  = shift;
+  my $fh = IO::File->new($file) or return;
+  return $self->do_load_gff($fh);
+}
+
 =head2 load_fasta
 
  Title   : load_fasta
@@ -1853,6 +1876,30 @@ sub load_fasta {
   open STDIN,"<", $SAVEIN unless $tied;  # restore STDIN
   return $result;
 }
+
+
+=head2 load_fasta_file
+
+ Title   : load_fasta_file
+ Usage   : $db->load_fasta_file($file [,$verbose]);
+ Function: load FASTA data into database
+ Returns : count of records loaded
+ Args    : a path to a file
+ Status  : Public
+
+This is provided as an alternative to load_fasta. It doesn't munge
+STDIN or play tricks with ARGV.
+
+=cut
+
+sub load_fasta_file {
+  my $self     = shift;
+  my $file     = shift;
+  my $verbose  = shift;
+  my $fh = IO::File->new($file) or return;
+  return $self->do_load_fasta($fh);
+}
+
 
 =head2 load_sequence_string
 

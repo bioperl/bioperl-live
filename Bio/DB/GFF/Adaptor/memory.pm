@@ -12,6 +12,12 @@ Bio::DB::GFF::Adaptor::memory -- Bio::DB::GFF database adaptor for in-memory dat
                              -fasta  => 'my_dna.fa'
                             );
 
+or
+
+  my $db = Bio::DB::GFF->new(-adaptor=>'memory');
+  $db->load_gff_file('my_features.gff');
+  $db->load_fasta_file('my_dna.fa');
+
 See L<Bio::DB::GFF> for other methods.
 
 =head1 DESCRIPTION
@@ -31,9 +37,15 @@ Three named arguments are recommended:
    -fasta           Read the indicated file or directory of fasta files.
    -dir             Indicates a directory containing .gff and .fa files
 
-If you use the -dsn option and the indicated directory is writable by
+If you use the -dir option and the indicated directory is writable by
 the current process, then this library will create a FASTA file index
 that greatly diminishes the memory usage of this module.
+
+Alternatively you may create an empty in-memory object using just the
+-adaptor=>'memory' argument and then call the load_gff_file() and
+load_fasta_file() methods to load GFF and/or sequence
+information. This is recommended in CGI/mod_perl/fastCGI environments
+because these methods do not modify STDIN, unlike the constructor.
 
 =head1 METHODS
 
