@@ -7,33 +7,22 @@
 
 my $error;
 
-use vars qw($SKIPXML $LASTXMLTEST); 
 use strict;
 use lib '.';
 
 BEGIN {     
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+        use lib 't/lib';
     }
     use vars qw($NTESTS);
-    $NTESTS = 22;
+    $NTESTS = 27;
     $error = 0;
 
-    use Test;
+    use Test::More;
     plan tests => $NTESTS; 
-
+    use_ok 'Bio::PopGen::Simulation::GeneticDrift';
 }
-
-if( $error == 1 ) {
-    exit(0);
-}
-
-
-use Bio::PopGen::Simulation::GeneticDrift;
 
 my $sim = new Bio::PopGen::Simulation::GeneticDrift(-popsize => 40,
 						    -alleles => {A => 0.2,
@@ -44,11 +33,11 @@ for(my $i =0 ;$i < 10; $i++ ) {
     my %f = $sim->next_generation;
     push @Afreqs, $f{'A'};
     push @Bfreqs, $f{'B'};
-    ok(($f{'A'}||0) + ($f{'B'}||0), 1, 'Allele freqs should sum to 1');
+    is(($f{'A'}||0) + ($f{'B'}||0), 1, 'Allele freqs should sum to 1');
 }
 
-ok(@Afreqs, 10);
-ok(($Afreqs[9]||0) <= 1, 1, 'All frequencies should be <= 1');
+is(@Afreqs, 10);
+is(($Afreqs[9]||0) <= 1, 1, 'All frequencies should be <= 1');
 
 $sim = new Bio::PopGen::Simulation::GeneticDrift(-popsize => 50,
 						 -alleles => {A => 0.2,
@@ -58,5 +47,5 @@ $sim = new Bio::PopGen::Simulation::GeneticDrift(-popsize => 50,
 
 for(my $i =0 ;$i < 10; $i++ ) {
     my %f = $sim->next_generation;
-    ok(($f{'A'}||0) + ($f{'B'}||0) + ($f{'C'}||0), 1, 'Allele freqs should sum to 1');
+    is(($f{'A'}||0) + ($f{'B'}||0) + ($f{'C'}||0), 1, 'Allele freqs should sum to 1');
 }

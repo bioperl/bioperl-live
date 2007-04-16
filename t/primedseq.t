@@ -4,21 +4,20 @@
 # written by Rob Edwards
 
 use strict;
-use constant NUMTESTS => 9;
+use constant NUMTESTS => 10;
 
 BEGIN {
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-        use lib 't';
+        use lib 't/lib';
     }
-    use Test;
+    use Test::More;
 
     plan tests => NUMTESTS;
+    use_ok('Bio::SeqIO');
+    use_ok('Bio::Seq::PrimedSeq');
 }
 
-use Bio::SeqIO;
-use Bio::Seq::PrimedSeq;
-ok(1);
 
 my ($seqio, $seq, $left, $right, $primed_seq, $left_test, $annseq, $amplicon, $returnedseq);
 
@@ -31,10 +30,10 @@ $right=Bio::SeqFeature::Primer->new(-seq=>'GGTGGTGCTAATGCGT');
 
 ok $primed_seq = Bio::Seq::PrimedSeq->new(-seq=>$seq, -left_primer=>$left, -right_primer=>$right);
 ok $left_test = $primed_seq->get_primer('left');
-ok $left_test eq $left;
+is $left_test,$left;
 ok $annseq = $primed_seq->annotated_sequence; # should I check that this is what I think it is, or just be happy?
 ok $amplicon=$primed_seq->amplicon->seq;
-ok uc($amplicon) eq uc('cttttcattctgactgcaacgGGCAATATGTCTCTGTGTGGATTAAAAAAAGAGTGTCTGATAGCAGCTTCTGAACTGGTTACCTGCCGTGAGTAAATTAAAATTTTATTGACTTAGGTCACTAAATACTTTAACCAATATAGGCATAGCGCACAGACAGATAAAAATTACAGAGTACACAACATCCATGAAacgcattagcaccacc');
+is uc($amplicon), uc('cttttcattctgactgcaacgGGCAATATGTCTCTGTGTGGATTAAAAAAAGAGTGTCTGATAGCAGCTTCTGAACTGGTTACCTGCCGTGAGTAAATTAAAATTTTATTGACTTAGGTCACTAAATACTTTAACCAATATAGGCATAGCGCACAGACAGATAAAAATTACAGAGTACACAACATCCATGAAacgcattagcaccacc');
 ok $returnedseq=$primed_seq->seq;
-ok $returnedseq->seq eq $seq->seq;
+is $returnedseq->seq, $seq->seq;
 

@@ -10,44 +10,32 @@ use vars qw($NUMTESTS $DEBUG $ERROR $XML_ERROR);
 
 
 BEGIN {
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-        use lib 't';
+        use lib 't/lib';
     }
-    use Test;
-    $NUMTESTS  = 24;
-
-    plan tests => $NUMTESTS;
-
+    use Test::More;
+    $NUMTESTS  = 12;
     eval {  require Clone; };
     if ( $@ ) {
-	warn("Clone not installed. This means that the module is not usable. Skipping tests\n");
-	$ERROR = 1;
+        plan skip_all => "Clone not installed. This means that the module is not usable. Skipping tests";
+    } else {
+        plan tests => $NUMTESTS;
     }
+    use_ok('Bio::Tools::Primer3');
 }
-
-END {
-        foreach ( $Test::ntest..$NUMTESTS) {
-	skip("Missing dependencies. Skipping tests",1);
-    }
-}
-
-exit 0 if $ERROR;
-
-require Bio::Tools::Primer3;
-ok(1);
 
 my ($p3, $num, $primer);
 
 ok $p3 = Bio::Tools::Primer3->new(-file => File::Spec->catfile(qw(t data primer3_output.txt)));
 ok $num = $p3->number_of_results;
-ok $num, 5, "Got $num";
+is $num, 5 or diag "Got $num";
 ok $num = $p3->all_results;
-ok defined $num, 1, "Can't get all results";
+is defined $num, 1 or diag "Can't get all results";
 ok $num = $p3->primer_results(1);
-ok defined $num, 1, "Can't get results for 1";
+is defined $num, 1 or diag "Can't get results for 1";
 ok $primer = $p3->next_primer;
-ok ref($primer) eq "Bio::Seq::PrimedSeq", 1, 
+isa_ok $primer, "Bio::Seq::PrimedSeq" or diag
   "reference for primer stream is not right";
 
 # get the left primer
@@ -68,4 +56,4 @@ my $alt = $p3->primer_results(0,'PRIMER_LEFT_INPUT');
 ok $primer = $p3->next_primer;
 # get the left primer
 my $left_primer_seq = $primer->get_primer('left')->seq;
-ok $left_primer_seq->seq, "GAGGGTAACACGCTGGTCAT";
+is $left_primer_seq->seq, "GAGGGTAACACGCTGGTCAT";

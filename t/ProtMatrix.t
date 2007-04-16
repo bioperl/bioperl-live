@@ -7,20 +7,16 @@
 use strict;
 
 BEGIN {
-   # to handle systems with no installed Test module
-   # we include the t dir (where a copy of Test.pm is located)
-   # as a fallback
-   eval { require Test; };
+   eval { require Test::More; };
    if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
    }
-   use Test;
+   use Test::More;
 
    plan tests => 14;
+   use_ok 'Bio::Matrix::PSM::ProtMatrix';
 }
 
-use Bio::Matrix::PSM::ProtMatrix;
-ok(1);
 
 my %param = (
    '-id' => 'A. thaliana protein atp1',
@@ -72,15 +68,15 @@ my $matrix = new Bio::Matrix::PSM::ProtMatrix(%param);
 ok $matrix;
 
 #Simple methods here
-ok $matrix->IUPAC,'MEMSINPS';
+is $matrix->IUPAC,'MEMSINPS';
 
-ok $matrix->consensus,'MEMSINPS';
+is $matrix->consensus,'MEMSINPS';
 
-ok $matrix->width,8;
+is $matrix->width,8;
 
-ok $matrix->curpos,0;
+is $matrix->curpos,0;
 
-ok $matrix->get_string('A'), '0100a90200220160';
+is $matrix->get_string('A'), '0100a90200220160';
 
 my %x1 = (
          'base' => 'M', 'prob' => 100, 'rel' => 0,
@@ -127,18 +123,18 @@ my %x1 = (
 );
 
 my %x2 = $matrix->next_pos;
-ok %x1, %x2;
+is_deeply \%x1, \%x2;
 
-ok $matrix->curpos,1;
+is $matrix->curpos,1;
 
 ok $matrix->e_val(0.0001);
-ok $matrix->e_val,0.0001;
+is $matrix->e_val,0.0001;
 
 #Now some PSM specific methods like regexp and matrix info
 
 my @a = ('0', '10', '1', '9', '2', '0', '22', '16');
-ok $matrix->get_array('A'), @a;
+is_deeply [$matrix->get_array('A')], \@a;
 
 my $regexp = '[Mm][EeSs][Mm]\.[IiLl][RrNn][AaPp][DdSs]';
-ok $matrix->regexp, $regexp;
-ok $matrix->sequence_match_weight('MSMPLRPD'), 33;
+is $matrix->regexp, $regexp;
+is $matrix->sequence_match_weight('MSMPLRPD'), 33;
