@@ -28,6 +28,7 @@ my $USAGE = "bp_sreformat -if INFORMAT -of OUTFORMAT -i FILENAME -o output.FORMA
                         percentages     -- for clustalw, show % id per line
                         flat            -- don't show start-end in seqid
                         linelength      -- line length for clustalw
+                        mrbayes         -- for MrBayes proper NEXUS output
 ";
 
 
@@ -43,8 +44,11 @@ GetOptions(
 	   's|special:s'       => \$special,
 	   );
 
-unless( defined $informat && defined $outformat )
-    { die("Cannot proceed without a defined input and output you gave ($informat,$outformat)\n") }
+unless( defined $informat && defined $outformat ) { 
+    die(sprintf("Cannot proceed without a defined input and output you gave (%s,%s)\n",
+		defined $informat ? $informat : "''" ,
+		defined $outformat ? $outformat : "''"));
+}
 
 my ($in,$out);
 my @extra;
@@ -52,6 +56,9 @@ if( $special ) {
     @extra = map { my @rc;
 		   if( /nointerleaved/) {
 		       @rc = ('-interleaved' => '0');
+		   } elsif( /mrbayes/ ) {
+		       @rc = ('-show_symbols' => 0,
+			      '-show_endblock' => 0);
 		   } elsif( /(\S+)\=(\S+)/ ) { @rc = ( "-$1" => $2) } 
 	           else{ @rc = ("-$_" => 1) }
 		   @rc;
