@@ -12,9 +12,6 @@ use vars qw($NUMTESTS);
 my $error;
 
 BEGIN {
-	# to handle systems with no installed Test module
-	# we include the t dir (where a copy of Test.pm is located)
-	# as a fallback
 	eval { require Test::More; };
 	$error = 0;
 	if( $@ ) {
@@ -34,15 +31,15 @@ my ($str, $unigene); # predeclare variables for strict
 
 $str = Bio::ClusterIO->new('-file' => Bio::Root::IO->catfile(
 				"t","data","unigene.data"), '-format' => "unigene");
-ok $str, 'new Bio::ClutserIO object defined';
+ok $str, 'new Bio::ClusterIO object defined';
 
 ok ( defined ($unigene = $str->next_cluster()));
 
 # check interface implementations to be sure
-ok $unigene->isa("Bio::Cluster::UniGeneI"), 'Bio::Cluster::UniGeneI';
-ok $unigene->isa("Bio::ClusterI"), 'Bio::ClusterI';
-ok $unigene->isa("Bio::IdentifiableI"), 'Bio::IdentifiableI';
-ok $unigene->isa("Bio::DescribableI"), 'Bio::DescribableI';
+isa_ok $unigene, "Bio::Cluster::UniGeneI";
+isa_ok $unigene, "Bio::ClusterI";
+isa_ok $unigene, "Bio::IdentifiableI";
+isa_ok $unigene, "Bio::DescribableI";
 
 # test specific instance of unigene record provided in the unigene.data file
 is ($unigene->unigene_id, 'Hs.2');
@@ -95,32 +92,32 @@ is  ($unigene->namespace, "UniGene");
 is  ($unigene->authority, "NCBI");
 
 $unigene->unigene_id('Hs.50');
-is ($unigene->unigene_id, 'Hs.50', 'unigene_id was ' . $unigene->unigene_id);
+is ($unigene->unigene_id, 'Hs.50') || diag('unigene_id was ' . $unigene->unigene_id);
 
 $unigene->title('title_test');
-is ($unigene->title, 'title_test', 'title was ' . $unigene->title);
+is ($unigene->title, 'title_test') || diag('title was ' . $unigene->title);
 
 $unigene->gene('gene_test');
-is ($unigene->gene, 'gene_test', 'gene was ' . $unigene->gene);
+is ($unigene->gene, 'gene_test') || diag('gene was ' . $unigene->gene);
 
 $unigene->cytoband('cytoband_test');
-is ($unigene->cytoband, 'cytoband_test', 'cytoband was ' . $unigene->cytoband);
+is ($unigene->cytoband, 'cytoband_test') || diag('cytoband was ' . $unigene->cytoband);
 
 $unigene->gnm_terminus('gnm_terminus_test');
-is ($unigene->gnm_terminus, 'gnm_terminus_test', 'gnm_terminus was ' . $unigene->gnm_terminus);
+is ($unigene->gnm_terminus, 'gnm_terminus_test') || diag('gnm_terminus was ' . $unigene->gnm_terminus);
 
 $unigene->homol('homol_test');
-is ($unigene->homol, 'homol_test', 'homol was ' . $unigene->homol);
+is ($unigene->homol, 'homol_test') || diag('homol was ' . $unigene->homol);
 
 $unigene->restr_expr('restr_expr_test');
-is ($unigene->restr_expr, 'restr_expr_test', 'restr_expr was ' . $unigene->restr_expr);
+is ($unigene->restr_expr, 'restr_expr_test') || diag('restr_expr was ' . $unigene->restr_expr);
 
 $unigene->scount('scount_test');
-is ($unigene->scount, 'scount_test', 'scount was ' . $unigene->scount);
+is ($unigene->scount, 'scount_test') || diag('scount was ' . $unigene->scount);
 
 my $seq = $unigene->next_seq;
 $seq = $unigene->next_seq;
-ok ($seq->isa('Bio::PrimarySeqI'), 'expected a Bio::PrimarySeq object but got a ' . ref($seq));
+isa_ok ($seq, 'Bio::PrimarySeqI') || diag('expected a Bio::PrimarySeq object but got a ' . ref($seq));
 my $accession = $seq->accession_number;
 is ($accession, 'AI262683');
 my $version = $seq->seq_version();
@@ -131,7 +128,7 @@ my $ac = $seq->annotation();
 my $simple_ann_object;
 ($simple_ann_object) = $ac->get_Annotations('seqtype');
 ok $simple_ann_object, 'annotation object defined';
-is ($simple_ann_object->value(), 'EST', 'seqtype was ' . $simple_ann_object->value);	
+is ($simple_ann_object->value(), 'EST') || diag('seqtype was ' . $simple_ann_object->value);	
 
 # test PERIPHERAL, bug 1708
 $seq = $unigene->next_seq;
@@ -148,9 +145,9 @@ my @locuslink_results;
 while (my $locuslink = $unigene->next_locuslink) {
 	push @locuslink_results, $locuslink;
 }
-is  scalar(@locuslink_results), 2, 'expected locuslink to have 2 entries but it had ' . scalar(@locuslink_results);
+is(scalar(@locuslink_results), 2) || diag('expected locuslink to have 2 entries but it had ' . scalar(@locuslink_results));
 my $locuslink = shift @locuslink_results;
-is  $locuslink, '58473', 'expected 58473 but got ' . $locuslink;
+is( $locuslink, '58473') || diag('expected 58473 but got ' . $locuslink);
 
 
 my @express_test = qw( kidney heart liver spleen );
@@ -159,7 +156,7 @@ my @express_results;
 while (my $tissue = $unigene->next_express) {
 	push @express_results, $tissue;
 }
-is  scalar(@express_results), 4, 'expected express to have 4 entries but it had ' . scalar(@express_results);
+is(  scalar(@express_results), 4) || diag('expected express to have 4 entries but it had ' . scalar(@express_results));
 
 my @chromosome_test = ( "7", "11" );
 $unigene->chromosome(\@chromosome_test);
@@ -167,9 +164,9 @@ my @chromosome_results;
 while (my $chromosome = $unigene->next_chromosome) {
 	push @chromosome_results, $chromosome;
 }
-is  scalar(@chromosome_results), 2, 'expected chromosome to have 2 entries but it had ' . scalar(@chromosome_results);
+is( scalar(@chromosome_results), 2) || diag('expected chromosome to have 2 entries but it had ' . scalar(@chromosome_results));
 my $chromosome = shift @chromosome_results;
-is  $chromosome, '7', 'expected 7 but got ' . $chromosome;
+is(  $chromosome, '7') || diag('expected 7 but got ' . $chromosome);
 
 my @sts_test = ( "ACC=- NAME=sts-D90276 UNISTS=37687", "ACC=G29786 NAME=SHGC-35230 UNISTS=58455" );
 $unigene->sts(\@sts_test);
@@ -177,9 +174,9 @@ my @sts_results;
 while (my $sts = $unigene->next_sts) {
 	push @sts_results, $sts;
 }
-is scalar(@sts_results), 2, 'expected sts to have 2 entries but it had ' . scalar(@sts_results);
+is(scalar(@sts_results), 2) || diag('expected sts to have 2 entries but it had ' . scalar(@sts_results));
 my $sts = shift @sts_results;
-is $sts, 'ACC=- NAME=sts-D90276 UNISTS=37687', 'expected ACC=- NAME=sts-D90276 UNISTS=37687 but got ' . $sts;
+is($sts, 'ACC=- NAME=sts-D90276 UNISTS=37687') || diag('expected ACC=- NAME=sts-D90276 UNISTS=37687 but got ' . $sts);
 
 my @txmap_test = ("D19S425-D19S418; MARKER=sts-D90276; RHPANEL=GB4" , "D19S425-D19S418; MARKER=stSG41396; RHPANEL=GB4");
 $unigene->txmap(\@txmap_test);
@@ -187,9 +184,9 @@ my @txmap_results;
 while (my $txmap = $unigene->next_txmap) {
 	push @txmap_results, $txmap;
 }
-is scalar(@txmap_results), 2, 'expected txmap to have 2 entries but it had ' . scalar(@txmap_results);
+is(scalar(@txmap_results), 2) || diag('expected txmap to have 2 entries but it had ' . scalar(@txmap_results));
 my $txmap = shift @txmap_results;
-is $txmap, 'D19S425-D19S418; MARKER=sts-D90276; RHPANEL=GB4', 'expected D19S425-D19S418; MARKER=sts-D90276; RHPANEL=GB4 but got ' . $txmap;
+is ($txmap, 'D19S425-D19S418; MARKER=sts-D90276; RHPANEL=GB4') || diag('expected D19S425-D19S418; MARKER=sts-D90276; RHPANEL=GB4 but got ' . $txmap);
 
 my @protsim_test = ("ORG=Homo sapiens; PROTGI=107211; PROTID=pir:A40428; PCT=100; ALN=243" , "ORG=Mus musculus; PROTGI=2497288; PROTID=sp:Q61400; PCT=42; ALN=143");
 $unigene->protsim(\@protsim_test);
@@ -197,9 +194,9 @@ my @protsim_results;
 while (my $protsim = $unigene->next_protsim) {
     push @protsim_results, $protsim;
 }
-is scalar(@protsim_results), 2, 'expected protsim to have 2 entries but it had ' . scalar(@protsim_results);
+is (scalar(@protsim_results), 2) || diag('expected protsim to have 2 entries but it had ' . scalar(@protsim_results));
 my $protsim = shift @protsim_results;
-is $protsim, 'ORG=Homo sapiens; PROTGI=107211; PROTID=pir:A40428; PCT=100; ALN=243', 'expected ORG=Homo sapiens; PROTGI=107211; PROTID=pir:A40428; PCT=100; ALN=243 but got ' . $protsim;
+is ($protsim, 'ORG=Homo sapiens; PROTGI=107211; PROTID=pir:A40428; PCT=100; ALN=243') || diag('expected ORG=Homo sapiens; PROTGI=107211; PROTID=pir:A40428; PCT=100; ALN=243 but got ' . $protsim);
 
 
 
@@ -210,7 +207,7 @@ is $protsim, 'ORG=Homo sapiens; PROTGI=107211; PROTID=pir:A40428; PCT=100; ALN=2
 
 $unigene = $str->next_cluster();
 $seq = $unigene->next_seq;
-ok ($seq->isa('Bio::PrimarySeqI'), 'expected a Bio::PrimarySeq object but got a ' . ref($seq));
+isa_ok ($seq,'Bio::PrimarySeqI') || diag( 'expected a Bio::PrimarySeq object but got a ' . ref($seq));
 $version = $seq->seq_version();
 is($version, '1');
 
