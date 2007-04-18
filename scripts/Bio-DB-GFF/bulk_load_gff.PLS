@@ -1,10 +1,11 @@
 #!/usr/bin/perl
-# $Id: bulk_load_gff.PLS,v 1.44 2007-04-15 15:38:26 bosborne Exp $
+# $Id: bulk_load_gff.PLS,v 1.45 2007-04-18 19:30:12 lstein Exp $
 
 use strict;
 # use lib './blib/lib';
 use DBI;
 use IO::File;
+use File::Spec;
 use Getopt::Long;
 use Bio::DB::GFF;
 use Bio::DB::GFF::Util::Binning 'bin';
@@ -210,6 +211,7 @@ if ($0 =~/pg_bulk_load_gff.pl/){
     $DSN     ||= 'test';
 }
 $DSN     ||= 'dbi:mysql:test';
+$MAX_BIN ||= 1_000_000_000; # to accomodate human-sized chromosomes
 
 
 if ($bWINDOWS && not $FORCE) {
@@ -340,7 +342,7 @@ push @fasta,$FASTA if defined $FASTA;
 
 # drop everything that was there before
 my %FH;
-my $tmpdir = $TMPDIR || $ENV{TMPDIR} || $ENV{TMP} || '/usr/tmp';
+my $tmpdir = File::Spec->tmpdir() || '/tmp';
 $tmpdir =~ s!\\!\\\\!g if $bWINDOWS; #eliminates backslash mis-interpretation
 -d $tmpdir or die <<END;
 I could not find a suitable temporary directory to write scratch files into ($tmpdir by default).

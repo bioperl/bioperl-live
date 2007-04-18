@@ -1152,7 +1152,7 @@ sub fetch_sequence {
 =head2 segment
 
  Title   : segment
- Usage   : $segment = $db->segment($seq_id [,$start] [,$end])
+ Usage   : $segment = $db->segment($seq_id [,$start] [,$end] [,$absolute])
  Function: restrict the database to a sequence range
  Returns : a Bio::DB::SeqFeature::Segment object
  Args    : sequence id, start and end ranges (optional)
@@ -1177,6 +1177,9 @@ in the database as the sequence ID. The segment() method will perform
 a get_features_by_name() internally and then transform the feature
 into the appropriate coordinates.
 
+If $absolute is a true value, then the specified coordinates are
+relative to the reference (absolute) coordinates.
+
 =cut
 
 ###
@@ -1200,7 +1203,7 @@ segment() called in a scalar context but multiple features match.
 Either call in a list context or narrow your search using the -types or -class arguments
 END
   }
-  my ($rel_start,$rel_end) = rearrange(['START',['STOP','END']],@args);
+  my ($rel_start,$rel_end,$abs) = rearrange(['START',['STOP','END'],'ABSOLUTE'],@args);
   $rel_start = 1 unless defined $rel_start;
 
   my @segments;
@@ -1208,15 +1211,21 @@ END
     my $seqid  = $f->seq_id;
     my $strand = $f->strand;
     my ($start,$end);
-    my $re = defined $rel_end ? $rel_end : $f->end - $f->start + 1;
-
-    if ($strand >= 0) {
-      $start = $f->start + $rel_start - 1;
-      $end   = $f->start + $re   - 1;
+    if ($abs) {
+      $start = $rel_start;
+      $end   = $rel_end;
     }
     else {
-      $start = $f->end - $re   + 1;
-      $end   = $f->end - $rel_start + 1;
+      my $re = defined $rel_end ? $rel_end : $f->end - $f->start + 1;
+
+      if ($strand >= 0) {
+	$start = $f->start + $rel_start - 1;
+	$end   = $f->start + $re   - 1;
+      }
+      else {
+	$start = $f->end - $re   + 1;
+	$end   = $f->end - $rel_start + 1;
+      }
     }
     push @segments,Bio::DB::SeqFeature::Segment->new($self,$seqid,$start,$end,$strand);
   }

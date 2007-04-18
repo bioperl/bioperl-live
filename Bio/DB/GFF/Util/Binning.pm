@@ -43,6 +43,8 @@ name and the position that the bin begins.
 
 sub bin {
   my ($start,$stop,$min) = @_;
+  $start = abs($start);  # to allow negative coordinates
+  $stop  = abs($stop);
   my $tier = $min;
   my ($bin_start,$bin_end);
   while (1) {
@@ -64,7 +66,7 @@ the bin range.
 sub bin_bot {
   my $tier = shift;
   my $pos  = shift;
-  bin_name($tier,int($pos/$tier));
+  bin_name($tier,int(abs($pos)/$tier));
 }
 
 =item $top = bin_top($tier,$end)
@@ -77,7 +79,7 @@ bin range.
 sub bin_top {
   my $tier = shift;
   my $pos  = shift;
-  bin_name($tier,int($pos/$tier));  #  bin_name($tier,int($pos/$tier),+1);
+  bin_name($tier,int(abs($pos)/$tier));  #  bin_name($tier,int($pos/$tier),+1);
 }
 
 sub bin_name {

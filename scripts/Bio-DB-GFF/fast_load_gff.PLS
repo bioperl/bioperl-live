@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: fast_load_gff.PLS,v 1.32 2006-12-13 17:17:41 scain Exp $
+# $Id: fast_load_gff.PLS,v 1.33 2007-04-18 19:30:12 lstein Exp $
 
 use strict;
 # use lib './blib/lib';
@@ -156,6 +156,7 @@ GetOptions ('database:s'    => \$DSN,
 	   ) or (system('pod2text',$0), exit -1);
 
 $DSN ||= 'test';
+$MAX_BIN ||= 1_000_000_000; # to accomodate human-sized chromosomes
 
 my (@args,$AUTH);
 if (defined $USER) {

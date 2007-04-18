@@ -101,6 +101,7 @@ GetOptions ('dsn:s'       => \$DSN,
 # some local defaults
 $DSN     ||= 'dbi:mysql:test';
 $ADAPTOR ||= 'dbi::mysqlopt';
+$MAX_BIN ||= 1_000_000_000; # to accomodate human-sized chromosomes
 
 my @args;
 push @args,(-user=>$USER)     if defined $USER;

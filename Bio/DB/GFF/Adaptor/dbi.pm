@@ -31,10 +31,10 @@ use base qw(Bio::DB::GFF);
 
 # constants for choosing
 
-use constant MAX_SEGMENT => 100_000_000;  # the largest a segment can get
+use constant MAX_SEGMENT => 1_000_000_000;  # the largest a segment can get
 
 # this is the largest that any reference sequence can be (100 megabases)
-use constant MAX_BIN    => 100_000_000;
+use constant MAX_BIN    => 1_000_000_000;
 
 # this is the smallest bin (1 K)
 use constant MIN_BIN    => 1000;
@@ -1943,6 +1943,20 @@ sub getaliascoords_query {
 }
 
 sub bin_query {
+  my $self = shift;
+  my ($start,$stop,$minbin,$maxbin) = @_;
+  if ($start < 0 && $stop > 0) {  # split the queries
+    my ($lower_query,@lower_args) = $self->_bin_query($start,0,$minbin,$maxbin);
+    my ($upper_query,@upper_args) = $self->_bin_query(0,$stop,$minbin,$maxbin);
+    my $query = "$lower_query\n\t OR $upper_query";
+    my @args  = (@lower_args,@upper_args);
+    return wantarray ? ($query,@args) : $self->dbh->dbi_quote($query,@args);
+  } else {
+    return $self->_bin_query($start,$stop,$minbin,$maxbin);
+  }
+}
+
+sub _bin_query {
   my $self = shift;
   my ($start,$stop,$minbin,$maxbin) = @_;
   my ($query,@args);
