@@ -205,7 +205,7 @@ sub init {
     $dbh = $dsn;
   } else {
     $dsn = "dbi:mysql:$dsn" unless $dsn =~ /^dbi:/;
-    $dbh = DBI->connect($dsn,$user,$pass,$dbi_options);
+    $dbh = DBI->connect($dsn,$user,$pass,$dbi_options) or $self->throw($DBI::errstr);
   }
   $self->{dbh}       = $dbh;
   $self->{is_temp}   = $is_temporary;
