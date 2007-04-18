@@ -101,8 +101,8 @@ SKIP: {
         is $s->length, $expected_lengths{$s->display_id};
         $done++;
     }
+    skip('No seqs returned', 4) if !$done;
     is $done, 3;
-    skip('No seqs returned',3) if !$done;
 }
 
 $seq = $seqio = undef;
@@ -129,8 +129,8 @@ SKIP: {
         # but a temp file should remain until seqio goes away.
         $done++;
     }
+    skip('No seqs returned', 4) if !$done;
     is $done, 3;
-    skip('No seqs returned',3) if !$done;
 }
 
 $seq = $seqio = undef;
@@ -153,8 +153,8 @@ SKIP: {
         # but the pipeline should remain until seqio goes away
         $done++;
     }
+    skip('No seqs returned', 4) if !$done;
     is $done, 3;
-    skip('No seqs returned',3) if !$done;
 }
 
 $seq = $seqio = undef;
@@ -179,15 +179,16 @@ SKIP: {
         # but the pipeline should remain until seqio goes away
         $done++;
     }
+    skip('No seqs returned', 5) if !$done;
     is $done, 4;
-    skip('No seqs returned',4) if !$done;
 }
 
 $seq = $seqio = undef;
 
 # test query facility (again)
 ok $query = Bio::DB::Query::GenBank->new('-db'  => 'nucleotide',
-                                         '-ids' => [qw(J00522 AF303112 2981014)]);
+                                         '-ids' => [qw(J00522 AF303112 2981014)],
+                                         -verbose => 1);
 SKIP: {
     cmp_ok $query->count, '>', 0;
     my @ids = $query->ids;
@@ -201,8 +202,8 @@ SKIP: {
         is $s->length, $expected_lengths{$s->display_id};
         $done++;
     }
+    skip('No seqs returned', 4) if !$done;
     is $done, 3;
-    skip('No seqs returned',3) if !$done;
     $seqio->close(); # the key to preventing errors during make test, no idea why
 }
 
@@ -233,12 +234,12 @@ my @result;
 ok $gb = Bio::DB::GenBank->new(-format => 'Fasta', -seq_start  => 2, -seq_stop   => 7);
 SKIP: {
     eval {$seq = $gb->get_Seq_by_acc("A11111");};
-    skip "Couldn't connect to complete GenBank tests. Skipping those tests", 14 if $@;
+    skip "Couldn't connect to complete GenBank tests. Skipping those tests", 15 if $@;
     is $seq->length, 6;
     # complexity tests
     ok $gb = Bio::DB::GenBank->new(-format => 'Fasta', -complexity => 0);
     eval {$seqin = $gb->get_Stream_by_acc("5");};
-    skip "Couldn't connect to complete GenBank tests. Skipping those tests", 12 if $@;
+    skip "Couldn't connect to complete GenBank tests. Skipping those tests", 13 if $@;
     @result = (1136, 'dna', 342, 'protein');
     while ($seq = $seqin->next_seq) {
         is $seq->length, shift(@result);
@@ -250,7 +251,7 @@ SKIP: {
     # Currently only useful for retrieving GI's via get_seq_stream
     $gb = Bio::DB::GenBank->new();
     eval {$seqin = $gb->get_seq_stream(-uids => [4887706 ,431229, 147460], -mode => 'batch');};
-    skip "Couldn't connect to complete GenBank batchmode epost/efetch tests. Skipping those tests", 7 if $@;
+    skip "Couldn't connect to complete GenBank batchmode epost/efetch tests. Skipping those tests", 8 if $@;
     my %result = ('M59757' => 12611 ,'X76083'=> 3140, 'J01670'=> 1593);
 	my $ct = 0;
     while ($seq = $seqin->next_seq) {
@@ -260,8 +261,8 @@ SKIP: {
         is $seq->length, $result{ $acc };
 		delete $result{$acc};
     }
+    skip('No seqs returned', 8) if !$ct;
 	is $ct, 3;
-    skip('No seqs returned',4) if !$ct;
     is %result, 0;
 }
 
@@ -273,7 +274,7 @@ $seq = $seqin = undef;
 ok $gb = Bio::DB::GenPept->new();
 SKIP: {
     eval {$seqin = $gb->get_seq_stream(-uids => [2981015, 1621261, 195055], -mode => 'batch');};
-    skip "Couldn't connect to complete GenPept tests. Skipping those tests", 7 if $@;
+    skip "Couldn't connect to complete GenPept tests. Skipping those tests", 8 if $@;
     my %result = ('AAC06201' => 353, 'CAB02640' => 193, 'AAD15290' => 136);
     my $ct = 0;
     while ($seq = $seqin->next_seq) {
@@ -283,8 +284,8 @@ SKIP: {
         is $seq->length, $result{ $acc };
 		delete $result{$acc};
     }
+    skip('No seqs returned', 8) if !$ct;
 	is $ct, 3;
-    skip('No seqs returned',4) if !$ct;
     is %result, 0;
 }
 
@@ -305,8 +306,8 @@ SKIP: {
         is $s->length, $expected_lengths{$s->display_id};
         $done++;
     }
+    skip('No seqs returned', 8) if !$done;
     is $done, 2;
-    skip('No seqs returned',7) if !$done;
     # swissprot genpept parsing   
     eval {$seq = $gb->get_Seq_by_acc('2AAA_YEAST');};
     skip "Couldn't connect to Genbank with Bio::DB::GenPept.pm. Skipping those tests", 5 if $@;
