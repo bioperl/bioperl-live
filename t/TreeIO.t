@@ -8,9 +8,6 @@
 use vars qw($NUMTESTS);
 use strict;
 BEGIN {
-	# to handle systems with no installed Test module
-	# we include the t dir (where a copy of Test.pm is located)
-	# as a fallback
 	eval { require Test::More; };
 	if( $@ ) {
 		use lib 't/lib';
@@ -129,7 +126,7 @@ foreach my $node ( $tree->get_root_node()->each_Descendent() ) {
 is($saw, 1, "Saw $vals[0] as expected");
 if( $verbose ) {
 	foreach my $node ( @nodes ) {
-		print "\t", $node->id, "\n";
+		print "\t", $node->id, "\n" if $node->id;
 	}
 }
 
