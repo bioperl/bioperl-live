@@ -73,7 +73,6 @@ use URI;
 use LWP::UserAgent;
 use HTTP::Request::Common;
 
-
 use base qw(Bio::Root::Root Bio::DB::QueryI);
 
 =head2 new
@@ -106,7 +105,7 @@ sub new {
   $self->throw('must provide one of the the -query or -ids arguments')
     unless defined($query) || defined($ids);
   if ($ids) {
-    $query = join ',',ref($ids) ? @$ids : $ids;
+    $query = $self->_generate_id_string($ids);
   }
   $self->query($query);
   $verbose && $self->verbose($verbose);
@@ -345,6 +344,23 @@ NOTE: This method must be implemented by subclass.
 =cut
 
 sub _request_parameters {
+  my $self = shift;
+  $self->throw_not_implemented;
+}
+
+=head2 _generate_id_string
+
+ Title   : _generate_id_string
+ Usage   : $string = $db->_generate_id_string
+ Function: joins IDs together in string (implementation-dependent)
+ Returns : string of concatenated IDs
+ Args    : array ref of ids (normally passed into the constructor)
+
+NOTE: This method must be implemented by subclass.
+
+=cut
+
+sub _generate_id_string {
   my $self = shift;
   $self->throw_not_implemented;
 }

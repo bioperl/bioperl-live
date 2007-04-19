@@ -297,4 +297,29 @@ sub _parse_response {
   $self->cookie(uri_unescape($cookie),$querykey);
 }
 
+=head2 _generate_id_string
+
+ Title   : _generate_id_string
+ Usage   : $string = $db->_generate_id_string
+ Function: joins IDs together in string (possibly implementation-dependent)
+ Returns : string of concatenated IDs
+ Args    : array ref of ids (normally passed into the constructor)
+
+NOTE: This method must be implemented by subclass.
+
+=cut
+
+sub _generate_id_string {
+    my ($self, $ids) = @_;
+    my $str = join ',',@$ids;
+    return $str;
+    # this attempts to separate out accs (alphanumeric) from UIDs (numeric)
+    #my @accs;
+    #my @gis;
+    #for my $id (@$ids) {
+    #    ($id =~ m{^\d+$}) ? push @gis, $id : push @accs, $id;
+    #}
+    #return sprintf('%s|%s',join('[PACC]|',@accs),join('|',@gis));
+}
+
 1;
