@@ -8,91 +8,86 @@
 
 use strict;
 use lib './';
+
 BEGIN { 
     # to handle systems with no installed Test module
     # we include the t dir (where a copy of Test.pm is located)
     # as a fallback
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
     }
-    use Test;
+    use Test::More;
 
-    plan tests => 46;
+    plan tests => 47;
 }
-use Bio::Root::Utilities;
+use_ok('Bio::Root::Utilities');
+use_ok('FindBin') ;
 use FindBin qw($Bin);
 
-# Test
-
-ok(1);
-
 # Object creation
-
 my $u = Bio::Root::Utilities->new();
-ok($u);
+isa_ok($u, 'Bio::Root::Utilities') ;
 
 # month2num() and num2month()
 
 my @month = qw(XXX Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
 for my $i (1 .. 12) {
-  ok $u->month2num($month[$i]), $i;
-  ok $u->num2month($i), $month[$i];
+  is $u->month2num($month[$i]), $i;
+  is $u->num2month($i), $month[$i];
 }
 
 # untaint()
 
-ok $u->untaint(''), '';
-ok $u->untaint('nice string'), 'nice string';
-ok $u->untaint('bad *?&^$! string'), 'bad ';
-ok $u->untaint( q{100% relaxed&;''\"|*?!~<>^()[]{}$}, 1 ), '100% relaxed';
+is $u->untaint(''), '';
+is $u->untaint('nice string'), 'nice string';
+is $u->untaint('bad *?&^$! string'), 'bad ';
+is $u->untaint( q{100% relaxed&;''\"|*?!~<>^()[]{}$}, 1 ), '100% relaxed';
 
 # mean_stdev()
 
 my($mu,$sd);
 
 ($mu,$sd) = $u->mean_stdev();
-ok $mu, undef;
-ok $sd, undef;
+is $mu, undef;
+is $sd, undef;
 
 ($mu,$sd) = $u->mean_stdev(42);
-ok $mu, 42;
-ok $sd, undef;
+is $mu, 42;
+is $sd, undef;
 
 ($mu,$sd) = $u->mean_stdev(-1,0,1);
-ok $mu, 0;
-ok $sd, 1;
+is $mu, 0;
+is $sd, 1;
 
 # file_date(), file_flavor(), date_format()
 
 my $data = "$Bin/data";
 my $file = "$data/test.txt";
-ok -d $data, 1;
-ok -f $file, 1;
+is -d $data, 1;
+is -f $file, 1;
 
 my $fdate = $u->file_date($file);
-ok $fdate =~ /\d{4}-\d{2}-\d{2}/, 1;
+like $fdate ,  qr/\d{4}-\d{2}-\d{2}/, 'file_date()';
 ok $u->file_flavor($file), 'unix (\n or 012 or ^J)';
 
 my $date = $u->date_format();
-ok $date =~ /\d{4}-\d{2}-\d{2}/, 1;
+like $date, qr/\d{4}-\d{2}-\d{2}/, 'date format';
 my $date2 = $u->date_format('yyyy-mmm-dd', $date);
-ok $date2 =~ /\d{4}-[a-z]{3}-\d{2}/i, 1;
+like $date2 , qr/\d{4}-[a-z]{3}-\d{2}/i, 'date format';
 my $date3 = $u->date_format('mdhms');
-ok $date3 =~ /[a-z]{3}\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}/, 1;
+like $date3 , qr/[a-z]{3}\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}/, 'date format';
 my $date4 = $u->date_format('d-m-y', '11/22/60');
-ok $date4 =~ /\d{1,2}-[a-z]{3}-\d{4}/i, 1;
+like $date4 , qr/\d{1,2}-[a-z]{3}-\d{4}/i, 'date format';
 my $date5 = $u->date_format('mdy', '1/5/01');
-ok $date5 =~ /[a-z]{3} \d{1,2}, \d{4}/i, 1;
-
-#print "date: $date\ndate2: $date2\ndate3: $date3\ndate4: $date4\ndate5: $date5\n";
+like $date5 , qr/[a-z]{3} \d{1,2}, \d{4}/i, 'date format';
 
 # External executable-related functions.
 # Can't reliably test methods that depend on access to binaries:
 # e.g. find_exe(), compress(), uncompress(), send_mail()
 
 my $exe = $u->find_exe('some-weird-thing-no-one-will-have');
-ok $exe, undef;
+ok ! defined $exe ;
 
 # compress() and uncompress() using gzip.
 # Uncomment if you have gzip.
