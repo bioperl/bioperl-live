@@ -1,14 +1,14 @@
 #-*-Perl-*-
-## Bioperl Test Harness Script for Modules
-
+# Bioperl Test Harness Script for Modules
+#
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
 use Module::Build;
 use Bio::Root::IO;
-use FindBin '$Bin';
-use constant TEST_COUNT => 276;
+#use FindBin '$Bin';
+use constant TEST_COUNT => 278;
 use constant FASTA_FILES => Bio::Root::IO->catfile('t','data','dbfa');
 use constant GFF_FILE1    => Bio::Root::IO->catfile('t','data',
 						   'biodbgff','test.gff');
@@ -16,23 +16,16 @@ use constant GFF_FILE2    => Bio::Root::IO->catfile('t','data',
 						   'biodbgff','test.gff3');
 
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
     eval { require Test::More; };
     if( $@ ) {
         use lib 't/lib';
     }
     use Test::More;
     plan tests => TEST_COUNT;
+	
+	use_ok('Bio::DB::GFF');
+	use_ok('Bio::SeqIO');
 }
-
-sub bail ($;$);
-sub user_prompt ($;$);
-sub fail (;$);
-use lib '.','..','./blib/lib';
-use Bio::DB::GFF;
-use Bio::SeqIO;
 
 my $build = Module::Build->current;
 my $test_dsn = $build->notes('test_dsn');
@@ -63,12 +56,12 @@ if ($adaptor =~ /^dbi/) {
 
 push @args,('-aggregators' => ['transcript','processed_transcript']);
 
+SKIP: {
 for my $FILE (GFF_FILE1,GFF_FILE2) {
 
   my $db = eval { Bio::DB::GFF->new(@args) };
-  warn $@ if $@;
+  skip "DB load failed? Skipping all! $@", TEST_COUNT if $@;
   ok($db);
-  fail(TEST_COUNT - 1) unless $db;
 
   $db->debug(0);
   $db->gff3_name_munging(1);
@@ -262,7 +255,7 @@ for my $FILE (GFF_FILE1,GFF_FILE2) {
 						 '-sub_parts'   => ['exon','CDS']);
   $db->add_aggregator($aggregator);
   $segment1 = $db->segment('Contig1');
-  @features = sort $segment1->features('aggregated_transcript');  # sort so that trans-1 comes first
+  @features = sort $segment1->features('aggregated_transcript');   # sort so that trans-1 comes first
   is(scalar @features,2);
   cmp_ok($features[0]->Exon, '>', 0);
   cmp_ok($features[0]->Cds,'>', 0);
@@ -438,36 +431,8 @@ SKIP: {
   is(scalar $db->features,0);
   ok(!$db->segment('Contig1'));
 }
+}
 
 END {
   unlink FASTA_FILES."/directory.index";
-}
-
-sub bail ($;$) {
-  my $count = shift;
-  my $explanation = shift;
-  for (1..$count) {
-    skip($explanation,1);
-  }
-  exit 0;
-}
-
-sub fail (;$) {
-  my $count = shift;
-  for (1..$count) {
-    ok(0);
-  }
-  exit 0;
-}
-
-sub user_prompt ($;$) {
-    my($mess,$def)=@_;
-    Carp::confess("prompt function called without an argument") unless defined $mess;
-    my $dispdef = defined $def ? "[$def] " : " ";
-    $def = defined $def ? $def : "";
-    my $ans;
-    local $|=1;
-    print STDERR "$mess $dispdef";
-    chomp($ans = <STDIN>);
-    return ($ans ne '') ? $ans : $def;
 }

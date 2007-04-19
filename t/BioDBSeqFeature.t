@@ -6,8 +6,8 @@
 
 use strict;
 use Bio::Root::IO;
-use FindBin '$Bin';
-use constant TEST_COUNT => 53;
+#use FindBin '$Bin';
+use constant TEST_COUNT => 55;
 use constant GFF_FILE    => Bio::Root::IO->catfile('t','data',
 					   'seqfeaturedb','test.gff3');
 
@@ -19,43 +19,26 @@ BEGIN {
     use Test::More;
     plan tests => TEST_COUNT;
     $ENV{ORACLE_HOME} ||= '/home/oracle/Home';
+	
+	use_ok('Bio::DB::SeqFeature::Store');
+	use_ok('Bio::DB::SeqFeature::Store::GFF3Loader');
 }
 
-use lib "$Bin/..","$Bin/../blib/lib";
-use Bio::DB::SeqFeature::Store;
-use Bio::DB::SeqFeature::Store::GFF3Loader;
-
-sub bail ($;$) {
-  my $count = shift;
-  my $explanation = shift;
-  for (1..$count) {
-    skip($explanation,1);
-  }
-  exit 0;
-}
-
-sub fail (;$) {
-  my $count = shift;
-  for (1..$count) {
-    ok(0);
-  }
-  exit 0;
-}
+#use lib "$Bin/..","$Bin/../blib/lib";
 
 my (@f,$f,@s,$s,$seq1,$seq2);
 
 my @args = @ARGV;
 @args = (-adaptor => 'memory') unless @args;
 
+SKIP: {
 my $db = eval { Bio::DB::SeqFeature::Store->new(@args) };
-warn $@ if $@;
+skip "DB load failed? Skipping all! $@", TEST_COUNT if $@;
 ok($db);
-fail(TEST_COUNT - 1) unless $db;
 
 my $loader = eval { Bio::DB::SeqFeature::Store::GFF3Loader->new(-store=>$db) };
-warn $@ if $@;
+skip "GFF3 loader failed? Skipping all! $@", (TEST_COUNT - 1) if $@;
 ok($loader);
-fail(TEST_COUNT - 2) unless $loader;
 
 # exercise the loader
 ok($loader->load(GFF_FILE));
@@ -194,8 +177,5 @@ my @lines = split "\n",$gff3;
 is (@lines, 2);
 ok("@lines" !~ /Parent=/s);
 ok("@lines" =~ /ID=/s);
-
-1;
-
-__END__
+}
 
