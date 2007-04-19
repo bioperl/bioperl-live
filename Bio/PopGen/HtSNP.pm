@@ -1072,7 +1072,7 @@ sub _to_upper_case {
     my ($arr) =@_;
 
     foreach my $aref (@$arr){
-        foreach my $value (@{@$aref} ){
+        foreach my $value (@{$aref} ){
             $value = uc $value;
         }
     }
