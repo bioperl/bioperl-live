@@ -187,8 +187,7 @@ $seq = $seqio = undef;
 
 # test query facility (again)
 ok $query = Bio::DB::Query::GenBank->new('-db'  => 'nucleotide',
-                                         '-ids' => [qw(J00522 AF303112 2981014)],
-                                         -verbose => 1);
+                                         '-ids' => [qw(J00522 AF303112 2981014)]);
 SKIP: {
     cmp_ok $query->count, '>', 0;
     my @ids = $query->ids;
@@ -212,7 +211,7 @@ $seq = $seqio = undef;
 # and yet again, for bug 2133
 $query = Bio::DB::Query::GenBank->new('-query'  => 'AF303112',
                                       '-ids' => [qw(J00522 AF303112 2981014)]);
-is $query->query, 'J00522,AF303112,2981014';
+is $query->query, 'J00522[PACC]|AF303112[PACC]|2981014[UID]';
 
 # test contig retrieval
 ok $gb = new Bio::DB::GenBank('-delay'  => 0, '-format' => 'gbwithparts');

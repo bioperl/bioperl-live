@@ -305,21 +305,15 @@ sub _parse_response {
  Returns : string of concatenated IDs
  Args    : array ref of ids (normally passed into the constructor)
 
-NOTE: This method must be implemented by subclass.
-
 =cut
 
 sub _generate_id_string {
     my ($self, $ids) = @_;
-    my $str = join ',',@$ids;
-    return $str;
-    # this attempts to separate out accs (alphanumeric) from UIDs (numeric)
-    #my @accs;
-    #my @gis;
-    #for my $id (@$ids) {
-    #    ($id =~ m{^\d+$}) ? push @gis, $id : push @accs, $id;
-    #}
-    #return sprintf('%s|%s',join('[PACC]|',@accs),join('|',@gis));
+    # this attempts to separate out accs (alphanumeric) from UIDs (numeric only)
+    # recent changes to esearch has wrought this upon us.. cjf 4/19/07
+    return sprintf('%s',join('|',map {
+      ($_ =~ m{^\d+$}) ? $_.'[UID]' : $_.'[PACC]'
+    } @$ids));
 }
 
 1;
