@@ -3252,7 +3252,7 @@ sub make_match_sub {
   my @expr;
   for my $type (@$types) {
     my ($method,$source) = @$type;
-    $method = $method ? " \\Q$method\\E" : ".*";
+    $method = $method ? "\\Q$method\\E" : ".*";
     $source  = $source ? ":\\Q$source\\E" : "(?::.+)?";
     push @expr,"${method}${source}";
   }
