@@ -1014,7 +1014,8 @@ sub _gff3_string {
 		# next if $tag eq 'Target';
       if ($tag eq 'Target' && ! $origfeat->isa('Bio::SeqFeature::FeaturePair')){  
 			# simple Target,start,stop
-			my($target_id, $b,$e,$strand)= $feat->get_tag_values($tag); 
+			my($target_id, $b,$e,$strand) = $feat->get_tag_values($tag); 
+			next unless(defined($e) && defined($b) && $target_id);			
 			($b,$e)= ($e,$b) if(defined $strand && $strand<0);
 			$target_id =~ s/([\t\n\r%&\=;,])/sprintf("%%%X",ord($1))/ge;    
 			push @groups, sprintf("Target=%s %d %d", $target_id,$b,$e);
