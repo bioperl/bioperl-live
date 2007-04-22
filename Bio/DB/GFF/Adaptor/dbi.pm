@@ -1970,6 +1970,7 @@ sub _bin_query {
   my $tier = $maxbin;
   while ($tier >= $minbin) {
     my ($tier_start,$tier_stop) = (bin_bot($tier,$start)-EPSILON(),bin_top($tier,$stop)+EPSILON());
+    ($tier_start,$tier_stop)    = ($tier_stop,$tier_start) if $tier_start > $tier_stop;  # can happen when working with negative coordinates
     if ($tier_start == $tier_stop) {
       push @bins,'fbin=?';
       push @args,$tier_start;

@@ -285,7 +285,7 @@ sub new {
     # now offset to correct subsegment based on desired start and stop
     if ($force_absolute) {
 #      ($this_start,$this_stop) = ($absstart,$absstop);
-#      $self->absolute(1);
+      $self->absolute(1);
     } elsif ($absstrand eq '+') {
       $this_start =  $absstart   + $this_start - 1;
       $this_stop  =  $this_start + $this_length - 1;
