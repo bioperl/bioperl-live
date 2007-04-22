@@ -223,7 +223,7 @@ sub next_result{
 	   $self->start_element({ 'Name' => 'FastaOutput' } );
 	   $self->{'_result_count'}++;
 	   $seentop = 1;
-	   
+	   $self->debug("reporttype is ".$self->{'_reporttype'}."\n") if $self->verbose > 0;
 	   $self->element({ 'Name' => 'FastaOutput_program',
 			    'Data' => $self->{'_reporttype'}});
 	   $_ = $self->_readline();
@@ -415,6 +415,8 @@ sub next_result{
 	   my ($id,$desc) = split(/\s+/,$1,2);
 	   $self->element({ 'Name' => 'Hit_id',
 			    'Data' => $id}); 	   
+
+	   $self->debug("Hit ID is $id\n") if $self->verbose > 0;
 	   my @pieces = split(/\|/,$id);
 	   my $acc = pop @pieces;
 	   $acc =~ s/\.\d+$//;
@@ -609,7 +611,9 @@ sub next_result{
 	   }
 
 	   $self->end_element({ 'Name' => 'FastaOutput'});
-	   return $self->end_document();
+	   my $r = $self->end_document();
+	   $self->debug("At end with $r\n") if $self->verbose > 0;
+	   return $r;
        } elsif( /^\s*\d+\s*>>>/) {
 	   if ($self->within_element('FastaOutput')) {
 	       if( $self->in_element('hsp') ) {
@@ -692,7 +696,9 @@ sub next_result{
 	       }
 	       $self->end_element({ 'Name' => 'FastaOutput' });
 	       $self->_pushback($_);
-	       return $self->end_document();
+	       my $r = $self->end_document();
+	       $self->debug("At end with $r\n") if $self->verbose > 0;
+	       return $r;
 	   } else {
 	       $self->start_element({ 'Name' => 'FastaOutput' });
 	       $self->{'_result_count'}++;
@@ -841,10 +847,10 @@ sub start_element{
     my $nm = $data->{'Name'};    
     if( my $type = $MODEMAP{$nm} ) {
 	$self->_mode($type);
-	if( $self->_eventHandler->will_handle($type) ) {
+	if(my $handler = $self->_will_handle($type) ) {
 	    my $func = sprintf("start_%s",lc $type);
-	    $self->_eventHandler->$func($data->{'Attributes'});
-	}						 
+	    $handler->$func($data->{'Attributes'});
+	}
 	unshift @{$self->{'_elements'}}, $type;
     }
     if($nm eq 'FastaOutput') {
@@ -881,9 +887,9 @@ sub end_element {
     }
 
     if( my $type = $MODEMAP{$nm} ) {
-	if( $self->_eventHandler->will_handle($type) ) {
+	if( my $handler = $self->_will_handle($type) ) {
 	    my $func = sprintf("end_%s",lc $type);
-	    $rc = $self->_eventHandler->$func($self->{'_reporttype'},
+	    $rc = $handler->$func($self->{'_reporttype'},
 					      $self->{'_values'});	    
 	}
 	shift @{$self->{'_elements'}};
@@ -1093,6 +1099,68 @@ sub idlength{
 sub result_count {
     my $self = shift;
     return $self->{'_result_count'};
+}
+
+sub attach_EventHandler {
+    my ($self,$handler) = @_;
+
+    $self->SUPER::attach_EventHandler($handler);    
+
+    # Optimization: caching the EventHandler since it is used a lot
+    # during the parse.
+
+    $self->{'_handler_cache'} = $handler;
+    return;
+}
+
+=head2 _will_handle
+
+ Title   : _will_handle
+ Usage   : Private method. For internal use only.
+              if( $self->_will_handle($type) ) { ... }
+ Function: Provides an optimized way to check whether or not an element of a 
+           given type is to be handled.
+ Returns : Reference to EventHandler object if the element type is to be handled.
+           undef if the element type is not to be handled.
+ Args    : string containing type of element.
+
+Optimizations:
+
+=over 2
+
+=item 1
+
+Using the cached pointer to the EventHandler to minimize repeated
+lookups.
+
+=item 2
+
+Caching the will_handle status for each type that is encountered so
+that it only need be checked by calling
+handler-E<gt>will_handle($type) once.
+
+=back
+
+This does not lead to a major savings by itself (only 5-10%).  In
+combination with other optimizations, or for large parse jobs, the
+savings good be significant.
+
+To test against the unoptimized version, remove the parentheses from
+around the third term in the ternary " ? : " operator and add two
+calls to $self-E<gt>_eventHandler().
+
+=cut
+
+sub _will_handle {
+    my ( $self, $type ) = @_;
+    my $handler     = $self->{'_handler_cache'};
+    my $will_handle =
+      defined( $self->{'_will_handle_cache'}->{$type} )
+      ? $self->{'_will_handle_cache'}->{$type}
+      : ( $self->{'_will_handle_cache'}->{$type} =
+          $handler->will_handle($type) );
+
+    return $will_handle ? $handler : undef;
 }
 
 1;
