@@ -609,11 +609,8 @@ sub next_result{
 		   $self->end_element({'Name' => 'Hit'});
 	       }
 	   }
-
 	   $self->end_element({ 'Name' => 'FastaOutput'});
-	   my $r = $self->end_document();
-	   $self->debug("At end with $r\n") if $self->verbose > 0;
-	   return $r;
+	   return $self->end_document();
        } elsif( /^\s*\d+\s*>>>/) {
 	   if ($self->within_element('FastaOutput')) {
 	       if( $self->in_element('hsp') ) {
@@ -689,16 +686,14 @@ sub next_result{
 			   $self->element({'Name' => 'Hsp_query-frame', 'Data' => 0 });
 			   $self->element({'Name' => 'Hsp_hit-frame', 'Data' => $h->{lframe} });
 		       }
-
+		       
 		       $self->end_element({'Name' => 'Hsp'});
 		       $self->end_element({'Name' => 'Hit'});
 		   }
 	       }
 	       $self->end_element({ 'Name' => 'FastaOutput' });
 	       $self->_pushback($_);
-	       my $r = $self->end_document();
-	       $self->debug("At end with $r\n") if $self->verbose > 0;
-	       return $r;
+	       return $self->end_document();	       
 	   } else {
 	       $self->start_element({ 'Name' => 'FastaOutput' });
 	       $self->{'_result_count'}++;
@@ -827,6 +822,14 @@ sub next_result{
 	   }
        }
    }
+   if( $self->in_element('hsp') ) {
+       $self->end_element({'Name' => 'Hsp'});
+   } 
+   if( $self->in_element('hit') ) {
+       $self->end_element({'Name' => 'Hit'});
+   }
+   $self->end_element({ 'Name' => 'FastaOutput' });
+   return $self->end_document();	       
 }
 
 
