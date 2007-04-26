@@ -822,13 +822,15 @@ sub next_result{
 	   }
        }
    }
-   if( $self->in_element('hsp') ) {
-       $self->end_element({'Name' => 'Hsp'});
-   } 
-   if( $self->in_element('hit') ) {
-       $self->end_element({'Name' => 'Hit'});
+   if( $self->in_element('result') ) {
+       if( $self->in_element('hsp') ) {
+	   $self->end_element({'Name' => 'Hsp'});
+       } 
+       if( $self->in_element('hit') ) {
+	   $self->end_element({'Name' => 'Hit'});
+       }
+       $self->end_element({ 'Name' => 'FastaOutput' });
    }
-   $self->end_element({ 'Name' => 'FastaOutput' });
    return $self->end_document();	       
 }
 
