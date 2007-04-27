@@ -111,6 +111,7 @@ sub new {
     $ret_type      && $self->retrieval_type($ret_type);
     $delay          = $self->delay_policy unless defined $delay;
     $self->delay($delay);
+    
 
     # insure we always have a default format set for retrieval
     # even though this will be immedietly overwritten by most sub classes
@@ -693,10 +694,12 @@ sub _request {
 #handles
 sub _open_pipe {
   my ($self) = @_;
-
-  if($ENV{MOD_PERL} and ! our $loaded_apache_sp) {
-    eval 'use Apache::SubProcess';
-    $@ and $self->throw("$@\nApache::SubProcess module required for running under mod_perl");
+  # is mod_perl running?  Which API?
+  my $mp = $self->mod_perl_api;
+  if($mp and ! our $loaded_apache_sp) {
+    my $load_api = ($mp == 1) ? 'use Apache::SubProcess': 'use Apache2::SubProcess';
+    eval $load_api;
+    $@ and $self->throw("$@\n$load_api module required for running under mod_perl");
     $loaded_apache_sp = 1;
   }
 
@@ -838,6 +841,26 @@ sub _sleep {
       sleep $delay;
    }
    $LAST_INVOCATION_TIME = time;
+}
+
+=head2 mod_perl_api
+
+ Title   : mod_perl_api
+ Usage   : $version = self->mod_perl_api
+ Function: Returns API version of mod_perl being used based on set env. variables
+ Returns : mod_perl API version; if mod_perl isn't loaded, returns 0
+ Args    : none
+
+=cut
+
+sub mod_perl_api {
+    my $self = shift;
+    my $v = $ENV{MOD_PERL} ?
+            ( exists $ENV{MOD_PERL_API_VERSION} && $ENV{MOD_PERL_API_VERSION} >= 2 ) ?
+            2 :
+            1 
+        : 0;
+    return $v;
 }
 
 1;
