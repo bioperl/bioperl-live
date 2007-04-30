@@ -83,7 +83,7 @@ use URI::Escape;
 use base qw(Bio::FeatureIO);
 
 use constant DEFAULT_VERSION => 3;
-my $RESERVED_TAGS   = "ID|Name|Alias|Parent|Target|Gap|Derives_from|Note|Dbxref|dbxref|Ontology_term|Index";
+my $RESERVED_TAGS   = "ID|Name|Alias|Parent|Target|Gap|Derives_from|Note|Dbxref|dbxref|Ontology_term|Index|CRUD";
 
 sub _initialize {
   my($self,%arg) = @_;
@@ -725,7 +725,7 @@ sub _handle_feature {
     $feat->add_Annotation('Name',$a);
   }
 
-  foreach my $other_canonical (qw(Alias Parent Note Derives_from Index)){
+  foreach my $other_canonical (qw(Alias Parent Note Derives_from Index CRUD)){
     if($attr{$other_canonical}){
       foreach my $value (@{ $attr{$other_canonical} }){
         my $a = Bio::Annotation::SimpleValue->new();
