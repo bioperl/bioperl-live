@@ -257,6 +257,10 @@ sub next_result {
             ($hitid, $hitdesc) = split ' ',$line,2;
             
             if ($self->within_element('hit') && ($hitid ne $lastid)) {
+                $self->element(
+                       {'Name' => 'Hit_score',
+                        'Data' => $lastscore}
+                      ) if $lastscore;
                 $self->end_element({'Name' => 'Hit'});
                 $self->start_element({'Name' => 'Hit'});
             } elsif (!$self->within_element('hit')) {
@@ -283,7 +287,7 @@ sub next_result {
             # check score for possible sprintf data, mark as such, cache result
             if (!defined($sprintf)) {
                 if ($score =~ m{[^0-9.-]+}gxms) {
-                    if ($hsp_min || $hsp_max ) {
+                    if (defined $hsp_min || defined $hsp_max ) {
                         $self->warn("HSP data likely contains custom score; ".
                                     "ignoring min/maxscore");
                     }
@@ -302,9 +306,9 @@ sub next_result {
                     $oktobuild = 1;
                     
                     # store best hit score based on the hsp min/maxscore only
-                    if ($hsp_min && $score > $hsp_min) {
+                    if (defined $hsp_min && $score > $hsp_min) {
                         $lastscore = $score if !$lastscore || $score > $lastscore;
-                    } elsif ($hsp_max && $score < $hsp_max) {
+                    } elsif (defined $hsp_max && $score < $hsp_max) {
                         $lastscore = $score if !$lastscore || $score < $lastscore;
                     } 
                 }
@@ -465,7 +469,7 @@ sub element_hash {
     my ($self, $data) = @_;
     $self->throw("Must provide data hash ref") if !$data || !ref($data);
     for my $nm (sort keys %{$data}) {
-        next if !$data->{$nm} || $data->{$nm} =~ m{^\s*$}o;
+        next if $data->{$nm} && $data->{$nm} =~ m{^\s*$}o;
         if ( $MAPPING{$nm} ) {
             if ( ref( $MAPPING{$nm} ) =~ /hash/i ) {
                 my $key = ( keys %{ $MAPPING{$nm} } )[0];
