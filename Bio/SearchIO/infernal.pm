@@ -20,11 +20,12 @@ Bio::SearchIO::infernal - SearchIO-based Infernal parser
 
 This is a highly experimental SearchIO-based parser for Infernal output from
 the cmsearch program.  It currently parses cmsearch output for Infernal
-versions 0.7 and above; older versions may work but will not be supported.
+versions 0.7-0.72; older versions may work but will not be supported.  
 
 As output format for cmsearch is continually changing, support for this parser
-will only be for the latest available Infernal version (v 0.72 at this time)
-or the latest stable version.  
+will only be for the latest Infernal version (v 0.81 at this time) or the latest
+stable version. Output for v. 0.81 is currently not parsed due to significant
+changes in the output style; I am hoping to rectify this soon.
 
 =head1 FEEDBACK
 
