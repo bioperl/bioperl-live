@@ -545,48 +545,64 @@ sub gff_string {
 }
 
 sub gff3_string {
-  my $self              = shift;
-  my ($recurse,$parent) = @_;
+  my ($self, $recurse, $preserveHomegenousParent, $dontPropogateParentAttrs,
+      # Note: the following parameters, whose name begins with '$_',
+      # are intended for recursive call only.
+      $_parent,
+      $_parentGroup,		# if so, what is the group (GFF column 9) of the parent
+     ) = @_;
 
-  my $name  = $self->name;
-  my $class = $self->class;
-  my $group = $self->format_attributes($parent);
-  my $strand = ('-','.','+')[$self->strand+1];
-  my $p      = join("\t",
-		    $self->ref||'.',$self->source||'.',$self->method||'.',
-		    $self->start||'.',$self->stop||'.',
-		    defined($self->score) ? $self->score : '.',
-		    $strand||'.',
-		    defined($self->phase) ? $self->phase : '.',
-		    $group||'');
+  # PURPOSE: Return GFF3 format for the feature $self.  Optionally
+  # $recurse to include GFF for any subfeatures of the feature. If
+  # recursing, provide special handling to "remove an extraneous level
+  # of parentage" (unless $preserveHomegenousParent) for features
+  # which have at least one subfeature with the same type as the
+  # feature itself (thus redefining Lincoln's "homogenous
+  # parent/child" case, which previously required all children to have
+  # the same type as parent). This usage is a convention for
+  # representing discontiguous features; they may be created by using
+  # the -segment directive without specifying a distinct -subtype to
+  # Bio::Graphics::FeatureBase->new (or to Bio::DB::SeqFeature,
+  # Bio::Graphics::Feature).  Such homogenous subfeatures created in
+  # this fashion TYPICALLY do not have the parent (GFF column 9)
+  # attributes propogated to them; but, since they are all part of the
+  # same parent, the ONLY difference relevant to GFF production SHOULD
+  # be the $start and $end coordinates for their segment, and ALL
+  # THIER OTHER ATTRIBUTES should be taken from the parent (including:
+  # score, Name, ID, Parent, etc), which happens UNLESS
+  # $dontPropogateParentAttrs is passed.
 
-  # the "homogeneous" flag will be true if the parent and children are all of the same type,
-  # meaning that they can be collapsed into a set of children with all the same ID
-  my ($parent_type,$homogeneous);
-  $homogeneous = 1;
-  my @children;
-  if ($recurse) {
-    foreach ($self->sub_SeqFeature) {
-      push @children,$_->gff3_string(1,$self);
-      $parent_type   ||= $self->type;
-      $homogeneous   &&= $_->type eq $parent_type && !defined $_->primary_id;
-    }
-  }
 
-  # if we get here we're dealing with a homogeneous set of Parent[child,child...]
-  # where parent and child all have the same type. In this case, we omit the Parent
-  # and give the children the same ID. This removes an extraneous level of parentage.
+  my @rsf = $recurse ? $self->sub_SeqFeature : ();
+  my $recurseSubfeatureWithSameType =
+    # will be TRUE if we're going to recurse and at least 1 subfeature
+    # has same type as $self.
+    sub {($_->type eq $self->type) &&  return 1 for @rsf ; 0 }->();
+  my $typeIsSameAsParent = $_parent && ($_parent->type eq $self->type);
+  my $hparentOrSelf = ($typeIsSameAsParent && ! $dontPropogateParentAttrs) ? $_parent : $self;
+  my $group = ($typeIsSameAsParent && ! $dontPropogateParentAttrs)  ? $_parentGroup : $self->format_attributes($_parent);
 
-  if (@children && $homogeneous) {
-    foreach (@children) { 
-      s/Parent=/ID=/g; 
-    } # replace Parent tag with ID
-    return join "\n",@children;
-  }
-
-  return join("\n",$p,@children);
+  my @gff3 = $recurseSubfeatureWithSameType && ! $preserveHomegenousParent ? () :
+    do {
+      my $name  = $hparentOrSelf->name;
+      my $class = $hparentOrSelf->class;
+      my $strand = ('-','.','+')[$hparentOrSelf->strand+1]; 
+      # TODO: understand conditions under which $self->strand could be other than
+      # $hparentOrSelf->strand.  In particular, why does add_segment flip
+      # the strand when start > stop?  I thought this was not allowed!
+      # Lincoln - any ideas?
+      my $p = join("\t",
+		   $hparentOrSelf->ref||'.',$hparentOrSelf->source||'.',$hparentOrSelf->method||'.',
+		   $self->start||'.',$self->stop||'.',
+		   defined($hparentOrSelf->score) ? $hparentOrSelf->score : '.',
+		   $strand||'.',
+		   defined($hparentOrSelf->phase) ? $hparentOrSelf->phase : '.',
+		   $group||'');
+      $p;
+    };
+  join("\n", @gff3,  map {$_->gff3_string($recurse,$preserveHomegenousParent,
+					  $dontPropogateParentAttrs,$hparentOrSelf,$group)} @rsf);
 }
-
 
 sub db { return }
 
@@ -656,8 +672,8 @@ sub format_attributes {
     my @values = $self->each_tag_value($t);
     push @result,join '=',$self->escape($t),join(',', map {$self->escape($_)} @values) if @values;
   }
-  my $id   = $self->primary_id;
-  my $name = $self->display_name;
+  my $id   = ($parent || $self)->primary_id;
+  my $name = ($parent || $self)->display_name;
   unshift @result,"ID=".$self->escape($id)                     if defined $id;
   unshift @result,"Parent=".$self->escape($parent->primary_id) if defined $parent;
   unshift @result,"Name=".$self->escape($name)                 if defined $name;
