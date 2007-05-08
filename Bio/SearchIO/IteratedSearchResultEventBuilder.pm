@@ -303,6 +303,7 @@ sub _add_hit {
     $self->{'_hit_names_below'}->{$hit_name}++ if $hit_signif <= $ithresh;
 }
 
+# This is the problem leading to Bug 1986...
 
 # Title   : _store_hit (private function for internal use only)
 # Purpose : Collects hit objects into defined sets that are useful for 
