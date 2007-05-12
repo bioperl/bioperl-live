@@ -991,4 +991,23 @@ sub findnode_by_id {
     }
 }
 
+=head2 move_id_to_bootstrap
+
+ Title   : move_id_to_bootstrap
+ Usage   : $tree->move_id_to_bootstrap
+ Function: Move internal IDs to bootstrap slot
+ Returns : undef
+ Args    : undef
+
+
+=cut
+
+sub move_id_to_bootstrap{
+   my ($tree) = shift;
+   for my $node ( grep { ! $_->is_Leaf } $tree->get_nodes ) {
+       $node->bootstrap($node->id);
+       $node->id('');
+   }
+}
+
 1;
