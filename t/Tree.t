@@ -116,7 +116,9 @@ ok(  $tree->is_paraphyletic(-nodes => [$a,$f,$e],
 
 
 # test for rerooting the tree
-my $out = Bio::TreeIO->new(-format => 'newick', -fh => \*STDERR, -noclose => 1);
+my $out = Bio::TreeIO->new(-format => 'newick', 
+			   -fh => \*STDERR, 
+			   -noclose => 1);
 $tree = $in->next_tree;
 $tree->verbose( -1 ) unless $DEBUG;
 my $node_cnt_orig = scalar($tree->get_nodes);
@@ -210,6 +212,36 @@ $tree->splice(-keep_id => [qw(0 1 2 A B C D)]);
 $DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
 ok($DFSorder, '0,1,2,A,B,C,D');
 #get_lca, merge_lineage, contract_linear_paths tested in in Taxonomy.t
+
+
+# try out the id to bootstrap copy method
+$treeio = Bio::TreeIO->new(-format => 'newick',
+			   -file   => Bio::Root::IO->catfile('t','data', 
+							     'bootstrap.tre'));
+$tree = $treeio->next_tree;
+my ($test_node) = $tree->find_node(-id => 'A');
+ok($test_node->ancestor->id, '90');
+ok($test_node->ancestor->ancestor->id, '25');
+$tree->move_id_to_bootstrap;
+ok($test_node->ancestor->id, '');
+ok($test_node->ancestor->bootstrap, '90');
+ok($test_node->ancestor->ancestor->id, '');
+ok($test_node->ancestor->ancestor->bootstrap, '25');
+
+# change TreeIO to parse 
+$treeio = Bio::TreeIO->new(-format => 'newick',
+			   -file   => Bio::Root::IO->catfile('t','data', 
+							     'bootstrap.tre'),
+			   -internal_node_id => 'bootstrap');
+$tree = $treeio->next_tree;
+($test_node) = $tree->find_node(-id => 'A');
+ok($test_node->ancestor->id, '');
+ok($test_node->ancestor->ancestor->id, '');
+ok($test_node->ancestor->bootstrap, '90');
+ok($test_node->ancestor->ancestor->bootstrap, '25');
+
+
+
 
 __DATA__
 (D,(C,(A,B)));
