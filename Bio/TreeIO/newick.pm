@@ -144,6 +144,9 @@ sub next_tree{
        if( $ch eq ';' ) {
 	   my $tree = $self->_eventHandler->end_document($chars);
 	   $tree->score($score) if defined $score;
+	   if( $self->internal_node_id eq 'bootstrap' ) {
+	       $tree->move_id_to_bootstrap;
+	   }
 	   return $tree;
        } elsif( $ch eq '(' ) {
 	   $chars = '';
