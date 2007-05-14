@@ -1308,7 +1308,7 @@ sub _query_seq_feature {
     # report the frame
     my $qframe = $self->{QUERY_FRAME};
     if (defined $strand && ! defined $qframe && $queryfactor) {
-        $qframe = ( $self->query->start % 3 ) * $strand;
+        $qframe = ( $qs % 3 ) * $strand;
     }
     elsif (! defined $strand) {
         $qframe = 0;
