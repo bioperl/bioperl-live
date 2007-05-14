@@ -420,7 +420,8 @@ sub seq_inds {
 		my @inds;    
 		foreach my $hsp ($self->hsps) {
 			# This will merge data for all HSPs together.
-			push @inds, $hsp->seq_inds($seqType, $class);
+            my @these_inds = $hsp->seq_inds($seqType, $class);
+			push @inds, @these_inds;
 		}
 		
 		# Need to remove duplicates and sort the merged positions, unless gaps.
@@ -433,7 +434,6 @@ sub seq_inds {
 	}
 	
 	my @inds = @{$self->{$storage_name}};
-    
     $collapse ? &Bio::Search::SearchUtils::collapse_nums(@inds) : @inds;
 }
 
@@ -1016,7 +1016,7 @@ sub frac_identical {
     my $ratio = $ident / $total;
     my $ratio_rounded = sprintf( "%.3f", $ratio);
     
-    # Round down iff normal rounding yields 1 (just like blast)
+    # Round down if normal rounding yields 1 (just like blast)
     $ratio_rounded = 0.999 if (($ratio_rounded == 1) && ($ratio < 1));
     return $ratio_rounded;
 }

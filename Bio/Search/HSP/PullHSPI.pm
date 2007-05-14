@@ -258,7 +258,7 @@ sub frac_identical {
 	$type = 'total' if (! defined $type || $type eq 'hsp' || $type !~ /query|hit|subject|sbjct|total/);
 	
 	my $ratio = $self->num_identical($type) / $self->length($type);
-    return sprintf( "%.3f", $ratio);
+    return sprintf( "%.4f", $ratio);
 }
 
 =head2 frac_conserved
@@ -284,7 +284,7 @@ sub frac_conserved {
 	$type = 'total' if (! defined $type || $type eq 'hsp' || $type !~ /query|hit|subject|sbjct|total/);
 	
 	my $ratio = $self->num_conserved($type) / $self->length($type);
-    return sprintf( "%.3f", $ratio);
+    return sprintf( "%.4f", $ratio);
 }
 
 =head2 num_identical
@@ -666,7 +666,8 @@ sub strand {
  Title   : start
  Usage   : $hsp->start('query')
  Function: Retrieves the start for the HSP component requested
- Returns : integer
+ Returns : integer, or list of two integers (query start and subject start) in
+           list context
  Args    : 'hit' or 'subject' or 'sbjct' to retrieve the start of the subject
            'query' to retrieve the query start (default)
 
@@ -675,7 +676,7 @@ sub strand {
 sub start {
     my $self = shift;
     my $val = shift;
-    $val = 'query' unless defined $val;
+    $val = (wantarray ? 'list' : 'query') unless defined $val;
     $val =~ s/^\s+//;
 
     if ($val =~ /^q/i) { 
@@ -698,7 +699,8 @@ sub start {
  Title   : end
  Usage   : $hsp->end('query')
  Function: Retrieves the end for the HSP component requested
- Returns : integer
+ Returns : integer, or list of two integers (query end and subject end) in
+           list context
  Args    : 'hit' or 'subject' or 'sbjct' to retrieve the end of the subject
            'query' to retrieve the query end (default)
 
@@ -707,7 +709,7 @@ sub start {
 sub end {
     my $self = shift;
     my $val = shift;
-    $val = 'query' unless defined $val;
+    $val = (wantarray ? 'list' : 'query') unless defined $val;
     $val =~ s/^\s+//;
 
     if ($val =~ /^q/i) { 

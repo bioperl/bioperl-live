@@ -463,7 +463,7 @@ sub available_parameters {
 =head2 add_parameter
 
  Title   : add_parameter
- Usage   : $report->add_parameter('gapext', 11);
+ Usage   : $result->add_parameter('gapext', 11);
  Function: Adds a parameter
  Returns : none
  Args    : key  - key value name for this parama
@@ -516,7 +516,7 @@ sub available_statistics {
 =head2 add_statistic
 
  Title   : add_statistic
- Usage   : $report->add_statistic('lambda', 2.3);
+ Usage   : $result->add_statistic('lambda', 2.3);
  Function: Adds a statistic
  Returns : none
  Args    : key  - key value name for this statistic
