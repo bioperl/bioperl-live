@@ -904,11 +904,6 @@ sub matches {
  Argument  : In scalar context: seq_type = 'query' or 'hit' or 'sbjct' (default = 'query')
              ('sbjct' is synonymous with 'hit')
  Throws    : n/a
- Comments  : This method requires that all HSPs be tiled. If there is more than one
-           : HSP and they have not already been tiled, they will be tiled first automatically..
-           : Remember that the start and end coordinates of all HSPs are 
-           : normalized so that start < end. Strand information can be
-           : obtained by calling $hit->strand().
 
 See Also   : L<end()|end>, L<range()|range>, L<strand()|strand>, 
              L<Bio::Search::HSP::BlastHSP::start|Bio::Search::HSP::BlastHSP>
@@ -934,8 +929,30 @@ sub start {
     # If there is only one HSP, defer this call to the solitary HSP.
     if($self->num_hsps == 1) {
         return $self->hsp->start($seqType);
-    } else {
-        &Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
+    }
+    else {
+        # Tiling normally generates $self->{'_queryStart'} and
+        # $self->{'_sbjctStart'}, but is very slow. If we haven't tiled,
+        # find the answer quickly without tiling.
+        unless (defined $self->{'_queryStart'}) {
+            my $earliest_query_start;
+            my $earliest_sbjct_start;
+            foreach my $hsp ($self->hsps) {
+                my $this_query_start = $hsp->start('query');
+                if (! defined $earliest_query_start || $this_query_start < $earliest_query_start) {
+                    $earliest_query_start = $this_query_start;
+                }
+                
+                my $this_sbjct_start = $hsp->start('sbjct');
+                if (! defined $earliest_sbjct_start || $this_sbjct_start < $earliest_sbjct_start) {
+                    $earliest_sbjct_start = $this_sbjct_start;
+                }
+            }
+            $self->{'_queryStart'} = $earliest_query_start;
+            $self->{'_sbjctStart'} = $earliest_sbjct_start;
+        }
+        
+        
         if ($seqType =~ /list|array/i) {
             return ($self->{'_queryStart'}, $self->{'_sbjctStart'});
         } else {
@@ -965,12 +982,6 @@ sub start {
  Argument  : In scalar context: seq_type = 'query' or 'sbjct'
            :  (case insensitive). If not supplied, 'query' is used.
  Throws    : n/a
- Comments  : This method requires that all HSPs be tiled. If there is 
-           : more than one HSP and they have not already been tiled, 
-           : they will be tiled first automatically..
-           : Remember that the start and end coordinates of all HSPs are 
-           : normalized so that start < end. Strand information can be
-           : obtained by calling $hit->strand().
 
 See Also   : L<start()|start>, L<range()|range>, L<strand()|strand>
 
@@ -994,8 +1005,30 @@ sub end {
     # If there is only one HSP, defer this call to the solitary HSP.
     if($self->num_hsps == 1) {
         return $self->hsp->end($seqType);
-    } else {
-        Bio::Search::SearchUtils::tile_hsps($self) unless $self->tiled_hsps;
+    }
+    else {
+        # Tiling normally generates $self->{'_queryStop'} and
+        # $self->{'_sbjctStop'}, but is very slow. If we haven't tiled,
+        # find the answer quickly without tiling.
+        unless (defined $self->{'_queryStop'}) {
+            my $latest_query_end;
+            my $latest_sbjct_end;
+            foreach my $hsp ($self->hsps) {
+                my $this_query_end = $hsp->end('query');
+                if (! defined $latest_query_end || $this_query_end > $latest_query_end) {
+                    $latest_query_end = $this_query_end;
+                }
+                
+                my $this_sbjct_end = $hsp->end('sbjct');
+                if (! defined $latest_sbjct_end || $this_sbjct_end > $latest_sbjct_end) {
+                    $latest_sbjct_end = $this_sbjct_end;
+                }
+            }
+            $self->{'_queryStop'} = $latest_query_end;
+            $self->{'_sbjctStop'} = $latest_sbjct_end;
+        }
+        
+        
         if($seqType =~ /list|array/i) {
             return ($self->{'_queryStop'}, $self->{'_sbjctStop'});
         } else {
