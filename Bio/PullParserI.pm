@@ -195,8 +195,6 @@ sub get_field {
             
             my $dependency = $self->_dependencies($desired);
             if ($dependency && ! defined $self->_fields->{$dependency}) {
-                #my $dep_method = '_discover_'.$dependency;
-                #$self->$dep_method;
                 $self->get_field($dependency);
             }
             
