@@ -378,7 +378,7 @@ sub _rearrange {
            :   one of the given methods )
  Argument  : \%args | \@args : a hash ref or associative array ref of arguments
            :                   where keys are any-case strings corresponding to
-           :                   method names but optionally prefixed  with
+           :                   method names but optionally prefixed with
            :                   hyphens, and values are the values the method
            :                   should be supplied. If keys contain internal
            :                   hyphens (eg. to separate multi-word args) they
@@ -399,6 +399,19 @@ sub _rearrange {
            :                   (combined with -methods it would create all the
            :                   supplied methods that didn't exist, even if not
            :                   mentioned in the supplied %args)
+           : -code => '' | {}: (optional) when creating methods use the supplied
+           :                   code (a string which will be evaulated as a sub).
+           :                   The default code is a simple get/setter.
+           :                   Alternatively you can supply a hash ref where
+           :                   the keys are method names and the values are
+           :                   code strings. The variable '$method' will be
+           :                   available at evaluation time, so can be used in
+           :                   your code strings. Beware that the strict pragma
+           :                   will be in effect.
+           : -case_sensitive => bool : require case sensitivity on the part of
+           :                           user (ie. a() and A() are two different
+           :                           methods and the user must be careful
+           :                           which they use).
  Comments  :
            : The \%args argument will usually be the args received during new()
            : from the user. The user is allowed to get the case wrong, include
@@ -430,13 +443,18 @@ sub _set_from_args {
     my ($self, $args, @own_args) = @_;
     $self->throw("a hash/array ref of arguments must be supplied") unless ref($args);
     
-    my ($methods, $force, $create);
+    my ($methods, $force, $create, $code, $case);
     if (@own_args) {
-        ($methods, $force, $create) =
+        ($methods, $force, $create, $code, $case) =
             $self->_rearrange([qw(METHODS
                                   FORCE
-                                  CREATE)], @own_args);
+                                  CREATE
+                                  CODE
+                                  CASE_SENSITIVE)], @own_args);
     }
+    my $default_code = 'my $self = shift;
+                        if (@_) { $self->{\'_\'.$method} = shift }
+                        return $self->{\'_\'.$method} || return;';
     
     my %method_names = ();
     my %syns = ();
@@ -450,7 +468,7 @@ sub _set_from_args {
             @names = @{$methods};
             %syns = map { $_ => $_ } @names;
         }
-        %method_names = map { lc($_) => $_ } @names;
+        %method_names = map { $case ? $_ : lc($_) => $_ } @names;
     }
     
     # deal with hyphens
@@ -465,16 +483,22 @@ sub _set_from_args {
     # create non-existing methods on request
     if ($create) {
         unless ($methods) {
-            %syns = map { $_ => lc($_) } keys %args;
+            %syns = map { $_ => $case ? $_ : lc($_) } keys %args;
         }
         
         foreach my $method (keys %syns) {
             $self->can($method) && next;
-            # create get/setter method
+            
+            my $string = $code || $default_code;
+            if (ref($code) && ref($code) eq 'HASH') {
+                $string = $code->{$method} || $default_code;
+            }
+            
+            my $sub = eval "sub { $string }";
+            $self->throw("Compilation error for $method : $@") if $@;
+            
             no strict 'refs';
-            *{ref($self).'::'.$method} = sub { my $self = shift;
-                                              if (@_) { $self->{'_'.$method} = shift }
-                                              return $self->{'_'.$method} || return; };
+            *{ref($self).'::'.$method} = $sub;
         }
     }
     
@@ -484,7 +508,7 @@ sub _set_from_args {
         
         foreach my $syn (@{ ref($syn_ref) ? $syn_ref : [$syn_ref] }) {
             next if $syn eq $method;
-            $method_names{lc($syn)} = $syn;
+            $method_names{$case ? $syn : lc($syn)} = $syn;
             next if $self->can($syn);
             no strict 'refs';
             *{ref($self).'::'.$syn} = $method_ref;
@@ -493,7 +517,7 @@ sub _set_from_args {
     
     # set values for methods
     while (my ($method, $value) = each %args) {
-        $method = $method_names{lc($method)} || ($methods ? next : $method);
+        $method = $method_names{$case ? $method : lc($method)} || ($methods ? next : $method);
         $self->can($method) || next unless $force;
         $self->$method($value);
     }
