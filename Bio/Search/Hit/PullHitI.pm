@@ -420,8 +420,7 @@ sub seq_inds {
 		my @inds;    
 		foreach my $hsp ($self->hsps) {
 			# This will merge data for all HSPs together.
-            my @these_inds = $hsp->seq_inds($seqType, $class);
-			push @inds, @these_inds;
+			push @inds, $hsp->seq_inds($seqType, $class);
 		}
 		
 		# Need to remove duplicates and sort the merged positions, unless gaps.
