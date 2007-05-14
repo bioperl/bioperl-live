@@ -21,7 +21,7 @@ Bio::SearchIO::blast_pull - A parser for BLAST output
     my $in = new Bio::SearchIO(-format => 'blast_pull',
                                -file   => 't/data/new_blastn.txt');
     while (my $result = $in->next_result) {
-        # this is a Bio::Search::Result::BlastNResult object
+        # this is a Bio::Search::Result::BlastPullResult object
         print "Results for ", $result->query_name(), "\n";
         while (my $hit = $result->next_hit) {
             print $hit->name(), "\n";
@@ -172,8 +172,6 @@ sub _discover_next_result {
     my $type = $self->get_field('algorithm'); # also sets _after_header if not set
     
     if ($type eq 'BLASTN' || $type eq 'BLASTP') {
-        use Bio::Search::Result::BlastNResult;
-        
         unless ($self->_sequential) {
             $self->_chunk_seek($self->{_end_of_previous_result} || $self->{_after_header});
             
