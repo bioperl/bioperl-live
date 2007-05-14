@@ -144,7 +144,7 @@ while (my $result = $searchio->next_result) {
                         ['lf+g+L + +t+e Lk++F+k G iv++ +++D     + t++s+Gf+F+++  ++  + A +    +++++gr+++ ',
                          'lfVg L  d +e+ ++d+F++fG iv+i+iv+D     ketgk +GfaFVeF++++ ++k +     ++l+g+ + v'],
 						[1, 0], [8, 6], [1, 2], ['33 103', '124 194'], [78, 77], [22, 33], [33, 23],
-						['0.310', '0.465'], ['0.286', '0.429'], ['0.282', '0.429']);
+						['0.3099', '0.4648'], ['0.2857', '0.4286'], ['0.2821', '0.4286']);
         
         while (defined(my $hsp = $hit->next_domain)) {
             is ref($hsp), 'Bio::Search::HSP::HmmpfamHSP';
