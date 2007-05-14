@@ -150,8 +150,13 @@ sub _discover_header {
     
 	$self->{_after_header} = $self->_chunk_tell;
 	
-	($self->_fields->{name}, $self->_fields->{description}, $self->_fields->{length}) = $header =~ /^(\S+)\s(.+?)\s+Length\s*=\s*(\d+)/sm;
-	$self->_fields->{description} =~ s/\n//g;
+    ($self->_fields->{name}, $self->_fields->{description}, $self->_fields->{length}) = $header =~ /^(\S+)\s+(\S.+?)?\s+Length\s*=\s*(\d+)/sm;
+    if ($self->_fields->{description}) {
+        $self->_fields->{description} =~ s/\n//g;
+    }
+    else {
+        $self->_fields->{description} = '';
+    }
 	
     $self->_calculate_accession_from_name;
 	

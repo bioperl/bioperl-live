@@ -7,7 +7,7 @@ use strict;
 use vars qw($NUMTESTS $DEBUG);
 
 BEGIN {
-	$NUMTESTS = 286;
+	$NUMTESTS = 288;
 	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 	
 	eval {require Test::More;};
@@ -89,6 +89,14 @@ while (my $hit = $result->next_hit ) {
 }
 is @valid, 0;
 
+# descriptionless hit
+$searchio = new Bio::SearchIO ('-format' => 'blast_pull',
+							   '-file' => Bio::Root::IO->catfile('t','data','blast_no_hit_desc.txt'));
+
+$result = $searchio->next_result;
+my $hit = $result->next_hit;
+is $hit->name, 'chr1';
+is $hit->description, '';
 
 # further (NCBI blastn/p) tests taken from SearchIO.t
 $searchio = new Bio::SearchIO ('-format' => 'blast_pull',
@@ -267,7 +275,7 @@ is(@expected, 0);
 $searchio = new Bio::SearchIO('-format' => 'blast_pull',
 							  '-file'   => Bio::Root::IO->catfile('t','data','frac_problems2.blast'));
 $result = $searchio->next_result;
-my $hit = $result->next_hit;
+$hit = $result->next_hit;
 is $hit->frac_aligned_query, 0.97;
 
 # Also, start and end should be sane

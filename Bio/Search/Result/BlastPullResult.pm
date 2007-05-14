@@ -167,20 +167,10 @@ sub _discover_hit_table {
 	
 	my @table;
 	my $no_hit = 1;
-	while ($table =~ /^(\S+)\s(.+?)\s+(\d+)\s+(\d\S*)\s*\n/gm) {
+	while ($table =~ /^(\S+)\s+(\S.*?)?\s+(\d+)\s+(\d\S*)\s*\n/gm) {
 		$no_hit = 0;
-		my $name = $1;
-		my ($desc, $score, $evalue);
-		if ($4) {
-			$desc = $2;
-			$score = $3;
-			$evalue = $4;
-		}
-		else {
-			$desc = '';
-			$score = $2;
-			$evalue = $3;
-		}
+		my ($name, $desc, $score, $evalue) = ($1, $2, $3, $4);
+		$desc ||= '';
 		next if ($evalue_cutoff && $evalue > $evalue_cutoff);
 		next if ($score_cutoff && $score < $score_cutoff);
 		push(@table, [$name, $desc, $score, $evalue]);
