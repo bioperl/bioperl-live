@@ -152,6 +152,10 @@ sub _discover_header {
         $self->_fields->{query_strand} = 0;
         $self->_fields->{hit_strand} = 0;
     }
+	
+	if ($self->_fields->{evalue} =~ /^e/) {
+		$self->_fields->{evalue} = '1'.$self->_fields->{evalue};
+	}
     
     # query_gaps isn't always given
     $self->_fields->{total_gaps} = '[unset]' unless $self->_fields->{total_gaps};

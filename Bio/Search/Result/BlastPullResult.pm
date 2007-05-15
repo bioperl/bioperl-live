@@ -157,7 +157,7 @@ sub _discover_hit_table {
 			$table .= $line;
 		}
 	}
-	
+    
 	$self->{_after_hit_table} = $self->_chunk_tell;
 	
 	my $evalue_cutoff = $self->get_field('evalue_cutoff');
@@ -167,10 +167,13 @@ sub _discover_hit_table {
 	
 	my @table;
 	my $no_hit = 1;
-	while ($table =~ /^(\S+)\s+(\S.*?)?\s+(\d+)\s+(\d\S*)\s*\n/gm) {
+	while ($table =~ /^(\S+)\s+(\S.*?)?\s+(\d+)\s+([\de]\S*)\s*\n/gm) {
 		$no_hit = 0;
 		my ($name, $desc, $score, $evalue) = ($1, $2, $3, $4);
 		$desc ||= '';
+        if ($evalue =~ /^e/) {
+            $evalue = '1'.$evalue;
+        }
 		next if ($evalue_cutoff && $evalue > $evalue_cutoff);
 		next if ($score_cutoff && $score < $score_cutoff);
 		push(@table, [$name, $desc, $score, $evalue]);
