@@ -158,7 +158,7 @@ sub _discover_hit_table {
 		}
 	}
     
-    $table || $self->throw("No hit table!");
+    $table ||= '';
     
 	$self->{_after_hit_table} = $self->_chunk_tell;
 	
