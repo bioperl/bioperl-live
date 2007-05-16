@@ -296,10 +296,11 @@ sub version{
 
 sub executable {
     my ($self, $exe, $warn) = @_;
- 
-    if( defined $exe ) {
+    
+    if (defined $exe) {
         $self->{'_pathtoexe'} = $exe;
     }
+    
     unless( defined $self->{'_pathtoexe'} ) {
         my $prog_path = $self->program_path;
         
@@ -457,6 +458,11 @@ sub _setparams {
             $method_out = '-'.$method_out if $d;
             $method_out = '--'.$method_out if $dd;
             $method_out =~ s/_/-/g if $utd;
+            
+            # quote values that contain spaces
+            if (exists $params{$method} && $value =~ /^[^'"\s]+\s+[^'"\s]+$/) {
+                $value = '"'.$value.'"';
+            }
             
             $param_string .= ' '.$method_out.(exists $switches{$method} ? '' : $join.$value);
         }
