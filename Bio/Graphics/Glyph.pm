@@ -1613,10 +1613,11 @@ These methods are useful utility routines:
 
 =over 4
 
-=item $pixels = $glyph-E<gt>map_pt($bases);
+=item @pixels = $glyph-E<gt>map_pt(@bases);
 
-Map the indicated base position, given in base pair units, into
-pixels, using the current scale and glyph position.
+Map the list of base position, given in base pair units, into pixels,
+using the current scale and glyph position. This method will accept a
+single base position or an array.
 
 =item $glyph-E<gt>filled_box($gd,$x1,$y1,$x2,$y2)
 
