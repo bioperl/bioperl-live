@@ -82,7 +82,7 @@ sub draw {
     $min_score = min10($min_score);
   }
 
-  my $height = $self->height;
+  my $height = $bottom - $top;
   my $scale  = $max_score > $min_score ? $height/($max_score-$min_score)
                                        : 1;
   my $x = $left;
@@ -154,7 +154,9 @@ sub score2position {
   }
 
   else {
+    warn "score = $score, _top = $self->{_top}, _bottom = $self->{_bottom}, max = $self->{_max_score}";
     my $position      = ($score-$self->{_min_score}) * $self->{_scale};
+    warn "position =$position";
     return $self->{_bottom} - $position;
   }
 }

@@ -915,6 +915,10 @@ sub translate_color {
     my ($r,$g,$b) = (hex($1),hex($2),hex($3));
     return $self->colorClosest($gd,$r,$g,$b);
   }
+  elsif ($colors[0] =~ /^(\d+),(\d+),(\d+)/i) {
+    my $gd = $self->gd or return 1;
+    return $self->colorClosest($gd,$1,$2,$3);
+  }
   else {
     my $color = $colors[0];
     my $table = $self->{translations} or return 1;
