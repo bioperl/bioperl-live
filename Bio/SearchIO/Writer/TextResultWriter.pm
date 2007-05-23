@@ -427,17 +427,17 @@ Sequences producing significant alignments:                      (bits)    value
     
     $str .= sprintf(qq{  Database: %s
     Posted date:  %s
-  Number of letters in database: %s
-  Number of sequences in database: %s
+	Number of letters in database: %s
+	Number of sequences in database: %s
 
-Matrix: %s
-}, 		   
-		    $result->database_name(),
-		    $result->get_statistic('posted_date') || 
-		    POSIX::strftime("%b %d, %Y %I:%M %p",localtime),
-		    &_numwithcommas($result->database_entries()), 
-		    &_numwithcommas($result->database_letters()),
-		    $result->get_parameter('matrix') || '');
+  Matrix: %s
+  },
+	        $result->database_name(),
+	        $result->get_statistic('posted_date') ||
+	        POSIX::strftime("%b %d, %Y %I:%M %p",localtime),
+	        &_numwithcommas($result->database_letters()),
+	        &_numwithcommas($result->database_entries()),
+	        $result->get_parameter('matrix') || '');
 
     if( defined (my $open = $result->get_parameter('gapopen')) ) {
 	$str .= sprintf("Gap Penalties Existence: %d, Extension: %d\n",
