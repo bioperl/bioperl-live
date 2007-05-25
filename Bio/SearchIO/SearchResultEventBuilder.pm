@@ -356,7 +356,7 @@ sub end_hit{
 	if( defined $args{'-hsps'} && 
 	    $args{'-hsps'}->[0] ) {
 	    $args{'-significance'} = $args{'-hsps'}->[0]->{'-evalue'};
-        $args{'-significance'} =~ s/,//g;
+        $args{'-significance'} =~ s/,//g if $args{'-significance'};
 	}
     }
     my $hit = \%args;
