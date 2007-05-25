@@ -454,7 +454,7 @@ sub _set_from_args {
     }
     my $default_code = 'my $self = shift;
                         if (@_) { $self->{\'_\'.$method} = shift }
-                        return $self->{\'_\'.$method} || return;';
+                        return $self->{\'_\'.$method};';
     
     my %method_names = ();
     my %syns = ();
