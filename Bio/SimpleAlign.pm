@@ -563,11 +563,12 @@ sub uniq_seq {
 	$str =~ s/n/\?/gi if $str =~ /^[atcgn-]+$/i;
 # 2nd, convert leading and ending gaps to "?":
 	$str = &_convert_leading_ending_gaps($str, '-', '?');
-	my $new = new Bio::LocatableSeq(-id=>$seq->id(),
-					-seq=>$str,
-					-start=>$seq->start,
-					-end=>$seq->end
-				       );
+	my $new = Bio::LocatableSeq->new(-id      => $seq->id(),
+					 -alphabet=> $seq->alphabet,
+					 -seq     => $str,
+					 -start   => $seq->start,
+					 -end     => $seq->end
+					 );
 	push @seq, $new;
     }
 
@@ -594,11 +595,11 @@ sub uniq_seq {
 	my $gap='-';
 	my $end=length($str2);
 	$end -= length($1) while $str2 =~ m/($gap+)/g;
-	my $new = new Bio::LocatableSeq(-id=>"ST".$order{$str},
-					-seq=>$str2,
-					-start=>1,
-					-end=>$end
-				       );
+	my $new = Bio::LocatableSeq->new(-id   =>"ST".$order{$str},
+					 -seq  =>$str2,
+					 -start=>1,
+					 -end  =>$end
+					 );
 	$aln->add_seq($new);
 #	print STDERR "ST".$order{$str}, "\t=>";
 	foreach (@{$member{$str}}) {
@@ -984,46 +985,48 @@ sub slice {
 	my $aln = $self->new;
 	$aln->id($self->id);
 	foreach my $seq ( $self->each_seq() ) {
-		my $new_seq = Bio::LocatableSeq->new(-id      => $seq->id,
-														 -strand  => $seq->strand,
-														 -verbose => $self->verbose);
-		# seq
-		my $seq_end = $end;
-		$seq_end = $seq->length if( $end > $seq->length );
+	    my $new_seq = Bio::LocatableSeq->new
+		(-id      => $seq->id,
+		 -alphabet => $seq->alphabet,
+		 -strand  => $seq->strand,
+		 -verbose => $self->verbose);
+	    # seq
+	    my $seq_end = $end;
+	    $seq_end = $seq->length if( $end > $seq->length );
 
-		my $slice_seq = $seq->subseq($start, $seq_end);
-		$new_seq->seq( $slice_seq );
+	    my $slice_seq = $seq->subseq($start, $seq_end);
+	    $new_seq->seq( $slice_seq );
 
-		$slice_seq =~ s/\W//g;
-		
-		if ($start > 1) {
-			my $pre_start_seq = $seq->subseq(1, $start - 1);
-			$pre_start_seq =~ s/\W//g;
-			if (!defined($seq->strand)) {
-				$new_seq->start( $seq->start + CORE::length($pre_start_seq) );
-			} elsif ($seq->strand < 0){
-				$new_seq->start( $seq->end - CORE::length($pre_start_seq) - CORE::length($slice_seq) + 1);
-			} else {
-			$new_seq->start( $seq->start + CORE::length($pre_start_seq)  );
-			}
+	    $slice_seq =~ s/\W//g;
+
+	    if ($start > 1) {
+		my $pre_start_seq = $seq->subseq(1, $start - 1);
+		$pre_start_seq =~ s/\W//g;
+		if (!defined($seq->strand)) {
+		    $new_seq->start( $seq->start + CORE::length($pre_start_seq) );
+		} elsif ($seq->strand < 0){
+		    $new_seq->start( $seq->end - CORE::length($pre_start_seq) - CORE::length($slice_seq) + 1);
 		} else {
-			$new_seq->start( $seq->start);
+		    $new_seq->start( $seq->start + CORE::length($pre_start_seq)  );
 		}
-		$new_seq->end( $new_seq->start + CORE::length($slice_seq) - 1 );
+	    } else {
+		$new_seq->start( $seq->start);
+	    }
+	    $new_seq->end( $new_seq->start + CORE::length($slice_seq) - 1 );
 
-		if ($new_seq->start and $new_seq->end >= $new_seq->start) {
-			$aln->add_seq($new_seq);
+	    if ($new_seq->start and $new_seq->end >= $new_seq->start) {
+		$aln->add_seq($new_seq);
+	    } else {
+		if( $keep_gap_only ) {
+		    $aln->add_seq($new_seq);
 		} else {
-			if( $keep_gap_only ) {
-				$aln->add_seq($new_seq);
-			} else {
-				my $nse = $seq->get_nse();
-				$self->warn("Slice [$start-$end] of sequence [$nse] contains no residues.".
-								" Sequence excluded from the new alignment.");
-			}
+		    my $nse = $seq->get_nse();
+		    $self->warn("Slice [$start-$end] of sequence [$nse] contains no residues.".
+				" Sequence excluded from the new alignment.");
 		}
+	    }
 	}
-
+	
 	return $aln;
 }
 
@@ -1112,10 +1115,11 @@ sub _remove_col {
 
     # splice out the segments and create new seq
     foreach my $seq($self->each_seq){
-        my $new_seq = new Bio::LocatableSeq(
-						 -id      => $seq->id,
-					    -strand  => $seq->strand,
-					    -verbose => $self->verbose);
+        my $new_seq = Bio::LocatableSeq->new(
+					     -id      => $seq->id,
+					     -alphabet=> $seq->alphabet,
+					     -strand  => $seq->strand,
+					     -verbose => $self->verbose);
         my $sequence = $seq->seq;
         foreach my $pair(@{$remove}){
             my $start = $pair->[0];
@@ -2597,15 +2601,16 @@ sub set_displayname_safe {
     my $ct=0;
     my $new=new Bio::SimpleAlign();
     foreach $seq ( $self->each_seq() ) {
-      $ct++;
-      my $pname="S". sprintf "%0" . ($idlength-1) . "s", $ct;
-      $phylip_name{$pname}=$seq->id();
-      my $new_seq= new Bio::LocatableSeq(-id=>$pname,
-					-seq=>$seq->seq(),
-					-start=>$seq->{_start},
-					-end=>$seq->{_end}
-					);
-      $new->add_seq($new_seq);
+	$ct++;
+	my $pname="S". sprintf "%0" . ($idlength-1) . "s", $ct;
+	$phylip_name{$pname}=$seq->id();
+	my $new_seq= Bio::LocatableSeq->new(-id       => $pname,
+					    -seq      => $seq->seq(),
+					    -alphabet => $seq->alphabet,
+					    -start    => $seq->{_start},
+					    -end      => $seq->{_end}
+					    );
+	$new->add_seq($new_seq);
     }
 
     $self->debug("$ct seq names changed. Restore names by using restore_displayname.");
@@ -2630,11 +2635,12 @@ sub restore_displayname {
     my $new=new Bio::SimpleAlign();
     foreach my $seq ( $self->each_seq() ) {
       $self->throw("No sequence with name") unless defined $name{$seq->id()};
-      my $new_seq= new Bio::LocatableSeq(-id=>$name{$seq->id()},
-					-seq=>$seq->seq(),
-					-start=>$seq->{_start},
-					-end=>$seq->{_end}
-					);
+      my $new_seq= Bio::LocatableSeq->new(-id       => $name{$seq->id()},
+					  -seq      => $seq->seq(),
+					  -alphabet => $seq->alphabet,
+					  -start    => $seq->{_start},
+					  -end      => $seq->{_end}
+					  );
       $new->add_seq($new_seq);
     }
     return $new;
