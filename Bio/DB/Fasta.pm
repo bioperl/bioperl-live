@@ -31,7 +31,7 @@ Bio::DB::Fasta -- Fast indexed access to a directory of fasta files
 
   my $obj     = $db->get_Seq_by_id('CHROMOSOME_I');
   my $seq     = $obj->seq;
-  my $subseq  = $obj->subseq(4_000_000 => 4_100_000);
+  my $subseq  = $obj->subseq(4_000_000, 4_100_000);
   my $length  = $obj->length;
   # (etc)
 
