@@ -37,7 +37,7 @@ megablast reports (format 0)
 Beware!
 
 Because of the way megablast report format 0 is coded, realize that score
-means # gaps + # mismatches for a HSP.
+means # gap characters + # mismatches for a HSP.
 
 The docs from NCBI regarding FORMAT 0
 #   0: Produce one-line output for each alignment, in the form
@@ -50,8 +50,8 @@ The docs from NCBI regarding FORMAT 0
 #   + or - corresponds to same or different strand alignment.
 #
 #   Score for non-affine gapping parameters means the total number of
-#   differences (mismatches + gaps). For affine case it is the actual (raw)
-#   score of the alignment.
+#   differences (mismatches + gap characters). For affine case it is the
+#   actual (raw) score of the alignment.
 
 FORMAT 1 parsing has not been implemented
 FORMAT 2 parsing should work with the SearchIO 'blast' parser
@@ -219,8 +219,8 @@ sub next_result{
 #   + or - corresponds to same or different strand alignment.
 #
 #   Score for non-affine gapping parameters means the total number of
-#   differences (mismatches + gaps). For affine case it is the actual (raw)
-#   score of the alignment.
+#   differences (mismatches + gap characters). For affine case it is the
+#   actual (raw) score of the alignment.
 	
 	       # and yet when rev strand hits are made I see
 	       # (MBL 2.2.4)

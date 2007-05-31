@@ -91,9 +91,9 @@ is not specified, this list, in this order, will be used as the default.
     frac_conserved_hit     # fraction of conserved substitutions in hit
     length_aln_query       # Length of the aligned portion of the query sequence
     length_aln_hit         # Length of the aligned portion of the hit sequence
-    gaps_query             # Number of gaps in the aligned query sequence
-    gaps_hit               # Number of gaps in the aligned hit sequence
-    gaps_total             # Number of gaps in the aligned query and hit sequences
+    gaps_query             # Number of gap characters in the aligned query sequence
+    gaps_hit               # Number of gap characters in the aligned hit sequence
+    gaps_total             # Number of gap characters in the aligned query and hit sequences
     start_query            # Starting coordinate of the aligned portion of the query sequence
     end_query              # Ending coordinate of the aligned portion of the query sequence
     start_hit              # Starting coordinate of the aligned portion of the hit sequence
