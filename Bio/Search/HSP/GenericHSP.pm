@@ -349,11 +349,11 @@ sub frac_conserved {
 
  Title    : gaps
  Usage    : my $gaps = $hsp->gaps( ['query'|'hit'|'total'] );
- Function : Get the number of gaps in the query, hit, or total alignment.
+ Function : Get the number of gap characters in the query, hit, or total alignment.
  Returns  : Integer, number of gaps or 0 if none
- Args     : arg 1: 'query' = num gaps in query seq
-                   'hit'   = num gaps in hit seq; synonyms: 'sbjct', 'subject'
-                   'total' = num gaps in whole alignment;  synonyms: 'hsp'
+ Args     : arg 1: 'query' = num gap characters in query seq
+                   'hit'   = num gap characters in hit seq; synonyms: 'sbjct', 'subject'
+                   'total' = num gap characters in whole alignment;  synonyms: 'hsp'
                    default = 'total'
             arg 2: [optional] integer gap value to set for the type requested
 

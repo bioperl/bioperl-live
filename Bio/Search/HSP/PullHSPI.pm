@@ -321,8 +321,8 @@ sub num_conserved {
 
  Title    : gaps
  Usage    : my $gaps = $hsp->gaps( ['query'|'hit'|'total'] );
- Function : Get the number of gaps in the query, hit, or total alignment.
- Returns  : Integer, number of gaps or 0 if none
+ Function : Get the number of gap characters in the query, hit, or total alignment.
+ Returns  : Integer, number of gap characters or 0 if none
  Args     : 'query', 'hit' or 'total'; default = 'total' 
 
 =cut

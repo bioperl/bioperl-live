@@ -407,8 +407,8 @@ sub length {
 =head2 gaps
 
  Usage     : $hsp->gaps( [seq_type] )
- Purpose   : Get the number of gaps in the query, sbjct, or total alignment.
-           : Also can return query gaps and sbjct gaps as a two-element list
+ Purpose   : Get the number of gap characters in the query, sbjct, or total alignment.
+           : Also can return query gap chars and sbjct gap chars as a two-element list
            : when in array context.
  Example   : $total_gaps      = $hsp->gaps();
            : ($qgaps, $sgaps) = $hsp->gaps();
