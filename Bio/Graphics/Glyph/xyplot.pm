@@ -8,6 +8,8 @@ use constant DEFAULT_POINT_RADIUS=>4;
 use Bio::Root::Version;
 our $VERSION = ${Bio::Root::Version::VERSION};
 
+use constant DEBUG=>0;
+
 my %SYMBOLS = (
 	       triangle => \&draw_triangle,
 	       square   => \&draw_square,
@@ -105,6 +107,7 @@ sub draw {
     my $s = $_->score;
     next unless defined $s;
     $_->{_y_position}   = $self->score2position($s);
+    warn "y_position = $_->{_y_position}" if DEBUG;
   }
   my $type           = $self->option('graph_type') || $self->option('graphtype') || 'boxes';
   my (@draw_methods) = $self->lookup_draw_method($type);
@@ -154,9 +157,9 @@ sub score2position {
   }
 
   else {
-    warn "score = $score, _top = $self->{_top}, _bottom = $self->{_bottom}, max = $self->{_max_score}";
+    warn "score = $score, _top = $self->{_top}, _bottom = $self->{_bottom}, max = $self->{_max_score}, min=$self->{_min_score}" if DEBUG;
     my $position      = ($score-$self->{_min_score}) * $self->{_scale};
-    warn "position =$position";
+    warn "position =$position" if DEBUG;
     return $self->{_bottom} - $position;
   }
 }
@@ -167,7 +170,7 @@ sub max10 {
   return 0 if $a==0;
   return -min10(-$a) if $a<0;
   return max10($a*10)/10 if $a < 1;
-  
+
   my $l=int(log10($a));
   $l = 10**$l; 
   my $r = $a/$l;
@@ -179,7 +182,7 @@ sub min10 {
   return 0 if $a==0;
   return -max10(-$a) if $a<0;
   return min10($a*10)/10 if $a < 1;
-  
+
   my $l=int(log10($a));
   $l = 10**$l; 
   my $r = $a/$l; 
@@ -274,13 +277,11 @@ sub _draw_line {
 
   # connect to center positions of each interval
   my $first_part = shift @parts;
-#  my ($x1,$x2) = ($first_part->{left},$first_part->{left}+$first_part->{width}-1);
   my ($x1,$y1,$x2,$y2) = $first_part->calculate_boundaries($left,$top);
   my $current_x = ($x1+$x2)/2;
   my $current_y = $first_part->{_y_position};
 
   for my $part (@parts) {
-#    ($x1,$x2) = ($part->{left},$part->{left}+$part->{width}-1);
     ($x1,$y1,$x2,$y2) = $part->calculate_boundaries($left,$top);
     my $next_x = ($x1+$x2)/2;
     my $next_y = $part->{_y_position};
@@ -306,7 +307,6 @@ sub _draw_points {
   my $factory  = $self->factory;
 
   for my $part (@parts) {
-#    my ($x1,$x2) = ($part->{left},$part->{left}+$part->{width}-1);
     my ($x1,$y1,$x2,$y2) = $part->calculate_boundaries($left,$top);
     my $x = ($x1+$x2)/2;
     my $y = $part->{_y_position};
