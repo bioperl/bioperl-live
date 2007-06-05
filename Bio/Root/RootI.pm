@@ -180,9 +180,8 @@ sub warn{
 	return;
     } elsif( $verbose == 1 ) {
 	my $out = "\n-------------------- WARNING ---------------------\n".
-		"MSG: ".$string."\n";
-	$out .= $self->stack_trace_dump;
-	
+		"MSG: $string\n".$self->stack_trace_dump.
+        "---------------------------------------------------\n";	
 	print STDERR $out;
 	return;
     }    
