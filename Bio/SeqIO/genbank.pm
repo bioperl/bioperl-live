@@ -153,6 +153,7 @@ Hilmar Lapp, hlapp at gmx.net
 Donald G. Jackson, donald.jackson at bms.com
 James Wasmuth, james.wasmuth at ed.ac.uk
 Brian Osborne, bosborne at alum.mit.edu
+Chris Fields, cjfields at uiuc dot edu
 
 =head1 APPENDIX
 
@@ -211,8 +212,8 @@ sub _initialize {
     $self->_show_dna(1); # sets this to one by default. People can change it
     if( ! defined $self->sequence_factory ) {
             $self->sequence_factory(new Bio::Seq::SeqFactory
-                                                                            (-verbose => $self->verbose(),
-                                                                             -type => 'Bio::Seq::RichSeq'));
+                            (-verbose => $self->verbose(),
+                             -type => 'Bio::Seq::RichSeq'));
     }
 }
 
@@ -254,7 +255,10 @@ sub next_seq {
 	    $self->throw("GenBank stream with bad LOCUS line. Not GenBank in my book. Got '$buffer'");
 
 	my @tokens = split(' ', $1);
-
+    
+    # there should be at least six tokens in the LOCUS line; if not we may be in trouble...
+    $self->warn('Missing tokens in the LOCUS line; output may be malformed') if @tokens < 6;
+    
 	# this is important to have the id for display in e.g. FTHelper,
 	# otherwise you won't know which entry caused an error
 	$display_id = shift(@tokens);
@@ -268,12 +272,12 @@ sub next_seq {
 	    $params{'-molecule'} = shift(@tokens);
 	    my $circ = shift(@tokens);
 	    if ($circ eq 'circular') {
-		$params{'-is_circular'} = 1;
-		$params{'-division'} = shift(@tokens);
+            $params{'-is_circular'} = 1;
+            $params{'-division'} = shift(@tokens);
 	    } else {
-				# 'linear' or 'circular' may actually be omitted altogether
-		$params{'-division'} =
-		    (CORE::length($circ) == 3 ) ? $circ : shift(@tokens);
+			# 'linear' or 'circular' may actually be omitted altogether
+            $params{'-division'} =
+                (CORE::length($circ) == 3 ) ? $circ : shift(@tokens);
 	    }
 	} else {
 	    $params{'-molecule'} = 'PRT' if($params{'-alphabet'} eq 'aa');
@@ -289,24 +293,24 @@ sub next_seq {
 	# 09-10-03
 	if($date =~ s/\s*((\d{1,2})-(\w{3})-(\d{2,4})).*/$1/) {
 	    if( length($date) < 11 ) {
-		# improperly formatted date
-		# But we'll be nice and fix it for them
-		my ($d,$m,$y) = ($2,$3,$4);
-		if( length($d) == 1 ) {
-		    $d = "0$d";
-		}
-		# guess the century here
-		if( length($y) == 2 ) {
-		    if( $y > 60 ) { # arbitrarily guess that '60' means 1960
-			$y = "19$y";
-		    } else {
-			$y = "20$y";
-		    }
-		    $self->warn("Date was malformed, guessing the century for $date to be $y\n");
-		}
-		$params{'-dates'} = [join('-',$d,$m,$y)];
-	    } else {
-		$params{'-dates'} = [$date];
+            # improperly formatted date
+            # But we'll be nice and fix it for them
+            my ($d,$m,$y) = ($2,$3,$4);
+            if( length($d) == 1 ) {
+                $d = "0$d";
+            }
+            # guess the century here
+            if( length($y) == 2 ) {
+                if( $y > 60 ) { # arbitrarily guess that '60' means 1960
+                    $y = "19$y";
+                } else {
+                    $y = "20$y";
+                }
+                $self->warn("Date was malformed, guessing the century for $date to be $y\n");
+            }
+            $params{'-dates'} = [join('-',$d,$m,$y)];
+        } else {
+            $params{'-dates'} = [$date];
 	    }
 	}
 	# set them all at once
@@ -353,7 +357,7 @@ sub next_seq {
 		$params{'-pid'} = $1;
 	    }
 	    # Version number
-	    elsif( /^VERSION\s+(.+)$/ ) {
+	    elsif( /^VERSION\s+(\S.+)$/ ) {
 		my ($acc,$gi) = split(' ',$1);
 		if($acc =~ /^\w+\.(\d+)/) {
 		    $params{'-version'} = $1;
@@ -364,7 +368,7 @@ sub next_seq {
 		}
 	    }
 	    # Keywords
-	    elsif( /^KEYWORDS\s+(.*)/ ) {
+	    elsif( /^KEYWORDS\s+(\S.*)/ ) {
 		my @kw = split(/\s*\;\s*/,$1);
 		while( defined($_ = $self->_readline) ) {
 		    chomp;
@@ -378,7 +382,7 @@ sub next_seq {
 		next;
 	    }
 	    # Organism name and phylogenetic information
-	    elsif (/^SOURCE/) {
+	    elsif (/^SOURCE\s+\S/) {
 		if($builder->want_slot('species')) {
 		    $species = $self->_read_GenBank_Species(\$buffer);
 		    $builder->add_slot_value(-species => $species);
@@ -390,7 +394,7 @@ sub next_seq {
 		next;
 	    }
 	    # References
-	    elsif (/^REFERENCE/) {
+	    elsif (/^REFERENCE\s+\S/) {
 		if($annotation) {
 		    my @refs = $self->_read_GenBank_References(\$buffer);
 		    foreach my $ref ( @refs ) {
@@ -404,7 +408,7 @@ sub next_seq {
 		next;
 	    }
 	    # Comments
-	    elsif (/^COMMENT\s+(.*)/) {
+	    elsif (/^COMMENT\s+(\S.*)/) {
 		if($annotation) {
 		    my $comment = $1;
 		    while (defined($_ = $self->_readline)) {
@@ -425,7 +429,7 @@ sub next_seq {
 		next;
 	    }
 	    # Corresponding Genbank nucleotide id, Genpept only
-	    elsif( /^DBSOURCE\s+(.+)/ ) {
+	    elsif( /^DBSOURCE\s+(\S.+)/ ) {
 		if ($annotation) {
 		    my $dbsource = $1;
 		    while (defined($_ = $self->_readline)) {
@@ -1058,9 +1062,7 @@ sub _print_GenBank_FTHelper {
 	    }
 	}
     }
-
 }
-
 
 =head2 _read_GenBank_References
 
@@ -1279,21 +1281,24 @@ sub _read_GenBank_Species {
         # de-HTMLify (links that may be encountered here don't contain
         # escaped '>', so a simple-minded approach suffices)
         $line =~ s{<[^>]+>}{}g;
-        if ($line =~ m{^(?:\s{0,2})(\w+)\s+(.+)$}ox) {
-            ($tag, $data) = ($1, $2);
+        if ($line =~ m{^(?:\s{0,2})(\w+)\s+(.+)?$}ox) {
+            ($tag, $data) = ($1, $2 || '');
+            last if ($tag && !exists $source{$tag});            
         } else {
+            return unless $tag;
             ($data = $line) =~ s{^\s+}{};
             chomp $data;
             $tag = 'CLASSIFICATION' if ($tag ne 'CLASSIFICATION' && $tag eq 'ORGANISM' &&  $line =~ m{[;\.]+});
         }
-        last if ($tag && !exists $source{$tag});
         (exists $ann->{$tag}) ? ($ann->{$tag} .= ' '.$data) : ($ann->{$tag} .= $data);
         $line = undef;        
     }
     
     ($sl, $class_lines, $sci_name) = ($ann->{SOURCE}, $ann->{CLASSIFICATION}, $ann->{ORGANISM});
     
-    $$buffer = $line;   
+    $$buffer = $line;
+
+    $sci_name || return;
 
     # parse out organelle, common name, abbreviated name if present;
     # this should catch everything, but falls back to
@@ -1308,8 +1313,6 @@ sub _read_GenBank_Species {
     } else {
         $abbr_name = $sl;	# nothing caught; this is a backup!
     }
-
-    $sci_name || return;
 
     # Convert data in classification lines into classification array.
     # only split on ';' or '.' so that classification that is 2 or more words will

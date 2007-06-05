@@ -9,7 +9,7 @@ BEGIN {
         use lib 't/lib';
     }
     use Test::More;
-    plan tests => 245;
+    plan tests => 247;
     use_ok('Bio::SeqIO');
     use_ok('Bio::Root::IO');
 }
@@ -333,7 +333,10 @@ unlink($testfile);
 
 # write revcomp split location
 my $gb = new Bio::SeqIO(-format => 'genbank',
-                        -verbose => $verbose,
+                        # This sequence has an odd LOCUS line which sets off a warning, setting
+                        # verbose to -1.
+                        # The newest Ensembl seq lacks this.  Maybe update?  cjfields 6-5-07
+                        -verbose => -1,
                         -file   => Bio::Root::IO->catfile
                         (qw(t data revcomp_mrna.gb)));
 $seq = $gb->next_seq();
@@ -344,7 +347,17 @@ $gb = new Bio::SeqIO(-format => 'genbank',
 $gb->write_seq($seq);
 undef $gb;
 ok(! -z "tmp_revcomp_mrna.gb", 'revcomp split location');
-# INSERT DIFFING CODE HERE
+
+# check warnings for LOCUS line
+$gb = new Bio::SeqIO(-format => 'genbank',
+                        -verbose => 2,
+                        -file   => Bio::Root::IO->catfile
+                        (qw(t data revcomp_mrna.gb)));
+eval {$seq = $gb->next_seq();};
+
+ok($@);
+
+like($@, qr{Missing tokens in the LOCUS line});
 
 # bug 1925, continuation of long ORGANISM line ends up in @classification:
 # ORGANISM  Salmonella enterica subsp. enterica serovar Paratyphi A str. ATCC
