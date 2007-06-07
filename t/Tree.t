@@ -17,9 +17,7 @@ BEGIN {
 	use lib 't';
     }
     use Test;
-    use vars qw($TESTCOUNT);
-    $TESTCOUNT = 29;
-    plan tests => $TESTCOUNT;
+    plan tests => 39;
 }
 
 use Bio::TreeIO;
