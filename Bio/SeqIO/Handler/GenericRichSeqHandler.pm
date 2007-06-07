@@ -217,30 +217,36 @@ my %DBSOURCE = map {$_ => 1} qw(
 
 my %NOPROCESS = map {$_ => 1} qw(DBSOURCE ORGANISM FEATURES);
 
+our %VALID_ALPHABET = (
+    'bp' => 'dna',
+    'aa' => 'protein',
+    'rc' => '' # rc = release candidate; file has no sequences
+);
+
 =head2 
 
  Title   :  new
  Usage   :  
  Function:  
  Returns :  
- Args    :
- Throws  :
- Note    :  
+ Args    :  -format    Sequence format to be mapped for handler methods
+            -builder   Bio::Seq::SeqBuilder object (normally defined in
+                       SequenceStreamI object implementation constructor)
+ Throws  :  On undefined '-format' sequence format parameter
+ Note    :  Still under heavy development
 
 =cut
 
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    # no need to chain args, just need access to Root and HandlerI methods
     $self = {@args};
     bless $self,$class;
-    my ($format, $builder, $verbose) = $self->_rearrange([qw(FORMAT BUILDER VERBOSE)], @args);
+    my ($format, $builder) = $self->_rearrange([qw(FORMAT BUILDER)], @args);
     $self->throw("Must define sequence record format") if !$format;
     $self->format($format);
     $self->handler_methods();
     $builder  &&  $self->seqbuilder($builder);
-    $verbose  &&  $self->verbose($verbose);
     $self->location_factory();
     return $self;
 }
@@ -487,10 +493,24 @@ sub _generic_seq {
 sub _genbank_locus {
     my ($self, $data) = @_;
     my (@tokens) = split m{\s+}, $data->{DATA};
-    $self->{'_params'}->{'-display_id'} = shift @tokens;
-    $self->{'_params'}->{'-length'} = shift @tokens;
+    my $display_id = shift @tokens;
+    $self->{'_params'}->{'-display_id'} = $display_id;
+    my $seqlength = shift @tokens;
+    if (exists $VALID_ALPHABET{$seqlength}) {
+        # moved one token too far.  No locus name?
+        $self->warn("Bad LOCUS name?  Changing [".$self->{'_params'}->{'-display_id'}.
+                    "] to 'unknown' and length to ".$self->{'_params'}->{'-display_id'});
+        $self->{'_params'}->{'-length'} = $self->{'_params'}->{'-display_id'};
+        $self->{'_params'}->{'-display_id'} = 'unknown';
+        # add token back...
+        unshift @tokens, $seqlength;
+    } else {
+    	$self->{'_params'}->{'-length'} = $seqlength;
+    }
+    my $alphabet = lc(shift @tokens);        
     $self->{'_params'}->{'-alphabet'} =
-        (lc(shift @tokens) eq 'bp') ? 'dna' : 'protein';
+        (exists $VALID_ALPHABET{$alphabet}) ? $VALID_ALPHABET{$alphabet} :
+                           $self->warn("Unknown alphabet: $alphabet");
     if (($self->{'_params'}->{'-alphabet'} eq 'dna') || (@tokens > 2)) {
 	    $self->{'_params'}->{'-molecule'} = shift(@tokens);
 	    my $circ = shift(@tokens);
@@ -664,7 +684,7 @@ sub _swiss_genename {
         }
         #$self->debug(Dumper($gn));
         $self->annotation_collection->add_Annotation('gene_name', $gn,
-                                    "Bio::Annotation::SimpleValue");
+                                    "Bio::Annotation::StructuredValue");
     }
 }
 
@@ -1079,30 +1099,6 @@ sub _generic_seqfeatures {
     delete $data->{'DATA'};
     $sf->set_attributes(-tag => $data);
     push @{ $self->{'_params'}->{'-features'} }, $sf;
-}
-
-# uses Bio::SeqIO::FTHelper, not up and running yet...
-# GenBank Feature Table
-sub _genbank_fthelper {
-    my ($self,$data) = @_;
-    my ($key, $loc);
-    # Make the new FTHelper object
-    my $out = Bio::SeqIO::FTHelper->new();
-    $out->verbose($self->verbose());
-    $out->key($data->{'FEATURE_KEY'});
-    $out->loc($data->{'LOCATION'});
-    delete $data->{'FEATURE_KEY'};
-    delete $data->{'LOCATION'};
-    delete $data->{'NAME'};    
-    map {
-        $out->field->{$_} ||= [];
-        ref($data->{$_}) ? ($out->field->{$_} = $data->{$_}) :
-            push(@{$out->field->{$_}},$data->{$_});
-        
-    } keys %{ $data };
-    push @{ $self->{'_params'}->{'-features'} },
-        $out->_generic_seqfeature($self->{'_locfactory'},
-						 $self->get_param('accession_number'));
 }
 
 ####################### ODDS AND ENDS #######################

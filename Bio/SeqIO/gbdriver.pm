@@ -206,7 +206,7 @@ sub _initialize {
 # but the parser seems to hold up nicely so far...
 
 sub next_seq {
-    my $self = shift;    
+    my $self = shift;
     local($/) = "\n";
     my ($ann, $data, $annkey);
     my $endrec = my $seenfeat = 0;
@@ -252,11 +252,6 @@ sub next_seq {
             if (($annkey eq 'DATA') && $seqdata) {
                 chomp $seqdata->{DATA};
                 # postprocessing for some data
-                #if (exists $POSTPROCESS_DATA{ $seqdata->{NAME} }) {
-                #    my $mt = "_process_".lc $seqdata->{NAME};
-                #    $self->$mt($seqdata);
-                #}
-                
                 if ($seqdata->{NAME} eq 'FEATURES') {
                     $self->_process_features($seqdata)
                 }
@@ -297,6 +292,78 @@ sub next_seq {
         $seqdata->{$annkey} .= ($seqdata->{$annkey}) ? $delim.$data : $data;
     }
     return $hobj->build_sequence;
+}
+
+sub next_chunk {
+    my $self = shift;
+    local($/) = "\n";
+    my ($ann, $data, $annkey);
+    my $endrec = my $seenfeat = 0;
+    my $seqdata;
+    my $seenlocus;
+    my $hobj = $self->seqhandler;
+    PARSER:
+    while (defined(my $line = $self->_readline)) {
+        next if $line =~ m{^\s*$};
+        # have to catch this at the top of the loop, then exit SEQ loop on //
+        # The reason? The regex match for ann/feat keys also matches some lines
+        # in the sequence; no easy way around it since some feature keys may
+        # start with a number as well
+        if ($ann && $ann eq 'ORIGIN') {
+            SEQ:
+            while (defined($line)) {
+                last SEQ if index($line,'//') == 0;
+                $seqdata->{DATA} .= uc $line;
+                $line = $self->_readline;
+            }
+            $seqdata->{DATA} =~ tr{0-9 \n}{}d;
+        }
+        $endrec = 1 if (index($line,'//')==0);
+
+        if ($line =~ m{^(\s{0,5})(\w+)\s+(.*)$}ox || $endrec) {
+            ($ann, $data) = ($2, $3);
+            unless ($seenlocus) {
+                $self->throw("No LOCUS found.  Not GenBank in my book!")
+                    if ($ann ne 'LOCUS');
+                $seenlocus = 1;
+            }
+            # use the spacer to determine the annotation type
+            my $len = length($1 || '');
+            
+            $annkey  = ($len == 0 || $len > 4)   ? 'DATA'  : $ann;
+            
+            # Push off the previously cached data to the handler
+            # whenever a new primary annotation or seqfeature is found
+            # Note use of $endrec for catching end of record
+            if (($annkey eq 'DATA') && $seqdata) {
+                chomp $seqdata->{DATA};
+                # postprocessing for some data
+                if ($seqdata->{NAME} eq 'FEATURES') {
+                    $self->_process_features($seqdata)
+                }
+                # using handler methods in the Handler object, more centralized
+                $hobj->data_handler($seqdata);
+                # bail here on //
+                last PARSER if $endrec;
+                # reset for next round
+                $seqdata = undef;
+            }
+
+            $seqdata->{NAME} =  ($len == 0) ? $ann :   # primary ann
+                                ($len > 4 ) ? 'FEATURES': # sf feature key
+                                $seqdata->{NAME};      # all rest are sec. ann
+            if ($seqdata->{NAME} eq 'FEATURES') {
+                $seqdata->{FEATURE_KEY} = $ann;
+            }
+            # throw back to top if seq is found to avoid regex
+            next PARSER if $ann eq 'ORIGIN';
+        } else {
+            ($data = $line) =~ s{^\s+}{};
+            chomp $data;
+        }
+        my $delim = ($seqdata && $seqdata->{NAME} eq 'FEATURES') ? "\n" : ' ';
+        $seqdata->{$annkey} .= ($seqdata->{$annkey}) ? $delim.$data : $data;
+    }
 }
 
 =head2 write_seq

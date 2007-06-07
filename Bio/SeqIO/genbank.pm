@@ -203,6 +203,12 @@ our %DBSOURCE = map {$_ => 1} qw(
     PeroxiBase    MaizeDB    TAIR    DrugBank    REBASE    HPA
     swissprot    GenBank    GenPept    REFSEQ    embl    PDB);
 
+our %VALID_ALPHABET = (
+    'bp' => 'dna',
+    'aa' => 'protein',
+    'rc' => '' # rc = release candidate; file has no sequences
+);
+
 sub _initialize {
     my($self,@args) = @_;
 
@@ -256,17 +262,27 @@ sub next_seq {
 
 	my @tokens = split(' ', $1);
     
-    # there should be at least six tokens in the LOCUS line; if not we may be in trouble...
-    $self->warn('Missing tokens in the LOCUS line; output may be malformed') if @tokens < 6;
-    
 	# this is important to have the id for display in e.g. FTHelper,
 	# otherwise you won't know which entry caused an error
 	$display_id = shift(@tokens);
 	$params{'-display_id'} = $display_id;
 	# may still be useful if we don't want the seq
-	$params{'-length'} = shift(@tokens);
+    my $seqlength = shift(@tokens);
+    if (exists $VALID_ALPHABET{$seqlength}) {
+        # moved one token too far.  No locus name?
+        $self->warn("Bad LOCUS name?  Changing [$params{'-display_id'}] to 'unknown' and length to $display_id");
+        $params{'-display_id'} = 'unknown';
+        $params{'-length'} = $display_id;
+        # add token back...
+        unshift @tokens, $seqlength;
+    } else {
+    	$params{'-length'} = $seqlength;
+    }
 	# the alphabet of the entry
-	$params{'-alphabet'} = (lc(shift @tokens) eq 'bp') ? 'dna' : 'protein';
+    # shouldn't assign alphabet unless one is specifically designated (such as for rc files)
+    my $alphabet = lc(shift @tokens);
+	$params{'-alphabet'} = (exists $VALID_ALPHABET{$alphabet}) ? $VALID_ALPHABET{$alphabet} :
+                           $self->warn("Unknown alphabet: $alphabet");
 	# for aa there is usually no 'molecule' (mRNA etc)
 	if (($params{'-alphabet'} eq 'dna') || (@tokens > 2)) {
 	    $params{'-molecule'} = shift(@tokens);
@@ -1071,7 +1087,6 @@ sub _print_GenBank_FTHelper {
  Function: Reads references from GenBank format. Internal function really
  Returns :
  Args    :
-
 
 =cut
 
