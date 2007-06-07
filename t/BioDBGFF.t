@@ -313,13 +313,14 @@ for my $FILE (GFF_FILE1,GFF_FILE2) {
   my $t1 = $db->fetch_feature_by_id($tf->id);
   is($t1->id,$tf->id);
 
-  if (defined $tf->group_id) {
-    my $t2 = $db->fetch_feature_by_gid($tf->group_id);
-    is($t2->group_id,$tf->group_id);
-    is($t2->group_id,$t1->group_id);
-  } else {
-    skip("fetch_feature_by_gid() not implemented by this adaptor",1);
-    skip("fetch_feature_by_gid() not implemented by this adaptor",1);
+  SKIP: {
+    if (defined $tf->group_id) {
+      my $t2 = $db->fetch_feature_by_gid($tf->group_id);
+      is($t2->group_id,$tf->group_id);
+      is($t2->group_id,$t1->group_id);
+    } else {
+      skip("fetch_feature_by_gid() not implemented by this adaptor",2);
+    }
   }
 
   $segment1 = $db->segment('-class' => 'Transcript',
@@ -416,16 +417,18 @@ SKIP: {
   is($db->delete(-type=>'CDS',-ref=>'AL12345.2',-class=>'Clone'),3);
   is($db->delete_features(1,2,3),3);
 
-  $result = eval {
-    is($db->delete_groups(1,2,3,4,5),5);
-    my @features = $db->get_feature_by_name(Sequence => 'Contig2');
-    is($db->delete_groups(@features),1);
-    1;
-  };
-  if (!$result && $@ =~ /not implemented/i) {
-    skip("delete_groups() not implemented by this adaptor",1);
-    skip("delete_groups() not implemented by this adaptor",1);
+  SKIP: {
+    $result = eval {
+      is($db->delete_groups(1,2,3,4,5),5);
+      my @features = $db->get_feature_by_name(Sequence => 'Contig2');
+      is($db->delete_groups(@features),1);
+      1;
+    };
+    if (!$result && $@ =~ /not implemented/i) {
+      skip("delete_groups() not implemented by this adaptor",2);
+    }
   }
+  
   ok(!defined eval{$db->delete()});
   ok($db->delete(-force=>1));
   is(scalar $db->features,0);
