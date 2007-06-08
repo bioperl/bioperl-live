@@ -142,7 +142,9 @@ Bioperl and you'd like to install anyway do:
 
 This is what most experienced Bioperl users would do. However, if you're
 concerned about a failed test and need assistance or advice then contact
-bioperl-l@bioperl.org.
+bioperl-l@bioperl.org. (You could provide us the detailed results of the failed
+test(s): see the `THE TEST SYSTEM' below for information on how to generate such
+results.)
 
 INSTALLING BIOPERL THE EASY WAY USING Build.PL
 
@@ -177,7 +179,9 @@ Bioperl and you'd like to install anyway, or if all tests were fine, do:
 
 This is what most experienced Bioperl users would do. However, if you're
 concerned about a failed test and need assistance or advice then contact
-bioperl-l@bioperl.org.
+bioperl-l@bioperl.org. (You could provide us the detailed results of the failed
+test(s): see the `THE TEST SYSTEM' below for information on how to generate such
+results.)
 
 To './Build install' you need write permission in the perl5/site_perl/source
 area (or similar, depending on your environment). Usually this will require
