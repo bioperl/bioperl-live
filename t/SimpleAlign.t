@@ -81,7 +81,10 @@ is $aln->length, 242, 'length';
 is $aln->no_residues, 3769, 'no_residues';
 is $aln->no_sequences, 16, 'no_sequences';
 is (sprintf("%.2f",$aln->overall_percentage_identity()), 33.06, 'overall_percentage_identity');
-is (sprintf("%.2f",$aln->average_percentage_identity()), 66.91, 'overall_percentage_identity');
+is (sprintf("%.2f",$aln->overall_percentage_identity('align')), 33.06, 'overall_percentage_identity');
+is (sprintf("%.2f",$aln->overall_percentage_identity('short')), 35.24, 'overall_percentage_identity');
+is (sprintf("%.2f",$aln->overall_percentage_identity('long')), 33.47, 'overall_percentage_identity');
+is (sprintf("%.2f",$aln->average_percentage_identity()), 66.91, 'average_percentage_identity');
 
 ok $aln->set_displayname_count;
 is $aln->displayname('1433_LYCES/9-246'), '1433_LYCES_1', 'set_displayname_count';
