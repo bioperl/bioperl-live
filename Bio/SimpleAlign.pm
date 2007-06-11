@@ -118,6 +118,7 @@ Anthony Underwood, aunderwood-at-phls.org.uk,
 Xintao Wei & Giri Narasimhan, giri-at-cs.fiu.edu
 Brian Osborne, bosborne at alum.mit.edu
 Weigang Qiu, Weigang at GENECTR-HUNTER-CUNY-EDU
+Hongyu Zhang, forward at hongyu.org
 
 =head1 SEE ALSO
 
@@ -2317,22 +2318,33 @@ sub percentage_identity {
 
 =head2 overall_percentage_identity
 
- Title   : percentage_identity
- Usage   : $id = $align->percentage_identity
+ Title   : overall_percentage_identity
+ Usage   : $id = $align->overall_percentage_identity
+           $id = $align->overall_percentage_identity('short')
  Function: The function calculates the percentage identity of
            the conserved columns
  Returns : The percentage identity of the conserved columns
- Args    : None
+ Args    : length value to use, optional defaults to alignment length
+                 possible values: 'align', 'short', 'long'
+
+The argument values 'short' and 'long' refer to shortest and longest
+sequence in the alignment. Method modification code by Hongyu Zhang.
 
 =cut
 
 sub overall_percentage_identity{
-   my ($self,@args) = @_;
+   my ($self, $length_measure) = @_;
 
    my @alphabet = ('A','B','C','D','E','F','G','H','I','J','K','L','M',
                    'N','O','P','Q','R','S','T','U','V','W','X','Y','Z');
 
    my ($len, $total, @seqs, @countHashes);
+
+   my %enum = map {$_ => 1} qw (align short long);
+
+   $self->throw("Unknown argument [$length_measure]") 
+       if $length_measure and not $enum{$length_measure};
+   $length_measure ||= 'align';
 
    if (! $self->is_flush()) {
        $self->throw("All sequences in the alignment must be the same length");
@@ -2366,8 +2378,36 @@ sub overall_percentage_identity{
 	   last;
        }
    }
+
+   if ($length_measure eq 'short') {
+       ## find the shortest length
+       $len = 0;
+       foreach my $seq ($self->each_seq) {
+           my $count = $seq->seq =~ tr/[A-Za-z]//;
+           if ($len) {
+               $len = $count if $count < $len;
+           } else {
+               $len = $count;
+           }
+       }
+   }
+   elsif ($length_measure eq 'long') {
+       ## find the longest length
+       $len = 0;
+       foreach my $seq ($self->each_seq) {
+           my $count = $seq->seq =~ tr/[A-Za-z]//;
+           if ($len) {
+               $len = $count if $count > $len;
+           } else {
+               $len = $count;
+           }
+       }
+   }
+
    return ($total / $len ) * 100.0;
 }
+
+
 
 =head1 Alignment positions
 
@@ -2381,7 +2421,7 @@ L<Bio::LocatableSeq::location_from_column>:
     #$loc is undef or Bio::LocationI object
     my $loc = $seq->location_from_column(5);
 
-
+=head2 column_from_residue_number
 =head2 column_from_residue_number
 
  Title   : column_from_residue_number
