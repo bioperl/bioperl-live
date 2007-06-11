@@ -2,7 +2,7 @@
 ## Bioperl Test Harness Script for Modules
 ## $Id$
 use strict;
-use constant NUMTESTS => 113;
+use constant NUMTESTS => 116;
 use vars qw($DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
