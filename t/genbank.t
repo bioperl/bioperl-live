@@ -9,7 +9,7 @@ BEGIN {
         use lib 't/lib';
     }
     use Test::More;
-    plan tests => 247;
+    plan tests => 245;
     use_ok('Bio::SeqIO');
     use_ok('Bio::Root::IO');
 }
@@ -348,17 +348,6 @@ $gb->write_seq($seq);
 undef $gb;
 ok(! -z "tmp_revcomp_mrna.gb", 'revcomp split location');
 
-# check warnings for LOCUS line
-$gb = Bio::SeqIO->new(-format => 'genbank',
-                        -verbose => 2,
-                        -file   => Bio::Root::IO->catfile
-                        (qw(t data revcomp_mrna.gb)));
-eval {$seq = $gb->next_seq();};
-
-ok($@);
-
-like($@, qr{Missing tokens in the LOCUS line});
-
 # bug 1925, continuation of long ORGANISM line ends up in @classification:
 # ORGANISM  Salmonella enterica subsp. enterica serovar Paratyphi A str. ATCC
 #           9150
@@ -374,7 +363,7 @@ is $seq->species->scientific_name, "Salmonella enterica subsp. enterica serovar 
 @class = $seq->species->classification;
 is $class[$#class], "Bacteria";
 
-# WGS tests
+# WGS   tests
 $gb = Bio::SeqIO->new(-format => 'genbank',
                       -verbose => $verbose,
                     -file   => Bio::Root::IO->catfile
