@@ -5,56 +5,33 @@
 # Before `make install' is performed this script should be runnable with
 # `make test'. After `make install' it should work as `perl test.t'
 use strict;
-use vars qw($NUMTESTS $DEBUG $ERROR $METAERROR);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-BEGIN {
-	# to handle systems with no installed Test module
-	# we include the t dir (where a copy of Test.pm is located)
-	# as a fallback
-	eval { require Test; };
-	$ERROR = 0;
-	if( $@ ) {
-		use lib 't';
-	}
-	use Test;
+use vars qw($NUMTESTS $DEBUG);
 
-	$NUMTESTS = 15;
+BEGIN {
+	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+	$NUMTESTS = 16;
+	
+	eval { require Test::More; };
+	if( $@ ) {
+		use lib 't/lib';
+	}
+	use Test::More;
+
 	plan tests => $NUMTESTS;
 
 	eval {
 		require IO::String; 
 		require LWP::UserAgent;
 	};
-	if( $@ ) {
-		warn("IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests");
-	$ERROR = 1;
-	}
-	# check this is available, set error flag if not.
-	eval {
-		require Bio::Seq::Meta::Array;
-	};
 	if ($@) {
-		warn ("Bio::Seq::Meta::Array not installed - will skip tests using meta sequences");
-		$METAERROR = 1;
+		plan skip_all => "IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests";
 	}
+	
+	use_ok('Bio::PrimarySeq');
+	use_ok('Bio::Tools::Analysis::Protein::Sopma');
 }
 
-END {
-	foreach ( $Test::ntest..$NUMTESTS) {
-		skip('unable to run all of the Sopma tests',1);
-	}
-}
-
-exit 0 if $ERROR ==  1;
-
-use Data::Dumper;
-use Bio::PrimarySeq;
-require Bio::Tools::Analysis::Protein::Sopma;
-
-ok 1;
-
-my $verbose = 0;
-$verbose = 1 if $DEBUG;
+my $verbose = $DEBUG;
 
 ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 
@@ -63,12 +40,16 @@ my $seq = Bio::PrimarySeq->new(
   -display_id => 'test2');
 ok $tool = Bio::Tools::Analysis::Protein::Sopma->new( -seq=>$seq,
                                                       -window_width => 15);
-if( $DEBUG ) {
-	ok $tool->run ();
-	exit if $tool->status eq 'TERMINATED_BY_ERROR';
+
+SKIP: {
+	skip "Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test", 12 unless $DEBUG;
+	
+	ok $tool->run();
+	skip "Tool was terminated by some error: problem connecting to server?", 11 if $tool->status eq 'TERMINATED_BY_ERROR';
+	
 	ok my $raw = $tool->result('');
 	ok my $parsed = $tool->result('parsed');
-	ok ($parsed->[0]{'helix'}, '104');
+	is ($parsed->[0]{'helix'}, '104');
 	ok my @res = $tool->result('Bio::SeqFeatureI');
 	ok my $meta = $tool->result('meta', "ww15");
 
@@ -76,15 +57,13 @@ if( $DEBUG ) {
 	ok $tool->clear();
 	ok $tool->run;
 	ok my $meta2 = $tool->result('meta', "ww21");
-	if (!$METAERROR) { 
-		# if Bio::Seq::Meta::Array available
-		# meta sequence contains data...
-		# but not available thru method call...??
-		ok ($meta->named_submeta_text('Sopma_helix|ww15',1,2), '104 195');
-		ok ($meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS');
-	}
-} else {
-	for ( $Test::ntest..$NUMTESTS) {
-		skip("Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test",1);
+	
+	SKIP: {
+		eval {
+			require Bio::Seq::Meta::Array;
+		};
+		skip "Bio::Seq::Meta::Array not installed - will skip tests using meta sequences", 2 if $@;
+		is $meta->named_submeta_text('Sopma_helix|ww15',1,2), '104 195';
+		is $meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS';
 	}
 }
