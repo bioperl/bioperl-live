@@ -1,4 +1,4 @@
-# Cladogram.pm,v 1.8 2005/09/04 07:35:05 valiente Exp
+# $Id$
 #
 # BioPerl module for Cladogram
 #
