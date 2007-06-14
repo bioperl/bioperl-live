@@ -208,7 +208,7 @@ sub new {
     my $self = $class->SUPER::new(@args);
 
     # prime the graph
-    my $graph = new Bio::Coordinate::Graph;
+    my $graph = Bio::Coordinate::Graph->new();
     $graph->hash_of_arrays($DAG);
     $self->graph($graph);
 
@@ -504,7 +504,7 @@ sub exons {
                     @value;
 
            unless ($self->cds) {
-               $self->cds(new Bio::Location::Simple
+               $self->cds(Bio::Location::Simple->new
 			  (-start   => $value[-1]->start,
 			   -end     => $value[0]->end,
 			   -strand  => $value[0]->strand,
@@ -519,7 +519,7 @@ sub exons {
                     map { [ $_, $_->start] }
                     @value;
            unless ($self->cds) {
-               $self->cds(new Bio::Location::Simple
+               $self->cds(Bio::Location::Simple->new
 			  (-start   => $value[0]->start,
 			   -end     => $value[-1]->end,
 			   -strand  => $value[0]->strand,
@@ -1151,9 +1151,9 @@ sub _translate {
    my $seqid = 'propeptide';
    
    if ($value->isa("Bio::Location::SplitLocationI") ) {
-       my $split = new Bio::Location::Split(-seq_id=>$seqid);
+       my $split = Bio::Location::Split->new(-seq_id=>$seqid);
        foreach my $loc ( $value->each_Location(1) ) {
-           my $match = new Bio::Location::Simple
+           my $match = Bio::Location::Simple->new
 	       (-start   => int ($loc->start / 3 ) +1,
 		-end     => int ($loc->end / 3 ) +1,
 		-seq_id  => $seqid,
@@ -1185,10 +1185,10 @@ sub _frame {
    my $seqid = 'propeptide';
 
    if ($value->isa("Bio::Location::SplitLocationI")) {
-       my $split = new Bio::Location::Split(-seq_id=>$seqid);
+       my $split = Bio::Location::Split->new(-seq_id=>$seqid);
        foreach my $loc ( $value->each_Location(1) ) {
 
-           my $match = new Bio::Location::Simple
+           my $match = Bio::Location::Simple->new
 	       (-start  => ($value->start-1) % 3 +1,
 		-end    => ($value->end-1) % 3 +1,
 		-seq_id => 'frame',
@@ -1234,10 +1234,10 @@ sub _reverse_translate {
    my $seqid = 'cds';
 
    if ($value->isa("Bio::Location::SplitLocationI")) {
-       my $split = new Bio::Location::Split(-seq_id=>$seqid);
+       my $split = Bio::Location::Split->new(-seq_id=>$seqid);
        foreach my $loc ( $value->each_Location(1) ) {
 
-           my $match = new Bio::Location::Simple
+           my $match = Bio::Location::Simple->new
 	       (-start   => $value->start * 3 - 2,
 		-end     => $value->end * 3,
 		-seq_id  => $seqid,

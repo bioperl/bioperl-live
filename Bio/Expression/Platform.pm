@@ -63,7 +63,7 @@ use Bio::DB::Taxonomy;
 
 =head2 new()
 
- Usage   : my $obj = new Bio::Expression::Platform();
+ Usage   : my $obj = Bio::Expression::Platform->new();
  Function: Builds a new Bio::Expression::Platform object 
  Returns : an instance of Bio::Expression::Platform
  Args    :

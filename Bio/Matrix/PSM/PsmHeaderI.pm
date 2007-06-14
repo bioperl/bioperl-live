@@ -9,7 +9,7 @@ Bio::Matrix::PSM::PsmHeaderI
 
  use Bio::Matrix::PSM::IO;
  #Obtain an Bio::Matrix::PSM::IO object:
- my $psmIO= new Bio::Matrix::PSM::IO(-file=>$file, -format=>'mast');
+ my $psmIO= Bio::Matrix::PSM::IO->new(-file=>$file, -format=>'mast');
 
  #Get some general data about the file you are parsing:
  my $release=$psmIO->release;
@@ -92,7 +92,7 @@ use base qw(Bio::Matrix::PSM::PsmI);
 =head2 new
 
  Title   : new
- Usage   : my $header= new Bio::Matrix::PSM::PsmHeader
+ Usage   : my $header= Bio::Matrix::PSM::PsmHeader->new
             ( -seq=>\%seq, -mid=>\%mid, -width=>\%width,
               -instances=>\%instances, -header=>\@header, -type=>'mast');
  Function: Creates a new Bio::Matrix::PSM::PsmHeader object

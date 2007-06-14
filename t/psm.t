@@ -34,7 +34,7 @@ chr04q	1652447	1652491	strong	+	1	Motif 4 occurrance in chr04q";
 my @mmt=split(/\n/,$mmt);
 
 #Let's try meme here
-my $psmIO =  new Bio::Matrix::PSM::IO(-format=>'meme', 
+my $psmIO =  Bio::Matrix::PSM::IO->new(-format=>'meme', 
 	     -file=>Bio::Root::IO->catfile(qw(t data meme.dat)));
 ok $psmIO;
 
@@ -120,7 +120,7 @@ ok $psm->header('e_val');
 
 #Now we are going to try transfac
 
-$psmIO =  new Bio::Matrix::PSM::IO(-format=>'transfac', 
+$psmIO =  Bio::Matrix::PSM::IO->new(-format=>'transfac', 
 	  -file=> Bio::Root::IO->catfile(qw(t data transfac.dat)));
 ok $psmIO;
 
@@ -157,7 +157,7 @@ $IUPAC   = $psm->IUPAC;
 is $IUPAC,'VVDCAKSTGBYD';
 
 #Now we are going to try mast
-$psmIO =  new Bio::Matrix::PSM::IO(-format=>'mast', 
+$psmIO =  Bio::Matrix::PSM::IO->new(-format=>'mast', 
 	  -file=>Bio::Root::IO->catfile(qw(t data mast.dat)));
 ok $psmIO;
 
@@ -184,7 +184,7 @@ ok %instances;
 
 is $psmIO->version, '3.0';
 
-my $mmastIO=new Bio::Matrix::PSM::IO(-format=>'mast',-file=>Bio::Root::IO->catfile(qw(t data mixedmast.dat)));
+my $mmastIO=Bio::Matrix::PSM::IO->new(-format=>'mast',-file=>Bio::Root::IO->catfile(qw(t data mixedmast.dat)));
 
 $psm = $mmastIO->next_psm; 
 my $lastinstances = $psm->instances();

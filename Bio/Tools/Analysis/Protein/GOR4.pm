@@ -18,7 +18,7 @@ secondary structure prediction server
   use Bio::Tools::Analysis::Protein::GOR4;
   #get a Bio::Seq or Bio::PrimarySeq
   use Bio::PrimarySeq;
-  $seq = new Bio::PrimarySeq
+  $seq = Bio::PrimarySeq->new
     (-seq=>'IKLCVHHJHJHJHJHJHJHNLAILAKAHLIELALAL',
      -primary_id=>'test'); # a Bio::PrimarySeqI object
 

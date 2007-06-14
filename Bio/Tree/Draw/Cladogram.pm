@@ -19,16 +19,16 @@ Encapsulated PostScript (EPS) format.
 
   use Bio::Tree::Draw::Cladogram;
   use Bio::TreeIO;
-  my $treeio = new Bio::TreeIO('-format' => 'newick',
+  my $treeio = Bio::TreeIO->new('-format' => 'newick',
   			       '-file'   => 'input.nwk');
   my $t1 = $treeio->next_tree;
   my $t2 = $treeio->next_tree;
 
-  my $obj1 = new Bio::Tree::Draw::Cladogram(-tree => $t1);
+  my $obj1 = Bio::Tree::Draw::Cladogram->new(-tree => $t1);
   $obj1->print(-file => 'cladogram.eps');
 
   if ($t2) {
-    my $obj2 = new Bio::Tree::Draw::Cladogram(-tree => $t1, -second => $t2);
+    my $obj2 = Bio::Tree::Draw::Cladogram->new(-tree => $t1, -second => $t2);
     $obj2->print(-file => 'tanglegram.eps');
   }
 
@@ -141,7 +141,7 @@ my %Bcolor;    # blue color for each node
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tree::Draw::Cladogram();
+ Usage   : my $obj = Bio::Tree::Draw::Cladogram->new();
  Function: Builds a new Bio::Tree::Draw::Cladogram object 
  Returns : Bio::Tree::Draw::Cladogram
  Args    : -tree => Bio::Tree::Tree object

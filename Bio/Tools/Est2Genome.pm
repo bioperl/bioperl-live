@@ -18,7 +18,7 @@ Bio::Tools::Est2Genome - Parse est2genome output, makes simple Bio::SeqFeature::
 
   use Bio::Tools::Est2Genome;
 
-  my $featureiter = new Bio::Tools::Est2Genome(-file => 'output.est2genome');
+  my $featureiter = Bio::Tools::Est2Genome->new(-file => 'output.est2genome');
 
   # This is going to be fixed to use the SeqAnalysisI next_feature
   # Method eventually when we have the objects to put the data in
@@ -87,7 +87,7 @@ use base qw(Bio::Tools::AnalysisResult);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::Est2Genome();
+ Usage   : my $obj = Bio::Tools::Est2Genome->new();
  Function: Builds a new Bio::Tools::Est2Genome object
  Returns : an instance of Bio::Tools::Est2Genome
  Args    : -file => 'output.est2genome' or
@@ -176,7 +176,7 @@ sub parse_next_gene {
 	   my ($name,$len,$score,$qstart,$qend,$qseqname,
 	       $hstart,$hend, $hseqname) = split;
 	   $lasthseqname = $hseqname;
-	   my $query = new Bio::SeqFeature::Similarity(-primary => $name,
+	   my $query = Bio::SeqFeature::Similarity->new(-primary => $name,
 						       -source  => $self->analysis_method,
 						       -seq_id => $qseqname, # FIXME WHEN WE REDO THE GENERIC NAME CHANGE
 						       -start   => $qstart,
@@ -188,7 +188,7 @@ sub parse_next_gene {
 							   'Sequence' => "$hseqname",
 							   }
 						       );
-	   my $hit = new Bio::SeqFeature::Similarity(-primary => 'exon_hit',
+	   my $hit = Bio::SeqFeature::Similarity->new(-primary => 'exon_hit',
 						     -source  => $self->analysis_method,
 						     -seq_id => $hseqname,
 						     -start   => $hstart,
@@ -201,13 +201,13 @@ sub parse_next_gene {
 							
 						     }
 						     );
-	   push @features, new Bio::SeqFeature::SimilarityPair
+	   push @features, Bio::SeqFeature::SimilarityPair->new
 	       (-query => $query,
 		-hit   => $hit,
 		-source => $self->analysis_method);
        } elsif( /^([\-\+\?])(Intron)/) {
 	   my ($name,$len,$score,$qstart,$qend,$qseqname) = split;
-	   push @features, new Bio::SeqFeature::Generic(-primary => $2,
+	   push @features, Bio::SeqFeature::Generic->new(-primary => $2,
 							-source => $self->analysis_method,
 							-start => $qstart,
 							-end   => $qend,
@@ -234,8 +234,8 @@ sub _parse_gene_struct {
    my @features;
    my ($qstrand,$hstrand) = (1,1);
    my $lasthseqname;
-   my $gene = new Bio::SeqFeature::Gene::GeneStructure(-source => $self->analysis_method);
-   my $transcript = new Bio::SeqFeature::Gene::Transcript(-source => $self->analysis_method);
+   my $gene = Bio::SeqFeature::Gene::GeneStructure->new(-source => $self->analysis_method);
+   my $transcript = Bio::SeqFeature::Gene::Transcript->new(-source => $self->analysis_method);
    my @suppf;
    my @exon;
    while( defined($_ = $self->_readline) ) {
@@ -250,7 +250,7 @@ sub _parse_gene_struct {
        elsif( /^Exon/ ) {
     	   my ($name,$len,$score,$qstart,$qend,$qseqname,$hstart,$hend, $hseqname) = split;
     	   $lasthseqname = $hseqname;
-    	   my $exon = new Bio::SeqFeature::Gene::Exon(-primary => $name,
+    	   my $exon = Bio::SeqFeature::Gene::Exon->new(-primary => $name,
 						       -source  => $self->analysis_method,
 						       -seq_id => $qseqname, # FIXME WHEN WE REDO THE GENERIC NAME CHANGE
 						       -start   => $qstart,
@@ -271,7 +271,7 @@ sub _parse_gene_struct {
        } elsif( /^Span/ ) {
        } elsif( /^Segment/ ) {
     	    my ($name,$len,$score,$qstart,$qend,$qseqname,$hstart,$hend, $hseqname) = split;
-	         my $query = new Bio::SeqFeature::Similarity(-primary => $name,
+	         my $query = Bio::SeqFeature::Similarity->new(-primary => $name,
 						       -source  => $self->analysis_method,
 						       -seq_id => $qseqname, # FIXME WHEN WE REDO THE GENERIC NAME CHANGE
 						       -start   => $qstart,
@@ -283,7 +283,7 @@ sub _parse_gene_struct {
 							   'Sequence' => "$hseqname",
 							   }
 						     );
-      	   my $hit = new Bio::SeqFeature::Similarity(-primary => 'exon_hit',
+      	   my $hit = Bio::SeqFeature::Similarity->new(-primary => 'exon_hit',
                                            						     -source  => $self->analysis_method,
                                           						     -seq_id => $hseqname,
                                           						     -start   => $hstart,
@@ -295,7 +295,7 @@ sub _parse_gene_struct {
                                                							 'Sequence' => "$qseqname",
 						                                                }
 						     );
-        	   my $support =  new Bio::SeqFeature::SimilarityPair (-query => $query,
+        	   my $support =  Bio::SeqFeature::SimilarityPair->new(-query => $query,
                                                               		-hit   => $hit,
                                                               		-source => $self->analysis_method);
              push @suppf, $support;

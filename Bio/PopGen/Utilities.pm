@@ -19,7 +19,7 @@ Bio::PopGen::Utilities - Utilities for working with PopGen data and objects
   use Bio::PopGen::Utilities;
   use Bio::AlignIO;
 
-  my $in = new Bio::AlignIO(-file   => 't/data/t7.aln',
+  my $in = Bio::AlignIO->new(-file   => 't/data/t7.aln',
                             -format => 'clustalw');
   my $aln = $in->next_aln;
   # get a population, each sequence is an individual and 

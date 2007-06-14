@@ -16,12 +16,12 @@ BEGIN {
 	use_ok('Bio::Tree::AlleleNode');
 }
 
-my $node1 = new Bio::Tree::Node();
-my $node2 = new Bio::Tree::Node();
+my $node1 = Bio::Tree::Node->new();
+my $node2 = Bio::Tree::Node->new();
 ok($node1->is_Leaf() );
 is($node1->ancestor, undef);
 
-my $pnode = new Bio::Tree::Node();
+my $pnode = Bio::Tree::Node->new();
 $pnode->add_Descendent($node1);
 is($node1->ancestor, $pnode);
 $pnode->add_Descendent($node2);
@@ -29,7 +29,7 @@ is($node2->ancestor, $pnode);
 
 ok(! $pnode->is_Leaf);
 
-my $phylo_node = new Bio::Tree::Node(-bootstrap => 0.25,
+my $phylo_node = Bio::Tree::Node->new(-bootstrap => 0.25,
 				     -id => 'ADH_BOV',
 				     -desc => 'Taxon 1');
 $node1->add_Descendent($phylo_node);
@@ -44,12 +44,12 @@ ok $node1->is_Leaf;
 is my @descs = $node2->each_Descendent, 1;
 is $descs[0], $phylo_node;
 
-my $allele_node = new Bio::Tree::AlleleNode();
-$allele_node->add_Genotype(new Bio::PopGen::Genotype(-marker_name => 'm1',
+my $allele_node = Bio::Tree::AlleleNode->new();
+$allele_node->add_Genotype(Bio::PopGen::Genotype->new(-marker_name => 'm1',
 						     -alleles=>  [ 0 ]));
-$allele_node->add_Genotype(new Bio::PopGen::Genotype(-marker_name => 'm3',
+$allele_node->add_Genotype(Bio::PopGen::Genotype->new(-marker_name => 'm3',
 						     -alleles=>  [ 1,1 ]));
-$allele_node->add_Genotype(new Bio::PopGen::Genotype(-marker_name => 'm4',
+$allele_node->add_Genotype(Bio::PopGen::Genotype->new(-marker_name => 'm4',
 						     -alleles=>  [ 0,4 ]));
 ok($allele_node);
 my @mkrs = $allele_node->get_marker_names;

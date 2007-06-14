@@ -17,7 +17,7 @@ Bio::Tools::Coil - parser for Coil output
 =head1 SYNOPSIS
 
  use Bio::Tools::Coil
- my $parser = new Bio::Tools::Coil();
+ my $parser = Bio::Tools::Coil->new();
  while( my $sp_feat = $parser->next_result($file) ) {
        #do something
        #eg

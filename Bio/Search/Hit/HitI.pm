@@ -26,7 +26,7 @@ Bio::Search::Hit::HitI - Interface for a hit in a similarity search result
 
     # Get a HitI object from a SearchIO stream:
     use Bio::SeachIO;
-    my $searchio = new Bio::SearchIO(-format => 'blast', -file => 'result.bls');
+    my $searchio = Bio::SearchIO->new(-format => 'blast', -file => 'result.bls');
     my $result = $searchio->next_result;
     my $hit    = $result->next_hit;
 

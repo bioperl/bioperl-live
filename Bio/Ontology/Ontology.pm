@@ -108,7 +108,7 @@ use base qw(Bio::Root::Root Bio::Ontology::OntologyI Bio::AnnotatableI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Ontology::Ontology();
+ Usage   : my $obj = Bio::Ontology::Ontology->new();
  Function: Builds a new Bio::Ontology::Ontology object
  Returns : an instance of Bio::Ontology::Ontology
  Args    : any number of named arguments. The following names will be

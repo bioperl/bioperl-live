@@ -32,7 +32,7 @@ files (i.e. flat file GenBank format).
 
     my $Index_File_Name = shift;
     my $inx = Bio::Index::GenBank->new(-filename => $Index_File_Name);
-    my $seqio = new Bio::SeqIO(-format => 'gcg');
+    my $seqio = Bio::SeqIO->new(-format => 'gcg');
     foreach my $id (@ARGV) {
         my $seq = $inx->fetch($id); # Returns Bio::Seq object
         $seqio->write_seq($seq);

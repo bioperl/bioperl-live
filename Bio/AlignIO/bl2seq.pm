@@ -161,7 +161,7 @@ sub next_aln {
 #     #    unless ($seqchar && $start && $end  && $seqname) {return 0} ;
 #     unless ($seqchar && $start && $end ) {return 0} ;
 
-#     $seq = new Bio::LocatableSeq('-seq'   =>$seqchar,
+#     $seq = Bio::LocatableSeq->new('-seq'   =>$seqchar,
 # 				 '-id'    =>$seqname,
 # 				 '-start' =>$start,
 # 				 '-end'   =>$end,
@@ -178,7 +178,7 @@ sub next_aln {
 
 #     unless ($seqchar && $start && $end  && $seqname) {return 0} ;
 
-#     $seq = new Bio::LocatableSeq('-seq'   =>$seqchar,
+#     $seq = Bio::LocatableSeq->new('-seq'   =>$seqchar,
 # 				 '-id'    =>$seqname,
 # 				 '-start' =>$start,
 # 				 '-end'   =>$end,

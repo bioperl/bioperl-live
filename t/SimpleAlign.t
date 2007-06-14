@@ -122,19 +122,19 @@ SKIP:{
 	my $string;
 	my $out = IO::String->new($string);
 	
-	my $s1 = new Bio::LocatableSeq (-id => 'AAA',
+	my $s1 = Bio::LocatableSeq->new(-id => 'AAA',
 					-seq => 'aawtat-tn-',
 					-start => 1,
 					-end => 8,
 					-alphabet => 'dna'
 					);
-	my $s2 = new Bio::LocatableSeq (-id => 'BBB',
+	my $s2 = Bio::LocatableSeq->new(-id => 'BBB',
 					-seq => '-aaaat-tt-',
 					-start => 1,
 					-end => 7,
 					-alphabet => 'dna'
 					);
-	$a = new Bio::SimpleAlign;
+	$a = Bio::SimpleAlign->new();
 	$a->add_seq($s1);           
 	$a->add_seq($s2);
 	
@@ -144,7 +144,7 @@ SKIP:{
 	$s1->end(10);
 	$s2->seq('-aaaatttt-');
 	$s2->end(8);
-	$a = new Bio::SimpleAlign;
+	$a = Bio::SimpleAlign->new();
 	$a->add_seq($s1);
 	$a->add_seq($s2);
 	
@@ -245,7 +245,7 @@ SKIP:{
 	
 	
 	# sort_alphabetically
-	my $s3 = new Bio::LocatableSeq (-id => 'ABB',
+	my $s3 = Bio::LocatableSeq->new(-id => 'ABB',
 											  -seq => '-attat-tt-',
 											  -start => 1,
 											  -end => 7,
@@ -387,25 +387,25 @@ is $a, 'BAB68554', 'sort by list ok';
 
 # test sort_by_list:
 
-my $s1 = new Bio::LocatableSeq (-id => 'AAA',
+my $s1 = Bio::LocatableSeq->new(-id => 'AAA',
                 -seq => 'aawtat-tn-',
                 -start => 12,
                 -end => 19,
                 -alphabet => 'dna'
                 );
-my $s2 = new Bio::LocatableSeq (-id => 'BBB',
+my $s2 = Bio::LocatableSeq->new(-id => 'BBB',
                 -seq => '-aaaat-tt-',
                 -start => 1,
                 -end => 7,
                 -alphabet => 'dna'
                 );
-my $s3 = new Bio::LocatableSeq (-id => 'BBB',
+my $s3 = Bio::LocatableSeq->new(-id => 'BBB',
                 -seq => '-aaaat-tt-',
                 -start => 31,
                 -end => 37,
                 -alphabet => 'dna'
                 );
-$a = new Bio::SimpleAlign;
+$a = Bio::SimpleAlign->new();
 $a->add_seq($s1);           
 $a->add_seq($s2);
 $a->add_seq($s3);

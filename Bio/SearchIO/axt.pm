@@ -17,7 +17,7 @@ Bio::SearchIO::axt - a parser for axt format reports
 =head1 SYNOPSIS
 
   use Bio::SearchIO;
-  my $parser = new Bio::SearchIO(-format => 'axt',
+  my $parser = Bio::SearchIO->new(-format => 'axt',
                                  -file   => 't/data/report.blastz');
   while( my $result = $parser->next_result ) {
     while( my $hit = $result->next_hit ) {
@@ -111,7 +111,7 @@ BEGIN {
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO::axt();
+ Usage   : my $obj = Bio::SearchIO::axt->new();
  Function: Builds a new Bio::SearchIO::axt object 
  Returns : an instance of Bio::SearchIO::axt
  Args    :

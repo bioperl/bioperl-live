@@ -622,13 +622,13 @@ sub retrieve_blast {
                 }
             } 
             close($fh2);
-            $blastobj = new Bio::SearchIO( -file => $tempfile2,
+            $blastobj = Bio::SearchIO->new( -file => $tempfile2,
                                -format => 'blasttable');
             } elsif( $mthd =~ /xml/ ) {
-            $blastobj = new Bio::SearchIO( -file => $tempfile,
+            $blastobj = Bio::SearchIO->new( -file => $tempfile,
                                -format => 'blastxml');
             } else {
-            $blastobj = new Bio::SearchIO( -file => $tempfile,
+            $blastobj = Bio::SearchIO->new( -file => $tempfile,
                                -format => 'blast');
             } 
             
@@ -695,7 +695,7 @@ sub _load_input {
 	my @seqs;
 	if( ! ref $input ) {
 		if( -e $input ) {
-			my $seqio = new Bio::SeqIO(-format => 'fasta',
+			my $seqio = Bio::SeqIO->new(-format => 'fasta',
 												-file => $input);
 			while( my $seq = $seqio->next_seq ) {
 				push @seqs, $seq;

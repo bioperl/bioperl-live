@@ -113,7 +113,7 @@ sub as_text{
   my ($self) = @_;
 
   my $tree = $self->tree || $self->throw("Tree object absent");
-  my $treeio = new Bio::TreeIO();
+  my $treeio = Bio::TreeIO->new();
   $treeio->write_tree($tree);
 }
 

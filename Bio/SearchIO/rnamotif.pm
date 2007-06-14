@@ -121,7 +121,7 @@ my $DEFAULT_VERSION = '3.0.3';
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO();
+ Usage   : my $obj = Bio::SearchIO->new();
  Function: Builds a new Bio::SearchIO::rnamotif object 
  Returns : Bio::SearchIO::rnamotif parser
  Args    : -fh/-file     => RNAMotif filename

@@ -17,8 +17,8 @@ Bio::TreeIO::tabtree - A simple output format which displays a tree as an ASCII 
 =head1 SYNOPSIS
 
   use Bio::TreeIO;
-  my $in = new Bio::TreeIO(-file => 'input', -format => 'newick');
-  my $out = new Bio::TreeIO(-file => '>output', -format => 'tabtree');
+  my $in = Bio::TreeIO->new(-file => 'input', -format => 'newick');
+  my $out = Bio::TreeIO->new(-file => '>output', -format => 'tabtree');
 
   while( my $tree = $in->next_tree ) {
       $out->write_tree($tree);
@@ -74,7 +74,7 @@ use base qw(Bio::TreeIO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::TreeIO::tabtree();
+ Usage   : my $obj = Bio::TreeIO::tabtree->new();
  Function: Builds a new Bio::TreeIO::tabtree object 
  Returns : Bio::TreeIO::tabtree
  Args    :

@@ -137,7 +137,7 @@ our $DEFAULT_VERSION = '0.71';
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::Infernal();
+ Usage   : my $obj = Bio::Tools::Infernal->new();
  Function: Builds a new Bio::Tools::Infernal object 
  Returns : an instance of Bio::Tools::Infernal
  Args    : -fh/-file  - for input filehandle/filename

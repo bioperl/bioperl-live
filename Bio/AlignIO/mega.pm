@@ -17,7 +17,7 @@ Bio::AlignIO::mega - Parse and Create MEGA format data files
 =head1 SYNOPSIS
 
     use Bio::AlignIO;
-    my $alignio = new Bio::AlignIO(-format => 'mega',
+    my $alignio = Bio::AlignIO->new(-format => 'mega',
                                    -file   => 't/data/hemoglobinA.meg');
 
     while( my $aln = $alignio->next_aln ) {
@@ -147,7 +147,7 @@ sub next_aln{
        my $s = $seqs{$seqname};
        $s =~ s/\-//g;
        my $end = length($s);
-       my $seq = new Bio::LocatableSeq(-alphabet => $alphabet,
+       my $seq = Bio::LocatableSeq->new(-alphabet => $alphabet,
 				       -id => $seqname,
 				       -seq => $seqs{$seqname},
 				       -start => 1,

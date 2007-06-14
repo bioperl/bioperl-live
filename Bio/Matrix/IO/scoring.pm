@@ -17,7 +17,7 @@ Bio::Matrix::IO::scoring - A parser for PAM/BLOSUM matricies
 =head1 SYNOPSIS
 
   use Bio::Matrix::IO;
-  my $parser = new Bio::Matrix::IO(-format => 'scoring',
+  my $parser = Bio::Matrix::IO->new(-format => 'scoring',
                                    -file   => 'BLOSUM50');
   my $matrix = $parser->next_matrix;
 
@@ -68,7 +68,7 @@ use base qw(Bio::Matrix::IO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Matrix::IO::scoring();
+ Usage   : my $obj = Bio::Matrix::IO::scoring->new();
  Function: Builds a new Bio::Matrix::IO::scoring object 
  Returns : an instance of Bio::Matrix::IO::scoring
  Args    :
@@ -140,7 +140,7 @@ sub next_matrix{
 	   print;
        }
    }
-   my $matrix = new Bio::Matrix::Scoring(-values     => \@matrix,
+   my $matrix = Bio::Matrix::Scoring->new(-values     => \@matrix,
 					 -rownames   => \@rows,
 					 -colnames   => \@cols,
 					 %extras);

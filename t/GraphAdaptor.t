@@ -21,7 +21,7 @@ BEGIN {
     use_ok('Bio::Ontology::SimpleGOEngine::GraphAdaptor');
 }
 
-my $g=new Bio::Ontology::SimpleGOEngine::GraphAdaptor;
+my $g=Bio::Ontology::SimpleGOEngine::GraphAdaptor->new();
 my $graph_version=( defined($Graph::VERSION) && $Graph::VERSION >= 0.5 )  ? 'new' : 'old';
 my $adaptor_class=$graph_version eq 'new' ? 
   'Bio::Ontology::SimpleGOEngine::GraphAdaptor' : 'Bio::Ontology::SimpleGOEngine::GraphAdaptor02';

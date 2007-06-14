@@ -167,7 +167,7 @@ sub next_prediction {
 	last if m{^//};
 
 	if( /^Gene\s+\d+\s*$/ ) {
-	    $genes = new Bio::SeqFeature::Gene::GeneStructure
+	    $genes = Bio::SeqFeature::Gene::GeneStructure->new
 		(-source => $Srctag,
 		 -seq_id => $self->_target_id, # if this had been specified
 		 );
@@ -178,7 +178,7 @@ sub next_prediction {
 		$self->warn("Unparseable genomewise output");
 		last;
 	    }
-	    my $transcript = new Bio::SeqFeature::Gene::Transcript
+	    my $transcript = Bio::SeqFeature::Gene::Transcript->new
 		(-source => $Srctag,
 		 -seq_id => $self->_target_id, # if this had been specified
 		 -start  => $1,
@@ -198,7 +198,7 @@ sub next_prediction {
 								 $e_end);
 		$transcript->strand($e_strand) unless $transcript->strand != 0;
 		
-		my $exon = new Bio::SeqFeature::Gene::Exon 
+		my $exon = Bio::SeqFeature::Gene::Exon->new 
 		    (-seq_id=>$self->_target_id,
 		     -source => $Srctag,
 		     -start=>$e_start, 

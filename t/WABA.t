@@ -27,7 +27,7 @@ BEGIN {
 use_ok('Bio::SearchIO');
 use_ok('Bio::Root::IO');
 
-my $wabain = new Bio::SearchIO(
+my $wabain = Bio::SearchIO->new(
     -format => 'waba',
     -file   => Bio::Root::IO->catfile( 't', 'data', 'test.waba' )
 );

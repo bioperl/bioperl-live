@@ -27,7 +27,7 @@ use_ok ('Bio::Root::IO');
 
 my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
 
-my $parser = new Bio::Tools::tRNAscanSE(-verbose => $verbose,
+my $parser = Bio::Tools::tRNAscanSE->new(-verbose => $verbose,
 					 -file => Bio::Root::IO->catfile
 					 ('t','data', 
 					  'yeast.tRNAscanSE'));

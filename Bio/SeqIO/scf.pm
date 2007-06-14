@@ -85,7 +85,7 @@ sub _initialize {
   my($self,@args) = @_;
   $self->SUPER::_initialize(@args);
   if( ! defined $self->sequence_factory ) {
-      $self->sequence_factory(new Bio::Seq::SeqFactory
+      $self->sequence_factory(Bio::Seq::SeqFactory->new
 			      (-verbose => $self->verbose(),
 			       -type => 'Bio::Seq::Quality'));
   }
@@ -348,7 +348,7 @@ sub _get_v3_base_accuracies {
 
 sub _get_comments {
 	my ($self,$buffer) = @_;
-    my $comments = new Bio::Annotation::Collection();
+    my $comments = Bio::Annotation::Collection->new();
 	my $size = length($buffer);
 	my $comments_retrieved = unpack "a$size",$buffer;
 	$comments_retrieved =~ s/\0//;
@@ -605,7 +605,7 @@ sub write_seq {
                if (ref($swq) eq "Bio::Seq::Quality") {
                          # this means that the object *has no trace data*
                          # we might as well synthesize some now, ok?
-                    my $swq2 = new Bio::Seq::SequenceTrace(
+                    my $swq2 = Bio::Seq::SequenceTrace->new(
                          -swq     =>   $swq
                     );
                     $swq2->_synthesize_traces();
@@ -812,7 +812,7 @@ sub _get_binary_traces {
           # if so, call synthesize_base
      my ($traceobj,@traces,$current);
      if ( ref($ref) eq "Bio::Seq::Quality" ) {
-          $traceobj = new Bio::Seq::Quality(
+          $traceobj = Bio::Seq::Quality->new(
                -target   =>   $ref
           );
           $traceobj->_synthesize_traces();

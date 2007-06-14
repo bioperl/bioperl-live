@@ -27,7 +27,7 @@ BEGIN {
 
 my ($searchio, $result,$hit,$hsp);
 
-$searchio = new Bio::SearchIO(-file => 
+$searchio = Bio::SearchIO->new(-file => 
 			      Bio::Root::IO->catfile(qw(t data 
 							testdat.exonerate)),
 			      -format => 'exonerate');

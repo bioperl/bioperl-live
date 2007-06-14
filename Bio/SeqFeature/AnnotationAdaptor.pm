@@ -142,7 +142,7 @@ use base qw(Bio::Root::Root Bio::AnnotationCollectionI Bio::AnnotatableI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SeqFeature::AnnotationAdaptor();
+ Usage   : my $obj = Bio::SeqFeature::AnnotationAdaptor->new();
  Function: Builds a new Bio::SeqFeature::AnnotationAdaptor object 
  Returns : an instance of Bio::SeqFeature::AnnotationAdaptor
  Args    : Named parameters

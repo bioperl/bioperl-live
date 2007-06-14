@@ -32,7 +32,7 @@ BEGIN {
 use Bio::OntologyIO;
 use Bio::Root::IO;
 
-my $io = new Bio::Root::IO; # less typing from now on ...
+my $io = Bio::Root::IO->new(); # less typing from now on ...
 my $parser = Bio::OntologyIO->new(
                       -format    => "go",
 		      -defs_file => $io->catfile( "t","data",

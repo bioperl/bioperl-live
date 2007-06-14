@@ -20,7 +20,7 @@ Bio::Tree::NodeI - Interface describing a Tree Node
     # like from a TreeIO
     use Bio::TreeIO;
     # read in a clustalw NJ in phylip/newick format
-    my $treeio = new Bio::TreeIO(-format => 'newick', -file => 'file.dnd');
+    my $treeio = Bio::TreeIO->new(-format => 'newick', -file => 'file.dnd');
 
     my $tree = $treeio->next_tree; # we'll assume it worked for demo purposes
                                    # you might want to test that it was defined

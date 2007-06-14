@@ -289,7 +289,7 @@ sub map {
 
    if ($value->isa("Bio::Location::SplitLocationI")) {
 
-       my $result = new Bio::Coordinate::Result;
+       my $result = Bio::Coordinate::Result->new();
        foreach my $loc ( $value->sub_Location(1) ) {
 
            my $res = $self->_map($loc);

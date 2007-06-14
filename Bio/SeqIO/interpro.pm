@@ -214,7 +214,7 @@ sub _initialize {
 
   $self->_xml_parser( XML::DOM::Parser->new() );
 
-  $self->_sequence_factory( new Bio::Seq::SeqFactory
+  $self->_sequence_factory( Bio::Seq::SeqFactory->new
                            ( -verbose => $self->verbose(),
                              -type => 'Bio::Seq::RichSeq'))
     if ( ! defined $self->sequence_factory );

@@ -83,7 +83,7 @@ use base qw(Bio::SeqFeature::FeaturePair);
 =head2 new
 
  Title   : new
- Usage   : my $similarityPair = new Bio::SeqFeature::SimilarityPair
+ Usage   : my $similarityPair = Bio::SeqFeature::SimilarityPair->new
                                  (-hit   => $hit,
                                   -query => $query,
                                   -source => 'blastp');

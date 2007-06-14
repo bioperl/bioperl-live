@@ -171,7 +171,7 @@ my $fs='!';
 my @revkeys=('Entrez Gene Status','RefSeq status','Official Full Name','chromosome','cyto','Reference','dblink',
 'ALIAS_SYMBOL','OntologyTerm','Index terms','Official Symbol','cM','Property');
 
-ok my $eio=new Bio::SeqIO(-file=>Bio::Root::IO->catfile("t","data","entrezgene.dat"), -format=>'entrezgene', -debug=>'on',-service_record=>'yes');
+ok my $eio=Bio::SeqIO->new(-file=>Bio::Root::IO->catfile("t","data","entrezgene.dat"), -format=>'entrezgene', -debug=>'on',-service_record=>'yes');
 
 my ($seq,$struct,$uncapt);
 my $num_of_seqs = 0;
@@ -502,7 +502,7 @@ is $num_of_seqs, 39, 'looped through correct number of sequences';
 #See if we can convert to locuslink
 #T18: BACKCOMPATIBILITY TESTS
 my @llsp =('OFFICIAL_GENE_NAME','CHR','MAP','OFFICIAL_SYMBOL');
-ok my $eio_b=new Bio::SeqIO(-file=>Bio::Root::IO->catfile("t","data","entrezgene.dat"),-format=>'entrezgene', -debug=>'on',-service_record=>'yes',-locuslink=>'convert');
+ok my $eio_b=Bio::SeqIO->new(-file=>Bio::Root::IO->catfile("t","data","entrezgene.dat"),-format=>'entrezgene', -debug=>'on',-service_record=>'yes',-locuslink=>'convert');
 my $loop_count = 0;
 while (my $seq=$eio_b->next_seq) {
 	$loop_count++;

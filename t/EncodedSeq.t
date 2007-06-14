@@ -22,7 +22,7 @@ BEGIN {
 
 my ($str, $aln, $seq, $loc);
 
-ok $seq = new Bio::Seq::EncodedSeq(
+ok $seq = Bio::Seq::EncodedSeq->new(
 			     -seq => '--atg---gta--',
 			     -start => 1,
 			     -end => 6,
@@ -56,7 +56,7 @@ is $loc = $seq->location_from_column(2), undef;
 is $seq->encoding, "GGCCCGGGCCCGG";
 is $seq->encoding(-explicit => 1), "GGCDEGGGCDEGG";
 
-ok $seq = new Bio::Seq::EncodedSeq(
+ok $seq = Bio::Seq::EncodedSeq->new(
 			     -seq => 'atcgta',
 			     -start => 10,
 			     -end => 15,

@@ -21,7 +21,7 @@ Bio::Assembly::ContigAnalysis -
     use Bio::Assembly::ContigAnalysis;
 
     # Assembly loading methods
-    my $ca = new Bio::Assembly::ContigAnalysis( -contig=>$contigOBJ );
+    my $ca = Bio::Assembly::ContigAnalysis->new( -contig=>$contigOBJ );
 
     my @lcq = $ca->low_consensus_quality;
     my @hqd = $ca->high_quality_discrepancies;

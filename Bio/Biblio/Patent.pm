@@ -13,11 +13,11 @@ Bio::Biblio::Patent - Representation of a patent
 
 =head1 SYNOPSIS
 
-    $obj = new Bio::Biblio::Patent (-doc_number => '1-2-3-4-5');
+    $obj = Bio::Biblio::Patent->new(-doc_number => '1-2-3-4-5');
 
   #--- OR ---
 
-    $obj = new Bio::Biblio::Patent;
+    $obj = Bio::Biblio::Patent->new();
     $obj->doc_number ('1-2-3-4-5');
 
 =head1 DESCRIPTION

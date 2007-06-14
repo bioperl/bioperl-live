@@ -130,7 +130,7 @@ sub next_aln {
 			$end = length($str);
 		}
 
-		$seq = new Bio::LocatableSeq(-seq   => $hash{$name},
+		$seq = Bio::LocatableSeq->new(-seq   => $hash{$name},
 											  -id    => $seqname,
 											  -start => $start,
 											  -end   => $end,

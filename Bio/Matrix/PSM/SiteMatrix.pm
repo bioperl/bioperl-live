@@ -22,10 +22,10 @@ position scoring matrix (or position weight matrix) and log-odds
   my %param=(-pA=>$a,-pC=>$c,-pG=>$g,-pT=>$t,
              -lA=>$la, -lC=>$lc,-lG=>$lg,-lT=>$l,
              -IC=>$ic,-e_val=>$score, -id=>$mid);
-  my $site=new Bio::Matrix::PSM::SiteMatrix(%param);
+  my $site=Bio::Matrix::PSM::SiteMatrix->new(%param);
   #Or get it from a file:
   use Bio::Matrix::PSM::IO;
-  my $psmIO= new Bio::Matrix::PSM::IO(-file=>$file, -format=>'transfac');
+  my $psmIO= Bio::Matrix::PSM::IO->new(-file=>$file, -format=>'transfac');
   while (my $psm=$psmIO->next_psm) {
     #Now we have a Bio::Matrix::PSM::Psm object, 
     # see Bio::Matrix::PSM::PsmI for details
@@ -153,7 +153,7 @@ use base qw(Bio::Root::Root Bio::Matrix::PSM::SiteMatrixI);
 =head2 new
 
  Title   : new
- Usage   : my $site=new Bio::Matrix::PSM::SiteMatrix(-pA=>$a,-pC=>$c,
+ Usage   : my $site=Bio::Matrix::PSM::SiteMatrix->new(-pA=>$a,-pC=>$c,
 						     -pG=>$g,-pT=>$t,
 						     -IC=>$ic,
 						     -e_val=>$score, 

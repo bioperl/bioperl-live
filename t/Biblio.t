@@ -62,8 +62,8 @@ print sprintf ($format, 'use Bio::Biblio');
 ok (%Bio::Biblio::);
 
 # check 'new...'
-my $biblio = new Bio::Biblio (-location => 'http://localhost:4567');
-print sprintf ($format, "new Bio::Biblio ");
+my $biblio = Bio::Biblio->new(-location => 'http://localhost:4567');
+print sprintf ($format, "Bio::Biblio->new() ");
 SKIP: {
     skip($serror,1) if $serror;
     ok (defined $biblio);
@@ -78,10 +78,10 @@ ok (%Bio::Biblio::IO::);
 my $io;
 
 # check MEDLINE XML parser
-print sprintf ($format, "new Bio::Biblio::IO (1)");
+print sprintf ($format, "Bio::Biblio::IO->new(1)");
 SKIP:{
     skip($ferror || $xerror,4) if $ferror || $xerror;
-    ok defined ($io = new Bio::Biblio::IO ('-format' => 'medlinexml',
+    ok defined ($io = Bio::Biblio::IO->new('-format' => 'medlinexml',
 						 '-file'   => $testfile,
 						 '-result' => 'raw'));
     print $@ if $@;    
@@ -95,7 +95,7 @@ SKIP:{
     print "Getting citations using callback...\n";
     my (@ids) = ('Text1', 'Text248', 'Text495');
     my $callback_used = 'no';
-    $io = new Bio::Biblio::IO ('-format'   => 'medlinexml',
+    $io = Bio::Biblio::IO->new('-format'   => 'medlinexml',
                    '-file'     => $testfile,
 #			       '-result'   => 'medline2ref',  # this is default
                    '-callback' => \&callback);
@@ -114,7 +114,7 @@ SKIP:{
     if ($xerror) {
         skip($xerror,2);
     } else {
-        $io = new Bio::Biblio::IO ('-format'   => 'medlinexml',
+        $io = Bio::Biblio::IO->new('-format'   => 'medlinexml',
                        '-data'     => <<XMLDATA,
 <MedlineCitationSet>
 <MedlineCitation>
@@ -153,7 +153,7 @@ XMLDATA
 </MedlineCitationSet>
 XMLDATA
     
-        $io = new Bio::Biblio::IO ('-format' => 'medlinexml',
+        $io = Bio::Biblio::IO->new('-format' => 'medlinexml',
                        '-fh'     => IO::String->new ($data),
                        );
         print sprintf ($format, "    citation 1 ");
@@ -163,9 +163,9 @@ XMLDATA
     }
     
     # check PUBMED XML parser
-    print sprintf ($format, "new Bio::Biblio::IO (2)");
+    print sprintf ($format, "Bio::Biblio::IO->new(2)");
     skip ($ferror2 || $xerror, 1) if $ferror2 || $xerror;
-    ok defined (eval { $io = new Bio::Biblio::IO ('-format' => 'pubmedxml',
+    ok defined (eval { $io = Bio::Biblio::IO->new('-format' => 'pubmedxml',
                              '-file'   => $testfile2,
                              '-result' => 'pubmed2ref') });
     print "Reading and parsing PUBMED XML file...\n";

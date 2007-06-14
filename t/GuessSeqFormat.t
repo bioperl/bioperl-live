@@ -43,7 +43,7 @@ my $verbose =1;
 
 my %no_seqio_module = map {$_=>1} qw {gcgblast gcgfasta mase pfam};
 
-my $guessed_format = new Bio::Tools::GuessSeqFormat
+my $guessed_format = Bio::Tools::GuessSeqFormat->new
         (-file => Bio::Root::IO->catfile("t","data","test.waba"))->guess;
 is $guessed_format, undef ;
 
@@ -60,7 +60,7 @@ ok !$seq;
 $@ ? ok 1 : ok 0;
 
 foreach $format (@seqformats) {
-    my $guessed_format = new Bio::Tools::GuessSeqFormat
+    my $guessed_format = Bio::Tools::GuessSeqFormat->new
         (-file => Bio::Root::IO->catfile("t","data","test.$format"),
          #-verbose=> $verbose;
         )->guess;
@@ -93,7 +93,7 @@ my %no_alignio_module = map {$_=>1} qw {};
 foreach my $ext (@seqformats) {
     my $format;
     ($ext, $format) = split /:/, $ext;
-    my $guesser = new Bio::Tools::GuessSeqFormat
+    my $guesser = Bio::Tools::GuessSeqFormat->new
         (-file => Bio::Root::IO->catfile("t","data","testaln.$ext"));
     $format ||= $ext;
     ok $guesser->guess(), $format;
@@ -124,7 +124,7 @@ gtagttatgc
 
     my $stringfh = new IO::String($string);
     
-    my $seqio = new Bio::SeqIO(-fh => $stringfh);
+    my $seqio = Bio::SeqIO->new(-fh => $stringfh);
     while( my $seq = $seqio->next_seq ) {
 	ok $seq->id =~ /test/;
     }

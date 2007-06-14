@@ -63,7 +63,7 @@ use base qw(Bio::Root::Root Bio::Matrix::PSM::PsmHeaderI);
 =head2 new
 
  Title   : new
- Usage   : my $header= new Bio::Matrix::PSM::PsmHeader(-seq=>\%seq, 
+ Usage   : my $header= Bio::Matrix::PSM::PsmHeader->new(-seq=>\%seq, 
 						       -mid=>\%mid, 
 						       -width=>\%width,
                                                        -instances=>\%instances,

@@ -64,7 +64,7 @@ my ($feat,$str,$feat2,$pair,$comp_obj1,$comp_obj2,@sft);
 
 my $verbose = 0;
 
-$feat = new Bio::SeqFeature::Generic ( -start => 40,
+$feat = Bio::SeqFeature::Generic->new( -start => 40,
 				       -end => 80,
 				       -strand => 1,
 				       -primary => 'exon',
@@ -82,10 +82,10 @@ is $feat->source_tag, 'internal', 'source tag';
 
 $str = $feat->gff_string() || ""; # placate -w
 
-$pair = new Bio::SeqFeature::FeaturePair();
+$pair = Bio::SeqFeature::FeaturePair->new();
 ok defined $pair;
 
-$feat2 = new Bio::SeqFeature::Generic ( -start => 400,
+$feat2 = Bio::SeqFeature::Generic->new( -start => 400,
 				       -end => 440,
 				       -strand => 1,
 				       -primary => 'other',
@@ -170,7 +170,7 @@ ok( $comp_obj1->add_score_value('P', 33), 'score value');
     is($sft[0], 'exon', 'sft[0] is exon');
 }
 
-ok defined ( $comp_obj1 = new Bio::SeqFeature::Computation 
+ok defined ( $comp_obj1 = Bio::SeqFeature::Computation->new 
 	     (
 	      -start => 10, -end => 100,
 	      -strand => -1, -primary => 'repeat',
@@ -189,14 +189,14 @@ is ( ($comp_obj1->each_score_value('no_score'))[0], '334', 'score value');
 
 # some tests for bug #947
 
-my $sfeat = new Bio::SeqFeature::Generic(-primary => 'test');
+my $sfeat = Bio::SeqFeature::Generic->new(-primary => 'test');
 
-$sfeat->add_sub_SeqFeature(new Bio::SeqFeature::Generic(-start => 2,
+$sfeat->add_sub_SeqFeature(Bio::SeqFeature::Generic->new(-start => 2,
 							-end   => 4,
 							-primary => 'sub1'),
 			   'EXPAND');
 
-$sfeat->add_sub_SeqFeature(new Bio::SeqFeature::Generic(-start => 6,
+$sfeat->add_sub_SeqFeature(Bio::SeqFeature::Generic->new(-start => 6,
 							-end   => 8,
 							-primary => 'sub2'),
 			   'EXPAND');
@@ -205,7 +205,7 @@ is $sfeat->start, 2, 'sfeat start for EXPAND-ED feature (bug #947)';
 is $sfeat->end, 8, 'sfeat end for EXPAND-ED feature (bug #947)';
 
 # some tests to see if we can set a feature to start at 0
-$sfeat = new Bio::SeqFeature::Generic(-start => 0, -end => 0 );
+$sfeat = Bio::SeqFeature::Generic->new(-start => 0, -end => 0 );
 
 ok(defined $sfeat->start);
 is($sfeat->start,0, 'can create feature starting and ending at 0');
@@ -216,16 +216,16 @@ is($sfeat->end,0,'can create feature starting and ending at 0');
 # tests for Bio::SeqFeature::Gene::* objects
 # using information from acc: AB077698 as a guide
 
-ok my $seqio = new Bio::SeqIO(-format => 'genbank',
+ok my $seqio = Bio::SeqIO->new(-format => 'genbank',
 			 -file   => Bio::Root::IO->catfile("t","data","AB077698.gb"));
 ok my $geneseq = $seqio->next_seq();
 
-ok my $gene = new Bio::SeqFeature::Gene::GeneStructure(-primary => 'gene',
+ok my $gene = Bio::SeqFeature::Gene::GeneStructure->new(-primary => 'gene',
 						    -start   => 1,
 						       -end     => 2701,
 						       -strand  => 1);
 
-ok my $transcript = new Bio::SeqFeature::Gene::Transcript(-primary => 'CDS',
+ok my $transcript = Bio::SeqFeature::Gene::Transcript->new(-primary => 'CDS',
 							  -start   => 80,
 							  -end     => 1144,
 							  -tag     => { 
@@ -235,7 +235,7 @@ ok my $transcript = new Bio::SeqFeature::Gene::Transcript(-primary => 'CDS',
 							      'protein_id'  => 'BAB85648.1',
 							  });
 
-ok my $poly_A_site1 = new Bio::SeqFeature::Gene::Poly_A_site
+ok my $poly_A_site1 = Bio::SeqFeature::Gene::Poly_A_site->new
     (-primary => 'polyA_site',
      -start => 2660,
      -end   => 2660,
@@ -243,7 +243,7 @@ ok my $poly_A_site1 = new Bio::SeqFeature::Gene::Poly_A_site
 	 'note' => "Encoded on BAC clone RP5-842K24 (AL050310); PolyA_site#2 used by CHCR EST clone DKFZp434G2222 (AL133625)"
 	 });
 
-ok my $poly_A_site2 = new Bio::SeqFeature::Gene::Poly_A_site
+ok my $poly_A_site2 = Bio::SeqFeature::Gene::Poly_A_site->new
     (-primary => 'polyA_site',
      -start => 1606,
      -end   => 1606,
@@ -251,10 +251,10 @@ ok my $poly_A_site2 = new Bio::SeqFeature::Gene::Poly_A_site
 	 'note' => "Encoded on BAC clone RP5-842K24 (AL050310); PolyA_site#1 used by CHCR EST clone PLACE1010202 (AK002178)",
      });
 
-ok my $fiveprimeUTR = new Bio::SeqFeature::Gene::UTR(-primary => "utr5prime");
-ok $fiveprimeUTR->location(new Bio::Location::Fuzzy(-start => "<1",
+ok my $fiveprimeUTR = Bio::SeqFeature::Gene::UTR->new(-primary => "utr5prime");
+ok $fiveprimeUTR->location(Bio::Location::Fuzzy->new(-start => "<1",
 						    -end   => 79));
-ok my $threeprimeUTR = new Bio::SeqFeature::Gene::UTR(-primary => "utr3prime",
+ok my $threeprimeUTR = Bio::SeqFeature::Gene::UTR->new(-primary => "utr3prime",
 						      -start   => 1145,
 						      -end     => 2659);
 
@@ -262,7 +262,7 @@ ok my $threeprimeUTR = new Bio::SeqFeature::Gene::UTR(-primary => "utr3prime",
 # get the gene structure by hand since it is not in the file
 # --Jason
 
-ok my $exon1 = new Bio::SeqFeature::Gene::Exon(-primary => 'exon',
+ok my $exon1 = Bio::SeqFeature::Gene::Exon->new(-primary => 'exon',
 					       -start => 80,
 					       -end   => 177);
 ok $geneseq->add_SeqFeature($exon1);
@@ -292,11 +292,11 @@ is($gene->utrs, 2, 'has 2 UTRs');
 
 # Test for bug when Locations are not created explicitly
 
-my $feat1 = new Bio::SeqFeature::Generic(-start => 1,
+my $feat1 = Bio::SeqFeature::Generic->new(-start => 1,
 					 -end   => 15,
 					 -strand=> 1);
 
-$feat2 = new Bio::SeqFeature::Generic(-start => 10,
+$feat2 = Bio::SeqFeature::Generic->new(-start => 10,
 					 -end   => 25,
 					 -strand=> 1);
 
@@ -311,7 +311,7 @@ is($intersect->end,   15);
 
 # now let's test spliced_seq
 
-isa_ok(  $seqio = new Bio::SeqIO(-file => Bio::Root::IO->catfile
+isa_ok(  $seqio = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
 				(qw(t data AY095303S1.gbk)),
 				 -format  => 'genbank'), "Bio::SeqIO");
 
@@ -322,7 +322,7 @@ my $db;
 if( $skipdbtests ) {
     skip('Cannot test for remote loc with spliced_seq w/o LWP installed',4);
 } else {
-    $db = new Bio::DB::GenBank(-verbose=> $DEBUG);
+    $db = Bio::DB::GenBank->new(-verbose=> $DEBUG);
     $CDS->verbose(-1);
     my $cdsseq = $CDS->spliced_seq(-db => $db,-nosort => 1);
     
@@ -339,7 +339,7 @@ if( $skipdbtests ) {
     
 } 
 
-isa_ok(  $seqio = new Bio::SeqIO(-file => Bio::Root::IO->catfile
+isa_ok(  $seqio = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
 				(qw(t data AF032047.gbk)),
 				-format  => 'genbank'), 'Bio::SeqIO');
 isa_ok $geneseq = $seqio->next_seq(), 'Bio::Seq';

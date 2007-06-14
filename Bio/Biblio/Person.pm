@@ -13,11 +13,11 @@ Bio::Biblio::Person - Representation of a person
 
 =head1 SYNOPSIS
 
-    $obj = new Bio::Biblio::Person (-lastname => 'Capek',
+    $obj = Bio::Biblio::Person->new(-lastname => 'Capek',
                                     -firstname => 'Karel');
   #--- OR ---
 
-    $obj = new Bio::Biblio::Person;
+    $obj = Bio::Biblio::Person->new();
     $obj->firstname ('Karel');
     $obj->lastname ('Capek');
 

@@ -49,7 +49,7 @@ Bio::Biblio::IO - Handling the bibliographic references
     # again reading all citation but now a callback defined in your
     # code is used (note that the reading starts already when new()
     # is called)
-    $io = new Bio::Biblio::IO ('-format'   => 'medlinexml',
+    $io = Bio::Biblio::IO->new('-format'   => 'medlinexml',
                                '-file'     => $testfile,
                                '-callback' => \&callback);
     sub callback {
@@ -62,7 +62,7 @@ Bio::Biblio::IO - Handling the bibliographic references
 
     use Bio::Biblio;
     use Bio::Biblio::IO;
-    my $xml = new Bio::Biblio->get_by_id ('12368254');
+    my $xml = Bio::Biblio->new->get_by_id ('12368254');
     my $reader = Bio::Biblio::IO->new ('-data' => $xml,
                                        '-format' => 'medlinexml');
 
@@ -73,16 +73,16 @@ Bio::Biblio::IO - Handling the bibliographic references
   #And, finally, the resulting citation can be received in different
   #output formats:
 
-    $io = new Bio::Biblio::IO ('-format' => 'medlinexml',
+    $io = Bio::Biblio::IO->new('-format' => 'medlinexml',
                                '-result' => 'raw');
   #--- OR ---
 
-    $io = new Bio::Biblio::IO ('-format' => 'medlinexml',
+    $io = Bio::Biblio::IO->new('-format' => 'medlinexml',
                                '-result' => 'medline2ref');
 
   #--- OR ---
 
-    $io = new Bio::Biblio::IO ('-format' => 'pubmedxml',
+    $io = Bio::Biblio::IO->new('-format' => 'pubmedxml',
                                '-result' => 'pubmed2ref');
 
 =head1 DESCRIPTION
@@ -111,31 +111,31 @@ routine can be of different formats depending on the argument
 I<-result>. One result type is I<raw> and it is represented by a
 simple, not blessed hash table:
 
-    $io = new Bio::Biblio::IO ('-result' => 'raw');
+    $io = Bio::Biblio::IO->new('-result' => 'raw');
 
 What other result formats are available depends on the module who
 reads the citations in the first place. At the moment, the following
 ones are available:
 
-    $io = new Bio::Biblio::IO ('-result' => 'medline2ref');
+    $io = Bio::Biblio::IO->new('-result' => 'medline2ref');
 
 This is a default result format for reading citations by the
 I<medlinexml> module. The C<medlinexml> module is again the default
 one. Which means that you can almost omit arguments (you still need to
 say where the citations come from):
 
-    $io = new Bio::Biblio::IO ('-file' => 'data/medline_data.xml');
+    $io = Bio::Biblio::IO->new('-file' => 'data/medline_data.xml');
 
 Another result format available is for PUBMED citations (which is a
 super-set of the MEDLINE citations having few more tags):
 
-    $io = new Bio::Biblio::IO ('-format' => 'pubmedxml',
+    $io = Bio::Biblio::IO->new('-format' => 'pubmedxml',
                                '-result' => 'pubmed2ref',
                                '-data'   => $citation);
 
 Or, because C<pubmed2ref> is a default one for PUBMED citations, you can say just:
 
-    $io = new Bio::Biblio::IO ('-format' => 'pubmedxml',
+    $io = Bio::Biblio::IO->new('-format' => 'pubmedxml',
                                '-data'   => $citation);
 
 Both C<medline2ref> and C<pubmed2ref> results are objects defined in

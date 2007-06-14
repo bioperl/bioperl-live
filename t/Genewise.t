@@ -74,7 +74,7 @@ is ($sf->feature2->start,1);
 is ($sf->feature2->end,44);
 is ($sf->feature1->end,22396);
 
-$parser = new Bio::SearchIO(-file => 
+$parser = Bio::SearchIO->new(-file => 
 			    Bio::Root::IO->catfile(qw(t data genewise.out)),
 			    -format   => 'wise',
 			    -wisetype => 'genewise');

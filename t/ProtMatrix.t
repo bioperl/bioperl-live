@@ -64,7 +64,7 @@ my %param = (
    '-pG' => [ '0', '0', '0', '1', '0', '0', '4', '1' ],
 );
 
-my $matrix = new Bio::Matrix::PSM::ProtMatrix(%param);
+my $matrix = Bio::Matrix::PSM::ProtMatrix->new(%param);
 ok $matrix;
 
 #Simple methods here

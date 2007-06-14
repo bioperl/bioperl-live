@@ -43,7 +43,7 @@ my ($db,$seq,$seqio);
 $seq = $seqio = undef;
 
 SKIP: { 
-    ok defined($db = new Bio::DB::EMBL(-verbose=>$verbose)); 
+    ok defined($db = Bio::DB::EMBL->new(-verbose=>$verbose)); 
     ok(defined($seq = $db->get_Seq_by_acc('J00522')));
     is( $seq->length, 408); 
     ok defined ($db->request_format('fasta'));
@@ -52,7 +52,7 @@ SKIP: {
 	skip('could not connect to embl',2) if $@;
     is( $seq->id, 'embl|J02231|J02231');
     is( $seq->length, 200); 
-    ok( defined($db = new Bio::DB::EMBL(-verbose=>$verbose, 
+    ok( defined($db = Bio::DB::EMBL->new(-verbose=>$verbose, 
 					-retrievaltype => 'tempfile')));
     eval {ok(defined($seqio = $db->get_Stream_by_id(['BUM'])))};
 	skip('could not connect to embl',2) if $@;
@@ -64,7 +64,7 @@ SKIP: {
 $seq = $seqio = undef;
 
 SKIP: {
-    $db = new Bio::DB::EMBL(-verbose => $verbose,
+    $db = Bio::DB::EMBL->new(-verbose => $verbose,
 			    -retrievaltype => 'tempfile',
 			    -format => 'fasta'
 			    ); 

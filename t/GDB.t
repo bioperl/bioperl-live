@@ -44,7 +44,7 @@ my ($gdb, $marker, $info);
 SKIP: {
     $marker = 'D1S234';
 
-    $gdb = new Bio::DB::GDB(-verbose=>$verbose);
+    $gdb = Bio::DB::GDB->new(-verbose=>$verbose);
     
     eval {
         $info = $gdb->get_info(-type=>'marker',

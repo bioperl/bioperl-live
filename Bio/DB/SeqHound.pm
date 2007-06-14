@@ -11,7 +11,7 @@ Bio::DB::SeqHound - Database object interface to SeqHound
 =head1 SYNOPSIS
 
     use Bio::DB::SeqHound;
-    $sh = new Bio::DB::SeqHound();
+    $sh = Bio::DB::SeqHound->new();
 
     $seq = $sh->get_Seq_by_acc("CAA28783"); # Accession Number
 

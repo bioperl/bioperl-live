@@ -33,7 +33,7 @@ blast reports
    # Bio::SearchIO system.
 
     use Bio::SearchIO;
-    my $searchio = new Bio::SearchIO(-format => 'blast',
+    my $searchio = Bio::SearchIO->new(-format => 'blast',
                                      -file   => 't/data/ecolitst.bls');
     while( my $result = $searchio->next_result ) {
         while( my $hit = $result->next_hit ) {
@@ -80,7 +80,7 @@ doesn't report the algorithm used - I assume it is BLASTX by default -
 you can supply the program type with -report_type in the SearchIO
 constructor i.e.
 
-  my $parser = new Bio::SearchIO(-format => 'blast',
+  my $parser = Bio::SearchIO->new(-format => 'blast',
                                  -file => 'bl2seq.tblastn.report',
                                  -report_type => 'tblastn');
 
@@ -311,7 +311,7 @@ BEGIN {
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO::blast(%args);
+ Usage   : my $obj = Bio::SearchIO::blast->new(%args);
  Function: Builds a new Bio::SearchIO::blast object 
  Returns : Bio::SearchIO::blast
  Args    : Key-value pairs:
@@ -375,7 +375,7 @@ sub _initialize {
  # An issue here is that we want to set new default object factories if none are
  # supplied.
 
-    my $handler = new Bio::SearchIO::IteratedSearchResultEventBuilder(@args);
+    my $handler = Bio::SearchIO::IteratedSearchResultEventBuilder->new(@args);
     $self->attach_EventHandler($handler);
     
     # 2006-04-26 move this to the attach_handler function in this

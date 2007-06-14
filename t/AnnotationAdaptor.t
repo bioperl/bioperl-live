@@ -26,7 +26,7 @@ $feat->add_tag_value("tag1", "value of tag1");
 $feat->add_tag_value("tag1", "another value of tag1");
 $feat->add_tag_value("tag2", "some value for a tag");
 
-my $link1 = new Bio::Annotation::DBLink(-database => 'TSC',
+my $link1 = Bio::Annotation::DBLink->new(-database => 'TSC',
                                         -primary_id => 'TSC0000030',
                                         #cannot use "tag2", already claimed by Bio::Annotation::SimpleValue by above $feat->add_tag_value() call.
                                         -tagname => "tag3"

@@ -93,7 +93,7 @@ use Bio::Search::Result::GenericResult;
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Search::Result::CrossMatchResult();
+ Usage   : my $obj = Bio::Search::Result::CrossMatchResult->new();
  Function: Builds a new Bio::Search::Result::CrossMatchResult object
  Returns : Bio::Search::Result::CrossMatchResult
  Args    : See Bio::Search::Result::GenericResult();

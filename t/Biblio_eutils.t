@@ -40,7 +40,7 @@ my $db;
 
 my $verbose =  $DEBUG || 0;
 SKIP: {
-	ok ($db = new Bio::Biblio (-access => 'eutils',
+	ok ($db = Bio::Biblio->new(-access => 'eutils',
 					   -verbose=>$verbose));
 	eval { 
 		ok(defined($db->find('"Day A"[AU] AND ("Database Management Systems"[MH] OR "Databases, Genetic"[MH] OR "Software"[MH] OR "Software Design"[MH])')));

@@ -19,7 +19,7 @@ Bio::DB::GDB - Database object interface to GDB HTTP query
 
     use Bio::DB::GDB;
 
-    $gdb = new Bio::DB::GDB;
+    $gdb = Bio::DB::GDB->new();
 
     $info = $gdb->get_info(-type => 'marker',
 			                  -id => 'D1S243'); # Marker name

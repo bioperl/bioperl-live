@@ -17,7 +17,7 @@ Bio::Symbol::ProteinAlphabet - A ready made Protein alphabet
 =head1 SYNOPSIS
 
     use Bio::Symbol::ProteinAlphabet;
-    my $alpha = new Bio::Symbol::ProteinAlphabet();
+    my $alpha = Bio::Symbol::ProteinAlphabet->new();
     foreach my $symbol ( $alpha->symbols ) {
 	print "symbol is $symbol\n";
     }
@@ -72,7 +72,7 @@ use base qw(Bio::Symbol::Alphabet);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Symbol::ProteinAlphabet();
+ Usage   : my $obj = Bio::Symbol::ProteinAlphabet->new();
  Function: Builds a new Bio::Symbol::ProteinAlphabet object 
  Returns : Bio::Symbol::ProteinAlphabet
  Args    :
@@ -90,7 +90,7 @@ sub new {
   
   foreach my $let ( keys %codes  ) {  
       if( scalar @{$codes{$let}} != 1) { push @left, $let; next; }
-      $symbols{$let} = new Bio::Symbol::Symbol(-name => $aa{$let},
+      $symbols{$let} = Bio::Symbol::Symbol->new(-name => $aa{$let},
 					       -token => $let);      
   }
   foreach my $l ( @left ) {
@@ -98,8 +98,8 @@ sub new {
       foreach my $sym ( @{$codes{$l}} ) {
 	  push @subsym, $symbols{$sym};
       }
-      my $alpha = new Bio::Symbol::Alphabet(-symbols => \@subsym);
-      $symbols{$l} = new Bio::Symbol::Symbol(-name => $aa{$l},
+      my $alpha = Bio::Symbol::Alphabet->new(-symbols => \@subsym);
+      $symbols{$l} = Bio::Symbol::Symbol->new(-name => $aa{$l},
 					       -token => $l,
 					       -matches => $alpha,
 					       -symbols => \@subsym);

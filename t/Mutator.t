@@ -37,7 +37,7 @@ ok $a->numbering('coding 1');
 is $a->numbering, 'coding 1';
 
 require Bio::LiveSeq::Mutation;
-my $mt = new Bio::LiveSeq::Mutation;
+my $mt = Bio::LiveSeq::Mutation->new();
 ok $mt->seq('g');
 $mt->pos(100);
 ok ($a->add_Mutation($mt));

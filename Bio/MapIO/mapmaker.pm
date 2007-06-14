@@ -19,7 +19,7 @@ Bio::MapIO::mapmaker - A Mapmaker Map reader
 # do not use this object directly it is accessed through the Bio::MapIO system 
 
     use Bio::MapIO;
-    my $mapio = new Bio::MapIO(-format => "mapmaker",
+    my $mapio = Bio::MapIO->new(-format => "mapmaker",
 			                      -file   => "mapfile.map");
     while ( my $map = $mapio->next_map ) {  # get each map
 	    foreach my $marker ( $map->each_element ) {
@@ -109,10 +109,10 @@ sub next_map{
 		$runningDistance += $distance unless ($distance =~ /-+/);
 		$runningDistance = '0.0' if ($runningDistance == 0 || $distance =~ /-+/);
 
-		my $pos = new Bio::Map::LinkagePosition(-order => $number,
+		my $pos = Bio::Map::LinkagePosition->new(-order => $number,
 															 -map   => $map,
 															 -value => $runningDistance );
-		my $marker = new Bio::Map::Marker(-name     => $name,
+		my $marker = Bio::Map::Marker->new(-name     => $name,
 													 -position => $pos );
 		
 		if ($distance =~ /-+/) { # last marker

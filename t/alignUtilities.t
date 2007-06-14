@@ -25,7 +25,7 @@ BEGIN {
 # hand crafting the simple input data
 use Data::Dumper;
 
-my $aa_align = new Bio::SimpleAlign;
+my $aa_align = Bio::SimpleAlign->new();
 $aa_align->add_seq(Bio::LocatableSeq->new(-id => "n1", -seq => "MLIDVG-MLVLR"));
 $aa_align->add_seq(Bio::LocatableSeq->new(-id => "n2", -seq => "MLIDVRTPLALR"));
 $aa_align->add_seq(Bio::LocatableSeq->new(-id => "n3", -seq => "MLI-VR-SLALR"));

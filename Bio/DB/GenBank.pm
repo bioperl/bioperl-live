@@ -29,7 +29,7 @@ Bio::DB::GenBank - Database object interface to GenBank
 =head1 SYNOPSIS
 
     use Bio::DB::GenBank;
-    $gb = new Bio::DB::GenBank;
+    $gb = Bio::DB::GenBank->new();
 
     $seq = $gb->get_Seq_by_id('MUSIGHBA1'); # Unique ID
 
@@ -55,7 +55,7 @@ Bio::DB::GenBank - Database object interface to GenBank
 
     # also don't want features, just sequence so let's save bandwith
     # and request Fasta sequence
-    $gb = new Bio::DB::GenBank(-retrievaltype => 'tempfile' , 
+    $gb = Bio::DB::GenBank->new(-retrievaltype => 'tempfile' , 
 			                      -format => 'Fasta');
     my $seqio = $gb->get_Stream_by_acc(['AC013798', 'AC021953'] );
     while( my $clone =  $seqio->next_seq ) {

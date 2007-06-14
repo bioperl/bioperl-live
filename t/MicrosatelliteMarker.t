@@ -24,13 +24,13 @@ BEGIN {
 
 require_ok 'dumpvar.pl';
 
-my $map = new Bio::Map::SimpleMap(-units => 'MB',
+my $map = Bio::Map::SimpleMap->new(-units => 'MB',
 				  -type  => 'oo-121');
-my $position = new Bio::Map::Position(-map => $map,
+my $position = Bio::Map::Position->new(-map => $map,
 				      -value => 20
 				      );
 
-my $o_usat = new Bio::Map::Microsatellite
+my $o_usat = Bio::Map::Microsatellite->new
     (-name=>'Chad Super Marker 2',
      -sequence => 'gctgactgatcatatatatatatatatatatatatatatatcgcgatcgtgatttt',
      -motif => 'at',

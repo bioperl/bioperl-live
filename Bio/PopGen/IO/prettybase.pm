@@ -85,7 +85,7 @@ use base qw(Bio::PopGen::IO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::PopGen::IO::prettybase();
+ Usage   : my $obj = Bio::PopGen::IO::prettybase->new();
  Function: Builds a new Bio::PopGen::IO::prettybase object 
  Returns : an instance of Bio::PopGen::IO::prettybase
  Args    : -field_delimiter      => a field delimiter character or regexp (default is /\t/ ) 
@@ -211,7 +211,7 @@ sub _parse_prettybase {
 	    }
 	}
 	
-	my $g = new Bio::PopGen::Genotype(-alleles      => \@alleles,
+	my $g = Bio::PopGen::Genotype->new(-alleles      => \@alleles,
 					  -marker_name  => $site,
 					  -individual_id=> $sample); 
 	

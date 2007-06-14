@@ -13,12 +13,12 @@ Bio::Biblio::WebResource - Representation of a web resource
 
 =head1 SYNOPSIS
 
-    $obj = new Bio::Biblio::WebResource
+    $obj = Bio::Biblio::WebResource->new
                   (-url  => 'http://resources/best.html',
                    -estimated_size => 45000);
   # --- OR ---
 
-    $obj = new Bio::Biblio::WebResource;
+    $obj = Bio::Biblio::WebResource->new();
     $obj->cost ('0.3 EURO');
 
 =head1 DESCRIPTION

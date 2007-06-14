@@ -22,13 +22,13 @@ $FILE1 = 'out.tre';
 END { unlink $FILE1; }
  
 my $ssize = 5;
-my $sim = new Bio::PopGen::Simulation::Coalescent(-sample_size => $ssize);
+my $sim = Bio::PopGen::Simulation::Coalescent->new(-sample_size => $ssize);
 my $stats = Bio::PopGen::Statistics->new();
 my $tree = $sim->next_tree;
 
 is($tree->get_nodes, ($ssize * 2 - 1));
 
-my $treeio = new Bio::TreeIO(-format => 'newick', -file => ">$FILE1");
+my $treeio = Bio::TreeIO->new(-format => 'newick', -file => ">$FILE1");
 
 $treeio->write_tree($tree);
 undef $treeio;

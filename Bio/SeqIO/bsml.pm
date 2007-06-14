@@ -157,7 +157,7 @@ my $nvtoken = ": ";  # The token used if a name/value pair has to be stuffed
 #   my($self,@args) = @_;
 #   $self->SUPER::_initialize(@args);
 #   if( ! defined $self->sequence_factory ) {
-#       $self->sequence_factory(new Bio::Seq::SeqFactory(-verbose => $self->verbose(), -type => 'Bio::Seq::RichSeq'));
+#       $self->sequence_factory(Bio::Seq::SeqFactory->new(-verbose => $self->verbose(), -type => 'Bio::Seq::RichSeq'));
 #   }
 # }
 
@@ -920,7 +920,7 @@ sub _parse_bsml_feature {
     my $self = shift;
     my ($feat) = @_;
 
-    my $basegsf = new Bio::SeqFeature::Generic;
+    my $basegsf = Bio::SeqFeature::Generic->new();
        # score
        # frame
        # source_tag
@@ -1004,7 +1004,7 @@ sub _parse_bsml_location {
     my $self = shift;
     my ($loc, $gsf) = @_;
 
-    $gsf ||= new Bio::SeqFeature::Generic;
+    $gsf ||= Bio::SeqFeature::Generic->new();
     my $type = $loc->getNodeName;
     my ($start, $end);
     if ($type eq 'Interval-loc') {
@@ -1341,7 +1341,7 @@ sub _initialize {
       $self->{'current_node'} = 0;
   }
 
-  $self->sequence_factory( new Bio::Seq::SeqFactory
+  $self->sequence_factory( Bio::Seq::SeqFactory->new
 			   ( -verbose => $self->verbose(),
 			     -type => 'Bio::Seq::RichSeq'))
       if( ! defined $self->sequence_factory );

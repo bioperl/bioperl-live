@@ -34,7 +34,7 @@ use Bio::TreeIO;
 use Bio::Root::IO;
 my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
 
-my $treeio = new Bio::TreeIO(-verbose => $verbose,
+my $treeio = Bio::TreeIO->new(-verbose => $verbose,
 			     -format => 'newick',
 			     -file   => File::Spec->catfile
 			     (qw(t data cysprot1b.newick)));
@@ -69,13 +69,13 @@ if($verbose ) {
 		}
 	}
 }
-$treeio = new Bio::TreeIO(-verbose => $verbose,
+$treeio = Bio::TreeIO->new(-verbose => $verbose,
 			  -format => 'newick',
 			  -file   => ">$FILE1");
 $treeio->write_tree($tree);
 undef $treeio;
 ok( -s $FILE1 );
-$treeio = new Bio::TreeIO(-verbose => $verbose,
+$treeio = Bio::TreeIO->new(-verbose => $verbose,
 			  -format => 'newick',
 			  -file   => Bio::Root::IO->catfile('t','data', 
 							    'LOAD_Ccd1.dnd'));
@@ -101,13 +101,13 @@ if( $verbose ) {
 }
 
 is($tree->total_branch_length, 7.12148);
-$treeio = new Bio::TreeIO(-verbose => $verbose,
+$treeio = Bio::TreeIO->new(-verbose => $verbose,
 			  -format => 'newick', 
 			  -file   => ">$FILE2");
 $treeio->write_tree($tree);
 undef $treeio;
 ok(-s $FILE2);
-$treeio = new Bio::TreeIO(-verbose => $verbose,
+$treeio = Bio::TreeIO->new(-verbose => $verbose,
 			  -format  => 'newick',
 			  -file    => Bio::Root::IO->catfile('t','data','hs_fugu.newick'));
 $tree = $treeio->next_tree();
@@ -130,10 +130,10 @@ if( $verbose ) {
 	}
 }
 
-$treeio = new Bio::TreeIO(-format => 'newick', 
+$treeio = Bio::TreeIO->new(-format => 'newick', 
 								  -fh => \*DATA);
-my $treeout = new Bio::TreeIO(-format => 'tabtree');
-my $treeout2 = new Bio::TreeIO(-format => 'newick');
+my $treeout = Bio::TreeIO->new(-format => 'tabtree');
+my $treeout2 = Bio::TreeIO->new(-format => 'newick');
 
 $tree = $treeio->next_tree;
 
@@ -142,14 +142,14 @@ if( $verbose > 0  ) {
     $treeout2->write_tree($tree);
 }
 
-$treeio = new Bio::TreeIO(-verbose => $verbose,
+$treeio = Bio::TreeIO->new(-verbose => $verbose,
 			  -file   => Bio::Root::IO->catfile('t','data', 
 							    'test.nhx'));
 
 SKIP: {
     eval { require SVG::Graph; 1;};
 	skip("skipping SVG::Graph output, SVG::Graph not installed",2) if $@;
-	my $treeout3 = new Bio::TreeIO(-format => 'svggraph',
+	my $treeout3 = Bio::TreeIO->new(-format => 'svggraph',
 											 -file => ">$FILE3");
 	ok($treeout3);
 	eval {$treeout3->write_tree($tree);};
@@ -170,7 +170,7 @@ is(($adhy->get_tag_values('S'))[0], 'nematode');
 is(($adhy->get_tag_values('E'))[0], '1.1.1.1');
 
 # try lintree parsing
-$treeio = new Bio::TreeIO(-format => 'lintree',
+$treeio = Bio::TreeIO->new(-format => 'lintree',
 			      -file   => Bio::Root::IO->catfile
 			      (qw(t data crab.njb)));
 
@@ -191,7 +191,7 @@ while( $tree = $treeio->next_tree ) {
 	is($node->bootstrap, 998);
 }
 
-$treeio = new Bio::TreeIO(-format => 'lintree',
+$treeio = Bio::TreeIO->new(-format => 'lintree',
 			   -file   => Bio::Root::IO->catfile
 			   (qw(t data crab.nj)));
 
@@ -212,7 +212,7 @@ is($node->id, 'C-vittat');
 is($node->branch_length, '0.087619');
 is($node->ancestor->id, '14');
 
-$treeio = new Bio::TreeIO(-format => 'lintree',
+$treeio = Bio::TreeIO->new(-format => 'lintree',
 			  -file   => Bio::Root::IO->catfile
 			  (qw(t data crab.dat.cn)));
 

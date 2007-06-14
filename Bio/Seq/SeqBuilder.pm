@@ -128,7 +128,7 @@ my %param_slot_map = ("features"       => "add_SeqFeature",
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Seq::SeqBuilder();
+ Usage   : my $obj = Bio::Seq::SeqBuilder->new();
  Function: Builds a new Bio::Seq::SeqBuilder object 
  Returns : an instance of Bio::Seq::SeqBuilder
  Args    :

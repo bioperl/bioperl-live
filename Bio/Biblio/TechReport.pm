@@ -13,11 +13,11 @@ Bio::Biblio::TechReport - Representation of a technical report
 
 =head1 SYNOPSIS
 
-    $obj = new Bio::Biblio::TechReport
+    $obj = Bio::Biblio::TechReport->new
                   (-authors => [
-                       new Bio::Biblio::Person (-lastname => 'Hasek'),
-                       new Bio::Biblio::Person (-lastname => 'Jagr'),
-                       new Bio::Biblio::Organisation (-name => 'NHL'),
+                       Bio::Biblio::Person->new(-lastname => 'Hasek'),
+                       Bio::Biblio::Person->new(-lastname => 'Jagr'),
+                       Bio::Biblio::Organisation->new(-name => 'NHL'),
                                ]
                    -title => 'Pinned in the corner');
 

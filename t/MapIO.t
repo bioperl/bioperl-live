@@ -23,7 +23,7 @@ BEGIN {
 
 my $verbose = $ENV{'BIOPERLDEBUG'};
 
-ok my $mapio = new Bio::MapIO(-verbose => $verbose,
+ok my $mapio = Bio::MapIO->new(-verbose => $verbose,
 										-format => 'mapmaker',
 										-file   => Bio::Root::IO->catfile
 										('t','data','mapmaker.out'));
@@ -43,7 +43,7 @@ foreach my $marker ( $map->each_element ) {
 }
 is $count,18;
 
-ok $mapio = new Bio::MapIO(-format => 'mapmaker',
+ok $mapio = Bio::MapIO->new(-format => 'mapmaker',
 									-file   => Bio::Root::IO->catfile
 									('t','data','mapmaker.txt'));
 

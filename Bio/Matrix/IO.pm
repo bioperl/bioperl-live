@@ -17,7 +17,7 @@ Bio::Matrix::IO - A factory for Matrix parsing
 =head1 SYNOPSIS
 
   use Bio::Matrix::IO;
-  my $parser = new Bio::Matrix::IO(-format => 'scoring',
+  my $parser = Bio::Matrix::IO->new(-format => 'scoring',
                                    -file   => 'BLOSUMN50');
 
   my $matrix = $parser->next_matrix;
@@ -72,7 +72,7 @@ use base qw(Bio::Root::IO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Matrix::IO();
+ Usage   : my $obj = Bio::Matrix::IO->new();
  Function: Builds a new Bio::Matrix::IO object 
  Returns : an instance of Bio::Matrix::IO
  Args    :

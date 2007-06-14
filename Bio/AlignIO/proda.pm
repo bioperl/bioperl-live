@@ -73,7 +73,7 @@ use base qw(Bio::AlignIO);
 =head2 new
 
  Title   : new
- Usage   : $alignio = new Bio::AlignIO(-format => 'proda',
+ Usage   : $alignio = Bio::AlignIO->new(-format => 'proda',
                        -file => 'filename');
  Function: returns a new Bio::AlignIO object to handle proda files
  Returns : Bio::AlignIO::proda object
@@ -211,7 +211,7 @@ sub next_aln {
             $str =~ s/[^A-Za-z]//g;
             $end = length($str);
         }
-        my $seq = new Bio::LocatableSeq(
+        my $seq = Bio::LocatableSeq->new(
             -seq   => $alignments{$name},
             -id    => $sname,
             -start => $start,

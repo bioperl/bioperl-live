@@ -23,12 +23,12 @@ BEGIN {
 
 my $debug = -1;
 
-my $in = new Bio::AlignIO(-format => 'emboss',
+my $in = Bio::AlignIO->new(-format => 'emboss',
 			  -file   => Bio::Root::IO->catfile('t', 'data',
 							    'insulin.water'));
 my $aln = $in->next_aln();
 isa_ok($aln, 'Bio::Align::AlignI');
-my $stats = new Bio::Align::DNAStatistics(-verbose => $debug);
+my $stats = Bio::Align::DNAStatistics->new(-verbose => $debug);
 is( $stats->transversions($aln),4);
 is( $stats->transitions($aln),9);
 is( $stats->pairwise_stats->number_of_gaps($aln),21);
@@ -59,7 +59,7 @@ is( $d->get_entry('seq2','hs_insulin'), '0.08037');
 #		       -method => 'JinNei');
 #is( $d->get_entry('seq2','hs_insulin'), 0.0850);
 
-$in = new Bio::AlignIO(-format => 'clustalw',
+$in = Bio::AlignIO->new(-format => 'clustalw',
 		       -file   => Bio::Root::IO->catfile('t','data',
 							 'hs_owlmonkey.aln'));
 

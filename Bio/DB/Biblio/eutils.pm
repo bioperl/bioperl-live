@@ -19,7 +19,7 @@ it through the I<Bio::Biblio> module:
   use Bio::Biblio;
   use Bio::Biblio::IO;
 
-  my $biblio = new Bio::Biblio( -access => 'eutils' );
+  my $biblio = Bio::Biblio->new( -access => 'eutils' );
   $biblio->find("10336996");
   my $xml = $biblio->get_next;
   my $io = Bio::Biblio::IO->new( -data => $xml, 
@@ -131,7 +131,7 @@ our $MAX_RECORDS = 100_000;
 
 =head2 _initialize
 
- Usage   : my $obj = new Bio::Biblio (-access => 'eutils' ...);
+ Usage   : my $obj = Bio::Biblio->new(-access => 'eutils' ...);
            (_initialize is internally called from this constructor)
  Returns : 1 on success
  Args    : none

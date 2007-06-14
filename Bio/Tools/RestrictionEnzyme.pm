@@ -729,7 +729,7 @@ sub new {
     } else {
 	%data = $self->_make_standard($name);
     }
-    $self->{'_seq'} = new Bio::PrimarySeq(%data, 
+    $self->{'_seq'} = Bio::PrimarySeq->new(%data, 
 				   -VERBOSE =>$self->verbose,
  				   -alphabet => 'dna',
 				   );

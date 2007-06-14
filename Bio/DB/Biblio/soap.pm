@@ -124,7 +124,7 @@ BEGIN {
 
 =head2 _initialize
 
- Usage   : my $obj = new Bio::Biblio (-access => 'soap' ...);
+ Usage   : my $obj = Bio::Biblio->new(-access => 'soap' ...);
            (_initialize is internally called from this constructor)
  Returns : nothing interesting
  Args    : This module recognises and uses following arguments:
@@ -267,9 +267,9 @@ sub _no_id_msg {
     return <<"END_OF_MSG";
 Method '$method' works only if its object has a query collection ID.
 Perhaps you need to use:
-\tnew Bio::Biblio (-collection_id => '1234567')->$strip_method;
+\tBio::Biblio->new(-collection_id => '1234567')->$strip_method;
 or to obtain a collection ID indirectly from a query method:
-\tnew Bio::Biblio->find ('keyword')->$strip_method;
+\tBio::Biblio->new->find ('keyword')->$strip_method;
 END_OF_MSG
 }
     

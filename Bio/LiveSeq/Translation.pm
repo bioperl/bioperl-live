@@ -146,7 +146,7 @@ sub seq {
     my $downstreamseq=$transcript->downstream_seq();
     #carp "the downstream is: $downstreamseq"; # debug
     my $cdnaseq=$transcript->seq();
-    my $extendedseq = new Bio::PrimarySeq(-seq => "$cdnaseq$downstreamseq",
+    my $extendedseq = Bio::PrimarySeq->new(-seq => "$cdnaseq$downstreamseq",
 					  -alphabet => 'dna'
 					  );
 

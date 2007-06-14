@@ -103,7 +103,7 @@ sub next_aln {
             my $temp;
             ($temp = $data) =~ s{[^A-Z]}{}gi;
             $self->debug($temp,"\n");
-            my $newseq = new Bio::LocatableSeq(
+            my $newseq = Bio::LocatableSeq->new(
                          -start       => 1,
                          -end         => CORE::length($temp),
                          -seq         => $seq,

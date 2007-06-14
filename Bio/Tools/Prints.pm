@@ -15,7 +15,7 @@ Bio::Tools::Prints - Parser for FingerPRINTScanII program
 =head1 SYNOPSIS
 
   use Bio::Tools::Prints;
-  my $prints_parser = new Bio::Tools::Prints(-fh =>$filehandle );
+  my $prints_parser = Bio::Tools::Prints->new(-fh =>$filehandle );
   while( my $prints_feat = $prints_parser->next_result ) {
         push @prints_feat, $prints_feat;
   }
@@ -68,7 +68,7 @@ use base qw(Bio::Root::Root Bio::Root::IO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::Prints(-fh=>$filehandle);
+ Usage   : my $obj = Bio::Tools::Prints->new(-fh=>$filehandle);
  Function: Builds a new Bio::Tools::Prints object
  Returns : Bio::Tools::Prints
  Args    : -filename

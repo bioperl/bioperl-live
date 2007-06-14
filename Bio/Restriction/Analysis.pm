@@ -21,7 +21,7 @@ enzymes
   use Data::Dumper;
 
   # get a DNA sequence from somewhere
-  my $seq = new Bio::PrimarySeq
+  my $seq = Bio::PrimarySeq->new
       (-seq =>'AGCTTAATTCATTAGCTCTGACTGCAACGGGCAATATGTCTC',
        -primary_id => 'synopsis',
        -molecule => 'dna');
@@ -477,7 +477,7 @@ length of the sequence.  For example:
   use Bio::Restriction::EnzymeCollection;
   use Bio::PrimarySeq;
 
-  my $seq = new Bio::PrimarySeq
+  my $seq = Bio::PrimarySeq->new
       (-seq =>'AGCTTAATTCATTAGCTCTGACTGCAACGGGCAATATGTCTCTGTGTGGATCCAAAAAAGAGTGAGCTTCTGAT',
        -primary_id => 'synopsis',
        -molecule => 'dna');
@@ -701,7 +701,7 @@ sub cutters {
         $end = $self->{'maximum_cuts'};
     }
     $end = $self->{'maximum_cuts'} if $end > $self->{'maximum_cuts'};
-    my $set = new Bio::Restriction::EnzymeCollection(-empty => 1);
+    my $set = Bio::Restriction::EnzymeCollection->new(-empty => 1);
 
     #return an empty set if nothing cuts
     return $set unless $self->{'maximum_cuts'};

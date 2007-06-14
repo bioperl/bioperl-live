@@ -65,7 +65,7 @@ use Bio::Root::Version;
 =head2 new
 
  Title   : new
- Usage   : $proc = new Bio::Search::Processor -file      => $filename,
+ Usage   : $proc = Bio::Search::Processor->new -file      => $filename,
                                               -algorithm => 'Algorithm' ;
  Function: Used to specify and initialize a data processor of search
            algorithm results.

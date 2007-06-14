@@ -72,7 +72,7 @@ my ($gb, $seq, $seqio, $seqin, $query);
 #
 # Bio::DB::GenBank
 #
-ok $gb = new Bio::DB::GenBank('-delay'=>0), 'Bio::DB::GenBank';
+ok $gb = Bio::DB::GenBank->new('-delay'=>0), 'Bio::DB::GenBank';
 
 # get a single seq
 SKIP: {
@@ -108,7 +108,7 @@ SKIP: {
 $seq = $seqio = undef;
 
 # test the temporary file creation and fasta
-ok $gb = new Bio::DB::GenBank('-format' => 'fasta', '-retrievaltype' => 'tempfile', '-delay' => 0);
+ok $gb = Bio::DB::GenBank->new('-format' => 'fasta', '-retrievaltype' => 'tempfile', '-delay' => 0);
 SKIP: {
     eval {$seq = $gb->get_Seq_by_id('MUSIGHBA1');};
     skip "Couldn't connect to complete GenBank tests with a tempfile with Bio::DB::GenBank.pm. Skipping those tests", 6 if $@;
@@ -136,7 +136,7 @@ SKIP: {
 $seq = $seqio = undef;
 
 # test pipeline creation
-ok $gb = new Bio::DB::GenBank('-retrievaltype' => 'pipeline', '-delay' => 0);
+ok $gb = Bio::DB::GenBank->new('-retrievaltype' => 'pipeline', '-delay' => 0);
 SKIP: {
     eval {$seq = $gb->get_Seq_by_id('MUSIGHBA1');};
     skip "Couldn't connect to complete GenBank tests with a pipeline with Bio::DB::GenBank.pm. Skipping those tests", 6 if $@;
@@ -214,13 +214,13 @@ $query = Bio::DB::Query::GenBank->new('-query'  => 'AF303112',
 is $query->query, 'J00522[PACC]|AF303112[PACC]|2981014[UID]';
 
 # test contig retrieval
-ok $gb = new Bio::DB::GenBank('-delay'  => 0, '-format' => 'gbwithparts');
+ok $gb = Bio::DB::GenBank->new('-delay'  => 0, '-format' => 'gbwithparts');
 SKIP: {
     eval {$seq = $gb->get_Seq_by_id('CH402638');};
     skip "Couldn't connect to GenBank with Bio::DB::GenBank.pm. Skipping those tests", 3 if $@;
     is $seq->length, $expected_lengths{$seq->display_id};
     # now to check that postprocess_data in NCBIHelper catches CONTIG...
-    ok $gb = new Bio::DB::GenBank('-delay' => 0, '-format' => 'gb');
+    ok $gb = Bio::DB::GenBank->new('-delay' => 0, '-format' => 'gb');
     eval {$seq = $gb->get_Seq_by_id('CH402638');};
     skip "Couldn't connect to GenBank with Bio::DB::GenBank.pm. Skipping those tests", 1 if $@;
     is $seq->length, $expected_lengths{$seq->display_id};
@@ -290,7 +290,7 @@ SKIP: {
 
 $seq = $seqio = undef;
 
-ok $gb = new Bio::DB::GenPept('-delay' => 0);
+ok $gb = Bio::DB::GenPept->new('-delay' => 0);
 SKIP: { 
     eval {$seq = $gb->get_Seq_by_id('195055');};
     skip "Couldn't connect to Genbank with Bio::DB::GenPept.pm. Skipping those tests", 10 if $@;
@@ -326,7 +326,7 @@ $seq = $seqio = undef;
 #
 # Bio::DB::SwissProt
 #
-ok $gb = new Bio::DB::SwissProt(-retrievaltype =>'pipeline', -delay => 0);
+ok $gb = Bio::DB::SwissProt->new(-retrievaltype =>'pipeline', -delay => 0);
 SKIP: {
     eval {$seq = $gb->get_Seq_by_id('YNB3_YEAST');};
     skip "Couldn't connect to SwissProt with Bio::DB::Swiss.pm. Skipping those tests", 14 if $@;
@@ -349,7 +349,7 @@ SKIP: {
     is $seq->display_id, 'DEGP_CHLTR';
     is $seq->division, 'CHLTR';
 
-    ok $gb = new Bio::DB::SwissProt('-retrievaltype' => 'tempfile', '-delay' => 0);
+    ok $gb = Bio::DB::SwissProt->new('-retrievaltype' => 'tempfile', '-delay' => 0);
     eval {$seqio = $gb->get_Stream_by_id(['NDP_MOUSE', 'NDP_HUMAN']);};
     skip "Couldn't connect to SwissProt with Bio::DB::Swiss.pm. Skipping those tests", 4 if $@;
     undef $gb; # testing to see if we can remove gb
@@ -364,7 +364,7 @@ $seq = $seqio = undef;
 #
 # Bio::DB::GDB
 #
-ok my $gdb = new Bio::DB::GDB;
+ok my $gdb = Bio::DB::GDB->new();
 SKIP: {
     my $info; 
     eval {$info = $gdb->get_info(-type => 'marker', -id => 'D1S243');};
@@ -399,7 +399,7 @@ $seq = $seqio = undef;
 #
 # Bio::DB::MeSH
 #
-ok my $mesh = new Bio::DB::MeSH();
+ok my $mesh = Bio::DB::MeSH->new();
 SKIP: {
     my $t;
     eval {$t = $mesh->get_exact_term('Dietary Fats');};

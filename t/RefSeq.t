@@ -67,9 +67,9 @@ $seq = $seqio = undef;
 #test redirection from GenBank and EMBL
 $verbose = -1;
 #GenBank
-ok $db = new Bio::DB::GenBank('-verbose'=>$verbose) ;     
+ok $db = Bio::DB::GenBank->new('-verbose'=>$verbose) ;     
 #EMBL
-ok $db2 = new Bio::DB::EMBL('-verbose'=>$verbose) ;     
+ok $db2 = Bio::DB::EMBL->new('-verbose'=>$verbose) ;     
 
 eval {
     $seq = $db->get_Seq_by_acc('NT_006732');
@@ -97,7 +97,7 @@ if ($@) {
 $verbose = 0;
 
 eval { 
-    ok defined($db = new Bio::DB::RefSeq(-verbose=>$verbose)); 
+    ok defined($db = Bio::DB::RefSeq->new(-verbose=>$verbose)); 
     ok(defined($seq = $db->get_Seq_by_acc('NM_006732')));
     ok( $seq->length, 3775);
     ok defined ($db->request_format('fasta'));

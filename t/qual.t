@@ -51,10 +51,10 @@ while ( my $qual = $in_qual->next_seq() ) {
 
 @quals = 10..20;
 # this one has a forced header
-my $seq = new Bio::Seq::PrimaryQual(
+my $seq = Bio::Seq::PrimaryQual->new(
                     -qual =>   \@quals,
                     -header   =>   "Hank is a good cat. I gave him a bath yesterday.");
-my $out = new Bio::SeqIO(-file  =>   '>write_qual2.qual',
+my $out = Bio::SeqIO->new(-file  =>   '>write_qual2.qual',
                          -format   =>   'qual');
 # yes, that works
 is $seq->header, 'Hank is a good cat. I gave him a bath yesterday.';

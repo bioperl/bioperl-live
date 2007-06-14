@@ -38,14 +38,14 @@ Bio::Tools::Sigcleave - Bioperl object for sigcleave analysis
 
   # this works
   $seq = "MVLLLILSVLLLKEDVRGSAQSSERRVVAHMPGDIIIGALFSVHHQPTVDKVHERKCGAVREQYGI";
-  $sig = new Bio::Tools::Sigcleave(-seq  => $seq,
+  $sig = Bio::Tools::Sigcleave->new(-seq  => $seq,
                                                 -type => 'protein',
                                                 -threshold=>'3.5',
                                                 );
   # but you do:
   $seqobj = Bio::PrimarySeq->new(-seq => $seq);
 
-  $sig = new Bio::Tools::Sigcleave(-seq  => $seqobj,
+  $sig = Bio::Tools::Sigcleave->new(-seq  => $seqobj,
                                                 -threshold=>'3.5',
                                                 );
 

@@ -16,8 +16,8 @@ Bio::TreeIO::svggraph - A simple output format that converts a Tree object to an
 =head1 SYNOPSIS
 
   use Bio::TreeIO;
-  my $in = new Bio::TreeIO(-file => 'input', -format => 'newick');
-  my $out = new Bio::TreeIO(-file => '>output', -format => 'svggraph');
+  my $in = Bio::TreeIO->new(-file => 'input', -format => 'newick');
+  my $out = Bio::TreeIO->new(-file => '>output', -format => 'svggraph');
 
   while( my $tree = $in->next_tree ) {
       my $svg_xml = $out->write_tree($tree);
@@ -85,7 +85,7 @@ use base qw(Bio::TreeIO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::TreeIO::svggraph();
+ Usage   : my $obj = Bio::TreeIO::svggraph->new();
  Function: Builds a new Bio::TreeIO::svggraph object 
  Returns : Bio::TreeIO::svggraph
  Args    :-width    => image width (default 1600)

@@ -18,12 +18,12 @@ Bio::Tree::RandomFactory - TreeFactory for generating Random Trees
 
   use Bio::Tree::RandomFactory
   my @taxonnames;
-  my $factory = new Bio::Tree::RandomFactory( -taxa => \@taxonnames,
+  my $factory = Bio::Tree::RandomFactory->new( -taxa => \@taxonnames,
   					      -maxcount => 10);
 
   # or for anonymous samples
 
-  my $factory = new Bio::Tree::RandomFactory( -num_taxa => 6,
+  my $factory = Bio::Tree::RandomFactory->new( -num_taxa => 6,
 					      -maxcount => 50);
 
 
@@ -109,7 +109,7 @@ use base qw(Bio::Root::Root Bio::Factory::TreeFactoryI);
 =head2 new
 
  Title   : new
- Usage   : my $factory = new Bio::Tree::RandomFactory(-samples => \@samples,
+ Usage   : my $factory = Bio::Tree::RandomFactory->new(-samples => \@samples,
 						      -maxcount=> $N);
  Function: Initializes a Bio::Tree::RandomFactory object
  Returns : Bio::Tree::RandomFactory

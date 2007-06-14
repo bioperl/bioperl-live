@@ -38,7 +38,7 @@ END {
 my ($str,$aln,$strout,$status);
 
 # PSI format  
-$str  = new Bio::AlignIO (
+$str  = Bio::AlignIO->new(
     '-file'	=> Bio::Root::IO->catfile("t","data","testaln.psi"),
     '-format'	=> 'psi');
 isa_ok($str,'Bio::AlignIO');
@@ -80,7 +80,7 @@ is($aln->description, 'Population 3', 'ARP description()');
 
 # STOCKHOLM (multiple concatenated files)
 # Rfam
-$str  = new Bio::AlignIO (
+$str  = Bio::AlignIO->new(
     '-file'	=> Bio::Root::IO->catfile("t","data","rfam_tests.stk"),
     '-format'	=> 'stockholm');
 $strout = Bio::AlignIO->new('-file'  => ">".
@@ -150,7 +150,7 @@ is($meta_str, '.<<<<<<..<<<<<.........>>>>>.......<<<<.....................'.
    '...........>>>>...>>>>>>.', 'Rfam meta data');
 
 # STOCKHOLM (Pfam)
-$str  = new Bio::AlignIO (
+$str  = Bio::AlignIO->new(
     '-file'	=> Bio::Root::IO->catfile("t","data","pfam_tests.stk"),
     '-format'	=> 'stockholm');
 isa_ok($str,'Bio::AlignIO');
@@ -500,7 +500,7 @@ $str = Bio::AlignIO->new(
 
 
 # EMBOSS water
-$str = new Bio::AlignIO('-format' => 'emboss',
+$str = Bio::AlignIO->new('-format' => 'emboss',
 		 '-file'   => Bio::Root::IO->catfile("t", "data", 'cysprot.water'));
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
@@ -515,7 +515,7 @@ is($aln->length,364);
 
 
 # EMBOSS needle
-$str = new Bio::AlignIO('-format' => 'emboss',
+$str = Bio::AlignIO->new('-format' => 'emboss',
 	  '-file'   => Bio::Root::IO->catfile("t", "data", 'cysprot.needle'));
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
@@ -525,7 +525,7 @@ is($aln->get_seq_by_pos(2)->get_nse,'CATL_HUMAN/1-333');
 
 
 # EMBOSS water 2.2.x
-$str = new Bio::AlignIO('-format' => 'emboss',
+$str = Bio::AlignIO->new('-format' => 'emboss',
 	 '-file'   => Bio::Root::IO->catfile("t", "data", 'cys1_dicdi.water'));
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
@@ -539,7 +539,7 @@ is($aln->get_seq_by_pos(2)->get_nse,'ALEU_HORVU/61-360');
 
 
 # EMBOSS water 2.2.x sparse needle
-$str = new Bio::AlignIO(-verbose => $DEBUG,
+$str = Bio::AlignIO->new(-verbose => $DEBUG,
 	  '-format' => 'emboss',
    	'-file'   => Bio::Root::IO->catfile("t", "data", 'sparsealn.needle'));
 $aln = $str->next_aln();
@@ -561,7 +561,7 @@ is($aln->is_flush, 1);
 
 
 # MEGA
-$str = new Bio::AlignIO('-format' => 'mega',
+$str = Bio::AlignIO->new('-format' => 'mega',
   	'-file'   => Bio::Root::IO->catfile("t","data","hemoglobinA.meg"));
 
 $aln = $str->next_aln();
@@ -571,7 +571,7 @@ is($aln->get_seq_by_pos(2)->get_nse,'Horse/1-144');
 $aln->unmatch();
 is($aln->get_seq_by_pos(3)->subseq(1,10), 'V-LSAADKGN');
 
-$strout = new Bio::AlignIO('-format' => 'mega',
+$strout = Bio::AlignIO->new('-format' => 'mega',
 	  '-file'   => ">" .Bio::Root::IO->catfile("t","data","testout.mega"));
 
 $status = $strout->write_aln($aln);
@@ -579,7 +579,7 @@ is $status, 1, "mega output test";
 
 
 # EMBOSS needle
-$str = new Bio::AlignIO('-format' => 'emboss',
+$str = Bio::AlignIO->new('-format' => 'emboss',
 	  '-file'   => Bio::Root::IO->catfile('t','data','gf-s71.needle'));
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
@@ -635,7 +635,7 @@ is $status, 1,"fasta output test";
 # fink perl 5.6.0 does not seem to have the problem
 # can't figure out what it is so just skip for now
 if( $^O ne 'darwin' || $] > 5.006 ) {
-	$str = new Bio::AlignIO(
+	$str = Bio::AlignIO->new(
 			  -file   => Bio::Root::IO->catfile("t", "data", "testaln.po"),
 			  -format => 'po',
 			  );
@@ -645,7 +645,7 @@ if( $^O ne 'darwin' || $] > 5.006 ) {
 	is $aln->no_sequences, 6;
 
 # output is? i.e. does conversion from clustalw to po give the same alignment?
-	$str = new Bio::AlignIO(
+	$str = Bio::AlignIO->new(
 		  '-file'   => Bio::Root::IO->catfile("t", "data", "testaln.aln"),
 		  '-format' => 'clustalw');
 	isa_ok($str,'Bio::AlignIO');
@@ -657,7 +657,7 @@ if( $^O ne 'darwin' || $] > 5.006 ) {
 	$status = $strout->write_aln($aln);
 	is $status, 1, "po output test";
 
-	$str = new Bio::AlignIO(
+	$str = Bio::AlignIO->new(
 		 '-file'   => Bio::Root::IO->catfile("t", "data", "testaln.po"),
 		 '-format' => 'po');
 	isa_ok($str,'Bio::AlignIO');
@@ -674,7 +674,7 @@ if( $^O ne 'darwin' || $] > 5.006 ) {
 
 # MEME
 # this file has no Strand column
-$str = new Bio::AlignIO(
+$str = Bio::AlignIO->new(
 		-file => Bio::Root::IO->catfile("t", "data", "test.meme"),
 		-format => 'meme');
 isa_ok($str,'Bio::AlignIO');
@@ -685,7 +685,7 @@ is $aln->get_seq_by_pos(3)->seq(),"CCTTAAAATAAAATCCCCACCACCA";
 is $aln->get_seq_by_pos(3)->strand,"1";
 
 # this file has a Strand column
-$str = new Bio::AlignIO(
+$str = Bio::AlignIO->new(
 		-file => Bio::Root::IO->catfile("t", "data", "test.meme2"),
 		-format => 'meme');
 isa_ok($str,'Bio::AlignIO');

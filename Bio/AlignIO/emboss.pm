@@ -19,7 +19,7 @@ Bio::AlignIO::emboss - Parse EMBOSS alignment output (from applications water an
     # do not use the object directly
     use Bio::AlignIO;
     # read in an alignment from the EMBOSS program water
-    my $in = new Bio::AlignIO(-format => 'emboss',
+    my $in = Bio::AlignIO->new(-format => 'emboss',
                               -file   => 'seq.water');
     while( my $aln = $in->next_aln ) {
     # do something with the alignment
@@ -214,7 +214,7 @@ sub next_aln {
     foreach my $seqname ( qw(seq1 seq2) ) {
 	return unless ( defined $data{$seqname} );
 	$data{$seqname}->{'name'} ||= $seqname;
-	my $seq = new Bio::LocatableSeq('-seq' => $data{$seqname}->{'data'},
+	my $seq = Bio::LocatableSeq->new('-seq' => $data{$seqname}->{'data'},
 					'-id'  => $data{$seqname}->{'name'},
 					'-start'=> $data{$seqname}->{'start'},
 					'-end' => $data{$seqname}->{'end'},

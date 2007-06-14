@@ -19,7 +19,7 @@ use Bio::SeqIO;
 use Bio::Cluster::SequenceFamily;
 
 
-my $seqio= new Bio::SeqIO('-format' => 'swiss',
+my $seqio= Bio::SeqIO->new('-format' => 'swiss',
                            '-file'   => Bio::Root::IO->catfile('t','data','sequencefamily.dat'));
 my @mem;
 while(my $seq = $seqio->next_seq){

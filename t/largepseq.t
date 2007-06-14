@@ -30,23 +30,23 @@ is $pseq->display_id('hello'), 'hello';
 is $pseq->seq, 'ATGGGGTGGGGTGAAACCCTTTGGGGGTGGGGTAAATGTTTGGGGTTAAACCCCTTTGGGGGGT' , "Sequence is " . $pseq->seq;
 
 is $pseq->subseq(3,7), 'GGGGT', "Subseq is ".$pseq->subseq(3,7);
-my $location = new Bio::Location::Simple(-start => 4, -end => 8,
+my $location = Bio::Location::Simple->new(-start => 4, -end => 8,
 					 -strand => 1);
 is($pseq->subseq($location), 'GGGTG');
 
-my $splitlocation = new Bio::Location::Split;
+my $splitlocation = Bio::Location::Split->new();
 
-$splitlocation->add_sub_Location( new Bio::Location::Simple('-start' => 1,
+$splitlocation->add_sub_Location( Bio::Location::Simple->new('-start' => 1,
 							    '-end'   => 15,
 							    '-strand' => 1));
 
-$splitlocation->add_sub_Location( new Bio::Location::Simple('-start' => 21,
+$splitlocation->add_sub_Location( Bio::Location::Simple->new('-start' => 21,
 							    '-end'   => 27,
 							    '-strand' => -1));
 
 is( $pseq->subseq($splitlocation), 'ATGGGGTGGGGTGAACCCCCAA');
 
-my $fuzzy = new Bio::Location::Fuzzy(-start => '<10',
+my $fuzzy = Bio::Location::Fuzzy->new(-start => '<10',
 				     -end   => '18',
 				     -strand => 1);
 
@@ -61,7 +61,7 @@ is $pseq->alphabet('dna'), 'dna'; # so translate will not complain
 is $pseq->translate()->seq, 'MGWGETLWGWGKCLGLNPFGG';
 
 
-my $seq = new Bio::Seq::LargeSeq(-primaryseq => $pseq );
+my $seq = Bio::Seq::LargeSeq->new(-primaryseq => $pseq );
 
 is $seq->display_id('hello'), 'hello';
 
@@ -74,7 +74,7 @@ is ($seq->trunc(8,15)->seq, 'GGGGTGAA',
 is $seq->alphabet('dna'), 'dna'; # so translate will not complain
 is $seq->translate()->seq, 'MGWGETLWGWGKCLGLNPFGG';
 
-$seq = new Bio::Seq::LargeSeq( -display_id => 'hello');
+$seq = Bio::Seq::LargeSeq->new( -display_id => 'hello');
 $seq->seq('ATGGGGTGGGGT');
 is $seq->display_id, 'hello';
 

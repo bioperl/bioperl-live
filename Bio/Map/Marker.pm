@@ -20,26 +20,26 @@ that can have multiple location in several maps.
   # get map objects somehow
 
   # a marker with complex localisation
-  $o_usat = new Bio::Map::Marker (-name=>'Chad Super Marker 2',
+  $o_usat = Bio::Map::Marker->new(-name=>'Chad Super Marker 2',
 				  -positions => [ [$map1, $position1], 
                                                   [$map1, $position2] 
 						] );
 
   # The markers deal with Bio::Map::Position objects which can also
   # be explicitely created and passed on to markers as an array ref:
-  $o_usat2 = new Bio::Map::Marker (-name=>'Chad Super Marker 3',
+  $o_usat2 = Bio::Map::Marker->new(-name=>'Chad Super Marker 3',
 				  -positions => [ $pos1, 
                                                   $pos2 
 						] );
 
   # a marker with unique position in a map
-  $marker1 = new Bio::Map::Marker (-name=>'hypervariable1',
+  $marker1 = Bio::Map::Marker->new(-name=>'hypervariable1',
 				   -map => $map1,
 				   -position => 100
 				   );
 
   # an other way of creating a marker with unique position in a map:
-  $marker2 = new Bio::Map::Marker (-name=>'hypervariable2');
+  $marker2 = Bio::Map::Marker->new(-name=>'hypervariable2');
   $map1->add_element($marker2);
   $marker2->position(100);
 
@@ -121,7 +121,7 @@ use base qw(Bio::Map::Mappable Bio::Map::MarkerI);
 =head2 new
 
  Title   : new
- Usage   : my $marker = new Bio::Map::Marker( -name => 'Whizzy marker',
+ Usage   : my $marker = Bio::Map::Marker->new( -name => 'Whizzy marker',
 	                                          -position => $position);
  Function: Builds a new Bio::Map::Marker object
  Returns : Bio::Map::Marker
@@ -215,7 +215,7 @@ sub get_position_object {
 		$self->throw("Value better be scalar, not [$value]") unless ref($value) eq '';
 	}
 	
-	my $pos = new Bio::Map::Position();
+	my $pos = Bio::Map::Position->new();
 	$pos->map($map) if $map;
     $pos->value($value) if $value;
     $pos->element($self);

@@ -12,7 +12,7 @@ Bio::Matrix::PSM::Psm - handle combination of site matricies
   use Bio::Matrix::PSM::IO;
 
   #To get a Psm object from a file use the Psm parser:
-  my $psmIO =  new Bio::Matrix::PSM::IO(-format=>'meme', -file=>$file);
+  my $psmIO =  Bio::Matrix::PSM::IO->new(-format=>'meme', -file=>$file);
 
   # Now go through all entities in the file with next_psm, which
   # returns a Psm object see Bio::Matrix::PSM::IO for detailed
@@ -34,7 +34,7 @@ Bio::Matrix::PSM::Psm - handle combination of site matricies
   }
 
  #or create from memmory:
-  my $psm= new Bio::Matrix::PSM::Psm( -pA=>\@pA,-pC=>\@pC,-pG=>\@pG,-pT=>\@pT,
+  my $psm= Bio::Matrix::PSM::Psm->new( -pA=>\@pA,-pC=>\@pC,-pG=>\@pG,-pT=>\@pT,
        -id=>$id,
        -instances=>$instances, -e_val=>$e_val,
        -IC=>$ic, -width=>$width, -sites=>$sites)
@@ -124,7 +124,7 @@ use base qw(Bio::Matrix::PSM::SiteMatrix Bio::Matrix::PSM::PsmI Bio::Annotation:
 =head2 new
 
  Title   : new
- Usage   : my $psm= new Bio::Matrix::PSM::Psm( -pA=>\@pA,-pC=>\@pC,
+ Usage   : my $psm= Bio::Matrix::PSM::Psm->new( -pA=>\@pA,-pC=>\@pC,
 					       -pG=>\@pG,-pT=>\@pT,-id=>$id,
 					       -instances=>$instances, 
 					       -e_val=>$e_val,
@@ -217,7 +217,7 @@ sub header {
 
 sub matrix {
     my $self = shift;
-    my $prev = new Bio::Matrix::PSM::SiteMatrix(-pA=>$self->{probA}, 
+    my $prev = Bio::Matrix::PSM::SiteMatrix->new(-pA=>$self->{probA}, 
 						-pC=>$self->{probC},
 						-pG=>$self->{probG},
 						-pT=>$self->{probT},

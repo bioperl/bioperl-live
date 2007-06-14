@@ -13,11 +13,11 @@ Bio::Biblio::MedlineJournal - Representation of a MEDLINE journal
 
 =head1 SYNOPSIS
 
-    $obj = new Bio::Biblio::MedlineJournal
+    $obj = Bio::Biblio::MedlineJournal->new
                (-medline_ta => 'J Vasc Interv Radiol');
   #--- OR ---
 
-    $obj = new Bio::Biblio::MedlineJournal;
+    $obj = Bio::Biblio::MedlineJournal->new();
     $obj->medline_ta ('J Vasc Interv Radiol');
 
 =head1 DESCRIPTION

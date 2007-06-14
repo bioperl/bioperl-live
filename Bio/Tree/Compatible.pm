@@ -19,7 +19,7 @@ with nested taxa.
 
   use Bio::Tree::Compatible;
   use Bio::TreeIO;
-  my $input = new Bio::TreeIO('-format' => 'newick',
+  my $input = Bio::TreeIO->new('-format' => 'newick',
                               '-file'   => 'input.tre');
   my $t1 = $input->next_tree;
   my $t2 = $input->next_tree;

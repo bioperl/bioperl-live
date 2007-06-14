@@ -18,7 +18,7 @@ Bio::Tools::Phylo::PAML::Result - A PAML result set object
 
   # see Bio::Tools::Phylo::PAML for example usage
   use Bio::Tools::Phylo::PAML;
-  my $parser = new Bio::Tools::Phylo::PAML
+  my $parser = Bio::Tools::Phylo::PAML->new
     (-file => "./results/mlc", -dir => "./results/");
 
   # get the first/next result; a Bio::Tools::Phylo::PAML::Result object,

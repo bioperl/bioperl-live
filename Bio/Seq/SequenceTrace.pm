@@ -761,8 +761,8 @@ sub sub_trace_object {
         my @subs = @{$self->sub_peak_index($start,$end)};
         $start2 = shift(@subs);
         $end2 =  pop(@subs);
-     my $new_object =  new Bio::Seq::SequenceTrace(
-               -swq =>   new Bio::Seq::Quality(
+     my $new_object =  Bio::Seq::SequenceTrace->new(
+               -swq =>   Bio::Seq::Quality->new(
                              -seq => $self->subseq($start,$end),
                              -qual     =>   $self->subqual($start,$end),
                              -id    =>   $self->id()

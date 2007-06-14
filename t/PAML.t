@@ -32,7 +32,7 @@ my $verbose = 0;
 
 ## End of black magic.
 
-my $inpaml = new Bio::Tools::Phylo::PAML(-file => Bio::Root::IO->catfile(qw(t data codeml.mlc)));
+my $inpaml = Bio::Tools::Phylo::PAML->new(-file => Bio::Root::IO->catfile(qw(t data codeml.mlc)));
 ok($inpaml);
 my $result = $inpaml->next_result;
 ok($result);
@@ -70,7 +70,7 @@ is($codonposfreq[1]->{'C'}, 0.25123);
 is($codonposfreq[2]->{'G'}, 0.32842);
 
 # AAML parsing - Empirical model
-$inpaml = new Bio::Tools::Phylo::PAML(-file => Bio::Root::IO->catfile
+$inpaml = Bio::Tools::Phylo::PAML->new(-file => Bio::Root::IO->catfile
 				      (qw(t data aaml.mlc)));
 
 ok($inpaml);
@@ -112,7 +112,7 @@ is($result->get_stat('constant_sites'), 46);
 is($result->get_stat('constant_sites_percentage'), 35.38);
 
 # AAML parsing - pairwise model
-$inpaml = new Bio::Tools::Phylo::PAML(-file => Bio::Root::IO->catfile
+$inpaml = Bio::Tools::Phylo::PAML->new(-file => Bio::Root::IO->catfile
 				      (qw(t data aaml_pairwise.mlc)));
 
 ok($inpaml);
@@ -140,7 +140,7 @@ my @seqs = $result->get_seqs;
 is($seqs[0]->display_id, 'human');
 
 # YN00 parsing, pairwise Ka/Ks from Yang & Nielsen 2000
-$inpaml = new Bio::Tools::Phylo::PAML(-file => Bio::Root::IO->catfile
+$inpaml = Bio::Tools::Phylo::PAML->new(-file => Bio::Root::IO->catfile
 				      (qw(t data yn00.mlc)));
 
 ok($inpaml);
@@ -168,7 +168,7 @@ is($MLmat->[2]->[3]->{'dS_SE'}, 0.2614);
 
 # codeml NSSites parsing
 
-$inpaml = new Bio::Tools::Phylo::PAML
+$inpaml = Bio::Tools::Phylo::PAML->new
     (-file => Bio::Root::IO->catfile(qw(t data codeml_nssites.mlc)));
 
 ok($inpaml);
@@ -236,7 +236,7 @@ is($firstsite->[2], 0.6588);
 # codeml NSSites parsing
 # for M0 model
 
-my $codeml_m0 = new Bio::Tools::Phylo::PAML
+my $codeml_m0 = Bio::Tools::Phylo::PAML->new
     (-file => Bio::Root::IO->catfile(qw/t data M0.mlc/));
 ok($codeml_m0);
 my $result_m0 = $codeml_m0->next_result;
@@ -289,7 +289,7 @@ is($alphaM->get_entry($otus[0],$otus[2]), '33.1197');
 # codeml NSSites parsing
 # for only 1 model
 
-my $codeml_single = new Bio::Tools::Phylo::PAML
+my $codeml_single = Bio::Tools::Phylo::PAML->new
     (-file => Bio::Root::IO->catfile(qw/t data singleNSsite.mlc/));
 ok($codeml_single);
 my $result_single = $codeml_single->next_result;
@@ -315,7 +315,7 @@ is($trees[0]->score, -129.328757);
 # codeml NSSites parsing
 # for branch site model/clade model
 
-my $codeml_bs = new Bio::Tools::Phylo::PAML
+my $codeml_bs = Bio::Tools::Phylo::PAML->new
     (-file => Bio::Root::IO->catfile(qw/t data branchSite.mlc/));
 ok($codeml_bs);
 my $result_bs = $codeml_bs->next_result;

@@ -106,7 +106,7 @@ sub _initialize {
 sub read {
     my $self = shift;
 
-    my $renzs = new Bio::Restriction::EnzymeCollection(-empty => 1);
+    my $renzs = Bio::Restriction::EnzymeCollection->new(-empty => 1);
 
     local $/ = '<1>';
     while (defined(my $entry=$self->_readline()) ) {
@@ -147,7 +147,7 @@ sub read {
         my ($cut, $comp_cut);
         ($site, $cut, $comp_cut) = $self->_cuts_from_site($site);
 
-        my $re = new Bio::Restriction::Enzyme(-name=>$name,
+        my $re = Bio::Restriction::Enzyme->new(-name=>$name,
                                               -site => $site
                                              );
         $renzs->enzymes($re);

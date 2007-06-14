@@ -432,7 +432,7 @@ sub omimtxt_file_name {
     if ( defined $value ) {
         $self->{ "_omimtxt_file_name" } = $value;
         if ( $value =~ /\W/ ) {
-            $self->_OMIM_text_file( new Bio::Root::IO->new( -file => $value ) );
+            $self->_OMIM_text_file( Bio::Root::IO->new->new( -file => $value ) );
         } 
     }
     
@@ -874,7 +874,7 @@ sub _read_genemap {
     
     my $line         = "";
     my %genemap_hash = ();
-    my $genemap_file = new Bio::Root::IO->new( -file => $genemap_file_name );
+    my $genemap_file = Bio::Root::IO->new->new( -file => $genemap_file_name );
     my @a            = ();
     my %gm           = ();
     

@@ -29,7 +29,7 @@ my $map;
 {
     use_ok 'Bio::Map::SimpleMap';
     
-    ok $map = new Bio::Map::SimpleMap(-name  => 'my');
+    ok $map = Bio::Map::SimpleMap->new(-name  => 'my');
     ok $map->type('cyto');
     is $map->type, 'cyto';
     is $map->units, '';
@@ -46,17 +46,17 @@ my $marker;
     use_ok 'Bio::Map::Marker';
     
     # make a plane one and add details after
-    ok $marker = new Bio::Map::Marker();
+    ok $marker = Bio::Map::Marker->new();
     is $marker->name('gene1'), 'gene1';
     ok $marker->position($map, 100);
     is $marker->position->value, 100;
     is $marker->map, $map;
     
     # make positions a little easier to add by setting a default map first
-    ok my $marker2 = new Bio::Map::Marker(-name => 'gene3');
+    ok my $marker2 = Bio::Map::Marker->new(-name => 'gene3');
     ok $map->add_element($marker2); # one way of setting default
     is $marker2->default_map, $map;
-    $marker2 = new Bio::Map::Marker(-name => 'gene3');
+    $marker2 = Bio::Map::Marker->new(-name => 'gene3');
     ok $marker2->default_map($map); # the other way of setting default
     is $marker2->default_map, $map;
     ok $marker2->position(300);
@@ -65,12 +65,12 @@ my $marker;
     is $position->value, 300;
     
     # make one with details set in new()
-    ok my $marker3 = new Bio::Map::Marker(-name => 'gene2', -position => [$map, 200]);
+    ok my $marker3 = Bio::Map::Marker->new(-name => 'gene2', -position => [$map, 200]);
     is $marker3->default_map, $map;
     is $marker3->position->value, 200;
     
     # make one with multiple positions on multiple maps
-    my $map2 = new Bio::Map::SimpleMap();
+    my $map2 = Bio::Map::SimpleMap->new();
     $marker2->positions([[$map, 150], [$map, 200], [$map2, 200], [$map2, 400]]);
     my @p = map($_->numeric, $marker2->each_position);
     is $p[0], 150;
@@ -90,7 +90,7 @@ my $pos;
 {
     use_ok 'Bio::Map::Position';
     
-    ok $pos = new Bio::Map::Position();
+    ok $pos = Bio::Map::Position->new();
     ok $pos->map($map);
     is $pos->map(), $map;
     ok $pos->element($marker);
@@ -104,15 +104,15 @@ my $pos;
     is $pos->end, 10;
     
     # give a marker a single position with explicit position creation
-    ok $pos = new Bio::Map::Position(-map => $map, -value => 500);
+    ok $pos = Bio::Map::Position->new(-map => $map, -value => 500);
     ok $marker->position($pos);
     ok my $got_pos = $marker->position();
     is $got_pos, $pos;
     is $marker->position->value, 500;
     
     # add a position
-    my $map2 = new Bio::Map::SimpleMap(-name => 'genethon', -type => 'Genetic');
-    my $pos2 = new Bio::Map::Position(-map => $map2, -value => 100);
+    my $map2 = Bio::Map::SimpleMap->new(-name => 'genethon', -type => 'Genetic');
+    my $pos2 = Bio::Map::Position->new(-map => $map2, -value => 100);
     $marker->add_position($pos2);
     ok my @positions = $marker->get_positions($map2);
     is @positions, 1;
@@ -159,26 +159,26 @@ my $pos;
     
     # maps to maps
     {
-        my $human = new Bio::Map::SimpleMap;
-        my $mouse = new Bio::Map::SimpleMap;
-        my $chicken = new Bio::Map::SimpleMap;
-        my $aardvark = new Bio::Map::SimpleMap;
+        my $human = Bio::Map::SimpleMap->new();
+        my $mouse = Bio::Map::SimpleMap->new();
+        my $chicken = Bio::Map::SimpleMap->new();
+        my $aardvark = Bio::Map::SimpleMap->new();
         
         # scenario 1: we have information about where some factors bind upstream
         # of a gene in 4 different species. Which factors are found in all the
         # species?
-        my $fac1 = new Bio::Map::Mappable;
-        my $pos1 = new Bio::Map::Position(-map => $human, -element => $fac1);
-        my $pos2 = new Bio::Map::Position(-map => $mouse, -element => $fac1);
-        my $pos3 = new Bio::Map::Position(-map => $chicken, -element => $fac1);
-        my $pos4 = new Bio::Map::Position(-map => $aardvark, -element => $fac1);
-        my $fac2 = new Bio::Map::Mappable;
-        my $pos5 = new Bio::Map::Position(-map => $human, -element => $fac2);
-        my $pos6 = new Bio::Map::Position(-map => $mouse, -element => $fac2);
-        my $pos7 = new Bio::Map::Position(-map => $chicken, -element => $fac2);
-        my $fac3 = new Bio::Map::Mappable;
-        my $pos8 = new Bio::Map::Position(-map => $human, -element => $fac3);
-        my $pos9 = new Bio::Map::Position(-map => $mouse, -element => $fac3);
+        my $fac1 = Bio::Map::Mappable->new();
+        my $pos1 = Bio::Map::Position->new(-map => $human, -element => $fac1);
+        my $pos2 = Bio::Map::Position->new(-map => $mouse, -element => $fac1);
+        my $pos3 = Bio::Map::Position->new(-map => $chicken, -element => $fac1);
+        my $pos4 = Bio::Map::Position->new(-map => $aardvark, -element => $fac1);
+        my $fac2 = Bio::Map::Mappable->new();
+        my $pos5 = Bio::Map::Position->new(-map => $human, -element => $fac2);
+        my $pos6 = Bio::Map::Position->new(-map => $mouse, -element => $fac2);
+        my $pos7 = Bio::Map::Position->new(-map => $chicken, -element => $fac2);
+        my $fac3 = Bio::Map::Mappable->new();
+        my $pos8 = Bio::Map::Position->new(-map => $human, -element => $fac3);
+        my $pos9 = Bio::Map::Position->new(-map => $mouse, -element => $fac3);
         
         # scenario 1 answer:
         ok my @factors = $human->common_elements([$mouse, $chicken, $aardvark]);
@@ -198,31 +198,31 @@ my $pos;
 {
     use_ok 'Bio::Map::Relative';
     
-    my $map = new Bio::Map::SimpleMap;
-    my $pos1 = new Bio::Map::Position(-map => $map, -start => 50, -length => 5);
-    my $pos2 = new Bio::Map::Position(-map => $map, -start => 100, -length => 5);
-    ok my $relative = new Bio::Map::Relative (-position => $pos2);
+    my $map = Bio::Map::SimpleMap->new();
+    my $pos1 = Bio::Map::Position->new(-map => $map, -start => 50, -length => 5);
+    my $pos2 = Bio::Map::Position->new(-map => $map, -start => 100, -length => 5);
+    ok my $relative = Bio::Map::Relative->new(-position => $pos2);
     ok $pos1->relative($relative);
     is $pos1->start, 50;
     is $pos1->absolute(1), 1;
     is $pos1->start, 150;
     is $pos1->absolute(0), 0;
-    ok my $relative2 = new Bio::Map::Relative (-map => 10);
-    my $pos3 = new Bio::Map::Position(-map => $map, -element => $marker, -start => -5, -length => 5);
+    ok my $relative2 = Bio::Map::Relative->new(-map => 10);
+    my $pos3 = Bio::Map::Position->new(-map => $map, -element => $marker, -start => -5, -length => 5);
     $pos3->relative($relative2);
-    my $relative3 = new Bio::Map::Relative (-position => $pos3);
+    my $relative3 = Bio::Map::Relative->new(-position => $pos3);
     is $pos1->start($relative3), 145;
     is $pos1->numeric($relative3), 145;
     is $pos1->end($relative3), 149;
     
     # Test the RangeI-related methods on relative positions
     {
-        my $pos1 = new Bio::Map::Position(-map => $map, -start => 50, -length => 10);
-        my $pos2 = new Bio::Map::Position(-map => $map, -start => 100, -length => 10);
-        my $pos3 = new Bio::Map::Position(-map => $map, -start => 45, -length => 1);
-        my $pos4 = new Bio::Map::Position(-map => $map, -start => 200, -length => 1);
-        my $relative = new Bio::Map::Relative (-position => $pos3);
-        my $relative2 = new Bio::Map::Relative (-position => $pos4);
+        my $pos1 = Bio::Map::Position->new(-map => $map, -start => 50, -length => 10);
+        my $pos2 = Bio::Map::Position->new(-map => $map, -start => 100, -length => 10);
+        my $pos3 = Bio::Map::Position->new(-map => $map, -start => 45, -length => 1);
+        my $pos4 = Bio::Map::Position->new(-map => $map, -start => 200, -length => 1);
+        my $relative = Bio::Map::Relative->new(-position => $pos3);
+        my $relative2 = Bio::Map::Relative->new(-position => $pos4);
         ok ! $pos1->overlaps($pos2);
         $pos1->relative($relative);
         ok $pos1->overlaps($pos2);
@@ -231,7 +231,7 @@ my $pos;
         
         # Make sure it works with normal Ranges
         use Bio::Range;
-        my $range = new Bio::Range(-start => 100, -end => 109);
+        my $range = Bio::Range->new(-start => 100, -end => 109);
         ok $pos1->overlaps($range);
         ok ! $range->overlaps($pos1);
         $pos1->absolute(1);
@@ -276,35 +276,35 @@ my $pos;
 {
     use_ok 'Bio::Map::Mappable';
     
-    ok my $gene = new Bio::Map::Mappable;
-    my $human = new Bio::Map::SimpleMap;
-    my $mouse = new Bio::Map::SimpleMap;
-    ok my $pos1 = new Bio::Map::Position(-map => $human, -element => $gene, -start => 50, -length => 1000);
-    my $pos2 = new Bio::Map::Position(-map => $mouse, -start => 100, -length => 1000);
+    ok my $gene = Bio::Map::Mappable->new();
+    my $human = Bio::Map::SimpleMap->new();
+    my $mouse = Bio::Map::SimpleMap->new();
+    ok my $pos1 = Bio::Map::Position->new(-map => $human, -element => $gene, -start => 50, -length => 1000);
+    my $pos2 = Bio::Map::Position->new(-map => $mouse, -start => 100, -length => 1000);
     $gene->add_position($pos2);
-    my $gene_rel = new Bio::Map::Relative(-element => $gene);
+    my $gene_rel = Bio::Map::Relative->new(-element => $gene);
     
     # scenario 1a: we know where a TF binds upstream of a gene in human.
     # we use four different programs to predict the site; how good were they?
     # scenaria 1b: to what extent do the predictions and known agree?
-    my $factor = new Bio::Map::Mappable;
-    my $pos3 = new Bio::Map::Position(-map => $human, -element => $factor, -start => -25, -length => 10, -relative => $gene_rel);
-    my $perfect_prediction = new Bio::Map::Mappable;
-    my $pos4 = new Bio::Map::Position(-map => $human, -element => $perfect_prediction, -start => 25, -length => 10);
-    my $good_prediction = new Bio::Map::Mappable;
-    my $pos5 = new Bio::Map::Position(-map => $human, -element => $good_prediction, -start => 24, -length => 10);
-    my $ok_prediction = new Bio::Map::Mappable;
-    my $pos6 = new Bio::Map::Position(-map => $human, -element => $ok_prediction, -start => 20, -length => 10);
-    my $bad_prediction = new Bio::Map::Mappable;
-    my $pos7 = new Bio::Map::Position(-map => $human, -element => $bad_prediction, -start => 10, -length => 10);
+    my $factor = Bio::Map::Mappable->new();
+    my $pos3 = Bio::Map::Position->new(-map => $human, -element => $factor, -start => -25, -length => 10, -relative => $gene_rel);
+    my $perfect_prediction = Bio::Map::Mappable->new();
+    my $pos4 = Bio::Map::Position->new(-map => $human, -element => $perfect_prediction, -start => 25, -length => 10);
+    my $good_prediction = Bio::Map::Mappable->new();
+    my $pos5 = Bio::Map::Position->new(-map => $human, -element => $good_prediction, -start => 24, -length => 10);
+    my $ok_prediction = Bio::Map::Mappable->new();
+    my $pos6 = Bio::Map::Position->new(-map => $human, -element => $ok_prediction, -start => 20, -length => 10);
+    my $bad_prediction = Bio::Map::Mappable->new();
+    my $pos7 = Bio::Map::Position->new(-map => $human, -element => $bad_prediction, -start => 10, -length => 10);
     
     # scenario 2: we have the same program making a prediciton for a site
     # in two different species; is the predicted site conserved in terms of
     # its position relative to the gene?
-    my $human_prediction = new Bio::Map::Mappable;
-    my $pos8 = new Bio::Map::Position(-map => $human, -element => $human_prediction, -start => 25, -length => 10);
-    my $mouse_prediction = new Bio::Map::Mappable;
-    my $pos9 = new Bio::Map::Position(-map => $mouse, -element => $mouse_prediction, -start => 75, -length => 10);
+    my $human_prediction = Bio::Map::Mappable->new();
+    my $pos8 = Bio::Map::Position->new(-map => $human, -element => $human_prediction, -start => 25, -length => 10);
+    my $mouse_prediction = Bio::Map::Mappable->new();
+    my $pos9 = Bio::Map::Position->new(-map => $mouse, -element => $mouse_prediction, -start => 75, -length => 10);
     
     # Test the RangeI-related methods
     {

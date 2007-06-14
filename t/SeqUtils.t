@@ -35,7 +35,7 @@ $seq = Bio::PrimarySeq->new('-seq'=> $ascii,
 			       '-id'=>'test');
 
 # one letter amino acid code to three letter code
-ok $util = new Bio::SeqUtils;
+ok $util = Bio::SeqUtils->new();
 ok $util->seq3($seq), $ascii3;
 
 #using anonymous hash
@@ -144,8 +144,8 @@ use Bio::Seq::RichSeq;;
 
 # PrimarySeqs
 
-my $primseq1 = new Bio::PrimarySeq(-id => 1, -seq => 'acgt', -description => 'master');
-my $primseq2 = new Bio::PrimarySeq(-id => 2, -seq => 'tgca');
+my $primseq1 = Bio::PrimarySeq->new(-id => 1, -seq => 'acgt', -description => 'master');
+my $primseq2 = Bio::PrimarySeq->new(-id => 2, -seq => 'tgca');
 
 Bio::SeqUtils->cat($primseq1, $primseq2);
 ok $primseq1->seq, 'acgttgca';
@@ -157,13 +157,13 @@ ok $primseq1->description, 'master';
 
 # Bio::SeqI
 
-my $seq1 = new Bio::Seq(-id => 1, -seq => 'aaaa', -description => 'first');
-my $seq2 = new Bio::Seq(-id => 2, -seq => 'tttt', -description => 'second');
-my $seq3 = new Bio::Seq(-id => 3, -seq => 'cccc', -description => 'third');
+my $seq1 = Bio::Seq->new(-id => 1, -seq => 'aaaa', -description => 'first');
+my $seq2 = Bio::Seq->new(-id => 2, -seq => 'tttt', -description => 'second');
+my $seq3 = Bio::Seq->new(-id => 3, -seq => 'cccc', -description => 'third');
 
 
 #  annotations
-my $ac2 = new Bio::Annotation::Collection;
+my $ac2 = Bio::Annotation::Collection->new();
 my $simple1 = Bio::Annotation::SimpleValue->new(
                                                 -tagname => 'colour',
                                                 -value   => 'blue'
@@ -176,7 +176,7 @@ $ac2->add_Annotation('simple',$simple1);
 $ac2->add_Annotation('simple',$simple2);
 $seq2->annotation($ac2);
 
-my $ac3 = new Bio::Annotation::Collection;
+my $ac3 = Bio::Annotation::Collection->new();
 my $simple3 = Bio::Annotation::SimpleValue->new(
                                                 -tagname => 'colour',
                                                 -value   => 'red'
@@ -193,14 +193,14 @@ ok scalar $seq1->get_Annotations, 3;
 # seq features
 use Bio::SeqFeature::Generic;
 
-my $ft2 = new Bio::SeqFeature::Generic ( -start => 1,
+my $ft2 = Bio::SeqFeature::Generic->new( -start => 1,
                                       -end => 4,
                                       -strand => 1,
                                       -primary => 'source',
 				       );
 
 
-my $ft3 = new Bio::SeqFeature::Generic ( -start => 3,
+my $ft3 = Bio::SeqFeature::Generic->new( -start => 3,
                                       -end => 3,
                                       -strand => 1,
                                       -primary => 'hotspot',
@@ -215,7 +215,7 @@ ok $seq1->seq, 'aaaattttcccctttt';
 ok scalar $seq1->get_Annotations, 5;
 
 
-my $protseq = new Bio::PrimarySeq(-id => 2, -seq => 'MVTF'); # protein seq
+my $protseq = Bio::PrimarySeq->new(-id => 2, -seq => 'MVTF'); # protein seq
 
 eval {
     Bio::SeqUtils->cat($seq1, $protseq);
@@ -238,27 +238,27 @@ $seq = Bio::PrimarySeq->new('-seq'=> 'aaaaaaaaaa',
 
 
 
-$util = new Bio::SeqUtils(-verbose => 0);
+$util = Bio::SeqUtils->new(-verbose => 0);
 ok my $newseq = $util->evolve($seq, 60, 4);
 
 #  annotations
 
-$seq2 = new Bio::Seq(-id => 2, -seq => 'ggttaaaa', -description => 'second');
-$ac3 = new Bio::Annotation::Collection;
+$seq2 = Bio::Seq->new(-id => 2, -seq => 'ggttaaaa', -description => 'second');
+$ac3 = Bio::Annotation::Collection->new();
 $simple3 = Bio::Annotation::SimpleValue->new(
                                                 -tagname => 'colour',
                                                 -value   => 'red'
                                                  ), ;
 $ac3->add_Annotation('simple',$simple3);
 $seq2->annotation($ac3);
-$ft2 = new Bio::SeqFeature::Generic ( -start => 1,
+$ft2 = Bio::SeqFeature::Generic->new( -start => 1,
                                       -end => 4,
                                       -strand => 1,
                                       -primary => 'source',
                                        );
 
 
-$ft3 = new Bio::SeqFeature::Generic ( -start => 5,
+$ft3 = Bio::SeqFeature::Generic->new( -start => 5,
                                       -end => 8,
                                       -strand => -1,
                                       -primary => 'hotspot',

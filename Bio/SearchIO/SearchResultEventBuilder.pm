@@ -73,7 +73,7 @@ use base qw(Bio::Root::Root Bio::SearchIO::EventHandlerI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO::SearchResultEventBuilder();
+ Usage   : my $obj = Bio::SearchIO::SearchResultEventBuilder->new();
  Function: Builds a new Bio::SearchIO::SearchResultEventBuilder object 
  Returns : Bio::SearchIO::SearchResultEventBuilder
  Args    : -hsp_factory    => Bio::Factory::ObjectFactoryI

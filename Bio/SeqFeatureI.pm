@@ -387,7 +387,7 @@ sub spliced_seq {
         $db = undef;
     } elsif( defined $db && $HasInMemory &&
             $db->isa('Bio::DB::InMemoryCache') ) {
-        $db = new Bio::DB::InMemoryCache(-seqdb => $db);
+        $db = Bio::DB::InMemoryCache->new(-seqdb => $db);
     }
 
     if( ! $self->location->isa("Bio::Location::SplitLocationI") ) {

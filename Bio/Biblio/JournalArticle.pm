@@ -13,13 +13,13 @@ Bio::Biblio::JournalArticle - Representation of a journal article
 
 =head1 SYNOPSIS
 
-    $obj = new Bio::Biblio::JournalArticle (-title => 'Come to grief',
-                                            -journal => new Bio::Biblio::Journal);
+    $obj = Bio::Biblio::JournalArticle->new(-title => 'Come to grief',
+                                            -journal => Bio::Biblio::Journal->new());
   #--- OR ---
 
-    $obj = new Bio::Biblio::JournalArticle;
+    $obj = Bio::Biblio::JournalArticle->new();
     $obj->title ('Come to grief');
-    $obj->journal (new Bio::Biblio::Journal (-name => 'English Mysteries'));
+    $obj->journal (Bio::Biblio::Journal->new(-name => 'English Mysteries'));
 
 =head1 DESCRIPTION
 

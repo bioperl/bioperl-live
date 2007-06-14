@@ -23,7 +23,7 @@ my($a);
 # SNP
 #
 
-ok $a = new Bio::Variation::SNP;
+ok $a = Bio::Variation::SNP->new();
 is $a->id('123'), 123;
 eval { $a->di('123'); };
 ok 1 if $@;

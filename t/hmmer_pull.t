@@ -18,7 +18,7 @@ BEGIN {
 	use_ok('Bio::SearchIO');
 }
 
-my $searchio = new Bio::SearchIO(-format => 'hmmer_pull', -file => Bio::Root::IO->catfile("t","data","hmmpfam_fake.out"), -verbose => -1);
+my $searchio = Bio::SearchIO->new(-format => 'hmmer_pull', -file => Bio::Root::IO->catfile("t","data","hmmpfam_fake.out"), -verbose => -1);
 my @data = ([qw(roa1_drome roa2_drome)], [2, 1], [1, 2], [2, 1]);
 while (my $result = $searchio->next_result) {
     is ref($result), 'Bio::Search::Result::HmmpfamResult';

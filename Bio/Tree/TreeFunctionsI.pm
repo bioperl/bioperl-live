@@ -17,7 +17,7 @@ Bio::Tree::TreeFunctionsI - Decorated Interface implementing basic Tree explorat
 =head1 SYNOPSIS
 
   use Bio::TreeIO;
-  my $in = new Bio::TreeIO(-format => 'newick', -file => 'tree.tre');
+  my $in = Bio::TreeIO->new(-format => 'newick', -file => 'tree.tre');
 
   my $tree = $in->next_tree;
 
@@ -882,7 +882,7 @@ sub is_paraphyletic{
        }
        $og_ancestor = $og_ancestor->ancestor;
    }
-   my $tree = new Bio::Tree::Tree(-root     => $clade_root,
+   my $tree = Bio::Tree::Tree->new(-root     => $clade_root,
 				  -nodelete => 1);
 
    foreach my $n ( $tree->get_nodes() ) { 

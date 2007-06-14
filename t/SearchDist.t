@@ -32,7 +32,7 @@ if( $error == 1 ) {
 require Bio::SearchDist;
 ok(1);
 
-my $dist = new Bio::SearchDist;
+my $dist = Bio::SearchDist->new();
 
 ok ref($dist), 'Bio::SearchDist';
 

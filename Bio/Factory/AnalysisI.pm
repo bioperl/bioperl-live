@@ -18,7 +18,7 @@ This is an interface module - you do not instantiate it.
 Use I<Bio::Tools::Run::AnalysisFactory> module:
 
   use Bio::Tools::Run::AnalysisFactory;
-  my $list = new Bio::Tools::Run::AnalysisFactory->available_analyses;
+  my $list = Bio::Tools::Run::AnalysisFactory->new->available_analyses;
 
 =head1 DESCRIPTION
 

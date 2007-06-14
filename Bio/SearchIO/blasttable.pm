@@ -18,7 +18,7 @@ Bio::SearchIO::blasttable - Driver module for SearchIO for parsing NCBI -m 8/9 f
 
   # do not use this module directly
   use Bio::SearchIO;
-  my $parser = new Bio::SearchIO(-file   => $file,
+  my $parser = Bio::SearchIO->new(-file   => $file,
                                  -format => 'blasttable');
 
   while( my $result = $parser->next_result ) {
@@ -122,7 +122,7 @@ use base qw(Bio::SearchIO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO::blasttable();
+ Usage   : my $obj = Bio::SearchIO::blasttable->new();
  Function: Builds a new Bio::SearchIO::blasttable object 
  Returns : an instance of Bio::SearchIO::blasttable
  Args    :

@@ -86,7 +86,7 @@ use base qw(Bio::Search::Result::GenericResult);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Search::Result::BlastResult();
+ Usage   : my $obj = Bio::Search::Result::BlastResult->new();
  Function: Builds a new Bio::Search::Result::BlastResult object
  Returns : Bio::Search::Result::BlastResult
  Args    : See Bio::Search::Result::GenericResult();

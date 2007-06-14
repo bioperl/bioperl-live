@@ -82,7 +82,7 @@ use base qw(Bio::AlignIO);
 =head2 new
 
  Title   : new
- Usage   : my $alignio = new Bio::AlignIO(-format => 'maf'
+ Usage   : my $alignio = Bio::AlignIO->new(-format => 'maf'
 					  -file   => '>file',
 					  -idlength => 10,
 					  -idlinebreak => 1);
@@ -148,7 +148,7 @@ sub next_aln {
 	    split /\s+/, $sline;
 	# adjust coordinates to be one-based inclusive
         $start = $start + 1;
-	my $seq = new Bio::LocatableSeq('-seq'    => $text,
+	my $seq = Bio::LocatableSeq->new('-seq'    => $text,
 					'-id'     => $src,
 					'-start'  => $start,
 					'-end'    => $start + $size - 1,

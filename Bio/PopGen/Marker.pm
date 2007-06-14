@@ -84,7 +84,7 @@ use base qw(Bio::Root::Root Bio::PopGen::MarkerI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::PopGen::Marker();
+ Usage   : my $obj = Bio::PopGen::Marker->new();
  Function: Builds a new Bio::PopGen::Marker object 
  Returns : an instance of Bio::PopGen::Marker
  Args    : -name          => [string] marker name

@@ -16,13 +16,13 @@ Bio::Annotation::DBLink - untyped links between databases
 
 =head1 SYNOPSIS
 
-   $link1 = new Bio::Annotation::DBLink(-database => 'TSC',
+   $link1 = Bio::Annotation::DBLink->new(-database => 'TSC',
                                         -primary_id => 'TSC0000030'
 					);
 
    #or 
 
-   $link2 = new Bio::Annotation::DBLink();
+   $link2 = Bio::Annotation::DBLink->new();
    $link2->database('dbSNP');
    $link2->primary_id('2367');
 

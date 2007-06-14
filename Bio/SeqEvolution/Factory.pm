@@ -73,7 +73,7 @@ use base qw(Bio::Root::Root Bio::SeqEvolution::EvolutionI);
 =head2 new
 
   Title   : new
-  Usage   : my $obj = new Bio::SeqEvolution::Factory;
+  Usage   : my $obj = Bio::SeqEvolution::Factory->new();
   Function: Builds a new Bio:SeqEvolution::EvolutionI object
   Returns : Bio:SeqEvolution::EvolutionI object
   Args    : -type           => class name

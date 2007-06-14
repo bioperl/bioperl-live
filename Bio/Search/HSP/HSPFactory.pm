@@ -17,7 +17,7 @@ Bio::Search::HSP::HSPFactory - A factory to create Bio::Search::HSP::HSPI object
 =head1 SYNOPSIS
 
     use Bio::Search::HSP::HSPFactory;
-    my $factory = new Bio::Search::HSP::HSPFactory();
+    my $factory = Bio::Search::HSP::HSPFactory->new();
     my $resultobj = $factory->create(@args);
 
 =head1 DESCRIPTION
@@ -77,7 +77,7 @@ BEGIN {
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Search::HSP::HSPFactory();
+ Usage   : my $obj = Bio::Search::HSP::HSPFactory->new();
  Function: Builds a new Bio::Search::HSP::HSPFactory object 
  Returns : Bio::Search::HSP::HSPFactory
  Args    :

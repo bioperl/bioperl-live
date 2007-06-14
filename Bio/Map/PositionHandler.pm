@@ -21,7 +21,7 @@ Bio::Map::PositionHandler - A Position Handler Implementation
     # a L<Bio::Map::EntityI>)
 
     # Make a PositionHandler that knows about you
-    my $ph = new Bio::Map::PositionHandler($self);
+    my $ph = Bio::Map::PositionHandler->new($self);
 
     # Register with it so that it handles your Position-related needs
     $ph->register;
@@ -103,7 +103,7 @@ my $RELATIONS = {};
 =head2 new
 
  Title   : new
- Usage   : my $position_handler = new Bio::Map::PositionHandler(-self => $self);
+ Usage   : my $position_handler = Bio::Map::PositionHandler->new(-self => $self);
  Function: Get a Bio::Map::PositionHandler that knows who you are.
  Returns : Bio::Map::PositionHandler object
  Args    : -self => Bio::Map::EntityI that is you

@@ -18,7 +18,7 @@ Bio::Search::HSP::PullHSPI - Bio::Search::HSP::HSPI interface for pull parsers.
 
     # generally we use Bio::SearchIO to build these objects
     use Bio::SearchIO;
-    my $in = new Bio::SearchIO(-format => 'hmmer_pull',
+    my $in = Bio::SearchIO->new(-format => 'hmmer_pull',
 							   -file   => 'result.hmmer');
 
     while (my $result = $in->next_result) {
@@ -460,7 +460,7 @@ sub get_aln {
 	
     require Bio::LocatableSeq;
     require Bio::SimpleAlign;
-    my $aln = new Bio::SimpleAlign;
+    my $aln = Bio::SimpleAlign->new();
     my $hs = $self->seq('hit');
     my $qs = $self->seq('query');
 	if ($hs && $qs) {

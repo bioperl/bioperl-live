@@ -20,9 +20,9 @@ END {
 }
 
 #Let's try masta formats here
-my $mio =  new Bio::Matrix::PSM::IO(-format=>'masta', 
+my $mio =  Bio::Matrix::PSM::IO->new(-format=>'masta', 
 				      -file=>Bio::Root::IO->catfile(qw(t data masta.dat)));
-my $wmio=new Bio::Matrix::PSM::IO(-format=>'masta', 
+my $wmio=Bio::Matrix::PSM::IO->new(-format=>'masta', 
 				      -file=>">".Bio::Root::IO->catfile(qw(t data masta_w.dat)));
 $wmio->_flush_on_write(1);
 ok $mio;
@@ -44,7 +44,7 @@ $wmio->write_psm($carry,'PFM');
 $carry->id('m1seq');
 $wmio->write_psm($carry,'SEQ');
 $wmio->DESTROY;
-my $chio=new Bio::Matrix::PSM::IO(-format=>'masta', 
+my $chio=Bio::Matrix::PSM::IO->new(-format=>'masta', 
 				      -file=>Bio::Root::IO->catfile(qw(t data masta_w.dat)));
 ok $chio;
 my $site=$chio->next_matrix;

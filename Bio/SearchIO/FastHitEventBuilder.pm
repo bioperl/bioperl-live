@@ -23,9 +23,9 @@ Bio::SearchIO::FastHitEventBuilder - Event Handler for SearchIO events.
 
   use Bio::SearchIO::FastHitEventBuilder;
 
-  my $searchio = new Bio::SearchIO(-format => $format, -file => $file);
+  my $searchio = Bio::SearchIO->new(-format => $format, -file => $file);
 
-  $searchio->attach_EventHandler(new Bio::SearchIO::FastHitEventBuilder);
+  $searchio->attach_EventHandler(Bio::SearchIO::FastHitEventBuilder->new());
 
   while( my $r = $searchio->next_result ) {
    while( my $h = $r->next_hit ) {
@@ -90,7 +90,7 @@ use base qw(Bio::Root::Root Bio::SearchIO::EventHandlerI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO::FastHitEventBuilder();
+ Usage   : my $obj = Bio::SearchIO::FastHitEventBuilder->new();
  Function: Builds a new Bio::SearchIO::FastHitEventBuilder object 
  Returns : Bio::SearchIO::FastHitEventBuilder
  Args    : -hit_factory    => Bio::Factory::ObjectFactoryI

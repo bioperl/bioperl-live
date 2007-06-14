@@ -39,7 +39,7 @@ is $sps->binomial, 'Homo sapiens';
 
 
 # test cmd line initializtion
-ok my $species = new Bio::Species( -classification => 
+ok my $species = Bio::Species->new( -classification => 
 				[ qw( sapiens Homo Hominidae
 				      Catarrhini Primates Eutheria 
 				      Mammalia Vertebrata
@@ -56,8 +56,8 @@ is $species->rank, 'species';
 # We can make a species object from just an id an db handle
 SKIP: {
     skip "Skipping tests which require network access, set BIOPERLDEBUG=1 to test", 5 unless $DEBUG;
-    $species = new Bio::Species(-id => 51351);
-    my $taxdb = new Bio::DB::Taxonomy(-source => 'entrez');
+    $species = Bio::Species->new(-id => 51351);
+    my $taxdb = Bio::DB::Taxonomy->new(-source => 'entrez');
     eval {$species->db_handle($taxdb);};
     skip "Unable to connect to entrez database; no network or server busy?", 5 if $@;
     is $species->binomial, 'Brassica rapa subsp.';

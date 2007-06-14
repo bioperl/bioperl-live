@@ -113,14 +113,14 @@ sub next_aln {
 	    $name = $1;
 
 	    if($name =~ /(\S+)\/(\d+)-(\d+)/) {
-		$seq = new Bio::LocatableSeq(
+		$seq = Bio::LocatableSeq->new(
 					     '-display_id' => $1,
 					     '-start'      => $2,
 					     '-end'        => $3,
 					    );
 
 	    } else {
-		$seq = new Bio::LocatableSeq('-display_id' => $name);
+		$seq = Bio::LocatableSeq->new('-display_id' => $name);
 	    }
 
 	    # store sequences in a list initially, because can't guarantee

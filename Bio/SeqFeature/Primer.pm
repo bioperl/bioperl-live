@@ -178,7 +178,7 @@ sub new {
     if (ref($args{$argument}) eq "Bio::Seq") {$self->{seq} = $args{$argument}}
     else {
      unless ($args{-id}) {$args{-id}="SeqFeature Primer object"}
-     $self->{seq} = new Bio::Seq( -seq => $args{$argument}, -id => $args{-id});
+     $self->{seq} = Bio::Seq->new( -seq => $args{$argument}, -id => $args{-id});
     }
     $self->{$argument} = $self->{seq};
     push (@{$self->{arguments}}, "seq");

@@ -137,12 +137,12 @@ sub _variant {
 	}
     } else { # create new variants
 	if ($term->gi eq 'DNA') {
-	    $var = new Bio::Variation::DNAMutation;
+	    $var = Bio::Variation::DNAMutation->new();
 	}
 	elsif ($term->gi eq 'RNA') {
-	    $var = new Bio::Variation::RNAChange;
+	    $var = Bio::Variation::RNAChange->new();
 	} else { # AA
-	    $var = new Bio::Variation::AAChange;
+	    $var = Bio::Variation::AAChange->new();
 	}
 
 	# these are always present

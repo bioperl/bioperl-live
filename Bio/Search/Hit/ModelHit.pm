@@ -21,7 +21,7 @@ Bio::Search::Hit::ModelHit - A model-based implementation of the Bio::Search::Hi
 
     # typically one gets HitI objects from a SearchIO stream via a ResultI
     use Bio::SearchIO;
-    my $parser = new Bio::SearchIO(-format => 'infernal', -file => 'trap.inf');
+    my $parser = Bio::SearchIO->new(-format => 'infernal', -file => 'trap.inf');
 
     my $result = $parser->next_result;
     my $hit    = $result->next_hit;
@@ -88,7 +88,7 @@ use base qw(Bio::Search::Hit::GenericHit);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Search::Hit::GenericHit();
+ Usage   : my $obj = Bio::Search::Hit::GenericHit->new();
  Function: Builds a new Bio::Search::Hit::GenericHit object 
  Returns : Bio::Search::Hit::GenericHit
  Args    : -name         => Name of Hit (required)

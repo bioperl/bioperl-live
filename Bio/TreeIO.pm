@@ -18,7 +18,7 @@ Bio::TreeIO - Parser for Tree files
 
   {
       use Bio::TreeIO;
-      my $treeio = new Bio::TreeIO('-format' => 'newick',
+      my $treeio = Bio::TreeIO->new('-format' => 'newick',
   				   '-file'   => 'globin.dnd');
       while( my $tree = $treeio->next_tree ) {
   	  print "Tree is ", $tree->size, "\n";
@@ -83,7 +83,7 @@ use constant INTERNAL_NODE_ID => 'id'; # id or bootstrap, default is 'id'
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::TreeIO();
+ Usage   : my $obj = Bio::TreeIO->new();
  Function: Builds a new Bio::TreeIO object 
  Returns : Bio::TreeIO
  Args    : a hash.  useful keys:

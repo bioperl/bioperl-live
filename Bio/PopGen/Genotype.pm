@@ -17,7 +17,7 @@ Bio::PopGen::Genotype - An implementation of GenotypeI which is just an allele c
 =head1 SYNOPSIS
 
   use Bio::PopGen::Genotype;
-  my $genotype = new Bio::PopGen::Genotype(-marker_name   => $name,
+  my $genotype = Bio::PopGen::Genotype->new(-marker_name   => $name,
                                            -individual_id => $indid,
                                            -alleles       => \@alleles);
 
@@ -87,7 +87,7 @@ use base qw(Bio::Root::Root Bio::PopGen::GenotypeI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::PopGen::Genotype();
+ Usage   : my $obj = Bio::PopGen::Genotype->new();
  Function: Builds a new Bio::PopGen::Genotype object 
  Returns : an instance of Bio::PopGen::Genotype
  Args    : -marker_name   => string representing name of the marker

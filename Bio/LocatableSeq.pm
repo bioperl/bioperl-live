@@ -20,7 +20,7 @@ another seq.
 
 
     use Bio::LocatableSeq;
-    my $seq = new Bio::LocatableSeq(-seq => "CAGT-GGT",
+    my $seq = Bio::LocatableSeq->new(-seq => "CAGT-GGT",
 				    -id  => "seq1",
 				    -start => 1,
 				    -end   => 7);
@@ -368,7 +368,7 @@ sub location_from_column {
         ? ($self->end - $pos + 1)
 	: ($pos + $start - 1);
     if ($self->subseq($column, $column) =~ /[a-zA-Z\*]/ ) {
-	$loc = new Bio::Location::Simple
+	$loc = Bio::Location::Simple->new
 	    (-start  => $relative_pos,
 	     -end    => $relative_pos,
 	     -strand => 1,
@@ -379,7 +379,7 @@ sub location_from_column {
       if ($strand == -1) {
 	($start,$end) = ($end,$start);
       }
-	$loc = new Bio::Location::Simple
+	$loc = Bio::Location::Simple->new
 	    (-start         => $start,
 	     -end           => $end,
 	     -strand        => 1,

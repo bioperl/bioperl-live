@@ -32,7 +32,7 @@ Bio::Factory::ObjectFactory - Instantiates a new Bio::Root::RootI (or derived cl
 
     use Bio::Factory::ObjectFactory;
 
-    my $factory = new Bio::Factory::ObjectFactory(-type => 'Bio::Ontology::GOterm');
+    my $factory = Bio::Factory::ObjectFactory->new(-type => 'Bio::Ontology::GOterm');
     my $term = $factory->create_object(-name => 'peroxisome',
                                        -ontology => 'Gene Factory',
                                        -identifier => 'GO:0005777');
@@ -92,7 +92,7 @@ use base qw(Bio::Root::Root Bio::Factory::ObjectFactoryI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Factory::ObjectFactory();
+ Usage   : my $obj = Bio::Factory::ObjectFactory->new();
  Function: Builds a new Bio::Factory::ObjectFactory object 
  Returns : Bio::Factory::ObjectFactory
  Args    : -type      => string, name of a L<Bio::Root::RootI> derived class.

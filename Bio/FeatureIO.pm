@@ -151,9 +151,9 @@ improve the efficiency of writing multiple sequences to the same file
 (or filehandle), pass the -flush option '0' or any other value that
 evaluates as defined but false:
 
-  my $f1 = new Bio::FeatureIO -file   => "<a.f1",
+  my $f1 = Bio::FeatureIO->new -file   => "<a.f1",
                               -format => "f1";
-  my $f2 = new Bio::FeatureIO -file   => ">a.f2",
+  my $f2 = Bio::FeatureIO->new -file   => ">a.f2",
                               -format => "f2",
                               -flush  => 0; # go as fast as we can!
 

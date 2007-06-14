@@ -13,7 +13,7 @@ Bio::Tools::HMMER::Results - Object representing HMMER output results
 =head1 SYNOPSIS
 
    # parse a hmmsearch file (can also parse a hmmpfam file)
-   $res = new Bio::Tools::HMMER::Results( -file => 'output.hmm' ,
+   $res = Bio::Tools::HMMER::Results->new( -file => 'output.hmm' ,
                                           -type => 'hmmsearch');
 
    # print out the results for each sequence

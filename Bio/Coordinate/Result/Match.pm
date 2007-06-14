@@ -17,7 +17,7 @@ Bio::Coordinate::Result::Match - Another name for Bio::Location::Simple
 
 =head1 SYNOPSIS
 
-  $loc = new Bio::Coordinate::Result::Match(-start=>10,
+  $loc = Bio::Coordinate::Result::Match->new(-start=>10,
                                             -end=>30,
                                             -strand=>+1);
 

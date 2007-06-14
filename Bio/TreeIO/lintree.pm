@@ -18,7 +18,7 @@ Bio::TreeIO::lintree - Parser for lintree output trees
 
   # do not use directly, use through Bio::TreeIO
   use Bio::TreeIO;
-  my $treeio = new Bio::TreeIO(-format => 'lintree',
+  my $treeio = Bio::TreeIO->new(-format => 'lintree',
                                -file   => 't/data/crab.nj');
   my $tree = $treeio->next_tree;
 
@@ -119,7 +119,7 @@ $Defaults{'NodeType'} = "Bio::Tree::Node";
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::TreeIO::lintree();
+ Usage   : my $obj = Bio::TreeIO::lintree->new();
  Function: Builds a new Bio::TreeIO::lintree object 
  Returns : an instance of Bio::TreeIO::lintree
  Args    : -nodetype => Node type to create [default Bio::Tree::Node]

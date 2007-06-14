@@ -24,7 +24,7 @@ files in the tempdir
 
   # normal primary seq usage
     use Bio::Seq::LargeLocatableSeq;
-    my $seq = new Bio::Seq::LargeLocatableSeq(-seq => "CAGT-GGT",
+    my $seq = Bio::Seq::LargeLocatableSeq->new(-seq => "CAGT-GGT",
 				              -id  => "seq1",
 				              -start => 1,
 				              -end   => 7);
@@ -91,7 +91,7 @@ use base qw(Bio::Seq::LargePrimarySeq Bio::LocatableSeq Bio::Root::IO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Seq::LargeLocatableSeq();
+ Usage   : my $obj = Bio::Seq::LargeLocatableSeq->new();
  Function: Builds a new Bio::Seq::LargeLocatableSeq object
  Returns : an instance of Bio::Seq::LargeLocatableSeq
  Args    :

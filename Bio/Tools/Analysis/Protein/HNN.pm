@@ -19,7 +19,7 @@ secondary structure prediction server
   use	Bio::Tools::Analysis::Protein::HNN;
   #get a Bio::Seq or Bio::PrimarySeq
   use Bio::PrimarySeq;
-  my $seq = new Bio::PrimarySeq
+  my $seq = Bio::PrimarySeq->new
       (-seq=>'IKLCVHHJHJHJHJHJHJHNLAILAKAHLIELALAL',
        -primary_id=>'test'); # a Bio::PrimarySeqI object
 

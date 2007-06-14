@@ -34,11 +34,11 @@ Bio::Annotation::OntologyTerm - An ontology term adapted to AnnotationI
    use Bio::Annotation::Collection;
    use Bio::Ontology::Term;
 
-   my $coll = new Bio::Annotation::Collection;
+   my $coll = Bio::Annotation::Collection->new();
 
    # this also implements a tag/value pair, where tag _and_ value are treated
    # as ontology terms
-   my $annterm = new Bio::Annotation::OntologyTerm(-label => 'ABC1',
+   my $annterm = Bio::Annotation::OntologyTerm->new(-label => 'ABC1',
                                                    -tagname => 'Gene Name');
    # ontology terms can be added directly - they implicitly have a tag
    $coll->add_Annotation($annterm);
@@ -105,7 +105,7 @@ use base qw(Bio::Root::Root Bio::AnnotationI Bio::Ontology::TermI);
 =head2 new
 
  Title   : new
- Usage   : my $sv = new Bio::Annotation::OntologyTerm;
+ Usage   : my $sv = Bio::Annotation::OntologyTerm->new();
  Function: Instantiate a new OntologyTerm object
  Returns : Bio::Annotation::OntologyTerm object
  Args    : -term => $term to initialize the term data field [optional]

@@ -99,7 +99,7 @@ use base qw(Bio::Root::Root Bio::PopGen::PopulationI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::PopGen::Population();
+ Usage   : my $obj = Bio::PopGen::Population->new();
  Function: Builds a new Bio::PopGen::Population object 
  Returns : an instance of Bio::PopGen::Population
  Args    : -individuals => array ref of individuals (optional)
@@ -218,7 +218,7 @@ sub set_Allele_Frequency {
 	   my ($markername,$alleles);
 	   while( ($markername,$alleles) = each %$frequencies ) {
 	       $self->{'_allele_freqs'}->{$markername} = 
-		   new Bio::PopGen::Marker(-name        => $markername,
+		   Bio::PopGen::Marker->new(-name        => $markername,
 					   -allele_freq => $alleles);
 	   }
        } else { 
@@ -227,7 +227,7 @@ sub set_Allele_Frequency {
    } else { 
        unless( defined $self->{'_allele_freqs'}->{$name} ) {
 	   $self->{'_allele_freqs'}->{$name} = 
-	       new Bio::PopGen::Marker(-name        => $name);
+	       Bio::PopGen::Marker->new(-name        => $name);
        }
        $self->{'_allele_freqs'}->{$name}->add_Allele_Frequency($allele,$frequency);
    }
@@ -389,7 +389,7 @@ sub get_Marker{
        # marker is now set to the stored value
    } else { 
        my @genotypes = $self->get_Genotypes(-marker => $markername);
-       $marker = new Bio::PopGen::Marker(-name   => $markername);
+       $marker = Bio::PopGen::Marker->new(-name   => $markername);
        
        if( ! @genotypes ) {
 	   $self->warn("No genotypes for Marker $markername in the population");

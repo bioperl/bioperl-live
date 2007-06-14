@@ -27,14 +27,14 @@ $FILE1 = 'out.tre';
 END { unlink $FILE1; }
  
 my $ssize = 5;
-my $factory = new Bio::Tree::RandomFactory(-sample_size => $ssize);
-my $stats = new Bio::Tree::Statistics();
+my $factory = Bio::Tree::RandomFactory->new(-sample_size => $ssize);
+my $stats = Bio::Tree::Statistics->new();
 
 my $tree = $factory->next_tree;
 
 ok($tree->get_nodes, ($ssize * 2 - 1));
 
-my $treeio = new Bio::TreeIO(-format => 'newick', -file => ">$FILE1");
+my $treeio = Bio::TreeIO->new(-format => 'newick', -file => ">$FILE1");
 
 $treeio->write_tree($tree);
 undef $treeio;

@@ -85,7 +85,7 @@ sub _initialize {
     $self->SUPER::_initialize(@_);
     $self->{'_parser'} = XML::SAX::ParserFactory->parser('Handler' => $self);
     if( ! defined $self->sequence_factory ) {
-	$self->sequence_factory(new Bio::Seq::SeqFactory
+	$self->sequence_factory(Bio::Seq::SeqFactory->new
 				(-verbose => $self->verbose(),
 				 -type => 'Bio::Seq::RichSeq'));
     }

@@ -50,7 +50,7 @@ $ref = $refio = undef;
 SKIP: {
 	
 	# check BioFetch access method
-	ok ($db = new Bio::Biblio (-access => 'biofetch',
+	ok ($db = Bio::Biblio->new(-access => 'biofetch',
 										# -verbose => $verbose,
 									  ));
 	eval { 
@@ -64,7 +64,7 @@ SKIP: {
 	is $ref->identifier, '10592273';
 	$ref = $refio = undef;
 	
-	ok defined($db = new Bio::Biblio(-access => 'biofetch',
+	ok defined($db = Bio::Biblio->new(-access => 'biofetch',
 												# -verbose => $verbose,
 											   )); 
 	
@@ -81,7 +81,7 @@ SKIP: {
 	is($refio->next_bibref->identifier, '9613206');
 	is($refio->next_bibref->identifier, '10592273');
 	
-	ok defined($db = new Bio::Biblio(-access => 'biofetch',
+	ok defined($db = Bio::Biblio->new(-access => 'biofetch',
 												# -verbose => $verbose,
 											  )); 
 	eval {

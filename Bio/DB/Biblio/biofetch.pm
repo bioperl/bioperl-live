@@ -18,7 +18,7 @@ Do not use this object directly, only access it through the
 I<Bio::Biblio> module:
 
   use Bio::Biblio;
-  my $biblio = new Bio::Biblio (-access => 'biofetch');
+  my $biblio = Bio::Biblio->new(-access => 'biofetch');
   my $ref = $biblio->get_by_id('20063307'));
 
   my $ids = ['20063307', '98276153'];
@@ -212,7 +212,7 @@ sub get_seq_stream {
 			open(my $ERR, "<", $tmpfile);
 			while(<$ERR>) { $self->debug($_);}
 		} 
-		$stream = new Bio::Biblio::IO('-format' => $ioformat,
+		$stream = Bio::Biblio::IO->new('-format' => $ioformat,
 												'-file'   => $tmpfile);
 	} elsif ( $self->retrieval_type =~ /io_string/i ) {
 		my ($resp) = $self->_request($request);
@@ -224,7 +224,7 @@ sub get_seq_stream {
 		($rformat,$ioformat) = $self->request_format();
 		$self->postprocess_data('type'=> 'string',
 										'location' => $content);
-		$stream = new Bio::Biblio::IO('-format' => $ioformat,
+		$stream = Bio::Biblio::IO->new('-format' => $ioformat,
 			# '-data'   => "<tag>". $$content. "</tag>");
 												'-data'   => $$content
 											  );

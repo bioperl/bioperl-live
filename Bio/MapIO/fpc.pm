@@ -29,7 +29,7 @@ Bio::MapIO::fpc - A FPC Map reader
                  1 : reads the .cor file
                  [default 0]
      -verbose : indicates the process of loading of fpc file
-    my $mapio = new Bio::MapIO(-format  => "fpc",
+    my $mapio = Bio::MapIO->new(-format  => "fpc",
                                -file    => "rice.fpc",
                                -readcor => 0,
                                -verbose => 0);
@@ -124,7 +124,7 @@ sub next_map{
     my %_contigs;
     my $ctgzeropos = 1;
 
-    my $map = new Bio::Map::Physical('-units' => 'CB',
+    my $map = Bio::Map::Physical->new('-units' => 'CB',
                                      '-type'  => 'physical');
 
     my $filename = $self->file();

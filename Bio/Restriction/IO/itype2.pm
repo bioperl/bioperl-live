@@ -110,7 +110,7 @@ L<Bio::Restriction::IO::base::_create_enzyme>.
 sub read {
     my $self = shift;
 
-    my $renzs = new Bio::Restriction::EnzymeCollection(-empty => 1);
+    my $renzs = Bio::Restriction::EnzymeCollection->new(-empty => 1);
 
     # read until start of data
     while (defined( my $line = $self->_readline()) ) {
@@ -153,7 +153,7 @@ sub read {
         ($site, $cut, $comp_cut) = $self->_cuts_from_site($site);
 
 
-        my $re = new Bio::Restriction::Enzyme(-name=>$name,
+        my $re = Bio::Restriction::Enzyme->new(-name=>$name,
                                               -site => $site
                                              );
         $renzs->enzymes($re);

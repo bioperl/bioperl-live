@@ -21,11 +21,11 @@ BEGIN {
     use_ok('Bio::Root::IO');
 }
 
-my $seqio = new Bio::SeqIO('-format' => 'fasta', '-file' => Bio::Root::IO->catfile("t","data","genomic-seq.fasta"));
+my $seqio = Bio::SeqIO->new('-format' => 'fasta', '-file' => Bio::Root::IO->catfile("t","data","genomic-seq.fasta"));
 
 my $seq = $seqio->next_seq;
 ok($seq);
-my $epcr = new Bio::Tools::EPCR( '-file' => Bio::Root::IO->catfile("t","data","genomic-seq.epcr"));
+my $epcr = Bio::Tools::EPCR->new( '-file' => Bio::Root::IO->catfile("t","data","genomic-seq.epcr"));
 ok ($epcr);
 my %strand;
 while( defined(my $feature = $epcr->next_feature) ) {
@@ -39,6 +39,6 @@ is ($strand{1},  3, 'got 3 forward strand ePCR hits');
 is ($strand{-1}, 3, 'got 3 reverse strand ePCR hits');
 
 if( $DEBUG ) {
-    $seqio = new Bio::SeqIO('-format' => 'genbank' );
+    $seqio = Bio::SeqIO->new('-format' => 'genbank' );
     $seqio->write_seq($seq);
 }

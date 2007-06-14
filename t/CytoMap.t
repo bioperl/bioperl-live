@@ -21,7 +21,7 @@ BEGIN {
 # Let's test first the map class : Bio::Map::CytoMap
 #
 
-ok my $map = new Bio::Map::CytoMap(-name  => 'my');
+ok my $map = Bio::Map::CytoMap->new(-name  => 'my');
 is $map->type, 'cyto'; 
 is $map->units, ''; 
 is $map->length, 0;
@@ -213,18 +213,18 @@ test '16cen-p2';
 use Bio::Map::CytoMarker;
 ok 1;
 
-ok my $marker1 = new Bio::Map::CytoMarker();
+ok my $marker1 = Bio::Map::CytoMarker->new();
 is $marker1->name('gene1'), 'gene1' ;
 ok $marker1->position($map, '10p33.13-q15');
 
-ok my $marker2 = new Bio::Map::CytoMarker(-name => 'gene2' );
+ok my $marker2 = Bio::Map::CytoMarker->new(-name => 'gene2' );
 ok $marker2->position($map, '10p10-15');
 is $marker1->get_chr, 10;
 
-ok my $marker3 = new Bio::Map::CytoMarker(-name => '3' );
+ok my $marker3 = Bio::Map::CytoMarker->new(-name => '3' );
 ok $marker3->position($map, '10p1');
 
-ok my $marker4 = new Bio::Map::CytoMarker(-name => '4' );
+ok my $marker4 = Bio::Map::CytoMarker->new(-name => '4' );
 ok $marker4->position($map, '10q2');
 
 #

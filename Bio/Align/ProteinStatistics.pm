@@ -18,7 +18,7 @@ Bio::Align::ProteinStatistics - Calculate Protein Alignment statistics (mostly d
 
   use Bio::Align::ProteinStatistics;
   use Bio::AlignIO;
-  my $in = new Bio::AlignIO(-format => 'fasta',
+  my $in = Bio::AlignIO->new(-format => 'fasta',
 			    -file   => 'pep-104.fasaln');
   my $aln = $in->next_aln;
 
@@ -90,7 +90,7 @@ use base qw(Bio::Root::Root Bio::Align::StatisticsI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Align::ProteinStatistics();
+ Usage   : my $obj = Bio::Align::ProteinStatistics->new();
  Function: Builds a new Bio::Align::ProteinStatistics object 
  Returns : an instance of Bio::Align::ProteinStatistics
  Args    :
@@ -102,7 +102,7 @@ sub new {
   my($class,@args) = @_;
 
   my $self = $class->SUPER::new(@args);
-  $self->pairwise_stats( new Bio::Align::PairwiseStatistics());
+  $self->pairwise_stats( Bio::Align::PairwiseStatistics->new());
 
   return $self;
 }

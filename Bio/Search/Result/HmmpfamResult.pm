@@ -19,7 +19,7 @@ Bio::Search::Result::HmmpfamResult - A parser and result object for hmmpfam
 
     # generally we use Bio::SearchIO to build these objects
     use Bio::SearchIO;
-    my $in = new Bio::SearchIO(-format => 'hmmer_pull',
+    my $in = Bio::SearchIO->new(-format => 'hmmer_pull',
 							   -file   => 'result.hmmer');
 
     while (my $result = $in->next_result) {
@@ -74,7 +74,7 @@ use base qw(Bio::Root::Root Bio::Search::Result::PullResultI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO::Result::hmmpfam();
+ Usage   : my $obj = Bio::SearchIO::Result::hmmpfam->new();
  Function: Builds a new Bio::SearchIO::Result::hmmpfam object 
  Returns : Bio::SearchIO::Result::hmmpfam
  Args    : -chunk  => [Bio::Root::IO, $start, $end] (required if no -parent)
@@ -244,7 +244,7 @@ sub _discover_next_hit {
 	#[name description score significance num_hsps rank]
 	my @hit_data = (@{$hit_table[$self->{_next_hit_index}++]}, $self->{_next_hit_index});
 	
-	$self->_fields->{next_hit} = new Bio::Search::Hit::HmmpfamHit(-parent => $self,
+	$self->_fields->{next_hit} = Bio::Search::Hit::HmmpfamHit->new(-parent => $self,
 																  -hit_data => \@hit_data);
 	
 	if ($self->{_next_hit_index} > $#hit_table) {

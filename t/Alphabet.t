@@ -20,12 +20,12 @@ BEGIN {
 }
 
 
-my $A = new Bio::Symbol::Symbol(-token => 'A' );
-my $U = new Bio::Symbol::Symbol(-token => 'U' );
-my $G = new Bio::Symbol::Symbol(-token => 'G' );
-my $T = new Bio::Symbol::Symbol(-token => 'T' );
+my $A = Bio::Symbol::Symbol->new(-token => 'A' );
+my $U = Bio::Symbol::Symbol->new(-token => 'U' );
+my $G = Bio::Symbol::Symbol->new(-token => 'G' );
+my $T = Bio::Symbol::Symbol->new(-token => 'T' );
 
-my $rna = new Bio::Symbol::Alphabet( -symbols => [ $A, $U, $G, $T ] );
+my $rna = Bio::Symbol::Alphabet->new( -symbols => [ $A, $U, $G, $T ] );
 				     
 isa_ok($rna, 'Bio::Symbol::Alphabet');
 my @symbols = $rna->symbols;
@@ -37,7 +37,7 @@ ok($rna->contains($U));
 ok($rna->contains($G));
 
 
-my $dna = new Bio::Symbol::DNAAlphabet();
+my $dna = Bio::Symbol::DNAAlphabet->new();
 isa_ok($dna, 'Bio::Symbol::AlphabetI');
 my $count = 0;
 
@@ -47,7 +47,7 @@ foreach my $s ( sort { $a->name cmp $b->name } $dna->symbols ) {
     is($s->token, $dnasymbols[$count++]);    
 }
 
-my $prot = new Bio::Symbol::ProteinAlphabet();
+my $prot = Bio::Symbol::ProteinAlphabet->new();
 isa_ok($prot, 'Bio::Symbol::AlphabetI');
 
 my @protsymbols = sort qw( * A B C D E F G H I J K L M N O P Q R S T U V W X Y Z);

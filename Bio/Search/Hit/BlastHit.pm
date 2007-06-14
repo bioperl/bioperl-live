@@ -17,7 +17,7 @@ Bio::Search::Hit::BlastHit - Blast-specific subclass of Bio::Search::Hit::Generi
 =head1 SYNOPSIS
 
     use Bio::Search::Hit::BlastHit;
-    my $hit = new Bio::Search::Hit::BlastHit(-algorithm => 'blastp');
+    my $hit = Bio::Search::Hit::BlastHit->new(-algorithm => 'blastp');
 
 # See Bio::Search::Hit::GenericHit for information about working with Hits.
 
@@ -78,7 +78,7 @@ use base qw(Bio::Search::Hit::GenericHit);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Search::Hit::GenericHit();
+ Usage   : my $obj = Bio::Search::Hit::GenericHit->new();
  Function: Builds a new Bio::Search::Hit::GenericHit object 
  Returns : Bio::Search::Hit::GenericHit
  Args    : See Bio::Search::Hit::GenericHit() for other args.

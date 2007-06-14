@@ -122,7 +122,7 @@ eval { require Bio::Biblio::PubmedJournalArticle };
 print sprintf ($format, "use Bio::Biblio::PubmedJournalArticle"); ok (%Bio::Biblio::PubmedJournalArticle::);
 print $@ if $@;
 
-print "Testing 'new Bio::Biblio:: ...'\n";
+print "Testing 'Bio::Biblio::->new() ...'\n";
 foreach my $object (
 		    qw(
 		     Bio::Biblio::Article
@@ -381,7 +381,7 @@ my @scalar_methods_for_service =
 # Bio::Biblio::MedlineJournalArticle
 #
 print "Testing Bio::Biblio::MedlineJournalArticle ...\n";
-$citation = new Bio::Biblio::MedlineJournalArticle;
+$citation = Bio::Biblio::MedlineJournalArticle->new();
 @args = ();
 $count = 1;
 foreach my $method (@scalar_methods_for_ref,
@@ -397,7 +397,7 @@ foreach my $method (@scalar_methods_for_ref,
     push (@args, ("-$method" => $str));
 }
 print sprintf ($format, "set all attributes in a constructor");
-ok defined ($biblio = new Bio::Biblio::MedlineJournalArticle (@args));
+ok defined ($biblio = Bio::Biblio::MedlineJournalArticle->new(@args));
 for (my $i = 0; $i < @args; $i += 2) {
     my $method = substr ($args[$i], 1);
     print sprintf ($format, "   $method");
@@ -411,8 +411,8 @@ foreach my $method (@other_methods_for_ref,
     print sprintf ($format, "get '$method' ");
 	is $citation->$method(), undef;
 }
-my ($me) = new Bio::Biblio::Person (-lastname => 'me');
-my ($you) = new Bio::Biblio::Person (-lastname => 'you');
+my ($me) = Bio::Biblio::Person->new(-lastname => 'me');
+my ($you) = Bio::Biblio::Person->new(-lastname => 'you');
 print sprintf ($format, "add_author 1");
 ok $citation->add_author ($me);
 print sprintf ($format, "add_author 2");
@@ -428,10 +428,10 @@ print sprintf ($format, "get contributors");
 is ${ $citation->contributors }[1]->lastname, 'you';
 
 use Bio::Annotation::DBLink;
-my $link1 = new Bio::Annotation::DBLink(-database => 'here',
+my $link1 = Bio::Annotation::DBLink->new(-database => 'here',
 				        -primary_id => '001'
 				        );
-my $link2 = new Bio::Annotation::DBLink(-database => 'there',
+my $link2 = Bio::Annotation::DBLink->new(-database => 'there',
 				        -primary_id => '002'
 				        );
 print sprintf ($format, "add_cross_reference 1");
@@ -448,7 +448,7 @@ is ${ $citation->cross_references }[1]->primary_id, '002';
 # Bio::Biblio::MedlineBookArticle
 #
 print "Testing Bio::Biblio::MedlineBookArticle ...\n";
-$citation = new Bio::Biblio::MedlineBookArticle;
+$citation = Bio::Biblio::MedlineBookArticle->new();
 @args = ();
 $count = 1;
 foreach my $method (@scalar_methods_for_ref,
@@ -464,7 +464,7 @@ foreach my $method (@scalar_methods_for_ref,
     push (@args, ("-$method" => $str));
 }
 print sprintf ($format, "set all attributes in a constructor");
-ok defined ($biblio = new Bio::Biblio::MedlineBookArticle (@args));
+ok defined ($biblio = Bio::Biblio::MedlineBookArticle->new(@args));
 for (my $i = 0; $i < @args; $i += 2) {
     my $method = substr ($args[$i], 1);
     print sprintf ($format, "   $method");
@@ -484,7 +484,7 @@ foreach my $method (@other_methods_for_ref,
 # Bio::Biblio::MedlineBook
 #
 print "Testing Bio::Biblio::MedlineBook ...\n";
-$citation = new Bio::Biblio::MedlineBook;
+$citation = Bio::Biblio::MedlineBook->new();
 @args = ();
 $count = 1;
 foreach my $method (@scalar_methods_for_ref,
@@ -498,7 +498,7 @@ foreach my $method (@scalar_methods_for_ref,
     push (@args, ("-$method" => $str));
 }
 print sprintf ($format, "set all attributes in a constructor");
-ok defined ($biblio = new Bio::Biblio::MedlineBook (@args));
+ok defined ($biblio = Bio::Biblio::MedlineBook->new(@args));
 for (my $i = 0; $i < @args; $i += 2) {
     my $method = substr ($args[$i], 1);
     print sprintf ($format, "   $method");
@@ -515,7 +515,7 @@ foreach my $method (@other_methods_for_ref,
 # Bio::Biblio::MedlineJournal
 #
 print "Testing Bio::Biblio::MedlineJournal ...\n";
-$citation = new Bio::Biblio::MedlineJournal;
+$citation = Bio::Biblio::MedlineJournal->new();
 @args = ();
 $count = 1;
 foreach my $method (@scalar_methods_for_journal,
@@ -528,7 +528,7 @@ foreach my $method (@scalar_methods_for_journal,
     push (@args, ("-$method" => $str));
 }
 print sprintf ($format, "set all attributes in a constructor");
-ok defined ($biblio = new Bio::Biblio::MedlineJournal (@args));
+ok defined ($biblio = Bio::Biblio::MedlineJournal->new(@args));
 for (my $i = 0; $i < @args; $i += 2) {
     my $method = substr ($args[$i], 1);
     print sprintf ($format, "   $method");
@@ -544,7 +544,7 @@ foreach my $method (@other_methods_for_journal,
 # Bio::Biblio::Patent
 #
 print "Testing Bio::Biblio::Patent ...\n";
-$citation = new Bio::Biblio::Patent;
+$citation = Bio::Biblio::Patent->new();
 @args = ();
 $count = 1;
 foreach my $method (@scalar_methods_for_patent) {
@@ -556,7 +556,7 @@ foreach my $method (@scalar_methods_for_patent) {
     push (@args, ("-$method" => $str));
 }
 print sprintf ($format, "set all attributes in a constructor");
-ok defined ($biblio = new Bio::Biblio::Patent (@args));
+ok defined ($biblio = Bio::Biblio::Patent->new(@args));
 for (my $i = 0; $i < @args; $i += 2) {
     my $method = substr ($args[$i], 1);
     print sprintf ($format, "   $method");
@@ -571,7 +571,7 @@ foreach my $method (@other_methods_for_patent) {
 # Bio::Biblio::WebResource
 #
 print "Testing Bio::Biblio::WebResource ...\n";
-$citation = new Bio::Biblio::WebResource;
+$citation = Bio::Biblio::WebResource->new();
 @args = ();
 $count = 1;
 foreach my $method (@scalar_methods_for_webresource) {
@@ -583,7 +583,7 @@ foreach my $method (@scalar_methods_for_webresource) {
     push (@args, ("-$method" => $str));
 }
 print sprintf ($format, "set all attributes in a constructor");
-ok defined ($biblio = new Bio::Biblio::WebResource (@args));
+ok defined ($biblio = Bio::Biblio::WebResource->new(@args));
 for (my $i = 0; $i < @args; $i += 2) {
     my $method = substr ($args[$i], 1);
     print sprintf ($format, "   $method");
@@ -599,7 +599,7 @@ foreach my $method (@other_methods_for_webresource) {
 # Bio::Biblio::Person
 #
 print "Testing Bio::Biblio::Person ...\n";
-$provider = new Bio::Biblio::Person;
+$provider = Bio::Biblio::Person->new();
 @args = ();
 $count = 1;
 foreach my $method (@scalar_methods_for_provider,
@@ -612,7 +612,7 @@ foreach my $method (@scalar_methods_for_provider,
     push (@args, ("-$method" => $str));
 }
 print sprintf ($format, "set all attributes in a constructor");
-ok defined ($biblio = new Bio::Biblio::Person (@args));
+ok defined ($biblio = Bio::Biblio::Person->new(@args));
 for (my $i = 0; $i < @args; $i += 2) {
     my $method = substr ($args[$i], 1);
     print sprintf ($format, "   $method");
@@ -623,7 +623,7 @@ for (my $i = 0; $i < @args; $i += 2) {
 # Bio::Biblio::Organisation
 #
 print "Testing Bio::Biblio::Organisation ...\n";
-$provider = new Bio::Biblio::Organisation;
+$provider = Bio::Biblio::Organisation->new();
 @args = ();
 $count = 1;
 foreach my $method (@scalar_methods_for_provider,
@@ -636,7 +636,7 @@ foreach my $method (@scalar_methods_for_provider,
     push (@args, ("-$method" => $str));
 }
 print sprintf ($format, "set all attributes in a constructor");
-ok defined ($biblio = new Bio::Biblio::Organisation (@args));
+ok defined ($biblio = Bio::Biblio::Organisation->new(@args));
 for (my $i = 0; $i < @args; $i += 2) {
     my $method = substr ($args[$i], 1);
     print sprintf ($format, "   $method");
@@ -647,7 +647,7 @@ for (my $i = 0; $i < @args; $i += 2) {
 # Bio::Biblio::Service
 #
 print "Testing Bio::Biblio::Service ...\n";
-$provider = new Bio::Biblio::Service;
+$provider = Bio::Biblio::Service->new();
 @args = ();
 $count = 1;
 foreach my $method (@scalar_methods_for_provider,
@@ -660,7 +660,7 @@ foreach my $method (@scalar_methods_for_provider,
     push (@args, ("-$method" => $str));
 }
 print sprintf ($format, "set all attributes in a constructor");
-ok defined ($biblio = new Bio::Biblio::Service (@args));
+ok defined ($biblio = Bio::Biblio::Service->new(@args));
 for (my $i = 0; $i < @args; $i += 2) {
     my $method = substr ($args[$i], 1);
     print sprintf ($format, "   $method");
@@ -671,7 +671,7 @@ for (my $i = 0; $i < @args; $i += 2) {
 # Bio::Biblio::PubmedJournalArticle
 #
 print "Testing Bio::Biblio::PubmedJournalArticle ...\n";
-$citation = new Bio::Biblio::PubmedJournalArticle;
+$citation = Bio::Biblio::PubmedJournalArticle->new();
 @args = ();
 $count = 1;
 foreach my $method (@scalar_methods_for_pubmedarticle) {
@@ -683,7 +683,7 @@ foreach my $method (@scalar_methods_for_pubmedarticle) {
     push (@args, ("-$method" => $str));
 }
 print sprintf ($format, "set all attributes in a constructor");
-ok defined ($biblio = new Bio::Biblio::PubmedJournalArticle (@args));
+ok defined ($biblio = Bio::Biblio::PubmedJournalArticle->new(@args));
 for (my $i = 0; $i < @args; $i += 2) {
     my $method = substr ($args[$i], 1);
     print sprintf ($format, "   $method");

@@ -61,7 +61,7 @@ use base qw(Bio::Matrix::PSM::PsmHeader Bio::Matrix::PSM::IO);
 =head2 new
 
  Title   : new
- Usage   : my $psmIO =  new Bio::Matrix::PSM::IO(-format=>'mast', 
+ Usage   : my $psmIO =  Bio::Matrix::PSM::IO->new(-format=>'mast', 
 						                               -file=>$file);
  Function: Associates a file with the appropriate parser
  Throws  : Throws if the file passed is in HTML format or if 
@@ -174,7 +174,7 @@ sub _get_genes {
 			warn "Malformed data found: $line\n";
 			next;
 		}
-		$instances{$id}=new Bio::Matrix::PSM::InstanceSite (-id=>$id,
+		$instances{$id}=Bio::Matrix::PSM::InstanceSite->new(-id=>$id,
 																			  -desc=>$key,
 																			  -score=>$eval, 
 																			  -width=>$len,
@@ -245,7 +245,7 @@ sub next_psm {
 	my $width=$index{$id};
     #We don't know the sequence, but we know the length
 	my $seq='N' x ($width*$self->{_factor}); #Future version will have to parse Section tree nad get the real seq
-	my $instance=new Bio::Matrix::PSM::InstanceSite 
+	my $instance=Bio::Matrix::PSM::InstanceSite->new 
 	    ( -id=>"$id\@$sid", 
 	      -mid=>$id, 
 	      -accession_number=>$sid,
@@ -259,7 +259,7 @@ sub next_psm {
 	push @instances,$instance;
 	$pos+=$index{$id}*$self->{_factor};
     }
-    my $psm= new Bio::Matrix::PSM::Psm (-instances=> \@instances, 
+    my $psm= Bio::Matrix::PSM::Psm->new(-instances=> \@instances, 
 					-e_val    => $eval, 
 					-id       => $sid);
     $self->_pushback($line);

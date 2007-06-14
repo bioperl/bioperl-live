@@ -75,7 +75,7 @@ use base qw(Bio::TreeIO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::TreeIO::pag();
+ Usage   : my $obj = Bio::TreeIO::pag->new();
  Function: Builds a new Bio::TreeIO::pag object 
  Returns : an instance of Bio::TreeIO::pag
  Args    : -file/-fh for filename or filehandles

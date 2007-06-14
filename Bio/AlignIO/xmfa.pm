@@ -105,7 +105,7 @@ sub next_aln {
                 } else {
                     $self->throw("Does not comform to XMFA format");
                 }
-                $seq = new Bio::LocatableSeq(
+                $seq = Bio::LocatableSeq->new(
                          -strand      => $strand,
                          -seq         => $seqchar,
                          -display_id  => $seqname,
@@ -148,7 +148,7 @@ sub next_aln {
     # This logic now also reads empty lines at the 
     # end of the file. Skip this is seqchar and seqname is null
     unless ( length($seqchar) == 0 && length($seqname) == 0 ) {
-        $seq = new Bio::LocatableSeq(-seq         => $seqchar,
+        $seq = Bio::LocatableSeq->new(-seq         => $seqchar,
                                      -strand      => $strand,
                                       -display_id  => $seqname,
                                       -description => $extra,

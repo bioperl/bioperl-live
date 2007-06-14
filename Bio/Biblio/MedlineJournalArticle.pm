@@ -13,16 +13,16 @@ Bio::Biblio::MedlineJournalArticle - Representation of a MEDLINE journal article
 
 =head1 SYNOPSIS
 
-    $obj = new Bio::Biblio::MedlineJournalArticle (
+    $obj = Bio::Biblio::MedlineJournalArticle->new(
                   -title => 'Thermal adaptation analyzed by comparison of protein sequences from mesophilic and extremely thermophilic Methanococcus species.',
-                  -journal => new Bio::Biblio::MedlineJournal (-issn => '0027-8424'),
+                  -journal => Bio::Biblio::MedlineJournal->new(-issn => '0027-8424'),
                   -volume => 96,
                   -issue => 7);
   #--- OR ---
 
-    $obj = new Bio::Biblio::MedlineJournalArticle;
+    $obj = Bio::Biblio::MedlineJournalArticle->new();
     $obj->title ('...');
-    $obj->journal (new Bio::Biblio::MedlineJournal (-issn => '0027-8424'));
+    $obj->journal (Bio::Biblio::MedlineJournal->new(-issn => '0027-8424'));
 
 =head1 DESCRIPTION
 

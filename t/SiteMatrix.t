@@ -31,7 +31,7 @@ my $G='01103';
 my $T='08006';
 my $eval=0.0001;
 my %param=(pA=>$A,pC=>$C,pG=>$G,pT=>$T,e_val=>$eval, correction =>0);
-my $matrix=new Bio::Matrix::PSM::SiteMatrix(%param);
+my $matrix=Bio::Matrix::PSM::SiteMatrix->new(%param);
 ok $matrix;
 
 #Simple methods here

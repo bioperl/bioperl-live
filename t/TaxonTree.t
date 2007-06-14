@@ -45,9 +45,9 @@ if (0) {
 	skip 1, $taxonL->rank('foo is not a rank, class variable @RANK not initialised'); 
 	ok $taxonL->to_string, '"could this be called taxid?":5';
 	
-	my $taxonR = new Bio::Taxonomy::Taxon;
+	my $taxonR = Bio::Taxonomy::Taxon->new();
 	
-	my $taxon = new Bio::Taxonomy::Taxon(-id =>'ancient', -taxon => 'genus');
+	my $taxon = Bio::Taxonomy::Taxon->new(-id =>'ancient', -taxon => 'genus');
 	ok $taxon->id(), 'ancient'; 
 	ok $taxon->taxon(), 'genus'; 
 	ok $taxon->internal_id, 2;
@@ -107,9 +107,9 @@ if (0) {
 	use Bio::Taxonomy::Tree;
 	use Bio::Taxonomy;
 	
-	my $human=new Bio::Species;
-	my $chimp=new Bio::Species;
-	my $bonobo=new Bio::Species;
+	my $human=Bio::Species->new();
+	my $chimp=Bio::Species->new();
+	my $bonobo=Bio::Species->new();
 	
 	$human->classification(qw( sapiens Homo Hominidae
 							   Catarrhini Primates Eutheria
@@ -132,13 +132,13 @@ if (0) {
 				 'no rank 1','no rank 2','class','no rank 3','order',
 				 'suborder','family','genus','species');
 	
-	my $taxonomy=new Bio::Taxonomy(-ranks => \@ranks,
+	my $taxonomy=Bio::Taxonomy->new(-ranks => \@ranks,
 								   -method => 'trust',
 								   -order => -1);
 	
 	
-	ok my $tree1=new Bio::Taxonomy::Tree;
-	my $tree2=new Bio::Taxonomy::Tree;
+	ok my $tree1=Bio::Taxonomy::Tree->new();
+	my $tree2=Bio::Taxonomy::Tree->new();
 	
 	$tree1->make_species_branch($human,$taxonomy);
 	$tree2->make_species_branch($chimp,$taxonomy);

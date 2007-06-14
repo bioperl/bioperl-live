@@ -13,13 +13,13 @@ Bio::Biblio::MedlineBook - Representation of a MEDLINE book
 
 =head1 SYNOPSIS
 
-    $obj = new Bio::Biblio::MedlineBook
-                  (-editor => new Bio::Biblio::Person
+    $obj = Bio::Biblio::MedlineBook->new
+                  (-editor => Bio::Biblio::Person->new
                              (-lastname => 'Loukides'),
                    -isbn  => '0-596-00068-5');
   #--- OR ---
 
-    $obj = new Bio::Biblio::MedlineBook;
+    $obj = Bio::Biblio::MedlineBook->new();
     $obj->isbn ('0-596-00068-5');
 
 =head1 DESCRIPTION

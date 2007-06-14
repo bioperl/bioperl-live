@@ -17,13 +17,13 @@ Bio::Symbol::Symbol - A biological symbol
 =head1 SYNOPSIS
 
     use Bio::Symbol::Symbol;
-    my $thymine = new Bio::Symbol::Symbol(-name => 'Thy',
+    my $thymine = Bio::Symbol::Symbol->new(-name => 'Thy',
 					  -token=> 'T');
-    my $a = new Bio::Symbol::Symbol(-token => 'A' );
-    my $u = new Bio::Symbol::Symbol(-token => 'U' );
-    my $g = new Bio::Symbol::Symbol(-token => 'G' );
+    my $a = Bio::Symbol::Symbol->new(-token => 'A' );
+    my $u = Bio::Symbol::Symbol->new(-token => 'U' );
+    my $g = Bio::Symbol::Symbol->new(-token => 'G' );
 
-    my $M = new Bio::Symbol::Symbol(-name  => 'Met',
+    my $M = Bio::Symbol::Symbol->new(-name  => 'Met',
 				    -token => 'M',
 				    -symbols => [ $a, $u, $g ]);
 
@@ -90,7 +90,7 @@ use base qw(Bio::Root::Root Bio::Symbol::SymbolI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Symbol::Symbol();
+ Usage   : my $obj = Bio::Symbol::Symbol->new();
  Function: Builds a new Bio::Symbol::Symbol object 
  Returns : Bio::Symbol::Symbol
  Args    : -name    => descriptive name (string) [e.g. Met]

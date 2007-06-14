@@ -16,7 +16,7 @@ Bio::Location::Atomic - Implementation of a Atomic Location on a Sequence
 
     use Bio::Location::Atomic;
 
-    my $location = new Bio::Location::Atomic(-start => 1, -end => 100,
+    my $location = Bio::Location::Atomic->new(-start => 1, -end => 100,
 					     -strand => 1 );
 
     if( $location->strand == -1 ) {

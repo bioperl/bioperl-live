@@ -19,7 +19,7 @@ Bio::Tree::TreeI - A Tree object suitable for lots of things, designed
 
   # get a Bio::Tree::TreeI somehow
   # like from a TreeIO
-  my $treeio = new Bio::TreeIO(-format => 'newick', -file => 'treefile.dnd');
+  my $treeio = Bio::TreeIO->new(-format => 'newick', -file => 'treefile.dnd');
   my $tree   = $treeio->next_tree;
   my @nodes  = $tree->get_nodes;
   my @leaves = $tree->get_leaf_nodes;

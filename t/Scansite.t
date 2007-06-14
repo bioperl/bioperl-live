@@ -61,7 +61,7 @@ $verbose = 1 if $DEBUG;
 ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 
 
-my $seqio=new Bio::SeqIO( -verbose => $verbose,
+my $seqio=Bio::SeqIO->new( -verbose => $verbose,
                   -format => 'swiss',
                   -file   => Bio::Root::IO->catfile('t','data', 'swiss.dat'));
 

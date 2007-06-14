@@ -26,7 +26,7 @@ baseml, basemlg, codemlsites and yn00
   # -file => "codeml.mlc"); also, optionally, the directory in which
   # the other result files (rst, 2ML.dS, etc) may be found (defaults
   # to "./")
-  my $parser = new Bio::Tools::Phylo::PAML
+  my $parser = Bio::Tools::Phylo::PAML->new
     (-file => "./results/mlc", -dir => "./results/");
 
   # get the first/next result; a Bio::Tools::Phylo::PAML::Result object,
@@ -205,7 +205,7 @@ use Bio::Tools::Phylo::PAML::ModelResult;
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::Phylo::PAML(%args);
+ Usage   : my $obj = Bio::Tools::Phylo::PAML->new(%args);
  Function: Builds a new Bio::Tools::Phylo::PAML object
  Returns : Bio::Tools::Phylo::PAML
  Args    : Hash of options: -file, -fh, -dir
@@ -695,7 +695,7 @@ sub _parse_seqs {
 	$seqstr =~ s/\s+//g; # remove whitespace 
 	unless( @firstseq) {
 	    @firstseq = split(//,$seqstr);
-	    push @seqs, new Bio::PrimarySeq(-display_id  => $name,
+	    push @seqs, Bio::PrimarySeq->new(-display_id  => $name,
 					    -seq         => $seqstr);
 	} else { 
 
@@ -707,7 +707,7 @@ sub _parse_seqs {
 		$i = $v;
 	    }
 	    $self->debug( "adding seq $seqstr\n");
-	    push @seqs, new Bio::PrimarySeq(-display_id  => $name,
+	    push @seqs, Bio::PrimarySeq->new(-display_id  => $name,
 					    -seq         => $seqstr);
 	}
     }
@@ -885,7 +885,7 @@ sub _parse_Forestry {
 	} elsif( /^\(/) {
 	    s/([\,:])\s+/$1/g;
 	    my $treestr = new IO::String($_);
-	    my $treeio = new Bio::TreeIO(-fh => $treestr,
+	    my $treeio = Bio::TreeIO->new(-fh => $treestr,
 					 -format => 'newick');
 	    my $tree = $treeio->next_tree;
 	    if( $tree ) {
@@ -1255,12 +1255,12 @@ sub _parse_nt_dists {
 	push @avalues, \@arow;
     }
     return 
-	(new Bio::Matrix::PhylipDist
+	(Bio::Matrix::PhylipDist->new
 	 (-program=> $self->{'_summary'}->{'seqtype'},
 	  -matrix => \%dist,
 	  -names  => \@names,
 	  -values => \@kvalues ),
-	 new Bio::Matrix::PhylipDist
+	 Bio::Matrix::PhylipDist->new
 	 (-program=> $self->{'_summary'}->{'seqtype'},
 	  -matrix => \%dist,
 	  -names  => \@names,

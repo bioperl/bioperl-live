@@ -19,7 +19,7 @@ Bio::PopGen::IO::hapmap - A parser for HapMap output data
   # Do not use directly, use through the Bio::PopGen::IO driver
 
   use Bio::PopGen::IO;
-  my $io = new Bio::PopGen::IO(-format => 'hapmap',
+  my $io = Bio::PopGen::IO->new(-format => 'hapmap',
                                -file   => 'data.hapmap');
 
   # Some IO might support reading in a population at a time
@@ -86,7 +86,7 @@ use base qw(Bio::PopGen::IO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::PopGen::IO::hapmap();
+ Usage   : my $obj = Bio::PopGen::IO::hapmap->new();
  Function: Builds a new Bio::PopGen::IO::hapmap object 
  Returns : an instance of Bio::PopGen::IO::hapmap
  Args    : [optional, these are the current defaults] 
@@ -216,7 +216,7 @@ sub next_individual  {
 	if( @alleles != 2 ) { 
 	    $self->warn("$m for $samp\n");
 	} else { 
-	    $m = new Bio::PopGen::Genotype(-alleles      => \@alleles,
+	    $m = Bio::PopGen::Genotype->new(-alleles      => \@alleles,
 					   -marker_name  => $markername,
 					   -individual_id=> $samp);
 	}

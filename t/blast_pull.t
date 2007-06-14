@@ -23,7 +23,7 @@ BEGIN {
 }
 
 
-my $searchio = new Bio::SearchIO(-format => 'blast_pull', -file => Bio::Root::IO->catfile(qw(t data new_blastn.txt)));
+my $searchio = Bio::SearchIO->new(-format => 'blast_pull', -file => Bio::Root::IO->catfile(qw(t data new_blastn.txt)));
 
 my $result = $searchio->next_result;
 is $result->database_name, 'All GenBank+EMBL+DDBJ+PDB sequences (but no EST, STS,GSS,environmental samples or phase 0, 1 or 2 HTGS sequences)';
@@ -90,7 +90,7 @@ while (my $hit = $result->next_hit ) {
 is @valid, 0;
 
 # descriptionless hit
-$searchio = new Bio::SearchIO ('-format' => 'blast_pull',
+$searchio = Bio::SearchIO->new('-format' => 'blast_pull',
 							   '-file' => Bio::Root::IO->catfile('t','data','blast_no_hit_desc.txt'));
 
 $result = $searchio->next_result;
@@ -99,7 +99,7 @@ is $hit->name, 'chr1';
 is $hit->description, '';
 
 # further (NCBI blastn/p) tests taken from SearchIO.t
-$searchio = new Bio::SearchIO ('-format' => 'blast_pull',
+$searchio = Bio::SearchIO->new('-format' => 'blast_pull',
 							   '-file' => Bio::Root::IO->catfile('t','data','ecolitst.bls'));
 
 $result = $searchio->next_result;
@@ -171,7 +171,7 @@ while (my $hit = $result->next_hit) {
 }
 is(@valid, 0);
 
-$searchio = new Bio::SearchIO('-format' => 'blast_pull',
+$searchio = Bio::SearchIO->new('-format' => 'blast_pull',
 							  '-file'   => Bio::Root::IO->catfile('t','data','a_thaliana.blastn'));
 
 $result = $searchio->next_result;
@@ -254,7 +254,7 @@ while( my $hit = $result->next_hit ) {
 } 
 is(@valid, 0);
 
-$searchio = new Bio::SearchIO('-format' => 'blast_pull',
+$searchio = Bio::SearchIO->new('-format' => 'blast_pull',
 							  '-file'   => Bio::Root::IO->catfile('t','data','frac_problems.blast'));
 my @expected = ("1.000", "0.943");
 while (my $result = $searchio->next_result) {
@@ -272,14 +272,14 @@ while (my $result = $searchio->next_result) {
 is(@expected, 0);
 
 # And even more: frac_aligned_query should never be over 1!
-$searchio = new Bio::SearchIO('-format' => 'blast_pull',
+$searchio = Bio::SearchIO->new('-format' => 'blast_pull',
 							  '-file'   => Bio::Root::IO->catfile('t','data','frac_problems2.blast'));
 $result = $searchio->next_result;
 $hit = $result->next_hit;
 is $hit->frac_aligned_query, 0.97;
 
 # Also, start and end should be sane
-$searchio = new Bio::SearchIO('-format' => 'blast_pull',
+$searchio = Bio::SearchIO->new('-format' => 'blast_pull',
 							  '-file'   => Bio::Root::IO->catfile('t','data','frac_problems3.blast'));
 $result = $searchio->next_result;
 $hit = $result->next_hit;
@@ -287,7 +287,7 @@ is $hit->start('sbjct'), 207;
 is $hit->end('sbjct'), 1051;
 
 # Do a multiblast report test
-$searchio = new Bio::SearchIO ('-format' => 'blast_pull',
+$searchio = Bio::SearchIO->new('-format' => 'blast_pull',
 							   '-file'   => Bio::Root::IO->catfile('t','data','multi_blast.bls'));
 
 @expected = qw(CATH_RAT CATL_HUMAN CATL_RAT PAPA_CARPA);
@@ -310,7 +310,7 @@ is($hsp->query->start, 1, 'query start');
 is($hsp->query->end, 528, 'query start');
 
 # tests for new BLAST 2.2.13 output
-$searchio = new Bio::SearchIO(-format => 'blast_pull',
+$searchio = Bio::SearchIO->new(-format => 'blast_pull',
 							  -file   => Bio::Root::IO->catfile(qw(t data new_blastn.txt)));
 
 $result = $searchio->next_result;
@@ -379,7 +379,7 @@ while( $hit = $result->next_hit ) {
 is(@valid, 0);
 
 # Bug 2189
-$searchio = new Bio::SearchIO(-format => 'blast_pull',
+$searchio = Bio::SearchIO->new(-format => 'blast_pull',
 							  -file   => Bio::Root::IO->catfile
 							  (qw(t data blastp2215.blast)));
 

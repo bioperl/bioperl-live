@@ -97,7 +97,7 @@ use base qw(Bio::Root::Root);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tree::DistanceFactory();
+ Usage   : my $obj = Bio::Tree::DistanceFactory->new();
  Function: Builds a new Bio::Tree::DistanceFactory object 
  Returns : an instance of Bio::Tree::DistanceFactory
  Args    : -method => 'NJ' or 'UPGMA'

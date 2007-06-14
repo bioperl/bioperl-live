@@ -66,7 +66,7 @@ use base qw(Bio::Matrix::Generic);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Matrix::Scoring();
+ Usage   : my $obj = Bio::Matrix::Scoring->new();
  Function: Builds a new Bio::Matrix::Scoring object 
  Returns : an instance of Bio::Matrix::Scoring
  Args    :

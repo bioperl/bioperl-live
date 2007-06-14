@@ -17,8 +17,8 @@ Bio::Range - Pure perl RangeI implementation
 
 =head1 SYNOPSIS
 
-  $range = new Bio::Range(-start=>10, -end=>30, -strand=>+1);
-  $r2 = new Bio::Range(-start=>15, -end=>200, -strand=>+1);
+  $range = Bio::Range->new(-start=>10, -end=>30, -strand=>+1);
+  $r2 = Bio::Range->new(-start=>15, -end=>200, -strand=>+1);
 
   print join(', ', $range->union($r2)), "\n";
   print join(', ', $range->intersection($r2)), "\n";

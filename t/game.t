@@ -44,7 +44,7 @@ my $seq = $str->next_seq();
 ok($seq);
 
 # exercise game parsing
-$str = new Bio::SeqIO(
+$str = Bio::SeqIO->new(
     -format =>'game',
     -file => Bio::Root::IO->catfile ( qw(t data test.game))
 		      );
@@ -75,11 +75,11 @@ is($cds, 3);
 # test XML-writing
 my $testfile = "testgameout.game";
 # map argument is require to write a <map_position> element
-my $out = new Bio::SeqIO(-format => 'game', -file => ">$testfile", -map => 1);
+my $out = Bio::SeqIO->new(-format => 'game', -file => ">$testfile", -map => 1);
 $out->write_seq($seq);
 $out->close();
 
-$str = new Bio::SeqIO(-format =>'game', -file => $testfile);
+$str = Bio::SeqIO->new(-format =>'game', -file => $testfile);
 $seq = $str->next_seq;
 ok(defined $seq);
 ok(defined $seq->seq);

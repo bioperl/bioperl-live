@@ -17,7 +17,7 @@ Bio::Tools::ERPIN -  a parser for ERPIN output
 =head1 SYNOPSIS
 
   use Bio::Tools::ERPIN;
-  my $parser = new Bio::Tools::ERPIN( -file => $rna_output,
+  my $parser = Bio::Tools::ERPIN->new( -file => $rna_output,
                                       -motiftag => 'protein_bind'
                                       -desctag => 'TRAP_binding');
   #parse the results
@@ -103,7 +103,7 @@ our($MotifTag,$SrcTag,$DescTag) = qw(misc_binding ERPIN erpin);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::ERPIN();
+ Usage   : my $obj = Bio::Tools::ERPIN->new();
  Function: Builds a new Bio::Tools::ERPIN object 
  Returns : an instance of Bio::Tools::ERPIN
  Args    : -fh/-file for input filename

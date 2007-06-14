@@ -44,7 +44,7 @@ my ($db,$seq,$seqio);
 $seq = $seqio = undef;
 
 SKIP: {
-    $db = new Bio::DB::SeqHound(-verbose=>$verbose);
+    $db = Bio::DB::SeqHound->new(-verbose=>$verbose);
     eval {ok(defined($seq = $db->get_Seq_by_acc('J00522')));};
 	skip('Could not connect to seqhound, skipping tests', 10) if $@;
     is( $seq->length, 408); 
@@ -53,7 +53,7 @@ SKIP: {
 	skip('Could not connect to seqhound, skipping tests', 7) if $@;
     is( $seq->accession, 'NP_862707');
     is( $seq->length, 227); 
-    ok( defined($db = new Bio::DB::SeqHound(-verbose=>$verbose, 
+    ok( defined($db = Bio::DB::SeqHound->new(-verbose=>$verbose, 
 					-retrievaltype => 'tempfile')));
     eval {ok(defined($seqio = $db->get_Stream_by_id(['BTACHRE'])));};
 	skip('Could not connect to seqhound, skipping tests', 3) if $@;

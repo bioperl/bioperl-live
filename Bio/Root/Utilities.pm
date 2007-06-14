@@ -17,7 +17,7 @@ Bio::Root::Utilities - General-purpose utility module
 
     # Create an object manually:
     use Bio::Root::Utilities;
-    my $util = new Bio::Root::Utilities;
+    my $util = Bio::Root::Utilities->new();
     $util->some_method();
 
     $date_stamp = $Util->date_format('yyy-mm-dd');
@@ -166,7 +166,7 @@ $GNU_PATH  = '';
 $DEFAULT_NEWLINE = "\012";  # \n  (used if get_newline() fails for some reason)
 
 ## Static UTIL object.
-$Util = new Bio::Root::Root;
+$Util = Bio::Root::Root->new();
 
 
 =head2 date_format

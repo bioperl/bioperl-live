@@ -158,7 +158,7 @@ use base qw(Bio::Root::Root);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Taxonomy();
+ Usage   : my $obj = Bio::Taxonomy->new();
  Function: Builds a new Bio::Taxonomy object
  Returns : Bio::Taxonomy
  Args    : -method  -> method used to decide classification

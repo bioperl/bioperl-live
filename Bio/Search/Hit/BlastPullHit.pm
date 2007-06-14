@@ -18,7 +18,7 @@ Bio::Search::Hit::BlastNHit - A parser and hit object for BLASTN hits
 
     # generally we use Bio::SearchIO to build these objects
     use Bio::SearchIO;
-    my $in = new Bio::SearchIO(-format => 'blast_pull',
+    my $in = Bio::SearchIO->new(-format => 'blast_pull',
 							   -file   => 'result.blast');
 
     while (my $result = $in->next_result) {
@@ -84,7 +84,7 @@ use base qw(Bio::Root::Root Bio::Search::Hit::PullHitI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Search::Hit::BlastNHit();
+ Usage   : my $obj = Bio::Search::Hit::BlastNHit->new();
  Function: Builds a new Bio::Search::Hit::BlastNHit object.
  Returns : Bio::Search::Hit::BlastNHit
  Args    : -chunk    => [Bio::Root::IO, $start, $end] (required if no -parent)
@@ -227,7 +227,7 @@ sub _discover_next_hsp {
     
     #*** needs to inherit piped_behaviour, and we need to deal with _sequential
 	#    ourselves
-	$self->_fields->{next_hsp} = new Bio::Search::HSP::BlastPullHSP(-parent => $self,
+	$self->_fields->{next_hsp} = Bio::Search::HSP::BlastPullHSP->new(-parent => $self,
                                                                     -chunk => [$self->chunk, $start, $end]);
 }
 

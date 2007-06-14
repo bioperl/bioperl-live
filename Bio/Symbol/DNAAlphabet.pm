@@ -17,7 +17,7 @@ Bio::Symbol::DNAAlphabet - A ready made DNA alphabet
 =head1 SYNOPSIS
 
     use Bio::Symbol::DNAAlphabet;
-    my $alpha = new Bio::Symbol::DNAAlphabet();
+    my $alpha = Bio::Symbol::DNAAlphabet->new();
     foreach my $symbol ( $alpha->symbols ) {
 	print "symbol is $symbol\n";
     }
@@ -71,7 +71,7 @@ use base qw(Bio::Symbol::Alphabet);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Symbol::DNAAlphabet();
+ Usage   : my $obj = Bio::Symbol::DNAAlphabet->new();
  Function: Builds a new Bio::Symbol::DNAAlphabet object 
  Returns : Bio::Symbol::DNAAlphabet
  Args    :
@@ -86,7 +86,7 @@ sub new {
   my %symbols;
   foreach my $let ( keys %alphabet ) {
       next unless @{$alphabet{$let}} == 1 || $let eq 'U';
-      $symbols{$let} = new Bio::Symbol::Symbol(-name => $let,
+      $symbols{$let} = Bio::Symbol::Symbol->new(-name => $let,
 					       -token => $let);      
   }
   
@@ -97,8 +97,8 @@ sub new {
       foreach my $sublet ( @{$alphabet{$let}} ) {
 	  push @subsymbols, $symbols{$sublet};
       }
-      my $alpha = new Bio::Symbol::Alphabet(-symbols => \@subsymbols);
-      $symbols{$let} = new Bio::Symbol::Symbol(-name    => $let,
+      my $alpha = Bio::Symbol::Alphabet->new(-symbols => \@subsymbols);
+      $symbols{$let} = Bio::Symbol::Symbol->new(-name    => $let,
 					       -token   => $let,
 					       -matches => $alpha,  
 					       -symbols => \@subsymbols); 

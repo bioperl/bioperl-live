@@ -17,7 +17,7 @@ Bio::Coordinate::Result::Gap - Another name for Bio::Location::Simple
 
 =head1 SYNOPSIS
 
-  $loc = new Bio::Coordinate::Result::Gap(-start=>10,
+  $loc = Bio::Coordinate::Result::Gap->new(-start=>10,
                                           -end=>30,
                                           -strand=>1);
 

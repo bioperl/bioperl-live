@@ -145,7 +145,7 @@ sub _initialize {
   $self->{'_func_ftunit_hash'} = {};
   $self->_show_dna(1); # sets this to one by default. People can change it
   if( ! defined $self->sequence_factory ) {
-      $self->sequence_factory(new Bio::Seq::SeqFactory
+      $self->sequence_factory(Bio::Seq::SeqFactory->new
 			      (-verbose => $self->verbose(),
 			       -type => 'Bio::Seq::RichSeq'));
   }
@@ -167,7 +167,7 @@ sub next_seq {
         $date, $comment, @date_arr);
 
     my ($annotation, %params, @features) =
-       new Bio::Annotation::Collection;
+       Bio::Annotation::Collection->new();
 
     $line = $self->_readline;
     # This needs to be before the first eof() test
@@ -979,7 +979,7 @@ sub _read_EMBL_References {
        };
    }
 
-   my $ref = new Bio::Annotation::Reference;
+   my $ref = Bio::Annotation::Reference->new();
    $au =~ s/;\s*$//g;
    $title =~ s/;\s*$//g;
 
@@ -1232,7 +1232,7 @@ sub _read_FTHelper_EMBL {
     $$buffer = $_;
 
     # Make the new FTHelper object
-    my $out = new Bio::SeqIO::FTHelper();
+    my $out = Bio::SeqIO::FTHelper->new();
     $out->verbose($self->verbose());
     $out->key($key);
     $out->loc($loc);

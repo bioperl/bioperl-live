@@ -16,7 +16,7 @@ Bio::Tools::Phylo::Phylip::ProtDist - parser for ProtDist output
 =head1 SYNOPSIS
 
     use Bio::Tools::Phylo::Phylip::ProtDist;
-    my $parser = new Bio::Tools::Phylo::Phylip::ProtDist(-file => 'outfile');
+    my $parser = Bio::Tools::Phylo::Phylip::ProtDist->new(-file => 'outfile');
     while( my $result = $parser->next_matrix) {
       # do something with it
     }
@@ -71,7 +71,7 @@ use base qw(Bio::Root::Root Bio::Root::IO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::Phylo::Phylip::ProtDist();
+ Usage   : my $obj = Bio::Tools::Phylo::Phylip::ProtDist->new();
  Function: Builds a new Bio::Tools::Phylo::Phylip::ProtDist object 
  Returns : Bio::Tools::ProtDist
  Args    : -fh/-file => $val, # for initing input, see Bio::Root::IO

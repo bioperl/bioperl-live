@@ -15,7 +15,7 @@ Bio::Tools::BPlite - Lightweight BLAST parser
 =head1 SYNOPSIS
 
  use Bio::Tools::BPlite;
- my $report = new Bio::Tools::BPlite(-fh=>\*STDIN);
+ my $report = Bio::Tools::BPlite->new(-fh=>\*STDIN);
 
   {
     $report->query;
@@ -72,7 +72,7 @@ in pipes.
 BPlite has three kinds of objects, the report, the subject, and the HSP. To
 create a new report, you pass a filehandle reference to the BPlite constructor.
 
- my $report = new Bio::Tools::BPlite(-fh=>\*STDIN); # or any other filehandle
+ my $report = Bio::Tools::BPlite->new(-fh=>\*STDIN); # or any other filehandle
 
 The report has two attributes (query and database), and one method (nextSbjct).
 
@@ -128,7 +128,7 @@ contain the alignment sequences from the blast report.
 
 So a very simple look into a BLAST report might look like this.
 
- my $report = new Bio::Tools::BPlite(-fh=>\*STDIN);
+ my $report = Bio::Tools::BPlite->new(-fh=>\*STDIN);
  while(my $sbjct = $report->nextSbjct) {
      print ">",$sbjct->name,"\n";
      while(my $hsp = $sbjct->nextHSP) {
@@ -350,7 +350,7 @@ sub nextSbjct {
   ####################
   # the Sbjct object #
   ####################
-  my $sbjct = new Bio::Tools::BPlite::Sbjct('-name'=>$def,
+  my $sbjct = Bio::Tools::BPlite::Sbjct->new('-name'=>$def,
 					    '-length'=>$length,
                                             '-parent'=>$self);
   return $sbjct;

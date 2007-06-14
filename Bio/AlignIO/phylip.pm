@@ -17,11 +17,11 @@ Bio::AlignIO::phylip - PHYLIP format sequence input/output stream
     use Bio::SimpleAlign;
     #you can set the name length to something other than the default 10
     #if you use a version of phylip (hacked) that accepts ids > 10
-    my $phylipstream = new Bio::AlignIO(-format  => 'phylip',
+    my $phylipstream = Bio::AlignIO->new(-format  => 'phylip',
                                         -fh      => \*STDOUT,
                                         -idlength=>30);
     # convert data from one format to another
-    my $gcgstream     =  new Bio::AlignIO(-format => 'msf',
+    my $gcgstream     =  Bio::AlignIO->new(-format => 'msf',
                                           -file   => 't/data/cysprot1a.msf');
 
     while( my $aln = $gcgstream->next_aln ) {
@@ -31,11 +31,11 @@ Bio::AlignIO::phylip - PHYLIP format sequence input/output stream
     # do it again with phylip sequential format format
     $phylipstream->interleaved(0);
     # can also initialize the object like this
-    $phylipstream = new Bio::AlignIO(-interleaved => 0,
+    $phylipstream = Bio::AlignIO->new(-interleaved => 0,
                                      -format => 'phylip',
                                      -fh   => \*STDOUT,
                                      -idlength=>10);
-    $gcgstream     =  new Bio::AlignIO(-format => 'msf',
+    $gcgstream     =  Bio::AlignIO->new(-format => 'msf',
                                        -file   => 't/data/cysprot1a.msf');
 
     while( my $aln = $gcgstream->next_aln ) {
@@ -93,7 +93,7 @@ BEGIN {
 =head2 new
 
  Title   : new
- Usage   : my $alignio = new Bio::AlignIO(-format => 'phylip'
+ Usage   : my $alignio = Bio::AlignIO->new(-format => 'phylip'
 					  -file   => '>file',
 					  -idlength => 10,
 					  -idlinebreak => 1);
@@ -253,7 +253,7 @@ sub next_aln {
 	$self->throw("Length of sequence [$seqname] is not [$residuecount] it is ".CORE::length($hash{$count})."! ")
 	    unless CORE::length($hash{$count}) == $residuecount;
 
-       $seq = new Bio::LocatableSeq('-seq'=>$hash{$count},
+       $seq = Bio::LocatableSeq->new('-seq'=>$hash{$count},
 				    '-id'=>$seqname,
 				    '-start'=>$start,
 				    '-end'=>$end,

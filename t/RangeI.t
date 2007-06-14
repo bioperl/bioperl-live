@@ -57,9 +57,9 @@ while ( $func = shift @funcs ) {
 use Bio::SeqFeature::Generic;
 use Data::Dumper;
 
-my $feature1 =  new Bio::SeqFeature::Generic ( -start => 1, -end =>
+my $feature1 =  Bio::SeqFeature::Generic->new( -start => 1, -end =>
 1000, -strand => 1);
-my $feature2 =  new Bio::SeqFeature::Generic ( -start => 100, -end =>
+my $feature2 =  Bio::SeqFeature::Generic->new( -start => 100, -end =>
 900, -strand => -1);
 
 my $subtracted = $feature1->subtract($feature2);
@@ -77,7 +77,7 @@ ok(!defined($subtracted));
 $subtracted = $feature1->subtract($feature2, 'strong');
 ok(!defined($subtracted));
 
-my $feature3 =  new Bio::SeqFeature::Generic ( -start => 500, -end =>
+my $feature3 =  Bio::SeqFeature::Generic->new( -start => 500, -end =>
 1500, -strand => 1);
 $subtracted = $feature1->subtract($feature3);
 ok(defined($subtracted));

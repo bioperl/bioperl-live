@@ -18,7 +18,7 @@ Bio::Search::HSP::BlastNHSP - A parser and HSP object for BlastN hsps
 
     # generally we use Bio::SearchIO to build these objects
     use Bio::SearchIO;
-    my $in = new Bio::SearchIO(-format => 'hmmer_pull',
+    my $in = Bio::SearchIO->new(-format => 'hmmer_pull',
 							   -file   => 'result.blast');
 
     while (my $result = $in->next_result) {
@@ -77,7 +77,7 @@ use base qw(Bio::Search::HSP::PullHSPI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Search::HSP::BlastNHSP();
+ Usage   : my $obj = Bio::Search::HSP::BlastNHSP->new();
  Function: Builds a new Bio::Search::HSP::BlastNHSP object.
  Returns : Bio::Search::HSP::BlastNHSP
  Args    : -chunk  => [Bio::Root::IO, $start, $end] (required if no -parent)

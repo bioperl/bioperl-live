@@ -13,11 +13,11 @@ Bio::Biblio::Organisation - Representation of an organisation
 
 =head1 SYNOPSIS
 
-    $obj = new Bio::Biblio::Organisation (-name => 'O\'Reilly');
+    $obj = Bio::Biblio::Organisation->new(-name => 'O\'Reilly');
 
   #--- OR ---
 
-    $obj = new Bio::Biblio::Organisation;
+    $obj = Bio::Biblio::Organisation->new();
     $obj->name ('O\'Reilly');
 
 =head1 DESCRIPTION

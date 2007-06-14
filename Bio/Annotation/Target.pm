@@ -18,7 +18,7 @@ Bio::Annotation::Target - Provides an object which represents a target (ie, a  s
 
 =head1 SYNOPSIS
 
-   $target1 = new Bio::Annotation::Target(-target_id  => 'F321966.1',
+   $target1 = Bio::Annotation::Target->new(-target_id  => 'F321966.1',
                                           -start      => 1,
                                           -end        => 200,
                                           -strand     => 1,   # or -1
@@ -26,7 +26,7 @@ Bio::Annotation::Target - Provides an object which represents a target (ie, a  s
 
    # or
 
-   $target2 = new Bio::Annotation::Target();
+   $target2 = Bio::Annotation::Target->new();
    $target2->target_id('Q75IM5');
    $target2->start(7);
    # ... etc ...

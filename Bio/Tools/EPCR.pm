@@ -22,15 +22,15 @@ Bio::Tools::EPCR - Parse ePCR output and make features
 
     use Bio::Tools::EPCR;
     use Bio::SeqIO;
-    my $parser = new Bio::Tools::EPCR(-file => 'seq1.epcr');
-    my $seqio = new Bio::SeqIO(-format => 'fasta', -file => 'seq1.fa');
+    my $parser = Bio::Tools::EPCR->new(-file => 'seq1.epcr');
+    my $seqio = Bio::SeqIO->new(-format => 'fasta', -file => 'seq1.fa');
     my $seq = $seqio->next_seq || die("cannot get a seq object from SeqIO");
 
     while( my $feat = $parser->next_feature ) {
 	# add EPCR annotation to a sequence
 	$seq->add_SeqFeature($feat);
     }
-    my $seqout = new Bio::SeqIO(-format => 'embl');
+    my $seqout = Bio::SeqIO->new(-format => 'embl');
     $seqout->write_seq($seq);
 
 
@@ -86,7 +86,7 @@ use base qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::Root::IO);
 =head2 new
 
  Title   : new
- Usage   : my $epcr = new Bio::Tools::EPCR(-file => $file,
+ Usage   : my $epcr = Bio::Tools::EPCR->new(-file => $file,
 					   -primary => $fprimary, 
 					   -source => $fsource, 
 					   -groupclass => $fgroupclass);
@@ -159,7 +159,7 @@ sub next_feature {
     }
     my $strand = $strandsign eq "+" ? 1 :  $strandsign eq "-" ? -1 : 0;
 
-    my $markerfeature = new Bio::SeqFeature::Generic 
+    my $markerfeature = Bio::SeqFeature::Generic->new 
 	( '-start'   => $start,
 	  '-end'     => $end,
 	  '-strand'  => $strand,

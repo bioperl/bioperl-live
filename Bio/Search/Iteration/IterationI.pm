@@ -26,7 +26,7 @@ iteration from an iterated search result, such as PSI-BLAST.
     # First, open up a SearchIO stream
     use Bio::SearchIO;
     my $file = shift or die "Usage: $0 <BLAST-report-file>\n";
-    my $in = new Bio::SearchIO(-format => 'blast',
+    my $in = Bio::SearchIO->new(-format => 'blast',
                                -file => $file # comment out this line to read STDIN
                               );
     # Iterate over all results in the input stream

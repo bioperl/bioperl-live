@@ -79,7 +79,7 @@ use vars qw($GeneTag $SrcTag $ExonTag);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::tRNAscanSE();
+ Usage   : my $obj = Bio::Tools::tRNAscanSE->new();
  Function: Builds a new Bio::Tools::tRNAscanSE object 
  Returns : an instance of Bio::Tools::tRNAscanSE
  Args    : -fh/-file for input filename

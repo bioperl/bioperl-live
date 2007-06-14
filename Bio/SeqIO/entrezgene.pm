@@ -208,7 +208,7 @@ sub next_seq {
 	}
      }
 	$ncbiid= $ncbiid||$xval->{source}{org}{db}{tag}{id};
-     my $specie=new Bio::Species(-classification=>[@lineage],
+     my $specie=Bio::Species->new(-classification=>[@lineage],
                                 -ncbi_taxid=>$ncbiid);
     $specie->common_name($xval->{source}{org}{common});
     if (exists($xval->{source}->{subtype}) && ($xval->{source}->{subtype})) {
@@ -389,7 +389,7 @@ foreach my $product (@products) {
     if ($product->{products}) {
        my ($uncapt,$prodid)=$self->_process_refseq($product->{products});
        push @uncaptured,$uncapt;
-       my $simann=new Bio::Annotation::SimpleValue(-value=>$prodid,-tagname=>'product');
+       my $simann=Bio::Annotation::SimpleValue->new(-value=>$prodid,-tagname=>'product');
         $cann->add_Annotation($simann);
     }
     foreach my $key (keys %$ann) {
@@ -433,7 +433,7 @@ my ($self,$val,$tag)=@_;
      warn "No tagname for value $val, tag $tag ",$seq->id,"\n";
      return;
     }
-        my $simann=new Bio::Annotation::SimpleValue(-value=>$val,-tagname=>$tag);
+        my $simann=Bio::Annotation::SimpleValue->new(-value=>$val,-tagname=>$tag);
         $self->{_ann}->add_Annotation($simann);
 }
 
@@ -526,7 +526,7 @@ sub _process_comments {
 																		 -primary=>$heading, 
 																		 -score=>$score, 
 																		 -tag    => {score_src=>$scoresrc});
-						my $sfeatann=new Bio::Annotation::Collection;
+						my $sfeatann=Bio::Annotation::Collection->new();
 						foreach my $sfann (@sfann) {
 							$sfeatann->add_Annotation('dblink',$sfann);
 						}
@@ -537,14 +537,14 @@ sub _process_comments {
 						delete $loc->{type};
 					}
 					elsif (exists($loc->{label})) {
-						my $simann=new Bio::Annotation::SimpleValue(-value=>$loc->{text},-tagname=>$loc->{label});
+						my $simann=Bio::Annotation::SimpleValue->new(-value=>$loc->{text},-tagname=>$loc->{label});
 						delete $loc->{text};
 						delete $loc->{label};
 						push @{$cann{'simple'}},$simann;
 						push @uncaptured,$loc;
 					}
 					elsif (exists($loc->{text})) {
-						my $simann=new Bio::Annotation::SimpleValue(-value=>$loc->{text},-tagname=>$heading);
+						my $simann=Bio::Annotation::SimpleValue->new(-value=>$loc->{text},-tagname=>$heading);
 						delete $loc->{text};
 						push @{$cann{'simple'}},$simann;
 						push @uncaptured,$loc;
@@ -580,7 +580,7 @@ sub _process_src {
             foreach my $id (@sq) {
                 $id=~s/\n//g;
                 undef $anchor if ($anchor eq 'id');
-                my $simann=new Bio::Annotation::DBLink(-database => $db,
+                my $simann=Bio::Annotation::DBLink->new(-database => $db,
                                         -primary_id => $id, -authority=>$src->{heading}
                     );
                 $simann->url($url) if ($url);#DBLink should have URL!
@@ -592,7 +592,7 @@ sub _process_src {
             delete $src->{src}->{tag};
             undef $anchor if ($anchor eq 'id');
             $id=~s/\n//g;
-            my $simann=new Bio::Annotation::DBLink(-database => $db,
+            my $simann=Bio::Annotation::DBLink->new(-database => $db,
                                         -primary_id => $id, -authority=>$src->{heading}
                     );
             if ($anchor) {
@@ -610,13 +610,13 @@ my $self=shift;
 my $refs=shift;
 if (ref($refs) eq 'ARRAY') {
     foreach my $ref(@$refs) {
-        my $refan=new Bio::Annotation::Reference(-database => 'Pubmed',
+        my $refan=Bio::Annotation::Reference->new(-database => 'Pubmed',
                                         -primary_id => $ref);
         $self->{_ann}->add_Annotation('Reference',$refan);
     }
 }
 else {
-    my $refan=new Bio::Annotation::Reference(-database => 'Pubmed',
+    my $refan=Bio::Annotation::Reference->new(-database => 'Pubmed',
                                         -primary_id => $refs);
         $self->{_ann}->add_Annotation('Reference',$refan);
 }
@@ -627,7 +627,7 @@ sub _process_locus {
 my $self=shift;
 my @uncapt;
 return $self unless (exists($self->{_current}->{accession})&&($self->{_current}->{accession}));
-my $gseq=new Bio::Seq(-display_id=>$self->{_current}->{accession},-version=>$self->{_current}->{version},
+my $gseq=Bio::Seq->new(-display_id=>$self->{_current}->{accession},-version=>$self->{_current}->{version},
             -accession_number=>$self->{_current}->{seqs}->{'int'}->{id}->{gi},
             -authority=>$self->{_current}->{type}, -namespace=>$self->{_current}->{heading});
 delete $self->{_current}->{accession};
@@ -654,7 +654,7 @@ else {
     push @products,$self->{_current}->{products};
 }
 delete $self->{_current}->{products};
-my $gstruct=new Bio::SeqFeature::Gene::GeneStructure;
+my $gstruct=Bio::SeqFeature::Gene::GeneStructure->new();
 foreach my $product (@products) {
     my ($tr,$uncapt)=_process_products_coordinates($product,$start,$end,$strand);
     $gstruct->add_transcript($tr) if ($tr);
@@ -680,7 +680,7 @@ my $end=shift||1;
 my $strand=shift||1;
 my (@coords,@uncapt);
 return unless (exists($coord->{accession}));
-my $transcript=new Bio::SeqFeature::Gene::Transcript(-primary=>$coord->{accession}, #Desc is actually non functional...
+my $transcript=Bio::SeqFeature::Gene::Transcript->new(-primary=>$coord->{accession}, #Desc is actually non functional...
                                           -start=>$start,-end=>$end,-strand=>$strand, -desc=>$coord->{type});
 
 if ((exists($coord->{'genomic-coords'}->{mix}->{'int'}))||(exists($coord->{'genomic-coords'}->{'packed-int'}))) {
@@ -688,7 +688,7 @@ if ((exists($coord->{'genomic-coords'}->{mix}->{'int'}))||(exists($coord->{'geno
                                     @{$coord->{'genomic-coords'}->{'packed-int'}};
 foreach my $exon (@coords) {
     next unless (exists($exon->{from}));
-    my $exonobj=new Bio::SeqFeature::Gene::Exon(-start=>$exon->{from},-end=>$exon->{to},-strand=>$strand);
+    my $exonobj=Bio::SeqFeature::Gene::Exon->new(-start=>$exon->{from},-end=>$exon->{to},-strand=>$strand);
     $transcript->add_exon($exonobj);
     delete $exon->{from};
     delete $exon->{to};
@@ -825,7 +825,7 @@ my $comment=shift;
 my @comm;
 push @comm,( ref($comment) eq 'ARRAY')? @{$comment}:$comment;
 foreach my $product (@comm) {
- my $sts=new Bio::Ontology::Term->new( 
+ my $sts=Bio::Ontology::Term->new->new( 
                 -identifier  => $product->{source}->{src}->{tag}->{id},
                 -name        => $product->{source}->{anchor}, -comment=>$product->{source}->{'post-text'});
 $sts->namespace($product->{source}->{src}->{db});
@@ -835,7 +835,7 @@ push @alt, ( ref($product->{comment}) eq 'ARRAY') ? @{$product->{comment}}:$prod
 foreach my $alt (@alt) {
     $sts->add_synonym($alt->{text});
 }
-my $annterm = new Bio::Annotation::OntologyTerm();
+my $annterm = Bio::Annotation::OntologyTerm->new();
                 $annterm->term($sts);
                 $self->{_ann}->add_Annotation('OntologyTerm',$annterm);
 }
@@ -851,14 +851,14 @@ sub _process_go {
         if (ref($comp->{comment}) eq 'ARRAY') {
             foreach my $go (@{$comp->{comment}}) {
                 my $term=_get_go_term($go,$category);
-                my $annterm = new Bio::Annotation::OntologyTerm (-tagname => 'Gene Ontology');
+                my $annterm = Bio::Annotation::OntologyTerm->new(-tagname => 'Gene Ontology');
                 $annterm->term($term);
                 $self->{_ann}->add_Annotation('OntologyTerm',$annterm);
             }
         }
         else {
             my $term=_get_go_term($comp->{comment},$category);
-            my $annterm = new Bio::Annotation::OntologyTerm (-tagname => 'Gene Ontology');
+            my $annterm = Bio::Annotation::OntologyTerm->new(-tagname => 'Gene Ontology');
             $annterm->term($term);
             $self->{_ann}->add_Annotation('OntologyTerm',$annterm);
         }
@@ -891,7 +891,7 @@ if ($ref->{pmid}) {
         $refdb=$grif->{source}->{src}->{db};
     }    
 	my $grifobj=new  Bio::Annotation::Comment(-text=>$grif->{text});
-	$obj = new Bio::Annotation::DBLink(-database => 'generif',
+	$obj = Bio::Annotation::DBLink->new(-database => 'generif',
                                         -primary_id => $ref->{pmid}, #The pubmed id (at least the first one) which is a base for the conclusion
                                         -version=>$grif->{version},
                                         -optional_id=>$refergene,
@@ -915,7 +915,7 @@ return $grif;
 sub _get_go_term {
 my $go=shift;
 my $category=shift;
-    my $refan=new Bio::Annotation::Reference( #We expect one ref per GO
+    my $refan=Bio::Annotation::Reference->new( #We expect one ref per GO
         -medline => $go->{refs}->{pmid}, -title=>'no title');
     my $term = Bio::Ontology::Term->new( 
         -identifier  => $go->{source}->{src}->{tag}->{id},
@@ -953,11 +953,11 @@ my $newann=Bio::Annotation::Collection->new();
         }
 	foreach my $dblink (@{$newann->{_annotation}->{dblink}}) {
             next unless ($dblink->{_url});
-            my $simann=new Bio::Annotation::SimpleValue(-value=>$dblink->{_url},-tagname=>'URL');
+            my $simann=Bio::Annotation::SimpleValue->new(-value=>$dblink->{_url},-tagname=>'URL');
             $newann->add_Annotation($simann);
         }
 
-#        my $simann=new Bio::Annotation::SimpleValue(-value=>$seq->desc,-tagname=>'comment');
+#        my $simann=Bio::Annotation::SimpleValue->new(-value=>$seq->desc,-tagname=>'comment');
 #        $newann->add_Annotation($simann);
     
 return $newann;

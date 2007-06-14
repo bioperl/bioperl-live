@@ -51,16 +51,16 @@ my ($FILE1) = qw(popgentst1.out);
 END { 
     # unlink($FILE1);
 }
-my @individuals = ( new Bio::PopGen::Individual(-unique_id => '10a'));
+my @individuals = ( Bio::PopGen::Individual->new(-unique_id => '10a'));
 ok($individuals[0]);
 
-my @genotypes = ( new Bio::PopGen::Genotype(-marker_name    => 'Mkr1',
+my @genotypes = ( Bio::PopGen::Genotype->new(-marker_name    => 'Mkr1',
 					    -individual_id  => '10a',
 					    -alleles => [ qw(A a)]),
-		  new Bio::PopGen::Genotype(-marker_name    => 'Mkr2',
+		  Bio::PopGen::Genotype->new(-marker_name    => 'Mkr2',
 					    -individual_id  => '10a',
 					    -alleles => [ qw(B B)]),
-		  new Bio::PopGen::Genotype(-marker_name    => 'Mkr3',
+		  Bio::PopGen::Genotype->new(-marker_name    => 'Mkr3',
 					    -individual_id  => '10a',
 					    -alleles => [ qw(A a)]));
 is(($genotypes[1]->get_Alleles)[0], 'B');
@@ -72,7 +72,7 @@ my @alleles = $individuals[0]->get_Genotypes(-marker => 'Mkr2')->get_Alleles();
 is($alleles[0], 'B');
 
 					     
-my $population = new Bio::PopGen::Population(-name        => 'TestPop1',
+my $population = Bio::PopGen::Population->new(-name        => 'TestPop1',
 					     -source      => 'testjasondata',
 					     -description => 'throw away example',
 					     -individuals => \@individuals);
@@ -82,20 +82,20 @@ is($population->name, 'TestPop1');
 is($population->source, 'testjasondata');
 is($population->description, 'throw away example');
 
-my @genotypes2 = ( new Bio::PopGen::Genotype(-marker_name   => 'Mkr1',
+my @genotypes2 = ( Bio::PopGen::Genotype->new(-marker_name   => 'Mkr1',
 					     -individual_id => '11',
 					     -alleles       => [ qw(A A)]),
-		   new Bio::PopGen::Genotype(-marker_name   => 'Mkr2',
+		   Bio::PopGen::Genotype->new(-marker_name   => 'Mkr2',
 					     -individual_id => '11',
 					     -alleles       => [ qw(B B)]),
-		   new Bio::PopGen::Genotype(-marker_name   => 'Mkr3',
+		   Bio::PopGen::Genotype->new(-marker_name   => 'Mkr3',
 					     -individual_id => '11',
 					     -alleles       => [ qw(a a)]),
-		   new Bio::PopGen::Genotype(-marker_name   => 'Mkr4',
+		   Bio::PopGen::Genotype->new(-marker_name   => 'Mkr4',
 					     -individual_id => '11',
 					     -alleles       => [ qw(C C)])
 		   );
-push @individuals, new Bio::PopGen::Individual(-genotypes   => \@genotypes2,
+push @individuals, Bio::PopGen::Individual->new(-genotypes   => \@genotypes2,
 					       -unique_id   => '11');
 $population->add_Individual($individuals[1]);
 
@@ -121,7 +121,7 @@ is($af{'A'}, 0.25);
 
 
 # Read in data from a file
-my $io = new Bio::PopGen::IO(-format => 'csv',
+my $io = Bio::PopGen::IO->new(-format => 'csv',
 			     -file   => Bio::Root::IO->catfile(qw(t data
 								  popgen_saureus.dat)));
 
@@ -138,19 +138,19 @@ is(scalar @mrsainds, 9);
 is(scalar @mssainds, 10);
 is(scalar @envinds, 5);
 
-my $mrsapop = new Bio::PopGen::Population(-name        => 'MRSA',
+my $mrsapop = Bio::PopGen::Population->new(-name        => 'MRSA',
 					  -description => 'Resistant S.aureus',
 					  -individuals => \@mrsainds);
 
-my $mssapop = new Bio::PopGen::Population(-name        => 'MSSA',
+my $mssapop = Bio::PopGen::Population->new(-name        => 'MSSA',
 					  -description =>'Suceptible S.aureus',
 					  -individuals => \@mssainds);
 
-my $envpop = new Bio::PopGen::Population(-name        => 'NC',
+my $envpop = Bio::PopGen::Population->new(-name        => 'NC',
 					 -description => 'WT isolates',
 					  -individuals => \@envinds);
 
-my $stats = new Bio::PopGen::PopStats(-haploid => 1);
+my $stats = Bio::PopGen::PopStats->new(-haploid => 1);
 my $fst = $stats->Fst([$mrsapop,$mssapop],[qw(AFLP1)]);
 # We're going to check the values against other programs first
 is(sprintf("%.3f",$fst),0.077,'mrsa,mssa aflp1'); 
@@ -162,7 +162,7 @@ $fst = $stats->Fst([$mrsapop,$envpop],[qw(AFLP1 AFLP2)]);
 is(sprintf("%.3f",$fst),0.046,'mrsa,envpop aflp1,aflp2');
 
 # Read in data from a file
-$io = new Bio::PopGen::IO(-format => 'csv',
+$io = Bio::PopGen::IO->new(-format => 'csv',
 			  -file   => Bio::Root::IO->catfile
 			  (qw(t data popgen_saureus.multidat)));
 
@@ -179,19 +179,19 @@ is(scalar @mrsainds, 7);
 is(scalar @mssainds, 10);
 is(scalar @envinds, 5);
 
-$mrsapop = new Bio::PopGen::Population(-name        => 'MRSA',
+$mrsapop = Bio::PopGen::Population->new(-name        => 'MRSA',
 				       -description => 'Resistant S.aureus',
 				       -individuals => \@mrsainds);
 
-$mssapop = new Bio::PopGen::Population(-name        => 'MSSA',
+$mssapop = Bio::PopGen::Population->new(-name        => 'MSSA',
 				       -description =>'Suceptible S.aureus',
 				       -individuals => \@mssainds);
 
-$envpop = new Bio::PopGen::Population(-name        => 'NC',
+$envpop = Bio::PopGen::Population->new(-name        => 'NC',
 				      -description => 'WT isolates',
 				      -individuals => \@envinds);
 
-$stats = new Bio::PopGen::PopStats(-haploid => 1);
+$stats = Bio::PopGen::PopStats->new(-haploid => 1);
 my @all_bands = map { 'B' . $_ } 1..20;
 my @mkr1     = map { 'B' . $_ } 1..13;
 my @mkr2     = map { 'B' . $_ } 14..20;
@@ -216,8 +216,8 @@ is(sprintf("%.3f",$fst),0.241,'mrsa,nc all_bands'); # We're going to check the v
 
 # test overall allele freq setting for a population
 
-my $poptst1 = new Bio::PopGen::Population(-name => 'tst1');
-my $poptst2 = new Bio::PopGen::Population(-name => 'tst2');
+my $poptst1 = Bio::PopGen::Population->new(-name => 'tst1');
+my $poptst2 = Bio::PopGen::Population->new(-name => 'tst2');
 
 $poptst1->set_Allele_Frequency(-frequencies => 
 			       { 'marker1' => { 'a' => '0.20',
@@ -247,14 +247,14 @@ SKIP: {
     #$fst = $stats->Fst([$poptst1,$poptst2],[qw(marker1 marker2) ]);
 }
 
-$io = new Bio::PopGen::IO(-format => 'csv',
+$io = Bio::PopGen::IO->new(-format => 'csv',
 			  -file   => ">$FILE1");
 
 $io->write_individual(@inds);
 $io->close();
 ok( -e $FILE1);
 unlink($FILE1);
-$io = new Bio::PopGen::IO(-format => 'csv',
+$io = Bio::PopGen::IO->new(-format => 'csv',
 			  -file   => ">$FILE1");
 
 $io->write_population(($mssapop,$mrsapop));
@@ -262,7 +262,7 @@ $io->close();
 ok( -e $FILE1);
 unlink($FILE1);
 
-$io = new Bio::PopGen::IO(-format => 'prettybase',
+$io = Bio::PopGen::IO->new(-format => 'prettybase',
 			  -file   => ">$FILE1");
 
 $io->write_individual(@inds);
@@ -270,7 +270,7 @@ $io->close();
 ok( -e $FILE1);
 unlink($FILE1);
 
-$io = new Bio::PopGen::IO(-format => 'prettybase',
+$io = Bio::PopGen::IO->new(-format => 'prettybase',
 			  -file   => ">$FILE1");
 
 $io->write_population(($mssapop,$mrsapop));
@@ -281,7 +281,7 @@ unlink($FILE1);
 
 # Let's do PopGen::Statistics tests here
 
-$io = new Bio::PopGen::IO(-format          => 'prettybase',
+$io = Bio::PopGen::IO->new(-format          => 'prettybase',
 			  -no_header       => 1,
 			  -file            => Bio::Root::IO->catfile
 			  (qw(t data popstats.prettybase )));
@@ -295,7 +295,7 @@ while( my $ind = $io->next_individual ) {
 	$sitecount = scalar $ind->get_marker_names() unless defined $sitecount;
     }
 }
-$stats = new Bio::PopGen::Statistics();
+$stats = Bio::PopGen::Statistics->new();
 
 # Real data and values courtesy M.Hahn and DNASP
 
@@ -306,8 +306,8 @@ is(Bio::PopGen::Statistics->theta(\@ingroup),1.92);
 is(Bio::PopGen::Statistics->theta(\@ingroup,$sitecount),0.384);
 
 # Test with a population object
-my $ingroup  = new Bio::PopGen::Population(-individuals => \@ingroup);
-my $outgroup = new Bio::PopGen::Population(-individuals => \@outgroup);
+my $ingroup  = Bio::PopGen::Population->new(-individuals => \@ingroup);
+my $outgroup = Bio::PopGen::Population->new(-individuals => \@outgroup);
 
 is($stats->pi($ingroup),2);
 is(Bio::PopGen::Statistics->pi($ingroup,$sitecount),0.4);
@@ -363,7 +363,7 @@ is( sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F($ingroup,
 
 # Test composite LD
 
-$io = new Bio::PopGen::IO(-format => 'prettybase',
+$io = Bio::PopGen::IO->new(-format => 'prettybase',
 			  -file   => Bio::Root::IO->catfile
 			  (qw(t data compLD_test.prettybase)));
 
@@ -377,7 +377,7 @@ is($LD{'02'}->{'03'}->[1], 0);
 
 # Test composite LD
 
-$io = new Bio::PopGen::IO(-format => 'prettybase',
+$io = Bio::PopGen::IO->new(-format => 'prettybase',
 			  -file   => Bio::Root::IO->catfile
 			  (qw(t data compLD_missingtest.prettybase)));
 
@@ -408,7 +408,7 @@ for my $name ( $population->get_marker_names ) {
 
 # test Rich's phase and hap parsers
 
-$io = new Bio::PopGen::IO(-format   => 'hapmap',
+$io = Bio::PopGen::IO->new(-format   => 'hapmap',
 			  -verbose  => 1,
 			  -no_header=> 1,
 			  -starting_column => 10,
@@ -437,7 +437,7 @@ SKIP: {
     is(sprintf("%.3f",$stats->tajima_D($population)),2.926);
     is(sprintf("%.3f",$stats->tajima_D($population->haploid_population)),3.468);
 }
-$io = new Bio::PopGen::IO(-format => 'phase',
+$io = Bio::PopGen::IO->new(-format => 'phase',
 			  -file   => Bio::Root::IO->catfile(qw(t data
 							       example.phase)));
 

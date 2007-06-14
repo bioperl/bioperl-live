@@ -19,7 +19,7 @@ Bio::DB::EMBL - Database object interface for EMBL entry retrieval
 
   use Bio::DB::EMBL;
 
-  $embl = new Bio::DB::EMBL;
+  $embl = Bio::DB::EMBL->new();
 
   # remember that EMBL_ID does not equal GenBank_ID!
   $seq = $embl->get_Seq_by_id('BUM'); # EMBL ID
@@ -42,7 +42,7 @@ Bio::DB::EMBL - Database object interface for EMBL entry retrieval
 
   # also don't want features, just sequence so let's save bandwith
   # and request Fasta sequence
-  $embl = new Bio::DB::EMBL(-retrievaltype => 'tempfile' ,
+  $embl = Bio::DB::EMBL->new(-retrievaltype => 'tempfile' ,
  			    -format => 'fasta');
   my $seqio = $embl->get_Stream_by_id(['AC013798', 'AC021953'] );
   while( my $clone =  $seqio->next_seq ) {
@@ -200,7 +200,7 @@ sub _check_id {
 	$self->warn("[$ids] is not a normal sequence entry but a RefSeq entry.".
 		   " Redirecting the request.\n")
 	    if $self->verbose >= 0;
-	return  new Bio::DB::RefSeq(-verbose => $self->verbose);
+	return  Bio::DB::RefSeq->new(-verbose => $self->verbose);
     }
 }
 

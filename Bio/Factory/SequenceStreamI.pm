@@ -18,7 +18,7 @@ Bio::Factory::SequenceStreamI - Interface describing the basics of a Sequence St
 
   # get a SequenceStreamI object somehow like with SeqIO
   use Bio::SeqIO;
-  my $in = new Bio::SeqIO(-file => '< fastafile');
+  my $in = Bio::SeqIO->new(-file => '< fastafile');
   while( my $seq = $in->next_seq ) {
   }
 

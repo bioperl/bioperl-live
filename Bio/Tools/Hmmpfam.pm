@@ -14,7 +14,7 @@ Bio::Tools::Hmmpfam - Parser for Hmmpfam program
 =head1 SYNOPSIS
 
   use Bio::Tools::Hmmpfam;
-  my $hmmpfam_parser = new Bio::Tools::Hmmpfam(-fh =>$filehandle );
+  my $hmmpfam_parser = Bio::Tools::Hmmpfam->new(-fh =>$filehandle );
   while( my $hmmpfam_feat = $hmmpfam_parser->next_result ) {
         push @hmmpfam_feat, $hmmpfam_feat;
   }
@@ -66,7 +66,7 @@ use base qw(Bio::Root::Root Bio::Root::IO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::Hmmpfam(-fh=>$filehandle);
+ Usage   : my $obj = Bio::Tools::Hmmpfam->new(-fh=>$filehandle);
  Function: Builds a new Bio::Tools::Hmmpfam object
  Returns : Bio::Tools::Hmmpfam
  Args    : -filename

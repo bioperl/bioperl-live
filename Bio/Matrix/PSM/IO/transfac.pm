@@ -55,7 +55,7 @@ use base qw(Bio::Matrix::PSM::PsmHeader Bio::Matrix::PSM::IO);
 =head2 new
 
  Title   : new
- Usage   : my $psmIO =  new Bio::Matrix::PSM::IO(-format=>'transfac', 
+ Usage   : my $psmIO =  Bio::Matrix::PSM::IO->new(-format=>'transfac', 
 						 -file=>$file);
  Function: Associates a file with the appropriate parser
  Throws  :
@@ -131,7 +131,7 @@ sub next_psm {
     my %matrix = &_make_matrix($self,\@a,\@c,\@g,\@t,$id, $accn);
     $matrix{-sites}=$sites if ($sites);
     $matrix{-width}=@a;
-    my $psm=new Bio::Matrix::PSM::Psm(%matrix);
+    my $psm=Bio::Matrix::PSM::Psm->new(%matrix);
     foreach my $ref (@refs) { $psm->add_Annotation('reference',$ref); }
     return $psm;
 }
@@ -235,7 +235,7 @@ my ($authors,$title,$loc,@refs,$tr,$db,$dbid);
           }
         }
      }
-     my $reference=new Bio::Annotation::Reference (-authors=>$authors, -title=>$title,
+     my $reference=Bio::Annotation::Reference->new(-authors=>$authors, -title=>$title,
                                                     -location=>$loc);
      if ($db eq 'MEDLINE') {
         # does it ever equal medline?

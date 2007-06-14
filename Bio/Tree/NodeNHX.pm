@@ -17,11 +17,11 @@ Bio::Tree::NodeNHX - A Simple Tree Node with support for NHX tags
 =head1 SYNOPSIS
 
     use Bio::Tree::NodeNHX;
-    my $nodeA = new Bio::Tree::NodeNHX();
-    my $nodeL = new Bio::Tree::NodeNHX();
-    my $nodeR = new Bio::Tree::NodeNHX();
+    my $nodeA = Bio::Tree::NodeNHX->new();
+    my $nodeL = Bio::Tree::NodeNHX->new();
+    my $nodeR = Bio::Tree::NodeNHX->new();
 
-    my $node = new Bio::Tree::NodeNHX();
+    my $node = Bio::Tree::NodeNHX->new();
     $node->add_Descendents($nodeL);
     $node->add_Descendents($nodeR);
 
@@ -81,7 +81,7 @@ use base qw(Bio::Tree::Node);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tree::NodeNHX();
+ Usage   : my $obj = Bio::Tree::NodeNHX->new();
  Function: Builds a new Bio::Tree::NodeNHX object
  Returns : Bio::Tree::NodeNHX
  Args    : -left          => pointer to Left descendent (optional)

@@ -16,11 +16,11 @@ Bio::Structure::SecStr::DSSP::Res - Module for parsing/accessing dssp output
 
 =head1 SYNOPSIS
 
-  my $dssp_obj = new Bio::Structure::SecStr::DSSP::Res('-file'=>'filename.dssp');
+  my $dssp_obj = Bio::Structure::SecStr::DSSP::Res->new('-file'=>'filename.dssp');
 
   # or
 
-  my $dssp_obj = new Bio::Structure::SecStr::DSSP::Res('-fh'=>\*STDOUT);
+  my $dssp_obj = Bio::Structure::SecStr::DSSP::Res->new('-fh'=>\*STDOUT);
 
   # get DSSP defined Secondary Structure for residue 20
   $sec_str = $dssp_obj->resSecStr( 20 );

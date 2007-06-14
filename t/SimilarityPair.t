@@ -30,10 +30,10 @@ use Bio::Root::IO;
 
 # test SimilarityPair
 
-my $seq = (new Bio::SeqIO('-format' => 'fasta',
+my $seq = (Bio::SeqIO->new('-format' => 'fasta',
 			  '-file' => Bio::Root::IO->catfile("t","data","AAC12660.fa")))->next_seq();
 ok defined( $seq) && $seq->isa('Bio::SeqI');
-my $blast = new Bio::SearchIO('-file'=>Bio::Root::IO->catfile("t","data","blast.report"), '-format' => 'blast');
+my $blast = Bio::SearchIO->new('-file'=>Bio::Root::IO->catfile("t","data","blast.report"), '-format' => 'blast');
 ok defined ($blast) && $blast->isa('Bio::SearchIO');
 my $r = $blast->next_result;
 my $hit = $r->next_hit;

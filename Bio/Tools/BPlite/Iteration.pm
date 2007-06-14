@@ -192,7 +192,7 @@ sub nextSbjct {
 	    $self->_pushback($_); # 1: HSP does not work for -m 6 flag
 	    $def = $1;		  # 2: length/name are incorrect     
 	    my $length = undef;	  # 3: Names are repeated many times.
-	    my $sbjct = new Bio::Tools::BPlite::Sbjct('-name'=>$def,
+	    my $sbjct = Bio::Tools::BPlite::Sbjct->new('-name'=>$def,
 						      '-length'=>$length,
 						      '-parent'=>$self);
 	    return $sbjct;
@@ -213,7 +213,7 @@ sub nextSbjct {
     ####################
     # the Sbjct object #
     ####################
-    my $sbjct = new Bio::Tools::BPlite::Sbjct('-name'=>$def,
+    my $sbjct = Bio::Tools::BPlite::Sbjct->new('-name'=>$def,
 					      '-length'=>$length,
 					      '-parent'=>$self);
     return $sbjct;
@@ -284,7 +284,7 @@ sub Align {
 	    $num++;
 	} 
     } 
-    my $align = new Bio::SimpleAlign();
+    my $align = Bio::SimpleAlign->new();
     my @keys=sort keys(%sequence);
     foreach my $name (@keys){
 	my $nse = $name."/".$first{$name}."-".$last{$name};

@@ -77,7 +77,7 @@ use base qw(Bio::Root::Root Bio::Matrix::MatrixI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Matrix::Generic();
+ Usage   : my $obj = Bio::Matrix::Generic->new();
  Function: Builds a new Bio::Matrix::Generic object 
  Returns : an instance of Bio::Matrix::Generic
  Args    : -values     => arrayref of arrayrefs of data initialization 

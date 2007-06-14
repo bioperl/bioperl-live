@@ -210,7 +210,7 @@ sub getSbjct {
   ####################
   # the Sbjct object #
   ####################
-  my $sbjct = new Bio::Tools::BPlite::Sbjct('-name'=>$def,
+  my $sbjct = Bio::Tools::BPlite::Sbjct->new('-name'=>$def,
 					    '-length'=>$length,
 					    '-parent'=>$self);
   return $sbjct;

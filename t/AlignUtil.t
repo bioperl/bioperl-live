@@ -24,14 +24,14 @@ BEGIN {
 
 my $debug = -1;
 
-my $in = new Bio::AlignIO(-format => 'clustalw',
+my $in = Bio::AlignIO->new(-format => 'clustalw',
 			  -file   => Bio::Root::IO->catfile
 			  ('t','data','pep-266.aln'));
 my $aln = $in->next_aln();
 isa_ok($aln, 'Bio::Align::AlignI');
 $in->close();
 
-my $seqin = new Bio::SeqIO(-format => 'fasta',
+my $seqin = Bio::SeqIO->new(-format => 'fasta',
 			   -file   => Bio::Root::IO->catfile
 			   ('t','data','cds-266.fas'));
 # get the cds sequences

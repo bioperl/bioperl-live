@@ -20,7 +20,7 @@ Bio::SearchIO::EventHandlerI - An abstract Event Handler for Search Result parsi
 # See Bio::SearchIO::SearchResultEventBuilder for an implementation
 
     use Bio::SearchIO::SearchResultEventBuilder;
-    my $handler = new Bio::SearchIO::SearchResultEventBuilder();
+    my $handler = Bio::SearchIO::SearchResultEventBuilder->new();
 
 =head1 DESCRIPTION
 

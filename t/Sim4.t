@@ -19,7 +19,7 @@ use_ok('Bio::Tools::Sim4::Results');
 use_ok('Bio::Root::IO');
 use_ok('Bio::SearchIO');
 
-my $sim4 = new Bio::Tools::Sim4::Results(-file=> Bio::Root::IO->catfile("t","data","sim4.rev"), -estisfirst=>0);
+my $sim4 = Bio::Tools::Sim4::Results->new(-file=> Bio::Root::IO->catfile("t","data","sim4.rev"), -estisfirst=>0);
 ok ( $sim4, 'new Sim4 results instance') ;
 
 
@@ -38,7 +38,7 @@ is $exons[$exon]->score, 93;
 is $exons[$exon]->est_hit()->seqlength(), 1198;
 
 
-$sim4 = new Bio::Tools::Sim4::Results(-file=> Bio::Root::IO->catfile("t","data","sim4.for.for"), -estisfirst=>0);
+$sim4 = Bio::Tools::Sim4::Results->new(-file=> Bio::Root::IO->catfile("t","data","sim4.for.for"), -estisfirst=>0);
 ok ( $sim4, 'new Sim4 results instance') ;
 
 $exonset = $sim4->next_exonset;
@@ -70,7 +70,7 @@ is $exons[$exon]->est_hit()->seqlength(), 479;
 # new SearchIO parser for Sim4
 
 # parse align format 0
-my $parser = new Bio::SearchIO(-format => 'sim4',
+my $parser = Bio::SearchIO->new(-format => 'sim4',
 			       -file   => 
 			       Bio::Root::IO->catfile(qw(t data crypto.sim4-0))
 			       );
@@ -100,7 +100,7 @@ is ($hsp->hit->end, 401);
 is ($hsp->hit->strand, 1);
 
 # parse align format 3
-$parser = new Bio::SearchIO(-format => 'sim4',
+$parser = Bio::SearchIO->new(-format => 'sim4',
 			    -file   => 
 			    Bio::Root::IO->catfile(qw(t data crypto.sim4-3))
 			    );
@@ -129,7 +129,7 @@ is ($hsp->hit->end, 401);
 is ($hsp->hit->strand, 1);
 
 # parse align format 4
-$parser = new Bio::SearchIO(-format => 'sim4',
+$parser = Bio::SearchIO->new(-format => 'sim4',
 			    -file   => 
 			    Bio::Root::IO->catfile(qw(t data crypto.sim4-4))
 			    );
@@ -159,7 +159,7 @@ is ($hsp->hit->strand, 1);
 
 
 # do the other sim4 files
-$parser = new Bio::SearchIO(-format => 'sim4',
+$parser = Bio::SearchIO->new(-format => 'sim4',
 			    -file   => 
 			    Bio::Root::IO->catfile(qw(t data sim4.rev))
 			    );
@@ -188,7 +188,7 @@ is ($hsp->hit->end, 265);
 is ($hsp->hit->strand, -1);
 
 # do the other sim4 files fwd
-$parser = new Bio::SearchIO(-format => 'sim4',
+$parser = Bio::SearchIO->new(-format => 'sim4',
 			    -file   => 
 			    Bio::Root::IO->catfile(qw(t data sim4.for.for))
 			    );
@@ -217,7 +217,7 @@ is ($hsp->hit->end, 243);
 is ($hsp->hit->strand, 1);
 
 # do the other sim4 files fwd rev
-$parser = new Bio::SearchIO(-format => 'sim4',
+$parser = Bio::SearchIO->new(-format => 'sim4',
 			    -file   => 
 			    Bio::Root::IO->catfile(qw(t data sim4.for.rev))
 			    );

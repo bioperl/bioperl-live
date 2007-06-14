@@ -35,8 +35,8 @@ use vars qw($DEBUG);
 
 
 # the  reverse strand pair
-my $inr = new Bio::Location::Simple(-start=>2, -end=>5, -strand=>1);
-my $outr = new Bio::Location::Simple(-start=>10, -end=>13, -strand=>-1);
+my $inr = Bio::Location::Simple->new(-start=>2, -end=>5, -strand=>1);
+my $outr = Bio::Location::Simple->new(-start=>10, -end=>13, -strand=>-1);
 ok my $pairr = Bio::Coordinate::ExtrapolatingPair->
     new(-in => $inr,
 	-out => $outr
@@ -160,7 +160,7 @@ is $res->strand, -1;
 
 use Bio::Coordinate::GeneMapper;
 
-ok my $m = new Bio::Coordinate::GeneMapper(-in => 'propeptide',
+ok my $m = Bio::Coordinate::GeneMapper->new(-in => 'propeptide',
 					   -out => 'peptide');
 #$m->verbose(2);
 
@@ -252,7 +252,7 @@ my $e3 = Bio::Location::Simple->new
     (-seq_id => 'gene', -start => 25, -end => 29, -strand=>1 );
 my @cexons = ($e1, $e2, $e3);
 
-$m= new Bio::Coordinate::GeneMapper;
+$m= Bio::Coordinate::GeneMapper->new();
 
 $m->in('chr');
 $m->out('gene');
@@ -301,7 +301,7 @@ is $res->end, 10;
 #
 # chr to cds ; ranges into one
 #
-my $exons = new Bio::Location::Split(-seq_id => 'gene');
+my $exons = Bio::Location::Split->new(-seq_id => 'gene');
 $exons->add_sub_Location($e1);
 $exons->add_sub_Location($e2);
 $exons->add_sub_Location($e3);
@@ -337,7 +337,7 @@ is $res->end, 12;
 # chr 1   5   9    15   19   25   29
 #         pair1     pair2     pair3
 
-$m= new Bio::Coordinate::GeneMapper;
+$m= Bio::Coordinate::GeneMapper->new();
 
 $m->in('chr');
 $m->out('gene');
@@ -346,7 +346,7 @@ is $off->start, 17; # start of the coding region
 is $m->exons(@cexons), 3;
 
 # testing parameter handling in the constructor
-ok $m = new Bio::Coordinate::GeneMapper(-in => 'gene',
+ok $m = Bio::Coordinate::GeneMapper->new(-in => 'gene',
 					-out => 'peptide',
 					-cds => 3,
 					-exons => @cexons,
@@ -402,7 +402,7 @@ shift @snp_dump;
 
 my ($cdsr, @exons) = read_gene_data(@gene1_dump);
 
-ok my $g1 = new Bio::Coordinate::GeneMapper(-in=>'chr', -out=>'gene');
+ok my $g1 = Bio::Coordinate::GeneMapper->new(-in=>'chr', -out=>'gene');
 $g1->cds($cdsr);
 
 #$pos = Bio::Location::Simple->new
@@ -423,7 +423,7 @@ is $res->end, 1173;
 
 #gene 2 in reverse strand
 ($cdsr, @exons) = read_gene_data(@gene2_dump);
-ok my $g2 = new Bio::Coordinate::GeneMapper(-in=>'chr', -out=>'gene');
+ok my $g2 = Bio::Coordinate::GeneMapper->new(-in=>'chr', -out=>'gene');
 $g2->cds($cdsr);
 
 $pos = Bio::Location::Simple->new
@@ -451,11 +451,11 @@ ok $pair = Bio::Coordinate::Pair->new(-in => $match1,
 # split location
 #
 
-ok my $split = new Bio::Location::Split;
-ok $split->add_sub_Location(new Bio::Location::Simple(-start=>6,
+ok my $split = Bio::Location::Split->new();
+ok $split->add_sub_Location(Bio::Location::Simple->new(-start=>6,
                                                       -end=>8,
                                                       -strand=>1));
-$split->add_sub_Location(new Bio::Location::Simple(-start=>15,
+$split->add_sub_Location(Bio::Location::Simple->new(-start=>15,
                                                    -end=>16,
                                                    -strand=>1));
 
@@ -490,7 +490,7 @@ $e2 = Bio::Location::Simple->new
 my $cds= Bio::Location::Simple->new
     (-seq_id => 'gene', -start => 5, -end => 17, -strand=>-1 );
 
-$m = new Bio::Coordinate::GeneMapper(-in=>'cds', -out=>'chr');
+$m = Bio::Coordinate::GeneMapper->new(-in=>'cds', -out=>'chr');
 
 $m->cds($cds); # this has to be set first!?
 is $m->exons(@cexons), 2;

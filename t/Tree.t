@@ -23,7 +23,7 @@ BEGIN {
 use Bio::TreeIO;
 my $verbose = 0;
 
-my $treeio = new Bio::TreeIO(-verbose => $verbose,
+my $treeio = Bio::TreeIO->new(-verbose => $verbose,
 			     -format => 'nhx',
 			     -file   => Bio::Root::IO->catfile('t','data', 
 							       'test.nhx'));
@@ -33,7 +33,7 @@ my @nodes = $tree->find_node('ADH2');
 ok(@nodes, 2);
 
 if( $verbose ) {
-    $treeio = new Bio::TreeIO(-verbose => $verbose,
+    $treeio = Bio::TreeIO->new(-verbose => $verbose,
 			      -format => 'nhx',
 			      );
     $treeio->write_tree($tree);
@@ -42,14 +42,14 @@ if( $verbose ) {
 				     $_->branch_length : '' ) } @nodes), "\n";
 }
 
-$treeio = new Bio::TreeIO(-format => 'newick',
+$treeio = Bio::TreeIO->new(-format => 'newick',
 			  -file   => Bio::Root::IO->catfile('t','data',
 							    'test.nh'));
 $tree = $treeio->next_tree;
 
 
 if( $verbose ) { 
-    my $out = new Bio::TreeIO(-format => 'tabtree');
+    my $out = Bio::TreeIO->new(-format => 'tabtree');
     
     $out->write_tree($tree);
 }
@@ -74,7 +74,7 @@ ok($iADHX->depth,0.22);
 ok(! $tree->is_monophyletic(-nodes   => \@mixgroup,
 			    -outgroup=> $iADHX));
 
-my $in = new Bio::TreeIO(-format => 'newick',
+my $in = Bio::TreeIO->new(-format => 'newick',
 			 -fh     => \*DATA);
 $tree = $in->next_tree;
 my ($a,$b,$c,$d) = ( $tree->find_node('A'),
@@ -171,7 +171,7 @@ ok(($total_length_orig >= $tree->total_branch_length - $eps)
 ok($tree->get_root_node, $a->ancestor->ancestor);
 
 # BFS and DFS search testing
-$treeio = new Bio::TreeIO(-verbose => $verbose,
+$treeio = Bio::TreeIO->new(-verbose => $verbose,
 			     -format => 'newick',
 			     -file   => Bio::Root::IO->catfile('t','data', 
 							       'test.nh'));

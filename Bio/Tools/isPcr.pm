@@ -25,15 +25,15 @@ Bio::Tools::isPcr - Parse isPcr output and make features
 
     use Bio::Tools::IsPcr;
     use Bio::SeqIO;
-    my $parser = new Bio::Tools::isPcr(-file => 'seq1.isPcr');
-    my $seqio = new Bio::SeqIO(-format => 'fasta', -file => 'seq1.fa');
+    my $parser = Bio::Tools::isPcr->new(-file => 'seq1.isPcr');
+    my $seqio = Bio::SeqIO->new(-format => 'fasta', -file => 'seq1.fa');
     my $seq = $seqio->next_seq || die("cannot get a seq object from SeqIO");
 
     while( my $feat = $parser->next_feature ) {
 	# add isPcr annotation to a sequence
 	$seq->add_SeqFeature($feat);
     }
-    my $seqout = new Bio::SeqIO(-format => 'embl');
+    my $seqout = Bio::SeqIO->new(-format => 'embl');
     $seqout->write_seq($seq);
 
 
@@ -94,7 +94,7 @@ use base qw(Bio::Root::Root);
 =head2 new
 
  Title   : new
- Usage   : my $ispcr = new Bio::Tools::isPcr( -file => $file,
+ Usage   : my $ispcr = Bio::Tools::isPcr->new( -file => $file,
 					      -primary => $fprimary, 
 					      -source => $fsource,
 					      -groupclass => $fgroupclass);

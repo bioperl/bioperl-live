@@ -73,7 +73,7 @@ use base qw(Bio::AlignIO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::AlignIO::psi();
+ Usage   : my $obj = Bio::AlignIO::psi->new();
  Function: Builds a new Bio::AlignIO::psi object 
  Returns : Bio::AlignIO::psi
  Args    :
@@ -100,14 +100,14 @@ sub next_aln {
     while( defined ($_ = $self->_readline ) ) {
 	next if( /^\s+$/);
 	if( !defined $aln ) {
-	    $aln = new Bio::SimpleAlign;
+	    $aln = Bio::SimpleAlign->new();
 	}
 	my ($id,$s) = split;
 	push @order, $id if( ! defined $seqs{$id});
 	$seqs{$id} .= $s;
     }
     foreach my $id ( @order) {
-	my $seq = new Bio::LocatableSeq(-seq => $seqs{$id},
+	my $seq = Bio::LocatableSeq->new(-seq => $seqs{$id},
 					-id  => $id,
 					-start => 1,
 					-end   => length($seqs{$id}));

@@ -430,7 +430,7 @@ use constant DIE_ON_MISSMATCHED_LINES => 1; # if you want
 =head2 new
 
  Title   : new
- Usage   : my $db = new Bio::DB::Fasta( $path, @options);
+ Usage   : my $db = Bio::DB::Fasta->new( $path, @options);
  Function: initialize a new Bio::DB::Fasta object
  Returns : new Bio::DB::Fasta object
  Args    : path to dir of fasta files or a single filename

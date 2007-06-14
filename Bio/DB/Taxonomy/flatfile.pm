@@ -19,7 +19,7 @@ which uses local flat files
 
   use Bio::DB::Taxonomy;
 
-  my $db = new Bio::DB::Taxonomy(-source => 'flatfile'
+  my $db = Bio::DB::Taxonomy->new(-source => 'flatfile'
                                  -nodesfile => $nodesfile,
                                  -namesfile => $namefile);
 
@@ -106,7 +106,7 @@ use base qw(Bio::DB::Taxonomy);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::DB::Taxonomy::flatfile();
+ Usage   : my $obj = Bio::DB::Taxonomy::flatfile->new();
  Function: Builds a new Bio::DB::Taxonomy::flatfile object 
  Returns : an instance of Bio::DB::Taxonomy::flatfile
  Args    : -directory => name of directory where index files should be created
@@ -173,7 +173,7 @@ sub get_taxon {
     my ($taxon_names) = $self->{'_id2name'}->[$taxid];
     my ($sci_name, @common_names) = split(SEPARATOR, $taxon_names);
     
-    my $taxon = new Bio::Taxon(
+    my $taxon = Bio::Taxon->new(
                         -name         => $sci_name,
                         -common_names => [@common_names],
                         -ncbi_taxid   => $taxid, # since this is a real ncbi taxid, explicitly set it as one

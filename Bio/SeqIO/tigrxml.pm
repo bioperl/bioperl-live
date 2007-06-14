@@ -17,7 +17,7 @@ Bio::SeqIO::tigrxml - Parse TIGR (new) XML
 =head1 SYNOPSIS
 
   use Bio::SeqIO;
-  my $in = new Bio::SeqIO(-format => 'tigrcoordset',
+  my $in = Bio::SeqIO->new(-format => 'tigrcoordset',
                           -file   => 'file.xml');
 
   while( my $seq = $in->next_seq ) {
@@ -87,7 +87,7 @@ sub _initialize {
     $self->SUPER::_initialize(@_);
     $self->{'_parser'} = XML::SAX::ParserFactory->parser('Handler' => $self);
     if( ! defined $self->sequence_factory ) {
-	$self->sequence_factory(new Bio::Seq::SeqFactory
+	$self->sequence_factory(Bio::Seq::SeqFactory->new
 				(-verbose => $self->verbose(), 
 				 -type => 'Bio::Seq::RichSeq'));
     }

@@ -21,7 +21,7 @@ results.
 
     # typically one gets Results from a SearchIO stream
     use Bio::SearchIO;
-    my $io = new Bio::SearchIO(-format => 'blast',
+    my $io = Bio::SearchIO->new(-format => 'blast',
                                 -file   => 't/data/HUMBETGLOA.tblastx');
     while( my $result = $io->next_result ) {
         # process all search results within the input stream
@@ -33,7 +33,7 @@ results.
     use Bio::Search::Result::GenericResult;
     my @hits = (); # would be a list of Bio::Search::Hit::HitI objects
     # typically these are created from a Bio::SearchIO stream
-    my $result = new Bio::Search::Result::GenericResult
+    my $result = Bio::Search::Result::GenericResult->new
         ( -query_name        => 'HUMBETGLOA',
           -query_accession   => ''
           -query_description => 'Human haplotype C4 beta-globin gene, complete cds.'
@@ -138,7 +138,7 @@ use base qw(Bio::Root::Root Bio::Search::Result::ResultI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Search::Result::GenericResult();
+ Usage   : my $obj = Bio::Search::Result::GenericResult->new();
  Function: Builds a new Bio::Search::Result::GenericResult object 
  Returns : Bio::Search::Result::GenericResult
  Args    : -query_name        => Name of query Sequence
@@ -166,8 +166,8 @@ sub new {
 
   $self->{'_hits'} = [];
   $self->{'_hitindex'} = 0;
-  $self->{'_statistics'} = new Bio::Search::GenericStatistics;
-  $self->{'_parameters'} = new Bio::Tools::Run::GenericParameters;
+  $self->{'_statistics'} = Bio::Search::GenericStatistics->new();
+  $self->{'_parameters'} = Bio::Tools::Run::GenericParameters->new();
 
   my ($qname,$qacc,$qdesc,$qlen,
       $dbname,$dblet,$dbent,$params,   

@@ -17,7 +17,7 @@ Bio::Tools::RNAMotif - A parser for RNAMotif output
 =head1 SYNOPSIS
 
   use Bio::Tools::RNAMotif;
-  my $parser = new Bio::Tools::RNAMotif(-file => $rna_output,
+  my $parser = Bio::Tools::RNAMotif->new(-file => $rna_output,
                                         -motiftag => 'protein_bind'
                                         -desctag => 'TRAP_binding');
   #parse the results
@@ -151,7 +151,7 @@ our($MotifTag,$SrcTag,$DescTag) = qw(misc_binding RNAMotif rnamotif);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::RNAMotif();
+ Usage   : my $obj = Bio::Tools::RNAMotif->new();
  Function: Builds a new Bio::Tools::RNAMotif object 
  Returns : an instance of Bio::Tools::RNAMotif
  Args    : -fh/-file for input filename

@@ -17,7 +17,7 @@ use strict;
 # first, open empty output file
 # make sure no results get returned
 my $trf =
-   new Bio::Tools::TandemRepeatsFinder( -file =>
+   Bio::Tools::TandemRepeatsFinder->new( -file =>
       Bio::Root::IO->catfile( "t", "data", "tandem_repeats_finder.noresults" )
   );
 ok $trf,"Parser created  successfully" ;
@@ -27,7 +27,7 @@ ok( !defined($feat), "empty results file correctly returns no results" );
 
 # now check some results
 $trf =
-   new Bio::Tools::TandemRepeatsFinder( -file =>
+   Bio::Tools::TandemRepeatsFinder->new( -file =>
       Bio::Root::IO->catfile( "t", "data", "tandem_repeats_finder.dat" )
   );
 ok $trf,"Second parser created  successfully" ;

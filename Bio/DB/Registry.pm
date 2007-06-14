@@ -10,7 +10,7 @@ Bio::DB::Registry - Access to the Open Bio Database Access registry scheme
 
     use Bio::DB::Registry();
 
-    $registry = new Bio::DB::Registry();
+    $registry = Bio::DB::Registry->new();
 
     @available_services = $registry->services;
 

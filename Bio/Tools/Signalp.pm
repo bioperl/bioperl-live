@@ -89,7 +89,7 @@ use base qw(Bio::Root::Root Bio::Root::IO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::Signalp();
+ Usage   : my $obj = Bio::Tools::Signalp->new();
  Function: Builds a new Bio::Tools::Signalp object
  Returns : Bio::Tools::Signalp
  Args    : -fh/-file => $val, # for initing input, see Bio::Root::IO

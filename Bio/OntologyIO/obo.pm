@@ -464,7 +464,7 @@ sub _filter_line {
 # Parses the header
 sub _header {
     my $self                  = shift;
-    my $annotation_collection = new Bio::Annotation::Collection();
+    my $annotation_collection = Bio::Annotation::Collection->new();
     my ( $tag, $value );
     my $line_counter = 0;
     $self->{'_current_line_no'} = 0;
@@ -511,7 +511,7 @@ sub _header {
                 $default_namespace_header_flag = 1;
             }
 
-            my $header = new Bio::Annotation::SimpleValue( -value => $value );
+            my $header = Bio::Annotation::SimpleValue->new( -value => $value );
             $annotation_collection->add_Annotation( $tag, $header );
 
             #### Assign the Ontology name as the value of the default-namespace header

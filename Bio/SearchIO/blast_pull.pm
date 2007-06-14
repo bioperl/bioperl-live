@@ -18,7 +18,7 @@ Bio::SearchIO::blast_pull - A parser for BLAST output
 
     # do not use this class directly it is available through Bio::SearchIO
     use Bio::SearchIO;
-    my $in = new Bio::SearchIO(-format => 'blast_pull',
+    my $in = Bio::SearchIO->new(-format => 'blast_pull',
                                -file   => 't/data/new_blastn.txt');
     while (my $result = $in->next_result) {
         # this is a Bio::Search::Result::BlastPullResult object
@@ -80,7 +80,7 @@ use base qw(Bio::SearchIO Bio::PullParserI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO::blast_pull();
+ Usage   : my $obj = Bio::SearchIO::blast_pull->new();
  Function: Builds a new Bio::SearchIO::blast_pull object 
  Returns : Bio::SearchIO::blast_pull
  Args    : -fh/-file => BLAST output filename
@@ -183,7 +183,7 @@ sub _discover_next_result {
                 $end = undef;
             }
             
-            $self->_fields->{next_result} = new Bio::Search::Result::BlastPullResult(-chunk => [($self->chunk, $start, $end)],
+            $self->_fields->{next_result} = Bio::Search::Result::BlastPullResult->new(-chunk => [($self->chunk, $start, $end)],
                                                                                      -parent => $self);
             
             $self->{_end_of_previous_result} = $end;
@@ -193,7 +193,7 @@ sub _discover_next_result {
             $self->throw("sequential mode not yet implemented");
             my $chunk = $self->_get_chunk_by_end("\nQuery=");
             $chunk || return;
-            $self->_fields->{next_result} = new Bio::Search::Result::BlastPullResult(-chunk => [$chunk],
+            $self->_fields->{next_result} = Bio::Search::Result::BlastPullResult->new(-chunk => [$chunk],
                                                                                    -parent => $self);
         }
     }

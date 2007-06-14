@@ -145,10 +145,10 @@ use base qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::Root::IO);
 =head2 new
 
  Title   : new
- Usage   : my $parser = new Bio::Tools::GFF(-gff_version => 2,
+ Usage   : my $parser = Bio::Tools::GFF->new(-gff_version => 2,
 					    -file        => "filename.gff");
            or
-           my $writer = new Bio::Tools::GFF(-gff_version => 3,
+           my $writer = Bio::Tools::GFF->new(-gff_version => 3,
 					    -file        => ">filename.gff3");
  Function: Creates a new instance. Recognized named parameters are -file, -fh,
            and -gff_version.

@@ -17,7 +17,7 @@ Bio::Tools::Analysis::Protein::Domcut -  a wrapper around Domcut server
   use   Bio::Tools::Analysis::Protein::Domcut;
   #get a  Bio::PrimarySeq
   use Bio::PrimarySeq;
-  my $seq = new Bio::PrimarySeq
+  my $seq = Bio::PrimarySeq->new
      (-seq=>'IKLCVNLAILAKAHLIELALAL',
      -primary_id=>'test'); # a Bio::PrimarySeqI object
 

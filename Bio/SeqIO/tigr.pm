@@ -77,7 +77,7 @@ sub _initialize
 	my($self, @args) = @_;
 
 	$self->SUPER::_initialize(@args);
-	$self->sequence_factory(new Bio::Seq::SeqFactory(
+	$self->sequence_factory(Bio::Seq::SeqFactory->new(
 			-type => 'Bio::Seq::RichSeq')
 	);
 
@@ -143,7 +143,7 @@ sub next_seq()
 		# Check for an invalid protein
 		try {
 			# Get the subsq
-			my $cds = new Bio::PrimarySeq(
+			my $cds = Bio::PrimarySeq->new(
 				-strand => 1,
 				-id  => $seq->accession_number(),
 				-seq => $seq->subseq($feat->location())
@@ -427,7 +427,7 @@ sub _process_header
 
 	if($line =~ /<ORGANISM>\s*(.+)\s*<\/ORGANISM>/o) {
 		my( $genus, $species, @ss ) = split(/\s+/o, $1);
-		$self->{_assembly}->{species} = new Bio::Species();
+		$self->{_assembly}->{species} = Bio::Species->new();
 		$self->{_assembly}->{species}->genus($genus);
 		$self->{_assembly}->{species}->species($species);
 		$self->{_assembly}->{species}->sub_species(join(' ', @ss)) if scalar(@ss) > 0;
@@ -638,11 +638,11 @@ sub _process_tu
 	my $line = $self->_readline();
 
 	try {
-		my $tu = new Bio::Seq::RichSeq(-strand => 1);
+		my $tu = Bio::Seq::RichSeq->new(-strand => 1);
 		$tu->species( $self->{_assembly}->{species} );
 
 		# Add the source tag, so we can add the GO annotations to it
-		$tu->add_SeqFeature(new Bio::SeqFeature::Generic(-source_tag => 'TIGR', -primary_tag => 'source'));
+		$tu->add_SeqFeature(Bio::SeqFeature::Generic->new(-source_tag => 'TIGR', -primary_tag => 'source'));
 		
 		if($line !~ /<TU>/o) {
 			$self->throw("Process_tu called when no <TU> tag");
@@ -817,7 +817,7 @@ sub _process_gene_info
 	}
 
 	while($line =~ /<COMMENT>([^<]+)<\/COMMENT>/o) {
-		my $comment = new Bio::Annotation::Comment(
+		my $comment = Bio::Annotation::Comment->new(
 			-text => $1
 		);
 		$tu->annotation()->add_Annotation('comment', $comment);
@@ -825,7 +825,7 @@ sub _process_gene_info
 	}
 
 	while($line =~ /<PUB_COMMENT>([^<]+)<\/PUB_COMMENT>/o) {
-		my $comment = new Bio::Annotation::Comment(
+		my $comment = Bio::Annotation::Comment->new(
 			-text => $1
 		);
 		$tu->annotation()->add_Annotation('comment', $comment);
@@ -909,7 +909,7 @@ sub _build_location
 		);
 	}
 
-	return new Bio::Location::Simple( -start => $start, -end => $end, -strand => 1 );
+	return Bio::Location::Simple->new( -start => $start, -end => $end, -strand => 1 );
 }
 
 sub _process_model
@@ -917,7 +917,7 @@ sub _process_model
 	my($self, $tu, $end5, $end3) = @_;
 	my $line;
 	my( $source ) = grep { $_->primary_tag() eq 'source' } $tu->get_SeqFeatures();
-	my $model = new Bio::SeqFeature::Generic(
+	my $model = Bio::SeqFeature::Generic->new(
 		-source_tag  => 'TIGR',
 		-primary_tag => 'MODEL',
 	);
@@ -976,18 +976,18 @@ sub _process_model
 		$self->throw("Invalid Coordset: $line");
 	}
 
-	my $exon = new Bio::SeqFeature::Generic(
+	my $exon = Bio::SeqFeature::Generic->new(
 		-source_tag  => 'TIGR',
 		-primary_tag => 'EXON',
-		-location => new Bio::Location::Split(),
+		-location => Bio::Location::Split->new(),
 		-tags => [ locus => $tu->accession_number() ],
 	);
 	$exon->add_tag_value( model => $model->get_tag_values('feat_name') );
 
-	my $cds  = new Bio::SeqFeature::Generic(
+	my $cds  = Bio::SeqFeature::Generic->new(
 		-source_tag  => 'TIGR',
 		-primary_tag => 'CDS',
-		-location => new Bio::Location::Split(),
+		-location => Bio::Location::Split->new(),
 		-tags => [ locus => $tu->accession_number() ],
 	);
 	$cds->add_tag_value( model => $model->get_tag_values('feat_name') );
@@ -1199,7 +1199,7 @@ sub _process_left_utr
 		my $cs = $self->_process_coordset();
 		my $loc = $self->_build_location($end5, $end3, $tu->length(), $cs);
 
-		push(@$utrs, new Bio::SeqFeature::Generic(
+		push(@$utrs, Bio::SeqFeature::Generic->new(
 		        -source_tag  => 'TIGR',
 				-primary_tag => 'LEFT_UTR',
 				-strand => 1,
@@ -1237,7 +1237,7 @@ sub _process_right_utr
 		my $cs = $self->_process_coordset();
 		my $loc = $self->_build_location($end5, $end3, $tu->length(), $cs);
 
-		push(@$utrs, new Bio::SeqFeature::Generic(
+		push(@$utrs, Bio::SeqFeature::Generic->new(
 		        -source_tag  => 'TIGR',
 				-primary_tag => 'RIGHT_UTR',
 				-strand => 1,
@@ -1273,7 +1273,7 @@ sub _process_ext_utr
 		my $cs = $self->_process_coordset();
 		my $loc = $self->_build_location($end5, $end3, $tu->length(), $cs);
 
-		push(@$utrs, new Bio::SeqFeature::Generic(
+		push(@$utrs, Bio::SeqFeature::Generic->new(
 		        -source_tag  => 'TIGR',
 				-primary_tag => 'EXTENDED_UTR',
 				-strand => 1,

@@ -19,7 +19,7 @@ Bio::PopGen::IO::phase - A parser for Phase format data
 # Do not use directly, use through the Bio::PopGen::IO driver
 
   use Bio::PopGen::IO;
-  my $io = new Bio::PopGen::IO(-format => 'phase',
+  my $io = Bio::PopGen::IO->new(-format => 'phase',
                                -file   => 'data.phase');
 
   # Some IO might support reading in a population at a time
@@ -92,7 +92,7 @@ use base qw(Bio::PopGen::IO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::PopGen::IO::hapmap();
+ Usage   : my $obj = Bio::PopGen::IO::hapmap->new();
  Function: Builds a new Bio::PopGen::IO::hapmap object 
  Returns : an instance of Bio::PopGen::IO::hapmap
  Args    : [optional, these are the current defaults] 
@@ -239,12 +239,12 @@ sub next_individual  {
 	    $self->debug( "markername is $markername alleles are $m\n");
 	    my @alleles = split($self->flag('allele_delimiter'), $m);	
 
-	    $m = new Bio::PopGen::Genotype(-alleles      =>\@alleles,
+	    $m = Bio::PopGen::Genotype->new(-alleles      =>\@alleles,
 					   -marker_name  => $markername,
 					   -individual_id=> $self->{'_sam'}); 
 	    $i++; 
 	}
-	return new Bio::PopGen::Individual(-unique_id => $self->{'_sam'},
+	return Bio::PopGen::Individual->new(-unique_id => $self->{'_sam'},
 					   -genotypes =>\@{$self->{'_marker_results'}},
 					   );
 

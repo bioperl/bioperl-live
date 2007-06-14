@@ -18,7 +18,7 @@ Bio::Assembly::Scaffold - Perl module to hold and manipulate sequence assembly d
     use Bio::Assembly::IO;
 
     # Assembly loading methods
-    my $aio = new Bio::Assembly::IO(-file=>"test.ace.1", -format=>'phrap');
+    my $aio = Bio::Assembly::IO->new(-file=>"test.ace.1", -format=>'phrap');
     my $assembly = $aio->next_assembly;
 
     foreach my $contig ($assembly->all_contigs) {

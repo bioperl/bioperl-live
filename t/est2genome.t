@@ -20,7 +20,7 @@ BEGIN {
 
 my $verbose = 0;
 
-my $parser = new Bio::Tools::Est2Genome(-file   => Bio::Root::IO->catfile
+my $parser = Bio::Tools::Est2Genome->new(-file   => Bio::Root::IO->catfile
 					('t','data', 'hs_est.est2genome'));
 
 ok($parser);
@@ -60,7 +60,7 @@ foreach my $intron ( @introns ) {
 }
 ok(! @expected_introns);
 
-$parser = new Bio::Tools::Est2Genome(-file   => Bio::Root::IO->catfile
+$parser = Bio::Tools::Est2Genome->new(-file   => Bio::Root::IO->catfile
 					('t','data', 'hs_est.est2genome'));
 
 ok($parser);

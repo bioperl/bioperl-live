@@ -67,7 +67,7 @@ use base qw(Bio::Search::HSP::GenericHSP);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Search::HSP::PSLHSP();
+ Usage   : my $obj = Bio::Search::HSP::PSLHSP->new();
  Function: Builds a new Bio::Search::HSP::PSLHSP object 
  Returns : an instance of Bio::Search::HSP::PSLHSP
  Args    : -gapblocks => arrayref of gap locations which are [start,length]

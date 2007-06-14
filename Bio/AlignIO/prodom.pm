@@ -89,7 +89,7 @@ sub next_aln {
 
 	   $names{'fake_id'} = $fake_id;
 
-	   $add = new Bio::LocatableSeq('-seq'=>$seq,
+	   $add = Bio::LocatableSeq->new('-seq'=>$seq,
 			       '-id'=>$acc,
 			       '-start'=>$start,
 			       '-end'=>$end,

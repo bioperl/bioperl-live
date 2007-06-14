@@ -16,7 +16,7 @@ Bio::Search::HSP::GenericHSP - A "Generic" implementation of a High Scoring Pair
 
 =head1 SYNOPSIS
 
-    my $hsp = new Bio::Search::HSP::GenericHSP( -algorithm => 'blastp',
+    my $hsp = Bio::Search::HSP::GenericHSP->new( -algorithm => 'blastp',
                                                 -evalue    => '1e-30',
                                                 );
 
@@ -117,7 +117,7 @@ BEGIN {
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Search::HSP::GenericHSP();
+ Usage   : my $obj = Bio::Search::HSP::GenericHSP->new();
  Function: Builds a new Bio::Search::HSP::GenericHSP object
  Returns : Bio::Search::HSP::GenericHSP
  Args    : -algorithm => algorithm used (BLASTP, TBLASTX, FASTX, etc)
@@ -620,7 +620,7 @@ sub get_aln {
     my ($self) = @_;
     require Bio::LocatableSeq;
     require Bio::SimpleAlign;
-    my $aln = new Bio::SimpleAlign;
+    my $aln = Bio::SimpleAlign->new();
     my $hs = $self->hit_string();
     my $qs = $self->query_string();
     # FASTA specific stuff moved to the FastaHSP object
@@ -634,14 +634,14 @@ sub get_aln {
     unless( defined $s_nm && CORE::length ($s_nm) ) {
         $s_nm = 'hit';
     }
-    my $query = new Bio::LocatableSeq('-seq'   => $qs,
+    my $query = Bio::LocatableSeq->new('-seq'   => $qs,
                                       '-id'    => $q_nm,
                                       '-start' => $self->query->start,
                                       '-end'   => $self->query->end,
                                       );
     $seqonly = $hs;
     $seqonly =~ s/[\-\s]//g;
-    my $hit =  new Bio::LocatableSeq('-seq'    => $hs,
+    my $hit =  Bio::LocatableSeq->new('-seq'    => $hs,
                                       '-id'    => $s_nm,
                                       '-start' => $self->hit->start,
                                       '-end'   => $self->hit->end,

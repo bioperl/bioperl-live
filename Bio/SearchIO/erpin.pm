@@ -127,7 +127,7 @@ my $DEFAULT_ALGORITHM = 'erpin';
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO::infernal();
+ Usage   : my $obj = Bio::SearchIO::infernal->new();
  Function: Builds a new Bio::SearchIO::infernal object 
  Returns : Bio::SearchIO::infernal
  Args    : -fh/-file     => cmsearch (infernal) filename

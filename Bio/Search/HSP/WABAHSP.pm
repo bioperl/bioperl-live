@@ -69,7 +69,7 @@ use base qw(Bio::Search::HSP::GenericHSP);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Search::HSP::WABAHSP();
+ Usage   : my $obj = Bio::Search::HSP::WABAHSP->new();
  Function: Builds a new Bio::Search::HSP::WABAHSP object 
  Returns : Bio::Search::HSP::WABAHSP
  Args    : -hmmstate_seq => the string representing the state output from WABA

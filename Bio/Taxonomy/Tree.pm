@@ -18,7 +18,7 @@ Bio::Taxonomy::Tree - An Organism Level Implementation of TreeI interface.
     Bio::Tree::Tree instead
 
     # like from a TreeIO
-    my $treeio = new Bio::TreeIO(-format => 'newick', -file => 'treefile.dnd');
+    my $treeio = Bio::TreeIO->new(-format => 'newick', -file => 'treefile.dnd');
     my $tree = $treeio->next_tree;
     my @nodes = $tree->get_nodes;
     my $root = $tree->get_root_node;
@@ -34,9 +34,9 @@ This object holds handles to Taxonomic Nodes which make up a tree.
   use Bio::Species;
   use Bio::Taxonomy::Tree;
 
-  my $human=new Bio::Species;
-  my $chimp=new Bio::Species;
-  my $bonobo=new Bio::Species;
+  my $human=Bio::Species->new();
+  my $chimp=Bio::Species->new();
+  my $bonobo=Bio::Species->new();
 
   $human->classification(qw( sapiens Homo Hominidae
                              Catarrhini Primates Eutheria
@@ -59,13 +59,13 @@ This object holds handles to Taxonomic Nodes which make up a tree.
                'no rank 1','no rank 2','class','no rank 3','order',
                'suborder','family','genus','species');
 
-  my $taxonomy=new Bio::Taxonomy(-ranks => \@ranks,
+  my $taxonomy=Bio::Taxonomy->new(-ranks => \@ranks,
                                  -method => 'trust',
                                  -order => -1);
 
 
-  my $tree1=new Bio::Taxonomy::Tree;
-  my $tree2=new Bio::Taxonomy::Tree;
+  my $tree1=Bio::Taxonomy::Tree->new();
+  my $tree2=Bio::Taxonomy::Tree->new();
 
   $tree1->make_species_branch($human,$taxonomy);
   $tree2->make_species_branch($chimp,$taxonomy);
@@ -127,7 +127,7 @@ use base qw(Bio::Root::Root Bio::Tree::TreeI Bio::Tree::TreeFunctionsI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Taxonomy::Tree();
+ Usage   : my $obj = Bio::Taxonomy::Tree->new();
  Function: Builds a new Bio::Taxonomy::Tree object 
  Returns : Bio::Taxonomy::Tree
  Args    : 

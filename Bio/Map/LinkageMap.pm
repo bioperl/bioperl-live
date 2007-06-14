@@ -16,14 +16,14 @@ Bio::Map::LinkageMap - A representation of a genetic linkage map.
 
     use Bio::Map::LinkageMap;
 	# create a new map
-    my $map = new Bio::Map::LinkageMap(-name => 'Chads Superterriffic Map',
+    my $map = Bio::Map::LinkageMap->new(-name => 'Chads Superterriffic Map',
                                       -type => 'Linkage',
                                       -units=> 'cM');
 	# create the location of a marker for that map
-    my $position = new Bio::Map::LinkagePosition( -positions => 1,
+    my $position = Bio::Map::LinkagePosition->new( -positions => 1,
                 -distance => "22.3");
 	# create a marker and place it at that position
-    my $marker = new Bio::Map::Marker::Microsatellite(
+    my $marker = Bio::Map::Marker::Microsatellite->new(
 			-name => 'SuuuperMarker',
 			-position => $position);
 	# place that marker on that map
@@ -84,7 +84,7 @@ use base qw(Bio::Map::SimpleMap);
 =head2 new
 
  Title   : new
- Usage   : my $linkage_map = new Bio::Map::LinkageMap();
+ Usage   : my $linkage_map = Bio::Map::LinkageMap->new();
  Function: Builds a new Bio::Map::LinkageMap object
  Returns : Bio::Map::LinkageMap
  Args    : -name    => the name of the map (string) [optional]

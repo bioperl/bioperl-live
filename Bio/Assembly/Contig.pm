@@ -22,7 +22,7 @@ Bio::Assembly::Contig - Perl module to hold and manipulate
     use Bio::Assembly::IO;
 
     # Assembly loading methods
-    $aio = new Bio::Assembly::IO(-file=>"test.ace.1",
+    $aio = Bio::Assembly::IO->new(-file=>"test.ace.1",
                                -format=>'phrap');
 
     $assembly = $aio->next_assembly;
@@ -217,7 +217,7 @@ use base qw(Bio::Root::Root Bio::Align::AlignI);
 =head2 new
 
  Title     : new
- Usage     : my $contig = new Bio::Assembly::Contig();
+ Usage     : my $contig = Bio::Assembly::Contig->new();
  Function  : Creates a new contig object
  Returns   : Bio::Assembly::Contig
  Args      : -source => string representing the source

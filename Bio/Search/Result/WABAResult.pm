@@ -71,7 +71,7 @@ use base qw(Bio::Search::Result::GenericResult);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Search::Result::WABAResult();
+ Usage   : my $obj = Bio::Search::Result::WABAResult->new();
  Function: Builds a new Bio::Search::Result::WABAResult object 
  Returns : Bio::Search::Result::WABAResult
  Args    : -query_database => "name of the database where the query came from"

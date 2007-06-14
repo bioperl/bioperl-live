@@ -13,11 +13,11 @@ Bio::Biblio::Thesis - Representation of thesis
 
 =head1 SYNOPSIS
 
-    $obj = new Bio::Biblio::Thesis (-title => 'Perl on the edge');
+    $obj = Bio::Biblio::Thesis->new(-title => 'Perl on the edge');
 
  #--- OR ---
 
-    $obj = new Bio::Biblio::Thesis;
+    $obj = Bio::Biblio::Thesis->new();
     $obj->title ('Perl on the edge');
 
 =head1 DESCRIPTION

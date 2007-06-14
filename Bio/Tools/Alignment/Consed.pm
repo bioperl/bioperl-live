@@ -16,7 +16,7 @@ Bio::Tools::Alignment::Consed - A module to work with objects from consed .ace f
 =head1 SYNOPSIS
 
   # a report for sequencing stuff
-  my $o_consed = new Bio::Tools::Alignment::Consed( 
+  my $o_consed = Bio::Tools::Alignment::Consed->new( 
       -acefile => "/path/to/an/acefile.ace.1",
       -verbose => 1);
   my $foo = $o_consed->set_reverse_designator("r");
@@ -144,7 +144,7 @@ sub new {
     (undef, $self->{'path'}, undef) = File::Spec->splitpath($self->{'filename'});
 
     $self->_initialize_io('-file'=>$self->{'filename'});
-    $self->{'o_trim'} = new Bio::Tools::Alignment::Trim(-verbose => $self->verbose());
+    $self->{'o_trim'} = Bio::Tools::Alignment::Trim->new(-verbose => $self->verbose());
     $self->set_forward_designator($DEFAULTS{'f_designator'});
     $self->set_reverse_designator($DEFAULTS{'r_designator'});
 
@@ -1315,7 +1315,7 @@ sub write_stats {
     my $statistics_raw = $self->sum_lets;
     my ($statsfilecontents) = $statistics_raw =~ s/.*\ \:\ //g;
     umask 0001;
-    my $fh = new Bio::Root::IO(-file=>"$stats_filename");
+    my $fh = Bio::Root::IO->new(-file=>"$stats_filename");
     # open(STATSFILE,">$stats_filename") or print("Could not open the statsfile: $!\n");
     $fh->_print("$statsfilecontents");
     # close STATSFILE;
@@ -1637,7 +1637,7 @@ sub parse_phd {
     my $base_number = 0;
     my (@bases,@current_line);
     # print("parse_phd: $sequence_name\n");
-    my $fh = new Bio::Root::IO
+    my $fh = Bio::Root::IO->new
         (-file=>"$self->{path}/../phd_dir/$sequence_name.phd.1");
     while ($fh->_readline()) {
 	# print("Reading a line from a phredfile!\n");

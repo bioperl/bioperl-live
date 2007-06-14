@@ -16,11 +16,11 @@ Bio::Structure::SecStr::STRIDE::Res - Module for parsing/accessing stride output
 
 =head1 SYNOPSIS
 
- my $stride_obj = new Bio::Structure::SecStr::STRIDE::Res( '-file' => 'filename.stride' );
+ my $stride_obj = Bio::Structure::SecStr::STRIDE::Res->new( '-file' => 'filename.stride' );
 
  # or
 
- my $stride_obj = new Bio::Structure::SecStr::STRIDE::Res( '-fh' => \*STDOUT );
+ my $stride_obj = Bio::Structure::SecStr::STRIDE::Res->new( '-fh' => \*STDOUT );
 
  # Get secondary structure assignment for PDB residue 20 of chain A
  $sec_str = $stride_obj->resSecStr( '20:A' );

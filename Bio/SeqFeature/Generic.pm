@@ -16,7 +16,7 @@ Bio::SeqFeature::Generic - Generic SeqFeature
 
 =head1 SYNOPSIS
 
-   $feat = new Bio::SeqFeature::Generic ( 
+   $feat = Bio::SeqFeature::Generic->new( 
             -start        => 10, 
             -end          => 100,
             -strand       => -1, 
@@ -28,9 +28,9 @@ Bio::SeqFeature::Generic - Generic SeqFeature
                                author => 'someone',
                                sillytag => 'this is silly!' } );
 
-   $feat = new Bio::SeqFeature::Generic ( -gff_string => $string );
+   $feat = Bio::SeqFeature::Generic->new( -gff_string => $string );
    # if you want explicitly GFF1
-   $feat = new Bio::SeqFeature::Generic ( -gff1_string => $string );
+   $feat = Bio::SeqFeature::Generic->new( -gff1_string => $string );
 
    # add it to an annotated sequence
 
@@ -601,7 +601,7 @@ sub annotation {
     # we are smart if someone references the object and there hasn't been
     # one set yet
     if(defined $value || ! defined $obj->{'annotation'} ) {
-        $value = new Bio::Annotation::Collection unless ( defined $value );
+        $value = Bio::Annotation::Collection->new() unless ( defined $value );
         $obj->{'annotation'} = $value;
     }
     return $obj->{'annotation'};

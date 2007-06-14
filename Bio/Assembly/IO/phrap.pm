@@ -18,7 +18,7 @@ Bio::Assembly::IO::phrap - driver to load phrap.out files.
     use Bio::Assembly::IO;
 
     # Assembly loading methods
-    $io = new Bio::Assembly::IO(-file=>"SGC0-424.phrap.out",
+    $io = Bio::Assembly::IO->new(-file=>"SGC0-424.phrap.out",
                                 -format=>"phrap");
 
     $assembly = $io->next_assembly;
@@ -191,7 +191,7 @@ sub next_assembly {
 		if (/^\s+(\S+)\s+(\d+)\s+\((\d+)\)/) {
 		    my $seqID = $1; my $length = $2;
 		    my $nof_trimmed_nonX = $3;
-		    my $seq = new Bio::Seq(-strand=>1,
+		    my $seq = Bio::Seq->new(-strand=>1,
 					   -primary_id=>$seqID);
 		    my $f = Bio::SeqFeature::Generic->new
 			(-start=>1, -end=>$seq->length(),

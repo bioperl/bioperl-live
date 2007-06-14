@@ -95,7 +95,7 @@ sub next_aln {
 	$seq = $4;
 
 
-	$add = new Bio::LocatableSeq('-seq'=>$seq,
+	$add = Bio::LocatableSeq->new('-seq'=>$seq,
 			    '-id'=>$name,
 			    '-start'=>$start,
 			    '-end'=>$end,

@@ -19,7 +19,7 @@ Bio::DB::XEMBL - Database object interface for XEMBL entry retrieval
 
   use Bio::DB::XEMBL;
 
-  $embl = new Bio::DB::XEMBL;
+  $embl = Bio::DB::XEMBL->new();
 
   # remember that XEMBL_ID does not equal GenBank_ID!
   $seq = $embl->get_Seq_by_id('BUM'); # EMBL ID

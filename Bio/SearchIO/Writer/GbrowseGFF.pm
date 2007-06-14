@@ -15,9 +15,9 @@ Bio::SearchIO::Writer::GbrowseGFF - Interface for outputting parsed search resul
 =head1 SYNOPSIS
 
   use Bio::SearchIO;
-  my $in = new Bio::SearchIO(-file   => 'result.blast',      
+  my $in = Bio::SearchIO->new(-file   => 'result.blast',      
                              -format => 'blast');
-  my $out = new Bio::SearchIO(-output_format  => 'GbrowseGFF',
+  my $out = Bio::SearchIO->new(-output_format  => 'GbrowseGFF',
                               -output_cigar   => 1,
                               -output_signif  => 1,
                               -file           => ">result.gff");
@@ -79,7 +79,7 @@ use base qw(Bio::Root::Root Bio::SearchIO::SearchWriterI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO::Writer::GbrowseGFF(@args);
+ Usage   : my $obj = Bio::SearchIO::Writer::GbrowseGFF->new(@args);
  Function: Builds a new Bio::SearchIO::Writer::GbrowseGFF object 
  Returns : an instance of Bio::SearchIO::Writer::GbrowseGFF
  Args    :  -e_value => 10   : set e_value parsing cutoff (default undef)

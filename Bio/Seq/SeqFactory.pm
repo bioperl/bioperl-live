@@ -17,14 +17,14 @@ Bio::Seq::SeqFactory - Instantiates a new Bio::PrimarySeqI (or derived class) th
 =head1 SYNOPSIS
 
     use Bio::Seq::SeqFactory;
-    my $factory = new Bio::Seq::SeqFactory;
+    my $factory = Bio::Seq::SeqFactory->new();
     my $seq = $factory->create(-seq => 'WYRAVLC',
 			       -id  => 'name');
 
     # If you want the factory to create Bio::Seq objects instead
     # of the default Bio::PrimarySeq objects, use the -type parameter:
 
-    my $factory = new Bio::Seq::SeqFactory(-type => 'Bio::Seq');
+    my $factory = Bio::Seq::SeqFactory->new(-type => 'Bio::Seq');
 
 
 =head1 DESCRIPTION
@@ -75,7 +75,7 @@ use base qw(Bio::Root::Root Bio::Factory::SequenceFactoryI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Seq::SeqFactory();
+ Usage   : my $obj = Bio::Seq::SeqFactory->new();
  Function: Builds a new Bio::Seq::SeqFactory object 
  Returns : Bio::Seq::SeqFactory
  Args    : -type => string, name of a PrimarySeqI derived class

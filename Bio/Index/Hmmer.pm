@@ -22,7 +22,7 @@ Bio::Index::Hmmer Indexes HMMER reports and supports retreival based on query
 	use strict;
 	use Bio::Index::Hmmer;
 	my $indexfile = shift;
-	my $index = new Bio::Index::Hmmer(
+	my $index = Bio::Index::Hmmer->new(
 		-filename => $indexfile,
 		-write_flag => 1
 	);
@@ -33,7 +33,7 @@ Bio::Index::Hmmer Indexes HMMER reports and supports retreival based on query
 	use strict;
 	use Bio::Index::Hmmer;
 	my $indexfile = shift;
-	my $index = new Bio::Index::Hmmer(
+	my $index = Bio::Index::Hmmer->new(
 		-filename => $indexfile,
 		-write_flag => 0
 	);
@@ -119,7 +119,7 @@ sub _version
 
 =head2 new
 
- Usage   : $index = new Bio::Index::Hmmer (
+ Usage   : $index = Bio::Index::Hmmer->new(
                -filename    => $dbm_file,
                -write_flag  => 0,
                -dbm_package => 'DB_File',
@@ -181,7 +181,7 @@ sub fetch_report
 
 	# Then join them and send
 	my $rfh = new IO::String(join('', @header, @data));
-	my $report = new Bio::SearchIO(
+	my $report = Bio::SearchIO->new(
 		-noclose => 1,
 		-format  => 'hmmer',
 		-fh      => $rfh

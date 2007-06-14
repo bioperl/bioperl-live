@@ -17,7 +17,7 @@ Bio::MapIO - A Map Factory object
 =head1 SYNOPSIS
 
     use Bio::MapIO;
-    my $mapio = new Bio::MapIO(-format => "mapmaker",
+    my $mapio = Bio::MapIO->new(-format => "mapmaker",
 			       -file   => "mapfile.map");
 
     while( my $map = $mapio->next_map ) { 
@@ -73,7 +73,7 @@ use base qw(Bio::Root::Root Bio::Root::IO Bio::Factory::MapFactoryI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::MapIO();
+ Usage   : my $obj = Bio::MapIO->new();
  Function: Builds a new Bio::MapIO object 
  Returns : Bio::MapIO
  Args    :
@@ -174,7 +174,7 @@ sub _initialize {
     
     # initialize the IO part
     $self->_initialize_io(@args);
-#    $self->attach_EventHandler(new Bio::MapIO::MapEventBuilder());
+#    $self->attach_EventHandler(Bio::MapIO::MapEventBuilder->new());
 }
 
 =head2 _load_format_module

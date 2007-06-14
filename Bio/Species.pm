@@ -118,7 +118,7 @@ sub new {
     }
     else {
         # store a tree on ourselves so we can use Tree methods
-        $self->{tree} = new Bio::Tree::Tree();
+        $self->{tree} = Bio::Tree::Tree->new();
         
         # some things want to freeze/thaw Bio::Species objects, but
         # _root_cleanup_methods contains a CODE ref, delete it.
@@ -275,7 +275,7 @@ sub species {
 		
 		my $root = $self->{tree}->get_root_node;
 		unless ($root) {
-            $self->{tree} = new Bio::Tree::Tree(-node => $species_taxon);
+            $self->{tree} = Bio::Tree::Tree->new(-node => $species_taxon);
             delete $self->{tree}->{_root_cleanup_methods};
             $root = $self->{tree}->get_root_node;
         }

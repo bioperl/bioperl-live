@@ -49,7 +49,7 @@ is $simple, 0;
 
 # link
 
-my $link1 = new Bio::Annotation::DBLink(-database => 'TSC',
+my $link1 = Bio::Annotation::DBLink->new(-database => 'TSC',
 					-primary_id => 'TSC0000030'
 					);
 isa_ok($link1,'Bio::AnnotationI');
@@ -71,7 +71,7 @@ $ac->add_Annotation('comment', $comment);
 
 
 
-my $target = new Bio::Annotation::Target(-target_id  => 'F321966.1',
+my $target = Bio::Annotation::Target->new(-target_id  => 'F321966.1',
                                          -start      => 1,
                                          -end        => 200,
                                          -strand     => 1,
@@ -221,17 +221,17 @@ like(ref $ann, qr(Bio::Annotation::Comment));
 
 
 # factory guessing the type: Comment
-$factory = new Bio::Annotation::AnnotationFactory();
+$factory = Bio::Annotation::AnnotationFactory->new();
 ok $ann = $factory->create_object(-text => 'this is a comment');
 like(ref $ann, qr(Bio::Annotation::Comment));
 
 # factory guessing the type: Target
-$factory = new Bio::Annotation::AnnotationFactory();
+$factory = Bio::Annotation::AnnotationFactory->new();
 ok $ann = $factory->create_object(-target_id => 'F1234', -start => 1, -end => 10);
 like(ref $ann, qr(Bio::Annotation::Target));
 
 # factory guessing the type: OntologyTerm
-$factory = new Bio::Annotation::AnnotationFactory();
+$factory = Bio::Annotation::AnnotationFactory->new();
 ok(defined ($ann = $factory->create_object(-name => 'peroxisome',
 					  -tagname => 'cellular component')));
 like(ref $ann, qr(Bio::Annotation::OntologyTerm));

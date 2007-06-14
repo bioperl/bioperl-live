@@ -46,7 +46,7 @@ ok ref $evolve  eq 'Bio::SeqEvolution::DNAPoint', 'ref';
 #print Dumper $evolve;
 
 
-my $seq = new Bio::PrimarySeq(-id=>'test',
+my $seq = Bio::PrimarySeq->new(-id=>'test',
                               -seq=>'aaacccgggtta'
                              );
 

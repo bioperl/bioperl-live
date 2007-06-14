@@ -16,7 +16,7 @@ server
   use Bio::Tools::Analysis::Protein::Mitoprot;
 
   use Bio::PrimarySeq;
-  my $seq = new Bio::PrimarySeq
+  my $seq = Bio::PrimarySeq->new
     (-seq=>'IKLCVHHJHJHJHJHJHJHNLAILAKAHLIELALAL',
      -primary_id=>'test'); # a Bio::PrimarySeqI object
 

@@ -14,7 +14,7 @@ BEGIN {
 	use_ok('Bio::SearchIO');
 }
 
-my $searchio = new Bio::SearchIO(
+my $searchio = Bio::SearchIO->new(
 	 -format => 'blast',
     -file => File::Spec->catfile(qw(t data blast.report))
 );

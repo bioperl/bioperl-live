@@ -245,9 +245,9 @@ sub _parse_genes {
 								/x;
 	    my $g_strand;
 	    my $source_tag = $type ? "$Srctag". "_$type" : $Srctag;
-	    my $genes = new Bio::SeqFeature::Gene::GeneStructure
+	    my $genes = Bio::SeqFeature::Gene::GeneStructure->new
 		 (-source => $source_tag);
-	    my $transcript = new Bio::SeqFeature::Gene::Transcript
+	    my $transcript = Bio::SeqFeature::Gene::Transcript->new
 		 (-source => $source_tag,
 		 -score  => $self->_score);
 	    ($g_start, $g_end, $g_strand) = $self->_get_strand($g_start,$g_end);
@@ -271,7 +271,7 @@ sub _parse_genes {
 		($e_start,$e_end,$e_strand) = $self->_get_strand($e_start,
 								 $e_end);
 		$transcript->strand($e_strand) unless $transcript->strand != 0;
-		my $exon = new Bio::SeqFeature::Gene::Exon
+		my $exon = Bio::SeqFeature::Gene::Exon->new
 		    (-seq_id =>$self->_target_id,
 		     -source => $source_tag,
 		     -start  =>$e_start, 
@@ -292,7 +292,7 @@ sub _parse_genes {
 		    my $prot_strand;
 		    ($prot_start,$prot_end,
 		     $prot_strand) = $self->_get_strand($prot_start,$prot_end);
-		    my $pf = new Bio::SeqFeature::Generic
+		    my $pf = Bio::SeqFeature::Generic->new
 			( -start   => $prot_start, 
 			  -end     => $prot_end,
 			  -seq_id  => $self->_prot_id,
@@ -303,7 +303,7 @@ sub _parse_genes {
 		    my $geno_strand;
 		    ($geno_start,$geno_end,
 		     $geno_strand) = $self->_get_strand($geno_start,$geno_end);
-		    my $gf = new Bio::SeqFeature::Generic 
+		    my $gf = Bio::SeqFeature::Generic->new 
 			( -start   => $geno_start,
 			  -end     => $geno_end,
 			  -seq_id  => $self->_target_id,
@@ -311,7 +311,7 @@ sub _parse_genes {
 			  -strand  => $geno_strand,
 			  -source  => $source_tag,
 			  -primary_tag => 'supporting_genomic_feature',);
-		    my $fp = new Bio::SeqFeature::FeaturePair
+		    my $fp = Bio::SeqFeature::FeaturePair->new
 			(-feature1 =>$gf,
 			 -feature2 =>$pf);
 		    $exon->add_tag_value( 'supporting_feature',$fp );

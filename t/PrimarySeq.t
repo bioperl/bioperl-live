@@ -47,25 +47,25 @@ is $seq->namespace_string(), "t:X677667.0";
 is $seq->description(), 'Sample Bio::Seq object';
 is $seq->display_name(), "new-id";
 
-my $location = new Bio::Location::Simple('-start' => 2, 
+my $location = Bio::Location::Simple->new('-start' => 2, 
 													  '-end' => 5,
 													  '-strand' => -1);
 is ($seq->subseq($location), 'ACCA');
 
-my $splitlocation = new Bio::Location::Split();
-$splitlocation->add_sub_Location( new Bio::Location::Simple(
+my $splitlocation = Bio::Location::Split->new();
+$splitlocation->add_sub_Location( Bio::Location::Simple->new(
 								 '-start' => 1,
 							    '-end'   => 4,
 							    '-strand' => 1));
 
-$splitlocation->add_sub_Location( new Bio::Location::Simple(
+$splitlocation->add_sub_Location( Bio::Location::Simple->new(
                          '-start' => 7,
 							    '-end'   => 12,
 							    '-strand' => -1));
 
 is( $seq->subseq($splitlocation), 'TTGGTGACGC');
 
-my $fuzzy = new Bio::Location::Fuzzy(-start => '<3',
+my $fuzzy = Bio::Location::Fuzzy->new(-start => '<3',
 												 -end   => '8',
 												 -strand => 1);
 

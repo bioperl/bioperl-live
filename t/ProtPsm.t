@@ -18,7 +18,7 @@ BEGIN {
 }
 
 # Test psiblast reading functionality.
-my $psmIO =  new Bio::Matrix::PSM::IO(-format => 'psiblast', 
+my $psmIO =  Bio::Matrix::PSM::IO->new(-format => 'psiblast', 
 			      -file   => Bio::Root::IO->catfile(qw(t data atp1.matrix)));
 ok $psmIO;
 

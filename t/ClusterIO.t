@@ -33,7 +33,7 @@ SKIP: {
 			 "ClusterIO::dbsnp test cannot be executed.",8);
 	}
 	my ($clusterio, $result,$hit,$hsp);
-	$clusterio = new Bio::ClusterIO ('-tempfile' => 0,
+	$clusterio = Bio::ClusterIO->new('-tempfile' => 0,
 					'-format' => 'dbsnp',
 					'-file'   => Bio::Root::IO->catfile('t','data','LittleChrY.dbsnp.xml'));
     

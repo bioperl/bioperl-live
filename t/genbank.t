@@ -113,7 +113,7 @@ is $as->species->scientific_name,'(Populus tomentosa x P. bolleana) x P. tomento
 $as->accession_number;;
 
 # test secondary accessions
-my $seqio = new Bio::SeqIO(-format => 'genbank',
+my $seqio = Bio::SeqIO->new(-format => 'genbank',
                                     -verbose => $verbose,
                                     -file => Bio::Root::IO->catfile
                                     (qw(t data D10483.gbk)));
@@ -126,7 +126,7 @@ is(scalar @sec_acc,14);
 is($sec_acc[-1], 'X56742');
 
 # bug #1487
-my $str = new Bio::SeqIO(-verbose => $verbose,
+my $str = Bio::SeqIO->new(-verbose => $verbose,
                                  -file    => Bio::Root::IO->catfile
                                  (qw(t data D12555.gbk)));
 eval {
@@ -160,7 +160,7 @@ is(@refs, 1);
 is($seq->display_id,'Mc.janrrnA');
 is($seq->molecule ,'RNA');
 
-$str  = new Bio::SeqIO(-format => 'genbank',
+$str  = Bio::SeqIO->new(-format => 'genbank',
                               -file   => Bio::Root::IO->catfile
                               ("t","data","AF165282.gb"),
                               -verbose => $verbose);
@@ -270,7 +270,7 @@ ok($seq->write_seq($as),'Fuzzy out');
 unlink(Bio::Root::IO->catfile("t","data","genbank.fuzzyout"));
 
 ## now genbank ##
-$str = new Bio::SeqIO(-format =>'genbank',
+$str = Bio::SeqIO->new(-format =>'genbank',
                              -verbose => $verbose,
                              -file => Bio::Root::IO->catfile
                              ( qw(t data BK000016-tpa.gbk)));
@@ -332,7 +332,7 @@ is ($reference->medline, '21372465');
 unlink($testfile);
 
 # write revcomp split location
-my $gb = new Bio::SeqIO(-format => 'genbank',
+my $gb = Bio::SeqIO->new(-format => 'genbank',
                         # This sequence has an odd LOCUS line which sets off a warning, setting
                         # verbose to -1.
                         # The newest Ensembl seq lacks this.  Maybe update?  cjfields 6-5-07
@@ -341,7 +341,7 @@ my $gb = new Bio::SeqIO(-format => 'genbank',
                         (qw(t data revcomp_mrna.gb)));
 $seq = $gb->next_seq();
 
-$gb = new Bio::SeqIO(-format => 'genbank',
+$gb = Bio::SeqIO->new(-format => 'genbank',
                      -file   => ">tmp_revcomp_mrna.gb");
 
 $gb->write_seq($seq);
@@ -349,7 +349,7 @@ undef $gb;
 ok(! -z "tmp_revcomp_mrna.gb", 'revcomp split location');
 
 # check warnings for LOCUS line
-$gb = new Bio::SeqIO(-format => 'genbank',
+$gb = Bio::SeqIO->new(-format => 'genbank',
                         -verbose => 2,
                         -file   => Bio::Root::IO->catfile
                         (qw(t data revcomp_mrna.gb)));
@@ -364,7 +364,7 @@ like($@, qr{Missing tokens in the LOCUS line});
 #           9150
 #           Bacteria; Proteobacteria; Gammaproteobacteria; Enterobacteriales;
 #           Enterobacteriaceae; Salmonella.
-$gb = new Bio::SeqIO(-format => 'genbank',
+$gb = Bio::SeqIO->new(-format => 'genbank',
                      -verbose => $verbose,
                         -file   => Bio::Root::IO->catfile
                             (qw(t data NC_006511-short.gbk)));
@@ -399,7 +399,7 @@ for my $wgs (@wgs) {
 is ($ct, 3);
 
 # make sure we can retrieve a feature with a primary tag of 'misc_difference'
-$gb = new Bio::SeqIO(-format => 'genbank',
+$gb = Bio::SeqIO->new(-format => 'genbank',
                      -verbose => $verbose,
                     -file   => Bio::Root::IO->catfile
                             (qw(t data BC000007.gbk)));
@@ -425,12 +425,12 @@ my $outfile = 'testsource.gb';
 foreach my $in ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb', 'ay007676.gb', 'dq519393.gb') {
     my $infile =  Bio::Root::IO->catfile("t","data",$in);
     
-    $str = new Bio::SeqIO(-format =>'genbank',
+    $str = Bio::SeqIO->new(-format =>'genbank',
                           -verbose => $verbose,
                           -file => $infile);
     $seq = $str->next_seq;
     
-    $out = new Bio::SeqIO(-file => ">$outfile", -format => 'genbank');
+    $out = Bio::SeqIO->new(-file => ">$outfile", -format => 'genbank');
     $out->write_seq($seq);
     $out->close();
     
@@ -480,7 +480,7 @@ $ct = 0;
 
 foreach my $in ('P35527.gb') {
     my $infile =  Bio::Root::IO->catfile("t","data",$in);
-    $str = new Bio::SeqIO(-format =>'genbank',
+    $str = Bio::SeqIO->new(-format =>'genbank',
                          -verbose => $verbose,
                          -file => $infile);
     $seq = $str->next_seq;
@@ -523,7 +523,7 @@ is($ct, 45);
 
 # bug 2195
     
-$str = new Bio::SeqIO(-format =>'genbank',
+$str = Bio::SeqIO->new(-format =>'genbank',
                       -verbose => $verbose,
                       -file => Bio::Root::IO->catfile(qw(t data AF305198.gb))
                      );

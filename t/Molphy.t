@@ -37,7 +37,7 @@ my $verbose = 0;
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
-my $inmolphy = new Bio::Tools::Phylo::Molphy(-file => 't/data/lysozyme6.simple.protml');
+my $inmolphy = Bio::Tools::Phylo::Molphy->new(-file => 't/data/lysozyme6.simple.protml');
 ok($inmolphy);
 my $r = $inmolphy->next_result;
 ok($r);
@@ -48,7 +48,7 @@ while( my $t = $r->next_tree ) {
     push @trees, $t;
 }
 is(@trees,5);
- $inmolphy = new Bio::Tools::Phylo::Molphy(-file => 't/data/lysozyme6.protml');
+ $inmolphy = Bio::Tools::Phylo::Molphy->new(-file => 't/data/lysozyme6.protml');
 ok($inmolphy);
 $r = $inmolphy->next_result;
 is($r->model, 'JTT');

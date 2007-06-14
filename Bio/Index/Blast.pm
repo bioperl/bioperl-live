@@ -20,7 +20,7 @@ based on query accession(s)
     use strict;
     use Bio::Index::Blast;
     my ($indexfile,$file1,$file2,$query);
-    my $index = new Bio::Index::Blast(-filename => $indexfile,
+    my $index = Bio::Index::Blast->new(-filename => $indexfile,
 				                          -write_flag => 1);
     $index->make_index($file1,$file2);
 
@@ -135,7 +135,7 @@ sub new {
 sub fetch_report{
 	my ($self,$id) = @_;
 	my $fh = $self->get_stream($id);
-	my $report = new Bio::SearchIO(-noclose => 1,
+	my $report = Bio::SearchIO->new(-noclose => 1,
 											 -format => 'blast',
 											 -fh => $fh);
 	return $report->next_result;
@@ -210,7 +210,7 @@ sub _process_report {
 	# my $id_parser = $self->id_parser;
 
 	my $datal = new IO::String($data);
-	my $report = new Bio::SearchIO->new(-fh => $datal,
+	my $report = Bio::SearchIO->new->new(-fh => $datal,
 												   -noclose => 1);
 	for (my $result = $report->next_result) {
 		my $id = $result->query_name;

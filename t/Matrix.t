@@ -27,7 +27,7 @@ my $raw = [ [ 0, 10, 20],
 	    [ 2, 17,  4],
 	    [ 3,  4,  5] ];
 
-my $matrix = new Bio::Matrix::Generic(-values => $raw,
+my $matrix = Bio::Matrix::Generic->new(-values => $raw,
 				      -matrix_id  => 'fakeid00',
 				      -matrix_name=> 'matname',
 				      -rownames   => [qw(A B C)],
@@ -116,7 +116,7 @@ is($row[5], $pam_matrix->get_entry('D','Q'));
 
 # test Phylip parsing
 
-$io = new Bio::Matrix::IO(-format  => 'phylip',
+$io = Bio::Matrix::IO->new(-format  => 'phylip',
 			  -program => 'phylipdist',
 			  -file    => Bio::Root::IO->catfile
 			  (qw(t data phylipdist.out)));
@@ -151,7 +151,7 @@ is $diag[4], '0.00000';
 
 # test mlagan parsing
 
-$io = new Bio::Matrix::IO(-format => 'mlagan',
+$io = Bio::Matrix::IO->new(-format => 'mlagan',
 						  -file   => Bio::Root::IO->catfile(qw(t data nucmatrix.txt)));
 
 my $mlag = $io->next_matrix;
@@ -166,11 +166,11 @@ $mlag->gap_open(-150);
 $mlag->gap_continue(-5);
 
 my $out = Bio::Root::IO->catfile(qw(t data nucmatrix.out));
-$io = new Bio::Matrix::IO(-format => 'mlagan',
+$io = Bio::Matrix::IO->new(-format => 'mlagan',
 						  -file   => ">$out");
 $io->write_matrix($mlag);
 
-$io = new Bio::Matrix::IO(-format => 'mlagan',
+$io = Bio::Matrix::IO->new(-format => 'mlagan',
 						  -file   => $out);
 $mlag = $io->next_matrix;
 is $mlag->get_entry('A', 'C'), -149;

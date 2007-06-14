@@ -21,20 +21,20 @@ Bio::PopGen::Statistics - Population Genetics statistical tests
   use Bio::PopGen::IO;
   use Bio::PopGen::Simulation::Coalescent;
 
-  my $sim = new Bio::PopGen::Simulation::Coalescent( -sample_size => 12);
+  my $sim = Bio::PopGen::Simulation::Coalescent->new( -sample_size => 12);
 
   my $tree = $sim->next_tree;
 
   $sim->add_Mutations($tree,20);
 
-  my $stats = new Bio::PopGen::Statistics();
+  my $stats = Bio::PopGen::Statistics->new();
   my $individuals = [ $tree->get_leaf_nodes];
   my $pi = $stats->pi($individuals);
   my $D  = $stats->tajima_D($individuals);
 
   # Alternatively to do this on input data from
   # See the tests in t/PopGen.t for more examples
-  my $parser = new Bio::PopGen::IO(-format => 'prettybase',
+  my $parser = Bio::PopGen::IO->new(-format => 'prettybase',
                                    -file   => 't/data/popstats.prettybase');
   my $pop = $parser->next_population;
   # Note that you can also call the stats as a class method if you like
@@ -49,7 +49,7 @@ Bio::PopGen::Statistics - Population Genetics statistical tests
   use Bio::PopGen::Utilities;
   use Bio::AlignIO;
 
-  my $in = new Bio::AlignIO(-file   => 't/data/t7.aln',
+  my $in = Bio::AlignIO->new(-file   => 't/data/t7.aln',
                             -format => 'clustalw');
   my $aln = $in->next_aln;
   # get a population, each sequence is an individual and 
@@ -154,7 +154,7 @@ use base qw(Bio::Root::Root);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::PopGen::Statistics();
+ Usage   : my $obj = Bio::PopGen::Statistics->new();
  Function: Builds a new Bio::PopGen::Statistics object 
  Returns : an instance of Bio::PopGen::Statistics
  Args    : none
@@ -1049,7 +1049,7 @@ sub composite_LD {
     my ($self,$pop) = @_;
     if( ref($pop) =~ /ARRAY/i ) {
 	if( ref($pop->[0]) && $pop->[0]->isa('Bio::PopGen::IndividualI') ) {
-	    $pop = new Bio::PopGen::Population(-individuals => @$pop);
+	    $pop = Bio::PopGen::Population->new(-individuals => @$pop);
 	} else { 
 	    $self->warn("composite_LD expects a Bio::PopGen::PopulationI or an arrayref of Bio::PopGen::IndividualI objects");
 	    return ();

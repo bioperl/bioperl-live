@@ -110,7 +110,7 @@ use base qw(Bio::Tools::AnalysisResult);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::Genemark();
+ Usage   : my $obj = Bio::Tools::Genemark->new();
  Function: Builds a new Bio::Tools::Genemark object
  Returns : an instance of Bio::Tools::Genemark
  Args    : seqname

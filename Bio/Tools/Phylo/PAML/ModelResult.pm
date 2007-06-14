@@ -18,7 +18,7 @@ Bio::Tools::Phylo::PAML::ModelResult - A container for NSSite Model Result from 
 
   # get a ModelResult from a PAML::Result object
   use Bio::Tools::Phylo::PAML;
-  my $paml = new Bio::Tools::Phylo::PAML(-file => 'mlc');
+  my $paml = Bio::Tools::Phylo::PAML->new(-file => 'mlc');
   my $result = $paml->next_result;
   foreach my $model ( $result->get_NSSite_results ) {
     print $model->model_num, " ", $model->model_description, "\n";
@@ -88,7 +88,7 @@ use base qw(Bio::Root::Root);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::Phylo::PAML::ModelResult();
+ Usage   : my $obj = Bio::Tools::Phylo::PAML::ModelResult->new();
  Function: Builds  a new Bio::Tools::Phylo::PAML::ModelResult object 
  Returns : an instance of Bio::Tools::Phylo::PAML::ModelResult
  Args    : -model_num           => model number

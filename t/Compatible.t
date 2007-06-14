@@ -30,7 +30,7 @@ BEGIN {
 
 my $verbose = 0;
 
-my $in = new Bio::TreeIO(-format => 'newick',
+my $in = Bio::TreeIO->new(-format => 'newick',
 								 -fh     => \*DATA);
 
 # the common labels of (((A,B)C,D),(E,F,G)); and ((A,B)H,E,(J,(K)G)I);

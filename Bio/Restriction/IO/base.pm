@@ -101,7 +101,7 @@ sub _initialize {
 sub read {
     my $self = shift;
 
-    my $renzs = new Bio::Restriction::EnzymeCollection(-empty => 1);
+    my $renzs = Bio::Restriction::EnzymeCollection->new(-empty => 1);
     seek DATA,($offset||=tell DATA), 0;
     while (<DATA>) {
         chomp;
@@ -109,7 +109,7 @@ sub read {
         my ($name, $site, $cut) = split /\s+/;
         #foreach my $key (keys %{$res}) {
         #my ($site, $cut) = split /\s+/, $res->{$key};
-        my $re = new Bio::Restriction::Enzyme(-name => $name,
+        my $re = Bio::Restriction::Enzyme->new(-name => $name,
                                               -site => $site,
                                               -cut => $cut);
         $renzs->enzymes($re);

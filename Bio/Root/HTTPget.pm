@@ -19,7 +19,7 @@ LWP:: is unavailable
 =head1 SYNOPSIS
 
  use Bio::Root::HTTPget;
- my $web = new Bio::Root::HTTPget;
+ my $web = Bio::Root::HTTPget->new();
 
  my $response = $web->get('http://localhost');
  $response    = $web->get('http://localhost/images');

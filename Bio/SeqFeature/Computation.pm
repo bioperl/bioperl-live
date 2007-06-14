@@ -16,7 +16,7 @@ Bio::SeqFeature::Computation - Computation SeqFeature
 
 =head1 SYNOPSIS
 
-   $feat = new Bio::SeqFeature::Computation (
+   $feat = Bio::SeqFeature::Computation->new(
                                 -start => 10, -end => 100,
 				-strand => -1, -primary => 'repeat',
 				-program_name => 'GeneMark',

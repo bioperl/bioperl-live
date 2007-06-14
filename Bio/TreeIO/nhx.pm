@@ -19,7 +19,7 @@ Bio::TreeIO::nhx - TreeIO implementation for parsing
 
   # do not use this module directly
   use Bio::TreeIO;
-  my $treeio = new Bio::TreeIO(-format => 'nhx', -file => 'tree.dnd');
+  my $treeio = Bio::TreeIO->new(-format => 'nhx', -file => 'tree.dnd');
   my $tree = $treeio->next_tree;
 
 =head1 DESCRIPTION

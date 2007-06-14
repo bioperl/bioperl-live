@@ -23,12 +23,12 @@ Bio::DB::BioFetch - Database object interface to BioFetch retrieval
 
  use Bio::DB::BioFetch;
 
- $bf = new Bio::DB::BioFetch;
+ $bf = Bio::DB::BioFetch->new();
 
  $seq = $bf->get_Seq_by_id('BUM');  # EMBL or SWALL ID
 
  # change formats, storage procedures
- $bf = new Bio::DB::BioFetch(-format        => 'fasta',
+ $bf = Bio::DB::BioFetch->new(-format        => 'fasta',
  			     -retrievaltype => 'tempfile',
   			     -db            => 'EMBL');
 

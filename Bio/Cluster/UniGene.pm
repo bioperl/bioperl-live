@@ -274,7 +274,7 @@ sub new {
     $self->authority($auth || 'NCBI');
     $self->version($v) if defined($v);
     if( ! defined $seqfact ) {
-	$seqfact = new Bio::Seq::SeqFactory
+	$seqfact = Bio::Seq::SeqFactory->new
 	    (-verbose => $self->verbose(), 
 	     -type => 'Bio::Seq::RichSeq');
     }

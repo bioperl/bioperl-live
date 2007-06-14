@@ -95,7 +95,7 @@ use base qw(Bio::Root::Root);
 =head2 new
 
  Title   : new
- Usage   : my $gel = new Bio::Tools::Gel(-seq => $sequence,-dilate => 3);
+ Usage   : my $gel = Bio::Tools::Gel->new(-seq => $sequence,-dilate => 3);
  Function: Initializes a new Gel
  Returns : Bio::Tools::Gel
  Args    : -seq      => Bio::Seq(s), scalar(s) or list of either/both 

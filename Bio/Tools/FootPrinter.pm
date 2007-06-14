@@ -75,7 +75,7 @@ use base qw(Bio::Root::Root Bio::Root::IO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::FootPrinter();
+ Usage   : my $obj = Bio::Tools::FootPrinter->new();
  Function: Builds a new Bio::Tools::FootPrinter object 
  Returns : Bio::Tools::FootPrinter
  Args    : -fh/-file => $val, # for initing input, see Bio::Root::IO
@@ -239,14 +239,14 @@ sub _parse {
 	push @words, $word;
     }
     my $last;
-    my $feat = new Bio::SeqFeature::Generic(-seq_id=>$name);
+    my $feat = Bio::SeqFeature::Generic->new(-seq_id=>$name);
     my $offset = $i = 0;
     my $count = 1;
     for my $w (@words){
         if(length($w) ) { 
 	    my $index = index($pattern,$w,$offset);
 	    $offset = $index + length($w);
-	    my $subfeat = new Bio::SeqFeature::Generic 
+	    my $subfeat = Bio::SeqFeature::Generic->new 
 		( -seq_id  =>"$name-motif".$count++,
 		  -start   => $index+1, 
 		  -end     => $index+length($w),

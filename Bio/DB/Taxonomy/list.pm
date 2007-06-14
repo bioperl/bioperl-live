@@ -21,7 +21,7 @@ that accepts lists of words to build a database
 
   my @names = ('Eukaryota', 'Mammalia', 'Homo', 'Homo sapiens');
   my @ranks = qw(superkingdom class genus species);
-  my $db = new Bio::DB::Taxonomy(-source => 'list', -names => \@names,
+  my $db = Bio::DB::Taxonomy->new(-source => 'list', -names => \@names,
                                                     -ranks => \@ranks);
 
   @names = ('Eukaryota', 'Mammalia', 'Mus', 'Mus musculus');
@@ -80,7 +80,7 @@ use base qw(Bio::DB::Taxonomy);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::DB::Taxonomy::list();
+ Usage   : my $obj = Bio::DB::Taxonomy::list->new();
  Function: Builds a new Bio::DB::Taxonomy::list object 
  Returns : an instance of Bio::DB::Taxonomy::list
  Args    : optional, as per the add_lineage() method.
@@ -275,7 +275,7 @@ sub get_taxon {
     my $node = $self->{db}->{node_data}->{$taxonid} || return;
     my ($sci_name, $rank) = @{$node};
     
-    my $taxon = new Bio::Taxon(
+    my $taxon = Bio::Taxon->new(
                         -name         => $sci_name,
                         -object_id    => $taxonid, # since this is NOT a real ncbi taxid, set it as simply the object id
                         -rank         => $rank );

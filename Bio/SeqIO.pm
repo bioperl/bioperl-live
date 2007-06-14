@@ -220,9 +220,9 @@ improve the efficiency of writing multiple sequences to the same file
 (or filehandle), pass the -flush option '0' or any other value that
 evaluates as defined but false:
 
-  my $gb = new Bio::SeqIO -file   => "<gball.gbk",
+  my $gb = Bio::SeqIO->new -file   => "<gball.gbk",
                           -format => "gb";
-  my $fa = new Bio::SeqIO -file   => ">gball.fa",
+  my $fa = Bio::SeqIO->new -file   => ">gball.fa",
                           -format => "fasta",
                           -flush  => 0; # go as fast as we can!
   while($seq = $gb->next_seq) { $fa->write_seq($seq) }

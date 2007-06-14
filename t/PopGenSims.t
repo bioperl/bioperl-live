@@ -24,7 +24,7 @@ BEGIN {
     use_ok 'Bio::PopGen::Simulation::GeneticDrift';
 }
 
-my $sim = new Bio::PopGen::Simulation::GeneticDrift(-popsize => 40,
+my $sim = Bio::PopGen::Simulation::GeneticDrift->new(-popsize => 40,
 						    -alleles => {A => 0.2,
 								 B => 0.8});
 
@@ -39,7 +39,7 @@ for my $i (0..9) {
 is(@Afreqs, 10);
 cmp_ok (($Afreqs[9]||0), '<=', 1, 'All frequencies should be <= 1');
 
-$sim = new Bio::PopGen::Simulation::GeneticDrift(-popsize => 50,
+$sim = Bio::PopGen::Simulation::GeneticDrift->new(-popsize => 50,
 						 -alleles => {A => 0.2,
 							      B => 0.3,
 							      C => 0.5,

@@ -17,7 +17,7 @@ Bio::DB::Taxonomy - Access to a taxonomy database
 =head1 SYNOPSIS
 
   use Bio::DB::Taxonomy;
-  my $db = new Bio::DB::Taxonomy(-source => 'entrez');
+  my $db = Bio::DB::Taxonomy->new(-source => 'entrez');
   # use NCBI Entrez over HTTP
   my $taxonid = $db->get_taxonid('Homo sapiens');
 
@@ -77,7 +77,7 @@ $TAXON_IIDS = {};
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::DB::Taxonomy(-source => 'entrez');
+ Usage   : my $obj = Bio::DB::Taxonomy->new(-source => 'entrez');
  Function: Builds a new Bio::DB::Taxonomy object.
  Returns : an instance of Bio::DB::Taxonomy
  Args    : -source => which database source 'entrez' or 'flatfile' or 'list'

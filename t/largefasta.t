@@ -17,7 +17,7 @@ use vars qw($tmpfile);
 END { unlink $tmpfile; }
 
 $tmpfile = Bio::Root::IO->catfile("t","data","largefastatest.out");
-my $seqio = new Bio::SeqIO('-format'=>'largefasta',
+my $seqio = Bio::SeqIO->new('-format'=>'largefasta',
 			   '-file'  =>Bio::Root::IO->catfile("t","data","genomic-seq.fasta"));
 is defined $seqio, 1, 'Instantiate Bio::SeqIO::largefasta';
 
@@ -38,14 +38,14 @@ is $pseq->desc, 'this is my description';
 
 is open(OUT, ">$tmpfile"), 1;
 
-my $seqout = new Bio::SeqIO('-format' => 'largefasta',
+my $seqout = Bio::SeqIO->new('-format' => 'largefasta',
 			    '-fh'     => \*OUT );
 is defined $seqout, 1;
 
 is $seqout->write_seq($pseq), 1;
 $seqout->close();
 close(OUT);
-my $seqin = new Bio::SeqIO('-format' => 'largefasta',
+my $seqin = Bio::SeqIO->new('-format' => 'largefasta',
 			'-file'   => $tmpfile);
 my $pseq2 = $seqin->next_seq;
 is ($plength, $pseq2->length());

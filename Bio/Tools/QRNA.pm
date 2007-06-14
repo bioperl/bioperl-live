@@ -17,7 +17,7 @@ Bio::Tools::QRNA - A Parser for qrna output
 =head1 SYNOPSIS
 
   use Bio::Tools::QRNA;
-  my $parser = new Bio::Tools::QRNA(-file => $qrnaoutput);
+  my $parser = Bio::Tools::QRNA->new(-file => $qrnaoutput);
   while( my $feature = $parser->next_feature ) {
     # do something here
   }
@@ -123,7 +123,7 @@ use base qw(Bio::Root::IO Bio::SeqAnalysisParserI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::QRNA();
+ Usage   : my $obj = Bio::Tools::QRNA->new();
  Function: Builds a new Bio::Tools::QRNA object 
  Returns : an instance of Bio::Tools::QRNA
  Args    : -fh/-file filehandle/filename standard input for 
@@ -357,10 +357,10 @@ sub _make_feature {
 	($hid,$hoffset) = ($1,$2);
     }
 
-    my $f = new Bio::SeqFeature::FeaturePair;
+    my $f = Bio::SeqFeature::FeaturePair->new();
 
     my ($s,$e) = @{$data->{'model_location'}->{$data->{'winning_model'}}};
-    my $qf = new Bio::SeqFeature::Generic
+    my $qf = Bio::SeqFeature::Generic->new
 	( -primary_tag => $data->{'winning_model'},
 	  -source_tag  => $self->program_name,
 	  -score       => $data->{'model_scores'}->{'bits'}->{$data->{'winning_model'}},
@@ -370,7 +370,7 @@ sub _make_feature {
 	  -strand      => ($s < $e ) ? 1 : -1,
 	  );
 
-    my $hf = new Bio::SeqFeature::Generic
+    my $hf = Bio::SeqFeature::Generic->new
 	( -primary_tag => $qf->primary_tag,
 	  -source_tag  => $qf->source_tag,
 	  -score       => $qf->score,

@@ -31,7 +31,7 @@ BEGIN {
 
 END {  unlink qw( Wibbl Wibbl.pag Wibbl.dir ); }
 
-my $index = new Bio::Index::Blast(-filename => 'Wibbl',
+my $index = Bio::Index::Blast->new(-filename => 'Wibbl',
 				  -write_flag => 1);
 ok($index);
 
@@ -44,7 +44,7 @@ foreach my $id ( qw(CATH_RAT PAPA_CARPA) ) {
 	my $fh = $index->get_stream($id);
 	ok($fh);
 	ok( ! eof($fh) );
-	my $report = new Bio::SearchIO(-noclose => 1,
+	my $report = Bio::SearchIO->new(-noclose => 1,
 				   -format  => 'blast',
 				   -fh      => $fh);
 	my $result = $report->next_result;

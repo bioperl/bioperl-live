@@ -57,7 +57,7 @@ use base qw(Bio::Matrix::PSM::PsmHeader Bio::Matrix::PSM::IO);
 =head2 new
 
  Title   : new
- Usage   : my $psmIO =  new Bio::Matrix::PSM::IO(-format=>'meme', 
+ Usage   : my $psmIO =  Bio::Matrix::PSM::IO->new(-format=>'meme', 
 						 -file=>$file);
  Function: Associates a file with the appropriate parser
  Throws  : Throws if the file passed is in HTML format or 
@@ -206,7 +206,7 @@ sub next_psm {
 	}
 	if ($line=~/^letter-probability\smatrix/) {
 	    my %matrix_dat=$self->_parseMatrix($motif_id);
-	    my $psm= new Bio::Matrix::PSM::Psm(%matrix_dat, 
+	    my $psm= Bio::Matrix::PSM::Psm->new(%matrix_dat, 
 					       -instances=>$instances, 
 					       -e_val=>$e_val,
 					       -IC=>$ic, 
@@ -329,7 +329,7 @@ sub _parseInstance {
 	    $self->throw("I have not been able to parse the correct instance sequence: $seq, $col columns\n");
 	}
 	my $sid = $self->{id} . '@' . $id;
-	$instance[$i] = new Bio::Matrix::PSM::InstanceSite
+	$instance[$i] = Bio::Matrix::PSM::InstanceSite->new
 	    (-mid      => $self->{id}, 
 	     -start    => $start, 
 	     -score    => $score,

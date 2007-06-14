@@ -136,7 +136,7 @@ sub next_aln {
 			# Make the sequence.  Meme gives the start coordinate at the left
 			# hand side of the motif relative to the INPUT sequence.
 			my $end_pos = $start_pos + length($central) - 1;
-			my $seq = new Bio::LocatableSeq(-seq    => $central,
+			my $seq = Bio::LocatableSeq->new(-seq    => $central,
 													  -id     => $seq_name,
 													  -start  => $start_pos,
 													  -end    => $end_pos,

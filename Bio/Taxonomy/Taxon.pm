@@ -18,11 +18,11 @@ Bio::Taxonomy::Taxon - Generic Taxonomic Entity object
     NB: This module is deprecated. Use Bio::Taxon instead.
 
     use Bio::Taxonomy::Taxon;
-    my $taxonA = new Bio::Taxonomy::Taxon();
-    my $taxonL = new Bio::Taxonomy::Taxon();
-    my $taxonR = new Bio::Taxonomy::Taxon();
+    my $taxonA = Bio::Taxonomy::Taxon->new();
+    my $taxonL = Bio::Taxonomy::Taxon->new();
+    my $taxonR = Bio::Taxonomy::Taxon->new();
 
-    my $taxon = new Bio::Taxonomy::Taxon();
+    my $taxon = Bio::Taxonomy::Taxon->new();
     $taxon->add_Descendents($taxonL);
     $taxon->add_Descendents($taxonR);
 
@@ -64,7 +64,7 @@ BEGIN {
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Taxonomy::Taxon();
+ Usage   : my $obj = Bio::Taxonomy::Taxon->new();
  Function: Builds a new Bio::Taxonomy::Taxon object
  Returns : Bio::Taxonomy::Taxon
  Args    : -descendents   => array pointer to descendents (optional)

@@ -17,7 +17,7 @@ Bio::SearchIO::psl - A parser for PSL output (UCSC)
 =head1 SYNOPSIS
 
   use Bio::SearchIO;
-  my $parser = new Bio::SearchIO(-file   => 'file.psl',
+  my $parser = Bio::SearchIO->new(-file   => 'file.psl',
                                  -format => 'psl');
   while( my $result = $parser->next_result ) {
   }
@@ -129,7 +129,7 @@ use base qw(Bio::SearchIO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO::psl();
+ Usage   : my $obj = Bio::SearchIO::psl->new();
  Function: Builds a new Bio::SearchIO::psl object 
  Returns : an instance of Bio::SearchIO::psl
  Args    :

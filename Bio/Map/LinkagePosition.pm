@@ -16,7 +16,7 @@ Bio::Map::LinkagePosition - Create a Position for a Marker that will be placed
 =head1 SYNOPSIS
 
     use Bio::Map::Position;
-    my $position = new Bio::Map::LinkagePosition(-positions => 1,
+    my $position = Bio::Map::LinkagePosition->new(-positions => 1,
 						 -distance => 22.1 );
 
 	# can get listing of positions
@@ -77,7 +77,7 @@ use base qw(Bio::Map::OrderedPosition);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Map::LinkagePosition(-positions => $position,
+ Usage   : my $obj = Bio::Map::LinkagePosition->new(-positions => $position,
 				                                   -distance => $distance);
  Function: Builds a new Bio::Map::LinkagePosition object
  Returns : Bio::Map::LinkagePosition

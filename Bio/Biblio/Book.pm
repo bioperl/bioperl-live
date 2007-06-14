@@ -13,13 +13,13 @@ Bio::Biblio::Book - Representation of a book
 
 =head1 SYNOPSIS
 
-    $obj = new Bio::Biblio::Book (-identifier => '123abc',
-                                  -editor => new Bio::Biblio::Person
+    $obj = Bio::Biblio::Book->new(-identifier => '123abc',
+                                  -editor => Bio::Biblio::Person->new
                                             (-lastname => 'Loukides'),
                                   -isbn  => '0-596-00068-5');
   #--- OR ---
 
-    $obj = new Bio::Biblio::Book;
+    $obj = Bio::Biblio::Book->new();
     $obj->isbn ('0-596-00068-5');
 
 =head1 DESCRIPTION

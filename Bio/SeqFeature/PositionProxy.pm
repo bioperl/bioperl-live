@@ -16,7 +16,7 @@ Bio::SeqFeature::PositionProxy - handle features when truncation/revcom sequence
 
 =head1 SYNOPSIS
 
-   $proxy = new Bio::SeqFeature::PositionProxy ( -loc => $loc,
+   $proxy = Bio::SeqFeature::PositionProxy->new( -loc => $loc,
                                                  -parent => $basefeature);
 
    $seq->add_SeqFeature($feat);

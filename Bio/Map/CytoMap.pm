@@ -17,7 +17,7 @@ Bio::Map::CytoMap - A Bio::MapI compliant map implementation handling cytogenic 
 =head1 SYNOPSIS
 
     use Bio::Map::CytoMap;
-    my $map = new Bio::Map::CytoMap(-name => 'human1',
+    my $map = Bio::Map::CytoMap->new(-name => 'human1',
 				      -species => $human);
     foreach my $marker ( @markers ) { # get a list of markers somewhere
 	$map->add_element($marker);
@@ -80,7 +80,7 @@ BEGIN { $MAPCOUNT = 1; }
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Map::CytoMap();
+ Usage   : my $obj = Bio::Map::CytoMap->new();
  Function: Builds a new Bio::Map::CytoMap object
  Returns : Bio::Map::CytoMap
  Args    : -name    => name of map (string)

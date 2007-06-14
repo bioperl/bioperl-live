@@ -82,7 +82,7 @@ use base qw(Bio::LocatableSeq Bio::Matrix::PSM::InstanceSiteI);
 =head2 new
 
  Title   : new
- Usage   : my $isntance=new Bio::Matrix::PSM::InstanceSite 
+ Usage   : my $isntance=Bio::Matrix::PSM::InstanceSite->new 
                          (-seq=>'TATAAT', -id=>"TATAbox1",
                           -accession_number='ENSG00000122304', -mid=>'TB1',
                           -desc=>'TATA box, experimentally verified in PRM1 gene',
@@ -262,7 +262,7 @@ sub annotation {
 	    unless $value->isa("Bio::AnnotationCollectionI");
 	$obj->{'_annotation'} = $value;
     } elsif( ! defined $obj->{'_annotation'}) {
-	$obj->{'_annotation'} = new Bio::Annotation::Collection();
+	$obj->{'_annotation'} = Bio::Annotation::Collection->new();
     }
     return $obj->{'_annotation'};
 }

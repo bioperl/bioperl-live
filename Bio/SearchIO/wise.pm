@@ -17,7 +17,7 @@ Bio::SearchIO::wise - Parsing of wise output as alignments
 =head1 SYNOPSIS
 
   use Bio::SearchIO;
-  my $parser = new Bio::SearchIO(-file    => 'file.genewise', 
+  my $parser = Bio::SearchIO->new(-file    => 'file.genewise', 
                                  -format  => 'wise',
                                  -wisetype=> 'genewise');
 
@@ -113,7 +113,7 @@ use Bio::Tools::Genomewise;
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO::wise();
+ Usage   : my $obj = Bio::SearchIO::wise->new();
  Function: Builds a new Bio::SearchIO::wise object 
  Returns : an instance of Bio::SearchIO::wise
  Args    : -wise => a Bio::Tools::Genewise or Bio::Tools::Genomewise object
@@ -149,9 +149,9 @@ sub _initialize {
     }
 
     if( $wisetype =~ /genewise/i ) {
-	$self->wise(new Bio::Tools::Genewise(@ioargs));
+	$self->wise(Bio::Tools::Genewise->new(@ioargs));
     } elsif( $wisetype =~ /genomewise/i ) {
-	$self->wise(new Bio::Tools::Genomewise(@ioargs));
+	$self->wise(Bio::Tools::Genomewise->new(@ioargs));
     } else { 
 	$self->throw("Must supply a -wisetype to ".ref($self)." which is one of 'genomewise' 'genewise'\n");
     }

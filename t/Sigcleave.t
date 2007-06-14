@@ -25,7 +25,7 @@ my $protein = "MVLLLILSVLLLKEDVRGSAQSSERRVVAHMPGDIIIGALFSVHHQPTVDKVHERKCGAVREQYG
 
 ok my $seq= Bio::PrimarySeq->new(-seq => $protein);
 
-ok my $sig = new Bio::Tools::Sigcleave;
+ok my $sig = Bio::Tools::Sigcleave->new();
 ok $sig->seq($seq);
 ok my $sout = $sig->seq;
 ok $sout->seq eq $protein;
@@ -41,7 +41,7 @@ ok my %results = $sig->signals;
 ok $results{9}, 5.2, "unable to get raw sigcleave results";
 
 
-$sig = new Bio::Tools::Sigcleave(-seq=>$protein,
+$sig = Bio::Tools::Sigcleave->new(-seq=>$protein,
 				 -threshold=>5);
 ok %results = $sig->signals;
 ok $results{9}, 5.2, "unable to get raw sigcleave results";

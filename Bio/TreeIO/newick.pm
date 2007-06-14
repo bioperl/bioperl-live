@@ -19,7 +19,7 @@ Bio::TreeIO::newick - TreeIO implementation for parsing
 
   # do not use this module directly
   use Bio::TreeIO;
-  my $treeio = new Bio::TreeIO(-format => 'newick', 
+  my $treeio = Bio::TreeIO->new(-format => 'newick', 
                                -file => 't/data/LOAD_Ccd1.dnd');
   my $tree = $treeio->next_tree;
 

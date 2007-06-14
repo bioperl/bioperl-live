@@ -17,7 +17,7 @@ Bio::TreeIO::nexus - A TreeIO driver module for parsing Nexus tree output from P
 =head1 SYNOPSIS
 
   use Bio::TreeIO;
-  my $in = new Bio::TreeIO(-file => 't/data/cat_tre.tre');
+  my $in = Bio::TreeIO->new(-file => 't/data/cat_tre.tre');
   while( my $tree = $in->next_tree ) {
   }
 
@@ -177,7 +177,7 @@ sub _parse {
                 # MrBayes does not print colons for node label
                 # $tree_str =~ s/\)(\d*\.\d+)\)/:$1/g;
                 my $buf    = new IO::String($tree_str);
-                my $treeio = new Bio::TreeIO(
+                my $treeio = Bio::TreeIO->new(
                     -format => 'newick',
                     -fh     => $buf
                 );

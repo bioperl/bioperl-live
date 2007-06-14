@@ -18,7 +18,7 @@ statistics about a population or sets of populations
 =head1 SYNOPSIS
 
   use Bio::PopGen::PopStats;
-  my $stats = new Bio::PopGen::PopStats(); # add -haploid => 1 
+  my $stats = Bio::PopGen::PopStats->new(); # add -haploid => 1 
                                            # to process haploid data
 
 =head1 DESCRIPTION
@@ -75,7 +75,7 @@ use base qw(Bio::Root::Root);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::PopGen::PopStats();
+ Usage   : my $obj = Bio::PopGen::PopStats->new();
  Function: Builds a new Bio::PopGen::PopStats object 
  Returns : an instance of Bio::PopGen::PopStats
  Args    : -haploid => 1 (if want to use haploid calculations)

@@ -45,7 +45,7 @@ my ($db,$db2,$seq,$seqio);
 
 SKIP :{
 # get a single seq
-ok defined($db = new Bio::DB::BioFetch(-verbose => $verbose));
+ok defined($db = Bio::DB::BioFetch->new(-verbose => $verbose));
 # get a RefSeq entry
 ok $db->db('refseq');
 eval {
@@ -84,7 +84,7 @@ is( $seq->length, 200);
 
 SKIP: {
 #swissprot
-ok $db2 = new Bio::DB::BioFetch(-db => 'swissprot');
+ok $db2 = Bio::DB::BioFetch->new(-db => 'swissprot');
 eval {
 	$seq = $db2->get_Seq_by_id('YNB3_YEAST');
 };
@@ -104,7 +104,7 @@ is($seq->length,103);
 $seq = $seqio = undef;
 
 SKIP: {    
-ok $db = new Bio::DB::BioFetch(-retrievaltype => 'tempfile',
+ok $db = Bio::DB::BioFetch->new(-retrievaltype => 'tempfile',
 				 -format => 'fasta',
 				 -verbose => $verbose
 				);
@@ -128,7 +128,7 @@ is($seqs{'J02231'},200);
 
 SKIP: {
 $verbose = -1;
-ok $db = new Bio::DB::BioFetch(-db => 'embl',
+ok $db = Bio::DB::BioFetch->new(-db => 'embl',
 			   -verbose => $verbose);
 
 # check contig warning (WebDBSeqI)
@@ -146,7 +146,7 @@ is($seq->length, 3775);
     
 # unisave
 SKIP: {
-ok $db = new Bio::DB::BioFetch(-db => 'unisave',
+ok $db = Bio::DB::BioFetch->new(-db => 'unisave',
 			   -verbose => $verbose);
 eval {
 	$seq = $db->get_Seq_by_acc('LAM1_MOUSE');

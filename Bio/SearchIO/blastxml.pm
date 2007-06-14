@@ -17,14 +17,14 @@ Bio::SearchIO::blastxml - A SearchIO implementation of NCBI Blast XML parsing.
 =head1 SYNOPSIS
 
     use Bio::SearchIO;
-    my $searchin = new Bio::SearchIO(-format => 'blastxml',
+    my $searchin = Bio::SearchIO->new(-format => 'blastxml',
 				     -file   => 't/data/plague_yeast.bls.xml');
     while( my $result = $searchin->next_result ) {
     }
 
     # one can also request that the parser NOT keep the XML data in memory
     # by using the tempfile initialization flag.
-    my $searchin = new Bio::SearchIO(-tempfile => 1,
+    my $searchin = Bio::SearchIO->new(-tempfile => 1,
 				     -format => 'blastxml',
 				     -file   => 't/data/plague_yeast.bls.xml');
     while( my $result = $searchin->next_result ) {
@@ -119,7 +119,7 @@ our $DEBUG;
 =head2 new
 
  Title   : new
- Usage   : my $searchio = new Bio::SearchIO(-format => 'blastxml',
+ Usage   : my $searchio = Bio::SearchIO->new(-format => 'blastxml',
 					    -file   => 'filename',
 					    -tempfile => 1);
  Function: Initializes the object - this is chained through new in SearchIO

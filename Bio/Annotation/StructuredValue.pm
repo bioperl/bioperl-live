@@ -31,8 +31,8 @@ information
    use Bio::Annotation::StructuredValue;
    use Bio::Annotation::Collection;
 
-   my $col = new Bio::Annotation::Collection;
-   my $sv = new Bio::Annotation::StructuredValue(-value => 'someval');
+   my $col = Bio::Annotation::Collection->new();
+   my $sv = Bio::Annotation::StructuredValue->new(-value => 'someval');
    $col->add_Annotation('tagname', $sv);
 
 =head1 DESCRIPTION
@@ -86,7 +86,7 @@ use base qw(Bio::Annotation::SimpleValue);
 =head2 new
 
  Title   : new
- Usage   : my $sv = new Bio::Annotation::StructuredValue;
+ Usage   : my $sv = Bio::Annotation::StructuredValue->new();
  Function: Instantiate a new StructuredValue object
  Returns : Bio::Annotation::StructuredValue object
  Args    : -value => $value to initialize the object data field [optional]

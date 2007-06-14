@@ -20,13 +20,13 @@ Bio::Taxon - A node in a represented taxonomy
 
   # Typically you will get a Taxon from a Bio::DB::Taxonomy object
   # but here is how you initialize one
-  my $taxon = new Bio::Taxon(-name      => $name,
+  my $taxon = Bio::Taxon->new(-name      => $name,
                              -id        => $id,
                              -rank      => $rank,
                              -division  => $div);
 
   # Get one from a database
-  my $dbh = new Bio::DB::Taxonomy(-source   => 'flatfile',
+  my $dbh = Bio::DB::Taxonomy->new(-source   => 'flatfile',
                                   -directory=> '/tmp',
                                   -nodesfile=> '/path/to/nodes.dmp',
                                   -namesfile=> '/path/to/names.dmp');
@@ -43,7 +43,7 @@ Bio::Taxon - A node in a represented taxonomy
   # You can quickly make your own lineages with the list database
   my @ranks = qw(superkingdom class genus species);
   my @h_lineage = ('Eukaryota', 'Mammalia', 'Homo', 'Homo sapiens');
-  my $list_dbh = new Bio::DB::Taxonomy(-source => 'list', -names => \@h_lineage,
+  my $list_dbh = Bio::DB::Taxonomy->new(-source => 'list', -names => \@h_lineage,
                                                           -ranks => \@ranks);
   $human = $list_dbh->get_taxon(-name => 'Homo sapiens');
   my @names = $human->common_names; # @names is empty
@@ -51,7 +51,7 @@ Bio::Taxon - A node in a represented taxonomy
   @names = $human->common_names; # @names contains woman
 
   # You can switch to another database when you need more information
-  my $entrez_dbh = new Bio::Db::Taxonomy(-source => 'entrez');
+  my $entrez_dbh = Bio::Db::Taxonomy->new(-source => 'entrez');
   $human->db_handle($entrez_dbh);
   @names = $human->common_names; # @names contains woman, human, man
 
@@ -69,12 +69,12 @@ Bio::Taxon - A node in a represented taxonomy
   # We can also take advantage of Bio::Tree::Tree* methods:
   # a) some methods are available with just an empty tree object
   use Bio::Tree::Tree;
-  my $tree_functions = new Bio::Tree::Tree();
+  my $tree_functions = Bio::Tree::Tree->new();
   my @lineage = $tree_functions->get_lineage_nodes($human);
   my $lca = $tree_functions->get_lca($human, $mouse);
 
   # b) for other methods, create a tree using your Taxon object
-  my $tree = new Bio::Tree::Tree(-node => $human);
+  my $tree = Bio::Tree::Tree->new(-node => $human);
   my @taxa = $tree->get_nodes;
   $homo = $tree->find_node(-rank => 'genus');
 
@@ -86,7 +86,7 @@ Bio::Taxon - A node in a represented taxonomy
   # your other Taxon:
   my $entrez_mouse = $entrez_dbh->get_taxon(-name => 'Mus musculus');
   my $list_human = $list_dbh->get_taxon(-name => 'Homo sapiens');
-  my $mouse_tree = new Bio::Tree::Tree(-node => $entrez_mouse);
+  my $mouse_tree = Bio::Tree::Tree->new(-node => $entrez_mouse);
   $mouse_tree->splice(-keep_rank => \@ranks);
   $lca = $mouse_tree->get_lca($entrez_mouse, $list_human);
 
@@ -144,7 +144,7 @@ use base qw(Bio::Tree::Node Bio::IdentifiableI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Taxonomy::Node();
+ Usage   : my $obj = Bio::Taxonomy::Node->new();
  Function: Builds a new Bio::Taxonomy::Node object 
  Returns : an instance of Bio::Taxonomy::Node
  Args    : -dbh               => a reference to a Bio::DB::Taxonomy object

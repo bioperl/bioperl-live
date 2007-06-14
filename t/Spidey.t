@@ -14,7 +14,7 @@ BEGIN {
 use Bio::Tools::Spidey::Results;
 ok(1);
 
-my $spidey = new Bio::Tools::Spidey::Results(-file=> Bio::Root::IO->catfile("t", "data",
+my $spidey = Bio::Tools::Spidey::Results->new(-file=> Bio::Root::IO->catfile("t", "data",
 "spidey.noalignment"));
 ok $spidey;
 
@@ -24,7 +24,7 @@ ok(1);
 my $exonset = $spidey->next_exonset;
 ok(!defined($exonset));
 
-$spidey = new Bio::Tools::Spidey::Results(-file=> Bio::Root::IO->catfile("t", "data",
+$spidey = Bio::Tools::Spidey::Results->new(-file=> Bio::Root::IO->catfile("t", "data",
 "spidey.test1"));
 $exonset = $spidey->next_exonset;
 my @exons = $exonset->sub_SeqFeature(); 

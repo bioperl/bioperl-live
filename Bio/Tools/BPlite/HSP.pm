@@ -27,7 +27,7 @@ Bio::Tools::BPlite::HSP - Blast report High Scoring Pair (HSP)
 =head1 SYNOPSIS
 
  use Bio::Tools::BPlite;
- my $report = new Bio::Tools::BPlite(-fh=>\*STDIN);
+ my $report = Bio::Tools::BPlite->new(-fh=>\*STDIN);
  {
     while(my $sbjct = $report->nextSbjct) {
 	while (my $hsp = $sbjct->nextHSP) {

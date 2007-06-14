@@ -13,11 +13,11 @@ Bio::Biblio::Proceeding - Representation of a conference proceeding
 
 =head1 SYNOPSIS
 
-    $obj = new Bio::Biblio::Proceeding (-title => 'JavaONE');
+    $obj = Bio::Biblio::Proceeding->new(-title => 'JavaONE');
 
   #--- OR ---
 
-    $obj = new Bio::Biblio::Proceeding;
+    $obj = Bio::Biblio::Proceeding->new();
     $obj->title ('JavaONE');
 
 =head1 DESCRIPTION

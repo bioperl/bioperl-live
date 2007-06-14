@@ -23,7 +23,7 @@ my $str = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
 
 ok ( defined $str, 'new instance is defined ');
 
-my $out = new Bio::SeqIO(-format => 'pir',
+my $out = Bio::SeqIO->new(-format => 'pir',
 								 -fh => \*STDOUT);
 
 while (my $seq = $str->next_seq()) {

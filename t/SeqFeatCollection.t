@@ -55,7 +55,7 @@ use Bio::Location::Simple;
 use Bio::Tools::GFF;
 use Bio::SeqIO;
 
-my $simple = new Bio::SeqIO(-format => 'genbank',
+my $simple = Bio::SeqIO->new(-format => 'genbank',
 			    -file   =>  Bio::Root::IO->catfile
 			    ("t","data","AB077698.gb"));
 
@@ -64,11 +64,11 @@ my $seq = $simple->next_seq();
 @features = $seq->top_SeqFeatures();
 ok(scalar @features, 11);
 
-my $col = new Bio::SeqFeature::Collection(-verbose => $verbose);
+my $col = Bio::SeqFeature::Collection->new(-verbose => $verbose);
 
 ok($col);
 ok($col->add_features( \@features), 11);
-my @feat = $col->features_in_range(-range => ( new Bio::Location::Simple
+my @feat = $col->features_in_range(-range => ( Bio::Location::Simple->new
 					       (-start => 100,
 						-end   => 300,
 						-strand => 1) ),
@@ -80,7 +80,7 @@ if( $verbose ) {
     }
 }
 
-ok(scalar $col->features_in_range(-range => ( new Bio::Location::Simple
+ok(scalar $col->features_in_range(-range => ( Bio::Location::Simple->new
 						   (-start => 100,
 						    -end   => 300,
 						    -strand => -1) ),
@@ -116,14 +116,14 @@ while(my $feature = $gffio->next_feature()) {
 $gffio->close();
 
 ok(scalar @features, 412);
-$col = new Bio::SeqFeature::Collection(-verbose => $verbose,
+$col = Bio::SeqFeature::Collection->new(-verbose => $verbose,
 				       -usefile => 1);
 
 ok($col);
 
 ok($col->add_features( \@features), 412);
 
-my $r = new Bio::Location::Simple(-start => 67700,
+my $r = Bio::Location::Simple->new(-start => 67700,
 				  -end   => 150000,
 				  -strand => 1);
 
@@ -156,14 +156,14 @@ foreach my $f ( @features ) {
 }
 ok($col->feature_count, 0);
 my $filename = 'featcol.idx';
-my $newcollection = new Bio::SeqFeature::Collection(-verbose => $verbose,
+my $newcollection = Bio::SeqFeature::Collection->new(-verbose => $verbose,
 						    -keep    => 1,
 						    -file    => $filename);
 $newcollection->add_features(\@feat);
 ok($newcollection->feature_count, 54);
 undef $newcollection;
 ok(-e $filename);
-$newcollection = new Bio::SeqFeature::Collection(-verbose => $verbose,
+$newcollection = Bio::SeqFeature::Collection->new(-verbose => $verbose,
 						 -file    => $filename);
 ok($newcollection->feature_count, 54);
 undef $newcollection;

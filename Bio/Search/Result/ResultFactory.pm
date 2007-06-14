@@ -17,7 +17,7 @@ Bio::Search::Result::ResultFactory - A factory to create Bio::Search::Result::Re
 =head1 SYNOPSIS
 
     use Bio::Search::Result::ResultFactory;
-    my $factory = new Bio::Search::Result::ResultFactory();
+    my $factory = Bio::Search::Result::ResultFactory->new();
     my $resultobj = $factory->create(@args);
 
 =head1 DESCRIPTION
@@ -76,7 +76,7 @@ BEGIN {
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Search::Result::ResultFactory();
+ Usage   : my $obj = Bio::Search::Result::ResultFactory->new();
  Function: Builds a new Bio::Search::Result::ResultFactory object 
  Returns : Bio::Search::Result::ResultFactory
  Args    :

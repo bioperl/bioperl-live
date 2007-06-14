@@ -20,7 +20,7 @@ GlimmerM/GlimmerHMM eukaryotic gene predictions
    use Bio::Tools::Glimmer;
 
    # file
-   my $parser = new Bio::Tools::Glimmer(-file => $file);
+   my $parser = Bio::Tools::Glimmer->new(-file => $file);
    # filehandle:
    $parser = Bio::Tools::Glimmer->new( -fh  => \*INPUT );
    # provide a sequence identifier (Glimmer 2.X)
@@ -135,7 +135,7 @@ sub _initialize_state {
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::Glimmer();
+ Usage   : my $obj = Bio::Tools::Glimmer->new();
  Function: Builds a new Bio::Tools::Glimmer object 
  Returns : an instance of Bio::Tools::Glimmer
  Args    : format ('Glimmer', 'GlimmerM', 'GlimmerHMM'), seqname
@@ -354,7 +354,7 @@ sub _parse_eukaryotic {
 		     '-tag'         => { 'Group' => "GenePrediction$genenum"},
 		     );
 	    }
-	    my $exon = new Bio::Tools::Prediction::Exon
+	    my $exon = Bio::Tools::Prediction::Exon->new
 		('-seq_id'     => $seqname,
 		 '-start'      => $start,
 		 '-end'        => $end,
@@ -432,7 +432,7 @@ sub _parse_prokaryotic {
                 }
             }
             
-            my $exon = new Bio::Tools::Prediction::Exon
+            my $exon = Bio::Tools::Prediction::Exon->new
                 ('-seq_id'     => $seqname,
                  '-start'      => $start,
                  '-end'        => $end,

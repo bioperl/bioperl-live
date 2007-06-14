@@ -22,7 +22,7 @@ BEGIN {
 require_ok('dumpvar.pl');
 
 my $verbose = 0;
-ok my $map = new Bio::Map::LinkageMap('-verbose' => $verbose,
+ok my $map = Bio::Map::LinkageMap->new('-verbose' => $verbose,
 				   '-name'    => 'Leviathon',
 				   '-type'    => 'Genetic',
 				   '-units'   => 'cM',
@@ -34,7 +34,7 @@ is $map->units, 'cM';
 is $map->species, 'Brassica';
 is $map->unique_id, '1';
 
-ok my $position = new Bio::Map::LinkagePosition('-order' => 2,
+ok my $position = Bio::Map::LinkagePosition->new('-order' => 2,
 						'-map' =>  $map, 
 						'-value' => 22.3
 						);
@@ -43,7 +43,7 @@ is $position->order, 2;
 ok my $map2 = $position->map;
 is $position->value, 22.3;
 
-ok my $o_usat = new Bio::Map::Microsatellite('-name'     => "Chad marker",
+ok my $o_usat = Bio::Map::Microsatellite->new('-name'     => "Chad marker",
 					     '-position' => $position);
 
 is $o_usat->name, 'Chad marker';
@@ -52,7 +52,7 @@ ok $map->add_element($o_usat);
 
 #use Data::Dumper; print Dumper($map);
 #----------------------------
-#ok my $position2 = new Bio::Map::LinkagePosition(-order => qw(3 4 5),
+#ok my $position2 = Bio::Map::LinkagePosition->new(-order => qw(3 4 5),
 #						 );
 # print("position2 looks like this:\n");
 # dumpValue($position2);
@@ -65,7 +65,7 @@ ok $map->add_element($o_usat);
 	# what should be printed if this was ok?
 	# ok(1);
 
-#ok my $o_usat = new Bio::Map::Microsatellite('-name'     => "Chad marker",
+#ok my $o_usat = Bio::Map::Microsatellite->new('-name'     => "Chad marker",
 #					      '-position' => $position);
 #
 #is $o_usat->name, 'Chad marker';

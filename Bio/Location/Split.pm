@@ -17,11 +17,11 @@ which has multiple locations (start/end points)
 
     use Bio::Location::Split;
 
-    my $splitlocation = new Bio::Location::Split();
-    $splitlocation->add_sub_Location(new Bio::Location::Simple(-start=>1,
+    my $splitlocation = Bio::Location::Split->new();
+    $splitlocation->add_sub_Location(Bio::Location::Simple->new(-start=>1,
 							       -end=>30,
 							       -strand=>1));
-    $splitlocation->add_sub_Location(new Bio::Location::Simple(-start=>50,
+    $splitlocation->add_sub_Location(Bio::Location::Simple->new(-start=>50,
 							       -end=>61,
 							       -strand=>1));   
     my @sublocs = $splitlocation->sub_Location();

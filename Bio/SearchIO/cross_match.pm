@@ -17,7 +17,7 @@ Bio::SearchIO::cross_match - CrossMatch-specific subclass of Bio::SearchIO
 =head1 SYNOPSIS
 
     # Working with iterations (CrossMatch results)
-    my $searchIO = new Bio::SearchIO( -format => 'cross_match',
+    my $searchIO = Bio::SearchIO->new( -format => 'cross_match',
                             -file   => "$file.screen.out" )
     while(my $r = $searchIO->next_result) {
       while(my $hit = $r->next_hit) {
@@ -248,8 +248,8 @@ sub _parse {
     $subject_start = $r[9];
     $subject_end = $r[10];
   }
-  my $hit = new Bio::Search::Hit::GenericHit(-name => $subject_seq_id,
-                                             -hsps => [new Bio::Search::HSP::GenericHSP(-query_name => $query_seq_id,
+  my $hit = Bio::Search::Hit::GenericHit->new(-name => $subject_seq_id,
+                                             -hsps => [Bio::Search::HSP::GenericHSP->new(-query_name => $query_seq_id,
 					                                               -query_start => $query_start,
 										       -query_end => $query_end,
 										       -hit_name => $subject_seq_id,
@@ -265,7 +265,7 @@ sub _parse {
 										       #LSF: Need the direction, just to fool the GenericHSP module.
 										       -algorithm => 'SW',)],
                                             );
-  my $result = new Bio::Search::Result::CrossMatchResult( -query_name        => $self->{_query_name},
+  my $result = Bio::Search::Result::CrossMatchResult->new( -query_name        => $self->{_query_name},
           -query_accession   => '',
           -query_description => '',
           -query_length      => 0,

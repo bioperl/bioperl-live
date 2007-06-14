@@ -23,7 +23,7 @@ Bio::Cluster::SequenceFamily - Sequence Family object
   use File::Spec;
 
   my $file =  File::Spec->catfile('t','data','swiss.dat');
-  my $seqio= new Bio::SeqIO(-format => 'swiss',
+  my $seqio= Bio::SeqIO->new(-format => 'swiss',
                             -file => $file);
   my @mem;
   while(my $seq = $seqio->next_seq){

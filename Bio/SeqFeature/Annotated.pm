@@ -896,7 +896,7 @@ sub annotation {
     # we are smart if someone references the object and there hasn't been
     # one set yet
     if(defined $value || ! defined $obj->{'annotation'} ) {
-        $value = new Bio::Annotation::Collection unless ( defined $value );
+        $value = Bio::Annotation::Collection->new() unless ( defined $value );
         $obj->{'annotation'} = $value;
     }
     return $obj->{'annotation'};

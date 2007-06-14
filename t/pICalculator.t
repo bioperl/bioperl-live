@@ -19,7 +19,7 @@ my $protein = "MVLLLILSVLLLKEDVRGSAQSSERRVVAHMPGDIIIGALFSVHHQPTVDKVHERKCGAVREQYG
 ok my $seq = Bio::Seq->new(-seq => $protein);
 is $seq->seq, $protein;
 ok my $pep = $seq->seq;
-ok my $calc = new Bio::Tools::pICalculator(-places => 2);
+ok my $calc = Bio::Tools::pICalculator->new(-places => 2);
 ok $calc->seq($seq);
 ok my $iep = $calc->iep;
 for ( my $x = 0 ; $x <= 14 ; $x += .5 ) {

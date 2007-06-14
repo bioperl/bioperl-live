@@ -76,7 +76,7 @@ my $DEFAULTIDTYPE = 'gi'; # sub default_id_type()
 
 =head2 new()
 
- Usage   : my $obj = new Bio::DB::SeqVersion();
+ Usage   : my $obj = Bio::DB::SeqVersion->new();
  Function: Create a Bio::DB::SeqVersion object 
  Returns : An instance of Bio::DB::SeqVersion
  Args    : -type      Identifier namespace, default is 'gi' 

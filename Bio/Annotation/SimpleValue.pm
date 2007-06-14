@@ -19,8 +19,8 @@ Bio::Annotation::SimpleValue - A simple scalar
    use Bio::Annotation::SimpleValue;
    use Bio::Annotation::Collection;
 
-   my $col = new Bio::Annotation::Collection;
-   my $sv = new Bio::Annotation::SimpleValue(-value => 'someval');
+   my $col = Bio::Annotation::Collection->new();
+   my $sv = Bio::Annotation::SimpleValue->new(-value => 'someval');
    $col->add_Annotation('tagname', $sv);
 
 =head1 DESCRIPTION
@@ -78,7 +78,7 @@ use base qw(Bio::Root::Root Bio::AnnotationI);
 =head2 new
 
  Title   : new
- Usage   : my $sv = new Bio::Annotation::SimpleValue;
+ Usage   : my $sv = Bio::Annotation::SimpleValue->new();
  Function: Instantiate a new SimpleValue object
  Returns : Bio::Annotation::SimpleValue object
  Args    : -value    => $value to initialize the object data field [optional]

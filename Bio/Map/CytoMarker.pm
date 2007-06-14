@@ -16,7 +16,7 @@ Bio::Map::CytoMarker - An object representing a marker.
 
 =head1 SYNOPSIS
 
-  $o_usat = new Bio::Map::CytoMarker(-name=>'Chad Super Marker 2',
+  $o_usat = Bio::Map::CytoMarker->new(-name=>'Chad Super Marker 2',
 				 -position => $pos);
 
 =head1 DESCRIPTION
@@ -96,7 +96,7 @@ sub get_position_object {
 	  $self->throw("Value better be scalar, not [$value]") unless ref($value) eq '';
    }
    
-   my $pos = new Bio::Map::CytoPosition();
+   my $pos = Bio::Map::CytoPosition->new();
    $pos->map($map) if $map;
    $pos->value($value) if $value;
    $pos->element($self);

@@ -90,7 +90,7 @@ $MAX_HSP_OVERLAP  = 2;  # Used when tiling multiple HSPs.
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO::IteratedSearchResultEventBuilder();
+ Usage   : my $obj = Bio::SearchIO::IteratedSearchResultEventBuilder->new();
  Function: Builds a new Bio::SearchIO::IteratedSearchResultEventBuilder object 
  Returns : Bio::SearchIO::IteratedSearchResultEventBuilder
  Args    : -hsp_factory    => Bio::Factory::ObjectFactoryI

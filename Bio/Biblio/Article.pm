@@ -13,12 +13,12 @@ Bio::Biblio::Article - Representation of a general article
 
 =head1 SYNOPSIS
 
-    $obj = new Bio::Biblio::Article (-identifier => '123abc',
+    $obj = Bio::Biblio::Article->new(-identifier => '123abc',
                                      -first_page => 23,
                                      -last_page  => 68);
   #--- OR ---
 
-    $obj = new Bio::Biblio::Article;
+    $obj = Bio::Biblio::Article->new();
     $obj->identifier ('123abc');
     $obj->first_page (23);
     $obj->last_page (68);

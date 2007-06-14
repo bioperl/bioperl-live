@@ -17,14 +17,14 @@ Bio::Search::Result::HMMERResult - A Result object for HMMER results
 =head1 SYNOPSIS
 
     use Bio::Search::Result::HMMERResult;
-    my $result = new Bio::Search::Result::HMMERResult
+    my $result = Bio::Search::Result::HMMERResult->new
     ( -hmm_name => 'pfam',
       -sequence_file => 'roa1.pep',
       -hits => \@hits);
 
     # generally we use Bio::SearchIO to build these objects
     use Bio::SearchIO;
-    my $in = new Bio::SearchIO(-format => 'hmmer',
+    my $in = Bio::SearchIO->new(-format => 'hmmer',
 			       -file   => 'result.hmmer');
     while( my $result = $in->next_result ) {
 	print $result->query_name, " ", $result->algorithm, " ", $result->num_hits(), " hits\n";
@@ -80,7 +80,7 @@ use base qw(Bio::Search::Result::GenericResult);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Search::Result::HMMERResult();
+ Usage   : my $obj = Bio::Search::Result::HMMERResult->new();
  Function: Builds a new Bio::Search::Result::HMMERResult object 
  Returns : Bio::Search::Result::HMMERResult
  Args    : -hmm_name => string, name of hmm file

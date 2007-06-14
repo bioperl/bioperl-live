@@ -18,7 +18,7 @@ BEGIN {
 	use_ok('Bio::Tools::GFF');
 }
 
-my $parser = new Bio::Tools::EMBOSS::Palindrome
+my $parser = Bio::Tools::EMBOSS::Palindrome->new
     (-file => Bio::Root::IO->catfile(qw( t data humts1.pal)));
 
 my $seq = $parser->next_seq;
@@ -39,6 +39,6 @@ is($features[0]->feature2->end, 217);
 is($features[0]->feature2->strand, -1);
 
 if( $DEBUG ) {
-    my $out = new Bio::Tools::GFF(-gff_version => 2);
+    my $out = Bio::Tools::GFF->new(-gff_version => 2);
     $out->write_feature($features[0]);
 }

@@ -17,7 +17,7 @@ Bio::Tools::Phylo::Molphy - parser for Molphy output
 =head1 SYNOPSIS
 
   use Bio::Tools::Phylo::Molphy;
-  my $parser = new Bio::Tools::Phylo::Molphy(-file => 'output.protml');
+  my $parser = Bio::Tools::Phylo::Molphy->new(-file => 'output.protml');
   while( my $r = $parser->next_result ) {
     # r is a Bio::Tools::Phylo::Molphy::Result object
 
@@ -55,7 +55,7 @@ Bio::Tools::Phylo::Molphy - parser for Molphy output
           "1st tree score is ", $trees[0]->score, "\n";
 
     # writing to STDOUT, use -file => '>filename' to specify a file
-    my $out = new Bio::TreeIO(-format => "newick");
+    my $out = Bio::TreeIO->new(-format => "newick");
     $out->write_tree($trees[0]); # writing only the 1st tree
   }
 
@@ -109,7 +109,7 @@ use base qw(Bio::Root::Root Bio::Root::IO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::Phylo::Molphy();
+ Usage   : my $obj = Bio::Tools::Phylo::Molphy->new();
  Function: Builds a new Bio::Tools::Phylo::Molphy object 
  Returns : Bio::Tools::Phylo::Molphy
  Args    : -fh/-file => $val, # for initing input, see Bio::Root::IO
@@ -267,7 +267,7 @@ sub next_result{
    my @trees;
    if( @treelines ) {
        my $strdat = IO::String->new(join('',@treelines));
-       my $treeio = new Bio::TreeIO(-fh => $strdat,
+       my $treeio = Bio::TreeIO->new(-fh => $strdat,
 				    -format => 'newick');
        while( my $tree = $treeio->next_tree ) {
 	   if( @treedata ) {
@@ -280,7 +280,7 @@ sub next_result{
        }
    }
    return unless( $parsed );
-   my $result = new Bio::Tools::Phylo::Molphy::Result
+   my $result = Bio::Tools::Phylo::Molphy::Result->new
        (-trees => \@trees,
 	-substitution_matrix => \%subst_matrix,
 	-frequencies         => \%frequencies,

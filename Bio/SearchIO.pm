@@ -19,7 +19,7 @@ Bio::SearchIO - Driver for parsing Sequence Database Searches
 
    use Bio::SearchIO;
    # format can be 'fasta', 'blast', 'exonerate', ...
-   my $searchio = new Bio::SearchIO( -format => 'blastxml',
+   my $searchio = Bio::SearchIO->new( -format => 'blastxml',
                                      -file   => 'blastout.xml' );
    while ( my $result = $searchio->next_result() ) {
        while( my $hit = $result->next_hit ) {
@@ -115,7 +115,7 @@ use base qw(Bio::Root::IO Bio::Event::EventGeneratorI Bio::AnalysisParserI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO();
+ Usage   : my $obj = Bio::SearchIO->new();
  Function: Builds a new Bio::SearchIO object 
  Returns : Bio::SearchIO initialized with the correct format
  Args    : -file           => $filename
@@ -268,7 +268,7 @@ sub _initialize {
 
     # initialize the IO part
     $self->_initialize_io(@args);
-    $self->attach_EventHandler(new Bio::SearchIO::SearchResultEventBuilder(@args));
+    $self->attach_EventHandler(Bio::SearchIO::SearchResultEventBuilder->new(@args));
     $self->{'_reporttype'} = '';
     $self->{_notfirsttime} = 0;
     my ( $writer ) = $self->_rearrange([qw(WRITER)], @args);

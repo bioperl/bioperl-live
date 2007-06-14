@@ -16,7 +16,7 @@ BEGIN {
 	use_ok('Bio::Root::Root');
 }
 
-ok my $obj = new Bio::Root::Root();
+ok my $obj = Bio::Root::Root->new();
 isa_ok($obj, 'Bio::Root::RootI');
 
 eval { $obj->throw('Testing throw') };
@@ -65,12 +65,12 @@ ok $@ =~ /Testing throw/;# 'verbose(1) throw did not work properly' . $@;
 my @stack = $obj->stack_trace();
 is scalar @stack, 2;
 
-my $verbobj = new Bio::Root::Root(-verbose=>1,-strict=>1);
+my $verbobj = Bio::Root::Root->new(-verbose=>1,-strict=>1);
 is $verbobj->verbose(), 1;
 
 $Bio::Root::Root::DEBUG = 1;
 require Bio::Seq;
-my $seq = new Bio::Seq;
+my $seq = Bio::Seq->new();
 is $seq->verbose, 1;
 
 # test for bug #1343

@@ -127,12 +127,12 @@ is $re->is_palindromic, 0;
 # Bio::Restriction::Enzyme::MultiSite
 #
 
-ok $re=new Bio::Restriction::Enzyme::MultiSite(-enzyme=>'TaqII',
+ok $re=Bio::Restriction::Enzyme::MultiSite->new(-enzyme=>'TaqII',
                                               -site=>'GACCGA',
                                               -cut=>17,
                                               -complementary_cut=>15
                                              );
-ok $re2=new Bio::Restriction::Enzyme::MultiSite(-enzyme=>'TaqII',
+ok $re2=Bio::Restriction::Enzyme::MultiSite->new(-enzyme=>'TaqII',
                                                 -site=>'CACCCA',
                                                 -cut=>17,
                                                 -complementary_cut=>15

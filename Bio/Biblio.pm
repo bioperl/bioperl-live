@@ -15,7 +15,7 @@ Bio::Biblio - A Bibliographic Query Service module
 =head1 SYNOPSIS
 
   use Bio::Biblio;
-  my $biblio = new Bio::Biblio;
+  my $biblio = Bio::Biblio->new();
 
   print $biblio->find ('perl')->get_count . "\n";
 
@@ -60,9 +60,9 @@ Here are some one-liners:
 
   perl -MBio::Biblio -e 'print new Bio::Biblio->get_by_id ("12368254")'
   perl -MBio::Biblio \
-       -e 'print join ("\n", @{ new Bio::Biblio->find ("brazma")->get_all_ids })'
+       -e 'print join ("\n", @{ Bio::Biblio->new->find ("brazma")->get_all_ids })'
   perl -MBio::Biblio \
-       -e 'print new Bio::Biblio->find ("Java")->find ("perl")->get_count'
+       -e 'print Bio::Biblio->new->find ("Java")->find ("perl")->get_count'
 
 
 =head1 OVERVIEW OF CLASSES AND PACKAGES
@@ -193,7 +193,7 @@ use base qw(Bio::Root::Root Bio::DB::BiblioI);
 
 =head2 new
 
- Usage   : my $obj = new Bio::Biblio (@args);
+ Usage   : my $obj = Bio::Biblio->new(@args);
  Returns : Bio::Biblio object on success, or undef on failure
  Args    : This module recognizes and uses:
 
@@ -230,7 +230,7 @@ already return cloned objects with more refined query
 collections. Anyway this is how the cloning can be done:
 
   use Bio::Biblio;
-  my $biblio = new Bio::Biblio;
+  my $biblio = Bio::Biblio->new();
 
   # this will create a new object which will NOT send a 'destroy'
   # message to the remote server when its life ends

@@ -21,7 +21,7 @@ Bio::Assembly::Singlet - Perl module to hold and manipulate
     use Bio::Assembly::IO;
 
     # Assembly loading methods
-    $aio = new Bio::Assembly::IO(-file=>"test.ace.1",
+    $aio = Bio::Assembly::IO->new(-file=>"test.ace.1",
                                -format=>'phrap');
 
     $assembly = $aio->next_assembly;
@@ -101,7 +101,7 @@ sub seq_to_singlet {
     my ($self,$seq) = @_;
     $self->seqref($seq);
     $self->strand(1);
-     my $lseq = new Bio::LocatableSeq(
+     my $lseq = Bio::LocatableSeq->new(
                -seq =>   $seq->seq(),
                -start    =>   1,
                -end =>   $seq->length(),

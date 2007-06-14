@@ -69,7 +69,7 @@ use base qw(Bio::Search::HSP::GenericHSP);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Search::HSP::ModelHSP();
+ Usage   : my $obj = Bio::Search::HSP::ModelHSP->new();
  Function: Builds a new Bio::Search::HSP::ModelHSP object 
  Returns : Bio::Search::HSP::ModelHSP
  Args    :

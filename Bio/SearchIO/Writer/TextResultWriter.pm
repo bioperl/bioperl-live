@@ -20,11 +20,11 @@ a Bio::Search::ResultI in Text.
   use Bio::SearchIO;
   use Bio::SearchIO::Writer::TextResultWriter;
 
-  my $in = new Bio::SearchIO(-format => 'blast',
+  my $in = Bio::SearchIO->new(-format => 'blast',
 			     -file   => shift @ARGV);
 
-  my $writer = new Bio::SearchIO::Writer::TextResultWriter();
-  my $out = new Bio::SearchIO(-writer => $writer);
+  my $writer = Bio::SearchIO::Writer::TextResultWriter->new();
+  my $out = Bio::SearchIO->new(-writer => $writer);
   $out->write_result($in->next_result);
 
 =head1 DESCRIPTION
@@ -52,7 +52,7 @@ Define a hit filter method
       return $hit->length E<gt> 100; # test if length of the hit sequence
                                      # long enough    
   }
-  my $writer = new Bio::SearchIO::Writer::TextResultWriter(
+  my $writer = Bio::SearchIO::Writer::TextResultWriter->new(
        -filters => { 'HIT' =E<gt> \&hit_filter }  
       );
 
@@ -63,7 +63,7 @@ only include HSPs which are 75% identical or better.
        my $hsp = shift;
        return $hsp->percent_identity E<gt> 75;
    }
-   my $writer = new Bio::SearchIO::Writer::TextResultWriter(
+   my $writer = Bio::SearchIO::Writer::TextResultWriter->new(
        -filters => { 'HSP' =E<gt> \&hsp_filter }  
       );
 
@@ -134,7 +134,7 @@ use base qw(Bio::Root::Root Bio::SearchIO::SearchWriterI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO::Writer::TextResultWriter();
+ Usage   : my $obj = Bio::SearchIO::Writer::TextResultWriter->new();
  Function: Builds a new Bio::SearchIO::Writer::TextResultWriter object 
  Returns : Bio::SearchIO::Writer::TextResultWriter
  Args    : -filters => hashref with any or all of the keys (HSP HIT RESULT)

@@ -102,7 +102,7 @@ $seq = $ent->next_seq;
 is($seq->display_id,'BEL16-LTR_AG');
 
 # test secondary accessions in EMBL (bug #1332)
-my $seqio = new Bio::SeqIO(-format => 'embl',
+my $seqio = Bio::SeqIO->new(-format => 'embl',
 			   -file => Bio::Root::IO->catfile
 			   ( qw(t data ECAPAH02.embl)));
 $seq = $seqio->next_seq;
@@ -115,7 +115,7 @@ is($accs[-1], 'X56742');
 ### TPA TESTS - Thanks to Richard Adams ###
 # test Third Party Annotation entries in EMBL/Gb format 
 # to ensure compatability with parsers.
-my $str = new Bio::SeqIO(-format =>'embl',
+my $str = Bio::SeqIO->new(-format =>'embl',
 			 -file => Bio::Root::IO->catfile
 			 ( qw(t data BN000066-tpa.embl)));
 $seq = $str->next_seq;
@@ -157,7 +157,7 @@ $ent->close();
 #
 ## read-write - test embl writing of a PrimarySeq
 #
-my $primaryseq = new Bio::PrimarySeq( -seq => 'AGAGAGAGATA',
+my $primaryseq = Bio::PrimarySeq->new( -seq => 'AGAGAGAGATA',
                                       -id  => 'myid',
                                       -desc => 'mydescr',
                                       -alphabet => 'DNA',
@@ -167,7 +167,7 @@ my $primaryseq = new Bio::PrimarySeq( -seq => 'AGAGAGAGATA',
 
 $verbose = -1 unless $ENV{'BIOPERLDEBUG'};  # silence warnings unless we are debuggin
 
-my $embl = new Bio::SeqIO(-format => 'embl',
+my $embl = Bio::SeqIO->new(-format => 'embl',
                           -verbose => $verbose,
                           -file => ">primaryseq.embl");
 

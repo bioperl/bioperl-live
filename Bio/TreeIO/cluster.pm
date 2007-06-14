@@ -22,7 +22,7 @@ Bio::TreeIO::cluster - A TreeIO driver module for parsing Algorithm::Cluster::tr
   my ($result, $linkdist) = Algorithm::Cluster::treecluster(
     distances => $matrix
   );
-  my $treeio = new Bio::TreeIO(
+  my $treeio = Bio::TreeIO->new(
     -format   => 'cluster',
     -result   =>  $result,
     -linkdist =>  $linkdist,
@@ -83,7 +83,7 @@ use base qw(Bio::TreeIO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::TreeIO::cluster();
+ Usage   : my $obj = Bio::TreeIO::cluster->new();
  Function: Builds a new Bio::TreeIO::cluster object for reading Algorithm::Cluster::treecluster output
  Returns : Bio::TreeIO::cluster
  Args    :-result   => Algorithm::Cluster result

@@ -18,7 +18,7 @@ Bio::SearchIO::fasta - A SearchIO parser for FASTA results
 
   # Do not use this object directly, use it through the SearchIO system
    use Bio::SearchIO;
-   my $searchio = new Bio::SearchIO(-format => 'fasta',
+   my $searchio = Bio::SearchIO->new(-format => 'fasta',
 				    -file   => 'report.FASTA');
    while( my $result = $searchio->next_result ) {
 	# ... do what you would normally doi with Bio::SearchIO.
@@ -159,7 +159,7 @@ use base qw(Bio::SearchIO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO::fasta();
+ Usage   : my $obj = Bio::SearchIO::fasta->new();
  Function: Builds a new Bio::SearchIO::fasta object 
  Returns : Bio::SearchIO::fasta
  Args    : -idlength - set ID length to something other 

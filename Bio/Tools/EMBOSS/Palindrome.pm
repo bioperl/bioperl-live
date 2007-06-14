@@ -20,8 +20,8 @@ Bio::Tools::EMBOSS::Palindrome - parse EMBOSS palindrome output
   use Bio::Tools::EMBOSS::Palindrome;
   use Bio::Tools::GFF;
 
-  my $parser = new Bio::Tools::EMBOSS::Palindrome(-file => $filename);
-  my $out    = new Bio::Tools::GFF(-gff_version => 3,
+  my $parser = Bio::Tools::EMBOSS::Palindrome->new(-file => $filename);
+  my $out    = Bio::Tools::GFF->new(-gff_version => 3,
                                    -file => ">$filename.gff");
   while( my $seq = $parser->next_seq ) {
      for my $feat ( $seq->get_SeqFeatures ) {
@@ -89,7 +89,7 @@ $DEFAULT_SOURCETAG = 'palindrome';
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::EMBOSS::Palindrome();
+ Usage   : my $obj = Bio::Tools::EMBOSS::Palindrome->new();
  Function: Builds a new Bio::Tools::EMBOSS::Palindrome object 
  Returns : an instance of Bio::Tools::EMBOSS::Palindrome
  Args    : -file/-fh  => a filename or filehandle for
@@ -122,7 +122,7 @@ sub next_seq {
 		$self->_pushback($_);
 		return $seq;
 	    } 
-	    $seq = new Bio::Seq(-display_id => $1);
+	    $seq = Bio::Seq->new(-display_id => $1);
 	    # now get ready to store for the next record
 	    $searching{'-seq_id'} = $1;
 	} elsif( /^Sequence\s+length\s+is\s*:\s+(\d+)/o ) {
@@ -141,7 +141,7 @@ sub next_seq {
 	} elsif( /^Palindromes:/o ) {
 	    $state = 1;
 	} elsif( $state == 1 ) {
-	    my $feature = new Bio::SeqFeature::FeaturePair
+	    my $feature = Bio::SeqFeature::FeaturePair->new
 		(-primary_tag  => 'similarity',
 		 -source_tag   => $source);
 	    for(my $i = 0; $i < 3; $i++ ) {

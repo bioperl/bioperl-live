@@ -17,7 +17,7 @@ Bio::Symbol::Alphabet - BSANE/BioCORBA compliant symbol list alphabet
 =head1 SYNOPSIS
 
   {
-      my $alphabet = new Bio::Symbols::Alphabet(-symbols => [ @s ],
+      my $alphabet = Bio::Symbols::Alphabet->new(-symbols => [ @s ],
   						-subalphabets => [ @alphas ] );
 
       my @symbols = $alphabet->symbols;
@@ -81,7 +81,7 @@ use base qw(Bio::Root::Root Bio::Symbol::AlphabetI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Symbol::Alphabet();
+ Usage   : my $obj = Bio::Symbol::Alphabet->new();
  Function: Builds a new Bio::Symbol::Alphabet object 
  Returns : Bio::Symbol::Alphabet
  Args    : -symbols  => Array ref of Bio::Symbol::SymbolI objects

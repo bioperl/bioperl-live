@@ -33,7 +33,7 @@ Bio::Cluster::ClusterFactory - Instantiates a new Bio::ClusterI (or derived clas
     use Bio::Cluster::ClusterFactory;
     # if you don't provide a default type, the factory will try
     # some guesswork based on display_id and namespace
-    my $factory = new Bio::Cluster::ClusterFactory(-type => 'Bio::Cluster::UniGene');
+    my $factory = Bio::Cluster::ClusterFactory->new(-type => 'Bio::Cluster::UniGene');
     my $clu = $factory->create_object(-description => 'NAT',
                                       -display_id  => 'Hs.2');
 
@@ -87,7 +87,7 @@ use base qw(Bio::Factory::ObjectFactory);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Cluster::ClusterFactory();
+ Usage   : my $obj = Bio::Cluster::ClusterFactory->new();
  Function: Builds a new Bio::Cluster::ClusterFactory object 
  Returns : Bio::Cluster::ClusterFactory
  Args    : -type => string, name of a ClusterI derived class.

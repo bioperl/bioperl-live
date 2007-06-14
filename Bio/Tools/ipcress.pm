@@ -22,15 +22,15 @@ Bio::Tools::ipcress - Parse ipcress output and make features
 
     use Bio::Tools::ipcress;
     use Bio::SeqIO;
-    my $parser = new Bio::Tools::ipcress(-file => 'seq1.ipcress');
-    my $seqio = new Bio::SeqIO(-format => 'fasta', -file => 'seq1.fa');
+    my $parser = Bio::Tools::ipcress->new(-file => 'seq1.ipcress');
+    my $seqio = Bio::SeqIO->new(-format => 'fasta', -file => 'seq1.fa');
     my $seq = $seqio->next_seq || die("cannot get a seq object from SeqIO");
 
     while( my $feat = $parser->next_feature ) {
 	# add ipcress annotation to a sequence
 	$seq->add_SeqFeature($feat);
     }
-    my $seqout = new Bio::SeqIO(-format => 'embl');
+    my $seqout = Bio::SeqIO->new(-format => 'embl');
     $seqout->write_seq($seq);
 
 
@@ -91,7 +91,7 @@ use base qw(Bio::Root::Root);
 =head2 new
 
  Title   : new
- Usage   : my $ipcress = new Bio::Tools::ipcress(-file => $file,
+ Usage   : my $ipcress = Bio::Tools::ipcress->new(-file => $file,
 					   -primary => $fprimary, 
 					   -source => $fsource, 
 					   -groupclass => $fgroupclass);
@@ -197,7 +197,7 @@ sub next_feature {
     }
 
 
-    my $markerfeature = new Bio::SeqFeature::Generic 
+    my $markerfeature = Bio::SeqFeature::Generic->new 
 	( '-start'   => $start,
 	  '-end'     => $end,
 	  '-strand'  => $strand,

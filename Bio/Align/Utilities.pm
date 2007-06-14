@@ -129,7 +129,7 @@ sub aa_to_dna_aln {
 	croak('Must provide a valid Bio::Align::AlignI object as the first argument to aa_to_dna_aln, see the documentation for proper usage and the method signature');
     }
     my $alnlen = $aln->length;
-    my $dnaalign = new Bio::SimpleAlign;
+    my $dnaalign = Bio::SimpleAlign->new();
     $aln->map_chars('\.',$GAP);
 
     foreach my $seq ( $aln->each_seq ) {    
@@ -154,7 +154,7 @@ sub aa_to_dna_aln {
 	}
 	$nt_seqstr .= $GAP x (($alnlen * 3) - length($nt_seqstr));
 
-	my $newdna = new Bio::LocatableSeq(-display_id  => $id,
+	my $newdna = Bio::LocatableSeq->new(-display_id  => $id,
 					   -alphabet    => 'dna',
 					   -start       => $start_offset+1,
 					   -end         => ($seq->end * 

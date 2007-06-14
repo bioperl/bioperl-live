@@ -62,7 +62,7 @@ use URI::Escape;
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::WebBlat();
+ Usage   : my $obj = Bio::Tools::WebBlat->new();
  Function: Builds a new Bio::Tools::WebBlat object
  Returns : an instance of Bio::Tools::WebBlat
  Args    :

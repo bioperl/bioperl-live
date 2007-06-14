@@ -140,7 +140,7 @@ sub _initialize {
   $self->{'_func_ftunit_hash'} = {};
   $self->_show_dna(1); # sets this to one by default. People can change it
   if( ! defined $self->sequence_factory ) {
-      $self->sequence_factory(new Bio::Seq::SeqFactory
+      $self->sequence_factory(Bio::Seq::SeqFactory->new
                   (-verbose => $self->verbose(), 
                    -type => 'Bio::Seq::RichSeq'));      
   }
@@ -161,7 +161,7 @@ sub next_seq {
    my ($pseq,$c,$line,$name,$desc,$acc,$seqc,$mol,$div, $sptr,$seq_div,
        $date,$comment,@date_arr);
    my $genename = "";
-   my ($annotation, %params, @features) = ( new Bio::Annotation::Collection);
+   my ($annotation, %params, @features) = ( Bio::Annotation::Collection->new());
 
    local $_;
 
@@ -1161,7 +1161,7 @@ sub _read_FTHelper_swissprot {
     } 
         
     # Make the new FTHelper object
-    my $out = new Bio::SeqIO::FTHelper(-verbose => $self->verbose());
+    my $out = Bio::SeqIO::FTHelper->new(-verbose => $self->verbose());
     $out->key($key);
     $out->loc($loc);
     

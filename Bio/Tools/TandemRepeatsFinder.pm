@@ -8,7 +8,7 @@ Bio::Tools::TandemRepeatsFinder - a parser for Tandem Repeats Finder output
     use Bio::Tools::TandemRepeatsFinder;
 
     # create parser
-    my $parser = new Bio::Tools::Bio::Tools::TandemRepeatsFinder(-file => 'tandem_repeats.out');
+    my $parser = Bio::Tools::Bio::Tools::TandemRepeatsFinder->new(-file => 'tandem_repeats.out');
 
     # loop through results
     while( my $feature = $parser->next_result ) {
@@ -93,7 +93,7 @@ use base qw(Bio::Root::Root Bio::Root::IO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::TandemRepeatsFinder();
+ Usage   : my $obj = Bio::Tools::TandemRepeatsFinder->new();
  Function: Builds a new Bio::Tools::TandemRepeatsFinder object
  Returns : Bio::Tools::TandemRepeatsFinder
  Args    : -fh/-file => $val, for initing input, see Bio::Root::IO
@@ -300,7 +300,7 @@ sub _create_feature {
     };
 
     # create feature from start/end etc
-    my $feat = new Bio::SeqFeature::Generic(
+    my $feat = Bio::SeqFeature::Generic->new(
         -seq_id      => $self->_current_seq_id(),
         -score       => $score,
         -start       => $start,

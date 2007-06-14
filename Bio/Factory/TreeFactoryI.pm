@@ -18,9 +18,9 @@ Bio::Factory::TreeFactoryI - Factory Interface for getting and writing trees
 =head1 SYNOPSIS
 
   # get a $factory from somewhere Bio::TreeIO likely
-  my $treeio = new Bio::TreeIO(-format => 'newick', #this is phylip/newick format
+  my $treeio = Bio::TreeIO->new(-format => 'newick', #this is phylip/newick format
   			       -file   => 'file.tre');
-  my $treeout = new Bio::TreeIO(-format => 'nexus',
+  my $treeout = Bio::TreeIO->new(-format => 'nexus',
   				-file   => ">file.nexus");
 
   # convert tree formats from newick/phylip to nexus

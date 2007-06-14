@@ -18,7 +18,7 @@ Bio::Map::SimpleMap - A MapI implementation handling the basics of a Map
 
     use Bio::Map::SimpleMap;
 
-    my $map = new Bio::Map::SimpleMap(-name => 'genethon',
+    my $map = Bio::Map::SimpleMap->new(-name => 'genethon',
 				      -type => 'Genetic',
 				      -units=> 'cM',
 				      -species => $human);
@@ -91,7 +91,7 @@ BEGIN { $MAPCOUNT = 1; }
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Map::SimpleMap();
+ Usage   : my $obj = Bio::Map::SimpleMap->new();
  Function: Builds a new Bio::Map::SimpleMap object
  Returns : Bio::Map::SimpleMap
  Args    : -name    => name of map (string)

@@ -21,7 +21,7 @@ Bio::DB::Taxonomy::entrez - Taxonomy Entrez driver
 
   use Bio::DB::Taxonomy;
 
-  my $db = new Bio::DB::Taxonomy(-source => 'entrez');
+  my $db = Bio::DB::Taxonomy->new(-source => 'entrez');
 
   my $taxonid = $db->get_taxonid('Homo sapiens');
   my $node   = $db->get_Taxonomy_Node(-taxonid => $taxonid);
@@ -128,7 +128,7 @@ $UrlParamSeparatorValue = '&';
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::DB::Taxonomy::entrez();
+ Usage   : my $obj = Bio::DB::Taxonomy::entrez->new();
  Function: Builds a new Bio::DB::Taxonomy::entrez object
  Returns : an instance of Bio::DB::Taxonomy::entrez
  Args    : -location => URL to Entrez (if you want to override the default)
@@ -609,7 +609,7 @@ sub entrez_params{
 sub _make_taxon {
     my ($self, $data) = @_;
     
-    my $taxon = new Bio::Taxon();
+    my $taxon = Bio::Taxon->new();
     
     my $taxid;
     while (my ($method, $value) = each %{$data}) {

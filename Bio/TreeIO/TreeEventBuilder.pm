@@ -69,7 +69,7 @@ use base qw(Bio::Root::Root Bio::Event::EventHandlerI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::TreeIO::TreeEventBuilder();
+ Usage   : my $obj = Bio::TreeIO::TreeEventBuilder->new();
  Function: Builds a new Bio::TreeIO::TreeEventBuilder object 
  Returns : Bio::TreeIO::TreeEventBuilder
  Args    :

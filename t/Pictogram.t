@@ -46,7 +46,7 @@ isa_ok $picto,"Bio::Graphics::Pictogram";
 my $svg = $picto->make_svg(\@seq);
 ok $svg->xmlify;
 
-my $psmIO =  new Bio::Matrix::PSM::IO(-format=>'meme', 
+my $psmIO =  Bio::Matrix::PSM::IO->new(-format=>'meme', 
                                    -file=> Bio::Root::IO->catfile(qw(t data meme.dat)));
 $picto = Bio::Graphics::Pictogram->new(-width=>"800",
                                           -normalize=>1,

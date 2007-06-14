@@ -120,7 +120,7 @@ sub next_aln {
 	    $start = 1;
 	    $end = length($align{$name});
 	}
-	my $seq = new Bio::LocatableSeq
+	my $seq = Bio::LocatableSeq->new
 	    ('-seq'              => $align{$name},
 	     '-display_id'       => $seqname,
 	     '-start'            => $start,

@@ -120,7 +120,7 @@ is $as->species->scientific_name,'(Populus tomentosa x P. bolleana) x P. tomento
 $as->accession_number;;
 
 # test secondary accessions
-my $seqio = new Bio::SeqIO(-format => 'gbdriver',
+my $seqio = Bio::SeqIO->new(-format => 'gbdriver',
                                     -verbose => $verbose,
                                     -file => Bio::Root::IO->catfile
                                     (qw(t data D10483.gbk)));
@@ -133,7 +133,7 @@ is(scalar @sec_acc,14);
 is($sec_acc[-1], 'X56742');
 
 # bug #1487
-my $str = new Bio::SeqIO(-verbose => $verbose,
+my $str = Bio::SeqIO->new(-verbose => $verbose,
                                  -file    => Bio::Root::IO->catfile
                                  (qw(t data D12555.gbk)));
 eval {
@@ -167,7 +167,7 @@ is(@refs, 1);
 is($seq->display_id,'Mc.janrrnA');
 is($seq->molecule ,'RNA');
 
-$str  = new Bio::SeqIO(-format => 'gbdriver',
+$str  = Bio::SeqIO->new(-format => 'gbdriver',
                               -file   => Bio::Root::IO->catfile
                               ("t","data","AF165282.gb"),
                               -verbose => $verbose);
@@ -277,7 +277,7 @@ ok($seq->write_seq($as),'Fuzzy out');
 unlink(Bio::Root::IO->catfile("t","data","genbank.fuzzyout"));
 
 ## now genbank ##
-$str = new Bio::SeqIO(-format =>'gbdriver',
+$str = Bio::SeqIO->new(-format =>'gbdriver',
                              -verbose => $verbose,
                              -file => Bio::Root::IO->catfile
                              ( qw(t data BK000016-tpa.gbk)));
@@ -339,13 +339,13 @@ is ($reference->medline, '21372465');
 unlink($testfile);
 
 # write revcomp split location
-my $gb = new Bio::SeqIO(-format => 'gbdriver',
+my $gb = Bio::SeqIO->new(-format => 'gbdriver',
                         -verbose => $verbose,
                         -file   => Bio::Root::IO->catfile
                         (qw(t data revcomp_mrna.gb)));
 $seq = $gb->next_seq();
 
-$gb = new Bio::SeqIO(-format => 'genbank',
+$gb = Bio::SeqIO->new(-format => 'genbank',
                      -file   => ">tmp_revcomp_mrna.gb");
 
 $gb->write_seq($seq);
@@ -357,7 +357,7 @@ ok(! -z "tmp_revcomp_mrna.gb", 'revcomp split location');
 #           9150
 #           Bacteria; Proteobacteria; Gammaproteobacteria; Enterobacteriales;
 #           Enterobacteriaceae; Salmonella.
-$gb = new Bio::SeqIO(-format => 'gbdriver',
+$gb = Bio::SeqIO->new(-format => 'gbdriver',
                      -verbose => $verbose,
                         -file   => Bio::Root::IO->catfile
                             (qw(t data NC_006511-short.gbk)));
@@ -392,7 +392,7 @@ for my $wgs (@wgs) {
 is ($ct, 3);
 
 # make sure we can retrieve a feature with a primary tag of 'misc_difference'
-$gb = new Bio::SeqIO(-format => 'gbdriver',
+$gb = Bio::SeqIO->new(-format => 'gbdriver',
                      -verbose => $verbose,
                     -file   => Bio::Root::IO->catfile
                             (qw(t data BC000007.gbk)));
@@ -418,12 +418,12 @@ my $outfile = 'testsource.gb';
 foreach my $in ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb', 'ay007676.gb', 'dq519393.gb') {
     my $infile =  Bio::Root::IO->catfile("t","data",$in);
     
-    $str = new Bio::SeqIO(-format =>'genbank',
+    $str = Bio::SeqIO->new(-format =>'genbank',
                           -verbose => $verbose,
                           -file => $infile);
     $seq = $str->next_seq;
     
-    $out = new Bio::SeqIO(-file => ">$outfile", -format => 'genbank');
+    $out = Bio::SeqIO->new(-file => ">$outfile", -format => 'genbank');
     $out->write_seq($seq);
     $out->close();
     
@@ -473,7 +473,7 @@ $ct = 0;
 
 foreach my $in ('P35527.gb') {
     my $infile =  Bio::Root::IO->catfile("t","data",$in);
-    $str = new Bio::SeqIO(-format =>'genbank',
+    $str = Bio::SeqIO->new(-format =>'genbank',
                          -verbose => $verbose,
                          -file => $infile);
     $seq = $str->next_seq;
@@ -625,7 +625,7 @@ is($seq->display_id,'BEL16-LTR_AG');
 is($seq->get_dates, 2);
 
 # test secondary accessions in EMBL (bug #1332)
-$seqio = new Bio::SeqIO(-format => 'embldriver',
+$seqio = Bio::SeqIO->new(-format => 'embldriver',
 			   -file => Bio::Root::IO->catfile
 			   ( qw(t data ECAPAH02.embl)));
 $seq = $seqio->next_seq;
@@ -639,7 +639,7 @@ is($seq->get_dates, 2);
 ### TPA TESTS - Thanks to Richard Adams ###
 # test Third Party Annotation entries in EMBL/Gb format 
 # to ensure compatability with parsers.
-$str = new Bio::SeqIO(-verbose => $verbose,
+$str = Bio::SeqIO->new(-verbose => $verbose,
                          -format =>'embldriver',
 			 -file => Bio::Root::IO->catfile
 			 ( qw(t data BN000066-tpa.embl)));
@@ -682,7 +682,7 @@ $ent->close();
 #
 ## read-write - test embl writing of a PrimarySeq
 #
-my $primaryseq = new Bio::PrimarySeq( -seq => 'AGAGAGAGATA',
+my $primaryseq = Bio::PrimarySeq->new( -seq => 'AGAGAGAGATA',
                                       -id  => 'myid',
                                       -desc => 'mydescr',
                                       -alphabet => 'DNA',
@@ -690,7 +690,7 @@ my $primaryseq = new Bio::PrimarySeq( -seq => 'AGAGAGAGATA',
 
 $verbose = -1 unless $ENV{'BIOPERLDEBUG'};  # silence warnings unless we are debuggin
 
-my $embl = new Bio::SeqIO(-format => 'embl',
+my $embl = Bio::SeqIO->new(-format => 'embl',
                           -verbose => $verbose,
                           -file => ">primaryseq.embl");
 
@@ -705,7 +705,7 @@ ok ($@);
 
 ############################## Swiss/UniProt ##############################
 
-$seqio = new Bio::SeqIO( -verbose => $verbose,
+$seqio = Bio::SeqIO->new( -verbose => $verbose,
                                      -format => 'swissdriver',
                                      -file   => Bio::Root::IO->catfile('t','data', 
                                                     'test.swiss'));
@@ -714,7 +714,7 @@ isa_ok($seqio, 'Bio::SeqIO');
 $seq = $seqio->next_seq;
 my @gns = $seq->annotation->get_Annotations('gene_name');
 
-$seqio = new Bio::SeqIO( -verbose => $verbose,
+$seqio = Bio::SeqIO->new( -verbose => $verbose,
                                  -format => 'swiss',
                                  -file   => Bio::Root::IO->catfile
                                  ('>test.swiss'));
@@ -722,7 +722,7 @@ $seqio = new Bio::SeqIO( -verbose => $verbose,
 $seqio->write_seq($seq);
 
 # reads it in once again
-$seqio = new Bio::SeqIO( -verbose => $verbose,
+$seqio = Bio::SeqIO->new( -verbose => $verbose,
                                  -format => 'swissdriver',
                                  -file => Bio::Root::IO->catfile('test.swiss'));
     
@@ -975,7 +975,7 @@ foreach my $litref (@litrefs) {
 
 # format parsing changes (pre-rel 9.0)
 
-$seqio = new Bio::SeqIO( -verbose => $verbose,
+$seqio = Bio::SeqIO->new( -verbose => $verbose,
                          -format => 'swissdriver',
                          -file   => Bio::Root::IO->catfile('t','data', 
                                                        'pre_rel9.swiss'));
@@ -1004,7 +1004,7 @@ for my $dblink ( $seq->annotation->get_Annotations('dblink') ) {
     is($dblink->primary_id, shift @idcheck);
 }
 
-$seqio = new Bio::SeqIO( -verbose => $verbose,
+$seqio = Bio::SeqIO->new( -verbose => $verbose,
                          -format => 'swissdriver',
                          -file   => Bio::Root::IO->catfile('t','data', 
                                                        'pre_rel9.swiss'));
@@ -1017,7 +1017,7 @@ while (my $seq = $seqio->next_seq) {
 
 # format parsing changes (rel 9.0, Oct 2006)
 
-$seqio = new Bio::SeqIO( -verbose => $verbose,
+$seqio = Bio::SeqIO->new( -verbose => $verbose,
                          -format => 'swissdriver',
                          -file   => Bio::Root::IO->catfile('t','data', 
                                                        'rel9.swiss'));
@@ -1045,7 +1045,7 @@ for my $dblink ( $seq->annotation->get_Annotations('dblink') ) {
     is($dblink->primary_id, shift @idcheck);
 }
 
-$seqio = new Bio::SeqIO( -verbose => $verbose,
+$seqio = Bio::SeqIO->new( -verbose => $verbose,
                          -format => 'swissdriver',
                          -file   => Bio::Root::IO->catfile('t','data', 
                                                        'rel9.swiss'));

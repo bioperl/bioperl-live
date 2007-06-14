@@ -17,7 +17,7 @@ BEGIN {
 	use_ok('Bio::Coordinate::Graph');
 }
 
-ok my $graph = new Bio::Coordinate::Graph;
+ok my $graph = Bio::Coordinate::Graph->new();
 
 # graph structure
 my $dag = {

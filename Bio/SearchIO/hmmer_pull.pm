@@ -18,7 +18,7 @@ Bio::SearchIO::hmmer_pull - A parser for HMMER output
 
     # do not use this class directly it is available through Bio::SearchIO
     use Bio::SearchIO;
-    my $in = new Bio::SearchIO(-format => 'hmmer_pull',
+    my $in = Bio::SearchIO->new(-format => 'hmmer_pull',
                                -file   => 't/data/hmmpfam.bigout');
     while (my $result = $in->next_result) {
         # this is a Bio::Search::Result::HmmpfamResult object
@@ -78,7 +78,7 @@ use base qw(Bio::SearchIO Bio::PullParserI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO::hmmer_pull();
+ Usage   : my $obj = Bio::SearchIO::hmmer_pull->new();
  Function: Builds a new Bio::SearchIO::hmmer_pull object 
  Returns : Bio::SearchIO::hmmer_pull
  Args    : -fh/-file => HMMER output filename
@@ -185,7 +185,7 @@ sub _discover_next_result {
             
             my ($start, $end) = $self->_find_chunk_by_end("//\n");
             return if $start == $end;
-            $self->_fields->{next_result} = new Bio::Search::Result::HmmpfamResult(-chunk => [($self->chunk, $start, $end)],
+            $self->_fields->{next_result} = Bio::Search::Result::HmmpfamResult->new(-chunk => [($self->chunk, $start, $end)],
                                                                                    -parent => $self);
             
             $self->{_end_of_previous_result} = $end;
@@ -196,7 +196,7 @@ sub _discover_next_result {
             # -piped_behaviour
             my $chunk = $self->_get_chunk_by_end("//\n");
             $chunk || return;
-            $self->_fields->{next_result} = new Bio::Search::Result::HmmpfamResult(-chunk => [$chunk],
+            $self->_fields->{next_result} = Bio::Search::Result::HmmpfamResult->new(-chunk => [$chunk],
                                                                                    -parent => $self);
         }
     }

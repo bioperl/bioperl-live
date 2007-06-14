@@ -21,7 +21,7 @@ BEGIN {
 	use_ok('Bio::Root::IO');
 }
 
-my $searchio = new Bio::SearchIO(-format => 'hmmer',
+my $searchio = Bio::SearchIO->new(-format => 'hmmer',
 				 -file   => Bio::Root::IO->catfile
 				 ("t","data","hmmpfam.out"));
 
@@ -75,7 +75,7 @@ while( my $result = $searchio->next_result ) {
 	last;
     }
 }
-$searchio = new Bio::SearchIO(-format => 'hmmer',
+$searchio = Bio::SearchIO->new(-format => 'hmmer',
 			      -file   => Bio::Root::IO->catfile
 			      ("t","data","hmmsearch.out"));
 while( my $result = $searchio->next_result ) {
@@ -104,7 +104,7 @@ while( my $result = $searchio->next_result ) {
     is($hsp->hit->seq_id(), 'Q91581');   
 }
 
-$searchio = new Bio::SearchIO(-format => 'hmmer',
+$searchio = Bio::SearchIO->new(-format => 'hmmer',
 			      -file   => Bio::Root::IO->catfile("t","data",
 								"L77119.hmmer"));
 
@@ -138,7 +138,7 @@ while( my $result = $searchio->next_result ) {
 }
 
 
-$searchio = new Bio::SearchIO(-format => 'hmmer',
+$searchio = Bio::SearchIO->new(-format => 'hmmer',
 			      -file   => Bio::Root::IO->catfile("t","data",
 								"cysprot1b.hmmsearch"));
 

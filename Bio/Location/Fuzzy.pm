@@ -16,7 +16,7 @@ which has unclear start and/or end locations
 =head1 SYNOPSIS
 
     use Bio::Location::Fuzzy;
-    my $fuzzylocation = new Bio::Location::Fuzzy(
+    my $fuzzylocation = Bio::Location::Fuzzy->new(
                                                  -start => '<30',
                                                  -end   => 90,
                                                  -location_type => '..');
@@ -110,7 +110,7 @@ our %FUZZYRANGEENCODE  = (  '\.'   => 'WITHIN',
 =head2 new
 
  Title   : new
- Usage   : my $fuzzyloc = new Bio::Location::Fuzzy( @args);
+ Usage   : my $fuzzyloc = Bio::Location::Fuzzy->new( @args);
  Function:
  Returns : 
  Args    : -start    => value for start  (initialize by superclass)

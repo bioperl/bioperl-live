@@ -17,7 +17,7 @@ BEGIN {
 }
 
 my $inputfilename= Bio::Root::IO->catfile("t","data","ecoli-trna-qrna.out");
-my $parser = new Bio::Tools::QRNA(-file => $inputfilename);
+my $parser = Bio::Tools::QRNA->new(-file => $inputfilename);
 ok($parser);
 my $rnacount = 0;
 while( my $f = $parser->next_feature ) {
@@ -43,7 +43,7 @@ while( my $f = $parser->next_feature ) {
 }
 is($rnacount, 21);
 $inputfilename= Bio::Root::IO->catfile("t","data","qrna-relloc.out");
-$parser = new Bio::Tools::QRNA(-file => $inputfilename);
+$parser = Bio::Tools::QRNA->new(-file => $inputfilename);
 
 my $qrna = $parser->next_feature;
 is($qrna->primary_tag, 'COD');

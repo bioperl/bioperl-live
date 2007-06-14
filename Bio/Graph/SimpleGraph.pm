@@ -735,14 +735,14 @@ sub neighbor_subgraph {
 }
 sub union {
   my($self,$other)=@_;
-  my $result=new Bio::Graph::SimpleGraph;
+  my $result=Bio::Graph::SimpleGraph->new();
   $result->add_node($self->nodes,$other->nodes);
   $result->add_edge($self->edges,$other->edges);
   $result;
 }
 sub intersection {
   my($self,$other)=@_;
-  my $result=new Bio::Graph::SimpleGraph;
+  my $result=Bio::Graph::SimpleGraph->new();
   for my $node ($self->nodes) {
     next unless $other->has_node($node);
     $result->add_node($node);
@@ -756,15 +756,15 @@ sub intersection {
 
 sub traversal {
   my($self,$start,$order,$what)=@_;
-  new Bio::Graph::SimpleGraph::Traversal(-graph=>$self,-start=>$start,-order=>$order,-what=>$what);
+  Bio::Graph::SimpleGraph::Traversal->new(-graph=>$self,-start=>$start,-order=>$order,-what=>$what);
 }
 sub node_traversal {
   my($self,$start,$order)=@_;
-  new Bio::Graph::SimpleGraph::Traversal(-graph=>$self,-start=>$start,-order=>$order,-what=>'node');
+  Bio::Graph::SimpleGraph::Traversal->new(-graph=>$self,-start=>$start,-order=>$order,-what=>'node');
 }
 sub edge_traversal {
   my($self,$start,$order)=@_;
-  new Bio::Graph::SimpleGraph::Traversal(-graph=>$self,-start=>$start,-order=>$order,-what=>'edge');
+  Bio::Graph::SimpleGraph::Traversal->new(-graph=>$self,-start=>$start,-order=>$order,-what=>'edge');
 }
 
 sub shortest_paths {

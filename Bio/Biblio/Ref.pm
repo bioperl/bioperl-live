@@ -13,11 +13,11 @@ Bio::Biblio::Ref - Representation of a bibliographic reference
 
 =head1 SYNOPSIS
 
-    $obj = new Bio::Biblio::Ref (-type  => 'Letter',
+    $obj = Bio::Biblio::Ref->new(-type  => 'Letter',
                                  -title => 'Onegin to Tatiana');
   #--- OR ---
 
-    $obj = new Bio::Biblio::Ref;
+    $obj = Bio::Biblio::Ref->new();
     $obj->type ('Letter');
 
 =head1 DESCRIPTION
@@ -186,7 +186,7 @@ use base qw(Bio::Biblio::BiblioBase);
 =head2 add_cross_reference
 
  Usage   : $self->add_cross_reference
-               (new Bio::Annotation::DBLink (-database   => 'EMBL',
+               (Bio::Annotation::DBLink->new(-database   => 'EMBL',
 					     -primary_id => 'V00808');
  Function: adding a link to a database entry
  Returns : new value of 'cross_references'
@@ -207,7 +207,7 @@ sub add_cross_reference {
 
 =head2 add_author
 
- Usage   : $self->add_author (new Bio::Biblio::Person (-lastname => 'Novak');
+ Usage   : $self->add_author (Bio::Biblio::Person->new(-lastname => 'Novak');
  Function: adding an author to a list of authors
  Returns : new value of 'authors' (a full list)
  Args    : an object of type Bio::Biblio::Provider
@@ -227,7 +227,7 @@ sub add_author {
 
 =head2 add_contributor
 
- Usage   : $self->add_contributor (new Bio::Biblio::Person (-lastname => 'Novak');
+ Usage   : $self->add_contributor (Bio::Biblio::Person->new(-lastname => 'Novak');
  Function: adding a contributor to a list of contributors
  Returns : new value of 'contributors' (a full list)
  Args    : an object of type Bio::Biblio::Provider

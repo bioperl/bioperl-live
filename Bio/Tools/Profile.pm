@@ -13,7 +13,7 @@ Bio::Tools::Profile - parse Profile output
 =head1 SYNOPSIS
 
  use Bio::Tools::Profile;
- my $profile_parser = new Bio::Tools::Profile(-fh =>$filehandle );
+ my $profile_parser = Bio::Tools::Profile->new(-fh =>$filehandle );
  while( my $profile_feat = $profile_parser->next_result ) {
        push @profile_feat, $profile_feat;
 }
@@ -67,7 +67,7 @@ use base qw(Bio::Root::Root Bio::Root::IO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::Profile();
+ Usage   : my $obj = Bio::Tools::Profile->new();
  Function: Builds a new Bio::Tools::Profile object
  Returns : Bio::Tools::Profile
  Args    : -filename
@@ -148,17 +148,17 @@ sub create_feature {
         }
 
 
-        my $feat1 = new Bio::SeqFeature::Generic ( -start => $f[1],
+        my $feat1 = Bio::SeqFeature::Generic->new( -start => $f[1],
                                                    -end => $f[2],
                                                    -score => $f[5],
                                                    -source=>'pfscan',
                                                    -primary=>$f[0]);  
         
-        my $feat2 = new Bio::SeqFeature::Generic (-start => $f[3],
+        my $feat2 = Bio::SeqFeature::Generic->new(-start => $f[3],
                                                   -end => $hto,
                                                   );  
 
-        my $feature = new Bio::SeqFeature::FeaturePair(-feature1 => $feat1,
+        my $feature = Bio::SeqFeature::FeaturePair->new(-feature1 => $feat1,
                                                     -feature2 => $feat2);
 
         return $feature;

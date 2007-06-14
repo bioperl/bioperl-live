@@ -565,7 +565,7 @@ sub seq {
     }
     require Bio::LocatableSeq;
     my $id = $seqType =~ /^q/i ? $self->query->seq_id : $self->hit->seq_id;
-    new Bio::LocatableSeq (-ID    => $id,
+    Bio::LocatableSeq->new(-ID    => $id,
                            -SEQ   => $str,
                            -START => $self->start($seqType),
                            -END   => $self->end($seqType),

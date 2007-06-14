@@ -17,7 +17,7 @@ Bio::Matrix::IO::phylip - A parser for PHYLIP distance matricies
 =head1 SYNOPSIS
 
   use Bio::Matrix::IO;
-  my $parser = new Bio::Matrix::IO(-format   => 'phylip'
+  my $parser = Bio::Matrix::IO->new(-format   => 'phylip'
                                    -file     => 't/data/phylipdist.out');
   my $matrix = $parser->next_matrix;
 
@@ -72,7 +72,7 @@ use base qw(Bio::Matrix::IO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Matrix::IO::phylip();
+ Usage   : my $obj = Bio::Matrix::IO::phylip->new();
  Function: Builds a new Bio::Matrix::IO::phylip object 
  Returns : an instance of Bio::Matrix::IO::phylip
  Args    :

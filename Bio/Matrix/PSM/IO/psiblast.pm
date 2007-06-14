@@ -56,7 +56,7 @@ our @ordered_alphabet = qw/A  R  N  D  C  Q  E  G  H  I  L  K  M  F  P  S  T  W 
 =head2 new
 
  Title   : new
- Usage   : my $psmIO  =  new Bio::Matrix::PSM::IO(-format=>'psiblast', 
+ Usage   : my $psmIO  =  Bio::Matrix::PSM::IO->new(-format=>'psiblast', 
                                                   -file=>$file);
  Function: Associates a file with the appropriate parser
  Throws  :

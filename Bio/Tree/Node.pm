@@ -17,11 +17,11 @@ Bio::Tree::Node - A Simple Tree Node
 =head1 SYNOPSIS
 
     use Bio::Tree::Node;
-    my $nodeA = new Bio::Tree::Node();
-    my $nodeL = new Bio::Tree::Node();
-    my $nodeR = new Bio::Tree::Node();
+    my $nodeA = Bio::Tree::Node->new();
+    my $nodeL = Bio::Tree::Node->new();
+    my $nodeR = Bio::Tree::Node->new();
 
-    my $node = new Bio::Tree::Node();
+    my $node = Bio::Tree::Node->new();
     $node->add_Descendent($nodeL);
     $node->add_Descendent($nodeR);
 
@@ -84,7 +84,7 @@ BEGIN {
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tree::Node();
+ Usage   : my $obj = Bio::Tree::Node->new();
  Function: Builds a new Bio::Tree::Node object
  Returns : Bio::Tree::Node
  Args    : -descendents   => arrayref of descendents (they will be

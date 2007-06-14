@@ -65,7 +65,7 @@ Or, (ii), to create a genbank file for a sequence and its cognate primers:
      # that match it, in fasta format
 
      my $file = shift || die "$0 <file>";
-     my $seqin = new Bio::SeqIO(-file => $file);
+     my $seqin = Bio::SeqIO->new(-file => $file);
 
      # read three sequences
      my ($template, $leftprimer, $rightprimer) =
@@ -169,7 +169,7 @@ sub AUTOLOAD {
 =head2 new
 
  Title   : new()
- Usage   : $primed_sequence = new Bio::SeqFeature::Primer( 
+ Usage   : $primed_sequence = Bio::SeqFeature::Primer->new( 
                                      -seq => $sequence,
                                      -left_primer => $left_primer,
                                      -right_primer => $right_primer);
@@ -442,7 +442,7 @@ sub _set_seqfeature {
 	my ($start, $length) = split /,/, $self->{'left_primer'}->{'PRIMER_LEFT'};
 	my $tm=$self->{'left_primer'}->{'PRIMER_LEFT_TM'} || $self->{'left_primer'}->Tm || 0;
 
-	my $seqfeatureL=new Bio::SeqFeature::Generic(
+	my $seqfeatureL=Bio::SeqFeature::Generic->new(
 						  -start => $start+1, -end => $start+$length, -strand => 1,
                     -primary_tag => 'left_primer', -source => 'primer3',
                     -tag    => {new => 1, author => 'Bio::Seq::PrimedSeq', Tm => $tm}
@@ -451,7 +451,7 @@ sub _set_seqfeature {
 	($start, $length) = split /,/, $self->{'right_primer'}->{'PRIMER_RIGHT'};
 	$tm=$self->{'right_primer'}->{'PRIMER_RIGHT_TM'} || $self->{'right_primer'}->Tm || 0;
  
-	my $seqfeatureR=new Bio::SeqFeature::Generic(
+	my $seqfeatureR=Bio::SeqFeature::Generic->new(
    -start => $start-$length+2, -end => $start+1, -strand => -1,
    -primary_tag => 'right_primer', -source => 'primer3',
    -tag    => {new => 1, author => 'Bio::Seq::PrimedSeq', Tm => $tm}

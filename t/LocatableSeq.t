@@ -20,7 +20,7 @@ BEGIN {
 
 my ($str, $aln, $seq, $loc);
 
-ok $seq = new Bio::LocatableSeq(
+ok $seq = Bio::LocatableSeq->new(
 			     -seq => '--atg---gta--',
 			     -strand => 1,
 			     -alphabet => 'dna'
@@ -58,7 +58,7 @@ is $seq->id, '1433_LYCES';
 
 # test revcom and trunc
 
-$seq = new Bio::LocatableSeq(
+$seq = Bio::LocatableSeq->new(
 			     -seq => '--atg---gta--',
 			     -strand => 1,
 			     -alphabet => 'dna'
@@ -93,7 +93,7 @@ is $seq2->end, $seq->end;
 is $seq2->strand, $seq->strand * -1;
 
 # test column-mapping for -1 strand sequence
-$seq = new Bio::LocatableSeq(
+$seq = Bio::LocatableSeq->new(
 			     -seq => '--atg---gtaa-',
 			     -strand => -1,
 			     -alphabet => 'dna'
@@ -113,7 +113,7 @@ is $loc->to_FTstring, '4^5';
 # more tests for trunc() with strand -1
 
 
-ok $seq = new Bio::LocatableSeq(
+ok $seq = Bio::LocatableSeq->new(
 			     -seq => '--atg---gta--',
 			     -strand => -1,
 			     -alphabet => 'dna'
@@ -154,7 +154,7 @@ is $seq2->seq, 'tg--';
 is $seq2->start, 4;
 is $seq2->end, 5;
 
-ok $seq = new Bio::LocatableSeq();
+ok $seq = Bio::LocatableSeq->new();
 is $seq->seq, undef;
 is $seq->start, undef;
 is $seq->end, undef;

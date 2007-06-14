@@ -17,7 +17,7 @@ Bio::Variation::AAReverseMutate - point mutation and codon
 
 =head1 SYNOPSIS
 
-    $aamut = new Bio::Variation::AAReverseMutate
+    $aamut = Bio::Variation::AAReverseMutate->new
                  (-aa_ori => 'F', 
 		  -aa_mut => 'S',
 		  -codon_ori => 'ttc', # optional

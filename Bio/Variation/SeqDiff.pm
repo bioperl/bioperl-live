@@ -1051,7 +1051,7 @@ sub alignment {
 	    
 	    return unless $mut->AAChange;
 	    #translate
-	    my $tr = new Bio::Tools::CodonTable ('-id' => $mut->codon_table);
+	    my $tr = Bio::Tools::CodonTable->new('-id' => $mut->codon_table);
 	    my $apos =  $mut->AAChange->start;
 	    my $aposmax = CORE::length($self->aa_ori); #terminator codon no 
 	    my $rseqori;

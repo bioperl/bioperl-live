@@ -13,11 +13,11 @@ Bio::Biblio::Service - Representation of a provider of type service
 
 =head1 SYNOPSIS
 
-    $obj = new Bio::Biblio::Service (-name => 'Report generator');
+    $obj = Bio::Biblio::Service->new(-name => 'Report generator');
 
   #--- OR ---
 
-    $obj = new Bio::Biblio::Service;
+    $obj = Bio::Biblio::Service->new();
     $obj->name ('Report generator');
 
 =head1 DESCRIPTION

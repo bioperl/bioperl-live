@@ -19,10 +19,10 @@ BEGIN {
 
 # test IUPAC
 
-my $ambiseq = new Bio::Seq (-seq => 'ARTCGTTGR',
+my $ambiseq = Bio::Seq->new(-seq => 'ARTCGTTGR',
 			    -alphabet => 'dna'); 
 
-my $stream  = new Bio::Tools::IUPAC('-seq' => $ambiseq);
+my $stream  = Bio::Tools::IUPAC->new('-seq' => $ambiseq);
 is $stream->count(), 4;
 
 my $b = 1; 

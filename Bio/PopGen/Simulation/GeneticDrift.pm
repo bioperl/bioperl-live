@@ -17,7 +17,7 @@ Bio::PopGen::Simulation::GeneticDrift - A simple genetic drift simulation
 =head1 SYNOPSIS
 
   use Bio::PopGen::Simulation::GeneticDrift;
-  my $sim = new Bio::PopGen::Simulation::GeneticDrift(-popsize => 40,
+  my $sim = Bio::PopGen::Simulation::GeneticDrift->new(-popsize => 40,
 						      -alleles => {A => 0.2,
 							           B => 0.8});
   for(my $i =0 ;$i < 10; $i++ ) {
@@ -84,7 +84,7 @@ use base qw(Bio::Root::Root);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::PopGen::Simulation::GeneticDrift();
+ Usage   : my $obj = Bio::PopGen::Simulation::GeneticDrift->new();
  Function: Builds a new Bio::PopGen::Simulation::GeneticDrift object 
  Returns : an instance of Bio::PopGen::Simulation::GeneticDrift
  Args    : -popsize => starting N

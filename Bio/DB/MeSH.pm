@@ -14,7 +14,7 @@ Bio::DB::MeSH - Term retrieval from a Web MeSH database
 
 =head1 SYNOPSIS
 
- my $mesh = new Bio::DB::MeSH();
+ my $mesh = Bio::DB::MeSH->new();
  my $term = $mesh->get_exact_term('Butter');
  print $term->description;
 

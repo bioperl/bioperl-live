@@ -163,10 +163,10 @@ sub load {
     } else { # i.e. if -id
 	
 	if( $DBEMBLLOADED ) {
-	    my $embl = new Bio::DB::EMBL;
+	    my $embl = Bio::DB::EMBL->new();
 	    $seqobj = $embl->get_Seq_by_id($id); # EMBL ID or ACC
 	} else { 
-	    my $root = new Bio::Root::Root();
+	    my $root = Bio::Root::Root->new();
 	    $root->warn("Must have HTTP::Request::Common installed, cannot run load without the -filename option specified, see docs for Bio::LiveSeq::IO::BioPerl");
 	    return;
 	}

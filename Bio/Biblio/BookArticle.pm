@@ -13,12 +13,12 @@ Bio::Biblio::BookArticle - Representation of a book article
 
 =head1 SYNOPSIS
 
-    $obj = new Bio::Biblio::BookArticle (-identifier => '123abc',
-                                         -book => new Bio::Biblio::Book);
+    $obj = Bio::Biblio::BookArticle->new(-identifier => '123abc',
+                                         -book => Bio::Biblio::Book->new());
   #--- OR ---
 
-    $obj = new Bio::Biblio::BookArticle;
-    $obj->book (new Bio::Biblio::Book);
+    $obj = Bio::Biblio::BookArticle->new();
+    $obj->book (Bio::Biblio::Book->new());
 
 
 =head1 DESCRIPTION

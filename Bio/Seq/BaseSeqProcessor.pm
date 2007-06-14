@@ -87,7 +87,7 @@ use base qw(Bio::Root::Root Bio::Factory::SequenceProcessorI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Seq::BaseSeqProcessor();
+ Usage   : my $obj = Bio::Seq::BaseSeqProcessor->new();
  Function: Builds a new Bio::Seq::BaseSeqProcessor object 
  Returns : an instance of Bio::Seq::BaseSeqProcessor
  Args    : Named parameters. Currently supported are

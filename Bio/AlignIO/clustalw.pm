@@ -72,7 +72,7 @@ use base qw(Bio::AlignIO);
 =head2 new
 
  Title   : new
- Usage   : $alignio = new Bio::AlignIO(-format => 'clustalw',
+ Usage   : $alignio = Bio::AlignIO->new(-format => 'clustalw',
                        -file => 'filename');
  Function: returns a new Bio::AlignIO object to handle clustalw files
  Returns : Bio::AlignIO::clustalw object
@@ -190,7 +190,7 @@ sub next_aln {
             $str =~ s/[^A-Za-z]//g;
             $end = length($str);
         }
-        my $seq = new Bio::LocatableSeq(
+        my $seq = Bio::LocatableSeq->new(
             -seq   => $alignments{$name},
             -id    => $sname,
             -start => $start,

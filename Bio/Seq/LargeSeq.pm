@@ -84,7 +84,7 @@ sub new {
     my ($pseq) = $self->_rearrange([qw(PRIMARYSEQ)], @args);
 
     if( ! defined $pseq ) {
-	$pseq = new Bio::Seq::LargePrimarySeq(@args);
+	$pseq = Bio::Seq::LargePrimarySeq->new(@args);
     }
     $self->primary_seq($pseq);
 

@@ -14,7 +14,7 @@ Bio::Tools::Blat - parser for Blat program
 =head1 SYNOPSIS
 
   use Bio::Tools::Blat;
-  my $blat_parser = new Bio::Tools::Blat(-fh =>$filehandle );
+  my $blat_parser = Bio::Tools::Blat->new(-fh =>$filehandle );
   while( my $blat_feat = $blat_parser->next_result ) {
         push @blat_feat, $blat_feat;
   }
@@ -63,7 +63,7 @@ use base qw(Bio::Root::Root Bio::Root::IO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::Blat(-fh=>$filehandle);
+ Usage   : my $obj = Bio::Tools::Blat->new(-fh=>$filehandle);
  Function: Builds a new Bio::Tools::Blat object
  Returns : Bio::Tools::Blat
  Args    : -filename

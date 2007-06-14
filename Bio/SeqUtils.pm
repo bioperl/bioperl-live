@@ -18,7 +18,7 @@ Bio::SeqUtils - Additional methods for PrimarySeq objects
 
     use Bio::SeqUtils;
     # get a Bio::PrimarySeqI compliant object, $seq, somehow
-    $util = new Bio::SeqUtils;
+    $util = Bio::SeqUtils->new();
     $polypeptide_3char = $util->seq3($seq);
     # or
     $polypeptide_3char = Bio::SeqUtils->seq3($seq);

@@ -180,7 +180,7 @@ use base qw(Bio::Root::Root Bio::Align::AlignI Bio::AnnotatableI
 =head2 new
 
  Title     : new
- Usage     : my $aln = new Bio::SimpleAlign();
+ Usage     : my $aln = Bio::SimpleAlign->new();
  Function  : Creates a new simple align object
  Returns   : Bio::SimpleAlign
  Args      : -source => string representing the source program
@@ -2639,7 +2639,7 @@ sub set_displayname_safe {
     my $idlength = shift || 10;
     my ($seq, %phylip_name);
     my $ct=0;
-    my $new=new Bio::SimpleAlign();
+    my $new=Bio::SimpleAlign->new();
     foreach $seq ( $self->each_seq() ) {
 	$ct++;
 	my $pname="S". sprintf "%0" . ($idlength-1) . "s", $ct;
@@ -2672,7 +2672,7 @@ sub restore_displayname {
     my $self = shift;
     my $ref=shift;
     my %name=%$ref;
-    my $new=new Bio::SimpleAlign();
+    my $new=Bio::SimpleAlign->new();
     foreach my $seq ( $self->each_seq() ) {
       $self->throw("No sequence with name") unless defined $name{$seq->id()};
       my $new_seq= Bio::LocatableSeq->new(-id       => $name{$seq->id()},

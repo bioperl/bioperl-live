@@ -17,9 +17,9 @@ Bio::SearchIO::Writer::BSMLResultWriter - BSML output writer
 =head1 SYNOPSIS
 
   use Bio::SearchIO;
-  my $in = new Bio::SearchIO(-file   => 'result.blast',
+  my $in = Bio::SearchIO->new(-file   => 'result.blast',
                              -format => 'blast');
-  my $out = new Bio::SearchIO(-output_format  => 'BSMLResultWriter',
+  my $out = Bio::SearchIO->new(-output_format  => 'BSMLResultWriter',
                               -file           => ">result.bsml");
   while( my $r = $in->next_result ) {
     $out->write_result($r);
@@ -75,7 +75,7 @@ use base qw(Bio::Root::Root Bio::SearchIO::SearchWriterI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO::Writer::BSMLResultWriter();
+ Usage   : my $obj = Bio::SearchIO::Writer::BSMLResultWriter->new();
  Function: Builds a new Bio::SearchIO::Writer::BSMLResultWriter object 
  Returns : an instance of Bio::SearchIO::Writer::BSMLResultWriter
  Args    :

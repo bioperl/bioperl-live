@@ -18,7 +18,7 @@ Bio::Search::Hit::PullHitI - Bio::Search::Hit::HitI interface for pull parsers.
 
     # typically one gets HitI objects from a SearchIO stream via a ResultI
     use Bio::SearchIO;
-    my $parser = new Bio::SearchIO(-format => 'hmmer_pull',
+    my $parser = Bio::SearchIO->new(-format => 'hmmer_pull',
                                    -file => 't/data/hmmpfam.out');
 
     my $result = $parser->next_result;

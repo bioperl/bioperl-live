@@ -13,14 +13,14 @@ Bio::Biblio::PubmedBookArticle - Representation of a PUBMED book article
 
 =head1 SYNOPSIS
 
-    $obj = new Bio::Biblio::PubmedBookArticle
+    $obj = Bio::Biblio::PubmedBookArticle->new
                   (-title => 'Still getting started'.
-                   -book => new Bio::Biblio::MedlineBook);
+                   -book => Bio::Biblio::MedlineBook->new());
     # note that there is no specialised class PubmedBook
 
   #--- OR ---
 
-    $obj = new Bio::Biblio::PubmedBookArticle;
+    $obj = Bio::Biblio::PubmedBookArticle->new();
     $obj->title ('Still getting started');
 
 =head1 DESCRIPTION

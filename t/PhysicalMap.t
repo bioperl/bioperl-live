@@ -21,7 +21,7 @@ BEGIN {
     use_ok('Bio::Map::Physical');
 }
 
-ok my $phm = new Bio::Map::Physical;
+ok my $phm = Bio::Map::Physical->new();
 is $phm->version(2), 2;
 is $phm->version(), 2;
 is $phm->modification_user('me'), 'me';
@@ -45,7 +45,7 @@ use Bio::MapIO::fpc;
 
 my $fpcpath = Bio::Root::IO->catfile('t','data','biofpc.fpc');
 
-my $mapio = new Bio::MapIO(-format => "fpc", -species => 'demo', -readcor => 1, -file => $fpcpath);
+my $mapio = Bio::MapIO->new(-format => "fpc", -species => 'demo', -readcor => 1, -file => $fpcpath);
 my $fobj = $mapio->next_map();
 
 is $fobj->group_abbr(), "Chr";

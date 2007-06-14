@@ -14,11 +14,11 @@ Bio::Biblio::Provider - Representation of a general provider
 =head1 SYNOPSIS
 
     # usually this class is not instantiated but can be...
-    $obj = new Bio::Biblio::Provider (-type => 'Department');
+    $obj = Bio::Biblio::Provider->new(-type => 'Department');
 
   #--- OR ---
 
-    $obj = new Bio::Biblio::Provider;
+    $obj = Bio::Biblio::Provider->new();
     $obj->type ('Department');
 
 =head1 DESCRIPTION

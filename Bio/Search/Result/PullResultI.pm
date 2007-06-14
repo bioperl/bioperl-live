@@ -19,7 +19,7 @@ Bio::Search::Result::PullResultI - Bio::Search::Result::ResultI interface for
 
     # typically one gets Results from a SearchIO stream
     use Bio::SearchIO;
-    my $io = new Bio::SearchIO(-format => 'hmmer_pull',
+    my $io = Bio::SearchIO->new(-format => 'hmmer_pull',
                                 -file   => 't/data/hmmpfam.out');
 
     my $result = $io->next_result;
@@ -474,7 +474,7 @@ sub available_parameters {
 sub add_parameter {
     my ($self, $key, $value) = @_;
     unless (exists $self->{_parameters}) {
-        $self->{_parameters} = new Bio::Tools::Run::GenericParameters;
+        $self->{_parameters} = Bio::Tools::Run::GenericParameters->new();
     }
     $self->{_parameters}->set_parameter($key => $value);
 }
@@ -527,7 +527,7 @@ sub available_statistics {
 sub add_statistic {
     my ($self, $key, $value) = @_;
     unless (exists $self->{_statistics}) {
-        $self->{_statistics} = new Bio::Search::GenericStatistics;
+        $self->{_statistics} = Bio::Search::GenericStatistics->new();
     }
     $self->{_statistics}->set_statistic($key => $value);
 }

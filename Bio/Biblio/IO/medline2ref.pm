@@ -340,7 +340,7 @@ sub _convert_personal_name {
 	$$person{"_$key"} = $$person{$key};
 	delete $$person{$key};
     }
-    new Bio::Biblio::Person (%$person);
+    Bio::Biblio::Person->new(%$person);
 }
 
 #
@@ -354,7 +354,7 @@ sub _convert_journal_article {
 
     # create and populate both a Journal and a resulting Article objects
     my $from_journal = $$article{'journal'};
-    my $journal = new Bio::Biblio::MedlineJournal;
+    my $journal = Bio::Biblio::MedlineJournal->new();
     $journal->name ($$from_journal{'title'}) if defined $$from_journal{'title'};
     $journal->issn ($$from_journal{'iSSN'}) if defined $$from_journal{'iSSN'};
     $journal->abbreviation ($$from_journal{'iSOAbbreviation'}) if defined $$from_journal{'iSOAbbreviation'};
@@ -400,7 +400,7 @@ sub _convert_book_article {
 
     # create and populate both book and resulting article objects
     my $from_book = $$article{'book'};
-    my $book = new Bio::Biblio::MedlineBook;
+    my $book = Bio::Biblio::MedlineBook->new();
     $book->title ($$from_book{'title'}) if defined $$from_book{'title'};
     $book->volume ($$from_book{'volume'}) if defined $$from_book{'volume'};
     $book->series ($$from_book{'collectionTitle'}) if defined $$from_book{'collectionTitle'};
@@ -417,7 +417,7 @@ sub _convert_book_article {
     }
 
     if (defined $$from_book{'publisher'}) {
-	my $publisher = new Bio::Biblio::Organisation;
+	my $publisher = Bio::Biblio::Organisation->new();
 	$publisher->name ($$from_book{'publisher'});
         $book->publisher ($publisher);
     }
@@ -485,7 +485,7 @@ sub _convert_article {
 	    my $db_name = $$bank{'dataBankName'};
 	    if (defined $$bank{'accessionNumbers'}) {
 		foreach my $accn ( @{ $$bank{'accessionNumbers'} } ) {
-		    my $dblink = new Bio::Annotation::DBLink (-primary_id => $accn);
+		    my $dblink = Bio::Annotation::DBLink->new(-primary_id => $accn);
 		    $dblink->database ($db_name);   # it does not matter if it is undef
 		    push (@references, $dblink);
 		}
@@ -520,9 +520,9 @@ sub _convert_providers {
 	    my $converted = &_convert_personal_name ($$provider{'personalName'});
 	    push (@results, $converted) if defined $converted;
 	} elsif (defined $$provider{'collectiveName'}) {
-	    push (@results, new Bio::Biblio::Organisation (-name => $$provider{'collectiveName'}));
+	    push (@results, Bio::Biblio::Organisation->new(-name => $$provider{'collectiveName'}));
 	} else {
-            new Bio::Biblio::Provider;
+            Bio::Biblio::Provider->new();
 	}
     }
     return () unless @results;

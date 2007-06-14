@@ -22,11 +22,11 @@ Bio::Tools::HMM - Perl extension to perform Hidden Markov Model calculations
 
   # create a HMM object
   # ACGT are the bases NC mean non-coding and coding
-  $hmm = new Bio::Tools::HMM('-symbols' => "ACGT", '-states' => "NC");
+  $hmm = Bio::Tools::HMM->new('-symbols' => "ACGT", '-states' => "NC");
 
   # initialize some training observation sequences
-  $seq1 = new Bio::SeqIO(-file => $ARGV[0], -format => 'fasta');
-  $seq2 = new Bio::SeqIO(-file => $ARGV[1], -format => 'fasta');
+  $seq1 = Bio::SeqIO->new(-file => $ARGV[0], -format => 'fasta');
+  $seq2 = Bio::SeqIO->new(-file => $ARGV[1], -format => 'fasta');
   @seqs = ($seq1, $seq2);
 
   # train the HMM with the observation sequences
@@ -178,7 +178,7 @@ sub new {
       }
    }
 
-   $self->{'hmm'} = new Bio::Ext::HMM::HMM($symbols, $states);
+   $self->{'hmm'} = Bio::Ext::HMM::HMM->new($symbols, $states);
    return $self;
 }
 
@@ -506,7 +506,7 @@ sub transition_prob {
          }
       }
       my @rows = split(//, $self->{'states'});
-      return $matrix = new Bio::Matrix::Scoring(-values => \@A, -rownames => \@rows, -colnames => \@rows);
+      return $matrix = Bio::Matrix::Scoring->new(-values => \@A, -rownames => \@rows, -colnames => \@rows);
    } 
 }
 
@@ -568,7 +568,7 @@ sub emission_prob {
       }
       my @rows = split(//, $self->{'states'});
       my @cols = split(//, $self->{'symbols'});
-      return $matrix = new Bio::Matrix::Scoring(-values => \@A, -rownames => \@rows, -colnames => \@cols);
+      return $matrix = Bio::Matrix::Scoring->new(-values => \@A, -rownames => \@rows, -colnames => \@cols);
    } 
 }
 

@@ -14,7 +14,7 @@ BEGIN {
 	use_ok('Bio::Variation::AAReverseMutate');
 }
 
-my $obj = new Bio::Variation::AAReverseMutate
+my $obj = Bio::Variation::AAReverseMutate->new
     ('-aa_ori' => 'F', 
      '-aa_mut' => 'S'
      );

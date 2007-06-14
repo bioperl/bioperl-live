@@ -578,7 +578,7 @@ my %valid_range_types = (overlaps     => 1,
 =head2 new
 
  Title   : new
- Usage   : my $db = new Bio::DB::GFF(@args);
+ Usage   : my $db = Bio::DB::GFF->new(@args);
  Function: create a new Bio::DB::GFF object
  Returns : new Bio::DB::GFF object
  Args    : lists of adaptors and aggregators

@@ -35,7 +35,7 @@ my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
 
 ### RNAMotif.pm tests ###
 
-my $parser = new Bio::Tools::RNAMotif(
+my $parser = Bio::Tools::RNAMotif->new(
 		-verbose => $verbose,
         -file => Bio::Root::IO->catfile('t','data','trna.strict.rnamotif'),
         -motiftag => 'tRNA_gene',

@@ -83,7 +83,7 @@ use base qw(Bio::Tree::Node Bio::PopGen::IndividualI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tree::AlleleNode();
+ Usage   : my $obj = Bio::Tree::AlleleNode->new();
  Function: Builds a new Bio::Tree::AlleleNode() object 
  Returns : an instance of Bio::Tree::AlleleNode
  Args    : -unique_id     => $id,

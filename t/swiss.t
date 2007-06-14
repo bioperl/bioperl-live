@@ -34,7 +34,7 @@ use_ok('Bio::SeqIO');
 use_ok('Bio::Root::IO');
 my $verbose = $ENV{'BIOPERLDEBUG'};
 
-my $seqio = new Bio::SeqIO( -verbose => $verbose,
+my $seqio = Bio::SeqIO->new( -verbose => $verbose,
                                      -format => 'swiss',
                                      -file   => Bio::Root::IO->catfile('t','data', 
                                                     'test.swiss'));
@@ -43,7 +43,7 @@ isa_ok($seqio, 'Bio::SeqIO');
 my $seq = $seqio->next_seq;
 my @gns = $seq->annotation->get_Annotations('gene_name');
 
-$seqio = new Bio::SeqIO( -verbose => $verbose,
+$seqio = Bio::SeqIO->new( -verbose => $verbose,
                                  -format => 'swiss',
                                  -file   => Bio::Root::IO->catfile
                                  ('>test.swiss'));
@@ -51,7 +51,7 @@ $seqio = new Bio::SeqIO( -verbose => $verbose,
 $seqio->write_seq($seq);
 
 # reads it in once again
-$seqio = new Bio::SeqIO( -verbose => $verbose,
+$seqio = Bio::SeqIO->new( -verbose => $verbose,
                                  -format => 'swiss',
                                  -file => Bio::Root::IO->catfile('test.swiss'));
     
@@ -300,7 +300,7 @@ foreach my $litref (@litrefs) {
 
 # format parsing changes (pre-rel 9.0)
 
-$seqio = new Bio::SeqIO( -verbose => $verbose,
+$seqio = Bio::SeqIO->new( -verbose => $verbose,
                          -format => 'swiss',
                          -file   => Bio::Root::IO->catfile('t','data', 
                                                        'pre_rel9.swiss'));
@@ -329,7 +329,7 @@ for my $dblink ( $seq->annotation->get_Annotations('dblink') ) {
     is($dblink->primary_id, shift @idcheck);
 }
 
-$seqio = new Bio::SeqIO( -verbose => $verbose,
+$seqio = Bio::SeqIO->new( -verbose => $verbose,
                          -format => 'swiss',
                          -file   => Bio::Root::IO->catfile('t','data', 
                                                        'pre_rel9.swiss'));
@@ -342,7 +342,7 @@ while (my $seq = $seqio->next_seq) {
 
 # format parsing changes (rel 9.0, Oct 2006)
 
-$seqio = new Bio::SeqIO( -verbose => $verbose,
+$seqio = Bio::SeqIO->new( -verbose => $verbose,
                          -format => 'swiss',
                          -file   => Bio::Root::IO->catfile('t','data', 
                                                        'rel9.swiss'));
@@ -370,7 +370,7 @@ for my $dblink ( $seq->annotation->get_Annotations('dblink') ) {
     is($dblink->primary_id, shift @idcheck);
 }
 
-$seqio = new Bio::SeqIO( -verbose => $verbose,
+$seqio = Bio::SeqIO->new( -verbose => $verbose,
                          -format => 'swiss',
                          -file   => Bio::Root::IO->catfile('t','data', 
                                                        'rel9.swiss'));

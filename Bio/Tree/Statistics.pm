@@ -74,7 +74,7 @@ use base qw(Bio::Root::Root);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tree::Statistics();
+ Usage   : my $obj = Bio::Tree::Statistics->new();
  Function: Builds a new Bio::Tree::Statistics object 
  Returns : Bio::Tree::Statistics
  Args    :

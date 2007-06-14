@@ -141,7 +141,7 @@ sub _initialize {
 	# hash for functions for decoding keys.
 	$self->{'_func_ftunit_hash'} = {};
 	if( ! defined $self->sequence_factory ) {
-		$self->sequence_factory(new Bio::Seq::SeqFactory
+		$self->sequence_factory(Bio::Seq::SeqFactory->new
 										(-verbose => $self->verbose(),
 										 -type => 'Bio::Seq::RichSeq'));
 	}

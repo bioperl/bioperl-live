@@ -17,7 +17,7 @@ Bio::Map::Relative - Represents what a Position's coordiantes are relative to.
 =head1 SYNOPSIS
 
     # Get a Bio::Map::PositionI somehow
-    my $pos = new Bio::Map::Position(-value => 100);
+    my $pos = Bio::Map::Position->new(-value => 100);
 
     # its co-ordinates are implicitly relative to the start of its map
     my $implicit_relative = $pos->relative;
@@ -25,8 +25,8 @@ Bio::Map::Relative - Represents what a Position's coordiantes are relative to.
     my $value = $implicit_relative->$type(); # $value == 0
 
     # make its co-ordinates relative to another Position
-    my $pos_we_are_relative_to = new Bio::Map::Position(-value => 200);
-    my $relative = new Bio::Map::Relative(-position => $pos_we_are_relative_to);
+    my $pos_we_are_relative_to = Bio::Map::Position->new(-value => 200);
+    my $relative = Bio::Map::Relative->new(-position => $pos_we_are_relative_to);
     $pos->relative($relative);
 
     # Get the start co-ordinate of $pos relative to $pos_we_are_relative_to
@@ -40,8 +40,8 @@ Bio::Map::Relative - Represents what a Position's coordiantes are relative to.
     $pos->absolute(0);
 
     # Get the start co-ordinate of $pos relative to a third Position
-    my $pos_frame_of_reference = new Bio::Map::Position(-value => 10);
-    my $relative2 = new Bio::Map::Relative(-position => $pos_frame_of_reference);
+    my $pos_frame_of_reference = Bio::Map::Position->new(-value => 10);
+    my $relative2 = Bio::Map::Relative->new(-position => $pos_frame_of_reference);
     my $start = $pos->start($relative2); # $start == 290
 
 =head1 DESCRIPTION
@@ -93,7 +93,7 @@ use base qw(Bio::Root::Root Bio::Map::RelativeI);
 =head2 new
 
  Title   : new
- Usage   : my $relative = new Bio::Map::Relative();
+ Usage   : my $relative = Bio::Map::Relative->new();
  Function: Build a new Bio::Map::Relative object.
  Returns : Bio::Map::Relative object
  Args    : -map => int           : coordinates are relative to this point on the

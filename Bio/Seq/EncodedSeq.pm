@@ -16,7 +16,7 @@ Bio::Seq::EncodedSeq - subtype of L<Bio::LocatableSeq|Bio::LocatableSeq> to stor
 
 =head1 SYNOPSIS
 
-  $obj = new Bio::Seq::EncodedSeq(-seq => $dna,
+  $obj = Bio::Seq::EncodedSeq->new(-seq => $dna,
                                   -encoding => "CCCCCCCIIIIICCCCC",
                                   -start => 1,
                                   -strand => 1,
@@ -92,7 +92,7 @@ encoding, to denote phase:
 Note that the explicit coding is meant to provide easy access to
 position/phase specific nucleotides:
 
-  $obj = new Bio::Seq::EncodedSeq (-seq => "ACAATCAGACTACG...",
+  $obj = Bio::Seq::EncodedSeq->new(-seq => "ACAATCAGACTACG...",
                                    -encoding => "CCCCCCIII..."
                                   );
 

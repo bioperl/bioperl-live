@@ -19,8 +19,8 @@ Bio::Tools::IUPAC - Generates unique Seq objects from an ambiguous Seq object
  use Bio::Seq;
  use Bio::Tools::IUPAC;
 
- my $ambiseq = new Bio::Seq (-seq => 'ARTCGUTGR', -alphabet => 'dna');
- my $stream  = new Bio::Tools::IUPAC(-seq => $ambiseq);
+ my $ambiseq = Bio::Seq->new(-seq => 'ARTCGUTGR', -alphabet => 'dna');
+ my $stream  = Bio::Tools::IUPAC->new(-seq => $ambiseq);
 
  while ($uniqueseq = $stream->next_seq()) {
      # process the unique Seq object.
@@ -208,7 +208,7 @@ use base qw(Bio::Root::Root);
 =head2 new
 
  Title   : new
- Usage   : new Bio::Tools::IUPAC $seq;
+ Usage   : Bio::Tools::IUPAC->new( $seq)
  Function: returns a new seq stream (akin to SeqIO)
  Returns : a Bio::Tools::IUPAC stream object that will produce unique
            Seq objects on demand.

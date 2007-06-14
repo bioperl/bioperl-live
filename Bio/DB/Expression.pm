@@ -75,7 +75,7 @@ our $DefaultSource = 'geo';
 
 =head2 new()
 
- Usage   : my $obj = new Bio::DB::Expression();
+ Usage   : my $obj = Bio::DB::Expression->new();
  Function: Builds a new Bio::DB::Expression object 
  Returns : an instance of Bio::DB::Expression
  Args    :

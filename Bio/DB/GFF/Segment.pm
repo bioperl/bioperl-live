@@ -833,7 +833,7 @@ See L<Bio::Annotation> for more information
 sub annotation {
    my ($obj,$value) = @_;
    if( defined $value || ! defined $obj->{'annotation'} ) {
-       $value = new Bio::Annotation::Collection() unless defined $value;
+       $value = Bio::Annotation::Collection->new() unless defined $value;
       $obj->{'annotation'} = $value;
     }
     return $obj->{'annotation'};

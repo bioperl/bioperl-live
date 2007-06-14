@@ -25,7 +25,7 @@ END {
 my $in = Bio::SearchIO->new(-format => 'blast',
 			    -file   => Bio::Root::IO->catfile(
 				 qw(t data brassica_ATH.WUBLASTN)));
-my $out = new Bio::SearchIO(-output_format  => 'GbrowseGFF',
+my $out = Bio::SearchIO->new(-output_format  => 'GbrowseGFF',
 			    -prefix => 'Sequence',
 			    -output_cigar   => 1,
 			    -output_signif  => 1,

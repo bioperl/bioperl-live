@@ -19,7 +19,7 @@ Bio::Tools::Signalp::ExtendedSignalp
 
  use Bio::Tools::Signalp::ExtendedSignalp;
  my $params = [qw(maxC maxY maxS meanS D)];
- my $parser = new Bio::Tools::Signalp::ExtendedSignalp(-fh =>$filehandle
+ my $parser = Bio::Tools::Signalp::ExtendedSignalp->new(-fh =>$filehandle
                                                        -factors => $params);
 
  #Compare to the original SignalP, this method allow the user to filter results
@@ -91,7 +91,7 @@ my $FACTS = {
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::Signalp::ExtendedSignalp();
+ Usage   : my $obj = Bio::Tools::Signalp::ExtendedSignalp->new();
  Function: Builds a new Bio::Tools::Signalp::ExtendedSignalp object
  Returns : Bio::Tools::Signalp::ExtendedSignalp
  Args    : -fh/-file => $val, # for initing input, see Bio::Root::IO

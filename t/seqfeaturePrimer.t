@@ -40,14 +40,14 @@ my $primername = "chads_nifty_primer";
 
 
 print("Checking to see if the BSFP object can be constructed with a bio::seq object\n") if $DEBUG;
-my $seq = new Bio::Seq( -seq => $seqsequence, -id =>$seqname);
-my $bsfp_seq = new Bio::SeqFeature::Primer( -sequence => $seq,
+my $seq = Bio::Seq->new( -seq => $seqsequence, -id =>$seqname);
+my $bsfp_seq = Bio::SeqFeature::Primer->new( -sequence => $seq,
                                              -TARGET => '5,3' );
 ok(ref($bsfp_seq) eq "Bio::SeqFeature::Primer");
 
 print("Checking to see if the BSFP object can be constructed with scalars\n") if $DEBUG;
 
-my $bsfp_scalar = new Bio::SeqFeature::Primer( -sequence => $primersequence,
+my $bsfp_scalar = Bio::SeqFeature::Primer->new( -sequence => $primersequence,
                                         -id => $primername,
                                              -TARGET => '5,3' );
 ok(ref($bsfp_scalar) eq "Bio::SeqFeature::Primer");

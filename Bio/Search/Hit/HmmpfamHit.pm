@@ -18,7 +18,7 @@ Bio::Search::Hit::HmmpfamHit - A parser and hit object for hmmpfam hits
 
     # generally we use Bio::SearchIO to build these objects
     use Bio::SearchIO;
-    my $in = new Bio::SearchIO(-format => 'hmmer_pull',
+    my $in = Bio::SearchIO->new(-format => 'hmmer_pull',
 							   -file   => 'result.hmmer');
 
     while (my $result = $in->next_result) {
@@ -81,7 +81,7 @@ use base qw(Bio::Root::Root Bio::Search::Hit::PullHitI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Search::Hit::HmmpfamHit();
+ Usage   : my $obj = Bio::Search::Hit::HmmpfamHit->new();
  Function: Builds a new Bio::Search::Hit::HmmpfamHit object.
  Returns : Bio::Search::Hit::HmmpfamHit
  Args    : -chunk    => [Bio::Root::IO, $start, $end] (required if no -parent)
@@ -188,7 +188,7 @@ sub _discover_next_hsp {
 	}
 	return if $self->{_next_hsp_index} == -1;
 	
-	$self->_fields->{next_hsp} = new Bio::Search::HSP::HmmpfamHSP(-parent => $self,
+	$self->_fields->{next_hsp} = Bio::Search::HSP::HmmpfamHSP->new(-parent => $self,
 																  -hsp_data => $hsp_data->[$self->{_next_hsp_index}++]);
 	
 	if ($self->{_next_hsp_index} > $#{$hsp_data}) {
@@ -295,7 +295,7 @@ sub hsp {
 	}
 	
 	my ($this_hsp) = sort $sort @{$hsp_data};
-	return new Bio::Search::HSP::HmmpfamHSP(-parent => $self, -hsp_data => $this_hsp);
+	return Bio::Search::HSP::HmmpfamHSP->new(-parent => $self, -hsp_data => $this_hsp);
 }
 
 =head2 rewind

@@ -19,8 +19,8 @@ Bio::Align::DNAStatistics - Calculate some statistics for a DNA alignment
   use Bio::AlignIO;
   use Bio::Align::DNAStatistics;
 
-  my $stats = new Bio::Align::DNAStatistics;
-  my $alignin = new Bio::AlignIO(-format => 'emboss',
+  my $stats = Bio::Align::DNAStatistics->new();
+  my $alignin = Bio::AlignIO->new(-format => 'emboss',
                                  -file   => 't/data/insulin.water');
   my $aln = $alignin->next_aln;
   my $jcmatrix = $stats->distance(-align => $aln, 
@@ -29,7 +29,7 @@ Bio::Align::DNAStatistics - Calculate some statistics for a DNA alignment
   print $jcmatrix->print_matrix;
   ## and for measurements of synonymous /nonsynonymous substitutions ##
 
-  my $in = new Bio::AlignIO(-format => 'fasta',
+  my $in = Bio::AlignIO->new(-format => 'fasta',
                             -file   => 't/data/nei_gojobori_test.aln');
   my $alnobj = $in->next_aln;
   my ($seq1id,$seq2id) = map { $_->display_id } $alnobj->each_seq;
@@ -373,7 +373,7 @@ $synsites = get_syn_sites();
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Align::DNAStatistics();
+ Usage   : my $obj = Bio::Align::DNAStatistics->new();
  Function: Builds a new Bio::Align::DNAStatistics object 
  Returns : Bio::Align::DNAStatistics
  Args    : none
@@ -385,7 +385,7 @@ sub new {
     my ($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
     
-    $self->pairwise_stats( new Bio::Align::PairwiseStatistics());
+    $self->pairwise_stats( Bio::Align::PairwiseStatistics->new());
 
     return $self;
 }

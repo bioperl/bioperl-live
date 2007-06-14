@@ -13,7 +13,7 @@ Bio::Biblio::MedlineArticle - Representation of a MEDLINE article
 
 =head1 SYNOPSIS
 
-  $obj = new Bio::Biblio::MedlineArticle (-mesh_headings =>
+  $obj = Bio::Biblio::MedlineArticle->new(-mesh_headings =>
                                             #array ref of hashes
                                          );
 

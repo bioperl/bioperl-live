@@ -22,7 +22,7 @@ BEGIN {
     use_ok('Bio::SeqFeature::FeaturePair');
 }
 
-my $simple = new Bio::Location::Simple('-start' => 10, '-end' => 20,
+my $simple = Bio::Location::Simple->new('-start' => 10, '-end' => 20,
 				       '-strand' => 1, -seq_id => 'my1');
 isa_ok($simple, 'Bio::LocationI');
 isa_ok($simple, 'Bio::RangeI');
@@ -35,7 +35,7 @@ my ($loc) = $simple->each_Location();
 ok($loc);
 is("$loc", "$simple");
 
-my $generic = new Bio::SeqFeature::Generic('-start' => 5, '-end' => 30, 
+my $generic = Bio::SeqFeature::Generic->new('-start' => 5, '-end' => 30, 
 					   '-strand' => 1);
 
 isa_ok($generic,'Bio::SeqFeatureI', 'Bio::SeqFeature::Generic' );
@@ -43,17 +43,17 @@ isa_ok($generic,'Bio::RangeI');
 is($generic->start, 5);
 is($generic->end, 30);
 
-my $similarity = new Bio::SeqFeature::SimilarityPair();
+my $similarity = Bio::SeqFeature::SimilarityPair->new();
 
-my $feat1 = new Bio::SeqFeature::Generic('-start' => 30, '-end' => 43, 
+my $feat1 = Bio::SeqFeature::Generic->new('-start' => 30, '-end' => 43, 
 					 '-strand' => -1);
-my $feat2 = new Bio::SeqFeature::Generic('-start' => 80, '-end' => 90, 
+my $feat2 = Bio::SeqFeature::Generic->new('-start' => 80, '-end' => 90, 
 					 '-strand' => -1);
 
-my $featpair = new Bio::SeqFeature::FeaturePair('-feature1' => $feat1,
+my $featpair = Bio::SeqFeature::FeaturePair->new('-feature1' => $feat1,
 						'-feature2' => $feat2 );
 
-my $feat3 = new Bio::SeqFeature::Generic('-start' => 35, '-end' => 50, 
+my $feat3 = Bio::SeqFeature::Generic->new('-start' => 35, '-end' => 50, 
 					 '-strand' => -1);
 
 is($featpair->start, 30,'Bio::SeqFeature::FeaturePair tests');
@@ -66,7 +66,7 @@ ok($generic->overlaps($simple), 'Bio::SeqFeature::Generic tests');
 ok($generic->contains($simple));
 
 # fuzzy location tests
-my $fuzzy = new Bio::Location::Fuzzy('-start'  =>'<10', 
+my $fuzzy = Bio::Location::Fuzzy->new('-start'  =>'<10', 
 				     '-end'    => 20,
 				     -strand   =>1, 
 				     -seq_id   =>'my2');
@@ -89,8 +89,8 @@ ok($loc);
 is("$loc", "$fuzzy");
 
 # split location tests
-my $splitlocation = new Bio::Location::Split;
-my $f = new Bio::Location::Simple(-start  => 13,
+my $splitlocation = Bio::Location::Split->new();
+my $f = Bio::Location::Simple->new(-start  => 13,
 				  -end    => 30,
 				  -strand => 1);
 $splitlocation->add_sub_Location($f);
@@ -99,23 +99,23 @@ is($f->min_start, 13);
 is($f->max_start,13);
 
 
-$f = new Bio::Location::Simple(-start  =>30,
+$f = Bio::Location::Simple->new(-start  =>30,
 			       -end    =>90,
 			       -strand =>1);
 $splitlocation->add_sub_Location($f);
 
-$f = new Bio::Location::Simple(-start  =>18,
+$f = Bio::Location::Simple->new(-start  =>18,
 			       -end    =>22,
 			       -strand =>1);
 $splitlocation->add_sub_Location($f);
 
-$f = new Bio::Location::Simple(-start  =>19,
+$f = Bio::Location::Simple->new(-start  =>19,
 			       -end    =>20,
 			       -strand =>1);
 
 $splitlocation->add_sub_Location($f);
 
-$f = new Bio::Location::Fuzzy(-start  =>"<50",
+$f = Bio::Location::Fuzzy->new(-start  =>"<50",
 			      -end    =>61,
 			      -strand =>1);
 is($f->start, 50);
@@ -143,7 +143,7 @@ is( $splitlocation->to_FTstring(),
     'join(13..30,30..90,18..22,19..20,<50..61)');
 
 # test for bug #1074
-$f = new Bio::Location::Simple(-start  => 5,
+$f = Bio::Location::Simple->new(-start  => 5,
 			       -end    => 12,
 			       -strand => -1);
 $splitlocation->add_sub_Location($f);
@@ -154,7 +154,7 @@ $splitlocation->strand(-1);
 is( $splitlocation->to_FTstring(), 
     'complement(join(13..30,30..90,18..22,19..20,<50..61,5..12))');
 
-$f = new Bio::Location::Fuzzy(-start => '45.60',
+$f = Bio::Location::Fuzzy->new(-start => '45.60',
 			      -end   => '75^80');
 
 is($f->to_FTstring(), '(45.60)..(75^80)');
@@ -163,7 +163,7 @@ is($f->to_FTstring(), '>20..(75^80)');
 
 # test that even when end < start that length is always positive
 
-$f = new Bio::Location::Simple(-verbose => -1,
+$f = Bio::Location::Simple->new(-verbose => -1,
 			       -start   => 100, 
 			       -end     => 20, 
 			       -strand  => 1);
@@ -172,14 +172,14 @@ is($f->length, 81, 'Positive length');
 is($f->strand,-1);
 
 # test that can call seq_id() on a split location;
-$splitlocation = new Bio::Location::Split(-seq_id => 'mysplit1');
+$splitlocation = Bio::Location::Split->new(-seq_id => 'mysplit1');
 is($splitlocation->seq_id,'mysplit1', 'seq_id() on Bio::Location::Split');
 is($splitlocation->seq_id('mysplit2'),'mysplit2');
 
 
 # Test Bio::Location::Exact
 
-ok(my $exact = new Bio::Location::Simple(-start    => 10, 
+ok(my $exact = Bio::Location::Simple->new(-start    => 10, 
 					 -end      => 20,
 					 -strand   => 1, 
 					 -seq_id   => 'my1'));
@@ -192,7 +192,7 @@ is( $exact->seq_id, 'my1');
 is( $exact->length, 11);
 is( $exact->location_type, 'EXACT');
 
-ok ($exact = new Bio::Location::Simple(-start         => 10, 
+ok ($exact = Bio::Location::Simple->new(-start         => 10, 
 				      -end           => 11,
 				      -location_type => 'IN-BETWEEN',
 				      -strand        => 1, 
@@ -205,7 +205,7 @@ is($exact->length, 0);
 is($exact->location_type, 'IN-BETWEEN');
 
 eval {
-    $exact = new Bio::Location::Simple(-start         => 10, 
+    $exact = Bio::Location::Simple->new(-start         => 10, 
 				       -end           => 12,
 				       -location_type => 'IN-BETWEEN');
 };
@@ -213,7 +213,7 @@ ok( $@, 'Testing error handling' );
 
 # testing error when assigning 10^11 simple location into fuzzy
 eval {
-    ok $fuzzy = new Bio::Location::Fuzzy(-start         => 10, 
+    ok $fuzzy = Bio::Location::Fuzzy->new(-start         => 10, 
 					 -end           => 11,
 					 -location_type => '^',
 					 -strand        => 1, 
@@ -221,7 +221,7 @@ eval {
 };
 ok( $@ );
 
-$fuzzy = new Bio::Location::Fuzzy(-location_type => '^',
+$fuzzy = Bio::Location::Fuzzy->new(-location_type => '^',
 				  -strand        => 1, 
 				  -seq_id        => 'my2');
 
@@ -229,7 +229,7 @@ $fuzzy->start(10);
 eval { $fuzzy->end(11) };
 ok($@);
 
-$fuzzy = new Bio::Location::Fuzzy(-location_type => '^',
+$fuzzy = Bio::Location::Fuzzy->new(-location_type => '^',
 				  -strand        => 1, 
 				  -seq_id        =>'my2');
 
@@ -245,7 +245,7 @@ use_ok('Bio::Location::WidestCoordPolicy');
 use_ok('Bio::Location::NarrowestCoordPolicy');
 use_ok('Bio::Location::AvWithinCoordPolicy');
 
-$f = new Bio::Location::Fuzzy(-start => '40.60',
+$f = Bio::Location::Fuzzy->new(-start => '40.60',
 			      -end   => '80.100');
 is $f->start, 40, 'Default coodinate policy';
 is $f->end, 100;
@@ -254,7 +254,7 @@ is $f->to_FTstring, '(40.60)..(80.100)';
 isa_ok($f->coordinate_policy, 'Bio::Location::WidestCoordPolicy');
 
 # this gives an odd location string; is it legal?
-$f->coordinate_policy(new Bio::Location::NarrowestCoordPolicy);
+$f->coordinate_policy(Bio::Location::NarrowestCoordPolicy->new());
 is $f->start, 60, 'Narrowest coodinate policy';
 is $f->end, 80;
 is $f->length, 21;
@@ -262,7 +262,7 @@ is $f->to_FTstring, '(60.60)..(80.80)';
 isa_ok($f->coordinate_policy, 'Bio::Location::NarrowestCoordPolicy');
 
 # this gives an odd location string
-$f->coordinate_policy(new Bio::Location::AvWithinCoordPolicy);
+$f->coordinate_policy(Bio::Location::AvWithinCoordPolicy->new());
 is $f->start, 50, 'Average coodinate policy';
 is $f->end, 90;
 is $f->length, 41;
@@ -270,7 +270,7 @@ is $f->to_FTstring, '(50.60)..(80.90)';
 isa_ok($f->coordinate_policy, 'Bio::Location::AvWithinCoordPolicy');
 
 # to complete the circle
-$f->coordinate_policy(new Bio::Location::WidestCoordPolicy);
+$f->coordinate_policy(Bio::Location::WidestCoordPolicy->new());
 is $f->start, 40, 'Widest coodinate policy';
 is $f->end, 100;
 is $f->length, 61;

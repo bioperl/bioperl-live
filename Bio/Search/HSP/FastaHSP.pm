@@ -17,7 +17,7 @@ Bio::Search::HSP::FastaHSP - HSP object for FASTA specific data
 =head1 SYNOPSIS
 
   # get a FastaHSP from a SearchIO stream
-  my $in = new Bio::SearchIO(-format => 'fasta', -file => 'filename.fasta');
+  my $in = Bio::SearchIO->new(-format => 'fasta', -file => 'filename.fasta');
 
   while( my $r = $in->next_result) {
       while( my $hit = $r->next_result ) {
@@ -75,7 +75,7 @@ use base qw(Bio::Search::HSP::GenericHSP);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Search::HSP::FastaHSP();
+ Usage   : my $obj = Bio::Search::HSP::FastaHSP->new();
  Function: Builds a new Bio::Search::HSP::FastaHSP object 
  Returns : Bio::Search::HSP::FastaHSP
  Args    : -swscore => smith-waterman score
@@ -120,7 +120,7 @@ sub get_aln {
     my ($self) = @_;
     require Bio::LocatableSeq;
     require Bio::SimpleAlign;
-    my $aln = new Bio::SimpleAlign;
+    my $aln = Bio::SimpleAlign->new();
     my $hs = $self->hit_string();
     my $qs = $self->query_string();
 
@@ -165,14 +165,14 @@ sub get_aln {
     unless( defined $s_nm && CORE::length ($s_nm) ) {
 	$s_nm = 'hit';
     }
-    my $query = new Bio::LocatableSeq('-seq'   => $seqonly,
+    my $query = Bio::LocatableSeq->new('-seq'   => $seqonly,
 				      '-id'    => $q_nm,
 				      '-start' => $self->query->start,
 				      '-end'   => $self->query->end,
 				      );
     $seqonly = $hs;
     $seqonly =~ s/\s+//g;
-    my $hit =  new Bio::LocatableSeq('-seq'    => $seqonly,
+    my $hit =  Bio::LocatableSeq->new('-seq'    => $seqonly,
 				      '-id'    => $s_nm,
 				      '-start' => $self->hit->start,
 				      '-end'   => $self->hit->end,

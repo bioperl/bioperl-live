@@ -18,7 +18,7 @@ Bio::DB::GenPept - Database object interface to GenPept
 
 =head1 SYNOPSIS
 
-    $gb = new Bio::DB::GenPept;
+    $gb = Bio::DB::GenPept->new();
 
     $seq = $gb->get_Seq_by_id('195055'); # Unique ID
 

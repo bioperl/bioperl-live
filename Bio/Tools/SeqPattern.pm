@@ -215,7 +215,7 @@ my (%Processed_braces, %Processed_asterics);
 =head1 new
 
  Title     : new
- Usage     : my $seqpat = new Bio::Tools::SeqPattern();
+ Usage     : my $seqpat = Bio::Tools::SeqPattern->new();
  Purpose   : Verifies that the type is correct for superclass (Bio::Seq.pm)
            : and calls superclass constructor last.
  Returns   : n/a

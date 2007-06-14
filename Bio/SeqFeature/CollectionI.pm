@@ -22,12 +22,12 @@ Bio::SeqFeature::CollectionI - An interface for a collection of SeqFeatureI obje
 
 
     use Bio::SeqFeature::Collection;
-    my $collection = new Bio::SeqFeature::Collection;
+    my $collection = Bio::SeqFeature::Collection->new();
     $collection->add_features(\@featurelist);
 
 
     $collection->features(-attributes => 
-			  [ { 'location' => new Bio::Location::Simple
+			  [ { 'location' => Bio::Location::Simple->new
 				  (-start=> 1, -end => 300) ,
 				  'overlaps' }]);
 

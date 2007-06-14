@@ -115,7 +115,7 @@ my $instance = undef;
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Ontology::OntologyStore();
+ Usage   : my $obj = Bio::Ontology::OntologyStore->new();
  Function: Returns the Bio::Ontology::OntologyStore object.
 
            Unlike usual implementations of new, this implementation

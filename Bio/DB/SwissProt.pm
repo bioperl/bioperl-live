@@ -20,7 +20,7 @@ Bio::DB::SwissProt - Database object interface to SwissProt retrieval
 
     use Bio::DB::SwissProt;
 
-    $sp = new Bio::DB::SwissProt;
+    $sp = Bio::DB::SwissProt->new();
 
     $seq = $sp->get_Seq_by_id('KPY1_ECOLI'); # SwissProt ID
     # <4-letter-identifier>_<species 5-letter code>
@@ -34,7 +34,7 @@ Bio::DB::SwissProt - Database object interface to SwissProt retrieval
     # then interchangeably
 
     # choose a different server to query
-    $sp = new Bio::DB::SwissProt('-servertype' => 'expasy',
+    $sp = Bio::DB::SwissProt->new('-servertype' => 'expasy',
 				 '-hostlocation' => 'us');
 
     $seq = $sp->get_Seq_by_id('BOLA_HAEIN'); # SwissProtID

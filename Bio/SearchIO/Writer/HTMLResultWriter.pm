@@ -22,11 +22,11 @@ Bio::SearchIO::Writer::HTMLResultWriter - write a Bio::Search::ResultI in HTML
   use Bio::SearchIO;
   use Bio::SearchIO::Writer::HTMLResultWriter;
 
-  my $in = new Bio::SearchIO(-format => 'blast',
+  my $in = Bio::SearchIO->new(-format => 'blast',
 			     -file   => shift @ARGV);
 
-  my $writer = new Bio::SearchIO::Writer::HTMLResultWriter();
-  my $out = new Bio::SearchIO(-writer => $writer);
+  my $writer = Bio::SearchIO::Writer::HTMLResultWriter->new();
+  my $out = Bio::SearchIO->new(-writer => $writer);
   $out->write_result($in->next_result);
 
 
@@ -41,9 +41,9 @@ Bio::SearchIO::Writer::HTMLResultWriter - write a Bio::Search::ResultI in HTML
       return $hsp->num_hits > 0;
   }
 
-  my $writer = new Bio::SearchIO::Writer::HTMLResultWriter
+  my $writer = Bio::SearchIO::Writer::HTMLResultWriter->new
                      (-filters => { 'HSP' => \&hsp_filter} );
-  my $out = new Bio::SearchIO(-writer => $writer);
+  my $out = Bio::SearchIO->new(-writer => $writer);
   $out->write_result($in->next_result);
 
   # can also set the filter via the writer object
@@ -115,7 +115,7 @@ use base qw(Bio::Root::Root Bio::SearchIO::SearchWriterI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO::Writer::HTMLResultWriter();
+ Usage   : my $obj = Bio::SearchIO::Writer::HTMLResultWriter->new();
  Function: Builds a new Bio::SearchIO::Writer::HTMLResultWriter object 
  Returns : Bio::SearchIO::Writer::HTMLResultWriter
  Args    : -filters => hashref with any or all of the keys (HSP HIT RESULT)

@@ -62,7 +62,7 @@ use base qw(Bio::Root::Root);
 
 =head2 new()
 
- Usage   : my $obj = new Bio::Expression::Contact();
+ Usage   : my $obj = Bio::Expression::Contact->new();
  Function: Builds a new Bio::Expression::Contact object 
  Returns : an instance of Bio::Expression::Contact
  Args    :

@@ -9,7 +9,7 @@ Bio::Matrix::PSM::IO - PSM parser
 
   use Bio::Matrix::PSM::IO;
 
-  my $psmIO= new Bio::Matrix::PSM::IO(-file=>$file, -format=>'transfac');
+  my $psmIO= Bio::Matrix::PSM::IO->new(-file=>$file, -format=>'transfac');
 
   my $release=$psmIO->release; #Using Bio::Matrix::PSM::PsmHeader methods
 
@@ -51,7 +51,7 @@ Bio::Matrix::PSM::PsmHeader methods. Some methods are driver specific
 If called when you parse a different file type you will get undef. For
 example:
 
-  my $psmIO= new Bio::Matrix::PSM::IO(file=>$file, format=>'transfac');
+  my $psmIO= Bio::Matrix::PSM::IO->new(file=>$file, format=>'transfac');
   my %seq=$psmIO->seq;
 
 will return an empty hash. To see all methods and how to use them go
@@ -108,7 +108,7 @@ use base qw(Bio::Root::IO);
 =head2 new
 
  Title   : new
- Usage   : my $psmIO =  new Bio::Matrix::PSM::IO(-format=>'meme', 
+ Usage   : my $psmIO =  Bio::Matrix::PSM::IO->new(-format=>'meme', 
 						 -file=>$file);
  Function: Associates a file with the appropriate parser
  Throws  : Throws if the file passed is in HTML format or 

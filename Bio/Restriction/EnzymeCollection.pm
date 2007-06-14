@@ -313,7 +313,7 @@ using the rich collection of methods in Bio::Restriction::Enzyme.
 
 sub blunt_enzymes {
     my $self=shift;
-    my $bs = new Bio::Restriction::EnzymeCollection(-empty => 1);
+    my $bs = Bio::Restriction::EnzymeCollection->new(-empty => 1);
     return $bs->enzymes(  grep { $_->overhang eq 'blunt' }  $self->each_enzyme );
 }
 
@@ -346,7 +346,7 @@ sub cutters {
         $self->throw("Need a positive number [$size]")
             unless $size =~ /[+]?[\d\.]+/;
 
-        my $bs = new Bio::Restriction::EnzymeCollection(-empty => 1);
+        my $bs = Bio::Restriction::EnzymeCollection->new(-empty => 1);
 
         foreach my $e ($self->each_enzyme) {
             ##print $e->name, ": ", $e->cutter, "\n"  if $e->cutter == $size;
@@ -374,7 +374,7 @@ sub cutters {
         $inclusive = 1 if $inclusive or not $exclusive;
         $inclusive = 0 if $exclusive;
 
-        my $bs = new Bio::Restriction::EnzymeCollection(-empty => 1);
+        my $bs = Bio::Restriction::EnzymeCollection->new(-empty => 1);
         if ($inclusive) {
             foreach my $e ($self->each_enzyme) {
                 $bs->enzymes($e) if $e->cutter >= $start and $e->cutter <= $end;

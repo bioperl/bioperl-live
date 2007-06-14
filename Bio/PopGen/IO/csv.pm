@@ -19,7 +19,7 @@ Bio::PopGen::IO::csv -Extract individual allele data from a CSV parser
 #Do not use directly, use through the Bio::PopGen::IO driver
 
   use Bio::PopGen::IO;
-  my $io = new Bio::PopGen::IO(-format => 'csv',
+  my $io = Bio::PopGen::IO->new(-format => 'csv',
                                -file   => 'data.csv');
 
   # Some IO might support reading in a population at a time
@@ -103,7 +103,7 @@ use base qw(Bio::PopGen::IO);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::PopGen::IO::csv();
+ Usage   : my $obj = Bio::PopGen::IO::csv->new();
  Function: Builds a new Bio::PopGen::IO::csv object 
  Returns : an instance of Bio::PopGen::IO::csv
  Args    : [optional, these are the current defaults] 
@@ -210,12 +210,12 @@ sub next_individual{
 
 	    my @alleles = split($self->flag('allele_delimiter'), $m);
 		
-	    $m = new Bio::PopGen::Genotype(-alleles      => \@alleles,
+	    $m = Bio::PopGen::Genotype->new(-alleles      => \@alleles,
 					   -marker_name  => $markername,
 					   -individual_id=> $samp); 
 	    $i++; 
 	}
-	return new Bio::PopGen::Individual(-unique_id => $samp,
+	return Bio::PopGen::Individual->new(-unique_id => $samp,
 					   -genotypes => \@marker_results);
     } else {
 	chomp;

@@ -143,7 +143,7 @@ is $gmexon->location->end_pos_type(), 'AFTER';
 is $gmexon->location->min_end(), 596;
 
 # Glimmer testing (GlimmerM)
-my $glimmer_m = new Bio::Tools::Glimmer('-file' => Bio::Root::IO->catfile(qw(t data GlimmerM.out)));
+my $glimmer_m = Bio::Tools::Glimmer->new('-file' => Bio::Root::IO->catfile(qw(t data GlimmerM.out)));
 $gmgene = $glimmer_m->next_prediction;
 
 ok($gmgene);

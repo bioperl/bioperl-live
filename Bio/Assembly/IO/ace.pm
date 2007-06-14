@@ -18,7 +18,7 @@ Bio::Assembly::IO::ace -  module to load phrap ACE files.
     use Bio::Assembly::IO;
 
     # Assembly loading methods
-    $io = new Bio::Assembly::IO(-file=>"SGC0-424.fasta.screen.ace.1",
+    $io = Bio::Assembly::IO->new(-file=>"SGC0-424.fasta.screen.ace.1",
                          -format=>"ace");
 
     $assembly = $io->next_assembly;
@@ -399,10 +399,10 @@ sub next_assembly {
           }
           (my $phdfile = $singletsfilename) =~ s/edit_dir.*//;
           $phdfile .= "phd_dir/$phdfilename";
-          my $singlet = new Bio::Assembly::Singlet();
+          my $singlet = Bio::Assembly::Singlet->new();
           if (-f $phdfile) {
                # print STDERR ("Reading singlet data from this phdfile ($phdfile)\n");
-               my $phd_fh = new Bio::SeqIO( -file =>   "<$phdfile", -format     =>   'phd');
+               my $phd_fh = Bio::SeqIO->new( -file =>   "<$phdfile", -format     =>   'phd');
                my $swq = $phd_fh->next_seq();
                $adder = $swq;
           }

@@ -87,7 +87,7 @@ ok my $meta2 = $tool2->result('meta');
 is($meta2->named_submeta_text('Domcut', 1,2), "0.068 0.053");
 is ($meta2->seq, "MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS");
 
-ok my $seq4 = new Bio::Seq;
+ok my $seq4 = Bio::Seq->new();
 ok $seq2->primary_seq($meta2);
 ok $seq2->add_SeqFeature(@res);
 ok $seq2->primary_seq->named_submeta_text('Domcut', 1,2);

@@ -18,14 +18,14 @@ that can have multiple locations in several maps.
 =head1 SYNOPSIS
 
   # a map element in two different positions on the same map
-  $map1 = new Bio::Map::SimpleMap ();
-  $position1 = new Bio::Map::Position (-map => $map1, -value => 100);
-  $position2 = new Bio::Map::Position (-map => $map1, -value => 200);
-  $mappable = new Bio::Map::Mappable (-positions => [$position1, $position2] );
+  $map1 = Bio::Map::SimpleMap->new();
+  $position1 = Bio::Map::Position->new(-map => $map1, -value => 100);
+  $position2 = Bio::Map::Position->new(-map => $map1, -value => 200);
+  $mappable = Bio::Map::Mappable->new(-positions => [$position1, $position2] );
 
   # add another position on a different map
-  $map2 = new Bio::Map::SimpleMap ();
-  $position3 = new Bio::Map::Position (-map => $map2, $value => 50);
+  $map2 = Bio::Map::SimpleMap->new();
+  $position3 = Bio::Map::Position->new(-map => $map2, $value => 50);
   $mappable->add_position($position3);
 
   # get all the places our map element is found, on a particular map of interest
@@ -84,7 +84,7 @@ use base qw(Bio::Root::Root Bio::Map::MappableI);
 =head2 new
 
  Title   : new
- Usage   : my $mappable = new Bio::Map::Mappable();
+ Usage   : my $mappable = Bio::Map::Mappable->new();
  Function: Builds a new Bio::Map::Mappable object
  Returns : Bio::Map::Mappable
  Args    : -name => string : name of the mappable element

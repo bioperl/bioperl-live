@@ -272,22 +272,22 @@ sub chunk {
     if (@_) {
         my $thing = shift || $self->throw("Trying to set chunk() to an undefined value");
         if (ref($thing) eq 'GLOB') {
-            $self->{_chunk} = new Bio::Root::IO(-fh => $thing);
+            $self->{_chunk} = Bio::Root::IO->new(-fh => $thing);
         }
         elsif (ref(\$thing) eq 'SCALAR') {
             if (-e $thing) {
-                $self->{_chunk} = new Bio::Root::IO(-file => $thing);
+                $self->{_chunk} = Bio::Root::IO->new(-file => $thing);
             }
             else {
                 unless ($FORCE_TEMP_FILE) {
                     # treat a string as a filehandle
                     open(my $fake_fh, "+<", \$thing); # requires perl 5.8
-                    $self->{_chunk} = new Bio::Root::IO(-fh => $fake_fh);
+                    $self->{_chunk} = Bio::Root::IO->new(-fh => $fake_fh);
                 }
                 else {
                     my ($handle) = $self->{_chunk}->tempfile();
                     print $handle $thing;
-                    $self->{_chunk} = new Bio::Root::IO(-fh => $handle);
+                    $self->{_chunk} = Bio::Root::IO->new(-fh => $handle);
                 }
             }
         }

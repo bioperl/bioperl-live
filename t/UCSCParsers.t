@@ -22,7 +22,7 @@ BEGIN {
 use Bio::SearchIO;
 use Bio::Root::IO;
 
-my $pslparser = new Bio::SearchIO(-format => 'psl',
+my $pslparser = Bio::SearchIO->new(-format => 'psl',
 				  -file   => Bio::Root::IO->catfile
 				  (qw(t data sbay_c545-yeast.BLASTZ.PSL)));
 
@@ -67,7 +67,7 @@ ok($q_gapblocks->[1]->[0],123856);
 #-----------------------------------
 
 
-$pslparser = new Bio::SearchIO(-format => 'psl',
+$pslparser = Bio::SearchIO->new(-format => 'psl',
 			       -file   => Bio::Root::IO->catfile
 			       (qw(t data blat.psLayout3)));
 

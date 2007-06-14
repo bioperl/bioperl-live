@@ -16,7 +16,7 @@ Bio::SeqFeature::FeaturePair - hold pair feature information e.g. blast hits
 
 =head1 SYNOPSIS
 
-    my $feat  = new Bio::SeqFeature::FeaturePair(-feature1 => $f1,
+    my $feat  = Bio::SeqFeature::FeaturePair->new(-feature1 => $f1,
 						 -feature2 => $f2,
 					      );
 
@@ -40,7 +40,7 @@ HS120G22.  The genomic sequence coordinates are used to create one
 sequence feature $f1 and the protein coordinates are used to create
 feature $f2.  A FeaturePair object can then be made
 
-    my $fp = new Bio::SeqFeature::FeaturePair(-feature1 => $f1,   # genomic
+    my $fp = Bio::SeqFeature::FeaturePair->new(-feature1 => $f1,   # genomic
 					      -feature2 => $f2,   # protein
 					      );
 

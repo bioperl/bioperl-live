@@ -20,14 +20,14 @@ Bio::Map::OrderedPositionWithDistance - Abstracts the notion of a member
 
     use Bio::Map::OrderedPositionWithDistance;
 	# the first marker in the sequence
-    my $position = new Bio::Map::OrderedPositionWithDistance(-positions => 1,
+    my $position = Bio::Map::OrderedPositionWithDistance->new(-positions => 1,
 			-distance => 22.3 );
 	# the second marker in the sequence, 15.6 units from the fist one
-    my $position2 = new Bio::Map::OrderedPositionWithDistance(-positions => 2,
+    my $position2 = Bio::Map::OrderedPositionWithDistance->new(-positions => 2,
 			-distance => 15.6 );
 	# the third marker in the sequence, coincidental with the second
 	# marker
-    my $position3 = new Bio::Map::OrderedPositionWithDistance(-positions => 3,
+    my $position3 = Bio::Map::OrderedPositionWithDistance->new(-positions => 3,
 			-distance => 0 );
 
 
@@ -94,7 +94,7 @@ use base qw(Bio::Map::Position);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Map::OrderedPositionWithDistance();
+ Usage   : my $obj = Bio::Map::OrderedPositionWithDistance->new();
  Function: Builds a new Bio::Map::OrderedPositionWithDistance object 
  Returns : Bio::Map::OrderedPositionWithDistance
  Args    : -positions  - Should be a single value representing the order

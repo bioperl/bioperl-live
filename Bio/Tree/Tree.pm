@@ -17,7 +17,7 @@ Bio::Tree::Tree - An Implementation of TreeI interface.
 =head1 SYNOPSIS
 
     # like from a TreeIO
-    my $treeio = new Bio::TreeIO(-format => 'newick', -file => 'treefile.dnd');
+    my $treeio = Bio::TreeIO->new(-format => 'newick', -file => 'treefile.dnd');
     my $tree = $treeio->next_tree;
     my @nodes = $tree->get_nodes;
     my $root = $tree->get_root_node;
@@ -77,7 +77,7 @@ use base qw(Bio::Root::Root Bio::Tree::TreeI Bio::Tree::TreeFunctionsI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tree::Tree();
+ Usage   : my $obj = Bio::Tree::Tree->new();
  Function: Builds a new Bio::Tree::Tree object 
  Returns : Bio::Tree::Tree
  Args    : -root     => L<Bio::Tree::NodeI> object which is the root

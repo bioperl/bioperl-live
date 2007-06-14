@@ -478,11 +478,11 @@ $pair = Bio::Coordinate::Pair->new(-in => $match1,
 
 # split location
 
-ok my $split = new Bio::Location::Split;
-ok $split->add_sub_Location(new Bio::Location::Simple(-start=>6,
+ok my $split = Bio::Location::Split->new();
+ok $split->add_sub_Location(Bio::Location::Simple->new(-start=>6,
                                                       -end=>8,
                                                       -strand=>1));
-$split->add_sub_Location(new Bio::Location::Simple(-start=>15,
+$split->add_sub_Location(Bio::Location::Simple->new(-start=>15,
                                                    -end=>16,
                                                    -strand=>1));
 
@@ -512,19 +512,19 @@ my $string;
 #AAA/3-10    --wtatgtng
 #BBB/1-7     -aaaat-tt-
 
-my $s1 = new Bio::LocatableSeq (-id => 'AAA',
+my $s1 = Bio::LocatableSeq->new(-id => 'AAA',
 			    -seq => '--wtatgtng',
 			    -start => 3,
 			    -end => 10,
   			    -alphabet => 'dna'
 			    );
-my $s2 = new Bio::LocatableSeq (-id => 'BBB',
+my $s2 = Bio::LocatableSeq->new(-id => 'BBB',
 			    -seq => '-aaaat-tt-',
 			    -start => 1,
 			    -end => 7,
   			    -alphabet => 'dna'
 			    );
-$a = new Bio::SimpleAlign;
+$a = Bio::SimpleAlign->new();
 $a->add_seq($s1);
 $a->add_seq($s2);
 #use Data::Dumper;

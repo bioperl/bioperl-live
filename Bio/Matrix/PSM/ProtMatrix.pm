@@ -63,10 +63,10 @@ information.
    my $matrix = Bio::Matrix::PSM::ProtMatrix( %param );
 
 
-   my $site = new Bio::Matrix::PSM::ProtMatrix(%param);
+   my $site = Bio::Matrix::PSM::ProtMatrix->new(%param);
    # Or get it from a file:
    use Bio::Matrix::PSM::IO;
-   my $psmIO = new Bio::Matrix::PSM::IO(-file => $file, -format => 'psi-blast');
+   my $psmIO = Bio::Matrix::PSM::IO->new(-file => $file, -format => 'psi-blast');
    while (my $psm = $psmIO->next_psm) {
       #Now we have a Bio::Matrix::PSM::Psm object, 
       # see Bio::Matrix::PSM::PsmI for details
@@ -184,7 +184,7 @@ use base qw(Bio::Root::Root Bio::Matrix::PSM::SiteMatrixI);
 =head2 new
 
  Title    : new
- Usage    : my $site = new Bio::Matrix::PSM::ProtMatrix( 
+ Usage    : my $site = Bio::Matrix::PSM::ProtMatrix->new( 
                %probs,
                %logs,
                -IC    => $ic,

@@ -17,7 +17,7 @@ Bio::Tools::Alignment::Trim - A kludge to do specialized trimming of
 =head1 SYNOPSIS
 
   use Bio::Tools::Alignment::Trim;
-  $o_trim = new Bio::Tools::Alignment::Trim;
+  $o_trim = Bio::Tools::Alignment::Trim->new();
   $o_trim->set_reverse_designator("R");
   $o_trim->set_forward_designator("F");
 

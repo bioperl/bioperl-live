@@ -24,7 +24,7 @@ Bio::Restriction::Enzyme - A single restriction endonuclease
   use Bio::Restriction::Enzyme;
 
   # define a new enzyme with the cut sequence
-  my $re=new Bio::Restriction::Enzyme
+  my $re=Bio::Restriction::Enzyme->new
       (-enzyme=>'EcoRI', -seq=>'G^AATTC');
 
   # once the sequence has been defined a bunch of stuff is calculated
@@ -454,7 +454,7 @@ sub site {
 
         # now set the recognition site as a new Bio::PrimarySeq object
         # we need it before calling cut() and complementary_cut()
-        $self->{_seq} = new Bio::PrimarySeq(-id=>$self->name,
+        $self->{_seq} = Bio::PrimarySeq->new(-id=>$self->name,
                                             -seq=>$site,
                                             -verbose=>$self->verbose,
                                             -alphabet=>'dna');

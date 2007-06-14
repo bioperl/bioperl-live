@@ -25,7 +25,7 @@ Bio::DB::QueryI - Object Interface to queryable sequence databases
    my @ids   = $query->ids;
 
    # get a genbank database handle
-   $gb = new Bio::DB::GenBank;
+   $gb = Bio::DB::GenBank->new();
    my $stream = $db->get_Stream_by_query($query);
    while (my $seq = $stream->next_seq) {
       ...

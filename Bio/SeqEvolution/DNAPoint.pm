@@ -137,11 +137,11 @@ sub _init_alignment {
     my $self = shift;
 
     # put the initial sequence into the alignment object
-    $self->{'_align'} = new Bio::SimpleAlign (-verbose => -1);
+    $self->{'_align'} = Bio::SimpleAlign->new(-verbose => -1);
     return unless $self->seq;
-    $self->{'_ori_locatableseq'} = new Bio::LocatableSeq(-id => 'ori',
+    $self->{'_ori_locatableseq'} = Bio::LocatableSeq->new(-id => 'ori',
                                                          -seq=> $self->seq->seq);
-    $self->{'_mut_locatableseq'} = new Bio::LocatableSeq(-id => 'mut',
+    $self->{'_mut_locatableseq'} = Bio::LocatableSeq->new(-id => 'mut',
                                                          -seq=> $self->seq->seq);
     $self->{'_align'}->add_seq($self->{'_ori_locatableseq'});
     $self->{'_align'}->add_seq($self->{'_mut_locatableseq'});

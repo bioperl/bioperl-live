@@ -19,7 +19,7 @@ Bio::Tools::Phylo::Molphy::Result - container for data parsed from a ProtML run
   # do not use this object directly, you will get it back as part of a 
   # Molphy parser
   use Bio::Tools::Phylo::Molphy;
-  my $parser = new Bio::Tools::Phylo::Molphy(-file => 'output.protml');
+  my $parser = Bio::Tools::Phylo::Molphy->new(-file => 'output.protml');
   while( my $r = $parser->next_result ) {
     # r is a Bio::Tools::Phylo::Molphy::Result object
 
@@ -57,7 +57,7 @@ Bio::Tools::Phylo::Molphy::Result - container for data parsed from a ProtML run
           "1st tree score is ", $trees[0]->score, "\n";
 
     # writing to STDOUT, use -file => '>filename' to specify a file
-    my $out = new Bio::TreeIO(-format => "newick");
+    my $out = Bio::TreeIO->new(-format => "newick");
     $out->write_tree($trees[0]); # writing only the 1st tree
   }
 
@@ -113,7 +113,7 @@ use base qw(Bio::Root::Root);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Tools::Phylo::Molphy::Result();
+ Usage   : my $obj = Bio::Tools::Phylo::Molphy::Result->new();
  Function: Builds a new Bio::Tools::Phylo::Molphy::Result object 
  Returns : Bio::Tools::Phylo::Molphy::Result
  Args    : 

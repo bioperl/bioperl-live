@@ -35,12 +35,12 @@ use Bio::Root::IO;
 use Bio::Tree::DistanceFactory;
 use Bio::TreeIO;
 
-my $in = new Bio::AlignIO(-format => 'clustalw',
+my $in = Bio::AlignIO->new(-format => 'clustalw',
        			  -file   => Bio::Root::IO->catfile('t', 'data',
 							    'pep-266.aln'));
 my $aln = $in->next_aln();
 ok($aln);
-my $pstats = new Bio::Align::ProteinStatistics(-verbose => $debug);
+my $pstats = Bio::Align::ProteinStatistics->new(-verbose => $debug);
 my $matrix = $pstats->distance(-method => 'Kimura',
 			       -align  => $aln);
 ok($matrix);

@@ -21,7 +21,7 @@ megablast reports (format 0)
 
   use Bio::SearchIO;
   # for default format output from megablast
-  my $in = new Bio::SearchIO(-file   => 'file.mbl',
+  my $in = Bio::SearchIO->new(-file   => 'file.mbl',
                              -format => 'megablast',
                              -report_format => 0);
 
@@ -132,7 +132,7 @@ BEGIN {
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO::blast();
+ Usage   : my $obj = Bio::SearchIO::blast->new();
  Function: Builds a new Bio::SearchIO::blast object
  Returns : Bio::SearchIO::blast
  Args    : -fh/-file => filehandle/filename to BLAST file

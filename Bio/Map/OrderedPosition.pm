@@ -18,14 +18,14 @@ Bio::Map::OrderedPosition - Abstracts the notion of a member
 
     use Bio::Map::OrderedPosition;
 	# the first marker in the sequence
-    my $position = new Bio::Map::OrderedPosition(-order => 1,
+    my $position = Bio::Map::OrderedPosition->new(-order => 1,
 			-positions => [ [ $map, 22.3] ] );
 	# the second marker in the sequence, 15.6 units from the fist one
-    my $position2 = new Bio::Map::OrderedPosition(-order => 2,
+    my $position2 = Bio::Map::OrderedPosition->new(-order => 2,
 			-positions => [ [ $map, 37.9] ] );
 	# the third marker in the sequence, coincidental with the second
 	# marker
-    my $position3 = new Bio::Map::OrderedPosition(-order => 3,
+    my $position3 = Bio::Map::OrderedPosition->new(-order => 3,
                         -posititions => [ [ $map, 37.9]] );
 
 =head1 DESCRIPTION
@@ -91,7 +91,7 @@ use base qw(Bio::Map::Position);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Map::OrderedPosition();
+ Usage   : my $obj = Bio::Map::OrderedPosition->new();
  Function: Builds a new Bio::Map::OrderedPosition object 
  Returns : Bio::Map::OrderedPosition
  Args    : -order : The order of this position

@@ -82,7 +82,7 @@ my $newfeat = Bio::SeqFeature::Generic->new( -start => 10,
 $seq->add_SeqFeature($newfeat);
 ok $seq->feature_count, 1;
 
-my $species = new Bio::Species
+my $species = Bio::Species->new
     (-verbose => 1, 
      -classification => [ qw( sapiens Homo Hominidae
 			      Catarrhini Primates Eutheria

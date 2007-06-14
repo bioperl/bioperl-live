@@ -19,7 +19,7 @@ Bio::SearchIO::exonerate - parser for Exonerate
   # do not use this module directly, it is a driver for SearchIO
 
   use Bio::SearchIO;
-  my $searchio = new Bio::SearchIO(-file => 'file.exonerate',
+  my $searchio = Bio::SearchIO->new(-file => 'file.exonerate',
                                    -format => 'exonerate');
 
 
@@ -148,7 +148,7 @@ $MIN_INTRON=30; # This is the minimum intron size
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO::exonerate();
+ Usage   : my $obj = Bio::SearchIO::exonerate->new();
  Function: Builds a new Bio::SearchIO::exonerate object
  Returns : an instance of Bio::SearchIO::exonerate
  Args    : -min_intron => somewhat obselete option, how to determine if a

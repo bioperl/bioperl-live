@@ -53,7 +53,7 @@ sub next_network {
 
 	my $self = shift;
 	my %seen_nodes = ();
-	my $graph = new Bio::Graph::ProteinGraph();
+	my $graph = Bio::Graph::ProteinGraph->new();
 
 	while (my $l = $self->_readline() ) {
 

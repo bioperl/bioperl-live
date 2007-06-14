@@ -85,7 +85,7 @@ sub _init_self {
 	my($self,$class,$args)=@_;
 	return unless $class eq __PACKAGE__; 
 	# to prevent subclasses from re-running this
-	$self->graph or $self->graph(new Bio::Graph::SimpleGraph);
+	$self->graph or $self->graph(Bio::Graph::SimpleGraph->new());
 	# can't be in DEFAULTS - circular includes!
 }
 

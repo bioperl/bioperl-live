@@ -16,12 +16,12 @@ use Bio::Root::IO;
 
 my ($seqio,$seq,$factory,$parser, $gene_seen, $exon_seen);
 
-$seqio = new Bio::SeqIO('-format'=>'fasta', '-file' => Bio::Root::IO->catfile("t","data","genomic-seq.fasta"));
+$seqio = Bio::SeqIO->new('-format'=>'fasta', '-file' => Bio::Root::IO->catfile("t","data","genomic-seq.fasta"));
 ok $seqio->isa('Bio::SeqIO');# 'seqio was not created';
 $seq = $seqio->next_seq;
 ok $seq->isa('Bio::PrimarySeqI');#'could not read sequence';
 
-$factory = new Bio::Factory::SeqAnalysisParserFactory();
+$factory = Bio::Factory::SeqAnalysisParserFactory->new();
 
 # let's test the genscan factory
 $parser = $factory->get_parser(-input => Bio::Root::IO->catfile("t","data","genomic-seq.genscan"),
@@ -45,7 +45,7 @@ ok $gene_seen, 3;
 # let's test the mzef factory
 $parser = $factory->get_parser(-input => Bio::Root::IO->catfile("t","data","genomic-seq.mzef"),
 			       -method=> 'mzef');
-$seqio = new Bio::SeqIO('-format'=>'fasta', '-file' => Bio::Root::IO->catfile("t","data","genomic-seq.fasta"));
+$seqio = Bio::SeqIO->new('-format'=>'fasta', '-file' => Bio::Root::IO->catfile("t","data","genomic-seq.fasta"));
 $seq = $seqio->next_seq();
 ok(defined $seq && $seq->isa('Bio::PrimarySeqI'));
 

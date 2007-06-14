@@ -18,7 +18,7 @@ Bio::SearchIO::hmmer - A parser for HMMER output (hmmpfam, hmmsearch)
 
     # do not use this class directly it is available through Bio::SearchIO
     use Bio::SearchIO;
-    my $in = new Bio::SearchIO(-format => 'hmmer',
+    my $in = Bio::SearchIO->new(-format => 'hmmer',
                                -file   => 't/data/L77119.hmmer');
     while( my $result = $in->next_result ) {
         # this is a Bio::Search::Result::HMMERResult object
@@ -129,7 +129,7 @@ BEGIN {
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::SearchIO::hmmer();
+ Usage   : my $obj = Bio::SearchIO::hmmer->new();
  Function: Builds a new Bio::SearchIO::hmmer object 
  Returns : Bio::SearchIO::hmmer
  Args    : -fh/-file => HMMER filename

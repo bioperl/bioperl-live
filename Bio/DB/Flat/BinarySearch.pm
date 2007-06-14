@@ -45,7 +45,7 @@ A string also has to be entered to defined what the primary key
 
 The index can now be created using 
 
-    my $index = new Bio::DB::Flat::BinarySearch(
+    my $index = Bio::DB::Flat::BinarySearch->new(
              -directory         => "/home/max/",
              -dbname            => "mydb",
 	          -start_pattern     => $start_pattern,
@@ -99,7 +99,7 @@ id (1433_CAEEL) as the secondary id.  The index is created as follows
 
     $secondary_patterns{"ID"} = '^ID   (\S+)';
 
-    my $index = new Bio::DB::Flat::BinarySearch(
+    my $index = Bio::DB::Flat::BinarySearch->new(
                 -directory          => $index_directory,
 		          -dbname             => "ppp",
 		          -write_flag         => 1,
@@ -119,7 +119,7 @@ memory.
 To fetch sequences using an existing index first of all create your sequence 
 object 
 
-    my $index = new Bio::DB::Flat::BinarySearch(
+    my $index = Bio::DB::Flat::BinarySearch->new(
                   -directory => $index_directory);
 
 Now you can happily fetch sequences either by the primary key or
@@ -137,7 +137,7 @@ Other ways of getting sequences are
 This can then be passed to a seqio object for output or converting
 into objects.
 
-    my $seq = new Bio::SeqIO(-fh     => $fh,
+    my $seq = Bio::SeqIO->new(-fh     => $fh,
 			                    -format => 'fasta');
 
 The last way is to retrieve a sequence directly.  This is the
@@ -218,7 +218,7 @@ my @formats = ['FASTA','SWISSPROT','EMBL'];
 
  Title   : new
  Usage   : For reading 
-             my $index = new Bio::DB::Flat::BinarySearch(
+             my $index = Bio::DB::Flat::BinarySearch->new(
                      -directory => '/Users/michele/indices/dbest',
 		     -dbname    => 'mydb',
                      -format    => 'fasta');
@@ -226,7 +226,7 @@ my @formats = ['FASTA','SWISSPROT','EMBL'];
            For writing 
 
              my %secondary_patterns = {"ACC" => "^>\\S+ +(\\S+)"}
-             my $index = new Bio::DB::Flat::BinarySearch(
+             my $index = Bio::DB::Flat::BinarySearch->new(
 		     -directory          => '/Users/michele/indices',
                      -dbname             => 'mydb',
 		     -primary_pattern    => "^>(\\S+)",
@@ -305,7 +305,7 @@ sub new_from_registry {
     my $dbname   = $config{'dbname'};
     my $location = $config{'location'};
     
-    my $index =  new Bio::DB::Flat::BinarySearch(-dbname    => $dbname,
+    my $index =  Bio::DB::Flat::BinarySearch->new(-dbname    => $dbname,
 						 -index_dir => $location,
 						 );
 }
@@ -337,7 +337,7 @@ sub get_Seq_by_id {
 
     unless ( defined($self->{_seqio}) ) {
 
-	$self->{_seqio} = new Bio::SeqIO(-fh => $fh,
+	$self->{_seqio} = Bio::SeqIO->new(-fh => $fh,
 					 -format => $self->format);
     } else {
 	$self->{_seqio}->fh($fh);
@@ -1660,7 +1660,7 @@ sub new_SWISSPROT_index {
 
     $secondary_patterns{"ID"} = $start_pattern;
 
-    my $index =  new Bio::DB::Flat::BinarySearch
+    my $index =  Bio::DB::Flat::BinarySearch->new
 	(-index_dir          => $index_dir,
 	 -format             => 'swissprot',
 	 -primary_pattern    => $primary_pattern,
@@ -1682,7 +1682,7 @@ sub new_EMBL_index {
 
    $secondary_patterns{"ID"} = $start_pattern;
 
-   my $index = new Bio::DB::Flat::BinarySearch
+   my $index = Bio::DB::Flat::BinarySearch->new
        (-index_dir          => $index_dir,
 	-format             => 'embl',
 	-primary_pattern    => $primary_pattern,
@@ -1706,7 +1706,7 @@ sub new_FASTA_index {
 
    $secondary_patterns{"ID"} = "^>\\S+ +(\\S+)";
 
-   my $index =  new Bio::DB::Flat::BinarySearch
+   my $index =  Bio::DB::Flat::BinarySearch->new
        (-index_dir          => $index_dir,
 	-format             => 'fasta',
 	-primary_pattern    => $primary_pattern,

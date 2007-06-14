@@ -23,7 +23,7 @@ END {
     unlink("out1.gff", "out2.gff");
 }
 
-my $feat = new Bio::SeqFeature::Generic( -start => 10, -end => 100,
+my $feat = Bio::SeqFeature::Generic->new( -start => 10, -end => 100,
 				-strand => -1, -primary => 'repeat',
 				-source => 'repeatmasker',
 				-score  => 1000,
@@ -78,8 +78,8 @@ SKIP: {
     skip('cannot verify GFF3 writing tests without IO::String installed',12)
         if $@;
     my $str = IO::String->new;
-    my $gffout = new Bio::Tools::GFF(-fh => $str, -gff_version => 3);
-    my $feat_test = new Bio::SeqFeature::Generic
+    my $gffout = Bio::Tools::GFF->new(-fh => $str, -gff_version => 3);
+    my $feat_test = Bio::SeqFeature::Generic->new
     (-primary_tag => 'tag',
      -source_tag  => 'exon',
      -seq_id      => 'testseq',
@@ -94,7 +94,7 @@ SKIP: {
     $feat_test->add_tag_value('giant_squid', 'lakeshore manor');
     $gffout->write_feature($feat_test);
     seek($str,0,0);
-    my $in = new Bio::Tools::GFF(-fh          => $str,
+    my $in = Bio::Tools::GFF->new(-fh          => $str,
                  -gff_version => 3);
     my $f_recon = $in->next_feature;
     is($f_recon->primary_tag, $feat_test->primary_tag);

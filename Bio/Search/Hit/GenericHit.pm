@@ -17,11 +17,11 @@ Bio::Search::Hit::GenericHit - A generic implementation of the Bio::Search::Hit:
 =head1 SYNOPSIS
 
     use Bio::Search::Hit::GenericHit;
-    my $hit = new Bio::Search::Hit::GenericHit(-algorithm => 'blastp');
+    my $hit = Bio::Search::Hit::GenericHit->new(-algorithm => 'blastp');
 
     # typically one gets HitI objects from a SearchIO stream via a ResultI
     use Bio::SearchIO;
-    my $parser = new Bio::SearchIO(-format => 'blast', -file => 'result.bls');
+    my $parser = Bio::SearchIO->new(-format => 'blast', -file => 'result.bls');
 
     my $result = $parser->next_result;
     my $hit    = $result->next_hit;
@@ -92,7 +92,7 @@ use base qw(Bio::Root::Root Bio::Search::Hit::HitI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Search::Hit::GenericHit();
+ Usage   : my $obj = Bio::Search::Hit::GenericHit->new();
  Function: Builds a new Bio::Search::Hit::GenericHit object 
  Returns : Bio::Search::Hit::GenericHit
  Args    : -name         => Name of Hit (required)

@@ -14,7 +14,7 @@ Bio::Map::Microsatellite - An object representing a Microsatellite marker.
 
 =head1 SYNOPSIS
 
-  $o_usat = new Bio::Map::Microsatellite
+  $o_usat = Bio::Map::Microsatellite->new
       (-name=>'Chad Super Marker 2',
        -sequence => 'gctgactgatcatatatatatatatatatatatatatatatcgcgatcgtga',
        -motif => 'at',

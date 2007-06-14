@@ -19,7 +19,7 @@ Bio::Search::Iteration::GenericIteration - A generic implementation of the Bio::
 =head1 SYNOPSIS
 
     use Bio::Search::Iteration::GenericIteration;
-    my $it = new Bio::Search::GenericIteration(
+    my $it = Bio::Search::GenericIteration->new(
                               -number => 1,
                               -converged => 0,
                               -newhits_unclassified => [@newhits_unclass],
@@ -98,7 +98,7 @@ use base qw(Bio::Root::Root Bio::Search::Iteration::IterationI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Search::Iteration(%args);
+ Usage   : my $obj = Bio::Search::Iteration->new(%args);
  Function: Builds a new Bio::Search::Iteration object 
  Returns : Bio::Search::Iteration::GenericIteration object
  Args    : -number => integer for the number of this iteration (required)

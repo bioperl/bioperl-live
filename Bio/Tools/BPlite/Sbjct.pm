@@ -27,7 +27,7 @@ Bio::Tools::BPlite::Sbjct - A Blast Subject (database search Hit)
 =head1 SYNOPSIS
 
   use Bio::Tools::BPlite;
-  my $report = new Bio::Tools::BPlite(-fh=>\*STDIN);
+  my $report = Bio::Tools::BPlite->new(-fh=>\*STDIN);
   while(my $sbjct = $report->nextSbjct) {
       $sbjct->name;    # access to the hit name
       "$sbjct";        # overloaded to return name
@@ -298,7 +298,7 @@ sub nextHSP {
 	$qlength = $self->{'PARENT'}->qlength;
   }	
   
-  my $hsp = new Bio::Tools::BPlite::HSP
+  my $hsp = Bio::Tools::BPlite::HSP->new
       ('-score'      => $score, 
        '-bits'       => $bits, 
        '-match'      => $match,

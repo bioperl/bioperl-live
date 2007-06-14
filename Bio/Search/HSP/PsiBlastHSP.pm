@@ -1494,7 +1494,7 @@ sub seq {
 
     require Bio::Seq;
 
-    new Bio::Seq (-ID   => $self->to_string,
+    Bio::Seq->new(-ID   => $self->to_string,
                   -SEQ  => $str,
                   -DESC => "$seqType sequence",
                   );
@@ -1635,13 +1635,13 @@ sub get_aln {
     my $sseq = $self->seq('sbjct');
 
     my $type = $self->algorithm =~ /P$|^T/ ? 'amino' : 'dna';
-    my $aln = new Bio::SimpleAlign();
-    $aln->add_seq(new Bio::LocatableSeq(-seq => $qseq->seq(),
+    my $aln = Bio::SimpleAlign->new();
+    $aln->add_seq(Bio::LocatableSeq->new(-seq => $qseq->seq(),
                                         -id  => 'query_'.$qseq->display_id(),
                                         -start => 1,
                                         -end   => CORE::length($qseq)));
 
-    $aln->add_seq(new Bio::LocatableSeq(-seq => $sseq->seq(),
+    $aln->add_seq(Bio::LocatableSeq->new(-seq => $sseq->seq(),
                                         -id  => 'hit_'.$sseq->display_id(),
                                         -start => 1,
                                         -end   => CORE::length($sseq)));

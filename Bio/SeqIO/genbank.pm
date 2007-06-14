@@ -217,7 +217,7 @@ sub _initialize {
     $self->{'_func_ftunit_hash'} = {};
     $self->_show_dna(1); # sets this to one by default. People can change it
     if( ! defined $self->sequence_factory ) {
-            $self->sequence_factory(new Bio::Seq::SeqFactory
+            $self->sequence_factory(Bio::Seq::SeqFactory->new
                             (-verbose => $self->verbose(),
                              -type => 'Bio::Seq::RichSeq'));
     }
@@ -341,7 +341,7 @@ sub next_seq {
 
 	# set up annotation depending on what the builder wants
 	if($builder->want_slot('annotation')) {
-	    $annotation = new Bio::Annotation::Collection;
+	    $annotation = Bio::Annotation::Collection->new();
 	}
 	$buffer = $self->_readline();
 	until( !defined ($buffer) ) {
@@ -1434,7 +1434,7 @@ sub _read_FTHelper_GenBank {
     $$buffer = $_;
 
     # Make the new FTHelper object
-    my $out = new Bio::SeqIO::FTHelper();
+    my $out = Bio::SeqIO::FTHelper->new();
     $out->verbose($self->verbose());
     $out->key($key);
     $out->loc($loc);

@@ -17,7 +17,7 @@ Bio::Matrix::IO::mlagan - A parser for the mlagan substitution matrix
 =head1 SYNOPSIS
 
   use Bio::Matrix::IO;
-  my $parser = new Bio::Matrix::IO(-format => 'mlagan',
+  my $parser = Bio::Matrix::IO->new(-format => 'mlagan',
                                    -file   => 'nucmatrix.txt');
   my $matrix = $parser->next_matrix;
   my $gap_open = $parser->gap_open;

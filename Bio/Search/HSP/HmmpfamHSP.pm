@@ -18,7 +18,7 @@ Bio::Search::HSP::HmmpfamHSP - A parser and HSP object for hmmpfam hsps
 
     # generally we use Bio::SearchIO to build these objects
     use Bio::SearchIO;
-    my $in = new Bio::SearchIO(-format => 'hmmer_pull',
+    my $in = Bio::SearchIO->new(-format => 'hmmer_pull',
 							   -file   => 'result.hmmer');
 
     while (my $result = $in->next_result) {
@@ -78,7 +78,7 @@ use base qw(Bio::Search::HSP::PullHSPI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Search::HSP::HmmpfamHSP();
+ Usage   : my $obj = Bio::Search::HSP::HmmpfamHSP->new();
  Function: Builds a new Bio::Search::HSP::HmmpfamHSP object.
  Returns : Bio::Search::HSP::HmmpfamHSP
  Args    : -chunk  => [Bio::Root::IO, $start, $end] (required if no -parent)

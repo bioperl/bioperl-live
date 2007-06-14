@@ -17,14 +17,14 @@ Bio::Seq::SeqFastaSpeedFactory - Instantiates a new Bio::PrimarySeqI (or derived
 =head1 SYNOPSIS
 
     use Bio::Seq::SeqFastaSpeedFactory;
-    my $factory = new Bio::Seq::SeqFastaSpeedFactory;
+    my $factory = Bio::Seq::SeqFastaSpeedFactory->new();
     my $seq = $factory->create(-seq => 'WYRAVLC',
 			       -id  => 'name');
 
     # If you want the factory to create Bio::Seq objects instead
     # of the default Bio::PrimarySeq objects, use the -type parameter:
 
-    my $factory = new Bio::Seq::SeqFastaSpeedFactory(-type => 'Bio::Seq');
+    my $factory = Bio::Seq::SeqFastaSpeedFactory->new(-type => 'Bio::Seq');
 
 
 =head1 DESCRIPTION
@@ -76,7 +76,7 @@ use base qw(Bio::Root::Root Bio::Factory::SequenceFactoryI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = new Bio::Seq::SeqFastaSpeedFactory();
+ Usage   : my $obj = Bio::Seq::SeqFastaSpeedFactory->new();
  Function: Builds a new Bio::Seq::SeqFastaSpeedFactory object 
  Returns : Bio::Seq::SeqFastaSpeedFactory
  Args    : -type => string, name of a PrimarySeqI derived class
