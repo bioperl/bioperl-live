@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 
 #-----------------------------------------------------------------------------
 # PROGRAM : seq_pattern.pl 
@@ -30,16 +30,14 @@
 #
 #-----------------------------------------------------------------------------
 
-use lib "/home/steve/perl/bioperl";
+use lib "/Users/steve/lib/perl";
 use Bio::Tools::SeqPattern ();
-use Bio::Root::Global qw(:std);
 use Getopt::Std;
 
 $opt_h = 0;
 $opt_n = 0;
 $opt_p = 0;
 $opt_r = 0;
-$opt_v = -1;
 
 getopts('hnprv:');
 $pat = $ARGV[0] || '';
@@ -53,7 +51,6 @@ Usage: seq_pattern.pl [-n|p|r|h] 'REGEXP'
  -n     : interpret regexp as a nucleotide pattern.
  -p     : interpret regexp as a peptide pattern.
  -r     : output only the reverse complement of the nucleotide pattern.
- -v int : Set verbosity level (-1, 0, 1, default = -1); 
  -h     : print usage.
  
 QQ_USAGE_QQ
@@ -86,8 +83,6 @@ QQ_USAGE_QQ
 
 #----------------------
 # Main
-
-&verbosity($opt_v);
 
 if($opt_r) {
     print Bio::Tools::SeqPattern->new(-SEQ =>$pat, -TYPE =>'Dna')->revcom->str,"\n";
