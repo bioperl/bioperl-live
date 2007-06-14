@@ -9,17 +9,12 @@
 use strict;
 use vars qw($NUMTESTS $DEBUG);
 
-use lib '.';
-
 use File::Spec;
 use constant IMAGES => File::Spec->catfile(qw(t data biographics));
 use constant FILES => File::Spec->catfile(qw(t data biographics));
 use constant IMAGE_TESTS => 1;
 
-my ($error,$write);
-
 BEGIN { 
-  $error = 0;
   eval { require Test::More; };
   if( $@ ) {
     use lib 't/lib';
@@ -34,25 +29,20 @@ BEGIN {
   if ($@) {
     plan skip_all => "GD or Text::Shellwords modules are not installed. ".
       "This means that Bio::Graphics module is unusable. ".
-        "Skipping tests.",$NUMTESTS-2;
+        "Skipping tests.";
   }
   plan tests => $NUMTESTS;
   my $verbose = -1;
-  $write   = 0;
 
   require_ok('Bio::Graphics::FeatureFile');
   require_ok('Bio::Graphics');
 }
 
-## End of black magic.
-##
-## Insert additional test code below but remember to change
-## the print "1..x\n" in the BEGIN block to reflect the
-## total number of tests that will be run. 
 
 my @images = IMAGE_TESTS ? qw(t1 t2 t3) : ();
 
 # parse command line arguments
+my $write = 0;
 while (@ARGV && $ARGV[0] =~ /^--?(\w+)/) {
   my $arg = $1;
   if ($arg eq 'write') {
