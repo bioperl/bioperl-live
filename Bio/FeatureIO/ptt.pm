@@ -26,7 +26,7 @@ It is used mainly by NCBI who produce PTT files for
 all their published genomes found in L<ftp://ftp.ncbi.nih.gov/genomes/>.
 It has the following format:
 
-==over 4
+=over 4
 
 =item Line 1
 
@@ -63,7 +63,7 @@ Feature lines, nine columns, tab separated, "-" used for empty fields
  eg. "2491..3423  + 310 24217063  metF  LB002 - COG0685E  5,10-methylenetetrahydrofolate reductase"
 
 
-==back
+=back
 
 =head1 FEEDBACK
 

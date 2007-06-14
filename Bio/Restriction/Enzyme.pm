@@ -591,7 +591,7 @@ sub cut {
      return $self->{'_cut'} || 0;
 }
 
-=head cuts_after
+=head2 cuts_after
 
  Title     : cuts_after
  Usage     : Alias for cut()

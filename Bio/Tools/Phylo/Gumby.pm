@@ -94,8 +94,6 @@ sub new {
     return $self;
 }
 
-=cut
-
 =head2 next_result
 
  Title   : next_result

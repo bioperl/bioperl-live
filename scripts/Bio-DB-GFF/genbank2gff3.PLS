@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-#$Id: genbank2gff3.PLS,v 1.12 2007-03-28 02:18:28 bosborne Exp $;
+#$Id: genbank2gff3.PLS,v 1.13 2007-06-14 18:01:52 nathan Exp $;
 
 =pod
 
@@ -137,15 +137,15 @@ Several other improvements and bugfixes, minor but useful are included
   * SeqFeature::Tools::TypeMapper has a few FT -> SOFA additions
       and more flexible usage.
 
-=item TODO
+=head1 TODO
 
-Are these additions desired?
+=head2 Are these additions desired?
 
  * filter input records by taxon (e.g. keep only organism=xxx or taxa level = classYYY
  * handle Entrezgene, other non-sequence SeqIO structures (really should change
     those parsers to produce consistent annotation tags).
- 
-=item related bugfixes/tests
+
+=head2 Related bugfixes/tests
 
 These items from Bioperl mail were tested (sample data generating errors), 
 and found corrected:
@@ -157,8 +157,7 @@ and found corrected:
    
 This error is for a /trans_splice gene that is hard to handle, and unflattner/genbank2 doesn't
  From: Chad Matsalla <chad <at> dieselwurks.com> Subject: genbank2gff3.PLS and the unflatenner - Inconsistent	order? Date: 2005-07-15 19:51:48 GMT 
- 
- 
+
 =head1 AUTHOR 
 
 Sheldon McKay (mckays@cshl.edu)

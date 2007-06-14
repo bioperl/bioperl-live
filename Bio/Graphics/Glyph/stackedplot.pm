@@ -380,7 +380,6 @@ column contains the series (10,20,30), then the -max_score is 60.
 
 To understand how this glyph works, try running and modifying the following example:
 
-
  #!/usr/bin/perl
 
  use strict;
@@ -435,8 +434,6 @@ To understand how this glyph works, try running and modifying the following exam
 		   -description=>1,
 		  );
  print $panel->png;
-
-=back
 
 =head1 BUGS
 
