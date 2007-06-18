@@ -13,6 +13,10 @@ BEGIN {
 	}
 	use Test::More;
 	
+    use Module::Build;
+    my $build = Module::Build->current(get_options => { network => {} });
+    my $do_network_tests = $build->notes('network');
+    
 	eval {
 		require IO::String;
 		require LWP;
@@ -21,8 +25,8 @@ BEGIN {
 	if ($@) {
 		plan skip_all => 'IO::String or LWP or LWP::UserAgentnot installed. This means Bio::Tools::Run::RemoteBlast is not usable. Skipping tests';
 	}
-    elsif (!$DEBUG) {
-		plan skip_all => 'Must set BIOPERLDEBUG=1 for network tests';
+    elsif (!$do_network_tests) {
+		plan skip_all => 'Network tests have not been requested, skipping all';
 	}
 	else {
 		plan tests => 21;

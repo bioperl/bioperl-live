@@ -70,7 +70,7 @@ my $build = ModuleBuildBioperl->new(
                             'XML::Writer'               => '0.4/parsing and writing xml/Bio::SeqIO::agave,Bio::SeqIO::game::gameWriter,Bio::SeqIO::chadoxml,Bio::SeqIO::tinyseq,Bio::Variation::IO::xml,Bio::SearchIO::Writer::BSMLResultWriter'
                            },
     get_options         => {
-                            network => { } # not actually used by anything yet, but in the future say perl Build.PL --network
+                            network => { } # say 'perl Build.PL --network' to manually request network tests
                            },
     auto_features       => {
                             BioDBSeqFeature_BDB   => {
@@ -88,13 +88,11 @@ my $build = ModuleBuildBioperl->new(
                                                         feature_requires => { 'DBI' => 0, 'DBD::mysql' => 0 },
                                                         test             => \&test_db
                                                      },
-# The following code works, but since no tests in the test suite actually make use of this functionality, don't use it yet
-#                            Network               => {
-#                                                        description => "Enable tests that need an internet connection",
-#                                                        requires    => { 'LWP::UserAgent' => 0 },
-#                                                        options     => ['network'], # ModuleBuildBioperl unique requirement that --network was supplied
-#                                                        test        => \&ModuleBuildBioperl::test_internet
-#                                                     }
+                            Network               => {
+                                                        description => "Enable tests that need an internet connection",
+                                                        requires    => { 'LWP::UserAgent' => 0 },
+                                                        test        => \&ModuleBuildBioperl::test_internet
+                                                     }
                            },
     dynamic_config      => 1,
     create_makefile_pl  => 'passthrough'
@@ -110,17 +108,29 @@ if ($build->feature('BioDBSeqFeature_BDB')) {
 if ($build->feature('BioDBSeqFeature_mysql')) {
     make_dbi_test();
 }
+
+# Ask questions
+$build->choose_scripts;
+prompt_for_biodbgff() if $build->feature('BioDBGFF');
 {
-    $build->notes(network => $build->feature('Network'));
+    if ($build->args('network')) {
+        if ($build->feature('Network')) {
+            $build->notes(network => 1);
+            $build->log_info("  - will run internet-requiring tests\n");
+        }
+        else {
+            $build->notes(network => 0);
+            $build->log_info("  - will not run network tests since I seem to be missing essential network functionality\n");
+        }
+    }
+    else {
+        prompt_for_network() if $build->feature('Network');
+    }
     # then in test script:
     #   use Module::Build;
     #   my $build = Module::Build->current;
     #   my $do_network_tests = $build->notes('network');
 }
-
-# Ask questions
-$build->choose_scripts;
-prompt_for_biodbgff() if $build->feature('BioDBGFF');
 
 # Request that some scripts run post-installation
 $build->add_post_install_script('maintenance/symlink_script.pl'); # takes a unix file path regardless of local OS
@@ -246,4 +256,17 @@ sub prompt_for_biodbgff {
     }
     
     $build->log_info("\n");
+}
+
+sub prompt_for_network {
+    my $proceed = $build->y_n("Do you want to run tests that require connection to servers across the internet\n(likely to cause some failures)? y/n", 'n');
+    
+    if ($proceed) {
+        $build->notes(network => 1);
+        $build->log_info("  - will run internet-requiring tests\n");
+    }
+    else {
+        $build->notes(network => 0);
+        $build->log_info("  - will not run internet-requiring tests\n");
+    }
 }
