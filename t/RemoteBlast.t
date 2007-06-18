@@ -14,7 +14,7 @@ BEGIN {
 	use Test::More;
 	
     use Module::Build;
-    my $build = Module::Build->current(get_options => { network => {} });
+    my $build = Module::Build->current();
     my $do_network_tests = $build->notes('network');
     
 	eval {
