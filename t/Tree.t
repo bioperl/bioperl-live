@@ -1,23 +1,21 @@
 # -*-Perl-*-
 ## Bioperl Test Harness Script for Modules
-##
+## $Id$
 
-my $error;
 use strict;
+use constant NUMTESTS => 42;
 use vars qw($DEBUG);
 $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    $error = 0; 
-    eval { require Test; };
+    eval { require Test::More; };
     if( $@ ) {
-	use lib 't';
+	use lib 't/lib';
     }
-    use Test;
-    plan tests => 39;
+    use Test::More;
+    
+    plan tests => NUMTESTS;
+    use_ok('Bio::TreeIO');
 }
 
 use Bio::TreeIO;
@@ -30,7 +28,7 @@ my $treeio = Bio::TreeIO->new(-verbose => $verbose,
 my $tree = $treeio->next_tree;
 
 my @nodes = $tree->find_node('ADH2');
-ok(@nodes, 2);
+is(@nodes, 2,'Number of nodes that have ADH2 as name');
 
 if( $verbose ) {
     $treeio = Bio::TreeIO->new(-verbose => $verbose,
@@ -58,8 +56,8 @@ my @hADH = ( $tree->find_node('hADH1'),
 	     $tree->find_node('hADH2') );
 my ($n4) = $tree->find_node('yADH4');
 
-ok($tree->is_monophyletic(-nodes    => \@hADH,
-			  -outgroup => $n4));
+is($tree->is_monophyletic(-nodes    => \@hADH,
+			  -outgroup => $n4),1,'Test Monophyly');
 
 my @mixgroup = ( $tree->find_node('hADH1'),
 		 $tree->find_node('yADH2'),
@@ -69,24 +67,24 @@ my @mixgroup = ( $tree->find_node('hADH1'),
 my ($iADHX) = $tree->find_node('iADHX');
 
 # test height
-ok($iADHX->height, 0);
-ok($iADHX->depth,0.22);
-ok(! $tree->is_monophyletic(-nodes   => \@mixgroup,
-			    -outgroup=> $iADHX));
+is($iADHX->height, 0,'Height');
+is($iADHX->depth,0.22,'Depth');
+isnt( $tree->is_monophyletic(-nodes   => \@mixgroup,
+			    -outgroup=> $iADHX),1, 'non-monophyletic group');
 
 my $in = Bio::TreeIO->new(-format => 'newick',
 			 -fh     => \*DATA);
 $tree = $in->next_tree;
 my ($a,$b,$c,$d) = ( $tree->find_node('A'),
-			   $tree->find_node('B'),
-			   $tree->find_node('C'),
-			   $tree->find_node('D'));
+		     $tree->find_node('B'),
+		     $tree->find_node('C'),
+		     $tree->find_node('D'));
 
-ok($tree->is_monophyletic(-nodes => [$b,$c],
-			  -outgroup => $d));
+is($tree->is_monophyletic(-nodes => [$b,$c],
+			  -outgroup => $d),1, 'B,C are Monophyletic');
 
-ok($tree->is_monophyletic(-nodes => [$b,$a],
-			  -outgroup => $d) );
+is($tree->is_monophyletic(-nodes => [$b,$a],
+			  -outgroup => $d),1,'A,B are Monophyletic');
 
 $tree = $in->next_tree;
 my ($e,$f,$i);
@@ -98,19 +96,19 @@ my ($e,$f,$i);
 			   $tree->find_node('F'),
 			   $tree->find_node('I'),
 			   );
-ok(! $tree->is_monophyletic(-nodes => [$b,$f],
-			    -outgroup => $d) );
+isnt( $tree->is_monophyletic(-nodes => [$b,$f],
+			    -outgroup => $d),1,'B,F are not Monophyletic' );
 
-ok($tree->is_monophyletic(-nodes => [$b,$a],
-			  -outgroup => $f));
+is($tree->is_monophyletic(-nodes => [$b,$a],
+			  -outgroup => $f),1, 'A,B are Monophyletic');
 
 # test for paraphyly
 
-ok(  $tree->is_paraphyletic(-nodes => [$a,$b,$c],
-			   -outgroup => $d), 0);
+isnt(  $tree->is_paraphyletic(-nodes => [$a,$b,$c],
+			   -outgroup => $d), 1,'A,B,C are not Monophyletic w D as outgroup');
 
-ok(  $tree->is_paraphyletic(-nodes => [$a,$f,$e],
-			   -outgroup => $i), 1);
+is(  $tree->is_paraphyletic(-nodes => [$a,$f,$e],
+			   -outgroup => $i), 1, 'A,F,E are monophyletic with I as outgroup');
 
 
 # test for rerooting the tree
@@ -126,9 +124,9 @@ $a = $tree->find_node('A');
 # number of internal nodes (if it is done correctly)
 my $total_length_orig = $tree->total_branch_length;
 $out->write_tree($tree) if $DEBUG;
-ok($tree->reroot($a));
+is($tree->reroot($a),1, 'Can re-root with A as outgroup');
 $out->write_tree($tree) if $DEBUG;
-ok($node_cnt_orig, scalar($tree->get_nodes));
+is($node_cnt_orig, scalar($tree->get_nodes), 'Count the number of nodes');
 my $total_length_new = $tree->total_branch_length;
 my $eps = 0.001 * $total_length_new;	# tolerance for checking length
 warn("orig total len ", $total_length_orig, "\n") if $DEBUG;
@@ -137,23 +135,25 @@ warn("new  total len ", $tree->total_branch_length,"\n") if $DEBUG;
 # go figure...
 #ok(($total_length_orig >= $tree->total_branch_length - $eps)
 #   and ($total_length_orig <= $tree->total_branch_length + $eps));
-ok($tree->get_root_node, $a->ancestor);
+is($tree->get_root_node, $a->ancestor, "Root node is A's ancestor");
 
 # try to reroot on an internal, will result in there being 1 less node
 $a = $tree->find_node('C')->ancestor;
 $out->write_tree($tree) if $DEBUG;
-ok($tree->reroot($a));
+is($tree->reroot($a),1, "Can reroot with C's ancsestor");
 $out->write_tree($tree) if $DEBUG;
-ok($node_cnt_orig, scalar($tree->get_nodes));
+is($node_cnt_orig, scalar($tree->get_nodes), 'Check to see that node count is correct after an internal node was removed after this re-rooting');
 warn("orig total len ", $total_length_orig, "\n") if $DEBUG;
 warn("new  total len ", $tree->total_branch_length,"\n") if $DEBUG;
-ok(($total_length_orig >= $tree->total_branch_length - $eps)
-   and ($total_length_orig <= $tree->total_branch_length + $eps));
-ok($tree->get_root_node, $a->ancestor);
+cmp_ok($total_length_orig, '>=', $tree->total_branch_length - $eps, 
+       'Total original branch length is what it is supposed to be');
+cmp_ok($total_length_orig, '<=',$tree->total_branch_length + $eps, 
+       'Updated total branch length after the reroot');
+is($tree->get_root_node, $a->ancestor, 'Make sure root is really what we asked for');
 
 # try to reroot on existing root: should fail
 $a = $tree->get_root_node;
-ok(! $tree->reroot($a));
+isnt( $tree->reroot($a),1, 'Testing for failed re-rerooting');
 
 # try a more realistic tree
 $tree = $in->next_tree;
@@ -161,14 +161,15 @@ $a = $tree->find_node('VV');
 $node_cnt_orig = scalar($tree->get_nodes);
 $total_length_orig = $tree->total_branch_length;
 $out->write_tree($tree) if $DEBUG;
-ok($tree->reroot($a->ancestor) eq '1');
+is($tree->reroot($a->ancestor),1, 'Test that rooting succeeded');
 $out->write_tree($tree) if $DEBUG;
-ok($node_cnt_orig+1, scalar($tree->get_nodes));
+is($node_cnt_orig+1, scalar($tree->get_nodes), 'Test that re-rooted tree has proper number of nodes after re-rooting');
 $total_length_new = $tree->total_branch_length;
 $eps = 0.001 * $total_length_new;    # tolerance for checking length
-ok(($total_length_orig >= $tree->total_branch_length - $eps)
-   and ($total_length_orig <= $tree->total_branch_length + $eps));
-ok($tree->get_root_node, $a->ancestor->ancestor);
+cmp_ok($total_length_orig, '>=', $tree->total_branch_length - $eps, 'Branch length before rerooting');
+cmp_ok($total_length_orig, '<=', $tree->total_branch_length + $eps, 
+       'Branch length after rerooting');
+is($tree->get_root_node, $a->ancestor->ancestor,'Root is really the ancestor we asked for');
 
 # BFS and DFS search testing
 $treeio = Bio::TreeIO->new(-verbose => $verbose,
@@ -176,39 +177,39 @@ $treeio = Bio::TreeIO->new(-verbose => $verbose,
 			     -file   => Bio::Root::IO->catfile('t','data', 
 							       'test.nh'));
 $tree = $treeio->next_tree;
-my $ct =0;
+my ($ct,$n) = (0);
 my $let = ord('A');
-for my $n (  $tree->get_leaf_nodes ) {
+for $n (  $tree->get_leaf_nodes ) {
     $n->id(chr($let++));
 }
 
-for my $n ( grep {! $_->is_Leaf } $tree->get_nodes ) {
+for $n ( grep {! $_->is_Leaf } $tree->get_nodes ) {
     $n->id($ct++);
 }
 # enable for debugging
 Bio::TreeIO->new(-format => 'newick')->write_tree($tree) if( $DEBUG );
 
 my $BFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'b')));
-ok($BFSorder, '0,1,3,2,C,D,E,F,G,H,A,B');
+is($BFSorder, '0,1,3,2,C,D,E,F,G,H,A,B', 'BFS traversal order');
 my $DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
-ok($DFSorder, '0,1,2,A,B,C,D,3,E,F,G,H');
+is($DFSorder, '0,1,2,A,B,C,D,3,E,F,G,H', 'DFS travfersal order');
 
 
 # test some Bio::Tree::TreeFunctionI methods
 #find_node tested extensively already
 $tree->remove_Node('H');
 $DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
-ok($DFSorder, '0,1,2,A,B,C,D,3,E,F,G');
+is($DFSorder, '0,1,2,A,B,C,D,3,E,F,G', 'DFS traversal after removing H');
 #get_lineage_nodes tested during get_lca
 $tree->splice(-remove_id => 'G');
 $DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
-ok($DFSorder, '0,1,2,A,B,C,D,3,E,F');
+is($DFSorder, '0,1,2,A,B,C,D,3,E,F', 'DFS traversal after removing G');
 $tree->splice(-remove_id => [('E', 'F')], -keep_id => 'F');
 $DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
-ok($DFSorder, '0,1,2,A,B,C,D,F');
+is($DFSorder, '0,1,2,A,B,C,D,F', 'DFS traversal after removing F');
 $tree->splice(-keep_id => [qw(0 1 2 A B C D)]);
 $DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
-ok($DFSorder, '0,1,2,A,B,C,D');
+is($DFSorder, '0,1,2,A,B,C,D', 'DFS after removing all but 0,1,2,A,B,C,D');
 #get_lca, merge_lineage, contract_linear_paths tested in in Taxonomy.t
 
 
@@ -218,13 +219,13 @@ $treeio = Bio::TreeIO->new(-format => 'newick',
 							     'bootstrap.tre'));
 $tree = $treeio->next_tree;
 my ($test_node) = $tree->find_node(-id => 'A');
-ok($test_node->ancestor->id, '90');
-ok($test_node->ancestor->ancestor->id, '25');
+is($test_node->ancestor->id, 90,'Testing bootstrap copy');
+is($test_node->ancestor->ancestor->id, '25','Testing bootstrap copy');
 $tree->move_id_to_bootstrap;
-ok($test_node->ancestor->id, '');
-ok($test_node->ancestor->bootstrap, '90');
-ok($test_node->ancestor->ancestor->id, '');
-ok($test_node->ancestor->ancestor->bootstrap, '25');
+is($test_node->ancestor->id, '','Testing bootstrap copy');
+is($test_node->ancestor->bootstrap, '90', 'Testing bootstrap copy');
+is($test_node->ancestor->ancestor->id, '', 'Testing bootstrap copy');
+is($test_node->ancestor->ancestor->bootstrap, '25', 'Testing bootstrap copy');
 
 # change TreeIO to parse 
 $treeio = Bio::TreeIO->new(-format => 'newick',
@@ -233,13 +234,13 @@ $treeio = Bio::TreeIO->new(-format => 'newick',
 			   -internal_node_id => 'bootstrap');
 $tree = $treeio->next_tree;
 ($test_node) = $tree->find_node(-id => 'A');
-ok($test_node->ancestor->id, '');
-ok($test_node->ancestor->ancestor->id, '');
-ok($test_node->ancestor->bootstrap, '90');
-ok($test_node->ancestor->ancestor->bootstrap, '25');
-
-
-
+is($test_node->ancestor->id, '','Testing auto-boostrap copy during parse');
+is($test_node->ancestor->ancestor->id, '',
+   'Testing auto-boostrap copy during parse');
+is($test_node->ancestor->bootstrap, '90',
+   'Testing auto-boostrap copy during parse');
+is($test_node->ancestor->ancestor->bootstrap, '25', 
+   'Testing auto-boostrap copy during parse');
 
 __DATA__
 (D,(C,(A,B)));
