@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-#$Id: genbank2gff3.PLS,v 1.13 2007-06-14 18:01:52 nathan Exp $;
+#$Id: genbank2gff3.PLS,v 1.14 2007-06-19 16:38:23 scain Exp $;
 
 =pod
 
@@ -268,7 +268,7 @@ my $idh = Bio::SeqFeature::Tools::IDHandler->new;
 # dgg
 $source_type ||= "region"; # should really parse from FT.source contents below
 
-my $FTSOmap = Bio::SeqFeature::Tools::TypeMapper->FT_SO_map();
+my $FTSOmap = $tm->FT_SO_map();
 # #convert $FTSOmap undefined to valid SO : moved to TypeMapper->map_types( -undefined => "region")
 
 # stringify filter list if applicable
