@@ -539,11 +539,7 @@ sub get_Parent_Node {
 
 =cut
 
-sub each_Descendent {
-    my ($self) = shift;
-    my $db ||= $self->db_handle || return;
-    return $db->each_Descendent($self);
-}
+# implemented by Bio::Tree::Node
 
 =head2 get_Children_Nodes
 
