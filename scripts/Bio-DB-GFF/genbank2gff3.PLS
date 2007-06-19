@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-#$Id: genbank2gff3.PLS,v 1.14 2007-06-19 16:38:23 scain Exp $;
+#$Id: genbank2gff3.PLS,v 1.15 2007-06-19 18:41:09 scain Exp $;
 
 =pod
 
@@ -780,10 +780,13 @@ sub gene_features {
             $f->location( Bio::Location::Simple->new(
                 -start => $b, -end => $e, -strand => $f->strand) );
             }
-         
+
+            $f->add_tag_value( Derives_from => $rna_id ); 
           }
-        
-        $f->add_tag_value( Parent => $rna_id );
+          else {
+            $f->add_tag_value( Parent => $rna_id );
+          }
+
         $f->add_tag_value( ID => $pro_id );
         
         move_translation_fasta($f, $pro_id);
