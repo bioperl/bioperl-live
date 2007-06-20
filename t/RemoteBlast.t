@@ -2,50 +2,29 @@
 # $Id$
 
 use strict;
-our $DEBUG;
 
 BEGIN {
-	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-	
-	eval { require Test::More; };
-	if( $@ ) {
-		use lib 't/lib';
-	}
-	use Test::More;
-	
-    use Module::Build;
-    my $build = Module::Build->current();
-    my $do_network_tests = $build->notes('network');
+    use lib 't/lib';
+    use BioperlTest;
     
-	eval {
-		require IO::String;
-		require LWP;
-		require LWP::UserAgent;
-	};
-	if ($@) {
-		plan skip_all => 'IO::String or LWP or LWP::UserAgentnot installed. This means Bio::Tools::Run::RemoteBlast is not usable. Skipping tests';
-	}
-    elsif (!$do_network_tests) {
-		plan skip_all => 'Network tests have not been requested, skipping all';
-	}
-	else {
-		plan tests => 21;
-	}
-	
-	use_ok('Bio::Tools::Run::RemoteBlast');
-	use_ok('Bio::SeqIO');
-	use_ok('Bio::AlignIO');
-	use_ok('Bio::Seq');
-	use_ok('Bio::Root::IO');
-	use_ok('Env');
+    test_begin(-requires_modules => [qw(IO::String LWP LWP::UserAgent)],
+               -requires_networking => 1,
+               -tests => 21);
+    
+    use_ok('Bio::Tools::Run::RemoteBlast');
+    use_ok('Bio::SeqIO');
+    use_ok('Bio::AlignIO');
+    use_ok('Bio::Seq');
+    use_ok('Bio::Root::IO');
+    use_ok('Env');
 }
 
 
 my $prog = 'blastp';
 my $db   = 'swissprot';
 my $e_val= '1e-10';
-my $v = $DEBUG > 1;
-my  $remote_blast = Bio::Tools::Run::RemoteBlast->new('-verbose' => $v,
+my $v = test_debug() > 1;
+my $remote_blast = Bio::Tools::Run::RemoteBlast->new('-verbose' => $v,
 													'-prog' => $prog,
 													'-data' => $db,
 													'-expect' => $e_val,
