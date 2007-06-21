@@ -19,23 +19,41 @@ BioperlTest - A common base for all Bioperl test scripts.
   use lib 't/lib';
   use BioperlTest;
   
-  test_begin(-requires_modules => [qw(IO::String)],
-             -requires_networking => 1,
-             -tests => 20);
+  test_begin(-tests => 20,
+             -requires_modules => [qw(IO::String)],
+             -requires_networking => 1);
 
   my $do_network_tests = test_network();
   my $output_debugging = test_debug();
 
   # carry out tests in Test::More syntax
+  
+  SKIP: {
+    test_skip(-tests => 10, -requires_modules => ['Optional::Module']);
+
+    # 10 optional tests that need Optional::Module
+  }
+
+  SKIP: {
+    test_skip(-tests => 10, -requires_networking => 1);
+
+    # 10 optional tests that require internet access (only makes sense in the
+    # context of a script that doesn't use -requires_networking in the call to
+    # &test_begin)
+  }
 
 =head1 DESCRIPTION
 
 This provides a common base for all Bioperl test scripts. It presents an
 interface to common needs such as skipping all tests if required modules aren't
-present or if network tests haven't been enabled.
+present or if network tests haven't been enabled. See test_begin().
 
-It currently has two methods that let you decide if network tests should be
-run, and if debugging information should be printed.
+In the same way, it allows you to skip just a subset of tests for those same
+reasons. See test_skip().
+
+It also has two further methods that let you decide if network tests should be
+run, and if debugging information should be printed. See test_network() and
+test_debug().
 
 =head1 FEEDBACK
 
