@@ -30,8 +30,9 @@ BioperlTest - A common base for all Bioperl test scripts.
   
   SKIP: {
     test_skip(-tests => 10, -requires_modules => ['Optional::Module']);
+    use_ok('Optional::Module');
 
-    # 10 optional tests that need Optional::Module
+    # 9 other optional tests that need Optional::Module
   }
 
   SKIP: {
@@ -282,7 +283,7 @@ sub _skip {
     }
     eval $requires;
     if (!$skip && $@) {
-        $skip = (@req_mods == 1 ? 'The optional module ' : 'One or more of the optional modules ').join(', ', @req_mods).' not installed';
+        $skip = (@req_mods == 1 ? 'The optional module ' : 'One or more of the optional modules ').join(', ', @req_mods).' (or dependencies thereof) not installed';
     }
     
     if (!$skip && $req_net && ! test_network()) {
