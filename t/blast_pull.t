@@ -1,22 +1,13 @@
 # -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-##
 # $Id$
 
 use strict;
-use vars qw($NUMTESTS $DEBUG);
 
 BEGIN {
-	$NUMTESTS = 288;
-	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-	
-	eval {require Test::More;};
-	if ($@) {
-		use lib 't/lib';
-	}
-	use Test::More;
-	
-    plan tests => $NUMTESTS;
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 288);
 	
 	use_ok('Bio::Root::IO');
 	use_ok('Bio::SearchIO');

@@ -1,30 +1,23 @@
 ##-*-Perl-*-
-## Bioperl Test Harness Script for Modules
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# $Id$
 
 use strict;
 use Bio::Root::IO;
-#use FindBin '$Bin';
 use constant TEST_COUNT => 55;
 use constant GFF_FILE    => Bio::Root::IO->catfile('t','data',
 					   'seqfeaturedb','test.gff3');
 
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => TEST_COUNT;
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => TEST_COUNT);
+    
     $ENV{ORACLE_HOME} ||= '/home/oracle/Home';
 	
 	use_ok('Bio::DB::SeqFeature::Store');
 	use_ok('Bio::DB::SeqFeature::Store::GFF3Loader');
 }
-
-#use lib "$Bin/..","$Bin/../blib/lib";
 
 my (@f,$f,@s,$s,$seq1,$seq2);
 
@@ -178,4 +171,3 @@ is (@lines, 2);
 ok("@lines" !~ /Parent=/s);
 ok("@lines" =~ /ID=/s);
 }
-

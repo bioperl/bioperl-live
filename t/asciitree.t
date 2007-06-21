@@ -4,23 +4,23 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use vars qw($NUMTESTS $out_file);
+
+our $out_file;
 
 BEGIN {
-	$NUMTESTS = 3;
 	use File::Spec;
 	$out_file = File::Spec->catfile(qw(t data tmp-asciitree));
-	eval { require Test::More; };
-	if ( $@ ) {
-		use lib 't/lib';
-	}
-	use Test::More;
-	plan tests => $NUMTESTS;
+	
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 3);
+	
 	use_ok('Bio::SeqIO::asciitree');
 	use_ok('Bio::Root::IO');
 }
 
-my $verbose = $ENV{'BIOPERLDEBUG'};
+my $verbose = test_debug();
 
 # asciitree is a write-only format
 my $in = Bio::SeqIO->new(-format => 'genbank',

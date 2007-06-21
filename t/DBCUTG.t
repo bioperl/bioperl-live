@@ -6,28 +6,13 @@
 # `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use vars qw($NUMTESTS $DEBUG);
 
 BEGIN {
-	$NUMTESTS = 35;
-	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+	use lib 't/lib';
+	use BioperlTest;
 	
-	eval {require Test::More;};
-	if ($@) {
-		use lib 't/lib';
-	}
-	use Test::More;
-	
-	eval {
-		require IO::String; 
-		require LWP::UserAgent;
-	};
-	if ($@) {
-		plan skip_all => 'IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests';
-	}
-	else {
-		plan tests => $NUMTESTS;
-	}
+	test_begin(-tests => 34,
+			   -requires_modules => [qw(IO::String LWP::UserAgent)]);
 	
 	use_ok('Bio::DB::CUTG');
 	use_ok('Bio::CodonUsage::Table');
@@ -42,7 +27,7 @@ END {
 }
 
 my $outfile = Bio::Root::IO->catfile("t","data","cutg.out");
-my $verbose = 1 if $DEBUG;
+my $verbose = test_debug();
 
 # try reading from file
 ok my $io = Bio::CodonUsage::IO->new
@@ -76,15 +61,15 @@ ok my $ref = $cut->probable_codons(20);
 
 # requiring Internet access, set env BIOPERLDEBUG to 1 to run
 SKIP: {
-	skip "Skipping tests which require remote servers, set BIOPERLDEBUG=1 to test", 11 unless $DEBUG;
-	ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
+	test_skip(-tests => 10, -requires_networking => 1);
+	ok my $tool = Bio::WebAgent->new(-verbose => $verbose);
 	ok $tool->sleep;
 	is $tool->delay(1), 1;
 	ok $tool->sleep;
 
 	# get CUT from web
 	ok my $db = Bio::DB::CUTG->new();
-	ok $db->verbose(1);
+	$db->verbose(-1);
 	my $cdtable;
 	eval {$cdtable = $db->get_request(-sp =>'Pan troglodytes');};
 	skip "Could not connect to server, server/network problems? Skipping those tests", 5 if $@;
@@ -98,6 +83,7 @@ SKIP: {
 	## now lets enter a non-existent species ans check handling..
 	## should default to human...
 	my $db2 = Bio::DB::CUTG->new();
+	$db2->verbose(-1);
 	eval {$cut2 = $db2->get_request(-sp =>'Wookie magnus');};
 	skip "Could not connect to server, server/network problems? Skipping those tests", 1 if $@;
 	is $cut2->species(), 'Homo sapiens';

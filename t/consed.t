@@ -1,7 +1,6 @@
 # -*-Perl-*-
-## Bioperl Test Harness Script for Modules
 ## $Id$
-#
+
 #####
 #
 # this script simply tests parsing ace* files
@@ -10,29 +9,19 @@
 #####
 
 use strict;
-use vars qw($TESTCOUNT);
+
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    $TESTCOUNT = 18;
-	if( $^O =~ /mswin/i ) {
-		plan skip_all => "Cannot run consed module on Windows";	
-	} else {
-		plan tests => $TESTCOUNT;
-	}
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 16,
+			   -excludes_os => 'mswin');
+    
 	use_ok('Bio::Root::IO');
 	use_ok('Bio::Tools::Alignment::Consed');
 }
 
-use vars qw($DEBUG);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || -1;
-
-print("Checking if the Bio::Tools::Alignment::Consed module could be used...\n") if $DEBUG > 0;
-# test 1
-ok(1);
+my $DEBUG = test_debug();
 
 # scope some variables
 my($o_consed,@singlets,@singletons,@pairs,@doublets,@multiplets,$invoker);
@@ -40,54 +29,36 @@ my($o_consed,@singlets,@singletons,@pairs,@doublets,@multiplets,$invoker);
 # instantiate a new object
 my $passed_in_acefile = Bio::Root::IO->catfile("t","data","acefile.ace.1");
 $o_consed = Bio::Tools::Alignment::Consed->new(-acefile => $passed_in_acefile);
-print("Checking if a new CSM::Consed object was created...\n") if( $DEBUG > 0);
-ok defined $o_consed;
+ok defined $o_consed, 'new CSM::Consed object was created';
 
-	# set the verbosity to a valid value (1)
-ok my $verbosity = $o_consed->verbose(1);
+$o_consed->verbose($DEBUG);
 
-# set the verbosity to "none"
-$o_consed->verbose(0);
-#
-print("Checking if the new object is a reference to a Bio::Tools::Alignment::Consed object...\n") if($DEBUG > 0);
-# test 3
 isa_ok($o_consed,'Bio::Tools::Alignment::Consed');
 
-print("Checking if singlets can be successfully set...\n"), if( $DEBUG > 0);
-# test 4
-isnt($o_consed->set_singlets(), 1);
-
-print("Checking if the number of singlets can be retrieved and if that number is correct (65)...\n") if($DEBUG > 0);	
+isnt($o_consed->set_singlets(), 1,  'singlets can be successfully set');
+	
 @singlets = $o_consed->get_singlets();
-is (scalar(@singlets), 65);
+is (scalar(@singlets), 65, 'singlets can be retrieved');
 
-print("Checking if the doublets can be set...\n"), if( $DEBUG> 0);
-isnt ($o_consed->set_doublets(), 1);
+isnt ($o_consed->set_doublets(), 1, 'doublets can be set');
 
-print("Checking if the doublets can be retreived...\n") if($DEBUG > 0);
-ok @doublets = $o_consed->get_doublets();
+ok @doublets = $o_consed->get_doublets(), 'doublets can be retreived';
 
 print(scalar(@doublets)." doublets were found\n") if ($DEBUG > 0);
-print("Checking if the number of doublets can be retrieved and if that number is correct (45)...\n") if($DEBUG > 0);
-is (scalar(@doublets), 45);
+is (scalar(@doublets), 45, 'doublets can be retrieved');
 
-print("Checking if the number of pairs can be retrieved and if that number is correct (1)...\n") if($DEBUG > 0);
 @pairs = $o_consed->get_pairs();
-is (scalar(@pairs),1);
+is (scalar(@pairs),1, 'pairs can be retrieved');
 
-print("Checking if the number of multiplets can be retrieved and if that number is correct (4)...\n") if($DEBUG > 0);
 @multiplets = $o_consed->get_multiplets();
-is (scalar(@multiplets), 4);
+is (scalar(@multiplets), 4, 'multiplets can be retrieved');
 
-print("Checking if the number of singletons can be retrieved and if that number is correct (3)...\n") if($DEBUG > 0);
 @singletons = $o_consed->get_singletons();
-is (scalar(@singletons), 3);
+is (scalar(@singletons), 3, 'singletons can be retrieved');
 my($total_object_sequences, $total_grep_sequences);
-print("Finding out, via grep, how many sequences there are in the acefile _and_ in the singlets file...\n") if $DEBUG > 0; 
-is($total_grep_sequences = $o_consed->count_sequences_with_grep(), 179);
+is($total_grep_sequences = $o_consed->count_sequences_with_grep(), 179, 'how many sequences there are in the acefile _and_ in the singlets file');
 
-print("Getting the statistics from the Bio::Tools::Alignment::Consed object to compare the total number of sequences accounted for there to the number of sequences found via grep...\n") if($DEBUG > 0);
-is($total_object_sequences = $o_consed->sum_lets("total_only"),179);
+is($total_object_sequences = $o_consed->sum_lets("total_only"),179, 'statistics from the Bio::Tools::Alignment::Consed object to compare the total number of sequences accounted for there to the number of sequences found via grep');
 print("Match?\n") if($DEBUG > 0) ;
 is ($total_object_sequences, $total_grep_sequences);
 

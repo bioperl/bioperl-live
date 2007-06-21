@@ -1,24 +1,21 @@
 # -*-Perl-*-
 # $Id$
-## Bioperl Test Harness Script for Modules
-##
 
-my $error;
 use strict;
+
+our $FILE1 = 'out.tre';
+
 BEGIN { 
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 13;
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 13);
+	
 	use_ok('Bio::PopGen::Simulation::Coalescent');
 	use_ok('Bio::PopGen::Statistics');
 	use_ok('Bio::TreeIO');
 }
 
-use vars qw($FILE1);
-$FILE1 = 'out.tre';
 END { unlink $FILE1; }
  
 my $ssize = 5;

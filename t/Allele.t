@@ -5,12 +5,11 @@
 use strict;
 
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) { 
-	use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 14;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 14);
+	
 	use_ok('Bio::Variation::Allele');	
 }
 
@@ -30,7 +29,7 @@ is $a->desc, 'Sample Bio::Seq object';
 is $a->alphabet(), 'dna';
 
 ok defined($trunc = $a->trunc(1,4));
-is $trunc->seq(), 'ACTG', $trunc->seq();
+is $trunc->seq(), 'ACTG';
 
 ok defined($rev = $a->revcom());
 is $rev->seq(), 'CAGTCAGTCAGT';

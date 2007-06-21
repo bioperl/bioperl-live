@@ -1,37 +1,22 @@
 # -*-Perl-*-
-## Bioperl Test Harness Script for Modules
 ## $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
-my $error;
-
-use vars qw($SKIPXML $LASTXMLTEST); 
 use strict;
-use lib '.';
 
 BEGIN {     
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use vars qw($NTESTS);
-    $NTESTS = 13;
-
-    use Test::More;
-    plan tests => $NTESTS; 
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 13);
+    
 	use_ok('Bio::ClusterIO');
 	use_ok('Bio::Root::IO');
 	use_ok('Bio::Cluster::ClusterFactory');
 }
 
 SKIP: {
-    eval { require XML::Parser::PerlSAX; };
-    if( $@ ) {
-		skip("XML::Parser::PerlSAX not loaded.  This means ".
-			 "ClusterIO::dbsnp test cannot be executed.",8);
-	}
+	test_skip(-tests => 8, -requires_modules => ['XML::Parser::PerlSAX']);
+    
 	my ($clusterio, $result,$hit,$hsp);
 	$clusterio = Bio::ClusterIO->new('-tempfile' => 0,
 					'-format' => 'dbsnp',

@@ -1,18 +1,14 @@
 # -*-Perl-*-
-## Bioperl Test Harness Script for Modules
 ## $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
+
 BEGIN { 
-    eval { require Test::More; };
-    if( $@ ) { 
-	use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 22;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 22);
+	
 	use_ok('Bio::SeqFeature::Generic');
 	use_ok('Bio::SeqFeature::AnnotationAdaptor');
 	use_ok('Bio::Annotation::DBLink');
@@ -78,5 +74,3 @@ is (scalar(@vals), 1);
 is ($anns[0]->primary_id(), $vals[0]);
 
 is ($anncoll->get_num_of_annotations(), 6);
-
-

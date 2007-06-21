@@ -1,20 +1,18 @@
 # -*-Perl-*-
-## Bioperl Test Harness Script for Modules
 ## $Id$
-#
 
 use strict;
 
 BEGIN {
-    use vars qw($DEBUG);
-    $DEBUG = $ENV{'BIOPERLDEBUG'};
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 112;
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 111);
+    
     use_ok('Bio::Map::CytoMap');
+    use_ok('Bio::Map::CytoPosition');
+    use_ok('Bio::Range');
+    use_ok('Bio::Map::CytoMarker');
 }
 
 #
@@ -29,16 +27,12 @@ is $map->name, 'my';
 is $map->species('human'), 'human';
 is $map->species, 'human';
 is $map->unique_id, '1';
+
 #
 #
 # Secondly, we make sure the location calculations in
 #           Bio::Map::CytoPosition make sense
 #
-
-use_ok('Bio::Map::CytoPosition');
-use_ok('Bio::Range');
-
-ok(1);
 
 my($a, $b, $r);
 my $string = 'b';
@@ -208,10 +202,6 @@ test '16cen-p2';
 
 # by now we should be convinced that band conversion to a range works
 # so lets try to use it for comparing markers.
-
-
-use Bio::Map::CytoMarker;
-ok 1;
 
 ok my $marker1 = Bio::Map::CytoMarker->new();
 is $marker1->name('gene1'), 'gene1' ;

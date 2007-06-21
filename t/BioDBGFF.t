@@ -1,13 +1,10 @@
 #-*-Perl-*-
-# Bioperl Test Harness Script for Modules
-#
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# $Id$
 
 use strict;
 use Module::Build;
 use Bio::Root::IO;
-#use FindBin '$Bin';
+
 use constant TEST_COUNT => 278;
 use constant FASTA_FILES => Bio::Root::IO->catfile('t','data','dbfa');
 use constant GFF_FILE1    => Bio::Root::IO->catfile('t','data',
@@ -16,12 +13,10 @@ use constant GFF_FILE2    => Bio::Root::IO->catfile('t','data',
 						   'biodbgff','test.gff3');
 
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => TEST_COUNT;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => TEST_COUNT);
 	
 	use_ok('Bio::DB::GFF');
 	use_ok('Bio::SeqIO');

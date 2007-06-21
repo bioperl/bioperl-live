@@ -1,16 +1,14 @@
 # -*-Perl-*-
-## Bioperl Test Harness Script for Modules
 ## $Id$
 
 use strict;
-BEGIN { 
-    eval { require Test::More; };
-    if( $@ ) { 
-	use lib 't/lib';
-    }
-    use Test::More;
 
-    plan tests => 16;
+BEGIN { 
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 16);
+	
 	use_ok('Bio::Variation::AAReverseMutate');
 }
 
@@ -46,7 +44,6 @@ isa_ok($rna, 'Bio::Variation::RNAChange');
 is $rna->length, 1;
 is $rna->allele_ori->seq, 't';
 is $rna->allele_mut->seq, 'c';
-
 
 is $rna->codon_ori, 'ttc', "Codon_ori is |". $rna->codon_ori. "|";
 

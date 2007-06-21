@@ -1,38 +1,20 @@
 # This is -*-Perl-*- code
-## Bioperl Test Harness Script for Modules
-##
 # $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
-use vars qw($NUMTESTS $DEBUG);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-
-    $NUMTESTS = 22;
-	eval { require DB_File };
-	if ($@) {
-		plan skip_all => "DB_File not installed";
-	} else {
-	    plan tests => $NUMTESTS;
-	}
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 22,
+			   -requires_modules => ['DB_File']);
+	
 	use_ok('Bio::Assembly::IO');
 	use_ok('Bio::Assembly::Scaffold');
 	use_ok('Bio::Assembly::Contig');
 	use_ok('Bio::Assembly::ContigAnalysis');
 }
-
-#syntax test
-
-use Data::Dumper;
 
 #
 # Testing IO
@@ -48,8 +30,6 @@ isa_ok($in, 'Bio::Assembly::IO');
 
 my $sc = $in->next_assembly;
 isa_ok($sc, 'Bio::Assembly::Scaffold');
-
-#print Dumper $sc;
 
 #
 # Testing Scaffold

@@ -5,12 +5,11 @@
 use strict;
 
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 4;
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 4);
+    
 	use_ok('Bio::SearchIO');
 }
 
@@ -36,4 +35,3 @@ is $first_hsp->cigar_string, $first_hsp_cigar_string; # fetch from hash
 my $second_hsp = $hsps[0];
 my $second_hsp_cigar_string = '29M18I22M11I20MD33M4I22M3I25M5I21MI33MD14M';
 is $second_hsp->cigar_string, $second_hsp_cigar_string;
-

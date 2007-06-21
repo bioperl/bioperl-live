@@ -1,28 +1,15 @@
 # -*-Perl-*-
-## Bioperl Test Harness Script for Modules
 ## $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
-use vars qw($NUMTESTS);
-my $error;
+
 BEGIN {
-    eval { require Test::More; };
-    $error = 0;
-    if( $@ ) { 
-	use lib 't/lib';
-    }
-    use Test::More;
-    $NUMTESTS = 16;
-    eval { require 'IO/String.pm' };
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 16,
+			   -requires_modules => ['IO::String']);
     
-    if( $@ ) {
-        plan skip_all => "IO::String not installed. This means the Bio::Index::Blast modules are not usable. Skipping tests";
-    } else {
-		plan tests => $NUMTESTS;
-	}
 	use_ok('Cwd');
 	use_ok('Bio::SearchIO');
 	use_ok('Bio::Index::Blast');

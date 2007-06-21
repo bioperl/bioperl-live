@@ -2,15 +2,13 @@
 # $Id$
 
 use strict;
-use Data::Dumper;
-my $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+
 BEGIN {
-	eval { require Test::More; };
-	if( $@ ) {
-		use lib 't/lib';
-	}
-	use Test::More;
-	plan tests => 285;
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 285);
+	
 	use_ok('Bio::SimpleAlign');
 	use_ok('Bio::AlignIO');
 	use_ok('Bio::Root::IO');
@@ -34,6 +32,8 @@ END {
        Bio::Root::IO->catfile("t","data","testout2.aln")
 	  );
 }
+
+my $DEBUG = test_debug();
 
 my ($str,$aln,$strout,$status);
 
@@ -634,7 +634,9 @@ is $status, 1,"fasta output test";
 # default perl with OS X 10.2
 # fink perl 5.6.0 does not seem to have the problem
 # can't figure out what it is so just skip for now
-if( $^O ne 'darwin' || $] > 5.006 ) {
+SKIP: {
+	skip("skipping due to bug in perl 5.6.0 that comes with OS X 10.2", 10) unless ($^O ne 'darwin' || $] > 5.006);
+	
 	$str = Bio::AlignIO->new(
 			  -file   => Bio::Root::IO->catfile("t", "data", "testaln.po"),
 			  -format => 'po',
@@ -643,8 +645,8 @@ if( $^O ne 'darwin' || $] > 5.006 ) {
 	$aln = $str->next_aln();
 	isa_ok($aln,'Bio::Align::AlignI');
 	is $aln->no_sequences, 6;
-
-# output is? i.e. does conversion from clustalw to po give the same alignment?
+	
+	# output is? i.e. does conversion from clustalw to po give the same alignment?
 	$str = Bio::AlignIO->new(
 		  '-file'   => Bio::Root::IO->catfile("t", "data", "testaln.aln"),
 		  '-format' => 'clustalw');
@@ -656,7 +658,7 @@ if( $^O ne 'darwin' || $] > 5.006 ) {
 		 '-format' => 'po');
 	$status = $strout->write_aln($aln);
 	is $status, 1, "po output test";
-
+	
 	$str = Bio::AlignIO->new(
 		 '-file'   => Bio::Root::IO->catfile("t", "data", "testaln.po"),
 		 '-format' => 'po');
@@ -665,10 +667,6 @@ if( $^O ne 'darwin' || $] > 5.006 ) {
 	isa_ok($aln2,'Bio::Align::AlignI');
 	is $aln2->no_sequences, $aln->no_sequences;
 	is $aln2->length, $aln->length;
-} else {
-	for ( 1..14 ) {
-		skip(1,"skipping due to bug in perl 5.6.0 that comes with OS X 10.2");
-	}
 }
 
 

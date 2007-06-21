@@ -1,17 +1,13 @@
 # -*-Perl-*-
-## Bioperl Test Harness Script for Modules
 ## $Id$
 
 use strict;
 
 BEGIN { 
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-
-    plan tests => 100;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 100);
 	
 	use_ok('Bio::Symbol::Alphabet');
 	use_ok('Bio::Symbol::Symbol');

@@ -1,27 +1,20 @@
 # -*-Perl-*-
 # $Id$
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use vars qw($error $NUMTESTS $out_file);
+
+our $out_file;
+
 BEGIN {
-	$NUMTESTS = 3;
 	use File::Spec;
 	$out_file = File::Spec->catfile(qw(t data tmp-chaosxml));
-	eval { require Test::More; };
-	if ( $@ ) {
-		use lib 't/lib';
-	}
-	use Test::More;
-	eval {
-		require Data::Stag;
-	};
-	if ( $@ ) {
-		plan skip_all => "Data::Stag::XMLWriter not installed, cannot perform chaosxml tests";
-	} else {
-		plan tests => $NUMTESTS;
-	}
+	
+	use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 3,
+			   -requires_modules => ['Data::Stag']);
+	
 	use_ok('Bio::SeqIO');
 	use_ok('Bio::Root::IO');
 }
@@ -30,7 +23,7 @@ END {
 	unlink $out_file if -e $out_file;
 }
 
-my $verbose = $ENV{'BIOPERLDEBUG'};
+my $verbose = test_debug();
 
 # currently chaosxml is write-only
 my $in = Bio::SeqIO->new(-format => 'genbank',

@@ -1,27 +1,21 @@
 # -*-Perl-*-
-## Bioperl Test Harness Script for Modules
 ## $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
-my $error = 0;
-
 use strict;
+
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 40;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 40);
+	
 	use_ok('Bio::Align::DNAStatistics');
 	use_ok('Bio::Align::ProteinStatistics');
 	use_ok('Bio::AlignIO');
 	use_ok('Bio::Root::IO');
 }
 
-my $debug = -1;
+my $debug = test_debug();
 
 my $in = Bio::AlignIO->new(-format => 'emboss',
 			  -file   => Bio::Root::IO->catfile('t', 'data',
@@ -77,7 +71,7 @@ $d = $stats->distance(-align => $aln, -method => 'jc');
 is( $d->get_entry('human','owlmonkey'), 0.17847);
 
 $d = $stats->distance(-align => $aln,
-		      -method=> 'f81');
+			  -method=> 'f81');
 is(  $d->get_entry('human','owlmonkey'), '0.17847');
 
 $d = $stats->distance(-align => $aln, -method => 'uncorrected');
@@ -90,20 +84,23 @@ $d =  $stats->distance(-align => $aln, -method => 'TajimaNei');
 is( $d->get_entry('human','owlmonkey'), 0.18489);
 
 $d =  $stats->distance(-align => $aln,
-		       -method => 'Tamura');
+			   -method => 'Tamura');
 
 is( $d->get_entry('human','owlmonkey'), 0.18333);
 #$d =  $stats->distance(-align => $aln,
 #		       -method => 'JinNei');
 #is( $d->get_entry('human','owlmonkey'), 0.2079);
 
-### now test Nei_gojobori methods ##
+### now test Nei_gojobori methods, hiding the expected warnings so we can
+# avoid printing them ###
+$stats->verbose(-1);
+my ($alnobj, $result);
 $in = Bio::AlignIO->new(-format => 'fasta',
 			-file   => Bio::Root::IO->catfile('t','data',
 							  'nei_gojobori_test.aln'));
-my $alnobj = $in->next_aln();
+$alnobj = $in->next_aln();
 isa_ok($alnobj,'Bio::Align::AlignI');
-my $result = $stats->calc_KaKs_pair($alnobj, 'seq1', 'seq2');
+$result = $stats->calc_KaKs_pair($alnobj, 'seq1', 'seq2');
 is (sprintf ("%.1f", $result->[0]{'S'}), 40.5);
 is (sprintf ("%.1f", $result->[0]{'z_score'}), '4.5');
 $result = $stats->calc_all_KaKs_pairs($alnobj);
@@ -111,7 +108,7 @@ is (int( $result->[1]{'S'}), 41);
 is (int( $result->[1]{'z_score'}), 4);
 $result = $stats->calc_average_KaKs($alnobj, 100);
 is (sprintf ("%.4f", $result->{'D_n'}), 0.1628);
-
+$stats->verbose($debug);
 
 # now test Protein Distances
 my $pstats = Bio::Align::ProteinStatistics->new();

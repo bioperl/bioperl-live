@@ -1,34 +1,20 @@
 # -*-Perl-*-
 # $Id$
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use vars qw($error $NUMTESTS);
+
 BEGIN {
-	$NUMTESTS = 5;
-	$error = 0;
-	eval { require Test::More; };
-	if ( $@ ) {
-		use lib 't/lib';
-	}
-	use Test::More;
-	# SeqIO modules abi.pm, ctf.pm, exp.pm, pln.pm, ztr.pm
-	# all require Bio::SeqIO::staden::read, part of bioperl-ext
-	eval {
-		require Bio::SeqIO::staden::read;
-	};
-	if ( $@ ) {
-		plan skip_all => "Bio::SeqIO::staden::read of bioperl-ext is not installed or is installed incorrectly - skipping ctf.t tests";
-	} else {
-		plan tests => $NUMTESTS;
-	}
+	use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 4,
+			   -requires_modules => ['Bio::SeqIO::staden::read']);
+    
 	use_ok('Bio::SeqIO::ctf');
 	use_ok('Bio::Root::IO');
 }
 
-my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
-ok(1);
+my $verbose = test_debug();
 
 my $io = Bio::SeqIO->new(-format => 'ctf',
 			 -verbose => $verbose,

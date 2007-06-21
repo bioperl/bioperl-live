@@ -1,20 +1,14 @@
 #-*-Perl-*-
-## Bioperl Test Harness Script for Modules
 ## $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
+
 BEGIN { 
-    eval { require Test::More; };
-    if( $@ ) { 
-	use lib 't/lib';
-    }
-    use Test::More;
-
-    plan tests => 177;
-
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 176);
+	
 	use_ok('Bio::Location::Simple');
 	use_ok('Bio::Coordinate::Pair');
 	use_ok('Bio::Coordinate::Result');
@@ -23,9 +17,6 @@ BEGIN {
 	use_ok('Bio::Coordinate::Chain');
 	use_ok('Bio::Coordinate::Collection');
 }
-
-use vars qw($DEBUG);
-ok(1);
 
 my ($c, $value);
 

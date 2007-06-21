@@ -1,38 +1,24 @@
 #-*-Perl-*-
-## Bioperl Test Harness Script for Modules
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
+# $Id$
 use strict;
-use lib '.','./blib/lib';
-use vars qw($DEBUG $NUMTESTS $exit);
-
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {     
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-	$NUMTESTS = 14;
-    eval {
-		require Bio::DB::Fasta;
-    };
-    if ( $@ ) {
-		plan skip_all =>"A dependency for Bio::DB::Fasta is not installed - skipping tests. $@";
-    } else {
-		plan tests => $NUMTESTS;
-	}
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 14,
+			   -requires_modules => [qw(Bio::DB::Fasta)]);
+	
 	use_ok('Bio::Root::IO');
+	use_ok('File::Copy');
 }
+
+my $DEBUG = test_debug();
 
 # this obfuscation is to deal with lockfiles by GDBM_File which can
 # only be created on local filesystems apparently so will cause test
 # to block and then fail when the testdir is on an NFS mounted system
 
-use_ok('File::Copy');
 my $io = Bio::Root::IO->new(-verbose => $DEBUG);
 my $tempdir = $io->tempdir('CLEANUP' => 1);
 my $test_dbdir = $io->catfile($tempdir, 'dbfa');
@@ -68,5 +54,3 @@ ok($dna2 = $h{'AW057146:10,1'});
 my $revcom = reverse $dna1;
 $revcom =~ tr/gatcGATC/ctagCTAG/;
 is($dna2, $revcom);
-
-

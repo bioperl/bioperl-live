@@ -1,27 +1,19 @@
 #-*-Perl-*-
-## Bioperl Test Harness Script for Modules
 ## $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
-use lib './';
-BEGIN { 
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
 
-    plan tests => 52;
+BEGIN { 
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 51);
+    
 	use_ok('Bio::Tools::CodonTable');
 }
-use vars qw($DEBUG);
-ok(1);
 
 # create a table object by giving an ID
-$DEBUG = 0;
+my $DEBUG = test_debug();
 my $myCodonTable = Bio::Tools::CodonTable -> new ( -id => 16);
 ok defined $myCodonTable;
 isa_ok $myCodonTable, 'Bio::Tools::CodonTable';

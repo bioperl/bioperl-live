@@ -1,25 +1,17 @@
 # -*-Perl-*-
-## Bioperl Test Harness Script for Modules
 ## $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
-BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
 
-    plan tests => 37;
+BEGIN {
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 37);
+	
 	use_ok('Bio::Variation::DNAMutation');
 	use_ok('Bio::Variation::Allele');
 }
-
-
-## End of black magic.
 
 my($obj,$a1,$a2,$obj2);
 $obj = Bio::Variation::DNAMutation -> new;
@@ -50,7 +42,7 @@ $obj->score(2);
 is $obj->score, 2;
 
 if( $obj->can('dna_mut') ) {
-#test gff string
+	#test gff string
     $obj->dna_mut('dna_mut'); 
     is( $obj->dna_mut,'dna_mut');
 }

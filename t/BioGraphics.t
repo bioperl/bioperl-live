@@ -1,13 +1,7 @@
 # This is -*-Perl-*- code
-## Bioperl Test Harness Script for Modules
-##
 # $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
-use vars qw($NUMTESTS $DEBUG);
 
 use File::Spec;
 use constant IMAGES => File::Spec->catfile(qw(t data biographics));
@@ -15,29 +9,15 @@ use constant FILES => File::Spec->catfile(qw(t data biographics));
 use constant IMAGE_TESTS => 1;
 
 BEGIN { 
-  eval { require Test::More; };
-  if( $@ ) {
-    use lib 't/lib';
-  }
-  use Test::More;
-
-  $NUMTESTS = 35 + (IMAGE_TESTS ? 3 : 0);
-  eval {
-    require GD;
-    require Text::Shellwords;
-  };
-  if ($@) {
-    plan skip_all => "GD or Text::Shellwords modules are not installed. ".
-      "This means that Bio::Graphics module is unusable. ".
-        "Skipping tests.";
-  }
-  plan tests => $NUMTESTS;
-  my $verbose = -1;
-
-  require_ok('Bio::Graphics::FeatureFile');
-  require_ok('Bio::Graphics');
+  use lib 't/lib';
+  use BioperlTest;
+  
+  test_begin(-tests => 35 + (IMAGE_TESTS ? 3 : 0),
+             -requires_modules => [qw(GD Text::Shellwords)]);
+  
+  use_ok('Bio::Graphics::FeatureFile');
+  use_ok('Bio::Graphics');
 }
-
 
 my @images = IMAGE_TESTS ? qw(t1 t2 t3) : ();
 

@@ -1,29 +1,18 @@
 # -*-Perl-*-
-## Bioperl Test Harness Script for Modules
 ## $Id$
 # Created: Wed Dec 13 15:52:33 GMT 2000
 # By Joseph A.L. Insana, <insana@ebi.ac.uk>
-#
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
 
 BEGIN { 
-    eval { require Test::More; };
-    if( $@ ) { 
-	use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 45;
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 45);
+    
 	use_ok('Bio::LiveSeq::Chain');
 }
-
-## End of black magic.
-##
-## Insert additional test code below but remember to change
-## the print "1..x\n" in the BEGIN block to reflect the
-## total number of tests that will be run. 
 
 my $chain = Bio::LiveSeq::Chain::string2chain("abcdefghijklmnopqrstuvwxyz");
 ok defined $chain;

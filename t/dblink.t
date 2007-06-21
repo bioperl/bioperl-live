@@ -5,14 +5,11 @@
 use strict;
 
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-            use lib 't/lib';
-    }
-    use Test::More;
-    use vars qw($NTESTS);
-    $NTESTS = 134;
-    plan tests => $NTESTS; 
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 134);
+	
     use_ok('Bio::Annotation::DBLink');
     use_ok('Bio::SeqIO::genbank');
     use_ok('Bio::SeqIO::swiss');
@@ -43,6 +40,3 @@ for my $in ( @genbank_files ) {
     }
 }
 #------------------------------------
-
-1;
-

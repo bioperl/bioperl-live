@@ -1,21 +1,14 @@
 # -*-Perl-*-
-## Bioperl Test Harness Script for Modules
 ## $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
-use vars qw($HAVEGRAPHDIRECTED $DEBUG $NUMTESTS);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN { 
-    eval { require Test::More; };
-    if( $@ ) { 
-		use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => ($NUMTESTS = 108);
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 109);
+	
 	use_ok('Bio::Annotation::Collection');
 	use_ok('Bio::Annotation::DBLink');
 	use_ok('Bio::Annotation::Comment');
@@ -30,6 +23,8 @@ BEGIN {
 	use_ok('Bio::SimpleAlign');
 	use_ok('Bio::Cluster::UniGene');
 }
+
+my $DEBUG = test_debug();
 
 #simple value
 
@@ -166,10 +161,9 @@ is (scalar($nested_ac->get_Annotations()), 7);
 is (scalar($nested_ac->get_all_Annotations()), 7);
 
 SKIP: {
-	eval {require Graph::Directed; 
-	  require Bio::Annotation::OntologyTerm; };
-	skip('Graph::Directed not installed cannot test'.
-		 ' Bio::Annotation::OntologyTerm module',6) if $@;
+	test_skip(-tests => 7, -requires_modules => [qw(Graph::Directed Bio::Annotation::OntologyTerm)]);
+	use_ok('Bio::Annotation::OntologyTerm');
+	
 	# OntologyTerm annotation
     my $termann = Bio::Annotation::OntologyTerm->new(-label => 'test case',
 						     -identifier => 'Ann:00001',

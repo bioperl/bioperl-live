@@ -1,37 +1,22 @@
 # -*-Perl-*-
-# Bioperl Test Harness Script for Modules
 # $Id$
-#
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use vars qw($error $NUMTESTS);
+
 BEGIN {
-	$NUMTESTS = 16;
-	$error = 0;
-    eval { require Test::More; };
-    if ( $@ ) {
-		use lib 't/lib';
-    }
-    use Test::More;
+	use lib 't/lib';
+	use BioperlTest;
 	
-	eval {
-		require XML::SAX;
-		require XML::SAX::Writer;
-		require XML::SAX::Base;
-	};
-	if ($@) {
-		plan skip_all => 'XML::SAX::Base or XML::SAX or XML::SAX::Writer not found - skipping bsml_sax tests';
-	}
-	else {
-		plan tests => $NUMTESTS;
-	}
+	test_begin(-tests => 16,
+			   -requires_modules => [qw(XML::SAX
+									    XML::SAX::Writer
+										XML::SAX::Base)]);
+    
 	use_ok('Bio::SeqIO');
 	use_ok('Bio::Root::IO');
 }
 
-my $verbose = $ENV{'BIOPERLDEBUG'};
+my $verbose = test_debug();
 
 my $str = Bio::SeqIO->new(-format => 'bsml_sax',
 			  -verbose => $verbose,

@@ -1,19 +1,14 @@
 # -*-Perl-*-
-## Bioperl Test Harness Script for Modules
 ## $Id$
+
 use strict;
-use constant NUMTESTS => 14;
-use vars qw($DEBUG);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
-	eval { require Test::More; };
-	if( $@ ) {
-		use lib 't/lib';
-	}
-	use Test::More;
-
-	plan tests => NUMTESTS;
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 14);
+	
 	use_ok('Bio::Align::Utilities', qw(:all));
 	use_ok('Bio::SimpleAlign');
 	use_ok('Bio::PrimarySeq');
@@ -22,8 +17,7 @@ BEGIN {
 	use_ok('Bio::Root::IO');
 }
 
-# hand crafting the simple input data
-use Data::Dumper;
+my $DEBUG = test_debug();
 
 my $aa_align = Bio::SimpleAlign->new();
 $aa_align->add_seq(Bio::LocatableSeq->new(-id => "n1", -seq => "MLIDVG-MLVLR"));
@@ -38,9 +32,8 @@ my $dna_aln;
 
 ok( $dna_aln = &aa_to_dna_aln($aa_align, \%dnaseqs));
 if( $DEBUG ) {
-    Bio::AlignIO->new(-format=>'clustalw')->write_aln($dna_aln);
-  }
-#print Dumper $dna_aln;
+	Bio::AlignIO->new(-format=>'clustalw')->write_aln($dna_aln);
+}
 
 is $dna_aln->length, 36;
 is $dna_aln->no_residues, 99;

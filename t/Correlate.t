@@ -1,18 +1,13 @@
 # -*-Perl-*-
-## Bioperl Test Harness Script for Modules
 ## $ Id: Exp $
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 17;
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 17);
+    
     use_ok('Bio::Phenotype::Correlate');
     use_ok('Bio::Species');
 }
@@ -48,7 +43,3 @@ is( $co->name( "A" ), "A" );
 is( $co->description( "B" ), "B" );
 is( $co->type( "C" ), "C" );
 is( $co->comment( "D" ), "D" );
-
-
-
-

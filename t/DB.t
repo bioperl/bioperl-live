@@ -1,38 +1,18 @@
 # This is -*-Perl-*- code
-## Bioperl Test Harness Script for Modules
-##
 # $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
-use vars qw($NUMTESTS $DEBUG);
 
 BEGIN {
-	$NUMTESTS = 116;
-	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+	use lib 't/lib';
+	use BioperlTest;
 	
-	eval {require Test::More;};
-	if ($@) {
-		use lib 't/lib';
-	}
-	use Test::More;
+	test_begin(-tests => 116,
+			   -requires_modules => [qw(IO::String
+									    LWP::UserAgent
+										HTTP::Request::Common)],
+			   -requires_networking => 1);
 	
-	eval {
-		require IO::String; 
-		require LWP::UserAgent;
-        require HTTP::Request::Common;
-	};
-	if ($@) {
-		plan skip_all => 'IO::String or LWP::UserAgent or HTTP::Request not installed. This means the Bio::DB::* modules are not usable. Skipping tests';
-	}
-    elsif (!$DEBUG) {
-		plan skip_all => 'Must set BIOPERLDEBUG=1 for network tests';
-	}
-	else {
-		plan tests => $NUMTESTS;
-	}
 	use_ok('Bio::DB::GenBank');
 	use_ok('Bio::DB::GenPept');
 	use_ok('Bio::DB::SwissProt');
@@ -376,8 +356,7 @@ SKIP: {
 # Bio::DB::EntrezGene
 #
 SKIP: {
-    eval {require Bio::ASN1::EntrezGene;};
-    skip "Bio::ASN1::EntrezGene not found, Bio::DB::EntrezGene module is not usable. Skipping those tests", 8 if $@;
+	test_skip(-tests => 8, -requires_modules => ['Bio::ASN1::EntrezGene']);
     use_ok('Bio::DB::EntrezGene');
     ok $gb = Bio::DB::EntrezGene->new(-retrievaltype => 'tempfile', -delay => 0);
     eval {$seqio = $gb->get_Stream_by_id([2,3064]);};
