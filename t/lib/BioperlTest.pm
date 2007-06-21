@@ -144,6 +144,9 @@ our $GLOBAL_FRAMEWORK = 'Test::More';
            -requires_networking => 1|0 (default 0, if true all tests will be
                                         skipped if network tests haven't been
                                         enabled in Build.PL)
+           -excludes_os         => str (default none, if OS suppied, all tests
+                                        will skip if running on that OS (eg.
+                                        'mswin'))
            -framework           => str (default 'Test::More', the Test module
                                         to load. NB: experimental, avoid using)
 
@@ -192,6 +195,9 @@ sub test_begin {
            -requires_modules    => []  (array ref of module names that are
                                         required; if any don't load, the desired
                                         number of tests will be skipped)
+           -excludes_os         => str (default none, if OS suppied, desired num
+                                        of tests will skip if running on that OS
+                                        (eg. 'mswin'))
            -requires_networking => 1   (if true the desired number of tests will
                                         be skipped if network tests haven't been
                                         enabled in Build.PL)
@@ -247,20 +253,39 @@ sub test_debug {
 sub _skip {
     my %args = @_;
     my $tests = $args{'-tests'} || die "-tests must be supplied and positive\n";
+    delete $args{'-tests'};
     my @req_mods = @{$args{'-requires_modules'} || []};
+    delete $args{'-requires_modules'};
     my $req_net = $args{'-requires_networking'};
+    delete $args{'-requires_networking'};
+    my $os = $args{'-excludes_os'};
+    delete $args{'-excludes_os'};
     my $framework = $args{'-framework'} || $GLOBAL_FRAMEWORK;
+    delete $args{'-framework'};
+    
+    # catch user mistakes
+    while (my ($key, $val) = each %args) {
+        die "unknown argument '$key' supplied, did you mistake 'required...' for 'requires...'?\n";
+    }
     
     my $skip = '';
+    
+    if ($os) {
+        if ($^O =~ /$os/i) {
+            $skip = 'Not compatible with your Operating System';
+        }
+    }
+    
     my $requires = '';
     foreach my $mod (@req_mods) {
         $requires .= "require $mod; ";
     }
     eval $requires;
-    if ($@) {
+    if (!$skip && $@) {
         $skip = (@req_mods == 1 ? 'The optional module ' : 'One or more of the optional modules ').join(', ', @req_mods).' not installed';
     }
-    elsif ($req_net && ! test_network()) {
+    
+    if (!$skip && $req_net && ! test_network()) {
         $skip = 'Network tests have not been requested';
     }
     
