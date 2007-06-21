@@ -37,7 +37,7 @@ use base qw(Bio::Root::Root TestInterface);
 
 sub data {
     my ($self, $data) = @_;
-    print "Setting test data ($data)\n" if $data;
+    print "Setting test data ($data)\n" if $data && $self->verbose;
     $self->{'data'} = $data if $data;
  
    return $self->{'data'} 
@@ -47,8 +47,8 @@ sub bar {
 
     my $self = shift;
 
-    print "\nExecuting method bar() in TestObject\n";
-    print "Throwing a Bio::TestException\n";
+    print "\nExecuting method bar() in TestObject\n" if $self->verbose;
+    print "Throwing a Bio::TestException\n" if $self->verbose;
 
     my $message = "A Test error";
 
@@ -60,7 +60,7 @@ sub bar {
     $self->throw( -class => 'Bio::TestException',
                   -text  => $message );
 
-    print "Code within bar() below the throw that shouldn't be executed.\n";
+    print "Code within bar() below the throw that shouldn't be executed.\n" if $self->verbose;
 
 }
 
