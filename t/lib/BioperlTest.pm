@@ -104,8 +104,11 @@ our @EXPORT = qw(ok use_ok require_ok
                  BAIL_OUT
                  
                  test_begin
+                 test_skip
                  test_network
                  test_debug);
+
+our $GLOBAL_FRAMEWORK = 'Test::More';
 
 
 =head2 test_begin
@@ -129,24 +132,8 @@ our @EXPORT = qw(ok use_ok require_ok
 =cut
 
 sub test_begin {
-    my %args = @_;
-    my $tests = $args{'-tests'} || die "-tests must be supplied and positive\n";
-    my $framework = $args{'-framework'} || 'Test::More';
-    my @req_mods = @{$args{'-requires_modules'} || []};
-    my $req_net = $args{'-requires_networking'};
-    
-    my $skip_all = '';
-    my $requires = '';
-    foreach my $mod (@req_mods) {
-        $requires .= "require $mod; ";
-    }
-    eval $requires;
-    if ($@) {
-        $skip_all = "One or more of the optional modules ".join(', ', @req_mods)." not installed";
-    }
-    elsif ($req_net && ! test_network()) {
-        $skip_all = 'Network tests have not been requested';
-    }
+    my ($skip_all, $tests, $framework) = _skip(@_);
+    $GLOBAL_FRAMEWORK = $framework;
     
     if ($framework eq 'Test::More') {
         # ideally we'd delay loading Test::More until this point, but see BEGIN
@@ -167,6 +154,44 @@ sub test_begin {
     }
     
     return 0;
+}
+
+=head2 test_skip
+
+ Title   : test_skip
+ Usage   : SKIP: {
+                   test_skip(-tests => 10,
+                             -requires_modules => ['Optional::Module']);
+
+                   # 10 tests that need Optional::Module
+           }
+ Function: Skip a subset of tests for one of two common reasons: missing one or
+           more optional modules, or network tests haven't been enabled.
+ Returns : n/a
+ Args    : -tests               => int (REQUIRED, the number of tests that are
+                                        to be skipped in the event one of the
+                                        following options isn't satisfied)
+           -requires_modules    => []  (array ref of module names that are
+                                        required; if any don't load, the desired
+                                        number of tests will be skipped)
+           -requires_networking => 1   (if true the desired number of tests will
+                                        be skipped if network tests haven't been
+                                        enabled in Build.PL)
+
+=cut
+
+sub test_skip {
+    my ($skip, $tests, $framework) = _skip(@_);
+    
+    if ($framework eq 'Test::More') {
+        if ($skip) {
+            eval "skip('$skip', $tests);";
+        }
+    }
+    # go ahead and add support for other frameworks here
+    else {
+        die "Only Test::More is supported at the current time\n";
+    }
 }
 
 =head2 test_network
@@ -197,6 +222,31 @@ sub test_network {
 
 sub test_debug {
     return $ENV{'BIOPERLDEBUG'} || 0;
+}
+
+
+# decide if should skip and generate skip message
+sub _skip {
+    my %args = @_;
+    my $tests = $args{'-tests'} || die "-tests must be supplied and positive\n";
+    my @req_mods = @{$args{'-requires_modules'} || []};
+    my $req_net = $args{'-requires_networking'};
+    my $framework = $args{'-framework'} || $GLOBAL_FRAMEWORK;
+    
+    my $skip = '';
+    my $requires = '';
+    foreach my $mod (@req_mods) {
+        $requires .= "require $mod; ";
+    }
+    eval $requires;
+    if ($@) {
+        $skip = (@req_mods == 1 ? 'The optional module ' : 'One or more of the optional modules ').join(', ', @req_mods).' not installed';
+    }
+    elsif ($req_net && ! test_network()) {
+        $skip = 'Network tests have not been requested';
+    }
+    
+    return ($skip, $tests, $framework);
 }
 
 1;
