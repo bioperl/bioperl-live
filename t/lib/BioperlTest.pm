@@ -91,6 +91,8 @@ package BioperlTest;
 use strict;
 use warnings;
 
+use File::Temp ();
+use File::Spec;
 use Exporter qw(import);
 
 BEGIN {
@@ -124,10 +126,13 @@ our @EXPORT = qw(ok use_ok require_ok
                  
                  test_begin
                  test_skip
+                 test_output_file
+                 test_input_file
                  test_network
                  test_debug);
 
 our $GLOBAL_FRAMEWORK = 'Test::More';
+our @TEMP_FILES;
 
 
 =head2 test_begin
@@ -219,6 +224,44 @@ sub test_skip {
     else {
         die "Only Test::More is supported at the current time\n";
     }
+}
+
+=head2 test_output_file
+
+ Title   : test_output_file
+ Usage   : my $output_file = test_output_file();
+ Function: Get the full path of a file suitable for writing to.
+           When your test script ends, the file will be automatically deleted.
+ Returns : string (file path)
+ Args    : none
+
+=cut
+
+sub test_output_file {
+    my %args = @_;
+    
+    my $tmp = File::Temp->new();
+    push(@TEMP_FILES, $tmp);
+    
+    return $tmp->filename;
+}
+
+=head2 test_input_file
+
+ Title   : test_input_file
+ Usage   : my $input_file = test_input_file();
+ Function: Get the path of a desired input file stored in the standard location
+           (currently t/data), but correct for all platforms.
+ Returns : string (file path)
+ Args    : list of strings (ie. at least the input filename, preceded by the
+           names of any subdirectories within t/data)
+           eg. for the file t/data/in.file pass 'in.file', for the file
+           t/data/subdir/in.file, pass ('subdir', 'in.file')
+
+=cut
+
+sub test_input_file {
+    return File::Spec->catfile('t', 'data', @_);
 }
 
 =head2 test_network
