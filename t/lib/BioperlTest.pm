@@ -20,7 +20,7 @@ BioperlTest - A common base for all Bioperl test scripts.
   use BioperlTest;
   
   test_begin(-tests => 20,
-             -requires_modules => [qw(IO::String)],
+             -requires_modules => [qw(IO::String XML::Parser)],
              -requires_networking => 1);
 
   my $do_network_tests = test_network();
@@ -29,7 +29,7 @@ BioperlTest - A common base for all Bioperl test scripts.
   # carry out tests in Test::More syntax
   
   SKIP: {
-    test_skip(-tests => 10, -requires_modules => ['Optional::Module']);
+    test_skip(-tests => 10, -requires_module => 'Optional::Module');
     use_ok('Optional::Module');
 
     # 9 other optional tests that need Optional::Module
@@ -142,6 +142,7 @@ our $GLOBAL_FRAMEWORK = 'Test::More';
            -requires_modules    => []  (array ref of module names that are
                                         required; if any don't load, all tests
                                         will be skipped)
+           -requires_module     => str (as above, but for just one module)
            -requires_networking => 1|0 (default 0, if true all tests will be
                                         skipped if network tests haven't been
                                         enabled in Build.PL)
@@ -196,6 +197,7 @@ sub test_begin {
            -requires_modules    => []  (array ref of module names that are
                                         required; if any don't load, the desired
                                         number of tests will be skipped)
+           -requires_module     => str (as above, but for just one module)
            -excludes_os         => str (default none, if OS suppied, desired num
                                         of tests will skip if running on that OS
                                         (eg. 'mswin'))
@@ -253,14 +255,30 @@ sub test_debug {
 # decide if should skip and generate skip message
 sub _skip {
     my %args = @_;
+    
     my $tests = $args{'-tests'} || die "-tests must be supplied and positive\n";
     delete $args{'-tests'};
-    my @req_mods = @{$args{'-requires_modules'} || []};
+    
+    my $req_mods = $args{'-requires_modules'};
     delete $args{'-requires_modules'};
+    my @req_mods;
+    if ($req_mods) {
+        ref($req_mods) eq 'ARRAY' || die "-requires_modules takes an array ref\n";
+        @req_mods = @{$req_mods};
+    }
+    my $req_mod = $args{'-requires_module'};
+    delete $args{'-requires_module'};
+    if ($req_mod) {
+        ref($req_mod) && die "-requires_module takes a string\n";
+        push(@req_mods, $req_mod);
+    }
+    
     my $req_net = $args{'-requires_networking'};
     delete $args{'-requires_networking'};
+    
     my $os = $args{'-excludes_os'};
     delete $args{'-excludes_os'};
+    
     my $framework = $args{'-framework'} || $GLOBAL_FRAMEWORK;
     delete $args{'-framework'};
     
