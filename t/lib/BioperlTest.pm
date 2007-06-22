@@ -42,6 +42,13 @@ BioperlTest - A common base for all Bioperl test scripts.
     # context of a script that doesn't use -requires_networking in the call to
     # &test_begin)
   }
+  
+  # in unix terms, we want to test with a file t/data/input_file.txt
+  my $input_file = test_input_file('input_file.txt');
+  
+  # we want the name of a file we can write to, that will be automatically
+  # deleted when the test script finishes
+  my $output_file = test_output_file();
 
 =head1 DESCRIPTION
 
@@ -238,7 +245,7 @@ sub test_skip {
 =cut
 
 sub test_output_file {
-    my %args = @_;
+    die "test_output_file takes no args\n" if @_;
     
     my $tmp = File::Temp->new();
     push(@TEMP_FILES, $tmp);
