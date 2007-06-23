@@ -201,7 +201,7 @@ sub next_tree{
 		    if ($chars eq '&&NHX') {
 			$chars = ''; # get rid of &&NHX:
 		    } else {
-			$self->throw("Unrecognized, non \&\&NHX string: >>$chars<<");
+			$self->throw("Unrecognized, non \&\&NHX string: >>$chars<<; lastevent is $lastevent");
 		    }
 		}
 	    } elsif ($lastevent ne ']') {
@@ -222,15 +222,20 @@ sub next_tree{
 		$chars .= $ch;
 	    }
 	} elsif ( $ch eq ']' ) {
-	    if ($self->_eventHandler->within_element('nhx_tag') && 
-		($lastevent eq '=' || $lastevent eq '[') ) {
-		if( $self->_eventHandler->within_element('tag_name') ) {
+	    if ($self->_eventHandler->within_element('nhx_tag') ) {
+		if( $lastevent eq '=' ) {
 		    $self->_eventHandler->start_element( { Name => 'tag_value' } );
 		    $self->_eventHandler->characters($chars);
-		    $self->_eventHandler->end_element( { Name => 'tag_value' } );
+		    $self->_eventHandler->end_element( { Name => 'tag_value' } );		    
+		    $chars = '';
+		    $self->_eventHandler->end_element( { Name => 'nhx_tag' } );
+		} else {
+		    if ($chars ne '&&NHX') {
+			$self->throw("Unrecognized, non \&\&NHX string: >>$chars<<; lastevent is $lastevent");
+		    }
+		    $chars = '';
+		    $self->_eventHandler->end_element( { Name => 'nhx_tag' } );
 		}
-		$chars = '';
-		$self->_eventHandler->end_element( { Name => 'nhx_tag' } );
 	    } else {
 		$chars .= $ch;
 		next;
