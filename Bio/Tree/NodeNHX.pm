@@ -164,7 +164,7 @@ sub nhx_tag {
 	    $self->bootstrap($tags->{'B'});
 	}
     } elsif (defined $tags and ! ref ($tags)) {
-	print STDERR "here with $tags\n";
+	$self->debug( "here with $tags\n");
         # bootstrap by default
 	$self->bootstrap($tags);
     }
