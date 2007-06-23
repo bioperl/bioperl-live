@@ -1,0 +1,284 @@
+# $Id$
+#
+# BioPerl module for Bio::Tools::EUtilities::Info
+#
+# Cared for by Chris Fields
+#
+# Copyright Chris Fields
+#
+# You may distribute this module under the same terms as perl itself
+#
+# POD documentation - main docs before the code
+# 
+# Part of the EUtilities BioPerl package
+
+=head1 NAME
+
+Bio::Tools::EUtilities::Info::FieldInfo - class for storing einfo field data 
+
+=head1 SYNOPSIS
+
+    #### should not create instance directly; Bio::Tools::EUtilities does this ####
+    
+    my $info = Bio::Tools::EUtilities->new(-eutil => 'einfo',
+                                           -file => 'einfo.xml');
+    # can also use '-response' (for HTTP::Response objects) or '-fh' (for filehandles)
+
+    # print available databases (if data is present)
+    print join(', ',$info->get_available_databases),"\n";
+    
+    # get database info
+    my $db = $info->get_database; # in case you forgot...
+    my $desc = $info->get_description;
+    my $nm = $info->get_menu_name;
+    my $ct = $info->get_record_count;
+    my $dt = $info->get_last_update;
+    # EUtilDataI interface methods
+    my $eutil = $info->eutil;
+    my $type = $info->type;
+    
+    # iterate through Field and Link objects
+    while (my $field = $info->next_Field) {
+        print "Field code: ",$field->get_field_code,"\n";
+        print "Field name: ",$field->get_field_name,"\n";
+        print "Field desc: ",$field->get_field_description,"\n";
+        print "DB  : ",$field->get_database,"\n";
+        print "Term ct   : ",$field->get_term_count,"\n";
+        for my $att (qw(is_date is_singletoken is_hierarchy is_hidden is_numerical)) {
+            print "\tField $att\n" if $field->$att;
+        }
+    }
+    
+    my @fields = $info->get_Fields; # grab them all (useful for grep)
+    
+    while (my $link = $info->next_Link) {
+        print "Link name: ",$link->get_link_name,"\n";
+        print "Link desc: ",$link->get_link_description,"\n";
+        print "DBFrom: ",$link->get_dbfrom,"\n"; # same as get_database()
+        print "DBTo: ",$link->get_dbto,"\n"; # database linked to
+    }
+
+    my @links = $info->get_Links; # grab them all (useful for grep)
+
+    $info->rewind(); # rewinds all iterators
+    $info->rewind('links'); # rewinds Link iterator
+    $info->rewind('fields'); # rewinds Field iterator
+
+=head1 DESCRIPTION
+
+This class handles data output (XML) from einfo.
+
+einfo is capable of returning two types of information: 1) a list of all
+available databases (when called w/o parameters) and 2) information about a
+specific database. The latter information includes the database description,
+record count, and date/time stamp for the last update, among other things. It
+also includes a list of fields (indices by which record data is stored which can
+be used in queries) and links (crossrefs between related records in other
+databases at NCBI). Data from the latter two are stored in two small subclasses
+(Field and Link) which can be iterated through or retrieved all at once, as
+demonstrated above. NOTE: Methods described for the Link and Field subclasses
+are unique to those classes (as they retrieve data unique to those data types). 
+
+Further documentation for Link and Field subclass methods is included below.
+
+For more information on einfo see:
+
+   http://eutils.ncbi.nlm.nih.gov/entrez/query/static/einfo_help.html
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other Bioperl
+modules. Send your comments and suggestions preferably to one of the Bioperl
+mailing lists. Your participation is much appreciated.
+
+  bioperl-l@lists.open-bio.org               - General discussion
+  http://www.bioperl.org/wiki/Mailing_lists  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track the bugs
+and their resolution. Bug reports can be submitted via the web.
+
+  http://bugzilla.open-bio.org/
+
+=head1 AUTHOR 
+
+Email cjfields at uiuc dot edu
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object methods. Internal
+methods are usually preceded with a _
+
+=cut
+
+# Let the code begin...
+
+package Bio::Tools::EUtilities::Info::FieldInfo;
+use base qw(Bio::Root::Root Bio::Tools::EUtilities::EUtilDataI);
+use strict;
+use warnings;
+
+=head2 new
+
+ Title    : new
+ Note     : *** should not be called by end-users ***  
+ Usage    : my $ct = Bio::Tools::EUtilities::Info::FieldInfo;
+ Function : returns new FieldInfo instance
+ Returns  : Bio::Tools::EUtilities::Info::FieldInfo instance
+ Args     : none (all data added via _add_data, most methods are getters only)
+
+=cut
+
+sub new {
+    my ($class, @args) = @_;
+    my $self = $class->SUPER::new(@args);
+    $self->eutil('einfo');
+    $self->datatype('fieldinfo');
+    return $self;
+}
+
+=head2 term_count
+
+ Title    : term_count
+ Usage    : my $ct = $field->term_count;
+ Function : returns number of terms for field 
+ Returns  : integer
+ Args     : none
+
+=cut
+
+sub get_term_count { return shift->{'_termcount'} }
+
+=head2 get_field_name
+
+ Title    : get_field_name
+ Usage    : my $nm = $field->get_field_name;
+ Function : returns the full name of the field
+ Returns  : string
+ Args     : none
+
+=cut
+
+sub get_field_name { return shift->{'_fullname'} }
+
+=head2 get_full_name
+
+ Title    : get_full_name
+ Note     : alias of get_field_name()
+ 
+=cut
+
+*get_full_name = \&get_field_name;
+
+=head2 get_field_code
+
+ Title    : get_field_code
+ Usage    : $field->get_field_code()
+ Function : returns field code (abbreviation) used for queries
+ Returns  : string
+ Args     : none
+
+=cut
+
+sub get_field_code { return shift->{'_name'} }
+
+=head2 get_field_description
+
+ Title    : get_field_description
+ Usage    : $field->get_field_description
+ Function : returns field description
+ Returns  : string
+ Args     : none
+ Note     : alias of get_description()
+
+=cut
+
+sub get_field_description { return shift->{'_description'} } 
+
+=head2 is_date
+
+ Title    : is_date
+ Usage    : if ($field->is_date) {...}
+ Function : returns true if field contains date information
+ Returns  : Boolean
+ Args     : none
+
+=cut
+
+sub is_date {
+    my $self = shift;
+    ($self->{'_isdate'} && $self->{'_isdate'} eq 'Y') ? return 1 : return 0;
+}
+
+=head2 is_singletoken
+
+ Title    : is_singletoken
+ Usage    : if ($field->is_singletoken) {...}
+ Function : returns true if field has single value in docsums
+ Returns  : Boolean
+ Args     : none
+
+=cut
+
+sub is_singletoken {
+    my $self = shift;
+    ($self->{'_singletoken'} && $self->{'_singletoken'} eq 'Y') ? return 1 : return 0;    
+}
+
+=head2 is_hierarchy
+
+ Title    : is_hierarchy
+ Usage    : if ($field->is_hierarchy) {...}
+ Function : returns true if field contains hierarchal values
+ Returns  : Boolean
+ Args     : none
+
+=cut
+
+sub is_hierarchy {
+    my $self = shift;
+    ($self->{'hierarchy'} && $self->{'hierarchy'} eq 'Y') ? return 1 : return 0;
+}
+
+=head2 is_hidden
+
+ Title    : is_hidden
+ Usage    : if ($field->is_hidden) {...}
+ Function : returns true if field is hidden in docsums
+ Returns  : Boolean
+ Args     : none
+
+=cut
+
+sub is_hidden {
+    my $self = shift;
+    ($self->{'_ishidden'} && $self->{'_ishidden'} eq 'Y') ? return 1 : return 0;
+}
+
+=head2 is_numerical
+
+ Title    : is_numerical
+ Usage    : if ($field->is_numerical) {...}
+ Function : returns true if field contains a numerical value
+ Returns  : Boolean
+ Args     : none
+
+=cut
+
+sub is_numerical {
+    my $self = shift;
+    ($self->{'_isnumerical'} && $self->{'_isnumerical'} eq 'Y') ? return 1 : return 0;
+}
+
+# private EUtilDataI method
+
+sub _add_data {
+    my ($self, $simple) = @_;
+    map { $self->{'_'.lc $_} = $simple->{$_} unless ref $simple->{$_}} keys %$simple;
+}
+
+1;
+
