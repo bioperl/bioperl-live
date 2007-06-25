@@ -837,7 +837,7 @@ sub _sleep {
    my $last_invocation = $LAST_INVOCATION_TIME;
    if (time - $LAST_INVOCATION_TIME < $self->delay) {
       my $delay = $self->delay - (time - $LAST_INVOCATION_TIME);
-      warn "sleeping for $delay seconds\n" if $self->verbose;
+      warn "sleeping for $delay seconds\n" if $self->verbose > 0;
       sleep $delay;
    }
    $LAST_INVOCATION_TIME = time;
