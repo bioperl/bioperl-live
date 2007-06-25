@@ -142,7 +142,14 @@ sub get_dbfrom { return shift->{'_dbfrom'} }
 
 =cut
 
-sub get_link_name { return shift->{'_name'} }
+sub get_link_name {
+    my $self = shift;
+    if ($self->eutil eq 'elink') {
+        return $self->{'_linkname'}
+    } else {
+        return $self->{'_name'}
+    }
+}
 
 =head2 get_link_description
 
@@ -196,6 +203,20 @@ sub get_priority { return shift->{'_priority'} }
 =cut
 
 sub get_html_tag { return shift->{'_htmltag'} }
+
+=head2 get_url
+
+ Title    : get_url
+ Usage    : my $url = $link->get_url;
+ Function : returns URL string; note that the string isn't usable directly but
+            has the ID replaced with the tag <@UID@>
+ Returns  : string
+ Args     : none
+ Note     : only set when using elink and cmd set to 'acheck'
+ 
+=cut
+
+sub get_url { return shift->{'_url'} }
 
 # private method
 

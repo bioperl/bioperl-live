@@ -95,9 +95,8 @@ sub new {
  Function : returns array or array ref with id
  Returns  : array or array ref
  Args     : none
- Note     : the behavior of this method is to remain consistent with other 
-            implementations of get_ids().  To retrieve the single ID use
-            get_id()
+ Note     : the behavior of this method remains consistent with other
+            implementations of get_ids(). To retrieve the single ID use get_id()
 
 =cut
 
@@ -211,8 +210,8 @@ sub get_all_DocSum_Items {
 
 sub rewind {
     my ($self, $request) = @_;
-    if ($request && $request eq 'recursive') {
-        map {$_->rewind('recursive') } $self->get_Items;
+    if ($request && $request eq 'all') {
+        map {$_->rewind('all') } $self->get_Items;
     }
     delete $self->{"_items_it"};
 }

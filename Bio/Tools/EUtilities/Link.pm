@@ -68,118 +68,7 @@ use base qw(Bio::Tools::EUtilities Bio::Tools::EUtilities::EUtilDataI);
 
 use Bio::Tools::EUtilities::Link::LinkSet;
 
-=head2 get_ids
-
- Title    : get_ids
- Usage    : my @ids = $eutil->get_ids
- Function : returns list of retrieved IDs
- Returns  : array or array ref of IDs
- Args     : [optional] a single string (database name) or a callback (code ref)
-            which is passed the LinkSet.
-            
-            In most cases no arg is needed. However when multiple databases are
-            queried each search returns a LinkSet with it's own database, IDs,
-            linkname, etc., with some databases reporting back more than one
-            group of IDs (eg more than one linkset).
-
-=cut
-
-sub get_ids {
-    my ($self, $request) = @_;
-    $self->parse_data unless $self->data_parsed;
-    my @ids;
-    if ($request) {
-        if (ref $request eq 'CODE') {
-            push @ids, map {$_->get_ids }
-                grep { $request->($_) } $self->get_LinkSets;
-        } else {
-            push @ids, map {$_->get_ids }
-                grep {$_->get_dbto eq $request} $self->get_LinkSets;
-        }
-    } else {
-        $self->warn('Multiple database present, IDs will be globbed together')
-            if $self->get_dbs > 1;
-        push @ids, map {$_->get_ids } $self->get_LinkSets;
-    }
-    return wantarray ? @ids : \@ids;
-}
-
-=head2 get_dbs
-
- Title    : get_dbs
- Usage    : my @dbs = $eutil->get_dbs
- Function : returns list of databases linked to in linksets
- Returns  : array of databases
- Args     : none
-
-=cut
-
-sub get_dbs {
-    my $self = shift;
-    $self->parse_data unless $self->data_parsed;
-    unless (exists $self->{'_db'}) {
-        my %temp;
-        # make sure unique db is returned
-        # do the linksets have a db? (URLs, db checks do not)
-        
-        push @{$self->{'_db'}}, map {$_->get_dbto}
-            grep { $_->get_dbto ? !$temp{$_->get_dbto}++: 0 } $self->get_LinkSets;
-    }
-    return @{$self->{'_db'}};
-}
-
-=head2 next_LinkSet
-
- Title    : next_LinkSet
- Usage    : 
- Function : 
- Returns  : 
- Args     : 
-
-=cut
-
-sub next_LinkSet {
-    my $self = shift;
-    $self->parse_data unless $self->data_parsed;
-    unless ($self->{"_linksets_it"}) {
-        my @ls = $self->get_LinkSets;
-        $self->{"_linksets_it"} = sub {return shift @ls}
-    }
-    $self->{'_linksets_it'}->();
-}
-
-=head2 get_LinkSets
-
- Title    : get_LinkSets
- Usage    : 
- Function : 
- Returns  : 
- Args     : 
-
-=cut
-
-# add support for retrieval of data if lazy parsing is enacted
-
-sub get_LinkSets {
-    my $self = shift;
-    $self->parse_data unless $self->data_parsed;
-    return ref $self->{'_linksets'} ? @{ $self->{'_linksets'} } : return;
-}
-
-=head2 rewind
-
- Title    : rewind
- Usage    : 
- Function : 
- Returns  : 
- Args     : 
-
-=cut
-
-sub rewind {
-    my $self = shift;
-    delete $self->{'_linksets_it'}
-}
+# private EUtilDataI method
 
 {
     my %SUBCLASS = (
@@ -196,7 +85,7 @@ sub _add_data {
     if (exists $data->{LinkSet}) {
         for my $ls (@{ $data->{LinkSet} }) {
             my $subclass;
-            # caching for efficiency
+            # caching for efficiency; no need to recheck
             if (!exists $self->{'_subclass_type'}) {
                 ($subclass) = grep { exists $ls->{$_} } qw(LinkSetDb LinkSetDbHistory IdUrlList IdCheckList);
                 $subclass ||= 'NoLinks';

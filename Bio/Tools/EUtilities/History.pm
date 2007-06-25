@@ -81,7 +81,12 @@ use strict;
 use warnings;
 #use URI::Escape qw(uri_unescape); 
 
-use base qw(Bio::Tools::EUtilities Bio::Tools::EUtilities::HistoryI);
+use base qw(Bio::Tools::EUtilities);
+
+=head1 Bio::Tools::EUtilities::History relevant methods
+
+These are inherited through the Bio::Tools::EUtilities interface
+Bio::Tools::EUtilities::HistoryI
 
 =head2 history
 

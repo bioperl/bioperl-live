@@ -60,10 +60,12 @@ preceded with a _
 # Let the code begin...
 
 package Bio::Tools::EUtilities::Link::LinkSet;
+use strict;
+use warnings;
+
 use base qw(Bio::Root::Root Bio::Tools::EUtilities::HistoryI);
 use Bio::Tools::EUtilities::Link::UrlLink;
 use Bio::Tools::EUtilities::Info::LinkInfo;
-use Data::Dumper;
 
 sub new {
     my ($class,@args) = @_;
@@ -304,7 +306,7 @@ sub next_LinkInfo {
 =head2 get_LinkInfo
 
  Title    : get_LinkInfo
- Usage    : my @urls = $linkset->get_LinkInfo
+ Usage    : my @links = $linkset->get_LinkInfo
  Function : returns all LinkInfo objects
  Returns  : list of Bio::Tools::EUtilities::Link::LinkInfo
  Args     : 
@@ -312,7 +314,38 @@ sub next_LinkInfo {
 =cut
 
 sub get_LinkInfo {
-    return ref $self->{'_linkinfo'} ? @{ $self->{'_linkinfo'} } : return;
+    my $self = shift;
+    return ref $self->{'_linkinfo'} ? @{ $self->{'_linkinfo'} } : return ();
+}
+
+=head2 rewind
+
+ Title    : rewind
+ Usage    : $info->rewind() # rewinds all (default)
+            $info->rewind('links') # rewinds only links
+ Function : 'rewinds' (resets) specified interators (all if no arg)
+ Returns  : none
+ Args     : [OPTIONAL] String: 
+            'all'       - all iterators (default)
+            'linkinfo' or 'linkinfos'  - LinkInfo objects only
+            'urllinks'   - UrlLink objects only
+
+=cut
+
+{
+    my %VALID_DATA = ('linkinfo' => 'linkinfo',
+                      'linkinfos' => 'linkinfo',
+                      'urllinks' => 'urllinks');
+    
+    sub rewind {
+        my ($self, $arg) = @_;
+        $arg ||= 'all';
+        if (exists $VALID_DATA{$arg}) {
+            delete $self->{'_'.$arg.'_it'};
+        } elsif ($arg eq 'all') {
+            delete $self->{'_'.$_.'_it'} for values %VALID_DATA;
+        }
+    }
 }
 
 # private methods and handlers
@@ -372,6 +405,7 @@ sub _add_retrieved_ids {
 sub _add_objurls {
     my ($self, $data) = @_;
     for my $urldata (@{$data->{ObjUrl}}) {
+        $urldata->{dbfrom} = $data->{DbFrom} if exists $data->{DbFrom};
         my $obj = Bio::Tools::EUtilities::Link::UrlLink->new(-eutil => 'elink',
                                                              -datatype => 'urldata',
                                                              -verbose => $self->verbose
@@ -384,6 +418,7 @@ sub _add_objurls {
 sub _add_linkinfo {
     my ($self, $data) = @_;
     for my $linkinfo (@{$data->{LinkInfo}}) {
+        $linkinfo->{dbfrom} = $data->{DbFrom} if exists $data->{DbFrom};
         my $obj = Bio::Tools::EUtilities::Info::LinkInfo->new(-eutil => 'elink',
                                                              -datatype => 'linkinfo',
                                                              -verbose => $self->verbose

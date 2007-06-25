@@ -123,7 +123,8 @@ sub new {
  Returns  : array or array ref
  Args     : none
  Note     : the behavior of this method is to remain consistent with other 
-            implementations of get_ids().  To retrieve the single ID use get_item_id()
+            implementations of get_ids(). To retrieve the single DocSum ID use
+            get_id()
 
 =cut
 
@@ -270,15 +271,15 @@ sub get_content {
  Usage    : $item->rewind()
  Function : rewinds iterators
  Returns  : none
- Args     : [optional]
-           'recursive' - rewind all DocSum object layers
-                         (Items, ListItems, StructureItems)
+ Args     : [optional] No arg - only rewinds current layer
+           'all' - rewind all DocSum object layers
+                (Items, ListItems, StructureItems)
 
 =cut
 
 sub rewind {
     my ($self, $request) = @_;
-    if ($request && $request eq 'recursive') {
+    if ($request && $request eq 'all') {
         map {$_->rewind()} $self->get_ListItems;
     }
     delete $self->{"_lists_it"} if $self->{"_lists_it"};

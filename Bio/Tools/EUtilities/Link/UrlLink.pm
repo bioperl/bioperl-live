@@ -64,6 +64,18 @@ package Bio::Tools::EUtilities::Link::UrlLink;
 use base qw(Bio::Root::Root Bio::Tools::EUtilities::EUtilDataI);
 use Data::Dumper;
 
+=head2 get_dbfrom
+
+ Title    : get_dbfrom
+ Usage    : 
+ Function : 
+ Returns  : 
+ Args     : 
+
+=cut
+
+sub get_dbfrom { return shift->{'_dbfrom'}; }
+
 =head2 get_attribute
 
  Title    : get_attribute
