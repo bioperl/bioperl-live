@@ -419,6 +419,7 @@ sub compress {
     }
 
     my @checked = @util_to_use;
+    $exe ||= '';
     while (not -x $exe and scalar(@util_to_use)) {
         $exe = $self->find_exe(shift @util_to_use);
     }
@@ -535,6 +536,7 @@ sub uncompress {
         unshift @util_to_use, $exe;
     }
 
+    $exe ||= '';
     while (not -x $exe and scalar(@util_to_use)) {
         $exe = $self->find_exe(shift @util_to_use);
     }
