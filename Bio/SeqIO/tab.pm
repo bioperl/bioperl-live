@@ -146,6 +146,8 @@ sub write_seq {
        }
        $self->_print($_->display_id(), "\t",$_->seq, "\n") or return;
    }
+   
+   $self->flush if $self->_flush_on_write && defined $self->_fh;
    return 1;
 }
 
