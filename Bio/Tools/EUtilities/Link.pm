@@ -82,38 +82,43 @@ use Bio::Tools::EUtilities::Link::LinkSet;
 sub _add_data {
     my ($self, $data) = @_;
     # divide up per linkset
-    if (exists $data->{LinkSet}) {
-        for my $ls (@{ $data->{LinkSet} }) {
-            my $subclass;
-            # caching for efficiency; no need to recheck
-            if (!exists $self->{'_subclass_type'}) {
-                ($subclass) = grep { exists $ls->{$_} } qw(LinkSetDb LinkSetDbHistory IdUrlList IdCheckList);
-                $subclass ||= 'NoLinks';
-                $self->{'_subclass_type'} = $subclass; 
+    if (!exists $data->{LinkSet}) {
+        $self->warn("No linksets returned");
+        return;
+    }
+    for my $ls (@{ $data->{LinkSet} }) {
+        my $subclass;
+        # caching for efficiency; no need to recheck
+        if (!exists $self->{'_subclass_type'}) {
+            ($subclass) = grep { exists $ls->{$_} } qw(LinkSetDb LinkSetDbHistory IdUrlList IdCheckList);
+            $subclass ||= 'NoLinks';
+            $self->{'_subclass_type'} = $subclass; 
+        } else {
+            $subclass = $self->{'_subclass_type'};
+        }
+        # split these up by ID, since using correspondence() clobbers them...
+        if ($subclass eq 'IdUrlList' || $subclass eq 'IdCheckList') {
+            my $list = $subclass eq 'IdUrlList' ? 'IdUrlSet' :
+                $subclass eq 'IdCheckList' && exists $ls->{$subclass}->{IdLinkSet} ? 'IdLinkSet' :
+                'Id';
+            $ls->{$subclass} = $ls->{$subclass}->{$list};
+        }
+        # divide up linkset per link
+        for my $ls_sub (@{ $ls->{$subclass} }) {
+            for my $key (qw(WebEnv DbFrom IdList)) {
+                $ls_sub->{$key} = $ls->{$key} if exists $ls->{$key};
+            }
+            my $obj = Bio::Tools::EUtilities::Link::LinkSet->new(-eutil => 'elink',
+                                                    -datatype => $SUBCLASS{$subclass},
+                                                    -verbose => $self->verbose);
+            $obj->_add_data($ls_sub);
+            if ($self->is_lazy) {
+                return $obj
             } else {
-                $subclass = $self->{'_subclass_type'};
-            }
-            # split these up by ID, since using correspondence() clobbers them...
-            if ($subclass eq 'IdUrlList' || $subclass eq 'IdCheckList') {
-                my $list = $subclass eq 'IdUrlList' ? 'IdUrlSet' :
-                    $subclass eq 'IdCheckList' && exists $ls->{$subclass}->{IdLinkSet} ? 'IdLinkSet' :
-                    'Id';
-                $ls->{$subclass} = $ls->{$subclass}->{$list};
-            }
-            # divide up linkset per link
-            for my $ls_sub (@{ $ls->{$subclass} }) {
-                for my $key (qw(WebEnv DbFrom IdList)) {
-                    $ls_sub->{$key} = $ls->{$key} if exists $ls->{$key};
-                }
-                my $obj = Bio::Tools::EUtilities::Link::LinkSet->new(-eutil => 'elink',
-                                                        -datatype => $SUBCLASS{$subclass},
-                                                        -verbose => $self->verbose);
-                $obj->_add_data($ls_sub);
                 push @{$self->{'_linksets'}}, $obj;
             }
         }
     }
-    $self->{'_parsed'} = 1;
 }
 
 }

@@ -180,7 +180,6 @@ sub _add_data {
     } else {
         map { $self->{'_'.lc $_} = $simple->{$_} unless ref $simple->{$_}} keys %$simple;
     }
-    $self->{'_parsed'} = 1;
 }
 
 1;

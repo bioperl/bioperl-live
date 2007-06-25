@@ -134,7 +134,6 @@ Bio::Tools::EUtilities::HistoryI
 sub _add_data {
     my ($self, $simple) = @_;
     map { $self->{'_'.lc $_} = $simple->{$_} } keys %$simple;
-    $self->{'_parsed'} = 1;
 }
 
 1;

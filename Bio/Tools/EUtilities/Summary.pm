@@ -99,9 +99,12 @@ sub _add_data {
         my $ds = Bio::Tools::EUtilities::Summary::DocSum->new(-datatype => 'docsum',
                                                               -verbose => $self->verbose);
         $ds->_add_data($docsum);
-        push @{ $self->{'_docsums'} }, $ds; 
+        if ($self->is_lazy) {
+            return $ds
+        } else {
+            push @{ $self->{'_docsums'} }, $ds;
+        }
     }
-    $self->{'_parsed'} = 1;
 }
 
 1;

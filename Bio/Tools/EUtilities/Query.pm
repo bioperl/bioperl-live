@@ -124,7 +124,6 @@ sub _add_data {
         next if (ref $qdata->{$key} eq 'HASH' && !keys %{$qdata->{$key}});
         $self->{'_'.lc $key} = $qdata->{$key};
     }
-    $self->{'_parsed'} = 1;
 }
 
 }

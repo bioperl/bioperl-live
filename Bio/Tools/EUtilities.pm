@@ -145,10 +145,9 @@ package Bio::Tools::EUtilities;
 use strict;
 use warnings;
 
-use base qw(Bio::Root::Root Bio::Tools::EUtilities::HistoryI);
+use base qw(Bio::Root::IO Bio::Tools::EUtilities::HistoryI);
 
 use XML::Simple;
-use Bio::Root::IO;
 use Data::Dumper;
 
 =head2 Constructor methods
@@ -200,35 +199,24 @@ sub new {
 
 sub _initialize {
     my ($self, @args) = @_;
-    my ($response, $type, $eutil, $cache) = $self->_rearrange([qw(RESPONSE DATATYPE EUTIL CACHE_RESPONSE)], @args);
+    my ($response, $type, $eutil, $cache, $lazy) =
+    $self->_rearrange([qw(RESPONSE DATATYPE EUTIL CACHE_RESPONSE LAZY)], @args);
+    $lazy ||= 0;
     $cache ||= 0;
     $self->datatype($type);
     $self->eutil($eutil);
     $response  && $self->response($response);
     $self->cache_response($cache);
-    my $io = Bio::Root::IO->new(@args);
-    #$io->_initialize_io(@args);
-    $self->io($io);
+    
+    # lazy parsing only implemented for elink and esummary (where returned data
+    # can be quite long). Also, no point to parsing lazily when the data is
+    # already in memory in an HTTP::Response object, so turn it off and chunk
+    # the Response object after parsing.
+    
+    $lazy = 0 if ($response) || ($eutil ne 'elink' && $eutil ne 'esummary');
+    # setting parser to 'lazy' mode is permanent (can't reset later)
+    $self->{'_lazy'} = $lazy;
     $self->{'_parsed'} = 0;
-}
-
-sub _load_eutil_module {
-    my ($self, $class) = @_;
-    my $ok;
-    my $module = "Bio::Tools::EUtilities::" . $class;
-
-    eval {
-        $ok = $self->_load_module($module);
-    };
-    if ( $@ ) {
-        print STDERR <<END;
-$self: data module $module cannot be found
-Exception $@
-For more information about the EUtilities system please see the EUtilities docs. 
-END
-       ;
-    }
-    return $ok;
 }
 
 }
@@ -274,45 +262,6 @@ sub response {
     return $self->{'_response'};
 }
 
-=head2 lazy
-
- *** NOT IMPLEMENTED YET ***
- Title    : lazy
- Usage    : $parser->lazy(1)
- Function : sets flag to set lazy parsing iterator for elink/esummary data
- Returns  : value eval'ing to TRUE or FALSE
- Args     : value eval'ing to TRUE or FALSE
- Note     : must be set prior to any parsing run
- 
-=cut
-
-sub lazy {
-    my ($self, $flag) = @_;
-    if (defined $flag) {
-        $self->{'_lazy'} = ($flag) ? 1 : 0;
-    }
-    return $self->{'_lazy'};
-}
-
-=head2 io
-
- Title    : io
- Usage    : my $io = $parser->io;
- Function : Get/Set Bio::Root::IO object
- Returns  : Bio::Root::IO
- Args     : Bio::Root::IO
-
-=cut
-
-sub io {
-    my ($self, $io) = @_;
-    if ($io) {
-        $self->throw('Not a Bio::Root::IO') if !$io->isa('Bio::Root::IO');
-        $self->{'_io'} = $io;
-    }
-    return $self->{'_io'};
-}
-
 =head2 data_parsed
 
  Title    : data_parsed
@@ -321,7 +270,7 @@ sub io {
  Returns  : value eval'ing to TRUE or FALSE
  Args     : none (set within parser)
  Note     : mainly internal method (set in case user wants to check
-            whether particular data was parsed out.
+            whether parser is exhausted).
 
 =cut
 
@@ -329,7 +278,23 @@ sub data_parsed {
     return shift->{'_parsed'};
 }
 
-=head2 data_parsed
+=head2 is_lazy
+
+ Title    : is_lazy
+ Usage    : if ($parser->is_lazy) {...}
+ Function : returns TRUE if parser is set to lazy parsing mode
+            (only affects elink/esummary)
+ Returns  : Boolean
+ Args     : none
+ Note     : Permanently set in constructor.
+
+=cut
+
+sub is_lazy {
+    return shift->{'_lazy'};
+}
+
+=head2 parse_data
 
  Title    : parse_data
  Usage    : $parser->parse_data
@@ -356,7 +321,7 @@ sub parse_data {
     my $eutil = $self->eutil;
     my $xs = XML::Simple->new();
     my $response = $self->response ? $self->response :
-                   $self->io       ? $self->io->_fh  :
+                   $self->_fh      ? $self->_fh      :
         $self->throw('No response or stream specified');
     my $simple = ($eutil eq 'espell') ?
             $xs->XMLin($self->_fix_espell($response), forcearray => $EUTIL_DATA{$eutil}) :
@@ -389,7 +354,40 @@ sub parse_data {
         # don't return as some data may still be usefule
     }
     delete $self->{'_response'} unless $self->cache_response;
-    $self->_add_data($simple);    
+    $self->{'_parsed'} = 1;    
+    $self->_add_data($simple);
+}
+
+# implemented only for elink/esummary
+
+sub parse_chunk {
+    my $self = shift;
+    my $eutil = $self->eutil;
+    my $tag = $eutil eq 'elink'    ? 'LinkSet' :
+              $eutil eq 'esummary' ? 'DocSum'  :
+              $self->throw("Only eutil elink/esummary use parse_chunk()");
+    my $xs = XML::Simple->new();
+    if ($self->response) {
+        $self->throw("Lazy parsing not implemented for HTTP::Response data yet");
+        delete $self->{'_response'} if !$self->cache_response && $self->data_parsed;
+    } else { # has to be a file/filehandle
+        my $fh = $self->_fh;
+        my ($chunk, $seendoc, $line);
+        CHUNK:
+        while ($line = <$fh>) {
+            next unless $seendoc || $line =~ m{^<$tag>};
+            $seendoc = 1;
+            $chunk .= $line;
+            last if $line =~ m{^</$tag>};
+        }
+        if (!defined $line) {
+            $self->{'_parsed'} = 1;
+            return;
+        }
+        $self->_add_data(
+            $xs->XMLin($chunk, forcearray => $EUTIL_DATA{$eutil}, KeepRoot => 1)
+            );
+    }
 }
 
 }
@@ -462,9 +460,7 @@ These are defined in the HistoryI interface
 
 =cut
 
-=head1 Methods used in multiple EUtilities
-
-These will normally be implemented in the individual modules when needed.
+=head1 Methods useful for multiple eutils
 
 =head2 get_ids
 
@@ -482,8 +478,12 @@ These will normally be implemented in the individual modules when needed.
 
 sub get_ids {
     my ($self, $request) = @_;
-    $self->parse_data unless $self->data_parsed;
     my $eutil = $self->eutil;
+    if ($self->is_lazy) {
+        $self->warn('get_ids() not implemented when using lazy mode');
+        return;
+    }
+    $self->parse_data unless $self->data_parsed;
     if ($eutil eq 'esearch') {
         return wantarray && $self->{'_id'} ? @{ $self->{'_id'} } : $self->{'_id'} ;
     } elsif ($eutil eq 'elink')  {
@@ -539,7 +539,7 @@ sub get_db {
     return shift->get_database;
 }
 
-=head1 Bio::Tools::EUtilities::Query-related methods
+=head1 Query-related methods
 
 =head2 get_count
 
@@ -625,7 +625,7 @@ sub get_term {
 sub get_translation_from {
     my $self = shift;
     $self->parse_data unless $self->data_parsed;
-    return $self->{'_translation'}->{From};
+    return $self->{'_translation'}->{'From'};
 }
 
 =head2 get_translation_to
@@ -641,7 +641,7 @@ sub get_translation_from {
 sub get_translation_to {
     my $self = shift;
     $self->parse_data unless $self->data_parsed;
-    return $self->{'_translation'}->{To};
+    return $self->{'_translation'}->{'To'};
 }
 
 =head2 get_retstart
@@ -740,13 +740,9 @@ sub get_replaced_terms {
 
 sub next_GlobalQuery {
     my $self = shift;
-    unless ($self->{'_globalqueries_it'}) {
-        my $qcount = $self->get_GlobalQueries;
-        my $current = 0;
-        $self->{"_globalqueries_it"} = sub {
-            return $self->{'_globalqueries'}->[$current++]
-        }
-    }    
+    $self->parse_data unless $self->data_parsed;    
+    $self->{'_globalqueries_it'} = $self->generate_iterator('globalqueries')
+        if (!exists $self->{'_globalqueries_it'});
     $self->{'_globalqueries_it'}->();
 }
 
@@ -766,6 +762,8 @@ sub get_GlobalQueries {
     ref $self->{'_globalqueries'} ? return @{ $self->{'_globalqueries'} } : return ();
 }
 
+=head1 Summary-related methods
+
 =head2 next_DocSum
 
  Title    : next_DocSum
@@ -776,18 +774,13 @@ sub get_GlobalQueries {
 
 =cut
 
-# add an option (?) for lazy parsing via fh (which allows tempfile or piping)
-# add data to Simple object in chunks, create DocSum, return
-
-# maybe allow callback to only return interesting DocSums?
-
 sub next_DocSum {
     my $self = shift;
-    $self->parse_data unless $self->data_parsed;
-    unless ($self->{"_docsums_it"}) {
-        my @docsums = $self->get_DocSums;
-        $self->{"_docsums_it"} = sub {return shift @docsums}
+    if(!$self->data_parsed && !$self->is_lazy) {
+        $self->parse_data;
     }
+    $self->{'_docsums_it'} = $self->generate_iterator('docsums')
+        if (!exists $self->{'_docsums_it'});
     $self->{'_docsums_it'}->();
 }
 
@@ -803,12 +796,15 @@ sub next_DocSum {
 
 sub get_DocSums {
     my $self = shift;
+    if ($self->is_lazy) {
+        $self->warn('get_DocSums() not implemented when using lazy mode');
+        return ();
+    }
     $self->parse_data unless $self->data_parsed;
-    # always return a list for consistency...
     return ref $self->{'_docsums'} ? @{ $self->{'_docsums'} } : return ();
 }
 
-=head1 Bio::Tools::EUtilities::Info-related methods
+=head1 Info-related methods
 
 =head2 get_available_databases
 
@@ -890,7 +886,7 @@ sub get_menu_name {
 
 sub get_description {
     my $self = shift;
-    $self->parse_data unless $self->data_parsed;        
+    $self->parse_data unless $self->data_parsed;
     return $self->{'_description'};
 }
 
@@ -906,25 +902,11 @@ sub get_description {
 =cut
 
 sub next_FieldInfo {
-    my ($self, $cb) = @_;
-    unless ($self->{'_fieldinfo_it'}) {
-        $self->throw("Callback must be a code reference")
-            if $cb && ref $cb ne 'CODE';
-        my $fieldcount = $self->get_FieldInfo;
-        my $current = 0;
-        $self->{"_fieldinfo_it"} = sub {
-            while ($current < $fieldcount) {
-                if ($cb) {
-                    $cb->($self->{'_fieldinfo'}->[$current++]) ?
-                    return $self->{'_fieldinfo'}->[$current] :
-                    next;
-                } else {
-                    return $self->{'_fieldinfo'}->[$current++]
-                }
-            }
-        }
-    }    
-    $self->{'_fieldinfo_it'}->(); 
+    my $self = shift;
+    $self->parse_data unless $self->data_parsed;    
+    $self->{'_fieldinfo_it'} = $self->generate_iterator('fieldinfo')
+        if (!exists $self->{'_fieldinfo_it'});
+    $self->{'_fieldinfo_it'}->();
 }
 
 =head2 get_FieldInfo
@@ -940,7 +922,7 @@ sub next_FieldInfo {
 sub get_FieldInfo {
     my $self = shift;
     $self->parse_data unless $self->data_parsed;        
-    return ref $self->{'_fieldinfo'} ? @{ $self->{'_fieldinfo'} } : return 0;
+    return ref $self->{'_fieldinfo'} ? @{ $self->{'_fieldinfo'} } : return ();
 }
 
 *get_FieldInfos = \&get_FieldInfo;
@@ -951,32 +933,16 @@ sub get_FieldInfo {
  Usage    : while (my $link = $info->next_LinkInfo) {...}
  Function : iterate through LinkInfo objects
  Returns  : LinkInfo object
- Args     : [OPTIONAL] callback; checks object and returns TRUE if wanted
- Note     : uses callback() for filtering if defined for 'links'
+ Args     : none
  
 =cut
 
 sub next_LinkInfo {
     my $self = shift;
-    unless ($self->{'_linkinfo_it'}) {
-        my $cb;
-        $self->throw("Callback must be a code reference")
-            if $cb && ref $cb ne 'CODE';
-        my $linkcount = $self->get_LinkInfo;
-        my $current = 0;
-        $self->{"_linkinfo_it"} = sub {
-            while ($current < $linkcount) {
-                if ($cb) {
-                    $cb->($self->{'_linkinfo'}->[$current++]) ?
-                    return $self->{'_linkinfo'}->[$current] :
-                    next;
-                } else {
-                    return $self->{'_linkinfo'}->[$current++]
-                }
-            }
-        }
-    }    
-    $self->{'_linkinfo_it'}->();    
+    $self->parse_data unless $self->data_parsed;    
+    $self->{'_linkinfo_it'} = $self->generate_iterator('linkinfo')
+        if (!exists $self->{'_linkinfo_it'});
+    $self->{'_linkinfo_it'}->();
 }
 
 =head2 get_LinkInfo
@@ -992,7 +958,7 @@ sub next_LinkInfo {
 sub get_LinkInfo {
     my $self = shift;
     $self->parse_data unless $self->data_parsed;        
-    return ref $self->{'_linkinfo'} ? @{ $self->{'_linkinfo'} } : return 0;
+    return ref $self->{'_linkinfo'} ? @{ $self->{'_linkinfo'} } : return ();
 }
 
 *get_LinkInfos = \&get_LinkInfo;
@@ -1002,7 +968,7 @@ sub get_LinkInfo {
 =head2 next_LinkSet
 
  Title    : next_LinkSet
- Usage    : 
+ Usage    : while (my $ls = $eutil->next_LinkSet {...}
  Function : 
  Returns  : 
  Args     : 
@@ -1011,11 +977,12 @@ sub get_LinkInfo {
 
 sub next_LinkSet {
     my $self = shift;
-    $self->parse_data unless $self->data_parsed;
-    unless ($self->{"_linksets_it"}) {
-        my @ls = $self->get_LinkSets;
-        $self->{"_linksets_it"} = sub {return shift @ls}
+    #$self->parse_data unless $self->data_parsed;
+    if(!$self->data_parsed && !$self->is_lazy) {
+        $self->parse_data;
     }
+    $self->{'_linksets_it'} = $self->generate_iterator('linksets')
+        if (!exists $self->{'_linksets_it'});
     $self->{'_linksets_it'}->();
 }
 
@@ -1033,8 +1000,12 @@ sub next_LinkSet {
 
 sub get_LinkSets {
     my $self = shift;
+    if ($self->is_lazy) {
+        $self->warn('get_LinkSets() not implemented when using lazy mode');
+        return ();
+    }
     $self->parse_data unless $self->data_parsed;
-    return ref $self->{'_linksets'} ? @{ $self->{'_linksets'} } : return;
+    return ref $self->{'_linksets'} ? @{ $self->{'_linksets'} } : return ();
 }
 
 =head2 get_linked_databases
@@ -1049,6 +1020,10 @@ sub get_LinkSets {
 
 sub get_linked_databases {
     my $self = shift;
+    if ($self->is_lazy) {
+        $self->warn('get_linked_databases() not implemented when using lazy mode');
+        return ();
+    }
     $self->parse_data unless $self->data_parsed;
     unless (exists $self->{'_db'}) {
         my %temp;
@@ -1061,9 +1036,20 @@ sub get_linked_databases {
     return @{$self->{'_db'}};
 }
 
-=head1 ObeIterator-related m
+=head1 Iterator- and callback-related methods
 
 =cut
+
+{
+    my %VALID_ITERATORS = (
+        'globalqueries' => 'globalqueries',
+        'fieldinfo' =>  'fieldinfo',
+        'fieldinfos' => 'fieldinfo',
+        'linkinfo' =>  'linkinfo',
+        'linkinfos' => 'linkinfo',
+        'linksets' => 'linksets',
+        'docsums' => 'docsums',
+        );
 
 =head2 rewind
 
@@ -1087,25 +1073,17 @@ sub get_linked_databases {
 
 =cut
 
-{
-    my %VALID_ITERATORS = (
-        'globalqueries' => 'globalqueries',
-        'fieldinfo' =>  'fieldinfo',
-        'fieldinfos' => 'fieldinfo',
-        'linkinfo' =>  'linkinfo',
-        'linkinfos' => 'linkinfo',
-        'linksets' => 'linksets',
-        'docsums' => 'docsums',
-        );
-
-    
 sub rewind {
     my ($self, $arg) = ($_[0], lc $_[1]);
+    my $eutil = $self->eutil;
+    if ($self->is_lazy) {
+        $self->warn('rewind() not implemented yet when running in lazy mode');
+        return;
+    }
     $arg ||= 'all';
     if (exists $VALID_ITERATORS{$arg}) {
         delete $self->{'_'.$arg.'_it'};
     } elsif ($arg eq 'all') {
-        my $eutil = $self->eutil;
         for my $it (values %VALID_ITERATORS){
             delete $self->{'_'.$it.'_it'} if
                 exists $self->{'_'.$it.'_it'};
@@ -1115,13 +1093,106 @@ sub rewind {
     }
 }
 
-}
+=head2 generate_iterator
 
-=head2 Private methods
-
+ Title    : generate_iterator
+ Usage    : my $coderef = $esum->generate_iterator('linkinfo')
+ Function : generates an iterator (code reference) which iterates through
+            the relevant object indicated by the args
+ Returns  : code reference
+ Args     : [REQUIRED] Scalar; string describing the specific object to iterate.
+            The following are currently recognized (case-insensitive):
+            
+            'globalqueries'
+            'fieldinfo' or 'fieldinfos'
+            'linkinfo' or 'linkinfos'
+            'linksets'
+            'docsums'
+            
+            A second argument can also be passed to generate a 'lazy' iterator,
+            which loops through and returns objects as they are created (instead
+            of creating all data instances up front, then iterating through,
+            which is the default). Use of these iterators precludes use of
+            rewind() for the time being as we can't guarantee you can rewind(),
+            as this depends on whether the data source is seek()able and thus
+            'rewindable'. We will add rewind() support at a later time which
+            will work for 'seekable' data.
+            
+            A callback specified using callback() will be used to filter objects
+            for any generated iterator. This behaviour is implemented for both
+            normal and lazy iterator types and is the default. If you don't want
+            this, make sure to reset any previously set callbacks via
+            reset_callback() (which just deletes the code ref).
+            
 =cut
 
-# Private data handlers for various eutils
+sub generate_iterator {
+    my ($self, $obj) = @_;
+    if (!$obj) {
+        $self->throw('Must provide object type to iterate');
+    } elsif (!exists $VALID_ITERATORS{$obj}) {
+        $self->throw("Unknown object type [$obj]");
+    }
+    my $cb = $self->callback;
+    if ($self->is_lazy) {
+        return sub {
+            while (my $obj = $self->parse_chunk) {
+                if ($cb) {
+                    ($cb->($obj)) ? return $obj : next;
+                } else {
+                    return $obj;
+                }
+            }
+        }
+    } else {
+        my $loc = '_'.$VALID_ITERATORS{$obj};
+        my $index = $#{$self->{$loc}};
+        my $current = 0;
+        return sub {
+            while ($current <= $index) {
+                if ($cb) {
+                    ($cb->($self->{$loc}->[$current])) ?
+                    return $self->{$loc}->[$current++] : $current ++ && next;
+                } else {
+                    return $self->{$loc}->[$current++]
+                }
+            }
+        }
+    }
+}
+
+}
+
+=head2 callback
+
+ Title    : callback
+ Usage    : $parser->callback(sub {$_[0]->get_database eq 'protein'});
+ Function : Get/set callback code ref used to filter returned data objects
+ Returns  : code ref if previously set
+ Args     : single argument:
+            code ref - evaluates a passed object and returns true or false value
+                       (used in iterators)
+            'reset' - string, resets the iterator.
+            returns upon any other args
+=cut
+
+sub callback {
+    my ($self, $cb) = @_;
+    if ($cb) {
+        delete $self->{'_cb'} if ($cb eq 'reset');
+        return if ref $cb ne 'CODE';
+        $self->{'_cb'} = $cb;
+    }
+    return $self->{'_cb'};
+}
+
+# Private methods
+
+# fixes odd bad XML issue espell data (still present 6-24-07)
+
+sub _seekable {
+    return shift->{'_seekable'}
+}
 
 sub _fix_espell {
     my ($self, $response) = @_;
@@ -1141,6 +1212,23 @@ sub _fix_espell {
     return $temp;
 }
 
+sub _load_eutil_module {
+    my ($self, $class) = @_;
+    my $ok;
+    my $module = "Bio::Tools::EUtilities::" . $class;
+
+    eval {
+        $ok = $self->_load_module($module);
+    };
+    if ( $@ ) {
+        print STDERR <<END;
+$self: data module $module cannot be found
+Exception $@
+For more information about the EUtilities system please see the EUtilities docs. 
+END
+       ;
+    }
+    return $ok;
+}
+
 1;
-
-
