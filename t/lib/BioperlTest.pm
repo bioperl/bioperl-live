@@ -163,6 +163,10 @@ our @TEMP_FILES;
                                         'mswin'))
            -framework           => str (default 'Test::More', the Test module
                                         to load. NB: experimental, avoid using)
+           
+           Note, supplying -tests => 0 is possible, allowing you to skip all
+           tests in the case that a test script is testing deprecated modules
+           that have yet to be removed from the distribution
 
 =cut
 
@@ -176,6 +180,9 @@ sub test_begin {
         
         if ($skip_all) {
             eval "plan skip_all => '$skip_all';";
+        }
+        elsif ($tests == 0) {
+            eval "plan skip_all => 'All tests are being skipped, probably because the module(s) being tested here are now deprecated';";
         }
         else {
             eval "plan tests => $tests;";
@@ -221,6 +228,7 @@ sub test_begin {
 
 sub test_skip {
     my ($skip, $tests, $framework) = _skip(@_);
+    $tests || die "-tests must be a number greater than 0";
     
     if ($framework eq 'Test::More') {
         if ($skip) {
@@ -306,7 +314,8 @@ sub test_debug {
 sub _skip {
     my %args = @_;
     
-    my $tests = $args{'-tests'} || die "-tests must be supplied and positive\n";
+    my $tests = $args{'-tests'};
+    (defined $tests && $tests =~ /^\d+$/) || die "-tests must be supplied and be an int\n";
     delete $args{'-tests'};
     
     my $req_mods = $args{'-requires_modules'};
