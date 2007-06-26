@@ -407,7 +407,7 @@ sub revcom {
     my ($self) = @_;
 
     my $new = $self->SUPER::revcom;
-    $new->strand($self->strand * -1);
+    $new->strand($self->strand * -1) if $self->strand;
     $new->start($self->start) if $self->start;
     $new->end($self->end) if $self->end;
     return $new;
