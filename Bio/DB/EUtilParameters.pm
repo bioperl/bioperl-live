@@ -50,7 +50,7 @@ set_parameters() or reset_parameters():
 
   eutil - the eutil to be used. The default is 'efetch' if not set.
   correspondence - Flag for how IDs are treated. Default is undef (none).
-  cookie - a Bio::DB::EUtilities::Cookie object. Default is undef (none).
+  history - a Bio::Tools::EUtilities::HistoryI object. Default is undef (none).
 
 At this point minimal checking is done for potential errors in parameter
 passing, though these should be easily added in the future when necessary.
@@ -104,102 +104,64 @@ use URI;
 use HTTP::Request;
 
 # eutils only has one hostbase URL
-my $HOSTBASE = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/';
 
 # mode : GET or POST (HTTP::Request)
 # location : CGI location
 # params : allowed parameters for that eutil
 my %MODE = (
     'einfo'     => {
-        'mode'     => 'get',
+        'mode'     => 'GET',
         'location' => 'einfo.fcgi',
         'params'   => [qw(db retmode tool email)],
                    },
     'epost'     => {
-        'mode'     => 'post',
+        'mode'     => 'POST',
         'location' => 'epost.fcgi',
         'params'   => [qw(db retmode id tool email)],
                    },
     'efetch'    => {
-        'mode'     => 'get',
+        'mode'     => 'GET',
         'location' => 'efetch.fcgi',
         'params'   => [qw(db retmode id retmax retstart rettype strand seq_start
-                       seq_stop complexity report tool email )],
+                       seq_stop complexity report tool email)],
                    },
     'esearch'   => {
-        'mode'     => 'get',
+        'mode'     => 'GET',
         'location' => 'esearch.fcgi',
         'params'   => [qw(db retmode usehistory term field reldate mindate
-                       maxdate datetype retmax retstart rettype sort tool email)],
+                       maxdate datetype retmax retstart rettype sort tool email WebEnv query_key)],
                    },
     'esummary'  => {
-        'mode'     => 'get',
+        'mode'     => 'GET',
         'location' => 'esummary.fcgi',
         'params'   => [qw(db retmode id retmax retstart rettype tool email )],
                    },
     'elink'     => {
-        'mode'     => 'get',
+        'mode'     => 'GET',
         'location' => 'elink.fcgi',
         'params'   => [qw(db retmode id reldate mindate maxdate datetype term 
                     dbfrom holding cmd version tool email)],
                    },
     'egquery'   => {
-        'mode'     => 'get',
+        'mode'     => 'GET',
         'location' => 'egquery.fcgi',
         'params'   => [qw(term retmode tool email)],
                    },
     'espell'    => {
-        'mode'     => 'get',
+        'mode'     => 'GET',
         'location' => 'espell.fcgi',
         'params'   => [qw(db retmode term tool email )],
                    }
 );
 
-# used only if cookie is present
-my @COOKIE_PARAMS = qw(db sort seq_start seq_stop strand complexity rettype
+# used only if history is present
+my @HISTORY_PARAMS = qw(db sort seq_start seq_stop strand complexity rettype
     retstart retmax cmd linkname retmode WebEnv query_key);            
-
-# default retmode if one is not supplied
-my %NCBI_DATABASE = (
-    'pubmed'           => 'xml',
-    'protein'          => 'text',
-    'nucleotide'       => 'text',
-    'nuccore'          => 'text',
-    'nucgss'           => 'text',
-    'nucest'           => 'text',
-    'structure'        => 'text',
-    'genome'           => 'text',
-    'books'            => 'xml',
-    'cancerchromosomes'=> 'xml',
-    'cdd'              => 'xml',
-    'domains'          => 'xml',
-    'gene'             => 'asn1',
-    'genomeprj'        => 'xml',
-    'gensat'           => 'xml',
-    'geo'              => 'xml',
-    'gds'              => 'xml',
-    'homologene'       => 'xml',
-    'journals'         => 'text',
-    'mesh'             => 'xml',
-    'ncbisearch'       => 'xml',
-    'nlmcatalog'       => 'xml',
-    'omia'             => 'xml',
-    'omim'             => 'xml',
-    'pmc'              => 'xml',
-    'popset'           => 'xml',
-    'probe'            => 'xml',
-    'pcassay'          => 'xml',
-    'pccompound'       => 'xml',
-    'pcsubstance'      => 'xml',
-    'snp'              => 'xml',
-    'taxonomy'         => 'xml',
-    'unigene'          => 'xml',
-    'unists'           => 'xml',
-);
 
 my @PARAMS;
 
 # generate getter/setters (will move this into individual ones at some point)
+
 BEGIN {
     @PARAMS = qw(db id email retmode rettype usehistory term field tool
     reldate mindate maxdate datetype retstart retmax sort seq_start seq_stop
@@ -223,59 +185,63 @@ END
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
+    my ($retmode) = $self->_rearrange(["RETMODE"],@args);
     $self->_set_from_args(\@args,
-        -methods => [@PARAMS, qw(eutil cookie correspondence)]);
-    # set default retmode if not explicitly set
+        -methods => [@PARAMS, qw(eutil history correspondence)]);
     $self->eutil() || $self->eutil('efetch');
-    $self->_set_default_retmode if (!$self->retmode);
-    $self->{'_statechange'} = 1;  
+    # set default retmode if not explicitly set    
+    $self->set_default_retmode if (!$retmode);
+    $self->{'_statechange'} = 1;
     return $self;
 }
 
 =head1 Bio::ParameterBaseI implemented methods
 
-=head2 
+=head2 set_parameters
 
  Title   : set_parameters
- Usage   : $pobj->set_parameters(%params);
+ Usage   : $pobj->set_parameters(@params);
  Function: sets the NCBI parameters listed in the hash or array
  Returns : None
  Args    : [optional] hash or array of parameter/values.  
  Note    : This sets any parameter (i.e. doesn't screen them using $MODE or via
-           set cookies).  
+           set history).
 
 =cut
 
 sub set_parameters {
     my ($self, @args) = @_;
-    $self->_set_from_args(\@args, -methods => [@PARAMS]);
+    # allow automated resetting; must check to ensure that retmode isn't explicitly passed
+    my $newmode = $self->_rearrange(["RETMODE"],@args);
+    $self->_set_from_args(\@args, -methods => [@PARAMS, qw(eutil correspondence history)]);
+    # set default retmode if not explicitly passed
+    $self->set_default_retmode unless $newmode;
 }
 
-=head2 
+=head2 reset_parameters
 
  Title   : reset_parameters
  Usage   : resets values
  Function: resets parameters to either undef or value in passed hash
  Returns : none
  Args    : [optional] hash of parameter-value pairs
- Note    : this also resets eutil(), correspondence(), and the cookie and request
+ Note    : this also resets eutil(), correspondence(), and the history and request
            cache
 
 =cut
 
 sub reset_parameters {
     my ($self, @args) = @_;
-    # is there a better way of doing this?  probably, but this works
-    for my $param (@PARAMS, qw(eutil correspondence cookie_cache request_cache)) {
-        defined $self->{"_$param"} && undef $self->{"_$param"};
-    }
-    $self->_set_from_args(\@args, -methods => [@PARAMS, qw(eutil correspondence cookie)]);
+    # is there a better way of doing this?  probably, but this works...
+    my ($retmode) = $self->_rearrange(["RETMODE"],@args);
+    map { defined $self->{"_$_"} && undef $self->{"_$_"} } (@PARAMS, qw(eutil correspondence history_cache request_cache));
+    $self->_set_from_args(\@args, -methods => [@PARAMS, qw(eutil correspondence history)]);
     $self->eutil() || $self->eutil('efetch');
-    $self->_set_default_retmode if (!$self->retmode);
+    $self->set_default_retmode unless $retmode;
     $self->{'_statechange'} = 1;
 }
 
-=head2 
+=head2 parameters_changed
 
  Title   : parameters_changed
  Usage   : if ($pobj->parameters_changed) {...}
@@ -290,14 +256,14 @@ sub parameters_changed {
     $self->{'_statechange'};
 }
 
-=head2 
+=head2 available_parameters
 
  Title   : available_parameters
  Usage   : @params = $pobj->available_parameters()
  Function: Returns a list of the available parameters
  Returns : Array of available parameters (no values)
  Args    : [optional] A string; either eutil name (for returning eutil-specific
-           parameters) or 'cookie' (for those parameters allowed when retrieving
+           parameters) or 'history' (for those parameters allowed when retrieving
            data stored on the remote server using a 'Cookie').  
 
 =cut
@@ -307,25 +273,26 @@ sub available_parameters {
     $type ||= 'all';
     if ($type eq 'all') {
         return @PARAMS;
-    } elsif ($type eq 'cookie') {
-        return @COOKIE_PARAMS;
+    } elsif ($type eq 'history') {
+        return @HISTORY_PARAMS;
     } else {
         $self->throw("$type parameters not supported") if !exists $MODE{$type};
         return @{$MODE{$type}->{params}};
     }
 }
 
-=head2 
+=head2 get_parameters
 
  Title   : get_parameters
  Usage   : @params = $pobj->get_parameters;
            %params = $pobj->get_parameters;
  Function: Returns list of key/value pairs, parameter => value
- Returns : Flattened list of key-value pairs. IDs are returned based on the
-           correspondence value (a string joined by commas or as an array ref).
- Args    : -type : the eutil name or 'cookie', for returning a subset of
+ Returns : Flattened list of key-value pairs. All key-value pairs returned,
+           though subsets can be returned based on the '-type' parameter.  
+           Data passed as an array ref are returned based on whether the
+           '-join_id' flag is set (default is the same array ref). 
+ Args    : -type : the eutil name or 'history', for returning a subset of
                 parameters (Default: returns all)
-                
            -join_ids : Boolean; join IDs based on correspondence (Default: no join)
 
 =cut
@@ -337,7 +304,7 @@ sub get_parameters {
     my @final = $self->available_parameters($type);
     my @p;
     for my $param (@final) {
-        if ($param eq 'id' && $join) {
+        if ($param eq 'id' && $self->id && $join) {
             if ($self->correspondence && $self->eutil eq 'elink') {
                 for my $id_group (@{ $self->id }) {
                     if (ref($id_group) eq 'ARRAY') {
@@ -353,23 +320,30 @@ sub get_parameters {
             } else {
                 push @p, ($param => join(',', @{ $self->id }));
             }
-        } elsif ($param eq 'retmode' && !$self->retmode) {
-            
-        } else {
+        }
+        elsif ($param eq 'db' && $self->db) {
+            my $db = $self->db;
+            (ref $db eq 'ARRAY') ? 
+                push @p, ($param => join(',', @{ $db })) :
+                push @p, ($param => $db) ;
+        }
+        else {
             push @p, ($param => $self->{"_$param"}) if defined $self->{"_$param"};
         }
     }
     return @p;
 }
 
-=head2 
+=head1 Implementation-specific to-* methods
+
+=head2 to_string
 
  Title   : to_string
  Usage   : $string = $pobj->to_string;
  Function: Returns string (URL only in this case)
  Returns : String (URL only for now)
  Args    : [optional] 'all'; build URI::http using all parameters
-           Default : Builds based on allowed parameters (presence of cookie data
+           Default : Builds based on allowed parameters (presence of history data
            or eutil type in %MODE).
  Note    : Changes state of object.  Absolute string
 
@@ -386,31 +360,43 @@ sub to_string {
     return $self->{'_string_cache'};
 }
 
-=head2 
+=head2 to_request
 
  Title   : to_request
  Usage   : $uri = $pobj->to_request;
  Function: Returns HTTP::Request object
  Returns : HTTP::Request
  Args    : [optional] 'all'; builds request using all parameters
-           Default : Builds based on allowed parameters (presence of cookie data
+           Default : Builds based on allowed parameters (presence of history data
            or eutil type in %MODE).
- Note    : Changes state of object.  Used for CGI-based GET/POST
+ Note    : Changes state of object (to boolean FALSE).  Used for CGI-based GET/POST
  
 =cut
 
 sub to_request {
     my ($self, $type) = @_;
-    if ($self->parameters_changed || !defined $self->{'_uri_cache'}) {
+    if ($self->parameters_changed || !defined $self->{'_request_cache'}) {
         my $eutil = $self->eutil;
         $self->throw("No eutil set") if !$eutil;
         #set default retmode
-        my $cookie = ($self->cookie) ? 1 : 0;
-        $type ||= ($cookie) ? 'cookie' : $eutil;
-        my $uri = URI->new($HOSTBASE . $MODE{$eutil}->{location});
-        $uri->query_form($self->get_parameters(-type => $type, -join_ids => 1) );
-        my $method = ($eutil eq 'epost') ? 'POST' : 'GET';
-        my $request = HTTP::Request->new($method => $uri);
+        my $history = ($self->history) ? 1 : 0;
+        $type ||= ($history) ? 'history' : $eutil;
+        my ($location, $mode) = ($MODE{$eutil}->{location}, $MODE{$eutil}->{mode});
+        my $request;
+        my $uri = URI->new($self->url_base_address . $location);
+        if ($mode eq 'GET') {
+            $uri->query_form($self->get_parameters(-type => $type, -join_ids => 1) );
+            $request = HTTP::Request->new($mode => $uri);
+            $self->{'_request_cache'} = $request;
+        } elsif ($mode eq 'POST') {
+            $request = HTTP::Request->new($mode => $uri->as_string);
+            $uri->query_form($self->get_parameters(-type => $type, -join_ids => 1) );
+            $request->content_type('application/x-www-form-urlencoded');
+            $request->content($uri->query);
+            $self->{'_request_cache'} = $request;
+        } else {
+            $self->throw("Unrecognized request mode: $mode");
+        }
         $self->{'_statechange'} = 0;
         $self->{'_request_cache'} = $request;
     }
@@ -419,7 +405,7 @@ sub to_request {
 
 =head1 Implementation specific-methods
 
-=head2 
+=head2 eutil
 
  Title   : eutil
  Usage   : $p->eutil('efetch')
@@ -427,7 +413,8 @@ sub to_request {
  Returns : string (eutil)
  Args    : [optional] string (eutil)
  Throws  : '$eutil not supported' if eutil not present
-
+ Note    : This does not reset retmode to the default if called directly.
+ 
 =cut
 
 sub eutil {
@@ -440,38 +427,35 @@ sub eutil {
     return $self->{'_eutil'};
 }
 
-=head2 
+=head2 history
 
- Title   : cookie
- Usage   : $p->cookie($cookie);
- Function: gets/sets the cookie (history) to be used for these parameters
- Returns : Bio::DB::EUtilities::Cookie (if set)
- Args    : [optional] Bio::DB::EUtilities::Cookie 
- Throws  : Passed something other than a Bio::DB::EUtilities::Cookie
- Note    : This overrides WebEnv() and query_key() if set
+ Title   : history
+ Usage   : $p->history($history);
+ Function: gets/sets the history object to be used for these parameters
+ Returns : Bio::Tools::EUtilities::HistoryI (if set)
+ Args    : [optional] Bio::Tools::EUtilities::HistoryI 
+ Throws  : Passed something other than a Bio::Tools::EUtilities::HistoryI 
+ Note    : This overrides WebEnv() and query_key() settings when set
 
 =cut
 
-# cookie not changed over to ParameterBaseI yet...
-
-sub cookie {
-    my ($self, $cookie) = @_;
-    if ($cookie) {
-        $self->throw('Not a Bio::DB::EUtilities::Cookie object!') if
-            !$cookie->isa('Bio::DB::EUtilities::Cookie');
-        my ($webenv, $qkey) = @{$cookie->cookie};
-        $webenv     && $self->WebEnv($webenv);
-        $qkey       && $self->query_key($qkey);
-
-        #TODO: set db(), dbfrom() based on eutil
-
+sub history {
+    my ($self, $history) = @_;
+    if ($history) {
+        $self->throw('Not a Bio::Tools::EUtilities::HistoryI object!') if
+            !$history->isa('Bio::Tools::EUtilities::HistoryI');
+        $self->throw('No history present in HistoryI object') if
+            !$history->has_history;
+        my ($webenv, $qkey) = $history->history;
+        $self->WebEnv($webenv);
+        $self->query_key($qkey);
         $self->{'_statechange'} = 1;
-        $self->{'_cookie_cache'} = $cookie;
+        $self->{'_history_cache'} = $history;
     }
-    return $self->{'_cookie_cache'};
+    return $self->{'_history_cache'};
 }
 
-=head2 
+=head2 correspondence
 
  Title   : correspondence
  Usage   : $p->correspondence(1);
@@ -490,21 +474,86 @@ sub correspondence {
     return $self->{'_correspondence'};
 }
 
-# Title   : _set_default_retmode
-# Usage   : $p->_set_default_retmode();
-# Function: sets retmode to default value if called
-# Returns : none
-# Args    : none
+=head2 url_base_address
 
-sub _set_default_retmode {
-    my $self = shift;
-    if ($self->eutil eq 'efetch') {
-        my $db = $self->db || $self->throw('No database defined for efetch!');
-        $self->throw('Database $db not recognized') if !exists $NCBI_DATABASE{$db};
-        # set efetch-based retmode
-        $self->retmode($NCBI_DATABASE{$db});
-    } else {
-        $self->retmode('xml');
+ Title   : url_base_address
+ Usage   : $address = $p->url_base_address();
+ Function: Get URL base address
+ Returns : String
+ Args    : None in this implementation; the URL is fixed
+
+=cut
+
+{
+    my $HOSTBASE = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/';
+    
+    sub url_base_address {
+        my ($self, $address) = @_;
+        return $HOSTBASE;
+    }
+}
+
+=head2 set_default_retmode
+
+ Title   : set_default_retmode
+ Usage   : $p->set_default_retmode();
+ Function: sets retmode to default value specified by the eutil() and the value
+           in %NCBI_DATABASE (for efetch only) if called
+ Returns : none
+ Args    : none
+
+=cut
+
+{
+    # default retmode if one is not supplied
+    my %NCBI_DATABASE = (
+        'pubmed'           => 'xml',
+        'protein'          => 'text',
+        'nucleotide'       => 'text',
+        'nuccore'          => 'text',
+        'nucgss'           => 'text',
+        'nucest'           => 'text',
+        'structure'        => 'text',
+        'genome'           => 'text',
+        'books'            => 'xml',
+        'cancerchromosomes'=> 'xml',
+        'cdd'              => 'xml',
+        'domains'          => 'xml',
+        'gene'             => 'asn1',
+        'genomeprj'        => 'xml',
+        'gensat'           => 'xml',
+        'geo'              => 'xml',
+        'gds'              => 'xml',
+        'homologene'       => 'xml',
+        'journals'         => 'text',
+        'mesh'             => 'xml',
+        'ncbisearch'       => 'xml',
+        'nlmcatalog'       => 'xml',
+        'omia'             => 'xml',
+        'omim'             => 'xml',
+        'pmc'              => 'xml',
+        'popset'           => 'xml',
+        'probe'            => 'xml',
+        'pcassay'          => 'xml',
+        'pccompound'       => 'xml',
+        'pcsubstance'      => 'xml',
+        'snp'              => 'xml',
+        'taxonomy'         => 'xml',
+        'unigene'          => 'xml',
+        'unists'           => 'xml',
+    );
+
+    sub set_default_retmode {
+        my $self = shift;
+        if ($self->eutil eq 'efetch') {
+            my $db = $self->db || return; # assume retmode will be set along with db
+            $self->throw('Database $db not recognized')
+                 if !exists $NCBI_DATABASE{$db};
+            # set efetch-based retmode
+            $self->retmode($NCBI_DATABASE{$db});
+        } else {
+            $self->retmode('xml');
+        }
     }
 }
 

@@ -14,33 +14,22 @@
 
 =head1 NAME
 
-Bio::DB::GenericWebDBI - abstract interface for parameter-based remote
-database access
+Bio::DB::GenericWebDBI - helper base class for parameter-based remote
+access and response retrieval.
 
 =head1 SYNOPSIS
 
-  #
-  # grab data from HTTP::Response object using concrete class
-  #
-
-  $data = $db->get_response->content;
-
-  #
-  # $data is the raw data output from the HTTP::Response object;
-  # this data may be preparsed using the private method _parse_response
+...
 
 =head1 DESCRIPTION
 
 WARNING: Please do B<NOT> spam the web servers with multiple requests.
 
-This class acts as a user agent interface for any generic web database, but
-is specifically geared towards CGI-based databases which accept parameters.
+...
 
 =head1 TODO
 
-File and filehandle support to be added
-
-Any feedback is welcome.
+...
 
 =head1 FEEDBACK
 
@@ -80,171 +69,137 @@ preceded with a _
 package Bio::DB::GenericWebDBI;
 use strict;
 use warnings;
-use vars qw($MODVERSION %RETRIEVAL_TYPES $DEFAULT_RETRIEVAL_TYPE
-         $DEFAULT_RETURN_FORMAT $LAST_INVOCATION_TIME);
+use base qw(Bio::Root::Root);
+use LWP::UserAgent;
 
-use base qw(Bio::Root::Root LWP::UserAgent);
+my $LAST_INVOCATION_TIME = 0;
 
-BEGIN {
-    $MODVERSION = '0.8';
-    %RETRIEVAL_TYPES = ('io_string' => 1,
-                'tempfile'  => 1,
-                'pipeline'  => 1,
-                );
-    $DEFAULT_RETRIEVAL_TYPE = 'pipeline';
-    $DEFAULT_RETURN_FORMAT = 'text';
-    $LAST_INVOCATION_TIME = 0;
-}
+=head2 new
+
+ Title   : new
+ Usage   : Bio::DB::GenericWebDBI->new(@args);
+ Function: Create new Bio::DB::GenericWebDBI instance.
+ Returns : 
+ Args    : None specific to this base class.  Inheriting classes will
+           likely set specific parameters in their constructor;
+           Bio::DB::GenericWebDBI is primarily a test bed.
+
+=cut
 
 sub new {
     my ($class, @args) = @_;
-    my $self = $class->SUPER::new(@args, env_proxy => 1);
-    my ($url_base, $retmode, $delay, $db) =
-        $self->_rearrange([qw(URL_BASE RETMODE DELAY DB)],
-        @args);
-    # from LWP::UserAgent; set agent and env proxy
-    $self->agent(ref($self)."/$Bio::Root::Root::VERSION");;
-    $db             && $self->db($db);
-    # these will likely be overridden in base classes
-    $retmode        && $self->retmode($retmode);
-    $url_base       && $self->url_base_address($url_base);
-    # delay policy needs to be worked out; not set up correctly
-    $delay = defined($delay) ? $delay: $self->delay_policy;
-    $self->delay($delay);
+    my $self = $class->SUPER::new(@args);
+    $self->ua(LWP::UserAgent->new(env_proxy => 1,
+            agent => ref($self).':'.$self->VERSION));
+    $self->delay($self->delay_policy);
     return $self;
 }
 
-=head2 url_base_address
+=head1 GenericWebDBI methods
 
- Title   : url_base_address
- Usage   : my $address = $self->url_base_address or
-           $self->url_base_address($address)
- Function: Get/Set the base URL for the Web Database
- Returns : Base URL for the Web Database
- Args    : $address - URL for the WebDatabase
+=head2 parameter_base
 
-=cut
-
-sub url_base_address {
-    my $self = shift;
-    return $self->{'_baseaddress'} = shift if @_;
-    return $self->{'_baseaddress'};
-}
-
-=head2 proxy
-
- Title   : proxy
- Usage   : $httpproxy = $db->proxy('http')  or
-           $db->proxy(['http','ftp'], 'http://myproxy' )
- Function: Get/Set a proxy for use of proxy
- Returns : a string indicating the proxy
- Args    : $protocol : an array ref of the protocol(s) to set/get
-           $proxyurl : url of the proxy to use for the specified protocol
-           $username : username (if proxy requires authentication)
-           $password : password (if proxy requires authentication)
+ Title   : parameter_base
+ Usage   : $dbi->parameter_base($pobj);
+ Function: Get/Set Bio::ParameterBaseI.
+ Returns : Bio::ParameterBaseI object
+ Args    : Bio::ParameterBaseI object
 
 =cut
 
-sub proxy {
-    my ($self,$protocol,$proxy,$username,$password) = @_;
-    return undef if ( !defined $protocol || !defined $proxy );
-    $self->authentication($username, $password)
-    if ($username && $password);
-    return $self->SUPER::proxy($protocol,$proxy);
-}
+# this will likely be overridden in subclasses
 
-=head2 authentication
-
- Title   : authentication
- Usage   : $db->authentication($user,$pass)
- Function: Get/Set authentication credentials
- Returns : Array of user/pass
- Args    : Array or user/pass
-
-=cut
-
-sub authentication{
-   my ($self,$u,$p) = @_;
-   if( defined $u && defined $p ) {
-       $self->{'_authentication'} = [ $u,$p];
-   }
-   return @{$self->{'_authentication'}};
-}
-
-=head2 db
-
- Title   : db
- Usage   : $db->db
- Function: Get/Set database parameter
- Returns : string
- Args    : optional string
-
-=cut
-
-sub db {
-	my $self = shift;
-	return $self->{'_db'} = shift if @_;
-	return $self->{'_db'};
-}
-
-=head2 id
-
- Title   : id
- Usage   : $agent->id($id)
-           $agent->id(\@id)
- Function: Get/Set id(s)
- Returns : reference to id(s)
- Args    : a single id or reference to array of id(s)
-
-=cut
-
-sub id {
-	my $self = shift;
-    if (@_) {
-        my $id = shift;
-        if (ref($id) !~ /ARRAY/) { # single ID
-            $self->{'_ids'} = [$id];
-        }
-        else {
-            $self->{'_ids'} = $id;
-        }
+sub parameter_base {
+    my ($self, $pobj) = @_;
+    if ($pobj) {
+        $self->throw('Not a Bio::ParameterBaseI')
+            if !$pobj->isa('Bio::ParameterBaseI');
+        $self->{'_parameter_base'} = $pobj;
     }
-	return $self->{'_ids'};
+    return $self->{'_parameter_base'};
 }
 
-=head2 retmode
+=head2 ua
 
- Title   : retmode
- Usage   : $agent->retmode($mode)
- Function: Get/Set return mode for query (text, xml, html, asn.1, etc)
- Returns : string for return mode
- Args    : optional string
+ Title   : ua
+ Usage   : $dbi->ua;
+ Function: Get/Set LWP::UserAgent.
+ Returns : LWP::UserAgent
+ Args    : LWP::UserAgent
 
 =cut
 
-sub retmode {
-	my $self = shift;
-	return $self->{'_retmode'} = shift if @_;
-	return $self->{'_retmode'};
+sub ua {
+	my ($self, $ua) = @_;
+	if( defined $ua && $ua->isa("LWP::UserAgent") ) {
+		$self->{'_ua'} = $ua;
+	}
+	return $self->{'_ua'};
 }
 
-=head2 get_response
+=head2 get_Response
 
- Title   : get_response
- Usage   : $agent->get_response;
- Function: get the request based on set object parameters, retrieved using
-           the private method _get_params
- Returns : HTTP::Response object
- Args    : none
-
- This is implemented by the derived class
+ Title   : get_Response
+ Usage   : $agent->get_Response;
+ Function: Get the HTTP::Response object by passing it an HTTP::Request (generated from
+           Bio::ParameterBaseI implementation).
+ Returns : HTTP::Response object or data if callback is used
+ Args    : (optional)
+ 
+           -cache_response - flag to cache HTTP::Response object; 
+                             Default is 1 (TRUE, caching ON)
+                             
+           These are passed on to LWP::UserAgent::request() if stipulated
+           
+           -content_file   - use a LWP::UserAgent-compliant callback
+           -content_cb     - dumps the response to a file (handy for large responses)
+                             Note: can't use file and callback at the same time
+           -read_size_hint - bytes of content to read in at a time to pass to callback
+ Note    : Caching and parameter checking are set
 
 =cut
 
-sub get_response {
-    my ($self) = @_;
-    my $msg = "Implementing class must define method get_response in class GenericWebDBI";
-    $self->throw($msg);
+sub get_Response {
+    my ($self, @args) = @_;
+    my ($cache, @opts) = $self->_rearrange([qw(CACHE_RESPONSE CONTENT_FILE CONTENT_CB READ_SIZE_HINT)],@args);
+    $cache = (defined $cache && $cache == 0) ? 0 : 1;
+    my $pobj = $self->parameter_base;
+    if ($pobj->parameters_changed ||
+        !$cache  ||
+        !$self->{_response_cache}->content) {
+        my $ua = $self->ua;
+        $self->_sleep; # institute delay policy
+        $self->throw('No parameter object set; cannot form a suitable remote request') unless $pobj;
+        my $request = $pobj->to_request;
+        if ($self->authentication) {
+            $request->proxy_authorization_basic($self->authentication)
+        }
+        $self->debug("Request is: \n",$request->as_string);
+        # I'm relying on the useragent to throw the proper errors here
+        my $response = $ua->request($request,grep {defined $_} @opts);
+        if ($response->is_error) {
+            $self->throw("Response Error\n".$response->message);
+        }
+        $self->{_response_cache} = $response;
+    } else {
+        $self->debug("Returning cached HTTP::Response object\n");
+    }
+    return $self->{_response_cache};
+}
+
+=head2 get_Parser
+
+ Title   : get_Parser
+ Usage   : $agent->get_Parser;
+ Function: Return HTTP::Response content (file, fh, object) attached to defined parser
+ Returns : None
+ Args    : None
+ Note    : Abstract method; defined by implementation
+
+=cut
+
+sub get_Parser {
+    shift->throw_not_implemented;
 }
 
 =head2 delay
@@ -256,8 +211,7 @@ sub get_response {
  Args    : new value
 
 NOTE: the default is to use the value specified by delay_policy().
-This can be overridden by calling this method, or by passing the
--delay argument to new().
+This can be overridden by calling this method.
 
 =cut
 
@@ -275,7 +229,7 @@ sub delay {
  Returns : number of seconds to delay
  Args    : none
 
-NOTE: The default delay policy is 0s.  Override in subclasses to
+NOTE: The default delay policy is 3s.  Override in subclasses to
 implement delays.  The timer has only second resolution, so the delay
 will actually be +/- 1s.
 
@@ -283,42 +237,7 @@ will actually be +/- 1s.
 
 sub delay_policy {
    my $self = shift;
-   return 0;
-}
-
-=head2 _submit_request
-
-  Title   : _submit_request
-  Usage   : my $url = $self->get_request
-  Function: builds request object based on set parameters
-  Returns : HTTP::Request
-  Args    : optional : Bio::DB::EUtilities cookie
-
-=cut
-
-sub _submit_request {
-    my ($self) = @_;
-    my $msg = "Implementing class must define method _submit_request in class GenericWebDBI";
-    $self->throw($msg);
-}
-
-=head2 _get_params
-
-  Title   : _get_params
-  Usage   : my $url = $self->_get_params
-  Function: builds parameter list for web request
-  Returns : hash of parameter-value paris
-  Args    : optional : Bio::DB::EUtilities cookie
-
-=cut
-
-# these get sorted out in a hash originally but end up in an array to
-# deal with multiple id parameters (hash values would kill that)
-
-sub _get_params {
-    my ($self) = @_;
-    my $msg = "Implementing class must define method _get_params in class GenericWebDBI";
-    $self->throw($msg);
+   return 3;
 }
 
 =head2 _sleep
@@ -346,5 +265,46 @@ sub _sleep {
    $LAST_INVOCATION_TIME = time;
 }
 
+=head1 LWP::UserAgent related methods
+
+=head2 proxy
+
+ Title   : proxy
+ Usage   : $httpproxy = $db->proxy('http')  or
+           $db->proxy(['http','ftp'], 'http://myproxy' )
+ Function: Get/Set a proxy for use of proxy
+ Returns : a string indicating the proxy
+ Args    : $protocol : an array ref of the protocol(s) to set/get
+           $proxyurl : url of the proxy to use for the specified protocol
+           $username : username (if proxy requires authentication)
+           $password : password (if proxy requires authentication)
+
+=cut
+
+sub proxy {
+    my ($self,$protocol,$proxy,$username,$password) = @_;
+    return undef if ( !defined $protocol || !defined $proxy );
+    $self->authentication($username, $password)
+    if ($username && $password);
+    return $self->ua->proxy($protocol,$proxy);
+}
+
+=head2 authentication
+
+ Title   : authentication
+ Usage   : $db->authentication($user,$pass)
+ Function: Get/Set authentication credentials
+ Returns : Array of user/pass
+ Args    : Array or user/pass
+
+=cut
+
+sub authentication{
+   my ($self,$u,$p) = @_;
+   if( defined $u && defined $p ) {
+       $self->{'_authentication'} = [ $u,$p];
+   }
+   $self->{'_authentication'} && return @{$self->{'_authentication'}};
+}
+
 1;
-__END__
