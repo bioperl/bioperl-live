@@ -145,7 +145,7 @@ our @TEMP_FILES;
 =head2 test_begin
 
  Title   : test_begin
- Usage   : test_begin();
+ Usage   : test_begin(-tests => 20);
  Function: Begin your test script, setting up the plan (skip all tests, or run
            them all)
  Returns : True if tests should be run.
@@ -153,7 +153,10 @@ our @TEMP_FILES;
                                         be run)
            -requires_modules    => []  (array ref of module names that are
                                         required; if any don't load, all tests
-                                        will be skipped)
+                                        will be skipped. To specify a required
+                                        version of a module, include the version
+                                        number after the module name, separated
+                                        by a space)
            -requires_module     => str (as above, but for just one module)
            -requires_networking => 1|0 (default 0, if true all tests will be
                                         skipped if network tests haven't been
@@ -215,7 +218,10 @@ sub test_begin {
                                         following options isn't satisfied)
            -requires_modules    => []  (array ref of module names that are
                                         required; if any don't load, the desired
-                                        number of tests will be skipped)
+                                        number of tests will be skipped. To
+                                        specify a required version of a module,
+                                        include the version number after the
+                                        module name, separated by a space)
            -requires_module     => str (as above, but for just one module)
            -excludes_os         => str (default none, if OS suppied, desired num
                                         of tests will skip if running on that OS
@@ -356,11 +362,29 @@ sub _skip {
     
     my $requires = '';
     foreach my $mod (@req_mods) {
-        $requires .= "require $mod; ";
-    }
-    eval $requires;
-    if (!$skip && $@) {
-        $skip = (@req_mods == 1 ? 'The optional module ' : 'One or more of the optional modules ').join(', ', @req_mods).' (or dependencies thereof) not installed';
+        my $desired_version;
+        if ($mod =~ /(\S+)\s+(\S+)/) {
+            $mod = $1;
+            $desired_version = $2;
+        }
+        
+        eval "require $mod;";
+        
+        if ($@) {
+            $skip = "The optional module $mod (or dependencies thereof) was not installed" unless $skip;
+            last;
+        }
+        elsif ($desired_version) {
+            no strict 'refs';
+            unless (defined ${"${mod}::VERSION"}) {
+                $skip = "The optional module $mod didn't have a version, but we want v$desired_version" unless $skip;
+                last;
+            }
+            elsif (${"${mod}::VERSION"} < $desired_version) {
+                $skip = "The optional module $mod was out of date (wanted v$desired_version)" unless $skip;
+                last;
+            }
+        }
     }
     
     if (!$skip && $req_net && ! test_network()) {
