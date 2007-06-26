@@ -330,8 +330,9 @@ sub write_result {
 
    my $str = $self->writer->to_string( $result, @args);
    $self->{'_notfirsttime'} = 1;
-   # print "Got string: \n$str\n";
    $self->_print( "$str" ) if defined $str;
+   
+   $self->flush if $self->_flush_on_write && defined $self->_fh;
    return 1;
 }
 
