@@ -436,8 +436,9 @@ sub compress {
         } else {
             # obtain a temporary file name (not using the handle)
             # and insert some special text to flag it as a bioperl-based temp file
-            ($handle, $compressed) = Bio::Root::IO->tempfile();
-            $compressed .= '.tmp.bioperl';
+            my $io = Bio::Root::IO->new();
+            ($handle, $compressed) = $io->tempfile();
+            $compressed .= '.tmp.bioperl.gz';
         }
 
         if ($exe =~ /gzip|bzip2|compress/) {
@@ -555,7 +556,8 @@ sub uncompress {
             $uncompressed = $outfile;
         } else {
             # obtain a temporary file name (not using the handle)
-            ($handle, $uncompressed) = Bio::Root::IO->tempfile();
+            my $io = Bio::Root::IO->new();
+            ($handle, $uncompressed) = $io->tempfile();
             # insert some special text to flag it as a bioperl-based temp file
             $uncompressed .= '.tmp.bioperl';
         }
