@@ -285,14 +285,15 @@ is $aln->get_seq_by_pos(1)->get_nse, 'P04777/1-33', "prodom input test ";
 
 
 # CLUSTAL
+my $outfile = test_output_file();
 $strout = Bio::AlignIO->new(
-   '-file' => ">".test_output_file(), 
+   '-file' => ">$outfile", 
 			      '-format' => 'clustalw');
 $status = $strout->write_aln($aln);
 is $status, 1, "clustalw (.aln) output test";
 undef $strout;
 $str = Bio::AlignIO->new(
-   '-file'=> test_input_file("testout.clustal"), 
+   '-file'=> $outfile, 
 			   '-format' => 'clustalw');
 $aln = $str->next_aln($aln);
 isa_ok($aln,'Bio::Align::AlignI');
