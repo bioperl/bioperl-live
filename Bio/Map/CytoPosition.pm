@@ -90,6 +90,7 @@ package Bio::Map::CytoPosition;
 
 use strict;
 use integer;
+use Bio::Range;
 
 use base qw(Bio::Map::Position);
 
