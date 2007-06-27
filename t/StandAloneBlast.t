@@ -69,11 +69,12 @@ $param_string = $ncbi_factory->_setparams('blastall');
 like $param_string, qr/-F 'm D'/;
 
 # dashed parameters should work
+my $outfile = test_output_file();
 ok my $factory = Bio::Tools::Run::StandAloneBlast->new(-verbose     => $verbose,
 													   -program     => 'blastn',
 													   -database    => $nt_database , 
 													   -_READMETHOD => 'SearchIO', 
-													   -output      => 'blastreport.out',
+													   -output      => $outfile,
 													   -verbose     => 0);
 is $factory->database, $nt_database;
 
@@ -82,7 +83,7 @@ is $factory->database, $nt_database;
 my @params = ('program'     => 'blastn',
 			  'database'    => $nt_database , 
 			  '_READMETHOD' => 'SearchIO', 
-			  'output'      => 'blastreport.out',
+			  'output'      => $outfile,
 			  'verbose'     => 0 );
 ok $factory = Bio::Tools::Run::StandAloneBlast->new('-verbose' => $verbose, @params);
 

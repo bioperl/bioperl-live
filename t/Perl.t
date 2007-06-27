@@ -33,7 +33,7 @@ is (@seq_object_array = read_all_sequences($filename,'fasta'), 2);
 isa_ok $seq_object_array[0], 'Bio::SeqI';
 isa_ok $seq_object_array[1], 'Bio::SeqI';
 
-$filename = 'Perltmp';
+$filename = test_output_file();
 ok write_sequence(">$filename",'genbank',$seq_object);
 ok ($seq_object = new_sequence("ATTGGTTTGGGGACCCAATTTGTGTGTTATATGTA","myname","AL12232"));
 isa_ok $seq_object, 'Bio::SeqI';

@@ -45,7 +45,7 @@ while ( my $qual = $in_qual->next_seq() ) {
 my $seq = Bio::Seq::PrimaryQual->new(
                     -qual =>   \@quals,
                     -header   =>   "Hank is a good cat. I gave him a bath yesterday.");
-my $out = Bio::SeqIO->new(-file  =>   '>write_qual2.qual',
+my $out = Bio::SeqIO->new(-file  =>   ">".test_output_file(),
                          -format   =>   'qual');
 # yes, that works
 is $seq->header, 'Hank is a good cat. I gave him a bath yesterday.';
