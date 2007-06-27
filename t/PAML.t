@@ -1,38 +1,19 @@
-# This is -*-Perl-*- code
-## Bioperl Test Harness Script for Modules
-##
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
-use vars qw($NUMTESTS);
 
 BEGIN { 
-    eval { require Test::More; };
-    if( $@ ) {
-		use lib 't/lib';
-    }
-    use Test::More;
-
-    $NUMTESTS = 194;
-    eval { 	require IO::String; }; 
-    if( $@ ) {
-		plan skip_all => "no IO::String installed\n";
-	} else {
-	    plan tests => $NUMTESTS;
-    }
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 193,
+			   -requires_module => 'IO::String');
+	
 	use_ok('Bio::Tools::Phylo::PAML');
-	use_ok('Bio::Root::IO');
 }
 
-my $testnum;
-my $verbose = 0;
-
-## End of black magic.
-
-my $inpaml = Bio::Tools::Phylo::PAML->new(-file => Bio::Root::IO->catfile(qw(t data codeml.mlc)));
+my $inpaml = Bio::Tools::Phylo::PAML->new(-file => test_input_file('codeml.mlc'));
 ok($inpaml);
 my $result = $inpaml->next_result;
 ok($result);
@@ -70,8 +51,7 @@ is($codonposfreq[1]->{'C'}, 0.25123);
 is($codonposfreq[2]->{'G'}, 0.32842);
 
 # AAML parsing - Empirical model
-$inpaml = Bio::Tools::Phylo::PAML->new(-file => Bio::Root::IO->catfile
-				      (qw(t data aaml.mlc)));
+$inpaml = Bio::Tools::Phylo::PAML->new(-file => test_input_file('aaml.mlc'));
 
 ok($inpaml);
 $result = $inpaml->next_result;
@@ -112,8 +92,7 @@ is($result->get_stat('constant_sites'), 46);
 is($result->get_stat('constant_sites_percentage'), 35.38);
 
 # AAML parsing - pairwise model
-$inpaml = Bio::Tools::Phylo::PAML->new(-file => Bio::Root::IO->catfile
-				      (qw(t data aaml_pairwise.mlc)));
+$inpaml = Bio::Tools::Phylo::PAML->new(-file => test_input_file('aaml_pairwise.mlc'));
 
 ok($inpaml);
 $result = $inpaml->next_result;
@@ -140,8 +119,7 @@ my @seqs = $result->get_seqs;
 is($seqs[0]->display_id, 'human');
 
 # YN00 parsing, pairwise Ka/Ks from Yang & Nielsen 2000
-$inpaml = Bio::Tools::Phylo::PAML->new(-file => Bio::Root::IO->catfile
-				      (qw(t data yn00.mlc)));
+$inpaml = Bio::Tools::Phylo::PAML->new(-file => test_input_file('yn00.mlc'));
 
 ok($inpaml);
 $result = $inpaml->next_result;
@@ -169,7 +147,7 @@ is($MLmat->[2]->[3]->{'dS_SE'}, 0.2614);
 # codeml NSSites parsing
 
 $inpaml = Bio::Tools::Phylo::PAML->new
-    (-file => Bio::Root::IO->catfile(qw(t data codeml_nssites.mlc)));
+    (-file => test_input_file('codeml_nssites.mlc'));
 
 ok($inpaml);
 $result = $inpaml->next_result;
@@ -237,7 +215,7 @@ is($firstsite->[2], 0.6588);
 # for M0 model
 
 my $codeml_m0 = Bio::Tools::Phylo::PAML->new
-    (-file => Bio::Root::IO->catfile(qw/t data M0.mlc/));
+    (-file => test_input_file('M0.mlc'));
 ok($codeml_m0);
 my $result_m0 = $codeml_m0->next_result;
 my ($nssite_m0,$nssite_m1) = $result_m0->get_NSSite_results;
@@ -259,7 +237,7 @@ is($trees[0]->score, -30.819157);
 # pairwise first
 
 my $baseml_p = Bio::Tools::Phylo::PAML->new
-    (-file => Bio::Root::IO->catfile(qw(t data baseml.pairwise)));
+    (-file => test_input_file('baseml.pairwise'));
 ok($baseml_p);
 my $baseml = $baseml_p->next_result;
 my @b_seqs =  $baseml->get_seqs;
@@ -290,7 +268,7 @@ is($alphaM->get_entry($otus[0],$otus[2]), '33.1197');
 # for only 1 model
 
 my $codeml_single = Bio::Tools::Phylo::PAML->new
-    (-file => Bio::Root::IO->catfile(qw/t data singleNSsite.mlc/));
+    (-file => test_input_file('singleNSsite.mlc'));
 ok($codeml_single);
 my $result_single = $codeml_single->next_result;
 my ($nssite_single) = $result_single->get_NSSite_results;
@@ -305,7 +283,7 @@ is($baseml->model,'HKY85 dGamma (ncatG=5)');
 
 # user trees
 $baseml_p = Bio::Tools::Phylo::PAML->new
-    (-file => Bio::Root::IO->catfile(qw(t data baseml.usertree)));
+    (-file => test_input_file('baseml.usertree'));
 $baseml = $baseml_p->next_result;
 
 @trees = $baseml->get_trees;
@@ -316,7 +294,7 @@ is($trees[0]->score, -129.328757);
 # for branch site model/clade model
 
 my $codeml_bs = Bio::Tools::Phylo::PAML->new
-    (-file => Bio::Root::IO->catfile(qw/t data branchSite.mlc/));
+    (-file => test_input_file('branchSite.mlc'));
 ok($codeml_bs);
 my $result_bs = $codeml_bs->next_result;
 my ($nssite_bs) = $result_bs->get_NSSite_results;
@@ -329,8 +307,8 @@ is($class_bs->{q/w/}->[2]->{q/foreground/},q/999.00000/);
 # Let's parse the RST file
 
 my $paml = Bio::Tools::Phylo::PAML->new
-    (-file => Bio::Root::IO->catfile(qw(t data codeml_lysozyme mlc)),
-     -dir  => Bio::Root::IO->catfile(qw(t data codeml_lysozyme)));
+    (-file => test_input_file('codeml_lysozyme', 'mlc'),
+     -dir  => test_input_file('codeml_lysozyme'));
 
 $result = $paml->next_result;
 
@@ -391,7 +369,7 @@ is($site->[10]->{'Yang95_aa_prob'},'0.992');
 
 
 ## PAML 3.15
-$paml = Bio::Tools::Phylo::PAML->new(-file => Bio::Root::IO->catfile(qw(t data codeml315.mlc)) );
+$paml = Bio::Tools::Phylo::PAML->new(-file => test_input_file('codeml315.mlc'));
 $result = $paml->next_result;
 
 is($result->model, 'One dN/dS ratio');

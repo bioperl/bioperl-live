@@ -1,54 +1,30 @@
-# This is -*-Perl-*- code
-## Bioperl Test Harness Script for Modules
-##
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+
 use strict;
-use vars qw($NUMTESTS $DEBUG $ERROR);
 
 BEGIN {
-    eval { require Test::More; };
-
-    $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-
-    $NUMTESTS = 16;
-
-    eval {
-	require IO::String; 
-	require LWP::UserAgent;
-	require HTML::HeadParser
-    }; 
-	if ($@) {
-		plan skip_all => "IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests";
-	}
-    elsif (!$DEBUG) {
-		plan skip_all => 'Must set BIOPERLDEBUG=1 for network tests';
-	}
-	else {
-		plan tests => $NUMTESTS;
-	}	
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 15,
+			   -requires_modules => [qw(IO::String
+									    LWP::UserAgent
+										HTML::HeadParser)],
+			   -requires_networking => 1);
+	
 	use_ok('Bio::Tools::Analysis::Protein::ELM');
 	use_ok('Bio::SeqIO');
-	use_ok('Bio::PrimarySeq');
 	use_ok('Bio::WebAgent');
 }
 
-use Data::Dumper;
-
-my $verbose = 0;
-$verbose = 1 if $DEBUG;
+my $verbose = test_debug();
 
 ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 
 my $seqio=Bio::SeqIO->new( -verbose => $verbose,
                   -format => 'swiss',
-                  -file   => Bio::Root::IO->catfile('t','data', 'swiss.dat'));
+                  -file   => test_input_file('swiss.dat'));
 
 my $seq = $seqio->next_seq();
 ok $tool = Bio::Tools::Analysis::Protein::ELM->new( 

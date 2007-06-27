@@ -1,6 +1,6 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
+
 
 use strict;
 
@@ -42,4 +42,3 @@ is $a->repeat_unit, 'ACTG';
 
 $a->repeat_count(3);
 is $a->repeat_count, 3;
-

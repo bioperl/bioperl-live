@@ -1,28 +1,16 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
 BEGIN {
-    # to handle systems with no installed Test::More module
-    # we include the t dir (where a copy of Test/More.pm is located)
-    # as a fallback
-    eval { require Test::More; };
-    if( $@ ) {
-		use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 31;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 31);
+	
+    use_ok('Bio::Root::IO');
 }
-
-my $DEBUG = $ENV{BIOPERLDEBUG} || 0;
-$| = 1;
-
-use_ok('Bio::Root::IO');
 
 my $obj = Bio::Root::IO->new();
 ok defined($obj) && $obj->isa('Bio::Root::IO');
@@ -108,7 +96,7 @@ ok close($O);
 ##############################################
 
 SKIP: {
-  skip "Skipping tests which require network access, set BIOPERLDEBUG=1 to test", 2 unless $DEBUG;
+  test_skip(-tests => 2, -requires_networking => 1);
 
   my $TESTURL = 'http://www.google.com/index.html';
   
@@ -121,6 +109,4 @@ SKIP: {
   else {
     ok 1, 'non-LWP -url method not needed as non-LWP was default';
   }
-}  
-  
-1;
+}

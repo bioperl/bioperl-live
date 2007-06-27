@@ -1,11 +1,8 @@
-# This is -*-Perl-*- code
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
 
-use File::Spec;
-use constant IMAGES => File::Spec->catfile(qw(t data biographics));
-use constant FILES => File::Spec->catfile(qw(t data biographics));
 use constant IMAGE_TESTS => 1;
 
 BEGIN { 
@@ -16,8 +13,10 @@ BEGIN {
              -requires_modules => [qw(GD Text::Shellwords)]);
   
   use_ok('Bio::Graphics::FeatureFile');
-  use_ok('Bio::Graphics');
+  use_ok('Bio::Graphics::Panel');
 }
+
+my $images = test_input_file('biographics');
 
 my @images = IMAGE_TESTS ? qw(t1 t2 t3) : ();
 
@@ -26,7 +25,7 @@ my $write = 0;
 while (@ARGV && $ARGV[0] =~ /^--?(\w+)/) {
   my $arg = $1;
   if ($arg eq 'write') {
-    warn "Writing regression test images into ",IMAGES,".........\n";
+    warn "Writing regression test images into ",$images,".........\n";
     $write++;
   }
   shift;
@@ -36,7 +35,7 @@ foreach (@images) {
   if ($write) { warn "$_...\n"; do_write($_) } else { eval { do_compare($_) } }
 }
 
-my $data  = Bio::Graphics::FeatureFile->new(-file => FILES . "/feature_data.txt") or die;
+my $data  = Bio::Graphics::FeatureFile->new(-file => test_input_file('biographics', 'feature_data.txt')) or die;
 ok defined $data;
 is $data->render, 5;
 is $data->setting(general=>'pixels'), 750;
@@ -107,14 +106,14 @@ sub do_write {
   my $cangif = GD::Image->can('gif');
   my $test_sub    = $test;
   if ($canpng) {
-    my $output_file = IMAGES . "/$test.png";
+    my $output_file = test_input_files('biographics', "$test.png");
     my $panel       = eval "$test_sub()" or die "Couldn't run test: $@";
     open OUT,">$output_file" or die "Couldn't open $output_file for writing: $!";
     print OUT $panel->gd->png;
     close OUT;
   }
   if ($cangif) {
-    my $output_file = IMAGES . "/$test.gif";
+    my $output_file = test_input_files('biographics', "$test.gif");
     my $panel       = eval "$test_sub()" or die "Couldn't run test: $@";
     open OUT,">$output_file" or die "Couldn't open $output_file for writing: $!";
     print OUT $panel->gd->gif;
@@ -125,7 +124,7 @@ sub do_write {
 sub do_compare {
   my $test = shift;
   my $canpng = GD::Image->can('png');
-  my @input_files = glob(IMAGES . ($canpng ? "/$test/*.png" : "/$test/*.gif"));
+  my @input_files = glob($images . ($canpng ? "/$test/*.png" : "/$test/*.gif"));
   my $test_sub    = $test;
   my $panel       = eval "$test_sub()" or die "Couldn't run test";
   my $ok = 0;
@@ -364,7 +363,7 @@ sub t2 {
 }
 
 sub t3 {
-  my $data  = Bio::Graphics::FeatureFile->new(-file => FILES . "/feature_data.txt") or die;
+  my $data  = Bio::Graphics::FeatureFile->new(-file => test_input_file('biographics', 'feature_data.txt')) or die;
   my ($tracks,$panel) = $data->render;
   return $panel;
 }

@@ -1,24 +1,21 @@
-# -*-Perl-*-
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
-BEGIN {
-    eval { require Test::More; };
-    if( $@ ) { 
-	use lib 't/lib';
-    }
-    use Test::More;
-
-    plan tests => 64;
+BEGIN { 
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 65);
+	
+	use_ok('Bio::Tools::TandemRepeatsFinder');
 }
 
-use Bio::Tools::TandemRepeatsFinder;
-use strict;
 # first, open empty output file
 # make sure no results get returned
 my $trf =
-   Bio::Tools::TandemRepeatsFinder->new( -file =>
-      Bio::Root::IO->catfile( "t", "data", "tandem_repeats_finder.noresults" )
+   Bio::Tools::TandemRepeatsFinder->new( -file => test_input_file('tandem_repeats_finder.noresults')
   );
 ok $trf,"Parser created  successfully" ;
 my $feat = $trf->next_result;
@@ -27,8 +24,7 @@ ok( !defined($feat), "empty results file correctly returns no results" );
 
 # now check some results
 $trf =
-   Bio::Tools::TandemRepeatsFinder->new( -file =>
-      Bio::Root::IO->catfile( "t", "data", "tandem_repeats_finder.dat" )
+   Bio::Tools::TandemRepeatsFinder->new( -file => test_input_file('tandem_repeats_finder.dat')
   );
 ok $trf,"Second parser created  successfully" ;
 my $feat1 = $trf->next_result();

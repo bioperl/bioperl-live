@@ -1,19 +1,15 @@
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
-#---------------------------------------------------------
 
-# tests for ProtMatrix.pm
-# written by James Thompson <tex@biosysadmin.com>
 
 use strict;
 
 BEGIN {
-   eval { require Test::More; };
-   if( $@ ) {
-	use lib 't/lib';
-   }
-   use Test::More;
-
-   plan tests => 14;
+   use lib 't/lib';
+   use BioperlTest;
+   
+   test_begin(-tests => 14);
+   
    use_ok 'Bio::Matrix::PSM::ProtMatrix';
 }
 

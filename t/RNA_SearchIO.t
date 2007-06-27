@@ -1,42 +1,23 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
-my $error;
 use strict;
-use Dumpvalue();
-my $dumper = Dumpvalue->new();
 
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
+    use lib 't/lib';
+    use BioperlTest;
     
-    use vars qw($NTESTS);
-    $NTESTS = 327;
-    $error = 0;
-
-    plan tests => $NTESTS; 
+    test_begin(-tests => 326);
+    
+    use_ok('Bio::SearchIO');
 }
-
-use_ok('Bio::SearchIO');
-use_ok('Bio::Root::IO');
 
 my ($searchio, $result,$iter,$hit,$hsp, $algorithm, $meta);
 
 ### Infernal ####
 
 $searchio = Bio::SearchIO->new( -format => 'infernal',
-                                -file   => Bio::Root::IO->catfile
-                                          ('t','data','test.infernal'),
+                                -file   => test_input_file('test.infernal'),
                                 # version is reset to the correct one by parser
                                 -version => 0.7, 
                                 -model => 'Purine',
@@ -326,8 +307,7 @@ my $symbols = {
               };
 
 $searchio = Bio::SearchIO->new( -format => 'infernal',
-                                -file   => Bio::Root::IO->catfile
-                                          ('t','data','test.infernal'),
+                                -file   => test_input_file('test.infernal'),
                                 # version is reset to the correct one by parser
                                 -version => 0.7, 
                                 -model => 'Purine',
@@ -364,8 +344,7 @@ is($meta, ':::::::::::::::::((((((((:::(((((((:::::::)))))))::::::::(((((((:::::
 # regular data
 
 $searchio = Bio::SearchIO->new( -format => 'rnamotif',
-                                -file   => Bio::Root::IO->catfile
-                                          ('t','data','trna.strict.rnamotif'),
+                                -file   => test_input_file('trna.strict.rnamotif'),
                                 -model => 'trna.descr',
                                 -query_acc => 'test',
                                 -database => 'gbrna.fas',
@@ -457,8 +436,7 @@ is($meta, '<<<<<<<..<<<.........>>>.<<<<<.......>>>>>.......<<<<.......>>>>>>>>>
 #### ERPIN ####
 
 $searchio = Bio::SearchIO->new( -format => 'erpin',
-                                -file   => Bio::Root::IO->catfile
-                                          ('t','data','testfile.erpin'),
+                                -file   => test_input_file('testfile.erpin'),
                                 -model => 'stem-loop',
                                 -query_acc => 'test',
                                 -version => 5.5,
@@ -534,15 +512,13 @@ is($hsp->seq_str,
    "HSP seq_str");
 is($hsp->start, 1, "HSP start");
 is($hsp->custom_score, undef, "HSP custom_score");
-SKIP: {
-    skip('Working on meta string building; TODO', 3);
-    is($hsp->meta,
-       '',
-       "HSP meta");
+TODO: {
+    local $TODO = 'Working on meta string building';
+    isnt($hsp->meta, undef, "HSP meta");
     ($meta) = $hsp->feature1->get_tag_values('meta');
-    is($meta, undef);
+    isnt($meta, undef);
     ($meta) = $hsp->feature2->get_tag_values('meta');
-    is($meta, undef);
+    isnt($meta, undef);
 }
 is($hsp->strand, 1, "HSP strand");
 ($meta) = $hsp->feature1->get_tag_values('meta');
@@ -588,16 +564,12 @@ is($hsp->seq_str,
    "HSP seq_str");
 is($hsp->start, 1, "HSP start");
 is($hsp->custom_score, undef, "HSP custom_score");
-SKIP: {
-    skip('Working on meta string building; TODO', 3);
-    is($hsp->meta,
-       '',
-       "HSP meta");
+TODO: {
+    local $TODO = 'Working on meta string building';
+    isnt($hsp->meta, undef, "HSP meta");
     ($meta) = $hsp->feature1->get_tag_values('meta');
-    is($meta, undef);
+    isnt($meta, undef);
     ($meta) = $hsp->feature2->get_tag_values('meta');
-    is($meta, undef);
+    isnt($meta, undef);
 }
 is($hsp->strand, -1, "HSP strand");
-
-1;

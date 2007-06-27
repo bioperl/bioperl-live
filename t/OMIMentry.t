@@ -1,18 +1,14 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
+
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 153;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 153);
+	
     use_ok('Bio::Phenotype::OMIM::OMIMentry');
     use_ok('Bio::Phenotype::OMIM::MiniMIMentry');
     use_ok('Bio::Species');
@@ -315,8 +311,3 @@ is( $gts2[ 1 ], "B" );
 
 is( $obj->each_Genotype(), 0 );
 is( $obj->remove_Genotypes(), 0 );
-
-
-
-
-

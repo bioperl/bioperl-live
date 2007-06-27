@@ -1,4 +1,4 @@
-# This is -*-Perl-*- code
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
@@ -7,24 +7,19 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 22,
-			   -requires_modules => ['DB_File']);
+    test_begin(-tests => 19,
+			   -requires_module => 'DB_File');
 	
 	use_ok('Bio::Assembly::IO');
-	use_ok('Bio::Assembly::Scaffold');
-	use_ok('Bio::Assembly::Contig');
-	use_ok('Bio::Assembly::ContigAnalysis');
 }
 
 #
 # Testing IO
 #
 
-# -file => ">".Bio::Root::IO->catfile("t","data","primaryseq.embl")
 
 my $in = Bio::Assembly::IO->new
-	(-file=>Bio::Root::IO->catfile
-	 ("t","data","consed_project","edit_dir","test_project.phrap.out"));
+	(-file => test_input_file("consed_project","edit_dir","test_project.phrap.out"));
 
 isa_ok($in, 'Bio::Assembly::IO');
 
@@ -44,18 +39,18 @@ is $sc->annotation->get_all_annotation_keys, 0,"no annotations in Annotation col
 is $sc->get_nof_contigs, 1;
 is $sc->get_nof_sequences_in_contigs, 2;
 
-SKIP : {
-	skip("TODO: get_nof_singlets() should return a number", 1);
+TODO: {
+	local $TODO = "get_nof_singlets() should return a number";
 	is($sc->get_nof_singlets, 1, "get_nof_singlets");
 }
-SKIP : {
-	skip("TODO: get_seq_ids() should return a number", 1);
+TODO: {
+	local $TODO = "get_seq_ids() should return a number";
 	is($sc->get_seq_ids, 2, "get_seq_ids");
 }
 is($sc->get_contig_ids, 1, "get_contig_ids");
-SKIP: {
-	skip("TODO: get_singlet_ids() should return a list", 1);
-	is $sc->get_singlet_ids, 0;
+TODO: {
+	local $TODO = "get_singlet_ids() should return a list";
+	isnt $sc->get_singlet_ids, 0;
 }
 	
 #
@@ -71,8 +66,7 @@ SKIP: {
 #
 
 my $aio = Bio::Assembly::IO->new(
-	-file=>Bio::Root::IO->catfile
-	 ("t","data","consed_project","edit_dir","test_project.fasta.screen.ace.2"),
+	-file=>test_input_file("consed_project","edit_dir","test_project.fasta.screen.ace.2"),
 	-format=>'ace',
 );
 

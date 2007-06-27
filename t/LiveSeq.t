@@ -1,33 +1,21 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-# Created: Thu Dec 14 13:57:04 GMT 2000
-# By Joseph A.L. Insana, <insana@ebi.ac.uk>
-#
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
+
 
 use strict;
-use vars qw($NUMTESTS);
-my $error;
+
 BEGIN {     
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-    eval { require IO::String };
-    if( $@ ) {
-		plan skip_all => "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests.";
-	} else {
-		plan tests => $NUMTESTS = 49;
-	}
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 48,
+               -requires_module => 'IO::String');
+	
 	use_ok('Bio::LiveSeq::IO::BioPerl');
-	use_ok('Bio::Root::IO');
 }
 
 my $loader=Bio::LiveSeq::IO::BioPerl->load(-db=>"EMBL", 
-					   -file=>Bio::Root::IO->catfile("t","data","factor7.embl"));
+					   -file=>test_input_file('factor7.embl'));
 ok $loader;
 my $gene=$loader->gene2liveseq(-gene_name => "factor7");
 ok $gene;
@@ -85,4 +73,3 @@ is $transcript->translation_table , 2;
 is substr($translation->seq,0,16), "MVSQAL*"; # mitochondrial table creates stop codon
 is $gene->verbose(2), 2;
 ok $gene->delete_Obj(); # to free all memory, deleting circular references
-

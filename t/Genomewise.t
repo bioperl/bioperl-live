@@ -1,21 +1,18 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
+
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    use vars qw($NTESTS);
-    $NTESTS = 21;
-    plan tests => $NTESTS;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 21);
+	
     use_ok('Bio::Tools::Genomewise');
 }
 
-my $inputfilename= Bio::Root::IO->catfile("t","data","genomewise.out");
+my $inputfilename = test_input_file("genomewise.out");
 my $parser = Bio::Tools::Genomewise->new(-file => $inputfilename);
 my @gene;
 while (my $gene= $parser->next_prediction){
@@ -58,4 +55,3 @@ is ($e[1]->end, 10211);
 
 ($phase) = $e[2]->each_tag_value('phase');
 is ($phase,2);
-

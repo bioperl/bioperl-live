@@ -1,24 +1,18 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-##
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
+
 BEGIN {     
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 288;
-	use_ok('Bio::Root::IO');
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 287);
+	
 	use_ok('Bio::SearchIO');
 }
 
-my $searchio = Bio::SearchIO->new(-format => 'hmmer_pull', -file => Bio::Root::IO->catfile("t","data","hmmpfam_fake.out"), -verbose => -1);
+my $searchio = Bio::SearchIO->new(-format => 'hmmer_pull', -file => test_input_file('hmmpfam_fake.out'), -verbose => -1);
 my @data = ([qw(roa1_drome roa2_drome)], [2, 1], [1, 2], [2, 1]);
 while (my $result = $searchio->next_result) {
     is ref($result), 'Bio::Search::Result::HmmpfamResult';

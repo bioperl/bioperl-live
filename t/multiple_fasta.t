@@ -1,20 +1,18 @@
-# -*-Perl-*- mode (to keep my emacs happy)
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
+
 BEGIN {     
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 10;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 9);
+	
 	use_ok('Bio::SeqIO');
-	use_ok('Bio::Root::IO');
 }
 
-my $in = Bio::SeqIO->new(-file => "<".Bio::Root::IO->catfile("t","data", 
-	"multifa.seq") , '-format' => 'Fasta');
+my $in = Bio::SeqIO->new(-file => test_input_file('multifa.seq') , '-format' => 'Fasta');
 ok $in;
 my $c=0;
 while ( my $seq = $in->next_seq() ) {

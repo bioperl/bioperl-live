@@ -1,68 +1,33 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-##
-# CVS Version
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
-use constant NUMTESTS => 236;
-use vars qw($DEBUG);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
-
-my $skipdbtests;
-my $skip_all;
 BEGIN { 
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
+    use lib 't/lib';
+    use BioperlTest;
     
-    plan tests => NUMTESTS;
-    eval { 
-	require IO::String; 
-	require LWP::UserAgent;
-	require HTTP::Request::Common;
-	require Bio::DB::GenBank;
-    };
-    if( $@ ) {
-	print STDERR "IO::String, LWP::UserAgent or HTTP::Request not installed - skipping DB tests...\n";
-	$skipdbtests = 1;
-    } else {
-	$skipdbtests = 0;
-    }
-    eval {
-	require URI::Escape;
-    };
-    if( $@ ) {
-	print STDERR "URI::Escape not installed, so Bio::SeqFeature::Annotated not usable - skipping all tests...\n";
-	$skip_all = 1;
-    }
+    test_begin(-tests => 237,
+			   -requires_module => 'URI::Escape');
+	
+	use_ok('Bio::Seq');
+	use_ok('Bio::SeqIO');
+	use_ok('Bio::SeqFeature::Generic');
+	use_ok('Bio::SeqFeature::Annotated');
+	use_ok('Bio::SeqFeature::FeaturePair');
+	use_ok('Bio::SeqFeature::Computation');
+	use_ok('Bio::SeqFeature::Gene::Transcript');
+	use_ok('Bio::SeqFeature::Gene::UTR');
+	use_ok('Bio::SeqFeature::Gene::Exon');
+	use_ok('Bio::SeqFeature::Gene::Poly_A_site');
+	use_ok('Bio::SeqFeature::Gene::GeneStructure');
+	use_ok('Bio::Location::Fuzzy');
 }
-
-use_ok('Bio::Seq');
-use_ok('Bio::SeqIO');
-use_ok('Bio::SeqFeature::Generic');
-use_ok('Bio::SeqFeature::FeaturePair');
-use_ok('Bio::SeqFeature::SimilarityPair');
-use_ok('Bio::SeqFeature::Computation');
-use_ok('Bio::SeqFeature::Gene::Transcript');
-use_ok('Bio::SeqFeature::Gene::UTR');
-use_ok('Bio::SeqFeature::Gene::Exon');
-use_ok('Bio::SeqFeature::Gene::Poly_A_site');
-use_ok('Bio::SeqFeature::Gene::GeneStructure');
-use_ok('Bio::Location::Fuzzy');
 
 # predeclare variables for strict
 my ($feat,$str,$feat2,$pair,$comp_obj1,$comp_obj2,@sft); 
 
-
-my $verbose = 0;
+my $DEBUG = test_debug();
 
 $feat = Bio::SeqFeature::Generic->new( -start => 40,
 				       -end => 80,
@@ -217,7 +182,7 @@ is($sfeat->end,0,'can create feature starting and ending at 0');
 # using information from acc: AB077698 as a guide
 
 ok my $seqio = Bio::SeqIO->new(-format => 'genbank',
-			 -file   => Bio::Root::IO->catfile("t","data","AB077698.gb"));
+			 -file   => test_input_file('AB077698.gb'));
 ok my $geneseq = $seqio->next_seq();
 
 ok my $gene = Bio::SeqFeature::Gene::GeneStructure->new(-primary => 'gene',
@@ -311,17 +276,22 @@ is($intersect->end,   15);
 
 # now let's test spliced_seq
 
-isa_ok(  $seqio = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
-				(qw(t data AY095303S1.gbk)),
+isa_ok(  $seqio = Bio::SeqIO->new(-file => test_input_file('AY095303S1.gbk'),
 				 -format  => 'genbank'), "Bio::SeqIO");
 
 isa_ok( $geneseq = $seqio->next_seq(), 'Bio::Seq');
 my ($CDS) = grep { $_->primary_tag eq 'CDS' } $geneseq->get_SeqFeatures;
 my $db;
 
-if( $skipdbtests ) {
-    skip('Cannot test for remote loc with spliced_seq w/o LWP installed',4);
-} else {
+SKIP: {
+	test_skip(-tests => 5,
+			  -requires_modules => [qw(IO::String
+									   LWP::UserAgent
+									   HTTP::Request::Common)],
+			  -requires_networking => 1);
+	
+	use_ok('Bio::DB::GenBank');
+    
     $db = Bio::DB::GenBank->new(-verbose=> $DEBUG);
     $CDS->verbose(-1);
     my $cdsseq = $CDS->spliced_seq(-db => $db,-nosort => 1);
@@ -336,17 +306,19 @@ if( $skipdbtests ) {
        'ATGCAGCCATACGCTTCCGTGAGCGGGCGATGTCTATCTAGACCAGATGCATTGCATGTGATACCGTTTGGGCGAC');
     is($cdsseq->translate->subseq(1,100), 
        'MQPYASVSGRCLSRPDALHVIPFGRPLQAIAGRRFVRCFAKGGQPGDKKKLNVTDKLRLGNTPPTLDVLKAPRPTDAPSAIDDAPSTSGLGLGGGVASPR');
-    
 } 
 
-isa_ok(  $seqio = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
-				(qw(t data AF032047.gbk)),
+isa_ok(  $seqio = Bio::SeqIO->new(-file => test_input_file('AF032047.gbk'),
 				-format  => 'genbank'), 'Bio::SeqIO');
 isa_ok $geneseq = $seqio->next_seq(), 'Bio::Seq';
 ($CDS) = grep { $_->primary_tag eq 'CDS' } $geneseq->get_SeqFeatures;
-if ($skipdbtests ) { 
-    skip('Cannot test for remote loc with spliced_seq w/o LWP installed',2);
-} else {
+SKIP: { 
+    test_skip(-tests => 2,
+			  -requires_modules => [qw(IO::String
+									   LWP::UserAgent
+									   HTTP::Request::Common)],
+			  -requires_networking => 1);
+	
     my $cdsseq = $CDS->spliced_seq( -db => $db, -nosort => 1);
     is($cdsseq->subseq(1,70), 'ATGGCTCGCTTCGTGGTGGTAGCCCTGCTCGCGCTACTCTCTCTGTCTGGCCTGGAGGCTATCCAGCATG');
     is($cdsseq->translate->seq, 'MARFVVVALLALLSLSGLEAIQHAPKIQVYSRHPAENGKPNFLNCYVSGFHPSDIEVDLLKNGKKIEKVEHSDLSFSKDWSFYLLYYTEFTPNEKDEYACRVSHVTFPTPKTVKWDRTM*');
@@ -356,8 +328,7 @@ if ($skipdbtests ) {
 # trans-spliced 
 
 isa_ok( $seqio = Bio::SeqIO->new(-format => 'genbank',
-				 -file   => 
-				 Bio::Root::IO->catfile(qw(t data NC_001284.gbk))), 
+				 -file   => test_input_file('NC_001284.gbk')), 
 	'Bio::SeqIO');
 my $genome = $seqio->next_seq;
 
@@ -370,8 +341,7 @@ foreach my $cds (grep { $_->primary_tag eq 'CDS' } $genome->get_SeqFeatures) {
 
 # spliced_seq phase 
 my $seqin = Bio::SeqIO->new(-format => 'fasta',
-                            -file   =>
-                            Bio::Root::IO->catfile(qw(t data sbay_c127.fas)));
+                            -file   => test_input_file('sbay_c127.fas'));
 
 my $seq = $seqin->next_seq;
 
@@ -397,9 +367,6 @@ for my $phase (-1..3) {
 
 
 SKIP: {
-# use_ok('Bio::SeqFeature::Annotated');
-    eval { require Bio::SeqFeature::Annotated};
-    
     my $sfa = Bio::SeqFeature::Annotated->new(-start => 1,
 					      -end => 5,
 					      -strand => "+",
@@ -414,7 +381,7 @@ SKIP: {
     ok $loc->isa("Bio::Location::Simple");    
     ok $sfa->display_name eq 'test.annot';
 
-#test bsfa::from_feature
+	#test bsfa::from_feature
     my $sfg = Bio::SeqFeature::Generic->new ( -start => 400,
 					      -end => 440,
 					      -strand => 1,

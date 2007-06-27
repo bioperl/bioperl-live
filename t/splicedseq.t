@@ -1,24 +1,21 @@
-# -*-Perl-*-
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-use vars qw($DEBUG $TESTCOUNT);
-my $error;
 
 BEGIN {     
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 15;
-	use_ok('Bio::Seq');
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 14);
+	
 	use_ok('Bio::SeqIO');
-};
+}
 
-my $str = Bio::SeqIO->new(
-			'-file'=> Bio::Root::IO->catfile("t","data", "U58726.gb"), 
+ok my $str = Bio::SeqIO->new(
+			'-file'=> test_input_file('U58726.gb'), 
 			'-format' => 'GenBank');
-ok $str;
+
 my $seq;
 
 ok ( $seq = $str->next_seq() );
@@ -36,8 +33,7 @@ foreach my $ft ( grep { $_->primary_tag eq 'CDS'}
 	}
 }
 
-my $stream = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
-                                       ("t","data","M12730.gb"),
+my $stream = Bio::SeqIO->new(-file => test_input_file('M12730.gb'),
                               -format => 'genbank');
 # Jump down to M12730 which lists CDS join(1959..2355,1..92)
 while ($seq->accession ne "M12730") {

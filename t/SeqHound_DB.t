@@ -1,33 +1,15 @@
-# This is -*-Perl-*- code
-## Bioperl Test Harness Script for Modules
-##
-# This test file is adapted from EMBL_DB.t
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl SeqHound_DB.t'
 use strict;
-use vars qw($NUMTESTS $DEBUG);
 
 BEGIN {
-	$NUMTESTS = 15;
-	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-	
-	eval {require Test::More;};
-	if ($@) {
-		use lib 't/lib';
-	}
-	use Test::More;
-	
-	eval {
-		require IO::String; 
-		require LWP::UserAgent;
-	};
-	if ($@) {
-		plan skip_all => 'IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests';
-	}
-	else {
-		plan tests => $NUMTESTS;
-	}
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 15,
+			   -requires_modules => [qw(IO::String LWP::UserAgent)],
+			   -requires_networking => 1);
 	
 	use_ok('Bio::DB::SeqHound');
 }
@@ -36,7 +18,7 @@ END {
 	unlink $Bio::DB::SeqHound::LOGFILENAME if -f $Bio::DB::SeqHound::LOGFILENAME;
 }
 
-my $verbose = -1;
+my $verbose = test_debug();
 
 my ($db,$seq,$seqio);
 # get a single seq
@@ -75,4 +57,3 @@ SKIP: {
     is($seqio->next_seq->length, 1611);
     is($seqio->next_seq->length, 200);
 }
-

@@ -1,44 +1,18 @@
-
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-use vars qw($HAVEGRAPHDIRECTED $DEBUG $NUMTESTS);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    if( $@ ) {
-        use lib 't';
-    }
-    use Test;
-    eval {require Graph::Directed; 
-			 $HAVEGRAPHDIRECTED=1;
-	 };
-
-    if ($@) {
-		 $HAVEGRAPHDIRECTED = 0;
-		 warn "Cannot run tests as Graph::Directed is not installed\n";
-    }
-    plan tests => ($NUMTESTS = 21);
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 23,
+               -requires_module => 'Graph::Directed');
+	
+    use_ok('Bio::Ontology::RelationshipType');
+    use_ok('Bio::Ontology::Ontology');
 }
-
-END {
-	foreach ( $Test::ntest..$NUMTESTS) {
-		skip('Cannot complete RelationshipType tests',1);
-	}
-}
-
-exit 0 unless $HAVEGRAPHDIRECTED;
-require Bio::Ontology::RelationshipType;
-require Bio::Ontology::Ontology;
 
 my $ont = Bio::Ontology::Ontology->new(-name => "relationship type");
   
@@ -48,8 +22,8 @@ my $CONTAINS = Bio::Ontology::RelationshipType->get_instance("CONTAINS", $ont);
 my $FOUND_IN = Bio::Ontology::RelationshipType->get_instance("FOUND_IN", $ont);
 my $IS_A2    = Bio::Ontology::RelationshipType->get_instance("IS_A", $ont);
 
-ok( $IS_A->isa( "Bio::Ontology::RelationshipType" ) );
-ok( $IS_A->isa( "Bio::Ontology::TermI" ) );
+isa_ok($IS_A, "Bio::Ontology::RelationshipType");
+isa_ok($IS_A, "Bio::Ontology::TermI");
 
 
 ok( ! $IS_A->equals( $PART_OF ) );
@@ -57,31 +31,25 @@ ok( $IS_A->equals( $IS_A2 ) );
 ok( $PART_OF->equals( $PART_OF ) );
 
 
-ok( $IS_A->identifier(), undef ); # don't make up identifiers
-ok( $IS_A->name(), "IS_A" );
-ok( $IS_A->definition(), "IS_A relationship predicate (type)" );
-ok( $IS_A->ontology()->name(), "relationship type" );
+is( $IS_A->identifier(), undef ); # don't make up identifiers
+is( $IS_A->name(), "IS_A" );
+is( $IS_A->definition(), "IS_A relationship predicate (type)" );
+is( $IS_A->ontology()->name(), "relationship type" );
 
 
-ok( $PART_OF->identifier(), undef ); # don't make up identifiers
-ok( $PART_OF->name(), "PART_OF" );
-ok( $PART_OF->definition(), "PART_OF relationship predicate (type)" );
-ok( $PART_OF->ontology()->name(), "relationship type" );
+is( $PART_OF->identifier(), undef ); # don't make up identifiers
+is( $PART_OF->name(), "PART_OF" );
+is( $PART_OF->definition(), "PART_OF relationship predicate (type)" );
+is( $PART_OF->ontology()->name(), "relationship type" );
 
 
-ok( $CONTAINS->identifier(), undef ); # don't make up identifiers
-ok( $CONTAINS->name(), "CONTAINS" );
-ok( $CONTAINS->definition(), "CONTAINS relationship predicate (type)" );
-ok( $CONTAINS->ontology()->name(), "relationship type" );
+is( $CONTAINS->identifier(), undef ); # don't make up identifiers
+is( $CONTAINS->name(), "CONTAINS" );
+is( $CONTAINS->definition(), "CONTAINS relationship predicate (type)" );
+is( $CONTAINS->ontology()->name(), "relationship type" );
 
 
-ok( $FOUND_IN->identifier(), undef ); # don't make up identifiers
-ok( $FOUND_IN->name(), "FOUND_IN" );
-ok( $FOUND_IN->definition(), "FOUND_IN relationship predicate (type)" );
-ok( $FOUND_IN->ontology()->name(), "relationship type" );
-
-
-
-
-
-
+is( $FOUND_IN->identifier(), undef ); # don't make up identifiers
+is( $FOUND_IN->name(), "FOUND_IN" );
+is( $FOUND_IN->definition(), "FOUND_IN relationship predicate (type)" );
+is( $FOUND_IN->ontology()->name(), "relationship type" );

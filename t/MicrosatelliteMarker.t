@@ -1,28 +1,18 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-#
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
 BEGIN {
-    use vars qw($DEBUG);
-    $DEBUG = $ENV{'BIOPERLDEBUG'};
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 9;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 8);
+	
 	use_ok('Bio::Map::SimpleMap');
 	use_ok('Bio::Map::Position');
 	use_ok('Bio::Map::Microsatellite');
 }
-
-require_ok 'dumpvar.pl';
 
 my $map = Bio::Map::SimpleMap->new(-units => 'MB',
 				  -type  => 'oo-121');
@@ -44,7 +34,3 @@ is($o_usat->get_trailing_flank(), "cgcgatcgtgatttt");
 is($o_usat->motif(), 'at');
 is($o_usat->repeats(), 15);
 is($o_usat->repeat_start_position, 12);
-
-
-#dumpValue($o_usat);
-

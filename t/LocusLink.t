@@ -1,39 +1,24 @@
-# -*-Perl-*- mode (to keep my emacs happy)
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
-use vars qw($DEBUG $NUMTESTS $HAVEGRAPHDIRECTED);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
-	eval { require Test::More; };
-	if( $@ ) {
-		use lib 't/lib';
-	}
-	use Test::More;
-	eval {
-		require Graph::Directed; 
-	};
-	if ($@) {
-		plan skip_all => "Graph::Directed not installed, skipping tests";
-	} else {
-		plan tests => ($NUMTESTS = 26);
-	}
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 25,
+               -requires_module => 'Graph::Directed');
+	
 	use_ok('Bio::SeqIO');
-	use_ok('Bio::Root::IO');
 	use_ok('Bio::SeqFeature::Generic');
 	use_ok('Bio::SeqFeature::AnnotationAdaptor');
 }
 
-END {
-	unlink("locuslink-test.out.embl") if -e "locuslink-test.out.embl";
-}
-
-my $seqin = Bio::SeqIO->new(-file => Bio::Root::IO->catfile("t","data",
-							 "LL-sample.seq"),
+my $seqin = Bio::SeqIO->new(-file => test_input_file('LL-sample.seq'),
 			    -format => 'locuslink');
 ok $seqin;
-my $seqout = Bio::SeqIO->new(-file => ">locuslink-test.out.embl",
+my $seqout = Bio::SeqIO->new(-file => ">".test_output_file(),
 			     -format => 'embl');
 
 # process and write to output
@@ -106,5 +91,3 @@ foreach my $k (@keys) {
 is (scalar(@goann), 4);
 @goann = sort { $a->as_text() cmp $b->as_text() } @goann;
 is ($goann[2]->as_text, "cellular component|cytoplasm|");
-
-

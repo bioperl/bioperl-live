@@ -1,5 +1,5 @@
-# -*-Perl-*-
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
@@ -7,11 +7,10 @@ BEGIN {
     use lib 't/lib';
 	use BioperlTest;
 	
-	test_begin(-tests => 111);
+	test_begin(-tests => 110);
     
     use_ok('Bio::Map::CytoMap');
     use_ok('Bio::Map::CytoPosition');
-    use_ok('Bio::Range');
     use_ok('Bio::Map::CytoMarker');
 }
 

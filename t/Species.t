@@ -1,24 +1,17 @@
-# -*-Perl-*-
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-use vars qw($NUMTESTS $DEBUG);
 
 BEGIN {
-	$NUMTESTS = 20;
-	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-	
-	eval {require Test::More;};
-	if ($@) {
-		use lib 't/lib';
-	}
-	use Test::More;
+	use lib 't/lib';
+    use BioperlTest;
     
-	plan tests => $NUMTESTS;
+    test_begin(-tests => 20);
+	
+	use_ok('Bio::Species');
+	use_ok('Bio::DB::Taxonomy');
 }
-
-use_ok('Bio::Species');
-use_ok('Bio::DB::Taxonomy');
 
 ok my $sps = Bio::Species->new();
 $sps->classification(qw( sapiens Homo Hominidae
@@ -55,7 +48,8 @@ is $species->rank, 'species';
 
 # We can make a species object from just an id an db handle
 SKIP: {
-    skip "Skipping tests which require network access, set BIOPERLDEBUG=1 to test", 5 unless $DEBUG;
+    test_skip(-tests => 5, -requires_networking => 1);
+	
     $species = Bio::Species->new(-id => 51351);
     my $taxdb = Bio::DB::Taxonomy->new(-source => 'entrez');
     eval {$species->db_handle($taxdb);};

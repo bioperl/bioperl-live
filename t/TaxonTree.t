@@ -1,29 +1,20 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-##
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
-# These modules are now deprecated, don't bother testing them.
+# These modules are now deprecated, don't bother testing them. --sendubala
 
 ## I am pretty sure this module is going the way of the dodo bird so 
 ## I am not sure how much work to put into fixing the tests/module
 ## --jasonstajich
 
-my $error;
 use strict;
-BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    $error = 0; 
-    eval { require Test; };
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
-    plan tests => 1;
-}
 
-ok(1);
+BEGIN { 
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 0);
+}
 
 if (0) {
 	use Bio::Taxonomy::Taxon;

@@ -1,24 +1,19 @@
-#!/usr/local/bin/perl
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
+
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    use vars qw($NTESTS);
-    $NTESTS = 9;
-    plan tests => $NTESTS;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 7);
+	
     use_ok('Bio::Tools::Promoterwise');
-    use_ok('Bio::Root::IO');
-    use_ok('Bio::Seq');
 }
 
-my $file = Bio::Root::IO->catfile(qw(t data promoterwise.out));
-my  $parser = Bio::Tools::Promoterwise->new(-file=>$file);
+my $file = test_input_file('promoterwise.out');
+my $parser = Bio::Tools::Promoterwise->new(-file=>$file);
 isa_ok $parser,'Bio::Tools::Promoterwise';
 my @fp;
 while (my $fp = $parser->next_result){
@@ -35,9 +30,3 @@ is $sub2[0]->start,29;
 is $sub[0]->end,18;
 is $sub2[0]->end,43;
 is $sub[0]->score,1596.49
-
-
-
-
-
-

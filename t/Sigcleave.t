@@ -1,24 +1,17 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for various modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
+
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
-    plan tests => 16;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 18);
+	
+	use_ok('Bio::PrimarySeq');
+	use_ok('Bio::Tools::Sigcleave');
 }
-use Bio::PrimarySeq;
-use Bio::Tools::Sigcleave;
 
 #load n-terminus of MGR5_HUMAN as test seq
 my $protein = "MVLLLILSVLLLKEDVRGSAQSSERRVVAHMPGDIIIGALFSVHHQPTVDKVHERKCGAVREQYGI";
@@ -28,22 +21,21 @@ ok my $seq= Bio::PrimarySeq->new(-seq => $protein);
 ok my $sig = Bio::Tools::Sigcleave->new();
 ok $sig->seq($seq);
 ok my $sout = $sig->seq;
-ok $sout->seq eq $protein;
-ok $sig->threshold, 3.5;
-ok $sig->threshold(5), 5;
-ok $sig->matrix, 'eucaryotic';
-ok $sig->matrix('procaryotic'), 'procaryotic';
-ok $sig->matrix('eucaryotic'), 'eucaryotic';
+is $sout->seq, $protein;
+is $sig->threshold, 3.5;
+is $sig->threshold(5), 5;
+is $sig->matrix, 'eucaryotic';
+is $sig->matrix('procaryotic'), 'procaryotic';
+is $sig->matrix('eucaryotic'), 'eucaryotic';
 
-ok $sig->pretty_print =~ /Maximum score 7/;
+like $sig->pretty_print, qr/Maximum score 7/;
 ok my %results = $sig->signals;
 
-ok $results{9}, 5.2, "unable to get raw sigcleave results";
+is $results{9}, 5.2, "unable to get raw sigcleave results";
 
 
 $sig = Bio::Tools::Sigcleave->new(-seq=>$protein,
 				 -threshold=>5);
 ok %results = $sig->signals;
-ok $results{9}, 5.2, "unable to get raw sigcleave results";
-ok $sig->result_count, 5;
-
+is $results{9}, 5.2, "unable to get raw sigcleave results";
+is $sig->result_count, 5;

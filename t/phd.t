@@ -1,42 +1,28 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-#
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-use vars qw($DEBUG);
-use Bio::Root::IO;
-$DEBUG = $ENV{'BIOPERLDEBUG'};
 
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 9;
-}
-END  {
-    unlink qw(write_phd.phd);
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 9);
+	
+	use_ok('Bio::SeqIO');
 }
 
-print("Checking if the Bio::SeqIO::phd module could be used, even though it shouldn't be directly used...\n") if ( $DEBUG);
-        # test 1
-use_ok('Bio::SeqIO::phd');
+my $DEBUG = test_debug();
 
 print("Checking to see if SeqWithQuality objects can be created from a file...\n") if ($DEBUG);
-my $in_phd  = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data",
-								"phredfile.phd"),
+my $in_phd  = Bio::SeqIO->new('-file' => test_input_file('phredfile.phd'),
 			      '-format'  => 'phd',
-			      '-verbose' => $DEBUG || 0);
+			      '-verbose' => $DEBUG);
 isa_ok($in_phd,'Bio::SeqIO::phd');
 
 my @phreds;
-print("I saw these in qualfile.qual:\n") if($DEBUG);
 my $phd = $in_phd->next_seq();
-print("Did you get the 'QUALITY_LEVELS' comment?\n") if ($DEBUG);
-is($phd->{comments}->{'QUALITY_LEVELS'}, 99);
-print("Checking to see if this is the right reference...\n") if( $DEBUG);
+is($phd->{comments}->{'QUALITY_LEVELS'}, 99, "Did you get the 'QUALITY_LEVELS' comment?");
 isa_ok($phd,"Bio::Seq::Quality");
 
 my $position = 6;
@@ -57,9 +43,9 @@ if( $DEBUG ) {
 
 print("OK. Now testing write_phd...\n") if($DEBUG);
 
-my $out_phd = Bio::SeqIO->new(-file => ">write_phd.phd",
+my $outfile = test_output_file();
+my $out_phd = Bio::SeqIO->new(-file => ">$outfile",
 			      '-format' => 'phd');
-print("Did it return the right reference?\n") if($DEBUG);
 isa_ok($out_phd,"Bio::SeqIO::phd");
 
 $out_phd->write_seq(	-SeqWithQuality		=>	$phd,
@@ -74,17 +60,16 @@ $out_phd->write_seq(	-SeqWithQuality		=>	$phd,
 			-CHEM	=>	"",
 			-DYE	=>	""	
 			);
-ok( -e "write_phd.phd");
+ok( -s $outfile);
 
 # Bug 2120
 
 my @qual = q(9 9 12 12 8 8 9 8 8 8 9);
 my @trace = q(113 121 130 145 153 169 177 203 210 218 234);
 
-$in_phd  = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data",
-								"bug2120.phd"),
+$in_phd  = Bio::SeqIO->new('-file' => test_input_file('bug2120.phd'),
 			      '-format'  => 'phd',
-			      '-verbose' => $DEBUG || 0);
+			      '-verbose' => $DEBUG);
 
 my $seq = $in_phd->next_seq;
 is($seq->subseq(10,20),'gggggccttat','$seq->subseq()');

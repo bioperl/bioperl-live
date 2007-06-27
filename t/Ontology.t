@@ -1,37 +1,25 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## # $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
 
-    eval { require 'Graph.pm' };
-    if( $@ ) {
-	    plan skip_all => "Graph.pm doesn't seem to be installed on this system -- the GO Parser needs it...";
-    } else {
-		plan tests => 53;
-	}
+BEGIN {
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 52,
+			   -requires_module => 'Graph');
+	
 	use_ok('Bio::OntologyIO');
 	use_ok('Bio::Ontology::RelationshipType');
-	use_ok('Bio::Root::IO');
 }
 
 my $IS_A    = Bio::Ontology::RelationshipType->get_instance( "IS_A" );
 my $PART_OF = Bio::Ontology::RelationshipType->get_instance( "PART_OF" );
 
-my $io = Bio::Root::IO->new(); # less typing from now on
 my $parser = Bio::OntologyIO->new(
                       -format    => "soflat",
-		      -file      => $io->catfile("t", "data",
-						 "sofa.ontology"));
+		      -file      => test_input_file('sofa.ontology'));
 
 my $ont = $parser->next_ontology();
 ok ($ont);
@@ -56,10 +44,10 @@ is (scalar(@terms), 10);
 @terms = $ont->get_descendant_terms($featterm);
 my ($term) = grep { $_->name() eq "oligonucleotide"; } @terms;
 ok $term;
-SKIP: {
-	skip('TODO: $term->identifier()',1);
+#TODO: {
+#	local $TODO = '$term->identifier()';
 	is($term->identifier(), "SO:0000696");
-}
+#}
 
 @terms = $ont->get_ancestor_terms($term);
 is (scalar(@terms), 7);
@@ -71,10 +59,10 @@ is (scalar(grep { $_->name() eq "reagent"; } @terms), 1);
 ($term) = grep { $_->name() eq "processed_transcript"; } @terms;
 ok $term;
 
-SKIP: {
-	skip('TODO: $term->identifier()',1);
+#TODO: {
+#	local $TODO = '$term->identifier()';
 	is($term->identifier(), "SO:0000233");
-}
+#}
 
 @terms = $ont->get_child_terms($term);
 is (scalar(@terms), 4);
@@ -102,10 +90,10 @@ is (scalar(@terms), 13);
 ($term) = grep { $_->name() eq "TF_binding_site"; } @terms;
 ok $term;
 
-SKIP: {
-	skip('TODO: $term->identifier()',1);
+#TODO: {
+#	local $TODO = '$term->identifier()';
 	is($term->identifier(), "SO:0000235");
-}
+#}
 
 @terms = $ont->get_parent_terms($term);
 is (scalar(@terms), 2);

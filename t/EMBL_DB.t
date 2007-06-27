@@ -1,41 +1,20 @@
-# This is -*-Perl-*- code
-## Bioperl Test Harness Script for Modules
-##
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
-use vars qw($NUMTESTS $DEBUG);
-
-my $error;
 
 BEGIN { 
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-    $NUMTESTS = 16;
-    eval { require IO::String;
-			require HTTP::Request::Common;   };
-    if( $@ ) {
-	    plan skip_all => "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping tests";
-	}
-    elsif (!$DEBUG) {
-		plan skip_all => 'Must set BIOPERLDEBUG=1 for network tests';
-	}
-	else {
-		plan tests => $NUMTESTS;
-	}
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 16,
+			   -requires_modules => [qw(IO::String HTTP::Request::Common)],
+			   -requires_networking => 1);
+	
 	use_ok('Bio::DB::EMBL');
 }
 
-my $verbose = 0;
-
-## End of black magic.
+my $verbose = test_debug();
 
 my ($db,$seq,$seqio);
 # get a single seq
@@ -59,7 +38,7 @@ SKIP: {
     undef $db; # testing to see if we can remove gb
     ok( defined($seq = $seqio->next_seq()));
     is( $seq->length, 200);
-};
+}
 
 $seq = $seqio = undef;
 
@@ -79,4 +58,4 @@ SKIP: {
     is($seqs{'J00522'},408);
     is($seqs{'AF303112'},1611);
     is($seqs{'J02231'},200);
-};
+}

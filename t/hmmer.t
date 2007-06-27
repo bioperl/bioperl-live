@@ -1,29 +1,22 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-##
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
+
 BEGIN {     
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 141;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 140);
+	
 	use_ok('Bio::SearchIO');
 	use_ok('Bio::Tools::HMMER::Domain');
 	use_ok('Bio::Tools::HMMER::Set');
 	use_ok('Bio::Tools::HMMER::Results');
-	use_ok('Bio::Root::IO');
 }
 
 my $searchio = Bio::SearchIO->new(-format => 'hmmer',
-				 -file   => Bio::Root::IO->catfile
-				 ("t","data","hmmpfam.out"));
+				 -file   => test_input_file('hmmpfam.out'));
 
 while( my $result = $searchio->next_result ) {
     is(ref($result),'Bio::Search::Result::HMMERResult');
@@ -76,8 +69,7 @@ while( my $result = $searchio->next_result ) {
     }
 }
 $searchio = Bio::SearchIO->new(-format => 'hmmer',
-			      -file   => Bio::Root::IO->catfile
-			      ("t","data","hmmsearch.out"));
+			      -file   => test_input_file('hmmsearch.out'));
 while( my $result = $searchio->next_result ) {
     is(ref($result),'Bio::Search::Result::HMMERResult');
     is($result->algorithm, 'HMMSEARCH');
@@ -105,8 +97,7 @@ while( my $result = $searchio->next_result ) {
 }
 
 $searchio = Bio::SearchIO->new(-format => 'hmmer',
-			      -file   => Bio::Root::IO->catfile("t","data",
-								"L77119.hmmer"));
+			      -file   => test_input_file('L77119.hmmer'));
 
 while( my $result = $searchio->next_result ) {
     is(ref($result),'Bio::Search::Result::HMMERResult');
@@ -139,8 +130,7 @@ while( my $result = $searchio->next_result ) {
 
 
 $searchio = Bio::SearchIO->new(-format => 'hmmer',
-			      -file   => Bio::Root::IO->catfile("t","data",
-								"cysprot1b.hmmsearch"));
+			      -file   => test_input_file('cysprot1b.hmmsearch'));
 
 
 while( my $result = $searchio->next_result ) {
@@ -220,7 +210,7 @@ is $set->name(), 'sillyname';
 is $set->desc, 'a desc';
 is $set->accession, 'fakeaccesssion';
 
-$res = Bio::Tools::HMMER::Results->new( -file => Bio::Root::IO->catfile("t","data","hmmsearch.out") , -type => 'hmmsearch');
+$res = Bio::Tools::HMMER::Results->new( -file => test_input_file('hmmsearch.out') , -type => 'hmmsearch');
 my $seen =0;
 is $res->hmmfile, "HMM";
 is $res->seqfile, "HMM.dbtemp.29591";
@@ -237,18 +227,14 @@ is $seen, 1;
 
 is $res->number, 1215;
 
-$res = Bio::Tools::HMMER::Results->new( -file => 
-				      Bio::Root::IO->catfile("t","data",
-							     "hmmpfam.out") , 
+$res = Bio::Tools::HMMER::Results->new( -file => test_input_file('hmmpfam.out') , 
 					-type => 'hmmpfam');
 
 is ($res->number, 2);
 
 # parse HMM 2.2 files
 
-$res = Bio::Tools::HMMER::Results->new( -file => 
-				      Bio::Root::IO->catfile("t","data",
-							     "L77119.hmmer"),
+$res = Bio::Tools::HMMER::Results->new( -file => test_input_file('L77119.hmmer'),
 					-type => 'hmmpfam');
 $seen =0;
 is $res->hmmfile, 'Pfam';
@@ -271,8 +257,7 @@ foreach $set ( $res->each_Set) {
 is ($res->number, 1);
 
 # test for bugs #(1189,1034,1172)
-$res = Bio::Tools::HMMER::Results->new( -file => Bio::Root::IO->catfile
-					("t","data","hmmsearch.out") , 
+$res = Bio::Tools::HMMER::Results->new( -file => test_input_file('hmmsearch.out') , 
 					-type => 'hmmsearch');
 my $res2 = $res->filter_on_cutoff(100,50);
 ok($res2);

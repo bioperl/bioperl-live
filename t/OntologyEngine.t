@@ -1,26 +1,15 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-use vars qw($HAVEGRAPHDIRECTED $DEBUG $NUMTESTS);
+
 BEGIN {
-	eval { require Test::More; };
-	if( $@ ) {
-		use lib 't/lib';
-	}
-	use Test::More;
-	eval {
-		require Graph::Directed;
-	};
-	if ($@) {
-		plan skip_all => "Cannot run tests, Graph::Directed not installed\n";
-	} else {
-		plan tests => ($NUMTESTS = 27);
-	}
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 27,
+			   -requires_module => 'Graph::Directed');
+	
 	use_ok('Bio::Ontology::Term');
 	use_ok('Bio::Ontology::Relationship');
 	use_ok('Bio::Ontology::RelationshipType');

@@ -1,62 +1,34 @@
-# This is -*-Perl-*- code
-## Bioperl Test Harness Script for Modules
-##
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
-use vars qw($NUMTESTS $DEBUG);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-
-my $error;
 
 BEGIN { 
-	eval { require Test::More; };
-	if( $@ ) {
-		use lib 't/lib';
-	}
-	use Test::More;
-
-	$NUMTESTS = 30;
-	plan tests => $NUMTESTS;
-	eval { require IO::String };
-	if( $@ ) {
-		$error = "IO::String not installed. This means the Bio::DB::* modules are not usable. Skipping some tests.";
-		$DEBUG = 0;
-	} elsif (!$DEBUG) {
-		$error = "BIOPERLDEBUG must be set to 1 for running tests requiring network access. Skipping some tests.";
-	}
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 29,
+			   -requires_module => 'IO::String');
+	
 	use_ok('Bio::Perl');
-	use_ok('File::Spec');
 }
 
-END {
-	# clean up after oneself
-	unlink (  'Perltmp' );
-}
-
-## End of black magic.
-##
-## Insert additional test code below but remember to change
-## the print "1..x\n" in the BEGIN block to reflect the
-## total number of tests that will be run. 
+# Bio::Perl isn't OO so we don't see Bio::Perl->new() here
 
 my ($seq_object,$filename,@seq_object_array);
 
 # will guess file format from extension
-$filename = File::Spec->catfile(qw(t data cysprot1.fa));
+$filename = test_input_file('cysprot1.fa');
 ok ($seq_object = read_sequence($filename));
 isa_ok $seq_object, 'Bio::SeqI';
 
 # forces genbank format
-$filename = File::Spec->catfile(qw(t data AF165282.gb));
+$filename = test_input_file('AF165282.gb');
 ok  ($seq_object = read_sequence($filename,'genbank'));
 isa_ok $seq_object, 'Bio::SeqI';
 
 # reads an array of sequences
-$filename = File::Spec->catfile(qw(t data amino.fa));
+$filename = test_input_file('amino.fa');
 is (@seq_object_array = read_all_sequences($filename,'fasta'), 2);
 isa_ok $seq_object_array[0], 'Bio::SeqI';
 isa_ok $seq_object_array[1], 'Bio::SeqI';
@@ -90,8 +62,8 @@ is $trans, 'IGLGTQFVCYM';
 # these now run only with BIOPERLDEBUG set
 
 SKIP: {
-	skip($error, 10) unless $DEBUG;
-
+	test_skip(-tests => 10, -requires_networking => 1);
+	
 	# swissprot
 	SKIP: {
 		eval {

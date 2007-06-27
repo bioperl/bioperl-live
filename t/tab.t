@@ -1,38 +1,22 @@
-# -*-Perl-*-
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use vars qw($NUMTESTS);
 
 BEGIN {
-
-	# to handle systems with no installed Test module
-	# we include the t dir (where a copy of Test.pm is located)
-	# as a fallback
-	
-	eval { require Test::More; };
-	
-	if ( $@ ) {
-		use lib 't/lib';
-	}
+	use lib 't/lib';
+    use BioperlTest;
     
-    $NUMTESTS = 8 ;
-	use Test::More ;
-	plan tests => $NUMTESTS ;
+    test_begin(-tests => 7);
 	
+	use_ok('Bio::SeqIO');
 }
 
-use_ok ('Bio::SeqIO', 'Bio::SeqIO can be used') ;
-use_ok('Bio::Root::IO', 'Bio::Root::IO can be used') ;
-
-my $verbose = $ENV{'BIOPERLDEBUG'};
+my $verbose = test_debug();
 
 my $io = Bio::SeqIO->new(-format => 'tab',
 								 -verbose => $verbose,
-								 -file => Bio::Root::IO->catfile
-								 (qw(t data test.tab) ));
+								 -file => test_input_file('test.tab'));
 
 while (my $seq = $io->next_seq) {
 	ok ( $seq && defined $seq, 'seq is defined' ) ;

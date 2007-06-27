@@ -1,52 +1,34 @@
-# -*-Perl-*-
-# Bioperl Test Script for RNA Motif Modules
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
-BEGIN {     
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test::More; };
-    if( $@ ) {
-    use lib 't/lib';
-    }
 
-    use Test::More;
+BEGIN {     
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 116,
+               -requires_module => 'Bio::Tools::RNAMotif');
 	
-	eval {
-		require Bio::Tools::RNAMotif;
-	};
-	if ($@) {
-		plan skip_all => 'Bio::Tools::RNAMotif failed to load, DB_File probably not installed. This means that the module is not usable. Skipping tests';
-	}
-	else {
-		plan tests => 116;
-	}
+    use_ok('Bio::Tools::ERPIN');
+    use_ok('Bio::Tools::Infernal');
 }
 
-use_ok('Bio::Tools::ERPIN');
-use_ok('Bio::Tools::Infernal');
-use Bio::Root::IO;
-my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
+my $verbose = test_debug();
 
 ### RNAMotif.pm tests ###
 
 my $parser = Bio::Tools::RNAMotif->new(
 		-verbose => $verbose,
-        -file => Bio::Root::IO->catfile('t','data','trna.strict.rnamotif'),
+        -file => test_input_file('trna.strict.rnamotif'),
         -motiftag => 'tRNA_gene',
         -desctag => 'tRNA');
-
 
 my @genes;
 while( my $gene = $parser->next_prediction ) {
     push @genes, $gene;
 }
-#tests 1-12 
+
 is($genes[1]->display_name, 'tRNA','RNAMotif::display_name()');
 is($genes[12]->seq_id, 'M33910','RNAMotif::seq_id()');
 is($genes[6]->primary_tag, 'tRNA_gene','RNAMotif::primary_tag()');
@@ -72,7 +54,7 @@ is($genes[4]->source_tag, 'RNAMotif','RNAMotif::source_tag()');
 
 $parser = Bio::Tools::RNAMotif->new(
 			-verbose => $verbose,
-            -file => Bio::Root::IO->catfile('t','data','sprintf.rnamotif'),
+            -file => test_input_file('sprintf.rnamotif'),
             -motiftag => 'term',
             -desctag => 'stem_loop');
 
@@ -80,7 +62,6 @@ while( my $gene = $parser->next_prediction ) {
     push @genes, $gene;
 }
 
-#tests 13-24
 is($genes[1]->display_name, 'stem_loop','RNAMotif::display_name()');
 is($genes[12]->seq_id, 'M82700','RNAMotif::seq_id()');
 is($genes[6]->primary_tag, 'term','RNAMotif::primary_tag()');
@@ -120,7 +101,7 @@ my @erpinstats = (
 
 $parser = Bio::Tools::ERPIN->new(
 			-verbose => $verbose,
-            -file => Bio::Root::IO->catfile('t','data','testfile.erpin'),
+            -file => test_input_file('testfile.erpin'),
             -motiftag => 'protein_bind',
 			-desctag =>  'pyrR_BL');
 
@@ -162,7 +143,7 @@ my @stats = (
 );
 
 $parser = Bio::Tools::Infernal->new(
-            -file => Bio::Root::IO->catfile('t','data','test.infernal'),
+            -file => test_input_file('test.infernal'),
             -motiftag => 'misc_binding',
             -desctag => 'Purine riboswitch',
             -cm    => 'Purine',
@@ -242,4 +223,3 @@ is($gene->get_Annotations('secstructure'),
 is($gene->get_Annotations('seq_name'),
    'gi|2239287|gb|U51115.1|BSU51115',
    "Infernal::get_Annotations('seq_name')");
-

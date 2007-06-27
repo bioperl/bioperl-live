@@ -1,62 +1,55 @@
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
+
 use strict;
+
 BEGIN {     
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located
-    # as a fallback
-    eval { require Test; };
-    if( $@ ) {
-		  	use lib 't';
-    }
-    use Test;
-    plan tests => 28;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 26);
+	
+	use_ok('Bio::Tools::Spidey::Results');
 }
 
-use Bio::Tools::Spidey::Results;
-ok(1);
-
-my $spidey = Bio::Tools::Spidey::Results->new(-file=> Bio::Root::IO->catfile("t", "data",
-"spidey.noalignment"));
-ok $spidey;
+ok my $spidey = Bio::Tools::Spidey::Results->new(-file=> test_input_file('spidey.noalignment'));
 
 $spidey->close();
-ok(1);
 
 my $exonset = $spidey->next_exonset;
 ok(!defined($exonset));
 
-$spidey = Bio::Tools::Spidey::Results->new(-file=> Bio::Root::IO->catfile("t", "data",
-"spidey.test1"));
+$spidey = Bio::Tools::Spidey::Results->new(-file=> test_input_file('spidey.test1'));
 $exonset = $spidey->next_exonset;
 my @exons = $exonset->sub_SeqFeature(); 
-ok @exons, 6;
+is @exons, 6;
 
-ok $spidey->genomic_dna_length(), 145732769;
-ok $spidey->splicesites(), 4;
-ok $spidey->est_coverage(), 100;
-ok $spidey->overall_percentage_id(), 99.7;
-ok $spidey->missing_mrna_ends(), 'neither';
+is $spidey->genomic_dna_length(), 145732769;
+is $spidey->splicesites(), 4;
+is $spidey->est_coverage(), 100;
+is $spidey->overall_percentage_id(), 99.7;
+is $spidey->missing_mrna_ends(), 'neither';
 
-ok $exonset->seq_id(), 'lcl|chr2';
-ok $exonset->start(), 36356457;
-ok $exonset->end(), 36375798;
+is $exonset->seq_id(), 'lcl|chr2';
+is $exonset->start(), 36356457;
+is $exonset->end(), 36375798;
 
 my $exon = 0;
-ok $exons[$exon]->est_hit()->seq_id(), 'lcl|tmpseq_0';
-ok $exons[$exon]->start(), 36375691;
-ok $exons[$exon]->end(), 36375798;
-ok $exons[$exon]->strand(), -1;
-ok $exons[$exon]->est_hit()->start(), 1;
-ok $exons[$exon]->est_hit()->end(), 108;
-ok $exons[$exon]->donor(), 1;
-ok $exons[$exon]->acceptor(), 0;
+is $exons[$exon]->est_hit()->seq_id(), 'lcl|tmpseq_0';
+is $exons[$exon]->start(), 36375691;
+is $exons[$exon]->end(), 36375798;
+is $exons[$exon]->strand(), -1;
+is $exons[$exon]->est_hit()->start(), 1;
+is $exons[$exon]->est_hit()->end(), 108;
+is $exons[$exon]->donor(), 1;
+is $exons[$exon]->acceptor(), 0;
 
 $exon = 1;
-ok $exons[$exon]->start(), 36369345;
-ok $exons[$exon]->end(), 36369492;
-ok $exons[$exon]->est_hit()->start(), 109;
-ok $exons[$exon]->est_hit()->end(), 256;
-ok $exons[$exon]->donor(), 0;
-ok $exons[$exon]->acceptor(), 1;
+is $exons[$exon]->start(), 36369345;
+is $exons[$exon]->end(), 36369492;
+is $exons[$exon]->est_hit()->start(), 109;
+is $exons[$exon]->est_hit()->end(), 256;
+is $exons[$exon]->donor(), 0;
+is $exons[$exon]->acceptor(), 1;
 
 $spidey->close();
-ok(1);

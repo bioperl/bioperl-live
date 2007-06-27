@@ -1,43 +1,23 @@
-# This is -*-Perl-*- code
-## Bioperl Test Harness Script for Modules
-##
-# $Id$ 
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-use vars qw($NUMTESTS $DEBUG);
 
 BEGIN {
-	$NUMTESTS = 14;
-	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+	use lib 't/lib';
+	use BioperlTest;
 	
-	eval {require Test::More;};
-	if ($@) {
-		use lib 't/lib';
-	}
-	use Test::More;
-	
-	eval {
-		require IO::String; 
-		require LWP::UserAgent;
-		require Bio::WebAgent;
-		require HTML::HeadParser;
-		require HTTP::Request::Common;
-	};
-	if ($@) {
-		plan skip_all => 'IO::String, LWP::UserAgent, Bio::WebAgent, HTML::HeadParser, or HTTP::Request::Common not installed. This means that the module is not usable. Skipping tests';
-	} elsif (!$DEBUG) {
-		plan skip_all => 'Must set BIOPERLDEBUG=1 for network tests';
-	} else {
-		plan tests => $NUMTESTS;
-	}
+	test_begin(-tests => 13,
+			   -requires_modules => [qw(IO::String
+										LWP::UserAgent
+										Bio::WebAgent
+										HTML::HeadParser
+										HTTP::Request::Common)],
+			   -requires_networking => 1);
 	
 	use_ok('Bio::Tools::Analysis::DNA::ESEfinder');
 	use_ok('Data::Dumper');
 	use_ok('Bio::PrimarySeq');
-    use_ok('Bio::Seq');
 }
 
 #######all these tests work with 1ary seq########
@@ -55,9 +35,10 @@ SKIP: {
     ok my $meta = $tool->result('all');
     is $parsed->[0][1], 41;
 	
-    eval {require Bio::Seq::Meta::Array;};
-	skip "Bio::Seq::Meta::Array not installed. Skipping tests using meta sequences", 3 if $@;
-	is $meta->{'seq'}, "atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt";
-	is $meta->named_submeta_text('ESEfinder_SRp55', 1,2), "-3.221149 -1.602223";
-	is $meta->seq, "atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt";
+	SKIP: {
+		test_skip(-tests => 3, -requires_module => 'Bio::Seq::Meta::Array');
+		is $meta->{'seq'}, "atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt";
+		is $meta->named_submeta_text('ESEfinder_SRp55', 1,2), "-3.221149 -1.602223";
+		is $meta->seq, "atcgatgctatgcatgctatgggtgtgattcgatgcgactgttcatcgtagccccccccccccccctttt";
+	}
 }

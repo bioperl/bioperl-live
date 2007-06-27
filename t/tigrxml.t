@@ -1,51 +1,26 @@
-# -*-Perl-*- mode (to keep my emacs happy)
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
-use vars qw($error $NUMTESTS $verbose);
-$verbose = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
-    $NUMTESTS = 48;
-    $error = 0;
-    eval { require Test; };
-    if ( $@ ) {
-	use lib 't';
-    }
-    use Test;
-    plan tests => $NUMTESTS;
-    eval {
-	require XML::SAX;
-        require XML::SAX::Writer;
-    };
-    if( $@ ) {
-	$error = 1;
-	warn("No XML::SAX or XML::SAX::Writer installed cannot test Bio::SeqIO::tigrxml\n");
-    }
-}
-END { 
-   foreach ( $Test::ntest..$NUMTESTS) {
-      skip('Unable to run tigrxml tests no XML::SAX or XML::SAX::Writer is installed',1);
-   }
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 48,
+			   -requires_modules => [qw(XML::SAX XML::SAX::Writer)]);
+	
+	use_ok('Bio::SeqIO');
 }
 
-exit (0) if ($error);
-
-use Bio::SeqIO;
-use Bio::Root::IO;
-
-ok(1);
-
-my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
+my $verbose = test_debug();
 
 my $ast = Bio::SeqIO->new(-format => 'tigrxml' ,
 			  -verbose => $verbose,
-			  -file => Bio::Root::IO->catfile
-			  (qw(t data test.tigrxml)));
+			  -file => test_input_file('test.tigrxml'));
 $ast->verbose($verbose);
-my $as = $ast->next_seq();
-ok($as);
-ok($as->display_id, 'chr9');
+ok my $as = $ast->next_seq();
+is($as->display_id, 'chr9');
 
 my $first = 1;
 for my $f ( sort { $a->start * $a->strand <=> $b->start * $b->strand } $as->get_SeqFeatures ) {
@@ -60,57 +35,57 @@ for my $f ( sort { $a->start * $a->strand <=> $b->start * $b->strand } $as->get_
     }
     if( $name eq '162.t00500' || $name eq '162.m02638' ) {
 	if( $f->primary_tag eq 'gene' ) {
-	    ok($f->start, 185408);
-	    ok($f->end, 187155);
+	    is($f->start, 185408);
+	    is($f->end, 187155);
 	    # warn($f->gff_string, "\n");
 	} elsif( $f->primary_tag eq 'mRNA' ) { 
-	    ok($f->start, 185408); # the values list for COORD are start/end of CDS not whole transcript
-	    ok($f->end, 187155);    
-	    ok($f->strand, 1);
+	    is($f->start, 185408); # the values list for COORD are start/end of CDS not whole transcript
+	    is($f->end, 187155);    
+	    is($f->strand, 1);
 	} elsif( $f->primary_tag eq "five_prime_UTR" ) {
 	    my ($id) = $f->get_tag_values('ID');
 	    if( $id =~ /UTR1$/ ) {
-		ok($f->start, 185408);
-		ok($f->end,   185433);
+		is($f->start, 185408);
+		is($f->end,   185433);
 	    } elsif( $id =~ /UTR2$/ ) {
-		ok($f->start, 185487);
-		ok($f->end,   185793);
+		is($f->start, 185487);
+		is($f->end,   185793);
 	    } else {
-		ok(0, , 'expected only two UTRS');
+		ok(0, 'expected only two UTRS');
 	    }	    
 	} elsif( $f->primary_tag eq "three_prime_UTR" ) {
-	    ok($f->start, 187042);
-	    ok($f->end, 187155);
+	    is($f->start, 187042);
+	    is($f->end, 187155);
 	} elsif( $f->primary_tag eq 'CDS' ) {
-	    ok($f->start, 185794);
-	    ok($f->end, 187041);
+	    is($f->start, 185794);
+	    is($f->end, 187041);
 	}
     } elsif ( $name eq '162.t00448' || $name eq '162.m02967' ) {
 	if( $f->primary_tag eq 'gene' ) {
-	    ok($f->start, 59343);
-	    ok($f->end, 61061);
+	    is($f->start, 59343);
+	    is($f->end, 61061);
 	} elsif( $f->primary_tag eq 'mRNA' ) { 
-	    ok($f->start, 59343); # the values list for COORD are start/end of CDS not whole transcript
-	    ok($f->end, 61061);    
-	    ok($f->strand, -1);
+	    is($f->start, 59343); # the values list for COORD are start/end of CDS not whole transcript
+	    is($f->end, 61061);    
+	    is($f->strand, -1);
 	} elsif( $f->primary_tag eq "five_prime_UTR" ) {
 	    my ($id) = $f->get_tag_values('ID');
-	    ok($f->start, 60834);
-	    ok($f->end, 61061);
-	    ok($f->strand, -1);
+	    is($f->start, 60834);
+	    is($f->end, 61061);
+	    is($f->strand, -1);
 	} elsif( $f->primary_tag eq "three_prime_UTR" ) {
-	    ok($f->start, 59343);
-	    ok($f->end,   59632);
-	    ok($f->strand, -1);
+	    is($f->start, 59343);
+	    is($f->end,   59632);
+	    is($f->strand, -1);
 	} elsif( $f->primary_tag eq 'CDS' ) {
 	    if( $first ) { 
-		ok($f->start, 60801);
-		ok($f->end,   60833);
-		ok($f->strand, -1);
+		is($f->start, 60801);
+		is($f->end,   60833);
+		is($f->strand, -1);
 		$first = 0;
 	    }
 	}
     } else { 
-	warn("name is $name\n");
+	ok(0, "unexpected name '$name'\n");
     }
 }

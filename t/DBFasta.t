@@ -1,13 +1,13 @@
-#-*-Perl-*-
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
-use strict;
+
 
 BEGIN {     
     use lib 't/lib';
 	use BioperlTest;
 	
 	test_begin(-tests => 14,
-			   -requires_modules => [qw(Bio::DB::Fasta)]);
+			   -requires_module => 'Bio::DB::Fasta');
 	
 	use_ok('Bio::Root::IO');
 	use_ok('File::Copy');
@@ -23,7 +23,7 @@ my $io = Bio::Root::IO->new(-verbose => $DEBUG);
 my $tempdir = $io->tempdir('CLEANUP' => 1);
 my $test_dbdir = $io->catfile($tempdir, 'dbfa');
 mkdir($test_dbdir); # make the directory
-my $indir = $io->catfile(qw(. t data dbfa)); 
+my $indir = test_input_file('dbfa'); 
 opendir(INDIR,$indir) || die("cannot open dir $indir");
 # effectively do a cp -r but only copy the files that are in there, no subdirs
 for my $file ( map { $io->catfile($indir,$_) } readdir(INDIR) ) {

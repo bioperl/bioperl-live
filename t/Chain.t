@@ -1,7 +1,6 @@
-# -*-Perl-*-
-## $Id$
-# Created: Wed Dec 13 15:52:33 GMT 2000
-# By Joseph A.L. Insana, <insana@ebi.ac.uk>
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
+
 
 use strict;
 
@@ -13,6 +12,9 @@ BEGIN {
     
 	use_ok('Bio::LiveSeq::Chain');
 }
+
+# this script tests Bio::LiveSeq::Chain methods directly since it isn't OO:
+# Bio::LiveSeq::Chain->new() isn't expected here.
 
 my $chain = Bio::LiveSeq::Chain::string2chain("abcdefghijklmnopqrstuvwxyz");
 ok defined $chain;
@@ -79,4 +81,3 @@ is $array[0], 1;
 is $array[1], 1;
 is $array[2], 1;
 is $array[3], 1;
-

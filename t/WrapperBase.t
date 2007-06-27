@@ -1,17 +1,13 @@
-# This is -*-Perl-*- code
-## Bioperl Test Harness Script for Modules
-##
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
-BEGIN {
-	eval {require Test::More;};
-	if ($@) {
-		use lib 't/lib';
-	}
-	use Test::More;
-	
-	plan tests => 27;
+
+BEGIN { 
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 27);
 	
 	use_ok('Bio::Tools::Run::WrapperBase');
 }

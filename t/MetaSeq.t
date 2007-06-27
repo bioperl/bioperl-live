@@ -1,27 +1,22 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 129;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 128);
+	
 	use_ok('Bio::Seq::Meta');
 	use_ok('Bio::Seq::Meta::Array');
 	use_ok('Bio::SeqIO');
 	use_ok('Bio::AlignIO');
-	use_ok('Bio::Root::IO');
 	use_ok('Bio::Seq::Quality');
 }
 
-my $DEBUG = $ENV{'BIOPERLDEBUG'};
-
-use Data::Dumper;
+my $DEBUG = test_debug();
 
 ok my $seq = Bio::Seq::Meta->new( -seq => "AT-CGATCGA");
 is $seq->meta, "";
@@ -30,7 +25,6 @@ is $seq->meta, "          ";
 $seq->seq("AT-CGATCGATT");
 is $seq->meta, "            ";
 ok not $seq->force_flush(0);
-#print Dumper $seq;
 
 ok $seq = Bio::Seq::Meta::Array->new( -seq => "AT-CGATCGA");
 is $seq->meta_text, "";
@@ -38,7 +32,6 @@ ok $seq->force_flush(1);
 $seq->seq("AT-CGATCGATT");
 is $seq->meta_text, "0 0 0 0 0 0 0 0 0 0 0 0";
 ok not $seq->force_flush(0);
-#print Dumper $seq;
 
 ok $seq = Bio::Seq::Quality->new( -seq => "AT-CGATCGA");
 is $seq->meta_text, "";
@@ -47,8 +40,6 @@ is $seq->meta_text, "0 0 0 0 0 0 0 0 0 0";
 $seq->seq("AT-CGATCGATT");
 is $seq->meta_text, "0 0 0 0 0 0 0 0 0 0 0 0";
 ok not $seq->force_flush(0);
-#print Dumper $seq;
-#exit;
 
 ok $seq = Bio::Seq::Meta->new
     ( -seq => "",
@@ -75,8 +66,6 @@ $seq->verbose(1);
 # create some random meta values, but not for the last residue
 $metastring = "aa-bb  bb";
 ok $seq->meta($metastring), $metastring. " ";
-#print Dumper $seq;
-#exit;
 
 # truncate the sequence by assignment
 $seq->force_flush(1);
@@ -154,42 +143,36 @@ sub diff {
 
 # SeqIO
 my $str = Bio::SeqIO->new
-    ( '-file'=> Bio::Root::IO->catfile("t","data","test.metafasta"),
+    ( '-file'=> test_input_file('test.metafasta'),
       '-format' => 'metafasta');
 ok  $seq = $str->next_seq;
 
+my $outfile = test_output_file();
 my $strout = Bio::SeqIO->new
-    ('-file'=> ">". Bio::Root::IO->catfile("t","data","test.metafasta.out"),
+    ('-file'=> ">". $outfile,
      '-format' => 'metafasta');
 ok $strout->write_seq($seq);
 
-diff (Bio::Root::IO->catfile("t","data","test.metafasta"),
-      Bio::Root::IO->catfile("t","data","test.metafasta.out")
+diff (test_input_file('test.metafasta'),
+      $outfile
      );
 
-#exit;
 # AlignIO
 
 $str = Bio::AlignIO->new
-    ( '-file'=> Bio::Root::IO->catfile("t","data","testaln.metafasta"),
+    ( '-file'=> test_input_file('testaln.metafasta'),
       '-format' => 'metafasta');
 ok my $aln = $str->next_aln;
 
+$outfile = test_output_file();
 $strout = Bio::AlignIO->new
-    ('-file'=> ">". Bio::Root::IO->catfile("t","data","testaln.metafasta.out"),
+    ('-file'=> ">". $outfile,
      '-format' => 'metafasta');
 ok $strout->write_aln($aln);
 
-diff (Bio::Root::IO->catfile("t","data","testaln.metafasta"),
-      Bio::Root::IO->catfile("t","data","testaln.metafasta.out")
+diff (test_input_file('testaln.metafasta'),
+      $outfile
      );
-
-
-END {
-    unlink(Bio::Root::IO->catfile("t","data","test.metafasta.out"));
-    unlink(Bio::Root::IO->catfile("t","data","testaln.metafasta.out"));
-}
-
 
 #
 ##
@@ -214,7 +197,7 @@ ok $seq = Bio::Seq::Meta::Array->new( -seq => "AT-CGATCGA",
 is $seq->is_flush, 1;
 #is $seq->meta_text, "          ";
 is $seq->meta_text, '0 0 0 0 0 0 0 0 0 0';
-#print Dumper $seq; exit;
+
 # create some random meta values, but not for the last residue
 $metastring = "a a - b b 0 b b 0";
 is join (' ',  @{$seq->meta($metastring)}), $metastring. ' 0';
@@ -236,8 +219,7 @@ is $seq->strand, -1;
 #is $seq->meta_length, 6;
 #ok $seq->force_flush(1);
 #is $seq->meta_length, 5;
-#print Dumper $seq; exit;
-#exit;
+
 # revcom
 ok $seq = $seq->revcom;
 is $seq->seq, 'CG-AT';
@@ -324,7 +306,7 @@ is $seq->meta_length, 6;
 is $seq->length, 10;
 
 is $seq->meta_text, "0 0 0 4 5 6";
-#print Dumper $seq;
+
 ok $seq->force_flush(1);
 
 is $seq->meta_text, "0 0 0 4 5 6 0 0 0 0";
@@ -338,8 +320,5 @@ is $seq->trace_length, 7;
 is $seq->is_flush, 1;
 is $seq->trace_is_flush, 1;
 is $seq->quality_is_flush, 1;
-
-#print Dumper $seq;
-
 
 # quality: trace_lengths, trace_is_flush, quality_is_flush

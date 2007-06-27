@@ -1,21 +1,18 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
 
-    plan tests => 23;
+BEGIN {
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 22);
+	
     use_ok('Bio::Tools::Lucy');
-    use_ok('Bio::Root::IO');
 }
 
-my @params = (adv_stderr => 1, seqfile => Bio::Root::IO->catfile("t","data","lucy.seq"), rev_desig => 'R'); 
+my @params = (adv_stderr => 1, seqfile => test_input_file('lucy.seq'), rev_desig => 'R'); 
 # Bio::Tools::Lucy will find .qual, .info, and .stderr files in this folder 
 
 my $lucyObj = Bio::Tools::Lucy->new(@params);

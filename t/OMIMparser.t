@@ -1,25 +1,20 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## # $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
+
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 175;
-    use_ok('File::Spec');
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 174);
+	
     use_ok('Bio::Phenotype::OMIM::OMIMparser');
 }
 
 
-my $omim_parser = Bio::Phenotype::OMIM::OMIMparser->new( -genemap  => File::Spec->catfile(qw(t data omim_genemap_test)),
-                                                         -omimtext => File::Spec->catfile(qw(t data omim_text_test)) );
+my $omim_parser = Bio::Phenotype::OMIM::OMIMparser->new( -genemap  => test_input_file('omim_genemap_test'),
+                                                         -omimtext => test_input_file('omim_text_test'));
 
 isa_ok( $omim_parser, "Bio::Phenotype::OMIM::OMIMparser");
 
@@ -287,12 +282,3 @@ is( $avs[ 5 ]->aa_ori(), "" );
 is( $avs[ 5 ]->aa_mut(), "" );
 is( $avs[ 5 ]->position(), "" );
 is( $avs[ 5 ]->additional_mutations(), "1-BP DEL, 1030C" );
-
-
-
-
-
-
-
-
-

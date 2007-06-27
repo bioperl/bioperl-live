@@ -1,47 +1,23 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-#
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
 BEGIN {
-    use vars qw($DEBUG $verbose);
-    $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-    $verbose = $DEBUG ? 0 : -1;
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 33;
-	use_ok('Bio::SeqIO::scf');
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 35);
+	
+	use_ok('Bio::SeqIO');
 	use_ok('Bio::Seq::SequenceTrace');
-
 }
 
-END {
-	unlink qw(
-				 write_scf.scf
-				 write_scf_synthetic_traces.scf 
-				 write_scf_subtrace.scf
-				 write_scf_version2.scf
-				);
-}
+my $verbose = test_debug();
 
-use Dumpvalue();
-
-my $dumper = new Dumpvalue();
-$dumper->veryCompact(1) if $DEBUG;
-
-my $in_scf = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
-									  ("t","data","chad100.scf"),
-									  -format => 'scf',
-									  -verbose => $verbose);
-ok($in_scf);
+ok my $in_scf = Bio::SeqIO->new(-file => test_input_file('chad100.scf'),
+								-format => 'scf',
+								-verbose => $verbose);
 
 my $swq = $in_scf->next_seq();
 
@@ -67,9 +43,8 @@ my $ref = $swq->peak_indices();
 my @indices = @$ref;
 is (scalar(@indices), 761);
 
-warn("Now checking version3...\n") if $DEBUG;
-my $in_scf_v3 = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
-										  ("t","data","version3.scf"),
+warn("Now checking version3...\n") if $verbose;
+my $in_scf_v3 = Bio::SeqIO->new(-file => test_input_file('version3.scf'),
 										  -format => 'scf',
 										  -verbose => $verbose);
 
@@ -124,14 +99,14 @@ is $ann[5]->text, 89;
 is $ann[6]->text, 'phred version=0.980904.e';
 is $ann[8]->text, 'ABI 373A or 377';
 
-my $out_scf = Bio::SeqIO->new(-file => ">write_scf.scf",
+my $outfile = test_output_file();
+my $out_scf = Bio::SeqIO->new(-file => ">$outfile",
 										-format => 'scf',
 										-verbose => $verbose);
 
 # Bug 2196 - commentless scf
 
-my $in = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
-							  qw(t data 13-pilE-F.scf),
+my $in = Bio::SeqIO->new(-file => test_input_file('13-pilE-F.scf'),
 							  -format => 'scf',
 							  -verbose => $verbose);
 
@@ -155,9 +130,9 @@ is $name_comments[0], undef;
 
 is $conv_comments[0], undef;
 
-exit;	# the new way
+# the new way
 
-warn("Now testing the _writing_ of scfs\n") if $DEBUG;
+warn("Now testing the _writing_ of scfs\n") if $verbose;
 
 $out_scf->write_seq(-target	=>	$v3,
 						  -MACH		=>	'CSM sequence-o-matic 5000',
@@ -167,11 +142,13 @@ $out_scf->write_seq(-target	=>	$v3,
 						  -DATN		=>	'a22c.alf',
 						  -CONV		=>	'Bioperl-scf.pm');
 
-ok( -e "write_scf.scf" && ! -z "write_scf.scf" );
+ok( -s $outfile && ! -z "$outfile" );
+
+# TODO? tests below don't do much
 
 $out_scf = Bio::SeqIO->new(-verbose => 1,
-									-file => ">write_scf_synthetic_traces.scf",
-									-format => 'scf');
+							-file => ">$outfile",
+							-format => 'scf');
 
 $swq = Bio::Seq::Quality->new(-seq =>'ATCGATCGAA',
 										-qual =>"10 20 30 40 50 20 10 30 40 50",
@@ -187,13 +164,12 @@ $out_scf->write_seq(	-target	=>	$trace,
 							-DATN		=>	'a22c.alf',
 							-CONV		=>	'Bioperl-scf.pm' );
 
-warn("Trying to write an scf with a subset of a real scf...\n") if $DEBUG;
+warn("Trying to write an scf with a subset of a real scf...\n") if $verbose;
 $out_scf = Bio::SeqIO->new(-verbose => 1,
-									-file => ">write_scf_subtrace.scf",
+									-file => ">$outfile",
 									-format => 'scf');
 
-$in_scf_v3 = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
-									  ("t","data","version3.scf"),
+$in_scf_v3 = Bio::SeqIO->new(-file => test_input_file('version3.scf'),
 									  -format => 'scf',
 									  -verbose => $verbose);
 $v3 = $in_scf_v3->next_seq();
@@ -201,18 +177,16 @@ $v3 = $in_scf_v3->next_seq();
 my $sub_v3 = $v3->sub_trace_object(5,50);
 
 #warn("The subtrace object is this:\n") if $DEBUG;
-#$dumper->dumpValue($sub_v3) if $DEBUG;
 
 $out_scf->write_seq(-target => $sub_v3 );
 
-my $in_scf_v2 = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
-										  ("t","data","version2.scf"),
+my $in_scf_v2 = Bio::SeqIO->new(-file => test_input_file('version2.scf'),
 										  -format => 'scf',
 										  -verbose => $verbose);
 $v3 = $in_scf_v2->next_seq();
 ok($v3);
 
-$out_scf = Bio::SeqIO->new(-file   => ">write_scf_version2.scf",
+$out_scf = Bio::SeqIO->new(-file   => ">$outfile",
                            -format => "scf");
 $out_scf->write_seq( -target  => $v3,
                      -version => 2 );

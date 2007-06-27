@@ -1,24 +1,16 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-#
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
 BEGIN {
-    use vars qw($DEBUG);
-    $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 42;
-    use_ok('Bio::Map::Clone');
-    use_ok('Bio::Map::Contig');
-    use_ok('Bio::Map::FPCMarker');
-    use_ok('Bio::Map::OrderedPositionWithDistance');
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 39);
+	
     use_ok('Bio::Map::Physical');
+    use_ok('Bio::MapIO');
 }
 
 ok my $phm = Bio::Map::Physical->new();
@@ -40,11 +32,9 @@ is $phm->core_exists(3), 1, 'code holds and returns a string, definition require
 is $phm->core_exists(1), 1;
 is $phm->core_exists(), 1;
 
+my $fpcpath = test_input_file('biofpc.fpc');
 
-use Bio::MapIO::fpc;
-
-my $fpcpath = Bio::Root::IO->catfile('t','data','biofpc.fpc');
-
+# TODO? get Bio::MapIO::fpc to load from a Bio::MapIO call
 my $mapio = Bio::MapIO->new(-format => "fpc", -species => 'demo', -readcor => 1, -file => $fpcpath);
 my $fobj = $mapio->next_map();
 

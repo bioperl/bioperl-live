@@ -1,4 +1,4 @@
-# -*-Perl-*-
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
@@ -7,14 +7,13 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 288);
+    test_begin(-tests => 287);
 	
-	use_ok('Bio::Root::IO');
 	use_ok('Bio::SearchIO');
 }
 
 
-my $searchio = Bio::SearchIO->new(-format => 'blast_pull', -file => Bio::Root::IO->catfile(qw(t data new_blastn.txt)));
+my $searchio = Bio::SearchIO->new(-format => 'blast_pull', -file => test_input_file('new_blastn.txt'));
 
 my $result = $searchio->next_result;
 is $result->database_name, 'All GenBank+EMBL+DDBJ+PDB sequences (but no EST, STS,GSS,environmental samples or phase 0, 1 or 2 HTGS sequences)';
@@ -82,7 +81,7 @@ is @valid, 0;
 
 # descriptionless hit
 $searchio = Bio::SearchIO->new('-format' => 'blast_pull',
-							   '-file' => Bio::Root::IO->catfile('t','data','blast_no_hit_desc.txt'));
+							   '-file' => test_input_file('blast_no_hit_desc.txt'));
 
 $result = $searchio->next_result;
 my $hit = $result->next_hit;
@@ -91,7 +90,7 @@ is $hit->description, '';
 
 # further (NCBI blastn/p) tests taken from SearchIO.t
 $searchio = Bio::SearchIO->new('-format' => 'blast_pull',
-							   '-file' => Bio::Root::IO->catfile('t','data','ecolitst.bls'));
+							   '-file' => test_input_file('ecolitst.bls'));
 
 $result = $searchio->next_result;
 
@@ -163,7 +162,7 @@ while (my $hit = $result->next_hit) {
 is(@valid, 0);
 
 $searchio = Bio::SearchIO->new('-format' => 'blast_pull',
-							  '-file'   => Bio::Root::IO->catfile('t','data','a_thaliana.blastn'));
+							  '-file'   => test_input_file('a_thaliana.blastn'));
 
 $result = $searchio->next_result;
 is($result->database_name, 'All GenBank+EMBL+DDBJ+PDB sequences (but no EST, STS, GSS,or phase 0, 1 or 2 HTGS sequences)');
@@ -246,7 +245,7 @@ while( my $hit = $result->next_hit ) {
 is(@valid, 0);
 
 $searchio = Bio::SearchIO->new('-format' => 'blast_pull',
-							  '-file'   => Bio::Root::IO->catfile('t','data','frac_problems.blast'));
+							  '-file'   => test_input_file('frac_problems.blast'));
 my @expected = ("1.000", "0.943");
 while (my $result = $searchio->next_result) {
     my $hit = $result->next_hit;
@@ -264,14 +263,14 @@ is(@expected, 0);
 
 # And even more: frac_aligned_query should never be over 1!
 $searchio = Bio::SearchIO->new('-format' => 'blast_pull',
-							  '-file'   => Bio::Root::IO->catfile('t','data','frac_problems2.blast'));
+							  '-file'   => test_input_file('frac_problems2.blast'));
 $result = $searchio->next_result;
 $hit = $result->next_hit;
 is $hit->frac_aligned_query, 0.97;
 
 # Also, start and end should be sane
 $searchio = Bio::SearchIO->new('-format' => 'blast_pull',
-							  '-file'   => Bio::Root::IO->catfile('t','data','frac_problems3.blast'));
+							  '-file'   => test_input_file('frac_problems3.blast'));
 $result = $searchio->next_result;
 $hit = $result->next_hit;
 is $hit->start('sbjct'), 207;
@@ -279,7 +278,7 @@ is $hit->end('sbjct'), 1051;
 
 # Do a multiblast report test
 $searchio = Bio::SearchIO->new('-format' => 'blast_pull',
-							   '-file'   => Bio::Root::IO->catfile('t','data','multi_blast.bls'));
+							   '-file'   => test_input_file('multi_blast.bls'));
 
 @expected = qw(CATH_RAT CATL_HUMAN CATL_RAT PAPA_CARPA);
 my $results_left = 4;
@@ -291,7 +290,7 @@ is($results_left, 0);
 
 # Web blast result parsing
 $searchio = Bio::SearchIO->new(-format => 'blast_pull',
-							   -file   => Bio::Root::IO->catfile(qw(t data catalase-webblast.BLASTP)));
+							   -file   => test_input_file('catalase-webblast.BLASTP'));
 ok($result = $searchio->next_result);
 ok($hit = $result->next_hit);
 is($hit->name, 'gi|40747822|gb|EAA66978.1|', 'full hit name');
@@ -302,7 +301,7 @@ is($hsp->query->end, 528, 'query start');
 
 # tests for new BLAST 2.2.13 output
 $searchio = Bio::SearchIO->new(-format => 'blast_pull',
-							  -file   => Bio::Root::IO->catfile(qw(t data new_blastn.txt)));
+							  -file   => test_input_file('new_blastn.txt'));
 
 $result = $searchio->next_result;
 is($result->database_name, 'All GenBank+EMBL+DDBJ+PDB sequences (but no EST, STS,GSS,environmental samples or phase 0, 1 or 2 HTGS sequences)');
@@ -371,8 +370,7 @@ is(@valid, 0);
 
 # Bug 2189
 $searchio = Bio::SearchIO->new(-format => 'blast_pull',
-							  -file   => Bio::Root::IO->catfile
-							  (qw(t data blastp2215.blast)));
+							  -file   => test_input_file('blastp2215.blast'));
 
 $result = $searchio->next_result;
 is($result->database_entries, 4460989);
@@ -402,8 +400,7 @@ is($hits[7]->score, 624);
 # Bug 2246
 $searchio = Bio::SearchIO->new(-format => 'blast_pull',
                                -verbose => -1,
-							  -file   => Bio::Root::IO->catfile
-							  (qw(t data bug2246.blast)));
+							  -file   => test_input_file('bug2246.blast'));
 $result = $searchio->next_result;
 $hit = $result->next_hit;
 is $hit->name, 'UniRef50_Q9X0H5';

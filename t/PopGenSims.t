@@ -1,26 +1,18 @@
-# -*-Perl-*- mode for emacs
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 # This will outline tests for the population genetics simulation
 # in the Bio::PopGen::Simulation namespace
 # Coalescent has its own tests though in t/Coalescent.t
 
-my $error;
-
 use strict;
-use lib '.';
 
 BEGIN {     
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use vars qw($NTESTS);
-    $NTESTS = 23;
-    $error = 0;
-
-    use Test::More;
-    plan tests => $NTESTS; 
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 23);
+	
     use_ok 'Bio::PopGen::Simulation::GeneticDrift';
 }
 

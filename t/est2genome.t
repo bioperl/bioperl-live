@@ -1,27 +1,18 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-##
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
-my $error;
 use strict;
-use vars qw($TESTCOUNT);
 
 BEGIN { 
-    eval { require Test::More; };
-    if( $@ ) {
-		use lib 't/lib';
-    }
-    use Test::More;
-    $TESTCOUNT = 61;
-    plan tests => $TESTCOUNT;
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 61);
+	
 	use_ok('Bio::Tools::Est2Genome');
 }
 
-my $verbose = 0;
-
-my $parser = Bio::Tools::Est2Genome->new(-file   => Bio::Root::IO->catfile
-					('t','data', 'hs_est.est2genome'));
+my $parser = Bio::Tools::Est2Genome->new(-file   => test_input_file('hs_est.est2genome'));
 
 ok($parser);
 my $feature_set = $parser->parse_next_gene;
@@ -60,8 +51,7 @@ foreach my $intron ( @introns ) {
 }
 ok(! @expected_introns);
 
-$parser = Bio::Tools::Est2Genome->new(-file   => Bio::Root::IO->catfile
-					('t','data', 'hs_est.est2genome'));
+$parser = Bio::Tools::Est2Genome->new(-file   => test_input_file('hs_est.est2genome'));
 
 ok($parser);
 my $gene = $parser->parse_next_gene(1);
@@ -91,4 +81,3 @@ foreach my $trans($gene->transcripts){
     is($intron->strand, $test_i->[$i++]);
   }
 }
-

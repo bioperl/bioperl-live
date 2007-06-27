@@ -1,32 +1,22 @@
-# -*-Perl-*-
-# Bioperl Test Harness Script for Modules
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
-my $error = 0;
-
 use strict;
-BEGIN {     
-	eval { require Test::More; };
-	if( $@ ) {
-		use lib 't/lib';
-	}
 
-	use Test::More;
-	plan tests => 52; 
+BEGIN {     
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 51);
+	
 	use_ok('Bio::MapIO');
-	use_ok('Bio::Root::IO');
 }
 
-
-my $verbose = $ENV{'BIOPERLDEBUG'};
+my $verbose = test_debug();
 
 ok my $mapio = Bio::MapIO->new(-verbose => $verbose,
 										-format => 'mapmaker',
-										-file   => Bio::Root::IO->catfile
-										('t','data','mapmaker.out'));
+										-file   => test_input_file('mapmaker.out'));
 
 my $map = $mapio->next_map;
 
@@ -44,8 +34,7 @@ foreach my $marker ( $map->each_element ) {
 is $count,18;
 
 ok $mapio = Bio::MapIO->new(-format => 'mapmaker',
-									-file   => Bio::Root::IO->catfile
-									('t','data','mapmaker.txt'));
+									-file   => test_input_file('mapmaker.txt'));
 
 $map = $mapio->next_map;
 is $map->length,382.5;
@@ -58,8 +47,7 @@ foreach my $marker ( $map->each_element ) {
 is $count,13;
 
 ok $mapio = Bio::MapIO->new(-format => 'fpc',
-									-file   => Bio::Root::IO->catfile
-									('t','data','ctgdemo.fpc'));
+									-file   => test_input_file('ctgdemo.fpc'));
 
 $map = $mapio->next_map;
 

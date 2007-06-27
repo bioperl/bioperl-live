@@ -1,28 +1,21 @@
-# -*-Perl-*-
-# Bioperl Test Harness Script for Modules
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
-#
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-BEGIN {
-	eval { require Test::More; };
-	if( $@ ) {
-		use lib 't/lib';
-	}
 
-	use Test::More;
-	plan tests => 5;
+BEGIN {
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 4);
+	
 	use_ok('Bio::SeqIO');
-	use_ok('Bio::Root::IO');
 }
 
-my $verbose = $ENV{'BIOPERLDEBUG'};
+my $verbose = test_debug();
 
 # test DOS linefeeds in gcg parser
-my $str = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
-								  ("t","data","test_badlf.gcg"),
+my $str = Bio::SeqIO->new(-file => test_input_file('test_badlf.gcg'),
 								  -verbose => $verbose,
 								  -format => 'GCG');
 ok($str);

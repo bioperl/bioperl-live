@@ -1,22 +1,17 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
+
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-		use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 103;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 103);
+	
     use_ok('Bio::Location::Simple');
     use_ok('Bio::Location::Split');
     use_ok('Bio::Location::Fuzzy');
-    
     use_ok('Bio::SeqFeature::Generic');
     use_ok('Bio::SeqFeature::SimilarityPair');
     use_ok('Bio::SeqFeature::FeaturePair');
@@ -276,4 +271,3 @@ is $f->end, 100;
 is $f->length, 61;
 is $f->to_FTstring, '(40.60)..(80.100)';
 isa_ok($f->coordinate_policy, 'Bio::Location::WidestCoordPolicy');
-

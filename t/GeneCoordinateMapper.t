@@ -1,29 +1,19 @@
-#-*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-BEGIN { 
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
 
-    plan tests => 119;
+BEGIN { 
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 116);
+	
     use_ok('Bio::Location::Simple');
     use_ok('Bio::Coordinate::Pair');
-    use_ok('Bio::Coordinate::Result');
-    use_ok('Bio::Coordinate::Result::Match');
-    use_ok('Bio::Coordinate::Result::Gap');
     use_ok('Bio::Coordinate::ExtrapolatingPair');
-    use_ok('Bio::Coordinate::Collection');
+	use_ok('Bio::Coordinate::GeneMapper');
 }
-
-use vars qw($DEBUG);
 
 #
 # Extrapolating pairs
@@ -157,8 +147,6 @@ is $res->strand, -1;
 # Gene Mapper
 #
 #
-
-use Bio::Coordinate::GeneMapper;
 
 ok my $m = Bio::Coordinate::GeneMapper->new(-in => 'propeptide',
 					   -out => 'peptide');
@@ -612,10 +600,6 @@ sub map_snps {
 	    my $cds_start = 0;
 	    $cds_start = $res->start if defined $res;#defined $res->start;
 	    print  "\t\t", $cds_start, " (", $frame_obj->start, ")\n";
-
 	}
-
     }
-
-
 }

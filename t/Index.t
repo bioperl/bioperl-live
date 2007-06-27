@@ -1,49 +1,31 @@
-# -*-Perl-*-
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
-use vars qw($exit $DEBUG);
+
 BEGIN {
-   eval { require Test::More; };
-   use vars qw($NUMTESTS);
-   $DEBUG = $ENV{"BIOPERLDEBUG"} || 0;
-   $NUMTESTS = 65;
-   if ( $@ ) {
-      use lib 't/lib';
-   }
-   use Test::More;
-   eval {
-      require DB_File;
-      require Storable;
-      require File::Temp;
-      require Fcntl;
-   };
-   if ( $@ ) {
-      plan skip_all => "Module DB_File or Fcntl or Storable or File::Temp not installed - skipping tests";
-   } else {
-      plan tests => $NUMTESTS;
-   }
+   use lib 't/lib';
+   use BioperlTest;
+   
+   test_begin(-tests => 64,
+              -requires_modules => [qw(DB_File
+                                       Storable
+                                       Fcntl)]);
+   
    use_ok('Bio::Index::Fasta');
    use_ok('Bio::Index::Qual');
    use_ok('Bio::Index::SwissPfam');
    use_ok('Bio::Index::EMBL');
    use_ok('Bio::Index::GenBank');
    use_ok('Bio::Index::Swissprot');
-   use_ok('Bio::Root::IO');
    use_ok('Bio::DB::InMemoryCache');
 }
-
-use vars qw ($dir);
-
-($Bio::Root::IO::FILESPECLOADED && File::Spec->can('curdir') &&
-($dir = File::Spec->curdir) ) || ($dir = `pwd`) || ($dir = '.');
-chomp( $dir );
 
 my $ind = Bio::Index::Fasta->new(-filename => 'Wibbl',
 											-write_flag => 1,
 											-verbose => 0);
-$ind->make_index(Bio::Root::IO->catfile($dir,"t","data","multifa.seq"));
-$ind->make_index(Bio::Root::IO->catfile($dir,"t","data","seqs.fas"));
+$ind->make_index(test_input_file('multifa.seq'));
+$ind->make_index(test_input_file('seqs.fas'));
 
 ok ( -e "Wibbl" || -e "Wibbl.pag" );
 my $seq = $ind->fetch('HSEARLOBE');
@@ -65,14 +47,14 @@ isa_ok $seq, 'Bio::PrimarySeqI';
 $ind = Bio::Index::Fasta->new(-filename => 'multifa_index',
 										-write_flag => 1,
 										-verbose => 0);
-$ind->make_index(Bio::Root::IO->catfile($dir,"t","data","multifa.seq.qual"));
+$ind->make_index(test_input_file('multifa.seq.qual'));
 
 ok ( -e "multifa_index" );
 
 $ind = Bio::Index::Qual->new(-filename => 'multifa_qual_index',
 									  -write_flag => 1,
 									  -verbose => 0);
-$ind->make_index(Bio::Root::IO->catfile($dir,"t","data","multifa.seq.qual"));
+$ind->make_index(test_input_file('multifa.seq.qual'));
 
 ok ( -e "multifa_qual_index" );
 
@@ -92,19 +74,19 @@ ok(! defined $seq);
 
 $ind = Bio::Index::SwissPfam->new(-filename => 'Wibbl2',
 											 -write_flag =>1);
-$ind->make_index(Bio::Root::IO->catfile($dir,"t","data","swisspfam.data"));
+$ind->make_index(test_input_file('swisspfam.data'));
 
 ok ( -e "Wibbl2" || -e "Wibbl2.pag" );
 
 $ind = Bio::Index::EMBL->new(-filename   => 'Wibbl3',
 			     -write_flag =>1);
-$ind->make_index(Bio::Root::IO->catfile($dir,"t","data","test.embl"));
+$ind->make_index(test_input_file('test.embl'));
 ok ( -e "Wibbl3" || -e "Wibbl3.pag" );
 is ($ind->fetch('AL031232')->length, 4870);
 
 $ind = Bio::Index::Swissprot->new(-filename   => 'Wibbl4',
 											 -write_flag => 1);
-$ind->make_index(Bio::Root::IO->catfile($dir,"t","data","roa1.swiss"));
+$ind->make_index(test_input_file('roa1.swiss'));
 ok ( -e "Wibbl4" || -e "Wibbl4.pag" );
 $seq = $ind->fetch('ROA1_HUMAN');
 is ($seq->display_id(), 'ROA1_HUMAN');
@@ -115,7 +97,7 @@ is ($seq->display_id(), 'ROA1_HUMAN');
 $ind = Bio::Index::Swissprot->new(-filename   => 'Wibbl4',
 											 -write_flag => 1);
 $ind->id_parser(\&get_id);
-$ind->make_index(Bio::Root::IO->catfile($dir,"t","data","roa1.swiss"));
+$ind->make_index(test_input_file('roa1.swiss'));
 ok ( -e "Wibbl4" || -e "Wibbl4.pag" );
 $seq = $ind->fetch('X12671');
 is ($seq->length,371);
@@ -124,7 +106,7 @@ is ($seq->length,371);
 my $gb_ind = Bio::Index::GenBank->new(-filename => 'Wibbl5',
 												  -write_flag =>1,
 												  -verbose    => 0);
-$gb_ind->make_index(Bio::Root::IO->catfile($dir,"t","data","roa1.genbank"));
+$gb_ind->make_index(test_input_file('roa1.genbank'));
 ok ( -e "Wibbl5" || -e "Wibbl5.pag" );
 $seq = $gb_ind->fetch('AI129902');
 is ($seq->length, 37);
@@ -137,8 +119,7 @@ my $cache = Bio::DB::InMemoryCache->new( -seqdb => $gb_ind );
 ok ( $cache->get_Seq_by_id('AI129902') );
 
 SKIP: {
-   eval { require Bio::DB::FileCache };
-   skip('Bio::DB::FileCache not loaded because one or more of Storable, Fcntl, DB_File or File::Temp not installed',22) if $@;
+   test_skip(-tests => 22, -requires_module => 'Bio::DB::FileCache');
 
    $cache = Bio::DB::FileCache->new(-seqdb => $gb_ind,
 												-keep  => 1,
@@ -190,7 +171,7 @@ $gb_ind = Bio::Index::GenBank->new(-filename => 'Wibbl5',
 											  -write_flag =>1,
 											  -verbose    => 0);
 $gb_ind->id_parser(\&get_id);
-$gb_ind->make_index(Bio::Root::IO->catfile($dir,"t","data","roa1.genbank"));
+$gb_ind->make_index(test_input_file('roa1.genbank'));
 ok ( -e "Wibbl5" || -e "Wibbl5.pag" );
 $seq = $gb_ind->fetch('alpha D-globin');
 is ($seq->length,141);

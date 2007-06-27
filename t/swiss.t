@@ -1,60 +1,39 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
-my $error = 0;
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-
-    use Test::More;
-    plan tests => 239;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 238);
+	
+    use_ok('Bio::SeqIO');
 }
 
-if( $error == 1 ) {
-    exit(0);
-}
-
-END {
-   unlink(qw (swiss_unk.dat test.swiss));
-}
-
-use_ok('Bio::SeqIO');
-use_ok('Bio::Root::IO');
-my $verbose = $ENV{'BIOPERLDEBUG'};
+my $verbose = test_debug();
 
 my $seqio = Bio::SeqIO->new( -verbose => $verbose,
                                      -format => 'swiss',
-                                     -file   => Bio::Root::IO->catfile('t','data', 
-                                                    'test.swiss'));
+                                     -file   => test_input_file('test.swiss'));
 
 isa_ok($seqio, 'Bio::SeqIO');
 my $seq = $seqio->next_seq;
 my @gns = $seq->annotation->get_Annotations('gene_name');
 
+my $outfile = test_output_file();
 $seqio = Bio::SeqIO->new( -verbose => $verbose,
                                  -format => 'swiss',
-                                 -file   => Bio::Root::IO->catfile
-                                 ('>test.swiss'));
+                                 -file   => ">$outfile");
 
 $seqio->write_seq($seq);
 
 # reads it in once again
 $seqio = Bio::SeqIO->new( -verbose => $verbose,
                                  -format => 'swiss',
-                                 -file => Bio::Root::IO->catfile('test.swiss'));
-    
+                                 -file => $outfile);
+
 $seq = $seqio->next_seq;
 isa_ok($seq->species, 'Bio::Taxon');
 is($seq->species->ncbi_taxid, 6239);
@@ -74,8 +53,7 @@ my @gns2 = $seq->annotation->get_Annotations('gene_name');
 ok($#gns2 == 0 && $gns[0]->value eq $gns2[0]->value);
 
 # test swissprot multiple RP lines
-my $str = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
-                                  (qw(t data P33897) ));
+my $str = Bio::SeqIO->new(-file => test_input_file('P33897'));
 $seq = $str->next_seq;
 isa_ok($seq, 'Bio::Seq::RichSeqI');
 my @refs = $seq->annotation->get_Annotations('reference');
@@ -94,7 +72,7 @@ for my $date (@dates) {
 
 my $ast = Bio::SeqIO->new(-verbose => $verbose,
                                   -format => 'swiss' ,
-                                  -file => Bio::Root::IO->catfile("t","data","roa1.swiss"));
+                                  -file => test_input_file('roa1.swiss'));
 my $as = $ast->next_seq();
 
 ok defined $as->seq;
@@ -121,8 +99,7 @@ my ($ent,$out) = undef;
 
 $seqio = Bio::SeqIO->new(-format => 'swiss' ,
                                  -verbose => $verbose,
-                                 -file => Bio::Root::IO->catfile
-                                 ("t","data","swiss.dat"));
+                                 -file => test_input_file('swiss.dat'));
 $seq = $seqio->next_seq;
 isa_ok($seq, 'Bio::Seq::RichSeqI');
 
@@ -213,8 +190,7 @@ is($ann->value(-joins => [" AND "," OR "]), $flatnames);
 # same entry as before, but with the new gene names format
 $seqio = Bio::SeqIO->new(-format => 'swiss',
                                  -verbose => $verbose,
-                         -file => Bio::Root::IO->catfile
-                                 ("t","data","calm.swiss"));
+                         -file => test_input_file('calm.swiss'));
 $seq = $seqio->next_seq();
 isa_ok($seq, 'Bio::Seq::RichSeqI');
 like($seq->primary_id, qr(Bio::PrimarySeq));
@@ -302,8 +278,7 @@ foreach my $litref (@litrefs) {
 
 $seqio = Bio::SeqIO->new( -verbose => $verbose,
                          -format => 'swiss',
-                         -file   => Bio::Root::IO->catfile('t','data', 
-                                                       'pre_rel9.swiss'));
+                         -file   => test_input_file('pre_rel9.swiss'));
 
 ok($seqio);
 $seq = $seqio->next_seq;
@@ -331,8 +306,7 @@ for my $dblink ( $seq->annotation->get_Annotations('dblink') ) {
 
 $seqio = Bio::SeqIO->new( -verbose => $verbose,
                          -format => 'swiss',
-                         -file   => Bio::Root::IO->catfile('t','data', 
-                                                       'pre_rel9.swiss'));
+                         -file   => test_input_file('pre_rel9.swiss'));
 
 my @namespaces = qw(Swiss-Prot TrEMBL TrEMBL);
 
@@ -344,8 +318,7 @@ while (my $seq = $seqio->next_seq) {
 
 $seqio = Bio::SeqIO->new( -verbose => $verbose,
                          -format => 'swiss',
-                         -file   => Bio::Root::IO->catfile('t','data', 
-                                                       'rel9.swiss'));
+                         -file   => test_input_file('rel9.swiss'));
 
 ok($seqio);
 $seq = $seqio->next_seq;
@@ -372,12 +345,10 @@ for my $dblink ( $seq->annotation->get_Annotations('dblink') ) {
 
 $seqio = Bio::SeqIO->new( -verbose => $verbose,
                          -format => 'swiss',
-                         -file   => Bio::Root::IO->catfile('t','data', 
-                                                       'rel9.swiss'));
+                         -file   => test_input_file('rel9.swiss'));
 
 @namespaces = qw(Swiss-Prot TrEMBL TrEMBL);
 
 while (my $seq = $seqio->next_seq) {
     is($seq->namespace, shift @namespaces);
 }
-

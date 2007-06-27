@@ -1,18 +1,14 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
+
 BEGIN { 
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 19;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 19);
+	
 	use_ok('Bio::LiveSeq::Mutation');
 }
 
@@ -66,5 +62,3 @@ is $b->seqori, 'GG';
 is $b->len, 2;
 is $b->seq, 'AC';
 is $b->pos, 5;
-
-

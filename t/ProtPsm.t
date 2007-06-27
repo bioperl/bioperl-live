@@ -1,25 +1,21 @@
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
-#---------------------------------------------------------
 
-# tests for Bio::Matrix::PSM::ProtPsm
-# written by James Thompson <tex@biosysadmin.com>
 
 use strict;
 
 BEGIN {
-   eval { require Test::More; };
-   if( $@ ) {
-      use lib 't/lib';
-   }
-   use Test::More;
-   plan tests => 15;
-   use_ok('Bio::Matrix::PSM::ProtPsm');
+   use lib 't/lib';
+   use BioperlTest;
+   
+   test_begin(-tests => 14);
+   
    use_ok('Bio::Matrix::PSM::IO');
 }
 
 # Test psiblast reading functionality.
 my $psmIO =  Bio::Matrix::PSM::IO->new(-format => 'psiblast', 
-			      -file   => Bio::Root::IO->catfile(qw(t data atp1.matrix)));
+			      -file   => test_input_file('atp1.matrix'));
 ok $psmIO;
 
 my $psm = $psmIO->next_psm;
@@ -32,7 +28,7 @@ is $psm->IUPAC, $IUPAC;
 ## Lets try to compress and uncompress the log odds and the
 ## frequencies, see if there is no considerable loss of data.
 SKIP: {
-   skip('Module incomplete',10); 
+   skip('TODO: Module incomplete',10); 
    my $fA=$psm->get_compressed_freq('A');
    my @check=Bio::Matrix::PSM::SiteMatrix::_uncompress_string($fA,1,1);
    my @A=$psm->get_array('A');

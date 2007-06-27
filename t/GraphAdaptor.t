@@ -1,23 +1,15 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
+
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    eval { require 'Graph.pm' };
-    if( $@ ) {
-	    plan skip_all => "Graph.pm doesn't seem to be installed on this system -- the GO Parser needs it...";
-    } else {
-        plan tests => 28;
-    }
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 28,
+			   -requires_module => 'Graph');
+	
     use_ok('Bio::Ontology::SimpleGOEngine::GraphAdaptor');
 }
 

@@ -1,5 +1,5 @@
-# -*-Perl-*-
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
@@ -62,4 +62,3 @@ foreach my $s ( sort { $a->token cmp $b->token } $prot->symbols ) {
     is($s->name, $protnms[$count]);
     is($s->token, $protsymbols[$count++]);    
 }
-

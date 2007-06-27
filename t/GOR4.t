@@ -1,43 +1,19 @@
-# This is -*-Perl-*- code
-## Bioperl Test Harness Script for Modules
-##
-# $Id: GOR4.t,v 1.1 2003/07/23 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
+
 use strict;
-use vars qw($NUMTESTS $DEBUG);
 
 BEGIN {
-	$NUMTESTS = 14;
-	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 13,
+			   -requires_modules => [qw(IO::String LWP::UserAgent)],
+			   -requires_networking => 1);
 	
-	eval {require Test::More;};
-	if ($@) {
-		use lib 't/lib';
-	}
-	use Test::More;
-	
-	eval {
-		require IO::String; 
-		require LWP::UserAgent;
-	};
-	if ($@) {
-		plan skip_all => 'IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests';
-	} elsif (!$DEBUG) {
-        plan skip_all => 'Must set BIOPERLDEBUG=1 for network tests';
-    } else {
-		plan tests => $NUMTESTS;
-	}
-	
-	use_ok("Data::Dumper");
 	use_ok("Bio::Seq");
 	use_ok("Bio::Tools::Analysis::Protein::GOR4");
 }
-
-#	eval {require Bio::Seq::Meta::Array;};
-#	"Bio::Seq::Meta::Array not installed - will skip tests using meta sequences"
-
-my $verbose = $DEBUG;
 
 my $seq = Bio::Seq->new(-seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
                         -display_id => 'test2');
@@ -60,8 +36,7 @@ SKIP: {
 	is $res[0]->end, 43;
     ok my $meta = $tool->result('meta');
     
-    eval {require Bio::Seq::Meta::Array;};
-	skip "Bio::Seq::Meta::Array not installed - will skip tests using meta sequences", 2 if $@;
+	test_skip(-tests => 2, -requires_module => 'Bio::Seq::Meta::Array');
 	is $meta->named_submeta_text('GOR4_coil',1,2), '999 999';
 	is $meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS';
 }

@@ -1,33 +1,25 @@
-# -*-Perl-*-
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
-BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
 
-    eval { require 'Graph.pm' };
-    if( $@ ) {
-	    plan skip_all => "Graph.pm doesn't seem to be installed on this system -- the OBO Parser needs it...";
-    } else {
-		plan tests => 46;
-	}	
+BEGIN {
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 45,
+			   -requires_module => 'Graph');
+	
 	use_ok('Bio::OntologyIO');
 	use_ok('Bio::Ontology::RelationshipType');
-	use_ok('Bio::Root::IO');
 }
 
 my $IS_A    = Bio::Ontology::RelationshipType->get_instance( "IS_A" );
 my $PART_OF = Bio::Ontology::RelationshipType->get_instance( "PART_OF" );
 
-my $io = Bio::Root::IO->new(); # less typing from now on
 my $parser = Bio::OntologyIO->new(
                       -format    => "obo",
-		      -file      => $io->catfile("t", "data",
-						 "so.obo"));
+		      -file      => test_input_file('so.obo'));
 
 my $ont = $parser->next_ontology();
 ok ($ont);

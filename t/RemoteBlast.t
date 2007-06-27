@@ -1,4 +1,4 @@
-# -*-Perl-*- for my emacs
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
@@ -7,23 +7,17 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-requires_modules => [qw(IO::String LWP LWP::UserAgent)],
-               -requires_networking => 1,
-               -tests => 21);
+    test_begin(-tests => 16,
+               -requires_modules => [qw(IO::String LWP LWP::UserAgent)],
+               -requires_networking => 1);
     
     use_ok('Bio::Tools::Run::RemoteBlast');
-    use_ok('Bio::SeqIO');
-    use_ok('Bio::AlignIO');
-    use_ok('Bio::Seq');
-    use_ok('Bio::Root::IO');
-    use_ok('Env');
 }
-
 
 my $prog = 'blastp';
 my $db   = 'swissprot';
 my $e_val= '1e-10';
-my $v = test_debug() > 1;
+my $v = test_debug();
 my $remote_blast = Bio::Tools::Run::RemoteBlast->new('-verbose' => $v,
 													'-prog' => $prog,
 													'-data' => $db,
@@ -31,7 +25,7 @@ my $remote_blast = Bio::Tools::Run::RemoteBlast->new('-verbose' => $v,
 							  );
 $remote_blast->submit_parameter('ENTREZ_QUERY', 
 										  'Escherichia coli[ORGN]');
-my $inputfilename = Bio::Root::IO->catfile("t","data","ecolitst.fa");
+my $inputfilename = test_input_file('ecolitst.fa');
 ok( -e $inputfilename);	
 
 ok(1, 'Text BLAST');
@@ -83,7 +77,7 @@ $remote_blast2->submit_parameter('ENTREZ_QUERY', 'Escherichia coli[ORGN]');
 
 $remote_blast2->retrieve_parameter('ALIGNMENT_VIEW', 'Tabular');
 
-$inputfilename = Bio::Root::IO->catfile("t","data","ecolitst.fa");
+$inputfilename = test_input_file('ecolitst.fa');
 
 $r = $remote_blast2->submit_blast($inputfilename);
 ok($r);
@@ -117,10 +111,7 @@ while ( my @rids = $remote_blast2->each_rid ) {
 }
 
 SKIP: {
-	eval {require Bio::SearchIO::blastxml;};
-	if ($@) {
-		skip('Skip blastxml tests probably because XML::SAX not installed',5);
-	}
+    test_skip(-tests => 5, -requires_module => 'Bio::SearchIO::blastxml');
 	
 	my $remote_blastxml = Bio::Tools::Run::RemoteBlast->new('-prog' => $prog,
 		'-data'       => $db,
@@ -131,7 +122,7 @@ SKIP: {
 									'Escherichia coli[ORGN]');
 	
 	$remote_blastxml->retrieve_parameter('FORMAT_TYPE', 'XML');
-	$inputfilename = Bio::Root::IO->catfile("t","data","ecolitst.fa");
+	$inputfilename = test_input_file('ecolitst.fa');
 	
 	ok(1, 'XML BLAST');
 	
@@ -167,5 +158,3 @@ SKIP: {
 		}
 	}
 }
-
-1;

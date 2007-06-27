@@ -1,5 +1,5 @@
-# -*-Perl-*-
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
@@ -7,14 +7,13 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 14);
+    test_begin(-tests => 13);
 	
 	use_ok('Bio::Align::Utilities', qw(:all));
 	use_ok('Bio::SimpleAlign');
 	use_ok('Bio::PrimarySeq');
 	use_ok('Bio::LocatableSeq');
 	use_ok('Bio::AlignIO');
-	use_ok('Bio::Root::IO');
 }
 
 my $DEBUG = test_debug();

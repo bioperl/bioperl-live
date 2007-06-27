@@ -1,35 +1,20 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
-my $error;
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-use lib '.';
 
 BEGIN {     
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use vars qw($NTESTS);
-    $NTESTS = 48;
-    use Test::More;
-    plan tests => $NTESTS;
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 45);
+	
 	use_ok('Bio::SearchIO');
-	use_ok('Bio::Root::IO');
-	use_ok('Bio::SearchIO::Writer::HitTableWriter');
-	use_ok('Bio::SearchIO::Writer::HTMLResultWriter');
 }
 
 my ($searchio, $result,$hit,$hsp);
 
-$searchio = Bio::SearchIO->new(-file => 
-			      Bio::Root::IO->catfile(qw(t data 
-							testdat.exonerate)),
+$searchio = Bio::SearchIO->new(-file => test_input_file('testdat.exonerate'),
 			      -format => 'exonerate');
 my @data = ( [qw(ln27 416 Contig124 939
 		 293 416 -1 

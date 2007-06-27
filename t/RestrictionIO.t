@@ -1,45 +1,36 @@
-# -*-Perl-*- mode (to keep my emacs happy)
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
-# test for Bio::Restriction::Analysis.pm
-# written by Rob Edwards
 
 use strict;
 
-my $NUMTESTS;
-
 BEGIN {
-    eval { require Test; };
-    if( $@ ) {
-        use lib 't';
-    }
-    use Test;
-    $NUMTESTS = 14;
-    plan tests => $NUMTESTS;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 15);
+	
+    use_ok('Bio::Restriction::IO');
 }
-
-require Bio::Restriction::IO;
-use Bio::Root::IO;
-require Bio::Restriction::EnzymeCollection;
-
-my $tmpdir = File::Spec->catfile(qw(t tmp));
-mkdir($tmpdir,0777);
-
-ok(1);
 
 #
 # default enz set
 #
 ok my $in  = Bio::Restriction::IO->new();
 ok my $renzs = $in->read;
-ok $renzs->each_enzyme, 532;
+is $renzs->each_enzyme, 532;
 
 ok my $e = $renzs->get_enzyme('AccI');
-ok $e->name, 'AccI';
+is $e->name, 'AccI';
 
-ok my $out = Bio::Restriction::IO->new(-format => 'base', -file   => ">".File::Spec->catfile($tmpdir,"r"));
-#$out->write($renzs);
-#map {print $_->name, "\t", $_->site, "\t", $_->overhang, "\n"} $renzs->each_enzyme;
+my $outfile = test_output_file();
+ok my $out = Bio::Restriction::IO->new(-format => 'base', -file => ">$outfile");
+TODO: {
+    local $TODO = "writing to a file doesn't seem to work? prints to STDOUT!";
+    #$out->write($renzs);
+    ok -s $outfile;
+    #map {print $_->name, "\t", $_->site, "\t", $_->overhang, "\n"} $renzs->each_enzyme;
+}
 
 #
 # withrefm, 31
@@ -48,9 +39,9 @@ ok my $out = Bio::Restriction::IO->new(-format => 'base', -file   => ">".File::S
 ok $in  = Bio::Restriction::IO->new
   (-format=> 'withrefm',
 	-verbose => 0,
-	-file => Bio::Root::IO->catfile("t","data","rebase.withrefm"));
+	-file => test_input_file('rebase.withrefm'));
 ok $renzs = $in->read;
-ok $renzs->each_enzyme, 11;
+is $renzs->each_enzyme, 11;
 
 #
 # itype2, 8
@@ -60,17 +51,9 @@ ok $renzs->each_enzyme, 11;
 
 ok $in  = Bio::Restriction::IO->new
     (-format=> 'itype2', -verbose => 0,
-     -file => Bio::Root::IO->catfile("t","data","rebase.itype2"));
+     -file => test_input_file('rebase.itype2'));
 
 ok $renzs = $in->read;
-ok $renzs->each_enzyme, 16;
+is $renzs->each_enzyme, 16;
 
 ok  $out  = Bio::Restriction::IO->new(-format=>'base');
-
-END { cleanup(); }
-
-sub cleanup {
-   eval {
-      Bio::Root::IO->rmtree($tmpdir) if (-d $tmpdir);
-   };
-}

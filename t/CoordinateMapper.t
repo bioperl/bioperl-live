@@ -1,5 +1,5 @@
-#-*-Perl-*-
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
@@ -7,11 +7,10 @@ BEGIN {
     use lib 't/lib';
 	use BioperlTest;
 	
-	test_begin(-tests => 176);
+	test_begin(-tests => 175);
 	
 	use_ok('Bio::Location::Simple');
 	use_ok('Bio::Coordinate::Pair');
-	use_ok('Bio::Coordinate::Result');
 	use_ok('Bio::Coordinate::Result::Match');
 	use_ok('Bio::Coordinate::Result::Gap');
 	use_ok('Bio::Coordinate::Chain');
@@ -688,4 +687,3 @@ chr1	625359	1214016	1216330	1	2315	1
     }
     return $map;
 }
-

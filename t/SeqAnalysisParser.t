@@ -1,32 +1,31 @@
-# -*-Perl-*-
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-BEGIN { 
-    eval { require Test; };
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
-    plan tests => 11;
-}
 
-use Bio::Factory::SeqAnalysisParserFactory;
-use Bio::SeqIO;
-use Bio::Root::IO;
+BEGIN { 
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 14);
+	
+	use_ok('Bio::Factory::SeqAnalysisParserFactory');
+	use_ok('Bio::SeqIO');
+}
 
 my ($seqio,$seq,$factory,$parser, $gene_seen, $exon_seen);
 
-$seqio = Bio::SeqIO->new('-format'=>'fasta', '-file' => Bio::Root::IO->catfile("t","data","genomic-seq.fasta"));
-ok $seqio->isa('Bio::SeqIO');# 'seqio was not created';
+$seqio = Bio::SeqIO->new('-format'=>'fasta', '-file' => test_input_file('genomic-seq.fasta'));
+isa_ok $seqio, 'Bio::SeqIO';
 $seq = $seqio->next_seq;
-ok $seq->isa('Bio::PrimarySeqI');#'could not read sequence';
+isa_ok $seq, 'Bio::PrimarySeqI';
 
 $factory = Bio::Factory::SeqAnalysisParserFactory->new();
 
 # let's test the genscan factory
-$parser = $factory->get_parser(-input => Bio::Root::IO->catfile("t","data","genomic-seq.genscan"),
+$parser = $factory->get_parser(-input => test_input_file('genomic-seq.genscan'),
 				  -method => 'genscan');
-ok $parser->isa('Bio::SeqAnalysisParserI');#'noSeqAnalysisParserI created';
+isa_ok $parser, 'Bio::SeqAnalysisParserI';
 while( my $feat = $parser->next_feature() ){
     $seq->add_SeqFeature($feat);
 }
@@ -39,17 +38,17 @@ foreach my $feat (  $seq->top_SeqFeatures() ) {
 	$gene_seen++;
     } 
 }
-ok $exon_seen, 37;
-ok $gene_seen, 3;
+is $exon_seen, 37;
+is $gene_seen, 3;
 
 # let's test the mzef factory
-$parser = $factory->get_parser(-input => Bio::Root::IO->catfile("t","data","genomic-seq.mzef"),
+$parser = $factory->get_parser(-input => test_input_file('genomic-seq.mzef'),
 			       -method=> 'mzef');
-$seqio = Bio::SeqIO->new('-format'=>'fasta', '-file' => Bio::Root::IO->catfile("t","data","genomic-seq.fasta"));
-$seq = $seqio->next_seq();
-ok(defined $seq && $seq->isa('Bio::PrimarySeqI'));
+$seqio = Bio::SeqIO->new('-format'=>'fasta', '-file' => test_input_file('genomic-seq.fasta'));
+ok $seq = $seqio->next_seq();
+isa_ok $seq, 'Bio::PrimarySeqI';
 
-ok $parser->isa('Bio::SeqAnalysisParserI');#'noSeqAnalysisParserI created';
+isa_ok $parser, 'Bio::SeqAnalysisParserI';
 while( my $feat = $parser->next_feature() ){
     $seq->add_SeqFeature($feat);
 }
@@ -62,19 +61,19 @@ foreach my $feat (  $seq->top_SeqFeatures() ) {
 	$gene_seen++;
     } 
 }
-ok $exon_seen, 23;
-ok $gene_seen, 1;
+is $exon_seen, 23;
+is $gene_seen, 1;
 
 # let's test the ePCR factory
 
-$parser = $factory->get_parser(-input => Bio::Root::IO->catfile("t","data", "genomic-seq.epcr"),
+$parser = $factory->get_parser(-input => test_input_file('genomic-seq.epcr'),
 			       -method => 'epcr');
 
 $seq->flush_SeqFeatures;
 
-ok $parser->isa('Bio::SeqAnalysisParserI');#'noSeqAnalysisParserI created';
+isa_ok $parser, 'Bio::SeqAnalysisParserI';
 while( my $feat = $parser->next_feature() ){
     $seq->add_SeqFeature($feat);
 }
 
-ok $seq->top_SeqFeatures(), 7;
+is $seq->top_SeqFeatures(), 7;

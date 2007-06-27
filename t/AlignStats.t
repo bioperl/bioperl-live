@@ -1,5 +1,5 @@
-# -*-Perl-*-
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
@@ -7,19 +7,17 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 40);
+    test_begin(-tests => 39);
 	
 	use_ok('Bio::Align::DNAStatistics');
 	use_ok('Bio::Align::ProteinStatistics');
 	use_ok('Bio::AlignIO');
-	use_ok('Bio::Root::IO');
 }
 
 my $debug = test_debug();
 
 my $in = Bio::AlignIO->new(-format => 'emboss',
-			  -file   => Bio::Root::IO->catfile('t', 'data',
-							    'insulin.water'));
+			  -file   => test_input_file('insulin.water'));
 my $aln = $in->next_aln();
 isa_ok($aln, 'Bio::Align::AlignI');
 my $stats = Bio::Align::DNAStatistics->new(-verbose => $debug);
@@ -54,8 +52,7 @@ is( $d->get_entry('seq2','hs_insulin'), '0.08037');
 #is( $d->get_entry('seq2','hs_insulin'), 0.0850);
 
 $in = Bio::AlignIO->new(-format => 'clustalw',
-		       -file   => Bio::Root::IO->catfile('t','data',
-							 'hs_owlmonkey.aln'));
+		       -file   => test_input_file('hs_owlmonkey.aln'));
 
 $aln = $in->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
@@ -93,11 +90,10 @@ is( $d->get_entry('human','owlmonkey'), 0.18333);
 
 ### now test Nei_gojobori methods, hiding the expected warnings so we can
 # avoid printing them ###
-$stats->verbose(-1);
+$stats->verbose($debug ? $debug : -1);
 my ($alnobj, $result);
 $in = Bio::AlignIO->new(-format => 'fasta',
-			-file   => Bio::Root::IO->catfile('t','data',
-							  'nei_gojobori_test.aln'));
+			-file   => test_input_file('nei_gojobori_test.aln'));
 $alnobj = $in->next_aln();
 isa_ok($alnobj,'Bio::Align::AlignI');
 $result = $stats->calc_KaKs_pair($alnobj, 'seq1', 'seq2');
@@ -113,8 +109,7 @@ $stats->verbose($debug);
 # now test Protein Distances
 my $pstats = Bio::Align::ProteinStatistics->new();
 $in = Bio::AlignIO->new(-format => 'clustalw',
-			-file   => Bio::Root::IO->catfile('t','data',
-							  'testaln.aln'));
+			-file   => test_input_file('testaln.aln'));
 $alnobj = $in->next_aln();
 isa_ok($alnobj,'Bio::Align::AlignI');
 $result = $pstats->distance(-method => 'Kimura',
@@ -131,5 +126,3 @@ eval {
   Bio::Align::DNAStatistics->count_syn_sites($seq); 
 };
 like($@, qr/not integral number of codons/);
-
-

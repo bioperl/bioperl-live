@@ -1,21 +1,18 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
+
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    use vars qw($NTESTS);
-    $NTESTS = 28;
-    plan tests => $NTESTS;
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 27);
+	
 	use_ok('Bio::Tools::FootPrinter');
-	use_ok('Bio::SeqIO');
 }
 
-my $inputfilename= Bio::Root::IO->catfile("t","data","footprinter.out");
+my $inputfilename= test_input_file('footprinter.out');
 my $parser = Bio::Tools::FootPrinter->new(-file => $inputfilename);
 my @sub;
 my @species = qw(TETRAODON CHICKEN MOUSE HAMSTER HUMAN PIG);

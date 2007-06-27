@@ -1,25 +1,18 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 BEGIN {     
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located
-    # as a fallback
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 130;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 129);
+	
+	use_ok('Bio::Tools::Sim4::Results');
+	use_ok('Bio::SearchIO');
 }
 
-use_ok('Bio::Tools::Sim4::Results');
-use_ok('Bio::Root::IO');
-use_ok('Bio::SearchIO');
-
-my $sim4 = Bio::Tools::Sim4::Results->new(-file=> Bio::Root::IO->catfile("t","data","sim4.rev"), -estisfirst=>0);
+my $sim4 = Bio::Tools::Sim4::Results->new(-file=> test_input_file('sim4.rev'), -estisfirst=>0);
 ok ( $sim4, 'new Sim4 results instance') ;
 
 
@@ -38,7 +31,7 @@ is $exons[$exon]->score, 93;
 is $exons[$exon]->est_hit()->seqlength(), 1198;
 
 
-$sim4 = Bio::Tools::Sim4::Results->new(-file=> Bio::Root::IO->catfile("t","data","sim4.for.for"), -estisfirst=>0);
+$sim4 = Bio::Tools::Sim4::Results->new(-file=> test_input_file('sim4.for.for'), -estisfirst=>0);
 ok ( $sim4, 'new Sim4 results instance') ;
 
 $exonset = $sim4->next_exonset;
@@ -71,8 +64,7 @@ is $exons[$exon]->est_hit()->seqlength(), 479;
 
 # parse align format 0
 my $parser = Bio::SearchIO->new(-format => 'sim4',
-			       -file   => 
-			       Bio::Root::IO->catfile(qw(t data crypto.sim4-0))
+			       -file   => test_input_file('crypto.sim4-0')
 			       );
 my $r = $parser->next_result;
 is ($r->query_name, 'cn416');
@@ -101,8 +93,7 @@ is ($hsp->hit->strand, 1);
 
 # parse align format 3
 $parser = Bio::SearchIO->new(-format => 'sim4',
-			    -file   => 
-			    Bio::Root::IO->catfile(qw(t data crypto.sim4-3))
+			    -file   => test_input_file('crypto.sim4-3')
 			    );
 $r = $parser->next_result;
 is ($r->query_name, 'cn416');
@@ -130,8 +121,7 @@ is ($hsp->hit->strand, 1);
 
 # parse align format 4
 $parser = Bio::SearchIO->new(-format => 'sim4',
-			    -file   => 
-			    Bio::Root::IO->catfile(qw(t data crypto.sim4-4))
+			    -file   => test_input_file('crypto.sim4-4')
 			    );
 $r = $parser->next_result;
 is ($r->query_name, 'cn416');
@@ -160,8 +150,7 @@ is ($hsp->hit->strand, 1);
 
 # do the other sim4 files
 $parser = Bio::SearchIO->new(-format => 'sim4',
-			    -file   => 
-			    Bio::Root::IO->catfile(qw(t data sim4.rev))
+			    -file   => test_input_file('sim4.rev')
 			    );
 $r = $parser->next_result;
 is ($r->query_name, '/nfs/disk21/birney/prog/wise2/example/human.rev');
@@ -189,8 +178,7 @@ is ($hsp->hit->strand, -1);
 
 # do the other sim4 files fwd
 $parser = Bio::SearchIO->new(-format => 'sim4',
-			    -file   => 
-			    Bio::Root::IO->catfile(qw(t data sim4.for.for))
+			    -file   => test_input_file('sim4.for.for')
 			    );
 $r = $parser->next_result;
 is ($r->query_name, 'human.genomic');
@@ -218,8 +206,7 @@ is ($hsp->hit->strand, 1);
 
 # do the other sim4 files fwd rev
 $parser = Bio::SearchIO->new(-format => 'sim4',
-			    -file   => 
-			    Bio::Root::IO->catfile(qw(t data sim4.for.rev))
+			    -file   => test_input_file('sim4.for.rev')
 			    );
 $r = $parser->next_result;
 is ($r->query_name, 'human.genomic');

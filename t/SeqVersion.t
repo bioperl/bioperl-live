@@ -1,30 +1,14 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-use vars qw($DEBUG $NUMTESTS);
 
 BEGIN {
-  $NUMTESTS = 10;
-  $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-
-  eval { require Test::More; };
-  if ($@) {
-    use lib 't/lib';
-  }
-  use Test::More;
+  use lib 't/lib';
+  use BioperlTest;
   
-  eval {
-	require LWP::UserAgent;
-  };
-  if ($@) {
-	plan skip_all => 'LWP::UserAgent not installed. This means that the module is not usable. Skipping tests';
-  }
-  else {
-	plan tests => $NUMTESTS;
-  }
+  test_begin(-tests => 10,
+			 -requires_module => 'LWP::UserAgent');
   
   use_ok('Bio::DB::SeqVersion');
 }
@@ -32,10 +16,10 @@ BEGIN {
 ok my $query = Bio::DB::SeqVersion->new(-type => 'gi');
 
 SKIP: {
-	skip "Skipping tests which require remote servers - set env variable BIOPERLDEBUG to test", 8 unless $DEBUG;
+	test_skip(-tests => 8, -requires_networking => 1);
 
-        eval { $query->get_history('DODGY_ID_WHICH_SHOULD_FAIL') };
-        like($@, qr/could not parse/i, 'throw on bad ID');
+	eval { $query->get_history('DODGY_ID_WHICH_SHOULD_FAIL') };
+	like($@, qr/could not parse/i, 'throw on bad ID');
 
 	my $latest_gi = $query->get_recent(2);
 	is($latest_gi, 2, 'get_recent');
@@ -54,4 +38,3 @@ SKIP: {
 	ok my $ref = $query->get_history(3245);
 	is($ref->[0]->[0], 578167, 'get_history');
 } 
-

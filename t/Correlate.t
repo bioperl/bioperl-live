@@ -1,5 +1,5 @@
-# -*-Perl-*-
-## $ Id: Exp $
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 BEGIN {

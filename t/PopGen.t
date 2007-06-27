@@ -1,23 +1,17 @@
-# -*-Perl-*- mode for emacs
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 # This will outline many tests for the population genetics
 # objects in the Bio::PopGen namespace
 
-use vars qw($SKIPXML $LASTXMLTEST); 
 use strict;
-use lib '.';
 
 BEGIN {     
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use vars qw($NTESTS);
-    $NTESTS = 97;
-
-    use Test::More;
-    plan tests => $NTESTS; 
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 97);
+	
     use_ok('Bio::PopGen::Individual');
     use_ok('Bio::PopGen::Genotype');
     use_ok('Bio::PopGen::Population');
@@ -46,11 +40,8 @@ is(sprintf("%.2f",
 	   Bio::PopGen::Statistics->fu_and_li_F_star_counts(24, 3.16, 18, 10)),
    -1.71);
 
-my ($FILE1) = qw(popgentst1.out);
+my $FILE1 = test_output_file();
 
-END { 
-    # unlink($FILE1);
-}
 my @individuals = ( Bio::PopGen::Individual->new(-unique_id => '10a'));
 ok($individuals[0]);
 
@@ -122,8 +113,7 @@ is($af{'A'}, 0.25);
 
 # Read in data from a file
 my $io = Bio::PopGen::IO->new(-format => 'csv',
-			     -file   => Bio::Root::IO->catfile(qw(t data
-								  popgen_saureus.dat)));
+			     -file   => test_input_file('popgen_saureus.dat'));
 
 my @inds;
 while( my $ind = $io->next_individual ) {
@@ -163,8 +153,7 @@ is(sprintf("%.3f",$fst),0.046,'mrsa,envpop aflp1,aflp2');
 
 # Read in data from a file
 $io = Bio::PopGen::IO->new(-format => 'csv',
-			  -file   => Bio::Root::IO->catfile
-			  (qw(t data popgen_saureus.multidat)));
+			  -file   => test_input_file('popgen_saureus.multidat'));
 
 @inds = ();
 while( my $ind = $io->next_individual ) {
@@ -196,12 +185,12 @@ my @all_bands = map { 'B' . $_ } 1..20;
 my @mkr1     = map { 'B' . $_ } 1..13;
 my @mkr2     = map { 'B' . $_ } 14..20;
 
-# still wrong ?
+# still wrong ? seems to work now? --sendubala
 $fst = $stats->Fst([$mrsapop,$mssapop],[@all_bands ]);
-SKIP: {
-    skip('Possible bug with Fst() output',1);
+#TODO: {
+#    local $TODO = 'Possible bug with Fst() output';
     is(sprintf("%.3f",$fst),'-0.001','mssa,mrsa all_bands'); # We're going to check the values against other programs first
-}
+#}
 $fst = $stats->Fst([$envpop,$mssapop],[ @mkr1 ]);
 is(sprintf("%.3f",$fst),0.023,'env,mssa mkr1'); # We're going to check the values against other programs first
 
@@ -242,8 +231,9 @@ $poptst2->set_Allele_Frequency(-name      => 'marker1',
 			       -allele    => 'a',
 			       -frequency => '0.40');
 
-SKIP: {
-    skip('Fst not calculated yet for just allele freqs',1); # 
+TODO: {
+    local $TODO = 'Fst not calculated yet for just allele freqs';
+    ok 0;
     #$fst = $stats->Fst([$poptst1,$poptst2],[qw(marker1 marker2) ]);
 }
 
@@ -252,39 +242,34 @@ $io = Bio::PopGen::IO->new(-format => 'csv',
 
 $io->write_individual(@inds);
 $io->close();
-ok( -e $FILE1);
-unlink($FILE1);
+ok( -s $FILE1);
 $io = Bio::PopGen::IO->new(-format => 'csv',
 			  -file   => ">$FILE1");
 
 $io->write_population(($mssapop,$mrsapop));
 $io->close();
-ok( -e $FILE1);
-unlink($FILE1);
+ok( -s $FILE1);
 
 $io = Bio::PopGen::IO->new(-format => 'prettybase',
 			  -file   => ">$FILE1");
 
 $io->write_individual(@inds);
 $io->close();
-ok( -e $FILE1);
-unlink($FILE1);
+ok( -s $FILE1);
 
 $io = Bio::PopGen::IO->new(-format => 'prettybase',
 			  -file   => ">$FILE1");
 
 $io->write_population(($mssapop,$mrsapop));
 $io->close();
-ok( -e $FILE1);
-unlink($FILE1);
+ok( -s $FILE1);
 
 
 # Let's do PopGen::Statistics tests here
 
 $io = Bio::PopGen::IO->new(-format          => 'prettybase',
 			  -no_header       => 1,
-			  -file            => Bio::Root::IO->catfile
-			  (qw(t data popstats.prettybase )));
+			  -file            => test_input_file('popstats.prettybase'));
 my (@ingroup,@outgroup);
 my $sitecount;
 while( my $ind = $io->next_individual ) {
@@ -364,8 +349,7 @@ is( sprintf("%.5f",Bio::PopGen::Statistics->fu_and_li_F($ingroup,
 # Test composite LD
 
 $io = Bio::PopGen::IO->new(-format => 'prettybase',
-			  -file   => Bio::Root::IO->catfile
-			  (qw(t data compLD_test.prettybase)));
+			  -file   => test_input_file('compLD_test.prettybase'));
 
 my $pop = $io->next_population;
 
@@ -378,8 +362,7 @@ is($LD{'02'}->{'03'}->[1], 0);
 # Test composite LD
 
 $io = Bio::PopGen::IO->new(-format => 'prettybase',
-			  -file   => Bio::Root::IO->catfile
-			  (qw(t data compLD_missingtest.prettybase)));
+			  -file   => test_input_file('compLD_missingtest.prettybase'));
 
 $pop = $io->next_population;
 
@@ -393,7 +376,7 @@ is(sprintf("%.2f",$LD{'ProC9198EA'}->{'ProcR2973EA'}->[1]), 2.56);
 # build a population from an alignment
 
 my $alnin = Bio::AlignIO->new(-format => 'clustalw',
-			      -file   => Bio::Root::IO->catfile(qw(t data T7.aln)));
+			      -file   => test_input_file('T7.aln'));
 my $aln = $alnin->next_aln;
 $population = Bio::PopGen::Utilities->aln_to_population(-alignment => $aln);
 is($population->get_number_individuals,9);
@@ -412,8 +395,7 @@ $io = Bio::PopGen::IO->new(-format   => 'hapmap',
 			  -verbose  => 1,
 			  -no_header=> 1,
 			  -starting_column => 10,
-			  -file     => Bio::Root::IO->catfile(qw(t data
-								example.hap)));
+			  -file     => test_input_file('example.hap'));
 
 # Some IO might support reading in a population at a time
 
@@ -432,14 +414,13 @@ is(sprintf("%.3f",$stats->pi($population)),12.335);
 # is(sprintf("%.3f",$stats->pi($population)),12.266);
 
 is(sprintf("%.3f",$stats->theta($population)),5.548);
-SKIP: {
-    skip('tjd inconsistency, need to recalculate',2);
+TODO: {
+    local $TODO = 'tjd inconsistency, need to recalculate';
     is(sprintf("%.3f",$stats->tajima_D($population)),2.926);
     is(sprintf("%.3f",$stats->tajima_D($population->haploid_population)),3.468);
 }
 $io = Bio::PopGen::IO->new(-format => 'phase',
-			  -file   => Bio::Root::IO->catfile(qw(t data
-							       example.phase)));
+			  -file   => test_input_file('example.phase'));
 
 # Some IO might support reading in a population at a time
 
@@ -451,4 +432,3 @@ is(@population, 4);
 
 
 # test diploid data
-

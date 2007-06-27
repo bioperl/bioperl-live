@@ -1,31 +1,22 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-#
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-use warnings;
-use constant NUMTESTS => 46;
+use File::Spec;
+
 BEGIN { 
-	eval {require Test::More;};
-	if ($@) {
-		use lib 't/lib';
-	}
-	use Test::More;
-	plan tests => NUMTESTS;
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 45);
 	
 	use_ok('Bio::Tools::Run::StandAloneBlast');
 	use_ok('Bio::SeqIO');
-	use_ok('Bio::Root::IO');
-}
-
-END {
-	unlink('blastreport.out') if -e 'blastreport.out';
 }
 
 # Note: the swissprot and ecoli.nt data sets may be downloaded from
 # ftp://ftp.ncbi.nih.gov/blast/db/FASTA
-my $verbose = -1;
+my $verbose = test_debug() || -1;
 my $nt_database = 'ecoli.nt';
 my $amino_database = 'swissprot';
 my $evalue = 0.001;
@@ -95,7 +86,7 @@ my @params = ('program'     => 'blastn',
 			  'verbose'     => 0 );
 ok $factory = Bio::Tools::Run::StandAloneBlast->new('-verbose' => $verbose, @params);
 
-my $inputfilename = Bio::Root::IO->catfile("t","data","test.txt");
+my $inputfilename = test_input_file('test.txt');
 
 is $factory->quiet(0), 0;
 is $factory->q(-3), -3;
@@ -108,7 +99,7 @@ SKIP: {
 	my $testcount = 0;
 	
 	# use ecoli.nt
-	my $nt_database_file = Bio::Root::IO->catfile($Bio::Tools::Run::StandAloneBlast::DATADIR, $nt_database);
+	my $nt_database_file = File::Spec->catfile($Bio::Tools::Run::StandAloneBlast::DATADIR, $nt_database);
 	like $nt_database_file, qr/$nt_database/;
 	SKIP: {
 		skip "Database $nt_database not found, skipping tests on it", 8 unless -e $nt_database_file;
@@ -118,7 +109,7 @@ SKIP: {
 		is $blast_report->num_hits, $testresults[$testcount++];
 		
 		$factory->_READMETHOD('blast_pull');  # Note required leading underscore in _READMETHOD
-		my $str = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile(qw(t data dna2.fa)),
+		my $str = Bio::SeqIO->new('-file' => test_input_file('dna2.fa'),
 								  '-format' => 'fasta');
 		$seq1 = $str->next_seq();
 		$seq2 = $str->next_seq();
@@ -155,7 +146,7 @@ SKIP: {
 		@params = ('-verbose' => $verbose, 'program'  => 'blastp'); 
 		$factory = Bio::Tools::Run::StandAloneBlast->new(@params);
 		
-		$str = Bio::SeqIO->new(-file => Bio::Root::IO->catfile(qw(t data amino.fa)),
+		$str = Bio::SeqIO->new(-file => test_input_file('amino.fa'),
 							   -format => 'Fasta' );
 		$seq3 = $str->next_seq();
 		$seq4 = $str->next_seq();
@@ -173,7 +164,7 @@ SKIP: {
 	}
 	
 	# use swissprot
-	my $amino_database_file = Bio::Root::IO->catfile($Bio::Tools::Run::StandAloneBlast::DATADIR, $amino_database);
+	my $amino_database_file = File::Spec->catfile($Bio::Tools::Run::StandAloneBlast::DATADIR, $amino_database);
 	SKIP: {
 		skip "Database $amino_database not found, skipping tests on it", 3 unless -e $amino_database_file;
 		

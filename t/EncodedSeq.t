@@ -1,22 +1,15 @@
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
 use strict;
-use constant NUMTESTS => 40;
 
 BEGIN {     
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-    
-    plan tests => NUMTESTS;
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 37);
+	
 	use_ok('Bio::Seq::EncodedSeq');
-	use_ok('Bio::SimpleAlign');
-	use_ok('Bio::AlignIO');
-	use_ok('Bio::Root::IO');
 }
 
 

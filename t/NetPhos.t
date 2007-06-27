@@ -1,39 +1,22 @@
-# This is -*-Perl-*- code
-## Bioperl Test Harness Script for Modules
-##
-# $Id$ 
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
+
 use strict;
-use vars qw($NUMTESTS $DEBUG);
 
 BEGIN {
-	$NUMTESTS = 14;
-	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-	
-	eval {require Test::More;};
-	if ($@) {
-		use lib 't/lib';
-	}
-	use Test::More;
-	
-	eval {
-		require IO::String; 
-		require LWP::UserAgent;
-	};
-	if ($@) {
-		plan skip_all => 'IO::String or LWP::UserAgent not installed. This means that the module is not usable. Skipping tests';
-	} elsif (!$DEBUG) {
-		plan skip_all => 'Must set BIOPERLDEBUG=1 for network tests';
-	} else {
-		plan tests => $NUMTESTS;
-	}
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 14,
+			   -requires_modules => [qw(IO::String LWP::UserAgent)],
+			   -requires_networking => 1);
 	
 	use_ok('Bio::Tools::Analysis::Protein::NetPhos');
 	use_ok('Bio::PrimarySeq');
 	use_ok('Bio::WebAgent');
 }
 
-my $verbose = 0;
-$verbose = 1 if $DEBUG;
+my $verbose = test_debug();
 
 ok my $tool = Bio::WebAgent->new(-verbose =>$verbose);
 

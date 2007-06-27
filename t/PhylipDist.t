@@ -1,22 +1,18 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
+
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    use vars qw($NTESTS);
-    $NTESTS = 21;
-    plan tests => $NTESTS;
-	use_ok('Bio::Matrix::PhylipDist');
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 20);
+	
 	use_ok('Bio::Tools::Phylo::Phylip::ProtDist');
 }
 
-my $inputfilename= Bio::Root::IO->catfile("t","data","phylipdist.out");
+my $inputfilename= test_input_file('phylipdist.out');
 my $parser = Bio::Tools::Phylo::Phylip::ProtDist->new(-program => 'phylipdist',
 						      -file => $inputfilename);
 
@@ -57,7 +53,3 @@ Epsilon        3.45431  4.29179  5.84929  4.43345  0.00000
 END
 ;
 is $phy->print_matrix , $matrix;
-
-
-
-

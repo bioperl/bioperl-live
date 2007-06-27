@@ -1,24 +1,22 @@
-# -*-Perl-*- mode (to keep my emacs happy)
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
 
 BEGIN {
-	eval { require Test::More; };
-	if ( $@ ) {
-		use lib 't/lib';
-	}
-	use Test::More;
-	plan tests => 13;
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 13);
+	
 	use_ok('Bio::SeqIO');
 }
 
-my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
+my $verbose = test_debug();
 
 my $io = Bio::SeqIO->new(-format => 'kegg',
 								 -verbose => $verbose,
-								 -file => Bio::Root::IO->catfile
-								 ("t","data","AHCYL1.kegg"));
+								 -file => test_input_file('AHCYL1.kegg'));
 ok($io);
 my $kegg = $io->next_seq();
 ok($kegg);

@@ -1,19 +1,16 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
 BEGIN {
-    eval {require Test::More;};
-	if ($@) {
-		use lib 't/lib';
-	}
-	use Test::More;
-	
-    plan tests => 23;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 24);
 	
 	use_ok('Bio::Root::Root');
+    use_ok('Bio::Seq');
 }
 
 ok my $obj = Bio::Root::Root->new();
@@ -69,7 +66,6 @@ my $verbobj = Bio::Root::Root->new(-verbose=>1,-strict=>1);
 is $verbobj->verbose(), 1;
 
 $Bio::Root::Root::DEBUG = 1;
-require Bio::Seq;
 my $seq = Bio::Seq->new();
 is $seq->verbose, 1;
 
@@ -83,7 +79,7 @@ ok $@ =~ /Bio::Root::NotImplemented/;
 is shift @vals, 'up the';
 is shift @vals, 'stairs';
 
-# tests for _set_from_args
+# tests for _set_from_args()
 {
 	no warnings 'redefine';
 	
@@ -154,6 +150,3 @@ is shift @vals, 'stairs';
 	is $obj->test_8, 2, 'mal-formed arg correctly resolved to created method';
 	is $obj->t8, 2, 'synonym of set method was set correctly';
 }
-
-1;
-

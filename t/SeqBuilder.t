@@ -1,33 +1,24 @@
-# -*-Perl-*- mode (to keep my emacs happy)
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
-use vars qw($DEBUG $TESTCOUNT);
+
 BEGIN {     
-    eval { require Test; };
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
-    $TESTCOUNT = 101;
-    plan tests => $TESTCOUNT;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 101);
+	
+	use_ok('Bio::SeqIO');
 }
 
-use Bio::Seq;
-use Bio::SeqIO;
-use Bio::Root::IO;
+my $verbosity = test_debug();
 
-ok(1);
-
-my $verbosity = -1;   # Set to -1 for release version, so warnings aren't printed
-
-my ($seqio,$seq); # predeclare variables for strict
+my ($seqio, $seq); # predeclare variables for strict
 
 # default mode
-$seqio = Bio::SeqIO->new('-file'=> Bio::Root::IO->catfile(
-						   "t","data","test.genbank"), 
+ok $seqio = Bio::SeqIO->new('-file'=> test_input_file('test.genbank'), 
 			 '-format' => 'GenBank');
-ok $seqio;
 $seqio->verbose($verbosity);
 
 my $numseqs = 0;
@@ -35,49 +26,47 @@ my @loci = qw(U63596 U63595 M37762 NT_010368 L26462);
 my @numfeas = (3,1,6,3,26);
 
 while($seq = $seqio->next_seq()) {
-    ok ($seq->accession_number, $loci[$numseqs++]);
+    is ($seq->accession_number, $loci[$numseqs++]);
     ok ($seq->annotation->get_Annotations());
-    ok (scalar($seq->top_SeqFeatures), $numfeas[$numseqs-1]);
+    is (scalar($seq->top_SeqFeatures), $numfeas[$numseqs-1]);
     ok ($seq->species->binomial);
     ok ($seq->seq);
 }
-ok ($numseqs, 5);
+is ($numseqs, 5);
 
 # minimalistic mode
-$seqio = Bio::SeqIO->new('-file'=> Bio::Root::IO->catfile(
-						   "t","data","test.genbank"), 
+$seqio = Bio::SeqIO->new('-file'=> test_input_file('test.genbank'), 
 			 '-format' => 'GenBank');
 ok $seqio;
 $seqio->verbose($verbosity);
-my $seqbuilder = $seqio->sequence_builder();
-ok $seqbuilder;
-ok $seqbuilder->isa("Bio::Factory::ObjectBuilderI");
+ok my $seqbuilder = $seqio->sequence_builder();
+isa_ok $seqbuilder, "Bio::Factory::ObjectBuilderI";
 $seqbuilder->want_none();
 $seqbuilder->add_wanted_slot('display_id','accession_number','desc');
 
 $numseqs = 0;
 
 while($seq = $seqio->next_seq()) {
-    ok ($seq->accession_number, $loci[$numseqs++]);
-    ok (scalar(grep { ! ($_->tagname eq "keyword" ||
+    is ($seq->accession_number, $loci[$numseqs++]);
+    is (scalar(grep { ! ($_->tagname eq "keyword" ||
 			 $_->tagname eq "date_changed" ||
 			 $_->tagname eq "secondary_accession"); }
 	       $seq->annotation->get_Annotations()), 0);
     if($numseqs <= 3) {
-	ok (scalar($seq->top_SeqFeatures), 0);
-    } else {
-	ok (scalar($seq->top_SeqFeatures), $numfeas[$numseqs-1]);
+		is (scalar($seq->top_SeqFeatures), 0);
     }
-    ok ($seq->species, undef);
-    ok ($seq->seq, undef);
+	else {
+		is (scalar($seq->top_SeqFeatures), $numfeas[$numseqs-1]);
+    }
+    is ($seq->species, undef);
+    is ($seq->seq, undef);
     # switch on features for the last 2 seqs
     $seqbuilder->add_wanted_slot('features') if $numseqs == 3;
 }
-ok ($numseqs, 5);
+is ($numseqs, 5);
 
 # everything but no sequence, and no features
-$seqio = Bio::SeqIO->new('-file'=> Bio::Root::IO->catfile(
-						   "t","data","test.genbank"), 
+$seqio = Bio::SeqIO->new('-file'=> test_input_file('test.genbank'), 
 			 '-format' => 'GenBank');
 ok $seqio;
 $seqio->verbose($verbosity);
@@ -88,26 +77,26 @@ $seqbuilder->add_unwanted_slot('seq','features');
 $numseqs = 0;
 
 while($seq = $seqio->next_seq()) {
-    ok ($seq->accession_number, $loci[$numseqs++]);
+    is ($seq->accession_number, $loci[$numseqs++]);
     ok scalar($seq->annotation->get_Annotations());
     if($numseqs <= 3) {
-	ok (scalar($seq->top_SeqFeatures), 0);
-    } else {
-	ok (scalar($seq->top_SeqFeatures), $numfeas[$numseqs-1]);
+		is (scalar($seq->top_SeqFeatures), 0);
+    }
+	else {
+		is (scalar($seq->top_SeqFeatures), $numfeas[$numseqs-1]);
     }
     ok $seq->species->binomial;
-    ok ($seq->seq, undef);
+    is ($seq->seq, undef);
     # switch on features for the last 2 seqs
     if($numseqs == 3) {
 	$seqbuilder->add_unwanted_slot(
 	     grep { $_ ne 'features'; } $seqbuilder->remove_unwanted_slots());
     }
 }
-ok ($numseqs, 5);
+is ($numseqs, 5);
 
 # skip sequences less than 100bp or accession like 'NT_*'
-$seqio = Bio::SeqIO->new('-file'=> Bio::Root::IO->catfile(
-						   "t","data","test.genbank"), 
+$seqio = Bio::SeqIO->new('-file'=> test_input_file('test.genbank'), 
 			 '-format' => 'GenBank');
 ok $seqio;
 $seqio->verbose($verbosity);
@@ -130,12 +119,11 @@ my $i = 0;
 
 while($seq = $seqio->next_seq()) {
     $numseqs++;
-    ok ($seq->accession_number, $loci[$i]);
+    is ($seq->accession_number, $loci[$i]);
     ok scalar($seq->annotation->get_Annotations());
-    ok (scalar($seq->top_SeqFeatures), $numfeas[$i]);
+    is (scalar($seq->top_SeqFeatures), $numfeas[$i]);
     ok $seq->species->binomial;
     ok $seq->seq;
     $i += 2;
 }
-ok ($numseqs, 3);
-
+is ($numseqs, 3);

@@ -1,26 +1,21 @@
-#-*-Perl-*-
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
 use Module::Build;
-use Bio::Root::IO;
-
-use constant TEST_COUNT => 278;
-use constant FASTA_FILES => Bio::Root::IO->catfile('t','data','dbfa');
-use constant GFF_FILE1    => Bio::Root::IO->catfile('t','data',
-						   'biodbgff','test.gff');
-use constant GFF_FILE2    => Bio::Root::IO->catfile('t','data',
-						   'biodbgff','test.gff3');
 
 BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => TEST_COUNT);
+    test_begin(-tests => 277);
 	
 	use_ok('Bio::DB::GFF');
-	use_ok('Bio::SeqIO');
 }
+
+my $fasta_files = test_input_file('dbfa');
+my $gff_file1   = test_input_file('biodbgff', 'test.gff');
+my $gff_file2   = test_input_file('biodbgff', 'test.gff3');
 
 my $build = Module::Build->current;
 my $test_dsn = $build->notes('test_dsn');
@@ -52,10 +47,10 @@ if ($adaptor =~ /^dbi/) {
 push @args,('-aggregators' => ['transcript','processed_transcript']);
 
 SKIP: {
-for my $FILE (GFF_FILE1,GFF_FILE2) {
+for my $FILE ($gff_file1,$gff_file2) {
 
   my $db = eval { Bio::DB::GFF->new(@args) };
-  skip "DB load failed? Skipping all! $@", TEST_COUNT if $@;
+  skip "DB load failed? Skipping all! $@", 276 if $@;
   ok($db);
 
   $db->debug(0);
@@ -70,7 +65,7 @@ for my $FILE (GFF_FILE1,GFF_FILE2) {
   # exercise the loader
   ok($db->initialize(1));
   ok($db->load_gff($FILE));
-  ok($db->load_fasta(FASTA_FILES));
+  ok($db->load_fasta($fasta_files));
 
   # exercise db->types
   my @types = sort $db->types;
@@ -432,5 +427,5 @@ SKIP: {
 }
 
 END {
-  unlink FASTA_FILES."/directory.index";
+  unlink $fasta_files."/directory.index";
 }

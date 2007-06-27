@@ -1,16 +1,14 @@
-# -*-Perl-*-
-#Some simple tests for meme and transfac parsers
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-
-    plan tests => 63;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 63);
+	
 	use_ok ('Bio::Matrix::PSM::IO');
 }
 
@@ -35,7 +33,7 @@ my @mmt=split(/\n/,$mmt);
 
 #Let's try meme here
 my $psmIO =  Bio::Matrix::PSM::IO->new(-format=>'meme', 
-	     -file=>Bio::Root::IO->catfile(qw(t data meme.dat)));
+	     -file=>test_input_file('meme.dat'));
 ok $psmIO;
 
 my @inputfile=grep(/datafile/i,$psmIO->unstructured);
@@ -121,7 +119,7 @@ ok $psm->header('e_val');
 #Now we are going to try transfac
 
 $psmIO =  Bio::Matrix::PSM::IO->new(-format=>'transfac', 
-	  -file=> Bio::Root::IO->catfile(qw(t data transfac.dat)));
+	  -file=> test_input_file('transfac.dat'));
 ok $psmIO;
 
 my $version=$psmIO->version;
@@ -158,7 +156,7 @@ is $IUPAC,'VVDCAKSTGBYD';
 
 #Now we are going to try mast
 $psmIO =  Bio::Matrix::PSM::IO->new(-format=>'mast', 
-	  -file=>Bio::Root::IO->catfile(qw(t data mast.dat)));
+	  -file=>test_input_file('mast.dat'));
 ok $psmIO;
 
 @inputfile = grep(/datafile/i,$psmIO->unstructured);
@@ -184,7 +182,7 @@ ok %instances;
 
 is $psmIO->version, '3.0';
 
-my $mmastIO=Bio::Matrix::PSM::IO->new(-format=>'mast',-file=>Bio::Root::IO->catfile(qw(t data mixedmast.dat)));
+my $mmastIO=Bio::Matrix::PSM::IO->new(-format=>'mast',-file=>test_input_file('mixedmast.dat'));
 
 $psm = $mmastIO->next_psm; 
 my $lastinstances = $psm->instances();
@@ -197,5 +195,3 @@ foreach my $hit (@$lastinstances) {
     $i++;
     last if ($hit -> start == 1652447);
 }
-
-

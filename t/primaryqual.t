@@ -1,29 +1,21 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-#
-# modeled after the t/Allele.t test script
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-use vars qw($DEBUG);
-$DEBUG = $ENV{'BIOPERLDEBUG'};
-my $verbose = -1 unless $DEBUG;
+
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 36;
-    use_ok('Bio::Root::IO');
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 35);
+	
     use_ok('Bio::SeqIO');
     use_ok('Bio::Seq::Quality');
     use_ok('Bio::Seq::PrimaryQual');
 }
 
-END {
-	unlink qw(batch_write_qual.qual write_qual.qual);
-}
+my $DEBUG = test_debug();
+my $verbose = -1 unless $DEBUG;
 
 # redirect STDERR to STDOUT
 open (STDERR, ">&STDOUT");
@@ -122,8 +114,7 @@ is($qualobj->display_id(), "chads new id");
 
 is($qualobj->header(), "chads header");
 
-my $in_qual  = Bio::SeqIO->new(-file => "<" . 
-					Bio::Root::IO->catfile("t","data","qualfile.qual") ,
+my $in_qual  = Bio::SeqIO->new(-file => test_input_file('qualfile.qual') ,
 			       '-format' => 'qual',
 			       '-verbose' => $verbose);
 ok($in_qual);
@@ -131,7 +122,7 @@ my $pq = $in_qual->next_seq();
 is($pq->qual()->[99], '39'); # spot check boundary
 is($pq->qual()->[100], '39'); # spot check boundary
 
-my $out_qual = Bio::SeqIO->new('-file'    => ">write_qual.qual",
+my $out_qual = Bio::SeqIO->new('-file'    => ">".test_output_file(),
                                '-format'  => 'qual',
                                '-verbose' => $verbose);
 $out_qual->write_seq(-source	=>	$pq);
@@ -141,12 +132,11 @@ my $swq545 = Bio::Seq::Quality->new (	-seq	=>	"ATA",
                                     );
 $out_qual->write_seq(-source	=>	$swq545);
 
-$in_qual = Bio::SeqIO->new('-file' => 
-			  Bio::Root::IO->catfile("t","data","qualfile.qual") , 
+$in_qual = Bio::SeqIO->new('-file' => test_input_file('qualfile.qual') , 
 			   '-format' => 'qual',
 			   '-verbose' => $verbose);
 
-my $out_qual2 = Bio::SeqIO->new('-file' => ">batch_write_qual.qual",
+my $out_qual2 = Bio::SeqIO->new('-file' => ">".test_output_file(),
 				'-format'  => 'qual',
 				'-verbose' => $verbose);
 

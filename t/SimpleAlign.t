@@ -1,32 +1,26 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
+
 use strict;
-use constant NUMTESTS => 116;
-use vars qw($DEBUG);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
-	eval { require Test::More; };
-	if( $@ ) {
-		use lib 't/lib';
-	}
-	use Test::More;
-
-	plan tests => NUMTESTS;
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 115);
+	
+	use_ok('Bio::SimpleAlign');
+	use_ok('Bio::AlignIO');
+	use_ok('Bio::SeqFeature::Generic');
+	use_ok('Bio::Location::Simple');
+	use_ok('Bio::Location::Split');
 }
 
-use_ok('Bio::SimpleAlign');
-use_ok('Bio::AlignIO');
-use_ok('Bio::Root::IO');
-use_ok('Bio::SeqFeature::Generic');
-use_ok('Bio::Location::Simple');
-use_ok('Bio::Location::Split');
+my $DEBUG = test_debug();
 
 my ($str, $aln, @seqs, $seq);
 
-$str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile(
-                        "t","data","testaln.pfam"));
+$str = Bio::AlignIO->new(-file=> test_input_file('testaln.pfam'));
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 is $aln->get_seq_by_pos(1)->get_nse, '1433_LYCES/9-246', 
@@ -116,8 +110,7 @@ is $aln->purge(0.7), 12, 'purge';
 is $aln->no_sequences, 4, 'purge';
 
 SKIP:{
-	eval { require IO::String };
-	skip("IO::String not installed. Skipping tests.\n", 24) if $@;
+	test_skip(-tests => 24, -requires_module => 'IO::String');
 
 	my $string;
 	my $out = IO::String->new($string);
@@ -213,8 +206,7 @@ SKIP:{
 	# remove_columns by position
 	$out->setpos(0); 
 	$string ='';
-	$str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile(
-												"t","data","mini-align.aln"));
+	$str = Bio::AlignIO->new(-file=> test_input_file('mini-align.aln'));
 	$aln1 = $str->next_aln;
 	$aln2 = $aln1->remove_columns([0,0]);
 	$strout->write_aln($aln2);
@@ -266,8 +258,7 @@ SKIP:{
 	is $b->consensus_string, "aaaaatttt",'remove_gaps all_gaps_only';
 	
 	# test set_new_reference:
-	$str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile(
-							"t","data","testaln.aln"));
+	$str = Bio::AlignIO->new(-file=> test_input_file('testaln.aln'));
 	$aln=$str->next_aln();
 	my $new_aln=$aln->set_new_reference(3);
 	$a=$new_aln->get_seq_by_pos(1)->display_id;
@@ -278,8 +269,7 @@ SKIP:{
 	
 	# test uniq_seq:
 	$str = Bio::AlignIO->new(-verbose => $DEBUG,
-							 -file=> Bio::Root::IO->catfile(
-							"t","data","testaln2.fasta"));
+							 -file=> test_input_file('testaln2.fasta'));
 	$aln=$str->next_aln();
 	$new_aln=$aln->uniq_seq();
 	$a=$new_aln->no_sequences;
@@ -362,8 +352,7 @@ for my $feature ( $aln->get_SeqFeatures ) {
 }
 
 # test set_displayname_safe & restore_displayname:
-$str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile(
-                        "t","data","pep-266.aln"));
+$str = Bio::AlignIO->new(-file=> test_input_file('pep-266.aln'));
 $aln=$str->next_aln();
 is $aln->get_seq_by_pos(3)->display_id, 'Smik_Contig1103.1', 'initial display id ok';
 my ($new_aln, $ref)=$aln->set_displayname_safe();
@@ -372,9 +361,8 @@ my $restored_aln=$new_aln->restore_displayname($ref);
 is $restored_aln->get_seq_by_pos(3)->display_id, 'Smik_Contig1103.1', 'restored display id ok';
 
 # test sort_by_list:
-$str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile(
-                        "t","data","testaln.aln"));
-my $list_file=Bio::Root::IO->catfile("t", "data", "testaln.list");
+$str = Bio::AlignIO->new(-file=> test_input_file('testaln.aln'));
+my $list_file=test_input_file('testaln.list');
 $aln=$str->next_aln();
 $new_aln=$aln->sort_by_list($list_file);
 $a=$new_aln->get_seq_by_pos(1)->display_id;
@@ -433,8 +421,7 @@ my %testdata = (
 	);
 
 my $alnin = Bio::AlignIO->new(-format => 'fasta',
-							 -file   => Bio::Root::IO->catfile(
-                        "t","data","alleles.fas"));
+							 -file   => test_input_file('alleles.fas'));
 
 $aln = $alnin->next_aln;
 
@@ -470,5 +457,3 @@ for my $ls (sort keys %testdata) {
                            );
     is($str, $testdata{$ls},"BIC:$str");
 }
-
-1;

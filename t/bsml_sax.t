@@ -1,4 +1,4 @@
-# -*-Perl-*-
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
@@ -7,21 +7,19 @@ BEGIN {
 	use lib 't/lib';
 	use BioperlTest;
 	
-	test_begin(-tests => 16,
+	test_begin(-tests => 15,
 			   -requires_modules => [qw(XML::SAX
 									    XML::SAX::Writer
 										XML::SAX::Base)]);
     
 	use_ok('Bio::SeqIO');
-	use_ok('Bio::Root::IO');
 }
 
 my $verbose = test_debug();
 
 my $str = Bio::SeqIO->new(-format => 'bsml_sax',
 			  -verbose => $verbose,
-			  -file => Bio::Root::IO->catfile
-			  (qw(t data U83300.bsml) ));
+			  -file => test_input_file('U83300.bsml'));
 my $seq = $str->next_seq;
 isa_ok($seq, 'Bio::Seq::RichSeqI');
 my @refs = $seq->annotation->get_Annotations('reference');

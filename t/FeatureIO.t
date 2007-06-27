@@ -1,27 +1,17 @@
-# -*-Perl-*-
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
-use strict;
-use vars qw($DEBUG);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-use constant NUMTESTS => 34;
-my $error;
-BEGIN {
-  eval { require Test::More; };
-  if( $@ ) {
-	  use lib 't/lib';
-  }
-  use Test::More;
-  eval {require Graph;};
-  if ($@) {
-	plan skip_all => "Graph is not installed. Bio::FeatureIO::gff cannot be run";
-  } else {
-	plan tests => NUMTESTS;
-  }
-  require_ok('Bio::FeatureIO');
-  use_ok('Bio::Root::IO');
-}
 
-use Data::Dumper;
+use strict;
+
+BEGIN {
+  use lib 't/lib';
+  use BioperlTest;
+  
+  test_begin(-tests => 33,
+			 -requires_module => 'Graph');
+  
+  use_ok('Bio::FeatureIO');
+}
 
 my $io;
 my $f;
@@ -36,7 +26,7 @@ my $scount;
 $fcount = 0;
 $scount = 0;
 
-ok( $io = Bio::FeatureIO->new( -file => Bio::Root::IO->catfile('t','data','dna1.fa') ) );
+ok( $io = Bio::FeatureIO->new( -file => test_input_file('dna1.fa') ) );
 
 #read features
 while($f = $io->next_feature()){
@@ -58,7 +48,7 @@ is($scount,  1);
 $fcount = 0;
 $scount = 0;
 
-ok( $io = Bio::FeatureIO->new( -file => Bio::Root::IO->catfile('t','data','knownGene.gff3') ) );
+ok( $io = Bio::FeatureIO->new( -file => test_input_file('knownGene.gff3') ) );
 
 #try to read sequences first.  should be undef
 while($s = $io->next_seq()){
@@ -85,7 +75,7 @@ is($scount,0);
 $fcount = 0;
 $scount = 0;
 
-ok( $io = Bio::FeatureIO->new( -file => Bio::Root::IO->catfile('t','data','hybrid1.gff3') ) );
+ok( $io = Bio::FeatureIO->new( -file => test_input_file('hybrid1.gff3') ) );
 
 #try to read sequences first.  should be undef
 while($s = $io->next_seq()){
@@ -112,7 +102,7 @@ is($scount , 1);
 $fcount = 0;
 $scount = 0;
 
-ok( $io = Bio::FeatureIO->new( -file => Bio::Root::IO->catfile('t','data','hybrid2.gff3') ) );
+ok( $io = Bio::FeatureIO->new( -file => test_input_file('hybrid2.gff3') ) );
 
 #try to read sequences first.  should be undef
 while($s = $io->next_seq()){
@@ -133,7 +123,8 @@ is($fcount , 6);
 $fcount = 0;
 $scount = 0;
 
-ok( $io = Bio::FeatureIO->new( -file => Bio::Root::IO->catfile('t','data','directives.gff3') ) );
+ok( $io = Bio::FeatureIO->new(-file => test_input_file('directives.gff3'),
+							  -verbose => test_debug() ? test_debug() : -1));
 
 #read features
 while($f = $io->next_feature()){
@@ -148,7 +139,7 @@ is($fcount , 1); #sequence-region
 $fcount = 0;
 $scount = 0;
 
-ok( $io = Bio::FeatureIO->new( -file => Bio::Root::IO->catfile('t','data','hybrid1.gff3') ) );
+ok( $io = Bio::FeatureIO->new( -file => test_input_file('hybrid1.gff3') ) );
 
 #try to read sequences first.  should be undef
 while($s = $io->next_seq()){
@@ -175,7 +166,7 @@ is($scount , 1);
 $fcount = 0;
 
 my $ptt_in = Bio::FeatureIO->new(
-  -file => Bio::Root::IO->catfile('t','data','test.ptt'), 
+  -file => test_input_file('test.ptt'), 
   -format => 'ptt',
 );
 ok($ptt_in);

@@ -1,29 +1,15 @@
-#!/usr/bin/perl
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-use vars qw($NUMTESTS $DEBUG);
 
 BEGIN {
-	$NUMTESTS = 1423;
-	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+	use lib 't/lib';
+	use BioperlTest;
 	
-	eval {require Test::More;};
-	if ($@) {
-		use lib 't/lib';
-	}
-	use Test::More;
+	test_begin(-tests => 1422,
+			   -requires_module => 'Bio::ASN1::EntrezGene');
 	
-	eval {
-		require Bio::ASN1::EntrezGene;
-	};
-	if ($@) {
-		plan skip_all => 'Bio::ASN1::EntrezGene not installed, skipping tests';
-	}
-	else {
-		plan tests => $NUMTESTS;
-	}
-	
-	use_ok('Bio::Root::IO');
 	use_ok('Bio::SeqIO');
 }
 
@@ -171,7 +157,7 @@ my $fs='!';
 my @revkeys=('Entrez Gene Status','RefSeq status','Official Full Name','chromosome','cyto','Reference','dblink',
 'ALIAS_SYMBOL','OntologyTerm','Index terms','Official Symbol','cM','Property');
 
-ok my $eio=Bio::SeqIO->new(-file=>Bio::Root::IO->catfile("t","data","entrezgene.dat"), -format=>'entrezgene', -debug=>'on',-service_record=>'yes');
+ok my $eio=Bio::SeqIO->new(-file=>test_input_file('entrezgene.dat'), -format=>'entrezgene', -debug=>'on',-service_record=>'yes');
 
 my ($seq,$struct,$uncapt);
 my $num_of_seqs = 0;
@@ -502,7 +488,7 @@ is $num_of_seqs, 39, 'looped through correct number of sequences';
 #See if we can convert to locuslink
 #T18: BACKCOMPATIBILITY TESTS
 my @llsp =('OFFICIAL_GENE_NAME','CHR','MAP','OFFICIAL_SYMBOL');
-ok my $eio_b=Bio::SeqIO->new(-file=>Bio::Root::IO->catfile("t","data","entrezgene.dat"),-format=>'entrezgene', -debug=>'on',-service_record=>'yes',-locuslink=>'convert');
+ok my $eio_b=Bio::SeqIO->new(-file=>test_input_file('entrezgene.dat'),-format=>'entrezgene', -debug=>'on',-service_record=>'yes',-locuslink=>'convert');
 my $loop_count = 0;
 while (my $seq=$eio_b->next_seq) {
 	$loop_count++;

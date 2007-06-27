@@ -1,23 +1,15 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
+
 BEGIN {
-    eval { require Test::More; };
-    if ( $@ ) {
-		use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 275;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 271);
+	
     use_ok('Bio::Factory::FTLocationFactory');
-    use_ok('Bio::Factory::LocationFactoryI');
-    use_ok('Bio::Location::Simple');
-    use_ok('Bio::Location::Split');
-    use_ok('Bio::Location::Fuzzy');
 }
 
 my $simple_impl = "Bio::Location::Simple";
@@ -120,7 +112,9 @@ foreach my $locstr (keys %testcases) {
 	is($loc->strand(), $res[9]);
 }
 
-if ($^V gt v5.6.0) {
+SKIP: {
+    skip('nested matches in regex only supported in v5.6.1 and higher', 5) unless $^V gt v5.6.0;
+    
 	# bug #1674, #1765, 2101
 	# EMBL-like 
 	# join(20464..20694,21548..22763,join(complement(314652..314672),complement(232596..232990),complement(231520..231669)))
@@ -153,9 +147,5 @@ if ($^V gt v5.6.0) {
 		my $loc = $locfac->from_string($locstr);
 		my $ftstr = $loc->to_FTstring();
 		is($ftstr, shift @expected, $locstr);
-	}
-} else {
-	foreach (1..3) {
-		skip('nested matches in regex only supported in v5.6.1 and higher',1);
 	}
 }

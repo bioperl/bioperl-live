@@ -1,35 +1,26 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-#
-
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-use vars qw($DEBUG);
-$DEBUG = $ENV{'BIOPERLDEBUG'};
+
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 18;
-	use_ok('Bio::SeqIO::qual');
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 18);
+	
+	use_ok('Bio::SeqIO');
 	use_ok('Bio::Seq::PrimaryQual');
 }
 
-END {
-    unlink qw(write_qual1.qual write_qual2.qual);
-}
+my $DEBUG = test_debug();
 
-warn("Checking to see if PrimaryQual objects can be created from a file...\n") if ( $DEBUG );
-my $in_qual  = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data",
-								 "qualfile.qual"),
+my $in_qual  = Bio::SeqIO->new('-file' => test_input_file('qualfile.qual'),
 			       '-format' => 'qual');
 ok($in_qual);
 
 my @quals;
-warn("I saw these in qualfile.qual:\n") if $DEBUG;
+
 my $first = 1;
 while ( my $qual = $in_qual->next_seq() ) {
 		# ::dumpValue($qual);
@@ -67,4 +58,3 @@ $seq->id('Hank1');
 is $seq->id, 'Hank1';
 # yes, that works
 ok $out->write_seq($seq);
-

@@ -1,27 +1,19 @@
-# -*-Perl-*- mode (to keep my emacs happy)
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
-use vars qw($DEBUG $TESTCOUNT);
-BEGIN {     
-    eval { require Test; };
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
-    $TESTCOUNT = 11;
-    plan tests => $TESTCOUNT;
+
+BEGIN { 
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 12);
+	
+	use_ok('Bio::SeqIO');
+	use_ok('Bio::SeqFeature::Tools::Unflattener');
 }
 
-use Bio::Seq;
-use Bio::SeqIO;
-use Bio::Root::IO;
-use Bio::SeqFeature::Tools::Unflattener;
-
-ok(1);
-
-my $verbosity = -1;   # Set to -1 for release version, so warnings aren't printed
-#$verbosity = 1;
+my $verbosity = test_debug();
 
 my ($seq, @sfs);
 my $unflattener = Bio::SeqFeature::Tools::Unflattener->new;
@@ -32,10 +24,10 @@ if (1) {
     # this is an arabidopsise gbk record. it has no mRNA features.
     # it has explicit exon/intron records
 
-    my @path = ("t","data","ATF14F8.gbk");
+    my @path = ("ATF14F8.gbk");
     $seq = getseq(@path);
     
-    ok ($seq->accession_number, 'AL391144');
+    is ($seq->accession_number, 'AL391144');
     my @topsfs = $seq->get_SeqFeatures;
     my @cdss = grep {$_->primary_tag eq 'CDS'} @topsfs;
     my $n = scalar(@topsfs);
@@ -53,9 +45,9 @@ if (1) {
 	write_hier(@sfs);
 	warn sprintf "PROCESSED/TOP:%d\n", scalar(@sfs);
     }
-    ok(@sfs == 28);
+    is(@sfs,28);
     my @allsfs = $seq->get_all_SeqFeatures;
-    ok(@allsfs == 202);
+    is(@allsfs,202);
     my @mrnas = grep {$_->primary_tag eq 'mRNA'} @allsfs;
     if( $verbosity > 0 ) {
 	warn sprintf "ALL:%d\n", scalar(@allsfs);
@@ -63,7 +55,7 @@ if (1) {
     }
 
     # relationship between mRNA and CDS should be one-one
-    ok(@mrnas == @cdss);
+    is(@mrnas,@cdss);
 }
 
 if (1) {
@@ -71,7 +63,7 @@ if (1) {
     # this is a record from FlyBase
     # it has mRNA features, and explicit exon/intron records
 
-    my @path = ("t","data","AnnIX-v003.gbk");
+    my @path = ("AnnIX-v003.gbk");
     $seq = getseq(@path);
     
     my @topsfs = $seq->get_SeqFeatures;
@@ -89,22 +81,22 @@ if (1) {
 	write_hier(@sfs);
 	warn sprintf "PROCESSED/TOP:%d\n", scalar(@sfs);
     }
-    ok scalar(@sfs), 1;
+    is scalar(@sfs), 1;
     my @exons = grep {$_->primary_tag eq 'exon'} $seq->get_all_SeqFeatures;
-    ok scalar(@exons), 6;    # total number of exons per splice
+    is scalar(@exons), 6;    # total number of exons per splice
     my %numberh = map {$_->get_tag_values("number") => 1} @exons;
     my @numbers = keys %numberh;
     if( $verbosity > 0 ) {
 	warn sprintf "DISTINCT EXONS: %d [@numbers]\n", scalar(@numbers);
     }
-    ok scalar(@numbers), 6;  # distinct exons
+    is scalar(@numbers), 6;  # distinct exons
 }
 
 if (1) {
     
     # example of a BAD genbank entry
 
-    my @path = ("t","data","dmel_2Lchunk.gb");
+    my @path = ("dmel_2Lchunk.gb");
     $seq = getseq(@path);
     
     my @topsfs = $seq->get_SeqFeatures;
@@ -128,13 +120,13 @@ if (1) {
 	write_hier(@sfs);
 	warn sprintf "PROCESSED/TOP:%d\n", scalar(@sfs);
     }
-    ok scalar(@sfs), 2;
+    is scalar(@sfs), 2;
     my @exons = grep {$_->primary_tag eq 'exon'} $seq->get_all_SeqFeatures;
-    ok scalar(@exons), 2;    # total number of exons per splice
+    is scalar(@exons), 2;    # total number of exons per splice
     if( $verbosity > 0 ) {
 	warn sprintf "PROBLEMS ENCOUNTERED: %d (EXPECTED: 6)\n", scalar(@probs);
     }
-    ok scalar(@probs), 6;
+    is scalar(@probs), 6;
 }
 
 
@@ -166,19 +158,10 @@ sub _write_hier {
 sub getseq {
     my @path = @_;
     my $seqio =
-      Bio::SeqIO->new('-file'=> Bio::Root::IO->catfile(
-                                                       @path
-                                                      ), 
+      Bio::SeqIO->new('-file'=> test_input_file(@path), 
                       '-format' => 'GenBank');
     $seqio->verbose($verbosity);
 
     my $seq = $seqio->next_seq();
     return $seq;
 }
-
-# 1 2,3
-# 2 1,2
-# 3 4,5
-# 4 1,4,5,6
-# 5 1,4,5,6
-# 6 1,4,5,6

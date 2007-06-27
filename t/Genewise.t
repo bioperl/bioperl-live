@@ -1,24 +1,19 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
+
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    use vars qw($NTESTS);
-    $NTESTS = 55;
-    plan tests => $NTESTS;
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 53);
+	
     use_ok('Bio::Tools::Genewise');
-    use_ok('Bio::SeqIO');
     use_ok('Bio::SearchIO');
-    use_ok('Bio::Root::IO');
 }
 
-my $inputfilename= Bio::Root::IO->catfile("t","data","genewise.out");
+my $inputfilename= test_input_file('genewise.out');
 my $parser = Bio::Tools::Genewise->new(-file => $inputfilename);
 my @gene;
 while (my $gene= $parser->next_prediction){
@@ -74,18 +69,14 @@ is ($sf->feature2->start,1);
 is ($sf->feature2->end,44);
 is ($sf->feature1->end,22396);
 
-$parser = Bio::SearchIO->new(-file => 
-			    Bio::Root::IO->catfile(qw(t data genewise.out)),
+$parser = Bio::SearchIO->new(-file => test_input_file('genewise.out'),
 			    -format   => 'wise',
 			    -wisetype => 'genewise');
 my $result = $parser->next_result;
 my $hit = $result->next_hit;
-SKIP: {
-    skip('TODO:swapping query/name need to reconsider how this done',1);
+TODO: {
+    local $TODO = 'swapping query/name need to reconsider how this done';
     is($result->query_name, 'SINFRUP00000067802');
-}
-SKIP: {
-    skip('TODO:swapping query/name need to reconsider how this done',1);
     is($hit->name, 'Scaffold_2042.1');
 }
 is($hit->score, 2054.68);

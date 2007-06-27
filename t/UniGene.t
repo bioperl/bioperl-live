@@ -1,36 +1,20 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-##
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
-use vars qw($NUMTESTS);
 
-my $error;
-
-BEGIN {
-	eval { require Test::More; };
-	$error = 0;
-	if( $@ ) {
-		use lib 't/lib';
-	}
-	use Test::More;
-
-	$NUMTESTS = 74;
-	plan tests => $NUMTESTS;
+BEGIN { 
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 73);
+	
+	use_ok('Bio::ClusterIO');
 }
-
-use_ok('Bio::Cluster::UniGene');
-use_ok('Bio::ClusterIO');
 
 my ($str, $unigene); # predeclare variables for strict
 
-
-$str = Bio::ClusterIO->new('-file' => Bio::Root::IO->catfile(
-				"t","data","unigene.data"), '-format' => "unigene");
+$str = Bio::ClusterIO->new('-file' => test_input_file('unigene.data'), '-format' => "unigene");
 ok $str, 'new Bio::ClusterIO object defined';
 
 ok ( defined ($unigene = $str->next_cluster()));
@@ -70,7 +54,8 @@ is ($seq1->display_id, 'BX095770');
 # test recognition of species
 
 SKIP: {
-	skip 'species not available', 'species test' unless defined $unigene->species ;
+	# TODO? why wouldn't it be available? Bug if not? Remove this skip?
+	skip 'species not available', 'species test' unless defined $unigene->species;
 	is $unigene->species->binomial, "Homo sapiens" ;
 }
 

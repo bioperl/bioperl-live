@@ -1,27 +1,22 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-#
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
 BEGIN {
-    use vars qw($DEBUG);
-    $DEBUG = $ENV{'BIOPERLDEBUG'};
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 19;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 18);
+	
 	use_ok('Bio::Map::LinkagePosition');
 	use_ok('Bio::Map::Microsatellite');
 	use_ok('Bio::Map::LinkageMap');
 }
 
-require_ok('dumpvar.pl');
+#require_ok('dumpvar.pl');
 
-my $verbose = 0;
+my $verbose = test_debug();
 ok my $map = Bio::Map::LinkageMap->new('-verbose' => $verbose,
 				   '-name'    => 'Leviathon',
 				   '-type'    => 'Genetic',

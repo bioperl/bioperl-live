@@ -1,30 +1,20 @@
-# This is -*-Perl-*- code
-## Bioperl Test Harness Script for Modules
-##
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
-use vars qw($NUMTESTS $DEBUG);
-my $error;
 
 BEGIN {
-	eval { require Test::More; };
-	$error = 0;
-	if( $@ ) {
-		use lib 't';
-	}
-	use Test::More;
-	$NUMTESTS = 24;
-    plan tests => $NUMTESTS;
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 24);
+	
 	use_ok('Bio::Phenotype::MeSH::Term');
 	use_ok('Bio::Phenotype::MeSH::Twig');
 }
 # For tests of Bio::DB::MeSH see t/DB.t
 
-my $verbose = 0;
+my $verbose = test_debug();
 
 ok my $term = Bio::Phenotype::MeSH::Term->new(-verbose =>$verbose);
 is $term->id('D000001'), 'D000001';
@@ -53,5 +43,3 @@ is $twig->add_child('Butter', 'Margarine'), 2;
 is $twig->each_child(), 2;
 ok $twig->purge_children();
 is $twig->each_child(), 0;
-
-

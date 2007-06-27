@@ -1,42 +1,25 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-use vars qw($NUMTESTS $DEBUG);
-
-eval {require Test::More;};
-if ($@) {
-	use lib 't/lib';
-}
-use Test::More;
-
-eval {require Error;};
-if ($@) {
-	use lib 't/lib';
-}
-use_ok("Error");
-
-use lib './examples/root/lib';
 
 BEGIN {
-	$NUMTESTS = 8;
-	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+	eval {require Error;};
 	
-    plan tests => $NUMTESTS; 
+	use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 8);
+	
+	use lib './examples/root/lib';
+	use_ok('TestObject');
 }
 
-use Bio::Root::Exception;
-use TestObject;
 use Error qw(:try);
-
-$Error::Debug = 1; 
+$Error::Debug = test_debug(); 
 
 # Set up a tester object.
-ok my $test = TestObject->new();
+ok my $test = TestObject->new(-verbose => test_debug());
 
 is $test->data('Eeny meeny miney moe.'), 'Eeny meeny miney moe.';
 
@@ -85,4 +68,3 @@ otherwise {
 	my $err = shift;
 	is ref $err, 'Error::Simple';
 }; 
-

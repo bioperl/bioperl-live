@@ -1,36 +1,21 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
 BEGIN {     
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test::More; };
+    use lib 't/lib';
+    use BioperlTest;
     
-    if( $@ ) {
-	    use lib 't/lib';
-    }
-
-    use Test::More;
-    plan tests => 15; 
-
+    test_begin(-tests => 14);
+	
+	use_ok('Bio::Tools::tRNAscanSE');
 }
 
-use_ok ('Bio::Tools::tRNAscanSE');
-use_ok ('Bio::Root::IO');
-
-my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
+my $verbose = test_debug();
 
 my $parser = Bio::Tools::tRNAscanSE->new(-verbose => $verbose,
-					 -file => Bio::Root::IO->catfile
-					 ('t','data', 
-					  'yeast.tRNAscanSE'));
+					 -file => test_input_file('yeast.tRNAscanSE'));
 
 isa_ok($parser, 'Bio::Tools::tRNAscanSE') ;
 

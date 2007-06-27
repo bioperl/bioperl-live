@@ -1,4 +1,4 @@
-# This is -*-Perl-*- code
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
@@ -7,13 +7,13 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 13,
+    test_begin(-tests => 12,
 			   -requires_modules => [qw(IO::String
 									    LWP::Simple
-										HTTP::Request::Common)]);
+										HTTP::Request::Common)],
+               -requires_networking => 1);
 	
 	use_ok('Bio::Biblio');
-	use_ok('Bio::Biblio::IO');
 }
 
 my ($db,$ref,$refio);

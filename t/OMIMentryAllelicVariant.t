@@ -1,18 +1,14 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## # $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
+
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 27;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 27);
+	
     use_ok 'Bio::Phenotype::OMIM::OMIMentryAllelicVariant';
 }
 
@@ -57,6 +53,3 @@ is( $av->aa_ori( "E" ), "E" );
 is( $av->aa_mut( "F" ), "F" );
 is( $av->position( "G" ), "G" );
 is( $av->additional_mutations( "H" ), "H" );
-
-
-

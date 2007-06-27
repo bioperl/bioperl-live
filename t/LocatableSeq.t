@@ -1,21 +1,16 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
+
 use strict;
-use constant NUMTESTS => 84;
 
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-
-    plan tests => NUMTESTS;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 82);
+	
 	use_ok('Bio::LocatableSeq');
-	use_ok('Bio::SimpleAlign');
 	use_ok('Bio::AlignIO');
-	use_ok('Bio::Root::IO');
 }
 
 my ($str, $aln, $seq, $loc);
@@ -46,7 +41,7 @@ is $loc->to_FTstring, '3^4';
 is $loc = $seq->location_from_column(2), undef;
 
 
-$str = Bio::AlignIO->new(-file=> Bio::Root::IO->catfile("t","data","testaln.pfam"));
+$str = Bio::AlignIO->new(-file=> test_input_file('testaln.pfam'));
 ok defined($str);
 isa_ok $str,'Bio::AlignIO';
 $aln = $str->next_aln();

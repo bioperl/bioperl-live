@@ -1,15 +1,14 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-BEGIN {
-    eval { require Test::More; };
-    if( $@ ) { 
-        use lib 't/lib';
-    }
-    use Test::More;
 
-    plan tests => 8;
+BEGIN {
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 8);
+	
     use_ok('Bio::PopGen::HtSNP');
 }
 

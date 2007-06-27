@@ -1,22 +1,15 @@
-# This is -*-Perl-*- code
-## Bioperl Test Harness Script for Modules
-##
-# $Id: Signalp2.t,v 1.1 cjfields 2007/03/14 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-use Data::Dumper;
-my $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+
 BEGIN {
-	eval { require Test::More; };
-	if( $@ ) {
-		use lib 't/lib';
-	}
-	use Test::More;
-	plan tests => 32;
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 31);
+	
     use_ok('Bio::Tools::Signalp::ExtendedSignalp');
-    use_ok('Bio::Root::IO');
 }
 
 my $res = {
@@ -39,7 +32,7 @@ my $res = {
 # Test on filtered results
 
 my $facts   = [qw(maxS D)];
-my $in      = Bio::Root::IO->catfile("t","data","exsignalp.out");
+my $in      = test_input_file('exsignalp.out');
 my $signalp = Bio::Tools::Signalp::ExtendedSignalp->new(
 							-file => $in,
 							-factors => $facts,
@@ -83,5 +76,3 @@ while(my $feat = $signalp->next_result()){
     is(($feat->get_tag_values('maxC_score'))[0], $res->{$i}->{maxC_score});
     $i++;
 }
-
-exit 0;

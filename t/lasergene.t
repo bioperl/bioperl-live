@@ -1,22 +1,18 @@
-# -*-Perl-*-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-use vars qw($NUMTESTS);
+
 BEGIN {
-	$NUMTESTS = 13;
-	eval { require Test::More; };
-	if ( $@ ) {
-		use lib 't/lib';
-	}
-	use Test::More;
-	plan tests => $NUMTESTS;
-	use_ok('Bio::SeqIO::raw');
-	use_ok('Bio::Root::IO');	
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 12);
+	
+	use_ok('Bio::SeqIO');
 }
 
-my $verbose = $ENV{'BIOPERLDEBUG'};
+my $verbose = test_debug();
 
 #
 # Positive tests
@@ -25,7 +21,7 @@ my $verbose = $ENV{'BIOPERLDEBUG'};
 my $io = Bio::SeqIO->new(
   -format => 'lasergene',
   -verbose => $verbose,
-  -file => Bio::Root::IO->catfile(qw(t data test.lasergene))
+  -file => test_input_file('test.lasergene')
 );
 
 ok($io);
@@ -51,7 +47,7 @@ ok(not defined $io->next_seq);
 $io = Bio::SeqIO->new(
   -format => 'lasergene',
   -verbose => $verbose,
-  -file => Bio::Root::IO->catfile(qw(t data test.fasta)) # not lasergene!
+  -file => test_input_file('test.fasta') # not lasergene!
 );
 
 ok($io);
@@ -60,4 +56,3 @@ eval {
   $io->next_seq;
 };
 like($@, qr/unexpected end of file/i);
-

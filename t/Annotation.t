@@ -1,5 +1,5 @@
-# -*-Perl-*-
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
@@ -203,8 +203,8 @@ $ann = $factory->create_object(-name => 'peroxisome',
 ok(defined $ann);
 like(ref($ann), qr(Bio::Annotation::OntologyTerm));
 
-SKIP: {
-	skip("TODO: Create Annotation::Comment based on parameter only",2);
+TODO: {
+	local $TODO = "Create Annotation::Comment based on parameter only";
 	ok $ann = $factory->create_object(-text => 'this is a comment');
 	like(ref $ann, qr(Bio::Annotation::Comment));
 }
@@ -231,7 +231,7 @@ ok(defined ($ann = $factory->create_object(-name => 'peroxisome',
 like(ref $ann, qr(Bio::Annotation::OntologyTerm));
 
 # tree
-my $tree_filename = Bio::Root::IO->catfile("t","data","longnames.dnd");
+my $tree_filename = test_input_file('longnames.dnd');
 my $tree=Bio::TreeIO->new(-file=>$tree_filename)->next_tree();
 my $ann_tree = Bio::Annotation::Tree->new(
 					  -tagname => 'tree',
@@ -243,7 +243,7 @@ $ann_tree->tree_id('test');
 is $ann_tree->tree_id(), 'test', "tree_id()";
 $ann_tree->tagname('tree'); 
 is $ann_tree->tagname(), 'tree', "tagname()";
-my $aln_filename = Bio::Root::IO->catfile("t","data","longnames.aln");
+my $aln_filename = test_input_file('longnames.aln');
 use Bio::AlignIO;
 $aln = Bio::AlignIO->new(-file=>$aln_filename, -format=>'clustalw')->next_aln();
 isa_ok($aln, 'Bio::AnnotatableI');

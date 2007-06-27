@@ -1,30 +1,20 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-##
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
-my $error;
 use strict;
+
 BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    $error = 0; 
-    eval { require Test; };
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
-    plan tests => 3;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 5);
+    
+	use_ok('Bio::Tree::RandomFactory');
+    use_ok('Bio::TreeIO');
+    use_ok('Bio::Tree::Statistics');
 }
 
-use Bio::Tree::RandomFactory;
-use Bio::TreeIO;
-use Bio::Tree::Statistics;
-ok(1);
-
-use vars qw($FILE1);
-$FILE1 = 'out.tre';
-END { unlink $FILE1; }
+my $FILE1 = test_output_file();
  
 my $ssize = 5;
 my $factory = Bio::Tree::RandomFactory->new(-sample_size => $ssize);
@@ -32,7 +22,7 @@ my $stats = Bio::Tree::Statistics->new();
 
 my $tree = $factory->next_tree;
 
-ok($tree->get_nodes, ($ssize * 2 - 1));
+is($tree->get_nodes, ($ssize * 2 - 1));
 
 my $treeio = Bio::TreeIO->new(-format => 'newick', -file => ">$FILE1");
 

@@ -1,4 +1,4 @@
-# -*-Perl-*-
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
@@ -7,15 +7,14 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 8);
+    test_begin(-tests => 7);
 	
 	use_ok('Bio::SeqIO');
-	use_ok('Bio::Root::IO');
 }
 
 my $verbose = test_debug();
 
-my $t_file = Bio::Root::IO->catfile("t","data","test.ace");
+my $t_file = test_input_file('test.ace');
 my( $before );
 {
 	local $/ = undef;
@@ -42,7 +41,7 @@ is( $esc_name , 'Name; 4% strewn with \ various / escaped characters',
 is $a_seq[0]->alphabet, 'protein', 'alphabets detected';
 is $a_seq[1]->alphabet, 'dna', 'alphabets detected';
 
-my $o_file = Bio::Root::IO->catfile("t","data","test.out.ace");
+my $o_file = test_output_file();
 my $a_out = Bio::SeqIO->new(-FILE => "> $o_file",
 									 -verbose => $verbose,
 									 -FORMAT => 'ace');
@@ -61,8 +60,6 @@ my( $after );
 	$after = <AFTER>;
 	close AFTER;
 }
-unlink($o_file);
 
 is( ($before and $after and ($before eq $after)),1,
 	 'test output');
-

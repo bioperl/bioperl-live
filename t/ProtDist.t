@@ -1,21 +1,18 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
+
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 'tlib';
-    }
-    use Test::More;
-    use vars qw($NTESTS);
-    $NTESTS = 47;
-    plan tests => $NTESTS;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 47);
+	
     use_ok('Bio::Tools::Phylo::Phylip::ProtDist');
 }
 
-my $inputfilename= Bio::Root::IO->catfile("t","data","phylipdist.out");
+my $inputfilename= test_input_file('phylipdist.out');
 my $tool= Bio::Tools::Phylo::Phylip::ProtDist->new(-file => $inputfilename);
 my $phy = $tool->next_matrix;
 is(@{$phy->names}, 5);
@@ -57,7 +54,7 @@ is $phy->print_matrix , $matrix;
 
 # now parse Phylip 3.6 output
 
-$inputfilename= Bio::Root::IO->catfile("t","data","phylipdist-36.out");
+$inputfilename= test_input_file('phylipdist-36.out');
 $tool= Bio::Tools::Phylo::Phylip::ProtDist->new(-file => $inputfilename);
 $phy = $tool->next_matrix;
 
@@ -96,7 +93,3 @@ is $diag[4], '0.0000';
 is $diag[5], '0.0000';
 is $diag[37], '0.0000';
 is $diag[38], '0.0000';
-
-
-
-

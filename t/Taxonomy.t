@@ -1,40 +1,21 @@
-# This is -*-Perl-*- code
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
-use vars qw($NUMTESTS $DEBUG);
-use File::Spec;
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+use File::Temp qw(tempdir);
 
-BEGIN {
-	$NUMTESTS = 98;
-	$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-	
-	eval {require Test::More;};
-	if ($@) {
-		use lib 't/lib';
-	}
-	use Test::More;
+BEGIN { 
+    use lib 't/lib';
+    use BioperlTest;
     
-	eval {
-		require XML::Twig;
-	};
-	if ($@) {
-		plan skip_all => 'Requires XML::Twig; skipping...';
-	}
-        else {
-		plan tests => $NUMTESTS;
-	}
+    test_begin(-tests => 98,
+			   -requires_module => 'XML::Twig');
+	
+	use_ok('Bio::DB::Taxonomy');
+	use_ok('Bio::Tree::Tree');
 }
 
-END {
-    for my $filename (qw(nodes parents id2names names2id)) {
-	unlink File::Spec->catfile('t','data','taxdump', $filename);
-    }
-}
-
-use_ok('Bio::DB::Taxonomy');
-use_ok('Bio::Tree::Tree');
+my $temp_dir = tempdir( CLEANUP => 1 );
 
 # we're actually testing Bio::Taxon and Bio::DB::Taxonomy::* here, not
 # Bio::Taxonomy
@@ -42,15 +23,15 @@ use_ok('Bio::Tree::Tree');
 ok my $db_entrez = Bio::DB::Taxonomy->new(-source => 'entrez');
 
 ok my $db_flatfile = Bio::DB::Taxonomy->new(-source => 'flatfile',
-                               -directory => File::Spec->catdir ('t','data','taxdump'),
-                               -nodesfile => File::Spec->catfile('t','data','taxdump','nodes.dmp'),
-                               -namesfile => File::Spec->catfile('t','data','taxdump','names.dmp'),
+                               -directory => $temp_dir,
+                               -nodesfile => test_input_file('taxdump', 'nodes.dmp'),
+                               -namesfile => test_input_file('taxdump','names.dmp'),
                                -force => 1);
 
 my $n;
 foreach my $db ($db_entrez, $db_flatfile) {
     SKIP: {
-        skip "Skipping tests which require network access, set BIOPERLDEBUG=1 to test", 38 if ($db eq $db_entrez && ! $DEBUG); 
+		test_skip(-tests => 38, -requires_networking => 1) if $db eq $db_entrez;
         my $id;
         eval { $id = $db->get_taxonid('Homo sapiens');};
         skip "Unable to connect to entrez database; no network or server busy?", 38 if $@;
@@ -178,8 +159,7 @@ is $h_list->ancestor->ancestor->scientific_name, 'Homo/Pan/Gorilla group';
 
 # get_lca should work on nodes from different databases
 SKIP: {
-    skip "Skipping tests which require network access, set BIOPERLDEBUG=1 to test", 5 unless $DEBUG;
-    skip "Skipping tests which require network access, set BIOPERLDEBUG=1 to test", 5 unless $DEBUG;
+    test_skip(-tests => 5, -requires_networking => 1);
     $h_flat = $db_flatfile->get_taxon(-name => 'Homo');
     my $h_entrez;
     eval { $h_entrez = $db_entrez->get_taxon(-name => 'Homo sapiens');};
@@ -226,7 +206,7 @@ is $ids, '131567,9606';
 
 # we can recursively fetch all descendents of a taxon
 SKIP: {
-    skip "Skipping tests which require network access, set BIOPERLDEBUG=1 to test", 1 unless $DEBUG;
+    test_skip(-tests => 1, -requires_networking => 1);
     eval {$db_entrez->get_taxon(10090);};
     skip "Unable to connect to entrez database; no network or server busy?", 1 if $@;
     

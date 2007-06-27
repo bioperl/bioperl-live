@@ -1,34 +1,21 @@
-# -*-Perl-*-
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
-## Bioperl Test Harness Script for Modules
-
 
 use strict;
-use vars qw($NTESTS $SVG_AVAIL);
 
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    $NTESTS = 5;
+    use lib 't/lib';
+    use BioperlTest;
     
-    eval {
-		 require Bio::Graphics::Pictogram;
-		 require SVG;
-	};
-	if ($@) {
-		plan skip_all => "SVG not installed, skipping tests";
-	} else {
-		plan tests => $NTESTS;
-	}
+    test_begin(-tests => 5,
+			   -requires_modules => [qw(Bio::Graphics::Pictogram SVG)]);
+	
 	use_ok('Bio::SeqIO');
 	use_ok('Bio::Matrix::PSM::IO');
 }
 
 
-my $file =  Bio::Root::IO->catfile("t","data","pictogram.fa");
+my $file = test_input_file('pictogram.fa');
 my $sio = Bio::SeqIO->new(-file=>$file,-format=>'fasta');
 my @seq;
 while(my $seq = $sio->next_seq){
@@ -47,7 +34,7 @@ my $svg = $picto->make_svg(\@seq);
 ok $svg->xmlify;
 
 my $psmIO =  Bio::Matrix::PSM::IO->new(-format=>'meme', 
-                                   -file=> Bio::Root::IO->catfile(qw(t data meme.dat)));
+                                   -file=> test_input_file('meme.dat'));
 $picto = Bio::Graphics::Pictogram->new(-width=>"800",
                                           -normalize=>1,
                                           -fontsize=>"80",
@@ -60,7 +47,3 @@ $picto = Bio::Graphics::Pictogram->new(-width=>"800",
 my $psm = $psmIO->next_psm;
 $svg = $picto->make_svg($psm);
 ok $svg->xmlify;
-
-
-
-

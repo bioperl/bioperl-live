@@ -1,21 +1,16 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    if( $@ ) { 
-        use lib 't';
-    }
-    use Test;
 
-    plan tests => 2;
+BEGIN { 
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 3);
+	
+    use_ok('Bio::PopGen::TagHaplotype');
 }
-
-use Bio::PopGen::TagHaplotype;
 
 my $hap = [
              [qw/0       0       0/],
@@ -24,11 +19,13 @@ my $hap = [
              [qw/1       2       1/]
           ];
 
-my $obj = Bio::PopGen::TagHaplotype -> new(-haplotype_block => $hap);
+my $obj = Bio::PopGen::TagHaplotype->new(-haplotype_block => $hap);
 
 
 # check haplotype length 
-ok( $obj->tag_length ,1); # Tag length for this set must be 1
+is( $obj->tag_length ,1); # Tag length for this set must be 1
  
 # check the tag list
-ok( (join ' ', @{($obj->tag_list)->[0]}) ,'1 2'); # the SNPs are 1 and 2 (1 2)
+is( (join ' ', @{($obj->tag_list)->[0]}) ,'1 2'); # the SNPs are 1 and 2 (1 2)
+
+# TODO? is this really enough tests?!

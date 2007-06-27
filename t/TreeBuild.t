@@ -1,49 +1,30 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-use strict;
-use constant NUMTESTS => 14;
-use vars qw($DEBUG);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
+
 BEGIN { 
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
+    use lib 't/lib';
+    use BioperlTest;
     
-    plan tests => NUMTESTS;
-    for my $mod ( qw(Bio::Align::DNAStatistics
-		   Bio::Align::ProteinStatistics
-		   Bio::Align::Utilities
-		   Bio::AlignIO
-		   Bio::Root::IO
-		   Bio::Tree::DistanceFactory
-		   Bio::TreeIO ) ) {
-	use_ok($mod);
+    test_begin(-tests => 13);
+	
+	for my $mod ( qw(Bio::Align::DNAStatistics
+					 Bio::Align::ProteinStatistics
+					 Bio::Align::Utilities
+					 Bio::AlignIO
+					 Bio::Tree::DistanceFactory
+					 Bio::TreeIO) ) {
+		use_ok($mod);
     }
 }
 
+my $debug = test_debug();
 
-my $debug = -1;
-
-use Bio::Align::DNAStatistics;
-use Bio::Align::ProteinStatistics;
 use Bio::Align::Utilities qw(:all);
-use Bio::AlignIO;
-use Bio::Root::IO;
-use Bio::Tree::DistanceFactory;
-use Bio::TreeIO;
 
 my $in = Bio::AlignIO->new(-format => 'clustalw',
-       			  -file   => Bio::Root::IO->catfile('t', 'data',
-							    'pep-266.aln'));
+       			  -file   => test_input_file('pep-266.aln'));
 my $aln = $in->next_aln();
 isa_ok($aln, 'Bio::SimpleAlign','SimpleAlign object parsed out');
 my $pstats = Bio::Align::ProteinStatistics->new(-verbose => $debug);
@@ -65,7 +46,7 @@ is($tree->find_node('FG05298.1')->branch_length, '0.20593','NJ calculated Branch
 is($tree->find_node('YOR262W')->ancestor->id, 
    $tree->find_node('Smik_Contig1103.1')->ancestor->id, 'Make sure two nodes are sister');
 
-# TODO 
+# TODO?
 # UPGMA tests
 
 

@@ -1,5 +1,5 @@
-# -*-Perl-*-
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 #####
 #
@@ -14,10 +14,9 @@ BEGIN {
     use lib 't/lib';
 	use BioperlTest;
 	
-	test_begin(-tests => 16,
+	test_begin(-tests => 15,
 			   -excludes_os => 'mswin');
     
-	use_ok('Bio::Root::IO');
 	use_ok('Bio::Tools::Alignment::Consed');
 }
 
@@ -27,7 +26,7 @@ my $DEBUG = test_debug();
 my($o_consed,@singlets,@singletons,@pairs,@doublets,@multiplets,$invoker);
 
 # instantiate a new object
-my $passed_in_acefile = Bio::Root::IO->catfile("t","data","acefile.ace.1");
+my $passed_in_acefile = test_input_file('acefile.ace.1');
 $o_consed = Bio::Tools::Alignment::Consed->new(-acefile => $passed_in_acefile);
 ok defined $o_consed, 'new CSM::Consed object was created';
 

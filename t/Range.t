@@ -1,28 +1,16 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
+
 BEGIN { 
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 49);
 	
-	# to handle systems with no installed Test::More module
-	# we include the t dir (where a copy of Test.pm is located)
-	# as a fallback
-	
-	eval { require Test::More; };
-	if( $@ ) {
-		use lib 't/lib';
-	}
-	
-	use Test::More;
-	plan tests => 49 ;
-
+    use_ok('Bio::Range');
 }
-
-use_ok('Bio::Range');
 
 my $range = Bio::Range->new(-start=>10,
                             -end=>20,

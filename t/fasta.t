@@ -1,32 +1,25 @@
-# -*-Perl-*-
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-use vars qw($NUMTESTS);
+
 BEGIN {
-	$NUMTESTS = 8;
-	eval { require Test::More; };
-	if ( $@ ) {
-		use lib 't/lib';
-	}
-	use Test::More;
-	plan tests => $NUMTESTS;
-	use_ok('Bio::SeqIO::fasta');
-	use_ok('Bio::Root::IO');
+	use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 6);
+	
+	use_ok('Bio::SeqIO');
 }
 
 # There are many other tests of fasta I/O in t/, this
 # is a dedicated script that could be further customized
  
-my $verbose = $ENV{'BIOPERLDEBUG'};
-ok(1);
+my $verbose = test_debug();
 
 my $io = Bio::SeqIO->new(-format => '',
 								 -verbose => $verbose,
-								 -file => Bio::Root::IO->catfile
-								 (qw(t data test.fasta) ));
+								 -file => test_input_file('test.fasta'));
 
 ok(my $seq = $io->next_seq);
 is($seq->length, 358);

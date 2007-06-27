@@ -1,26 +1,16 @@
-#-*-Perl-*-
-## Bioperl Test Harness Script for Modules
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
 BEGIN {     
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 36;
-    use_ok('Bio::Seq');
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 34);
+	
     use_ok('Bio::Tools::GFF');
-    use_ok('Bio::SeqFeatureI');
     use_ok('Bio::SeqFeature::Generic');
-}
-
-END {
-    unlink("out1.gff", "out2.gff");
 }
 
 my $feat = Bio::SeqFeature::Generic->new( -start => 10, -end => 100,
@@ -32,9 +22,11 @@ my $feat = Bio::SeqFeature::Generic->new( -start => 10, -end => 100,
 				    author => 'someone',
 				    sillytag => 'this is silly!;breakfast' } );
 ok($feat);
-my $gff1out = Bio::Tools::GFF->new(-gff_version => 1, -file => ">out1.gff");
+
+my ($out1, $out2) = (test_output_file(), test_output_file());
+my $gff1out = Bio::Tools::GFF->new(-gff_version => 1, -file => ">$out1");
 ok($gff1out);
-my $gff2out = Bio::Tools::GFF->new(-gff_version => 2, -file => ">out2.gff");
+my $gff2out = Bio::Tools::GFF->new(-gff_version => 2, -file => ">$out2");
 ok($gff2out);
 
 $gff1out->write_feature($feat);
@@ -43,9 +35,9 @@ $gff2out->write_feature($feat);
 $gff1out->close();
 $gff2out->close();
 
-my $gff1in = Bio::Tools::GFF->new(-gff_version => 1,  -file => "out1.gff");
+my $gff1in = Bio::Tools::GFF->new(-gff_version => 1,  -file => "$out1");
 ok($gff1in);
-my $gff2in = Bio::Tools::GFF->new(-gff_version => 2, -file => "out2.gff");
+my $gff2in = Bio::Tools::GFF->new(-gff_version => 2, -file => "$out2");
 ok($gff2in);
 
 my $feat1 = $gff1in->next_feature();
@@ -64,7 +56,7 @@ is($feat2->score, $feat->score);
 is(($feat2->each_tag_value('sillytag'))[0], 'this is silly!;breakfast');
 
 #test sequence-region parsing
-$gff2in = Bio::Tools::GFF->new(-gff_version => 2, -file => Bio::Root::IO->catfile("t","data","hg16_chroms.gff"));
+$gff2in = Bio::Tools::GFF->new(-gff_version => 2, -file => test_input_file('hg16_chroms.gff'));
 is($gff2in->next_feature(),undef);
 my $seq = $gff2in->next_segment;
 is($seq->display_id, 'chr1');
@@ -74,9 +66,7 @@ is($seq->start, 1);
 
 # GFF3
 SKIP: {
-    eval { require IO::String };
-    skip('cannot verify GFF3 writing tests without IO::String installed',12)
-        if $@;
+	test_skip(-tests => 12, -requires_module => 'IO::String');
     my $str = IO::String->new;
     my $gffout = Bio::Tools::GFF->new(-fh => $str, -gff_version => 3);
     my $feat_test = Bio::SeqFeature::Generic->new
@@ -114,5 +104,3 @@ SKIP: {
         }
     }
 }
-
-

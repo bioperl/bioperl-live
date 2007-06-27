@@ -1,4 +1,4 @@
-# This is -*-Perl-*- code
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
@@ -356,7 +356,7 @@ SKIP: {
 # Bio::DB::EntrezGene
 #
 SKIP: {
-	test_skip(-tests => 8, -requires_modules => ['Bio::ASN1::EntrezGene']);
+	test_skip(-tests => 8, -requires_module => 'Bio::ASN1::EntrezGene');
     use_ok('Bio::DB::EntrezGene');
     ok $gb = Bio::DB::EntrezGene->new(-retrievaltype => 'tempfile', -delay => 0);
     eval {$seqio = $gb->get_Stream_by_id([2,3064]);};

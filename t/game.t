@@ -1,42 +1,20 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
-my $error;
 use strict;
-use vars qw($DEBUG);
-$DEBUG = $ENV{'BIOPERLDEBUG'};
 
 BEGIN { 
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    use vars qw($TESTCOUNT);
-    $TESTCOUNT = 26;
-    
-    eval { require XML::Parser::PerlSAX; };
-    if( $@ ) {
-        plan skip_all => "XML::Parser::PerlSAX not loaded. This means game test cannot be executed. Skipping";
-    } else {
-        plan tests => $TESTCOUNT;
-    }
-    # make sure we can load it, assuming that the prerequisites are really met
-	use_ok('Bio::SeqIO::game');
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 24,
+			   -requires_module => 'XML::Parser::PerlSAX');
+	
     use_ok('Bio::SeqIO');
-    use_ok('Bio::Root::IO');
 }
 
-END{ 
-    unlink('testgameout.game')
-}
-
-my $verbose = $DEBUG ? 1 : -1;
-my $str = Bio::SeqIO->new('-file'=> Bio::Root::IO->catfile("t","data","test.game"), 
+my $verbose = test_debug() || -1;
+my $str = Bio::SeqIO->new('-file'=> test_input_file('test.game'), 
 			  '-format' => 'game',
 			  '-verbose' => $verbose);
 ok ($str);
@@ -46,7 +24,7 @@ ok($seq);
 # exercise game parsing
 $str = Bio::SeqIO->new(
     -format =>'game',
-    -file => Bio::Root::IO->catfile ( qw(t data test.game))
+    -file => test_input_file('test.game')
 		      );
 $seq = $str->next_seq;
 ok(defined $seq);
@@ -73,7 +51,7 @@ is($cds, 3);
 
 # make sure we can read what we write
 # test XML-writing
-my $testfile = "testgameout.game";
+my $testfile = test_output_file();
 # map argument is require to write a <map_position> element
 my $out = Bio::SeqIO->new(-format => 'game', -file => ">$testfile", -map => 1);
 $out->write_seq($seq);
@@ -92,5 +70,3 @@ my $genes = grep { $_->primary_tag eq 'gene' } @feats;
 $cds   = grep { $_->primary_tag eq 'CDS' } @feats;
 is($genes, 3);
 is($cds, 3);
-unlink $testfile;
-

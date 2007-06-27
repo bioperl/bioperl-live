@@ -1,25 +1,16 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 35;
-
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 35);
+	
+    use_ok('Bio::Root::Storable');
 }
-
-$| = 1;
-
-use_ok('Bio::Root::Storable');
 
 foreach my $mode( "BINARY", "ASCII" ){
     if( $mode eq "ASCII" ){
@@ -86,5 +77,3 @@ foreach my $mode( "BINARY", "ASCII" ){
     $obj2->remove;
     ok ! -f $obj2->statefile;
 }
-
-1;

@@ -1,18 +1,14 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl t/test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
+
 BEGIN { 
-	eval { require Test::More; };
-	if( $@ ) {
-		use lib 't/lib';
-	}
-	use Test::More;
-	plan tests => 52;
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 52);
+	
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
     use_ok('Bio::Location::Fuzzy');
@@ -20,7 +16,7 @@ BEGIN {
 }
 
 my $seq = Bio::PrimarySeq->new(
-					 '-seq'              => 'TTGGTGGCGTCAACT',
+					 '-seq'            => 'TTGGTGGCGTCAACT',
 			       '-display_id'       => 'new-id',
 			       '-alphabet'         => 'dna',
 			       '-accession_number' => 'X677667',
@@ -125,14 +121,12 @@ is $aa->seq, 'M', "Translation: ". $aa->seq;
 # should warn, let's change it into throw for testing
 $seq->verbose(2);
 $seq->seq("ggggggatgtggcccc"); # atg tgg ccc
-
-eval {$aa = $seq->translate(-orf => 1);};
+eval { $seq->translate(-orf => 1); };
 if ($@) {
     like( $@, qr/atgtggcccc\n/);
-    SKIP: {
-        skip('Possible bug or bad test', 1);
-        is $aa->seq, 'MWP' or diag("Translation: ". $aa->seq);
-    }
+	$seq->verbose(-1);
+	$aa = $seq->translate(-orf => 1);
+    is $aa->seq, 'MWP', "Translation: ". $aa->seq;
 }
 $seq->verbose(0);
 

@@ -29,7 +29,8 @@ BioperlTest - A common base for all Bioperl test scripts.
   # carry out tests in Test::More syntax
   
   SKIP: {
-    test_skip(-tests => 10, -requires_module => 'Optional::Module');
+    # these tests need version 2.6 of Optional::Module to work
+    test_skip(-tests => 10, -requires_module => 'Optional::Module 2.6');
     use_ok('Optional::Module');
 
     # 9 other optional tests that need Optional::Module
@@ -320,6 +321,7 @@ sub test_debug {
 sub _skip {
     my %args = @_;
     
+    # handle input strictly
     my $tests = $args{'-tests'};
     (defined $tests && $tests =~ /^\d+$/) || die "-tests must be supplied and be an int\n";
     delete $args{'-tests'};
@@ -352,46 +354,52 @@ sub _skip {
         die "unknown argument '$key' supplied, did you mistake 'required...' for 'requires...'?\n";
     }
     
-    my $skip = '';
-    
+    # test user requirments and return
     if ($os) {
         if ($^O =~ /$os/i) {
-            $skip = 'Not compatible with your Operating System';
+            return ('Not compatible with your Operating System', $tests, $framework);
         }
     }
     
-    my $requires = '';
     foreach my $mod (@req_mods) {
-        my $desired_version;
-        if ($mod =~ /(\S+)\s+(\S+)/) {
-            $mod = $1;
-            $desired_version = $2;
-        }
-        
-        eval "require $mod;";
-        
-        if ($@) {
-            $skip = "The optional module $mod (or dependencies thereof) was not installed" unless $skip;
-            last;
-        }
-        elsif ($desired_version) {
-            no strict 'refs';
-            unless (defined ${"${mod}::VERSION"}) {
-                $skip = "The optional module $mod didn't have a version, but we want v$desired_version" unless $skip;
-                last;
-            }
-            elsif (${"${mod}::VERSION"} < $desired_version) {
-                $skip = "The optional module $mod was out of date (wanted v$desired_version)" unless $skip;
-                last;
-            }
+        my $skip = _check_module($mod);
+        if ($skip) {
+            return ($skip, $tests, $framework); 
         }
     }
     
-    if (!$skip && $req_net && ! test_network()) {
-        $skip = 'Network tests have not been requested';
+    if ($req_net && ! test_network()) {
+        return ('Network tests have not been requested', $tests, $framework);
     }
     
-    return ($skip, $tests, $framework);
+    return ('', $tests, $framework);
+}
+
+sub _check_module {
+    my $mod = shift;
+    
+    my $desired_version;
+    if ($mod =~ /(\S+)\s+(\S+)/) {
+        $mod = $1;
+        $desired_version = $2;
+    }
+    
+    eval "require $mod;";
+    
+    if ($@) {
+        return "The optional module $mod (or dependencies thereof) was not installed";
+    }
+    elsif ($desired_version) {
+        no strict 'refs';
+        unless (defined ${"${mod}::VERSION"}) {
+            return "The optional module $mod didn't have a version, but we want v$desired_version";
+        }
+        elsif (${"${mod}::VERSION"} < $desired_version) {
+            return "The optional module $mod was out of date (wanted v$desired_version)";
+        }
+    }
+    
+    return;
 }
 
 1;

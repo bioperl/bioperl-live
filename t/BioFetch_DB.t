@@ -1,4 +1,4 @@
-# This is -*-Perl-*- code
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
@@ -104,8 +104,7 @@ SKIP: {
 }
 
 SKIP: {
-	$verbose = -1;
-	ok $db = Bio::DB::BioFetch->new(-db => 'embl', -verbose => $verbose);
+	ok $db = Bio::DB::BioFetch->new(-db => 'embl', -verbose => $verbose ? $verbose : -1);
 	
 	# check contig warning (WebDBSeqI)
 	eval {

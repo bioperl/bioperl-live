@@ -1,6 +1,5 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
@@ -16,7 +15,7 @@ BEGIN {
 }
 
 
-my $obj = Bio::Variation::AAChange -> new;
+my $obj = Bio::Variation::AAChange->new();
 ok defined $obj;
 is ref($obj), 'Bio::Variation::AAChange';
 
@@ -82,7 +81,7 @@ is $obj->region_value, 'region_value';
 $obj->numbering('coding'); 
 is $obj->numbering, 'coding';
 
-my $obj2 = Bio::Variation::RNAChange -> new(-start => 7, 
+my $obj2 = Bio::Variation::RNAChange->new(-start => 7, 
 					  -end => 7,
 					  -cds_end => 100,
 					  -codon_pos => 1,

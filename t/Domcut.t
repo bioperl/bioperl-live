@@ -1,5 +1,5 @@
-# This is -*-Perl-*- code
-# $Id: Domcut.t,v 1.1 2003/07/23 
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
 	use BioperlTest;
 	
-	test_begin(-tests => 27,
+	test_begin(-tests => 26,
 			   -requires_modules => [qw(IO::String
 									    LWP::UserAgent)],
 			   -requires_networking => 1);
@@ -43,8 +43,7 @@ SKIP: {
 	ok my $meta = $tool->result('meta');
 	
 	SKIP: {
-		test_skip(-tests => 2, -requires_modules => ['Bio::Seq::Meta::Array']);
-		use_ok('Bio::Seq::Meta::Array');
+		test_skip(-tests => 2, -requires_module => 'Bio::Seq::Meta::Array');
 		is($meta->named_submeta_text('Domcut', 1,2), "0.068 0.053");
 		is ($meta->seq, "MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQPPPPPPPPPPPPPDQRS");
 	}

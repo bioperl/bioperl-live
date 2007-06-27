@@ -1,9 +1,7 @@
-# -*-Perl-*-
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
-
-our $FILE1 = 'out.tre';
 
 BEGIN { 
     use lib 't/lib';
@@ -16,8 +14,6 @@ BEGIN {
 	use_ok('Bio::TreeIO');
 }
 
-END { unlink $FILE1; }
- 
 my $ssize = 5;
 my $sim = Bio::PopGen::Simulation::Coalescent->new(-sample_size => $ssize);
 my $stats = Bio::PopGen::Statistics->new();
@@ -25,6 +21,7 @@ my $tree = $sim->next_tree;
 
 is($tree->get_nodes, ($ssize * 2 - 1));
 
+my $FILE1 = test_output_file();
 my $treeio = Bio::TreeIO->new(-format => 'newick', -file => ">$FILE1");
 
 $treeio->write_tree($tree);

@@ -1,40 +1,28 @@
-# -*-Perl-*- mode (to keep my emacs happy)
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
-use vars qw($DEBUG $TESTCOUNT);
-BEGIN {     
-    eval { require Test; };
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
-    $TESTCOUNT = 8;
-    plan tests => $TESTCOUNT;
+
+BEGIN { 
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 9);
+	
+	use_ok('Bio::SeqIO');
+	use_ok('Bio::SeqFeature::Tools::Unflattener');
 }
 
-use Bio::Seq;
-use Bio::SeqIO;
-use Bio::Root::IO;
-use Bio::SeqFeature::Tools::Unflattener;
-
-ok(1);
-
-my $verbosity = -1;   # Set to -1 for release version, so warnings aren't printed
+my $verbosity = test_debug();
 
 my ($seq, @sfs);
-my $unflattener = Bio::SeqFeature::Tools::Unflattener->new;
-
+my $unflattener = Bio::SeqFeature::Tools::Unflattener->new();
 
 if (1) {
-    my @path = ("t","data","AE003644_Adh-genomic.gb");
-    # allow cmd line override
-    if (@ARGV) {
-	@path = (shift @ARGV);
-    }
+    my @path = ("AE003644_Adh-genomic.gb");
     $seq = getseq(@path);
     
-    ok ($seq->accession_number, 'AE003644');
+    is ($seq->accession_number, 'AE003644');
     my @topsfs = $seq->get_SeqFeatures;
     if( $verbosity > 0 ) {
 	warn sprintf "TOP:%d\n", scalar(@topsfs);
@@ -50,11 +38,11 @@ if (1) {
 	write_hier(@sfs);
 	warn sprintf "PROCESSED:%d\n", scalar(@sfs);
     }
-    ok(@sfs == 21);
+    is(@sfs, 21);
 }
 
 # now try again, using a custom subroutine to link together features
-$seq = getseq("t","data","AE003644_Adh-genomic.gb");
+$seq = getseq("AE003644_Adh-genomic.gb");
 @sfs = $unflattener->unflatten_seq
     (-seq=>$seq,
      -group_tag=>'locus_tag',
@@ -95,7 +83,6 @@ $seq = getseq("t","data","AE003644_Adh-genomic.gb");
 	     else {
 		 $self->throw("AMBIGUOUS");
 	     }
-                                         
 	 }
      });
 $unflattener->feature_from_splitloc(-seq=>$seq);
@@ -104,13 +91,13 @@ if( $verbosity > 0 ) {
     write_hier(@sfs);
     warn sprintf "PROCESSED2:%d\n", scalar(@sfs);
 }
-ok(@sfs == 21);
+is(@sfs, 21);
 
 # try again; different sequence
 # this is an E-Coli seq with no mRNA features;
 # we just want to link all features directly with gene
 
-$seq = getseq("t","data","D10483.gbk");
+$seq = getseq("D10483.gbk");
 
 # UNFLATTEN
 @sfs = $unflattener->unflatten_seq(-seq=>$seq,
@@ -121,10 +108,10 @@ if( $verbosity > 0 ) {
     write_hier(@sfs);
     warn sprintf "PROCESSED:%d\n", scalar(@sfs);
 }
-ok(@sfs == 98);
+is(@sfs, 98);
 
 # this sequence has no locus_tag or or gene tags
-$seq = getseq("t","data","AY763288.gb");
+$seq = getseq("AY763288.gb");
 
 # UNFLATTEN
 @sfs = $unflattener->unflatten_seq(-seq=>$seq,
@@ -135,12 +122,12 @@ if( $verbosity > 0 ) {
     write_hier(@sfs);
     warn sprintf "PROCESSED:%d\n", scalar(@sfs);
 }
-ok(@sfs == 3);
+is(@sfs, 3);
 
 
 # try again; different sequence - dicistronic gene, mRNA record
 
-$seq = getseq("t","data","X98338_Adh-mRNA.gb");
+$seq = getseq("X98338_Adh-mRNA.gb");
 
 # UNFLATTEN
 @sfs = $unflattener->unflatten_seq(-seq=>$seq,
@@ -151,11 +138,11 @@ if( $verbosity > 0 ) {
     write_hier(@sfs);
     warn sprintf "PROCESSED:%d\n", scalar(@sfs);
 }
-ok(@sfs == 7);
+is(@sfs, 7);
 
 # try again; this sequence has no CDSs but rRNA present
 
-$seq = getseq("t","data","no_cds_example.gb");
+$seq = getseq("no_cds_example.gb");
 
 # UNFLATTEN
 @sfs = $unflattener->unflatten_seq(-seq=>$seq,
@@ -171,7 +158,7 @@ my @all_sfs = $seq->get_all_SeqFeatures;
 
 my @exons = grep { $_-> primary_tag eq 'exon' }  @all_sfs ; 
 
-ok(@exons == 2);
+is(@exons, 2);
 
 
 
@@ -197,9 +184,7 @@ sub _write_hier {
 sub getseq {
     my @path = @_;
     my $seqio =
-      Bio::SeqIO->new('-file'=> Bio::Root::IO->catfile(
-                                                       @path
-                                                      ), 
+      Bio::SeqIO->new('-file'=> test_input_file(@path), 
                       '-format' => 'GenBank');
     $seqio->verbose($verbosity);
 

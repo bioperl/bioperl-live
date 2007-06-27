@@ -1,19 +1,19 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-#
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
 BEGIN {
-    use vars qw($DEBUG);
-    $DEBUG = $ENV{'BIOPERLDEBUG'};
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 147;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 147);
+    
+    use_ok('Bio::Map::SimpleMap');
+    use_ok('Bio::Map::Marker');
+    use_ok('Bio::Map::Position');
+    use_ok('Bio::Map::Relative');
+    use_ok('Bio::Map::Mappable');
 }
 
 ###
@@ -27,8 +27,6 @@ BEGIN {
 # Test map basics
 my $map;
 {
-    use_ok 'Bio::Map::SimpleMap';
-    
     ok $map = Bio::Map::SimpleMap->new(-name  => 'my');
     ok $map->type('cyto');
     is $map->type, 'cyto';
@@ -43,8 +41,6 @@ my $map;
 # Test marker basics
 my $marker;
 {
-    use_ok 'Bio::Map::Marker';
-    
     # make a plane one and add details after
     ok $marker = Bio::Map::Marker->new();
     is $marker->name('gene1'), 'gene1';
@@ -88,8 +84,6 @@ my $marker;
 # Test position basics
 my $pos;
 {
-    use_ok 'Bio::Map::Position';
-    
     ok $pos = Bio::Map::Position->new();
     ok $pos->map($map);
     is $pos->map(), $map;
@@ -196,8 +190,6 @@ my $pos;
 
 # Test relative positions
 {
-    use_ok 'Bio::Map::Relative';
-    
     my $map = Bio::Map::SimpleMap->new();
     my $pos1 = Bio::Map::Position->new(-map => $map, -start => 50, -length => 5);
     my $pos2 = Bio::Map::Position->new(-map => $map, -start => 100, -length => 5);
@@ -274,8 +266,6 @@ my $pos;
 
 # Test Mappables
 {
-    use_ok 'Bio::Map::Mappable';
-    
     ok my $gene = Bio::Map::Mappable->new();
     my $human = Bio::Map::SimpleMap->new();
     my $mouse = Bio::Map::SimpleMap->new();

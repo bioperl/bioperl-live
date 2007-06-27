@@ -1,32 +1,27 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
+
 BEGIN {     
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 188;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 187);
+	
     use_ok('Bio::Tools::Genscan');
     use_ok('Bio::Tools::Genemark');
     use_ok('Bio::Tools::Glimmer');
     use_ok('Bio::Tools::MZEF');  
     use_ok('Bio::SeqIO');
-    use_ok('Bio::Root::IO');
 }
 
 # Genscan report
-my $genscan = Bio::Tools::Genscan->new('-file' => Bio::Root::IO->catfile("t","data","genomic-seq.genscan"));
+my $genscan = Bio::Tools::Genscan->new('-file' => test_input_file('genomic-seq.genscan'));
 ok $genscan;
 
 # original sequence
-my $seqin = Bio::SeqIO->new('-file' => Bio::Root::IO->catfile("t","data","genomic-seq.fasta"),
+my $seqin = Bio::SeqIO->new('-file' => test_input_file('genomic-seq.fasta'),
 			    '-format' => "fasta");
 ok $seqin;
 my $seq = $seqin->next_seq();
@@ -76,14 +71,14 @@ while(my $gene = $genscan->next_prediction()) {
 }
 
 # Genscan report with no genes predicted
-my $null_genscan = Bio::Tools::Genscan->new('-file' => Bio::Root::IO->catfile("t","data","no-genes.genscan"));
+my $null_genscan = Bio::Tools::Genscan->new('-file' => test_input_file('no-genes.genscan'));
 ok $null_genscan;
 my $no_gene = $null_genscan->next_prediction;
 my @exons = $no_gene->exons;
 is($#exons,-1);
 
 # MZEF report
-my $mzef = Bio::Tools::MZEF->new('-file' => Bio::Root::IO->catfile("t","data","genomic-seq.mzef"));
+my $mzef = Bio::Tools::MZEF->new('-file' => test_input_file('genomic-seq.mzef'));
 ok $mzef;
 
 my $exon_num = 0;
@@ -92,7 +87,7 @@ my $gene = $mzef->next_prediction();
 is($gene->exons, 23);
 
 # Genemark testing
-my $genemark = Bio::Tools::Genemark->new('-file' => Bio::Root::IO->catfile(qw(t data genemark.out)));
+my $genemark = Bio::Tools::Genemark->new('-file' => test_input_file('genemark.out'));
 
 my $gmgene = $genemark->next_prediction();
 is $gmgene->seq_id(), "Hvrn.contig8";
@@ -115,7 +110,7 @@ while($gmgene = $genemark->next_prediction()) {
 }
 
 # Genemark testing (prokaryotic gene fragment)
-$genemark = Bio::Tools::Genemark->new('-file'    => Bio::Root::IO->catfile(qw(t data genemark-fragment.out)),
+$genemark = Bio::Tools::Genemark->new('-file'    => test_input_file('genemark-fragment.out'),
                                          '-seqname' => 'AAVN02000021.1');
 
 $gmgene = $genemark->next_prediction();
@@ -143,7 +138,7 @@ is $gmexon->location->end_pos_type(), 'AFTER';
 is $gmexon->location->min_end(), 596;
 
 # Glimmer testing (GlimmerM)
-my $glimmer_m = Bio::Tools::Glimmer->new('-file' => Bio::Root::IO->catfile(qw(t data GlimmerM.out)));
+my $glimmer_m = Bio::Tools::Glimmer->new('-file' => test_input_file('GlimmerM.out'));
 $gmgene = $glimmer_m->next_prediction;
 
 ok($gmgene);
@@ -173,7 +168,7 @@ while($gmgene = $glimmer_m->next_prediction()) {
 }
 
 # Glimmer testing (GlimmerHMM)
-my $glimmer_hmm = Bio::Tools::Glimmer->new('-file' => Bio::Root::IO->catfile(qw(t data GlimmerHMM.out)));
+my $glimmer_hmm = Bio::Tools::Glimmer->new('-file' => test_input_file('GlimmerHMM.out'));
 my $ghmmgene = $glimmer_hmm->next_prediction;
 
 ok($ghmmgene);
@@ -197,7 +192,7 @@ while ($ghmmgene = $glimmer_hmm->next_prediction) {
 is($i, 44);
 
 # Glimmer testing (Glimmer 2.X)
-my $glimmer_2 = Bio::Tools::Glimmer->new('-file' => Bio::Root::IO->catfile(qw(t data Glimmer2.out)), '-seqname' => 'BCTDNA');
+my $glimmer_2 = Bio::Tools::Glimmer->new('-file' => test_input_file('Glimmer2.out'), '-seqname' => 'BCTDNA');
 my $g2gene = $glimmer_2->next_prediction;
 
 ok($g2gene);
@@ -223,7 +218,7 @@ is($i, 25);
 
 
 # Glimmer testing (Glimmer 3.X)
-my $glimmer_3 = Bio::Tools::Glimmer->new('-file' => Bio::Root::IO->catfile(qw(t data Glimmer3.predict)));
+my $glimmer_3 = Bio::Tools::Glimmer->new('-file' => test_input_file('Glimmer3.predict'));
 my $g3gene = $glimmer_3->next_prediction;
 
 ok($g3gene);

@@ -1,33 +1,22 @@
-# -*-Perl-*- mode (to keep my emacs happy)
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
-# test for Bio::Tools::Primer3.pm
-# written by Rob Edwards
-# and Chad Matsalla
 
 use strict;
-use vars qw($NUMTESTS $DEBUG $ERROR $XML_ERROR);
-
 
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    $NUMTESTS  = 12;
-    eval {  require Clone; };
-    if ( $@ ) {
-        plan skip_all => "Clone not installed. This means that the module is not usable. Skipping tests";
-    } else {
-        plan tests => $NUMTESTS;
-    }
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 12,
+               -requires_module => 'Clone');
+	
     use_ok('Bio::Tools::Primer3');
 }
 
 my ($p3, $num, $primer);
 
-ok $p3 = Bio::Tools::Primer3->new(-file => File::Spec->catfile(qw(t data primer3_output.txt)));
+ok $p3 = Bio::Tools::Primer3->new(-file => test_input_file('primer3_output.txt'));
 ok $num = $p3->number_of_results;
 is $num, 5 or diag "Got $num";
 ok $num = $p3->all_results;

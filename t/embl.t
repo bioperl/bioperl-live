@@ -1,27 +1,22 @@
-# -*-Perl-*- mode (to keep my emacs happy)
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
 
 BEGIN {
-	eval { require Test::More; };
-	if ( $@ ) {
-		use lib 't\lib';
-	}
-	use Test::More;
-	plan tests => 58;
-    use_ok('Bio::Seq');
+	use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 56);
+	
     use_ok('Bio::SeqIO');
-    use_ok('Bio::Annotation::Collection');
 }
 
-# Set to -1 for release version, so warnings aren't printed
-my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
+my $verbose = test_debug();
 
 my $ast = Bio::SeqIO->new( -format => 'embl',
 			   -verbose => $verbose,
-			   -file => Bio::Root::IO->catfile
-			   ("t","data","roa1.dat"));
+			   -file => test_input_file('roa1.dat'));
 $ast->verbose($verbose);
 my $as = $ast->next_seq();
 ok defined $as->seq;
@@ -40,8 +35,7 @@ is($as->species->binomial(), 'Homo sapiens');
 
 $ast = Bio::SeqIO->new( -format => 'embl',
 			   -verbose => $verbose,
-			   -file => Bio::Root::IO->catfile
-			   ("t","data","roa1_v2.dat"));
+			   -file => test_input_file('roa1_v2.dat'));
 $ast->verbose($verbose);
 $as = $ast->next_seq();
 ok defined $as->seq;
@@ -58,8 +52,7 @@ is(scalar $as->all_SeqFeatures(), 4);
 is($as->length, 1198);
 is($as->species->binomial(), 'Homo sapiens');
 
-my $ent = Bio::SeqIO->new( -file => Bio::Root::IO->catfile
-			   ("t","data","test.embl"),
+my $ent = Bio::SeqIO->new( -file => test_input_file('test.embl'),
 			   -format => 'embl');
 my $seq = $ent->next_seq();
 
@@ -67,15 +60,14 @@ is(defined $seq->seq(), 1,
    'success reading Embl with ^ location and badly split double quotes');
 is(scalar $seq->annotation->get_Annotations('reference'), 3);
 
-my $out = Bio::SeqIO->new(-file=> ">embl.out",
+my $out_file = test_output_file();
+my $out = Bio::SeqIO->new(-file=> ">$out_file",
 			  -format => 'embl');
 is($out->write_seq($seq),1,
    'success writing Embl format with ^ < and > locations');
-unlink("embl.out");
 
 # embl with no FT
-$ent = Bio::SeqIO->new( -file => Bio::Root::IO->catfile
-			("t","data","test.embl"),
+$ent = Bio::SeqIO->new( -file => test_input_file('test.embl'),
 			-format => 'embl');
 $seq = $ent->next_seq();
 
@@ -84,27 +76,23 @@ is(lc($seq->subseq(1,10)),'gatcagtaga');
 is($seq->length, 4870);
 
 # embl with no FH
-my $noFH = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
-			("t","data","no_FH.embl"),
+my $noFH = Bio::SeqIO->new(-file => test_input_file('no_FH.embl'),
 			-format => 'embl');
 is(scalar($noFH->next_seq->get_SeqFeatures), 4);
 
 # bug 1571
 $ent = Bio::SeqIO->new(-format => 'embl',
-		       -file   => Bio::Root::IO->catfile
-		       (qw(t data test.embl2sq)));
+		       -file   => test_input_file('test.embl2sq'));
 is($ent->next_seq->length,4877);
 
 # embl repbase
-$ent = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
-		       ("t","data","BEL16-LTR_AG.embl"), -format => 'embl');
+$ent = Bio::SeqIO->new(-file => test_input_file('BEL16-LTR_AG.embl'), -format => 'embl');
 $seq = $ent->next_seq;
 is($seq->display_id,'BEL16-LTR_AG');
 
 # test secondary accessions in EMBL (bug #1332)
 my $seqio = Bio::SeqIO->new(-format => 'embl',
-			   -file => Bio::Root::IO->catfile
-			   ( qw(t data ECAPAH02.embl)));
+			   -file => test_input_file('ECAPAH02.embl'));
 $seq = $seqio->next_seq;
 is($seq->accession_number, 'D10483');
 is($seq->seq_version, 2);
@@ -116,8 +104,7 @@ is($accs[-1], 'X56742');
 # test Third Party Annotation entries in EMBL/Gb format 
 # to ensure compatability with parsers.
 my $str = Bio::SeqIO->new(-format =>'embl',
-			 -file => Bio::Root::IO->catfile
-			 ( qw(t data BN000066-tpa.embl)));
+			 -file => test_input_file('BN000066-tpa.embl'));
 $seq = $str->next_seq;
 ok(defined $seq);
 is($seq->accession_number, 'BN000066');
@@ -144,8 +131,7 @@ my $cmmnt =  ($ac->get_Annotations('comment') )[0];
 is($cmmnt->text, 'see also AJ488492 for achE-1 from Kisumu strain Third Party Annotation Database: This TPA record uses Anopheles gambiae trace archive data (http://trace.ensembl.org) ');
 
 
-$ent = Bio::SeqIO->new( -file => Bio::Root::IO->catfile
-                        ("t","data","test.embl"),
+$ent = Bio::SeqIO->new( -file => test_input_file('test.embl'),
                         -format => 'embl');
 $ent->verbose($verbose);
 $seq = $ent->next_seq();
@@ -169,7 +155,7 @@ $verbose = -1 unless $ENV{'BIOPERLDEBUG'};  # silence warnings unless we are deb
 
 my $embl = Bio::SeqIO->new(-format => 'embl',
                           -verbose => $verbose,
-                          -file => ">primaryseq.embl");
+                          -file => ">$out_file");
 
 ok($embl->write_seq($primaryseq));
 
@@ -179,5 +165,3 @@ eval {
 	$embl->write_seq($scalar);
 };
 ok ($@);
-
-unlink("primaryseq.embl");

@@ -1,42 +1,17 @@
-# This is -*-Perl-*- code#
-# Bioperl Test Harness Script for Modules#
-# $Id: protgraph.t,v 1.1 2004/03/13 23:45:32 radams Exp
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
-use vars qw($NUMTESTS $DEBUG $XML_TESTS);
 use strict;
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
-use Bio::Root::IO;
 
 BEGIN {
-    eval { require Test::More;};
-    if ( $@ ) {
-		use lib 't/lib';
-    }
-    use Test::More;
-    $NUMTESTS  = 72;
-    eval {	require Class::AutoClass;
-         	require Clone; };
-    if ( $@ ) {
-		plan skip_all => "Class::AutoClass or Clone not installed. This means that the module is not usable. Skipping tests";
-    } else {
-		plan tests => $NUMTESTS;
-	}
-	eval {require XML::Twig;};
-    if ($@) {
-		$XML_TESTS = 0;
-	} else {
-		$XML_TESTS = 1;
-	}
-	use_ok('Bio::Graph::ProteinGraph');
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 70,
+               -requires_modules => [qw(Class::AutoClass Clone)]);
+	
 	use_ok('Bio::Graph::IO');
-	use_ok('Bio::Graph::Edge');
 }
-
-END {
-    unlink Bio::Root::IO->catfile("t","data","out.mif");
-}
-
-my $verbose = $DEBUG;
 
 ################1st of all let's test the io.....
 ###############  test dip tab delimited  format  ###################
@@ -46,7 +21,7 @@ my %ids;
 my $gr;
 ok my $io = Bio::Graph::IO->new(
   -format => 'dip',
-  -file   => Bio::Root::IO->catfile("t","data","tab1part.mif"),
+  -file   => test_input_file('tab1part.mif'),
   -threshold => 0.6);
 
 ok  $gr = $io->next_network();
@@ -55,10 +30,10 @@ ok my $node   = $gr->nodes_by_id('A64696');
 is $node->accession_number, 'A64696';
 
 ##test write. to filehandle...
-
+my $out_file = test_output_file();
 ok my $out =  Bio::Graph::IO->new(
   -format => 'dip',
-  -file   =>">". Bio::Root::IO->catfile("t","data","out.mif"));
+  -file   =>">$out_file");
 ok $out->write_network($gr);
 
 ## get articulation_points. 
@@ -75,8 +50,8 @@ is scalar @$nodes, 13;
 # <NOTE>
 # these were failing, I don't understand the module enough to know if 
 # this is a bug. Richard needs to look at it
-SKIP: {
-	skip ('TODO:Possible bug; skipping two tests',2);
+TODO: {
+	local $TODO = 'Possible bug!';
 	ok grep {$_->object_id eq 'B64701'} @nodes;
 	is scalar @nodes, 14;
 }
@@ -92,7 +67,7 @@ is $node->accession_number, 'A64696';
 ## can we round trip, is out format same as original format?
 ok my $io2 = Bio::Graph::IO->new(
   -format    => 'dip',
-  -file     => Bio::Root::IO->catfile("t","data","out.mif"));
+  -file     => $out_file);
 ok	my $g2     = $io2->next_network();
 ok  $node      = $g2->nodes_by_id('A64696');
 is $node->accession_number, 'A64696';
@@ -181,11 +156,11 @@ is $dupids[0], undef;
 
 $io = Bio::Graph::IO->new(
    -format => 'dip',
-   -file   => Bio::Root::IO->catfile("t","data","tab1part.mif"));
+   -file   => test_input_file('tab1part.mif'));
 $gr = $io->next_network();
 $io2 = Bio::Graph::IO->new(
    -format => 'dip',
-   -file   => Bio::Root::IO->catfile("t","data","tab1part.mif"));
+   -file   => test_input_file('tab1part.mif'));
 
 $g2 = $io2->next_network();
 
@@ -209,11 +184,11 @@ $gr = undef;
 $g2 = undef;
 $io = Bio::Graph::IO->new(
    -format => 'dip',
-   -file   => Bio::Root::IO->catfile("t","data","tab1part.mif"));
+   -file   => test_input_file('tab1part.mif'));
 $gr = $io->next_network();
 $io2 = Bio::Graph::IO->new(
     -format => 'dip',
-    -file   => Bio::Root::IO->catfile("t","data","tab2part.mif"));
+    -file   => test_input_file('tab2part.mif'));
 $g2 = $io2->next_network();
 is $gr->edge_count, 72;
 is $gr->node_count, 74;
@@ -228,11 +203,11 @@ $gr = undef;
 $g2 = undef;
 $io = Bio::Graph::IO->new
     (-format => 'dip',
-     -file   => Bio::Root::IO->catfile("t","data","tab1part.mif"));
+     -file   => test_input_file('tab1part.mif'));
 $gr = $io->next_network();
 $io2 = Bio::Graph::IO->new
     (-format => 'dip',
-     -file   => Bio::Root::IO->catfile("t","data","tab3part.mif"));
+     -file   => test_input_file('tab3part.mif'));
 
 $g2 = $io2->next_network();
 is $gr->edge_count, 72;
@@ -245,11 +220,11 @@ is $gr->node_count, 76;
 
 # test IO/psi_xml if the required modules are present
 SKIP: {
-	skip ('XML::Twig required for psi_xml-based tests.  Skipping...',10) if !$XML_TESTS;
+    test_skip(-tests => 12, -requires_module => 'XML::Twig');
 	# PSI XML from DIP
 	ok $io = Bio::Graph::IO->new
 	  (-format => 'psi_xml',
-		-file   => Bio::Root::IO->catfile("t", "data", "psi_xml.dat"));
+		-file   => test_input_file('psi_xml.dat'));
 	ok my $g = $io->next_network();
 	is $g->edge_count, 3;
 	is $g->node_count, 4;
@@ -261,17 +236,16 @@ SKIP: {
 	# PSI XML from IntAct
 	ok my $io2 = Bio::Graph::IO->new
 	  (-format => 'psi_xml',
-		-file   => Bio::Root::IO->catfile("t", "data", "sv40_small.xml"));
+		-file   => test_input_file('sv40_small.xml'));
 	ok my $g3 = $io2->next_network();
 	is $g3->edge_count, 3;
 	is $g3->node_count, 5;
 
 	my @rts =$g->articulation_points();
 	$n = $g->nodes_by_id(207153);
-	SKIP: {
-		skip('TODO:Possible bug in binomial output',1);
+	TODO: {
+		local $TODO = 'Possible bug in binomial output';
 		is $n->species->binomial(),"Helicobacter pylori 26695";
 	}
 	is $n->primary_seq->desc,"bogus-binding membrane protein (lepA) HP0355";
 } 
-

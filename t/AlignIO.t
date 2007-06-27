@@ -1,4 +1,4 @@
-# This is -*-Perl-*- code
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
@@ -7,30 +7,9 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 285);
+    test_begin(-tests => 283);
 	
-	use_ok('Bio::SimpleAlign');
 	use_ok('Bio::AlignIO');
-	use_ok('Bio::Root::IO');
-}
-
-END {
-    unlink(Bio::Root::IO->catfile("t","data","testout2.pfam"),
-	   Bio::Root::IO->catfile("t","data","testout.selex"),
-	   Bio::Root::IO->catfile("t","data","testout.pfam"),
-	   Bio::Root::IO->catfile("t","data","testout.msf"),
-	   Bio::Root::IO->catfile("t","data","testout.fasta"),
-	   Bio::Root::IO->catfile("t","data","testout.clustal"),
-	   Bio::Root::IO->catfile("t","data","testout.phylip"),
-	   Bio::Root::IO->catfile("t","data","testout.nexus"),
-	   Bio::Root::IO->catfile("t","data","testout.mega"),
-	   Bio::Root::IO->catfile("t","data","testout.po"),
-	   Bio::Root::IO->catfile("t","data","testout.largemultifasta"),
-       Bio::Root::IO->catfile("t","data","testout.stockholm"),
-       Bio::Root::IO->catfile("t","data","testout.xmfa"),
-       Bio::Root::IO->catfile("t","data","testout2.stockholm"),
-       Bio::Root::IO->catfile("t","data","testout2.aln")
-	  );
 }
 
 my $DEBUG = test_debug();
@@ -39,7 +18,7 @@ my ($str,$aln,$strout,$status);
 
 # PSI format  
 $str  = Bio::AlignIO->new(
-    '-file'	=> Bio::Root::IO->catfile("t","data","testaln.psi"),
+    '-file'	=> test_input_file("testaln.psi"),
     '-format'	=> 'psi');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
@@ -49,7 +28,7 @@ is($aln->no_sequences, 56);
 
 # ARP format
 $str  = Bio::AlignIO ->new(
-    '-file'	=> Bio::Root::IO->catfile("t","data","testaln.arp"),
+    '-file'	=> test_input_file("testaln.arp"),
     '-format'	=> 'arp');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
@@ -59,7 +38,7 @@ is($aln->no_sequences, 60,'ARP no_sequences()');
 is($aln->description, 'Mandenka', 'ARP description()');
 is($str->datatype, 'DNA', 'ARP SeqIO datatype()');
 $str  = Bio::AlignIO->new(
-    '-file'	=> Bio::Root::IO->catfile("t","data","testaln2.arp"),
+    '-file'	=> test_input_file("testaln2.arp"),
     '-format'	=> 'arp');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
@@ -81,10 +60,9 @@ is($aln->description, 'Population 3', 'ARP description()');
 # STOCKHOLM (multiple concatenated files)
 # Rfam
 $str  = Bio::AlignIO->new(
-    '-file'	=> Bio::Root::IO->catfile("t","data","rfam_tests.stk"),
+    '-file'	=> test_input_file("rfam_tests.stk"),
     '-format'	=> 'stockholm');
-$strout = Bio::AlignIO->new('-file'  => ">".
-		  Bio::Root::IO->catfile("t", "data", "testout.stockholm"),
+$strout = Bio::AlignIO->new('-file'  => ">".test_output_file(),
 		'-format' => 'stockholm', );
 
 isa_ok($str,'Bio::AlignIO');
@@ -151,7 +129,7 @@ is($meta_str, '.<<<<<<..<<<<<.........>>>>>.......<<<<.....................'.
 
 # STOCKHOLM (Pfam)
 $str  = Bio::AlignIO->new(
-    '-file'	=> Bio::Root::IO->catfile("t","data","pfam_tests.stk"),
+    '-file'	=> test_input_file("pfam_tests.stk"),
     '-format'	=> 'stockholm');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
@@ -199,21 +177,21 @@ for my $seq ($aln->each_seq) {
 
 # PFAM format (no annotation)
 $str = Bio::AlignIO->new(
-	  '-file' => Bio::Root::IO->catfile("t","data","testaln.pfam"));
+	  '-file' => test_input_file("testaln.pfam"));
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 is($aln->get_seq_by_pos(1)->get_nse, '1433_LYCES/9-246');
 
 $strout = Bio::AlignIO->new(
-   '-file' => ">".Bio::Root::IO->catfile("t","data","testout.pfam"), 
+   '-file' => ">".test_output_file(), 
 			    '-format' => 'pfam');
 $status = $strout->write_aln($aln);
 is($status, 1, " pfam output test");
 
 # MAF
 $str = Bio::AlignIO->new(
-	  '-file' => Bio::Root::IO->catfile("t","data","humor.maf"));
+	  '-file' => test_input_file("humor.maf"));
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 is $aln->get_seq_by_pos(1)->get_nse, 'NM_006987/1-5000', "maf input test";
@@ -221,13 +199,13 @@ is $aln->get_seq_by_pos(1)->strand, '-';
 
 # MSF
 $str = Bio::AlignIO->new(
-    '-file' => Bio::Root::IO->catfile("t","data","testaln.msf"));
+    '-file' => test_input_file("testaln.msf"));
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 is $aln->get_seq_by_pos(1)->get_nse, '1433_LYCES/9-246', "msf input test";
 
 $strout = Bio::AlignIO->new(
-   '-file' => ">".Bio::Root::IO->catfile("t","data","testout.msf"), 
+   '-file' => ">".test_output_file(), 
 			    '-format' => 'msf');
 $status = $strout->write_aln($aln);
 is $status, 1, "msf output test";
@@ -235,7 +213,7 @@ is $status, 1, "msf output test";
 
 # FASTA
 $str = Bio::AlignIO->new(
-		 -file => Bio::Root::IO->catfile("t","data","testaln.fasta"), 
+		 -file => test_input_file("testaln.fasta"), 
 		 -format => 'fasta');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
@@ -253,16 +231,16 @@ is ($aln->get_seq_by_pos(11)->description, 'A COMMENT FOR YEAST',
     "fasta input test for description");
 
 $strout = Bio::AlignIO->new(
-   '-file' => ">".Bio::Root::IO->catfile("t","data","testout.fasta"), 
+   '-file' => ">".test_output_file(), 
 			      '-format' => 'fasta');
 $status = $strout->write_aln($aln);
 is $status, 1,"fasta output test";
 
 my $in = Bio::AlignIO->newFh(
-   '-file'  => Bio::Root::IO->catfile("t","data","testaln.fasta"), 
+   '-file'  => test_input_file("testaln.fasta"), 
 			       '-format' => 'fasta');
 my $out = Bio::AlignIO->newFh(
-   '-file' => ">".Bio::Root::IO->catfile("t","data","testout2.pfam"), 
+   '-file' => ">".test_output_file(), 
 				'-format' => 'pfam');
 while ( $aln = <$in>) {
     is $aln->get_seq_by_pos(1)->get_nse, 'AK1H_ECOLI/114-431',
@@ -275,14 +253,14 @@ is $status, 1, "filehandle output test";
 
 # SELEX
 $str = Bio::AlignIO->new(
-    '-file' => Bio::Root::IO->catfile("t","data","testaln.selex"),
+    '-file' => test_input_file("testaln.selex"),
 			   '-format' => 'selex');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 is $aln->get_seq_by_pos(1)->get_nse, 'AK1H_ECOLI/114-431', "selex format test ";
 
 $strout = Bio::AlignIO->new(
-   '-file' => ">".Bio::Root::IO->catfile("t","data","testout.selex"), 
+   '-file' => ">".test_output_file(), 
 			      '-format' => 'selex');
 $status = $strout->write_aln($aln);
 is $status, 1, "selex output test";
@@ -290,7 +268,7 @@ is $status, 1, "selex output test";
 
 # MASE
 $str = Bio::AlignIO->new(
-   '-file' => Bio::Root::IO->catfile("t","data","testaln.mase"),
+   '-file' => test_input_file("testaln.mase"),
 			   '-format' => 'mase');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
@@ -299,7 +277,7 @@ is $aln->get_seq_by_pos(1)->get_nse, 'AK1H_ECOLI/1-318', "mase input test ";
 
 # PRODOM
 $str = Bio::AlignIO->new(
-   '-file' => Bio::Root::IO->catfile("t","data","testaln.prodom"),
+   '-file' => test_input_file("testaln.prodom"),
 			   '-format' => 'prodom');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
@@ -308,19 +286,19 @@ is $aln->get_seq_by_pos(1)->get_nse, 'P04777/1-33', "prodom input test ";
 
 # CLUSTAL
 $strout = Bio::AlignIO->new(
-   '-file' => ">".Bio::Root::IO->catfile("t","data","testout.clustal"), 
+   '-file' => ">".test_output_file(), 
 			      '-format' => 'clustalw');
 $status = $strout->write_aln($aln);
 is $status, 1, "clustalw (.aln) output test";
 undef $strout;
 $str = Bio::AlignIO->new(
-   '-file'=> Bio::Root::IO->catfile("t","data","testout.clustal"), 
+   '-file'=> test_input_file("testout.clustal"), 
 			   '-format' => 'clustalw');
 $aln = $str->next_aln($aln);
 isa_ok($aln,'Bio::Align::AlignI');
 is $aln->get_seq_by_pos(1)->get_nse, 'P04777/1-33', "clustalw (.aln) input test";
 my $io = Bio::AlignIO->new(
-   -file => Bio::Root::IO->catfile("t","data","testaln.aln") );
+   -file => test_input_file("testaln.aln") );
 $aln = $io->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 is $aln->consensus_string, "MNEGEHQIKLDELFEKLLRARKIFKNKDVLRHSWEPKDLPHRHEQIEA".
@@ -333,7 +311,7 @@ is $aln->consensus_string, "MNEGEHQIKLDELFEKLLRARKIFKNKDVLRHSWEPKDLPHRHEQIEA".
 
 # BL2SEQ
 $str = Bio::AlignIO->new(
-   '-file'   => Bio::Root::IO->catfile("t","data","bl2seq.out"),
+   '-file'   => test_input_file("bl2seq.out"),
 			 '-format' => 'bl2seq',
 			 '-report_type' => 'blastp');
 $aln = $str->next_aln();
@@ -343,7 +321,7 @@ is $aln->get_seq_by_pos(2)->get_nse, 'ALEU_HORVU/60-360',
 
 # PHYLIP interleaved
 $str = Bio::AlignIO->new(
-    '-file' => Bio::Root::IO->catfile("t","data","testaln.phylip"),
+    '-file' => test_input_file("testaln.phylip"),
     '-format' => 'phylip');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
@@ -351,7 +329,7 @@ isa_ok($aln,'Bio::Align::AlignI');
 is $aln->get_seq_by_pos(1)->get_nse, 'Homo_sapie/1-45';
 
 $strout = Bio::AlignIO->new(
-    '-file'  => ">".Bio::Root::IO->catfile("t","data","testout.phylip"),
+    '-file'  => ">".test_output_file(),
     '-format' => 'phylip');
 $status = $strout->write_aln($aln);
 is $status, 1, "phylip output test";
@@ -359,8 +337,8 @@ is $status, 1, "phylip output test";
 
 # METAFASTA
 #print STDERR "Better Metafasta tests needed\n" if $DEBUG;
-$io = Bio::AlignIO->new(-verbose => -1, 
-   -file => Bio::Root::IO->catfile("t","data","testaln.metafasta"));
+$io = Bio::AlignIO->new(-verbose => $DEBUG ? $DEBUG : -1, 
+   -file => test_input_file('testaln.metafasta'));
 $aln = $io->next_aln;
 isa_ok($aln,'Bio::Align::AlignI');
 is $aln->consensus_string,'CDEFHIJKLMNOPQRSTUVWXYZ', "consensus_string on metafasta";
@@ -368,140 +346,139 @@ is $aln->symbol_chars,'23',"symbol_chars() using metafasta";
 
 # NEXUS
 $str = Bio::AlignIO->new(
-   '-file' => Bio::Root::IO->catfile("t","data","testaln.nexus"),
+   '-file' => test_input_file('testaln.nexus'),
 			  '-format' => 'nexus');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 is $aln->get_seq_by_pos(1)->get_nse, 'Homo_sapiens/1-45';
-$strout = Bio::AlignIO->new('-file'  => ">".
-			  Bio::Root::IO->catfile("t", "data", "testout.nexus"),
+$strout = Bio::AlignIO->new('-file'  => ">".test_output_file(),
 			    '-format' => 'nexus', );
 $status = $strout->write_aln($aln);
 is $status, 1, "nexus output test";
 
 $str = Bio::AlignIO->new(
-   '-file' => Bio::Root::IO->catfile("t","data","Bird_Ovomucoids.nex"),
+   '-file' => test_input_file('Bird_Ovomucoids.nex'),
 			  '-format' => 'nexus');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 $str = Bio::AlignIO->new(
-   '-file' => Bio::Root::IO->catfile("t","data","basic-ladder.nex"),
+   '-file' => test_input_file('basic-ladder.nex'),
 			  '-format' => 'nexus');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 $str = Bio::AlignIO->new(
-   '-file' => Bio::Root::IO->catfile("t","data","Kingdoms_DNA.nex"),
+   '-file' => test_input_file('Kingdoms_DNA.nex'),
 			  '-format' => 'nexus');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 $str = Bio::AlignIO->new(
-  '-file' => Bio::Root::IO->catfile("t","data","char-interleave.nex"),
+  '-file' => test_input_file('char-interleave.nex'),
 			  '-format' => 'nexus');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 $str = Bio::AlignIO->new(
-   '-file' => Bio::Root::IO->catfile("t","data","Primate_mtDNA.nex"),
+   '-file' => test_input_file('Primate_mtDNA.nex'),
 			  '-format' => 'nexus');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 $str = Bio::AlignIO->new(
-   '-file' => Bio::Root::IO->catfile("t","data","char-matrix-spaces.nex"),
+   '-file' => test_input_file("char-matrix-spaces.nex"),
 			  '-format' => 'nexus');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 $str = Bio::AlignIO->new(
-   '-file' => Bio::Root::IO->catfile("t","data","SPAN_Family4nl.nex"),
+   '-file' => test_input_file("SPAN_Family4nl.nex"),
 			  '-format' => 'nexus');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 $str = Bio::AlignIO->new(
-   '-file' => Bio::Root::IO->catfile("t","data","intrablock-comment.nex"),
+   '-file' => test_input_file("intrablock-comment.nex"),
 			  '-format' => 'nexus');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 $str = Bio::AlignIO->new(
-   '-file' => Bio::Root::IO->catfile("t","data","SPAN_Family7n.nex"),
+   '-file' => test_input_file("SPAN_Family7n.nex"),
 			  '-format' => 'nexus');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 $str = Bio::AlignIO->new(
-   '-file' => Bio::Root::IO->catfile("t","data","long-names.nex"),
+   '-file' => test_input_file("long-names.nex"),
 			  '-format' => 'nexus');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 $str = Bio::AlignIO->new(
-   '-file' => Bio::Root::IO->catfile("t","data","SPAN_Family8a.nex"),
+   '-file' => test_input_file("SPAN_Family8a.nex"),
 			  '-format' => 'nexus');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 $str = Bio::AlignIO->new(
-   '-file' => Bio::Root::IO->catfile("t","data","multiline-intrablock-comment.nex"),
+   '-file' => test_input_file("multiline-intrablock-comment.nex"),
 			  '-format' => 'nexus');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 $str = Bio::AlignIO->new(
-  '-file' => Bio::Root::IO->catfile("t","data","Treebase-chlamy-dna.nex"),
+  '-file' => test_input_file("Treebase-chlamy-dna.nex"),
 			  '-format' => 'nexus');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 $str = Bio::AlignIO->new(
-  '-file' => Bio::Root::IO->catfile("t","data","quoted-strings1.nex"),
+  '-file' => test_input_file("quoted-strings1.nex"),
 			  '-format' => 'nexus');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 $str = Bio::AlignIO->new(
-   '-file' => Bio::Root::IO->catfile("t","data","UnaSmithHIV-both.nex"),
+   '-file' => test_input_file("UnaSmithHIV-both.nex"),
 			  '-format' => 'nexus');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 $str = Bio::AlignIO->new(
-  '-file' => Bio::Root::IO->catfile("t","data","quoted-strings2.nex"),
+  '-file' => test_input_file("quoted-strings2.nex"),
 			  '-format' => 'nexus');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 $str = Bio::AlignIO->new(
-   '-file' => Bio::Root::IO->catfile("t","data","barns-combined.nex"),
+   '-file' => test_input_file("barns-combined.nex"),
 			  '-format' => 'nexus');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 $str = Bio::AlignIO->new(
-   '-file' => Bio::Root::IO->catfile("t","data","radical-whitespace.nex"),
+   '-file' => test_input_file("radical-whitespace.nex"),
 			  '-format' => 'nexus');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 $str = Bio::AlignIO->new(
-   '-file' => Bio::Root::IO->catfile("t","data","basic-bush.nex"),
+   '-file' => test_input_file("basic-bush.nex"),
 			  '-format' => 'nexus');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 $str = Bio::AlignIO->new(
-  '-file' => Bio::Root::IO->catfile("t","data","radical-whitespace_02.nex"),
+  '-file' => test_input_file("radical-whitespace_02.nex"),
 			  '-format' => 'nexus');
 
 
 # EMBOSS water
 $str = Bio::AlignIO->new('-format' => 'emboss',
-		 '-file'   => Bio::Root::IO->catfile("t", "data", 'cysprot.water'));
+		 '-file'   => test_input_file('cysprot.water'));
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 is($aln->score,'501.50');
@@ -516,7 +493,7 @@ is($aln->length,364);
 
 # EMBOSS needle
 $str = Bio::AlignIO->new('-format' => 'emboss',
-	  '-file'   => Bio::Root::IO->catfile("t", "data", 'cysprot.needle'));
+	  '-file'   => test_input_file('cysprot.needle'));
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 is($aln->score,'499.50');
@@ -526,7 +503,7 @@ is($aln->get_seq_by_pos(2)->get_nse,'CATL_HUMAN/1-333');
 
 # EMBOSS water 2.2.x
 $str = Bio::AlignIO->new('-format' => 'emboss',
-	 '-file'   => Bio::Root::IO->catfile("t", "data", 'cys1_dicdi.water'));
+	 '-file'   => test_input_file('cys1_dicdi.water'));
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 is($aln->get_seq_by_pos(1)->get_nse,'CYS1_DICDI/1-343');
@@ -541,7 +518,7 @@ is($aln->get_seq_by_pos(2)->get_nse,'ALEU_HORVU/61-360');
 # EMBOSS water 2.2.x sparse needle
 $str = Bio::AlignIO->new(-verbose => $DEBUG,
 	  '-format' => 'emboss',
-   	'-file'   => Bio::Root::IO->catfile("t", "data", 'sparsealn.needle'));
+   	'-file'   => test_input_file('sparsealn.needle'));
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 is($aln->score,'18.0');
@@ -562,7 +539,7 @@ is($aln->is_flush, 1);
 
 # MEGA
 $str = Bio::AlignIO->new('-format' => 'mega',
-  	'-file'   => Bio::Root::IO->catfile("t","data","hemoglobinA.meg"));
+  	'-file'   => test_input_file("hemoglobinA.meg"));
 
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
@@ -572,7 +549,7 @@ $aln->unmatch();
 is($aln->get_seq_by_pos(3)->subseq(1,10), 'V-LSAADKGN');
 
 $strout = Bio::AlignIO->new('-format' => 'mega',
-	  '-file'   => ">" .Bio::Root::IO->catfile("t","data","testout.mega"));
+	  '-file'   => ">" .test_output_file());
 
 $status = $strout->write_aln($aln);
 is $status, 1, "mega output test";
@@ -580,7 +557,7 @@ is $status, 1, "mega output test";
 
 # EMBOSS needle
 $str = Bio::AlignIO->new('-format' => 'emboss',
-	  '-file'   => Bio::Root::IO->catfile('t','data','gf-s71.needle'));
+	  '-file'   => test_input_file('gf-s71.needle'));
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 is($aln->get_seq_by_pos(2)->seq(), 'MEDVTLFQFTWRKPI-RLQGEIVYKTSETQTIETNKKDVECVANFQENKEVQTDS-VDNGVGENVKKDITISKEVLNLLYDFVRDDSKVNYDRLLEFHKFDKVALETVQKYHVETRNENIILMISSSSRKTLILFGGISHETFCSHQARALLCSSSTSFSIPLPVCAISAVFYSSTQFILGDVSGNISMCSKDKIIFEKKITDGAVTCLEMCRHGLLSGSDDGNIILWQIGTSGLEKLGGTKLTVSDLSRKIRRSSTSNKPVAIVSMQVYVWPSGEEACVATETGGLYLLTLPTLDYKPLSHQTATSINKILFENQFVAVIYHTSNAAVFNSEGLVDEIPFVATLAVR----------PKLVLF--YTSVCVQDITLNCTSPFREFNNEYNPVIKFSKIRFSADLSVING-FRTSSPNSNN-----------------------------------------------');
@@ -591,9 +568,7 @@ is($aln->get_seq_by_pos(2)->get_nse,'Y50C1A.2/1-406');
 
 
 # PHYLIP sequential/non-interleaved
-$strout = Bio::AlignIO->new('-file'  =>
-			    Bio::Root::IO->catfile("t","data",
-						   "noninterleaved.phy"),
+$strout = Bio::AlignIO->new('-file'  => test_input_file('noninterleaved.phy'),
 			    '-format' => 'phylip');
 $aln = $strout->next_aln($aln);
 isa_ok($aln,'Bio::Align::AlignI');
@@ -606,7 +581,7 @@ is($aln->get_seq_by_pos(2)->seq(), 'CCTCAGATCACTCTTTGGCAACGACCCCTCGTCACAATAA'.
 
 # LARGEMULTIFASTA
 $str = Bio::AlignIO->new(
-   '-file' => Bio::Root::IO->catfile("t", "data","little.largemultifasta"),
+   '-file' => test_input_file('little.largemultifasta'),
                          '-format' => 'largemultifasta');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
@@ -622,8 +597,7 @@ is ($aln->get_seq_by_pos(3)->description,
     "fasta input test for description");
 
 $strout = Bio::AlignIO->new(
-   '-file' => ">".Bio::Root::IO->catfile("t", "data",
-                                       "testout.largemultifasta"),
+   '-file' => ">".test_output_file(),
                             '-format' => 'largemultifasta');
 $status = $strout->write_aln($aln);
 is $status, 1,"fasta output test";
@@ -638,7 +612,7 @@ SKIP: {
 	skip("skipping due to bug in perl 5.6.0 that comes with OS X 10.2", 10) unless ($^O ne 'darwin' || $] > 5.006);
 	
 	$str = Bio::AlignIO->new(
-			  -file   => Bio::Root::IO->catfile("t", "data", "testaln.po"),
+			  -file   => test_input_file('testaln.po'),
 			  -format => 'po',
 			  );
 	isa_ok($str, 'Bio::AlignIO');
@@ -648,19 +622,19 @@ SKIP: {
 	
 	# output is? i.e. does conversion from clustalw to po give the same alignment?
 	$str = Bio::AlignIO->new(
-		  '-file'   => Bio::Root::IO->catfile("t", "data", "testaln.aln"),
+		  '-file'   => test_input_file('testaln.aln'),
 		  '-format' => 'clustalw');
 	isa_ok($str,'Bio::AlignIO');
 	$aln = $str->next_aln();
 	isa_ok($aln,'Bio::Align::AlignI');
 	$strout = Bio::AlignIO->new(
-		 '-file'   => ">" . Bio::Root::IO->catfile("t", "data", "testout.po"),
+		 '-file'   => ">" . test_output_file(),
 		 '-format' => 'po');
 	$status = $strout->write_aln($aln);
 	is $status, 1, "po output test";
 	
 	$str = Bio::AlignIO->new(
-		 '-file'   => Bio::Root::IO->catfile("t", "data", "testaln.po"),
+		 '-file'   => test_input_file('testaln.po'),
 		 '-format' => 'po');
 	isa_ok($str,'Bio::AlignIO');
 	my $aln2 = $str->next_aln();
@@ -673,7 +647,7 @@ SKIP: {
 # MEME
 # this file has no Strand column
 $str = Bio::AlignIO->new(
-		-file => Bio::Root::IO->catfile("t", "data", "test.meme"),
+		-file => test_input_file('test.meme'),
 		-format => 'meme');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
@@ -684,7 +658,7 @@ is $aln->get_seq_by_pos(3)->strand,"1";
 
 # this file has a Strand column
 $str = Bio::AlignIO->new(
-		-file => Bio::Root::IO->catfile("t", "data", "test.meme2"),
+		-file => test_input_file('test.meme2'),
 		-format => 'meme');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
@@ -696,7 +670,7 @@ is $aln->get_seq_by_pos(6)->strand,"1";
 
 # XMFA
 $str = Bio::AlignIO->new(
-		 -file => Bio::Root::IO->catfile("t","data","testaln.xmfa"), 
+		 -file => test_input_file("testaln.xmfa"), 
 		 -format => 'xmfa');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
@@ -727,7 +701,7 @@ is ($aln->get_seq_by_pos(1)->end, 1060,
 is ($aln->score, 11, 'xmfa alignment score');
 
 $strout = Bio::AlignIO->new(
-   '-file' => ">".Bio::Root::IO->catfile("t","data","testout.xmfa"), 
+   '-file' => ">".test_output_file(), 
 			      '-format' => 'xmfa');
 $status = $strout->write_aln($aln);
 is $status, 1,"xmfa output test";
@@ -754,10 +728,10 @@ my %files = (
 
 while (my ($file, $format) = each %files) {
 	my $fhin = Bio::AlignIO->newFh(
-	   '-file'  => Bio::Root::IO->catfile("t","data",$file), 
+	   '-file'  => test_input_file($file), 
 					   '-format' => $format);
 	my $fhout = Bio::AlignIO->newFh(
-	   '-file' => ">".Bio::Root::IO->catfile("t","data","testout2.aln"), 
+	   '-file' => ">".test_output_file(), 
 					'-format' => 'clustalw');
 	while ( $aln = <$fhin>) {
 		cmp_ok($aln->no_sequences, '>=', 2, "input filehandle method test : $format");
@@ -769,10 +743,10 @@ while (my ($file, $format) = each %files) {
 
 for my $format (sort values %files) {
 	my $fhin = Bio::AlignIO->newFh(
-	   '-file' => Bio::Root::IO->catfile("t","data","testaln.aln"), 
+	   '-file' => test_input_file('testaln.aln'), 
 					'-format' => 'clustalw');
 	my $fhout = Bio::AlignIO->newFh(
-	   '-file'  => '>'.Bio::Root::IO->catfile("t","data", 'testout2.aln'), 
+	   '-file'  => '>'.test_output_file(), 
 					   '-format' => $format);
 	while ( $aln = <$fhin>) {
         $status = print $out $aln;

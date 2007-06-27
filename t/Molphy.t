@@ -1,43 +1,21 @@
-# This is -*-Perl-*- code
-## Bioperl Test Harness Script for Modules
-##
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
 use strict;
-use vars qw($NUMTESTS $error);
 
 BEGIN { 
-	eval { require Test::More; };
-	$error = 0;
-	if( $@ ) {
-		use lib 't/lib';
-	}
-	use Test::More;
-
-	$NUMTESTS = 18;
-	eval { require IO::String;
-			};
-	if( $@ ) {
-		plan skip_all => 'IO::String not installed. Skipping Molphy tests'
-	} else {
-		plan tests => $NUMTESTS;
-	}
-	use_ok 'Bio::Tools::Phylo::Molphy';
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 18,
+			   -requires_module => 'IO::String');
+	
+	use_ok('Bio::Tools::Phylo::Molphy');
 }
 
-my $testnum;
-my $verbose = 0;
+my $verbose = test_debug();
 
-## End of black magic.
-##
-## Insert additional test code below but remember to change
-## the print "1..x\n" in the BEGIN block to reflect the
-## total number of tests that will be run. 
-
-my $inmolphy = Bio::Tools::Phylo::Molphy->new(-file => 't/data/lysozyme6.simple.protml');
+my $inmolphy = Bio::Tools::Phylo::Molphy->new(-file => test_input_file('lysozyme6.simple.protml'));
 ok($inmolphy);
 my $r = $inmolphy->next_result;
 ok($r);
@@ -48,7 +26,7 @@ while( my $t = $r->next_tree ) {
     push @trees, $t;
 }
 is(@trees,5);
- $inmolphy = Bio::Tools::Phylo::Molphy->new(-file => 't/data/lysozyme6.protml');
+ $inmolphy = Bio::Tools::Phylo::Molphy->new(-file => test_input_file('lysozyme6.protml'));
 ok($inmolphy);
 $r = $inmolphy->next_result;
 is($r->model, 'JTT');

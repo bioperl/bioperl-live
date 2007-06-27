@@ -1,26 +1,16 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-#
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
 BEGIN {
-    use vars qw($DEBUG);
-    $DEBUG = $ENV{'BIOPERLDEBUG'};
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 78;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 77);
+	
 	use_ok('Bio::Matrix::Generic');
 	use_ok('Bio::Matrix::IO');
-	use_ok('Bio::Root::IO');
-}
-
-END {
-	unlink(Bio::Root::IO->catfile("t","data","nucmatrix.out"));
 }
 
 my $raw = [ [ 0, 10, 20],
@@ -78,8 +68,7 @@ is($matrix->get_entry('b', 'f'), 81);
 # read in a scoring matrix
 
 my $io = Bio::Matrix::IO->new(-format => 'scoring',
-			      -file   => Bio::Root::IO->catfile
-			      (qw(t data BLOSUM50)));
+			      -file   => test_input_file('BLOSUM50'));
 my $blosum_matrix = $io->next_matrix;
 isa_ok($blosum_matrix,'Bio::Matrix::Scoring');
 is($blosum_matrix->entropy, 0.4808);
@@ -97,8 +86,7 @@ is($blosum_matrix->num_rows,24);
 is($blosum_matrix->num_columns,24);
  
 $io = Bio::Matrix::IO->new(-format => 'scoring',
-			   -file   => Bio::Root::IO->catfile
-			   (qw(t data PAM250)));
+			   -file   => test_input_file('PAM250'));
 my $pam_matrix = $io->next_matrix;
 isa_ok($pam_matrix, 'Bio::Matrix::Scoring');
 is($pam_matrix->entropy, 0.354);
@@ -118,8 +106,7 @@ is($row[5], $pam_matrix->get_entry('D','Q'));
 
 $io = Bio::Matrix::IO->new(-format  => 'phylip',
 			  -program => 'phylipdist',
-			  -file    => Bio::Root::IO->catfile
-			  (qw(t data phylipdist.out)));
+			  -file    => test_input_file('phylipdist.out'));
 
 my $phy = $io->next_matrix;
 is $phy->program, 'phylipdist';
@@ -152,7 +139,7 @@ is $diag[4], '0.00000';
 # test mlagan parsing
 
 $io = Bio::Matrix::IO->new(-format => 'mlagan',
-						  -file   => Bio::Root::IO->catfile(qw(t data nucmatrix.txt)));
+						  -file   => test_input_file('nucmatrix.txt'));
 
 my $mlag = $io->next_matrix;
 is $mlag->get_entry('A', 'C'), -150;
@@ -165,7 +152,7 @@ $mlag->entry('A', 'C', -149);
 $mlag->gap_open(-150);
 $mlag->gap_continue(-5);
 
-my $out = Bio::Root::IO->catfile(qw(t data nucmatrix.out));
+my $out = test_output_file();
 $io = Bio::Matrix::IO->new(-format => 'mlagan',
 						  -file   => ">$out");
 $io->write_matrix($mlag);

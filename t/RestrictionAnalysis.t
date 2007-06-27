@@ -1,38 +1,22 @@
-# -*-Perl-*- mode (to keep my emacs happy)
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
-# test for Bio::Restriction::Analysis.pm
-# written by Rob Edwards & Heikki Lehvaslaiho
 
 use strict;
-my $NUMTESTS;
-my $error;
 
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    $NUMTESTS = 173;
-    $error  = 0;
-
-    plan tests => $NUMTESTS;
-
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 172);
+	
+    use_ok('Bio::Restriction::Enzyme');
+    use_ok('Bio::Restriction::Enzyme::MultiCut');
+    use_ok('Bio::Restriction::Enzyme::MultiSite');
+    use_ok('Bio::Restriction::EnzymeCollection');
+    use_ok('Bio::Restriction::Analysis');
+    use_ok('Bio::SeqIO');
 }
-
-if( $error ==  1 ) {
-    exit(0);
-}
-
-require_ok('Bio::Restriction::Enzyme');
-require_ok('Bio::Restriction::Enzyme::MultiCut');
-require_ok('Bio::Restriction::Enzyme::MultiSite');
-require_ok('Bio::Restriction::EnzymeCollection');
-require_ok('Bio::Restriction::Analysis');
-use_ok('Bio::Root::IO');
-use_ok('Bio::SeqIO');
-use Data::Dumper;
 
 #
 # Bio::Restriction::Enzyme
@@ -216,7 +200,7 @@ is $new_set->each_enzyme, 10;
 #
 
 
-ok my $seqio=Bio::SeqIO->new(-file=>Bio::Root::IO->catfile("t","data","dna1.fa"),
+ok my $seqio=Bio::SeqIO->new(-file=>test_input_file('dna1.fa'),
                          -format=>'fasta');
 ok $seq=$seqio->next_seq;
 

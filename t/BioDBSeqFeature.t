@@ -1,11 +1,8 @@
-##-*-Perl-*-
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
-use Bio::Root::IO;
 use constant TEST_COUNT => 55;
-use constant GFF_FILE    => Bio::Root::IO->catfile('t','data',
-					   'seqfeaturedb','test.gff3');
 
 BEGIN {
     use lib 't/lib';
@@ -19,6 +16,8 @@ BEGIN {
 	use_ok('Bio::DB::SeqFeature::Store::GFF3Loader');
 }
 
+my $gff_file = test_input_file('seqfeaturedb','test.gff3');
+
 my (@f,$f,@s,$s,$seq1,$seq2);
 
 my @args = @ARGV;
@@ -26,15 +25,15 @@ my @args = @ARGV;
 
 SKIP: {
 my $db = eval { Bio::DB::SeqFeature::Store->new(@args) };
-skip "DB load failed? Skipping all! $@", TEST_COUNT if $@;
+skip "DB load failed? Skipping all! $@", (TEST_COUNT - 2) if $@;
 ok($db);
 
 my $loader = eval { Bio::DB::SeqFeature::Store::GFF3Loader->new(-store=>$db) };
-skip "GFF3 loader failed? Skipping all! $@", (TEST_COUNT - 1) if $@;
+skip "GFF3 loader failed? Skipping all! $@", (TEST_COUNT - 3) if $@;
 ok($loader);
 
 # exercise the loader
-ok($loader->load(GFF_FILE));
+ok($loader->load($gff_file));
 
 # there should be one gene named 'abc-1'
 @f = $db->get_features_by_name('abc-1');

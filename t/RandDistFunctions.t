@@ -1,27 +1,22 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-##
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
-my $error;
 use strict;
+
 BEGIN { 
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    $error = 0; 
-    eval { require Test; };
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
-    plan tests => 4;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 5);
+	
+    use_ok('Bio::Tools::RandomDistFunctions');
 }
 
-use Bio::Tools::RandomDistFunctions;
 
-my $dist = Bio::Tools::RandomDistFunctions->new;
-ok(1);
+ok my $dist = Bio::Tools::RandomDistFunctions->new();
 
 ok($dist->rand_exponentional_distribution(1.0));
 ok($dist->rand_geometric_distribution(0.9));
 ok($dist->rand_normal_distribution);
+
+# TODO? these tests seem pretty pointless!

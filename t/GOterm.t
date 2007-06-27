@@ -1,29 +1,19 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-use vars qw($NUMTESTS $DEBUG);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    eval {require Graph::Directed; };
-    if ($@) {
-        plan skip_all => 'Graph::Directed not installed; unable to run GOterm tests ';
-    } else {
-        plan tests => ($NUMTESTS = 61);
-    }
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 61,
+               -requires_module => 'Graph::Directed');
+	
     use_ok('Bio::Ontology::GOterm');
     use_ok('Bio::Ontology::Ontology');
 }
-      
+
 my $obj = Bio::Ontology::GOterm->new();
 
 isa_ok( $obj,"Bio::Ontology::GOterm");
@@ -143,4 +133,3 @@ is( $obj->is_obsolete(), 0 );
 is( $obj->comment(), "X" );
 is( $obj->version(), "6.6.6" );
 is( $obj->ontology()->name(), "cat" );
-

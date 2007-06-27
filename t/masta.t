@@ -1,29 +1,23 @@
-# -*-Perl-*-
-#Some simple tests for meme and transfac parsers
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-
-    plan tests => 17;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 16);
+	
 	use_ok('Bio::Matrix::PSM::IO');
-	use_ok('Bio::Root::IO');
-}
-
-END {
- unlink(Bio::Root::IO->catfile(qw(t data masta_w.dat)));
 }
 
 #Let's try masta formats here
 my $mio =  Bio::Matrix::PSM::IO->new(-format=>'masta', 
-				      -file=>Bio::Root::IO->catfile(qw(t data masta.dat)));
+				      -file=>test_input_file('masta.dat'));
+my $masta_w_dat = test_output_file();
 my $wmio=Bio::Matrix::PSM::IO->new(-format=>'masta', 
-				      -file=>">".Bio::Root::IO->catfile(qw(t data masta_w.dat)));
+				      -file=>">".$masta_w_dat);
 $wmio->_flush_on_write(1);
 ok $mio;
 ok $wmio;
@@ -45,7 +39,7 @@ $carry->id('m1seq');
 $wmio->write_psm($carry,'SEQ');
 $wmio->DESTROY;
 my $chio=Bio::Matrix::PSM::IO->new(-format=>'masta', 
-				      -file=>Bio::Root::IO->catfile(qw(t data masta_w.dat)));
+				      -file=>$masta_w_dat);
 ok $chio;
 my $site=$chio->next_matrix;
 is $site->id,'m1logs';

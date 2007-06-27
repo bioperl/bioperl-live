@@ -1,4 +1,4 @@
-# This is -*-Perl-*- code
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
@@ -7,9 +7,8 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 25);
+    test_begin(-tests => 24);
 	
-    use_ok('Bio::Root::IO');
 	use_ok('Bio::Biblio');
 	use_ok('Bio::Biblio::IO');
 }
@@ -17,19 +16,19 @@ BEGIN {
 my $testnum;
 my $verbose = test_debug();
 
-my $testfile = Bio::Root::IO->catfile ('t','data','stress_test_medline.xml');
-my $testfile2 = Bio::Root::IO->catfile ('t','data','stress_test_pubmed.xml');
+my $testfile = test_input_file('stress_test_medline.xml');
+my $testfile2 = test_input_file('stress_test_pubmed.xml');
 
 # check 'new...'
 SKIP: {
-    test_skip(-tests => 1, -requires_modules => ['SOAP::Lite']);
+    test_skip(-tests => 1, -requires_module => 'SOAP::Lite');
 	ok my $biblio = Bio::Biblio->new(-location => 'http://localhost:4567');
 }
 
 # check MEDLINE XML parser
 my $io;
 SKIP: {
-	test_skip(-tests => 4, -requires_modules => ['XML::Parser']);
+	test_skip(-tests => 4, -requires_module => 'XML::Parser');
     
     ok defined ($io = Bio::Biblio::IO->new('-format' => 'medlinexml',
 						 '-file'   => $testfile,
@@ -59,7 +58,7 @@ sub callback {
 }
 
 SKIP: {
-	test_skip(-tests => 2, -requires_modules => ['XML::Parser']);
+	test_skip(-tests => 2, -requires_module => 'XML::Parser');
 	
     $io = Bio::Biblio::IO->new('-format'   => 'medlinexml',
 							   '-data'     => <<XMLDATA,
@@ -81,7 +80,7 @@ XMLDATA
 }
 
 SKIP: {
-	test_skip(-tests => 2, -requires_modules => ['XML::Parser', 'IO::String']);
+	test_skip(-tests => 2, -requires_modules => [qw(XML::Parser IO::String)]);
 	
     print "Reading and parsing XML string handle...\n" if $verbose;
     my $data = <<XMLDATA;
@@ -104,7 +103,7 @@ XMLDATA
 }
 
 SKIP: {
-	test_skip(-tests => 5, -requires_modules => ['XML::Parser']);
+	test_skip(-tests => 5, -requires_module => 'XML::Parser');
 	
     # check PUBMED XML parser
     ok defined (eval { $io = Bio::Biblio::IO->new('-format' => 'pubmedxml',
@@ -136,4 +135,3 @@ SKIP: {
         skip("unable to use pubmedxml",4);
     }
 }
-

@@ -1,6 +1,6 @@
-# This is -*-Perl-*- code
-# Bioperl Test Harness Script for Modules
-#
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
+
 #$Id$
 #
 # Note this uses Test::More; this should catch the few perl versions w/o

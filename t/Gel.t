@@ -1,16 +1,14 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
 BEGIN { 
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 9;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 9);
+	
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Restriction::Analysis');
     use_ok('Bio::Tools::Gel');
@@ -31,4 +29,3 @@ foreach my $band (sort {$b <=> $a} keys %bands){
     is $bands[$c],  sprintf("%.0f", $bands{$band});
     $c++;
 }
-

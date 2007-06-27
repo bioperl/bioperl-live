@@ -1,30 +1,22 @@
-# -*-Perl-*- mode (to keep my emacs happy)
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
 
 BEGIN {
-    eval { require Test::More; };
-    if ( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 245;
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 244);
+	
     use_ok('Bio::SeqIO');
-    use_ok('Bio::Root::IO');
 }
 
-my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
-
-END {
-    unlink "tmp_revcomp_mrna.gb" if -e "tmp_revcomp_mrna.gb";
-    unlink 'testsource.gb';
-}
+my $verbose = test_debug();
 
 my $ast = Bio::SeqIO->new(-format => 'genbank' ,
                                   -verbose => $verbose,
-                                  -file => Bio::Root::IO->catfile
-                                  ("t","data","roa1.genbank"));
+                                  -file => test_input_file('roa1.genbank'));
 $ast->verbose($verbose);
 my $as = $ast->next_seq();
 is $as->molecule, 'mRNA',$as->accession_number;
@@ -35,8 +27,7 @@ is $class[$#class],'Eukaryota';
 
 $ast = Bio::SeqIO->new(-format => 'genbank',
                               -verbose => $verbose,
-                       -file => Bio::Root::IO->catfile
-                              ("t","data","NT_021877.gbk"));
+                       -file => test_input_file('NT_021877.gbk'));
 $ast->verbose($verbose);
 $as = $ast->next_seq();
 is $as->molecule, 'DNA',$as->accession_number;
@@ -51,7 +42,7 @@ is(($cds->get_tag_values('transl_except'))[1],
 # test for a DBSOURCE line
 $ast = Bio::SeqIO->new(-format => 'genbank',
                               -verbose => $verbose,
-                       -file => Bio::Root::IO->catfile("t","data","BAB68554.gb"));
+                       -file => test_input_file('BAB68554.gb'));
 $ast->verbose($verbose);
 $as = $ast->next_seq();
 is $as->molecule, 'linear',$as->accession_number;;
@@ -76,8 +67,7 @@ is("$dblinks[0]", 'GenBank:AB072353.1');
 # test for multi-line SOURCE
 $ast = Bio::SeqIO->new(-format => 'genbank',
                               -verbose => $verbose,
-                       -file => Bio::Root::IO->catfile("t","data",
-                                                       "NC_006346.gb"));
+                       -file => test_input_file('NC_006346.gb'));
 $as = $ast->next_seq;
 is $as->species->binomial('FULL'), 'Bolitoglossa n. sp. RLM-2004',$as->accession_number;;
 @class = $as->species->classification;
@@ -86,8 +76,7 @@ is($as->species->common_name,'mushroomtongue salamander');
 
 $ast = Bio::SeqIO->new(-format => 'genbank',
                               -verbose => $verbose,
-                       -file => Bio::Root::IO->catfile("t","data",
-                                                       "U71225.gb"));
+                       -file => test_input_file('U71225.gb'));
 $as = $ast->next_seq;
 @class = $as->species->classification;
 is($class[$#class],'Eukaryota',$as->accession_number);
@@ -96,8 +85,7 @@ is $as->species->common_name,'black-bellied salamander';
 # test for unusual common name
 $ast = Bio::SeqIO->new(-format => 'genbank',
                               -verbose => $verbose,
-                       -file => Bio::Root::IO->catfile("t","data",
-                                                       "AB077698.gb"));
+                       -file => test_input_file('AB077698.gb'));
 $as = $ast->next_seq;
 # again, this is not a common name but is in name('abbreviated')
 ok defined($as->species->name('abbreviated')->[0]),$as->accession_number;
@@ -106,8 +94,7 @@ is $as->species->name('abbreviated')->[0],'Homo sapiens cDNA to mRNA';
 # test for common name with parentheses
 $ast = Bio::SeqIO->new(-format => 'genbank',
                               -verbose => $verbose,
-                       -file => Bio::Root::IO->catfile("t","data",
-                                                       "DQ018368.gb"));
+                       -file => test_input_file('DQ018368.gb'));
 $as = $ast->next_seq;
 is $as->species->scientific_name,'(Populus tomentosa x P. bolleana) x P. tomentosa var. truncata',
 $as->accession_number;;
@@ -115,8 +102,7 @@ $as->accession_number;;
 # test secondary accessions
 my $seqio = Bio::SeqIO->new(-format => 'genbank',
                                     -verbose => $verbose,
-                                    -file => Bio::Root::IO->catfile
-                                    (qw(t data D10483.gbk)));
+                                    -file => test_input_file('D10483.gbk'));
 my $seq = $seqio->next_seq;
 my @kw =  $seq->get_keywords;
 is(scalar @kw, 118, $seq->accession_number);
@@ -127,8 +113,7 @@ is($sec_acc[-1], 'X56742');
 
 # bug #1487
 my $str = Bio::SeqIO->new(-verbose => $verbose,
-                                 -file    => Bio::Root::IO->catfile
-                                 (qw(t data D12555.gbk)));
+                                 -file    => test_input_file('D12555.gbk'));
 eval {
     $seq = $str->next_seq;
 };
@@ -138,8 +123,7 @@ ok(! $@, 'bug 1487');
 # bug 1647 rpt_unit sub-feature with multiple parens
 $str = Bio::SeqIO->new(-format => 'genbank',
                               -verbose => $verbose,
-                       -file => Bio::Root::IO->catfile
-                              (qw(t data mini-AE001405.gb) ));
+                       -file => test_input_file('mini-AE001405.gb'));
 ok($seq = $str->next_seq);
 my @rpts = grep { $_->primary_tag eq 'repeat_region' }
   $seq->get_SeqFeatures;
@@ -151,8 +135,7 @@ is $rpt_units[0],'(TG)10;A;(TG)7';
 # test bug #1673 , RDB-II genbank files
 $str = Bio::SeqIO->new(-format => 'genbank',
                               -verbose => $verbose,
-                       -file => Bio::Root::IO->catfile
-                              (qw(t data Mcjanrna_rdbII.gbk) )
+                       -file => test_input_file('Mcjanrna_rdbII.gbk')
               );
 ok($seq = $str->next_seq, 'bug 1673');
 my @refs = $seq->annotation->get_Annotations('reference');
@@ -161,8 +144,7 @@ is($seq->display_id,'Mc.janrrnA');
 is($seq->molecule ,'RNA');
 
 $str  = Bio::SeqIO->new(-format => 'genbank',
-                              -file   => Bio::Root::IO->catfile
-                              ("t","data","AF165282.gb"),
+                              -file   => test_input_file('AF165282.gb'),
                               -verbose => $verbose);
 $seq = $str->next_seq;
 my @features = $seq->all_SeqFeatures();
@@ -180,8 +162,7 @@ is ($seq->seq_version, 1);
 is ($seq->primary_id, "5734104");
 
 # streaming and Bio::RichSeq creation
-my $stream = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
-                                      ("t","data","test.genbank"),
+my $stream = Bio::SeqIO->new(-file => test_input_file('test.genbank'),
                                       -verbose => $verbose,
                              -format => 'genbank');
 $stream->verbose($verbose);
@@ -213,8 +194,7 @@ my ($ref) = $lasts->annotation->get_Annotations('reference');
 is($ref->medline, 94173918);
 $stream->close();
 
-$stream = Bio::SeqIO->new(-file => Bio::Root::IO->catfile
-                                  ("t","data","test.genbank.noseq"),
+$stream = Bio::SeqIO->new(-file => test_input_file('test.genbank.noseq'),
                                   -verbose => $verbose,
                                   -format => 'genbank' );
 $seqnum = 0;
@@ -231,8 +211,7 @@ is $seqnum, 5, "Total number of sequences in test file";
 # fuzzy
 $seq = Bio::SeqIO->new( -format => 'genbank',
                                 -verbose => $verbose,
-                        -file =>Bio::Root::IO->catfile
-                                ("t","data","testfuzzy.genbank"));
+                        -file =>test_input_file('testfuzzy.genbank'));
 $seq->verbose($verbose);
 ok(defined($as = $seq->next_seq()));
 
@@ -263,17 +242,14 @@ is($loc->strand,1);
 
 $seq = Bio::SeqIO->new(-format => 'genbank',
                               -verbose => $verbose,
-                       -file=> ">" . Bio::Root::IO->catfile
-                              ("t","data","genbank.fuzzyout"));
+                       -file=> ">" .test_output_file());
 $seq->verbose($verbose);
 ok($seq->write_seq($as),'Fuzzy out');
-unlink(Bio::Root::IO->catfile("t","data","genbank.fuzzyout"));
 
 ## now genbank ##
 $str = Bio::SeqIO->new(-format =>'genbank',
                              -verbose => $verbose,
-                             -file => Bio::Root::IO->catfile
-                             ( qw(t data BK000016-tpa.gbk)));
+                             -file => test_input_file('BK000016-tpa.gbk'));
 $seq = $str->next_seq;
 ok(defined $seq, $seq->accession_number);
 ok(defined $seq->seq);
@@ -298,7 +274,7 @@ is ($reference->pubmed, '11479594');
 is ($reference->medline, '21372465',$seq->accession_number);
 
 # validate that what is written is what is read
-my $testfile = "testtpa.gbk";
+my $testfile = test_output_file();
 my $out = Bio::SeqIO->new(-file => ">$testfile",
                              -format => 'genbank');
 $out->write_seq($seq);
@@ -329,24 +305,21 @@ $reference =  ($ac->get_Annotations('reference') )[0];
 is ($reference->pubmed, '11479594');
 is ($reference->medline, '21372465');
 
-unlink($testfile);
-
 # write revcomp split location
 my $gb = Bio::SeqIO->new(-format => 'genbank',
                         # This sequence has an odd LOCUS line which sets off a warning, setting
                         # verbose to -1.
                         # The newest Ensembl seq lacks this.  Maybe update?  cjfields 6-5-07
-                        -verbose => -1,
-                        -file   => Bio::Root::IO->catfile
-                        (qw(t data revcomp_mrna.gb)));
+                        -verbose => $verbose ? $verbose : -1,
+                        -file   => test_input_file('revcomp_mrna.gb'));
 $seq = $gb->next_seq();
 
 $gb = Bio::SeqIO->new(-format => 'genbank',
-                     -file   => ">tmp_revcomp_mrna.gb");
+                     -file   => ">$testfile");
 
 $gb->write_seq($seq);
 undef $gb;
-ok(! -z "tmp_revcomp_mrna.gb", 'revcomp split location');
+ok(! -z $testfile, 'revcomp split location');
 
 # bug 1925, continuation of long ORGANISM line ends up in @classification:
 # ORGANISM  Salmonella enterica subsp. enterica serovar Paratyphi A str. ATCC
@@ -355,8 +328,7 @@ ok(! -z "tmp_revcomp_mrna.gb", 'revcomp split location');
 #           Enterobacteriaceae; Salmonella.
 $gb = Bio::SeqIO->new(-format => 'genbank',
                      -verbose => $verbose,
-                        -file   => Bio::Root::IO->catfile
-                            (qw(t data NC_006511-short.gbk)));
+                        -file   => test_input_file('NC_006511-short.gbk'));
 $seq = $gb->next_seq;
 is $seq->species->common_name, undef, "Bug 1925";
 is $seq->species->scientific_name, "Salmonella enterica subsp. enterica serovar Paratyphi A str. ATCC 9150";
@@ -366,8 +338,7 @@ is $class[$#class], "Bacteria";
 # WGS   tests
 $gb = Bio::SeqIO->new(-format => 'genbank',
                       -verbose => $verbose,
-                    -file   => Bio::Root::IO->catfile
-                    (qw(t data O_sat.wgs)));
+                    -file   => test_input_file('O_sat.wgs'));
 $seq = $gb->next_seq;
 
 my @tests = ('WGS'        => 'AAAA02000001-AAAA02050231',
@@ -390,8 +361,7 @@ is ($ct, 3);
 # make sure we can retrieve a feature with a primary tag of 'misc_difference'
 $gb = Bio::SeqIO->new(-format => 'genbank',
                      -verbose => $verbose,
-                    -file   => Bio::Root::IO->catfile
-                            (qw(t data BC000007.gbk)));
+                    -file   => test_input_file('BC000007.gbk'));
 $seq = $gb->next_seq;
 ($cds) = grep { $_->primary_tag eq 'misc_difference' } $seq->get_SeqFeatures;
 my @vals = $cds->get_tag_values('gene');
@@ -407,12 +377,12 @@ is $vals[0], 'PX19', $seq->accession_number;
 # changes so are really useless; I will change them to verify common name,
 # organelle, scientific name, etc.
 
-my $outfile = 'testsource.gb';
+my $outfile = test_output_file();
 
 # output always adds a period (GenBank std), but two of these files do not use them.
 
 foreach my $in ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb', 'ay007676.gb', 'dq519393.gb') {
-    my $infile =  Bio::Root::IO->catfile("t","data",$in);
+    my $infile =  test_input_file($in);
     
     $str = Bio::SeqIO->new(-format =>'genbank',
                           -verbose => $verbose,
@@ -457,8 +427,6 @@ foreach my $in ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb'
     close(RESULT);
     
     ok $is, $in;
-    
-    unlink($outfile);
 }
 
 # NB: there should probably be full testing on all lines to ensure that output
@@ -468,7 +436,7 @@ foreach my $in ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb'
 $ct = 0;
 
 foreach my $in ('P35527.gb') {
-    my $infile =  Bio::Root::IO->catfile("t","data",$in);
+    my $infile =  test_input_file($in);
     $str = Bio::SeqIO->new(-format =>'genbank',
                          -verbose => $verbose,
                          -file => $infile);
@@ -514,7 +482,7 @@ is($ct, 45);
     
 $str = Bio::SeqIO->new(-format =>'genbank',
                       -verbose => $verbose,
-                      -file => Bio::Root::IO->catfile(qw(t data AF305198.gb))
+                      -file => test_input_file('AF305198.gb')
                      );
 
 $species = $str->next_seq->species;

@@ -1,17 +1,14 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-##
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
-my $error;
 use strict;
+
 BEGIN { 
-    $error = 0; 
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 22;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 22);
+	
 	use_ok('Bio::Tree::Node');
 	use_ok('Bio::Tree::AlleleNode');
 }

@@ -1,24 +1,20 @@
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
+
 use strict;
 
-BEGIN {     
+BEGIN { 
+    use lib 't/lib';
+    use BioperlTest;
     
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-
-    plan tests => 14;
+    test_begin(-tests => 12);
 	
-	use_ok('Bio::Root::IO');
 	use_ok('Bio::Tools::Tmhmm');
 }
 
+my $infile = test_input_file('tmhmm.out');
 
-
-ok my $infile = Bio::Root::IO->catfile(qw(t data tmhmm.out)), 'catfile()';
-
-ok my $parser =  Bio::Tools::Tmhmm->new(-file=>$infile), 'new()';
+ok my $parser = Bio::Tools::Tmhmm->new(-file=>$infile), 'new()';
 
 my @feat;
 while ( my $feat = $parser->next_result ) {
@@ -27,9 +23,9 @@ while ( my $feat = $parser->next_result ) {
 
 is @feat, 3, 'got 3 feat';
 
-ok $feat[0]->seq_id,      'my_sequence_id';
-ok $feat[0]->source_tag,  'TMHMM2.0';
-ok $feat[0]->primary_tag, 'transmembrane';
+is $feat[0]->seq_id,      'my_sequence_id';
+is $feat[0]->source_tag,  'TMHMM2.0';
+is $feat[0]->primary_tag, 'transmembrane';
 
 
 my $raa_test_data = [
@@ -42,4 +38,3 @@ for (0..(scalar(@feat)-1)) {
 	is $feat[$_]->start, $raa_test_data->[$_]->[0];
 	is $feat[$_]->end, $raa_test_data->[$_]->[1];
 }
-

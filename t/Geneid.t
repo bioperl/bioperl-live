@@ -1,25 +1,18 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
-BEGIN
-{
-    eval { require Test::More; };
-    if ($@)
-    {
-        use lib 't/lib';
-    }
-
-    use Test::More;
-    use vars qw($NTESTS);
-    $NTESTS = 27;
-    plan tests => $NTESTS;
+BEGIN {
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 26);
+	
     use_ok('Bio::Tools::Geneid');
-    use_ok('Bio::SeqIO');
 }
 
-my $inputfilename = Bio::Root::IO->catfile("t", "data", "geneid_1.0.out");
+my $inputfilename = test_input_file('geneid_1.0.out');
 my $parser = Bio::Tools::Geneid->new(-file => $inputfilename);
 my @genes;
 

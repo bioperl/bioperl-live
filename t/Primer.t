@@ -1,19 +1,15 @@
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
-# test for Bio::SeqFeature::Primer
-# written by Rob Edwards
 
 use strict;
-use constant NUMTESTS => 18;
 
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-
-    plan tests => NUMTESTS;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 18);
+	
     use_ok('Bio::SeqFeature::Primer');
 }
 

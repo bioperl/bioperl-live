@@ -1,41 +1,22 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $GNF: projects/gi/symgene/src/perl/seqproc/t/InterProParser.t,v 1.7 2003/02/07 22:05:58 pdimitro Exp $
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-my $error;
-use vars qw($NUMTESTS $DEBUG $HAVEGRAPHDIRECTED $errmsg);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
-	eval { require Test::More; };
-	if( $@ ) {
-	   use lib 't/lib';
-	}
-	use Test::More; 
-	$NUMTESTS = 48;
-	eval {
-	   require XML::Parser::PerlSAX;
-	   require XML::Parser;
-	   require Graph::Directed;
-	};
-	if ( $@ ) {
-	   plan skip_all => "XML::Parser, XML::Parser::PerlSAX, or Graph::Directed not installed. This means that InterPro Ontology Parsing module is not usable. Skipping tests";
-	} else {
-	   plan tests => $NUMTESTS;
-	}
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 47,
+			   -requires_modules => [qw(XML::Parser::PerlSAX
+									    XML::Parser
+										Graph::Directed)]);
+	
 	use_ok('Bio::OntologyIO');
-	use_ok('Bio::Root::IO');
 }
 
-my $io = Bio::Root::IO->new();
-
 my $ipp = Bio::OntologyIO->new( -format => 'interpro',
-										  -file =>
-										  $io->catfile('t','data','interpro_short.xml'),
+										  -file => test_input_file('interpro_short.xml'),
 										  -ontology_engine => 'simple' );
 ok ($ipp);
 

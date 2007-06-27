@@ -1,32 +1,18 @@
-# -*-Perl-*-
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
-## Bioperl Test Harness Script for Modules
-##
-
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
-my $error;
 
 BEGIN { 
-    eval { require Test::More; };
-    if( $@ ) {
-		use lib 't/lib';
-    }
-    $error=0;
-    use Test::More;
-    eval { require IO::String; };
-	if ($@) {
-        plan skip_all => "IO::String not installed.  IO::String is requires for running Mutator tests...";
-    } else {
-        plan tests => 25;
-    }
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 24,
+			   -requires_module => 'IO::String');
+	
 	use_ok('Bio::LiveSeq::Mutator');
 	use_ok('Bio::LiveSeq::IO::BioPerl');
-	use_ok('Bio::LiveSeq::Gene');
-	use_ok('Bio::Root::IO');
+	use_ok('Bio::Variation::IO');
 }
 
 $a = Bio::LiveSeq::Mutator->new();
@@ -36,7 +22,6 @@ is $a->numbering, 'coding';
 ok $a->numbering('coding 1');
 is $a->numbering, 'coding 1';
 
-require Bio::LiveSeq::Mutation;
 my $mt = Bio::LiveSeq::Mutation->new();
 ok $mt->seq('g');
 $mt->pos(100);
@@ -45,7 +30,7 @@ my @each = $a->each_Mutation;
 is( (scalar @each), 1 );
 my $mt_b = pop @each;
 is($mt_b->seq, 'g');
-my $filename=Bio::Root::IO->catfile("t","data","ar.embl");
+my $filename=test_input_file('ar.embl');
 my $loader=Bio::LiveSeq::IO::BioPerl->load('-file' => "$filename");
 my $gene_name='AR'; # was G6PD
 
@@ -59,7 +44,7 @@ ok($results);
 # bug 1701 - mutations on intron/exon boundaries where codon is split 
 
 $loader = Bio::LiveSeq::IO::BioPerl->load( -db   => 'EMBL',
-                                -file => Bio::Root::IO->catfile('t','data','ssp160.embl.1')
+                                -file => test_input_file('ssp160.embl.1')
                         );
 # move across intron/exon boundaries, check expected mutations
 my @positions = (3128..3129,3188..3189);
@@ -85,13 +70,11 @@ for my $pos (@positions) {
     is($expected[$ct], $results->trivname);
     $ct++;
 }
-use Bio::Variation::IO;
-require IO::String;    
+
 my $s;
 my $io = IO::String->new($s);
 my $out = Bio::Variation::IO->new('-fh'   => $io,
                   '-format' => 'flat'
                   );
 ok($out->write($results));
-#print $s;
 ok ($s=~/DNA/ && $s=~/RNA/ && $s=~/AA/);

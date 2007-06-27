@@ -1,5 +1,5 @@
-# -*-Perl-*-
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
@@ -7,20 +7,19 @@ BEGIN {
     use lib 't/lib';
 	use BioperlTest;
 	
-	test_begin(-tests => 13);
+	test_begin(-tests => 12);
     
 	use_ok('Bio::ClusterIO');
-	use_ok('Bio::Root::IO');
 	use_ok('Bio::Cluster::ClusterFactory');
 }
 
 SKIP: {
-	test_skip(-tests => 8, -requires_modules => ['XML::Parser::PerlSAX']);
+	test_skip(-tests => 8, -requires_module => 'XML::Parser::PerlSAX');
     
 	my ($clusterio, $result,$hit,$hsp);
 	$clusterio = Bio::ClusterIO->new('-tempfile' => 0,
 					'-format' => 'dbsnp',
-					'-file'   => Bio::Root::IO->catfile('t','data','LittleChrY.dbsnp.xml'));
+					'-file'   => test_input_file('LittleChrY.dbsnp.xml'));
     
 	$result = $clusterio->next_cluster;
 	ok($result);

@@ -1,24 +1,20 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
+
 BEGIN {
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    use vars qw($NTESTS);
-    $NTESTS = 31;
-    plan tests => $NTESTS;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 30);
+	
 	use_ok('Bio::Tools::QRNA');
-	use_ok('Bio::Root::IO');
 }
 
-my $inputfilename= Bio::Root::IO->catfile("t","data","ecoli-trna-qrna.out");
-my $parser = Bio::Tools::QRNA->new(-file => $inputfilename);
-ok($parser);
+my $inputfilename= test_input_file('ecoli-trna-qrna.out');
+ok my $parser = Bio::Tools::QRNA->new(-file => $inputfilename);
+
 my $rnacount = 0;
 while( my $f = $parser->next_feature ) {
     if( $f->primary_tag eq 'RNA' ) { # winning model is primary tag
@@ -42,7 +38,7 @@ while( my $f = $parser->next_feature ) {
     }
 }
 is($rnacount, 21);
-$inputfilename= Bio::Root::IO->catfile("t","data","qrna-relloc.out");
+$inputfilename= test_input_file('qrna-relloc.out');
 $parser = Bio::Tools::QRNA->new(-file => $inputfilename);
 
 my $qrna = $parser->next_feature;
@@ -62,4 +58,3 @@ is($parser->PAM_model, 'BLOSUM62 scaled by 1.000');
 is($parser->program_name, 'qrna');
 is($parser->program_version, '1.2b');
 is($parser->program_date, 'Tue Dec 18 15:04:38 CST 2001');
-

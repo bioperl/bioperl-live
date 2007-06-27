@@ -1,6 +1,5 @@
-# This is -*-Perl-*- code
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
-# Original code donated by Erikjan
 
 use strict;
 
@@ -8,21 +7,18 @@ BEGIN {
     use lib 't/lib';
 	use BioperlTest;
 	
-	test_begin(-tests => 134);
+	test_begin(-tests => 131);
 	
-    use_ok('Bio::Annotation::DBLink');
-    use_ok('Bio::SeqIO::genbank');
-    use_ok('Bio::SeqIO::swiss');
-    use_ok('Bio::Root::IO');
+    use_ok('Bio::SeqIO');
 }
 
 my @genbank_files = qw/BK000016-tpa.gbk ay116458.gb ay149291.gb NC_006346.gb ay007676.gb dq519393.gb P35527.gb/;
 
 # bug 2152
 #------------------------------------
-my $verbose = 1;
+my $verbose = test_debug();
 for my $in ( @genbank_files ) {
-    my $infile = Bio::Root::IO->catfile("t","data",$in);
+    my $infile = test_input_file($in);
     my $seqio = Bio::SeqIO->new(
                             -format  =>'genbank',
                             -verbose => $verbose,

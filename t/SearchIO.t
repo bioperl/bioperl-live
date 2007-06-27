@@ -1,62 +1,33 @@
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
-my $error;
 use strict;
-use Dumpvalue();
-my $dumper = new Dumpvalue();
 
 BEGIN {
-	# to handle systems with no installed Test module
-	# we include the t dir (where a copy of Test.pm is located)
-	# as a fallback
-	eval { require Test::More; };
-	if( $@ ) {
-		use lib 't/lib';
-	}
-	use Test::More;
+	use lib 't/lib';
+    use BioperlTest;
     
-	use vars qw($NTESTS);
-	$NTESTS = 1430;
-	$error = 0;
-
-	plan tests => $NTESTS; 
-}
-
-use_ok('Bio::SearchIO');
-use_ok('Bio::Root::IO');
-use_ok('Bio::SearchIO::Writer::HitTableWriter');
-use_ok('Bio::SearchIO::Writer::HTMLResultWriter');
-
-END { 
-    unlink 'searchio.out';
-    unlink 'searchio.html';
+    test_begin(-tests => 1431);
+	
+	use_ok('Bio::SearchIO');
+	use_ok('Bio::SearchIO::Writer::HitTableWriter');
+	use_ok('Bio::SearchIO::Writer::HTMLResultWriter');
 }
 
 my ($searchio, $result,$iter,$hit,$hsp);
 
 SKIP: {
-	eval {
-		require XML::SAX;
-        
-		# XML encoding/decoding done within XML::SAX now, though some parsers
-        # do not work properly (XML::SAX::PurePerl, XML::LibXML::SAX)
-        
-        # require HTML::Entities
-	};
-	skip("XML::SAX not loaded.  Skipping XML tests",129) if $@;
+	# XML encoding/decoding done within XML::SAX now, though some parsers
+	# do not work properly (XML::SAX::PurePerl, XML::LibXML::SAX)
+	test_skip(-tests => 129, -requires_module => 'XML::SAX');
+	
     eval {
 		# test with RPSBLAST data first
 		# this needs to be eval'd b/c the XML::SAX parser object is
 		# instantiated in the constructor
 		$searchio = Bio::SearchIO->new('-tempfile' => 1,
 			   '-format' => 'blastxml',
-			   '-file'   => Bio::Root::IO->catfile('t','data','ecoli_domains.rps.xml'),
+			   '-file'   => test_input_file('ecoli_domains.rps.xml'),
 			   '-verbose' => -1);
 		# PurePerl works with these BLAST reports, so removed verbose promotion
 		$result = $searchio->next_result;
@@ -67,6 +38,7 @@ SKIP: {
 	} elsif ($@) {
 		skip("Problem with XML::SAX setup: $@. Check ParserDetails.ini; skipping XML tests",129);
 	}
+	
     isa_ok($result, 'Bio::Search::Result::ResultI');
     is($result->database_name, '/data_2/jason/db/cdd/cdd/Pfam', 'database_name()');
     is($result->query_name,'gi|1786182|gb|AAC73112.1|','query_name()');
@@ -81,7 +53,7 @@ SKIP: {
     is($result->available_statistics, 5);
     is($result->get_statistic('lambda'), 0.267);
 
-# this result actually has a hit
+	# this result actually has a hit
     $result = $searchio->next_result;
     $hit = $result->next_hit;
     is($hit->name, 'gnl|Pfam|pfam00742');
@@ -118,7 +90,8 @@ SKIP: {
     is($hsp->hit_string, 'GVVTGITDSREMLLSRIGLPLEIWKVALRDLEKPRKDLGKLDLTDDAFAVVDDPDIDVVVELTGGIEVARELYLDALEEGKHVVTANKALNASHGDEYLAL---AEKSGVDVLYEAAVAGGIPIIKTLRELLATGDRILKIEGIFNGTTNFILSEMDEKGLPFSDVLAEAQELGYTEADPRDDVEGIDAARKLAILARIAFGIELELDDVYVEGISPITAEDISSADEFGYTLKLLDEAMRQRVEDAESGGEVLRYPTLIPE-------------DHPLASVKGSDNAVAVEGEAYG--PLMFYGPGAGAEPTASAVVADIVRIAR');
     is($hsp->homology_string, '  V G+ +S+ +L +  GL LE W+  L   ++P  +LG+L      + +++     V+V+ T    VA   Y D L EG HVVT NK  N S  D Y  L   AEKS    LY+  V  G+P+I+ L+ LL  GD ++K  GI +G+ ++I  ++DE G+ FS+    A+E+GYTE DPRDD+ G+D ARKL ILAR   G ELEL D+ +E + P           F   L  LD+    RV  A   G+VLRY   I E             + PL  VK  +NA+A     Y   PL+  G GAG + TA+ V AD++R   ');
     is(join(' ', $hsp->seq_inds('query', 'gap',1)), '532 548-551 562 649 690');
-# one more 
+	
+	# one more 
     $hit = $result->next_hit;
     isa_ok($hit,'Bio::Search::Hit::HitI');
     
@@ -129,7 +102,7 @@ SKIP: {
 
     $searchio = Bio::SearchIO->new(-format => 'blastxml',
 								  -verbose => -1,
-				  -file => Bio::Root::IO->catfile('t','data','plague_yeast.bls.xml'));
+				  -file => test_input_file('plague_yeast.bls.xml'));
 
     $result = $searchio->next_result;
 
@@ -144,7 +117,7 @@ SKIP: {
 
     $searchio = Bio::SearchIO->new(-format => 'blastxml',
 								  -verbose => -1,
-				  -file => Bio::Root::IO->catfile('t','data','mus.bls.xml'));
+				  -file => test_input_file('mus.bls.xml'));
 
     $result = $searchio->next_result;
 
@@ -162,7 +135,7 @@ SKIP: {
     # deal with new BLAST XML changes
     $searchio = Bio::SearchIO->new(-format => 'blastxml',
 								  -verbose => -1,
-				  -file => Bio::Root::IO->catfile('t','data','newblast.xml'));
+				  -file => test_input_file('newblast.xml'));
 
     $result = $searchio->next_result;
 
@@ -246,10 +219,9 @@ SKIP: {
 }
 
 $searchio = Bio::SearchIO->new('-format' => 'blast',
-				  '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.bls'));
+				  '-file'   => test_input_file('ecolitst.bls'));
 
 $result = $searchio->next_result;
-# $dumper->dumpValue($result);
 
 is($result->database_name, 'ecoli.aa', 'database_name()');
 is($result->database_entries, 4289);
@@ -319,7 +291,7 @@ while( $hit = $result->next_hit ) {
 is(@valid, 0);
 
 $searchio = Bio::SearchIO->new('-format' => 'blast',
-			       '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.wublastp'));
+			       '-file'   => test_input_file('ecolitst.wublastp'));
 
 $result = $searchio->next_result;
 
@@ -412,7 +384,7 @@ is($result->num_hits, @hits + 1);
 
 # test WU-BLAST -noseqs option
 $searchio = Bio::SearchIO->new('-format' => 'blast',
-			       '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.noseqs.wublastp'));
+			       '-file'   => test_input_file('ecolitst.noseqs.wublastp'));
 
 $result = $searchio->next_result;
 
@@ -483,7 +455,7 @@ is(@valid, 0);
 
 # test tblastx 
 $searchio = Bio::SearchIO->new('-format' => 'blast',
-			       '-file'   => Bio::Root::IO->catfile('t','data','HUMBETGLOA.tblastx'));
+			       '-file'   => test_input_file('HUMBETGLOA.tblastx'));
 
 $result = $searchio->next_result;
 is($result->database_name, 'ecoli.nt');
@@ -561,7 +533,7 @@ while( $hit = $result->next_hit ) {
 is(@valid, 0);
 
 $searchio = Bio::SearchIO->new(-format => 'fasta',
-				 -file   => File::Spec->catfile(qw(t data HUMBETGLOA.FASTA)) );
+				 -file   => test_input_file('HUMBETGLOA.FASTA'));
 $result = $searchio->next_result;
 like($result->database_name, qr/dros_clones.2.5/);
 is($result->database_letters, 112936249);
@@ -630,7 +602,7 @@ while( my $hit = $result->next_hit ) {
 is(@valid, 0);
 
 $searchio = Bio::SearchIO->new(-format => 'fasta',
-				 -file   => File::Spec->catfile(qw(t data cysprot1.FASTA)));
+				 -file   => test_input_file('cysprot1.FASTA'));
 $result = $searchio->next_result;
 like($result->database_name, qr/ecoli.aa/);
 is($result->database_letters, 1358987);
@@ -697,7 +669,7 @@ is(@valid, 0);
 
 is($result->hits, 8);
 $searchio = Bio::SearchIO->new(-format => 'fasta',
-				 -file   => File::Spec->catfile(qw(t data cysprot_vs_gadfly.FASTA)) );
+				 -file   => test_input_file('cysprot_vs_gadfly.FASTA'));
 $result = $searchio->next_result;
 like($result->database_name, qr/gadflypep2/);
 is($result->database_letters, 7177762);
@@ -769,7 +741,7 @@ is($result->hits, 21);
 
 # test on TFASTXY
 $searchio = Bio::SearchIO->new(-format => 'fasta',
-			      -file   => File::Spec->catfile(qw(t data 5X_1895.FASTXY)));
+			      -file   => test_input_file('5X_1895.FASTXY'));
 $result = $searchio->next_result;
 like($result->database_name, qr/yeast_nrpep.fasta/);
 is($result->database_letters, 4215311);
@@ -842,7 +814,7 @@ is($result->hits, 58);
 # test for MarkW bug in blastN
 
 $searchio = Bio::SearchIO->new('-format' => 'blast',
-			      '-file'   => Bio::Root::IO->catfile('t','data','a_thaliana.blastn'));
+			      '-file'   => test_input_file('a_thaliana.blastn'));
 
 
 $result = $searchio->next_result;
@@ -928,7 +900,7 @@ is(@valid, 0);
 #WU-BlastX test
 
 $searchio = Bio::SearchIO->new('-format' => 'blast',
-			      '-file'   => Bio::Root::IO->catfile('t','data','dnaEbsub_ecoli.wublastx'));
+			      '-file'   => test_input_file('dnaEbsub_ecoli.wublastx'));
 
 $result = $searchio->next_result;
 is($result->database_name, 'ecoli.aa');
@@ -1007,13 +979,16 @@ is(@valid, 0);
 
 #Trickier WU-Blast
 $searchio = Bio::SearchIO->new('-format' => 'blast',
-			      '-file'   => Bio::Root::IO->catfile('t','data','tricky.wublast'));
+			      '-file'   => test_input_file('tricky.wublast'));
 $result = $searchio->next_result;
 my $hits_left = 1;
 while (my $hit = $result->next_hit) {
 	# frac_aligned_hit used to be over 1, frac_identical & frac_conserved are still too wrong
-	#is(sprintf("%.3f",$hit->frac_identical), '0.852');
-    #is(sprintf("%.3f",$hit->frac_conserved), '1.599');
+	TODO: {
+        local $TODO = 'frac_identical & frac_conserved are still too wrong';
+        cmp_ok sprintf("%.3f",$hit->frac_identical), '>', 0.9;
+        cmp_ok sprintf("%.3f",$hit->frac_conserved), '<=', 1;
+    }
     is(sprintf("%.2f",$hit->frac_aligned_query), '0.92');
     is(sprintf("%.2f",$hit->frac_aligned_hit), '0.91');
     $hits_left--;
@@ -1022,7 +997,7 @@ is($hits_left, 0);
 
 # More frac_ method testing, this time on ncbi blastn
 $searchio = Bio::SearchIO->new('-format' => 'blast',
-			      '-file'   => Bio::Root::IO->catfile('t','data','frac_problems.blast'));
+			      '-file'   => test_input_file('frac_problems.blast'));
 my @expected = ("1.000", "0.943");
 while (my $result = $searchio->next_result) {
     my $hit = $result->next_hit;
@@ -1032,14 +1007,14 @@ is(@expected, 0);
 
 # And even more: frac_aligned_query should never be over 1!
 $searchio = Bio::SearchIO->new('-format' => 'blast',
-			      '-file'   => Bio::Root::IO->catfile('t','data','frac_problems2.blast'));
+			      '-file'   => test_input_file('frac_problems2.blast'));
 $result = $searchio->next_result;
 $hit = $result->next_hit;
 is $hit->frac_aligned_query, 0.97;
 
 # Also, start and end should be sane
 $searchio = Bio::SearchIO->new('-format' => 'blast',
-			      '-file'   => Bio::Root::IO->catfile('t','data','frac_problems3.blast'));
+			      '-file'   => test_input_file('frac_problems3.blast'));
 $result = $searchio->next_result;
 $hit = $result->next_hit;
 is $hit->start('sbjct'), 207;
@@ -1048,7 +1023,7 @@ is $hit->end('sbjct'), 1051;
 #WU-TBlastN test
 
 $searchio = Bio::SearchIO->new('-format' => 'blast',
-			      '-file'   => Bio::Root::IO->catfile('t','data','dnaEbsub_ecoli.wutblastn'));
+			      '-file'   => test_input_file('dnaEbsub_ecoli.wutblastn'));
 
 $result = $searchio->next_result;
 is($result->database_name, 'ecoli.nt');
@@ -1115,7 +1090,7 @@ is($count, 1);
 
 # WU-BLAST TBLASTX
 $searchio = Bio::SearchIO->new('-format' => 'blast',
-			      '-file'   => Bio::Root::IO->catfile('t','data','dnaEbsub_ecoli.wutblastx'));
+			      '-file'   => test_input_file('dnaEbsub_ecoli.wutblastx'));
 
 $result = $searchio->next_result;
 is($result->database_name, 'ecoli.nt');
@@ -1219,7 +1194,7 @@ is($count, 2);
 
 # Do a multiblast report test
 $searchio = Bio::SearchIO->new('-format' => 'blast',
-			       '-file'   => Bio::Root::IO->catfile('t','data','multi_blast.bls'));
+			       '-file'   => test_input_file('multi_blast.bls'));
 
 @expected = qw(CATH_RAT CATL_HUMAN CATL_RAT PAPA_CARPA);
 my $results_left = 4;
@@ -1232,7 +1207,7 @@ is($results_left, 0);
 # Test GCGBlast parsing
 
 $searchio = Bio::SearchIO->new('-format' => 'blast',
-			      '-file'   => Bio::Root::IO->catfile('t','data', 'test.gcgblast'));
+			      '-file'   => test_input_file('test.gcgblast'));
 $result = $searchio->next_result();
 
 is($result->query_name, '/v0/people/staji002/test.gcg');
@@ -1275,7 +1250,7 @@ is($hsp->homology_string, 'C+AEFDF++  T  +   T                 + +   +L +    +  
 
 
 $searchio = Bio::SearchIO->new('-format' => 'blast',
-			       '-file'   => Bio::Root::IO->catfile('t','data','HUMBETGLOA.tblastx'));
+			       '-file'   => test_input_file('HUMBETGLOA.tblastx'));
 
 $result = $searchio->next_result;
 
@@ -1299,22 +1274,20 @@ my $writer = Bio::SearchIO::Writer::HitTableWriter->new(
                                                   expect
                                                   )]  );
 
+my $outfile = test_output_file();
 my $out = Bio::SearchIO->new(-writer => $writer,
-			 -file   => ">searchio.out");
+			 -file   => ">$outfile");
 $out->write_result($result, 1);
-ok(-e 'searchio.out');
+ok(-s $outfile);
 my $writerhtml = Bio::SearchIO::Writer::HTMLResultWriter->new();
 my $outhtml = Bio::SearchIO->new(-writer => $writerhtml,
-				-file   => ">searchio.html");
+				-file   => ">$outfile");
 $outhtml->write_result($result, 1);
-ok(-e "searchio.html");
-
-unlink 'searchio.out';
-unlink 'searchio.html';
+ok(-s $outfile);
 
 #test all the database accession number formats
 $searchio = Bio::SearchIO->new(-format => 'blast',
-				 -file   => File::Spec->catfile(qw(t data testdbaccnums.out)) );
+				 -file   => test_input_file('testdbaccnums.out'));
 $result = $searchio->next_result;
 
 @valid = ( ['pir||T14789','T14789','T14789','CAB53709','AAH01726'],
@@ -1370,7 +1343,7 @@ is($hits_left, 0);
 # Parse MEGABLAST
 
 # parse the BLAST-like output
-my $infile = Bio::Root::IO->catfile(qw(t data 503384.MEGABLAST.2));
+my $infile = test_input_file('503384.MEGABLAST.2');
 my $in = Bio::SearchIO->new(-file => $infile,
 			   -format => 'blast'); # this is megablast 
                                                 # blast-like output
@@ -1418,7 +1391,7 @@ is($hits_left, 0);
 
 # parse another megablast format
 
-$infile =  Bio::Root::IO->catfile(qw(t data 503384.MEGABLAST.0));
+$infile =  test_input_file('503384.MEGABLAST.0');
 
 # this is megablast output type 0 
 $in = Bio::SearchIO->new(-file          => $infile,
@@ -1451,7 +1424,7 @@ is(@dcompare, 0);
 # Let's test RPS-BLAST
 
 my $parser = Bio::SearchIO->new(-format => 'blast',
-			       -file   => Bio::Root::IO->catfile(qw(t data ecoli_domains.rpsblast)));
+			       -file   => test_input_file('ecoli_domains.rpsblast'));
 
 $r = $parser->next_result;
 is($r->query_name, 'gi|1786183|gb|AAC73113.1|');
@@ -1470,7 +1443,7 @@ is($hsp->hit->end,76);
 # Test PSI-BLAST parsing
 
 $searchio = Bio::SearchIO->new('-format' => 'blast',
-			       '-file'   => Bio::Root::IO->catfile('t','data','psiblastreport.out'));
+			       '-file'   => test_input_file('psiblastreport.out'));
 
 $result = $searchio->next_result;
 
@@ -1557,7 +1530,7 @@ is(@valid_iter_data, 0);
 # Test filtering
 
 $searchio = Bio::SearchIO->new( '-format' => 'blast', 
-                                '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.bls'),
+                                '-file'   => test_input_file('ecolitst.bls'),
                                 '-signif' => 1e-100);
 
 @valid = qw(gb|AAC73113.1|);
@@ -1568,7 +1541,7 @@ while( my $hit = $r->next_hit ) {
 }
 
 $searchio = Bio::SearchIO->new( '-format' => 'blast', 
-                                '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.bls'),
+                                '-file'   => test_input_file('ecolitst.bls'),
                                 '-score' => 100);
 
 @valid = qw(gb|AAC73113.1| gb|AAC76922.1| gb|AAC76994.1|);
@@ -1580,7 +1553,7 @@ while( my $hit = $r->next_hit ) {
 is(@valid, 0);
 
 $searchio = Bio::SearchIO->new( '-format' => 'blast', 
-                                '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.bls'),
+                                '-file'   => test_input_file('ecolitst.bls'),
                                 '-bits' => 200);
 
 @valid = qw(gb|AAC73113.1| gb|AAC76922.1|);
@@ -1597,7 +1570,7 @@ my $filt_func = sub{ my $hit=shift;
                      };
 
 $searchio = Bio::SearchIO->new( '-format' => 'blast', 
-                                '-file'   => Bio::Root::IO->catfile('t','data','ecolitst.bls'),
+                                '-file'   => test_input_file('ecolitst.bls'),
                                 '-hit_filter' => $filt_func);
 
 @valid = qw(gb|AAC73113.1| gb|AAC76994.1|);
@@ -1615,8 +1588,7 @@ is(@valid, 0);
 
 # this is blastp bl2seq
 $searchio = Bio::SearchIO->new(-format => 'blast',
-			      -file   => Bio::Root::IO->catfile(qw(t data
-								   bl2seq.out)));
+			      -file   => test_input_file('bl2seq.out'));
 $result = $searchio->next_result;
 isa_ok($result,'Bio::Search::Result::ResultI');
 is($result->query_name, '');
@@ -1638,8 +1610,7 @@ is($hsp->gaps, 27);
 
 # this is blastn bl2seq 
 $searchio = Bio::SearchIO->new(-format => 'blast',
-			      -file   => Bio::Root::IO->catfile
-			      (qw(t data bl2seq.blastn.rev)));
+			      -file   => test_input_file('bl2seq.blastn.rev'));
 $result = $searchio->next_result;
 isa_ok($result,'Bio::Search::Result::ResultI');
 is($result->query_name, '');
@@ -1664,8 +1635,7 @@ is($hsp->gaps, 7);
 
 # this is blastn bl2seq 
 $searchio = Bio::SearchIO->new(-format => 'blast',
-			      -file   => Bio::Root::IO->catfile
-			      (qw(t data bl2seq.blastn)));
+			      -file   => test_input_file('bl2seq.blastn'));
 $result = $searchio->next_result;
 isa_ok($result,'Bio::Search::Result::ResultI');
 is($result->query_name, '');
@@ -1690,8 +1660,7 @@ is($hsp->gaps, 7);
 
 # this is blastp bl2seq
 $searchio = Bio::SearchIO->new(-format => 'blast',
-			      -file   => Bio::Root::IO->catfile
-			      (qw(t data bl2seq.bug940.out)));
+			      -file   => test_input_file('bl2seq.bug940.out'));
 $result = $searchio->next_result;
 isa_ok($result,'Bio::Search::Result::ResultI');
 is($result->query_name, 'zinc');
@@ -1721,8 +1690,7 @@ ok($hit->next_hsp); # there is more than one HSP here,
 
 # this is blastx bl2seq
 $searchio = Bio::SearchIO->new(-format => 'blast',
-			      -file   => Bio::Root::IO->catfile
-			      (qw(t data bl2seq.blastx.out)));
+			      -file   => test_input_file('bl2seq.blastx.out'));
 $result = $searchio->next_result;
 isa_ok($result,'Bio::Search::Result::ResultI');
 is($result->query_name, 'AE000111.1');
@@ -1751,8 +1719,7 @@ is($hsp->hit->strand,0);
 
 # this is tblastx bl2seq (self against self)
 $searchio = Bio::SearchIO->new(-format => 'blast',
-			      -file   => Bio::Root::IO->catfile
-			      (qw(t data bl2seq.tblastx.out)));
+			      -file   => test_input_file('bl2seq.tblastx.out'));
 $result = $searchio->next_result;
 isa_ok($result,'Bio::Search::Result::ResultI');
 is($result->query_name, 'Escherichia');
@@ -1782,8 +1749,7 @@ is($hsp->hit->strand,1);
 
 # this is NCBI tblastn
 $searchio = Bio::SearchIO->new(-format => 'blast',
-										-file   => Bio::Root::IO->catfile
-										(qw(t data tblastn.out)));
+										-file   => test_input_file('tblastn.out'));
 $result = $searchio->next_result;
 isa_ok($result,'Bio::Search::Result::ResultI');
 is($result->algorithm, 'TBLASTN');
@@ -1794,15 +1760,13 @@ is($hit->name,'gi|10040111|emb|AL390796.6|AL390796');
 my @eqset = qw( 
 		
 		c200-vs-yeast.BLASTN.m9);
-$searchio = Bio::SearchIO->new(-file => Bio::Root::IO->catfile
-			      (qw(t data c200-vs-yeast.BLASTN)),
+$searchio = Bio::SearchIO->new(-file => test_input_file('c200-vs-yeast.BLASTN'),
 			      -format => 'blast');
 $result = $searchio->next_result;
 isa_ok($result,'Bio::Search::Result::ResultI');
 my %ref = &result2hash($result);
 is( scalar keys %ref, 67);
-$searchio = Bio::SearchIO->new(-file => Bio::Root::IO->catfile
-			      (qw(t data c200-vs-yeast.BLASTN.m8)),
+$searchio = Bio::SearchIO->new(-file => test_input_file('c200-vs-yeast.BLASTN.m8'),
 			      -program_name => 'BLASTN',
 			      -format => 'blasttable');
 $result = $searchio->next_result;
@@ -1813,8 +1777,7 @@ foreach my $key ( sort keys %ref ) {
 }      
 
 # Test Blast parsing with B=0 (WU-BLAST)
-$searchio = Bio::SearchIO->new(-file   => Bio::Root::IO->catfile
-			      (qw(t data no_hsps.blastp)),
+$searchio = Bio::SearchIO->new(-file   => test_input_file('no_hsps.blastp'),
 			      -format => 'blast');
 $result = $searchio->next_result;
 is($result->query_name, 'mgri:MG00189.3');
@@ -1857,8 +1820,7 @@ while( my ($file,$expformat) = each %pair ) {
 # Test Wes Barris's reported bug when parsing blastcl3 output which
 # has integer overflow
 
-$searchio = Bio::SearchIO->new(-file => Bio::Root::IO->catfile
-			      (qw(t data hsinsulin.blastcl3.blastn)),
+$searchio = Bio::SearchIO->new(-file => test_input_file('hsinsulin.blastcl3.blastn'),
 			      -format => 'blast');
 $result = $searchio->next_result;
 is($result->query_name, 'human');
@@ -1871,8 +1833,7 @@ is($result->get_statistic('dbentries'),'1867771');
 
 # test for links and groups being parsed out of WU-BLAST properly
 $searchio = Bio::SearchIO->new(-format => 'blast',
-			       -file   => Bio::Root::IO->catfile
-			       (qw(t data brassica_ATH.WUBLASTN) ));
+			       -file   => test_input_file('brassica_ATH.WUBLASTN'));
 ok($result = $searchio->next_result);
 ok($hit = $result->next_hit);
 ok($hsp = $hit->next_hsp);
@@ -1884,8 +1845,7 @@ is($hsp->hsp_group, '1');
 ## Web blast result parsing
 
 $searchio = Bio::SearchIO->new(-format => 'blast',
-			       -file   => Bio::Root::IO->catfile
-			       (qw(t data catalase-webblast.BLASTP)));
+			       -file   => test_input_file('catalase-webblast.BLASTP'));
 ok($result = $searchio->next_result);
 ok($hit = $result->next_hit);
 is($hit->name, 'gi|40747822|gb|EAA66978.1|', 'full hit name');
@@ -1896,8 +1856,7 @@ is($hsp->query->end, 528, 'query start');
 
 # tests for new BLAST 2.2.13 output
 $searchio = Bio::SearchIO->new(-format => 'blast',
-							  -file   => Bio::Root::IO->catfile
-							  (qw(t data new_blastn.txt)));
+							  -file   => test_input_file('new_blastn.txt'));
 
 $result = $searchio->next_result;
 is($result->database_name, 'All GenBank+EMBL+DDBJ+PDB sequences (but no EST, STS,GSS,environmental samples or phase 0, 1 or 2 HTGS sequences)');
@@ -1967,8 +1926,7 @@ is(@valid, 0);
 
 # Bug 2189
 $searchio = Bio::SearchIO->new(-format => 'blast',
-							  -file   => Bio::Root::IO->catfile
-							  (qw(t data blastp2215.blast)));
+							  -file   => test_input_file('blastp2215.blast'));
 
 $result = $searchio->next_result;
 is($result->database_entries, 4460989);
@@ -1998,8 +1956,7 @@ is($hits[7]->score, 624);
 # Bug 2246
 $searchio = Bio::SearchIO->new(-format => 'blast',
                                -verbose => -1,
-							  -file   => Bio::Root::IO->catfile
-							  (qw(t data bug2246.blast)));
+							  -file   => test_input_file('bug2246.blast'));
 $result = $searchio->next_result;
 $hit = $result->next_hit;
 is $hit->name, 'UniRef50_Q9X0H5';
@@ -2087,5 +2044,3 @@ Useful for debugging:
 	    print "  " . $_->name . "\n";
 	}
     }
-
-

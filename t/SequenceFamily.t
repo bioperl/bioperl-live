@@ -1,26 +1,20 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
+
 BEGIN {
-    eval { require Test; };
-    if( $@ ) {
-        use lib 't';
-    }
-    use Test;
-    use vars qw($NTESTS);
-    $NTESTS = 17;
-    plan tests => $NTESTS;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 19);
+	
+    use_ok('Bio::SeqIO');
+    use_ok('Bio::Cluster::SequenceFamily');
 }
 
-use Bio::Root::IO;
-use Bio::SeqIO;
-use Bio::Cluster::SequenceFamily;
-
-
 my $seqio= Bio::SeqIO->new('-format' => 'swiss',
-                           '-file'   => Bio::Root::IO->catfile('t','data','sequencefamily.dat'));
+                           '-file'   => test_input_file('sequencefamily.dat'));
 my @mem;
 while(my $seq = $seqio->next_seq){
     push @mem, $seq;
@@ -31,39 +25,31 @@ my $family = Bio::Cluster::SequenceFamily->new(-family_id=>"Family_1",
                                        -family_score=>"50",
                                        -version=>"1.0",
                                        -members=>\@mem);
-ok $family->description, "SomeFamily";
-ok $family->annotation_score,100;
-ok $family->size, 5;
-ok $family->family_id,"Family_1";
-ok $family->version, "1.0";
+is $family->description, "SomeFamily";
+is $family->annotation_score,100;
+is $family->size, 5;
+is $family->family_id,"Family_1";
+is $family->version, "1.0";
 
 $family->add_members($mem[0]);
 $family->add_members($mem[1]);
-ok $family->size, 7;
-ok $family->cluster_score, "50";
-ok $family->family_score, "50";
+is $family->size, 7;
+is $family->cluster_score, "50";
+is $family->family_score, "50";
 
 my @members = $family->get_members(-ncbi_taxid=>9606);
 
 foreach my $mem(@members){
-    ok $mem->species->ncbi_taxid, 9606;
+    is $mem->species->ncbi_taxid, 9606;
 }
 
 @members = $family->get_members(-binomial=>"Homo sapiens");
 
 foreach my $mem(@members){
-    ok $mem->species->binomial, "Homo sapiens";
+    is $mem->species->binomial, "Homo sapiens";
 }
 
 
 $family->flush_members();
 
-ok $family->size, 0;
-
-
-
-
-
-
-
-
+is $family->size, 0;

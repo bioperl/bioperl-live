@@ -1,32 +1,22 @@
-# This is -*-Perl-*- code
-## Bioperl Test Harness Script for Modules
-##
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-use vars qw($NUMTESTS $DEBUG $ERROR);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN {
-    # to handle systems with no installed Test::More module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test::More; };
-    $ERROR = 0;
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-
-    $NUMTESTS = 11;
-    plan tests => $NUMTESTS;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 11);
+	
+	use_ok('Bio::Tools::SiRNA');
+	use_ok('Bio::Seq');
+	use_ok('Bio::SeqIO');
 }
 
-use_ok('Bio::Tools::SiRNA');
-use_ok('Bio::Seq');
-use_ok('Bio::SeqIO');
+my $DEBUG = test_debug();
 
-my $input = Bio::SeqIO->new( -file 	=> File::Spec->catfile(qw(t data NM_002254.gb)),
+my $input = Bio::SeqIO->new( -file 	=> test_input_file('NM_002254.gb'),
 			     -format 	=> 'Genbank' );
 my $seq = $input->next_seq;
 

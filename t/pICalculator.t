@@ -1,14 +1,14 @@
-# -*-Perl-*-
-# Bioperl Test Harness Script for pICalculator.pm
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
+
 BEGIN {
-    eval { require Test::More; };
-    if ($@) {
-       use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 38;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 38);
+	
     use_ok('Bio::Seq');
     use_ok('Bio::Tools::pICalculator');
 }

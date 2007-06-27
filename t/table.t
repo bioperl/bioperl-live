@@ -1,44 +1,18 @@
-# -*-Perl-*- mode (to keep my emacs happy)
-# $GNF: projects/gi/symgene/src/perl/seqproc/t/table.t,v 1.3 2006/01/19 04:20:36 hlapp Exp $
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-use vars qw($DEBUG $ERROR);
-use constant NUMTESTS => 449;
-use constant NONEXCELTESTS => 337;
 
 BEGIN {     
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    if( $@ ) { 
-        use lib 't';
-    }
-    use Test;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 450,
+			   -requires_module => 'IO::Scalar');
 	
-	# we seem to need IO::Scalar for this
-	eval {
-		require IO::Scalar;
-	};
-	if ($@) {
-		$ERROR = 1;
-	}
-	
-    plan tests => NUMTESTS;
+	use_ok('Bio::Tools::CodonTable');
+	use_ok('Bio::SeqIO');
 }
-
-if ($ERROR) {
-	foreach (1..NUMTESTS) { 
-        skip ("IO::Scalar not installed, skipping all tests",1,1); 
-    }
-    exit(0);
-}
-
-use Bio::Tools::CodonTable;
-use Bio::SeqIO;
-use Bio::Root::IO;
-
-ok(1); # if this fails already we're in trouble
 
 my @names = qw(A6
                A6r
@@ -64,8 +38,7 @@ my @num_anns = (5, 5, 5, 5, 6, 7, 7, 7, 7, 7);
 my @psg = (0, 0, 1, 1, 0, 0, 0, 0, 0, 0);
 my @rs = (0, 0, 0, 0, 1, 1, 1, 1, 1, 1);
 
-my $io = "Bio::Root::IO";
-my $seqin = Bio::SeqIO->new(-file => $io->catfile("t","data","kinases.tsv"),
+ok my $seqin = Bio::SeqIO->new(-file => test_input_file("kinases.tsv"),
 			    -format  => 'table',
                             -species => "Homo sapiens",
                             -delim   => "\t",
@@ -75,12 +48,11 @@ my $seqin = Bio::SeqIO->new(-file => $io->catfile("t","data","kinases.tsv"),
                             -seq => 7,
                             -annotation => 1,
                             -trim => 1);
-ok $seqin;
 run_tests([@names],[@accs],[@num_anns],[@psg],[@rs]);
 
 $seqin->close();
 
-$seqin = Bio::SeqIO->new(-file => $io->catfile("t","data","kinases.tsv"),
+ok $seqin = Bio::SeqIO->new(-file => test_input_file("kinases.tsv"),
                          -format  => 'table',
                          -species => "Homo sapiens",
                          -delim   => "\t",
@@ -90,12 +62,11 @@ $seqin = Bio::SeqIO->new(-file => $io->catfile("t","data","kinases.tsv"),
                          -seq => 7,
                          -colnames => "[Family,Subfamily,Pseudogene?,Protein,Novelty]",
                          -trim => 1);
-ok $seqin;
 run_tests([@names],[@accs],[4,4,4,4,4,5,5,5,5,5],[@psg],[@rs]);
 
 $seqin->close();
 
-$seqin = Bio::SeqIO->new(-file => $io->catfile("t","data","kinases.tsv"),
+ok $seqin = Bio::SeqIO->new(-file => test_input_file("kinases.tsv"),
                          -format  => 'table',
                          -species => "Homo sapiens",
                          -delim   => "\t",
@@ -105,35 +76,27 @@ $seqin = Bio::SeqIO->new(-file => $io->catfile("t","data","kinases.tsv"),
                          -seq => 7,
                          -annotation => "[4,5,6,8,10]",
                          -trim => 1);
-ok $seqin;
 run_tests([@names],[@accs],[4,4,4,4,4,5,5,5,5,5],[@psg],[@rs]);
 
 $seqin->close();
 
 # need Spreadsheet::ParseExcel installed for testing Excel format
-eval {
-    require Spreadsheet::ParseExcel;
-};
-if ($@) {
-    foreach ((NONEXCELTESTS+1)..NUMTESTS) { 
-        skip ("Skip Excel format test because Spreadsheet::ParseExcel not installed",1,1); 
-    }
-    exit(0);
+SKIP: {
+	test_skip(-tests => 112, -requires_module => 'Spreadsheet::ParseExcel');
+
+	ok $seqin = Bio::SeqIO->new(-file => test_input_file("kinases.xls"),
+							 -format  => 'excel',
+							 -species => "Homo sapiens",
+							 -header  => 1,
+							 -display_id => 1,
+							 -accession_number => 2,
+							 -seq => 7,
+							 -annotation => 1,
+							 -trim => 1);
+	run_tests([@names],[@accs],[@num_anns],[@psg],[@rs]);
+	
+	$seqin->close();
 }
-
-$seqin = Bio::SeqIO->new(-file => $io->catfile("t","data","kinases.xls"),
-                         -format  => 'excel',
-                         -species => "Homo sapiens",
-                         -header  => 1,
-                         -display_id => 1,
-                         -accession_number => 2,
-                         -seq => 7,
-                         -annotation => 1,
-                         -trim => 1);
-ok $seqin;
-run_tests([@names],[@accs],[@num_anns],[@psg],[@rs]);
-
-$seqin->close();
 
 sub run_tests {
     my ($names_,$accs_,$num_anns_,$psg_,$rs_) = @_;
@@ -148,15 +111,15 @@ sub run_tests {
     my $translator = Bio::Tools::CodonTable->new(-id => 1);
     while (my $seq = $seqin->next_seq()) {
         $n++;
-        ok ($seq->display_id, shift(@names));
-        ok ($seq->accession_number, shift(@accs));
+        is ($seq->display_id, shift(@names));
+        is ($seq->accession_number, shift(@accs));
         ok ($seq->species);
-        ok ($seq->species->binomial, "Homo sapiens");
+        is ($seq->species->binomial, "Homo sapiens");
         my @anns = $seq->annotation->get_Annotations();
-        ok (scalar(@anns), shift(@num_anns));
+        is (scalar(@anns), shift(@num_anns));
         @anns = grep { $_->value eq "Y"; 
                      } $seq->annotation->get_Annotations("Pseudogene?");
-        ok (scalar(@anns), shift(@psg));
+        is (scalar(@anns), shift(@psg));
         
         # check sequences and that they translate to what we expect
         if (($n >= 5) && ($seq->display_id ne "MARK3")) {
@@ -176,19 +139,18 @@ sub run_tests {
             # retrieve expected result from annotation and compare
             my ($protann) = $seq->annotation->get_Annotations("Protein");
             ok ($protann);
-            ok ($protein, $protann->value);
+            is ($protein, $protann->value);
         }
         
         @anns = grep { $_->value eq "Known - Refseq"; 
                      } $seq->annotation->get_Annotations("Novelty");
-        ok (scalar(@anns), shift(@rs));
+        is (scalar(@anns), shift(@rs));
         @anns = $seq->annotation->get_Annotations("Subfamily");
-        ok (scalar(@anns), ($n <= 5) ? 0 : 1);
+        is (scalar(@anns), ($n <= 5) ? 0 : 1);
         @anns = $seq->annotation->get_Annotations("Family");
-        ok (scalar(@anns), 1);
-        ok (substr($anns[0]->value,0,4), ($n <= 4) ? "A6" : "CAMK");    
+        is (scalar(@anns), 1);
+        is (substr($anns[0]->value,0,4), ($n <= 4) ? "A6" : "CAMK");    
     }
     
-    ok ($n, 10);
+    is ($n, 10);
 }
-

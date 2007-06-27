@@ -1,6 +1,6 @@
-# -*-Perl-*-
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
-# written by Juguang Xiao
+
 
 use strict;
 
@@ -15,7 +15,7 @@ BEGIN {
 
 my $searchio = Bio::SearchIO->new(
 	 -format => 'blast',
-    -file => File::Spec->catfile(qw(t data blast.report))
+    -file => test_input_file('blast.report')
 );
 
 my @hsps = ();

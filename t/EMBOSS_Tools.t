@@ -1,25 +1,21 @@
-# -*-Perl-*-
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
-## Bioperl Test Harness Script for Modules
-##
 
-my $error;
 use strict;
-my $DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
+
 BEGIN { 
-    $error = 0; 
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
-    plan tests => 13;
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 13);
+	
 	use_ok('Bio::Tools::EMBOSS::Palindrome');
 	use_ok('Bio::Tools::GFF');
 }
 
-my $parser = Bio::Tools::EMBOSS::Palindrome->new
-    (-file => Bio::Root::IO->catfile(qw( t data humts1.pal)));
+my $DEBUG = test_debug();
+
+my $parser = Bio::Tools::EMBOSS::Palindrome->new(-file => test_input_file('humts1.pal'));
 
 my $seq = $parser->next_seq;
 ok($seq);

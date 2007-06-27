@@ -1,9 +1,5 @@
-# This is -*-Perl-*- code
-## Bioperl Test Harness Script for Modules
-##
-# $Id$ 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
@@ -11,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
 	use BioperlTest;
 	
-	test_begin(-tests => 34,
+	test_begin(-tests => 33,
 			   -requires_modules => [qw(IO::String LWP::UserAgent)]);
 	
 	use_ok('Bio::DB::CUTG');
@@ -19,19 +15,14 @@ BEGIN {
 	use_ok('Bio::CodonUsage::IO');
     use_ok('Bio::SeqIO');
     use_ok('Bio::Tools::SeqStats');
-	use_ok('Bio::Root::IO');
 }
 
-END {
-	unlink(Bio::Root::IO->catfile("t","data","cutg.out"));
-}
-
-my $outfile = Bio::Root::IO->catfile("t","data","cutg.out");
+my $outfile = test_output_file();
 my $verbose = test_debug();
 
 # try reading from file
 ok my $io = Bio::CodonUsage::IO->new
-  (-file=> Bio::Root::IO->catfile("t", "data", "MmCT"));
+  (-file=> test_input_file('MmCT'));
 ok  my $cut2 = $io->next_data();
 is int($cut2->aa_frequency('LEU')), 10;
 
@@ -46,8 +37,7 @@ ok $cut2 = $io->next_data();
 is int($cut2->aa_frequency('LEU')), 10;
 
 # now try making a user defined CUT from a sequence
-ok my $seqobj = Bio::SeqIO->new (-file =>
-			 Bio::Root::IO->catfile("t", "data", "HUMBETGLOA.fa"),
+ok my $seqobj = Bio::SeqIO->new (-file =>test_input_file('HUMBETGLOA.fa'),
 				                        -format => 'fasta')->next_seq;
 is $seqobj->subseq(10,20), 'TTGACACCACT';
 ok my $codcont_Ref = Bio::Tools::SeqStats->count_codons($seqobj);
@@ -69,7 +59,7 @@ SKIP: {
 
 	# get CUT from web
 	ok my $db = Bio::DB::CUTG->new();
-	$db->verbose(-1);
+	$db->verbose($verbose ? $verbose : -1);
 	my $cdtable;
 	eval {$cdtable = $db->get_request(-sp =>'Pan troglodytes');};
 	skip "Could not connect to server, server/network problems? Skipping those tests", 5 if $@;
@@ -83,7 +73,7 @@ SKIP: {
 	## now lets enter a non-existent species ans check handling..
 	## should default to human...
 	my $db2 = Bio::DB::CUTG->new();
-	$db2->verbose(-1);
+	$db2->verbose($verbose ? $verbose : -1);
 	eval {$cut2 = $db2->get_request(-sp =>'Wookie magnus');};
 	skip "Could not connect to server, server/network problems? Skipping those tests", 1 if $@;
 	is $cut2->species(), 'Homo sapiens';

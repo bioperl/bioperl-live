@@ -1,31 +1,24 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
-use strict;
 
 BEGIN {     
-    eval { require Test::More; };
-    if( $@ ) {
-        use lib 't/lib';
-    }
-    use Test::More;
-    use vars qw($NUMTESTS $DEBUG);
-    $NUMTESTS = 28;
-    $DEBUG   = $ENV{'BIOPERLDEBUG'} || 0;
-    plan tests => $NUMTESTS;
+    use lib 't/lib';
+	use BioperlTest;
+	
+	test_begin(-tests => 27);
+	
     use_ok('Bio::Tools::EPCR');
     use_ok('Bio::SeqIO');
-    use_ok('Bio::Root::IO');
 }
 
-my $seqio = Bio::SeqIO->new('-format' => 'fasta', '-file' => Bio::Root::IO->catfile("t","data","genomic-seq.fasta"));
+my $DEBUG = test_debug();
+
+my $seqio = Bio::SeqIO->new('-format' => 'fasta', '-file' => test_input_file('genomic-seq.fasta'));
 
 my $seq = $seqio->next_seq;
 ok($seq);
-my $epcr = Bio::Tools::EPCR->new( '-file' => Bio::Root::IO->catfile("t","data","genomic-seq.epcr"));
+my $epcr = Bio::Tools::EPCR->new( '-file' => test_input_file('genomic-seq.epcr'));
 ok ($epcr);
 my %strand;
 while( defined(my $feature = $epcr->next_feature) ) {

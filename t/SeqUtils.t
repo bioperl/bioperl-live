@@ -1,25 +1,20 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-##$Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
 BEGIN {
-    # to handle systems with no installed Test module
-    # we include the t dir (where a copy of Test.pm is located)
-    # as a fallback
-    eval { require Test; };
-    if( $@ ) {
-	use lib 't';
-    }
-    use Test;
-    plan tests => 37;
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 41);
+	
+	use_ok('Bio::PrimarySeq');
+	use_ok('Bio::SeqUtils');
+	use_ok('Bio::LiveSeq::Mutation');
+	use_ok('Bio::SeqFeature::Generic');
+	use_ok('Bio::Annotation::SimpleValue');
 }
-
-use Bio::PrimarySeq;
-use Bio::SeqUtils;
-use Bio::LiveSeq::Mutation;
-ok 1;
 
 my ($seq, $util, $ascii, $ascii_aa, $ascii3);
 
@@ -36,23 +31,22 @@ $seq = Bio::PrimarySeq->new('-seq'=> $ascii,
 
 # one letter amino acid code to three letter code
 ok $util = Bio::SeqUtils->new();
-ok $util->seq3($seq), $ascii3;
+is $util->seq3($seq), $ascii3;
 
 #using anonymous hash
-ok (Bio::SeqUtils->seq3($seq), $ascii3); 
-ok (Bio::SeqUtils->seq3($seq, undef, ','), 
+is (Bio::SeqUtils->seq3($seq), $ascii3); 
+is (Bio::SeqUtils->seq3($seq, undef, ','), 
     'Ala,Asx,Cys,Asp,Glu,Phe,Gly,His,Ile,Xle,Lys,'.
     'Leu,Met,Asn,Pyl,Pro,Gln,Arg,Ser,Thr,Sec,Val,Trp,Xaa,Tyr,Glx');
 
 $seq->seq('asd-KJJK-');
-ok (Bio::SeqUtils->seq3($seq, '-', ':'), 
+is (Bio::SeqUtils->seq3($seq, '-', ':'), 
     'Ala:Ser:Asp:Ter:Lys:Xle:Xle:Lys:Ter');
 
 # three letter amino acid code to one letter code
-ok (Bio::SeqUtils->seq3in($seq, 'AlaPYHCysAspGlu')), 
-ok  $seq->seq, 'AXCDE';
-ok (Bio::SeqUtils->seq3in($seq, $ascii3)->seq, $ascii_aa);
-#ok ();
+ok (Bio::SeqUtils->seq3in($seq, 'AlaPYHCysAspGlu')); 
+is $seq->seq, 'AXCDE';
+is (Bio::SeqUtils->seq3in($seq, $ascii3)->seq, $ascii_aa);
 
 #
 # Tests for multiframe translations
@@ -63,13 +57,13 @@ $seq = Bio::PrimarySeq->new('-seq'=> 'agctgctgatcggattgtgatggctggatggcttgggatgct
 			    '-id'=>'test2');
 
 my @a = $util->translate_3frames($seq);
-ok scalar @a, 3;
+is scalar @a, 3;
 #foreach $a (@a) {
 #    print 'ID: ', $a->id, ' ', $a->seq, "\n";
 #}
 
 @a = $util->translate_6frames($seq);
-ok scalar @a, 6;
+is scalar @a, 6;
 #foreach $a (@a) {
 #    print 'ID: ', $a->id, ' ', $a->seq, "\n";
 #}
@@ -79,17 +73,17 @@ ok scalar @a, 6;
 #
 
 my @valid_aa = sort Bio::SeqUtils->valid_aa;
-ok(@valid_aa, 27);
-ok ($valid_aa[1], 'A');
+is(@valid_aa, 27);
+is($valid_aa[1], 'A');
 
 @valid_aa = sort Bio::SeqUtils->valid_aa(1);
-ok(@valid_aa, 27);
-ok ($valid_aa[1], 'Arg');
+is(@valid_aa, 27);
+is ($valid_aa[1], 'Arg');
 
 my %valid_aa = Bio::SeqUtils->valid_aa(2);
-ok keys %valid_aa, 54;
-ok($valid_aa{'C'}, 'Cys');
-ok( $valid_aa{'Cys'}, 'C');
+is keys %valid_aa, 54;
+is($valid_aa{'C'}, 'Cys');
+is( $valid_aa{'Cys'}, 'C');
 
 
 #
@@ -107,7 +101,7 @@ Bio::SeqUtils->mutate($seq,
                                                   -pos => 3
                                                  )
                      );
-ok $seq->seq, 'agct';
+is $seq->seq, 'agct';
 
 # insertion and deletion
 my @mutations = (
@@ -121,7 +115,7 @@ my @mutations = (
 );
 
 Bio::SeqUtils->mutate($seq, @mutations);
-ok $seq->seq, 'agct';
+is $seq->seq, 'agct';
 
 # insertion to the end of the sequence
 Bio::SeqUtils->mutate($seq,
@@ -130,7 +124,7 @@ Bio::SeqUtils->mutate($seq,
                                                   -len => 0
                                                  )
                      );
-ok $seq->seq, 'agctaa';
+is $seq->seq, 'agctaa';
 
 
 
@@ -138,18 +132,14 @@ ok $seq->seq, 'agctaa';
 # testing Bio::SeqUtils->cat
 #
 
-use Bio::Annotation::SimpleValue;
-use Bio::Seq::RichSeq;;
-
-
 # PrimarySeqs
 
 my $primseq1 = Bio::PrimarySeq->new(-id => 1, -seq => 'acgt', -description => 'master');
 my $primseq2 = Bio::PrimarySeq->new(-id => 2, -seq => 'tgca');
 
 Bio::SeqUtils->cat($primseq1, $primseq2);
-ok $primseq1->seq, 'acgttgca';
-ok $primseq1->description, 'master';
+is $primseq1->seq, 'acgttgca';
+is $primseq1->description, 'master';
 
 #should work for Bio::LocatableSeq
 #should work for Bio::Seq::MetaI Seqs?
@@ -186,13 +176,11 @@ $seq3->annotation($ac3);
 
 
 ok (Bio::SeqUtils->cat($seq1, $seq2, $seq3));
-ok $seq1->seq, 'aaaattttcccc';
-ok scalar $seq1->get_Annotations, 3;
+is $seq1->seq, 'aaaattttcccc';
+is scalar $seq1->get_Annotations, 3;
 
 
 # seq features
-use Bio::SeqFeature::Generic;
-
 my $ft2 = Bio::SeqFeature::Generic->new( -start => 1,
                                       -end => 4,
                                       -strand => 1,
@@ -211,8 +199,8 @@ $seq2->add_SeqFeature($ft3);
 
 
 ok (Bio::SeqUtils->cat($seq1, $seq2));
-ok $seq1->seq, 'aaaattttcccctttt';
-ok scalar $seq1->get_Annotations, 5;
+is $seq1->seq, 'aaaattttcccctttt';
+is scalar $seq1->get_Annotations, 5;
 
 
 my $protseq = Bio::PrimarySeq->new(-id => 2, -seq => 'MVTF'); # protein seq
@@ -220,13 +208,7 @@ my $protseq = Bio::PrimarySeq->new(-id => 2, -seq => 'MVTF'); # protein seq
 eval {
     Bio::SeqUtils->cat($seq1, $protseq);
 };
-ok 1 if $@; # did throw
-
-#use Data::Dumper; print Dumper $seq1;
-
-
-
-
+ok $@;
 
 
 #
@@ -267,13 +249,13 @@ $seq2->add_SeqFeature($ft2);
 $seq2->add_SeqFeature($ft3);
 
 my $trunc=Bio::SeqUtils->trunc_with_features($seq2, 2, 7);
-ok $trunc->seq, 'gttaaa';
+is $trunc->seq, 'gttaaa';
 my @feat=$trunc->get_SeqFeatures;
-ok $feat[0]->location->to_FTstring, '<1..3';
-ok $feat[1]->location->to_FTstring, 'complement(4..>6)';
+is $feat[0]->location->to_FTstring, '<1..3';
+is $feat[1]->location->to_FTstring, 'complement(4..>6)';
 
 my $revcom=Bio::SeqUtils->revcom_with_features($seq2);
-ok $revcom->seq, 'ttttaacc';
+is $revcom->seq, 'ttttaacc';
 my @revfeat=$revcom->get_SeqFeatures;
-ok $revfeat[0]->location->to_FTstring, 'complement(5..8)';
-ok $revfeat[1]->location->to_FTstring, '1..4';
+is $revfeat[0]->location->to_FTstring, 'complement(5..8)';
+is $revfeat[1]->location->to_FTstring, '1..4';

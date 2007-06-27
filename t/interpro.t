@@ -1,32 +1,21 @@
-# -*-Perl-*-
-# Bioperl Test Harness Script for Modules
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
-#
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
 
 use strict;
+
 BEGIN {
-  use vars qw($error $NUMTESTS);
-  eval { require Test::More; };
-  if ( $@ ) {
-    use lib 't/lib';
-  }
-  $NUMTESTS = 17;
-  use Test::More;
-  # interpro uses XML::DOM
-  eval {require XML::DOM::XPath};
-  if ( $@ ) {
-    plan skip_all => "XML::DOM::XPath not found - skipping interpro tests";
-  } else {
-	plan tests => $NUMTESTS;
-  }
+  use lib 't/lib';
+  use BioperlTest;
+  
+  test_begin(-tests => 17,
+			 -requires_module => 'XML::DOM::XPath');
+  
   use_ok('Bio::SeqIO');
 }
 
-my $verbose = $ENV{'BIOPERLDEBUG'};
+my $verbose = test_debug();
 
-my $t_file = Bio::Root::IO->catfile("t","data","test.interpro");
+my $t_file = test_input_file('test.interpro');
 my $a_in = Bio::SeqIO->new( -file => $t_file,
 									 -verbose => $verbose,
 									 -format => 'interpro');
@@ -47,7 +36,7 @@ is(scalar( $seq->get_SeqFeatures() ),40);
 ok(!($seq = $a_in->next_seq()));
 
 # Bug 1908 (enhancement)
-$t_file = Bio::Root::IO->catfile("t","data","interpro_ebi.xml");
+$t_file = test_input_file('interpro_ebi.xml');
 my $b_in = Bio::SeqIO->new( -file => $t_file,
 									 -verbose => $verbose,
 									 -format => 'interpro');
@@ -64,6 +53,3 @@ my @dblinks = $features[0]->annotation->get_Annotations('dblink');
 is (scalar @dblinks,3);
 is $dblinks[1]->primary_id,'IPR009366';
 is $dblinks[2]->primary_id,'PF06257.1';
-
-__END__
-

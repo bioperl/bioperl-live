@@ -1,30 +1,22 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
-use constant NUMTESTS => 42;
-use vars qw($DEBUG);
-$DEBUG = $ENV{'BIOPERLDEBUG'} || 0;
 
 BEGIN { 
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;
+    use lib 't/lib';
+    use BioperlTest;
     
-    plan tests => NUMTESTS;
+    test_begin(-tests => 42);
+	
     use_ok('Bio::TreeIO');
 }
 
-use Bio::TreeIO;
-my $verbose = 0;
+my $verbose = test_debug();
 
 my $treeio = Bio::TreeIO->new(-verbose => $verbose,
 			     -format => 'nhx',
-			     -file   => Bio::Root::IO->catfile('t','data', 
-							       'test.nhx'));
+			     -file   => test_input_file('test.nhx'));
 my $tree = $treeio->next_tree;
 
 my @nodes = $tree->find_node('ADH2');
@@ -41,8 +33,7 @@ if( $verbose ) {
 }
 
 $treeio = Bio::TreeIO->new(-format => 'newick',
-			  -file   => Bio::Root::IO->catfile('t','data',
-							    'test.nh'));
+			  -file   => test_input_file('test.nh'));
 $tree = $treeio->next_tree;
 
 
@@ -116,21 +107,21 @@ my $out = Bio::TreeIO->new(-format => 'newick',
 			   -fh => \*STDERR, 
 			   -noclose => 1);
 $tree = $in->next_tree;
-$tree->verbose( -1 ) unless $DEBUG;
+$tree->verbose( -1 ) unless $verbose;
 my $node_cnt_orig = scalar($tree->get_nodes);
 # reroot on an internal node: should work fine
 $a = $tree->find_node('A');
 # removing node_count checks because re-rooting can change the
 # number of internal nodes (if it is done correctly)
 my $total_length_orig = $tree->total_branch_length;
-$out->write_tree($tree) if $DEBUG;
+$out->write_tree($tree) if $verbose;
 is($tree->reroot($a),1, 'Can re-root with A as outgroup');
-$out->write_tree($tree) if $DEBUG;
+$out->write_tree($tree) if $verbose;
 is($node_cnt_orig, scalar($tree->get_nodes), 'Count the number of nodes');
 my $total_length_new = $tree->total_branch_length;
 my $eps = 0.001 * $total_length_new;	# tolerance for checking length
-warn("orig total len ", $total_length_orig, "\n") if $DEBUG;
-warn("new  total len ", $tree->total_branch_length,"\n") if $DEBUG;
+warn("orig total len ", $total_length_orig, "\n") if $verbose;
+warn("new  total len ", $tree->total_branch_length,"\n") if $verbose;
 # according to retree in phylip these branch lengths actually get larger
 # go figure...
 #ok(($total_length_orig >= $tree->total_branch_length - $eps)
@@ -139,12 +130,12 @@ is($tree->get_root_node, $a->ancestor, "Root node is A's ancestor");
 
 # try to reroot on an internal, will result in there being 1 less node
 $a = $tree->find_node('C')->ancestor;
-$out->write_tree($tree) if $DEBUG;
+$out->write_tree($tree) if $verbose;
 is($tree->reroot($a),1, "Can reroot with C's ancsestor");
-$out->write_tree($tree) if $DEBUG;
+$out->write_tree($tree) if $verbose;
 is($node_cnt_orig, scalar($tree->get_nodes), 'Check to see that node count is correct after an internal node was removed after this re-rooting');
-warn("orig total len ", $total_length_orig, "\n") if $DEBUG;
-warn("new  total len ", $tree->total_branch_length,"\n") if $DEBUG;
+warn("orig total len ", $total_length_orig, "\n") if $verbose;
+warn("new  total len ", $tree->total_branch_length,"\n") if $verbose;
 cmp_ok($total_length_orig, '>=', $tree->total_branch_length - $eps, 
        'Total original branch length is what it is supposed to be');
 cmp_ok($total_length_orig, '<=',$tree->total_branch_length + $eps, 
@@ -160,9 +151,9 @@ $tree = $in->next_tree;
 $a = $tree->find_node('VV');
 $node_cnt_orig = scalar($tree->get_nodes);
 $total_length_orig = $tree->total_branch_length;
-$out->write_tree($tree) if $DEBUG;
+$out->write_tree($tree) if $verbose;
 is($tree->reroot($a->ancestor),1, 'Test that rooting succeeded');
-$out->write_tree($tree) if $DEBUG;
+$out->write_tree($tree) if $verbose;
 is($node_cnt_orig+1, scalar($tree->get_nodes), 'Test that re-rooted tree has proper number of nodes after re-rooting');
 $total_length_new = $tree->total_branch_length;
 $eps = 0.001 * $total_length_new;    # tolerance for checking length
@@ -174,8 +165,7 @@ is($tree->get_root_node, $a->ancestor->ancestor,'Root is really the ancestor we 
 # BFS and DFS search testing
 $treeio = Bio::TreeIO->new(-verbose => $verbose,
 			     -format => 'newick',
-			     -file   => Bio::Root::IO->catfile('t','data', 
-							       'test.nh'));
+			     -file   => test_input_file('test.nh'));
 $tree = $treeio->next_tree;
 my ($ct,$n) = (0);
 my $let = ord('A');
@@ -187,7 +177,7 @@ for $n ( grep {! $_->is_Leaf } $tree->get_nodes ) {
     $n->id($ct++);
 }
 # enable for debugging
-Bio::TreeIO->new(-format => 'newick')->write_tree($tree) if( $DEBUG );
+Bio::TreeIO->new(-format => 'newick')->write_tree($tree) if( $verbose );
 
 my $BFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'b')));
 is($BFSorder, '0,1,3,2,C,D,E,F,G,H,A,B', 'BFS traversal order');
@@ -215,8 +205,7 @@ is($DFSorder, '0,1,2,A,B,C,D', 'DFS after removing all but 0,1,2,A,B,C,D');
 
 # try out the id to bootstrap copy method
 $treeio = Bio::TreeIO->new(-format => 'newick',
-			   -file   => Bio::Root::IO->catfile('t','data', 
-							     'bootstrap.tre'));
+			   -file   => test_input_file('bootstrap.tre'));
 $tree = $treeio->next_tree;
 my ($test_node) = $tree->find_node(-id => 'A');
 is($test_node->ancestor->id, 90,'Testing bootstrap copy');
@@ -229,8 +218,7 @@ is($test_node->ancestor->ancestor->bootstrap, '25', 'Testing bootstrap copy');
 
 # change TreeIO to parse 
 $treeio = Bio::TreeIO->new(-format => 'newick',
-			   -file   => Bio::Root::IO->catfile('t','data', 
-							     'bootstrap.tre'),
+			   -file   => test_input_file('bootstrap.tre'),
 			   -internal_node_id => 'bootstrap');
 $tree = $treeio->next_tree;
 ($test_node) = $tree->find_node(-id => 'A');

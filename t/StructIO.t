@@ -1,60 +1,47 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
-
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
 use strict;
 
 BEGIN { 
-	# to handle systems with no installed Test module
-	# we include the t dir (where a copy of Test.pm is located)
-	# as a fallback
-	eval { require Test; };
-	if( $@ ) { 
-		use lib 't';
-	}
-	use Test;
-	plan tests => 14;
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 14);
+	
+	use_ok('Bio::Structure::IO');
 }
 
-use Bio::Structure::Entry;
-use Bio::Structure::IO;
-use Bio::Root::IO;
-ok(1);
 #
 # test reading PDB format - single model, single chain
 #
-my $pdb_file = Bio::Root::IO->catfile("t","data","1BPT.pdb");
-my $structin = Bio::Structure::IO->new(-file => $pdb_file, 
-													-format => 'pdb');
-ok(1);
-my $struc = $structin->next_structure;
-ok(1);
-ok(ref($struc), "Bio::Structure::Entry");
+my $pdb_file = test_input_file('1BPT.pdb');
+ok my $structin = Bio::Structure::IO->new(-file => $pdb_file, 
+										  -format => 'pdb');
+ok my $struc = $structin->next_structure;
+isa_ok $struc, "Bio::Structure::Entry";
 
 # some basic checks, Structure objects are tested in Structure.t
 my ($chain) = $struc->chain;
-ok($struc->residue, 97);
+is($struc->residue, 97);
 my ($atom) = $struc->get_atom_by_serial(367);
-ok($atom->id, "NZ");
-ok($struc->parent($atom)->id, "LYS-46");
+is($atom->id, "NZ");
+is($struc->parent($atom)->id, "LYS-46");
 my ($ann) = $struc->annotation->get_Annotations("author");
-ok($ann->as_text,
+is($ann->as_text,
 	"Value: D.HOUSSET,A.WLODAWER,F.TAO,J.FUCHS,C.WOODWARD              ");
 ($ann) = $struc->annotation->get_Annotations("header");
-ok($ann->as_text,
+is($ann->as_text,
 	"Value: PROTEINASE INHIBITOR (TRYPSIN)          11-DEC-91   1BPT");
 my $pseq = $struc->seqres;
-ok($pseq->subseq(1,20), "RPDFCLEPPYTGPCKARIIR");
+is($pseq->subseq(1,20), "RPDFCLEPPYTGPCKARIIR");
 
 #
 # test reading PDB format - single model, multiple chains
 #
-$pdb_file = Bio::Root::IO->catfile("t","data","1A3I.pdb");
+$pdb_file = test_input_file('1A3I.pdb');
 $structin = Bio::Structure::IO->new(-file => $pdb_file, 
-												-format => 'pdb');
+									-format => 'pdb');
 $struc = $structin->next_structure;
 
 my ($chaincount,$rescount,$atomcount);
@@ -68,29 +55,27 @@ for my $chain ($struc->get_chains) {
    }
 }
 
-ok($chaincount, 4);  # 3 polypeptides and a group of hetero-atoms
-ok($rescount, 60);   # amino acid residues and solvent molecules
-ok($atomcount, 171); # ATOM and HETATM
+is($chaincount, 4);  # 3 polypeptides and a group of hetero-atoms
+is($rescount, 60);   # amino acid residues and solvent molecules
+is($atomcount, 171); # ATOM and HETATM
 
 #
 # test reading PDB format - multiple models, single chain
 #
-$pdb_file = Bio::Root::IO->catfile("t","data","1A11.pdb");
+#$pdb_file = test_input_file('1A11.pdb');
+# TODO?
 
 #
 # test reading PDB format - chains with ATOMs plus HETATMs
 #
-$pdb_file = Bio::Root::IO->catfile("t","data","8HVP.pdb");
+#$pdb_file = test_input_file('8HVP.pdb');
+# TODO?
 
 #
 # test writing PDB format
 #
-my $out_file = Bio::Root::IO->catfile("t","data","temp-pdb1bpt.ent");
+my $out_file = test_output_file();
 my $structout = Bio::Structure::IO->new(-file => ">$out_file", 
                                         -format => 'PDB');
 $structout->write_structure($struc);
-ok(1);
-
-END {
-	unlink $out_file if -e $out_file;
-}
+ok -s $out_file;

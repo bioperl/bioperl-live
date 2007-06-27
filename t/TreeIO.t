@@ -1,45 +1,23 @@
-# -*-Perl-*-
-## Bioperl Test Harness Script for Modules
-## $Id$
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id$
 
-# Before `make install' is performed this script should be runnable with
-# `make test'. After `make install' it should work as `perl test.t'
-
-use vars qw($NUMTESTS);
 use strict;
+
 BEGIN {
-	eval { require Test::More; };
-	if( $@ ) {
-		use lib 't/lib';
-	}
-
-	use Test::More;
-	$NUMTESTS = 72;
-	plan tests => $NUMTESTS;
+	use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 73);
+	
+	use_ok('Bio::TreeIO');
 }
 
-use vars qw($FILE1 $FILE2 $FILE3);
-use File::Spec;
-$FILE1= 'testnewick.phylip';
-$FILE2= 'testlarge.phy';
-$FILE3= File::Spec->catfile(qw(t testsvg.svg));
+my $verbose = test_debug();
 
-END {
-	unlink $FILE1;
-	unlink $FILE2;
-	unlink $FILE3;
-}
-
-use Bio::TreeIO;
-use Bio::Root::IO;
-my $verbose = $ENV{'BIOPERLDEBUG'} || 0;
-
-my $treeio = Bio::TreeIO->new(-verbose => $verbose,
+ok my $treeio = Bio::TreeIO->new(-verbose => $verbose,
 			     -format => 'newick',
-			     -file   => File::Spec->catfile
-			     (qw(t data cysprot1b.newick)));
+			     -file   => test_input_file('cysprot1b.newick'));
 
-ok($treeio);
 my $tree = $treeio->next_tree;
 isa_ok($tree, 'Bio::Tree::TreeI');
 
@@ -49,15 +27,15 @@ my ($rat) = $tree->find_node('CATL_RAT');
 ok($rat);
 is($rat->branch_length, '0.12788');
 # move the id to the bootstap
- is($rat->ancestor->bootstrap($rat->ancestor->id), '95');
- $rat->ancestor->id('');
+is($rat->ancestor->bootstrap($rat->ancestor->id), '95');
+$rat->ancestor->id('');
 # maybe this can be auto-detected, but then can't distinguish
 # between internal node labels and bootstraps...
 is($rat->ancestor->bootstrap, '95');
 is($rat->ancestor->branch_length, '0.18794');
 is($rat->ancestor->id, '');
 
-if($verbose ) {
+if ($verbose) {
 	foreach my $node ( $tree->get_root_node()->each_Descendent() ) {
 		print "node: ", $node->to_string(), "\n";
 		my @ch = $node->each_Descendent();
@@ -69,6 +47,8 @@ if($verbose ) {
 		}
 	}
 }
+
+my $FILE1 = test_output_file();
 $treeio = Bio::TreeIO->new(-verbose => $verbose,
 			  -format => 'newick',
 			  -file   => ">$FILE1");
@@ -77,8 +57,7 @@ undef $treeio;
 ok( -s $FILE1 );
 $treeio = Bio::TreeIO->new(-verbose => $verbose,
 			  -format => 'newick',
-			  -file   => Bio::Root::IO->catfile('t','data', 
-							    'LOAD_Ccd1.dnd'));
+			  -file   => test_input_file('LOAD_Ccd1.dnd'));
 ok($treeio);
 $tree = $treeio->next_tree;
 
@@ -101,6 +80,7 @@ if( $verbose ) {
 }
 
 is($tree->total_branch_length, 7.12148);
+my $FILE2 = test_output_file();
 $treeio = Bio::TreeIO->new(-verbose => $verbose,
 			  -format => 'newick', 
 			  -file   => ">$FILE2");
@@ -109,7 +89,7 @@ undef $treeio;
 ok(-s $FILE2);
 $treeio = Bio::TreeIO->new(-verbose => $verbose,
 			  -format  => 'newick',
-			  -file    => Bio::Root::IO->catfile('t','data','hs_fugu.newick'));
+			  -file    => test_input_file('hs_fugu.newick'));
 $tree = $treeio->next_tree();
 @nodes = $tree->get_nodes();
 is(@nodes, 5);
@@ -143,17 +123,16 @@ if( $verbose > 0  ) {
 }
 
 $treeio = Bio::TreeIO->new(-verbose => $verbose,
-			  -file   => Bio::Root::IO->catfile('t','data', 
-							    'test.nhx'));
+			  -file   => test_input_file('test.nhx'));
 
 SKIP: {
-    eval { require SVG::Graph; 1;};
-	skip("skipping SVG::Graph output, SVG::Graph not installed",2) if $@;
+	test_skip(-tests => 2, -requires_module => 'SVG::Graph');
+	my $FILE3 = test_output_file();
 	my $treeout3 = Bio::TreeIO->new(-format => 'svggraph',
 											 -file => ">$FILE3");
 	ok($treeout3);
 	eval {$treeout3->write_tree($tree);};
-	ok (-e $FILE3);
+	ok (-s $FILE3);
 }
 
 ok($treeio);
@@ -171,8 +150,7 @@ is(($adhy->get_tag_values('E'))[0], '1.1.1.1');
 
 # try lintree parsing
 $treeio = Bio::TreeIO->new(-format => 'lintree',
-			      -file   => Bio::Root::IO->catfile
-			      (qw(t data crab.njb)));
+			      -file   => test_input_file('crab.njb'));
 
 my (@leaves, $node);
 while( $tree = $treeio->next_tree ) {
@@ -192,8 +170,7 @@ while( $tree = $treeio->next_tree ) {
 }
 
 $treeio = Bio::TreeIO->new(-format => 'lintree',
-			   -file   => Bio::Root::IO->catfile
-			   (qw(t data crab.nj)));
+			   -file   => test_input_file('crab.nj'));
 
 $tree = $treeio->next_tree;
 
@@ -213,8 +190,7 @@ is($node->branch_length, '0.087619');
 is($node->ancestor->id, '14');
 
 $treeio = Bio::TreeIO->new(-format => 'lintree',
-			  -file   => Bio::Root::IO->catfile
-			  (qw(t data crab.dat.cn)));
+			  -file   => test_input_file('crab.dat.cn'));
 
 $tree = $treeio->next_tree;
 
@@ -235,12 +211,13 @@ is($node->id, 'C-vittat');
 is($node->branch_length, '0.097855');
 is($node->ancestor->id, '14');
 
-if( eval "require IO::String; 1;" ) {
-# test nexus tree parsing
+SKIP: {
+	test_skip(-tests => 8, -requires_module => 'IO::String');
+	
+	# test nexus tree parsing
     $treeio = Bio::TreeIO->new(-format => 'nexus',
 							   -verbose => $verbose,
-			       -file   => Bio::Root::IO->catfile
-			       (qw(t data urease.tre.nexus) ));
+			       -file   => test_input_file('urease.tre.nexus'));
     
     $tree = $treeio->next_tree;
     ok($tree);
@@ -249,10 +226,9 @@ if( eval "require IO::String; 1;" ) {
     ($node) = $tree->find_node(-id => 'Spombe');
     is($node->branch_length,0.221404);
     
-# test nexus MrBayes tree parsing
+	# test nexus MrBayes tree parsing
     $treeio = Bio::TreeIO->new(-format => 'nexus',
-			       -file   => Bio::Root::IO->catfile
-			       (qw(t data adh.mb_tree.nexus) ));
+			       -file   => test_input_file('adh.mb_tree.nexus'));
     
     $tree = $treeio->next_tree;
     ok($tree);
@@ -260,18 +236,13 @@ if( eval "require IO::String; 1;" ) {
     is($tree->get_leaf_nodes, 54);
     ($node) = $tree->find_node(-id => 'd.madeirensis');
     is($node->branch_length,0.039223);
-} else{
-    for ( 1..8 ) {
-	skip("skipping nexus tree parsing, IO::String not installed",1);
-    }
 }
 
 # bug #1854
 # process no-newlined tree
 $treeio = Bio::TreeIO->new(-format => 'nexus',
 						   -verbose => $verbose,
-			   -file   => Bio::Root::IO->catfile
-			   (qw(t data tree_nonewline.nexus) ));
+			   -file   => test_input_file('tree_nonewline.nexus'));
 
 $tree = $treeio->next_tree;
 ok($tree);
@@ -281,8 +252,7 @@ ok($tree->find_node('TRXHomo'));
 # parse trees with scores
 
 $treeio = Bio::TreeIO->new(-format => 'newick',
-			   -file   => Bio::Root::IO->catfile
-			   (qw(t data puzzle.tre)));
+			   -file   => test_input_file('puzzle.tre'));
 $tree = $treeio->next_tree;
 ok($tree);
 is($tree->score, '-2673.059726');
@@ -291,14 +261,11 @@ is($tree->score, '-2673.059726');
 # process trees with node IDs containing spaces
 $treeio = Bio::TreeIO->new(-format => 'nexus',
 						   -verbose => $verbose,
-			   -file   => Bio::Root::IO->catfile
-			   (qw(t data spaces.nex) ));
+			   -file   => test_input_file('spaces.nex'));
 
 $tree = $treeio->next_tree;
 
 my @nodeids = ("'Allium drummondii'", "'Allium cernuum'",'A.cyaneum');
-
-
 
 ok($tree);
 for my $node ($tree->get_leaf_nodes) {
@@ -329,6 +296,5 @@ for my $node ($tree->get_leaf_nodes) {
 	is($node->id, shift @nodeids);		
 }
 
-					     
 __DATA__
 (((A:1,B:1):1,(C:1,D:1):1):1,((E:1,F:1):1,(G:1,H:1):1):1);

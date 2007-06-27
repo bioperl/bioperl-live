@@ -1,24 +1,21 @@
-# This is -*-Perl-*- code
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
+
 BEGIN { 
-    eval { require Test::More; };
-    if( $@ ) {
-	use lib 't/lib';
-    }
-    use Test::More;    
-    plan tests => 17;
-	use_ok('Bio::Root::IO');
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 16);
+	
 	use_ok('Bio::SeqIO');
 }
 
-use vars qw($tmpfile);
-END { unlink $tmpfile; }
+my $tmpfile = test_output_file();
 
-$tmpfile = Bio::Root::IO->catfile("t","data","largefastatest.out");
 my $seqio = Bio::SeqIO->new('-format'=>'largefasta',
-			   '-file'  =>Bio::Root::IO->catfile("t","data","genomic-seq.fasta"));
+			   '-file'  =>test_input_file('genomic-seq.fasta'));
 is defined $seqio, 1, 'Instantiate Bio::SeqIO::largefasta';
 
 my $pseq = $seqio->next_seq();

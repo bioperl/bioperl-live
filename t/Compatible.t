@@ -1,4 +1,4 @@
-# -*-Perl-*-
+# -*-Perl-*- Test Harness script for Bioperl
 # $Id$
 
 use strict;
@@ -8,11 +8,15 @@ BEGIN {
   use BioperlTest;
   
   test_begin(-tests => 5,
-			 -requires_modules => ['Set::Scalar']);
+			 -requires_module => 'Set::Scalar');
   
   use_ok('Bio::Tree::Compatible');
   use_ok('Bio::TreeIO');
 }
+
+# these tests are done with direct access to Bio::Tree::Compatible methods,
+# instead of via creating a Bio::Tree::Compatible->new() object or similar...
+# the docs seem to indicate that is normally possible? TODO?
 
 my $in = Bio::TreeIO->new(-format => 'newick',
 						  -fh     => \*DATA);
