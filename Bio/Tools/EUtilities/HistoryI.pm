@@ -152,7 +152,7 @@ sub get_query_key {
 
 sub has_history {
     my $self = shift;
-    $self->parse_data if ($self->can('parse_data') && !$self->data_parsed);    
+    $self->parse_data if ($self->can('parse_data') && !$self->data_parsed);
     ($self->get_webenv && $self->get_query_key) ? return 1 : return 0;
 }
 

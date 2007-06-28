@@ -88,6 +88,13 @@ sub _add_data {
     }
     for my $ls (@{ $data->{LinkSet} }) {
         my $subclass;
+        # attempt to catch linkset errors
+        if (exists $ls->{ERROR}) {
+            my ($error, $dbfrom) = ($ls->{ERROR},$ls->{DbFrom});
+            $self->warn("NCBI LinkSet error: $dbfrom: $error\n");
+            # try to save the rest of the data, if any
+            next;
+        }
         # caching for efficiency; no need to recheck
         if (!exists $self->{'_subclass_type'}) {
             ($subclass) = grep { exists $ls->{$_} } qw(LinkSetDb LinkSetDbHistory IdUrlList IdCheckList);
@@ -112,11 +119,7 @@ sub _add_data {
                                                     -datatype => $SUBCLASS{$subclass},
                                                     -verbose => $self->verbose);
             $obj->_add_data($ls_sub);
-            if ($self->is_lazy) {
-                return $obj
-            } else {
-                push @{$self->{'_linksets'}}, $obj;
-            }
+            push @{$self->{'_linksets'}}, $obj;
         }
     }
 }

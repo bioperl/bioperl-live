@@ -286,8 +286,9 @@ sub data_parsed {
             (only affects elink/esummary)
  Returns  : Boolean
  Args     : none
- Note     : Permanently set in constructor.
-
+ Note     : Permanently set in constructor.  Still highly experimental.
+            Don't stare directly at happy fun ball...
+ 
 =cut
 
 sub is_lazy {
@@ -313,7 +314,7 @@ my %EUTIL_DATA = (
     'elink'     => [qw(LinkSet LinkSetDb LinkSetDbHistory IdUrlSet 
                         Id IdLinkSet ObjUrl Link LinkInfo)],
     'espell'    => [qw(Original Replaced)],
-    'esearch'   => [qw(Id)],
+    'esearch'   => [qw(Id ErrorList WarningList)],
     );
 
 sub parse_data {
@@ -331,27 +332,29 @@ sub parse_data {
     # check for errors
     if ($simple->{ERROR}) {
         my $error = $simple->{ERROR};
-        $self->throw("NCBI $eutil nonrecoverable error: ".$error) unless ref $error;
+        $self->throw("NCBI $eutil fatal error: ".$error) unless ref $error;
     }
     if ($simple->{InvalidIdList}) {
         $self->warn("NCBI $eutil error: Invalid ID List".$simple->{InvalidIdList});
         return;
     }    
     if ($simple->{ErrorList} || $simple->{WarningList}) {
-        my %errorlist = %{ $simple->{ErrorList} } if $simple->{ErrorList};
-        my %warninglist = %{ $simple->{WarningList} } if $simple->{WarningList};
+        my @errorlist = @{ $simple->{ErrorList} } if $simple->{ErrorList};
+        my @warninglist = @{ $simple->{WarningList} } if $simple->{WarningList};
         my ($err_warn);
-        for my $key (sort keys %errorlist) {
-            my $messages = join("\n",grep {!ref $_} @{$errorlist{$key}});
-            $err_warn .= "Error : $key = $messages";
+        for my $error (@errorlist) {
+            my $messages = join("\n\t",map {"$_  [".$error->{$_}.']'}
+                                grep {!ref $error->{$_}} keys %$error);
+            $err_warn .= "Error : $messages";
         }    
-        for my $key (sort keys %warninglist) {
-            my $messages = join("\n",grep {!ref $_} @{$warninglist{$key}});
-            $err_warn .= "Warning : $key = $messages";
+        for my $warn (@warninglist) {
+            my $messages = join("\n\t",map {"$_  [".$warn->{$_}.']'}
+                                grep {!ref $warn->{$_}} keys %$warn);
+            $err_warn .= "Warnings : $messages";
         }
         chomp($err_warn);
         $self->warn("NCBI $eutil Errors/Warnings:\n".$err_warn)
-        # don't return as some data may still be usefule
+        # don't return as some data may still be useful
     }
     delete $self->{'_response'} unless $self->cache_response;
     $self->{'_parsed'} = 1;    
@@ -417,7 +420,7 @@ sub parse_chunk {
 
 =head1 Bio::Tools::EUtilities::HistoryI methods
 
-These are defined in the HistoryI interface
+These are defined in the HistoryI interface.
 
 =head2 history
 
@@ -1025,15 +1028,38 @@ sub get_linked_databases {
         return ();
     }
     $self->parse_data unless $self->data_parsed;
-    unless (exists $self->{'_db'}) {
+    unless (exists $self->{'_linked_db'}) {
         my %temp;
         # make sure unique db is returned
         # do the linksets have a db? (URLs, db checks do not)
         
-        push @{$self->{'_db'}}, map {$_->get_dbto}
+        push @{$self->{'_linked_db'}}, map {$_->get_dbto}
             grep { $_->get_dbto ? !$temp{$_->get_dbto}++: 0 } $self->get_LinkSets;
     }
-    return @{$self->{'_db'}};
+    return @{$self->{'_linked_db'}};
+}
+
+=head2 get_linked_histories
+
+ Title    : get_linked_histories
+ Usage    : my @hist = $eutil->get_linked_histories
+ Function : returns list of LinkSets that have a history
+ Returns  : array of LinkSets
+ Args     : none
+
+=cut
+
+sub get_linked_histories {
+    my $self = shift;
+    if ($self->is_lazy) {
+        $self->warn('get_linked_histories() not implemented when using lazy mode');
+        return ();
+    }
+    $self->parse_data unless $self->data_parsed;
+    unless (exists $self->{'_dbhist'}) {
+        push @{$self->{'_dbhist'}}, grep {$_->has_history} $self->get_LinkSets;
+    }
+    return @{$self->{'_dbhist'}};
 }
 
 =head1 Iterator- and callback-related methods
@@ -1135,8 +1161,13 @@ sub generate_iterator {
     }
     my $cb = $self->callback;
     if ($self->is_lazy) {
+        my $type = $self->eutil eq 'esummary' ? '_docsums' : '_linksets';
+        $self->{$type} = [];
         return sub {
-            while (my $obj = $self->parse_chunk) {
+            if (!@{$self->{$type}}) {
+                $self->parse_chunk; # fill the queue
+            }
+            while (my $obj = shift @{$self->{$type}}) {
                 if ($cb) {
                     ($cb->($obj)) ? return $obj : next;
                 } else {
