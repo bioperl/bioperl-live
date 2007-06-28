@@ -14,11 +14,12 @@
 
 =head1 NAME
 
-...
+Bio::DB::EUtilities - webagent which interacts with and retrieves data from
+NCBI's eUtils
 
 =head1 SYNOPSIS
 
-...
+
 
 =head1 FEEDBACK
 
@@ -60,11 +61,14 @@ use strict;
 use Bio::DB::EUtilParameters;
 use Bio::Tools::EUtilities;
 
-use base qw(Bio::DB::GenericWebDBI);
+use base qw(Bio::DB::GenericWebAgent);
 
 sub new {
     my($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
+    my ($keephist) = $self->_rearrange([qw(KEEP_HISTORIES)], @args);
+    $keephist ||= 0;
+    $self->keep_Histories($keephist);
     my $params = Bio::DB::EUtilParameters->new(-verbose => $self->verbose,
                                                @args);
     # cache parameters
@@ -89,7 +93,7 @@ sub new {
 
 sub delay_policy {
   my $self = shift;
-  return 3;
+  return 5;
 }
 
 =head2 get_Parser
@@ -114,56 +118,160 @@ sub get_Parser {
         };
         # if we are to add pipe/tempfile support this would probably be the
         # place to add it....
-        $self->{'_parser'} = Bio::Tools::EUtilities->new(
+        my $parser = Bio::Tools::EUtilities->new(
                             -eutil => $eutil,
                             -response => $self->get_Response,
                             -verbose => $self->verbose);
+        # added history queue here...
+        my ($lazy, $keep) = ($parser->is_lazy, $self->keep_Histories);
+        if ($keep && !$lazy ) {
+            if ($parser->has_history ) {
+                push @{$self->{'_historyqueue'} }, $parser;
+            } elsif ($parser->get_linked_histories) {
+                push @{$self->{'_historyqueue'} }, $parser->get_linked_histories;
+            }
+        }
+        if (!$keep) {
+            $self->clear_Histories;
+        }
+        return $self->{'_parser'} = $parser;
     }
     return $self->{'_parser'};
 }
 
-=head2 set_history
+=head2 
 
- Title   : set_history
- Usage   : $agent->set_history;
-           $agent->set_history($myhistory);
- Function: sets the history() parameter using the internal parser or (if
-           supplied) a passed Bio::Tools::EUtilities::HistoryI object
- Returns : TRUE upon success
- Args    : [optional] Bio::Tools::EUtilities::HistoryI object; uses internal
-           parser by default.
+ Title    : 
+ Usage    : 
+ Function : 
+ Returns  : 
+ Args     : 
 
 =cut
 
-sub set_history {
-    my ($self, $hist) = @_;
-    $hist ||= $self->get_Parser;
-    if ($hist->has_history) {
-        $self->parameter_base->history($hist);
-        return 1;
-    } else {
-        $self->warn('No history returned');
-        return 0;
+sub keep_Histories {
+    my ($self, $flag) = @_;
+    if (defined $flag) {
+        return $self->{'_keephistories'} = ($flag) ? 1 : 0;
     }
+    return $self->{'_keephistories'};
+}
+
+
+=head2 next_History
+
+ Title   : next_History
+ Usage   : $agent->next_History;
+ Function: grabs the next HistoryI
+ Returns : HistoryI-implementing instance
+ Args    : none
+ Note    : no callback implemented; use grep and get_Histories
+ 
+=cut
+
+sub next_History {
+    my $self = shift;
+    $self->get_Parser; # kick the parser to update queue
+    unless ($self->{'historyqueue_it'}) {
+        my $current = 0;
+        $self->{'historyqueue_it'} = sub {
+            my $index = $#{$self->{'_historyqueue'}};
+            while ($current <= $index) {
+                return $self->{'_historyqueue'}->[$current++];
+            }
+        }
+    }
+    $self->{'historyqueue_it'}->();
+}
+
+=head2 get_Histories
+
+ Title   : get_Histories
+ Usage   : my @hist = $agent->get_Histories;
+ Function: returns the list of past queries which contain history information
+ Returns : list of HistoryI
+ Args    : none
+
+=cut
+
+sub get_Histories {
+    my $self = shift;
+    $self->get_Parser; # kick the parser to update queue
+    return ref $self->{'_historyqueue'} ? @{$self->{'_historyqueue'} } : ();
+}
+
+=head2 clear_Histories
+
+ Title   : clear_Histories
+ Usage   : $agent->clear_Histories;
+ Function: clears (flushes) history queue
+ Returns : none
+ Args    : none
+
+=cut
+
+sub clear_Histories {
+    my $self = shift;
+    delete $self->{'_historyqueue'} if $self->{'_historyqueue'};
 }
 
 =head1 Bio::DB::EUtilParameters-delegating methods
 
-This is only a subset of parameters available from Bio::DB::EUtilParameters.
+This is only a subset of parameters available from Bio::DB::EUtilParameters (the
+ones deemed absolutely necessary).  All others are available by calling
+'parameter_base->method' when needed.
+
+=cut
+
+=head2 set_parameters
+
+ Title   : set_parameters
+ Usage   : $pobj->set_parameters(@params);
+ Function: sets the NCBI parameters listed in the hash or array
+ Returns : None
+ Args    : [optional] hash or array of parameter/values.  
+ Note    : This sets any parameter (i.e. doesn't screen them using $MODE or via
+           set history).
 
 =cut
 
 sub set_parameters {
     my ($self, @args) = @_;
+    # just ensures that parser instance isn't reused    
     delete $self->{'_parser'};
     $self->parameter_base->set_parameters(@args);
 }
 
+=head2 reset_parameters
+
+ Title   : reset_parameters
+ Usage   : resets values
+ Function: resets parameters to either undef or value in passed hash
+ Returns : none
+ Args    : [optional] hash of parameter-value pairs
+ Note    : this also resets eutil(), correspondence(), and the history and request
+           cache
+
+=cut
+
 sub reset_parameters {
     my ($self, @args) = @_;
+    # just ensures that parser instance isn't reused
     delete $self->{'_parser'};
     $self->parameter_base->reset_parameters(@args);
 }
+
+=head2 available_parameters
+
+ Title   : available_parameters
+ Usage   : @params = $pobj->available_parameters()
+ Function: Returns a list of the available parameters
+ Returns : Array of available parameters (no values)
+ Args    : [optional] A string; either eutil name (for returning eutil-specific
+           parameters) or 'history' (for those parameters allowed when retrieving
+           data stored on the remote server using a 'Cookie').  
+
+=cut
 
 sub available_parameters {
     my ($self, @args) = @_;
@@ -705,9 +813,9 @@ sub get_LinkInfo {
 
  Title    : next_LinkSet
  Usage    : while (my $ls = $eutil->next_LinkSet {...}
- Function : 
- Returns  : 
- Args     : 
+ Function : iterate through LinkSet objects
+ Returns  : LinkSet objects
+ Args     : none
 
 =cut
 
@@ -719,10 +827,10 @@ sub next_LinkSet {
 =head2 get_LinkSets
 
  Title    : get_LinkSets
- Usage    : 
- Function : 
- Returns  : 
- Args     : 
+ Usage    : my @ls = $info->get_LinkSets;
+ Function : returns list of LinkSet objects
+ Returns  : array (LinkSet objects)
+ Args     : none
 
 =cut
 
@@ -763,20 +871,23 @@ sub get_linked_databases {
             describing the specific main object iterator to reset. The following
             are recognized (case-insensitive):
             
-            'all' - rewind all objects and also recursively resets nested object interators
-                    (such as LinkSets and DocSums).
+            'all' - rewind all objects and also recursively resets nested object
+                    interators (such as LinkSets and DocSums).
             'globalqueries'
             'fieldinfo' or 'fieldinfos'
             'linkinfo' or 'linkinfos'
             'linksets'
             'docsums'
-            
+            'histories'  # only implemented in Bio::DB::EUtilities
 
 =cut
 
 sub rewind {
-    my ($self, @args) = @_;
-    return $self->get_Parser->rewind(@args);
+    my ($self, $string) = @_;
+    if ($string eq 'all' || $string eq 'histories') {
+        delete $self->{'_historyqueue_it'} if exists $self->{'_historyqueue_it'};
+    }
+    return $self->get_Parser->rewind($string);
 }
 
 =head2 generate_iterator
@@ -809,7 +920,8 @@ sub rewind {
             normal and lazy iterator types and is the default. If you don't want
             this, make sure to reset any previously set callbacks via
             reset_callback() (which just deletes the code ref).
-            
+ TODO     : generate seekable iterators ala HOP for seekable fh data
+
 =cut
 
 sub generate_iterator {

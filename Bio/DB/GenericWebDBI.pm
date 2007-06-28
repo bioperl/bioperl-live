@@ -66,7 +66,7 @@ preceded with a _
 
 # Let the code begin...
 
-package Bio::DB::GenericWebDBI;
+package Bio::DB::GenericWebAgent;
 use strict;
 use warnings;
 use base qw(Bio::Root::Root);

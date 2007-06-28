@@ -112,35 +112,38 @@ my %MODE = (
     'einfo'     => {
         'mode'     => 'GET',
         'location' => 'einfo.fcgi',
-        'params'   => [qw(db retmode tool email)],
+        'params'   => [qw(db tool email)],
                    },
     'epost'     => {
         'mode'     => 'POST',
         'location' => 'epost.fcgi',
-        'params'   => [qw(db retmode id tool email)],
+        'params'   => [qw(db retmode id tool email WebEnv query_key)],
                    },
     'efetch'    => {
         'mode'     => 'GET',
         'location' => 'efetch.fcgi',
         'params'   => [qw(db retmode id retmax retstart rettype strand seq_start
-                       seq_stop complexity report tool email)],
+                       seq_stop complexity report tool email WebEnv query_key)],
                    },
     'esearch'   => {
         'mode'     => 'GET',
         'location' => 'esearch.fcgi',
         'params'   => [qw(db retmode usehistory term field reldate mindate
-                       maxdate datetype retmax retstart rettype sort tool email WebEnv query_key)],
+                       maxdate datetype retmax retstart rettype sort tool email
+                       WebEnv query_key)],
                    },
     'esummary'  => {
         'mode'     => 'GET',
         'location' => 'esummary.fcgi',
-        'params'   => [qw(db retmode id retmax retstart rettype tool email )],
+        'params'   => [qw(db retmode id retmax retstart rettype tool email
+                       WebEnv query_key)],
                    },
     'elink'     => {
         'mode'     => 'GET',
         'location' => 'elink.fcgi',
         'params'   => [qw(db retmode id reldate mindate maxdate datetype term 
-                    dbfrom holding cmd version tool email)],
+                    dbfrom holding cmd version tool email linkname WebEnv
+                    query_key)],
                    },
     'egquery'   => {
         'mode'     => 'GET',
@@ -153,10 +156,6 @@ my %MODE = (
         'params'   => [qw(db retmode term tool email )],
                    }
 );
-
-# used only if history is present
-my @HISTORY_PARAMS = qw(db sort seq_start seq_stop strand complexity rettype
-    retstart retmax cmd linkname retmode WebEnv query_key);            
 
 my @PARAMS;
 
@@ -262,9 +261,8 @@ sub parameters_changed {
  Usage   : @params = $pobj->available_parameters()
  Function: Returns a list of the available parameters
  Returns : Array of available parameters (no values)
- Args    : [optional] A string; either eutil name (for returning eutil-specific
-           parameters) or 'history' (for those parameters allowed when retrieving
-           data stored on the remote server using a 'Cookie').  
+ Args    : [optional] A string with the eutil name (for returning eutil-specific
+           parameters)
 
 =cut
 
@@ -273,8 +271,6 @@ sub available_parameters {
     $type ||= 'all';
     if ($type eq 'all') {
         return @PARAMS;
-    } elsif ($type eq 'history') {
-        return @HISTORY_PARAMS;
     } else {
         $self->throw("$type parameters not supported") if !exists $MODE{$type};
         return @{$MODE{$type}->{params}};
@@ -288,25 +284,28 @@ sub available_parameters {
            %params = $pobj->get_parameters;
  Function: Returns list of key/value pairs, parameter => value
  Returns : Flattened list of key-value pairs. All key-value pairs returned,
-           though subsets can be returned based on the '-type' parameter.  
-           Data passed as an array ref are returned based on whether the
-           '-join_id' flag is set (default is the same array ref). 
- Args    : -type : the eutil name or 'history', for returning a subset of
-                parameters (Default: returns all)
+           though subsets can be returned based on the '-type' parameter. Data
+           originally set as an array ref are returned based on whether the
+           '-join_id' flag is set (default is the same array ref).
+ Args    : -eutil : the eutil name (Default: returns all).  Use of '-list'
+                    supercedes this
+           -list : array ref of specific parameters
            -join_ids : Boolean; join IDs based on correspondence (Default: no join)
 
 =cut
 
 sub get_parameters {
     my ($self, @args) = @_;
-    my ($type, $join) = $self->_rearrange([qw(TYPE JOIN_IDS)], @args);
+    my ($type, $list, $join) = $self->_rearrange([qw(TYPE LIST JOIN_IDS)], @args);
+    $self->throw("Parameter list not an array ref") if $list && ref $list ne 'ARRAY';
     $type ||= '';
-    my @final = $self->available_parameters($type);
+    my @final = $list ? grep {$self->can($_)} @{$list} : $self->available_parameters($type);
     my @p;
     for my $param (@final) {
         if ($param eq 'id' && $self->id && $join) {
+            my $id = $self->id;
             if ($self->correspondence && $self->eutil eq 'elink') {
-                for my $id_group (@{ $self->id }) {
+                for my $id_group (@{ $id }) {
                     if (ref($id_group) eq 'ARRAY') {
                         push @p, ('id' => join(q(,), @{ $id_group }));
                     }
@@ -318,14 +317,16 @@ sub get_parameters {
                     }
                 }
             } else {
-                push @p, ($param => join(',', @{ $self->id }));
+                push @p, ref $id eq 'ARRAY' ?
+                ($param => join(',', @{ $id })):
+                ($param => $id);
             }
         }
-        elsif ($param eq 'db' && $self->db) {
+        elsif ($param eq 'db' && $self->db && $join) {
             my $db = $self->db;
-            (ref $db eq 'ARRAY') ? 
-                push @p, ($param => join(',', @{ $db })) :
-                push @p, ($param => $db) ;
+            push @p, (ref $db eq 'ARRAY') ? 
+                ($param => join(',', @{ $db })) :
+                ($param => $db) ;
         }
         else {
             push @p, ($param => $self->{"_$param"}) if defined $self->{"_$param"};
@@ -334,7 +335,7 @@ sub get_parameters {
     return @p;
 }
 
-=head1 Implementation-specific to-* methods
+=head1 Implementation-specific to_* methods
 
 =head2 to_string
 
@@ -379,8 +380,7 @@ sub to_request {
         my $eutil = $self->eutil;
         $self->throw("No eutil set") if !$eutil;
         #set default retmode
-        my $history = ($self->history) ? 1 : 0;
-        $type ||= ($history) ? 'history' : $eutil;
+        $type ||= $eutil;
         my ($location, $mode) = ($MODE{$eutil}->{location}, $MODE{$eutil}->{mode});
         my $request;
         my $uri = URI->new($self->url_base_address . $location);
@@ -435,7 +435,8 @@ sub eutil {
  Returns : Bio::Tools::EUtilities::HistoryI (if set)
  Args    : [optional] Bio::Tools::EUtilities::HistoryI 
  Throws  : Passed something other than a Bio::Tools::EUtilities::HistoryI 
- Note    : This overrides WebEnv() and query_key() settings when set
+ Note    : This overrides WebEnv() and query_key() settings when set.  This
+           caches the last history object passed and returns like a Get/Set
 
 =cut
 
@@ -557,5 +558,11 @@ sub correspondence {
     }
 }
 
-1;
 
+
+sub exhaust {
+    my $self = shift;
+    $self->{'_statechange'} = 0;
+}
+
+1;
