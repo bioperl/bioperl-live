@@ -88,7 +88,8 @@ via HTTP
   }
 
   # This example shows how to change a CGI parameter:
-  $Bio::Tools::Run::RemoteBlast::HEADER{'MATRIX_NAME'} = 'BLOSUM25';
+  $Bio::Tools::Run::RemoteBlast::HEADER{'MATRIX_NAME'} = 'BLOSUM45';
+  $Bio::Tools::Run::RemoteBlast::HEADER{'GAPCOSTS'} = '15 2';
 
   # And this is how to delete a CGI parameter:
   delete $Bio::Tools::Run::RemoteBlast::HEADER{'FILTER'};
