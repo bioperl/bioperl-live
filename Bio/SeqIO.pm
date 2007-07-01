@@ -309,10 +309,6 @@ use Symbol();
 
 use base qw(Bio::Root::Root Bio::Root::IO Bio::Factory::SequenceStreamI);
 
-sub BEGIN {
-    eval { require Bio::SeqIO::staden::read; };
-}
-
 my %valid_alphabet_cache;
 
 =head2 new
