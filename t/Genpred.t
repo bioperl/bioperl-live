@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 187);
+    test_begin(-tests => 157);
 	
     use_ok('Bio::Tools::Genscan');
     use_ok('Bio::Tools::Genemark');
@@ -192,14 +192,15 @@ while ($ghmmgene = $glimmer_hmm->next_prediction) {
 is($i, 44);
 
 # Glimmer testing (Glimmer 2.X)
-my $glimmer_2 = Bio::Tools::Glimmer->new('-file' => test_input_file('Glimmer2.out'), '-seqname' => 'BCTDNA');
+my $glimmer_2 = Bio::Tools::Glimmer->new('-file' => test_input_file('Glimmer2.out'),
+										 '-seqname' => 'BCTDNA',
+										 '-seqlength' => 29940,);
 my $g2gene = $glimmer_2->next_prediction;
 
 ok($g2gene);
 is($g2gene->seq_id, 'BCTDNA');
 is($g2gene->source_tag, 'Glimmer_2.X');
-is($g2gene->primary_tag, 'transcript');
-is($g2gene->exons, 1);
+is($g2gene->primary_tag, 'gene');
 is($g2gene->start, 292);
 is($g2gene->end, 1623);
 is($g2gene->strand, 1);
@@ -207,33 +208,45 @@ is($g2gene->strand, 1);
 $i = 1;
 while ($g2gene = $glimmer_2->next_prediction) {
     $i++;
-    is($g2gene->exons, 1);
     if ($i == 2) {
         is($g2gene->start, 2349);
         is($g2gene->end, 2230);
         is($g2gene->strand, -1);
+	} elsif ($i == 25) {
+        isa_ok($g2gene->location, 'Bio::Location::SplitLocationI');
+        my @sublocations = $g2gene->location->sub_Location();
+        is(scalar (@sublocations), 2);
+        is($sublocations[0]->start, 29263);
+        is($sublocations[0]->end, 29940);
+        is($sublocations[1]->start, 1);
+        is($sublocations[1]->end, 9);
+        is($g2gene->strand, 1);
     }
 }
 is($i, 25);
 
 
 # Glimmer testing (Glimmer 3.X)
-my $glimmer_3 = Bio::Tools::Glimmer->new('-file' => test_input_file('Glimmer3.predict'));
+my $glimmer_3 = Bio::Tools::Glimmer->new('-file' => test_input_file('Glimmer3.predict'),
+										 '-detail' => test_input_file('Glimmer3.detail'));
 my $g3gene = $glimmer_3->next_prediction;
 
 ok($g3gene);
 is($g3gene->seq_id, 'BCTDNA');
 is($g3gene->source_tag, 'Glimmer_3.X');
-is($g3gene->primary_tag, 'transcript');
-is($g3gene->exons, 1);
-is($g3gene->start, 29263);
-is($g3gene->end, 9);
+is($g3gene->primary_tag, 'gene');
+isa_ok($g3gene->location, 'Bio::Location::SplitLocationI');
+my @sublocations = $g3gene->location->sub_Location();
+is(scalar (@sublocations), 2);
+is($sublocations[0]->start, 29263);
+is($sublocations[0]->end, 29940);
+is($sublocations[1]->start, 1);
+is($sublocations[1]->end, 9);
 is($g3gene->strand, 1);
 
 $i = 1;
 while ($g3gene = $glimmer_3->next_prediction) {
     $i++;
-    is($g3gene->exons,1);
     if ($i == 13) {
         is($g3gene->start, 14781);
         is($g3gene->end, 13804);
@@ -243,3 +256,27 @@ while ($g3gene = $glimmer_3->next_prediction) {
     }
 }
 is($i, 27);
+
+# Glimmer 3.X (prokaryotic gene fragment)
+my $glimmer_3 = Bio::Tools::Glimmer->new(
+                                         '-file'   => test_input_file('glimmer3-fragment.predict'),
+                                         '-detail' => test_input_file('glimmer3-fragment.detail'), 
+                                        );
+my $g3gene = $glimmer_3->next_prediction;
+
+ok($g3gene);
+
+isa_ok $g3gene->location(), 'Bio::Location::Fuzzy';
+is $g3gene->location->start_pos_type(), 'BEFORE';
+is $g3gene->location->max_start(), 1;
+is $g3gene->location->end_pos_type(), 'EXACT';
+is $g3gene->location->end(), 674;
+
+for (1..3) { $g3gene = $glimmer_3->next_prediction; }
+
+isa_ok $g3gene->location(), 'Bio::Location::Fuzzy';
+is $g3gene->location->start_pos_type(), 'EXACT';
+is $g3gene->location->start(), 2677;
+is $g3gene->location->end_pos_type(), 'AFTER';
+is $g3gene->location->min_end(), 2932;
+
