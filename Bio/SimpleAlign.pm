@@ -1051,7 +1051,7 @@ sub remove_columns {
 	@args || return $self;
    my $aln;
 
-	if ($args[0][0] =~ /^[a-z]+$/i) {
+	if ($args[0][0] =~ /^[a-z_]+$/i) {
 		 $aln = $self->_remove_columns_by_type($args[0]);
 	} elsif ($args[0][0] =~ /^\d+$/) {
        $aln = $self->_remove_columns_by_num(\@args);
