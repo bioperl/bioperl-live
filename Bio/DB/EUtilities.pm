@@ -114,7 +114,7 @@ sub get_Parser {
     if ($pobj->parameters_changed || !$self->{'_parser'}) {
         my $eutil = $pobj->eutil ;
         if ($eutil eq 'efetch') {
-            $self->throw("No parser defined for efetch; use get_response() directly");
+            $self->throw("No parser defined for efetch; use get_Response() directly");
         };
         # if we are to add pipe/tempfile support this would probably be the
         # place to add it....
