@@ -30,6 +30,8 @@ residue-based meta information
                                    -verbose=>1, # to see warnings
                                   );
 
+  # Only blessing into Bio::PrimarySeqI implementations is supported!
+
   bless $seq, Bio::Seq::Meta;
   # the existing sequence object can be a Bio::PrimarySeq, too
 
