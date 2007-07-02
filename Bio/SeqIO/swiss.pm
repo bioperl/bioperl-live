@@ -1047,10 +1047,11 @@ sub _read_swissprot_Species {
     return if grep { $_ eq $sci_name } @Unknown_names;
     
     # Convert data in classification lines into classification array.
-    # only split on ';' or '.' so that classification that is 2 or more words
-    # will still get matched, use map() to remove trailing/leading/intervening
+    # Remove trailing . then split on ';' or '.;' so that classification that is 2
+    # or more words will still get matched, use map() to remove trailing/leading/intervening
     # spaces
-    my @class = map { s/^\s+//; s/\s+$//; s/\s{2,}/ /g; $_; } split /[;\.]+/, $class_lines;
+    $class_lines=~s/\.\s*$//;
+    my @class = map { s/^\s+//; s/\s+$//; s/\s{2,}/ /g; $_; } split /[;\.]*;/, $class_lines;
     
     if ($class[0] =~ /viruses/i) {
         # viruses have different OS/OC syntax

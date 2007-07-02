@@ -1,0 +1,47 @@
+ID   CH10_ACEAC              Reviewed;          97 AA.
+AC   Q8GBD3;
+DT   11-APR-2003, integrated into UniProtKB/Swiss-Prot.
+DT   01-MAR-2003, sequence version 1.
+DT   12-JUN-2007, entry version 26.
+DE   10 kDa chaperonin (Protein Cpn10) (groES protein).
+GN   Name=groS; Synonyms=groES;
+OS   Acetobacter aceti.
+OC   Bacteria; Proteobacteria; Alphaproteobacteria; Rhodospirillales;
+OC   Acetobacteraceae; Acetobacter; Acetobacter subgen. Acetobacter.
+OX   NCBI_TaxID=435;
+RN   [1]
+RP   NUCLEOTIDE SEQUENCE [GENOMIC DNA].
+RC   STRAIN=IFO 3283 / LMG 1513;
+RX   PubMed=16233284; DOI=10.1263/jbb.94.140;
+RA   Okamoto-Kainuma A., Yan W., Kadono S., Tayama K., Koizumi Y.,
+RA   Yanagida F.;
+RT   "Cloning and characterization of groESL operon in Acetobacter aceti.";
+RL   J. Biosci. Bioeng. 94:140-147(2002).
+CC   -!- FUNCTION: Binds to Cpn60 in the presence of Mg-ATP and suppresses
+CC       the ATPase activity of the latter.
+CC   -!- SUBUNIT: Heptamer of 7 subunits arranged in a ring (By
+CC       similarity).
+CC   -!- SUBCELLULAR LOCATION: Cytoplasm (By similarity).
+CC   -!- SIMILARITY: Belongs to the groES chaperonin family.
+CC   -----------------------------------------------------------------------
+CC   Copyrighted by the UniProt Consortium, see http://www.uniprot.org/terms
+CC   Distributed under the Creative Commons Attribution-NoDerivs License
+CC   -----------------------------------------------------------------------
+DR   EMBL; AB081586; BAC16231.1; -; Genomic_DNA.
+DR   HSSP; P09621; 1HX5.
+DR   GO; GO:0006457; P:protein folding; IEA:HAMAP.
+DR   HAMAP; MF_00580; -; 1.
+DR   InterPro; IPR001476; Chaprnin_Cpn10.
+DR   Gene3D; G3DSA:2.30.33.40; Chaprnin_Cpn10; 1.
+DR   PANTHER; PTHR10772; Chaprnin_Cpn10; 1.
+DR   Pfam; PF00166; Cpn10; 1.
+DR   PRINTS; PR00297; CHAPERONIN10.
+DR   ProDom; PD000566; Chaprnin_Cpn10; 1.
+DR   PROSITE; PS00681; CHAPERONINS_CPN10; 1.
+KW   Chaperone.
+FT   CHAIN         1     97       10 kDa chaperonin.
+FT                                /FTId=PRO_0000174677.
+SQ   SEQUENCE   97 AA;  10514 MW;  4DF9365DE3CDA23E CRC64;
+     MTKFRPLHDR VVVRRLEGEQ KTAGGIIIPD TAQEKPMEGE VVAVGPGARN EQGQIVALDV
+     KAGDRVLFGK WSGTEVKIDG EELLIMKESD IMGVVTA
+//

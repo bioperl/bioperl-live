@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 238);
+    test_begin(-tests => 239);
 	
     use_ok('Bio::SeqIO');
 }
@@ -351,4 +351,17 @@ $seqio = Bio::SeqIO->new( -verbose => $verbose,
 
 while (my $seq = $seqio->next_seq) {
     is($seq->namespace, shift @namespaces);
+}
+
+# bug 2288
+# Q8GBD3.swiss
+$seqio = Bio::SeqIO->new( -verbose => $verbose,
+                         -format => 'swiss',
+                         -file   => test_input_file('Q8GBD3.swiss'));
+
+while (my $seq = $seqio->next_seq) {
+    my $lineage = join(';', $seq->species->classification);
+	is ($lineage, 'Acetobacter aceti;Acetobacter subgen. Acetobacter;'.
+		'Acetobacter;Acetobacteraceae;Rhodospirillales;Alphaproteobacteria;'.
+		'Proteobacteria;Bacteria');
 }
