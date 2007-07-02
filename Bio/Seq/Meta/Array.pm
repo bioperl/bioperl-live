@@ -27,7 +27,12 @@ sequence class with residue-based meta information
                                    -strand=>1,
                                    -varbose=>1, # to see warnings
                                   );
+  
+  # Though this class implements both Bio::SeqI and Bio::PrimarySeqI, 
+  # only blessing into Bio::PrimarySeqI implementations is supported!
+  
   bless $seq, Bio::Seq::Meta::Array;
+  
   # the existing sequence object can be a Bio::PrimarySeq, too
 
   # to test this is a meta seq object
@@ -75,6 +80,12 @@ L<Bio::LocatableSeq>,
 L<Bio::Seq::MetaI>, 
 L<Bio::Seq::Meta>, 
 L<Bio::Seq::Quality>
+
+=head1 TODO
+
+Should this class be reimplemented? The use of both Bio::SeqI and
+Bio::PrimarySeqI interfaces is ambiguous and leads to subtle bugs (see bug
+2262) when blessing into anything other than Bio::PrimarySeqI.  
 
 =head1 FEEDBACK
 
