@@ -82,8 +82,11 @@ Currently implemented:
  Watterson's theta (theta)
  pi               (pi) - number of pairwise differences
  composite_LD     (composite_LD)
+ McDonald-Kreitman (mcdonald_kreitman or MK)
 
-Count based methods also exist in case you have already calculated the key statistics (seg sites, num individuals, etc) and just want to compute the statistic.
+Count based methods also exist in case you have already calculated the
+key statistics (seg sites, num individuals, etc) and just want to
+compute the statistic.
 
 In all cases where a the method expects an arrayref of
 L<Bio::PopGen::IndividualI> objects and L<Bio::PopGen::PopulationI>
@@ -97,8 +100,11 @@ Mutations." Genetics 133:693-709.
 Fu Y.X. (1996) "New Statistical Tests of Neutrality for DNA samples
 from a Population." Genetics 143:557-570.
 
+McDonald J, Kreitman M.
+
 Tajima F. (1989) "Statistical method for testing the neutral mutation
 hypothesis by DNA polymorphism." Genetics 123:585-595.
+
 
 =head2 CITING THIS WORK
 
@@ -134,6 +140,10 @@ the web:
 Email jason-at-bioperl-dot-org
 Email matthew-dot-hahn-at-duke-dot-edu
 
+McDonald-Kreitman implementation based on work by Alisha Holloway at
+UC Davis.
+
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -147,9 +157,30 @@ Internal methods are usually preceded with a _
 
 package Bio::PopGen::Statistics;
 use strict;
+use constant { 
+    in_label => 'ingroup',
+    out_label => 'outgroup',
+    non_syn   => 'non_synonymous',
+    syn       => 'synonymous',
+    default_codon_table => 1, # Standard Codon table
+};
 
+use Bio::MolEvol::CodonModel;
+use List::Util qw(sum);
 
 use base qw(Bio::Root::Root);
+our $codon_table => default_codon_table;
+our $has_twotailed => 0;
+BEGIN {
+    eval { require Text::NSP::Measures::2D::Fisher2::twotailed };
+    if( $@ ) { $has_twotailed = 0; }
+    else { $has_twotailed = 1; }
+}
+
+
+
+
+
 
 =head2 new
 
@@ -839,7 +870,7 @@ sub singleton_count {
 # so one can use this to pull in the names of those sites.
 # Would be trivial if it is useful.
 
-sub segregating_sites_count{
+sub segregating_sites_count {
    my ($self,$individuals) = @_;
    my $type = ref($individuals);
    my $seg_sites = 0;
@@ -919,7 +950,7 @@ sub heterozygosity {
 
 =cut
 
-sub derived_mutations{
+sub derived_mutations {
    my ($self,$ingroup,$outgroup) = @_;
    my (%indata,%outdata,@marker_names);
 
@@ -1243,6 +1274,237 @@ sub composite_LD {
     return %stats_for_sites;
 }
 
+=head2 mcdonald_kreitman
+
+ Title   : mcdonald_kreitman
+ Usage   : $Fstat = mcdonald_kreitman($ingroup, $outgroup);
+ Function: Calculates McDonald-Kreitman statistic based on a set of ingroup
+           individuals and an outgroup by computing the number of 
+           differences at synonymous and non-synonymous sites
+           for intraspecific comparisons and with the outgroup 
+ Returns : 2x2 table
+ Args    : ingroup - L<Bio::PopGen::Population> object or 
+                     arrayref of L<Bio::PopGen::Individual>s 
+           outgroup - L<Bio::PopGen::Individual>
+
+=cut
+
+sub mcdonald_kreitman {
+    my ($self,$pop,$ingroup, $outgroup,$polarized) = @_;
+    my $codon_path = Bio::MolEvol::CodonModel->codon_path;
+    if( $polarized ) {
+	if( @$outgroup < 2 ) {
+	    $self->throw("Need 2 outgroups with polarized option\n");
+	}
+    } elsif( @$outgroup != 1 ) {
+	$self->warn(sprintf("%s outgroup sequences provided, but only first will be used",
+			    scalar @$outgroup ));
+    }
+
+    my @marker_names = $pop->get_marker_names;
+    my @inds = $pop->get_Individuals;
+
+    my $num_inds = scalar @inds;
+    my %vals = ( 'ingroup' => $ingroup,
+		 'outgroup' => $outgroup,		 
+		 );
+
+    # Make the Codon Table type a parameter!
+    my $table = Bio::Tools::CodonTable->new(-id => $codon_table);
+    my @vt = qw(outgroup ingroup);
+    my %changes;
+    my %two_by_two = ( 'fixed_N' => 0,
+		       'fixed_S' => 0,
+		       'poly_N'  => 0,
+		       'poly_S'  => 0);
+
+    for my $codon ( @marker_names ) {
+	my (%codonvals);
+	my %all_alleles;
+	for my $t ( @vt ) {
+	    my $outcount = 1;
+	    for my $ind ( @{$vals{$t}} ) {
+		my @alleles = $ind->get_Genotypes($codon)->get_Alleles;
+		if( @alleles > 1 ) {
+		    die;
+#		  warn("$codon $codon saw ", scalar @alleles, " for ind ", $ind->unique_id, "\n");
+		} else {
+		    my ($allele) = shift @alleles;
+		    $all_alleles{$ind->unique_id} = $allele;
+		    my $AA = $table->translate($allele);
+		    next if( $AA eq 'X' || $AA eq '*' || $allele =~ /N/i);
+
+		    my $label = $t;
+		    if( $t eq 'outgroup' ) {
+			$label = $t.$outcount++;
+		    }
+		    $codonvals{$label}->{$allele}++;
+		    $codonvals{all}->{$allele}++;
+		}
+	    }
+	}
+	my $total = sum ( values %{$codonvals{'ingroup'}} );
+	next if( $total && $total < 2 ); # skip sites with < alleles
+	# process all the seen alleles (codons) 
+	# this is a vertical slide through the alignment
+	if( keys %{$codonvals{all}} <= 1 ) {
+	    # no changes or no VALID codons - monomorphic
+	} else { 
+	    # grab only the first outgroup codon (what to do with rest?)
+	    my ($outcodon) = keys %{$codonvals{'outgroup1'}};
+	    my $out_AA = $table->translate($outcodon);
+
+	    if( ($polarized && ($outcodon ne $codonvals{'outgroup2'})) ||
+		$out_AA eq 'X' || $out_AA eq '*' ) {
+		# skip if outgroup codons are different 
+		# (when polarized option is on)
+		# or skip if the outcodon is STOP or 'NNN'
+		next;
+	    }
+
+	    # check if ingroup is actually different from outgroup -
+	    # if there are the same number of alleles when considering
+	    # ALL or just the ingroup, then there is nothing new seen
+	    # in the outgroup so it must be a shared allele (codon)
+
+	    # so we just count how many total alleles were seen
+	    # if this is the same as the number of alleles seen for just 
+	    # the ingroup then the outgroup presents no new information
+
+	    my @ingroup_codons = keys %{$codonvals{'ingroup'}};
+	    my $diff_from_out = ! exists $codonvals{'ingroup'}->{$outcodon};
+
+	    if( $self->verbose > 0 ) {
+		$self->debug("alleles are in: ", join(",", @ingroup_codons),
+			     " out: ", join(",", keys %{$codonvals{outgroup1}}),
+			     " diff_from_out=$diff_from_out\n");
+
+		for my $ind ( sort keys %all_alleles ) {
+		    $self->debug( "$ind\t$all_alleles{$ind}\n");
+		}
+	    }
+	    # are all the ingroup alleles the same and diferent from outgroup?
+	    # fixed differences between species
+	    if( $diff_from_out ) {
+		if( scalar @ingroup_codons == 1 ) { 
+		    # fixed differences
+		    my $path = $codon_path->{uc $ingroup_codons[0].$outcodon};
+		    $two_by_two{fixed_N} += $path->[0];
+		    $two_by_two{fixed_S} += $path->[1];
+		    if( $self->verbose > 0 ) {
+			$self->debug("ingroup is @ingroup_codons outcodon is $outcodon\n");
+			$self->debug("path is ",join(",",@$path),"\n");
+			$self->debug
+			    (sprintf("%-15s fixeddiff - %s;%s(%s) %d,%d\tNfix=%d Sfix=%d Npoly=%d Spoly=%s\n",$codon,$ingroup_codons[0], $outcodon,$out_AA,
+				     @$path, map { $two_by_two{$_} } 
+				     qw(fixed_N fixed_S poly_N poly_S)));
+		    }
+		} else { 
+		    # polymorphic and all are different from outgroup
+		    # Here we find the minimum number of NS subst
+		    my ($Ndiff,$Sdiff) = (3,0);	# most different path
+		    for my $c ( @ingroup_codons ) {
+			my $path = $codon_path->{uc $c.$outcodon};
+			my ($tNdiff,$tSdiff) = @$path;
+			if( $path->[0] < $Ndiff ||
+			    ($tNdiff == $Ndiff &&
+			     $tSdiff  <= $Sdiff)) {
+			    ($Ndiff,$Sdiff) = ($tNdiff,$tSdiff);
+			}
+		    }
+		    $two_by_two{fixed_N} += $Ndiff;
+		    $two_by_two{fixed_S} += $Sdiff;
+
+		    my $path = $codon_path->{uc join('',@ingroup_codons)};
+		    $two_by_two{poly_N} += $path->[0];
+		    $two_by_two{poly_S} += $path->[1];
+		    if( $self->verbose > 0 ) {
+			$self->debug
+			    (sprintf("%-15s polysite_all - %s;%s(%s) %d,%d\tNfix=%d Sfix=%d Npoly=%d Spoly=%s\n",$codon,join(',',@ingroup_codons), $outcodon,$out_AA,
+				     @$path, map { $two_by_two{$_} } 
+				     qw(fixed_N fixed_S poly_N poly_S)));
+		    }
+		} 
+	    } else {
+		my %unq = map { $_ => 1 } @ingroup_codons;
+		delete $unq{$outcodon};
+		my @unique_codons = keys %unq;
+
+		# calc path for diff add to poly
+		# Here we find the minimum number of subst bw
+		# codons
+		my ($Ndiff,$Sdiff) = (3,0); # most different path
+		for my $c ( @unique_codons ) {
+		    my $path = $codon_path->{uc $c.$outcodon };
+		    if( ! defined $path ) {
+			die " cannot get path for ", $c.$outcodon, "\n";
+		    }
+		    my ($tNdiff,$tSdiff) = @$path;
+		    if( $path->[0] < $Ndiff ||
+			($tNdiff == $Ndiff &&
+			 $tSdiff  <= $Sdiff)) {
+			($Ndiff,$Sdiff) = ($tNdiff,$tSdiff);
+		    }
+		}
+
+		if( @unique_codons == 2 ) {
+		    my $path = $codon_path->{uc join('',@unique_codons)};
+		    if( ! defined $path ) {
+			$self->throw("no path for @unique_codons\n");
+		    }
+		    $Ndiff += $path->[0];
+		    $Sdiff += $path->[1];
+		}
+		$two_by_two{poly_N} += $Ndiff;
+		$two_by_two{poly_S} += $Sdiff;
+		if( $self->verbose > 0 ) {
+		    $self->debug(sprintf("%-15s polysite - %s;%s(%s) %d,%d\tNfix=%d Sfix=%d Npoly=%d Spoly=%s\n",$codon,join(',',@ingroup_codons), $outcodon,$out_AA,
+					 $Ndiff, $Sdiff, map { $two_by_two{$_} } 
+					 qw(fixed_N fixed_S poly_N poly_S)));
+		}
+	    }
+	}	    
+    }
+    return ( $two_by_two{'poly_N'},
+	     $two_by_two{'fixed_N'},
+	     $two_by_two{'poly_S'},
+	     $two_by_two{'fixed_S'});
+    
+}
+
+*MK = \&mcdonald_kreitman;
+
+
+=head2 mcdonald_kreitman_counts
+
+ Title   : mcdonald_kreitman_counts
+ Usage   : my $MK = $statistics->mcdonald_kreitman_counts(
+
+             N_poly -> integer of count of non-syn polymorphism
+             N_fix  -> integer of count of non-syn fixed substitutions
+             S_poly -> integer of count of syn polymorphism
+             S_fix  -> integer of count of syn fixed substitutions
+							  );
+ Function:
+ Returns : decimal number
+ Args    : 
+
+=cut
+
+
+sub mcdonald_kreitman_counts {
+    my ($self,$Npoly,$Nfix,$Spoly,$Sfix) = @_;
+    if( $has_twotailed ) {
+	return &Text::NSP::Measures::2D::Fisher2::twotailed::calculateStatistic 
+	    (n11=>$Npoly,
+	     n1p=>$Npoly+$Spoly,
+	     np1=>$Npoly+$Nfix,
+	     npp=>$Npoly+$Nfix+$Spoly+$Sfix);
+    } else {
+	$self->warn("cannot call mcdonald_kreitman_counts because no Fisher's exact is available - install Text::NSP::Measures::2D::Fisher2::twotailed");
+	return 0;
+    }
+}
 
 
 1;
