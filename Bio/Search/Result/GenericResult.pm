@@ -636,7 +636,6 @@ sub add_statistic {
  Returns : integer
  Args    : none
 
-
 =cut
 
 sub num_hits{
