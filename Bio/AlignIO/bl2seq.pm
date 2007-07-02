@@ -109,16 +109,13 @@ use base qw(Bio::AlignIO);
  Returns : L<Bio::SimpleAlign> object
  Args    : -report_type => report type (blastn,blastx,tblastx,tblastn,blastp)
 
-
 =cut
 
-
-sub new {
-    my ($class) = shift;
-    my $self = $class->SUPER::new(@_);
-    my ($rt) = $self->_rearrange([qw(REPORT_TYPE)],@_);
+sub _initialize {
+    my ($self, @args) = @_;
+    $self->SUPER::_initialize(@args);
+    my ($rt) = $self->_rearrange([qw(REPORT_TYPE)],@args);
     defined $rt && $self->report_type($rt);
-    return $self;
 }
 
 =head2 next_aln
@@ -134,58 +131,32 @@ sub new {
 
 sub next_aln {
     my $self = shift;
-    my $aln =  Bio::SimpleAlign->new(-source => 'bl2seq');
-    $self->{'bl2seqobj'} = $self->{'bl2seqobj'} ||
-	Bio::SearchIO->new(-fh => $self->_fh,
-			   -format => 'blast');
-    my $bl2seqobj = $self->{'bl2seqobj'};
-    my $result = $self->{'_result'} || $bl2seqobj->next_result;
-    $self->{'result'} = undef, return unless defined $result;
-
-    my $hit = $self->{'_hit'} || $result->next_hit;
-    $self->{'_hit'} = undef, return unless defined $hit;
-
-    my $hsp  = $hit->next_hsp;
-    return unless defined $hsp;
-    return $hsp->get_aln;
-
-# much easier above, eh?
-#     my ($start,$end,$name,$seqname,$seq,$seqchar,$strand);
-#     $seqchar = $hsp->query_string;
-#     $start   = $hsp->query->start;
-#     $end     = $hsp->query->end;
-#      # Query name typically not present in bl2seq report
-#     $seqname = $hsp->query->seq_id || 'Query-sequence';
-#     $strand  = $hsp->query->strand;
-
-#     #    unless ($seqchar && $start && $end  && $seqname) {return 0} ;
-#     unless ($seqchar && $start && $end ) {return 0} ;
-
-#     $seq = Bio::LocatableSeq->new('-seq'   =>$seqchar,
-# 				 '-id'    =>$seqname,
-# 				 '-start' =>$start,
-# 				 '-end'   =>$end,
-# 				 '-strand'=>$strand,
-# 				 );
-
-#     $aln->add_seq($seq);
-
-#     $seqchar  = $hsp->hit_string;
-#     $start    = $hsp->hit->start;
-#     $end      = $hsp->hit->end;
-#     $seqname  = $hsp->hit->seq_id;
-#     $strand   = $hsp->hit->strand;
-
-#     unless ($seqchar && $start && $end  && $seqname) {return 0} ;
-
-#     $seq = Bio::LocatableSeq->new('-seq'   =>$seqchar,
-# 				 '-id'    =>$seqname,
-# 				 '-start' =>$start,
-# 				 '-end'   =>$end,
-# 				 '-strand'=>$strand,
-# 				 );
-#     $aln->add_seq($seq);
-#     return $aln;
+    unless (exists $self->{'_searchio'}) {
+        $self->{'_searchio'} = Bio::SearchIO->new(-fh => $self->_fh,
+                   -format => 'blast',
+                   -report_type => $self->report_type);
+    }
+    while (1) {
+        if (!exists $self->{'_result'}) {
+            $self->{'_result'} = $self->{'_searchio'}->next_result;
+        }
+        return if !defined $self->{'_result'};
+        if (!exists $self->{'_hit'}) {
+            $self->{'_hit'} = $self->{'_result'}->next_hit;
+        }
+        # out of hits for this result?
+        if (!defined $self->{'_hit'}) {
+            delete $self->{'_result'};
+            next;
+        }
+        my $hsp = $self->{'_hit'}->next_hsp;
+        # out of hsps for this hit?
+        if (!defined $hsp) {
+            delete $self->{'_hit'};
+            next;
+        }
+        $hsp ? return $hsp->get_aln: return;
+    }
 }
 
 
