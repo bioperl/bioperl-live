@@ -68,7 +68,7 @@ Bio::Tools::EUtilities - NCBI eutil XML parsers
   # History methods (epost data, some data returned from elink)
   # data which enables one to retrieve and query against user-stored information on the NCBI server
   
-    if ($parser->has_history) {
+    if ($parser->has_History) {
         # use parser as direct input in future queries
     }
     
@@ -149,6 +149,7 @@ use base qw(Bio::Root::IO Bio::Tools::EUtilities::HistoryI);
 
 use XML::Simple;
 use Data::Dumper;
+use Bio::Tools::EUtilities::Cookie;
 
 =head2 Constructor methods
 
@@ -361,7 +362,7 @@ sub parse_data {
     $self->_add_data($simple);
 }
 
-# implemented only for elink/esummary
+# implemented only for elink/esummary, still experimental
 
 sub parse_chunk {
     my $self = shift;
@@ -453,10 +454,10 @@ These are defined in the HistoryI interface.
 
 =cut
 
-=head2 has_history
+=head2 has_History
 
- Title    : has_history
- Usage    : if ($hist->has_history) {...}
+ Title    : has_History
+ Usage    : if ($hist->has_History) {...}
  Function : returns TRUE if full history (webenv, query_key) is present 
  Returns  : BOOLEAN, value eval'ing to TRUE or FALUE
  Args     : none
@@ -540,6 +541,33 @@ sub get_database {
 
 sub get_db {
     return shift->get_database;
+}
+
+=head2 get_Cookie
+
+ Title    : get_Cookie
+ Usage    : my $cookie = $parser->get_Cookie;
+ Function : returns a simple Cookie object, a HistoryI object which contains any
+            relevant information useful for future queries; this can be used as
+            a lightweight alternative to directly using the parser (with it's
+            associated methods, filehandles, etc).
+ Returns  : a Bio::Tools::EUtilities::Cookie object
+ Args     : none
+
+=cut
+
+sub get_Cookie {
+    my $self = shift;
+    $self->parse_data unless $self->data_parsed;    
+    $self->warn("No history data present; no Cookie for you!"), return
+        unless $self->has_History;
+    my $cookie =  Bio::Tools::EUtilities::Cookie->new(
+            -eutil => $self->eutil,
+            -webenv => $self->get_webenv,
+            -query_key => $self->get_query_key,
+            -query_translation => $self->get_query_translation);
+    $self->debug(Dumper($cookie));
+    return $cookie;
 }
 
 =head1 Query-related methods
@@ -1057,7 +1085,7 @@ sub get_linked_histories {
     }
     $self->parse_data unless $self->data_parsed;
     unless (exists $self->{'_dbhist'}) {
-        push @{$self->{'_dbhist'}}, grep {$_->has_history} $self->get_LinkSets;
+        push @{$self->{'_dbhist'}}, grep {$_->has_History} $self->get_LinkSets;
     }
     return @{$self->{'_dbhist'}};
 }

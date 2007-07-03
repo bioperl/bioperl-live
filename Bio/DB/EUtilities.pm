@@ -93,7 +93,7 @@ sub new {
 
 sub delay_policy {
   my $self = shift;
-  return 5;
+  return 3;
 }
 
 =head2 get_Parser
@@ -124,9 +124,10 @@ sub get_Parser {
                             -verbose => $self->verbose);
         # added history queue here...
         my ($lazy, $keep) = ($parser->is_lazy, $self->keep_Histories);
+        # these should all be lightweight enough...
         if ($keep && !$lazy ) {
-            if ($parser->has_history ) {
-                push @{$self->{'_historyqueue'} }, $parser;
+            if ($parser->has_History ) {
+                push @{$self->{'_historyqueue'} }, $parser->get_Cookie;
             } elsif ($parser->get_linked_histories) {
                 push @{$self->{'_historyqueue'} }, $parser->get_linked_histories;
             }
@@ -139,20 +140,25 @@ sub get_Parser {
     return $self->{'_parser'};
 }
 
-=head2 
+=head2 keep_Histories
 
- Title    : 
- Usage    : 
- Function : 
- Returns  : 
- Args     : 
+ Title    : keep_Histories
+ Usage    : $agent->keep_Histories(1);
+ Function : retains any past queries in an internal queue, accessible via
+            next_History and get_Histories
+ Returns  : Boolean
+ Args     : Boolean (eval to TRUE or FALSE)
+ Note     : If this is set to FALSE, the history queue is automatically cleared
 
 =cut
 
 sub keep_Histories {
     my ($self, $flag) = @_;
     if (defined $flag) {
-        return $self->{'_keephistories'} = ($flag) ? 1 : 0;
+        $self->{'_keephistories'} = ($flag) ? 1 : 0;
+        if ($flag == 0) {
+            $self->clear_Histories;
+        }
     }
     return $self->{'_keephistories'};
 }
@@ -386,19 +392,19 @@ sub get_query_key {
     return $self->get_Parser->get_query_key(@args);
 }
 
-=head2 has_history
+=head2 has_History
 
- Title    : has_history
- Usage    : if ($hist->has_history) {...}
+ Title    : has_History
+ Usage    : if ($hist->has_History) {...}
  Function : returns TRUE if full history (webenv, query_key) is present 
  Returns  : BOOLEAN, value eval'ing to TRUE or FALUE
  Args     : none
 
 =cut
 
-sub has_history {
+sub has_History {
     my ($self, @args) = @_;
-    return $self->get_Parser->has_history(@args);
+    return $self->get_Parser->has_History(@args);
 }
 
 =head1 Methods useful for multiple eutils
@@ -445,6 +451,24 @@ sub get_database {
 sub get_db {
     my ($self, @args) = @_;
     return $self->get_Parser->get_db(@args);
+}
+
+=head2 get_Cookie
+
+ Title    : get_Cookie
+ Usage    : my $cookie = $parser->get_Cookie;
+ Function : returns a simple Cookie object, a HistoryI object which contains any
+            relevant information useful for future queries; this can be used as
+            a lightweight alternative to directly using the parser (with it's
+            associated methods, filehandles, etc).
+ Returns  : a Bio::Tools::EUtilities::Cookie object
+ Args     : none
+
+=cut
+
+sub get_Cookie {
+    my ($self, @args) = @_;
+    return $self->get_Parser->get_Cookie(@args);
 }
 
 =head1 Query-related methods

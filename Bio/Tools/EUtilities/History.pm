@@ -24,7 +24,7 @@ NCBI search history.
   my $hist = Bio::Tools::EUtilities->new(-eutil => 'epost',
                                          -file => 'epost.xml');
   
-  if ($hist->has_history) {
+  if ($hist->has_History) {
       # do something here
   }
   
@@ -119,10 +119,10 @@ Bio::Tools::EUtilities::HistoryI
 
 =cut
 
-=head2 has_history
+=head2 has_History
 
- Title    : has_history
- Usage    : if ($hist->has_history) {...}
+ Title    : has_History
+ Usage    : if ($hist->has_History) {...}
  Function : returns TRUE if full history (webenv, query_key) is present 
  Returns  : BOOLEAN, value eval'ing to TRUE or FALUE
  Args     : none

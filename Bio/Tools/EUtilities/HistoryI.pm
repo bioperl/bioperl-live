@@ -21,7 +21,7 @@ class for classes which hold NCBI server history data
 
   #should work for any class which is-a HistoryI
   
-  if ($obj->has_history) {
+  if ($obj->has_History) {
       # do something here
   }
   
@@ -140,20 +140,37 @@ sub get_query_key {
     return $self->{'_querykey'};
 }
 
-=head2 has_history
+=head2 has_History
 
- Title    : has_history
- Usage    : if ($hist->has_history) {...}
+ Title    : has_History
+ Usage    : if ($hist->has_History) {...}
  Function : returns TRUE if full history (webenv, query_key) is present 
  Returns  : BOOLEAN, value eval'ing to TRUE or FALUE
  Args     : none
 
 =cut
 
-sub has_history {
+sub has_History {
     my $self = shift;
     $self->parse_data if ($self->can('parse_data') && !$self->data_parsed);
     ($self->get_webenv && $self->get_query_key) ? return 1 : return 0;
+}
+
+=head2 get_Cookie
+
+ Title    : get_Cookie
+ Usage    : my $cookie = $hist->get_Cookie);
+ Function : returns a simple Cookie object which contains any relevant
+            information useful for future queries; this can be used as a
+            lightweight alternative to directly using the parser (with it's
+            associated methods, filehandles, etc).
+ Returns  : a Bio::Tools::EUtilities::Cookie object
+ Args     : none
+
+=cut
+
+sub get_Cookie {
+    shift->throw_not_implemented;
 }
 
 1;
