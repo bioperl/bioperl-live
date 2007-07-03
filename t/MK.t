@@ -75,12 +75,13 @@ is($counts[1], 1, 'NSfixed');
 is($counts[2], 3, 'Spoly');
 is($counts[3], 7, 'Sfixed');
 my $mk;
-if( $Bio::PopGen::Statistics::has_twotailed ) {
+SKIP: {
+	test_skip(-tests => 1, 
+			  -requires_module => 'Text::NSP::Measures::2D::Fisher2::twotailed');
+	skip "Some problem with Bio::PopGen::Statistics::has_twotailed", 1 unless $Bio::PopGen::Statistics::has_twotailed;
+	
     $mk = $stats->mcdonald_kreitman_counts(@counts);
     is($mk, 1, 'McDonald Kreitman');
-} else {
-    test_skip(-tests => 1, 
-	      -require_module => 'Text::NSP::Measures::2D::Fisher2::twotailed');
 }
 @counts = $stats->mcdonald_kreitman($population, \@ingroup_seqs,
 				    \@outgroup_seqs2,
@@ -90,12 +91,15 @@ is($counts[1], 6, 'NSfixed');
 is($counts[2], 3, 'Spoly');
 is($counts[3], 16, 'Sfixed');
 
-if( $Bio::PopGen::Statistics::has_twotailed ) {
+SKIP: {
+	test_skip(-tests => 1, 
+			  -requires_module => 'Text::NSP::Measures::2D::Fisher2::twotailed');
+	skip "Some problem with Bio::PopGen::Statistics::has_twotailed", 1 unless $Bio::PopGen::Statistics::has_twotailed;
+	
     $mk = $stats->mcdonald_kreitman_counts(@counts);
     is(sprintf("%.2f",$mk), 0.55, 'McDonald Kreitman');
-} else {
-    test_skip(-tests => 1, -require_module => 'Text::NSP::Measures::2D::Fisher2::twotailed');
 }
+
 # test 2nd aln file
 $alnio = Bio::AlignIO->new(-format => 'fasta',
 			   -file   => test_input_file('CG11099.fasaln'));
@@ -151,11 +155,13 @@ is($counts[1], 1, 'NSfixed');
 is($counts[2], 26, 'Spoly');
 is($counts[3], 17, 'Sfixed');
 
-if( $Bio::PopGen::Statistics::has_twotailed ) {
+SKIP: {
+	test_skip(-tests => 1, 
+			  -requires_module => 'Text::NSP::Measures::2D::Fisher2::twotailed');
+	skip "Some problem with Bio::PopGen::Statistics::has_twotailed", 1 unless $Bio::PopGen::Statistics::has_twotailed;
+	
     $mk = $stats->mcdonald_kreitman_counts(@counts);
     is(sprintf("%.2f",$mk), 0.14, 'McDonald Kreitman');
-} else {
-    test_skip(-tests => 1, -require_module => 'Text::NSP::Measures::2D::Fisher2::twotailed');
 }
 
 @counts = $stats->mcdonald_kreitman($population, \@ingroup_seqs,
@@ -166,9 +172,11 @@ is($counts[1], 10, 'NSfixed');
 is($counts[2], 26, 'Spoly');
 is($counts[3], 42, 'Sfixed');
 
-if( $Bio::PopGen::Statistics::has_twotailed ) {
+SKIP: {
+	test_skip(-tests => 1, 
+			  -requires_module => 'Text::NSP::Measures::2D::Fisher2::twotailed');
+	skip "Some problem with Bio::PopGen::Statistics::has_twotailed", 1 unless $Bio::PopGen::Statistics::has_twotailed;
+	
     $mk = $stats->mcdonald_kreitman_counts(@counts);
     is(sprintf("%.2f",$mk), '0.60', 'McDonald Kreitman');
-} else {
-    test_skip(-tests => 1, -require_module => 'Text::NSP::Measures::2D::Fisher2::twotailed');
 }
