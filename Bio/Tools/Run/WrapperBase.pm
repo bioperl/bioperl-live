@@ -424,6 +424,9 @@ sub quiet {
            -lc => boolean       # lc() method names prior to output in string
            -dash => boolean     # prefix all method names with a single dash
            -double_dash => bool # prefix all method names with a double dash
+           -mixed_dash => bool  # prefix single-character method names with a
+                                # single dash, and multi-character method names
+                                # with a double-dash
            -underscore_to_dash => boolean # convert all underscores in method
                                             names to dashes
 
@@ -432,16 +435,17 @@ sub quiet {
 sub _setparams {
     my ($self, @args) = @_;
     
-    my ($params, $switches, $join, $lc, $d, $dd, $utd) =
+    my ($params, $switches, $join, $lc, $d, $dd, $md, $utd) =
         $self->_rearrange([qw(PARAMS
                               SWITCHES
                               JOIN
                               LC
                               DASH
                               DOUBLE_DASH
+                              MIXED_DASH
                               UNDERSCORE_TO_DASH)], @args);
     $self->throw('at least one of -params or -switches is required') unless ($params || $switches);
-    $self->throw("-dash and -double_dash are mutually exclusive") if ($d && $dd);
+    $self->throw("-dash, -double_dash and -mixed_dash are mutually exclusive") if (defined($d) + defined($dd) + defined($md) > 1);
     $join ||= ' ';
     
     my %params = ref($params) eq 'HASH' ? %{$params} : map { $_ => $_ } @{$params};
@@ -455,8 +459,9 @@ sub _setparams {
             next if (exists $switches{$method} && ! $value);
             
             $method_out = lc($method_out) if $lc;
-            $method_out = '-'.$method_out if $d;
-            $method_out = '--'.$method_out if $dd;
+            my $method_length = length($method_out) if $md;
+            $method_out = '-'.$method_out if ($d || ($md && ($method_length == 1)));
+            $method_out = '--'.$method_out if ($dd || ($md && ($method_length > 1)));
             $method_out =~ s/_/-/g if $utd;
             
             # quote values that contain spaces
