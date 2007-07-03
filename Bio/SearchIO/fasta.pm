@@ -287,19 +287,23 @@ sub next_result{
 	   }
 	   if( $last =~ /^\s*vs\s+(\S+)/ || 
 	       ( $last =~ /^searching\s+(\S+)\s+library/ ) ||
-	       (defined $_ && /^\s*vs\s+(\S+)/) ||
-	       (defined ($_ = $self->_readline()) && /^\s*vs\s+(\S+)/)
-	     ) {
+	       ( $last =~ /^Library:\s+(\S+)\s+/ ) ||
+	       (defined $_ && ( /^\s*vs\s+(\S+)/ ||  
+				/^Library:\s+(\S+)\s+/ )) ||		
+	       (defined ($_ = $self->_readline()) && 
+		( /^\s*vs\s+(\S+)/ ||/^Library:\s+(\S+)/ ))
+	       ) {
 	       $self->element({'Name' => 'FastaOutput_db',
-                           'Data' => $1});
+			       'Data' => $1});	       
+		   
 	   } elsif (m/^\s+opt(?:\s+E\(\))?$/o) {
 	       # histogram ... read over it more rapidly than the larger outer loop:
 	       while (defined($_ = $self->_readline)) {
 		   last if m/^>\d+/;
 	       }
 	   }
-
-       } elsif( /(\d+) residues in\s+(\d+)\s+sequences/ ) {
+	   
+       } elsif( /(\d+)\s+residues\s+in\s+(\d+)\s+(?:library\s+)?sequences/ ) {
 	   $self->element({'Name' => 'FastaOutput_db-let',
 			   'Data' => $1});
 	   $self->element({'Name' => 'FastaOutput_db-len',
@@ -307,7 +311,7 @@ sub next_result{
 	   $self->element({'Name' => 'Statistics_db-len',
 			   'Data' => $1});
 	   $self->element({'Name' => 'Statistics_db-num',
-			   'Data' => $2});	   
+			   'Data' => $2});	  
        } elsif( /Lambda=\s*(\S+)/ ) {
 	   $self->element({'Name' => 'Statistics_lambda',
 			   'Data' => $1});	  
@@ -732,12 +736,11 @@ sub next_result{
 	       } else {
 		   $self->warn("unable to find and set query length");
 	       }
-
-
+	       
 	       if( defined ($_ = $self->_readline()) && /^\s*vs\s+(\S+)/ ) {
 		   $self->element({'Name' => 'FastaOutput_db',
 				   'Data' => $1});
-	       }
+	       } 
 	   }
        } elsif( $self->in_element('hsp' ) ) {
 	   
