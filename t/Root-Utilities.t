@@ -78,9 +78,14 @@ SKIP: {
     ok -x $gzip;
     
     my $zfile = $u->compress($file);
-    is $zfile, "$file.gz";
+    like $zfile, qr/$file.gz|tmp.bioperl.gz/;
     ok -s $zfile;
-    ok ! -e $file;
+    if ($zfile =~ /tmp.bioperl.gz/) {
+        ok -e $file;
+    }
+    else {
+        ok ! -e $file;
+    }
     my $unzfile = $u->uncompress($zfile);
     ok ! -e $zfile;
     ok -e $file;
