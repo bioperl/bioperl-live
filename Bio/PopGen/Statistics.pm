@@ -1283,29 +1283,69 @@ sub composite_LD {
            differences at synonymous and non-synonymous sites
            for intraspecific comparisons and with the outgroup 
  Returns : 2x2 table
- Args    : ingroup - L<Bio::PopGen::Population> object or 
-                     arrayref of L<Bio::PopGen::Individual>s 
-           outgroup - L<Bio::PopGen::Individual>
-
+ Args    : -ingroup    => L<Bio::PopGen::Population> object or 
+                          arrayref of L<Bio::PopGen::Individual>s 
+           -outgroup   => L<Bio::PopGen::Population> object or 
+                          arrayef of L<Bio::PopGen::Individual>s
+           -polarized  => Boolean, to indicate if this should be 
+                          a polarized test. Must provide two individuals 
+                          as outgroups.
 =cut
 
 sub mcdonald_kreitman {
-    my ($self,$pop,$ingroup, $outgroup,$polarized) = @_;
-    my $codon_path = Bio::MolEvol::CodonModel->codon_path;
+    my ($self,@args) = @_;
+    my ($ingroup, $outgroup,$polarized) = 
+	$self->_rearrange([qw(INGROUP OUTGROUP POLARIZED)],@args);
+    my $verbose = $self->verbose;
+    my $outgroup_count;
+
+    if( ref($outgroup) =~ /ARRAY/i ) {
+	$outgroup_count = scalar @$outgroup;
+    } elsif( UNIVERSAL::isa($outgroup,'Bio::PopGen::PopulationI') ) {
+	$outgroup_count = $outgroup->get_number_individuals;
+    } else {
+	$self->throw("Expected an ArrayRef of Individuals OR a Bio::PopGen::PopulationI");
+    }
+	
     if( $polarized ) {
-	if( @$outgroup < 2 ) {
+	if( $outgroup_count < 2 ) {
 	    $self->throw("Need 2 outgroups with polarized option\n");
 	}
-    } elsif( @$outgroup != 1 ) {
-	$self->warn(sprintf("%s outgroup sequences provided, but only first will be used",
-			    scalar @$outgroup ));
+    } elsif( $outgroup_count != 1 ) {
+	$self->warn(sprintf("%s outgroup sequences provided, but only first will be used",$outgroup_count ));
+    }
+    
+    my $codon_path = Bio::MolEvol::CodonModel->codon_path;
+    
+    my (%marker_names,%unique,@inds);
+    for my $p ( $ingroup, $outgroup)  {
+	if( ref($p) =~ /ARRAY/i ) {
+	    push @inds, @$p;
+	} else {
+	    push @inds, $p->get_Individuals;
+	}
+    }
+    for my $i ( @inds ) {
+	if( $unique{$i->unique_id}++ ) {
+	    $self->warn("Individual ". $i->unique_id. " is seen more than once in the ingroup or outgroup set\n");
+	}
+	for my $n ( $i->get_marker_names ) {
+	    $marker_names{$n}++;
+	}
     }
 
-    my @marker_names = $pop->get_marker_names;
-    my @inds = $pop->get_Individuals;
+    my @marker_names = keys %marker_names;
+    if( $marker_names[0] =~ /^(Site|Codon)/ ) {
+	# sort by site or codon number and do it in 
+	# a schwartzian transformation baby!
+	@marker_names = map { $_->[1] } 
+	sort { $a->[0] <=> $b->[0] }
+	map { [$_ =~ /^(?:Codon|Site)-(\d+)/, $_] } @marker_names;
+    }
+
 
     my $num_inds = scalar @inds;
-    my %vals = ( 'ingroup' => $ingroup,
+    my %vals = ( 'ingroup'  => $ingroup,
 		 'outgroup' => $outgroup,		 
 		 );
 
@@ -1353,12 +1393,15 @@ sub mcdonald_kreitman {
 	    # grab only the first outgroup codon (what to do with rest?)
 	    my ($outcodon) = keys %{$codonvals{'outgroup1'}};
 	    my $out_AA = $table->translate($outcodon);
-
-	    if( ($polarized && ($outcodon ne $codonvals{'outgroup2'})) ||
+	    my ($outcodon2) = keys %{$codonvals{'outgroup2'}};
+	    if( ($polarized && ($outcodon ne $outcodon2)) ||
 		$out_AA eq 'X' || $out_AA eq '*' ) {
 		# skip if outgroup codons are different 
 		# (when polarized option is on)
 		# or skip if the outcodon is STOP or 'NNN'
+		if( $verbose > 0 ) {
+		    $self->debug("skipping $out_AA and $outcodon $outcodon2\n");
+		}
 		next;
 	    }
 
@@ -1374,7 +1417,7 @@ sub mcdonald_kreitman {
 	    my @ingroup_codons = keys %{$codonvals{'ingroup'}};
 	    my $diff_from_out = ! exists $codonvals{'ingroup'}->{$outcodon};
 
-	    if( $self->verbose > 0 ) {
+	    if( $verbose > 0 ) {
 		$self->debug("alleles are in: ", join(",", @ingroup_codons),
 			     " out: ", join(",", keys %{$codonvals{outgroup1}}),
 			     " diff_from_out=$diff_from_out\n");
@@ -1391,7 +1434,7 @@ sub mcdonald_kreitman {
 		    my $path = $codon_path->{uc $ingroup_codons[0].$outcodon};
 		    $two_by_two{fixed_N} += $path->[0];
 		    $two_by_two{fixed_S} += $path->[1];
-		    if( $self->verbose > 0 ) {
+		    if( $verbose > 0 ) {
 			$self->debug("ingroup is @ingroup_codons outcodon is $outcodon\n");
 			$self->debug("path is ",join(",",@$path),"\n");
 			$self->debug
@@ -1418,7 +1461,7 @@ sub mcdonald_kreitman {
 		    my $path = $codon_path->{uc join('',@ingroup_codons)};
 		    $two_by_two{poly_N} += $path->[0];
 		    $two_by_two{poly_S} += $path->[1];
-		    if( $self->verbose > 0 ) {
+		    if( $verbose > 0 ) {
 			$self->debug
 			    (sprintf("%-15s polysite_all - %s;%s(%s) %d,%d\tNfix=%d Sfix=%d Npoly=%d Spoly=%s\n",$codon,join(',',@ingroup_codons), $outcodon,$out_AA,
 				     @$path, map { $two_by_two{$_} } 
@@ -1457,7 +1500,7 @@ sub mcdonald_kreitman {
 		}
 		$two_by_two{poly_N} += $Ndiff;
 		$two_by_two{poly_S} += $Sdiff;
-		if( $self->verbose > 0 ) {
+		if( $verbose > 0 ) {
 		    $self->debug(sprintf("%-15s polysite - %s;%s(%s) %d,%d\tNfix=%d Sfix=%d Npoly=%d Spoly=%s\n",$codon,join(',',@ingroup_codons), $outcodon,$out_AA,
 					 $Ndiff, $Sdiff, map { $two_by_two{$_} } 
 					 qw(fixed_N fixed_S poly_N poly_S)));

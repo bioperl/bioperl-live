@@ -10,7 +10,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 38);
+    test_begin(-tests => 46);
     use_ok('Bio::AlignIO');
     use_ok('Bio::PopGen::Statistics');
     use_ok('Bio::PopGen::Utilities');
@@ -67,25 +67,25 @@ is(scalar @outgroup_seqs2, 1, 'number of outgroup2 sequences');
 
 my $polarized = 0;
 
-my @counts = $stats->mcdonald_kreitman($population, \@ingroup_seqs,
-				       \@outgroup_seqs1,
-				       $polarized);
+my @counts = $stats->mcdonald_kreitman(-ingroup   => \@ingroup_seqs,
+				       -outgroup  => \@outgroup_seqs1,
+				       -polarized => $polarized);
 is($counts[0], 0, 'NSpoly');
 is($counts[1], 1, 'NSfixed');
 is($counts[2], 3, 'Spoly');
 is($counts[3], 7, 'Sfixed');
 my $mk;
-SKIP: {
-	test_skip(-tests => 1, 
-			  -requires_module => 'Text::NSP::Measures::2D::Fisher2::twotailed');
-	skip "Some problem with Bio::PopGen::Statistics::has_twotailed", 1 unless $Bio::PopGen::Statistics::has_twotailed;
-	
-    $mk = $stats->mcdonald_kreitman_counts(@counts);
-    is($mk, 1, 'McDonald Kreitman');
-}
-@counts = $stats->mcdonald_kreitman($population, \@ingroup_seqs,
-				    \@outgroup_seqs2,
-				    $polarized);
+ SKIP: {
+     test_skip(-tests => 1, 
+	       -requires_module => 'Text::NSP::Measures::2D::Fisher2::twotailed');
+     skip "Some problem with Bio::PopGen::Statistics::has_twotailed", 1 unless $Bio::PopGen::Statistics::has_twotailed;
+     
+     $mk = $stats->mcdonald_kreitman_counts(@counts);
+     is($mk, 1, 'McDonald Kreitman');
+ }
+@counts = $stats->mcdonald_kreitman(-ingroup   => \@ingroup_seqs,
+				    -outgroup  => \@outgroup_seqs2,
+				    -polarized => $polarized);
 is($counts[0], 0, 'NSpoly');
 is($counts[1], 6, 'NSfixed');
 is($counts[2], 3, 'Spoly');
@@ -99,6 +99,16 @@ SKIP: {
     $mk = $stats->mcdonald_kreitman_counts(@counts);
     is(sprintf("%.2f",$mk), 0.55, 'McDonald Kreitman');
 }
+
+@counts = $stats->mcdonald_kreitman(-ingroup  => \@ingroup_seqs,
+				    -outgroup => [@outgroup_seqs1,
+						  @outgroup_seqs2],
+				    -polarized=> 1);
+is($counts[0], 0, 'NSpoly');
+is($counts[1], 1, 'NSfixed');
+is($counts[2], 3, 'Spoly');
+is($counts[3], 1, 'Sfixed');
+
 
 # test 2nd aln file
 $alnio = Bio::AlignIO->new(-format => 'fasta',
@@ -147,13 +157,14 @@ is(scalar @outgroup_seqs2, 1, 'number of outgroup2 sequences');
 
 $polarized = 0;
 
-@counts = $stats->mcdonald_kreitman($population, \@ingroup_seqs,
-				    \@outgroup_seqs1,
-				    $polarized);
+@counts = $stats->mcdonald_kreitman(-ingroup   => \@ingroup_seqs,
+				    -outgroup  => \@outgroup_seqs1,
+				    -polarized => $polarized);
 is($counts[0], 9, 'NSpoly');
 is($counts[1], 1, 'NSfixed');
 is($counts[2], 26, 'Spoly');
 is($counts[3], 17, 'Sfixed');
+
 
 SKIP: {
 	test_skip(-tests => 1, 
@@ -164,9 +175,9 @@ SKIP: {
     is(sprintf("%.2f",$mk), 0.14, 'McDonald Kreitman');
 }
 
-@counts = $stats->mcdonald_kreitman($population, \@ingroup_seqs,
-				    \@outgroup_seqs2,
-				    $polarized);
+@counts = $stats->mcdonald_kreitman(-ingroup  => \@ingroup_seqs,
+				    -outgroup => \@outgroup_seqs2,
+				    -polarized=> $polarized);
 is($counts[0], 9, 'NSpoly');
 is($counts[1], 10, 'NSfixed');
 is($counts[2], 26, 'Spoly');
@@ -180,3 +191,12 @@ SKIP: {
     $mk = $stats->mcdonald_kreitman_counts(@counts);
     is(sprintf("%.2f",$mk), '0.60', 'McDonald Kreitman');
 }
+
+@counts = $stats->mcdonald_kreitman(-ingroup  => \@ingroup_seqs,
+				    -outgroup => [@outgroup_seqs1,
+						  @outgroup_seqs2],
+				    -polarized=> 1);
+is($counts[0], 6, 'NSpoly');
+is($counts[1], 0, 'NSfixed');
+is($counts[2], 17, 'Spoly');
+is($counts[3], 1, 'Sfixed');
