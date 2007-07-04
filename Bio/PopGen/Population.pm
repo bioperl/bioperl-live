@@ -356,7 +356,7 @@ sub get_Genotypes{
 
 =cut
 
-sub get_marker_names{
+sub get_marker_names {
     my ($self,$force) = @_;
     return @{$self->{'_cached_markernames'} || []} 
       if( ! $force && defined $self->{'_cached_markernames'});
@@ -364,7 +364,15 @@ sub get_marker_names{
     foreach my $n ( map { $_->get_marker_names } $self->get_Individuals() ) {
 	$unique{$n}++;
     }
-    $self->{'_cached_markernames'} = [ keys %unique ];
+    my @nms = keys %unique;
+    if( $nms[0] =~ /^(Site|Codon)/ ) {
+	# sort by site or codon number and do it in 
+	# a schwartzian transformation baby!
+	@nms = map { $_->[1] } 
+ 	       sort { $a->[0] <=> $b->[0] }
+	       map { [$_ =~ /^(?:Codon|Site)-(\d+)/, $_] } @nms;
+    }
+    $self->{'_cached_markernames'} = [ @nms ];
     return @{$self->{'_cached_markernames'} || []};
 }
 
