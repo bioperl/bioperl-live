@@ -163,33 +163,31 @@ sub throw{
             verbosity -1 => no warning
             verbosity 1 => warning with stack trace
             verbosity 2 => converts warnings into throw
- Example :
- Returns : 
- Args    :
+ Returns : n/a
+ Args    : string (the warning message)
 
 =cut
 
-sub warn{
+sub warn {
     my ($self,$string) = @_;
     
     my $verbose = $self->verbose;
-
-    if( $verbose >= 2 ) {
-	$self->throw($string);
-    } elsif( $verbose <= -1 ) {
-	return;
-    } elsif( $verbose == 1 ) {
-	my $out = "\n-------------------- WARNING ---------------------\n".
-		"MSG: $string\n".$self->stack_trace_dump.
-        "---------------------------------------------------\n";	
-	print STDERR $out;
-	return;
+    
+    my $header = "\n--------------------- WARNING ---------------------\nMSG: ";
+    my $footer =   "---------------------------------------------------\n";
+    
+    if ($verbose >= 2) {
+        $self->throw($string);
+    }
+    elsif ($verbose <= -1) {
+        return;
+    }
+    elsif ($verbose == 1) {
+        CORE::warn $header, $string, "\n", $self->stack_trace_dump, $footer;
+        return;
     }    
-
-    my $out = "\n-------------------- WARNING ---------------------\n".
-       "MSG: ".$string."\n".
-	   "---------------------------------------------------\n";
-    print STDERR $out;
+    
+    CORE::warn $header, $string, "\n", $footer;
 }
 
 =head2 deprecated
@@ -348,7 +346,7 @@ sub stack_trace{
 sub _rearrange {
     my $dummy = shift;
     my $order = shift;
-
+    
     return @_ unless (substr($_[0]||'',0,1) eq '-');
     push @_,undef unless $#_ %2;
     my %param;
