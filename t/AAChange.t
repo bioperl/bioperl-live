@@ -15,9 +15,8 @@ BEGIN {
 }
 
 
-my $obj = Bio::Variation::AAChange->new();
-ok defined $obj;
-is ref($obj), 'Bio::Variation::AAChange';
+ok my $obj = Bio::Variation::AAChange->new();
+isa_ok $obj, 'Bio::Variation::AAChange';
 
 $obj->start(3);           
 is $obj->start, 3;
