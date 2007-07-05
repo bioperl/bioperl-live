@@ -18,7 +18,7 @@ BioperlTest - A common base for all Bioperl test scripts.
 
   use lib 't/lib';
   use BioperlTest;
-  
+
   test_begin(-tests => 20,
              -requires_modules => [qw(IO::String XML::Parser)],
              -requires_networking => 1);
@@ -26,8 +26,8 @@ BioperlTest - A common base for all Bioperl test scripts.
   my $do_network_tests = test_network();
   my $output_debugging = test_debug();
 
-  # carry out tests in Test::More syntax
-  
+  # carry out tests with Test::More and Test::Exception syntax
+
   SKIP: {
     # these tests need version 2.6 of Optional::Module to work
     test_skip(-tests => 10, -requires_module => 'Optional::Module 2.6');
@@ -43,10 +43,10 @@ BioperlTest - A common base for all Bioperl test scripts.
     # context of a script that doesn't use -requires_networking in the call to
     # &test_begin)
   }
-  
+
   # in unix terms, we want to test with a file t/data/input_file.txt
   my $input_file = test_input_file('input_file.txt');
-  
+
   # we want the name of a file we can write to, that will be automatically
   # deleted when the test script finishes
   my $output_file = test_output_file();
@@ -63,6 +63,9 @@ reasons. See test_skip().
 It also has two further methods that let you decide if network tests should be
 run, and if debugging information should be printed. See test_network() and
 test_debug().
+
+Finally, it presents a consistent way of getting the path to input and output
+files. See test_input_file() and test_output_file().
 
 =head1 FEEDBACK
 
@@ -107,19 +110,22 @@ BEGIN {
     # For prototyping reasons, we have to load Test::More's methods now, even
     # though theoretically in future the user may use a different Test framework
     
-    # We want to load Test::More. Preferably the users own version, but if they
-    # don't have it, the one in t/lib. However, this module is in t/lib so
-    # t/lib is already in @INC so Test::More in t/lib will be used first, which
-    # we don't want: get rid of t/lib in @INC
+    # We want to load Test::More and Test::Exception. Preferably the users own
+    # versions, but if they don't have them, the ones in t/lib. However, this
+    # module is in t/lib so t/lib is already in @INC so Test::* in t/lib will
+    # be used first, which we don't want: get rid of t/lib in @INC
     no lib 't/lib';
-    eval { require Test::More; };
+    eval { require Test::More;
+           require Test::Exception; };
     if ($@) {
         eval "use lib 't/lib';";
     }
-    eval "use Test::More;";
+    eval "use Test::More;
+          use Test::Exception;";
+    die "$@\n" if $@;
 }
 
-# re-export Test::More methods and export our own
+# re-export Test::More and Test::Exception methods and export our own
 our @EXPORT = qw(ok use_ok require_ok
                  is isnt like unlike is_deeply
                  cmp_ok
@@ -128,9 +134,14 @@ our @EXPORT = qw(ok use_ok require_ok
                  eq_array eq_hash eq_set
                  $TODO
                  plan
-                 can_ok  isa_ok
+                 can_ok isa_ok
                  diag
                  BAIL_OUT
+                 
+                 dies_ok
+                 lives_ok
+                 throws_ok
+                 lives_and
                  
                  test_begin
                  test_skip
@@ -207,9 +218,9 @@ sub test_begin {
  Title   : test_skip
  Usage   : SKIP: {
                    test_skip(-tests => 10,
-                             -requires_modules => ['Optional::Module']);
+                             -requires_module => 'Optional::Module 2.01');
 
-                   # 10 tests that need Optional::Module
+                   # 10 tests that need v2.01 of Optional::Module
            }
  Function: Skip a subset of tests for one of two common reasons: missing one or
            more optional modules, or network tests haven't been enabled.
