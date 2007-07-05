@@ -26,7 +26,7 @@ BioperlTest - A common base for all Bioperl test scripts.
   my $do_network_tests = test_network();
   my $output_debugging = test_debug();
 
-  # carry out tests with Test::More and Test::Exception syntax
+  # carry out tests with Test::More, Test::Exception and Test::Warn syntax
 
   SKIP: {
     # these tests need version 2.6 of Optional::Module to work
@@ -53,7 +53,9 @@ BioperlTest - A common base for all Bioperl test scripts.
 
 =head1 DESCRIPTION
 
-This provides a common base for all Bioperl test scripts. It presents an
+This provides a common base for all Bioperl test scripts. It safely handles the
+loading of Test::More, Test::Exception and Test::Warn (actually, a subclass
+compatible with Bioperl warnings) prior to tests being run. It also presents an
 interface to common needs such as skipping all tests if required modules aren't
 present or if network tests haven't been enabled. See test_begin().
 
@@ -110,22 +112,27 @@ BEGIN {
     # For prototyping reasons, we have to load Test::More's methods now, even
     # though theoretically in future the user may use a different Test framework
     
-    # We want to load Test::More and Test::Exception. Preferably the users own
-    # versions, but if they don't have them, the ones in t/lib. However, this
-    # module is in t/lib so t/lib is already in @INC so Test::* in t/lib will
-    # be used first, which we don't want: get rid of t/lib in @INC
+    # We want to load Test::More, Test::Exception and Test::Warn. Preferably the
+    # users own versions, but if they don't have them, the ones in t/lib.
+    # However, this module is in t/lib so t/lib is already in @INC so Test::* in
+    # t/lib will be used first, which we don't want: get rid of t/lib in @INC
     no lib 't/lib';
     eval { require Test::More;
-           require Test::Exception; };
+           require Test::Exception;
+           require Test::Warn; };
     if ($@) {
         eval "use lib 't/lib';";
     }
     eval "use Test::More;
           use Test::Exception;";
     die "$@\n" if $@;
+    
+    # now that the users' Test::Warn has been loaded if they had it, we can
+    # use Test::Warn::Bioperl which is in t/lib
+    eval "use lib 't/lib'; use Test::Warn::Bioperl;";
 }
 
-# re-export Test::More and Test::Exception methods and export our own
+# re-export Test::More, Test::Exception and Test::Warn methods and export our own
 our @EXPORT = qw(ok use_ok require_ok
                  is isnt like unlike is_deeply
                  cmp_ok
@@ -142,6 +149,11 @@ our @EXPORT = qw(ok use_ok require_ok
                  lives_ok
                  throws_ok
                  lives_and
+                 
+                 warning_is
+                 warnings_are
+                 warning_like
+                 warnings_like
                  
                  test_begin
                  test_skip
