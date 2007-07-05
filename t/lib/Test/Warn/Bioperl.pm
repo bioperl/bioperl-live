@@ -81,7 +81,7 @@ our @EXPORT = qw(warning_is
         
         my $warning;
         if ($warn_kind eq 'Bioperl') {
-            ($warning) = $msg =~ /\n-------------------- WARNING ---------------------\nMSG: (.+)\n---------------------------------------------------\n$/m;
+            ($warning) = $msg =~ /\n--------------------- WARNING ---------------------\nMSG: (.+)\n---------------------------------------------------\n$/m;
             $warning ||= $msg; # shouldn't ever happen
         }
         else {
