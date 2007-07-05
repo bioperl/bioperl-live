@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 52);
+    test_begin(-tests => 53);
 	
 	use_ok('Bio::Seq::Quality');
 }
@@ -18,18 +18,20 @@ my $DEBUG = test_debug();
 my $seqobj_broken = Bio::Seq::Quality->new( -seq => "ATCGATCGA",
                                           );
 
-my $seqobj = Bio::Seq::Quality->new( -seq => "ATCGATCGA",
+my $seqobj;
+lives_ok {
+	$seqobj = Bio::Seq::Quality->new( -seq => "ATCGATCGA",
                                      -id  => 'QualityFragment-12',
                                      -accession_number => 'X78121',
                                    );
-ok(!$@);
+};
 
 
 # create some random quality object with the same number of qualities and the same identifiers
 my $string_quals = "10 20 30 40 50 40 30 20 10";
 my $qualobj;
-eval {
-ok $qualobj = Bio::Seq::Quality->new( -qual => $string_quals,
+lives_ok {
+	$qualobj = Bio::Seq::Quality->new( -qual => $string_quals,
                                       -id  => 'QualityFragment-12',
                                       -accession_number => 'X78121',
                                         );
@@ -46,11 +48,10 @@ print("Testing various weird constructors...\n") if $DEBUG;
 print("\ta) No ids, Sequence object, no quality...\n") if $DEBUG;
 # w for weird
 my $wswq1;
-eval {
+lives_ok {
 	$wswq1 = Bio::Seq::Quality->new( -seq  =>  "ATCGATCGA",
                                          -qual	=>	"");
 };
-ok(!$@);
 print $@ if $DEBUG;
 
 
@@ -61,31 +62,28 @@ $wswq1 = Bio::Seq::Quality->new( -seq => "",
 					-alphabet => 'dna'
 );
 print("\tc) Absolutely nothing. (HAHAHAHA)...\n") if $DEBUG;
-eval {
+lives_ok {
 	$wswq1 = Bio::Seq::Quality->new( -seq => "",
 						-qual => "",
 						-alphabet => 'dna'
 	);
 };
-ok(!$@);
 
 
 print("\td) Absolutely nothing but an ID\n") if $DEBUG;
-eval {
+lives_ok {
     $wswq1 = Bio::Seq::Quality->new( -seq => "",
                                             -qual => "",
                                             -alphabet => 'dna',
                                             -id => 'an object with no sequence and no quality but with an id'
 	);
 };
-ok(!$@);
 
 print("\td) No sequence, No quality, No ID...\n") if $DEBUG;
-ok $wswq1 = Bio::Seq::Quality->new( -seq  =>	"",
+warning_is { ok $wswq1 = Bio::Seq::Quality->new( -seq  =>	"",
                                     -qual =>	"",
-                                    -verbose => -1 # silence the warning about inability to  guess alphabet
-);
-
+                                    -verbose => 0
+) } 'Got a sequence with no letters in it cannot guess alphabet []';
 
 print("Testing various methods and behaviors...\n") if $DEBUG;
 
@@ -168,7 +166,7 @@ ok my $seq = Bio::Seq::Quality->new
       -seq =>  'atcgatcgatcg',
       -id  => 'human_id',
       -accession_number => 'S000012',
-      -verbose => -1   # to silence deprecated methods
+      -verbose => $DEBUG >= 0 ? $DEBUG : 0
 );
 
 is_deeply $seq->qual, [split / /, $qual];
@@ -209,7 +207,7 @@ ok $seq = Bio::Seq::Quality->new
       -seq =>  'atcgatcgatcg',
       -id  => 'human_id',
       -accession_number => 'S000012',
-      -verbose => -1   # to silence deprecated methods
+      -verbose => $DEBUG >= 0 ? $DEBUG : 0
 );
 
 $seq->named_meta('trace', \@trace_array);
