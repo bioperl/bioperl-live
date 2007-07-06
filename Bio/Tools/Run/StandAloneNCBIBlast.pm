@@ -446,10 +446,17 @@ sub _runblast {
 	# the specific parsers for these programs must be used (ie BPbl2seq or
 	# BPpsilite).  Otherwise either the Blast parser or the BPlite
 	# parsers can be selected.
-	if ($self->_READMETHOD =~ /^(blast|SearchIO)/i )  {
-		$blast_obj = Bio::SearchIO->new(-file => $outfile, -format => $self->_READMETHOD =~ /pull/ ? 'blast_pull' : 'blast');
+    
+    # this should allow any blast SearchIO parser (not just 'blast_pull' or 'blast',
+    # but 'blastxml' and 'blasttable').  Fall back to 'blast' if not stipulated.
+    my $method = $self->_READMETHOD;
+	if ($method =~ /^(?:blast|SearchIO)/i )  {
+        $method = 'blast' if $method =~ m{SearchIO}i;
+		$blast_obj = Bio::SearchIO->new(-file => $outfile,
+                                        -format => $method);
 	}
-    elsif ($self->_READMETHOD =~ /BPlite/i ) {
+    # should these be here?  They have been deprecated...
+    elsif ($method =~ /BPlite/i ) {
 		if ($executable =~ /bl2seq/i)  {
 			# Added program info so BPbl2seq can compute strand info
 			$blast_obj = Bio::Tools::BPbl2seq->new(-file => $outfile, -REPORT_TYPE => $self->p);
@@ -466,7 +473,7 @@ sub _runblast {
 		}
 	}
     else {
-		$self->warn("Unrecognized readmethod ".$self->_READMETHOD);
+		$self->warn("Unrecognized readmethod $method");
 	}
     
 	return $blast_obj;
