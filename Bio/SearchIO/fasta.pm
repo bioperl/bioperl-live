@@ -292,9 +292,10 @@ sub next_result{
 				/^Library:\s+(\S+)\s+/ )) ||		
 	       (defined ($_ = $self->_readline()) && 
 		( /^\s*vs\s+(\S+)/ ||/^Library:\s+(\S+)/ ))
-	       ) {
+	       ) {	       
 	       $self->element({'Name' => 'FastaOutput_db',
-			       'Data' => $1});	       
+			       'Data' => $1}); 
+	       warn("db is $1\n");
 		   
 	   } elsif (m/^\s+opt(?:\s+E\(\))?$/o) {
 	       # histogram ... read over it more rapidly than the larger outer loop:
@@ -615,7 +616,7 @@ sub next_result{
 	   }
 	   $self->end_element({ 'Name' => 'FastaOutput'});
 	   return $self->end_document();
-       } elsif( /^\s*\d+\s*>>>/) {
+       } elsif( /^\s*\d+\s*>>>/) {	   
 	   if ($self->within_element('FastaOutput')) {
 	       if( $self->in_element('hsp') ) {
 		   $self->end_element({'Name' => 'Hsp'});
@@ -716,9 +717,7 @@ sub next_result{
 		   }
 	       }
 
-	       if( $self->{'_reporttype'} &&
-		   $self->{'_reporttype'} eq 'FASTA' 
-		   ) {
+	       if( $self->{'_reporttype'} && $self->{'_reporttype'} eq 'FASTA' ) {
 		   if( $querytype eq 'nt') {
 		       $self->{'_reporttype'} = 'FASTN' ;
 		   } elsif( $querytype eq 'aa' ) {
@@ -737,10 +736,11 @@ sub next_result{
 		   $self->warn("unable to find and set query length");
 	       }
 	       
-	       if( defined ($_ = $self->_readline()) && /^\s*vs\s+(\S+)/ ) {
+	       if( defined ($_ = $self->_readline()) && ( /^\s*vs\s+(\S+)/ ||/^Library:\s+(\S+)/ )) {
 		   $self->element({'Name' => 'FastaOutput_db',
 				   'Data' => $1});
 	       } 
+
 	   }
        } elsif( $self->in_element('hsp' ) ) {
 	   
