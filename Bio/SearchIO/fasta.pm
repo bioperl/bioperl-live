@@ -295,8 +295,6 @@ sub next_result{
 	       ) {	       
 	       $self->element({'Name' => 'FastaOutput_db',
 			       'Data' => $1}); 
-	       warn("db is $1\n");
-		   
 	   } elsif (m/^\s+opt(?:\s+E\(\))?$/o) {
 	       # histogram ... read over it more rapidly than the larger outer loop:
 	       while (defined($_ = $self->_readline)) {
