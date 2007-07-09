@@ -548,9 +548,11 @@ sub get_db {
  Title    : get_Cookie
  Usage    : my $cookie = $parser->get_Cookie;
  Function : returns a simple Cookie object, a HistoryI object which contains any
-            relevant information useful for future queries; this can be used as
+            relevant information useful for future queries.  This can be used as
             a lightweight alternative to directly using the parser (with it's
-            associated methods, filehandles, etc).
+            associated methods, filehandles, etc) and is one lightweight object
+            used in the Bio::DB::EUtilities History queue (the other is a
+            LinkSet).
  Returns  : a Bio::Tools::EUtilities::Cookie object
  Args     : none
 
@@ -561,13 +563,11 @@ sub get_Cookie {
     $self->parse_data unless $self->data_parsed;    
     $self->warn("No history data present; no Cookie for you!"), return
         unless $self->has_History;
-    my $cookie =  Bio::Tools::EUtilities::Cookie->new(
+    return Bio::Tools::EUtilities::Cookie->new(
             -eutil => $self->eutil,
             -webenv => $self->get_webenv,
             -query_key => $self->get_query_key,
             -query_translation => $self->get_query_translation);
-    $self->debug(Dumper($cookie));
-    return $cookie;
 }
 
 =head1 Query-related methods

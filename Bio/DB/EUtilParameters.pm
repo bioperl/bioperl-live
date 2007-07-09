@@ -203,8 +203,18 @@ sub new {
  Function: sets the NCBI parameters listed in the hash or array
  Returns : None
  Args    : [optional] hash or array of parameter/values.  
- Note    : This sets any parameter (i.e. doesn't screen them using $MODE or via
-           set history).
+ Note    : This sets any parameter passed but leaves previously set data alone.
+           In addition to regular eutil-specific parameters, you can set the
+           following:
+           
+           -eutil    - the eUtil to be used (default 'efetch')
+           -history  - pass a HistoryI-implementing object, which
+                       sets the WebEnv, query_key, and possibly db and linkname
+                       (the latter two only for LinkSets)
+           -correspondence - Boolean flag, set to TRUE or FALSE; indicates how
+                       IDs are to be added together for elink request where
+                       ID correspondence might be needed
+                       (default 0)
 
 =cut
 
@@ -224,8 +234,18 @@ sub set_parameters {
  Function: resets parameters to either undef or value in passed hash
  Returns : none
  Args    : [optional] hash of parameter-value pairs
- Note    : this also resets eutil(), correspondence(), and the history and request
-           cache
+ Note    : This sets any parameter passed, but resets all others (deletes them).
+           In addition to regular eutil-specific parameters, you can set the
+           following:
+           
+           -eutil    - the eUtil to be used (default 'efetch')
+           -history  - pass a HistoryI-implementing object, which
+                       sets the WebEnv, query_key, and possibly db and linkname
+                       (the latter two only for LinkSets)
+           -correspondence - Boolean flag, set to TRUE or FALSE; indicates how
+                       IDs are to be added together for elink request where
+                       ID correspondence might be needed
+                       (default 0)
 
 =cut
 
@@ -446,7 +466,7 @@ sub history {
         $self->throw('Not a Bio::Tools::EUtilities::HistoryI object!') if
             !$history->isa('Bio::Tools::EUtilities::HistoryI');
         $self->throw('No history present in HistoryI object') if
-            !$history->has_history;
+            !$history->has_History;
         my ($webenv, $qkey) = $history->history;
         $self->WebEnv($webenv);
         $self->query_key($qkey);

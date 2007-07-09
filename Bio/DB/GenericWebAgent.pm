@@ -14,7 +14,7 @@
 
 =head1 NAME
 
-Bio::DB::GenericWebDBI - helper base class for parameter-based remote
+Bio::DB::GenericWebDBI - helper base class for parameter-based remote server
 access and response retrieval.
 
 =head1 SYNOPSIS
@@ -161,7 +161,11 @@ sub ua {
 
 sub get_Response {
     my ($self, @args) = @_;
-    my ($cache, @opts) = $self->_rearrange([qw(CACHE_RESPONSE FILE CB READ_SIZE_HINT)],@args);
+    my ($cache, $file, $cb, $size) = $self->_rearrange([qw(CACHE_RESPONSE FILE CB READ_SIZE_HINT)],@args);
+    $self->throw("Can't have both callback and file") if $file && $cb;
+    # make -file accept more perl-like write-append type data.
+    $file =~ s{^>}{} if $file; 
+    my @opts = ($file || $cb, $size);
     $cache = (defined $cache && $cache == 0) ? 0 : 1;
     my $pobj = $self->parameter_base;
     if ($pobj->parameters_changed ||

@@ -19,7 +19,11 @@ NCBI's eUtils
 
 =head1 SYNOPSIS
 
+...To be added!
 
+=head1 DESCRIPTION
+
+...To be added!
 
 =head1 FEEDBACK
 
@@ -76,7 +80,90 @@ sub new {
     return $self;
 }
 
-=head1 Bio::DB::GenericWebDBI method
+=head1 Bio::DB::GenericWebAgent methods
+
+=head1 GenericWebDBI methods
+
+=head2 parameter_base
+
+ Title   : parameter_base
+ Usage   : $dbi->parameter_base($pobj);
+ Function: Get/Set Bio::ParameterBaseI.
+ Returns : Bio::ParameterBaseI object
+ Args    : Bio::ParameterBaseI object
+
+=cut
+
+=head2 ua
+
+ Title   : ua
+ Usage   : $dbi->ua;
+ Function: Get/Set LWP::UserAgent.
+ Returns : LWP::UserAgent
+ Args    : LWP::UserAgent
+
+=cut
+
+=head2 get_Response
+
+ Title   : get_Response
+ Usage   : $agent->get_Response;
+ Function: Get the HTTP::Response object by passing it an HTTP::Request (generated from
+           Bio::ParameterBaseI implementation).
+ Returns : HTTP::Response object or data if callback is used
+ Args    : (optional)
+ 
+           -cache_response - flag to cache HTTP::Response object; 
+                             Default is 1 (TRUE, caching ON)
+                             
+           These are passed on to LWP::UserAgent::request() if stipulated
+           
+           -file   - use a LWP::UserAgent-compliant callback
+           -cb     - dumps the response to a file (handy for large responses)
+                     Note: can't use file and callback at the same time
+           -read_size_hint - bytes of content to read in at a time to pass to callback
+ Note    : Caching and parameter checking are set
+
+=cut
+
+=head2 delay
+
+ Title   : delay
+ Usage   : $secs = $self->delay([$secs])
+ Function: get/set number of seconds to delay between fetches
+ Returns : number of seconds to delay
+ Args    : new value
+
+NOTE: the default is to use the value specified by delay_policy().
+This can be overridden by calling this method.
+
+=cut
+
+=head1 LWP::UserAgent related methods
+
+=head2 proxy
+
+ Title   : proxy
+ Usage   : $httpproxy = $db->proxy('http')  or
+           $db->proxy(['http','ftp'], 'http://myproxy' )
+ Function: Get/Set a proxy for use of proxy
+ Returns : a string indicating the proxy
+ Args    : $protocol : an array ref of the protocol(s) to set/get
+           $proxyurl : url of the proxy to use for the specified protocol
+           $username : username (if proxy requires authentication)
+           $password : password (if proxy requires authentication)
+
+=cut
+
+=head2 authentication
+
+ Title   : authentication
+ Usage   : $db->authentication($user,$pass)
+ Function: Get/Set authentication credentials
+ Returns : Array of user/pass
+ Args    : Array or user/pass
+
+=cut
 
 =head2 delay_policy
 
@@ -163,7 +250,6 @@ sub keep_Histories {
     return $self->{'_keephistories'};
 }
 
-
 =head2 next_History
 
  Title   : next_History
@@ -236,8 +322,17 @@ ones deemed absolutely necessary).  All others are available by calling
  Function: sets the NCBI parameters listed in the hash or array
  Returns : None
  Args    : [optional] hash or array of parameter/values.  
- Note    : This sets any parameter (i.e. doesn't screen them using $MODE or via
-           set history).
+ Note    : This sets any parameter (i.e. doesn't screen them).  In addition to
+           regular eutil-specific parameters, you can set the following:
+           
+           -eutil    - the eUtil to be used (default 'efetch')
+           -history  - pass a HistoryI-implementing object, which
+                       sets the WebEnv, query_key, and possibly db and linkname
+                       (the latter two only for LinkSets)
+           -correspondence - Boolean flag, set to TRUE or FALSE; indicates how
+                       IDs are to be added together for elink request where
+                       ID correspondence might be needed
+                       (default 0)
 
 =cut
 

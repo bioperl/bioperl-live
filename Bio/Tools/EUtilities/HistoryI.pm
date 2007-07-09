@@ -104,7 +104,7 @@ sub history {
         $self->throw("Missing part of cookie!") if (!$webenv || !$querykey);
         ($self->{'_webenv'}, $self->{'_querykey'}) = ($webenv, $querykey);
     }
-    return ($self->{'_webenv'}, $self->{'_querykey'});
+    return ($self->get_webenv, $self->get_query_key);
 }
 
 =head2 get_webenv
