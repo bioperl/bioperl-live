@@ -832,7 +832,7 @@ sub _guess_alphabet {
    my $total = CORE::length($str);
    if( $total == 0 ) {
        $self->warn("Got a sequence with no letters in it ".
-		   "cannot guess alphabet [$str]");
+		   "cannot guess alphabet");
        return '';
    }
 
