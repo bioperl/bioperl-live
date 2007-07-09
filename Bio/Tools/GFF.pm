@@ -736,7 +736,7 @@ sub _gff1_string{
 
    foreach my $tag ( $feat->all_tags ) {
        foreach my $value ( $feat->each_tag_value($tag) ) {
-	   $str .= " $tag=$value";
+	   $str .= " $tag=$value" if $value;
        }
    }
 
