@@ -96,7 +96,7 @@ sub new {
      $self->{'_prefix'},
      $self->{'signif'} ) = $self->_rearrange([qw(E_VALUE OUTPUT_CIGAR PREFIX
 						 OUTPUT_SIGNIF)], @args);
-    $self->{'_evalue'} && warn( 'use of the -e_value argument is deprecated.  In future, use $writer->filter("type", \&code)  instead.\n\tparsing will proceed correctly with this e_value\n');
+    $self->{'_evalue'} && warn( "Use of the -e_value argument is deprecated.\nIn future, use \$writer->filter(\"type\", \&code) instead.\n\tparsing will proceed correctly with this e_value\n");
     $self->{Gbrowse_HSPID} = 0;
     $self->{Gbrowse_HITID} = 0;
     $self->{'_prefix'} ||= $Defaults{'Prefix'};
@@ -149,7 +149,7 @@ sub to_string {
 				       REFERENCE 
 				       MATCH_TAG HSP_TAG
 				       PREFIX)], @args);
-    warn $reference if $reference;
+    $self->warn($reference) if $reference; 
     $reference ||='hit'; # default is that the hit sequence (db sequence) becomes the reference sequence.  I think this is fairly typical...
     $match_tag ||= $Defaults{'MatchTag'}; # default is the generic 'match' tag.
     $hsp_tag   ||= $Defaults{'HSPTag'}; # default is the generic 'hsp' tag.
