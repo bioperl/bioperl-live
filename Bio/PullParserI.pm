@@ -275,7 +275,7 @@ sub chunk {
             $self->{_chunk} = Bio::Root::IO->new(-fh => $thing);
         }
         elsif (ref(\$thing) eq 'SCALAR') {
-            if (-e $thing) {
+            if ($thing !~ /\n/ && -e $thing) {
                 $self->{_chunk} = Bio::Root::IO->new(-file => $thing);
             }
             else {
@@ -531,8 +531,9 @@ sub _get_chunk_by_nol {
         last if $count == $nol;
     }
     
-    my $end = $self->_chunk_tell + $self->_chunk_true_start;
-    if ($self->_chunk_true_end ? $end <= $self->_chunk_true_end : 1) {
+    my $current = $self->_chunk_tell;
+    my $end = ($current || 0) + $self->_chunk_true_start;
+    if (! $current || ($self->_chunk_true_end ? $end <= $self->_chunk_true_end : 1)) {
         return $line;
     }
     return;
@@ -560,8 +561,9 @@ sub _get_chunk_by_end {
     local $/ = $chunk_ending || '';
     my $line = $self->chunk->_readline;
     
-    my $end = $self->_chunk_tell + $self->_chunk_true_start;
-    if ($self->_chunk_true_end ? $end <= $self->_chunk_true_end : 1) {
+    my $current = $self->_chunk_tell;
+    my $end = ($current || 0) + $self->_chunk_true_start;
+    if (! $current || ($self->_chunk_true_end ? $end <= $self->_chunk_true_end : 1)) {
         return $line;
     }
     
