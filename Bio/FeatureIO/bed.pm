@@ -211,11 +211,13 @@ sub next_feature {
   
   my $feature = Bio::SeqFeature::Annotated->new(-start  => $start, # start is 0 based
                                                 -end    => --$end, # end is not part of the feature
-                                                -score  => $score,
-                                                -strand => $strand eq '+' ? 1 : -1);
+                                                $score  ? (-score  => $score) : (),
+                                                $strand ? (-strand => $strand eq '+' ? 1 : -1) : ());
   $feature->seq_id->value($seq_id);
-  my $sv = Bio::Annotation::SimpleValue->new(-tagname => 'Name', -value => $name);
-  $feature->annotation->add_Annotation($sv);
+  if ($name) {
+    my $sv = Bio::Annotation::SimpleValue->new(-tagname => 'Name', -value => $name);
+    $feature->annotation->add_Annotation($sv);
+  }
   
   return $feature;
 }
