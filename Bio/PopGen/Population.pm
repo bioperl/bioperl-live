@@ -279,7 +279,7 @@ sub remove_Individuals {
     foreach my $n ( @names ) { $namehash{$n}++ }
     my @tosplice;
     foreach my $ind (  @{$self->{'_individuals'} || []} ) {
-	unshift @tosplice, $i if( $namehash{$ind->person_id} );
+	unshift @tosplice, $i if( $namehash{$ind->unique_id} );
 	$i++;
     }
     foreach my $index ( @tosplice ) {
