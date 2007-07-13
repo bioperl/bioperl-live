@@ -10,7 +10,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 97);
+    test_begin(-tests => 99);
 	
     use_ok('Bio::PopGen::Individual');
     use_ok('Bio::PopGen::Genotype');
@@ -110,6 +110,12 @@ my %af = $marker->get_Allele_Frequencies();
 is($af{'a'}, 0.75);
 is($af{'A'}, 0.25);
 
+$population->remove_Individuals('10a');
+$marker = $population->get_Marker('Mkr3');
+%af = $marker->get_Allele_Frequencies();
+
+is($af{'a'}, 1);
+is($af{'A'}, undef);
 
 # Read in data from a file
 my $io = Bio::PopGen::IO->new(-format => 'csv',
@@ -415,9 +421,9 @@ is(sprintf("%.3f",$stats->pi($population)),12.335);
 
 is(sprintf("%.3f",$stats->theta($population)),5.548);
 TODO: {
-    local $TODO = 'tjd inconsistency, need to recalculate';
-    is(sprintf("%.3f",$stats->tajima_D($population)),2.926);
-    is(sprintf("%.3f",$stats->tajima_D($population->haploid_population)),3.468);
+    local $TODO = 'May be TJd inconsistency, need to recalculate';
+    is(sprintf("%.3f",$stats->tajima_D($population)),'2.960');
+    is(sprintf("%.3f",$stats->tajima_D($population->haploid_population)),3.486);
 }
 $io = Bio::PopGen::IO->new(-format => 'phase',
 			  -file   => test_input_file('example.phase'));
