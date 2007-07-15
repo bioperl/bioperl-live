@@ -492,8 +492,7 @@ sub handle_feature {
   return unless @columns >= 8;
   my ($refname,$source,$method,$start,$end, $score,$strand,$phase,$attributes)      = @columns;
   $strand = $Strandedness{$strand||0};
-
-  my ($reserved,$unreserved) = $self->parse_attributes($attributes);
+  my ($reserved,$unreserved) = $attributes ? $self->parse_attributes($attributes) : ();
 
   my $name        = ($reserved->{Name}   && $reserved->{Name}[0]);
 
@@ -941,12 +940,12 @@ sub time {
   return time();
 }
 
-=item escape
+=item unescape
 
  my $unescaped = GFF3Loader::unescape($escaped)
 
 This is an internal utility.  It is the same as CGI::Util::unescape,
-but don't change pluses into spaces and ignores unicode escapes.
+but doesn't change pluses into spaces and ignores unicode escapes.
 
 =cut
 
