@@ -1922,9 +1922,7 @@ sub start_element {
         if ( $type eq 'result' ) {
             $self->{'_values'} = {};
             $self->{'_result'} = undef;
-        }
-        else {
-
+        } else {
             # cleanup some things
             if ( defined $self->{'_values'} ) {
                 foreach my $k (
