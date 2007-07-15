@@ -108,7 +108,6 @@ Internal methods are usually preceded with a _
 
 package Bio::Factory::SequenceProcessorI;
 use strict;
-use Carp;
 use Bio::Root::RootI;
 
 use base qw(Bio::Factory::SequenceStreamI);
