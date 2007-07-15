@@ -139,6 +139,7 @@ use vars qw(%MAPPING %MODEMAP
 
 
 use base qw(Bio::SearchIO);
+use Data::Dumper;
 
 BEGIN {
 
@@ -370,18 +371,19 @@ sub _initialize {
     my ( $self, @args ) = @_;
     $self->SUPER::_initialize(@args);
 
- # Blast reports require a specialized version of the SREB due to the
- # possibility of iterations (PSI-BLAST). Forwarding all arguments to it.
- # An issue here is that we want to set new default object factories if none are
- # supplied.
+    # Blast reports require a specialized version of the SREB due to the
+    # possibility of iterations (PSI-BLAST). Forwarding all arguments to it. An
+    # issue here is that we want to set new default object factories if none are
+    # supplied.
 
     my $handler = Bio::SearchIO::IteratedSearchResultEventBuilder->new(@args);
     $self->attach_EventHandler($handler);
     
-    # 2006-04-26 move this to the attach_handler function in this
-    # module so we can really reset the handler 
+    # 2006-04-26 move this to the attach_handler function in this module so we
+    # can really reset the handler 
     # Optimization: caching
     # the EventHandler since it is used a lot during the parse.
+    
     # $self->{'_handler_cache'} = $handler;
 
     my ( $min_qlen, $check_all, $overlap, $best, $rpttype ) = $self->_rearrange(
@@ -436,6 +438,9 @@ sub next_result {
     my $gapped_stats = 0;    # for switching between gapped/ungapped
                              # lambda, K, H
     local $_ = "\n";   #consistency
+    # bug 1986; try not to rely on hit table for hit significance/score
+    my ($besthit, $besteval);
+    
     PARSER:
     while ( defined( $_ = $self->_readline ) ) {
         next if (/^\s+$/);       # skip empty lines
@@ -449,14 +454,14 @@ sub next_result {
             || /^(P?GENEWISE|HFRAME|SWN|TSWN)\s+(.+)/i    #Paracel BTK
           )
         {
-            $self->debug("blast.pm: Start of new report: $1 $2\n");
+            ($reporttype, my $reportversion) = ($1, $2);
+            $self->debug("blast.pm: Start of new report: $reporttype, $reportversion\n");
             if ( $self->{'_seentop'} ) { 
                 # This handles multi-result input streams
                 $self->_pushback($_);
                 last PARSER;
             }
             $self->_start_blastoutput;
-            $reporttype = $1;
             if ($reporttype =~ /RPS-BLAST/) {
                 $reporttype .= '(BLASTP)'; # default RPS-BLAST type
             }
@@ -471,7 +476,7 @@ sub next_result {
             $self->element(
                 {
                     'Name' => 'BlastOutput_version',
-                    'Data' => $2
+                    'Data' => $reportversion
                 }
             );
             $self->element(
@@ -493,16 +498,16 @@ sub next_result {
             if ( defined $seeniteration ) {
                 $self->within_element('iteration')
                   && $self->end_element( { 'Name' => 'Iteration' } );
-                $self->_start_iteration;
+                $self->start_element( { 'Name' => 'Iteration' } );
             }
             else {
-                $self->_start_iteration;
+                $self->start_element( { 'Name' => 'Iteration' } );
             }
             $seeniteration = 1;
         }
         elsif (/^Query=\s*(.*)$/) {
-            $self->debug("blast.pm: Query= found...$_\n");
             my $q    = $1;
+            $self->debug("blast.pm: Query= found...$_\n");
             my $size = 0;
             if ( defined $seenquery ) {
                 $self->_pushback($reportline) if $reportline;
@@ -515,10 +520,10 @@ sub next_result {
                     if ( defined $seeniteration ) {
                         $self->in_element('iteration')
                           && $self->end_element( { 'Name' => 'Iteration' } );
-                        $self->_start_iteration;
+                        $self->start_element( { 'Name' => 'Iteration' } );
                     }
                     else {
-                        $self->_start_iteration;
+                        $self->start_element( { 'Name' => 'Iteration' } );
                     }
                     $seeniteration = 1;
                 }
@@ -590,7 +595,7 @@ sub next_result {
             # for a line with a leading >. Blank lines occur with this section
             # for psiblast.
             if ( !$self->in_element('iteration') ) {
-                $self->_start_iteration;
+                $self->start_element( { 'Name' => 'Iteration' } );
             }
             # these elements are dropped with some multiquery reports; add
             # back here
@@ -612,7 +617,7 @@ sub next_result {
                     'Data' => $self->{'_blsdb'}
                 }
             ) if $self->{'_blsdb_letters'};
-          descline:
+          DESCLINE:
             while ( defined( $_ = $self->_readline() ) ) {
                 
                 if (/(?<!cor)(\d[\d\.\+\-eE]+)\s+((?:\d|e)[\d\.\+\-eE]+)(\s+\d+)?\s*$/xms) {
@@ -656,7 +661,7 @@ sub next_result {
                     || /^Query=/
                     ) {
                     $self->_pushback($_); # Catch leading > (end of section)
-                    last descline;
+                    last DESCLINE;
                 }
             }
             @hit_signifs = sort {$a->[0] <=> $b->[0]} @hit_signifs;
@@ -670,7 +675,7 @@ sub next_result {
             $flavor = 'wu';
 
             if ( !$self->in_element('iteration') ) {
-                $self->_start_iteration;
+                $self->start_element( { 'Name' => 'Iteration' } );
             }
 
             while ( defined( $_ = $self->_readline() )
@@ -755,10 +760,10 @@ sub next_result {
             # Query=
             if ( !$self->within_element('result') ) {
                 $self->_start_blastoutput;
-                $self->_start_iteration;
+                $self->start_element( { 'Name' => 'Iteration' } );
             }
             elsif ( !$self->within_element('iteration') ) {
-                $self->_start_iteration;
+                $self->start_element( { 'Name' => 'Iteration' } );
             }
             $self->start_element( { 'Name' => 'Hit' } );
             my $id         = $1;
@@ -785,26 +790,34 @@ sub next_result {
                 }
             ) if $gi; 
             # add hit significance (from the hit table)
-            # this is where Bug 1986 goes awry
+            # this is where Bug 1986 went awry
             
-            my $v = shift @hit_signifs;
-                    
-            if ( defined $v ) {
-                # should perform a sanity check here,
-                # but that breaks some report parsing.  Needs investigation
-                
-                $self->element(
-                    {
-                        'Name' => 'Hit_signif',
-                        'Data' => $v->[0]
-                    }
-                );
-                $self->element(
-                    {
-                        'Name' => 'Hit_score',
-                        'Data' => $v->[1]
-                    }
-                );
+            # get hit significance, score from hit table; maybe we should
+            # use the bestscore, besteval from the HSPs instead?
+            HITTABLE:
+            while (my $v = shift @hit_signifs) {        
+                # Perform a sanity check here, may break some report parsing.
+                # Needs further investigation.
+                my $tableid = $v->[2];
+                if ($tableid !~ m{$id}) {
+                    $self->debug("Hit table ID $tableid doesn't match current hit id $id, checking next hit table entry...\n");
+                    next HITTABLE;
+                } else {
+                    $self->debug("Hit table $id match : signif: $v->[0], score: $v->[1]\n");
+                    $self->element(
+                        {
+                            'Name' => 'Hit_signif',
+                            'Data' => $v->[0]
+                        }
+                    );
+                    $self->element(
+                        {
+                            'Name' => 'Hit_score',
+                            'Data' => $v->[1]
+                        }
+                    );
+                    last HITTABLE;
+                }
             }
             while ( defined( $_ = $self->_readline() ) ) {
                 next if (/^\s+$/);
@@ -1827,13 +1840,6 @@ sub _start_blastoutput {
     $self->{'_handler_rc'} = undef;
 }
 
-sub _start_iteration {
-    my $self = shift;
-    $self->start_element( { 'Name' => 'Iteration' } );
-
-    #   $self->{'_hit_info'} = undef;
-}
-
 =head2 _will_handle
 
  Title   : _will_handle
@@ -1906,12 +1912,12 @@ sub start_element {
             my $func = sprintf( "start_%s", lc $type );
             $self->{'_handler_rc'} = $handler->$func( $data->{'Attributes'} );
         }
-        else {
+        #else {
             #$self->debug( # changed 4/29/2006 to play nice with other event handlers
             #    "Bio::SearchIO::InternalParserError ".
             #    "\nCan't handle elements of type \'$type.\'"
             #);
-        }
+        #}
         unshift @{ $self->{'_elements'} }, $type;
         if ( $type eq 'result' ) {
             $self->{'_values'} = {};
