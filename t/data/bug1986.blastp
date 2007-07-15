@@ -1,0 +1,126 @@
+BLASTP 2.2.11 [Jun-05-2005]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= NP_006065
+         (442 letters)
+
+Database: Homo_sapiens.NCBI36.apr.pep.fa 
+           48,851 sequences; 23,910,368 total letters
+
+Searching..................................................done
+
+                                                                 Score    E
+Sequences producing significant alignments:                      (bits) Value
+
+ENSP00000350182 pep:novel clone::BX322644.8:4905:15090:-1 gene:E...   120   3e-27
+ENSP00000350182 pep:novel clone::BX322644.8:4905:15090:-1 gene:E...   120   3e-27
+ENSP00000327738 pep:known-ccds chromosome:NCBI36:4:189297592:189...   115   8e-26
+
+>ENSP00000350182 pep:novel clone::BX322644.8:4905:15090:-1 gene:ENSG00000137397
+           transcript:ENST00000357569 
+          Length = 425
+
+ Score =  120 bits (301), Expect = 3e-27
+ Identities = 76/261 (29%), Positives = 140/261 (53%), Gaps = 21/261 (8%)
+
+Query: 9   IEKEVTCPICLELLTEPLSLDCGHSFCQACITAKIKESVIISRGESSCPVCQTRFQPGNL 68
+           +++EV CPICL++L +P+++DCGH+FC  CIT +I E+   S G   CP+C+T  +   +
+Sbjct: 10  LQEEVICPICLDILQKPVTIDCGHNFCLKCIT-QIGET---SCGFFKCPLCKTSVRKNAI 65
+
+Query: 69  RPNRHLANIVERVKEVKMSP-QEGQKRDVCEHHGKKLQIFCKEDGKVICWVCELSQEHQG 127
+           R N  L N+VE+++ ++ S  Q  +K   C  H +    FC++DGK +C+VC  S++H+ 
+Sbjct: 66  RFNSLLRNLVEKIQALQASEVQSKRKEATCPRHQEMFHYFCEDDGKFLCFVCCESKDHKS 125
+
+Query: 128 HQTFRINEVVKECQEKLQVALQRLIKEDQEAEKLED------DIRQERTAWKIERQKILK 181
+           H    I E  +  Q ++Q  +Q L ++++E  +++       D+  ++   + E+Q+IL 
+Sbjct: 126 HNVSLIEEAAQNYQGQIQEQIQVLQQKEKETVQVKAQGVHRVDVFTDQV--EHEKQRILT 183
+
+Query: 182 GFNEMRVILDNEEQRELQKL----EEGEVNVLDNLAAATDQLVQQRQDASTLISDLQRRL 237
+            F  +  +L+ E+   L ++     EG       +A+   QL     D   L+  L+ + 
+Sbjct: 184 EFELLHQVLEEEKNFLLSRIYWLGHEGTEAGKHYVASTEPQL----NDLKKLVDSLKTKQ 239
+
+Query: 238 TGSSVEMLQDVIDVMKRSESW 258
+                ++L+     + RSE +
+Sbjct: 240 NMPPRQLLEVTQPHLPRSEEF 260
+
+
+>ENSP00000327738 pep:known-ccds chromosome:NCBI36:4:189297592:189305643:1
+           gene:ENSG00000184108 transcript:ENST00000332517
+           CCDS3851.1
+          Length = 468
+
+ Score =  115 bits (289), Expect = 8e-26
+ Identities = 101/410 (24%), Positives = 180/410 (43%), Gaps = 39/410 (9%)
+
+Query: 8   DIEKEVTCPICLELLTEPLSLDCGHSFCQACITAKIKESVIISRGESSCPVCQTRFQPGN 67
+           ++ +E+TC ICL+  + P++ +CGHSFC  C+    +E         SCP C    +  +
+Sbjct: 9   NLREELTCFICLDYFSSPVTTECGHSFCLVCLLRSWEE----HNTPLSCPECWRTLEGPH 64
+
+Query: 68  LRPNRHLANIVERVKEVKMSPQEGQKRDVCEHHGK-----KLQIFCKEDGKVICWVCELS 122
+            + N  L  +    ++++   Q  Q  D    +G+     K     ++ G        ++
+Sbjct: 65  FQSNERLGRLASIARQLR--SQVLQSEDEQGSYGRMPTTAKALSDDEQGGSAF-----VA 117
+
+Query: 123 QEHQGHQTFRINEVVKECQEKLQVALQRLIKEDQEA------EKLEDDIRQERTAWKIER 176
+           Q H  ++    +E  +  +EKLQ  L  L    +EA      EK    + QE T  K  +
+Sbjct: 118 QSHGANRVHLSSEAEEHHREKLQEILNLLRVRRKEAQAVLTHEKERVKLCQEET--KTCK 175
+
+Query: 177 QKILKGFNEMRVILDNEEQRELQKLEEGEVNVLDNLAAATDQLVQQRQDASTLISDLQRR 236
+           Q ++  + +M   L  EEQ +LQ LE+ E   +  L     +L QQ +  S +I+ ++  
+Sbjct: 176 QVVVSEYMKMHQFLKEEEQLQLQLLEQEEKENMRKLRNNEIKLTQQIRSLSKMIAQIESS 235
+
+Query: 237 LTGSSVEMLQDVIDVMKRSESWTXXXXXXXXXXXXXXFRVPDLSGMLQVLKELTDVQYYW 296
+              S+ E L++V   ++RSE                   +  ++GM ++L++ +      
+Sbjct: 236 SQSSAFESLEEVRGALERSE----PLLLQCPEATTTELSLCRITGMKEMLRKFS------ 285
+
+Query: 297 VDVMLNPGSATSNVAISVDQRQVKTVRTCTFKNSNPCDF-SAFGVFGCQYFSSGKYYWEV 355
+            ++ L+P +A + + +S D + VK   +      NP  F  +  V G Q F+SG++YWEV
+Sbjct: 286 TEITLDPATANAYLVLSEDLKSVKYGGSRQQLPDNPERFDQSATVLGTQIFTSGRHYWEV 345
+
+Query: 356 DVSGKIAWILGVHSKISSLNKRKSSGFAFDPSVNYSKVYSRYRPQYGYWV 405
+           +V  K  W +G+     S    +       P   +S +  +    Y  WV
+Sbjct: 346 EVGNKTEWEVGICKDSVS----RKGNLPKPPGDLFSLIGLKIGDDYSLWV 391
+
+
+  Database: Homo_sapiens.NCBI36.apr.pep.fa
+    Posted date:  Jun 15, 2006  8:56 PM
+  Number of letters in database: 23,910,368
+  Number of sequences in database:  48,851
+  
+Lambda     K      H
+   0.319    0.133    0.398 
+
+Gapped
+Lambda     K      H
+   0.267   0.0410    0.140 
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 20,900,506
+Number of Sequences: 48851
+Number of extensions: 899179
+Number of successful extensions: 6075
+Number of sequences better than 1.0e-25: 105
+Number of HSP's better than  0.0 without gapping: 18
+Number of HSP's successfully gapped in prelim test: 87
+Number of HSP's that attempted gapping in prelim test: 5632
+Number of HSP's gapped (non-prelim): 157
+length of query: 442
+length of database: 23,910,368
+effective HSP length: 107
+effective length of query: 335
+effective length of database: 18,683,311
+effective search space: 6258909185
+effective search space used: 6258909185
+T: 11
+A: 40
+X1: 16 ( 7.4 bits)
+X2: 38 (14.6 bits)
+X3: 64 (24.7 bits)
+S1: 41 (21.8 bits)
+S2: 289 (115.9 bits)

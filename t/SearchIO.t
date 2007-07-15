@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 1431);
+    test_begin(-tests => 1443);
 	
 	use_ok('Bio::SearchIO');
 	use_ok('Bio::SearchIO::Writer::HitTableWriter');
@@ -1221,12 +1221,12 @@ $hit = $result->next_hit;
 is($hit->name, 'PIR2:S44629');
 is($hit->length, 628);
 is($hit->accession, 'PIR2:S44629');
+is($hit->significance, '2e-08' );
 
-#TODO: {
-	#skip('Significance parsing and raw score parsing broken for GCG-BLAST Hits -- see HSP',2);
-	is($hit->significance, '2e-08' );
+TODO: {
+    local $TODO = 'Raw score parsing broken for GCG-BLAST Hits -- see HSP';
 	is($hit->raw_score, 57 );
-#}
+}
 
 $hsp = $hit->next_hsp;
 cmp_ok($hsp->evalue, '==', 2e-08);
@@ -1965,6 +1965,26 @@ is $hit->accession, 'UniRef50_Q9X0H5';
 is $hit->description, 'Cluster: Histidyl-tRNA synthetase; n=4; Thermoto...';
 is $hit->raw_score, 23;
 is $hit->significance, 650;
+
+# Bug 1986
+$searchio = Bio::SearchIO->new(-format => 'blast',
+                               -verbose => -1,
+							  -file   => test_input_file('bug1986.blastp'));
+$result = $searchio->next_result;
+$hit = $result->next_hit;
+is $hit->name, 'ENSP00000350182';
+is $hit->length, 425;
+is $hit->accession, 'ENSP00000350182';
+is $hit->description, 'pep:novel clone::BX322644.8:4905:15090:-1 gene:ENSG00000137397 transcript:ENST00000357569 ';
+is $hit->raw_score, 120;
+is $hit->significance, 3e-27;
+$hit = $result->next_hit;
+is $hit->name, 'ENSP00000327738';
+is $hit->length, 468;
+is $hit->accession, 'ENSP00000327738';
+is $hit->description, 'pep:known-ccds chromosome:NCBI36:4:189297592:189305643:1 gene:ENSG00000184108 transcript:ENST00000332517 CCDS3851.1';
+is $hit->raw_score, 115;
+is $hit->significance, 8e-26;
 
 # some utilities
 # a utility function for comparing result objects
