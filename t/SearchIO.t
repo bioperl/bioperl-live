@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 1448);
+    test_begin(-tests => 1449);
 	
 	use_ok('Bio::SearchIO');
 	use_ok('Bio::SearchIO::Writer::HitTableWriter');
@@ -1218,16 +1218,12 @@ is($result->database_entries, 274514);
 is($result->database_letters, 93460074);
 
 $hit = $result->next_hit;
+is($hit->description, 'F22B7.10 protein - Caenorhabditis elegans');
 is($hit->name, 'PIR2:S44629');
 is($hit->length, 628);
 is($hit->accession, 'PIR2:S44629');
 is($hit->significance, '2e-08' );
-
-TODO: {
-    local $TODO = 'Raw score parsing broken for GCG-BLAST Hits -- see HSP';
-	is($hit->raw_score, 57 );
-}
-
+is($hit->raw_score, 57 );
 $hsp = $hit->next_hsp;
 cmp_ok($hsp->evalue, '==', 2e-08);
 is($hsp->bits, '57.0');
@@ -1247,7 +1243,6 @@ is($hsp->query->end, 135);
 is($hsp->query_string, 'CAAEFDFMEKETPLRYTKTXXXXXXXXXXXXXXRKIISDMWGVLAKQQTHVRKHQFDHGELVYHALQLLAYTALGILIMRLKLFLTPYMCVMASLICSRQLFGW--LFCKVHPGAIVFVILAAMSIQGSANLQTQ');
 is($hsp->hit_string, 'CSAEFDFIQYSTIEKLCGTLLIPLALISLVTFVFNFVKNT-NLLWRNSEEIG----ENGEILYNVVQLCCSTVMAFLIMRLKLFMTPHLCIVAALFANSKLLGGDRISKTIRVSALVGVI-AILFYRGIPNIRQQ');
 is($hsp->homology_string, 'C+AEFDF++  T  +   T                 + +   +L +    +     ++GE++Y+ +QL   T +  LIMRLKLF+TP++C++A+L  + +L G   +   +   A+V VI A +  +G  N++ Q');
-
 
 $searchio = Bio::SearchIO->new('-format' => 'blast',
 			       '-file'   => test_input_file('HUMBETGLOA.tblastx'));

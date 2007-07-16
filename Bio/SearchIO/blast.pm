@@ -438,9 +438,6 @@ sub next_result {
     my $gapped_stats = 0;    # for switching between gapped/ungapped
                              # lambda, K, H
     local $_ = "\n";   #consistency
-    # bug 1986; try not to rely on hit table for hit significance/score
-    my ($besthit, $besteval);
-    
     PARSER:
     while ( defined( $_ = $self->_readline ) ) {
         next if (/^\s+$/);       # skip empty lines
@@ -617,20 +614,25 @@ sub next_result {
                     'Data' => $self->{'_blsdb'}
                 }
             ) if $self->{'_blsdb_letters'};
+            my $descline_buffer;
           DESCLINE:
-            while ( defined( $_ = $self->_readline() ) ) {
-                
-                if (/(?<!cor)(\d[\d\.\+\-eE]+)\s+((?:\d|e)[\d\.\+\-eE]+)(\s+\d+)?\s*$/xms) {
-
+            while ( defined( my $descline = $self->_readline() ) ) {
+                # GCG multiline oddness...
+                if ($descline =~ /^(\S+)\s+Begin:\s\d+\s+End:\s+\d+/xms) {
+                    my ($id, $nextline) = ($1, $self->_readline);
+                    $nextline =~ s{^!}{};
+                    $descline = "$id $nextline";
+                }
+                if ($descline =~ /(?<!cor)(\d[\d\.\+\-eE]+)\s+((?:\d|e)[\d\.\+\-eE]+)(\s+\d+)?\s*$/xms) {
+                    
                     # the last match is for gapped BLAST output
                     # which will report the number of HSPs for the Hit
                     my ( $score, $evalue ) = ( $1, $2 );
-
                     # Some data clean-up so e-value will appear numeric to perl
                     $evalue =~ s/^e/1e/i;
 
                     # This to handle no-HSP case
-                    my @line = split;
+                    my @line = split ' ',$descline;
                     
                     # we want to throw away the score, evalue
                     pop @line, pop @line;
@@ -641,30 +643,26 @@ sub next_result {
 
                     # add the last 2 entries s.t. we can reconstruct
                     # a minimal Hit object at the end of the day
-                    push @hit_signifs,
-                      [ $evalue, $score, shift @line, join( ' ', @line ) ];
-                    
-                }
-                elsif (/^CONVERGED/i) {
+                    push @hit_signifs, [ $evalue, $score, shift @line, join( ' ', @line ) ];
+                } elsif ($descline =~ /^CONVERGED/i) {
                     $self->element(
                         {
                             'Name' => 'Iteration_converged',
                             'Data' => 1
                         }
                     );
-                } elsif (/^>/ 
-                    || /^\s+Database:\s+?/
-                    || /^Parameters:/
-                    || /^\s+Subset/
-                    || /^\s*Lambda/
-                    || /^\s*Histogram/
-                    || /^Query=/
+                } elsif ($descline =~ /^>/ 
+                    || $descline =~ /^\s+Database:\s+?/
+                    || $descline =~ /^Parameters:/
+                    || $descline =~ /^\s+Subset/
+                    || $descline =~ /^\s*Lambda/
+                    || $descline =~ /^\s*Histogram/
+                    || $descline =~ /^Query=/
                     ) {
-                    $self->_pushback($_); # Catch leading > (end of section)
+                    $self->_pushback($descline); # Catch leading > (end of section)
                     last DESCLINE;
                 }
             }
-            @hit_signifs = sort {$a->[0] <=> $b->[0]} @hit_signifs;
         }
         elsif (/Sequences producing High-scoring Segment Pairs:/) {
 
@@ -803,7 +801,7 @@ sub next_result {
                     $self->debug("Hit table ID $tableid doesn't match current hit id $id, checking next hit table entry...\n");
                     next HITTABLE;
                 } else {
-                    $self->debug("Hit table $id match : signif: $v->[0], score: $v->[1]\n");
+                    #$self->debug("Hit table $id match : signif: $v->[0], score: $v->[1]\n");
                     $self->element(
                         {
                             'Name' => 'Hit_signif',
