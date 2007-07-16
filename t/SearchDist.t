@@ -29,6 +29,6 @@ foreach my $i ( 1..5000 ) {
 # as the distribution is not gaussian, it gives
 # non-sensical results    
 
-ok $dist->fit_Gaussian(1200), 1;
+is $dist->fit_Gaussian(1200), 1;
 
 # TODO? there are no useful tests here!
