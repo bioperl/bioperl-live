@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 1443);
+    test_begin(-tests => 1448);
 	
 	use_ok('Bio::SearchIO');
 	use_ok('Bio::SearchIO::Writer::HitTableWriter');
@@ -1985,6 +1985,52 @@ is $hit->accession, 'ENSP00000327738';
 is $hit->description, 'pep:known-ccds chromosome:NCBI36:4:189297592:189305643:1 gene:ENSG00000184108 transcript:ENST00000332517 CCDS3851.1';
 is $hit->raw_score, 115;
 is $hit->significance, 8e-26;
+
+# Bug 1986, pt. 2
+
+# handle at least the first iteration with BLAST searches using databases
+# containing non-unique IDs
+
+my $file = test_input_file('bug1986.blast2');
+my %unique_accs;
+open (my $IN,$file) or die $!;
+
+while (<$IN>) {
+  last if (/^Sequences/);
+}
+my $count = 1;
+while (<$IN>) {
+  chomp;
+  next if m{^\s*$};
+  next unless ($_);
+  last if m{^>};
+  my ($accession) = split(/\s+/);
+  #print "Real Hit $count = $accession\n";
+  $unique_accs{$accession}++;
+  #last if ($count == 10);
+  ++$count;
+}
+close ($IN);
+
+is ($count, 495);
+is (scalar(keys %unique_accs), 490);
+
+my %search_accs;
+
+$searchio = Bio::SearchIO->new(-format => 'blast',
+                               -verbose => -1,
+							  -file   => $file);
+$result = $searchio->next_result;
+$count = 1;
+while (my $hit = $result->next_hit) {
+	$search_accs{$hit->accession}++;
+	$count++;
+}
+
+is ($count, 495);
+is (scalar(keys %search_accs), 490);
+
+is_deeply(\%unique_accs, \%search_accs);
 
 # some utilities
 # a utility function for comparing result objects
