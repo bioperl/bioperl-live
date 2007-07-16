@@ -444,10 +444,8 @@ sub next_result {
         next if (/CPU time:/);
         next if (/^>\s*$/);
         if (
-               /^([T]?BLAST[NPX])\s*(.+)$/i               # NCBI BLAST
-            || /^(PSITBLASTN)\s+(.+)$/i                   # PSIBLAST
-            || /^(RPS-BLAST)\s*(.+)$/i                    # RPSBLAST
-            || /^(MEGABLAST)\s*(.+)$/i                    # MEGABLAST
+               /^((?:\S+?)?BLAST[NPX])\s+(.+)$/i  # NCBI BLAST, PSIBLAST
+                                                 # RPSBLAST, MEGABLAST
             || /^(P?GENEWISE|HFRAME|SWN|TSWN)\s+(.+)/i    #Paracel BTK
           )
         {
@@ -614,9 +612,11 @@ sub next_result {
                     'Data' => $self->{'_blsdb'}
                 }
             ) if $self->{'_blsdb_letters'};
-            my $descline_buffer;
+            
+            # changed 7/15/2007 to only check certain lines, end while if something doesn't match
           DESCLINE:
             while ( defined( my $descline = $self->_readline() ) ) {
+                next if $descline =~ m{^\s*$};
                 # GCG multiline oddness...
                 if ($descline =~ /^(\S+)\s+Begin:\s\d+\s+End:\s+\d+/xms) {
                     my ($id, $nextline) = ($1, $self->_readline);
@@ -651,14 +651,7 @@ sub next_result {
                             'Data' => 1
                         }
                     );
-                } elsif ($descline =~ /^>/ 
-                    || $descline =~ /^\s+Database:\s+?/
-                    || $descline =~ /^Parameters:/
-                    || $descline =~ /^\s+Subset/
-                    || $descline =~ /^\s*Lambda/
-                    || $descline =~ /^\s*Histogram/
-                    || $descline =~ /^Query=/
-                    ) {
+                } else {
                     $self->_pushback($descline); # Catch leading > (end of section)
                     last DESCLINE;
                 }
@@ -735,7 +728,7 @@ sub next_result {
         }
         # bypasses this NCBI blast 2.2.13 extra output for now...
 		# Features in/flanking this part of subject sequence:
-        elsif (/^\sFeatures\s\w+\sthis\spart\sof\ssubject\ssequence:/) {
+        elsif (/^\sFeatures\s\w+\sthis\spart\sof\ssubject\ssequence:/xmso) {
         	# junk following lines up to start of HSP
 			while($_ !~ /^\sScore\s=/) {
 				$self->debug("Bypassing features line: $_");
@@ -1185,8 +1178,8 @@ sub next_result {
             );
             while ( defined( $_ = $self->_readline ) ) {
                 if (
-                       /^(PSI)?([T]?BLAST[NPX])\s*(.+)/i
-                    || /^MEGABLAST\s*(.+)/i
+                    /^((?:\S+)?BLAST[NPX])\s+(.+)$/i  # NCBI BLAST, PSIBLAST
+                                                      # RPSBLAST, MEGABLAST
                     || /^(P?GENEWISE|HFRAME|SWN|TSWN)\s+(.+)/i    #Paracel BTK
                   )
                 {
