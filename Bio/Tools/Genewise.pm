@@ -213,60 +213,67 @@ sub parsed {
 }
   
 sub _parse_genes {
-	my ($self) = @_;
-	my @genes;
-	local ($/) = "//";
+    my ($self) = @_;
+    my (@alignments,@genes);
+    local ($/) = "//";
 
-	while ( defined($_ = $self->_readline) ) {
-		$self->debug( $_ );
-		if( /Score\s+(\-?\d+(\.\d+)?)/ ) {
-	      $self->_score($1);# unless defined $self->_score;    
-      } 
-      if( /Query\s+(?:protein|model)\:\s+(\S+)/ ) {
-	      $self->_prot_id($1); #unless defined $self->_prot_id;
-	   } 
-	
-     if( /Target Sequence\s+(\S+)/ ) {	
+    while ( defined($_ = $self->_readline) ) {
+	$self->debug( $_ );
+	while( /Alignment\s+(\d+)\s+Score\s+(\S+)\s+\(Bits\)/g ) {
+	    $alignments[$1] = $2;
+	}
+	if( /Score\s+(\-?\d+(\.\d+)?)/ ) {
+	    $self->_score($1);# unless defined $self->_score;    
+	}
+
+	if( /Query\s+(?:protein|model)\:\s+(\S+)/ ) {
+	    $self->_prot_id($1); #unless defined $self->_prot_id;
+	} 
+
+	if( /Target Sequence\s+(\S+)/ ) {	
 	    $self->_target_id($1);# unless defined $self->_target_id;
-	  }
-     next unless /Gene\s+\d+\n/;
-
-     my @genes_txt = split(/Gene\s+\d+\n/,$_);
-     shift @genes_txt; #remove first empty entry
-       
-     foreach my $gene_txt (@genes_txt) {
+	}	
+	
+	next unless /Gene\s+\d+\n/;
+	my @genes_txt = split(/Gene\s+\d+\n/,$_);
+	shift @genes_txt;	#remove first empty entry
+	my $gene_num = 1;
+	foreach my $gene_txt (@genes_txt) {
+	    my $score = $alignments[$gene_num];
 	    # If genewise has assigned a strand to the gene as a whole
 	    # overall gene start and end
 	    my ($g_start, $g_end, $type) = 
-			$gene_txt =~ m/Gene\s+
-								(\d+)[\s-]+    # start (1-based)
-								(\d+)\s+       # end
-								(?:\[(\w+)\])? # 
-								/x;
+		$gene_txt =~ m/Gene\s+
+		(\d+)[\s-]+	# start (1-based)
+		(\d+)\s+	# end
+		(?:\[(\w+)\])?	# 
+		/x;
 	    my $g_strand;
 	    my $source_tag = $type ? "$Srctag". "_$type" : $Srctag;
 	    my $genes = Bio::SeqFeature::Gene::GeneStructure->new
-		 (-source => $source_tag);
-	    my $transcript = Bio::SeqFeature::Gene::Transcript->new
-		 (-source => $source_tag,
+		(-source => $source_tag,
 		 -score  => $self->_score);
+	    my $transcript = Bio::SeqFeature::Gene::Transcript->new
+		(-source => $source_tag,
+		 -score  => $score);
 	    ($g_start, $g_end, $g_strand) = $self->_get_strand($g_start,$g_end);
 	    $genes->strand($g_strand);
 
 	    # grab exon + supporting feature info
 	    my @exons;
 	    unless ( @exons = $gene_txt =~ m/(Exon .+\s+Supporting .+)/g ) {
-	 	    @exons = $gene_txt =~ m/(Exon .+\s+)/g;
+		@exons = $gene_txt =~ m/(Exon .+\s+)/g;
 	    }
 	    my $nbr = 1;
+
 	    # loop through each exon-supporting feature pair
 	    foreach my $e (@exons){
-		   my ($e_start,$e_end,$phase) = 
-                 $e =~ m/Exon\s+
-			                (\d+)[\s-]+     # start (1 based)
-				             (\d+)\s+        # end
-				             phase\s+(\d+)   # phase
-				             /x;
+		my ($e_start,$e_end,$phase) = 
+		    $e =~ m/Exon\s+
+		    (\d+)[\s-]+	# start (1 based)
+		    (\d+)\s+	# end
+		    phase\s+(\d+) # phase
+		    /x;
 		my $e_strand;
 		($e_start,$e_end,$e_strand) = $self->_get_strand($e_start,
 								 $e_end);
@@ -276,7 +283,7 @@ sub _parse_genes {
 		     -source => $source_tag,
 		     -start  =>$e_start, 
 		     -end    =>$e_end, 
-		     -score  => $self->_score,
+		     -score  => $score,
 		     #-frame => $phase,
 		     -strand =>$e_strand);
 
@@ -296,7 +303,7 @@ sub _parse_genes {
 			( -start   => $prot_start, 
 			  -end     => $prot_end,
 			  -seq_id  => $self->_prot_id,
-			  -score   => $self->_score,
+			  -score   => $score,
 			  -strand  => $prot_strand,
 			  -source  => $source_tag,
 			  -primary_tag => 'supporting_protein_feature',);
@@ -307,7 +314,7 @@ sub _parse_genes {
 			( -start   => $geno_start,
 			  -end     => $geno_end,
 			  -seq_id  => $self->_target_id,
-			  -score   => $self->_score,
+			  -score   => $score,
 			  -strand  => $geno_strand,
 			  -source  => $source_tag,
 			  -primary_tag => 'supporting_genomic_feature',);
@@ -327,6 +334,7 @@ sub _parse_genes {
 	    $genes->add_transcript($transcript);
 	    $genes->seq_id($self->_target_id);
 	    push @genes, $genes;
+	    $gene_num++;
 	}
     }
     $self->{'_genes'} = \@genes;
