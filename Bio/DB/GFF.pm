@@ -2429,7 +2429,7 @@ sub _load_gff_line {
   $self->{load_data}{gff3_flag}++           if $line =~ /^\#\#\s*gff-version\s+3/;
   $self->preferred_groups(split(/\s+/,$1))  if $line =~ /^\#\#\s*group-tags?\s+(.+)/;
 
-  if ($line =~ /^\#\#\s*sequence-region\s+(\S+)\s+(\d+)\s+(\d+)/i) { # header line
+  if ($line =~ /^\#\#\s*sequence-region\s+(\S+)\s+(-?\d+)\s+(-?\d+)/i) { # header line
     $self->load_gff_line(
 			 {
 			  ref    => $1,
