@@ -262,7 +262,7 @@ sub _initialize_io {
         #$self->warn("has lwp");
         my $http_result;
         my($handle,$tempfile) = $self->tempfile();
-        close($handle);
+        CORE::close($handle);
 
         for(my $try = 1 ; $try <= $trymax ; $try++){
           $http_result = LWP::Simple::getstore($url, $tempfile);
