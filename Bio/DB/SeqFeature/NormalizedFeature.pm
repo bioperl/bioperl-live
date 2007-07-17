@@ -470,8 +470,9 @@ sub format_attributes {
   my $self   = shift;
   my $parent = shift;
   my $load_id   = $self->load_id || '';
-  my ($target)  = split /\s+/,($self->attributes('Target'))[0];
-  $target ||= '';
+  my $targobj = ($self->attributes('Target'))[0];
+  # was getting an 'Use of uninitialized value with split' here, changed to cooperate -cjf 7/10/07
+  my ($target)  = $targobj ? split /\s+/,($self->attributes('Target'))[0] : ('');
   my @tags = $self->all_tags;
   my @result;
   for my $t (@tags) {
