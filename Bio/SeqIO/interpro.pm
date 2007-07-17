@@ -72,6 +72,7 @@ package Bio::SeqIO::interpro;
 use strict;
 use Bio::SeqFeature::Generic;
 use XML::DOM;
+use XML::DOM::XPath;
 use Bio::Seq::SeqFactory;
 use Bio::Annotation::Collection;
 use Bio::Annotation::DBLink;
