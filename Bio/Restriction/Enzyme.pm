@@ -790,8 +790,6 @@ sub recognition_length {
  Returns  : integer or float number
  Args     : none
 
-
-
 Why is this better than just stripping the ambiguos codes? Think about
 it like this: You have a random sequence; all nucleotides are equally
 probable. You have a four nucleotide re site. The probability of that
@@ -804,6 +802,11 @@ the probability is one out of (2*4*4*4*4*2) which exactly the same as
 for a five cutter! Cutter, although it can have non-integer values
 turns out to be a useful and simple measure.
 
+From bug 2178: VHDB are ambiguity symbols that match three different
+nucleotides, so they contribute less to the effective recognition sequence
+length than e.g. Y which matches only two nucleotides. A symbol which matches n
+of the 4 nucleotides has an effective length of 1 - log(n) / log(4).
+
 =cut
 
 sub cutter {
@@ -814,7 +817,7 @@ sub cutter {
     my $count =  tr/[MRWSYK]//d;
     $cutter += $count/2;
     $count =  tr/[VHDB]//d;
-    $cutter += $count*3/4;
+    $cutter += $count * (1 - log(3) / log(4));
     return $cutter;
 }
 
