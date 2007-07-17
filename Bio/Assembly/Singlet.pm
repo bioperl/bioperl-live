@@ -73,7 +73,7 @@ use Bio::Seq::PrimaryQual;
 use Dumpvalue();
 my $dumper = new Dumpvalue();
 $dumper->veryCompact(1);
-use base qw(Bio::Assembly::Contig Bio::Root::Root Bio::Align::AlignI Bio::Assembly::Contig);
+use base qw(Bio::Assembly::Contig Bio::Root::Root Bio::Align::AlignI);
 
 
 sub new {
