@@ -174,6 +174,10 @@ sub high_quality_discrepancies {
 	# Scanning the aligned region of each read
 	my $seq_ix = 0;
 	my $coord = $self->{'_objref'}->get_seq_feat_by_tag($seq,"_align_clipping:$seqID");
+    if (!$coord) {
+        $self->warn("$seqID has no alignment coordinates; read is possibly low quality.  Skipping...");
+        next;
+    }
 	my ($astart,$aend) = ($coord->start,$coord->end);
 	$astart = $astart + $ignore; # Redefining limits to evaluate HQDs (jump $ignore at start)
 	$aend   = $aend   - $ignore; # Redefining limits to evaluate HQDs (stop $ignore before end)
