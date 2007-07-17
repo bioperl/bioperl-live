@@ -38,7 +38,9 @@ objects loaded by this module will have the following special feature
 classes in their feature collection:
 
 "_align_clipping:$seqID" : location of subsequence in sequence $seqID
-                           which is aligned to the contig
+                           which is aligned to the contig.  If no feature
+                           containing this tag is present the read is
+                           considered low quality by consed
 
 "_quality_clipping:$seqID" : location of good quality subsequence for
                              sequence $seqID

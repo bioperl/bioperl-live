@@ -175,7 +175,7 @@ sub high_quality_discrepancies {
 	my $seq_ix = 0;
 	my $coord = $self->{'_objref'}->get_seq_feat_by_tag($seq,"_align_clipping:$seqID");
     if (!$coord) {
-        $self->warn("$seqID has no alignment coordinates; read is possibly low quality.  Skipping...");
+        $self->warn("Read $seqID has no alignment coordinates; considered low quality.\nSkipping...");
         next;
     }
 	my ($astart,$aend) = ($coord->start,$coord->end);
