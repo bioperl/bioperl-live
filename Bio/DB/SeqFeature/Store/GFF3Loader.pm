@@ -832,12 +832,12 @@ tags (e.g. ID) and the other containing the values of unreserved ones.
 sub parse_attributes {
   my $self = shift;
   my $att  = shift;
-  my @pairs =  map {my ($name,$value) = split /=/; [unescape($name) => unescape($value)] } split /;/,$att;
+  my @pairs =  map {my ($name,$value) = split /=/; [unescape($name) => $value];  } split /;/,$att;
   my (%reserved,%unreserved);
   foreach (@pairs) {
     my $tag    = $_->[0];
     my @values = split /,/,$_->[1];
-
+    map {$_ = unescape($_);} @values;
     if ($Special_attributes{$tag}) {  # reserved attribute
       push @{$reserved{$tag}},@values;
     } else {
