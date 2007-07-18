@@ -500,7 +500,10 @@ sub spliced_seq {
 
 	if( $self->isa('Bio::Das::SegmentI') ) {
 	    my ($s,$e) = ($loc->start,$loc->end);
-	    $seqstr .= $called_seq->subseq($s,$e)->seq();
+		# $called_seq is Bio::DB::GFF::RelSegment, as well as its subseq();
+		# Bio::DB::GFF::RelSegment::seq() returns a Bio::PrimarySeq, and using seq()
+		# in turn returns a string.  Confused?
+	    $seqstr .= $called_seq->subseq($s,$e)->seq()->seq();
 	} else {
 	    # This is dumb, subseq should work on locations...
 	    if( $loc->strand == 1 ) {
