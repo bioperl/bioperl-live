@@ -192,6 +192,7 @@ sub new {
   $self->keep($keep);
   $self->{'_btree'} = tie %{$self->{'_btreehash'}},
   'DB_File', $self->indexfile, O_RDWR|O_CREAT, 0640, $DB_BTREE;
+  $self->{'_btree'} || $self->throw("Unable to tie DB_File handle");
   return $self;
 }
 
