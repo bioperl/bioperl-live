@@ -73,9 +73,9 @@ as IDs, database name, program arguments, and other odds and ends.
 
 =head1 DESCRIPTION
 
-This is an Observable class interface which focuses on common parameter-related
-tasks such as building simple database queries, URI-related requests, program
-arguments, etc.
+This is a class interface which focuses on common parameter-related tasks such
+as building simple database queries, URI-related requests, program arguments,
+etc.
 
 Implementing classes use the following ways to set parameters:
 
@@ -102,20 +102,22 @@ getter/setters, though there are some other options implemented in BioPerl (for
 instance, Bio::Root::RootI::_set_from_args()).
 
 A key requirement is there be a way to detect changes in the state of the
-ParameterBaseI object so that any Observer object can decide whether to submit a
-new request or return cached data. State changes are revealed by the returned
-values of the parameters_changed() method, which is a simple boolean set to TRUE
-when the object is first instantiated or parameters have changed. 
+ParameterBaseI object so that any object with a Bio::ParameterBaseI can decide
+whether to submit a new request or return cached data. State changes are
+revealed by the returned values of the parameters_changed() method, which is a
+simple boolean set to TRUE when the object is first instantiated or parameters
+have changed. 
 
 When retrieving anything using the implementation-specific to_* methods (such as
-to_query, to_string, to_uri, etc), the ParameterBaseI object state is set to
-FALSE to indicate the data has been accessed and indicate reaccessing will
-retrieve the same value. The observing object can then independently decide
+to_query, to_string, to_uri, to_request, etc), the ParameterBaseI object state
+is set to FALSE to indicate the data has been accessed and indicate reaccessing
+will retrieve the same value. The observing object can then independently decide
 whether to rerun the cached query or return a previously cached result. 
 
 One can also use indiviual getter/setters to retrieve single parameter values as
 well as use parameter_hash() to retrieve all of the parameters in one go as a
-hash. To check which parameters are available use available_parameters().
+hash. To check which parameters are available use available_parameters().  Args
+passed to 
 
 =head1 FEEDBACK
 
