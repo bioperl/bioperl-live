@@ -122,7 +122,14 @@ sub get_subject_type { return shift->{'_subjecttype'}; }
 
 =cut
 
-sub get_url {  return shift->{'_url'}; }
+sub get_url {
+    my $self = shift;
+    # fix Entrz LinkOut URLS without the full URL
+    if ($self->{'_url'} && $self->{'_url'} =~ m{^/}) {
+        $self->{'_url'} = 'http://www.ncbi.nih.gov'.$self->{'_url'};
+    }
+    return $self->{'_url'};
+}
 
 =head2 get_link_name
 
