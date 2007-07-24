@@ -92,6 +92,8 @@ sub draw_gc_content {
   my $dna      = shift;
   my ($x1,$y1,$x2,$y2) = @_;
 
+  $dna = $self->reversec($dna) if $self->{flip};
+
 # get the options that tell us how to draw the GC content
 
   my $bin_size = length($dna) / ($self->option('gc_bins') || 100);
