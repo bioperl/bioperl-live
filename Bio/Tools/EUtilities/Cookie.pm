@@ -84,16 +84,14 @@ use strict;
 use warnings;
 
 use base qw(Bio::Root::Root Bio::Tools::EUtilities::HistoryI);
+use Data::Dumper;
 
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    my @keys = qw(webenv query_key query_translation count eutil);
-    my %param = @args;
-    
-    for my $key (@keys) {
-        $self->{'_'.lc $key} = $param{'-'.$key} if exists $param{'-'.$key};
-    }
+    my ($eutil) = $self->_rearrange([qw(eutil)],@args);
+    $eutil || $self->throw('eutil not defined');
+    $self->eutil($eutil);
     $self->datatype('cookie');
     return $self;
 }
@@ -129,50 +127,14 @@ sub new {
 
 =cut
 
-# overload to point at the correct thing
-
-sub get_query_key {
-    return shift->{'_query_key'};
-}
-
-=head2 has_History
-
- Title    : has_History
- Usage    : if ($hist->has_History) {...}
- Function : returns TRUE if full history (webenv, query_key) is present 
- Returns  : BOOLEAN, value eval'ing to TRUE or FALUE
- Args     : none
-
-=cut
-
-=head1 Cookie-specific methods
-
-=head2 get_query_translation
-
- Title    : get_query_translation
- Usage    : $hist->get_query_translation
- Function : returns query translation (from esearch)
- Returns  : string
- Args     : none
-
-=cut
-
-sub get_query_translation {
-    return shift->{'_query_translation'};
-}
-
-=head2 get_count
-
- Title    : get_count
- Usage    : $hist->get_count
- Function : returns query count (from esearch)
- Returns  : integer
- Args     : none
-
-=cut
-
-sub get_count {
-    return shift->{'_count'};
+sub _add_data {
+    my ($self, $simple) = @_;
+    if (!exists $simple->{WebEnv} || !exists $simple->{QueryKey}) {
+        $self->debug("Data:",Dumper($simple));
+        $self->throw("Missing webenv/query key in history output");
+    }
+    $self->{_webenv} = $simple->{WebEnv} && delete $simple->{WebEnv};
+    $self->{_querykey} = $simple->{QueryKey} && delete $simple->{QueryKey};
 }
 
 1;

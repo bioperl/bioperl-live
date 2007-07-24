@@ -96,7 +96,8 @@ sub new {
  Returns  : array or array ref
  Args     : none
  Note     : the behavior of this method remains consistent with other
-            implementations of get_ids(). To retrieve the single ID use get_id()
+            implementations of get_ids(). To retrieve the single DocSum ID
+            use get_id()
 
 =cut
 

@@ -67,13 +67,11 @@ Bio::Tools::EUtilities - NCBI eutil XML parsers
   
   # History methods (epost data, some data returned from elink)
   # data which enables one to retrieve and query against user-stored information on the NCBI server
-  
-    if ($parser->has_History) {
-        # use parser as direct input in future queries
-    }
+
+    while (my $cookie = $parser->next_History) {...}
     
-    my ($webenv, $querykey) = $parser->history;
-  
+    my @hists = $parser->get_Histories;
+    
   # Bio::Tools::EUtilities::Summary (esummary data)
   # information on a specific database record
   
@@ -145,7 +143,7 @@ package Bio::Tools::EUtilities;
 use strict;
 use warnings;
 
-use base qw(Bio::Root::IO Bio::Tools::EUtilities::HistoryI);
+use base qw(Bio::Root::IO Bio::Tools::EUtilities::EUtilDataI);
 
 use XML::Simple;
 use Data::Dumper;
@@ -174,7 +172,7 @@ my %DATA_MODULE = (
     'esearch'   => 'Query',
     'egquery'   => 'Query',
     'espell'    => 'Query',
-    'epost'     => 'History',
+    'epost'     => 'Query',
     'elink'     => 'Link',
     'einfo'     => 'Info',
     'esummary'  => 'Summary',
@@ -419,51 +417,6 @@ sub parse_chunk {
 
 =cut
 
-=head1 Bio::Tools::EUtilities::HistoryI methods
-
-These are defined in the HistoryI interface.
-
-=head2 history
-
- Title    : history
- Usage    : my ($webenv, $qk) = $hist->history
- Function : returns two-element list of webenv() and query_key()
- Returns  : array
- Args     : none
-
-=cut
-
-=head2 get_webenv
-
- Title    : get_webenv
- Usage    : my $webenv = $hist->get_webenv
- Function : returns web environment key needed to retrieve results from
-            NCBI server
- Returns  : string (encoded key)
- Args     : none
-
-=cut
-
-=head2 get_query_key
-
- Title    : get_query_key
- Usage    : my $qk = $hist->get_query_key
- Function : returns query key (integer) for the history number for this session
- Returns  : integer
- Args     : none
-
-=cut
-
-=head2 has_History
-
- Title    : has_History
- Usage    : if ($hist->has_History) {...}
- Function : returns TRUE if full history (webenv, query_key) is present 
- Returns  : BOOLEAN, value eval'ing to TRUE or FALUE
- Args     : none
-
-=cut
-
 =head1 Methods useful for multiple eutils
 
 =head2 get_ids
@@ -543,31 +496,48 @@ sub get_db {
     return shift->get_database;
 }
 
-=head2 get_Cookie
+=head2 next_History
 
- Title    : get_Cookie
- Usage    : my $cookie = $parser->get_Cookie;
- Function : returns a simple Cookie object, a HistoryI object which contains any
-            relevant information useful for future queries.  This can be used as
-            a lightweight alternative to directly using the parser (with it's
-            associated methods, filehandles, etc) and is one lightweight object
-            used in the Bio::DB::EUtilities History queue (the other is a
-            LinkSet).
- Returns  : a Bio::Tools::EUtilities::Cookie object
+ Title    : next_History
+ Usage    : while (my $hist=$parser->next_History) {...}
+ Function : returns next HistoryI (if present).
+ Returns  : Bio::Tools::EUtilities::HistoryI (Cookie or LinkSet)
+ Args     : none
+ Note     : next_cookie() is an alias for this method. esearch, epost, and elink
+            are all capable of returning data which indicates search results (in
+            the form of UIDs) is stored on the remote server. Access to this
+            data is wrapped up in simple interface (HistoryI), which is
+            implemented in two classes: Bio::DB::EUtilities::Cookie (the
+            simplest) and Bio::DB::EUtilities::LinkSet. In general, calls to
+            epost and esearch will only return a single HistoryI object (a
+            Cookie), but calls to elink can generate many depending on the
+            number of IDs, the correspondence, etc.  Hence this iterator, which
+            allows one to retrieve said data one piece at a time.
+
+=cut
+
+sub next_History {
+    my $self = shift;
+    $self->parse_data unless $self->data_parsed;    
+    $self->{'_histories_it'} = $self->generate_iterator('histories')
+        if (!exists $self->{'_histories_it'});
+    $self->{'_histories_it'}->();  
+}
+
+=head2 get_Histories
+
+ Title    : get_Histories
+ Usage    : my @hists = $parser->get_Histories
+ Function : returns list of HistoryI objects.
+ Returns  : list of Bio::Tools::EUtilities::HistoryI (Cookie or LinkSet)
  Args     : none
 
 =cut
 
-sub get_Cookie {
+sub get_Histories {
     my $self = shift;
-    $self->parse_data unless $self->data_parsed;    
-    $self->warn("No history data present; no Cookie for you!"), return
-        unless $self->has_History;
-    return Bio::Tools::EUtilities::Cookie->new(
-            -eutil => $self->eutil,
-            -webenv => $self->get_webenv,
-            -query_key => $self->get_query_key,
-            -query_translation => $self->get_query_translation);
+    $self->parse_data unless $self->data_parsed;
+    ref $self->{'_histories'} ? return @{ $self->{'_histories'} } : return ();
 }
 
 =head1 Query-related methods
@@ -1067,29 +1037,6 @@ sub get_linked_databases {
     return @{$self->{'_linked_db'}};
 }
 
-=head2 get_linked_histories
-
- Title    : get_linked_histories
- Usage    : my @hist = $eutil->get_linked_histories
- Function : returns list of LinkSets that have a history
- Returns  : array of LinkSets
- Args     : none
-
-=cut
-
-sub get_linked_histories {
-    my $self = shift;
-    if ($self->is_lazy) {
-        $self->warn('get_linked_histories() not implemented when using lazy mode');
-        return ();
-    }
-    $self->parse_data unless $self->data_parsed;
-    unless (exists $self->{'_dbhist'}) {
-        push @{$self->{'_dbhist'}}, grep {$_->has_History} $self->get_LinkSets;
-    }
-    return @{$self->{'_dbhist'}};
-}
-
 =head1 Iterator- and callback-related methods
 
 =cut
@@ -1103,6 +1050,7 @@ sub get_linked_histories {
         'linkinfos' => 'linkinfo',
         'linksets' => 'linksets',
         'docsums' => 'docsums',
+        'histories' => 'histories'
         );
 
 =head2 rewind
@@ -1118,12 +1066,12 @@ sub get_linked_histories {
             
             'all' - rewind all objects and also recursively resets nested object interators
                     (such as LinkSets and DocSums).
-            'globalqueries'
-            'fieldinfo' or 'fieldinfos'
-            'linkinfo' or 'linkinfos'
-            'linksets'
-            'docsums'
-            
+            'globalqueries' - GlobalQuery objects
+            'fieldinfo' or 'fieldinfos' - FieldInfo objects
+            'linkinfo' or 'linkinfos' - LinkInfo objects in this layer
+            'linksets' - LinkSet objects
+            'docsums' - DocSum objects 
+            'histories' - HistoryI objects (Cookies, LinkSets)
 
 =cut
 

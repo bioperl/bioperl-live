@@ -70,9 +70,6 @@ use base qw(Bio::DB::GenericWebAgent);
 sub new {
     my($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($keephist) = $self->_rearrange([qw(KEEP_HISTORIES)], @args);
-    $keephist ||= 0;
-    $self->keep_Histories($keephist);
     my $params = Bio::DB::EUtilParameters->new(-verbose => $self->verbose,
                                                @args);
     # cache parameters
@@ -209,102 +206,9 @@ sub get_Parser {
                             -eutil => $eutil,
                             -response => $self->get_Response,
                             -verbose => $self->verbose);
-        # added history queue here...
-        my ($lazy, $keep) = ($parser->is_lazy, $self->keep_Histories);
-        # these should all be lightweight enough...
-        if ($keep && !$lazy ) {
-            if ($parser->has_History ) {
-                push @{$self->{'_historyqueue'} }, $parser->get_Cookie;
-            } elsif ($parser->get_linked_histories) {
-                push @{$self->{'_historyqueue'} }, $parser->get_linked_histories;
-            }
-        }
-        if (!$keep) {
-            $self->clear_Histories;
-        }
         return $self->{'_parser'} = $parser;
     }
     return $self->{'_parser'};
-}
-
-=head2 keep_Histories
-
- Title    : keep_Histories
- Usage    : $agent->keep_Histories(1);
- Function : retains any past queries in an internal queue, accessible via
-            next_History and get_Histories
- Returns  : Boolean
- Args     : Boolean (eval to TRUE or FALSE)
- Note     : If this is set to FALSE, the history queue is automatically cleared
-
-=cut
-
-sub keep_Histories {
-    my ($self, $flag) = @_;
-    if (defined $flag) {
-        $self->{'_keephistories'} = ($flag) ? 1 : 0;
-        if ($flag == 0) {
-            $self->clear_Histories;
-        }
-    }
-    return $self->{'_keephistories'};
-}
-
-=head2 next_History
-
- Title   : next_History
- Usage   : $agent->next_History;
- Function: grabs the next HistoryI
- Returns : HistoryI-implementing instance
- Args    : none
- Note    : no callback implemented; use grep and get_Histories
- 
-=cut
-
-sub next_History {
-    my $self = shift;
-    $self->get_Parser; # kick the parser to update queue
-    unless ($self->{'historyqueue_it'}) {
-        my $current = 0;
-        $self->{'historyqueue_it'} = sub {
-            my $index = $#{$self->{'_historyqueue'}};
-            while ($current <= $index) {
-                return $self->{'_historyqueue'}->[$current++];
-            }
-        }
-    }
-    $self->{'historyqueue_it'}->();
-}
-
-=head2 get_Histories
-
- Title   : get_Histories
- Usage   : my @hist = $agent->get_Histories;
- Function: returns the list of past queries which contain history information
- Returns : list of HistoryI
- Args    : none
-
-=cut
-
-sub get_Histories {
-    my $self = shift;
-    $self->get_Parser; # kick the parser to update queue
-    return ref $self->{'_historyqueue'} ? @{$self->{'_historyqueue'} } : ();
-}
-
-=head2 clear_Histories
-
- Title   : clear_Histories
- Usage   : $agent->clear_Histories;
- Function: clears (flushes) history queue
- Returns : none
- Args    : none
-
-=cut
-
-sub clear_Histories {
-    my $self = shift;
-    delete $self->{'_historyqueue'} if $self->{'_historyqueue'};
 }
 
 =head1 Bio::DB::EUtilParameters-delegating methods
@@ -437,71 +341,6 @@ sub datatype {
     return $self->get_Parser->datatype(@args);
 }
 
-=head1 Bio::Tools::EUtilities::HistoryI methods
-
-These are defined in the HistoryI interface
-
-=head2 history
-
- Title    : history
- Usage    : my ($webenv, $qk) = $hist->history
- Function : returns two-element list of webenv() and query_key()
- Returns  : array
- Args     : none
-
-=cut
-
-sub history {
-    my ($self, @args) = @_;
-    return $self->get_Parser->history(@args);
-}
-
-=head2 get_webenv
-
- Title    : get_webenv
- Usage    : my $webenv = $hist->get_webenv
- Function : returns web environment key needed to retrieve results from
-            NCBI server
- Returns  : string (encoded key)
- Args     : none
-
-=cut
-
-sub get_webenv {
-    my ($self, @args) = @_;
-    return $self->get_Parser->get_webenv(@args);
-}
-
-=head2 get_query_key
-
- Title    : get_query_key
- Usage    : my $qk = $hist->get_query_key
- Function : returns query key (integer) for the history number for this session
- Returns  : integer
- Args     : none
-
-=cut
-
-sub get_query_key {
-    my ($self, @args) = @_;
-    return $self->get_Parser->get_query_key(@args);
-}
-
-=head2 has_History
-
- Title    : has_History
- Usage    : if ($hist->has_History) {...}
- Function : returns TRUE if full history (webenv, query_key) is present 
- Returns  : BOOLEAN, value eval'ing to TRUE or FALUE
- Args     : none
-
-=cut
-
-sub has_History {
-    my ($self, @args) = @_;
-    return $self->get_Parser->has_History(@args);
-}
-
 =head1 Methods useful for multiple eutils
 
 =head2 get_ids
@@ -548,22 +387,44 @@ sub get_db {
     return $self->get_Parser->get_db(@args);
 }
 
-=head2 get_Cookie
+=head2 next_History
 
- Title    : get_Cookie
- Usage    : my $cookie = $parser->get_Cookie;
- Function : returns a simple Cookie object, a HistoryI object which contains any
-            relevant information useful for future queries; this can be used as
-            a lightweight alternative to directly using the parser (with it's
-            associated methods, filehandles, etc).
- Returns  : a Bio::Tools::EUtilities::Cookie object
+ Title    : next_History
+ Usage    : while (my $hist=$parser->next_History) {...}
+ Function : returns next HistoryI (if present).
+ Returns  : Bio::Tools::EUtilities::HistoryI (Cookie or LinkSet)
+ Args     : none
+ Note     : next_cookie() is an alias for this method. esearch, epost, and elink
+            are all capable of returning data which indicates search results (in
+            the form of UIDs) is stored on the remote server. Access to this
+            data is wrapped up in simple interface (HistoryI), which is
+            implemented in two classes: Bio::DB::EUtilities::Cookie (the
+            simplest) and Bio::DB::EUtilities::LinkSet. In general, calls to
+            epost and esearch will only return a single HistoryI object (a
+            Cookie), but calls to elink can generate many depending on the
+            number of IDs, the correspondence, etc.  Hence this iterator, which
+            allows one to retrieve said data one piece at a time.
+
+=cut
+
+sub next_History {
+    my ($self, @args) = @_;
+    return $self->get_Parser->next_History(@args);
+}
+
+=head2 get_Histories
+
+ Title    : get_Histories
+ Usage    : my @hists = $parser->get_Histories
+ Function : returns list of HistoryI objects.
+ Returns  : list of Bio::Tools::EUtilities::HistoryI (Cookie or LinkSet)
  Args     : none
 
 =cut
 
-sub get_Cookie {
+sub get_Histories {
     my ($self, @args) = @_;
-    return $self->get_Parser->get_Cookie(@args);
+    return $self->get_Parser->get_Histories(@args);
 }
 
 =head1 Query-related methods
@@ -997,15 +858,11 @@ sub get_linked_databases {
             'linkinfo' or 'linkinfos'
             'linksets'
             'docsums'
-            'histories'  # only implemented in Bio::DB::EUtilities
 
 =cut
 
 sub rewind {
     my ($self, $string) = @_;
-    if ($string eq 'all' || $string eq 'histories') {
-        delete $self->{'_historyqueue_it'} if exists $self->{'_historyqueue_it'};
-    }
     return $self->get_Parser->rewind($string);
 }
 

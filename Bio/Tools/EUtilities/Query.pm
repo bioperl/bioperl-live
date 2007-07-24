@@ -78,6 +78,7 @@ use warnings;
 use base qw(Bio::Tools::EUtilities);
 
 use Bio::Tools::EUtilities::Query::GlobalQuery;
+use Bio::Tools::EUtilities::Cookie;
 
 =head1 Bio::Tools::EUtilities::Query methods
 
@@ -90,6 +91,7 @@ my %TYPE = (
     'espell'    => 'spelling',
     'esearch'   => 'singledbquery',
     'egquery'   => 'multidbquery',
+    'epost'     => 'history'
     );
 
 sub _add_data {
@@ -98,7 +100,14 @@ sub _add_data {
     if (!$qdata || ref($qdata) !~ /HASH/i) {
         $self->throw("Bad $eutil data");
     }
-    my $type = exists $qdata->{WebEnv} ? 'history' : $TYPE{$eutil};
+    if (exists $qdata->{WebEnv}) {
+        my $cookie = Bio::Tools::EUtilities::Cookie->new(-eutil => $eutil,
+                                                         -verbose => $self->verbose);
+        $cookie->_add_data($qdata);
+        push @{$self->{'_histories'}}, $cookie;
+    }
+    my $type = exists $TYPE{$eutil} ? $TYPE{$eutil} :
+        $self->throw("Unrecognized eutil $eutil");
     $self->datatype($type); # reset type based on what's present
     for my $key (sort keys %$qdata) {
         if ($key eq 'eGQueryResult' && exists $qdata->{$key}->{ResultItem}) {

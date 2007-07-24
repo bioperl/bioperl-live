@@ -120,6 +120,10 @@ sub _add_data {
                                                     -verbose => $self->verbose);
             $obj->_add_data($ls_sub);
             push @{$self->{'_linksets'}}, $obj;
+            # push only potential history-carrying objects into history queue
+            if ($subclass eq 'LinkSetDbHistory') {
+                push @{$self->{'_histories'}}, $obj;
+            }
         }
     }
 }
