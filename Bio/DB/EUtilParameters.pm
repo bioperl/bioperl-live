@@ -468,10 +468,6 @@ sub history {
         my ($webenv, $qkey) = $history->history;
         $self->WebEnv($webenv);
         $self->query_key($qkey);
-        if ($history->can('get_dbto') && $history->can('get_linkname')) {
-            $self->db($history->get_dbto);
-            $self->linkname($history->get_linkname);
-        }
         $self->{'_statechange'} = 1;
         $self->{'_history_cache'} = $history;
     }
