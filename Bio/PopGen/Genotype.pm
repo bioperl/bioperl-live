@@ -75,7 +75,7 @@ package Bio::PopGen::Genotype;
 use vars qw($BlankAlleles);
 use strict;
 
-$BlankAlleles = '[\s\-N\?]';
+$BlankAlleles = '[\s\-Nn\?]';
 
 
 # Object preamble - inherits from Bio::Root::Root
@@ -176,7 +176,7 @@ sub get_Alleles{
 	   if( defined $self->{'_cached_noblank'} );
 	    
 	# one liners - woo hoo.
-	$self->{'_cached_noblank'} = [ grep { ! /^\s*$BlankAlleles\s*$/oi } 
+	$self->{'_cached_noblank'} = [ grep { ! /^\s*$BlankAlleles\s*$/o } 
 				       @{$self->{'_alleles'} || []}];
 	return @{$self->{'_cached_noblank'}};
     }
