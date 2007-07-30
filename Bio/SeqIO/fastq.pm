@@ -99,47 +99,45 @@ sub _initialize {
 =cut
 
 sub next_seq {
-
   my( $self ) = @_;
   my $seq;
   my $alphabet;
-  local $/ = "\n\@";
-
-  return unless my $entry = $self->_readline;
-
-  if ($entry eq '@')  {  # very first one
-    return unless $entry = $self->_readline;
+  local $/ = "\n";
+  my $seqdata;
+  my @datatype = qw(seqdesc seq qualdesc qual);
+  while (@datatype) {
+    return unless my $line = $self->_readline; # bail if any data is incomplete
+    chomp $line;
+    my $type = shift @datatype;
+    if ($type eq 'seqdesc' || $type eq 'qualdesc') {
+      $self->throw("$line doesn't match fastq descriptor line type") unless
+        $line =~ m{^[\+@](.*)$};
+        $line = $1;
+    }
+    $seqdata->{$type} = $line;
   }
-  my ($top,$sequence,$top2,$qualsequence) = $entry =~ /^
-                                                        \@?(.+?)\n
-                                                        ([^\@]*?)\n
-                                                        \+?(.+?)\n
-                                                        (.*)\n
-                                                      /xs
-    or $self->throw("Can't parse fastq entry");
-  my ($id,$fulldesc) = $top =~ /^\s*(\S+)\s*(.*)/
+  $self->warn("Seq/Qual descriptions don't match; using sequence description\n")
+    unless $seqdata->{seqdesc} eq $seqdata->{qualdesc};
+  my ($id,$fulldesc) = $seqdata->{seqdesc} =~ /^\s*(\S+)\s*(.*)/
     or $self->throw("Can't parse fastq header");
   if ($id eq '') {$id=$fulldesc;}   # FIX incase no space between \@ and name
-  $sequence =~ s/\s//g;             # Remove whitespace
-  $qualsequence =~ s/\s//g;
+  $seqdata->{seq} =~ s/\s//g;             # Remove whitespace
+  $seqdata->{qual} =~ s/\s//g;
   
-  if(length($sequence) != length($qualsequence)){
-    $self->warn("Fastq sequence/quality data length mismatch error\n");
-    $self->warn("Sequence: $top, seq length: ",length($sequence), " Qual length: ", length($qualsequence), " \n");
-    $self->warn("$sequence\n");
-    $self->warn("$qualsequence\n");
-    $self->warn("FROM ENTRY: \n\n$entry\n");
+  if(length($seqdata->{seq}) != length($seqdata->{qual})){
+    $self->warn("Fastq sequence/quality data length mismatch error\n",
+                "Sequence: ",$seqdata->{seqdesc},", seq length: ",length($seqdata->{seq}), " Qual length: ", length($seqdata->{qual}), " \n",
+                $seqdata->{seq},"\n",$seqdata->{qual},"\n");
   }
 
-  my @qual = split('', $qualsequence);
+  my @qual = split('', $seqdata->{qual});
 
   my $qual;
   foreach (@qual) {$qual .=  (unpack("C",$_) - 33) ." "};
   
-
   # for empty sequences we need to know the mol.type
   $alphabet = $self->alphabet();
-  if(length($sequence) == 0) {
+  if(length($seqdata->{seq}) == 0) {
       if(! defined($alphabet)) {
 	  # let's default to dna
 	  $alphabet = "dna";
@@ -152,7 +150,7 @@ sub next_seq {
   # create the Quality object
   $seq = $self->sequence_factory->create(
 					 -qual         => $qual,
-					 -seq          => $sequence,
+					 -seq          => $seqdata->{seq},
 					 -id           => $id,
 					 -primary_id   => $id,
 					 -desc         => $fulldesc,
@@ -213,7 +211,7 @@ sub write_qual {
    my ($self,@seq) = @_;
    foreach my $seq (@seq) {
      unless ($seq->isa("Bio::Seq::Quality")){
-        warn("You can write FASTQ without supplying a Bio::Seq::Quality object! ", ref($seq), "\n");
+        $self->warn("You can write FASTQ without supplying a Bio::Seq::Quality object! ", ref($seq), "\n");
         next;
      } 
      my @qual = @{$seq->qual};
@@ -256,7 +254,7 @@ sub write_fastq {
    my ($self,@seq) = @_;
    foreach my $seq (@seq) {
      unless ($seq->isa("Bio::Seq::Quality")){
-        warn("You can write FASTQ without supplying a Bio::Seq::Quality object! ", ref($seq), "\n");
+        $self->warn("You can't write FASTQ without supplying a Bio::Seq::Quality object! ", ref($seq), "\n");
         next;
      } 
      my $str = $seq->seq;
