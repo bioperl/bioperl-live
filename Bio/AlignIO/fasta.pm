@@ -189,7 +189,8 @@ sub write_aln {
 	    $name = $aln->displayname($rseq->get_nse());
 	    $seq  = $rseq->seq();
 	    $desc = $rseq->description || '';
-	    $self->_print (">$name $desc\n") or return ;	
+		$desc = ' '.$desc if $desc;
+	    $self->_print (">$name$desc\n") or return;	
 	    $count = 0;
 	    $length = length($seq);
 	    if(defined $seq && $length > 0) {
