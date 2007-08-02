@@ -217,7 +217,7 @@ sub get_position_object {
 	
 	my $pos = Bio::Map::Position->new();
 	$pos->map($map) if $map;
-    $pos->value($value) if $value;
+    $pos->value($value) if defined($value);
     $pos->element($self);
 	return $pos;
 }
