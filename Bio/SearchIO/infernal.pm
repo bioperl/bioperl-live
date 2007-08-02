@@ -186,6 +186,7 @@ sub _initialize {
     $accession && $self->query_accession($accession);
     $convert   && $self->convert_meta($convert);
     $desc      && $self->query_description($desc);
+    
     $version ||= $DEFAULT_VERSION;
     $self->version($version);
     $symbols ||= \%STRUCTURE_SYMBOLS;
@@ -208,137 +209,10 @@ sub _initialize {
 
 sub next_result {
     my ($self) = @_;
-    my $seentop = 0;
-    local $/ = "\n";
-    local $_;
-    my ($accession, $db, $algorithm, $model, $description, $version) =
-       ($self->query_accession, $self->database, $self->algorithm,
-        $self->model, $self->query_description, $self->version);
-    my $maxscore;
-    my $cutoff = $self->hsp_minscore;
-    $self->start_document();
-    local ($_);
-    my $line;
-    my ($lasthit, $lastscore, $laststart, $lastend);
-    my $hitline;
-    PARSER:
-    while ( defined( $line = $self->_readline ) ) {
-        next if $line =~ m{^\s+$};
-        # bypass this for now...
-        next if $line =~ m{^HMM\shit};
-        if ($line =~ m{^sequence:\s+(\S+)} ){
-            if (!$self->within_element('result')) {
-                $seentop = 1;
-                $self->start_element({'Name' => 'Result'});
-                $self->element_hash({
-                        'Infernal_program'   => $algorithm,
-                        'Infernal_query-def' => $model,
-                        'Infernal_query-acc' => $accession,
-                        'Infernal_querydesc' => $description,
-                        'Infernal_db'        => $db
-                    });
-            }
-            if ($self->in_element('hit')) {
-                $self->element_hash({'Hit_score' => $maxscore,
-                                     'Hit_bits'  => $maxscore});
-                $maxscore = undef;
-                $self->end_element({'Name' => 'Hit'});
-            }            
-            $lasthit = $1;
-        } elsif ($line =~ m{^hit\s+\d+\s+:\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+bits}xms) {
-            ($laststart, $lastend, $lastscore) = ($1, $2, $3);
-            $maxscore = $lastscore unless $maxscore;
-            if ($lastscore > $cutoff) {
-                if (!$self->within_element('hit')) {
-                    my ($gi, $acc, $ver) = $self->_get_seq_identifiers($lasthit);
-                    $self->start_element({'Name' => 'Hit'});
-                    $self->element_hash({
-                        'Hit_id'           => $lasthit,
-                        'Hit_accession'    => $ver ? "$acc.$ver" :
-                                               $acc ? $acc : $lasthit,
-                        'Hit_gi'           => $gi
-                        });
-                }
-                # necessary as infernal 0.71 has repeated hit line
-                if (!$self->in_element('hsp')) {
-                    $self->start_element({'Name' => 'Hsp'});
-                }
-                $maxscore = ($maxscore < $lastscore)  ? $lastscore :
-                            $maxscore;
-            }
-        } elsif ($line =~ m{^(\s+)[<>\{\}\(\)\[\]:_,-\.]+}xms) { # start of HSP
-            $self->_pushback($line); # set up for loop
-            # what is length of the gap to the structure data?
-            my $offset = length($1);
-            my ($ct, $strln) = 0;
-            my $hsp;
-            HSP:
-            my %hsp_key = ('0' => 'meta',
-               '1' => 'query',
-               '2' => 'midline',
-               '3' => 'hit');
-            HSP:
-            while ($line = $self->_readline) {
-                next if $line =~ m{^\s*$}; # toss empty lines
-                chomp $line;
-                # exit loop if at end of file or upon next hit/HSP
-                if (!defined($line) || $line =~ m{^\S+}) {
-                    $self->_pushback($line);
-                    last HSP;
-                }
-                # iterate to keep track of each line (4 lines per hsp block)
-                my $iterator = $ct%4;
-                # strlen set only with structure lines (proper length)
-                $strln = length($line) if $iterator == 0;
-                # only grab the data needed (hit start and stop in hit line above)
-
-                my $data = substr($line, $offset, $strln-$offset);
-                $hsp->{ $hsp_key{$iterator} } .= $data;
-                $ct++;
-            }
-            # query start, end are from the actual query length (entire hit is
-            # mapped to CM data, so all CM data is represented)
-            # works for now...
-            if ($self->in_element('hsp')) {
-                my $strlen = $hsp->{'query'} =~ tr{A-Za-z}{A-Za-z};
-                
-                my $metastr;
-                # Ugh...these should be passed in a hash
-                $metastr = ($self->convert_meta) ? ($self->simple_meta($hsp->{'meta'})) :
-                            ($hsp->{'meta'});
-                $self->element_hash(
-                               {'Hsp_qseq'      => $hsp->{'query'},
-                                'Hsp_hseq'      => $hsp->{'hit'},
-                                'Hsp_midline'   => $hsp->{'midline'},
-                                'Hsp_structure' => $metastr,
-                                'Hsp_query-from' => 1,
-                                'Infernal_query-len' => $strlen,
-                                'Hsp_query-to'   => $strlen,
-                                'Hsp_hit-from'  => $laststart,
-                                'Hsp_hit-to'    => $lastend,
-                                'Hsp_score'     => $lastscore,
-                                'Hsp_bit-score' => $lastscore
-                            });
-                $self->end_element({'Name' => 'Hsp'});
-            }
-        } elsif ($line =~ m{^memory}xms || $line =~ m{^CYK\smemory}xms )  {
-            if ($self->within_element('result') && $seentop) {
-                $self->element(
-                            {'Name' => 'Infernal_version',
-                             'Data' => $version}
-                            );
-                if ($self->in_element('hit')) {
-                    $self->element_hash({'Hit_score'    => $maxscore,
-                                         'Hit_bits'     => $maxscore});
-                    $self->end_element({'Name' => 'Hit'});
-                }
-                last PARSER;
-            }
-        }
+    unless ($self->{'_handlerset'}) {
+        $self->_set_handler;
     }
-    $self->within_element('hit') && $self->end_element( { 'Name' => 'Hit' } );
-    $self->end_element( { 'Name' => 'Result' } ) if $seentop;
-    return $self->end_document();
+    return $self->_next_result;
 }
 
 =head2 start_element
@@ -746,7 +620,7 @@ sub structure_symbols {
            using symbols defined in structure_symbols()
  Returns : converted string
  Args    : [required] string to convert
- Note    : This is a very simple comversion method to get simple bracketed
+ Note    : This is a very simple conversion method to get simple bracketed
            format from Infernal data.  If the convert_meta() flag is set,
            this is the method used to convert the strings.
  
@@ -766,5 +640,174 @@ sub simple_meta {
     # unknown not handled yet
     return $str;
 }
+
+## private methods
+
+sub _next_result {
+    shift->throw("Handler not set!");
+}
+
+# this guesses the format and sets the proper handler for parsing
+sub _set_handler {
+    my $self = shift;
+    *_next_result = \&_parse_old;
+    return;
+    my $line;
+    while ($line = $self->_readline) {
+        # advance to first line
+        next if $line =~ m{^\s*$};
+        # newer output starts with model name
+        if ($line =~ m{^CM\s\d+:}) {
+            *_next_result = \&_parse_new;
+        } else {
+            *_next_result = \&_parse_old;
+        }
+        last;
+    }
+    $self->_pushback($line);
+}
+
+# cmsearch 0.81 and above
+sub _parse_new {
+    my ($self) = @_;
+    $self->throw("Parsing of v.0.81 output not implemented yet!");
+}
+
+sub _parse_old {
+    my ($self) = @_;
+    my $seentop = 0;
+    local $/ = "\n";
+    local $_;
+    my ($accession, $db, $algorithm, $model, $description, $version) =
+       ($self->query_accession, $self->database, $self->algorithm,
+        $self->model, $self->query_description, $self->version);
+    my $maxscore;
+    my $cutoff = $self->hsp_minscore;
+    $self->start_document();
+    local ($_);
+    my $line;
+    my ($lasthit, $lastscore, $laststart, $lastend);
+    my $hitline;
+    PARSER:
+    while ( defined( $line = $self->_readline ) ) {
+        next if $line =~ m{^\s+$};
+        # bypass this for now...
+        next if $line =~ m{^HMM\shit};
+        # pre-0.81
+        if ($line =~ m{^sequence:\s+(\S+)} ){
+            if (!$self->within_element('result')) {
+                $seentop = 1;
+                $self->start_element({'Name' => 'Result'});
+                $self->element_hash({
+                        'Infernal_program'   => $algorithm,
+                        'Infernal_query-def' => $model,
+                        'Infernal_query-acc' => $accession,
+                        'Infernal_querydesc' => $description,
+                        'Infernal_db'        => $db
+                    });
+            }
+            if ($self->in_element('hit')) {
+                $self->element_hash({'Hit_score' => $maxscore,
+                                     'Hit_bits'  => $maxscore});
+                $maxscore = undef;
+                $self->end_element({'Name' => 'Hit'});
+            }            
+            $lasthit = $1;
+        } elsif ($line =~ m{^hit\s+\d+\s+:\s+(\d+)\s+(\d+)\s+(\d+\.\d+)\s+bits}xms) {
+            ($laststart, $lastend, $lastscore) = ($1, $2, $3);
+            $maxscore = $lastscore unless $maxscore;
+            if ($lastscore > $cutoff) {
+                if (!$self->within_element('hit')) {
+                    my ($gi, $acc, $ver) = $self->_get_seq_identifiers($lasthit);
+                    $self->start_element({'Name' => 'Hit'});
+                    $self->element_hash({
+                        'Hit_id'           => $lasthit,
+                        'Hit_accession'    => $ver ? "$acc.$ver" :
+                                               $acc ? $acc : $lasthit,
+                        'Hit_gi'           => $gi
+                        });
+                }
+                # necessary as infernal 0.71 has repeated hit line
+                if (!$self->in_element('hsp')) {
+                    $self->start_element({'Name' => 'Hsp'});
+                }
+                $maxscore = ($maxscore < $lastscore)  ? $lastscore :
+                            $maxscore;
+            }
+        } elsif ($line =~ m{^(\s+)[<>\{\}\(\)\[\]:_,-\.]+}xms) { # start of HSP
+            $self->_pushback($line); # set up for loop
+            # what is length of the gap to the structure data?
+            my $offset = length($1);
+            my ($ct, $strln) = 0;
+            my $hsp;
+            HSP:
+            my %hsp_key = ('0' => 'meta',
+               '1' => 'query',
+               '2' => 'midline',
+               '3' => 'hit');
+            HSP:
+            while ($line = $self->_readline) {
+                next if $line =~ m{^\s*$}; # toss empty lines
+                chomp $line;
+                # exit loop if at end of file or upon next hit/HSP
+                if (!defined($line) || $line =~ m{^\S+}) {
+                    $self->_pushback($line);
+                    last HSP;
+                }
+                # iterate to keep track of each line (4 lines per hsp block)
+                my $iterator = $ct%4;
+                # strlen set only with structure lines (proper length)
+                $strln = length($line) if $iterator == 0;
+                # only grab the data needed (hit start and stop in hit line above)
+
+                my $data = substr($line, $offset, $strln-$offset);
+                $hsp->{ $hsp_key{$iterator} } .= $data;
+                $ct++;
+            }
+            # query start, end are from the actual query length (entire hit is
+            # mapped to CM data, so all CM data is represented)
+            # works for now...
+            if ($self->in_element('hsp')) {
+                my $strlen = $hsp->{'query'} =~ tr{A-Za-z}{A-Za-z};
+                
+                my $metastr;
+                # Ugh...these should be passed in a hash
+                $metastr = ($self->convert_meta) ? ($self->simple_meta($hsp->{'meta'})) :
+                            ($hsp->{'meta'});
+                $self->element_hash(
+                               {'Hsp_qseq'      => $hsp->{'query'},
+                                'Hsp_hseq'      => $hsp->{'hit'},
+                                'Hsp_midline'   => $hsp->{'midline'},
+                                'Hsp_structure' => $metastr,
+                                'Hsp_query-from' => 1,
+                                'Infernal_query-len' => $strlen,
+                                'Hsp_query-to'   => $strlen,
+                                'Hsp_hit-from'  => $laststart,
+                                'Hsp_hit-to'    => $lastend,
+                                'Hsp_score'     => $lastscore,
+                                'Hsp_bit-score' => $lastscore
+                            });
+                $self->end_element({'Name' => 'Hsp'});
+            }
+        } elsif ($line =~ m{^memory}xms || $line =~ m{^CYK\smemory}xms )  {
+            if ($self->within_element('result') && $seentop) {
+                $self->element(
+                            {'Name' => 'Infernal_version',
+                             'Data' => $version}
+                            );
+                if ($self->in_element('hit')) {
+                    $self->element_hash({'Hit_score'    => $maxscore,
+                                         'Hit_bits'     => $maxscore});
+                    $self->end_element({'Name' => 'Hit'});
+                }
+                last PARSER;
+            }
+        }
+    }
+    $self->within_element('hit') && $self->end_element( { 'Name' => 'Hit' } );
+    $self->end_element( { 'Name' => 'Result' } ) if $seentop;
+    return $self->end_document();
+}
+
 
 1;
