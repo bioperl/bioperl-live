@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 147);
+    test_begin(-tests => 150);
     
     use_ok('Bio::Map::SimpleMap');
     use_ok('Bio::Map::Marker');
@@ -79,6 +79,13 @@ my $marker;
     is $p[0], 150;
     is $p[1], 200;
     is $p[2], 300;
+    
+    # make sure we can add positions with 0 value
+    my $map3 = Bio::Map::SimpleMap->new();
+    $marker->add_position($map3, 0);
+    ok my @positions = $marker->get_positions($map3);
+    is @positions, 1;
+    is $positions[0]->value, 0;
 }
 
 # Test position basics
