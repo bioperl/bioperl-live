@@ -362,6 +362,10 @@ sub do_initialize {
 sub load_sequence {
   my $self = shift;
   my ($io_handle,$id) = @_;
+
+  $self->warn("handle:$io_handle,id:$id");
+  die;
+
   my $file = $self->_fasta_file;
   my $loaded = 0;
 
@@ -374,9 +378,9 @@ sub load_sequence {
 
   while (<$io_handle>) {
     $loaded++ if /^>/;
-    print F $_;
+    print $F $_;
   }
-  close F;
+  close $F;
   my $dna_db = Bio::DB::Fasta->new($file) or $self->throw("Can't reindex sequence file: $@");
   $self->dna_db($dna_db);
   $self->_touch_timestamp;
