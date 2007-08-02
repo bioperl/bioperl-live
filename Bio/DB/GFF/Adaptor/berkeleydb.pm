@@ -362,10 +362,6 @@ sub do_initialize {
 sub load_sequence {
   my $self = shift;
   my ($io_handle,$id) = @_;
-
-  $self->warn("handle:$io_handle,id:$id");
-  die;
-
   my $file = $self->_fasta_file;
   my $loaded = 0;
 
