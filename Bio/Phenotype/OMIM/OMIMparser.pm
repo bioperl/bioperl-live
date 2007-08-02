@@ -405,9 +405,7 @@ sub genemap_file_name {
 
     if ( defined $value ) {
         $self->{ "_genemap_file_name" } = $value;
-        if ( $value =~ /\W/ ) {
-            _genemap_hash( $self->_read_genemap( $value ) );
-        }
+        $self->_genemap_hash( $self->_read_genemap( $value ) );
     }
     
     return $self->{ "_genemap_file_name" };
@@ -874,7 +872,7 @@ sub _read_genemap {
     
     my $line         = "";
     my %genemap_hash = ();
-    my $genemap_file = Bio::Root::IO->new->new( -file => $genemap_file_name );
+    my $genemap_file = Bio::Root::IO->new( -file => $genemap_file_name );
     my @a            = ();
     my %gm           = ();
     
