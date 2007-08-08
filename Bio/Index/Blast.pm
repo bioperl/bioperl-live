@@ -78,8 +78,7 @@ package Bio::Index::Blast;
 use strict;
 
 use IO::String;
-use Bio::Root::Version;
-
+use Bio::SearchIO;
 use base qw(Bio::Index::Abstract Bio::Root::Root);
 
 sub _version {
@@ -214,7 +213,7 @@ sub _process_report {
 												   -noclose => 1);
 	for (my $result = $report->next_result) {
 		my $id = $result->query_name;
-		print "id is $id, begin is $begin\n" if ( $self->verbose > 0);
+		$self->debug("id is $id, begin is $begin\n");
 		$self->add_record($id, $i, $begin);
 	}
 }
