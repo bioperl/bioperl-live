@@ -258,25 +258,25 @@ while ($g3gene = $glimmer_3->next_prediction) {
 is($i, 27);
 
 # Glimmer 3.X (prokaryotic gene fragment)
-my $glimmer_3 = Bio::Tools::Glimmer->new(
+my $glimmer_3a = Bio::Tools::Glimmer->new(
                                          '-file'   => test_input_file('glimmer3-fragment.predict'),
                                          '-detail' => test_input_file('glimmer3-fragment.detail'), 
                                         );
-my $g3gene = $glimmer_3->next_prediction;
+my $g3gene_a = $glimmer_3a->next_prediction;
 
-ok($g3gene);
+ok($g3gene_a);
 
-isa_ok $g3gene->location(), 'Bio::Location::Fuzzy';
-is $g3gene->location->start_pos_type(), 'BEFORE';
-is $g3gene->location->max_start(), 1;
-is $g3gene->location->end_pos_type(), 'EXACT';
-is $g3gene->location->end(), 674;
+isa_ok $g3gene_a->location(), 'Bio::Location::Fuzzy';
+is $g3gene_a->location->start_pos_type(), 'BEFORE';
+is $g3gene_a->location->max_start(), 1;
+is $g3gene_a->location->end_pos_type(), 'EXACT';
+is $g3gene_a->location->end(), 674;
 
-for (1..3) { $g3gene = $glimmer_3->next_prediction; }
+for (1..3) { $g3gene_a = $glimmer_3a->next_prediction; }
 
-isa_ok $g3gene->location(), 'Bio::Location::Fuzzy';
-is $g3gene->location->start_pos_type(), 'EXACT';
-is $g3gene->location->start(), 2677;
-is $g3gene->location->end_pos_type(), 'AFTER';
-is $g3gene->location->min_end(), 2932;
+isa_ok $g3gene_a->location(), 'Bio::Location::Fuzzy';
+is $g3gene_a->location->start_pos_type(), 'EXACT';
+is $g3gene_a->location->start(), 2677;
+is $g3gene_a->location->end_pos_type(), 'AFTER';
+is $g3gene_a->location->min_end(), 2932;
 
