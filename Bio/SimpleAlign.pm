@@ -258,6 +258,7 @@ sub add_seq {
     if( !defined $order ) {
 	$order = keys %{$self->{'_seq'}};
     }
+    $self->throw("$id, $start..$end") unless $id && defined $start && defined $end;
     $name = sprintf("%s/%d-%d",$id,$start,$end);
 
     if( $self->{'_seq'}->{$name} ) {
@@ -1113,7 +1114,9 @@ sub remove_gaps {
 sub _remove_col {
     my ($self,$aln,$remove) = @_;
     my @new;
-
+    
+    my $gap = $self->gap_char;
+    
     # splice out the segments and create new seq
     foreach my $seq($self->each_seq){
         my $new_seq = Bio::LocatableSeq->new(
@@ -1126,26 +1129,43 @@ sub _remove_col {
             my $start = $pair->[0];
             my $end   = $pair->[1];
             $sequence = $seq->seq unless $sequence;
-            my $spliced;
-            $spliced .= $start > 0 ? substr($sequence,0,$start) : '';
-            $spliced .= substr($sequence,$end+1,$seq->length-$end+1);
-            $sequence = $spliced;
-            if ($start == 1) {
-              $new_seq->start($end);
-            }
-            else {
-              $new_seq->start( $seq->start);
+            my $orig = $sequence;
+            my $head =  $start > 0 ? substr($sequence, 0, $start) : '';
+            my $tail = ($end + 1) >= length($sequence) ? '' : substr($sequence, $end + 1);
+            $sequence = $head.$tail;
+            # start
+            unless (defined $new_seq->start) {
+                if ($start == 0) {
+                    my $start_adjust = () = substr($orig, 0, $end + 1) =~ /$gap/g;
+                    $new_seq->start($seq->start + $end + 1 - $start_adjust);
+                }
+                else {
+                    my $start_adjust = $orig =~ /^$gap+/;
+                    if ($start_adjust) {
+                        $start_adjust = $+[0] == $start;
+                    }
+                    $new_seq->start($seq->start + $start_adjust);
+                }
             }
             # end
-            if($end >= $seq->end){
-             $new_seq->end( $start);
+            if (($end + 1) >= length($orig)) {
+                my $end_adjust = () = substr($orig, $start) =~ /$gap/g;
+                $new_seq->end($seq->end - (length($orig) - $start) + $end_adjust);
             }
             else {
-             $new_seq->end($seq->end);
+                $new_seq->end($seq->end);
             }
         }
+        
+        if ($new_seq->end < $new_seq->start) {
+            # we removed all columns except for gaps: set to 0 to indicate no
+            # sequence
+            $new_seq->start(0);
+            $new_seq->end(0);
+        }
+        
         $new_seq->seq($sequence) if $sequence;
-		  push @new, $new_seq;
+		push @new, $new_seq;
     }
     # add the new seqs to the alignment
     foreach my $new(@new){
@@ -1204,9 +1224,23 @@ sub _remove_columns_by_num {
 	my ($self,$positions) = @_;
 	my $aln = $self->new;
 
-	# sort the positions to remove columns at the end 1st
-	@$positions = sort { $b->[0] <=> $a->[0] } @$positions;
-	$aln = $self->_remove_col($aln,$positions);
+	# sort the positions
+	@$positions = sort { $a->[0] <=> $b->[0] } @$positions;
+    
+    my @remove;
+    my $length = 0;
+    foreach my $pos (@{$positions}) {
+        my ($start, $end) = @{$pos};
+        
+        #have to offset the start and end for subsequent removes
+        $start-=$length;
+        $end  -=$length;
+        $length += ($end-$start+1);
+        push @remove, [$start,$end];
+    }
+
+    #remove the segments
+    $aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
 	$aln;
 }
 
@@ -2097,18 +2131,14 @@ sub length_aln {
 sub length {
     my $self = shift;
     my $seq;
-    my $length = (-1);
-    my ($temp,$len);
-
+    my $length = -1;
+    my $temp;
+    
     foreach $seq ( $self->each_seq() ) {
-        if ($self->isa("Bio::Seq::LargeSeqI")) {
-            $temp = $seq->length();
-        } else {
-	    $temp = $seq->length;
+        $temp = $seq->length();
+        if( $temp > $length ) {
+            $length = $temp;
         }
-	if( $temp > $length ) {
-	    $length = $temp;
-	}
     }
 
     return $length;
