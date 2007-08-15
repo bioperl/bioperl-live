@@ -258,7 +258,6 @@ sub add_seq {
     if( !defined $order ) {
 	$order = keys %{$self->{'_seq'}};
     }
-    $self->throw("$id, $start..$end") unless $id && defined $start && defined $end;
     $name = sprintf("%s/%d-%d",$id,$start,$end);
 
     if( $self->{'_seq'}->{$name} ) {
