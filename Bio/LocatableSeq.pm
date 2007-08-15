@@ -111,7 +111,8 @@ sub new {
 
  Title   : start
  Usage   : $obj->start($newval)
- Function:
+ Function: Get/set the 1-based start position of this sequence in the original
+           sequence. '0' means before the original sequence starts.
  Returns : value of start
  Args    : newvalue (optional)
 
@@ -132,7 +133,8 @@ sub start{
 
  Title   : end
  Usage   : $obj->end($newval)
- Function:
+ Function: Get/set the 1-based end position of this sequence in the original
+           sequence. '0' means before the original sequence starts.
  Returns : value of end
  Args    : newvalue (optional)
 
@@ -154,7 +156,7 @@ Overriding value [$value] with value $len for Bio::LocatableSeq::end().")
       $self->{'end'} = $value;
     }
 
-   return $self->{'end'} || $self->_ungapped_len;
+   return defined $self->{'end'} ? $self->{'end'} : $self->_ungapped_len;
 }
 
 sub _ungapped_len {
