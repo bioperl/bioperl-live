@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 115);
+    test_begin(-tests => 151);
 	
 	use_ok('Bio::SimpleAlign');
 	use_ok('Bio::AlignIO');
@@ -211,8 +211,8 @@ SKIP:{
 	$aln2 = $aln1->remove_columns([0,0]);
 	$strout->write_aln($aln2);
 	is $string,
-	"P84139/1-33              NEGEHQIKLDELFEKLLRARLIFKNKDVLRRC\n".
-	"P814153/1-33             NEGMHQIKLDVLFEKLLRARLIFKNKDVLRRC\n".
+	"P84139/2-33              NEGEHQIKLDELFEKLLRARLIFKNKDVLRRC\n".
+	"P814153/2-33             NEGMHQIKLDVLFEKLLRARLIFKNKDVLRRC\n".
 	"BAB68554/1-14            ------------------AMLIFKDKQLLQQC\n".
 	"gb|443893|124775/1-32    MRFRFQIKVPPAVEGARPALLIFKSRPELGGC\n",
 	'remove_columns by position';
@@ -226,7 +226,7 @@ SKIP:{
 	"P84139/1-33              MEGEIKLDELFEKLLRARLIFKNKDVLRC\n".
 	"P814153/1-33             MEGMIKLDVLFEKLLRARLIFKNKDVLRC\n".
 	"BAB68554/1-14            ----------------AMLIFKDKQLLQC\n".
-	"gb|443893|124775/1-32    -RFRIKVPPAVEGARPALLIFKSRPELGC\n",
+	"gb|443893|124775/2-32    -RFRIKVPPAVEGARPALLIFKSRPELGC\n",
 	'remove_columns by position (wrong order)';
 	
 	my %cigars = $aln1->cigar_line;
@@ -456,4 +456,105 @@ for my $ls (sort keys %testdata) {
                            -separator => '.'
                            );
     is($str, $testdata{$ls},"BIC:$str");
+}
+
+
+# is _remove_col really working correctly?
+my $a = Bio::LocatableSeq->new(-id => 'a', -seq => 'atcgatcgatcgatcg', -start => 5, -end => 20);
+my $b = Bio::LocatableSeq->new(-id => 'b', -seq => '-tcgatc-atcgatcg', -start => 30, -end => 43);
+my $c = Bio::LocatableSeq->new(-id => 'c', -seq => 'atcgatcgatc-atc-', -start => 50, -end => 63);
+my $d = Bio::LocatableSeq->new(-id => 'd', -seq => '--cgatcgatcgat--', -start => 80, -end => 91);
+my $e = Bio::LocatableSeq->new(-id => 'e', -seq => '-t-gatcgatcga-c-', -start => 100, -end => 111);
+$aln = Bio::SimpleAlign->new();
+$aln->add_seq($a);
+$aln->add_seq($b);
+$aln->add_seq($c);
+
+my $gapless = $aln->remove_gaps();
+foreach my $seq ($gapless->each_seq) {
+	if ($seq->id eq 'a') {
+		is $seq->start, 6;
+		is $seq->end, 19;
+		is $seq->seq, 'tcgatcatcatc';
+	}
+	elsif ($seq->id eq 'b') {
+		is $seq->start, 30;
+		is $seq->end, 42;
+		is $seq->seq, 'tcgatcatcatc';
+	}
+	elsif ($seq->id eq 'c') {
+		is $seq->start, 51;
+		is $seq->end, 63;
+		is $seq->seq, 'tcgatcatcatc';
+	}
+}
+
+$aln->add_seq($d);
+$aln->add_seq($e);
+$gapless = $aln->remove_gaps();
+foreach my $seq ($gapless->each_seq) {
+	if ($seq->id eq 'a') {
+		is $seq->start, 8;
+		is $seq->end, 17;
+		is $seq->seq, 'gatcatca';
+	}
+	elsif ($seq->id eq 'b') {
+		is $seq->start, 32;
+		is $seq->end, 40;
+		is $seq->seq, 'gatcatca';
+	}
+	elsif ($seq->id eq 'c') {
+		is $seq->start, 53;
+		is $seq->end, 61;
+		is $seq->seq, 'gatcatca';
+	}
+	elsif ($seq->id eq 'd') {
+		is $seq->start, 81;
+		is $seq->end, 90;
+		is $seq->seq, 'gatcatca';
+	}
+	elsif ($seq->id eq 'e') {
+		is $seq->start, 101;
+		is $seq->end, 110;
+		is $seq->seq, 'gatcatca';
+	}
+}
+
+my $f = Bio::LocatableSeq->new(-id => 'f', -seq => 'a-cgatcgatcgat-g', -start => 30, -end => 43);
+$aln = Bio::SimpleAlign->new();
+$aln->add_seq($a);
+$aln->add_seq($f);
+
+$gapless = $aln->remove_gaps();
+foreach my $seq ($gapless->each_seq) {
+	if ($seq->id eq 'a') {
+		is $seq->start, 5;
+		is $seq->end, 20;
+		is $seq->seq, 'acgatcgatcgatg';
+	}
+	elsif ($seq->id eq 'f') {
+		is $seq->start, 30;
+		is $seq->end, 43;
+		is $seq->seq, 'acgatcgatcgatg';
+	}
+}
+
+my $g = Bio::LocatableSeq->new(-id => 'g', -seq => 'atgc', -start => 5, -end => 8);
+my $h = Bio::LocatableSeq->new(-id => 'h', -seq => '-tcg', -start => 30, -end => 32);
+$aln = Bio::SimpleAlign->new();
+$aln->add_seq($g);
+$aln->add_seq($h);
+
+my $removed = $aln->remove_columns([1, 3]);
+foreach my $seq ($removed->each_seq) {
+	if ($seq->id eq 'g') {
+		is $seq->start, 5;
+		is $seq->end, 5;
+		is $seq->seq, 'a';
+	}
+	elsif ($seq->id eq 'h') {
+		is $seq->start, 0;
+		is $seq->end, 0;
+		is $seq->seq, '-';
+	}
 }
