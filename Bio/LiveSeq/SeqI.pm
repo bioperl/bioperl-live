@@ -752,7 +752,6 @@ sub strand {
 
  Returns : a string either 'dna','rna','protein'.
  Args    : none
- Note    : "circular dna" is set as dna
 
 =cut
 
@@ -761,7 +760,8 @@ sub alphabet {
   my %valid_type = map {$_, 1} qw( dna rna protein );
   my ($self,$value) = @_;
   if (defined $value) {
-    $value =~ s/circular dna/dna/;
+    $value = 'dna' if $value =~ /dna/i;
+    $value = 'rna' if $value =~ /rna/i;
     unless ( $valid_type{$value} ) {
       $self->warn("Molecular type '$value' is not a valid type");
     }
