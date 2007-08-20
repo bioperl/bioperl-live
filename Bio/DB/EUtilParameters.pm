@@ -102,6 +102,7 @@ use warnings;
 use base qw(Bio::Root::Root Bio::ParameterBaseI);
 use URI;
 use HTTP::Request;
+use Bio::Root::IO;
 
 # eutils only has one hostbase URL
 
@@ -186,7 +187,7 @@ sub new {
     my $self = $class->SUPER::new(@args);
     my ($retmode) = $self->_rearrange(["RETMODE"],@args);
     $self->_set_from_args(\@args,
-        -methods => [@PARAMS, qw(eutil history correspondence)]);
+        -methods => [@PARAMS, qw(eutil history correspondence id_file)]);
     $self->eutil() || $self->eutil('efetch');
     # set default retmode if not explicitly set    
     $self->set_default_retmode if (!$retmode);
@@ -221,10 +222,12 @@ sub new {
 sub set_parameters {
     my ($self, @args) = @_;
     # allow automated resetting; must check to ensure that retmode isn't explicitly passed
-    my $newmode = $self->_rearrange(["RETMODE"],@args);
+    my ($newmode,$file) = $self->_rearrange([qw(RETMODE ID_FILE)],@args);
     $self->_set_from_args(\@args, -methods => [@PARAMS, qw(eutil correspondence history)]);
     # set default retmode if not explicitly passed
     $self->set_default_retmode unless $newmode;
+    $file && $self->id_file($file);
+    return;
 }
 
 =head2 reset_parameters
@@ -252,11 +255,12 @@ sub set_parameters {
 sub reset_parameters {
     my ($self, @args) = @_;
     # is there a better way of doing this?  probably, but this works...
-    my ($retmode) = $self->_rearrange(["RETMODE"],@args);
+    my ($retmode,$file) = $self->_rearrange([qw(RETMODE ID_FILE)],@args);
     map { defined $self->{"_$_"} && undef $self->{"_$_"} } (@PARAMS, qw(eutil correspondence history_cache request_cache));
     $self->_set_from_args(\@args, -methods => [@PARAMS, qw(eutil correspondence history)]);
     $self->eutil() || $self->eutil('efetch');
     $self->set_default_retmode unless $retmode;
+    $file && $self->id_file($file);
     $self->{'_statechange'} = 1;
 }
 
@@ -493,6 +497,36 @@ sub correspondence {
     return $self->{'_correspondence'};
 }
 
+=head2 id_file
+
+ Title   : id_file
+ Usage   : $p->id_file('<foo');
+ Function: convenience method; passes in file containing a list of IDs for
+           searches (one per line), sets id() to list
+ Returns : none
+ Args    : either string indicating file to use, a file handle, or an IO::Handle
+           object
+ Note    : use of this overrides concurrent use of the '-id' parameter when both
+           are passed.  The filename is not retained, merely parsed for IDs.
+
+=cut
+
+sub id_file {
+    my ($self, $file) = @_;
+    if ($file) {
+        # do this in a way that allows file, fh, IO::Handle
+        my $io = $self->_io;
+        $io->_initialize_io(-input => $file);
+        my @ids;
+        while (my $line = $io->_readline) {
+            chomp $line;
+            push @ids, $line;
+        }
+        $self->_io->close;
+        $self->id(\@ids);
+    }
+}
+
 =head2 url_base_address
 
  Title   : url_base_address
@@ -576,11 +610,12 @@ sub correspondence {
     }
 }
 
-
-
-sub exhaust {
+sub _io {
     my $self = shift;
-    $self->{'_statechange'} = 0;
+    if (!defined $self->{'_io'}) {
+        $self->{'_io'} = Bio::Root::IO->new();
+    }
+    return $self->{'_io'};
 }
 
 1;

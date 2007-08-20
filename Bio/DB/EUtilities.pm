@@ -646,6 +646,29 @@ sub get_DocSums {
     return $self->get_Parser->get_DocSums(@args);
 }
 
+=head2 print_DocSums
+
+ Title    : print_docsums
+ Usage    : $docsum->print_docsums();
+            $docsum->print_docsums(-fh => $fh, -callback => $coderef);
+ Function : prints item data for all docsums.  The default printing method is
+            each item per DocSum is printed with relevant values if present
+            in a simple table using Text::Wrap.  
+ Returns  : none
+ Args     : [optional]
+           -file : file to print to
+           -fh   : filehandle to print to (cannot be used concurrently with file)
+           -cb   : coderef to use in place of default print method.  This is passed
+                   in a DocSum object; 
+ Note     : if -file or -fh are not defined, prints to STDOUT
+
+=cut
+
+sub print_DocSums {
+    my ($self, @args) = @_;
+    return $self->get_Parser->print_DocSums(@args);
+}
+
 =head1 Info-related methods
 
 =head2 get_available_databases
