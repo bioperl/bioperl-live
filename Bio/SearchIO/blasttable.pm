@@ -159,8 +159,13 @@ sub next_result{
    my ($lastquery,$lasthit);
    local $/ = "\n";
    local $_;
-
+   my ($alg, $ver);
    while( defined ($_ = $self->_readline) ) {
+       # -m 9 only
+       if(m{^#\s+((?:\S+?)?BLAST[NPX])\s+(.+)}) {
+            ($alg, $ver) = ($1, $2);
+            next;
+       }
        next if /^\#/ || /^\s+$/;
        my ($qname,$hname, $percent_id, $hsp_len, $mismatches,$gapsm,
             $qstart,$qend,$hstart,$hend,$evalue,$bits) = split;
@@ -176,7 +181,9 @@ sub next_result{
 	   $self->{'_result_count'}++;
 	   $self->start_element({'Name' => 'Result'});
 	   $self->element({'Name' => 'Result_program',
-			   'Data' => $self->program_name});
+			   'Data' => $alg || $self->program_name});
+       $self->element({'Name' => 'Result_version',
+			   'Data' => $ver}) if $ver;
 	   $self->element({'Name' => 'Result_query-def',
 			   'Data' => $qname});
 	   $self->start_element({'Name' => 'Hit'});
