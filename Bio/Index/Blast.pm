@@ -173,48 +173,67 @@ sub _index_file {
 	my (@data, @records);
 	my $indexpoint = 0;
 	my $lastline = 0;
-
+    # fencepost problem: we basically just find the top and the query
 	while( <$BLAST> ) {
-		if( /(T)?BLAST[PNX]/ ) {
-			if( @data ) { 
-				# if we have already read a report
-				# then store the data for this report 
-				# in the CURRENT index
-				$self->_process_report($indexpoint, $i, join('', @data));
-
-			} # handle fencepost problem (beginning) 
-	        # by skipping here when empty
-
-			# since we are at the beginning of a new report
-			# store this begin location for the next index	   
-			$indexpoint = $lastline;
-			@data = ();
+		if( /^T?BLAST[PNX]/ ) {
+            $indexpoint = tell($BLAST) - length $_;
 		}
-		push(@data, $_) if $_;
-		$lastline = tell $BLAST;
-	}
-	# handle fencepost problem (end)
-	if( @data ) {
-		$self->_process_report($indexpoint, $i, join('', @data));
+        if (/^Query=\s*([^\n]+)$/) {
+            foreach my $id ($self->id_parser()->($1)) {
+				$self->debug("id is $id, begin is $indexpoint\n");
+				$self->add_record($id, $i, $indexpoint);
+			}
+        }
 	}
 }
 
-sub _process_report {
-	my ($self,$begin,$i,$data) = @_;
+# shamelessly stolen from Bio::Index::Fasta
 
-	if( ! $data ) { 
-		$self->warn("calling _process_report without a valid data string"); 
-		return ; 
+=head2 id_parser
+
+  Title   : id_parser
+  Usage   : $index->id_parser( CODE )
+  Function: Stores or returns the code used by record_id to
+            parse the ID for record from a string.  Useful
+            for (for instance) specifying a different
+            parser for different flavours of blast dbs. 
+            Returns \&default_id_parser (see below) if not
+            set. If you supply your own id_parser
+            subroutine, then it should expect a fasta
+            description line.  An entry will be added to
+            the index for each string in the list returned.
+  Example : $index->id_parser( \&my_id_parser )
+  Returns : ref to CODE if called without arguments
+  Args    : CODE
+
+=cut
+
+sub id_parser {
+	my( $self, $code ) =@_;
+
+	if ($code) {
+		$self->{'_id_parser'} = $code;
 	}
-	# my $id_parser = $self->id_parser;
+	return $self->{'_id_parser'} || \&default_id_parser;
+}
 
-	my $datal = new IO::String($data);
-	my $report = Bio::SearchIO->new->new(-fh => $datal,
-												   -noclose => 1);
-	for (my $result = $report->next_result) {
-		my $id = $result->query_name;
-		$self->debug("id is $id, begin is $begin\n");
-		$self->add_record($id, $i, $begin);
+=head2 default_id_parser
+
+  Title   : default_id_parser
+  Usage   : $id = default_id_parser( $header )
+  Function: The default Blast Query ID parser for Bio::Index::Blast.pm
+            Returns $1 from applying the regexp /^>\s*(\S+)/
+            to $header.
+  Returns : ID string
+  Args    : a header line string
+
+=cut
+
+sub default_id_parser {
+	if ($_[0] =~ /^\s*(\S+)/) {
+		return $1;
+	} else {
+		return;
 	}
 }
 
