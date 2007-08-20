@@ -92,13 +92,13 @@ my $out = new Bio::SeqIO(-format => $outformat,
 			 -file   => ">$prefix.$count");
 my $scount = 0;
 while( my $seq = $in->next_seq ) {    
-    if( ++$scount >= $dbsize && $count ) { 
+    if( ++$scount > $dbsize && $count ) { 
 	$out->close();
 	undef($out);
 	$count++;
 	$out = new Bio::SeqIO(-format => $outformat,
 			      -file   => ">$prefix.$count");
-	$scount = 0;
+	$scount = 1;
     }
     $out->write_seq($seq);
 }
