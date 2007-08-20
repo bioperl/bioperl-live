@@ -204,14 +204,12 @@ sub _initialize {
     $cache ||= 0;
     $self->datatype($type);
     $self->eutil($eutil);
-    $response  && $self->response($response);
-    $self->cache_response($cache);
-    
     # lazy parsing only implemented for elink and esummary (where returned data
-    # can be quite long). Also, no point to parsing lazily when the data is
+    # can be quite long).  Also, no point to parsing lazily when the data is
     # already in memory in an HTTP::Response object, so turn it off and chunk
     # the Response object after parsing.
-    
+    $response  && $self->response($response);
+    $self->cache_response($cache);
     $lazy = 0 if ($response) || ($eutil ne 'elink' && $eutil ne 'esummary');
     # setting parser to 'lazy' mode is permanent (can't reset later)
     $self->{'_lazy'} = $lazy;
@@ -805,6 +803,64 @@ sub get_DocSums {
     return ref $self->{'_docsums'} ? @{ $self->{'_docsums'} } : return ();
 }
 
+=head2 print_DocSums
+
+ Title    : print_DocSums
+ Usage    : $docsum->print_DocSums();
+            $docsum->print_DocSums(-fh => $fh, -callback => $coderef);
+ Function : prints item data for all docsums.  The default printing method is
+            each item per DocSum is printed with relevant values if present
+            in a simple table using Text::Wrap.  
+ Returns  : none
+ Args     : [optional]
+           -file : file to print to
+           -fh   : filehandle to print to (cannot be used concurrently with file)
+           -cb   : coderef to use in place of default print method.  This is passed
+                   in a DocSum object;
+           -wrap : number of columns to wrap default text output to (def = 80)
+ Note     : if -file or -fh are not defined, prints to STDOUT
+
+=cut
+
+{
+    my $DEF_PRINT = sub {
+        my $ds = shift;
+        my $string = sprintf("UID: %s\n",$ds->get_id);
+        # flattened mode
+        while (my $item = $ds->next_Item('flattened'))  {
+            # not all Items have content, so need to check...
+            my $content = $item->get_content || '';
+            $string .= sprintf("%-20s%s\n",$item->get_name(),
+                               wrap('',' 'x21, ":$content"));
+        }
+        $string .= "\n";
+        return $string;
+    };
+    
+    sub print_DocSums {
+        my $self = shift;
+        my ($file, $fh, $cb, $wrap) = $self->_rearrange([qw(FILE FH CB WRAP)], @_);
+        $wrap ||= 80;
+        if (!$cb) {
+            eval {use Text::Wrap qw(wrap $columns);};
+            $self->throw("Text::Wrap is not available!") if $@;
+            $Text::Wrap::columns = $wrap;
+            $cb = $DEF_PRINT;
+        } else {
+            $self->throw("Callback must be a code reference") if ref $cb ne 'CODE';
+        }
+        $file ||= $fh;
+        $self->throw("Have defined both file and filehandle; only use one!") if $file && $fh;
+        my $io = ($file) ? Bio::Root::IO->new(-input => $file, -flush => 1) :
+                 Bio::Root::IO->new(-flush => 1); # defaults to STDOUT
+        while (my $ds = $self->next_DocSum) {
+            my $string = $cb->($ds);
+            $io->_print($string) if $string;
+        }
+        $io->close;
+    }
+}
+
 =head1 Info-related methods
 
 =head2 get_available_databases
@@ -1110,22 +1166,37 @@ sub rewind {
             'linkinfo' or 'linkinfos'
             'linksets'
             'docsums'
+            'histories'
             
-            A second argument can also be passed to generate a 'lazy' iterator,
-            which loops through and returns objects as they are created (instead
-            of creating all data instances up front, then iterating through,
-            which is the default). Use of these iterators precludes use of
-            rewind() for the time being as we can't guarantee you can rewind(),
-            as this depends on whether the data source is seek()able and thus
-            'rewindable'. We will add rewind() support at a later time which
-            will work for 'seekable' data.
+ Note     : This function generates a simple coderef that one can use
+            independently of the various next_* functions (in fact, the next_*
+            functions use lazily created iterators generated via this method,
+            while rewind() merely deletes them so they can be regenerated on the
+            next call). 
             
             A callback specified using callback() will be used to filter objects
             for any generated iterator. This behaviour is implemented for both
             normal and lazy iterator types and is the default. If you don't want
             this, make sure to reset any previously set callbacks via
-            reset_callback() (which just deletes the code ref).
+            reset_callback() (which just deletes the code ref).  Note that setting
+            callback() also changes the behavior of the next_* functions as the
+            iterators are generated here (as described above); this is a feature
+            and not a bug.
             
+            'Lazy' iterators are considered an experimental feature and may be
+            modified in the future. A 'lazy' iterator, which loops through and
+            returns objects as they are created (instead of creating all data
+            instances up front, then iterating through) is returned if the
+            parser is set to 'lazy' mode. This mode is only present for elink
+            and esummary output as they are the two formats parsed which can
+            generate potentially thousands of individual objects (note efetch
+            isn't parsed, so isn't counted). Use of rewind() with these
+            iterators is not supported for the time being as we can't guarantee
+            you can rewind(), as this depends on whether the data source is
+            seek()able and thus 'rewindable'. We will add rewind() support at a
+            later time which will work for 'seekable' data or possibly cached
+            objects via Storable or BDB.
+
 =cut
 
 sub generate_iterator {
