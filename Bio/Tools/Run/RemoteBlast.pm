@@ -600,6 +600,12 @@ sub retrieve_blast {
             } elsif( /^(?:#\s)?[\w-]*?BLAST\w+/ ) {
                 $waiting = 0;
                 last;
+            } elsif ( /ERROR/i ) {
+                close($TMP);
+                open(my $ERR, "<$tempfile") or $self->throw("cannot open file $tempfile");
+                $self->warn(join("", <$ERR>));
+                close $ERR;
+                return -1;
             }
             
         }
