@@ -58,7 +58,7 @@ the alignment ID provided for Rfam/Pfam output.
 
 Note: for best results 'use strict'.
 
-=TODO
+=head1 TODO
 
 - allow using an alternative regex for indexing (for instance, the ID instead of AC)
 
