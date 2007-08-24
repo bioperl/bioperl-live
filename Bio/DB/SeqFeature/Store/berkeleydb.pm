@@ -976,7 +976,7 @@ sub _search_attributes {
     my $relevance = 10 * $hits;
     my $feature   = $self->fetch($id) or next;
     my $name      = $feature->display_name or next;
-    push @results,[$name,$note,$relevance];
+    push @results,[$name,$note,$relevance,$id];
   }
 
   return @results;

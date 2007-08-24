@@ -1026,8 +1026,12 @@ returned array is a arrayref containing the following fields:
   column 1     The display name of the feature
   column 2     The text of the note
   column 3     A relevance score.
+  column 4     The unique ID of the feature
 
 NOTE: This search will fail to find features that do not have a display name!
+
+You can use fetch() or fetch_many() with the returned IDs to get to
+the features themselves.
 
 =cut
 

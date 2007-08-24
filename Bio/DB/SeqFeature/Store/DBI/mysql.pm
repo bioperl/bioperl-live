@@ -277,7 +277,8 @@ END
   attribute_id     int(10)   not null,
   attribute_value  text,
   index(id),
-  index(attribute_id,attribute_value(10))
+  index(attribute_id,attribute_value(10)),
+  FULLTEXT(attribute_value)
 )
 END
 
@@ -835,7 +836,7 @@ sub _search_attributes {
 
   my $sql_regexp = join ' AND ',("a.attribute_value REGEXP ?")  x @words;
   my $sql = <<END;
-SELECT name,attribute_value
+SELECT name,attribute_value,n.id
   FROM $name_table as n,$attribute_table as a,$attributelist_table as al
   WHERE n.id=a.id
     AND al.id=a.attribute_id
@@ -849,11 +850,11 @@ END
   $sth->execute(@tags,@words) or $self->throw($sth->errstr);
 
   my @results;
-  while (my($name,$value) = $sth->fetchrow_array) {
+  while (my($name,$value,$id) = $sth->fetchrow_array) {
     my (@hits) = $value =~ /$perl_regexp/ig;
     my @words_in_row = split /\b/,$value;
     my $score  = int(@hits*100/@words/@words_in_row);
-    push @results,[$name,$value,$score];
+    push @results,[$name,$value,$score,$id];
   }
   $sth->finish;
   @results = sort {$b->[2]<=>$a->[2]} @results;
@@ -896,7 +897,7 @@ sub _attributes_sql {
   my $attribute_table       = $self->_attribute_table;
   my $attributelist_table   = $self->_attributelist_table;
 
-  my $from = "$attribute_table as a, $attributelist_table as al";
+  my $from = "$attribute_table as a use index(attribute_id), $attributelist_table as al";
 
   my $where = <<END;
   a.id=$join

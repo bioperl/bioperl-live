@@ -1072,8 +1072,13 @@ sub filled_arrow {
 	  or ($indent <= 0)
 	    or ($x2 - $x1 < 3);
 
+
   $fg   ||= $self->fgcolor;
   $bg   ||= $self->bgcolor;
+
+  my $lw = $self->option('linewidth') || 1;
+  $fg    = $self->set_pen($lw,$fg) if $lw > 1;
+
   my $pkg  = $self->polygon_package;
   my $poly = $pkg->new();
   if ($orientation >= 0) {
