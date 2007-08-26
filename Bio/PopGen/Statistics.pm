@@ -197,7 +197,9 @@ BEGIN {
 =head2 fu_and_li_D
 
  Title   : fu_and_li_D
- Usage   : my $D = $statistics->fu_and_li_D(\@ingroup,$extmutations);
+ Usage   : my $D = $statistics->fu_and_li_D(\@ingroup,\@outgroup);
+	    OR
+	   my $D = $statistics->fu_and_li_D(\@ingroup,$extmutations);
  Function: Fu and Li D statistic for a list of individuals
            given an outgroup and the number of external mutations
            (either provided or calculated from list of outgroup individuals)
@@ -317,7 +319,7 @@ sub fu_and_li_D_star {
 	$seg_sites   = $self->segregating_sites_count($pop);
 	$singletons  = $self->singleton_count($pop);
     } else { 
-	$self->throw("expected an array reference of a list of Bio::PopGen::IndividualI OR a Bio::PopGen::PopulationI object to tajima_D");
+	$self->throw("expected an array reference of a list of Bio::PopGen::IndividualI OR a Bio::PopGen::PopulationI object to fu_and_li_D_star");
 	return 0;
     }
 
@@ -1282,7 +1284,8 @@ sub composite_LD {
            individuals and an outgroup by computing the number of 
            differences at synonymous and non-synonymous sites
            for intraspecific comparisons and with the outgroup 
- Returns : 2x2 table
+ Returns : 2x2 table, followed by a hash reference indicating any 
+           warning messages about the status of the alleles or codons 
  Args    : -ingroup    => L<Bio::PopGen::Population> object or 
                           arrayref of L<Bio::PopGen::Individual>s 
            -outgroup   => L<Bio::PopGen::Population> object or 
@@ -1311,8 +1314,10 @@ sub mcdonald_kreitman {
 	if( $outgroup_count < 2 ) {
 	    $self->throw("Need 2 outgroups with polarized option\n");
 	}
-    } elsif( $outgroup_count != 1 ) {
+    } elsif( $outgroup_count > 1 ) {
 	$self->warn(sprintf("%s outgroup sequences provided, but only first will be used",$outgroup_count ));
+    } elsif( $outgroup_count == 0 ) {
+	$self->throw("No outgroup sequence provided");
     }
     
     my $codon_path = Bio::MolEvol::CodonModel->codon_path;
@@ -1353,6 +1358,7 @@ sub mcdonald_kreitman {
     my $table = Bio::Tools::CodonTable->new(-id => $codon_table);
     my @vt = qw(outgroup ingroup);
     my %changes;
+    my %status;
     my %two_by_two = ( 'fixed_N' => 0,
 		       'fixed_S' => 0,
 		       'poly_N'  => 0,
@@ -1393,7 +1399,8 @@ sub mcdonald_kreitman {
 	    # grab only the first outgroup codon (what to do with rest?)
 	    my ($outcodon) = keys %{$codonvals{'outgroup1'}};
             if( ! $outcodon ) { 
- 		warn("no outcodon\n");
+ 		warn("no outgroup codon\n");
+		$status{'no outgroup codon'}++;
 		next
 	    }
 	    my $out_AA = $table->translate($outcodon);
@@ -1406,6 +1413,7 @@ sub mcdonald_kreitman {
 		if( $verbose > 0 ) {
 		    $self->debug("skipping $out_AA and $outcodon $outcodon2\n");
 		}
+		$status{'outgroup codons different'}++;
 		next;
 	    }
 
@@ -1435,8 +1443,13 @@ sub mcdonald_kreitman {
 	    if( $diff_from_out ) {
 		if( scalar @ingroup_codons == 1 ) { 
 		    # fixed differences
-		    next if( $outcodon =~ /^$gapchar/ || 
-			     $ingroup_codons[0] =~ /$gapchar/);
+		    if( $outcodon =~ /^$gapchar/ ) {
+			$status{'outgroup codons with gaps'}++;
+			next;
+		    } elsif( $ingroup_codons[0] =~ /$gapchar/) {
+			$status{'ingroup codons with gaps'}++;
+			next;
+		    }
 		    my $path = $codon_path->{uc $ingroup_codons[0].$outcodon};
 		    $two_by_two{fixed_N} += $path->[0];
 		    $two_by_two{fixed_S} += $path->[1];
@@ -1464,16 +1477,18 @@ sub mcdonald_kreitman {
 		    }
 		    $two_by_two{fixed_N} += $Ndiff;
 		    $two_by_two{fixed_S} += $Sdiff;
+	            if( @ingroup_codons > 2 ) { 
+			$status{'more than 2 ingroup codons'}++;
+			warn("more than 2 ingroup codons (@ingroup_codons)\n");	
+		    } else {
+		    	my $path = $codon_path->{uc join('',@ingroup_codons)};
 
-		    my $path = $codon_path->{uc join('',@ingroup_codons)};
-		    $two_by_two{poly_N} += $path->[0];
-		    $two_by_two{poly_S} += $path->[1];
-		    if( $verbose > 0 ) {
-			$self->debug
-			    (sprintf("%-15s polysite_all - %s;%s(%s) %d,%d\tNfix=%d Sfix=%d Npoly=%d Spoly=%s\n",$codon,join(',',@ingroup_codons), $outcodon,$out_AA,
-				     @$path, map { $two_by_two{$_} } 
-				     qw(fixed_N fixed_S poly_N poly_S)));
-		    }
+		    	$two_by_two{poly_N} += $path->[0];
+		    	$two_by_two{poly_S} += $path->[1];
+		    	if( $verbose > 0 ) {
+			    $self->debug(sprintf("%-15s polysite_all - %s;%s(%s) %d,%d\tNfix=%d Sfix=%d Npoly=%d Spoly=%s\n",$codon,join(',',@ingroup_codons), $outcodon,$out_AA,@$path, map { $two_by_two{$_} } qw(fixed_N fixed_S poly_N poly_S)));
+			}
+		    } 
 		} 
 	    } else {
 		my %unq = map { $_ => 1 } @ingroup_codons;
@@ -1518,7 +1533,8 @@ sub mcdonald_kreitman {
     return ( $two_by_two{'poly_N'},
 	     $two_by_two{'fixed_N'},
 	     $two_by_two{'poly_S'},
-	     $two_by_two{'fixed_S'});
+	     $two_by_two{'fixed_S'},
+	     {%status});
     
 }
 
