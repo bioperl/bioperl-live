@@ -1399,9 +1399,8 @@ sub mcdonald_kreitman {
 	    # grab only the first outgroup codon (what to do with rest?)
 	    my ($outcodon) = keys %{$codonvals{'outgroup1'}};
             if( ! $outcodon ) { 
- 		warn("no outgroup codon\n");
-		$status{'no outgroup codon'}++;
-		next
+		$status{"no outgroup codon $codon"}++;
+		next;
 	    }
 	    my $out_AA = $table->translate($outcodon);
 	    my ($outcodon2) = keys %{$codonvals{'outgroup2'}};
@@ -1478,7 +1477,7 @@ sub mcdonald_kreitman {
 		    $two_by_two{fixed_N} += $Ndiff;
 		    $two_by_two{fixed_S} += $Sdiff;
 	            if( @ingroup_codons > 2 ) { 
-			$status{'more than 2 ingroup codons'}++;
+			$status{"more than 2 ingroup codons $codon"}++;
 			warn("more than 2 ingroup codons (@ingroup_codons)\n");	
 		    } else {
 		    	my $path = $codon_path->{uc join('',@ingroup_codons)};
