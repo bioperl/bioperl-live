@@ -131,15 +131,17 @@ sub aln_to_population{
    my ($self,@args) = @_;
    my ($aln,
        $sitemodel,$phase,
-       $includefixed) = $self->_rearrange([qw(ALIGNMENT
+       $includefixed,$checkisa) = $self->_rearrange([qw(ALIGNMENT
 					      SITE_MODEL
 					      PHASE
-					      INCLUDE_MONOMORPHIC)],
+					      INCLUDE_MONOMORPHIC
+					      CHECKISA)],
 					  @args);
    if( ! defined $aln ) { 
        $self->warn("Must provide a valid Bio::SimpleAlign object to run aln_to_population");
        return;
    }
+
    if( ! $aln->is_flush ) {
        $self->warn("Must provide a Bio::SimpleAlign object with aligned sequences to aln_to_population!");
        return;
@@ -149,30 +151,30 @@ sub aln_to_population{
        warn("phase must be 0,1, or 2");
        return;
    }
-   my $population = Bio::PopGen::Population->new(-source => 'alignment');
-   my @seqs = map { $_->seq() } $aln->each_seq;
-
-   if( ! defined $sitemodel ||
-       $sitemodel =~ /all/i ) {
-       my $ct = 0;
-       my @inds;
+   my $alength = $aln->length;
+   my @inds;
+   if( ! defined $sitemodel || $sitemodel =~ /all/i ) {
+       my $ct = 0;       
        my @seqs;
        for my $seq ( $aln->each_seq ) {
-	   my $ind = Bio::PopGen::Individual->new(-unique_id => $seq->display_id);
 	   push @seqs, $seq->seq;
-	   push @inds, $ind;
+	   push @inds, Bio::PopGen::Individual->new(-unique_id => $seq->display_id);
        }
-       for( my $i = 0; $i < $aln->length; $i++ ) {
+
+       for( my $i = 0; $i < $alength; $i++ ) {
 	   my $nm = "Site-$i";
 	   my (@genotypes,%set);
-	   # do we skip indels?
+	   
+           # do we skip indels?
+	   # slicing vertically
 	   for my $seq ( @seqs ) {
 	       my $site = substr($seq,$i,1);
 	       $set{$site}++;
 	       push @genotypes, $site;
 	   }
 	   if( keys %set > 1 || $includefixed ) {
-	       for( my $j = 0; $j < scalar @genotypes; $j++ ) {
+	       my $genoct = scalar @genotypes;
+	       for( my $j = 0; $j < $genoct; $j++ ) {
 		   $inds[$j]->add_Genotype(Bio::PopGen::Genotype->new
 					   (-marker_name  => $nm,
 					    -individual_id=> $inds[$j]->unique_id,
@@ -180,22 +182,18 @@ sub aln_to_population{
 	       }
 	   }
        }
-       for my $ind ( @inds ) { 
-	   $population->add_Individual($ind);
-       }
    } elsif( $sitemodel =~ /cod(on)?/i ) {
        my $ct = 0;
-       my @inds;
        my @seqs;
        for my $seq ( $aln->each_seq ) {
-	   my $ind = Bio::PopGen::Individual->new(-unique_id => $seq->display_id);
 	   push @seqs, $seq->seq;
-	   push @inds, $ind;
+	   push @inds, Bio::PopGen::Individual->new(-unique_id => $seq->display_id);
        }
        my $codonct = 0;
-       for( my $i = $phase; $i < $aln->length; $i += CodonLen ) {
+       for( my $i = $phase; $i < $alength; $i += CodonLen ) {
 	   my $nm = "Codon-$codonct-$i";
-	   my (@genotypes,%set);
+	   my (@genotypes,%set,$genoct);
+	   
 	   for my $seq ( @seqs ) {
 	       my $site = substr($seq,$i,CodonLen);
 	       if( length($site) < CodonLen ) {
@@ -207,10 +205,11 @@ sub aln_to_population{
 	       $set{$site}++;
 	       push @genotypes, $site;
 	   }
+	   $genoct = scalar @genotypes;
 	   
 	   # do we include fixed sites? yes I think so since this is 
-	   # typically being used by MK
-	   for( my $j = 0; $j < scalar @genotypes; $j++ ) {
+	   # typically being used by MK	   
+	   for( my $j = 0; $j < $genoct; $j++ ) {
 	       $inds[$j]->add_Genotype(Bio::PopGen::Genotype->new
 				       (-marker_name  => $nm,
 					-individual_id=> $inds[$j]->unique_id,
@@ -218,13 +217,12 @@ sub aln_to_population{
 	   }
 	   $codonct++;
        }
-       for my $ind ( @inds ) { 
-	   $population->add_Individual($ind);
-       }
    } else { 
        $self->throw("Can only build sites based on all the data right now!");
    }
-   return $population;
+   return Bio::PopGen::Population->new(-checkisa => 0,
+				       -source => 'alignment',
+				       -individuals=> \@inds);
 }
 
 1;
