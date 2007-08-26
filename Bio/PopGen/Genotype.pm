@@ -168,13 +168,14 @@ sub individual_id {
 =cut
 
 sub get_Alleles{
-    my ($self,$showblank) = @_;
-    if( $showblank ) {
+    my ($self) = shift;
+    
+     if( @_ && $_[0] ) {
 	return @{$self->{'_alleles'} || []};
     } else {
-	return @{$self->{'_cached_noblank'}} 
-	   if( defined $self->{'_cached_noblank'} );
-	    
+	if( defined $self->{'_cached_noblank'} ) {
+	    return @{$self->{'_cached_noblank'}} 
+	}
 	# one liners - woo hoo.
 	$self->{'_cached_noblank'} = [ grep { ! /^\s*$BlankAlleles\s*$/o } 
 				       @{$self->{'_alleles'} || []}];
@@ -197,9 +198,9 @@ sub get_Alleles{
 =cut
 
 sub add_Allele {
-    my ($self,@alleles) = @_;
-    $self->{'_cached_noblank'} = undef;
-    push @{$self->{'_alleles'}}, @alleles;
+    my ($self) = shift;
+    $self->{'_cached_noblank'} = undef;    
+    push @{$self->{'_alleles'}}, @_;
     return scalar @{$self->{'_alleles'}};
 }
 
