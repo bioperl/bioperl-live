@@ -1298,7 +1298,7 @@ sub mcdonald_kreitman {
 	$self->_rearrange([qw(INGROUP OUTGROUP POLARIZED)],@args);
     my $verbose = $self->verbose;
     my $outgroup_count;
-
+    my $gapchar = '\-';
     if( ref($outgroup) =~ /ARRAY/i ) {
 	$outgroup_count = scalar @$outgroup;
     } elsif( UNIVERSAL::isa($outgroup,'Bio::PopGen::PopulationI') ) {
@@ -1392,6 +1392,10 @@ sub mcdonald_kreitman {
 	} else { 
 	    # grab only the first outgroup codon (what to do with rest?)
 	    my ($outcodon) = keys %{$codonvals{'outgroup1'}};
+            if( ! $outcodon ) { 
+ 		warn("no outcodon\n");
+		next
+	    }
 	    my $out_AA = $table->translate($outcodon);
 	    my ($outcodon2) = keys %{$codonvals{'outgroup2'}};
 	    if( ($polarized && ($outcodon ne $outcodon2)) ||
@@ -1431,6 +1435,8 @@ sub mcdonald_kreitman {
 	    if( $diff_from_out ) {
 		if( scalar @ingroup_codons == 1 ) { 
 		    # fixed differences
+		    next if( $outcodon =~ /^$gapchar/ || 
+			     $ingroup_codons[0] =~ /$gapchar/);
 		    my $path = $codon_path->{uc $ingroup_codons[0].$outcodon};
 		    $two_by_two{fixed_N} += $path->[0];
 		    $two_by_two{fixed_S} += $path->[1];
@@ -1447,6 +1453,7 @@ sub mcdonald_kreitman {
 		    # Here we find the minimum number of NS subst
 		    my ($Ndiff,$Sdiff) = (3,0);	# most different path
 		    for my $c ( @ingroup_codons ) {
+			next if( $c =~ /$gapchar/ || $outcodon =~ /$gapchar/);
 			my $path = $codon_path->{uc $c.$outcodon};
 			my ($tNdiff,$tSdiff) = @$path;
 			if( $path->[0] < $Ndiff ||
