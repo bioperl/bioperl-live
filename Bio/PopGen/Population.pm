@@ -93,7 +93,7 @@ use strict;
 
 use Bio::PopGen::Marker;
 use Bio::PopGen::Genotype;
-
+our $CheckISA = 1;
 use base qw(Bio::Root::Root Bio::PopGen::PopulationI);
 
 =head2 new
@@ -115,10 +115,11 @@ sub new {
   my $self = $class->SUPER::new(@args);
   $self->{'_individuals'} = [];
   my ($name,$source,$description,
-      $inds) = $self->_rearrange([qw(NAME 
+      $inds,$checkisa) = $self->_rearrange([qw(NAME 
 				     SOURCE 
 				     DESCRIPTION
-				     INDIVIDUALS)], @args);
+				     INDIVIDUALS
+				     CHECKISA)], @args);
   if( defined $inds ) {
       if( ref($inds) !~ /ARRAY/i ) {
 	  $self->warn("Need to provide a value array ref for the -individuals initialization flag");
@@ -130,7 +131,7 @@ sub new {
   defined $name   && $self->name($name);
   defined $source && $self->source($source);
   defined $description && $self->description($description);
-
+  $self->{'_checkisa'} = defined $checkisa ? $checkisa : $CheckISA;
   return $self;
 }
 
@@ -250,12 +251,13 @@ sub add_Individual{
     my ($self,@inds) = @_;
     foreach my $i ( @inds ) {
 	next if ! defined $i;
-	unless(  $i->isa('Bio::PopGen::IndividualI') ) {
+	
+	unless( $self->{'_checkisa'} ? $i->isa('Bio::PopGen::IndividualI') : 1  ) {
 	    $self->warn("cannot add an individual ($i) which is not a Bio::PopGen::IndividualI");
 	    next;
 	}
-	push @{$self->{'_individuals'}}, $i;
     }
+    push @{$self->{'_individuals'}}, @inds;
     $self->{'_cached_markernames'} = undef;
     $self->{'_allele_freqs'} = {};
     return scalar @{$self->{'_individuals'} || []};
@@ -485,7 +487,8 @@ sub get_Frequency_Homozygotes{
    return 0 if ! defined $marker || ! defined $allelename;
    $marker = $marker->name if( defined $marker && 
 			       ref($marker) &&
-			       $marker->isa('Bio::PopGen::MarkerI'));
+			       ( $self->{'_checkisa'} ? 
+				 $marker->isa('Bio::PopGen::MarkerI') : 1));
    my $total = $self->get_number_individuals($marker);
    foreach my $genotype ( $self->get_Genotypes($marker) ) {
        my %alleles = map { $_ => 1} $genotype->get_Alleles();
@@ -513,7 +516,8 @@ sub get_Frequency_Heterozygotes{
    my ($heterozygote_count) = 0;
    return 0 if ! defined $marker || ! defined $allelename;
    $marker = $marker->name if( defined $marker && ref($marker) &&
-			       $marker->isa('Bio::PopGen::MarkerI'));
+			       ($self->{'_checkisa'} ? 
+				$marker->isa('Bio::PopGen::MarkerI') : 1));
    if( ref($marker) ) {
        $self->warn("Passed in a ".ref($marker). " to has_Marker, expecting either a string or a Bio::PopGen::MarkerI");
        return 0;
