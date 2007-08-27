@@ -21,6 +21,9 @@ sub draw_component {
   my $a2 = $self->SUPER::height/2;
   my $center = $y1+$a2;
 
+  my $linewidth = $self->linewidth;
+  $fg = $self->set_pen($linewidth) if $linewidth > 1;
+
   $gd->line($x1,$center,$x2,$center,$fg);
   # add a label if requested
   $self->draw_label($gd,@_) if $self->option('label');
