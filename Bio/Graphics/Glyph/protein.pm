@@ -161,7 +161,7 @@ sub draw_kd_plot {
     if $bin_height > $self->font->height*2.5;
 
   my $graphwidth = $x2 - $x1;
-  my $scale = $graphwidth / (@datapoints + $kd_window - 1);
+  $scale = $graphwidth / (@datapoints + $kd_window - 1);
   for (my $i = 1; $i < @datapoints; $i++) {
     my $x = $i + $kd_window / 2;
     my $xlo = $x1 + ($x - 1) * $scale;
