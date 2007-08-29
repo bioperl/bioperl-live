@@ -61,11 +61,9 @@ ok $out->write_seq($seq);
 
 # bug 2335
 
-my $in_qual  = Bio::SeqIO->new('-file' => test_input_file('bug2335.fastq'),
+$in_qual  = Bio::SeqIO->new('-file' => test_input_file('bug2335.fastq'),
 			       '-format' => 'fastq');
 ok($in_qual);
-
-my @quals;
 
 my $qual = $in_qual->next_seq();
 isa_ok($qual, 'Bio::Seq::Quality');
