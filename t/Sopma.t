@@ -22,6 +22,7 @@ my $seq = Bio::PrimarySeq->new(
   -seq => 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS',
   -display_id => 'test2');
 ok $tool = Bio::Tools::Analysis::Protein::Sopma->new( -seq=>$seq,
+													  #-verbose => $verbose,
                                                       -window_width => 15);
 
 SKIP: {
@@ -32,7 +33,7 @@ SKIP: {
 	
 	ok my $raw = $tool->result('');
 	ok my $parsed = $tool->result('parsed');
-	is ($parsed->[0]{'helix'}, '104');
+	is ($parsed->[0]{'helix'}, '102');
 	ok my @res = $tool->result('Bio::SeqFeatureI');
 	ok my $meta = $tool->result('meta', "ww15");
 
@@ -43,7 +44,7 @@ SKIP: {
 	
 	SKIP: {
 		test_skip(-tests => 2, -requires_module => 'Bio::Seq::Meta::Array');
-		is $meta->named_submeta_text('Sopma_helix|ww15',1,2), '104 195';
+		is $meta->named_submeta_text('Sopma_helix|ww15',1,2), '102 195';
 		is $meta->seq, 'MSADQRWRQDSQDSFGDSFDGDPPPPPPPPFGDSFGDGFSDRSRQDQRS';
 	}
 }
