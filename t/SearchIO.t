@@ -1993,7 +1993,7 @@ open (my $IN,$file) or die $!;
 while (<$IN>) {
   last if (/^Sequences/);
 }
-my $count = 1;
+$count = 1;
 while (<$IN>) {
   chomp;
   next if m{^\s*$};
