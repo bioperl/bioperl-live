@@ -38,7 +38,7 @@ isa_ok $engine, "Bio::Ontology::OntologyEngineI";
 
 my $term = $engine->get_terms( "GO:0018897" );
 
-my @dblinks = sort ( $term->get_dblinks() );
+my @dblinks = sort ( $term->get_dbxrefs() );
 my @synos = sort ( $term->get_synonyms() );
 
 is( $dblinks[ 0 ], "MetaCyc:PWY-681" );
@@ -50,7 +50,7 @@ is( $term->name(), "dibenzothiophene desulfurization" );
 
 
 $term = $engine->get_terms( "GO:0004796" );
-@dblinks = sort ( $term->get_dblinks() );
+@dblinks = sort ( $term->get_dbxrefs() );
 @synos = sort ( $term->get_synonyms() );
 my @sec = sort ( $term->get_secondary_GO_ids() ); 
 

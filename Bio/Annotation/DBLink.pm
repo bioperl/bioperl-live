@@ -55,9 +55,11 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Annotation::DBLink;
 use strict;
-use overload '""' => sub { (($_[0]->database ? $_[0]->database . ':' : '' ) . ($_[0]->primary_id ? $_[0]->primary_id : '') . ($_[0]->version ? '.' . $_[0]->version : '')) || '' };
-use overload 'eq' => sub { "$_[0]" eq "$_[1]" };
+#use overload '""' => sub { (($_[0]->database ? $_[0]->database . ':' : '' ) . ($_[0]->primary_id ? $_[0]->primary_id : '') . ($_[0]->version ? '.' . $_[0]->version : '')) || '' };
+#use overload 'eq' => sub { "$_[0]" eq "$_[1]" };
 
+use overload '""' => sub { $_[0]->throw("Operator overloading of AnnotationI is deprecated") };
+use overload 'eq' => sub { $_[0]->throw("Operator overloading of AnnotationI is deprecated") };
 
 use base qw(Bio::Root::Root Bio::AnnotationI Bio::IdentifiableI);
 
@@ -143,6 +145,36 @@ sub as_text{
        .($self->version ? ".".$self->version : "")
        .($self->optional_id ? " (".$self->optional_id.")" : "")
        ." in database ".$self->database;
+}
+
+=head2 display_text
+
+ Title   : display_text
+ Usage   : my $str = $ann->display_text();
+ Function: returns a string. Unlike as_text(), this method returns a string
+           formatted as would be expected for te specific implementation.
+           
+           One can pass a callback as an argument which allows custom text
+           generation; the callback is passed the current instance and any text
+           returned
+ Example :
+ Returns : a string
+ Args    : [optional] callback
+
+=cut
+
+{
+  my $DEFAULT_CB = sub { (($_[0]->database ? $_[0]->database . ':' : '' ) .
+                          ($_[0]->primary_id ? $_[0]->primary_id : '') .
+                          ($_[0]->version ? '.' . $_[0]->version : '')) || '' };
+
+  sub display_text {
+    my ($self, $cb) = @_;
+    $cb ||= $DEFAULT_CB;
+    $self->throw("") if ref $cb ne 'CODE';
+    return $cb->($self);
+  }
+
 }
 
 =head2 hash_tree

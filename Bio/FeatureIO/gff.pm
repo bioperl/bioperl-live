@@ -201,7 +201,8 @@ sub next_feature_group {
   while ($self->{group_not_done} && ($feat = $self->next_feature()) && defined($feat)) {
 	# we start by collecting all features in the group and
 	# memorizing those which have an ID attribute
-	if(my $anno_ID = $feat->get_Annotations('ID')) {
+    my $anno_ID = $feat->get_Annotations('ID');
+	if(ref($anno_ID)) {
       my $attr_ID = $anno_ID->value;
       $self->throw("Oops! ID $attr_ID exists more than once in your file!")
 		if (exists($seen_ids{$attr_ID}));
@@ -328,11 +329,11 @@ sub seqio {
 sub sequence_region {
   my ($self,$k,$v) = @_;
   if(defined($k) && defined($v)){
-    $self->{'sequence_region'}{$k} = $v;
+    $self->{'sequence_region'}{$k->display_text} = $v;
     return $v;
   }
   elsif(defined($k)){
-    return $self->{'sequence-region'}{$k};
+    return $self->{'sequence-region'}{$k->display_text};
   }
   else {
     return;

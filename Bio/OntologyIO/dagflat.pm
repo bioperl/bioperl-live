@@ -567,7 +567,7 @@ sub _parse_flat_file {
 
         my $current_term_object = $self->_ont_engine()->get_terms( $current_term );
 
-        $current_term_object->add_dblink( @cross_refs );
+        $current_term_object->add_dbxref( @cross_refs );
         $current_term_object->add_secondary_id( @sec_go_ids );
         $current_term_object->add_synonym( @syns );
         unless ( $line =~ /^\$/ ) {
@@ -845,7 +845,7 @@ sub _create_ont_entry {
                                                   -identifier => $termid,
                                                   -definition => $def,
                                                   -comment => $cmt,
-                                                  -dblinks => $dbxrefs,
+                                                  -dbxrefs => $dbxrefs,
                                                   -is_obsolete => $obsolete);
 
     return $term;

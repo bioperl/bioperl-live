@@ -605,12 +605,12 @@ sub _next_term {
                 $term->name($val);
             }
             elsif ( $tag eq "XREF_ANALOG" ) {
-                if ( !$term->has_dblink($val) ) {
-                    $term->add_dblink($val);
+                if ( !$term->has_dbxref($val) ) {
+                    $term->add_dbxref($val);
                 }
             }
             elsif ( $tag eq "XREF_UNKNOWN" ) {
-                $term->add_dblink($val);
+                $term->add_dbxref($val);
             }
             elsif ( $tag eq "NAMESPACE" ) {
                 $term->namespace($val);
@@ -618,7 +618,7 @@ sub _next_term {
             elsif ( $tag eq "DEF" ) {
                 my ( $defstr, $parts ) = $self->_extract_qstr($val);
                 $term->definition($defstr);
-                $term->add_dblink(@$parts);
+                $term->add_dbxref(@$parts);
             }
             elsif ( $tag =~ /(\w*)synonym/i ) {
                 $val =~ s/['"\[\]]//g;

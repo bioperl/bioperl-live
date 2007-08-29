@@ -262,8 +262,9 @@ while (1) {
 	my @sym=$ann->get_Annotations('ALIAS_SYMBOL');
 	foreach my $sym (@sym) {
 		$loop_count++;
-		next if (($sym eq '')||!defined($sym));
-		is grep(/\b$sym\b/,@{$asym{$acc}}),1;
+        my $val = $sym->display_text;
+		next if (($val eq '')||!defined($val));
+		is grep(/\b$val\b/,@{$asym{$acc}}),1;
 	}
 	is $loop_count, shift @lc, "correct number of loops for T7";
 	$loop_count = 0;

@@ -78,7 +78,7 @@ $obj = Bio::Ontology::Term->new(
     -version     => "6.6.6",
     -ontology    => "cat",
     -comment     => "X",
-    -dblinks    => [
+    -dbxrefs    => [
         Bio::Annotation::DBLink->new(-database => 'db1'),
         Bio::Annotation::DBLink->new(-database => 'db2')
     ],
@@ -92,7 +92,7 @@ is( $obj->is_obsolete(), 0);
 is( $obj->comment(), "X" );
 is( $obj->version(), "6.6.6" );
 is( $obj->ontology()->name(), "cat" );
-is( scalar($obj->get_dblinks), 2);
+is( scalar($obj->get_dbxrefs), 2);
 is( scalar($obj->get_references), 0);
 
 # test object factory for terms

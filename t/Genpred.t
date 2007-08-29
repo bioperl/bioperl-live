@@ -251,7 +251,7 @@ while ($g3gene = $glimmer_3->next_prediction) {
         is($g3gene->start, 14781);
         is($g3gene->end, 13804);
         is($g3gene->strand, -1);
-        my ($orfid) = $g3gene->annotation->get_Annotations('Group');
+        my ($orfid) = $g3gene->has_tag('Group') ? $g3gene->get_tag_values('Group') : undef;
         is($orfid, 'GenePrediction_00015');
     }
 }

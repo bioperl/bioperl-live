@@ -97,8 +97,10 @@ use strict;
 # Object preamble - inherits from Bio::Root::Root
 
 use Bio::Ontology::Term;
-use overload '""' => sub { $_[0]->identifier || ''};
-use overload 'eq' => sub { "$_[0]" eq "$_[1]" };
+#use overload '""' => sub { $_[0]->identifier || ''};
+#use overload 'eq' => sub { "$_[0]" eq "$_[1]" };
+use overload '""' => sub { $_[0]->throw("Operator overloading of AnnotationI is deprecated") };
+use overload 'eq' => sub { $_[0]->throw("Operator overloading of AnnotationI is deprecated") };
 
 use base qw(Bio::Root::Root Bio::AnnotationI Bio::Ontology::TermI);
 
@@ -163,6 +165,34 @@ sub as_text{
    my ($self) = @_;
 
    return $self->tagname()."|".$self->name()."|".($self->is_obsolete()||'');
+}
+
+=head2 display_text
+
+ Title   : display_text
+ Usage   : my $str = $ann->display_text();
+ Function: returns a string. Unlike as_text(), this method returns a string
+           formatted as would be expected for te specific implementation.
+           
+           One can pass a callback as an argument which allows custom text
+           generation; the callback is passed the current instance and any text
+           returned
+ Example :
+ Returns : a string
+ Args    : [optional] callback
+
+=cut
+
+{
+  my $DEFAULT_CB = sub { $_[0]->identifier || ''};
+
+  sub display_text {
+    my ($self, $cb) = @_;
+    $cb ||= $DEFAULT_CB;
+    $self->throw("") if ref $cb ne 'CODE';
+    return $cb->($self);
+  }
+
 }
 
 =head2 hash_tree
@@ -395,13 +425,30 @@ sub remove_synonyms {
  Function: Returns a list of each dblinks of this GO term.
  Returns : A list of dblinks [array of [scalars]].
  Args    :
-
+ Note    : this is deprecated in favor of get_dbxrefs(), which works with strings
+           or L<Bio::Annotation::DBLink> instances
+ 
 =cut
 
 sub get_dblinks {
-    return shift->term->get_dblinks(@_);
+    my $self = shift;
+    $self->deprecated('get_dblinks() is deprecated; use get_dbxrefs()');
+    return $self->term->get_dbxrefs(@_);
 } # get_dblinks
 
+=head2 get_dbxrefs
+
+ Title   : get_dbxrefs()
+ Usage   : @ds = $term->get_dbxrefs();
+ Function: Returns a list of each dblinks of this GO term.
+ Returns : A list of dblinks [array of [scalars] or Bio::Annotation::DBLink instances].
+ Args    :
+
+=cut
+
+sub get_dbxrefs {
+    return shift->term->get_dbxrefs(@_);
+} # get_dblinks
 
 =head2 add_dblink
 
@@ -414,13 +461,32 @@ sub get_dblinks {
  Returns :
  Args    : One  dblink [scalar] or a list of
             dblinks [array of [scalars]].
-
+ Note    : this is deprecated in favor of add_dbxref(), which works with strings
+           or L<Bio::Annotation::DBLink> instances
 =cut
 
 sub add_dblink {
-    return shift->term->add_dblink(@_);
+    my $self = shift;
+    $self->deprecated('add_dblink() is deprecated; use add_dbxref()');
+    return $self->term->add_dbxref(@_);
 } # add_dblink
 
+=head2 add_dbxref
+
+ Title   : add_dbxref
+ Usage   : $term->add_dbxref( @dbls );
+           or
+           $term->add_dbxref( $dbl );
+ Function: Pushes one or more dblinks
+           into the list of dblinks.
+ Returns :
+ Args    : One  dblink or a list of dblinks, dblink = scalar or Bio::Annotation::DBLink.
+
+=cut
+
+sub add_dbxref {
+    return shift->term->add_dbxref(@_);
+} 
 
 =head2 remove_dblinks
 
@@ -429,12 +495,29 @@ sub add_dblink {
  Function: Deletes (and returns) the definition references of this GO term.
  Returns : A list of definition references [array of [scalars]].
  Args    :
-
+ Note    : this is deprecated in favor of remove_dbxrefs(), which works with strings
+           or L<Bio::Annotation::DBLink> instances
 =cut
 
 sub remove_dblinks {
-    return shift->term->remove_dblinks(@_);
+    my $self = shift;
+    $self->deprecated('remove_dblinks() is deprecated; use remove_dbxrefs()');
+    return $self->term->remove_dbxrefs(@_);
 } # remove_dblinks
+
+=head2 remove_dbxrefs
+
+ Title   : remove_dbxrefs()
+ Usage   : $term->remove_dbxrefs();
+ Function: Deletes (and returns) the definition references of this GO term.
+ Returns : A list of definition references [array of [scalars]].
+ Args    :
+
+=cut
+
+sub remove_dbxrefs {
+    return shift->term->remove_dbxrefs(@_);
+} 
 
 =head2 get_secondary_ids
 

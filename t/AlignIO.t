@@ -140,7 +140,7 @@ is($aln->id, '14-3-3');
 is($aln->description,'14-3-3 protein');
 ($ann) = $aln->annotation->get_Annotations('gathering_threshold');
 isa_ok($ann, 'Bio::Annotation::SimpleValue');
-is($ann, '25.00 25.00; 25.00 25.00;', 'Pfam annotation');
+is($ann->display_text, '25.00 25.00; 25.00 25.00;', 'Pfam annotation');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
 is($aln->get_seq_by_pos(1)->get_nse, 'COMB_CLOAB/6-235');

@@ -271,11 +271,34 @@ sub get_synonyms {
            functionality.
 
  Returns : A list of dblinks [array of [scalars]].
- Args    :
-
+ Args    : 
+ Note    : This has been deprecated in favor of get_dbxrefs()
+ 
 =cut
 
 sub get_dblinks {
+    shift->throw('get_dblinks() is deprecated, use get_dbxrefs() instead');
+} # get_dblinks
+
+=head2 get_dbxrefs
+
+ Title   : get_dbxrefs()
+ Usage   : @ds = $term->get_dbxrefs();
+ Function: Returns a list of each link for this term.
+
+           If an implementor of this interface permits modification of
+           this array property, the class should define at least
+           methods add_dbxref() and remove_dbxrefs(), with obvious
+           functionality.
+
+ Returns : A list of dblinks.  This can return a mixed 'bag' of scalars and
+           L<Bio::Annotation::DBLink> instances, or specific subgroups
+           can be returned based on passed arguments
+ Args    : implementation-specific
+ 
+=cut
+
+sub get_dbxrefs {
     shift->throw_not_implemented();
 } # get_dblinks
 

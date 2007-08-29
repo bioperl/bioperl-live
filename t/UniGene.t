@@ -112,7 +112,7 @@ is ($version, 1);
 my $ac = $seq->annotation();
 my $simple_ann_object;
 ($simple_ann_object) = $ac->get_Annotations('seqtype');
-ok $simple_ann_object, 'annotation object defined';
+ok defined $simple_ann_object, 'annotation object defined';
 is ($simple_ann_object->value(), 'EST') || diag('seqtype was ' . $simple_ann_object->value);	
 
 # test PERIPHERAL, bug 1708
@@ -121,7 +121,7 @@ $accession = $seq->accession_number;
 is ($accession, 'CB161982');
 
 my @acs = $seq->annotation->get_Annotations('peripheral');
-is  $acs[0], 1;
+is  $acs[0]->display_text, 1;
 
 # tests not specific to unigene record provided in the unigene.data file
 my @locuslink_test = ( "58473", "5354" );

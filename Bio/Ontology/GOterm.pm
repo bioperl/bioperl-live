@@ -100,9 +100,6 @@ use constant FALSE        => 0;
 
 use base qw(Bio::Ontology::Term);
 
-
-
-
 =head2 new
 
  Title   : new
@@ -294,7 +291,7 @@ sub to_string {
     $s .= "-- Comment:\n";
     $s .= ($self->comment() || '') ."\n"; 
     $s .= "-- Definition references:\n";
-    $s .= $self->_array_to_string( $self->get_dblinks() )."\n";
+    $s .= $self->_array_to_string( $self->get_dbxrefs() )."\n";
     $s .= "-- Secondary GO ids:\n";
     $s .= $self->_array_to_string( $self->get_secondary_GO_ids() )."\n";
     $s .= "-- Aliases:\n";

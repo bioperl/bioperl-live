@@ -1318,12 +1318,12 @@ sub _annotation_value{
 	}
     }
     ($ann) = $self->annotation->get_Annotations($key);
-    if($ann && (! $val)) {
+    if(defined $ann && (! $val)) {
 	# get mode and exists
 	$val = $ann->value();
     } elsif($val) {
 	# set mode
-	if(! $ann) {
+	if(!defined $ann) {
 	    $ann = Bio::Annotation::SimpleValue->new(-tagname => $key);
 	    $self->annotation->add_Annotation($ann);
 	}

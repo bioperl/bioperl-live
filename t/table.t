@@ -138,7 +138,7 @@ sub run_tests {
             }
             # retrieve expected result from annotation and compare
             my ($protann) = $seq->annotation->get_Annotations("Protein");
-            ok ($protann);
+            ok (defined $protann);
             is ($protein, $protann->value);
         }
         

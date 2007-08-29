@@ -515,7 +515,7 @@ sub write_aln {
         }
         my $rn = 1;
         ANNOTATIONS:
-        while (my $ann = shift @anns) {
+        for my $ann (@anns) {
             # using Text::Wrap::wrap() for word wrap
             my ($text, $alntag, $data);
             if ($tag eq 'RX') {
@@ -538,14 +538,14 @@ sub write_aln {
             } elsif ($tag eq 'XX') { # custom
                 my $newtag = $ann->tagname;
                 $alntag = sprintf('%-10s',$aln_ann.$newtag);
-                $data = $ann;
+                $data = $ann->display_text;
             } elsif ($tag eq 'SQ') {
                 # use the actual number, not the stored Annotation data
                 $alntag = sprintf('%-10s',$aln_ann.$tag);
                 $data = $aln->no_sequences;
             } else {
                 $alntag = sprintf('%-10s',$aln_ann.$tag);
-                $data = $ann;
+                $data = ref $ann ? $ann->display_text : $ann;
             }
             $text = wrap($alntag, $alntag, $data);
             $self->_print("$text\n") or return 0;

@@ -130,14 +130,13 @@ methods. Internal methods are usually preceded with a _
 package Bio::SeqFeature::Generic;
 use strict;
 
-use Bio::AnnotatableI;
 use Bio::Annotation::Collection;
 use Bio::Location::Simple;
 use Bio::Location::Split;
 use Bio::Tools::GFF;
 #use Tie::IxHash;
 
-use base qw(Bio::Root::Root Bio::SeqFeatureI Bio::FeatureHolderI);
+use base qw(Bio::Root::Root Bio::SeqFeatureI Bio::FeatureHolderI Bio::AnnotatableI);
 
 sub new {
     my ( $caller, @args) = @_;
@@ -152,7 +151,6 @@ sub new {
     # done - we hope
     return $self;
 }
-
 
 =head2 set_attributes
 
@@ -444,6 +442,106 @@ sub source_tag {
     my $self = shift;
     return $self->{'_source_tag'} = shift if @_;
     return $self->{'_source_tag'};
+}
+
+=head2 has_tag
+
+ Title   : has_tag
+ Usage   : $value = $self->has_tag('some_tag')
+ Function: Tests wether a feature contaings a tag
+ Returns : TRUE if the SeqFeature has the tag,
+           and FALSE otherwise.
+ Args    : The name of a tag
+
+
+=cut
+
+sub has_tag {
+    my ($self, $tag) = @_;
+    return exists $self->{'_gsf_tag_hash'}->{$tag};
+}
+
+=head2 add_tag_value
+
+ Title   : add_tag_value
+ Usage   : $self->add_tag_value('note',"this is a note");
+ Returns : TRUE on success
+ Args    : tag (string) and one or more values (any scalar(s))
+
+
+=cut
+
+sub add_tag_value {
+    my $self = shift;
+    my $tag = shift;
+    $self->{'_gsf_tag_hash'}->{$tag} ||= [];
+    push(@{$self->{'_gsf_tag_hash'}->{$tag}},@_);
+}
+
+
+=head2 get_tag_values
+
+ Title   : get_tag_values
+ Usage   : @values = $gsf->get_tag_values('note');
+ Function: Returns a list of all the values stored
+           under a particular tag.
+ Returns : A list of scalars
+ Args    : The name of the tag
+
+
+=cut
+
+sub get_tag_values {
+   my ($self, $tag) = @_;
+
+   if( ! defined $tag ) { return (); }
+   if ( ! exists $self->{'_gsf_tag_hash'}->{$tag} ) {
+       $self->throw("asking for tag value that does not exist $tag");
+   }
+   return @{$self->{'_gsf_tag_hash'}->{$tag}};
+}
+
+
+=head2 get_all_tags
+
+ Title   : get_all_tags
+ Usage   : @tags = $feat->get_all_tags()
+ Function: Get a list of all the tags in a feature
+ Returns : An array of tag names
+ Args    : none
+
+# added a sort so that tags will be returned in a predictable order
+# I still think we should be able to specify a sort function
+# to the object at some point
+# -js
+
+=cut
+
+sub get_all_tags {
+   my ($self, @args) = @_;   
+   return sort keys %{ $self->{'_gsf_tag_hash'}};
+}
+
+=head2 remove_tag
+
+ Title   : remove_tag
+ Usage   : $feat->remove_tag('some_tag')
+ Function: removes a tag from this feature
+ Returns : the array of values for this tag before removing it
+ Args    : tag (string)
+
+
+=cut
+
+sub remove_tag {
+   my ($self, $tag) = @_;
+
+   if ( ! exists $self->{'_gsf_tag_hash'}->{$tag} ) {
+       $self->throw("trying to remove a tag that does not exist: $tag");
+   }
+   my @vals = @{$self->{'_gsf_tag_hash'}->{$tag}};
+   delete $self->{'_gsf_tag_hash'}->{$tag};
+   return @vals;
 }
 
 =head2 attach_seq
@@ -930,27 +1028,5 @@ sub cleanup_generic {
 	delete($self->{'_gsf_tag_hash'}->{$t}); # bug 1720 fix
     }
 }
-
-=head1 INHERITED METHODS FOR L<Bio::AnnotatableI> VIA L<Bio::SeqFeatureI>
-
-=head2 has_tag()
-
-=cut
-
-=head2 add_tag_value()
-
-=cut
-
-=head2 get_tag_values()
-
-=cut
-
-=head2 get_all_tags()
-
-=cut
-
-=head2 remove_tag()
-
-=cut
 
 1;

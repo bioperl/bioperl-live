@@ -177,7 +177,7 @@ $seq3->annotation($ac3);
 
 ok (Bio::SeqUtils->cat($seq1, $seq2, $seq3));
 is $seq1->seq, 'aaaattttcccc';
-is scalar $seq1->get_Annotations, 3;
+is scalar $seq1->annotation->get_Annotations, 3;
 
 
 # seq features
@@ -200,7 +200,7 @@ $seq2->add_SeqFeature($ft3);
 
 ok (Bio::SeqUtils->cat($seq1, $seq2));
 is $seq1->seq, 'aaaattttcccctttt';
-is scalar $seq1->get_Annotations, 5;
+is scalar $seq1->annotation->get_Annotations, 5;
 
 
 my $protseq = Bio::PrimarySeq->new(-id => 2, -seq => 'MVTF'); # protein seq

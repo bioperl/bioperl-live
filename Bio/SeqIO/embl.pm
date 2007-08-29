@@ -645,9 +645,9 @@ sub write_seq {
             my @dates =  $seq->get_dates();
             my $ct = 1;
             my $date_flag = 0;
-            my ($cr) = $seq->get_Annotations("creation_release");
-            my ($ur) = $seq->get_Annotations("update_release");
-            my ($uv) = $seq->get_Annotations("update_version");
+            my ($cr) = $seq->annotation->get_Annotations("creation_release");
+            my ($ur) = $seq->annotation->get_Annotations("update_release");
+            my ($uv) = $seq->annotation->get_Annotations("update_version");
 
             unless ($cr && $ur && $ur) {
                 $date_flag = 1;

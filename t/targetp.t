@@ -186,7 +186,11 @@ while(my $feat = $targetp->next_prediction()){
     is(($feat->get_tag_values('otherCutOff'))[0], $items->{$i}->{other}, "correct other cutoff");
     is(($feat->get_tag_values('location'))[0], $targetp->_toString_location($items->{$i}->{loc}), "correct location");
     is(($feat->get_tag_values('reliabilityClass'))[0], $items->{$i}->{RC}, "correct Reliability class score");
-    is(($feat->get_tag_values('signalPeptideLength'))[0], $items->{$i}->{tplen}, "correct peptide signal length");
-
+    
+	if ($feat->has_tag('signalPeptideLength')) {
+		is(($feat->get_tag_values('signalPeptideLength'))[0], $items->{$i}->{tplen}, "correct peptide signal length")
+	} else {
+		is($feat->has_tag('signalPeptideLength'), '', "No peptide signal length reported")
+	}
     $i++;
 }

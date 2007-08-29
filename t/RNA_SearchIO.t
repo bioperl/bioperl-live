@@ -515,15 +515,15 @@ is($hsp->custom_score, undef, "HSP custom_score");
 TODO: {
     local $TODO = 'Working on meta string building';
     isnt($hsp->meta, undef, "HSP meta");
-    ($meta) = $hsp->feature1->get_tag_values('meta');
+    ($meta) = $hsp->feature1->has_tag('meta') ? $hsp->feature1->get_tag_values('meta') : undef;
     isnt($meta, undef);
-    ($meta) = $hsp->feature2->get_tag_values('meta');
+    ($meta) = $hsp->feature2->has_tag('meta') ? $hsp->feature2->get_tag_values('meta') : undef;
     isnt($meta, undef);
 }
 is($hsp->strand, 1, "HSP strand");
-($meta) = $hsp->feature1->get_tag_values('meta');
+($meta) = $hsp->feature1->has_tag('meta') ? $hsp->feature1->get_tag_values('meta') : undef;
 is($meta, undef);
-($meta) = $hsp->feature2->get_tag_values('meta');
+($meta) = $hsp->feature2->has_tag('meta') ? $hsp->feature2->get_tag_values('meta') : undef;
 is($meta, undef);
 
 # ERPIN lacks sequence for query, will spit back a warning..
@@ -552,24 +552,22 @@ is($hsp->hsp_group, undef, "HSP hsp_group");
 is($hsp->hsp_length, 37, "HSP hsp_length");
 is($hsp->length, 37, "HSP length");
 is($hsp->links, undef, "HSP links");
-isa_ok($hsp->query, 'Bio::SeqFeature::Similarity', "HSP query");
+isa_ok($hsp->query, 'Bio::SeqFeature::Similarity');
 is($hsp->range, 37, "HSP range");
 is($hsp->rank, 2, "HSP rank");
 is($hsp->significance, '5.61e-05', "HSP significance");
 is($hsp->end, 37, "HSP end");
 is($hsp->expect, '5.61e-05', "HSP expect");
 isa_ok($hsp->seq, 'Bio::LocatableSeq');
-is($hsp->seq_str,
-   '',
-   "HSP seq_str");
+is($hsp->seq_str,   '',   "HSP seq_str");
 is($hsp->start, 1, "HSP start");
 is($hsp->custom_score, undef, "HSP custom_score");
 TODO: {
     local $TODO = 'Working on meta string building';
     isnt($hsp->meta, undef, "HSP meta");
-    ($meta) = $hsp->feature1->get_tag_values('meta');
+    ($meta) = $hsp->feature1->has_tag('meta') ? $hsp->feature1->get_tag_values('meta') : undef;
     isnt($meta, undef);
-    ($meta) = $hsp->feature2->get_tag_values('meta');
+    ($meta) = $hsp->feature2->has_tag('meta') ? $hsp->feature2->get_tag_values('meta') : undef;
     isnt($meta, undef);
 }
 is($hsp->strand, -1, "HSP strand");

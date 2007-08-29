@@ -92,14 +92,14 @@ is( $obj->each_Reference(), 0 );
 ok( $obj->add_References( ( $r1, $r2 ) ) );
 is( $obj->each_Reference(), 2 );
 my @rs = $obj->each_Reference();
-is( $rs[ 0 ], $r1 );
-is( $rs[ 1 ], $r2 );
+is( $rs[ 0 ]->display_text, $r1->display_text,'operator overloading in AnnotationI is deprecated');
+is( $rs[ 1 ]->display_text, $r2->display_text,'operator overloading in AnnotationI is deprecated');
 is( $rs[ 0 ]->title(), "title" );
 is( $obj->each_Reference(), 2 );
 
 my @rs2 = $obj->remove_References();
-is( $rs2[ 0 ], $r1 );
-is( $rs2[ 1 ], $r2 );
+is( $rs2[ 0 ]->display_text, $r1->display_text,'operator overloading in AnnotationI is deprecated');
+is( $rs2[ 1 ]->display_text, $r2->display_text,'operator overloading in AnnotationI is deprecated');
 
 is( $obj->each_Reference(), 0 );
 is( $obj->remove_References(), 0 );
@@ -209,14 +209,14 @@ is( $obj->each_DBLink(), 0 );
 ok( $obj->add_DBLinks( ( $l1, $l2 ) ) );
 is( $obj->each_DBLink(), 2 );
 my @ls = $obj->each_DBLink();
-is( $ls[ 0 ], $l1 );
-is( $ls[ 1 ], $l2 );
+is( $ls[ 0 ]->display_text, $l1->display_text,'operator overloading in AnnotationI is deprecated');
+is( $ls[ 1 ]->display_text, $l2->display_text,'operator overloading in AnnotationI is deprecated');
 is( $ls[ 0 ]->comment(), "comment" );
 is( $obj->each_DBLink(), 2 );
 
 my @ls2 = $obj->remove_DBLinks();
-is( $ls2[ 0 ], $l1 );
-is( $ls2[ 1 ], $l2 );
+is( $ls2[ 0 ]->display_text, $l1->display_text,'operator overloading in AnnotationI is deprecated');
+is( $ls2[ 1 ]->display_text, $l2->display_text,'operator overloading in AnnotationI is deprecated');
 
 is( $obj->each_DBLink(), 0 );
 is( $obj->remove_DBLinks(), 0 );

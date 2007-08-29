@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 109);
+    test_begin(-tests => 112);
 	
 	use_ok('Bio::Annotation::Collection');
 	use_ok('Bio::Annotation::DBLink');
@@ -19,7 +19,7 @@ BEGIN {
 	use_ok('Bio::Annotation::StructuredValue');
 	use_ok('Bio::Annotation::Tree');
 	use_ok('Bio::Seq');
-	use_ok('Bio::SeqFeature::Generic');
+	use_ok('Bio::SeqFeature::Annotated');
 	use_ok('Bio::SimpleAlign');
 	use_ok('Bio::Cluster::UniGene');
 }
@@ -34,13 +34,13 @@ my $simple = Bio::Annotation::SimpleValue->new(
 						 ), ;
 
 isa_ok($simple, 'Bio::AnnotationI');
-is $simple, 1;
+is $simple->display_text, 1;
 is $simple->value, 1;
 is $simple->tagname, 'colour';
 
 is $simple->value(0), 0;
 is $simple->value, 0;
-is $simple, 0;
+is $simple->display_text, 0;
 
 # link
 
@@ -179,8 +179,12 @@ SKIP: {
 # AnnotatableI
 my $seq = Bio::Seq->new();
 isa_ok($seq,"Bio::AnnotatableI");
-my $fea = Bio::SeqFeature::Generic->new();
-isa_ok($fea, "Bio::AnnotatableI");
+my $fea = Bio::SeqFeature::Annotated->new();
+isa_ok($fea, "Bio::SeqFeatureI",'isa SeqFeatureI');
+isa_ok($fea, "Bio::AnnotatableI",'isa AnnotatableI');
+$fea = Bio::SeqFeature::Generic->new();
+isa_ok($fea, "Bio::SeqFeatureI",'isa SeqFeatureI');
+isa_ok($fea, "Bio::AnnotatableI",'isa AnnotatableI');
 my $clu = Bio::Cluster::UniGene->new();
 isa_ok($clu, "Bio::AnnotatableI");
 my $aln = Bio::SimpleAlign->new();
@@ -205,24 +209,27 @@ like(ref($ann), qr(Bio::Annotation::OntologyTerm));
 
 TODO: {
 	local $TODO = "Create Annotation::Comment based on parameter only";
-	ok $ann = $factory->create_object(-text => 'this is a comment');
-	like(ref $ann, qr(Bio::Annotation::Comment));
+	$ann = $factory->create_object(-text => 'this is a comment');
+	ok(defined $ann,'Bio::Annotation::Comment');
+	isa_ok($ann,'Bio::Annotation::Comment');
 }
 
 ok $factory->type('Bio::Annotation::Comment');
-ok $ann = $factory->create_object(-text => 'this is a comment');
-like(ref $ann, qr(Bio::Annotation::Comment));
-
+$ann = $factory->create_object(-text => 'this is a comment');
+ok(defined $ann,'Bio::Annotation::Comment');
+isa_ok($ann,'Bio::Annotation::Comment');
 
 # factory guessing the type: Comment
 $factory = Bio::Annotation::AnnotationFactory->new();
-ok $ann = $factory->create_object(-text => 'this is a comment');
-like(ref $ann, qr(Bio::Annotation::Comment));
+$ann = $factory->create_object(-text => 'this is a comment');
+ok(defined $ann,'Bio::Annotation::Comment');
+isa_ok($ann,'Bio::Annotation::Comment');
 
 # factory guessing the type: Target
 $factory = Bio::Annotation::AnnotationFactory->new();
-ok $ann = $factory->create_object(-target_id => 'F1234', -start => 1, -end => 10);
-like(ref $ann, qr(Bio::Annotation::Target));
+$ann = $factory->create_object(-target_id => 'F1234', -start => 1, -end => 10);
+ok defined $ann;
+isa_ok($ann,'Bio::Annotation::Target');
 
 # factory guessing the type: OntologyTerm
 $factory = Bio::Annotation::AnnotationFactory->new();

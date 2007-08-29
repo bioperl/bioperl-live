@@ -529,7 +529,7 @@ sub write_structure {
 	my ($ann, $string, $output_string, $key);
 	# HEADER
 	($ann) = $struc->annotation->get_Annotations("header");
-	if ($ann) {
+	if (defined $ann) {
 		$string = $ann->as_text;
 		$string =~ s/^Value: //;
 		$output_string = pack ("A10 A56", "HEADER", $string);

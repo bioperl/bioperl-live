@@ -210,7 +210,7 @@ sub from_SeqFeature {
 	if ( !defined $fth->field->{$tag} ) {
       $fth->field->{$tag} = [];
 	}
-	foreach my $val ( $sf->get_Annotations($tag) ) {
+	foreach my $val ( $sf->get_tag_values($tag) ) {
       push(@{$fth->field->{$tag}},$val);
 	}
   }

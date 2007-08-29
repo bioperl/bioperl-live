@@ -132,6 +132,26 @@ sub as_text{
     shift->throw_not_implemented();
 }
 
+=head2 display_text
+
+ Title   : display_text
+ Usage   : my $str = $ann->display_text();
+ Function: returns a string. Unlike as_text(), this method returns a string
+           formatted as would be expected for te specific implementation.
+           
+           Implementations should allow passing a callback as an argument which
+           allows custom text generation; the callback will be passed the
+           current implementation
+ Example :
+ Returns : a string
+ Args    : [optional] callback
+
+=cut
+
+sub display_text {
+    shift->throw_not_implemented();
+}
+
 =head2 hash_tree
 
  Title   : hash_tree

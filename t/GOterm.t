@@ -16,6 +16,8 @@ BEGIN {
 
 my $obj = Bio::Ontology::GOterm->new();
 
+# note that all *dblink* methods are now deprecated...
+
 isa_ok( $obj,"Bio::Ontology::GOterm");
 
 $obj->init();
@@ -27,21 +29,21 @@ is( $obj->GO_id( "GO:0003947" ), "GO:0003947" );
 is( $obj->GO_id(), "GO:0003947" );
 
 
-is( $obj->get_dblinks(), 0 );
+is( $obj->get_dbxrefs(), undef );
 
-$obj->add_dblink( ( "dAA", "dAB" ) );
-is( scalar($obj->get_dblinks()), 2 );
-my @df1 = $obj->get_dblinks();
+$obj->add_dbxref( ( "dAA", "dAB" ) );
+is( scalar($obj->get_dbxrefs()), 2 );
+my @df1 = $obj->get_dbxrefs();
 is( $df1[ 0 ], "dAA" );
 is( $df1[ 1 ], "dAB" );
-is( $obj->get_dblinks(), 2 );
+is( $obj->get_dbxrefs(), 2 );
 
-my @df2 = $obj->remove_dblinks();
+my @df2 = $obj->remove_dbxrefs();
 is( $df2[ 0 ], "dAA" );
 is( $df2[ 1 ], "dAB" );
 
-is( $obj->get_dblinks(), 0 );
-is( $obj->remove_dblinks(), 0 );
+is( $obj->get_dbxrefs(), undef );
+is( $obj->remove_dbxrefs(), 0 );
 
 
 is( $obj->get_secondary_GO_ids(), 0 );
@@ -107,7 +109,7 @@ is( $obj->remove_synonyms(), 0 );
 
 
 $obj->add_synonym( ( "AA", "AB" ) );
-$obj->add_dblink( ( "dAA", "dAB" ) );
+$obj->add_dbxref( ( "dAA", "dAB" ) );
 $obj->add_secondary_GO_id( ( "GO:1234567", "GO:1234567" ) );
 
 $obj->init();

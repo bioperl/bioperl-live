@@ -43,13 +43,13 @@ ok(my @features = $seq->get_SeqFeatures(), "get_SeqFeatures()");
 my $feat;
 foreach my $feat2 ( @features ) {
     next unless ($feat2->primary_tag eq "CDS");
-    my @db_xrefs = $feat2->annotation->get_Annotations("db_xref");
+    my @db_xrefs = $feat2->get_tag_values("db_xref");
     if (grep { $_ eq "GI:150830" } @db_xrefs) {
        $feat = $feat2;
        last;
     }
 }
-my ($protein_seq) = $feat->annotation->get_Annotations("translation");
+my ($protein_seq) = $feat->get_tag_values("translation");
 like($protein_seq, qr(^MKERYGTVYKGSQRLIDE.*ANEKQENALYLIIILSRTSIT$),
 	 "protein sequence");
 my ($nucleotide_seq) = $feat->spliced_seq(-nosort => 1)->seq;

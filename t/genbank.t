@@ -62,7 +62,7 @@ is(scalar @dblinks,1);
 is($dblinks[0]->database, 'GenBank');
 is($dblinks[0]->primary_id, 'AB072353');
 is($dblinks[0]->version, '1');
-is("$dblinks[0]", 'GenBank:AB072353.1');
+is($dblinks[0]->display_text, 'GenBank:AB072353.1','operator overloading in AnnotationI is deprecated');
 
 # test for multi-line SOURCE
 $ast = Bio::SeqIO->new(-format => 'genbank',
@@ -128,9 +128,9 @@ ok($seq = $str->next_seq);
 my @rpts = grep { $_->primary_tag eq 'repeat_region' }
   $seq->get_SeqFeatures;
 is $#rpts, 2, 'bug 1647';
-my @rpt_units = map {$_->get_tag_values('rpt_unit')} @rpts;
+my @rpt_units = grep {$_->has_tag('rpt_unit')} @rpts;
 is $#rpt_units, 0;
-is $rpt_units[0],'(TG)10;A;(TG)7';
+is(($rpt_units[0]->get_tag_values('rpt_unit'))[0],'(TG)10;A;(TG)7');
 
 # test bug #1673 , RDB-II genbank files
 $str = Bio::SeqIO->new(-format => 'genbank',
@@ -444,7 +444,8 @@ foreach my $in ('P35527.gb') {
     my $ac      = $seq->annotation();      # Bio::AnnotationCollection
     foreach my $key ($ac->get_all_annotation_keys() ) {
         my @values = $ac->get_Annotations($key);
-        foreach my $value (@values) {
+        foreach my $ann (@values) {
+            my $value = $ann->display_text;
             $ct++;
             if ($key eq 'dblink') {
 
@@ -471,12 +472,12 @@ foreach my $in ('P35527.gb') {
                 }
                     ok ( $parts[1], "$parts[0]" );
             }
-                # elsif ($key eq 'reference') { }
+                
         }
     }
 }
 
-is($ct, 45);
+is($ct, 46);
 
 # bug 2195
     

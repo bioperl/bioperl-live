@@ -27,11 +27,12 @@ for my $in ( @genbank_files ) {
     my $seq = $seqio->next_seq;
     my @values = $seq->annotation->get_Annotations('dblink');
     foreach my $value (@values) {
-        ok(defined $value, '"'.$value . '"');          # check value is not empty
-        ok(index($value,'::') < 0       , 'no double colon'  );  # these tests seems silly
-        ok( substr($value,-1) ne ':'    , 'no trailing colon');  #    but all have been known to occur
-        ok(index($value,'  ') < 0       , 'no double space'  );  #
-        my @parts = split(/:/,$value, 2);
+        my $output = $value->display_text;
+        ok(defined $output, '"'.$output . '"');          # check value is not empty
+        ok(index($output,'::') < 0       , 'no double colon'  );  # these tests seems silly
+        ok( substr($output,-1) ne ':'    , 'no trailing colon');  #    but all have been known to occur
+        ok(index($output,'  ') < 0       , 'no double space'  );  #
+        my @parts = split(/:/,$output, 2);
         ok( scalar(@parts) == 2, 'dblink value is splittable');
     }
 }

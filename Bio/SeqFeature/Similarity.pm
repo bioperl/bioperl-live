@@ -184,7 +184,7 @@ sub seqdesc {
 	$self->annotation->add_Annotation('description',$v);
     }
     my ($v) = $self->annotation()->get_Annotations('description');
-    return $v ? $v->value : undef;
+    return defined $v ? $v->value : undef;
 }
 
 #

@@ -464,13 +464,13 @@ sub write_seq {
         my @dates =  $seq->get_dates();
         my $ct = 1;
         my $seq_version = $seq->version;
-        my ($update_version) = $seq->get_Annotations("seq_update");
+        my ($update_version) = $seq->annotation->get_Annotations("seq_update");
         foreach my $dt (@dates){
         $self->_write_line_swissprot_regex("DT   ","DT   ",
                 $dt.', integrated into UniProtKB/'.$ns,
                 "\\s\+\|\$",80) if $ct == 1;
         $self->_write_line_swissprot_regex("DT   ","DT   ",
-                $dt.", sequence version $update_version.",
+                $dt.", sequence version ".$update_version->display_text,
                 "\\s\+\|\$",80) if $ct == 2;
         $self->_write_line_swissprot_regex("DT   ","DT   ",
                 $dt.", entry version $seq_version.",

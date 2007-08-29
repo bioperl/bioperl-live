@@ -458,7 +458,7 @@ sub _process_comments {
 			if ((exists($comm->{type})) && (exists($comm->{text}))&& ($comm->{type} ne 'comment')) {
 				my ($uncapt,$annot,$anchor)=_process_src($comm->{source});
 				my $cann=shift (@$annot);
-				if ($cann) {
+				if (defined $cann) {
 					$cann->optional_id($comm->{text});
 					$cann->authority($comm->{type});
 					$cann->version($comm->{version});
