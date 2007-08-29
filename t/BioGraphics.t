@@ -3,7 +3,16 @@
 
 use strict;
 
-use constant IMAGE_TESTS => 1;
+# In order to properly run the image comparison tests the images may need to be
+# regenerated from scratch; this is primarily due to changes in GD versions, OS,
+# Bio::Graphics, problems with storing binary data in CVS, etc.
+
+# We'll need to reconfigure these tests to allow do_write()
+# the ability to regenerate those files when passing the --write option
+
+# for now, the image tests are turned off
+
+use constant IMAGE_TESTS => 0;
 
 BEGIN { 
   use lib 't/lib';
