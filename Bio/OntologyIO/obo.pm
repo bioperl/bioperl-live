@@ -90,7 +90,6 @@ use Bio::Ontology::Ontology;
 use Bio::Ontology::OntologyStore;
 use Bio::Ontology::TermFactory;
 use Bio::Annotation::Collection;
-use Data::Dumper;
 use Text::Balanced qw(extract_quotelike extract_bracketed);
 
 use constant TRUE  => 1;
@@ -606,11 +605,11 @@ sub _next_term {
             }
             elsif ( $tag eq "XREF_ANALOG" ) {
                 if ( !$term->has_dbxref($val) ) {
-                    $term->add_dbxref($val);
+                    $term->add_dbxref(-dbxrefs => $self->_to_annotation([$val]));
                 }
             }
             elsif ( $tag eq "XREF_UNKNOWN" ) {
-                $term->add_dbxref($val);
+                $term->add_dbxref(-dbxrefs => $self->_to_annotation([$val]));
             }
             elsif ( $tag eq "NAMESPACE" ) {
                 $term->namespace($val);
@@ -618,7 +617,8 @@ sub _next_term {
             elsif ( $tag eq "DEF" ) {
                 my ( $defstr, $parts ) = $self->_extract_qstr($val);
                 $term->definition($defstr);
-                $term->add_dbxref(@$parts);
+                my $ann = $self->_to_annotation($parts);
+                $term->add_dbxref(-dbxrefs => $ann);
             }
             elsif ( $tag =~ /(\w*)synonym/i ) {
                 $val =~ s/['"\[\]]//g;
@@ -781,6 +781,18 @@ sub _handle_relationship_tag {
 
     }
 
+}
+
+# convert simple strings to Bio::Annotation::DBLinks
+sub _to_annotation {
+    my ($self , $links) = @_;
+    return unless $links;
+    my @dbxrefs;
+    for my $string (@{$links}) {
+        my ($db, $id) = split(':',$string);
+        push @dbxrefs, Bio::Annotation::DBLink->new(-database => $db, -primary_id => $id);
+    }
+    return \@dbxrefs;
 }
 
 1;

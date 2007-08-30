@@ -38,11 +38,16 @@ isa_ok $engine, "Bio::Ontology::OntologyEngineI";
 
 my $term = $engine->get_terms( "GO:0018897" );
 
-my @dblinks = sort ( $term->get_dbxrefs() );
+# note that all dblinks are now Bio::Annotation::DBLink instances and that all
+# *dblink* methods related to Bio::Ontology::Term are deprecated; this is due to
+# inconsistencies in those Bio::Ontology::Term methods. Use *dbxref* methods
+# instead
+
+my @dblinks = sort {$a->display_text cmp $b->display_text} ( $term->get_dbxrefs() );
 my @synos = sort ( $term->get_synonyms() );
 
-is( $dblinks[ 0 ], "MetaCyc:PWY-681" );
-is( $dblinks[ 1 ], "UM-BBD_pathwayID:dbt" );
+is( $dblinks[ 0 ]->display_text, "MetaCyc:PWY-681" );
+is( $dblinks[ 1 ]->display_text, "UM-BBD_pathwayID:dbt" );
 is( $synos[ 0 ], "murein sacculus" );
 is( $synos[ 1 ], "peptidoglycan" );
 is( $term->ontology()->name(), "Gene Ontology" );
@@ -54,7 +59,7 @@ $term = $engine->get_terms( "GO:0004796" );
 @synos = sort ( $term->get_synonyms() );
 my @sec = sort ( $term->get_secondary_GO_ids() ); 
 
-is( $dblinks[ 0 ], "EC:5.3.99.5" );
+is( $dblinks[ 0 ]->display_text, "EC:5.3.99.5" );
 is( $synos[ 0 ], "cytochrome P450 CYP5" );
 is( $sec[ 0 ], "GO:0008400" );
 is( $term->ontology()->name(), "Gene Ontology" );

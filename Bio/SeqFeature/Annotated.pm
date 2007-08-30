@@ -212,7 +212,7 @@ sub from_feature {
 
   ### set most of the data
   foreach my $fieldname (qw/ start end strand frame score location seq_id source_tag primary_tag/) {
-    no strict 'refs'; #using symbolic refs
+    #no strict 'refs'; #using symbolic refs, yes, but using them for methods is allowed now
     $self->$fieldname( $feat->$fieldname );
   }
 

@@ -43,8 +43,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Annotation::Comment;
 use strict;
-#use overload '""' => sub { $_[0]->text || ''};
-#use overload 'eq' => sub { "$_[0]" eq "$_[1]" };
+
 use overload '""' => sub { $_[0]->throw("Operator overloading of AnnotationI is deprecated") };
 use overload 'eq' => sub { $_[0]->throw("Operator overloading of AnnotationI is deprecated") };
 

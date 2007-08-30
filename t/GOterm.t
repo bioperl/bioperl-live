@@ -2,16 +2,18 @@
 # $Id$
 
 use strict;
+use warnings;
 
 BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 61,
+    test_begin(-tests => 62,
                -requires_module => 'Graph::Directed');
 	
     use_ok('Bio::Ontology::GOterm');
     use_ok('Bio::Ontology::Ontology');
+	use_ok('Bio::Annotation::DBLink');
 }
 
 my $obj = Bio::Ontology::GOterm->new();
@@ -24,25 +26,27 @@ $obj->init();
 
 like( $obj->to_string(), qr'-- GO id:' );
 
-
 is( $obj->GO_id( "GO:0003947" ), "GO:0003947" );
 is( $obj->GO_id(), "GO:0003947" );
 
 
-is( $obj->get_dbxrefs(), undef );
+is( $obj->get_dbxrefs(), 0 );
 
-$obj->add_dbxref( ( "dAA", "dAB" ) );
+my @dblinks = (Bio::Annotation::DBLink->new(-primary_id => 'dAA'),
+				 Bio::Annotation::DBLink->new(-primary_id => 'dAB'));
+
+$obj->add_dbxref( -dbxrefs => \@dblinks );
 is( scalar($obj->get_dbxrefs()), 2 );
 my @df1 = $obj->get_dbxrefs();
-is( $df1[ 0 ], "dAA" );
-is( $df1[ 1 ], "dAB" );
+is( $df1[ 0 ]->display_text, "dAA" );
+is( $df1[ 1 ]->display_text, "dAB" );
 is( $obj->get_dbxrefs(), 2 );
 
 my @df2 = $obj->remove_dbxrefs();
-is( $df2[ 0 ], "dAA" );
-is( $df2[ 1 ], "dAB" );
+is( $df2[ 0 ]->display_text, "dAA" );
+is( $df2[ 1 ]->display_text, "dAB" );
 
-is( $obj->get_dbxrefs(), undef );
+is( $obj->get_dbxrefs(), 0 );
 is( $obj->remove_dbxrefs(), 0 );
 
 
@@ -106,10 +110,8 @@ is( $al2[ 1 ], "AB" );
 is( $obj->get_synonyms(), 0 );
 is( $obj->remove_synonyms(), 0 );
 
-
-
 $obj->add_synonym( ( "AA", "AB" ) );
-$obj->add_dbxref( ( "dAA", "dAB" ) );
+$obj->add_dbxref( -dbxrefs => \@dblinks );
 $obj->add_secondary_GO_id( ( "GO:1234567", "GO:1234567" ) );
 
 $obj->init();

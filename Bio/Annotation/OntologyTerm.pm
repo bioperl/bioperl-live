@@ -480,7 +480,7 @@ sub add_dblink {
  Function: Pushes one or more dblinks
            into the list of dblinks.
  Returns :
- Args    : One  dblink or a list of dblinks, dblink = scalar or Bio::Annotation::DBLink.
+ Args    : 
 
 =cut
 

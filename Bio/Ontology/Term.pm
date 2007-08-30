@@ -93,6 +93,8 @@ package Bio::Ontology::Term;
 use strict;
 use Bio::Ontology::Ontology;
 use Bio::Ontology::OntologyStore;
+use Bio::Annotation::DBLink;
+use Data::Dumper;
 
 use constant TRUE    => 1;
 use constant FALSE   => 0;
@@ -168,7 +170,7 @@ sub new {
     defined($version)      && $self->version( $version );
     defined($is_obsolete)  && $self->is_obsolete( $is_obsolete );
     defined($comment)      && $self->comment( $comment  );
-    defined($dbxrefs)      && $self->add_dbxref(@$dbxrefs);
+    defined($dbxrefs)      && $self->add_dbxref(-dbxrefs => $dbxrefs);
     # deprecated methods, allow to pass on to get the dep. notification
     ref($dblinks)          && $self->add_dblink(@$dblinks);
     ref($references)       && $self->add_reference(@$references);
@@ -432,9 +434,12 @@ sub remove_synonyms {
 
 sub get_dblinks {
     my ($self, $context) = @_;
-    $self->deprecated("use of get_dblinks is deprecated; use get_dbxrefs() instead");
-    return $context ? $self->get_dbxrefs(-context => $context) :
-        $self->get_dbxrefs();
+    $self->deprecated("Use of get_dblinks is deprecated.  Note that prior use\n".
+                      "of this method could return either simple scalar values\n".
+                      "or Bio::Annotation::DBLink instances; only \n".
+                      "Bio::Annotation::DBLink is now supported.\n ".
+                      "Use get_dbxrefs() instead");
+    $self->get_dbxrefs($context);
 } # get_dblinks
 
 =head2 get_dbxrefs
@@ -448,43 +453,22 @@ sub get_dblinks {
            methods add_dbxref() and remove_dbxrefs(), with obvious
            functionality.
 
- Returns : A list of dbxrefs.  This can return a mixed 'bag' of scalars and
-           L<Bio::Annotation::DBLink> instances, or specific subgroups
-           can be returned based on passed arguments
- Args    : [optional] parameter argument is case-insensitive
-           -type  : scalar indicating data type to return
-                   'string' :
-                   'dblink' : 
-                    (default : returns all types)
-           -context : string which specifies context
-                    (default : returns all dbxrefs)
+ Returns : A list of L<Bio::Annotation::DBLink> instances
+ Args    : [optional] string which specifies context (default : returns all dbxrefs)
 
 =cut
 
 sub get_dbxrefs {
-    my ($self) = shift;
-    my ($type, $context) = $self->_rearrange([qw(TYPE CONTEXT)], @_);
-    $self->warn("'-type' not implemented yet") if $type;
-    $type ||= '';
+    my ($self, $context) = shift;
     my @dbxrefs;
     if (defined($context)) {
         if (exists($self->{_dblinks}->{$context})) {
-            @dbxrefs = (lc $type eq 'string') ?
-                           grep {!ref $_} @{$self->{_dblinks}->{$context}}:
-                       (lc $type eq 'dblink') ?
-                           grep {ref $_ && $_->isa('Bio::AnnotationI') } @{$self->{_dblinks}->{$context}}:
-                        @{$self->{_dblinks}->{$context}};
+            @dbxrefs =  @{$self->{_dblinks}->{$context}};
         }
     } else {
-        @dbxrefs = (lc $type eq 'string') ?
-                        grep {!ref $_} map { @$_ } values %{$self->{_dblinks}} :
-                   (lc $type eq 'dblink') ?
-                        grep {ref $_}
-                        map { @$_ && $_->isa('Bio::AnnotationI')}
-                        values %{$self->{_dblinks}} :
-                        map { @$_ } values %{$self->{_dblinks}} ;
+        @dbxrefs = map { @$_ } values %{$self->{_dblinks}} ;
     }
-    return @dbxrefs ? @dbxrefs : ();
+    return @dbxrefs;
 } # get_dbxrefs
 
 =head2 get_dblink_context
@@ -495,14 +479,13 @@ sub get_dbxrefs {
   Returns : a list of scalar
   Args    : [none]
   Note    : deprecated method due to past use of mixed data types; use
-            get_dbxref_context() instead, which handles both strings and
-            DBLink instances
-            
+            get_dbxref_context() instead
+
 =cut
 
 sub get_dblink_context {
     my $self=shift;
-    $self->deprecated("use of get_dblink_context() is deprecated; use get_dbxref_context() instead");
+    $self->deprecated("Use of get_dblink_context() is deprecated; use get_dbxref_context() instead");
     return $self->get_dbxref_context(@_);
 }
 
@@ -538,8 +521,15 @@ sub get_dbxref_context {
 
 sub add_dblink {
     my $self = shift;
-    $self->deprecated("use of add_dblink_context() is deprecated; use add_dbxref_context() instead");
-    return $self->add_dbxref(@_);
+    $self->deprecated("Use of simple strings and add_dblink() is deprecated; use\n".
+                      "Bio::Annotation::DBLink instances and add_dbxref() instead");
+    # here we're assuming the data is in a simple DB:ID format
+    my @dbxrefs;
+    for my $string (@_) {
+        my ($db, $id) = split(':',$string);
+        push @dbxrefs, Bio::Annotation::DBLink->new(-database => $db, -primary_id => $id);
+    }
+    return $self->add_dbxref(-dbxrefs => \@dbxrefs, -context => '_default');
 } # add_dblink
 
 =head2 add_dbxref
@@ -550,13 +540,33 @@ sub add_dblink {
            $term->add_dbxref( $dbl );
  Function: Pushes one or more dblinks onto the list of dblinks.
  Returns :
- Args    : One or more dbxrefs (simple strings)
+ Args    : -dbxrefs : array ref of Bio::Annotation::DBLink instances
+           -context : string designating the context for the DBLink
+                       (default : '_default' - contextless)
 
 =cut
 
 sub add_dbxref {
     my $self = shift;
-    $self->add_dbxref_context($_,'_default') foreach @_;
+    my ($links, $context) = $self->_rearrange([qw(DBXREFS CONTEXT)],@_);
+    return unless defined $links;
+    $context ||= '_default';
+    $self->throw("DBLinks must be passed as an array reference") if ref $links ne 'ARRAY';
+    foreach my $dbxref (@{$links}) {
+        $self->throw("$dbxref is not a DBLink") unless ref $dbxref &&
+            $dbxref->isa('Bio::Annotation::DBLink');
+        $self->throw("'all' is a reserved word for context.") if $context eq 'all';
+        if (! exists($self->{_dblinks}->{$context})) {
+            $self->{_dblinks}->{$context} = [];
+        }
+        my $linktext = ref $dbxref ? $dbxref->display_text : $dbxref;
+        if (grep {$_->display_text eq $linktext}
+            @{$self->{_dblinks}->{$context}})
+        {
+            $self->warn("DBLink exists in the dblink of $context");
+        }
+        push @{$self->{_dblinks}->{$context}}, $dbxref;    
+    }
 } # add_dbxref
 
 =head2 has_dblink
@@ -584,9 +594,9 @@ sub has_dblink {
   Usage   : $term->has_dbxref($dbxref);
   Function: Checks if a dbxref string is already existing in the OBOterm object
   Return  : TRUE/FALSE
-  Args    : [arg1] A DBxref identifier (string).  If Bio::Annotation::DBLink
-            instances are present, Bio::Annotation::DBLink::display_text
-            is used for comparison against the string
+  Args    : [arg1] A DBxref identifier (string).
+            Bio::Annotation::DBLink::display_text() is used for comparison
+            against the string.
 
 =cut
 
@@ -597,11 +607,7 @@ sub has_dbxref {
     $self->throw("'all' is a reserved word for context.") if $context eq 'all';
     $context ||= '_default';
     if ( ( $self->{_dblinks}->{$context} ) &&
-        grep { if (ref $_) {
-                $_->display_text eq $value
-            } else {
-                $_ eq $value}
-              }
+        grep { $_->display_text eq $value } 
         @{ $self->{_dblinks}->{$context} } )
     {
         return TRUE;
@@ -617,51 +623,19 @@ sub has_dbxref {
   Usage   : $term->add_dblink_context($db, $context);
   Function: add a dblink with its context
   Return  : [none]
-  Args    : [arg1] an object of Bio::Annotation::DBLink
+  Args    : [arg1] a Bio::Annotation::DBLink instance
             [arg2] a string for context; if omitted, the
                    default/context-less one will be used.
   Note    : deprecated method due to past use of mixed data types; use
-            add_dbxref_context() instead, which handles both strings and
-            DBLink instances
+            add_dbxref() instead
 
 =cut
 
 sub add_dblink_context {
     my ($self, $value, $context) = @_;
-    $self->deprecated("use of add_dblink_context() is deprecated; use add_dbxref_context() instead");
-    return $self->add_dbxref_context(@_);
-}
-
-=head2 add_dbxref_context
-
-  Title   : add_dbxref_context
-  Usage   : $term->add_dbxref_context($db, $context);
-  Function: add a dbxref with its context
-  Return  : [none]
-  Args    : [arg1] a string or a Bio::Annotation::DBLink instance
-            [arg2] a string for context; if omitted, the
-                   default/context-less one will be used.
-
-=cut
-
-sub add_dbxref_context {
-    my ($self, $value, $context) = @_;
-    return unless defined $value;
-    $self->throw("'all' is a reserved word for context.") if $context eq 'all';
-    $context ||= '_default';
-    if (! exists($self->{_dblinks}->{$context})) {
-        $self->{_dblinks}->{$context} = [];
-    }
-    my $linktext = ref $value ? $value->display_text : $value;
-    if (grep {
-        if (ref $_) {
-            $_->display_text eq $linktext
-        } else {
-            $_ eq $linktext
-            }} @{$self->{_dblinks}->{$context}}) {
-        $self->warn("$value exists in the dblink of $context");
-    }
-    push @{$self->{_dblinks}->{$context}}, $value;    
+    $self->deprecated("Use of simple strings and add_dblink_context() is deprecated; use\n
+                      Bio::Annotation::DBLink instances and add_dbxref() instead");
+    return $self->add_dbxref([$value],$context);
 }
 
 =head2 remove_dblinks

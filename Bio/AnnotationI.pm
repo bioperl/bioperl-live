@@ -137,11 +137,16 @@ sub as_text{
  Title   : display_text
  Usage   : my $str = $ann->display_text();
  Function: returns a string. Unlike as_text(), this method returns a string
-           formatted as would be expected for te specific implementation.
+           formatted as would be expected for the specific implementation.
            
            Implementations should allow passing a callback as an argument which
            allows custom text generation; the callback will be passed the
-           current implementation
+           current implementation.
+           
+           Note that this is meant to be used as a simple representation
+           of the annotation data but probably shouldn't be used in cases
+           where more complex comparisons are needed or where data is
+           stored.
  Example :
  Returns : a string
  Args    : [optional] callback

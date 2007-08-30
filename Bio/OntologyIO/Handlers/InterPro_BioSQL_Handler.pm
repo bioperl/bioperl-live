@@ -507,7 +507,7 @@ sub end_element {
         my $comment = $self->_chars_hash->{example};
         $comment =~ s/^(\s+)//; $comment =~ s/(\s+)$//;
         $example->comment($comment);
-        $self->_relationship->subject_term->add_dbxref($example);
+        $self->_relationship->subject_term->add_dbxref(-dbxrefs => [$example]);
         $self->_chars_hash->{example}='';
     }elsif($tag eq 'publication'){
         my $publication = $self->_create_publication;

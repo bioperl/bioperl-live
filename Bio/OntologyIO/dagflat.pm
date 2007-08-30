@@ -105,6 +105,7 @@ use Bio::Ontology::OBOEngine;
 use Bio::Ontology::Ontology;
 use Bio::Ontology::OntologyStore;
 use Bio::Ontology::TermFactory;
+use Bio::Annotation::DBLink;
 
 use constant TRUE         => 1;
 use constant FALSE        => 0;
@@ -566,8 +567,8 @@ sub _parse_flat_file {
         }
 
         my $current_term_object = $self->_ont_engine()->get_terms( $current_term );
-
-        $current_term_object->add_dbxref( @cross_refs );
+        my $anno = $self->_to_annotation(\@cross_refs);
+        $current_term_object->add_dbxref(-dbxrefs => $anno);
         $current_term_object->add_secondary_id( @sec_go_ids );
         $current_term_object->add_synonym( @syns );
         unless ( $line =~ /^\$/ ) {
@@ -813,7 +814,6 @@ sub _next_term {
     }
   }
   $self->_done( TRUE ) unless $line; # we'll come back until done
-
   return $self->_create_ont_entry( $next_term, $termid, $def,
                                    $comment, \@def_refs, $isobsolete);
 } # _next_term
@@ -840,12 +840,12 @@ sub _create_ont_entry {
     if((!defined($obsolete)) && (index(lc($name),"obsolete") == 0)) {
       $obsolete = 1;
     }
-
+    my $anno = $self->_to_annotation($dbxrefs);
     my $term = $self->term_factory->create_object(-name => $name,
                                                   -identifier => $termid,
                                                   -definition => $def,
                                                   -comment => $cmt,
-                                                  -dbxrefs => $dbxrefs,
+                                                  -dbxrefs => $anno,
                                                   -is_obsolete => $obsolete);
 
     return $term;
@@ -889,5 +889,16 @@ sub _term {
     return $self->{ "_term" };
 } # _term
 
+# convert simple strings to Bio::Annotation::DBLinks
+sub _to_annotation {
+    my ($self , $links) = @_;
+    return unless $links;
+    my @dbxrefs;
+    for my $string (@{$links}) {
+        my ($db, $id) = split(':',$string);
+        push @dbxrefs, Bio::Annotation::DBLink->new(-database => $db, -primary_id => $id);
+    }
+    return \@dbxrefs;
+}
 
 1;
