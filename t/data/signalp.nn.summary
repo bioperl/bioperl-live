@@ -1,0 +1,135 @@
+*********************** SignalP 3.0 predictions ***********************
+Using neural networks (NN) trained on eukaryotes
+
+----------------------------------------------------------------------
+>BC1G_00001.1 predicted protein (translation)
+
+SignalP-NN result:
+>BC1G_00001.1          length = 173
+# Measure  Position  Value  Cutoff  signal peptide?
+  max. C    23       0.074   0.32   NO
+  max. Y    33       0.014   0.33   NO
+  max. S     2       0.067   0.87   NO
+  mean S     1-32    0.023   0.48   NO
+       D     1-32    0.018   0.43   NO
+
+
+----------------------------------------------------------------------
+>BC1G_00002.1 predicted protein (translation)
+
+SignalP-NN result:
+>BC1G_00002.1          length = 120
+# Measure  Position  Value  Cutoff  signal peptide?
+  max. C    26       0.079   0.32   NO
+  max. Y    22       0.059   0.33   NO
+  max. S     1       0.406   0.87   NO
+  mean S     1-21    0.100   0.48   NO
+       D     1-21    0.079   0.43   NO
+
+
+----------------------------------------------------------------------
+>BC1G_00003.1 hypothetical protein (translation)
+
+SignalP-NN result:
+>BC1G_00003.1          length = 323
+# Measure  Position  Value  Cutoff  signal peptide?
+  max. C    22       0.934   0.32   YES
+  max. Y    22       0.866   0.33   YES
+  max. S    13       0.991   0.87   YES
+  mean S     1-21    0.938   0.48   YES
+       D     1-21    0.902   0.43   YES
+# Most likely cleavage site between pos. 21 and 22: VQG-AP
+
+
+----------------------------------------------------------------------
+>BC1G_00004.1 hypothetical protein (translation)
+
+SignalP-NN result:
+>BC1G_00004.1          length = 361
+# Measure  Position  Value  Cutoff  signal peptide?
+  max. C    30       0.078   0.32   NO
+  max. Y    17       0.101   0.33   NO
+  max. S     1       0.425   0.87   NO
+  mean S     1-16    0.221   0.48   NO
+       D     1-16    0.161   0.43   NO
+
+
+----------------------------------------------------------------------
+>BC1G_00005.1 predicted protein (translation)
+
+SignalP-NN result:
+>BC1G_00005.1          length = 244
+# Measure  Position  Value  Cutoff  signal peptide?
+  max. C    18       0.085   0.32   NO
+  max. Y    18       0.078   0.33   NO
+  max. S     3       0.683   0.87   NO
+  mean S     1-17    0.188   0.48   NO
+       D     1-17    0.133   0.43   NO
+
+
+----------------------------------------------------------------------
+>BC1G_00006.1 hypothetical protein (translation)
+
+SignalP-NN result:
+>BC1G_00006.1          length = 35
+# Measure  Position  Value  Cutoff  signal peptide?
+  max. C    27       0.244   0.32   NO
+  max. Y    27       0.035   0.33   NO
+  max. S     2       0.161   0.87   NO
+  mean S     1-26    0.053   0.48   NO
+       D     1-26    0.044   0.43   NO
+
+
+----------------------------------------------------------------------
+>BC1G_00007.1 predicted protein (translation)
+
+SignalP-NN result:
+>BC1G_00007.1          length = 73
+# Measure  Position  Value  Cutoff  signal peptide?
+  max. C    22       0.257   0.32   NO
+  max. Y    22       0.176   0.33   NO
+  max. S     2       0.620   0.87   NO
+  mean S     1-21    0.258   0.48   NO
+       D     1-21    0.217   0.43   NO
+
+
+----------------------------------------------------------------------
+>BC1G_00008.1 Homologue of M.grisea pathogenicity protein (translation)
+
+SignalP-NN result:
+>BC1G_00008.1          length = 349
+# Measure  Position  Value  Cutoff  signal peptide?
+  max. C    83       0.576   0.32   YES
+  max. Y    83       0.383   0.33   YES
+  max. S    45       0.952   0.87   YES
+  mean S     1-82    0.489   0.48   YES
+       D     1-82    0.436   0.43   YES
+# Most likely cleavage site between pos. 82 and 83: TQG-AR
+
+
+----------------------------------------------------------------------
+>BC1G_00009.1 hypothetical protein (translation)
+
+SignalP-NN result:
+>BC1G_00009.1          length = 514
+# Measure  Position  Value  Cutoff  signal peptide?
+  max. C    28       0.425   0.32   YES
+  max. Y    28       0.153   0.33   NO
+  max. S     4       0.448   0.87   NO
+  mean S     1-27    0.140   0.48   NO
+       D     1-27    0.147   0.43   NO
+
+
+----------------------------------------------------------------------
+>BC1G_00010.1 hypothetical protein (translation)
+
+SignalP-NN result:
+>BC1G_00010.1          length = 440
+# Measure  Position  Value  Cutoff  signal peptide?
+  max. C   421       0.380   0.32   YES
+  max. Y    15       0.057   0.33   NO
+  max. S     4       0.362   0.87   NO
+  mean S     1-14    0.146   0.48   NO
+       D     1-14    0.102   0.43   NO
+
+
