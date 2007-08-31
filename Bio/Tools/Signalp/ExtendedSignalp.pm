@@ -1,21 +1,8 @@
-# $Id$
-# BioPerl module for Bio::Tools::Signalp::ExtendedSignalP
-#
-# Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
-#
-# Copyright Ewan Birney
-#
-# You may distribute this module under the same terms as perl itself
 
-# POD documentation - main docs before the code
-#
-#  History:
-#	11/3/00 Added threshold feature to consensus and consensus_aa  - PS
-#	May 2001 major rewrite - Heikki Lehvaslaiho
 
 =head1 NAME
 
-Bio::Tools::Signalp::ExtendedSignalP
+Bio::Tools::Signalp::ExtendedSignalP - enhanced parser for Signalp output
 
 =head1 SYNOPSIS
 
@@ -37,19 +24,19 @@ Bio::Tools::Signalp::ExtendedSignalP
 
 Parser module for Signalp.
 
-Based on the EnsEMBL module. Bio::EnsEMBL::Pipeline::Runnable::Protein::Signalp
-originally written by Marc Sohrmann (ms2@sanger.ac.uk) Written in BioPipe by
-Balamurugan Kumarasamy <savikalpa@fugu-sg.org> Cared for by the Fugu Informatics
-team (fuguteam@fugu-sg.org)
+Based on the EnsEMBL module
+Bio::EnsEMBL::Pipeline::Runnable::Protein::Signalp originally
+written by Marc Sohrmann (ms2@sanger.ac.uk) Written in BioPipe by
+Balamurugan Kumarasamy <savikalpa@fugu-sg.org> Cared for by the Fugu
+Informatics team (fuguteam@fugu-sg.org)
 
 You may distribute this module under the same terms as perl itself
 
 POD documentation - main docs before the code
 
 Compared to the original SignalP, this method allow the user to filter results
-out based on maxC maxY maxS meanS and D factor cutoff for the Neural Network
-(NN) method only. The HMM method does not give any filters with 'YES' or 'NO' as
-result.
+out based on maxC maxY maxS meanS and D factor cutoff for the Neural Network (NN)
+method only. The HMM method does not give any filters with 'YES' or 'NO' as result.
 
 The user must be aware that the filters can only by applied on NN method.
 Also, to ensure the compability with original Signalp parsing module, the user
@@ -98,7 +85,8 @@ package Bio::Tools::Signalp::ExtendedSignalp;
 use strict;
 use Data::Dumper;
 use Bio::SeqFeature::Generic;
-use base qw(Bio::Root::Root Bio::Root::IO Bio::Tools::Signalp Bio::Tools::AnalysisResult);
+# don't need Bio::Root::Root/IO (already in inheritance tree)
+use base qw(Bio::Tools::Signalp Bio::Tools::AnalysisResult);
 
 #Supported arguments
 my $FACTS = {
@@ -158,7 +146,7 @@ sub next_feature {
 	$self->_parse();
     }
 
-    return shift @{$self->{_features}} || return;
+    return shift @{$self->{_features}} || undef;
 
 }
 
@@ -290,18 +278,16 @@ sub _parse {
     return;
 }
 
-# private method
+=head2 _parse_summary_format
 
-#=head2 _parse_summary_format
-#
-# Title   : _parse_summary_format
-# Usage   : $self->_parse_summary_format
-# Function: Method to parse summary/full format from signalp output
-#           It automatically fills filtered features.
-# Returns :
-# Args    :
-#
-#=cut
+ Title   : _parse_summary_format
+ Usage   : $self->_parse_summary_format
+ Function: Method to parse summary/full format from signalp output
+           It automatically fills filtered features.
+ Returns :
+ Args    :
+
+=cut
 
 sub _parse_summary_format {
 
@@ -322,7 +308,7 @@ sub _parse_summary_format {
 	}
 
 	if($line =~ /^---------/ && $feature){
-	    my $new_feature = $self->_create_feature($feature);
+	    my $new_feature = $self->create_feature($feature);
 	    push @{$self->{_features}}, $new_feature if $new_feature;
 	    $feature = undef;
 	}
@@ -402,7 +388,6 @@ sub _parse_nn_result {
 	}
 	#If we don't have this line it means that all the factors cutoff are equal to 'NO'
 	elsif ($line =~ /Most likely cleavage site between pos\.\s+(\d+)/) {
-
 	    #if($self->_filterok(\%facts)){
 		#$feature->{name}       = $self->seqname();
 		#$feature->{start}      = 1;
@@ -575,7 +560,7 @@ sub _parse_short_format {
 	    $feature->{program}     = 'Signalp';
 	    $feature->{logic_name}  = 'signal_peptide';
 
-	    my $new_feat = $self->_create_feature($feature);
+	    my $new_feat = $self->create_feature($feature);
 	    push @{$self->{_features}}, $new_feat if $new_feat;
 	}
     }
@@ -583,19 +568,18 @@ sub _parse_short_format {
     return;
 }
 
-# private method, starts with '_'
+=head2 create_feature
 
-#=head2 _create_feature
-#
-# Title   : _create_feature
-# Usage   : obj->_create_feature(\%feature)
-# Function: Internal(not to be used directly)
-# Returns :
-# Args    :
-#
-#=cut
+ Title   : create_feature
+ Usage   : obj->create_feature(\%feature)
+ Function: Internal(not to be used directly)
+ Returns :
+ Args    :
 
-sub _create_feature {
+
+=cut
+
+sub create_feature {
 
     my ($self, $feat) = @_;
 
@@ -655,4 +639,7 @@ sub seqname{
 
 }
 
+
 1;
+
+
