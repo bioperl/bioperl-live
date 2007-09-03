@@ -40,6 +40,23 @@ based on query accession(s)
 
 This object allows one to build an index on a blast file (or files)
 and provide quick access to the blast report for that accession.
+
+This also allows for ID parsing using a callback:
+
+   $inx->id_parser(\&get_id);
+   # make the index
+   $inx->make_index($file_name);
+
+   # here is where the retrieval key is specified
+   sub get_id {
+      my $line = shift;
+      $line =~ /^>.+gi\|(\d+)/;
+      $1;
+   }
+
+The indexer is capable of indexing based on multiple IDs passed back from the
+callback; this is assuming of course all IDs are unique.
+
 Note: for best results 'use strict'.
 
 =head1 FEEDBACK
