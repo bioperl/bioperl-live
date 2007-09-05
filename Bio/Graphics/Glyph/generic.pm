@@ -294,10 +294,16 @@ sub draw_label {
 		$self->top + $top - 1,
 		$label,
 		$self->fontcolor);
-  }
-  elsif ($self->label_position eq 'left') {
+  } elsif ($self->label_position eq 'left') {
     $gd->string($font,
 		$x,
+		$self->{top} + ($self->height - $font->height)/2 + $top,
+		$label,
+		$self->fontcolor);
+  # used for alignments, doesn't account for padding, viewer discretion is advised...
+  } elsif ($self->label_position eq 'alignment_left') {
+    $gd->string($font,
+		1,
 		$self->{top} + ($self->height - $font->height)/2 + $top,
 		$label,
 		$self->fontcolor);

@@ -35,7 +35,7 @@ Bio::Graphics::Glyph::segmented_keyglyph - The "segmented_keyglyph" glyph
 
 =head1 DESCRIPTION
 
-This glyph is used internally by Bio::Graphics::Panel as a base calss
+This glyph is used internally by Bio::Graphics::Panel as a base class
 for drawing the keys at the bottom of the panel.  It should not be
 used explicitly.
 
