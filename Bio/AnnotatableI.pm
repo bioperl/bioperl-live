@@ -70,7 +70,6 @@ Internal methods are usually preceded with a _
 
 package Bio::AnnotatableI;
 use strict;
-use Carp;
 
 use Bio::Annotation::Comment;
 use Bio::Annotation::DBLink;
