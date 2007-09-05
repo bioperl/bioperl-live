@@ -210,11 +210,22 @@ sub _initialize {
 
 sub next_result {
     my ($self) = @_;
-    unless ($self->{'_handlerset'}) {
-        $self->_set_handler;
-        $self->{'_handlerset'} = 1;
+    unless (exists $self->{'_handlerset'}) {
+        my $line;
+        while ($line = $self->_readline) {
+            # advance to first line
+            next if $line =~ m{^\s*$};
+            # newer output starts with model name
+            if ($line =~ m{^CM\s\d+:}) {
+                $self->{'_handlerset'} = 'new';
+            } else {
+                $self->{'_handlerset'} ='old';
+            }
+            last;
+        }
+        $self->_pushback($line);
     }
-    return $self->_next_result;
+    return $self->{'_handlerset'} eq 'new' ? $self->_parse_new : $self->_parse_old;
 }
 
 =head2 start_element
@@ -646,25 +657,7 @@ sub simple_meta {
 ## private methods
 
 # this is a hack which guesses the format and sets the handler for parsing in
-# an instance
-
-sub _set_handler {
-    my $self = shift;
-    my $line;
-    while ($line = $self->_readline) {
-        # advance to first line
-        next if $line =~ m{^\s*$};
-        # newer output starts with model name
-        if ($line =~ m{^CM\s\d+:}) {
-            *_next_result = \&_parse_new;
-            $self->version(0.81);
-        } else {
-            *_next_result = \&_parse_old;
-        }
-        last;
-    }
-    $self->_pushback($line);
-}
+# an instance; it'll be taken out when infernal 1.0 is released
 
 # cmsearch 0.81
 sub _parse_new {
@@ -673,7 +666,7 @@ sub _parse_new {
     local $/ = "\n";
     my ($accession, $db, $algorithm, $description, $version) =
        ($self->query_accession, $self->database, $self->algorithm,
-        $self->query_description, $self->version);
+        $self->query_description, '0.81');
     my ($maxscore, $mineval, $minpval);
     $self->start_document();
     my ($lasthit, $lastscore, $lasteval, $lastpval, $laststart, $lastend);

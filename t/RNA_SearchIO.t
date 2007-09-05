@@ -344,8 +344,6 @@ is($meta, ':::::::::::::::::((((((((:::(((((((:::::::)))))))::::::::(((((((:::::
 $searchio = Bio::SearchIO->new( -format => 'infernal',
                                 -file   => test_input_file('purine_v081.infernal'),
                                 # version is reset to the correct one by parser
-                                -version => 0.7, 
-                                -model => 'Purine',
                                 -query_acc => 'RF00167',
                                 -query_desc => 'Purine riboswitch',
                                 -database => 'b_sub.fas',
@@ -354,6 +352,7 @@ $searchio = Bio::SearchIO->new( -format => 'infernal',
                                );
 
 $result = $searchio->next_result;
+
 isa_ok($result, 'Bio::Search::Result::ResultI');
 $algorithm = $result->algorithm;
 is($result->algorithm, 'CMSEARCH', "Result $algorithm");
