@@ -501,6 +501,7 @@ sub submit_blast {
     return 0 unless ( @seqs );
     my $tcount = 0;
     my %header = $self->header;
+    $header{$_} ||= $RETRIEVALHEADER{$_} foreach (keys %RETRIEVALHEADER);    
     foreach my $seq ( @seqs ) {
 	#If query has a fasta header, the output has the query line.
 	$header{'QUERY'} = ">".(defined $seq->display_id() ? $seq->display_id() : "").
