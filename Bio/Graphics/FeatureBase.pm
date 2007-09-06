@@ -243,6 +243,14 @@ sub strand {
   $d;
 }
 
+# this does nothing, but it is here for compatibility reasons
+sub absolute {
+  my $self = shift;
+  my $d = $self->{absolute};
+  $self->{absolute} = shift if @_;
+  $d;
+}
+
 sub abs_start {
   my $self = shift;
   local $self->{refseq} = undef;

@@ -324,6 +324,7 @@ sub render {
 		   $self->style($type),  # feature-specific
 		   @override,
 		 );
+
     if (defined($position_to_insert)) {
       push @tracks,$panel->insert_track($position_to_insert++,$features,@config);
     } else {
