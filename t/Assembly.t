@@ -7,8 +7,8 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 19,
-			   -requires_module => 'DB_File');
+    test_begin(-tests => 21,
+	-requires_module => 'DB_File');
 	
 	use_ok('Bio::Assembly::IO');
 }
@@ -94,3 +94,28 @@ foreach my $an (@annotations) {
 	}
 }
 is $had_tag, 2;
+
+#
+# Testing TIGR format
+#
+
+# Importing an assembly
+
+my $asm_in = Bio::Assembly::IO->new(
+    -file => test_input_file("sample_dataset.tasm "),
+    -format=>'tigr'
+);
+my $scaf_in = $asm_in->next_assembly;
+
+isa_ok($scaf_in, 'Bio::Assembly::Scaffold');
+
+# Exporting an assembly
+
+my $asm_outfile = test_output_file();;
+my $asm_out = Bio::Assembly::IO->new(
+    -file=> ">$asm_outfile",
+    -format=>'tigr'
+);
+
+ok $asm_out->write_assembly( -scaffold => $scaf_in);
+
