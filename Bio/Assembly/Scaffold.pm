@@ -397,7 +397,7 @@ sub add_singlet {
     }
     my $singletID = $singlet->id();
     $self->warn("Replacing singlet $singletID wih a new sequence object")
-	if (exists $self->{'_contigs'}{$singletID});
+	if (exists $self->{'_singlets'}{$singletID});
     $self->{'_singlets'}{$singletID} = $singlet;
 
     return 1;
