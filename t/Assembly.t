@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 21,
+    test_begin(-tests => 35,
 	-requires_module => 'DB_File');
 	
 	use_ok('Bio::Assembly::IO');
@@ -108,10 +108,49 @@ my $asm_in = Bio::Assembly::IO->new(
 my $scaf_in = $asm_in->next_assembly;
 
 isa_ok($scaf_in, 'Bio::Assembly::Scaffold');
+is($scaf_in->id, 'NoName');
+is($scaf_in->get_nof_contigs, 13);
+is($scaf_in->get_nof_sequences_in_contigs, 36);
+is($scaf_in->get_nof_singlets, 0);
+my @seqids = sort qw(sdsu|SDSU1_RFPERU_001_A09.x01.phd.1
+sdsu|SDSU1_RFPERU_001_B03.x01.phd.1 sdsu|SDSU1_RFPERU_001_B04.x01.phd.1
+sdsu|SDSU1_RFPERU_001_E04.x01.phd.1 sdsu|SDSU_RFPERU_002_A01.x01.phd.1
+sdsu|SDSU_RFPERU_002_B07.x01.phd.1 sdsu|SDSU_RFPERU_002_C12.x01.phd.1
+sdsu|SDSU_RFPERU_002_D08.x01.phd.1 sdsu|SDSU_RFPERU_002_H12.x01.phd.1
+sdsu|SDSU_RFPERU_003_G09.x01.phd.1 sdsu|SDSU_RFPERU_004_H12.x01.phd.1
+sdsu|SDSU_RFPERU_005_F02.x01.phd.1 sdsu|SDSU_RFPERU_006_D03.x01.phd.1
+sdsu|SDSU_RFPERU_006_E04.x01.phd.1 sdsu|SDSU_RFPERU_006_E05.x01.phd.1
+sdsu|SDSU_RFPERU_006_H08.x01.phd.1 sdsu|SDSU_RFPERU_007_E09.x01.phd.1
+sdsu|SDSU_RFPERU_007_F06.x01.phd.1 sdsu|SDSU_RFPERU_008_B02.x01.phd.1
+sdsu|SDSU_RFPERU_009_E07.x01.phd.1 sdsu|SDSU_RFPERU_010_B05.x01.phd.1
+sdsu|SDSU_RFPERU_010_B06.x01.phd.1 sdsu|SDSU_RFPERU_010_C09.x01.phd.1
+sdsu|SDSU_RFPERU_010_D10.x01.phd.1 sdsu|SDSU_RFPERU_012_H02.x01.phd.1
+sdsu|SDSU_RFPERU_013_B05.x01.phd.1 sdsu|SDSU_RFPERU_013_C07.x01.phd.1
+sdsu|SDSU_RFPERU_013_C08.x01.phd.1 sdsu|SDSU_RFPERU_013_G10.x01.phd.1
+sdsu|SDSU_RFPERU_013_H05.x01.phd.1 sdsu|SDSU_RFPERU_014_H06.x01.phd.1
+sdsu|SDSU_RFPERU_015_A05.x01.phd.1 sdsu|SDSU_RFPERU_015_C06.x01.phd.1
+sdsu|SDSU_RFPERU_015_E04.x01.phd.1 sdsu|SDSU_RFPERU_015_G04.x01.phd.1
+sdsu|SDSU_RFPERU_015_H03.x01.phd.1);
+my @contigids = sort qw(106 144 148 17 185 2 210 36 453 500 613 668 93);
+is_deeply([sort $scaf_in->get_seq_ids], \@seqids);
+is_deeply([sort $scaf_in->get_contig_ids], \@contigids);
+is_deeply([$scaf_in->get_singlet_ids], []);
+isa_ok($scaf_in->get_seq_by_id('sdsu|SDSU1_RFPERU_001_A09.x01.phd.1'),'Bio::LocatableSeq');
+my $contig = $scaf_in->get_contig_by_id('106');
+isa_ok($contig,'Bio::Assembly::Contig');
+# check Contig object SeqFeature::Collection
+# should add more specific Contig tests...
+my @sfs = $contig->get_features_collection->get_all_features;
+is(scalar(@sfs), 5);
+is($sfs[0]->primary_tag(),'_aligned_coord:sdsu|SDSU_RFPERU_006_E04.x01.phd.1');
+is($sfs[1]->seq_id(), undef); # should this be undef?
+
+isa_ok($scaf_in->annotation, 'Bio::AnnotationCollectionI');
+is($scaf_in->annotation->get_all_annotation_keys, 0,"no annotations in Annotation collection?");
 
 # Exporting an assembly
 
-my $asm_outfile = test_output_file();;
+my $asm_outfile = test_output_file();
 my $asm_out = Bio::Assembly::IO->new(
     -file=> ">$asm_outfile",
     -format=>'tigr'

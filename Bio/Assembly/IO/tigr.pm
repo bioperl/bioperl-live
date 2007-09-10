@@ -806,23 +806,23 @@ sub write_assembly {
             $contiginfo{'quality'}    = $self->_qual_dec2hex(
                 join ' ', @{$contigobj->get_consensus_quality->qual});
             $contiginfo{'asmbl_id'}   = $contigid;
-            $contiginfo{'seq_id'}     = $contanno->get_tag_values('seq_id');
-            $contiginfo{'com_name'}   = $contanno->get_tag_values('com_name');
-            $contiginfo{'type'}       = $contanno->get_tag_values('type');
-            $contiginfo{'method'}     = $contanno->get_tag_values('method');
-            $contiginfo{'ed_status'}  = $contanno->get_tag_values('ed_status');
+            $contiginfo{'seq_id'}     = ($contanno->get_tag_values('seq_id'))[0];
+            $contiginfo{'com_name'}   = ($contanno->get_tag_values('com_name'))[0];
+            $contiginfo{'type'}       = ($contanno->get_tag_values('type'))[0];
+            $contiginfo{'method'}     = ($contanno->get_tag_values('method'))[0];
+            $contiginfo{'ed_status'}  = ($contanno->get_tag_values('ed_status'))[0];
             $contiginfo{'redundancy'} = sprintf(
                 $decimal_format, $self->_redundancy($contigobj));
             $contiginfo{'perc_N'}     = sprintf(
                 $decimal_format, $self->_perc_N($contiginfo{'sequence'}));
             $contiginfo{'seqnum'}     = $contigobj->no_sequences;
-            $contiginfo{'full_cds'}   = $contanno->get_tag_values('full_cds');
-            $contiginfo{'cds_start'}  = $contanno->get_tag_values('cds_start');
-            $contiginfo{'cds_end'}    = $contanno->get_tag_values('cds_end');
-            $contiginfo{'ed_pn'}      = $contanno->get_tag_values('ed_pn');
+            $contiginfo{'full_cds'}   = ($contanno->get_tag_values('full_cds'))[0];
+            $contiginfo{'cds_start'}  = ($contanno->get_tag_values('cds_start'))[0];
+            $contiginfo{'cds_end'}    = ($contanno->get_tag_values('cds_end'))[0];
+            $contiginfo{'ed_pn'}      = ($contanno->get_tag_values('ed_pn'))[0];
             $contiginfo{'ed_date'}    = $self->_date_time;
-            $contiginfo{'comment'}    = $contanno->get_tag_values('comment');
-            $contiginfo{'frameshift'} = $contanno->get_tag_values('frameshift');
+            $contiginfo{'comment'}    = ($contanno->get_tag_values('comment'))[0];
+            $contiginfo{'frameshift'} = ($contanno->get_tag_values('frameshift'))[0];
             $self->_print(
                 "sequence\t$contiginfo{'sequence'}\n".
                 "lsequence\t$contiginfo{'lsequence'}\n".
@@ -863,8 +863,8 @@ sub write_assembly {
                 $readinfo{'asm_rend'}  = $asm_rend;;
                 $readinfo{'seq_lend'}  = $seq_lend;
                 $readinfo{'seq_rend'}  = $seq_rend;                
-                $readinfo{'best'}      = $readanno->get_tag_values('best');
-                $readinfo{'comment'}   = $readanno->get_tag_values('comment');
+                $readinfo{'best'}      = ($readanno->get_tag_values('best'))[0];
+                $readinfo{'comment'}   = ($readanno->get_tag_values('comment'))[0];
                 $readinfo{'db'}        = $db;
                 $readinfo{'offset'}    = $offset;   
                 $readinfo{'lsequence'} = $readobj->seq(); 
