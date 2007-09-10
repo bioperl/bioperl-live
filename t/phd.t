@@ -7,38 +7,47 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 9);
+    test_begin(-tests => 12);
 	
 	use_ok('Bio::SeqIO');
 }
 
 my $DEBUG = test_debug();
 
-print("Checking to see if SeqWithQuality objects can be created from a file...\n") if ($DEBUG);
+print("Checking to see if Bio::Seq::Quality objects can be created from a file...\n") if ($DEBUG);
 my $in_phd  = Bio::SeqIO->new('-file' => test_input_file('phredfile.phd'),
 			      '-format'  => 'phd',
 			      '-verbose' => $DEBUG);
 isa_ok($in_phd,'Bio::SeqIO::phd');
 
-my @phreds;
+
+
 my $phd = $in_phd->next_seq();
-is($phd->{comments}->{'QUALITY_LEVELS'}, 99, "Did you get the 'QUALITY_LEVELS' comment?");
+is($phd->quality_levels,'99',"Did you get the 'QUALITY_LEVELS' comment?");
 isa_ok($phd,"Bio::Seq::Quality");
 
-my $position = 6;
 
 if( $DEBUG ) {
+    my $position = 6;
+    print("I saw these in phredfile.phd:\n\n");
+    print $_->tagname,": ",$_->display_text || 0," \n"
+        for ($phd->annotation->get_Annotations('header'));
+
     print("What is the base at position $position (using subseq)?\n");
     print($phd->subseq($position,$position)."\n");
     print("What is the base at position $position (using baseat)?\n");
     print($phd->baseat($position)."\n");
     print("What is the quality at $position? (using subqual)\n");
-}
+
 my @qualsretr = @{$phd->subqual($position,$position)};
-if( $DEBUG ) {
     print($qualsretr[0]."\n");
     print("What is the quality at $position? (using qualat)\n");
     print($phd->qualat($position)."\n");
+    print("What is the trace at $position? (using trace_index_at)\n");
+    print($phd->trace_index_at($position)."\n");
+    print("What is the trace at $position? (using subtrace)\n");
+    my @tracesretr = @{$phd->subtrace($position,$position)};
+    print($tracesretr[0]."\n");
 }
 
 print("OK. Now testing write_phd...\n") if($DEBUG);
@@ -48,18 +57,8 @@ my $out_phd = Bio::SeqIO->new(-file => ">$outfile",
 			      '-format' => 'phd');
 isa_ok($out_phd,"Bio::SeqIO::phd");
 
-$out_phd->write_seq(	-SeqWithQuality		=>	$phd,
-			-CHROMAT_FILE		=>	$phd->id(),
-			-ABI_THUMBPRINT		=>	"",
-			-PHRED_VERSION		=>	"",
-			-CALL_METHOD		=>	"",
-			-QUALITY_LEVELS		=>	"",
-			-TIME			=>	"",
-			-TRACE_ARRAY_MIN_INDEX	=>	"",
-			-TRACE_ARRAY_MAX_INDEX	=>	"",
-			-CHEM	=>	"",
-			-DYE	=>	""	
-			);
+$out_phd->write_seq($phd);
+
 ok( -s $outfile);
 
 # Bug 2120
@@ -77,3 +76,31 @@ my @seq_qual =$seq->subqual_text(10,20);
 is_deeply(\@seq_qual,\@qual,'$seq->subqual_tex()');
 my @seq_trace = $seq->subtrace_text(10,20);
 is_deeply(\@seq_trace,\@trace,'$seq->subqual_tex()');
+
+if($DEBUG) {
+    print "\nDefault header ... \n\n";
+    use Bio::Seq::Quality;
+    my $seq = Bio::Seq::Quality->new('-seq' => 'GAATTC');
+    $out_phd->_fh(\*STDOUT);
+    $out_phd->write_header($seq);
+    print "Complete output\n\n";
+    $out_phd->write_seq($seq);
+}
+
+print("Testing the header manipulation\n") if($DEBUG);
+is($phd->chromat_file(),'ML4924R','$phd->chromat_file()');
+$phd->chromat_file('ML4924R.esd');
+is($phd->chromat_file(), 'ML4924R.esd','$phd->chromat_file()');
+$phd->touch();
+my $localtime = localtime();
+is($phd->time, "$localtime");
+if ($DEBUG){
+    print "Testing the sequence ...\n";
+    print ">",$phd->id," ",$phd->desc,"\n",$phd->seq,"\n";
+    my $revcom = $phd->revcom;
+    print ">revcom\n",$revcom->seq,"\n";
+    print ">revcom_qual at 6\n",$revcom->qualat(6),"\n";
+    print ">revcom_trace at 6 !!\n",$revcom->trace_index_at(6),"\n";
+    my $trunc = $phd->trunc(10,20);
+    print ">TRUNC 10,20\n",$trunc->seq,"\n>qual\n@{$trunc->qual}\n>trace\n@{$trunc->trace}\n";
+}
