@@ -695,7 +695,7 @@ sub write_assembly {
             my $readid   = $did{$objid};            
             my $singletobj = $scaffoldobj->get_singlet_by_id($readid);
             
-            # Print contig information
+            # Get contig information
             my $contanno = (grep
                 { $_->primary_tag eq "_main_contig_feature:$contigid" }
                 $singletobj->get_features_collection->get_all_features
@@ -706,22 +706,37 @@ sub write_assembly {
             $contiginfo{'quality'}    = $self->_qual_dec2hex(
                 join ' ', @{$singletobj->seqref->qual});
             $contiginfo{'asmbl_id'}   = $contigid;
-            $contiginfo{'seq_id'}     = $contanno->get_Annotations('seq_id');
-            $contiginfo{'com_name'}   = $contanno->get_Annotations('com_name');
-            $contiginfo{'type'}       = $contanno->get_Annotations('type');
-            $contiginfo{'method'}     = $contanno->get_Annotations('method');
-            $contiginfo{'ed_status'}  = $contanno->get_Annotations('ed_status');
+            $contiginfo{'seq_id'}     = ($contanno->get_tag_values('seq_id'))[0];   
+            $contiginfo{'com_name'}   = ($contanno->get_tag_values('com_name'))[0];
+            $contiginfo{'type'}       = ($contanno->get_tag_values('type'))[0];
+            $contiginfo{'method'}     = ($contanno->get_tag_values('method'))[0];
+            $contiginfo{'ed_status'}  = ($contanno->get_tag_values('ed_status'))[0];
             $contiginfo{'redundancy'} = sprintf($decimal_format, 1);
             $contiginfo{'perc_N'}     = sprintf(
                 $decimal_format, $self->_perc_N($contiginfo{'sequence'}));
             $contiginfo{'seqnum'}     = 1;
-            $contiginfo{'full_cds'}   = $contanno->get_Annotations('full_cds');
-            $contiginfo{'cds_start'}  = $contanno->get_Annotations('cds_start');
-            $contiginfo{'cds_end'}    = $contanno->get_Annotations('cds_end');
-            $contiginfo{'ed_pn'}      = $contanno->get_Annotations('ed_pn');
+            $contiginfo{'full_cds'}   = ($contanno->get_tag_values('full_cds'))[0];
+            $contiginfo{'cds_start'}  = ($contanno->get_tag_values('cds_start'))[0];
+            $contiginfo{'cds_end'}    = ($contanno->get_tag_values('cds_end'))[0];
+            $contiginfo{'ed_pn'}      = ($contanno->get_tag_values('ed_pn'))[0];
             $contiginfo{'ed_date'}    = $self->_date_time;
-            $contiginfo{'comment'}    = $contanno->get_Annotations('comment');
-            $contiginfo{'frameshift'} = $contanno->get_Annotations('frameshift');
+            $contiginfo{'comment'}    = ($contanno->get_tag_values('comment'))[0];
+            $contiginfo{'frameshift'} = ($contanno->get_tag_values('frameshift'))[0];
+
+            # Check that no tag value is undef
+            $contiginfo{'seq_id'}     = '' unless defined $contiginfo{'seq_id'};
+            $contiginfo{'com_name'}   = '' unless defined $contiginfo{'com_name'};
+            $contiginfo{'type'}       = '' unless defined $contiginfo{'type'};
+            $contiginfo{'method'}     = '' unless defined $contiginfo{'method'};
+            $contiginfo{'ed_status'}  = '' unless defined $contiginfo{'ed_status'};
+            $contiginfo{'full_cds'}   = '' unless defined $contiginfo{'full_cds'};
+            $contiginfo{'cds_start'}  = '' unless defined $contiginfo{'cds_start'};
+            $contiginfo{'cds_end'}    = '' unless defined $contiginfo{'cds_end'};
+            $contiginfo{'ed_pn'}      = '' unless defined $contiginfo{'ed_pn'};
+            $contiginfo{'comment'}    = '' unless defined $contiginfo{'comment'};
+            $contiginfo{'frameshift'} = '' unless defined $contiginfo{'frameshift'};
+            
+            # Print contig information
             $self->_print(
                 "sequence\t$contiginfo{'sequence'}\n".
                 "lsequence\t$contiginfo{'lsequence'}\n".
@@ -745,7 +760,7 @@ sub write_assembly {
                 "\n"
             );
                         
-            # Print read information
+            # Get read information
             my ($seq_name, $db) = $self->_split_seq_name_and_db($readid);
             my $clipcoord = (grep
                 { $_->primary_tag eq "_quality_clipping:$readid"}
@@ -765,12 +780,18 @@ sub write_assembly {
             $readinfo{'asm_rend'}  = $alncoord->location->end;
             $readinfo{'seq_lend'}  = $clipcoord->location->start;
             $readinfo{'seq_rend'}  = $clipcoord->location->end;
-            $readinfo{'best'}      = $readanno->get_Annotations('best');
-            $readinfo{'comment'}   = $readanno->get_Annotations('comment');         
+            $readinfo{'best'}      = ($readanno->get_tag_values('best'))[0];
+            $readinfo{'comment'}   = ($readanno->get_tag_values('comment'))[0];
             $readinfo{'db'}        = $db;         
             $readinfo{'offset'}    = 0;
-            # amiguities in read sequence are uppercase
+            # ambiguities in read sequence are uppercase
             $readinfo{'lsequence'} = uc($contiginfo{'lsequence'});
+            
+            # Check that no tag value is undef
+            $readinfo{'best'}    = '' unless defined $readinfo{'best'};
+            $readinfo{'comment'} = '' unless defined $readinfo{'comment'};
+
+            # Print read information
             $self->_print(
                 "seq_name\t$readinfo{'seq_name'}\n".
                 "asm_lend\t$readinfo{'asm_lend'}\n".
@@ -794,7 +815,7 @@ sub write_assembly {
             # Skip contigs of 1 sequence (singlets) if needed
             next if ($contigobj->no_sequences == 1) && (!$singlets);
             
-            # Print contig information
+            # Get contig information
             my $contanno = (grep
                 { $_->primary_tag eq "_main_contig_feature:$contigid" }
                 $contigobj->get_features_collection->get_all_features
@@ -823,6 +844,21 @@ sub write_assembly {
             $contiginfo{'ed_date'}    = $self->_date_time;
             $contiginfo{'comment'}    = ($contanno->get_tag_values('comment'))[0];
             $contiginfo{'frameshift'} = ($contanno->get_tag_values('frameshift'))[0];
+            
+            # Check that no tag value is undef
+            $contiginfo{'seq_id'}     = '' unless defined $contiginfo{'seq_id'};
+            $contiginfo{'com_name'}   = '' unless defined $contiginfo{'com_name'};
+            $contiginfo{'type'}       = '' unless defined $contiginfo{'type'};
+            $contiginfo{'method'}     = '' unless defined $contiginfo{'method'};
+            $contiginfo{'ed_status'}  = '' unless defined $contiginfo{'ed_status'};
+            $contiginfo{'full_cds'}   = '' unless defined $contiginfo{'full_cds'};
+            $contiginfo{'cds_start'}  = '' unless defined $contiginfo{'cds_start'};
+            $contiginfo{'cds_end'}    = '' unless defined $contiginfo{'cds_end'};
+            $contiginfo{'ed_pn'}      = '' unless defined $contiginfo{'ed_pn'};
+            $contiginfo{'comment'}    = '' unless defined $contiginfo{'comment'};
+            $contiginfo{'frameshift'} = '' unless defined $contiginfo{'frameshift'};
+                       
+            # Print contig information
             $self->_print(
                 "sequence\t$contiginfo{'sequence'}\n".
                 "lsequence\t$contiginfo{'lsequence'}\n".
@@ -849,7 +885,7 @@ sub write_assembly {
             for my $readobj ( $contigobj->each_seq() ) {
                 $seqno++;
                 
-                # Print read information
+                # Get read information
                 my ($seq_name, $db) = $self->_split_seq_name_and_db($readobj->id);
                 my ($asm_lend, $asm_rend, $seq_lend, $seq_rend, $offset)
                     = $self->_coord($readobj, $contigobj);
@@ -868,6 +904,12 @@ sub write_assembly {
                 $readinfo{'db'}        = $db;
                 $readinfo{'offset'}    = $offset;   
                 $readinfo{'lsequence'} = $readobj->seq(); 
+                         
+                # Check that no tag value is undef
+                $readinfo{'best'}    = '' unless defined $readinfo{'best'};
+                $readinfo{'comment'} = '' unless defined $readinfo{'comment'};
+    
+                # Print read information
                 $self->_print(
                     "seq_name\t$readinfo{'seq_name'}\n".
                     "asm_lend\t$readinfo{'asm_lend'}\n".
