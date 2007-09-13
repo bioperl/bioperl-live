@@ -17,7 +17,7 @@ Bio::Align::PairwiseStatistics - Base statistic object for Pairwise Alignments
 =head1 SYNOPSIS
 
   use strict;
-  my $stats = Bio::Align::DNAStatistics->new();
+  my $stats = Bio::Align::PairwiseStatistics->new();
 
   # get alignment object of two sequences somehow
   my $pwaln;
