@@ -825,7 +825,7 @@ my $comment=shift;
 my @comm;
 push @comm,( ref($comment) eq 'ARRAY')? @{$comment}:$comment;
 foreach my $product (@comm) {
- my $sts=Bio::Ontology::Term->new->new( 
+ my $sts=Bio::Ontology::Term->new( 
                 -identifier  => $product->{source}->{src}->{tag}->{id},
                 -name        => $product->{source}->{anchor}, -comment=>$product->{source}->{'post-text'});
 $sts->namespace($product->{source}->{src}->{db});
