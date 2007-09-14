@@ -768,6 +768,7 @@ sub distance {
     my $warned = 0;
     foreach my $current_node (@{$nodes}) {
         while (1) {
+            last if $current_node eq $lca;
             if ($current_node->branch_length) {
                 $cumul_dist += $current_node->branch_length;
             }
@@ -777,7 +778,6 @@ sub distance {
             }
             
             $current_node = $current_node->ancestor || last;
-            last if $current_node eq $lca;
         }
     }
     
