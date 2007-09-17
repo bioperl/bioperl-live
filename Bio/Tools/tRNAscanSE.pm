@@ -23,7 +23,7 @@ Bio::Tools::tRNAscanSE - A parser for tRNAscan-SE output
    # parse the results
    while( my $gene = $parser->next_prediction ) {
 
-       @exon_arr = $gene->get_seqFeatures();
+       @exon_arr = $gene->get_SeqFeatures();
 
    }
 
