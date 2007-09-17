@@ -97,10 +97,6 @@ use strict;
 # Object preamble - inherits from Bio::Root::Root
 
 use Bio::Ontology::Term;
-#use overload '""' => sub { $_[0]->identifier || ''};
-#use overload 'eq' => sub { "$_[0]" eq "$_[1]" };
-use overload '""' => sub { $_[0]->throw("Operator overloading of AnnotationI is deprecated") };
-use overload 'eq' => sub { $_[0]->throw("Operator overloading of AnnotationI is deprecated") };
 
 use base qw(Bio::Root::Root Bio::AnnotationI Bio::Ontology::TermI);
 

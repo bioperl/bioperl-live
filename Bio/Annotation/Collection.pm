@@ -1,5 +1,4 @@
 # $Id$
-
 #
 # BioPerl module for Bio::Annotation::Collection.pm
 #

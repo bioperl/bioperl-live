@@ -44,9 +44,6 @@ methods. Internal methods are usually preceded with a _
 package Bio::Annotation::Comment;
 use strict;
 
-use overload '""' => sub { $_[0]->throw("Operator overloading of AnnotationI is deprecated") };
-use overload 'eq' => sub { $_[0]->throw("Operator overloading of AnnotationI is deprecated") };
-
 use base qw(Bio::Root::Root Bio::AnnotationI);
 
 =head2 new

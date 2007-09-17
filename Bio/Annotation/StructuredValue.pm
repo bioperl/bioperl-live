@@ -79,9 +79,6 @@ use strict;
 
 use Bio::AnnotationI;
 
-use overload '""' => sub { $_[0]->throw("Operator overloading of AnnotationI is deprecated") };
-use overload 'eq' => sub { $_[0]->throw("Operator overloading of AnnotationI is deprecated") };
-
 use base qw(Bio::Annotation::SimpleValue);
 
 =head2 new
