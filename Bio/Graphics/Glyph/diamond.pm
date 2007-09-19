@@ -100,6 +100,19 @@ L<Bio::Graphics::Glyph> for a full explanation.
 
   -hilite       Highlight color                undef (no color)
 
+The following glyph-specific options are also recognized:
+
+  Option      Description                      Default
+  ------      -----------                      -------
+
+  -point      Do not increase wideness of glyph   0 (false)
+              even if size of feature is >1
+
+  -fallback_to_rectangle                          0 (false)
+              If the feature's length is > 1,
+              then draw the feature as a
+              rectangle, not a diamond.
+
 =head1 BUGS
 
 If the feature is wider than a point, then the label and description
