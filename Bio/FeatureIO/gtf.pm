@@ -63,7 +63,7 @@ use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-sub initialize {
+sub _initialize {
   my($self,%arg) = @_;
   $arg{-version} = 2.5;
   $self->SUPER::_initialize(%arg);
