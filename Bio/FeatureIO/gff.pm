@@ -836,9 +836,13 @@ sub _write_feature_25 {
   my($self,$feature,$group) = @_;
 
   #the top-level feature is an aggregate of all subfeatures
+  my ($transcript_id, $gene_id) = (($feature->get_Annotations('transcript_id'))[0], ($feature->get_Annotations('gene_id'))[0]);
   if(!defined($group)){
-    $group = ($feature->get_Annotations('ID'))[0]->value;
+    $group = ($feature->get_Annotations('ID'))[0];
+    $transcript_id ||= $group;
+    $gene_id ||= $group;
   }
+  
 
   my $seq    = $feature->seq_id->value;
   my $source = $feature->source->value;
@@ -847,14 +851,14 @@ sub _write_feature_25 {
   my $min    = $feature->start   || '.';
   my $max    = $feature->end     || '.';
   my $strand = $feature->strand == 1 ? '+' : $feature->strand == -1 ? '-' : '.';
-  my $score  = $feature->score->value;
-  my $phase  = $feature->phase->value;
+  my $score  = $feature->score ? $feature->score->value : '.'; # score is optional
+  my $frame  = $feature->frame ? $feature->frame->value : $feature->phase->value;
 
   #these are the only valid types in a GTF document
   if($type eq 'EXON' or $type eq 'CDS' or $type eq 'start_codon' or $type eq 'stop_codon'){
-    my $attr = sprintf('gene_id "%s"; transcript_id "%s";',$group,$group);
+    my $attr = sprintf('gene_id "%s"; transcript_id "%s";',$gene_id ? $gene_id->value : '',$transcript_id ? $transcript_id->value : '');
     my $outstring = sprintf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
-                            $seq,$source,$type,$min,$max,$score,$strand,$phase,$attr);
+                            $seq,$source,$type,$min,$max,$score,$strand,$frame eq '.' ? 0 : $frame,$attr);
 
     $self->_print($outstring);
   }
