@@ -1089,7 +1089,6 @@ sub make_title {
 
 sub read_colors {
   my $class = shift;
-  lock %COLORS;
   local ($/) = "\n";
   while (<DATA>) {
     chomp;
