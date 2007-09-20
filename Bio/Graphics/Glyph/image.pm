@@ -135,7 +135,6 @@ sub vertical_spacing {
 sub draw_description {
   my $self = shift;
   my ($gd,$left,$top,$partno,$total_parts) = @_;
-  $top += $self->{image}->height+$self->vertical_spacing if $self->{image};
   $self->SUPER::draw_description($gd,$left,$top,$partno,$total_parts);
 }
 
