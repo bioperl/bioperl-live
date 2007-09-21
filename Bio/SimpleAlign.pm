@@ -467,15 +467,16 @@ sub sort_by_list {
     }
 
     my $ct=1;
-    open LIST, "$list" || $self->throw("can open file for reading: $list");
-    while (<LIST>) {
+    open(my $listfh, '<', $list) || $self->throw("can't open file for reading: $list");
+    while (<$listfh>) {
       chomp;
       my $name=$_;
       $self->throw("Not found in alignment: $name") unless &_in_aln($name, \@ids);
       $order{$name}=$ct++;
     }
-
-# use the map-sort-map idiom:
+    close($listfh);
+    
+    # use the map-sort-map idiom:
     my @sorted= map { $_->[1] } sort { $a->[0] <=> $b->[0] } map { [$order{$_->id()}, $_] } @seq;
     my $aln = $self->new;
     foreach (@sorted) { $aln->add_seq($_) }
