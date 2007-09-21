@@ -194,7 +194,7 @@ sub write_feature {
   my $block_sizes = '';  #not implemented, used for sub features
   my $block_starts = ''; #not implemented, used for sub features
 
-  $self->_print(join("\t",($chrom,$chrom_start,$chrom_end,$name,$score,$strand,$thick_start,$thick_end,$reserved,$block_count,$block_sizes, $block_starts))."\n");
+  $self->_print(join("\t",($chrom->value,$chrom_start,$chrom_end,$name->value,$score,$strand,$thick_start,$thick_end,$reserved,$block_count,$block_sizes, $block_starts))."\n");
   $self->write_feature($_) foreach $feature->get_SeqFeatures();
 }
 
@@ -203,6 +203,7 @@ sub next_feature {
   my $line = $self->_readline || return;
   
   my ($seq_id, $start, $end, $name, $score, $strand) = split(/\s+/, $line);
+  $strand ||= '+';
   
   unless (looks_like_number($start) && looks_like_number($end)) {
     # skip what is probably a header line
@@ -213,7 +214,8 @@ sub next_feature {
                                                 -end    => --$end, # end is not part of the feature
                                                 $score  ? (-score  => $score) : (),
                                                 $strand ? (-strand => $strand eq '+' ? 1 : -1) : ());
-  $feature->seq_id->value($seq_id);
+  
+  $feature->seq_id($seq_id);
   if ($name) {
     my $sv = Bio::Annotation::SimpleValue->new(-tagname => 'Name', -value => $name);
     $feature->annotation->add_Annotation($sv);
