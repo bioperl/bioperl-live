@@ -40,7 +40,7 @@ use L<Bio::Search::HSP::BlastHSP>) directly. If you need to construct
 BlastHSPs directly, see the new() function for details.
 
 For L<Bio::SearchIO> BLAST parsing usage examples, see the
-C<examples/search-blast> directory of the Bioperl distribution.
+C<examples/searchio> directory of the Bioperl distribution.
 
 =head2 Start and End coordinates
 
