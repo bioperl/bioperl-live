@@ -103,11 +103,7 @@ sub _initialize {
     }
     $self->_pushback($directive);
   }
-
-  if ($arg{-file} =~ /^>.*/ ) {
-    $self->_print("##gff-version " . $self->version() . "\n");
-  }
-
+  
   #need to validate against SOFA, no SO
   if ($self->validate) {
     $self->so(
