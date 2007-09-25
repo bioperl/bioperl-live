@@ -330,7 +330,7 @@ sub splice {
            get_lca(@nodes);
  Function: given two or more nodes, returns the lowest common ancestor (aka most
            recent common ancestor)
- Returns : node object or undef if there is no commen ancestor
+ Returns : node object or undef if there is no common ancestor
  Args    : -nodes => arrayref of nodes to test, OR
            just a list of nodes
 
@@ -398,6 +398,9 @@ sub get_lca {
         my $own_lca = $self->find_node(-internal_id => $lca->internal_id);
         $lca = $own_lca if $own_lca;
     }
+    
+    # remove extraneous branch length, bug 2219
+    $lca->branch_length(undef);
     
     return $lca;
 }
