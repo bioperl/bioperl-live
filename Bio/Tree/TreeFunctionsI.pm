@@ -399,9 +399,6 @@ sub get_lca {
         $lca = $own_lca if $own_lca;
     }
     
-    # remove extraneous branch length, bug 2219
-    $lca->branch_length(undef);
-    
     return $lca;
 }
 
