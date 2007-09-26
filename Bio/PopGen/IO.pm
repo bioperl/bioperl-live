@@ -242,7 +242,7 @@ sub fh {
 =head2 _load_format_module
 
  Title   : _load_format_module
- Usage   : *INTERNAL SearchIO stuff*
+ Usage   : *INTERNAL Bio::PopGen::IO stuff*
  Function: Loads up (like use) a module at run time on demand
  Example : 
  Returns : 
