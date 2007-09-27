@@ -76,7 +76,7 @@ my $instance;
 
 BEGIN {
 $instance = {
-   'Sequence Ontology Flat' => {
+   'Sequence Ontology' => {
 	    ontology => "http://song.cvs.sourceforge.net/*checkout*/song/ontology/so.ontology?rev=HEAD",
         definitions => "http://song.cvs.sourceforge.net/*checkout*/song/ontology/so.definition?rev=HEAD",
         format => 'soflat',
