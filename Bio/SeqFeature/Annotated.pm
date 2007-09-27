@@ -24,7 +24,7 @@ None yet, complain to authors.
 
 =head1 Implemented Interfaces
 
-This class implementes the following interfaces.
+This class implements the following interfaces.
 
 =over 4
 
@@ -131,6 +131,77 @@ our %tag2text = (
 #strand                           x
 #location
 #primary_id
+
+=head1
+
+Okay, where to start...
+
+The original idea for this class appears to lump all SeqFeatureI data
+(primary_tag, source_tag, etc) into AnnotationI objects into an
+Bio::Annotation::Collection. The type is then checked against SOFA.
+
+There have been several requests to have type checking be optionally run. 
+
+Bio::FeatureHolderI::create_hierarchy_from_ParentIDs
+Bio::FeatureHolderI::feature_count
+Bio::FeatureHolderI::get_all_SeqFeatures
+Bio::FeatureHolderI::set_ParentIDs_from_hierarchy
+Bio::RangeI::contains
+Bio::RangeI::disconnected_ranges
+Bio::RangeI::equals
+Bio::RangeI::intersection
+Bio::RangeI::offsetStranded
+Bio::RangeI::overlap_extent
+Bio::RangeI::overlaps
+Bio::RangeI::subtract
+Bio::RangeI::union
+Bio::SeqFeature::Annotated::Dumper
+Bio::SeqFeature::Annotated::MAX_TYPE_CACHE_MEMBERS
+Bio::SeqFeature::Annotated::add_Annotation
+Bio::SeqFeature::Annotated::add_SeqFeature
+Bio::SeqFeature::Annotated::add_tag_value
+Bio::SeqFeature::Annotated::add_target
+Bio::SeqFeature::Annotated::annotation
+Bio::SeqFeature::Annotated::attach_seq
+Bio::SeqFeature::Annotated::display_name
+Bio::SeqFeature::Annotated::each_target
+Bio::SeqFeature::Annotated::end
+Bio::SeqFeature::Annotated::entire_seq
+Bio::SeqFeature::Annotated::frame
+Bio::SeqFeature::Annotated::from_feature
+Bio::SeqFeature::Annotated::get_Annotations
+Bio::SeqFeature::Annotated::get_SeqFeatures
+Bio::SeqFeature::Annotated::get_all_tags
+Bio::SeqFeature::Annotated::get_tag_values
+Bio::SeqFeature::Annotated::get_tagset_values
+Bio::SeqFeature::Annotated::has_tag
+Bio::SeqFeature::Annotated::length
+Bio::SeqFeature::Annotated::location
+Bio::SeqFeature::Annotated::name
+Bio::SeqFeature::Annotated::new
+Bio::SeqFeature::Annotated::phase
+Bio::SeqFeature::Annotated::primary_tag
+Bio::SeqFeature::Annotated::remove_Annotations
+Bio::SeqFeature::Annotated::remove_SeqFeatures
+Bio::SeqFeature::Annotated::remove_tag
+Bio::SeqFeature::Annotated::score
+Bio::SeqFeature::Annotated::seq
+Bio::SeqFeature::Annotated::seq_id
+Bio::SeqFeature::Annotated::source
+Bio::SeqFeature::Annotated::source_tag
+Bio::SeqFeature::Annotated::start
+Bio::SeqFeature::Annotated::strand
+Bio::SeqFeature::Annotated::type
+Bio::SeqFeature::Annotated::uri_escape
+Bio::SeqFeature::Annotated::uri_unescape
+Bio::SeqFeature::TypedSeqFeatureI::croak
+Bio::SeqFeature::TypedSeqFeatureI::ontology_term
+Bio::SeqFeatureI::generate_unique_persistent_id
+Bio::SeqFeatureI::gff_string
+Bio::SeqFeatureI::primary_id
+Bio::SeqFeatureI::spliced_seq
+
+=cut
 
 sub new {
     my ( $caller, @args) = @_;
@@ -363,7 +434,7 @@ sub type {
     if ($__type_cache{$anntext}) {
         $term = $__type_cache{$anntext};
     } else {
-        my $sofa = Bio::Ontology::OntologyStore->get_instance->get_ontology('Sequence Ontology Feature Annotation');
+        my $sofa = Bio::Ontology::OntologyStore->get_instance->get_ontology('Sequence Ontology OBO');
         my ($soterm) = $anntext =~ /^\D+:\d+$/ #does it look like an ident?
           ? ($sofa->find_terms(-identifier => $anntext))[0] #yes, lookup by ident
           : ($sofa->find_terms(-name => $anntext))[0];      #no, lookup by name
