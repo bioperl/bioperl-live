@@ -247,10 +247,23 @@ our %WRITEMAP = (
             'custom'                =>  'XX/SimpleValue'
             );
 
+=head2 new
+
+ Title   : new
+ Usage   : my $alignio = Bio::AlignIO->new(-format => 'phylip'
+					  -file   => '>file');
+ Function: Initialize a new L<Bio::AlignIO::phylip> reader or writer
+ Returns : L<Bio::AlignIO> object
+ Args    : [specific for writing of stockholm format files]
+           -linelength : 
+
+=cut
+
 sub _initialize {
     my ( $self, @args ) = @_;
     $self->SUPER::_initialize(@args);
-    # add arguments to handle build object, interleaved format
+    my ($linelength) = $self->_rearrange([qw(LINE_LENGTH)],@args);
+    $linelength && $self->line_length($linelength);
 }
 
 =head2 next_aln
@@ -404,7 +417,12 @@ sub next_aln {
         $aln->add_seq($seq);
     }
     
-    # add meta strings w/o sequence for consensus meta data
+    # add meta strings w/o sequence for consensus meta data. This is a hack and
+    # should really be a special kind of tagged annotation that relates to the
+    # whole alignment.
+    # no seq attached but pertains to the alignment as a whole. This breaks in
+    # SimpleAlign when calling trunc() on it
+    
     my $ameta = Bio::Seq::Meta->new();
     for my $tag (sort keys %aln_meta) {
         $ameta->named_meta($tag, $aln_meta{$tag});
@@ -494,9 +512,9 @@ sub write_aln {
 
     my @anns;
     my $coll = $aln->annotation;
-    my ($aln_ann, $seq_ann, $aln_meta, $seq_meta) =
-       ('#=GF ', '#=GS ', '#=GC ', '#=GR' );
-    $self->_print("# $STKVERSION\n\n") or return 0;
+    my ($aln_ann, $seq_ann) =
+       ('#=GF ', '#=GS ');
+    $self->_print("# $STKVERSION\n\n") || return 0;
     
     # annotations first
     
@@ -547,30 +565,59 @@ sub write_aln {
                 $alntag = sprintf('%-10s',$aln_ann.$tag);
                 $data = ref $ann ? $ann->display_text : $ann;
             }
+            next unless $data;
             $text = wrap($alntag, $alntag, $data);
-            $self->_print("$text\n") or return 0;
+            $self->_print("$text\n") || return 0;
         }
     }
     
-    $self->_print("\n");
-    
     # now the sequences...
     
+    my $blocklen = $self->line_length;
+    my $maxlen = $aln->maxdisplayname_length() + 3;
+    my $metalen = $aln->max_metaname_length() || 0;
+    if ($blocklen) {
+        my $blockstart = 1;
+        my $alnlen = $aln->length;
+        while ($blockstart < $alnlen) {
+            my $subaln = $aln->slice($blockstart, $blockstart+$blocklen-1 ,1);
+            $self->_print_seqs($subaln,$maxlen,$metalen);
+            $blockstart += $blocklen;
+            $self->_print("\n") unless $blockstart >= $alnlen;
+        }
+    } else {
+        $self->_print_seqs($aln,$maxlen,$metalen);
+    }
+    
+    $self->_print("//\n") || return 0;
+    }
+    $self->flush() if $self->_flush_on_write && defined $self->_fh;
+    
+    return 1;
+}
+
+
+
+sub _print_seqs {
+    my ($self, $aln, $maxlen, $metalen) = @_;
+    
+    my ($seq_meta, $aln_meta) = ('#=GR','#=GC');
     # modified (significantly) from AlignIO::pfam
     
     my ($namestr,$seq,$add);
     
     # pad extra for meta lines
-    my $maxlen = $aln->maxdisplayname_length() + 5;
-    my $metalen = $aln->max_metaname_length() || 0;
-    
+
     for $seq ( $aln->each_seq() ) {
         $namestr = $aln->displayname($seq->get_nse());
-        $self->_print(sprintf("%-*s  %s\n",$maxlen+$metalen, $namestr, $seq->seq())) or return 0;
+        $self->_print(sprintf("%-*s%s\n",$maxlen+$metalen,
+                              $namestr,
+                              $seq->seq())) || return 0;
         if ($seq->isa('Bio::Seq::MetaI')) {
             for my $mname ($seq->meta_names) {
-                 $self->_print(sprintf("%-*s%*s  %s\n",$maxlen, $seq_meta.' '.$namestr, $metalen,
-                                       $mname, $seq->named_meta($mname))) or return 0;
+                 $self->_print(sprintf("%-*s%s\n",$maxlen+$metalen,
+                                       $seq_meta.' '.$namestr.' '.$mname,
+                                       $seq->named_meta($mname))) || return 0;
             }
         }
     }
@@ -578,15 +625,29 @@ sub write_aln {
     my $ameta = $aln->consensus_meta;
     if ($ameta) {
         for my $mname ($ameta->meta_names) {
-            $self->_print(sprintf("%-*s%*s  %s\n",$maxlen, $aln_meta, $metalen,
-                                  $mname, $ameta->named_meta($mname))) or return 0; 
+            $self->_print(sprintf("%-*s%s\n",$maxlen+$metalen,
+                                  $aln_meta.' '.$mname,
+                                  $ameta->named_meta($mname))) || return 0; 
         }
     }
-    $self->_print("//\n") or return 0;
+}
+
+=head2 line_length
+
+ Title   : line_length
+ Usage   : $obj->line_length($newval)
+ Function: Set the alignment output line length
+ Returns : value of line_length
+ Args    : newvalue (optional)
+
+=cut
+
+sub line_length {
+    my ( $self, $value ) = @_;
+    if ( defined $value ) {
+        $self->{'_line_length'} = $value;
     }
-    $self->flush() if $self->_flush_on_write && defined $self->_fh;
-    
-    return 1;
+    return $self->{'_line_length'};
 }
 
 1;

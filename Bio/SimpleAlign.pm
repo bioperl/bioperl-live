@@ -898,6 +898,7 @@ sub select {
 	$aln->add_seq($self->get_seq_by_pos($pos));
     }
     $aln->id($self->id);
+    # fix for meta, sf, ann    
     return $aln;
 }
 
@@ -950,6 +951,7 @@ sub select_noncont {
 		$aln->add_seq($self->get_seq_by_pos($p));
 	}
 	$aln->id($self->id);
+    # fix for meta, sf, ann    
 	return $aln;
 }
 
@@ -979,19 +981,26 @@ sub slice {
 	  unless $start =~ /^\d+$/ and $start > 0;
 	$self->throw("Slice end has to be a positive integer, not [$end]")
 	  unless $end =~ /^\d+$/ and $end > 0;
-	$self->throw("Slice $start [$start] has to be smaller than or equal to end [$end]")
+	$self->throw("Slice start [$start] has to be smaller than or equal to end [$end]")
 	  unless $start <= $end;
 	$self->throw("This alignment has only ". $self->length . " residues. Slice start " .
 					 "[$start] is too big.") if $start > $self->length;
-
+    my $cons_meta = $self->consensus_meta;
 	my $aln = $self->new;
 	$aln->id($self->id);
 	foreach my $seq ( $self->each_seq() ) {
-	    my $new_seq = Bio::LocatableSeq->new
-		(-id      => $seq->id,
+	    my $new_seq = $seq->isa('Bio::Seq::MetaI') ?
+            Bio::Seq::Meta->new
+        (-id      => $seq->id,
+		 -alphabet => $seq->alphabet,
+		 -strand  => $seq->strand,
+		 -verbose => $self->verbose) :
+            Bio::LocatableSeq->new
+        (-id      => $seq->id,
 		 -alphabet => $seq->alphabet,
 		 -strand  => $seq->strand,
 		 -verbose => $self->verbose);
+        
 	    # seq
 	    my $seq_end = $end;
 	    $seq_end = $seq->length if( $end > $seq->length );
@@ -1002,33 +1011,46 @@ sub slice {
 	    $slice_seq =~ s/\W//g;
 
 	    if ($start > 1) {
-		my $pre_start_seq = $seq->subseq(1, $start - 1);
-		$pre_start_seq =~ s/\W//g;
-		if (!defined($seq->strand)) {
-		    $new_seq->start( $seq->start + CORE::length($pre_start_seq) );
-		} elsif ($seq->strand < 0){
-		    $new_seq->start( $seq->end - CORE::length($pre_start_seq) - CORE::length($slice_seq) + 1);
-		} else {
-		    $new_seq->start( $seq->start + CORE::length($pre_start_seq)  );
-		}
+            my $pre_start_seq = $seq->subseq(1, $start - 1);
+            $pre_start_seq =~ s/\W//g;
+            if (!defined($seq->strand)) {
+                $new_seq->start( $seq->start + CORE::length($pre_start_seq) );
+            } elsif ($seq->strand < 0){
+                $new_seq->start( $seq->end - CORE::length($pre_start_seq) - CORE::length($slice_seq) + 1);
+            } else {
+                $new_seq->start( $seq->start + CORE::length($pre_start_seq)  );
+            }
 	    } else {
-		$new_seq->start( $seq->start);
+            $new_seq->start( $seq->start);
 	    }
+        if ($new_seq->isa('Bio::Seq::MetaI')) {
+            for my $meta_name ($seq->meta_names) {
+                $new_seq->named_meta($meta_name, $seq->named_submeta($meta_name, $start, $end));
+            }
+        }
 	    $new_seq->end( $new_seq->start + CORE::length($slice_seq) - 1 );
 
 	    if ($new_seq->start and $new_seq->end >= $new_seq->start) {
-		$aln->add_seq($new_seq);
+            $aln->add_seq($new_seq);
 	    } else {
-		if( $keep_gap_only ) {
-		    $aln->add_seq($new_seq);
-		} else {
-		    my $nse = $seq->get_nse();
-		    $self->warn("Slice [$start-$end] of sequence [$nse] contains no residues.".
-				" Sequence excluded from the new alignment.");
-		}
+            if( $keep_gap_only ) {
+                $aln->add_seq($new_seq);
+            } else {
+                my $nse = $seq->get_nse();
+                $self->warn("Slice [$start-$end] of sequence [$nse] contains no residues.".
+                    " Sequence excluded from the new alignment.");
+            }
 	    }
 	}
-	
+    if ($cons_meta) {
+        my $new = Bio::Seq::Meta->new();
+        for my $meta_name ($cons_meta->meta_names) {
+            $new->named_meta($meta_name, $cons_meta->named_submeta($meta_name, $start, $end));
+        }
+        $aln->consensus_meta($new);
+    }
+    $aln->annotation($self->annotation);
+    # fix for meta, sf, ann
 	return $aln;
 }
 
@@ -1059,6 +1081,7 @@ sub remove_columns {
 	} else {
 		 $self->throw("You must pass array references to remove_columns(), not @args");
 	}
+    # fix for meta, sf, ann
    $aln;
 }
 
@@ -1107,6 +1130,7 @@ sub remove_gaps {
 
     #remove the segments
     $aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
+    # fix for meta, sf, ann        
     return $aln;
 }
 
@@ -1171,6 +1195,7 @@ sub _remove_col {
     foreach my $new(@new){
         $aln->add_seq($new);
     }
+    # fix for meta, sf, ann    
     return $aln;
 }
 
@@ -1215,7 +1240,7 @@ sub _remove_columns_by_type {
 	$aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
 	$aln = $aln->remove_gaps() if $gap;
 	$aln = $aln->remove_gaps('', 1) if $all_gaps_columns;
-
+    # fix for meta, sf, ann    
 	$aln;
 }
 
@@ -1241,6 +1266,7 @@ sub _remove_columns_by_num {
 
     #remove the segments
     $aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
+    # fix for meta, sf, ann    
 	$aln;
 }
 
@@ -2066,7 +2092,7 @@ sub _consensus_iupac {
 
 sub consensus_meta {
     my ($self, $meta) = @_;
-    if ($meta and !$meta->isa('Bio::Seq::MetaI')) {
+    if ($meta && (!ref $meta || !$meta->isa('Bio::Seq::MetaI'))) {
         $self->throw('Not a Bio::Seq::MetaI object');
     }
     return $self->{'_aln_meta'} = $meta if $meta;
