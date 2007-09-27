@@ -76,10 +76,15 @@ my $instance;
 
 BEGIN {
 $instance = {
-   'Sequence Ontology' => {
-	     ontology => "http://song.cvs.sourceforge.net/*checkout*/song/ontology/so.ontology?rev=HEAD",
+   'Sequence Ontology Flat' => {
+	    ontology => "http://song.cvs.sourceforge.net/*checkout*/song/ontology/so.ontology?rev=HEAD",
         definitions => "http://song.cvs.sourceforge.net/*checkout*/song/ontology/so.definition?rev=HEAD",
         format => 'soflat',
+                                    },
+   'Sequence Ontology OBO' => {
+	    ontology => "http://song.cvs.sourceforge.net/*checkout*/song/ontology/so.obo?rev=HEAD",
+        definitions => "http://song.cvs.sourceforge.net/*checkout*/song/ontology/so.definition?rev=HEAD",
+        format => 'obo',
                                     },
    'Sequence Ontology Feature Annotation' => {
         ontology => 'http://umn.dl.sourceforge.net/sourceforge/song/sofa.ontology',
