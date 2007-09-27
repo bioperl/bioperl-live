@@ -63,6 +63,7 @@ Internal methods are usually preceded with a _
 
 package Bio::Search::HSP::ModelHSP;
 use strict;
+use Bio::Seq::Meta;
 
 use base qw(Bio::Search::HSP::GenericHSP);
 
@@ -391,6 +392,11 @@ sub get_aln {
                                       );
     $aln->add_seq($query);
     $aln->add_seq($hit);
+    if ($self->meta) {
+        my $meta_obj = Bio::Seq::Meta->new();
+        $meta_obj->named_meta('ss_cons', $self->meta);
+        $aln->consensus_meta($meta_obj);
+    }
     return $aln;
 }
 
