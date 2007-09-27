@@ -89,7 +89,7 @@ require Exporter;
 use base qw(Exporter);
 
 @EXPORT = qw();
-@EXPORT_OK = qw(aa_to_dna_aln bootstrap_replicates bracket_strings);
+@EXPORT_OK = qw(aa_to_dna_aln bootstrap_replicates);
 %EXPORT_TAGS = (all =>[@EXPORT, @EXPORT_OK]);
 BEGIN {
     use constant CODONSIZE => 3;
