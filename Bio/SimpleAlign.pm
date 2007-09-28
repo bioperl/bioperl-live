@@ -194,7 +194,7 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
 
-  my ($src,$score) = $self->_rearrange([qw(SOURCE SCORE)], @args);
+  my ($src,$score,$id) = $self->_rearrange([qw(SOURCE SCORE ID)], @args);
   $src && $self->source($src);
   defined $score && $self->score($score);
   # we need to set up internal hashs first!
@@ -206,6 +206,7 @@ sub new {
   $self->{'_id'} = 'NoName';
   $self->{'_symbols'} = {};
   # maybe we should automatically read in from args. Hmmm...
+  $id && $self->id($id);
 
   return $self; # success - we hope!
 }
