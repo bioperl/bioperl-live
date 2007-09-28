@@ -510,7 +510,6 @@ sub write_aln {
     $self->throw('Need Bio::Align::AlignI object')
           if (!$aln || !($aln->isa('Bio::Align::AlignI')));
 
-    my @anns;
     my $coll = $aln->annotation;
     my ($aln_ann, $seq_ann) =
        ('#=GF ', '#=GS ');
@@ -519,6 +518,7 @@ sub write_aln {
     # annotations first
     
     for my $param (@WRITEORDER) {
+        my @anns;
         # no point in going through this if there is no annotation!
         last if !$coll;
         # alignment annotations
