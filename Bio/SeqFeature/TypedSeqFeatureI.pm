@@ -88,7 +88,6 @@ Internal methods are usually preceded with a _
 package Bio::SeqFeature::TypedSeqFeatureI;
 
 use strict;
-use Carp;
 use Bio::Root::RootI;
 
 use base qw(Bio::SeqFeatureI);
