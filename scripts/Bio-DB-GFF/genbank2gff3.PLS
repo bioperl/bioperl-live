@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-#$Id: genbank2gff3.PLS,v 1.15 2007-06-19 18:41:09 scain Exp $;
+#$Id: genbank2gff3.PLS,v 1.16 2007-10-01 15:18:13 scain Exp $;
 
 =pod
 
@@ -749,7 +749,7 @@ sub gene_features {
         ## check all Parents
         for my $expar ($rna_id, $ncrna_id) { 
           next unless($expar);
-          if ( $exonpar{$expar} ) {
+          if ( $exonpar{$expar} and $f->has_tag('Parent') ) {
             my @vals = $f->get_tag_values('Parent');
             next if (grep {$expar eq $_} @vals);
             }
