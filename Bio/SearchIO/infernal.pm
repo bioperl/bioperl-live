@@ -16,16 +16,24 @@ Bio::SearchIO::infernal - SearchIO-based Infernal parser
 
 =head1 SYNOPSIS
 
+  my $parser = Bio::SearchIO->new(-format => 'infernal',
+                                  -file => 'purine.inf');
+  while( my $result = $parser->next_result ) {
+        # general result info, such as model used, Infernal version
+        while( my $hit = $result->next_hit ) {
+            while( my $hsp = $hit->next_hsp ) {
+                # ...
+            }
+        }
+  }
+
 =head1 DESCRIPTION
 
-This is a highly experimental SearchIO-based parser for Infernal output from
-the cmsearch program.  It currently parses cmsearch output for Infernal
-versions 0.7-0.72; older versions may work but will not be supported.  
-
-As output format for cmsearch is continually changing, support for this parser
-will only be for the latest Infernal version (v 0.81 at this time) or the latest
-stable version. Output for v. 0.81 is currently not parsed due to significant
-changes in the output style; I am hoping to rectify this soon.
+This is a highly experimental SearchIO-based parser for Infernal output from the
+cmsearch program. It currently parses cmsearch output for Infernal versions
+0.7-0.81; older versions may work but will not be supported. After the first
+stable version is released (and output has stabilized) it is very likely support
+for the older pre-v.1 developer releases will be dropped.
 
 =head1 FEEDBACK
 
@@ -49,6 +57,10 @@ web:
 =head1 AUTHOR - Chris Fields
 
 Email cjfields-at-uiuc-dot-edu
+
+=head1 CONTRIBUTORS
+
+  Jeffrey Barrick, Michigan State University
 
 =head1 APPENDIX
 
@@ -754,8 +766,13 @@ sub _parse_new {
                '3' => 'hit');
             HSP:
             while (defined ($line = $self->_readline)) {
-                next if $line =~ m{^\s*$}; # toss empty lines
                 chomp $line;
+          		next if (!$line); # toss empty lines
+                # next if $line =~ m{^\s*$}; # toss empty lines
+                # it is possible to have homology lines consisting
+                # entirely of spaces if the subject has a large
+                # insertion where nothing matches the model
+                
                 # exit loop if at end of file or upon next hit/HSP
                 if ($line =~ m{^\s{0,2}\S+}) {
                     $self->_pushback($line);
@@ -766,11 +783,13 @@ sub _parse_new {
                 # strlen set only with structure lines (proper length)
                 $strln = length($line) if $iterator == 0;
                 # only grab the data needed (hit start and stop in hit line above)
-
+												
                 my $data = substr($line, $offset, $strln-$offset);
                 $hsp->{ $hsp_key{$iterator} } .= $data;
+                
                 $ct++;
             }
+            
             # query start, end are from the actual query length (entire hit is
             # mapped to CM data, so all CM data is represented)
             # works for now...
