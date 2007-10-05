@@ -296,7 +296,7 @@ These methods return true or false.
 
   Title    : contains
   Usage    : if($r1->contains($r2) { do stuff }
-  Function : tests wether $r1 totally contains $r2
+  Function : tests whether $r1 totally contains $r2
   Args     : a range to test for being contained
   Returns  : true if the argument is totally contained within this range
   Inherited: Bio::RangeI

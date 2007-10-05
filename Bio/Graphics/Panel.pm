@@ -1425,7 +1425,7 @@ Bio::Graphics::Panel.
 Typically you will begin by creating a new Bio::Graphics::Panel
 object, passing it the desired width of the image to generate and an
 origin and length describing the coordinate range to display.  The
-Bio::Graphics::Panel-E<gt>new() method has may configuration variables
+Bio::Graphics::Panel-E<gt>new() method has many configuration variables
 that allow you to control the appearance of the image.
 
 You will then call add_track() one or more times to add sets of
