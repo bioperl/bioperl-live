@@ -38,7 +38,7 @@ GlimmerM/GlimmerHMM eukaryotic gene predictions
        # Bio::SeqFeature::Gene::Transcript, and $gene->exons() will return an
        # array of Bio::Tools::Prediction::Exon objects.
        # For prokaryotic input (Glimmer2.X/Glimmer3.X), $gene will be an
-       $ instance of Bio::SeqFeature::Generic
+       # instance of Bio::SeqFeature::Generic
 
        # all exons (eukaryotic only):
        @exon_arr = $gene->exons();
@@ -468,9 +468,10 @@ sub _parse_prokaryotic {
                (/^[^\d]+(\d+)\s+    # orf (numeric portion)
                 (\d+)\s+(\d+)\s+   # start, end
                 ([\+\-])\d{1}\s+   # strand
+                ([\d\.]+)          # score
                 /ox)) {
-	    my ($genenum,$start,$end,$strand) = 
-		( $1,$2,$3,$4 );
+	    my ($genenum,$start,$end,$strand,$score) = 
+		( $1,$2,$3,$4,$5 );
 
             my $circular_prediction = 0;
 
@@ -562,8 +563,10 @@ sub _parse_prokaryotic {
                  '-location'   => $location_object,
                  '-strand'     => $strand eq '-' ? '-1' : '1',
                  '-source_tag'  => $source,
+                 '-display_name' => "orf$genenum",
                  '-primary_tag'=> 'gene',
                  '-tag'         => { 'Group' => "GenePrediction_$genenum"},
+                 '-score'       => $score || undef
              );
             
             $self->_add_prediction($gene) 
