@@ -535,27 +535,15 @@ sub _parse_prokaryotic {
                 }
                 }
             else {
+                # start must always be less than end for gene locations
+                if ($strand eq '-' && $start > $end) {
+                    ($start, $end) = ($end, $start);
+                }
                 $location_string = "$start..$end";
             }
             
             my $location_object =
                 $location_factory->from_string($location_string);
-
-            # The Location Factory seems to produce Simple
-            # locations for minus strand genes with start < end.
-            # Fixup to be consistent with previous behaviour.
-            if ($strand eq '-') {
-                if ($location_object->isa('Bio::Location::Simple')) {
-                    my $start = $location_object->start();
-                    my $end   = $location_object->end();
-            
-                    if ($start < $end) {
-                        ($start, $end) = ($end, $start);
-                        $location_object->start($start);
-                        $location_object->end($end);
-                    }
-                }
-            }
             
             my $gene = Bio::SeqFeature::Generic->new
                 (

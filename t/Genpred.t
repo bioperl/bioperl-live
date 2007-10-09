@@ -209,8 +209,8 @@ $i = 1;
 while ($g2gene = $glimmer_2->next_prediction) {
     $i++;
     if ($i == 2) {
-        is($g2gene->start, 2349);
-        is($g2gene->end, 2230);
+        is($g2gene->start, 2230);
+        is($g2gene->end, 2349);
         is($g2gene->strand, -1);
 	} elsif ($i == 25) {
         isa_ok($g2gene->location, 'Bio::Location::SplitLocationI');
@@ -248,8 +248,8 @@ $i = 1;
 while ($g3gene = $glimmer_3->next_prediction) {
     $i++;
     if ($i == 13) {
-        is($g3gene->start, 14781);
-        is($g3gene->end, 13804);
+        is($g3gene->start, 13804);
+        is($g3gene->end, 14781);
         is($g3gene->strand, -1);
         my ($orfid) = $g3gene->has_tag('Group') ? $g3gene->get_tag_values('Group') : undef;
         is($orfid, 'GenePrediction_00015');
