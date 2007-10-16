@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 52);
+    test_begin(-tests => 53);
 	
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -143,6 +143,9 @@ is $aa->seq, 'MVASTX' or diag("Translation: ". $aa->seq);
 $aa = $seq->translate(-frame => 1); # TGG TGG CGT CAA CTT AG
 is $aa->seq, 'WWRQL' or diag("Translation: ". $aa->seq);
 
+$aa = $seq->translate(-frame => 2); # GGT GGC GTC AAC TTA G
+is $aa->seq, 'GGVNL' or diag("Translation: ". $aa->seq);
+
 # TTG is initiator in Standard codon table? Afraid so.
 $seq->seq("ggggggttgtagcccc"); # ttg tag
 $aa = $seq->translate(-orf => 1);
@@ -160,7 +163,6 @@ $aa = $seq->translate(-orf => 1,
 							 -start => "atg",
 							 -complete => 1);
 is $aa->seq, 'M' or diag("Translation: ". $aa->seq);
-
 
 
 # test for character '?' in the sequence string
