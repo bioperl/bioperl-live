@@ -1386,9 +1386,10 @@ sub link_pattern {
   require CGI unless defined &CGI::escape;
   my $n;
   $linkrule ||= ''; # prevent uninit warning
+  my $seq_id = $feature->can('location') ? $feature->location->seq_id : $feature->seq_id;
   $linkrule =~ s/\$(\w+)/
     CGI::escape(
-    $1 eq 'ref'              ? (($n = $feature->location->seq_id) && "$n") || ''
+    $1 eq 'ref'              ? (($n = $seq_id) && "$n") || ''
       : $1 eq 'name'         ? (($n = $feature->display_name) && "$n")     || ''
       : $1 eq 'class'        ? eval {$feature->class}  || ''
       : $1 eq 'type'         ? eval {$feature->method} || $feature->primary_tag || ''

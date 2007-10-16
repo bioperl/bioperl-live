@@ -744,9 +744,10 @@ sub search_notes {
 
     my $relevance = 10 * $matches;
     my $featname = Bio::DB::GFF::Featname->new($feature->{gclass}=>$feature->{gname});
+    my $type     = Bio::DB::GFF::Typename->new($feature->{method}=>$feature->{source});
     my $note;
     $note   = join ' ',map {$_->[1]} grep {$_->[0] eq 'Note'}                @{$feature->{attributes}};
-    push @results,[$featname,$note,$relevance];
+    push @results,[$featname,$note,$relevance,$type];
   }
 
   return @results;

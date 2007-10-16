@@ -85,10 +85,11 @@ END
 ;
 
 use constant FULLTEXTSEARCH => <<END;
-SELECT distinct gclass,gname,fattribute_value,MATCH(fattribute_value) AGAINST (?) as score
-  FROM fgroup,fattribute_to_feature,fdata
+SELECT distinct gclass,gname,fattribute_value,MATCH(fattribute_value) AGAINST (?) as score,fmethod,fsource
+  FROM fgroup,fattribute_to_feature,fdata,ftype
   WHERE fgroup.gid=fdata.gid
     AND fdata.fid=fattribute_to_feature.fid
+    AND fdata.ftypeid=ftype.ftypeid
     AND MATCH(fattribute_value) AGAINST (?)
 END
 ;
@@ -407,11 +408,12 @@ sub search_notes {
   $query .= " limit $limit" if defined $limit;
   my $sth = $self->dbh->do_query($query,$search_string,$search_string);
   my @results;
-  while (my ($class,$name,$note,$relevance) = $sth->fetchrow_array) {
+  while (my ($class,$name,$note,$relevance,$method,$source) = $sth->fetchrow_array) {
      next unless $class && $name;    # sorry, ignore NULL objects
      $relevance = sprintf("%.2f",$relevance);  # trim long floats
      my $featname = Bio::DB::GFF::Featname->new($class=>$name);
-     push @results,[$featname,$note,$relevance];
+     my $type     = Bio::DB::GFF::Typename->new($method,$source);
+     push @results,[$featname,$note,$relevance,$type];
   }
 
   #added result filtering so that this method returns the expected results

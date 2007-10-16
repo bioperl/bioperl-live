@@ -57,7 +57,7 @@ sub species {
         return $self->{'species'};
     }
 }
-
+sub is_remote { return }
 sub feature_count { return scalar @{shift->{segments} || []} }
 
 sub target { return; }

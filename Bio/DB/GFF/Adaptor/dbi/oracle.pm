@@ -858,6 +858,7 @@ Each row of the returned array is a arrayref containing the following fields:
   column 1     A Bio::DB::GFF::Featname object, suitable for passing to segment()
   column 2     The text of the note
   column 3     A relevance score.
+  column 4     A Bio::DB::GFF::Typename object
 
 =cut
 
@@ -873,10 +874,11 @@ sub search_notes {
   my $search   = join(' OR ',@searches);
 
   my $query = <<END;
-SELECT distinct gclass,gname,fattribute_value 
-  FROM fgroup,fattribute_to_feature,fdata
+SELECT distinct gclass,gname,fattribute_value,fmethod,fsource
+  FROM fgroup,fattribute_to_feature,fdata,ftype
   WHERE fgroup.gid=fdata.gid
      AND fdata.fid=fattribute_to_feature.fid
+     AND fdata.ftypeid=ftype.ftypeid
      AND ($search)
 END
 ;
@@ -888,7 +890,8 @@ END
      my @matches = $note =~ /($regex)/g;
      my $relevance = 10*@matches;
      my $featname = Bio::DB::GFF::Featname->new($class=>$name);
-     push @results,[$featname,$note,$relevance];
+     my $type     = Bio::DB::GFF::Typename->new($method,$source);
+     push @results,[$featname,$note,$relevance,$type];
      last if $limit && @results >= $limit;
   }
   @results;

@@ -265,7 +265,7 @@ sub get_abscoords {
     push @found_segments,[$ref,$class,$start,$stop,$strand,$name];
 
   }
-  
+
   return \@found_segments;
 }
 
@@ -295,12 +295,13 @@ sub search_notes {
     my $relevance = 10 * $matches;
     my $featname = Bio::DB::GFF::Featname->new($feature->{gclass}=>$feature->{gname});
     my $note;
-    $note   = join ' ',map {$_->[1]} grep {$_->[0] eq 'Note'}                @{$feature->{attributes}};
-    $note  .= join ' ',grep /$search/,map {$_->[1]} grep {$_->[0] ne 'Note'} @{$feature->{attributes}};
-    push @results,[$featname,$note,$relevance];
+    $note    = join ' ',map {$_->[1]} grep {$_->[0] eq 'Note'}                @{$feature->{attributes}};
+    $note   .= join ' ',grep /$search/,map {$_->[1]} grep {$_->[0] ne 'Note'} @{$feature->{attributes}};
+    my $type = Bio::DB::GFF::Typename->new($feature->{method},$feature->{source});
+    push @results,[$featname,$note,$relevance,$type];
     last if defined $limit && @results >= $limit;
   }
-   
+
   #added result filtering so that this method returns the expected results
   #this section of code used to be in GBrowse's do_keyword_search method
 

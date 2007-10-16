@@ -1026,7 +1026,8 @@ returned array is a arrayref containing the following fields:
   column 1     The display name of the feature
   column 2     The text of the note
   column 3     A relevance score.
-  column 4     The unique ID of the feature
+  column 4     The feature type
+  column 5     The unique ID of the feature
 
 NOTE: This search will fail to find features that do not have a display name!
 
@@ -1059,6 +1060,7 @@ returned array is a arrayref containing the following fields:
   column 1     The display_name of the feature, suitable for passing to get_feature_by_name()
   column 2     The text of the note
   column 3     A relevance score.
+  column 4     The type
 
 NOTE: This is equivalent to $db-E<gt>search_attributes('full text search
 string','Note',$limit). This search will fail to find features that do

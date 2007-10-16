@@ -828,6 +828,8 @@ sub _search_attributes {
   my $name_table          = $self->_name_table;
   my $attribute_table     = $self->_attribute_table;
   my $attributelist_table = $self->_attributelist_table;
+  my $type_table          = $self->_type_table;
+  my $typelist_table      = $self->_typelist_table;
 
   my @tags    = @$attribute_names;
   my $tag_sql = join ' OR ',("al.tag=?") x @tags;
@@ -836,10 +838,12 @@ sub _search_attributes {
 
   my $sql_regexp = join ' AND ',("a.attribute_value REGEXP ?")  x @words;
   my $sql = <<END;
-SELECT name,attribute_value,n.id
-  FROM $name_table as n,$attribute_table as a,$attributelist_table as al
+SELECT name,attribute_value,tl.tag,n.id
+  FROM $name_table as n,$attribute_table as a,$attributelist_table as al,$type_table as t,$typelist_table as tl
   WHERE n.id=a.id
     AND al.id=a.attribute_id
+    AND n.id=t.id
+    AND t.typeid=tl.id
     AND n.display_name=1
     AND ($tag_sql)
     AND ($sql_regexp)
@@ -850,11 +854,11 @@ END
   $sth->execute(@tags,@words) or $self->throw($sth->errstr);
 
   my @results;
-  while (my($name,$value,$id) = $sth->fetchrow_array) {
+  while (my($name,$value,$type,$id) = $sth->fetchrow_array) {
     my (@hits) = $value =~ /$perl_regexp/ig;
     my @words_in_row = split /\b/,$value;
     my $score  = int(@hits*100/@words/@words_in_row);
-    push @results,[$name,$value,$score,$id];
+    push @results,[$name,$value,$score,$type,$id];
   }
   $sth->finish;
   @results = sort {$b->[2]<=>$a->[2]} @results;
