@@ -308,6 +308,7 @@ sub seq {
   my $self = shift;
   my $dna = $self->dna;
   require Bio::PrimarySeq unless Bio::PrimarySeq->can('new');
+  return Bio::PrimarySeq->new(-id => $self->display_name) unless $dna;
   return Bio::PrimarySeq->new(-seq => $dna,
 			      -id  => $self->display_name);
 }
