@@ -99,44 +99,55 @@ sub draw_gc_content {
   my $bin_size = length($dna) / ($self->option('gc_bins') || 100);
   $bin_size = 10 if $bin_size < 10;
   my $gc_window = $self->option('gc_window');
-  if ($gc_window && $gc_window eq 'auto' or $gc_window <= length($dna)) {
-    $gc_window = length($dna)/100;
+#  if ($gc_window && $gc_window eq 'auto' or $gc_window <= length($dna)) {
+  if ($gc_window) {
+    if ($gc_window eq 'auto') {
+      $gc_window = length($dna)/100;
+    } elsif ($gc_window > length($dna)) {
+      $gc_window = length($dna);
+    }
   }
 
 # Calculate the GC content...
 
-  my @bins;
-  my @datapoints;
+  my (@bins, @datapoints, $i);
+  my $gc = 0;
   my $maxgc = -1000;
   my $mingc = +1000;
-  if ($gc_window)
-  {
 
-# ...using a sliding window...
-    for (my $i=$gc_window/2; $i <= length($dna) - $gc_window/2; $i++)
-      {
-	my $subseq = substr($dna, $i-$gc_window/2, $gc_window);
-	my $gc = $subseq =~ tr/gcGC/gcGC/;
-	my $content = $gc / $gc_window;
-	push @datapoints, $content;
-	$maxgc = $content if ($content > $maxgc);
-	$mingc = $content if ($content < $mingc);
+  if ($gc_window) { # ...using a sliding window...
+
+    my @dna = split '', $dna;
+    for ($i = 0; $i < @dna; $i++) {
+      if ($dna[$i] eq 'G' or $dna[$i] eq 'C' or $dna[$i] eq 'g' or $dna[$i] eq 'c') {
+	$dna[$i] = 1;
+      } else {
+	$dna[$i] = 0;
       }
-    push @datapoints, 0.5 unless @datapoints;
+    }
+
+    for ($i = 0; $i < $gc_window; $i++) {$gc += $dna[$i]}
+
+    push @datapoints, $gc;
+    $datapoints[$#datapoints] > $maxgc and $maxgc = $datapoints[$#datapoints];
+    $datapoints[$#datapoints] < $mingc and $mingc = $datapoints[$#datapoints];
+    for ($i = 0; $i < @dna - $gc_window; $i++) {
+      $gc -= $dna[$i];
+      $gc += $dna[$i + $gc_window];
+      push @datapoints, $gc;
+      $datapoints[$#datapoints] > $maxgc and $maxgc = $datapoints[$#datapoints];
+      $datapoints[$#datapoints] < $mingc and $mingc = $datapoints[$#datapoints];
+    }
 
     my $scale = $maxgc - $mingc;
     $scale    = 1 unless $scale;
-    foreach (my $i; $i < @datapoints; $i++)
-      {
-	$datapoints[$i] = ($datapoints[$i] - $mingc) / $scale;
-      }
-    $maxgc = int($maxgc * 100);
-    $mingc = int($mingc * 100);
-  }
-  else
-  {
+    for ($i = 0; $i < @datapoints; $i++) {
+      $datapoints[$i] = ($datapoints[$i] - $mingc) / $scale;
+    }
+    $maxgc = int($maxgc * 100 / $gc_window);
+    $mingc = int($mingc * 100 / $gc_window);
 
-# ...or a fixed number of bins.
+  } else { # ...or a fixed number of bins.
 
     for (my $i = 0; $i < length($dna) - $bin_size; $i+= $bin_size) {
       my $subseq  = substr($dna,$i,$bin_size);
@@ -158,7 +169,7 @@ sub draw_gc_content {
   }
 
 # Calculate values that will be used in the layout
-  
+
   push @bins,0.5 unless @bins;  # avoid div by zero
   my $bin_width  = ($x2-$x1)/@bins;
   my $bin_height = $y2-$y1;
@@ -191,22 +202,35 @@ sub draw_gc_content {
 
 # Draw the GC content graph itself
 
-  if ($gc_window)
-  {
+  if ($gc_window) {
+
     my $graphwidth = $x2 - $x1;
-    my $scale = $graphwidth / @datapoints;
-    my $gc_window_width = $gc_window/2 * $self->panel->scale;
-    for (my $i = 1; $i < @datapoints; $i++)
-      {
-	my $x = $i + $gc_window_width;
-	my $xlo = $x1 + ($x - 1) * $scale;
-	my $xhi = $x1 + $x * $scale;
-	last if $xhi >= $self->panel->right-$gc_window_width;
-	my $y = $y2 - ($bin_height*$datapoints[$i]);
-	$gd->line($xlo, $y2 - ($bin_height*$datapoints[$i-1]), 
-		  $xhi, $y, 
-		  $fgcolor);
-      }
+
+    # the $points_to_draw variable here can be used in various ways to adjust the
+    # sampling of the graphic output. It could be converted to a glphy
+    # option that can be set by user.  Here we are just using $graphwidth
+
+#    my $points_to_draw = 1800;
+    my $points_to_draw = $graphwidth;
+
+    # if $points_to_draw is taken to mean the total number of points to show along the graph then
+    my $inc = int (length($dna) / $points_to_draw) + 1;
+    # it might be useful to set this to the x pixel resolution of your
+    # screen or the "default width" option in the gbrowse config file or current pixel width
+
+    # if $points_to_draw is taken to mean the number of points per $gc_window length then
+#    my $inc = int ($gc_window / $points_to_draw) + 1;
+
+    my $gc_window_width = $gc_window * $self->panel->scale; # pixels for the gc_window length
+    my $scale = ($graphwidth - $gc_window_width) / @datapoints;
+    for ($i = $inc; $i < @datapoints; $i += $inc) {
+      my $x = $i + $gc_window / 2; # the base at the center of the gc_window
+      my $xlo = $x1 + ($x - $inc) * $scale; # pixel coordinate for previous point
+      my $xhi = $x1 + $x * $scale;
+      $gd->line($xlo, $y2 - ($bin_height * $datapoints[$i-$inc]),
+		$xhi, $y2 - ($bin_height * $datapoints[$i]),
+		$fgcolor);
+    }
   }
   else
   {
