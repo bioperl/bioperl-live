@@ -189,6 +189,7 @@ sub new {
     $self->_set_from_args(\@args,
         -methods => [@PARAMS, qw(eutil history correspondence id_file)]);
     $self->eutil() || $self->eutil('efetch');
+    $self->tool() || $self->tool('bioperl');
     # set default retmode if not explicitly set    
     $self->set_default_retmode if (!$retmode);
     $self->{'_statechange'} = 1;

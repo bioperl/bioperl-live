@@ -23,7 +23,8 @@ NCBI's eUtils
 
 =head1 DESCRIPTION
 
-...To be added!
+This is a general webagent which posts and retrieves data to NCBI's eUtilities
+service using their CGI interface.  
 
 =head1 FEEDBACK
 
@@ -184,7 +185,7 @@ sub delay_policy {
 
  Title   : get_Parser
  Usage   : $agent->get_Parser;
- Function: Parse HTTP::Response content/file/fh using defined parser
+ Function: Retrieve the parser used for last agent request
  Returns : The Bio::Tools::EUtilities parser used to parse the HTTP::Response
            content
  Args    : None
