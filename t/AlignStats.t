@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 39);
+    test_begin(-tests => 43);
 	
 	use_ok('Bio::Align::DNAStatistics');
 	use_ok('Bio::Align::ProteinStatistics');
@@ -26,6 +26,9 @@ is( $stats->transitions($aln),9);
 is( $stats->pairwise_stats->number_of_gaps($aln),21);
 is( $stats->pairwise_stats->number_of_comparable_bases($aln),173);
 is( $stats->pairwise_stats->number_of_differences($aln),13);
+is( $stats->pairwise_stats->score_nuc($aln), 224);
+is( $stats->pairwise_stats->score_nuc( -aln => $aln, -match => 1,
+  -mismatch => -1, -gap_open => -1, -gap_ext => -1), 126);
 
 my $d = $stats->distance(-align => $aln,
 			 -method=> 'f81');
@@ -62,6 +65,9 @@ is( $stats->transitions($aln),17);
 is( $stats->pairwise_stats->number_of_gaps($aln),19);
 is( $stats->pairwise_stats->number_of_comparable_bases($aln),170);
 is( $stats->pairwise_stats->number_of_differences($aln),27);
+is( $stats->pairwise_stats->score_nuc($aln), 134);
+is( $stats->pairwise_stats->score_nuc( -aln => $aln, -match => 1,
+  -mismatch => -1, -gap_open => -1, -gap_ext => -1), 97);
 
 # now test the distance calculations
 $d = $stats->distance(-align => $aln, -method => 'jc');
