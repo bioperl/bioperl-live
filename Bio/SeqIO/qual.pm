@@ -183,12 +183,14 @@ sub next_primary_qual {
 
  Title   : write_seq
  Usage   : $obj->write_seq( -source => $source,
-		            -header => "some information");
+                            -header  => "some information"
+                            -oneline => 0);
  Function: Write out a list of quality values to a fasta-style file.
  Returns : Nothing.
  Args    : Requires a reference to a Bio::Seq::Quality object or a
-	        PrimaryQual object as the -source. Optional: information
-	        for the header.
+	        PrimaryQual object as the -source. Option 1: information
+	        for the header. Option 2: whether the quality score should be
+	        on a single line or not
  Notes   : If no -header is provided, $obj->id() will be used where
 	        $obj is a reference to either a Quality object or a
 	        PrimaryQual object. If $source->id() fails, "unknown" will be
@@ -201,7 +203,7 @@ sub next_primary_qual {
 
 sub write_seq {
 	my ($self,@args) = @_;
-	my ($source)  = $self->_rearrange([qw(SOURCE HEADER)], @args);
+	my ($source, $head, $oneline)  = $self->_rearrange([qw(SOURCE HEADER ONELINE)], @args);
 	if (!$source || ( !$source->isa('Bio::Seq::Quality') &&
 							!$source->isa('Bio::Seq::PrimaryQual')   )) {
 		$self->throw("You must pass a Bio::Seq::Quality or a Bio::Seq::PrimaryQual object to write_seq() as a parameter named \"source\"");
@@ -221,12 +223,20 @@ sub write_seq {
 #		$length = $source->qual_obj()->length();
 #    }
 	# print("Printing $header to a file.\n");
+	
+	if ( not(defined($oneline)) || $oneline == 0) {
+	    # 50 quality values per line
 	for (my $count = 1; $count<=$length; $count+= 50) {
 		if ($count+50 > $length) { $max = $length; }
 		else { $max = $count+49; }
 		my @slice = @{$source->subqual($count,$max)};
 		$self->_print (join(' ',@slice), "\n");
 	}
+    } else {
+        # quality values on a single line
+	    my @slice = @{$source->qual};
+	    $self->_print (join(' ',@slice), "\n");
+    }
 
 	$self->flush if $self->_flush_on_write && defined $self->_fh;
 	return 1;
