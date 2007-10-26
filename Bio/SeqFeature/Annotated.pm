@@ -240,8 +240,8 @@ sub _initialize {
   defined $frame        && $self->frame($frame);
   defined $phase        && $self->phase($phase);
   defined $score        && $self->score($score);
-  defined $source       && $self->source($source);
-  defined $type         && $self->type($type);
+  defined $source       && ref($source) ? $self->source($source) : $self->source_tag($source);
+  defined $type         && ref($type) ? $self->type($type) : $self->primary_tag($type);
   defined $location     && $self->location($location);
   defined $annot        && $self->annotation($annot);
   defined $feature      && $self->from_feature($feature);
@@ -361,7 +361,7 @@ sub _aggregate_scalar_annotations {
  Function: holds a string corresponding to the unique
            seq_id of the sequence underlying the feature
            (e.g. database accession or primary key).
- Returns : a Bio::Annotation::SimpleValue object representing the seq_id.
+ Returns : string representing the seq_id.
  Args    : on set, some string or a Bio::Annotation::SimpleValue object.
 
 =cut
@@ -382,9 +382,9 @@ sub seq_id {
       $self->add_Annotation('seq_id', $term);
   }
 
-  $self->seq_id('.') unless (defined $self->get_Annotations('seq_id')); # make sure we always have something
+  $self->seq_id('.') unless $self->get_Annotations('seq_id'); # make sure we always have something
 
-  return $self->get_Annotations('seq_id');
+  return ($self->get_Annotations('seq_id'))[0]->value;
 }
 
 =head2 name()
@@ -407,7 +407,9 @@ sub name {
  Usage   : $obj->type($newval)
  Function: a SOFA type for the feature.
  Returns : Bio::Annotation::OntologyTerm object representing the type.
- Args    : on set, a SOFA name, identifier, or Bio::Annotation::OntologyTerm object.
+           NB: to get a string, use primary_tag().
+ Args    : on set, Bio::Annotation::OntologyTerm object.
+           NB: to set a string (SOFA name or identifier), use primary_tag()
 
 =cut
 
@@ -415,37 +417,10 @@ use constant MAX_TYPE_CACHE_MEMBERS => 20;
 sub type {
   my($self,$val) = @_;
   if(defined($val)){
-    # print("Trying to set annotated->type to $val\n");
     my $term = undef;
 
     if(!ref($val)){
-      #we have a plain text annotation coming in.  try to map it to SOFA.
-
-      our %__type_cache; #a little cache of plaintext types we've already seen
-
-      #clear our cache if it gets too big
-      if(scalar(keys %__type_cache) > MAX_TYPE_CACHE_MEMBERS) {
-	%__type_cache = ();
-      }
-
-      #set $term to either a cached value, or look up a new one, throwing
-      #up if not found
-    my $anntext = ref $val ? $val->display_text : $val;
-    if ($__type_cache{$anntext}) {
-        $term = $__type_cache{$anntext};
-    } else {
-        my $sofa = Bio::Ontology::OntologyStore->get_instance->get_ontology('Sequence Ontology OBO');
-        my ($soterm) = $anntext =~ /^\D+:\d+$/ #does it look like an ident?
-          ? ($sofa->find_terms(-identifier => $anntext))[0] #yes, lookup by ident
-          : ($sofa->find_terms(-name => $anntext))[0];      #no, lookup by name
-        #throw if it's not in SOFA
-        unless($soterm){
-          $self->throw("couldn't find a SOFA term matching type '$val'.");
-        }
-        my $newterm = Bio::Annotation::OntologyTerm->new;
-        $newterm->term($soterm);
-        $term = $newterm;
-      }
+      $self->throw("give type() a Bio::Annotation::OntologyTerm object, not a string");
     }
     elsif(ref($val) && $val->isa('Bio::Annotation::OntologyTerm')){
       $term = $val;
@@ -457,17 +432,18 @@ sub type {
     $self->remove_Annotations('type');
     $self->add_Annotation('type',$term);
   }
-  else {
-    return $self->get_Annotations('type');
-  }
+  
+  return $self->get_Annotations('type');
 }
 
 =head2 source()
 
  Usage   : $obj->source($newval)
- Function: holds a string corresponding to the source of the feature.
- Returns : a Bio::Annotation::SimpleValue object representing the source.
- Args    : on set, some scalar or a Bio::Annotation::SimpleValue object.
+ Function: holds the source of the feature.
+ Returns : a Bio::Annotation::SimpleValue representing the source.
+           NB: to get a string, use source_tag()
+ Args    : on set, a Bio::Annotation::SimpleValue object.
+           NB: to set a string, use source_tag()
 
 =cut
 
@@ -477,7 +453,8 @@ sub source {
   if (defined($val)) {
       my $term;
       if (!ref($val)) {
-	  $term = Bio::Annotation::SimpleValue->new(-value => uri_unescape($val));
+        $self->throw("give source() a Bio::Annotation::SimpleValue object, not a string");
+        #$term = Bio::Annotation::SimpleValue->new(-value => uri_unescape($val));
       } elsif (ref($val) && $val->isa('Bio::Annotation::SimpleValue')) {
 	  $term = $val;
       } else {
@@ -485,14 +462,12 @@ sub source {
       }
       $self->remove_Annotations('source');
       $self->add_Annotation('source', $term);
-     
   }
-  else {
-    if (!defined $self->get_Annotations('source')) {
-        $self->source('.');
-    }
-    return $self->get_Annotations('source');
+  
+  unless ($self->get_Annotations('source')) {
+    $self->source('.');
   }
+  return $self->get_Annotations('source');
 }
 
 =head2 score()
@@ -500,7 +475,7 @@ sub source {
  Usage   : $score = $feat->score()
            $feat->score($score)
  Function: holds a value corresponding to the score of the feature.
- Returns : a Bio::Annotation::SimpleValue object representing the score.
+ Returns : a string representing the score.
  Args    : on set, a scalar or a Bio::Annotation::SimpleValue object.
 
 =cut
@@ -525,23 +500,9 @@ sub score {
       $self->add_Annotation('score', $term);
   }
 
-  #$self->score('.') unless ($self->get_Annotations('score')); # make sure we always have something
+  $self->score('.') unless scalar($self->get_Annotations('score')); # make sure we always have something
 
-  # malcolm.cook@stowers-institute.org is not sure why we want to
-  # 'make sure we always have something', but, in any case, the above
-  # sets the score to '.' when there is an explicit $val passed of 0, which
-  # can't be correct, so, re-writing to test for 'defined' as is done
-  # elsewhere in this module...
-
-  $self->score('.') unless (defined($self->get_Annotations('score'))); # make sure we always have something
-
-  # ... though it could have been written as either of:
-
-  #$self->score('.') unless @{[$self->get_Annotations('score')]};# make sure we always have something
-  #$self->score('.') unless $self->has_tag('score'); # make sure we always have something (but has_tag is deprecated) 
-    
-  my ($ann) = $self->get_Annotations('score');
-  defined $ann ? return $ann->display_text : return;
+  return ($self->get_Annotations('score'))[0]->display_text;
 }
 
 =head2 phase()
@@ -549,8 +510,7 @@ sub score {
  Usage   : $phase = $feat->phase()
            $feat->phase($phase)
  Function: get/set on phase information
- Returns : a Bio::Annotation::SimpleValue object holdig one of 0,1,2,'.'
-           as its value.
+ Returns : a string 0,1,2,'.'
  Args    : on set, one of 0,1,2,'.' or a Bio::Annotation::SimpleValue
            object holding one of 0,1,2,'.' as its value.
 
@@ -574,9 +534,9 @@ sub phase {
       $self->add_Annotation('phase', $term);
   }
 
-  $self->phase('.') unless (defined $self->get_Annotations('phase')); # make sure we always have something
+  $self->phase('.') unless $self->get_Annotations('phase'); # make sure we always have something
   
-  return $self->get_Annotations('phase');
+  return ($self->get_Annotations('phase'))[0]->value;
 }
 
 
@@ -585,8 +545,7 @@ sub phase {
  Usage   : $frame = $feat->frame()
            $feat->frame($phase)
  Function: get/set on phase information
- Returns : a Bio::Annotation::SimpleValue object holdig one of 0,1,2,'.'
-           as its value.
+ Returns : a string 0,1,2,'.'
  Args    : on set, one of 0,1,2,'.' or a Bio::Annotation::SimpleValue
            object holding one of 0,1,2,'.' as its value.
 
@@ -610,9 +569,9 @@ sub frame {
       $self->add_Annotation('frame', $term);
   }
 
-  $self->frame('.') unless (defined $self->get_Annotations('frame')); # make sure we always have something
+  $self->frame('.') unless $self->get_Annotations('frame'); # make sure we always have something
   
-  return $self->get_Annotations('frame');
+  return ($self->get_Annotations('frame'))[0]->value;
 }
 
 ############################################################
@@ -673,8 +632,44 @@ sub display_name {
 
 sub primary_tag {
   my $self = shift;
-  my $t = $self->type(@_);
-  return ref($t) ? $t->name : $t;
+  if (@_) {
+    my $val = shift;
+    my $term;
+    if(!ref($val) && $val){
+      #we have a plain text annotation coming in.  try to map it to SOFA.
+
+      our %__type_cache; #a little cache of plaintext types we've already seen
+
+      #clear our cache if it gets too big
+      if(scalar(keys %__type_cache) > MAX_TYPE_CACHE_MEMBERS) {
+        %__type_cache = ();
+      }
+
+      #set $term to either a cached value, or look up a new one, throwing
+      #up if not found
+      my $anntext = $val;
+      if ($__type_cache{$anntext}) {
+        $term = $__type_cache{$anntext};
+      } else {
+        my $sofa = Bio::Ontology::OntologyStore->get_instance->get_ontology('Sequence Ontology OBO');
+        my ($soterm) = $anntext =~ /^\D+:\d+$/ #does it look like an ident?
+          ? ($sofa->find_terms(-identifier => $anntext))[0] #yes, lookup by ident
+          : ($sofa->find_terms(-name => $anntext))[0];      #no, lookup by name
+        #throw if it's not in SOFA
+        unless($soterm){
+          $self->throw("couldn't find a SOFA term matching type '$val'.");
+        }
+        my $newterm = Bio::Annotation::OntologyTerm->new;
+        $newterm->term($soterm);
+        $term = $newterm;
+      }
+      
+      $self->type($term);
+    }
+  }
+  
+  my $t = $self->type() || return;
+  return $t->name;
 }
 
 =head2 source_tag()
@@ -683,8 +678,15 @@ sub primary_tag {
 
 sub source_tag {
   my $self = shift;
-  my $t = $self->source(@_);
-  return ref($self->source(@_)) ? $t->display_text : $t;
+  if (@_) {
+    my $val = shift;
+    if(!ref($val) && $val){
+      my $term = Bio::Annotation::SimpleValue->new(-value => uri_unescape($val));
+      $self->source($term);
+    }
+  }
+  my $t = $self->source() || return;
+  return $t->display_text;
 }
 
 

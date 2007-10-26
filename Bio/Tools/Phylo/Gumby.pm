@@ -127,12 +127,12 @@ sub next_result {
         $line || last;
         my ($seq_id, $start, $end) = split(/\s+/, $line);
         
-        my $feature = Bio::SeqFeature::Annotated->new(-start  => $start,
+        my $feature = Bio::SeqFeature::Annotated->new(-seq_id => $seq_id,
+                                                      -start  => $start,
                                                       -end    => $end,
                                                       -score  => $score,
                                                       -strand => 1,
                                                       -source => 'gumby');
-        $feature->seq_id->value($seq_id);
         my $sv = Bio::Annotation::SimpleValue->new(-tagname => 'pvalue', -value => $pvalue);
         $feature->annotation->add_Annotation($sv);
         $sv = Bio::Annotation::SimpleValue->new(-tagname => 'kind', -value => $self->{_kind});

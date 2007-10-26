@@ -325,11 +325,11 @@ sub seqio {
 sub sequence_region {
   my ($self,$k,$v) = @_;
   if(defined($k) && defined($v)){
-    $self->{'sequence_region'}{$k->display_text} = $v;
+    $self->{'sequence_region'}{$k} = $v;
     return $v;
   }
   elsif(defined($k)){
-    return $self->{'sequence-region'}{$k->display_text};
+    return $self->{'sequence-region'}{$k};
   }
   else {
     return;
@@ -514,7 +514,7 @@ sub _handle_feature {
   my($seq,$source,$type,$start,$end,$score,$strand,$phase,$attribute_string) = split /\t/, $feature_string;
 
   $feat->seq_id($seq);
-  $feat->source($source);
+  $feat->source_tag($source);
   $feat->start($start) unless $start eq '.';
   $feat->end($end) unless $end eq '.';
   $feat->strand($strand eq '+' ? 1 : $strand eq '-' ? -1 : 0);
