@@ -182,7 +182,7 @@ sub next_result{
    $self->element({'Name' => 'WiseOutput_program',
 		   'Data' => $self->wisetype});
    $self->element({'Name' => 'WiseOutput_query-def',
-		   'Data' => $self->wise->_target_id});
+		   'Data' => $self->wise->_prot_id});
    my @transcripts = $prediction->transcripts;
 
    foreach my $transcript ( @transcripts ) {
@@ -194,10 +194,10 @@ sub next_result{
 	   my ($supporting_feature) = $exons[0]->get_tag_values('supporting_feature');
 	   $protid = $supporting_feature->feature2->seq_id;
 	   $self->element({'Name' => 'Hit_id',
-			   'Data' => $protid});       
+			   'Data' => $self->wise->_target_id});       
        } 
        $self->element({'Name' => 'Hit_score',
-		       'Data' => $exons[0]->score});
+		       'Data' => $self->wise->_score});
        foreach my $exon ( @exons ) {
 	   $self->start_element({'Name' => 'Hsp'});
 	   if( $exon->strand < 0 ) { 
@@ -212,7 +212,7 @@ sub next_result{
 			       'Data' => $exon->end});
 	   }
 	   $self->element({'Name' => 'Hsp_score',
-			   'Data' => $exon->score});
+			   'Data' => $self->wise->_score});
 	   if( $exon->has_tag('supporting_feature') ) {
 	       my ($sf) = $exon->get_tag_values('supporting_feature');
 	       my $protein = $sf->feature2;

@@ -74,11 +74,9 @@ $parser = Bio::SearchIO->new(-file => test_input_file('genewise.out'),
 			    -wisetype => 'genewise');
 my $result = $parser->next_result;
 my $hit = $result->next_hit;
-TODO: {
-    local $TODO = 'swapping query/name need to reconsider how this done';
-    is($result->query_name, 'SINFRUP00000067802');
-    is($hit->name, 'Scaffold_2042.1');
-}
+is($result->query_name, 'SINFRUP00000067802');
+is($hit->name, 'Scaffold_2042.1');
+
 is($hit->score, 2054.68);
 my $hsp = $hit->next_hsp;
 
