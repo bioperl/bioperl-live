@@ -1,3 +1,4 @@
+
 # $Id$
 #
 # BioPerl module for Bio::Tools::Phylo::PAML
@@ -1349,17 +1350,16 @@ sub _parse_rst {
 	  $self->{'_rst'}->{'persite'} = [];
 	  while(defined($_ = $rstio->_readline ) ) {
 	      next if(/^Site/ || /^\s+$/ );
-	      if( s/^\s+(\d+)\s+(\d+)\s+([^:]+)\s+:\s+(.+)// ) {
+	      if( s/^\s+(\d+)\s+(\d+)\s+([^:]+)\s*:\s*(.+)// ) {
 		  my ($sitenum,$freq,$extant,$ancestral) = ($1,$2,$3,$4);
 		  my (@anc_site,@extant_site);
-		  @anc_site = {};
 		  @extant_site = {};
-		  while( $extant =~ s/^([A-Z]{3})\s+\(([A-Z])\)\s+//g ) {
-		      push @extant_site, {'codon'=>$1,'aa' => $2 };
+		  while( $extant =~ s/^([A-Z\-]{3})\s+\(([A-Z*])\)\s+//g ) {
+		      push @extant_site, {'codon' => $1, 'aa' => $2 };
 		  }
-		  while( $ancestral =~ s/^([A-Z]{3})\s+([A-Z])\s+  # codon AA
+		  while( $ancestral =~ s/^([A-Z\-]{3})\s+([A-Z*])\s+ # codon AA
 			                (\S+)\s+                   # Prob
-			                \(([A-Z])\s+(\S+)\)\s+//xg # AA Prob
+			                \(([A-Z*])\s+(\S+)\)\s*//xg # AA Prob
 			 ) {
 		      push @anc_site, {'codon'            => $1,
 				       'aa'               => $2, 
@@ -1373,7 +1373,7 @@ sub _parse_rst {
 		  
 	      } elsif(/^Summary\sof\schanges\salong\sbranches\./ ) {
 		  last;
-	      }
+	      } 
 	  }
       } elsif( /^Check\sroot\sfor\sdirections\sof\schange\./ || 
 	       /^Summary\sof\schanges\salong\sbranches\./ ) {
@@ -1404,7 +1404,7 @@ sub _parse_rst {
 		  $node->add_tag_value('n', $n);
 		  $node->add_tag_value('s', $s);
 		  $branch2node[$branch] = $right;		  
-	      } elsif( /^\s+(\d+)\s+([A-Z])\s+(\S+)\s+\-\>\s+([A-Z])\s+(\S+)?/){
+	      } elsif( /^\s+(\d+)\s+([A-Z*])\s+(\S+)\s+\-\>\s+([A-Z*])\s+(\S+)?/){
 		  my ($site,$anc,$aprob, $derived,$dprob)= ($1,$2,$3,$4,$5);
 		  if( ! $node ) {
 		      $self->warn("no branch line was previously parsed!");
@@ -1417,7 +1417,7 @@ sub _parse_rst {
 			    );
 		  $c{'derived_prob'} = $dprob if defined $dprob;
 		  $node->add_tag_value('changes',\%c);
-	      }
+	       } 
 	  }	  
       } elsif( /^Overall\s+accuracy\s+of\s+the\s+(\d+)\s+ancestral\s+sequences:/) 
       {
