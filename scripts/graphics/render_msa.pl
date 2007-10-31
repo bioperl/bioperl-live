@@ -3,6 +3,7 @@ use strict;
 use Bio::Graphics;
 use Bio::AlignIO;
 use Bio::SeqFeature::Generic;
+use Bio::Tools::GuessSeqFormat;
 use Getopt::Long;
 
 my ($inputfile,$debug);
@@ -12,8 +13,12 @@ GetOptions(
            'debug' => \$debug,
           );
 
+my $guessed_format = new Bio::Tools::GuessSeqFormat
+    (-file=>"$inputfile"
+    )->guess;
+
 my $aio = Bio::AlignIO->new(-file   => $inputfile,
-                            -format => 'fasta') or die "parse failed";
+                            -format => $guessed_format) or die "parse failed";
 
 my $aln = $aio->next_aln() or die "no alignment";
 
@@ -66,5 +71,5 @@ for my $seqobj ($aln->each_seq) {
 }
 
 print $panel->svg;
-1;#??
+
 
