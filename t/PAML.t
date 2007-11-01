@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 193,
+    test_begin(-tests => 202,
 			   -requires_module => 'IO::String');
 	
 	use_ok('Bio::Tools::Phylo::PAML');
@@ -384,3 +384,21 @@ is($NGmat->[0]->[1]->{'dS'}, 0.0821);
 is($MLmat->[0]->[1]->{'omega'}, 0.32693);
 is($MLmat->[0]->[1]->{'dN'}, '0.0210');
 is($MLmat->[0]->[1]->{'dS'}, 0.0644);
+
+## PAML 4
+$paml = Bio::Tools::Phylo::PAML->new(-file => test_input_file('codeml4.mlc'));
+$result = $paml->next_result;
+
+is($result->model, 'One dN/dS ratio');
+like($result->version, qr'4');
+$MLmat = $result->get_MLmatrix;
+$NGmat = $result->get_NGmatrix;
+
+is($NGmat->[0]->[1]->{'omega'}, 0.2507);
+is($NGmat->[0]->[1]->{'dN'}, 0.0863);
+is($NGmat->[0]->[1]->{'dS'}, 0.3443);
+
+is($MLmat->[0]->[1]->{'omega'}, 0.29075);
+is($MLmat->[0]->[1]->{'dN'}, '0.0874');
+is($MLmat->[0]->[1]->{'dS'}, 0.3006);
+is($MLmat->[0]->[1]->{'lnL'}, -1596.739984);

@@ -266,6 +266,7 @@ sub next_result {
 	    if ($seqtype eq 'CODONML' && 
 		m/^pairwise comparison, codon frequencies:/) {
 		# runmode = -2, CODONML
+		$self->debug("pairwise Ka/Ks\n");
 		$self->_pushback($_);
 		%data = $self->_parse_PairwiseCodon;
 		last;
@@ -368,7 +369,8 @@ sub next_result {
 		($data{'-trees'},$idlookup) = $self->_parse_Forestry;
 	    }
 	}
-    } elsif ($seqtype eq 'YN00') {
+    } elsif ($seqtype eq 'YN00') 
+    {
 	while ($_ = $self->_readline) {
 	    if( m/^Estimation by the method|\(B\) Yang & Nielsen \(2000\) method/ ) {
 		$self->_pushback($_);
@@ -425,10 +427,8 @@ sub _parse_summary {
 	       \s* $                                 # trim any trailing space
 	       /ox
 	   ) {
-	    @{$self->{'_summary'}}{qw(seqtype version seqfile model)} = ($1, 
-									$2,
-									$3,
-									$4);
+	    @{$self->{'_summary'}}{qw(seqtype version seqfile model)} = 
+		($1, $2,$3,$4);
 	    defined $self->{'_summary'}->{'model'} &&
 		$self->{'_summary'}->{'model'} =~ s/Model:\s+//;
 	    last;
@@ -436,6 +436,9 @@ sub _parse_summary {
 	} elsif (m/^Data set \d$/) {
 	    $self->{'_summary'} = {};
 	    $self->{'_summary'}->{'multidata'}++;
+	} elsif( m/^Before\s+deleting\s+alignment\s+gaps/ ) {
+	    my ($phylip_header) = $self->_readline;
+	    $self->_parse_seqs;
 	}
     }
 
@@ -656,11 +659,8 @@ sub _parse_patterns {
     my ($self) = @_;
     my ($patternct,@patterns,$ns,$ls);    
     while( defined($_ = $self->_readline) ) {
-	if( /^Codon position/ ) {
-	    $self->_pushback($_);
-	    last;
-	} elsif( /^Codon usage/ ) {
-	    $self->_pushback($_);
+	if( /^Codon\s+(usage|position)/ ) {
+	    $self->_pushback($_); 
 	    last;
 	} elsif( $patternct ) { 
 #	    last unless ( @patterns == $patternct );
@@ -685,13 +685,18 @@ sub _parse_seqs {
     # this should in fact be packed into a Bio::SimpleAlign object instead of
     # an array but we'll stay with this for now 
     my ($self) = @_;
+    # Use this flag to deal with paml 4 vs 3 differences
+    # In PAML 4 the sequences precede the CODONML|BASEML|AAML
+    # while in PAML3 the files start off with this
+    return 1 if $self->{'_already_parsed_seqs'}; 
     my (@firstseq,@seqs);
     while( defined ($_ = $self->_readline) ) {
-	if( /^(TREE|Codon)/ ) { $self->_pushback($_);  last }
+	if( /^(Printing|After|TREE|Codon)/ ) { $self->_pushback($_);  last }
 	last if( /^\s+$/ && @seqs > 0 );
 	next if ( /^\s+$/ );
 	next if( /^\d+\s+$/ );
 
+	# we are reading PHYLIP format
 	my ($name,$seqstr) = split(/\s+/,$_,2);
 	$seqstr =~ s/\s+//g; # remove whitespace 
 	unless( @firstseq) {
@@ -707,12 +712,14 @@ sub _parse_seqs {
 		substr($seqstr,$v,1,$firstseq[$v]);
 		$i = $v;
 	    }
-	    $self->debug( "adding seq $seqstr\n");
 	    push @seqs, Bio::PrimarySeq->new(-display_id  => $name,
 					    -seq         => $seqstr);
 	}
     }
-    $self->{'_summary'}->{'seqs'} = \@seqs;
+    if(  @seqs > 0 ) {
+	$self->{'_summary'}->{'seqs'} = \@seqs;
+	$self->{'_already_parsed_seqs'} = 1;
+    }
     1;
 }
 
