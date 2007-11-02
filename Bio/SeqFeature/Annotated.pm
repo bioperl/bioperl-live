@@ -465,7 +465,7 @@ sub source {
   }
   
   unless ($self->get_Annotations('source')) {
-    $self->source('.');
+    $self->source(Bio::Annotation::SimpleValue->new(-value => '.'));
   }
   return $self->get_Annotations('source');
 }
