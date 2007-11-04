@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 1449);
+    test_begin(-tests => 1483);
 	
 	use_ok('Bio::SearchIO');
 	use_ok('Bio::SearchIO::Writer::HitTableWriter');
@@ -1191,6 +1191,65 @@ while( my $hit = $result->next_hit ) {
     last if( $count++ > @valid );
 }
 is($count, 2);
+
+# WU-BLAST -echofilter option test (Bug 2388)
+$searchio = Bio::SearchIO->new('-format' => 'blast',
+			       '-file'   => test_input_file('echofilter.wublastn'));
+
+$result = $searchio->next_result;
+
+is($result->database_name, 'NM_003201.fa');
+is($result->database_letters, 1936);
+is($result->database_entries, 1);
+is($result->algorithm, 'BLASTN');
+like($result->algorithm_version, qr/^2\.0MP\-WashU/);
+like($result->query_name, qr/ref|NM_003201.1| Homo sapiens transcription factor A, mitochondrial \(TFAM\), mRNA/);
+is($result->query_accession, 'NM_003201.1');
+
+is($result->query_length, 1936);
+is($result->get_statistic('lambda'), 0.192);
+is($result->get_statistic('kappa'), 0.182);
+is($result->get_statistic('entropy'), 0.357);
+is($result->get_statistic('dbletters'), 1936);
+is($result->get_statistic('dbentries'), 1);
+is($result->get_parameter('matrix'), '+5,-4');
+
+@valid = ( [ 'ref|NM_003201.1|', 1936, 'NM_003201', '0', 9680],);
+$count = 0;
+while( $hit = $result->next_hit ) {
+    my $d = shift @valid;
+
+    is($hit->name, shift @$d);
+    is($hit->length, shift @$d);
+    is($hit->accession, shift @$d);
+    is(sprintf("%g",$hit->significance), sprintf("%g",shift @$d) );
+    is($hit->raw_score, shift @$d );
+
+    if( $count == 0 ) {
+        my $hsps_left = 1;
+        while( my $hsp = $hit->next_hsp ) {
+            is($hsp->query->start, 1);
+            is($hsp->query->end, 1936);
+            is($hsp->hit->start, 1);
+            is($hsp->hit->end, 1936);
+            is($hsp->length('hsp'), 1936);
+            
+            is($hsp->evalue , '0.');
+            is($hsp->pvalue , '0.');
+            is($hsp->score, 9680);
+            is($hsp->bits,1458.4);	    	    
+            is($hsp->percent_identity, 100);
+            is($hsp->frac_identical('query'), 1.00);
+            is($hsp->frac_identical('hit'), 1.00);
+            is($hsp->gaps, 0);
+            $hsps_left--;
+        }
+        is($hsps_left, 0);
+    }
+    last if( $count++ > @valid );
+}
+is(@valid, 0);
+
 
 # Do a multiblast report test
 $searchio = Bio::SearchIO->new('-format' => 'blast',

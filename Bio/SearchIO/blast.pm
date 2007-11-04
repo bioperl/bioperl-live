@@ -21,6 +21,7 @@
 #          Parse more blast statistics, lambda, entropy, etc
 #          from WU-BLAST in frame-specific manner
 # 20060216 - cjf - fixed blast parsing for BLAST v2.2.13 output
+# 20071104 - dmessina - added support for WUBLAST -echofilter
 
 =head1 NAME
 
@@ -577,6 +578,15 @@ sub next_result {
                 }
             );
         }
+		# added check for WU-BLAST -echofilter option (bug 2388)
+		elsif (/^>Unfiltered[+-]1$/) {
+        	# skip all of the lines of unfiltered sequence
+			while($_ !~ /^Database:/) {
+				$self->debug("Bypassing features line: $_");
+        		$_ = $self->_readline;
+        	}
+			$self->_pushback($_);			
+		}
         elsif (/Sequences producing significant alignments:/) {
             $self->debug("blast.pm: Processing NCBI-BLAST descriptions\n");
             $flavor = 'ncbi';
