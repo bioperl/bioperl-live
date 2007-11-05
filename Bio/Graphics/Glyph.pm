@@ -1755,7 +1755,8 @@ features to be sorted from lowest to highest score (or vice versa).
 sorted by their position in the sequence.  "longer" (or "shorter")
 will cause the longest (or shortest) features to be sorted first, and
 "strand" will cause the features to be sorted by strand: "+1"
-(forward) then "0" (unknown, or NA) then "-1" (reverse).
+(forward) then "0" (unknown, or NA) then "-1" (reverse).  Finally,
+"name" will sort by the display_name of the features.
 
 In all cases, the "left" position will be used to break any ties.  To
 break ties using another field, options may be strung together using a
