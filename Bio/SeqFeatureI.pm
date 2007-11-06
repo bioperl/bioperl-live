@@ -83,7 +83,6 @@ methods. Internal methods are usually preceded with a _
 package Bio::SeqFeatureI;
 use vars qw($HasInMemory);
 use strict;
-
 BEGIN {
     eval { require Bio::DB::InMemoryCache };
     if( $@ ) { $HasInMemory = 0 }
@@ -381,7 +380,7 @@ my $static_gff_formatter = undef;
 
 sub _static_gff_formatter{
    my ($self,@args) = @_;
-
+   require Bio::Tools::GFF; # on the fly inclusion -- is this better?
    if( !defined $static_gff_formatter ) {
        $static_gff_formatter = Bio::Tools::GFF->new('-gff_version' => 2);
    }
@@ -662,7 +661,7 @@ sub primary_id{
 sub generate_unique_persistent_id {
     # DEPRECATED - us IDHandler
     my $self = shift;
-    require "Bio/SeqFeature/Tools/IDHandler.pm";
+    require Bio::SeqFeature::Tools::IDHandler;
     Bio::SeqFeature::Tools::IDHandler->new->generate_unique_persistent_id($self);
 }
 
