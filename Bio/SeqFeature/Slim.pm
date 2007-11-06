@@ -16,7 +16,7 @@ Bio::SeqFeature::Slim - A very lightweight Bio::SeqFeatureI implementation
 
 =head1 SYNOPSIS
 
-Give standard usage here
+use Bio::SeqFeature::Slim;
 
 =head1 DESCRIPTION
 
@@ -229,6 +229,26 @@ sub source_tag{
 	($self->[SOURCE]) = shift @_;
     }
     return $self->[SOURCE];
+}
+
+=head2 frame
+
+ Title   : frame
+ Usage   : $frame = $feat->frame()
+ Function: Returns the frame for a feature,
+           eg, '1'
+ Returns : '.', 0,1,2
+ Args    : none
+
+
+=cut
+
+sub frame{
+   my ($self) = shift;
+    if( @_) {
+	($self->[FRAME]) = shift @_;
+    }
+    return $self->[FRAME];
 }
 
 =head2 has_tag
@@ -618,6 +638,24 @@ sub strand {
     return $self->[STRAND];  
 }
 
+=head2 length
+
+  Title   : length
+  Usage   : $length = $range->length();
+  Function: get/set the length of this range
+  Returns : the length of this range
+  Args    : optionally allows the length to be set
+             using $range->length($length)
+
+=cut
+
+sub length {
+  my $self = shift;
+  if(@_) {
+    $self->warn( ref($self). "->length() is read-only");
+  }
+  return abs($self->end - $self->start) + 1;
+}
 =head2 overlaps()
 
  See L<Bio::RangeI>
