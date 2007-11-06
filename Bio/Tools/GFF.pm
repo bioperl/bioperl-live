@@ -734,7 +734,7 @@ sub _gff1_string{
 		 $strand,
 		 $frame);
 
-   foreach my $tag ( $feat->all_tags ) {
+   foreach my $tag ( $feat->get_all_tags ) {
        foreach my $value ( $feat->each_tag_value($tag) ) {
 	   $str .= " $tag=$value" if $value;
        }
@@ -811,12 +811,12 @@ sub _gff2_string{
    # MW
 
    
-   my @all_tags = $feat->all_tags;
+   my @all_tags = $feat->get_all_tags;
    my @group;
    if (@all_tags) {  # only play this game if it is worth playing...
        foreach my $tag ( @all_tags ) {
 	   my @v;
-	   foreach my $value ( $feat->each_tag_value($tag) ) {
+	   foreach my $value ( $feat->get_tag_values($tag) ) {
  	       unless( defined $value && length($value) ) {
 		   $value = '""';
 	       } elsif ($value =~ /[^A-Za-z0-9_]/){
@@ -913,7 +913,7 @@ sub _gff25_string {
     if (@all_tags) {   # only play this game if it is worth playing...
 	foreach my $tag ( @all_tags ) {
 	    my @v;
-	    foreach my $value ( $feat->each_tag_value($tag) ) {
+	    foreach my $value ( $feat->get_tag_values($tag) ) {
 		unless( defined $value && length($value) ) {
 		    $value = '""';
 		} elsif ($value =~ /[^A-Za-z0-9_]/){
