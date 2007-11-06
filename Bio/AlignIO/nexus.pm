@@ -394,7 +394,7 @@ sub write_aln {
 	$aln->set_displayname_flat();
 	foreach $seq ( $aln->each_seq() ) {
 	    my $nmid = $aln->displayname($seq->get_nse());
-	    if( $nmid =~ /[^\w\d]/ ) {
+	    if( $nmid =~ /[^\w\d\.]/ ) {
               # put name in single quotes incase it contains any of
               # the following chars: ()[]{}/\,;:=*'"`+-<> that are not
               # allowed in PAUP* and possible other software
