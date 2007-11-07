@@ -137,8 +137,6 @@ use strict;
 
 use Bio::Seq::SeqFactory;
 use Bio::LocatableSeq;
-use Bio::SeqFeature::Generic;
-use Bio::SeqFeature::Slim;
 
 use constant DEFAULT_FEATURE_TYPE => 'Bio::SeqFeature::Generic';
 
@@ -1253,7 +1251,11 @@ sub features_attached_to_seqs{
 
 sub feature_type{
     my $self = shift;
-    return $self->{'feature_type'} = shift if @_;
+    $self->{'feature_type'} = shift if @_;
+    my $module = $self->{'feature_type'};
+    $module =~ s/::/\//g;
+    $module .= ".pm";
+    require "$module";
     return $self->{'feature_type'};
 }
 
