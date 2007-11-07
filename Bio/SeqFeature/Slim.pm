@@ -99,7 +99,7 @@ use constant {
 sub new {
   my($class) = shift;
   my ($start, $end, $strand, $primary_tag, $source_tag, $primary, 
-      $source, $frame, $score, $tag, $gff_string, $gff1_string,
+      $source, $frame,$phase, $score, $tag, $gff_string, $gff1_string,
       $seqname, $seqid, $annot, $location,$display_name,$pid,$id,
       $parent_id,$parent) =
 	  Bio::Root::RootI->_rearrange([qw
@@ -111,6 +111,7 @@ sub new {
 					 PRIMARY
 					 SOURCE
 					 FRAME
+					 PHASE
 					 SCORE
 					 TAG
 					 GFF_STRING
@@ -134,6 +135,7 @@ sub new {
 
   $primary_tag = $primary if defined $primary && ! defined $primary_tag;
   $source_tag  = $source  if defined $source && ! defined $source_tag;
+  $frame = $phase if ! defined $frame && defined $phase;
   my $self = bless [$seqid,        #0
 		    $source_tag,   #1
 		    $primary_tag,  #2
@@ -247,6 +249,7 @@ sub source_tag{
     return $self->[SOURCE];
 }
 
+
 =head2 frame
 
  Title   : frame
@@ -259,13 +262,15 @@ sub source_tag{
 
 =cut
 
-sub frame{
+sub frame {
    my ($self) = shift;
     if( @_) {
 	($self->[FRAME]) = shift @_;
     }
     return $self->[FRAME];
 }
+
+*phase = \&frame;
 
 =head2 has_tag
 
