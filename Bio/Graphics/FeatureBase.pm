@@ -507,6 +507,7 @@ sub to_FTstring {
   $str;
 }
 sub phase { shift->{phase} }
+*frame = \&phase;
 sub class {
   my $self = shift;
   my $d = $self->{class};
