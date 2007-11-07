@@ -20,7 +20,7 @@ use Bio::SeqFeature::Slim;
 
 =head1 DESCRIPTION
 
-Describe the object here
+Lightweight Bio::SeqFeatureI implemention.
 
 =head1 FEEDBACK
 
@@ -81,6 +81,7 @@ use constant {
     GFF_TYPE    => 11,
     SUBFEATURES => 12,
     SEQ_OBJ     => 13,
+    VERBOSE     => 14,
 };
 
 
@@ -99,7 +100,8 @@ sub new {
   my($class) = shift;
   my ($start, $end, $strand, $primary_tag, $source_tag, $primary, 
       $source, $frame, $score, $tag, $gff_string, $gff1_string,
-      $seqname, $seqid, $annot, $location,$display_name) =
+      $seqname, $seqid, $annot, $location,$display_name,$pid,$id,
+      $parent_id,$parent) =
 	  Bio::Root::RootI->_rearrange([qw
 					(START
 					 END
@@ -118,6 +120,10 @@ sub new {
 					 ANNOTATION
 					 LOCATION
 					 DISPLAY_NAME
+					 PRIMARY_ID
+					 ID
+					 PARENT_ID
+					 PARENT
 					)], @_);
   if( defined $primary_tag && defined $primary ) {
       Bio::Root::RootI->warn("Both primary and primary_tag are defined, only use one");
@@ -150,7 +156,31 @@ sub new {
 			       @{$tag->{$t}} : $tag->{$t});
       }
   };
+  if( defined $pid && defined $id ) {
+      Bio::Root::RootI->warn("Both primary_id and id are defined, only use one");
+  }
+  # save primary ID if it exists
+  $pid = $id if ! defined $pid;
+  defined $pid && $self->primary_id($pid);
+
+  if( defined $parent && defined $parent_id ) {
+      Bio::Root::RootI->warn("Both parent_id and parent are defined, only use one");
+  }
+
+  # save parent ID if it exists
+  $parent_id = $parent if ! defined $parent_id;
+  $parent_id && $self->parent_id($parent_id);
+
   return $self;
+}
+
+sub verbose {
+    my ($self,$value) = @_;
+    
+    if (defined $value || ! defined $self->[VERBOSE]) {
+       $self->[VERBOSE] = $value || 0;
+    }
+    return $self->[VERBOSE];
 }
 
 =head1 Bio::SeqFeatureI specific methods
@@ -158,20 +188,6 @@ sub new {
 New method interfaces.
 
 =cut
-
-=head2 get_SeqFeatures
-
- Title   : get_SeqFeatures
- Usage   : @feats = $feat->get_SeqFeatures();
- Function: Returns an array of sub Sequence Features
- Returns : An array
- Args    : none
-
-=cut
-
-sub get_SeqFeatures{
-   return @{shift->[SUBFEATURES] || []};
-}
 
 =head2 display_name
 
@@ -268,6 +284,24 @@ sub has_tag{
    return exists($self->[TAGS]->{$tag});
 }
 
+=head2 score
+
+ Title   : score
+ Usage   : $score = $feat->score()
+ Function: Returns the score
+ Returns : a string/number
+ Args    : none
+
+=cut
+
+sub score {
+    my ($self) = shift;
+    if( @_) {
+	($self->[SCORE]) = shift @_;
+    }
+    return $self->[SCORE];
+}
+
 =head2 get_tag_values
 
  Title   : get_tag_values
@@ -282,8 +316,8 @@ throws an exception if there is no such tag
 
 sub get_tag_values {
    my ($self,$tag) = @_;
-   return unless defined $tag; 
-   return $self->[TAGS]->{$tag};
+   return() unless defined $tag; 
+   return @{$self->[TAGS]->{$tag} || []};
 }
 
 =head2 get_tagset_values
@@ -533,7 +567,7 @@ but can be validly overwritten by subclasses
 =cut
 
 sub location {
-   my ($self) = @_;
+   my ($self) = shift;
    if( @_ ) {
        $self->warn("this implementation does not let setting of LOCATION obj\n");
        return undef;
@@ -577,6 +611,32 @@ sub primary_id{
         $self->add_tag_value('ID', shift);
     }
     my ($id) = $self->get_tagset_values('ID');
+    return $id;
+}
+
+=head2 parent_id
+
+ Title   : parent_id
+ Usage   : $obj->parent_id($newval)
+ Function:
+ Example :
+ Returns : value of parent_id (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+Parent ID is a synonym for the tag 'Parent'
+
+=cut
+
+sub parent_id{
+    my $self = shift;
+    
+    if (@_) {
+        if ($self->has_tag('Parent')) {
+            $self->remove_tag('Parent');
+        }
+        $self->add_tag_value('Parent', shift);
+    }
+    my ($id) = $self->get_tagset_values('Parent');
     return $id;
 }
 
@@ -709,7 +769,7 @@ sub add_tag_value{
 
 =cut
 
-sub create_seqfeature_generic{
+sub create_seqfeature_generic {
    my ($self) = shift;
    return Bio::SeqFeature::Generic->new(-location   => $self->location,
 					-score      => $self->score,
@@ -720,5 +780,128 @@ sub create_seqfeature_generic{
 					-display_name=> $self->display_name,
        );
 }
+
+=head1 Methods to implement Bio::FeatureHolderI
+
+This includes methods for retrieving, adding, and removing
+features. Since this is already a feature, features held by this
+feature holder are essentially sub-features.
+
+=cut
+
+=head2 get_SeqFeatures
+
+ Title   : get_SeqFeatures
+ Usage   : @feats = $feat->get_SeqFeatures();
+ Function: Returns an array of sub Sequence Features
+ Returns : An array
+ Args    : none
+
+=cut
+
+sub get_SeqFeatures{
+   return @{shift->[SUBFEATURES] || []};
+}
+
+=head2 add_SeqFeature
+
+ Title   : add_SeqFeature
+ Usage   : $feat->add_SeqFeature($subfeat);
+           $feat->add_SeqFeature($subfeat,'EXPAND')
+ Function: adds a SeqFeature into the subSeqFeature array.
+           with no 'EXPAND' qualifer, subfeat will be tested
+           as to whether it lies inside the parent, and throw
+           an exception if not.
+
+           If EXPAND is used, the parent's start/end/strand will
+           be adjusted so that it grows to accommodate the new
+           subFeature
+ Returns : nothing
+ Args    : An object which has the SeqFeatureI interface
+
+
+=cut
+
+#'
+sub add_SeqFeature{
+    my ($self,$feat,$expand) = @_;
+    unless( defined $feat ) {
+	$self->warn("Called add_SeqFeature with no feature, ignoring");
+	return;
+    }
+    if ( ! $feat->isa('Bio::SeqFeatureI') ) {
+        $self->warn("$feat does not implement Bio::SeqFeatureI. Will add it anyway, but beware...");
+    }
+
+    if($expand && ($expand eq 'EXPAND')) {
+        $self->_expand_region($feat);
+    } else {
+        if ( ! $self->contains($feat) ) {
+            $self->throw("$feat is not contained within parent feature, and expansion is not valid");
+        }
+    }
+
+    $self->[SUBFEATURES] = [] unless defined ($self->[SUBFEATURES]);
+    push(@{$self->[SUBFEATURES]},$feat);
+}
+
+=head2 remove_SeqFeatures
+
+ Title   : remove_SeqFeatures
+ Usage   : $sf->remove_SeqFeatures
+ Function: Removes all sub SeqFeatures
+
+           If you want to remove only a subset, remove that subset from the
+           returned array, and add back the rest.
+
+ Example :
+ Returns : The array of Bio::SeqFeatureI implementing sub-features that was
+           deleted from this feature.
+ Args    : none
+
+
+=cut
+
+sub remove_SeqFeatures {
+   my ($self) = @_;
+
+   my @subfeats = @{$self->[SUBFEATURES] || []};
+   $self->[SUBFEATURES] = []; # zap the array implicitly.
+   return @subfeats;
+}
+
+=head2 _expand_region
+
+ Title   : _expand_region
+ Usage   : $self->_expand_region($feature);
+ Function: Expand the total region covered by this feature to
+           accomodate for the given feature.
+
+           May be called whenever any kind of subfeature is added to this
+           feature. add_sub_SeqFeature() already does this.
+ Returns : 
+ Args    : A Bio::SeqFeatureI implementing object.
+
+
+=cut
+
+sub _expand_region {
+    my ($self, $feat) = @_;
+    if(! $feat->isa('Bio::SeqFeatureI')) {
+        $self->warn("$feat does not implement Bio::SeqFeatureI");
+    }
+    # if this doesn't have start/end set - forget it!
+    if((! defined($self->start)) && (! defined $self->end)) {
+        $self->start($feat->start);
+        $self->end($feat->end);
+        $self->strand($feat->strand) unless $self->strand;
+    } else {
+        my ($start,$end,$strand) = $self->union($feat);
+        $self->start($start);
+        $self->end($end);
+        $self->strand($strand);
+    }
+}
+
 
 1;
