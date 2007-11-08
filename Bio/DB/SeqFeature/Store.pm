@@ -226,6 +226,7 @@ use Bio::DB::SeqFeature;
 
 *dna = *get_dna = *get_sequence = \&fetch_sequence;
 *get_SeqFeatures = \&fetch_SeqFeatures;
+*delete_SeqFeatures = *delete_features = \&delete;
 
 =head1 Methods for Connecting and Initializating a Database
 

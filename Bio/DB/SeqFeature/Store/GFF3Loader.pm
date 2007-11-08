@@ -917,6 +917,7 @@ sub open_fh {
   return IO::File->new("uncompress -c $thing |") if $thing =~ /\.Z$/;
   return IO::File->new("bunzip2 -c $thing |")    if $thing =~ /\.bz2$/;
   return IO::File->new("GET $thing |")           if $thing =~ /^(http|ftp):/;
+  return $thing                                  if ref $thing && $thing->isa('IO::String');
   return IO::File->new($thing);
 }
 
