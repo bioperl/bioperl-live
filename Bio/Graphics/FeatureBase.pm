@@ -530,12 +530,12 @@ sub version {
 
 sub gff_string {
   my $self    = shift;
-  my $recurse = shift;
-
+  
   if ($self->version == 3) {
     return $self->gff3_string(@_);
   }
-
+  
+  my $recurse = shift;
   my $name  = $self->name;
   my $class = $self->class;
   my $group = "$class $name" if $name;
