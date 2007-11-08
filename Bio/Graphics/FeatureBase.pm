@@ -506,7 +506,13 @@ sub to_FTstring {
   }
   $str;
 }
-sub phase { shift->{phase} }
+sub phase {
+    my $self = shift;
+    my $d    = $self->{phase};
+    $self->{phase} = shift if @_;
+    $d;
+}
+
 sub class {
   my $self = shift;
   my $d = $self->{class};
