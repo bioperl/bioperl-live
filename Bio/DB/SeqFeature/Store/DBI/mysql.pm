@@ -1117,9 +1117,24 @@ sub _deleteid {
   my $self = shift;
   my $key  = shift;
   my $dbh = $self->dbh;
+  my $child_table = $self->_parent2child_table;
+  my $query = "SELECT child FROM $child_table WHERE id=?";
+  my $sth=$self->_prepare($query);
+  $sth->execute($key);
   my $success = 0;
+  while (my ($cid) = $sth->fetchrow_array) {
+    # Backcheck looking for multiple parents, delete only if one is present. I'm
+    # sure there is a nice way to left join the parent2child table onto itself
+    # to get this in one query above, just haven't worked it out yet...
+    my $sth2 = $self->_prepare("SELECT count(id) FROM $child_table WHERE child=?");
+    $sth2->execute($cid);
+    my ($count) = $sth2->fetchrow_array;
+    if ($count == 1) {
+        $self->_deleteid($cid) || $self->throw("Couldn't remove subfeature!");
+    }
+  }
   for my $table ($self->all_tables) {
-    $success += $dbh->do("DELETE FROM $table WHERE id=$key");
+    $success += $dbh->do("DELETE FROM $table WHERE id=$key") || 0;
   }
   return $success;
 }
