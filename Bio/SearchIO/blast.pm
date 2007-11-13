@@ -183,7 +183,7 @@ BEGIN {
         'Hit_accession' => 'HIT-accession',
         'Hit_def'       => 'HIT-description',
         'Hit_signif'    => 'HIT-significance',
-
+        'Hit_gi'        => 'HIT-ncbi_gi',
         # For NCBI blast, the description line contains bits.
         # For WU-blast, the  description line contains score.
         'Hit_score' => 'HIT-score',
