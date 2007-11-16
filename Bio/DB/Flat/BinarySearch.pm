@@ -412,7 +412,6 @@ sub get_stream_by_id {
       return;
     }
 
-    my $fh = $self->get_filehandle_by_fileid($fileid);
     my $file = $self->{_file}{$fileid};
 
     open (my $IN,"<$file");
@@ -1156,11 +1155,9 @@ sub make_config_file {
 
 	my $fh;
 	open($fh,"<", $file) || $self->throw($!);
-	$self->{_fileid}{$count}   = $fh;
 	$self->{_file}  {$count}   = $file;
 	$self->{_dbfile}{$file}    = $count;
 	$self->{_size}{$count}     = $size; 
-	
 	$count++;
     }
 
@@ -1233,11 +1230,11 @@ sub read_config_file {
 		chomp;
 
 		# Look for fileid lines
-		if ($_ =~ /^fileid_(\d+)\t(\S+)\t(\d+)/) {
+		if ($_ =~ /^fileid_(\d+)\t(.+)\t(\d+)/) {
 			my $fileid   = $1;
 			my $filename = $2;
 			my $filesize = $3;
-	    
+
 			if (! -e $filename) {
 				$self->throw("File [$filename] does not exist!");
 			}
@@ -1247,9 +1244,6 @@ sub read_config_file {
 		
 			my $fh;
 			open($fh,"<", $filename) || $self->throw($!);
-			close $fh;
-
-			$self->{_fileid}{$fileid}   = $fh;
 			$self->{_file}  {$fileid}   = $filename;
 			$self->{_dbfile}{$filename} = $fileid;
 			$self->{_size}  {$fileid}   = $filesize; 
@@ -1285,7 +1279,7 @@ sub read_config_file {
 
     # Now check we have all that we need
 
-    my @fileid_keys = keys (%{$self->{_fileid}});
+    my @fileid_keys = keys (%{$self->{_file}});
 
     if (!(@fileid_keys)) {
 	     $self->throw("No flatfile fileid files in config - check the index has been made correctly");
@@ -1338,11 +1332,13 @@ sub get_fileid_by_filename {
 sub get_filehandle_by_fileid {
     my ($self,$fileid) = @_;
 
-    if (!defined($self->{_fileid}{$fileid})) {
+    if (!defined($self->{_file}{$fileid})) {
 	$self->throw("ERROR: undefined fileid in index [$fileid]");
     }
    
-    return $self->{_fileid}{$fileid};
+   	my $fh;
+	open($fh,"<", $self->{_file}{$fileid}) || $self->throw($!);
+    return $fh;
 }
 
 =head2 primary_index_file
