@@ -513,14 +513,14 @@ sub _parse_prokaryotic {
             # Also, Glimmer 3.X (with -X) will output predictions
             # with coordinates less than 1 or greater than the
             # length of the sequence.
+            my ($fst, $fend);
             foreach my $coord ($start, $end) {
                 if ($coord < 1) {
                     $coord = '<1';
-                }
-                if (defined($seqlength) && ($coord > $seqlength)) {
-                    if ($coord > $seqlength) {
-                        $coord = ">$seqlength";
-                    }
+                    $fst++;
+                } elsif (defined($seqlength) && ($coord > $seqlength)) {
+                    $coord = ">$seqlength";
+                    $fend++;
                 }
             }
             
@@ -536,7 +536,7 @@ sub _parse_prokaryotic {
                 }
             else {
                 # start must always be less than end for gene locations
-                if ($strand eq '-' && $start > $end) {
+                if ($strand eq '-' && !$fst && !$fend && $start > $end) {
                     ($start, $end) = ($end, $start);
                 }
                 $location_string = "$start..$end";
