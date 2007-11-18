@@ -317,7 +317,7 @@ sub post_init {
   my $timestamp_time  = _mtime($self->_mtime_path) || 0;
 
   if ($maxtime > $timestamp_time) {
-    warn "Reindexing... this may take a while.";
+    warn "Reindexing... this may take a while.\n";
     $self->_permissions(1,1);
     $self->_close_databases();
     $self->_open_databases(1,1);
