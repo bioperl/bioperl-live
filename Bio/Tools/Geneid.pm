@@ -142,10 +142,15 @@ sub next_prediction
         # then need to perform the hack of extracting the sequence ID
         # from the header of the embedded Fasta file which comes after
         # the exon data, as it is not stored elsewhere. Ack.
-        if (/^>(\S+)\|GeneId/)
+        # the new version of geneID includes the sequence ID in a slightly
+        # different format and a new "or" statement was added below
+        # also removed "unless defined $self->_target_id;" inorder to continue
+        # generating new sequence IDs.
+        
+        if (/^>(\S+)\|GeneId/ or /^# Sequence (\S+)/)
         {
             my $target_id = $1;
-            $self->_target_id($target_id) unless defined $self->_target_id;
+            $self->_target_id($target_id);
             next;
         }
 
