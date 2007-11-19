@@ -159,6 +159,7 @@ BEGIN {
         'Hsp_bit-score'   => 'HSP-bits',
         'Hsp_score'       => 'HSP-score',
         'Hsp_evalue'      => 'HSP-evalue',
+        'Hsp_n',          => 'HSP-n',
         'Hsp_pvalue'      => 'HSP-pvalue',
         'Hsp_query-from'  => 'HSP-query_start',
         'Hsp_query-to'    => 'HSP-query_end',
@@ -987,7 +988,7 @@ sub next_result {
             &&    # ncbi blast
             m/Score\s*=\s*(\S+)\s*bits\s* # Bit score
                 (?:\((\d+)\))?,            # Missing for BLAT pseudo-BLAST fmt 
-                \s*Expect(?:\(\d+\+?\))?\s*=\s*(\S+) # E-value
+                \s*Expect(?:\((\d+\+?)\))?\s*=\s*(\S+) # E-value
                 /ox
           )
         {         # parse NCBI blast HSP
@@ -995,9 +996,8 @@ sub next_result {
               && $self->end_element( { 'Name' => 'Hsp' } );
 
             # Some data clean-up so e-value will appear numeric to perl
-            my ( $bits, $score, $evalue ) = ( $1, $2, $3 );
+            my ( $bits, $score, $n, $evalue ) = ( $1, $2, $3, $4 );
             $evalue =~ s/^e/1e/i;
-
             $self->start_element( { 'Name' => 'Hsp' } );
             $self->element(
                 {
@@ -1017,6 +1017,12 @@ sub next_result {
                     'Data' => $evalue
                 }
             );
+            $self->element(
+                {
+                    'Name' => 'Hsp_n',
+                    'Data' => $n
+                }
+            ) if defined $n;
             $score = '' unless defined $score;    # deal with BLAT which
                                                   # has no score only bits
             $self->debug("Got NCBI HSP score=$score, evalue $evalue\n");

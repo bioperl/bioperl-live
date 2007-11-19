@@ -1040,8 +1040,8 @@ See documentation in L<Bio::Search::HSP::HSPI::n()|Bio::Search::HSP::HSPI>
 
 sub n {
     my $self = shift;
-    if(@_) { $self->{'_n'} = shift; }
-    defined $self->{'_n'} ? $self->{'_n'} : '';
+    if(@_) { $self->{'N'} = shift; }
+    defined $self->{'N'} ? $self->{'N'} : '';
 }
 
 =head2 range

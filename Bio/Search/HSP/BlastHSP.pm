@@ -1134,7 +1134,7 @@ See Also   : L<Bio::SeqFeature::SimilarityPair::score()|Bio::SeqFeature::Similar
 =cut
 
 #-----
-sub n { my $self = shift; $self->{'_n'} || ''; }
+sub n { my $self = shift; $self->{'N'} || ''; }
 #-----
 
 
