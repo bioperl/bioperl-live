@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 1485);
+    test_begin(-tests => 1486);
 	
 	use_ok('Bio::SearchIO');
 	use_ok('Bio::SearchIO::Writer::HitTableWriter');
@@ -2097,6 +2097,20 @@ $result = $searchio->next_result;
 # data is getting munged up with long names
 is($result->query_name, 'c6_COX;c6_QBL;6|31508172;31503325;31478402|rs36223351|1|dbSNP|C/G');
 is($result->query_description, '');
+
+# bug 2399 - catching Expect(n) values
+
+$file = test_input_file('bug2399.tblastn');
+
+$searchio = Bio::SearchIO->new(-format => 'blast',
+							  -file   => $file);
+my $total_n = 0;
+while(my $query = $searchio->next_result) {
+    while(my $subject = $query->next_hit) {
+        $total_n += grep{$_->n} $subject->hsps;
+    }
+}
+is($total_n, 10);
 
 # some utilities
 # a utility function for comparing result objects
