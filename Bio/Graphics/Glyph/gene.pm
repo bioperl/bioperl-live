@@ -51,7 +51,7 @@ sub bump {
 sub label {
   my $self = shift;
   return unless $self->{level} < 2;
-  if ($self->label_transcripts && $self->{feature}->primary_tag eq 'mRNA') { # the mRNA
+  if ($self->label_transcripts && $self->{feature}->primary_tag =~ /RNA|pseudogene/i) {
     return $self->_label;
   } else {
     return $self->SUPER::label;
@@ -92,15 +92,23 @@ sub maxdepth {
 sub _subfeat {
   my $class   = shift;
   my $feature = shift;
-  return $feature->get_SeqFeatures('mRNA') if $feature->primary_tag eq 'gene';
+  if ($feature->primary_tag eq 'gene') {
+    my @transcripts;
+    for my $t (qw/mRNA tRNA snRNA snoRNA miRNA ncRNA pseudogene/) {
+      push @transcripts, $feature->get_SeqFeatures($t);
+    }
+    return @transcripts;
+  }
 
   my @subparts;
   if ($class->option('sub_part')) {
     @subparts = $feature->get_SeqFeatures($class->option('sub_part'));
   }
-  else {
-
+  elsif ($feature->primary_tag eq 'mRNA') {
     @subparts = $feature->get_SeqFeatures(qw(CDS five_prime_UTR three_prime_UTR UTR));
+  }
+  else {
+    @subparts = $feature->get_SeqFeatures('exon');
   }
  
   # The CDS and UTRs may be represented as a single feature with subparts or as several features
