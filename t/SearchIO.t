@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 1483);
+    test_begin(-tests => 1485);
 	
 	use_ok('Bio::SearchIO');
 	use_ok('Bio::SearchIO::Writer::HitTableWriter');
@@ -2086,6 +2086,18 @@ is (scalar(keys %search_accs), 490);
 
 is_deeply(\%unique_accs, \%search_accs);
 
+# bug 2391 - long query names
+
+$file = test_input_file('bug2391.megablast');
+
+$searchio = Bio::SearchIO->new(-format => 'blast',
+							  -file   => $file);
+$result = $searchio->next_result;
+
+# data is getting munged up with long names
+is($result->query_name, 'c6_COX;c6_QBL;6|31508172;31503325;31478402|rs36223351|1|dbSNP|C/G');
+is($result->query_description, '');
+
 # some utilities
 # a utility function for comparing result objects
 sub result2hash {
@@ -2124,7 +2136,6 @@ sub result2hash {
     }
     return %hash;
 }
-
 
 __END__
 

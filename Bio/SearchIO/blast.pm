@@ -532,7 +532,6 @@ sub next_result {
                     $self->_pushback($_);
                     last;
                 }
-                chomp;
                 # below line fixes length issue with BLAST v2.2.13; still works 
                 # with BLAST v2.2.12
                 if ( /\((\-?[\d,]+)\s+letters.*\)/ || /^Length=(\-?[\d,]+)/ ) {
@@ -541,8 +540,9 @@ sub next_result {
                     last;
                 }
                 else {
-                    $q .= " $_";
-                    $q =~ s/ +/ /g;
+                    # bug 2391
+                    $q .= ($_ =~ /^\w/) ? " $_" : $_;
+                    $q =~ s/\s+/ /g;
                     $q =~ s/^ | $//g;
                 }
 
