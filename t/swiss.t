@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 239);
+    test_begin(-tests => 240);
 	
     use_ok('Bio::SeqIO');
 }
@@ -98,7 +98,7 @@ is($as->division, 'HUMAN');
 is(scalar $as->all_SeqFeatures(), 16);
 is(scalar $as->annotation->get_Annotations('reference'), 11);
 
-# version, seq_update, dates (5 tests)
+# version, seq_update, dates (6 tests)
 is($as->version, 35);
 ($ann) = $as->annotation->get_Annotations('seq_update');
 is($ann->display_text, 15,'operator overloading in AnnotationI is deprecated');
@@ -107,6 +107,9 @@ is($ann->display_text, 15,'operator overloading in AnnotationI is deprecated');
 for my $date (@dates) {
     is($date, shift @date_check);
 }
+($ann) = $as->annotation->get_Annotations('evidence');
+is($ann->value,"1: Evidence at protein level");
+
 
 my ($ent,$out) = undef;
 ($as,$seq) = undef;

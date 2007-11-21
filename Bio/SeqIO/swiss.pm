@@ -242,6 +242,16 @@ sub next_seq {
         }
        push @{$params{'-dates'}}, $date;
        }
+       # Evidence level
+       elsif( /^PE\s+(.*)/ ) {
+	my $line = $1;
+	$line =~ s/;\s*//; # trim trailing semicolon and any spaces at the end of the line
+	my $evidence = Bio::Annotation::SimpleValue->new(
+					-tagname   => 'evidence',
+					-value     => $line
+					);
+	$annotation->add_Annotation($evidence);
+       }
        # Organism name and phylogenetic information
        elsif (/^O[SCG]/) {
            my $species = $self->_read_swissprot_Species($_);
@@ -567,6 +577,12 @@ sub write_seq {
 	    }
 	    $self->_print("CC   ",$cline,"\n");
         }
+    }
+
+    # Evidence lines
+    
+    foreach my $evidence ( $seq->annotation->get_Annotations('evidence') ) {
+    	$self->_print("PE   ",$evidence->value,";\n");
     }
 
     foreach my $dblink ( $seq->annotation->get_Annotations('dblink') ) 

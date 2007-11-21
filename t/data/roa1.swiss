@@ -124,6 +124,7 @@ DR   AARHUS/GHENT-2DPAGE; 3612; NEPHGE.
 DR   MIM; 164017; -.
 DR   PFAM; PF00076; rrm; 2.
 DR   PROSITE; PS00030; RNP_1; 2.
+PE   1: Evidence at protein level;
 KW   Nuclear protein; RNA-binding; Repeat; Ribonucleoprotein;
 KW   Methylation; Alternative splicing; 3D-structure.
 FT   INIT_MET      0      0
