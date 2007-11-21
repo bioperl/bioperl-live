@@ -541,8 +541,8 @@ sub next_result {
                 }
                 else {
                     # bug 2391
-                    $q .= ($_ =~ /^\w/) ? " $_" : $_;
-                    $q =~ s/\s+/ /g;
+                    $q .= ($q =~ /\w$/ && $_ =~ /^\w/) ? " $_" : $_;
+                    $q =~ s/\s+/ /g; # this catches the newline as well
                     $q =~ s/^ | $//g;
                 }
 
