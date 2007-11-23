@@ -215,7 +215,9 @@ sub write_seq {
 					  "unknown";
 	my @quals = $source->qual();
 	# ::dumpValue(\@quals);
-	$self->_print (">$header \n");
+        my $desc = '';
+        $desc = $source->desc if $source->can('desc');
+	$self->_print (">$header $desc\n");
 	my (@slice,$max,$length);
 	$length = $source->length();
 #	if ($length eq "DIFFERENT") {
