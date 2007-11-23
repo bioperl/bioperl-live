@@ -21,12 +21,16 @@ Do not use this module directly.  Use it via the Bio::SeqIO class
 
   my $in_qual = Bio::SeqIO->new(-file    => $qualfile,
                                 -format  => 'qual',
+                                -width   => $width,
                                 -verbose => $verbose);
 
 =head1 DESCRIPTION
 
 This object can transform .qual (similar to fasta) objects to and from
 Bio::Seq::Quality objects. See L<Bio::Seq::Quality> for details.
+
+Like the fasta module, it can take an argument '-width' to change the
+number of values per line (defaults to 50).
 
 =head1 FEEDBACK
 
@@ -72,14 +76,18 @@ my $dumper = new Dumpvalue();
 
 use base qw(Bio::SeqIO);
 
+our $WIDTH = 25;
+
 sub _initialize {
-	my($self,@args) = @_;
-	$self->SUPER::_initialize(@args);
-	if( ! defined $self->sequence_factory ) {
-		$self->sequence_factory(Bio::Seq::SeqFactory->new
-										(-verbose => $self->verbose(),
-										 -type => 'Bio::Seq::PrimaryQual'));
-	}
+    my($self,@args) = @_;
+    $self->SUPER::_initialize(@args);
+    my ($width) = $self->_rearrange([qw(WIDTH)], @args);
+    $width && $self->width($width);
+    if( ! defined $self->sequence_factory ) {
+        $self->sequence_factory(Bio::Seq::SeqFactory->new
+                                (-verbose => $self->verbose(),
+                                 -type => 'Bio::Seq::PrimaryQual'));
+    }
 }
 
 =head2 next_seq()
@@ -100,25 +108,25 @@ sub next_seq {
 
     return unless my $entry = $self->_readline;
 
-    if ($entry eq '>')  {	# very first one
-		 return unless $entry = $self->_readline;
+    if ($entry eq '>') {	# very first one
+        return unless $entry = $self->_readline;
     }
 
     # original: my ($top,$sequence) = $entry =~ /^(.+?)\n([^>]*)/s
     my ($top,$sequence) = $entry =~ /^(.+?)\n([^>]*)/s
-		or $self->throw("Can't parse entry [$entry]");
+        or $self->throw("Can't parse entry [$entry]");
     my ($id,$fulldesc) = $top =~ /^\s*(\S+)\s*(.*)/
-		or $self->throw("Can't parse fasta header");
+        or $self->throw("Can't parse fasta header");
     $id =~ s/^>//;
     # create the seq object
     $sequence =~ s/\n+/ /g;
     return $self->sequence_factory->create
-		(-qual        => $sequence,
-		 -id         => $id,
-		 -primary_id => $id,
-		 -display_id => $id,
-		 -desc       => $fulldesc
-		);
+        (-qual        => $sequence,
+         -id         => $id,
+         -primary_id => $id,
+         -display_id => $id,
+         -desc       => $fulldesc
+        );
 }
 
 =head2 _next_qual
@@ -135,8 +143,8 @@ sub next_seq {
 =cut
 
 sub _next_qual {
-	my $qual = next_primary_qual( $_[0], 1 );
-	return $qual;
+    my $qual = next_primary_qual( $_[0], 1 );
+    return $qual;
 }
 
 =head2 next_primary_qual()
@@ -150,34 +158,55 @@ sub _next_qual {
 =cut
 
 sub next_primary_qual {
-	# print("CSM next_primary_qual!\n");
-	my( $self, $as_next_qual ) = @_;
-	my ($qual,$seq);
-	local $/ = "\n>";
+    # print("CSM next_primary_qual!\n");
+    my( $self, $as_next_qual ) = @_;
+    my ($qual,$seq);
+    local $/ = "\n>";
 
-	return unless my $entry = $self->_readline;
+    return unless my $entry = $self->_readline;
 
-	if ($entry eq '>')  {  # very first one
-		return unless $entry = $self->_readline;
-	}
+    if ($entry eq '>') {        # very first one
+        return unless $entry = $self->_readline;
+    }
 
-	my ($top,$sequence) = $entry =~ /^(.+?)\n([^>]*)/s
-      or $self->throw("Can't parse entry [$entry]");
-	my ($id,$fulldesc) = $top =~ /^\s*(\S+)\s*(.*)/
-      or $self->throw("Can't parse fasta header");
-	$id =~ s/^>//;
-	# create the seq object
-	$sequence =~ s/\n+/ /g;
-	if ($as_next_qual) {
-            $qual = Bio::Seq::PrimaryQual->new(-qual       => $sequence,
-                                               -id         => $id,
-                                               -primary_id => $id,
-                                               -display_id => $id,
-                                               -desc       => $fulldesc
-                                              );
-	}
-	return $qual;
+    my ($top,$sequence) = $entry =~ /^(.+?)\n([^>]*)/s
+        or $self->throw("Can't parse entry [$entry]");
+    my ($id,$fulldesc) = $top =~ /^\s*(\S+)\s*(.*)/
+        or $self->throw("Can't parse fasta header");
+    $id =~ s/^>//;
+    # create the seq object
+    $sequence =~ s/\n+/ /g;
+    if ($as_next_qual) {
+        $qual = Bio::Seq::PrimaryQual->new(-qual       => $sequence,
+                                           -id         => $id,
+                                           -primary_id => $id,
+                                           -display_id => $id,
+                                           -desc       => $fulldesc
+                                          );
+    }
+    return $qual;
 }
+
+
+=head2 width
+
+ Title   : width
+ Usage   : $obj->width($newval)
+ Function: Get/Set the number of values per line  for FASTA-like output
+ Returns : value of width
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub width{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'width'} = $value;
+    }
+    return $self->{'width'} || $WIDTH;
+}
+
 
 =head2 write_seq
 
@@ -188,60 +217,59 @@ sub next_primary_qual {
  Function: Write out a list of quality values to a fasta-style file.
  Returns : Nothing.
  Args    : Requires a reference to a Bio::Seq::Quality object or a
-	        PrimaryQual object as the -source. Option 1: information
-	        for the header. Option 2: whether the quality score should be
-	        on a single line or not
+           PrimaryQual object as the -source. Option 1: information
+           for the header. Option 2: whether the quality score should
+           be on a single line or not
  Notes   : If no -header is provided, $obj->id() will be used where
-	        $obj is a reference to either a Quality object or a
-	        PrimaryQual object. If $source->id() fails, "unknown" will be
-	        the header. If the Quality object has $source->length()
+           $obj is a reference to either a Quality object or a
+           PrimaryQual object. If $source->id() fails, "unknown" will
+           be the header. If the Quality object has $source->length()
            of "DIFFERENT" (read the pod, luke), write_seq will use the
-           length of the PrimaryQual object within the Quality
-           object.
+           length of the PrimaryQual object within the Quality object.
 
 =cut
 
 sub write_seq {
-	my ($self,@args) = @_;
-	my ($source, $head, $oneline)  = $self->_rearrange([qw(SOURCE HEADER ONELINE)], @args);
-	if (!$source || ( !$source->isa('Bio::Seq::Quality') &&
-							!$source->isa('Bio::Seq::PrimaryQual')   )) {
-		$self->throw("You must pass a Bio::Seq::Quality or a Bio::Seq::PrimaryQual object to write_seq() as a parameter named \"source\"");
-	}
-	my $header = ($source->can("header") && $source->header) ?
-	              $source->header :
-	             ($source->can("id") && $source->id) ?
-		           $source->id :
-					  "unknown";
-	my @quals = $source->qual();
-	# ::dumpValue(\@quals);
-        my $desc = '';
-        $desc = $source->desc if $source->can('desc');
-	$self->_print (">$header $desc\n");
-	my (@slice,$max,$length);
-	$length = $source->length();
-#	if ($length eq "DIFFERENT") {
-#		$self->warn("You passed a Bio::Seq::Quality object that contains a sequence and quality of differing lengths. Using the length of the PrimaryQual component of the Quality object.");
-#		$length = $source->qual_obj()->length();
-#    }
-	# print("Printing $header to a file.\n");
+    my ($self,@args) = @_;
+    my $width = $self->width;
+    my ($source, $head, $oneline) = $self->_rearrange([qw(SOURCE HEADER ONELINE)], @args);
+    if (!$source || ( !$source->isa('Bio::Seq::Quality') &&
+                      !$source->isa('Bio::Seq::PrimaryQual')   )) {
+        $self->throw("You must pass a Bio::Seq::Quality or a Bio::Seq::PrimaryQual".
+                     " object to write_seq() as a parameter named \"source\"");
+    }
+    my $header = ($source->can("header") && $source->header) ?
+        $source->header :
+            ($source->can("id") && $source->id) ?
+                $source->id :
+                    "unknown";
+    my @quals = $source->qual();
+    # ::dumpValue(\@quals);
+    my $desc = '';
+    $desc = $source->desc if $source->can('desc');
+    $self->_print (">$header $desc\n");
+    my (@slice,$max,$length);
+    $length = $source->length();
 	
-	if ( not(defined($oneline)) || $oneline == 0) {
-	    # 50 quality values per line
-	for (my $count = 1; $count<=$length; $count+= 50) {
-		if ($count+50 > $length) { $max = $length; }
-		else { $max = $count+49; }
-		my @slice = @{$source->subqual($count,$max)};
-		$self->_print (join(' ',@slice), "\n");
+    if ( not(defined($oneline)) || $oneline == 0) {
+        # $width quality values per line
+	for (my $count = 1; $count<=$length; $count+= $width) {
+            if ($count+$width > $length) {
+                $max = $length;
+            } else {
+                $max = $count+$width-1;
+            }
+            my @slice = @{$source->subqual($count,$max)};
+            $self->_print (join(' ',@slice), "\n");
 	}
     } else {
         # quality values on a single line
-	    my @slice = @{$source->qual};
-	    $self->_print (join(' ',@slice), "\n");
+        my @slice = @{$source->qual};
+        $self->_print (join(' ',@slice), "\n");
     }
 
-	$self->flush if $self->_flush_on_write && defined $self->_fh;
-	return 1;
+    $self->flush if $self->_flush_on_write && defined $self->_fh;
+    return 1;
 }
 
 
