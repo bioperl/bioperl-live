@@ -9,7 +9,9 @@ my $USAGE = <<END_USAGE;
 $0 <file>
 
 This simple example script reads the ABI data and uses the trace data to
-generate a SVG-formatted chromatogram. Requires the CPAN SVG module.
+generate a SVG-formatted chromatogram. Requires the CPAN SVG module and
+Bio::SeqIO::staden::read (from bioperl-ext), which itself requires io_lib from
+the Staden package.
 
 END_USAGE
 
@@ -20,7 +22,7 @@ my $img_height = 200;
 
 my $svg = SVG->new(width => $img_width, height => $img_height, xmlns => "http://www.w3.org/2000/svg");
 
-my $seq_io = Bio::SeqIO->new( -file => $file, -format => 'abi_with_trace');
+my $seq_io = Bio::SeqIO->new( -file => $file, -format => 'abi', -get_trace_data => 1);
 
 my $seq = $seq_io->next_seq;
 
