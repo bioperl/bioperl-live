@@ -190,16 +190,18 @@ sub new {
 
     my $self = $class->SUPER::new(@args);
 
-    my($meta, $qual, $trace, $trace_indices) =
+    my($meta, $qual, $trace, $trace_indices, $trace_data) =
         $self->_rearrange([qw(META
                               QUAL
                               TRACE
                               TRACE_INDICES
+			      TRACE_DATA
                               )],
                           @args);
 
     $self->{'_meta'}->{$DEFAULT_NAME} = [];
     $self->{'_meta'}->{'trace'} = [];
+    $self->{trace_data} = $trace_data;
 
     $meta && $self->meta($meta);
     $qual && $self->qual($qual);
@@ -436,6 +438,40 @@ sub trace_length {
 sub trace_is_flush {
     return shift->is_flush('trace');
 }
+
+=head2 get_trace_graph
+
+ Title    : get_trace_graph
+ Usage    : @trace_values = $obj->get_trace_graph( -trace => 'a', -scale => 100)
+ Function : Returns array of raw trace values for a trace file, or false if no trace data exists.
+            Requires a value for trace to get either the a, g, c or t trace information, and an
+	    optional value for scale, which rescales the data between 0 and the provided value, 
+	    a scale value of '0' performs no scaling
+ Returns  : Array or 0
+ Args     : string, trace to retrieve, one of a, g, c or t
+            integer, scale, for scaling of trace between 0 and scale, or 0 for no scaling, optional
+
+=cut
+
+sub get_trace_graph
+{
+	my $self = shift;
+        my($trace, $scale) =
+	$self->_rearrange([qw(TRACE
+			      SCALE
+			      )],
+			  @_);
+	unless (grep { lc($trace) eq $_ } ('a', 'g', 'c', 't')) { return 0 }
+	unless (defined($self->{trace_data})) { return 0 }
+	$trace = lc($trace) . "_trace";
+	my @trace_data = @{$self->{trace_data}->{$trace}};
+	my $max = $self->{trace_data}->{max_height};
+	if (defined($scale) and $scale != 0)
+	{
+		@trace_data = map { $_ / $max * $scale } @trace_data;
+	}
+	return @trace_data;
+}	
 
 
 ################## deprecated methdods ##################
