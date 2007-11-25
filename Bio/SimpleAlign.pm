@@ -204,7 +204,6 @@ sub new {
   $self->{'_start_end_lists'} = {};
   $self->{'_dis_name'} = {};
   $self->{'_id'} = 'NoName';
-  $self->{'_symbols'} = {};
   # maybe we should automatically read in from args. Hmmm...
   $id && $self->id($id);
 
