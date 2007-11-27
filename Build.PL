@@ -47,7 +47,7 @@ my $build = ModuleBuildBioperl->new(
                             'GD'                        => '1.3/rendering Sequences and Features/Bio::Graphics::Glyph*',
                             'GD::SVG'                   => '0/creating SVG images/Bio::Graphics::Panel',
                             # we specifically want Graph::Directed, but that has no VERSION
-                            'Graph'                     => '0/ontology engine implementation for the GO parser/Bio::Ontology::SimpleGOEngine::GraphAdaptor',
+                            'Graph'                     => '0/ontology engine implementation for the GO parser/Bio::Ontology::SimpleGOEngine::GraphAdaptor,Bio::PhyloNetwork',
                             'HTML::Entities'            => '0/remote analysis POST submissions/Bio::SearchIO::blastxml',
                             'HTML::Parser'              => '3/screen scraping www.gdb.org/Bio::DB::GDB',
                             'HTTP::Request::Common'     => '0/GenBank+GenPept sequence retrieval, remote http Blast jobs/Bio::DB::*,Bio::Tools::Run::RemoteBlast,Bio::Tools::Analysis::Protein*,Bio::Tools::Analysis::DNA*',
@@ -67,8 +67,12 @@ my $build = ModuleBuildBioperl->new(
                             'XML::SAX'                  => '0.15/parsing xml/Bio::SearchIO::blastxml,Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
                             'XML::SAX::Writer'          => '0/writing xml/Bio::SeqIO::tigrxml',
                             'XML::Twig'                 => '0/parsing xml/Bio::Variation::IO::xml,Bio::DB::Taxonomy::entrez,Bio::DB::Biblio::eutils,Bio::Graph::IO::psi_xml',
-                            'XML::Writer'               => '0.4/parsing and writing xml/Bio::SeqIO::agave,Bio::SeqIO::game::gameWriter,Bio::SeqIO::chadoxml,Bio::SeqIO::tinyseq,Bio::Variation::IO::xml,Bio::SearchIO::Writer::BSMLResultWriter'
-                           },
+                            'XML::Writer'               => '0.4/parsing and writing xml/Bio::SeqIO::agave,Bio::SeqIO::game::gameWriter,Bio::SeqIO::chadoxml,Bio::SeqIO::tinyseq,Bio::Variation::IO::xml,Bio::SearchIO::Writer::BSMLResultWriter',
+			    'Math::Random'          => '0/Random Phylogenetic Networks/Bio::PhyloNetwork::RandomFactory',
+			    'Algorithm::Munkres'    => '0/Phylogenetic Networks/Bio::PhyloNetwork',
+			    'Array::Compare'        => '0/Phylogenetic Networks/Bio::PhyloNetwork',
+			    'GraphViz'              => '0/Phylogenetic Network Visulization/Bio::PhyloNetwork::GraphViz',
+    },
     get_options         => {
                             network => { } # say 'perl Build.PL --network' to manually request network tests
                            },
