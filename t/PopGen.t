@@ -10,7 +10,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 99);
+    test_begin(-tests => 98);
 	
     use_ok('Bio::PopGen::Individual');
     use_ok('Bio::PopGen::Genotype');
@@ -195,7 +195,7 @@ my @mkr2     = map { 'B' . $_ } 14..20;
 $fst = $stats->Fst([$mrsapop,$mssapop],[@all_bands ]);
 #TODO: {
 #    local $TODO = 'Possible bug with Fst() output';
-    is(sprintf("%.3f",$fst),'-0.001','mssa,mrsa all_bands'); # We're going to check the values against other programs first
+is(sprintf("%.3f",$fst),'-0.001','mssa,mrsa all_bands'); # We're going to check the values against other programs first
 #}
 $fst = $stats->Fst([$envpop,$mssapop],[ @mkr1 ]);
 is(sprintf("%.3f",$fst),0.023,'env,mssa mkr1'); # We're going to check the values against other programs first
@@ -237,11 +237,11 @@ $poptst2->set_Allele_Frequency(-name      => 'marker1',
 			       -allele    => 'a',
 			       -frequency => '0.40');
 
-TODO: {
-    local $TODO = 'Fst not calculated yet for just allele freqs';
-    ok 0;
-    #$fst = $stats->Fst([$poptst1,$poptst2],[qw(marker1 marker2) ]);
-}
+#TODO: {
+#    local $TODO = 'Fst not calculated yet for just allele freqs';
+#    ok 0;
+#    #$fst = $stats->Fst([$poptst1,$poptst2],[qw(marker1 marker2) ]);
+#}
 
 $io = Bio::PopGen::IO->new(-format => 'csv',
 			  -file   => ">$FILE1");
@@ -420,11 +420,11 @@ is(sprintf("%.3f",$stats->pi($population)),12.335);
 # is(sprintf("%.3f",$stats->pi($population)),12.266);
 
 is(sprintf("%.3f",$stats->theta($population)),5.548);
-TODO: {
-    local $TODO = 'May be TJd inconsistency, need to recalculate';
+#TODO: {
+#    local $TODO = 'May be TJd inconsistency, need to recalculate';
     is(sprintf("%.3f",$stats->tajima_D($population)),'2.960');
     is(sprintf("%.3f",$stats->tajima_D($population->haploid_population)),3.486);
-}
+#}
 $io = Bio::PopGen::IO->new(-format => 'phase',
 			  -file   => test_input_file('example.phase'));
 
