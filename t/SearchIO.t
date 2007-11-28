@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 1486);
+    test_begin(-tests => 1535);
 	
 	use_ok('Bio::SearchIO');
 	use_ok('Bio::SearchIO::Writer::HitTableWriter');
@@ -44,6 +44,7 @@ SKIP: {
     is($result->query_name,'gi|1786182|gb|AAC73112.1|','query_name()');
     is($result->query_description, '(AE000111) thr operon leader peptide [Escherichia coli]');
     is($result->query_accession, 'AAC73112.1');
+    is($result->query_gi, 1786182);
     is($result->query_length, 21);
     is($result->algorithm, 'BLASTP');
     is($result->algorithm_version, 'blastp 2.1.3 [Apr-1-2001]');
@@ -59,6 +60,7 @@ SKIP: {
     is($hit->name, 'gnl|Pfam|pfam00742');
     is($hit->description(), 'HomoS_dh, HomoS dehydrogenase');
     is($hit->accession, 'pfam00742');
+    is($hit->ncbi_gi, ''); # not found
     is($hit->length, 310);
 
     $hsp = $hit->next_hsp;
@@ -110,6 +112,7 @@ SKIP: {
     is($result->query_name, 'gi|5763811|emb|CAB53164.1|');
     is($result->query_description,  'putative transposase [Yersinia pestis]');
     is($result->query_accession, 'CAB53164.1');
+    is($result->query_gi, 5763811);  
     is($result->query_length, 340);
 
     $hit = $result->next_hit;
@@ -125,10 +128,12 @@ SKIP: {
     is($result->query_name,'NM_011441_up_1000_chr1_4505586_r');
     is($result->query_description,'chr1:4505586-4506585');
     is($result->query_accession,'NM_011441_up_1000_chr1_4505586_r');
+    is($result->query_gi, '');
     is($result->query_length,'1000');
     $hit = $result->next_hit;
     is($hit->name,'NM_001938_up_1000_chr1_93161154_f');
     is($hit->description,'chr1:93161154-93162153');
+    is($hit->ncbi_gi, ''); # none reported
     is($hit->accession,'3153');
     is($hit->length,'1000');
     
@@ -154,6 +159,7 @@ SKIP: {
     is($result->query_name,'gi|15600734|ref|NP_254228.1|');
     is($result->query_description,'dihydroorotase [Pseudomonas aeruginosa PAO1]');
     is($result->query_accession,'NP_254228.1');
+    is($result->query_gi, 15600734);
     is($result->query_length,'445');
     $hit = $result->next_hit;
     is($hit->name,'gi|15600734|ref|NP_254228.1|');
@@ -192,6 +198,7 @@ SKIP: {
     is($result->query_name,'gi|15598723|ref|NP_252217.1|');
     is($result->query_description,'dihydroorotase [Pseudomonas aeruginosa PAO1]');
     is($result->query_accession,'NP_252217.1');
+    is($result->query_gi, 15598723);
     is($result->query_length,'348');
     $hit = $result->next_hit;
     is($hit->name,'gi|15598723|ref|NP_252217.1|');
@@ -199,6 +206,7 @@ SKIP: {
        '>gi|6226683|sp|P72170|PYRC_PSEAE Dihydroorotase (DHOase) '.
        '>gi|9949676|gb|AAG06915.1|AE004773_4 dihydroorotase [Pseudomonas aeruginosa PAO1] '.
        '>gi|3868712|gb|AAC73109.1| dihydroorotase [Pseudomonas aeruginosa]');
+    is($hit->ncbi_gi, 15598723);
     is($hit->accession,'NP_252217');
     is($hit->length,'348');
     $hsp = $hit->next_hsp;
@@ -230,6 +238,8 @@ is($result->database_letters, 1358990);
 is($result->algorithm, 'BLASTP');
 like($result->algorithm_version, qr/^2\.1\.3/);
 like($result->query_name, qr/gi|1786183|gb|AAC73113.1| (AE000111) aspartokinase I,\s+homoserine dehydrogenase I [Escherichia coli]/);
+is($result->query_accession, 'AAC73113.1');
+is($result->query_gi, 1786183);
 is($result->query_length, 820);
 is($result->get_statistic('kappa'), '0.135');
 is($result->get_statistic('kappa_gapped'), '0.0410');
@@ -251,9 +261,9 @@ is($result->get_parameter('expect'), '1.0e-03');
 is($result->get_statistic('num_extensions'), '82424');
 
 
-my @valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113', '0', 1567],
-	      [ 'gb|AAC76922.1|', 810, 'AAC76922', '1e-91', 332],
-	      [ 'gb|AAC76994.1|', 449, 'AAC76994', '3e-47', 184]);
+my @valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113', '0', 1567, 4058],
+	      [ 'gb|AAC76922.1|', 810, 'AAC76922', '1e-91', 332, 850],
+	      [ 'gb|AAC76994.1|', 449, 'AAC76994', '3e-47', 184, 467]);
 my $count = 0;
 while( $hit = $result->next_hit ) {
     my $d = shift @valid;
@@ -262,6 +272,7 @@ while( $hit = $result->next_hit ) {
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
     is(sprintf("%g",$hit->significance), sprintf("%g",shift @$d) );
+    is($hit->bits, shift @$d );
     is($hit->raw_score, shift @$d );
 
     if( $count == 0 ) {
@@ -304,6 +315,7 @@ like($result->query_name, qr/gi|1786183|gb|AAC73113.1| (AE000111) aspartokinase 
 is($result->query_accession, 'AAC73113.1');
 
 is($result->query_length, 820);
+is($result->query_gi, 1786183);
 is($result->get_statistic('kappa'), 0.136);
 is($result->get_statistic('lambda'), 0.319);
 is($result->get_statistic('entropy'), 0.384);
@@ -395,6 +407,7 @@ is($result->algorithm, 'BLASTP');
 like($result->algorithm_version, qr/^2\.0MP\-WashU/);
 like($result->query_name, qr/gi|1786183|gb|AAC73113.1| (AE000111) aspartokinase I,\s+homoserine dehydrogenase I [Escherichia coli]/);
 is($result->query_accession, 'AAC73113.1');
+is($result->query_gi, 1786183);
 
 is($result->query_length, 820);
 is($result->get_statistic('kappa'), 0.135);
@@ -485,9 +498,9 @@ is($result->get_statistic('decayconst'), 0.1);
 
 is($result->get_parameter('matrix'), 'BLOSUM62');
 
-@valid = ( [ 'gb|AE000479.1|AE000479', 10934, 'AE000479', '0.13', 34],
-	   [ 'gb|AE000302.1|AE000302', 10264, 'AE000302', '0.61', 31],
-	   [ 'gb|AE000277.1|AE000277', 11653, 'AE000277', '0.84', 31]);
+@valid = ( [ 'gb|AE000479.1|AE000479', 10934, 'AE000479', '0.13', 33.6, 67],
+	   [ 'gb|AE000302.1|AE000302', 10264, 'AE000302', '0.61', 31.3, 62],
+	   [ 'gb|AE000277.1|AE000277', 11653, 'AE000277', '0.84', 30.8, 61]);
 $count = 0;
 
 while( $hit = $result->next_hit ) {
@@ -496,6 +509,7 @@ while( $hit = $result->next_hit ) {
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
     is($hit->significance, shift @$d );
+    is($hit->bits, shift @$d );
     is($hit->raw_score, shift @$d );
 
     if( $count == 0 ) {
@@ -620,9 +634,9 @@ is($result->get_statistic('dbletters'), 1358987);
 is($result->get_statistic('dbentries'), 4289);
 
 
-@valid = ( [ 'gi|1787478|gb|AAC74309.1|', 512, 'AAC74309', 1.2, 29.2],
-	   [ 'gi|1790635|gb|AAC77148.1|', 251, 'AAC77148', 2.1, 27.4],
-	   [ 'gi|1786590|gb|AAC73494.1|', 94, 'AAC73494',  2.1, 25.9]);
+@valid = ( [ 'gi|1787478|gb|AAC74309.1|', 512, 'AAC74309', 1787478, 1.2, 29.2],
+	   [ 'gi|1790635|gb|AAC77148.1|', 251, 'AAC77148', 1790635, 2.1, 27.4],
+	   [ 'gi|1786590|gb|AAC73494.1|', 94, 'AAC73494', 1786590, 2.1, 25.9]);
 $count = 0;
 
 while( my $hit = $result->next_hit ) {
@@ -630,6 +644,7 @@ while( my $hit = $result->next_hit ) {
     is($hit->name, shift @$d);
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
+    is($hit->ncbi_gi, shift @$d);
     is($hit->significance, shift @$d );
     is($hit->raw_score, shift @$d );
 
@@ -845,11 +860,11 @@ is($result->get_statistic('S2_bits'), 34.2);
 
 is($result->get_statistic('dbentries'), 1083200);
 
-@valid = ( [ 'gb|AY052359.1|', 2826, 'AY052359', '3e-18', 96, 1, 60, 
+@valid = ( [ 'gb|AY052359.1|', 2826, 'AY052359', '3e-18', 95.6, 48, 1, 60, 
 	     '1.0000'],
-	   [ 'gb|AC002329.2|AC002329', 76170, 'AC002329', '3e-18', 96, 1, 60, 
+	   [ 'gb|AC002329.2|AC002329', 76170, 'AC002329', '3e-18', 95.6, 48, 1, 60, 
 	     '1.0000' ],
-	   [ 'gb|AF132318.1|AF132318', 5383, 'AF132318', '0.04', 42, 35, 55, 
+	   [ 'gb|AF132318.1|AF132318', 5383, 'AF132318', '0.04', 42.1, 21, 35, 55, 
 	     '0.3500']);
 $count = 0;
 
@@ -859,6 +874,7 @@ while( my $hit = $result->next_hit ) {
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
     is(sprintf("%g",$hit->significance), sprintf("%g",shift @$d) );
+    is($hit->bits, shift @$d );
     is($hit->raw_score, shift @$d );
     is($hit->start, shift @$d);
     is($hit->end,shift @$d);    
@@ -911,6 +927,7 @@ like($result->algorithm_version, qr/^2\.0MP\-WashU/);
 is($result->query_name, 'gi|142864|gb|M10040.1|BACDNAE');
 is($result->query_description, 'B.subtilis dnaE gene encoding DNA primase, complete cds');
 is($result->query_accession, 'M10040.1');
+is($result->query_gi, 142864);
 is($result->query_length, 2001);
 is($result->get_parameter('matrix'), 'blosum62');
 
@@ -1034,6 +1051,7 @@ like($result->algorithm_version, qr/^2\.0MP\-WashU/);
 is($result->query_name, 'gi|142865|gb|AAA22406.1|');
 is($result->query_description, 'DNA primase');
 is($result->query_accession, 'AAA22406.1');
+is($result->query_gi, 142865);
 is($result->query_length, 603);
 is($result->get_parameter('matrix'), 'blosum62');
 
@@ -1101,6 +1119,7 @@ like($result->algorithm_version, qr/^2\.0MP\-WashU/);
 is($result->query_name, 'gi|142864|gb|M10040.1|BACDNAE');
 is($result->query_description, 'B.subtilis dnaE gene encoding DNA primase, complete cds');
 is($result->query_accession, 'M10040.1');
+is($result->query_gi, 142864);
 is($result->query_length, 2001);
 is($result->get_parameter('matrix'), 'blosum62');
 
@@ -1109,8 +1128,8 @@ is($result->get_statistic('kappa'), 0.135);
 is($result->get_statistic('entropy'),0.401 );
 is($result->get_statistic('dbentries'), 400);
 
-@valid = ( [ 'gi|1789441|gb|AE000388.1|AE000388', 10334, 'AE000388', '6.4e-70', 318],
-	   [ 'gi|2367383|gb|AE000509.1|AE000509', 10589, 'AE000509', '0.9992', 59]
+@valid = ( [ 'gi|1789441|gb|AE000388.1|AE000388', 10334, 'AE000388', '6.4e-70', 318, 148.6],
+	   [ 'gi|2367383|gb|AE000509.1|AE000509', 10589, 'AE000509', '0.9992', 59, 29.9]
 	   );
 $count = 0;
 
@@ -1122,7 +1141,7 @@ while( my $hit = $result->next_hit ) {
     # using e here to deal with 0.9992 coming out right here as well
     is(sprintf("%g",$hit->significance), sprintf("%g",shift @$d) );
     is($hit->raw_score, shift @$d );
-
+    is($hit->bits, shift @$d );
     if( $count == 0 ) {
         my $hspcounter = 0;
         while( my $hsp = $hit->next_hsp ) {
@@ -1282,7 +1301,8 @@ is($hit->name, 'PIR2:S44629');
 is($hit->length, 628);
 is($hit->accession, 'PIR2:S44629');
 is($hit->significance, '2e-08' );
-is($hit->raw_score, 57 );
+is($hit->raw_score, 136 );
+is($hit->bits, '57.0' );
 $hsp = $hit->next_hsp;
 cmp_ok($hsp->evalue, '==', 2e-08);
 is($hsp->bits, '57.0');
@@ -1402,13 +1422,13 @@ my $in = Bio::SearchIO->new(-file => $infile,
 			   -format => 'blast'); # this is megablast 
                                                 # blast-like output
 my $r = $in->next_result;
-my @dcompare = ( ['Contig3700', 5631, 785, '0.0', 785, '0.0', 396, 639, 12, 
+my @dcompare = ( ['Contig3700', 5631, 396, 785,'0.0', 785, '0.0', 396, 639, 12, 
 		  8723,9434, 1, 4083, 4794, -1],
-                 ['Contig3997', 12734, 664, '0.0', 664, '0.0', 335, 401, 0, 
+                 ['Contig3997', 12734, 335, 664,'0.0', 664, '0.0', 335, 401, 0, 
 		  1282, 1704, 1, 1546, 1968,-1 ],
-                 ['Contig634', 858, 486, '1e-136', 486, '1e-136', 245, 304, 3, 
+                 ['Contig634', 858, 245, 486,'1e-136', 486, '1e-136', 245, 304, 3, 
 		  7620, 7941, 1, 1, 321, -1],
-                 ['Contig1853', 2314, 339, '1e-91',339, '1e-91', 171, 204, 0,
+                 ['Contig1853', 2314, 171, 339,'1e-91',339, '1e-91', 171, 204, 0,
 		  6406, 6620, 1, 1691, 1905, 1]
     );
 
@@ -1425,6 +1445,7 @@ while( my $hit = $r->next_hit ) {
     is($hit->name, shift @$d);
     is($hit->length, shift @$d);
     is($hit->raw_score, shift @$d);
+    is($hit->bits, shift @$d);
     is($hit->significance, shift @$d);
     
     my $hsp = $hit->next_hsp;
@@ -1482,11 +1503,13 @@ my $parser = Bio::SearchIO->new(-format => 'blast',
 
 $r = $parser->next_result;
 is($r->query_name, 'gi|1786183|gb|AAC73113.1|');
+is($r->query_gi, 1786183);
 is($r->num_hits, 7);
 $hit = $r->next_hit;
 is($hit->name, 'gnl|CDD|3919');
 is($hit->significance, 0.064);
-is($hit->raw_score, 28);
+is($hit->bits, 28.3);
+is($hit->raw_score, 63);
 $hsp = $hit->next_hsp;
 is($hsp->query->start, 599);
 is($hsp->query->end,655);
@@ -1723,6 +1746,7 @@ is($result->query_description, 'finger protein 135 (clone pHZ-17) [Homo sapiens]
 is($result->query_length, 469);
 $hit = $result->next_hit;
 is($hit->name, 'gi|4507985|');
+is($hit->ncbi_gi, 4507985);
 is($hit->description,'zinc finger protein 135 (clone pHZ-17) [Homo sapiens]. neo_id RS.ctg14243-000000.6.0');
 is($hit->length, 469);
 $hsp = $hit->next_hsp;
@@ -1782,7 +1806,7 @@ is($result->query_description, 'coli K-12 MG1655 section 1 of 400 of the complet
 is($result->query_length, 720);
 $hit = $result->next_hit;
 is($hit->name, 'gi|1786181|gb|AE000111.1|AE000111');
-
+is($hit->ncbi_gi, 1786181);
 is($hit->description,'Escherichia coli K-12 MG1655 section 1 of 400 of the complete genome');
 is($hit->length, 720);
 $hsp = $hit->next_hsp;
@@ -1838,13 +1862,13 @@ is($result->query_name, 'mgri:MG00189.3');
 $hit = $result->next_hit;
 is($hit->name, 'mgri:MG00189.3');
 is($hit->description, 'hypothetical protein 6892 8867 +');
-is($hit->score, 3098);
+is($hit->bits, 3098);
 is($hit->significance, '0.');
 
 $hit = $result->next_hit;
 is($hit->name, 'fgram:FG01141.1');
 is($hit->description, 'hypothetical protein 47007 48803 -');
-is($hit->score, 2182);
+is($hit->bits, 2182);
 is($hit->significance, '4.2e-226');
 is($result->num_hits, 415);
 # Let's now test if _guess_format is doing its job correctly
@@ -1904,6 +1928,7 @@ ok($result = $searchio->next_result);
 ok($hit = $result->next_hit);
 is($hit->name, 'gi|40747822|gb|EAA66978.1|', 'full hit name');
 is($hit->accession, 'EAA66978', 'hit accession');
+is($hit->ncbi_gi, 40747822);
 ok($hsp = $hit->next_hsp);
 is($hsp->query->start, 1, 'query start');
 is($hsp->query->end, 528, 'query start');
@@ -1939,9 +1964,9 @@ is($result->get_parameter('expect'), '1e-23');
 is($result->get_statistic('num_extensions'), '117843');
 
 
-@valid = ( [ 'gi|41400296|gb|AE016958.1|', 4829781, 'AE016958', '6e-059', 236],
-	      [ 'gi|54013472|dbj|AP006618.1|', 6021225, 'AP006618', '4e-026', 127],
-	      [ 'gi|57546753|dbj|BA000030.2|', 9025608, 'BA000030', '1e-023', 119]);
+@valid = ( [ 'gi|41400296|gb|AE016958.1|', 4829781, 'AE016958', 41400296, '6e-059', 119, 236],
+	      [ 'gi|54013472|dbj|AP006618.1|', 6021225, 'AP006618', 54013472, '4e-026', 64, 127],
+	      [ 'gi|57546753|dbj|BA000030.2|', 9025608, 'BA000030', 57546753, '1e-023', 60, 119]);
 $count = 0;
 while( $hit = $result->next_hit ) {
     my $d = shift @valid;
@@ -1949,8 +1974,10 @@ while( $hit = $result->next_hit ) {
     is($hit->name, shift @$d);
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
+    is($hit->ncbi_gi, shift @$d);
     is(sprintf("%g",$hit->significance), sprintf("%g",shift @$d) );
     is($hit->raw_score, shift @$d );
+    is($hit->bits, shift @$d );
 
     if( $count == 0 ) {
         my $hsps_left = 1;
@@ -1988,12 +2015,13 @@ is($result->database_letters, 1533424333);
 is($result->algorithm, 'BLASTP');
 is($result->algorithm_version, '2.2.15 [Oct-15-2006]');
 is($result->query_name, 'gi|15608519|ref|NP_215895.1|');
+is($result->query_gi, 15608519);
 is($result->query_length, 193);
 @hits = $result->hits;
 is(scalar(@hits), 10);
 is($hits[1]->accession,'1W30');
 is($hits[4]->significance,'2e-72');
-is($hits[7]->score,'254');
+is($hits[7]->bits,'254');
 $result = $searchio->next_result;
 is($result->database_entries, 4460989);
 is($result->database_letters, 1533424333);
@@ -2004,8 +2032,9 @@ is($result->query_length, 423);
 @hits = $result->hits;
 is(scalar(@hits), 10);
 is($hits[1]->accession,'ZP_00972546');
+is($hits[2]->ncbi_gi, 116054132);
 is($hits[4]->significance, '0.0');
-is($hits[7]->score, 624);
+is($hits[7]->bits, 624);
 
 # Bug 2246
 $searchio = Bio::SearchIO->new(-format => 'blast',
@@ -2017,7 +2046,7 @@ is $hit->name, 'UniRef50_Q9X0H5';
 is $hit->length, 0;
 is $hit->accession, 'UniRef50_Q9X0H5';
 is $hit->description, 'Cluster: Histidyl-tRNA synthetase; n=4; Thermoto...';
-is $hit->raw_score, 23;
+is $hit->bits, 23;
 is $hit->significance, 650;
 
 # Bug 1986
@@ -2030,14 +2059,16 @@ is $hit->name, 'ENSP00000350182';
 is $hit->length, 425;
 is $hit->accession, 'ENSP00000350182';
 is $hit->description, 'pep:novel clone::BX322644.8:4905:15090:-1 gene:ENSG00000137397 transcript:ENST00000357569 ';
-is $hit->raw_score, 120;
+is $hit->raw_score, 301;
+is $hit->bits, 120;
 is $hit->significance, 3e-27;
 $hit = $result->next_hit;
 is $hit->name, 'ENSP00000327738';
 is $hit->length, 468;
 is $hit->accession, 'ENSP00000327738';
 is $hit->description, 'pep:known-ccds chromosome:NCBI36:4:189297592:189305643:1 gene:ENSG00000184108 transcript:ENST00000332517 CCDS3851.1';
-is $hit->raw_score, 115;
+is $hit->raw_score, 289;
+is $hit->bits, 115;
 is $hit->significance, 8e-26;
 
 # Bug 1986, pt. 2

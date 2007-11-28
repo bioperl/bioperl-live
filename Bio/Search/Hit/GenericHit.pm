@@ -333,12 +333,18 @@ sub algorithm {
 =cut
 
 sub raw_score {
-    my ($self,$value) = @_;
+    my ($self,$value) = @_; 
     my $previous = $self->{'_score'};
-    if( defined $value || ! defined $previous ) { 
-        $value = $previous = '' unless defined $value;
+    if( defined $value ) { 
         $self->{'_score'} = $value;
-    } 
+    } elsif ( ! defined $previous ) {
+        # Set the bits of the Hit to that of the top HSP.
+        unless( defined $self->{'_hsps'}->[0] ) {
+            $self->warn("No HSPs for this Hit (".$self->name.")");
+            return;
+        }   
+        $previous = $self->{'_score'} = ($self->hsps)[0]->score;
+    }    
     return $previous;
 }
 
@@ -1665,12 +1671,12 @@ sub query_length {
 
 sub ncbi_gi {
     my ($self,$value) = @_;
-    my $previous = $self->{'_ncbi_gi'};
-    if( defined $value || ! defined $previous ) { 
-        $value = $previous = '' unless defined $value;
+    if( defined $value ) {
         $self->{'_ncbi_gi'} = $value;
+    } else {
+        $self->{'_ncbi_gi'} = $self->name =~ m{^gi\|(\d+)} ? $1 : '';
     } 
-        return $previous;
+    return $self->{'_ncbi_gi'};
 }
 
 1;

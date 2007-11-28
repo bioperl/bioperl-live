@@ -169,13 +169,14 @@ sub new {
   $self->{'_statistics'} = Bio::Search::GenericStatistics->new();
   $self->{'_parameters'} = Bio::Tools::Run::GenericParameters->new();
 
-  my ($qname,$qacc,$qdesc,$qlen,
+  my ($qname,$qacc,$qdesc,$qlen, $qgi,
       $dbname,$dblet,$dbent,$params,   
       $stats, $hits, $algo, $algo_v,
       $prog_ref, $algo_r, $hit_factory) = $self->_rearrange([qw(QUERY_NAME
                                                   QUERY_ACCESSION
                                                   QUERY_DESCRIPTION
                                                   QUERY_LENGTH
+                                                  QUERY_GI
                                                   DATABASE_NAME
                                                   DATABASE_LETTERS
                                                   DATABASE_ENTRIES
@@ -198,6 +199,7 @@ sub new {
   defined $qacc  && $self->query_accession($qacc);
   defined $qdesc && $self->query_description($qdesc);
   defined $qlen  && $self->query_length($qlen);
+  defined $qgi   && $self->query_gi($qgi);
   defined $dbname && $self->database_name($dbname);
   defined $dblet  && $self->database_letters($dblet);
   defined $dbent  && $self->database_entries($dbent);
@@ -344,6 +346,27 @@ sub query_accession {
         $self->{'_queryacc'} = $value;
     } 
     return $previous;
+}
+
+=head2 query_gi
+
+ Title   : query_gi
+ Usage   : $acc = $hit->query_gi();
+ Function: Retrieve the NCBI Unique ID (aka the GI #),
+           if available, for the query
+ Returns : a scalar string (empty string if not set)
+ Args    : none
+
+=cut
+
+sub query_gi {
+    my ($self,$value) = @_;
+    if( defined $value ) {
+        $self->{'_query_gi'} = $value;
+    } else {
+        $self->{'_query_gi'} = $self->query_name =~ m{^gi\|(\d+)} ? $1 : '';
+    } 
+    return $self->{'_query_gi'};
 }
 
 =head2 query_length

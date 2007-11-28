@@ -422,12 +422,8 @@ END
 =cut
 
 sub _get_seq_identifiers {
-    my $id = shift;
+    my ($self, $id) = @_;
 
-    # handle case when this is accidently called as a class method
-    if ( ref($id) && $id->isa('Bio::SearchIO') ) {
-        $id = shift;
-    }
     return unless defined $id;
     my ($gi, $acc, $version );
     if ( $id =~ /^gi\|(\d+)\|/ ) {

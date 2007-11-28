@@ -22,6 +22,7 @@
 #          from WU-BLAST in frame-specific manner
 # 20060216 - cjf - fixed blast parsing for BLAST v2.2.13 output
 # 20071104 - dmessina - added support for WUBLAST -echofilter
+# 20071121 - cjf - fixed several bugs (bugs 2391, 2399, 2409)
 
 =head1 NAME
 
@@ -184,7 +185,6 @@ BEGIN {
         'Hit_accession' => 'HIT-accession',
         'Hit_def'       => 'HIT-description',
         'Hit_signif'    => 'HIT-significance',
-        'Hit_gi'        => 'HIT-ncbi_gi',
         # For NCBI blast, the description line contains bits.
         # For WU-blast, the  description line contains score.
         'Hit_score' => 'HIT-score',
@@ -198,6 +198,7 @@ BEGIN {
         'BlastOutput_query-def'           => 'RESULT-query_name',
         'BlastOutput_query-len'           => 'RESULT-query_length',
         'BlastOutput_query-acc'           => 'RESULT-query_accession',
+        'BlastOutput_query-gi'            => 'RESULT-query_gi',
         'BlastOutput_querydesc'           => 'RESULT-query_description',
         'BlastOutput_db'                  => 'RESULT-database_name',
         'BlastOutput_db-len'              => 'RESULT-database_entries',
@@ -431,6 +432,7 @@ sub next_result {
     my $data   = '';
     my $flavor = '';
     $self->{'_seentop'} = 0;     # start next report at top
+    $self->{'_seentop'} = 0;
     my ( $reporttype, $seenquery, $reportline );  
     my ( $seeniteration, $found_again );
     my $incl_threshold = $self->inclusion_threshold;
@@ -452,6 +454,10 @@ sub next_result {
           )
         {
             ($reporttype, my $reportversion) = ($1, $2);
+            # need to keep track of whether this is WU-BLAST
+            if ($reportversion && $reportversion =~ m{WashU$}) {
+                $self->{'_wublast'}++;
+            }
             $self->debug("blast.pm: Start of new report: $reporttype, $reportversion\n");
             if ( $self->{'_seentop'} ) { 
                 # This handles multi-result input streams
@@ -569,7 +575,7 @@ sub next_result {
                     'Data' => $desc
                 }
             );
-            my ( $acc, $version ) = &_get_accession_version($nm);
+            my ( $gi, $acc, $version ) = $self->_get_seq_identifiers($nm);
             $version = defined($version) && length($version) ? ".$version" : "";
             $acc = '' unless defined($acc);
             $self->element(
@@ -586,7 +592,7 @@ sub next_result {
 				$self->debug("Bypassing features line: $_");
         		$_ = $self->_readline;
         	}
-			$self->_pushback($_);			
+			$self->_pushback($_);
 		}
         elsif (/Sequences producing significant alignments:/) {
             $self->debug("blast.pm: Processing NCBI-BLAST descriptions\n");
@@ -785,39 +791,19 @@ sub next_result {
                     'Data' => $acc
                 }
             );
-            $self->element(
-                {
-                    'Name' => 'Hit_gi',
-                    'Data' => $gi
-                }
-            ) if $gi; 
             # add hit significance (from the hit table)
             # this is where Bug 1986 went awry
             
-            # get hit significance, score from hit table; maybe we should
-            # use the bestscore, besteval from the HSPs instead?
+            # Changed for Bug2409; hit->significance and hit->score/bits derived
+            # from HSPs, not hit table unless necessary
+            
             HITTABLE:
             while (my $v = shift @hit_signifs) {        
-                # Perform a sanity check here, may break some report parsing.
-                # Needs further investigation.
                 my $tableid = $v->[2];
                 if ($tableid !~ m{$id}) {
                     $self->debug("Hit table ID $tableid doesn't match current hit id $id, checking next hit table entry...\n");
                     next HITTABLE;
                 } else {
-                    #$self->debug("Hit table $id match : signif: $v->[0], score: $v->[1]\n");
-                    $self->element(
-                        {
-                            'Name' => 'Hit_signif',
-                            'Data' => $v->[0]
-                        }
-                    );
-                    $self->element(
-                        {
-                            'Name' => 'Hit_score',
-                            'Data' => $v->[1]
-                        }
-                    );
                     last HITTABLE;
                 }
             }
@@ -985,10 +971,10 @@ sub next_result {
         }
         elsif (
             ( $self->in_element('hit') || $self->in_element('hsp') )
-            &&    # ncbi blast
+            &&    # ncbi blast, works with 2.2.17
             m/Score\s*=\s*(\S+)\s*bits\s* # Bit score
                 (?:\((\d+)\))?,            # Missing for BLAT pseudo-BLAST fmt 
-                \s*Expect(?:\((\d+\+?)\))?\s*=\s*(\S+) # E-value
+                \s*Expect(?:\((\d+\+?)\))?\s*=\s*([^,\s]+) # E-value
                 /ox
           )
         {         # parse NCBI blast HSP
@@ -2309,54 +2295,55 @@ sub check_all_hits {
     $self->{'_check_all'};
 }
 
-=head2 _get_accession_version
-
- Title   : _get_accession_version
- Usage   : my ($acc,$ver) = &_get_accession_version($id)
- Function:Private function to get an accession,version pair
-           for an ID (if it is in NCBI format)
- Returns : 2-pule of accession, version
- Args    : ID string to process
-
-
-=cut
-
-sub _get_accession_version {
-    my $id = shift;
-
-    # handle case when this is accidently called as a class method
-    if ( ref($id) && $id->isa('Bio::SearchIO') ) {
-        $id = shift;
-    }
-    return unless defined $id;
-    my ( $acc, $version );
-    if ( $id =~ /(gb|emb|dbj|sp|pdb|bbs|ref|lcl)\|(.*)\|(.*)/ ) {
-        ( $acc, $version ) = split /\./, $2;
-    }
-    elsif ( $id =~ /(pir|prf|pat|gnl)\|(.*)\|(.*)/ ) {
-        ( $acc, $version ) = split /\./, $3;
-    }
-    else {
-
-        #punt, not matching the db's at ftp://ftp.ncbi.nih.gov/blast/db/README
-        #Database Name                     Identifier Syntax
-        #============================      ========================
-        #GenBank                           gb|accession|locus
-        #EMBL Data Library                 emb|accession|locus
-        #DDBJ, DNA Database of Japan       dbj|accession|locus
-        #NBRF PIR                          pir||entry
-        #Protein Research Foundation       prf||name
-        #SWISS-PROT                        sp|accession|entry name
-        #Brookhaven Protein Data Bank      pdb|entry|chain
-        #Patents                           pat|country|number
-        #GenInfo Backbone Id               bbs|number
-        #General database identifier           gnl|database|identifier
-        #NCBI Reference Sequence           ref|accession|locus
-        #Local Sequence identifier         lcl|identifier
-        $acc = $id;
-    }
-    return ( $acc, $version );
-}
+# commented out, using common base class util method
+#=head2 _get_accession_version
+#
+# Title   : _get_accession_version
+# Usage   : my ($acc,$ver) = &_get_accession_version($id)
+# Function:Private function to get an accession,version pair
+#           for an ID (if it is in NCBI format)
+# Returns : 2-pule of accession, version
+# Args    : ID string to process
+#
+#
+#=cut
+#
+#sub _get_accession_version {
+#    my $id = shift;
+#
+#    # handle case when this is accidently called as a class method
+#    if ( ref($id) && $id->isa('Bio::SearchIO') ) {
+#        $id = shift;
+#    }
+#    return unless defined $id;
+#    my ( $acc, $version );
+#    if ( $id =~ /(gb|emb|dbj|sp|pdb|bbs|ref|lcl)\|(.*)\|(.*)/ ) {
+#        ( $acc, $version ) = split /\./, $2;
+#    }
+#    elsif ( $id =~ /(pir|prf|pat|gnl)\|(.*)\|(.*)/ ) {
+#        ( $acc, $version ) = split /\./, $3;
+#    }
+#    else {
+#
+#        #punt, not matching the db's at ftp://ftp.ncbi.nih.gov/blast/db/README
+#        #Database Name                     Identifier Syntax
+#        #============================      ========================
+#        #GenBank                           gb|accession|locus
+#        #EMBL Data Library                 emb|accession|locus
+#        #DDBJ, DNA Database of Japan       dbj|accession|locus
+#        #NBRF PIR                          pir||entry
+#        #Protein Research Foundation       prf||name
+#        #SWISS-PROT                        sp|accession|entry name
+#        #Brookhaven Protein Data Bank      pdb|entry|chain
+#        #Patents                           pat|country|number
+#        #GenInfo Backbone Id               bbs|number
+#        #General database identifier           gnl|database|identifier
+#        #NCBI Reference Sequence           ref|accession|locus
+#        #Local Sequence identifier         lcl|identifier
+#        $acc = $id;
+#    }
+#    return ( $acc, $version );
+#}
 
 # general private method used to make minimal hits from leftover
 # data in the hit table
@@ -2374,14 +2361,13 @@ sub _cleanup_hits {
                 'Data' => $id
             }
         );
-        my ( $acc, $version ) = &_get_accession_version($id);
+        my ($gi, $acc, $version ) = $self->_get_seq_identifiers($id);
         $self->element(
             {
                 'Name' => 'Hit_accession',
                 'Data' => $acc
             }
         );
-    
         if ( defined $v ) {
             $self->element(
                 {
@@ -2389,12 +2375,22 @@ sub _cleanup_hits {
                     'Data' => $v->[0]
                 }
             );
-            $self->element(
-                {
-                    'Name' => 'Hit_score',
-                    'Data' => $v->[1]
-                }
-            );
+            if (exists $self->{'_wublast'}) {
+                $self->element(
+                    {
+                        'Name' => 'Hit_score',
+                        'Data' => $v->[1]
+                    }
+                );
+            } else {
+                $self->element(
+                    {
+                        'Name' => 'Hit_bits',
+                        'Data' => $v->[1]
+                    }
+                );
+            }
+            
         }
         $self->element(
             {
