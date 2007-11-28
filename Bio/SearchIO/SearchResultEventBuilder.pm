@@ -340,24 +340,23 @@ sub start_hit{
 sub end_hit{
     my ($self,$type,$data) = @_;   
     my %args = map { my $v = $data->{$_}; s/HIT//; ($_ => $v); } grep { /^HIT/ } keys %{$data};
-    #print STDERR "SREB: end_hit\n";
 
     # I hate special cases, but this is here because NCBI BLAST XML
     # doesn't play nice and is undergoing mutation -jason
     if(exists $args{'-name'} && $args{'-name'} =~ /BL_ORD_ID/ ) {
         ($args{'-name'}, $args{'-description'}) = split(/\s+/,$args{'-description'},2);
-    }    
+    }
     $args{'-algorithm'} =  uc( $args{'-algorithm_name'} || 
                                $data->{'RESULT-algorithm_name'} || $type);
     $args{'-hsps'}      = $self->{'_hsps'};
     $args{'-query_len'} =  $data->{'RESULT-query_length'};
     $args{'-rank'}      = $self->{'_hitcount'} + 1;
     unless( defined $args{'-significance'} ) {
-	if( defined $args{'-hsps'} && 
-	    $args{'-hsps'}->[0] ) {
-	    $args{'-significance'} = $args{'-hsps'}->[0]->{'-evalue'};
-        $args{'-significance'} =~ s/,//g if $args{'-significance'};
-	}
+        if( defined $args{'-hsps'} && 
+            $args{'-hsps'}->[0] ) {
+            # use pvalue if present (WU-BLAST), otherwise evalue (NCBI BLAST)
+            $args{'-significance'} = $args{'-hsps'}->[0]->{'-pvalue'} || $args{'-hsps'}->[0]->{'-evalue'};
+        }
     }
     my $hit = \%args;
     $hit->{'-hsp_factory'} = $self->factory('hsp');

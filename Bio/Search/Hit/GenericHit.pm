@@ -340,7 +340,8 @@ sub raw_score {
     } elsif ( ! defined $previous ) {
         # Set the bits of the Hit to that of the top HSP.
         unless( defined $self->{'_hsps'}->[0] ) {
-            $self->warn("No HSPs for this Hit (".$self->name.")");
+            $self->warn("No HSPs for this minimal Hit (".$self->name.")\n".
+                    "If using NCBI BLAST, check bits() instead");
             return;
         }   
         $previous = $self->{'_score'} = ($self->hsps)[0]->score;
@@ -407,7 +408,8 @@ sub bits {
     } elsif ( ! defined $previous ) {
         # Set the bits of the Hit to that of the top HSP.
 	unless( defined $self->{'_hsps'}->[0] ) {
-	    $self->warn("No HSPs for this Hit (".$self->name.")");
+	    $self->warn("No HSPs for this minimal Hit (".$self->name.")\n".
+                    "If using WU-BLAST, check raw_score() instead");
 	    return;
 	}
         $previous = $self->{'_bits'} = ($self->hsps)[0]->bits;
@@ -627,7 +629,7 @@ sub p {
     my $val = $self->{'_p'};
 
     # $val can be zero.
-    if(not defined $val) {
+    if(!defined $val) {
         # P-value not defined, must be a NCBI Blast2 report.
         # Use expect instead.
         $self->warn( "P-value not defined. Using expect() instead.");

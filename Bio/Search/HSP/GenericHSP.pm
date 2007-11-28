@@ -103,7 +103,6 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::Search::HSP::GenericHSP;
-use vars qw($GAP_SYMBOL);
 use strict;
 
 use Bio::Root::Root;
@@ -111,9 +110,8 @@ use Bio::SeqFeature::Similarity;
 
 use base qw(Bio::Search::HSP::HSPI);
 
-BEGIN {
-    $GAP_SYMBOL = '-';
-}
+our $GAP_SYMBOL = '-';
+
 =head2 new
 
  Title   : new
@@ -257,16 +255,14 @@ sub pvalue {
 
 =cut
 
-sub evalue { shift->significance(@_) }
-
-# Override significance to return the e-value or, if this is
-# not defined (WU-BLAST), return the p-value.
-sub significance {
-    my $self = shift;
-    my $signif = $self->query->significance(@_);
-    return (defined $signif && $signif ne '') ? $signif : $self->pvalue(@_);
+sub evalue {
+    my ($self,$value) = @_;
+    my $previous = $self->{'EVALUE'};
+    if( defined $value  ) {
+        $self->{'EVALUE'} = $value;
+    }
+    return $previous;
 }
-
 
 =head2 frac_identical
 
@@ -890,6 +886,19 @@ sub feature2 {
  Returns : numeric
  Args    : [optional] new value to set
 
+=cut 
+
+# Override significance to return the e-value or, if this is
+# not defined (WU-BLAST), return the p-value.
+sub significance {
+    my $self = shift;
+    my $signif = $self->query->significance(@_) if @_;
+    print STDERR $self->pvalue."\n" if $self->pvalue;
+    if (!defined $signif) {
+        $signif = $self->pvalue || $self->query->significance;
+    }
+    return $signif;
+}
 
 =head2 score
 
