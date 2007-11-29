@@ -176,10 +176,6 @@ sub next_result {
     
     my $result;
     
-    if ($result = shift @{$self->{'_result_cache'} }) {
-        return $result;
-    }
-    
     local $/ = "\n";
     local $_;
 
@@ -187,47 +183,58 @@ sub next_result {
     my $firstline = 1;
     my ($tfh);
     if( $self->use_tempfile ) {
-	$tfh = IO::File->new_tmpfile or $self->throw("Unable to open temp file: $!");	
-	$tfh->autoflush(1);
+        $tfh = IO::File->new_tmpfile or $self->throw("Unable to open temp file: $!");	
+        $tfh->autoflush(1);
     }
-   
-    my ($sawxmlheader,$okaytoprocess,$sawdoctype);
-    while( defined( $_ = $self->_readline) ) {
-	if( /^RPS-BLAST/i ) {
-	    $self->{'_type'} = 'RPS-BLAST';
-	    next;
-	}
-	if( /^<\?xml version/ ) {
-	    if( ! $firstline ) {
-		$self->_pushback($_);
-		last;
-	    }
-	    $sawxmlheader = 1;
-	}
-	# for the non xml version prefixed in each section
-	if( /DOCTYPE/ ) { #|| /<BlastOutput>/
-	    if(  $sawdoctype ) {
-		if( ! $sawxmlheader ) { 
-		    $self->_pushback("<?xml version=\"1.0\"?>\n");
-		}
-		$self->_pushback($_);
-		last;
-	    }
-	    $sawdoctype = 1;
-	    unless( $sawxmlheader ) {
-		$self->debug( "matched here\n");
-		$self->_pushback("<?xml version=\"1.0\"?>\n");
-		$self->_pushback($_);
-		next;
-	    }
-	}
-	$okaytoprocess = 1;
-	if( defined $tfh ) {
-	    print $tfh $_;
-	} else {
-	    $data .= $_;
-	}
-	$firstline = 0;
+
+    my ($sawxmlheader,$okaytoprocess);
+    
+    my $mode = 'header';
+
+    my $tail = << 'XML_END';
+  </BlastOutput_iterations>
+</BlastOutput>
+XML_END
+
+    my $iteration;
+    
+    # no buffering needed (famous last words...)
+    my $fh = $self->_fh;
+    
+    #chop up XML into edible bits for the parser
+    while( defined( my $line = <$fh>) ) {
+        next if $line =~ m{^\s+</BlastOutput_iterations>}xmso || $line =~ m{^</BlastOutput>}xmso;
+        if( $line =~ m{^RPS-BLAST}i ) {
+            $self->{'_type'} = 'RPS-BLAST';
+            next;
+        } elsif ($line =~ m{^<\?xml\sversion="1.0"\?>}xms) {# <?xml version="1.0"?>
+            delete $self->{'_header'} if exists $self->{'_header'};
+            $sawxmlheader++;
+            $mode = 'header';
+        } elsif ($line =~ m{^\s+<Iteration>}xmso) {
+            if (!$sawxmlheader) {
+                if (defined $tfh) {
+                    print $tfh $self->{'_header'}
+                } else {
+                    $data .= $self->{'_header'};
+                }
+            }
+            $mode = 'iteration';
+        } elsif ($line =~ m{^\s+</Iteration>}xmso) {
+            if (defined $tfh) {
+                print $tfh $line.$tail;
+            } else {
+                $data .= $line.$tail;
+            }
+            $okaytoprocess++;
+            last;
+        }
+        if (defined $tfh) {
+            print $tfh $line;
+        } else {
+            $data .= $line;
+        }
+        $self->{"_$mode"} .= $line if $mode eq 'header';
     }
     return unless( $okaytoprocess);
     
@@ -244,7 +251,6 @@ sub next_result {
     
     eval {
 	$self->{'_result_cache'} = $self->{'_xmlparser'}->parse(%parser_args);
-        $self->{'_result_count'} += scalar(@{ $self->{'_result_cache'} });
         # remove result refs from handler
         $self->{'_xmlparser'}->get_handler->reset_results;
     };
@@ -258,7 +264,7 @@ sub next_result {
     }
     # parsing magic here - but we call event handlers rather than 
     # instantiating things 
-    return shift @{ $self->{'_result_cache'} };
+    return $self->{'_result_cache'};
 }
 
 =head2 use_tempfile
@@ -279,11 +285,6 @@ sub use_tempfile{
       $self->{'_use_tempfile'} = $value;
     }
     return $self->{'_use_tempfile'};
-}
-
-sub result_count {
-    my $self = shift;
-    return $self->{'_result_count'};
 }
 
 sub saxparser {

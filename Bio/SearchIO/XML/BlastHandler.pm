@@ -286,7 +286,7 @@ sub end_element{
                                 # end of an element
                                 
     # add to ResultI array
-    push @{ $self->{'_result'} }, $rc if( $nm eq 'Iteration' );
+    $self->{'_result'} = $rc if( $nm eq 'Iteration' );
     # reset values for each Result round
     if ($nm eq 'Iteration') {
         $self->{'_values'} = {};
