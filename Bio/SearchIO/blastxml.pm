@@ -111,8 +111,15 @@ use Bio::Root::Root;
 use XML::SAX;
 use IO::File;
 use Bio::SearchIO::XML::BlastHandler;
+use Bio::SearchIO::IteratedSearchResultEventBuilder;
 
 our $DEBUG;
+
+my %VALID_TYPE = (
+    'BLAST'     => 'Bio::SearchIO::XML::BlastHandler',
+    'PSIBLAST'  => 'Bio::SearchIO::XML::PsiBlastHandler',
+    'PSI-BLAST'  => 'Bio::SearchIO::XML::PsiBlastHandler'
+    );
 
 # mapping of NCBI Blast terms to Bioperl hash keys
 
@@ -141,21 +148,12 @@ our $DEBUG;
 sub _initialize{
     my ($self,@args) = @_;   
     $self->SUPER::_initialize(@args);
-    my ($usetempfile) = $self->_rearrange([qw(TEMPFILE)],@args);
+    my ($usetempfile, $blasttype) = $self->_rearrange([qw(TEMPFILE
+                                           BLASTTYPE)],@args);
+    $blasttype ||= 'BLAST';
+    $self->blasttype(uc $blasttype);
     defined $usetempfile && $self->use_tempfile($usetempfile);
     
-    # BlastHandler does the heavy lifting
-    my $xmlhandler = Bio::SearchIO::XML::BlastHandler->new(-verbose => $self->verbose);
-    
-    # The XML handler does the heavy work, passes data to object handler
-    $xmlhandler->_eventHandler($self->_eventHandler());
-    
-    # start up the parser factory
-    my $parserfactory = XML::SAX::ParserFactory->parser(
-        Handler => $xmlhandler);
-    $self->{'_xmlparser'} = $parserfactory;
-    $self->saxparser(ref($parserfactory));    
-    $self->{'_result_cache'} = [];
     eval {  require Time::HiRes };	
     if( $@ ) { $DEBUG = 0; }
     $DEBUG = 1 if( ! defined $DEBUG && ($self->verbose > 0));
@@ -175,19 +173,126 @@ sub next_result {
     my ($self) = @_;
     
     my $result;
-    
-    local $/ = "\n";
-    local $_;
 
-    my $data = '';
-    my $firstline = 1;
     my ($tfh);
     if( $self->use_tempfile ) {
         $tfh = IO::File->new_tmpfile or $self->throw("Unable to open temp file: $!");	
         $tfh->autoflush(1);
     }
+    my $okaytoprocess = ($self->blasttype =~ /PSI/) ? $self->_chunk_psiblast($tfh) :
+        $self->_chunk_normalblast($tfh);
+    
+    return unless( $okaytoprocess);
+    
+    my %parser_args;
+    if( defined $tfh ) {
+	seek($tfh,0,0);
+	%parser_args = ('Source' => { 'ByteStream' => $tfh });
+    } else {
+	%parser_args = ('Source' => { 'String' => $self->{'_blastdata'} });
+    }
 
-    my ($sawxmlheader,$okaytoprocess);
+    my $starttime;
+    if(  $DEBUG ) {  $starttime = [ Time::HiRes::gettimeofday() ]; }
+    
+    eval {
+	$result = $self->{'_xmlparser'}->parse(%parser_args);
+    };
+    
+    if( $@ ) {
+	$self->warn("error in parsing a report:\n $@");
+	$result = undef;
+    }    
+    if( $DEBUG ) {
+	$self->debug( sprintf("parsing took %f seconds\n", Time::HiRes::tv_interval($starttime)));
+    }
+    # parsing magic here - but we call event handlers rather than 
+    # instantiating things 
+    return $result;
+}
+
+=head2 use_tempfile
+
+ Title   : use_tempfile
+ Usage   : $obj->use_tempfile($newval)
+ Function: Get/Set boolean flag on whether or not use a tempfile
+ Example : 
+ Returns : value of use_tempfile
+ Args    : newvalue (optional)
+
+=cut
+
+sub use_tempfile{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'_use_tempfile'} = $value;
+    }
+    return $self->{'_use_tempfile'};
+}
+
+=head2 blasttype
+
+ Title   : blasttype
+ Usage   : $obj->blasttype($newtype)
+ Function: Get/Set BLAST report type.
+ Returns : BLAST report type
+ Args    : case-insensitive string of types BLAST or PSIBLAST (default: BLAST)
+ Note    : this is used to determine how reports are 'chunked' (in cases
+           where multiple queries are submitted) and which XML handler
+           to use when parsing the report(s)
+
+=cut
+
+sub blasttype{
+    my ($self,$value) = @_;
+    if ($value) {
+        $self->throw("$value is not a supported BLAST type") unless exists $VALID_TYPE{$value};
+        my $ok;
+        eval {
+            $ok = $self->_load_module($VALID_TYPE{$value});
+        };
+        if ($@) {
+            print STDERR <<END;
+$self: data module $VALID_TYPE{$value} cannot be found
+Exception $@
+For more information about the Bio::SearchIO::blastxml system please see the Bio::SearchIO::blastxml. 
+END
+            return unless $ok;
+        }
+        # BlastHandler does the heavy lifting
+        my $xmlhandler = $VALID_TYPE{$value}->new(-verbose => $self->verbose);
+        
+        # The XML handler does the heavy work, passes data to object handler
+        if ($value =~ /^PSI/) {
+            my $handler = Bio::SearchIO::IteratedSearchResultEventBuilder->new();
+            $self->{'_handler'} = $handler; # cache
+        }
+        $xmlhandler->eventHandler($self->_eventHandler());
+
+        # start up the parser factory
+        my $parserfactory = XML::SAX::ParserFactory->parser(
+            Handler => $xmlhandler);
+        $self->{'_xmlparser'} = $parserfactory;
+        $self->saxparser(ref($parserfactory));
+        
+        $self->{'_blasttype'} = $value;
+    }
+    return $self->{'_blasttype'};
+}
+
+sub saxparser {
+    my $self = shift;
+    return ref($self->{'_xmlparser'});
+}
+
+sub _chunk_normalblast {
+    my ($self, $tfh) = @_;
+    
+    local $/ = "\n";
+    local $_;
+    $self->{'_blastdata'} = '';
+    
+    my ($sawxmlheader, $okaytoprocess);
     
     my $mode = 'header';
 
@@ -196,8 +301,6 @@ sub next_result {
 </BlastOutput>
 XML_END
 
-    my $iteration;
-    
     # no buffering needed (famous last words...)
     my $fh = $self->_fh;
     
@@ -216,7 +319,7 @@ XML_END
                 if (defined $tfh) {
                     print $tfh $self->{'_header'}
                 } else {
-                    $data .= $self->{'_header'};
+                    $self->{'_blastdata'} .= $self->{'_header'};
                 }
             }
             $mode = 'iteration';
@@ -224,7 +327,7 @@ XML_END
             if (defined $tfh) {
                 print $tfh $line.$tail;
             } else {
-                $data .= $line.$tail;
+                $self->{'_blastdata'} .= $line.$tail;
             }
             $okaytoprocess++;
             last;
@@ -232,64 +335,40 @@ XML_END
         if (defined $tfh) {
             print $tfh $line;
         } else {
-            $data .= $line;
+            $self->{'_blastdata'} .= $line;
         }
         $self->{"_$mode"} .= $line if $mode eq 'header';
     }
-    return unless( $okaytoprocess);
-    
-    my %parser_args;
-    if( defined $tfh ) {
-	seek($tfh,0,0);
-	%parser_args = ('Source' => { 'ByteStream' => $tfh });
-    } else {
-	%parser_args = ('Source' => { 'String' => $data });
-    }
-
-    my $starttime;
-    if(  $DEBUG ) {  $starttime = [ Time::HiRes::gettimeofday() ]; }
-    
-    eval {
-	$self->{'_result_cache'} = $self->{'_xmlparser'}->parse(%parser_args);
-        # remove result refs from handler
-        $self->{'_xmlparser'}->get_handler->reset_results;
-    };
-    
-    if( $@ ) {
-	$self->warn("error in parsing a report:\n $@");
-	$result = undef;
-    }    
-    if( $DEBUG ) {
-	$self->debug( sprintf("parsing took %f seconds\n", Time::HiRes::tv_interval($starttime)));
-    }
-    # parsing magic here - but we call event handlers rather than 
-    # instantiating things 
-    return $self->{'_result_cache'};
+    return $okaytoprocess;
 }
 
-=head2 use_tempfile
+sub _chunk_psiblast {
+    my ($self, $tfh) = @_;
+    
+    local $/ = "\n";
+    local $_;
+    $self->{'_blastdata'} = '';
+    
+    my ($sawxmlheader, $okaytoprocess);
 
- Title   : use_tempfile
- Usage   : $obj->use_tempfile($newval)
- Function: Get/Set boolean flag on whether or not use a tempfile
- Example : 
- Returns : value of use_tempfile
- Args    : newvalue (optional)
-
-
-=cut
-
-sub use_tempfile{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'_use_tempfile'} = $value;
+    # no buffering needed (famous last words...)
+    my $fh = $self->_fh;
+    
+    #chop up XML into edible bits for the parser
+    while( defined( my $line = <$fh>) ) {
+        if (defined $tfh) {
+            print $tfh $line;
+        } else {
+            $self->{'_blastdata'} .= $line;
+        }
+        #$self->{"_$mode"} .= $line;
+        if ($line =~ m{^</BlastOutput>}xmso) {
+            $okaytoprocess++;
+            last;
+        }
     }
-    return $self->{'_use_tempfile'};
-}
-
-sub saxparser {
-    my $self = shift;
-    return ref($self->{'_xmlparser'});
+    #$self->debug($self->{'_blastdata'}."\n");
+    return $okaytoprocess;
 }
 
 1;

@@ -1,10 +1,10 @@
-# $Id$
+# $Id: PsiBlastHandler.pm,v 1.6 2007/11/29 06:09:31 cjfields Exp $
 #
-# BioPerl module for Bio::SearchIO::XML::BlastHandler
+# BioPerl module for Bio::SearchIO::XML::PsiBlastHandler
 #
 # Cared for by Jason Stajich, Chris Fields
 #
-# Copyright Jason Stajich
+# Copyright Chris Fields
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SearchIO::XML::BlastHandler - XML Handler for NCBI Blast XML parsing.
+Bio::SearchIO::XML::PsiBlastHandler - XML Handler for NCBI Blast PSIBLAST XML parsing.
 
 =head1 SYNOPSIS
 
@@ -20,9 +20,9 @@ This is not to be used directly.
 
 =head1 DESCRIPTION
 
-This is the XML handler for BLAST XML parsing. Currently it passes elements off
-to the event handler, which is ultimately responsible for Bio::Search object
-generation.
+This is the XML handler for BLAST PSIBLAST XML parsing. Currently it passes
+elements off to the event handler, which is ultimately responsible for
+Bio::Search object generation.
 
 This was recently split off from the original code for Bio::SearchIO::blastxml
 primarily for maintenance purposes.
@@ -67,18 +67,17 @@ Internal methods are usually preceded with a _
 =cut
 
 # Let the code begin...
-package Bio::SearchIO::XML::BlastHandler;
+package Bio::SearchIO::XML::PsiBlastHandler;
 use base qw(Bio::Root::Root XML::SAX::Base);
 
 my %MODEMAP = (
-                'Iteration'   => 'result',
-                'Hit'         => 'hit',
-                'Hsp'         => 'hsp'
+    'BlastOutput'   => 'result',
+    'Iteration'     => 'iteration',
+    'Hit'           => 'hit',
+    'Hsp'           => 'hsp'
 );
 
-# major post 2.2.12 BLAST XML changes
-# 1) moved XML Handler to it's own class
-# 2) reconfigure blastxml to deal with old and new BLAST XML output
+# MAPPING is distinct from BlastHandler, can't really mix the two...
 
 my %MAPPING = (
                 # Result-specific fields
@@ -86,14 +85,21 @@ my %MAPPING = (
                 'BlastOutput_version'   => 'RESULT-algorithm_version',
                 'BlastOutput_db'        => 'RESULT-database_name',
                 'BlastOutput_reference' => 'RESULT-program_reference',
-                'Parameters_matrix'    => { 'RESULT-parameters' => 'matrix'},
-                'Parameters_expect'    => { 'RESULT-parameters' => 'expect'},
-                'Parameters_include'   => { 'RESULT-parameters' => 'include'},
-                'Parameters_sc-match'  => { 'RESULT-parameters' => 'match'},
+                'BlastOutput_query-def' => 'RESULT-query_description',
+                'BlastOutput_query-len' => 'RESULT-query_length',
+                'BlastOutput_query-ID'  => 'runid',
+                'Parameters_matrix'     => { 'RESULT-parameters' => 'matrix'},
+                'Parameters_expect'     => { 'RESULT-parameters' => 'expect'},
+                'Parameters_include'    => { 'RESULT-parameters' => 'include'},
+                'Parameters_sc-match'   => { 'RESULT-parameters' => 'match'},
                 'Parameters_sc-mismatch' => { 'RESULT-parameters' => 'mismatch'},
                 'Parameters_gap-open'  => { 'RESULT-parameters' => 'gapopen'},
                 'Parameters_gap-extend'=> { 'RESULT-parameters' => 'gapext'},
                 'Parameters_filter'    => {'RESULT-parameters' => 'filter'},
+                
+                #
+                #'Statistics_db-len'      => { 'RESULT-statistics' => 'dbentries' },
+                #'Statistics_db-let'      => { 'RESULT-statistics' => 'dbletters' },
                 'Statistics_db-num'    => 'RESULT-database_entries',
                 'Statistics_db-len'    => 'RESULT-database_letters',
                 'Statistics_hsp-len'   => { 'RESULT-statistics' => 'hsplength'},
@@ -101,10 +107,11 @@ my %MAPPING = (
                 'Statistics_kappa'     => { 'RESULT-statistics' => 'kappa' },
                 'Statistics_lambda'    => { 'RESULT-statistics' => 'lambda' },
                 'Statistics_entropy'   => { 'RESULT-statistics' => 'entropy'},
-                'BlastOutput_query-def' => 'RESULT-query_description',
-                'BlastOutput_query-len' => 'RESULT-query_length',
-                'BlastOutput_query-ID'  => 'runid',
-                
+
+                # Iteration-specific parameters
+                'Iteration_iter-num'  => 'ITERATION-number',
+                'Iteration_converged' => 'ITERATION-converged',
+
                 # HSP specific fields
                 'Hsp_bit-score'  => 'HSP-bits',
                 'Hsp_score'      => 'HSP-score',
@@ -133,12 +140,6 @@ my %MAPPING = (
                 'Hit_num'              => 'HIT-order',
                 'Iteration_iter-num'   => 'HIT-iteration',
                 'Iteration_stat'       => 'HIT-iteration_statistic',
-                
-                # if these tags are present, they will overwrite the
-                # above with more current data (i.e. multiquery hits)
-                'Iteration_query-def'   => 'RESULT-query_description',
-                'Iteration_query-len'   => 'RESULT-query_length',       
-                'Iteration_query-ID'    => 'runid',
                );
 
 # these XML tags are ignored for now
@@ -154,7 +155,7 @@ my %IGNOREDTAGS = (
                 'Statistics'           => 1,
                 'Parameters'           => 1,
                 'BlastOutput'          => 1,
-                'BlastOutput_iterations' => 1,     
+                'BlastOutput_iterations' => 1,
                    );
 
 =head2 SAX methods
@@ -252,7 +253,7 @@ sub end_element{
                                               $self->{'_values'});
         }
     }
-    elsif( exists $MAPPING{$nm} ) { 
+    elsif( exists $MAPPING{$nm} ) {
         if ( ref($MAPPING{$nm}) =~ /hash/i ) {
             my $key = (keys %{$MAPPING{$nm}})[0];
             $self->{'_values'}->{$key}->{$MAPPING{$nm}->{$key}} = $self->{'_last_data'};
@@ -270,9 +271,9 @@ sub end_element{
                                 # end of an element
                                 
     # add to ResultI array
-    $self->{'_result'} = $rc if( $nm eq 'Iteration' );
+    $self->{'_result'} = $rc if( $nm eq 'BlastOutput' );
     # reset values for each Result round
-    if ($nm eq 'Iteration') {
+    if ($nm eq 'BlastOutput') {
         $self->{'_values'} = {};
     }
 }

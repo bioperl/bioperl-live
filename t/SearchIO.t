@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 1535);
+    test_begin(-tests => 1681);
 	
 	use_ok('Bio::SearchIO');
 	use_ok('Bio::SearchIO::Writer::HitTableWriter');
@@ -28,6 +28,7 @@ SKIP: {
 		$searchio = Bio::SearchIO->new('-tempfile' => 1,
 			   '-format' => 'blastxml',
 			   '-file'   => test_input_file('ecoli_domains.rps.xml'),
+               '-blasttype' => 'blast',
 			   '-verbose' => -1);
 		# PurePerl works with these BLAST reports, so removed verbose promotion
 		$result = $searchio->next_result;
@@ -224,6 +225,173 @@ SKIP: {
     is($hsp->hit->end, 348);
     is($hsp->query->frame,0);
     is($hsp->hit->frame,0);
+    
+    # PSIBLAST XML parsing 
+    
+    $searchio = Bio::SearchIO->new('-tempfile' => 1,
+           '-format' => 'blastxml',
+           '-file'   => test_input_file('psiblast.xml'),
+           '-blasttype' => 'psiblast');
+    
+    my $result = $searchio->next_result;
+    is($result->database_name, 'AL591824.faa');
+    is($result->database_entries, 2846);
+    is($result->database_letters, 870878);
+    is($result->algorithm, 'BLASTP');
+    like($result->algorithm_version, qr/2\.2\.16/);
+    is($result->query_name, 'gi|1373160|gb|AAB57770.1|');
+    is($result->query_accession, 'AAB57770.1');
+    is($result->query_gi, '1373160');
+    is($result->query_length, 173);
+    is($result->get_statistic('kappa') , 0.0475563);
+    cmp_ok($result->get_statistic('lambda'), '==', 0.267);
+    cmp_ok($result->get_statistic('entropy'), '==', 0.14);
+    #is($result->get_statistic('dbletters'), 31984247);
+    #is($result->get_statistic('dbentries'), 88780);
+    #is($result->get_statistic('effective_hsplength'), 49);
+    is($result->get_statistic('effectivespace'), '6.44279e+07');
+    is($result->get_parameter('matrix'), 'BLOSUM62');
+    is($result->get_parameter('gapopen'), 11);
+    is($result->get_parameter('gapext'), 1);
+    
+    my $iter_count = 0;
+    my @valid_hit_data = ( [ 'gi|16411294|emb|CAC99918.1|', 183, 'CAC99918', 16411294, '4.5377e-56', 209.92],
+                   [ 'gi|16409584|emb|CAD00746.1|', 648, 'CAD00746', 16409584, '0.000286309', 37.7354],
+                   [ 'gi|16411285|emb|CAC99909.1|', 209, 'CAC99909', 16411285, '0.107059', 29.261]);
+    my @valid_iter_data = ( [ 16, 16, 0, 2, 14, 0, 0, 0, 0],
+                [ 16, 8, 8, 0, 8, 0, 2, 0, 6]);
+    
+    while (my $iter = $result->next_iteration) {
+        $iter_count++;
+        my $di = shift @valid_iter_data;
+        is($iter->number, $iter_count);
+        is($iter->num_hits, shift @$di);
+        is($iter->num_hits_new, shift @$di);
+        is($iter->num_hits_old, shift @$di);
+        is(scalar($iter->newhits_below_threshold), shift @$di);
+        is(scalar($iter->newhits_not_below_threshold), shift @$di);
+        is(scalar($iter->newhits_unclassified), shift @$di);
+        is(scalar($iter->oldhits_below_threshold), shift @$di);
+        is(scalar($iter->oldhits_newly_below_threshold), shift @$di);
+        is(scalar($iter->oldhits_not_below_threshold), shift @$di);
+        my $hit_count = 0;
+        if ($iter_count == 1) {
+            while( my $hit = $result->next_hit ) {
+                my $d = shift @valid_hit_data;
+                is($hit->name, shift @$d);
+                is($hit->length, shift @$d);
+                is($hit->accession, shift @$d);
+                is($hit->ncbi_gi, shift @$d);
+                is(sprintf("%g",$hit->significance), sprintf("%g",shift @$d) );
+                is($hit->bits, shift @$d );
+                if( $hit_count == 1 ) {
+                    my $hsps_left = 1;
+                    while( my $hsp = $hit->next_hsp ){
+                        is($hsp->query->start, 4);
+                        is($hsp->query->end, 155);
+                        is($hsp->hit->start, 475);
+                        is($hsp->hit->end, 617);
+                        is($hsp->length('hsp'), 153);
+                        is($hsp->start('hit'), $hsp->hit->start);
+                        is($hsp->end('query'), $hsp->query->end);
+                        is($hsp->strand('sbjct'), $hsp->subject->strand);# alias for hit
+                        cmp_ok($hsp->evalue, '==', 0.000286309);
+                        is($hsp->score, 86);
+                        is($hsp->bits, 37.7354);
+                        is(sprintf("%.1f",$hsp->percent_identity), 20.9);
+                        is(sprintf("%.4f",$hsp->frac_identical('query')), 0.2105);
+                        is(sprintf("%.3f",$hsp->frac_identical('hit')), 0.224);
+                        is($hsp->gaps, 11);
+                        $hsps_left--;
+                    }
+                    is($hsps_left, 0);
+                }
+                last if( $hit_count++ > @valid_hit_data );
+            }
+        }
+    }
+    is(@valid_hit_data, 0);
+    is(@valid_iter_data, 0);
+    is($iter_count, 2);
+    
+    $result = $searchio->next_result;
+    is($result->database_name, 'AL591824.faa');
+    is($result->database_entries, 2846);
+    is($result->database_letters, 870878);
+    is($result->algorithm, 'BLASTP');
+    like($result->algorithm_version, qr/2\.2\.16/);
+    is($result->query_name, 'gi|154350371|gb|ABS72450.1|');
+    is($result->query_accession, 'ABS72450.1');
+    is($result->query_gi, '154350371');
+    is($result->query_length, 378);
+    is($result->get_statistic('kappa') , 0.0450367);
+    cmp_ok($result->get_statistic('lambda'), '==', 0.267);
+    cmp_ok($result->get_statistic('entropy'), '==', 0.14);
+    is($result->get_statistic('effectivespace'), '1.88702e+08');
+    is($result->get_parameter('matrix'), 'BLOSUM62');
+    is($result->get_parameter('gapopen'), 11);
+    is($result->get_parameter('gapext'), 1);
+    
+    $iter_count = 0;
+    
+    @valid_hit_data = ( [ 'gi|16409361|emb|CAC98217.1|', 381, 'CAC98217', 16409361, '5.57178e-119', 420.239],
+                   [ 'gi|16409959|emb|CAC98662.1|', 776, 'CAC98662', 16409959, '0.0242028', 32.7278],
+                   [ 'gi|16410942|emb|CAC99591.1|', 382, 'CAC99591', 16410942, '0.340848', 28.8758]);
+    @valid_iter_data = ( [ 11, 11, 0, 1, 10, 0, 0, 0, 0],
+                [ 19, 11, 8, 0, 11, 0, 1, 0, 7]);
+    
+    while (my $iter = $result->next_iteration) {
+        $iter_count++;
+        my $di = shift @valid_iter_data;
+        is($iter->number, $iter_count);
+        is($iter->num_hits, shift @$di);
+        is($iter->num_hits_new, shift @$di);
+        is($iter->num_hits_old, shift @$di);
+        is(scalar($iter->newhits_below_threshold), shift @$di);
+        is(scalar($iter->newhits_not_below_threshold), shift @$di);
+        is(scalar($iter->newhits_unclassified), shift @$di);
+        is(scalar($iter->oldhits_below_threshold), shift @$di);
+        is(scalar($iter->oldhits_newly_below_threshold), shift @$di);
+        is(scalar($iter->oldhits_not_below_threshold), shift @$di);
+        my $hit_count = 0;
+        if ($iter_count == 1) {
+            while( my $hit = $result->next_hit ) {
+                my $d = shift @valid_hit_data;
+                is($hit->name, shift @$d);
+                is($hit->length, shift @$d);
+                is($hit->accession, shift @$d);
+                is($hit->ncbi_gi, shift @$d);
+                is(sprintf("%g",$hit->significance), sprintf("%g",shift @$d) );
+                is($hit->bits, shift @$d );
+                if( $hit_count == 1 ) {
+                    my $hsps_left = 1;
+                    while( my $hsp = $hit->next_hsp ){
+                        is($hsp->query->start, 63);
+                        is($hsp->query->end, 181);
+                        is($hsp->hit->start, 304);
+                        is($hsp->hit->end, 432);
+                        is($hsp->length('hsp'), 129);
+                        is($hsp->start('hit'), $hsp->hit->start);
+                        is($hsp->end('query'), $hsp->query->end);
+                        is($hsp->strand('sbjct'), $hsp->subject->strand);# alias for hit
+                        cmp_ok($hsp->evalue, '==', 0.0242028);
+                        is($hsp->score, 73);
+                        is($hsp->bits, 32.7278);
+                        is(sprintf("%.1f",$hsp->percent_identity), '24.0');
+                        is(sprintf("%.4f",$hsp->frac_identical('query')), '0.2605');
+                        is(sprintf("%.3f",$hsp->frac_identical('hit')), '0.240');
+                        is($hsp->gaps, 10);
+                        $hsps_left--;
+                    }
+                    is($hsps_left, 0);
+                }
+                last if( $hit_count++ > @valid_hit_data );
+            }
+        }
+    }
+    is(@valid_hit_data, 0);
+    is(@valid_iter_data, 0);
+    is($iter_count, 2);
 }
 
 $searchio = Bio::SearchIO->new('-format' => 'blast',
