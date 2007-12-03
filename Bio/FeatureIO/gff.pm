@@ -98,7 +98,7 @@ sub _initialize {
   }
   else {
     my $directive;
-    while(($directive = $self->_readline()) && ( $directive =~ /^##/ || $directive =~ /^>/)){
+    while($directive = $self->_readline() && $directive =~ /^##/ ){
       $self->_handle_directive($directive);
     }
     $self->_pushback($directive);
