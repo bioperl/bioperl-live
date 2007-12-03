@@ -462,15 +462,17 @@ sub next_result{
                /x ) {
 	       my ($identper,$gapper,$len,$querystart,
 		   $queryend,$hitstart,$hitend) = ($1,$2,$3,$4,$5,$6,$7);
+
 	       my $ident = POSIX::ceil(($identper/100) * $len);
-	       my $gaps = ( defined $gapper ) ? POSIX::ceil ( ($gapper/100) * $len) : undef;
-	       
+	       my $gaps = POSIX::ceil ( ($gapper/100) * $len);
 	       $self->element({'Name' => 'Hsp_gaps',
 			       'Data' => $gaps});
+	       my $positive = POSIX::ceil(($gapper/100) * $len);
+
 	       $self->element({'Name' => 'Hsp_identity',
 			       'Data' => $ident});
 	       $self->element({'Name' => 'Hsp_positive',
-			       'Data' => $ident});
+			       'Data' => $positive});
 	       $self->element({'Name' => 'Hsp_align-len',
 			       'Data' => $len});
 	       

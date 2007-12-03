@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 1681);
+    test_begin(-tests => 1687);
 	
 	use_ok('Bio::SearchIO');
 	use_ok('Bio::SearchIO::Writer::HitTableWriter');
@@ -34,7 +34,7 @@ SKIP: {
 		$result = $searchio->next_result;
         die if !defined $result;
 	};
-	if ($@ && $@ =~ m{Handler couldn't resolve external entity}) {
+	if ($@ && $@ =~ m{Handler could not resolve external entity}) {
 		skip("XML::SAX::Expat does not work with XML tests; skipping",129);
 	} elsif ($@) {
 		skip("Problem with XML::SAX setup: $@. Check ParserDetails.ini; skipping XML tests",129);
@@ -761,7 +761,13 @@ while( my $hit = $result->next_hit ) {
             is($hsp->bits,44.2);
             is(sprintf("%.2f",$hsp->percent_identity), '57.30');
             is(sprintf("%.4f",$hsp->frac_identical('query')), 0.5907); 
-            is(sprintf("%.4f",$hsp->frac_identical('hit')), 0.5752); 
+            is(sprintf("%.4f",$hsp->frac_identical('hit')), 0.5752);
+	    # these are really UNGAPPED values not CONSERVED
+	    # otherwise ident and conserved would be identical for
+	    # nucleotide alignments
+	    is(sprintf("%.4f",$hsp->frac_conserved('total')), 0.5955); 
+	    is(sprintf("%.4f",$hsp->frac_conserved('query')), 0.6139); 
+	    is(sprintf("%.4f",$hsp->frac_conserved('hit')), 0.5977); 
             is($hsp->query->frame(), 0);
             is($hsp->hit->frame(), 0);
             is($hsp->gaps, 159);
@@ -832,6 +838,11 @@ while( my $hit = $result->next_hit ) {
             is(sprintf("%.2f",$hsp->percent_identity), 23.94);
             is(sprintf("%.4f",$hsp->frac_identical('query')), 0.2486);
             is(sprintf("%.4f",$hsp->frac_identical('hit')), '0.2500');
+            is(sprintf("%.4f",$hsp->frac_conserved('query')), '0.2707');
+            is(sprintf("%.4f",$hsp->frac_conserved('hit')), '0.2722');
+	    # there is slight rounding different here so file says 26.012%
+	    # but with the rounding this ends up as 0.2606
+            is(sprintf("%.4f",$hsp->frac_conserved('total')), '0.2606');
             is($hsp->query->frame(), 0);
             is($hsp->hit->frame(), 0);
             is($hsp->gaps('query'), 7);
