@@ -419,7 +419,10 @@ sub _parse_summary {
     # CODONML (in paml 3.12 February 2002)  <<-- what we want to see!
 
     my $SEQTYPES = qr( (?: (?: CODON | AA | BASE | CODON2AA ) ML ) | YN00 )x;
+    my $line;
+    $self->{'_already_parsed_seqs'}=$self->{'_already_parsed_seqs'}?1:0;
     while ($_ = $self->_readline) {
+	    $line++;
 	if ( m/^($SEQTYPES) \s+                      # seqtype: CODONML, AAML, BASEML, CODON2AAML, YN00, etc
 	       (?: \(in \s+ ([^\)]+?) \s* \) \s* )?  # version: "paml 3.12 February 2002"; not present < 3.1 or YN00
 	       (\S+) \s*                             # tree filename
@@ -436,8 +439,11 @@ sub _parse_summary {
 	} elsif (m/^Data set \d$/) {
 	    $self->{'_summary'} = {};
 	    $self->{'_summary'}->{'multidata'}++;
-	} elsif( m/^Before\s+deleting\s+alignment\s+gaps/ ) {
-	    my ($phylip_header) = $self->_readline;
+	}
+	elsif( m/^Before\s+deleting\s+alignment\s+gaps/ ) {#Gap
+		my ($phylip_header) = $self->_readline;
+		$self->_parse_seqs;	
+	} elsif (($line>3)&&($self->{'_already_parsed_seqs'}!=1)) {#No gap
 	    $self->_parse_seqs;
 	}
     }
@@ -681,7 +687,6 @@ sub _parse_patterns {
 }
 
 sub _parse_seqs { 
-
     # this should in fact be packed into a Bio::SimpleAlign object instead of
     # an array but we'll stay with this for now 
     my ($self) = @_;
