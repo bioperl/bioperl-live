@@ -790,6 +790,9 @@ sub theta {
     if( $totalsites ) { # 0 and undef are the same can't divide by them
 	$seg_sites /= $totalsites;
     }
+    if( $a1 == 0 ) { 
+	return 0;
+    } 
     return $seg_sites / $a1;
 }
 
