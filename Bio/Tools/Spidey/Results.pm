@@ -162,190 +162,179 @@ sub analysis_method {
 =cut
 
 sub parse_next_alignment {
-	my ($self) = @_;
-	my $started = 0;
-	my ($version) = 0;
-	my %seq1props = ();
-	my %seq2props = ();
-	my ($strand) = 0; # 1 = plus, -1 = minus
-	my ($exoncount) = -1;
-	my @exons = ();
-	
-	# we refer to the properties of each seq by reference
-#	my ($estseq, $genomseq, $to_reverse);
-#	my $hit_direction = 1;
-   
-	while(defined($_ = $self->_readline())) {
-		chomp();
+    my ($self) = @_;
+    # for strand 1 = plus, -1 = minus
+    my ($started,$version,$strand, $exoncount) = (0,0,0,-1);
+    my (%seq1props,%seq2props,@exons);
+    
+    # we refer to the properties of each seq by reference
 
-		#
-		# bascially, parse a Spidey result...
-		#
-		# matches: --SPIDEY version 1.40--
-		/^--SPIDEY version (\d+\.\d+)--/ && do {
-			if($started) {
-				$self->_pushback($_);
-				last;
-			}
-			$version = $1;
-			if ($version != 1.40) {
-				$self->throw("Spidey parser only designed to work with Spidey v1.40\n");
-			}
-			$started = 1;
-			next;
-		};
-		# matches: Genomic: lcl|some_name other information, 1234 bp
-		/^Genomic:\s([\w|\.]+)\s[\w\s]+,\s(\d+)\sbp/ && do {
-			# $seq1props{'filename'} = $1;
-			$seq1props{'seqname'} = $1;
-			$seq1props{'length'} = $2;	   
-			$self->genomic_dna_length($seq1props{'length'});
-			next;
-		};
-		# matches: mRNA:
-		/^mRNA:\s([\w|\.]+)\s[\w\s]+,\s(\d+)\sbp/ && do {
-			# $seq2props{'filename'} = $1;
-			$seq2props{'seqname'} = $1;
-			$seq2props{'length'} = $2;
-			next;
-		};
-		/^Strand:/ && do {
-			if (/plus/) {
-				$strand = 1;
-			} else {
-				$strand = -1;
-			}
-			next;
-		};
-		/^Number of exons: (\d+)/ && do {
-			$exoncount = $1;
-			
-			my ($genomic_start, $genomic_stop, $cdna_start, $cdna_stop, $id, $mismatches, $gaps, $splice_donor, $splice_acceptor, $uncertain);
+    while(defined($_ = $self->_readline())) {
+	chomp;
+	#
+	# bascially, parse a Spidey result...
+	#
+	# matches: --SPIDEY version 1.40--
+	if( /^--SPIDEY\s+version\s+(\d+\.\d+)--/) {
+	    if($started) {
+		$self->_pushback($_);
+		return \@exons;
+	    }
+	    $version = $1;
+	    if ($version != 1.40) {
+		$self->throw("Spidey parser only designed to work with Spidey v1.40\n");
+	    }
+	    $started = 1;
+	} elsif (/^Genomic:\s+(\S+)\s.*,\s+(\d+)\sbp$/ ) {
+	    # matches: Genomic: lcl|some_name other information, 1234 bp
+	    # $seq1props{'filename'} = $1;
+	    $seq1props{'seqname'} = $1;
+	    $seq1props{'length'} = $2;	   
+	    $self->genomic_dna_length($seq1props{'length'});
 
-			# the next $exoncount lines contains information about the matches of each exon.  
-			# we should parse this information here
-			for (my $ec = 1; $ec <= $exoncount; $ec++) {
-				if (defined($_ = $self->_readline())) {
-					chomp();
-					
-					if (/^Exon\s$ec[\(\)-]*:\s(\d+)-(\d+)\s\(gen\)\s+(\d+)-(\d+)\s\(mRNA\)\s+id\s([\d\.inf-]+)%\s+mismatches\s(\d+)\s+gaps\s(\d+)\s+splice\ssite\s\(d\s+a\):\s(\d+)\s+(\d+)\s*(\w*)/) {
-						$genomic_start = $1;
-						$genomic_stop = $2;
-						$cdna_start = $3;
-						$cdna_stop = $4;
-						$id = $5;
-						$mismatches = $6;
-						$gaps = $7;
-						$splice_donor = $8;
-						$splice_acceptor = $9;
-						$uncertain = $10;
-					} else {
-						$self->throw( "Failed to match anything:\n$_\n");
-					}
+	} elsif( /^mRNA:\s+(\S+)\s.*,(?:\s+mRNA\s+sequence,)?\s(\d+)\sbp$/ ) {
+	    # matches: mRNA:
+	    # $seq2props{'filename'} = $1;
+	    $seq2props{'seqname'} = $1;
+	    $seq2props{'length'} = $2;
 
-					my $exon = Bio::Tools::Spidey::Exon->new('-start'  => $genomic_start,
-										'-end'    => $genomic_stop,
-										'-strand' => $strand);
-					$exon->seq_id($seq1props{'seqname'});
+	} elsif( /^Strand:/ ) {
+	    if (/plus/) {
+		$strand = 1;
+	    } else {
+		$strand = -1;
+	    }
+	} elsif( /^Number of exons: (\d+)/ ) {
+	    $exoncount = $1;
 
-					# feature1 is supposed to be initialized to a Similarity object, but we provide a safety net
-					if ($exon->feature1()->can('seqlength')) {
-						$exon->feature1()->seqlength($seq1props{'length'});
-					} else {
-						$exon->feature1()->add_tag_value('seqlength', $seq1props{'length'});
-					}
+	    my ($genomic_start, $genomic_stop, $cdna_start, $cdna_stop,
+		$id, $mismatches, $gaps, $splice_donor, 
+		$splice_acceptor, $uncertain);
 
-					# create and initialize the feature wrapping the 'hit' (the cDNA)
-					my $fea2 = Bio::SeqFeature::Similarity->new('-start'   => $cdna_start,
-										    '-end'     => $cdna_stop,
-										    '-strand'  => $strand,
-										    '-primary' => "aligning_cDNA");
-					$fea2->seq_id($seq2props{'seqname'});
-					$fea2->seqlength($seq2props{'length'});
-					# store
-					$exon->est_hit($fea2);	   
+	    # the next $exoncount lines contains information
+	    # about the matches of each exon.  we should parse
+	    # this information here
 
-					# general properties
-					$exon->source_tag($self->analysis_method());
-					$exon->percentage_id($5);
-					$exon->mismatches($6);
-					$exon->gaps($7);
-					$exon->donor($8);
-					$exon->acceptor($9);
+	    for (my $ec = 1; $ec <= $exoncount; $ec++) {
+		if (defined($_ = $self->_readline())) {
+		    chomp;
 
-					# push onto array
-					push(@exons, $exon);
-				} else {
-					$self->throw("Unexpected end of file reached\n");
-				}
-			}
-			next;
-		};
-		/^Number of splice sites: (\d+)/ && do {
-			$self->splicesites($1);	
-			next;
-		};
-		/^mRNA coverage: (\d+)%/ && do {
-			$self->est_coverage($1);
-			next;
-		};
-		/^overall percent identity: ([\d\.]+)%/ && do {
-			$self->overall_percentage_id($1);
-		};
-		/^Missing mRNA ends: (\w+)/ && do {
-			$self->missing_mrna_ends($1);
-		};
-		# Typical format:
-		# 	Exon 1: 36375798-36375691 (gen)  1-108 (mRNA)
-		#
-		#
-		#	CCTCTTTTTCTTTGCAGGGTATATACCCAGTTACTTAGACAAGGATGAGCTATGTGTAGT
-		#        	   |  ||||||||||||||||||||||||||||||||||||||||||||||
-		#	          ATGTCAGGGTATATACCCAGTTACTTAGACAAGGATGAGCTATGTGTAGT
-		#	           M  S  G  Y  I  P  S  Y  L  D  K  D  E  L  C  V  V 
-		#
-		#
-		#	ATGTGGGGACAAAGCCACCGGATATCATTATCGCTGCATCACTTGTGAAGGTTGCAAGGT
-		#	||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-		#	ATGTGGGGACAAAGCCACCGGATATCATTATCGCTGCATCACTTGTGAAGGTTGCAAG
-		#	  C  G  D  K  A  T  G  Y  H  Y  R  C  I  T  C  E  G  C  K 
-		#
-		#
-		#	AAATGGCA
-		#
-		/^Exon (\d+): (\d+)-(\d+) \(gen\)\s+(\d+)-(\d+) \(mRNA\)/ && do {
-			my ($exon_num, $gen_start, $gen_stop, $cdna_start, $cdna_stop);						
-			$exon_num = $1;
-			$gen_start = $2;
-			$gen_stop = $3;
-			$cdna_start = $4;
-			$cdna_stop = $5;			
+		    if (/^Exon\s$ec[\(\)-]*:\s(\d+)-(\d+)\s\(gen\)\s+(\d+)-(\d+)\s\(mRNA\)\s+id\s([\d\.inf-]+)%\s+mismatches\s(\d+)\s+gaps\s(\d+)\s+splice\ssite\s\(d\s+a\):\s(\d+)\s+(\d+)\s*(\w*)/) {
+			$genomic_start = $1;
+			$genomic_stop = $2;
+			$cdna_start = $3;
+			$cdna_stop = $4;
+			$id = $5;
+			$mismatches = $6;
+			$gaps = $7;
+			$splice_donor = $8;
+			$splice_acceptor = $9;
+			$uncertain = $10;
+		    } else {
+			$self->throw( "Failed to match anything:\n$_\n");
+		    }
+
+		    my $exon = Bio::Tools::Spidey::Exon->new
+			(-start  => $genomic_start,
+			 -end    => $genomic_stop,
+			 -strand => $strand);
+		    $exon->seq_id($seq1props{'seqname'});
+
+		    # feature1 is supposed to be initialized to a Similarity object, but we provide a safety net
+		    if ($exon->feature1->can('seqlength')) {
+			$exon->feature1->seqlength($seq1props{'length'});
+		    } else {
+			$exon->feature1->add_tag_value('seqlength', $seq1props{'length'});
+		    }
+
+		    # create and initialize the feature wrapping the 'hit' (the cDNA)
+		    my $fea2 = Bio::SeqFeature::Similarity->new
+			(-start   => $cdna_start,
+			 -end     => $cdna_stop,
+			 -strand  => $strand,
+			 -seq_id  => $seq2props{'seqname'},
+			 -primary => "aligning_cDNA");
+		    $fea2->seqlength($seq2props{'length'});
+		    # store
+		    $exon->est_hit($fea2);	   
+
+		    # general properties
+		    $exon->source_tag($self->analysis_method());
+		    $exon->percentage_id($5);
+		    $exon->mismatches($6);
+		    $exon->gaps($7);
+		    $exon->donor($8);
+		    $exon->acceptor($9);
+
+		    # push onto array
+		    push(@exons, $exon);
+		} else {
+		    $self->throw("Unexpected end of file reached\n");
 		}
+	    }
+	} elsif( /^Number of splice sites:\s+(\d+)/ ) {
+	    $self->splicesites($1);	
+	} elsif( /^mRNA coverage:\s+(\d+)%/ ) { 
+	    $self->est_coverage($1);
+	} elsif(/^overall percent identity:\s+([\d\.]+)%/ ) {
+	    $self->overall_percentage_id($1);
+	} elsif(/^Missing mRNA ends:\s+(\w+)/ ) {
+	    $self->missing_mrna_ends($1);
+	} elsif( /^Exon (\d+): (\d+)-(\d+) \(gen\)\s+(\d+)-(\d+) \(mRNA\)/ ) {
+	    my ($exon_num, $gen_start, $gen_stop, $cdna_start, $cdna_stop);						
+	    $exon_num = $1;
+	    $gen_start = $2;
+	    $gen_stop = $3;
+	    $cdna_start = $4;
+	    $cdna_stop = $5;			
+	} elsif( /No alignment found/ ) {
+	    return [];
+	    
+	} else {
+#	    warn("unmatched $_\n");
 	}
-	return @exons;
+    }
+    # Typical format:
+    # 	Exon 1: 36375798-36375691 (gen)  1-108 (mRNA)
+    #
+    #
+    #	CCTCTTTTTCTTTGCAGGGTATATACCCAGTTACTTAGACAAGGATGAGCTATGTGTAGT
+    #        	   |  ||||||||||||||||||||||||||||||||||||||||||||||
+    #	          ATGTCAGGGTATATACCCAGTTACTTAGACAAGGATGAGCTATGTGTAGT
+    #	           M  S  G  Y  I  P  S  Y  L  D  K  D  E  L  C  V  V 
+    #
+    #
+    #	ATGTGGGGACAAAGCCACCGGATATCATTATCGCTGCATCACTTGTGAAGGTTGCAAGGT
+    #	||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    #	ATGTGGGGACAAAGCCACCGGATATCATTATCGCTGCATCACTTGTGAAGGTTGCAAG
+    #	  C  G  D  K  A  T  G  Y  H  Y  R  C  I  T  C  E  G  C  K 
+    #
+    #
+    #	AAATGGCA
+    #
+    return;
 }
 
 =head2 next_exonset
 
- Title   : next_exonset
- Usage   : $exonset = $spidey_result->parse_next_exonset;
-           print "Exons start at ", $exonset->start(), 
-                 "and end at ", $exonset->end(), "\n";
-           foreach $exon ($exonset->sub_SeqFeature()) {
-               # do something
-           }
- Function: Parses the next alignment of the Spidey result file and returns the
-           set of exons as a container of features. The container is itself
-           a Bio::SeqFeature::Generic object, with the Bio::Tools::Spidey::Exon
-           objects as sub features. Start, end, and strand of the container
-           will represent the total region covered by the exons of this set.
+  Title   : next_exonset
+  Usage   : $exonset = $spidey_result->parse_next_exonset;
+         print "Exons start at ", $exonset->start(), 
+        "and end at ", $exonset->end(), "\n";
+         for $exon ($exonset->sub_SeqFeature()) {
+	    # do something
+         }
+  Function: Parses the next alignment of the Spidey result file and returns the
+       set of exons as a container of features. The container is itself
+       a Bio::SeqFeature::Generic object, with the Bio::Tools::Spidey::Exon
+       objects as sub features. Start, end, and strand of the container
+       will represent the total region covered by the exons of this set.
 
-           See the documentation of parse_next_alignment() for further
-           reference about parsing and how the information is stored.
-
+      See the documentation of parse_next_alignment() for further
+      reference about parsing and how the information is stored.
  Example : 
  Returns : An Bio::SeqFeature::Generic object holding Bio::Tools::Spidey::Exon
-           objects as sub features.
+          objects as sub features.
  Args    :
 
 =cut
@@ -355,19 +344,24 @@ sub next_exonset {
     my $exonset;
 
     # get the next array of exons
-    my @exons = $self->parse_next_alignment();
-    return if($#exons < 0);
+    my $exons = $self->parse_next_alignment();
+    if( ! defined $exons ) {
+	return undef;
+    } 
+    if( @$exons == 0 ) {
+	return Bio::SeqFeature::Generic->new();
+    }
     # create the container of exons as a feature object itself, with the
     # data of the first exon for initialization
-    $exonset = Bio::SeqFeature::Generic->new('-start' => $exons[0]->start(),
-					     '-end' => $exons[0]->end(),
-					     '-strand' => $exons[0]->strand(),
+    $exonset = Bio::SeqFeature::Generic->new('-start' => $exons->[0]->start(),
+					     '-end' => $exons->[-1]->end(),
+					     '-strand' => $exons->[0]->strand(),
 					     '-primary' => "ExonSet");
-    $exonset->source_tag($exons[0]->source_tag());
-    $exonset->seq_id($exons[0]->seq_id());
+    $exonset->source_tag($exons->[0]->source_tag());
+    $exonset->seq_id($exons->[0]->seq_id());
     # now add all exons as sub features, with enabling EXPANsion of the region
     # covered in total
-    foreach my $exon (@exons) {
+    foreach my $exon (@$exons) {
 	$exonset->add_sub_SeqFeature($exon, 'EXPAND');
     }
     return $exonset;
@@ -375,22 +369,22 @@ sub next_exonset {
 
 =head2 next_feature
 
- Title   : next_feature
- Usage   : while($exonset = $spidey->next_feature()) {
-                  # do something
-           }
- Function: Does the same as L<next_exonset()>. See there for documentation of
-           the functionality. Call this method repeatedly until FALSE is
-           returned.
+  Title   : next_feature
+  Usage   : while($exonset = $spidey->next_feature()) {
+	    # do something
+	   }
+  Function: Does the same as L<next_exonset()>. See there for documentation of
+      the functionality. Call this method repeatedly until FALSE is
+      returned.
 
-           The returned object is actually a SeqFeatureI implementing object.
-           This method is required for classes implementing the
-           SeqAnalysisParserI interface, and is merely an alias for 
-           next_exonset() at present.
+      The returned object is actually a SeqFeatureI implementing object.
+      This method is required for classes implementing the
+      SeqAnalysisParserI interface, and is merely an alias for 
+      next_exonset() at present.
 
- Example :
- Returns : A Bio::SeqFeature::Generic object.
- Args    :
+  Example :
+  Returns : A Bio::SeqFeature::Generic object.
+  Args    :
 
 =cut
 
@@ -404,124 +398,122 @@ sub next_feature {
 
 =head2 genomic_dna_length
 
- Title   : genomic_dna_length
- Usage   : $spidey->genomic_dna_length();
- Function: Returns the length of the genomic DNA used in this Spidey result
- Example :
- Returns : An integer value.
- Args    :
-
+    Title   : genomic_dna_length
+    Usage   : $spidey->genomic_dna_length();
+    Function: Returns the length of the genomic DNA used in this Spidey result
+    Example :
+    Returns : An integer value.
+    Args    :
+    
 =cut
 
 sub genomic_dna_length {
-	my ($self, @args) = @_;
-	my $val;
-    
-	if(@args) {
-		$val = shift(@args);
-		$self->{'genomic_dna_length'} = $val;
-	} else {
-		$val = $self->{'genomic_dna_length'};
-	}
-	return $val;
-}
+    my ($self, @args) = @_;
+    my $val;
 
+    if(@args) {
+	$val = shift(@args);
+	$self->{'genomic_dna_length'} = $val;
+    } else {
+	$val = $self->{'genomic_dna_length'};
+    }
+    return $val;
+}
+    
 =head2 splicesites
 
- Title   : splicesites
- Usage   : $spidey->splicesites();
- Function: Returns the number of splice sites found in this Spidey result
- Example :
- Returns : An integer value.
- Args    :
+    Title   : splicesites
+    Usage   : $spidey->splicesites();
+    Function: Returns the number of splice sites found in this Spidey result
+    Example :
+    Returns : An integer value.
+    Args    :
 
 =cut
 
 sub splicesites {
-	my ($self, @args) = @_;
-	my $val;
-    
-	if(@args) {
-		$val = shift(@args);
-		$self->{'splicesites'} = $val;
-	} else {
-		$val = $self->{'splicesites'};
-	}
-	return $val;
+    my ($self, @args) = @_;
+    my $val;
+
+    if(@args) {
+	$val = shift(@args);
+	$self->{'splicesites'} = $val;
+    } else {
+	$val = $self->{'splicesites'};
+    }
+    return $val;
 }
 
 =head2 est_coverage
-
- Title   : est_coverage
- Usage   : $spidey->est_coverage();
- Function: Returns the percent of est coverage in this Spidey result
- Example :
- Returns : An integer value.
- Args    :
+    
+    Title   : est_coverage
+    Usage   : $spidey->est_coverage();
+    Function: Returns the percent of est coverage in this Spidey result
+    Example :
+    Returns : An integer value.
+    Args    :
 
 =cut
 
-sub est_coverage {
-	my ($self, @args) = @_;
-	my $val;
-    
-	if(@args) {
-		$val = shift(@args);
-		$self->{'est_coverage'} = $val;
-	} else {
-		$val = $self->{'est_coverage'};
-	}
-	return $val;
-}
+ sub est_coverage {
+     my ($self, @args) = @_;
+     my $val;
+     
+     if(@args) {
+	 $val = shift(@args);
+	 $self->{'est_coverage'} = $val;
+     } else {
+	 $val = $self->{'est_coverage'};
+     }
+     return $val;
+ }
 
 =head2 overall_percentage_id
 
- Title   : overall_percentage_id
- Usage   : $spidey->overall_percentage_id();
- Function: Returns the overall percent id in this Spidey result
- Example :
- Returns : An float value.
- Args    :
+    Title   : overall_percentage_id
+    Usage   : $spidey->overall_percentage_id();
+    Function: Returns the overall percent id in this Spidey result
+    Example :
+    Returns : An float value.
+    Args    :
 
 =cut
 
 sub overall_percentage_id {
-	my ($self, @args) = @_;
-	my $val;
-    
-	if(@args) {
-		$val = shift(@args);
-		$self->{'overall_percentage_id'} = $val;
-	} else {
-		$val = $self->{'overall_percentage_id'};
-	}
-	return $val;
+    my ($self, @args) = @_;
+    my $val;
+
+    if(@args) {
+	$val = shift(@args);
+	$self->{'overall_percentage_id'} = $val;
+    } else {
+	$val = $self->{'overall_percentage_id'};
+    }
+    return $val;
 }
 
 =head2 missing_mrna_ends
 
- Title   : missing_mrna_ends
- Usage   : $spidey->missing_mrna_ends();
- Function: Returns left/right/neither from Spidey
- Example :
- Returns : A string value.
- Args    :
-
+    Title   : missing_mrna_ends
+    Usage   : $spidey->missing_mrna_ends();
+    Function: Returns left/right/neither from Spidey
+    Example :
+    Returns : A string value.
+    Args    :
+    
 =cut
 
-sub missing_mrna_ends
-{
-        my ($self, @args) = @_;
-        my $val;
+sub missing_mrna_ends {
+    my ($self, @args) = @_;
+    my $val;
 
-        if(@args) {
-                $val = shift(@args);
-                $self->{'missing_mrna_ends'} = $val;
-        } else {
-                $val = $self->{'missing_mrna_ends'};
-        }
-        return $val;
-
+    if(@args) {
+	$val = shift(@args);
+	$self->{'missing_mrna_ends'} = $val;
+    } else {
+	$val = $self->{'missing_mrna_ends'};
+    }
+    return $val;
 }
 
 1;
