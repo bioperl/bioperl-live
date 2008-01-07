@@ -16,6 +16,10 @@
 
 =item * Lincoln Stein <lstein at cshl.org>
 
+=item * Sendu Bala <bix at sendu.me.uk>
+
+=item * Christopher Fields <cjfields at uiuc.edu>
+
 =back
 
 =head2 Previous Bioperl Coordinators:
@@ -40,8 +44,6 @@ for if you see fit)
 =item * Richard Adams <Richard.Adams at ed.ac.uk>
 
 =item * Shuly Avraham <avraham at cshl.org> - Bio::Graphics::Glyph
-
-=item * Sendu Bala <bix at sendu.me.uk>
 
 =item * Peter Blaiklock <pblaiklo at restrictionmapper.org>
 
@@ -90,8 +92,6 @@ for if you see fit)
 =item * Arne Elofsson <arne at sbc.su.se>
 
 =item * David Evans <David.Evans at vir.gla.ac.uk>
-
-=item * Christopher Fields <cjfields at uiuc.edu>
 
 =item * Mark Fiers <M.W.E.J.Fiers at plant.wag-ur.nl>
 
