@@ -384,7 +384,7 @@ sub _separate {
 		if ($tempkey =~ s/_(\d+)//) {
 			$location=$1;
 			if ($location > $maxlocation) {$maxlocation = $location}
-		} elsif ( $tempkey =~ /PRIMER_(RIGHT|LEFT)/ ) {
+		} elsif ( $tempkey =~ /PRIMER_(RIGHT|LEFT)_SEQUENCE/ ) {
 			# first primers reported without a number, therefore set $location to 0
 			$location = 0;
 			if ($location > $maxlocation) {$maxlocation = $location}
