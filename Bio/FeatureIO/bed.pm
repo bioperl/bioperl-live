@@ -184,6 +184,13 @@ sub write_feature {
   } else {
     $name = 'anonymous';
   }
+  
+  if (ref($name)) {
+    $name = $name->value;
+  }
+  if (ref($chrom)) {
+    $chrom = $chrom->value;
+  }
 
   my $score = $feature->score || 0;
   my $strand = $feature->strand == 0 ? '-' : '+'; #default to +
@@ -194,7 +201,7 @@ sub write_feature {
   my $block_sizes = '';  #not implemented, used for sub features
   my $block_starts = ''; #not implemented, used for sub features
 
-  $self->_print(join("\t",($chrom->value,$chrom_start,$chrom_end,$name->value,$score,$strand,$thick_start,$thick_end,$reserved,$block_count,$block_sizes, $block_starts))."\n");
+  $self->_print(join("\t",($chrom,$chrom_start,$chrom_end,$name,$score,$strand,$thick_start,$thick_end,$reserved,$block_count,$block_sizes, $block_starts))."\n");
   $self->write_feature($_) foreach $feature->get_SeqFeatures();
 }
 
