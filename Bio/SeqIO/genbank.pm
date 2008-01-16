@@ -1053,7 +1053,8 @@ sub _print_GenBank_FTHelper {
     if( ! ref $fth || ! $fth->isa('Bio::SeqIO::FTHelper') ) {
 	$fth->warn("$fth is not a FTHelper class. Attempting to print, but there could be tears!");
     }
-    $self->_write_line_GenBank_regex(sprintf("     %-16s",$fth->key),
+    my $spacer = (length $fth->key >= 15) ? ' ' : '';
+    $self->_write_line_GenBank_regex(sprintf("     %-16s%s",$fth->key,$spacer),
 				     " "x21,
 				     $fth->loc,"\,\|\$",80);
     foreach my $tag ( keys %{$fth->field} ) {
