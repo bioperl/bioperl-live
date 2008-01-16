@@ -1,0 +1,10 @@
+## Note that element detection relies on computing a false positive rate that uses random permutations of the original data.  
+## Due to the stochastic nature of the permutations, you may see subtle differences from run to run.  
+## Do not expect these test results to be precisely what you will get when you do your own run on the test dataset. 
+
+500000 3.85
+334180 334352 173 449 1.03744e-165
+337735 337915 181 458.2 5.02405e-164
+262604 262861 258 473.1 3.64789e-117
+285427 285608 182 386.1 8.42494e-113
+309563 309744 182 383.6 2.88895e-111
