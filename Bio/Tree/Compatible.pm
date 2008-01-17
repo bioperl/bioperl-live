@@ -20,11 +20,11 @@ with nested taxa.
   use Bio::Tree::Compatible;
   use Bio::TreeIO;
   my $input = Bio::TreeIO->new('-format' => 'newick',
-                              '-file'   => 'input.tre');
+                               '-file'   => 'input.tre');
   my $t1 = $input->next_tree;
   my $t2 = $input->next_tree;
 
-  my ($incompat, $ilabels, $inodes) = $t1->is_compatible($t2);
+  my ($incompat, $ilabels, $inodes) = Bio::Tree::Compatible::is_compatible($t1,$t2);
   if ($incompat) {
     my %cluster1 = %{ $t1->cluster_representation };
     my %cluster2 = %{ $t2->cluster_representation };
