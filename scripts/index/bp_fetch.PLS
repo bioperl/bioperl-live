@@ -228,12 +228,12 @@ foreach my $arg ( @ARGV ) {
 	    $_ = $meta;
 	    /^net$/ && do {
 		if( $db =~ /genbank/i ) {
-		    $dbobj = Bio::DB::GenBank->new();
+		    $dbobj = Bio::DB::GenBank->new(-format => $fmt);
 		}
 		elsif( $db =~ /genpept/i ) {
 		    $dbobj = Bio::DB::GenPept->new();
 		} elsif( $db =~ /embl/i ) {
-                    $dbobj = Bio::DB::EMBL->new();
+                    $dbobj = Bio::DB::EMBL->new(-format => $fmt);
                 } else {
 		    die "Net database $db not available";
 		} 
@@ -309,10 +309,3 @@ foreach my $arg ( @ARGV ) {
 
     $out->write_seq($seq);
 }
-
-
-	
-
-
-
-
