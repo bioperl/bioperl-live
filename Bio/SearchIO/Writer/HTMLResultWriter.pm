@@ -417,7 +417,7 @@ sub to_string {
 						    length($hspvals[2]->{'start'}),
 						    length($hspvals[2]->{'end'}));
 		my $count = 0;
-		while ( $count <= $hsp->length('total') ) {
+		while ( $count < $hsp->length('total') ) {
 		    foreach my $v ( @hspvals ) {
 			my $piece = substr($v->{'seq'}, $v->{'index'} + $count,
 					   $AlignmentLineWidth);
