@@ -233,7 +233,7 @@ foreach my $arg ( @ARGV ) {
 		elsif( $db =~ /genpept/i ) {
 		    $dbobj = Bio::DB::GenPept->new();
 		} elsif( $db =~ /embl/i ) {
-                    $dbobj = Bio::DB::EMBL->new(-format => $fmt);
+                    $dbobj = Bio::DB::EMBL->new();
                 } else {
 		    die "Net database $db not available";
 		} 
