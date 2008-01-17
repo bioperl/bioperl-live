@@ -26,8 +26,8 @@ with nested taxa.
 
   my ($incompat, $ilabels, $inodes) = Bio::Tree::Compatible::is_compatible($t1,$t2);
   if ($incompat) {
-    my %cluster1 = %{ $t1->cluster_representation };
-    my %cluster2 = %{ $t2->cluster_representation };
+    my %cluster1 = %{ Bio::Tree::Compatible::cluster_representation($t1) };
+    my %cluster2 = %{ Bio::Tree::Compatible::cluster_representation($t2) };
     print "incompatible trees\n";
     if (scalar(@$ilabels)) {
       foreach my $label (@$ilabels) {
@@ -56,6 +56,10 @@ with nested taxa.
   }
 
 =head1 DESCRIPTION
+
+NB: This module has exclusively class methods that work on Bio::Tree::TreeI
+objects. An instance of Bio::Tree::Compatible cannot itself represent a tree,
+and so typically there is no need to create one.
 
 Bio::Tree::Compatible is a Perl tool for testing compatibility of
 phylogenetic trees with nested taxa represented as Bio::Tree::Tree
