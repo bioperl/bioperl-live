@@ -462,15 +462,15 @@ sub _parse_prokaryotic {
                # Glimmer 2.X prediction 
                (/^\s+(\d+)\s+      # gene num
                 (\d+)\s+(\d+)\s+   # start, end
-                \[([\+\-])\d{1}\s+ # strand
+                \[([\+\-])(\d{1})\s+ # strand, frame
                 /ox ) ||
                # Glimmer 3.X prediction
                (/^[^\d]+(\d+)\s+    # orf (numeric portion)
                 (\d+)\s+(\d+)\s+   # start, end
-                ([\+\-])\d{1}\s+   # strand
+                ([\+\-])(\d{1})\s+   # strand, frame
                 ([\d\.]+)          # score
                 /ox)) {
-	    my ($genenum,$start,$end,$strand,$score) = 
+	    my ($genenum,$start,$end,$strand,$frame,$score) = 
 		( $1,$2,$3,$4,$5 );
 
             my $circular_prediction = 0;
@@ -545,11 +545,15 @@ sub _parse_prokaryotic {
             my $location_object =
                 $location_factory->from_string($location_string);
             
+            # convert glimmer's frame range from 1-3 to SeqFeature's 0-2.
+            $frame--;
+            
             my $gene = Bio::SeqFeature::Generic->new
                 (
                  '-seq_id'      => $seqname,
                  '-location'   => $location_object,
                  '-strand'     => $strand eq '-' ? '-1' : '1',
+                 '-frame'		=> $frame,
                  '-source_tag'  => $source,
                  '-display_name' => "orf$genenum",
                  '-primary_tag'=> 'gene',

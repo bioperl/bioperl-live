@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 157);
+    test_begin(-tests => 163);
 	
     use_ok('Bio::Tools::Genscan');
     use_ok('Bio::Tools::Genemark');
@@ -203,6 +203,7 @@ is($g2gene->source_tag, 'Glimmer_2.X');
 is($g2gene->primary_tag, 'gene');
 is($g2gene->start, 292);
 is($g2gene->end, 1623);
+is($g2gene->frame, 0);
 is($g2gene->strand, 1);
 
 $i = 1;
@@ -212,6 +213,7 @@ while ($g2gene = $glimmer_2->next_prediction) {
         is($g2gene->start, 2230);
         is($g2gene->end, 2349);
         is($g2gene->strand, -1);
+        is($g2gene->frame, 0);		
 	} elsif ($i == 25) {
         isa_ok($g2gene->location, 'Bio::Location::SplitLocationI');
         my @sublocations = $g2gene->location->sub_Location();
@@ -221,6 +223,7 @@ while ($g2gene = $glimmer_2->next_prediction) {
         is($sublocations[1]->start, 1);
         is($sublocations[1]->end, 9);
         is($g2gene->strand, 1);
+        is($g2gene->frame, 0);
     }
 }
 is($i, 25);
@@ -242,7 +245,7 @@ is($sublocations[0]->start, 29263);
 is($sublocations[0]->end, 29940);
 is($sublocations[1]->start, 1);
 is($sublocations[1]->end, 9);
-is($g3gene->strand, 1);
+is($g3gene->frame, 0);
 
 $i = 1;
 while ($g3gene = $glimmer_3->next_prediction) {
@@ -251,6 +254,8 @@ while ($g3gene = $glimmer_3->next_prediction) {
         is($g3gene->start, 13804);
         is($g3gene->end, 14781);
         is($g3gene->strand, -1);
+        is($g3gene->frame, 0);
+		
         my ($orfid) = $g3gene->has_tag('Group') ? $g3gene->get_tag_values('Group') : undef;
         is($orfid, 'GenePrediction_00015');
     }
@@ -271,12 +276,14 @@ is $g3gene_a->location->start_pos_type(), 'BEFORE';
 is $g3gene_a->location->max_start(), 1;
 is $g3gene_a->location->end_pos_type(), 'EXACT';
 is $g3gene_a->location->end(), 674;
+is $g3gene_a->frame(), 2;
 
 for (1..3) { $g3gene_a = $glimmer_3a->next_prediction; }
 
 isa_ok $g3gene_a->location(), 'Bio::Location::Fuzzy';
 is $g3gene_a->location->start_pos_type(), 'EXACT';
 is $g3gene_a->location->start(), 2677;
+is $g3gene_a->frame(), 0;
 is $g3gene_a->location->end_pos_type(), 'AFTER';
 is $g3gene_a->location->min_end(), 2932;
 
