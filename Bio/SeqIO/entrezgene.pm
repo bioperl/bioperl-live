@@ -104,7 +104,7 @@ use Bio::Cluster::SequenceFamily;
 #use Bio::Ontology::Ontology; Relationships.... later
 use Bio::Ontology::Term;
 use Bio::Annotation::OntologyTerm;
-#use Data::Dumper;
+use Data::Dumper;
 
 use base qw(Bio::SeqIO);
 
@@ -443,9 +443,11 @@ sub _process_comments {
 	my (%cann,@feat,@uncaptured,@comments,@sfann);
 	if ((ref($prod) eq 'HASH') && (exists($prod->{comment}))) {
 		$prod=$prod->{comment};
-	}
-	if (ref($prod) eq 'ARRAY') { @comments=@{$prod}; }
-	else {push @comments,$prod;}
+	} elsif (ref($prod) eq 'ARRAY') {
+        @comments=@{$prod};
+    } else {
+        push @comments,$prod;
+    }
 	for my $i (0..$#comments) {#Each comments is a
 		my ($desc,$nfeat,$add,@ann,@comm);
 		my $comm=$comments[$i];
@@ -488,7 +490,7 @@ sub _process_comments {
 			else {
 				push @comm,$comm;
 			}
-			foreach my $ccomm (@comm) {
+			for my $ccomm (@comm) {
 				next unless ($ccomm);
 				if (exists($ccomm->{source})) {
 					my ($uncapt,$allann,$anchor) = _process_src($ccomm->{source});
@@ -506,51 +508,51 @@ sub _process_comments {
 				else {
 					push @loc,$ccomm;
 				}
-            foreach my $loc (@loc) {
-					if ((exists($loc->{text}))&&($loc->{text}=~/Location/i)){
-						my ($l1,$rest)=split(/-/,$loc->{text});
-						$l1=~s/\D//g;
-						$rest=~s/^\s//;
-						my ($l2,$scorestr)=split(/\s/,$rest,2);
-						my ($scoresrc,$score)=split(/:/,$scorestr);
-						$score=~s/\D//g;
-						my (%tags,$tag);
-						unless ($l1) {
-							next;
-						}
-						$nfeat=Bio::SeqFeature::Generic->new(-start=>$l1, 
-																		 -end=>$l2, 
-																		 -strand=>$tags{strand}, 
-																		 -source=>$loc->{type},
-																		 -seq_id=>$desc, 
-																		 -primary=>$heading, 
-																		 -score=>$score, 
-																		 -tag    => {score_src=>$scoresrc});
-						my $sfeatann=Bio::Annotation::Collection->new();
-						foreach my $sfann (@sfann) {
-							$sfeatann->add_Annotation('dblink',$sfann);
-						}
-						undef @sfann;
-						$nfeat->annotation($sfeatann);#Thus the annotation will be available both in the seq and seqfeat?
-						push @feat,$nfeat;
-						delete $loc->{text};
-						delete $loc->{type};
-					}
-					elsif (exists($loc->{label})) {
-						my $simann=Bio::Annotation::SimpleValue->new(-value=>$loc->{text},-tagname=>$loc->{label});
-						delete $loc->{text};
-						delete $loc->{label};
-						push @{$cann{'simple'}},$simann;
-						push @uncaptured,$loc;
-					}
-					elsif (exists($loc->{text})) {
-						my $simann=Bio::Annotation::SimpleValue->new(-value=>$loc->{text},-tagname=>$heading);
-						delete $loc->{text};
-						push @{$cann{'simple'}},$simann;
-						push @uncaptured,$loc;
-					}
-					
-            }
+                foreach my $loc (@loc) {
+                        if ((exists($loc->{text}))&&($loc->{text}=~/Location/i)){
+                            my ($l1,$rest)=split(/-/,$loc->{text});
+                            $l1=~s/\D//g;
+                            $rest=~s/^\s//;
+                            my ($l2,$scorestr)=split(/\s/,$rest,2);
+                            my ($scoresrc,$score)=split(/:/,$scorestr);
+                            $score=~s/\D//g;
+                            my (%tags,$tag);
+                            unless ($l1) {
+                                next;
+                            }
+                            $nfeat=Bio::SeqFeature::Generic->new(-start=>$l1, 
+                                                                            -end=>$l2, 
+                                                                            -strand=>$tags{strand}, 
+                                                                            -source=>$loc->{type},
+                                                                            -seq_id=>$desc, 
+                                                                            -primary=>$heading, 
+                                                                            -score=>$score, 
+                                                                            -tag    => {score_src=>$scoresrc});
+                            my $sfeatann=Bio::Annotation::Collection->new();
+                            foreach my $sfann (@sfann) {
+                                $sfeatann->add_Annotation('dblink',$sfann);
+                            }
+                            undef @sfann;
+                            $nfeat->annotation($sfeatann);#Thus the annotation will be available both in the seq and seqfeat?
+                            push @feat,$nfeat;
+                            delete $loc->{text};
+                            delete $loc->{type};
+                        }
+                        elsif (exists($loc->{label})) {
+                            my $simann=Bio::Annotation::SimpleValue->new(-value=>$loc->{text},-tagname=>$loc->{label});
+                            delete $loc->{text};
+                            delete $loc->{label};
+                            push @{$cann{'simple'}},$simann;
+                            push @uncaptured,$loc;
+                        }
+                        elsif (exists($loc->{text})) {
+                            my $simann=Bio::Annotation::SimpleValue->new(-value=>$loc->{text},-tagname=>$heading);
+                            delete $loc->{text};
+                            push @{$cann{'simple'}},$simann;
+                            push @uncaptured,$loc;
+                        }
+                        
+                }
 			}#Bit clumsy but that's what we get from the low level parser
 		}
 	}
