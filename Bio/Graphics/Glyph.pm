@@ -1134,7 +1134,7 @@ sub draw_component {
   my $panel = $self->panel;
   return unless $x2 >= $panel->left and $x1 <= $panel->right;
 
-  if ($self->option('strand_arrow') || $self->option('stranded')) {
+  if ($self->stranded) {
     $self->filled_arrow($gd,$self->feature->strand,
 			$x1, $y1,
 			$x2, $y2)
@@ -1143,6 +1143,20 @@ sub draw_component {
 		      $x1, $y1,
 		      $x2, $y2)
   }
+}
+
+sub stranded {
+  my $self = shift;
+  my $s = $self->option('strand_arrow') || $self->option('stranded');
+  return unless $s;
+  return 1 unless $s eq 'ends';
+  my $f       = $self->feature;
+  my $strand  = $f->strand;
+  $strand    *= -1 if $self->{flip};
+  my $part_no = $self->{partno};
+  my $parts   = $self->{total_parts};
+  return ($strand > 0 && $part_no == $parts-1)
+    || ($strand < 0 && $part_no == 0);
 }
 
 
@@ -1671,6 +1685,10 @@ glyph pages for more options.
   -strand_arrow Whether to indicate            undef (false)
                  strandedness
 
+  -stranded     Whether to indicate            undef (false)
+                 strandedness
+                 (same as above))
+
   -label        Whether to draw a label	       undef (false)
 
   -description  Whether to draw a description  undef (false)
@@ -1740,7 +1758,11 @@ create a suitable description.
 The B<-strand_arrow> option, if true, requests that the glyph indicate
 which strand it is on, usually by drawing an arrowhead.  Not all
 glyphs will respond to this request.  For historical reasons,
-B<-stranded> is a synonym for this option.
+B<-stranded> is a synonym for this option. Multisegmented features
+will draw an arrowhead on each component unless you specify a value of
+"ends" to -strand_arrow, in which case only the rightmost component
+(for + strand features) or the leftmost component (for - strand
+features) will have arrowheads.
 
 B<sort_order>: By default, features are drawn with a layout based only on the
 position of the feature, assuring a maximal "packing" of the glyphs
