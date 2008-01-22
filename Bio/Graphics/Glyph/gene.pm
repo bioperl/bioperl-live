@@ -44,7 +44,9 @@ sub pad_top {
 
 sub bump {
   my $self = shift;
-  return 1 if $self->{level} == 0; # top level bumps, other levels don't unless specified in config
+  return 1
+    if $self->{level} == 0
+      && lc $self->feature->primary_tag eq 'gene'; # top level bumps, other levels don't unless specified in config
   return $self->SUPER::bump;
 }
 
@@ -92,12 +94,16 @@ sub maxdepth {
 sub _subfeat {
   my $class   = shift;
   my $feature = shift;
-  if ($feature->primary_tag eq 'gene') {
+  if (lc $feature->primary_tag eq 'gene') {
     my @transcripts;
     for my $t (qw/mRNA tRNA snRNA snoRNA miRNA ncRNA pseudogene/) {
       push @transcripts, $feature->get_SeqFeatures($t);
     }
     return @transcripts;
+  } elsif (lc $feature->primary_tag eq 'cds') {
+    my @parts = $feature->get_SeqFeatures();
+    return ($feature) if $class->{level} == 0 and !@parts;
+    return @parts;
   }
 
   my @subparts;
