@@ -365,7 +365,7 @@ SKIP: {
     is $seq->display_id, "A2M";
     is $seq->accession_number, 2;
     $seq = $seqio->next_seq;
-    is $seq->display_id, "HD";
+    is $seq->display_id, "HTT";
     is $seq->accession_number, 3064;
     eval {$seq = $gb->get_Seq_by_id(6099);};
     skip "Couldn't connect to Entrez with Bio::DB::EntrezGene. Skipping those tests", 2 if $@;
