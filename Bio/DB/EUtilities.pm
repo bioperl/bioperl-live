@@ -302,7 +302,30 @@ sub available_parameters {
 
 sub get_parameters {
     my ($self, @args) = @_;
-    return $self->parameter_base->available_parameters(@args);
+    return $self->parameter_base->get_parameters(@args);
+}
+
+=head2 get_parameter_values
+
+ Title   : get_parameter_values
+ Usage   : @vals = $factory->get_parameter_value('id'); # always get array
+ Function: Returns the specific parameter values.
+ Returns : For consistency returns a list of values for this parameter.  If only
+           one is expected, use:
+           
+           ($val) = $factory->get_parameter_value('id');
+           
+ Args    : parameter expected
+
+=cut
+
+sub get_parameter_values {
+    my ($self, $p) = @_;
+    my %params = $self->parameter_base->get_parameters(-list => [$p]);
+    if (exists $params{$p}) {
+        return ref $params{$p} eq 'ARRAY' ? @{$params{$p}} : $params{$p};
+    }
+    return;
 }
 
 =head1 Bio::Tools::EUtilities-delegating methods
