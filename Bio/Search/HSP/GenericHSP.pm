@@ -727,10 +727,17 @@ sub rank {
            : May include ranges if collapse is true.
  Argument  : seq_type  = 'query' or 'hit' or 'sbjct'  (default = query)
            :  ('sbjct' is synonymous with 'hit')
-           : class     = 'identical' or 'conserved' or 'nomatch' or 'gap'
-           :              (default = identical)
-           :              (can be shortened to 'id' or 'cons')
-           :             or 'conserved-not-identical'
+           : class     = 'identical' - identical positions
+           :             'conserved' - conserved positions
+           :             'nomatch'   - mismatched residue or gap positions
+           :             'mismatch'  - mismatched residue positions (no gaps)
+           :             'gap'       - gap positions only
+           :             'conserved-not-identical' - conserved positions w/o 
+           :
+           :             The name can be shortened to 'id' or 'cons' unless
+           :             the name is ambiguous.  The default value is
+           :             'identical'
+           :
            : collapse  = boolean, if true, consecutive positions are merged
            :             using a range notation, e.g., "1 2 3 4 5 7 9 10 11"
            :             collapses to "1-5 7 9-11". This is useful for
@@ -775,6 +782,8 @@ sub seq_inds{
        $class = 'identical';
    } elsif( $t eq 'n' ) {
        $class = 'nomatch';
+   } elsif( $t eq 'm' ) {
+       $class = 'mismatch';
    } elsif( $t eq 'g' ) {
        $class = 'gap';
    } else {
@@ -893,7 +902,6 @@ sub feature2 {
 sub significance {
     my $self = shift;
     my $signif = $self->query->significance(@_) if @_;
-    print STDERR $self->pvalue."\n" if $self->pvalue;
     if (!defined $signif) {
         $signif = $self->pvalue || $self->query->significance;
     }
@@ -965,7 +973,9 @@ sub _calculate_seq_positions {
     my %gapList_sbjct = ();
     my %nomatchList_query = ();
     my %nomatchList_sbjct = ();
-
+    my %mismatchList_query = ();
+    my %mismatchList_sbjct = ();
+    
     my $qdir = $self->query->strand || 1;
     my $sdir = $self->hit->strand || 1;
     my $resCount_query = ($qdir >=0) ? $self->query->end : $self->query->start;
@@ -1017,6 +1027,9 @@ sub _calculate_seq_positions {
 	} elsif( $mchar eq ' ') {
 	    $nomatchList_query{ $resCount_query } = 1;
 	    $nomatchList_sbjct{ $resCount_sbjct } = 1;
+        # mismatch; only count if the symbol matched to isn't a gap
+	    $mismatchList_query{ $resCount_query } = 1 if $schar ne $GAP_SYMBOL;
+	    $mismatchList_sbjct{ $resCount_sbjct } = 1 if $qchar ne $GAP_SYMBOL;
 	}
 	if( $qchar eq $GAP_SYMBOL ) {
 	    $gapList_query{ $resCount_query } ++;
@@ -1024,7 +1037,7 @@ sub _calculate_seq_positions {
 	    $resCount_query -= $qdir;
 	}
 	if( $schar eq $GAP_SYMBOL ) {
-	    $gapList_sbjct{ $resCount_query } ++;
+	    $gapList_sbjct{ $resCount_sbjct } ++;
 	} else {
 	    $resCount_sbjct -=$sdir;
 	}
@@ -1032,11 +1045,13 @@ sub _calculate_seq_positions {
     $self->{'_identicalRes_query'} = \%identicalList_query;
     $self->{'_conservedRes_query'} = \%conservedList_query;
     $self->{'_nomatchRes_query'}   = \%nomatchList_query;
+    $self->{'_mismatchRes_query'}  = \%mismatchList_query;
     $self->{'_gapRes_query'}       = \%gapList_query;
 
     $self->{'_identicalRes_sbjct'} = \%identicalList_sbjct;
     $self->{'_conservedRes_sbjct'} = \%conservedList_sbjct;
     $self->{'_nomatchRes_sbjct'}   = \%nomatchList_sbjct;
+    $self->{'_mismatchRes_sbjct'}  = \%mismatchList_sbjct;
     $self->{'_gapRes_sbjct'}       = \%gapList_sbjct;
     return 1;
 }
