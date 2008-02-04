@@ -196,10 +196,12 @@ sub to_string {
 						  $self->filter('HIT'),
 						  $self->filter('HSP') );
     return '' if( defined $resultfilter && ! &{$resultfilter}($result) );    
-
+    
     my ($qtype,$dbtype,$dbseqtype,$type);
     my $alg = $result->algorithm;
-
+    
+    my $wublast = ($result->algorithm_version =~ /WashU/) ? 1 : 0;
+    
     # This is actually wrong for the FASTAs I think
     if(  $alg =~ /T(FAST|BLAST)([XY])/i ) {
 	$qtype      = $dbtype = 'translated';
@@ -264,11 +266,14 @@ Sequences producing significant alignments:                      (bits)    value
 	} else { 
 	    $descsub = sprintf($p,$desc);
 	}
-
-	$str .= sprintf("%s   %-4s  %s\n",
+	$str .= $wublast ? sprintf("%s   %-4s  %s\n",
 			$descsub,
 			defined $hit->raw_score ? $hit->raw_score : ' ',
-			defined $hit->significance ? $hit->significance : '?');
+			defined $hit->significance ? $hit->significance : '?') :
+                    sprintf("%s   %-4s  %s\n",
+			$descsub,
+			defined $hit->bits ? $hit->bits: ' ',
+			defined $hit->significance ? $hit->significance : '?');        
 	my @hsps = $hit->hsps;
 	if( @hsps ) { 
 	    $hspstr .= sprintf(">%s %s\n%9sLength = %d\n\n",
