@@ -845,10 +845,24 @@ sub write_seq {
 
 	# Organism lines
 	if (my $spec = $seq->species) {
-	    my ($on, $sn, $cn) = ($spec->organelle,
+	    my ($on, $sn, $cn) = ($spec->can('organelle') ? $spec->organelle : '',
 				  $spec->scientific_name,
 				  $spec->common_name);
-
+	    my @classification;
+        if ($spec->isa('Bio::Species')) {
+            @classification = $spec->classification;
+    	    shift(@classification);
+        } else {
+            # Bio::Taxon should have a DB handle of some type attached, so
+            # derive the classification from that
+            my $node = $spec;
+            while ($node) {
+                $node = $node->ancestor || last;
+                unshift(@classification, $node->node_name);
+                #$node eq $root && last;
+            }
+            @classification = reverse @classification;
+        }
 	    my $abname = $spec->name('abbreviated') ? # from genbank file
 		$spec->name('abbreviated')->[0] : $sn;
 	    my $sl = $on ? "$on "            : '';
@@ -856,8 +870,6 @@ sub write_seq {
 
 	    $self->_write_line_GenBank_regex("SOURCE      ", ' 'x12, $sl, "\\s\+\|\$",80);
 	    $self->_print("  ORGANISM  ", $spec->scientific_name, "\n");
-	    my @classification = $spec->classification;
-	    shift(@classification);
 	    my $OC = join('; ', (reverse(@classification))) .'.';
 	    $self->_write_line_GenBank_regex(' 'x12,' 'x12,
 					     $OC,"\\s\+\|\$",80);
