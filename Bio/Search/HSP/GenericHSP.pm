@@ -900,12 +900,12 @@ sub feature2 {
 # Override significance to return the e-value or, if this is
 # not defined (WU-BLAST), return the p-value.
 sub significance {
-    my $self = shift;
-    my $signif = $self->query->significance(@_) if @_;
-    if (!defined $signif) {
-        $signif = $self->pvalue || $self->query->significance;
+    my ($self, $val) = @_;
+    $self->query->significance($val) if $val;
+    if (!defined $self->{SIGNIFICANCE} || $val) {
+        $self->{SIGNIFICANCE} = $val || $self->pvalue || $self->evalue;
     }
-    return $signif;
+    return $self->{SIGNIFICANCE};
 }
 
 =head2 score
