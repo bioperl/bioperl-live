@@ -827,7 +827,7 @@ sub _guess_alphabet {
 
    my $str = $self->seq();
 	# Remove char's that clearly denote ambiguity
-   $str =~ s/[-.?x]//gi;
+   $str =~ s/[-.?]//gi;
 
    my $total = CORE::length($str);
    if( $total == 0 ) {
