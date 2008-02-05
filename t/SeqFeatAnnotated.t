@@ -1,5 +1,5 @@
 # -*-Perl-*- Test Harness script for Bioperl
-# $Id: SeqFeatAnnotated.t,v 1.50 2007/06/27 10:16:37 sendu Exp $
+# $Id$
 
 use strict;
 
@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 26, -requires_module => 'URI::Escape');
+    test_begin(-tests => 34, -requires_module => 'URI::Escape');
 	
 	use_ok('Bio::SeqFeature::Generic');
 	use_ok('Bio::SeqFeature::Annotated');
@@ -17,8 +17,10 @@ my $sfa = Bio::SeqFeature::Annotated->new(-start => 1,
 					  -end => 5,
 					  -strand => "+",
 					  -frame => 2,
+					  -type => 'nucleotide_motif',					  
 					  -phase => 2,
 					  -score => 12,
+					  -source => 'program_b',
 					  -display_name => 'test.annot',
 					  -seq_id => 'test.displayname' );
 
@@ -50,6 +52,15 @@ is $sfa2->start,400;
 is $sfa2->end,440;
 is $sfa2->get_Annotations('silly')->value,20;
 is $sfa2->get_Annotations('new')->value,1;
+my $sfaa = Bio::SeqFeature::Annotated->new(-feature => $sfa);
+is $sfaa->type->name,'nucleotide_motif';
+is $sfaa->primary_tag, 'nucleotide_motif';
+is $sfaa->source->display_text,'program_b';
+is $sfaa->source_tag,'program_b';
+is $sfaa->strand,1;
+is $sfaa->start,1;
+is $sfaa->end,5;
+is $sfaa->score,12;
 
 my $sfa3 = Bio::SeqFeature::Annotated->new( -start => 1,
 					-end => 5,

@@ -244,7 +244,11 @@ sub get_all_annotation_keys{
     my @keys = ();
     
     # get the tags from the feature object
-    push(@keys, $self->feature()->all_tags());
+    if ($self->feature()->can('get_all_tags')) {
+        push(@keys, $self->feature()->get_all_tags());
+    } else {
+        push(@keys, $self->feature()->all_tags());
+    }
     # ask the annotation implementation in addition, while avoiding duplicates
     if($self->annotation()) {
 	push(@keys,

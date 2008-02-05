@@ -271,32 +271,34 @@ sub _initialize {
 =cut
 
 sub from_feature {
-  my ($self,$feat,%opts) = @_;
-
-  # should deal with any SeqFeatureI implementation (i.e. we don't want to
-  # automatically force a OO-heavy implementation on all classes)
-  ref($feat) && ($feat->isa('Bio::SeqFeatureI')) 
-    or $self->throw('invalid arguments to from_feature');
-
-  #TODO: add overrides in opts for these values, so people don't have to screw up their feature object
-  #if they don't want to
-
-  ### set most of the data
-  foreach my $fieldname (qw/ start end strand frame score location seq_id source_tag primary_tag/) {
-    #no strict 'refs'; #using symbolic refs, yes, but using them for methods is allowed now
-    $self->$fieldname( $feat->$fieldname );
-  }
-
-  # now pick up the annotations/tags of the other feature
-  # We'll use AnnotationAdaptor to convert everything over
-  my $anncoll = Bio::SeqFeature::AnnotationAdaptor->new(-feature => $feat);
+    my ($self,$feat,%opts) = @_;
   
-    for my $key ( $anncoll->get_all_annotation_keys() ) {
-      my @values = $anncoll->get_Annotations($key);
-      @values = _aggregate_scalar_annotations(\%opts,$key,@values);
-      foreach my $val (@values) {
-        $self->add_Annotation($key,$val)
-      }
+    # should deal with any SeqFeatureI implementation (i.e. we don't want to
+    # automatically force a OO-heavy implementation on all classes)
+    ref($feat) && ($feat->isa('Bio::SeqFeatureI')) 
+      or $self->throw('invalid arguments to from_feature');
+  
+    #TODO: add overrides in opts for these values, so people don't have to screw up their feature object
+    #if they don't want to
+  
+    ### set most of the data
+    foreach my $fieldname (qw/ start end strand frame score location seq_id source_tag primary_tag/) {
+      #no strict 'refs'; #using symbolic refs, yes, but using them for methods is allowed now
+      $self->$fieldname( $feat->$fieldname );
+    }
+
+    # now pick up the annotations/tags of the other feature
+    # We'll use AnnotationAdaptor to convert everything over
+
+    my %no_copy = map {$_ => 1} qw/seq_id source type frame phase score/;
+    my $adaptor = Bio::SeqFeature::AnnotationAdaptor->new(-feature => $feat);
+    for my $key ( $adaptor->get_all_annotation_keys() ) {
+        next if $no_copy{$key};
+        my @values = $adaptor->get_Annotations($key);
+        @values = _aggregate_scalar_annotations(\%opts,$key,@values);
+        foreach my $val (@values) {
+            $self->add_Annotation($key,$val)
+        }
     }
 }
 #given a key and its values, make the values into
