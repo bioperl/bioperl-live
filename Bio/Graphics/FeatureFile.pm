@@ -597,7 +597,7 @@ sub parse_line {
   }
 
   # either create a new feature or add a segment to it
-  if (my $feature = $self->{seenit}{$type,$name}) {
+  if (length $name && (my $feature = $self->{seenit}{$type,$name})) {
 
     # create a new segment to hold the parts
     if (!$feature->segments) {
