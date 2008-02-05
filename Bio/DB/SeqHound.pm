@@ -86,8 +86,9 @@ use IO::String;
 use POSIX qw(strftime);
 
 use base qw(Bio::DB::WebDBSeqI Bio::Root::Root);
+
 BEGIN {    
-    $HOSTBASE = 'http://seqhound.blueprint.org';
+    $HOSTBASE = 'http://dogboxonline.unleashedinformatics.com';
     $CGILOCATION = '/cgi-bin/seqrem?fnct=';
     $LOGFILENAME = 'shoundlog';
 }
