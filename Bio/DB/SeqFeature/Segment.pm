@@ -405,9 +405,9 @@ sub seq_id  { shift->{seqid}  }
 sub strand  { shift->{strand} }
 sub ref     { shift->seq_id   }
 
-sub length  { 
-    my $self = shift; 
-    return abs($self->end - $self->start) +1;        
+sub length  {
+  my $self = shift;
+  return abs($self->end - $self->start) +1;
 }
 
 sub primary_tag  { 'region' }

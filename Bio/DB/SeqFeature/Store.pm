@@ -1220,7 +1220,7 @@ END
     my ($start,$end);
     if ($abs) {
       $start = $rel_start;
-      $end   = $rel_end;
+      $end   = defined $rel_end ? $rel_end : $start + $f->length - 1;
     }
     else {
       my $re = defined $rel_end ? $rel_end : $f->end - $f->start + 1;
