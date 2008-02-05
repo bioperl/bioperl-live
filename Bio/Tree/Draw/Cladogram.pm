@@ -447,8 +447,8 @@ sub print {
       # print $xx{$node}, " ", $yy{$node}, " lineto\n";
       if ($colors) {
 	print $INFO "stroke\n";
-	print $INFO $Rcolor{$node->ancestor}, " ", $Gcolor{$node->ancestor}, " ", 
-	$Bcolor{$node->ancestor}, " setrgbcolor\n";
+	print $INFO $Rcolor{$node}, " ", $Gcolor{$node}, " ", 
+	$Bcolor{$node}, " setrgbcolor\n";
       }
       print $INFO $xx{$node}, " ", $yy{$node}, " moveto\n";
       print $INFO $xx{$node->ancestor}, " ", $yy{$node}, " lineto\n";
