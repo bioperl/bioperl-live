@@ -280,6 +280,7 @@ sub next_result {
             chomp $line;
             my $hspid = $1;
             my ($score, $strand, $start, $length , $seq) = ($2, $3, $4, $5, $6);
+            $score *= 1;  # implicitly cast any odd '0.000' to float
             # sanity check ids
             unless ($hitid eq $hspid) {
                 $self->throw("IDs do not match!");

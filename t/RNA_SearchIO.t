@@ -662,8 +662,8 @@ is($hit->name, 'gi|173683|gb|M10671|ACSTRW', "Hit name");
 is($hit->num_hsps, 8, "Hit num_hsps"); 
 is($hit->overlap, 0, "Hit overlap");
 is($hit->rank, 1, "Hit rank");
-is($hit->raw_score, '', "Hit raw_score");
-is($hit->score, '', "Hit score");
+is($hit->raw_score, 0, "Hit raw_score");
+is($hit->score, 0, "Hit score");
 is($hit->significance, undef, "Hit significance");
 
 $hsp = $hit->next_hsp;

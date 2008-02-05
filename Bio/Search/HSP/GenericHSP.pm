@@ -901,9 +901,9 @@ sub feature2 {
 # not defined (WU-BLAST), return the p-value.
 sub significance {
     my ($self, $val) = @_;
-    $self->query->significance($val) if $val;
     if (!defined $self->{SIGNIFICANCE} || $val) {
-        $self->{SIGNIFICANCE} = $val || $self->pvalue || $self->evalue;
+        $self->query->significance($val) if $val;
+        $self->{SIGNIFICANCE} = $val || $self->evalue || $self->pvalue;
     }
     return $self->{SIGNIFICANCE};
 }
