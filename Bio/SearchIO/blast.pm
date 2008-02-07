@@ -631,6 +631,7 @@ sub next_result {
             ) if $self->{'_blsdb_letters'};
             
             # changed 7/15/2007 to only check certain lines, end while if something doesn't match
+            my $h_regex;
           DESCLINE:
             while ( defined( my $descline = $self->_readline() ) ) {
                 next if $descline =~ m{^\s*$};
@@ -640,11 +641,15 @@ sub next_result {
                     $nextline =~ s{^!}{};
                     $descline = "$id $nextline";
                 }
-                if ($descline =~ /(?<!cor)(\d[\d\.\+\-eE]+)\s+((?:\d|e)[\d\.\+\-eE]+)(\s+\d+)?\s*$/xms) {
+                # NCBI style hit table (no N)
+                if ($descline =~ /(?<!cor)          # negative lookahead
+                    (\d+\.?(?:[\+\-eE]+)?\d+)       # number (float or scientific notation)
+                    \s+                             # space
+                    ([\de]+\.?\d*(?:[\+\-eE]+)?\d*) # number (float or scientific notation)
+                    \s*$/xms) {
                     
-                    # the last match is for gapped BLAST output
-                    # which will report the number of HSPs for the Hit
-                    my ( $score, $evalue ) = ( $1, $2 );
+                    my ( $score, $evalue ) = ($1, $2);
+                    
                     # Some data clean-up so e-value will appear numeric to perl
                     $evalue =~ s/^e/1e/i;
 
