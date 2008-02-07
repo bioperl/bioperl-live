@@ -148,16 +148,22 @@ number of adaptors is quite limited, but the number will grow soon.
 
 =over 4
 
+=item memory
+
+An implementation that stores all data in memory. This is useful for
+small data sets of no more than 10,000 features (more or less,
+depending on system memory).
+
 =item DBI::mysql
 
 A full-featured implementation on top of the MySQL relational database
 system.
 
-=item bdb
+=item berkeleydb
 
-A partial implementation that runs on top of the BerkeleyDB
-database. The fetch() and store() methods are implemented, but the
-various search functions (e.g. get_features_by_name()) are not.
+A full-feature implementation that runs on top of the BerkeleyDB
+database. See L<Bio::DB::SeqFeature::Store::berkeleydb>.
+
 
 =back
 
@@ -362,11 +368,11 @@ sub new {
  Args    : (optional) flag to erase current data
  Status  : public
 
-Call this after Bio::DB::SeqFeature::Store-E<gt>new() to initialize a new
-database. In the case of a DBI database, this method installs the
+Call this after Bio::DB::SeqFeature::Store-E<gt>new() to initialize a
+new database. In the case of a DBI database, this method installs the
 schema but does B<not> create the database. You have to do this
 offline using the appropriate command-line tool. In the case of the
-"bdb" BerkeleyDB adaptor, this creates an empty BTREE database.
+"berkeleydb" adaptor, this creates an empty BTREE database.
 
 If there is any data already in the database, init_database() called
 with no arguments will have no effect. To permanently erase the data
@@ -2373,7 +2379,8 @@ L<Bio::DB::SeqFeature>,
 L<Bio::DB::SeqFeature::Store::GFF3Loader>,
 L<Bio::DB::SeqFeature::Segment>,
 L<Bio::DB::SeqFeature::Store::DBI::mysql>,
-L<Bio::DB::SeqFeature::Store::bdb>
+L<Bio::DB::SeqFeature::Store::berkeleydb>
+L<Bio::DB::SeqFeature::Store::memory>
 
 =head1 AUTHOR
 
