@@ -16,18 +16,12 @@ Bio::Variation::IO::flat - flat file sequence variation input/output stream
 
 =head1 SYNOPSIS
 
-Do not use this module directly.  Use it via the Bio::Variation::IO class.
+Do not use this module directly. Use it via the Bio::Variation::IO class.
 
 =head1 DESCRIPTION
 
 This object can transform Bio::Variation::SeqDiff objects to and from
-flat file databases. The format used is EMBL like extension of what is
-used by the "EBI Mutation Checker" at
-http://www.ebi.ac.uk/cgi-bin/mutations/check.cgi and will eventually
-replace it.
-
-More information of the attributes and values use can be found at
-http://www.ebi.ac.uk/mutations/recommendations/.
+flat file databases.
 
 =head1 FEEDBACK
 
