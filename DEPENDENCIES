@@ -139,4 +139,3 @@ Notes
     9. This module is optional but recommended for speeding up parsing over
        the default XML::SAX::PurePerl. If installed, XML::SAX::Expat currently
        does not work correctly due to DTD problems.
-       
