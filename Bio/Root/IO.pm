@@ -565,13 +565,13 @@ sub noclose{
 
 sub _io_cleanup {
     my ($self) = @_;
-
     $self->close();
     my $v = $self->verbose;
 
     # we are planning to cleanup temp files no matter what    
     if( exists($self->{'_rootio_tempfiles'}) &&
-	ref($self->{'_rootio_tempfiles'}) =~ /array/i) { 
+	ref($self->{'_rootio_tempfiles'}) =~ /array/i &&
+    !$self->save_tempfiles) { 
 	if( $v > 0 ) {
 	    warn( "going to remove files ", 
 		  join(",",  @{$self->{'_rootio_tempfiles'}}), "\n");
@@ -581,8 +581,8 @@ sub _io_cleanup {
     # cleanup if we are not using File::Temp
     if( $self->{'_cleanuptempdir'} &&
 	exists($self->{'_rootio_tempdirs'}) &&
-	ref($self->{'_rootio_tempdirs'}) =~ /array/i) {	
-
+	ref($self->{'_rootio_tempdirs'}) =~ /array/i &&
+    !$self->save_tempfiles) {	
 	if( $v > 0 ) {
 	    warn( "going to remove dirs ", 
 		  join(",",  @{$self->{'_rootio_tempdirs'}}), "\n");
@@ -947,6 +947,25 @@ sub _flush_on_write {
 	$self->{'_flush_on_write'} = $value;
     }
     return $self->{'_flush_on_write'};
+}
+
+=head2 save_tempfiles
+
+ Title   : save_tempfiles
+ Usage   : $obj->save_tempfiles(1)
+ Function: Boolean flag to indicate whether to retain tempfiles/tempdir
+ Returns : Boolean value : 1 = save tempfiles/tempdirs, 0 = remove (default)
+ Args    : Value evaluating to TRUE or FALSE
+
+=cut
+
+sub save_tempfiles {
+    my $self = shift;
+    if (@_) {
+        my $value = shift;
+        $self->{save_tempfiles} = $value ? 1 : 0;
+    }
+    return $self->{save_tempfiles} || 0;
 }
 
 1;

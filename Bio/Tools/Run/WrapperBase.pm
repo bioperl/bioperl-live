@@ -175,11 +175,7 @@ sub no_param_checks{
 
 sub save_tempfiles{
     my $self = shift;
-    if (@_) {
-        my $value = shift;
-        $self->{save_tempfiles} = $value ? 1 : 0;
-    }
-    return $self->{save_tempfiles} || 0;
+    return $self->io->save_tempfiles(@_);
 }
 
 =head2 outfile_name
@@ -479,7 +475,7 @@ sub _setparams {
 sub DESTROY {
     my $self= shift;
     unless ( $self->save_tempfiles ) {
-	$self->cleanup();
+	#$self->cleanup();
     }
     $self->SUPER::DESTROY();
 }
