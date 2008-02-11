@@ -475,7 +475,7 @@ sub _setparams {
 sub DESTROY {
     my $self= shift;
     unless ( $self->save_tempfiles ) {
-	#$self->cleanup();
+	$self->cleanup();
     }
     $self->SUPER::DESTROY();
 }
