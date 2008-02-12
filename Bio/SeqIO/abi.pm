@@ -156,4 +156,21 @@ sub write_seq {
     return 1;
 }
 
+=head2 get_trace_data
+
+ Title   : get_trace_data
+ Usage   : $stream->get_trace_data(1)
+ Function: set boolean flag to retrieve the trace data (possibly for
+           output)
+ Returns : bool value, TRUE = retrieve trace data (default FALSE)
+ Args    : bool value
+
+=cut
+
+sub get_trace_data {
+	my ($self, $val) = @_;
+	$self->{_get_trace_data} = $val ? 1 : 0;
+	$self->{_get_trace_data};
+}
+
 1;
