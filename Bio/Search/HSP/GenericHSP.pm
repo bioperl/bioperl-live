@@ -742,9 +742,16 @@ sub rank {
            :             using a range notation, e.g., "1 2 3 4 5 7 9 10 11"
            :             collapses to "1-5 7 9-11". This is useful for
            :             consolidating long lists. Default = no collapse.
+           :
  Throws    : n/a.
- Comments  :
-
+ Comments  : For HSPs partially or completely derived from translated sequences
+           : (TBLASTN, BLASTX, TBLASTX, or similar), some positional data
+           : cannot easily be attributed to a single position (i.e. the 
+           : positional data is ambiguous).  In these cases all three codon 
+           : positions are reported.  Under these conditions you can check 
+           : ambiguous_seq_inds() to determine whether the query, subject, 
+           : or both are ambiguous.
+           :
 See Also   : L<Bio::Search::SearchUtils::collapse_nums()|Bio::Search::SearchUtils>,
              L<Bio::Search::Hit::HitI::seq_inds()|Bio::Search::Hit::HitI>
 
@@ -770,6 +777,7 @@ sub seq_inds{
        $self->warn("unknown seqtype $seqType using 'query'");
        $seqType = 'query';
    }
+   
    $t = lc(substr($class,0,1));
 
    if( $t eq 'c' ) {
@@ -819,6 +827,29 @@ sub seq_inds{
    return $collapse ? &Bio::Search::SearchUtils::collapse_nums(@ary) : @ary;
 }
 
+=head2 ambiguous_seq_inds
+
+ Title     : ambiguous_seq_inds
+ Purpose   : returns a string denoting whether sequence indices for query, 
+           : subject, or both are ambiguous
+ Returns   : String; 'query', 'subject', 'query/subject', or empty string ''
+ Argument  : none
+ Comments  : For HSPs partially or completely derived from translated sequences
+           : (TBLASTN, BLASTX, TBLASTX, or similar), some positional data
+           : cannot easily be attributed to a single position (i.e. the 
+           : positional data is ambiguous).  In these cases all three codon 
+           : positions are reported when using seq_inds().  Under these
+           : conditions you can check ambiguous_seq_inds() to determine whether
+           : the query, subject, or both are ambiguous.
+See Also   : L<Bio::Search::Hit::HSPI::seq_inds()>
+
+=cut
+
+sub ambiguous_seq_inds {
+    my $self = shift;
+    return $self->{'_warnRes'} if exists $self->{'_warnRes'};
+    return $self->{'_warnRes'} = '';
+}
 
 =head2 Inherited from L<Bio::SeqFeature::SimilarityPair>
 
@@ -1008,39 +1039,48 @@ sub _calculate_seq_positions {
         $sseq =~ s![\\\/]!!g;
     }
 
+    my ($warn, $sbjct_offset, $query_offset) = ('',1,1);
     if($prog =~ /^(PSI)?T(BLAST|FAST)N/oi ) {
-	$resCount_sbjct = int($resCount_sbjct / 3);
+    $sbjct_offset = 3;
+    $warn = 'subject';
     } elsif($prog =~ /^(BLAST|FAST)(X|Y|XY)/oi  ) {
-	$resCount_query = int($resCount_query / 3);
+    $query_offset = 3;
+    $warn = 'query';
     } elsif($prog =~ /^T(BLAST|FAST)(X|Y|XY)/oi ) {
-	$resCount_query = int($resCount_query / 3);
-	$resCount_sbjct = int($resCount_sbjct / 3);
+    $query_offset = $sbjct_offset = 3;
+    $warn = 'query/subject';
     }
+    my @qrange = (0..$query_offset-1); # 0, or 0..2
+    my @srange = (0..$sbjct_offset-1); # 0, or 0..2
     while( $mchar = chop($seqString) ) {
-	($qchar, $schar) = (chop($qseq), chop($sseq));
-	if( $mchar eq '+' || $mchar eq '.' || $mchar eq ':' ) {
-	    $conservedList_query{ $resCount_query } = 1;
-	    $conservedList_sbjct{ $resCount_sbjct } = 1;
-	} elsif( $mchar ne ' ' ) {
-	    $identicalList_query{ $resCount_query } = 1;
-	    $identicalList_sbjct{ $resCount_sbjct } = 1;
-	} elsif( $mchar eq ' ') {
-	    $nomatchList_query{ $resCount_query } = 1;
-	    $nomatchList_sbjct{ $resCount_sbjct } = 1;
-        # mismatch; only count if the symbol matched to isn't a gap
-	    $mismatchList_query{ $resCount_query } = 1 if $schar ne $GAP_SYMBOL;
-	    $mismatchList_sbjct{ $resCount_sbjct } = 1 if $qchar ne $GAP_SYMBOL;
-	}
-	if( $qchar eq $GAP_SYMBOL ) {
-	    $gapList_query{ $resCount_query } ++;
-	} else {
-	    $resCount_query -= $qdir;
-	}
-	if( $schar eq $GAP_SYMBOL ) {
-	    $gapList_sbjct{ $resCount_sbjct } ++;
-	} else {
-	    $resCount_sbjct -=$sdir;
-	}
+        ($qchar, $schar) = (chop($qseq), chop($sseq));
+        if( $mchar eq '+' || $mchar eq '.' || $mchar eq ':' ) {
+            $conservedList_query{ $resCount_query - ($_ * $qdir) } = 1 for @qrange;
+            $conservedList_sbjct{ $resCount_sbjct - ($_ * $sdir) } = 1 for @srange;
+        } elsif( $mchar ne ' ' ) {
+            $identicalList_query{ $resCount_query - ($_ * $qdir) } = 1 for @qrange;
+            $identicalList_sbjct{ $resCount_sbjct - ($_ * $sdir) } = 1 for @srange;
+        } elsif( $mchar eq ' ') {
+            $nomatchList_query{ $resCount_query - ($_ * $qdir) } = 1 for @qrange;
+            $nomatchList_sbjct{ $resCount_sbjct - ($_ * $sdir) } = 1 for @srange;
+            # mismatch; only count if the symbol matched to isn't a gap
+            if ($schar ne $GAP_SYMBOL) {
+                $mismatchList_query{ $resCount_query - ($_ * $qdir) } = 1 for @qrange;
+            }
+            if ($qchar ne $GAP_SYMBOL) {
+                $mismatchList_sbjct{ $resCount_sbjct - ($_ * $sdir) } = 1 for @srange;
+            }
+        }
+        if( $qchar eq $GAP_SYMBOL ) {
+            $gapList_query{ $resCount_query } ++;
+        } else {
+            $resCount_query -= $qdir * $query_offset;
+        }
+        if( $schar eq $GAP_SYMBOL ) {
+            $gapList_sbjct{ $resCount_sbjct } ++;
+        } else {
+            $resCount_sbjct -=$sdir * $sbjct_offset;
+        }
     }
     $self->{'_identicalRes_query'} = \%identicalList_query;
     $self->{'_conservedRes_query'} = \%conservedList_query;
@@ -1053,6 +1093,7 @@ sub _calculate_seq_positions {
     $self->{'_nomatchRes_sbjct'}   = \%nomatchList_sbjct;
     $self->{'_mismatchRes_sbjct'}  = \%mismatchList_sbjct;
     $self->{'_gapRes_sbjct'}       = \%gapList_sbjct;
+    $self->{'_warnRes'}            = $warn;
     return 1;
 }
 
