@@ -987,25 +987,6 @@ sub write_seq {
 
 	$str =~ tr/A-Z/a-z/;
 
-	# Count each nucleotide
-	unless(  $mol eq 'protein' ) {
-	    my $alen = $str =~ tr/a/a/;
-	    my $clen = $str =~ tr/c/c/;
-	    my $glen = $str =~ tr/g/g/;
-	    my $tlen = $str =~ tr/t/t/;
-
-	    my $olen = $len - ($alen + $tlen + $clen + $glen);
-	    if( $olen < 0 ) {
-		$self->warn("Weird. More atgc than bases. Problem!");
-	    }
-
-	    my $base_count = sprintf("BASE COUNT %8s a %6s c %6s g %6s t%s\n",
-				     $alen,$clen,$glen,$tlen,
-				     ( $olen > 0 ) ?
-				     sprintf("%6s others",$olen) : '');
-	    $self->_print($base_count);
-	}
-
 	my ($o) = $seq->annotation->get_Annotations('origin');
 	$self->_print(sprintf("%-12s%s\n",
 			      'ORIGIN', $o ? $o->value : ''));
