@@ -1037,7 +1037,6 @@ sub is_ambiguous {
 
 =cut
 
-
 =head2 is_prototype
 
  Title    : is_prototype
@@ -1136,7 +1135,6 @@ sub purge_isoschizomers {
     $self->{_isoschizomers} = [];
 
 }
-
 
 =head2 methylation_sites
 

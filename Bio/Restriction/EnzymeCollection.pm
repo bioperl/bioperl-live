@@ -148,9 +148,7 @@ use Bio::Restriction::IO;
 
 use Data::Dumper;
 
-use vars qw ();
 use base qw(Bio::Root::Root);
-
 
 =head2 new
 
