@@ -866,7 +866,7 @@ sub write_seq {
 	    my $abname = $spec->name('abbreviated') ? # from genbank file
 		$spec->name('abbreviated')->[0] : $sn;
 	    my $sl = $on ? "$on "            : '';
-	    $sl   .= $cn ? $abname." ($cn)." : "$abname.";
+	    $sl   .= $cn ? $abname." ($cn)" : "$abname";
 
 	    $self->_write_line_GenBank_regex("SOURCE      ", ' 'x12, $sl, "\\s\+\|\$",80);
 	    $self->_print("  ORGANISM  ", $spec->scientific_name, "\n");
