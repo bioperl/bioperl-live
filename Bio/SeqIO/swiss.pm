@@ -230,14 +230,14 @@ sub next_seq {
         my ($date, $version) = split(' ', $line, 2);
         $date =~ tr/,//d; # remove comma if new version    
         if ($version =~ /\(Rel\. (\d+), Last sequence update\)/ || # old
-                        /sequence version (\d+)\./) { #new
+                        /sequence version (\d+)/) { #new
             my $update = Bio::Annotation::SimpleValue->new(
                                         -tagname    => 'seq_update',
                                         -value      => $1
                                         );
             $annotation->add_Annotation($update);
         } elsif ($version =~ /\(Rel\. (\d+), Last annotation update\)/ || #old
-                             /entry version (\d+)\./) { #new
+                             /entry version (\d+)/) { #new
             $params{'-version'} = $1;
         }
        push @{$params{'-dates'}}, $date;
@@ -477,10 +477,10 @@ sub write_seq {
         my ($update_version) = $seq->annotation->get_Annotations("seq_update");
         foreach my $dt (@dates){
         $self->_write_line_swissprot_regex("DT   ","DT   ",
-                $dt.', integrated into UniProtKB/'.$ns,
+                $dt.', integrated into UniProtKB/'.$ns.'.',
                 "\\s\+\|\$",80) if $ct == 1;
         $self->_write_line_swissprot_regex("DT   ","DT   ",
-                $dt.", sequence version ".$update_version->display_text,
+                $dt.", sequence version ".$update_version->display_text.'.',
                 "\\s\+\|\$",80) if $ct == 2;
         $self->_write_line_swissprot_regex("DT   ","DT   ",
                 $dt.", entry version $seq_version.",

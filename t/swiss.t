@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 240);
+    test_begin(-tests => 241);
 	
     use_ok('Bio::SeqIO');
 }
