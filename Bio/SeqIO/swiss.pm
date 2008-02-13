@@ -579,11 +579,7 @@ sub write_seq {
         }
     }
 
-    # Evidence lines
-    
-    foreach my $evidence ( $seq->annotation->get_Annotations('evidence') ) {
-    	$self->_print("PE   ",$evidence->value,";\n");
-    }
+    # Database xref lines
 
     foreach my $dblink ( $seq->annotation->get_Annotations('dblink') ) 
     {
@@ -601,6 +597,12 @@ sub write_seq {
 	    $self->_print("DR   ",$dblink->database,
 			  "; ",$primary_id,"; ","-.\n");
         }
+    }
+
+    # Evidence lines
+
+    foreach my $evidence ( $seq->annotation->get_Annotations('evidence') ) {
+    	$self->_print("PE   ",$evidence->value,";\n");
     }
 
     # if there, write the kw line
