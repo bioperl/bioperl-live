@@ -537,24 +537,28 @@ sub write_seq {
         # j.gilbert and h.lapp agreed that the rp line in swissprot seems 
         # more like a comment than a parseable value, so print it as is
         if ($ref->rp) {
-        $self->_write_line_swissprot_regex("RP   ","RP   ",$ref->rp,
-                           "\\s\+\|\$",80);
+            $self->_write_line_swissprot_regex("RP   ","RP   ",$ref->rp,
+                                               "\\s\+\|\$",80);
         }
         if ($ref->comment) {
         $self->_write_line_swissprot_regex("RC   ","RC   ",$ref->comment,
                            "\\s\+\|\$",80);
         }
-        if ($ref->medline) {
+        if ($ref->medline or $ref->pubmed or $ref->doi) {
+            use Data::Dumper; print Dumper $ref;  # Heikki
         # new RX format in swissprot LP 09/17/00
-        if ($ref->pubmed) {
+        # RX line can now have a DOI, Heikki 13 Feb 2008
+
+            my $line;
+            $line .= "MEDLINE=". $ref->medline. '; ' if $ref->medline;
+            $line .= "PubMed=". $ref->pubmed. '; ' if $ref->pubmed;
+            $line .= "DOI=". $ref->doi. '; ' if $ref->doi;
+            chop $line;
+
             $self->_write_line_swissprot_regex("RX   ","RX   ",
-                               "MEDLINE=".$ref->medline.
-                               "; PubMed=".$ref->pubmed.";",
-                               "\\s\+\|\$",80);
-        } else {
-            $self->_write_line_swissprot_regex("RX   MEDLINE; ","RX   MEDLINE; ",
-                               $ref->medline.".","\\s\+\|\$",80);
-        }
+                                               $line,
+                                               "\\s\+\|\$",80);
+
         }
         my $author = $ref->authors .';' if($ref->authors);
         my $title = $ref->title .';' if( $ref->title);
@@ -888,60 +892,62 @@ sub _print_swissprot_FTHelper {
 
 sub _read_swissprot_References{
    my ($self,$line) = @_;
-   my ($b1, $b2, $rp, $rg, $title, $loc, $au, $med, $com, $pubmed);
+   my ($b1, $b2, $rp, $rg, $title, $loc, $au, $med, $com, $pubmed, $doi);
    my @refs;
    local $_ = $line;
-   while( defined $_ ) {
-       if( /^[^R]/ || /^RN/ ) { 
-       if( $rp ) { 
-           $rg =~ s/;\s*$//g if defined($rg);
+   while ( defined $_ ) {
+       if ( /^[^R]/ || /^RN/ ) { 
+           if ( $rp ) { 
+               $rg =~ s/;\s*$//g if defined($rg);
                if (defined($au)) {
                    $au =~ s/;\s*$//;
                } else {
                    $au = $rg;
                }
                $title =~ s/;\s*$//g if defined($title);
-           push @refs, Bio::Annotation::Reference->new
-	       (-title   => $title,
-		-start   => $b1,
-		-end     => $b2,
-		-authors => $au,
-		-location=> $loc,
-		-medline => $med,
-		-pubmed  => $pubmed,
-		-comment => $com,
-		-rp      => $rp,
-		-rg      => $rg,
-		-tagname => 'reference',
-		);
+               push @refs, Bio::Annotation::Reference->new
+                   (-title   => $title,
+                    -start   => $b1,
+                    -end     => $b2,
+                    -authors => $au,
+                    -location=> $loc,
+                    -medline => $med,
+                    -pubmed  => $pubmed,
+                    -doi     => $doi,
+                    -comment => $com,
+                    -rp      => $rp,
+                    -rg      => $rg,
+                    -tagname => 'reference',
+                   );
                # reset state for the next reference
-           $rp = '';
-       }
+               $rp = '';
+           }
            if (index($_,'R') != 0) {
                $self->_pushback($_); # want this line to go back on the list
-               last; # may be the safest exit point HL 05/11/2000
+               last;            # may be the safest exit point HL 05/11/2000
            }
            # don't forget to reset the state for the next reference
-           $b1 = $b2 = $rg = $med = $com = $pubmed = undef;
+           $b1 = $b2 = $rg = $med = $com = $pubmed = $doi = undef;
            $title = $loc = $au = undef;
        } elsif ( /^RP\s{3}(.+? OF (\d+)-(\d+).*)/) { 
-       $rp  .= $1;
-       $b1   = $2;
-       $b2   = $3; 
+           $rp  .= $1;
+           $b1   = $2;
+           $b2   = $3; 
        } elsif ( /^RP\s{3}(.*)/) {
-       if($rp) { $rp .= " ".$1 }
-       else    { $rp = $1 }
-       } elsif( /^RX\s{3}MEDLINE;\s+(\d+)(?!<;)/ )  {
-       $med  = $1;
-       } elsif( /^RX\s{3}MEDLINE=(\d+);\s+PubMed=(\d+);/ ) { 
-       $med   = $1;
-       $pubmed= $2;
-       } elsif( /^RX\s{3}PubMed=(\d+);/ ) { # can start with pubmed only
-       $pubmed = $1;
-       } elsif( /^RA\s{3}(.*)/ ) { 
-       $au .= $au ? " $1" : $1;
-       } elsif( /^RG\s{3}(.*)/ ) { 
-       $rg .= $rg ? " $1" : $1;
+           if ($rp) {
+               $rp .= " ".$1;
+           } else {
+               $rp = $1;
+           }
+       } elsif (/^RX\s{3}(.*)/) { # each reference can have only one RX line
+           my $line = $1;
+           $med = $1 if $line =~ /MEDLINE=(\d+);/;
+           $pubmed = $1 if $line =~ /PubMed=(\d+);/;
+           $doi = $1 if $line =~ /DOI=([^;]+);/;
+       } elsif ( /^RA\s{3}(.*)/ ) { 
+           $au .= $au ? " $1" : $1;
+       } elsif ( /^RG\s{3}(.*)/ ) { 
+           $rg .= $rg ? " $1" : $1;
        } elsif ( /^RT\s{3}(.*)/ ) { 
            if ($title) {
                my $tline = $1;
@@ -950,12 +956,10 @@ sub _read_swissprot_References{
                $title = $1;
            }
        } elsif (/^RL\s{3}(.*)/ ) { 
-       $loc .= $loc ? " $1" : $1;
+           $loc .= $loc ? " $1" : $1;
        } elsif ( /^RC\s{3}(.*)/ ) {
-       $com .= $com ? " $1" : $1;
-       } 
-       #/^CC/ && last;
-       #/^SQ/ && last; # there may be sequences without CC lines! HL 05/11/2000
+           $com .= $com ? " $1" : $1;
+       }
        $_ = $self->_readline;
    }
    return \@refs;
