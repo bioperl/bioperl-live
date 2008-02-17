@@ -494,16 +494,13 @@ sub write_seq {
     #Definition lines
     $self->_write_line_swissprot_regex("DE   ","DE   ",$seq->desc(),"\\s\+\|\$",$LINE_LENGTH);
 
-    #Gene name
-    if ((my @genes = $seq->annotation->get_Annotations('gene_name') ) ) {
-        $self->_print("GN   ",
-              join(' OR ',
-                   map {
-                   $_->isa("Bio::Annotation::StructuredValue") ?
-                       $_->value(-joins => [" AND ", " OR "]) :
-                       $_->value();
-                   } @genes),
-              ".\n");
+    #Gene name; print out new format but only two categories: Name and Synonyms
+    if ( my @genes = $seq->annotation->get_Annotations('gene_name') ) {
+        my @gene_names = map { $_->get_all_values} @genes;
+        my $gn_string = 'Name='. shift(@gene_names). ';';
+        $gn_string .= ' Synonyms='. join(', ', @gene_names). ";" if scalar @gene_names;
+        $self->_write_line_swissprot_regex("GN   ","GN   ",$gn_string,"\\s\+\|\$",$LINE_LENGTH);
+
     }
 
     # Organism lines
@@ -1267,7 +1264,6 @@ sub _write_line_swissprot_regex {
    }
 
    my $subl = $length - (length $pre1) -1 ;
-   my @lines;
 
    my $first_line = 1;
    while($line =~ m/(.{1,$subl})($regex)/g) {
