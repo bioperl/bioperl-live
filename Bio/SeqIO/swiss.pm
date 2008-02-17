@@ -561,10 +561,11 @@ sub write_seq {
         my $author = $ref->authors .';' if($ref->authors);
         my $title = $ref->title .';' if( $ref->title);
             my $rg = $ref->rg . ';' if $ref->rg;
+        $author =~ s/([\w\.]) (\w)/$1#$2/g; # add word wrap protection char '#'
 
         $self->_write_line_swissprot_regex("RG   ","RG   ",$rg,"\\s\+\|\$",$LINE_LENGTH) if $rg;
         $self->_write_line_swissprot_regex("RA   ","RA   ",$author,"\\s\+\|\$",$LINE_LENGTH) if $author;
-        $self->_write_line_swissprot_regex("RT   ","RT   ",$title,"\\s\+\|\$",$LINE_LENGTH) if $title;
+        $self->_write_line_swissprot_regex("RT   ","RT   ",$title,'[\s\-]+|$',$LINE_LENGTH) if $title;
         $self->_write_line_swissprot_regex("RL   ","RL   ",$ref->location,"\\s\+\|\$",$LINE_LENGTH);
         $t++;
     }
@@ -619,6 +620,7 @@ sub write_seq {
             }
             $kw .= '.' if( $kw !~ /\.$/ );
         }
+        $kw =~ s/([\w\.]) (\w)/$1#$2/g; # add word wrap protection char '#'
         $self->_write_line_swissprot_regex("KW   ","KW   ",
                                            $kw, "\\s\+\|\$",$LINE_LENGTH);
     }
@@ -651,7 +653,6 @@ sub write_seq {
             if( ! $fth->isa('Bio::SeqIO::FTHelper') ) {
                 $sf->throw("Cannot process FTHelper... $fth");
             }
-
             $self->_print_swissprot_FTHelper($fth);
             }
         }
@@ -1268,6 +1269,8 @@ sub _write_line_swissprot_regex {
    my $first_line = 1;
    while($line =~ m/(.{1,$subl})($regex)/g) {
        my $s = $1.$2;
+       $s =~ s/([\w\.])#(\w)/$1 $2/g # remove word wrap protection char '#'
+           if $pre1 eq "RA   " or $pre1 eq "KW   ";
        # remove annoying extra spaces at the end of the wrapped lines
        substr($s, -1, 1, '') if substr($s, -1, 1) eq ' ';
        if ($first_line) {
