@@ -121,6 +121,8 @@ use Bio::Annotation::StructuredValue;
 
 use base qw(Bio::SeqIO);
 
+our $LINE_LENGTH = 76;
+
 # this is for doing species name parsing
 @Unknown_names=('other', 'unidentified',
                      'unknown organism', 'not specified', 
@@ -478,19 +480,19 @@ sub write_seq {
         foreach my $dt (@dates){
         $self->_write_line_swissprot_regex("DT   ","DT   ",
                 $dt.', integrated into UniProtKB/'.$ns.'.',
-                "\\s\+\|\$",80) if $ct == 1;
+                "\\s\+\|\$",$LINE_LENGTH) if $ct == 1;
         $self->_write_line_swissprot_regex("DT   ","DT   ",
                 $dt.", sequence version ".$update_version->display_text.'.',
-                "\\s\+\|\$",80) if $ct == 2;
+                "\\s\+\|\$",$LINE_LENGTH) if $ct == 2;
         $self->_write_line_swissprot_regex("DT   ","DT   ",
                 $dt.", entry version $seq_version.",
-                "\\s\+\|\$",80) if $ct == 3;
+                "\\s\+\|\$",$LINE_LENGTH) if $ct == 3;
         $ct++;
         }
     }
 
     #Definition lines
-    $self->_write_line_swissprot_regex("DE   ","DE   ",$seq->desc(),"\\s\+\|\$",80);
+    $self->_write_line_swissprot_regex("DE   ","DE   ",$seq->desc(),"\\s\+\|\$",$LINE_LENGTH);
 
     #Gene name
     if ((my @genes = $seq->annotation->get_Annotations('gene_name') ) ) {
@@ -520,9 +522,9 @@ sub write_seq {
         }
         $self->_print( "OS   $OS.\n");
         my $OC = join('; ', reverse(@class)) .'.';
-        $self->_write_line_swissprot_regex("OC   ","OC   ",$OC,"\; \|\$",80);
+        $self->_write_line_swissprot_regex("OC   ","OC   ",$OC,"\; \|\$",$LINE_LENGTH);
         if ($spec->organelle) {
-            $self->_write_line_swissprot_regex("OG   ","OG   ",$spec->organelle,"\; \|\$",80);
+            $self->_write_line_swissprot_regex("OG   ","OG   ",$spec->organelle,"\; \|\$",$LINE_LENGTH);
         }
         if ($spec->ncbi_taxid) {
             $self->_print("OX   NCBI_TaxID=".$spec->ncbi_taxid.";\n");
@@ -538,14 +540,13 @@ sub write_seq {
         # more like a comment than a parseable value, so print it as is
         if ($ref->rp) {
             $self->_write_line_swissprot_regex("RP   ","RP   ",$ref->rp,
-                                               "\\s\+\|\$",80);
+                                               "\\s\+\|\$",$LINE_LENGTH);
         }
         if ($ref->comment) {
         $self->_write_line_swissprot_regex("RC   ","RC   ",$ref->comment,
-                           "\\s\+\|\$",80);
+                           "\\s\+\|\$",$LINE_LENGTH);
         }
         if ($ref->medline or $ref->pubmed or $ref->doi) {
-            use Data::Dumper; print Dumper $ref;  # Heikki
         # new RX format in swissprot LP 09/17/00
         # RX line can now have a DOI, Heikki 13 Feb 2008
 
@@ -557,17 +558,17 @@ sub write_seq {
 
             $self->_write_line_swissprot_regex("RX   ","RX   ",
                                                $line,
-                                               "\\s\+\|\$",80);
+                                               "\\s\+\|\$",$LINE_LENGTH);
 
         }
         my $author = $ref->authors .';' if($ref->authors);
         my $title = $ref->title .';' if( $ref->title);
             my $rg = $ref->rg . ';' if $ref->rg;
 
-        $self->_write_line_swissprot_regex("RG   ","RG   ",$rg,"\\s\+\|\$",80) if $rg;
-        $self->_write_line_swissprot_regex("RA   ","RA   ",$author,"\\s\+\|\$",80) if $author;
-        $self->_write_line_swissprot_regex("RT   ","RT   ",$title,"\\s\+\|\$",80) if $title;
-        $self->_write_line_swissprot_regex("RL   ","RL   ",$ref->location,"\\s\+\|\$",80);
+        $self->_write_line_swissprot_regex("RG   ","RG   ",$rg,"\\s\+\|\$",$LINE_LENGTH) if $rg;
+        $self->_write_line_swissprot_regex("RA   ","RA   ",$author,"\\s\+\|\$",$LINE_LENGTH) if $author;
+        $self->_write_line_swissprot_regex("RT   ","RT   ",$title,"\\s\+\|\$",$LINE_LENGTH) if $title;
+        $self->_write_line_swissprot_regex("RL   ","RL   ",$ref->location,"\\s\+\|\$",$LINE_LENGTH);
         $t++;
     }
 
@@ -612,26 +613,26 @@ sub write_seq {
     # if there, write the kw line
     {
         my( $kw );
-        if( my $func = $self->_kw_generation_func ) {
-        $kw = &{$func}($seq);
-        } elsif( $seq->can('keywords') ) {      
-        $kw = $seq->keywords;
-        if( ref($kw) =~ /ARRAY/i ) {
-            $kw = join("; ", @$kw);
+        if ( my $func = $self->_kw_generation_func ) {
+            $kw = &{$func}($seq);
+        } elsif ( $seq->can('keywords') ) {
+            $kw = $seq->keywords;
+            if ( ref($kw) =~ /ARRAY/i ) {
+                $kw = join("; ", @$kw);
+            }
+            $kw .= '.' if( $kw !~ /\.$/ );
         }
-        $kw .= '.' if( $kw !~ /\.$/ );
-        }       
         $self->_write_line_swissprot_regex("KW   ","KW   ",
-                           $kw, "\\s\+\|\$",80);           
+                                           $kw, "\\s\+\|\$",$LINE_LENGTH);
     }
 
-        #Check if there is seqfeatures before printing the FT line
+    #Check if there is seqfeatures before printing the FT line
     my @feats = $seq->can('top_SeqFeatures') ? $seq->top_SeqFeatures : ();
     if ($feats[0]) {
         if( defined $self->_post_sort ) {
 
         # we need to read things into an array. Process. Sort them. Print 'em
-        
+
         my $post_sort_func = $self->_post_sort();
         my @fth;
 
@@ -672,13 +673,13 @@ sub write_seq {
     my $crc64 = $self->_crc64(\$str); 
     $self->_print( sprintf("SQ   SEQUENCE  %4d AA;  %d MW;  %16s CRC64;\n",
                    $len,$mw,$crc64));
-    $self->_print( "     ");
+    $self->_print( "    ");
     my $linepos;
     for ($i = 0; $i < length($str); $i += 10) {
-        $self->_print( substr($str,$i,10), " ");
+        $self->_print( " ", substr($str,$i,10));
         $linepos += 11;
         if( ($i+10)%60 == 0 && (($i+10) < length($str))) {
-        $self->_print( "\n     ");
+            $self->_print( "\n    ");
         }
     }
     $self->_print( "\n//\n");
@@ -862,19 +863,28 @@ sub _print_swissprot_FTHelper {
                $key,
                $x ,$x),
            "FT                                ",
-           $desc.'.','\s+|$',80);
+           $desc.'.','\s+|$',$LINE_LENGTH);
        }
        return;
        
    } else {
        $start = $end = $fth->loc; 
    }
-   
-   $self->_write_line_swissprot_regex(sprintf("FT   %-8s %6s %6s       ",
-                          $key,
-                          $start ,$end),
-                      "FT                                ",
-                      $desc.'.','\s+|$',80);
+   if ($desc) {
+       $self->_write_line_swissprot_regex(sprintf("FT   %-8s %6s %6s       ",
+                                                  $key,
+                                                  $start ,$end),
+                                          "FT                                ",
+                                          $desc. '.', '\s+|$', $LINE_LENGTH);
+   } else { #HELIX and STRAND do not have descriptions
+       $self->_write_line_swissprot_regex(sprintf("FT   %-8s %6s %6s",
+                                                  $key,
+                                                  $start ,$end),
+                                          "FT                         ",
+                                          ' ', '\s+|$', $LINE_LENGTH);
+
+
+   }
 }
 #'
 
@@ -1259,14 +1269,18 @@ sub _write_line_swissprot_regex {
    my $subl = $length - (length $pre1) -1 ;
    my @lines;
 
+   my $first_line = 1;
    while($line =~ m/(.{1,$subl})($regex)/g) {
-       push(@lines, $1.$2);
-   }
-   
-   my $s = shift @lines;
-   $self->_print( "$pre1$s\n");
-   foreach my $s ( @lines ) {
-       $self->_print( "$pre2$s\n");
+       my $s = $1.$2;
+       # remove annoying extra spaces at the end of the wrapped lines
+       substr($s, -1, 1, '') if substr($s, -1, 1) eq ' ';
+       if ($first_line) {
+           $self->_print( "$pre1$s\n");
+           $first_line = 0;
+       } else {
+           $self->_print( "$pre2$s\n");
+       }
+
    }
 }
 
