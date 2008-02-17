@@ -951,7 +951,7 @@ sub _read_swissprot_References{
            my $line = $1;
            $med = $1 if $line =~ /MEDLINE=(\d+);/;
            $pubmed = $1 if $line =~ /PubMed=(\d+);/;
-           $doi = $1 if $line =~ /DOI=([^;]+);/;
+           $doi = $1 if $line =~ /DOI=(.+);/;
        } elsif ( /^RA\s{3}(.*)/ ) { 
            $au .= $au ? " $1" : $1;
        } elsif ( /^RG\s{3}(.*)/ ) { 
