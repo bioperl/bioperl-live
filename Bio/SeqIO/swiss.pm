@@ -832,6 +832,11 @@ sub _print_swissprot_FTHelper {
     }
     $desc =~ s/\.$//;
 
+    my $ftid = "";
+    if ( exists $fth->field->{'FTId'} ) {
+        $ftid = @{$fth->field->{'FTId'}}[0]. '.';
+    }
+
     my $key =substr($fth->key,0,8);
     my $loc = $fth->loc;
     if ( $loc =~ /(\?|\d+|\>\d+|<\d+)?\.\.(\?|\d+|<\d+|>\d+)?/ ) {
@@ -870,9 +875,16 @@ sub _print_swissprot_FTHelper {
                                                    $start ,$end),
                                            "FT                         ",
                                            ' ', '\s+|$', $LINE_LENGTH);
+    }
 
+
+    if ($ftid) {
+        $self->_write_line_swissprot_regex("FT                                ",
+                                           "FT                                ",
+                                           "/FTId=$ftid",'.|$',$LINE_LENGTH);
 
     }
+
 }
 #'
 
@@ -1139,11 +1151,13 @@ sub _read_FTHelper_swissprot {
     # initial version implemented by HL 05/10/2000
     # FIXME this may not be perfect, so please review
     # lots of cleaning up by JES 2004/07/01, still may not be perfect =)
+    # FTId now sepated from description as a qualifier
 
     local $_ = $line;
     my ($key,                   # The key of the feature
         $loc,                   # The location line from the feature
         $desc,                  # The descriptive text
+        $ftid,                  # feature Id is like a qualifier but there can be only one of them
        );
     if ( m/^FT\s{3}(\w+)\s+([\d\?\<]+)\s+([\d\?\>]+)\s*(.*)$/ox) {
         $key = $1;
@@ -1158,14 +1172,17 @@ sub _read_FTHelper_swissprot {
         }
     }
 
-    while ( defined($_ = $self->_readline) &&
-            /^FT\s{20,}(\S.*)$/ ) {
-        if ( $desc) {
-            $desc .= " $1";
-        } else {
-            $desc = $1;
+    while ( defined($_ = $self->_readline) && /^FT\s{20,}(\S.*)$/ ) {
+        my $continuation_line = $1;
+        if ( $continuation_line =~ /.FTId=(.*)\./ ) {
+            $ftid=$1;
         }
-        chomp($desc);
+        elsif ( $desc) {
+            $desc .= " $continuation_line";
+        } else {
+            $desc = $continuation_line;
+        }
+        chomp $desc;
     }
     $self->_pushback($_);
     unless( $key ) {
@@ -1183,6 +1200,10 @@ sub _read_FTHelper_swissprot {
     if ( $desc && length($desc) ) {
         $desc =~ s/\.$//;
         push(@{$out->field->{"description"}}, $desc);
+    }
+    # Store the qualifier i.e. FTId
+    if ( $ftid ) {
+        push(@{$out->field->{"FTId"}}, $ftid);
     }
     return $out;
 }
