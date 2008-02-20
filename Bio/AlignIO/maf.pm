@@ -70,12 +70,9 @@ methods. Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::AlignIO::maf;
-use vars qw($seen_header);
 use strict;
 
 use Bio::SimpleAlign;
-
-$seen_header = 0;
 
 use base qw(Bio::AlignIO);
 
@@ -114,23 +111,37 @@ sub _initialize {
 sub next_aln {
     my $self = shift;
 
-    if(!$seen_header){
+	# check beginning of file for proper header
+    if(!$self->{seen_header}){
 	  my $line = $self->_readline;
 	  $self->throw("This doesn't look like a MAF file.  First line should start with ##maf, but it was: ".$line)
 		  unless $line =~ /^##maf/;
-	  $seen_header = 1;
+	  $self->{seen_header} = 1;
+	  # keep in case we parse this later
 	  $self->_pushback($line);
     }
-
+	
     my $aln =  Bio::SimpleAlign->new(-source => 'maf');
 
-    my($aline, @slines);
+    my($aline, @slines, $seen_aline);
     while(my $line = $self->_readline()){
-	$aline = $line if $line =~ /^a/;
-	push @slines, $line if $line =~ /^s /;
-	#last if $line =~ /\S/;
+	  if ($line =~ /^a\s/xms) {
+		# next block?
+		if ($seen_aline) {
+		  $self->_pushback($line);
+		  last;
+		}
+		$aline = $line;
+		$seen_aline++;
+	  } elsif ($line =~ /^s\s/xms) {
+		push @slines, $line;
+	  } else {
+		# missed lines
+		$self->debug($line);
+	  }
     }
-
+	
+	# all MAF starts with 'a' line
     return unless $aline;
 
     my($kvs) = $aline =~ /^a\s+(.+)$/;
