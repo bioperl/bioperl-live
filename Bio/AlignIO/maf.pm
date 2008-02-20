@@ -115,10 +115,11 @@ sub next_aln {
     my $self = shift;
 
     if(!$seen_header){
-	my $line = $self->_readline;
-	$self->throw("This doesn't look like a MAF file.  First line should start with ##maf, but it was: ".$line)
-	    unless $line =~ /^##maf/;
-	$seen_header = 1;
+	  my $line = $self->_readline;
+	  $self->throw("This doesn't look like a MAF file.  First line should start with ##maf, but it was: ".$line)
+		  unless $line =~ /^##maf/;
+	  $seen_header = 1;
+	  $self->_pushback($line);
     }
 
     my $aln =  Bio::SimpleAlign->new(-source => 'maf');
@@ -127,8 +128,7 @@ sub next_aln {
     while(my $line = $self->_readline()){
 	$aline = $line if $line =~ /^a/;
 	push @slines, $line if $line =~ /^s /;
-	last if $line !~ /\S/;
-
+	last if $line =~ /^##/;
     }
 
     return unless $aline;
