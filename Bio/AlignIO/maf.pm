@@ -128,7 +128,7 @@ sub next_aln {
     while(my $line = $self->_readline()){
 	$aline = $line if $line =~ /^a/;
 	push @slines, $line if $line =~ /^s /;
-	last if $line =~ /^##/;
+	#last if $line =~ /\S/;
     }
 
     return unless $aline;
