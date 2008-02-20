@@ -705,7 +705,7 @@ sub _open_pipe {
 
   my $pipe = IO::Pipe->new();
 
-  $SIG{CHLD} = 'IGNORE';
+  local $SIG{CHLD} = 'IGNORE';
   defined(my $pid = fork)
     or $self->throw("Couldn't fork: $!");
 
