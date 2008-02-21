@@ -7,10 +7,10 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 70,
-               -requires_modules => [qw(Class::AutoClass Clone)]);
+	# note: modules have been deprecated for the 1.6 release. Use
+	# bioperl-network instead
 	
-	use_ok('Bio::Graph::IO');
+    test_begin(-tests => 0);
 }
 
 ################1st of all let's test the io.....
