@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 34, -requires_module => 'URI::Escape');
+    test_begin(-tests => 34, -requires_modules => [qw(URI::Escape Graph::Directed)]);
 	
 	use_ok('Bio::SeqFeature::Generic');
 	use_ok('Bio::SeqFeature::Annotated');
