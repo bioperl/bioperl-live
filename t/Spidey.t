@@ -12,7 +12,8 @@ BEGIN {
 	use_ok('Bio::Tools::Spidey::Results');
 }
 
-ok my $spidey = Bio::Tools::Spidey::Results->new(-file=> test_input_file('spidey.noalignment'));
+ok my $spidey = Bio::Tools::Spidey::Results->new(-file=> test_input_file('spidey.noalignment'),
+                                                 -verbose => -1);
 
 $spidey->close();
 

@@ -102,13 +102,11 @@ Internal methods are usually preceded with a _
 package Bio::Tools::Spidey::Results;
 use strict;
 
-
 use File::Basename;
 use Bio::Root::Root;
 use Bio::Tools::Spidey::Exon;
 
 use base qw(Bio::Tools::AnalysisResult);
-
 
 sub _initialize_state {
     my($self,@args) = @_;
@@ -289,9 +287,8 @@ sub parse_next_alignment {
 	    $cdna_stop = $5;			
 	} elsif( /No alignment found/ ) {
 	    return [];
-	    
 	} else {
-#	    warn("unmatched $_\n");
+	    #$self->debug("unmatched $_\n");
 	}
     }
     # Typical format:
@@ -312,7 +309,7 @@ sub parse_next_alignment {
     #
     #	AAATGGCA
     #
-    return;
+    @exons ? return \@exons : return ;
 }
 
 =head2 next_exonset
@@ -346,7 +343,8 @@ sub next_exonset {
     # get the next array of exons
     my $exons = $self->parse_next_alignment();
     if( ! defined $exons ) {
-	return undef;
+        $self->warn("No exons returned");
+        return;
     } 
     if( @$exons == 0 ) {
 	return Bio::SeqFeature::Generic->new();
