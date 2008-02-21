@@ -32,7 +32,7 @@ SKIP :{
 	isa_ok($seq, 'Bio::SeqI');
 	is($seq->accession_number,'NM_006732');
 	is($seq->accession_number,'NM_006732');
-	is( $seq->length, 3775);
+	is( $seq->length, 3776);
 }
 
 SKIP: {
@@ -116,7 +116,7 @@ SKIP: {
 	};
 	skip($dbwarn, 3) if $@;
 	isa_ok($seq, 'Bio::SeqI');
-	is($seq->length, 3775);   
+	is($seq->length, 3776);
 }
     
 # unisave
