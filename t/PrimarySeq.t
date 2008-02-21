@@ -174,8 +174,11 @@ $seq = Bio::PrimarySeq->new(-id          => 'aliasid',
 is($seq->description, 'Alias desc');
 is($seq->display_id, 'aliasid');
 
-# test that x's are ignored and n's are assumed to be 'dna'
+# test that x's are ignored and n's are assumed to be 'dna' no longer true!
+# See Bug 2438. There are protein sequences floating about which are all 'X'
+# (unknown aa)
+
 $seq->seq('atgxxxxxx');
-is($seq->alphabet,'dna');
+is($seq->alphabet,'protein');
 $seq->seq('atgnnnnnn');
 is($seq->alphabet,'dna');
