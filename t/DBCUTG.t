@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
 	use BioperlTest;
 	
-	test_begin(-tests => 33,
+	test_begin(-tests => 37,
 			   -requires_modules => [qw(IO::String LWP::UserAgent)]);
 	
 	use_ok('Bio::DB::CUTG');
@@ -62,10 +62,10 @@ SKIP: {
 	$db->verbose($verbose ? $verbose : -1);
 	my $cdtable;
 	eval {$cdtable = $db->get_request(-sp =>'Pan troglodytes');};
-	skip "Could not connect to server, server/network problems? Skipping those tests", 5 if $@;
+	skip "Server/network problems? Skipping those tests\n$@", 5 if $@;
 	
 	# tests for Table.pm, the answers seem to change with time, so not specific
-	cmp_ok($cdtable->cds_count(), '>', 600);
+	cmp_ok($cdtable->cds_count(), '>', 10);
 	cmp_ok(int($cdtable->aa_frequency('LEU')), '>', 1);
 	ok $cdtable->get_coding_gc('all');
 	cmp_ok($cdtable->codon_rel_frequency('ttc'), '<', 1); 
@@ -75,6 +75,17 @@ SKIP: {
 	my $db2 = Bio::DB::CUTG->new();
 	$db2->verbose($verbose ? $verbose : -1);
 	eval {$cut2 = $db2->get_request(-sp =>'Wookie magnus');};
-	skip "Could not connect to server, server/network problems? Skipping those tests", 1 if $@;
+	skip "Server/network problems? Skipping those tests\n$@", 1 if $@;
 	is $cut2->species(), 'Homo sapiens';
+	
+	$db = Bio::DB::CUTG->new();
+	$db->verbose($verbose ? $verbose : -1);
+	eval {$cdtable = $db->get_request(-sp =>'Homo sapiens');};
+	skip "Server/network problems? Skipping those tests\n$@", 4 if $@;
+	
+	# tests for Table.pm, the answers seem to change with time, so not specific
+	cmp_ok($cdtable->cds_count(), '>', 10);
+	cmp_ok(int($cdtable->aa_frequency('LEU')), '>', 1);
+	ok $cdtable->get_coding_gc('all');
+	cmp_ok($cdtable->codon_rel_frequency('ttc'), '<', 1); 
 }

@@ -90,6 +90,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::DB::CUTG;
 use Bio::CodonUsage::IO;
 use IO::String;
+use URI::Escape;
 use vars qw($URL $QUERY_KEYS);
 
 use base qw(Bio::WebAgent);
@@ -148,14 +149,7 @@ sub sp {
 	my $self = shift;
 	if (@_) {
 		my $name = shift;
-		if ($name =~ /[^\w\s]/) {
-			$self->warn (" contains non-word characters, setting to default
-							of Homo sapiens");
-			$self->{'_sp'} = "Homo sapiens";
-				}
-		else{
 			$self->{'_sp'} = $name;
-			}
 		}
 	return $self->{'_sp'}|| "Homo sapiens";
 	
@@ -191,8 +185,8 @@ sub gc {
 
 =head2  get_request
 
- Title  : get_web_request
- Usage  : my $cut = $db->get_web_request();
+ Title  : get_request
+ Usage  : my $cut = $db->get_request();
  Purpose: To query remote CUT with a species name
  Returns: a new codon usage table object 
  Args   : species  name(mandatory), genetic code id(optional)
@@ -225,39 +219,38 @@ sub get_request {
     $self->debug (" reply from query is \n  $content");
 	#####  if no matches, assign defaults - or can throw here?  ######
 	if ($content =~ /not found/i) {
-		$self->warn ("organism not found -selecting human as default");
-		$self->sp("Homo sapiens");
+		$self->warn("organism not found -selecting human [9606] as default");
+		$self->sp("9606");
 		$self->_db("gbpri");
-	
 	}
 
-	
 	else {
-		my @names = $content =~ /(species)/g;
+		my @names = $content =~ /species=([^"]+)/g;
 		### get 1st species data from report ####
-		my ($sp, $db)  = $content =~ /species=(.*)\+\[(\w+)\]"/;
-		
-		$sp =~ s/\+/ /g;
+        my @dbs = $content =~ /\[([^\]]+)\]:\s+\d+/g;
 		## warn if  more than 1 matching species ##
 		## if multiple species retrieved, choose first one by default ##
+        $self->throw("No names returned for $nameparts") unless @names;
 		if (@names >1 ){
-			$self->warn ("too many species - not a unique species id - selecting $sp  ");
-			}
+			$self->warn ("too many species - not a unique species id\n".
+                         "selecting $names[0] using database [$dbs[0]]");
+		}
 		### now assign species and database value
-		$self->sp($sp);
-		$self->_db($db);
+		$self->sp($names[0]);
+		$self->_db($dbs[0]);
 		}
 
 
 	######## now get codon table , all defaults established now
 
 	##construct URL##
-	$nameparts =  join "+", $self->sp =~ /(\w+)/g;
-	my $CT_url = $self->url . "/codon/cgi-bin/showcodon.cgi?species="
-				. $nameparts . "+%5B" . $self->_db . "%5D&aa=" . $self->gc . "&style=GCG";
+	$nameparts = $self->sp;
 
+	my $CT_url = $self->url . "/codon/cgi-bin/showcodon.cgi?species="
+				. $nameparts . "&aa=" . $self->gc . "&style=GCG";
+    $self->debug("URL : $CT_url\n");
 	## retrieve data in html##
-	my $rq2 = HTTP::Request->new(GET=>$CT_url);
+	my $rq2 = HTTP::Request->new(GET => $CT_url);
     $reply = $self->request($rq2);
     if ($reply->is_error) {
         $self->throw($reply->as_string()."\nError getting for url $CT_url!\n");
@@ -275,9 +268,7 @@ sub get_request {
 
 	##return object ##
 	return $io->next_data;
-	}
-
-
+}
 
 sub _check_args {
 
