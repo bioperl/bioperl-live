@@ -195,8 +195,7 @@ sub new {
                               QUAL
                               TRACE
                               TRACE_INDICES
-			      TRACE_DATA
-                              )],
+                              TRACE_DATA)],
                           @args);
 
     $self->{'_meta'}->{$DEFAULT_NAME} = [];
@@ -464,7 +463,8 @@ sub get_trace_graph
 	unless (grep { lc($trace) eq $_ } ('a', 'g', 'c', 't')) { return 0 }
 	unless (defined($self->{trace_data})) { return 0 }
 	$trace = lc($trace) . "_trace";
-	my @trace_data = @{$self->{trace_data}->{$trace}};
+	my @trace_data = exists $self->{trace_data}->{$trace} && ref $self->{trace_data}->{$trace} eq 'ARRAY' ?
+        @{$self->{trace_data}->{$trace}} : ();
 	my $max = $self->{trace_data}->{max_height};
 	if (defined($scale) and $scale != 0)
 	{
