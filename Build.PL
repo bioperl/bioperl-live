@@ -153,7 +153,8 @@ exit;
 sub make_bdb_test {
     my $path0 = File::Spec->catfile('t', 'BioDBSeqFeature.t');
     my $path = File::Spec->catfile('t', 'BioDBSeqFeature_BDB.t');
-    open my $F, ">$path";
+    unlink($path) if (-e $path); 
+    open(my $F, ">", $path) || die "Can't create test file\n";
     print $F <<END;
 system 'perl $path0 -adaptor berkeleydb -create 1 -temp 1';
 END
