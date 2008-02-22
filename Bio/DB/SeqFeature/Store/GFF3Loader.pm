@@ -64,13 +64,9 @@ for a particular feature.
 
 use strict;
 use Carp 'croak';
-use IO::File;
 use Bio::DB::GFF::Util::Rearrange;
-use Bio::DB::SeqFeature::Store;
-use File::Spec;
-use base 'Bio::Root::Root';
+use base 'Bio::DB::SeqFeature::Store::Loader';
 
-use constant DEFAULT_SEQ_CHUNK_SIZE => 2000;
 
 my %Special_attributes =(
 			 Gap    => 1, Target => 1,
@@ -155,59 +151,7 @@ default.
 
 =cut
 
-sub new {
-  my $self = shift;
-  my ($store,$seqfeature_class,$tmpdir,$verbose,$fast,$seq_chunk_size) = rearrange(['STORE',
-										    ['SF_CLASS','SEQFEATURE_CLASS'],
-										    ['TMP','TMPDIR'],
-										    'VERBOSE',
-										    'FAST',
-										    'CHUNK_SIZE',
-										   ],@_);
-
-  $seqfeature_class ||= $self->default_seqfeature_class;
-  eval "require $seqfeature_class" unless $seqfeature_class->can('new');
-  $self->throw($@) if $@;
-
-  my $normalized = $seqfeature_class->can('subfeatures_are_normalized')
-    && $seqfeature_class->subfeatures_are_normalized;
-
-  my $in_table = $seqfeature_class->can('subfeatures_are_stored_in_a_table')
-    && $seqfeature_class->subfeatures_are_stored_in_a_table;
-
-  if ($fast) {
-    my $canfast = $normalized && $in_table;
-    warn <<END unless $canfast;
-Only features that support the Bio::DB::SeqFeature::NormalizedTableFeature interface
-can be loaded using the -fast method. Reverting to slower feature-by-feature method.
-END
-    $fast &&= $canfast;
-  }
-
-  # try to bring in highres time() function
-  eval "require Time::HiRes";
-
-  $tmpdir ||= File::Spec->tmpdir();
-
-  my $tmp_store = Bio::DB::SeqFeature::Store->new(-adaptor  => 'berkeleydb',
-						  -temporary=> 1,
-						  -dsn      => $tmpdir,
-						  -cache    => 1,
-						  -write    => 1)
-    unless $normalized;
-
-  return bless {
-		store            => $store,
-		tmp_store        => $tmp_store,
-		seqfeature_class => $seqfeature_class,
-		fast             => $fast,
-		seq_chunk_size   => $seq_chunk_size || DEFAULT_SEQ_CHUNK_SIZE,
-		verbose          => $verbose,
-		load_data        => {},
-		subfeatures_normalized => $normalized,
-		subfeatures_in_table   => $in_table,
-	       },ref($self) || $self;
-}
+# sub new { } inherited
 
 =head2 load
 
@@ -231,19 +175,7 @@ will happen, but it will probably not be what you expect.
 
 =cut
 
-sub load {
-  my $self       = shift;
-  my $start      = $self->time();
-  my $count = 0;
-
-  for my $file_or_fh (@_) {
-    $self->msg("loading $file_or_fh...\n");
-    my $fh = $self->open_fh($file_or_fh) or $self->throw("Couldn't open $file_or_fh: $!");
-    $count += $self->load_fh($fh);
-    $self->msg(sprintf "load time: %5.2fs\n",$self->time()-$start);
-  }
-  $count;
-}
+# sub load { } inherited
 
 =head2 accessors
 
@@ -264,12 +196,12 @@ The following read-only accessors return values passed or created during new():
 
 =cut
 
-sub store          { shift->{store}            }
-sub tmp_store      { shift->{tmp_store}        }
-sub sfclass        { shift->{seqfeature_class} }
-sub fast           { shift->{fast}             }
-sub seq_chunk_size { shift->{seq_chunk_size}             }
-sub verbose        { shift->{verbose}          }
+# sub store           inherited
+# sub tmp_store       inherited
+# sub sfclass         inherited
+# sub fast            inherited
+# sub seq_chunk_size  inherited
+# sub verbose         inherited
 
 =head2 Internal Methods
 
@@ -286,10 +218,7 @@ Return the default SeqFeatureI class (Bio::DB::SeqFeature).
 
 =cut
 
-sub default_seqfeature_class {
-  my $self = shift;
-  return 'Bio::DB::SeqFeature';
-}
+# sub default_seqfeature_class { } inherited
 
 =item subfeatures_normalized
 
@@ -300,12 +229,7 @@ normalized. This is deduced from the SeqFeature class information.
 
 =cut
 
-sub subfeatures_normalized {
-  my $self = shift;
-  my $d    = $self->{subfeatures_normalized};
-  $self->{subfeatures_normalized} = shift if @_;
-  $d;
-}
+# sub subfeatures_normalized { } inherited
 
 =item subfeatures_in_table
 
@@ -317,12 +241,7 @@ Store information.
 
 =cut
 
-sub subfeatures_in_table {
-  my $self = shift;
-  my $d    = $self->{subfeatures_in_table};
-  $self->{subfeatures_in_table} = shift if @_;
-  $d;
-}
+# sub subfeatures_in_table { } inherited
 
 =item load_fh
 
@@ -337,15 +256,7 @@ if successful. Internally, load_fh() invokes:
 
 =cut
 
-sub load_fh {
-  my $self = shift;
-  my $fh   = shift;
-  $self->start_load();
-  my $count = $self->do_load($fh);
-  $self->finish_load();
-  $count;
-}
-
+# sub load_fh { } inherited
 
 =item start_load, finish_load
 
@@ -353,19 +264,20 @@ These methods are called at the start and end of a filehandle load.
 
 =cut
 
-sub start_load {
+sub create_load_data { #overridden
   my $self = shift;
+  $self->SUPER::create_load_data;
   $self->{load_data}{Parent2Child}     = {};
-  $self->{load_data}{Local2GlobalID}   = {};
   $self->{load_data}{TemporaryID}      = "GFFLoad0000000";
   $self->{load_data}{IndexSubfeatures} = 1;
-  $self->{load_data}{CurrentFeature}   = undef;
-  $self->{load_data}{CurrentID}        = undef;
-  $self->store->start_bulk_update() if $self->fast;
+  $self->{load_data}{mode}             = 'gff';
 }
 
-sub finish_load {
+sub finish_load { #overridden
   my $self  = shift;
+
+  $self->store_current_feature();      # during fast loading, we will have a feature left at the very end
+  $self->start_or_finish_sequence();   # finish any half-loaded sequences
 
   $self->msg("Building object tree...");
   my $start = $self->time();
@@ -391,57 +303,65 @@ return the number of lines loaded.
 
 =cut
 
-sub do_load {
-  my $self = shift;
-  my $fh   = shift;
+# sub do_load { } inherited
 
-  my $start = $self->time();
-  my $count = 0;
-  my $mode  = 'gff';  # or 'fasta'
+=item load_line
 
-  while (<$fh>) {
-    chomp;
+    $loader->load_line($data);
 
-    next unless /^\S/;     # blank line
-    $mode = 'gff' if /\t/;  # if it has a tab in it, switch to gff mode
+Load a line of a GFF3 file. You must bracket this with calls to
+start_load() and finish_load()!
 
-    if (/^\#\s?\#\s*(.+)/) {  ## meta instruction
-      $mode = 'gff';
+    $loader->start_load();
+    $loader->load_line($_) while <FH>;
+    $loader->finish_load();
+
+=cut
+
+sub load_line { #overridden
+    my $self = shift;
+    my $line = shift;
+
+    chomp($line);
+    return unless $line =~ /^\S/;     # blank line
+    my $load_data = $self->{load_data};
+
+    $load_data->{mode} = 'gff' if /\t/;  # if it has a tab in it, switch to gff mode
+
+    if ($line =~ /^\#\s?\#\s*(.+)/) {  ## meta instruction
+      $load_data->{mode} = 'gff';
       $self->handle_meta($1);
 
-    } elsif (/^\#/) {
-      $mode = 'gff';  # just to be safe
-      next;  # comment
+    } elsif ($line =~ /^\#/) {
+      $load_data->{mode} = 'gff';  # just to be safe
+      return; # comment
     }
 
-    elsif (/^>\s*(\S+)/) { # FASTA lines are coming
-      $mode = 'fasta';
+    elsif ($line =~ /^>\s*(\S+)/) { # FASTA lines are coming
+      $load_data->{mode} = 'fasta';
       $self->start_or_finish_sequence($1);
     }
 
-    elsif ($mode eq 'fasta') {
-      $self->load_sequence($_);
+    elsif ($load_data->{mode} eq 'fasta') {
+      $self->load_sequence($line);
     }
 
-    elsif ($mode eq 'gff') {
-      $self->handle_feature($_);
-      if (++$count % 1000 == 0) {
+    elsif ($load_data->{mode} eq 'gff') {
+      $self->handle_feature($line);
+      if (++$load_data->{count} % 1000 == 0) {
 	my $now = $self->time();
 	my $nl = -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
-	$self->msg(sprintf("%d features loaded in %5.2fs...$nl",$count,$now - $start));
-	$start = $now;
+	$self->msg(sprintf("%d features loaded in %5.2fs...$nl",
+			   $load_data->{count},$now - $load_data->{start_time}));
+	$load_data->{start_time} = $now;
       }
     }
 
     else {
-      $self->throw("I don't know what to do with this line:\n$_");
+      $self->throw("I don't know what to do with this line:\n$line");
     }
-  }
-  $self->store_current_feature();      # during fast loading, we will have a feature left at the very end
-  $self->start_or_finish_sequence();   # finish any half-loaded sequences
-  $self->msg(' 'x80,"\n"); #clear screen
-  $count;
 }
+
 
 =item handle_meta
 
@@ -483,14 +403,14 @@ information stored a data structure called $self-E<gt>{load_data}.
 
 =cut
 
-sub handle_feature {
+sub handle_feature { #overridden
   my $self     = shift;
   my $gff_line = shift;
   my $ld       = $self->{load_data};
 
   my @columns = map {$_ eq '.' ? undef : $_ } split /\t/,$gff_line;
   return unless @columns >= 8;
-  my ($refname,$source,$method,$start,$end, $score,$strand,$phase,$attributes)      = @columns;
+  my ($refname,$source,$method,$start,$end, $score,$strand,$phase,$attributes) = @columns;
   $strand = $Strandedness{$strand||0};
   my ($reserved,$unreserved) = $attributes ? $self->parse_attributes($attributes) : ();
 
@@ -609,48 +529,7 @@ database. It uses a data structure stored in $self-E<gt>{load_data}.
 
 =cut
 
-
-sub store_current_feature {
-  my $self    = shift;
-
-  my $ld   = $self->{load_data};
-  defined $ld->{CurrentFeature} or return;
-  my $f    = $ld->{CurrentFeature};
-
-  my $normalized = $self->subfeatures_normalized;
-  my $indexed    = $ld->{IndexIt}{$ld->{CurrentID}};
-
-  # logic is as follows:
-  # 1. If the feature is an indexed feature, then we store it into the main database
-  #    so that it can be searched. It doesn't matter whether it is a top-level feature
-  #    or a subfeature.
-  # 2. If the feature class is normalized, but not indexed, then we store it into the
-  #    main database using the "no_index" method. This will make it accessible to
-  #    queries on the top level parent, but it won't come up by itself in range or
-  #    attribute searches.
-  # 3. Otherwise, this is an unindexed subfeature; we store it in the temporary database
-  #    until the object build step, at which point it gets integrated into its object tree
-  #    and copied into the main database.
-
-  if ($indexed) {
-    $self->store->store($f);
-  }
-
-  elsif ($normalized) {
-    $self->store->store_noindex($f)
-  }
-
-  else {
-    $self->tmp_store->store_noindex($f)
-  }
-	
-  my $id        = $f->primary_id;    # assigned by store()
-  $ld->{Local2GlobalID}{$ld->{CurrentID}} = $id;
-
-  undef $ld->{IndexIt}{$ld->{CurrentID}} if $normalized;  # no need to remember this
-  undef $ld->{CurrentID};
-  undef $ld->{CurrentFeature};
-}
+# sub store_current_feature { } inherited
 
 =item build_object_tree
 
@@ -832,12 +711,20 @@ tags (e.g. ID) and the other containing the values of unreserved ones.
 sub parse_attributes {
   my $self = shift;
   my $att  = shift;
-  my @pairs =  map {my ($name,$value) = split /=/; [unescape($name) => $value];  } split /;/,$att;
+  my @pairs =  map { my ($name,$value) = split /=/;
+                    [$self->unescape($name) => $value];  
+                   } split /;/,$att;
   my (%reserved,%unreserved);
   foreach (@pairs) {
     my $tag    = $_->[0];
+
+    unless (defined $_->[1]) {
+      warn "$tag does not have a value at GFF3 file line $.\n";
+      next;
+    }
+
     my @values = split /,/,$_->[1];
-    map {$_ = unescape($_);} @values;
+    map {$_ = $self->unescape($_);} @values;
     if ($Special_attributes{$tag}) {  # reserved attribute
       push @{$reserved{$tag}},@values;
     } else {
@@ -855,23 +742,7 @@ This method is called at the beginning and end of a fasta section.
 
 =cut
 
-
-# this gets called at the beginning and end of a fasta section
-sub start_or_finish_sequence {
-  my $self  = shift;
-  my $seqid = shift;
-  if (my $sl    = $self->{fasta_load}) {
-    if (defined $sl->{seqid}) {
-      $self->store->insert_sequence($sl->{seqid},$sl->{sequence},$sl->{offset});
-      delete $self->{fasta_load};
-    }
-  }
-  if (defined $seqid) {
-    $self->{fasta_load} = {seqid  => $seqid,
-			   offset => 0,
-			   sequence => ''};
-  }
-}
+# sub start_or_finish_sequence { } inherited
 
 =item load_sequence
 
@@ -882,51 +753,21 @@ start_or_finish_sequence() is first called.
 
 =cut
 
-sub load_sequence {
-  my $self = shift;
-  my $seq  = shift;
-  my $sl   = $self->{fasta_load} or return;
-  my $cs   = $self->seq_chunk_size;
-  $sl->{sequence} .= $seq;
-  while (length $sl->{sequence} >= $cs) {
-    my $chunk = substr($sl->{sequence},0,$cs);
-    $self->store->insert_sequence($sl->{seqid},$chunk,$sl->{offset});
-    $sl->{offset} += length $chunk;
-    substr($sl->{sequence},0,$cs) = '';
-  }
-}
+# sub load_sequence { } inherited
 
 =item open_fh
 
  my $io_file = $loader->open_fh($filehandle_or_path)
 
-This method opens up the indicated file or pipe, using some intelligence to recognized compressed files and URLs and doing 
-the right thing.
+This method opens up the indicated file or pipe, using some
+intelligence to recognized compressed files and URLs and doing the
+right thing.
 
 =cut
 
+# sub open_fh { } inherited
 
-sub open_fh {
-  my $self  = shift;
-  my $thing = shift;
-
-  no strict 'refs';
-
-  return $thing                                  if defined fileno($thing);
-  return IO::File->new("gunzip -c $thing |")     if $thing =~ /\.gz$/;
-  return IO::File->new("uncompress -c $thing |") if $thing =~ /\.Z$/;
-  return IO::File->new("bunzip2 -c $thing |")    if $thing =~ /\.bz2$/;
-  return IO::File->new("GET $thing |")           if $thing =~ /^(http|ftp):/;
-  return $thing                                  if ref $thing && $thing->isa('IO::String');
-  return IO::File->new($thing);
-}
-
-sub msg {
-  my $self = shift;
-  my @msg  = @_;
-  return unless $self->verbose;
-  print STDERR @msg;
-}
+# sub msg { } inherited
 
 =item time
 
@@ -936,10 +777,7 @@ This method returns the current time in seconds, using Time::HiRes if available.
 
 =cut
 
-sub time {
-  return Time::HiRes::time() if Time::HiRes->can('time');
-  return time();
-}
+# sub time { } inherited
 
 =item unescape
 
@@ -950,11 +788,7 @@ but doesn't change pluses into spaces and ignores unicode escapes.
 
 =cut
 
-sub unescape {
-  my $todecode = shift;
-  $todecode =~ s/%([0-9a-fA-F]{2})/chr hex($1)/ge;
-  return $todecode;
-}
+# sub unescape { } inherited
 
 1;
 __END__
@@ -972,7 +806,7 @@ L<bioperl>,
 L<Bio::DB::SeqFeature::Store>,
 L<Bio::DB::SeqFeature::Segment>,
 L<Bio::DB::SeqFeature::NormalizedFeature>,
-L<Bio::DB::SeqFeature::GFF3Loader>,
+L<Bio::DB::SeqFeature::GFF2Loader>,
 L<Bio::DB::SeqFeature::Store::DBI::mysql>,
 L<Bio::DB::SeqFeature::Store::bdb>
 

@@ -109,6 +109,9 @@ Bio::DB::SeqFeature::Store::berkeleydb -- Storage and retrieval of sequence anno
   my $segment  = $db->segment('Chr1',5000=>6000);
   my @features = $segment->features(-type=>['mRNA','match']);
 
+  # what feature types are defined in the database?
+  my @types    = $db->types;
+
   # getting & storing sequence information
   # Warning: this returns a string, and not a PrimarySeq object
   $db->insert_sequence('Chr1','GATCCCCCGGGATTCCAAAA...');
@@ -1054,6 +1057,16 @@ sub update_filter {
     %$filter     = map {$_=>1} @$results;
   }
 
+}
+
+sub types {
+    my $self = shift;
+    eval "require Bio::DB::GFF::Typename" 
+	unless Bio::DB::GFF::Typename->can('new');
+
+    my $index = $self->index_db('types');
+    my $db    = tied(%$index);
+    return map {Bio::DB::GFF::Typename->new($_)} keys %$index;
 }
 
 # this is ugly

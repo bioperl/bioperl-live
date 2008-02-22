@@ -150,6 +150,8 @@ sub get_description {
   my $self = shift;
   my $feature = shift;
 
+  local $^W = 0;
+
   # common places where we can get descriptions
   return join '; ',$feature->notes if $feature->can('notes');
   return $feature->desc            if $feature->can('desc');

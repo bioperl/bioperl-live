@@ -62,6 +62,9 @@ Bio::DB::SeqFeature::Store::memory -- In-memory implementation of Bio::DB::SeqFe
   $db->insert_sequence('Chr1','GATCCCCCGGGATTCCAAAA...');
   my $sequence = $db->fetch_sequence('Chr1',5000=>6000);
 
+  # what feature types are defined in the database?
+  my @types    = $db->types;
+
   # create a new feature in the database
   my $feature = $db->new_feature(-primary_tag => 'mRNA',
                                  -seq_id      => 'chr3',
@@ -248,10 +251,10 @@ sub _update_name_index {
   my ($obj,$id) = @_;
   my ($names,$aliases) = $self->feature_names($obj);
   foreach (@$names) {
-    $self->{_index}{name}{lc $_}{$id} = 1;
+    $self->{_index}{name}{lc $_}{$id}   = 1;
   }
   foreach (@$aliases) {
-    $self->{_index}{name}{lc $_}{$id} = 2;
+    $self->{_index}{name}{lc $_}{$id} ||= 2;
   }
 }
 
@@ -556,6 +559,25 @@ sub _search_attributes {
   return @results;
 }
 
+=head2 types
+
+ Title   : types
+ Usage   : @type_list = $db->types
+ Function: Get all the types in the database
+ Returns : array of Bio::DB::GFF::Typename objects (arrayref in scalar context)
+ Args    : none
+ Status  : public
+
+=cut
+
+sub types {
+    my $self = shift;
+    eval "require Bio::DB::GFF::Typename" 
+	unless Bio::DB::GFF::Typename->can('new');
+    return map {
+	Bio::DB::GFF::Typename->new($_);
+    } keys %{$self->{_index}{type}};
+}
 
 # this is ugly
 sub _insert_sequence {

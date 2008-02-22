@@ -105,7 +105,6 @@ sub draw {
   # now seed all the parts with the information they need to draw their positions
   foreach (@parts) {
     my $s = $_->score;
-    next unless defined $s;
     $_->{_y_position}   = $self->score2position($s);
     warn "y_position = $_->{_y_position}" if DEBUG;
   }
@@ -146,7 +145,7 @@ sub score2position {
   my $self  = shift;
   my $score = shift;
 
-  return unless defined $score;
+  return undef unless defined $score;
 
   if ($self->{_clip_ok} && $score < $self->{_min_score}) {
     return $self->{_bottom};
@@ -202,6 +201,7 @@ sub _draw_histogram {
     my $part = $parts[$i];
     my $next = $parts[$i+1];
     my ($x1,$y1,$x2,$y2) = $part->calculate_boundaries($left,$top);
+    next unless defined $part->{_y_position};
     $gd->line($x1,$part->{_y_position},$x2,$part->{_y_position},$fgcolor);
     next unless $next;
     my ($x3,$y3,$x4,$y4) = $next->calculate_boundaries($left,$top);
@@ -257,6 +257,7 @@ sub _draw_boxes {
     }
 
     my ($x1,$y1,$x2,$y2) = $part->calculate_boundaries($left,$top);
+    next unless defined $part->{_y_position};
     if ($part->{_y_position} < $y_origin) {
       $self->filled_box($gd,$x1,$part->{_y_position},$x2,$y_origin,$color,$fgcolor,$lw);
     } else {
@@ -285,7 +286,8 @@ sub _draw_line {
     ($x1,$y1,$x2,$y2) = $part->calculate_boundaries($left,$top);
     my $next_x = ($x1+$x2)/2;
     my $next_y = $part->{_y_position};
-    $gd->line($current_x,$current_y,$next_x,$next_y,$fgcolor);
+    $gd->line($current_x,$current_y,$next_x,$next_y,$fgcolor)
+	if defined $current_y and defined $next_y;
     ($current_x,$current_y) = ($next_x,$next_y);
   }
 
@@ -310,6 +312,7 @@ sub _draw_points {
     my ($x1,$y1,$x2,$y2) = $part->calculate_boundaries($left,$top);
     my $x = ($x1+$x2)/2;
     my $y = $part->{_y_position};
+    next unless defined $y;
 
     my $color;
     if ($partcolor) {

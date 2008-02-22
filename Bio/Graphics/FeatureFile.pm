@@ -282,6 +282,8 @@ sub render {
   my @configured_types   = grep {exists $self->{features}{$_}} $self->configured_types;
   my @unconfigured_types = sort grep {!exists $types{$_}}      $self->types;
 
+  warn "@configured_types / @unconfigured_types";
+
   my @base_config = $self->style('general');
 
   my @override = ();
@@ -945,7 +947,20 @@ file set.  Roughly equivalent to:
 sub configured_types {
   my $self = shift;
   my $types = $self->{types} or return;
-  return @{$types};
+  return @$types;
+#   my @types;
+#   for my $t (@$types) {
+#       if (my $ftype = $self->setting($t=>'feature')) {
+# 	  push @types,shellwords($ftype);
+#       } else {
+# 	  push @types,$t;
+#       }
+#   }
+#   return @types;
+}
+
+sub labels {
+    return shift->configured_types;
 }
 
 =over 4
@@ -1007,14 +1022,16 @@ sub features {
   my ($types,$iterator,@rest) = defined($_[0] && $_[0]=~/^-/)
     ? rearrange([['TYPE','TYPES']],@_) : (\@_);
   $types = [$types] if $types && !ref($types);
-  my @types = ($types && @$types) ? @$types : $self->types;
-  my @features = map {@{$self->{features}{$_}}} @types;
+  my @types    = ($types && @$types) ? @$types : $self->types;
+  my @features = map { @{$self->{features}{$_}} } @types;
   if ($iterator) {
     require Bio::Graphics::FeatureFile::Iterator;
     return Bio::Graphics::FeatureFile::Iterator->new(\@features);
   }
   return wantarray ? @features : \@features;
 }
+
+
 
 =over 4
 

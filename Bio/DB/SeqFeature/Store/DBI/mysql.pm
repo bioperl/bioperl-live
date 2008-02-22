@@ -81,6 +81,9 @@ Bio::DB::SeqFeature::Store::DBI::mysql -- Mysql implementation of Bio::DB::SeqFe
   $db->insert_sequence('Chr1','GATCCCCCGGGATTCCAAAA...');
   my $sequence = $db->fetch_sequence('Chr1',5000=>6000);
 
+  # what feature types are defined in the database?
+  my @types    = $db->types;
+
   # create a new feature in the database
   my $feature = $db->new_feature(-primary_tag => 'mRNA',
                                  -seq_id      => 'chr3',
@@ -1252,6 +1255,38 @@ END
   my $dbh = $self->dbh;
   $object->primary_id($dbh->{mysql_insertid});
   $self->flag_for_indexing($dbh->{mysql_insertid}) if $self->{bulk_update_in_progress};
+}
+
+=head2 types
+
+ Title   : types
+ Usage   : @type_list = $db->types
+ Function: Get all the types in the database
+ Returns : array of Bio::DB::GFF::Typename objects
+ Args    : none
+ Status  : public
+
+=cut
+
+sub types {
+    my $self = shift;
+    eval "require Bio::DB::GFF::Typename" 
+	unless Bio::DB::GFF::Typename->can('new');
+    my $typelist_table      = $self->_typelist_table;
+    my $sql = <<END;
+SELECT tag from $typelist_table
+END
+;
+    $self->_print_query($sql) if DEBUG || $self->debug;
+    my $sth = $self->_prepare($sql);
+    $sth->execute() or $self->throw($sth->errstr);
+
+    my @results;
+    while (my($tag) = $sth->fetchrow_array) {
+	push @results,Bio::DB::GFF::Typename->new($tag);
+    }
+    $sth->finish;
+    return @results;
 }
 
 ###

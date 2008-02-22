@@ -160,7 +160,7 @@ sub add_segment {
 				-type   => $type,
 			        -name   => $name,
 			        -class  => $class,
-			       -source_tag  => $source_tag,
+				-source_tag  => $source_tag,
 			       );
       $min_start = $start if $start < $min_start;
       $max_stop  = $stop  if $stop  > $max_stop;

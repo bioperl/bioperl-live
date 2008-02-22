@@ -83,6 +83,9 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
   $db->insert_sequence('Chr1','GATCCCCCGGGATTCCAAAA...');
   my $sequence = $db->fetch_sequence('Chr1',5000=>6000);
 
+  # what feature types are defined in the database?
+  my @types    = $db->types;
+
   # create a new feature in the database
   my $feature = $db->new_feature(-primary_tag => 'mRNA',
                                  -seq_id      => 'chr3',
@@ -1082,6 +1085,21 @@ sub search_notes {
   my $self = shift;
   my ($search_string,$limit) = @_;
   return $self->_search_attributes($search_string,['Note'],$limit);
+}
+
+=head2 types
+
+ Title   : types
+ Usage   : @type_list = $db->types
+ Function: Get all the types in the database
+ Returns : array of Bio::DB::GFF::Typename objects
+ Args    : none
+ Status  : public
+
+=cut
+
+sub types {
+    shift->throw_not_implemented;
 }
 
 =head2 insert_sequence
