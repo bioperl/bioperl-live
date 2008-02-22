@@ -17,10 +17,6 @@ our @drivers;
 
 my $mysql_ok = 0;
 
-my $test_biodbgff = test_biodbgff();
-my $test_db_sf = test_db_sf();
-my $test_internet = &ModuleBuildBioperl::test_internet();
-
 # Set up the ModuleBuildBioperl object
 my $build = ModuleBuildBioperl->new(
     module_name         => 'Bio',
@@ -91,17 +87,17 @@ my $build = ModuleBuildBioperl->new(
                                                         description      => "BioDBGFF database tests (will need to answer questions before really enabling)",
                                                         feature_requires => { 'DBI' => 0 },
                                                         excludes_os      => ['mswin'],
-                                                        test             => $test_biodbgff # ModuleBuildBioperl unique requirement that after everything else succeeds, supplied code ref must also return undef
+                                                        test             => \&test_biodbgff # ModuleBuildBioperl unique requirement that after everything else succeeds, supplied code ref must also return undef
                                                      },
                             BioDBSeqFeature_mysql => {
                                                         description      => "MySQL tests for Bio::DB::SeqFeature::Store",
                                                         feature_requires => { 'DBI' => 0, 'DBD::mysql' => 0 },
-                                                        test             => $test_db_sf
+                                                        test             => \&test_db_sf
                                                      },
                             Network               => {
                                                         description => "Enable tests that need an internet connection",
                                                         requires    => { 'LWP::UserAgent' => 0 },
-                                                        test        => $test_internet
+                                                        test        => \&ModuleBuildBioperl::test_internet
                                                      }
                            },
     dynamic_config      => 1,
