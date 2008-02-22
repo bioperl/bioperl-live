@@ -605,7 +605,7 @@ sub write_seq {
 
         # if there, write the kw line
         {
-            my( $kw );
+            my $kw;
             if ( my $func = $self->_kw_generation_func ) {
                 $kw = &{$func}($seq);
             } elsif ( $seq->can('keywords') ) {
@@ -613,11 +613,12 @@ sub write_seq {
                 if ( ref($kw) =~ /ARRAY/i ) {
                     $kw = join("; ", @$kw);
                 }
-                $kw .= '.' if( $kw !~ /\.$/ );
+                $kw .= '.' if $kw and $kw !~ /\.$/ ;
             }
             $kw =~ s/([\w\.]) (\w)/$1#$2/g;  # add word wrap protection char '#'
             $self->_write_line_swissprot_regex("KW   ","KW   ",
-                                               $kw, "\\s\+\|\$",$LINE_LENGTH);
+                                               $kw, "\\s\+\|\$",$LINE_LENGTH)
+                if $kw;
         }
 
         #Check if there is seqfeatures before printing the FT line
