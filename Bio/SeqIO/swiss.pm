@@ -315,28 +315,66 @@ sub next_seq {
     # can't do this above b/c GN may be multi-line and we can't
     # unequivocally determine whether we've seen the last GN line in
     # the new format)
-    if ($genename && ($genename =~ s/[\.; ]+$//)) {
-        my $gn = Bio::Annotation::StructuredValue->new();
-        if ($genename =~ /Name=/) {
+    my $gn;
+    if ($genename) {
+        my @genes;
+        if ($genename =~ /\w=\w/) {
             # new format (e.g., Name=RCHY1; Synonyms=ZNF363, CHIMP)
-            my $j = 0;
-            foreach my $genes (split(/; and /, $genename)) {
-                foreach my $names (split(/;\s+/, $genes)) {
-                    $names =~ s/^\s*([A-Za-z]+)=//;
-                    $gn->add_value([$j,-1], split(/, /, $names));
+            foreach my $one_gene (split(/ and /, $genename)) {
+                $gn = Bio::Annotation::Collection->new();
+                push @genes, $gn;
+                if ($one_gene =~ /^Name=([^;]+);/) {
+                    my $name = Bio::Annotation::SimpleValue->new(-value => $1);
+                    $gn->add_Annotation('name', $name);
                 }
-                $j++;
+                if ($one_gene =~ /Synonyms=([^;]+);/) {
+                    my $syn_string = $1;
+                    my $synonyms = Bio::Annotation::StructuredValue->new;
+                    $gn->add_Annotation('synonyms', $synonyms);
+                    while ($syn_string =~ /([^,; ]+)/g) {
+                        $synonyms->add_value([-1], $1);
+                    }
+                }
+                if ($one_gene =~ /OrderedLocusNames=([^;]+);/) {
+                    my $locus_string = $1;
+                    my $locus_names = Bio::Annotation::StructuredValue->new;
+                    $gn->add_Annotation('orderedlocusnames', $locus_names);
+                    while ($locus_string =~ /([^,; ]+)/g) {
+                        $locus_names->add_value([-1], $1);
+                    }
+                }
+                if ($one_gene =~ /ORFNames=([^;]+);/) {
+                    my $orf_string = $1;
+                    my $orf_names = Bio::Annotation::StructuredValue->new;
+                    $gn->add_Annotation('orfnames', $orf_names);
+                    while ($orf_string =~ /([^,; ]+)/g) {
+                        $orf_names->add_value([-1], $1);
+                    }
+                }
             }
         } else {
             # old format
             foreach my $gene (split(/ AND /, $genename)) {
-                $gene =~ s/^\(//;
-                $gene =~ s/\)$//;
-                $gn->add_value([-1,-1], split(/ OR /, $gene));
+                $gn = Bio::Annotation::Collection->new();
+                push @genes, $gn;
+                $gene =~ s/\.$//;
+                $gene =~ s/[\(\)]//g;
+                my @genes = split(/ OR /, $gene);
+                my $name_string = shift @genes;
+                my $name = Bio::Annotation::SimpleValue->new(-value => $name_string);
+                $gn->add_Annotation('name', $name);
+
+                if (@genes) {
+                    my $synonyms = Bio::Annotation::StructuredValue->new;
+                    $gn->add_Annotation('synonyms', $synonyms);
+                    foreach my $synonym (@genes) {
+                        $synonyms->add_value([-1], $synonym);
+                    }
+                }
             }
-        }
-        $annotation->add_Annotation('gene_name', $gn,
-                                    "Bio::Annotation::SimpleValue");
+        } #use Data::Dumper; print Dumper $gn, $genename;# exit;
+
+       map {  $annotation->add_Annotation('gene_name', $_) } @genes;
     }
 
     FEATURE_TABLE :
@@ -491,12 +529,39 @@ sub write_seq {
         #Definition lines
         $self->_write_line_swissprot_regex("DE   ","DE   ",$seq->desc(),"\\s\+\|\$",$LINE_LENGTH);
 
-        #Gene name; print out new format but only two categories: Name and Synonyms
-        if ( my @genes = $seq->annotation->get_Annotations('gene_name') ) {
-            my @gene_names = map { $_->get_all_values} @genes;
-            my $gn_string = 'Name='. shift(@gene_names). ';';
-            $gn_string .= ' Synonyms='. join(', ', @gene_names). ";" if scalar @gene_names;
-            $self->_write_line_swissprot_regex("GN   ","GN   ",$gn_string,"\\s\+\|\$",$LINE_LENGTH);
+        #Gene name; print out new format
+        my $first_gene = 1;
+        foreach my $gene ( my @genes = $seq->annotation->get_Annotations('gene_name') ) {
+            # gene is a Bio::Annotation::Collection;
+            if ( $first_gene ) {
+                $first_gene = 0;
+            } else {
+                $self->_print("GN   and\n");
+            }
+
+            my $gn_string;
+
+            my ($name) = $gene->get_Annotations('name');
+            $gn_string = 'Name='. $name->value. ';' if $name;
+
+            if ( my ($synonyms) = $gene->get_Annotations('synonyms') ) {
+                $gn_string .= ' ' if $gn_string;
+                $gn_string .= 'Synonyms='.
+                    join(', ', $synonyms->get_all_values). ";"
+            }
+
+            if ( my ($locusnames) = $gene->get_Annotations('orderedlocusnames') ) {
+                $gn_string .= ' ' if $gn_string;
+                $gn_string .= 'OrderedLocusNames='. 
+                    join(', ', $locusnames->get_all_values). ";"
+            }
+
+            if ( my ($orfnames) = $gene->get_Annotations('orfnames') ) {
+                $gn_string .= ' ' if $gn_string;
+                $gn_string .= 'ORFNames='. join(', ', $orfnames->get_all_values). ";"
+            }
+            $self->_write_line_swissprot_regex("GN   ","GN   ",
+                                               $gn_string,"\\s\+\|\$",$LINE_LENGTH);
 
         }
 
