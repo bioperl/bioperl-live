@@ -490,20 +490,21 @@ sub write_seq {
         if ( $self->_ac_generation_func ) {
             $temp_line = &{$self->_ac_generation_func}($seq);
             $self->_print( "AC   $temp_line\n");
-        } else {
-            if ($seq->can('accession_number') ) {
-                $self->_print("AC   ",$seq->accession_number,";");
-                if ($seq->can('get_secondary_accessions') ) {
-                    foreach my $sacc ($seq->get_secondary_accessions) {
-                        $self->_print(" ",$sacc,";");
-                    }
-                    $self->_print("\n");
-                } else {
-                    $self->_print("\n");
-                }
-            }
-            # otherwise - cannot print <sigh>
         }
+        elsif ($seq->can('accession_number') ) {
+            my $ac_line = $seq->accession_number;
+            if ($seq->can('get_secondary_accessions') ) {
+                foreach my $sacc ($seq->get_secondary_accessions) {
+                    $ac_line .= "; ". $sacc;;
+                }
+                $ac_line .= ";";
+            }
+
+            $self->_write_line_swissprot_regex("AC   ","AC   ",$ac_line,
+                                               "\\s\+\|\$",$LINE_LENGTH);
+        }
+        # otherwise - cannot print <sigh>
+
 
         # Date lines and sequence versions (changed 6/15/2006)
         # This is rebuilt from scratch using the current SwissProt/UniProt format
