@@ -662,29 +662,65 @@ sub _swiss_genename {
     my ($self, $data) = @_;
     #$self->debug(Dumper($data));
     my $genename = $data->{DATA};
-    if ($genename && ($genename =~ s/[\.; ]+$//)) {
-        my $gn = Bio::Annotation::StructuredValue->new();
-        if ($genename =~ /Name=/) {
+    my $gn;
+    if ($genename) {
+        my @genes;
+        if ($genename =~ /\w=\w/) {
             # new format (e.g., Name=RCHY1; Synonyms=ZNF363, CHIMP)
-            my $j = 0;
-            foreach my $genes (split(/; and /, $genename)) {
-                foreach my $names (split(/;\s+/, $genes)) {
-                    $names =~ s/^\s*([A-Za-z]+)=//;
-                    $gn->add_value([$j,-1], split(/, /, $names));
+            foreach my $one_gene (split(/ and /, $genename)) {
+                $gn = Bio::Annotation::Collection->new();
+                push @genes, $gn;
+                if ($one_gene =~ /^Name=([^;]+);/) {
+                    my $name = Bio::Annotation::SimpleValue->new(-value => $1);
+                    $gn->add_Annotation('name', $name);
                 }
-                $j++;
+                if ($one_gene =~ /Synonyms=([^;]+);/) {
+                    my $syn_string = $1;
+                    my $synonyms = Bio::Annotation::StructuredValue->new;
+                    $gn->add_Annotation('synonyms', $synonyms);
+                    while ($syn_string =~ /([^,; ]+)/g) {
+                        $synonyms->add_value([-1], $1);
+                    }
+                }
+                if ($one_gene =~ /OrderedLocusNames=([^;]+);/) {
+                    my $locus_string = $1;
+                    my $locus_names = Bio::Annotation::StructuredValue->new;
+                    $gn->add_Annotation('orderedlocusnames', $locus_names);
+                    while ($locus_string =~ /([^,; ]+)/g) {
+                        $locus_names->add_value([-1], $1);
+                    }
+                }
+                if ($one_gene =~ /ORFNames=([^;]+);/) {
+                    my $orf_string = $1;
+                    my $orf_names = Bio::Annotation::StructuredValue->new;
+                    $gn->add_Annotation('orfnames', $orf_names);
+                    while ($orf_string =~ /([^,; ]+)/g) {
+                        $orf_names->add_value([-1], $1);
+                    }
+                }
             }
         } else {
             # old format
             foreach my $gene (split(/ AND /, $genename)) {
-                $gene =~ s/^\(//;
-                $gene =~ s/\)$//;
-                $gn->add_value([-1,-1], split(/ OR /, $gene));
+                $gn = Bio::Annotation::Collection->new();
+                push @genes, $gn;
+                $gene =~ s/\.$//;
+                $gene =~ s/[\(\)]//g;
+                my @genes = split(/ OR /, $gene);
+                my $name_string = shift @genes;
+                my $name = Bio::Annotation::SimpleValue->new(-value => $name_string);
+                $gn->add_Annotation('name', $name);
+
+                if (@genes) {
+                    my $synonyms = Bio::Annotation::StructuredValue->new;
+                    $gn->add_Annotation('synonyms', $synonyms);
+                    foreach my $synonym (@genes) {
+                        $synonyms->add_value([-1], $synonym);
+                    }
+                }
             }
-        }
-        #$self->debug(Dumper($gn));
-        $self->annotation_collection->add_Annotation('gene_name', $gn,
-                                    "Bio::Annotation::StructuredValue");
+        } #use Data::Dumper; print Dumper $gn, $genename;# exit;
+        map {$self->annotation_collection->add_Annotation('gene_name', $gn)} @genes;
     }
 }
 
