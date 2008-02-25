@@ -36,7 +36,7 @@ to be documented.
 
 =head2 GN (Gene name) line management details
 
-An Uniprot/Swiss-Prot entry holds information on one protein
+A Uniprot/Swiss-Prot entry holds information on one protein
 sequence. If that sequence is identical across genes and species, they
 are all merged into one entry. This creates complex needs for several
 annotation fields in swiss-prot format.
@@ -45,8 +45,8 @@ The latest syntax for GN line is described in the user manual:
 
   http://www.expasy.ch/sprot/userman.html#GN_line
 
-Each of the possibly multiple genes in an entry can have name,
-synonyms (only if there is a name), OrderedLocusNames (names from
+Each of the possibly multiple genes in an entry can have Name,
+Synonyms (only if there is a name), OrderedLocusNames (names from
 genomic sequences) and ORFNames (temporary or cosmid names). "Name"
 here really means "symbol". This complexity is now dealth with the
 following way:
