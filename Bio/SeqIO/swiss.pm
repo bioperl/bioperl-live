@@ -28,11 +28,63 @@ rather go through the SeqIO handler system:
 
 =head1 DESCRIPTION
 
-This object can transform Bio::Seq objects to and from Swissprot flat
+This object can transform Bio::Seq objects to and from Swiss-Pprot flat
 file databases.
 
 There is a lot of flexibility here about how to dump things which needs
 to be documented.
+
+=head2 GN (Gene name) line management details
+
+An Uniprot/Swiss-Prot entry holds information on one protein
+sequence. If that sequence is identical across genes and species, they
+are all merged into one entry. This creates complex needs for several
+annotation fields in swiss-prot format.
+
+The latest syntax for GN line is described in the user manual:
+
+  http://www.expasy.ch/sprot/userman.html#GN_line
+
+Each of the possibly multiple genes in an entry can have name,
+synonyms (only if there is a name), OrderedLocusNames (names from
+genomic sequences) and ORFNames (temporary or cosmid names). "Name"
+here really means "symbol". This complexity is now dealth with the
+following way:
+
+Each gene is an Bio::Annotation::Collection object that is accessed
+like all other annotations. The tag name is 'gene_name':
+
+   my @genes = $seq->annotation->get_Annotations('gene_name');
+
+Note that if you are not interested in the complexity of multiple
+genes, you can easily just take the first value:
+
+   my ($gene) = $seq->annotation->get_Annotations('gene_name');
+
+None of the four categories for gene_names are obligatory, so you have
+to test returned objects for existence before using them:
+
+   my ($name) = $gene->get_Annotations('name');
+   if ($name) {
+       print "The official gene symbol is: ". $name->value. "\n";
+   }
+
+The can be only one name, so $name is a Bio::Annotation::SimpleValue object.
+
+In other categories (tags: synonyms, orderedlocusnames, orfnames; all
+lower case) there can be more than one value, so they are stored in
+Bio::Annotation::StructuredValue objects. There can be only one object
+with a given tag within a given gene. All values for that category are
+stored in an ordered list within the StructureValue object. e.g:
+
+   if ( my ($synonyms) = $gene->get_Annotations('synonyms') ) {
+       print "Synonyms: ". join(', ', $synonyms->get_all_values). "\n";
+   }
+
+Since Uniprot/Swiss-Prot format have been around for quite some time, the
+parser is also able to read in the older GN line syntax where genes
+are separated by AND and various symbols by OR. The first symbol is
+taken to be the name and the remaining ones are stored as synonyms.
 
 
 =head2 Optional functions
