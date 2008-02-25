@@ -712,6 +712,9 @@ sub write_seq {
 
 				# Having no RP line is legal, but we need both
 				# start and end for a valid location.
+                if ($ref->comment) {
+                    $self->_write_line_EMBL_regex("RC   ", "RC   ", $ref->comment, '\s+|$', 80) || return; #'
+                }
                 my $start = $ref->start;
                 my $end   = $ref->end;
                 if ($start and $end) {
@@ -741,9 +744,6 @@ sub write_seq {
                 $ref_title =~ s/[\s;]*$/;/;
                 $self->_write_line_EMBL_regex("RT   ", "RT   ", $ref_title,    '\s+|$', 80) || return; #'
                 $self->_write_line_EMBL_regex("RL   ", "RL   ", $ref->location, '\s+|$', 80) || return; #'
-                if ($ref->comment) {
-                    $self->_write_line_EMBL_regex("RC   ", "RC   ", $ref->comment, '\s+|$', 80) || return; #'
-                }
                 $self->_print("XX\n") || return;
                 $t++;
             }
