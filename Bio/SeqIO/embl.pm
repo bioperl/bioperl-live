@@ -727,8 +727,11 @@ sub write_seq {
                 if (my $pm = $ref->pubmed) {
                     $self->_print( "RX   PUBMED; $pm.\n") || return;
                 }
+                my $authors = $ref->authors;
+                $authors =~ s/([\w\.]) (\w)/$1#$2/g;  # add word wrap protection char '#'
+
                 $self->_write_line_EMBL_regex("RA   ", "RA   ",
-                                              $ref->authors . ";",
+                                              $authors . ";",
                                               '\s+|$', 80) || return; #'
 
                 # If there is no title to the reference, it appears
@@ -1334,6 +1337,8 @@ sub _write_line_EMBL_regex {
         foreach my $pat ($regex, '[,;\.\/-]\s|'.$regex, '[,;\.\/-]|'.$regex) {
             if ($line =~ m/^(.{1,$subl})($pat)(.*)/ ) {
                 my $l = $1.$2;
+                $l =~ s/#/ /g  # remove word wrap protection char '#'
+                    if $pre1 eq "RA   ";
                 my $newl = $3;
                 $line = substr($line,length($l));
                 # be strict about not padding spaces according to
