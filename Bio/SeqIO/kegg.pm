@@ -257,6 +257,12 @@ sub next_seq {
      }
   }
 
+  if($FIELDS{POSITION}) {
+    $FIELDS{POSITION} =~ s/^POSITION\s+//;
+    $annotation->add_Annotation('position',
+      Bio::Annotation::Comment->new(-text => $FIELDS{POSITION}));
+  }
+  
   if ($FIELDS{CLASS}) {
       $FIELDS{CLASS} =~ s/^CLASS\s+//;
       $FIELDS{'CLASS'} =~ s/\n//g;
