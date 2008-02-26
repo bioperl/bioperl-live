@@ -114,6 +114,8 @@ if ($build->feature('BioDBSeqFeature_BDB')) {
     make_bdb_test();
 }
 if ($build->feature('BioDBSeqFeature_mysql') && $mysql_ok) {
+    # will return without doing anything if user chose not to run tests during
+    # prompt_for_biodb() above
     make_dbi_test();
 }
 
@@ -175,10 +177,10 @@ sub test_db_sf {
 }
 
 sub make_dbi_test {
+    my $dsn = $build->notes('test_dsn') || return;
     my $path0 = File::Spec->catfile('t', 'BioDBSeqFeature.t');
     my $path = File::Spec->catfile('t', 'BioDBSeqFeature_mysql.t');
     my $test_db = $build->notes('test_db');
-    my $dsn = $build->notes('test_dsn');
     my $user = $build->notes('test_user');
     my $pass = $build->notes('test_pass');
     open my $F,">$path";
