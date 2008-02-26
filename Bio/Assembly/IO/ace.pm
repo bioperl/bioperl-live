@@ -133,13 +133,13 @@ sub next_assembly {
 	chomp;
 
 	# Loading assembly information (ASsembly field)
-#	(/^AS (\d+) (\d+)/) && do {
-#	    $assembly->_set_nof_contigs($1);
-#	    $assembly->_set_nof_sequences_in_contigs($2);
-#	};
+	#(/^AS\s+(\d+)\s+(\d+)/) && do {
+	#    $assembly->_set_nof_contigs($1);
+	#    $assembly->_set_nof_sequences_in_contigs($2);
+	#};
 
 	# Loading contig sequence (COntig sequence field)
-	(/^CO Contig(\d+) (\d+) (\d+) (\d+) (\w+)/) && do { # New contig found!
+	(/^CO\s[Cc]ontig(\d+)\s(\d+)\s(\d+)\s(\d+)\s(\w+)/xms) && do { # New contig found!
 	    my $contigID = $1;
 	    $contigOBJ = Bio::Assembly::Contig->new(-source=>'phrap', -id=>$contigID);
 #	    $contigOBJ->set_nof_bases($2); # Contig length in base pairs
