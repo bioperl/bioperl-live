@@ -280,7 +280,17 @@ sub prereq_failures {
         my $status = {};
         if ($type eq 'test') {
             unless (keys %$out) {
-                $status->{message} = &{$prereqs};
+                if (ref($prereqs) eq 'CODE') {
+                    $status->{message} = &{$prereqs};
+                    
+                    # drop the code-ref to avoid Module::Build trying to store
+                    # it with Data::Dumper, generating warnings. (And also, may
+                    # be expensive to run the sub multiple times.)
+                    $info->{$type} = $status->{message};
+                }
+                else {
+                    $status->{message} = $prereqs;
+                }
                 $out->{$type}{'test'} = $status if $status->{message};
             }
         }
@@ -334,6 +344,11 @@ sub prereq_failures {
                 }
                 elsif ($type =~ /^feature_requires/) {
                     next if $status->{ok};
+                    
+                    # if there is a test code-ref, drop it to avoid
+                    # Module::Build trying to store it with Data::Dumper,
+                    # generating warnings.
+                    delete $info->{test};
                 }
                 else {
                     next if $status->{ok};
