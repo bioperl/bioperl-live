@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 112);
+    test_begin(-tests => 120);
 	
 	use_ok('Bio::Annotation::Collection');
 	use_ok('Bio::Annotation::DBLink');
@@ -17,7 +17,8 @@ BEGIN {
 	use_ok('Bio::Annotation::Target');
 	use_ok('Bio::Annotation::AnnotationFactory');
 	use_ok('Bio::Annotation::StructuredValue');
-	use_ok('Bio::Annotation::Tree');
+	use_ok('Bio::Annotation::StructuredTag');
+    use_ok('Bio::Annotation::Tree');
 	use_ok('Bio::Seq');
 	use_ok('Bio::SeqFeature::Annotated');
 	use_ok('Bio::SimpleAlign');
@@ -268,4 +269,63 @@ foreach my $treeblock ( $aln->annotation->get_Annotations('tree') ) {
     is $str, "MDDKELEIPVEHSTAFGQLV", "get seq from node id";
 }
 
+#structuredtag
 
+my $xml = <<ENDXML;
+<?xml version="1.0" encoding="UTF-8"?>
+<genenames>
+  <genename>
+    <Name>CALM1</Name>
+    <Synonyms>CAM1</Synonyms>
+    <Synonyms>CALM</Synonyms>
+    <Synonyms>CAM</Synonyms>
+  </genename>
+  <genename>
+    <Name>CALM2</Name>
+    <Synonyms>CAM2</Synonyms>
+    <Synonyms>CAMB</Synonyms>
+  </genename>
+  <genename>
+    <Name>CALM3</Name>
+    <Synonyms>CAM3</Synonyms>
+    <Synonyms>CAMC</Synonyms>
+  </genename>
+</genenames>
+ENDXML
+
+my $struct = [ 'genenames' => [
+                    ['genename' => [
+                         [ 'Name' => 'CALM1' ],
+                         ['Synonyms'=> 'CAM1'],
+                         ['Synonyms'=> 'CALM'],
+                         ['Synonyms'=> 'CAM' ] ] ],
+                     ['genename'=> [
+                         [ 'Name'=> 'CALM2' ],
+                         [ 'Synonyms'=> 'CAM2'],
+                         [ 'Synonyms'=> 'CAMB'] ] ],
+                     [ 'genename'=> [
+                         [ 'Name'=> 'CALM3' ],
+                         [ 'Synonyms'=> 'CAM3' ],
+                         [ 'Synonyms'=> 'CAMC' ] ] ]
+                ] ];
+
+my $ann_struct = Bio::Annotation::StructuredTag->new(-tagname => 'gn',
+					  -value => $struct);
+
+isa_ok($ann_struct, 'Bio::AnnotationI');
+my $val = $ann_struct->value;
+is($val, $xml,'to xml');
+
+# roundtrip
+my $ann_struct2 = Bio::Annotation::StructuredTag->new(-tagname => 'gn',
+					  -value => $val);
+is($ann_struct2->value, $val,'roundtrip');
+
+# formats 
+like($ann_struct2->value, qr/<Name>CALM1<\/Name>/,'xml');
+$ann_struct2->tagformat('itext');
+like($ann_struct2->value, qr/Name: CALM1/,'itext');
+$ann_struct2->tagformat('sxpr');
+like($ann_struct2->value, qr/\(Name "CALM1"\)/,'spxr');
+$ann_struct2->tagformat('indent');
+like($ann_struct2->value, qr/Name "CALM1"/,'indent');
