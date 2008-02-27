@@ -7,8 +7,9 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 163);
-	
+    test_begin(-tests => 180);
+
+    use_ok('Bio::Tools::Fgenesh');
     use_ok('Bio::Tools::Genscan');
     use_ok('Bio::Tools::Genemark');
     use_ok('Bio::Tools::Glimmer');
@@ -287,3 +288,38 @@ is $g3gene_a->frame(), 0;
 is $g3gene_a->location->end_pos_type(), 'AFTER';
 is $g3gene_a->location->min_end(), 2932;
 
+# Fgenesh
+my $fgh = Bio::Tools::Fgenesh->new(
+                                   '-file' => test_input_file('fgenesh.out'),
+                                  );
+
+my $fghgene = $fgh->next_prediction();
+
+ok($fghgene);
+is($fghgene->seq_id, 'gi|1914348|emb|Z81551.1|');
+is($fghgene->source_tag, 'Fgenesh');
+is($fghgene->start(), 29);
+is($fghgene->end(), 1869);
+cmp_ok($fghgene->strand(), '<', 0);
+
+my $i = 0;
+my @num_exons = (2,5,4,8);
+
+while ($fghgene = $fgh->next_prediction()) {
+
+    $i++;
+    my @fghexons = $fghgene->exons();
+    is(scalar(@fghexons), $num_exons[$i]);
+
+    if ($i == 2) {
+        cmp_ok($fghexons[0]->strand(), '>', 0);
+        is($fghexons[0]->start(), 14778);
+        is($fghexons[0]->end(), 15104);
+        cmp_ok($fghexons[3]->strand(), '>', 0);
+        is($fghexons[3]->start(), 16988);
+        is($fghexons[3]->end(), 17212);
+    }
+
+}
+
+is($i, 3);
