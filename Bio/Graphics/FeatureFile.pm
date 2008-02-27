@@ -477,7 +477,7 @@ sub parse_line {
 
   # parse data lines
   my @tokens = shellwords($_);
-  # unshift @tokens,'' if /^\s+/;
+  unshift @tokens,'' if /^\s+/ and length $tokens[0];
 
   # close any open group
   if ($self->{group} && $self->{grouptype} && $tokens[0] && length $tokens[0] > 0) {

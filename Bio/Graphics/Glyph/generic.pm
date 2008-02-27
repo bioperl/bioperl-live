@@ -158,6 +158,7 @@ sub get_description {
 
   if ($feature->can('has_tag')) {
     return join '; ',$feature->get_tag_values('note')        if $feature->has_tag('note');
+    return join '; ',$feature->get_tag_values('Note')        if $feature->has_tag('Note');
     return join '; ',$feature->get_tag_values('description') if $feature->has_tag('description');
   }
 

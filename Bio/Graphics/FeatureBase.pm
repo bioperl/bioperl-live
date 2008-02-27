@@ -407,7 +407,10 @@ sub primary_id {
 }
 
 sub notes {
-  return shift->desc;
+    my $self  = shift;
+    my $notes = $self->desc;
+    return $notes if defined $notes;
+    return $self->attributes('Note');
 }
 
 sub low {
