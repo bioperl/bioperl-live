@@ -75,7 +75,6 @@ use strict;
 # Object preamble - inherits from Bio::Root::Root
 
 use Bio::AnnotationI;
-use Data::Stag;
 use base qw(Bio::Annotation::SimpleValue);
 
 =head2 new
