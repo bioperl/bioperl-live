@@ -4,8 +4,6 @@
 #
 # Cared for by Hilmar Lapp <hlapp at gmx.net>
 #
-
-#
 # (c) Hilmar Lapp, hlapp at gmx.net, 2002.
 # (c) GNF, Genomics Institute of the Novartis Research Foundation, 2002.
 #
@@ -18,7 +16,6 @@
 # WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 # MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 #
-
 # POD documentation - main docs before the code
 
 =head1 NAME
@@ -78,7 +75,7 @@ use strict;
 # Object preamble - inherits from Bio::Root::Root
 
 use Bio::AnnotationI;
-
+use Data::Stag;
 use base qw(Bio::Annotation::SimpleValue);
 
 =head2 new
@@ -96,9 +93,8 @@ sub new{
    my ($class,@args) = @_;
 
    my $self = $class->SUPER::new(@args);
-
+   
    my ($value,$tag) = $self->_rearrange([qw(VALUE TAGNAME)], @args);
-
    $self->{'values'} = [];
    defined $value  && $self->value($value);
    defined $tag    && $self->tagname($tag);
@@ -150,7 +146,7 @@ sub as_text{
   sub display_text {
     my ($self, $cb) = @_;
     $cb ||= $DEFAULT_CB;
-    $self->throw("") if ref $cb ne 'CODE';
+    $self->throw("Callback must be a code reference") if ref $cb ne 'CODE';
     return $cb->($self);
   }
 
@@ -311,7 +307,6 @@ sub get_values{
 
 sub get_all_values{
     my ($self) = @_;
-
     # we code lazy here and just take advantage of value()
     my $txt = $self->value(-joins => ['@!@'], -brackets => ['','']);
     return split(/\@!\@/, $txt);

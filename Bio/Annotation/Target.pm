@@ -132,7 +132,7 @@ sub as_text{
   sub display_text {
     my ($self, $cb) = @_;
     $cb ||= $DEFAULT_CB;
-    $self->throw("") if ref $cb ne 'CODE';
+    $self->throw("Callback must be a code reference") if ref $cb ne 'CODE';
     return $cb->($self);
   }
 
