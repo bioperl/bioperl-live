@@ -135,7 +135,7 @@ sub add_lineage {
     #
     # name&rank&ancestor could well be unique (or good enough 99.9999% of the
     # time), but we have the added complication that lineages could sometimes be
-    # supplied with differing numbers of taxa. Ideally we want realise that
+    # supplied with differing numbers of taxa. Ideally we want to realise that
     # the first of these two lineages shares all its nodes with the second:
     # ('Mammalia', 'Homo', 'Homo sapiens')
     # ('Mammalia', 'Hominidae', 'Homo', 'Homo sapiens')
@@ -148,16 +148,10 @@ sub add_lineage {
     
     
     # All that said, let's just do the trivial implementation now and see how
-    # bad it is! (assume names are unique, always have the same ancestor)
+    # bad it is! (assumes ranks are unique except for 'no rank')
     
-    my %names;
-    foreach my $i (0..$#names) {
-        my $name = $names[$i];
-        $names{$name}++;
-        if ($names{$name} > 1 && $name ne $names[$i - 1]) {
-            $self->throw("The lineage '".join(', ', @names)."' had two non-consecutive nodes with the same name. Can't cope!");
-        }
-    }
+    
+    my $first_lineage = $self->{db}->{node_ids} ? 0 : 1;
     
     my $ancestor_node_id;
     my @node_ids;
@@ -165,15 +159,78 @@ sub add_lineage {
         my $name = $names[$i];
         my $rank = $ranks[$i];
         
-        # this is a new node with a new id if we haven't seen this name before,
-        # or if the ancestor of this node in this supplied lineage has the
-        # same name as this node (like '... Pinus, Pinus, Pinus densiflora').
-        my $db_name = $name eq $names[$i - 1] ? $name.'_'.$rank : $name;
-        if (! exists $self->{db}->{name_to_id}->{$db_name} || $name eq $names[$i - 1]) {
-            my $next_num = ++$self->{db}->{node_ids};
-            $self->{db}->{name_to_id}->{$db_name} = 'list'.$next_num; # so definitely not confused with ncbi taxonomy ids
+        # This is a new node with a new id if we haven't seen this name before.
+        # It's also always a new node if this is the first lineage going into
+        # the db.
+        #
+        # We need to handle, however, situations in the future where we try to
+        # merge in a new lineage but we have non-unique names in the lineage
+        # and possible missing classes in some lineages
+        # (eg.
+        # '... Anophelinae, Anopheles, Anopheles, Angusticorn, Anopheles...'
+        # merged with
+        # '... Anophelinae, Anopheles, Angusticorn, Anopheles...'),
+        # but still need the 'tree' to be correct
+        
+        my $is_new = 0;
+        if ($first_lineage || ! exists $self->{db}->{name_to_id}->{$name}) {
+            $is_new = 1;
         }
-        my $node_id = $self->{db}->{name_to_id}->{$db_name};
+        
+        my $node_id;
+        unless ($is_new) {
+            my @same_named = @{$self->{db}->{name_to_id}->{$name}};
+            
+            # look for the node that is consistent with this lineage
+            SAME_NAMED: foreach my $s_id (@same_named) {
+                my $this_ancestor_id;
+                if ($ancestor_node_id) {
+                    $this_ancestor_id = $self->{db}->{ancestors}->{$s_id};
+                    if ($ancestor_node_id eq $this_ancestor_id) {
+                        $node_id = $s_id;
+                        last SAME_NAMED;
+                    }
+                }
+                
+                if ($names[$i + 1]) {
+                    my $my_child_name = $names[$i + 1];
+                    my @children_ids = keys %{$self->{db}->{children}->{$s_id} || {}};
+                    foreach my $c_id (@children_ids) {
+                        my $this_child_name = $self->{db}->{node_data}->{$c_id}->[0];
+                        if ($my_child_name eq $this_child_name) {
+                            
+                            if ($ancestor_node_id) {
+                                my @s_ancestors;
+                                while ($this_ancestor_id = $self->{db}->{ancestors}->{$this_ancestor_id}) {
+                                    if ($ancestor_node_id eq $this_ancestor_id) {
+                                        $node_id = $s_id;
+                                        $ancestor_node_id = $self->{db}->{ancestors}->{$s_id};
+                                        push(@node_ids, @s_ancestors, $ancestor_node_id);
+                                        last SAME_NAMED;
+                                    }
+                                    unshift(@s_ancestors, $this_ancestor_id);
+                                }
+                            }
+                            else {
+                                #$self->warn("This new lineage (@names) doesn't start at the same root as the existing lineages.".
+                                #            "\nI'm assuming '$name' corresponds to node $s_id");
+                                $node_id = $s_id;
+                                last SAME_NAMED;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            $node_id || $is_new++;
+        }
+        
+        if ($is_new) {
+            my $next_num = ++$self->{db}->{node_ids};
+            # 'list' so definitely not confused with ncbi taxonomy ids
+            $node_id = 'list'.$next_num;
+            push(@{$self->{db}->{name_to_id}->{$name}}, $node_id);
+        }
         
         unless (exists $self->{db}->{node_data}->{$node_id}) {
             $self->{db}->{node_data}->{$node_id} = [($name, '')];
@@ -204,38 +261,8 @@ sub add_lineage {
         }
         
         $self->{db}->{children}->{$node_id}->{$child_id} = 1;
+        $child_id = $node_id;
     }
-    
-    #*** would prefer to use Digest::MD5 or similar for the hash keys, but this
-    #    needs to work for everyone without hassle
-    #
-    #my $rank_list_id;
-    #if (exists $DATABASE->{rank_lists}->{"@ranks"}) {
-    #    $rank_list_id = ${$DATABASE->{rank_lists}->{"@ranks"}}[1];
-    #}
-    #else {
-    #    $DATABASE->{rank_lists}->{"@ranks"} = [\@ranks, ++$DATABASE->{rank_id}];
-    #    $DATABASE->{rank_id_to_list}->{$DATABASE->{rank_id}} = "@ranks";
-    #}
-    #
-    ## have we already added this lineage?
-    #if (exists $DATABASE->{name_lists}->{"@names"}) {
-    #    foreach my $this_rank_id (@{${$DATABASE->{name_lists}->{"@names"}}[1]}) {
-    #        return if $this_rank_id == $rank_list_id;
-    #    }
-    #}
-    #else {
-    #    $DATABASE->{name_lists}->{"@names"} = [\@names, []];
-    #}
-    #
-    #push(@{${$DATABASE->{name_lists}->{"@names"}}[1]}, $rank_list_id);
-    #
-    #*** ideally we would also avoid the next step if new lineage is a branch
-    #    of a longer existing lineage in the database
-    #
-    # compute the whole taxonomic tree from scratch, so that we aren't dependant
-    # on the order lineages are added
-    #$self->_compute_tree;
 }
 
 =head2 Bio::DB::Taxonomy Interface implementation
@@ -304,8 +331,7 @@ sub get_taxon {
 
 sub get_taxonids {
     my ($self, $query) = @_;
-    my $id = $self->{db}->{name_to_id}->{$query} || return;
-    return $id;
+    return @{$self->{db}->{name_to_id}->{$query} || []};
 }
 
 *get_taxonid = \&get_taxonids;
@@ -357,15 +383,5 @@ sub each_Descendent {
     
     return @children;
 }
-
-=head2 Helper methods 
-
-=cut
-
-# look at all the lineages we have and work out the overall tree
-#sub _compute_tree {
-#    my $self = shift;
-#    #tba
-#}
 
 1;
