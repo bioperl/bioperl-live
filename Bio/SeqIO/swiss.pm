@@ -48,44 +48,69 @@ The latest syntax for GN line is described in the user manual:
 Each of the possibly multiple genes in an entry can have Name,
 Synonyms (only if there is a name), OrderedLocusNames (names from
 genomic sequences) and ORFNames (temporary or cosmid names). "Name"
-here really means "symbol". This complexity is now dealth with the
+here really means "symbol". This complexity is now dealt with the
 following way:
 
-Each gene is an Bio::Annotation::Collection object that is accessed
-like all other annotations. The tag name is 'gene_name':
+A new Bio::AnnotationI class was created in order to store the
+data in tag-value pairs.  This class (Bio::Annotation::TagTree)
+is stored in the Bio::Annotation::Collection object and is
+accessed like all other annotations. The tag name is 'gene_name'.
 
-   my @genes = $seq->annotation->get_Annotations('gene_name');
+There is a single Bio::Annotation::TagTree per sequence record, which
+corresponds to the original class that stored this data
+(Bio::Annotation::StructuredValue).  Depending on how we progress
+this may change to represent each group of gene names.
 
-Note that if you are not interested in the complexity of multiple
-genes, you can easily just take the first value:
+For now, to access the gene name tree annotation, one uses the below method:
 
    my ($gene) = $seq->annotation->get_Annotations('gene_name');
+  
+If you are only interested in displaying the values, value() returns a
+string with similar formatting.
+  
+There are several ways to get directly at the information you want if you
+know the element (tag) for the data.  For gene names all data is stored with
+the element-tag pairs:
 
-None of the four categories for gene_names are obligatory, so you have
-to test returned objects for existence before using them:
+  "element1=tag1, tag2, tag3; element2=tag4, tag5;"
+  
+This normally means the element will be 'Name', 'Synonyms', etc. and the
+gene names the values.  Using findval(), you can do the following:
 
-   my ($name) = $gene->get_Annotations('name');
-   if ($name) {
-       print "The official gene symbol is: ". $name->value. "\n";
-   }
+  # grab a flattened list of all gene names
+  my @names = $ann->findval('Name');
+  
+  # or iterated through the nodes and grab the name for each group
+  for my $node ($ann->findnode('gene_name')) {
+     my @names = $node->findval('Name');
+  }
 
-The can be only one name, so $name is a Bio::Annotation::SimpleValue object.
+The current method for parsing gene name data (and reconstructing gene name
+output) is very generic. This is somewhat preemptive if, for instance, UniProt
+decides to update and add another element name to the current ones using the
+same formatting layout. Under those circumstances, one can iterate through the
+tag tree in a safe way and retrieve all node data like so.
 
-In other categories (tags: synonyms, orderedlocusnames, orfnames; all
-lower case) there can be more than one value, so they are stored in
-Bio::Annotation::StructuredValue objects. There can be only one object
-with a given tag within a given gene. All values for that category are
-stored in an ordered list within the StructureValue object. e.g:
-
-   if ( my ($synonyms) = $gene->get_Annotations('synonyms') ) {
-       print "Synonyms: ". join(', ', $synonyms->get_all_values). "\n";
-   }
+  # retrieve the gene name nodes (groups like names, synonyms, etc).
+  for my $ann ($seq->annotation->get_Annotations('gene_name')) {
+  
+      # each gene name group
+      for my $node ($ann->findnode('gene_name')) { 
+          print "Gene name:\n";
+          
+          # each gene name node (tag => value pair)
+          for my $n ($node->children) {
+              print "\t".$n->element.": ".$n->children."\n";
+          }
+      }
+  }
+  
+For more uses see Bio::Annotation::TagTree.
 
 Since Uniprot/Swiss-Prot format have been around for quite some time, the
 parser is also able to read in the older GN line syntax where genes
 are separated by AND and various symbols by OR. The first symbol is
-taken to be the name and the remaining ones are stored as synonyms.
-
+taken to be the 'Name' and the remaining ones are stored as 'Synonyms'.
 
 =head2 Optional functions
 
@@ -169,7 +194,7 @@ use Bio::Annotation::Comment;
 use Bio::Annotation::Reference;
 use Bio::Annotation::DBLink;
 use Bio::Annotation::SimpleValue;
-use Bio::Annotation::StructuredValue;
+use Bio::Annotation::TagTree;
 
 use base qw(Bio::SeqIO);
 
@@ -185,6 +210,9 @@ our $LINE_LENGTH = 76;
 # dictionary of synonyms for taxid 32644
 # all above can be part of valid species name
 @Unknown_genus = qw(unknown unclassified uncultured unidentified);
+
+# if there are any other gene name tags, they are added to the end
+our @GENE_NAME_ORDER = qw(Name Synonyms OrderedLocusNames ORFNames); 
 
 sub _initialize {
     my($self,@args) = @_;
@@ -367,66 +395,34 @@ sub next_seq {
     # can't do this above b/c GN may be multi-line and we can't
     # unequivocally determine whether we've seen the last GN line in
     # the new format)
-    my $gn;
     if ($genename) {
-        my @genes;
+        my @stags;
         if ($genename =~ /\w=\w/) {
             # new format (e.g., Name=RCHY1; Synonyms=ZNF363, CHIMP)
-            foreach my $one_gene (split(/ and /, $genename)) {
-                $gn = Bio::Annotation::Collection->new();
-                push @genes, $gn;
-                if ($one_gene =~ /^Name=([^;]+);/) {
-                    my $name = Bio::Annotation::SimpleValue->new(-value => $1);
-                    $gn->add_Annotation('name', $name);
-                }
-                if ($one_gene =~ /Synonyms=([^;]+);/) {
-                    my $syn_string = $1;
-                    my $synonyms = Bio::Annotation::StructuredValue->new;
-                    $gn->add_Annotation('synonyms', $synonyms);
-                    while ($syn_string =~ /([^,; ]+)/g) {
-                        $synonyms->add_value([-1], $1);
+            for my $n (split(m{\s+and\s+},$genename)) {
+                my @genenames;
+                for my $section (split(m{\s*;\s*},$n)) {
+                    my ($tag, $rest) = split("=",$section);
+                    for my $val (split(m{\s*,\s*},$rest)) {
+                        push @genenames, [$tag => $val];
                     }
                 }
-                if ($one_gene =~ /OrderedLocusNames=([^;]+);/) {
-                    my $locus_string = $1;
-                    my $locus_names = Bio::Annotation::StructuredValue->new;
-                    $gn->add_Annotation('orderedlocusnames', $locus_names);
-                    while ($locus_string =~ /([^,; ]+)/g) {
-                        $locus_names->add_value([-1], $1);
-                    }
-                }
-                if ($one_gene =~ /ORFNames=([^;]+);/) {
-                    my $orf_string = $1;
-                    my $orf_names = Bio::Annotation::StructuredValue->new;
-                    $gn->add_Annotation('orfnames', $orf_names);
-                    while ($orf_string =~ /([^,; ]+)/g) {
-                        $orf_names->add_value([-1], $1);
-                    }
-                }
+                push @stags, ['gene_name' => \@genenames];
             }
         } else {
             # old format
-            foreach my $gene (split(/ AND /, $genename)) {
-                $gn = Bio::Annotation::Collection->new();
-                push @genes, $gn;
-                $gene =~ s/\.$//;
-                $gene =~ s/[\(\)]//g;
-                my @genes = split(/ OR /, $gene);
-                my $name_string = shift @genes;
-                my $name = Bio::Annotation::SimpleValue->new(-value => $name_string);
-                $gn->add_Annotation('name', $name);
-
-                if (@genes) {
-                    my $synonyms = Bio::Annotation::StructuredValue->new;
-                    $gn->add_Annotation('synonyms', $synonyms);
-                    foreach my $synonym (@genes) {
-                        $synonyms->add_value([-1], $synonym);
-                    }
-                }
+            for my $section (split(/ AND /, $genename)) {
+                my @genenames;
+                $section =~ s/[\(\)\.]//g;
+                my @names = split(m{\s+OR\s+}, $section);
+                push @genenames, ['Name' => shift @names];
+                push @genenames, map {['Synonyms' => $_]} @names;
+                push @stags, ['gene_name' => \@genenames]            
             }
         } #use Data::Dumper; print Dumper $gn, $genename;# exit;
-
-       map {  $annotation->add_Annotation('gene_name', $_) } @genes;
+        my $gn = Bio::Annotation::TagTree->new(-tagname => 'gene_name',
+                                               -value => ['gene_names' => \@stags]);
+        $annotation->add_Annotation('gene_name', $gn);
     }
 
     FEATURE_TABLE :
@@ -583,39 +579,31 @@ sub write_seq {
         $self->_write_line_swissprot_regex("DE   ","DE   ",$seq->desc(),"\\s\+\|\$",$LINE_LENGTH);
 
         #Gene name; print out new format
-        my $first_gene = 1;
         foreach my $gene ( my @genes = $seq->annotation->get_Annotations('gene_name') ) {
-            # gene is a Bio::Annotation::Collection;
-            if ( $first_gene ) {
-                $first_gene = 0;
-            } else {
-                $self->_print("GN   and\n");
+            # gene is a Bio::Annotation::TagTree;
+            my @genelines;
+            for my $node ($gene->findnode('gene_name')) {
+                # check for Name and Synonym first, then the rest get tagged on
+                my $geneline = "GN   ";
+                my %genedata = $node->hash;
+                for my $tag (@GENE_NAME_ORDER) {
+                    if (exists $genedata{$tag}) {
+                        $geneline .= (ref $genedata{$tag} eq 'ARRAY') ?
+                            "$tag=".join(', ',@{$genedata{$tag}})."; " :
+                            "$tag=$genedata{$tag}; ";
+                        delete $genedata{$tag};
+                    }
+                }
+                # add rest
+                for my $tag (sort keys %genedata) {
+                    $geneline .= (ref $genedata{$tag} eq 'ARRAY') ?
+                        "$tag=".join(', ',@{$genedata{$tag}})."; " :
+                        "$tag=$genedata{$tag}; ";
+                    delete $genedata{$tag};
+                }
+                push @genelines, "$geneline\n";
             }
-
-            my $gn_string;
-
-            my ($name) = $gene->get_Annotations('name');
-            $gn_string = 'Name='. $name->value. ';' if $name;
-
-            if ( my ($synonyms) = $gene->get_Annotations('synonyms') ) {
-                $gn_string .= ' ' if $gn_string;
-                $gn_string .= 'Synonyms='.
-                    join(', ', $synonyms->get_all_values). ";"
-            }
-
-            if ( my ($locusnames) = $gene->get_Annotations('orderedlocusnames') ) {
-                $gn_string .= ' ' if $gn_string;
-                $gn_string .= 'OrderedLocusNames='. 
-                    join(', ', $locusnames->get_all_values). ";"
-            }
-
-            if ( my ($orfnames) = $gene->get_Annotations('orfnames') ) {
-                $gn_string .= ' ' if $gn_string;
-                $gn_string .= 'ORFNames='. join(', ', $orfnames->get_all_values). ";"
-            }
-            $self->_write_line_swissprot_regex("GN   ","GN   ",
-                                               $gn_string,"\\s\+\|\$",$LINE_LENGTH);
-
+            $self->_print(join("GN   and\n",@genelines));
         }
 
         # Organism lines

@@ -106,7 +106,7 @@ use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use base qw(Bio::Root::Root Bio::AnnotationI);
+use base qw(Bio::Annotation::SimpleValue);
 use Data::Stag;
 
 =head2 new
@@ -125,18 +125,20 @@ use Data::Stag;
 
 sub new{
    my ($class,@args) = @_;
-   my $self = $class->SUPER::new(@args);   
-   my ($node, $value,$tag, $format) = $self->_rearrange([qw(
+   my $self = $class->SUPER::new();
+   my ($node, $value,$tag, $format, $verbose) = $self->_rearrange([qw(
                                        NODE
                                        VALUE
                                        TAGNAME
-                                       TAGFORMAT)], @args);
+                                       TAGFORMAT
+                                       VERBOSE)], @args);
    $self->throw("Cant use both node and value; mutually exclusive") if defined $node && defined $value;
    defined $tag    && $self->tagname($tag);
    $format ||= 'itext';
    $self->tagformat($format);
    defined $value  ? $self->value($value) : $self->node(Data::Stag->new());
    defined $node   && $self->node($node);
+   defined $verbose   && $self->verbose($verbose);
    return $self;
 }
 
@@ -156,7 +158,7 @@ sub new{
 
 sub as_text{
    my ($self) = @_;
-   return "Value: ".$self->value;
+   return "TagTree: ".$self->value;
 }
 
 =head2 display_text
@@ -626,6 +628,28 @@ sub tnodes {
 sub ntnodes {
    my ($self) = @_;
    return $self->{db}->ntnodes;
+}
+
+=head2 StructureValue-like methods
+
+=head2 get_all_values
+
+ Title    : get_all_values
+ Usage    : @termini = $s->get_all_values;
+ Function : returns all terminal node values
+ Returns  : Array of values
+ Args     : return-element str, match-element str, match-value str
+
+This is meant to 'imitate' the values one would get from StructureValue's
+get_all_values() method. Note, however, using this method dissociates the
+tag-value relationship (i.e. you only get the value list, no elements)
+
+=cut
+
+sub get_all_values {
+   my $self = shift;
+   my @vals = $self->{db}->tnodes;
+   return @vals;
 }
 
 1;
