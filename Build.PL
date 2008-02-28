@@ -29,6 +29,7 @@ my $build = ModuleBuildBioperl->new(
                             'perl'                      => '5.6.1',
                             'IO::String'                => 0,
                             'DB_File'                   => 0,
+                            'Data::Stag'                => 0.10, # Bio::SeqIO::swiss, we can change to 'recommend' if needed
                             'Scalar::Util'              => 0 # not in Perl 5.6.1, arrived in core in 5.7.3
                            },
     build_requires      => {
@@ -45,7 +46,8 @@ my $build = ModuleBuildBioperl->new(
                             'Class::AutoClass'          => '1/creating objects/Bio::Graph::SimpleGraph,Bio::Graph::SimpleGraph::Traversal,Bio::Graph::ProteinGraph',
                             'Clone'                     => '0/cloning objects/Bio::Graph::ProteinGraph,Bio::Tools::Primer3',
                             'Convert::Binary::C'        => '0/strider functionality/Bio::SeqIO::strider',
-                            'Data::Stag::XMLWriter'     => '0/writing choas xml files/Bio::SeqIO::chaosxml',
+                            # part of Data::Stag, which is now required above (note the default use of Data::Stag in BioPerl does not require XML::Parser::PerlSAX)
+                            #'Data::Stag::XMLWriter'     => '0/writing choas xml files/Bio::SeqIO::chaosxml', 
                             'GD'                        => '1.3/rendering Sequences and Features/Bio::Graphics::Glyph*',
                             'GD::SVG'                   => '0/creating SVG images/Bio::Graphics::Panel',
                             # we specifically want Graph::Directed, but that has no VERSION
