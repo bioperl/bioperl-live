@@ -257,7 +257,7 @@ sub add_Annotation{
    }
 
    if( !$object->isa("Bio::AnnotationI") ) {
-       $self->throw("object must be AnnotationI compliant, otherwise we wont add it!");
+       $self->throw("object must be AnnotationI compliant, otherwise we won't add it!");
    }
 
    # ok, now we are ready! If we don't have an archetype, set it
@@ -275,7 +275,9 @@ sub add_Annotation{
        # this means isa stuff is executed correctly
 
        if( !$self->_typemap()->is_valid($key,$object) ) {
-	   $self->throw("Object $object was not valid with key $key. If you were adding new keys in, perhaps you want to make use of the archetype method to allow registration to a more basic type");
+	   $self->throw("Object $object was not valid with key $key. ".
+         "If you were adding new keys in, perhaps you want to make use\n".
+         "of the archetype method to allow registration to a more basic type");
        }
    } else {
        $self->_typemap->_add_type_map($key,$archetype);
