@@ -31,7 +31,7 @@ relationships ('structured tags') that can be represented as simple text.
    # corresponding to that defined by Data::Stag:
    
    my $sv = Bio::Annotation::TagTree->new(-tagname => 'mytag1',
-                                                -value => $data_structure);
+                                          -value => $data_structure);
    $col->add_Annotation($sv);
    
    # regular text passed is parsed based on the tagformat().
@@ -55,7 +55,10 @@ can either be:
 
 2) a text string in 'xml', 'itext', 'spxr', or 'indent' format. The default
 format is 'xml'; this can be changed using tagformat() prior to using value() or
-by passing in the proper format using '-tagformat' upon instantiation.
+by passing in the proper format using '-tagformat' upon instantiation;
+
+3) another Bio::Annotation::TagTree or Data::Stag node instance.  In both cases
+a deep copy (duplicate) of the instance is generated.
 
 Beyond checking for an array reference no format guessing occurs (so, for
 roundtrip tests ensure that the IO formats correspond). For now, we recommend
@@ -66,7 +69,7 @@ value(). (this may be rectified in the future)
 
 For now, this is an experimental AnnotationI stub to determine whether this can
 serve as an adequate replacement for Bio::Annotation::StructuredValue with
-BioSQL. YMMV.
+BioSQL.
 
 =head1 FEEDBACK
 
@@ -115,7 +118,7 @@ use Data::Stag;
  Args    : -value => $value to initialize the object data field [optional]
            -tagname => $tag to initialize the tagname [optional]
            -tagformat => format for output [optional]
-                      (types 'xml', 'itext', 'sxpr', 'indent', default = 'xml')
+                      (types 'xml', 'itext', 'sxpr', 'indent', default = 'itext')
            -node => Data::Stag node or Bio::Annotation::TagTree instance
 
 =cut
@@ -130,7 +133,7 @@ sub new{
                                        TAGFORMAT)], @args);
    $self->throw("Cant use both node and value; mutually exclusive") if defined $node && defined $value;
    defined $tag    && $self->tagname($tag);
-   $format ||= 'xml';
+   $format ||= 'itext';
    $self->tagformat($format);
    defined $value  ? $self->value($value) : $self->node(Data::Stag->new());
    defined $node   && $self->node($node);
@@ -190,6 +193,7 @@ sub as_text{
  Usage   : my $hashtree = $value->hash_tree
  Function: For supporting the AnnotationI interface just returns the value
            as a hashref with the key 'value' pointing to the value
+           Maybe reimplement using Data::Stag::hash()?
  Returns : hashrf
  Args    : none
 
@@ -242,10 +246,15 @@ sub value{
    # set mode? This resets the entire tagged database
    my $format = $self->tagformat;
    if ($value) {
-      if (ref $value eq 'ARRAY') {
-         # note the tagname() is not used here; it is only used for
-         # storing this AnnotationI in the annotation collection
-         eval { $self->{db} = Data::Stag->nodify($value) };
+      if (ref $value) {
+         if (ref $value eq 'ARRAY') {
+            # note the tagname() is not used here; it is only used for
+            # storing this AnnotationI in the annotation collection
+            eval { $self->{db} = Data::Stag->nodify($value) };
+         } else {
+            # assuming this is blessed; passing on to node() and copy
+            $self->node($value, 'copy');
+         }
       } else {
          # not trying to guess here for now; we go by the tagformat() setting
          my $h = Data::Stag->getformathandler($format);
@@ -288,17 +297,25 @@ sub tagformat{
 
  Title   : node
  Usage   : $obj->node()
- Function: Get/set the topmost Data::Stag node used for this annotation
+ Function: Get/set the topmost Data::Stag node used for this annotation.  
  Returns : Data::Stag node implementation
            (default is Data::Stag::StagImpl)
- Args    : (optional) Data::Stag node implementation 
+ Args    : (optional) Data::Stag node implementation
+           (optional)'copy' => flag to create a copy of the node
  
 =cut
 
 sub node{
-   my ($self,$value) = @_;
-   if( defined $value && ref $value && $value->isa('Data::Stag::StagI')) {
-      $self->{'db'} = $value;
+   my ($self,$value, $copy) = @_;
+   if( defined $value && ref $value) {
+         $self->{'db'} = $value->isa('Data::Stag::StagI') ?
+                              ($copy && $copy eq 'copy' ? $value->duplicate : $value) :
+                         $value->isa('Bio::Annotation::TagTree') ?
+                              ($copy && $copy eq 'copy' ? $value->node->duplicate : $value->node) :
+                         $self->throw('Object must be Data::Stag::StagI or Bio::Annotation::TagTree');
+         #$self->{'db'} = $value->isa('Data::Stag::StagI')        ? $value :
+         #                $value->isa('Bio::Annotation::TagTree') ? $value->node :
+         #                $self->throw('Object must be Data::Stag::StagI or Bio::Annotation::TagTree');
    }
    return $self->{'db'};
 }
@@ -306,12 +323,14 @@ sub node{
 =head2 Data::Stag convenience methods
 
 Because Data::Stag uses blessed arrays and the core Bioperl class uses blessed
-hashes, StructureTag uses a 
+hashes, TagTree uses an internal instance of a Data::Stag node for data storage.
+Therefore the following methods actually delegate to the Data:::Stag internal
+instance. 
 
-These are methods with delegate to the internal Data::Stag instance. For
-consistency (since one could recursively check child nodes), we use the same
-method names as Data::Stag. Only a subset of methods are represented; for
-full-fledged Data::Stag functionality grab the Data::Stag instance using node().
+For consistency (since one could recursively check child nodes), methods retain
+the same names as Data::Stag. Also, no 'magic' (AUTOLOAD'ed) methods are
+employed, simply b/c full-fledged Data::Stag functionality can be attained by
+grabbing the Data::Stag instance using node().
 
 =head2 element
 
@@ -442,9 +461,9 @@ sub findval {
 
  Title   : addchild
  Usage   : $struct->addchild(['name' => [['foo'=> 'bar1']]]);
- Function: add new child node to the current node.  One can pass in a node or
-           data structure; for instance, in the above, this would translate to
-           (in XML):
+ Function: add new child node to the current node.  One can pass in a node, TagTree,
+           or data structure; for instance, in the above, this would translate
+           to (in XML):
            
            <name>
              <foo>bar1</foo>
@@ -458,7 +477,17 @@ sub findval {
 
 sub addchild {
    my ($self,@vals) = @_;
-   return $self->{db}->addchild(@vals);
+   # check for element tag first (if no element, must be empty Data::Stag node)
+   if (!$self->element) {
+      # try to do the right thing; if more than one element, wrap in array ref
+      @vals > 1 ? $self->value(\@vals) : $self->value($vals[0]);
+      return $self->{db};
+   } elsif (!$self->{db}->ntnodes) {
+      # if this is a terminal node, can't add to it (use set?)
+      $self->throw("Can't add child to node; only terminal node is present!");
+   } else {
+      return $self->{db}->addchild(@vals);
+   }
 }
 
 =head2 add
@@ -478,6 +507,10 @@ sub addchild {
 
 sub add {
    my ($self, @vals) = @_;
+   # check for empty object and die for now
+   if (!$self->{db}->element) {
+      $self->throw("Can't add to terminal element!");
+   }
    return $self->{db}->add(@vals);
 }
 
@@ -495,6 +528,10 @@ sub add {
 
 sub set {
    my ($self, @vals) = @_;
+   # check for empty object
+   if (!$self->{db}->element) {
+      $self->throw("Can't add to tree; empty tree!");
+   }   
    return $self->{db}->set(@vals);
 }
 

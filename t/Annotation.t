@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 120);
+    test_begin(-tests => 147);
 	
 	use_ok('Bio::Annotation::Collection');
 	use_ok('Bio::Annotation::DBLink');
@@ -17,7 +17,7 @@ BEGIN {
 	use_ok('Bio::Annotation::Target');
 	use_ok('Bio::Annotation::AnnotationFactory');
 	use_ok('Bio::Annotation::StructuredValue');
-	use_ok('Bio::Annotation::StructuredTag');
+	use_ok('Bio::Annotation::TagTree');
     use_ok('Bio::Annotation::Tree');
 	use_ok('Bio::Seq');
 	use_ok('Bio::SeqFeature::Annotated');
@@ -269,63 +269,92 @@ foreach my $treeblock ( $aln->annotation->get_Annotations('tree') ) {
     is $str, "MDDKELEIPVEHSTAFGQLV", "get seq from node id";
 }
 
-#structuredtag
-
-my $xml = <<ENDXML;
-<?xml version="1.0" encoding="UTF-8"?>
-<genenames>
-  <genename>
-    <Name>CALM1</Name>
-    <Synonyms>CAM1</Synonyms>
-    <Synonyms>CALM</Synonyms>
-    <Synonyms>CAM</Synonyms>
-  </genename>
-  <genename>
-    <Name>CALM2</Name>
-    <Synonyms>CAM2</Synonyms>
-    <Synonyms>CAMB</Synonyms>
-  </genename>
-  <genename>
-    <Name>CALM3</Name>
-    <Synonyms>CAM3</Synonyms>
-    <Synonyms>CAMC</Synonyms>
-  </genename>
-</genenames>
-ENDXML
-
+#tagtree
 my $struct = [ 'genenames' => [
-                    ['genename' => [
-                         [ 'Name' => 'CALM1' ],
-                         ['Synonyms'=> 'CAM1'],
-                         ['Synonyms'=> 'CALM'],
-                         ['Synonyms'=> 'CAM' ] ] ],
-                     ['genename'=> [
-                         [ 'Name'=> 'CALM2' ],
-                         [ 'Synonyms'=> 'CAM2'],
-                         [ 'Synonyms'=> 'CAMB'] ] ],
-                     [ 'genename'=> [
-                         [ 'Name'=> 'CALM3' ],
-                         [ 'Synonyms'=> 'CAM3' ],
-                         [ 'Synonyms'=> 'CAMC' ] ] ]
-                ] ];
+                ['genename' => [
+                    [ 'Name' => 'CALM1' ],
+                    ['Synonyms'=> 'CAM1'],
+                    ['Synonyms'=> 'CALM'],
+                    ['Synonyms'=> 'CAM' ] ] ],
+                ['genename'=> [
+                    [ 'Name'=> 'CALM2' ],
+                    [ 'Synonyms'=> 'CAM2'],
+                    [ 'Synonyms'=> 'CAMB'] ] ],
+                [ 'genename'=> [
+                    [ 'Name'=> 'CALM3' ],
+                    [ 'Synonyms'=> 'CAM3' ],
+                    [ 'Synonyms'=> 'CAMC' ] ] ]
+           ] ];
 
-my $ann_struct = Bio::Annotation::StructuredTag->new(-tagname => 'gn',
+my $ann_struct = Bio::Annotation::TagTree->new(-tagname => 'gn',
 					  -value => $struct);
 
 isa_ok($ann_struct, 'Bio::AnnotationI');
 my $val = $ann_struct->value;
-is($val, $xml,'to xml');
+like($val, qr/Name: CALM1/,'default itext');
 
 # roundtrip
-my $ann_struct2 = Bio::Annotation::StructuredTag->new(-tagname => 'gn',
+my $ann_struct2 = Bio::Annotation::TagTree->new(-tagname => 'gn',
 					  -value => $val);
 is($ann_struct2->value, $val,'roundtrip');
 
 # formats 
-like($ann_struct2->value, qr/<Name>CALM1<\/Name>/,'xml');
-$ann_struct2->tagformat('itext');
 like($ann_struct2->value, qr/Name: CALM1/,'itext');
 $ann_struct2->tagformat('sxpr');
 like($ann_struct2->value, qr/\(Name "CALM1"\)/,'spxr');
 $ann_struct2->tagformat('indent');
 like($ann_struct2->value, qr/Name "CALM1"/,'indent');
+
+SKIP: {
+    eval {require XML::Parser::PerlSAX};
+    skip ("XML::Parser::PerlSAX rquired for XML",1);
+    $ann_struct2->tagformat('xml');
+    like($ann_struct2->value, qr/<Name>CALM1<\/Name>/,'xml');
+}
+
+# grab Data::Stag nodes, use Data::Stag methods
+my @nodes = $ann_struct2->children;
+for my $node (@nodes) {
+    isa_ok($node, 'Data::Stag::StagI');
+    is($node->element, 'genename');
+    # add tag-value data to node
+    $node->set('foo', 'bar');
+    # check output
+    like($node->itext, qr/foo:\s+bar/,'child changes');
+}
+
+$ann_struct2->tagformat('itext');
+like($ann_struct2->value, qr/foo:\s+bar/,'child changes in parent node');
+
+# pass in a Data::Stag node to value()
+$ann_struct = Bio::Annotation::TagTree->new(-tagname => 'mytags');
+like($ann_struct->value, qr/^\s+:\s+$/xms, 'no tags');
+like($ann_struct->value, qr/^\s+:\s+$/xms,'before Stag node');
+$ann_struct->value($nodes[0]);
+like($ann_struct->value, qr/Name: CALM1/,'after Stag node');
+is(ref $ann_struct->node, ref $nodes[0], 'both stag nodes');
+isnt($ann_struct->node, $nodes[0], 'different instances');
+
+# pass in another TagTree to value()
+$ann_struct = Bio::Annotation::TagTree->new(-tagname => 'mytags');
+like($ann_struct->value, qr/^\s+:\s+$/xms,'before TagTree');
+$ann_struct->value($ann_struct2);
+like($ann_struct->value, qr/Name: CALM2/,'after TagTree');
+is(ref $ann_struct->node, ref $ann_struct2->node, 'both stag nodes');
+isnt($ann_struct->node, $ann_struct2->node, 'different instances');
+
+# replace the Data::Stag node in the annotation (no copy)
+$ann_struct = Bio::Annotation::TagTree->new(-tagname => 'mytags');
+like($ann_struct->value, qr/^\s+:\s+$/xms,'before TagTree');
+$ann_struct->node($nodes[1]);
+like($ann_struct->value, qr/Name: CALM2/,'after TagTree');
+is(ref $ann_struct->node, ref $ann_struct2->node, 'stag nodes');
+is($ann_struct->node, $nodes[1], 'same instance');
+
+# replace the Data::Stag node in the annotation (use duplicate)
+$ann_struct = Bio::Annotation::TagTree->new(-tagname => 'mytags');
+like($ann_struct->value, qr/^\s+:\s+$/xms,'before TagTree');
+$ann_struct->node($nodes[1],'copy');
+like($ann_struct->value, qr/Name: CALM2/,'after TagTree');
+is(ref $ann_struct->node, ref $ann_struct2->node, 'stag nodes');
+isnt($ann_struct->node, $nodes[1], 'different instance');
