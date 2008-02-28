@@ -350,6 +350,22 @@ sub element {
    return $self->{db}->element;
 }
 
+=head2 data
+
+ Title   : data
+ Usage   :
+ Function: Returns the data structure (array ref) for this node
+ Example :
+ Returns : array ref
+ Args    : none
+
+=cut
+
+sub data {
+   my $self = shift;
+   return $self->{db}->data;
+}
+
 =head2 children
 
  Title   : children
@@ -604,7 +620,7 @@ sub qmatch {
 
  Title    : tnodes
  Usage    : @termini = $s->tnodes;
- Function : returns all terminal nodes in the tree 
+ Function : returns all terminal nodes below this node
  Returns  : Array of nodes
  Args     : return-element str, match-element str, match-value str
 
@@ -619,7 +635,7 @@ sub tnodes {
 
  Title    : ntnodes
  Usage    : @termini = $s->ntnodes;
- Function : returns all nonterminal nodes in the tree 
+ Function : returns all nonterminal nodes below this node
  Returns  : Array of nodes
  Args     : return-element str, match-element str, match-value str
 
@@ -640,7 +656,7 @@ sub ntnodes {
  Returns  : Array of values
  Args     : return-element str, match-element str, match-value str
 
-This is meant to 'imitate' the values one would get from StructureValue's
+This is meant to emulate the values one would get from StructureValue's
 get_all_values() method. Note, however, using this method dissociates the
 tag-value relationship (i.e. you only get the value list, no elements)
 
@@ -648,7 +664,11 @@ tag-value relationship (i.e. you only get the value list, no elements)
 
 sub get_all_values {
    my $self = shift;
-   my @vals = $self->{db}->tnodes;
+   my @kids = $self->children;
+   my @vals;
+   while (my $val = shift @kids) {
+      (ref $val) ? push @kids, $val->children : push @vals, $val;
+   }
    return @vals;
 }
 

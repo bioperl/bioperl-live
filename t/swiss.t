@@ -51,10 +51,7 @@ for my $date (@dates) {
     if ($expdate) {
         is($date, $expdate,'dates');
     } else {
-        TODO: {
-        local $TODO = 'grabbing seq_update with old SwissProt seqs fails roundtrip tests';
         is($date, $expdate);
-        }
     }
 }
 
@@ -197,11 +194,8 @@ my $flatnames = "(CALM1 OR CAM1 OR CALM OR CAM) AND (CALM2 OR CAM2 OR CAMB) AND 
 
 my @names = @genenames; # copy array
 
-TODO: {
-    local $TODO = "get_all_values() not working yet";
-    my @ann_names = $ann->get_all_values();
-    is(scalar(@ann_names), scalar(@names));
-}
+my @ann_names = $ann->get_all_values();
+is(scalar(@ann_names), scalar(@names));
 
 for my $node ($ann->findnode('gene_name')) {
     for my $name ($node->findval('Name')) {
@@ -224,11 +218,8 @@ like($seq->primary_id, qr(Bio::PrimarySeq));
 ($ann) = $seq->annotation->get_Annotations("gene_name");
 @names = @genenames; # copy array
 
-TODO: {
-    local $TODO = "get_all_values() not working yet";
-    my @ann_names2 = $ann->get_all_values();
-    is(scalar(@ann_names2), scalar(@names));
-}
+my @ann_names2 = $ann->get_all_values(); #emulate StructuredValue's flattened array
+is(scalar(@ann_names2), scalar(@names));
 
 for my $node ($ann->findnode('gene_name')) {
     for my $name ($node->findval('Name')) {
