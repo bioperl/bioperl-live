@@ -60,9 +60,6 @@ use Bio::Seq::QualI;
 use Bio::PrimarySeqI;
 use Bio::PrimarySeq;
 use Bio::Seq::PrimaryQual;
-use Dumpvalue();
-
-my $dumper = new Dumpvalue();
 
 use base qw(Bio::Root::Root Bio::Seq::Quality Bio::Seq::TraceI);
 
