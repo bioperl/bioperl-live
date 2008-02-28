@@ -197,6 +197,7 @@ my @names = @genenames; # copy array
 my @ann_names = $ann->get_all_values();
 is(scalar(@ann_names), scalar(@names));
 
+# do this in a layered way (nested tags)
 for my $node ($ann->findnode('gene_name')) {
     for my $name ($node->findval('Name')) {
         is($name, shift(@names));

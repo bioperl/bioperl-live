@@ -137,7 +137,7 @@ use Bio::Annotation::Comment;
 use Bio::Annotation::Reference;
 use Bio::Annotation::Collection;
 use Bio::Annotation::SimpleValue;
-use Bio::Annotation::StructuredValue;
+use Bio::Annotation::TagTree;
 use Bio::SeqFeature::Generic;
 use Bio::Species;
 use Bio::Taxon;
@@ -664,63 +664,33 @@ sub _swiss_genename {
     my $genename = $data->{DATA};
     my $gn;
     if ($genename) {
-        my @genes;
+        my @stags;
         if ($genename =~ /\w=\w/) {
             # new format (e.g., Name=RCHY1; Synonyms=ZNF363, CHIMP)
-            foreach my $one_gene (split(/ and /, $genename)) {
-                $gn = Bio::Annotation::Collection->new();
-                push @genes, $gn;
-                if ($one_gene =~ /^Name=([^;]+);/) {
-                    my $name = Bio::Annotation::SimpleValue->new(-value => $1);
-                    $gn->add_Annotation('name', $name);
-                }
-                if ($one_gene =~ /Synonyms=([^;]+);/) {
-                    my $syn_string = $1;
-                    my $synonyms = Bio::Annotation::StructuredValue->new;
-                    $gn->add_Annotation('synonyms', $synonyms);
-                    while ($syn_string =~ /([^,; ]+)/g) {
-                        $synonyms->add_value([-1], $1);
+            for my $n (split(m{\s+and\s+},$genename)) {
+                my @genenames;
+                for my $section (split(m{\s*;\s*},$n)) {
+                    my ($tag, $rest) = split("=",$section);
+                    for my $val (split(m{\s*,\s*},$rest)) {
+                        push @genenames, [$tag => $val];
                     }
                 }
-                if ($one_gene =~ /OrderedLocusNames=([^;]+);/) {
-                    my $locus_string = $1;
-                    my $locus_names = Bio::Annotation::StructuredValue->new;
-                    $gn->add_Annotation('orderedlocusnames', $locus_names);
-                    while ($locus_string =~ /([^,; ]+)/g) {
-                        $locus_names->add_value([-1], $1);
-                    }
-                }
-                if ($one_gene =~ /ORFNames=([^;]+);/) {
-                    my $orf_string = $1;
-                    my $orf_names = Bio::Annotation::StructuredValue->new;
-                    $gn->add_Annotation('orfnames', $orf_names);
-                    while ($orf_string =~ /([^,; ]+)/g) {
-                        $orf_names->add_value([-1], $1);
-                    }
-                }
+                push @stags, ['gene_name' => \@genenames];
             }
         } else {
             # old format
-            foreach my $gene (split(/ AND /, $genename)) {
-                $gn = Bio::Annotation::Collection->new();
-                push @genes, $gn;
-                $gene =~ s/\.$//;
-                $gene =~ s/[\(\)]//g;
-                my @genes = split(/ OR /, $gene);
-                my $name_string = shift @genes;
-                my $name = Bio::Annotation::SimpleValue->new(-value => $name_string);
-                $gn->add_Annotation('name', $name);
-
-                if (@genes) {
-                    my $synonyms = Bio::Annotation::StructuredValue->new;
-                    $gn->add_Annotation('synonyms', $synonyms);
-                    foreach my $synonym (@genes) {
-                        $synonyms->add_value([-1], $synonym);
-                    }
-                }
+            for my $section (split(/ AND /, $genename)) {
+                my @genenames;
+                $section =~ s/[\(\)\.]//g;
+                my @names = split(m{\s+OR\s+}, $section);
+                push @genenames, ['Name' => shift @names];
+                push @genenames, map {['Synonyms' => $_]} @names;
+                push @stags, ['gene_name' => \@genenames]            
             }
         } #use Data::Dumper; print Dumper $gn, $genename;# exit;
-        map {$self->annotation_collection->add_Annotation('gene_name', $gn)} @genes;
+        my $gn = Bio::Annotation::TagTree->new(-tagname => 'gene_name',
+                                               -value => ['gene_names' => \@stags]);
+        $self->annotation_collection->add_Annotation('gene_name', $gn);
     }
 }
 
