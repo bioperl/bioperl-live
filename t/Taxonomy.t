@@ -8,7 +8,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 98,
+    test_begin(-tests => 103,
 			   -requires_module => 'XML::Twig');
 	
 	use_ok('Bio::DB::Taxonomy');
@@ -118,7 +118,7 @@ foreach my $db ($db_entrez, $db_flatfile) {
 my @ranks = qw(superkingdom class genus species);
 my @h_lineage = ('Eukaryota', 'Mammalia', 'Homo', 'Homo sapiens');
 my $db_list = Bio::DB::Taxonomy->new(-source => 'list', -names => \@h_lineage,
-                                                       -ranks => \@ranks);
+                                                        -ranks => \@ranks);
 ok $db_list;
 
 ok my $h_list = $db_list->get_taxon(-name => 'Homo sapiens');
@@ -214,3 +214,43 @@ SKIP: {
     my @descs = $db_entrez->get_all_Descendents($lca);
     is @descs, 17;
 }
+
+# bug 2461
+$db_list = Bio::DB::Taxonomy->new(-source => 'list',
+								  -names => [
+(split(/,\s+/, "cellular organisms, Eukaryota, Fungi/Metazoa group,
+Metazoa, Eumetazoa, Bilateria, Coelomata, Protostomia, Panarthropoda,
+Arthropoda, Mandibulata, Pancrustacea, Hexapoda, Insecta, Dicondylia,
+Pterygota, Neoptera, Endopterygota, Diptera, Nematocera, Culicimorpha,
+Culicoidea, Culicidae, Anophelinae, Anopheles, Anopheles, Angusticorn,
+Anopheles, maculipennis group, maculipennis species complex, Anopheles daciae"))]);
+
+my @taxonids = $db_list->get_taxonids('Anopheles');
+is @taxonids, 3;
+
+# but we should still be able to merge in an incomplete lineage of a sister
+# species and have the 'tree' remain consistent:
+
+# missing 'no rank' Anopheles
+$db_list->add_lineage(-names => [
+(split(/,\s+/, "Anophelinae, Anopheles, Anopheles, Angusticorn,
+maculipennis group, maculipennis species complex, Anopheles labranchiae"))]);
+my $node = $db_list->get_taxon(-name => 'Anopheles labranchiae');
+is $node->ancestor->ancestor->ancestor->ancestor->ancestor->ancestor->ancestor->scientific_name, 'Anophelinae';
+
+# missing 'subgenus' Anopheles
+$db_list->add_lineage(-names => [
+(split(/,\s+/, "Anophelinae, Anopheles, Angusticorn, Anopheles,
+maculipennis group, maculipennis species complex, Anopheles maculipennis"))]);
+$node = $db_list->get_taxon(-name => 'Anopheles maculipennis');
+is $node->ancestor->ancestor->ancestor->ancestor->ancestor->ancestor->ancestor->scientific_name, 'Anophelinae';
+
+# missing 'no rank' Angusticorn
+$db_list->add_lineage(-names => [
+(split(/,\s+/, "Anophelinae, Anopheles, Anopheles, Anopheles,
+maculipennis group, maculipennis species complex, Anopheles melanoon"))]);
+$node = $db_list->get_taxon(-name => 'Anopheles melanoon');
+is $node->ancestor->ancestor->ancestor->ancestor->scientific_name, 'Angusticorn';
+
+@taxonids = $db_list->get_taxonids('Anopheles');
+is @taxonids, 3;
