@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 147);
+    test_begin(-tests => 155);
 	
 	use_ok('Bio::Annotation::Collection');
 	use_ok('Bio::Annotation::DBLink');
@@ -307,7 +307,7 @@ like($ann_struct2->value, qr/Name "CALM1"/,'indent');
 
 SKIP: {
     eval {require XML::Parser::PerlSAX};
-    skip ("XML::Parser::PerlSAX rquired for XML",1);
+    skip ("XML::Parser::PerlSAX rquired for XML",1) if $@;
     $ann_struct2->tagformat('xml');
     like($ann_struct2->value, qr/<Name>CALM1<\/Name>/,'xml');
 }
@@ -358,3 +358,18 @@ $ann_struct->node($nodes[1],'copy');
 like($ann_struct->value, qr/Name: CALM2/,'after TagTree');
 is(ref $ann_struct->node, ref $ann_struct2->node, 'stag nodes');
 isnt($ann_struct->node, $nodes[1], 'different instance');
+
+#check insertion in to collection
+$ann_struct = Bio::Annotation::TagTree->new(-value => $struct);
+$ac = Bio::Annotation::Collection->new();
+$ac->add_Annotation('genenames',$ann_struct);
+my $ct = 0;
+for my $tagtree ( $ac->get_Annotations('genenames') ) {
+    isa_ok($tagtree, 'Bio::AnnotationI');
+    for my $node ($tagtree->children) {
+        isa_ok($node, 'Data::Stag::StagI');
+        like($node->itext, qr/Name:\s+CALM/,'child changes');
+        $ct++;
+    }
+}
+is($ct,3);
