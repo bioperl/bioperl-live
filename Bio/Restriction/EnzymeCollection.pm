@@ -341,17 +341,18 @@ sub cutters {
 
     if (scalar @_ == 1 ) {
         my $size = shift;
-        $self->throw("Need a positive number [$size]")
-            unless $size =~ /[+]?[\d\.]+/;
-
+        my @sizes;
+        (ref $size eq 'ARRAY') ? push @sizes, @{$size} : push @sizes, $size;
         my $bs = Bio::Restriction::EnzymeCollection->new(-empty => 1);
-
-        foreach my $e ($self->each_enzyme) {
-            ##print $e->name, ": ", $e->cutter, "\n"  if $e->cutter == $size;
-            $bs->enzymes($e) if $e->cutter == $size;
+        for my $size (@sizes) {
+            $self->throw("Need a positive number [$size]")
+                unless $size =~ /[+]?[\d\.]+/;
+            foreach my $e ($self->each_enzyme) {
+                ##print $e->name, ": ", $e->cutter, "\n"  if $e->cutter == $size;
+                $bs->enzymes($e) if $e->cutter == $size;
+            }
         }
         return $bs;
-        #return $bs->enzymes(  grep { ($_->cutter == $size) }  $self->each_enzyme );
 
     } else { # named arguments
 

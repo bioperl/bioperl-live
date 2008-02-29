@@ -8,7 +8,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 172);
+    test_begin(-tests => 174);
 	
     use_ok('Bio::Restriction::Enzyme');
     use_ok('Bio::Restriction::Enzyme::MultiCut');
@@ -194,6 +194,10 @@ is $new_set->each_enzyme, 293;
 ok $new_set=$collection->cutters(-start => 6, -end => 8,  -exclusive => 1);
 is $new_set->each_enzyme, 10;
 
+ok $new_set = $collection->cutters([4,8]);
+is $new_set->each_enzyme, 129;
+
+# bug 2128; enhancement request to pass array ref of sizes
 
 #
 # Restriction::Analysis
