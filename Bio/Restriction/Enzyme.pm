@@ -1048,18 +1048,22 @@ sub is_ambiguous {
 
 Prototype enzymes are the most commonly available and usually first
 enzymes discoverd that have the same recognition site. Using only
-prototype enzymes in restriciton analysis avoids redundacy and
+prototype enzymes in restriction analysis avoids redundacy and
 speeds things up.
 
 =cut
 
 sub is_prototype {
-     my $self = shift;
-     if (@_) {
-         (shift) ? (return $self->{'_is_prototype'} = 1) :
-                   (return $self->{'_is_prototype'} = 0) ;
-     }
-     return $self->{'_is_prototype'} || 0;
+    my ($self, $value) = @_;
+    if (defined $value) {
+        return $self->{'_is_prototype'} = $value ;
+    }
+    if (defined $self->{'_is_prototype'}) {
+        return $self->{'_is_prototype'}
+    } else {
+        $self->warn("Can't unequivocally assign prototype based on input format alone");
+        return
+    }
 }
 
 =head2 prototype_name
@@ -1072,7 +1076,7 @@ sub is_prototype {
  Returns  : prototype enzyme name string or an empty string
  Args     : optional prototype enzyme name string
 
-If the enzyme itself is the protype, its own name is returned.  Not to
+If the enzyme itself is the prototype, its own name is returned.  Not to
 confuse the negative result with an unset value, use method
 L<is_prototype|is_prototype>.
 
@@ -1082,11 +1086,11 @@ because it returns a string rather than on object.
 =cut
 
 sub prototype_name {
-     my $self = shift;
+    my $self = shift;
 
-     $self->{'_prototype'} = shift if @_;
-     return $self->name if $self->{'_is_prototype'};
-     return $self->{'_prototype'} || '';
+    $self->{'_prototype'} = shift if @_;
+    return $self->name if $self->{'_is_prototype'};
+    return $self->{'_prototype'} || '';
 }
 
 =head2 isoschizomers

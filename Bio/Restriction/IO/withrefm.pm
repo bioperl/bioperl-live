@@ -164,8 +164,18 @@ sub read {
         my ($isoschizomers) = $entry =~ /<2>([^\n]+)/;
 
         if ($isoschizomers) {
-            $re->isoschizomers(split /\,/, $isoschizomers);
-            $re->is_prototype(0);
+            # bug 2179
+            # here's the trick; if there are no enzymes here, the enzyme in <1>
+            # is the prototype (see withref format for this).  However, one
+            # can't unequivicably assign prototype based on the presence of
+            # enzymes or which one is first without building a logic kit on
+            # determining how these are assigned.
+            
+            # we could add in a hook to check an outside prototype file here
+            # at some point; for now we'll just warn if is_prototype() is called
+            my @isos = split /\,/, $isoschizomers;
+            $re->isoschizomers(@isos);
+            #$re->is_prototype(0);
         } else {
             $re->is_prototype(1);
         }

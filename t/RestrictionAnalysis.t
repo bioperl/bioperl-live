@@ -8,7 +8,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 174);
+    test_begin(-tests => 177);
 	
     use_ok('Bio::Restriction::Enzyme');
     use_ok('Bio::Restriction::Enzyme::MultiCut');
@@ -84,8 +84,16 @@ ok $re->name('BamHI');
 ok $name = $re->name;
 is $name, "BamHI";
 
+$re->verbose(2);
+
+eval {$re->is_prototype};
+ok($@);
+like($@, qr/Couldn't unequivicably assign prototype/, 'bug 2179');
+$re->verbose(2);
+
+is $re->is_prototype(0), 0;
 is $re->is_prototype, 0;
-ok $re->is_prototype(1);
+is $re->is_prototype(1), 1;
 is $re->is_prototype, 1;
 
 is $re->prototype_name, $re->name;

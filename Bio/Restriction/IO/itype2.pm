@@ -167,8 +167,11 @@ sub read {
         #
         # prototype 
         #
+        
+        # presence of a name means the prototype isoschizomer, absence means
+        # this enzyme is the prototype
 
-        $prototype ? $re->prototype_name($prototype) : $re->is_prototype;
+        $prototype ? $re->prototype_name($prototype) : $re->is_prototype(1);
 
 
         #
