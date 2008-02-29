@@ -306,7 +306,7 @@ sub new {
     my $self = $class->SUPER::new(@args);
 
     my ($name,$enzyme,$site,$seq,$cut,$complementary_cut, $is_prototype, $prototype,
-        $isoschizomers, $meth, $microbe, $source, $vendors, $references) =
+        $isoschizomers, $meth, $microbe, $source, $vendors, $references, $neo) =
             $self->_rearrange([qw(
                                   NAME
                                   ENZYME
@@ -322,10 +322,8 @@ sub new {
                                   SOURCE
                                   VENDORS
                                   REFERENCES
+                                  IS_NEOSCHIZOMER
                                  )], @args);
-
-
-
 
     $self->{_isoschizomers} = ();
     $self->{_methylation_sites} = {};
@@ -351,6 +349,7 @@ sub new {
     $source && $self->source($source);
     $vendors && $self->vendors($vendors);
     $references && $self->references($references);
+    $neo && $self->is_neoschizomer($neo);
 
     return $self;
 }
@@ -1048,7 +1047,7 @@ sub is_ambiguous {
 
 Prototype enzymes are the most commonly available and usually first
 enzymes discoverd that have the same recognition site. Using only
-prototype enzymes in restriction analysis avoids redundacy and
+prototype enzymes in restriction analysis avoids redundancy and
 speeds things up.
 
 =cut
@@ -1062,6 +1061,33 @@ sub is_prototype {
         return $self->{'_is_prototype'}
     } else {
         $self->warn("Can't unequivocally assign prototype based on input format alone");
+        return
+    }
+}
+
+=head2 is_neoschizomer
+
+ Title    : is_neoschizomer
+ Usage    : $re->is_neoschizomer
+ Function : Get/Set method for finding out if this enzyme is a neoschizomer
+ Example  : $re->is_neoschizomer(1)
+ Returns  : Boolean
+ Args     : none
+
+Neoschizomers are distinguishable from the prototype enzyme by having a
+different cleavage pattern. Note that not all formats report this
+
+=cut
+
+sub is_neoschizomer {
+    my ($self, $value) = @_;
+    if (defined $value) {
+        return $self->{'_is_neoschizomer'} = $value ;
+    }
+    if (defined $self->{'_is_neoschizomer'}) {
+        return $self->{'_is_neoschizomer'}
+    } else {
+        $self->warn("Can't unequivocally assign neoschizomer based on input format alone");
         return
     }
 }
@@ -1109,14 +1135,13 @@ REBASE
 
 =cut
 
-
 sub isoschizomers {
     my ($self) = shift;
     push @{$self->{_isoschizomers}}, @_ if @_;
-          # make sure that you don't dereference if null
-          # chad believes quite strongly that you should return
-          # a reference to an array anyway. don't bother dereferencing.
-          # i'll post that to the list.
+    # make sure that you don't dereference if null
+    # chad believes quite strongly that you should return
+    # a reference to an array anyway. don't bother dereferencing.
+    # i'll post that to the list.
      if ($self->{'_isoschizomers'}) {
          return @{$self->{_isoschizomers}};
      }

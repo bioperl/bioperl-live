@@ -111,10 +111,12 @@ use base qw(Bio::SeqIO);
             '31'        => 'withrefm',
             'base'      => 'base',
             '0'         => 'base',
-	    'bairoch'   => 'bairoch',
-	    '19'        => 'bairoch',
-	    'macvector' => 'bairoch',
-	    'vectorNTI' => 'bairoch'
+            'bairoch'   => 'bairoch',
+            '19'        => 'bairoch',
+            'macvector' => 'bairoch',
+            'vectorNTI' => 'bairoch',
+            'neo'       => 'prototype',
+            'prototype' => 'prototype'
 );
 
 =head2 new
@@ -136,7 +138,6 @@ sub new {
    my ($format);
 
    @param{ map { lc $_ } keys %param } = values %param;  # lowercase keys
-
    $format = $FORMAT{$param{'-format'}} if defined $param{'-format'};
    $format ||= $class->_guess_format( $param{-file} || $ARGV[0] )
              || 'base';

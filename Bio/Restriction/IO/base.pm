@@ -1,4 +1,5 @@
 # $Id$
+#
 # BioPerl module for Bio::Restriction::IO::base
 #
 # Cared for by Rob Edwards <redwards@utmem.edu>
@@ -81,9 +82,34 @@ sub new {
     return $self;
 }
 
+{
+    
+my %FILE_FORMAT = (
+            #'itype2'    => 'itype2', # itype2 format doesn't work with 'current'
+            #'8'         => 'itype2',
+            'withrefm'  => 'withrefm',
+            '31'        => 'withrefm',
+            #'bairoch'   => 'bairoch', # bairoch format doesn't work with 'current'
+            #'19'        => 'bairoch',
+            #'macvector' => 'bairoch',
+            #'vectorNTI' => 'bairoch',
+            'neo'       => 'neos',
+            'prototype' => 'proto'
+);
+
 sub _initialize {
     my($self,@args) = @_;
+    my ($current, $url, $file, $fh, $format) = $self->_rearrange([qw(CURRENT URL FILE FH FORMAT)],@args);
+    if ($current && $format) {
+        $self->throw("Can't use -current with file, fh, or url set")  if ($url || $file || $fh);
+        $self->throw("Format $format not retrievable using 'current'") if (!exists $FILE_FORMAT{$format});
+        $self->_initialize_io(-url => 'ftp://ftp.neb.com/pub/rebase/VERSION');
+        chomp (my $version = $self->_readline);
+        push @args, (-url => "ftp://ftp.neb.com/pub/rebase/$FILE_FORMAT{$format}.$version");
+    }
     return unless $self->SUPER::_initialize(@args);
+}
+
 }
 
 =head2 read
