@@ -14,7 +14,7 @@ my @known_formats=
   qw(gcg fasta ace raw fastq phd pir scf swiss genbank locuslink
      embl game qual bsml tab raw abi chado alf ctf exp ztr pln
      chaosxml chadoxml yaml tigr tigrxml agave chaos kegg interpro
-     lasergene strider);
+     lasergene strider gbdriver embldriver swissdriver);
 
 my $script=substr($0, 1+rindex($0,'/'));
 my $usage="Usage:
