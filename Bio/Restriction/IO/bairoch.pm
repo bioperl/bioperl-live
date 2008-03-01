@@ -76,26 +76,6 @@ use Data::Dumper;
 
 use base qw(Bio::Restriction::IO::base);
 
-
-sub new {
-    my($class, @args) = @_;
-    my $self = bless {}, $class;
-    $self->_initialize(@args);
-    return $self;
-}
-
-sub _initialize {
-    my($self,@args) = @_;
-    my ($verbose) =
-            $self->_rearrange([qw(
-                                  VERBOSE
-                                 )], @args);
-    $verbose || 0;
-    $self->verbose($verbose);
-
-    return unless $self->SUPER::_initialize(@args);
-}
-
 =head2 read
 
  Title   : read

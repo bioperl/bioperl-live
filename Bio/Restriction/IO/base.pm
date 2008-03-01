@@ -77,9 +77,24 @@ my $offset; # class variable
 
 sub new {
     my($class, @args) = @_;
+    $class = ref $class ? ref $class : $class;
     my $self = bless {}, $class;
     $self->_initialize(@args);
     return $self;
+}
+
+sub _initialize {
+    my($self,@args) = @_;
+
+    my ($verbose) =
+            $self->_rearrange([qw(
+                                  VERBOSE
+                                 )], @args);
+    $verbose || 0;
+    $self->verbose($verbose);
+
+    $self->_companies;
+    return unless $self->SUPER::_initialize(@args);
 }
 
 {
@@ -103,11 +118,12 @@ sub _initialize {
     if ($current && $format) {
         $self->throw("Can't use -current with file, fh, or url set")  if ($url || $file || $fh);
         $self->throw("Format $format not retrievable using 'current'") if (!exists $FILE_FORMAT{$format});
-        $self->_initialize_io(-url => 'ftp://ftp.neb.com/pub/rebase/VERSION');
-        chomp (my $version = $self->_readline);
+        my $io = $self->new(-url => 'ftp://ftp.neb.com/pub/rebase/VERSION');
+        chomp (my $version = $io->_readline);
         push @args, (-url => "ftp://ftp.neb.com/pub/rebase/$FILE_FORMAT{$format}.$version");
     }
-    return unless $self->SUPER::_initialize(@args);
+    $self->SUPER::_initialize(@args);
+    return;
 }
 
 }
