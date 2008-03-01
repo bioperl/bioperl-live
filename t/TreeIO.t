@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 73);
+    test_begin(-tests => 74);
 	
 	use_ok('Bio::TreeIO');
 }
@@ -231,11 +231,16 @@ SKIP: {
 			       -file   => test_input_file('adh.mb_tree.nexus'));
     
     $tree = $treeio->next_tree;
+	my $ct = 1; 
     ok($tree);
     is($tree->id, 'rep.1');
     is($tree->get_leaf_nodes, 54);
     ($node) = $tree->find_node(-id => 'd.madeirensis');
     is($node->branch_length,0.039223);
+	while ($tree = $treeio->next_tree) {
+		$ct++;
+	}
+	is($ct,13,'bug 2356');
 }
 
 # bug #1854
