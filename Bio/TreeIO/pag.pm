@@ -78,6 +78,7 @@ use base qw(Bio::TreeIO);
  Function: Builds a new Bio::TreeIO::pag object 
  Returns : an instance of Bio::TreeIO::pag
  Args    : -file/-fh for filename or filehandles
+           -name_length for minimum name length (default = 10)
 
 =cut
 
@@ -126,12 +127,14 @@ sub write_tree {
 	 $special_node, 
 	 $outgroup_ancestor,
 	 $tree_no,
-	 $keep_outgroup) = $self->_rearrange([qw(NO_OUTGROUPS
+	 $keep_outgroup) = $self->_rearrange([qw(
+                         NO_OUTGROUPS
 						 PRINT_HEADER
 						 SPECIAL_NODE
 						 OUTGROUP_ANCESTOR
 						 TREE_NO
-						 KEEP_OUTGROUP)],@args);
+						 KEEP_OUTGROUP
+                         NAME_LENGTH)],@args);
     }
     my $newname_base = 1;
 
@@ -187,7 +190,7 @@ sub write_tree {
     foreach my $node (@nodes) {
         my $i = 0;
         foreach my $anc (@ancestors) {
-            if ($node eq $anc) { $i = 1; last }
+            if ($anc && $node eq $anc) { $i = 1; last }
         }
         unless ($i > 0) {       # root not given in PAG
             my $current_name = $names{$node->internal_id};
