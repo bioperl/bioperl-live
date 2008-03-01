@@ -166,17 +166,14 @@ sub _parse {
             else {
                 $self->debug("no translate in: $trees\n");
             }
-            $trees =~ s{\n}{ }g;
-            while (
-                $trees =~ /\s+tree\s+\*?\s*(\S+)\s*\=
-             \s*(?:\[\S+\])?\s*([^\;]+;)\s*/igx
-              )
+            while ($trees =~ /\s+tree\s+\*?\s*(\S+)\s*\=
+             \s*(?:\[\S+\])?\s*([^\;]+;)/igx)
             {
                 my ( $tree_name, $tree_str ) = ( $1, $2 );
 
                 # MrBayes does not print colons for node label
                 # $tree_str =~ s/\)(\d*\.\d+)\)/:$1/g;
-                my $buf    = new IO::String($tree_str);
+                my $buf    = IO::String->new($tree_str);
                 my $treeio = Bio::TreeIO->new(
                     -format => 'newick',
                     -fh     => $buf
