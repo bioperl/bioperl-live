@@ -83,19 +83,6 @@ sub new {
     return $self;
 }
 
-sub _initialize {
-    my($self,@args) = @_;
-
-    my ($verbose) =
-            $self->_rearrange([qw(
-                                  VERBOSE
-                                 )], @args);
-    $verbose || 0;
-    $self->verbose($verbose);
-
-    $self->_companies;
-    return unless $self->SUPER::_initialize(@args);
-}
 
 {
     
@@ -114,7 +101,10 @@ my %FILE_FORMAT = (
 
 sub _initialize {
     my($self,@args) = @_;
-    my ($current, $url, $file, $fh, $format) = $self->_rearrange([qw(CURRENT URL FILE FH FORMAT)],@args);
+    my ($current, $url, $file, $fh, $format, $verbose) =
+        $self->_rearrange([qw(CURRENT URL FILE FH FORMAT VERBOSE)],@args);
+    $verbose || 0;
+    $self->verbose($verbose);
     if ($current && $format) {
         $self->throw("Can't use -current with file, fh, or url set")  if ($url || $file || $fh);
         $self->throw("Format $format not retrievable using 'current'") if (!exists $FILE_FORMAT{$format});
@@ -122,8 +112,9 @@ sub _initialize {
         chomp (my $version = $io->_readline);
         push @args, (-url => "ftp://ftp.neb.com/pub/rebase/$FILE_FORMAT{$format}.$version");
     }
-    $self->SUPER::_initialize(@args);
-    return;
+
+    $self->_companies;
+    return unless $self->SUPER::_initialize(@args);
 }
 
 }
@@ -183,6 +174,37 @@ sub write {
     }
 }
 
+=head2 verify_prototype
+
+ Title     : verify_prototype
+ Purpose   : checks enzyme against current prototype list (retrieved remotely)
+ Returns   : returns TRUE if enzyme is prototype
+ Argument  : Bio::Restriction::EnzymeI
+ Comments  : This is an auxiliary method to retrieve and check an enzyme
+             as a prototype.  It retrieves the current list, stores it
+             as a singleton instance, then uses it to check the prototype
+             and modify is_prototype() to true or false.
+
+=cut
+
+my $protodb;
+
+sub verify_prototype {
+    my ($self, $enz) = @_;
+    $self->throw("Must pass a Bio::Restriction::EnzymeI") unless
+        $enz && ref $enz && $enz->isa("Bio::Restriction::EnzymeI");
+    if (!defined $protodb) {
+        my $io = Bio::Restriction::IO->new(-format => 'prototype',
+                      -current => 1);
+        $protodb = $io->read;
+    }
+    if ($protodb->get_enzyme($enz->name)) {
+        $enz->is_prototype(1);
+    } else {
+        $enz->is_prototype(0);
+    }
+    $enz->is_prototype;
+}
 
 =head2 Common REBASE parsing methods
 
@@ -407,7 +429,6 @@ sub _companies {
                    'X'=>'EURx Ltd. (1/03)');
     $self->{company}=\%companies;
 }
-
 
 1;
 
