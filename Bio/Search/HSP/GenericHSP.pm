@@ -151,10 +151,16 @@ our $GAP_SYMBOL = '-';
            -rank        => HSP rank
            -links       => HSP links information (WU-BLAST only)
            -hsp_group   => HSP Group informat (WU-BLAST only)
+           -stranded    => If the algorithm isn't known (i.e. defaults to
+                           'generic'), setting this will indicate start/end
+                           coordinates are to be used to determine the strand
+                           for 'query', 'subject', 'hit', 'both', or 'none'
+                           (default = 'none')
+
 =cut
 
 sub new {
-    my($class,@args) = @_;
+    my($class,%args) = @_;
 
     # don't pass anything to SUPER; complex heirarchy results in lots of work
     # for nothing
@@ -163,7 +169,6 @@ sub new {
     # for speed, don't use _rearrange and just store all input data directly
     # with no method calls and no work done. work can be carried
     # out just-in-time later if desired
-    my %args = @args;
     while (my ($arg, $value) = each %args) {
         $arg =~ tr/a-z\055/A-Z/d;
         $self->{$arg} = $value;
@@ -173,6 +178,7 @@ sub new {
     defined $self->{VERBOSE} && $self->verbose($self->{VERBOSE});
 
     $self->{ALGORITHM} ||= 'GENERIC';
+    $self->{STRANDED} ||= 'NONE';
 
     if (! defined $self->{QUERY_LENGTH} || ! defined $self->{HIT_LENGTH}) {
         $self->throw("Must define hit and query length");
@@ -1313,6 +1319,11 @@ sub _pre_seq_feature {
     elsif ($algo =~ /^RPS-BLAST/) {
         $queryfactor = ($algo =~ /^RPS-BLAST\(BLASTX\)/) ? 1 : 0;
         $hitfactor = 0;
+    }
+    else {
+        my $stranded = substr($self->{STRANDED}, 0,1);
+        $queryfactor = ($stranded eq 'q' || $stranded eq 'b') ? 1 : 0;
+        $hitfactor = ($stranded eq 'h' || $stranded eq 's' || $stranded eq 'b') ? 1 : 0;
     }
     $self->{_query_factor} = $queryfactor;
     $self->{_hit_factor} = $hitfactor;
