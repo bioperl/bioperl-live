@@ -132,6 +132,14 @@ use constant MAX_REMAP => 100;
 
 =over 4
 
+=item $version = Bio::Graphics::FeatureFile-E<gt>version
+
+Return the version number -- needed for API checking by GBrowse
+
+=cut
+
+sub version { return 2 }
+
 =item $features = Bio::Graphics::FeatureFile-E<gt>new(@args)
 
 Create a new Bio::Graphics::FeatureFile using @args to initialize the
