@@ -299,10 +299,10 @@ sub to_string {
 			    ( $hit->significance ? $hit->significance :
 			      (defined $hsps[0] ? $hsps[0]->evalue : ' ')) 
 			    );
+        my $dline = &{$self->hit_desc_line}($self, $hit, $result);
 	    $hspstr .= "<a name=\"$acc\">\n".
-		sprintf("><b>%s</b> %s\n<dd>Length = %s</dd><p>\n\n", $url_align, 
-			defined $hit->description ? $hit->description : '', 
-			&_numwithcommas($hit->length));
+		sprintf("><b>%s</b> %s</br><dd>Length = %s</dd><p>\n\n", $url_align, 
+			$dline , &_numwithcommas($hit->length));
 	    my $ct = 0;
 	    foreach my $hsp (@hsps ) {
 		next if( $hspfilter && ! &{$hspfilter}($hsp) );
@@ -454,20 +454,25 @@ sub to_string {
     }
 
     $str .= "</table><p>\n".$hspstr;
-    if ($result->available_parameters || $result->available_statistics) {
+    my ($pav, $sav) = ($result->available_parameters, $result->available_statistics);
+    if ($pav || $sav) {
         # make table of search statistics and end the web page
         $str .= "<p><p><hr><h2>Search Parameters</h2>";
+        if ($pav) {
         $str .= "<table border=1><tr><th>Parameter</th><th>Value</th>\n";
-            
         foreach my $param ( sort $result->available_parameters ) {
             $str .= "<tr><td>$param</td><td>". $result->get_parameter($param) ."</td></tr>\n";
-        
         }
-        $str .= "</table><p><h2>Search Statistics</h2><table border=1><tr><th>Statistic</th><th>Value</th></tr>\n";
+        $str .= "</table>";
+        }
+        
+        if ($sav) {
+        $str .= "<p><h2>Search Statistics</h2><table border=1><tr><th>Statistic</th><th>Value</th></tr>\n";
         foreach my $stat ( sort $result->available_statistics ) {
             $str .= "<tr><td>$stat</td><td>". $result->get_statistic($stat). "</td>\n";
         }
         $str .=  "</tr></table>";
+        }
     }
     $str .= $self->footer() . "<P>\n";
     return $str;
@@ -499,7 +504,7 @@ sub hit_link_desc{
 
 =head2 default_hit_link_desc
 
- Title   : defaulthit_link_desc
+ Title   : default_hit_link_desc
  Usage   : $self->default_hit_link_desc($hit, $result)
  Function: Provides an HTML link(s) for the given hit to be used
            within the description section at the top of the BLAST report.
@@ -561,6 +566,79 @@ sub hit_link_align {
         $self->{'_hit_link_align'} = $code;
     }
     return $self->{'_hit_link_align'} || \&default_hit_link_desc;
+}
+
+=head2 hit_desc_line
+
+ Title   : hit_desc_line
+ Usage   : $self->hit_desc_line(\&link_function);
+ Function: Get/Set the function which provides HTML for the description
+           information from a hit. This allows one to parse
+           the rest of the description and split up lines, add links, etc.
+ Returns : Function reference
+ Args    : Function reference
+ See Also: L<default_hit_link_desc()>
+
+=cut
+
+sub hit_desc_line{
+    my( $self, $code ) = @_; 
+    if ($code) {
+        $self->{'_hit_desc_line'} = $code;
+    }
+    return $self->{'_hit_desc_line'} || \&default_hit_desc_line;
+}
+
+=head2 default_hit_desc_line
+
+ Title   : default_hit_desc_line
+ Usage   : $self->default_hit_desc_line($hit, $result)
+ Function: Parses the description line information, splits based on the
+           hidden \x01 between independent descriptions, checks the lines for
+           possible web links, and adds HTML link(s) for the given hit to be
+           used.
+
+ Returns : string containing HTML markup "<a href...")
+           The default implementation returns an HTML link to the
+           URL supplied by the remote_database_url() method
+           and using the identifier supplied by the id_parser() method.
+           It will use the NCBI GI if present, and the accession if not.
+
+ Args    : First argument is a Bio::Search::Hit::HitI
+           Second argument is a Bio::Search::Result::ResultI
+
+See Also: L<hit_link_align>, L<remote_database>, L<id_parser>
+
+=cut
+
+sub default_hit_desc_line {
+    my($self, $hit, $result) = @_;
+    my $type = ( $result->algorithm =~ /(P|X|Y)$/i ) ? 'PROTEIN' : 'NUCLEOTIDE';
+    my @descs = split /\x01/, $hit->description;
+    #my $descline = join("</br>",@descs)."</br>";
+    my $descline = '';
+    #return $descline;
+    for my $sec (@descs) {
+        my $url = '';
+        if ($sec =~ s/((?:gi\|(\d+)\|)?        # optional GI
+                     (\w+)\|([A-Z\d\.\_]+) # main 
+                     (\|[A-Z\d\_]+)?) # optional secondary ID//xms) {
+            my ($name, $gi, $db, $acc) = ($1, $2, $3, $4);
+            #$acc ||= ($rest) ? $rest : $gi;
+            $acc =~ s/^\s+(\S+)/$1/;
+            $acc =~ s/(\S+)\s+$/$1/;
+            $url =
+            length($self->remote_database_url($type)) > 0 ? 
+              sprintf('<a href="%s">%s</a> %s',
+                      sprintf($self->remote_database_url($type),
+                      $gi || $acc || $db), 
+                      $name, $sec) :  $sec;
+        } else {
+            $url = $sec;
+        }
+        $descline .= "$url</br>\n";
+    }
+    return $descline;
 }
 
 =head2 start_report

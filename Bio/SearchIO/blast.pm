@@ -827,6 +827,7 @@ sub next_result {
                     last;
                 }
                 else {
+                    s/^\s(?!\s)/\x01/; #new line to concatenate desc lines with <soh>
                     $restofline .= $_;
                 }
             }
