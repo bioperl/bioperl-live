@@ -239,7 +239,7 @@ sub to_string {
 		     'Query:'   => ( $qtype  eq 'translated' )  ? 3 : 1);
 
     my $str;
-    if( ! defined $num || $num <= 1 ) { 
+    if( $num <= 1 ) { 
 	$str = &{$self->start_report}($result);
     }
 
@@ -453,19 +453,23 @@ sub to_string {
 #	$hspstr .= "</pre>\n";
     }
 
-
-    # make table of search statistics and end the web page
-    $str .= "</table><p>\n".$hspstr."<p><p><hr><h2>Search Parameters</h2><table border=1><tr><th>Parameter</th><th>Value</th>\n";
+    $str .= "</table><p>\n".$hspstr;
+    if ($result->available_parameters || $result->available_statistics) {
+        # make table of search statistics and end the web page
+        $str .= "<p><p><hr><h2>Search Parameters</h2>";
+        $str .= "<table border=1><tr><th>Parameter</th><th>Value</th>\n";
+            
+        foreach my $param ( sort $result->available_parameters ) {
+            $str .= "<tr><td>$param</td><td>". $result->get_parameter($param) ."</td></tr>\n";
         
-    foreach my $param ( sort $result->available_parameters ) {
-	$str .= "<tr><td>$param</td><td>". $result->get_parameter($param) ."</td></tr>\n";
-	
+        }
+        $str .= "</table><p><h2>Search Statistics</h2><table border=1><tr><th>Statistic</th><th>Value</th></tr>\n";
+        foreach my $stat ( sort $result->available_statistics ) {
+            $str .= "<tr><td>$stat</td><td>". $result->get_statistic($stat). "</td>\n";
+        }
+        $str .=  "</tr></table>";
     }
-    $str .= "</table><p><h2>Search Statistics</h2><table border=1><tr><th>Statistic</th><th>Value</th></tr>\n";
-    foreach my $stat ( sort $result->available_statistics ) {
-	$str .= "<tr><td>$stat</td><td>". $result->get_statistic($stat). "</td></tr>\n";
-    }
-    $str .=  "</table><P>".$self->footer() . "<P>\n";
+    $str .= $self->footer() . "<P>\n";
     return $str;
 }
 
