@@ -195,7 +195,12 @@ sub score    {
   $self->{score} = shift if @_;
   $d;
 }
-sub primary_tag     { shift->{type}        }
+sub primary_tag     { 
+    my $self = shift;
+    my $d    = $self->{type};
+    $self->{type} = shift if @_;
+    $d;
+}
 sub name            {
   my $self = shift;
   my $d    = $self->{name};
@@ -385,7 +390,7 @@ sub alphabet{
 
 sub desc {
   my $self = shift;
-  my $d    = $self->{desc};
+  my $d    = $self->notes;
   $self->{desc} = shift if @_;
   $d;
 }
@@ -408,7 +413,7 @@ sub primary_id {
 
 sub notes {
     my $self  = shift;
-    my $notes = $self->desc;
+    my $notes = $self->{desc};
     return $notes if defined $notes;
     return $self->attributes('Note');
 }

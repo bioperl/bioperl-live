@@ -2,6 +2,7 @@
 # $Id$
 
 use strict;
+use File::Spec;
 
 # In order to properly run the image comparison tests the images may need to be
 # regenerated from scratch; this is primarily due to changes in GD versions, OS,
@@ -18,7 +19,7 @@ BEGIN {
   use lib 't/lib';
   use BioperlTest;
   
-  test_begin(-tests => 35 + (IMAGE_TESTS ? 3 : 0),
+  test_begin(-tests => 36 + (IMAGE_TESTS ? 3 : 0),
              -requires_modules => [qw(GD Text::Shellwords)]);
   
   use_ok('Bio::Graphics::FeatureFile');
@@ -48,7 +49,7 @@ my $data  = Bio::Graphics::FeatureFile->new(-file => test_input_file('biographic
 ok defined $data;
 is $data->render, 5;
 is $data->setting(general=>'pixels'), 750;
-is $data->setting('general'), 4;
+is $data->setting('general'), 3;
 is $data->setting, 6;
 is $data->glyph('EST'), 'segments';
 
@@ -61,6 +62,7 @@ is $data->configured_types, 5;
 is @{$data->features('EST')}, 5;
 
 my $thing = $data->features('EST');
+is $thing->[0]->seq_id,'B0511';
 
 my ($feature) = grep {$_->name eq 'Predicted gene 1'} @{$data->features('FGENESH')};
 ok $feature;
@@ -115,19 +117,31 @@ sub do_write {
   my $cangif = GD::Image->can('gif');
   my $test_sub    = $test;
   if ($canpng) {
-    my $output_file = test_input_files('biographics', "$test.png");
+    my $output_file = test_input_files($images,$test,"png");
     my $panel       = eval "$test_sub()" or die "Couldn't run test: $@";
     open OUT,">$output_file" or die "Couldn't open $output_file for writing: $!";
     print OUT $panel->gd->png;
     close OUT;
   }
   if ($cangif) {
-    my $output_file = test_input_files('biographics', "$test.gif");
+    my $output_file = test_input_files($images, $test,"gif");
     my $panel       = eval "$test_sub()" or die "Couldn't run test: $@";
     open OUT,">$output_file" or die "Couldn't open $output_file for writing: $!";
     print OUT $panel->gd->gif;
     close OUT;
   }
+}
+
+sub test_input_files {
+    my ($dir,$base,$suffix) = @_;
+    my $index = 1;
+    my $file;
+    while (1) {
+	$file = File::Spec->catfile($dir,$base,"version${index}.${suffix}");
+	last unless -e $file;
+	$index++;
+    }
+    return $file;
 }
 
 sub do_compare {

@@ -120,6 +120,7 @@ use Bio::DB::GFF::Util::Rearrange;
 use Carp 'cluck','carp','croak';
 use IO::File;
 use Text::ParseWords 'shellwords';
+use Bio::DB::SeqFeature::Store;
 
 # default colors for unconfigured features
 my @COLORS = qw(cyan blue red yellow green wheat turquoise orange);
@@ -203,8 +204,8 @@ sub new {
   $self->{coordinate_mapper} = $args{-map_coords} 
     if exists $args{-map_coords} && ref($args{-map_coords}) eq 'CODE';
 
-  $self->smart_features($args{-smart_features})       if exists $args{-smart_features};
-  $self->{safe}              = $args{-safe}           if exists $args{-safe};
+  $self->smart_features($args{-smart_features}) if exists $args{-smart_features};
+  $self->{safe}              = $args{-safe}     if exists $args{-safe};
 
   # call with
   #   -file
@@ -271,18 +272,29 @@ sub render {
   my $self = shift;
   my $panel = shift;
   my ($position_to_insert,$options,$max_bump,$max_label,$selector) = @_;
+  my %seenit;
 
   $panel ||= $self->new_panel;
 
   # count up number of tracks inserted
   my @tracks;
   my $color;
-  my %types = map {$_=>1} $self->configured_types;
+  my @labels             = $self->labels;
 
-  my @configured_types   = grep {exists $self->{features}{$_}} $self->configured_types;
-  my @unconfigured_types = sort grep {!exists $types{$_}}      $self->types;
+  # we need to add a dummy section for each type that isn't
+  # specifically configured
 
-  warn "@configured_types / @unconfigured_types";
+  my %types   = map {$_=>1
+  } map {
+      shellwords ($self->setting($_=>'feature')||$_) } @labels;
+  my %lc_types = map {lc($_)}%types;
+  
+  my @unconfigured_types = sort grep {!exists $lc_types{lc $_} &&
+					  !exists $lc_types{lc $_->method}
+  }         $self->types;
+  my @configured_types   = keys %types;
+
+  my @labels_to_render = (@labels,@unconfigured_types);
 
   my @base_config = $self->style('general');
 
@@ -304,34 +316,41 @@ sub render {
     }
   }
 
-  for my $type (@configured_types,@unconfigured_types) {
-    next if defined $selector && !$selector->($self,$type);
-    next unless length $type > 0; # avoid empty ''
-    my $f = $self->features($type);
-    my @features = grep {$self->{visible}{$_} || $_->type eq 'group'} @$f;
-    next unless @features;  # suppress tracks for features that don't appear
-    my $features = \@features;
+  for my $label (@labels_to_render) {
 
-    my @auto_bump;
-    push @auto_bump,(-bump  => @$features < $max_bump)  if defined $max_bump;
-    push @auto_bump,(-label => @$features < $max_label) if defined $max_label;
+      my @types = shellwords($self->setting($label=>'feature')||'');
+      @types    = $label unless @types;
 
-    my @config = ( -glyph   => 'segments',         # really generic
-		   -bgcolor => $COLORS[$color++ % @COLORS],
-		   -label   => 1,
-		   -description => 1,
-		   -key     => $type,
-		   @auto_bump,
-		   @base_config,         # global
-		   $self->style($type),  # feature-specific
-		   @override,
-		 );
+      next if defined $selector and !$selector->($self,$label);
 
-    if (defined($position_to_insert)) {
-      push @tracks,$panel->insert_track($position_to_insert++,$features,@config);
-    } else {
-      push @tracks,$panel->add_track($features,@config);
-    }
+      my @features = grep {$self->_visible($_)} $self->features(\@types);
+      next unless @features;  # suppress tracks for features that don't appear
+
+      # fix up funky group hack
+      foreach (@features) {$_->primary_tag('group') if $_->has_tag('_ff_group')};
+      my $features = \@features;
+
+      my @auto_bump;
+      push @auto_bump,(-bump  => @$features < $max_bump)  if defined $max_bump;
+      push @auto_bump,(-label => @$features < $max_label) if defined $max_label;
+      
+
+      my @config = ( -glyph   => 'segments',         # really generic
+		     -bgcolor => $COLORS[$color++ % @COLORS],
+		     -label   => 1,
+		     -description => 1,
+		     -key     => $features[0]->type || $label,
+		     @auto_bump,
+		     @base_config,         # global
+		     $self->style($label),  # feature-specific
+		     @override,
+	  );
+
+      if (defined($position_to_insert)) {
+	  push @tracks,$panel->insert_track($position_to_insert++,$features,@config);
+      } else {
+	  push @tracks,$panel->add_track($features,@config);
+      }
   }
   return wantarray ? (scalar(@tracks),$panel,\@tracks) : scalar @tracks;
 }
@@ -340,6 +359,14 @@ sub _stat {
   my $self = shift;
   my $fh   = shift;
   $self->{stat} = [stat($fh)];
+}
+
+sub _visible {
+    my $self = shift;
+    my $feat = shift;
+    my $min  = $self->min;
+    my $max  = $self->max;
+    return $feat->start<=$max && $feat->end>=$min;
 }
 
 =over 4
@@ -410,7 +437,7 @@ sub parse_text {
   my $text = shift;
 
   $self->init_parse;
-  foreach (split /\015?\012|\015\012?/,$text) {
+  foreach (split m/\015?\012|\015\012?/,$text) {
     $self->parse_line($_);
   }
   $self->finish_parse;
@@ -418,253 +445,137 @@ sub parse_text {
 
 sub parse_line {
   my $self = shift;
-  local $_ = shift;
+  my $line = shift;
 
   s/\015//g;  # get rid of carriage returns left over by MS-DOS/Windows systems
   s/\s+$//;   # get rid of trailing whitespace
 
-  # capture GFF header
-  if (/^\#\#gff-version\s+(\d+)/) {
-    $self->{gff_version} = $1;
-    require Bio::DB::GFF;
-    return 1;
+  return 1 if $line =~ /^\s*\#[^\#]?$/;   # comment line
+
+
+  # Are we in a configuration section or a data section?
+  # We start out in 'config' state, and are triggered to
+  # reenter config state whenever we see a /^\[ pattern (config section)
+  my $new_state = $self->_state_transition($line);
+
+  if ($new_state eq 'config') {
+      $self->parse_config_line($line);
+  } elsif ($new_state eq 'data') {
+      $self->parse_data_line($line);
   }
+  $self->{state} = $new_state;
+  1;
+}
 
-  # Remove comments but rescue anchors and hex-code colors.
-  # Comments must begin a line or be preceded by whitespace
-  s/(?:^|\s+)\#.+$//;
+sub _state_transition {
+    my $self = shift;
+    my $line = shift;
+    my $current_state = $self->{state};
 
-  # skip on blank lines
-  return 1 if /^\s*$/;
+    if ($current_state eq 'data') {
+	return 'config' if $line =~ m/^\s*\[([^\]]+)\]/;  # start of a configuration section
+    }
 
-  # abort if we see a >FASTA line
-  return 0 if /^>/;
+    elsif ($current_state eq 'config') {
+	return 'data'   if $line =~ /^\#\#(\w+)/;     # GFF3 meta instruction
+	return 'data'   if $line =~ /^reference\s*=/; # feature-file reference sequence directive
+	
+	return 'config' if $line =~ /^\s*$/;                             #empty line
+	return 'config' if $line =~ m/^\s*\[([^\]]+)\]|=/;               # section beginning
+	return 'config' if $line =~ m/\\$/;                              # continuation line
+	return 'config' if $line =~ m/^\s+(.+)/ && $self->{current_tag}; # continuation section
+	return 'config' if $line =~ /^\#/; # comment -not a meta
+	return 'data';
+    }
+    return $current_state;
+}
 
-  if (/^\s+(.+)/ && $self->{current_tag}) { # configuration continuation line
-    my $value = $1;
-    my $cc = $self->{current_config} ||= 'general';       # in case no configuration named
-    $self->{config}{$cc}{$self->{current_tag}} .= ' ' . $value;
-    # respect newlines in code subs
-    $self->{config}{$cc}{$self->{current_tag}} .= "\n"
-      if $self->{config}{$cc}{$self->{current_tag}}=~ /^sub\s*\{/;
-    return 1;
-  }
+sub parse_config_line {
+    my $self = shift;
+    local $_ = shift;
 
-  if (/^\s*\[([^\]]+)\]/) {  # beginning of a configuration section
-    my $label = $1;
-    my $cc = $label =~ /^(general|default)$/i ? 'general' : $label;  # normalize
-    push @{$self->{types}},$cc unless $cc eq 'general';
-    $self->{current_config} = $cc;
-    return 1;
-  }
+    if (/^\s+(.+)/ && $self->{current_tag}) { # configuration continuation line
+	my $value = $1;
+	my $cc = $self->{current_config} ||= 'general';       # in case no configuration named
+	$self->{config}{$cc}{$self->{current_tag}} .= ' ' . $value;
+	# respect newlines in code subs
+	$self->{config}{$cc}{$self->{current_tag}} .= "\n"
+	    if $self->{config}{$cc}{$self->{current_tag}}=~ /^sub\s*\{/;
+	return 1;
+    }
 
-  if (/^([\w: -]+?)\s*=\s*(.*)/) {   # key value pair within a configuration section
-    my $tag = lc $1;
-    my $cc = $self->{current_config} ||= 'general';       # in case no configuration named
-    my $value = defined $2 ? $2 : '';
-    $self->{config}{$cc}{$tag} = $value;
-    $self->{current_tag} = $tag;
-    return 1;
-  }
+    elsif (/^\s*\[([^\]]+)\]/) {  # beginning of a configuration section
+	my $label = $1;
+	my $cc = $label =~ /^(general|default)$/i ? 'general' : $label;  # normalize
+	push @{$self->{types}},$cc unless $cc eq 'general';
+	$self->{current_config} = $cc;
+	return 1;
+    }
+
+    elsif (/^([\w: -]+?)\s*=\s*(.*)/) {   # key value pair within a configuration section
+	my $tag = lc $1;
+	my $cc = $self->{current_config} ||= 'general';       # in case no configuration named
+	my $value = defined $2 ? $2 : '';
+	$self->{config}{$cc}{$tag} = $value;
+	$self->{current_tag} = $tag;
+	return 1;
+    }
 
 
-  if (/^$/) { # empty line
-    undef $self->{current_tag};
-    return 1;
-  }
+    elsif (/^$/) { # empty line
+	undef $self->{current_tag};
+	return 1;
+    }
 
-  undef $self->{current_tag};
+}
 
-  # parse data lines
-  my @tokens = shellwords($_);
-  unshift @tokens,'' if /^\s+/ and length $tokens[0];
+sub parse_data_line {
+    my $self = shift;
+    my $line = shift;
+    $self->{loader} ||= $self->_make_loader($line) or return;
+    $self->{loader}->load_line($line);
+}
 
-  # close any open group
-  if ($self->{group} && $self->{grouptype} && $tokens[0] && length $tokens[0] > 0) {
-    $self->_closegroup;
-  }
+sub _make_loader {
+    my $self = shift;
+    local $_ = shift;
+    my $db   = $self->db;
 
-  if (@tokens < 3) {      # short line; assume a group identifier
-    my $type               = shift @tokens;
-    my $name               = shift @tokens;
-    $self->{group}         = Bio::Graphics::Feature->new(-name => $name,
-							 -type => 'group');
-    $self->{grouptype}     = $type;
-    return 1;
-  }
+    my $type;
 
-  my($ref,$type,$name,$strand,$bounds,$description,$url,$score,%attributes);
-
-  my @parts;
-
-  # conventional GFF file, with check for numeric start/end
-  if (@tokens >= 8 && $tokens[3]=~ /^-?\d+$/ && $tokens[4]=~ /^-?\d+$/) {
-    require Bio::DB::GFF unless Bio::DB::GFF->can('split_group');
-    my ($r,$source,$method,$start,$stop,$scor,$s,$phase,@rest) = @tokens;
-    # sanity checks
-    my $group = join ' ',@rest;
-    $type   = defined $source && $source ne '.' ? join(':',$method,$source) : $method;
-    #$bounds = join '..',$start,$stop;
-    @parts   = ([$start,$stop]);
-    $strand = $s;
-    if ($group) {
-      my ($notes,@notes);
-      (undef,$name,undef,undef,$notes) = $self->split_group($group);
-      foreach (@$notes) {
-	my ($key,$value) = @$_;
-	if ($value =~ m!^(http|ftp)://!) { 
-	  $url = $_ 
-	} else {
-	  push @notes,"$key=$value";
+    # we support gff2, gff3 and featurefile formats
+    if (/^\#\#gff-version\s+([23])/) {
+	$type = "Bio::DB::SeqFeature::Store::GFF$1Loader";
+    }
+    elsif (/^reference\s*=.+/) {
+	$type = "Bio::DB::SeqFeature::Store::FeatureFileLoader";
+    }
+    else {
+	my @tokens = shellwords($_);
+	unshift @tokens,'' if /^\s+/ and length $tokens[0];
+	
+	if (@tokens >=8 && $tokens[3]=~ /^-?\d+$/ && $tokens[4]=~ /^-?\d+$/) {
+	    $type = 'Bio::DB::SeqFeature::Store::GFF3Loader';
+	} 
+	else {
+	    $type = 'Bio::DB::SeqFeature::Store::FeatureFileLoader';
 	}
-      }
-      $description = join '; ',map {_escape($_)} @notes if @notes;
-      $score       = $scor if defined $scor && $scor ne '.';
     }
-    $name ||= $self->{group}->display_id if $self->{group};
-    $ref = $r;
-  }
-
-  elsif ($tokens[2] =~ /^([+-.]|[+-]?[01])$/) { # old simplified version
-    ($type,$name,$strand,$bounds,$description,$url) = @tokens;
-  } else {                              # new simplified version
-    ($type,$name,$bounds,$description,$url) = @tokens;
-  }
-
-  $type ||= $self->{grouptype} || '';
-  $type =~ s/\s+$//;  # get rid of excess whitespace
-
-  # the reference is specified by the GFF reference line first,
-  # the last reference line we saw second,
-  # or the reference line in the "general" section.
-  {
-    local $^W = 0;
-    $ref  ||= $self->{config}{$self->{current_config}}{'reference'}
-      || $self->{config}{general}{reference};
-  }
-  $self->{refs}{$ref}++ if defined $ref;
-
-  @parts = map { [/(-?\d+)(?:-|\.\.)(-?\d+)/]} split /(?:,| )\s*/,$bounds
-    if $bounds && !@parts;
-
-  foreach (@parts) { # max and min calculation, sigh...
-    $self->{min} = $_->[0] if defined $_->[0] && defined $self->{min} ? ($_->[0] < $self->{min}) : 1;
-    $self->{max} = $_->[1] if defined $_->[1] && defined $self->{max} ? ($_->[1] > $self->{max}) : 1;
-  }
-
-  my $visible = 1;
-
-  if ($self->{coordinate_mapper} && $ref) {
-    my @remapped = $self->{coordinate_mapper}->($ref,@parts);
-    ($ref,@parts) = @remapped if @remapped;
-    $visible   = @remapped;
-    return 1 if !$visible && $self->{feature_count} > MAX_REMAP;
-  }
-
-  $type = '' unless defined $type;
-  $name = '' unless defined $name;
-
-  # if strand is not explicitly given in file, we infer it
-  # from the order of start and end coordinates
-  # (this is to deal with confusing documentation, actually)
-  unless (defined $strand) {
-    foreach (@parts) {
-      if (defined $_ && ref($_) eq 'ARRAY' && defined $_->[0] && defined $_->[1]) {
-        $strand           ||= $_->[0] <= $_->[1] ? '+' : '-';
-        ($_->[0],$_->[1])   = ($_->[1],$_->[0]) if $_->[0] > $_->[1];
-      }
-    }
-  }
-
-  # attribute handling
-  if (defined $description && $description =~ /\w+=\S+/) { # attribute line
-    my @attributes = split /;\s*/,$description;
-    undef $description;
-    foreach (@attributes) {
-      my ($name,$value) = split /=/,$_,2;
-      Bio::Root::Root->throw(qq("$_" is not a valid attribute=value pair)) unless defined $value;
-      _unescape($name);
-      my @values = split /,/,$value;
-      _unescape(@values);
-      if ($name =~ /^(note|description)/) {
-	$description = "@values";
-      } elsif ($name eq 'url') {
-	$url = $value;
-      } elsif ($name eq 'score') {
-	$score = $value;
-      } else {
-	push @{$attributes{$name}},@values;
-      }
-    }
-  }
-
-  # either create a new feature or add a segment to it
-  if (length $name && (my $feature = $self->{seenit}{$type,$name})) {
-
-    # create a new segment to hold the parts
-    if (!$feature->segments) {
-      my $new_segment  = bless {%$feature},ref $feature;
-      $feature->add_segment($new_segment);
-    }
-    # add the segments
-    $feature->add_segment(map {
-      _make_feature($name,$type,$strand,$description,$ref,\%attributes,$url,$score,[$_])
-    }  @parts);
-    $self->{visible}{$feature}++  if $visible;
-  }
-
-  else {
-    $feature = $self->{seenit}{$type,$name} = _make_feature($name,$type,$strand,
-							    $description,$ref,
-							    \%attributes,$url,$score,\@parts);
-    $feature->configurator($self) if $self->smart_features;
-    if ($self->{group}) {
-      $self->{group}->add_segment($feature);
-    } else {
-      push @{$self->{features}{$type}},$feature;  # for speed; should use add_feature() instead
-      $self->{visible}{$feature}++  if $visible;
-      $self->{feature_count}++;
-    }
-  }
-
-  return 1;
+    eval "require $type"
+	    unless $type->can('new');
+    my $loader = $type->new(-store=>$db,
+			    -map_coords=>$self->{coordinate_mapper},
+			    -index_subfeatures => 0,
+	);
+    eval {$loader->allow_whitespace(1)};  # gff2 and gff3 loaders allow this
+    $loader->start_load() if $loader;
+    return $loader;
 }
 
-sub _closegroup {
-  my $self = shift;
-  push @{$self->{features}{$self->{grouptype}}},$self->{group} if $self->{group};
-  undef $self->{group};
-  undef $self->{grouptype};
-}
-
-sub _unescape {
-  foreach (@_) {
-    tr/+/ /;       # pluses become spaces
-    s/%([0-9a-fA-F]{2})/chr hex($1)/eg;
-  }
-  @_;
-}
-
-sub _escape {
-  my $toencode = shift;
-  $toencode =~ s/([^a-zA-Z0-9_.=-])/uc sprintf("%%%02x",ord($1))/eg;
-  $toencode;
-}
-
-sub _make_feature {
-  my ($name,$type,$strand,$description,$ref,$attributes,$url,$score,$parts) = @_;
-  my @coordinates = @$parts > 1 ? (-segments => $parts) : (-start=>$parts->[0][0],-end=>$parts->[0][1]);
-  Bio::Graphics::Feature->new(-name       => $name,
-			      -type       => $type,
-			      -subtype    => "${type}_part",
-			      $strand ? (-strand   => make_strand($strand)) : (),
-			      -desc       => $description,
-			      -ref        => $ref,
-			      -attributes => $attributes,
-			      defined $url   ? (-url  => $url) : (),
-			      defined $score ? (-score=>$score) : (),
-			      @coordinates,
-			     );
+sub db {
+    my $self = shift;
+    return $self->{db} ||= Bio::DB::SeqFeature::Store->new(-adaptor=>'memory',
+							   -write  => 1);
 }
 
 =over 4
@@ -686,9 +597,7 @@ sub add_feature {
   my ($feature,$type) = @_;
   $feature->configurator($self) if $self->smart_features;
   $type = $feature->primary_tag unless defined $type;
-  $self->{visible}{$feature}++;
-  $self->{feature_count}++;
-  push @{$self->{features}{$type}},$feature;
+  $self->db->store($feature);
 }
 
 
@@ -976,8 +885,7 @@ types, including those that are not configured with a stanza.
 
 sub types {
   my $self = shift;
-  my $features = $self->{features} or return;
-  return keys %{$features};
+  return $self->db->types;
 }
 
 =over 4
@@ -1022,13 +930,15 @@ sub features {
   my ($types,$iterator,@rest) = defined($_[0] && $_[0]=~/^-/)
     ? rearrange([['TYPE','TYPES']],@_) : (\@_);
   $types = [$types] if $types && !ref($types);
-  my @types    = ($types && @$types) ? @$types : $self->types;
-  my @features = map { @{$self->{features}{$_}} } @types;
+  my @args     = $types && @$types ? (-type=>$types) : ();
+  my $db = $self->db;
+
   if ($iterator) {
-    require Bio::Graphics::FeatureFile::Iterator;
-    return Bio::Graphics::FeatureFile::Iterator->new(\@features);
+      return $db->get_seq_stream(@args);
+  } else {
+      my @f = $db->features(@args);
+      return wantarray ?  @f : \@f;
   }
-  return wantarray ? @features : \@features;
 }
 
 
@@ -1106,39 +1016,12 @@ objects.
 sub get_feature_by_name {
    my $self = shift;
    my ($name,$ref,$start,$end) = rearrange(['NAME','REF','START','END'],@_);
-   my $match = <<'END';
-sub {
-        my $f = shift;
-END
-   if (defined $name) {
-      if ($name =~ /[\?\*]/) {  # regexp
-        $name =  quotemeta($name);
-        $name =~ s/\\\?/.?/g;
-        $name =~ s/\\\*/.*/g;
-        $match .= "     return unless \$f->display_name =~ /$name/i;\n";
-      } else {
-        $match .= "     return unless \$f->display_name eq '$name';\n";
-      }
-   }
-
-   if (defined $ref) {
-      $match .= "     return unless \$f->ref eq '$ref';\n";
-   }
-   if (defined $start && $start =~ /^-?\d+$/) {
-      $match .= "     return unless \$f->stop >= $start;\n";
-   }
-   if (defined $end && $end =~ /^-?\d+$/) {
-      $match .= "     return unless \$f->start <= $end;\n";
-   }
-   $match .= "     return 1;\n}";
-
-   my $match_sub = eval $match;
-   unless ($match_sub) {
-     warn $@;
-     return;
-   }
-
-   return grep {$match_sub->($_)} $self->features;
+   my @args;
+   push @args,(-name   => $name) if defined $name;
+   push @args,(-seq_id => $ref)  if defined $ref;
+   push @args,(-start  => $start)if defined $start;
+   push @args,(-end    => $end)  if defined $end;
+   return $self->db->features(@args);
 }
 
 =head2 search_notes
@@ -1160,34 +1043,7 @@ Each row of the returned array is a arrayref containing the following fields:
 
 sub search_notes {
   my $self = shift;
-  my ($search_string,$limit) = @_;
-
-  $search_string =~ tr/*?//d;
-
-  my @results;
-  my $search = join '|',map {quotemeta($_)} $search_string =~ /(\S+)/g;
-
-  for my $feature ($self->features) {
-    next unless $feature->{attributes};
-    my @attributes = $feature->all_tags;
-    my @values     = map {$feature->each_tag_value} @attributes;
-    push @values,$feature->notes        if $feature->notes;
-    push @values,$feature->display_name if $feature->display_name;
-    next unless @values;
-    my $value      = "@values";
-    my $matches    = 0;
-    my $note;
-    my @hits = $value =~ /($search)/ig;
-    $note ||= $value if @hits;
-    $matches += @hits;
-    next unless $matches;
-
-    my $relevance = 10 * $matches;
-    push @results,[$feature,$note,$relevance];
-    last if @results >= $limit;
-  }
-
-  @results;
+  return $self->db->search_notes(@_);
 }
 
 
@@ -1228,7 +1084,11 @@ Return the minimum coordinate of the leftmost feature in the data set.
 
 =cut
 
-sub min { shift->{min} }
+sub min { 
+    my $self = shift;
+    $self->_min_max();
+    $self->{min};
+}
 
 =over 4
 
@@ -1240,26 +1100,51 @@ Return the maximum coordinate of the rightmost feature in the data set.
 
 =cut
 
-sub max { shift->{max} }
+sub max {
+    my $self = shift;
+    $self->_min_max();
+    $self->{max};
+}
+
+sub _min_max {
+    my $self = shift;
+    return if defined $self->{min} and defined $self->{max};
+
+    my ($min,$max);
+    if (my $bases = $self->setting(general=>'bases')) {
+	($min,$max)        = $bases =~ /^(-?\d+)(?:\.\.|-)(-?\d+)/;
+    }
+
+    if (!defined $min) {
+	# otherwise sort through the features
+	my $fs = $self->get_seq_stream;
+	while (my $f = $fs->next_seq) {
+	    $min = $f->start if !defined $min or $min > $f->start;
+	    $max = $f->end   if !defined $max or $max < $f->start;
+	}
+    }
+
+    @{$self}{'min','max'} = ($min,$max);
+}
 
 sub init_parse {
   my $s = shift;
 
-  $s->{seenit} = {}; 
-  $s->{max}         = $s->{min} = undef;
-  $s->{types}       = [];
-  $s->{features}    = {};
-  $s->{config}      = {};
-  $s->{gff_version} = 0;
-  $s->{feature_count}=0; 
+  $s->{max}          = $s->{min} = undef;
+  $s->{types}        = [];
+  $s->{features}     = {};
+  $s->{config}       = {};
+  $s->{loader}       = undef;
+  $s->{state}        = 'config';
+  $s->{feature_count}= 0; 
 }
 
 sub finish_parse {
   my $s = shift;
-  $s->_closegroup;
   $s->evaluate_coderefs if $s->safe;
-  $s->{seenit} = {};
-  delete $s->{gff_version};
+  $s->{loader}->finish_load() if $s->{loader};
+  $s->{loader}       = undef;
+  $s->{state}        = 'config';
 }
 
 sub evaluate_coderefs {
@@ -1484,10 +1369,10 @@ sub invert_types {
   my $config  = $self->{config} or return;
   my %inverted;
   for my $label (keys %{$config}) {
-    my $feature = $config->{$label}{feature} or next;
-    foreach (shellwords($feature||'')) {
-      $inverted{$_}{$label}++;
-    }
+      my $feature = $config->{$label}{feature} || $label;
+      foreach (shellwords($feature||'')) {
+	  $inverted{lc $_}{$label}++;
+      }
   }
   \%inverted;
 }

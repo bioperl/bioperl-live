@@ -269,7 +269,7 @@ sub create_load_data { #overridden
   $self->SUPER::create_load_data;
   $self->{load_data}{Parent2Child}     = {};
   $self->{load_data}{TemporaryID}      = "GFFLoad0000000";
-  $self->{load_data}{IndexSubfeatures} = 1;
+  $self->{load_data}{IndexSubfeatures} = $self->index_subfeatures();
   $self->{load_data}{mode}             = 'gff';
 }
 
@@ -378,11 +378,13 @@ sub handle_meta {
   my $instruction = shift;
 
   if ($instruction =~ /sequence-region\s+(.+)\s+(-?\d+)\s+(-?\d+)/i) {
-    my $feature = $self->sfclass->new(-name        => $1,
-				      -seq_id      => $1,
-				      -start       => $2,
-				      -end         => $3,
-				      -primary_tag => 'region');
+      my($ref,$start,$end,$strand)    = $self->_remap($1,$2,$3,+1);
+      my $feature = $self->sfclass->new(-name        => $ref,
+					-seq_id      => $ref,
+					-start       => $start,
+					-end         => $end,
+					-strand      => $strand,
+					-primary_tag => 'region');
     $self->store->store($feature);
     return;
   }
@@ -390,6 +392,7 @@ sub handle_meta {
   if ($instruction =~/index-subfeatures\s+(\S+)/i) {
     $self->{load_data}{IndexSubfeatures} = $1;
     $self->store->index_subfeatures($1);
+    warn "index subfeatures = $1";
     return;
   }
 }
@@ -408,8 +411,11 @@ sub handle_feature { #overridden
   my $gff_line = shift;
   my $ld       = $self->{load_data};
 
+  $gff_line    =~ s/\s+/\t/g if $self->allow_whitespace;
+
   my @columns = map {$_ eq '.' ? undef : $_ } split /\t/,$gff_line;
   return unless @columns >= 8;
+
   my ($refname,$source,$method,$start,$end, $score,$strand,$phase,$attributes) = @columns;
   $strand = $Strandedness{$strand||0};
   my ($reserved,$unreserved) = $attributes ? $self->parse_attributes($attributes) : ();
@@ -454,6 +460,8 @@ sub handle_feature { #overridden
       push @{$unreserved->{Alias}},$tc unless $name eq $tc || $aliases{$tc};
     }
   }
+
+  ($refname,$start,$end,$strand) = $self->_remap($refname,$start,$end,$strand);
 
   my @args = (-display_name => $name,
 	      -seq_id       => $refname,
@@ -518,6 +526,22 @@ END
     push @{$ld->{Parent2Child}{$parent}},$feature_id;
   }
 
+}
+
+=item allow_whitespace
+
+   $allow_it = $loader->allow_whitespace([$newvalue]);
+
+Get or set the allow_whitespace flag. If true, then GFF3 files are allowed to
+be delimited with whitespace in addition to tabs.
+
+=cut
+
+sub allow_whitespace {
+    my $self = shift;
+    my $d    = $self->{allow_whitespace};
+    $self->{allow_whitespace} = shift if @_;
+    $d;
 }
 
 =item store_current_feature
@@ -789,6 +813,20 @@ but doesn't change pluses into spaces and ignores unicode escapes.
 =cut
 
 # sub unescape { } inherited
+
+sub _remap {
+    my $self = shift;
+    my ($ref,$start,$end,$strand) = @_;
+    my $mapper = $self->coordinate_mapper;
+    return ($ref,$start,$end,$strand) unless $mapper;
+    
+    my ($newref,$coords) = $mapper->($ref,[$start,$end]);
+    if ($coords->[0] > $coords->[1]) {
+	@{$coords} = reverse(@{$coords}); 
+	$strand *= -1;
+    }
+    return ($newref,@{$coords},$strand);
+}
 
 1;
 __END__

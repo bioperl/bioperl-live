@@ -300,7 +300,7 @@ sub load_line {
     $load_data->{mode} = 'fff' if /\s/;  # if it has any whitespace in
                                          # it, then back to fff mode
 
-    if ($line =~ /^\#\s?\#\s*(.+)/) {    ## meta instruction
+    if ($line =~ /^\#\s?\#\s*([\#]+)/) {    ## meta instruction
       $load_data->{mode} = 'fff';
       $self->handle_meta($1);
 
@@ -380,7 +380,7 @@ sub handle_feature {
       $self->store_current_feature();
       my $type               = shift @tokens;
       my $name               = shift @tokens;
-      $ld->{CurrentGroup}    = $self->_make_feature($name,$type);
+      $ld->{CurrentGroup}    = $self->_make_indexed_feature($name,$type,'',{_ff_group=>1});
       $ld->{IndexIt}{$name}++;
       return;
   }
@@ -412,7 +412,7 @@ sub handle_feature {
 
   $type   = '' unless defined $type;
   $name   = '' unless defined $name;
-  $type ||= $ld->{CurrentGroup}->type if $ld->{CurrentGroup};
+  $type ||= $ld->{CurrentGroup}->primary_tag if $ld->{CurrentGroup};
 
   my $reference = $ld->{reference} || 'ChrUN';
   foreach (@parts) {
@@ -424,6 +424,15 @@ sub handle_feature {
 	  ($_->[1],$_->[2])   = ($_->[2],$_->[1]) if $_->[1] > $_->[2];
       }
       $reference = $_->[0] if defined $_->[0];
+      $_ = [@{$_}[1,2]]; # strip off the reference.
+  }
+
+  # now @parts is an array of [start,end] and $reference contains the seqid
+
+  # apply coordinate mapper
+  if ($self->{coordinate_mapper} && $reference) {
+      my @remapped = $self->{coordinate_mapper}->($reference,@parts);
+      ($reference,@parts) = @remapped if @remapped;
   }
 
   # either create a new feature or add a segment to it
@@ -435,23 +444,37 @@ sub handle_feature {
       if ($feature->display_name ne $name ||
 	  $feature->method       ne $type) {
 	  $self->store_current_feature;  # new feature, store old one
-	  $feature = $ld->{CurrentFeature} = $self->_make_indexed_feature($name,$type,
-									  $strand,$attr);
+	  undef $feature;
+      } else { # create a new multipart feature
+	  $self->_multilevel_feature($feature) unless $feature->get_SeqFeatures;
+	  my $part = $self->_make_feature($name,$type,
+					  $strand,$attr,
+					  $reference,@{$parts[0]});
+	  $feature->add_SeqFeature($part);
       }
-      
-  } else { # create new feature
-      $feature = $ld->{CurrentFeature} = $self->_make_indexed_feature($name,$type,
-								      $strand,$attr);
   }
 
+  $feature ||= $self->_make_indexed_feature($name,$type,   # side effect is to set CurrentFeature
+					    $strand,$attr,
+					    $reference,@{$parts[0]});
   # add more segments to the current feature
-  for my $part (@parts) {
-      $type  ||= $feature->primary_tag;
-      my $sp = $self->_make_feature($name,$type,$strand,$attr,
-				    $reference,$part->[1],$part->[2]);
+  if (@parts > 1) {
+      for my $part (@parts) {
+	  $type  ||= $feature->primary_tag;
+	  my $sp = $self->_make_feature($name,$type,$strand,$attr,
+					$reference,@{$part});
       $feature->add_SeqFeature($sp);
+      }
   }
 
+}
+
+sub _multilevel_feature { # turn a single-level feature into a multilevel one
+    my $self = shift;
+    my $f    = shift;
+    my @args = ($f->display_name,$f->type,$f->strand,{},$f->seq_id,$f->start,$f->end);
+    my $subpart = $self->_make_feature(@args);
+    $f->add_SeqFeature($subpart);
 }
 
 sub _make_indexed_feature {
@@ -459,7 +482,7 @@ sub _make_indexed_feature {
     my $f    = $self->_make_feature(@_);
     my $name = $f->display_name;
     $self->{load_data}{CurrentFeature} = $f;
-    $self->{load_data}{CurrentID} = $name;
+    $self->{load_data}{CurrentID}      = $name;
     $self->{load_data}{IndexIt}{$name}++;
     return $f;
 }
@@ -504,6 +527,9 @@ sub _make_feature {
 	push @args,(-phase => $phase->[0]);
 	delete $attributes->{$_} foreach qw (Phase phase);
     }
+
+    $self->{load_data}{IndexIt}{$name}++ 
+	if $self->index_subfeatures && $name;
 
     return $self->sfclass->new(@args);
 }
@@ -623,9 +649,10 @@ sub parse_attributes {
   my %attributes;
   for my $pair (@pairs) {
       unless ($pair =~ /=/) {
-	  push @{$attributes{Note}},quotewords('',0,$pair);
+	  push @{$attributes{Note}},(quotewords('',0,$pair))[0] || $pair;
       } else {
 	  my ($tag,$value) = quotewords('\s*=\s*',0,$pair);
+	  $tag = 'Note' if $tag eq 'description';
 	  push @{$attributes{$tag}},$value;
       }
   }
