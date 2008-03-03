@@ -208,7 +208,6 @@ sub to_string {
 
     my ($qtype,$dbtype,$dbseqtype,$type);
     my $alg = $result->algorithm;
-
     # This is actually wrong for the FASTAs I think
     if(  $alg =~ /T(FAST|BLAST)([XY])/i ) {
 	$qtype      = $dbtype = 'translated';
@@ -282,8 +281,8 @@ sub to_string {
 	    # no HSPs so no link 
 	    $str .= sprintf('<tr><td>%s %s</td><td>%s</td><td>%.2g</td></tr>'."\n",
 			    $url_desc, $descsub, 
-			    ($hit->raw_score ? $hit->raw_score : 
-			     (defined $hsps[0] ? $hsps[0]->score : ' ')),
+			    ($hit->bits ? $hit->bits : 
+			     (defined $hsps[0] ? $hsps[0]->bits : ' ')),
 			    ( $hit->significance ? $hit->significance :
 			      (defined $hsps[0] ? $hsps[0]->evalue : ' ')) 
 			    );
@@ -293,8 +292,8 @@ sub to_string {
 
 	    $str .= sprintf('<tr><td>%s %s</td><td>%s</td><td><a href="#%s">%.2g</a></td></tr>'."\n",
 			    $url_desc, $descsub, 
-			    ($hit->raw_score ? $hit->raw_score : 
-			     (defined $hsps[0] ? $hsps[0]->score : ' ')),
+			    ($hit->bits ? $hit->bits : 
+			     (defined $hsps[0] ? $hsps[0]->bits : ' ')),
 			    $acc,
 			    ( $hit->significance ? $hit->significance :
 			      (defined $hsps[0] ? $hsps[0]->evalue : ' ')) 
