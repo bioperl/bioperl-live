@@ -329,7 +329,7 @@ sub sequence_region {
     return $v;
   }
   elsif(defined($k)){
-    return $self->{'sequence-region'}{$k};
+    return $self->{'sequence_region'}{$k};
   }
   else {
     return;
