@@ -392,7 +392,6 @@ sub handle_meta {
   if ($instruction =~/index-subfeatures\s+(\S+)/i) {
     $self->{load_data}{IndexSubfeatures} = $1;
     $self->store->index_subfeatures($1);
-    warn "index subfeatures = $1";
     return;
   }
 }
