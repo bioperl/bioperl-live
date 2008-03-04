@@ -466,7 +466,13 @@ sub parse_line {
   # reenter config state whenever we see a /^\[ pattern (config section)
   my $old_state = $self->{state};
   my $new_state = $self->_state_transition($line);
-#  warn "$old_state->$new_state: $line";
+
+  #  warn "$old_state->$new_state: $line";
+
+  if ($new_state ne $old_state) {
+      delete $self->{current_config};
+      delete $self->{current_tag};
+  }
 
   if ($new_state eq 'config') {
       $self->parse_config_line($line);
@@ -491,9 +497,12 @@ sub _state_transition {
 	return 'data'   if $line =~ /^reference\s*=/; # feature-file reference sequence directive
 	
 	return 'config' if $line =~ /^\s*$/;                             #empty line
-	return 'config' if $line =~ m/^\s*\[([^\]]+)\]|=/;               # section beginning
-	return 'config' if $line =~ m/^\s+(.+)/ && $self->{current_tag}; # continuation section
-	return 'config' if $line =~ /^\#/; # comment -not a meta
+	return 'config' if $line =~ m/^\[([^\]]+)\]/;                    # section beginning
+	return 'config' if $line =~ m/^[\w\s]+=/ 
+	    && $self->{current_config};                                  # configuration line
+	return 'config' if $line =~ m/^\s+(.+)/
+	    && $self->{current_tag};                                     # continuation section
+	return 'config' if $line =~ /^\#/;                               # comment -not a meta
 	return 'data';
     }
     return $current_state;
@@ -532,7 +541,9 @@ sub parse_config_line {
 
 
     elsif (/^$/) { # empty line
-	undef $self->{current_tag};
+     # no longer required -- new sections are indicated by the start of a [stanza]
+     # line and not by termination with a blank line
+     #	undef $self->{current_tag}; 
 	return 1;
     }
 
