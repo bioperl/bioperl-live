@@ -109,14 +109,10 @@ sub prepare {
 
   # find a non-busy dbh
   my $dbh = $self->dbh || $self->throw("Can't connect to database: " . DBI->errstr);
-  if (my $sth = $self->{$dbh}{$query}) {
-    warn "Using cached statement handler\n" if $self->debug;
-    return $sth;
-  } else {
-    warn "Creating new statement handler\n" if $self->debug;
-    $sth = $dbh->prepare($query) || $self->throw("Couldn't prepare query $query:\n ".DBI->errstr."\n");
-    return $self->{$dbh}{$query} = $sth;
-  }
+
+  warn "Using prepare_cache\n" if $self->debug;
+  my $sth = $dbh->prepare_cached($query, {}, 3) || $self->throw("Couldn't prepare query $query:\n ".DBI->errstr."\n");
+  return $sth;
 }
 
 sub do_query {
