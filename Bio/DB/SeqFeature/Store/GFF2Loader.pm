@@ -125,7 +125,7 @@ normal (slow) loading.
 If you use an unnormalized feature class, such as
 Bio::SeqFeature::Generic, then the loader needs to create a temporary
 database in which to cache features until all their parts and subparts
-have been seen. This temporary databases uses the "bdb" adaptor. The
+have been seen. This temporary databases uses the "berkeleydb" adaptor. The
 -tmp option specifies the directory in which that database will be
 created. If not present, it defaults to the system default tmp
 directory specified by File::Spec-E<gt>tmpdir().
@@ -510,7 +510,7 @@ L<Bio::DB::SeqFeature::Segment>,
 L<Bio::DB::SeqFeature::NormalizedFeature>,
 L<Bio::DB::SeqFeature::GFF3Loader>,
 L<Bio::DB::SeqFeature::Store::DBI::mysql>,
-L<Bio::DB::SeqFeature::Store::bdb>
+L<Bio::DB::SeqFeature::Store::berkeleydb>
 
 =head1 AUTHOR
 

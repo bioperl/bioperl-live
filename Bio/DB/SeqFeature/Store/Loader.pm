@@ -28,6 +28,7 @@ use IO::File;
 use Bio::DB::GFF::Util::Rearrange;
 use Bio::DB::SeqFeature::Store;
 use File::Spec;
+use File::Temp 'tempdir';
 use base 'Bio::Root::Root';
 
 use constant DEFAULT_SEQ_CHUNK_SIZE => 2000;
@@ -88,7 +89,7 @@ normal (slow) loading.
 If you use an unnormalized feature class, such as
 Bio::SeqFeature::Generic, then the loader needs to create a temporary
 database in which to cache features until all their parts and subparts
-have been seen. This temporary databases uses the "bdb" adaptor. The
+have been seen. This temporary databases uses the "berkeleydb" adaptor. The
 -tmp option specifies the directory in which that database will be
 created. If not present, it defaults to the system default tmp
 directory specified by File::Spec-E<gt>tmpdir().
@@ -141,10 +142,11 @@ END
   eval "require Time::HiRes";
 
   $tmpdir ||= File::Spec->tmpdir();
+  my $dsn = tempdir(DIR=>$tmpdir,CLEANUP=>1);
 
   my $tmp_store = Bio::DB::SeqFeature::Store->new(-adaptor  => 'berkeleydb',
 						  -temporary=> 1,
-						  -dsn      => $tmpdir,
+						  -dsn      => $dsn,
 						  -cache    => 1,
 						  -write    => 1)
     unless $normalized;
@@ -157,6 +159,7 @@ END
 		seq_chunk_size   => $seq_chunk_size || DEFAULT_SEQ_CHUNK_SIZE,
 		verbose          => $verbose,
 		load_data        => {},
+		tmpdir           => $tmpdir,
 		subfeatures_normalized => $normalized,
 		subfeatures_in_table   => $in_table,
 		coordinate_mapper      => $coordinate_mapper,
@@ -428,6 +431,22 @@ sub handle_meta {
   # do nothing 
 }
 
+sub _indexit {
+    my $self      = shift;
+    my $id        = shift;
+    my $indexhash = $self->{load_data}{IndexIt};
+    $indexhash->{$id} = shift if @_;
+    return $indexhash->{$id};
+}
+
+sub _local2global {
+    my $self      = shift;
+    my $id        = shift;
+    my $indexhash = $self->{load_data}{Local2GlobalID};
+    $indexhash->{$id} = shift if @_;
+    return $indexhash->{$id};
+}
+
 =item store_current_feature
 
   $loader->store_current_feature()
@@ -446,7 +465,7 @@ sub store_current_feature {
   my $f    = $ld->{CurrentFeature};
 
   my $normalized = $self->subfeatures_normalized;
-  my $indexed    = $ld->{IndexIt}{$ld->{CurrentID}};
+  my $indexed    = $self->_indexit($ld->{CurrentID});
 
   # logic is as follows:
   # 1. If the feature is an indexed feature, then we store it into the main database
@@ -473,9 +492,9 @@ sub store_current_feature {
   }
 	
   my $id        = $f->primary_id;    # assigned by store()
-  $ld->{Local2GlobalID}{$ld->{CurrentID}} = $id;
 
-  undef $ld->{IndexIt}{$ld->{CurrentID}} if $normalized;  # no need to remember this
+  $self->_local2global($ld->{CurrentID} => $id);
+  $self->_indexit($ld->{CurrentID} => 0)if $normalized;  # no need to remember this
   undef $ld->{CurrentID};
   undef $ld->{CurrentFeature};
 }
@@ -624,7 +643,7 @@ L<Bio::DB::SeqFeature::Segment>,
 L<Bio::DB::SeqFeature::NormalizedFeature>,
 L<Bio::DB::SeqFeature::GFF3Loader>,
 L<Bio::DB::SeqFeature::Store::DBI::mysql>,
-L<Bio::DB::SeqFeature::Store::bdb>
+L<Bio::DB::SeqFeature::Store::berkeleydb>
 
 =head1 AUTHOR
 

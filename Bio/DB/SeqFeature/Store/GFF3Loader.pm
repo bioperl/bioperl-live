@@ -53,6 +53,11 @@ if present, controls indexing of the current feature. Example:
 You can use this to turn indexing on and off, overriding the default
 for a particular feature.
 
+Note that the loader keeps a record -- in memory -- of each feature
+that it has processed. If you find the loader running out of memory on
+particularly large GFF3 files, please split the input file into
+smaller pieces and do the load in steps.
+
 =cut
 
 
@@ -65,6 +70,8 @@ for a particular feature.
 use strict;
 use Carp 'croak';
 use Bio::DB::GFF::Util::Rearrange;
+use Bio::DB::SeqFeature::Store::LoadHelper;
+
 use base 'Bio::DB::SeqFeature::Store::Loader';
 
 
@@ -135,7 +142,7 @@ normal (slow) loading.
 If you use an unnormalized feature class, such as
 Bio::SeqFeature::Generic, then the loader needs to create a temporary
 database in which to cache features until all their parts and subparts
-have been seen. This temporary databases uses the "bdb" adaptor. The
+have been seen. This temporary databases uses the "berkeleydb" adaptor. The
 -tmp option specifies the directory in which that database will be
 created. If not present, it defaults to the system default tmp
 directory specified by File::Spec-E<gt>tmpdir().
@@ -267,10 +274,12 @@ These methods are called at the start and end of a filehandle load.
 sub create_load_data { #overridden
   my $self = shift;
   $self->SUPER::create_load_data;
-  $self->{load_data}{Parent2Child}     = {};
   $self->{load_data}{TemporaryID}      = "GFFLoad0000000";
   $self->{load_data}{IndexSubfeatures} = $self->index_subfeatures();
   $self->{load_data}{mode}             = 'gff';
+
+  $self->{load_data}{Helper}           = 
+      Bio::DB::SeqFeature::Store::LoadHelper->new($self->{tmpdir});
 }
 
 sub finish_load { #overridden
@@ -486,7 +495,7 @@ sub handle_feature { #overridden
   }
 
   # Current feature is the same as a feature that was loaded earlier
-  elsif (my $id = $self->{load_data}{Local2GlobalID}{$feature_id}) {
+  elsif (my $id = $self->{load_data}{Helper}->local2global($feature_id)) {
     $old_feat = $self->fetch($feature_id)
       or $self->warn(<<END);
 ID=$feature_id has been used more than once, but it cannot be found in the database.
@@ -517,12 +526,19 @@ END
   my $has_id    = defined $reserved->{ID}[0];
   $index_it   ||= $top_level;
 
-  $ld->{IndexIt}{$feature_id}++    if $index_it;
-  $ld->{TopLevel}{$feature_id}++   if !$self->{fast} && $top_level;  # need to track top level features
+#  $ld->{IndexIt}{$feature_id}++    if $index_it;
+#  $ld->{TopLevel}{$feature_id}++   if !$self->{fast} 
+#                                      && $top_level;  # need to track top level features
+
+  my $helper = $ld->{Helper};
+  $helper->indexit($feature_id=>1)  if $index_it;
+  $helper->toplevel($feature_id=>1) if !$self->{fast} 
+                                       && $top_level;  # need to track top level features
+
 
   # remember parentage
   for my $parent (@parent_ids) {
-    push @{$ld->{Parent2Child}{$parent}},$feature_id;
+      $helper->add_children($parent=>$feature_id);
   }
 
 }
@@ -582,17 +598,21 @@ will be stored in a database table.
 
 sub build_object_tree_in_tables {
   my $self = shift;
-  my $store = $self->store;
-  my $ld    = $self->{load_data};
+  my $store  = $self->store;
+  my $helper = $self->{load_data}{Helper};
 
-  while (my ($load_id,$children) = each %{$ld->{Parent2Child}}) {
-    die $self->throw("$load_id doesn't have a primary id") unless exists  $ld->{Local2GlobalID}{$load_id};
-    my $parent_id = $ld->{Local2GlobalID}{$load_id};
-    my @children  = map {$ld->{Local2GlobalID}{$_}} @$children;
+  while (my ($load_id,$children) = $helper->each_family()) {
 
-    # this updates the table that keeps track of parent/child relationships,
-    # but does not update the parent object -- so (start,end) had better be right!!!
-    $store->add_SeqFeature($parent_id,@children);
+      my $parent_id = $helper->local2global($load_id);
+      die $self->throw("$load_id doesn't have a primary id") 
+	  unless defined $parent_id;
+
+
+      my @children  = map {$helper->local2global($_)} @$children;
+      # this updates the table that keeps track of parent/child relationships,
+      # but does not update the parent object -- so (start,end) had better be right!!!
+      $store->add_SeqFeature($parent_id,@children);
+
   }
 
 }
@@ -614,11 +634,16 @@ sub build_object_tree_in_features {
   my $ld         = $self->{load_data};
   my $normalized = $self->subfeatures_normalized;
 
-  while (my ($load_id) = each %{$ld->{TopLevel}}) {
+  my $helper     = $ld->{Helper};
+
+  while (my $load_id = $helper->each_toplevel) {
     my $feature  = $self->fetch($load_id)
-      or $self->throw("$load_id (id=$ld->{Local2GlobalID}{$load_id}) should have a database entry, but doesn't");
+      or $self->throw("$load_id (id="
+		      .$helper->local2global($load_id)
+		      ." should have a database entry, but doesn't");
     $self->attach_children($store,$ld,$load_id,$feature);
-    $feature->primary_id(undef) unless $ld->{IndexIt}{$load_id};  # Indexed objects are updated, not created anew
+    # Indexed objects are updated, not created anew
+    $feature->primary_id(undef) unless $helper->indexit($load_id);
     $store->store($feature);
   }
 
@@ -638,12 +663,12 @@ sub attach_children {
   my $self = shift;
   my ($store,$ld,$load_id,$feature)  = @_;
 
-  my $children   = $ld->{Parent2Child}{$load_id} or return;
+  my $children   = $ld->{Helper}->children() or return;
   for my $child_id (@$children) {
-    my $child = $self->fetch($child_id)
-      or $self->throw("$child_id should have a database entry, but doesn't");
-    $self->attach_children($store,$ld,$child_id,$child);   # recursive call
-    $feature->add_SeqFeature($child);
+      my $child = $self->fetch($child_id)
+	  or $self->throw("$child_id should have a database entry, but doesn't");
+      $self->attach_children($store,$ld,$child_id,$child);   # recursive call
+      $feature->add_SeqFeature($child);
   }
 }
 
@@ -660,13 +685,14 @@ where it is stored.
 sub fetch {
   my $self    = shift;
   my $load_id = shift;
-  my $ld      = $self->{load_data};
-  my $id      = $ld->{Local2GlobalID}{$load_id};
+  my $helper  = $self->{load_data}{Helper};
+  my $id      = $helper->local2global($load_id);
 
   return
-    $self->subfeatures_normalized || $ld->{IndexIt}{$load_id}
-      ? $self->store->fetch($id)
-      : $self->tmp_store->fetch($id);
+    $self->subfeatures_normalized || ($helper->indexit($load_id)
+				      ? $self->store->fetch($id)
+				      : $self->tmp_store->fetch($id)
+				      );
 }
 
 =item add_segment
@@ -734,9 +760,9 @@ tags (e.g. ID) and the other containing the values of unreserved ones.
 sub parse_attributes {
   my $self = shift;
   my $att  = shift;
-  my @pairs =  map { my ($name,$value) = split /=/;
+  my @pairs =  map { my ($name,$value) = split '=';
                     [$self->unescape($name) => $value];  
-                   } split /;/,$att;
+                   } split ';',$att;
   my (%reserved,%unreserved);
   foreach (@pairs) {
     my $tag    = $_->[0];
@@ -827,6 +853,17 @@ sub _remap {
     return ($newref,@{$coords},$strand);
 }
 
+sub _indexit { # override
+    my $self      = shift;
+    return $self->{load_data}{Helper}->indexit(@_);
+}
+
+sub _local2global { # override
+    my $self      = shift;
+    return $self->{load_data}{Helper}->local2global(@_);
+}
+
+
 1;
 __END__
 
@@ -845,7 +882,7 @@ L<Bio::DB::SeqFeature::Segment>,
 L<Bio::DB::SeqFeature::NormalizedFeature>,
 L<Bio::DB::SeqFeature::GFF2Loader>,
 L<Bio::DB::SeqFeature::Store::DBI::mysql>,
-L<Bio::DB::SeqFeature::Store::bdb>
+L<Bio::DB::SeqFeature::Store::berkeleydb>
 
 =head1 AUTHOR
 

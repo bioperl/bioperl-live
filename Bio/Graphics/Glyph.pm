@@ -325,7 +325,6 @@ sub boxes {
 
   for my $part ($self->parts) {
     my $type   = $part->feature->primary_tag || '';
-    my $source = $part->feature->source_tag  || '';
     if ($type eq 'group' or $subparts > $part->level) {
       push @result,$part->boxes($left,$top+$self->top+$self->pad_top,$parent);
       next if $type eq 'group';
