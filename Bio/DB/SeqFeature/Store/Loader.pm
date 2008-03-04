@@ -375,9 +375,14 @@ sub do_load {
   my $self = shift;
   my $fh   = shift;
 
-  $self->{load_data}{start_time} = $self->time();
+  $self->{load_data}{start_time}       = $self->time();
+  $self->{load_data}->{millenium_time} = $self->{load_data}{start_time};
   $self->load_line($_) while <$fh>;
-  $self->msg(' 'x80,"\n"); #clear screen
+  $self->msg(sprintf "%d features loaded in %5.2fs%s\r",
+	     $self->{load_data}->{count},
+	     $self->time()-$self->{load_data}{start_time},
+	     ' 'x80
+      );
   $self->{load_data}{count};
 }
 

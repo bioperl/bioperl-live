@@ -360,9 +360,12 @@ sub load_line { #overridden
       if (++$load_data->{count} % 1000 == 0) {
 	my $now = $self->time();
 	my $nl = -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
-	$self->msg(sprintf("%d features loaded in %5.2fs...$nl",
-			   $load_data->{count},$now - $load_data->{start_time}));
-	$load_data->{start_time} = $now;
+	$self->msg(sprintf("%d features loaded in %5.2fs (%5.2fs/1000 features)...%s$nl",
+			   $load_data->{count},$now - $load_data->{start_time},
+			   $now - $load_data->{millenium_time},
+			   ' ' x 80
+		   ));
+	$load_data->{millenium_time} = $now;
       }
     }
 

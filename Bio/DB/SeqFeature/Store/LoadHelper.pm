@@ -1,5 +1,40 @@
 package Bio::DB::SeqFeature::Store::LoadHelper;
 
+# $Id$
+
+=head1 NAME
+
+Bio::DB::SeqFeature::Store::LoadHelper -- Internal utility for Bio::DB::SeqFeature::Store
+
+=head1 SYNOPSIS
+
+For internal use only.
+
+=head1 DESCRIPTION
+
+For internal use only
+
+=head1 SEE ALSO
+
+L<bioperl>,
+L<Bio::DB::SeqFeature::Store>,
+L<Bio::DB::SeqFeature::Segment>,
+L<Bio::DB::SeqFeature::NormalizedFeature>,
+L<Bio::DB::SeqFeature::GFF2Loader>,
+L<Bio::DB::SeqFeature::Store::DBI::mysql>,
+L<Bio::DB::SeqFeature::Store::berkeleydb>
+
+=head1 AUTHOR
+
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>.
+
+Copyright (c) 2006 Cold Spring Harbor Laboratory.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+
 use strict;
 use DB_File;
 use File::Temp 'tempdir';
@@ -21,21 +56,23 @@ sub create_dbs {
     my $tmp  = shift;
     my %self;
 
+    my $hash_options           = DB_File::HASHINFO->new();
+
     # Each of these hashes allow only unique keys
     for my $dbname qw(IndexIt TopLevel Local2Global) {
 	my %h;
 	tie(%h,'DB_File',File::Spec->catfile($tmp,$dbname),
-	    O_CREAT|O_RDWR,0666,$DB_BTREE);
+	    O_CREAT|O_RDWR,0666,$hash_options);
 	$self{$dbname} = \%h;
     }
 
     # The Parent2Child hash allows duplicate keys, so we
     # create it with the R_DUP flag.
-    my $btree_dups = DB_File::BTREEINFO->new();
-    $btree_dups->{flags} = R_DUP;
+    my $btree_options           = DB_File::BTREEINFO->new();
+    $btree_options->{flags}     = R_DUP;
     my %h;
     tie(%h,'DB_File',File::Spec->catfile($tmp,'Parent2Child'),
-	O_CREAT|O_RDWR,0666,$btree_dups);
+	O_CREAT|O_RDWR,0666,$btree_options);
     $self{Parent2Child} = \%h;
 
     return \%self;

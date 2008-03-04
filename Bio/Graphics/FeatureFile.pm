@@ -464,7 +464,9 @@ sub parse_line {
   # Are we in a configuration section or a data section?
   # We start out in 'config' state, and are triggered to
   # reenter config state whenever we see a /^\[ pattern (config section)
+  my $old_state = $self->{state};
   my $new_state = $self->_state_transition($line);
+#  warn "$old_state->$new_state: $line";
 
   if ($new_state eq 'config') {
       $self->parse_config_line($line);
@@ -490,7 +492,6 @@ sub _state_transition {
 	
 	return 'config' if $line =~ /^\s*$/;                             #empty line
 	return 'config' if $line =~ m/^\s*\[([^\]]+)\]|=/;               # section beginning
-	return 'config' if $line =~ m/\\$/;                              # continuation line
 	return 'config' if $line =~ m/^\s+(.+)/ && $self->{current_tag}; # continuation section
 	return 'config' if $line =~ /^\#/; # comment -not a meta
 	return 'data';
@@ -512,7 +513,7 @@ sub parse_config_line {
 	return 1;
     }
 
-    elsif (/^\s*\[([^\]]+)\]/) {  # beginning of a configuration section
+    elsif (/^\[([^\]]+)\]/) {  # beginning of a configuration section
 	my $label = $1;
 	my $cc = $label =~ /^(general|default)$/i ? 'general' : $label;  # normalize
 	push @{$self->{types}},$cc unless $cc eq 'general';
