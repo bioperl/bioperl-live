@@ -201,6 +201,16 @@ sub features {
   $self->{store}->features(@args,-seqid=>$self->{seqid},-start=>$self->{start},-end=>$self->{end});
 }
 
+sub types {
+    my $self = shift;
+    my %types;
+    my $iterator = $self->get_seq_stream(@_);
+    while (my $f = $iterator->next_seq) {
+	$types{$f->type}++;
+    }
+    return %types;
+}
+
 =head2 get_seq_stream
 
  Title   : get_seq_stream

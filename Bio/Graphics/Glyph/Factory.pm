@@ -387,6 +387,7 @@ sub option {
   if (exists $self->{options} && (my $map    = $self->{options})) {
     if (exists $map->{$option_name} && defined(my $value  = $map->{$option_name})) {
       my $feature = $glyph->feature;
+
       return $value unless ref $value eq 'CODE';
       my $val = eval { $value->($feature,$option_name,$partno,$total_parts,$glyph)};
       warn "Error returned while evaluating value of '$option_name' option for glyph $glyph, feature $feature: ",$@,"\n"

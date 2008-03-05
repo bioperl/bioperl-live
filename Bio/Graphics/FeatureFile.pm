@@ -457,8 +457,8 @@ sub parse_line {
   my $self = shift;
   my $line = shift;
 
-  s/\015//g;  # get rid of carriage returns left over by MS-DOS/Windows systems
-  s/\s+$//;   # get rid of trailing whitespace
+  $line =~ s/\015//g;  # get rid of carriage returns left over by MS-DOS/Windows systems
+  $line =~ s/\s+$//;   # get rid of trailing whitespace
 
   return 1 if $line =~ /^\s*\#[^\#]?$/;   # comment line
 
