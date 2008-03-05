@@ -50,6 +50,26 @@ LocusLink parser:
 
 The C<-debug> and C<-locuslink> options slow down the parser.
 
+Example code which looks for ontology terms:
+
+  my $eio = new Bio::SeqIO(-file => $file,
+                           -format => 'entrezgene',
+                           -service_record => 'yes');
+
+  while (my $seq = $eio->next_seq) {
+    my $gid = $seq->accession_number;
+    foreach my $ot ($ann->get_Annotations('OntologyTerm')) {
+      next if ($ot->term->authority eq 'STS marker'); # No STS markers
+      my $evid = $ot->comment;
+      $evid =~ s/evidence: //i;
+      my @ref = $ot->term->get_references;
+      my $id = $ot->identifier;
+      my $fid = 'GO:' . sprintf("%07u",$id);
+      print join("\t",$gid, $ot->ontology->name, $ot->name, $evid,
+        $fid, @ref?$ref[0]->medline:''), "\n";
+    }
+  }
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
