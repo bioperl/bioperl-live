@@ -472,7 +472,7 @@ sub handle_feature { #overridden
     }
   }
 
-  ($refname,$start,$end,$strand) = $self->_remap($refname,$start,$end,$strand);
+  ($refname,$start,$end,$strand) = $self->_remap($refname,$start,$end,$strand) or return;
 
   my @args = (-display_name => $name,
 	      -seq_id       => $refname,
@@ -847,8 +847,9 @@ sub _remap {
     my ($ref,$start,$end,$strand) = @_;
     my $mapper = $self->coordinate_mapper;
     return ($ref,$start,$end,$strand) unless $mapper;
-    
+
     my ($newref,$coords) = $mapper->($ref,[$start,$end]);
+    return unless defined $coords->[0];
     if ($coords->[0] > $coords->[1]) {
 	@{$coords} = reverse(@{$coords}); 
 	$strand *= -1;

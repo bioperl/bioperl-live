@@ -300,6 +300,7 @@ sub render {
   my @unconfigured_types = sort grep {!exists $lc_types{lc $_} &&
 					  !exists $lc_types{lc $_->method}
   }         $self->types;
+
   my @configured_types   = keys %types;
 
   my @labels_to_render = (@labels,@unconfigured_types);
@@ -332,6 +333,7 @@ sub render {
       next if defined $selector and !$selector->($self,$label);
 
       my @features = grep {$self->_visible($_)} $self->features(\@types);
+
       next unless @features;  # suppress tracks for features that don't appear
 
       # fix up funky group hack
@@ -467,7 +469,7 @@ sub parse_line {
   my $old_state = $self->{state};
   my $new_state = $self->_state_transition($line);
 
-  #  warn "$old_state->$new_state: $line";
+#  warn "$old_state=>$new_state: $line";
 
   if ($new_state ne $old_state) {
       delete $self->{current_config};

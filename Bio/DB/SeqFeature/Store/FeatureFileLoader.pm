@@ -381,7 +381,7 @@ sub handle_feature {
       my $type               = shift @tokens;
       my $name               = shift @tokens;
       $ld->{CurrentGroup}    = $self->_make_indexed_feature($name,$type,'',{_ff_group=>1});
-      $ld->{IndexIt}{$name}++;
+      $self->_indexit($name => 1);
       return;
   }
 
@@ -406,9 +406,6 @@ sub handle_feature {
   if ($type && $ld->{CurrentGroup}) {
       $self->_store_group();
   }
-
-  # WARNING: DON'T FORGET THE COORDINATE MAPPER 
-  # AND CALCULATION OF MIN AND MAX EXTENTS!
 
   $type   = '' unless defined $type;
   $name   = '' unless defined $name;
@@ -483,7 +480,7 @@ sub _make_indexed_feature {
     my $name = $f->display_name;
     $self->{load_data}{CurrentFeature} = $f;
     $self->{load_data}{CurrentID}      = $name;
-    $self->{load_data}{IndexIt}{$name}++;
+    $self->_indexit($name => 1);
     return $f;
 }
 
@@ -528,7 +525,7 @@ sub _make_feature {
 	delete $attributes->{$_} foreach qw (Phase phase);
     }
 
-    $self->{load_data}{IndexIt}{$name}++ 
+    $self->_indexit($name=>1)
 	if $self->index_subfeatures && $name;
 
     return $self->sfclass->new(@args);
@@ -568,7 +565,7 @@ sub _store_group {
     $self->store_current_feature() if $ld->{CurrentFeature};
     $ld->{CurrentFeature} = $group;
     $ld->{CurrentID}      = $group->display_name;
-    $ld->{IndexIt}{$ld->{CurrentID}}++;
+    $self->_indexit($ld->{CurrentID} => 1);
     undef $ld->{CurrentGroup};
     $self->store_current_feature();
 }
