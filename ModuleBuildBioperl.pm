@@ -71,6 +71,7 @@ sub find_pm_files {
 # ask what scripts to install (this method is unique to bioperl)
 sub choose_scripts {
     my $self = shift;
+    my $accept = shift;
     
     # we can offer interactive installation by groups only if we have subdirs
     # in scripts and no .PLS files there
@@ -93,7 +94,8 @@ sub choose_scripts {
     closedir($scripts_dir);
     my $question = $int_ok ? "Install [a]ll Bioperl scripts, [n]one, or choose groups [i]nteractively?" : "Install [a]ll Bioperl scripts or [n]one?";
     
-    my $prompt = $self->prompt($question, 'a');
+    my $prompt = $accept
+               ? 'a' : $self->prompt($question, 'a');
     
     if ($prompt =~ /^[aA]/) {
         $self->log_info("  - will install all scripts\n");
@@ -280,17 +282,7 @@ sub prereq_failures {
         my $status = {};
         if ($type eq 'test') {
             unless (keys %$out) {
-                if (ref($prereqs) eq 'CODE') {
-                    $status->{message} = &{$prereqs};
-                    
-                    # drop the code-ref to avoid Module::Build trying to store
-                    # it with Data::Dumper, generating warnings. (And also, may
-                    # be expensive to run the sub multiple times.)
-                    $info->{$type} = $status->{message};
-                }
-                else {
-                    $status->{message} = $prereqs;
-                }
+                $status->{message} = &{$prereqs};
                 $out->{$type}{'test'} = $status if $status->{message};
             }
         }
@@ -344,11 +336,6 @@ sub prereq_failures {
                 }
                 elsif ($type =~ /^feature_requires/) {
                     next if $status->{ok};
-                    
-                    # if there is a test code-ref, drop it to avoid
-                    # Module::Build trying to store it with Data::Dumper,
-                    # generating warnings.
-                    delete $info->{test};
                 }
                 else {
                     next if $status->{ok};
@@ -421,7 +408,8 @@ sub install_optional {
     my ($self, $desired, $version, $msg) = @_;
     
     unless (defined $self->{ask_optional}) {
-        $self->{ask_optional} = $self->prompt("Install [a]ll optional external modules, [n]one, or choose [i]nteractively?", 'n');
+        $self->{ask_optional} = $self->args->{accept}
+                              ? 'n' : $self->prompt("Install [a]ll optional external modules, [n]one, or choose [i]nteractively?", 'n');
     }
     return 'skip' if $self->{ask_optional} =~ /^n/i;
     
