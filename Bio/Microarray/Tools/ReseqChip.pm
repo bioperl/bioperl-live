@@ -43,27 +43,22 @@ Bio::Microarray::Tools::ReseqChip - Class for extraction and incorporation of in
   }
   $aln->add_seq($locseq);
  }
- my $new_sequence=$reseqfragSample->calc_sequence($aln,
-     $options_hash [,"output_file"]);
+ my $new_sequence=$reseqfragSample->calc_sequence($aln, $options_hash [,"output_file"]);
 
 
 =head1 DESCRIPTION
 
-Process Affy MitoChip v2 Data to create an alignment of the "redundant"
-fragments to the reference sequence, taking account for insertions/deletion
-which are defined by Affy mtDNA_Design_Annotion.xls file. Based on the that
-alignment substitutions, deletions and insertion can be detected and initally
-not called bases can called as well falsly called bases can recalled. Depending
-on the depth at a certain position in the alignment and sequence reliability (in
-terms of certain number of allowed Ns in a k-base-window within each redundant
-fragment, contributing to a certain alignment position) initially made N Calls
-can called and possibly falsly called bases can recalled. Moreover insertion and
-deletion as well as snps lying in highly variable regions can be detected.
+Process Affy MitoChip v2 Data to create an alignment of the "redundant" fragments to the reference sequence, 
+taking account for insertions/deletion which are defined by Affy mtDNA_Design_Annotion.xls file. Based on the
+that alignment substitutions, deletions and insertion can be detected and initally not called bases can called 
+as well falsly called bases can recalled. Depending on the depth at a certain position in the alignment and 
+sequence reliability (in terms of certain number of allowed Ns in a k-base-window within each redundant fragment,
+contributing to a certain alignment position) initially made N Calls can called and possibly falsly called bases
+can recalled. Moreover insertion and deletion as well as snps lying in highly variable regions can be detected.
 
 Assumption:
-Insertions refer to refseq, when regarding the max insertions of refseq
-(refseq_max_ins_hash). Optionshash is given when calculating the sequence
-respect to redundant fragments
+Insertions refer to refseq, when regarding the max insertions of refseq (refseq_max_ins_hash).
+Optionshash is given when calculating the sequence respect to redundant fragments
 
 This module depends on the following modules:
 use Bio::Microarray::Tools::MitoChipV2Parser
@@ -79,15 +74,17 @@ use Spreadsheet::WriteExcel;
 
 =head1 AUTHORS
         
-Marian Thieme (marian.thieme@lycos.de)
+Marian Thieme (marian.thieme@arcor.de)
 
 =head1 COPYRIGHT
         
-Copyright (c) 2007 Institute of Functional Genomics, University Regensburg,
-granted by Baygene. All Rights Reserved.
+Copyright (c) 2007 Institute of Functional Genomics, University Regensburg, granted by Baygene. All Rights Reserved.
         
-This module is free software; you can redistribute it and/or modify it under the
-same terms as Perl itself.
+This module is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+        
+
+
+
 
 =head1 DISCLAIMER
         
@@ -103,11 +100,12 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Microarray::Tools::ReseqChip;
                                    
-
+use vars qw(@ISA);
 use strict;
 use warnings;
 
-use base qw(Bio::Root::Root);
+use Bio::Root::Root;
+@ISA = qw(Bio::Root::Root);
 
 use Bio::Microarray::Tools::MitoChipV2Parser;
 
@@ -127,12 +125,16 @@ use Spreadsheet::WriteExcel;
 
  Usage     : my $reseqfragSample=Bio::Resequencing::RedundantFragments->new
              ($Affy_frags_design_filename, $format, $refseq, \%oligos2calc_hash)
- Function :  Creates Hash of insertions of maximal length, by parsing the affy
-             chip design file and calcs the location of clusters of the
-             Redundant Fragments by calling
-             _parse_Affy_mtDNA_design_annotation_file() and sets further member
-             variables.
+
+
+ Function  : Creates Hash of insertions of maximal length, by parsing the affy chip 
+             design file and calcs the location of clusters of the Redundant Fragments
+             by calling _parse_Affy_mtDNA_design_annotation_file() and sets further 
+             member variables.
+             
+             
  Returns   : Returns a new RedundantFragments object
+ 
  Args      : $Affy_frags_design_filename (Affymetrix xls design file, 
              for instance: mtDNA_design_annotation_FINAL.xls for mitochondrial Genome)
              
@@ -198,8 +200,10 @@ sub new {
   $self->{_max_ins_hash}=();
   my $correction=0;
   while ( my ($key, $value) = each %{$self->{_frags_hash}} ) {
+    #print "$key: ";
     while ( my ($subkey, $subvalue) = each %$value ) {
       my @array= @{$self->{_frags_hash}->{$key}{$subkey}};
+      #print "$subkey @array \n";
       if (!(exists($self->{_max_ins_hash}{$subkey+$correction}))) {
         if (@$subvalue[0] eq "ins") {
           $self->{_max_ins_hash}{$subkey+$correction}=length(@$subvalue[1]);
@@ -210,16 +214,16 @@ sub new {
     }
   }
   #$self->{_max_ins_length}=$self->_get_max_ins_length();
-  print "\nMaximal insertions (Position => Length):\n";
-  foreach my $key (sort{$a<=>$b} keys %{$self->{_max_ins_hash}}) {
-    print "$key => ".$self->{_max_ins_hash}{$key}."\n";
-  }
+  #print "\nMaximal insertions (Position => Length):\n";
+  #foreach my $key (sort{$a<=>$b} keys %{$self->{_max_ins_hash}}) {
+  #  print "$key => ".$self->{_max_ins_hash}{$key}."\n";
+  #}
   my %temp_hash=%{$self->{_max_ins_hash}};
   $self->{_frags_max_ins_hash}=\%temp_hash;
-  print "\nRegions covered by redundant fragments (start position => end position):\n";
-  foreach my $key (sort{$a<=>$b} keys %{$self->{_oligos2calc_hash}}) {
-    print "$key => ".$self->{_oligos2calc_hash}{$key}."\n";
-  }
+  #print "\nRegions covered by redundant fragments (start position => end position):\n";
+  #foreach my $key (sort{$a<=>$b} keys %{$self->{_oligos2calc_hash}}) {
+  #  print "$key => ".$self->{_oligos2calc_hash}{$key}."\n";
+  #}
   bless $self, $class;
   return $self;
 }
@@ -283,7 +287,7 @@ sub _get_start_pos() {
     $hashname=$hash;
   }
   if ($test) {
-    print "inseide get_start_pos\n";
+    print "inside get_start_pos\n";
   }
   my $offset=0; 
   foreach my $key (sort{$a<=>$b} keys %{$self->{$hashname}}) {
@@ -518,45 +522,45 @@ sub _create_gap() {
 
 
 
-sub _print_H() {
+#$sub _print_H() {
 
-  my ($self,$hash_ref) = @_;
-  while ( my ($family, $roles) = each %$hash_ref ) {
-    print "$family: $roles\n";
-  }
-}
-
-
+#  my ($self,$hash_ref) = @_;
+#  while ( my ($family, $roles) = each %$hash_ref ) {
+#    print "$family: $roles\n";
+#  }
+#}
 
 
-sub _print_HoH() {
-
-  my ($self,$hash_ref) = @_;
-  #my %hash=%$hash_ref;
-  while ( my ($family, $roles) = each %$hash_ref ) {
-    print "$family: ";
-    while ( my ($role, $person) = each %{$roles} ) {
-      print "$role: $person\n";
-    }
-  }
-          
-}
 
 
-sub _print_HoHoA() {
+#sub _print_HoH() {
+#
+#  my ($self,$hash_ref) = @_;
+#  #my %hash=%$hash_ref;
+#  while ( my ($family, $roles) = each %$hash_ref ) {
+#    print "$family: ";
+#    while ( my ($role, $person) = each %{$roles} ) {
+#      print "$role: $person\n";
+#    }
+#  }
+#          
+#}
 
 
-  my ($self,$member) = @_;
-  while ( my ($family, $roles) = each %{$self->{$member}} ) {
-    print "$family: ";
-    while ( my ($role, $person) = each %{$roles} ) {
-      print "$role: @$person\n";
-      #while ( my ($persons, $thing) = each %{$person} ) {
-      #  print "$persons=$thing";
-      #}
-    }
-  }
-}  
+#sub _print_HoHoA() {
+
+
+#  my ($self,$member) = @_;
+#  while ( my ($family, $roles) = each %{$self->{$member}} ) {
+#    print "$family: ";
+#    while ( my ($role, $person) = each %{$roles} ) {
+#      print "$role: @$person\n";
+#      #while ( my ($persons, $thing) = each %{$person} ) {
+#      #  print "$persons=$thing";
+#      #}
+#    }
+#  }
+#}  
 
 sub _print_base_hash() {
 
@@ -860,6 +864,10 @@ sub calc_sequence() {
     }
     #if ($i>290 and $i<310) {print "$i: $ref_base\n";}
     if (@base_array>0) {
+      if ($ref_base ne '-' and $options_hash->{include_main_sequence}) {
+        push(@base_array, $base);
+      }
+      
       my $alignment_depth=@base_array;
       my $newbase="";
       my $vote=$self->_calc_stats(\@base_array, $options_hash, $ref_base);
@@ -961,7 +969,7 @@ sub _calc_stats() {
   my $res="x";
   $f1->add_data( \@stats_array );
   $f1->remove_elements('n');
-  my $threshold;  
+  my $threshold;
   if ($ref_base eq '-') {
     $threshold=$options_hash->{ins_threshold};
   }
@@ -973,15 +981,26 @@ sub _calc_stats() {
   my %freq = $f1->frequencies;
   my $max=0;
   my $mbase;
+  if (!($f1->frequencies_max and $f1->frequencies_sum and $threshold)) {
+    print "1 ".$f1->frequencies_max."\n";
+    print "2 ".$f1->frequencies_sum."\n";
+    print "3 ".$threshold."\n";
+  }
   if ($f1->frequencies_sum>0) {
-    #print " rel:".$f1->frequencies_max/$f1->frequencies_sum;
-    if ($f1->frequencies_max/$f1->frequencies_sum >= ($threshold/100)) {
-      for my $base (keys %freq) {
-        if ($max<$freq{$base}) {
-          $max=$freq{$base};
-          $mbase=$base;
-        }
+    for my $base (keys %freq) {
+      if ($max<$freq{$base}) {
+        $max=$freq{$base};
+        $mbase=$base;
       }
+    }
+    if ($mbase eq "-") {
+      $threshold=$options_hash->{del_threshold};
+      #print "DELETION, na fein...\n";
+    }
+    #print " rel:".$f1->frequencies_max/$f1->frequencies_sum;
+    #print "max: ".$f1->frequencies_max." ";
+    #print "sum: ".$f1->frequencies_sum." ($threshold) \n";
+    if ($f1->frequencies_max/$f1->frequencies_sum >= ($threshold/100)) {
       $res=$mbase;
     }
   }
@@ -991,13 +1010,24 @@ sub _calc_stats() {
 
 =head2 write2fasta() 
 
+ Title     : write2fasta()
+ Usage     : $myReseqFrags->write2fasta($seq, $id, $filename, $gap)
+ Function  : write the alignment of redundant fragments refering to entire sequence to xls file
+ Args      : $seq : sequence as string to write to file
+             $id : identifier of the sequence
+             $filename : name of fasta file
+             $gap : 1 gaps are written to file, 0 gaps are removed. if omitted, gaps are also removed
+                                           
 =cut
 
 
 sub write2fasta() {
 
-  my ($self, $string, $id, $filename) = @_;
-  $string=~ s/-//g;
+  my ($self, $string, $id, $filename, $gap) = @_;
+  #print "write2fasta: $string, $id, $filename\n";
+  if (!$gap or $gap == 0) {
+    $string=~ s/-//g;
+  }
   my $out = Bio::SeqIO->new(-file => ">>$filename" ,
                              -format => 'Fasta');
   my $locseq = new Bio::LocatableSeq(
@@ -1005,7 +1035,11 @@ sub write2fasta() {
       -id => $id,
       -name => $id,
       -start => 0, -end => length($string));
-  $out->write_seq($locseq);
+  #$out->write_seq($locseq);
+  open (FILE, ">>$filename");
+  print FILE "> $id\n";
+  print FILE "$string\n";
+  close(FILE);
 }
 
 =head2 write_alignment2xls()
