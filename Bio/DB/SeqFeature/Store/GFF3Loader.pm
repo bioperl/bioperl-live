@@ -510,7 +510,7 @@ END
 
   # contiguous feature, so add a segment
   if (defined $old_feat && 
-      ($old_feat->seq_id != $refname) && 
+      ($old_feat->seq_id ne $refname) && 
       ($old_feat->start != $start) && 
       ($old_feat->end != $end) # make sure endpoints are distinct
       ) {
