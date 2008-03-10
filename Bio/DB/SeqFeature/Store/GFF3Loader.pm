@@ -509,13 +509,17 @@ END
   }
 
   # contiguous feature, so add a segment
-  if (defined $old_feat && 
-      ($old_feat->seq_id ne $refname) && 
-      ($old_feat->start != $start) && 
-      ($old_feat->end != $end) # make sure endpoints are distinct
-      ) {
-    $self->add_segment($old_feat,$self->sfclass->new(@args));
-    return;
+  warn $old_feat if defined $old_feat and !ref $old_feat;
+  if (defined $old_feat &&
+      (
+       $old_feat->seq_id ne $refname || 
+       $old_feat->start  != $start || 
+       $old_feat->end    != $end # make sure endpoints are distinct
+      )
+      )
+  {
+      $self->add_segment($old_feat,$self->sfclass->new(@args));
+      return;
   }
 
   # we get here if this is a new feature
@@ -696,10 +700,10 @@ sub fetch {
   my $id      = $helper->local2global($load_id);
 
   return
-    ($self->subfeatures_normalized || $helper->indexit($load_id)
-				      ? $self->store->fetch($id)
-				      : $self->tmp_store->fetch($id)
-				      );
+      ($self->subfeatures_normalized || $helper->indexit($load_id)
+       ? $self->store->fetch($id)
+       : $self->tmp_store->fetch($id)
+      );
 }
 
 =item add_segment

@@ -590,7 +590,7 @@ sub gff3_string {
   # attributes propogated to them; but, since they are all part of the
   # same parent, the ONLY difference relevant to GFF production SHOULD
   # be the $start and $end coordinates for their segment, and ALL
-  # THIER OTHER ATTRIBUTES should be taken from the parent (including:
+  # THEIR OTHER ATTRIBUTES should be taken from the parent (including:
   # score, Name, ID, Parent, etc), which happens UNLESS
   # $dontPropogateParentAttrs is passed.
 
