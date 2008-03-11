@@ -384,8 +384,6 @@ sub insert_gaps2frag() {
           if (length($temp_hash{$mkey}[1]) < $self->{_max_ins_hash}{$maxkey} ) {
             my $gap=$self->_create_gap($self->{_max_ins_hash}{$maxkey}-length($temp_hash{$mkey}[1]));
             my $npos=$maxkey-$startpos+$gapsum+2-12+length($temp_hash{$mkey}[1]);
-            $npos+=$self->_get_refseq_max_ins_offset($npos);
-            #if ($fragment_span>16000) {$npos++;}
             Bio::SeqUtils->mutate($seqobj, Bio::LiveSeq::Mutation->new(
               -seq => $gap,
               -pos => $npos,
@@ -425,33 +423,6 @@ sub insert_gaps2frag() {
               -id => $new_id."_".$seqobj->id,
               -start => $fragment_span-1, -end => $endpos12+$fragment_span-12);
   return $locseq;
-}
-
-
-=head2 _get_refseq_max_ins_offset()
-
- Title     : _get_refseq_max_ins_offset()
- Usage     : private Function, dont call directly
- Function  : calcs cumulative offset for a given position, caused by deletions in the reference sequence. 
-             (For example, Affys mitochip v2.0 has a deletion at position 3107 referring to revised 
-             cambridge mitochondiral reference sequence)
- Returns   : offset
- Args      : $pos : current position
- 
-
-=cut
-
-sub _get_refseq_max_ins_offset() {
-  my ($self, $pos)=@_;
-  my $offset=0;
-  #if ($self->{_refseq_max_ins_hash}) {
-  #  foreach my $key (sort keys %{$self->{_max_ins_hash}}) {
-  #    if ($pos>$key-12) {
-  #      $offset+=$self->{_refseq_max_ins_hash}{$key};
-  #    }
-  #  }
-  #}
-  return $offset;
 }
 
 
