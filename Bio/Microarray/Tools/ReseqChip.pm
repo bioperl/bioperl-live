@@ -49,16 +49,18 @@ Bio::Microarray::Tools::ReseqChip - Class for extraction and incorporation of in
 =head1 DESCRIPTION
 
 Process Affy MitoChip v2 Data to create an alignment of the "redundant" fragments to the reference sequence, 
-taking account for insertions/deletion which are defined by Affy mtDNA_Design_Annotion.xls file. Based on the
+taking account for insertions/deletion which are defined by Affy mtDNA_Design_Annotion.xls file. Based on 
 that alignment substitutions, deletions and insertion can be detected and initally not called bases can called 
-as well falsly called bases can recalled. Depending on the depth at a certain position in the alignment and 
-sequence reliability (in terms of certain number of allowed Ns in a k-base-window within each redundant fragment,
-contributing to a certain alignment position) initially made N Calls can called and possibly falsly called bases
-can recalled. Moreover insertion and deletion as well as snps lying in highly variable regions can be detected.
+as well possible falsly called bases can recalled. Moreover insertion and deletion as well as snps lying in highly 
+variable regions can be detected. Calls are done depending on the depth at a certain position 
+in the alignment and sequence reliability (in terms of certain number of allowed Ns in a k-base-window within 
+each redundant fragment, contributing to a certain alignment position). 
 
 Assumption:
-Insertions refer to refseq, when regarding the max insertions of refseq (refseq_max_ins_hash).
-Optionshash is given when calculating the sequence respect to redundant fragments
+Gaps which are inserted in several fragments and in the reference sequence itself refer to the reference sequence.
+The reference sequence is given as input parameter.
+Optionshash, specifying conditions if a call is done is given when calculating the sequence respect to redundant 
+fragments (calc_sequence()).
 
 This module depends on the following modules:
 use Bio::Microarray::Tools::MitoChipV2Parser
@@ -138,17 +140,17 @@ use Spreadsheet::WriteExcel;
  Args      : $Affy_frags_design_filename (Affymetrix xls design file, 
              for instance: mtDNA_design_annotation_FINAL.xls for mitochondrial Genome)
              
-             $format (only xls is available, because its that format delvered by Affymetrix)
+             $format (only xls is available, because its the format which is delivered by Affymetrix)
              
              [$reseq_max_ins_hash, $refseq] (insertions as hash (pos1 => insertions length1, pos2 => insertions length2, ...) 
-             for reference sequence $refseq (Locatable Sequence Object))
+             for reference sequence and $refseq (Locatable Sequence Object))
             
  Membervars: frags_hash		- contains all variations described by the affy_design_annotation file 
                                   (fragment_id => (pos1 => [muttype, mut, start, stop]), ... )
              max_ins_hash	- contains all (maximal) insertion, which are needed to build "alignable" 
                                   fragments by inserting appropriate gaps
              oligos2calc_hash	- describes the coverage of the redundand fragments (start => stop)
-             reseq		- Locatable Sequence holds reference sequence
+             refseq		- Locatable Sequence holds reference sequence
              refseq_max_ins_hash- insertions need to be applied to the reference sequence
              gapped_refseq	- reference sequence when insertions are done
 
