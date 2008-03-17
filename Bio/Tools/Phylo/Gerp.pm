@@ -37,7 +37,7 @@ http://mendel.stanford.edu/sidowlab/
 
 It works on the .elems files produced by gerpelem.
 
-Each result is a Bio::SeqFeature::Annotated representing a single contrained
+Each result is a Bio::SeqFeature::Annotated representing a single constrained
 element.
 
 =head1 FEEDBACK
@@ -110,6 +110,9 @@ sub new {
            for 'pvalue', and a 'predicted' tag. They have no sequence id unless
            the input GERP file is non-standard, with the seq id as the 6th
            column.
+
+           NB: feature coordinates are alignment columns of the alignment
+           used to create the result file.
  Args    : none
 
 =cut
