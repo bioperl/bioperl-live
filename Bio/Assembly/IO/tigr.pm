@@ -221,7 +221,7 @@ use Bio::Assembly::Scaffold;
 use Bio::Assembly::Contig;
 use Bio::Assembly::Singlet;
 
-our @ISA = qw(Bio::Assembly::IO);
+use base qw(Bio::Assembly::IO);
 
 my $progname = 'TIGR Assembler';
 
