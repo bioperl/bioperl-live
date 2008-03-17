@@ -84,7 +84,7 @@ use Bio::Search::Result::CrossMatchResult;
 use Bio::SearchIO;
 use Bio::Search::Hit::GenericHit;
 use Bio::Search::HSP::GenericHSP;
-our @ISA = qw(Bio::SearchIO);
+use base qw(Bio::SearchIO);
 
 =head2 next_result
 
