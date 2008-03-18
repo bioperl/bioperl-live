@@ -102,12 +102,10 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Microarray::Tools::ReseqChip;
                                    
-use vars qw(@ISA);
 use strict;
 use warnings;
 
-use Bio::Root::Root;
-@ISA = qw(Bio::Root::Root);
+use base qw(Bio::Root::Root);
 
 use Bio::Microarray::Tools::MitoChipV2Parser;
 

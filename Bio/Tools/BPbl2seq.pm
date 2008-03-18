@@ -130,8 +130,6 @@ use Symbol;
 
 use base qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::Root::IO);
 
-#@ISA = qw(Bio::Tools::BPlite);
-
 =head2 new
 
  Title   : new
