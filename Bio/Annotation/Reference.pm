@@ -43,7 +43,8 @@ Email birney@ebi.ac.uk
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -52,8 +53,6 @@ The rest of the documentation details each of the object methods. Internal metho
 
 package Bio::Annotation::Reference;
 use strict;
-
-use Bio::AnnotationI;
 
 use base qw(Bio::Annotation::DBLink);
 
