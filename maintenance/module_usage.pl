@@ -24,17 +24,43 @@ $0 -- Shows which modules are used the most in a directory of modules
 usage: $0 [-f outfile] [-l listfile] [-h] [-v] [dir]
 -f outfile   specify output file (default=module_usage)
 -h           get this help message
+-i fmt       set image format to fmt (default=jpeg)
+             also available: canon,text,ps,hpgl,pcl,mif,pic,gd,gd2,gif,jpeg,
+             png,wbmp,vrml,vtx,mp,fig,svg,plain *nb* only jpeg is tested as
+			 working correctly
 -l listfile  get filenames/options from listfile
 -v           list filenames to STDERR
 
 If directory names are given, all the *.p[lm] files in the directory will
 be processed. The default is to do all the Perl files in the current directory.
+
+
+The graphical output is a *simplification with information loss*, since BioPerl
+is too complex to graph 'raw'. The simplification proceeds as follows:
+# It is determined which modules each BioPerl package (aka class, module)
+  'uses' (what modules does it load via 'use', 'require' or inherit from
+  via 'use base', excluding external (non-BioPerl) modules).
+# Packages with identical usage (ignoring the type of usage) are grouped
+  together.
+# The graph shows all the groups with more than one member as nodes, with edges
+  from them pointing to the individual packages that they use.
+# The set of those individual packages pointed to by groups also have edges
+  showing their use-relationship to other members of the set (only).
+# Members of that set are also shaded in red. The saturation of the shade
+  indicates how many packages use that package (so dark red packages are used a
+  lot).
+# Edges are coloured green to show inheritance-type usage, or blue to show
+  'use'/'require'-type usage. It is possible that some members of a group
+  inherit from a particular package, whilst other members only 'use' it. In that
+  case, the colour is based on which is most common for the group.
+# Groups with members all from the same subdirectory, and individual packages
+  pointed to by groups, are 'clustered' if they are from the same subdirectory
 EOF
 	exit shift;
 }
 
 # process cmdline options
-my $opts = 'f:l:hv';
+my $opts = 'f:l:hvi:';
 my %opts;
 getopts($opts, \%opts) || usage(1);
 usage(0) if defined($opts{h});
@@ -49,10 +75,7 @@ while (defined($opts{l})) {
 }
 
 my $outfile = defined($opts{f}) ? $opts{f} : "module_usage";
-
-# format isn't an option since only jpeg is reliable (eg. png can't cope).
-# jpeg suffers if graph gets too wide as well!
-my $format = 'jpeg';
+my $format = defined($opts{i}) ? $opts{i} : 'jpeg';
 
 # now filenames are in @ARGV
 push(@ARGV, '.') if !@ARGV;
@@ -71,6 +94,7 @@ foreach my $top (@ARGV) {
 
 my %usage;
 my %users;
+my %inheritance;
 my %packages;
 
 sub store_package_usage {
@@ -127,6 +151,7 @@ foreach my $file (@files) {
 			
             foreach my $module (@use_base) {
                 $used{$module} = 1;
+				$inheritance{$package}->{$module} = 1;
             }
 		}
 		elsif (/^\s*use\s+([^\s;()]+)/ || /^\s*require\s+([^\s;()'"]+)/) {
@@ -177,10 +202,20 @@ foreach my $parent (sort { $counts{$a} <=> $counts{$b} } keys %counts) {
     $prev_count = $this_count;
 }
 
-my $g = GraphViz->new();
+sub class_to_subdir {
+    my $class = shift;
+    $class =~ s/::[^:]+$//;
+    return $class;
+}
+
+my $g = GraphViz->new(concentrate => 1,
+                      node => {shape => 'box'},
+                      $format eq 'ps' ? (pagewidth => 46.81, pageheight => 33.11) : ()); # A0 for ps output
+my $inherited_edge_colour = 'green';
+my $used_edge_colour = 'blue';
+my $cluster_colour = 'black'; #*** darkgray, 0,0,0.31 don't work, why?!
 my $child_id = 0;
 my $group_definitions = '';
-my @singles;
 my %parents;
 while (my ($group, $pack_list) = each %groups) {
     my @children = @{$pack_list};
@@ -188,8 +223,22 @@ while (my ($group, $pack_list) = each %groups) {
     # ignore single child groups (required or graph gets too wide to jpeg)
     @children > 1 || next;
     
+    # we'll cluster if all children belong to the same subdirectory
+    my %subdirs;
+    foreach my $child (@children) {
+        $subdirs{class_to_subdir($child)} = 1;
+    }
+    my $subdir;
+    if (keys %subdirs == 1) {
+        ($subdir) = keys %subdirs;
+        undef $subdir if $subdir eq 'Bio';
+    }
+    
     my $this_child = 'group'.++$child_id;
-    $g->add_node($this_child, shape => 'box', style => 'dashed', label => "$this_child:\n".join("\n", @children));
+    $g->add_node($this_child,
+                 style => 'dashed',
+                 label => "$this_child:\n".join("\n", @children),
+                 $subdir ? (cluster => {name => $subdir, style => 'dotted', color => $cluster_colour}) : ());
     
     my @parents = split(/\|/, $group);
     
@@ -200,9 +249,29 @@ while (my ($group, $pack_list) = each %groups) {
         my $this_rank = $ranks{$parent};
         my $shade = (1 / $rank) * $this_rank;
         
-        $g->add_node($parent, shape => 'box', style => 'filled', fillcolor => "0,$shade,1");
+		# we'll colour the edge based on if we inherited this parent or just
+		# used it, going by the most common for the group
+		my ($inherited, $used) = (0, 0);
+		foreach my $child (@children) {
+			if (defined $inheritance{$child}->{$parent}) {
+				$inherited++;
+			}
+			else {
+				$used++;
+			}
+		}
+		my $edge_colour = $inherited > $used ? $inherited_edge_colour : $used_edge_colour;
+		
+        # we'll cluster if this isn't a base Bio::x class
+        my $subdir = class_to_subdir($parent);
+        undef $subdir if $subdir eq 'Bio';
+        
+        $g->add_node($parent,
+                     style => 'filled',
+                     fillcolor => "0,$shade,1",
+                     $subdir ? (cluster => {name => $subdir, style => 'dotted', color => $cluster_colour}) : ());
         $parents{$parent} = 1;
-        $g->add_edge($this_child, $parent);
+        $g->add_edge($this_child => $parent, color => $edge_colour);
     }
 }
 
@@ -212,7 +281,7 @@ foreach my $parent (keys %parents) {
     
     foreach my $used (keys %used) {
         next unless defined $parents{$used};
-        $g->add_edge($parent, $used);
+        $g->add_edge($parent => $used, color => defined $inheritance{$parent}->{$used} ? $inherited_edge_colour : $used_edge_colour);
     }
 }
 
