@@ -840,7 +840,7 @@ sub _write_feature_25 {
   }
   
 
-  my $seq    = $feature->seq_id->value;
+  my $seq    = ref($feature->seq_id) ? $feature->seq_id->value : $feature->seq_id;
   my $source = $feature->source->value;
   my $type   = $feature->type->name;
   $type = 'EXON' if $type eq 'exon'; #a GTF peculiarity, incosistent with the sequence ontology.
@@ -872,7 +872,7 @@ write a feature in GFF v3 format.
 
 sub _write_feature_3 {
   my($self,$feature) = @_;
-  my $seq    = $feature->seq_id->value;
+  my $seq    = ref($feature->seq_id) ? $feature->seq_id->value : $feature->seq_id;
   my $source;
   if ($feature->source()) {
     $source = $feature->source->value;
