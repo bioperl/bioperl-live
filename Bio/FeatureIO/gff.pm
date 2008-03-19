@@ -847,8 +847,8 @@ sub _write_feature_25 {
   my $min    = $feature->start   || '.';
   my $max    = $feature->end     || '.';
   my $strand = $feature->strand == 1 ? '+' : $feature->strand == -1 ? '-' : '.';
-  my $score  = $feature->score ? $feature->score->value : '.'; # score is optional
-  my $frame  = $feature->frame ? $feature->frame->value : $feature->phase->value;
+  my $score  = defined($feature->score) ? (ref($feature->score) ? $feature->score->value : $feature->score) : '.'; # score is optional
+  my $frame  = defined($feature->frame) ? (ref($feature->frame) ? $feature->frame->value : $feature->frame) : (ref($feature->phase) ? $feature->phase->value : $feature->phase);
 
   #these are the only valid types in a GTF document
   if($type eq 'EXON' or $type eq 'CDS' or $type eq 'start_codon' or $type eq 'stop_codon'){
@@ -886,7 +886,7 @@ sub _write_feature_3 {
   my $min    = $feature->start   || '.';
   my $max    = $feature->end     || '.';
   my $strand = $feature->strand == 1 ? '+' : $feature->strand == -1 ? '-' : '.';
-  my $score  = $feature->score->value;
+  my $score  = defined($feature->score) ? (ref($feature->score) ? $feature->score->value : $feature->score) : undef;
   my $phase  = $feature->phase->value;
 
   my @attr;
