@@ -308,7 +308,7 @@ sub _bump_feature_count {
   } else {
     my $index = ${db}->{__count__};
     delete $db->{__count__};
-    $db->{__count__} = $index + 1;
+    $db->{__count__} = ($index || 0) + 1;
     return $index;
   }
 }
@@ -319,7 +319,7 @@ sub _bump_class_count {
   $count ||= 1;
   my $db  = $self->{db};
   my $key = "__class__$class";
-  my $newcount = $db->{$key} + $count;
+  my $newcount = ($db->{$key} || 0) + $count;
   delete $db->{$key};
   $db->{$key} = $newcount;
 }
