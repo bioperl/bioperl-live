@@ -1,0 +1,44 @@
+# fasta34 -Q -H -E 10 -m 9 -b 1 -d 1 -r 15/-10 -g -12 -n -U ../testfiles/NAC_miRNA.fasta ../databases/cotton/CGI8.fasta
+FASTA searches a protein or DNA sequence data bank
+ version 3.4t25 Sept 2, 2005
+Please cite:
+ W.R. Pearson & D.J. Lipman PNAS (1988) 85:2444-2448
+
+Query library ../testfiles/NAC_miRNA.fasta vs ../databases/cotton/CGI8.fasta library
+searching ../databases/cotton/CGI8.fasta library
+
+  1>>>total:39860_L:12096_-3:12346_0:617_+3:14801 - 22 nt (forward-only)
+ vs  ../databases/cotton/CGI8.fasta library
+
+43526801 residues in 55673 sequences
+  Expectation_n fit: rho(ln(x))= 23.6457+/-0.000561; mu= -11.6380+/- 0.037
+ mean_var=607.0983+/-151.124, 0's: 0 Z-trim: 2  B-trim: 0 in 0/43
+ Lambda= 0.052053
+
+FASTA (3.47 Mar 2004) function [optimized, 15/-10 matrix (15:-10)] ktup: 2
+ join: 213, opt: 198, open/ext: -12/-12, width:  16
+ Scan time:  2.700
+The best scores are:                                      opt bits E(55673)	%_id  %_sim   bs  alen  an0  ax0  pn0  px0  an1  ax1 pn1 px1 gapq gapl  fs 
+BE054209 similar to PRF|NP_974632.1|42573071|N ( 510) [f]  286  25.6      19	0.762 0.952  286   21    1   21    1   22  471  491    1  510   0   0   0
+
+>>>total:39860_L:12096_-3:12346_0:617_+3:14801, 22 nt vs ../databases/cotton/CGI8.fasta library
+
+>>BE054209 similar to PRF|NP_974632.1|42573071|NP_974632 pfkB-type carbohydrate kinase family pr  (510 nt)
+ initn: 286 init1: 286 opt: 286  Z-score: 111.0  bits: 25.6 E():   19
+banded Smith-Waterman score: 286;  76.190% identity (95.238% similar) in 21 nt overlap (1-21:471-491)
+
+                                             10        20                    
+total:                               UUGGACAGAGUAAUCACGGUCG                  
+                                     :::::..:::::: .:.::::                   
+BE0542 GAACUNUCUCAGUCAAGUUUAUUAUCUGCAUUGGAUGGAGUAAAUAUGGUCUACUUUGAUGGAAGACAUC
+              450       460       470       480       490       500       510
+
+
+
+22 residues in 1 query   sequences
+43526801 residues in 55673 library sequences
+ Scomplib [34t25]
+ start: Sat Mar 22 16:31:47 2008 done: Sat Mar 22 16:31:49 2008
+ Total Scan time:  2.700 Total Display time:  0.000
+
+Function used was FASTA [version 3.4t25 Sept 2, 2005]

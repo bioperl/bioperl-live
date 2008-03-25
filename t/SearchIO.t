@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 1708);
+    test_begin(-tests => 1712);
 	
 	use_ok('Bio::SearchIO');
 	use_ok('Bio::SearchIO::Writer::HitTableWriter');
@@ -2343,6 +2343,20 @@ while(my $query = $searchio->next_result) {
     }
 }
 is($total_n, 10);
+
+# bug 2473 - fasta3.4 parsing with -U option
+
+$file = test_input_file('bug2473.fasta');
+
+$searchio = Bio::SearchIO->new(-format => 'fasta',
+							  -file   => $file);
+
+while(my $res = $searchio->next_result) {
+    is($res->query_name, 'total:39860_L:12096_-3:12346_0:617_+3:14801');
+    is($res->query_description, '');
+    is($res->query_length, 22);
+    is($res->algorithm, 'FASTN');
+}
 
 # some utilities
 # a utility function for comparing result objects

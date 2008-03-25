@@ -245,7 +245,7 @@ sub next_result{
 		 ) {
 		   ($leadin, $querydef) = ($1, $2);
 		   if ($leadin =~ m/>>>/) {
-		       if($querydef =~ /^(.*?)\s+(?:\-\s+)?(\d+)\s+(aa|nt)\s*$/o ) {
+		       if($querydef =~ /^(.*?)\s+(?:\-\s+)?(\d+)\s+(aa|nt).*$/o ) {
 			   ($querydef, $querylen, $querytype) = ($1, $2, $3);
 			   last;
 		       }
@@ -712,7 +712,7 @@ sub next_result{
 
 	       if( /^\s*\d+\s*>>>(.*)/ ) {
 		   $querydef = $1;
-		   if($querydef =~ /^(.*?)\s+(?:\-\s+)?(\d+)\s+(aa|nt)\s*$/o ) {
+		   if($querydef =~ /^(.*?)\s+(?:\-\s+)?(\d+)\s+(aa|nt).*$/o ) {
 		       ($querydef, $querylen, $querytype) = ($1, $2, $3);
 		   }
 	       }
