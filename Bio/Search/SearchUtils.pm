@@ -599,12 +599,15 @@ See Also   : L<Bio::Search::Hit::BlastHit::seq_inds()|Bio::Search::Hit::BlastHit
 
 sub collapse_nums {
 # This is probably not the slickest connectivity algorithm, but will do for now.
+    # get rid of redundant positions first
     my @a = @_;
     my ($from, $to, $i, @ca, $consec);
     
     $consec = 0;
     for($i=0; $i < @a; $i++) {
 	not $from and do{ $from = $a[$i]; next; };
+    # pass repeated positions (gap inserts)
+    next if $a[$i] == $a[$i-1];
 	if($a[$i] == $a[$i-1]+1) {
 	    $to = $a[$i];
 	    $consec++;
