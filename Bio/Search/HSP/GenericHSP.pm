@@ -811,15 +811,20 @@ sub seq_inds{
    my @ary;
 
    if( $class eq '_gap' ) {
-       # this means that we are remapping the gap length that is stored
-       # in the hash (for example $self->{'_gapRes_query'} )
-       # so we'll return an array which has the values of the position of the
-       # of the gap (the key in the hash) + the gap length (value in the
-       # hash for this key - 1.
-
-       @ary = map { $_ > 1 ?
-                        $_..($_ + $self->{"${class}Res$seqType"}->{$_} - 1) :
-                        $_ }
+        # this means that we are remapping the gap length that is stored
+        # in the hash (for example $self->{'_gapRes_query'} )
+        # so we'll return an array which has the values of the position of the
+        # of the gap (the key in the hash) + the gap length (value in the
+        # hash for this key - 1.
+        
+        # changing this; since the index is the position prior to the insertion,
+        # repeat the position based on the number of gaps inserted
+        @ary = map { my @tmp;
+                     # position holds number of gaps inserted
+                     for my $g (1..$self->{"${class}Res$seqType"}->{$_}) {
+                        push @tmp, $_ ;
+                     }
+                     @tmp}
               sort { $a <=> $b } keys %{ $self->{"${class}Res$seqType"}};
    } elsif( $class eq '_conservedall' ) {
        @ary = sort { $a <=> $b }
