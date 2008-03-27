@@ -599,7 +599,6 @@ See Also   : L<Bio::Search::Hit::BlastHit::seq_inds()|Bio::Search::Hit::BlastHit
 
 sub collapse_nums {
 # This is probably not the slickest connectivity algorithm, but will do for now.
-    # get rid of redundant positions first
     my @a = @_;
     my ($from, $to, $i, @ca, $consec);
     
