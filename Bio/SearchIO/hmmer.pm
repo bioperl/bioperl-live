@@ -106,7 +106,6 @@ BEGIN {
         'Hsp_align-len'   => 'HSP-hsp_length',
         'Hsp_query-frame' => 'HSP-query_frame',
         'Hsp_hit-frame'   => 'HSP-hit_frame',
-        'Hsp_gap-symbol'  => 'HSP-gap_symbol',
 
         'Hit_id'        => 'HIT-name',
         'Hit_len'       => 'HIT-length',
@@ -413,12 +412,6 @@ sub next_result {
                         $self->start_element( { 'Name' => 'Hsp' } );
                         $self->element(
                             {
-                                'Name' => 'Hsp_gap-symbol',
-                                'Data' => '.'
-                            }
-                        );
-                        $self->element(
-                            {
                                 'Name' => 'Hsp_identity',
                                 'Data' => 0
                             }
@@ -607,12 +600,6 @@ sub next_result {
                         }
                     );
                     $self->start_element( { 'Name' => 'Hsp' } );
-                    $self->element(
-                        {
-                            'Name' => 'Hsp_gap-symbol',
-                            'Data' => '.'
-                        }
-                    );                    
                     $self->element(
                         {
                             'Name' => 'Hsp_query-from',
@@ -814,13 +801,7 @@ sub next_result {
                                 'Name' => 'Hsp_identity',
                                 'Data' => 0
                             }
-                        );
-                        $self->element(
-                            {
-                                'Name' => 'Hsp_gap-symbol',
-                                'Data' => '.'
-                            }
-                        );                        
+                        );                     
                         $self->element(
                             {
                                 'Name' => 'Hsp_positive',
@@ -1006,12 +987,6 @@ sub next_result {
                     $self->start_element( { 'Name' => 'Hsp' } );
                     $self->element(
                         {
-                            'Name' => 'Hsp_gap-symbol',
-                            'Data' => '.'
-                        }
-                    );
-                    $self->element(
-                        {
                             'Name' => 'Hsp_query-from',
                             'Data' => shift @$HSPinfo
                         }
@@ -1140,10 +1115,15 @@ sub end_element {
     # object begins so have to detect this in end_element for now
     if ( $nm eq 'Hsp' ) {
         foreach (qw(Hsp_qseq Hsp_midline Hsp_hseq)) {
+            my $data = $self->{'_last_hspdata'}->{$_};
+            if ($_ eq 'Hsp_hseq') {
+                # replace hmm '.' gap symbol by '-'
+                $data =~ s/\./-/g;
+            }
             $self->element(
                 {
                     'Name' => $_,
-                    'Data' => $self->{'_last_hspdata'}->{$_}
+                    'Data' => $data
                 }
             );
         }
