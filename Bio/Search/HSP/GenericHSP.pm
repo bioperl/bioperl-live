@@ -110,8 +110,6 @@ use Bio::SeqFeature::Similarity;
 
 use base qw(Bio::Search::HSP::HSPI);
 
-our $GAP_SYMBOL = '-';
-
 =head2 new
 
  Title   : new
@@ -151,6 +149,7 @@ our $GAP_SYMBOL = '-';
            -rank        => HSP rank
            -links       => HSP links information (WU-BLAST only)
            -hsp_group   => HSP Group informat (WU-BLAST only)
+           -gap_symbol  => symbol representing a gap (default = '-')
            -stranded    => If the algorithm isn't known (i.e. defaults to
                            'generic'), setting this will indicate start/end
                            coordinates are to be used to determine the strand
@@ -176,7 +175,16 @@ sub new {
     my $bits = $self->{BITS};
 
     defined $self->{VERBOSE} && $self->verbose($self->{VERBOSE});
-
+    if (exists $self->{GAP_SYMBOL}) {
+        # not checking anything else but the length (must be 1 as only one gap
+        # symbol allowed currently); can add in support for symbol checks or
+        # multiple symbols later if needed
+        $self->throw("Gap symbol must be of length 1") if
+            CORE::length($self->{GAP_SYMBOL}) != 1;
+    } else {
+        # dafault
+        $self->{GAP_SYMBOL} = '-';
+    }
     $self->{ALGORITHM} ||= 'GENERIC';
     $self->{STRANDED} ||= 'NONE';
 
@@ -189,7 +197,6 @@ sub new {
     $self->{_finished_new} = 1;
     return $self;
 }
-
 
 sub _logical_length {
     my ($self, $type) = @_;
@@ -1075,19 +1082,19 @@ sub _calculate_seq_positions {
             $nomatchList_query{ $resCount_query - ($_ * $qdir) } = 1 for @qrange;
             $nomatchList_sbjct{ $resCount_sbjct - ($_ * $sdir) } = 1 for @srange;
             # mismatch; only count if the symbol matched to isn't a gap
-            if ($schar ne $GAP_SYMBOL) {
+            if ($schar ne $self->{GAP_SYMBOL}) {
                 $mismatchList_query{ $resCount_query - ($_ * $qdir) } = 1 for @qrange;
             }
-            if ($qchar ne $GAP_SYMBOL) {
+            if ($qchar ne $self->{GAP_SYMBOL}) {
                 $mismatchList_sbjct{ $resCount_sbjct - ($_ * $sdir) } = 1 for @srange;
             }
         }
-        if( $qchar eq $GAP_SYMBOL ) {
+        if( $qchar eq $self->{GAP_SYMBOL} ) {
             $gapList_query{ $resCount_query } ++;
         } else {
             $resCount_query -= $qdir * $query_offset;
         }
-        if( $schar eq $GAP_SYMBOL ) {
+        if( $schar eq $self->{GAP_SYMBOL} ) {
             $gapList_sbjct{ $resCount_sbjct } ++;
         } else {
             $resCount_sbjct -=$sdir * $sbjct_offset;
@@ -1271,11 +1278,11 @@ sub generate_cigar_string {
     for(my $i=0; $i <= $#qchars; $i++){
         my $qchar = $qchars[$i];
         my $hchar = $hchars[$i];
-        if($qchar ne $GAP_SYMBOL && $hchar ne $GAP_SYMBOL){ # Match
+        if($qchar ne $self->{GAP_SYMBOL} && $hchar ne $self->{GAP_SYMBOL}){ # Match
             $cigar_string .= $self->_sub_cigar_string('M');
-        }elsif($qchar eq $GAP_SYMBOL){ # Deletion
+        }elsif($qchar eq $self->{GAP_SYMBOL}){ # Deletion
             $cigar_string .= $self->_sub_cigar_string('D');
-        }elsif($hchar eq $GAP_SYMBOL){ # Insertion
+        }elsif($hchar eq $self->{GAP_SYMBOL}){ # Insertion
             $cigar_string .= $self->_sub_cigar_string('I');
         }else{
             $self->throw("Impossible state that 2 gaps on each seq aligned");

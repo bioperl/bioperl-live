@@ -106,6 +106,7 @@ BEGIN {
         'Hsp_align-len'   => 'HSP-hsp_length',
         'Hsp_query-frame' => 'HSP-query_frame',
         'Hsp_hit-frame'   => 'HSP-hit_frame',
+        'Hsp_gap-symbol'  => 'HSP-gap_symbol',
 
         'Hit_id'        => 'HIT-name',
         'Hit_len'       => 'HIT-length',
@@ -412,6 +413,12 @@ sub next_result {
                         $self->start_element( { 'Name' => 'Hsp' } );
                         $self->element(
                             {
+                                'Name' => 'Hsp_gap-symbol',
+                                'Data' => '.'
+                            }
+                        );
+                        $self->element(
+                            {
                                 'Name' => 'Hsp_identity',
                                 'Data' => 0
                             }
@@ -481,11 +488,17 @@ sub next_result {
                             $prelength = CORE::length($1);
                             $width     = 0;
 
-                            # $width = CORE::length($2);
+                            # deal with fact that start en stop is on same line
+                            my $data = $2;
+                            if ($data =~ s/\<\-?\*?\s*$//)
+                            {
+                                $width = CORE::length($data);
+                            }
+ 
                             $self->element(
                                 {
                                     'Name' => 'Hsp_qseq',
-                                    'Data' => $2
+                                    'Data' => $data
                                 }
                             );
                             $count       = 0;
@@ -594,6 +607,12 @@ sub next_result {
                         }
                     );
                     $self->start_element( { 'Name' => 'Hsp' } );
+                    $self->element(
+                        {
+                            'Name' => 'Hsp_gap-symbol',
+                            'Data' => '.'
+                        }
+                    );                    
                     $self->element(
                         {
                             'Name' => 'Hsp_query-from',
@@ -798,6 +817,12 @@ sub next_result {
                         );
                         $self->element(
                             {
+                                'Name' => 'Hsp_gap-symbol',
+                                'Data' => '.'
+                            }
+                        );                        
+                        $self->element(
+                            {
                                 'Name' => 'Hsp_positive',
                                 'Data' => 0
                             }
@@ -855,11 +880,17 @@ sub next_result {
                             $prelength = CORE::length($1);
                             $width     = 0;
 
-                            # $width = CORE::length($2);
+                            # deal with fact that start en stop is on same line
+                            my $data = $2;
+                            if ($data =~ s/\<\-?\*?\s*$//)
+                            {
+                              $width = CORE::length($data);
+                            }
+ 
                             $self->element(
                                 {
                                     'Name' => 'Hsp_hseq',
-                                    'Data' => $2
+                                    'Data' => $data
                                 }
                             );
                             $count       = 0;
@@ -975,10 +1006,16 @@ sub next_result {
                     $self->start_element( { 'Name' => 'Hsp' } );
                     $self->element(
                         {
+                            'Name' => 'Hsp_gap-symbol',
+                            'Data' => '.'
+                        }
+                    );
+                    $self->element(
+                        {
                             'Name' => 'Hsp_query-from',
                             'Data' => shift @$HSPinfo
                         }
-                    );
+                    );                    
                     $self->element(
                         {
                             'Name' => 'Hsp_query-to',
