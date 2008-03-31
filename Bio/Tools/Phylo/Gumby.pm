@@ -103,6 +103,12 @@ sub new {
  Returns : list of Bio::SeqFeature::Annotated (one per sequence). Features are
            annotated with tags for pvalue and 'kind' (holding 'all', 'exon', or
            'nonexon').
+
+           NB: Gumby ignores sequence coordinates in input alignments, treating
+           each sequence as if it started at position 1. If you're running this
+           manually (ie. not via the Bio::Tools::Run::Phylo::Gumby) you will
+           have to adjust the coordinates to match up with your input alignment
+           and sequences.
  Args    : none
 
 =cut
