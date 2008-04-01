@@ -35,7 +35,7 @@ constructing a URL for querying NCBI GenBank and NCBI GenPept and the
 common HTML stripping done in L<postprocess_data>().
 
 The base NCBI query URL used is:
-http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi 
+http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi
 
 =head1 FEEDBACK
 
@@ -74,7 +74,7 @@ preceded with a _
 
 package Bio::DB::NCBIHelper;
 use strict;
-use vars qw($HOSTBASE %CGILOCATION %FORMATMAP 	    $DEFAULTFORMAT $MAX_ENTRIES $VERSION @ATTRIBUTES);
+use vars qw($HOSTBASE %CGILOCATION %FORMATMAP $DEFAULTFORMAT $MAX_ENTRIES $VERSION);
 
 use Bio::DB::Query::GenBank;
 use HTTP::Request::Common;
@@ -104,7 +104,6 @@ BEGIN {
 						   'gbwithparts' => 'genbank',
 					  );
     $DEFAULTFORMAT = 'gb';
-	@ATTRIBUTES = qw(complexity strand seq_start seq_stop);
 }
 
 # the new way to make modules a little more lightweight

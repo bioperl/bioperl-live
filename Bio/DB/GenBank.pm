@@ -106,10 +106,11 @@ in GenBank format (the default) the sequence part will be left out
 (the reason is that NT contigs are rather annotation with references
 to clones).
 
-Some work has been done to automatically detect and retrieve whole NT_
-clones when the data is in that format (NCBI RefSeq clones).  More
-testing and feedback from users is needed to achieve a good fit of
-functionality and ease of use.
+Some work has been done to automatically detect and retrieve whole NT_ clones
+when the data is in that format (NCBI RefSeq clones). The former behavior prior
+to bioperl 1.6 was to retrieve these from EBI, but now these are retrieved
+directly from NCBI. The older behavior can be regained by setting the
+'redirect_refseq' flag to a value evaluating to TRUE.
 
 =head1 FEEDBACK
 
