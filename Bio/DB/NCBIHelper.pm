@@ -104,17 +104,7 @@ BEGIN {
 						   'gbwithparts' => 'genbank',
 					  );
     $DEFAULTFORMAT = 'gb';
-	@ATTRIBUTES = qw(complexity strand seq_start seq_stop no_redirect);
-	for my $method (@ATTRIBUTES) {
-		eval <<END;
-sub $method {
-	my \$self = shift;
-	my \$d    = \$self->{'_$method'};
-	\$self->{'_$method'} = shift if \@_;
-	\$d;
-}
-END
-	}
+	@ATTRIBUTES = qw(complexity strand seq_start seq_stop);
 }
 
 # the new way to make modules a little more lightweight
@@ -122,12 +112,13 @@ END
 sub new {
     my ($class, @args ) = @_;
     my $self = $class->SUPER::new(@args);
-    my ($seq_start,$seq_stop,$no_redirect,$complexity,$strand) =
-	 $self->_rearrange([qw(SEQ_START SEQ_STOP NO_REDIRECT COMPLEXITY STRAND)],
+    my ($seq_start,$seq_stop,$no_redirect, $redirect, $complexity,$strand) =
+	 $self->_rearrange([qw(SEQ_START SEQ_STOP NO_REDIRECT REDIRECT_REFSEQ COMPLEXITY STRAND)],
 							 @args);
 	$seq_start     && $self->seq_start($seq_start);
     $seq_stop      && $self->seq_stop($seq_stop);
     $no_redirect   && $self->no_redirect($no_redirect);
+    $redirect      && $self->redirect_refseq($redirect);
     $strand        && $self->strand($strand);
 	# adjust statement to accept zero value
 	defined $complexity && ($complexity >=0 && $complexity <=4)
@@ -336,6 +327,121 @@ sub request_format {
 	return @{$self->{'_format'}};
 }
 
+=head2 redirect_refseq
+
+ Title   : redirect_refseq
+ Usage   : $db->redirect_refseq(1)
+ Function: simple getter/setter which redirects RefSeqs to use Bio::DB::RefSeq
+ Returns : Boolean value
+ Args    : Boolean value (optional)
+ Throws  : 'unparseable output exception'
+ Note    : This replaces 'no_redirect' as a more straightforward flag to
+           redirect possible RefSeqs to use Bio::DB::RefSeq (EBI interface)
+           instead of retrievign the NCBI records
+
+=cut
+
+sub redirect_refseq {
+    my $self = shift;
+    return $self->{'_redirect_refseq'} = shift if @_;
+    return $self->{'_redirect_refseq'};
+}
+
+=head2 complexity
+
+ Title   : complexity
+ Usage   : $db->complexity(3)
+ Function: get/set complexity value 
+ Returns : value from 0-4 indicating level of complexity
+ Args    : value from 0-4 (optional); if unset server assumes 1
+ Throws  : if arg is not an integer or falls outside of noted range above
+ Note    : From efetch docs:
+ 
+    Complexity regulates the display:
+   
+       * 0 - get the whole blob
+       * 1 - get the bioseq for gi of interest (default in Entrez)
+       * 2 - get the minimal bioseq-set containing the gi of interest
+       * 3 - get the minimal nuc-prot containing the gi of interest
+       * 4 - get the minimal pub-set containing the gi of interest
+       
+=cut
+
+sub complexity {
+    my ($self, $comp) = @_;
+    if (defined $comp) {
+        $self->throw("Complexity value must be integer between 0 and 4") if
+            $comp !~ /^\d+$/ || $comp < 0 || $comp > 4;
+        $self->{'_complexity'} = $comp;
+    }
+    return $self->{'_complexity'};
+}
+
+=head2 strand
+
+ Title   : strand
+ Usage   : $db->strand(1)
+ Function: get/set strand value 
+ Returns : strand value if set
+ Args    : value of 1 (plus) or 2 (minus); if unset server assumes 1
+ Throws  : if arg is not an integer or is not 1 or 2
+ Note    : This differs from BioPerl's use of strand: 1 = plus, -1 = minus 0 = not relevant.
+           We should probably add in some functionality to convert over in the future.
+
+=cut
+
+sub strand {
+    my ($self, $str) = @_;
+    if ($str) {
+        $self->throw("strand() must be integer value of 1 (plus strand) or 2 (minus strand) if set") if
+            $str !~ /^\d+$/ || $str < 1 || $str > 2;
+        $self->{'_strand'} = $str;
+    }
+    return $self->{'_strand'};   
+}
+
+=head2 seq_start
+
+ Title   : seq_start
+ Usage   : $db->seq_start(123)
+ Function: get/set sequence start location
+ Returns : sequence start value if set
+ Args    : integer; if unset server assumes 1
+ Throws  : if arg is not an integer
+
+=cut
+
+sub seq_start {
+    my ($self, $start) = @_;
+    if ($start) {
+        $self->throw("seq_start() must be integer value if set") if
+            $start !~ /^\d+$/;
+        $self->{'_seq_start'} = $start;
+    }
+    return $self->{'_seq_start'};      
+}
+
+=head2 seq_stop
+
+ Title   : seq_stop
+ Usage   : $db->seq_stop(456)
+ Function: get/set sequence stop (end) location
+ Returns : sequence stop (end) value if set
+ Args    : integer; if unset server assumes 1
+ Throws  : if arg is not an integer
+
+=cut
+
+sub seq_stop {
+    my ($self, $stop) = @_;
+    if ($stop) {
+        $self->throw("seq_stop() must be integer if set") if
+            $stop !~ /^\d+$/;
+        $self->{'_seq_stop'} = $stop;
+    }
+    return $self->{'_seq_stop'};   
+}
+
 =head2 Bio::DB::WebDBSeqI methods
 
 Overriding WebDBSeqI method to help newbies to retrieve sequences
@@ -383,7 +489,7 @@ sub _check_id {
 
 	# Asking for a RefSeq from EMBL/GenBank
    
-	unless ($self->no_redirect) {
+	if ($self->redirect_refseq) {
 		if ($ids =~ /N._/) {
 			$self->warn("[$ids] is not a normal sequence database but a RefSeq entry.".
 							" Redirecting the request.\n")
@@ -461,6 +567,29 @@ sub _parse_response {
   my ($querykey)  = $content =~ m!<QueryKey>(\d+)!;
   $self->cookie(uri_unescape($cookie),$querykey);
 }
+
+########### DEPRECATED!!!! ###########
+
+=head2 no_redirect
+
+ Title   : no_redirect
+ Usage   : $db->no_redirect($content)
+ Function: Used to indicate that Bio::DB::GenBank instance retrieves
+           possible RefSeqs from EBI instead; default behavior is now to
+           retrieve directly from NCBI
+ Returns : None
+ Args    : None
+ Throws  : Method is deprecated in favor of positive flag method 'redirect_refseq'
+
+=cut
+
+sub no_redirect {
+    shift->throw(
+    "Use of no_redirect() is deprecated.  Bio::DB::GenBank default is to always\n".
+    "retrieve from NCBI.  In order to redirect possible RefSeqs to EBI, set\n".
+    "redirect_refseq flag to 1");
+}
+
 1;
 
 __END__
