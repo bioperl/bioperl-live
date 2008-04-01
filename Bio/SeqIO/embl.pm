@@ -200,9 +200,9 @@ sub next_seq {
 
     	# ID   DQ299383; SV 1; linear; mRNA; STD; MAM; 431 BP.
         # This regexp comes from the new2old.pl conversion script, from EBI
-    	$line =~ m/^ID   (\w+);\s+SV (\d+); (\w+); ([^;]+); (\w{3}); (\w{3}); (\d+) BP./;
+    	if ($line =~ m/^ID   (\w+);\s+SV (\d+); (\w+); ([^;]+); (\w{3}); (\w{3}); (\d+) BP./) {
     	($name, $sv, $topology, $mol, $div) = ($1, $2, $3, $4, $6);
-
+        }
     	if (defined($sv)) {
 	    $params{'-seq_version'} = $sv;
 	    $params{'-version'} = $sv;
@@ -223,24 +223,26 @@ sub next_seq {
 	}
     } else {
 	
-    	# Old style header (EMBL Release < 87, before June 2006)
-    	($name, $mol, $div) = ($line =~ /^ID\s+(\S+)[^;]*;\s+(\S+)[^;]*;\s+(\S+)[^;]*;/);
+        # Old style header (EMBL Release < 87, before June 2006)
+        if ($line =~ /^ID\s+(\S+)[^;]*;\s+(\S+)[^;]*;\s+(\S+)[^;]*;/) {
+        ($name, $mol, $div) = ($1, $2, $3);
+        }
 	
-	if ($mol) {
-	    if ( $mol =~ /circular/ ) {
-		$params{'-is_circular'} = 1;
-		$mol =~  s|circular ||;
-	    }
-	    if (defined $mol ) {
-		if ($mol =~ /DNA/) {
-		    $alphabet='dna';
-		} elsif ($mol =~ /RNA/) {
-		    $alphabet='rna';
-		} elsif ($mol =~ /AA/) {
-		    $alphabet='protein';
-		}
-	    }
-	}
+        if ($mol) {
+            if ( $mol =~ /circular/ ) {
+            $params{'-is_circular'} = 1;
+            $mol =~  s|circular ||;
+            }
+            if (defined $mol ) {
+            if ($mol =~ /DNA/) {
+                $alphabet='dna';
+            } elsif ($mol =~ /RNA/) {
+                $alphabet='rna';
+            } elsif ($mol =~ /AA/) {
+                $alphabet='protein';
+            }
+            }
+        }
     }
 
     unless( defined $name && length($name) ) {
