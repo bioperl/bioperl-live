@@ -275,7 +275,7 @@ sub _parse_predictions {
 	    }
 	    # split into fields
 	    chomp();
-	    my @flds = split(/\s+/, ' ' . $line); 
+	    my @flds = split(/\s+/, ' ' . $line);
 	    ## NB - the above adds leading whitespace before the gene
 	    ## number in case there was none (as quick patch to code
 	    ## below which expects it but it is not present after 999
@@ -320,7 +320,7 @@ sub _parse_predictions {
 	    # are set, in order to allow for proper expansion of the range)
 	    if($is_exon) {
 		# first, set fields unique to exons
-		$predobj->primary_tag($ExonTags{$flds[3]} . 'Exon');
+		$predobj->primary_tag($ExonTags{$flds[4]} . 'Exon');
 		$predobj->is_coding(1);
 		my $cod_offset;
 		if($predobj->strand() == 1) {
