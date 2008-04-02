@@ -302,8 +302,8 @@ is($fghgene->start(), 29);
 is($fghgene->end(), 1869);
 cmp_ok($fghgene->strand(), '<', 0);
 
-my $i = 0;
-my @num_exons = (2,5,4,8);
+$i = 0;
+@num_exons = (2,5,4,8);
 
 while ($fghgene = $fgh->next_prediction()) {
 
