@@ -1116,7 +1116,7 @@ sub end_element {
     if ( $nm eq 'Hsp' ) {
         foreach (qw(Hsp_qseq Hsp_midline Hsp_hseq)) {
             my $data = $self->{'_last_hspdata'}->{$_};
-            if ($_ eq 'Hsp_hseq') {
+            if ($data && $_ eq 'Hsp_hseq') {
                 # replace hmm '.' gap symbol by '-'
                 $data =~ s/\./-/g;
             }
