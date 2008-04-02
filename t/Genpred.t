@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 180);
+    test_begin(-tests => 182);
 
     use_ok('Bio::Tools::Fgenesh');
     use_ok('Bio::Tools::Genscan');
@@ -313,9 +313,11 @@ while ($fghgene = $fgh->next_prediction()) {
 
     if ($i == 2) {
         cmp_ok($fghexons[0]->strand(), '>', 0);
+        is($fghexons[0]->primary_tag(), 'InitialExon');
         is($fghexons[0]->start(), 14778);
         is($fghexons[0]->end(), 15104);
         cmp_ok($fghexons[3]->strand(), '>', 0);
+        is($fghexons[3]->primary_tag(), 'TerminalExon');        
         is($fghexons[3]->start(), 16988);
         is($fghexons[3]->end(), 17212);
     }
