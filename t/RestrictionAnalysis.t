@@ -88,7 +88,7 @@ $re->verbose(2);
 
 eval {$re->is_prototype};
 ok($@);
-like($@, qr/Couldn't unequivicably assign prototype/, 'bug 2179');
+like($@, qr/Can't unequivocally assign prototype based on input format alone/, 'bug 2179');
 $re->verbose(2);
 
 is $re->is_prototype(0), 0;
