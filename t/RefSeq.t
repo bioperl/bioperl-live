@@ -26,9 +26,9 @@ $seq = $seqio = undef;
 
 #test redirection from GenBank and EMBL
 #GenBank
-ok $db = Bio::DB::GenBank->new('-verbose'=>$verbose);
+ok $db = Bio::DB::GenBank->new('-verbose'=> $verbose, -redirect_refseq => 1);
 #EMBL
-ok $db2 = Bio::DB::EMBL->new('-verbose'=>$verbose);     
+ok $db2 = Bio::DB::EMBL->new('-verbose'=> $verbose, -redirect_refseq => 1);     
 
 eval {
     $seq = $db->get_Seq_by_acc('NT_006732');
@@ -41,19 +41,19 @@ SKIP: {
     
     eval {
         ok($seq = $db->get_Seq_by_acc('NM_006732'));
-        is($seq->length, 3776);
+        is($seq->length, 3775);
         ok $seq2 = $db2->get_Seq_by_acc('NM_006732');
-        is($seq2->length, 3776);
+        is($seq2->length, 3775);
     };
     skip "Warning: Couldn't connect to RefSeq with Bio::DB::RefSeq.pm!", 4 if $@;
     
     eval { 
         ok defined($db = Bio::DB::RefSeq->new(-verbose=>$verbose)); 
         ok(defined($seq = $db->get_Seq_by_acc('NM_006732')));
-        is( $seq->length, 3776);
+        is( $seq->length, 3775);
         ok defined ($db->request_format('fasta'));
         ok(defined($seq = $db->get_Seq_by_acc('NM_006732')));
-        is( $seq->length, 3776); 
+        is( $seq->length, 3775); 
     };
     skip "Warning: Couldn't connect to RefSeq with Bio::DB::RefSeq.pm!", 6 if $@;
 }
