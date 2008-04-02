@@ -220,17 +220,16 @@ use base qw(Bio::Root::Root Bio::Align::AlignI);
  Usage     : my $contig = Bio::Assembly::Contig->new();
  Function  : Creates a new contig object
  Returns   : Bio::Assembly::Contig
- Args      : -source => string representing the source
-                        program where this contig came
-                        from
-             -id => contig unique ID
+ Args      : -id => contig unique ID
+             -source => string for the sequence assembly program used
+             
 
 =cut
 
 #-----------
 sub new {
 #-----------
-    my ($class,@args) = @_;
+    my ($class, @args) = @_;
 
     my $self = $class->SUPER::new(@args);
 
@@ -243,8 +242,8 @@ sub new {
     # Bio::SimpleAlign derived fields (check which ones are needed for AlignI compatibility)
     $self->{'_elem'} = {}; # contig elements: aligned sequence objects (keyed by ID)
     $self->{'_order'} = {}; # store sequence order
-#    $self->{'start_end_lists'} = {}; # References to entries in {'_seq'}. Keyed by seq ids.
-#    $self->{'_dis_name'} = {}; # Display names for each sequence
+    # $self->{'start_end_lists'} = {}; # References to entries in {'_seq'}. Keyed by seq ids.
+    # $self->{'_dis_name'} = {}; # Display names for each sequence
     $self->{'_symbols'} = {}; # List of symbols
 
     #Contig specific slots
@@ -252,10 +251,10 @@ sub new {
     $self->{'_consensus_quality'} = undef;
     $self->{'_nof_residues'} = 0;
     $self->{'_nof_seqs'} = 0;
-#    $self->{'_nof_segments'} = 0; # Let's not make it heavier than needed by now...
+    # $self->{'_nof_segments'} = 0; # Let's not make it heavier than needed by now...
     $self->{'_sfc'} = Bio::SeqFeature::Collection->new();
 
-    # Assembly specifcs
+    # Assembly specifics
     $self->{'_assembly'} = undef; # Reference to a Bio::Assembly::Scaffold object, if contig belongs to one.
     $self->{'_strand'} = 0; # Reverse (-1) or forward (1), if contig is in a scaffold. 0 otherwise
     $self->{'_neighbor_start'} = undef; # Will hold a reference to another contig
@@ -305,7 +304,7 @@ sub assembly {
     my $assembly = shift;
 
     $self->throw("Using non Bio::Assembly::Scaffold object when assign contig to assembly")
-	if (defined $assembly && ! $assembly->isa("Bio::Assembly::Scaffold"));
+    if (defined $assembly && ! $assembly->isa("Bio::Assembly::Scaffold"));
 
     $self->{'_assembly'} = $assembly if (defined $assembly);
     return $self->{'_assembly'};
@@ -330,11 +329,10 @@ sub strand {
     my $self = shift;
     my $ori = shift;
 
-	if (defined $ori) {
-    $self->throw("Contig strand must be either 1, -1 or 0")
+    if (defined $ori) {
+        $self->throw("Contig strand must be either 1, -1 or 0")
             unless $ori == 1 || $ori == 0 || $ori == -1;
-
-    $self->{'_strand'} = $ori;
+        $self->{'_strand'} = $ori;
     }
 
     return $self->{'_strand'};
@@ -357,7 +355,7 @@ sub upstream_neighbor {
     my $ref = shift;
 
     $self->throw("Trying to assign a non Bio::Assembly::Contig object to upstream contig")
-	if (defined $ref && ! $ref->isa("Bio::Assembly::Contig"));
+        if (defined $ref && ! $ref->isa("Bio::Assembly::Contig"));
 
     $self->{'_neighbor_start'} = $ref if (defined $ref);
     return $self->{'_neighbor_start'};
@@ -380,7 +378,7 @@ sub downstream_neighbor {
     my $ref = shift;
 
     $self->throw("Trying to assign a non Bio::Assembly::Contig object to downstream contig")
-	if (defined $ref && ! $ref->isa("Bio::Assembly::Contig"));
+        if (defined $ref && ! $ref->isa("Bio::Assembly::Contig"));
     $self->{'_neighbor_end'} = $ref if (defined $ref);
     return $self->{'_neighbor_end'};
 }
@@ -424,20 +422,20 @@ sub add_features {
     # Adding shortcuts for aligned sequence features
     $flag = 0 unless (defined $flag);
     if ($flag && defined $self->{'_consensus_sequence'}) {
-	foreach my $feat (@$args) {
-	    next if (defined $feat->seq);
-	    $feat->attach_seq($self->{'_consensus_sequence'});
-	}
+        foreach my $feat (@$args) {
+            next if (defined $feat->seq);
+            $feat->attach_seq($self->{'_consensus_sequence'});
+        }
     } elsif (!$flag) { # Register aligned sequence features
-	foreach my $feat (@$args) {
-	    if (my $seq = $feat->entire_seq()) {
-		my $seqID = $seq->id() || $seq->display_id || $seq->primary_id;
-		$self->warn("Adding contig feature attached to unknown sequence $seqID!")
-		    unless (exists $self->{'_elem'}{$seqID});
-		my $tag = $feat->primary_tag;
-		$self->{'_elem'}{$seqID}{'_feat'}{$tag} = $feat;
-	    }
-	}
+        foreach my $feat (@$args) {
+            if (my $seq = $feat->entire_seq()) {
+                my $seqID = $seq->id() || $seq->display_id || $seq->primary_id;
+                $self->warn("Adding contig feature attached to unknown sequence $seqID!")
+                    unless (exists $self->{'_elem'}{$seqID});
+                my $tag = $feat->primary_tag;
+                $self->{'_elem'}{$seqID}{'_feat'}{$tag} = $feat;
+            }
+        }
     }
 
     # Add feature to feature collection
@@ -461,16 +459,17 @@ sub remove_features {
 
     # Removing shortcuts for aligned sequence features
     foreach my $feat (@args) {
-	if (my $seq = $feat->entire_seq()) {
-	    my $seqID = $seq->id() || $seq->display_id || $seq->primary_id;
-	    my $tag = $feat->primary_tag;
-	    $tag =~ s/:$seqID$/$1/g;
-	    delete( $self->{'_elem'}{$seqID}{'_feat'}{$tag} )
-		if (exists $self->{'_elem'}{$seqID}{'_feat'}{$tag} &&
-		    $self->{'_elem'}{$seqID}{'_feat'}{$tag} eq $feat);
-	}
+        if (my $seq = $feat->entire_seq()) {
+            my $seqID = $seq->id() || $seq->display_id || $seq->primary_id;
+            my $tag = $feat->primary_tag;
+            $tag =~ s/:$seqID$/$1/g;
+            delete( $self->{'_elem'}{$seqID}{'_feat'}{$tag} )
+                if (exists $self->{'_elem'}{$seqID}{'_feat'}{$tag} &&
+                $self->{'_elem'}{$seqID}{'_feat'}{$tag} eq $feat);
+        }
     }
-
+    
+    # Removing Bio::SeqFeature::Collection features
     return $self->{'_sfc'}->remove_features(\@args);
 }
 
@@ -486,8 +485,29 @@ sub remove_features {
 
 sub get_features_collection {
     my $self = shift;
-
     return $self->{'_sfc'};
+}
+
+=head2 remove_features_collection
+
+ Title     : remove_features_collection
+ Usage     : $contig->remove_features_collection()
+ Function  : Remove the collection of all contig features. It is useful
+             to save some memory (when contig features are not needed).
+ Returns   : none
+ Argument  : none
+
+=cut
+
+sub remove_features_collection {
+    my $self = shift;
+    # Removing shortcuts for aligned sequence features
+    for my $seqID (keys %{$self->{'_elem'}}) {
+        delete $self->{'_elem'}{$seqID};
+    }
+    # Removing Bio::SeqFeature::Collection features
+    $self->{'_sfc'} = {};
+    return;
 }
 
 =head1 Coordinate system's related methods
@@ -533,140 +553,140 @@ sub change_coord {
     my $out_ID = ( split(' ',$type_out) )[1];
 
     if ($in_ID  ne 'consensus') {
-	$read_in  = $self->get_seq_coord( $self->get_seq_by_name($in_ID)  );
-	$self->throw("Can't change coordinates without sequence location for $in_ID")
-	    unless (defined $read_in);
+        $read_in  = $self->get_seq_coord( $self->get_seq_by_name($in_ID)  );
+        $self->throw("Can't change coordinates without sequence location for $in_ID")
+            unless (defined $read_in);
     }
     if ($out_ID ne 'consensus') {
-	$read_out = $self->get_seq_coord( $self->get_seq_by_name($out_ID) );
-	$self->throw("Can't change coordinates without sequence location for $out_ID")
-	    unless (defined $read_out);
+        $read_out = $self->get_seq_coord( $self->get_seq_by_name($out_ID) );
+        $self->throw("Can't change coordinates without sequence location for $out_ID")
+            unless (defined $read_out);
     }
 
     # Performing transformation between coordinates
-  SWITCH1: {
+    SWITCH1: {
 
-      # Transformations between contig padded and contig unpadded
-      (($type_in eq 'gapped consensus') && ($type_out eq 'ungapped consensus')) && do {
-	  $self->throw("Can't use ungapped consensus coordinates without a consensus sequence")
-	      unless (defined $self->{'_consensus_sequence'});
-	  $query = &_padded_unpadded($self->{'_consensus_gaps'}, $query);
-	  last SWITCH1;
-      };
-      (($type_in eq 'ungapped consensus') && ($type_out eq 'gapped consensus')) && do {
-	  $self->throw("Can't use ungapped consensus coordinates without a consensus sequence")
-	      unless (defined $self->{'_consensus_sequence'});
-	  $query = &_unpadded_padded($self->{'_consensus_gaps'},$query);
-	  last SWITCH1;
-      };
+        # Transformations between contig padded and contig unpadded
+        (($type_in eq 'gapped consensus') && ($type_out eq 'ungapped consensus')) && do {
+            $self->throw("Can't use ungapped consensus coordinates without a consensus sequence")
+                unless (defined $self->{'_consensus_sequence'});
+            $query = &_padded_unpadded($self->{'_consensus_gaps'}, $query);
+            last SWITCH1;
+        };
+        (($type_in eq 'ungapped consensus') && ($type_out eq 'gapped consensus')) && do {
+            $self->throw("Can't use ungapped consensus coordinates without a consensus sequence")
+                unless (defined $self->{'_consensus_sequence'});
+            $query = &_unpadded_padded($self->{'_consensus_gaps'},$query);
+            last SWITCH1;
+        };
 
-      # Transformations between contig (padded) and read (padded)
-      (($type_in  eq 'gapped consensus') &&
-       ($type_out =~ /^aligned /) && defined($read_out)) && do {
-	   $query = $query - $read_out->start() + 1;
-	   last SWITCH1;
-       };
-      (($type_in =~ /^aligned /) && defined($read_in) &&
-       ($type_out  eq 'gapped consensus')) && do {
-	   $query = $query + $read_in->start() - 1;
-	   last SWITCH1;
-       };
+        # Transformations between contig (padded) and read (padded)
+        (($type_in  eq 'gapped consensus') &&
+        ($type_out =~ /^aligned /) && defined($read_out)) && do {
+            $query = $query - $read_out->start() + 1;
+            last SWITCH1;
+        };
+        (($type_in =~ /^aligned /) && defined($read_in) &&
+        ($type_out  eq 'gapped consensus')) && do {
+            $query = $query + $read_in->start() - 1;
+            last SWITCH1;
+        };
 
-      # Transformations between contig (unpadded) and read (padded)
-      (($type_in eq 'ungapped consensus') &&
-       ($type_out =~ /^aligned /) && defined($read_out)) && do {
-	   $query = $self->change_coord('ungapped consensus','gapped consensus',$query);
-	   $query = $self->change_coord('gapped consensus',"aligned $out_ID",$query);
-	   last SWITCH1;
-       };
-      (($type_in =~ /^aligned /) && defined($read_in) &&
-       ($type_out eq 'ungapped consensus')) && do {
-	   $query = $self->change_coord("aligned $in_ID",'gapped consensus',$query);
-	   $query = $self->change_coord('gapped consensus','ungapped consensus',$query);
-	   last SWITCH1;
-       };
+        # Transformations between contig (unpadded) and read (padded)
+        (($type_in eq 'ungapped consensus') &&
+        ($type_out =~ /^aligned /) && defined($read_out)) && do {
+            $query = $self->change_coord('ungapped consensus','gapped consensus',$query);
+            $query = $self->change_coord('gapped consensus',"aligned $out_ID",$query);
+            last SWITCH1;
+        };
+        (($type_in =~ /^aligned /) && defined($read_in) &&
+        ($type_out eq 'ungapped consensus')) && do {
+            $query = $self->change_coord("aligned $in_ID",'gapped consensus',$query);
+            $query = $self->change_coord('gapped consensus','ungapped consensus',$query);
+            last SWITCH1;
+        };
 
-      # Transformations between seq $read_in padded and seq $read_out padded
-      (defined($read_in)  && ($type_in  =~ /^aligned /)  &&
-       defined($read_out) && ($type_out =~ /^aligned /)) && do {
-	   $query = $self->change_coord("aligned $in_ID",'gapped consensus',$query);
-	   $query = $self->change_coord('gapped consensus',"aligned $out_ID",$query);
-	   last SWITCH1;
-       };
+        # Transformations between seq $read_in padded and seq $read_out padded
+        (defined($read_in)  && ($type_in  =~ /^aligned /)  &&
+        defined($read_out) && ($type_out =~ /^aligned /)) && do {
+            $query = $self->change_coord("aligned $in_ID",'gapped consensus',$query);
+            $query = $self->change_coord('gapped consensus',"aligned $out_ID",$query);
+            last SWITCH1;
+        };
 
-      # Transformations between seq $read_in padded and seq $read_out unpadded
-      (defined($read_in)  && ($type_in  =~ /^aligned /)    &&
-       defined($read_out) && ($type_out =~ /^unaligned /)) && do {
-	   if ($read_in ne $read_out) {
-	       $query = $self->change_coord("aligned $in_ID",'gapped consensus',$query);
-	       $query = $self->change_coord('gapped consensus',"aligned $out_ID",$query);
-	   }
-	   my $list_out = $self->{'_elem'}{$out_ID}{'_gaps'};
-	   $query = &_padded_unpadded($list_out,$query);
-	   # Changing read orientation if read was reverse complemented when aligned
-	   if ($read_out->strand == -1) {
-	       my ($length) = $read_out->length();
-	       $length = $length - &_nof_gaps($list_out,$length);
-	       $query  = $length - $query + 1;
-	   }
-	   last SWITCH1;
-       };
-      (defined($read_in)  && ($type_in  =~ /^unaligned /) &&
-       defined($read_out) && ($type_out =~ /^aligned /))  && do {
-	   my $list_in = $self->{'_elem'}{$in_ID}{'_gaps'};
-	   # Changing read orientation if read was reverse complemented when aligned
-	   if ($read_in->strand == -1) {
-	       my ($length) = $read_in->length();
-	       $length = $length - &_nof_gaps($list_in,$length);
-	       $query  = $length - $query + 1;
-	   }
-	   $query = &_unpadded_padded($list_in,$query);
-	   if ($read_in ne $read_out) {
-	       $query = $self->change_coord("aligned $in_ID",'gapped consensus',$query);
-	       $query = $self->change_coord('gapped consensus',"aligned $out_ID",$query);
-	   }
-	   last SWITCH1;
-       };
+        # Transformations between seq $read_in padded and seq $read_out unpadded
+        (defined($read_in)  && ($type_in  =~ /^aligned /)    &&
+        defined($read_out) && ($type_out =~ /^unaligned /)) && do {
+            if ($read_in ne $read_out) {
+                $query = $self->change_coord("aligned $in_ID",'gapped consensus',$query);
+                $query = $self->change_coord('gapped consensus',"aligned $out_ID",$query);
+            }
+            my $list_out = $self->{'_elem'}{$out_ID}{'_gaps'};
+            $query = &_padded_unpadded($list_out,$query);
+            # Changing read orientation if read was reverse complemented when aligned
+            if ($read_out->strand == -1) {
+                my ($length) = $read_out->length();
+                $length = $length - &_nof_gaps($list_out,$length);
+                $query  = $length - $query + 1;
+            }
+            last SWITCH1;
+        };
+        (defined($read_in)  && ($type_in  =~ /^unaligned /) &&
+        defined($read_out) && ($type_out =~ /^aligned /))  && do {
+            my $list_in = $self->{'_elem'}{$in_ID}{'_gaps'};
+            # Changing read orientation if read was reverse complemented when aligned
+            if ($read_in->strand == -1) {
+                my ($length) = $read_in->length();
+                $length = $length - &_nof_gaps($list_in,$length);
+                $query  = $length - $query + 1;
+            }
+            $query = &_unpadded_padded($list_in,$query);
+            if ($read_in ne $read_out) {
+                $query = $self->change_coord("aligned $in_ID",'gapped consensus',$query);
+                $query = $self->change_coord('gapped consensus',"aligned $out_ID",$query);
+            }
+            last SWITCH1;
+        };
 
-      # Transformations between seq $read_in unpadded and seq $read_out unpadded
-      (defined($read_in)  && ($type_in  =~ /^unaligned /)    &&
-       defined($read_out) && ($type_out =~ /^unaligned /)) && do {
-	   $query = $self->change_coord("unaligned $in_ID","aligned $out_ID",$query);
-	   $query = $self->change_coord("aligned $out_ID","unaligned $out_ID",$query);
-	   last SWITCH1;
-       };
+        # Transformations between seq $read_in unpadded and seq $read_out unpadded
+        (defined($read_in)  && ($type_in  =~ /^unaligned /)    &&
+        defined($read_out) && ($type_out =~ /^unaligned /)) && do {
+            $query = $self->change_coord("unaligned $in_ID","aligned $out_ID",$query);
+            $query = $self->change_coord("aligned $out_ID","unaligned $out_ID",$query);
+            last SWITCH1;
+        };
 
-      # Transformations between contig (padded) and read (unpadded)
-      (($type_in eq 'gapped consensus') &&
-       ($type_out =~ /^unaligned /) && defined($read_out)) && do {
-	   $query = $self->change_coord('gapped consensus',"aligned $out_ID",$query);
-	   $query = $self->change_coord("aligned $out_ID","unaligned $out_ID",$query);
-	   last SWITCH1;
-       };
-      (($type_in =~ /^unaligned /) && defined($read_in) &&
-       ($type_out eq 'gapped consensus')) && do {
-	   $query = $self->change_coord("unaligned $in_ID","aligned $in_ID",$query);
-	   $query = $self->change_coord("aligned $in_ID",'gapped consensus',$query);
-	   last SWITCH1;
-       };
+        # Transformations between contig (padded) and read (unpadded)
+        (($type_in eq 'gapped consensus') &&
+        ($type_out =~ /^unaligned /) && defined($read_out)) && do {
+            $query = $self->change_coord('gapped consensus',"aligned $out_ID",$query);
+            $query = $self->change_coord("aligned $out_ID","unaligned $out_ID",$query);
+            last SWITCH1;
+        };
+        (($type_in =~ /^unaligned /) && defined($read_in) &&
+        ($type_out eq 'gapped consensus')) && do {
+            $query = $self->change_coord("unaligned $in_ID","aligned $in_ID",$query);
+            $query = $self->change_coord("aligned $in_ID",'gapped consensus',$query);
+            last SWITCH1;
+        };
 
-      # Transformations between contig (unpadded) and read (unpadded)
-      (($type_in eq 'ungapped consensus') &&
-       ($type_out =~ /^unaligned /) && defined($read_out)) && do {
-	   $query = $self->change_coord('ungapped consensus','gapped consensus',$query);
-	   $query = $self->change_coord('gapped consensus',"unaligned $out_ID",$query);
-	   last SWITCH1;
-       };
-      (($type_in =~ /^unaligned /) && defined($read_in) &&
-       ($type_out eq 'ungapped consensus')) && do {
-	   $query = $self->change_coord("unaligned $in_ID",'gapped consensus',$query);
-	   $query = $self->change_coord('gapped consensus','ungapped consensus',$query);
-	   last SWITCH1;
-       };
+        # Transformations between contig (unpadded) and read (unpadded)
+        (($type_in eq 'ungapped consensus') &&
+        ($type_out =~ /^unaligned /) && defined($read_out)) && do {
+            $query = $self->change_coord('ungapped consensus','gapped consensus',$query);
+            $query = $self->change_coord('gapped consensus',"unaligned $out_ID",$query);
+            last SWITCH1;
+        };
+        (($type_in =~ /^unaligned /) && defined($read_in) &&
+        ($type_out eq 'ungapped consensus')) && do {
+            $query = $self->change_coord("unaligned $in_ID",'gapped consensus',$query);
+            $query = $self->change_coord('gapped consensus','ungapped consensus',$query);
+            last SWITCH1;
+        };
 
-      $self->throw("Unknow coordinate system. Args: $type_in, $type_out.");
-      $query = undef; # If a coordinate systems just requested is unknown
-  }
+        $self->throw("Unknow coordinate system. Args: $type_in, $type_out.");
+        $query = undef; # If a coordinate systems just requested is unknown
+    }
 
     return $query;
 }
@@ -686,17 +706,17 @@ sub get_seq_coord {
     my ($self,$seq) = @_;
 
     if( !ref $seq || ! $seq->isa('Bio::LocatableSeq') ) {
-	$self->throw("$seq is not a Bio::LocatableSeq");
+        $self->throw("$seq is not a Bio::LocatableSeq");
     }
     my $seqID = $seq->id() || $seq->display_id || $seq->primary_id;
 
     unless (exists( $self->{'_elem'}{$seqID} )) {
-	$self->warn("No such sequence ($seqID) in contig ".$self->id);
-	return;
+        $self->warn("No such sequence ($seqID) in contig ".$self->id);
+        return;
     }
     unless (exists( $self->{'_elem'}{$seqID}{'_feat'}{"_aligned_coord:$seqID"} )) {
-	# $self->warn("Chad. Location not set for sequence ($seqID) in contig ".$self->id);
-	return;
+        # $self->warn("Chad. Location not set for sequence ($seqID) in contig ".$self->id);
+        return;
     }
 
     return $self->{'_elem'}{$seqID}{'_feat'}{"_aligned_coord:$seqID"};
@@ -732,24 +752,24 @@ sub set_seq_coord {
     my ($self,$feat,$seq) = @_;
 
     if( !ref $seq || ! $seq->isa('Bio::LocatableSeq') ) {
-	$self->throw("Unable to process non locatable sequences [".ref($seq)."]");
+        $self->throw("Unable to process non locatable sequences [".ref($seq)."]");
     }
 
     # Complaining about inadequate feature object
-     $self->throw("Coordinates must be a Bio::SeqFeature::Generic object!")
-	unless ( $feat->isa("Bio::SeqFeature::Generic") );
+    $self->throw("Coordinates must be a Bio::SeqFeature::Generic object!")
+        unless ( $feat->isa("Bio::SeqFeature::Generic") );
     $self->throw("Sequence coordinates must have an end!")
-	unless (defined $feat->end);
+        unless (defined $feat->end);
     $self->throw("Sequence coordinates must have a start!")
-	unless (defined $feat->start);
+        unless (defined $feat->start);
 
     my $seqID = $seq->id() || $seq->display_id || $seq->primary_id;
     if (exists( $self->{'_elem'}{$seqID} ) &&
-	exists( $self->{'_elem'}{$seqID}{'_seq'} ) &&
-	defined( $self->{'_elem'}{$seqID}{'_seq'} ) &&
-	($seq ne $self->{'_elem'}{$seqID}{'_seq'}) ) {
-	$self->warn("Replacing sequence $seqID\n");
-	$self->remove_seq($self->{'_elem'}{$seqID}{'_seq'});
+    exists( $self->{'_elem'}{$seqID}{'_seq'} ) &&
+    defined( $self->{'_elem'}{$seqID}{'_seq'} ) &&
+    ($seq ne $self->{'_elem'}{$seqID}{'_seq'}) ) {
+        $self->warn("Replacing sequence $seqID\n");
+        $self->remove_seq($self->{'_elem'}{$seqID}{'_seq'});
     }
     $self->add_seq($seq);
 
@@ -758,7 +778,7 @@ sub set_seq_coord {
 
     # Add new Bio::Generic::SeqFeature
     $feat->add_tag_value('contig',$self->id)
-	unless ( $feat->has_tag('contig') );
+        unless ( $feat->has_tag('contig') );
     $feat->primary_tag("_aligned_coord:$seqID");
     $feat->attach_seq($seq);
     $self->{'_elem'}{$seqID}{'_feat'}{"_aligned_coord:$seqID"} = $feat;
@@ -782,14 +802,14 @@ sub set_consensus_sequence {
     my $seq  = shift;
 
     $self->throw("Consensus sequence must be a Bio::LocatableSeq!")
-	unless ($seq->isa("Bio::LocatableSeq"));
+        unless ($seq->isa("Bio::LocatableSeq"));
 
     my $con_len = $seq->length;
     $seq->start(1); $seq->end($con_len);
 
     $self->{'_consensus_gaps'} = []; # Consensus Gap registry
-    $self->_register_gaps($seq->seq,
-			  $self->{'_consensus_gaps'});
+    $self->_register_gaps( $seq->seq,
+                           $self->{'_consensus_gaps'} );
     $self->{'_consensus_sequence'} = $seq;
 
     return $con_len;
@@ -810,10 +830,10 @@ sub set_consensus_quality {
     my $qual  = shift;
 
     $self->throw("Consensus quality must be a Bio::Seq::Quality object!")
-	unless ( $qual->isa("Bio::Seq::Quality") );
+        unless ( $qual->isa("Bio::Seq::Quality") );
 
     $self->throw("Consensus quality can't be added before you set the consensus sequence!")
-	unless (defined $self->{'_consensus_sequence'});
+        unless (defined $self->{'_consensus_sequence'});
 
     $self->{'_consensus_quality'} = $qual;
 }
@@ -887,14 +907,14 @@ sub set_seq_qual {
     my ($self,$seq,$qual) = @_;
 
     if( !ref $seq || ! $seq->isa('Bio::LocatableSeq') ) {
-	$self->throw("Unable to process non locatable sequences [", ref($seq), "]");
+        $self->throw("Unable to process non locatable sequences [", ref($seq), "]");
     }
     my $seqID = $seq->id() || $seq->display_id || $seq->primary_id;
 
     $self->throw("Consensus quality must be a Bio::Seq::QualI object!")
-	unless ( $qual->isa("Bio::Seq::QualI") );
+        unless ( $qual->isa("Bio::Seq::QualI") );
     $self->throw("Use add_seq first: aligned sequence qualities can't be added before you load the sequence!")
-	unless (exists $self->{'_elem'}{$seqID}{'_seq'});
+        unless (exists $self->{'_elem'}{$seqID}{'_seq'});
     $self->throw("Use set_seq_coord first: aligned sequence qualities can't be added before you add coordinates for the sequence!") unless (defined( $self->get_seq_coord($seq) ));
 
     # Adding gaps to quality object
@@ -906,33 +926,33 @@ sub set_seq_qual {
     my $next     = 0;
     my $i = 0; my $j = 0;
     while ($i<=$#{$tmp}) {
-	# IF base is a gap, quality is the average for neighbouring sites
-	if (substr($sequence,$j,1) eq '-') {
-	    $previous = $tmp->[$i-1] unless ($i == 0);
-	    if ($i < $#{$tmp}) {
-		$next = $tmp->[$i+1];
-	    } else {
-		$next = 0;
-	    }
-	    push(@quality,int( ($previous+$next)/2 ));
-	} else {
-	    push(@quality,$tmp->[$i]);
-	    $i++;
-	}
-	$j++;
+        # IF base is a gap, quality is the average for neighbouring sites
+        if (substr($sequence,$j,1) eq '-') {
+            $previous = $tmp->[$i-1] unless ($i == 0);
+            if ($i < $#{$tmp}) {
+                $next = $tmp->[$i+1];
+            } else {
+                $next = 0;
+            }
+            push(@quality,int( ($previous+$next)/2 ));
+        } else {
+            push(@quality,$tmp->[$i]);
+            $i++;
+        }
+        $j++;
     }
 
-    $self->{'_elem'}{$seqID}{'_qual'} = Bio::Seq::PrimaryQual->new(-qual=>join(" ",@quality),
-								   -id=>$seqID);
+    $self->{'_elem'}{$seqID}{'_qual'} = Bio::Seq::PrimaryQual->new(
+        -qual=>join(" ",@quality), -id=>$seqID );
 }
 
 =head2 get_seq_ids
 
  Title     : get_seq_ids
  Usage     : $contig->get_seq_ids(-start=>$start,
-				  -end=>$end,
-				  -type=>"gapped A0QR67B08.b");
- Function  : Get list of sequence IDs overlapping inteval [$start, $end]
+                  -end=>$end,
+                  -type=>"gapped A0QR67B08.b");
+ Function  : Get list of sequence IDs overlapping interval [$start, $end]
              The default interval is [1,$contig->length]
              Default coordinate system is "gapped contig"
  Returns   : An array
@@ -953,22 +973,22 @@ sub get_seq_ids {
     my ($self, @args) = @_;
 
     my ($type,$start,$end) =
-	$self->_rearrange([qw(TYPE START END)], @args);
+    $self->_rearrange([qw(TYPE START END)], @args);
 
     if (defined($start) && defined($end)) {
-	if (defined($type) && ($type ne 'gapped consensus')) {
-	    $start = $self->change_coord($type,'gapped consensus',$start);
-	    $end   = $self->change_coord($type,'gapped consensus',$end);
-	}
+        if (defined($type) && ($type ne 'gapped consensus')) {
+            $start = $self->change_coord($type,'gapped consensus',$start);
+            $end   = $self->change_coord($type,'gapped consensus',$end);
+        }
 
-	my @list = grep { $_->isa("Bio::SeqFeature::Generic") &&
-			      ($_->primary_tag =~ /^_aligned_coord:/) }
-	$self->{'_sfc'}->features_in_range(-start=>$start,
-					   -end=>$end,
-					   -contain=>0,
-					   -strandmatch=>'ignore');
-	@list = map { $_->entire_seq->id } @list;
-	return @list;
+        my @list = grep { $_->isa("Bio::SeqFeature::Generic") &&
+        ($_->primary_tag =~ /^_aligned_coord:/) }
+        $self->{'_sfc'}->features_in_range( -start=>$start,
+                                            -end=>$end,
+                                            -contain=>0,
+                                            -strandmatch=>'ignore' );
+        @list = map { $_->entire_seq->id } @list;
+        return @list;
     }
 
     # Entire aligned sequences list
@@ -993,7 +1013,7 @@ sub get_seq_feat_by_tag {
     my ($self,$seq,$tag) = @_;
 
     if( !ref $seq || ! $seq->isa('Bio::LocatableSeq') ) {
-	$self->throw("Unable to process non locatable sequences [", ref($seq), "]");
+        $self->throw("Unable to process non locatable sequences [", ref($seq), "]");
     }
     my $seqID = $seq->id() || $seq->display_id || $seq->primary_id;
 
@@ -1016,8 +1036,8 @@ sub get_seq_by_name {
     my ($seqID) = @_;
 
     unless (exists $self->{'_elem'}{$seqID}{'_seq'}) {
-	$self->throw("Could not find sequence $seqID in contig ".$self->id);
-	return;
+        $self->throw("Could not find sequence $seqID in contig ".$self->id);
+    return;
     }
 
     return $self->{'_elem'}{$seqID}{'_seq'};
@@ -1043,8 +1063,8 @@ sub get_qual_by_name {
     my ($seqID) = @_;
 
     unless (exists $self->{'_elem'}{$seqID}{'_qual'}) {
-	$self->warn("Could not find quality for $seqID in contig!");
-	return;
+        $self->warn("Could not find quality for $seqID in contig!");
+        return;
     }
 
     return $self->{'_elem'}{$seqID}{'_qual'};
@@ -1079,43 +1099,43 @@ sub add_seq {
     my $seq = shift;
 
     if( !ref $seq || ! $seq->isa('Bio::LocatableSeq') ) {
-	$self->throw("Unable to process non locatable sequences [", ref($seq), "]");
+        $self->throw("Unable to process non locatable sequences [", ref($seq), "]");
     }
 
     my $seqID = $seq->id() || $seq->display_id || $seq->primary_id;
-    $self->{'_elem'}{$seqID} = {} unless (exists $self->{'elem'}{$seqID});
+    $self->{'_elem'}{$seqID} = {} unless (exists $self->{'_elem'}{$seqID});
 
     if (exists( $self->{'_elem'}{$seqID}{'_seq'} ) &&
-	($seq eq $self->{'_elem'}{$seqID}{'_seq'}) ) {
-	$self->warn("Adding sequence $seqID, which has already been added");
+    ($seq eq $self->{'_elem'}{$seqID}{'_seq'}) ) {
+        $self->warn("Adding sequence $seqID, which has already been added");
     }
 
     # Our locatable sequences are always considered to be complete sequences
     $seq->start(1); $seq->end($seq->length());
 
     $self->warn("Adding non-nucleotidic sequence ".$seqID)
-	if (lc($seq->alphabet) ne 'dna' && lc($seq->alphabet) ne 'rna');
+        if (lc($seq->alphabet) ne 'dna' && lc($seq->alphabet) ne 'rna');
 
     # build the symbol list for this sequence,
     # will prune out the gap and missing/match chars
     # when actually asked for the symbol list in the
     # symbol_chars
     if (defined $seq->seq) {
-	map { $self->{'_symbols'}->{$_} = 1; } split(//,$seq->seq);
+        map { $self->{'_symbols'}->{$_} = 1; } split(//,$seq->seq);
     } else {
-	$self->{'_symbols'} = {};
+        $self->{'_symbols'} = {};
     }
 
     my $seq_no = ++$self->{'_nof_seqs'};
 
     if (ref( $self->{'_elem'}{$seqID}{'_seq'} )) {
-	$self->warn("Replacing one sequence [$seqID]\n");
+        $self->warn("Replacing one sequence [$seqID]\n");
     } else {
-	#print STDERR "Assigning $seqID to $order\n";
-	$self->{'_order'}->{$seq_no} = $seqID;
-#	$self->{'_start_end_lists'}->{$id} = []
-#	    unless(exists $self->{'_start_end_lists'}->{$id});
-#	push @{$self->{'_start_end_lists'}->{$id}}, $seq;
+        #print STDERR "Assigning $seqID to $order\n";
+        $self->{'_order'}->{$seq_no} = $seqID;
+        # $self->{'_start_end_lists'}->{$id} = []
+        # unless(exists $self->{'_start_end_lists'}->{$id});
+        # push @{$self->{'_start_end_lists'}->{$id}}, $seq;
     }
 
     $self->{'_elem'}{$seqID}{'_seq'}  = $seq;
@@ -1144,23 +1164,23 @@ sub remove_seq {
     my ($self,$seq) = @_;
 
     if( !ref $seq || ! $seq->isa('Bio::LocatableSeq') ) {
-	$self->throw("Unable to process non locatable sequences [", ref($seq), "]");
+        $self->throw("Unable to process non locatable sequences [", ref($seq), "]");
     }
 
     my $seqID = $seq->id() || $seq->display_id || $seq->primary_id;
     unless (exists $self->{'_elem'}{$seqID} ) {
-	$self->warn("No sequence named $seqID  [$seq]");
-	return 0;
+        $self->warn("No sequence named $seqID  [$seq]");
+        return 0;
     }
 
     # Updating residue count
     $self->{'_nof_residues'} -= $seq->length() +
-	&_nof_gaps( $self->{'_elem'}{$seqID}{'_gaps'}, $seq->length );
+    &_nof_gaps( $self->{'_elem'}{$seqID}{'_gaps'}, $seq->length );
 
     # Remove all references to features of this sequence
     my @feats = ();
     foreach my $tag (keys %{ $self->{'_elem'}{$seqID}{'_feat'} }) {
-	push(@feats, $self->{'_elem'}{$seqID}{'_feat'}{$tag});
+        push(@feats, $self->{'_elem'}{$seqID}{'_feat'}{$tag});
     }
     $self->{'_sfc'}->remove_features(\@feats);
     delete $self->{'_elem'}{$seqID};
@@ -1230,7 +1250,7 @@ sub each_seq {
     my (@arr,$seqID);
 
     foreach $seqID ( map { $self->{'_order'}{$_} } sort { $a <=> $b } keys %{$self->{'_order'}} ) {
-	push(@arr,$self->{'_elem'}{$seqID}{'_seq'});
+        push(@arr,$self->{'_elem'}{$seqID}{'_seq'});
     }
 
     return @arr;
@@ -1296,9 +1316,9 @@ sub get_seq_by_pos {
     my ($pos) = @_;
 
     $self->throw("Sequence position has to be a positive integer, not [$pos]")
-	unless $pos =~ /^\d+$/ and $pos > 0;
+        unless $pos =~ /^\d+$/ and $pos > 0;
     $self->throw("No sequence at position [$pos]")
-	unless $pos <= $self->no_sequences ;
+        unless $pos <= $self->no_sequences ;
 
     my $seqID = $self->{'_order'}->{--$pos};
     return $self->{'_elem'}{$seqID}{'_seq'};
@@ -1502,7 +1522,7 @@ sub id {
     my ($self, $contig_name) = @_;
 
     if (defined( $contig_name )) {
-	$self->{'_id'} = $contig_name;
+        $self->{'_id'} = $contig_name;
     }
 
     return $self->{'_id'};
@@ -1715,7 +1735,7 @@ sub no_sequences {
  Usage   : $id = $contig->percentage_identity
  Function: The function calculates the percentage identity of the alignment
  Returns : The percentage identity of the alignment (as defined by the
-						     implementation)
+                             implementation)
  Argument: None
 
 =cut
@@ -1782,9 +1802,9 @@ L<Bio::LocatableSeq::location_from_column>:
            sequence with the given name. For example, for the
            alignment
 
-  	     Seq1/91-97 AC..DEF.GH
-  	     Seq2/24-30 ACGG.RTY..
-  	     Seq3/43-51 AC.DDEFGHI
+           Seq1/91-97 AC..DEF.GH
+           Seq2/24-30 ACGG.RTY..
+           Seq3/43-51 AC.DDEFGHI
 
            column_from_residue_number( "Seq1", 94 ) returns 5.
            column_from_residue_number( "Seq2", 25 ) returns 2.
@@ -1794,9 +1814,9 @@ L<Bio::LocatableSeq::location_from_column>:
            outside the length of the aligment
            (e.g. column_from_residue_number( "Seq2", 22 )
 
-	  Note: If the the parent sequence is represented by more than
-	  one alignment sequence and the residue number is present in
-	  them, this method finds only the first one.
+      Note: If the the parent sequence is represented by more than
+      one alignment sequence and the residue number is present in
+      them, this method finds only the first one.
 
  Returns : A column number for the position in the alignment of the
            given residue in the given sequence (1 = first column)
@@ -1920,9 +1940,9 @@ sub _binary_search {
     my $middle = 0;
     while ($end - $start > 1) {
         $middle = int(($end+$middle)/2);
-	(&_compare($query,$list->[$middle]) == 0) && return ($middle);
-	(&_compare($query,$list->[$middle]) <  0) && do { $end   = $middle ; $middle = 0; next };
-	$start = $middle; # If &_compare() > 0, move region beggining
+        (&_compare($query,$list->[$middle]) == 0) && return ($middle);
+        (&_compare($query,$list->[$middle]) <  0) && do { $end   = $middle ; $middle = 0; next };
+        $start = $middle; # If &_compare() > 0, move region beggining
     }
     return ($start,$end);
 }
@@ -1970,10 +1990,10 @@ sub _nof_gaps {
     # If before any alignment, return 0
     elsif ($index[0] == -1) { $query = 0 }
     elsif ($index[0] >= 0) {
-	# If query is between alignments, translate coordinates
-	if ($#index > 0) { $query = $index[0] + 1 }
-	# If query sits upon an alignment, do another correction
-	elsif ($#index == 0) { $query = $index[0] }
+    # If query is between alignments, translate coordinates
+    if ($#index > 0) { $query = $index[0] + 1 }
+    # If query sits upon an alignment, do another correction
+    elsif ($#index == 0) { $query = $index[0] }
     }
     #
     return $query;
@@ -2032,13 +2052,13 @@ sub _unpadded_padded {
     $query = $query + $align;
     my $new_align = &_nof_gaps($list,$query);
     while ($new_align - $align > 0) {
-	$query = $query + $new_align - $align;
-	$align  = $new_align;
-	$new_align = &_nof_gaps($list,$query);
+        $query = $query + $new_align - $align;
+        $align  = $new_align;
+        $new_align = &_nof_gaps($list,$query);
     }
     # If current position is also a align, look for the first upstream base
     while (defined($list->[$align]) && ($list->[$align] == $query)) {
-	$query++; $align++;
+        $query++; $align++;
     }
     #
     return $query;
@@ -2064,23 +2084,23 @@ sub _register_gaps {
     my $dbref    = shift;
 
     $self->throw("Not an aligned sequence string to register gaps")
-	if (ref($sequence));
+        if (ref($sequence));
 
     $self->throw("Not an array reference for gap registry")
-	unless (ref($dbref) eq 'ARRAY');
+        unless (ref($dbref) eq 'ARRAY');
 
     # Registering alignments
     @{$dbref} = (); # Cleaning registry
     if (defined $sequence) {
-	my $i = -1;
-	while(1) {
-	    $i = index($sequence,"-",$i+1);
-	    last if ($i == -1);
-	    push(@{$dbref},$i+1);
-	}
+        my $i = -1;
+        while(1) {
+            $i = index($sequence,"-",$i+1);
+            last if ($i == -1);
+            push(@{$dbref},$i+1);
+        }
     } else {
-#	$self->warn("Found undefined sequence while registering gaps");
-	return 0;
+        # $self->warn("Found undefined sequence while registering gaps");
+        return 0;
     }
 
     return scalar(@{$dbref});

@@ -1,6 +1,6 @@
 # $Id$
 #
-#  BioPerl module for Bio::Assembly::Scaffold
+# BioPerl module for Bio::Assembly::Scaffold
 #
 # Copyright by Robson F. de Souza
 #
@@ -73,40 +73,49 @@ use base qw(Bio::Root::Root Bio::Assembly::ScaffoldI);
 =head2 new ()
 
     Title   : new
-    Usage   : $assembly = new (-source=>'program_name',
-			       -contigs=>\@contigs,
-			       -id=>"assembly 1");
-    Function: creates a new assembly object
-    Returns : 
-    Args    : 
-              -source  : [string] sequence assembly program
-              -contigs : reference to array of 
-                         Bio::Assembly::Contig objects
-              -id      : [string] assembly name
+    Usage   : $scaffold = new ( -id       => "assembly 1",
+                                -source   => 'program_name',
+                                -contigs  => \@contigs,
+                                -singlets => \@singlets );
+    Function: creates a new scaffold object
+    Returns : Bio::Assembly::Scaffold
+    Args    : -id       : [string] scaffold name
+              -source   : [string] sequence assembly program
+              -contigs  : reference to array of Bio::Assembly::Contig objects
+              -singlets : reference to array of Bio::Assembly::Contig objects
+
 
 =cut
 
 sub new {
-  my($class,@args) = @_;
-
+  my($class, @args) = @_;
   my $self = $class->SUPER::new(@args);
+  my ($id, $src, $contigs, $singlets) = $self->_rearrange([qw(ID SOURCE CONTIGS SINGLETS)], @args);
 
-  my ($src,$contigs,$id) = $self->_rearrange([qw(SOURCE CONTIGS ID)], @args);
-
+  # Scaffold defaults
+  $self->{'_id'} = 'NoName';
+  $self->{'_source'} = 'Unknown';
   $self->{'_contigs'} = {};
   $self->{'_singlets'} = {};
   $self->{'_seqs'} = {};
   $self->{'_annotation'} = Bio::Annotation::Collection->new();
-  $self->{'_id'} = 'NoName';
 
+  # Import manual info
+  $self->{'_id'} = $id if (defined $id);
+  $self->{'_source'} = $src if (defined $src);
+  
+  # Add contigs and singlets to scaffold
   if (defined $contigs && ref($contigs = 'ARRAY')) {
-      foreach my $contig (@{$contigs}) {
-	  $self->add_contig($contig);
+      for my $contig (@{$contigs}) {
+        $self->add_contig($contig);
       }
   }
-
-  $self->{'_id'} = $id if (defined $id);
-
+  if (defined $singlets && ref($singlets = 'ARRAY')) {
+      for my $singlet (@{$singlets}) {
+        $self->add_singlet($singlet);
+      }
+  }
+  
   return $self;
 }
 
@@ -125,11 +134,8 @@ sub new {
 =cut
 
 sub id {
-    my $self = shift;
-    my $id   = shift;
-
+    my ($self, $id) = shift;
     $self->{'_id'} = $id if (defined $id);
-
     return $self->{'_id'};
 }
 
@@ -144,8 +150,7 @@ sub id {
 =cut
 
 sub annotation {
-    my ($self,$ref) = shift;
-
+    my ($self, $ref) = shift;
     $self->{'_annotation'} = $ref if (defined $ref);
     return $self->{'_annotation'};
 }
@@ -154,9 +159,9 @@ sub annotation {
 
     Title   : get_nof_contigs
     Usage   : $assembly->get_nof_contigs()
-    Function: Get the number of contigs included in the assembly
+    Function: Get the number of contigs included in the scaffold
     Returns : integer
-    Args    : none 
+    Args    : none
 
 =cut
 
@@ -165,34 +170,32 @@ sub get_nof_contigs {
     return scalar( $self->get_contig_ids() );
 }
 
-=head2 get_nof_sequences_in_contigs
+=head2 get_nof_contig_seqs
 
-    Title   : get_nof_sequences_in_contigs
-    Usage   : $assembly->get_nof_sequences_in_contigs()
-    Function: 
-
-              Get the number of sequences included in the
-              assembly. This number refers only to the sequences used
-              to build contigs in this assembly. It does not includes
-              contig consensus sequences or singlets.
-
+    Title   : get_nof_contig_seqs
+    Usage   : $assembly->get_nof_contig_seqs()
+    Function: Get the number of sequences included in contigs of the 
+              scaffold (no consensus sequences or singlets)
     Returns : integer
     Args    : none
 
 =cut
 
-sub get_nof_sequences_in_contigs {
+sub get_nof_contig_seqs {
     my $self = shift;
 
     my $nof_seqs = 0;
     foreach my $contig ($self->all_contigs) {
-	$nof_seqs += scalar( $contig->get_seq_ids() );
+        $nof_seqs += scalar( $contig->get_contig_seq_ids() );
     }
 
     return $nof_seqs;
 }
+# function alias for backward compatibility
+*get_nof_sequences_in_contigs = \&get_nof_contig_seqs;
 
-=head2 get_nof_singlets
+
+=head2 get_nof_singlets (get_nof_singlet_seqs)
 
     Title   : nof_singlets
     Usage   : $assembly->nof_singlets()
@@ -204,30 +207,62 @@ sub get_nof_sequences_in_contigs {
 
 sub get_nof_singlets {
     my $self = shift;
-
     return scalar( $self->get_singlet_ids() );
 }
+*get_nof_singlet_seqs = \&get_nof_singlets;
 
-=head2 get_seq_ids
+=head2 get_all_seq_ids
 
-    Title   : get_seq_ids
-    Usage   : $assembly->get_seq_ids()
-    Function: 
-
-              Get the ID of sequences from all contigs.  This list
-              refers only to the aligned sequences in contigs. It does
-              not includes contig consensus sequences or singlets.
-
+    Title   : get_all_seq_ids
+    Usage   : $assembly->get_all_seq_ids()
+    Function: Get the ID of all sequences making up the scaffold
+              (sequences from contigs and singlets, not consensus).
     Returns : array of strings
     Args    : none
 
 =cut
 
-sub get_seq_ids {
+sub get_all_seq_ids {
     my $self = shift;
-
     return keys %{ $self->{'_seqs'} };
 }
+
+=head2 get_nof_seqs
+
+    Title   : get_nof_seqs
+    Usage   : $assembly->get_nof_seqs()
+    Function: Get total number of sequences making up the scaffold
+              (sequences from contigs and singlets, not consensus).
+    Returns : integer
+    Args    : none
+
+=cut
+
+sub get_nof_seqs {
+    my $self = shift;
+    return scalar $self->get_all_seq_ids;
+}
+
+=head2 get_contig_seq_ids
+
+    Title   : get_contig_seq_ids
+    Usage   : $assembly->get_contig_seq_ids()
+    Function: Get the ID of all sequences in contigs
+    Returns : array of strings
+    Args    : none
+
+=cut
+
+sub get_contig_seq_ids {
+    my $self = shift;
+    my @ids;
+    for my $contig ( $self->all_contigs ) {
+        push @ids, $contig->get_seq_ids;
+    }
+    return @ids;
+}
+# function alias for backward compatibility
+*get_seq_ids = \&get_contig_seq_ids; 
 
 =head2 get_contig_ids
 
@@ -248,7 +283,7 @@ sub get_contig_ids {
         : scalar keys %{$self->{'_contigs'}};
 }
 
-=head2 get_singlet_ids
+=head2 get_singlet_ids (get_singlet_seq_ids)
 
     Title   : get_singlet_ids
     Usage   : $assembly->get_singlet_ids()
@@ -266,20 +301,16 @@ sub get_singlet_ids {
         ? sort keys %{$self->{'_singlets'}}
         : scalar keys %{$self->{'_singlets'}};
 }
+*get_singlet_seq_ids = \&get_singlet_ids;
 
 =head2 get_seq_by_id
 
     Title   : get_seq_by_id
     Usage   : $assembly->get_seq_by_id($id)
-    Function: 
-
-              Get a reference for an aligned sequence
-              This sequence must be part of a contig
-              in the assembly.
-
+    Function: Get a reference for an sequence making up the scaffold 
+              (from a contig or singlet, not consensus)
     Returns : a Bio::LocatableSeq object
-              undef if sequence $id is not found
-              in any contig
+              undef if sequence $id is not found in the scaffold
     Args    : [string] sequence identifier (id)
 
 =cut
@@ -343,37 +374,41 @@ sub get_singlet_by_id {
     Function: Add a contig to the assembly
     Returns : 1 on success
     Args    : a Bio::Assembly::Contig object
-	      order (optional)
+          order (optional)
 
 =cut
 
 sub add_contig {
-    my $self = shift;
-    my $contig = shift;
+    my ($self, $contig) = @_;
 
+    # Input check
     if( !ref $contig || ! $contig->isa('Bio::Assembly::Contig') ) {
-	$self->throw("Scaffold::add_contig is unable to process non Bio::Assembly::Contig object [", ref($contig), "]");
+        $self->throw("Bio::Assembly::Scaffold::add_contig is unable to process non Bio::Assembly::Contig object [", ref($contig), "]");
     }
+    
+    # Create and attribute contig ID
     my $contigID  = $contig->id();
     if( !defined $contigID ) {
-	$contigID = 'Unknown_' . ($self->get_nof_contigs() + 1);
-	$contig->id($contigID);
-	$self->warn("Attributing ID $contigID to unidentified Bio::Assembly::Contig object.");
+        $contigID = 'Unknown_' . ($self->get_nof_contigs() + 1);
+        $contig->id($contigID);
+        $self->warn("Attributing ID $contigID to unnamed Bio::Assembly::Contig object.");
     }
 
+    # Adding contig to scaffold
     $self->warn("Replacing contig $contigID with a new contig object")
-	if (exists $self->{'_contigs'}{$contigID});
+        if (exists $self->{'_contigs'}{$contigID});
     $self->{'_contigs'}{$contigID} = $contig;
+    $contig->assembly($self);
 
+    # Put contig sequences in the list of sequences belonging to the scaffold
     foreach my $seqID ($contig->get_seq_ids()) {
-	if (exists $self->{'_seqs'}{$seqID}) {
-	    $self->warn( "Sequence $seqID already assigned to contig ".
-			 $self->{'_seqs'}{$seqID}->id().". Moving to contig $contigID")
-		unless ($self->{'_seqs'}{$seqID} eq $contig);
-	}
-	$self->{'_seqs'}{$seqID} = $contig;
+        if (exists $self->{'_seqs'}{$seqID} && not($self->{'_seqs'}{$seqID} eq $contig) ) {
+            $self->warn( "Sequence $seqID already assigned to object ".
+                $self->{'_seqs'}{$seqID}->id().". Moving to contig $contigID");
+        }
+        $self->{'_seqs'}{$seqID} = $contig;
     }
-
+    
     return 1;
 }
 
@@ -382,24 +417,41 @@ sub add_contig {
     Title   : add_singlet
     Usage   : $assembly->add_singlet($seq)
     Function: Add a singlet to the assembly
-    Returns : 1 on success, 0 otherwise
+    Returns : 1 on success
     Args    : a Bio::PrimarySeqI object
-		  order (optional)
+          order (optional)
 
 =cut
 
 sub add_singlet {
-    my ($self,$singlet) = @_;
+    my ($self, $singlet) = @_;
 
+    # Input check
     if ( !ref $singlet || ! $singlet->isa('Bio::Assembly::Singlet') ) {
-	$self->warn("Scaffold::add_singlet is unable to add a singlet ($singlet) because it was not a Bio::Assembly::Singlet object.");
-	return 0;
+        $self->throw("Bio::Assembly::Scaffold::singlet is unable to process non Bio::Assembly::Singlet object [", ref($singlet), "]");
     }
+    
+    # Create and attribute singlet ID
     my $singletID = $singlet->id();
-    $self->warn("Replacing singlet $singletID wih a new sequence object")
-	if (exists $self->{'_singlets'}{$singletID});
+    if( !defined $singletID ) {
+        $singletID = 'Unknown_' . ($self->get_nof_singlets() + 1);
+        $singlet->id($singletID);
+        $self->warn("Attributing ID $singletID to unnamed Bio::Assembly::Singlet object.");
+    }
+    
+    # Adding singlet to scaffold
+    $self->warn("Replacing singlet $singletID with a new singlet object")
+        if (exists $self->{'_singlets'}{$singletID});
     $self->{'_singlets'}{$singletID} = $singlet;
+    $singlet->assembly($self);
 
+    # Put singlet sequence in the list of sequences belonging to the scaffold
+    my $seqID = $singlet->seqref()->id();
+    if (exists $self->{'_seqs'}{$seqID} && not($self->{'_seqs'}{$seqID} eq $singlet) ) {
+        $self->warn( "Sequence $seqID already assigned to object ".
+            $self->{'_seqs'}{$seqID}->id().". Moving to singlet $singletID");
+    }
+    $self->{'_seqs'}{$seqID} = $singlet;
     return 1;
 }
 
@@ -414,19 +466,37 @@ sub add_singlet {
               probably want to run this after you remove/add a
               sequence from/to a contig in the assembly.
 
-    Returns : nothing
+    Returns : 1 for success
     Args    : none 
 
 =cut
 
 sub update_seq_list {
     my $self = shift;
-
+    
     $self->{'_seqs'} = {};
+
+    # Put sequences in contigs in the list of sequences belonging to the scaffold
     foreach my $contig ($self->all_contigs) {
-	foreach my $seqID ($contig->get_seq_ids) {
-	    $self->{'_seqs'}{$seqID} = $contig;
-	}
+        my $contigID = $contig->id();
+        foreach my $seqID ($contig->get_seq_ids) {
+            if (exists $self->{'_seqs'}{$seqID} && not($self->{'_seqs'}{$seqID} eq $contig) ) {
+                $self->warn( "Sequence $seqID already assigned to object ".
+                    $self->{'_seqs'}{$seqID}->id().". Moving to contig $contigID");
+            }
+            $self->{'_seqs'}{$seqID} = $contig;
+        }
+    }
+    
+    # Put singlet sequences in the list of sequences belonging to the scaffold
+    foreach my $singlet ($self->all_singlets) {
+        my $seqID = $singlet->seqref()->id();
+        my $singletID = $singlet->id();
+        if (exists $self->{'_seqs'}{$seqID} && not($self->{'_seqs'}{$seqID} eq $singlet) ) {
+            $self->warn( "Sequence $seqID already assigned to object ".
+                $self->{'_seqs'}{$seqID}->id().". Moving to singlet $singletID");
+        }
+        $self->{'_seqs'}{$seqID} = $singlet;
     }
 
     return 1;
@@ -445,18 +515,16 @@ sub update_seq_list {
 
 =cut
 
-#---------------------
 sub remove_contigs {
-#---------------------
-    my ($self,@args) = @_;
+    my ($self, @args) = @_;
 
     my @ret = ();
     foreach my $contigID (@args) {
-	foreach my $seqID ($self->get_contig_by_id($contigID)->get_seq_ids()) {
-	    delete $self->{'_seqs'}{$seqID};
-	}
-	push(@ret,$self->{'_contigs'}{$contigID});
-	delete $self->{'_contigs'}{$contigID};
+        foreach my $seqID ($self->get_contig_by_id($contigID)->get_seq_ids()) {
+            delete $self->{'_seqs'}{$seqID};
+        }
+        push(@ret, $self->{'_contigs'}{$contigID});
+        delete $self->{'_contigs'}{$contigID};
     }
 
     return @ret;
@@ -474,21 +542,41 @@ sub remove_contigs {
 
 =cut
 
-#---------------------
 sub remove_singlets {
-#---------------------
     my ($self,@args) = @_;
 
     my @ret = ();
     foreach my $singletID (@args) {
-	push(@ret,$self->{'_singlets'}{$singletID});
-	delete $self->{'_singlets'}{$singletID};
+    push(@ret,$self->{'_singlets'}{$singletID});
+    delete $self->{'_singlets'}{$singletID};
     }
 
     return @ret;
 }
 
-=head1 Contig and singlet selection methos
+=head2 remove_features_collection
+
+    Title   : remove_features_collection
+    Usage   : $assembly->remove_features_collection()
+    Function: Removes the collection of features associated to every
+              contig and singlet of the scaffold. This can be useful
+              to save some memory (when contig and singlet features are
+              not needed).
+    Returns   : none
+    Argument  : none
+
+=cut
+
+sub remove_features_collection {
+    my ($self) = @_;
+    for my $obj ( $self->all_contigs, $self->all_singlets ) {
+        $obj->remove_features_collection;
+    }
+    return;
+}
+
+
+=head1 Contig and singlet selection methods
 
 =cut
 
@@ -504,18 +592,16 @@ sub remove_singlets {
 
 =cut
 
-#---------------------
 sub select_contigs {
-#---------------------
     my ($self,@args) = @_;
 
     my @contigs = ();
     foreach my $contig (@args) {
-	unless (exists $self->{'_contigs'}{$contig}) {
-	    $self->warn("$contig contig not found. Ignoring...");
-	    next;
-	}
-	push(@contigs, $self->{'_contigs'}{$contig});
+    unless (exists $self->{'_contigs'}{$contig}) {
+        $self->warn("$contig contig not found. Ignoring...");
+        next;
+    }
+    push(@contigs, $self->{'_contigs'}{$contig});
     }
 
     return @contigs;
@@ -533,18 +619,16 @@ sub select_contigs {
 
 =cut
 
-#---------------------
 sub select_singlets {
-#---------------------
     my ($self,@args) = @_;
 
     my @singlets = ();
     foreach my $singlet (@args) {
-	unless (exists $self->{'_singlets'}{$singlet}) {
-	    $self->warn("$singlet singlet not found. Ignoring...");
-	    next;
-	}
-	push(@singlets, $self->{'_singlets'}{$singlet});
+    unless (exists $self->{'_singlets'}{$singlet}) {
+        $self->warn("$singlet singlet not found. Ignoring...");
+        next;
+    }
+    push(@singlets, $self->{'_singlets'}{$singlet});
     }
 
     return @singlets;
@@ -565,14 +649,12 @@ sub select_singlets {
 
 =cut
 
-#---------------------
 sub all_contigs {
-#---------------------
     my ($self) = @_;
 
     my @contigs = ();
     foreach my $contig (sort { $a cmp $b } keys %{ $self->{'_contigs'} }) {
-	push(@contigs, $self->{'_contigs'}{$contig});
+        push(@contigs, $self->{'_contigs'}{$contig});
     }
 
     return @contigs;
@@ -585,27 +667,23 @@ sub all_contigs {
     Function: 
 
               Returns a list of all singlets in this assembly.
-	      Singlets are isolated reads, without non-vector
-	      matches to any other read in the assembly.
+          Singlets are isolated reads, without non-vector
+          matches to any other read in the assembly.
 
     Returns : array of Bio::SeqI (in lexical order by id)
     Args    : none
 
 =cut
 
-#---------------------
 sub all_singlets {
-#---------------------
     my ($self) = @_;
 
     my @singlets = ();
     foreach my $singlet (sort { $a cmp $b } keys %{ $self->{'_singlets'} }) {
-	push(@singlets, $self->{'_singlets'}{$singlet});
+    push(@singlets, $self->{'_singlets'}{$singlet});
     }
 
     return @singlets;
 }
-
-# =head1 Internal Methods
 
 1;

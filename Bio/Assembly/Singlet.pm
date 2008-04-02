@@ -77,14 +77,14 @@ use base qw(Bio::Assembly::Contig Bio::Root::Root Bio::Align::AlignI);
 
 
 sub new {
-     my ($class,%ARG) = @_;
-     my $self = $class->SUPER::new(%ARG);
-     my $args = \%ARG;
-     bless ($self,$class);
-     if ($args->{'-seq'}) {
-          $self->seq_to_singlet($args->{'-seq'});
-     }
-     return $self;
+    my ($class,%ARG) = @_;
+    my $self = $class->SUPER::new(%ARG);
+    my $args = \%ARG;
+    bless ($self,$class);
+    if ($args->{'-seq'}) {
+        $self->seq_to_singlet($args->{'-seq'});
+    }
+    return $self;
 }
 
 =head2 seq_to_singlet
@@ -98,24 +98,23 @@ sub new {
 =cut
 
 sub seq_to_singlet {
-    my ($self,$seq) = @_;
+    my ($self, $seq) = @_;
     $self->seqref($seq);
     $self->strand(1);
-     my $lseq = Bio::LocatableSeq->new(
-               -seq =>   $seq->seq(),
-               -start    =>   1,
-               -end =>   $seq->length(),
-               -id  =>   $seq->display_id());
-     $lseq->{chromatfilename} = $seq->{'chromatfilename'};
-     $lseq->{phdfilename} = $seq->{'phdfilename'};
-     $self->set_consensus_sequence($lseq);
-     if (UNIVERSAL::isa($seq,"Bio::Seq::Quality")) {
-          $self->set_consensus_quality($seq)
-     }
-     else {
-          # print("seq_to_singlet: the sequence (".$seq->desc().") is not a Bio::Seq::quality. it is this ($seq)\n");
-     }
-     $self->add_seq($lseq);
+    my $lseq = Bio::LocatableSeq->new(
+        -seq   => $seq->seq(),
+        -start => 1,
+        -end   => $seq->length(),
+        -id    => $seq->display_id() );
+    $lseq->{chromatfilename} = $seq->{'chromatfilename'};
+    $lseq->{phdfilename} = $seq->{'phdfilename'};
+    $self->set_consensus_sequence($lseq);
+    if (UNIVERSAL::isa($seq,"Bio::Seq::Quality")) {
+        $self->set_consensus_quality($seq)
+    } else {
+        # print("seq_to_singlet: the sequence (".$seq->desc().") is not a Bio::Seq::quality. it is this ($seq)\n");
+    }
+    $self->add_seq($lseq);
 }
 
 
@@ -130,11 +129,11 @@ sub seq_to_singlet {
 =cut
 
 sub id {
-     my $self = shift;
-     # print("Getting the id for this thing:\n");
-     # $dumper->dumpValue($self->seqref());
-     # print("This is the id: (".$self->seqref()->id().")\n");
-     return $self->seqref()->id();
+    my $self = shift;
+    # print("Getting the id for this thing:\n");
+    # $dumper->dumpValue($self->seqref());
+    # print("This is the id: (".$self->seqref()->id().")\n");
+    return $self->seqref()->id();
 }
 
 
@@ -149,9 +148,9 @@ sub id {
 =cut
 
 sub seqref {
-     my ($self,$seq) = @_;
-     if ($seq) { $self->{'seqref'} = $seq; }
-     return $self->{'seqref'};
+    my ($self,$seq) = @_;
+    if ($seq) { $self->{'seqref'} = $seq; }
+    return $self->{'seqref'};
 }
 
 
@@ -166,9 +165,9 @@ sub seqref {
 =cut
 
 sub chromatfilename {
-     my ($self,$name) = @_;
-     if ($name) { $self->{'chromatfilename'} = $name; }
-     return $self->{'chromatfilename'};
+    my ($self,$name) = @_;
+    if ($name) { $self->{'chromatfilename'} = $name; }
+    return $self->{'chromatfilename'};
 }
 
 =head2 phdfilename
@@ -182,9 +181,9 @@ sub chromatfilename {
 =cut
 
 sub phdfilename {
-     my ($self,$name) = @_;
-     if ($name) { $self->{phdfilename} = $name; }
-     return $self->{'phdfilename'};
+    my ($self,$name) = @_;
+    if ($name) { $self->{phdfilename} = $name; }
+    return $self->{'phdfilename'};
 }
 
 
