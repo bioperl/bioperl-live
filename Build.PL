@@ -15,6 +15,8 @@ use ModuleBuildBioperl;
 
 our @drivers;
 
+my $mysql_ok = 0;
+
 # Set up the ModuleBuildBioperl object
 my $build = ModuleBuildBioperl->new(
     module_name         => 'Bio',
@@ -92,7 +94,7 @@ my $build = ModuleBuildBioperl->new(
                             BioDBSeqFeature_mysql => {
                                                         description      => "MySQL tests for Bio::DB::SeqFeature::Store",
                                                         feature_requires => { 'DBI' => 0, 'DBD::mysql' => 0 },
-                                                        test             => \&test_db
+                                                        test             => \&test_db_sf
                                                      },
                             Network               => {
                                                         description => "Enable tests that need an internet connection",
@@ -109,8 +111,12 @@ my $build = ModuleBuildBioperl->new(
 
 my $accept = $build->args->{accept};
 
+prompt_for_biodb($accept) if $build->feature('BioDBGFF') || $build->feature('BioDBSeqFeature_mysql');
+
 # Handle auto features
-if ($build->feature('BioDBSeqFeature_BDB')) {
+if ($build->feature('BioDBSeqFeature_BDB') && $mysql_ok) {
+    # will return without doing anything if user chose not to run tests during
+    # prompt_for_biodb() above
     make_bdb_test();
 }
 if ($build->feature('BioDBSeqFeature_mysql')) {
@@ -119,7 +125,7 @@ if ($build->feature('BioDBSeqFeature_mysql')) {
 
 # Ask questions
 $build->choose_scripts($accept);
-prompt_for_biodbgff($accept) if $build->feature('BioDBGFF');
+#prompt_for_biodbgff($accept) if $build->feature('BioDBGFF');
 {
     if ($build->args('network')) {
         if ($build->feature('Network')) {
@@ -155,7 +161,8 @@ exit;
 sub make_bdb_test {
     my $path0 = File::Spec->catfile('t', 'BioDBSeqFeature.t');
     my $path = File::Spec->catfile('t', 'BioDBSeqFeature_BDB.t');
-    open my $F, ">$path";
+    unlink($path) if (-e $path); 
+    open(my $F, ">", $path) || die "Can't create test file\n";
     print $F <<END;
 system 'perl $path0 -adaptor berkeleydb -create 1 -temp 1';
 END
@@ -164,20 +171,30 @@ END
     $build->add_to_manifest_skip($path);
 }
 
-sub test_db {
+sub test_db_sf {
     eval {require DBI;};  # if not installed, this sub won't actually be called
-    unless (eval {DBI->connect('dbi:mysql:test',undef,undef,{RaiseError=>0,PrintError=>0})}) {
-        return "Could not connect to test database";
+    @drivers = DBI->available_drivers;
+    unless (grep {/mysql/i} @drivers) {
+        $mysql_ok = 0;
+        return "Only MySQL DBI driver supported for BioDBSeqFeature_mysql tests";
     }
+    $mysql_ok = 1;
     return;
 }
 
 sub make_dbi_test {
+    my $dsn = $build->notes('test_dsn') || return;
     my $path0 = File::Spec->catfile('t', 'BioDBSeqFeature.t');
     my $path = File::Spec->catfile('t', 'BioDBSeqFeature_mysql.t');
+    my $test_db = $build->notes('test_db');
+    my $user = $build->notes('test_user');
+    my $pass = $build->notes('test_pass');
     open my $F,">$path";
+    my $str = "$path0 -adaptor DBI::mysql -create 1 -temp 1 -dsn $dsn";
+    $str .= " -user $user" if $user;
+    $str .= " -password $pass" if $pass;
     print $F <<END;
-system 'perl $path0 -adaptor DBI::mysql -create 1 -temp 1 -dsn test';
+    system 'perl $str';
 END
     close $F;
     $build->add_to_cleanup($path);
@@ -193,10 +210,11 @@ sub test_biodbgff {
     return;
 }
 
-sub prompt_for_biodbgff {
+sub prompt_for_biodb {
     my $accept = shift;
-    my $proceed = $accept
-                ? 0 : $build->y_n("Do you want to run the BioDBGFF live database tests? y/n", 'n');
+    my $proceed = $accept ? 0 : $build->y_n("Do you want to run the BioDBGFF or ".
+                              "BioDBSeqFeature_mysql live database tests? ".
+                              "y/n", 'n');
     
     if ($proceed) {
         my @driver_choices;
@@ -239,9 +257,11 @@ sub prompt_for_biodbgff {
         my $test_dsn;
         if ($driver eq 'Pg') {
             $test_dsn = "dbi:$driver:dbname=$test_db";
+            $mysql_ok = 0;
         }
         else {
             $test_dsn = "dbi:$driver:database=$test_db";
+            $mysql_ok = 0;
         }
         if ($use_host) {
             $test_dsn .= ";host=$test_host";
@@ -254,15 +274,17 @@ sub prompt_for_biodbgff {
         $build->notes(test_pass => $test_pass eq 'undef' ? undef : $test_pass);
         $build->notes(test_dsn => $test_dsn);
         
-        $build->log_info("  - will run the BioDBGFF tests with database driver '$driver' and these settings:\n",
+        $build->log_info("  - will run tests with database driver '$driver' and these settings:\n",
                         "    Database $test_db\n",
                         "    Host     $test_host\n",
                         "    DSN      $test_dsn\n",
                         "    User     $test_user\n",
                         "    Password $test_pass\n");
+        $build->log_info("  - will not run the BioDBSeqFeature_mysql live ".
+                         "database tests (requires MySQL driver)\n") unless $mysql_ok;
     }
     else {
-        $build->log_info("  - will not run the BioDBGFF live database tests\n");
+        $build->log_info("  - will not run the BioDBGFF or BioDBSeqFeature live database tests\n");
     }
     
     $build->log_info("\n");
