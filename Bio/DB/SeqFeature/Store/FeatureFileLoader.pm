@@ -435,7 +435,7 @@ sub handle_feature {
   # either create a new feature or add a segment to it
   my $feature = $ld->{CurrentFeature};
   if ($feature) {
-      
+
       # if this is a different feature from what we have now, then we
       # store the current one, and create a new one
       if ($feature->display_name ne $name ||

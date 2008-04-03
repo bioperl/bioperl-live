@@ -279,7 +279,9 @@ objects created.
 sub render {
   my $self = shift;
   my $panel = shift;
-  my ($position_to_insert,$options,$max_bump,$max_label,$selector) = @_;
+  my ($position_to_insert,$options,
+      $max_bump,$max_label,
+      $selector,$range) = @_;
   my %seenit;
 
   $panel ||= $self->new_panel;
@@ -296,7 +298,7 @@ sub render {
   } map {
       shellwords ($self->setting($_=>'feature')||$_) } @labels;
   my %lc_types = map {lc($_)}%types;
-  
+
   my @unconfigured_types = sort grep {!exists $lc_types{lc $_} &&
 					  !exists $lc_types{lc $_->method}
   }         $self->types;
@@ -332,7 +334,12 @@ sub render {
 
       next if defined $selector and !$selector->($self,$label);
 
-      my @features = grep {$self->_visible($_)} $self->features(\@types);
+      my @features = !$range ? grep {$self->_visible($_)} $self->features(\@types)
+                             : $self->features(-types   => \@types,
+					       -seq_id  => $range->seq_id,
+					       -start   => $range->start,
+					       -end     => $range->end
+					      );
 
       next unless @features;  # suppress tracks for features that don't appear
 
@@ -343,7 +350,6 @@ sub render {
       my @auto_bump;
       push @auto_bump,(-bump  => @$features < $max_bump)  if defined $max_bump;
       push @auto_bump,(-label => @$features < $max_label) if defined $max_label;
-      
 
       my @config = ( -glyph   => 'segments',         # really generic
 		     -bgcolor => $COLORS[$color++ % @COLORS],
@@ -944,6 +950,8 @@ Two APIs:
        $features = $features-E<gt>features(-type=>'a type');
        $iterator = $features-E<gt>features(-type=>'a type',-iterator=>1);
 
+       $iterator = $features-E<gt>features(-type=>'a type',-seq_id=>$id,-start=>$start,-end=>$end);
+
 =back
 
 =cut
@@ -951,10 +959,16 @@ Two APIs:
 # return features
 sub features {
   my $self = shift;
-  my ($types,$iterator,@rest) = defined($_[0] && $_[0]=~/^-/)
-    ? rearrange([['TYPE','TYPES']],@_) : (\@_);
+  my ($types,$iterator,$seq_id,$start,$end,@rest) = defined($_[0] && $_[0]=~/^-/)
+    ? rearrange([['TYPE','TYPES'],'ITERATOR','SEQ_ID','START','END'],@_) : (\@_);
+
   $types = [$types] if $types && !ref($types);
   my @args     = $types && @$types ? (-type=>$types) : ();
+
+  push @args,(-seq_id => $seq_id) if $seq_id;
+  push @args,(-start  => $start)  if defined $start;
+  push @args,(-end    => $end)    if defined $end;
+
   my $db = $self->db;
 
   if ($iterator) {
