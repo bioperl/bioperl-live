@@ -514,6 +514,8 @@ sub parse_config_line {
     my $self = shift;
     local $_ = shift;
 
+    s/\s+\#.*$//;   # strip right-column comments
+
     if (/^\s+(.+)/ && $self->{current_tag}) { # configuration continuation line
 	my $value = $1;
 	my $cc = $self->{current_config} ||= 'general';       # in case no configuration named
