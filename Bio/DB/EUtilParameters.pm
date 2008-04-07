@@ -561,7 +561,6 @@ sub id_file {
 {
     # default retmode if one is not supplied
     my %NCBI_DATABASE = (
-        'pubmed'           => 'xml',
         'protein'          => 'text',
         'nucleotide'       => 'text',
         'nuccore'          => 'text',
@@ -569,42 +568,16 @@ sub id_file {
         'nucest'           => 'text',
         'structure'        => 'text',
         'genome'           => 'text',
-        'books'            => 'xml',
-        'cancerchromosomes'=> 'xml',
-        'cdd'              => 'xml',
-        'domains'          => 'xml',
         'gene'             => 'asn1',
-        'genomeprj'        => 'xml',
-        'gensat'           => 'xml',
-        'geo'              => 'xml',
-        'gds'              => 'xml',
-        'homologene'       => 'xml',
         'journals'         => 'text',
-        'mesh'             => 'xml',
-        'ncbisearch'       => 'xml',
-        'nlmcatalog'       => 'xml',
-        'omia'             => 'xml',
-        'omim'             => 'xml',
-        'pmc'              => 'xml',
-        'popset'           => 'xml',
-        'probe'            => 'xml',
-        'pcassay'          => 'xml',
-        'pccompound'       => 'xml',
-        'pcsubstance'      => 'xml',
-        'snp'              => 'xml',
-        'taxonomy'         => 'xml',
-        'unigene'          => 'xml',
-        'unists'           => 'xml',
     );
 
     sub set_default_retmode {
         my $self = shift;
         if ($self->eutil eq 'efetch') {
             my $db = $self->db || return; # assume retmode will be set along with db
-            $self->throw('Database $db not recognized')
-                 if !exists $NCBI_DATABASE{$db};
-            # set efetch-based retmode
-            $self->retmode($NCBI_DATABASE{$db});
+            my $mode = exists $NCBI_DATABASE{$db} ? $NCBI_DATABASE{$db} : 'xml';
+            $self->retmode($mode);
         } else {
             $self->retmode('xml');
         }

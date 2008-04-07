@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::DB::EUtilities
+# BioPerl module for Bio::DB::GenericWebAgent
 #
 # Cared for by Chris Fields <cjfields at uiuc dot edu>
 #
@@ -10,11 +10,11 @@
 #
 # POD documentation - main docs before the code
 #
-# Interfaces with new GenericWebDBI interface
+# Interfaces with new GenericWebAgent interface
 
 =head1 NAME
 
-Bio::DB::GenericWebDBI - helper base class for parameter-based remote server
+Bio::DB::GenericWebAgent - helper base class for parameter-based remote server
 access and response retrieval.
 
 =head1 SYNOPSIS

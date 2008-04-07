@@ -17,6 +17,8 @@
 Bio::DB::EUtilities::Summary::DocSum - data object for document summary data
 from esummary
 
+############ NOTE : Undergoing reimplementation to use simple Data::Stag ############
+
 =head1 SYNOPSIS
 
 
@@ -128,7 +130,7 @@ sub get_id {
  Function : iterates through Items (nested layer of Item)
  Returns  : single Item
  Args     : [optional] single arg (string)
-            'flattened' - iterates through a flattened list ala
+            'flatten' - iterates through a flattened list ala
                           get_all_DocSum_Items()
 
 =cut
@@ -138,7 +140,7 @@ sub next_Item {
     unless ($self->{"_items_it"}) {
         #my @items = $self->get_Items;
         my @items = ($request && $request eq 'flatten') ?
-                    $self->get_all_DocSum_Items :
+                    $self->get_all_Items :
                     $self->get_Items ;
         $self->{"_items_it"} = sub {return shift @items}
     }
@@ -160,10 +162,10 @@ sub get_Items {
     return ref $self->{'_items'} ? @{ $self->{'_items'} } : return ();
 }
 
-=head2 get_all_DocSum_Items
+=head2 get_all_Items
 
- Title    : get_all_DocSum_Items
- Usage    : my @items = $docsum->get_all_DocSum_Items
+ Title    : get_all_Items
+ Usage    : my @items = $docsum->get_all_Items
  Function : returns flattened list of all Item objects (Items, ListItems,
             StructureItems)
  Returns  : array of Items
@@ -182,19 +184,58 @@ sub get_Items {
 
 =cut
 
-sub get_all_DocSum_Items {
+sub get_all_Items {
     my $self = shift;
-    my @items;
-    for my $item ($self->get_Items) {
-        push @items, $item;
-        for my $ls ($item->get_ListItems) {
-            push @items, $ls;
-            for my $st ($ls->get_StructureItems) {
-                push @items, $st;                
-            } 
+    unless ($self->{'_ordered_items'}) {
+        for my $item ($self->get_Items) {
+            push @{$self->{'_ordered_items'}}, $item;
+            for my $ls ($item->get_ListItems) {
+                push @{$self->{'_ordered_items'}}, $ls;
+                for my $st ($ls->get_StructureItems) {
+                    push @{$self->{'_ordered_items'}}, $st;                
+                } 
+            }
         }
     }
-    return @items;
+    return @{$self->{'_ordered_items'}};
+}
+
+=head2 get_content_by_name
+
+ Title    : get_content_by_Item_name
+ Usage    : my $data = get_content_by_name('CreateDate')
+ Function : Returns scalar content for named Item in DocSum (indicated by
+            passed argument)
+ Returns  : scalar value (string) if present
+ Args     : string (Item name)
+ Warns    : If Item with name is not found 
+
+=cut
+
+sub get_content_by_name {
+    my ($self, $key) = @_;
+    return unless $key;
+    my ($it) = grep {$_->get_name eq $key} $self->get_all_Items;
+    return $it->get_content;
+}
+
+=head2 get_type_by_name
+
+ Title    : get_type_by_name
+ Usage    : my $data = get_type_by_name('CreateDate')
+ Function : Returns data type for named Item in DocSum (indicated by
+            passed argument)
+ Returns  : scalar value (string) if present
+ Args     : string (Item name)
+ Warns    : If Item with name is not found 
+
+=cut
+
+sub get_type_by_name {
+    my ($self, $key) = @_;
+    return unless $key;
+    my ($it) = grep {$_->get_name eq $key} $self->get_all_Items;
+    return $it->get_type;
 }
 
 =head2 rewind

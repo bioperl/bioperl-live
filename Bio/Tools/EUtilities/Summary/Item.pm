@@ -241,7 +241,7 @@ sub get_name {
  Returns  : string
  Args     : none
  Note     : this is not the same as the datatype(), which describes the
-            group this Item ojbect belongs to
+            group this Item object belongs to
  
 =cut
 

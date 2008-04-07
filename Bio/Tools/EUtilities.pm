@@ -827,7 +827,7 @@ sub get_DocSums {
         my $ds = shift;
         my $string = sprintf("UID: %s\n",$ds->get_id);
         # flattened mode
-        while (my $item = $ds->next_Item('flattened'))  {
+        while (my $item = $ds->next_Item('flatten'))  {
             # not all Items have content, so need to check...
             my $content = $item->get_content || '';
             $string .= sprintf("%-20s%s\n",$item->get_name(),
