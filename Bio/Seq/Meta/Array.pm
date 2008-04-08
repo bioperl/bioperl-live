@@ -394,7 +394,7 @@ sub named_submeta {
     $start =~ /^[+]?\d+$/ and $start > 0 or
         $self->throw("Need at least a positive integer start value");
     $start--;
-
+    my $meta_len = scalar(@{$self->{_meta}->{$name}});
     if (defined $value) {
         my $arrayref;
 
@@ -428,12 +428,17 @@ sub named_submeta {
         return $arrayref;
 
     } else {
-
-        $end or $end = $self->length;
-        $end = $self->length if $end > $self->length;
+        # don't set by seq length; use meta array length instead; bug 2478
+        $end ||= $meta_len;
+        if ($end > $meta_len) {
+            $self->warn("End is longer than meta sequence $name length; resetting to $meta_len");
+            $end = $meta_len;
+        }
+        # warn but don't reset (push use of trunc() instead)
+        $self->warn("End is longer than sequence length; use trunc() \n".
+                    "if you want a fully truncated object") if $end > $self->length;
         $end--;
         return [@{$self->{_meta}->{$name}}[$start..$end]];
-
     }
 }
 
@@ -661,14 +666,13 @@ sub trunc {
 
     # test arguments
     $start =~ /^[+]?\d+$/ and $start > 0 or
-        $self->throw("Need at least a positive integer start value as start");
+        $self->throw("Need at least a positive integer start value as start; got [$start]");
     $end =~ /^[+]?\d+$/ and $end > 0 or
-        $self->throw("Need at least a positive integer start value as end");
+        $self->throw("Need at least a positive integer start value as end; got [$end]");
     $end >= $start or
-        $self->throw("End position has to be larger or equal to start");
+        $self->throw("End position has to be larger or equal to start; got [$start..$end]");
     $end <= $self->length or
-        $self->throw("End position can not be larger than sequence length");
-
+        $self->throw("End position can not be larger than sequence length; got [$end]");
 
     my $new = $self->SUPER::trunc($start, $end);
     $start--;
