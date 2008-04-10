@@ -548,7 +548,8 @@ sub calculate_cds {
 # hack around changed feature API
 sub get_seq {
   my $self = shift;
-  my $seq = shift;
+  my $seq  = shift;
+  return unless $seq;
   return $seq if ref $seq && $seq->can('translate');
   require Bio::PrimarySeq unless Bio::PrimarySeq->can('new');
   return Bio::PrimarySeq->new(-seq=>$seq);

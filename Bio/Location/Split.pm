@@ -563,14 +563,14 @@ sub end_pos_type {
 =cut
 
 sub seq_id {
-    my ($self, $seqid) = @_;
+    my $self = shift;
 
-    if(! $self->is_remote()) {
+    if(@_ && !$self->is_remote()) {
 	foreach my $subloc ($self->sub_Location(0)) {
-	    $subloc->seq_id($seqid) if ! $subloc->is_remote();
+	    $subloc->seq_id(@_) if !$subloc->is_remote();
 	}
     }
-    return $self->SUPER::seq_id($seqid);
+    return $self->SUPER::seq_id(@_);
 }
 
 =head2 coordinate_policy

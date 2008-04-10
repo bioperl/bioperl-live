@@ -1031,15 +1031,20 @@ are ANDed together.
 
 sub features {
   my $self = shift;
-  my ($types,$automerge,$sparse,$iterator,$other);
+  my ($types,$automerge,$sparse,$iterator,$refseq,$start,$end,$other);
   if (defined $_[0] && 
       $_[0] =~ /^-/) {
-    ($types,$automerge,$sparse,$iterator,$other) = rearrange([
-							      [qw(TYPE TYPES)],
-							      [qw(MERGE AUTOMERGE)],
-							      [qw(RARE SPARSE)],
-							      'ITERATOR'
-							     ],@_);
+    ($types,$automerge,$sparse,$iterator,
+     $refseq,$start,$end,
+     $other) = rearrange([
+	[qw(TYPE TYPES)],
+	[qw(MERGE AUTOMERGE)],
+	[qw(RARE SPARSE)],
+	'ITERATOR',
+	[qw(REFSEQ SEQ_ID)],
+	'START',
+	[qw(STOP END)],
+			 ],@_);
   } else {
     $types = \@_;
   }
@@ -1048,8 +1053,11 @@ sub features {
   $automerge = $self->automerge unless defined $automerge;
   $other ||= {};
   $self->_features({
-		    rangetype => 'contains',
+		    rangetype => $refseq ? 'overlaps' : 'contains',
 		    types     => $types,
+		    refseq    => $refseq,
+		    start     => $start,
+		    stop      => $end,
 		   },
 		   { sparse    => $sparse,
 		     automerge => $automerge,
@@ -3377,6 +3385,7 @@ sub _features {
   my ($search,$options,$parent) = @_;
   (@{$search}{qw(start stop)}) = (@{$search}{qw(stop start)})
     if defined($search->{start}) && $search->{start} > $search->{stop};
+  $search->{refseq} = $search->{seq_id} if exists $search->{seq_id};
 
   my $types = $self->parse_types($search->{types});  # parse out list of types
   my @aggregated_types = @$types;         # keep a copy

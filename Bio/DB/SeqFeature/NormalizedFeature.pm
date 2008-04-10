@@ -176,7 +176,7 @@ sub seq {
     return Bio::PrimarySeq->new(-seq => $store->fetch_sequence($self->seq_id,$start,$end) || '',
 				-id  => $self->display_name);
   } else {
-    return $self->SUPER::seq($self->seq_id,$start,$end);
+      return $self->SUPER::seq($self->seq_id,$start,$end);
   }
 }
 

@@ -139,33 +139,33 @@ sub draw {
     $part->{cds_frame}     = $frame;
     $part->{cds_offset}    = $offset;
 
-    if ($fits && $part->feature->seq) {
+    if ($fits && (my $seq = $feature->seq)) {
+      BLOCK: {
+	  $seq     = $self->get_seq($seq);
 
-      # do in silico splicing in order to find the codon that
-      # arises from the splice
-      my $seq     = $self->get_seq($part->feature->seq);
-      my $protein = $seq->translate(undef,undef,$phase,$codon_table)->seq;
-      $part->{cds_translation}  = $protein;
+	  # do in silico splicing in order to find the codon that
+	  # arises from the splice
+	  my $protein = $seq->translate(undef,undef,$phase,$codon_table)->seq;
+	  $part->{cds_translation}  = $protein;
 
-    BLOCK: {
-	length $protein >= $feature->length/3           and last BLOCK;
-	($feature->length - $phase) % 3 == 0            and last BLOCK;
-
-	my $next_part    = $parts[$i+1]
-	  or do {
-	    $part->{cds_splice_residue} = '?';
-	    last BLOCK; };
-
-	my $next_feature = $next_part->feature         or  last BLOCK;
-	my $next_phase   = eval {$next_feature->phase} or  last BLOCK;
-	my $splice_codon = '';
-	my $left_of_splice  = substr($self->get_seq($feature->seq),    -$next_phase, $next_phase);
-	my $right_of_splice = substr($self->get_seq($next_feature->seq),0          , 3-$next_phase);
-	$splice_codon = $left_of_splice . $right_of_splice;
-	length $splice_codon == 3                      or last BLOCK;
-	my $amino_acid = $translate_table->translate($splice_codon);
-	$part->{cds_splice_residue} = $amino_acid;
-      }
+	  length $protein >= $feature->length/3           and last BLOCK;
+	  ($feature->length - $phase) % 3 == 0            and last BLOCK;
+	      
+	  my $next_part    = $parts[$i+1]
+	      or do {
+		  $part->{cds_splice_residue} = '?';
+		  last BLOCK; };
+	  
+	  my $next_feature = $next_part->feature         or  last BLOCK;
+	  my $next_phase   = eval {$next_feature->phase} or  last BLOCK;
+	  my $splice_codon = '';
+	  my $left_of_splice  = substr($self->get_seq($feature->seq),    -$next_phase, $next_phase);
+	  my $right_of_splice = substr($self->get_seq($next_feature->seq),0          , 3-$next_phase);
+	  $splice_codon = $left_of_splice . $right_of_splice;
+	  length $splice_codon == 3                      or last BLOCK;
+	  my $amino_acid = $translate_table->translate($splice_codon);
+	  $part->{cds_splice_residue} = $amino_acid;
+	}
     }
   }
 
@@ -184,7 +184,7 @@ sub draw_component {
   my $frame     = $self->{cds_frame};
   my $linecount = $self->sixframe ? 6 : 3;
 
-  unless ($self->protein_fits) {
+  unless ($self->protein_fits && $self->{cds_translation}) {
     my $height = ($y2-$y1)/$linecount;
     my $offset = $y1 + $height*$frame;
     $offset   += ($y2-$y1)/2 if $self->sixframe && $self->strand < 0;

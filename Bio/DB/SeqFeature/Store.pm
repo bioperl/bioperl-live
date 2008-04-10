@@ -1170,7 +1170,8 @@ You can call fetch_sequence using the following shortcuts:
 #
 sub fetch_sequence {
   my $self = shift;
-  my ($seqid,$start,$end,$class,$bioseq) = rearrange([['NAME','SEQID','SEQ_ID'],'START',['END','STOP'],'CLASS','BIOSEQ'],@_);
+  my ($seqid,$start,$end,$class,$bioseq) = rearrange([['NAME','SEQID','SEQ_ID'],
+						      'START',['END','STOP'],'CLASS','BIOSEQ'],@_);
   $seqid = "$seqid:$class" if defined $class;
   my $seq = $self->_fetch_sequence($seqid,$start,$end);
   return $seq unless $bioseq;
