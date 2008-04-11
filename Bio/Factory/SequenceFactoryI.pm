@@ -20,7 +20,7 @@ Bio::Factory::SequenceFactoryI - This interface allows for generic building of s
 # get a Bio::Factory::SequenceFactoryI object like
 
     use Bio::Seq::SeqFactory;
-    my $seqbuilder = Bio::Seq::SeqFactory->new('type' => 'Bio::PrimarySeq');
+    my $seqbuilder = Bio::Seq::SeqFactory->new('-type' => 'Bio::PrimarySeq');
 
     my $seq = $seqbuilder->create(-seq => 'ACTGAT',
 				  -display_id => 'exampleseq');
