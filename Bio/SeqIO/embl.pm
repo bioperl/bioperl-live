@@ -1038,7 +1038,7 @@ sub _read_EMBL_Species {
     # only split on ';' or '.' so that classification that is 2 or more words
     # will still get matched, use map() to remove trailing/leading/intervening
     # spaces
-    my @class = map { s/^\s+//; s/\s+$//; s/\s{2,}/ /g; $_; } split /[;\.]+/, $class_lines;
+    my @class = map { s/^\s+//; s/\s+$//; s/\s{2,}/ /g; $_; } split /(?<!subgen)[;\.]+/, $class_lines;
 
     # do we have a genus?
     my $possible_genus = $class[-1];
