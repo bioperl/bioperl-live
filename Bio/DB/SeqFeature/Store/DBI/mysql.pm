@@ -339,6 +339,13 @@ sub dbh {
   $d;
 }
 
+sub clone {
+    my $self = shift;
+    $self->{dbh}{InactiveDestroy} = 1;
+    $self->{dbh} = $self->{dbh}->clone
+	unless $self->is_temp;
+}
+
 ###
 # get/set directory for bulk load tables
 #

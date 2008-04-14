@@ -3336,6 +3336,19 @@ sub do_attributes {
   return ();
 }
 
+=head2 clone
+
+The clone() method should be used when you want to pass the
+Bio::DB::GFF object to a child process across a fork(). The child must
+call clone() before making any queries.
+
+The default behavior is to do nothing, but adaptors that use the DBI
+interface may need to implement this in order to avoid database handle
+errors. See the dbi adaptor for an example.
+
+=cut
+
+sub clone { }
 
 
 =head1 Internal Methods

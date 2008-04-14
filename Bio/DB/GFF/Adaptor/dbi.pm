@@ -1147,6 +1147,25 @@ sub drop_all {
   }
 }
 
+=head2 clone
+
+The clone() method should be used when you want to pass the
+Bio::DB::GFF object to a child process across a fork(). The child must
+call clone() before making any queries.
+
+This method does two things: (1) it sets the underlying database
+handle's InactiveDestroy parameter to 1, thereby preventing the
+database connection from being destroyed in the parent when the dbh's
+destructor is called; (2) it replaces the dbh with the result of
+dbh->clone(), so that we now have an independent handle.
+
+=cut
+
+sub clone {
+    my $self = shift;
+    $self->features_db->clone;
+}
+
 
 =head1 QUERIES TO IMPLEMENT
 

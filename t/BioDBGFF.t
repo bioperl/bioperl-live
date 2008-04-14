@@ -8,7 +8,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 277);
+    test_begin(-tests => 279);
 	
 	use_ok('Bio::DB::GFF');
 }
@@ -419,12 +419,28 @@ SKIP: {
     }
   }
   
+  # test ability to pass adaptors across a fork
+  if (my $child = open(F,"-|")) { # parent reads from child
+      ok(scalar <F>);
+      close F;
+  }
+  else { # in child
+      $db->clone;
+      my @f = $db->features();
+      print @f>0;
+      exit 0;
+  }
+
   ok(!defined eval{$db->delete()});
   ok($db->delete(-force=>1));
   is(scalar $db->features,0);
   ok(!$db->segment('Contig1'));
+
 }
+
 }
+
+
 
 END {
   unlink $fasta_files."/directory.index";

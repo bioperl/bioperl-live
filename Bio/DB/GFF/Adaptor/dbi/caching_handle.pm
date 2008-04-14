@@ -144,6 +144,17 @@ sub dbh {
   $wrapper;
 }
 
+# The clone method should only be called in child processes after a fork().
+# It does two things: (1) it sets the "real" dbh's InactiveDestroy to 1,
+# thereby preventing the database connection from being destroyed in
+# the parent when the dbh's destructor is called; (2) it replaces the
+# "real" dbh with the result of dbh->clone(), so that we now have an
+# independent handle.
+sub clone {
+    my $self = shift;
+    foreach (@{$self->{dbh}}) { $_->clone };
+}
+
 =head2 attribute
 
  Title   : attribute
@@ -211,6 +222,18 @@ sub prepare_delayed {
 
 sub inuse {
     shift->{dbh}->{ActiveKids};
+}
+
+# The clone method should only be called in child processes after a fork().
+# It does two things: (1) it sets the "real" dbh's InactiveDestroy to 1,
+# thereby preventing the database connection from being destroyed in
+# the parent when the dbh's destructor is called; (2) it replaces the
+# "real" dbh with the result of dbh->clone(), so that we now have an
+# independent handle.
+sub clone {
+    my $self = shift;
+    $self->{dbh}{InactiveDestroy} = 1;
+    $self->{dbh} = $self->{dbh}->clone;
 }
 
 sub DESTROY { }
