@@ -1548,7 +1548,7 @@ sub count_diffs {
 =head2 get_syn_changes
 
  Title   : get_syn_changes
- Usage   : Bio::Align::DNAStatitics->get_syn_chnages
+ Usage   : Bio::Align::DNAStatitics->get_syn_changes
  Function: Generate a hashref of all pairwise combinations of codns
            differing by 1
  Returns : Symetic matrix using hashes
