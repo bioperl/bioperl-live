@@ -54,9 +54,7 @@ use base qw(Bio::Root::Root);
 
 
 
-
 =head2 new()
-
   Title		: new/Creator method
   Usage		: my $parser=Bio::Microarray::Tools::MitoChipV2Parser->new($file_name);
   Function	: Creates 2 hashes by parsing the specified design file. 
@@ -89,8 +87,8 @@ sub new {
   
   my %max_ins_hash=();
   $self->{_frags_hash}=$self->_parse_Affy_mtDNA_design_annotation_file($file_name);
-  print "Created array of redundant fragments. \n";
-  print $self->{_frags_hash};
+  #print "Created array of redundant fragments.\n";
+  #print $self->{_frags_hash};
   bless $self, $class;
   return $self;
 }
@@ -126,6 +124,10 @@ sub _parse_Affy_mtDNA_design_annotation_file() {
   my %oligo_region_hash=(0 => 0);
   my %hhash;
   my $oWkS = $oBook->{Worksheet}[0];
+  
+  my $count_row=0;
+  my $count_var=0;
+  my $count_all_var=0;
   for(my $iR = $oWkS->{MinRow}+1 ; defined $oWkS->{MaxRow} && ($iR <= $oWkS->{MaxRow}) ; $iR++)	{
     my $fragment_id = $oWkS->{Cells}[$iR][$oWkS->{MinCol}];
     my $mutation_desc = $oWkS->{Cells}[$iR][$oWkS->{MinCol}+1];
@@ -169,10 +171,10 @@ sub _parse_Affy_mtDNA_design_annotation_file() {
       }
       else {
         if ($array[0] != $mut_pos or $i==$length) {
-          #break();
           $frags{$fragment_id->Value}{$mut_pos}=[@res];
           $test_write=0;
           @res=();
+          $count_var++;
         }
         if ($i!=$length) {
           if ($item =~ /\./) { @res=('ins');}
@@ -185,16 +187,121 @@ sub _parse_Affy_mtDNA_design_annotation_file() {
       
       $mut_pos=$array[0];
     }
+    $count_row++;
+    $count_all_var+=$i;
+    #print "Total no of add. variants for current fragment ($start $stop): $i ($count_all_var)\n";
   }
+  #print "$count_row fragments having $count_var variants\n";
   $self->{_oligos2calc_hash}=$self->_check_overlapping_regions(\%oligo_region_hash);
+  #$self->count_different_variants(\%frags);
   return \%frags;
+}
+
+
+=head2 count_different_variants()
+
+ Title     : count_different_variants()
+ Usage     : MyMitochipParser->count_different_variants($myfrags) (For Developder only)
+ Function  : Counts number of Positions covered by alternative probes, number of total and single (unique) variants
+             separately for single pointmutations, deletions and insertions.
+ Args      : Reference of Hash of alternative Probes (which is provided by _parse_Affy_mtDNA_design_annotation_file())
+
+=cut
+
+sub count_different_variants() {
+  
+  my ($self, $frags) = @_;
+  my %diff_var_hash=();
+  foreach my $key (sort keys %{$frags}) {
+    #print $key.": ";
+    #print $frags->{$key};
+    foreach my $subkey (sort keys %{$frags->{$key}}) {
+      #print "\n$subkey:";
+      my @array=@{$frags->{$key}{$subkey}};
+      #print $array[0]." ".$array[1];
+      #print "\n";
+      # $type=sub, del, ins
+      # $var= A, CCC, --, ...
+      my $pos=$subkey;
+      my $type=$array[0];
+      my $var=$array[1];
+      if (exists($diff_var_hash{$pos})) {
+        if (exists($diff_var_hash{$pos}{$type})) {
+          if (exists($diff_var_hash{$pos}{$type}{$var})) {
+            $diff_var_hash{$pos}{$type}{$var}++;
+          }
+          else {
+            $diff_var_hash{$pos}{$type}{$var}=1;
+          }
+        }
+        else {
+          $diff_var_hash{$pos}{$type}{$var}=1;
+        }
+        
+      }
+      #insert position
+      else {
+        #print "start: $pos $type $var =1\n";
+        $diff_var_hash{$pos}{$type}{$var}=1;
+      }
+      
+    }
+    
+    #print "\n\n";
+    
+  }
+  my $count_pos=0;
+  my $count_type=0;
+  my $count_var=0;
+  my $count_var_ins=0;
+  my $count_var_del=0;
+  my $count_var_sub=0;
+  my $count_tot=0;
+  my $count_var_ins_tot=0;
+  my $count_var_del_tot=0;
+  my $count_var_sub_tot=0;
+  my $no=0;
+  foreach my $pos (sort{$a<=>$b} keys %diff_var_hash) {
+    $no++;
+    $count_pos++;
+    print "\n$no: $pos:";
+    foreach my $type (keys %{$diff_var_hash{$pos}}) {
+
+      $count_type++;
+      print " $type:";
+      foreach my $var (keys %{$diff_var_hash{$pos}{$type}}) {
+
+        $count_var++;
+        $count_tot+=$diff_var_hash{$pos}{$type}{$var};
+        if ($type eq "ins") {
+          $count_var_ins++;
+          $count_var_ins_tot+=$diff_var_hash{$pos}{$type}{$var};
+        }
+        elsif ($type eq "del") {
+          $count_var_del++;
+          $count_var_del_tot+=$diff_var_hash{$pos}{$type}{$var};
+        }
+        elsif ($type eq "sub") {
+          $count_var_sub++;
+          $count_var_sub_tot+=$diff_var_hash{$pos}{$type}{$var};
+        
+        }
+        else {print "doesnt exist!\n";}
+        print " $var: $count_var ($count_tot)";
+      }
+    }
+  }
+  print "\n\n$count_pos/$count_type/$count_var/$count_tot\n\n";
+  print "ins: $count_var_ins $count_var_ins_tot\n";
+  print "del: $count_var_del $count_var_del_tot\n";
+  print "sub: $count_var_sub $count_var_sub_tot\n";
 }
 
 =head2 _calc_oligo_region_hash()
 
  Title     : _calc_oligo_region_hash()
  Usage     : private Function, dont call directly
- Function  : Adds redundand fragment to hash of location of clusters of the Redundant Fragments
+ Function  : Adds redundant fragment to hash of location of clusters of the redundant fragments
  Returns   : oligo_region_hash, calculated so far
  Args      : $start - start position of current fragment
              $stop - stop position of current fragment
