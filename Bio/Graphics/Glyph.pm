@@ -10,6 +10,7 @@ use Bio::Root::Version;
 use base qw(Bio::Root::Root);
 
 my %LAYOUT_COUNT;
+my @FEATURE_STACK;
 
 # the CM1 and CM2 constants control the size of the hash used to
 # detect collisions.
@@ -737,6 +738,8 @@ sub draw {
   my $gd = shift;
   my ($left,$top,$partno,$total_parts) = @_;
 
+  push @FEATURE_STACK,$self->feature;
+
   my $connector = $self->connector;
 
   if (my @parts = $self->parts) {
@@ -766,12 +769,25 @@ sub draw {
     $self->draw_component($gd,$left,$top,$partno,$total_parts) unless $self->feature_has_subparts;
   }
 
+  pop @FEATURE_STACK;
 }
 
 # the "level" is the level of testing of the glyph
 # groups are level -1, top level glyphs are level 0, subcomponents are level 1 and so forth.
 sub level {
   shift->{level};
+}
+
+# return the feature's parent;
+sub parent_feature {
+    my $self      = shift;
+    my $ancestors = shift;
+    $ancestors    = 1 unless defined $ancestors;
+
+    return unless @FEATURE_STACK;
+    my $index    = $#FEATURE_STACK - $ancestors;
+    return unless $index >= 0;
+    return $FEATURE_STACK[$index];
 }
 
 sub draw_connectors {
@@ -1377,6 +1393,14 @@ be changed once it is set.
 
 Get the sequence feature associated with this object.  This cannot be
 changed once it is set.
+
+=item $feature = $glyph-E<gt>parent_feature()
+
+Within callbacks only, the parent_feature() method returns the parent
+of the current feature, if there is one. Called with a numeric
+argument, ascends the parentage tree: parent_feature(1) will return
+the parent, parent_feature(2) will return the grandparent, etc. If
+there is no parent, returns undef.
 
 =item $feature = $glyph-E<gt>add_feature(@features)
 

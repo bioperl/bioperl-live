@@ -2304,15 +2304,49 @@ callback will be invoked first for the top-level feature, and then for
 each of its subparts (recursively).  You should make sure to examine
 the feature's type to determine whether the option is appropriate.
 
-Some glyphs deliberately disable this recursive feature.  The "track",
-"group", "transcript", "transcript2" and "segments" glyphs selectively
-disable the -bump, -label and -description options.  This is to avoid,
-for example, a label being attached to each exon in a transcript, or
-the various segments of a gapped alignment bumping each other.  You
-can override this behavior and force your callback to be invoked by
-providing add_track() with a true B<-all_callbacks> argument.  In this
-case, you must be prepared to handle configuring options for the
-"group" and "track" glyphs.
+Also be aware that some options are only called for subfeatures. For
+example, when using multi-segmented features, the "bgcolor" and
+"fgcolor" options apply to the subfeatures and not to the whole
+feature; therefore the corresponding callbacks will only be invoked
+for the subfeatures and not for the top-level feature. To get
+information that applies to the top-level feature, use the glyph's
+parent_feature() method. This returns:
+
+   * the parent if called with no arguments or with an argument of (1)
+   * the parent's parent if called with an argument of (2)
+   * the parent's parent's parent if called with an argument of (3)
+   * etc.
+
+The general way to take advantage of this feature is:
+
+   sub callback {
+      my ($feature,$option_name,$part_no,$total_parts,$glyph) = @_;
+      my $parent = $glyph->parent_feature();
+
+      # do something which results in $option_value being set
+      return $option_value;
+   }
+
+or, more concisely:
+
+   sub callback {
+      my $feature = shift;  # first argument
+      my $glyph   = pop;    # last argument
+      my $parent = $glyph->parent_feature();
+
+      # do something which results in $option_value being set
+      return $option_value;
+   }
+
+Some glyphs deliberately disable recursion into subparts.  The
+"track", "group", "transcript", "transcript2" and "segments" glyphs
+selectively disable the -bump, -label and -description options.  This
+is to avoid, for example, a label being attached to each exon in a
+transcript, or the various segments of a gapped alignment bumping each
+other.  You can override this behavior and force your callback to be
+invoked by providing add_track() with a true B<-all_callbacks>
+argument.  In this case, you must be prepared to handle configuring
+options for the "group" and "track" glyphs.
 
 In particular, this means that in order to control the -bump option
 with a callback, you should specify -all_callbacks=E<gt>1, and turn on
