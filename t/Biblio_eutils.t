@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
 	use BioperlTest;
 	
-	test_begin(-tests => 6,
+	test_begin(-tests => 4,
 			   -requires_modules => [qw(IO::String LWP::Simple)],
 			   -requires_networking => 1);
 	
@@ -31,8 +31,10 @@ SKIP: {
 	}
 	
 	# these aren't exactly the most stringent of tests...
-	
+	my $ct = 0;
 	while(my $xml = $db->get_next) {
-		ok(1);
+		$ct++
 	}
+	# bullet-proof this, though it really needs more stringent tests...
+	cmp_ok($ct, '>=', 4)
 }
