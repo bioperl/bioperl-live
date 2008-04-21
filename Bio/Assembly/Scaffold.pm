@@ -134,8 +134,8 @@ sub new {
 =cut
 
 sub id {
-    my ($self, $id) = shift;
-    $self->{'_id'} = $id if (defined $id);
+    my ($self, $id) = @_;
+    return $self->{'_id'} = $id if (defined $id);
     return $self->{'_id'};
 }
 
@@ -186,7 +186,7 @@ sub get_nof_contig_seqs {
 
     my $nof_seqs = 0;
     foreach my $contig ($self->all_contigs) {
-        $nof_seqs += scalar( $contig->get_contig_seq_ids() );
+        $nof_seqs += scalar( $contig->get_seq_ids() );
     }
 
     return $nof_seqs;
