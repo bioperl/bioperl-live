@@ -156,7 +156,7 @@ use base qw(Bio::Root::Root Bio::Root::IO);
 
 BEGIN {
     $MODVERSION = $Bio::Root::Version::VERSION;
-    $URLBASE = 'http://www.ncbi.nlm.nih.gov/blast/Blast.cgi';
+    $URLBASE = 'http://blast.ncbi.nlm.nih.gov/Blast.cgi';
 
     # In GET/PUTPARAMS the values are regexes which validate the input.
     %PUTPARAMS = (
