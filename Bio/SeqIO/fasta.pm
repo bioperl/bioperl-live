@@ -203,16 +203,19 @@ sub write_seq {
 			$top .= " $desc";
 		}
 		
-		if( $self->isa('Bio::Seq::LargeSeqI') ) {
+		if( $seq->isa('Bio::Seq::LargeSeqI') ) {
+		  $self->_print(">$top\n");
 		  # for large seqs, don't call seq(), it defeats the
 		  # purpose of the largeseq functionality.  instead get
 		  # chunks of the seq, $width at a time
 		  my $buff_max = 2000;
 		  my $buff_size = int($buff_max/$width)*$width; #< buffer is even multiple of widths
-		  my $num_chunks = int($self->length/$buff_size+1);
-		  #warn "length is ".$self->length.", buff_size $buff_size, num_chunks $num_chunks\n";
+		  my $seq_length = $seq->length;
+		  my $num_chunks = int($seq_length/$buff_size+1);
 		  for( my $c = 0; $c < $num_chunks; $c++ ) {
-		    my $buff = $self->subseq($buff_size*$c+1,$buff_size*($c+1));
+		    my $buff_end = $buff_size*($c+1);
+		    $buff_end = $seq_length if $buff_end > $seq_length;
+		    my $buff = $seq->subseq($buff_size*$c+1,$buff_end);
 		    if($buff) {
 		      $buff =~ s/(.{1,$width})/$1\n/g;
 		      $self->_print($buff);
