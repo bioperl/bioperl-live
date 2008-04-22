@@ -100,6 +100,7 @@ our %MAPPING = (
         'Hsp_midline'     => 'HSP-homology_seq',
         'Hsp_structure'   => 'HSP-meta',
         'Hsp_align-len'   => 'HSP-hsp_length',
+        'Hsp_stranded'    => 'HSP-stranded',
         
         'Hit_id'        => 'HIT-name',
         'Hit_len'       => 'HIT-length',
@@ -800,7 +801,8 @@ sub _parse_new {
                 $metastr = ($self->convert_meta) ? ($self->simple_meta($hsp->{'meta'})) :
                             ($hsp->{'meta'});
                 $self->element_hash(
-                               {'Hsp_qseq'      => $hsp->{'query'},
+                               {'Hsp_stranded'  => 'HIT',
+                                'Hsp_qseq'      => $hsp->{'query'},
                                 'Hsp_hseq'      => $hsp->{'hit'},
                                 'Hsp_midline'   => $hsp->{'midline'},
                                 'Hsp_structure' => $metastr,
@@ -943,7 +945,8 @@ sub _parse_old {
                 $metastr = ($self->convert_meta) ? ($self->simple_meta($hsp->{'meta'})) :
                             ($hsp->{'meta'});
                 $self->element_hash(
-                               {'Hsp_qseq'      => $hsp->{'query'},
+                               {'Hsp_stranded'  => 'HIT',
+                                'Hsp_qseq'      => $hsp->{'query'},
                                 'Hsp_hseq'      => $hsp->{'hit'},
                                 'Hsp_midline'   => $hsp->{'midline'},
                                 'Hsp_structure' => $metastr,

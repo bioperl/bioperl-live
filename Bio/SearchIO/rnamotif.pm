@@ -87,6 +87,7 @@ my %MAPPING = (
         
         # build this from scratch, simple WUSS-format
         'Hsp_structure'   => 'HSP-meta',
+        'Hsp_stranded'    => 'HSP-stranded',        
         
         # not supported for RNAMotif
 
@@ -330,6 +331,7 @@ sub next_result {
                 $self->start_element({'Name' => 'Hsp'});
                 my $rnalen = $rna =~ tr{ATGCatgc}{ATGCatgc};
                 $self->element_hash({
+                        'Hsp_stranded'      => 'HIT', 
                         'Hsp_hseq'          => $rna,
                         'Hsp_query-from'    => 1,
                         'Hsp_query-to'      =>length($rna),

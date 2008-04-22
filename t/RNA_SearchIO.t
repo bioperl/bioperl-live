@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 496);
+    test_begin(-tests => 495);
     
     use_ok('Bio::SearchIO');
 }
@@ -126,7 +126,7 @@ is($meta, ':::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<<<<<_____
 ($meta) = $hsp->feature2->get_tag_values('meta');
 is($meta, ':::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<<<<<_______>>>>>>>,,)))).))))::::::::::::::');
 
-is($hsp->frame, 0, "HSP frame");
+is($hsp->frame('query'), 0, "HSP frame");
 is($hsp->gaps, 0, "HSP gaps");
 is($hit->length, 0, "Hit length");
 isa_ok($hsp->get_aln, 'Bio::Align::AlignI');
@@ -184,7 +184,7 @@ is($hsp->custom_score, undef, "HSP custom_score");
 is($hsp->meta,
    ':::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<<<<<_______>>>>>>>,,)))).))))::::::::::::::',
    "HSP meta");
-is($hsp->strand, 1, "HSP strand");
+is($hsp->strand('hit'), 1, "HSP strand");
 
 $hsp = $hit->next_hsp;
 isa_ok($hsp, 'Bio::Search::HSP::HSPI');
@@ -192,7 +192,7 @@ is($hsp->algorithm, 'CMSEARCH', "HSP algorithm");
 is($hsp->evalue, undef, "HSP evalue");
 isa_ok($hsp->feature1, 'Bio::SeqFeature::Similarity');
 isa_ok($hsp->feature2, 'Bio::SeqFeature::Similarity');
-is($hsp->frame, 0, "HSP frame");
+is($hsp->frame('query'), 0, "HSP frame");
 is($hsp->gaps, 0, "HSP gaps");
 # infernal can return alignment data
 isa_ok($hsp->get_aln, 'Bio::Align::AlignI');
@@ -230,7 +230,7 @@ is($hsp->custom_score, undef, "HSP custom_score");
 is($hsp->meta,
    ':::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<<<<<_______>>>>>>>,,))))))))::::::::::::::',
    "HSP meta");
-is($hsp->strand, 1, "HSP strand");
+is($hsp->strand('hit'), 1, "HSP strand");
 
 # one more hit...
 
@@ -261,7 +261,7 @@ is($hsp->algorithm, 'CMSEARCH', "HSP algorithm");
 is($hsp->evalue, undef, "HSP evalue");
 isa_ok($hsp->feature1, 'Bio::SeqFeature::Similarity');
 isa_ok($hsp->feature2, 'Bio::SeqFeature::Similarity');
-is($hsp->frame, 0, "HSP frame");
+is($hsp->frame('query'), 0, "HSP frame");
 is($hsp->gaps, 2, "HSP gaps");
 isa_ok($hsp->get_aln, 'Bio::Align::AlignI');
 isa_ok($hsp->hit, 'Bio::SeqFeature::Similarity', "HSP hit");
@@ -295,7 +295,7 @@ is($hsp->custom_score, undef, "HSP custom_score");
 is($hsp->meta,
    ':::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<<<<<_______>>>>>>>,,))))))))::::::::::::::',
    "HSP meta");
-is($hsp->strand, 1, "HSP strand");
+is($hsp->strand('hit'), 1, "HSP strand");
 
 my $symbols = {
             '5-prime'        => '(',
@@ -449,7 +449,7 @@ is($meta, ':::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<<<<<_____
 ($meta) = $hsp->feature2->get_tag_values('meta');
 is($meta, ':::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<<<<<_______>>>>>>>,,))))))))::::::::::::::');
 
-is($hsp->frame, 0, "HSP frame");
+is($hsp->frame('query'), 0, "HSP frame");
 is($hsp->gaps, 2, "HSP gaps");
 is($hit->length, 0, "Hit length");
 isa_ok($hsp->get_aln, 'Bio::Align::AlignI');
@@ -507,7 +507,7 @@ is($hsp->custom_score, undef, "HSP custom_score");
 is($hsp->meta,
    ':::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<<<<<_______>>>>>>>,,))))))))::::::::::::::',
    "HSP meta");
-is($hsp->strand, 1, "HSP strand");
+is($hsp->strand('hit'), 1, "HSP strand");
 
 $hsp = $hit->next_hsp;
 isa_ok($hsp, 'Bio::Search::HSP::HSPI');
@@ -515,7 +515,7 @@ is($hsp->algorithm, 'CMSEARCH', "HSP algorithm");
 is($hsp->evalue, 6.802, "HSP evalue");
 isa_ok($hsp->feature1, 'Bio::SeqFeature::Similarity');
 isa_ok($hsp->feature2, 'Bio::SeqFeature::Similarity');
-is($hsp->frame, 0, "HSP frame");
+is($hsp->frame('query'), 0, "HSP frame");
 is($hsp->gaps, 3, "HSP gaps");
 # infernal can return alignment data
 isa_ok($hsp->get_aln, 'Bio::Align::AlignI');
@@ -553,7 +553,7 @@ is($hsp->custom_score, undef, "HSP custom_score");
 is($hsp->meta,
    ':::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<<<<<_______>>>>>>>,,.))))))))::::::::::::::',
    "HSP meta");
-is($hsp->strand, -1, "HSP strand");
+is($hsp->strand('hit'), -1, "HSP strand");
 
 # one more hit...
 
@@ -584,7 +584,7 @@ is($hsp->algorithm, 'CMSEARCH', "HSP algorithm");
 is($hsp->evalue, 1.259e-07, "HSP evalue");
 isa_ok($hsp->feature1, 'Bio::SeqFeature::Similarity');
 isa_ok($hsp->feature2, 'Bio::SeqFeature::Similarity');
-is($hsp->frame, 0, "HSP frame");
+is($hsp->frame('query'), 0, "HSP frame");
 is($hsp->gaps, 0, "HSP gaps");
 isa_ok($hsp->get_aln, 'Bio::Align::AlignI');
 isa_ok($hsp->hit, 'Bio::SeqFeature::Similarity', "HSP hit");
@@ -618,7 +618,7 @@ is($hsp->custom_score, undef, "HSP custom_score");
 is($hsp->meta,
    ':::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<<<<<_______>>>>>>>,,))))))))::::::::::::::',
    "HSP meta");
-is($hsp->strand, 1, "HSP strand");
+is($hsp->strand('hit'), 1, "HSP strand");
 
 #### RNAMotif ####
 
@@ -672,7 +672,7 @@ is($hsp->algorithm, 'RNAMOTIF', "HSP algorithm");
 is($hsp->evalue, undef, "HSP evalue");
 isa_ok($hsp->feature1, 'Bio::SeqFeature::Similarity');
 isa_ok($hsp->feature2, 'Bio::SeqFeature::Similarity');
-is($hsp->frame, 0, "HSP frame");
+is($hsp->frame('query'), 0, "HSP frame");
 is($hsp->gaps, 0, "HSP gaps");
 
 # RNAMotif cannot build alignments
@@ -708,7 +708,7 @@ is($hsp->custom_score, undef, "HSP custom_score");
 is($hsp->meta,
    '<<<<<<<..<<<.........>>>.<<<<<.......>>>>>.......<<<<.......>>>>>>>>>>>....',
    "HSP meta");
-is($hsp->strand, 1, "HSP strand");
+is($hsp->strand('hit'), 1, "HSP strand");
 ($meta) = $hsp->feature1->get_tag_values('meta');
 is($meta, '<<<<<<<..<<<.........>>>.<<<<<.......>>>>>.......<<<<.......>>>>>>>>>>>....');
 ($meta) = $hsp->feature2->get_tag_values('meta');
@@ -766,7 +766,7 @@ is($hsp->algorithm, 'ERPIN', "HSP algorithm");
 is($hsp->evalue, '1.68e-05', "HSP evalue");
 isa_ok($hsp->feature1, 'Bio::SeqFeature::Similarity');
 isa_ok($hsp->feature2, 'Bio::SeqFeature::Similarity');
-is($hsp->frame, 0, "HSP frame");
+is($hsp->frame('query'), 0, "HSP frame");
 is($hsp->gaps, 2, "HSP gaps");
 isa_ok($hsp->hit, 'Bio::SeqFeature::Similarity', "HSP hit");
 is($hsp->hit_string,
@@ -793,19 +793,12 @@ is($hsp->seq_str,
    "HSP seq_str");
 is($hsp->start, 1, "HSP start");
 is($hsp->custom_score, undef, "HSP custom_score");
-TODO: {
-    local $TODO = 'Working on meta string building';
-    isnt($hsp->meta, undef, "HSP meta");
-    ($meta) = $hsp->feature1->has_tag('meta') ? $hsp->feature1->get_tag_values('meta') : undef;
-    isnt($meta, undef);
-    ($meta) = $hsp->feature2->has_tag('meta') ? $hsp->feature2->get_tag_values('meta') : undef;
-    isnt($meta, undef);
-}
-is($hsp->strand, 1, "HSP strand");
-($meta) = $hsp->feature1->has_tag('meta') ? $hsp->feature1->get_tag_values('meta') : undef;
-is($meta, undef);
-($meta) = $hsp->feature2->has_tag('meta') ? $hsp->feature2->get_tag_values('meta') : undef;
-is($meta, undef);
+is($hsp->meta, undef, "HSP meta");
+is($hsp->meta, undef);
+is($hsp->meta, undef);
+is($hsp->strand('hit'), 1, "HSP strand");
+is($hsp->meta, undef);
+is($hsp->meta, undef);
 
 # ERPIN lacks sequence for query, will spit back a warning..
 eval{$hsp->get_aln};
@@ -817,7 +810,7 @@ is($hsp->algorithm, 'ERPIN', "HSP algorithm");
 is($hsp->evalue, '5.61e-05', "HSP evalue");
 isa_ok($hsp->feature1, 'Bio::SeqFeature::Similarity');
 isa_ok($hsp->feature2, 'Bio::SeqFeature::Similarity');
-is($hsp->frame, 0, "HSP frame");
+is($hsp->frame('query'), 0, "HSP frame");
 is($hsp->gaps, 1, "HSP gaps");
 isa_ok($hsp->hit, 'Bio::SeqFeature::Similarity', "HSP hit");
 is($hsp->hit_string,
@@ -843,12 +836,6 @@ isa_ok($hsp->seq, 'Bio::LocatableSeq');
 is($hsp->seq_str,   '',   "HSP seq_str");
 is($hsp->start, 1, "HSP start");
 is($hsp->custom_score, undef, "HSP custom_score");
-TODO: {
-    local $TODO = 'Working on meta string building';
-    isnt($hsp->meta, undef, "HSP meta");
-    ($meta) = $hsp->feature1->has_tag('meta') ? $hsp->feature1->get_tag_values('meta') : undef;
-    isnt($meta, undef);
-    ($meta) = $hsp->feature2->has_tag('meta') ? $hsp->feature2->get_tag_values('meta') : undef;
-    isnt($meta, undef);
-}
-is($hsp->strand, -1, "HSP strand");
+is($hsp->meta, undef);
+is($hsp->meta, undef);
+is($hsp->strand('hit'), -1, "HSP strand");

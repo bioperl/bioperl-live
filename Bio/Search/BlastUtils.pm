@@ -151,7 +151,7 @@ sub tile_hsps {
 #	printf "  Length = %d; Identical = %d; Conserved = %d; Conserved(1-10): %d",$hsp->length, $hsp->length(-TYPE=>'iden'), $hsp->length(-TYPE=>'cons'), $hsp->length(-TYPE=>'cons',-START=>0,-STOP=>10); 
 	($qstart, $qstop) = $hsp->range('query');
 	($sstart, $sstop) = $hsp->range('sbjct');
-	$frame = $hsp->frame;
+	$frame = $hsp->frame('hit');
 	$frame = -1 unless defined $frame;
 	($qstrand, $sstrand) = $hsp->strand;
 

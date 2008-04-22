@@ -161,8 +161,9 @@ use base qw(Bio::Search::HSP::HSPI);
 sub new {
     my($class,%args) = @_;
 
-    # don't pass anything to SUPER; complex heirarchy results in lots of work
+    # don't pass anything to SUPER; complex hierarchy results in lots of work
     # for nothing
+    
     my $self = $class->SUPER::new();
 
     # for speed, don't use _rearrange and just store all input data directly
@@ -187,7 +188,7 @@ sub new {
     }
     $self->{ALGORITHM} ||= 'GENERIC';
     $self->{STRANDED} ||= 'NONE';
-
+    
     if (! defined $self->{QUERY_LENGTH} || ! defined $self->{HIT_LENGTH}) {
         $self->throw("Must define hit and query length");
     }
@@ -536,84 +537,66 @@ sub percent_identity {
 =head2 frame
 
  Title   : frame
- Usage   : $hsp->frame($queryframe,$subjectframe)
+ Usage   : my ($qframe, $hframe) = $hsp->frame('list',$queryframe,$subjectframe)
  Function: Set the Frame for both query and subject and insure that
            they agree.
            This overrides the frame() method implementation in
            FeaturePair.
- Returns : array of query and subjects if return type wants an array
-           or query frame if defined or subject frame
- Args    : none
+ Returns : array of query and subject frame if return type wants an array
+           or query frame if defined or subject frame if not defined
+ Args    : 'hit' or 'subject' or 'sbjct' to retrieve the frame of the subject (default)
+           'query' to retrieve the query frame 
+           'list' or 'array' to retrieve both query and hit frames together
  Note    : Frames are stored in the GFF way (0-2) not 1-3
            as they are in BLAST (negative frames are deduced by checking
                                  the strand of the query or hit)
 
 =cut
 
+# Note: changed 4/19/08 - bug 2485
+#
+# frame() is supposed to be a getter/setter (as is implied by the Function desc
+# above; this is also consistent with Bio::SeqFeature::SimilarityPair).  Also,
+# the API is not consistent with the other HSP/SimilarityPair methods such as
+# strand(), start(), end(), etc. 
+#
+# In order to make this consistent with other methods all work is now done
+# when the features are instantiated and not delayed.  We compromise by
+# defaulting back 'to hit' w/o passed args.  Setting is now allowed.  
+
 sub frame {
     my $self = shift;
-
-    unless (defined $self->{_did_preframe}) {
-        $self->_pre_frame;
+    my $val = shift;
+    if (!defined $val) {
+        # unfortunately, w/o args we need to warn about API changes
+        $self->warn("API for frame() has changed.\n".
+                    "Please refer to documentation for Bio::Search::HSP::GenericHSP;\n".
+                    "returning query frame");
+        $val = 'query';
     }
-    my $qframe = $self->{QUERY_FRAME};
-    my $sframe = $self->{HIT_FRAME};
+    $val =~ s/^\s+//;
 
-    if( defined $qframe ) {
-        if( $qframe == 0 ) {
-            $qframe = 0;
-        } elsif( $qframe !~ /^([+-])?([1-3])/ ) {
-            $self->warn("Specifying an invalid query frame ($qframe)");
-            $qframe = undef;
-        } else {
-            my $dir = $1;
-            $dir = '+' unless defined $dir;
-            if( ($dir eq '-' && $self->query->strand >= 0) ||
-                ($dir eq '+' && $self->query->strand <= 0) ) {
-                $self->warn("Query frame ($qframe) did not match strand of query (". $self->query->strand() . ")");
-            }
-            # Set frame to GFF [0-2] -
-            # what if someone tries to put in a GFF frame!
-            $qframe = $2 - 1;
-        }
-        $self->query->frame($qframe);
+    if( $val =~ /^q/i ) {
+        return $self->query->frame(@_);
+    } elsif( $val =~ /^hi|^s/i ) {
+        return $self->hit->frame(@_);
+    } elsif (  $val =~ /^list|array/i ) {
+        return ($self->query->frame($_[0]), 
+            $self->hit->frame($_[1]) );
+    } elsif ( $val =~ /^\d+$/) {
+        # old API i.e. frame($query_frame, $hit_frame). This catches all but one
+        # case, where no arg is passed (so the hit is wanted).  
+        $self->warn("API for frame() has changed.\n".
+                    "Please refer to documentation for Bio::Search::HSP::GenericHSP");
+        wantarray ? 
+        return ($self->query->frame($val), 
+            $self->hit->frame(@_) ) :
+        return $self->hit->frame($val,@_);
+    } else { 
+        $self->warn("unrecognized component '$val' requested\n");
     }
-    if( defined $sframe ) {
-          if( $sframe == 0 ) {
-            $sframe = 0;
-          } elsif( $sframe !~ /^([+-])?([1-3])/ ) {
-            $self->warn("Specifying an invalid subject frame ($sframe)");
-            $sframe = undef;
-          } else {
-              my $dir = $1;
-              $dir = '+' unless defined $dir;
-              if( ($dir eq '-' && $self->hit->strand >= 0) ||
-                  ($dir eq '+' && $self->hit->strand <= 0) )
-              {
-                  $self->warn("Subject frame ($sframe) did not match strand of subject (". $self->hit->strand() . ")");
-              }
-
-              # Set frame to GFF [0-2]
-              $sframe = $2 - 1;
-          }
-          $self->hit->frame($sframe);
-      }
-    if (wantarray() && $self->algorithm =~ /^T(BLAST|FAST)(X|Y|XY)/oi)
-    {
-        return ($self->query->frame(), $self->hit->frame());
-    } elsif (wantarray())  {
-        ($self->query->frame() &&
-         return ($self->query->frame(), undef)) ||
-             ($self->hit->frame() &&
-              return (undef, $self->hit->frame()));
-    } else {
-        ($self->query->frame() &&
-         return $self->query->frame()) ||
-        ($self->hit->frame() &&
-         return $self->hit->frame());
-    }
+    return 0;
 }
-
 
 =head2 get_aln
 
@@ -1333,7 +1316,7 @@ sub _pre_seq_feature {
         $hitfactor = 0;
     }
     else {
-        my $stranded = substr($self->{STRANDED}, 0,1);
+        my $stranded = lc substr($self->{STRANDED}, 0,1);
         $queryfactor = ($stranded eq 'q' || $stranded eq 'b') ? 1 : 0;
         $hitfactor = ($stranded eq 'h' || $stranded eq 's' || $stranded eq 'b') ? 1 : 0;
     }
@@ -1389,23 +1372,34 @@ sub _query_seq_feature {
     $sim1->seqlength($self->{QUERY_LENGTH});
     $sim1->source_tag($self->{ALGORITHM});
     $sim1->seqdesc($self->{QUERY_DESC});
-    
-    $self->SUPER::feature1($sim1);
-
+    $sim1->add_tag_value('meta', $self->{META}) if $self->can('meta');
     # to determine frame from something like FASTXY which doesn't
     # report the frame
     my $qframe = $self->{QUERY_FRAME};
-    if (defined $strand && ! defined $qframe && $queryfactor) {
+    
+    if (defined $strand && !defined $qframe && $queryfactor) {
         $qframe = ( $qs % 3 ) * $strand;
     }
-    elsif (! defined $strand) {
+    elsif (!defined $strand) {
         $qframe = 0;
     }
-    $self->{QUERY_FRAME} = $qframe;
+    
+    if( $qframe =~ /^([+-])?([0-3])/ ) {
+        my $dir = $1 || '+';
+        if($qframe && (($dir eq '-' && $strand >= 0) || ($dir eq '+' && $strand <= 0)) ) {
+            $self->warn("Query frame ($qframe) did not match strand of query ($strand)");
+        }
+        $qframe = $2 != 0 ? $2 - 1 : $2;
+    }  else {
+        $self->warn("Unknown query frame ($qframe)");
+        $qframe = 0;
+    }
+    
+    $sim1->frame($qframe);
+    $self->SUPER::feature1($sim1);
 
     $self->{_created_qff} = 1;
     $self->{_making_qff} = 0;
-    $self->_pre_frame;
 }
 
 # make subject seq feature
@@ -1451,29 +1445,32 @@ sub _subject_seq_feature {
     $sim2->seqlength($self->{HIT_LENGTH});
     $sim2->source_tag($self->{ALGORITHM});
     $sim2->seqdesc($self->{HIT_DESC});
-    $self->SUPER::feature2($sim2);
-
+    $sim2->add_tag_value('meta', $self->{META}) if $self->can('meta');
     my $hframe = $self->{HIT_FRAME};
-    if (defined $strand && ! defined $hframe && $hitfactor) {
+    
+    if (defined $strand && !defined $hframe && $hitfactor) {
         $hframe = ( $hs % 3 ) * $strand;
     }
-    elsif (! defined $strand) {
+    elsif (!defined $strand) {
         $hframe = 0;
     }
-    $self->{HIT_FRAME} = $hframe;
+    
+    if( $hframe =~ /^([+-])?([0-3])/ ) {
+        my $dir = $1 || '+';
+        if($hframe && (($dir eq '-' && $strand >= 0) || ($dir eq '+' && $strand <= 0)) ) {
+            $self->warn("Subject frame ($hframe) did not match strand of subject ($strand)");
+        }
+        $hframe = $2 != 0 ? $2 - 1 : $2;
+    }  else {
+        $self->warn("Unknown subject frame ($hframe)");
+        $hframe = 0;
+    }
+    
+    $sim2->frame($hframe);
+    $self->SUPER::feature2($sim2);
 
     $self->{_created_sff} = 1;
     $self->{_making_sff} = 0;
-    $self->_pre_frame;
-}
-
-# know the frame following seq feature creation
-sub _pre_frame {
-    my $self = shift;
-    $self->{_created_qff} || $self->_query_seq_feature;
-    $self->{_created_sff} || $self->_subject_seq_feature;
-    $self->{_did_preframe} = 1;
-    $self->frame;
 }
 
 # before calling the num_* methods

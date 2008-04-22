@@ -336,6 +336,39 @@ sub write_result {
    return 1;
 }
 
+=head2 write_report
+
+ Title   : write_report
+ Usage   : $stream->write_report(SearchIO stream, @other_args)
+ Function: Writes data directly from the SearchIO stream object into the
+         : writer.  This is mainly useful if one has multiple ResultI objects
+         : in a SearchIO stream and you don't want to reiterate header/footer
+         : between each call.
+ Returns : 1 for success and 0 for error
+ Args    : Bio::SearchIO stream object,
+         : plus any other arguments for the Writer
+ Throws  : Bio::Root::Exception if a Writer has not been set.
+
+See L<Bio::Root::Exception>
+
+=cut
+
+sub write_report {
+   my ($self, $result, @args) = @_;
+
+   if( not ref($self->{'_result_writer'}) ) {
+       $self->throw("ResultWriter not defined.");
+   }
+   @args = $self->{'_notfirsttime'} unless( @args );
+
+   my $str = $self->writer->to_string( $result, @args);
+   $self->{'_notfirsttime'} = 1;
+   $self->_print( "$str" ) if defined $str;
+   
+   $self->flush if $self->_flush_on_write && defined $self->_fh;
+   return 1;
+}
+
 
 =head2 writer
 

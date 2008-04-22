@@ -82,6 +82,7 @@ my %MAPPING = (
         'Hsp_midline'     => 'HSP-homology_seq',
         'Hsp_structure'   => 'HSP-meta',
         'Hsp_align-len'   => 'HSP-hsp_length',
+        'Hsp_stranded'    => 'HSP-stranded',
         
         # not supported yet
         'Hsp_positive'    => 'HSP-conserved',
@@ -293,6 +294,7 @@ sub next_result {
                 $line = $self->_readline;
                 chomp $line;
                 $self->element_hash({
+                    'Hsp_stranded'     => 'HIT',
                     'Hsp_hit-from'     => $start,
                     'Hsp_hit-to'       => $end,
                     'Hsp_score'        => $score,

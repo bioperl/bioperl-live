@@ -183,7 +183,7 @@ sub tile_hsps {
 
 	($qstart, $qstop) = $hsp->range('query');
 	($sstart, $sstop) = $hsp->range('sbjct');
-	$frame = $hsp->frame;
+	$frame = $hsp->frame('hit');
 	$frame = -1 unless defined $frame;
 	
 	($qstrand, $sstrand) = ($hsp->query->strand,

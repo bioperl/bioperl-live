@@ -1525,7 +1525,7 @@ sub frame {
 
     my ($frame);
     if(not defined($self->{'_frame'})) {
-        $frame = $self->hsp->frame;
+        $frame = $self->hsp->frame('hit');
     } else {
         $frame = $self->{'_frame'}; 
     } 

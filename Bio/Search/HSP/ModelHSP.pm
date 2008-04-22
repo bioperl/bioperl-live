@@ -109,20 +109,6 @@ Plus Bio::Seach::HSP::GenericHSP methods
 
 =cut
 
-sub new {
-  my($class,@args) = @_;
-
-  my $self = $class->SUPER::new(@args);
-  
-  my ($meta, $cs) = $self->_rearrange([qw(META
-                                       CUSTOM_SCORE)], @args);
-
-  defined $meta  && $self->meta($meta);
-  defined $cs    && $self->custom_score($cs);
-
-  return $self;
-}
-
 =head2 meta
 
  Title   : meta
@@ -192,13 +178,6 @@ Implementation of Bio::Search::HSP::HSPI methods follow
            and not a true sequence.
 
 =cut
-
-sub strand {
-    my $self = shift;
-    my $val = shift;
-    $val = 'hit' unless defined $val;
-    return $self->SUPER::strand($val);
-}
 
 # overrides HSPI::seq()
 
@@ -333,17 +312,19 @@ sub seq {
 =head2 frame
 
  Title   : frame
- Usage   : $hsp->frame($queryframe,$subjectframe)
+ Usage   : my ($qframe, $hframe) = $hsp->frame('list',$queryframe,$subjectframe)
  Function: Set the Frame for both query and subject and insure that
            they agree.
            This overrides the frame() method implementation in
            FeaturePair.
- Returns : array of query and subjects if return type wants an array
-           or query frame if defined or subject frame
- Args    : none
+ Returns : array of query and subject frame if return type wants an array
+           or query frame if defined or subject frame if not defined
+ Args    : 'hit' or 'subject' or 'sbjct' to retrieve the frame of the subject (default)
+           'query' to retrieve the query frame 
+           'list' or 'array' to retrieve both query and hit frames together
  Note    : Frames are stored in the GFF way (0-2) not 1-3
-           as they are in BLAST (negative frames are deduced by checking 
-				 the strand of the query or hit)
+           as they are in BLAST (negative frames are deduced by checking
+                                 the strand of the query or hit)
 
 =cut
 
@@ -563,114 +544,6 @@ sub percent_identity {
     my $self = shift;
     $self->warn('$hsp->percent_identity not implemented for Model-based searches');
     return;
-}
-
-# the following subs override several GenericHSP private methods
-# to allow for Model-based queries
-
-# needed before seqfeatures can be made
-
-sub _pre_seq_feature {
-    my $self = shift;
-    my $algo = $self->{ALGORITHM};
-    my ($queryfactor, $hitfactor) = (0,1);
-    # no exceptions made for algorithms yet
-    $self->{_query_factor} = $queryfactor;
-    $self->{_hit_factor} = $hitfactor;
-}
-
-# make query seq feature
-sub _query_seq_feature {
-    my $self = shift;
-    $self->{_making_qff} = 1;
-    my $qs = $self->{QUERY_START};
-    my $qe = $self->{QUERY_END};
-    unless (defined $self->{_query_factor}) {
-        $self->_pre_seq_feature;
-    }
-    my $queryfactor = $self->{_query_factor};
-    unless( defined $qe && defined $qs ) { $self->throw("Did not specify a Query End or Query Begin"); }
-    my $sim1 = $self->{_sim1} || Bio::SeqFeature::Similarity->new(-verbose => $self->verbose);
-    $sim1->start($qs);
-    $sim1->end($qe);
-    $sim1->significance($self->{EVALUE});
-    $sim1->bits($self->{BITS});
-    $sim1->score($self->{SCORE});
-    # models do not have strandedness
-    $sim1->strand(0);
-    $sim1->seq_id($self->{QUERY_NAME});
-    $sim1->seqlength($self->{QUERY_LENGTH});
-    $sim1->source_tag($self->{ALGORITHM});
-    $sim1->seqdesc($self->{QUERY_DESC});
-    $sim1->add_tag_value('meta', $self->{META}) if $self->meta;
-    
-    $self->Bio::Search::HSP::HSPI::feature1($sim1);
-
-    $self->{QUERY_FRAME} = 0; # no frame for a model
-
-    $self->{_created_qff} = 1;
-    $self->{_making_qff} = 0;
-    $self->_pre_frame;
-}
-
-# make subject seq feature
-sub _subject_seq_feature {
-    my $self = shift;
-    $self->{_making_sff} = 1;
-    my $hs = $self->{HIT_START};
-    my $he = $self->{HIT_END};
-    unless (defined $self->{_hit_factor}) {
-        $self->_pre_seq_feature;
-    }
-    my $hitfactor = $self->{_hit_factor};
-
-    unless( defined $he && defined $hs ) { $self->throw("Did not specify a Hit End or Hit Begin"); }
-
-    my $strand;
-    if ($he > $hs) { # normal subject
-        if ($hitfactor) {
-            $strand = 1;
-        }
-        else {
-            $strand = undef;
-        }
-    }
-    else {
-        if ($hitfactor) {
-            $strand = -1;
-        }
-        else {
-            $strand = undef;
-        }
-        ($hs,$he) = ( $he,$hs); # reverse subject: start bigger than end
-    }
-
-    my $sim2 = $self->{_sim2} || Bio::SeqFeature::Similarity->new(-verbose => $self->verbose);
-    $sim2->start($hs);
-    $sim2->end($he);
-    $sim2->significance($self->{EVALUE});
-    $sim2->bits($self->{BITS});
-    $sim2->score($self->{SCORE});
-    $sim2->strand($strand);
-    $sim2->seq_id($self->{HIT_NAME});
-    $sim2->seqlength($self->{HIT_LENGTH});
-    $sim2->source_tag($self->{ALGORITHM});
-    $sim2->seqdesc($self->{HIT_DESC});
-    $sim2->add_tag_value('meta', $self->{META}) if $self->meta;
-    $self->Bio::Search::HSP::HSPI::feature2($sim2);
-
-    my $hframe = $self->{HIT_FRAME};
-    if (defined $strand && ! defined $hframe && $hitfactor) {
-        $hframe = ( $hs % 3 ) * $strand;
-    }
-    elsif (! defined $strand) {
-        $hframe = 0;
-    }
-    $self->{HIT_FRAME} = $hframe;
-
-    $self->{_created_sff} = 1;
-    $self->{_making_sff} = 0;
-    $self->_pre_frame;
 }
 
 1;
