@@ -7,13 +7,14 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 27);
+    test_begin(-tests => 29);
 	
 	use_ok('Bio::Seq::LargePrimarySeq');
 	use_ok('Bio::Seq::LargeSeq');
 	use_ok('Bio::Location::Simple');
 	use_ok('Bio::Location::Fuzzy');
 	use_ok('Bio::Location::Split');
+	use_ok('Bio::SeqIO');
 }
 
 my $pseq = Bio::Seq::LargePrimarySeq->new();
@@ -63,6 +64,19 @@ is $seq->display_id('hello'), 'hello';
 
 is $seq->seq, 'ATGGGGTGGGGTGAAACCCTTTGGGGGTGGGGTAAATGTTTGGGGTTAAACCCCTTTGGGGGGT' , "Sequence is " . $seq->seq;
 
+# test SeqIO::fasta (allows LargeSeqI; bug 2490)
+
+SKIP: {
+    eval {require IO::String};
+    skip "SeqIO output for LargeSeq requires IO::String", 4 if $@;
+	my $str;
+	my $strobj = IO::String->new($str);
+	my $out = Bio::SeqIO->new(-fh => $strobj, -format => 'fasta');
+    $out->write_seq($seq);
+	like($str, qr/>hello\nATGGGGTGGGGTGAAACCCTTTGGGGGTGGGGTAAATGTTTGGGGTTAAACCCCTTTGGG\nGGGT/,
+		 'output via Bio::SeqIO::fasta');
+}						  
+
 is $seq->subseq(3,7), 'GGGGT', "Subseq is ".$seq->subseq(3,7);
 is ($seq->trunc(8,15)->seq, 'GGGGTGAA', 
     'trunc seq was ' . $seq->trunc(8,15)->seq);
@@ -82,3 +96,4 @@ is ($seq->trunc(8,12)->seq, 'GGGGT',
 
 is $seq->alphabet('dna'), 'dna'; # so translate will not complain
 is $seq->translate()->seq, 'MGWG';
+
