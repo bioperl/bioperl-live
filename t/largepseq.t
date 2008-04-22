@@ -68,11 +68,11 @@ is $seq->seq, 'ATGGGGTGGGGTGAAACCCTTTGGGGGTGGGGTAAATGTTTGGGGTTAAACCCCTTTGGGGGGT'
 
 SKIP: {
     eval {require IO::String};
-    skip "SeqIO output for LargeSeq requires IO::String", 4 if $@;
+    skip "SeqIO output for LargeSeq requires IO::String", 2 if $@;
 	my $str;
 	my $strobj = IO::String->new($str);
 	my $out = Bio::SeqIO->new(-fh => $strobj, -format => 'fasta');
-    $out->write_seq($seq);
+    ok($out->write_seq($seq));
 	like($str, qr/>hello\nATGGGGTGGGGTGAAACCCTTTGGGGGTGGGGTAAATGTTTGGGGTTAAACCCCTTTGGG\nGGGT/,
 		 'output via Bio::SeqIO::fasta');
 }						  
