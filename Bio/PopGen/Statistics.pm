@@ -1024,7 +1024,7 @@ sub derived_mutations {
 	       }
 	   }
        }
-   } elsif( $otype->isa('Bio::PopGen::PopulationI') ) { 
+   } else {
        $self->warn("Need an arrayref of Bio::PopGen::IndividualI objs or a Bio::PopGen::Population for outgroup in external_mutations");
        return 0;
    }
