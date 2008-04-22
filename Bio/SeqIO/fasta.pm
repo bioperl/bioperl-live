@@ -178,7 +178,6 @@ sub write_seq {
 		$self->throw("Did not provide a valid Bio::PrimarySeqI object") 
 		  unless defined $seq && ref($seq) && $seq->isa('Bio::PrimarySeqI');
 
-		my $str = $seq->seq;
 		my $top;
 
 		# Allow for different ids 
@@ -203,12 +202,33 @@ sub write_seq {
 			$desc =~ s/\n//g;
 			$top .= " $desc";
 		}
-		if(defined $str && length($str) > 0) {
-			$str =~ s/(.{1,$width})/$1\n/g;
+		
+		if( $self->isa('Bio::Seq::LargeSeqI') ) {
+		  # for large seqs, don't call seq(), it defeats the
+		  # purpose of the largeseq functionality.  instead get
+		  # chunks of the seq, $width at a time
+		  my $buff_max = 2000;
+		  my $buff_size = int($buff_max/$width)*$width; #< buffer is even multiple of widths
+		  my $num_chunks = int($self->length/$buff_size+1);
+		  #warn "length is ".$self->length.", buff_size $buff_size, num_chunks $num_chunks\n";
+		  for( my $c = 0; $c < $num_chunks; $c++ ) {
+		    my $buff = $self->subseq($buff_size*$c+1,$buff_size*($c+1));
+		    if($buff) {
+		      $buff =~ s/(.{1,$width})/$1\n/g;
+		      $self->_print($buff);
+		    } else {
+		      $self->_print("\n");
+		    }
+		  }
 		} else {
-			$str = "\n";
+		  my $str = $seq->seq;
+		  if(defined $str && length($str) > 0) {
+		    $str =~ s/(.{1,$width})/$1\n/g;
+		  } else {
+		    $str = "\n";
+		  }
+		  $self->_print (">",$top,"\n",$str) or return;
 		}
-		$self->_print (">",$top,"\n",$str) or return;
    }
 
    $self->flush if $self->_flush_on_write && defined $self->_fh;
