@@ -674,7 +674,7 @@ sub tajima_D_counts {
 
 sub pi {
     my ($self,$individuals,$numsites) = @_;
-    my (%data,@marker_names,$n);
+    my (%data,%marker_total,@marker_names,$n);
 
     if( ref($individuals) =~ /ARRAY/i ) {
 	# one possible argument is an arrayref of Bio::PopGen::IndividualI objs
@@ -682,7 +682,6 @@ sub pi {
 	$n = scalar @$individuals;
 
 	# Here we are calculating the allele frequencies
-	my %marker_total;
 	foreach my $ind ( @$individuals ) {
 	    if( ! $ind->isa('Bio::PopGen::IndividualI') ) {
 		$self->warn("Expected an arrayref of Bio::PopGen::IndividualI objects, this is a ".ref($ind)."\n");
@@ -690,27 +689,32 @@ sub pi {
 	    }
 	    foreach my $m ( @marker_names ) {
 		foreach my $allele (map { $_->get_Alleles} 
-			       $ind->get_Genotypes($m) ) {
+				    $ind->get_Genotypes($m) ) {
 		    $data{$m}->{$allele}++;
 		    $marker_total{$m}++;
 		}
 	    }
 	}
-	while( my ($marker,$count) =  each %marker_total ) {
-	    foreach my $c ( values %{$data{$marker}} ) {
-		$c /= $count;
-	    }
-	}
+#	while( my ($marker,$count) =  each %marker_total ) {
+#	    foreach my $c ( values %{$data{$marker}} ) {
+#		$c /= $count;
+#	    }
+#	}
 	# %data will contain allele frequencies for each marker, allele
-    } elsif( ref($individuals) && 
+    } elsif( ref($individuals) &&
 	     $individuals->isa('Bio::PopGen::PopulationI') ) {
 	my $pop = $individuals;
 	$n = $pop->get_number_individuals;
 	foreach my $marker( $pop->get_Markers ) {
 	    push @marker_names, $marker->name;
-	    $data{$marker->name} = {$marker->get_Allele_Frequencies};
+	    #$data{$marker->name} = {$marker->get_Allele_Frequencies};
+	    my @genotypes = $pop->get_Genotypes(-marker => $marker->name);
+	    for my $al ( map { $_->get_Alleles} @genotypes ) {
+	      $data{$marker->name}->{$al}++;
+	      $marker_total{$marker->name}++;
+	   }
 	}
-    } else { 
+    } else {
 	$self->throw("expected an array reference of a list of Bio::PopGen::IndividualI to pi");
     }
     # doing all pairwise combinations
@@ -718,22 +722,22 @@ sub pi {
     # For now we assume that all individuals have the same markers
     my ($diffcount,$totalcompare) = (0,0);
     my $pi = 0;
-    foreach my $markerdat ( values %data ) {
-	my $totalalleles; # this will only be different among markers
-	                  # when there is missing data
-	my @alleles = keys %$markerdat;
-	foreach my $al ( @alleles ) { $totalalleles += $markerdat->{$al} }
-	for( my $i =0; $i < scalar @alleles -1; $i++ ) {
-	    my ($a1,$a2) = ( $alleles[$i], $alleles[$i+1]);
-	    $pi += $self->heterozygosity($n, 
-					 $markerdat->{$a1} / $totalalleles,
-					 $markerdat->{$a2} / $totalalleles);
+    while ( my ($marker,$markerdat) = each %data ) {
+      my $sampsize = $marker_total{$marker};
+      my $ssh = 0;
+      my @alleles = keys %$markerdat;
+      if ( $sampsize > 1 ) {
+	my $denom = $sampsize * ($sampsize - 1.0);
+	foreach my $al ( @alleles ) {
+	  $ssh += ($markerdat->{$al} * ($markerdat->{$al} - 1)) / $denom;
 	}
+	$pi += 1.0 - $ssh;
+      }
     }
     $self->debug( "pi=$pi\n");
-    if( $numsites ) { 
+    if( $numsites ) {
 	return $pi / $numsites;
-    } else { 
+    } else {
 	return $pi;
     }
 }
@@ -764,7 +768,7 @@ sub pi {
 #'
 
 sub theta {
-    my $self = shift;    
+    my $self = shift;
     my ( $n, $seg_sites,$totalsites) = @_;
     if( ref($n) =~ /ARRAY/i ) {
 	my $samps = $n;

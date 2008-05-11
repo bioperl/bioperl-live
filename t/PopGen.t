@@ -10,7 +10,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 98);
+    test_begin(-tests => 100);
 	
     use_ok('Bio::PopGen::Individual');
     use_ok('Bio::PopGen::Genotype');
@@ -414,7 +414,7 @@ is($population[3]->unique_id, 'NA06994');
 is($population[3]->get_Genotypes, 34);
 $population = Bio::PopGen::Population->new(-individuals => \@population);
 
-is(sprintf("%.3f",$stats->pi($population)),12.335);
+is(sprintf("%.3f",$stats->pi($population)),12.266);
 # if forced haploid population is called within pi
 # need to decide about that...
 # is(sprintf("%.3f",$stats->pi($population)),12.266);
@@ -422,8 +422,8 @@ is(sprintf("%.3f",$stats->pi($population)),12.335);
 is(sprintf("%.3f",$stats->theta($population)),5.548);
 #TODO: {
 #    local $TODO = 'May be TJd inconsistency, need to recalculate';
-    is(sprintf("%.3f",$stats->tajima_D($population)),'2.960');
-    is(sprintf("%.3f",$stats->tajima_D($population->haploid_population)),3.486);
+    is(sprintf("%.3f",$stats->tajima_D($population)),'2.926');
+    is(sprintf("%.3f",$stats->tajima_D($population->haploid_population)),3.468);
 #}
 $io = Bio::PopGen::IO->new(-format => 'phase',
 			  -file   => test_input_file('example.phase'));
@@ -438,3 +438,17 @@ is(@population, 4);
 
 
 # test diploid data
+
+# bug 2492
+{
+    my $in = Bio::PopGen::IO->new(-format=>"csv", -fh=>\*DATA);
+    my $pop = $in->next_population;
+    is(sprintf("%.3f",$stats->pi($pop)),0.833,'Pi on 3-allele data');
+    is(sprintf("%.3f",$stats->theta($pop)),0.545,'Theta on 3-allele data');
+}
+__DATA__
+SAMPLE,Site-1
+seq_1,G
+seq_2,C
+seq_3,T
+seq_4,G
