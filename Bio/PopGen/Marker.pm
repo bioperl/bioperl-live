@@ -215,7 +215,7 @@ sub unique_id{
 sub get_Alleles{
     my $self = shift;
     my (@numeric,@alpha);
-    
+
     for ( keys %{$self->{'_allele_freqs'}} ) {
 	if( /[^\d\.\-e]/ ) { push @alpha, $_ }
 	else { push @numeric, $_ }

@@ -400,13 +400,16 @@ sub get_Marker{
    } else { 
        my @genotypes = $self->get_Genotypes(-marker => $markername);
        $marker = Bio::PopGen::Marker->new(-name   => $markername);
-       
+
        if( ! @genotypes ) {
 	   $self->warn("No genotypes for Marker $markername in the population");
        } else { 
 	   my %alleles;
 	   my $count;
-	   map { $count++; $alleles{$_}++ } map { $_->get_Alleles } @genotypes;
+	   for my $al ( map { $_->get_Alleles} @genotypes ) {
+	     $count++; 
+	     $alleles{$al}++
+	   }
 	   foreach my $allele ( keys %alleles ) {
 	       $marker->add_Allele_Frequency($allele, $alleles{$allele}/$count);
 	   }
