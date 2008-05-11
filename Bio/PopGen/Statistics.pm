@@ -717,8 +717,9 @@ sub pi {
     } else {
 	$self->throw("expected an array reference of a list of Bio::PopGen::IndividualI to pi");
     }
-    # doing all pairwise combinations
-
+    # based on Kevin Thornton's code:
+    # http://molpopgen.org/software/libsequence/doc/html/PolySNP_8cc-source.html#l00152
+    
     # For now we assume that all individuals have the same markers
     my ($diffcount,$totalcompare) = (0,0);
     my $pi = 0;
