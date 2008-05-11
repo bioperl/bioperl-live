@@ -1681,4 +1681,50 @@ sub ncbi_gi {
     return $self->{'_ncbi_gi'};
 }
 
+
+# sort method for HSPs
+
+=head2 sort_hits
+
+ Title		: sort_hsps
+ Usage		: $result->sort_hsps(\&sort_function)
+ Function	: Sorts the available HSP objects by a user-supplied function. Defaults to sort
+                  by descending score.
+ Returns	: n/a
+ Args		: A coderef for the sort function.  See the documentation on the Perl sort()
+                  function for guidelines on writing sort functions.  
+ Note		: To access the special variables $a and $b used by the Perl sort() function 
+                  the user function must access Bio::Search::Hit::HitI namespace. 
+                  For example, use :
+                  $hit->sort_hsps( sub{$Bio::Search::Result::HitI::a->length <=> 
+					  $Bio::Search::Result::HitI::b->length});
+                   NOT $hit->sort_hsps($a->length <=> $b->length);
+
+=cut
+
+sub sort_hsps {
+    my ($self, $coderef) = @_;
+    my @sorted_hsps;
+
+    if ($coderef)  {
+	$self->throw('sort_hsps requires a sort function passed as a subroutine reference')
+	    unless (ref($coderef) eq 'CODE');
+    }
+    else {
+	$coderef = \&_default_sort_hsps;
+	# throw a warning?
+    }
+
+    my @hsps = $self->hsps();
+    eval {@sorted_hsps = sort $coderef @hsps };
+
+   if ($@) {
+       $self->throw("Unable to sort hsps: $@");
+   }
+   else {
+       $self->{'_hsps'} = \@sorted_hsps;
+       1;
+   }
+}
+
 1;

@@ -676,6 +676,45 @@ sub hit_description { shift->description(@_) }
 # aliasing for Steve's method names
 sub hit_length { shift->length(@_) }
 
+
+# sort method for HSPs
+
+=head2 sort_hits
+
+ Title		: sort_hsps
+ Usage		: $result->sort_hsps(\&sort_function)
+ Function	: Sorts the available HSP objects by a user-supplied function. Defaults to sort
+                  by descending score.
+ Returns	: n/a
+ Args		: A coderef for the sort function.  See the documentation on the Perl sort()
+                  function for guidelines on writing sort functions.  
+ Note		: To access the special variables $a and $b used by the Perl sort() function 
+                  the user function must access Bio::Search::Hit::HitI namespace. 
+                  For example, use :
+                  $hit->sort_hsps( sub{$Bio::Search::Result::HitI::a->length <=> 
+					  $Bio::Search::Result::HitI::b->length});
+                   NOT $hit->sort_hsps($a->length <=> $b->length);
+
+=cut
+
+sub sort_hsps {shift->throw_not_implemented }
+
+=head2 _default sort_hsps
+
+  Title	: _default_sort_hsps
+  Usage	: Do not call directly.
+  Function : Sort hsps in ascending order by evalue
+  Args	: None
+  Returns: 1 on success
+  Note	: Used by $hit->sort_hsps()
+
+=cut
+
+sub _default_sort_hsps {
+    $Bio::Search::Hit::HitI::a->evalue <=> 
+	    $Bio::Search::Hit::HitI::a->evalue;
+}
+
 1;
 
 
