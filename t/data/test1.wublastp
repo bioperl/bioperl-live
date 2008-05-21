@@ -1,0 +1,97 @@
+BLASTP 2.0MP-WashU [04-May-2006] [linux26-i686-ILP32F64 2006-05-09T11:47:08]
+
+Copyright (C) 1996-2006 Washington University, Saint Louis, Missouri USA.
+All Rights Reserved.
+
+Reference:  Gish, W. (1996-2006) http://blast.wustl.edu
+
+Query=  000086_1606_1131 this is your fake desc
+        (21 letters)
+
+Database:  test_orfs.fa
+           307 sequences; 9460 total letters.
+Searching....10....20....30....40....50....60....70....80....90....100% done
+
+                                                                     Smallest
+                                                                       Sum
+                                                              High  Probability
+Sequences producing High-scoring Segment Pairs:              Score  P(N)      N
+
+000086_1606_1131 [64 - 2] (REVERSE SENSE) length=64 uaccn...   128  1.7e-11   1
+000269_0423_3271 [1 - 78] length=78 uaccno=ER8QEOW01BBHO5       76  5.4e-06   1
+000780_0082_2331 [1 - 78] length=78 uaccno=ER8QEOW01AHI8T       75  6.9e-06   1
+
+
+>000086_1606_1131 [64 - 2] (REVERSE SENSE) length=64 uaccno=ER8QEOW01D7AWT
+        Length = 21
+
+ Score = 128 (50.1 bits), Expect = 1.7e-11, P = 1.7e-11, Group = 1
+ Identities = 21/21 (100%), Positives = 21/21 (100%)
+ Links = (1)
+
+Query:     1 THITHTYTHITHTSHTHHTHR 21
+             THITHTYTHITHTSHTHHTHR
+Sbjct:     1 THITHTYTHITHTSHTHHTHR 21
+
+
+>000269_0423_3271 [1 - 78] length=78 uaccno=ER8QEOW01BBHO5
+        Length = 26
+
+ Score = 76 (31.8 bits), Expect = 5.4e-06, P = 5.4e-06, Group = 1
+ Identities = 17/22 (77%), Positives = 18/22 (81%)
+ Links = (1)
+
+Query:     1 THITHTYTHITHT-SHTH-HTH 20
+             TH THTYTH THT +HTH HTH
+Sbjct:     2 TH-THTYTH-THTQTHTHAHTH 21
+
+
+>000780_0082_2331 [1 - 78] length=78 uaccno=ER8QEOW01AHI8T
+        Length = 26
+
+ Score = 75 (31.5 bits), Expect = 6.9e-06, P = 6.9e-06, Group = 1
+ Identities = 17/23 (73%), Positives = 19/23 (82%)
+ Links = (1)
+
+Query:     1 THI-THTYTHITHT-SHTH-HTH 20
+             THI THT+TH THT +HTH HTH
+Sbjct:     2 THIHTHTHTH-THTHTHTHTHTH 23
+
+
+Parameters:
+  B=5
+  V=5
+  E=0.0001
+  links
+  topcomboN=5
+
+  ctxfactor=1.00
+
+  Query                        -----  As Used  -----    -----  Computed  ----
+  Frame  MatID Matrix name     Lambda    K       H      Lambda    K       H
+   +0      0   BLOSUM62        0.324   0.122   0.430    same    same    same
+               Q=9,R=2         0.244   0.0300  0.180     n/a     n/a     n/a
+
+  Query
+  Frame  MatID  Length  Eff.Length     E    S W   T  X   E2     S2
+   +0      0       21        21   9.7e-05  71 3  11 22  0.40    21
+                                                    29  0.44    22
+
+
+Statistics:
+
+  Database:  test_orfs.fa
+   Title:  test_orfs.fa
+   Posted:  11:50:04 AM CEST May 14, 2008
+   Created:  11:50:04 AM CEST May 14, 2008
+   Format:  XDF-1
+   # of letters in database:  9460
+   # of sequences in database:  307
+   # of database sequences satisfying E:  3
+  No. of states in DFA:  208 (22 KB)
+  Total size of DFA:  39 KB (2056 KB)
+  Time to generate neighborhood:  0.00u 0.00s 0.00t   Elapsed:  00:00:00
+  No. of threads or processors used:  2
+  Search cpu time:  0.00u 0.02s 0.02t   Elapsed:  00:00:00
+  Total cpu time:  0.00u 0.02s 0.02t   Elapsed:  00:00:00
+  Start:  Wed May 21 22:50:32 2008   End:  Wed May 21 22:50:32 2008

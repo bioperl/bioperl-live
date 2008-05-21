@@ -26,7 +26,8 @@ Bio::SearchIO::blasttable - Driver module for SearchIO for parsing NCBI -m 8/9 f
 
 =head1 DESCRIPTION
 
-This module will support parsing NCBI -m 8 or -m 9 tabular output.
+This module will support parsing NCBI -m 8 or -m 9 tabular output
+and WU-BLAST -mformat 2 or -mformat 3 tabular output.
 
 =head1 FEEDBACK
 
@@ -161,15 +162,47 @@ sub next_result{
    local $_;
    my ($alg, $ver);
    while( defined ($_ = $self->_readline) ) {
-       # -m 9 only
-       if(m{^#\s+((?:\S+?)?BLAST[NPX])\s+(.+)}) {
+	  # WU-BLAST -mformat 3 only
+	  if(m{^#\s((?:\S+?)?BLAST[NPX])\s(\d+\.\d+.+\d{4}\])}) {
+            ($alg, $ver) = ($1, $2);
+			# only one header for whole file with WU-BLAST
+			# so $alg and $ver won't get set properly for
+			# each result
+			$self->program_name($alg) if $alg;
+			$self->element({'Name' => 'Result_version',
+					   		'Data' => $ver}) if $ver;
+            next;
+	  }
+      # -m 9 only
+      elsif(m{^#\s+((?:\S+?)?BLAST[NPX])\s+(.+)}) {
             ($alg, $ver) = ($1, $2);
             next;
        }
        next if /^\#/ || /^\s+$/;
-       my ($qname,$hname, $percent_id, $hsp_len, $mismatches,$gapsm,
-            $qstart,$qend,$hstart,$hend,$evalue,$bits) = split;
-       
+
+	  my @fields = split;
+	  my ($qname,$hname, $percent_id, $hsp_len, $mismatches,$gapsm,
+	      $qstart,$qend,$hstart,$hend,$evalue,$bits);
+	  # WU-BLAST-specific
+	  my ($num_scores, $raw_score, $identities, $positives, $percent_pos,
+	      $qgap_blocks,$qgaps, $sgap_blocks, $sgaps, $qframe,
+	      $sframe);
+	  # NCBI -m8 and -m9
+	  if (@fields == 12) {
+	      ($qname,$hname, $percent_id, $hsp_len, $mismatches,$gapsm,
+	       $qstart,$qend,$hstart,$hend,$evalue,$bits) = @fields;
+	  }
+	  # WU-BLAST -mformat 2 and 3
+	  elsif ((@fields == 22) or (@fields == 24)) {
+	      ($qname,$hname,$evalue,$num_scores, $bits, $raw_score, $hsp_len,
+	       $identities, $positives,$mismatches, $percent_id, $percent_pos,
+	       $qgap_blocks, $qgaps, $sgap_blocks, $sgaps, $qframe, $qstart,
+	       $qend, $sframe, $hstart,$hend,) = @fields;
+	      # we need total gaps in the alignment
+	      $gapsm=$qgaps+$sgaps;
+	  }
+	  else {}
+
        # Remember Jim's code is 0 based
        if( defined $lastquery && 
 	   $lastquery ne $qname ) {

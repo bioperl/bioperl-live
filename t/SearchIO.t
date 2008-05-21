@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 1712);
+    test_begin(-tests => 1782);
 	
 	use_ok('Bio::SearchIO');
 	use_ok('Bio::SearchIO::Writer::HitTableWriter');
@@ -2053,6 +2053,23 @@ my %tester = &result2hash($result);
 is( scalar keys %tester, 67);
 foreach my $key ( sort keys %ref ) {
     is($tester{$key}, $ref{$key},$key);
+}      
+
+# test WU-BLAST blasttable output
+$searchio = Bio::SearchIO->new(-file => test_input_file('test1.wublastp'),
+			      			   -format => 'blast');
+$result = $searchio->next_result;
+isa_ok($result,'Bio::Search::Result::ResultI');
+my %wuref = &result2hash($result);
+is( scalar keys %wuref, 31);
+$searchio = Bio::SearchIO->new(-file => test_input_file('test1.blasttab3'),
+			      -program_name => 'BLASTP',
+			      -format => 'blasttable');
+$result = $searchio->next_result;
+my %wutester = &result2hash($result);
+is( scalar keys %wutester, 31);
+foreach my $key ( sort keys %ref ) {
+    is($wutester{$key}, $wuref{$key},$key);
 }      
 
 # Test Blast parsing with B=0 (WU-BLAST)
