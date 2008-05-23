@@ -389,6 +389,15 @@ sub handle_meta {
   my $self = shift;
   my $instruction = shift;
 
+  if ( $instruction =~ /^#$/ ) {
+    $self->store_current_feature() ;   # during fast loading, we will have a feature left at the very end
+    $self->start_or_finish_sequence();    # finish any half-loaded sequences
+    if ( $self->store->can('handle_resolution_meta') ) {
+      $self->store->handle_resolution_meta($instruction);
+    }
+    return;
+  }
+
   if ($instruction =~ /sequence-region\s+(.+)\s+(-?\d+)\s+(-?\d+)/i) {
       my($ref,$start,$end,$strand)    = $self->_remap($1,$2,$3,+1);
       my $feature = $self->sfclass->new(-name        => $ref,
@@ -404,6 +413,11 @@ sub handle_meta {
   if ($instruction =~/index-subfeatures\s+(\S+)/i) {
     $self->{load_data}{IndexSubfeatures} = $1;
     $self->store->index_subfeatures($1);
+    return;
+  }
+
+  if ( $self->store->can('handle_unrecognized_meta') ) {
+    $self->store->handle_unrecognized_meta($instruction);
     return;
   }
 }
