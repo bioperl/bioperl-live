@@ -308,11 +308,11 @@ __END__
 
 =head1 NAME
 
-Ace::Graphics::Glyph::arrow - The "arrow" glyph
+Bio::Graphics::Glyph::arrow - The "arrow" glyph
 
 =head1 SYNOPSIS
 
-  See L<Ace::Graphics::Panel> and L<Ace::Graphics::Glyph>.
+  See L<Bio::Graphics::Panel> and L<Bio::Graphics::Glyph>.
 
 =head1 DESCRIPTION
 

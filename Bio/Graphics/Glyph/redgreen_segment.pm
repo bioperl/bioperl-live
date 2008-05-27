@@ -72,7 +72,7 @@ sub mMax {
 
 =head1 NAME
 
-Bio::Graphics::Glyph::redgreen_segments - The "redgreen_segments" glyph
+Bio::Graphics::Glyph::redgreen_segment - The "redgreen_segments" glyph
 
 =head1 SYNOPSIS
 

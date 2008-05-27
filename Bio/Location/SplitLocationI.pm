@@ -21,9 +21,8 @@ which has multiple locations (start/end points)
 
     my $count = 1;
     # print the start/end points of the sub locations
-    foreach my $location ( sort { $a->start <=> $b->start } 
-			   @sublocs ) {
-	printf "sub feature %d [%d..%d]\n", $location->start,$location->end;
+    foreach my $location ( sort { $a->start <=> $b->start }  @sublocs ) {
+		printf "sub feature %d [%d..%d]\n", $location->start,$location->end;
         $count++;
     }
 

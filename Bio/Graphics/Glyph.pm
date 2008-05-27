@@ -1406,7 +1406,7 @@ there is no parent, returns undef.
 
 Add the list of features to the glyph, creating subparts.  This is
 most common done with the track glyph returned by
-Ace::Graphics::Panel-E<gt>add_track().
+Bio::Graphics::Panel-E<gt>add_track().
 
 =item $feature = $glyph-E<gt>add_group(@features)
 
