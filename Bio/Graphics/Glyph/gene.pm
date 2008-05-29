@@ -44,9 +44,9 @@ sub pad_top {
 
 sub bump {
   my $self = shift;
-  return 1
+  return 1 # top level bumps, other levels don't unless specified in config
     if $self->{level} == 0
-      && lc $self->feature->primary_tag eq 'gene'; # top level bumps, other levels don't unless specified in config
+      && lc $self->feature->primary_tag eq 'gene'; 
   return $self->SUPER::bump;
 }
 
@@ -94,13 +94,16 @@ sub maxdepth {
 sub _subfeat {
   my $class   = shift;
   my $feature = shift;
-  if (lc $feature->primary_tag eq 'gene') {
+
+  if ($feature->primary_tag =~ /^gene/i) {
     my @transcripts;
     for my $t (qw/mRNA tRNA snRNA snoRNA miRNA ncRNA pseudogene/) {
       push @transcripts, $feature->get_SeqFeatures($t);
     }
-    return @transcripts;
-  } elsif (lc $feature->primary_tag eq 'cds') {
+    return @transcripts 
+           ? @transcripts 
+           : $feature->get_SeqFeatures;  # no transcripts?! Return whatever's there.
+  } elsif ($feature->primary_tag =~ /^CDS/i) {
     my @parts = $feature->get_SeqFeatures();
     return ($feature) if $class->{level} == 0 and !@parts;
     return @parts;
@@ -110,7 +113,7 @@ sub _subfeat {
   if ($class->option('sub_part')) {
     @subparts = $feature->get_SeqFeatures($class->option('sub_part'));
   }
-  elsif ($feature->primary_tag eq 'mRNA') {
+  elsif ($feature->primary_tag =~ /^mRNA/i) {
     @subparts = $feature->get_SeqFeatures(qw(CDS five_prime_UTR three_prime_UTR UTR));
   }
   else {

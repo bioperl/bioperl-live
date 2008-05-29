@@ -131,44 +131,6 @@ sub draw {
 
 }
 
-# sub draw_component {
-#   my $self = shift;
-#   my ($gd,$l,$t) = @_;
-#   $self->SUPER::draw_component(@_);
-#   return unless $self->option('draw_protein_target') && $self->protein_fits;
-#   my $hit      = eval {$self->feature->hit} or return;
-#   my $protein  = uc eval {$hit->seq->seq} or return;
-#   my ($left,$top,$right,$bottom) = $self->bounds($l,$t);
-
-#   my $scale = $self->scale;
-#   my @letters = split '',$protein;
-#   my $color = $self->fgcolor;
-#   my $font  = $self->font;
-#   my $fw    = $font->width;
-#   my $strand = $self->feature->strand || 0;
-
-#   my $panel_left           = $self->panel->left;
-#   my $panel_right          = $self->panel->right;
-
-#   my ($x1,$x2)                    = $self->map_no_trunc($self->feature->start,$self->feature->end);
-
-#   if ($strand >= 0) {  # + strand features
-#     for (0..@letters-1) {
-#       next if $x1 < $panel_left or $x1 > $panel_right;
-#       $gd->char($font,$x1+1,$top,$letters[$_],$color);
-#     } continue {
-#       $x1 += $scale * 3;
-#     }
-#   } else {             # - strand features
-#     for (0..@letters-1) {
-#       next if $x2 < $panel_left or $x2 > $panel_right;
-#       $gd->char($font,$x2+1,$top,$letters[$_],$color);
-#     } continue {
-#       $x2 -= $scale * 3;
-#     }
-#   }
-# }
-
 sub draw_multiple_alignment {
   my $self = shift;
   my $gd   = shift;

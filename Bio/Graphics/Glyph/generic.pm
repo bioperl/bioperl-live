@@ -83,9 +83,11 @@ sub label_position {
 }
 sub label {
   my $self = shift;
+
   return if $self->{overbumped};  # set by the bumper when we have hit bump limit
   return unless $self->subpart_callbacks;  # returns true if this is level 0 or if subpart callbacks allowed
   return $self->_label if $self->{level} >= 0;
+
   return exists $self->{label} ? $self->{label}
                                : ($self->{label} = $self->_label);
 }
@@ -286,7 +288,9 @@ sub max { $_[0] >= $_[1] ? $_[0] : $_[1] }
 sub draw_label {
   my $self = shift;
   my ($gd,$left,$top,$partno,$total_parts) = @_;
+
   my $label = $self->label or return;
+
   my $x    = $self->left + $left; # valid for both "top" and "left" because the left-hand side is defined by pad_left
   my $font = $self->labelfont;
   if ($self->label_position eq 'top') {

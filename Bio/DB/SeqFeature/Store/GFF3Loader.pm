@@ -472,7 +472,8 @@ sub handle_feature { #overridden
   # $unreserved->{ID}= $reserved->{ID}     if exists $reserved->{ID}; 
 
   # TEMPORARY HACKS TO SIMPLIFY DEBUGGING
-  push @{$unreserved->{Alias}},$feature_id  if $has_loadid;
+  $feature_id ||= ''; $name ||= '';  # prevent uninit variable warnings
+  push @{$unreserved->{Alias}},$feature_id  if $has_loadid && $feature_id ne $name;
   $unreserved->{parent_id} = \@parent_ids   if @parent_ids;
 
   # POSSIBLY A PERMANENT HACK -- TARGETS BECOME ALIASES

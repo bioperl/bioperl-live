@@ -451,16 +451,19 @@ sub _fix_target {
   # freakish fixing of our non-standard Target attribute
   if (my $t = ($self->attributes('Target'))[0]) {
     my ($seqid,$tstart,$tend,$strand) = split /\s+/,$t;
-    my $min_tstart = $tstart;
-    my $max_tend   = $tend;
-    for my $seg (@$segs) {
-      my $st = ($seg->attributes('Target'))[0] or next;
-      (undef,$tstart,$tend) = split /\s+/,$st;
-      $min_tstart     = $tstart if $tstart < $min_tstart;
-      $max_tend       = $tend   if $tend   > $max_tend;
-    }
-    if ($min_tstart < $tstart or $max_tend > $tend) {
-      $self->{attributes}{Target}[0] = join ' ',($seqid,$min_tstart,$max_tend,$strand||'');
+    if (defined $tstart && defined $tend) {
+	my $min_tstart = $tstart;
+	my $max_tend   = $tend;
+	for my $seg (@$segs) {
+	    my $st = ($seg->attributes('Target'))[0] or next;
+	    (undef,$tstart,$tend) = split /\s+/,$st;
+	    next unless defined $tstart && defined $tend;
+	    $min_tstart     = $tstart if $tstart < $min_tstart;
+	    $max_tend       = $tend   if $tend   > $max_tend;
+	}
+	if ($min_tstart < $tstart or $max_tend > $tend) {
+	    $self->{attributes}{Target}[0] = join ' ',($seqid,$min_tstart,$max_tend,$strand||'');
+	}
     }
   }
 }
