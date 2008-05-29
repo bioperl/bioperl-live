@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 290);
+    test_begin(-tests => 294);
 	
 	use_ok('Bio::AlignIO');
 }
@@ -592,6 +592,19 @@ is($aln->get_seq_by_pos(2)->seq(), 'CCTCAGATCACTCTTTGGCAACGACCCCTCGTCACAATAA'.
    'TGCCAGGAAGATGGAAACCAAAAATGATAGGGGGAATTGGAGGGTTTATCAAAGTAAGACAGTATGATCAGA'.
    'TACCCATAGAGATCTGTGGACATAAAGCTATAGGTACAGTATTAGTAGGACCCACACCTGTCAATATAATTG'.
    'GAAGAAATCTGTTGACTCAGATTGGTTGCACTTTAAATTTT' );
+
+
+# PHYLIP interleaved with long Ids
+$str = Bio::AlignIO->new(
+    '-file' => test_input_file("protpars_longid.phy"),
+    '-format' => 'phylip',
+    'longid' => 1);
+
+isa_ok($str,'Bio::AlignIO');
+$aln = $str->next_aln();
+isa_ok($aln,'Bio::Align::AlignI');
+is $aln->get_seq_by_pos(1)->get_nse, 'S I N F R U  P 0 0 1 /1-84';
+is $aln->get_seq_by_pos(2)->get_nse, 'SINFRUP002/1-84';
 
 
 # LARGEMULTIFASTA
