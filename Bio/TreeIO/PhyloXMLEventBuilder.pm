@@ -98,7 +98,6 @@ sub new {
   $self->nodetype($nodetype);
   $self->{'_treelevel'} = 0;
   $self->debug("Creating obj PhyloXMLEventBuilder\n");
-  $self->debug("nodetype: $nodetype\n");
   return $self;
 }
 
@@ -160,6 +159,7 @@ sub start_document {
    $self->{'_lastitem'} = {};
    $self->{'_currentitems'} = [];
    $self->{'_currentnodes'} = [];
+   $self->debug("Starting Document\n");
    return;
 }
 
@@ -175,6 +175,7 @@ sub start_document {
 
 sub end_document {
   my ($self,$label) = @_; 
+  $self->debug("Ending Document\n");
   my $root = $self->nodetype->new(
       -id => $label,
       -verbose => $self->verbose);
@@ -202,25 +203,26 @@ sub end_document {
  Function:
  Example :
  Returns : 
- Args    : $data => hashref with key 'Name'
+ Args    : $element => hashref with key 'Name'
 
 =cut
 
 sub start_element
 {
-  my ($self,$data) =@_;
-  $self->{'_lastitem'}->{$data->{'Name'}}++;   
+  my ($self,$element) =@_;
+  $self->{'_lastitem'}->{$element->{'Name'}}++;   
 
-  $self->debug("starting element: $data->{Name}\n");   
-  push @{$self->{'_lastitem'}->{'current'}},$data->{'Name'};
+  $self->debug("starting element: $element->{Name}\n");   
+  push @{$self->{'_lastitem'}->{'current'}},$element->{'Name'};
 
   my %data;
 
-  if( $data->{'Name'} eq 'clade' ) 
+  if( $element->{'Name'} eq 'clade' ) 
   {
+    elementAttribute($self, $element, \%data);
     push @{$self->{'_currentitems'}}, \%data; 
   }
-  elsif ( $data->{'Name'} eq 'phylogeny' ) 
+  elsif ( $element->{'Name'} eq 'phylogeny' ) 
   {
     $self->{'_treelevel'}++;
   }
@@ -249,9 +251,8 @@ sub end_element{
   {
     my $tnode;
     my $node = pop @{$self->{'_currentitems'}};	   
-
     $tnode = $self->nodetype->new( -verbose => $self->verbose,
-        %{$node});       
+                                  %{$node});       
     $self->debug( "new node will be ".$tnode->to_string."\n");
     if ( !$node->{'-leaf'} && $levelct > 0) {
       $self->debug(join(',', map { $_->to_string } 
@@ -338,17 +339,39 @@ sub characters{
   if ( $self->within_element('clade') ) 
   {
     my $hash = pop @{$self->{'_currentitems'}};
-    $self->debug("within_element 'clade': $hash\n");
     if( $self->in_element('name')  ) 
     {
-      $hash->{'-name'} = $ch;
-      $self->debug("in_element 'name': ",$hash, %{$hash},"\n");
+      $hash->{'-id'} = $ch->{'Data'}; # change name to id since Node.pm uses id
     } 
     push @{$self->{'_currentitems'}}, $hash;
   }
-  $self->debug("chars: $ch\n");
-  $self->debug('currentitems: ',@{$self->{'_currentitems'}}, "\n");
+  elsif ( $self->within_element('phylogeny') )
+  {
+    my $hash = pop @{$self->{'_currentitems'}};
+    if( $self->in_element('name')  ) 
+    {
+      # name of the phylogeny
+    }
+    if( $self->in_element('description')  ) 
+    {
+      # description of the phylogeny
+    }
+  }
 }
 
+
+sub elementAttribute
+{
+  my ( $self, $element, $data) = @_;
+  my $attr = $element->{'Attributes'};
+  if( $element->{'Name'} eq 'clade' ) 
+  {
+    if (exists $attr->{'{}distance'}) 
+    {
+      $data->{'-branch_length'} = $attr->{'{}distance'}->{'Value'};
+    }
+  }
+  return $data;
+}
 
 1;
