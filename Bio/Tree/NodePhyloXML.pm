@@ -95,9 +95,9 @@ use base qw(Bio::Tree::Node);
 =cut
 
 sub new {
-  my($class,@args) = @_;
-
+  my ($class,@args) = @_;
   my $self = $class->SUPER::new(@args);
+  $self->debug("new NodePhyloXML\n");
   my ($user_tag) = $self->_rearrange([qw(PhyloXML)], @args);
   $self->_tag($user_tag);
   return $self;
@@ -148,26 +148,34 @@ sub to_string{
 
 =cut
 
-sub _tag {
-    my ($self, $tags) = @_;
-    if (defined $tags && (ref($tags) =~ /HASH/i)) {
-	while( my ($tag,$val) = each %$tags ) {
-	    if( ref($val) =~ /ARRAY/i ) {
-		for my $v ( @$val ) {
-		    $self->add_tag_value($tag,$v);
-		}
-	    } else {
-		$self->add_tag_value($tag,$val);
-	    }
-	}
-	if (exists $tags->{'B'}) {
-	    $self->bootstrap($tags->{'B'});
-	}
-    } elsif (defined $tags and ! ref ($tags)) {
-	$self->debug( "here with $tags\n");
-        # bootstrap by default
-	$self->bootstrap($tags);
+sub _tag 
+{
+  my ($self, $tags) = @_;
+  if (defined $tags && (ref($tags) =~ /HASH/i)) 
+  {
+    while( my ($tag,$val) = each %$tags ) 
+    {
+      if( ref($val) =~ /ARRAY/i ) 
+      {
+        for my $v ( @$val ) 
+        {
+          $self->add_tag_value($tag,$v);
+        }
+      } 
+      else {
+        $self->add_tag_value($tag,$val);
+      }
     }
+    if (exists $tags->{'B'}) 
+    {
+      $self->bootstrap($tags->{'B'});
+    }
+  } 
+  elsif (defined $tags and ! ref ($tags)) 
+  {
+# bootstrap by default
+    $self->bootstrap($tags);
+  }
 }
 
 1;
