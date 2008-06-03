@@ -59,12 +59,13 @@ is $renzs->each_enzyme, 16;
 ok  $out  = Bio::Restriction::IO->new(-format=>'base');
 
 SKIP: {
-    test_skip(-tests => 2, -requires_module => 'LWP::UserAgent');
+   test_skip(-tests => 3, -requires_networking => 1);
+   #test_skip(-tests => 2, -requires_module => 'LWP::UserAgent');
     
     ok  $in  = Bio::Restriction::IO->new(-format=>'prototype',
                                           -current => 1);
     
     ok my $coll = $in->read;
-    is $coll->each_enzyme, 306;
+    is $coll->each_enzyme, 307;
 }
 
