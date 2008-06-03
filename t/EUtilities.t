@@ -70,7 +70,7 @@ BEGIN {
     };
     
     if (!$DEBUG) {
-        plan skip_all => 'Must set BIOPERLDEBUG=1 for network tests';
+        plan skip_all => 'Network tests have not been requested';
     } elsif ($@) {
         plan skip_all => 'Requires LWP::UserAgent and XML::Simple; skipping...';
     } else {
