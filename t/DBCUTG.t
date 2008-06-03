@@ -51,7 +51,7 @@ ok my $ref = $cut->probable_codons(20);
 
 # requiring Internet access, set env BIOPERLDEBUG to 1 to run
 SKIP: {
-	test_skip(-tests => 10, -requires_networking => 1);
+	test_skip(-tests => 14, -requires_networking => 1);
 	ok my $tool = Bio::WebAgent->new(-verbose => $verbose);
 	ok $tool->sleep;
 	is $tool->delay(1), 1;
