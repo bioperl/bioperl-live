@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 29);
+    test_begin(-tests => 30);
 	
 	use_ok('Bio::Seq::LargePrimarySeq');
 	use_ok('Bio::Seq::LargeSeq');
