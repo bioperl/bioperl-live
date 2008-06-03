@@ -8,8 +8,7 @@ BEGIN {
 	use BioperlTest;
 	
 	test_begin(-tests => 24,
-			   -requires_module => 'XML::Parser::PerlSAX');
-	
+		   -requires_modules => [qw(XML::Parser::PerlSAX XML::Writer)]);
     use_ok('Bio::SeqIO');
 }
 
