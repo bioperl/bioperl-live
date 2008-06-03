@@ -228,7 +228,7 @@ The following read-only accessors return values passed or created during new():
 # sub seq_chunk_size {} inherited
 # sub verbose        {} inherited
 
-=item default_seqfeature_class
+=head2 default_seqfeature_class
 
   $class = $loader->default_seqfeature_class
 
@@ -242,7 +242,7 @@ sub default_seqfeature_class { #override
 }
 
 
-=item load_fh
+=head2 load_fh
 
   $count = $loader->load_fh($filehandle)
 
@@ -257,7 +257,7 @@ if successful. Internally, load_fh() invokes:
 
 # sub load_fh { } inherited
 
-=item start_load, finish_load
+=head2 start_load, finish_load
 
 These methods are called at the start and end of a filehandle load.
 
@@ -276,7 +276,7 @@ sub finish_load {
     $self->SUPER::finish_load;
 }
 
-=item load_line
+=head2 load_line
 
     $loader->load_line($data);
 
@@ -335,7 +335,7 @@ sub load_line {
 }
 
 
-=item handle_meta
+=head2 handle_meta
 
   $loader->handle_meta($meta_directive)
 
@@ -347,7 +347,7 @@ initial ## stripped off.
 
 # sub handle_meta { } inherited
 
-=item handle_feature
+=head2 handle_feature
 
   $loader->handle_feature($gff3_line)
 
@@ -531,7 +531,7 @@ sub _make_feature {
     return $self->sfclass->new(@args);
 }
 
-=item store_current_feature
+=head2 store_current_feature
 
   $loader->store_current_feature()
 
@@ -570,7 +570,7 @@ sub _store_group {
     $self->store_current_feature();
 }
 
-=item build_object_tree
+=head2 build_object_tree
 
  $loader->build_object_tree()
 
@@ -586,7 +586,7 @@ sub build_object_tree {
     croak "We shouldn't be building an object tree in the FeatureFileLoader";
 }
 
-=item build_object_tree_in_tables
+=head2 build_object_tree_in_tables
 
  $loader->build_object_tree_in_tables()
 
@@ -600,7 +600,7 @@ sub build_object_tree_in_tables {
     croak "We shouldn't be building an object tree in the FeatureFileLoader";
 }
 
-=item build_object_tree_in_features
+=head2 build_object_tree_in_features
 
  $loader->build_object_tree_in_features()
 
@@ -614,7 +614,7 @@ sub build_object_tree_in_features {
   croak "We shouldn't be building an object tree in the FeatureFileLoader";
 }
 
-=item attach_children
+=head2 attach_children
 
  $loader->attach_children($store,$load_data,$load_id,$feature)
 
@@ -629,7 +629,7 @@ sub attach_children {
     FeatureFileLoader!";
 }
 
-=item parse_attributes
+=head2 parse_attributes
 
  @attributes = $loader->parse_attributes($attribute_line)
 
@@ -656,7 +656,7 @@ sub parse_attributes {
   return \%attributes;
 }
 
-=item start_or_finish_sequence
+=head2 start_or_finish_sequence
 
   $loader->start_or_finish_sequence('Chr9')
 
@@ -669,7 +669,6 @@ This method is called at the beginning and end of a fasta section.
 
 __END__
 
-=back
 
 =head1 BUGS
 
