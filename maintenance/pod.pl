@@ -53,7 +53,7 @@ sub blankline;
 #
 ## Directories to check
 #
-my @dirs = qw( ../Bio/ ../../run/Bio  ../scripts ../../run/scripts . );
+my @dirs = qw( ../Bio/ ../../bioperl-run/Bio  ../scripts ../../bioperl-run/scripts . );
 
 # command line options
 my ($verbose, $blankline, $dir, $help) = (0, undef, undef, undef);
