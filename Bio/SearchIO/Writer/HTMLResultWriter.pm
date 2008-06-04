@@ -52,7 +52,7 @@ Bio::SearchIO::Writer::HTMLResultWriter - write a Bio::Search::ResultI in HTML
 =head1 DESCRIPTION
 
 This object implements the SearchWriterI interface which will produce
-a set of HTML for a specific L<Bio::Search::Report::ReportI interface>.
+a set of HTML for a specific L<Bio::Search::Report::ReportI> interface.
 
 See L<Bio::SearchIO::SearchWriterI> for more info on the filter method.
 

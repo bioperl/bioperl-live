@@ -132,7 +132,7 @@ our %tag2text = (
 #location
 #primary_id
 
-=head1
+=head1 PREAMBLE
 
 Okay, where to start...
 

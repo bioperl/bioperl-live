@@ -223,7 +223,7 @@ our %VALID_ALPHABET = (
     'rc' => '' # rc = release candidate; file has no sequences
 );
 
-=head2 
+=head2 new
 
  Title   :  new
  Usage   :  
@@ -386,7 +386,7 @@ sub set_params {
 
 =head1 Methods unique to this implementation
 
-=head2 
+=head2 seqbuilder
 
  Title   :  seqbuilder
  Usage   :  
@@ -404,7 +404,7 @@ sub seqbuilder {
     return $self->{'_seqbuilder'};
 }
 
-=head2 
+=head2 build_sequence
 
  Title   :  build_sequence
  Usage   :  
@@ -429,7 +429,7 @@ sub build_sequence {
     return 0;
 }
 
-=head2 
+=head2 location_factory
 
  Title   :  location_factory
  Usage   :  
@@ -454,7 +454,7 @@ sub location_factory {
     return $self->{'_locfactory'};
 }
 
-=head2 
+=head2 annotation_collection
 
  Title   :  annotation_collection
  Usage   :  

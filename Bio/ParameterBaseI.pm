@@ -160,7 +160,7 @@ use warnings;
 
 use base qw(Bio::Root::RootI);
 
-=head2 
+=head2 set_parameters
 
  Title   : set_parameters
  Usage   : $pobj->set_parameters(%params);
@@ -174,7 +174,7 @@ sub set_parameters {
     shift->throw_not_implemented;
 }
 
-=head2 
+=head2 reset_parameters
 
  Title   : reset_parameters
  Usage   : resets values
@@ -188,7 +188,7 @@ sub reset_parameters {
     shift->throw_not_implemented;
 }
 
-=head2 
+=head2 parameters_changed
 
  Title   : parameters_changed
  Usage   : if ($pobj->parameters_changed) {...}
@@ -202,7 +202,7 @@ sub parameters_changed {
     shift->throw_not_implemented;
 }
 
-=head2 
+=head2 available_parameters
 
  Title   : available_parameters
  Usage   : @params = $pobj->available_parameters()
@@ -217,7 +217,7 @@ sub available_parameters {
     shift->throw_not_implemented;
 }
 
-=head2 
+=head2 get_parameters
 
  Title   : get_parameters
  Usage   : %params = $pobj->get_parameters;
