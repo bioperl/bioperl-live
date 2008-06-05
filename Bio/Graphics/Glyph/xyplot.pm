@@ -347,12 +347,12 @@ sub _draw_scale {
   my $fg    = $self->scalecolor;
   my $font  = $self->font('gdTinyFont');
 
-  $gd->line($x1,$y1,$x1,$y_origin,$fg) if $side eq 'left'  || $side eq 'both';
-  $gd->line($x2,$y1,$x2,$y_origin,$fg) if $side eq 'right' || $side eq 'both';
+  $gd->line($x1,$y1,$x1,$y2,$fg) if $side eq 'left'  || $side eq 'both';
+  $gd->line($x2,$y1,$x2,$y2,$fg) if $side eq 'right' || $side eq 'both';
 
   $gd->line($x1,$y_origin,$x2,$y_origin,$fg);
 
-  my @points = ([$y1,$max],[($y1+$y2)/2,($min+$max)/2],[$y_origin,$min]);
+  my @points = ([$y1,$max],[($y1+$y2)/2,($min+$max)/2],[$y2,$min]);
   push @points,[$y_origin,0] if ($min < 0 && $max > 0);
 
   my $last_font_pos = -99999999999;
