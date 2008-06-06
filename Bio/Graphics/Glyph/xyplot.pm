@@ -209,8 +209,8 @@ sub _draw_histogram {
       $gd->line($x2,$part->{_y_position},$x2,$next->{_y_position},$fgcolor); 
     } else {
       $gd->line($x2,$part->{_y_position},$x2,$bottom,$fgcolor); # to bottom
-      $gd->line($x2,$bottom,$x3,$bottom,$fgcolor);                        # to right
-      $gd->line($x3,$bottom,$x3,$next->{_y_position},$fgcolor);   # up
+      $gd->line($x2,$bottom,$x3,$bottom,$fgcolor);              # to right
+      $gd->line($x3,$bottom,$x3,$next->{_y_position},$fgcolor); # up
     }
   }
 
@@ -229,16 +229,15 @@ sub _draw_boxes {
   my ($gd,$left,$top,$y_origin) = @_;
 
   my @parts    = $self->parts;
-  my $fgcolor  = $self->fgcolor;
-  my $bgcolor  = $self->bgcolor;
   my $lw       = $self->linewidth;
-  my $negative = $self->color('neg_color') || $bgcolor;
+  my $positive = $self->color('pos_color') || $self->bgcolor;
+  my $negative = $self->color('neg_color') || $positive;
   my $height   = $self->height;
 
   my $partcolor = $self->code_option('part_color');
   my $factory  = $self->factory;
 
-  # draw each of the component lines of the histogram surface
+  # draw each of the boxes as a rectangle
   for (my $i = 0; $i < @parts; $i++) {
 
     my $part = $parts[$i];
@@ -249,19 +248,19 @@ sub _draw_boxes {
     # special check here for the part_color being defined so as not to introduce lots of
     # checking overhead when it isn't
     if ($partcolor) {
-      $color    = $factory->translate_color($factory->option($part,'part_color',0,0));
-      $negcolor = $color;
+	$color    = $factory->translate_color($factory->option($part,'part_color',0,0));
+	$negcolor = $color;
     } else {
-      $color    = $bgcolor;
-      $negcolor = $negative;
+	$color    = $positive;
+	$negcolor = $negative;
     }
 
     my ($x1,$y1,$x2,$y2) = $part->calculate_boundaries($left,$top);
     next unless defined $part->{_y_position};
     if ($part->{_y_position} < $y_origin) {
-      $self->filled_box($gd,$x1,$part->{_y_position},$x2,$y_origin,$color,$fgcolor,$lw);
+      $self->filled_box($gd,$x1,$part->{_y_position},$x2,$y_origin,$color,$color,$lw);
     } else {
-      $self->filled_box($gd,$x1,$y_origin,$x2,$part->{_y_position},$negcolor,$fgcolor,$lw);
+      $self->filled_box($gd,$x1,$y_origin,$x2,$part->{_y_position},$negcolor,$negcolor,$lw);
     }
   }
 
@@ -341,6 +340,7 @@ sub _draw_scale {
 
   # this is wrong
   #  $y2 -= $self->pad_bottom - 1;
+  my $crosses_origin = $min < 0 && $max > 0;
 
   my $side = $self->_determine_side();
 
@@ -352,12 +352,12 @@ sub _draw_scale {
 
   $gd->line($x1,$y_origin,$x2,$y_origin,$fg);
 
-  my @points = ([$y1,$max],[($y1+$y2)/2,($min+$max)/2],[$y2,$min]);
-  push @points,[$y_origin,0] if ($min < 0 && $max > 0);
+  my @points = ([$y1,$max],[$y2,$min]);
+  push @points,$crosses_origin ? [$y_origin,0] : [($y1+$y2)/2,($min+$max)/2];
 
   my $last_font_pos = -99999999999;
 
-  for (@points) {
+  for (sort {$a->[0]<=>$b->[0]} @points) {
     $gd->line($x1-3,$_->[0],$x1,$_->[0],$fg) if $side eq 'left'  || $side eq 'both';
     $gd->line($x2,$_->[0],$x2+3,$_->[0],$fg) if $side eq 'right' || $side eq 'both';
 
@@ -593,6 +593,9 @@ glyph-specific options:
 
   -graph_height Specify height of the graph   Same as the
                                               "height" option.
+
+  -pos_color   For boxes only, bgcolor for    Same as bgcolor
+               points with positive scores
 
   -neg_color   For boxes only, bgcolor for    Same as bgcolor
                points with negative scores
