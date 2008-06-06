@@ -14,7 +14,7 @@ BEGIN {
      plan skip_all => "Reader not supported for libxml2 <= 2.6.20";
      exit;
   } else {
-    test_begin(-tests => 18);
+    test_begin(-tests => 16);
   } 
 	
 	use_ok('Bio::TreeIO');
@@ -25,16 +25,9 @@ my $verbose = test_debug();
 ok my $treeio = Bio::TreeIO->new(
            -verbose => $verbose,
 			     -format => 'phyloxml',
-			     -file   => test_input_file('phyloxml_small.xml'));
-
-my $tree = $treeio->next_tree;
-isa_ok($tree, 'Bio::Tree::TreeI');
-
-ok my $treeio = Bio::TreeIO->new(
-           -verbose => $verbose,
-			     -format => 'phyloxml',
 			     -file   => test_input_file('phyloxml_examples.xml'));
 
+my $tree;
 while ( $tree = $treeio->next_tree ) {
   isa_ok($tree, 'Bio::Tree::TreeI');
 }
