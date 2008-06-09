@@ -96,10 +96,28 @@ use base qw(Bio::Tree::Node);
 
 sub new {
   my ($class,@args) = @_;
+#  foreach (@args) {
+#    print "args: $_\n";
+#  }
   my $self = $class->SUPER::new(@args);
   $self->debug("new NodePhyloXML\n");
-  my ($user_tag) = $self->_rearrange([qw(PhyloXML)], @args);
-  $self->_tag($user_tag);
+  #my @newargs = $self->_rearrange([qw(
+  #          DESCENDENTS
+  #          BRANCH_LENGTH
+  #          ID
+  #          BOOTSTRAP
+  #          DESC
+  #          DESCRIPTION
+  #       )],
+  #         @args); 
+  #foreach (@newargs) {
+  #  print "args: $_\n";
+  #}
+
+  #my ($user_tag) = $self->_rearrange([qw(PhyloXML)], @args);
+  #my ($user_tag) = $self->_rearrange(@args);
+  #print "user_tag: ", %{$user_tag}, "\n";
+  #$self->_tag($user_tag);
   return $self;
 }
 
