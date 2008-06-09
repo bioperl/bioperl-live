@@ -30,6 +30,9 @@ ok my $treeio = Bio::TreeIO->new(
 my $tree;
 while ( $tree = $treeio->next_tree ) {
   isa_ok($tree, 'Bio::Tree::TreeI');
+
+  my $out = Bio::TreeIO->new(-format => 'newick');
+  $out->write_tree($tree);
 }
 
 TODO: {
