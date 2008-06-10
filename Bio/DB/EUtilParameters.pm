@@ -18,25 +18,25 @@ remote database requests.
 =head1 SYNOPSIS
 
  # Bio::DB::EUtilParameters implements Bio::ParameterBaseI
- 
+
  my @params = (-eutil => 'efetch',
               db => 'nucleotide',
               id => \@ids,
               email => 'me@foo.bar',
               retmode => 'xml');
- 
+
  my $p = Bio::DB::EUtilParameters->new(@params);
- 
+
  if ($p->parameters_changed) {...} # state information
- 
+
  $p->set_parameters(@extra_params); # set new NCBI parameters, leaves others preset
- 
+
  $p->reset_parameters(@new_params); # reset NCBI parameters to original state
- 
+
  $p->to_string(); # get a URI-encoded string representation of the URL address
- 
+
  $p->to_request(); # get an HTTP::Request object (to pass on to LWP::UserAgent)
- 
+
 =head1 DESCRIPTION
 
 Bio::DB::EUtilParameters is-a Bio::ParameterBaseI implementation that allows
@@ -208,7 +208,7 @@ sub new {
  Note    : This sets any parameter passed but leaves previously set data alone.
            In addition to regular eutil-specific parameters, you can set the
            following:
-           
+
            -eutil    - the eUtil to be used (default 'efetch')
            -history  - pass a HistoryI-implementing object, which
                        sets the WebEnv, query_key, and possibly db and linkname
@@ -241,7 +241,7 @@ sub set_parameters {
  Note    : This sets any parameter passed, but resets all others (deletes them).
            In addition to regular eutil-specific parameters, you can set the
            following:
-           
+
            -eutil    - the eUtil to be used (default 'efetch')
            -history  - pass a HistoryI-implementing object, which
                        sets the WebEnv, query_key, and possibly db and linkname
@@ -396,7 +396,7 @@ sub to_string {
            Default : Builds based on allowed parameters (presence of history data
            or eutil type in %MODE).
  Note    : Changes state of object (to boolean FALSE).  Used for CGI-based GET/POST
- 
+
 =cut
 
 sub to_request {
@@ -439,7 +439,7 @@ sub to_request {
  Args    : [optional] string (eutil)
  Throws  : '$eutil not supported' if eutil not present
  Note    : This does not reset retmode to the default if called directly.
- 
+
 =cut
 
 sub eutil {

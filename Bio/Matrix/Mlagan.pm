@@ -78,7 +78,7 @@ use base qw(Bio::Matrix::Generic);
            -matrix_init_value => default value to initialize empty cells
            -gap_open          => gap open penalty (int)
            -gap_continue      => gap continue penalty (int)
-           
+
            NB: -rownames and -colnames should not be given here, since they are
            always being set to 'A', 'C', 'G', 'T', '.' and 'N'.
 

@@ -118,7 +118,7 @@ Plus Bio::Seach::HSP::GenericHSP methods
  Args    : [optional] string to set value
  Note    : At some point very soon this will likely be a Bio::AnnotationI.
            Don't get used to a simple string!
- 
+
 =cut
 
 sub meta {
@@ -141,7 +141,7 @@ sub meta {
            from RNAMotif (and other programs) where the score section
            can be customized to include non-standard data, including sequence
            data, user-based scores, and other values.
- 
+
 =cut
 
 sub custom_score {

@@ -284,7 +284,7 @@ if (! defined $DATADIR && defined $ENV{'BLASTDIR'}) {
            -_READMETHOD => 'BLAST' (default, synonym 'SearchIO') || 'BPlite'
                            || 'blast_pull'
                            # the parsing method, case insensitive
-           
+
 Essentially all BLAST parameters can be set via StandAloneBlast.pm.
 Some of the most commonly used parameters are listed below. All
 parameters have defaults and are optional except for -p in those programs that

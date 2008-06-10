@@ -62,14 +62,15 @@ while( my $seq =  $seqio->next_seq ) {
 	"Composition of B : ", $pp->AA_comp('B'),"\n",
 	"Composition of Z : ", $pp->AA_comp('Z'),"\n",
 	"Composition of X : ", $pp->AA_comp('X'),"\n";
-	
+
 }
 
 
 =head1 DESCRIPTION
 
-This module takes an amino acid sequence and submits it to the Protparam program at www.expasy.org/cgi-bin/protparam.
-Many properties of the submitted sequence are returned. 
+This module takes an amino acid sequence and submits it to the
+Protparam program at www.expasy.org/cgi-bin/protparam.  Many
+properties of the submitted sequence are returned.
 
 =head1 AUTHOR
 

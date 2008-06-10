@@ -19,37 +19,38 @@ event-driven parsers (drivers).
 
   # MyHandler is a Bio::HandlerBaseI-derived class for dealing with GenBank
   # sequence data, derived from a GenBank event-driven parser
-  
+
   # inside a parser (driver) constructor
-  
+
   $self->seqhandler($handler || MyHandler->new(-format => 'genbank'));
 
   # in the driver parsing method ( such as next_seq() ) ...
-  
+
   $handler = $self->seqhandler();
-  
+
   # roll data up into hashref chunks, pass off into Handler for processing...
-  
+
   $hobj->data_handler($data);
-  
+
   # or retrieve Handler methods and pass data directly to Handler methods
-  
+
   my $hmeth = $hobj->handler_methods;
-  
+
   if ($hmeth->{ $data->{NAME} }) {
       my $mth = $hmeth->{ $data->{NAME} }; # code ref
       $hobj->$mth($data);
   }
-  
+
 =head1 DESCRIPTION
 
-This interface describes simple class methods used for processing data from an
-event-based parser (a driver). This is similar in theme to an XML SAX-based
-driver but differs in that one can optionally pass related data semi-
-intelligently as chunks (defined in a hash reference) vs. passing as single data
-elements in a stream. For instance, any reference-related and species-related
-data as well as individual sequence features could be passed as chunks of data
-to be processed in part or as a whole (from Data::Dumper output):
+This interface describes simple class methods used for processing data
+from an event-based parser (a driver). This is similar in theme to an
+XML SAX-based driver but differs in that one can optionally pass
+related data semi- intelligently as chunks (defined in a hash
+reference) vs. passing as single data elements in a stream. For
+instance, any reference-related and species-related data as well as
+individual sequence features could be passed as chunks of data to be
+processed in part or as a whole (from Data::Dumper output):
 
 Annotation Data (References):
 
@@ -74,19 +75,20 @@ $VAR1 = {
           'organism' => 'Homo sapiens'
         };
 
-These would be 'handled' accordingly by methods specified in a HandlerI-based
-class. The data in a chunk is intentionally left vague here since this may vary
-from implementation to implementation and can be somewhat open to
-interpretation. A data chunk in a sequence record, for instance, will be
-different than a data chunk in a BLAST report. This also allows one the
-flexibility to pass data as more XML-like small bits, as huge chunks, or even as
-indexed locations in a file (such as when using a "pull" parser, like a 
-Bio::PullParserI).
+These would be 'handled' accordingly by methods specified in a
+HandlerI-based class. The data in a chunk is intentionally left vague
+here since this may vary from implementation to implementation and can
+be somewhat open to interpretation. A data chunk in a sequence record,
+for instance, will be different than a data chunk in a BLAST
+report. This also allows one the flexibility to pass data as more
+XML-like small bits, as huge chunks, or even as indexed locations in a
+file (such as when using a "pull" parser, like a Bio::PullParserI).
 
 For an sequence-based implementation see
-Bio::SeqIO::RichSeq::GenericRichSeqHandler, which handles any GenBank, UniProt,
-and EMBL data from their respective driver modules (Bio::SeqIO::gbdriver,
-Bio::SeqIO::swissdriver, and Bio::SeqIO::embldriver).
+Bio::SeqIO::RichSeq::GenericRichSeqHandler, which handles any GenBank,
+UniProt, and EMBL data from their respective driver modules
+(Bio::SeqIO::gbdriver, Bio::SeqIO::swissdriver, and
+Bio::SeqIO::embldriver).
 
 =head1 FEEDBACK
 
@@ -135,10 +137,10 @@ my %HANDLERS = ('foo' => \&noop);
  Function:  Centralized method which accepts all data chunks, then distributes
             to the appropriate methods for processing based on the chunk name
             from within the HandlerBaseI object.
-            
-            One can also use 
+
+            One can also use
  Returns :  None
- Args    :  an hash ref containing a data chunk.  
+ Args    :  an hash ref containing a data chunk.
 
 =cut
 
@@ -192,7 +194,7 @@ sub format {
  Function:  Convenience method used to retrieve the specified
             parameters from the internal parameter cache
  Returns :  Hash ref containing parameters requested and data as
-            key-value pairs.  Note that some parameter values may be 
+            key-value pairs.  Note that some parameter values may be
             objects, arrays, etc.
  Args    :  List (array) representing the parameters requested
 

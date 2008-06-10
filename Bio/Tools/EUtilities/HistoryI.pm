@@ -20,15 +20,15 @@ class for classes which hold NCBI server history data
 =head1 SYNOPSIS
 
   #should work for any class which is-a HistoryI
-  
+
   if ($obj->has_History) {
       # do something here
   }
-  
+
   ($webenv, $querykey) = $obj->history;
-  
+
   $obj->history($webenv, $querykey);
-  
+
   $webenv = $obj->get_webenv;
 
   $query_key = $obj->get_query_key;

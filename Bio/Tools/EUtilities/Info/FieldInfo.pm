@@ -14,19 +14,19 @@
 
 =head1 NAME
 
-Bio::Tools::EUtilities::Info::FieldInfo - class for storing einfo field data 
+Bio::Tools::EUtilities::Info::FieldInfo - class for storing einfo field data
 
 =head1 SYNOPSIS
 
     #### should not create instance directly; Bio::Tools::EUtilities does this ####
-    
+
     my $info = Bio::Tools::EUtilities->new(-eutil => 'einfo',
                                            -file => 'einfo.xml');
     # can also use '-response' (for HTTP::Response objects) or '-fh' (for filehandles)
 
     # print available databases (if data is present)
     print join(', ',$info->get_available_databases),"\n";
-    
+
     # get database info
     my $db = $info->get_database; # in case you forgot...
     my $desc = $info->get_description;
@@ -36,7 +36,7 @@ Bio::Tools::EUtilities::Info::FieldInfo - class for storing einfo field data
     # EUtilDataI interface methods
     my $eutil = $info->eutil;
     my $type = $info->type;
-    
+
     # iterate through Field and Link objects
     while (my $field = $info->next_Field) {
         print "Field code: ",$field->get_field_code,"\n";
@@ -48,9 +48,9 @@ Bio::Tools::EUtilities::Info::FieldInfo - class for storing einfo field data
             print "\tField $att\n" if $field->$att;
         }
     }
-    
+
     my @fields = $info->get_Fields; # grab them all (useful for grep)
-    
+
     while (my $link = $info->next_Link) {
         print "Link name: ",$link->get_link_name,"\n";
         print "Link desc: ",$link->get_link_description,"\n";
@@ -77,7 +77,7 @@ be used in queries) and links (crossrefs between related records in other
 databases at NCBI). Data from the latter two are stored in two small subclasses
 (Field and Link) which can be iterated through or retrieved all at once, as
 demonstrated above. NOTE: Methods described for the Link and Field subclasses
-are unique to those classes (as they retrieve data unique to those data types). 
+are unique to those classes (as they retrieve data unique to those data types).
 
 Further documentation for Link and Field subclass methods is included below.
 
@@ -168,7 +168,7 @@ sub get_field_name { return shift->{'_fullname'} }
 
  Title    : get_full_name
  Note     : alias of get_field_name()
- 
+
 =cut
 
 *get_full_name = \&get_field_name;

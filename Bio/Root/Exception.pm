@@ -210,7 +210,7 @@ my $DEFAULT_VALUE = "__DUMMY__";  # Permits eval{} based handlers to work
 
 =over 4
 
-=item L< new() >
+=item L<new()>
 
  Purpose : Guarantees that -value is set properly before
            calling Error::new().

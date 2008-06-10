@@ -141,7 +141,7 @@ sub new {
            If there are multiple iterations, all 'new' hits for all iterations
            are returned. These are the hits that did not occur in a previous
            iteration.
-           
+
            See Also: L<Bio::Search::Result::GenericResult::hits>
 
 =cut
@@ -169,11 +169,11 @@ sub hits {
  Note    : This method overrides L<Bio::Search::Result::GenericResult::next_hit>
            to take into account the possibility of multiple iterations, as
            occurs in PSI-BLAST reports.
-           
+
            If there are multiple iterations, calling next_hit() traverses the
            all of the hits, old and new, for each iteration, calling next_hit()
            on each iteration.
-           
+
            See Also: L<Bio::Search::Iteration::GenericIteration::next_hit>
 
 =cut
@@ -210,11 +210,11 @@ sub next_hit {
  Note    : This method overrides L<Bio::Search::Result::GenericResult::num_hits>
            to take into account the possibility of multiple iterations, as
            occurs in PSI-BLAST reports.
-           
+
            If there are multiple iterations, calling num_hits() returns the
            number of 'new' hits for each iteration. These are the hits that did
            not occur in a previous iteration.
-           
+
            See Also: L<Bio::Search::Result::GenericResult::num_hits>
 
 =cut

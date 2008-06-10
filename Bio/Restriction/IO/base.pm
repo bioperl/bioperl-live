@@ -184,7 +184,7 @@ sub write {
              as a prototype.  It retrieves the current list, stores it
              as a singleton instance, then uses it to check the prototype
              and modify is_prototype() to true or false.  Use as follows:
-             
+
              my $col = $io->read;
              for my $enz ($col->each_enzyme) {
                  print $enz->name.":".$enz->site."\n";

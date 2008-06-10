@@ -429,7 +429,7 @@ sub remove_synonyms {
  Note    : deprecated method due to past use of mixed data types; use
            get_dbxrefs() instead, which handles both strings and DBLink
            instances
- 
+
 =cut
 
 sub get_dblinks {
@@ -496,7 +496,7 @@ sub get_dblink_context {
   Function: Return all context strings existing in Term
   Returns : a list of scalars
   Args    : [none]
- 
+
 =cut
 
 sub get_dbxref_context {
@@ -516,7 +516,7 @@ sub get_dbxref_context {
  Note    : deprecated method due to past use of mixed data types; use
            add_dbxref() instead, which handles both strings and
            DBLink instances
- 
+
 =cut
 
 sub add_dblink {
@@ -579,7 +579,7 @@ sub add_dbxref {
   Note    : deprecated method due to past use of mixed data types; use
             has_dbxref() instead, which handles both strings and
             DBLink instances
-            
+
 =cut
 
 sub has_dblink {

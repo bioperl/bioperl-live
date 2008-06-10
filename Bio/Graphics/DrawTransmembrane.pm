@@ -943,12 +943,12 @@ The options are a set of tag/value pairs as follows:
   -topology_string    Alternative to -topology, provide a string    none
                       containing the topology data in the form
 		      A.11,31;B.41,59;C.86,107;D.145,166
-	    
+
   -n_terminal         Location of the N-terminal of the sequence,   out
   	              either 'in' or 'out'
 
   -title              Title to add to the image                     none
-  
+
   -inside_label       Label for the inside of the membrane          Cytoplasmic
 
   -outside_label      Label for the outside of the membrane         Extracellular
@@ -957,18 +957,18 @@ The options are a set of tag/value pairs as follows:
 
   -colour_scheme      Colour scheme to use. Current choices are     blue
                       blue, yellow, red, green, pink or white. 
-		    
+
   -labels             Label loops and helices using data from a     none
                       hash, e.g.
-		      
+
 		      %labels = (138 => 'Glycosylation Site',
 		                 190 => 'Binding Site');
-      
+
 		      The hash key must be numeric, ranges are 
 		      not allowed.
-		      
+
   -bold_helices       Draws black boxes round helices               1
-  
+
   -bold_labels        Draws black boxes round labels                0
 
   -text_offset        Shift the text labeling the loops. Use a      0 
@@ -988,48 +988,48 @@ The options are a set of tag/value pairs as follows:
   -membrane_offset    Offest between helix end and membrane         6
 
   -short_loop_height  Height of short loops                         90
-  
+
   -medium_loop_height Height of medium loops                        120
-  
+
   -long_loop_height   Height of long loops                          150
-  
+
   -short_loop_limit   Length in residues below which a loop is      15
                       classed as short
-  
+
   -long_loop_limit    Length in residues above which a loop is      30
                       classed as long
-  
+
   -loop_heights       Explicitly set heights of each loop, e.g.
-                    
+
                       %loop_heights = (1 => 45,
                                        2 => 220,
                                        3 => 50,
                                        4 => 220,
                                        9 => 70);
-				     
+
                       The key corresponds to the loop number. Both
                       key and value must be numeric. If you use
                       -loop_height and there is a defined height
                       for the current loop then other height values
-                      will be overridden		      				     
-  
+                      will be overridden
+
   -n_terminal_height  Height of N-terminal                          150
-  
+
   -c_terminal_height  Height of C-terminal                          80
 
   -n_terminal_offset  Shift the N-terminal left by this amount      0
-		      
+
   -c_terminal_offset  Shift the C-terminal right by this amount     0
 
   -helix_label        Change the 'S' label on each helix. Only 1    S
                       character is allowed
 
   -show_labels        Display text labels                           on
-		      
+
   -draw_cytosol       Show the cytosol                              false
 
   -draw_bilayer       Show the membrane                             true
-  
+
   -draw_loops         Show the loops                                true
 
   -draw_terminai      Show the terminai                             true
@@ -1040,12 +1040,16 @@ The options are a set of tag/value pairs as follows:
 
   -ttf_font           Path to TTF font, e.g.                        none 
                       /usr/share/fonts/msttcorefonts/arial.ttf
-		      
+
   -ttf_font_size      Default size for TTF font. Use 7-9 with       8
                       Arial for best results  
-		
-		
-Height, width, padding and other numerical values can gernerally be left alone. They are useful if your labels consists of a lot of text as this may lead to them overlapping. In this case try increasing the loop_width or helix_width options. -text_offset is also very useful for avoiding overlapping.
+
+
+Height, width, padding and other numerical values can gernerally be
+left alone. They are useful if your labels consists of a lot of text
+as this may lead to them overlapping. In this case try increasing the
+loop_width or helix_width options. -text_offset is also very useful
+for avoiding overlapping.
 
 =head1 AUTHOR
 

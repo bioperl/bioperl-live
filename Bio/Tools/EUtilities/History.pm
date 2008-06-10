@@ -20,16 +20,16 @@ NCBI search history.
 =head1 SYNOPSIS
 
   #### should not create instance directly; Bio::Tools::EUtilities does this ####
-  
+
   my $hist = Bio::Tools::EUtilities->new(-eutil => 'epost',
                                          -file => 'epost.xml');
-  
+
   if ($hist->has_History) {
       # do something here
   }
-  
+
   ($webenv, $querykey) = $hist->get_history;
-  
+
   $webenv = $hist->get_webenv;
 
   $query_key = $hist->get_query_key;

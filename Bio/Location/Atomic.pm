@@ -487,7 +487,7 @@ sub coordinate_policy {
 	Returns : A L<Bio::Location::Atomic> object.
 	Args    : The start and end position for the trunction, and the relative
 	          orientation.
-	
+
 =cut
 
 sub trunc {

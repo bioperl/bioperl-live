@@ -402,7 +402,7 @@ sub next_feature {
     Example :
     Returns : An integer value.
     Args    :
-    
+
 =cut
 
 sub genomic_dna_length {
@@ -498,7 +498,7 @@ sub overall_percentage_id {
     Example :
     Returns : A string value.
     Args    :
-    
+
 =cut
 
 sub missing_mrna_ends {

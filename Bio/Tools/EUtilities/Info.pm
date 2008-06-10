@@ -14,35 +14,35 @@
 
 =head1 NAME
 
-Bio::Tools::EUtilities::Info - interface class for storing einfo data 
+Bio::Tools::EUtilities::Info - interface class for storing einfo data
 
 =head1 SYNOPSIS
 
   #### should not create instance directly; Bio::Tools::EUtilities does this ####
-  
+
   my $info = Bio::Tools::EUtilities->new(-eutil => 'einfo',
                                          -file => 'einfo.xml');
   # can also use '-response' (for HTTP::Response objects) or '-fh' (for filehandles)
-  
+
   # print available databases (if data is present)
-  
+
   print join(', ',$info->get_available_databases),"\n";
-  
+
   # get database info
-  
+
   my $db = $info->get_database; # in case you forgot...
   my $desc = $info->get_description;
   my $nm = $info->get_menu_name;
   my $ct = $info->get_record_count;
   my $dt = $info->get_last_update;
-  
+
   # EUtilDataI interface methods
-  
+
   my $eutil = $info->eutil;
   my $type = $info->datatype;
-  
+
   # iterate through Field and Link objects
-  
+
   while (my $field = $info->next_Field) {
       print "Field code: ",$field->get_field_code,"\n";
       print "Field name: ",$field->get_field_name,"\n";
@@ -53,18 +53,18 @@ Bio::Tools::EUtilities::Info - interface class for storing einfo data
           print "\tField $att\n" if $field->$att;
       }
   }
-  
+
   my @fields = $info->get_Fields; # grab them all (useful for grep)
-  
+
   while (my $link = $info->next_LinkInfo) {
       print "Link name: ",$link->get_link_name,"\n";
       print "Link desc: ",$link->get_link_description,"\n";
       print "DBFrom: ",$link->get_dbfrom,"\n"; # same as get_database()
       print "DBTo: ",$link->get_dbto,"\n"; # database linked to
   }
-  
+
   my @links = $info->get_LinkInfo; # grab them all (useful for grep)
-  
+
   $info->rewind(); # rewinds all iterators
   $info->rewind('links'); # rewinds Link iterator
   $info->rewind('fields'); # rewinds Field iterator

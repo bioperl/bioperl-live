@@ -20,19 +20,19 @@ MitoChip V2.0
 =head1 DESCRIPTION
 
 =head1 AUTHORS
-        
+
 Marian Thieme (marian.thieme@arcor.de)
 
 =head1 COPYRIGHT
-        
+
 Copyright (c) 2007 Institute of Functional Genomics, University Regensburg,
 granted by Baygene. All Rights Reserved.
-        
+
 This module is free software; you can redistribute it and/or modify it under the
 same terms as Perl itself.
 
 =head1 DISCLAIMER
-        
+
 This software is provided "as is" without warranty of any kind.
 
 =head1 APPENDIX
@@ -99,7 +99,7 @@ sub new {
  Usage     : private Function, dont call directly
  Function  : Creates Hash of insertions of maximal length, by parsing the affy chip 
              design file and calcs the location of clusters of the Redundant Fragments
-             
+
  Returns   : Returns hash of maximal insertions and calls private function _calc_oligo_region_hash()
  Args      : $filename - excel filename of the affy design file
 
@@ -306,6 +306,7 @@ sub count_different_variants() {
  Args      : $start - start position of current fragment
              $stop - stop position of current fragment
              $oligo_region_hash (reference) - hash of cluster of oligo regions
+
 =cut
 
 sub _calc_oligo_region_hash() {

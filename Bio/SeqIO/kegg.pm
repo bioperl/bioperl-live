@@ -305,7 +305,7 @@ sub next_seq {
 
  Title   : write_seq
  Note    : write_seq() is not implemented for KEGG format output.
- 
+
 =cut
 
 sub write_seq {

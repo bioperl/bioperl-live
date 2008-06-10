@@ -64,22 +64,22 @@ this may change to represent each group of gene names.
 For now, to access the gene name tree annotation, one uses the below method:
 
    my ($gene) = $seq->annotation->get_Annotations('gene_name');
-  
+
 If you are only interested in displaying the values, value() returns a
 string with similar formatting.
-  
+
 There are several ways to get directly at the information you want if you
 know the element (tag) for the data.  For gene names all data is stored with
 the element-tag pairs:
 
   "element1=tag1, tag2, tag3; element2=tag4, tag5;"
-  
+
 This normally means the element will be 'Name', 'Synonyms', etc. and the
 gene names the values.  Using findval(), you can do the following:
 
   # grab a flattened list of all gene names
   my @names = $ann->findval('Name');
-  
+
   # or iterated through the nodes and grab the name for each group
   for my $node ($ann->findnode('gene_name')) {
      my @names = $node->findval('Name');
@@ -93,18 +93,18 @@ tag tree in a safe way and retrieve all node data like so.
 
   # retrieve the gene name nodes (groups like names, synonyms, etc).
   for my $ann ($seq->annotation->get_Annotations('gene_name')) {
-  
+
       # each gene name group
-      for my $node ($ann->findnode('gene_name')) { 
+      for my $node ($ann->findnode('gene_name')) {
           print "Gene name:\n";
-          
+
           # each gene name node (tag => value pair)
           for my $n ($node->children) {
               print "\t".$n->element.": ".$n->children."\n";
           }
       }
   }
-  
+
 For more uses see Bio::Annotation::TagTree.
 
 Since Uniprot/Swiss-Prot format have been around for quite some time, the
@@ -212,7 +212,7 @@ our $LINE_LENGTH = 76;
 @Unknown_genus = qw(unknown unclassified uncultured unidentified);
 
 # if there are any other gene name tags, they are added to the end
-our @GENE_NAME_ORDER = qw(Name Synonyms OrderedLocusNames ORFNames); 
+our @GENE_NAME_ORDER = qw(Name Synonyms OrderedLocusNames ORFNames);
 
 sub _initialize {
     my($self,@args) = @_;

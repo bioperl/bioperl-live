@@ -19,11 +19,11 @@ Bio::DB::EUtilities::Summary
 =head1 SYNOPSIS
 
   #### should not create instance directly; Bio::Tools::EUtilities does this ####
-    
+
   my $esum = Bio::Tools::EUtilities->new(-eutil => 'esummary',
                                          -file => 'summary.xml');
   # can also use '-response' (for HTTP::Response objects) or '-fh' (for filehandles)
-  
+
   while (my $docsum = $esum->next_DocSum) {
       my $id = $docsum->get_ids;  # EUtilDataI compliant method, returns docsum ID
       my @names = $docsum->get_item_names;

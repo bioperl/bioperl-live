@@ -17,7 +17,7 @@ Bio::Tools::TandemRepeatsFinder - a parser for Tandem Repeats Finder output
         my ($percent_matches)    = $feat->get_tag_values('percent_matches');
         my ($consensus_sequence) = $feat->get_tag_values('consensus_sequence');
         print $feat->seq_id()."\t".$feat->start()."\t".$feat->end()."\t$percent_matches\t$consensus_sequence\n"; 
-      
+
     }
 
 =head1 DESCRIPTION

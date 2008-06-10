@@ -149,7 +149,7 @@ sub next_assembly {
   Function: Write the assembly object in Phrap compatible ACE format
   Returns : 1 on success, 0 for error
   Args    : A Bio::Assembly::Scaffold object
-           
+
 =cut
 
 sub write_assembly {

@@ -725,7 +725,7 @@ sub algorithm_reference{
  Returns : string containing literature reference for the algorithm
  Args    : 
  Comments: Deprecated - use algorithm_reference() instead.
- 
+
 =cut
 
 sub program_reference { shift->algorithm_reference(@_); }

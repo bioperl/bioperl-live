@@ -115,25 +115,25 @@ model features remain the same.
 
 Several other improvements and bugfixes, minor but useful are included
 
-  * IO pipes now work: 
+  * IO pipes now work:
     curl ftp://ncbigenomes/... | genbank2gff3 --in stdin --out stdout | gff2chado ...
-  
+
   * GenBank main record fields are added to source feature, e.g. organism, date,
     and the sourcetype, commonly chromosome for  genomes, is used.
-      
+
   * Gene Model handling for ncRNA, pseudogenes are added.
 
   * GFF header is cleaner, more informative.
     --GFF_VERSION flag allows choice of v2 as well as default v3
-    
+
   * GFF ##FASTA inclusion is improved, and
     CDS translation sequence is moved to FASTA records.
-     
+
   * FT -> GFF attribute mapping is improved.
-  
+
   * --format choice of SeqIO input formats (GenBank default). 
     Uniprot/Swissprot and EMBL work and produce useful GFF.
-    
+
   * SeqFeature::Tools::TypeMapper has a few FT -> SOFA additions
       and more flexible usage.
 
@@ -154,7 +154,7 @@ and found corrected:
    -- unspecified errors (sample data works now).
  From: Eric Just <e-just <at> northwestern.edu> Subject: bp_genbank2gff3.pl Date: 2007-01-26 17:08:49 GMT
    -- bug fixed in genbank2gff3 for multi-record handling
-   
+
 This error is for a /trans_splice gene that is hard to handle, and unflattner/genbank2 doesn't
  From: Chad Matsalla <chad <at> dieselwurks.com> Subject: genbank2gff3.PLS and the unflatenner - Inconsistent	order? Date: 2005-07-15 19:51:48 GMT 
 

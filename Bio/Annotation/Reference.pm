@@ -136,7 +136,7 @@ sub as_text{
  Usage   : my $str = $ann->display_text();
  Function: returns a string. Unlike as_text(), this method returns a string
            formatted as would be expected for te specific implementation.
-           
+
            One can pass a callback as an argument which allows custom text
            generation; the callback is passed the current instance and any text
            returned
@@ -539,9 +539,9 @@ sub encoded_ref {
  Function: Gives the DOI (Digital Object Identifier) from the International
            DOI Foundation (http://www.doi.org/), which can be used to resolve
 		   URL links for the full-text documents using:
-		   
+
 		   http://dx.doi.org/<doi>
-		   
+
  Example :
  Returns : value of doi
  Args    : newvalue (optional)

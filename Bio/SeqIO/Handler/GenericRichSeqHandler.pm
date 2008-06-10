@@ -19,26 +19,26 @@ data handler for GenBank/EMBL/UniProt (and other) sequence data
 
   # MyHandler is a GenericRichSeqHandler object.
   # inside a parser (driver) constructor....
-  
+
   $self->seq_handler($handler || MyHandler->new(-format => 'genbank'));
 
   # in next_seq() in driver...
-  
+
   $hobj = $self->seqhandler();
-  
+
   # roll data up into hashref chunks, pass off into Handler for processing...
-  
+
   $hobj->data_handler($data);
-  
+
   # or retrieve Handler methods and pass data directly to Handler methods...
-  
+
   my $hmeth = $hobj->handler_methods;
-  
+
   if ($hmeth->{ $data->{NAME} }) {
       my $mth = $hmeth->{ $data->{NAME} };
       $hobj->$mth($data);
   }
-  
+
 =head1 DESCRIPTION
 
 This is an experimental implementation of a sequence-based HandlerBaseI parser
@@ -286,7 +286,7 @@ sub handler_methods {
  Function:  Centralized method which accepts all data chunks, then distributes
             to the appropriate methods for processing based on the chunk name
             from within the HandlerBaseI object.
-            
+
             One can also use 
  Returns :  None
  Args    :  an hash ref containing a data chunk.  

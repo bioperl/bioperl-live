@@ -273,7 +273,7 @@ sub get_synonyms {
  Returns : A list of dblinks [array of [scalars]].
  Args    : 
  Note    : This has been deprecated in favor of get_dbxrefs()
- 
+
 =cut
 
 sub get_dblinks {
@@ -295,7 +295,7 @@ sub get_dblinks {
            L<Bio::Annotation::DBLink> instances, or specific subgroups
            can be returned based on passed arguments
  Args    : implementation-specific
- 
+
 =cut
 
 sub get_dbxrefs {

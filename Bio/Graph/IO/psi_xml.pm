@@ -49,7 +49,7 @@ Notes on PSI XML from various databases can be found in the Bioperl Wiki
 at L<http://bioperl.org/wiki/Module:Bio::Graph::IO::psi_xml>
 
 Documentation for PSI XML can be found at L<http://psidev.sourceforge.net>.
- 
+
 =head1 METHODS
 
 The naming system is analagous to the SeqIO system, although usually

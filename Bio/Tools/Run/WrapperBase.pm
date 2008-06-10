@@ -58,7 +58,7 @@ web:
 Email jason-at-bioperl.org
 
 =head1 CONTRIBUTORS
- 
+
 Sendu Bala, bix@sendu.me.uk
 
 =head1 APPENDIX

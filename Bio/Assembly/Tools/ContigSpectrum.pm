@@ -29,12 +29,12 @@
   an assembly. For example, the contig spectrum [100 5 1 0 0 ...] means that
   there were 100 singlets (1-contigs), 5 contigs of 2 sequences (2-contigs), 1
   contig of 3 sequences (3-contig) and no larger contigs.
-  
+
   An assembly can be produced from a mixture of sequences from different
   metagenomes. The contig obtained from this assembly is a mixed contig
   spectrum. The contribution of each metagenome in this mixed contig spectrum
   can be obtained by determining a dissolved contig spectrum.
-  
+
   Finally, based on a mixed contig spectrum, a cross contig spectrum can be
   determined. In a cross contig spectrum, only contigs containing sequences from
   different metagenomes are kept; "pure" contigs are excluded. Additionally, the
@@ -43,7 +43,7 @@
   contig spectrum.
 
 =head2 Implemention
-  
+
   The simplest representation of a contig spectrum is as a hash representation
   where the key is the contig size (number of sequences making up the contig)
   and the value the number of contigs of this size.
@@ -73,7 +73,7 @@
     cross           produce a cross contig spectrum (based on assembly)
     add             add a contig spectrum to an existing one
     average         make an average of several contig spectra
-    
+
   When using operations that rely on knowing "where" (from what metagenomes) a
   sequence came from (i.e. when creating a dissolved or cross contig spectrum),
   make sure that the sequences used for the assembly have a name header, e.g.
@@ -109,7 +109,7 @@
   my $avg_csp = Bio::Assembly::Tools::ContigSpectrum->new;
   $avg_csp = $avg_csp->average([$csp1, $csp2]);
   print "The average contig spectrum is ".$avg_csp->to_string."\n";
-  
+
   # Get a contig spectrum from an assembly
   my $from_assembly = Bio::Assembly::Tools::ContigSpectrum->new(
     -assembly       => $assembly_object,
@@ -136,7 +136,7 @@
   print "The dissolved contig spectra are:\n".
     $meta1_dissolved->to_string."\n".
     $meta2_dissolved->to_string."\n";
-    
+
   # Determine a cross contig spectrum
   my $cross_csp = Bio::Assembly::Tools::ContigSpectrum->new(
     -cross => $mixed_csp );
@@ -195,7 +195,7 @@ use base 'Bio::Root::Root';
               -id => 'some_name',
               -spectrum =>  { 1 => 90 , 2 => 3 , 4 => 1 },
             );
-              or 
+              or
             my $csp = Bio::Assembly::Tools::ContigSpectrum->new(
               -assembly =>  $assembly_obj
             );
@@ -209,12 +209,12 @@ sub new {
   my ($class, @args) = @_;
   my $self = $class->SUPER::new(@args);
   my ( $id, $nof_seq, $nof_rep, $max_size, $nof_overlaps, $min_overlap,
-    $min_identity, $avg_overlap, $avg_identity, $avg_seq_len, $spectrum, 
+    $min_identity, $avg_overlap, $avg_identity, $avg_seq_len, $spectrum,
     $assembly, $eff_asm_params, $dissolve, $cross) = $self->_rearrange( [qw(ID
     NOF_SEQ NOF_REP MAX_SIZE NOF_OVERLAPS MIN_OVERLAP MIN_IDENTITY AVG_OVERLAP
     AVG_IDENTITY AVG_SEQ_LEN SPECTRUM ASSEMBLY EFF_ASM_PARAMS DISSOLVE CROSS)],
     @args );
-  
+
   # First set up some defauts
   $self->{'_id'}             = 'NoName';
   $self->{'_nof_seq'}        = 0;
@@ -1311,7 +1311,7 @@ sub _import_cross_csp {
             average sequence length (decimal)
   Args    : assembly object reference
             hash reference with the IDs of the sequences to consider [optional]
-            
+
 =cut
 
 sub _get_seq_stats {
@@ -1361,6 +1361,7 @@ sub _get_seq_stats {
             average identity percent
   Args    : assembly object reference
             hash reference with the IDs of the sequences to consider [optional]
+
 =cut
 
 sub _get_overlap_stats {

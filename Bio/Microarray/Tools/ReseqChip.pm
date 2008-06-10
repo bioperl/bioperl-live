@@ -49,7 +49,7 @@ Bio::Microarray::Tools::ReseqChip - Class for analysing additional probe oligonu
   ins_threshold => 35,
   del_threshold => 75,
   swap_ins => 1);
-                         
+
  while ( (my $seq = $in->next_seq())) {
 
   my $locseq;
@@ -67,64 +67,79 @@ Bio::Microarray::Tools::ReseqChip - Class for analysing additional probe oligonu
 
 =head1 DESCRIPTION
 
-This Software module aim to infer information of the addtional oligonucleotide probes, covering different known variants.
-Oligonucleotide Array based Resequencing is done in the local context of a reference sequence. Every position in 
-the genomic areas of interest is interrogated using 8 different 25-mer oligonucleotide probes (forward and reverse strand). 
-Their middle base varies across the four possible bases, while the flanking regions are identical 
-with the reference sequence or its reverse strand respectively. For genomic regions with known variability across individuals, 
-additional probes were added to the chip. They interrogate postions in the neighborhood of polymorphisms not only in the local context
-of the reference sequence but also in the context of its known variants.
-This software (ReseqChip.pm) is tested to work with MitoChip v2.0 Data, manufactured by Affymetrix and the parser (MitoChipV2Parser)
-reads the probe design file (Affy mtDNA_Design_Annotion.xls) wich describes the design of the probes.
+This Software module aim to infer information of the addtional
+oligonucleotide probes, covering different known variants.
+Oligonucleotide Array based Resequencing is done in the local context
+of a reference sequence. Every position in the genomic areas of
+interest is interrogated using 8 different 25-mer oligonucleotide
+probes (forward and reverse strand).  Their middle base varies across
+the four possible bases, while the flanking regions are identical with
+the reference sequence or its reverse strand respectively. For genomic
+regions with known variability across individuals, additional probes
+were added to the chip. They interrogate postions in the neighborhood
+of polymorphisms not only in the local context of the reference
+sequence but also in the context of its known variants.  This software
+(ReseqChip.pm) is tested to work with MitoChip v2.0 Data, manufactured
+by Affymetrix and the parser (MitoChipV2Parser) reads the probe design
+file (Affy mtDNA_Design_Annotion.xls) wich describes the design of the
+probes.
 
-The software approaches the problem in the following way:
-1. An alignment of the addtional probes to the reference sequence is created (taking account for insertions/deletion)
-2. Based on that alignment each position, which is covered by at least one additional probe is investigated to find a consensus call.
+The software approaches the problem in the following way: 1. An
+alignment of the addtional probes to the reference sequence is created
+(taking account for insertions/deletion) 2. Based on that alignment
+each position, which is covered by at least one additional probe is
+investigated to find a consensus call.
 
-This is done indirectly by excluding those probes, which appear to be inadequate for the individual. An indication for 
-inadaquacy is a local accumulation of N-calls. We investigate calls in neighborhoods of length K around
-each sequence position in all available local context probes and count the number of N-calls in them. 
-That menas, in addition to the call obtained using the references sequence base call we obtain data from all alternative 
-local background probes that were available for the current position. All probes with more then maxN N-calls in the 
-K-neighborhood are excluded. Because it may happen that different candidate bases occur we introduce to more parameters minP and minU.
-If more then minP probes remain after filtering and more then minU percent of them call the base x,
-were x is the most frequently called base, then x is included in the final sequence, otherwise the letter N is included.
+This is done indirectly by excluding those probes, which appear to be
+inadequate for the individual. An indication for inadaquacy is a local
+accumulation of N-calls. We investigate calls in neighborhoods of
+length K around each sequence position in all available local context
+probes and count the number of N-calls in them.  That menas, in
+addition to the call obtained using the references sequence base call
+we obtain data from all alternative local background probes that were
+available for the current position. All probes with more then maxN
+N-calls in the K-neighborhood are excluded. Because it may happen that
+different candidate bases occur we introduce to more parameters minP
+and minU.  If more then minP probes remain after filtering and more
+then minU percent of them call the base x, were x is the most
+frequently called base, then x is included in the final sequence,
+otherwise the letter N is included.
 
 
-Assumption:
-Gaps which are inserted in several fragments and in the reference sequence itself refer to the reference sequence.
-The reference sequence is given as input parameter.
-Optionshash, specifying the explained parameter and some further options is provided by the user.
+Assumption: Gaps which are inserted in several fragments and in the
+reference sequence itself refer to the reference sequence.  The
+reference sequence is given as input parameter.  Optionshash,
+specifying the explained parameter and some further options is
+provided by the user.
 
 
 This module depends on the following modules:
-use Bio::Microarray::Tools::MitoChipV2Parser
-use Bio::SeqIO;
-use Bio::Seq;
-use Bio::LocatableSeq;
-use Bio::SimpleAlign;
-use Bio::LiveSeq::Mutation;
-use Statistics::Frequency;
-use Spreadsheet::ParseExcel;
-use Spreadsheet::WriteExcel;
+
+  use Bio::Microarray::Tools::MitoChipV2Parser
+  use Bio::SeqIO;
+  use Bio::Seq;
+  use Bio::LocatableSeq;
+  use Bio::SimpleAlign;
+  use Bio::LiveSeq::Mutation;
+  use Statistics::Frequency;
+  use Spreadsheet::ParseExcel;
+  use Spreadsheet::WriteExcel;
 
 
 =head1 AUTHORS
-        
+
 Marian Thieme (marian.thieme@arcor.de)
 
 =head1 COPYRIGHT
-        
-Copyright (c) 2007 Institute of Functional Genomics, University Regensburg, granted by Baygene. All Rights Reserved.
-        
-This module is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
-        
 
+Copyright (c) 2007 Institute of Functional Genomics, University
+Regensburg, granted by Baygene. All Rights Reserved.
 
-
+This module is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
 
 =head1 DISCLAIMER
-        
+
 This software is provided "as is" without warranty of any kind.
 
 =head1 APPENDIX
@@ -136,7 +151,7 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Microarray::Tools::ReseqChip;
-                                   
+
 use strict;
 use warnings;
 
@@ -163,22 +178,22 @@ use Spreadsheet::WriteExcel;
              ($Affy_frags_design_filename, $format, $refseq, \%oligos2calc_hash)
 
 
- Function  : Creates Hash of insertions of maximal length, by parsing the affy chip 
+ Function  : Creates Hash of insertions of maximal length, by parsing the affy chip
              design file and calcs the location of clusters of the Redundant Fragments
              by calling _parse_Affy_mtDNA_design_annotation_file() and sets further 
              member variables.
-             
-             
+
+
  Returns   : Returns a new ReseqChip object
- 
+
  Args      : $Affy_frags_design_filename (Affymetrix xls design file, 
              for instance: mtDNA_design_annotation_FINAL.xls for mitochondrial Genome)
-             
+
              $format (only xls is available, because its the format which is delivered by Affymetrix)
-             
+
              [$reseq_max_ins_hash, $refseq] (insertions as hash (pos1 => insertions length1, pos2 => insertions length2, ...) 
              for reference sequence and $refseq (Locatable Sequence Object))
-            
+
  Membervars: frags_hash		- contains all variations described by the affy_design_annotation file 
                                   (fragment_id => (pos1 => [muttype, mut, start, stop]), ... )
              max_ins_hash	- contains all (maximal) insertion, which are needed to build "alignable" 
@@ -995,7 +1010,7 @@ sub _calc_stats() {
              $id : identifier of the sequence
              $filename : name of fasta file
              $gap : 1 gaps are written to file, 0 gaps are removed. if omitted, gaps are also removed
-                                           
+
 =cut
 
 

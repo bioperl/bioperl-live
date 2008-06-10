@@ -1300,6 +1300,7 @@ sub composite_LD {
            -polarized  => Boolean, to indicate if this should be 
                           a polarized test. Must provide two individuals 
                           as outgroups.
+
 =cut
 
 sub mcdonald_kreitman {

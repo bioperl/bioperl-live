@@ -32,14 +32,14 @@ Bio::Root::Root - Hash-based implementation of Bio::Root::RootI
                -value  => $file );
 
   # Want to see debug() outputs for this object
-  
+
   my $obj = Bio::Object->new(-verbose=>1);
 
   my $obj = Bio::Object->new(%args);
   $obj->verbose(2);
 
   # Print debug messages which honour current verbosity setting
-  
+
   $obj->debug("Boring output only to be seen if verbose > 0\n");
 
 =head1 DESCRIPTION

@@ -435,9 +435,9 @@ sub remove_members{
  Title   : members
  Usage   : $members = $fam->members([$seq1,$seq1]);
  Function: Deprecated. Use add_members() or get_members() instead
- 
+
 =cut
-		 
+
 sub members{
     my $self = shift;
     if(@_) {

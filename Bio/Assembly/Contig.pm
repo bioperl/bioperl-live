@@ -222,7 +222,6 @@ use base qw(Bio::Root::Root Bio::Align::AlignI);
  Returns   : Bio::Assembly::Contig
  Args      : -id => contig unique ID
              -source => string for the sequence assembly program used
-             
 
 =cut
 

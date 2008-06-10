@@ -19,19 +19,19 @@ Bio::DB::EUtilities::Query
 =head1 SYNOPSIS
 
   #### should not create instance directly; Bio::Tools::EUtilities does this ####
-    
+
   # can also use '-response' (for HTTP::Response objects) or '-fh' (for filehandles)
   my $info = Bio::Tools::EUtilities->new(-eutil => 'esearch',
                                          -file => 'esearch.xml');
 
   # esearch
-  
+
   # esearch with history
-  
+
   # egquery
-  
+
   # espell (just for completeness, really)
-  
+
 =head1 DESCRIPTION
 
 ...

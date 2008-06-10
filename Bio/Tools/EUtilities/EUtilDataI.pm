@@ -8,13 +8,13 @@ Bio::Tools::EUtilities::EUtilDataI - eutil data object interface
 
   # say you had some data in a hash ref ($data) and wanted to create hierarchies
   # of object using the same interface, starting with the topmost...
-  
+
   # $object is a Bio::Tools::EUtilities::EUtilDataI instance
-  
+
   $object->_add_data($data);
-  
+
   # in _add_data()... sort through keys and create subobjects as needed
-  
+
   if ($key eq 'foo') {
      my $sub = Bio::Tools::EUtilities::FooData->new(-eutil => 'efoo',
                                                     -type => 'foo');
@@ -22,9 +22,9 @@ Bio::Tools::EUtilities::EUtilDataI - eutil data object interface
      # store into parent object as needed...
      ...
    }
-   
+
    # access stored data
-   
+
    while (my $sub = $parent->next_Foo) {...}
 
 
@@ -70,7 +70,7 @@ use base qw(Bio::Root::RootI);
  Returns  : string
  Args     : string (eutil)
  Throws   : on invalid eutil
- 
+
 =cut
 
 {
@@ -126,7 +126,7 @@ sub _add_data {
  Function : rewinds the requested iterator
  Returns  : none
  Args     : [OPTIONAL] may include 'all', 'recursive', etc.
- 
+
 =cut
 
 sub rewind {

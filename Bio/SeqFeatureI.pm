@@ -430,7 +430,7 @@ but can be validly overwritten by subclasses
                        sequence start. Example : join(15685..16260,1..207)
 	    -phase     truncates the returned sequence based on the
 	               intron phase (0,1,2).
-	    
+
   Returns : A L<Bio::PrimarySeqI> object
 
 =cut

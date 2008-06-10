@@ -47,7 +47,7 @@ Currently data is parsed into a Bio::SeqFeature::FeaturePair object, consisting
 of a query (the covariance model) and the hit (sequence searched).  
 
 Model data is accessible via the following:
-  
+
   Data            SeqFeature::FeaturePair         Note
   --------------------------------------------------------------------------
   primary tag     $sf->primary_tag                Rfam ID (if passed to new())

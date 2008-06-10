@@ -683,7 +683,7 @@ sub algorithm_version {
  Returns : score (number)
  Args    : [optional] score (number)
  Note    : Cannot be set along with hsp_maxscore()
- 
+
 =cut
 
 sub hsp_minscore {
@@ -702,7 +702,7 @@ sub hsp_minscore {
  Returns : score (number)
  Args    : [optional] score (number)
  Note    : Cannot be set along with hsp_minscore()
- 
+
 =cut
 
 sub hsp_maxscore {
@@ -724,7 +724,7 @@ sub hsp_maxscore {
                      . (single-strand)
                      ? (unknown) 
  Args    : Hash ref of substitute delimiters, using above keys.
- 
+
 =cut
 
 sub structure_symbols {
@@ -753,12 +753,12 @@ sub structure_symbols {
  Function: Creates meta string from sequence and descriptor
  Returns : array of sequence, meta strings
  Args    : Array of string data and descriptor data
- 
+
  Note: This is currently a quick and simple way of making simple
  RNA structures (stem-loops, helices, etc) from RNAMotif descriptor
  data in the output file.  It does not currently work with pseudoknots,
  triplets, G-quartets, or other more complex RNA structural motifs.
- 
+
 =cut
 
 sub _motif2meta {

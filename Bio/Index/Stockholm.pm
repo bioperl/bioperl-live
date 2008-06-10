@@ -24,7 +24,7 @@ Pfam and Rfam.  Retrieves raw stream data using the ID or a Bio::SimpleAlign
     my $index = Bio::Index::Stockholm->new(-filename => $indexfile,
 				                          -write_flag => 1);
     $index->make_index($file1,$file2);
-    
+
     # get raw data stream starting at alignment position
     my $fh = $index->get_stream($query);
 
@@ -32,7 +32,7 @@ Pfam and Rfam.  Retrieves raw stream data using the ID or a Bio::SimpleAlign
     my $align = $index->fetch_aln($query); # alias for fetch_report
     my $align = $index->fetch_report($query); # same as above
     print "query is ", $align->display_id, "\n";
-    
+
 =head1 DESCRIPTION
 
 This object allows one to build an index for any file (or files)

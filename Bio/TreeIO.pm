@@ -98,6 +98,7 @@ use constant INTERNAL_NODE_ID => 'id'; # id or bootstrap, default is 'id'
    -internal_node_id : what is stored in the internal node ids, 
                        bootstrap values or ids, coded as 
                        'bootstrap' or 'id'
+
 =cut
 
 sub new {

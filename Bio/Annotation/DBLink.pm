@@ -148,7 +148,7 @@ sub as_text{
  Usage   : my $str = $ann->display_text();
  Function: returns a string. Unlike as_text(), this method returns a string
            formatted as would be expected for te specific implementation.
-           
+
            One can pass a callback as an argument which allows custom text
            generation; the callback is passed the current instance and any text
            returned

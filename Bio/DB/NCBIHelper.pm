@@ -355,15 +355,15 @@ sub redirect_refseq {
  Args    : value from 0-4 (optional); if unset server assumes 1
  Throws  : if arg is not an integer or falls outside of noted range above
  Note    : From efetch docs:
- 
+
     Complexity regulates the display:
-   
+
        * 0 - get the whole blob
        * 1 - get the bioseq for gi of interest (default in Entrez)
        * 2 - get the minimal bioseq-set containing the gi of interest
        * 3 - get the minimal nuc-prot containing the gi of interest
        * 4 - get the minimal pub-set containing the gi of interest
-       
+
 =cut
 
 sub complexity {

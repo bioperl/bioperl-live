@@ -13,7 +13,7 @@ Bio::Assembly::IO::tigr - Driver to read and write assembly files in the TIGR
 Assembler v2 default format.
 
 =head1 SYNOPSIS
-    
+
     # Building an input stream
     use Bio::Assembly::IO;
 
@@ -21,9 +21,9 @@ Assembler v2 default format.
     my $asmio = Bio::Assembly::IO->new( -file   => 'SGC0-424.tasm',
                                         -format => 'tigr' );
     my $scaffold = $asmio->next_assembly;
-    
+
     # Do some things on contigs...
-    
+
     # Assembly writing methods
     my $outasm = Bio::Assembly::IO->new( -file   => ">SGC0-modified.tasm",
                                          -format => 'tigr' );
@@ -62,9 +62,9 @@ represented here with features having these primary_tag:
     _quality_clipping:$read_primary_id
     _main_read_feature:$read_primary_id
     _aligned_coord:$read_primary_id
-    
+
 =head1 THE TIGR TASM LASSIEFORMAT
-    
+
 =head2 Description
 
 In the TIGR tasm lassie format, contigs are separated by a line containing a single
@@ -99,7 +99,7 @@ Contigs have the following attributes:
     ed_date    -> date and time of edition
     comment    -> some comments *
     frameshift -> *
-    
+
 Each read has the following attributes:
     seq_name  -> read name
     asm_lend  -> position of first base on contig ungapped consensus sequence
@@ -111,7 +111,7 @@ Each read has the following attributes:
     db        -> database name associated with the sequence (e.g. >my_db|seq1234)
     offset    -> offset of the sequence (gapped consensus coordinates)
     lsequence -> aligned read sequence (ambiguities are uppercase)
-    
+
 When asm_rend < asm_lend, the sequence was on the complementary DNA strand but
 its reverse complement is shown in the aligned sequence of the assembly file,
 not the original read.
@@ -179,7 +179,7 @@ Example of a contig containing three sequences:
     |
 
 ...
-  
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -234,7 +234,7 @@ my $progname = 'TIGR Assembler';
  Args    : none
 
 =cut
- 
+
 sub next_assembly {
     my $self = shift; # object reference
     

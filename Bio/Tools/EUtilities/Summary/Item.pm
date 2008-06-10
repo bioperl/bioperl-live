@@ -9,7 +9,7 @@
 # You may distribute this module under the same terms as perl itself
 #
 # POD documentation - main docs before the code
-# 
+#
 # Part of the EUtilities BioPerl package
 
 =head1 NAME
@@ -20,7 +20,7 @@ Bio::DB::EUtilities::Summary::Item - simple layered object for DocSum item data
 
   # Items can be nested up to three levels at this time (Item, ListItem,
   # StructureItem).
-  
+
   while (my $item = $docsum->next_Item) {
      print "Name: ",$item->get_name,"\n";
      print "Data: ",$item->get_content,"\n";
@@ -32,7 +32,7 @@ Bio::DB::EUtilities::Summary::Item - simple layered object for DocSum item data
         }
      }
   }
-  
+
 
 =head1 DESCRIPTION
 
@@ -242,7 +242,7 @@ sub get_name {
  Args     : none
  Note     : this is not the same as the datatype(), which describes the
             group this Item object belongs to
- 
+
 =cut
 
 sub get_type {
@@ -257,7 +257,7 @@ sub get_type {
  Function : retrieves Item/ListItem/StructureItem content (if any)
  Returns  : string
  Args     : none
- 
+
 =cut
 
 sub get_content {

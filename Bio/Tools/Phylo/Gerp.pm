@@ -21,7 +21,7 @@ Bio::Tools::Phylo::Gerp - Parses output from GERP
   use Bio::Tools::Phylo::Gerp;
 
   my $parser = Bio::Tools::Phylo::Gerp->new(-file => "alignment.rates.elems");
-  
+
   while (my $feat = $parser->next_result) {
     my $start = $feat->start;
     my $end = $feat->end;

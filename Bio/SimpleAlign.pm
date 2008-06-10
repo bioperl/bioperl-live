@@ -907,13 +907,13 @@ sub select {
  Title     : select_noncont
  Usage     : # 1st and 3rd sequences, sorted
              $aln2 = $aln->select_noncont(1, 3)
-             
+
              # 1st and 3rd sequences, sorted (same as first)
              $aln2 = $aln->select_noncont(3, 1)
-             
+
              # 1st and 3rd sequences, unsorted
              $aln2 = $aln->select_noncont('nosort',3, 1)
-             
+
  Function  : Creates a new alignment from a subset of sequences.  Numbering
              starts from 1.  Sequence positions larger than no_sequences() will
              throw an error.  Sorts the order added to new alignment by default,
@@ -2680,8 +2680,8 @@ sub source{
 
  Title     : set_displayname_safe
  Usage     : ($new_aln, $ref_name)=$ali->set_displayname_safe(4)
- Function  : Assign machine-generated serial names to sequences in input order.  
-             Designed to protect names during PHYLIP runs. Assign 10-char string 
+ Function  : Assign machine-generated serial names to sequences in input order.
+             Designed to protect names during PHYLIP runs. Assign 10-char string
              in the form of "S000000001" to "S999999999". Restore the original
              names using "restore_displayname".
  Returns   : 1. a new $aln with system names;
@@ -2743,14 +2743,14 @@ sub restore_displayname {
 }
 
 =head2 sort_by_start
- 
+
  Title     : sort_by_start
  Usage     : $ali->sort_by_start
  Function  : Changes the order of the alignment to the start position of each
              subalignment    
  Returns   :
  Argument  :
- 
+
 =cut
 
 sub sort_by_start {
@@ -2787,25 +2787,25 @@ sub _startend
                            -delimiters => '{}',
                            -separator  => '/');
              $str = $aln->bracket_string(@params)
-              
+
  Function :  When supplied with a list of parameters (see below), returns a
              string in BIC format. This is used for allelic comparisons.
              Briefly, if either allele contains a base change when compared to
              the refseq, the base or gap for each allele is represented in
              brackets in the order present in the 'alleles' parameter.
-             
+
              For the following data:
-             
+
              >testseq
              GGATCCATTGCTACT
              >allele1
              GGATCCATTCCTACT
              >allele2
              GGAT--ATTCCTCCT
-             
+
              the returned string with parameters 'refseq => testseq' and
              'alleles => [qw(allele1 allele2)]' would be:
-             
+
              GGAT[C/-][C/-]ATT[C/C]CT[A/C]CT
  Returns   : BIC-formatted string
  Argument  : Required args
@@ -2821,7 +2821,7 @@ sub _startend
                             symbol is used
                             default = '/'
  Throws    : On no refseq/alleles, or invalid refseq/alleles.
- 
+
 =cut
 
 sub bracket_string {

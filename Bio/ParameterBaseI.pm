@@ -18,7 +18,7 @@ as IDs, database name, program arguments, and other odds and ends.
 =head1 SYNOPSIS
 
   # Bio::DB::MyParams implements Bio::ParameterBaseI
-  
+
   @params = (-db   => 'protein',
              -id   => \@ids,
              -retmax => 10);
@@ -27,45 +27,45 @@ as IDs, database name, program arguments, and other odds and ends.
 
   # sets only parameters passed; results in a state change if any parameter
   # passed is new or differs from previously set value
-  
+
   $pobj->set_params(@params);
-  
+
   # reset all parameters (sets to undef); results in a state change
-  
+
   $pobj->reset_params();
-  
+
   # resets parameters to those in %param (sets all others to undef); resets the
   # object state to indicate change.
-  
+
   $pobj->reset_params(@params);
-  
+
   # direct get/set; results in a state change if any parameter passed is new or
   # differs from previously set value
-  
+
   $pobj->db('nucleotide');
   @ids = $pobj->id();
-  
+
   # retrieve list containing set defined parameters
-  
+
   %myparams = $pobj->get_parameters();
-   
+
   # checks whether the state of the object has changed (i.e. parameter has
   # changed, so on)
-  
+
   if ($pobj->parameters_changed) {
      # run new search
   } else {
      # return cached search
   }
-  
+
   # available parameters
-  
+
   @params = $pobj->available_parameters();
-  
+
   # retrieve string (URI, query, etc); calling to* methods changes object state
   # to indicate data hasn't changed (so future calls to parameters_changed()
   # will return FALSE)
-  
+
   $query = $pobj->to_string(); # returns raw string
   $uri = $pobj->to_uri(); #  returns URI-based object
   $uri = $pobj->to_my_data_struct(); #  returns implemenation-specific data structure

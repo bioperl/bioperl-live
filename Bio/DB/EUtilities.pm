@@ -110,12 +110,12 @@ sub new {
            Bio::ParameterBaseI implementation).
  Returns : HTTP::Response object or data if callback is used
  Args    : (optional)
- 
-           -cache_response - flag to cache HTTP::Response object; 
+
+           -cache_response - flag to cache HTTP::Response object;
                              Default is 1 (TRUE, caching ON)
-                             
+
            These are passed on to LWP::UserAgent::request() if stipulated
-           
+
            -file   - use a LWP::UserAgent-compliant callback
            -cb     - dumps the response to a file (handy for large responses)
                      Note: can't use file and callback at the same time
@@ -226,10 +226,10 @@ ones deemed absolutely necessary).  All others are available by calling
  Usage   : $pobj->set_parameters(@params);
  Function: sets the NCBI parameters listed in the hash or array
  Returns : None
- Args    : [optional] hash or array of parameter/values.  
+ Args    : [optional] hash or array of parameter/values.
  Note    : This sets any parameter (i.e. doesn't screen them).  In addition to
            regular eutil-specific parameters, you can set the following:
-           
+
            -eutil    - the eUtil to be used (default 'efetch')
            -history  - pass a HistoryI-implementing object, which
                        sets the WebEnv, query_key, and possibly db and linkname
@@ -243,7 +243,7 @@ ones deemed absolutely necessary).  All others are available by calling
 
 sub set_parameters {
     my ($self, @args) = @_;
-    # just ensures that parser instance isn't reused    
+    # just ensures that parser instance isn't reused
     delete $self->{'_parser'};
     $self->parameter_base->set_parameters(@args);
 }
@@ -275,7 +275,7 @@ sub reset_parameters {
  Returns : Array of available parameters (no values)
  Args    : [optional] A string; either eutil name (for returning eutil-specific
            parameters) or 'history' (for those parameters allowed when retrieving
-           data stored on the remote server using a 'Cookie').  
+           data stored on the remote server using a 'Cookie').
 
 =cut
 
@@ -291,9 +291,9 @@ sub available_parameters {
            %params = $pobj->get_parameters;
  Function: Returns list of key/value pairs, parameter => value
  Returns : Flattened list of key-value pairs. All key-value pairs returned,
-           though subsets can be returned based on the '-type' parameter.  
+           though subsets can be returned based on the '-type' parameter.
            Data passed as an array ref are returned based on whether the
-           '-join_id' flag is set (default is the same array ref). 
+           '-join_id' flag is set (default is the same array ref).
  Args    : -type : the eutil name or 'history', for returning a subset of
                 parameters (Default: returns all)
            -join_ids : Boolean; join IDs based on correspondence (Default: no join)
@@ -312,9 +312,9 @@ sub get_parameters {
  Function: Returns the specific parameter values.
  Returns : For consistency returns a list of values for this parameter.  If only
            one is expected, use:
-           
+
            ($val) = $factory->get_parameter_value('id');
-           
+
  Args    : parameter expected
 
 =cut
@@ -342,7 +342,7 @@ sub get_parameter_values {
  Returns  : string
  Args     : string (eutil)
  Throws   : on invalid eutil
- 
+
 =cut
 
 sub eutil {
@@ -394,7 +394,7 @@ sub get_ids {
  Returns  : string
  Args     : none
  Note     : implemented for einfo and espell
- 
+
 =cut
 
 sub get_database {
@@ -468,6 +468,7 @@ sub get_count {
     my ($self, @args) = @_;
     return $self->get_Parser->get_count(@args);
 }
+
 =head2 get_queried_databases
 
  Title    : get_queried_databases
@@ -583,7 +584,7 @@ sub get_query_translation {
  Title    : get_corrected_query
  Usage    : my $cor = $eutil->get_corrected_query;
  Function : retrieves the corrected query when using espell
- Returns  : string 
+ Returns  : string
  Args     : none
 
 =cut
@@ -738,7 +739,7 @@ sub get_record_count {
 sub get_last_update {
     my ($self, @args) = @_;
     return $self->get_Parser->get_last_update(@args);
-} 
+}
 =head2 get_menu_name
 
  Title    : get_menu_name
@@ -746,7 +747,7 @@ sub get_last_update {
  Function : returns string of database menu name
  Returns  : string
  Args     : none
- 
+
 =cut
 
 sub get_menu_name {
@@ -777,7 +778,7 @@ sub get_description {
  Returns  : Field object
  Args     : none
  Note     : uses callback() for filtering if defined for 'fields'
- 
+
 =cut
 
 sub next_FieldInfo {
@@ -809,7 +810,7 @@ sub get_FieldInfo {
  Function : iterate through LinkInfo objects
  Returns  : LinkInfo object
  Args     : none
- 
+
 =cut
 
 sub next_LinkInfo {
@@ -897,7 +898,7 @@ sub get_linked_databases {
  Args     : [optional] Scalar; string ('all') to reset all iterators, or string 
             describing the specific main object iterator to reset. The following
             are recognized (case-insensitive):
-            
+
             'all' - rewind all objects and also recursively resets nested object
                     interators (such as LinkSets and DocSums).
             'globalqueries'
@@ -922,13 +923,13 @@ sub rewind {
  Returns  : code reference
  Args     : [REQUIRED] Scalar; string describing the specific object to iterate.
             The following are currently recognized (case-insensitive):
-            
+
             'globalqueries'
             'fieldinfo' or 'fieldinfos'
             'linkinfo' or 'linkinfos'
             'linksets'
             'docsums'
-            
+
             A second argument can also be passed to generate a 'lazy' iterator,
             which loops through and returns objects as they are created (instead
             of creating all data instances up front, then iterating through,
@@ -937,7 +938,7 @@ sub rewind {
             as this depends on whether the data source is seek()able and thus
             'rewindable'. We will add rewind() support at a later time which
             will work for 'seekable' data.
-            
+
             A callback specified using callback() will be used to filter objects
             for any generated iterator. This behaviour is implemented for both
             normal and lazy iterator types and is the default. If you don't want

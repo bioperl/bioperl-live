@@ -134,7 +134,7 @@ my %VALID_TYPE = (
  Args    : One additional argument from the format and file/fh parameters.
            -tempfile    => boolean.  Defaults to false.  Write out XML data
                            to a temporary filehandle to send to PerlSAX parser.
-                    
+
 =cut
 
 =head2 _initialize

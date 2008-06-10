@@ -29,11 +29,12 @@ Bio::SearchIO::infernal - SearchIO-based Infernal parser
 
 =head1 DESCRIPTION
 
-This is a highly experimental SearchIO-based parser for Infernal output from the
-cmsearch program. It currently parses cmsearch output for Infernal versions
-0.7-0.81; older versions may work but will not be supported. After the first
-stable version is released (and output has stabilized) it is very likely support
-for the older pre-v.1 developer releases will be dropped.
+This is a highly experimental SearchIO-based parser for Infernal
+output from the cmsearch program. It currently parses cmsearch output
+for Infernal versions 0.7-0.81; older versions may work but will not
+be supported. After the first stable version is released (and output
+has stabilized) it is very likely support for the older pre-v.1
+developer releases will be dropped.
 
 =head1 FEEDBACK
 
@@ -564,7 +565,7 @@ sub query_description {
  Function: Get/Set min bit score cutoff (for generating Hits/HSPs)
  Returns : score (number)
  Args    : [optional] score (number)
- 
+
 =cut
 
 sub hsp_minscore {
@@ -581,7 +582,7 @@ sub hsp_minscore {
            to a simple bracketed format (simple WUSS by default) 
  Returns : boolean flag (TRUE or FALSE)
  Args    : [optional] boolean (eval's to TRUE or FALSE)
- 
+
 =cut
 
 sub convert_meta {
@@ -597,7 +598,7 @@ sub convert_meta {
  Function: Set the Infernal cmsearch version
  Returns : version
  Args    : [optional] version
- 
+
 =cut
 
 sub version {
@@ -618,7 +619,7 @@ sub version {
                      ? (unknown)
                      . (gap)
  Args    : Hash ref of substitute delimiters, using above keys.
- 
+
 =cut
 
 sub structure_symbols {
@@ -649,7 +650,7 @@ sub structure_symbols {
  Note    : This is a very simple conversion method to get simple bracketed
            format from Infernal data.  If the convert_meta() flag is set,
            this is the method used to convert the strings.
- 
+
 =cut
 
 sub simple_meta {
@@ -940,7 +941,7 @@ sub _parse_old {
             if ($self->in_element('hsp')) {
                 my $strlen = $hsp->{'query'} =~ tr{A-Za-z}{A-Za-z};
                 
-                my $metastr;
+		my $metastr;
                 # Ugh...these should be passed in a hash
                 $metastr = ($self->convert_meta) ? ($self->simple_meta($hsp->{'meta'})) :
                             ($hsp->{'meta'});

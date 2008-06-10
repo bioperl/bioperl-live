@@ -145,12 +145,12 @@ sub ua {
            Bio::ParameterBaseI implementation).
  Returns : HTTP::Response object or data if callback is used
  Args    : (optional)
- 
+
            -cache_response - flag to cache HTTP::Response object; 
                              Default is 1 (TRUE, caching ON)
-                             
+
            These are passed on to LWP::UserAgent::request() if stipulated
-           
+
            -cb     - use a LWP::UserAgent-compliant callback
            -file   - dumps the response to a file (handy for large responses)
                      Note: can't use file and callback at the same time

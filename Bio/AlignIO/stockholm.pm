@@ -47,7 +47,7 @@ and alignment-based annotation
   GF Lines (alignment feature/annotation):
   #=GF <featurename> <Generic per-file annotation, free text>
   Placed above the alignment
-  
+
   GC Lines (Alignment consensus)
   #=GC <featurename> <Generic per-column annotation, exactly 1
        character per column>
@@ -76,7 +76,7 @@ the alignment annotation data.
      ID        id  
      DE        description
     ----------------------------------------------------------------------
-    
+
     Tag        Bio::Annotation   TagName                    Parameters
                Class
     ----------------------------------------------------------------------

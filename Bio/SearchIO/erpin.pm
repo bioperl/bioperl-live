@@ -582,7 +582,7 @@ sub query_accession {
  Function: Get/Set min bit score cutoff (for generating Hits/HSPs)
  Returns : score (number)
  Args    : [optional] score (number)
- 
+
 =cut
 
 sub hsp_minscore {

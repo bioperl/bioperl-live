@@ -22,59 +22,59 @@ Bio::Tools::EUtilities - NCBI eutil XML parsers
                                        -eutil    => 'einfo',
                                        -file     => 'output.xml'
                                         );
-  
+
   # or HTTP::Response object...
-    
+
     my $parser = Bio::Tools::EUtilities->new(
                                        -eutil => 'esearch',
-                                       -response => $response 
+                                       -response => $response
                                         );
-  
+
   # esearch, esummary, elink
-  
+
     @ids = $parser->get_ids(); # returns array or array ref of IDs
 
   # egquery, espell
-  
+
     $term = $parser->get_term(); # returns array or array ref of IDs
-  
+
   # elink, einfo
-  
+
     $db = $parser->get_database(); # returns database
-  
+
   # Query-related methods (esearch, egquery, espell data)
   # eutil data centered on use of search terms
-    
+
     my $ct = $parser->get_count; # uses optional database for egquery count
     my $translation = $parser->get_count;
-    
+
     my $corrected = $parser->get_corrected_query; # espell
-    
+
     while (my $gquery = $parser->next_GlobalQuery) {
        # iterates through egquery data
     }
-  
+
   # Info-related methods (einfo data)
   # database-related information
-  
-    my $desc = $parser->get_description;  
+
+    my $desc = $parser->get_description;
     my $update = $parser->get_last_update;
     my $nm = $parser->get_menu_name;
     my $ct = $parser->get_record_count;
-  
+
     while (my $field = $parser->next_FieldInfo) {...}
     while (my $field = $parser->next_LinkInfo) {...}
-  
+
   # History methods (epost data, some data returned from elink)
   # data which enables one to retrieve and query against user-stored information on the NCBI server
 
     while (my $cookie = $parser->next_History) {...}
-    
+
     my @hists = $parser->get_Histories;
-    
+
   # Bio::Tools::EUtilities::Summary (esummary data)
   # information on a specific database record
-  
+
     # retrieve nested docsum data
     while (my $docsum = $parser->next_DocSum) {
         print "ID:",$docsum->get_ids,"\n";
@@ -88,17 +88,17 @@ Bio::Tools::EUtilities - NCBI eutil XML parsers
             }
         }
     }
-  
+
     # retrieve flattened item list per DocSum
     while (my $docsum = $parser->next_DocSum) {
-        my @items = $docsum->get_all_DocSum_Items; 
+        my @items = $docsum->get_all_DocSum_Items;
     }
 
   # Bio::Tools::EUtilities::Link (elink data)
   # data retrieved using links between related information in databases
-  
+
     # still working on new API
-    
+
 =head1 DESCRIPTION
 
 Parses NCBI eutils XML output for retrieving IDs and other information. Part of
@@ -228,7 +228,7 @@ sub _initialize {
  Returns  : value eval'ing to TRUE or FALSE
  Args     : value eval'ing to TRUE or FALSE
  Note     : must be set prior to any parsing run
- 
+
 =cut
 
 sub cache_response {
@@ -244,7 +244,7 @@ sub cache_response {
  Title    : response
  Usage    : my $response = $parser->response;
  Function : Get/Set HTTP::Response object
- Returns  : HTTP::Response 
+ Returns  : HTTP::Response
  Args     : HTTP::Response
  Note     : to prevent object from destruction set cache_response() to TRUE
 
@@ -285,7 +285,7 @@ sub data_parsed {
  Args     : none
  Note     : Permanently set in constructor.  Still highly experimental.
             Don't stare directly at happy fun ball...
- 
+
 =cut
 
 sub is_lazy {
@@ -402,7 +402,7 @@ sub parse_chunk {
  Returns  : string
  Args     : string (eutil)
  Throws   : on invalid eutil
- 
+
 =cut
 
 =head2 datatype
@@ -473,7 +473,7 @@ sub get_ids {
  Returns  : string
  Args     : none
  Note     : implemented for einfo and espell
- 
+
 =cut
 
 sub get_database {
@@ -920,7 +920,7 @@ sub get_last_update {
  Function : returns string of database menu name
  Returns  : string
  Args     : none
- 
+
 =cut
 
 sub get_menu_name {
@@ -955,7 +955,7 @@ sub get_description {
  Returns  : Field object
  Args     : none
  Note     : uses callback() for filtering if defined for 'fields'
- 
+
 =cut
 
 sub next_FieldInfo {
@@ -991,7 +991,7 @@ sub get_FieldInfo {
  Function : iterate through LinkInfo objects
  Returns  : LinkInfo object
  Args     : none
- 
+
 =cut
 
 sub next_LinkInfo {
@@ -1116,17 +1116,17 @@ sub get_linked_databases {
             $esum->rewind('recursive')
  Function : retrieve a list of DocSum instances
  Returns  : array of Bio::Tools::EUtilities::Summary::DocSum
- Args     : [optional] Scalar; string ('all') to reset all iterators, or string 
+ Args     : [optional] Scalar; string ('all') to reset all iterators, or string
             describing the specific main object iterator to reset. The following
             are recognized (case-insensitive):
-            
+
             'all' - rewind all objects and also recursively resets nested object interators
                     (such as LinkSets and DocSums).
             'globalqueries' - GlobalQuery objects
             'fieldinfo' or 'fieldinfos' - FieldInfo objects
             'linkinfo' or 'linkinfos' - LinkInfo objects in this layer
             'linksets' - LinkSet objects
-            'docsums' - DocSum objects 
+            'docsums' - DocSum objects
             'histories' - HistoryI objects (Cookies, LinkSets)
 
 =cut
@@ -1160,20 +1160,20 @@ sub rewind {
  Returns  : code reference
  Args     : [REQUIRED] Scalar; string describing the specific object to iterate.
             The following are currently recognized (case-insensitive):
-            
+
             'globalqueries'
             'fieldinfo' or 'fieldinfos'
             'linkinfo' or 'linkinfos'
             'linksets'
             'docsums'
             'histories'
-            
+
  Note     : This function generates a simple coderef that one can use
             independently of the various next_* functions (in fact, the next_*
             functions use lazily created iterators generated via this method,
             while rewind() merely deletes them so they can be regenerated on the
-            next call). 
-            
+            next call).
+
             A callback specified using callback() will be used to filter objects
             for any generated iterator. This behaviour is implemented for both
             normal and lazy iterator types and is the default. If you don't want
@@ -1182,7 +1182,7 @@ sub rewind {
             callback() also changes the behavior of the next_* functions as the
             iterators are generated here (as described above); this is a feature
             and not a bug.
-            
+
             'Lazy' iterators are considered an experimental feature and may be
             modified in the future. A 'lazy' iterator, which loops through and
             returns objects as they are created (instead of creating all data

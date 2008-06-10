@@ -114,7 +114,7 @@ sub new {
  Returns  : string
  Args     : none
  Note     : This is not the same as db()! (see DESCRIPTION for details)
- 
+
 =cut
 
 sub get_dbto { return shift->{'_dbto'} }
@@ -186,7 +186,7 @@ sub get_link_menu_name {
  Returns  : integer
  Args     : none
  Note     : only set when using elink and cmd set to 'acheck'
- 
+
 =cut
 
 sub get_priority { return shift->{'_priority'} }
@@ -199,7 +199,7 @@ sub get_priority { return shift->{'_priority'} }
  Returns  : string
  Args     : none
  Note     : only set when using elink and cmd set to 'acheck'
- 
+
 =cut
 
 sub get_html_tag { return shift->{'_htmltag'} }
@@ -213,7 +213,7 @@ sub get_html_tag { return shift->{'_htmltag'} }
  Returns  : string
  Args     : none
  Note     : only set when using elink and cmd set to 'acheck'
- 
+
 =cut
 
 sub get_url { return shift->{'_url'} }

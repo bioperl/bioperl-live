@@ -26,14 +26,14 @@ relationships ('structured tags') that can be represented as simple text.
    use Bio::Annotation::Collection;
 
    my $col = Bio::Annotation::Collection->new();
-   
+
    # data structure can be an array reference with a data structure
    # corresponding to that defined by Data::Stag:
-   
+
    my $sv = Bio::Annotation::TagTree->new(-tagname => 'mytag1',
                                           -value => $data_structure);
    $col->add_Annotation($sv);
-   
+
    # regular text passed is parsed based on the tagformat().
    my $sv2 = Bio::Annotation::TagTree->new(-tagname => 'mytag2',
                                           -tagformat => 'xml',
@@ -167,7 +167,7 @@ sub as_text{
  Usage   : my $str = $ann->display_text();
  Function: returns a string. Unlike as_text(), this method returns a string
            formatted as would be expected for the specific implementation.
-           
+
            One can pass a callback as an argument which allows custom text
            generation; the callback is passed the current instance and any text
            returned
@@ -304,7 +304,7 @@ sub tagformat{
            (default is Data::Stag::StagImpl)
  Args    : (optional) Data::Stag node implementation
            (optional)'copy' => flag to create a copy of the node
- 
+
 =cut
 
 sub node{
@@ -327,7 +327,7 @@ sub node{
 Because Data::Stag uses blessed arrays and the core Bioperl class uses blessed
 hashes, TagTree uses an internal instance of a Data::Stag node for data storage.
 Therefore the following methods actually delegate to the Data:::Stag internal
-instance. 
+instance.
 
 For consistency (since one could recursively check child nodes), methods retain
 the same names as Data::Stag. Also, no 'magic' (AUTOLOAD'ed) methods are
@@ -372,11 +372,11 @@ sub data {
  Usage   :
  Function: Get the top-level array of Data::Stag nodes or (if the top level is
            a terminal node) a scalar value.
-           
+
            This is similar to StructuredValue's get_values() method, with the
            key difference being instead of array refs and scalars you get either
            Data::Stag nodes or the value for this particular node.
-           
+
            For consistency (since one could recursively check nodes),
            we use the same method name as Data::Stag children().
  Example :
@@ -482,11 +482,11 @@ sub findval {
  Function: add new child node to the current node.  One can pass in a node, TagTree,
            or data structure; for instance, in the above, this would translate
            to (in XML):
-           
+
            <name>
              <foo>bar1</foo>
            </name>
-           
+
  Returns : node
  Args    : first arg = element name
            all other args are added as tag-value pairs
