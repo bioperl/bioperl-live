@@ -93,8 +93,7 @@ sub _initialize
   $self->debug("libxml version: ", XML::LibXML::LIBXML_VERSION(), "\n");
   $self->treetype($args{-treetype});
   $self->nodetype($args{-nodetype});
-  #$self->{'_treelevel'} = 0;
-  _init_func();
+  $self->_init_func();
 }
 
 sub _init_func
@@ -108,6 +107,7 @@ sub _init_func
   my %end_elements = (
     'phylogeny' => \&end_element_phylogeny,
     'clade' => \&end_element_clade, 
+    'name' => \&end_element_name, 
   );
   $self->{'_end_element'} = \%end_elements;
 }
@@ -183,23 +183,13 @@ sub processNode
     $self->{'_lastitem'}->{$reader->name}++;
     push @{$self->{'_lastitem'}->{'current'}}, $reader->name;
 
-    if ($reader->name eq 'phylogeny') {
-      $self->element_phylogeny();
+    if (exists $self->{'_start_element'}->{$reader->name}) {
+      my $method = $self->{'_start_element'}->{$reader->name};
+      $self->$method();
     }
-    elsif ($reader->name eq 'clade') {
-      $self->element_clade();
-    }
-#    if (exists $self->{'_start_element'}->{$reader->name}) {
-#      $self->{'_start_element'}->{$reader->name}->();
-#    }
   }
   elsif ($reader->nodeType == XML_READER_TYPE_TEXT)
   {
-    #$self->debug( $reader->depth,
-    #    $reader->nodeType,
-    #    $reader->name,
-    #    $reader->isEmptyElement,
-    #    $reader->value);
     $self->debug($reader->value, "\n");
     $self->{'_currenttext'} = $reader->value;
   } 
@@ -207,18 +197,10 @@ sub processNode
   {
     $self->debug("ending element: ",$reader->name, "\n");
     
-    if ($reader->name eq 'phylogeny') {
-      $self->end_element_phylogeny();
+    if (exists $self->{'_end_element'}->{$reader->name}) {
+      my $method = $self->{'_end_element'}->{$reader->name};
+      $self->$method();
     }
-    elsif ($reader->name eq 'clade') {
-      $self->end_element_clade();
-    }
-    elsif ($reader->name eq 'name') {
-      $self->end_element_name();
-    }
-    #if (exists $self->{'_end_element'}->{$reader->name}) {
-    #  $self->{'_end_element'}->{$reader->name}->();
-    #}
     $self->{'_lastitem'}->{ $reader->name }--;
     pop @{$self->{'_lastitem'}->{'current'}};
   }
@@ -233,7 +215,6 @@ sub processNode
  Example :
  Returns : 
  Args    :
-
 
 =cut
 
@@ -288,17 +269,23 @@ sub end_element_phylogeny
   my ($self) = @_;
   $self->debug("Ending phylogeny: nodes in stack is", scalar @{$self->{'_currentnodes'}}, "\n");
 
-  my $root = $self->nodetype->new( -verbose => $self->verbose );
+  my $root;
+  # if there is more than one node in _currentnodes
   # aggregate the nodes into trees basically ad-hoc.
-  while ( @{$self->{'_currentnodes'}} ) {
-    my ($node) = ( shift @{$self->{'_currentnodes'}});
-    $root->add_Descendent($node);
-  }
-  $self->debug("Root node is " . $root->to_string()."\n");
-  if( $self->verbose > 0 ) { 
-    foreach my $node ( $root->get_Descendents  ) {
-      $self->debug("node is ". $node->to_string(). "\n");
+  if ( @{$self->{'_currentnodes'}} > 1) 
+  {
+    $root = $self->nodetype->new( -verbose => $self->verbose, 
+                                  -id => '' );
+    while ( @{$self->{'_currentnodes'}} ) {
+      my ($node) = ( shift @{$self->{'_currentnodes'}});
+      $root->add_Descendent($node);
     }
+  }
+  # if there is only one node in _currentnodes 
+  # that node is root.
+  elsif ( @{$self->{'_currentnodes'}} == 1) 
+  {
+    $root = shift @{$self->{'_currentnodes'}};
   }
 
   my $tree = $self->treetype->new(
@@ -326,7 +313,9 @@ sub element_clade
   my %data = ();
   #take care of attribute
   $self->processAttribute(\%data);
-  my $tnode = $self->nodetype->new( -verbose => $self->verbose, %data);
+  my $tnode = $self->nodetype->new( -verbose => $self->verbose, 
+                                    -id => '', 
+                                    %data);
   push @{$self->{'_currentitems'}}, $tnode;
 }
 
