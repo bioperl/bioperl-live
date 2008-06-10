@@ -53,7 +53,7 @@ Documentation for PSI XML can be found at L<http://psidev.sourceforge.net>.
 =head1 METHODS
 
 The naming system is analagous to the SeqIO system, although usually
-L<next_network()> will be called only once per file.
+L<next_network> will be called only once per file.
 
 =cut
 

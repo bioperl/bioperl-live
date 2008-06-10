@@ -306,9 +306,6 @@ sub min { $_[0]<$_[1] ? $_[0] : $_[1] }
 
 __END__
 
-=head1 NAME
-
-Bio::Graphics::Glyph::arrow - The "arrow" glyph
 
 =head1 SYNOPSIS
 

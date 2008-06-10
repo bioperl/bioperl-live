@@ -224,10 +224,6 @@ sub draw_label {
 
 __END__
 
-=head1 NAME
-
-Bio::Graphics::Glyph::arrow - The "ruler_arrow" glyph
-
 =head1 SYNOPSIS
 
   See L<Bio::Graphics::Panel> and L<Bio::Graphics::Glyph>.

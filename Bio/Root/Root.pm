@@ -54,11 +54,11 @@ here.
 =head2 Throwing Exceptions
 
 One of the functionalities that L<Bio::Root::RootI> provides is the
-ability to L<throw()> exceptions with pretty stack traces. Bio::Root::Root
+ability to L<throw>() exceptions with pretty stack traces. Bio::Root::Root
 enhances this with the ability to use L<Error> (available from CPAN)
 if it has also been installed. 
 
-If L<Error> has been installed, L<throw()> will use it. This causes an
+If L<Error> has been installed, L<throw>() will use it. This causes an
 Error.pm-derived object to be thrown. This can be caught within a
 C<catch{}> block, from wich you can extract useful bits of
 information. If L<Error> is not installed, it will use the 
@@ -66,12 +66,12 @@ L<Bio::Root::RootI>-based exception throwing facilty.
 
 =head2 Typed Exception Syntax 
 
-The typed exception syntax of L<throw()> has the advantage of plainly
+The typed exception syntax of L<throw>() has the advantage of plainly
 indicating the nature of the trouble, since the name of the class
 is included in the title of the exception output.
 
 To take advantage of this capability, you must specify arguments
-as named parameters in the L<throw()> call. Here are the parameters:
+as named parameters in the L<throw>() call. Here are the parameters:
 
 =over 4
 

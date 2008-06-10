@@ -97,7 +97,7 @@ multiple sequences is a common requirement, simultaneous handling of
 multiple alignments is not. The only current exception is format
 C<bl2seq> which parses results of the BLAST C<bl2seq> program and which
 may produce several alignment pairs.  This set of alignment pairs can
-be read using multiple calls to L<next_aln()>.
+be read using multiple calls to L<next_aln>.
 
 =head1 CONSTRUCTORS
 
@@ -108,9 +108,9 @@ be read using multiple calls to L<next_aln()>.
    $seqIO = Bio::AlignIO->new(-format => $format);
    $seqIO = Bio::AlignIO->new(-fh => \*STDOUT, -format => $format);
 
-The L<new()> class method constructs a new L<Bio::AlignIO> object.  
+The L<new> class method constructs a new L<Bio::AlignIO> object.  
 The returned object can be used to retrieve or print alignment
-objects. L<new()> accepts the following parameters:
+objects. L<new> accepts the following parameters:
 
 =over 4
 
@@ -180,10 +180,10 @@ all treated equivalently.
    # read from STDIN or use @ARGV:
    $fh = Bio::AlignIO->newFh(-format => $format);
 
-This constructor behaves like L<new()>, but returns a tied filehandle
+This constructor behaves like L<new>, but returns a tied filehandle
 rather than a L<Bio::AlignIO> object.  You can read sequences from this
 object using the familiar E<lt>E<gt> operator, and write to it using
-L<print()>. The usual array and $_ semantics work.  For example, you can
+L<print>. The usual array and $_ semantics work.  For example, you can
 read all sequence objects into an array like this:
 
   @sequences = <$fh>;

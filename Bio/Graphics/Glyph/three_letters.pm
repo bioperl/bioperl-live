@@ -58,10 +58,6 @@ sub draw_repeating_shape
 
 __END__
 
-=head1 NAME
-
-Bio::Graphics::Glyph::three-letters - The "three letters" glyph
-
 =head1 SYNOPSIS
 
   See L<Bio::Graphics::Panel> and L<Bio::Graphics::Glyph>.

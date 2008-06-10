@@ -12,13 +12,6 @@
 
 Bio::Tools::TargetP - Results of one TargetP run
 
-=head1 DESCRIPTION
-
-TargetP modules will provides parsed informations about protein localization.
-It take a targetp output file.
-It parses the results, and retrurn a Bio::SeqFeature::Generic object for
-each seqeunces found to have a subcellular localization
-
 =head1 SYNOPSIS
 
    use Bio::Tools::TargetP;
@@ -55,6 +48,13 @@ each seqeunces found to have a subcellular localization
    # essential if you gave a filename at initialization (otherwise the file
    # will stay open)
    $targetp->close();
+
+=head1 DESCRIPTION
+
+TargetP modules will provides parsed informations about protein
+localization.  It reads in a targetp output file.  It parses the
+results, and returns a Bio::SeqFeature::Generic object for each
+seqeunces found to have a subcellular localization
 
 
 =head1 FEEDBACK

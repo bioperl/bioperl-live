@@ -41,9 +41,6 @@ sub draw_component {
 
 __END__
 
-=head1 NAME
-
-Bio::Graphics::Glyph::crossbox - The "crossbox" glyph
 
 =head1 SYNOPSIS
 

@@ -709,7 +709,7 @@ my %RE = (
  Comments  : A RestrictionEnzyme object manages its recognition sequence
            : as a Bio::PrimarySeq object.
 
-See Also   : L<_make_custom>(), L<_make_standard>(), L<Bio::PrimarySeq.pm::_initialize()>
+See Also   : L<_make_custom>(), L<_make_standard>(), L<Bio::PrimarySeq.pm::_initialize>()
 
 =cut
 

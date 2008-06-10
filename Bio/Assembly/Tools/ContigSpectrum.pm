@@ -9,77 +9,9 @@
 
 =head1 NAME
 
-  Bio::Assembly::Tools::ContigSpectrum
+Bio::Assembly::Tools::ContigSpectrum
 
 =head1 SYNOPSIS
-
-  Bio::Assembly::Tools::ContigSpectrum is a module to create, manipulate and output
-  contig spectra, assembly-derived data used in metagenomics (community
-  genomics) for diversity estimation.
-
-=head1 DESCRIPTION
-
-  The Bio::Assembly::Tools::ContigSpectrum Perl module enables to manually create
-  contig spectra, import them from assemblies, manipulate them, transform
-  between different types of contig spectra and output them.
-
-=head2 Background
-
-  A contig spectrum is the count of the number of contigs of different size in
-  an assembly. For example, the contig spectrum [100 5 1 0 0 ...] means that
-  there were 100 singlets (1-contigs), 5 contigs of 2 sequences (2-contigs), 1
-  contig of 3 sequences (3-contig) and no larger contigs.
-
-  An assembly can be produced from a mixture of sequences from different
-  metagenomes. The contig obtained from this assembly is a mixed contig
-  spectrum. The contribution of each metagenome in this mixed contig spectrum
-  can be obtained by determining a dissolved contig spectrum.
-
-  Finally, based on a mixed contig spectrum, a cross contig spectrum can be
-  determined. In a cross contig spectrum, only contigs containing sequences from
-  different metagenomes are kept; "pure" contigs are excluded. Additionally, the
-  total number of singletons (1-contigs) from each region that assembles with
-  any fragments from other regions is the number of 1-contigs in the cross
-  contig spectrum.
-
-=head2 Implemention
-
-  The simplest representation of a contig spectrum is as a hash representation
-  where the key is the contig size (number of sequences making up the contig)
-  and the value the number of contigs of this size.
-
-  In fact, it is useful to have more information associated with the contig
-  spectrum, hence the Bio::Assembly::Tools::ContigSpectrum module implements an object
-  containing a contig spectrum hash and additional information. The get/set
-  methods to access them are:
-    id              contig spectrum ID
-    nof_seq         number of sequences
-    nof_rep         number of repetitions (assemblies) used
-    max_size        size of (number of sequences in) the largest contig
-    nof_overlaps    number of overlaps
-    min_overlap     minimum overlap length for building a contig
-    min_identity    minimum sequence identity over the overlap length
-    avg_overlap     average overlap length
-    avg_identity    average overlap identity
-    avg_seq_length  average sequence length
-    eff_asm_params  effective assembly parameters
-    spectrum        hash representation of a contig spectrum
-
-  Operations on the contig spectra:
-    to_string       create a string representation of the spectrum
-    spectrum        import a hash contig spectrum
-    assembly        determine a contig spectrum from an assembly
-    dissolve        calculate a dissolved contig spectrum (based on assembly)
-    cross           produce a cross contig spectrum (based on assembly)
-    add             add a contig spectrum to an existing one
-    average         make an average of several contig spectra
-
-  When using operations that rely on knowing "where" (from what metagenomes) a
-  sequence came from (i.e. when creating a dissolved or cross contig spectrum),
-  make sure that the sequences used for the assembly have a name header, e.g.
-  >metagenome1|seq1, > >metagenome2|seq1, ...
-
-=head2 Examples
 
   # Simple contig spectrum creation
   my $csp1 = Bio::Assembly::Tools::ContigSpectrum->new(
@@ -141,6 +73,79 @@
   my $cross_csp = Bio::Assembly::Tools::ContigSpectrum->new(
     -cross => $mixed_csp );
   print "The cross contig spectrum is ".$cross_csp->to_string."\n";
+
+
+=head1 DESCRIPTION
+
+The Bio::Assembly::Tools::ContigSpectrum Perl module enables to
+manually create contig spectra, import them from assemblies,
+manipulate them, transform between different types of contig spectra
+and output them.
+
+Bio::Assembly::Tools::ContigSpectrum is a module to create, manipulate
+and output contig spectra, assembly-derived data used in metagenomics
+(community genomics) for diversity estimation.
+
+=head2 Background
+
+A contig spectrum is the count of the number of contigs of different
+size in an assembly. For example, the contig spectrum [100 5 1 0 0
+...] means that there were 100 singlets (1-contigs), 5 contigs of 2
+sequences (2-contigs), 1 contig of 3 sequences (3-contig) and no
+larger contigs.
+
+An assembly can be produced from a mixture of sequences from different
+metagenomes. The contig obtained from this assembly is a mixed contig
+spectrum. The contribution of each metagenome in this mixed contig
+spectrum can be obtained by determining a dissolved contig spectrum.
+
+Finally, based on a mixed contig spectrum, a cross contig spectrum can
+be determined. In a cross contig spectrum, only contigs containing
+sequences from different metagenomes are kept; "pure" contigs are
+excluded. Additionally, the total number of singletons (1-contigs)
+from each region that assembles with any fragments from other regions
+is the number of 1-contigs in the cross contig spectrum.
+
+=head2 Implemention
+
+The simplest representation of a contig spectrum is as a hash
+representation where the key is the contig size (number of sequences
+making up the contig) and the value the number of contigs of this
+size.
+
+In fact, it is useful to have more information associated with the
+contig spectrum, hence the Bio::Assembly::Tools::ContigSpectrum module
+implements an object containing a contig spectrum hash and additional
+information. The get/set methods to access them are:
+
+    id              contig spectrum ID
+    nof_seq         number of sequences
+    nof_rep         number of repetitions (assemblies) used
+    max_size        size of (number of sequences in) the largest contig
+    nof_overlaps    number of overlaps
+    min_overlap     minimum overlap length for building a contig
+    min_identity    minimum sequence identity over the overlap length
+    avg_overlap     average overlap length
+    avg_identity    average overlap identity
+    avg_seq_length  average sequence length
+    eff_asm_params  effective assembly parameters
+    spectrum        hash representation of a contig spectrum
+
+  Operations on the contig spectra:
+
+    to_string       create a string representation of the spectrum
+    spectrum        import a hash contig spectrum
+    assembly        determine a contig spectrum from an assembly
+    dissolve        calculate a dissolved contig spectrum (based on assembly)
+    cross           produce a cross contig spectrum (based on assembly)
+    add             add a contig spectrum to an existing one
+    average         make an average of several contig spectra
+
+When using operations that rely on knowing "where" (from what
+metagenomes) a sequence came from (i.e. when creating a dissolved or
+cross contig spectrum), make sure that the sequences used for the
+assembly have a name header, e.g.  >metagenome1|seq1, >
+>metagenome2|seq1, ...
 
 =head1 FEEDBACK
 

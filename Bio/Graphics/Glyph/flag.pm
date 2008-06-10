@@ -59,10 +59,6 @@ sub draw_component {
 
 __END__
 
-=head1 NAME
-
-Bio::Graphics::Glyph::line - The flag glyph
-
 =head1 SYNOPSIS
 
   See L<Bio::Graphics::Panel> and L<Bio::Graphics::Glyph>.
