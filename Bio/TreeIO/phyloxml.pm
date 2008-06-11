@@ -65,6 +65,7 @@ use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
+use Bio::Tree::TreePhyloXML;
 use Bio::Tree::NodePhyloXML;
 use XML::LibXML;
 use XML::LibXML::Reader;
@@ -73,7 +74,7 @@ use base qw(Bio::TreeIO);
 sub _initialize 
 {
   my($self, %args) = @_;
-  $args{-treetype} ||= 'Bio::Tree::Tree';
+  $args{-treetype} ||= 'Bio::Tree::TreePhyloXML';
   $args{-nodetype} ||= 'Bio::Tree::NodePhyloXML';
   $self->SUPER::_initialize(%args);
   $self->debug("Creating obj phyloxml\n");
@@ -91,6 +92,7 @@ sub _initialize
   $self->debug("libxml version: ", XML::LibXML::LIBXML_VERSION(), "\n");
   $self->treetype($args{-treetype});
   $self->nodetype($args{-nodetype});
+  $self->{'_lastitem'} = {};
   $self->_init_func();
 }
 
@@ -100,14 +102,17 @@ sub _init_func
   my %start_elements = (
     'phylogeny' => \&element_phylogeny,
     'clade' => \&element_clade, 
+    'confidence' => \&element_confidence,
   );
-  $self->{'_start_element'} = \%start_elements;
+  $self->{'_start_elements'} = \%start_elements;
   my %end_elements = (
     'phylogeny' => \&end_element_phylogeny,
     'clade' => \&end_element_clade, 
     'name' => \&end_element_name, 
+    'branch_length' => \&end_element_branch_length,
+    'confidence' => \&end_element_confidence,
   );
-  $self->{'_end_element'} = \%end_elements;
+  $self->{'_end_elements'} = \%end_elements;
 }
 
 
@@ -181,8 +186,8 @@ sub processNode
     $self->{'_lastitem'}->{$reader->name}++;
     push @{$self->{'_lastitem'}->{'current'}}, $reader->name;
 
-    if (exists $self->{'_start_element'}->{$reader->name}) {
-      my $method = $self->{'_start_element'}->{$reader->name};
+    if (exists $self->{'_start_elements'}->{$reader->name}) {
+      my $method = $self->{'_start_elements'}->{$reader->name};
       $self->$method();
     }
   }
@@ -195,8 +200,8 @@ sub processNode
   {
     $self->debug("ending element: ",$reader->name, "\n");
     
-    if (exists $self->{'_end_element'}->{$reader->name}) {
-      my $method = $self->{'_end_element'}->{$reader->name};
+    if (exists $self->{'_end_elements'}->{$reader->name}) {
+      my $method = $self->{'_end_elements'}->{$reader->name};
       $self->$method();
     }
     $self->{'_lastitem'}->{ $reader->name }--;
@@ -250,7 +255,6 @@ sub processAttribute
 sub element_phylogeny 
 {
   my ($self) = @_;   
-  $self->{'_lastitem'} = {};
   $self->{'_currentitems'} = [];
   $self->{'_currentnodes'} = [];
   $self->{'_currenttext'} = '';
@@ -309,7 +313,6 @@ sub element_clade
   my ($self) = @_;
   my $reader = $self->{'_reader'};
   my %data = ();
-  #take care of attribute
   $self->processAttribute(\%data);
   my $tnode = $self->nodetype->new( -verbose => $self->verbose, 
                                     -id => '', 
@@ -365,8 +368,9 @@ sub end_element_name
   my ($self) = @_;
   my $reader = $self->{'_reader'};
   my $prev = $self->prev_element();
+  $self->debug("ending name with prev $prev\n");
   if ($prev eq 'phylogeny') {
-    
+    $self->{'_treeattr'}->{'-id'} = $self->{'_currenttext'};
   }
   elsif ($prev eq 'clade') {
     my $tnode = pop @{$self->{'_currentitems'}};
@@ -380,6 +384,116 @@ sub end_element_name
   }
 }
 
+=head2 end_element_branch_length
+
+ Title   : end_element_branch_length
+ Usage   : $->end_element_branch_length
+ Function: 
+ Returns : none 
+ Args    : none
+
+=cut
+
+sub end_element_branch_length
+{
+  my ($self) = @_;
+  my $reader = $self->{'_reader'};
+  my $prev = $self->prev_element();
+  if ($prev eq 'clade') {
+    my $tnode = pop @{$self->{'_currentitems'}};
+    $tnode->branch_length($self->{'_currenttext'});
+    push @{$self->{'_currentitems'}}, $tnode;
+  }
+  else {
+
+  }
+}
+
+=head2 element_confidence
+
+ Title   : element_confidence
+ Usage   : $->element_confidence
+ Function: 
+ Returns : none 
+ Args    : none
+
+=cut
+
+sub element_confidence
+{
+  my ($self) = @_;
+  my $reader = $self->{'_reader'};
+  my $prev = $self->prev_element();
+  $self->debug("starting confidence within $prev\n");
+  if ($prev eq 'phylogeny') {
+  }
+  elsif ($prev eq 'clade') {
+    my $tnode = pop @{$self->{'_currentitems'}};
+    my %data = ();
+    #take care of attribute
+    $self->processAttribute(\%data);
+    if ((exists $data{'type'}) && ($data{'type'} eq 'bootstrap')) {
+      $tnode->bootstrap('tba');
+    }
+    $self->debug( "attr: ", %data, "\n");
+    $self->debug( "bootstrap: ", $tnode->bootstrap(), "\n");
+    push @{$self->{'_currentitems'}}, $tnode;
+  }
+  elsif ($prev eq 'events') {
+  }
+  elsif ($prev eq 'annotation') {
+  }
+  elsif ($prev eq 'sequence_relation') {
+  }
+  elsif ($prev eq 'clade_relation') {
+  }
+  else {
+  }
+}
+
+
+=head2 end_element_confidence
+
+ Title   : end_element_confidence
+ Usage   : $->end_element_confidence
+ Function: 
+ Returns : none 
+ Args    : none
+
+=cut
+
+sub end_element_confidence
+{
+  my ($self) = @_;
+  my $reader = $self->{'_reader'};
+  my $prev = $self->prev_element();
+  if ($prev eq 'phylogeny') {
+  }
+  elsif ($prev eq 'clade') {
+    my $tnode = pop @{$self->{'_currentitems'}};
+    if ($tnode->bootstrap() eq 'tba') {
+      $tnode->bootstrap($self->{'_currenttext'});
+    }
+    push @{$self->{'_currentitems'}}, $tnode;
+  }
+  elsif ($prev eq 'events') {
+  }
+  elsif ($prev eq 'annotation') {
+  }
+  elsif ($prev eq 'sequence_relation') {
+  }
+  elsif ($prev eq 'clade_relation') {
+  }
+  else {
+
+  }
+}
+
+
+=head2 element_id
+
+ Title   : element_id
+ Usage   : $->element_id
 
 =head2 element_id
 
