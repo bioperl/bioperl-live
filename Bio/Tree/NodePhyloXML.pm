@@ -1,5 +1,3 @@
-# $Id: NodePhyloXML.pm 11508 2007-06-23 01:38:32Z jason $
-#
 # BioPerl module for Bio::Tree::NodePhyloXML
 #
 # Cared for by Mira Han <mirhan@indiana.edu>
