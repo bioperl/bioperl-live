@@ -182,7 +182,7 @@ Bio::Graphics::Glyph::ternary_plot - Draw ternary plot data
 
 This glyph draws a light gray equilateral triangle with its base
 centered on the feature. The top of the equilateral triangle is equal
-to the specified height. To look good, please choose a height of >=
+to the specified height. To look good, please choose a height of E<gt>=
 15.
 
 Inside, the glyph will plot one or more data points using ternary plot

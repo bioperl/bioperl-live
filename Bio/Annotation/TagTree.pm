@@ -90,7 +90,9 @@ or the web:
 
   http://bugzilla.open-bio.org/
 
-=head1 AUTHOR - Chris Fields
+=head1 AUTHOR 
+
+Chris Fields
 
 =head1 APPENDIX
 
@@ -647,6 +649,8 @@ sub ntnodes {
 }
 
 =head2 StructureValue-like methods
+
+=cut
 
 =head2 get_all_values
 

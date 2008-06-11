@@ -16,6 +16,8 @@ Bio::SearchIO::rnamotif - SearchIO-based RNAMotif parser
 
 =head1 SYNOPSIS
 
+  # do not call this module directly. Use Bio::SearchIO.
+
 =head1 DESCRIPTION
 
 This is a highly experimental SearchIO-based parser for output from the rnamotif

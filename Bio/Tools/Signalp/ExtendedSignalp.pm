@@ -26,8 +26,8 @@ Parser module for Signalp.
 
 Based on the EnsEMBL module
 Bio::EnsEMBL::Pipeline::Runnable::Protein::Signalp originally
-written by Marc Sohrmann (ms2@sanger.ac.uk) Written in BioPipe by
-Balamurugan Kumarasamy <savikalpa@fugu-sg.org> Cared for by the Fugu
+written by Marc Sohrmann (ms2 a sanger.ac.uk) Written in BioPipe by
+Balamurugan Kumarasamy (savikalpa a fugu-sg.org) Cared for by the Fugu
 Informatics team (fuguteam@fugu-sg.org)
 
 You may distribute this module under the same terms as perl itself

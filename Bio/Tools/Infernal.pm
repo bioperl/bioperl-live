@@ -149,6 +149,7 @@ our $DEFAULT_VERSION = '0.71';
            -minscore  - minimum score (simple screener, since Infernal generates
                         a ton of spurious hits)
            -version   - Infernal program version
+
 =cut
 
 # yes, this is actually _initialize, but the args are passed to

@@ -1426,8 +1426,9 @@ subfeatures. The $level indicates the current level of the glyph
 (top-level glyphs are level 0, subglyphs are level 1, etc).
 
 Ordinarily this method simply calls
-$self->factory->make_subglyph($level,@sub_features). Override it in
-subclasses to create subglyphs of a particular type. For example:
+$self-E<gt>factory-E<gt>make_subglyph($level,@sub_features). Override
+it in subclasses to create subglyphs of a particular type. For
+example:
 
  sub make_subglyph {
     my $self = shift;

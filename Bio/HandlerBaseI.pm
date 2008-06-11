@@ -54,17 +54,17 @@ processed in part or as a whole (from Data::Dumper output):
 
 Annotation Data (References):
 
-$VAR1 = {
+  $VAR1 = {
           'NAME' => 'REFERENCE',
           'DATA' => '1  (bases 1 to 10001)'
           'AUTHORS' => 'International Human Genome Sequencing Consortium.'
           'TITLE' => 'The DNA sequence of Homo sapiens'
           'JOURNAL' => 'Unpublished (2003)'
-        };
+          };
 
 Sequence features (source seqfeature):
 
-$VAR1 = {
+  $VAR1 = {
           'mol_type' => 'genomic DNA',
           'LOCATION' => '<1..>10001',
           'NAME' => 'FEATURES',
@@ -73,7 +73,7 @@ $VAR1 = {
           'db_xref' => 'taxon:9606',
           'clone' => 'RP11-302I18',
           'organism' => 'Homo sapiens'
-        };
+          };
 
 These would be 'handled' accordingly by methods specified in a
 HandlerI-based class. The data in a chunk is intentionally left vague

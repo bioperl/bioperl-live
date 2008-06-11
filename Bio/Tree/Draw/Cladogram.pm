@@ -136,6 +136,7 @@ my %Rcolor;    # red color for each node
 my %Gcolor;    # green color for each node
 my %Bcolor;    # blue color for each node
 my $bootstrap; # Draw Bootstrap boolean
+
 =head2 new
 
  Title   : new

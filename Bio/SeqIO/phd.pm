@@ -189,6 +189,7 @@ sub next_seq {
 	TRACE_ARRAY_MAX_INDEX: unknown
 	CHEM: unknown
 	DYE: unknown
+
 =cut
 
 sub write_header {
@@ -227,6 +228,7 @@ sub write_header {
  Function: Write out a phd file.
  Returns : Nothing.
  Args    : a Bio::Seq::Quality object
+
 =cut
 
 sub write_seq {
@@ -260,6 +262,7 @@ sub write_seq {
  Function: Get/Set the name attribute.
  Returns : a string if 1 param, nothing else.
  Args    : a name or a pair name, value
+
 =cut
 
 sub Bio::Seq::Quality::attribute {
@@ -297,6 +300,7 @@ sub Bio::Seq::Quality::attribute {
  Function: Get/Set the CHROMAT_FILE attribute.
  Returns : a string if 1 param, nothing else.
  Args    : none or a filename
+
 =cut
 
 sub Bio::Seq::Quality::chromat_file {
@@ -311,6 +315,7 @@ sub Bio::Seq::Quality::chromat_file {
  Function: Get/Set the ABI_THUMBPRINT attribute.
  Returns : a string if 1 param, nothing else.
  Args    : none or a value
+
 =cut
 
 sub Bio::Seq::Quality::abi_thumbprint {
@@ -325,6 +330,7 @@ sub Bio::Seq::Quality::abi_thumbprint {
  Function: Get/Set the PHRED_VERSION attribute.
  Returns : a string if 1 param, nothing else.
  Args    : none or a value 
+
 =cut
 
 
@@ -341,6 +347,7 @@ sub Bio::Seq::Quality::phred_version {
  Function: Get/Set the CALL_METHOD attribute.
  Returns : a string if 1 param, nothing else.
  Args    : none or a value 
+
 =cut
 
 sub Bio::Seq::Quality::call_method {
@@ -355,6 +362,7 @@ sub Bio::Seq::Quality::call_method {
  Function: Get/Set the quality_levels attribute.
  Returns : a string if 1 param, nothing else.
  Args    : none or a value
+
 =cut
 
 sub Bio::Seq::Quality::quality_levels {
@@ -369,6 +377,7 @@ sub Bio::Seq::Quality::quality_levels {
  Function: Get/Set the trace_array_min_index attribute.
  Returns : a string if 1 param, nothing else.
  Args    : none or a value
+
 =cut
 
 sub Bio::Seq::Quality::trace_array_min_index {
@@ -383,6 +392,7 @@ sub Bio::Seq::Quality::trace_array_min_index {
  Function: Get/Set the trace_array_max_index attribute.
  Returns : a string if 1 param, nothing else.
  Args    : none or a value
+
 =cut
 
 sub Bio::Seq::Quality::trace_array_max_index {
@@ -397,6 +407,7 @@ sub Bio::Seq::Quality::trace_array_max_index {
  Function: Get/Set the chem attribute.
  Returns : a string if 1 param, nothing else.
  Args    : none or a value
+
 =cut
 
 sub Bio::Seq::Quality::chem {
@@ -411,6 +422,7 @@ sub Bio::Seq::Quality::chem {
  Function: Get/Set the dye attribute.
  Returns : a string if 1 param, nothing else.
  Args    : none or a value
+
 =cut
 
 sub Bio::Seq::Quality::dye {
@@ -425,6 +437,7 @@ sub Bio::Seq::Quality::dye {
  Function: Get/Set the time attribute.
  Returns : a string if 1 param, nothing else.
  Args    : none or a value
+
 =cut
 
 sub Bio::Seq::Quality::time {
@@ -439,6 +452,7 @@ sub Bio::Seq::Quality::time {
  Function: Set the time attribute to current time.
  Returns : nothing
  Args    : none
+
 =cut
 
 sub Bio::Seq::Quality::touch {

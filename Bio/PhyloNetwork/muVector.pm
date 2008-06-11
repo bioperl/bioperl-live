@@ -213,7 +213,7 @@ sub scalarproduct {
  Returns : scalar (-1 if $mu1<$mu2, 0 if $mu1=$mu2, 1 if $mu1>$mu2)
  Args    : Bio::PhyloNetwork::muVector
 
-This function is also overloaded to the <=> and cmp operator.
+This function is also overloaded to the E<lt>=E<gt> and cmp operator.
 
 =cut
 

@@ -42,7 +42,7 @@ the current process, then this library will create a FASTA file index
 that greatly diminishes the memory usage of this module.
 
 Alternatively you may create an empty in-memory object using just the
--adaptor=>'memory' argument and then call the load_gff_file() and
+-adaptor=E<gt>'memory' argument and then call the load_gff_file() and
 load_fasta_file() methods to load GFF and/or sequence
 information. This is recommended in CGI/mod_perl/fastCGI environments
 because these methods do not modify STDIN, unlike the constructor.

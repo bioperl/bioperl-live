@@ -7,15 +7,16 @@ seqretsplit - split a sequence (or stream) into a single file per sequence
 
 =head1 SYNOPSIS
 
-seqretsplit file1 file2 .. 
- OR
-seqretsplit < file1 
+  seqretsplit file1 file2 .. 
+  # or
+  seqretsplit < file1 
 
 =head1 DESCRIPTION 
 
-The script will split all sequences from fasta file(s) (or stdin) to individual files. The filename is the
-sequence ID (everything before the 1st whitespace in a FASTA header).
-Currently it doesn't check to see that it isn't overwriting an existing file so IDs should be unique
+The script will split all sequences from fasta file(s) (or stdin) to
+individual files. The filename is the sequence ID (everything before
+the 1st whitespace in a FASTA header).  Currently it doesn't check to
+see that it isn't overwriting an existing file so IDs should be unique
 
 This is inspired by EMBOSS seqretsplit tool.
 

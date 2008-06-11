@@ -80,15 +80,15 @@ Returns a Bio::PhyloNetwork::Factory object. Such an object will
 sequentially create binary tree-child phylogenetic networks
 each time next_network is called.
 
-If the parameter -leaves=>\@leaves is given, then the set of leaves of
+If the parameter -leaves=E<gt>\@leaves is given, then the set of leaves of
 these networks will be @leaves. If it is given the parameter
--numleaves=>$numleaves, then the set of leaves will be "l1"..."l$numleaves".
+-numleaves=E<gt>$numleaves, then the set of leaves will be "l1"..."l$numleaves".
 
-If the parameter -numhybrids=>$numhybrids is given, then the generated
+If the parameter -numhybrids=E<gt>$numhybrids is given, then the generated
 networks will have at most $numhybrids hybrid nodes. Note that, necessarily,
-$numhybrids < $numleaves.
+$numhybrids E<lt> $numleaves.
 
-If the parameter -recurse=>1 is given, then all networks with number of hybrid
+If the parameter -recurse=E<gt>1 is given, then all networks with number of hybrid
 nodes less or equal to $numhybrids will be given; otherwise only those with
 exactly $numhybrids hybrid nodes.
 

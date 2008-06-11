@@ -417,7 +417,7 @@ sub genomic_dna_length {
     }
     return $val;
 }
-    
+
 =head2 splicesites
 
     Title   : splicesites
@@ -443,7 +443,7 @@ sub splicesites {
 }
 
 =head2 est_coverage
-    
+
     Title   : est_coverage
     Usage   : $spidey->est_coverage();
     Function: Returns the percent of est coverage in this Spidey result
@@ -453,7 +453,7 @@ sub splicesites {
 
 =cut
 
- sub est_coverage {
+sub est_coverage {
      my ($self, @args) = @_;
      my $val;
      

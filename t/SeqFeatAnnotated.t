@@ -7,7 +7,10 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 34, -requires_modules => [qw(URI::Escape Graph::Directed)]);
+    test_begin(-tests => 34, 
+	       -requires_modules => [qw(URI::Escape Graph::Directed)],
+	       -requires_networking => 1
+	);
 	
 	use_ok('Bio::SeqFeature::Generic');
 	use_ok('Bio::SeqFeature::Annotated');
@@ -17,7 +20,7 @@ my $sfa = Bio::SeqFeature::Annotated->new(-start => 1,
 					  -end => 5,
 					  -strand => "+",
 					  -frame => 2,
-					  -type => 'nucleotide_motif',					  
+					  -type => 'nucleotide_motif',
 					  -phase => 2,
 					  -score => 12,
 					  -source => 'program_b',

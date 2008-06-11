@@ -248,8 +248,9 @@ sub create_feature {
 
 =head2 PRIVATE METHODS
 
+=cut
 
-=head1 _initialize_state
+=head2 _initialize_state
 
  Title   : _initialize_state
  Usage   : n/a; usually called by _initialize() itself called by new()
@@ -291,7 +292,7 @@ sub _initialize_state  {
 	return 1;
 }
 
-=head1 _predictions
+=head2 _predictions
 
   Usage    : $targetp->_prediction()
   Purpose  : Returns the number of TargetP predictions
@@ -308,7 +309,7 @@ sub _predictions {
 }
 
 
-=head1 _parsed
+=head2 _parsed
 
  Title     : _parsed
  Usage     : $targetp->_parsed(1)
@@ -333,7 +334,7 @@ sub _parsed {
 
 
 
-=head1 _parse_results
+=head2 _parse_results
 
   Title    : _parse_results
   Usage    : $self->_parse_results()
@@ -399,7 +400,7 @@ sub _parse_results {
     return;
 }
 
-=head1 _parse_line
+=head2 _parse_line
 
  Title    : _parse_line
  Usage    : $self->_parse_line($line)
@@ -444,7 +445,7 @@ sub _parse_line {
 
 }
 
-=head1 _add_feature
+=head2 _add_feature
 
  Title    : _add_feature
  Usage    : $self->_add_feature($feature)
@@ -468,11 +469,12 @@ sub _add_feature {
 
 }
 
-=head1 _toString_location
+=head2 _toString_location
 
  Title    : _toString_location
  Usage    : $self->_toString_location($key)
- Function : This method convert the 'one letter code' location to the corresponding definition
+ Function : This method convert the 'one letter code' location to 
+            the corresponding definition
             For internal use only
  Example  :
  Returns  : Location or undef

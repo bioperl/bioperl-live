@@ -1370,7 +1370,7 @@ sub _read_GenBank_Species {
 }
 
 =head2 _read_FTHelper_GenBank
-    
+
  Title   : _read_FTHelper_GenBank
  Usage   : _read_FTHelper_GenBank($buffer)
  Function: reads the next FT key line
@@ -1608,7 +1608,7 @@ sub _post_sort {
     return $obj->{'_post_sort'};
 }
 
-    
+
 =head2 _show_dna
 
  Title   : _show_dna
@@ -1647,7 +1647,7 @@ sub _id_generation_func {
     return $obj->{'_id_generation_func'};
 }
 
-    
+
 =head2 _ac_generation_func
 
  Title   : _ac_generation_func
@@ -1666,7 +1666,7 @@ sub _ac_generation_func {
     return $obj->{'_ac_generation_func'};
 }
 
-    
+
 =head2 _sv_generation_func
 
  Title   : _sv_generation_func
@@ -1687,7 +1687,7 @@ sub _sv_generation_func {
 
 }
 
-    
+
 =head2 _kw_generation_func
 
  Title   : _kw_generation_func

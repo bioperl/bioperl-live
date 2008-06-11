@@ -2478,7 +2478,6 @@ L<Bio::LocatableSeq::location_from_column>:
     my $loc = $seq->location_from_column(5);
 
 =head2 column_from_residue_number
-=head2 column_from_residue_number
 
  Title   : column_from_residue_number
  Usage   : $col = $ali->column_from_residue_number( $seqname, $resnumber)

@@ -6,18 +6,12 @@ package Bio::Tool::Protparam - submit to and parse output from protparam ;
 
 =head1 SYNOPSIS
 
-my $gb = new Bio::DB::GenBank(-retrievaltype => 'tempfile' , 
-			                      -format => 'Fasta');
+  my $gb = new Bio::DB::GenBank(-retrievaltype => 'tempfile' , 
+                                -format => 'Fasta');
+  my @ids=qw(O14521 O43709 O43826);
+  my $seqio = $gb->get_Stream_by_acc(\@ids );
 
-my @ids=qw(O14521 O43709 O43826);
-
-
-my $seqio = $gb->get_Stream_by_acc(\@ids );
-
-while( my $seq =  $seqio->next_seq ) {
-
-
-
+  while( my $seq =  $seqio->next_seq ) {
 
 	my $pp = Protparam->new(seq=>$seq->seq);
 
@@ -62,7 +56,6 @@ while( my $seq =  $seqio->next_seq ) {
 	"Composition of B : ", $pp->AA_comp('B'),"\n",
 	"Composition of Z : ", $pp->AA_comp('Z'),"\n",
 	"Composition of X : ", $pp->AA_comp('X'),"\n";
-
 }
 
 
@@ -88,11 +81,11 @@ use LWP 5.64;
 
 =head2 new
 
-Title    : new
-Usage    : $pp = Protparam->new(seq=>$seq->seq);
-Function : Creates a new Protparam object
-Returns  : A Protparam object
-Args     : A sequence
+  Title    : new
+  Usage    : $pp = Protparam->new(seq=>$seq->seq);
+  Function : Creates a new Protparam object
+  Returns  : A Protparam object
+  Args     : A sequence
 
 =cut
 
@@ -135,11 +128,11 @@ sub new {
 
 =head2 num_neg
 
-Title    : num_neg
-Usage    : $pp->num_neg()
-Function : Retrieves the number of negative amino acids in a sequence
-Returns  : Returns the number of negative amino acids in a sequence
-Args     : none
+  Title    : num_neg
+  Usage    : $pp->num_neg()
+  Function : Retrieves the number of negative amino acids in a sequence
+  Returns  : Returns the number of negative amino acids in a sequence
+  Args     : none
 
 =cut
 
@@ -158,11 +151,11 @@ sub num_neg{
 
 =head2 num_pos
 
-Title    : num_pos
-Usage    : $pp->num_pos()
-Function : Retrieves the number of positive amino acids in a sequence
-Returns  : Returns the number of positive amino acids in a sequence
-Args     : none
+  Title    : num_pos
+  Usage    : $pp->num_pos()
+  Function : Retrieves the number of positive amino acids in a sequence
+  Returns  : Returns the number of positive amino acids in a sequence
+  Args     : none
 
 =cut
 
@@ -180,11 +173,11 @@ sub num_pos{
 
 =head2 amino_acid_number
 
-Title    : amino_acid_number
-Usage    : $pp->amino_acid_number()
-Function : Retrieves the number of amino acids within a sequence
-Returns  : Returns the number of amino acids within a sequence
-Args     : none
+  Title    : amino_acid_number
+  Usage    : $pp->amino_acid_number()
+  Function : Retrieves the number of amino acids within a sequence
+  Returns  : Returns the number of amino acids within a sequence
+  Args     : none
 
 =cut
 
@@ -198,11 +191,11 @@ sub amino_acid_number{
 
 =head2 total_atoms
 
-Title    : total_atoms
-Usage    : $pp->total_atoms()
-Function : Retrieves the total number of atoms within a sequence
-Returns  : Returns the total number of atoms within a sequence
-Args     : none
+  Title    : total_atoms
+  Usage    : $pp->total_atoms()
+  Function : Retrieves the total number of atoms within a sequence
+  Returns  : Returns the total number of atoms within a sequence
+  Args     : none
 
 =cut
 
@@ -217,11 +210,11 @@ sub total_atoms{
 
 =head2 molecular_weight
 
-Title    : molecular_weight
-Usage    : $pp->molecular_weight()
-Function : Retrieves the molecular weight of a sequence
-Returns  : Returns the molecular weight of a sequence
-Args     : none
+  Title    : molecular_weight
+  Usage    : $pp->molecular_weight()
+  Function : Retrieves the molecular weight of a sequence
+  Returns  : Returns the molecular weight of a sequence
+  Args     : none
 
 =cut
 
@@ -235,11 +228,11 @@ sub molecular_weight{
 
 =head2 theoretical_pI
 
-Title    : theoretical_pI
-Usage    : $pp->theoretical_pI()
-Function : Retrieve the theoretical pI for a sequence
-Returns  : Return the theoretical pI for a sequence
-Args     : none
+  Title    : theoretical_pI
+  Usage    : $pp->theoretical_pI()
+  Function : Retrieve the theoretical pI for a sequence
+  Returns  : Return the theoretical pI for a sequence
+  Args     : none
 
 =cut
 
@@ -252,11 +245,11 @@ sub theoretical_pI{
 
 =head2 num_carbon
 
-Title    : num_carbon
-Usage    : $pp->num_carbon()
-Function : Retrieves the number of carbon atoms in a sequence
-Returns  : Returns the number of carbon atoms in a sequence
-Args     : none
+  Title    : num_carbon
+  Usage    : $pp->num_carbon()
+  Function : Retrieves the number of carbon atoms in a sequence
+  Returns  : Returns the number of carbon atoms in a sequence
+  Args     : none
 
 =cut
 
@@ -272,11 +265,11 @@ sub num_carbon{
 
 =head2 num_hydrogen
 
-Title    : num_hydrogen
-Usage    : $pp->num_hydrogen
-Function : Retrieves the number of hydrogen atoms in a sequence
-Returns  : Returns the number of hydrogen atoms in a sequence
-Args     : none
+  Title    : num_hydrogen
+  Usage    : $pp->num_hydrogen
+  Function : Retrieves the number of hydrogen atoms in a sequence
+  Returns  : Returns the number of hydrogen atoms in a sequence
+  Args     : none
 
 =cut
 
@@ -292,11 +285,11 @@ sub num_hydrogen{
 
 =head2 num_nitro
 
-Title    : num_nitro
-Usage    : $pp->num_nitro
-Function : Retrieves the number of nitrogen atoms in a sequence
-Returns  : Returns the number of nitrogen atoms in a sequence
-Args     : none
+  Title    : num_nitro
+  Usage    : $pp->num_nitro
+  Function : Retrieves the number of nitrogen atoms in a sequence
+  Returns  : Returns the number of nitrogen atoms in a sequence
+  Args     : none
 
 =cut
 
@@ -313,11 +306,11 @@ sub num_nitro{
 
 =head2 num_oxygen
 
-Title    : num_oxygen
-Usage    : $pp->num_oxygen()
-Function : Retrieves the number of oxygen atoms in a sequence
-Returns  : Returns the number of oxygen atoms in a sequence
-Args     : none
+  Title    : num_oxygen
+  Usage    : $pp->num_oxygen()
+  Function : Retrieves the number of oxygen atoms in a sequence
+  Returns  : Returns the number of oxygen atoms in a sequence
+  Args     : none
 
 =cut
 
@@ -333,11 +326,12 @@ sub num_oxygen{
 
 =head2 num_sulphur
 
-Title    : num_sulphur
-Usage    : $pp->num_sulphur()
-Function : Retrieves the number of sulphur atoms in a sequence
-Returns  : Returns the number of sulphur atoms in a sequence
-Args     : none
+  Title    : num_sulphur
+  Usage    : $pp->num_sulphur()
+  Function : Retrieves the number of sulphur atoms in a sequence
+  Returns  : Returns the number of sulphur atoms in a sequence
+  Args     : none
+
 =cut
 
 
@@ -351,11 +345,11 @@ sub num_sulphur{
 
 =head2 half_life
 
-Title    : half_life
-Usage    : $pp->half_life()
-Function : Retrieves the half life of a sequence
-Returns  : Returns the half life of a sequence
-Args     : none
+  Title    : half_life
+  Usage    : $pp->half_life()
+  Function : Retrieves the half life of a sequence
+  Returns  : Returns the half life of a sequence
+  Args     : none
 
 =cut
 
@@ -370,11 +364,11 @@ sub half_life{
 
 =head2 instability_index
 
-Title    : instability_index
-Usage    : $pp->instability_index()
-Function : Retrieves the instability index of a sequence
-Returns  : Returns the instability index of a sequence
-Args     : none
+  Title    : instability_index
+  Usage    : $pp->instability_index()
+  Function : Retrieves the instability index of a sequence
+  Returns  : Returns the instability index of a sequence
+  Args     : none
 
 =cut
 
@@ -388,11 +382,11 @@ sub instability_index{
 
 =head2 stability
 
-Title    : stability
-Usage    : $pp->stability()
-Function : Calculates whether the sequence is stable or unstable
-Returns  : 'stable' or 'unstable'
-Args     : none
+  Title    : stability
+  Usage    : $pp->stability()
+  Function : Calculates whether the sequence is stable or unstable
+  Returns  : 'stable' or 'unstable'
+  Args     : none
 
 =cut
 
@@ -408,11 +402,11 @@ sub stability{
 
 =head2 aliphatic_index
 
-Title    : aliphatic_index
-Usage    : $pp->aliphatic_index()
-Function : Retrieves the aliphatic index of the sequence
-Returns  : Returns the aliphatic index of the sequence
-Args     : none
+  Title    : aliphatic_index
+  Usage    : $pp->aliphatic_index()
+  Function : Retrieves the aliphatic index of the sequence
+  Returns  : Returns the aliphatic index of the sequence
+  Args     : none
 
 =cut
 
@@ -427,11 +421,11 @@ sub aliphatic_index{
 
 =head2 gravy
 
-Title    : gravy
-Usage    : $pp->gravy()
-Function : Retrieves the grand average of hydropathicity (GRAVY) of a sequence
-Returns  : Returns the grand average of hydropathicity (GRAVY) of a sequence
-Args     : none
+  Title    : gravy
+  Usage    : $pp->gravy()
+  Function : Retrieves the grand average of hydropathicity (GRAVY) of a sequence
+  Returns  : Returns the grand average of hydropathicity (GRAVY) of a sequence
+  Args     : none
 
 =cut
 
@@ -445,11 +439,11 @@ sub gravy{
 
 =head2 AA_comp
 
-Title    : AA_comp
-Usage    : $pp->AA_comp('P')
-Function : Retrieves the percentage composition of a given amino acid for a sequence
-Returns  : Returns the percentage composition of a given amino acid for a sequence
-Args     : A single letter amino acid code eg A, R, G, P etc
+  Title    : AA_comp
+  Usage    : $pp->AA_comp('P')
+  Function : Retrieves the percentage composition of a given amino acid for a sequence
+  Returns  : Returns the percentage composition of a given amino acid for a sequence
+  Args     : A single letter amino acid code eg A, R, G, P etc
 
 =cut
 

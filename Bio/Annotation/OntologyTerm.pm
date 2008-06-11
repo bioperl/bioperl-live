@@ -459,6 +459,7 @@ sub get_dbxrefs {
             dblinks [array of [scalars]].
  Note    : this is deprecated in favor of add_dbxref(), which works with strings
            or L<Bio::Annotation::DBLink> instances
+
 =cut
 
 sub add_dblink {
@@ -493,6 +494,7 @@ sub add_dbxref {
  Args    :
  Note    : this is deprecated in favor of remove_dbxrefs(), which works with strings
            or L<Bio::Annotation::DBLink> instances
+
 =cut
 
 sub remove_dblinks {

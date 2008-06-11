@@ -89,6 +89,7 @@ use Bio::SeqFeature::Generic;
  Args    : Either of the following as per L<Bio::Root::IO> interface
              -fh   => $filehandle 
              -file => $filename
+
 =cut
 
 sub new {

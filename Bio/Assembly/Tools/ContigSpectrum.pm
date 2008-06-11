@@ -144,8 +144,8 @@ information. The get/set methods to access them are:
 When using operations that rely on knowing "where" (from what
 metagenomes) a sequence came from (i.e. when creating a dissolved or
 cross contig spectrum), make sure that the sequences used for the
-assembly have a name header, e.g.  >metagenome1|seq1, >
->metagenome2|seq1, ...
+assembly have a name header, e.g.  E<gt>metagenome1|seq1,
+E<gt>metagenome2|seq1, ...
 
 =head1 FEEDBACK
 
@@ -1182,7 +1182,7 @@ sub _new_cross_csp {
   
   return $cross;
 }
-  
+
 =head2 _import_assembly
 
   Title   : _import_assembly

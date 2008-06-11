@@ -12,14 +12,14 @@
 
 =head1 NAME
 
-Bio::TreeIO::phyloxml - TreeIO implementation for parsing 
-    PhyloXML format.
+Bio::TreeIO::phyloxml - TreeIO implementation for parsing PhyloXML format.
 
 =head1 SYNOPSIS
 
   # do not use this module directly
   use Bio::TreeIO;
-  my $treeio = Bio::TreeIO->new(-format => 'phyloxml', -file => 'tree.dnd');
+  my $treeio = Bio::TreeIO->new(-format => 'phyloxml',
+                                -file => 'tree.dnd');
   my $tree = $treeio->next_tree;
 
 =head1 DESCRIPTION
@@ -48,8 +48,6 @@ web:
 =head1 AUTHOR - Mira Han
 
 Email mirhan@indiana.edu
-
-=head1 CONTRIBUTORS
 
 =head1 APPENDIX
 

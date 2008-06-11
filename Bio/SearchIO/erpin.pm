@@ -16,6 +16,8 @@ Bio::SearchIO::erpin - SearchIO-based ERPIN parser
 
 =head1 SYNOPSIS
 
+  # do not call this module directly. Use Bio::SearchIO.
+
 =head1 DESCRIPTION
 
 This is an experimental SearchIO-based parser for output from

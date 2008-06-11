@@ -1157,7 +1157,7 @@ This method does two things: (1) it sets the underlying database
 handle's InactiveDestroy parameter to 1, thereby preventing the
 database connection from being destroyed in the parent when the dbh's
 destructor is called; (2) it replaces the dbh with the result of
-dbh->clone(), so that we now have an independent handle.
+dbh-E<gt>clone(), so that we now have an independent handle.
 
 =cut
 

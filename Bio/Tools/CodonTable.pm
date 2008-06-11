@@ -365,7 +365,7 @@ sub tables{
   }
   return \%tables;
 }
-                
+
 =head2 translate
 
  Title   : translate

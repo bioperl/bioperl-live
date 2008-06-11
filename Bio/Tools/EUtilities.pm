@@ -1252,6 +1252,7 @@ sub generate_iterator {
                        (used in iterators)
             'reset' - string, resets the iterator.
             returns upon any other args
+
 =cut
 
 sub callback {

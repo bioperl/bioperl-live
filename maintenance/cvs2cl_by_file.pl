@@ -3213,9 +3213,9 @@ Version_Control/CVS
 
 =head1 COPYRIGHT
 
-(C) 2001,2002,2003,2004 Martyn J. Pearce <fluffy@cpan.org>, under the GNU GPL.
+(C) 2001,2002,2003,2004 Martyn J. Pearce E<lt>fluffy@cpan.orgE<gt>, under the GNU GPL.
 
-(C) 1999 Karl Fogel <kfogel@red-bean.com>, under the GNU GPL.
+(C) 1999 Karl Fogel E<lt>kfogel@red-bean.comE<gt>, under the GNU GPL.
 
 cvs2cl.pl is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

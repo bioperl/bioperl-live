@@ -77,9 +77,9 @@ Returns a Bio::PhyloNetwork::TreeFactory object. Such an object will
 sequentially create binary phylogenetic trees
 each time next_network is called.
 
-If the parameter -leaves=>\@leaves is given, then the set of leaves of
+If the parameter -leaves=E<gt>\@leaves is given, then the set of leaves of
 these networks will be @leaves. If it is given the parameter
--numleaves=>$numleaves, then the set of leaves will be "l1"..."l$numleaves".
+-numleaves=E<gt>$numleaves, then the set of leaves will be "l1"..."l$numleaves".
 
 =cut
 

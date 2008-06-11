@@ -865,71 +865,57 @@ LOCAL::lib::DrawMembrane.pm - draw a cartoon of an Alpha-helical transmembrane p
 
 =head1 SYNOPSIS
 
-use DrawTransmbrane;
+  use DrawTransmbrane;
+  my @topology = (20,45,59,70,86,109,145,168,194,220);
 
-my @topology = (20,45,59,70,86,109,145,168,194,220);
+  ## Simple use - -topology is the only option that is required
 
-## Simple use - -topology is the only option that is required
-
-my $im = DrawTransmembrane->new(-title => 'This is a cartoon displaying transmembrane helices.',
+  my $im = DrawTransmembrane->new(-title => 'This is a cartoon displaying transmembrane helices.',
                                 -topology => \@topology);
 
-## More advanced use
+  ## More advanced use
+  my %labels = (5 => '5 - Sulphation Site',
+                21 => '1st Helix',
+                47 => '40 - Mutation',
+                60 => 'Voltage Sensor',
+                72 => '72 - Mutation 2',
+                73 => '73 - Mutation 3',
+                138 => '138 - Glycosylation Site',
+                170 => '170 - Phosphorylation Site',
+                200 => 'Last Helix');
 
-my %labels = (5 => '5 - Sulphation Site',
-              21 => '1st Helix',
-              47 => '40 - Mutation',
-              60 => 'Voltage Sensor',
-              72 => '72 - Mutation 2',
-              73 => '73 - Mutation 3',
-              138 => '138 - Glycosylation Site',
-              170 => '170 - Phosphorylation Site',
-              200 => 'Last Helix');
+  my $im = DrawTransmembrane->new(-n_terminal=> 'out',
+                                  -topology => \@topology,
+                                  -bold_helices=> 1,
+                                  -labels=> \%labels,
+                                  -text_offset=> -15,
+                                  -outside_label=>'Lumen',
+                                  -inside_label=>'Cytoplasm',
+                                  -membrane_label=>'Membrane',
+                                  -vertical_padding=> 155);
 
-my $im = DrawTransmembrane->new(-n_terminal=> 'out',
-                                -topology => \@topology,
-                                -bold_helices=> 1,
-                                -labels=> \%labels,
-                                -text_offset=> -15,
-                                -outside_label=>'Lumen',
-                                -inside_label=>'Cytoplasm',
-                                -membrane_label=>'Membrane',
-                                -vertical_padding=> 155);
-
-
-## Parse Tmhmm data
-
-use Bio::Tools::Tmhmm;
-
-my $im = DrawTransmembrane->new(-title=>'Let\'s parse some Tmhmm output...',
-                                -bold_helices=> 1);
-
-open(FILE, 'tmhmm.out');  
-
-my $parser = new Bio::Tools::Tmhmm(-fh => \*FILE );
-
-while(my $tmhmm_feat = $parser->next_result ) {
-
+  ## Parse Tmhmm data
+  use Bio::Tools::Tmhmm;
+  my $im = DrawTransmembrane->new(-title=>'Let\'s parse some Tmhmm output...',
+                                  -bold_helices=> 1);
+  open(FILE, 'tmhmm.out');  
+  my $parser = new Bio::Tools::Tmhmm(-fh => \*FILE );
+  while(my $tmhmm_feat = $parser->next_result ) {
 	## Load features into DrawTransmembrane object
 	$im->add_tmhmm_feat($tmhmm_feat);
+  }
+ close FILE;
 
-}
-
-close FILE;
-
-## Now write the image to a .png file
-
-open(OUTPUT, ">output.png");
-
-binmode OUTPUT;
-
-print OUTPUT $im->png; 
-
-close OUTPUT;
+  ## Now write the image to a .png file
+  open(OUTPUT, ">output.png");
+  binmode OUTPUT;
+  print OUTPUT $im->png; 
+  close OUTPUT;
 
 =head1 DESCRIPTION
 
-A module to draw a cartoon of an alpha-helical transmembrane protein. It uses GD and allows the image to be written to a .png file.
+A module to draw a cartoon of an alpha-helical transmembrane
+protein. It uses GD and allows the image to be written to a .png file.
 
 The options are a set of tag/value pairs as follows:
 

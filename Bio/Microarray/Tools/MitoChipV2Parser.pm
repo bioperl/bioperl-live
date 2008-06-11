@@ -55,6 +55,7 @@ use base qw(Bio::Root::Root);
 
 
 =head2 new()
+
   Title		: new/Creator method
   Usage		: my $parser=Bio::Microarray::Tools::MitoChipV2Parser->new($file_name);
   Function	: Creates 2 hashes by parsing the specified design file. 

@@ -40,7 +40,7 @@ Provides general-purpose utilities of potential interest to any Perl script.
 The C<:obj> tag is a convenience that imports a $Util symbol into your
 namespace representing a Bio::Root::Utilities object. This saves you
 from creating your own Bio::Root::Utilities object via
-C<Bio::Root::Utilities->new()> or from prefixing all method calls with
+C<Bio::Root::Utilities-E<gt>new()> or from prefixing all method calls with
 C<Bio::Root::Utilities>, though feel free to do these things if desired.
 Since there should normally not be a need for a script to have more
 than one Bio::Root::Utilities object, this module thus comes with it's

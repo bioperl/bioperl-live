@@ -72,27 +72,27 @@ planned in the near future.
 
 As a reminder: this is the current Annotation data chunk (via Data::Dumper):
 
-$VAR1 = {
-          'NAME' => 'REFERENCE',
-          'DATA' => '1  (bases 1 to 10001)'
-          'AUTHORS' => 'International Human Genome Sequencing Consortium.'
-          'TITLE' => 'The DNA sequence of Homo sapiens'
-          'JOURNAL' => 'Unpublished (2003)'
-        };
-...
+  $VAR1 = {
+            'NAME' => 'REFERENCE',
+            'DATA' => '1  (bases 1 to 10001)'
+            'AUTHORS' => 'International Human Genome Sequencing Consortium.'
+            'TITLE' => 'The DNA sequence of Homo sapiens'
+            'JOURNAL' => 'Unpublished (2003)'
+          };
+  ...
 
 This is the current SeqFeature data chunk (again via Data::Dumper):
 
-$VAR1 = {
-          'mol_type' => 'genomic DNA',
-          'LOCATION' => '<1..>10001',
-          'NAME' => 'FEATURES',
-          'FEATURE_KEY' => 'source',
-          'note' => 'Accession AL451081 sequenced by The Sanger Centre',
-          'db_xref' => 'taxon:9606',
-          'clone' => 'RP11-302I18',
-          'organism' => 'Homo sapiens'
-        };
+  $VAR1 = {
+            'mol_type' => 'genomic DNA',
+            'LOCATION' => '<1..>10001',
+            'NAME' => 'FEATURES',
+            'FEATURE_KEY' => 'source',
+            'note' => 'Accession AL451081 sequenced by The Sanger Centre',
+            'db_xref' => 'taxon:9606',
+            'clone' => 'RP11-302I18',
+            'organism' => 'Homo sapiens'
+          };
 
 =head1 FEEDBACK
 

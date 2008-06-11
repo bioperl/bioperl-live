@@ -75,7 +75,7 @@ Returns a Bio::PhyloNetwork::GraphViz object, which is an extension of a
 GraphViz object. The GraphViz object is a representation of the phylogenetic
 network given. The extra information the created object holds is a hash table
 with keys the nodes of the PhyloNetwork object and values the nodes of the
-GraphViz object. If the optional argument -short_labels=>1 is given, the labels
+GraphViz object. If the optional argument -short_labels=E<gt>1 is given, the labels
 of the nodes in GraphViz are shortened to a maximum of 3 letters.
 
 =cut

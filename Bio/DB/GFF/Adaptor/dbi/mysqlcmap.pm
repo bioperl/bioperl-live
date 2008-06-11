@@ -934,8 +934,9 @@ sub get_table_id {
 
 
 #-----------------------------------
+
 =head2 make_features_by_name_where_part
-                                                                                                                             
+
  Title   : make_features_by_name_where_part
  Usage   : $db->make_features_by_name_where_part
  Function: create the SQL fragment needed to select a feature by its group name & class

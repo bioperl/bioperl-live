@@ -82,16 +82,16 @@ Returns a Bio::PhyloNetwork::RandomFactory object. Such an object will create
 random binary tree-child phylogenetic networks each time next_network
 is called.
 
-If the parameter -leaves=>\@leaves is given, then the set of leaves of
+If the parameter -leaves=E<gt>\@leaves is given, then the set of leaves of
 these networks will be @leaves. If it is given the parameter
--numleaves=>$numleaves, then the set of leaves will be "l1"..."l$numleaves".
+-numleaves=E<gt>$numleaves, then the set of leaves will be "l1"..."l$numleaves".
 
-If the parameter -numhybrids=>$numhybrids is given, then the generated
+If the parameter -numhybrids=E<gt>$numhybrids is given, then the generated
 networks will have exactly $numhybrids hybrid nodes. Note that, necessarily,
-$numhybrids < $numleaves. Otherwise, the number of hybrid nodes will be chosen
+$numhybrids E<lt> $numleaves. Otherwise, the number of hybrid nodes will be chosen
 at random for each call of next_network.
 
-If the parameter -norepeat=>1 is given, then successive calls of next_network
+If the parameter -norepeat=E<gt>1 is given, then successive calls of next_network
 will give non-isomorphic networks.
 
 =cut

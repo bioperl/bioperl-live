@@ -16,45 +16,34 @@ Bio::PhyloNetwork - Module to compute with Phylogenetic Networks
 
 =head1 SYNOPSIS
 
- use strict;
  use Bio::PhyloNetwork;
 
  # Create a PhyloNetwork object from a eNewick string
-
  my $net1=Bio::PhyloNetwork->new(
    -eNewick=>'t0:((H1,(H2,l2)),H2); H1:((H3,l1)); H2:((H3,(l3,H1))); H3:(l4);'
  );
 
  # Print all available data
-
  print $net1;
 
  # Rebuild $net1 from its mu_data
-
  my %mudata=$net1->mudata();
-
  my $net2=Bio::PhyloNetwork->new(-mudata=>\%mudata,-numleaves=>4);
-
  print $net2;
-
  print "d=".$net1->mu_distance($net2)."\n";
 
  # Get another one and compute distance
-
  my $net3=Bio::PhyloNetwork->new(
    -eNewick=>'(l2,((l1,(H1,l4)),H1))r; (l3)H1;'
  );
-
  print "d=".$net1->mu_distance($net3)."\n";
 
  # ...and find an optimal alignment w.r.t. the Manhattan distance (default)
-
  my ($weight,%alignment)=$net1->optimal_alignment($net3);
  print "weight:$weight\n";
  foreach my $node1 (keys %alignment) {
    print "$node1 => ".$alignment{$node1}."\n";
  }
-
  # ...or the Hamming distance
 
  my ($weightH,%alignmentH)=$net1->optimal_alignment($net3,-metric=>'Hamming');
@@ -64,7 +53,6 @@ Bio::PhyloNetwork - Module to compute with Phylogenetic Networks
  }
 
  # Test for time consistency of $net1
-
  if ($net1->is_time_consistent) {
    print "net1 is time consistent\n"
  }
@@ -73,12 +61,10 @@ Bio::PhyloNetwork - Module to compute with Phylogenetic Networks
  }
 
  # create a network from the list of edges
-
  my $net4=Bio::PhyloNetwork->new(-edges=>
    [qw(r s r t s u s c t c t v u b u l3 u b v b v l4 b l2 c l1)]);
 
  # Test for time consistency of $net3
-
  if ($net4->is_time_consistent) {
    print "net4 is time consistent\n"
  }
@@ -87,24 +73,20 @@ Bio::PhyloNetwork - Module to compute with Phylogenetic Networks
  }
 
  # And print all information on net4
-
  print $net4;
 
  # Compute some tripartitions
-
  my %triparts=$net1->tripartitions();
 
  # Now these are stored
-
  print $net1;
 
  # And can compute the tripartition error
-
  print "dtr=".$net1->tripartition_error($net3)."\n";
 
 =head1 DESCRIPTION
 
-=head3 Phylogenetic Networks
+=head2 Phylogenetic Networks
 
 This is a module to work with phylogenetic networks. Phylogenetic networks
 have been studied over the last years as a richer model of the evolutionary
@@ -118,7 +100,7 @@ this package relies on the package Graph::Directed to represent the
 underlying graph of a phylogenetic network. We refer the reader to [CRV1,CRV2]
 for formal definitions related to phylogenetic networks.
 
-=head3 eNewick description
+=head2 eNewick description
 
 With this package, phylogenetic networks can be given by its eNewick
 string. This description appeared in other packages related to
@@ -151,42 +133,42 @@ the eNewick string of the phylogenetic network.
 
 For example, consider the network depicted below:
 
-     r
-    / \
-   /   \
-  U     V
- / \   / \
-1   \ /   3
-     H
-     |
-     2
+       r
+      / \
+     /   \
+    U     V
+   / \   / \
+  1   \ /   3
+       H
+       |
+       2
 
 If the first approach is taken, we get the forest:
 
-     r
-    / \
-   /   \
-  U     V
- / \   / \
-1   H H   3
-
-     H
-     |
-     2
+       r
+      / \
+     /   \
+    U     V
+   / \   / \
+  1   H H   3
+       |  
+       H
+       |
+       2
 
 Hence, the eNewick string is '((1,H),(H,3))r; (2)H;'.
 
 As for the second one, one gets the tree:
 
-     r
-    / \
-   /   \
-  U     V
- / \   / \
-1   H |   3
-      H
-      |
-      2
+       r
+      / \
+     /   \
+    U     V
+   / \   / \
+  1   H |   3
+        H
+        |
+        2
 
 Hence, the eNewick string is '((1,H),((2)H,3))r;'.
 
@@ -194,7 +176,7 @@ Note: when rooting a tree, this package allows the notations
 '(subtree,subtree,...)root' as well as 'root:(subtree,subtree,...)', but
 the first one is used when writing eNewick strings.
 
-=head3 Tree-child phylogenetic networks
+=head2 Tree-child phylogenetic networks
 
 Tree-child (TC) phylogenetic networks are a special class of phylogenetic
 networks for which a distance, called mu-distance, is defined [CRV2]
@@ -208,13 +190,13 @@ Moreover, the mu-data allows to define the optimal
 (in some precise sense) alignment between networks
 over the same set of leaves. This package also computes this optimal alignment.
 
-=head3 Tripartitions
+=head2 Tripartitions
 
 Although tripartitions (see [CRV1] and the references therein) do not allow
 to define distances, this package outputs tripartitions and computes a weak
 form of the tripartition error.
 
-=head3 Time-consistency
+=head2 Time-consistency
 
 Another useful property of Phylogenetic Networks that appears in the literature
 is that of time-consistency or real-time hybrids [BSS]. Roughly speaking, a
@@ -235,15 +217,18 @@ is provided.
 
 =item [CRV1]
 
-G. Cardona, F. Rossello, G. Valiente. Tripartitions do not always discriminate phylogenetic networks. arXiv:0707.2376v1 [q-bio.PE]
+G. Cardona, F. Rossello, G. Valiente. Tripartitions do not always
+discriminate phylogenetic networks. arXiv:0707.2376v1 [q-bio.PE]
 
 =item [CRV2]
 
-G. Cardona, F. Rossello, G. Valiente. A Distance Measure for Tree-Child Phylogenetic Networks. Preprint.
+G. Cardona, F. Rossello, G. Valiente. A Distance Measure for
+Tree-Child Phylogenetic Networks. Preprint.
 
 =item [NetGen]
 
-M.M. Morin, and B.M.E. Moret. NetGen: generating phylogenetic networks with diploid hybrids. Bioinformatics 22 (2006), 1921-1923
+M.M. Morin, and B.M.E. Moret. NetGen: generating phylogenetic networks
+with diploid hybrids. Bioinformatics 22 (2006), 1921-1923
 
 =item [PhyloNet]
 
@@ -252,7 +237,8 @@ http://bioinfo.cs.rice.edu/phylonet
 
 =item [BSS]
 
-M. Baroni, C. Semple, and M. Steel. Hybrids in Real Time. Syst. Biol. 55(1):46-56, 2006
+M. Baroni, C. Semple, and M. Steel. Hybrids in Real
+Time. Syst. Biol. 55(1):46-56, 2006
 
 =back
 
@@ -309,32 +295,30 @@ Returns a Bio::PhyloNetwork object, created according to the data given:
 
 creates an empty network.
 
-=item new(-eNewick => $str)
+=item new(-eNewick =E<gt> $str)
 
 creates the network whose
 Extended Newick representation (see description above) is the string $str.
 
-=item new(-graph => $graph)
+=item new(-graph =E<gt> $graph)
 
 creates the network with underlying
 graph given by the Graph::Directed object $graph
 
-=item new(-tree => $tree)
+=item new(-tree =E<gt> $tree)
 
 creates a network as a copy of the
 Bio::Tree::Tree object in $tree
 
-=item new(-mudata => \%mudata, -leaves => \@leaves)
+=item new(-mudata =E<gt> \%mudata, -leaves =E<gt> \@leaves)
 
-creates the
-network by reconstructing it from its mu-data stored in \%mudata and with
-set of leaves in \@leaves.
+creates the network by reconstructing it from its mu-data stored in
+\%mudata and with set of leaves in \@leaves.
 
-=item new(-mudata => \%mudata, -numleaves => $numleaves)
+=item new(-mudata =E<gt> \%mudata, -numleaves =E<gt> $numleaves)
 
-creates the
-network by reconstructing it from its mu-data stored in \%mudata and with
-set of leaves in ("l1".."l$numleaves").
+creates the network by reconstructing it from its mu-data stored in
+\%mudata and with set of leaves in ("l1".."l$numleaves").
 
 =back
 
@@ -1022,7 +1006,7 @@ sub explode_rec {
  Returns : hash
  Args    : none
 
-$net->mudata() returns a hash with keys the nodes of $net and each value is a
+$net-E<gt>mudata() returns a hash with keys the nodes of $net and each value is a
 muVector object holding its mu-vector.
 
 =cut
@@ -1045,7 +1029,7 @@ sub mudata_node {
  Returns : hash
  Args    : none
 
-$net->heights() returns a hash with keys the nodes of $net and each value
+$net-E<gt>heights() returns a hash with keys the nodes of $net and each value
 is its height.
 
 =cut
@@ -1181,7 +1165,7 @@ sub compute_tripartitions {
  Returns : hash
  Args    : none
 
-$net->tripartitions() returns a hash with keys the nodes of $net and each value
+$net-E<gt>tripartitions() returns a hash with keys the nodes of $net and each value
 is a string representing the tripartition of the leaves induced by the node.
 A string "BCA..." associated with a node u (e.g.) means, the first leaf is in
 the set B(u), the second one in C(u), the third one in A(u), and so on.

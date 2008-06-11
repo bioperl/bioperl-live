@@ -80,6 +80,8 @@ sub new {
 
 =head1 Bio::DB::GenericWebAgent methods
 
+=cut
+
 =head1 GenericWebDBI methods
 
 =head2 parameter_base
@@ -216,7 +218,7 @@ sub get_Parser {
 
 This is only a subset of parameters available from Bio::DB::EUtilParameters (the
 ones deemed absolutely necessary).  All others are available by calling
-'parameter_base->method' when needed.
+'parameter_base-E<gt>method' when needed.
 
 =cut
 
@@ -964,6 +966,7 @@ sub generate_iterator {
                        (used in iterators)
             'reset' - string, resets the iterator.
             returns upon any other args
+
 =cut
 
 sub callback {

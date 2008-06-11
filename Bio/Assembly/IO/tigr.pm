@@ -80,6 +80,7 @@ Some of the attributes are not used by TIGR Assembler or have constant values.
 They are indicated by an asterisk *
 
 Contigs have the following attributes:
+
     asmbl_id   -> contig ID
     sequence   -> contig ungapped consensus sequence (ambiguities are lowercase)
     lsequence  -> gapped consensus sequence (lowercase ambiguities)
@@ -101,6 +102,7 @@ Contigs have the following attributes:
     frameshift -> *
 
 Each read has the following attributes:
+
     seq_name  -> read name
     asm_lend  -> position of first base on contig ungapped consensus sequence
     asm_rend  -> position of last base on contig ungapped consensus sequence
@@ -112,13 +114,13 @@ Each read has the following attributes:
     offset    -> offset of the sequence (gapped consensus coordinates)
     lsequence -> aligned read sequence (ambiguities are uppercase)
 
-When asm_rend < asm_lend, the sequence was on the complementary DNA strand but
+When asm_rend E<lt> asm_lend, the sequence was on the complementary DNA strand but
 its reverse complement is shown in the aligned sequence of the assembly file,
 not the original read.
 
-Ambiguities are reflected in the contig consensus sequence as lowercase IUPAC
-characters: a c g t u m r w s y k x n
-In the read sequences, however, ambiguities are uppercase: M R W S Y K X N
+Ambiguities are reflected in the contig consensus sequence as
+lowercase IUPAC characters: a c g t u m r w s y k x n . In the read
+sequences, however, ambiguities are uppercase: M R W S Y K X N
 
 =head2 Example
 

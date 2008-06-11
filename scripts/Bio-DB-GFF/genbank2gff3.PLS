@@ -98,9 +98,14 @@ My favorite GFF is to set the above as ON by default (disable with --nocds2prot)
 For general use it probably should be OFF, enabled with --cds2prot.
 
 This writes GFF with an alternate, but useful Gene model,
-instead of the consensus model for GFF3 [ gene > mRNA> (exon,CDS,UTR) ]
+instead of the consensus model for GFF3 
+
+  [ gene > mRNA> (exon,CDS,UTR) ]
+
 This alternate is
+
   gene > mRNA > polypeptide > exon 
+
 means the only feature with dna bases is the exon.  The others
 specify only location ranges on a genome.  Exon of course is a child
 of mRNA and protein/peptide.   
@@ -147,16 +152,25 @@ Several other improvements and bugfixes, minor but useful are included
 
 =head2 Related bugfixes/tests
 
-These items from Bioperl mail were tested (sample data generating errors), 
-and found corrected:
+These items from Bioperl mail were tested (sample data generating
+errors), and found corrected:
 
- From: Ed Green <green <at> eva.mpg.de> Subject: genbank2gff3.pl on new human RefSeq Date: 2006-03-13 21:22:26 GMT 
+ From: Ed Green <green <at> eva.mpg.de>
+ Subject: genbank2gff3.pl on new human RefSeq
+ Date: 2006-03-13 21:22:26 GMT 
    -- unspecified errors (sample data works now).
- From: Eric Just <e-just <at> northwestern.edu> Subject: bp_genbank2gff3.pl Date: 2007-01-26 17:08:49 GMT
+
+ From: Eric Just <e-just <at> northwestern.edu>
+ Subject: bp_genbank2gff3.pl
+ Date: 2007-01-26 17:08:49 GMT
    -- bug fixed in genbank2gff3 for multi-record handling
 
-This error is for a /trans_splice gene that is hard to handle, and unflattner/genbank2 doesn't
- From: Chad Matsalla <chad <at> dieselwurks.com> Subject: genbank2gff3.PLS and the unflatenner - Inconsistent	order? Date: 2005-07-15 19:51:48 GMT 
+This error is for a /trans_splice gene that is hard to handle, and
+unflattner/genbank2 doesn't
+
+ From: Chad Matsalla <chad <at> dieselwurks.com> 
+ Subject: genbank2gff3.PLS and the unflatenner - Inconsistent	order?
+ Date: 2005-07-15 19:51:48 GMT 
 
 =head1 AUTHOR 
 

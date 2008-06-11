@@ -16,16 +16,15 @@ Bio::SeqIO::gbhandler - GenBank handler-based push parser
 
 =head1 SYNOPSIS
 
-It is probably best not to use this object directly, but
-rather go through the SeqIO handler:
+  #It is probably best not to use this object directly, but
+  #rather go through the SeqIO handler:
 
-    $stream = Bio::SeqIO->new(-file => $filename,
-                              -format => 'GenBank');
+  $stream = Bio::SeqIO->new(-file => $filename,
+                            -format => 'GenBank');
 
-    while ( my $seq = $stream->next_seq() ) {
-	    # do something with $seq
-    }
-
+  while ( my $seq = $stream->next_seq() ) {
+      # do something with $seq
+  }
 
 =head1 DESCRIPTION
 
@@ -66,28 +65,28 @@ tossed away.
 Internally, the hash ref for a representative annotation (here a REFERENCE)
 looks like this:
 
-$VAR1 = {
-          'JOURNAL' => 'Unpublished (2003)',
-          'TITLE' => 'The DNA sequence of Homo sapiens',
-          'NAME' => 'REFERENCE',
-          'REFERENCE' => '1  (bases 1 to 10001)',
-          'AUTHORS' => 'International Human Genome Sequencing Consortium.'
-        };
+  $VAR1 = {
+            'JOURNAL' => 'Unpublished (2003)',
+            'TITLE' => 'The DNA sequence of Homo sapiens',
+            'NAME' => 'REFERENCE',
+            'REFERENCE' => '1  (bases 1 to 10001)',
+            'AUTHORS' => 'International Human Genome Sequencing Consortium.'
+          };
 
 and a SeqFeature as this:
 
-$VAR1 = {
-          'db_xref' => [
-                         'GeneID:127086',
-                         'InterimID:127086'
-                       ],
-          'LOCATION' => 'complement(3024..6641)',
-          'NAME' => 'FEATURES',
-          'FEATURE_KEY' => 'gene',
-          'gene' => 'LOC127086',
-          'note' => 'Derived by automated computational analysis using
-                     gene prediction method: GNOMON.'
-        };
+  $VAR1 = {
+            'db_xref' => [
+                           'GeneID:127086',
+                           'InterimID:127086'
+                         ],
+            'LOCATION' => 'complement(3024..6641)',
+            'NAME' => 'FEATURES',
+            'FEATURE_KEY' => 'gene',
+            'gene' => 'LOC127086',
+            'note' => 'Derived by automated computational analysis using
+                       gene prediction method: GNOMON.'
+          };
 
 Note that any driver implementation would suffice as long as it fulfilled the
 requirements above.
