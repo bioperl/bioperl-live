@@ -7,7 +7,7 @@ BEGIN {
   use lib 't/lib';
   use BioperlTest;
 
-  test_begin(-tests => 36,
+  test_begin(-tests => 43,
              -requires_modules => [qw(XML::LibXML)],
             );
   if (1000*$] < 5008) {
@@ -32,8 +32,19 @@ my $tree;
 
 # tree1: clade and attribute
 # <phylogeny> <clade> <name>
+if ($verbose > 0) {
+  diag("tree1: clade and attribute");
+}
 $tree = $treeio->next_tree;
 isa_ok($tree, 'Bio::Tree::TreeI');
+is($tree->id, 'example from Prof. Joe Felsenstein\'s book "Inferring Phylogenies"');
+if ($verbose > 0) {
+  diag("tree id: ",$tree->id);
+}
+TODO: {
+  local $TODO = 'TreeIO::phyloxml::rooted not implemented yet';
+  #is($tree->rooted, 'true');
+}
 my @nodes = $tree->get_nodes;
 is(@nodes, 5);
 my ($A) = $tree->find_node('A');
@@ -47,30 +58,47 @@ if ($verbose > 0) {
 }
 is($leaves_string, '((A,B),C)');
 undef $tree;
+undef $A;
 
 # tree2: branch_length
 # <branch_length>
+if ($verbose > 0) {
+  diag("tree2: branch_length");
+}
 $tree = $treeio->next_tree;
 isa_ok($tree, 'Bio::Tree::TreeI');
 @nodes = $tree->get_nodes;
 is(@nodes, 5);
+($A) = $tree->find_node('A');
+ok($A);
+is($A->branch_length, '0.102');
+is($A->ancestor->id, '');
+is($A->ancestor->branch_length, '0.06');
 $leaves_string = $tree->simplify_to_leaves_string();
 if ($verbose > 0) {
   diag($leaves_string);
 }
 is($leaves_string, '((A,B),C)');
 undef $tree;
+undef $A;
 
-# tree3: bootstrap
+# tree3: confidence (bootstrap)
 # <confidence>
+if ($verbose > 0) {
+  diag("tree3: confidence (bootstrap)");
+}
 $tree = $treeio->next_tree;
 isa_ok($tree, 'Bio::Tree::TreeI');
+my ($AB) = $tree->find_node('AB');
+ok($AB);
+is($AB->bootstrap, '89');
 $leaves_string = $tree->simplify_to_leaves_string();
 if ($verbose > 0) {
   diag($leaves_string);
 }
 is($leaves_string, '((A,B),C)');
 undef $tree;
+undef $AB;
 
 # tree4: species and sequence
 # <taxonomy> <scientific_name> <sequence> <annotation>
