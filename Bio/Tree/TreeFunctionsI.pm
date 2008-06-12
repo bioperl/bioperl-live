@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Tree::TreeFunctionsI
 #
-# Cared for by Jason Stajich <jason@bioperl.org>
+# Cared for by Jason Stajich <jason-at-bioperl-dot-org>
 #
 # Copyright Jason Stajich
 #
@@ -117,9 +117,9 @@ sub find_node {
 
    # could actually do this by testing $rootnode->can($type) but
    # it is possible that a tree is implemeted with different node types
-   # - although it is unlikely that the root node would be richer than the 
+   # - although it is unlikely that the root node would be richer than the
    # leaf nodes.  Can't handle NHX tags right now
-    
+
    my @nodes = grep { $_->can($type) && defined $_->$type() &&
 		     $_->$type() eq $field } $self->get_nodes();
 
@@ -186,12 +186,12 @@ sub get_lineage_nodes {
     else { 
         $node = $input;
     }
-    
+
     # when dealing with Bio::Taxon objects with databases, the root will always
     # be the database's root, ignoring this Tree's set root node; prefer the
     # Tree's idea of root.
     my $root = $self->get_root_node || '';
-    
+
     my @lineage;
     while ($node) {
         $node = $node->ancestor || last;
@@ -231,7 +231,7 @@ sub get_lineage_nodes {
 sub splice {
     my ($self, @args) = @_;
     $self->throw("Must supply some arguments") unless @args > 0;
-    
+
     my @nodes_to_remove;
     if (ref($args[0])) {
         $self->throw("When supplying just a list of Nodes, they must be Bio::Tree::NodeI objects") unless $args[0]->isa('Bio::Tree::NodeI');
@@ -245,7 +245,7 @@ sub splice {
         my $remove_all = 1;
         while (my ($key, $value) = each %args) {
             my @values = ref($value) ? @{$value} : ($value);
-            
+
             if ($key =~ s/remove_//) {
                 $remove_all = 0;
                 foreach my $value (@values) {
@@ -258,16 +258,15 @@ sub splice {
                 }
             }
         }
-        
+
         if ($remove_all) {
             if (@keep_nodes == 0) {
                 $self->warn("Requested to remove everything except certain nodes, but those nodes were not found; doing nothing instead");
                 return;
             }
-            
+
             @remove_nodes = $self->get_nodes;
         }
-        
         if (@keep_nodes > 0) {
             my %keep_iids = map { $_->internal_id => 1 } @keep_nodes;
             foreach my $node (@remove_nodes) {
@@ -278,7 +277,6 @@ sub splice {
             @nodes_to_remove = @remove_nodes;
         }
     }
-    
     # do the splicing
     #*** the algorithm here hasn't really been thought through and tested much,
     #    will probably need revising
@@ -286,7 +284,6 @@ sub splice {
     my $reroot = 0;
     foreach my $node (@nodes_to_remove) {
         my @descs = $node->each_Descendent;
-        
         my $ancestor = $node->ancestor;
         if (! $ancestor && ! $reroot) {
             # we're going to remove the tree root, so will have to re-root the
@@ -296,17 +293,14 @@ sub splice {
             $node->remove_all_Descendents;
             next;
         }
-        
         if (exists $root_descs{$node->internal_id}) {
             # well, this one can't be the future root anymore
             delete $root_descs{$node->internal_id};
-            
             # but maybe one of this one's descs will become the root
             foreach my $desc (@descs) {
                 $root_descs{$desc->internal_id} = $desc;
             }
         }
-        
         # make the ancestor of our descendents our own ancestor, and give us
         # no ancestor of our own to remove us from the tree
         foreach my $desc (@descs) {
@@ -314,7 +308,6 @@ sub splice {
         }
         $node->ancestor(undef);
     }
-    
     if ($reroot) {
         my @candidates = values %root_descs;
         $self->throw("After splicing, there was no tree root!") unless @candidates > 0;
@@ -347,7 +340,6 @@ sub get_lca {
         @nodes = @args;
     }
     @nodes >= 2 or $self->throw("At least 2 nodes are required");
-    
     # We must go root->leaf to get the correct answer to lca (in a world where
     # internal_id might not be uniquely assigned), but leaf->root is more
     # forgiving (eg. lineages may not all have the same root, or they may have
@@ -356,7 +348,6 @@ sub get_lca {
     # I use root->leaf so that we can easily do multiple nodes at once - no
     # matter what taxa are below the lca, the lca and all its ancestors ought to
     # be identical.
-    
     my @paths;
     foreach my $node (@nodes) {
 	unless(ref($node) && $node->isa('Bio::Tree::NodeI')) {
@@ -366,7 +357,6 @@ sub get_lca {
         push(@paths, \@path);
     }
     return unless @paths >= 2;
-    
     my $lca;
     LEVEL: while ($paths[0] > 0) {
         my %node_ids;
@@ -380,7 +370,6 @@ sub get_lca {
             }
             $node_ids{$node_id}++;
         }
-        
         if (keys %node_ids == 1) {
             $lca = $node;
         }
@@ -390,7 +379,6 @@ sub get_lca {
             last LEVEL;
         }
     }
-    
     # If the tree that we are contains the lca (get_lca could have been called
     # on an empty tree, since it works with plain Nodes), prefer to return the
     # node object that belongs to us
@@ -398,7 +386,6 @@ sub get_lca {
         my $own_lca = $self->find_node(-internal_id => $lca->internal_id);
         $lca = $own_lca if $own_lca;
     }
-    
     return $lca;
 }
 
@@ -436,7 +423,7 @@ sub get_lca {
 sub merge_lineage {
     my ($self, $thing) = @_;
     $self->throw("Must supply an object reference") unless ref($thing);
-    
+
     my ($lineage_tree, $lineage_leaf);
     if ($thing->isa('Bio::Tree::TreeI')) {
         my @leaves = $thing->get_leaf_nodes;
@@ -449,26 +436,24 @@ sub merge_lineage {
         $lineage_tree = $self->new(-node => $thing);
         $lineage_leaf = $thing;
     }
-    
+
     # see if any node in the supplied lineage is in our tree - that will be
     # our lca and we can merge at the node below
     my @lineage = ($lineage_leaf, reverse($self->get_lineage_nodes($lineage_leaf)));
     my $merged = 0;
     for my $i (0..$#lineage) {
         my $lca = $self->find_node(-internal_id => $lineage[$i]->internal_id) || next;
-        
+
         if ($i == 0) {
             # the supplied thing to merge is already in the tree, nothing to do
             return;
         }
-        
         # $i is the lca, so the previous node is new to the tree and should
         # be merged on
         $lca->add_Descendent($lineage[$i-1]);
         $merged = 1;
         last;
     }
-    
     $merged || ($self->warn("Couldn't merge the lineage of ".$lineage_leaf->id." with the rest of the tree!\n") && return);
 }
 
@@ -518,7 +503,6 @@ sub contract_linear_paths {
         }
     }
     $self->splice(@remove) if @remove;
-    
     if ($reroot) {
         my $root = $self->get_root_node;
         my @descs = $root->each_Descendent;
@@ -596,16 +580,14 @@ sub contract_linear_paths {
 sub force_binary {
     my $self = shift;
     my $node = shift || $self->get_root_node;
-    
+
     my @descs = $node->each_Descendent;
     if (@descs > 2) {
         $self->warn("Node ".($node->can('node_name') ? ($node->node_name || $node->id) : $node->id).
                     " has more than two descendants\n(".
                     join(", ", map { $node->can('node_name') ? ($node->node_name || $node->id) : $node->id } @descs).
                     ")\nWill do an arbitrary balanced split");
-        
         my @working = @descs;
-        
         # create an even set of artifical nodes on which to later hang the descs
         my $half = @working / 2;
         $half++ if $half > int($half);
@@ -623,7 +605,6 @@ sub force_binary {
             @artificials = @this_level;
             $half--;
         }
-        
         # attach two descs to each artifical leaf
         foreach my $art (@artificials) {
             for (1..2) {
@@ -636,7 +617,6 @@ sub force_binary {
         # ensure that all nodes have 2 descs
         $node->add_Descendent($node->new(-id => "artificial_".++$self->{_art_num}));
     }
-    
     # recurse
     foreach my $desc (@descs) {
         $self->force_binary($desc);
@@ -659,13 +639,13 @@ sub force_binary {
 
 sub simplify_to_leaves_string {
     my $self = shift;
-    
+
     # Before contracting and forcing binary we need to clone self, but Clone.pm
     # clone() seg faults and fails to make the clone, whilst Storable dclone
     # needs $self->{_root_cleanup_methods} deleted (code ref) and seg faults at
     # end of script. Let's make our own clone...
     my $tree = $self->_clone;
-    
+
     $tree->contract_linear_paths(1);
     $tree->force_binary;
     foreach my $node ($tree->get_nodes) {
@@ -673,10 +653,10 @@ sub simplify_to_leaves_string {
         $id = ($node->is_Leaf && $id !~ /^artificial/) ? $id : '';
         $node->id($id);
     }
-    
+
     my %paired;
     my @data = $self->_simplify_helper($tree->get_root_node, \%paired);
-    
+
     return join(',', @data);
 }
 
@@ -685,14 +665,14 @@ sub _clone {
     my ($self, $parent, $parent_clone) = @_;
     $parent ||= $self->get_root_node;
     $parent_clone ||= $self->_clone_node($parent);
-    
+
     foreach my $node ($parent->each_Descendent()) {
         my $child = $self->_clone_node($node);
         $child->ancestor($parent_clone);
         $self->_clone($node, $child);
     }
     $parent->ancestor && return;
-    
+
     my $tree = $self->new(-root => $parent_clone);
     return $tree;
 }
@@ -702,14 +682,14 @@ sub _clone {
 sub _clone_node {
     my ($self, $node) = @_;
     my $clone = $node->new;
-    
+
     while (my ($key, $val) = each %{$node}) {
         if ($key eq '_desc' || $key eq '_ancestor') {
             next;
         }
         ${$clone}{$key} = $val;
     }
-    
+
     return $clone;
 }
 
@@ -718,12 +698,12 @@ sub _clone_node {
 sub _simplify_helper {
     my ($self, $node, $paired) = @_;
     return () if (!defined $node);
-    
+
     my @data = ();
     foreach my $node ($node->each_Descendent()) {
         push(@data, $self->_simplify_helper($node, $paired));
     }
-    
+
     my $id = $node->id_output || '';
     if (@data) {
         unless (exists ${$paired}{"@data"} || @data == 1)  {
@@ -735,7 +715,7 @@ sub _simplify_helper {
     elsif ($id) {
         push(@data, $id);
     }
-    
+
     return @data;
 }
 
@@ -757,13 +737,13 @@ sub distance {
 	return;
     }
     $self->throw("Must provide 2 nodes") unless @{$nodes} == 2;
-    
+
     my $lca = $self->get_lca(@{$nodes});
     unless($lca) { 
         $self->warn("could not find the lca of supplied nodes; can't find distance either");
         return;
     }
-    
+
     my $cumul_dist = 0;
     my $warned = 0;
     foreach my $current_node (@{$nodes}) {
@@ -776,11 +756,11 @@ sub distance {
                 $self->warn("At least some nodes do not have a branch length, the distance returned could be wrong");
                 $warned = 1;
             }
-            
+
             $current_node = $current_node->ancestor || last;
         }
     }
-    
+
     return $cumul_dist;
 }
 
@@ -810,13 +790,13 @@ is_monophyletic");
    if( ref($nodes) !~ /ARRAY/i ) {
        $self->warn("Must provide a valid array reference for -nodes");
    }
-   
+
    my $clade_root = $self->get_lca(@{$nodes});
    unless( defined $clade_root ) { 
        $self->warn("could not find clade root via lca");
        return;
    }
-   
+
    my $og_ancestor = $outgroup->ancestor;
    while( defined ($og_ancestor ) ) {
        if( $og_ancestor->internal_id == $clade_root->internal_id ) {
@@ -865,13 +845,13 @@ sub is_paraphyletic{
    foreach my $n ( @$nodes ) {
        $nodehash{$n->internal_id} = $n;
    }
-   
+
    my $clade_root = $self->get_lca(-nodes => $nodes );
    unless( defined $clade_root ) { 
        $self->warn("could not find clade root via lca");
        return;
    }
-   
+
    my $og_ancestor = $outgroup->ancestor;
 
    # Is this necessary/correct for paraphyly test?
@@ -912,9 +892,9 @@ sub reroot {
         $self->warn("Must provide a valid Bio::Tree::NodeI when rerooting");
         return 0;
     }
-    
+
     {
-        my $anc = $new_root->ancestor;	
+        my $anc = $new_root->ancestor;
         unless( $anc ) {
             return 0;
         }
@@ -937,7 +917,7 @@ sub reroot {
         $self->warn("Node requested for reroot is already the root node!");
         return 0;
     }
-    
+
     # reverse the ancestor & children pointers
     my @path_from_oldroot = ($self->get_lineage_nodes($new_root), $new_root);
     for (my $i = 0; $i < @path_from_oldroot - 1; $i++) {
