@@ -65,7 +65,7 @@ use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::Tree::TreePhyloXML;
+use Bio::Tree::Tree;
 use Bio::Tree::NodePhyloXML;
 use XML::LibXML;
 use XML::LibXML::Reader;
@@ -74,7 +74,7 @@ use base qw(Bio::TreeIO);
 sub _initialize 
 {
   my($self, %args) = @_;
-  $args{-treetype} ||= 'Bio::Tree::TreePhyloXML';
+  $args{-treetype} ||= 'Bio::Tree::Tree';
   $args{-nodetype} ||= 'Bio::Tree::NodePhyloXML';
   $self->SUPER::_initialize(%args);
   $self->debug("Creating obj phyloxml\n");
@@ -293,7 +293,10 @@ sub end_element_phylogeny
   my $tree = $self->treetype->new(
     -verbose => $self->verbose, 
     -root => $root,
-    %{$self->{'_treeattr'}});
+    -id => $self->{'_treeattr'}->{'name'});
+  foreach my $tag ( keys %{$self->{'_treeattr'}} ) {
+    $tree->add_tag_value( $tag, $self->{'_treeattr'}->{$tag} );
+  }
   return $tree;
 }
 
@@ -370,7 +373,7 @@ sub end_element_name
   my $prev = $self->prev_element();
   $self->debug("ending name with prev $prev\n");
   if ($prev eq 'phylogeny') {
-    $self->{'_treeattr'}->{'-id'} = $self->{'_currenttext'};
+    $self->{'_treeattr'}->{'name'} = $self->{'_currenttext'};
   }
   elsif ($prev eq 'clade') {
     my $tnode = pop @{$self->{'_currentitems'}};

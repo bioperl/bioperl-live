@@ -7,7 +7,7 @@ BEGIN {
   use lib 't/lib';
   use BioperlTest;
 
-  test_begin(-tests => 43,
+  test_begin(-tests => 44,
              -requires_modules => [qw(XML::LibXML)],
             );
   if (1000*$] < 5008) {
@@ -41,10 +41,7 @@ is($tree->id, 'example from Prof. Joe Felsenstein\'s book "Inferring Phylogenies
 if ($verbose > 0) {
   diag("tree id: ",$tree->id);
 }
-TODO: {
-  local $TODO = 'TreeIO::phyloxml::rooted not implemented yet';
-  #is($tree->rooted, 'true');
-}
+is($tree->get_tag_values('rooted'), 'true');
 my @nodes = $tree->get_nodes;
 is(@nodes, 5);
 my ($A) = $tree->find_node('A');
