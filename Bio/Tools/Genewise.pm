@@ -325,7 +325,7 @@ sub _parse_genes {
 			 -feature2 =>$pf);
 		    $exon->add_tag_value( 'supporting_feature',$fp );
 		    if( $self->_prot_id ) {
-			$exon->add_tag_value('Target','Protein:'.$prot_start);
+			$exon->add_tag_value('Target','Protein:'.$self->_prot_id);
 			$exon->add_tag_value('Target',$prot_start);
 			$exon->add_tag_value('Target',$prot_end);
 		    }
