@@ -184,6 +184,9 @@ sub write_aln {
 		$self->_print (sprintf("\n%s   MSF: %d  Type: %s  %s  Check: 00 ..\n\n",
 			       $name,  $aln->no_sequences, $type, $date));
 
+    my $seqCountFormat = "%".($maxname > 20 ? $maxname + 2: 22)."s%-27d%27d\n";
+    my $seqNameFormat  = "%-".($maxname > 20 ? $maxname : 20)."s  ";
+        
 		foreach $seq ( $aln->each_seq() ) {
 			$name = $aln->displayname($seq->get_nse());
 			$miss = $maxname - length ($name);
@@ -201,9 +204,9 @@ sub write_aln {
 
     	while( $count < $length ) {
 			# there is another block to go!
-			$self->_print (sprintf("%22s%-27d%27d\n",' ',$count+1,$count+50));
+			$self->_print (sprintf($seqCountFormat,' ',$count+1,$count+50));
 			foreach $name  ( @arr ) {
-				$self->_print (sprintf("%-20s  ",$name));
+				$self->_print (sprintf($seqNameFormat,$name));
 
 				$tempcount = $count;
 				$index = 0;
