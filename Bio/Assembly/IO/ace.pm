@@ -139,7 +139,7 @@ sub next_assembly {
         #};
         
         # Loading contig sequence (COntig sequence field)
-        (/^CO\s[Cc]ontig(\d+)\s(\d+)\s(\d+)\s(\d+)\s(\w+)/xms) && do { # New contig found!
+        (/^CO\s[\w\-\_]+(\d+)\s(\d+)\s(\d+)\s(\d+)\s(\w+)/xms) && do { # New contig found!
             my $contigID = $1;
             $contigOBJ = Bio::Assembly::Contig->new(-source=>'phrap', -id=>$contigID);
             # $contigOBJ->set_nof_bases($2); # Contig length in base pairs
