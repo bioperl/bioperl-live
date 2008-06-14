@@ -45,11 +45,13 @@ sub midpoint {
     if ($pivot eq 'zero') {
 	return 0;
     } elsif ($pivot eq 'mean') {
-	return eval {$self->series_mean} || $self->SUPER::midpoint($default);
+	return eval {$self->series_mean} || 0;
     } elsif  ($pivot =~ /^[\d.eE+-]+$/){
 	return $pivot;
     } else {
-	$self->SUPER::midpoint($default);
+	my $min = $self->min_score or return $default;
+	my $max = $self->max_score or return $default;;
+	return (($min+$max)/2);
     }
 }
 
