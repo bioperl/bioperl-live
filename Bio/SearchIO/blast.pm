@@ -805,7 +805,7 @@ sub next_result {
             HITTABLE:
             while (my $v = shift @hit_signifs) {        
                 my $tableid = $v->[2];
-                if ($tableid !~ m{$id}) {
+                if ($tableid !~ m{\Q$id\E}) {
                     $self->debug("Hit table ID $tableid doesn't match current hit id $id, checking next hit table entry...\n");
                     next HITTABLE;
                 } else {
