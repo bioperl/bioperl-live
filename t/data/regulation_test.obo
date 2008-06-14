@@ -1,0 +1,158 @@
+format-version: 1.2
+date: 29:01:2008 12:06
+subsetdef: goslim_candida "Candida GO slim"
+subsetdef: goslim_generic "Generic GO slim"
+subsetdef: goslim_goa "GOA and proteome slim"
+subsetdef: goslim_pir "PIR GO slim"
+subsetdef: goslim_plant "Plant GO slim"
+subsetdef: goslim_yeast "Yeast GO slim"
+subsetdef: gosubset_prok "Prokaryotic GO subset"
+default-namespace: gene_ontology
+
+[Term]
+id: GO:0003674
+name: molecular_function
+namespace: molecular_function
+def: "Elemental activities, such as catalysis or binding, describing the actions of a gene product at the molecular level. A given gene product may exhibit one or more molecular functions." [GOC:go_curators]
+comment: Note that, in addition to forming the root of the molecular function ontology, this term is recommended for use for the annotation of gene products whose molecular function is unknown. Note that when this term is used for annotation, it indicates that no information was available about the molecular function of the gene product annotated as of the date the annotation was made; the evidence code ND, no data, is used to indicate this.
+subset: goslim_candida
+subset: goslim_generic
+subset: goslim_goa
+subset: goslim_pir
+subset: goslim_plant
+subset: goslim_yeast
+subset: gosubset_prok
+synonym: "molecular function unknown" NARROW []
+
+[Term]
+id: GO:0003824
+name: catalytic activity
+namespace: molecular_function
+def: "Catalysis of a biochemical reaction at physiological temperatures. In biologically catalyzed reactions, the reactants are known as substrates, and the catalysts are naturally occurring macromolecular substances known as enzymes. Enzymes possess specific binding sites for substrates, and are usually composed wholly or largely of protein, but RNA that has catalytic activity (ribozyme) is often also regarded as enzymatic." [ISBN:0198506732]
+subset: goslim_generic
+subset: goslim_goa
+subset: goslim_pir
+subset: goslim_plant
+subset: gosubset_prok
+synonym: "enzyme activity" RELATED []
+is_a: GO:0003674 ! molecular_function
+
+[Term]
+id: GO:0008150
+name: biological_process
+namespace: biological_process
+def: "Those processes specifically pertinent to the functioning of integrated living units: cells, tissues, organs, and organisms. A process is a collection of molecular events with a defined beginning and end." [GOC:go_curators, GOC:isa_complete]
+comment: Note that, in addition to forming the root of the biological process ontology, this term is recommended for use for the annotation of gene products whose biological process is unknown. Note that when this term is used for annotation, it indicates that no information was available about the biological process of the gene product annotated as of the date the annotation was made; the evidence code ND, no data, is used to indicate this.
+subset: goslim_candida
+subset: goslim_generic
+subset: goslim_goa
+subset: goslim_pir
+subset: goslim_plant
+subset: goslim_yeast
+subset: gosubset_prok
+synonym: "biological process unknown" NARROW []
+synonym: "physiological process" EXACT []
+
+[Term]
+id: GO:0016740
+name: transferase activity
+namespace: molecular_function
+def: "Catalysis of the transfer of a group, e.g. a methyl group, glycosyl group, acyl group, phosphorus-containing, or other groups, from one compound (generally regarded as the donor) to another compound (generally regarded as the acceptor). Transferase is the systematic name for any enzyme of EC class 2." [ISBN:0198506732]
+subset: goslim_candida
+subset: goslim_generic
+subset: goslim_goa
+subset: goslim_pir
+subset: goslim_plant
+subset: goslim_yeast
+subset: gosubset_prok
+xref: EC:2
+is_a: GO:0003824 ! catalytic activity
+
+[Term]
+id: GO:0043085
+name: positive regulation of catalytic activity
+namespace: biological_process
+def: "Any process that activates or increases the activity of an enzyme." [GOC:jl, GOC:tb]
+subset: gosubset_prok
+synonym: "activation of enzyme activity" NARROW []
+synonym: "positive regulation of enzyme activity" EXACT []
+synonym: "stimulation of enzyme activity" NARROW []
+synonym: "up regulation of enzyme activity" EXACT []
+synonym: "up-regulation of enzyme activity" EXACT []
+synonym: "upregulation of enzyme activity" EXACT []
+is_a: GO:0050790 ! regulation of catalytic activity
+intersection_of: GO:0065007 ! biological regulation
+intersection_of: positively_regulates GO:0003824 ! catalytic activity
+relationship: positively_regulates GO:0003824 ! catalytic activity
+
+[Term]
+id: GO:0050790
+name: regulation of catalytic activity
+namespace: biological_process
+def: "Any process that modulates the activity of an enzyme." [GOC:ai]
+subset: gosubset_prok
+synonym: "regulation of enzyme activity" EXACT []
+is_a: GO:0065009 ! regulation of a molecular function
+intersection_of: GO:0065007 ! biological regulation
+intersection_of: regulates GO:0003824 ! catalytic activity
+relationship: regulates GO:0003824 ! catalytic activity
+
+[Term]
+id: GO:0051338
+name: regulation of transferase activity
+namespace: biological_process
+def: "Any process that modulates the frequency, rate or extent of transferase activity, the catalysis of the transfer of a group, e.g. a methyl group, glycosyl group, acyl group, phosphorus-containing, or other groups, from one compound (generally regarded as the donor) to another compound (generally regarded as the acceptor). Transferase is the systematic name for any enzyme of EC class 2." [EC:2.-.-.-, GOC:ai]
+subset: gosubset_prok
+synonym: "transferase regulator" EXACT []
+is_a: GO:0050790 ! regulation of catalytic activity
+intersection_of: GO:0065007 ! biological regulation
+intersection_of: regulates GO:0016740 ! transferase activity
+relationship: regulates GO:0016740 ! transferase activity
+
+[Term]
+id: GO:0051347
+name: positive regulation of transferase activity
+namespace: biological_process
+def: "Any process that activates or increases the frequency, rate or extent of transferase activity, the catalysis of the transfer of a group, e.g. a methyl group, glycosyl group, acyl group, phosphorus-containing, or other groups, from a donor compound to an acceptor." [GOC:ai]
+subset: gosubset_prok
+synonym: "activation of transferase activity" NARROW []
+synonym: "stimulation of transferase activity" NARROW []
+synonym: "transferase activator" EXACT []
+synonym: "up regulation of transferase activity" EXACT []
+synonym: "up-regulation of transferase activity" EXACT []
+synonym: "upregulation of transferase activity" EXACT []
+is_a: GO:0043085 ! positive regulation of catalytic activity
+is_a: GO:0051338 ! regulation of transferase activity
+intersection_of: GO:0065007 ! biological regulation
+intersection_of: positively_regulates GO:0016740 ! transferase activity
+relationship: positively_regulates GO:0016740 ! transferase activity
+
+[Term]
+id: GO:0065007
+name: biological regulation
+namespace: biological_process
+def: "Any process that modulates the frequency, rate or extent of any biological process, quality or function." [GOC:isa_complete]
+subset: goslim_pir
+subset: gosubset_prok
+synonym: "regulation" BROAD []
+is_a: GO:0008150 ! biological_process
+
+[Term]
+id: GO:0065009
+name: regulation of a molecular function
+namespace: biological_process
+def: "Any process that modulates the frequency, rate or extent of molecular functions. Molecular functions are elemental biological activities occurring at the molecular level, such as catalysis or binding." [GOC:isa_complete]
+subset: gosubset_prok
+is_a: GO:0065007 ! biological regulation
+
+[Typedef]
+id: positively_regulates
+name: positively_regulates
+namespace: gene_ontology
+is_a: regulates ! regulates
+
+[Typedef]
+id: regulates
+name: regulates
+namespace: gene_ontology
+

@@ -208,7 +208,10 @@ sub parse {
     foreach (
         $self->_part_of_relationship(),
         $self->_is_a_relationship(),
-        $self->_related_to_relationship()
+        $self->_related_to_relationship(),
+        $self->_regulates_relationship(),
+        $self->_positively_regulates_relationship(),
+        $self->_negatively_regulates_relationship(),
       )
     {
         $_->ontology($ont);
@@ -229,6 +232,8 @@ sub parse {
             );
             next;
         }
+
+				#print $term->identifier(),"\t",$term->name(),"\n";
 
         my $new_ontology_flag    = 1;
         my $ontologies_array_ref = $self->{'_ontologies'};
@@ -407,6 +412,29 @@ sub _related_to_relationship {
 
     return $self->_ont_engine()->related_to_relationship(@_);
 }    # _is_a_relationship
+
+
+# This simply delegates. See OBOEngine
+sub _regulates_relationship {
+    my $self = shift;
+
+    return $self->_ont_engine()->regulates_relationship(@_);
+}    # _part_of_relationship
+
+# This simply delegates. See OBOEngine
+sub _positively_regulates_relationship {
+    my $self = shift;
+
+    return $self->_ont_engine()->positively_regulates_relationship(@_);
+}    # _part_of_relationship
+
+
+# This simply delegates. See OBOEngine
+sub _negatively_regulates_relationship {
+    my $self = shift;
+
+    return $self->_ont_engine()->negatively_regulates_relationship(@_);
+}    # _part_of_relationship
 
 # This simply delegates. See OBOEngine
 sub _add_relationship {
@@ -763,7 +791,7 @@ sub _handle_relationship_tag {
     my ( $self, $val ) = @_;
     my @parts        = split( / /, $val );
     my $relationship = uc($parts[0]);
-    my $id           = $parts[1];
+    my $id           = $parts[1] =~ /\^(w+)\s+\!/ ? $1 : $parts[1];
     my $parent_term  = $self->_create_term_object();
     $parent_term->identifier($id);
 

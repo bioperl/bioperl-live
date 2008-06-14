@@ -86,6 +86,10 @@ use constant RELATED_TO => "RELATED_TO";
 use constant TERM       => "TERM";
 use constant TYPE       => "TYPE";
 use constant ONTOLOGY   => "ONTOLOGY";
+use constant REGULATES   => "REGULATES";
+use constant POSITIVELY_REGULATES   => "POSITIVELY_REGULATES";
+use constant NEGATIVELY_REGULATES   => "NEGATIVELY_REGULATES";
+
 
 use base qw(Bio::Root::Root Bio::Ontology::OntologyEngineI);
 
@@ -129,6 +133,11 @@ sub init {
     $self->{ "_is_a_relationship" }       = Bio::Ontology::RelationshipType->get_instance( IS_A );
     $self->{ "_part_of_relationship" }    = Bio::Ontology::RelationshipType->get_instance( PART_OF );
     $self->{ "_related_to_relationship" } = Bio::Ontology::RelationshipType->get_instance( RELATED_TO );
+
+    $self->{'_regulates_relationship'} = Bio::Ontology::RelationshipType->get_instance(REGULATES);
+    $self->{'_positively_regulate'} = Bio::Ontology::RelationshipType->get_instance(POSITIVELY_REGULATES);
+    $self->{'_negatively_regulate'} = Bio::Ontology::RelationshipType->get_instance(NEGATIVELY_REGULATES);
+    
 
     $self->graph( Bio::Ontology::SimpleGOEngine::GraphAdaptor->new() );        # NG 05-02-16
 
@@ -184,6 +193,7 @@ sub part_of_relationship {
     return $self->{ "_part_of_relationship" };
 } # part_of_relationship
 
+
 =head2 related_to_relationship
 
  Title   : related_to_relationship()
@@ -204,6 +214,69 @@ sub related_to_relationship {
 
     return $self->{ "_related_to_relationship" };
 } # related_to_relationship
+
+=head2 regulates_relationship
+
+ Title   : regulates_relationship()
+ Usage   : $REGULATES = $engine->regulates_relationship();
+ Function: Returns a Bio::Ontology::RelationshipType object for "regulates"
+           relationships
+ Returns : Bio::Ontology::RelationshipType set to "REGULATES"
+ Args    :
+
+=cut
+
+sub regulates_relationship {
+    my ( $self, $value ) = @_;
+
+    if ( defined $value ) {
+        $self->throw( "Attempted to change immutable field" );
+    }
+
+    return $self->{ "_regulates_relationship" };
+} # is_a_relationship
+
+=head2 positively_regulates_relationship
+
+ Title   : positively_regulates_relationship()
+ Usage   : $REGULATES = $engine->positively_regulates_relationship();
+ Function: Returns a Bio::Ontology::RelationshipType object for "positively_regulates"
+           relationships
+ Returns : Bio::Ontology::RelationshipType set to "POSITIVELY_REGULATES"
+ Args    :
+
+=cut
+
+sub positively_regulates_relationship {
+    my ( $self, $value ) = @_;
+
+    if ( defined $value ) {
+        $self->throw( "Attempted to change immutable field" );
+    }
+
+    return $self->{ "_positively_regulate" };
+} 
+
+=head2 negatively_regulates_relationship
+
+ Title   : negatively_regulates_relationship()
+ Usage   : $REGULATES = $engine->negatively_regulates_relationship();
+ Function: Returns a Bio::Ontology::RelationshipType object for "negatively_regulates"
+           relationships
+ Returns : Bio::Ontology::RelationshipType set to "POSITIVELY_REGULATES"
+ Args    :
+
+=cut
+
+sub negatively_regulates_relationship {
+    my ( $self, $value ) = @_;
+
+    if ( defined $value ) {
+        $self->throw( "Attempted to change immutable field" );
+    }
+
+    return $self->{ "_negatively_regulate" };
+} 
 
 
 =head2 add_term
@@ -446,7 +519,11 @@ sub get_predicate_terms {
 
     my @a = ( $self->is_a_relationship(),
               $self->part_of_relationship(),
-              $self->related_to_relationship());
+              $self->related_to_relationship(),
+							$self->regulates_relationship(),
+        			$self->positively_regulates_relationship(),
+        			$self->negatively_regulates_relationship(),
+           );
 
         foreach my $termname (keys %{$self->{ "_extra_relationship_types" }}){
           push @a, $self->{ "_extra_relationship_types" }{ $termname };
@@ -519,8 +596,6 @@ sub get_descendant_terms {
     return $self->get_terms( @ids );
 
 } # get_descendant_terms
-
-
 
 
 =head2 get_parent_terms

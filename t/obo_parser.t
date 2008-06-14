@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 45,
+    test_begin(-tests => 83,
 			   -requires_module => 'Graph');
 	
 	use_ok('Bio::OntologyIO');
@@ -130,3 +130,104 @@ is (scalar(@relset), 5);
 is (scalar(@relset), 4);
 @relset = grep { $_->subject_term->identifier eq "SO:0000082"; } @rels;
 is (scalar(@relset), 1);
+
+
+
+
+#### --- testing obo parsers for regulates relationships
+my $parser2 = Bio::OntologyIO->new (
+	 -format => 'obo',
+	 -file => test_input_file('regulation_test.obo'));
+
+isa_ok($parser2,'Bio::OntologyIO', 'got a ontology IO handler');
+
+my @ontologies;
+while (my $ont = $parser2->next_ontology()) {
+	 isa_ok($ont,'Bio::Ontology::Ontology','got ontology parser2');
+	 isa_ok($ont->engine,'Bio::Ontology::OBOEngine','got OBO engine object');
+	 push @ontologies,$ont;
+}
+
+my $molont = $ontologies[1];
+my $bioont = $ontologies[2];
+is($ontologies[0]->name(),'gene_ontology','Gene ontology');
+is($bioont->name(),'biological_process','biological process');
+is($molont->name(),'molecular_function','molecular function');
+
+my ($broot) = $bioont->get_root_terms();
+is($broot->name(),'biological_process','Got root');
+
+
+my ($mroot) = $molont->get_root_terms();
+is($mroot->name(),'molecular_function','Got root');
+
+
+## -- testing newly introduced relationships
+is($ontologies[0]->get_relationship_type('REGULATES')->name,'REGULATES','Got regulates
+	 from gene_ontology');
+is($ontologies[0]->get_relationship_type('POSITIVELY_REGULATES')->name,'POSITIVELY_REGULATES','Got
+	 positively regulates from gene_ontology');
+is($bioont->get_relationship_type('REGULATES')->name,'REGULATES','Got
+	  regulates from biological_process');
+is($bioont->get_relationship_type('POSITIVELY_REGULATES')->name,'POSITIVELY_REGULATES','Got
+	 positively regulates from biological_process');
+
+
+## -- getting relationships for various ontologies
+my @onto_pred = $ontologies[0]->get_predicate_terms();
+my @bio_pred =  $bioont->get_predicate_terms();
+is(scalar @onto_pred,6,'Got predicates for gene_ontology');
+is(scalar @bio_pred,2,'Got predicates for biological_process');
+is($onto_pred[3]->name(),'REGULATES','Got regulates predicate');
+is($bio_pred[1]->name(),'POSITIVELY_REGULATES','Got positively regulates predicate');
+
+
+my @bio_rel = $bioont->get_relationships();
+my @mol_rel = $molont->get_relationships();
+is(scalar @bio_rel,11,'Got relationships for biological_process');
+is(scalar @mol_rel,2,'Got relationships for molecular_function');
+is($mol_rel[0]->predicate_term->name(),'IS_A','Got is a relationship from
+	 molecular_function');
+## ----
+
+
+## -- testing the regulates relationships between term1s
+my $REG = Bio::Ontology::RelationshipType->get_instance('REGULATES');
+my $PREG = Bio::Ontology::RelationshipType->get_instance('POSITIVELY_REGULATES');
+
+my ($term1) = $bioont->find_terms(-identifier => 'GO:0050790');
+isa_ok($term1,'Bio::Ontology::Term','Got term object');
+is($term1->identifier(),'GO:0050790', 'Got term id');
+is($term1->name(),'regulation of catalytic activity', 'Got term name');
+
+my ($parent) = $bioont->get_parent_terms($term1,$REG);
+isa_ok($parent,'Bio::Ontology::Term','Got regulated object');
+is($parent->identifier(),'GO:0003824','Got regulated term1 id'); 
+
+## -- now testing the other way
+my ($child) = $bioont->get_child_terms($parent,$REG); 
+isa_ok($child,'Bio::Ontology::Term','Got term1 object');
+is($child->identifier(),$term1->identifier(),'Got back the child');
+
+my ($term2) = $bioont->find_terms(-identifier => 'GO:0043085');
+isa_ok($term2,'Bio::Ontology::Term','Got term object');
+is($term2->identifier(),'GO:0043085', 'Got term id');
+is($term2->name(),'positive regulation of catalytic activity', 'Got term name');
+
+my ($parent2) = $bioont->get_parent_terms($term2,$PREG);
+isa_ok($parent2,'Bio::Ontology::Term','Got regulated object');
+is($parent2->identifier(),'GO:0003824','Got regulated term1 id'); 
+is($parent->name(),$parent2->name(),'Got identical regulation');
+
+
+my ($child2) = $bioont->get_child_terms($parent2,$PREG); 
+isa_ok($child2,'Bio::Ontology::Term','Got term1 object');
+is($child2->identifier(),$term2->identifier(),'Got back the child');
+
+
+
+
+
+
+
+
