@@ -230,9 +230,12 @@ sub _draw_boxes {
 
   my @parts    = $self->parts;
   my $lw       = $self->linewidth;
-  my $positive = $self->color('pos_color') || $self->bgcolor;
-  my $negative = $self->color('neg_color') || $positive;
+  my $positive = $self->pos_color;
+  my $negative = $self->neg_color;
   my $height   = $self->height;
+
+  my $midpoint = $self->midpoint ? $self->score2position($self->midpoint) 
+                                 : $y_origin;
 
   my $partcolor = $self->code_option('part_color');
   my $factory  = $self->factory;
@@ -257,7 +260,7 @@ sub _draw_boxes {
 
     my ($x1,$y1,$x2,$y2) = $part->calculate_boundaries($left,$top);
     next unless defined $part->{_y_position};
-    if ($part->{_y_position} < $y_origin) {
+    if ($part->{_y_position} < $midpoint) {
       $self->filled_box($gd,$x1,$part->{_y_position},$x2,$y_origin,$color,$color,$lw);
     } else {
       $self->filled_box($gd,$x1,$y_origin,$x2,$part->{_y_position},$negcolor,$negcolor,$lw);

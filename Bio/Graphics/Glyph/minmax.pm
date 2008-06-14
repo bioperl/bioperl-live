@@ -4,13 +4,21 @@ package Bio::Graphics::Glyph::minmax;
 use strict;
 use base qw(Bio::Graphics::Glyph::segments);
 
+sub min_score {
+  shift->option('min_score');
+}
+
+sub max_score {
+  shift->option('max_score');
+}
+
 sub minmax {
   my $self = shift;
   my $parts = shift;
 
   # figure out the colors
-  my $max_score = $self->option('max_score');
-  my $min_score = $self->option('min_score');
+  my $max_score = $self->max_score;
+  my $min_score = $self->min_score;
 
   my $do_min = !defined $min_score;
   my $do_max = !defined $max_score;
@@ -18,7 +26,7 @@ sub minmax {
   if ($do_min or $do_max) {
     my $first = $parts->[0];
     for my $part (@$parts) {
-      my $s = eval { $part->feature->score };
+      my $s = eval { $part->feature->score } || $part;
       next unless defined $s;
       $max_score = $s if $do_max && (!defined $max_score or $s > $max_score);
       $min_score = $s if $do_min && (!defined $min_score or $s < $min_score);
@@ -27,6 +35,40 @@ sub minmax {
 
   ($min_score,$max_score);
 }
+
+sub midpoint {
+    my $self    = shift;
+    my $default = shift;
+
+    my $pivot = $self->bicolor_pivot;
+
+    if ($pivot eq 'zero') {
+	return 0;
+    } elsif ($pivot eq 'mean') {
+	return eval {$self->series_mean} || $self->SUPER::midpoint($default);
+    } elsif  ($pivot =~ /^[\d.eE+-]+$/){
+	return $pivot;
+    } else {
+	$self->SUPER::midpoint($default);
+    }
+}
+
+sub bicolor_pivot {
+    my $self = shift;
+    return $self->option('bicolor_pivot');
+}
+
+sub pos_color {
+    my $self = shift;
+    return $self->color('pos_color') || $self->bgcolor;
+}
+
+sub neg_color {
+    my $self = shift;
+    return $self->color('neg_color') || $self->bgcolor;
+}
+
+
 
 1;
 
