@@ -252,7 +252,9 @@ sub _parse_genes {
 	    my $source_tag = $type ? "$Srctag". "_$type" : $Srctag;
 	    my $genes = Bio::SeqFeature::Gene::GeneStructure->new
 		(-source => $source_tag,
-		 -score  => $self->_score);
+		 -score  => $self->_score,
+		 );
+	    $genes->add_tag_value('ID', $self->_prot_id.".gene");
 	    my $transcript = Bio::SeqFeature::Gene::Transcript->new
 		(-source => $source_tag,
 		 -score  => $score);
@@ -290,7 +292,7 @@ sub _parse_genes {
 		$exon->add_tag_value('phase',$phase);
 		$exon->is_coding(1);
 		if( $self->_prot_id ) {
-		    $exon->add_tag_value('Target',"Protein:".$self->_prot_id);
+		    $exon->add_tag_value('Parent',$self->_prot_id);
 		}
 		$exon->add_tag_value("Exon",$nbr++);
 		if( $e =~ m/Supporting\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/) {
@@ -323,6 +325,7 @@ sub _parse_genes {
 			 -feature2 =>$pf);
 		    $exon->add_tag_value( 'supporting_feature',$fp );
 		    if( $self->_prot_id ) {
+			$exon->add_tag_value('Target','Protein:'.$prot_start);
 			$exon->add_tag_value('Target',$prot_start);
 			$exon->add_tag_value('Target',$prot_end);
 		    }
@@ -330,7 +333,8 @@ sub _parse_genes {
 		$transcript->add_exon($exon);
 	    }
 	    $transcript->seq_id($self->_target_id);
-	    $transcript->add_tag_value('Id', $self->_prot_id);
+	    $transcript->add_tag_value('ID', $self->_prot_id);
+	    $transcript->add_tag_value('Parent', $self->_prot_id.".gene");
 	    $genes->add_transcript($transcript);
 	    $genes->seq_id($self->_target_id);
 	    push @genes, $genes;
