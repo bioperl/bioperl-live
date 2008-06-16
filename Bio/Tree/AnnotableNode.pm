@@ -1,4 +1,4 @@
-# BioPerl module for Bio::Tree::NodePhyloXML
+# BioPerl module for Bio::Tree::AnnotatableNode
 #
 # Cared for by Mira Han <mirhan@indiana.edu>
 #
@@ -10,24 +10,30 @@
 
 =head1 NAME
 
-Bio::Tree::NodePhyloXML - A Simple Tree Node with support for PhyloXML tags
+Bio::Tree::AnnotatableNode - A Tree Node with support for annotation
 
 =head1 SYNOPSIS
 
-    use Bio::Tree::NodePhyloXML;
-    my $nodeA = Bio::Tree::NodePhyloXML->new();
-    my $nodeL = Bio::Tree::NodePhyloXML->new();
-    my $nodeR = Bio::Tree::NodePhyloXML->new();
+    use Bio::Tree::AnnotatableNode;
+    my $nodeA = Bio::Tree::AnnotatableNode->new();
+    my $nodeL = Bio::Tree::AnnotatableNode->new();
+    my $nodeR = Bio::Tree::AnnotatableNode->new();
 
-    my $node = Bio::Tree::NodePhyloXML->new();
+    my $node = Bio::Tree::AnnotatableNode->new();
     $node->add_Descendents($nodeL);
     $node->add_Descendents($nodeR);
 
     print "node is not a leaf \n" if( $node->is_leaf);
 
+    # $node is-a Bio::AnnotatableI, hence:
+    my $ann_coll = $node->annotation();
+    # $ann_coll is-a Bio::AnnotationCollectionI, hence:
+    my @all_anns = $ann_coll->get_Annotations();
+    # do something with the annotation objects
+
 =head1 DESCRIPTION
 
-Makes a Tree Node with PhyloXML tags, suitable for building a Tree.  See
+Makes a Tree Node with Annotations, suitable for building a Tree.  See
 L<Bio::Tree::Node> for a full list of functionality.
 
 =head1 FEEDBACK
@@ -53,13 +59,6 @@ the web:
 
 Email mirhan@indiana.edu
 
-=head1 CONTRIBUTORS
-
-The PhyloXML format was created by Chris Zmasek,
-and is described at:
-
-  http://www.phyloxml.org/
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -70,25 +69,24 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-package Bio::Tree::NodePhyloXML;
+package Bio::Tree::AnnotatableNode;
 use strict;
 
-
-use base qw(Bio::Tree::Node);
+use Bio::Annotation::Collection;
+use base qw(Bio::Tree::Node Bio::AnnotatableI);
 
 =head2 new
 
  Title   : new
- Usage   : my $obj = Bio::Tree::NodePhyloXML->new();
- Function: Builds a new Bio::Tree::NodePhyloXML object
- Returns : Bio::Tree::NodePhyloXML
+ Usage   : my $obj = Bio::Tree::AnnotatableNode->new();
+ Function: Builds a new Bio::Tree::AnnotatableNode object
+ Returns : Bio::Tree::AnnotatableNode
  Args    : -left          => pointer to Left descendent (optional)
            -right         => pointer to Right descenent (optional)
 	         -branch_length => branch length [integer] (optional)
            -bootstrap     => bootstrap value (string)
            -description   => description of node
            -id            => unique id for node
-           -user_tag      => hashref of PhyloXML tags and values
 
 =cut
 
@@ -98,7 +96,7 @@ sub new {
 #    print "args: $_\n";
 #  }
   my $self = $class->SUPER::new(@args);
-  $self->debug("new NodePhyloXML\n");
+  $self->debug("new AnnotatableNode\n");
   #my @newargs = $self->_rearrange([qw(
   #          DESCENDENTS
   #          BRANCH_LENGTH
@@ -112,7 +110,7 @@ sub new {
   #  print "args: $_\n";
   #}
 
-  #my ($user_tag) = $self->_rearrange([qw(PhyloXML)], @args);
+  #my ($user_tag) = $self->_rearrange([qw(annotation)], @args);
   #my ($user_tag) = $self->_rearrange(@args);
   #print "user_tag: ", %{$user_tag}, "\n";
   #$self->_tag($user_tag);
@@ -139,10 +137,10 @@ sub to_string{
    my @tags = $self->get_all_tags;
    my $tagstr = '';
    if( @tags ) {
-       $tagstr = '[' . join(":", "&&PhyloXML", 
-			    map { "$_=" .join(',',
-					      $self->get_tag_values($_))}
-			    @tags ) . ']';
+#       $tagstr = '[' . join(":", "&&NHX", 
+#			    map { "$_=" .join(',',
+#					      $self->get_tag_values($_))}
+#			    @tags ) . ']';
    }
    return sprintf("%s%s%s",
 		  defined $self->id ? $self->id : '',
@@ -151,47 +149,33 @@ sub to_string{
 		  $tagstr);
 }
 
-=head2 _tag
-
- Title   : _tag
- Usage   : my $tag = $nodephyloXML->_tag(%tags);
- Function: Set tag-value pairs for PhyloXML nodes
- Returns : none
- Args    : hashref to update the tags/value pairs
-           OR 
-           with a scalar value update the bootstrap value by default
-
+=head1 Methods for implementing Bio::AnnotatableI
 
 =cut
 
-sub _tag 
-{
-  my ($self, $tags) = @_;
-  if (defined $tags && (ref($tags) =~ /HASH/i)) 
-  {
-    while( my ($tag,$val) = each %$tags ) 
-    {
-      if( ref($val) =~ /ARRAY/i ) 
-      {
-        for my $v ( @$val ) 
-        {
-          $self->add_tag_value($tag,$v);
-        }
-      } 
-      else {
-        $self->add_tag_value($tag,$val);
-      }
+=head2 annotation
+
+ Title   : annotation
+ Usage   : $ann = $seq->annotation or 
+           $seq->annotation($ann)
+ Function: Gets or sets the annotation
+ Returns : Bio::AnnotationCollectionI object
+ Args    : None or Bio::AnnotationCollectionI object
+See L<Bio::AnnotationCollectionI> and L<Bio::Annotation::Collection>
+for more information
+
+=cut
+
+sub annotation {
+    my ($obj,$value) = @_;
+    if( defined $value ) {
+  $obj->throw("object of class ".ref($value)." does not implement ".
+        "Bio::AnnotationCollectionI. Too bad.")      unless $value->isa("Bio::AnnotationCollectionI");
+  $obj->{'_annotation'} = $value;
+    } elsif( ! defined $obj->{'_annotation'}) {
+  $obj->{'_annotation'} = Bio::Annotation::Collection->new();
     }
-    if (exists $tags->{'B'}) 
-    {
-      $self->bootstrap($tags->{'B'});
-    }
-  } 
-  elsif (defined $tags and ! ref ($tags)) 
-  {
-# bootstrap by default
-    $self->bootstrap($tags);
-  }
+    return $obj->{'_annotation'};
 }
 
 1;
