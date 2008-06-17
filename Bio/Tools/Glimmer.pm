@@ -471,7 +471,7 @@ sub _parse_prokaryotic {
                 ([\d\.]+)          # score
                 /ox)) {
 	    my ($genenum,$start,$end,$strand,$frame,$score) = 
-		( $1,$2,$3,$4,$5 );
+		( $1,$2,$3,$4,$5,$6 );
 
             my $circular_prediction = 0;
 
