@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 182);
+    test_begin(-tests => 185);
 
     use_ok('Bio::Tools::Fgenesh');
     use_ok('Bio::Tools::Genscan');
@@ -239,6 +239,7 @@ ok($g3gene);
 is($g3gene->seq_id, 'BCTDNA');
 is($g3gene->source_tag, 'Glimmer_3.X');
 is($g3gene->primary_tag, 'gene');
+is($g3gene->score, '9.60');
 isa_ok($g3gene->location, 'Bio::Location::SplitLocationI');
 my @sublocations = $g3gene->location->sub_Location();
 is(scalar (@sublocations), 2);
@@ -256,6 +257,7 @@ while ($g3gene = $glimmer_3->next_prediction) {
         is($g3gene->end, 14781);
         is($g3gene->strand, -1);
         is($g3gene->frame, 0);
+        is($g3gene->score, '5.51');
 		
         my ($orfid) = $g3gene->has_tag('Group') ? $g3gene->get_tag_values('Group') : undef;
         is($orfid, 'GenePrediction_00015');
@@ -287,6 +289,7 @@ is $g3gene_a->location->start(), 2677;
 is $g3gene_a->frame(), 0;
 is $g3gene_a->location->end_pos_type(), 'AFTER';
 is $g3gene_a->location->min_end(), 2932;
+is $g3gene_a->score, '5.63';
 
 # Fgenesh
 my $fgh = Bio::Tools::Fgenesh->new(
