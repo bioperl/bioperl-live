@@ -67,6 +67,7 @@ use strict;
 
 use Bio::Tree::Tree;
 use Bio::Tree::AnnotatableNode;
+use Bio::Annotation::SimpleValue;
 use XML::LibXML;
 use XML::LibXML::Reader;
 use base qw(Bio::TreeIO);
@@ -92,7 +93,7 @@ sub _initialize
   $self->debug("libxml version: ", XML::LibXML::LIBXML_VERSION(), "\n");
   $self->treetype($args{-treetype});
   $self->nodetype($args{-nodetype});
-  $self->{'_lastitem'} = {};
+  $self->{'_lastitem'} = {}; # holds open items and the attribute hash
   $self->_init_func();
 }
 
@@ -103,6 +104,7 @@ sub _init_func
     'phylogeny' => \&element_phylogeny,
     'clade' => \&element_clade, 
     'confidence' => \&element_confidence,
+    'property' => \&element_property,
   );
   $self->{'_start_elements'} = \%start_elements;
   my %end_elements = (
@@ -111,6 +113,7 @@ sub _init_func
     'name' => \&end_element_name, 
     'branch_length' => \&end_element_branch_length,
     'confidence' => \&end_element_confidence,
+    'property' => \&end_element_property,
   );
   $self->{'_end_elements'} = \%end_elements;
 }
@@ -184,7 +187,7 @@ sub processNode
   {
     $self->debug("starting element: ",$reader->name, "\n");
     $self->{'_lastitem'}->{$reader->name}++;
-    push @{$self->{'_lastitem'}->{'current'}}, $reader->name;
+    push @{$self->{'_lastitem'}->{'current'}}, { $reader->name=>{}};
 
     if (exists $self->{'_start_elements'}->{$reader->name}) {
       my $method = $self->{'_start_elements'}->{$reader->name};
@@ -255,14 +258,13 @@ sub processAttribute
 sub element_phylogeny 
 {
   my ($self) = @_;   
-  $self->{'_currentitems'} = [];
-  $self->{'_currentnodes'} = [];
+  $self->{'_currentitems'} = []; # holds nodes while parsing current level
+  $self->{'_currentnodes'} = []; # holds nodes while constructing tree
   $self->{'_currenttext'} = '';
   $self->{'_levelcnt'} = [];
 
   $self->debug("Starting phylogeny\n");
-  $self->{'_treeattr'} = {};
-  $self->processAttribute($self->{'_treeattr'});
+  $self->processAttribute($self->current_attr);
   return; 
 }
 
@@ -293,9 +295,9 @@ sub end_element_phylogeny
   my $tree = $self->treetype->new(
     -verbose => $self->verbose, 
     -root => $root,
-    -id => $self->{'_treeattr'}->{'name'});
-  foreach my $tag ( keys %{$self->{'_treeattr'}} ) {
-    $tree->add_tag_value( $tag, $self->{'_treeattr'}->{$tag} );
+    -id => $self->current_attr->{'name'});
+  foreach my $tag ( keys %{$self->current_attr} ) {
+    $tree->add_tag_value( $tag, $self->current_attr->{$tag} );
   }
   return $tree;
 }
@@ -315,7 +317,7 @@ sub element_clade
 {
   my ($self) = @_;
   my $reader = $self->{'_reader'};
-  my %data = ();
+  my %data = ();    # doesn't use current attribute in order to save memory 
   $self->processAttribute(\%data);
   my $tnode = $self->nodetype->new( -verbose => $self->verbose, 
                                     -id => '', 
@@ -373,7 +375,7 @@ sub end_element_name
   my $prev = $self->prev_element();
   $self->debug("ending name with prev $prev\n");
   if ($prev eq 'phylogeny') {
-    $self->{'_treeattr'}->{'name'} = $self->{'_currenttext'};
+    $self->prev_attr->{'name'} = $self->{'_currenttext'};
   }
   elsif ($prev eq 'clade') {
     my $tnode = pop @{$self->{'_currentitems'}};
@@ -431,16 +433,9 @@ sub element_confidence
   if ($prev eq 'phylogeny') {
   }
   elsif ($prev eq 'clade') {
-    my $tnode = pop @{$self->{'_currentitems'}};
-    my %data = ();
-    #take care of attribute
-    $self->processAttribute(\%data);
-    if ((exists $data{'type'}) && ($data{'type'} eq 'bootstrap')) {
-      $tnode->bootstrap('tba');
-    }
-    $self->debug( "attr: ", %data, "\n");
-    $self->debug( "bootstrap: ", $tnode->bootstrap(), "\n");
-    push @{$self->{'_currentitems'}}, $tnode;
+    # read attributes of <confidence>
+    $self->processAttribute($self->current_attr); 
+    $self->debug( "attr: ", %{$self->current_attr}, "\n");
   }
   elsif ($prev eq 'events') {
   }
@@ -474,7 +469,7 @@ sub end_element_confidence
   }
   elsif ($prev eq 'clade') {
     my $tnode = pop @{$self->{'_currentitems'}};
-    if ($tnode->bootstrap() eq 'tba') {
+    if ((exists $self->current_attr->{'type'}) && ($self->current_attr->{'type'} eq 'bootstrap')) {
       $tnode->bootstrap($self->{'_currenttext'});
     }
     push @{$self->{'_currentitems'}}, $tnode;
@@ -492,6 +487,75 @@ sub end_element_confidence
   }
 }
 
+
+=head2 element_property
+
+ Title   : element_property
+ Usage   : $->element_property
+ Function: 
+ Returns : none 
+ Args    : none
+
+=cut
+
+sub element_property
+{
+  my ($self) = @_;
+  my $reader = $self->{'_reader'};
+  my $prev = $self->prev_element();
+  $self->debug("starting property within $prev\n");
+  if ($prev eq 'phylogeny') {
+  }
+  elsif ($prev eq 'clade') {
+    # read attributes of <property>
+    $self->processAttribute($self->current_attr);
+    $self->debug( "attr: ", %{$self->current_attr}, "\n");
+  }
+  elsif ($prev eq 'annotation') {
+  }
+  else {
+  }
+}
+
+
+=head2 end_element_property
+
+ Title   : end_element_property
+ Usage   : $->end_element_property
+ Function: 
+ Returns : none 
+ Args    : none
+
+=cut
+
+sub end_element_property
+{
+  my ($self) = @_;
+  my $reader = $self->{'_reader'};
+  my $prev = $self->prev_element();
+  if ($prev eq 'phylogeny') {
+  }
+  elsif ($prev eq 'clade') {
+    my $tnode = pop @{$self->{'_currentitems'}};
+    if (exists $self->current_attr->{'ref'}) {
+      my $ac = $tnode->annotation();
+      my $sv = new Bio::Annotation::SimpleValue(-value => $self->{'_currenttext'});
+      $ac->add_Annotation($self->current_attr->{'ref'}, $sv); 
+    }
+    push @{$self->{'_currentitems'}}, $tnode;
+  }
+  elsif ($prev eq 'events') {
+  }
+  elsif ($prev eq 'annotation') {
+  }
+  elsif ($prev eq 'sequence_relation') {
+  }
+  elsif ($prev eq 'clade_relation') {
+  }
+  else {
+
+  }
+}
 
 =head2 element_id
 
@@ -515,6 +579,49 @@ sub element_id
 }
 
 
+
+=head2 current_attr
+
+ Title   : current_attr
+ Usage   :
+ Function: returns the attribute hash for current item
+ Example :
+ Returns : 
+ Args    :
+
+=cut
+
+sub current_attr {
+  my ($self) = @_;
+
+  return 0 if ! defined $self->{'_lastitem'} ||
+    ! defined $self->{'_lastitem'}->{'current'}->[-1];
+  my @keys = keys %{$self->{'_lastitem'}->{'current'}->[-1]};
+  (@keys == 1) || die "there should be only one key for each hash";
+  return $self->{'_lastitem'}->{'current'}->[-1]->{$keys[0]};
+}
+
+=head2 prev_attr
+
+ Title   : prev_attr
+ Usage   :
+ Function: returns the attribute hash for previous item
+ Example :
+ Returns : 
+ Args    :
+
+=cut
+
+sub prev_attr {
+  my ($self) = @_;
+
+  return 0 if ! defined $self->{'_lastitem'} ||
+    ! defined $self->{'_lastitem'}->{'current'}->[-2];
+  my @keys = keys %{$self->{'_lastitem'}->{'current'}->[-2]};
+  (@keys == 1) || die "there should be only one key for each hash";
+  return $self->{'_lastitem'}->{'current'}->[-2]->{$keys[0]};
+}
+
 =head2 prev_element
 
  Title   : prev_element
@@ -524,17 +631,17 @@ sub element_id
  Returns : 
  Args    :
 
-
 =cut
 
-sub prev_element{
-   my ($self) = @_;
+sub prev_element {
+  my ($self) = @_;
 
-   return 0 if ! defined $self->{'_lastitem'} ||
-       ! defined $self->{'_lastitem'}->{'current'}->[-2];
-   return $self->{'_lastitem'}->{'current'}->[-2];
+  return 0 if ! defined $self->{'_lastitem'} ||
+    ! defined $self->{'_lastitem'}->{'current'}->[-2];
+  my @keys = keys %{$self->{'_lastitem'}->{'current'}->[-2]};
+  (@keys == 1) || die "there should be only one key for each hash";
+  return $keys[0];
 }
-
 
 =head2 in_element
 
@@ -549,12 +656,13 @@ sub prev_element{
 =cut
 
 sub in_element{
-   my ($self,$e) = @_;
+  my ($self,$e) = @_;
 
-   return 0 if ! defined $self->{'_lastitem'} ||
-       ! defined $self->{'_lastitem'}->{'current'}->[-1];
-   return ($e eq $self->{'_lastitem'}->{'current'}->[-1]);
-
+  return 0 if ! defined $self->{'_lastitem'} ||
+    ! defined $self->{'_lastitem'}->{'current'}->[-1];
+  my @keys = keys %{$self->{'_lastitem'}->{'current'}->[-1]};
+  (@keys == 1) || die "there should be only one key for each hash";
+  return ($e eq $keys[0]);
 }
 
 =head2 within_element
@@ -570,8 +678,8 @@ sub in_element{
 =cut
 
 sub within_element{
-   my ($self,$e) = @_;
-   return $self->{'_lastitem'}->{$e};
+  my ($self,$e) = @_;
+  return $self->{'_lastitem'}->{$e};
 }
 
 =head2 treetype

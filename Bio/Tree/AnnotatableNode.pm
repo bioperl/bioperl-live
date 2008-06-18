@@ -97,6 +97,11 @@ sub new {
 #  }
   my $self = $class->SUPER::new(@args);
   $self->debug("new AnnotatableNode\n");
+  #my ($ann, $pid,$feat,$species) = $self->_rearrange($self,[qw(ANNOTATION PRIMARY_ID SPECIES)], @args);
+  #if( defined $ann) {
+  #  $ann & $self->annotation($ann);
+  #}
+
   #my @newargs = $self->_rearrange([qw(
   #          DESCENDENTS
   #          BRANCH_LENGTH
@@ -166,16 +171,19 @@ for more information
 
 =cut
 
-sub annotation {
-    my ($obj,$value) = @_;
-    if( defined $value ) {
-  $obj->throw("object of class ".ref($value)." does not implement ".
+sub annotation 
+{
+  my ($self,$value) = @_;
+  if( defined $value ) {
+    $self->throw("object of class ".ref($value)." does not implement ".
         "Bio::AnnotationCollectionI. Too bad.")      unless $value->isa("Bio::AnnotationCollectionI");
-  $obj->{'_annotation'} = $value;
-    } elsif( ! defined $obj->{'_annotation'}) {
-  $obj->{'_annotation'} = Bio::Annotation::Collection->new();
-    }
-    return $obj->{'_annotation'};
+    $self->{'_annotation'} = $value;
+  } 
+  elsif( ! defined $self->{'_annotation'}) 
+  {
+    $self->{'_annotation'} = Bio::Annotation::Collection->new();
+  }
+  return $self->{'_annotation'};
 }
 
 1;

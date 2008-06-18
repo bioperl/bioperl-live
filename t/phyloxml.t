@@ -7,7 +7,7 @@ BEGIN {
   use lib 't/lib';
   use BioperlTest;
 
-  test_begin(-tests => 44,
+  test_begin(-tests => 48,
              -requires_modules => [qw(XML::LibXML)],
             );
   if (1000*$] < 5008) {
@@ -144,8 +144,21 @@ undef $tree;
 
 # tree8: property elements
 # <property>
+if ($verbose > 0) {
+  diag("tree8: property");
+}
 $tree = $treeio->next_tree;
 isa_ok($tree, 'Bio::Tree::TreeI');
+my ($A) = $tree->find_node('A');
+isa_ok($A, 'Bio::Tree::AnnotatableNode');
+my ($ac) = $A->annotation();
+isa_ok($ac, 'Bio::AnnotationCollectionI');
+my (@annotations) = $ac->get_Annotations('NOAA:depth');
+isa_ok( $annotations[0], 'Bio::AnnotationI');
+is($annotations[0]->as_text, 'Value:  1200 ');
+if ($verbose > 0) {
+  diag( "Annotation NOAA:depth stringified ",$annotations[0]->as_text);
+}
 $leaves_string = $tree->simplify_to_leaves_string();
 if ($verbose > 0) {
   diag($leaves_string);
