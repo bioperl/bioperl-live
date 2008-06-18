@@ -275,8 +275,8 @@ sub _update_location_index {
   my ($obj,$id) = @_;
 
   my $seq_id      = $obj->seq_id || '';
-  my $start       = $obj->start  || '';
-  my $end         = $obj->end    || '';
+  my $start       = $obj->start  || 0;
+  my $end         = $obj->end    || 0;
   my $strand      = $obj->strand;
   my $bin_min     = int $start/BINSIZE;
   my $bin_max     = int $end/BINSIZE;
