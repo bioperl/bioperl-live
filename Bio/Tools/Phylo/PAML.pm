@@ -199,6 +199,7 @@ use IO::String;
 use File::Spec;
 use Bio::TreeIO;
 use Bio::Tools::Phylo::PAML::Result;
+use Bio::LocatableSeq;
 use Bio::PrimarySeq;
 use Bio::Matrix::PhylipDist;
 use Bio::Tools::Phylo::PAML::ModelResult;
@@ -226,7 +227,6 @@ sub new {
   $self->_initialize_io(@args);
   my ($dir) = $self->_rearrange([qw(DIR)], @args);
   $self->{_dir} = $dir if defined $dir;
-
   return $self;
 }
 
@@ -257,127 +257,123 @@ sub next_result {
     # get the various codon and other sequence summary data, if necessary:
     $self->_parse_summary
 	unless ($self->{'_summary'} && !$self->{'_summary'}->{'multidata'});
-    
     # OK, depending on seqtype and runmode now, one of a few things can happen:
     my $seqtype = $self->{'_summary'}->{'seqtype'};
     if ($seqtype eq 'CODONML' || $seqtype eq 'AAML') {
-        my $has_model_line = 0;
-	while (defined ($_ = $self->_readline)) {
-	    if ($seqtype eq 'CODONML' && 
-		m/^pairwise comparison, codon frequencies:/) {
-		# runmode = -2, CODONML
-		$self->debug("pairwise Ka/Ks\n");
-		$self->_pushback($_);
-		%data = $self->_parse_PairwiseCodon;
-		last;
-	    } elsif ($seqtype eq 'AAML' && m/^ML distances of aa seqs\.$/) {
-		$self->_pushback($_);
-		# get AA distances
-		%data = ( '-AAMLdistmat' => $self->_parse_aa_dists());
-		# $self->_pushback($_);
-		# %data = $self->_parse_PairwiseAA;
-		# last;	    
-	    } elsif (m/^Model\s+(\d+)/ ||
-                     ((! $has_model_line && m/^TREE/) &&
-		      $seqtype eq 'CODONML')) {
-		$self->_pushback($_);
-		my $model = $self->_parse_NSsitesBatch;
-		push @{$data{'-NSsitesresults'}}, $model;
-                $has_model_line = 1;
-	    } elsif ( m/for each branch/ ) {
-		my %branch_dnds = $self->_parse_branch_dnds;
-		if( ! defined $data{'-trees'} ) {
-		    warn("No trees have been loaded, can't do anything\n");
-		    next;
-		}
-		my ($tree) = @{$data{'-trees'}};
-		if( ! $tree || ! ref($tree) || 
-		    ! $tree->isa('Bio::Tree::Tree') ) {
-		    warn("no tree object already stored!\n");
-		    next;
-		}
-		# These need to be added to the Node/branches
-		while( my ($k,$v) = each %branch_dnds) {
-		    # we can probably do better by caching at some point
-		    my @nodes;
-		    for my $id ( split(/\.\./,$k ) ) {
-			my @nodes_L = map { $tree->find_node(-id => $_) } @{$idlookup->{$id}};
-			my $n = @nodes_L < 2 ? shift(@nodes_L) : $tree->get_lca(@nodes_L);
-			if( ! $n ) {
-			    warn("no node for $n\n");
-			}
-			unless( $n->is_Leaf && $n->id) { 
-			    $n->id($id);
-			}
-			push @nodes, $n;
-		    }
-		    my ($parent,$child) = @nodes;
-		    while ( my ($kk,$vv) = each %$v ) {
-			$child->add_tag_value($kk,$vv);
-		    }
-		}		
-	    } elsif (m/^TREE/) {
-		# runmode = 0
-		$self->_pushback($_);
-		($data{'-trees'},$idlookup) = $self->_parse_Forestry;
-		#last;
-	    } elsif (m/Heuristic tree search by stepwise addition$/ ) {
-		
-		# runmode = 3
-		$self->throw( -class => 'Bio::Root::NotImplemented',
-			      -text  => "StepwiseAddition not yet implemented!"
-			      );
-
-		# $self->_pushback($_);
-		# %data = $self->_parse_StepwiseAddition;
-		# last;
-
-	    } elsif (m/Heuristic tree search by NNI perturbation$/) {
-
-		# runmode = 4
-		$self->throw( -class => 'Bio::Root::NotImplemented',
-			      -text  => "NNI Perturbation not yet implemented!"
-			      );
-
-		# $self->_pushback($_);
-		# %data = $self->_parse_Perturbation;
-		# last;
-
-	    } elsif (m/^stage 0:/) {
-
-		# runmode = (1 or 2)
-		$self->throw( -class => 'Bio::Root::NotImplemented',
-			      -text  => "StarDecomposition not yet implemented!"
-			      );
-
-		$self->_pushback($_);
-		%data = $self->_parse_StarDecomposition;
-		last;
-
+      my $has_model_line = 0;
+      while (defined ($_ = $self->_readline)) {
+	if ($seqtype eq 'CODONML' &&
+	    m/^pairwise comparison, codon frequencies:/) {
+	  # runmode = -2, CODONML
+	  $self->debug("pairwise Ka/Ks\n");
+	  $self->_pushback($_);
+	  %data = $self->_parse_PairwiseCodon;
+	  last;
+	} elsif ($seqtype eq 'AAML' && m/^ML distances of aa seqs\.$/) {
+	  $self->_pushback($_);
+	  # get AA distances
+	  %data = ( '-AAMLdistmat' => $self->_parse_aa_dists());
+	  # $self->_pushback($_);
+	  # %data = $self->_parse_PairwiseAA;
+	  # last;
+	} elsif (m/^Model\s+(\d+)/ ||
+		 ((! $has_model_line && m/^TREE/) &&
+		  $seqtype eq 'CODONML')) {
+	  $self->_pushback($_);
+	  my $model = $self->_parse_NSsitesBatch;
+	  push @{$data{'-NSsitesresults'}}, $model;
+	  $has_model_line = 1;
+	} elsif ( m/for each branch/ ) {
+	  my %branch_dnds = $self->_parse_branch_dnds;
+	  if ( ! defined $data{'-trees'} ) {
+	    $self->warn("No trees have been loaded, can't do anything\n");
+	    next;
+	  }
+	  my ($tree) = @{$data{'-trees'}};
+	  if ( ! $tree || ! ref($tree) ||
+	       ! $tree->isa('Bio::Tree::Tree') ) {
+	    $self->warn("no tree object already stored!\n");
+	    next;
+	  }
+	  # These need to be added to the Node/branches
+	  while ( my ($k,$v) = each %branch_dnds) {
+	    # we can probably do better by caching at some point
+	    my @nodes;
+	    for my $id ( split(/\.\./,$k ) ) {
+	      my @nodes_L = map { $tree->find_node(-id => $_) } @{$idlookup->{$id}};
+	      my $n = @nodes_L < 2 ? shift(@nodes_L) : $tree->get_lca(@nodes_L);
+	      if ( ! $n ) {
+		$self->warn("no node for $n\n");
+	      }
+	      unless( $n->is_Leaf && $n->id) {
+		$n->id($id);
+	      }
+	      push @nodes, $n;
 	    }
-	}
-    } elsif ($seqtype eq 'BASEML') {	
-	while( defined($_ = $self->_readline) ) {
-	    if( /^Distances:/ ) {
-		$self->_pushback($_);
-		my ($kappa,$alpha) = $self->_parse_nt_dists();
-		%data = ( '-kappa_distmat' => $kappa,
-			  '-alpha_distmat' => $alpha
-			  );
-	    } elsif( /^TREE/ ) {
-		$self->_pushback($_);
-		($data{'-trees'},$idlookup) = $self->_parse_Forestry;
+	    my ($parent,$child) = @nodes;
+	    while ( my ($kk,$vv) = each %$v ) {
+	      $child->add_tag_value($kk,$vv);
 	    }
+	  }
+	} elsif (m/^TREE/) {
+	  # runmode = 0
+	  $self->_pushback($_);
+	  ($data{'-trees'},$idlookup) = $self->_parse_Forestry;
+	  #last;
+	} elsif (m/Heuristic tree search by stepwise addition$/ ) {
+	  # runmode = 3
+	  $self->throw( -class => 'Bio::Root::NotImplemented',
+			-text  => "StepwiseAddition not yet implemented!"
+		      );
+
+	  # $self->_pushback($_);
+	  # %data = $self->_parse_StepwiseAddition;
+	  # last;
+
+	} elsif (m/Heuristic tree search by NNI perturbation$/) {
+
+	  # runmode = 4
+	  $self->throw( -class => 'Bio::Root::NotImplemented',
+			-text  => "NNI Perturbation not yet implemented!"
+		      );
+
+	  # $self->_pushback($_);
+	  # %data = $self->_parse_Perturbation;
+	  # last;
+
+	} elsif (m/^stage 0:/) {
+
+	  # runmode = (1 or 2)
+	  $self->throw( -class => 'Bio::Root::NotImplemented',
+			-text  => "StarDecomposition not yet implemented!"
+		      );
+
+	  $self->_pushback($_);
+	  %data = $self->_parse_StarDecomposition;
+	  last;
 	}
-    } elsif ($seqtype eq 'YN00') 
-    {
-	while ($_ = $self->_readline) {
-	    if( m/^Estimation by the method|\(B\) Yang & Nielsen \(2000\) method/ ) {
-		$self->_pushback($_);
-		%data = $self->_parse_YN_Pairwise;
-		last;
-	    }
+      }
+    } elsif ($seqtype eq 'BASEML') {
+      while ( defined($_ = $self->_readline) ) {
+	if ( /^Distances:/ ) {
+	  $self->_pushback($_);
+	  my ($kappa,$alpha) = $self->_parse_nt_dists();
+	  %data = ( '-kappa_distmat' => $kappa,
+		    '-alpha_distmat' => $alpha
+		  );
+	} elsif ( /^TREE/ ) {
+	  $self->_pushback($_);
+	  ($data{'-trees'},$idlookup) = $self->_parse_Forestry;
 	}
+      }
+    } elsif ($seqtype eq 'YN00') {
+      while ($_ = $self->_readline) {
+	if ( m/^Estimation by the method|\(B\) Yang & Nielsen \(2000\) method/ ) {
+	  $self->_pushback($_);
+	  %data = $self->_parse_YN_Pairwise;
+	  last;
+	}
+      }
     }
     if (%data) {
 	$data{'-version'}   = $self->{'_summary'}->{'version'};
@@ -421,31 +417,33 @@ sub _parse_summary {
     my $SEQTYPES = qr( (?: (?: CODON | AA | BASE | CODON2AA ) ML ) | YN00 )x;
     my $line;
     $self->{'_already_parsed_seqs'}=$self->{'_already_parsed_seqs'}?1:0;
+    my @lines;
     while ($_ = $self->_readline) {
-	    $line++;
-	if ( m/^($SEQTYPES) \s+                      # seqtype: CODONML, AAML, BASEML, CODON2AAML, YN00, etc
-	       (?: \(in \s+ ([^\)]+?) \s* \) \s* )?  # version: "paml 3.12 February 2002"; not present < 3.1 or YN00
-	       (\S+) \s*                             # tree filename
-	       (?: (.+?) )?                          # model description (not there in YN00)
-	       \s* $                                 # trim any trailing space
-	       /ox
-	   ) {
-	    @{$self->{'_summary'}}{qw(seqtype version seqfile model)} = 
-		($1, $2,$3,$4);
-	    defined $self->{'_summary'}->{'model'} &&
-		$self->{'_summary'}->{'model'} =~ s/Model:\s+//;
-	    last;
-	    
-	} elsif (m/^Data set \d$/) {
-	    $self->{'_summary'} = {};
-	    $self->{'_summary'}->{'multidata'}++;
-	}
-	elsif( m/^Before\s+deleting\s+alignment\s+gaps/ ) {#Gap
-		my ($phylip_header) = $self->_readline;
-		$self->_parse_seqs;	
-	} elsif (($line>3)&&($self->{'_already_parsed_seqs'}!=1)) {#No gap
-	    $self->_parse_seqs;
-	}
+      push @lines, $_;
+      if ( m/^($SEQTYPES) \s+                      # seqtype: CODONML, AAML, BASEML, CODON2AAML, YN00, etc
+	     (?: \(in \s+ ([^\)]+?) \s* \) \s* )?  # version: "paml 3.12 February 2002"; not present < 3.1 or YN00
+	     (\S+) \s*                             # tree filename
+	     (?: (.+?) )?                          # model description (not there in YN00)
+	     \s* $                                 # trim any trailing space
+	    /ox
+	 ) {
+	@{$self->{'_summary'}}{qw(seqtype version seqfile model)} = 
+	  ($1, $2,$3,$4);
+	defined $self->{'_summary'}->{'model'} &&
+	  $self->{'_summary'}->{'model'} =~ s/Model:\s+//;
+	$self->_pushback($_) if $self->{'_summary'}->{'seqtype'} eq 'AAMODEL';
+	last;
+      } elsif (m/^Data set \d$/) {
+	$self->{'_summary'} = {};
+	$self->{'_summary'}->{'multidata'}++;
+      } elsif ( m/^Before\s+deleting\s+alignment\s+gaps/ ) { #Gap
+	my ($phylip_header) = $self->_readline;
+	$self->_parse_seqs;
+      } elsif ((@lines > 3) && ($self->{'_already_parsed_seqs'}!=1)) { #No gap
+	$self->_parse_seqs;
+      } elsif ( /Printing out site pattern counts/)  {
+	$self->_parse_patterns;
+      }
     }
 
     unless (defined $self->{'_summary'}->{'seqtype'}) {	
@@ -453,7 +451,6 @@ sub _parse_summary {
 		      -text => 'Unknown format of PAML output did not see seqtype');
     }
     my $seqtype = $self->{'_summary'}->{'seqtype'};
-    $self->debug( "seqtype is $seqtype\n");
     if ($seqtype eq "CODONML") {
         $self->_parse_inputparams(); # settings from the .ctl file 
 	                             # that get printed
@@ -465,11 +462,9 @@ sub _parse_summary {
         $self->_parse_distmat();     # NG distance matrices
     } elsif ($seqtype eq "AAML") {
         $self->_parse_inputparams;
-
         $self->_parse_patterns();
         $self->_parse_seqs();     # the sequences data used for analysis
-        $self->_parse_aa_freqs(); # codon frequencies
-
+        $self->_parse_aa_freqs(); # AA frequencies
 	# get AA distances
         $self->{'_summary'}->{'aadistmat'} = $self->_parse_aa_dists();
 
@@ -483,9 +478,8 @@ sub _parse_summary {
 
     } elsif ($seqtype eq "YN00") {
 	$self->_parse_codon_freqs();
-	$self->_parse_codoncts();	
+	$self->_parse_codoncts();
 	$self->_parse_distmat(); # NG distance matrices
-	
     } else {
 	$self->throw( -class => 'Bio::Root::NotImplemented',
 		      -text => 'Unknown seqtype, not yet implemented!',
@@ -495,20 +489,18 @@ sub _parse_summary {
 
 }
 
-
 sub _parse_inputparams { 
     my ($self) = @_;
-    
     while( defined($_ = $self->_readline ) ) {
-	if(/^((?:Codon frequencies)|(?:Site-class models))\s*:\s+(.+)/ ) {
-	    my ($param,$val) = ($1,$2);	    
-	    $self->{'_summary'}->{'inputparams'}->{$param} = $val;
-	} elsif( /^\s+$/ ) {
-	    next;
-	} elsif( /^ns\s+=\s+/ ) {
-	    $self->_pushback($_);
-	    last;
-        }
+      if(/^((?:Codon frequencies)|(?:Site-class models))\s*:\s+(.+)/ ) {
+	my ($param,$val) = ($1,$2);
+	$self->{'_summary'}->{'inputparams'}->{$param} = $val;
+      } elsif( /^\s+$/ ) {
+	next;
+      } elsif( /^ns\s+=\s+/ || /^Frequencies/ ) {
+	$self->_pushback($_);
+	last;
+      }
     }
 }
 
@@ -554,36 +546,38 @@ sub _parse_aa_freqs {
     my ($okay,$done,$header) = (0,0,0);
     my (@bases);
     my $numseqs = scalar @{$self->{'_summary'}->{'seqs'} || []};
-    while( defined($_ = $self->_readline ) ) {
-	if( /^TREE/ || /^AA distances/ ) { $self->_pushback($_); last }
-	last if( $done);
-	next if ( /^\s+$/ || /^\(Ambiguity/ );
-	if( /^Frequencies\./ ) { 
-	    $okay = 1;
-	} elsif( ! $okay ) { # skip till we see 'Frequencies.
-	    next;
-	} elsif ( ! $header ) {
-	    s/^\s+//;        # remove leading whitespace
-	    @bases = split;  # get an array of the all the aa names
-	    $header = 1;
-	    $self->{'_summary'}->{'aafreqs'} = {}; # reset/clear values
-	    next;
-	} elsif( /^\#\s+constant\s+sites\:\s+
+    while ( defined($_ = $self->_readline ) ) {
+      if ( /^TREE/ || /^AA distances/ ) {
+	$self->_pushback($_); last;
+      }
+      last if( $done);
+      next if ( /^\s+$/ || /^\(Ambiguity/ );
+      if ( /^Frequencies\./ ) { 
+	$okay = 1;
+      } elsif ( ! $okay ) {	# skip till we see 'Frequencies.
+	next;
+      } elsif ( ! $header ) {
+	s/^\s+//;		# remove leading whitespace
+	@bases = split;		# get an array of the all the aa names
+	$header = 1;
+	$self->{'_summary'}->{'aafreqs'} = {}; # reset/clear values
+	next;
+      } elsif ( /^\#\s+constant\s+sites\:\s+
 		 (\d+)\s+ # constant sites
-		 \(\s*([\d\.]+)\s*\%\s*\)/x){
-	    $self->{'_summary'}->{'stats'}->{'constant_sites'} = $1;
-	    $self->{'_summary'}->{'stats'}->{'constant_sites_percentage'} = $2;
-	} elsif( /^ln\s+Lmax\s+\(unconstrained\)\s+\=\s+(\S+)/x ) {
-	    $self->{'_summary'}->{'stats'}->{'loglikelihood'} = $1;
-	    $done = 1; # done for sure
-	} else { 
-	    my ($seqname,@freqs) = split;
-	    my $basect = 0;
-	    foreach my $f ( @freqs ) { 
-		# this will also store 'Average'
-		$self->{'_summary'}->{'aafreqs'}->{$seqname}->{$bases[$basect++]} = $f;
-	    }	    
+		 \(\s*([\d\.]+)\s*\%\s*\)/x) {
+	$self->{'_summary'}->{'stats'}->{'constant_sites'} = $1;
+	$self->{'_summary'}->{'stats'}->{'constant_sites_percentage'} = $2;
+      } elsif ( /^ln\s+Lmax\s+\(unconstrained\)\s+\=\s+(\S+)/x ) {
+	$self->{'_summary'}->{'stats'}->{'loglikelihood'} = $1;
+	$done = 1;		# done for sure
+      } else {
+	my ($seqname,@freqs) = split;
+	my $basect = 0;
+	foreach my $f ( @freqs ) { 
+	  # this will also store 'Average'
+	  $self->{'_summary'}->{'aafreqs'}->{$seqname}->{$bases[$basect++]} = $f;
 	}
+      }
     }
 }
 
@@ -614,9 +608,7 @@ sub _parse_aa_dists {
 	    $okay = 1;
 	    $type = $1;
 	    next;
-	} 
-	
-	
+	}
 	s/\s+$//g; # remove trailing space
 	if( $okay ) {
 	    my ($seqname,@vl) = split;
@@ -663,12 +655,13 @@ sub _parse_aa_dists {
 
 sub _parse_patterns { 
     my ($self) = @_;
-    my ($patternct,@patterns,$ns,$ls);    
+    my ($patternct,@patterns,$ns,$ls);
+    return if exists $self->{'_summary'}->{'patterns'};
     while( defined($_ = $self->_readline) ) {
-	if( /^Codon\s+(usage|position)/ ) {
-	    $self->_pushback($_); 
+	if( /^Codon\s+(usage|position)/ || /Model/) {
+	    $self->_pushback($_);
 	    last;
-	} elsif( $patternct ) { 
+	} elsif( $patternct ) {
 #	    last unless ( @patterns == $patternct );
 	    last if( /^\s+$/ );
 	    s/^\s+//;
@@ -677,7 +670,7 @@ sub _parse_patterns {
 	    ($ns,$ls) = ($1,$2);
 	} elsif( /^\# site patterns \=\s*(\d+)/ ) {
 	    $patternct = $1;
-	} else { 
+	} else {
 #	    $self->debug("Unknown line: $_");
 	}
     }
@@ -686,7 +679,7 @@ sub _parse_patterns {
 					  -ls       => $ls};
 }
 
-sub _parse_seqs { 
+sub _parse_seqs {
     # this should in fact be packed into a Bio::SimpleAlign object instead of
     # an array but we'll stay with this for now 
     my ($self) = @_;
@@ -695,31 +688,33 @@ sub _parse_seqs {
     # while in PAML3 the files start off with this
     return 1 if $self->{'_already_parsed_seqs'}; 
     my (@firstseq,@seqs);
-    while( defined ($_ = $self->_readline) ) {
-	if( /^(Printing|After|TREE|Codon)/ ) { $self->_pushback($_);  last }
-	last if( /^\s+$/ && @seqs > 0 );
-	next if ( /^\s+$/ );
-	next if( /^\d+\s+$/ );
+    while ( defined ($_ = $self->_readline) ) {
+      if ( /^(Printing|After|TREE|Codon)/ ) {
+	$self->_pushback($_);  last;
+      }
+      last if( /^\s+$/ && @seqs > 0 );
+      next if ( /^\s+$/ );
+      next if( /^\d+\s+$/ );
 
-	# we are reading PHYLIP format
-	my ($name,$seqstr) = split(/\s+/,$_,2);
-	$seqstr =~ s/\s+//g; # remove whitespace 
-	unless( @firstseq) {
-	    @firstseq = split(//,$seqstr);
-	    push @seqs, Bio::PrimarySeq->new(-display_id  => $name,
-					    -seq         => $seqstr);
-	} else { 
+      # we are reading PHYLIP format
+      my ($name,$seqstr) = split(/\s+/,$_,2);
+      $seqstr =~ s/\s+//g;	# remove whitespace 
+      unless( @firstseq) {
+	@firstseq = split(//,$seqstr);
+	push @seqs, Bio::LocatableSeq->new(-display_id  => $name,
+					 -seq         => $seqstr);
+      } else {
 
-	    my $i = 0;
-	    my $v;
-	    while(($v = index($seqstr,'.',$i)) >= $i ) {
-		# replace the '.' with the correct seq from the
-		substr($seqstr,$v,1,$firstseq[$v]);
-		$i = $v;
-	    }
-	    push @seqs, Bio::PrimarySeq->new(-display_id  => $name,
-					    -seq         => $seqstr);
+	my $i = 0;
+	my $v;
+	while (($v = index($seqstr,'.',$i)) >= $i ) {
+	  # replace the '.' with the correct seq from the
+	  substr($seqstr,$v,1,$firstseq[$v]);
+	  $i = $v;
 	}
+	push @seqs, Bio::LocatableSeq->new(-display_id  => $name,
+					 -seq         => $seqstr);
+      }
     }
     if(  @seqs > 0 ) {
 	$self->{'_summary'}->{'seqs'} = \@seqs;
@@ -734,7 +729,7 @@ sub _parse_distmat {
     my ($self) = @_;
     my @results;
     my $ver = 3.14;
-    
+
     while( defined ($_ = $self->_readline) ) {
         next if/^\s+$/;
         # Bypass the reference information (4 lines)
@@ -867,7 +862,6 @@ sub _parse_YN_Pairwise {
 	    $self->_pushback($_);
 	    last;
 	}
-	
     }
     return ( -mlmatrix => \@result);
 }
@@ -879,7 +873,7 @@ sub _parse_Forestry {
     my $okay = 0;
     my (@ids,%match,@branches,@trees);
     while( defined ($_ = $self->_readline) ) {
-	last if $done;	
+	last if $done;
 	if( s/^TREE\s+\#\s*\d+:\s+// ) {
 	    ($score) = (s/MP\s+score\:\s+(\S+)\s+$// );
 	    @ids = /(\d+)[\,\)]/g;
@@ -1018,13 +1012,13 @@ sub _parse_NSsitesBatch {
 	    } elsif( /for each branch/ ) {
 		my %branch_dnds = $self->_parse_branch_dnds;
 		if( ! defined $data{'-trees'} ) {
-		    warn("No trees have been loaded, can't do anything\n");
+		    $self->warn("No trees have been loaded, can't do anything\n");
 		    next;
 		}
 		my ($tree) = @{$data{'-trees'}};
 		if( ! $tree || ! ref($tree) || 
 		    ! $tree->isa('Bio::Tree::Tree') ) {
-		    warn("no tree object already stored!\n");
+		    $self->warn("no tree object already stored!\n");
 		    next;
 		}
 		# These need to be added to the Node/branches
@@ -1244,7 +1238,6 @@ sub _parse_nt_dists {
 		    $self->warn("no matches for $vl\n");
 		}
 	    }
-	    
 	    push @names, $seqname;
 	    $matrix{$seqname}->{$seqname} = [0,0];
 	}
@@ -1325,13 +1318,11 @@ sub _parse_rst {
 
   my $rstfile = File::Spec->catfile($self->{'_dir'},$RSTFILENAME);
   return unless -e $rstfile && ! -z $rstfile;
-  
   my $rstio = Bio::Root::IO->new(-file => $rstfile);
 
   # define whatever data structures you need to store the data
   # key points are to reuse existing bioperl objs (like Bio::Seq) 
   # where appropriate
-    
   my (@firstseq,@seqs,@trees,@per_site_prob);
   my $count;
   while ( defined( $_ = $rstio->_readline ) ) {
@@ -1347,12 +1338,10 @@ sub _parse_rst {
 		      my $id = $n->id;
 		      $id =~ s/^\s+//; $id =~ s/\s+$//;
 		      $n->id($id);
-		      
 		      if( defined( my $blen = $n->branch_length) ) {
 			  $blen =~ s/^\s+//; $blen =~ s/\s+$//;
 			  $n->branch_length($blen);
 		      }
-		      
 		  }
 		  push @trees, $tree;
 		  last;
@@ -1361,7 +1350,7 @@ sub _parse_rst {
       } elsif(/^Prob\sof\sbest\scharacter\sat\seach\snode,\slisted\sby\ssite/){
 	  $self->{'_rst'}->{'persite'} = [];
 	  while(defined($_ = $rstio->_readline ) ) {
-	      next if(/^Site/ || /^\s+$/ );
+	      next if(/^Site/i || /^\s+$/ );
 	      if( s/^\s+(\d+)\s+(\d+)\s+([^:]+)\s*:\s*(.+)// ) {
 		  my ($sitenum,$freq,$extant,$ancestral) = ($1,$2,$3,$4);
 		  my (@anc_site,@extant_site);
@@ -1382,12 +1371,11 @@ sub _parse_rst {
 		  # saving persite
 		  $self->{'_rst'}->{'persite'}->[$sitenum] = [@extant_site,
 							      @anc_site];
-		  
 	      } elsif(/^Summary\sof\schanges\salong\sbranches\./ ) {
 		  last;
-	      } 
+	      }
 	  }
-      } elsif( /^Check\sroot\sfor\sdirections\sof\schange\./ || 
+      } elsif( /^Check\sroot\sfor\sdirections\sof\schange\./ ||
 	       /^Summary\sof\schanges\salong\sbranches\./ ) {
 	  my (@branches,@branch2node,$branch,$node);
 	  my $tree = $trees[-1];
@@ -1409,13 +1397,14 @@ sub _parse_rst {
 		  ($branch,$left,$right) = ($1,$2,$3);
 		  ($node) = $nodes[$right];
 		  if( ! $node ) {
-		      warn("cannot find $right in $tree ($branch $left..$right)\n");
+		      $self->warn("cannot find $right in $tree ($branch $left..$right)\n");
 		      last;
 		  }
-		  my ($n,$s) = (/\(n=\s*(\S+)\s+s=\s*(\S+)\)/);
-		  $node->add_tag_value('n', $n);
-		  $node->add_tag_value('s', $s);
-		  $branch2node[$branch] = $right;		  
+		  if (/\(n=\s*(\S+)\s+s=\s*(\S+)\)/) {
+		    $node->add_tag_value('n', $1);
+		    $node->add_tag_value('s', $2);
+		  }
+		  $branch2node[$branch] = $right;
 	      } elsif( /^\s+(\d+)\s+([A-Z*])\s+(\S+)\s+\-\>\s+([A-Z*])\s+(\S+)?/){
 		  my ($site,$anc,$aprob, $derived,$dprob)= ($1,$2,$3,$4,$5);
 		  if( ! $node ) {
@@ -1429,9 +1418,9 @@ sub _parse_rst {
 			    );
 		  $c{'derived_prob'} = $dprob if defined $dprob;
 		  $node->add_tag_value('changes',\%c);
-	       } 
-	  }	  
-      } elsif( /^Overall\s+accuracy\s+of\s+the\s+(\d+)\s+ancestral\s+sequences:/) 
+	       }
+	  }
+      } elsif( /^Overall\s+accuracy\s+of\s+the\s+(\d+)\s+ancestral\s+sequences:/)
       {
 	  my $line = $rstio->_readline;
 	  $line =~ s/^\s+//; $line =~ s/\s+$//;
@@ -1445,7 +1434,7 @@ sub _parse_rst {
 	  if( @overall_seq != @overall_site ||
 	      @overall_seq != @seqs ) {
 	      $self->warn("out of sync somehow seqs, site scores don't match\n");
-	      warn("@seqs @overall_seq @overall_site\n");
+	      $self->warn("@seqs @overall_seq @overall_site\n");
 	  }
 	  for ( @seqs ) {
 	      $_->description(sprintf("overall_accuracy_site=%s overall_accuracy_seq=%s",
@@ -1453,40 +1442,42 @@ sub _parse_rst {
 				      shift @overall_seq));
 	  } 
       } elsif (m/^List of extant and reconstructed sequences/o) {
+	my $seqcount = 0;
 	  while ( defined( $_ = $rstio->_readline ) ) {
-	      last if( /^Overall accuracy of the/ );
-	      last if( /^\s+$/ && @seqs > 0 );
-	      next if ( /^\s+$/ );
-	      next if( /^\d+\s+$/ );
-	      # runmode = (0)
-	      # this should in fact be packed into a Bio::SimpleAlign object
-	      # instead of an array but we'll stay with this for now
-	      if ($_ =~ /^node /) {
-		  my ($name,$num,$seqstr) = split(/\s+/,$_,3);
-		  $name .= $num;
-		  $seqstr =~ s/\s+//g; # remove whitespace 
-		  unless( @firstseq ) {
-		      @firstseq = split(//,$seqstr);
-		      push @seqs, Bio::PrimarySeq->new(-display_id  => $name,
-						       -seq         => $seqstr);
-		  } else { 
-		      my $i = 0;
-		      my $v;
-		      while (($v = index($seqstr,'.',$i)) >= $i ) {
-			  # replace the '.' with the correct seq from the
-			  substr($seqstr,$v,1,$firstseq[$v]);
-			  $i = $v;
-		      }
-		      $self->debug( "adding seq $seqstr\n");
-		      push @seqs, Bio::PrimarySeq->new
-			  (-display_id  => $name,
-			   -seq         => $seqstr);
-		  }
+	    last if( /^Overall accuracy of the/ );
+	    if( /^\s+$/ ) {
+	      last if $seqcount && $seqcount == @seqs;
+	      next;
+	    }
+	    if( /^\s*(\d+)\s+(\d+)\s+$/ ) { $seqcount = $1; next }
+	    # runmode = (0)
+	    # this should in fact be packed into a Bio::SimpleAlign object
+	    # instead of an array but we'll stay with this for now
+	    if ( /^node/ ) {
+	      my ($name,$num,$seqstr) = split(/\s+/,$_,3);
+	      $name .= $num;
+	      $seqstr =~ s/\s+//g; # remove whitespace 
+	      unless( @firstseq ) {
+		@firstseq = split(//,$seqstr);
+		push @seqs, Bio::LocatableSeq->new(-display_id  => $name,
+						   -seq         => $seqstr);
+	      } else {
+		my $i = 0;
+		my $v;
+		while (($v = index($seqstr,'.',$i)) >= $i ) {
+		  # replace the '.' with the correct seq from the
+		  substr($seqstr,$v,1,$firstseq[$v]);
+		  $i = $v;
+		}
+		$self->debug( "adding seq $seqstr\n");
+		push @seqs, Bio::LocatableSeq->new
+		  (-display_id  => $name,
+		   -seq         => $seqstr);
 	      }
+	    }
 	  }
 	  $self->{'_rst'}->{'rctrted_seqs'} = \@seqs;
       } else {
-	  
       }
   }
   $self->{'_rst'}->{'trees'} = \@trees;
