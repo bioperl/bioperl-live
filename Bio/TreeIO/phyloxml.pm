@@ -262,6 +262,7 @@ sub element_phylogeny
   $self->{'_currentnodes'} = []; # holds nodes while constructing tree
   $self->{'_currenttext'} = '';
   $self->{'_levelcnt'} = [];
+  $self->{'_id_link'} = {};
 
   $self->debug("Starting phylogeny\n");
   $self->processAttribute($self->current_attr);
@@ -295,7 +296,9 @@ sub end_element_phylogeny
   my $tree = $self->treetype->new(
     -verbose => $self->verbose, 
     -root => $root,
-    -id => $self->current_attr->{'name'});
+    -id => $self->current_attr->{'name'},
+    %{$self->current_attr}
+  );
   foreach my $tag ( keys %{$self->current_attr} ) {
     $tree->add_tag_value( $tag, $self->current_attr->{$tag} );
   }
@@ -319,9 +322,21 @@ sub element_clade
   my $reader = $self->{'_reader'};
   my %data = ();    # doesn't use current attribute in order to save memory 
   $self->processAttribute(\%data);
+  $self->debug("attr: ", %data);
+  # create a node (Annotatable Node)
   my $tnode = $self->nodetype->new( -verbose => $self->verbose, 
                                     -id => '', 
-                                    %data);
+                                    %data,
+                                  );
+  # add all attributes as tags (Annotation::SimpleValue)
+  foreach my $tag ( keys %data ) {
+    $tnode->add_tag_value( $tag, $data{$tag} );
+  }
+  # if there is id_source add clade to _id_link
+  if (exists $data{'id_source'}) {
+    $self->{'_id_link'}->{$data{'id_source'}} = $tnode;
+  }
+  # push into temporary list
   push @{$self->{'_currentitems'}}, $tnode;
 }
 
@@ -378,9 +393,8 @@ sub end_element_name
     $self->prev_attr->{'name'} = $self->{'_currenttext'};
   }
   elsif ($prev eq 'clade') {
-    my $tnode = pop @{$self->{'_currentitems'}};
+    my $tnode = $self->{'_currentitems'}->[-1];
     $tnode->id($self->{'_currenttext'});
-    push @{$self->{'_currentitems'}}, $tnode;
   }
   elsif ($prev eq 'taxonomy') {
   }
@@ -405,9 +419,8 @@ sub end_element_branch_length
   my $reader = $self->{'_reader'};
   my $prev = $self->prev_element();
   if ($prev eq 'clade') {
-    my $tnode = pop @{$self->{'_currentitems'}};
+    my $tnode = $self->{'_currentitems'}->[-1];
     $tnode->branch_length($self->{'_currenttext'});
-    push @{$self->{'_currentitems'}}, $tnode;
   }
   else {
 
@@ -468,11 +481,10 @@ sub end_element_confidence
   if ($prev eq 'phylogeny') {
   }
   elsif ($prev eq 'clade') {
-    my $tnode = pop @{$self->{'_currentitems'}};
+    my $tnode = $self->{'_currentitems'}->[-1];
     if ((exists $self->current_attr->{'type'}) && ($self->current_attr->{'type'} eq 'bootstrap')) {
       $tnode->bootstrap($self->{'_currenttext'});
     }
-    push @{$self->{'_currentitems'}}, $tnode;
   }
   elsif ($prev eq 'events') {
   }
@@ -505,6 +517,9 @@ sub element_property
   my $prev = $self->prev_element();
   $self->debug("starting property within $prev\n");
   if ($prev eq 'phylogeny') {
+    # read attributes of <property>
+    $self->processAttribute($self->current_attr);
+    $self->debug( "attr: ", %{$self->current_attr}, "\n");
   }
   elsif ($prev eq 'clade') {
     # read attributes of <property>
@@ -534,15 +549,34 @@ sub end_element_property
   my $reader = $self->{'_reader'};
   my $prev = $self->prev_element();
   if ($prev eq 'phylogeny') {
-  }
-  elsif ($prev eq 'clade') {
-    my $tnode = pop @{$self->{'_currentitems'}};
+    my $tnode;
+    if (exists $self->current_attr->{'id_ref'}) {
+      # lookup _id_link for the id_source
+      $tnode = $self->{'_id_link'}->{$self->current_attr->{'id_ref'}};
+    }
+    else {
+      $tnode = $self->{'_currentitems'}->[-1];
+    }
     if (exists $self->current_attr->{'ref'}) {
       my $ac = $tnode->annotation();
       my $sv = new Bio::Annotation::SimpleValue(-value => $self->{'_currenttext'});
       $ac->add_Annotation($self->current_attr->{'ref'}, $sv); 
     }
-    push @{$self->{'_currentitems'}}, $tnode;
+  }
+  elsif ($prev eq 'clade') {
+    my $tnode;
+    if (exists $self->current_attr->{'id_ref'}) {
+      # lookup _id_link for the id_source
+      $tnode = $self->{'_id_link'}->{$self->current_attr->{'id_ref'}};
+    }
+    else {
+      $tnode = $self->{'_currentitems'}->[-1];
+    }
+    if (exists $self->current_attr->{'ref'}) {
+      my $ac = $tnode->annotation();
+      my $sv = new Bio::Annotation::SimpleValue(-value => $self->{'_currenttext'});
+      $ac->add_Annotation($self->current_attr->{'ref'}, $sv); 
+    }
   }
   elsif ($prev eq 'events') {
   }
