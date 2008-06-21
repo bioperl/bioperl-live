@@ -548,26 +548,21 @@ sub end_element_property
   my ($self) = @_;
   my $reader = $self->{'_reader'};
   my $prev = $self->prev_element();
-  if ($prev eq 'phylogeny') {
-    my $tnode;
-    if (exists $self->current_attr->{'id_ref'}) {
-      # lookup _id_link for the id_source
-      $tnode = $self->{'_id_link'}->{$self->current_attr->{'id_ref'}};
-    }
-    else {
-      $tnode = $self->{'_currentitems'}->[-1];
-    }
-    if (exists $self->current_attr->{'ref'}) {
-      my $ac = $tnode->annotation();
-      my $sv = new Bio::Annotation::SimpleValue(-value => $self->{'_currenttext'});
-      $ac->add_Annotation($self->current_attr->{'ref'}, $sv); 
-    }
+  my $idref = $self->current_attr->{'id_ref'};
+  my $idsrc;
+  if ($idref) { $idsrc = $self->{'_id_link'}->{$idref}; }
+
+  # exception when id_src is defined but id_ref is not, or vice versa.
+  if ($idref xor $idsrc) {
+    $self->throw("id_ref and id_src incompatible: $idref, $idsrc");
   }
-  elsif ($prev eq 'clade') {
+
+  if ( ($idsrc && $idsrc->isa($self->treetype)) || (!$idsrc && $prev eq 'phylogeny') ) {
+  }
+  elsif ( ($idsrc && $idsrc->isa($self->nodetype)) || (!$idsrc && $prev eq 'clade') ) {
     my $tnode;
-    if (exists $self->current_attr->{'id_ref'}) {
-      # lookup _id_link for the id_source
-      $tnode = $self->{'_id_link'}->{$self->current_attr->{'id_ref'}};
+    if ($idsrc) {
+      $tnode = $idsrc;
     }
     else {
       $tnode = $self->{'_currentitems'}->[-1];
