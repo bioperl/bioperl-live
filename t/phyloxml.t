@@ -172,9 +172,9 @@ $tree = $treeio->next_tree;
 isa_ok($tree, 'Bio::Tree::TreeI');
 ($A) = $tree->find_node('A');
 isa_ok($A, 'Bio::Tree::AnnotatableNode');
-my ($ac) = $A->annotation();
+($ac) = $A->annotation();
 isa_ok($ac, 'Bio::AnnotationCollectionI');
-my (@annotations) = $ac->get_Annotations('NOAA:depth');
+(@annotations) = $ac->get_Annotations('NOAA:depth');
 isa_ok( $annotations[0], 'Bio::AnnotationI');
 is($annotations[0]->as_text, 'Value:  1200 ');
 if ($verbose > 0) {

@@ -93,6 +93,11 @@ use base qw(Bio::Tree::Node Bio::AnnotatableI);
 sub new {
   my ($class,@args) = @_;
   my $self = $class->SUPER::new(@args);
+  my $to_string_cb = $self->_rearrange([qw(TOSTRING)], @args);
+  if ($to_string_cb) {
+    $self->debug ("setting callback: ", $to_string_cb);
+    $self->to_string_callback($to_string_cb);
+  }
   $self->debug("new AnnotatableNode\n");
   return $self;
 }
@@ -110,23 +115,6 @@ sub DESTROY {
 	}
 	$self->{'_desc'} = {};
     }
-}
-
-sub to_string{
-   my ($self) = @_;
-   my @tags = $self->get_all_tags;
-   my $tagstr = '';
-   if( @tags ) {
-#       $tagstr = '[' . join(":", "&&NHX", 
-#			    map { "$_=" .join(',',
-#					      $self->get_tag_values($_))}
-#			    @tags ) . ']';
-   }
-   return sprintf("%s%s%s",
-		  defined $self->id ? $self->id : '',
-		  defined $self->branch_length ? ':' . 
-		  $self->branch_length : ' ',
-		  $tagstr);
 }
 
 =head1 Methods for implementing Bio::AnnotatableI
@@ -160,6 +148,11 @@ sub annotation
   }
   return $self->{'_annotation'};
 }
+
+
+=head1 Methods for implementing tag access through Annotation::SimpleValue
+
+=cut
 
 =head2 add_tag_value
 
@@ -273,6 +266,42 @@ sub has_tag {
   my ($self,$tag) = @_;
   my $ac = $self->annotation();
   return ( scalar $ac->get_Annotations($tag) > 0);
+}
+
+
+=head1 Methods for implementing to_string
+
+=cut
+
+=head2 to_string_callback
+
+ Title   : to_string_callback
+ Usage   : $node->to_string_callback(\&func)
+ Function: get/set callback for to_string
+ Returns : code reference for the to_string callback function
+ Args    : \&func - code reference to be set as the callback function
+
+=cut
+
+sub to_string_callback {
+    # get/set callback, using $DEFAULT_CB if nothing is set
+    my ($self, $foo) = @_;
+    if ($foo) {
+      # $foo is callback code ref, self as first arg (so you have access to object data)
+      $self->{'_to_string_cb'} = $foo;
+    }
+    else {
+      if (! defined $self->{'_to_string_cb'}) {
+        $self->{'_to_string_cb'} = \&Bio::Tree::NodeI::to_string;
+      }
+    }
+    return $self->{'_to_string_cb'};
+}
+
+sub to_string {
+  my ($self) = @_;
+  my $cb = $self->to_string_callback();
+  return $cb->($self);
 }
 
 1;

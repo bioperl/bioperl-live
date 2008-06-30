@@ -280,7 +280,9 @@ sub end_element_phylogeny
   if ( @{$self->{'_currentnodes'}} > 1) 
   {
     $root = $self->nodetype->new( -verbose => $self->verbose, 
-                                  -id => '' );
+                                  -id => '',
+                                  tostring => \&node_to_string,
+                                );
     while ( @{$self->{'_currentnodes'}} ) {
       my ($node) = ( shift @{$self->{'_currentnodes'}});
       $root->add_Descendent($node);
@@ -326,6 +328,7 @@ sub element_clade
   # create a node (Annotatable Node)
   my $tnode = $self->nodetype->new( -verbose => $self->verbose, 
                                     -id => '', 
+                                    tostring => \&node_to_string,
                                     %data,
                                   );
   # add all attributes as tags (Annotation::SimpleValue)
@@ -749,6 +752,30 @@ sub nodetype{
     return $self->{'nodetype'};
 }
 
+
+=head1 Methods for implementing to_string callback for AnnotatableNode
+
+=cut
+
+=head2 node_to_string
+
+ Title   : node_to_string
+ Usage   : $annotatablenode->to_string_callback(\&node_to_string)
+ Function: set as callback in AnnotatableNode, prints the node information in string 
+ Returns : string of node information
+ Args    : 
+
+=cut
+
+sub node_to_string {
+  my ($self) = @_;     # this self is a Bio::Tree::AnnotatableNode
+                       # not a Bio::TreeIO::phyloxml
+  my $str = '';
+  $str .= '<clade>';
+  $str .= $self->id;
+  $str .= '</clade>';
+  return $str;
+}
 
 1;
 
