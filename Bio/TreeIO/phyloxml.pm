@@ -771,8 +771,30 @@ sub node_to_string {
   my ($self) = @_;     # this self is a Bio::Tree::AnnotatableNode
                        # not a Bio::TreeIO::phyloxml
   my $str = '';
-  $str .= '<clade>';
-  $str .= $self->id;
+
+  my $ac = $self->annotation;
+  my @all_anns = $ac->get_Annotations(); 
+  my @all_keys = $ac->get_all_annotation_keys(); 
+
+  # start <clade>
+  $str .= '<clade';
+  my @id_source = $ac->get_Annotations('id_source'); # check id_source
+  if (@id_source) { 
+    $str .= " id_source=\"$id_source[0]->hash_tree->{'value'}\"";
+  }
+  $str .= '>';
+
+  # check id and print <name> 
+  if ($self->id) {
+    $str .= '<name>'.$self->id.'</name>';
+  }
+
+  # check branch_length and print <branch_length>
+  if ($self->branch_length) {
+    $str .= '<branch_length>'.$self->branch_length.'</branch_legnth>';
+  }
+  
+  # end <clade>
   $str .= '</clade>';
   return $str;
 }

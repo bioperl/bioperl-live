@@ -95,7 +95,6 @@ sub new {
   my $self = $class->SUPER::new(@args);
   my $to_string_cb = $self->_rearrange([qw(TOSTRING)], @args);
   if ($to_string_cb) {
-    $self->debug ("setting callback: ", $to_string_cb);
     $self->to_string_callback($to_string_cb);
   }
   $self->debug("new AnnotatableNode\n");
