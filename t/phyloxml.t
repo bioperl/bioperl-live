@@ -8,7 +8,7 @@ BEGIN {
   use BioperlTest;
 
   test_begin(-tests => 52,
-             -requires_modules => [qw(XML::LibXML)],
+             -requires_modules => [qw(XML::LibXML XML::LibXML::Reader)],
             );
   if (1000*$] < 5008) {
      plan skip_all => "Reader interface only supported in Perl >= 5.8";
@@ -177,7 +177,7 @@ isa_ok($A, 'Bio::Tree::AnnotatableNode');
 isa_ok($ac, 'Bio::AnnotationCollectionI');
 (@annotations) = $ac->get_Annotations('property');
 isa_ok( $annotations[0], 'Bio::Annotation::Collection');
-my (@value) = $annotations[0]->get_Annotations('value');
+(@value) = $annotations[0]->get_Annotations('value');
 is($value[0]->as_text, 'Value:  1200 ');
 if ($verbose > 0) {
   diag( "Annotation NOAA:depth stringified ",$value[0]->as_text);

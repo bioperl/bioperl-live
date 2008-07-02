@@ -103,17 +103,11 @@ sub _init_func
   my %start_elements = (
     'phylogeny' => \&element_phylogeny,
     'clade' => \&element_clade, 
-    'confidence' => \&element_confidence,
-    'property' => \&element_property,
   );
   $self->{'_start_elements'} = \%start_elements;
   my %end_elements = (
     'phylogeny' => \&end_element_phylogeny,
     'clade' => \&end_element_clade, 
-    'name' => \&end_element_name, 
-    'branch_length' => \&end_element_branch_length,
-    'confidence' => \&end_element_confidence,
-    'property' => \&end_element_property,
   );
   $self->{'_end_elements'} = \%end_elements;
 }
@@ -187,11 +181,14 @@ sub processNode
   {
     $self->debug("starting element: ",$reader->name, "\n");
     $self->{'_lastitem'}->{$reader->name}++;
-    push @{$self->{'_lastitem'}->{'current'}}, { $reader->name=>{}};
+    push @{$self->{'_lastitem'}->{'current'}}, { $reader->name=>{}};  # current holds current element and empty hash for its attributes
 
     if (exists $self->{'_start_elements'}->{$reader->name}) {
       my $method = $self->{'_start_elements'}->{$reader->name};
       $self->$method();
+    }
+    else {
+      $self->element_default();
     }
   }
   elsif ($reader->nodeType == XML_READER_TYPE_TEXT)
@@ -206,6 +203,9 @@ sub processNode
     if (exists $self->{'_end_elements'}->{$reader->name}) {
       my $method = $self->{'_end_elements'}->{$reader->name};
       $self->$method();
+    }
+    else {
+      $self->end_element_default();
     }
     $self->{'_lastitem'}->{ $reader->name }--;
     pop @{$self->{'_lastitem'}->{'current'}};
@@ -353,6 +353,7 @@ sub end_element_clade
   my $childcnt = $self->{'_levelcnt'}->[$level+1] || 0; 
   $self->debug ("adding node: nodes in stack is $curcount, treelevel: $level, childcnt: $childcnt\n");
 
+  # pop from temporary list
   my $tnode = pop @{$self->{'_currentitems'}};
   $self->debug( "new node will be ".$tnode->to_string."\n");
   if ( $childcnt > 0) {
@@ -376,182 +377,48 @@ sub end_element_clade
 }
 
 
-=head2 end_element_name
+=head2 element_default
 
- Title   : end_element_name
- Usage   : $->end_element_name
+ Title   : element_default
+ Usage   : $->element_default
  Function: 
  Returns : none 
  Args    : none
 
 =cut
 
-sub end_element_name
+sub element_default
 {
   my ($self) = @_;
   my $reader = $self->{'_reader'};
+  my $current = $self->current_element();
   my $prev = $self->prev_element();
-  $self->debug("ending name with prev $prev\n");
-  if ($prev eq 'phylogeny') {
-    $self->prev_attr->{'name'} = $self->{'_currenttext'};
-  }
-  elsif ($prev eq 'clade') {
-    my $tnode = $self->{'_currentitems'}->[-1];
-    $tnode->id($self->{'_currenttext'});
-  }
-  elsif ($prev eq 'taxonomy') {
-  }
-  else {
-
-  }
-}
-
-=head2 end_element_branch_length
-
- Title   : end_element_branch_length
- Usage   : $->end_element_branch_length
- Function: 
- Returns : none 
- Args    : none
-
-=cut
-
-sub end_element_branch_length
-{
-  my ($self) = @_;
-  my $reader = $self->{'_reader'};
-  my $prev = $self->prev_element();
-  if ($prev eq 'clade') {
-    my $tnode = $self->{'_currentitems'}->[-1];
-    $tnode->branch_length($self->{'_currenttext'});
-  }
-  else {
-
-  }
-}
-
-=head2 element_confidence
-
- Title   : element_confidence
- Usage   : $->element_confidence
- Function: 
- Returns : none 
- Args    : none
-
-=cut
-
-sub element_confidence
-{
-  my ($self) = @_;
-  my $reader = $self->{'_reader'};
-  my $prev = $self->prev_element();
-  $self->debug("starting confidence within $prev\n");
-  if ($prev eq 'phylogeny') {
-  }
-  elsif ($prev eq 'clade') {
-    # read attributes of <confidence>
-    $self->processAttribute($self->current_attr); 
-    $self->debug( "attr: ", %{$self->current_attr}, "\n");
-  }
-  elsif ($prev eq 'events') {
-  }
-  elsif ($prev eq 'annotation') {
-  }
-  elsif ($prev eq 'sequence_relation') {
-  }
-  elsif ($prev eq 'clade_relation') {
-  }
-  else {
-  }
+  $self->debug("starting $current within $prev\n");
+  
+  # read attributes of element
+  $self->processAttribute($self->current_attr);
+  $self->debug( "attr: ", %{$self->current_attr}, "\n");
 }
 
 
-=head2 end_element_confidence
+=head2 end_element_default
 
- Title   : end_element_confidence
- Usage   : $->end_element_confidence
+ Title   : end_element_default
+ Usage   : $->end_element_default
  Function: 
  Returns : none 
  Args    : none
 
 =cut
 
-sub end_element_confidence
+sub end_element_default
 {
   my ($self) = @_;
   my $reader = $self->{'_reader'};
-  my $prev = $self->prev_element();
-  if ($prev eq 'phylogeny') {
-  }
-  elsif ($prev eq 'clade') {
-    my $tnode = $self->{'_currentitems'}->[-1];
-    if ((exists $self->current_attr->{'type'}) && ($self->current_attr->{'type'} eq 'bootstrap')) {
-      $tnode->bootstrap($self->{'_currenttext'});
-    }
-  }
-  elsif ($prev eq 'events') {
-  }
-  elsif ($prev eq 'annotation') {
-  }
-  elsif ($prev eq 'sequence_relation') {
-  }
-  elsif ($prev eq 'clade_relation') {
-  }
-  else {
-
-  }
-}
-
-
-=head2 element_property
-
- Title   : element_property
- Usage   : $->element_property
- Function: 
- Returns : none 
- Args    : none
-
-=cut
-
-sub element_property
-{
-  my ($self) = @_;
-  my $reader = $self->{'_reader'};
-  my $prev = $self->prev_element();
-  $self->debug("starting property within $prev\n");
-  if ($prev eq 'phylogeny') {
-    # read attributes of <property>
-    $self->processAttribute($self->current_attr);
-    $self->debug( "attr: ", %{$self->current_attr}, "\n");
-  }
-  elsif ($prev eq 'clade') {
-    # read attributes of <property>
-    $self->processAttribute($self->current_attr);
-    $self->debug( "attr: ", %{$self->current_attr}, "\n");
-  }
-  elsif ($prev eq 'annotation') {
-  }
-  else {
-  }
-}
-
-
-=head2 end_element_property
-
- Title   : end_element_property
- Usage   : $->end_element_property
- Function: 
- Returns : none 
- Args    : none
-
-=cut
-
-sub end_element_property
-{
-  my ($self) = @_;
-  my $reader = $self->{'_reader'};
+  my $current = $self->current_element();
   my $prev = $self->prev_element();
   my $idref = $self->current_attr->{'id_ref'};
+  delete $self->current_attr->{'id_ref'};
   my $idsrc;
   if ($idref) { $idsrc = $self->{'_id_link'}->{$idref}; }
 
@@ -560,27 +427,12 @@ sub end_element_property
     $self->throw("id_ref and id_src incompatible: $idref, $idsrc");
   }
 
-  if ( ($idsrc && $idsrc->isa($self->treetype)) || (!$idsrc && $prev eq 'phylogeny') ) {
+  if (!$idsrc && $prev eq 'phylogeny') {
+    # annotate Tree via tree attribute
+    $self->prev_attr->{$current} = $self->{'_currenttext'};
   }
   elsif ( ($idsrc && $idsrc->isa($self->nodetype)) || (!$idsrc && $prev eq 'clade') ) {
-    my $tnode;
-    if ($idsrc) {
-      $tnode = $idsrc;
-    }
-    else {
-      $tnode = $self->{'_currentitems'}->[-1];
-    }
-    # nested annotation collection
-    my $propertycollection = Bio::Annotation::Collection->new();
-    $self->current_attr->{'value'} = $self->{'_currenttext'};
-    foreach my $tag (keys %{$self->current_attr}) {
-      my $sv = new Bio::Annotation::SimpleValue(
-                -value => $self->current_attr->{$tag}
-               );
-      $propertycollection->add_Annotation($tag, $sv);
-    }
-    my $ac = $tnode->annotation();
-    $ac->add_Annotation('property', $propertycollection);
+    $self->annotateNode( $current, $idsrc);
   }
   elsif ($prev eq 'events') {
   }
@@ -595,10 +447,64 @@ sub end_element_property
   }
 }
 
-=head2 element_id
 
- Title   : element_id
- Usage   : $->element_id
+=head2 annotateNode
+
+ Title   : annotateNode
+ Usage   : $->annotateNode( $element, $idsrc)
+ Function: 
+ Returns : none 
+ Args    : none
+
+=cut
+
+sub annotateNode 
+{
+  my ($self, $element,  $idsrc) = @_;
+
+  # find node to annotate
+  my $tnode;
+  if ($idsrc) {
+    $tnode = $idsrc;
+  }
+  else {
+    $tnode = $self->{'_currentitems'}->[-1];
+  }
+
+  # build new annotation
+  my $newann;
+  # if no other attribute then add Annotation::SimpleValue
+  $newann = new Bio::Annotation::SimpleValue( -value => $self->{'_currenttext'} ); 
+  # if more than one attribute then add Annotation::Collection
+  $newann = Bio::Annotation::Collection->new();
+  $self->current_attr->{'value'} = $self->{'_currenttext'};
+  foreach my $tag (keys %{$self->current_attr}) {
+    my $sv = new Bio::Annotation::SimpleValue(
+              -value => $self->current_attr->{$tag}
+             );
+    $newann->add_Annotation($tag, $sv);
+  }
+
+  # add to current node annotation
+  my $ac = $tnode->annotation();
+  $ac->add_Annotation($element, $newann);
+
+
+  # additional setups for compatibility with NodeI
+  if ($element eq 'name') {
+    $tnode->id($self->{'_currenttext'});
+  }
+  elsif ($element eq 'branch_length') {
+    $tnode->branch_length($self->{'_currenttext'});
+  }
+  elsif ($element eq 'confidence') {
+    if ((exists $self->current_attr->{'type'}) && ($self->current_attr->{'type'} eq 'bootstrap')) {
+      $tnode->bootstrap($self->{'_currenttext'});
+    }
+  }
+
+}
+
 
 =head2 element_id
 
@@ -658,6 +564,27 @@ sub prev_attr {
   my @keys = keys %{$self->{'_lastitem'}->{'current'}->[-2]};
   (@keys == 1) || die "there should be only one key for each hash";
   return $self->{'_lastitem'}->{'current'}->[-2]->{$keys[0]};
+}
+
+=head2 current_element
+
+ Title   : current_element
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+=cut
+
+sub current_element {
+  my ($self) = @_;
+
+  return 0 if ! defined $self->{'_lastitem'} ||
+    ! defined $self->{'_lastitem'}->{'current'}->[-1];
+  my @keys = keys %{$self->{'_lastitem'}->{'current'}->[-1]};
+  (@keys == 1) || die "there should be only one key for each hash";
+  return $keys[0];
 }
 
 =head2 prev_element
