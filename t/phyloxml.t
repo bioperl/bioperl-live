@@ -153,11 +153,12 @@ isa_ok($tree, 'Bio::Tree::TreeI');
 isa_ok($A, 'Bio::Tree::AnnotatableNode');
 my ($ac) = $A->annotation();
 isa_ok($ac, 'Bio::AnnotationCollectionI');
-my (@annotations) = $ac->get_Annotations('NOAA:depth');
-isa_ok( $annotations[0], 'Bio::AnnotationI');
-is($annotations[0]->as_text, 'Value:  1200 ');
+my (@annotations) = $ac->get_Annotations('property');
+isa_ok( $annotations[0], 'Bio::Annotation::Collection');
+my (@value) = $annotations[0]->get_Annotations('value');
+is($value[0]->as_text, 'Value:  1200 ');
 if ($verbose > 0) {
-  diag( "Annotation NOAA:depth stringified ",$annotations[0]->as_text);
+  diag( "Annotation NOAA:depth stringified ",$value[0]->as_text);
 }
 $leaves_string = $tree->simplify_to_leaves_string();
 if ($verbose > 0) {
@@ -174,11 +175,12 @@ isa_ok($tree, 'Bio::Tree::TreeI');
 isa_ok($A, 'Bio::Tree::AnnotatableNode');
 ($ac) = $A->annotation();
 isa_ok($ac, 'Bio::AnnotationCollectionI');
-(@annotations) = $ac->get_Annotations('NOAA:depth');
-isa_ok( $annotations[0], 'Bio::AnnotationI');
-is($annotations[0]->as_text, 'Value:  1200 ');
+(@annotations) = $ac->get_Annotations('property');
+isa_ok( $annotations[0], 'Bio::Annotation::Collection');
+my (@value) = $annotations[0]->get_Annotations('value');
+is($value[0]->as_text, 'Value:  1200 ');
 if ($verbose > 0) {
-  diag( "Annotation NOAA:depth stringified ",$annotations[0]->as_text);
+  diag( "Annotation NOAA:depth stringified ",$value[0]->as_text);
 }
 $leaves_string = $tree->simplify_to_leaves_string();
 if ($verbose > 0) {

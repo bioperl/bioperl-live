@@ -570,11 +570,17 @@ sub end_element_property
     else {
       $tnode = $self->{'_currentitems'}->[-1];
     }
-    if (exists $self->current_attr->{'ref'}) {
-      my $ac = $tnode->annotation();
-      my $sv = new Bio::Annotation::SimpleValue(-value => $self->{'_currenttext'});
-      $ac->add_Annotation($self->current_attr->{'ref'}, $sv); 
+    # nested annotation collection
+    my $propertycollection = Bio::Annotation::Collection->new();
+    $self->current_attr->{'value'} = $self->{'_currenttext'};
+    foreach my $tag (keys %{$self->current_attr}) {
+      my $sv = new Bio::Annotation::SimpleValue(
+                -value => $self->current_attr->{$tag}
+               );
+      $propertycollection->add_Annotation($tag, $sv);
     }
+    my $ac = $tnode->annotation();
+    $ac->add_Annotation('property', $propertycollection);
   }
   elsif ($prev eq 'events') {
   }
