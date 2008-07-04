@@ -7,7 +7,7 @@ BEGIN {
   use lib 't/lib';
   use BioperlTest;
 
-  test_begin(-tests => 52,
+  test_begin(-tests => 53,
              -requires_modules => [qw(XML::LibXML XML::LibXML::Reader)],
             );
   if (1000*$] < 5008) {
@@ -38,8 +38,10 @@ if ($verbose > 0) {
 $tree = $treeio->next_tree;
 isa_ok($tree, 'Bio::Tree::TreeI');
 is($tree->id, 'example from Prof. Joe Felsenstein\'s book "Inferring Phylogenies"');
+is($tree->get_tag_values('description'), 'phyloXML allows to use either a "branch_length" attribute or element to indicate branch lengths.');
 if ($verbose > 0) {
   diag("tree id: ",$tree->id);
+  diag("tree description: ", $tree->get_tag_values('description'));
 }
 is($tree->get_tag_values('rooted'), 'true');
 my @nodes = $tree->get_nodes;
@@ -64,6 +66,9 @@ if ($verbose > 0) {
 }
 $tree = $treeio->next_tree;
 isa_ok($tree, 'Bio::Tree::TreeI');
+if ($verbose > 0) {
+  diag("tree id: ",$tree->id);
+}
 @nodes = $tree->get_nodes;
 is(@nodes, 5);
 ($A) = $tree->find_node('A');
@@ -86,6 +91,9 @@ if ($verbose > 0) {
 }
 $tree = $treeio->next_tree;
 isa_ok($tree, 'Bio::Tree::TreeI');
+if ($verbose > 0) {
+  diag("tree id: ",$tree->id);
+}
 my ($AB) = $tree->find_node('AB');
 ok($AB);
 is($AB->bootstrap, '89');
@@ -101,6 +109,9 @@ undef $AB;
 # <taxonomy> <scientific_name> <sequence> <annotation>
 $tree = $treeio->next_tree;
 isa_ok($tree, 'Bio::Tree::TreeI');
+if ($verbose > 0) {
+  diag("tree id: ",$tree->id);
+}
 $leaves_string = $tree->simplify_to_leaves_string();
 if ($verbose > 0) {
   diag($leaves_string);
@@ -113,6 +124,9 @@ undef $tree;
 # <sequence_relation> 
 $tree = $treeio->next_tree;
 isa_ok($tree, 'Bio::Tree::TreeI');
+if ($verbose > 0) {
+  diag("tree id: ",$tree->id);
+}
 $leaves_string = $tree->simplify_to_leaves_string();
 if ($verbose > 0) {
   diag($leaves_string);
@@ -124,6 +138,9 @@ undef $tree;
 # <mol_seq> <annotation> <code>
 $tree = $treeio->next_tree;
 isa_ok($tree, 'Bio::Tree::TreeI');
+if ($verbose > 0) {
+  diag("tree id: ",$tree->id);
+}
 $leaves_string = $tree->simplify_to_leaves_string();
 if ($verbose > 0) {
   diag($leaves_string);
@@ -135,6 +152,9 @@ undef $tree;
 # <clade_relation> @id_source & @id_ref
 $tree = $treeio->next_tree;
 isa_ok($tree, 'Bio::Tree::TreeI');
+if ($verbose > 0) {
+  diag("tree id: ",$tree->id);
+}
 $leaves_string = $tree->simplify_to_leaves_string();
 if ($verbose > 0) {
   diag($leaves_string);
@@ -149,13 +169,16 @@ if ($verbose > 0) {
 }
 $tree = $treeio->next_tree;
 isa_ok($tree, 'Bio::Tree::TreeI');
+if ($verbose > 0) {
+  diag("tree id: ",$tree->id);
+}
 ($A) = $tree->find_node('A');
 isa_ok($A, 'Bio::Tree::AnnotatableNode');
 my ($ac) = $A->annotation();
 isa_ok($ac, 'Bio::AnnotationCollectionI');
 my (@annotations) = $ac->get_Annotations('property');
 isa_ok( $annotations[0], 'Bio::Annotation::Collection');
-my (@value) = $annotations[0]->get_Annotations('value');
+my (@value) = $annotations[0]->get_Annotations('_text');
 is($value[0]->as_text, 'Value:  1200 ');
 if ($verbose > 0) {
   diag( "Annotation NOAA:depth stringified ",$value[0]->as_text);
@@ -171,13 +194,16 @@ undef $tree;
 # <property> @id_source @id_ref
 $tree = $treeio->next_tree;
 isa_ok($tree, 'Bio::Tree::TreeI');
+if ($verbose > 0) {
+  diag("tree id: ",$tree->id);
+}
 ($A) = $tree->find_node('A');
 isa_ok($A, 'Bio::Tree::AnnotatableNode');
 ($ac) = $A->annotation();
 isa_ok($ac, 'Bio::AnnotationCollectionI');
 (@annotations) = $ac->get_Annotations('property');
 isa_ok( $annotations[0], 'Bio::Annotation::Collection');
-(@value) = $annotations[0]->get_Annotations('value');
+(@value) = $annotations[0]->get_Annotations('_text');
 is($value[0]->as_text, 'Value:  1200 ');
 if ($verbose > 0) {
   diag( "Annotation NOAA:depth stringified ",$value[0]->as_text);
@@ -193,6 +219,9 @@ undef $tree;
 # <id> <rank> <uri> <common_name> <distribution>
 $tree = $treeio->next_tree;
 isa_ok($tree, 'Bio::Tree::TreeI');
+if ($verbose > 0) {
+  diag("tree id: ",$tree->id);
+}
 $leaves_string = $tree->simplify_to_leaves_string();
 if ($verbose > 0) {
   diag($leaves_string);
@@ -204,6 +233,9 @@ undef $tree;
 # <distribution> <point> <lat> <long> <alt>
 $tree = $treeio->next_tree;
 isa_ok($tree, 'Bio::Tree::TreeI');
+if ($verbose > 0) {
+  diag("tree id: ",$tree->id);
+}
 $leaves_string = $tree->simplify_to_leaves_string();
 if ($verbose > 0) {
   diag($leaves_string);
@@ -215,6 +247,9 @@ undef $tree;
 # <date> <desc> <value>
 $tree = $treeio->next_tree;
 isa_ok($tree, 'Bio::Tree::TreeI');
+if ($verbose > 0) {
+  diag("tree id: ",$tree->id);
+}
 $leaves_string = $tree->simplify_to_leaves_string();
 if ($verbose > 0) {
   diag($leaves_string);
@@ -226,22 +261,24 @@ undef $tree;
 # <align:alignment> <seq> 
 $tree = $treeio->next_tree;
 isa_ok($tree, 'Bio::Tree::TreeI');
+if ($verbose > 0) {
+  diag("tree id: ",$tree->id);
+}
 $leaves_string = $tree->simplify_to_leaves_string();
 if ($verbose > 0) {
   diag($leaves_string);
 }
 is($leaves_string, '((A,B),C)');
-undef $tree;
 
 
-TODO: {
-  local $TODO = 'write_tree not implemented yet';
-  my $FILE1 = test_output_file();
-  $treeio = Bio::TreeIO->new(-verbose => $verbose,
+# write_tree
+my $FILE1 = test_output_file();
+diag($FILE1);
+$treeio = Bio::TreeIO->new(-verbose => $verbose,
           -format => 'phyloxml',
           -file   => ">$FILE1");
-  $treeio->write_tree($tree);
-  undef $treeio;
-  ok( -s $FILE1 );
-}
+$treeio->write_tree($tree);
+ok -s $FILE1;
+diag(`cat $FILE1`);
+undef $treeio;
 

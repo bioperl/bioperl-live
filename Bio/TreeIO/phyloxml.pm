@@ -156,11 +156,49 @@ sub next_tree
 =cut
 
 sub write_tree{
+  my ($self, @trees) = @_;
+  foreach my $tree (@trees) {
+    my $root = $tree->get_root_node;
+    $self->_print("<phylogeny>");
+    $self->_print($self->_write_tree_Helper($root));
+    $self->_print("</phylogeny>");
+    $self->_print("\n");
+  }
+  $self->flush if $self->_flush_on_write && defined $self->_fh;
+  return;
 }
 
-sub _write_tree_Helper {
-}
 
+sub _write_tree_Helper 
+{
+  my ($self, $node, $str) = @_;     # this self is a Bio::Tree::phyloxml
+  if (ref($node) ne 'Bio::Tree::AnnotatableNode') {
+    $self->throw( "node but be a Bio::Tree::AnnotatableNode" );
+  }
+  my $ac = $node->annotation;
+
+  # start <clade>
+  $str .= '<clade';
+  my @attr = $ac->get_Annotations('_attr'); # check id_source
+  if (@attr) { 
+    my @id_source = $attr[0]->get_Annotations('id_source');
+    if (@id_source) {
+      $str .= " id_source=\"".$id_source[0]->value."\"";
+    }
+  }
+  $str .= ">";
+
+  # print all descendent nodes
+  foreach my $child ( $node->each_Descendent() ) {
+    $str = $self->_write_tree_Helper($child, $str);
+  }
+
+  # print all annotations
+  $str = print_annotation( $node, $str, $ac );
+  
+  $str .= "</clade>";
+  return $str;
+}
 
 
 =head2 processNode
@@ -190,13 +228,27 @@ sub processNode
     else {
       $self->element_default();
     }
+    if ($reader->isEmptyElement) {
+      # do procedures for XML_READER_TYPE_END_ELEMENT since element is complete
+      $self->debug("ending element: ",$reader->name, "\n");
+      
+      if (exists $self->{'_end_elements'}->{$reader->name}) {
+        my $method = $self->{'_end_elements'}->{$reader->name};
+        $self->$method();
+      }
+      else {
+        $self->end_element_default();
+      }
+      $self->{'_lastitem'}->{ $reader->name }--;
+      pop @{$self->{'_lastitem'}->{'current'}};
+    }
   }
-  elsif ($reader->nodeType == XML_READER_TYPE_TEXT)
+  if ($reader->nodeType == XML_READER_TYPE_TEXT)
   {
     $self->debug($reader->value, "\n");
     $self->{'_currenttext'} = $reader->value;
   } 
-  elsif ($reader->nodeType == XML_READER_TYPE_END_ELEMENT)
+  if ($reader->nodeType == XML_READER_TYPE_END_ELEMENT)
   {
     $self->debug("ending element: ",$reader->name, "\n");
     
@@ -295,6 +347,7 @@ sub end_element_phylogeny
     $root = shift @{$self->{'_currentnodes'}};
   }
 
+  $self->debug($self->current_attr, %{$self->current_attr});
   my $tree = $self->treetype->new(
     -verbose => $self->verbose, 
     -root => $root,
@@ -429,6 +482,8 @@ sub end_element_default
 
   if (!$idsrc && $prev eq 'phylogeny') {
     # annotate Tree via tree attribute
+    $self->debug("annotating Tree ",$self->prev_attr);
+    $self->debug("with $current, ", $self->{'_currenttext'});
     $self->prev_attr->{$current} = $self->{'_currenttext'};
   }
   elsif ( ($idsrc && $idsrc->isa($self->nodetype)) || (!$idsrc && $prev eq 'clade') ) {
@@ -473,18 +528,24 @@ sub annotateNode
 
   # build new annotation
   my $newann;
-  # if no other attribute then add Annotation::SimpleValue
-  $newann = new Bio::Annotation::SimpleValue( -value => $self->{'_currenttext'} ); 
-  # if more than one attribute then add Annotation::Collection
-  $newann = Bio::Annotation::Collection->new();
-  $self->current_attr->{'value'} = $self->{'_currenttext'};
-  foreach my $tag (keys %{$self->current_attr}) {
-    my $sv = new Bio::Annotation::SimpleValue(
-              -value => $self->current_attr->{$tag}
-             );
-    $newann->add_Annotation($tag, $sv);
+  # if no attribute then add Annotation::SimpleValue
+  if ( ! scalar keys %{$self->current_attr} ) {
+    $newann = new Bio::Annotation::SimpleValue( -value => $self->{'_currenttext'} ); 
   }
-
+  # if attribute exists then add Annotation::Collection
+  else {
+    $newann = Bio::Annotation::Collection->new();
+    my $newattr = Bio::Annotation::Collection->new();
+    foreach my $tag (keys %{$self->current_attr}) {
+      my $sv = new Bio::Annotation::SimpleValue(
+                -value => $self->current_attr->{$tag}
+               );
+      $newattr->add_Annotation($tag, $sv);
+    }
+    $newann->add_Annotation('_attr', $newattr);
+    my $newvalue = new Bio::Annotation::SimpleValue( -value => $self->{'_currenttext'} );
+    $newann->add_Annotation('_text', $newvalue);
+  }
   # add to current node annotation
   my $ac = $tnode->annotation();
   $ac->add_Annotation($element, $newann);
@@ -499,7 +560,7 @@ sub annotateNode
   }
   elsif ($element eq 'confidence') {
     if ((exists $self->current_attr->{'type'}) && ($self->current_attr->{'type'} eq 'bootstrap')) {
-      $tnode->bootstrap($self->{'_currenttext'});
+      $tnode->bootstrap($self->{'_currenttext'}); # this needs to change (adds 'B' annotation)
     }
   }
 
@@ -700,37 +761,84 @@ sub nodetype{
 
 =cut
 
-sub node_to_string {
+
+sub node_to_string 
+{
   my ($self) = @_;     # this self is a Bio::Tree::AnnotatableNode
                        # not a Bio::TreeIO::phyloxml
   my $str = '';
-
   my $ac = $self->annotation;
-  my @all_anns = $ac->get_Annotations(); 
-  my @all_keys = $ac->get_all_annotation_keys(); 
 
   # start <clade>
   $str .= '<clade';
-  my @id_source = $ac->get_Annotations('id_source'); # check id_source
-  if (@id_source) { 
-    $str .= " id_source=\"$id_source[0]->hash_tree->{'value'}\"";
+  my @attr = $ac->get_Annotations('_attr'); # check id_source
+  if (@attr) { 
+    my @id_source = $attr[0]->get_Annotations('id_source');
+    if (@id_source) {
+      $str .= " id_source=\"".$id_source[0]->value."\"";
+    }
   }
   $str .= '>';
 
-  # check id and print <name> 
-  if ($self->id) {
-    $str .= '<name>'.$self->id.'</name>';
-  }
-
-  # check branch_length and print <branch_length>
-  if ($self->branch_length) {
-    $str .= '<branch_length>'.$self->branch_length.'</branch_legnth>';
-  }
+  # print all annotations
+  $str = print_annotation( $self, $str, $ac );
   
-  # end <clade>
   $str .= '</clade>';
   return $str;
 }
+
+sub print_annotation 
+{
+  my ($self, $str, $ac) = @_; 
+ 
+  my @all_anns = $ac->get_Annotations();
+  foreach my $ann (@all_anns) {
+    my $key = $ann->tagname;
+    if ($key eq '_attr') { next; } # attributes are already printed in the previous level 
+    if  (ref($ann) eq 'Bio::Annotation::SimpleValue') 
+    {
+      if ($key eq '_text') {
+        $str .= $ann->value;
+      }
+      else {
+        $str .= "<$key>";
+        $str .= $ann->value;
+        $str .= "</$key>";
+      }
+    }
+    elsif (ref($ann) eq 'Bio::Annotation::Collection') 
+    {
+      my @attrs = $ann->get_Annotations('_attr');
+      if (@attrs) {   # if there is a attribute collection
+        $str .= "<$key";
+        $str = print_attr($self, $str, $attrs[0]);
+        $str .= ">";
+      }
+      else {
+        $str .= "<$key>";
+      }
+      $str = print_annotation($self, $str, $ann);
+      $str .= "</$key>";
+    }
+  } 
+  return $str;
+}
+
+sub print_attr
+{
+  my ($self, $str, $ac) = @_; 
+  my @all_attrs = $ac->get_Annotations();
+  foreach my $attr (@all_attrs) {
+    if  (ref($attr) ne 'Bio::Annotation::SimpleValue') {
+      $self->throw("attribute should be a SimpleValue");
+    }
+    $str .= ' ';
+    $str .= $attr->tagname;
+    $str .= '=';
+    $str .= $attr->value;
+  }
+  return $str;
+} 
 
 1;
 
