@@ -9,6 +9,7 @@ Bio::DB::SeqFeature -- Normalized feature for use with Bio::DB::SeqFeature::Stor
 =head1 SYNOPSIS
 
  use Bio::DB::SeqFeature::Store;
+
  # Open the sequence database
  my $db      = Bio::DB::SeqFeature::Store->new( -adaptor => 'DBI::mysql',
                                                 -dsn     => 'dbi:mysql:test');
@@ -45,13 +46,14 @@ L<Bio::DB::SeqFeature::Store>.
 
 =cut
 
-# just like Bio::DB::SeqFeature::NormalizedFeature except that the parent/child relationships are
-# stored in a table in the Bio::DB::SeqFeature::Store
+# just like Bio::DB::SeqFeature::NormalizedFeature except that the parent/child 
+# relationships are stored in a table in the Bio::DB::SeqFeature::Store
 
 use strict;
 use Carp 'croak';
 use Bio::DB::SeqFeature::Store;
-use base qw(Bio::DB::SeqFeature::NormalizedFeature Bio::DB::SeqFeature::NormalizedTableFeatureI);
+use base qw(Bio::DB::SeqFeature::NormalizedFeature 
+				Bio::DB::SeqFeature::NormalizedTableFeatureI);
 
 =head2 new
 
@@ -69,7 +71,7 @@ Bio::DB::SeqFeature class.
 The arguments are the same to Bio::SeqFeature::Generic-E<gt>new() and
 Bio::Graphics::Feature-E<gt>new(). The most important difference is the
 B<-store> option, which if present creates the object in a
-Bio::DB::SeqFeature::Store database, and he B<-index> option, which
+Bio::DB::SeqFeature::Store database, and the B<-index> option, which
 controls whether the feature will be indexed for retrieval (default is
 true). Ordinarily, you would only want to turn indexing on when
 creating top level features, and off only when storing
@@ -140,7 +142,7 @@ Please see L<Bio::SeqFeatureI> for more details.
 
 Add one or more subfeatures to the feature. For best results,
 subfeatures should be of the same class as the parent feature
-(i.e. don't try mixing Bio::DB::SeqFeature::NormalizedFeature with
+(i.e. do not try mixing Bio::DB::SeqFeature::NormalizedFeature with
 other feature types).
 
 An alias for this method is add_segment().
@@ -189,7 +191,7 @@ returned. Without any types passed all subfeatures are returned.
 
 This method will get or set the Bio::DB::SeqFeature::Store object that
 is associated with the feature. After changing the store, you should
-probably unset the feature's primary_id() and call update() to ensure
+probably unset the primary_id() of the feature and call update() to ensure
 that the object is written into the database as a new feature.
 
 =cut
@@ -259,7 +261,7 @@ future versions of the module.
 
  Title   : primary_id
  Usage   : $id = $feature->primary_id([$new_id])
- Function: get/set the feature's database ID
+ Function: get/set the database ID of the feature
  Returns : the current primary ID
  Args    : none
  Status  : public
@@ -296,7 +298,7 @@ Internal method used to implement overloaded stringification.
 
 =item $boolean = $feature-E<gt>type_match(@list_of_types)
 
-Internal method that will return true if the feature's primary_tag and
+Internal method that will return true if the primary_tag of the feature and
 source_tag match any of the list of types (in primary_tag:source_tag
 format) provided.
 
@@ -412,5 +414,3 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =cut
-
-
