@@ -72,6 +72,8 @@ use Bio::Seq::SeqFactory;
 
 use base qw(Bio::SeqIO);
 
+our %VALID_TYPE = map {$_ => 1} qw(P1 F1 DL DC RL RC XX);
+
 sub _initialize {
   my($self,@args) = @_;
   $self->SUPER::_initialize(@args);
@@ -102,9 +104,15 @@ sub next_seq {
     my ($top, $desc,$seq) = ( $line =~ /^(.+?)\n(.+?)\n([^>]*)/s )  or
 	$self->throw("Cannot parse entry PIR entry [$line]");
 
-
-    my ( $type,$id ) = ( $top =~ /^>?([PF])1;(\S+)\s*$/ ) or
-	$self->throw("PIR stream read attempted without leading '>P1;' [ $line ]");
+    my ( $type,$id );
+	if ( $top =~ /^>?(\S{2});(\S+)\s*$/ ) {
+	  ( $type,$id ) = ($1, $2);
+	  if (!exists $VALID_TYPE{$type} ) {
+		$self->throw("PIR stream read attempted without proper two-letter sequence code [ $type ]");
+	  }
+	} else {
+	  $self->throw("Line does not match PIR format [ $line ]");
+	}
 
     # P - indicates complete protein
     # F - indicates protein fragment
