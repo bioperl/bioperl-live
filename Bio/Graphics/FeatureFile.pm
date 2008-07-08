@@ -241,7 +241,7 @@ sub new {
 
 =over 4
 
-=item ($rendered,$panel) = $features-E<gt>render([$panel, $position_to_insert, $options, $max_bump, $max_label, $selector])
+=item ($rendered,$panel,$tracks) = $features-E<gt>render([$panel, $position_to_insert, $options, $max_bump, $max_label, $selector])
 
 Render features in the data set onto the indicated
 Bio::Graphics::Panel.  If no panel is specified, creates one.
@@ -267,8 +267,8 @@ feature and false to exclude it.
 
 In a scalar context returns the number of tracks rendered.  In a list
 context, returns a three-element list containing the number of
-features rendered, the created panel, and a list of all the track
-objects created.
+features rendered, the created panel, and an array ref of all the
+track objects created.
 
 =back
 
@@ -474,8 +474,6 @@ sub parse_line {
   # reenter config state whenever we see a /^\[ pattern (config section)
   my $old_state = $self->{state};
   my $new_state = $self->_state_transition($line);
-
-#  warn "$old_state=>$new_state: $line";
 
   if ($new_state ne $old_state) {
       delete $self->{current_config};
@@ -1289,13 +1287,15 @@ interface) or its primary_tag() method otherwise.
 =cut
 
 sub feature2label {
-  my $self = shift;
+  my $self    = shift;
   my $feature = shift;
-  my $type  = $feature->primary_tag or return;
+  my $type      = $feature->can('type') ? $feature->type 
+                                        : $feature->primary_tag;
+  $type or return;
   (my $basetype = $type) =~ s/:.+$//;
-  my @labels = $self->type2label($type);
-  @labels = $self->type2label($basetype) unless @labels;
-  @labels = ($type) unless @labels;;
+  my @labels    = $self->type2label($type);
+  @labels       = $self->type2label($basetype) unless @labels;
+  @labels       = ($type) unless @labels;
   wantarray ? @labels : $labels[0];
 }
 
@@ -1326,7 +1326,6 @@ sub link_pattern {
   require CGI unless defined &CGI::escape;
   my $n;
   $linkrule ||= ''; # prevent uninit warning
-#  my $seq_id  = $feature->can('location') ? $feature->location->seq_id : $feature->seq_id;
   my $seq_id  = $feature->can('seq_id') ? $feature->seq_id() : $feature->location->seq_id();
   $seq_id   ||= $feature->seq_id; #fallback
   $linkrule =~ s/\$(\w+)/
@@ -1337,6 +1336,7 @@ sub link_pattern {
       : $1 eq 'type'         ? eval {$feature->method} || $feature->primary_tag || ''
       : $1 eq 'method'       ? eval {$feature->method} || $feature->primary_tag || ''
       : $1 eq 'source'       ? eval {$feature->source} || $feature->source_tag  || ''
+      : $1 =~ 'seq_?id'      ? eval{$feature->seq_id} || eval{$feature->location->seq_id} || ''
       : $1 eq 'start'        ? $feature->start || ''
       : $1 eq 'end'          ? $feature->end   || ''
       : $1 eq 'stop'         ? $feature->end   || ''
@@ -1344,7 +1344,7 @@ sub link_pattern {
       : $1 eq 'segend'       ? $panel->end     || ''
       : $1 eq 'description'  ? eval {join '',$feature->notes} || ''
       : $1 eq 'id'           ? $feature->feature_id || ''
-      : $1
+      : '$'.$1
        )
 	/exg;
   return $linkrule;
@@ -1354,11 +1354,15 @@ sub make_link {
   my $self             = shift;
   my ($feature,$panel) = @_;
 
-  for my $label ($self->feature2label($feature)) {
-    my $linkrule     = $self->setting($label,'link');
-    $linkrule        = $self->setting(general=>'link') unless defined $linkrule;
-    return $self->link_pattern($linkrule,$feature,$panel);
+  my ($linkrule) = $feature->each_tag_value('link');
+
+  unless ($linkrule) {
+      for my $label ($self->feature2label($feature)) {
+	  $linkrule     ||= $self->setting($label,'link');
+	  $linkrule     ||= $self->setting(general=>'link');
+      }
   }
+  return $self->link_pattern($linkrule,$feature,$panel);
 }
 
 sub make_title {
@@ -1400,7 +1404,7 @@ sub type2label {
   my $self = shift;
   my $type = shift;
   $self->{_type2label} ||= $self->invert_types;
-  my @labels = keys %{$self->{_type2label}{$type}};
+  my @labels = keys %{$self->{_type2label}{lc $type}};
   wantarray ? @labels : $labels[0]
 }
 
