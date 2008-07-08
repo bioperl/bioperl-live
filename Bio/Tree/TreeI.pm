@@ -73,7 +73,7 @@ Internal methods are usually preceded with a _
 package Bio::Tree::TreeI;
 use strict;
 
-use base qw(Bio::Tree::TreeI);
+use base qw(Bio::Root::RootI);
 
 =head2 get_nodes
 
