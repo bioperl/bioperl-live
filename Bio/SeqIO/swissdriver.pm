@@ -1,3 +1,4 @@
+# make as generic as possible (along with gbhandler, emblhandler)
 
 # Let the code begin...
 

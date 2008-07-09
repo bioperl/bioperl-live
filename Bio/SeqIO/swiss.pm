@@ -403,6 +403,7 @@ sub next_seq {
                 my @genenames;
                 for my $section (split(m{\s*;\s*},$n)) {
                     my ($tag, $rest) = split("=",$section);
+                    $rest ||= '';
                     for my $val (split(m{\s*,\s*},$rest)) {
                         push @genenames, [$tag => $val];
                     }
@@ -1200,10 +1201,9 @@ sub _read_swissprot_Species {
         } else {
             $species = $sci_name;
         }
-
         # is this organism of rank species or is it lower?
         # (doesn't catch everything, but at least the guess isn't dangerous)
-        if ($species =~ /subsp\.|var\./) {
+        if ($species && $species =~ /subsp\.|var\./) {
             ($species, $sub_species) = $species =~ /(.+)\s+((?:subsp\.|var\.).+)/;
         }
     }
