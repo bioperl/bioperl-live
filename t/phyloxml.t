@@ -178,6 +178,9 @@ my ($ac) = $A->annotation();
 isa_ok($ac, 'Bio::AnnotationCollectionI');
 my (@annotations) = $ac->get_Annotations('property');
 isa_ok( $annotations[0], 'Bio::Annotation::Collection');
+diag("property:",$annotations[0]);
+my (@keys) = $annotations[0]->get_all_annotation_keys();
+diag("keys:",@keys);
 my (@value) = $annotations[0]->get_Annotations('_text');
 is($value[0]->as_text, 'Value:  1200 ');
 if ($verbose > 0) {

@@ -226,7 +226,7 @@ sub processNode
       $self->$method();
     }
     else {
-      $self->element_default();
+      $self->element_annotation();
     }
     if ($reader->isEmptyElement) {
       # do procedures for XML_READER_TYPE_END_ELEMENT since element is complete
@@ -237,7 +237,7 @@ sub processNode
         $self->$method();
       }
       else {
-        $self->end_element_default();
+        $self->end_element_annotation();
       }
       $self->{'_lastitem'}->{ $reader->name }--;
       pop @{$self->{'_lastitem'}->{'current'}};
@@ -257,10 +257,11 @@ sub processNode
       $self->$method();
     }
     else {
-      $self->end_element_default();
+      $self->end_element_annotation();
     }
     $self->{'_lastitem'}->{ $reader->name }--;
     pop @{$self->{'_lastitem'}->{'current'}};
+    $self->{'_currenttext'} = '';
   }
 }
 
@@ -312,6 +313,7 @@ sub element_phylogeny
   my ($self) = @_;   
   $self->{'_currentitems'} = []; # holds nodes while parsing current level
   $self->{'_currentnodes'} = []; # holds nodes while constructing tree
+  $self->{'_currentannotation'} = []; # holds annotationcollection 
   $self->{'_currenttext'} = '';
   $self->{'_levelcnt'} = [];
   $self->{'_id_link'} = {};
@@ -430,41 +432,84 @@ sub end_element_clade
 }
 
 
-=head2 element_default
+=head2 element_annotation
 
- Title   : element_default
- Usage   : $->element_default
+ Title   : element_annotation
+ Usage   : $->element_annotation
  Function: 
  Returns : none 
  Args    : none
 
 =cut
 
-sub element_default
+sub element_annotation
 {
   my ($self) = @_;
   my $reader = $self->{'_reader'};
   my $current = $self->current_element();
   my $prev = $self->prev_element();
-  $self->debug("starting $current within $prev\n");
   
   # read attributes of element
   $self->processAttribute($self->current_attr);
   $self->debug( "attr: ", %{$self->current_attr}, "\n");
+
+  # check idref
+  my $idref = $self->current_attr->{'id_ref'};
+  my $idsrc;
+  if ($idref) { $idsrc = $self->{'_id_link'}->{$idref}; }
+
+  # exception when id_src is defined but id_ref is not, or vice versa.
+  if ($idref xor $idsrc) {
+    $self->throw("id_ref and id_src incompatible: $idref, $idsrc");
+  }
+  $self->debug("starting $current within $prev\n");
+  
+
+  # set _currentannotation
+  if ( ($idsrc && $idsrc->isa($self->nodetype)) || (!$idsrc && $prev eq 'clade') ) {
+    # find node to annotate
+    my $tnode;
+    if ($idsrc) {
+      $tnode = $idsrc;
+    }
+    else {
+      $tnode = $self->{'_currentitems'}->[-1];
+    }
+    my $ac = $tnode->annotation();
+    # add the new anncollection with the current element as key
+    my $newann = Bio::Annotation::Collection->new();
+    $ac->add_Annotation($current, $newann);
+    $self->debug("adding annotation -$current:$newann to $ac");
+    # push to current annotation
+    push (@{$self->{'_currentannotation'}}, $newann);
+    $self->debug("pushing ac ",$newann," to _currentannotation");
+  }
+  else {
+    my $ac = $self->{'_currentannotation'}->[-1];
+    $self->debug("currentann: $ac");
+    if ($ac) {
+        # add the new anncollection with the current element as key
+        my $newann = Bio::Annotation::Collection->new();
+        $ac->add_Annotation($current, $newann);
+        $self->debug("adding new ac $newann with key $current to ",$ac,"\n");
+        push (@{$self->{'_currentannotation'}}, $newann);
+        $self->debug("pushing ac ",$newann," to _currentannotation");
+    }
+  }
 }
 
 
-=head2 end_element_default
+=head2 end_element_annotation
 
- Title   : end_element_default
- Usage   : $->end_element_default
+ Title   : end_element_annotation
+ Usage   : $->end_element_annotation
  Function: 
  Returns : none 
  Args    : none
 
 =cut
 
-sub end_element_default
+sub end_element_annotation
 {
   my ($self) = @_;
   my $reader = $self->{'_reader'};
@@ -487,18 +532,40 @@ sub end_element_default
     $self->prev_attr->{$current} = $self->{'_currenttext'};
   }
   elsif ( ($idsrc && $idsrc->isa($self->nodetype)) || (!$idsrc && $prev eq 'clade') ) {
-    $self->annotateNode( $current, $idsrc);
-  }
-  elsif ($prev eq 'events') {
-  }
-  elsif ($prev eq 'annotation') {
+    # pop from current annotation
+    my $ac = pop (@{$self->{'_currentannotation'}});
+    $self->debug("popping ac $ac from _currentannotation");
+    $self->annotateNode( $current, $ac);
+    # additional setups for compatibility with NodeI
+    my $tnode;
+    if ($idsrc) {
+      $tnode = $idsrc;
+    }
+    else {
+      $tnode = $self->{'_currentitems'}->[-1];
+    }
+    if ($current eq 'name') {
+      $tnode->id($self->{'_currenttext'});
+    }
+    elsif ($current eq 'branch_length') {
+      $tnode->branch_length($self->{'_currenttext'});
+    }
+    elsif ($current eq 'confidence') {
+      if ((exists $self->current_attr->{'type'}) && ($self->current_attr->{'type'} eq 'bootstrap')) {
+        $tnode->bootstrap($self->{'_currenttext'}); # this needs to change (adds 'B' annotation)
+      }
+    }
   }
   elsif ($prev eq 'sequence_relation') {
   }
   elsif ($prev eq 'clade_relation') {
   }
   else {
-
+    my $ac = pop (@{$self->{'_currentannotation'}});
+    $self->debug("popping ac $ac from _currentannotation");
+    if ($ac) {
+      $self->annotateNode( $current, $ac);
+    }
   }
 }
 
@@ -506,7 +573,7 @@ sub end_element_default
 =head2 annotateNode
 
  Title   : annotateNode
- Usage   : $->annotateNode( $element, $idsrc)
+ Usage   : $->annotateNode( $element, $ac)
  Function: 
  Returns : none 
  Args    : none
@@ -515,26 +582,9 @@ sub end_element_default
 
 sub annotateNode 
 {
-  my ($self, $element,  $idsrc) = @_;
-
-  # find node to annotate
-  my $tnode;
-  if ($idsrc) {
-    $tnode = $idsrc;
-  }
-  else {
-    $tnode = $self->{'_currentitems'}->[-1];
-  }
-
-  # build new annotation
-  my $newann;
-  # if no attribute then add Annotation::SimpleValue
-  if ( ! scalar keys %{$self->current_attr} ) {
-    $newann = new Bio::Annotation::SimpleValue( -value => $self->{'_currenttext'} ); 
-  }
+  my ($self, $element,  $newac) = @_;
   # if attribute exists then add Annotation::Collection
-  else {
-    $newann = Bio::Annotation::Collection->new();
+  if ( scalar keys %{$self->current_attr} ) {
     my $newattr = Bio::Annotation::Collection->new();
     foreach my $tag (keys %{$self->current_attr}) {
       my $sv = new Bio::Annotation::SimpleValue(
@@ -542,28 +592,15 @@ sub annotateNode
                );
       $newattr->add_Annotation($tag, $sv);
     }
-    $newann->add_Annotation('_attr', $newattr);
+    $newac->add_Annotation('_attr', $newattr);
+    $self->debug("adding ac ",  $newattr, " to $newac");
+  }
+  # if text exists add text as SimpleValue
+  if ( $self->{'_currenttext'} ) {
     my $newvalue = new Bio::Annotation::SimpleValue( -value => $self->{'_currenttext'} );
-    $newann->add_Annotation('_text', $newvalue);
+    $newac->add_Annotation('_text', $newvalue);
+    $self->debug("adding text ",  $self->{'_currenttext'}, " to $newac");
   }
-  # add to current node annotation
-  my $ac = $tnode->annotation();
-  $ac->add_Annotation($element, $newann);
-
-
-  # additional setups for compatibility with NodeI
-  if ($element eq 'name') {
-    $tnode->id($self->{'_currenttext'});
-  }
-  elsif ($element eq 'branch_length') {
-    $tnode->branch_length($self->{'_currenttext'});
-  }
-  elsif ($element eq 'confidence') {
-    if ((exists $self->current_attr->{'type'}) && ($self->current_attr->{'type'} eq 'bootstrap')) {
-      $tnode->bootstrap($self->{'_currenttext'}); # this needs to change (adds 'B' annotation)
-    }
-  }
-
 }
 
 
