@@ -189,7 +189,7 @@ sub _store {
   my $count = 0;
   for my $obj (@_) {
     my $primary_id = $obj->primary_id;
-    $primary_id    = @{$data} unless defined $primary_id;
+    $primary_id    = 1 + @{$data} unless $primary_id;  # primary id of 0 causes a downstream bug
     $self->data->[$primary_id] = $obj;
     $obj->primary_id($primary_id);
     $self->{_index}{ids}{$primary_id} = undef if $indexed;

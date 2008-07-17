@@ -513,7 +513,7 @@ sub handle_feature { #overridden
   }
 
   # Current feature is the same as a feature that was loaded earlier
-  elsif (my $id = $self->{load_data}{Helper}->local2global($feature_id)) {
+  elsif (defined(my $id = $self->{load_data}{Helper}->local2global($feature_id))) {
     $old_feat = $self->fetch($feature_id)
       or $self->warn(<<END);
 ID=$feature_id has been used more than once, but it cannot be found in the database.
