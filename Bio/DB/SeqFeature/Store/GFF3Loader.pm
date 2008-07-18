@@ -449,8 +449,8 @@ sub handle_feature { #overridden
 
   my $has_loadid  = defined $reserved->{ID}[0];
 
-  my $feature_id  = $reserved->{ID}[0] || $ld->{TemporaryID}++;
-  my @parent_ids  = @{$reserved->{Parent}} if $reserved->{Parent};
+  my $feature_id  = defined $reserved->{ID}[0] ? $reserved->{ID}[0] : $ld->{TemporaryID}++;
+  my @parent_ids  = @{$reserved->{Parent}}     if defined $reserved->{Parent};
 
   my $index_it = $ld->{IndexSubfeatures};
   if (exists $reserved->{Index} || exists $reserved->{index}) {
@@ -472,7 +472,8 @@ sub handle_feature { #overridden
   # $unreserved->{ID}= $reserved->{ID}     if exists $reserved->{ID}; 
 
   # TEMPORARY HACKS TO SIMPLIFY DEBUGGING
-  $feature_id ||= ''; $name ||= '';  # prevent uninit variable warnings
+  $feature_id = '' unless defined $feature_id;
+  $name       = '' unless defined $name;  # prevent uninit variable warnings
   push @{$unreserved->{Alias}},$feature_id  if $has_loadid && $feature_id ne $name;
   $unreserved->{parent_id} = \@parent_ids   if @parent_ids;
 

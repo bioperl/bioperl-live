@@ -278,10 +278,15 @@ track objects created.
 
 sub render {
   my $self = shift;
-  my $panel = shift;
-  my ($position_to_insert,$options,
-      $max_bump,$max_label,
-      $selector,$range) = @_;
+  my $panel = shift;         # 8 arguments
+  my ($position_to_insert,
+      $options,
+      $max_bump,
+      $max_label,
+      $selector,
+      $range,
+      $override_options
+      ) = @_;
   my %seenit;
 
   $panel ||= $self->new_panel;
@@ -309,21 +314,21 @@ sub render {
 
   my @base_config = $self->style('general');
 
-  my @override = ();
+  my @pack_options = ();
   if ($options && ref $options eq 'HASH') {
-    @override = %$options;
+    @pack_options = %$options;
   } else {
     $options ||= 0;
     if ($options == 1) {  # compact
-      push @override,(-bump => 0,-label=>0);
+      push @pack_options,(-bump => 0,-label=>0);
     } elsif ($options == 2) { #expanded
-      push @override,(-bump=>1);
+      push @pack_options,(-bump=>1);
     } elsif ($options == 3) { #expand and label
-      push @override,(-bump=>1,-label=>1);
+      push @pack_options,(-bump=>1,-label=>1);
     } elsif ($options == 4) { #hyperexpand
-      push @override,(-bump => 2);
+      push @pack_options,(-bump => 2);
     } elsif ($options == 5) { #hyperexpand and label
-      push @override,(-bump => 2,-label=>1);
+      push @pack_options,(-bump => 2,-label=>1);
     }
   }
 
@@ -351,6 +356,8 @@ sub render {
       push @auto_bump,(-bump  => @$features < $max_bump)  if defined $max_bump;
       push @auto_bump,(-label => @$features < $max_label) if defined $max_label;
 
+      my @more_arguments = $override_options ? @$override_options : ();
+
       my @config = ( -glyph   => 'segments',         # really generic
 		     -bgcolor => $COLORS[$color++ % @COLORS],
 		     -label   => 1,
@@ -359,7 +366,8 @@ sub render {
 		     @auto_bump,
 		     @base_config,         # global
 		     $self->style($label),  # feature-specific
-		     @override,
+		     @pack_options,
+		     @more_arguments,
 	  );
 
       if (defined($position_to_insert)) {
@@ -732,6 +740,26 @@ sub setting {
      $self->_setting(@_);
   }
 }
+
+=head2 fallback_setting()
+
+  $value = $browser->setting(gene => 'fgcolor');
+
+Tries to find the setting for designated label (e.g. "gene") first. If
+this fails, looks in [TRACK DEFAULTS]. If this fails, looks in [GENERAL].
+
+=cut
+
+sub fallback_setting {
+  my $self = shift;
+  my ($label,$option) = @_;
+  for my $key ($label,'TRACK DEFAULTS','GENERAL') {
+    my $value = $self->setting($key,$option);
+    return $value if defined $value;
+  }
+  return;
+}
+
 
 # return configuration information
 # arguments are ($type) => returns tags for type
