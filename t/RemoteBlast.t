@@ -67,11 +67,11 @@ while ( my @rids = $remote_blast->each_rid ) {
 ok(1, 'Tabular BLAST');
 
 my $remote_blast2 = Bio::Tools::Run::RemoteBlast->new
-  ('-verbose'    => $v,
+  ('-verbose'    => 1,
 	'-prog'       => $prog,
 	'-data'       => $db,
 	'-readmethod' => 'blasttable',
-	'-expect'     => $e_val,     
+	'-expect'     => $e_val,
   );
 $remote_blast2->submit_parameter('ENTREZ_QUERY', 'Escherichia coli[ORGN]');
 
@@ -95,15 +95,16 @@ while ( my @rids = $remote_blast2->each_rid ) {
 		} else { 
 			ok(1);
 			$remote_blast2->remove_rid($rid);
-			my $result = $rc->next_result;
 			my $count = 0;
-			while( my $hit = $result->next_hit ) {		
-				$count++;
-				next unless ( $v > 0);
-				print "sbjct name is ", $hit->name, "\n";
-				while( my $hsp = $hit->next_hsp ) {
-					print "score is ", $hsp->score, "\n";
-				} 
+			while (my $result = $rc->next_result) {
+				while( my $hit = $result->next_hit ) {		
+					$count++;
+					next unless ( $v > 0);
+					print "sbjct name is ", $hit->name, "\n";
+					while( my $hsp = $hit->next_hsp ) {
+						print "score is ", $hsp->score, "\n";
+					} 
+				}
 			}
 			is($count, 3);
 		}
