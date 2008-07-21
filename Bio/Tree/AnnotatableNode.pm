@@ -73,6 +73,7 @@ package Bio::Tree::AnnotatableNode;
 use strict;
 
 use Bio::Annotation::Collection;
+use Bio::Seq;
 use base qw(Bio::Tree::Node Bio::AnnotatableI);
 
 =head2 new
@@ -97,7 +98,6 @@ sub new {
   if ($to_string_cb) {
     $self->to_string_callback($to_string_cb);
   }
-  $self->debug("new AnnotatableNode\n");
   return $self;
 }
 
@@ -123,8 +123,8 @@ sub DESTROY {
 =head2 annotation
 
  Title   : annotation
- Usage   : $ann = $seq->annotation or 
-           $seq->annotation($ann)
+ Usage   : $ann = $node->annotation or 
+           $node->annotation($ann)
  Function: Gets or sets the annotation
  Returns : Bio::AnnotationCollectionI object
  Args    : None or Bio::AnnotationCollectionI object
@@ -301,6 +301,38 @@ sub to_string {
   my ($self) = @_;
   my $cb = $self->to_string_callback();
   return $cb->($self);
+}
+
+=head1 Methods for accessing Bio::Seq
+
+=cut
+
+=head2 sequence
+
+ Title   : sequence
+ Usage   : $ann = $node->sequence or 
+           $node->sequence($seq)
+ Function: Gets or sets the sequence
+ Returns : Bio::SeqI object
+ Args    : None or Bio::SeqI object
+See L<Bio::SeqI> and L<Bio::Seq>
+for more information
+
+=cut
+
+sub sequence
+{
+  my ($self,$value) = @_;
+  if( defined $value ) {
+    $self->throw("object of class ".ref($value)." does not implement ".
+        "Bio::SeqI. Too bad.")      unless $value->isa("Bio::SeqI");
+    $self->{'_sequence'} = $value;
+  } 
+  #elsif( ! defined $self->{'_sequence'}) 
+  #{
+  #  $self->{'_sequence'} = Bio::Seq->new();
+  #}
+  return $self->{'_sequence'};
 }
 
 1;

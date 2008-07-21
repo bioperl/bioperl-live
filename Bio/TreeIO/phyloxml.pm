@@ -78,7 +78,6 @@ sub _initialize
   $args{-treetype} ||= 'Bio::Tree::Tree';
   $args{-nodetype} ||= 'Bio::Tree::AnnotatableNode';
   $self->SUPER::_initialize(%args);
-  $self->debug("Creating obj phyloxml\n");
 
   # phyloxml TreeIO does not use SAX, 
   # therefore no need to attach EventHandler
@@ -90,7 +89,6 @@ sub _initialize
                         );
   } 
 
-  $self->debug("libxml version: ", XML::LibXML::LIBXML_VERSION(), "\n");
   $self->treetype($args{-treetype});
   $self->nodetype($args{-nodetype});
   $self->{'_lastitem'} = {}; # holds open items and the attribute hash
@@ -173,9 +171,10 @@ sub _write_tree_Helper
 {
   my ($self, $node, $str) = @_;     # this self is a Bio::Tree::phyloxml
   if (ref($node) ne 'Bio::Tree::AnnotatableNode') {
-    $self->throw( "node but be a Bio::Tree::AnnotatableNode" );
+    $self->throw( "node must be a Bio::Tree::AnnotatableNode" );
   }
   my $ac = $node->annotation;
+  my $seq = $node->sequence;
 
   # start <clade>
   $str .= '<clade';
@@ -195,6 +194,10 @@ sub _write_tree_Helper
 
   # print all annotations
   $str = print_annotation( $node, $str, $ac );
+  # print all sequences
+  if ($seq) {
+    $str = print_seq_annotation( $self, $str, $seq );
+  }
   
   $str .= "</clade>";
   return $str;
@@ -217,7 +220,6 @@ sub processNode
   my $reader = $self->{'_reader'};
   if ($reader->nodeType == XML_READER_TYPE_ELEMENT) 
   {
-    $self->debug("starting element: ",$reader->name, "\n");
     $self->{'_lastitem'}->{$reader->name}++;
     push @{$self->{'_lastitem'}->{'current'}}, { $reader->name=>{}};  # current holds current element and empty hash for its attributes
 
@@ -230,7 +232,6 @@ sub processNode
     }
     if ($reader->isEmptyElement) {
       # do procedures for XML_READER_TYPE_END_ELEMENT since element is complete
-      $self->debug("ending element: ",$reader->name, "\n");
       
       if (exists $self->{'_end_elements'}->{$reader->name}) {
         my $method = $self->{'_end_elements'}->{$reader->name};
@@ -245,13 +246,10 @@ sub processNode
   }
   if ($reader->nodeType == XML_READER_TYPE_TEXT)
   {
-    $self->debug($reader->value, "\n");
     $self->{'_currenttext'} = $reader->value;
   } 
   if ($reader->nodeType == XML_READER_TYPE_END_ELEMENT)
   {
-    $self->debug("ending element: ",$reader->name, "\n");
-    
     if (exists $self->{'_end_elements'}->{$reader->name}) {
       my $method = $self->{'_end_elements'}->{$reader->name};
       $self->$method();
@@ -318,7 +316,6 @@ sub element_phylogeny
   $self->{'_levelcnt'} = [];
   $self->{'_id_link'} = {};
 
-  $self->debug("Starting phylogeny\n");
   $self->processAttribute($self->current_attr);
   return; 
 }
@@ -326,7 +323,6 @@ sub element_phylogeny
 sub end_element_phylogeny
 {
   my ($self) = @_;
-  $self->debug("Ending phylogeny: nodes in stack is", scalar @{$self->{'_currentnodes'}}, "\n");
 
   my $root;
   # if there is more than one node in _currentnodes
@@ -349,7 +345,6 @@ sub end_element_phylogeny
     $root = shift @{$self->{'_currentnodes'}};
   }
 
-  $self->debug($self->current_attr, %{$self->current_attr});
   my $tree = $self->treetype->new(
     -verbose => $self->verbose, 
     -root => $root,
@@ -379,7 +374,6 @@ sub element_clade
   my $reader = $self->{'_reader'};
   my %data = ();    # doesn't use current attribute in order to save memory 
   $self->processAttribute(\%data);
-  $self->debug("attr: ", %data);
   # create a node (Annotatable Node)
   my $tnode = $self->nodetype->new( -verbose => $self->verbose, 
                                     -id => '', 
@@ -406,13 +400,10 @@ sub end_element_clade
   my $curcount = scalar @{$self->{'_currentnodes'}};
   my $level   = $reader->depth() - 2;
   my $childcnt = $self->{'_levelcnt'}->[$level+1] || 0; 
-  $self->debug ("adding node: nodes in stack is $curcount, treelevel: $level, childcnt: $childcnt\n");
 
   # pop from temporary list
   my $tnode = pop @{$self->{'_currentitems'}};
-  $self->debug( "new node will be ".$tnode->to_string."\n");
   if ( $childcnt > 0) {
-    $self->debug(join(',', map { $_->to_string } @{$self->{'_currentnodes'}}). "\n");
     if( $childcnt > $curcount) 
     {
       $self->throw("something wrong with event construction treelevel ".
@@ -421,7 +412,6 @@ sub end_element_clade
     }
     my @childnodes = splice( @{$self->{'_currentnodes'}}, - $childcnt);
     for ( @childnodes ) {
-      $self->debug("adding desc: " . $_->to_string . "\n");
       $tnode->add_Descendent($_);
     }
     $self->{'_levelcnt'}->[$level+1] = 0;
@@ -451,49 +441,46 @@ sub element_annotation
   
   # read attributes of element
   $self->processAttribute($self->current_attr);
-  $self->debug( "attr: ", %{$self->current_attr}, "\n");
 
   # check idref
-  my $idref = $self->current_attr->{'id_ref'};
-  my $idsrc;
-  if ($idref) { $idsrc = $self->{'_id_link'}->{$idref}; }
+  my @idrefs = ();
+  map { if ($_ =~ /^id_ref/) {push @idrefs, $self->current_attr->{$_};} } keys %{$self->current_attr};
+ 
+  my @srcbyidrefs = ();
+  foreach my $idref (@idrefs) { push @srcbyidrefs, $self->{'_id_link'}->{$idref}; }
 
-  # exception when id_src is defined but id_ref is not, or vice versa.
-  if ($idref xor $idsrc) {
-    $self->throw("id_ref and id_src incompatible: $idref, $idsrc");
+  # exception when id_ref is defined but id_src is not, or vice versa.
+  if (@idrefs xor @srcbyidrefs) {
+    $self->throw("id_ref and id_src incompatible: @idrefs, @srcbyidrefs");
   }
-  $self->debug("starting $current within $prev\n");
   
-
+  # we are annotating a Node
   # set _currentannotation
-  if ( ($idsrc && $idsrc->isa($self->nodetype)) || (!$idsrc && $prev eq 'clade') ) {
-    # find node to annotate
-    my $tnode;
-    if ($idsrc) {
-      $tnode = $idsrc;
-    }
-    else {
-      $tnode = $self->{'_currentitems'}->[-1];
-    }
-    my $ac = $tnode->annotation();
-    # add the new anncollection with the current element as key
-    my $newann = Bio::Annotation::Collection->new();
-    $ac->add_Annotation($current, $newann);
-    $self->debug("adding annotation -$current:$newann to $ac");
-    # push to current annotation
-    push (@{$self->{'_currentannotation'}}, $newann);
-    $self->debug("pushing ac ",$newann," to _currentannotation");
+  if ( (@srcbyidrefs && $srcbyidrefs[0]->isa($self->nodetype)) || ((@srcbyidrefs == 0) && $prev eq 'clade') ) {
+      # find node to annotate
+      my $tnode;
+      if (@srcbyidrefs) {
+        $tnode = $srcbyidrefs[0];
+      }
+      else {
+        $tnode = $self->{'_currentitems'}->[-1];
+      }
+      my $ac = $tnode->annotation();
+      # add the new anncollection with the current element as key
+      my $newann = Bio::Annotation::Collection->new();
+      $ac->add_Annotation($current, $newann);
+      # push to current annotation
+      push (@{$self->{'_currentannotation'}}, $newann);
   }
+
+  # we are already within an annotation
   else {
     my $ac = $self->{'_currentannotation'}->[-1];
-    $self->debug("currentann: $ac");
     if ($ac) {
-        # add the new anncollection with the current element as key
-        my $newann = Bio::Annotation::Collection->new();
-        $ac->add_Annotation($current, $newann);
-        $self->debug("adding new ac $newann with key $current to ",$ac,"\n");
-        push (@{$self->{'_currentannotation'}}, $newann);
-        $self->debug("pushing ac ",$newann," to _currentannotation");
+      # add the new anncollection with the current element as key
+      my $newann = Bio::Annotation::Collection->new();
+      $ac->add_Annotation($current, $newann);
+      push (@{$self->{'_currentannotation'}}, $newann);
     }
   }
 }
@@ -515,54 +502,92 @@ sub end_element_annotation
   my $reader = $self->{'_reader'};
   my $current = $self->current_element();
   my $prev = $self->prev_element();
-  my $idref = $self->current_attr->{'id_ref'};
-  delete $self->current_attr->{'id_ref'};
-  my $idsrc;
-  if ($idref) { $idsrc = $self->{'_id_link'}->{$idref}; }
+  
+  # check idsrc
+  my $idsrc = $self->current_attr->{'id_source'};
+
+  # check idref
+  my @idrefs = ();
+  map { if ($_ =~ /^id_ref/) {
+    push @idrefs, $self->current_attr->{$_};
+    delete $self->current_attr->{$_};
+  } } keys %{$self->current_attr};
+ 
+  my @srcbyidrefs = ();
+  foreach my $idref (@idrefs) { push @srcbyidrefs, $self->{'_id_link'}->{$idref}; }
 
   # exception when id_src is defined but id_ref is not, or vice versa.
-  if ($idref xor $idsrc) {
-    $self->throw("id_ref and id_src incompatible: $idref, $idsrc");
+  if (@idrefs xor @srcbyidrefs) {
+    $self->throw("id_ref and id_src incompatible: @idrefs, @srcbyidrefs");
   }
 
-  if (!$idsrc && $prev eq 'phylogeny') {
-    # annotate Tree via tree attribute
-    $self->debug("annotating Tree ",$self->prev_attr);
-    $self->debug("with $current, ", $self->{'_currenttext'});
-    $self->prev_attr->{$current} = $self->{'_currenttext'};
-  }
-  elsif ( ($idsrc && $idsrc->isa($self->nodetype)) || (!$idsrc && $prev eq 'clade') ) {
-    # pop from current annotation
-    my $ac = pop (@{$self->{'_currentannotation'}});
-    $self->debug("popping ac $ac from _currentannotation");
-    $self->annotateNode( $current, $ac);
-    # additional setups for compatibility with NodeI
-    my $tnode;
-    if ($idsrc) {
-      $tnode = $idsrc;
-    }
-    else {
-      $tnode = $self->{'_currentitems'}->[-1];
-    }
-    if ($current eq 'name') {
-      $tnode->id($self->{'_currenttext'});
-    }
-    elsif ($current eq 'branch_length') {
-      $tnode->branch_length($self->{'_currenttext'});
-    }
-    elsif ($current eq 'confidence') {
-      if ((exists $self->current_attr->{'type'}) && ($self->current_attr->{'type'} eq 'bootstrap')) {
-        $tnode->bootstrap($self->{'_currenttext'}); # this needs to change (adds 'B' annotation)
+  # we are annotating a Tree
+  if ( $prev eq 'phylogeny') {
+    if (@srcbyidrefs) {
+      # if annotation regards nodes
+      if ($srcbyidrefs[0]->isa($self->nodetype))  {
+        # goto case node
+      }
+      # if annotation regards sequences
+      elsif ($srcbyidrefs[0]->isa("Bio::SeqI"))  {
+        # add code to implement sequence_relation among Bio::SeqI's
       }
     }
+    else {
+      # annotate Tree via tree attribute
+      $self->prev_attr->{$current} = $self->{'_currenttext'};
+    }
   }
-  elsif ($prev eq 'sequence_relation') {
+  # we are annotating a Node
+  if (( @srcbyidrefs && $srcbyidrefs[0]->isa($self->nodetype)) || ((@srcbyidrefs == 0) && $prev eq 'clade'))  
+  {
+    # pop from current annotation
+    my $ac = pop (@{$self->{'_currentannotation'}});
+    $self->annotateNode( $current, $ac);
+    # additional setups for compatibility with NodeI
+      my $tnode;
+      if (@srcbyidrefs) {
+        $tnode = $srcbyidrefs[0];
+      }
+      else {
+        $tnode = $self->{'_currentitems'}->[-1];
+      }
+      if ($current eq 'name') {
+        $tnode->id($self->{'_currenttext'});
+      }
+      elsif ($current eq 'branch_length') {
+        $tnode->branch_length($self->{'_currenttext'});
+      }
+      elsif ($current eq 'confidence') {
+        if ((exists $self->current_attr->{'type'}) && ($self->current_attr->{'type'} eq 'bootstrap')) {
+          $tnode->bootstrap($self->{'_currenttext'}); # this needs to change (adds 'B' annotation)
+        }
+      }
+      elsif ($current eq 'sequence') {
+        my $str = '';
+        if (my @molseq = $ac->get_Annotations('mol_seq')) {
+          my @strac = $molseq[0]->get_Annotations('_text');
+          $str = $strac[0]->value();
+        }
+        my $newseq = Bio::Seq->new(-seq => $str, -annotation=>$ac);
+        $tnode->sequence($newseq);
+        $ac->remove_Annotations('mol_seq');
+        $tnode->annotation->remove_Annotations($current);
+        # if there is id_source add sequence to _id_link
+        if ($idsrc) {
+          $self->{'_id_link'}->{$idsrc} = $newseq;
+        }
+      }
+      elsif ($idsrc && $current eq 'taxonomy') {
+        # if there is id_source add sequence to _id_link
+        $self->{'_id_link'}->{$idsrc} = $ac;
+      }
   }
   elsif ($prev eq 'clade_relation') {
   }
+  # we are within an Annotation
   else {
     my $ac = pop (@{$self->{'_currentannotation'}});
-    $self->debug("popping ac $ac from _currentannotation");
     if ($ac) {
       $self->annotateNode( $current, $ac);
     }
@@ -593,13 +618,11 @@ sub annotateNode
       $newattr->add_Annotation($tag, $sv);
     }
     $newac->add_Annotation('_attr', $newattr);
-    $self->debug("adding ac ",  $newattr, " to $newac");
   }
   # if text exists add text as SimpleValue
   if ( $self->{'_currenttext'} ) {
     my $newvalue = new Bio::Annotation::SimpleValue( -value => $self->{'_currenttext'} );
     $newac->add_Annotation('_text', $newvalue);
-    $self->debug("adding text ",  $self->{'_currenttext'}, " to $newac");
   }
 }
 
@@ -805,6 +828,7 @@ sub node_to_string
                        # not a Bio::TreeIO::phyloxml
   my $str = '';
   my $ac = $self->annotation;
+  my $seq = $self->sequence;
 
   # start <clade>
   $str .= '<clade';
@@ -819,6 +843,10 @@ sub node_to_string
 
   # print all annotations
   $str = print_annotation( $self, $str, $ac );
+  # print all sequences
+  if ($seq) {
+    $str = print_seq_annotation( $self, $str, $seq );
+  }
   
   $str .= '</clade>';
   return $str;
@@ -876,6 +904,52 @@ sub print_attr
   }
   return $str;
 } 
+
+sub print_seq_annotation 
+{
+  my ($self, $str, $seq) = @_; 
+  
+  $str .= "<sequence>";
+  my @all_anns = $seq->annotation->get_Annotations();
+  foreach my $ann (@all_anns) {
+    my $key = $ann->tagname;
+    if ($key eq '_attr') { next; } # attributes are already printed in the previous level 
+    if  (ref($ann) eq 'Bio::Annotation::SimpleValue') 
+    {
+      if ($key eq '_text') {
+        $str .= $ann->value;
+      }
+      else {
+        $str .= "<$key>";
+        $str .= $ann->value;
+        $str .= "</$key>";
+      }
+    }
+    elsif (ref($ann) eq 'Bio::Annotation::Collection') 
+    {
+      my @attrs = $ann->get_Annotations('_attr');
+      if (@attrs) {   # if there is a attribute collection
+        $str .= "<$key";
+        $str = print_attr($self, $str, $attrs[0]);
+        $str .= ">";
+      }
+      else {
+        $str .= "<$key>";
+      }
+      $str = print_annotation($self, $str, $ann);
+      $str .= "</$key>";
+    }
+  }
+  # print mol_seq 
+  if ($seq->seq()) {
+    $str .= "<mol_seq>";
+    $str .= $seq->seq();
+    $str .= "</mol_seq>";
+  }
+
+  $str .= "</sequence>";
+  return $str;
+}
 
 1;
 
