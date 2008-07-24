@@ -130,7 +130,13 @@ sub _label {
   # figure it out ourselves
   my $f = $self->feature;
 
-  return $f->display_name if $f->can('display_name');
+  if ($f->can('display_name') && (my $name = $f->display_name)) {
+      return $name;
+  }
+
+  if ($f->can('attributes') && (my @aliases = $f->attributes('Alias'))) {
+      return $aliases[0];
+  }
   return $f->info         if $f->can('info');   # deprecated API
   return $f->seq_id       if $f->can('seq_id');
   return eval{$f->primary_tag};

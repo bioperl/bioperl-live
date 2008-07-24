@@ -594,7 +594,6 @@ sub gff3_string {
   # score, Name, ID, Parent, etc), which happens UNLESS
   # $dontPropogateParentAttrs is passed.
 
-
   my @rsf = $recurse ? $self->sub_SeqFeature : ();
   my $recurseSubfeatureWithSameType =
     # will be TRUE if we're going to recurse and at least 1 subfeature
@@ -602,7 +601,9 @@ sub gff3_string {
     sub {($_->type eq $self->type) &&  return 1 for @rsf ; 0 }->();
   my $typeIsSameAsParent = $_parent && ($_parent->type eq $self->type);
   my $hparentOrSelf = ($typeIsSameAsParent && ! $dontPropogateParentAttrs) ? $_parent : $self;
-  my $group = ($typeIsSameAsParent && ! $dontPropogateParentAttrs)  ? $_parentGroup : $self->format_attributes($_parent);
+  my $group = ($typeIsSameAsParent && ! $dontPropogateParentAttrs)  
+      ? $_parentGroup 
+      : $self->format_attributes($_parent);
 
   my @gff3 = $recurseSubfeatureWithSameType && ! $preserveHomegenousParent ? () :
     do {

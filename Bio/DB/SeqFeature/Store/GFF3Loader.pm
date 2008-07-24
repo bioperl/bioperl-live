@@ -474,7 +474,7 @@ sub handle_feature { #overridden
   # TEMPORARY HACKS TO SIMPLIFY DEBUGGING
   $feature_id = '' unless defined $feature_id;
   $name       = '' unless defined $name;  # prevent uninit variable warnings
-  push @{$unreserved->{Alias}},$feature_id  if $has_loadid && $feature_id ne $name;
+  # push @{$unreserved->{Alias}},$feature_id  if $has_loadid && $feature_id ne $name;
   $unreserved->{parent_id} = \@parent_ids   if @parent_ids;
 
   # POSSIBLY A PERMANENT HACK -- TARGETS BECOME ALIASES
