@@ -149,6 +149,8 @@ sub next_seq {
 	    $in_dna = 0;
 	}
 	if ($entry =~ /^END_SEQUENCE/) {
+              $entry = $self->_readline();
+              last;
 	}
 	if (!$in_dna) { next;  }
 	$entry =~ /(\S+)\s+(\S+)(?:\s+(\S+))?/;

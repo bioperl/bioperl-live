@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 12);
+    test_begin(-tests => 18);
 	
 	use_ok('Bio::SeqIO');
 }
@@ -104,3 +104,58 @@ if ($DEBUG){
     my $trunc = $phd->trunc(10,20);
     print ">TRUNC 10,20\n",$trunc->seq,"\n>qual\n@{$trunc->qual}\n>trace\n@{$trunc->trace}\n";
 }
+
+# Multiple seqs in one file
+
+$in_phd  = Bio::SeqIO->new('-file' => test_input_file('multi.phd'),
+			      '-format'  => 'phd',
+			      '-verbose' => $DEBUG);
+
+@qual = qq(9 9 15 17 17 22 22 25 25 22 22);
+@trace = qq(98 105 119 128 143 148 162 173 185 197 202);
+
+$seq = $in_phd->next_seq;
+is($seq->subseq(10,20),'tctcgagggta','$seq->subseq()');
+@seq_qual =$seq->subqual_text(10,20);
+is_deeply(\@seq_qual,\@qual,'$seq->subqual_tex()');
+@seq_trace = $seq->subtrace_text(10,20);
+is_deeply(\@seq_trace,\@trace,'$seq->subqual_tex()');
+
+@qual = qq(11 9 6 6 9 19 20 32 34 34 39);
+@trace = qq(98 104 122 128 140 147 159 167 178 190 200);
+
+$seq = $in_phd->next_seq;
+is($seq->subseq(10,20),'gcctgcaggta','$seq->subseq()');
+@seq_qual =$seq->subqual_text(10,20);
+is_deeply(\@seq_qual,\@qual,'$seq->subqual_tex()');
+@seq_trace = $seq->subtrace_text(10,20);
+is_deeply(\@seq_trace,\@trace,'$seq->subqual_tex()');
+
+#if($DEBUG) {
+#    print "\nDefault header ... \n\n";
+#    use Bio::Seq::Quality;
+#    my $seq = Bio::Seq::Quality->new('-seq' => 'GAATTC');
+#    $out_phd->_fh(\*STDOUT);
+#    $out_phd->write_header($seq);
+#    print "Complete output\n\n";
+#    $out_phd->write_seq($seq);
+#}
+
+##print("Testing the header manipulation\n") if($DEBUG);
+#is($phd->chromat_file(),'ML4924R','$phd->chromat_file()');
+#$phd->chromat_file('ML4924R.esd');
+#is($phd->chromat_file(), 'ML4924R.esd','$phd->chromat_file()');
+#$phd->touch();
+#my $localtime = localtime();
+#is($phd->time, "$localtime");
+#if ($DEBUG){
+#    print "Testing the sequence ...\n";
+#    print ">",$phd->id," ",$phd->desc,"\n",$phd->seq,"\n";
+#    my $revcom = $phd->revcom;
+#    print ">revcom\n",$revcom->seq,"\n";
+#    print ">revcom_qual at 6\n",$revcom->qualat(6),"\n";
+#    print ">revcom_trace at 6 !!\n",$revcom->trace_index_at(6),"\n";
+#    my $trunc = $phd->trunc(10,20);
+#    print ">TRUNC 10,20\n",$trunc->seq,"\n>qual\n@{$trunc->qual}\n>trace\n@{$trunc->trace}\n";
+#}
+#
