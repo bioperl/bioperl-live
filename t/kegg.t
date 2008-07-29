@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 14);
+    test_begin(-tests => 15);
 	
 	use_ok('Bio::SeqIO');
 }
@@ -47,3 +47,5 @@ is( ($kegg->annotation->get_Annotations('position'))[0]->text, '1:join(26813..26
             54759,56523..56617,57185..57291,58104..58220,58427..58490,59255..
             59343,59706..59776,60133..60227,60312..60410,60811..60879,61308..
             61386,62491..62611,63434..63440)');
+
+is($kegg->species->common_name , 'H.sapiens');

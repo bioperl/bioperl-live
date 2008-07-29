@@ -190,13 +190,14 @@ sub new {
     
     my @common_names;
     if ($commonnames) {
-        $self->throw("-common_names takes only an array reference") unless ref($commonnames) eq 'ARRAY';
+        $self->throw("-common_names takes only an array reference") unless $commonnames
+            && ref($commonnames) eq 'ARRAY';
         @common_names = @{$commonnames};
-        if ($commonname) {
-            my %c_names = map { $_ => 1 } @common_names;
-            unless (exists $c_names{$commonname}) {
-                unshift(@common_names, $commonname);
-            }
+    }
+    if ($commonname) {
+        my %c_names = map { $_ => 1 } @common_names;
+        unless (exists $c_names{$commonname}) {
+            unshift(@common_names, $commonname);
         }
     }
     @common_names > 0 && $self->common_names(@common_names);

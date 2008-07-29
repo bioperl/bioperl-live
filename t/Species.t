@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 20);
+    test_begin(-tests => 21);
 	
 	use_ok('Bio::Species');
 	use_ok('Bio::DB::Taxonomy');
@@ -36,11 +36,13 @@ ok my $species = Bio::Species->new( -classification =>
 				[ qw( sapiens Homo Hominidae
 				      Catarrhini Primates Eutheria 
 				      Mammalia Vertebrata
-				      Chordata Metazoa Eukaryota) ] );
+				      Chordata Metazoa Eukaryota) ],
+				-common_name => 'human');
 is $species->binomial, 'Homo sapiens';
 is $species->species, 'sapiens';
 is $species->genus, 'Homo';
-
+# test -common_name parameter, bug 2549
+is $species->common_name, 'human';
 
 # A Bio::Species isa Bio::Taxon, so test some things from there briefly
 is $species->scientific_name, 'sapiens';
