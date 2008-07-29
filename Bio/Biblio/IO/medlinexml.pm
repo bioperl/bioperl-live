@@ -460,7 +460,7 @@ sub handle_start {
     if ($e eq 'QualifierName' or
 	$e eq 'SubHeading') {
 	my %p = ();
-	$p{'majorTopic'} = "Y" if $attrs{'MajorTopicYN'};
+	$p{'majorTopic'} = $attrs{'MajorTopicYN'} if $attrs{'MajorTopicYN'};
 	push (@ObjectStack, \%p);
     }
 
