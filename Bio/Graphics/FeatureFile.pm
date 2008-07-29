@@ -345,7 +345,6 @@ sub render {
 					       -start   => $range->start,
 					       -end     => $range->end
 					      );
-
       next unless @features;  # suppress tracks for features that don't appear
 
       # fix up funky group hack

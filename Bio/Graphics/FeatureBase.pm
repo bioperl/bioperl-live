@@ -646,10 +646,10 @@ sub introns {
 sub has_tag { exists shift->{attributes}{shift()} }
 
 sub escape {
-  my $self    = shift;
+  my $self     = shift;
   my $toencode = shift;
   $toencode    =~ s/([^a-zA-Z0-9_. :?^*\(\)\[\]@!+-])/uc sprintf("%%%02x",ord($1))/eg;
-#  $toencode    =~ tr/ /+/;  # not needed in GFF3
+  $toencode    =~ tr/ /+/;  # not needed in GFF3
   $toencode;
 }
 
