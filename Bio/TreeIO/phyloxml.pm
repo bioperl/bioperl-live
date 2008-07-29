@@ -101,11 +101,15 @@ sub _init_func
   my %start_elements = (
     'phylogeny' => \&element_phylogeny,
     'clade' => \&element_clade, 
+    'sequence_relation' => \&element_relation, 
+    'clade_relation' => \&element_relation, 
   );
   $self->{'_start_elements'} = \%start_elements;
   my %end_elements = (
     'phylogeny' => \&end_element_phylogeny,
     'clade' => \&end_element_clade, 
+    'sequence_relation' => \&end_element_relation, 
+    'clade_relation' => \&end_element_relation, 
   );
   $self->{'_end_elements'} = \%end_elements;
 }
@@ -153,12 +157,31 @@ sub next_tree
 
 =cut
 
-sub write_tree{
+sub write_tree
+{
   my ($self, @trees) = @_;
   foreach my $tree (@trees) {
+    my $clade_rel = $self->_translate_relation($tree, 'clade_relation');
+    my $seq_rel = $self->_translate_relation($tree, 'sequence_relation');
     my $root = $tree->get_root_node;
-    $self->_print("<phylogeny>");
+    $self->_print("<phylogeny");
+    my @tags = $tree->get_all_tags();
+    my $attr_str = '';
+    foreach my $tag (@tags) {
+      my @values = $tree->get_tag_values($tag);
+      foreach (@values) {
+        $attr_str .= " ".$tag."=\"".$_."\"";
+      }
+    }
+    $self->_print($attr_str); 
+    $self->_print(">");
     $self->_print($self->_write_tree_Helper($root));
+    if ($clade_rel) {
+      $self->_print($clade_rel);
+    }
+    if ($seq_rel) {
+      $self->_print($seq_rel);
+    }
     $self->_print("</phylogeny>");
     $self->_print("\n");
   }
@@ -203,6 +226,36 @@ sub _write_tree_Helper
   return $str;
 }
 
+sub _translate_relation {
+  my ($self, $tree, $tag) = @_;
+  my $str = ''; 
+  if ($tree->has_tag($tag)) {
+    $str .= "<$tag";
+    my @values = $tree->get_tag_values($tag);
+    foreach my $val (@values) {
+      my %pairs = (map { split('=', $_); } split(' ',$val));
+      my $confidence = $pairs{'confidence'};
+      if ($confidence) {
+        delete $pairs{'confidence'};
+      }
+      foreach (keys %pairs) {
+        $str .= " ".$_."=\"".$pairs{$_}."\"";
+      }
+      if ($confidence) {
+        $str .= "><confidence>$confidence</confidence>";
+        $str .= "</$tag>";
+      }
+      else {
+        $str .= "/>";
+      }
+
+    }
+    $tree->remove_tag($tag);
+  }
+  return $str;
+}
+
+
 
 =head2 processNode
 
@@ -228,7 +281,7 @@ sub processNode
       $self->$method();
     }
     else {
-      $self->element_annotation();
+      $self->element_default();
     }
     if ($reader->isEmptyElement) {
       # do procedures for XML_READER_TYPE_END_ELEMENT since element is complete
@@ -238,7 +291,7 @@ sub processNode
         $self->$method();
       }
       else {
-        $self->end_element_annotation();
+        $self->end_element_default();
       }
       $self->{'_lastitem'}->{ $reader->name }--;
       pop @{$self->{'_lastitem'}->{'current'}};
@@ -255,7 +308,7 @@ sub processNode
       $self->$method();
     }
     else {
-      $self->end_element_annotation();
+      $self->end_element_default();
     }
     $self->{'_lastitem'}->{ $reader->name }--;
     pop @{$self->{'_lastitem'}->{'current'}};
@@ -421,18 +474,54 @@ sub end_element_clade
 
 }
 
+=head2 element_relation
 
-=head2 element_annotation
+ Title   : element_relation
+ Usage   : $->element_relation
+ Function: clade relation & sequence relation
+ Returns : none 
+ Args    : none
 
- Title   : element_annotation
- Usage   : $->element_annotation
+=cut
+
+sub element_relation
+{
+  my ($self) = @_;
+  $self->processAttribute($self->current_attr);
+}
+
+=head2 end_element_relation
+
+ Title   : end_element_relation
+ Usage   : $->end_element_relation
  Function: 
  Returns : none 
  Args    : none
 
 =cut
 
-sub element_annotation
+sub end_element_relation
+{
+  my ($self) = @_;
+  my $valuestr = '';
+  foreach (keys %{$self->current_attr}) {
+    $valuestr .= $_."=".$self->current_attr->{$_}." ";
+  }
+  $self->prev_attr->{$self->current_element} = $valuestr;
+}
+
+
+=head2 element_default
+
+ Title   : element_default
+ Usage   : $->element_default
+ Function: 
+ Returns : none 
+ Args    : none
+
+=cut
+
+sub element_default
 {
   my ($self) = @_;
   my $reader = $self->{'_reader'};
@@ -443,24 +532,26 @@ sub element_annotation
   $self->processAttribute($self->current_attr);
 
   # check idref
-  my @idrefs = ();
-  map { if ($_ =~ /^id_ref/) {push @idrefs, $self->current_attr->{$_};} } keys %{$self->current_attr};
+  my $idref = '';
+  if (exists $self->current_attr->{'id_ref'}) { 
+    $idref = $self->current_attr->{'id_ref'}; 
+  }
  
-  my @srcbyidrefs = ();
-  foreach my $idref (@idrefs) { push @srcbyidrefs, $self->{'_id_link'}->{$idref}; }
+  my $srcbyidref = '';
+  $srcbyidref = $self->{'_id_link'}->{$idref};
 
   # exception when id_ref is defined but id_src is not, or vice versa.
-  if (@idrefs xor @srcbyidrefs) {
-    $self->throw("id_ref and id_src incompatible: @idrefs, @srcbyidrefs");
+  if ($idref xor $srcbyidref) {
+    $self->throw("id_ref and id_src incompatible: $idref, $srcbyidref");
   }
   
   # we are annotating a Node
   # set _currentannotation
-  if ( (@srcbyidrefs && $srcbyidrefs[0]->isa($self->nodetype)) || ((@srcbyidrefs == 0) && $prev eq 'clade') ) {
+  if ( ($srcbyidref && $srcbyidref->isa($self->nodetype)) || ((!$srcbyidref) && $prev eq 'clade') ) {
       # find node to annotate
       my $tnode;
-      if (@srcbyidrefs) {
-        $tnode = $srcbyidrefs[0];
+      if ($srcbyidref) {
+        $tnode = $srcbyidref;
       }
       else {
         $tnode = $self->{'_currentitems'}->[-1];
@@ -472,7 +563,6 @@ sub element_annotation
       # push to current annotation
       push (@{$self->{'_currentannotation'}}, $newann);
   }
-
   # we are already within an annotation
   else {
     my $ac = $self->{'_currentannotation'}->[-1];
@@ -486,17 +576,17 @@ sub element_annotation
 }
 
 
-=head2 end_element_annotation
+=head2 end_element_default
 
- Title   : end_element_annotation
- Usage   : $->end_element_annotation
+ Title   : end_element_default
+ Usage   : $->end_element_default
  Function: 
  Returns : none 
  Args    : none
 
 =cut
 
-sub end_element_annotation
+sub end_element_default
 {
   my ($self) = @_;
   my $reader = $self->{'_reader'};
@@ -507,47 +597,39 @@ sub end_element_annotation
   my $idsrc = $self->current_attr->{'id_source'};
 
   # check idref
-  my @idrefs = ();
-  map { if ($_ =~ /^id_ref/) {
-    push @idrefs, $self->current_attr->{$_};
-    delete $self->current_attr->{$_};
-  } } keys %{$self->current_attr};
- 
-  my @srcbyidrefs = ();
-  foreach my $idref (@idrefs) { push @srcbyidrefs, $self->{'_id_link'}->{$idref}; }
-
-  # exception when id_src is defined but id_ref is not, or vice versa.
-  if (@idrefs xor @srcbyidrefs) {
-    $self->throw("id_ref and id_src incompatible: @idrefs, @srcbyidrefs");
+  my $idref = '';
+  if (exists $self->current_attr->{'id_ref'}) { 
+    $idref = $self->current_attr->{'id_ref'}; 
+    delete $self->current_attr->{'id_ref'};
   }
+ 
+  my $srcbyidref = '';
+  $srcbyidref = $self->{'_id_link'}->{$idref};
 
+  # exception when id_ref is defined but id_src is not, or vice versa.
+  if ($idref xor $srcbyidref) {
+    $self->throw("id_ref and id_src incompatible: $idref, $srcbyidref");
+  }
+ 
   # we are annotating a Tree
-  if ( $prev eq 'phylogeny') {
-    if (@srcbyidrefs) {
-      # if annotation regards nodes
-      if ($srcbyidrefs[0]->isa($self->nodetype))  {
-        # goto case node
-      }
-      # if annotation regards sequences
-      elsif ($srcbyidrefs[0]->isa("Bio::SeqI"))  {
-        # add code to implement sequence_relation among Bio::SeqI's
-      }
-    }
-    else {
-      # annotate Tree via tree attribute
-      $self->prev_attr->{$current} = $self->{'_currenttext'};
-    }
+  if ((!$srcbyidref) && $prev eq 'phylogeny') {
+    # annotate Tree via tree attribute
+    $self->prev_attr->{$current} = $self->{'_currenttext'};
+  }
+  # we are within sequence_relation or clade_relation
+  elsif ($prev eq 'clade_relation' || $prev eq 'sequence_relation') {
+    $self->prev_attr->{$current} = $self->{'_currenttext'};
   }
   # we are annotating a Node
-  if (( @srcbyidrefs && $srcbyidrefs[0]->isa($self->nodetype)) || ((@srcbyidrefs == 0) && $prev eq 'clade'))  
+  if (( $srcbyidref && $srcbyidref->isa($self->nodetype)) || ((!$srcbyidref) && $prev eq 'clade'))  
   {
     # pop from current annotation
     my $ac = pop (@{$self->{'_currentannotation'}});
     $self->annotateNode( $current, $ac);
     # additional setups for compatibility with NodeI
       my $tnode;
-      if (@srcbyidrefs) {
-        $tnode = $srcbyidrefs[0];
+      if ($srcbyidref) {
+        $tnode = $srcbyidref;
       }
       else {
         $tnode = $self->{'_currentitems'}->[-1];

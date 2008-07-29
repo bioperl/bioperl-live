@@ -217,7 +217,7 @@
             <name>C</name>
          </clade>
       </clade>
-      <clade_relation id_ref_0="b" id_ref_1="c" type="network_connection"/>
+      <clade_relation id_ref_0="b" id_ref_1="c" type="network_connection"><confidence type="bootstrap">89</confidence></clade_relation>
    </phylogeny>
    <phylogeny rooted="true">
       <name>same example, using property elements to indicate a "depth" value for marine organisms</name>
