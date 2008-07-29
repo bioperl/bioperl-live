@@ -649,7 +649,7 @@ sub escape {
   my $self     = shift;
   my $toencode = shift;
   $toencode    =~ s/([^a-zA-Z0-9_. :?^*\(\)\[\]@!+-])/uc sprintf("%%%02x",ord($1))/eg;
-  $toencode    =~ tr/ /+/;  # not needed in GFF3
+  $toencode    =~ tr/ /+/;  # prettier representation than %20?
   $toencode;
 }
 
