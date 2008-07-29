@@ -626,7 +626,6 @@ but doesn't change pluses into spaces and ignores unicode escapes.
 sub unescape {
     my $self = shift;
     my $todecode = shift;
-    $todecode =~ tr/+/ /;
     $todecode =~ s/%([0-9a-fA-F]{2})/chr hex($1)/ge;
     return $todecode;
 }
