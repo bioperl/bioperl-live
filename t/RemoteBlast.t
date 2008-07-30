@@ -67,7 +67,7 @@ while ( my @rids = $remote_blast->each_rid ) {
 ok(1, 'Tabular BLAST');
 
 my $remote_blast2 = Bio::Tools::Run::RemoteBlast->new
-  ('-verbose'    => 1,
+  ('-verbose'    => $v,
 	'-prog'       => $prog,
 	'-data'       => $db,
 	'-readmethod' => 'blasttable',
@@ -119,7 +119,7 @@ SKIP: {
 		'-readmethod' => 'xml',
 		'-expect'     => $e_val,
 	);
-	$remote_blast->submit_parameter('ENTREZ_QUERY', 
+	$remote_blastxml->submit_parameter('ENTREZ_QUERY', 
 									'Escherichia coli[ORGN]');
 	
 	$remote_blastxml->retrieve_parameter('FORMAT_TYPE', 'XML');

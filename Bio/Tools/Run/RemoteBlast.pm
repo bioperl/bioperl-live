@@ -519,7 +519,7 @@ sub submit_blast {
 		    	$self->debug("RID: $1\n");
 		    	$self->add_rid($1);
 		    	last;
-			}	
+			}
 	    }
 	    if( $count == 0 ) {
             $self->warn("req was ". $request->as_string() . "\n");
@@ -561,36 +561,39 @@ sub retrieve_blast {
     if( $response->is_success ) {
     	if( $self->verbose > 0 ) {
             #print content of reply if verbose > 1
-            open(my $TMP, $tempfile) or $self->throw("cannot open $tempfile");
-            while(<$TMP>) { print $_; }
-            
+            open(my $DEBUG, $tempfile) || $self->throw("cannot open $tempfile");
+            while(<$DEBUG>) { print $_; }
+            close $DEBUG;
     	}
-        ## if proper reply 
         open(my $TMP, $tempfile) || $self->throw("Error opening $tempfile");
+        ## if proper reply 
         my $waiting = 1;
         my $s = 0;
         my $got_content = 0;
-        while(<$TMP>) {
-            if (/./) {
+        my $is_tabular = 0;
+        while(my $line = <$TMP>) {
+            if ($line =~ /./) {
                 $got_content = 1;
             }
-            if( /<\?xml version=/ ) { # xml time
+            if($line =~ /<\?xml version=/ ) { # xml time
                 $waiting = 0;
+                $self->readmethod('blastxml');
                 last;
             }
-            if( /QBlastInfoBegin/i ) {
+            if($line =~ /QBlastInfoBegin/i ) {
                 $s = 1;
             } elsif( $s ) {
-                if( /Status=(WAITING|ERROR|READY)/i ) {
-                    if( $1 eq 'WAITING' ) {
+                if($line =~ /Status=(WAITING|ERROR|READY)/i ) {
+                    my $status = $1;
+                    if( $status eq 'WAITING' ) {
                         $waiting = 1;
-                    } elsif( $1 eq 'ERROR' ) {
+                    } elsif( $status eq 'ERROR' ) {
                         close($TMP);
                         open(my $ERR, "<$tempfile") or $self->throw("cannot open file $tempfile");
                         $self->warn(join("", <$ERR>));
                         close $ERR;
                         return -1;
-                    } elsif( $1 eq 'READY' ) {
+                    } elsif( $status eq 'READY' ) {
                         $waiting = 0;
                         last;
                     } else {
@@ -598,10 +601,7 @@ sub retrieve_blast {
                         last;
                     }
                 }
-            } elsif( /^(?:#\s)?[\w-]*?BLAST\w+/ ) {
-                $waiting = 0;
-                last;
-            } elsif ( /ERROR/i ) {
+            } elsif ($line =~ /ERROR/i ) {
                 close($TMP);
                 open(my $ERR, "<$tempfile") or $self->throw("cannot open file $tempfile");
                 $self->warn(join("", <$ERR>));
@@ -614,32 +614,12 @@ sub retrieve_blast {
         if( ! $waiting ) {
             my $blastobj;
             my $mthd = $self->readmethod;
-            if( $mthd =~ /blasttable/i ) {
-            # pre-process
-            my ($fh2,$tempfile2) = $self->tempfile();
-            open(my $TMP,$tempfile) || $self->throw($!);
-            my $s = 0;
-            while(<$TMP>) {
-                if(/\<PRE\>/i ) {
-                $s = 1;
-                } elsif( /\<\/PRE\>/i ) {
-                $s = 0;
-                last;
-                } elsif( $s ) {
-                print $fh2 $_;
-                }
-            } 
-            close($fh2);
-            $blastobj = Bio::SearchIO->new( -file => $tempfile2,
-                               -format => 'blasttable');
-            } elsif( $mthd =~ /xml/ ) {
+            $mthd = ($mthd =~ /blasttable/i) ? 'blasttable' :
+                    ($mthd =~ /xml/i)        ? 'blastxml'   :
+                    ($mthd =~ /pull/i)       ? 'blast_pull' :
+                    'blast';
             $blastobj = Bio::SearchIO->new( -file => $tempfile,
-                               -format => 'blastxml');
-            } else {
-            $blastobj = Bio::SearchIO->new( -file => $tempfile,
-                               -format => 'blast');
-            } 
-            
+                               -format => $mthd);                    
             ## store filename in object ##
             $self->file($tempfile);
             return $blastobj;

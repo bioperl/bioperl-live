@@ -162,6 +162,8 @@ sub next_result{
    local $_;
    my ($alg, $ver);
    while( defined ($_ = $self->_readline) ) {
+      # skip any HTML cruft (e.g. from RemoteBlast)
+      next if (m{^<\/?PRE>});
 	  # WU-BLAST -mformat 3 only
 	  if(m{^#\s((?:\S+?)?BLAST[NPX])\s(\d+\.\d+.+\d{4}\])}) {
             ($alg, $ver) = ($1, $2);
@@ -178,7 +180,7 @@ sub next_result{
             ($alg, $ver) = ($1, $2);
             next;
        }
-       next if /^\#/ || /^\s+$/;
+       next if /^#/ || /^\s*$/;
 
 	  my @fields = split;
 	  my ($qname,$hname, $percent_id, $hsp_len, $mismatches,$gapsm,
@@ -191,7 +193,11 @@ sub next_result{
 	  if (@fields == 12) {
 	      ($qname,$hname, $percent_id, $hsp_len, $mismatches,$gapsm,
 	       $qstart,$qend,$hstart,$hend,$evalue,$bits) = @fields;
-	  }
+	  # NCBI -m8 and -m9, v 2.2.18+
+	  } elsif (@fields == 13) {
+          ($qname, $hname, $percent_id, $percent_pos, $hsp_len, $mismatches, $gapsm,
+	       $qstart,$qend,$hstart,$hend,$evalue,$bits) = @fields;
+      }
 	  # WU-BLAST -mformat 2 and 3
 	  elsif ((@fields == 22) or (@fields == 24)) {
 	      ($qname,$hname,$evalue,$num_scores, $bits, $raw_score, $hsp_len,
@@ -201,7 +207,9 @@ sub next_result{
 	      # we need total gaps in the alignment
 	      $gapsm=$qgaps+$sgaps;
 	  }
-	  else {}
+	  else {
+            $self->throw("Unknown BLAST tabular format");
+      }
 
        # Remember Jim's code is 0 based
        if( defined $lastquery && 
@@ -252,7 +260,7 @@ sub next_result{
        $self->element({'Name' => 'Hsp_identity',
 		       'Data' => $identical});
        $self->element({'Name' => 'Hsp_positive',
-		       'Data' => $identical});
+		       'Data' => $positives});
        $self->element({'Name' => 'Hsp_gaps',
 		       'Data' => $gapsm});
        $self->element({'Name' => 'Hsp_query-from',

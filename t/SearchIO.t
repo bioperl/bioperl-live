@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 1782);
+    test_begin(-tests => 1794);
 	
 	use_ok('Bio::SearchIO');
 	use_ok('Bio::SearchIO::Writer::HitTableWriter');
@@ -2036,9 +2036,7 @@ $hit = $result->next_hit;
 is($hit->name,'gi|10040111|emb|AL390796.6|AL390796');
 
 # test blasttable output
-my @eqset = qw( 
-		
-		c200-vs-yeast.BLASTN.m9);
+my @eqset = qw( c200-vs-yeast.BLASTN.m9);
 $searchio = Bio::SearchIO->new(-file => test_input_file('c200-vs-yeast.BLASTN'),
 			      -format => 'blast');
 $result = $searchio->next_result;
@@ -2374,6 +2372,31 @@ while(my $res = $searchio->next_result) {
     is($res->query_length, 22);
     is($res->algorithm, 'FASTN');
 }
+
+# BLAST 2.2.18+ tabular output (has 13 columns instead of 12)
+$file = test_input_file('2008.blasttable');
+
+$searchio = Bio::SearchIO->new(-format => 'blasttable',
+							  -file   => $file);
+
+while(my $res = $searchio->next_result) {
+    is($res->query_name, 'gi|1786183|gb|AAC73113.1|');
+    is($res->algorithm, 'BLASTP');
+    is($res->algorithm_version, '2.2.18+');
+    my $hit = $res->next_hit;
+    is($hit->name, 'gi|34395933|sp|P00561.2|AK1H_ECOLI');
+    $hit = $res->next_hit;
+    my $hsp = $hit->next_hsp;
+    is($hsp->bits, 331);
+    is($hsp->evalue, '2e-91');
+    is($hsp->start('hit'), 16);
+    is($hsp->end('hit'), 805);
+    is($hsp->start('query'), 5);
+    is($hsp->end('query'), 812);
+    is($hsp->length, 821);
+    is($hsp->gaps, 14);
+}
+
 
 # some utilities
 # a utility function for comparing result objects
