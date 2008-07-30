@@ -34,10 +34,10 @@ eval { $obj->throw('Testing throw') };
 like $@, qr/Testing throw/, 'throw() verbose(1)'; # 'verbose(1) throw did not work properly' . $@;
 
 my @stack = $obj->stack_trace();
-ok scalar @stack == 2, 'stack_trace()';
+is scalar @stack, 2, 'stack_trace()';
 
 my $verbobj = Bio::Root::IO->new(-verbose=>1,-strict=>1);
-ok $verbobj->verbose() == 1, 'set verbosity to 1';
+is $verbobj->verbose(), 1, 'set verbosity to 1';
 
 ok $obj->verbose(-1);
 
@@ -54,10 +54,10 @@ ok $file;
 #test with files
 
 ok my $rio = Bio::Root::IO->new(-file=>$TESTINFILE);
-ok $rio->mode eq 'r', 'filename, read';
+is $rio->mode, 'r', 'filename, read';
 
 ok my $wio = Bio::Root::IO->new(-file=>">$file");
-ok $wio->mode eq 'w', 'filename, write';
+is $wio->mode, 'w', 'filename, write';
 
 # test with handles
 
@@ -65,10 +65,10 @@ ok open(my $I, $TESTINFILE);
 ok open(my $O, '>', $file);
 
 ok $rio = Bio::Root::IO->new(-fh=>$I);
-ok $rio->mode eq 'r', 'handle, read';
+is $rio->mode, 'r', 'handle, read';
 
 ok $wio = Bio::Root::IO->new(-fh=>$O);
-ok $wio->mode eq 'w', 'handle, write';
+is $wio->mode, 'w', 'handle, write';
 
 ##############################################
 # tests _pushback for multi-line buffering
@@ -84,9 +84,9 @@ my $line3 = $rio->_readline;
 my $line4 = $rio->_readline;
 my $line5 = $rio->_readline;
 
-ok $line1 eq $line3;
-ok $line2 eq $line4;
-ok $line5 ne $line4;
+is $line1, $line3;
+is $line2, $line4;
+isnt $line5, $line4;
 
 ok close($I);
 ok close($O);
