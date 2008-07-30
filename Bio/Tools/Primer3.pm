@@ -377,10 +377,6 @@ sub _separate {
 		next if (${$self->{'input_options'}}{$key}); # don't process it if it is an input key
 
 		my $location; # the number of the primer pair
-		elsif (uc($key) eq "SEQUENCE") {
-		    # Add seqobject if not present, since it is checked for by Bio::Tools::Primer3->next_primer()
-		    $self->{'seqobject'}=Bio::Seq->new(-seq=>$args{$key}) if not defined($self->{'seqobject'});
-		}
 		# names will have values like
 		# PRIMER_RIGHT_SEQUENCE, PRIMER_RIGHT_2_SEQUENCE, PRIMER_PRODUCT_SIZE, and
 		# PRIMER_PRODUCT_SIZE_3 hence we need to find and remove the number
