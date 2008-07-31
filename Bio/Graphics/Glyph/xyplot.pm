@@ -260,6 +260,8 @@ sub _draw_boxes {
 
     my ($x1,$y1,$x2,$y2) = $part->calculate_boundaries($left,$top);
     next unless defined $part->{_y_position};
+    # prevent boxes from being less than 1 pixel
+    $x2 = $x1+1 if $x2-$x1 < 1;
     if ($part->{_y_position} < $midpoint) {
       $self->filled_box($gd,$x1,$part->{_y_position},$x2,$y_origin,$color,$color,$lw);
     } else {
