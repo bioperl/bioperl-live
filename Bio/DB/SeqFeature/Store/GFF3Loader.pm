@@ -441,6 +441,10 @@ sub handle_feature { #overridden
   my @columns = map {$_ eq '.' ? undef : $_ } split /\t/,$gff_line;
   return unless @columns >= 8;
 
+  if (@columns > 9) { #oops, split too much due to whitespace
+      $columns[8] = join(' ',@columns[8..$#columns]);
+  }
+
   my ($refname,$source,$method,$start,$end, $score,$strand,$phase,$attributes) = @columns;
   $strand = $Strandedness{$strand||0};
   my ($reserved,$unreserved) = $attributes ? $self->parse_attributes($attributes) : ();

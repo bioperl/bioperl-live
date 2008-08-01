@@ -125,6 +125,11 @@ use Bio::DB::SeqFeature::Store;
 # default colors for unconfigured features
 my @COLORS = qw(cyan blue red yellow green wheat turquoise orange);
 
+# package variable which holds the limited set of libraries accessible
+# from within the Safe::World container (please see the description of
+# the -safe_world option).
+my $SAFE_LIB;
+
 use constant WIDTH => 600;
 use constant MAX_REMAP => 100;
 
@@ -153,6 +158,10 @@ object.  Arguments are -name=E<gt>value pairs:
 
    -text           Read data from a text scalar.
 
+   -allow_whitespace If true, relax GFF2 and GFF3 parsing rules to allow
+                   columns to be delimited by whitespace rather than
+                   tabs.
+
    -map_coords     Coderef containing a subroutine to use for remapping
                    all coordinates.
 
@@ -163,6 +172,18 @@ object.  Arguments are -name=E<gt>value pairs:
    -safe           Indicates that the contents of this file is trusted.
                    Any option value that begins with the string "sub {"
                    or \&subname will be evaluated as a code reference.
+
+   -safe_world     If the -safe option is not set, and -safe_world
+                   is set to a true value, then Bio::Graphics::FeatureFile
+                   will evalute "sub {}" options in a L<Safe::World>
+                   environment with minimum permissions. Subroutines
+                   will be able to access and interrogate 
+                   Bio::DB::SeqFeature objects and perform basic Perl
+                   operations, but will have no ability to load or
+                   access other modules, to access the file system,
+                   or to make system calls. This feature depends on
+                   availability of the CPAN-installable L<Safe::World>
+                   module.
 
 The -file and -text arguments are mutually exclusive, and -file will
 supersede the other if both are present.
@@ -208,12 +229,15 @@ sub new {
 		    stat     => [],
 		    refs     => {},
                     safe     => undef,
+		    safe_world => undef,
 		   },$class;
   $self->{coordinate_mapper} = $args{-map_coords} 
     if exists $args{-map_coords} && ref($args{-map_coords}) eq 'CODE';
 
-  $self->smart_features($args{-smart_features}) if exists $args{-smart_features};
-  $self->{safe}              = $args{-safe}     if exists $args{-safe};
+  $self->smart_features($args{-smart_features})   if exists $args{-smart_features};
+  $self->{safe}              = $args{-safe}       if exists $args{-safe};
+  $self->safe_world(1)                            if $args{-safe_world};
+  $self->allow_whitespace(1)                      if $args{-allow_whitespace};
 
   # call with
   #   -file
@@ -602,7 +626,8 @@ sub _make_loader {
 			    -map_coords=>$self->{coordinate_mapper},
 			    -index_subfeatures => 0,
 	);
-    eval {$loader->allow_whitespace(1)};  # gff2 and gff3 loaders allow this
+    eval {$loader->allow_whitespace(1)} 
+        if $self->allow_whitespace;  # gff2 and gff3 loaders allow this
     $loader->start_load() if $loader;
     return $loader;
 }
@@ -611,6 +636,24 @@ sub db {
     my $self = shift;
     return $self->{db} ||= Bio::DB::SeqFeature::Store->new(-adaptor=>'memory',
 							   -write  => 1);
+}
+
+=over 4
+
+=item $flat = $features-E<gt>allow_whitespace([$new_flag])
+
+If true, then GFF3 and GFF2 parsing is relaxed to allow whitespace to
+delimit the columns. Default is false.
+
+=back
+
+=cut
+
+sub allow_whitespace {
+    my $self = shift;
+    my $d    = $self->{allow_whitespace};
+    $self->{allow_whitespace} = shift if $@;
+    $d;
 }
 
 =over 4
@@ -703,7 +746,12 @@ sub finished {
   delete $self->{features};
 }
 
-sub DESTROY { shift->finished(@_) }
+sub DESTROY { 
+    my $self = shift;
+    $self->finished(@_);
+    $self->{safe_context}->unlink_all_worlds
+	if $self->{safe_context};
+}
 
 =over 4
 
@@ -734,9 +782,12 @@ sub setting {
     $self->{config}->{$_[0]}{$_[1]} = $_[2];
   }
   if ($self->safe) {
-     $self->code_setting(@_);
-  } else {
-     $self->_setting(@_);
+      $self->code_setting(@_);
+  } elsif ($self->safe_world) {
+      $self->safe_setting(@_);
+  }
+  else {
+      $self->_setting(@_);
   }
 }
 
@@ -803,6 +854,7 @@ sub code_setting {
     my $coderef         = eval $codestring;
     $self->_callback_complain($section,$option) if $@;
     $self->set($section,$option,$coderef);
+    $self->set_callback_source($section,$option,$setting);
     return $coderef;
   }
   elsif ($setting =~ /^sub\s*(\(\$\$\))*\s*\{/) {
@@ -810,6 +862,7 @@ sub code_setting {
     my $coderef         = eval "package $package; $setting";
     $self->_callback_complain($section,$option) if $@;
     $self->set($section,$option,$coderef);
+    $self->set_callback_source($section,$option,$setting);
     return $coderef;
   } else {
     return $setting;
@@ -820,6 +873,69 @@ sub _callback_complain {
   my $self    = shift;
   my ($section,$option) = @_;
   carp "An error occurred while evaluating the callback at section='$section', option='$option':\n   => $@";
+}
+
+=over 4
+
+=item $value = $features-E<gt>safe_setting($stanza=E<gt>$option);
+
+This works like code_setting() except that it evaluates anonymous code
+references in a "Safe::World" compartment. This depends on the
+L<Safe::World> module being installed and the -safe_world option being
+set to true during object construction.
+
+=back
+
+=cut
+
+sub safe_setting {
+    my $self    = shift;
+
+    my $section = shift;
+    my $option  = shift;
+
+    my $setting = $self->_setting($section=>$option);
+    return unless defined $setting;
+    return $setting if ref($setting) eq 'CODE';
+
+
+    if ($setting =~ /^sub\s*(\(\$\$\))*\s*\{/ 
+	&& (my $context = $self->{safe_context})) {
+
+
+	# turn setting from an anonymous sub into a named
+	# sub in the context namespace
+
+	# create proper symbol name
+	my $subname = "${section}_${option}";
+	$subname    =~ tr/a-zA-Z0-9_//cd;
+	$subname    =~ s/^\d+//;
+
+	$setting    =~ s/^sub/sub $subname/;
+
+	my $success = $context->eval("$setting; 1");
+	$self->_callback_complain($section,$option) if $@;
+	return unless $success;
+
+	my $coderef = sub {
+
+	    # safe code only gets access to the methods in the 
+	    # generic glyph, not to fancy inherited glyphs
+	    # also, we don't let it mess with the glyph
+	    if ($_[-1]->isa('Bio::Graphics::Glyph')) {
+		my %newglyph = %{$_[-1]};
+		$_[-1]       = bless \%newglyph,'Bio::Graphics::Glyph'; # make generic
+	    }
+
+	    $context->call($subname,@_);
+	};
+	$self->set($section,$option,$coderef);
+	$self->set_callback_source($section,$option,$setting);
+	return $coderef;
+    }
+    else {
+	return $setting;
+    }
 }
 
 =over 4
@@ -844,6 +960,78 @@ sub safe {
    $d;
 }
 
+=over 4
+
+=item $flag = $features-E<gt>safe_world([$flag]);
+
+This gets or sets and "safe_world" flag.  If the safe_world flag is
+set, then values that begin with the string "sub {" will be evaluated
+in a "safe" compartment that gives minimal access to the system. This
+is not a panacea for security risks, so use with care.
+
+=back
+
+=cut
+
+sub safe_world {
+    my $self            = shift;
+    my $safe            = shift;
+
+    if ($safe && !$self->{safe_content}) {  # initialise the thing
+
+	eval "require Safe::World; 1";
+	unless (Safe::World->can('new')) {
+	    warn "The Safe::World module is not installed on this system. Can't use it to evaluate codesubs in a safe context";
+	    return;
+	}
+	
+	unless ($SAFE_LIB) { # lexical package variable
+	    $SAFE_LIB = Safe::World->new(sharepack => ['Bio::DB::SeqFeature',
+						       'Bio::Graphics::Feature',
+						       'Bio::Graphics::FeatureBase',
+						       'Bio::Graphics::Glyph',
+					 ])  or return;
+
+	    $SAFE_LIB->eval(<<END)           or return;
+use Bio::DB::SeqFeature;
+use Bio::Graphics::Glyph; 
+1;
+END
+	}
+
+	$self->{safe_context} = Safe::World->new(root => $self->base2package)        or return;
+	$self->{safe_context}->op_permit_only(':default');
+	$self->{safe_context}->link_world($SAFE_LIB);
+	
+	$self->{safe_world} = $safe;
+    }
+    return $self->{safe_world};
+}
+
+=over 4
+
+=item $features-E<gt>set_callback_source($type,$tag,$value)
+
+=item $features-E<gt>get_callback_source($type,$tag)
+
+These routines are used internally to get and set the source of a sub
+{} callback.
+
+=back
+
+=cut
+
+sub set_callback_source {
+    my $self = shift;
+    my ($type,$tag,$value) = @_;
+    $self->{source}{$type}{lc $tag} = $value;
+}
+
+sub get_callback_source {
+    my $self = shift;
+    my ($type,$tag) = @_;
+    $self->{source}{$type}{lc $tag};
+}
 
 =over 4
 
@@ -1204,7 +1392,13 @@ sub init_parse {
 
 sub finish_parse {
   my $s = shift;
-  $s->evaluate_coderefs if $s->safe;
+  if ($s->safe) {
+      $s->initialize_code;
+      $s->evaluate_coderefs;
+  } 
+  elsif ($s->safe_world) {
+      $s->evaluate_safecoderefs;
+  }
   $s->{loader}->finish_load() if $s->{loader};
   $s->{loader}       = undef;
   $s->{state}        = 'config';
@@ -1212,19 +1406,26 @@ sub finish_parse {
 
 sub evaluate_coderefs {
   my $self = shift;
-  $self->initialize_code();
   for my $s ($self->_setting) {
     for my $o ($self->_setting($s)) {
       $self->code_setting($s,$o);
     }
   }
 }
+sub evaluate_safecoderefs {
+  my $self = shift;
+  for my $s ($self->_setting) {
+    for my $o ($self->_setting($s)) {
+      $self->safe_setting($s,$o);
+    }
+  }
+}
 
 sub initialize_code {
   my $self       = shift;
-  my $package = $self->base2package;
-  my $init_code = $self->_setting(general => 'init_code') or return;
-  my $code = "package $package; $init_code; 1;";
+  my $package    = $self->base2package;
+  my $init_code  = $self->_setting(general => 'init_code') or return;
+  my $code       = "package $package; $init_code; 1;";
   eval $code;
   $self->_callback_complain(general=>'init_code') if $@;
 }
