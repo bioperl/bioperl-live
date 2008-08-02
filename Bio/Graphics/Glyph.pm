@@ -548,7 +548,8 @@ sub layout_sort {
     if (!$opt) {
        $sortfunc = sub { $a->left <=> $b->left };
     } elsif (ref $opt eq 'CODE') {
-      $self->throw('sort_order subroutines must use the $$ prototype') unless prototype($opt) eq '$$';
+      $self->throw('sort_order subroutines must use the $$ prototype') 
+	  unless prototype($opt) eq '$$';
       $sortfunc = $opt;
     } elsif ($opt =~ /^sub\s+\{/o) {
        $sortfunc = eval $opt;

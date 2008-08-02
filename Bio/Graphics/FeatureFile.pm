@@ -128,7 +128,7 @@ my @COLORS = qw(cyan blue red yellow green wheat turquoise orange);
 # package variable which holds the limited set of libraries accessible
 # from within the Safe::World container (please see the description of
 # the -safe_world option).
-my $SAFE_LIB;
+# my $SAFE_LIB;
 
 use constant WIDTH => 600;
 use constant MAX_REMAP => 100;
@@ -749,8 +749,8 @@ sub finished {
 sub DESTROY { 
     my $self = shift;
     $self->finished(@_);
-    $self->{safe_context}->unlink_all_worlds
-	if $self->{safe_context};
+#    $self->{safe_context}->unlink_all_worlds
+#	if $self->{safe_context};
 }
 
 =over 4
@@ -787,7 +787,8 @@ sub setting {
       $self->safe_setting(@_);
   }
   else {
-      $self->_setting(@_);
+      $self->{code_check}++ && $self->clean_code(); # not safe; clean coderefs
+      return $self->_setting(@_);
   }
 }
 
@@ -898,7 +899,6 @@ sub safe_setting {
     return unless defined $setting;
     return $setting if ref($setting) eq 'CODE';
 
-
     if ($setting =~ /^sub\s*(\(\$\$\))*\s*\{/ 
 	&& (my $context = $self->{safe_context})) {
 
@@ -911,24 +911,27 @@ sub safe_setting {
 	$subname    =~ tr/a-zA-Z0-9_//cd;
 	$subname    =~ s/^\d+//;
 
-	$setting    =~ s/^sub/sub $subname/;
+	my ($prototype) 
+	    = $setting =~ /^sub\s*\(\$\$\)/;
+
+	$setting    =~ s/^sub?.*?\{/sub $subname {/;
 
 	my $success = $context->eval("$setting; 1");
 	$self->_callback_complain($section,$option) if $@;
-	return unless $success;
+	unless ($success) {
+	    $self->set($section,$option,1);  # if call fails, it becomes a generic "true" value
+	    return 1;
+	}
 
-	my $coderef = sub {
-
-	    # safe code only gets access to the methods in the 
-	    # generic glyph, not to fancy inherited glyphs
-	    # also, we don't let it mess with the glyph
-	    if ($_[-1]->isa('Bio::Graphics::Glyph')) {
-		my %newglyph = %{$_[-1]};
-		$_[-1]       = bless \%newglyph,'Bio::Graphics::Glyph'; # make generic
-	    }
-
-	    $context->call($subname,@_);
-	};
+	my $coderef = $prototype 
+	    ?  sub ($$) { return $context->call($subname,$_[0],$_[1]) }
+	    :  sub {
+		if ($_[-1]->isa('Bio::Graphics::Glyph')) {
+		    my %newglyph = %{$_[-1]};
+		    $_[-1]       = bless \%newglyph,'Bio::Graphics::Glyph'; # make generic
+		}
+		$context->call($subname,@_);
+	    };
 	$self->set($section,$option,$coderef);
 	$self->set_callback_source($section,$option,$setting);
 	return $coderef;
@@ -985,15 +988,17 @@ sub safe_world {
 	    return;
 	}
 	
-	unless ($SAFE_LIB) { # lexical package variable
-	    $SAFE_LIB = Safe::World->new(sharepack => ['Bio::DB::SeqFeature',
-						       'Bio::Graphics::Feature',
-						       'Bio::Graphics::FeatureBase',
-						       'Bio::Graphics::Glyph',
-					 ])  or return;
+	unless ($self->{safe_lib}) {
+	    $self->{safe_lib} = Safe::World->new(sharepack => ['Bio::DB::SeqFeature',
+							       'Bio::Graphics::Feature',
+							       'Bio::Graphics::FeatureBase',
+							       'Bio::Graphics::Glyph',
+						 ])  or return;
 
-	    $SAFE_LIB->eval(<<END)           or return;
+	    $self->{safe_lib}->eval(<<END)           or return;
 use Bio::DB::SeqFeature;
+use Bio::Graphics::Feature;
+use Bio::Graphics::FeatureBase;
 use Bio::Graphics::Glyph; 
 1;
 END
@@ -1001,8 +1006,7 @@ END
 
 	$self->{safe_context} = Safe::World->new(root => $self->base2package)        or return;
 	$self->{safe_context}->op_permit_only(':default');
-	$self->{safe_context}->link_world($SAFE_LIB);
-	
+	$self->{safe_context}->link_world($self->{safe_lib});
 	$self->{safe_world} = $safe;
     }
     return $self->{safe_world};
@@ -1417,6 +1421,16 @@ sub evaluate_safecoderefs {
   for my $s ($self->_setting) {
     for my $o ($self->_setting($s)) {
       $self->safe_setting($s,$o);
+    }
+  }
+}
+
+sub clean_code {
+  my $self = shift;
+  for my $s ($self->_setting) {
+    for my $o ($self->_setting($s)) {
+	$self->_setting($s,$o,1) if
+	    $self->_setting($s,$o) =~ /\Asub\s*{/;
     }
   }
 }
