@@ -144,7 +144,10 @@ compiled the bioperl-ext package.
 
 =item 1.
 
-Support IUPAC code for DNA sequence
+Basic support for IUPAC code for DNA sequence is now implemented. 
+X will mismatch any character. T will match U. For others, whenever
+there is a possibility for match, it is considered a full match, for
+example, W will match B.
 
 =item 2.
 
