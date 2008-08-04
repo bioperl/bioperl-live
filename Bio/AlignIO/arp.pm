@@ -98,7 +98,7 @@ sub next_aln {
         DATA:
         while ($sdflag) {
             $data =~ s{(?:^\s+|\s+$)}{};
-            my ($id, $score, $seq) = split m{\s+}, $data,2;
+            my ($id, $score, $seq) = split m{\s+}, $data,3;
             # what to do with the score???
             my $temp;
             ($temp = $data) =~ s{[^A-Z]}{}gi;
@@ -110,7 +110,6 @@ sub next_aln {
                          -id          => $id,
                          );
             $aln->add_seq($newseq);
-            $self->debug("Reading $id\n");
             $data = $self->_readline;
             if ($data =~ /^\s*}\s*$/) {
                 last SCAN;
