@@ -164,6 +164,7 @@ BEGIN {
 	'COMPOSITION_BASED_STATISTICS'	=> '(yes|no)',	# yes, no
 	'DATABASE' 	=>  '.*',
 	'DB_GENETIC_CODE' => '([1-9]|1[1-6]|2(1|2))',   # 1..16,21,22
+    'DISPLAY_SORT'   => '\d',
 	'ENDPOINTS'	=> '(yes|no)',			# yes,no
 	'ENTREZ_QUERY'	=> '.*',
 	'EXPECT'	=> '\d+(\.\d+)?([eE]-\d+)?',	# Positive double
@@ -191,6 +192,7 @@ BEGIN {
 	'SEARCHSP_EFF'	=> '\d+',			# Positive integer
 	'SERVICE'	=> '(plain|p[sh]i|(rps|mega)blast)',
 					# plain,psi,phi,rpsblast,megablast
+    'SHORT_QUERY_ADJUST' => '(true|false)',
 	'THRESHOLD'	=> '-?\d+',			# Integer
 	'UNGAPPED_ALIGNMENT' => '(yes|no)',		# yes, no
 	'WORD_SIZE'	=> '\d+'			# Positive integer
