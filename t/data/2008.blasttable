@@ -1,0 +1,15 @@
+# BLASTP 2.2.18+
+# Iteration: 0
+# Query:  gi|1786183|gb|AAC73113.1| (AE000111) aspartokinase I, homoserine dehydrogenase I [Escherichia coli]
+# RID: 8ZT9P56E015
+# Database: swissprot
+# Fields: query id, subject ids, % identity, % positives, alignment length, mismatches, gap opens, q. start, q. end, s. start, s. end, evalue, bit score
+# 3 hits found
+gi|1786183|gb|AAC73113.1|	gi|34395933|sp|P00561.2|AK1H_ECOLI	100.00	100.00	820	0	0	1	820	1	820	0.0	1567
+gi|1786183|gb|AAC73113.1|	gi|416596|sp|P00562.3|AK2H_ECOLI	30.09	49.94	821	530	14	5	812	16	805	2e-91	 331
+gi|1786183|gb|AAC73113.1|	gi|416597|sp|P08660.2|AK3_ECOLI	30.15	48.41	471	288	10	3	460	6	448	4e-47	 184
+
+
+
+
+
