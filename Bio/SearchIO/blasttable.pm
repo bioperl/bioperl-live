@@ -162,8 +162,6 @@ sub next_result{
    local $_;
    my ($alg, $ver);
    while( defined ($_ = $self->_readline) ) {
-      # skip any HTML cruft (e.g. from RemoteBlast)
-      next if (m{^<\/?PRE>});
 	  # WU-BLAST -mformat 3 only
 	  if(m{^#\s((?:\S+?)?BLAST[NPX])\s(\d+\.\d+.+\d{4}\])}) {
             ($alg, $ver) = ($1, $2);
@@ -183,6 +181,7 @@ sub next_result{
        next if /^#/ || /^\s*$/;
 
 	  my @fields = split;
+      next if @fields == 1;
 	  my ($qname,$hname, $percent_id, $hsp_len, $mismatches,$gapsm,
 	      $qstart,$qend,$hstart,$hend,$evalue,$bits);
 	  # WU-BLAST-specific
@@ -207,9 +206,6 @@ sub next_result{
 	      # we need total gaps in the alignment
 	      $gapsm=$qgaps+$sgaps;
 	  }
-	  else {
-            $self->throw("Unknown BLAST tabular format");
-      }
 
        # Remember Jim's code is 0 based
        if( defined $lastquery && 
