@@ -210,6 +210,8 @@ use strict;
 use Bio::SeqFeature::Collection;
 use Bio::Seq::PrimaryQual;
 
+use Scalar::Util qw(weaken);
+
 use base qw(Bio::Root::Root Bio::Align::AlignI);
 
 =head1 Object creator
@@ -304,8 +306,11 @@ sub assembly {
 
     $self->throw("Using non Bio::Assembly::Scaffold object when assign contig to assembly")
     if (defined $assembly && ! $assembly->isa("Bio::Assembly::Scaffold"));
+    # We create a circular reference to a Scaffold object. It is made weak
+    # to prevent memory leaks.
+    $self->{'_assembly'} = $assembly if (defined $assembly); 
+    weaken($self->{'_assembly'});
 
-    $self->{'_assembly'} = $assembly if (defined $assembly);
     return $self->{'_assembly'};
 }
 
@@ -2104,5 +2109,6 @@ sub _register_gaps {
 
     return scalar(@{$dbref});
 }
+
 
 1;

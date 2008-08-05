@@ -65,7 +65,6 @@ methods. Internal methods are usually preceded with a _
 package Bio::Assembly::Scaffold;
 
 use strict;
-
 use Bio::Annotation::Collection;
 
 use base qw(Bio::Root::Root Bio::Assembly::ScaffoldI);
@@ -398,7 +397,7 @@ sub add_contig {
     $self->warn("Replacing contig $contigID with a new contig object")
         if (exists $self->{'_contigs'}{$contigID});
     $self->{'_contigs'}{$contigID} = $contig;
-    $contig->assembly($self);
+    $contig->assembly($self); # weak circular reference
 
     # Put contig sequences in the list of sequences belonging to the scaffold
     foreach my $seqID ($contig->get_seq_ids()) {
@@ -443,7 +442,7 @@ sub add_singlet {
     $self->warn("Replacing singlet $singletID with a new singlet object")
         if (exists $self->{'_singlets'}{$singletID});
     $self->{'_singlets'}{$singletID} = $singlet;
-    $singlet->assembly($self);
+    $singlet->assembly($self); # weak circular reference
 
     # Put singlet sequence in the list of sequences belonging to the scaffold
     my $seqID = $singlet->seqref()->id();
@@ -685,5 +684,6 @@ sub all_singlets {
 
     return @singlets;
 }
+
 
 1;
