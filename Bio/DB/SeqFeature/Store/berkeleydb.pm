@@ -583,7 +583,7 @@ sub _update_attribute_index {
 
   for my $tag ($obj->get_all_tags) {
     for my $value ($obj->get_tag_values($tag)) {
-      my $key = "\L${tag}:${value}\E";
+      my $key = "${tag}:${value}";
       $self->update_or_delete($delete,$db,$key,$id);
     }
   }
@@ -911,6 +911,13 @@ sub filter_by_location {
   }
 
   $self->update_filter($filter,\@results);
+}
+
+sub attributes {
+    my $self = shift;
+    my $index = $self->index_db('attributes');
+    my %a     = map {s/:.+$//; $_=> 1} keys %$index;
+    return keys %a;
 }
 
 sub filter_by_attribute {

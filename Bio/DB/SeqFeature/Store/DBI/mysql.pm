@@ -454,6 +454,13 @@ sub is_temp {
   shift->{is_temp};
 }
 
+sub attributes {
+    my $self = shift;
+    my $dbh  = $self->dbh;
+    my $a    = $dbh->selectcol_arrayref('SELECT tag FROM attributelist');
+    return @$a;
+}
+
 sub _store {
   my $self    = shift;
 

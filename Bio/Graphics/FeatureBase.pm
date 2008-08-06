@@ -101,7 +101,7 @@ sub new {
   $self->{source}  = $arg{-source} || $arg{-source_tag} || '';
   $self->{score}   = $arg{-score}   if exists $arg{-score};
   $self->{start}   = $arg{-start};
-  $self->{stop}    = $arg{-end} || $arg{-stop};
+  $self->{stop}    = exists $arg{-end} ? $arg{-end} : $arg{-stop};
   $self->{ref}     = $arg{-seq_id} || $arg{-ref};
   for my $option (qw(class url seq phase desc attributes primary_id)) {
     $self->{$option} = $arg{"-$option"} if exists $arg{"-$option"};
@@ -416,6 +416,11 @@ sub notes {
     my $notes = $self->{desc};
     return $notes if defined $notes;
     return $self->attributes('Note');
+}
+
+sub aliases {
+    my $self  = shift;
+    return $self->attributes('Alias');
 }
 
 sub low {

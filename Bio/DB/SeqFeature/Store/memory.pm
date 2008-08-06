@@ -390,6 +390,11 @@ sub find_types {
   return @types_found;
 }
 
+sub attributes {
+    my $self = shift;
+    return keys %{$self->{_index}{attribute}};
+}
+
 sub filter_by_attribute {
   my $self = shift;
   my ($attributes,$filter) = @_;

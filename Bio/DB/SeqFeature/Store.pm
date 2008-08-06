@@ -1330,6 +1330,23 @@ sub reindex {
   $self->_end_reindexing;
 }
 
+=head2 attributes
+
+ Title   : attributes
+ Usage   : @a = $db->attributes
+ Function: Returns list of all known attributes
+ Returns : Returns list of all known attributes
+ Args    : nothing
+ Status  : public
+
+=cut
+
+sub attributes {
+    my $self = shift;
+    shift->throw_not_implemented;
+}
+
+
 =head2 start_bulk_update,finish_bulk_update
 
  Title   : start_bulk_update,finish_bulk_update

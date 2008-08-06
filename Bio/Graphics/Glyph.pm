@@ -175,7 +175,7 @@ sub stop    {
       : $self->panel->offset - 1;
   } else {
     $self->{stop} = defined $self->{feature}->end
-      ?  $self->{feature}->end
+      ? $self->{feature}->end
       : $self->panel->offset+$self->panel->length+1;
   }
 
