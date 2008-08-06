@@ -68,6 +68,7 @@ use strict;
 use Bio::Tree::Tree;
 use Bio::Tree::AnnotatableNode;
 use Bio::Annotation::SimpleValue;
+use Bio::Annotation::Relation;
 use XML::LibXML;
 use XML::LibXML::Reader;
 use base qw(Bio::TreeIO);
@@ -504,10 +505,36 @@ sub end_element_relation
 {
   my ($self) = @_;
   my $valuestr = '';
-  foreach (keys %{$self->current_attr}) {
-    $valuestr .= $_."=".$self->current_attr->{$_}." ";
+  my $id_ref_0 = $self->current_attr->{'id_ref_0'};
+  my $id_ref_1 = $self->current_attr->{'id_ref_1'};
+  
+  my @srcbyidref = ();
+  $srcbyidref[0] = $self->{'_id_link'}->{$id_ref_0};
+  $srcbyidref[1] = $self->{'_id_link'}->{$id_ref_1};
+
+  # exception when id_ref is defined but id_src is not, or vice versa.
+  if ( ($id_ref_0 xor $srcbyidref[0])||($id_ref_1 xor $srcbyidref[1]) ) {
+    $self->throw("id_ref and id_src incompatible: $id_ref_0, $id_ref_1, ", $srcbyidref[0], $srcbyidref[1]);
   }
-  $self->prev_attr->{$self->current_element} = $valuestr;
+  my $relationtype = $self->current_attr->{'type'};
+
+  # set id_ref_0 
+  my $ac0 = $srcbyidref[0]->annotation;
+  my $newann = new Bio::Annotation::Relation(
+                    '-type' => $relationtype,
+                    '-to' => $srcbyidref[1],
+                    '-tagname' => $self->current_element
+                    );
+  $ac0->add_Annotation($self->current_element, $newann);
+  # set id_ref_1 
+  my $ac1 = $srcbyidref[1]->annotation;
+  $newann = new Bio::Annotation::Relation(
+                    '-type' => $relationtype,
+                    '-to' => $srcbyidref[0],
+                    '-tagname' => $self->current_element
+                    );
+  $ac1->add_Annotation($self->current_element, $newann);
+  
 }
 
 
