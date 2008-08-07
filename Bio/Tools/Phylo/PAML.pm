@@ -921,12 +921,34 @@ sub _parse_Forestry {
 			    }
 			}
 		    }
+                    # Associate SEs to nodes using tags
+                    if (defined($self->{_SEs})) {
+                        my @SEs = split(" ",$self->{_SEs});
+                        my $i = 0;
+                        foreach my $parent_id ( map {/\d+\.\.(\d+)/} split(" ",$self->{_branch_ids}) ) {
+                            my @nodes;
+                            my @node_ids = @{$match{$parent_id}};
+                            my @nodes_L = map { $tree->find_node(-id => $_) } @node_ids;
+                            my $n = @nodes_L < 2 ? shift(@nodes_L) : $tree->get_lca(@nodes_L);
+                            if( ! $n ) {
+                                $self->warn("no node could be found for node in SE assignation (no lca?)");
+                            }
+                            $n->add_tag_value('SE',$SEs[$i]);
+                            $i++;
+                        }
+                    }
 		    push @trees, $tree;
 		}
 	    }
 	    $okay++;
+	} elsif( /^SEs for parameters/ ) {
+          my $se_line = $self->_readline;
+          $se_line =~ s/\n//;
+          $self->{_SEs} = $se_line;
 	} elsif( /^\s*\d+\.\.\d+/ ) {
-	    push @branches, map { [split(/\.\./,$_)] } split;
+          push @branches, map { [split(/\.\./,$_)] } split;
+          my $ids = $_; $ids =~ s/\n//;
+          $self->{_branch_ids} = $ids;
 	}
     }
     return \@trees,\%match;
