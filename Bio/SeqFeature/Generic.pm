@@ -733,8 +733,8 @@ sub get_SeqFeatures {
  Title   : add_SeqFeature
  Usage   : $feat->add_SeqFeature($subfeat);
            $feat->add_SeqFeature($subfeat,'EXPAND')
- Function: adds a SeqFeature into the subSeqFeature array.
-           with no 'EXPAND' qualifer, subfeat will be tested
+ Function: Adds a SeqFeature into the subSeqFeature array.
+           With no 'EXPAND' qualifer, subfeat will be tested
            as to whether it lies inside the parent, and throw
            an exception if not.
 
@@ -775,14 +775,13 @@ sub add_SeqFeature{
 
  Title   : remove_SeqFeatures
  Usage   : $sf->remove_SeqFeatures
- Function: Removes all sub SeqFeatures
+ Function: Removes all SeqFeatures
 
-           If you want to remove only a subset, remove that subset from the
-           returned array, and add back the rest.
-
+           If you want to remove only a subset of features then remove that 
+           subset from the returned array, and add back the rest.
  Example :
- Returns : The array of Bio::SeqFeatureI implementing sub-features that was
-           deleted from this feature.
+ Returns : The array of Bio::SeqFeatureI implementing features that was
+           deleted.
  Args    : none
 
 
