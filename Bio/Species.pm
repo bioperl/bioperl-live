@@ -278,6 +278,7 @@ sub species {
             $self->{tree} = Bio::Tree::Tree->new(-node => $species_taxon);
             delete $self->{tree}->{_root_cleanup_methods};
             $root = $self->{tree}->get_root_node;
+	    weaken($self->{tree}->{'_rootnode'}) unless isweak($self->{tree}->{'_rootnode'});
         }
         
 		my @spflds = split(' ', $species);
