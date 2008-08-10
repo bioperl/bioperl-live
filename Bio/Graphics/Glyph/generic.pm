@@ -184,10 +184,12 @@ sub draw {
 
   $self->calculate_cds()      if $self->option('draw_translation') && $self->protein_fits;
 
+  $self->panel->startGroup($gd);
   $self->SUPER::draw(@_);
   $self->draw_label(@_)       if $self->option('label');
   $self->draw_description(@_) if $self->option('description');
   $self->draw_part_labels(@_) if $self->option('label') && $self->option('part_labels');
+  $self->panel->endGroup($gd);
 }
 
 sub draw_component {

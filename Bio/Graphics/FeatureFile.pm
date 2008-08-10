@@ -294,6 +294,14 @@ context, returns a three-element list containing the number of
 features rendered, the created panel, and an array ref of all the
 track objects created.
 
+Instead of a Bio::Graphics::Panel object, you can provide a hash
+reference containing the arguments that you would pass to
+Bio::Graphics::Panel->new(). For example, to render an SVG image, you
+could do this:
+
+  my ($tracks_rendered,$panel) = $data->render({-image_class=>'GD::SVG'});
+  print $panel->svg;
+
 =back
 
 =cut
@@ -301,7 +309,7 @@ track objects created.
 #"
 
 sub render {
-  my $self = shift;
+  my $self  = shift;
   my $panel = shift;         # 8 arguments
   my ($position_to_insert,
       $options,
@@ -313,7 +321,9 @@ sub render {
       ) = @_;
   my %seenit;
 
-  $panel ||= $self->new_panel;
+  unless ($panel && UNIVERSAL::isa($panel,'Bio::Graphics::Panel')) {
+      $panel = $self->new_panel($panel);
+  }
 
   # count up number of tracks inserted
   my @tracks;
@@ -1459,9 +1469,10 @@ sub split_group {
 
 # create a panel if needed
 sub new_panel {
-  my $self = shift;
+  my $self    = shift;
+  my $options = shift;
 
-  require Bio::Graphics::Panel;
+  eval "require Bio::Graphics::Panel" unless Bio::Graphics::Panel->can('new');
 
   # general configuration of the image here
   my $width         = $self->setting(general => 'pixels')
@@ -1480,11 +1491,14 @@ sub new_panel {
     $stop  = $self->max unless defined $stop;
   }
 
-  my $new_segment = Bio::Graphics::Feature->new(-start=>$start,-stop=>$stop);
+  my $new_segment   = Bio::Graphics::Feature->new(-start=>$start,-stop=>$stop);
+  my @panel_options = %$options if $options && ref $options eq 'HASH';
   my $panel = Bio::Graphics::Panel->new(-segment   => $new_segment,
 					-width     => $width,
 					-key_style => 'between',
-					$self->style('general'));
+					$self->style('general'),
+					@panel_options
+      );
   $panel;
 }
 

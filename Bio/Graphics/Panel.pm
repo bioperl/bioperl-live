@@ -538,41 +538,62 @@ sub gd {
     $offset += $track->layout_height + $spacing;
   }
 
+  $gd->startGroup() if $gd->can('startGroup');
   $self->draw_background($gd,$self->{background})  if $self->{background};
   $self->draw_grid($gd)                            if $self->{grid};
   $self->draw_background($gd,$self->{postgrid})    if $self->{postgrid};
+  $gd->endGroup() if $gd->can('endGroup');
 
   $offset = $pt;
   for my $track (@{$self->{tracks}}) {
-    my $draw_between = $between_key && $track->option('key');
-    my $has_parts = $track->parts;
-    my $side_key_height = 0;
+      $self->startGroup($gd);
+  
+      my $draw_between = $between_key && $track->option('key');
+      my $has_parts = $track->parts;
+      my $side_key_height = 0;
 
-    next if !$has_parts && ($empty_track_style eq 'suppress'
-			or  $empty_track_style eq 'key' && $bottom_key);
+      next if !$has_parts && ($empty_track_style eq 'suppress'
+			      or  $empty_track_style eq 'key' && $bottom_key);
 
-    if ($draw_between) {
-      $offset += $self->draw_between_key($gd,$track,$offset);
-    }
+      if ($draw_between) {
+	  $offset += $self->draw_between_key($gd,$track,$offset);
+      }
 
 
-    $self->draw_empty($gd,$offset,$empty_track_style)
-      if !$has_parts && $empty_track_style=~/^(line|dashed)$/;
+      $self->draw_empty($gd,$offset,$empty_track_style)
+	  if !$has_parts && $empty_track_style=~/^(line|dashed)$/;
 
-    $track->draw($gd,$pl,$offset,0,1);
+      $track->draw($gd,$pl,$offset,0,1);
 
-    if ($self->{key_style} =~ /^(left|right)$/) {
-      $side_key_height = $self->draw_side_key($gd,$track,$offset,$self->{key_style});
-    }
+      if ($self->{key_style} =~ /^(left|right)$/) {
+	  $side_key_height = $self->draw_side_key($gd,$track,$offset,$self->{key_style});
+      }
 
-    $self->track_position($track,$offset);
-    my $layout_height = $track->layout_height;
-    $offset += ($side_key_height > $layout_height ? $side_key_height : $layout_height)+$spacing;
+      $self->track_position($track,$offset);
+      my $layout_height = $track->layout_height;
+      $offset += ($side_key_height > $layout_height ? $side_key_height : $layout_height)+$spacing;
+
+      $self->endGroup($gd);
   }
 
 
+  $self->startGroup($gd);
   $self->draw_bottom_key($gd,$pl,$offset) if $self->{key_style} eq 'bottom';
+  $self->endGroup($gd);
+
   return $self->{gd} = $gd;
+}
+
+sub startGroup {
+    my $self = shift;
+    my $gd   = shift;
+    $gd->startGroup if $gd->can('startGroup');
+}
+
+sub endGroup {
+    my $self = shift;
+    my $gd   = shift;
+    $gd->endGroup if $gd->can('endGroup');
 }
 
 

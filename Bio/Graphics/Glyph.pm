@@ -741,6 +741,8 @@ sub draw {
 
   push @FEATURE_STACK,$self->feature;
 
+  $self->panel->startGroup($gd);
+
   my $connector = $self->connector;
 
   if (my @parts = $self->parts) {
@@ -770,7 +772,10 @@ sub draw {
     $self->draw_component($gd,$left,$top,$partno,$total_parts) unless $self->feature_has_subparts;
   }
 
+  $self->panel->endGroup($gd);
+
   pop @FEATURE_STACK;
+
 }
 
 # the "level" is the level of testing of the glyph
