@@ -201,6 +201,8 @@ sub draw_scale {
   my ($gd,$left,$top,$right,$bottom) = @_;
   my ($min,$max) = $self->min_max;
 
+  $self->panel->startGroup($gd);
+
   my $simple = GD::Simple->new($gd);
   $simple->font($self->scale_font);
   my $dx     = 1;
@@ -224,6 +226,8 @@ sub draw_scale {
   $simple->line(3);
   $simple->move($dx,$dy);
   $simple->string($min);
+
+  $self->panel->endGroup($gd);
 }
 
 1;

@@ -73,6 +73,8 @@ sub draw {
 
   return $self->SUPER::draw(@_) unless @parts > 0;
 
+  $self->panel->startGroup($gd);
+
   my ($min_score,$max_score) = $self->minmax(\@parts);
 
   my $side = $self->_determine_side();
@@ -112,7 +114,9 @@ sub draw {
   my (@draw_methods) = $self->lookup_draw_method($type);
   $self->throw("Invalid graph type '$type'") unless @draw_methods;
 
+  $self->panel->startGroup($gd);
   $self->_draw_scale($gd,$scale,$min_score,$max_score,$dx,$dy,$y_origin);
+  $self->panel->endGroup($gd);
 
   for my $draw_method (@draw_methods) {
     $self->$draw_method($gd,$dx,$dy,$y_origin);
@@ -120,6 +124,8 @@ sub draw {
 
   $self->draw_label(@_)       if $self->option('label');
   $self->draw_description(@_) if $self->option('description');
+
+  $self->panel->endGroup($gd);
 }
 
 sub lookup_draw_method {

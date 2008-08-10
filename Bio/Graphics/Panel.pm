@@ -538,11 +538,11 @@ sub gd {
     $offset += $track->layout_height + $spacing;
   }
 
-  $gd->startGroup() if $gd->can('startGroup');
+  $self->startGroup($gd);
   $self->draw_background($gd,$self->{background})  if $self->{background};
   $self->draw_grid($gd)                            if $self->{grid};
   $self->draw_background($gd,$self->{postgrid})    if $self->{postgrid};
-  $gd->endGroup() if $gd->can('endGroup');
+  $self->endGroup($gd);
 
   $offset = $pt;
   for my $track (@{$self->{tracks}}) {

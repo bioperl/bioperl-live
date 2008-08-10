@@ -66,6 +66,8 @@ sub draw {
   my $self = shift;
   my ($gd,$left,$top) = @_;
 
+  $self->panel->startGroup($gd);
+
   my @parts = $self->parts;
   @parts    = $self if !@parts && $self->level == 0 && !$self->require_subparts;
 
@@ -170,6 +172,8 @@ sub draw {
   }
 
   $self->Bio::Graphics::Glyph::generic::draw($gd,$left,$top);
+
+  $self->panel->endGroup($gd);
 }
 
 
