@@ -189,6 +189,60 @@ sub get_all_Annotations{
     } $self->get_Annotations(@keys);
 }
 
+=head2 get_deep_Annotations
+
+ Title   : get_deep_Annotations
+ Usage   :
+ Function: Similar to get_Annotations, but traverses the nested 
+           annotation collections and returns all annotations with 
+           matching keys. 
+
+           It is different from get_all_Annotations in that the
+           keys are passed on to nested collections. and nested 
+           collections are not flattened.
+
+ Example :
+ Returns : an array of L<Bio::AnnotationI> compliant objects
+ Args    : keys (list of strings) for annotations (optional)
+
+
+=cut
+
+sub get_deep_Annotations{
+    my ($self,@searchkeys) = @_;
+
+    my @anns = ();
+    $self->_deep_Annotation_helper(\@searchkeys, \@anns);
+    return @anns;
+}    
+
+sub _deep_Annotation_helper {
+  my ($self, $searchkeys, $anns) = @_;
+  my @allkeys = $self->get_all_annotation_keys();
+  foreach my $key (@allkeys) {
+    my $keymatch = 0;
+    foreach my $searchkey (@$searchkeys) {
+      if ($key eq $searchkey) { $keymatch = 1;}
+    }
+    if ($keymatch) {
+      if(exists($self->{'_annotation'}->{$key})) {
+        push(@$anns,
+            map {
+            $_->tagname($key) if ! $_->tagname(); $_;
+            } @{$self->{'_annotation'}->{$key}});
+      }
+    }
+    else {
+      my @annotations = @{$self->{'_annotation'}->{$key}};
+      foreach (@annotations) {
+        if ($_->isa("Bio::AnnotationCollectionI")) {
+          $_->_deep_Annotation_helper($searchkeys, $anns);
+        }
+      }
+    }
+  }
+}
+
 =head2 get_num_of_annotations
 
  Title   : get_num_of_annotations

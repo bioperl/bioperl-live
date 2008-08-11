@@ -93,6 +93,7 @@ sub _initialize
   $self->treetype($args{-treetype});
   $self->nodetype($args{-nodetype});
   $self->{'_lastitem'} = {}; # holds open items and the attribute hash
+  $self->{'_tree_attr'} = {}; # points to the attribute hash of the tree
   $self->_init_func();
 }
 
@@ -142,7 +143,7 @@ sub next_tree
         last;
       }
     }
-    processNode($self);
+    processXMLNode($self);
   }
   return $tree;
 }
@@ -162,8 +163,6 @@ sub write_tree
 {
   my ($self, @trees) = @_;
   foreach my $tree (@trees) {
-    my $clade_rel = $self->_translate_relation($tree, 'clade_relation');
-    my $seq_rel = $self->_translate_relation($tree, 'sequence_relation');
     my $root = $tree->get_root_node;
     $self->_print("<phylogeny");
     my @tags = $tree->get_all_tags();
@@ -177,11 +176,10 @@ sub write_tree
     $self->_print($attr_str); 
     $self->_print(">");
     $self->_print($self->_write_tree_Helper($root));
-    if ($clade_rel) {
-      $self->_print($clade_rel);
-    }
-    if ($seq_rel) {
-      $self->_print($seq_rel);
+
+    # print clade relations
+    while (my $str = pop (@{$self->{'_tree_attr'}->{'clade_relation'}})) {
+      $self->_print($str);
     }
     $self->_print("</phylogeny>");
     $self->_print("\n");
@@ -199,6 +197,15 @@ sub _write_tree_Helper
   }
   my $ac = $node->annotation;
   my $seq = $node->sequence;
+
+  # if clade_relation exists
+  my @relations = $ac->get_Annotations('clade_relation');
+  foreach (@relations) {
+    my $clade_rel = $self->relation_to_string($node, $_, '');
+    $self->debug("write clade_relations: ", $clade_rel);
+    # set as tree attr
+    push (@{$self->{'_tree_attr'}->{'clade_relation'}}, $clade_rel);
+  }
 
   # start <clade>
   $str .= '<clade';
@@ -227,40 +234,31 @@ sub _write_tree_Helper
   return $str;
 }
 
-sub _translate_relation {
-  my ($self, $tree, $tag) = @_;
-  my $str = ''; 
-  if ($tree->has_tag($tag)) {
-    $str .= "<$tag";
-    my @values = $tree->get_tag_values($tag);
-    foreach my $val (@values) {
-      my %pairs = (map { split('=', $_); } split(' ',$val));
-      my $confidence = $pairs{'confidence'};
-      if ($confidence) {
-        delete $pairs{'confidence'};
-      }
-      foreach (keys %pairs) {
-        $str .= " ".$_."=\"".$pairs{$_}."\"";
-      }
-      if ($confidence) {
-        $str .= "><confidence>$confidence</confidence>";
-        $str .= "</$tag>";
-      }
-      else {
-        $str .= "/>";
-      }
+sub relation_to_string {
+  my ($self, $node, $rel, $str) = @_;
 
+  my @attr = $node->annotation->get_Annotations('_attr'); # check id_source
+  if (@attr) { 
+    my @id_source = $attr[0]->get_Annotations('id_source');
+    if (@id_source) {
+      $self->debug("idsrc:",$id_source[0]->as_text);
     }
-    $tree->remove_tag($tag);
   }
+  my ($id_ref_0) = $node->annotation->get_deep_Annotations('id_source'); 
+  my ($id_ref_1) = $rel->to->annotation->get_deep_Annotations('id_source'); 
+  $str .= "<clade_relation ";
+  $str .= "id_ref_0=\"".$id_ref_0->value."\" ";
+  $str .= "id_ref_1=\"".$id_ref_1->value."\" ";
+  $str .= "type=\"".$rel->type."\"";
+  $str .= "/>";
   return $str;
 }
 
 
 
-=head2 processNode
+=head2 processXMLNode
 
- Title   : processNode
+ Title   : processXMLNode
  Usage   : 
  Function: 
  Returns : none
@@ -268,7 +266,7 @@ sub _translate_relation {
 
 =cut
 
-sub processNode 
+sub processXMLNode 
 {
   my ($self) = @_;
   my $reader = $self->{'_reader'};
@@ -369,7 +367,7 @@ sub element_phylogeny
   $self->{'_currenttext'} = '';
   $self->{'_levelcnt'} = [];
   $self->{'_id_link'} = {};
-
+  $self->{'_tree_attr'} = $self->current_attr;
   $self->processAttribute($self->current_attr);
   return; 
 }
@@ -426,21 +424,28 @@ sub element_clade
 {
   my ($self) = @_;
   my $reader = $self->{'_reader'};
-  my %data = ();    # doesn't use current attribute in order to save memory 
-  $self->processAttribute(\%data);
+  my %clade_attr = ();    # doesn't use current attribute in order to save memory 
+  $self->processAttribute(\%clade_attr);
   # create a node (Annotatable Node)
   my $tnode = $self->nodetype->new( -verbose => $self->verbose, 
                                     -id => '', 
                                     tostring => \&node_to_string,
-                                    %data,
+                                    %clade_attr,
                                   );
-  # add all attributes as tags (Annotation::SimpleValue)
-  foreach my $tag ( keys %data ) {
-    $tnode->add_tag_value( $tag, $data{$tag} );
+  # add all attributes as annotation collection with tag '_attr'
+  my $ac = $tnode->annotation;
+  my $newattr = Bio::Annotation::Collection->new();
+  foreach my $tag (keys %clade_attr) {
+    my $sv = new Bio::Annotation::SimpleValue(
+              -value => $clade_attr{$tag}
+             );
+    $newattr->add_Annotation($tag, $sv);
   }
+  $ac->add_Annotation('_attr', $newattr);
+  
   # if there is id_source add clade to _id_link
-  if (exists $data{'id_source'}) {
-    $self->{'_id_link'}->{$data{'id_source'}} = $tnode;
+  if (exists $clade_attr{'id_source'}) {
+    $self->{'_id_link'}->{$clade_attr{'id_source'}} = $tnode;
   }
   # push into temporary list
   push @{$self->{'_currentitems'}}, $tnode;
@@ -504,7 +509,7 @@ sub element_relation
 sub end_element_relation
 {
   my ($self) = @_;
-  my $valuestr = '';
+  my $relationtype = $self->current_attr->{'type'};
   my $id_ref_0 = $self->current_attr->{'id_ref_0'};
   my $id_ref_1 = $self->current_attr->{'id_ref_1'};
   
@@ -516,7 +521,6 @@ sub end_element_relation
   if ( ($id_ref_0 xor $srcbyidref[0])||($id_ref_1 xor $srcbyidref[1]) ) {
     $self->throw("id_ref and id_src incompatible: $id_ref_0, $id_ref_1, ", $srcbyidref[0], $srcbyidref[1]);
   }
-  my $relationtype = $self->current_attr->{'type'};
 
   # set id_ref_0 
   my $ac0 = $srcbyidref[0]->annotation;
@@ -645,7 +649,13 @@ sub end_element_default
   }
   # we are within sequence_relation or clade_relation
   elsif ($prev eq 'clade_relation' || $prev eq 'sequence_relation') {
-    $self->prev_attr->{$current} = $self->{'_currenttext'};
+    # we are here only with <confidence>
+    if ($current eq 'confidence') {
+      # do something
+    }
+    else {
+      $self->throw($current, " is not allowed within <*_relation>");
+    }
   }
   # we are annotating a Node
   if (( $srcbyidref && $srcbyidref->isa($self->nodetype)) || ((!$srcbyidref) && $prev eq 'clade'))  
@@ -692,9 +702,7 @@ sub end_element_default
         $self->{'_id_link'}->{$idsrc} = $ac;
       }
   }
-  elsif ($prev eq 'clade_relation') {
-  }
-  # we are within an Annotation
+  # we are within a default Annotation
   else {
     my $ac = pop (@{$self->{'_currentannotation'}});
     if ($ac) {
@@ -717,7 +725,7 @@ sub end_element_default
 sub annotateNode 
 {
   my ($self, $element,  $newac) = @_;
-  # if attribute exists then add Annotation::Collection
+  # if attribute exists then add Annotation::Collection with tag '_attr'
   if ( scalar keys %{$self->current_attr} ) {
     my $newattr = Bio::Annotation::Collection->new();
     foreach my $tag (keys %{$self->current_attr}) {
@@ -728,7 +736,7 @@ sub annotateNode
     }
     $newac->add_Annotation('_attr', $newattr);
   }
-  # if text exists add text as SimpleValue
+  # if text exists add text as SimpleValue with tag '_text'
   if ( $self->{'_currenttext'} ) {
     my $newvalue = new Bio::Annotation::SimpleValue( -value => $self->{'_currenttext'} );
     $newac->add_Annotation('_text', $newvalue);
