@@ -523,8 +523,11 @@ sub _open_index {
   my %offsets;
   my $flags = $write ? O_CREAT|O_RDWR : O_RDONLY;
   my @dbmargs = $self->dbmargs;
-  tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs 
-	 or $self->throw( "Can't open cache file $index: $!");
+  eval {
+      tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs 
+	  or die "Can't open sequence index file $index: $!";
+  };
+  warn $@ if $@;
   return \%offsets;
 }
 
