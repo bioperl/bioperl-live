@@ -259,7 +259,7 @@ This class method creates a new database connection. The following
  -serializer        The name of the serializer class (default Storable)
 
  -index_subfeatures Whether or not to make subfeatures searchable
-                    (default true)
+                    (default false)
 
  -cache             Activate LRU caching feature -- size of cache
 

@@ -109,6 +109,9 @@ single GFF3 file. Examples:
   $db  = Bio::DB::SeqFeature::Store->new( -adaptor => 'memory',
                                           -dsn     => '/usr/annotations/worm.gff3.gz');
 
+For compatibility with the Bio::DB::GFF memory adapter, -gff is
+recognized as an alias for -dsn.
+
 See L<Bio::DB::SeqFeature::Store> for all the access methods supported
 by this adaptor. The various methods for storing and updating features
 and sequences into the database are supported, including GFF3 loading
@@ -143,7 +146,7 @@ sub init {
 
 sub post_init {
   my $self = shift;
-  my ($file_or_dir) = rearrange([['DIR','DSN','FILE']],@_);
+  my ($file_or_dir) = rearrange([['DIR','DSN','FILE','GFF']],@_);
   return unless $file_or_dir;
 
   my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store    => $self,
