@@ -152,8 +152,8 @@ sub nodelete{
 
  Title   : get_nodes
  Usage   : my @nodes = $tree->get_nodes()
- Function: Return list of Tree::NodeI objects
- Returns : array of Tree::NodeI objects
+ Function: Return list of Bio::Tree::NodeI objects
+ Returns : array of Bio::Tree::NodeI objects
  Args    : (named values) hash with one value 
            order => 'b|breadth' first order or 'd|depth' first order
 
@@ -227,21 +227,36 @@ sub set_root_node{
  Title   : total_branch_length
  Usage   : my $size = $tree->total_branch_length
  Function: Returns the sum of the length of all branches
- Returns : integer
+ Returns : real
  Args    : none
 
 =cut
 
-sub total_branch_length {
-   my ($self) = @_;
-   my $sum = 0;
-   if( defined $self->get_root_node ) {
-       for ( $self->get_root_node->get_all_Descendents('none') ) {
-	   $sum += $_->branch_length || 0;
-       }
-   }
-   return $sum;
+sub total_branch_length { shift->subtree_length }
+
+=head2 subtree_length
+
+ Title   : subtree_length
+ Usage   : my $subtree_size = $tree->subtree_length($internal_node)
+ Function: Returns the sum of the length of all branches in a subtree
+           under the node. Calculates the size of the whole tree
+           without an argument (but only if root node is defined)
+ Returns : real or undef
+ Args    : Bio::Tree::NodeI object, defaults to the root node
+
+=cut
+
+sub subtree_length {
+    my $tree = shift;
+    my $node = shift || $tree->get_root_node;
+    return unless $node;
+    my $sum = 0;
+    for ( $node->get_all_Descendents ) {
+	$sum += $_->branch_length || 0;
+    }
+    return $sum;
 }
+
 
 =head2 id
 

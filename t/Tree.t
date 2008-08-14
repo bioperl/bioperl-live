@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 42);
+    test_begin(-tests => 44);
 	
     use_ok('Bio::TreeIO');
 }
@@ -114,6 +114,10 @@ $a = $tree->find_node('A');
 # removing node_count checks because re-rooting can change the
 # number of internal nodes (if it is done correctly)
 my $total_length_orig = $tree->total_branch_length;
+is $tree->total_branch_length, $tree->subtree_length, 
+    "subtree_length() without attributes is an alias to total_branch_lenght()";
+cmp_ok($total_length_orig, '>',$tree->subtree_length($a->ancestor), 
+       'Length of the tree is larger that lenght of a subtree');
 $out->write_tree($tree) if $verbose;
 is($tree->reroot($a),1, 'Can re-root with A as outgroup');
 $out->write_tree($tree) if $verbose;
