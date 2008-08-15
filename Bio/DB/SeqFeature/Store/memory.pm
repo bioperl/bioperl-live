@@ -128,6 +128,7 @@ use Bio::DB::GFF::Util::Rearrange 'rearrange';
 use File::Temp 'tempdir';
 use IO::File;
 use Bio::DB::Fasta;
+use File::Glob ':glob';
 
 use constant BINSIZE => 10_000;
 
@@ -155,8 +156,8 @@ sub post_init {
   my @argv;
   if (-d $file_or_dir) {
     @argv = (
-	     glob("$file_or_dir/*.gff"),            glob("$file_or_dir/*.gff3"),
-	     glob("$file_or_dir/*.gff.{gz,Z,bz2}"), glob("$file_or_dir/*.gff3.{gz,Z,bz2}")
+	     bsd_glob("$file_or_dir/*.gff"),            bsd_glob("$file_or_dir/*.gff3"),
+	     bsd_glob("$file_or_dir/*.gff.{gz,Z,bz2}"), bsd_glob("$file_or_dir/*.gff3.{gz,Z,bz2}")
 	     );
   } else {
     @argv = $file_or_dir;
