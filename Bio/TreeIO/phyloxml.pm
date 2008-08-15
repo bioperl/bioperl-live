@@ -202,7 +202,6 @@ sub _write_tree_Helper
   my @relations = $ac->get_Annotations('clade_relation');
   foreach (@relations) {
     my $clade_rel = $self->relation_to_string($node, $_, '');
-    $self->debug("write clade_relations: ", $clade_rel);
     # set as tree attr
     push (@{$self->{'_tree_attr'}->{'clade_relation'}}, $clade_rel);
   }
@@ -240,12 +239,13 @@ sub relation_to_string {
   my @attr = $node->annotation->get_Annotations('_attr'); # check id_source
   if (@attr) { 
     my @id_source = $attr[0]->get_Annotations('id_source');
-    if (@id_source) {
-      $self->debug("idsrc:",$id_source[0]->as_text);
-    }
   }
-  my ($id_ref_0) = $node->annotation->get_deep_Annotations('id_source'); 
-  my ($id_ref_1) = $rel->to->annotation->get_deep_Annotations('id_source'); 
+  my ($id_ref_0) = $node->annotation->get_nested_Annotations(
+                                      '-keys' => ['id_source'],
+                                      '-recursive' => 1); 
+  my ($id_ref_1) = $rel->to->annotation->get_nested_Annotations( 
+                                      '-keys' => ['id_source'],
+                                      '-recursive' => 1); 
   $str .= "<clade_relation ";
   $str .= "id_ref_0=\"".$id_ref_0->value."\" ";
   $str .= "id_ref_1=\"".$id_ref_1->value."\" ";
