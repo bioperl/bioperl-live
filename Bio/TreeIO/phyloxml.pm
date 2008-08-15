@@ -688,7 +688,9 @@ sub end_element_default
           my @strac = $molseq[0]->get_Annotations('_text');
           $str = $strac[0]->value();
         }
-        my $newseq = Bio::Seq->new(-seq => $str, -annotation=>$ac);
+        my $newseq = Bio::Seq->new( -seq => $str, 
+                                    -annotation=>$ac, 
+                                    -nowarnonempty=>1);
         $tnode->sequence($newseq);
         $ac->remove_Annotations('mol_seq');
         $tnode->annotation->remove_Annotations($current);

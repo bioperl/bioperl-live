@@ -152,6 +152,7 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
            -alphabet    => sequence type (alphabet) (dna|rna|protein)
            -id          => alias for display id
            -is_circular => boolean field for whether or not sequence is circular
+           -nowarnonempty => boolean field for whether or not to warn when sequence is empty
 
 =cut
 
@@ -159,10 +160,11 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
+    $self->verbose(1);
 
     my($seq,$id,$acc,$pid,$ns,$auth,$v,$oid,
        $desc,$description,
-       $alphabet,$given_id,$is_circular,$direct,$ref_to_seq,$len) =
+       $alphabet,$given_id,$is_circular,$direct,$ref_to_seq,$len,$nowarnonempty) =
 	$self->_rearrange([qw(SEQ
 			      DISPLAY_ID
 			      ACCESSION_NUMBER
@@ -179,13 +181,19 @@ sub new {
 			      DIRECT
 			      REF_TO_SEQ
 			      LENGTH
+            NOWARNONEMPTY
 			      )],
 			  @args);
+  
+    # nowarnonempty: private var, no need for accessor
+    # but need to be set before calling _guess_alphabet
+    $self->{'nowarnonempty'} = $nowarnonempty; 
+
     if( defined $id && defined $given_id ) {
-		 if( $id ne $given_id ) {
-			 $self->throw("Provided both id and display_id constructor ".
-							  "functions. [$id] [$given_id]");
-		 }
+      if( $id ne $given_id ) {
+        $self->throw("Provided both id and display_id constructor ".
+            "functions. [$id] [$given_id]");
+      }
     }
     if( defined $given_id ) { $id = $given_id; }
 
@@ -201,10 +209,10 @@ sub new {
     # and sequence is ok
 
     if( $direct && $ref_to_seq) {
-		 $self->{'seq'} = $$ref_to_seq;
-		 if( ! $alphabet ) {
-		     $self->_guess_alphabet();
-		 } # else it has been set already above
+      $self->{'seq'} = $$ref_to_seq;
+        if( ! $alphabet ) {
+          $self->_guess_alphabet();
+        } # else it has been set already above
     } else {
 		 #	print STDERR "DEBUG: setting sequence to [$seq]\n";
 		 # note: the sequence string may be empty
@@ -221,6 +229,7 @@ sub new {
     $auth        && $self->authority($auth);
     defined($v)  && $self->version($v);
     defined($oid) && $self->object_id($oid);
+
 
     return $self;
 }
@@ -626,6 +635,7 @@ sub is_circular{
     return $self->{'is_circular'};
 }
 
+
 =head1 Methods for Bio::IdentifiableI compliance
 
 =cut
@@ -831,9 +841,11 @@ sub _guess_alphabet {
 
    my $total = CORE::length($str);
    if( $total == 0 ) {
+     if (!$self->{'nowarnonempty'}) {
        $self->warn("Got a sequence with no letters in it ".
-		   "cannot guess alphabet");
-       return '';
+           "cannot guess alphabet");
+     }
+     return '';
    }
 
    my $u = ($str =~ tr/Uu//);
