@@ -7,7 +7,7 @@ BEGIN {
   use lib 't/lib';
   use BioperlTest;
 
-  test_begin(-tests => 73,
+  test_begin(-tests => 90,
              -requires_modules => [qw(XML::LibXML XML::LibXML::Reader)],
             );
   if (1000*$] < 5008) {
@@ -172,17 +172,28 @@ ok my $treeio = Bio::TreeIO->new(
   my ($ac2) = $ac->get_Annotations('scientific_name');
   isa_ok( $ac2, 'Bio::Annotation::Collection');
   my ($scientificname) = $ac2->get_Annotations('_text');
-  is($scientificname->as_text, 'Value: C. elegans');
+  is($scientificname->value, 'C. elegans');
   if ($verbose > 0) {
-    diag( "Node C Scientific Name: ",$scientificname->as_text);
+    diag( "Node C Scientific Name: ",$scientificname->value);
   }
   my ($ac3) = $C->annotation->get_nested_Annotations(-keys=>['scientific_name'], -recursive=>1);
   isa_ok( $ac3, 'Bio::Annotation::Collection');
   ($scientificname) = $ac2->get_Annotations('_text');
-  is($scientificname->as_text, 'Value: C. elegans');
+  is($scientificname->value, 'C. elegans');
   if ($verbose > 0) {
-    diag( "Node C Scientific Name: ",$scientificname->as_text);
+    diag( "Node C Scientific Name: ",$scientificname->value);
   }
+  my ($seq) = @{$C->sequence};
+  isa_ok( $seq, 'Bio::SeqI');
+  my ($seqac) = $seq->annotation;
+  isa_ok( $seqac, 'Bio::Annotation::Collection');
+  my ($descac) = $seqac->get_nested_Annotations(-keys=>['desc'], -recursive=>1);
+  my ($desc) = $descac->get_Annotations('_text');
+  is($desc->value, 'alcohol dehydrogenase');
+  if ($verbose > 0) {
+    diag( "Node C Sequence description: ",$desc->value);
+  }
+  ($descac) = $seqac->get_nested_Annotations(-keys=>['desc'], -recursive=>1);
   
 # write_tree
   if ($verbose > 0) {
@@ -201,33 +212,50 @@ ok my $treeio = Bio::TreeIO->new(
 
 # tree5: homolog relationship and sequence relationship
 # <events> <speciations> <duplications> <symbol> <accession> 
+# <sequence_relation> 
 {
   if ($verbose > 0) {
-    diag("\ntree5: events");
+    diag("\ntree5: events and relations");
   }
-# <sequence_relation> 
   my $tree = $treeio->next_tree;
   isa_ok($tree, 'Bio::Tree::TreeI');
   if ($verbose > 0) {
     diag("tree id: ",$tree->id);
   }
   my $node = $tree->get_root_node;
+  my ($speciationsac) = $node->annotation->get_nested_Annotations(-keys=>['speciations'], -recursive=>1);
+  my ($speciationval) = $speciationsac->get_Annotations('_text');
+  is($speciationval->value, '1');
+  if ($verbose > 0) {
+    diag("root node speciation event: ", $speciationval->value);
+  }
   my @children = ($node);
   for (@children) {
     push @children, $_->each_Descendent();
   }
-  my ($A) = $children[0];
-  isa_ok($A, 'Bio::Tree::AnnotatableNode');
-  my $ac = $A->annotation();
-  isa_ok($ac, 'Bio::AnnotationCollectionI');
-  if ($verbose > 0) {
-    diag($A->to_string());
+  my @leaves = ();
+  for (@children) {
+    push @leaves, $_ if $_->is_Leaf;
   }
-  my $leaves_string = $tree->simplify_to_leaves_string();
-  if ($verbose > 0) {
-    diag($leaves_string);
+  my ($z) = $leaves[0];
+  my $z_seq = $z->sequence->[0];
+  isa_ok ($z_seq, 'Bio::SeqI');
+  my ($z_id) = $z_seq->annotation->get_nested_Annotations('-keys'=>['id_source'], '-recursive'=>1);
+  my ($z_id_text) = $z_id->value;
+  my @seq_rels = $z_seq->annotation->get_nested_Annotations('-keys'=>['sequence_relation'], '-recursive'=>1);
+  foreach my $rel (@seq_rels) {
+    isa_ok($rel, 'Bio::Annotation::Relation');
+    is ($rel->tagname, 'sequence_relation');
+    my $seqto = $rel->to;
+    isa_ok ($seqto, 'Bio::SeqI');
+    my ($seqto_id) = $seqto->annotation->get_nested_Annotations('-keys'=>['id_source'], '-recursive'=>1);
+    my $seqto_text = $seqto_id->value;
+    if ($verbose > 0) {
+      diag( "node ", $z_id_text, " has ", $rel->type, " relation to ", $seqto_text);
+    }
   }
-  is($leaves_string, '');
+  my ($x) = $leaves[1];
+  
 
 # write_tree
   if ($verbose > 0) {
@@ -255,11 +283,27 @@ ok my $treeio = Bio::TreeIO->new(
   if ($verbose > 0) {
     diag("tree id: ",$tree->id);
   }
-  my $leaves_string = $tree->simplify_to_leaves_string();
-  if ($verbose > 0) {
-    diag($leaves_string);
+  my @children = ($tree->get_root_node);
+  for (@children) {
+    push @children, $_->each_Descendent();
   }
-  is($leaves_string, '');
+  my @leaves = ();
+  for (@children) {
+    push @leaves, $_ if $_->is_Leaf;
+  }
+  my ($z) = $leaves[0];
+  my $z_seq = $z->sequence->[0];
+  isa_ok ($z_seq, 'Bio::SeqI');
+  my ($z_seqname) = $z_seq->annotation->get_nested_Annotations('-keys'=>['name'], '-recursive'=>1); 
+  my ($z_seqname_text) = $z_seqname->get_Annotations('_text');
+  is ($z_seqname_text->value, 'NADH-dependent butanol dehydrogenase B');
+  my ($z_molseq) = $z_seq->seq;
+  is ($z_molseq, 'MVDFEYSIPTRIFFGKDKINVLGRELKKYGSKVLIVYGGGSIKRNGIYDK');
+  if ($verbose > 0) {
+    diag("Sequence ", $z_seqname_text->value, " is ", $z_molseq);
+  }
+  my ($z_seqname_text2) = $treeio->read_annotation('-obj'=>$z_seq, '-path'=>'name');
+  is ($z_seqname_text->value, $z_seqname_text2);
 
 # write_tree
   if ($verbose > 0) {
@@ -287,11 +331,30 @@ ok my $treeio = Bio::TreeIO->new(
   if ($verbose > 0) {
     diag("tree id: ",$tree->id);
   }
-  my $leaves_string = $tree->simplify_to_leaves_string();
-  if ($verbose > 0) {
-    diag($leaves_string);
+  my @children = ($tree->get_root_node);
+  for (@children) {
+    push @children, $_->each_Descendent();
   }
-  is($leaves_string, '((A,B),C)');
+  my @leaves = ();
+  for (@children) {
+    push @leaves, $_ if $_->is_Leaf;
+  }
+  my ($c) = $leaves[0];
+  my ($c_id) = $c->annotation->get_nested_Annotations('-keys'=>['id_source'], '-recursive'=>1);
+  my @clade_rels = $c->annotation->get_nested_Annotations('-keys'=>['clade_relation'], '-recursive'=>1);
+  foreach my $rel (@clade_rels) {
+    isa_ok($rel, 'Bio::Annotation::Relation');
+    is ($rel->tagname, 'clade_relation');
+    my $nodeto = $rel->to;
+    isa_ok ($nodeto, 'Bio::Tree::AnnotatableNode');
+    my ($nodeto_id) = $nodeto->annotation->get_nested_Annotations('-keys'=>['id_source'], '-recursive'=>1);
+    is ($nodeto_id->value, 'b');
+    my ($nodeto_id2) = $treeio->read_annotation('-obj'=>$nodeto, '-path'=>'id_source', '-attr'=>1);
+    is ($nodeto_id->value, $nodeto_id2);
+    if ($verbose > 0) {
+      diag( "node ", $c_id->value, " has ", $rel->type, " relation to ", $nodeto_id->value);
+    }
+  }
 
 # write_tree
   if ($verbose > 0) {
@@ -329,9 +392,9 @@ ok my $treeio = Bio::TreeIO->new(
   my (@keys) = $annotations[0]->get_all_annotation_keys();
   diag("keys:",@keys);
   my (@value) = $annotations[0]->get_Annotations('_text');
-  is($value[0]->as_text, 'Value:  1200 ');
+  is($value[0]->value, ' 1200 ');
   if ($verbose > 0) {
-    diag( "Annotation NOAA:depth stringified ",$value[0]->as_text);
+    diag( "Annotation NOAA:depth ",$value[0]->value);
   }
   my $leaves_string = $tree->simplify_to_leaves_string();
   if ($verbose > 0) {
@@ -372,9 +435,9 @@ ok my $treeio = Bio::TreeIO->new(
   my @annotations = $ac->get_Annotations('property');
   isa_ok( $annotations[0], 'Bio::Annotation::Collection');
   my @value = $annotations[0]->get_Annotations('_text');
-  is($value[0]->as_text, 'Value:  1200 ');
+  is($value[0]->value, ' 1200 ');
   if ($verbose > 0) {
-    diag( "Annotation NOAA:depth stringified ",$value[0]->as_text);
+    diag( "Annotation NOAA:depth ",$value[0]->value);
   }
   my $leaves_string = $tree->simplify_to_leaves_string();
   if ($verbose > 0) {
@@ -405,6 +468,9 @@ ok my $treeio = Bio::TreeIO->new(
   }
   my $tree = $treeio->next_tree;
   isa_ok($tree, 'Bio::Tree::TreeI');
+  if ($verbose > 0) {
+    diag("tree id: ",$tree->id);
+  }
   my $node = $tree->get_root_node;
   my @leaves;
   my @children = ($node);
@@ -415,18 +481,24 @@ ok my $treeio = Bio::TreeIO->new(
     push @leaves, $_ if $_->is_Leaf;
   }
   my ($A) = $leaves[0];
-  isa_ok($A, 'Bio::Tree::AnnotatableNode');
-  my $ac = $A->annotation();
-  isa_ok($ac, 'Bio::AnnotationCollectionI');
+  my ($scientificname) = $A->annotation->get_nested_Annotations('-keys'=>['scientific_name'], '-recursive'=>1);
+  my ($scientificname_text) = $scientificname->get_Annotations('_text');
+  my ($commonname) = $A->annotation->get_nested_Annotations('-keys'=>['common_name'], '-recursive'=>1); 
+  my ($commonname_text) = $commonname->get_Annotations('_text');
+  my ($rank) = $A->annotation->get_nested_Annotations('-keys'=>['rank'], '-recursive'=>1); 
+  my ($rank_text) = $rank->get_Annotations('_text');
   if ($verbose > 0) {
-    diag("tree id: ",$tree->id);
+    diag("node rank is ", $rank_text->value);
+    diag("node scientific name is ", $scientificname_text->value);
+    diag("node common name is ", $commonname_text->value);
   }
-  my $leaves_string = $tree->simplify_to_leaves_string();
+  my ($distribution) = $A->annotation->get_nested_Annotations('-keys'=>['distribution'], '-recursive'=>1);
+  my ($desc) = $distribution->get_Annotations('desc');
+  my ($desc_text) = $desc->get_Annotations('_text');
   if ($verbose > 0) {
-    diag($leaves_string);
-  }
-  is($leaves_string, '');
-
+    diag("node distribution is ", $desc_text->value);
+  } 
+  
 # write_tree
   if ($verbose > 0) {
     diag("\ntest write_tree");
@@ -453,12 +525,29 @@ ok my $treeio = Bio::TreeIO->new(
   if ($verbose > 0) {
     diag("tree id: ",$tree->id);
   }
-  my $leaves_string = $tree->simplify_to_leaves_string();
-  if ($verbose > 0) {
-    diag($leaves_string);
+  my $node = $tree->get_root_node;
+  my @leaves;
+  my @children = ($node);
+  for (@children) {
+    push @children, $_->each_Descendent();
   }
-  is($leaves_string, '(((A,B),C),D)');
-
+  for (@children) {
+    push @leaves, $_ if $_->is_Leaf;
+  }
+  my ($D) = $leaves[0];
+  my ($point) = $treeio->read_annotation('-obj'=>$D, '-path'=>'distribution/point/geodetic_datum', '-attr'=>1);
+  is ($point, 'WGS84');
+  my ($lat) =  $treeio->read_annotation('-obj'=>$D, '-path'=>'distribution/point/lat');
+  my ($long) =  $treeio->read_annotation('-obj'=>$D, '-path'=>'distribution/point/long');
+  my ($alt) =  $treeio->read_annotation('-obj'=>$D, '-path'=>'distribution/point/alt');
+  is ($lat, '32.880933');
+  is ($long, '-117.217543');
+  is ($alt, '104');
+  if ($verbose > 0) {
+    diag("node distribution lat: $lat long $long alt $alt");
+  }
+  
+  
 # write_tree
   if ($verbose > 0) {
     diag("\ntest write_tree");
@@ -485,11 +574,25 @@ ok my $treeio = Bio::TreeIO->new(
   if ($verbose > 0) {
     diag("tree id: ",$tree->id);
   }
-  my $leaves_string = $tree->simplify_to_leaves_string();
-  if ($verbose > 0) {
-    diag($leaves_string);
+  my $node = $tree->get_root_node;
+  my @leaves;
+  my @children = ($node);
+  for (@children) {
+    push @children, $_->each_Descendent();
   }
-  is($leaves_string, '((A,B),C)');
+  for (@children) {
+    push @leaves, $_ if $_->is_Leaf;
+  }
+  my ($D) = $leaves[0];
+  my ($dateunit) =  $treeio->read_annotation('-obj'=>$D, '-path'=>'date/unit', '-attr'=>1);
+  my ($daterange) =  $treeio->read_annotation('-obj'=>$D, '-path'=>'date/range', '-attr'=>1);
+  my ($datevalue) =  $treeio->read_annotation('-obj'=>$D, '-path'=>'date/value');
+  is ($dateunit, 'mya');
+  is ($daterange, '30');
+  is ($datevalue, '600');
+  if ($verbose > 0) {
+    diag("node date unit: $dateunit range $daterange value $datevalue");
+  }
 
 # write_tree
   if ($verbose > 0) {

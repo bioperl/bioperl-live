@@ -204,7 +204,7 @@ sub _write_tree_Helper
   # if clade_relation exists
   my @relations = $ac->get_Annotations('clade_relation');
   foreach (@relations) {
-    my $clade_rel = $self->relation_to_string($node, $_, '');
+    my $clade_rel = $self->_relation_to_string($node, $_, '');
     # set as tree attr
     push (@{$self->{'_tree_attr'}->{'clade_relation'}}, $clade_rel);
   }
@@ -234,7 +234,7 @@ sub _write_tree_Helper
       # if sequence_relation exists
       my @relations = $seq->annotation->get_Annotations('sequence_relation');
       foreach (@relations) {
-        my $sequence_rel = $self->relation_to_string($seq, $_, '');
+        my $sequence_rel = $self->_relation_to_string($seq, $_, '');
         # set as tree attr
         push (@{$self->{'_tree_attr'}->{'sequence_relation'}}, $sequence_rel);
       }
@@ -246,7 +246,7 @@ sub _write_tree_Helper
   return $str;
 }
 
-sub relation_to_string {
+sub _relation_to_string {
   my ($self, $obj, $rel, $str) = @_;
 
   my @attr = $obj->annotation->get_Annotations('_attr'); # check id_source
@@ -269,6 +269,80 @@ sub relation_to_string {
 }
 
 
+=head2 read_annotation
+
+ Title   : read_node_annotation
+ Usage   : $treeio->read_node_annotation(-obj=>$node, -path=>$path, -attr=>1);
+ Function: read text value (or attribute value) of the annotations corresponding to the element path 
+ Returns : list of text values of the annotations matching the path
+ Args    : Bio::Tree::AnnotatableNode object and the path of the nested elements
+
+=cut
+
+sub read_annotation
+{
+  my ($self, @args) = @_;
+  my ($obj, $path, $attr) = $self->_rearrange([qw(OBJ PATH ATTR)], @args);
+  my $ac = $obj->annotation;
+  if ($attr) {
+    my @elements = split ('/', $path);
+    my $final = pop @elements;
+    push (@elements, '_attr');
+    push (@elements, $final);
+    $path = join ('/', @elements);
+    return $self->_read_annotation_attr_Helper( [$ac], $path);
+  } 
+  else {
+    return $self->_read_annotation_text_Helper( [$ac], $path);
+  }
+}
+
+sub _read_annotation_text_Helper 
+{
+  my ($self, $acs, $path) = @_;
+  my @elements = split ('/', $path);
+  my $key = shift @elements;
+  my @nextacs = ();
+  foreach my $ac (@$acs) {
+    foreach my $ann ($ac->get_Annotations($key)) {
+      if ($ann->isa('Bio::AnnotationCollectionI')) {push (@nextacs, $ann)}
+    }
+  }
+  if (@elements == 0) {
+    my @values = ();
+    my @texts = map {$_->get_Annotations('_text')} @nextacs;
+    foreach (@texts) {
+      $_ && push (@values, $_->value);
+    }
+    return @values;
+  }
+  else {
+    $path = join ('/', @elements);
+    return $self->_read_annotation_text_Helper( \@nextacs, $path);
+  }
+}
+
+sub _read_annotation_attr_Helper 
+{
+  my ($self, $acs, $path) = @_;
+  my @elements = split ('/', $path);
+  my $key = shift @elements;
+  my @nextacs = ();
+  foreach my $ac (@$acs) {
+    foreach my $ann ($ac->get_Annotations($key)) {
+      if ($ann->isa('Bio::AnnotationCollectionI')) {push (@nextacs, $ann)}
+    }
+  }
+  if (@elements == 1) {
+    my $attrname = $elements[0];
+    my @sv = map {$_->get_Annotations($attrname)} @nextacs;
+    return map {$_->value} @sv;
+  }
+  else {
+    $path = join ('/', @elements);
+    return $self->_read_annotation_attr_Helper( \@nextacs, $path);
+  }
+}
 
 =head2 processXMLNode
 
@@ -395,7 +469,7 @@ sub end_element_phylogeny
   # aggregate the nodes into trees basically ad-hoc.
   if ( @{$self->{'_currentnodes'}} > 1) 
   {
-    $root = $self->nodetype->new( -verbose => $self->verbose, 
+    $root = $self->nodetype->new(  
                                   -id => '',
                                   tostring => \&node_to_string,
                                 );
@@ -412,7 +486,6 @@ sub end_element_phylogeny
   }
 
   my $tree = $self->treetype->new(
-    -verbose => $self->verbose, 
     -root => $root,
     -id => $self->current_attr->{'name'},
     %{$self->current_attr}
@@ -441,7 +514,7 @@ sub element_clade
   my %clade_attr = ();    # doesn't use current attribute in order to save memory 
   $self->processAttribute(\%clade_attr);
   # create a node (Annotatable Node)
-  my $tnode = $self->nodetype->new( -verbose => $self->verbose, 
+  my $tnode = $self->nodetype->new(  
                                     -id => '', 
                                     tostring => \&node_to_string,
                                     %clade_attr,
