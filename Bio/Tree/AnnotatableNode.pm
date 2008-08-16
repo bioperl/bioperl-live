@@ -313,7 +313,7 @@ sub to_string {
  Usage   : $ann = $node->sequence or 
            $node->sequence($seq)
  Function: Gets or sets the sequence
- Returns : Bio::SeqI object
+ Returns : array reference of Bio::SeqI objects
  Args    : None or Bio::SeqI object
 See L<Bio::SeqI> and L<Bio::Seq>
 for more information
@@ -326,7 +326,7 @@ sub sequence
   if( defined $value ) {
     $self->throw("object of class ".ref($value)." does not implement ".
         "Bio::SeqI. Too bad.")      unless $value->isa("Bio::SeqI");
-    $self->{'_sequence'} = $value;
+    push (@{$self->{'_sequence'}}, $value);
   } 
   #elsif( ! defined $self->{'_sequence'}) 
   #{
@@ -334,5 +334,22 @@ sub sequence
   #}
   return $self->{'_sequence'};
 }
+
+=head2 has_sequence
+
+ Title   : has_sequence
+ Usage   : if( $node->has_sequence) { # do something } 
+ Function: tells if node has sequence attached
+ Returns : Boolean for whether or not node has Bio::SeqI attached.
+ Args    : None 
+
+=cut
+
+sub has_sequence
+{
+  my ($self) = @_;
+  return $self->{'_sequence'} && @{$self->{'_sequence'}};
+}
+
 
 1;

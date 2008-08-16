@@ -185,9 +185,8 @@ sub new {
 			      )],
 			  @args);
   
-    # nowarnonempty: private var, no need for accessor
-    # but need to be set before calling _guess_alphabet
-    $self->{'nowarnonempty'} = $nowarnonempty; 
+    # private var _nowarnonempty, need to be set before calling _guess_alphabet
+    $self->{'_nowarnonempty'} = $nowarnonempty; 
 
     if( defined $id && defined $given_id ) {
       if( $id ne $given_id ) {
@@ -841,7 +840,7 @@ sub _guess_alphabet {
 
    my $total = CORE::length($str);
    if( $total == 0 ) {
-     if (!$self->{'nowarnonempty'}) {
+     if (!$self->{'_nowarnonempty'}) {
        $self->warn("Got a sequence with no letters in it ".
            "cannot guess alphabet");
      }

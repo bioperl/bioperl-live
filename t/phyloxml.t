@@ -7,7 +7,7 @@ BEGIN {
   use lib 't/lib';
   use BioperlTest;
 
-  test_begin(-tests => 69,
+  test_begin(-tests => 73,
              -requires_modules => [qw(XML::LibXML XML::LibXML::Reader)],
             );
   if (1000*$] < 5008) {
@@ -167,16 +167,23 @@ ok my $treeio = Bio::TreeIO->new(
     diag("tree id: ",$tree->id);
   }
   my $C = $tree->find_node('C');
+  my ($ac) = $C->annotation->get_Annotations('taxonomy');
+  isa_ok( $ac, 'Bio::Annotation::Collection');
+  my ($ac2) = $ac->get_Annotations('scientific_name');
+  isa_ok( $ac2, 'Bio::Annotation::Collection');
+  my ($scientificname) = $ac2->get_Annotations('_text');
+  is($scientificname->as_text, 'Value: C. elegans');
+  if ($verbose > 0) {
+    diag( "Node C Scientific Name: ",$scientificname->as_text);
+  }
+  my ($ac3) = $C->annotation->get_nested_Annotations(-keys=>['scientific_name'], -recursive=>1);
+  isa_ok( $ac3, 'Bio::Annotation::Collection');
+  ($scientificname) = $ac2->get_Annotations('_text');
+  is($scientificname->as_text, 'Value: C. elegans');
+  if ($verbose > 0) {
+    diag( "Node C Scientific Name: ",$scientificname->as_text);
+  }
   
-  if ($verbose > 0) {
-    diag($C->to_string());
-  }
-  my $leaves_string = $tree->simplify_to_leaves_string();
-  if ($verbose > 0) {
-    diag($leaves_string);
-  }
-  is($leaves_string, '((A,B),C)');
-
 # write_tree
   if ($verbose > 0) {
     diag("\ntest write_tree");

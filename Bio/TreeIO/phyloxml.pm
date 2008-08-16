@@ -181,6 +181,10 @@ sub write_tree
     while (my $str = pop (@{$self->{'_tree_attr'}->{'clade_relation'}})) {
       $self->_print($str);
     }
+    # print sequence relations
+    while (my $str = pop (@{$self->{'_tree_attr'}->{'sequence_relation'}})) {
+      $self->_print($str);
+    }
     $self->_print("</phylogeny>");
     $self->_print("\n");
   }
@@ -196,7 +200,6 @@ sub _write_tree_Helper
     $self->throw( "node must be a Bio::Tree::AnnotatableNode" );
   }
   my $ac = $node->annotation;
-  my $seq = $node->sequence;
 
   # if clade_relation exists
   my @relations = $ac->get_Annotations('clade_relation');
@@ -208,11 +211,11 @@ sub _write_tree_Helper
 
   # start <clade>
   $str .= '<clade';
-  my @attr = $ac->get_Annotations('_attr'); # check id_source
-  if (@attr) { 
-    my @id_source = $attr[0]->get_Annotations('id_source');
-    if (@id_source) {
-      $str .= " id_source=\"".$id_source[0]->value."\"";
+  my ($attr) = $ac->get_Annotations('_attr'); # check id_source
+  if ($attr) { 
+    my ($id_source) = $attr->get_Annotations('id_source');
+    if ($id_source) {
+      $str .= " id_source=\"".$id_source->value."\"";
     }
   }
   $str .= ">";
@@ -224,9 +227,19 @@ sub _write_tree_Helper
 
   # print all annotations
   $str = print_annotation( $node, $str, $ac );
+
   # print all sequences
-  if ($seq) {
-    $str = print_seq_annotation( $self, $str, $seq );
+  if ($node->has_sequence) {
+    foreach my $seq (@{$node->sequence}) {
+      # if sequence_relation exists
+      my @relations = $seq->annotation->get_Annotations('sequence_relation');
+      foreach (@relations) {
+        my $sequence_rel = $self->relation_to_string($seq, $_, '');
+        # set as tree attr
+        push (@{$self->{'_tree_attr'}->{'sequence_relation'}}, $sequence_rel);
+      }
+      $str = print_seq_annotation( $node, $str, $seq );
+    }
   }
   
   $str .= "</clade>";
@@ -234,22 +247,23 @@ sub _write_tree_Helper
 }
 
 sub relation_to_string {
-  my ($self, $node, $rel, $str) = @_;
+  my ($self, $obj, $rel, $str) = @_;
 
-  my @attr = $node->annotation->get_Annotations('_attr'); # check id_source
+  my @attr = $obj->annotation->get_Annotations('_attr'); # check id_source
   if (@attr) { 
     my @id_source = $attr[0]->get_Annotations('id_source');
   }
-  my ($id_ref_0) = $node->annotation->get_nested_Annotations(
+  my ($id_ref_0) = $obj->annotation->get_nested_Annotations(
                                       '-keys' => ['id_source'],
                                       '-recursive' => 1); 
   my ($id_ref_1) = $rel->to->annotation->get_nested_Annotations( 
                                       '-keys' => ['id_source'],
                                       '-recursive' => 1); 
-  $str .= "<clade_relation ";
-  $str .= "id_ref_0=\"".$id_ref_0->value."\" ";
-  $str .= "id_ref_1=\"".$id_ref_1->value."\" ";
-  $str .= "type=\"".$rel->type."\"";
+  $str .= "<";
+  $str .= $rel->tagname;
+  $str .= " id_ref_0=\"".$id_ref_0->value."\"";
+  $str .= " id_ref_1=\"".$id_ref_1->value."\"";
+  $str .= " type=\"".$rel->type."\"";
   $str .= "/>";
   return $str;
 }
@@ -947,7 +961,6 @@ sub node_to_string
                        # not a Bio::TreeIO::phyloxml
   my $str = '';
   my $ac = $self->annotation;
-  my $seq = $self->sequence;
 
   # start <clade>
   $str .= '<clade';
@@ -963,8 +976,10 @@ sub node_to_string
   # print all annotations
   $str = print_annotation( $self, $str, $ac );
   # print all sequences
-  if ($seq) {
-    $str = print_seq_annotation( $self, $str, $seq );
+  if ($self->has_sequence) {
+    foreach my $seq (@{$self->sequence}) {
+      $str = print_seq_annotation( $self, $str, $seq );
+    }
   }
   
   $str .= '</clade>';
@@ -1028,7 +1043,16 @@ sub print_seq_annotation
 {
   my ($self, $str, $seq) = @_; 
   
-  $str .= "<sequence>";
+  $str .= "<sequence";
+  my ($attr) = $seq->annotation->get_Annotations('_attr'); # check id_source
+  if ($attr) { 
+    my ($id_source) = $attr->get_Annotations('id_source');
+    if ($id_source) {
+      $str .= " id_source=\"".$id_source->value."\"";
+    }
+  }
+  $str .= ">";
+
   my @all_anns = $seq->annotation->get_Annotations();
   foreach my $ann (@all_anns) {
     my $key = $ann->tagname;
