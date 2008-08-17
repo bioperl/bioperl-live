@@ -946,8 +946,8 @@ sub reroot {
 =head2 findnode_by_id
 
  Title   : findnode_by_id
- Usage   : my $node = $tree->find_node_by_id($id);
- Function: Get a node by its internal id (which should be 
+ Usage   : my $node = $tree->findnode_by_id($id);
+ Function: Get a node by its id (which should be 
            unique for the tree)
  Returns : L<Bio::Tree::NodeI>
  Args    : node id
@@ -958,6 +958,8 @@ sub reroot {
 
 sub findnode_by_id {
     my $tree = shift;
+    $tree->deprecated("use of findnode_by_id() is deprecated; ".
+		      "use find_node() instead");
     my $id = shift;
     my $rootnode = $tree->get_root_node;
     if ( ($rootnode->id) and ($rootnode->id eq $id) ) {
