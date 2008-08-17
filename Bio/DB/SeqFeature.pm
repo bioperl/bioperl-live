@@ -384,6 +384,9 @@ sub denormalized_segment_count {
 # for Bio::LocationI compatibility
 sub is_remote { return }
 
+# for Bio::LocationI compatibility
+sub location_type { return 'EXACT' }
+
 1;
 
 
