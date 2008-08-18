@@ -83,12 +83,17 @@ sub _initialize
   # phyloxml TreeIO does not use SAX, 
   # therefore no need to attach EventHandler
   # instead we will define a reader that is a pull-parser of libXML
-  if ($self->{'_file'}) {
-    $self->{'_reader'} = XML::LibXML::Reader->new( 
-                        location => $self->{'_file'},
+  if ($self->mode eq 'r') {
+    if ($self->_fh) {
+      $self->{'_reader'} = XML::LibXML::Reader->new( 
+                        IO => $self->_fh,
                         no_blanks => 1
                         );
-  } 
+    }
+    if (!$self->{'_reader'}) {
+      $self->throw("XML::LibXML::Reader not initialized");
+    }
+  }
 
   $self->treetype($args{-treetype});
   $self->nodetype($args{-nodetype});
@@ -523,7 +528,7 @@ sub element_clade
   my $ac = $tnode->annotation;
   my $newattr = Bio::Annotation::Collection->new();
   foreach my $tag (keys %clade_attr) {
-    my $sv = new Bio::Annotation::SimpleValue(
+    my $sv = Bio::Annotation::SimpleValue->new(
               -value => $clade_attr{$tag}
              );
     $newattr->add_Annotation($tag, $sv);
@@ -611,7 +616,7 @@ sub end_element_relation
 
   # set id_ref_0 
   my $ac0 = $srcbyidref[0]->annotation;
-  my $newann = new Bio::Annotation::Relation(
+  my $newann = Bio::Annotation::Relation->new(
                     '-type' => $relationtype,
                     '-to' => $srcbyidref[1],
                     '-tagname' => $self->current_element
@@ -619,7 +624,7 @@ sub end_element_relation
   $ac0->add_Annotation($self->current_element, $newann);
   # set id_ref_1 
   my $ac1 = $srcbyidref[1]->annotation;
-  $newann = new Bio::Annotation::Relation(
+  $newann = Bio::Annotation::Relation->new(
                     '-type' => $relationtype,
                     '-to' => $srcbyidref[0],
                     '-tagname' => $self->current_element
@@ -818,7 +823,7 @@ sub annotateNode
   if ( scalar keys %{$self->current_attr} ) {
     my $newattr = Bio::Annotation::Collection->new();
     foreach my $tag (keys %{$self->current_attr}) {
-      my $sv = new Bio::Annotation::SimpleValue(
+      my $sv = Bio::Annotation::SimpleValue->new(
                 -value => $self->current_attr->{$tag}
                );
       $newattr->add_Annotation($tag, $sv);
@@ -827,7 +832,7 @@ sub annotateNode
   }
   # if text exists add text as SimpleValue with tag '_text'
   if ( $self->{'_currenttext'} ) {
-    my $newvalue = new Bio::Annotation::SimpleValue( -value => $self->{'_currenttext'} );
+    my $newvalue = Bio::Annotation::SimpleValue->new( -value => $self->{'_currenttext'} );
     $newac->add_Annotation('_text', $newvalue);
   }
 }

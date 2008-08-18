@@ -171,7 +171,7 @@ sub add_tag_value
     $self->warn("cannot call add_tag_value with an undefined value");
   }
   my $ac = $self->annotation();
-  my $sv = new Bio::Annotation::SimpleValue(-value => $value);
+  my $sv = Bio::Annotation::SimpleValue->new(-value => $value);
   $ac->add_Annotation($tag, $sv); 
   return scalar $ac->get_Annotations($tag);
 }
