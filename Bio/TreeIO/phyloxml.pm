@@ -276,11 +276,14 @@ sub _relation_to_string {
 
 =head2 read_annotation
 
- Title   : read_node_annotation
- Usage   : $treeio->read_node_annotation(-obj=>$node, -path=>$path, -attr=>1);
+ Title   : read_annotation
+ Usage   : $treeio->read_annotation(-obj=>$node, -path=>$path, -attr=>1);
  Function: read text value (or attribute value) of the annotations corresponding to the element path 
  Returns : list of text values of the annotations matching the path
- Args    : Bio::Tree::AnnotatableNode object and the path of the nested elements
+ Args    : -obj   => object that contains the Annotation. (Bio::Tree::AnnotatableNode or Bio::SeqI)
+           -path  => path of the nested elements
+           -attr  => Boolean value to indicate whether to get the attribute of the element or the text value. 
+                    (default is 0, meaning text value is returned)
 
 =cut
 
@@ -1028,7 +1031,7 @@ sub nodetype{
  Usage   : $annotatablenode->to_string_callback(\&node_to_string)
  Function: set as callback in AnnotatableNode, prints the node information in string 
  Returns : string of node information
- Args    : 
+ Args    : none
 
 =cut
 
