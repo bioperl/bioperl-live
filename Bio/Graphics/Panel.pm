@@ -113,6 +113,13 @@ sub new {
 	       },$class;
 }
 
+sub rotate {
+  my $self = shift;
+  my $d    = $self->{rotate};
+  $self->{rotate} = shift if @_;
+  $d;
+}
+
 sub pad_left {
   my $self = shift;
   my $g = $self->{pad_left};
@@ -581,7 +588,7 @@ sub gd {
   $self->draw_bottom_key($gd,$pl,$offset) if $self->{key_style} eq 'bottom';
   $self->endGroup($gd);
 
-  return $self->{gd} = $gd;
+  return $self->{gd} = $self->rotate ? $gd->copyRotate90 : $gd;
 }
 
 sub startGroup {
@@ -605,6 +612,11 @@ sub polygon_package { return shift->{polygon_package}; }
 
 sub boxes {
   my $self = shift;
+
+  if (my $boxes = $self->{boxes}){ # cached result
+    return wantarray ? @$boxes : $boxes;
+  }
+
   my @boxes;
   my $offset = 0;
 
@@ -617,17 +629,29 @@ sub boxes {
   my $empty_track_style = $self->empty_track_style;
   my $keyheight         = $self->{key_font}->height;
   my $spacing = $self->spacing;
+  my $rotate  = $self->rotate;
 
   for my $track (@{$self->{tracks}}) {
     my $draw_between =  $between_key && $track->option('key');
     next if !$track->parts && ($empty_track_style eq 'suppress'
 			    or  $empty_track_style eq 'key' && $bottom_key);
     $offset += $keyheight if $draw_between;
+    my $height = $track->layout_height;
     my $boxes = $track->boxes($pl,$offset+$pt);
     $self->track_position($track,$offset);
     push @boxes,@$boxes;
     $offset += $track->layout_height + $self->spacing;
   }
+
+  if ($rotate) {
+    $offset -= $self->spacing;
+    @boxes = map {
+      @{$_}[1,2,3,4] = @{$_}[2,1,4,3];
+      ($_->[1],$_->[3]) = map {$offset - $_} @{$_}[1,3];
+      $_;
+    } @boxes;
+  }
+  $self->{boxes} = \@boxes;
   return wantarray ? @boxes : \@boxes;
 }
 
@@ -1975,6 +1999,15 @@ After calling gd() or boxes(), you can learn the resulting Y
 coordinate of a track by calling track_position() with the value
 returned by add_track() or unshift_track().  This will return undef if
 called before gd() or boxes() or with an invalid track.
+
+=item $rotate       = $panel-E<gt>rotate([$new_value])
+
+Gets or sets the "rotate" flag. If rotate is set to true (default
+false), then calls to gd(), png(), gif(), boxes(), and image_and_map()
+will all return an image and/or imagemap that has been rotated to the
+right by 90 degrees. This is mostly useful for drawing karyotypes with
+the ideogram glyph, in order to rotate the chromosomes into the usual
+vertical position.
 
 =item @pixel_coords = $panel-E<gt>location2pixel(@feature_coords)
 

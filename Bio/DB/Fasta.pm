@@ -485,7 +485,7 @@ sub new {
     # that contain whitespace.
     $path = Win32::GetShortPathName($path)
       if $^O =~ /^MSWin/i && eval 'use Win32; 1';
-    $offsets = $self->index_dir($path,$opts{-reindex});
+    $offsets = $self->index_dir($path,$opts{-reindex}) or return;
     $dirname = $path;
   } elsif (-f _) {
     $offsets = $self->index_file($path,$opts{-reindex});
@@ -554,7 +554,8 @@ sub index_dir {
 
   # find all fasta files
   my @files = glob("$dir/$self->{glob}");
-  $self->throw( "no fasta files in $dir") unless @files;
+#  $self->throw( "no fasta files in $dir") unless @files;
+  return unless @files;
 
   # get name of index
   my $index = $self->index_name($dir,1);
