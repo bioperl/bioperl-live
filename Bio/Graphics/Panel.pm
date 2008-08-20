@@ -624,6 +624,7 @@ sub boxes {
 
   my $pl = $self->pad_left;
   my $pt = $self->pad_top;
+
   my $between_key       = $self->{key_style} eq 'between';
   my $bottom_key        = $self->{key_style} eq 'bottom';
   my $empty_track_style = $self->empty_track_style;
@@ -637,19 +638,19 @@ sub boxes {
 			    or  $empty_track_style eq 'key' && $bottom_key);
     $offset += $keyheight if $draw_between;
     my $height = $track->layout_height;
-    my $boxes = $track->boxes($pl,$offset+$pt);
+    my $boxes  = $track->boxes($pl,$offset+$pt);
     $self->track_position($track,$offset);
     push @boxes,@$boxes;
     $offset += $track->layout_height + $self->spacing;
   }
 
   if ($rotate) {
-    $offset -= $self->spacing;
-    @boxes = map {
-      @{$_}[1,2,3,4] = @{$_}[2,1,4,3];
-      ($_->[1],$_->[3]) = map {$offset - $_} @{$_}[1,3];
-      $_;
-    } @boxes;
+      my $x_offset = $self->height-1;
+      @boxes = map {
+	  @{$_}[1,2,3,4]    = @{$_}[4,1,2,3];
+	  ($_->[1],$_->[3]) = map {$x_offset - $_} @{$_}[1,3];
+	  $_;
+      } @boxes;
   }
   $self->{boxes} = \@boxes;
   return wantarray ? @boxes : \@boxes;
