@@ -81,8 +81,12 @@ sub draw_component {
   # in the configuration file, resulting in the tips of the chromosome being painted black.
   my $fake_telomeres = $self->option('fake_telomeres') || 0;
 
-  my ($bgcolor_index) = $self->option('bgcolor') =~ /$stain:(\S+)/ if $stain;
-  ($bgcolor_index,$stain) = qw/white none/ if !$stain;
+  my $bgcolor_index = $self->option('bgcolor');
+
+  if ($bgcolor_index =~ /\w+:/) {
+      ($bgcolor_index) = $self->option('bgcolor') =~ /$stain:(\S+)/ if $stain;
+      ($bgcolor_index,$stain) = qw/white none/ if !$stain;
+  }
 
   my $black = $gd->colorAllocate( 0, 0, 0 );
   my $cm_color = $self->{cm_color} = $gd->colorAllocate( 102, 102, 153 );

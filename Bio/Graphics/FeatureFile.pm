@@ -854,6 +854,8 @@ sub code_setting {
   my $self = shift;
   my $section = shift;
   my $option  = shift;
+  croak 'Cannot call code_setting unless feature file is marked as safe'
+      unless $self->safe;
 
   my $setting = $self->_setting($section=>$option);
   return unless defined $setting;

@@ -19,7 +19,7 @@ BEGIN {
   use lib 't/lib';
   use BioperlTest;
   
-  test_begin(-tests => 36 + (IMAGE_TESTS ? 3 : 0),
+  test_begin(-tests => 42 + (IMAGE_TESTS ? 3 : 0),
              -requires_modules => [qw(GD Text::Shellwords)]);
   
   use_ok('Bio::Graphics::FeatureFile');
@@ -45,7 +45,9 @@ foreach (@images) {
   if ($write) { warn "$_...\n"; do_write($_) } else { eval { do_compare($_) } }
 }
 
-my $data  = Bio::Graphics::FeatureFile->new(-file => test_input_file('biographics', 'feature_data.txt')) or die;
+my $data  = Bio::Graphics::FeatureFile->new(-file => test_input_file('biographics', 'feature_data.txt'),
+					    -safe => 0,
+    ) or die;
 ok defined $data;
 is $data->render, 5;
 is $data->setting(general=>'pixels'), 750;
@@ -108,6 +110,18 @@ $feature->refseq($ref);
 is $feature->start,100;   # expect flipping so that start > end
 is $feature->end,1;
 is $feature->strand,1;
+
+# test safety of callbacks
+is $data->safe,0;
+is ref $data->setting(SwissProt=>'fill'),'';
+is eval{ref $data->code_setting(SwissProt=>'fill')},undef;
+
+$data  = Bio::Graphics::FeatureFile->new(-file => test_input_file('biographics', 'feature_data.txt'),
+					 -safe => 1,
+    ) or die;
+is $data->safe,1;
+is ref $data->setting(SwissProt=>'fill'),'CODE';
+is eval{ref $data->code_setting(SwissProt=>'fill')},'CODE';
 
 exit 0;
 

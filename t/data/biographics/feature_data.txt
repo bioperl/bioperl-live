@@ -25,6 +25,7 @@ glyph = arrow
 base  = 1
 linewidth = 2
 fgcolor = red
+fill    = sub { return 'blue' }
 description = 1
 
 [P-element]
