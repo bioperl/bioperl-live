@@ -572,6 +572,25 @@ sub delete {
   $success;
 }
 
+=head2 get_feature_by_id
+
+ Title   : get_feature_by_id
+ Usage   : $feature = $db->get_feature_by_id($primary_id)
+ Function: fetch a feature from the database using its primary ID
+ Returns : a feature
+ Args    : primary ID of desired feature
+ Status  : public
+
+This method returns a previously-stored feature from the database
+using its primary ID. If the primary ID is invalid, it returns undef.
+
+=cut
+
+sub get_feature_by_id {
+    my $self = shift;
+    $self->fetch(@_);
+}
+
 =head2 fetch
 
  Title   : fetch
@@ -581,8 +600,7 @@ sub delete {
  Args    : primary ID of desired feature
  Status  : public
 
-This method returns a previously-stored feature from the database
-using its primary ID. If the primary ID is invalid, it returns undef.
+This is an alias for get_feature_by_id().
 
 =cut
 

@@ -15,12 +15,12 @@ sub draw {
   my $self = shift;
 
   my @parts = $self->parts;
-  @parts = $self if !@parts && $self->level == 0;
+  @parts    = $self if !@parts && $self->level == 0;
   return $self->SUPER::draw(@_) unless @parts;
 
   # Draw the sides for the whole chromosome (in case
   # there are missing data).
-  $self->draw_component(@_) unless @parts == 1;
+  $self->draw_component(@_) if $self->level == 0;
 
   # Make unaggregated bands invisible if requested.
   # This is for making image maps for individual
@@ -34,7 +34,7 @@ sub draw {
   # we can draw the centomere and telomeres last to improve
   # the appearance
   my ($gd,$x,$y) = @_;
-  $x    += $self->left + $self->pad_left;
+  $x += $self->left + $self->pad_left;
   $y += $self->top  + $self->pad_top;
 
   my @last;
@@ -67,6 +67,7 @@ sub draw_component {
   my $self = shift;
   my $gd   = shift;
   my $feat = $self->feature;
+
   my $arcradius = $self->option('arcradius') || 7;
   my ($x1, $y1, $x2, $y2 ) = $self->bounds(@_);
 
@@ -101,7 +102,9 @@ sub draw_component {
   elsif ( $bgcolor_index =~ /var/ ) {
     $bgcolor = gdTiled;
   }
+
   if ( $feat->method !~ /centromere/i && $stain ne 'acen') {
+
     # are we at the end of the chromosome?
     if ( $feat->start <= 1 && $stain ne 'tip') {
       # left telomere
@@ -143,6 +146,7 @@ sub draw_component {
       $self->draw_centromere( $gd, $x1, $y1, $x2, $y2, gdTiled, $fgcolor );
     }
   }
+
 }
 
 sub draw_cytoband {
@@ -242,19 +246,19 @@ sub draw_telomere {
     my $x = $new_x2;
     my $y = $new_y;
 
-    $gd->arc( $x, $y, $arcradius * 2,
-              $arcsize, 270, 90, $orange);
-    $gd->line($x+1,$y1,$x2+3,$y1,$orange);
-    $gd->line($x2+3,$y1,$x2+3,$y2,$orange);
-    $gd->line($x2+3,$y2,$x+1,$y2,$orange);
-    $gd->fillToBorder($x2-1,$y1+1,$orange,$bg);
-    $gd->fillToBorder($x2-1,$y2-1,$orange,$bg);
-    $gd->line($x+1,$y1,$x2+3,$y1,$bg);
-    $gd->line($x2+3,$y1,$x2+3,$y2,$bg);
-    $gd->line($x2+3,$y2,$x+1,$y2,$bg);
-    $gd->arc( $x, $y, $arcradius * 2,
-              $arcsize, 270, 90, $fgcolor);
-    $gd->line($x2,$y-1,$x2,$y+1,$bg);
+     $gd->arc( $x, $y, $arcradius * 2,
+               $arcsize, 270, 90, $orange);
+     $gd->line($x+1,$y1,$x2+3,$y1,$orange);
+     $gd->line($x2+3,$y1,$x2+3,$y2,$orange);
+     $gd->line($x2+3,$y2,$x+1,$y2,$orange);
+     $gd->fillToBorder($x2-1,$y1+1,$orange,$bg);
+     $gd->fillToBorder($x2-1,$y2-1,$orange,$bg);
+     $gd->line($x+1,$y1,$x2+3,$y1,$bg);
+     $gd->line($x2+3,$y1,$x2+3,$y2,$bg);
+     $gd->line($x2+3,$y2,$x+1,$y2,$bg);
+     $gd->arc( $x, $y, $arcradius * 2,
+ 	      $arcsize, 270, 90, $fgcolor);
+     $gd->line($x2,$y-1,$x2,$y+1,$bg);
   }
 
   # GD::SVG hack :(
@@ -278,8 +282,8 @@ sub draw_stalk {
   $_[4] -= $inset;
   $self->draw_cytoband(@_);
 
-  $gd->line( $x1, $y1, $x1, $y2, $fgcolor );
-  $gd->line( $x2-1, $y1, $x2-1, $y2, $fgcolor );
+  $gd->line( $x1,   $y1, $x1,   $y2, $fgcolor );
+  $gd->line( $x2,   $y1, $x2,   $y2, $fgcolor );
 }
 
 sub create_tile {
