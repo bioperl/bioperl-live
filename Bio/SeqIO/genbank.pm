@@ -663,7 +663,7 @@ sub next_seq {
 		    $_ =~ /^(?:CONTIG)?\s+(.*)/;
 		    $annotation->add_Annotation(
 						Bio::Annotation::SimpleValue->new(-value   => $1,
-										  -tagname => 'CONTIG'));
+										  -tagname => 'contig'));
 		    $_ = $self->_readline;
 		}
 		$self->_pushback($_);
@@ -672,7 +672,7 @@ sub next_seq {
 		    chomp;
 		    $annotation->add_Annotation(
 						Bio::Annotation::SimpleValue->new(-value => $_,
-										  -tagname => $1));
+										  -tagname => lc($1)));
 		    $_ = $self->_readline;
 		}
 	    } elsif(! m{^(ORIGIN|//)} ) { # advance to the sequence, if any
@@ -821,6 +821,11 @@ sub write_seq {
 			      "\n");
 	    }
 	}
+    
+    # if there, write the PROJECT line    
+	for my $proj ( $seq->annotation->get_Annotations('project') ) {
+		$self->_print("PROJECT     ".$proj->value."\n");
+    }
 
 	# if there, write the DBSOURCE line
 	foreach my $ref ( $seq->annotation->get_Annotations('dblink') ) {
@@ -961,20 +966,20 @@ sub write_seq {
 	}
 
 	# deal with WGS; WGS_SCAFLD present only if WGS is also present
-	if($seq->annotation->get_Annotations('WGS')) {
+	if($seq->annotation->get_Annotations('wgs')) {
 	    foreach my $wgs
-		(map {$seq->annotation->get_Annotations($_)} qw(WGS WGS_SCAFLD)) {
-		    $self->_print(sprintf ("%-11s %s\n",$wgs->tagname,
+		(map {$seq->annotation->get_Annotations($_)} qw(wgs wgs_scaffold)) {
+		    $self->_print(sprintf ("%-11s %s\n",uc($wgs->tagname),
 					   $wgs->value));
 		}
 	    $self->_show_dna(0);
 	}
-	if($seq->annotation->get_Annotations('CONTIG')) {
+	if($seq->annotation->get_Annotations('contig')) {
 	    my $ct = 0;
 	    my $cline;
-	    foreach my $contig ($seq->annotation->get_Annotations('CONTIG')) {
+	    foreach my $contig ($seq->annotation->get_Annotations('contig')) {
 		unless ($ct) {
-		    $cline = $contig->tagname."      ".$contig->value."\n";
+		    $cline = uc($contig->tagname)."      ".$contig->value."\n";
 		} else {
 		    $cline = "            ".$contig->value."\n";
 		}

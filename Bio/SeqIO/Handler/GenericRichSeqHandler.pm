@@ -671,6 +671,7 @@ sub _swiss_genename {
                 my @genenames;
                 for my $section (split(m{\s*;\s*},$n)) {
                     my ($tag, $rest) = split("=",$section);
+                    $rest ||= '';
                     for my $val (split(m{\s*,\s*},$rest)) {
                         push @genenames, [$tag => $val];
                     }
@@ -1114,7 +1115,7 @@ sub _generic_seqfeatures {
 sub _generic_simplevalue {
     my ($self, $data) = @_;
     $self->annotation_collection->add_Annotation(
-        Bio::Annotation::SimpleValue->new(-tagname => $data->{NAME},
+        Bio::Annotation::SimpleValue->new(-tagname => lc($data->{NAME}),
        -value => $data->{DATA})
         );
 }

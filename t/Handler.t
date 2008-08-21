@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 546);
+    test_begin(-tests => 550);
 	
     use_ok('Bio::SeqIO');
 }
@@ -342,11 +342,11 @@ $gb = Bio::SeqIO->new(-format => 'gbdriver',
                     -file   => test_input_file('O_sat.wgs'));
 $seq = $gb->next_seq;
 
-my @tests = ('WGS'        => 'AAAA02000001-AAAA02050231',
-            'WGS_SCAFLD' => 'CM000126-CM000137',
-            'WGS_SCAFLD' => 'CH398081-CH401163');
+my @tests = ('wgs'        => 'AAAA02000001-AAAA02050231',
+            'wgs_scafld' => 'CM000126-CM000137',
+            'wgs_scafld' => 'CH398081-CH401163');
 
-my @wgs = map {$seq->annotation->get_Annotations($_)} qw(WGS WGS_SCAFLD);
+my @wgs = map {$seq->annotation->get_Annotations(lc($_))} (qw(WGS WGS_SCAFLD));
 
 my $ct=0;
 
@@ -496,6 +496,48 @@ is(join(', ',$species->classification), 'Virginia creeper phytoplasma, '.
    '16SrV (Elm yellows group), Candidatus Phytoplasma, '.
    'Acholeplasmataceae, Acholeplasmatales, Mollicutes, '.
    'Firmicutes, Bacteria', 'Bug 2195');
+
+# bug 2569, PROJECT line support, read and write, round-tripping
+    
+$str = Bio::SeqIO->new(-format =>'gbdriver',
+                      -verbose => $verbose,
+                      -file => test_input_file('NC_008536.gb'));
+
+$seq = $str->next_seq;
+
+my $project = ($seq->annotation->get_Annotations('project'))[0];
+
+isa_ok($project, 'Bio::Annotation::SimpleValue');
+
+if ($project) {
+	is($project->value, 'GenomeProject:12638');
+} else {
+	ok(0, "PROJECT not parsed");
+}
+
+$outfile = test_output_file();
+
+$gb = Bio::SeqIO->new(-format => 'genbank',
+                              -verbose => $verbose,
+                       -file=> ">$outfile");
+
+$gb->write_seq($seq);
+
+$str = Bio::SeqIO->new(-format =>'gbdriver',
+                      -verbose => $verbose,
+                      -file => $outfile);
+
+$seq = $str->next_seq;
+
+$project = ($seq->annotation->get_Annotations('project'))[0];
+
+isa_ok($project, 'Bio::Annotation::SimpleValue');
+
+if ($project) {
+	is($project->value, 'GenomeProject:12638');
+} else {
+	ok(0, "Roundtrip test failed");
+}
 
 ################################## EMBL ##################################
 
