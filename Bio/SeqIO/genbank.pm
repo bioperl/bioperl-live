@@ -423,6 +423,13 @@ sub next_seq {
 		}
 		next;
 	    }
+		# Project
+		elsif (/^PROJECT\s+(\S.*)/) {
+			if ($annotation) {
+				my $project = new Bio::Annotation::SimpleValue->new(-value => $1);
+				$annotation->add_Annotation('project',$project);
+			}
+		}
 	    # Comments
 	    elsif (/^COMMENT\s+(\S.*)/) {
 		if($annotation) {
