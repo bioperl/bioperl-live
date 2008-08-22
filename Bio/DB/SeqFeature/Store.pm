@@ -51,6 +51,9 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
   # ...by attribute
   @features = $db->get_features_by_attribute({description => 'protein kinase'})
 
+  # ...by primary id
+  @features = $db->get_feature_by_primary_id(42); # note no plural!!!
+
   # ...by the GFF "Note" field
   @result_list = $db->search_notes('kinase');
 
@@ -620,6 +623,25 @@ sub fetch {
   else {
     return $self->_fetch($primary_id);
   }
+}
+
+=head2 get_feature_by_primary_id
+
+ Title   : get_feature_by_primary_id
+ Usage   : $feature = $db->get_feature_by_primary_id($primary_id)
+ Function: fetch a feature from the database using its primary ID
+ Returns : a feature
+ Args    : primary ID of desired feature
+ Status  : public
+
+This method returns a previously-stored feature from the database
+using its primary ID. If the primary ID is invalid, it returns
+undef. This method is identical to fetch().
+
+=cut
+
+sub get_feature_by_primary_id {
+    shift->fetch(@_);
 }
 
 =head2 fetch_many
