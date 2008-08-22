@@ -84,7 +84,10 @@ sub draw_component {
 
   my $bgcolor_index = $self->option('bgcolor');
 
-  if ($bgcolor_index =~ /\w+:/) {
+  if ((my $fallback = $self->option('bgfallback')) && !$stain) {
+      $bgcolor_index = $fallback;
+  }
+  elsif ($bgcolor_index =~ /\w+:/) {
       ($bgcolor_index) = $self->option('bgcolor') =~ /$stain:(\S+)/ if $stain;
       ($bgcolor_index,$stain) = qw/white none/ if !$stain;
   }
@@ -374,7 +377,8 @@ The cytobandband features would typically be formatted like this in GFF3:
  feature       = chromosome
  glyph         = ideogram
  fgcolor       = black
- bgcolor       = gneg:white gpos25:silver gpos50:gray gpos:gray  gpos75:darkgray gpos100:black acen:cen gvar:var
+ bgcolor       = gneg:white gpos25:silver gpos50:gray 
+                 gpos:gray  gpos75:darkgray gpos100:black acen:cen gvar:var
  arcradius     = 6
  height        = 25
  bump          = 0
@@ -395,10 +399,6 @@ L<Bio::Graphics::Glyph> for a full explanation.
 
   -outlinecolor	Synonym for -fgcolor
 
-  -bgcolor      Background color               turquoise
-
-  -fillcolor    Synonym for -bgcolor
-
   -linewidth    Line width                     1
 
   -height       Height of glyph		       10
@@ -413,6 +413,37 @@ L<Bio::Graphics::Glyph> for a full explanation.
   -label        Whether to draw a label	       0 (false)
 
   -description  Whether to draw a description  0 (false)
+
+The following options are specific to the ideogram glyph.
+
+
+  Option      Description                      Default
+  ------      -----------                      -------
+
+  -bgcolor    Band coloring string	       none
+  
+  -bgfallback Coloring to use when no bands    yellow
+                 are present
+
+B<-bgcolor> is used to map each chromosome band's "stain" attribute
+into a color or pattern. It is a string that looks like this:
+
+  gneg:white gpos25:silver gpos50:gray \
+  gpos:gray  gpos75:darkgray gpos100:black acen:cen gvar:var
+
+This is saying to use "white" for features whose stain attribute is
+"gneg", "silver" for those whose stain attribute is "gpos25", and so
+on. Several special values are recognized: "B<stalk>" draws a narrower
+gray region and is usually used to indicate an acrocentric
+stalk. "B<var>" creates a diagonal black-on-white pattern. "B<cen>"
+draws a centromere.
+
+If -bgcolor is just a color name, like "yellow", the glyph will ignore
+all bands and just draw a filled in chromosome.
+
+If -bgfallback is set to a color name or value, then the glyph will
+fall back to the indicated background color if the chromosome contains
+no bands.
 
 =head1 UCSC TO GFF CONVERSION SCRIPT
 
