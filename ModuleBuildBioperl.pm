@@ -94,8 +94,7 @@ sub choose_scripts {
     closedir($scripts_dir);
     my $question = $int_ok ? "Install [a]ll Bioperl scripts, [n]one, or choose groups [i]nteractively?" : "Install [a]ll Bioperl scripts or [n]one?";
     
-    my $prompt = $accept
-               ? 'a' : $self->prompt($question, 'a');
+    my $prompt = $accept ? 'a' : $self->prompt($question, 'a');
     
     if ($prompt =~ /^[aA]/) {
         $self->log_info("  - will install all scripts\n");
@@ -143,6 +142,10 @@ sub choose_scripts {
 # installs all scripts in scripts directory
 sub script_files {
     my $self = shift;
+    
+    unless (-d 'scripts') {
+        return {};
+    }
     
     my $chosen_scripts = $self->notes('chosen_scripts');
     if ($chosen_scripts) {
