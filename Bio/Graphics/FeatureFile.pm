@@ -1116,15 +1116,6 @@ sub configured_types {
   my $self = shift;
   my $types = $self->{types} or return;
   return @$types;
-#   my @types;
-#   for my $t (@$types) {
-#       if (my $ftype = $self->setting($t=>'feature')) {
-# 	  push @types,shellwords($ftype);
-#       } else {
-# 	  push @types,$t;
-#       }
-#   }
-#   return @types;
 }
 
 sub labels {

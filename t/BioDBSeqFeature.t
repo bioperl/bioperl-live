@@ -2,7 +2,7 @@
 # $Id$
 
 use strict;
-use constant TEST_COUNT => 57;
+use constant TEST_COUNT => 59;
 
 BEGIN {
     use lib 't/lib';
@@ -185,5 +185,19 @@ else { # in child
     print $feature_count;
     exit 0;
 }
+
+# test the -ignore_seqregion flag
+
+# the original should have a single feature named 'Contig1'
+my @f   = $db->get_features_by_name('Contig1');
+is(scalar @f,1);
+
+$db     = eval { Bio::DB::SeqFeature::Store->new(@args) };
+$loader = eval { Bio::DB::SeqFeature::Store::GFF3Loader->new(-store=>$db,
+							     -ignore_seqregion=>1)
+               };
+$loader->load($gff_file);
+@f      = $db->get_features_by_name('Contig1');
+is(scalar @f,0);
 
 }

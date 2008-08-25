@@ -125,6 +125,9 @@ pairs as described in this table:
  -tmp               Indicate a temporary directory to use when loading non-normalized
                        features.
 
+ -ignore_seqregion  Ignore ##sequence-region directives. The default is to create a
+                       feature corresponding to the directive.
+
 When you call new(), a connection to a Bio::DB::SeqFeature::Store
 database should already have been established and the database
 initialized (if appropriate).
@@ -158,7 +161,30 @@ default.
 
 =cut
 
-# sub new { } inherited
+sub new { 
+    my $class = shift;
+    my $self  = $class->SUPER::new(@_);
+    my ($ignore_seqregion) = rearrange(['IGNORE_SEQREGION'],@_);
+    $self->ignore_seqregion($ignore_seqregion);
+    $self;
+}
+
+=head2 ignore_seqregion
+
+  $ignore_it = $loader->ignore_seqregion([$new_flag])
+
+Get or set the ignore_seqregion flag, which if true, will cause 
+GFF3 ##sequence-region directives to be ignored. The default behavior
+is to create a feature corresponding to the region.
+
+=cut
+
+sub ignore_seqregion {
+    my $self = shift;
+    my $d    = $self->{ignore_seqregion};
+    $self->{ignore_seqregion} = shift if @_;
+    $d;
+}
 
 =head2 load
 
@@ -398,7 +424,8 @@ sub handle_meta {
     return;
   }
 
-  if ($instruction =~ /sequence-region\s+(.+)\s+(-?\d+)\s+(-?\d+)/i) {
+  if ($instruction =~ /sequence-region\s+(.+)\s+(-?\d+)\s+(-?\d+)/i 
+      && !$self->ignore_seqregion()) {
       my($ref,$start,$end,$strand)    = $self->_remap($1,$2,$3,+1);
       my $feature = $self->sfclass->new(-name        => $ref,
 					-seq_id      => $ref,

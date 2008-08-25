@@ -14,6 +14,7 @@ my $ADAPTOR     = 'DBI::mysql';
 my $VERBOSE  = 1;
 my $FAST     = 0;
 my $TMP      = File::Spec->tmpdir();
+my $IGNORE_SEQREGION   = 0;
 my $CREATE   = 0;
 my $USER     = '';
 my $PASS     = '';
@@ -24,6 +25,7 @@ GetOptions(
 	   'adaptor=s'   => \$ADAPTOR,
 	   'verbose!'    => \$VERBOSE,
 	   'fast'       => \$FAST,
+	   'ignore-seqregion' => \$IGNORE_SEQREGION,
 	   'T|temporary-directory=s' => \$TMP,
 	   'create'      => \$CREATE,
 	   'user=s'      => \$USER,
@@ -41,6 +43,9 @@ Usage: $0 [options] gff_file1 gff_file2...
           -c --create     Create the database and reinitialize it (will erase contents)
           -u --user       User to connect to database as
           -p --password   Password to use to connect to database
+          -i --ignore-seqregion
+                          If true, then ignore ##sequence-region directives in the
+                          GFF3 file (default, create a feature for each region)
 END
 
 if ($FAST) {
@@ -58,7 +63,8 @@ my $store = Bio::DB::SeqFeature::Store->new(
 					    -user    => $USER,
 					    -pass    => $PASS,
 					    -write    => 1,
-					    -create   => $CREATE)
+					    -create   => $CREATE,
+    )
   or die "Couldn't create connection to the database";
 
 $store->init_database('erase') if $CREATE;
@@ -67,7 +73,9 @@ my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store    => $store,
 							 -sf_class => $SFCLASS,
 							 -verbose  => $VERBOSE,
 							 -tmpdir   => $TMP,
-							 -fast     => $FAST)
+							 -fast     => $FAST,
+							 -ignore_seqregion => $IGNORE_SEQREGION,
+    )
   or die "Couldn't create GFF3 loader";
 
 # on signals, give objects a chance to call their DESTROY methods
