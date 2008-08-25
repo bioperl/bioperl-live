@@ -209,6 +209,7 @@ sub init {
   } else {
     $dsn = "dbi:mysql:$dsn" unless $dsn =~ /^dbi:/;
     $dbh = DBI->connect($dsn,$user,$pass,$dbi_options) or $self->throw($DBI::errstr);
+    $dbh->{mysql_auto_reconnect} = 1;
   }
   $self->{dbh}       = $dbh;
   $self->{is_temp}   = $is_temporary;
@@ -842,6 +843,8 @@ sub _search_attributes {
   my $self = shift;
   my ($search_string,$attribute_names,$limit) = @_;
   my @words               = map {quotemeta($_)} split /\s+/,$search_string;
+#  return unless @words;
+
   my $name_table          = $self->_name_table;
   my $attribute_table     = $self->_attribute_table;
   my $attributelist_table = $self->_attributelist_table;

@@ -386,6 +386,7 @@ sub load_line { #overridden
       if (++$load_data->{count} % 1000 == 0) {
 	my $now = $self->time();
 	my $nl = -t STDOUT && !$ENV{EMACS} ? "\r" : "\n";
+	local $^W = 0; # kill uninit variable warning
 	$self->msg(sprintf("%d features loaded in %5.2fs (%5.2fs/1000 features)...%s$nl",
 			   $load_data->{count},$now - $load_data->{start_time},
 			   $now - $load_data->{millenium_time},
@@ -468,8 +469,11 @@ sub handle_feature { #overridden
   my @columns = map {$_ eq '.' ? undef : $_ } split /\t/,$gff_line;
   return unless @columns >= 8;
 
-  if (@columns > 9) { #oops, split too much due to whitespace
-      $columns[8] = join(' ',@columns[8..$#columns]);
+  {
+      local $^W = 0;
+      if (@columns > 9) { #oops, split too much due to whitespace
+	  $columns[8] = join(' ',@columns[8..$#columns]);
+      }
   }
 
   my ($refname,$source,$method,$start,$end, $score,$strand,$phase,$attributes) = @columns;

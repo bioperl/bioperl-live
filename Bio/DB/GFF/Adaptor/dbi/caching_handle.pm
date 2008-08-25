@@ -138,6 +138,7 @@ sub dbh {
   # for Oracle - to retrieve LOBs, need to define the length (Jul 15, 2002)
   $dbh->{LongReadLen} = 100*65535;
   $dbh->{LongTruncOk} = 0;
+  $dbh->{mysql_auto_reconnect} = 1;
 
   my $wrapper = Bio::DB::GFF::Adaptor::dbi::faux_dbh->new($dbh);
   push @{$self->{dbh}},$wrapper;
