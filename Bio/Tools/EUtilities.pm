@@ -818,47 +818,16 @@ sub get_DocSums {
            -cb   : coderef to use in place of default print method.  This is passed
                    in a DocSum object;
            -wrap : number of columns to wrap default text output to (def = 80)
+           -header : flag/callback for printing main eutil information.
+                  If this is true, checked for a code reference for passing
+                  self to, otherwise defaults to a preset code ref (def = 0)
  Note     : if -file or -fh are not defined, prints to STDOUT
 
 =cut
 
-{
-    my $DEF_PRINT = sub {
-        my $ds = shift;
-        my $string = sprintf("UID: %s\n",$ds->get_id);
-        # flattened mode
-        while (my $item = $ds->next_Item('flatten'))  {
-            # not all Items have content, so need to check...
-            my $content = $item->get_content || '';
-            $string .= sprintf("%-20s%s\n",$item->get_name(),
-                               wrap('',' 'x21, ":$content"));
-        }
-        $string .= "\n";
-        return $string;
-    };
-    
-    sub print_DocSums {
-        my $self = shift;
-        my ($file, $fh, $cb, $wrap) = $self->_rearrange([qw(FILE FH CB WRAP)], @_);
-        $wrap ||= 80;
-        if (!$cb) {
-            eval {use Text::Wrap qw(wrap $columns);};
-            $self->throw("Text::Wrap is not available!") if $@;
-            $Text::Wrap::columns = $wrap;
-            $cb = $DEF_PRINT;
-        } else {
-            $self->throw("Callback must be a code reference") if ref $cb ne 'CODE';
-        }
-        $file ||= $fh;
-        $self->throw("Have defined both file and filehandle; only use one!") if $file && $fh;
-        my $io = ($file) ? Bio::Root::IO->new(-input => $file, -flush => 1) :
-                 Bio::Root::IO->new(-flush => 1); # defaults to STDOUT
-        while (my $ds = $self->next_DocSum) {
-            my $string = $cb->($ds);
-            $io->_print($string) if $string;
-        }
-        $io->close;
-    }
+sub print_DocSums {
+    my ($self, @args) = @_;
+    $self->_print_handler(@args, -type => 'DocSum');
 }
 
 =head1 Info-related methods
@@ -1019,6 +988,57 @@ sub get_LinkInfo {
 }
 
 *get_LinkInfos = \&get_LinkInfo;
+
+=head2 print_FieldInfo
+
+ Title    : print_FieldInfo
+ Usage    : $info->print_FieldInfo();
+            $info->print_FieldInfo(-fh => $fh, -callback => $coderef);
+ Function : prints field data for each FieldInfo object. The default method
+            prints data from each FieldInfo in a simple table using Text::Wrap.  
+ Returns  : none
+ Args     : [optional]
+           -file : file to print to
+           -fh   : filehandle to print to (cannot be used concurrently with file)
+           -cb   : coderef to use in place of default print method.  
+           -wrap : number of columns to wrap default text output to (def = 80)
+           -header : flag/callback for printing main eutil information.
+                  If this is true, checked for a code reference for passing
+                  self to, otherwise defaults to a preset code ref (def = 0)
+ Note     : if -file or -fh are not defined, prints to STDOUT
+
+=cut
+
+sub print_FieldInfo {
+    my ($self, @args) = @_;
+    $self->_print_handler(@args, -type => 'FieldInfo');
+}
+
+=head2 print_LinkInfo
+
+ Title    : print_LinkInfo
+ Usage    : $info->print_LinkInfo();
+            $info->print_LinkInfo(-fh => $fh, -callback => $coderef);
+ Function : prints link data for each LinkInfo object. The default method
+            prints data from each LinkInfo in a simple table using Text::Wrap.  
+ Returns  : none
+ Args     : [optional]
+           -file : file to print to
+           -fh   : filehandle to print to (cannot be used concurrently with file)
+           -cb   : coderef to use in place of default print method.  This is passed
+                   in a DocSum object;
+           -wrap : number of columns to wrap default text output to (def = 80)
+           -header : flag/callback for printing main eutil information.
+                  If this is true, checked for a code reference for passing
+                  self to, otherwise defaults to a preset code ref (def = 0)
+ Note     : if -file or -fh are not defined, prints to STDOUT
+
+=cut
+
+sub print_LinkInfo {
+    my ($self, @args) = @_;
+    $self->_print_handler(@args, -type => 'LinkInfo');
+}
 
 =head1 Bio::Tools::EUtilities::Link-related methods
 
@@ -1263,6 +1283,123 @@ sub callback {
         $self->{'_cb'} = $cb;
     }
     return $self->{'_cb'};
+}
+
+# Object printing methods
+
+{
+    my $DEF_FIELDINFO = sub {
+        my $i = shift;
+        #        order     method                     name        
+        my %tags = (1 => ['get_field_code'        => 'Field Code'],
+                    2 => ['get_field_name'        => 'Field Name'],
+                    3 => ['get_field_description' => 'Description'],
+                    4 => ['get_term_count'        => 'Term Count']);
+        my $string = '';
+        for my $tag (sort {$a <=> $b} keys %tags) {
+            my ($m, $nm) = ($tags{$tag}->[0], $tags{$tag}->[1]);
+            $string .= sprintf("%-15s%s\n", $nm, wrap('', ' 'x16, ":".$i->$m));
+        }
+        $string .= sprintf("%-15s%s\n", "Attributes",
+                           wrap('', ' 'x16, ":".join(',', grep {$i->$_} qw(is_date
+                   is_singletoken is_hierarchy is_hidden is_numerical))));
+        $string .= "\n";
+        return $string;
+    };
+    
+    my $DEF_LINKINFO = sub {
+        my $i = shift;
+        #        order     method                    name
+        my %tags = (1 => ['get_link_name'         => 'Link Name'],
+                    2 => ['get_link_description'  => 'Description'],
+                    3 => ['get_dbfrom'            => 'DB From'],
+                    4 => ['get_dbto'              => 'DB To']);
+        my $string = '';
+        for my $tag (sort {$a <=> $b} keys %tags) {
+            my ($m, $nm) = ($tags{$tag}->[0], $tags{$tag}->[1]);
+            $string .= sprintf("%-15s%s\n", $nm, wrap('', ' 'x16, ":".$i->$m));
+        }
+        $string .= "\n";
+        return $string;
+    };
+    
+    my $DEF_DOCSUM = sub {
+        my $ds = shift;
+        my $string = sprintf("UID: %s\n",$ds->get_id);
+        # flattened mode
+        while (my $item = $ds->next_Item('flatten'))  {
+            # not all Items have content, so need to check...
+            my $content = $item->get_content || '';
+            $string .= sprintf("%-20s%s\n",$item->get_name(),
+                               wrap('',' 'x21, ":$content"));
+        }
+        $string .= "\n";
+        return $string;
+    };
+    
+    my $DEF_EINFO_HEADER = sub {
+        my $obj = shift;
+        #        order     method                name
+        my %tags = (1 => ['get_database'     => 'Database Name'],
+                    2 => ['get_description'  => 'Description'],
+                    3 => ['get_menu_name'    => 'Menu Name'],
+                    4 => ['get_record_count' => 'Records'],
+                    5 => ['get_last_update'  => 'Last Updated']);
+        my $string = '';
+        for my $tag (sort {$a <=> $b} keys %tags) {
+            my ($m, $nm) = ($tags{$tag}->[0], $tags{$tag}->[1]);
+            $string .= sprintf("%-15s%s\n", $nm, wrap('', ' 'x16, ":".$obj->$m));
+        }
+        $string .= "\n";
+        return $string;
+    };
+    
+    my %HANDLER = (
+        'DocSum'        => $DEF_DOCSUM,
+        'FieldInfo'     => $DEF_FIELDINFO,
+        'LinkInfo'      => $DEF_LINKINFO,
+                   );
+    
+    my %HEADER = (
+        'FieldInfo'     => $DEF_EINFO_HEADER,
+        'LinkInfo'      => $DEF_EINFO_HEADER,
+                   );    
+    
+    sub _print_handler {
+        my $self = shift;
+        my ($file, $fh, $cb, $wrap, $type, $header) = $self->_rearrange([qw(FILE FH CB WRAP TYPE HEADER)], @_);
+        $self->throw("Must define object type for handler") if !defined $type;
+        $wrap ||= 80;
+        if (!$cb) {
+            $self->throw("Type $type not registered with print handler, exiting") unless exists
+                $HANDLER{$type};
+            eval {use Text::Wrap qw(wrap $columns);};
+            $self->throw("Text::Wrap is not available!") if $@;
+            $Text::Wrap::columns = $wrap;
+            $cb = $HANDLER{$type};
+        } else {
+            $self->throw("Callback must be a code reference") if ref $cb ne 'CODE';
+        }
+        $file ||= $fh;
+        $self->throw("Have defined both file and filehandle; only use one!") if $file && $fh;
+        my $io = ($file) ? Bio::Root::IO->new(-input => $file, -flush => 1) :
+                 Bio::Root::IO->new(-flush => 1); # defaults to STDOUT
+        my $it = "next_$type";
+        $self->throw("Unknown iterator method $it") unless $self->can($it);
+        if ($header) {
+            my $headercb = ref($header) eq 'CODE' ? $header :
+                exists($HEADER{$type})            ? $HEADER{$type}:
+                $self->throw("Default header code for $type not set");
+            my $string = $headercb->($self);
+            $io->_print($string) if $string;
+        }
+        while (my $obj = $self->$it) {
+            my $string = $cb->($obj);
+            $io->_print($string) if $string;
+        }
+        $io->close;
+    }
+    
 }
 
 # Private methods

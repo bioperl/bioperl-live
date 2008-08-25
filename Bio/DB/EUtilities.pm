@@ -837,6 +837,54 @@ sub get_LinkInfo {
 
 *get_LinkInfos = \&get_LinkInfo;
 
+=head2 print_FieldInfo
+
+ Title    : print_FieldInfo
+ Usage    : $info->print_FieldInfo();
+            $info->print_FieldInfo(-fh => $fh, -callback => $coderef);
+ Function : prints field data for each FieldInfo object. The default method
+            prints data from each FieldInfo in a simple table using Text::Wrap.  
+ Returns  : none
+ Args     : [optional]
+           -file : file to print to
+           -fh   : filehandle to print to (cannot be used concurrently with file)
+           -cb   : coderef to use in place of default print method.  
+           -wrap : number of columns to wrap default text output to (def = 80)
+           -header : flag to print databases-specific header information (def = 0)
+ Note     : if -file or -fh are not defined, prints to STDOUT
+
+=cut
+
+sub print_FieldInfo {
+    my ($self, @args) = @_;
+    return $self->get_Parser->print_FieldInfo(@args);
+}
+
+=head2 print_LinkInfo
+
+ Title    : print_LinkInfo
+ Usage    : $info->print_LinkInfo();
+            $info->print_LinkInfo(-fh => $fh, -callback => $coderef);
+ Function : prints link data for each LinkInfo object. The default method
+            prints data from each LinkInfo in a simple table using Text::Wrap.  
+ Returns  : none
+ Args     : [optional]
+           -file : file to print to
+           -fh   : filehandle to print to (cannot be used concurrently with file)
+           -cb   : coderef to use in place of default print method.  This is passed
+                   in a DocSum object;
+           -wrap : number of columns to wrap default text output to (def = 80)
+           -header : flag to print databases-specific header information (def = 0)
+ Note     : if -file or -fh are not defined, prints to STDOUT
+
+=cut
+
+sub print_LinkInfo {
+    my ($self, @args) = @_;
+    return $self->get_Parser->print_LinkInfo(@args);
+}
+
+
 =head1 Bio::Tools::EUtilities::Link-related methods
 
 =head2 next_LinkSet
