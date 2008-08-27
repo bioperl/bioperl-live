@@ -517,17 +517,18 @@ sub get_all_relationships {
 sub get_predicate_terms {
     my ( $self ) = @_;
 
-    my @a = ( $self->is_a_relationship(),
-              $self->part_of_relationship(),
-              $self->related_to_relationship(),
-							$self->regulates_relationship(),
-        			$self->positively_regulates_relationship(),
-        			$self->negatively_regulates_relationship(),
+    my @a = grep {defined $_} (
+            $self->is_a_relationship(),
+            $self->part_of_relationship(),
+            $self->related_to_relationship(),
+            $self->regulates_relationship(),
+            $self->positively_regulates_relationship(),
+            $self->negatively_regulates_relationship(),
            );
 
-        foreach my $termname (keys %{$self->{ "_extra_relationship_types" }}){
-          push @a, $self->{ "_extra_relationship_types" }{ $termname };
-        }
+    foreach my $termname (keys %{$self->{ "_extra_relationship_types" }}){
+      push @a, $self->{ "_extra_relationship_types" }{ $termname };
+    }
 
     return @a;
 } # get_predicate_terms

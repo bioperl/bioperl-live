@@ -448,8 +448,9 @@ sub get_relationships {
 
 sub get_predicate_terms{
     my $self = shift;
-
-    return grep { $_->ontology->name eq $self->name;
+    
+    # skipped Bio::Ontology::Relationship w/o defined Ontology (bug 2573)
+    return grep { $_->ontology && ($_->ontology->name eq $self->name)
               } $self->engine->get_predicate_terms(@_);
 }
 
