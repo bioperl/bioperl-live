@@ -1102,7 +1102,7 @@ sub _build_nt_matrix {
 	my $tj_index = $NucleotideIndexes{$tj};	    
 
 	if( ! defined $ti_index ) {
-	    print "ti_index not defined for $ti\n";
+	    $self->warn("ti_index not defined for $ti\n");
 	    next;
 	}
 	
