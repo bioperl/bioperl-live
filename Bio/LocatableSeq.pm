@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::LocatableSeq - A Sequence object with start/end points on it
+Bio::LocatableSeq - A Bio::PrimarySeq object with start/end points on it
 that can be projected into a MSA or have coordinates relative to
 another seq.
 
@@ -89,7 +89,6 @@ use vars qw($MATCHPATTERN);
 
 $MATCHPATTERN = '0-9A-Za-z\-\.\*\?=~';
 
-
 use base qw(Bio::PrimarySeq Bio::RangeI);
 
 sub new {
@@ -119,14 +118,14 @@ sub new {
 =cut
 
 sub start{
-   my $self = shift;
-   if( @_ ) {
-      my $value = shift;
-      $self->{'start'} = $value;
-  }
-   return $self->{'start'} if defined $self->{'start'};
-   return 1                if $self->seq;
-   return;
+	my $self = shift;
+	if( @_ ) {
+		my $value = shift;
+		$self->{'start'} = $value;
+	}
+	return $self->{'start'} if defined $self->{'start'};
+	return 1                if $self->seq;
+	return;
 }
 
 =head2 end
@@ -170,7 +169,8 @@ sub _ungapped_len {
 
  Title   : strand
  Usage   : $obj->strand($newval)
- Function:
+ Function: Get/set the 1-based end position of this sequence in the original
+           sequence. '0' means before the original sequence starts.
  Returns : value of strand
  Args    : newvalue (optional)
 
