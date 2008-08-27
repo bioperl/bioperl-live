@@ -456,7 +456,7 @@ sub peptide_length {
 
  Title   : exons
  Usage   : $obj->exons(@exons);
- Function: Set and read the offset of CDS from the start of transcipt
+ Function: Set and read the offset of CDS from the start of transcript
            You do not have to sort the exons before calling this method as
            they will be sorted automatically.
            If you have not defined the CDS, is will be set to span all
