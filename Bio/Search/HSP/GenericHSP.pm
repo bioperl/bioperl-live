@@ -729,7 +729,7 @@ sub rank {
            :             'mismatch'  - mismatched residue positions (no gaps)
            :             'gap'       - gap positions only
            :             'conserved-not-identical' - conserved positions w/o 
-           :
+           :                            identical residues
            :             The name can be shortened to 'id' or 'cons' unless
            :             the name is ambiguous.  The default value is
            :             'identical'
