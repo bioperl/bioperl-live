@@ -517,7 +517,7 @@ sub get_all_relationships {
 sub get_predicate_terms {
     my ( $self ) = @_;
 
-    my @a = grep {defined $_} (
+    my @a = (
             $self->is_a_relationship(),
             $self->part_of_relationship(),
             $self->related_to_relationship(),
