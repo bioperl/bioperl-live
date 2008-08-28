@@ -630,11 +630,18 @@ sub next_result {
                 }
             ) if $self->{'_blsdb_letters'};
             
-            # changed 7/15/2007 to only check certain lines, end while if something doesn't match
+            # changed 8/28/2008 to exit hit table if blank line is found after an
+            # appropriate line
             my $h_regex;
+            my $seen_block;
           DESCLINE:
             while ( defined( my $descline = $self->_readline() ) ) {
-                next if $descline =~ m{^\s*$};
+                if ($descline =~ m{^\s*$}) {
+                    last DESCLINE if $seen_block;
+                    next DESCLINE;
+                }
+                # any text match is part of block...
+                $seen_block++;
                 # GCG multiline oddness...
                 if ($descline =~ /^(\S+)\s+Begin:\s\d+\s+End:\s+\d+/xms) {
                     my ($id, $nextline) = ($1, $self->_readline);
@@ -643,9 +650,9 @@ sub next_result {
                 }
                 # NCBI style hit table (no N)
                 if ($descline =~ /(?<!cor)          # negative lookahead
-                    (\d+\.?(?:[\+\-eE]+)?\d+)       # number (float or scientific notation)
+                    (\d*\.?(?:[\+\-eE]+)?\d+)       # number (float or scientific notation)
                     \s+                             # space
-                    ([\de]+\.?\d*(?:[\+\-eE]+)?\d*) # number (float or scientific notation)
+                    (\d*\.?(?:[\+\-eE]+)?\d+)       # number (float or scientific notation)
                     \s*$/xms) {
                     
                     my ( $score, $evalue ) = ($1, $2);
