@@ -813,9 +813,9 @@ sub set_consensus_sequence {
     $self->{'_consensus_sequence'} = $seq;
 
     $seq->start(1);
+    $seq->end($seq->_ungapped_len);
+
     my $con_len = $seq->length;
-    my $nof_gaps = scalar(@{$self->{'_consensus_gaps'}});
-    $seq->end($con_len-$nof_gaps);
 
     return $con_len;
 }
@@ -1116,7 +1116,8 @@ sub add_seq {
     }
 
     # Our locatable sequences are always considered to be complete sequences
-    $seq->start(1); $seq->end($seq->length());
+    $seq->start(1);
+    $seq->end($seq->_ungapped_len);
 
     $self->warn("Adding non-nucleotidic sequence ".$seqID)
         if (lc($seq->alphabet) ne 'dna' && lc($seq->alphabet) ne 'rna');
