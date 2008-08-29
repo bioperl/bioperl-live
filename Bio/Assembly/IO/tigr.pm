@@ -435,16 +435,15 @@ sub _store_contig {
     );
     $scaffoldobj->add_contig($contigobj);
 
-    # Create an gapped consensus sequence and attach it to contig
-    $$contiginfo{'llength'} = length($$contiginfo{'lsequence'});
+    # Create a gapped consensus sequence and attach it to contig
+    #$$contiginfo{'llength'} = length($$contiginfo{'lsequence'});
     my $consensus = Bio::LocatableSeq->new(
         -id    => $$contiginfo{'asmbl_id'},
         -seq   => $$contiginfo{'lsequence'},
         -start => 1,
-        -end   => $$contiginfo{'llength'}
     );
     $contigobj->set_consensus_sequence($consensus);
-    
+
     # Create an gapped consensus quality score and attach it to contig
     $$contiginfo{'quality'} = $self->_qual_hex2dec($$contiginfo{'quality'});
     my $qual = Bio::Seq::Quality->new(
@@ -457,7 +456,6 @@ sub _store_contig {
     my $contigtags = Bio::SeqFeature::Generic->new(
         -primary_tag => "_main_contig_feature:$$contiginfo{'asmbl_id'}",
         -start       => 1,
-        -end         => $$contiginfo{'llength'},
         -strand      => 1,
         -tag         => { 'seq_id'     => $$contiginfo{'seq_id'},
                           'com_name'   => $$contiginfo{'com_name'},
@@ -473,7 +471,7 @@ sub _store_contig {
                           'frameshift' => $$contiginfo{'frameshift'} }
     );
     $contigobj->add_features([ $contigtags ], 1);
-    
+
     return $contigobj;
 }
 
@@ -491,20 +489,19 @@ sub _store_read {
    my ($self, $readinfo, $contigobj) = @_;
    
    # Create an aligned read object
-   $$readinfo{'llength'} = length($$readinfo{'lsequence'});
+   #$$readinfo{'llength'} = length($$readinfo{'lsequence'});
    $$readinfo{'strand'}  = ($$readinfo{'seq_rend'} > $$readinfo{'seq_lend'} ? 1 : -1);
    my $readobj = Bio::LocatableSeq->new(
        # the ids of sequence objects are supposed to include the db name in it, i.e. "big_db|seq1234"
        # that's how sequence ids coming from the fasta parser are at least
        -display_id => $self->_merge_seq_name_and_db($$readinfo{'seq_name'}, $$readinfo{'db'}),
        -primary_id => $self->_merge_seq_name_and_db($$readinfo{'seq_name'}, $$readinfo{'db'}),
-       -seq        => $$readinfo{'lsequence'},
+       -seq        => $$readinfo{'lsequence'},      
        -start      => 1,
-       -end        => $$readinfo{'llength'},
        -strand     => $$readinfo{'strand'},
        -alphabet   => 'dna'
    );
-   
+
    # Add read location and sequence to contig
    # (from 'ungapped consensus' to 'gapped consensus' coordinates)
    $$readinfo{'aln_start'} = $contigobj->change_coord('ungapped consensus', 'gapped consensus', $$readinfo{'asm_lend'});
@@ -565,18 +562,17 @@ sub _store_singlet {
     my $readid   = $self->_merge_seq_name_and_db($$readinfo{'seq_name'}, $$readinfo{'db'});
     
     # Create a sequence object
-    $$contiginfo{'llength'} = length($$contiginfo{'lsequence'});
+    #$$contiginfo{'llength'} = length($$contiginfo{'lsequence'});
     my $seqobj = Bio::Seq::Quality->new(
        -primary_id => $contigid, # unique id in assembly (contig name)
        -display_id => $readid,
        -seq        => $$contiginfo{'lsequence'}, # do not use $$readinfo as ambiguities are uppercase
        -start      => 1,
-       -end        => $$readinfo{'llength'},
        -strand     => $$readinfo{'strand'},
        -alphabet   => 'dna',
        -qual => $self->_qual_hex2dec($$contiginfo{'quality'})    
    );
-   
+
    # Create singlet from sequence and add it to scaffold
    my $singletobj = Bio::Assembly::Singlet->new;
    $singletobj->seq_to_singlet($seqobj);
@@ -586,7 +582,6 @@ sub _store_singlet {
    my $contigtags = Bio::SeqFeature::Generic->new(
         -primary_tag => "_main_contig_feature:$contigid",
         -start       => 1,
-        -end         => $$contiginfo{'llength'},
         -strand      => 1,
         -tag         => { 'seq_id'     => $$contiginfo{'seq_id'},
                           'com_name'   => $$contiginfo{'com_name'},
