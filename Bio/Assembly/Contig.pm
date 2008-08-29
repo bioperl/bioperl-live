@@ -808,13 +808,14 @@ sub set_consensus_sequence {
     $self->throw("Consensus sequence must be a Bio::LocatableSeq!")
         unless ($seq->isa("Bio::LocatableSeq"));
 
-    my $con_len = $seq->length;
-    $seq->start(1); $seq->end($con_len);
-
     $self->{'_consensus_gaps'} = []; # Consensus Gap registry
-    $self->_register_gaps( $seq->seq,
-                           $self->{'_consensus_gaps'} );
+    $self->_register_gaps( $seq->seq, $self->{'_consensus_gaps'} );
     $self->{'_consensus_sequence'} = $seq;
+
+    $seq->start(1);
+    my $con_len = $seq->length;
+    my $nof_gaps = scalar(@{$self->{'_consensus_gaps'}});
+    $seq->end($con_len-$nof_gaps);
 
     return $con_len;
 }
