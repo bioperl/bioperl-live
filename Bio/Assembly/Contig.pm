@@ -224,6 +224,7 @@ use base qw(Bio::Root::Root Bio::Align::AlignI);
  Returns   : Bio::Assembly::Contig
  Args      : -id => contig unique ID
              -source => string for the sequence assembly program used
+             -collection => Bio::SeqFeature::Collection instance
 
 =cut
 
@@ -234,7 +235,7 @@ sub new {
 
     my $self = $class->SUPER::new(@args);
 
-    my ($src, $id) = $self->_rearrange([qw(SOURCE ID)], @args);
+    my ($src, $id, $collection) = $self->_rearrange([qw(SOURCE ID COLLECTION)], @args);
     $src && $self->source($src);
     ($id && $self->id($id)) || ($self->{'_id'} = 'NoName'); # Alignment (contig) name
     ($id && $self->id($id)) || ($self->{'_source'} = 'Unknown'); # Program used to build the contig
@@ -253,7 +254,14 @@ sub new {
     $self->{'_nof_residues'} = 0;
     $self->{'_nof_seqs'} = 0;
     # $self->{'_nof_segments'} = 0; # Let's not make it heavier than needed by now...
-    $self->{'_sfc'} = Bio::SeqFeature::Collection->new();
+    
+    # for cases where SF::Collection is shared between Bio::Assembly::Contig 
+    if ($collection) {
+        $self->throw("Collection must implement Bio::SeqFeature::CollectionI") unless $collection->isa('Bio::SeqFeature::CollectionI');
+        $self->{'_sfc'} = $collection;
+    } else {
+        $self->{'_sfc'} = Bio::SeqFeature::Collection->new()
+    }
 
     # Assembly specifics
     $self->{'_assembly'} = undef; # Reference to a Bio::Assembly::Scaffold object, if contig belongs to one.

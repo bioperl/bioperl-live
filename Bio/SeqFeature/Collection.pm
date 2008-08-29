@@ -136,7 +136,7 @@ use Bio::Location::Simple;
 use Bio::SeqFeature::Generic;
 use Storable qw(freeze thaw);
 
-use base qw(Bio::Root::Root);
+use base qw(Bio::Root::Root Bio::SeqFeature::CollectionI);
 
 
 # This may need to get re-optimized for BDB usage as these
