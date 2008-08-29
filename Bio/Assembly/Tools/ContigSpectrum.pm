@@ -1521,7 +1521,6 @@ sub _overlap_alignment {
         -id       => 1,
         -seq      => $qstring,
         -start    => 1,
-        -end      => $overlap,
         -alphabet => 'dna'
   );
   $aln->add_seq($qalseq);
@@ -1529,7 +1528,6 @@ sub _overlap_alignment {
         -id       => 2,
         -seq      => $tstring,
         -start    => 1,
-        -end      => $overlap,
         -alphabet => 'dna'
   );
   $aln->add_seq($talseq);
