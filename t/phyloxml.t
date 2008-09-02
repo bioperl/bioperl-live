@@ -7,7 +7,7 @@ BEGIN {
   use lib 't/lib';
   use BioperlTest;
 
-  test_begin(-tests => 90,
+  test_begin(-tests => 93,
              -requires_modules => [qw(XML::LibXML XML::LibXML::Reader)],
             );
   if (1000*$] < 5008) {
@@ -642,3 +642,24 @@ ok my $treeio = Bio::TreeIO->new(
 }
 
 
+# convert between nhx-phyloxml
+{
+  if ($verbose > 0) {
+    diag("\n test translation between nhx and phyloxml");
+  }
+  ok my $nhxio = Bio::TreeIO->new(
+      -verbose => $verbose,
+      -format => 'nhx',
+      -file   => test_input_file('test.nhx'));
+  my $tree = $nhxio->next_tree;
+  isa_ok($tree, 'Bio::Tree::TreeI');
+  my $FILE1 = test_output_file();
+  my $phyloxmlio = Bio::TreeIO->new(-verbose => $verbose,
+      -format => 'phyloxml',
+      -file   => ">$FILE1");
+  $phyloxmlio->write_tree($tree);
+  ok -s $FILE1;
+  if ($verbose > 0) {
+    diag(`cat $FILE1`);
+  }
+}

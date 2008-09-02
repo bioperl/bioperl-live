@@ -180,7 +180,12 @@ sub write_tree
     }
     $self->_print($attr_str); 
     $self->_print(">");
-    $self->_print($self->_write_tree_Helper($root));
+    if ($root->isa('Bio::Tree::AnnotatableNode')) {
+      $self->_print($self->_write_tree_Helper_annotatableNode($root));
+    }
+    else {
+      $self->_print($self->_write_tree_Helper_generic($root));
+    }
 
     # print clade relations
     while (my $str = pop (@{$self->{'_tree_attr'}->{'clade_relation'}})) {
@@ -198,12 +203,10 @@ sub write_tree
 }
 
 
-sub _write_tree_Helper 
+sub _write_tree_Helper_annotatableNode
 {
   my ($self, $node, $str) = @_;     # this self is a Bio::Tree::phyloxml
-  if (ref($node) ne 'Bio::Tree::AnnotatableNode') {
-    $self->throw( "node must be a Bio::Tree::AnnotatableNode" );
-  }
+  
   my $ac = $node->annotation;
 
   # if clade_relation exists
@@ -217,17 +220,17 @@ sub _write_tree_Helper
   # start <clade>
   $str .= '<clade';
   my ($attr) = $ac->get_Annotations('_attr'); # check id_source
-  if ($attr) { 
-    my ($id_source) = $attr->get_Annotations('id_source');
-    if ($id_source) {
-      $str .= " id_source=\"".$id_source->value."\"";
+    if ($attr) { 
+      my ($id_source) = $attr->get_Annotations('id_source');
+      if ($id_source) {
+        $str .= " id_source=\"".$id_source->value."\"";
+      }
     }
-  }
   $str .= ">";
 
   # print all descendent nodes
   foreach my $child ( $node->each_Descendent() ) {
-    $str = $self->_write_tree_Helper($child, $str);
+    $str = $self->_write_tree_Helper_annotatableNode($child, $str);
   }
 
   # print all annotations
@@ -246,7 +249,51 @@ sub _write_tree_Helper
       $str = print_seq_annotation( $node, $str, $seq );
     }
   }
+
+  $str .= "</clade>";
+
+  return $str;
+}
+
+sub _write_tree_Helper_generic
+{
+  my ($self, $node, $str) = @_;     # this self is a Bio::Tree::phyloxml
   
+  # start <clade>
+  $str .= '<clade>';
+
+  # print all descendent nodes
+  foreach my $child ( $node->each_Descendent() ) {
+    $str = $self->_write_tree_Helper_generic($child, $str);
+  }
+
+  # print all tags
+  my @tags = $node->get_all_tags();
+  foreach my $tag (@tags) {
+    my @values = $node->get_tag_values($tag);
+    foreach my $val (@values) {
+      $str .= "<property applies_to=\"clade\" ref=\"$tag:$val\"> ";
+      $str .= " </property>";
+    }
+  }
+
+  # print NodeI features
+  if ($node->id) {
+    $str .= "<name>";
+    $str .= $node->id;
+    $str .= "</name>";
+  }
+  elsif ($node->branch_length) {
+    $str .= "<branch_length>";
+    $str .= $node->branch_length;
+    $str .= "</branch_length>";
+  }
+  elsif ($node->bootstrap) {
+    $str .= "<confidence type = \"bootstrap\">";
+    $str .= $node->bootstrap;
+    $str .= "</confidence>";
+  }
+
   $str .= "</clade>";
   return $str;
 }
@@ -1075,7 +1122,7 @@ sub print_annotation
   foreach my $ann (@all_anns) {
     my $key = $ann->tagname;
     if ($key eq '_attr') { next; } # attributes are already printed in the previous level 
-    if  (ref($ann) eq 'Bio::Annotation::SimpleValue') 
+    if  ($ann->isa('Bio::Annotation::SimpleValue')) 
     {
       if ($key eq '_text') {
         $str .= $ann->value;
@@ -1086,7 +1133,7 @@ sub print_annotation
         $str .= "</$key>";
       }
     }
-    elsif (ref($ann) eq 'Bio::Annotation::Collection') 
+    elsif ($ann->isa('Bio::Annotation::Collection')) 
     {
       my @attrs = $ann->get_Annotations('_attr');
       if (@attrs) {   # if there is a attribute collection
@@ -1109,7 +1156,7 @@ sub print_attr
   my ($self, $str, $ac) = @_; 
   my @all_attrs = $ac->get_Annotations();
   foreach my $attr (@all_attrs) {
-    if  (ref($attr) ne 'Bio::Annotation::SimpleValue') {
+    if  (!$attr->isa('Bio::Annotation::SimpleValue')) {
       $self->throw("attribute should be a SimpleValue");
     }
     $str .= ' ';
@@ -1138,7 +1185,7 @@ sub print_seq_annotation
   foreach my $ann (@all_anns) {
     my $key = $ann->tagname;
     if ($key eq '_attr') { next; } # attributes are already printed in the previous level 
-    if  (ref($ann) eq 'Bio::Annotation::SimpleValue') 
+    if  ($ann->isa('Bio::Annotation::SimpleValue')) 
     {
       if ($key eq '_text') {
         $str .= $ann->value;
@@ -1149,7 +1196,7 @@ sub print_seq_annotation
         $str .= "</$key>";
       }
     }
-    elsif (ref($ann) eq 'Bio::Annotation::Collection') 
+    elsif ($ann->isa('Bio::Annotation::Collection')) 
     {
       my @attrs = $ann->get_Annotations('_attr');
       if (@attrs) {   # if there is a attribute collection
