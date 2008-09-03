@@ -62,7 +62,7 @@ positive. All weights in the gene coordinate system graph are
 currently equal (1) making the graph unweighted. That makes the use of
 Dijkstra's algorithm an overkill. A simpler and faster breadth-first
 would be enough. Luckily the difference for small graphs is not
-signigicant and the implementation is capable to take weights into
+significant and the implementation is capable of taking weights into
 account if needed at some later time.
 
 =head2 Input format
