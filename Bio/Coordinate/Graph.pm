@@ -60,7 +60,7 @@ The shortest path is found using the Dijkstra's algorithm. This
 algorithm is fast and greedy and requires all weights to be
 positive. All weights in the gene coordinate system graph are
 currently equal (1) making the graph unweighted. That makes the use of
-Dijkstra's algorithm an overkill. A impler and faster breadth-first
+Dijkstra's algorithm an overkill. A simpler and faster breadth-first
 would be enough. Luckily the difference for small graphs is not
 signigicant and the implementation is capable to take weights into
 account if needed at some later time.
