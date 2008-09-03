@@ -93,7 +93,7 @@ is part of the gene coordiante system graph::
 	    };
 
 
-Note that the names need to be positive integrers. Root should be '1'
+Note that the names need to be positive integers. Root should be '1'
 and directness of the graph is taken advantage of to speed
 calculations by assuming that downsream nodes always have larger
 number as name.
