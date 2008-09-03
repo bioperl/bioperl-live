@@ -26,7 +26,7 @@ Bio::Coordinate::Result - Results from coordinate transformation
 The results from Bio::Coordinate::MapperI are kept in an object which
 itself is a split location, See L<Bio::Location::Split>. The results
 are either Matches or Gaps.  See L<Bio::Coordinate::Result::Match> and
-L<Bio::Coordinate::Result::Match>.
+L<Bio::Coordinate::Result::Gap>.
 
 If only one Match is returned, there is a convenience method of
 retrieving it or accessing its methods. Same holds true for a Gap.
