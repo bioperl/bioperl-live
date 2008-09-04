@@ -632,12 +632,13 @@ sub _make_loader {
     }
     eval "require $type"
 	    unless $type->can('new');
-    my $loader = $type->new(-store=>$db,
-			    -map_coords=>$self->{coordinate_mapper},
+    my $loader = $type->new(-store             => $db,
+			    -map_coords        => $self->{coordinate_mapper},
 			    -index_subfeatures => 0,
 	);
     eval {$loader->allow_whitespace(1)} 
         if $self->allow_whitespace;  # gff2 and gff3 loaders allow this
+
     $loader->start_load() if $loader;
     return $loader;
 }
@@ -662,7 +663,7 @@ delimit the columns. Default is false.
 sub allow_whitespace {
     my $self = shift;
     my $d    = $self->{allow_whitespace};
-    $self->{allow_whitespace} = shift if $@;
+    $self->{allow_whitespace} = shift if @_;
     $d;
 }
 

@@ -463,7 +463,6 @@ sub handle_feature {
       $feature->add_SeqFeature($sp);
       }
   }
-
 }
 
 sub _multilevel_feature { # turn a single-level feature into a multilevel one
@@ -488,8 +487,12 @@ sub _make_feature {
     my $self = shift;
     my ($name,$type,$strand,$attributes,$ref,$start,$end) = @_;
 
+    $strand ||= '';
+
     my @args = (-name        => $name,
-		-strand      => $strand||0,
+		-strand      => $strand eq '+' ? 1 
+                               :$strand eq '-' ? -1
+                               :0,
 		-attributes  => $attributes,
 	);
 
@@ -642,6 +645,9 @@ an implicit
 sub parse_attributes {
   my $self  = shift;
   my $att   = shift;
+
+  $att     ||= ''; # to prevent uninit variable warnings from quotewords()
+
   my @pairs =  quotewords('[;\s]',1,$att);
   my %attributes;
   for my $pair (@pairs) {
