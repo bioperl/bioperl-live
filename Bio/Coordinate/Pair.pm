@@ -245,7 +245,6 @@ sub map {
    if ($value->isa("Bio::Location::SplitLocationI")) {
 
        my $result = Bio::Coordinate::Result->new();
-       my $split = Bio::Location::Split->new(-seq_id=>$self->out->seq_id);
        foreach my $loc ( $value->sub_Location(1) ) {
            my $res = $self->_map($loc);
            map { $result->add_sub_Location($_) } $res->each_Location;
