@@ -661,7 +661,9 @@ sub get_all_tags{
  Title   : get_tag_values
  Usage   : my @values = $node->get_tag_value($tag)
  Function: Gets the values for given tag ($tag)
- Returns : Array of values or empty list if tag does not exist
+ Returns : In array context returns an array of values
+           or an empty list if tag does not exist.
+           In scalar context returns the first value or undef.
  Args    : $tag - tag name
 
 =cut
