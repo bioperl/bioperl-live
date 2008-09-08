@@ -1168,7 +1168,7 @@ sub add_seq {
 
  Title     : remove_seq
  Usage     : $contig->remove_seq($seq);
- Function  : Removes a single sequence from an alignment
+ Function  : Removes a single sequence from a contig
  Returns   : 1 on success, 0 otherwise
  Argument  : a Bio::LocatableSeq object
 
@@ -1190,10 +1190,31 @@ sub remove_seq {
     # Updating residue count
     $self->{'_nof_residues'} -= $seq->length() +
     &_nof_gaps( $self->{'_elem'}{$seqID}{'_gaps'}, $seq->length );
+    
+    # Update number of sequences
+    $self->{'_nof_seqs'}--; 
+    
+    # Update order of sequences (order starts at 1)
+    my $max_order = $self->{'_nof_seqs'} + 1;
+    my $target_order = $max_order + 1;
+    for (my $order = 1 ; $order <= $max_order ; $order++) {
+      if ($self->{'_order'}->{$order} eq $seqID) {
+        # Found the wanted sequence order
+        $target_order = $order;
+      }
+      if ($order > $target_order) {
+        # Decrement this sequence order by one order
+        $self->{'_order'}->{$order-1} = $self->{'_order'}->{$order};
+      }
+      if ($order == $max_order) {
+        # Remove last order
+        delete $self->{'_order'}->{$order};
+      }
+    }
 
     # Remove all references to features of this sequence
     my @feats = ();
-    foreach my $tag (keys %{ $self->{'_elem'}{$seqID}{'_feat'} }) {
+    for my $tag (keys %{ $self->{'_elem'}{$seqID}{'_feat'} }) {
         push(@feats, $self->{'_elem'}{$seqID}{'_feat'}{$tag});
     }
     $self->{'_sfc'}->remove_features(\@feats);
