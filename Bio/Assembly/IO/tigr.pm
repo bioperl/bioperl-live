@@ -90,7 +90,7 @@ Contigs have the following attributes:
     type       -> *
     method     -> always 'asmg' *
     ed_status  -> *
-    redundancy -> percent of redundancy of the contig consensus
+    redundancy -> fold coverage of the contig consensus
     perc_N     -> percent of ambiguities in the contig consensus
     seq#       -> number of sequences in the contig
     full_cds   -> *
@@ -487,7 +487,7 @@ sub _store_contig {
 
 sub _store_read {
    my ($self, $readinfo, $contigobj) = @_;
-   
+
    # Create an aligned read object
    #$$readinfo{'llength'} = length($$readinfo{'lsequence'});
    $$readinfo{'strand'}  = ($$readinfo{'seq_rend'} > $$readinfo{'seq_lend'} ? 1 : -1);
@@ -502,10 +502,9 @@ sub _store_read {
        -alphabet   => 'dna'
    );
 
-   # Add read location and sequence to contig
-   # (from 'ungapped consensus' to 'gapped consensus' coordinates)
-   $$readinfo{'aln_start'} = $contigobj->change_coord('ungapped consensus', 'gapped consensus', $$readinfo{'asm_lend'});
-   $$readinfo{'aln_end'}   = $contigobj->change_coord('ungapped consensus', 'gapped consensus', $$readinfo{'asm_rend'});   
+   # Add read location and sequence to contig (in 'gapped consensus' coordinates)
+   $$readinfo{'aln_start'} = $$readinfo{'offset'} + 1; # seq offset is in gapped coordinates
+   $$readinfo{'aln_end'} = $$readinfo{'aln_start'} + length($$readinfo{'lsequence'}) - 1; # lsequence is aligned seq
    my $alncoord = Bio::SeqFeature::Generic->new(
        -primary_tag => $readobj->id,
        -start       => $$readinfo{'aln_start'},
@@ -514,7 +513,7 @@ sub _store_read {
        -tag         => { 'contig' => $contigobj->id() }
    );
    $contigobj->set_seq_coord($alncoord, $readobj);
-   
+
    # Add quality clipping read information in contig features
    # (from 'aligned read' to 'gapped consensus' coordinates)
    $$readinfo{'clip_start'} = $contigobj->change_coord('aligned '.$readobj->id, 'gapped consensus', $$readinfo{'seq_lend'});
@@ -598,10 +597,10 @@ sub _store_singlet {
    );
    $singletobj->add_features([ $contigtags ], 1);
 
-   # Add read location and sequence to singlet features
-   # (from 'ungapped consensus' to 'gapped consensus' coordinates)
-   $$readinfo{'aln_start'} = $$readinfo{'asm_lend'};
-   $$readinfo{'aln_end'}   = $$readinfo{'asm_rend'};
+   # Add read location and sequence to singlet features (in 'gapped consensus' coordinates)
+   $$readinfo{'aln_start'} = $$readinfo{'offset'} + 1; # seq offset is in gapped coordinates
+   $$readinfo{'aln_end'} = $$readinfo{'aln_start'} + length($$readinfo{'lsequence'}) - 1; # lsequence is aligned seq
+
    my $alncoord = Bio::SeqFeature::Generic->new(
        -primary_tag => "_aligned_coord:$readid",
        -start       => $$readinfo{'aln_start'},
@@ -893,7 +892,7 @@ sub write_assembly {
                 my %readinfo;                
                 $readinfo{'seq_name'}  = $seq_name;
                 $readinfo{'asm_lend'}  = $asm_lend;
-                $readinfo{'asm_rend'}  = $asm_rend;;
+                $readinfo{'asm_rend'}  = $asm_rend;
                 $readinfo{'seq_lend'}  = $seq_lend;
                 $readinfo{'seq_rend'}  = $seq_rend;                
                 $readinfo{'best'}      = ($readanno->get_tag_values('best'))[0];
@@ -962,8 +961,8 @@ sub _perc_N {
 
     Title   : _redundancy
     Usage   : my $ref = $ass_io->_redundancy($contigobj)
-    Function: Calculate the redundancy of a contig consensus (average
-              number of read base pairs covering the consensus)
+    Function: Calculate the fold coverage (redundancy) of a contig consensus
+              (average number of read base pairs covering the consensus)
     Returns : decimal number
     Args    : Bio::Assembly::Contig
 
