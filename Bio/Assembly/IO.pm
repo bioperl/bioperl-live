@@ -29,7 +29,12 @@ Bio::Assembly::IO - Handler for Assembly::IO Formats
 
     while ( my $scaffold = $in->next_assembly() ) {
        # do something with Bio::Assembly::Scaffold instance
+       # ...
+       $out->write_assembly(-scaffold => $scaffold);
     }
+
+    $in->close;
+    $out->close;
 
 =head1 DESCRIPTION
 
