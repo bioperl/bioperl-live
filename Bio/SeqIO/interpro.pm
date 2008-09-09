@@ -144,7 +144,8 @@ sub next_seq {
 			my $matlevel = join "", "/protein/interpro[", $interpn+1, "]/match[", 
 			  $match+1, "]/location";
 			my @locNodes = $protein_node->findnodes($matlevel);
-
+                        my $class_level = join "", "/protein/interpro[",$interpn+1, "]/classification";
+                        my @goNodes = $protein_node->findnodes($class_level);
 			my @seqFeatures = map { Bio::SeqFeature::Generic->new(
                   -start => $_->getAttribute('start'), 
 						-end => $_->getAttribute('end'), 
@@ -173,6 +174,16 @@ sub next_seq {
   				$annotation3->primary_id($DBNodes[$interpn]->getAttribute('id'));
   				$annotation3->comment($DBNodes[$interpn]->getAttribute('name'));
   				$seqFeature->annotation->add_Annotation('dblink',$annotation3);
+                                # need to put in the go annotation here!
+                                 foreach my $g (@goNodes)
+                                 {
+                                     my $goid = $g->getAttribute('id');
+                                     my $go_annotation = Bio::Annotation::DBLink->new;
+                                     $go_annotation->database('GO');
+                                     $go_annotation->primary_id($goid);
+                                     $go_annotation->comment($goid);
+                                     $seqFeature->annotation->add_Annotation('dblink', $go_annotation);
+                                 }
 			}
 			$bioSeq->add_SeqFeature(@seqFeatures);
 		}

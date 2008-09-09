@@ -7,7 +7,7 @@ BEGIN {
   use lib 't/lib';
   use BioperlTest;
   
-  test_begin(-tests => 17,
+  test_begin(-tests => 19,
 			 -requires_module => 'XML::DOM::XPath');
   
   use_ok('Bio::SeqIO');
@@ -53,3 +53,15 @@ my @dblinks = $features[0]->annotation->get_Annotations('dblink');
 is (scalar @dblinks,3);
 is $dblinks[1]->primary_id,'IPR009366';
 is $dblinks[2]->primary_id,'PF06257.1';
+
+my $other_t_file = test_input_file('test.interpro-go.xml');
+my $ipr_in = Bio::SeqIO->new( -file => $other_t_file,
+                              -verbose => $verbose,
+                              -format => 'interpro');
+
+$seq = $ipr_in->next_seq();
+@features = $seq->get_SeqFeatures;
+@dblinks = $features[0]->annotation->get_Annotations('dblink');
+is (scalar @dblinks, 4);
+is $dblinks[3]->primary_id,'GO:0003677';
+

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<EBIInterProScanResults xmlns="http://www.ebi.ac.uk/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.ebi.ac.uk/schema/InterProScanResult.xsd">
+	<Header>
+		<program name="InterProScan" version="4.0" citation="PMID:11590104" />
+		<parameters>
+			<sequences total="1" />
+			<databases total="6">
+				<database number="1" name="PFAM" type="model" />
+				<database number="2" name="SUPERFAMILY" type="model" />
+				<database number="3" name="SEG" type="NA" />
+				<database number="4" name="PROFILE" type="strings" />
+				<database number="5" name="PRINTS" type="matrix" />
+				<database number="6" name="COIL" type="matrix" />
+			</databases>
+		</parameters>
+	</Header>
+<interpro_matches>
+
+   <protein id="AAI51838.1" length="3314" crc64="96578FBE618A893C" >
+	<interpro id="IPR000910" name="High mobility group box, HMG1/HMG2" type="Domain" parent_id="IPR009071">
+	  <child_list>
+	    <rel_ref ipr_ref="IPR000135"/>
+	  </child_list>
+	  <classification id="GO:0003677" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>DNA binding</description>
+	  </classification>
+	  <match id="PF00505" name="HMG_box" dbname="PFAM">
+	    <location start="1100" end="1153" score="2.3e-05" status="T" evidence="HMMPfam" />
+	  </match>
+	</interpro>
+	<interpro id="IPR001965" name="Zinc finger, PHD-type" type="Domain" parent_id="IPR011011">
+	  <found_in>
+	    <rel_ref ipr_ref="IPR008087"/>
+	 </found_in>
+	  <classification id="GO:0005515" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>protein binding</description>
+	  </classification>
+	  <classification id="GO:0008270" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>zinc ion binding</description>
+	  </classification>
+	  <match id="PF00628" name="PHD" dbname="PFAM">
+	    <location start="404" end="455" score="9.4e-14" status="T" evidence="HMMPfam" />
+	    <location start="456" end="502" score="2.6e-08" status="T" evidence="HMMPfam" />
+	    <location start="531" end="584" score="6.2e-07" status="T" evidence="HMMPfam" />
+	  </match>
+	  <match id="PS50016" name="ZF_PHD_2" dbname="PROFILE">
+	    <location start="402" end="455" score="9.374" status="T" evidence="ProfileScan" />
+	    <location start="452" end="502" score="9.855" status="T" evidence="ProfileScan" />
+	    <location start="529" end="584" score="9.143" status="T" evidence="ProfileScan" />
+	  </match>
+	</interpro>
+	<interpro id="IPR009071" name="High mobility group box, HMG" type="Domain">
+	  <child_list>
+	    <rel_ref ipr_ref="IPR000910"/>
+	  </child_list>
+	  <found_in>
+	    <rel_ref ipr_ref="IPR006780"/>
+	    <rel_ref ipr_ref="IPR010477"/>
+	    <rel_ref ipr_ref="IPR015101"/>
+	 </found_in>
+	  <match id="SSF47095" name="HMG-box" dbname="SUPERFAMILY">
+	    <location start="1099" end="1148" score="4.9e-05" status="T" evidence="superfamily" />
+	  </match>
+	</interpro>
+	<interpro id="IPR011011" name="Zinc finger, FYVE/PHD-type" type="Domain" parent_id="IPR013083">
+	  <child_list>
+	    <rel_ref ipr_ref="IPR000306"/>
+	    <rel_ref ipr_ref="IPR001965"/>
+	    <rel_ref ipr_ref="IPR010911"/>
+	  </child_list>
+	  <found_in>
+	    <rel_ref ipr_ref="IPR006788"/>
+	 </found_in>
+	  <contains>
+	    <rel_ref ipr_ref="IPR008899"/>
+	  </contains>
+	  <classification id="GO:0008270" class_type="GO">
+	    <category>Molecular Function</category>
+	    <description>zinc ion binding</description>
+	  </classification>
+	  <match id="SSF57903" name="FYVE/PHD zinc finger" dbname="SUPERFAMILY">
+	    <location start="453" end="503" score="1.3e-12" status="T" evidence="superfamily" />
+	    <location start="396" end="453" score="2.5e-09" status="T" evidence="superfamily" />
+	    <location start="524" end="589" score="3.4e-08" status="T" evidence="superfamily" />
+	  </match>
+	</interpro>
+	<interpro id="noIPR" name="unintegrated" type="unintegrated">
+	  <match id="coil" name="coiled-coil" dbname="COIL">
+	    <location start="783" end="804" score="NA" status="?" evidence="Coil" />
+	    <location start="1139" end="1160" score="NA" status="?" evidence="Coil" />
+	    <location start="1204" end="1232" score="NA" status="?" evidence="Coil" />
+	    <location start="2500" end="2524" score="NA" status="?" evidence="Coil" />
+	    <location start="2679" end="2717" score="NA" status="?" evidence="Coil" />
+	    <location start="2843" end="2871" score="NA" status="?" evidence="Coil" />
+	  </match>
+	  <match id="seg" name="seg" dbname="SEG">
+	    <location start="108" end="117" score="NA" status="?" evidence="Seg" />
+	    <location start="204" end="240" score="NA" status="?" evidence="Seg" />
+	    <location start="339" end="362" score="NA" status="?" evidence="Seg" />
+	    <location start="640" end="652" score="NA" status="?" evidence="Seg" />
+	    <location start="788" end="799" score="NA" status="?" evidence="Seg" />
+	    <location start="849" end="861" score="NA" status="?" evidence="Seg" />
+	    <location start="886" end="897" score="NA" status="?" evidence="Seg" />
+	    <location start="978" end="994" score="NA" status="?" evidence="Seg" />
+	    <location start="1012" end="1026" score="NA" status="?" evidence="Seg" />
+	    <location start="1225" end="1232" score="NA" status="?" evidence="Seg" />
+	    <location start="1279" end="1288" score="NA" status="?" evidence="Seg" />
+	    <location start="1295" end="1310" score="NA" status="?" evidence="Seg" />
+	    <location start="1312" end="1325" score="NA" status="?" evidence="Seg" />
+	    <location start="1328" end="1339" score="NA" status="?" evidence="Seg" />
+	    <location start="1618" end="1632" score="NA" status="?" evidence="Seg" />
+	    <location start="1826" end="1845" score="NA" status="?" evidence="Seg" />
+	    <location start="1918" end="1935" score="NA" status="?" evidence="Seg" />
+	    <location start="2148" end="2172" score="NA" status="?" evidence="Seg" />
+	    <location start="2379" end="2393" score="NA" status="?" evidence="Seg" />
+	    <location start="2456" end="2475" score="NA" status="?" evidence="Seg" />
+	    <location start="2484" end="2516" score="NA" status="?" evidence="Seg" />
+	    <location start="2607" end="2616" score="NA" status="?" evidence="Seg" />
+	    <location start="2624" end="2646" score="NA" status="?" evidence="Seg" />
+	    <location start="2841" end="2863" score="NA" status="?" evidence="Seg" />
+	    <location start="2908" end="2935" score="NA" status="?" evidence="Seg" />
+	    <location start="3046" end="3060" score="NA" status="?" evidence="Seg" />
+	    <location start="3219" end="3238" score="NA" status="?" evidence="Seg" />
+	  </match>
+	</interpro>
+   </protein>
+
+</interpro_matches>
+</EBIInterProScanResults>
