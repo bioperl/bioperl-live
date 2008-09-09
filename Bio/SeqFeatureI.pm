@@ -428,8 +428,9 @@ but can be validly overwritten by subclasses
                        in a circular sequence where a gene span starts
                        before the end of the sequence and ends after the
                        sequence start. Example : join(15685..16260,1..207)
-	    -phase     truncates the returned sequence based on the
-	               intron phase (0,1,2).
+					   (default = if sequence is_circular(), 1, otherwise 0)
+			-phase     truncates the returned sequence based on the
+					   intron phase (0,1,2).
 
   Returns : A L<Bio::PrimarySeqI> object
 
@@ -440,7 +441,12 @@ sub spliced_seq {
 	my @args = @_;
 	my ($db, $nosort, $phase) =
 	   $self->_rearrange([qw(DB NOSORT PHASE)], @args);
-
+	
+	# set no_sort based on the parent sequence status
+	if ($self->entire_seq->is_circular) {
+		$nosort = 1;
+	}
+	
 	# (added 7/7/06 to allow use old API (with warnings)
 	my $old_api = (!(grep {$_ =~ /(?:nosort|db|phase)/} @args)) ? 1 : 0;
 	if (@args && $old_api) {
