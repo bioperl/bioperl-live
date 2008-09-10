@@ -2101,7 +2101,7 @@ sub automerge {
 
  Title   : attributes
  Usage   : @attributes = $db->attributes($id,$name)
- Function: get the "attributres" on a particular feature
+ Function: get the "attributes" on a particular feature
  Returns : an array of string
  Args    : feature ID
  Status  : public

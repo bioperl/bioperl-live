@@ -525,7 +525,8 @@ cannot be changed.
 
 =cut
 
-sub id        { shift->{db_id}   }
+sub id          { shift->{db_id}   }
+sub primary_id  { shift->{db_id}   }
 
 =head2 group_id
 
