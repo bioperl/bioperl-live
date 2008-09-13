@@ -77,8 +77,8 @@ use Scalar::Util qw(weaken isweak);
 
 use base qw(Bio::Root::Root Bio::Tree::NodeI);
 
-BEGIN { 
-    $CREATIONORDER = 0;
+BEGIN {
+    $CREATIONORDER = 1;
 }
 
 =head2 new
