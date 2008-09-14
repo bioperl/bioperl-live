@@ -203,6 +203,7 @@ BEGIN {
 		  '(Pairwise|(Flat)?QueryAnchored(NoIdentities)?|Tabular)',
 	 # Pairwise, QueryAnchored, QueryAnchoredNoIdentities, 
   	 # FlatQueryAnchored, FlatQueryAnchoredNoIdentities, Tabular
+     'DATABASE_SORT' => '\d',
 	 'DESCRIPTIONS'	=> '\d+',			# Positive integer
 	 'ENTREZ_LINKS_NEW_WINDOW' => '(yes|no)',	# yes, no
 	 'EXPECT_LOW'	=> '\d+(\.\d+)?([eE]-\d+)?',	# Positive double
@@ -215,6 +216,7 @@ BEGIN {
 	 'FORMAT_TYPE'	=> '((HT|X)ML|ASN\.1|Text)',
 					# HTML, Text, ASN.1, XML
 	 'NCBI_GI'	=> '(yes|no)',			# yes, no
+     'NEW_VIEW' => '(true|false)',
 	 'RID' 		=>  '.*',
 	 'RESULTS_FILE' 	=>  '(yes|no)',			# yes, no
 	 'SERVICE' 	=>  '(plain|p[sh]i|(rps|mega)blast)',
