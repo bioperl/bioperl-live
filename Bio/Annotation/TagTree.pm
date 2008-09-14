@@ -125,23 +125,29 @@ use Data::Stag;
 
 =cut
 
-sub new{
-   my ($class,@args) = @_;
-   my $self = $class->SUPER::new();
-   my ($node, $value,$tag, $format, $verbose) = $self->_rearrange([qw(
-                                       NODE
-                                       VALUE
-                                       TAGNAME
-                                       TAGFORMAT
-                                       VERBOSE)], @args);
-   $self->throw("Cant use both node and value; mutually exclusive") if defined $node && defined $value;
-   defined $tag    && $self->tagname($tag);
-   $format ||= 'itext';
-   $self->tagformat($format);
-   defined $value  ? $self->value($value) : $self->node(Data::Stag->new());
-   defined $node   && $self->node($node);
-   defined $verbose   && $self->verbose($verbose);
-   return $self;
+sub new {
+    my ( $class, @args ) = @_;
+    my $self = $class->SUPER::new();
+    my ( $node, $value, $tag, $format, $verbose ) = $self->_rearrange(
+        [
+            qw(
+              NODE
+              VALUE
+              TAGNAME
+              TAGFORMAT
+              VERBOSE)
+        ],
+        @args
+    );
+    $self->throw("Cant use both node and value; mutually exclusive")
+      if defined $node && defined $value;
+    defined $tag && $self->tagname($tag);
+    $format ||= 'itext';
+    $self->tagformat($format);
+    defined $value   && $self->value($value);
+    defined $node    && $self->node($node);
+    defined $verbose && $self->verbose($verbose);
+    return $self;
 }
 
 =head1 AnnotationI implementing functions
@@ -158,9 +164,9 @@ sub new{
 
 =cut
 
-sub as_text{
-   my ($self) = @_;
-   return "TagTree: ".$self->value;
+sub as_text {
+    my ($self) = @_;
+    return "TagTree: " . $self->value;
 }
 
 =head2 display_text
@@ -180,14 +186,14 @@ sub as_text{
 =cut
 
 {
-  my $DEFAULT_CB = sub { $_[0]->value || ''};
+    my $DEFAULT_CB = sub { $_[0]->value || '' };
 
-  sub display_text {
-    my ($self, $cb) = @_;
-    $cb ||= $DEFAULT_CB;
-    $self->throw("Callback must be a code reference") if ref $cb ne 'CODE';
-    return $cb->($self);
-  }
+    sub display_text {
+        my ( $self, $cb ) = @_;
+        $cb ||= $DEFAULT_CB;
+        $self->throw("Callback must be a code reference") if ref $cb ne 'CODE';
+        return $cb->($self);
+    }
 
 }
 
@@ -203,10 +209,10 @@ sub as_text{
 
 =cut
 
-sub hash_tree{
-   my ($self) = @_;
-   my $h = {};
-   $h->{'value'} = $self->value;
+sub hash_tree {
+    my ($self) = @_;
+    my $h = {};
+    $h->{'value'} = $self->value;
 }
 
 =head2 tagname
@@ -223,12 +229,12 @@ sub hash_tree{
 
 =cut
 
-sub tagname{
-   my ($self,$value) = @_;
-   if( defined $value) {
-   $self->{'tagname'} = $value;
-   }
-   return $self->{'tagname'};
+sub tagname {
+    my ( $self, $value ) = @_;
+    if ( defined $value ) {
+        $self->{'tagname'} = $value;
+    }
+    return $self->{'tagname'};
 }
 
 =head1 Specific accessors for TagTree
@@ -245,32 +251,39 @@ sub tagname{
 
 =cut
 
-sub value{
-   my ($self,$value) = @_;
-   # set mode? This resets the entire tagged database
-   my $format = $self->tagformat;
-   if ($value) {
-      if (ref $value) {
-         if (ref $value eq 'ARRAY') {
-            # note the tagname() is not used here; it is only used for
-            # storing this AnnotationI in the annotation collection
-            eval { $self->{db} = Data::Stag->nodify($value) };
-         } else {
-            # assuming this is blessed; passing on to node() and copy
-            $self->node($value, 'copy');
-         }
-      } else {
-         # not trying to guess here for now; we go by the tagformat() setting
-         my $h = Data::Stag->getformathandler($format);
-         eval {$self->{db} = Data::Stag->from($format.'str',$value)};
-      }
-      $self->throw("Data::Stag error:\n$@") if $@;
-   }
-   # get mode?
-   # How do we return a data structure?
-   # for now, we use the output (if there is a Data::Stag node present)
-   # may need to an an eval {} to catch Data::Stag output errors
-   $self->{db}->$format;
+sub value {
+    my ( $self, $value ) = @_;
+
+    # set mode? This resets the entire tagged database
+    my $format = $self->tagformat;
+    if ($value) {
+        if ( ref $value ) {
+            if ( ref $value eq 'ARRAY' ) {
+
+                # note the tagname() is not used here; it is only used for
+                # storing this AnnotationI in the annotation collection
+                eval { $self->{db} = Data::Stag->nodify($value) };
+            }
+            else {
+
+                # assuming this is blessed; passing on to node() and copy
+                $self->node( $value, 'copy' );
+            }
+        }
+        else {
+
+            # not trying to guess here for now; we go by the tagformat() setting
+            my $h = Data::Stag->getformathandler($format);
+            eval { $self->{db} = Data::Stag->from( $format . 'str', $value ) };
+        }
+        $self->throw("Data::Stag error:\n$@") if $@;
+    }
+
+    # get mode?
+    # How do we return a data structure?
+    # for now, we use the output (if there is a Data::Stag node present)
+    # may need to an an eval {} to catch Data::Stag output errors
+    $self->node->$format;
 }
 
 =head2 tagformat
@@ -284,17 +297,17 @@ sub value{
 
 =cut
 
-my %IS_VALID_FORMAT = map {$_ => 1} qw(xml indent sxpr itext);
+my %IS_VALID_FORMAT = map { $_ => 1 } qw(xml indent sxpr itext);
 
-sub tagformat{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->throw("$value is not a valid format; valid format types:\n".
-                   join(',',map {"'$_'"} keys %IS_VALID_FORMAT))
-         if !exists $IS_VALID_FORMAT{$value};
-      $self->{'tagformat'} = $value;
-   }
-   return $self->{'tagformat'};
+sub tagformat {
+    my ( $self, $value ) = @_;
+    if ( defined $value ) {
+        $self->throw( "$value is not a valid format; valid format types:\n"
+              . join( ',', map { "'$_'" } keys %IS_VALID_FORMAT ) )
+          if !exists $IS_VALID_FORMAT{$value};
+        $self->{'tagformat'} = $value;
+    }
+    return $self->{'tagformat'};
 }
 
 =head2 node
@@ -309,19 +322,23 @@ sub tagformat{
 
 =cut
 
-sub node{
-   my ($self,$value, $copy) = @_;
-   if( defined $value && ref $value) {
-         $self->{'db'} = $value->isa('Data::Stag::StagI') ?
-                              ($copy && $copy eq 'copy' ? $value->duplicate : $value) :
-                         $value->isa('Bio::Annotation::TagTree') ?
-                              ($copy && $copy eq 'copy' ? $value->node->duplicate : $value->node) :
-                         $self->throw('Object must be Data::Stag::StagI or Bio::Annotation::TagTree');
-         #$self->{'db'} = $value->isa('Data::Stag::StagI')        ? $value :
-         #                $value->isa('Bio::Annotation::TagTree') ? $value->node :
-         #                $self->throw('Object must be Data::Stag::StagI or Bio::Annotation::TagTree');
-   }
-   return $self->{'db'};
+sub node {
+    my ( $self, $value, $copy ) = @_;
+    if ( defined $value && ref $value ) {
+        $self->{'db'} =
+          $value->isa('Data::Stag::StagI')
+          ? ( $copy && $copy eq 'copy' ? $value->duplicate : $value )
+          : $value->isa('Bio::Annotation::TagTree') ? ( $copy
+              && $copy eq 'copy' ? $value->node->duplicate : $value->node )
+          : $self->throw(
+            'Object must be Data::Stag::StagI or Bio::Annotation::TagTree');
+    }
+    
+    # lazily create Data::Stag instance if not present
+    if (!$self->{'db'}) {
+        $self->{'db'} = Data::Stag->new();
+    }
+    return $self->{'db'};
 }
 
 =head2 Data::Stag convenience methods
@@ -348,8 +365,8 @@ grabbing the Data::Stag instance using node().
 =cut
 
 sub element {
-   my $self = shift;
-   return $self->{db}->element;
+    my $self = shift;
+    return $self->node->element;
 }
 
 =head2 data
@@ -364,8 +381,8 @@ sub element {
 =cut
 
 sub data {
-   my $self = shift;
-   return $self->{db}->data;
+    my $self = shift;
+    return $self->node->data;
 }
 
 =head2 children
@@ -388,8 +405,8 @@ sub data {
 =cut
 
 sub children {
-   my $self = shift;
-   return $self->{db}->children;
+    my $self = shift;
+    return $self->node->children;
 }
 
 =head2 subnodes
@@ -406,8 +423,8 @@ sub children {
 =cut
 
 sub subnodes {
-   my $self = shift;
-   return $self->{db}->subnodes;
+    my $self = shift;
+    return $self->node->subnodes;
 }
 
 =head2 get
@@ -423,8 +440,8 @@ sub subnodes {
 =cut
 
 sub get {
-   my ($self, @vals) = @_;
-   return $self->{db}->get(@vals);
+    my ( $self, @vals ) = @_;
+    return $self->node->get(@vals);
 }
 
 =head2 find
@@ -440,8 +457,8 @@ sub get {
 =cut
 
 sub find {
-   my ($self, @vals) = @_;
-   return $self->{db}->find(@vals);
+    my ( $self, @vals ) = @_;
+    return $self->node->find(@vals);
 }
 
 =head2 findnode
@@ -457,8 +474,8 @@ sub find {
 =cut
 
 sub findnode {
-   my ($self, @vals) = @_;
-   return $self->{db}->findnode(@vals);
+    my ( $self, @vals ) = @_;
+    return $self->node->findnode(@vals);
 }
 
 =head2 findval
@@ -473,8 +490,8 @@ sub findnode {
 =cut
 
 sub findval {
-   my ($self, @vals) = @_;
-   return $self->{db}->findval(@vals);
+    my ( $self, @vals ) = @_;
+    return $self->node->findval(@vals);
 }
 
 =head2 addchild
@@ -496,18 +513,23 @@ sub findval {
 =cut
 
 sub addchild {
-   my ($self,@vals) = @_;
-   # check for element tag first (if no element, must be empty Data::Stag node)
-   if (!$self->element) {
-      # try to do the right thing; if more than one element, wrap in array ref
-      @vals > 1 ? $self->value(\@vals) : $self->value($vals[0]);
-      return $self->{db};
-   } elsif (!$self->{db}->ntnodes) {
-      # if this is a terminal node, can't add to it (use set?)
-      $self->throw("Can't add child to node; only terminal node is present!");
-   } else {
-      return $self->{db}->addchild(@vals);
-   }
+    my ( $self, @vals ) = @_;
+
+    # check for element tag first (if no element, must be empty Data::Stag node)
+    if ( !$self->element ) {
+
+        # try to do the right thing; if more than one element, wrap in array ref
+        @vals > 1 ? $self->value( \@vals ) : $self->value( $vals[0] );
+        return $self->{db};
+    }
+    elsif ( !$self->node->ntnodes ) {
+
+        # if this is a terminal node, can't add to it (use set?)
+        $self->throw("Can't add child to node; only terminal node is present!");
+    }
+    else {
+        return $self->node->addchild(@vals);
+    }
 }
 
 =head2 add
@@ -526,12 +548,13 @@ sub addchild {
 =cut
 
 sub add {
-   my ($self, @vals) = @_;
-   # check for empty object and die for now
-   if (!$self->{db}->element) {
-      $self->throw("Can't add to terminal element!");
-   }
-   return $self->{db}->add(@vals);
+    my ( $self, @vals ) = @_;
+
+    # check for empty object and die for now
+    if ( !$self->node->element ) {
+        $self->throw("Can't add to terminal element!");
+    }
+    return $self->node->add(@vals);
 }
 
 =head2 set
@@ -547,12 +570,13 @@ sub add {
 =cut
 
 sub set {
-   my ($self, @vals) = @_;
-   # check for empty object
-   if (!$self->{db}->element) {
-      $self->throw("Can't add to tree; empty tree!");
-   }   
-   return $self->{db}->set(@vals);
+    my ( $self, @vals ) = @_;
+
+    # check for empty object
+    if ( !$self->node->element ) {
+        $self->throw("Can't add to tree; empty tree!");
+    }
+    return $self->node->set(@vals);
 }
 
 =head2 unset
@@ -567,8 +591,8 @@ sub set {
 =cut
 
 sub unset {
-   my ($self, @vals) = @_;
-   return $self->{db}->unset(@vals);
+    my ( $self, @vals ) = @_;
+    return $self->node->unset(@vals);
 }
 
 =head2 free
@@ -582,8 +606,8 @@ sub unset {
 =cut
 
 sub free {
-   my ($self) = @_;
-   return $self->{db}->free;
+    my ($self) = @_;
+    return $self->node->free;
 }
 
 =head2 hash
@@ -598,8 +622,8 @@ sub free {
 =cut
 
 sub hash {
-   my ($self) = @_;
-   return $self->{db}->hash;
+    my ($self) = @_;
+    return $self->node->hash;
 }
 
 =head2 qmatch
@@ -614,8 +638,8 @@ sub hash {
 =cut
 
 sub qmatch {
-   my ($self, @vals) = @_;
-   return $self->{db}->qmatch(@vals);
+    my ( $self, @vals ) = @_;
+    return $self->node->qmatch(@vals);
 }
 
 =head2 tnodes
@@ -629,8 +653,8 @@ sub qmatch {
 =cut
 
 sub tnodes {
-   my ($self) = @_;
-   return $self->{db}->tnodes;
+    my ($self) = @_;
+    return $self->node->tnodes;
 }
 
 =head2 ntnodes
@@ -644,8 +668,8 @@ sub tnodes {
 =cut
 
 sub ntnodes {
-   my ($self) = @_;
-   return $self->{db}->ntnodes;
+    my ($self) = @_;
+    return $self->node->ntnodes;
 }
 
 =head2 StructureValue-like methods
@@ -667,13 +691,13 @@ tag-value relationship (i.e. you only get the value list, no elements)
 =cut
 
 sub get_all_values {
-   my $self = shift;
-   my @kids = $self->children;
-   my @vals;
-   while (my $val = shift @kids) {
-      (ref $val) ? push @kids, $val->children : push @vals, $val;
-   }
-   return @vals;
+    my $self = shift;
+    my @kids = $self->children;
+    my @vals;
+    while ( my $val = shift @kids ) {
+        ( ref $val ) ? push @kids, $val->children : push @vals, $val;
+    }
+    return @vals;
 }
 
 1;
