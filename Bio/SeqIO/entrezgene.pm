@@ -168,7 +168,7 @@ sub next_seq {
     $xval=$value->[0];
     #return unless ($xval->{gene}->{desc} eq 'albumin');
     #return new Bio::Seq (-id=>'Generif service record', -seq=>'') unless ($xval->{'track-info'}{geneid}== 283);
-    return new Bio::Seq (-id=>'Generif service record', -seq=>'') if (($self->{_service_record} ne 'yes')&&
+    return Bio::Seq->new(-id=>'Generif service record', -seq=>'') if (($self->{_service_record} ne 'yes')&&
                     ($xval->{gene}->{desc} =~ /record to support submission of generifs for a gene not in entrez/i));
     #Basic data
 	 #$xval->{summary}=~s/\n//g; 
