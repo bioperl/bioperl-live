@@ -101,7 +101,7 @@ sub next_aln {
             my ($id, $score, $seq) = split m{\s+}, $data,3;
             # what to do with the score???
             my $temp;
-            ($temp = $data) =~ s{[^A-Z]}{}gi;
+            ($temp = $data) =~ s{[^A-Z\?]}{}gi;
             $self->debug($temp,"\n");
             my $newseq = Bio::LocatableSeq->new(
                          -start       => 1,
