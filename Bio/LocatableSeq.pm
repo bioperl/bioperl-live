@@ -85,9 +85,13 @@ use strict;
 
 use Bio::Location::Simple;
 use Bio::Location::Fuzzy;
-use vars qw($MATCHPATTERN);
+use vars qw($GAP_SYMBOLS $OTHER_SYMBOLS $MATCHPATTERN);
 
-$MATCHPATTERN = '0-9A-Za-z\-\.\*\?=~';
+$GAP_SYMBOLS = '\-\.=~';
+
+$OTHER_SYMBOLS = '\*\?';
+
+$MATCHPATTERN = '0-9A-Za-z'.$GAP_SYMBOLS.$OTHER_SYMBOLS;
 
 use base qw(Bio::PrimarySeq Bio::RangeI);
 
@@ -140,28 +144,33 @@ sub start{
 =cut
 
 sub end {
-   my $self = shift;
-   if( @_ ) {
-      my $value = shift;
-      my $string = $self->seq;
-      if ($self->seq) {
-          my $len = $self->_ungapped_len;
-	  my $id = $self->id;
-	  $self->warn("In sequence $id residue count gives end value $len.
-Overriding value [$value] with value $len for Bio::LocatableSeq::end().")
-	      and $value = $len if $len != $value and $self->verbose > 0;
-      }
+	my $self = shift;
+	if( @_ ) {
+		my $value = shift;
+		my $string = $self->seq;
+		if ($self->seq) {
+			my $len = $self->_ungapped_len;
+			my $id = $self->id;
+			
+			# changed 9/14/08
+			if ($len != $value) {
+				$self->warn("In sequence $id residue count gives end value ".
+                "$len.  \nOverriding value [$value] with value $len for ".
+                "Bio::LocatableSeq::end().\n$string");
+				$value = $len;
+			}
+		}
 
-      $self->{'end'} = $value;
+		$self->{'end'} = $value;
     }
 
-   return defined $self->{'end'} ? $self->{'end'} : $self->_ungapped_len;
+	return defined $self->{'end'} ? $self->{'end'} : $self->_ungapped_len;
 }
 
 sub _ungapped_len {
     my $self = shift;
     my $string = $self->seq || '';
-    $string =~ s/[\.\-]+//g;
+    $string =~ s/[$GAP_SYMBOLS]+//g;
     $self->seq ? (return $self->start + CORE::length($string) - 1 ) : undef;
 }
 
@@ -169,18 +178,17 @@ sub _ungapped_len {
 
  Title   : strand
  Usage   : $obj->strand($newval)
- Function: Get/set the 1-based end position of this sequence in the original
-           sequence. '0' means before the original sequence starts.
- Returns : value of strand
- Args    : newvalue (optional)
+ Function: return or set the strandedness
+ Returns : the value of the strandedness (-1, 0 or 1)
+ Args    : the value of the strandedness (-1, 0 or 1)
 
 =cut
 
 sub strand{
    my $self = shift;
    if( @_ ) {
-      my $value = shift;
-      $self->{'strand'} = $value;
+		my $value = shift;
+		$self->{'strand'} = $value;
     }
     return $self->{'strand'};
 }
@@ -309,7 +317,6 @@ sub column_from_residue_number {
     $self->throw("Could not find residue number $resnumber");
 
 }
-
 
 =head2 location_from_column
 
@@ -481,4 +488,5 @@ sub validate_seq {
 	}
 	return 1;
 }
+
 1;
