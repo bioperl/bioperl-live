@@ -107,10 +107,12 @@ sub next_aln {
 	$seqs{$id} .= $s;
     }
     foreach my $id ( @order) {
+    my $gaps = $seqs{$id} =~ tr/-/-/;
 	my $seq = Bio::LocatableSeq->new(-seq => $seqs{$id},
 					-id  => $id,
 					-start => 1,
-					-end   => length($seqs{$id}));
+					-end   => length($seqs{$id}) - $gaps
+                    );
 	$aln->add_seq($seq);
     }
     return $aln;
