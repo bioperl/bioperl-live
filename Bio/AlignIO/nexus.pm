@@ -135,7 +135,8 @@ sub next_aln {
     my ($aln_name, $seqcount, $residuecount, %hash, $alphabet,
 	$match, $gap, $missing, $equate, $interleave,
 	$name,$str,@names,$seqname,$start,$end,$count,$seq);
-
+    local $Bio::LocatableSeq::OTHER_SYMBOLS = '\*\?\.';
+    local $Bio::LocatableSeq::GAP_SYMBOLS = '\-';
     my $aln =  Bio::SimpleAlign->new(-source => 'nexus');
 
     # file starts with '#NEXUS' but we allow white space only lines before it
@@ -295,12 +296,12 @@ sub next_aln {
 	    $seqname=$name;
 	    $start = 1;
 	    $str = $hash{$count};
-	    $str =~ s/[^A-Za-z]//g;
+	    $str =~ s/[$Bio::LocatableSeq::GAP_SYMBOLS]//g;
 	    $end = length($str);
 	}
 
 	# consistency test
-	$self->throw("Length of sequence [$seqname] is not [$residuecount]! ")
+	$self->throw("Length of sequence [$seqname] is not [$residuecount]; got".CORE::length($hash{$count}))
 	    unless CORE::length($hash{$count}) == $residuecount;
 
 	$seq = Bio::LocatableSeq->new('-seq'=>$hash{$count},
