@@ -126,14 +126,15 @@ sub next_aln {
 			$seqname = $name;
 			$start = 1;
 			$str = $hash{$name};
-			$str =~ s/[^A-Za-z]//g;
+			$str =~ s/[^0-9A-Za-z$Bio::LocatableSeq::OTHER_SYMBOLS]//g;
+
 			$end = length($str);
 		}
 
 		$seq = Bio::LocatableSeq->new(-seq   => $hash{$name},
-											  -id    => $seqname,
-											  -start => $start,
-											  -end   => $end,
+					      -id    => $seqname,
+					      -start => $start,
+					      -end   => $end,
 											 );
 		$aln->add_seq($seq);
 
