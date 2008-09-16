@@ -73,6 +73,7 @@ use XML::LibXML;
 use XML::LibXML::Reader;
 use base qw(Bio::TreeIO);
 
+
 sub _initialize 
 {
   my($self, %args) = @_;
@@ -130,7 +131,6 @@ sub _init_func
  Returns : Bio::Tree::TreeI
  Args    : none
 
-
 =cut
 
 sub next_tree 
@@ -148,7 +148,7 @@ sub next_tree
         last;
       }
     }
-    processXMLNode($self);
+    $self->processXMLNode;
   }
   return $tree;
 }
@@ -202,6 +202,16 @@ sub write_tree
   return;
 }
 
+=head2 _write_tree_Helper_annotatableNode
+
+ Title   : _write_tree_Helper_annotatableNode
+ Usage   : internal method used by write_tree, not to be used directly
+ Function: recursive helper function of write_tree for the annotatableNodes. 
+           translates annotations into xml elements.
+ Returns : string describing the node
+ Args    : Bio::Node::AnnotatableNode object, string
+
+=cut
 
 sub _write_tree_Helper_annotatableNode
 {
@@ -255,6 +265,17 @@ sub _write_tree_Helper_annotatableNode
   return $str;
 }
 
+=head2 _write_tree_Helper_generic
+
+ Title   : _write_tree_Helper_generic
+ Usage   : internal method used by write_tree, not to be used directly
+ Function: recursive helper function of write_tree for generic NodesI. 
+           all tags are translated into property elements.
+ Returns : string describing the node
+ Args    : Bio::Node::NodeI object, string
+
+=cut
+
 sub _write_tree_Helper_generic
 {
   my ($self, $node, $str) = @_;     # this self is a Bio::Tree::phyloxml
@@ -298,6 +319,24 @@ sub _write_tree_Helper_generic
   return $str;
 }
 
+=head2 _relation_to_string
+
+ Title   : _relation_to_string
+ Usage   : internal method used by write_tree, not to be used directly
+ Function: internal function used by write_tree to translate Annotation::Relation objects into xml elements. 
+ Returns : string describing the node
+ Args    : Bio::Node::AnnotatableNode (or Bio::SeqI) object that contains the Annotation::Relation, 
+           the Annotation::Relation object, 
+           the string
+
+=cut
+
+# It may be more appropriate to make Annotation::Relation have 
+# a to_string callback function, 
+# and have this subroutine set as the callback when we are in 
+# phyloXML context.  
+# I've put it here for now, since write_tree is the only place it is used.
+
 sub _relation_to_string {
   my ($self, $obj, $rel, $str) = @_;
 
@@ -320,7 +359,6 @@ sub _relation_to_string {
   return $str;
 }
 
-
 =head2 read_annotation
 
  Title   : read_annotation
@@ -333,6 +371,12 @@ sub _relation_to_string {
                     (default is 0, meaning text value is returned)
 
 =cut
+
+# It may be more appropriate to make a separate Annotation::phyloXML object
+# and have this subroutine within that object so it can handle the 
+# reading and writing of the values and attributes.
+# but since tagTree is a temporary stub and I didn't want to make 
+# a redundant object I've put it here for now.
 
 sub read_annotation
 {
@@ -399,13 +443,17 @@ sub _read_annotation_attr_Helper
   }
 }
 
+=head1 Methods for parsing the XML document
+
+=cut
+
 =head2 processXMLNode
 
  Title   : processXMLNode
- Usage   : 
- Function: 
+ Usage   : $treeio->processXMLNode
+ Function: read the XML node and process according to the node type
  Returns : none
- Args    : 
+ Args    : none
 
 =cut
 
@@ -413,7 +461,8 @@ sub processXMLNode
 {
   my ($self) = @_;
   my $reader = $self->{'_reader'};
-  if ($reader->nodeType == XML_READER_TYPE_ELEMENT) 
+  my $nodetype = $reader->nodeType;
+  if ( $nodetype == XML_READER_TYPE_ELEMENT) 
   {
     $self->{'_lastitem'}->{$reader->name}++;
     push @{$self->{'_lastitem'}->{'current'}}, { $reader->name=>{}};  # current holds current element and empty hash for its attributes
@@ -426,24 +475,17 @@ sub processXMLNode
       $self->element_default();
     }
     if ($reader->isEmptyElement) {
-      # do procedures for XML_READER_TYPE_END_ELEMENT since element is complete
-      
-      if (exists $self->{'_end_elements'}->{$reader->name}) {
-        my $method = $self->{'_end_elements'}->{$reader->name};
-        $self->$method();
-      }
-      else {
-        $self->end_element_default();
-      }
-      $self->{'_lastitem'}->{ $reader->name }--;
-      pop @{$self->{'_lastitem'}->{'current'}};
+      # element is complete
+      # set nodetype so it can jump and
+      # do procedures for XML_READER_TYPE_END_ELEMENT 
+      $nodetype = XML_READER_TYPE_END_ELEMENT; 
     }
   }
-  if ($reader->nodeType == XML_READER_TYPE_TEXT)
+  if ($nodetype == XML_READER_TYPE_TEXT)
   {
     $self->{'_currenttext'} = $reader->value;
   } 
-  if ($reader->nodeType == XML_READER_TYPE_END_ELEMENT)
+  if ($nodetype == XML_READER_TYPE_END_ELEMENT)
   {
     if (exists $self->{'_end_elements'}->{$reader->name}) {
       my $method = $self->{'_end_elements'}->{$reader->name};
@@ -462,11 +504,10 @@ sub processXMLNode
 =head2 processAttribute
 
  Title   : processAttribute
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+ Usage   : $treeio->processAttribute(\%hash_for_attribute);
+ Function: reads the attributes of the current element into a hash
+ Returns : none
+ Args    : hash reference where the attributes will be stored.
 
 =cut
 
@@ -483,19 +524,14 @@ sub processAttribute
     } while ($reader-> moveToNextAttribute);
     $reader-> moveToElement;
   }
-  # back at the element
-  # ...
-
-  # read a specific attribute:
-  #print "Attribute b: ",$reader-> getAttribute('b'),"\n";
 }
 
 
 =head2 element_phylogeny
 
  Title   : element_phylogeny
- Usage   : $handler->element_phylogeny
- Function: Begins a Tree event cycle
+ Usage   : $treeio->element_phylogeny
+ Function: initialize the parsing of a tree
  Returns : none 
  Args    : none
 
@@ -514,6 +550,16 @@ sub element_phylogeny
   $self->processAttribute($self->current_attr);
   return; 
 }
+
+=head2 end_element_phylogeny
+
+ Title   : end_element_phylogeny
+ Usage   : $treeio->end_element_phylogeny
+ Function: ends the parsing of a tree building a Tree::TreeI object.
+ Returns : Tree::TreeI
+ Args    : none
+
+=cut
 
 sub end_element_phylogeny
 {
@@ -551,12 +597,12 @@ sub end_element_phylogeny
   return $tree;
 }
 
-
 =head2 element_clade
 
  Title   : element_clade
- Usage   : $->element_clade
- Function: Begins a clade cycle
+ Usage   : $treeio->element_clade
+ Function: initialize the parsing of a node
+           creates a new AnnotatableNode with annotations
  Returns : none 
  Args    : none
 
@@ -593,6 +639,16 @@ sub element_clade
   push @{$self->{'_currentitems'}}, $tnode;
 }
 
+=head2 end_element_clade
+
+ Title   : end_element_clade
+ Usage   : $treeio->end_element_clade
+ Function: ends the parsing of a node
+ Returns : none 
+ Args    : none
+
+=cut
+
 sub end_element_clade
 {
   my ($self) = @_;
@@ -625,8 +681,8 @@ sub end_element_clade
 =head2 element_relation
 
  Title   : element_relation
- Usage   : $->element_relation
- Function: clade relation & sequence relation
+ Usage   : $treeio->element_relation
+ Function: starts the parsing of clade relation & sequence relation
  Returns : none 
  Args    : none
 
@@ -641,8 +697,8 @@ sub element_relation
 =head2 end_element_relation
 
  Title   : end_element_relation
- Usage   : $->end_element_relation
- Function: 
+ Usage   : $treeio->end_element_relation
+ Function: ends the parsing of clade relation & sequence relation
  Returns : none 
  Args    : none
 
@@ -687,8 +743,8 @@ sub end_element_relation
 =head2 element_default
 
  Title   : element_default
- Usage   : $->element_default
- Function: 
+ Usage   : $treeio->element_default
+ Function: starts the parsing of all other elements
  Returns : none 
  Args    : none
 
@@ -752,8 +808,8 @@ sub element_default
 =head2 end_element_default
 
  Title   : end_element_default
- Usage   : $->end_element_default
- Function: 
+ Usage   : $treeio->end_element_default
+ Function: ends the parsing of all other elements
  Returns : none 
  Args    : none
 
@@ -793,7 +849,8 @@ sub end_element_default
   elsif ($prev eq 'clade_relation' || $prev eq 'sequence_relation') {
     # we are here only with <confidence>
     if ($current eq 'confidence') {
-      # do something
+      # need to take care of confidence
+      # not implemented yet..
     }
     else {
       $self->throw($current, " is not allowed within <*_relation>");
@@ -805,46 +862,51 @@ sub end_element_default
     # pop from current annotation
     my $ac = pop (@{$self->{'_currentannotation'}});
     $self->annotateNode( $current, $ac);
+
     # additional setups for compatibility with NodeI
-      my $tnode;
-      if ($srcbyidref) {
-        $tnode = $srcbyidref;
+    my $tnode;
+    if ($srcbyidref) {
+      $tnode = $srcbyidref;
+    }
+    else {
+      $tnode = $self->{'_currentitems'}->[-1];
+    }
+    if ($current eq 'name') {
+      $tnode->id($self->{'_currenttext'});
+    }
+    elsif ($current eq 'branch_length') {
+      $tnode->branch_length($self->{'_currenttext'});
+    }
+    elsif ($current eq 'confidence') {
+      if ((exists $self->current_attr->{'type'}) && ($self->current_attr->{'type'} eq 'bootstrap')) {
+        $tnode->bootstrap($self->{'_currenttext'}); # this needs to change (adds 'B' annotation)
       }
-      else {
-        $tnode = $self->{'_currentitems'}->[-1];
+    }
+    elsif ($current eq 'sequence') {
+      # if annotation is <sequence> 
+      # transform the Bio::Annotation object into a Bio::Seq object
+      my $str = '';
+      # retrieve the sequence 
+      if (my ($molseq) = $ac->get_Annotations('mol_seq')) {
+        my ($strac) = $molseq->get_Annotations('_text');
+        $str = $strac->value();
       }
-      if ($current eq 'name') {
-        $tnode->id($self->{'_currenttext'});
+      # create Seq object with sequence
+      my $newseq = Bio::Seq->new( -seq => $str, 
+          -annotation=>$ac, 
+          -nowarnonempty=>1);
+      $tnode->sequence($newseq);
+      $ac->remove_Annotations('mol_seq');
+      $tnode->annotation->remove_Annotations($current);
+      # if there is id_source add sequence to _id_link
+      if ($idsrc) {
+        $self->{'_id_link'}->{$idsrc} = $newseq;
       }
-      elsif ($current eq 'branch_length') {
-        $tnode->branch_length($self->{'_currenttext'});
-      }
-      elsif ($current eq 'confidence') {
-        if ((exists $self->current_attr->{'type'}) && ($self->current_attr->{'type'} eq 'bootstrap')) {
-          $tnode->bootstrap($self->{'_currenttext'}); # this needs to change (adds 'B' annotation)
-        }
-      }
-      elsif ($current eq 'sequence') {
-        my $str = '';
-        if (my @molseq = $ac->get_Annotations('mol_seq')) {
-          my @strac = $molseq[0]->get_Annotations('_text');
-          $str = $strac[0]->value();
-        }
-        my $newseq = Bio::Seq->new( -seq => $str, 
-                                    -annotation=>$ac, 
-                                    -nowarnonempty=>1);
-        $tnode->sequence($newseq);
-        $ac->remove_Annotations('mol_seq');
-        $tnode->annotation->remove_Annotations($current);
-        # if there is id_source add sequence to _id_link
-        if ($idsrc) {
-          $self->{'_id_link'}->{$idsrc} = $newseq;
-        }
-      }
-      elsif ($idsrc && $current eq 'taxonomy') {
-        # if there is id_source add sequence to _id_link
-        $self->{'_id_link'}->{$idsrc} = $ac;
-      }
+    }
+    elsif ($idsrc && $current eq 'taxonomy') {
+      # if there is id_source add sequence to _id_link
+      $self->{'_id_link'}->{$idsrc} = $ac;
+    }
   }
   # we are within a default Annotation
   else {
@@ -859,8 +921,21 @@ sub end_element_default
 =head2 annotateNode
 
  Title   : annotateNode
- Usage   : $->annotateNode( $element, $ac)
- Function: 
+ Usage   : $treeio->annotateNode($element, $ac)
+ Function: adds text value and attributes to the AnnotationCollection 
+           that has element name as key. If there are nested elements, 
+           optional AnnotationCollections are added recursively, 
+           with the nested element name as key.
+           The structure of each AnnotationCollection is 
+           'element' => AnnotationCollection {
+               '_text' => SimpleValue (text value)
+               '_attr' => AnnotationCollection { 
+                   attribute1 => SimpleValue (attribute value 1)
+                   attribute2 => SimpleValue (attribute value 2)
+                   ...
+               } 
+               ['nested element' => AnnotationCollection ]
+           }
  Returns : none 
  Args    : none
 
@@ -888,32 +963,17 @@ sub annotateNode
 }
 
 
-=head2 element_id
-
- Title   : element_id
- Usage   : $->element_id
- Function: identifier element used by phylogeny, clade, taxonomy
- Returns : none 
- Args    : none
+=head1 Methods for exploring the document
 
 =cut
-
-sub element_id
-{
-  my ($self) = @_;
-  my $reader = $self->{'_reader'};
-}
-
-
 
 =head2 current_attr
 
  Title   : current_attr
- Usage   :
+ Usage   : $attr_hash = $treeio->current_attr;
  Function: returns the attribute hash for current item
- Example :
- Returns : 
- Args    :
+ Returns : reference of the attribute hash
+ Args    : none
 
 =cut
 
@@ -930,11 +990,10 @@ sub current_attr {
 =head2 prev_attr
 
  Title   : prev_attr
- Usage   :
+ Usage   : $hash_ref = $treeio->prev_attr
  Function: returns the attribute hash for previous item
- Example :
- Returns : 
- Args    :
+ Returns : reference of the attribute hash
+ Args    : none
 
 =cut
 
@@ -951,11 +1010,10 @@ sub prev_attr {
 =head2 current_element
 
  Title   : current_element
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+ Usage   : $element = $treeio->current_element
+ Function: returns the name of the current element
+ Returns : string (element name)
+ Args    : none
 
 =cut
 
@@ -972,11 +1030,10 @@ sub current_element {
 =head2 prev_element
 
  Title   : prev_element
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+ Usage   : $element = $treeio->current_element
+ Function: returns the name of the previous element
+ Returns : string (element name)
+ Args    : none
 
 =cut
 
@@ -990,50 +1047,12 @@ sub prev_element {
   return $keys[0];
 }
 
-=head2 in_element
-
- Title   : in_element
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub in_element{
-  my ($self,$e) = @_;
-
-  return 0 if ! defined $self->{'_lastitem'} ||
-    ! defined $self->{'_lastitem'}->{'current'}->[-1];
-  my @keys = keys %{$self->{'_lastitem'}->{'current'}->[-1]};
-  (@keys == 1) || die "there should be only one key for each hash";
-  return ($e eq $keys[0]);
-}
-
-=head2 within_element
-
- Title   : within_element
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
-
-
-=cut
-
-sub within_element{
-  my ($self,$e) = @_;
-  return $self->{'_lastitem'}->{$e};
-}
 
 =head2 treetype
 
  Title   : treetype
  Usage   : $obj->treetype($newval)
- Function: 
+ Function: returns the tree type (default is Bio::Tree::Tree)
  Returns : value of treetype
  Args    : newvalue (optional)
 
@@ -1052,10 +1071,9 @@ sub treetype{
 
  Title   : nodetype
  Usage   : $obj->nodetype($newval)
- Function: 
+ Function: returns the node type (default is Bio::Node::AnnotatableNode)
  Returns : value of nodetype
  Args    : newvalue (optional)
-
 
 =cut
 
@@ -1082,7 +1100,8 @@ sub nodetype{
 
 =cut
 
-
+# this function is similar to _write_tree_Helper_annotatableNode, 
+# but it is not recursive
 sub node_to_string 
 {
   my ($self) = @_;     # this self is a Bio::Tree::AnnotatableNode
@@ -1113,6 +1132,26 @@ sub node_to_string
   $str .= '</clade>';
   return $str;
 }
+
+=head2 print_annotation
+
+ Title   : print_annotation
+ Usage   : $str = $annotatablenode->print_annotation($str, $annotationcollection)
+ Function: prints the annotationCollection in a phyloXML format.
+ Returns : string of annotation information
+ Args    : string to which the Annotation should be concatenated to,
+           annotationCollection that holds the Annotations
+
+=cut
+
+# Again, it may be more appropriate to make a separate Annotation::phyloXML object
+# and have this subroutine within that object so it can handle the 
+# reading and writing of the values and attributes.
+# especially since this function is used both by 
+# Bio::TreeIO::phyloxml (through write_tree) and 
+# Bio::Node::AnnotatableNode (through node_to_string).
+# but since tagTree is a temporary stub and I didn't want to make 
+# a redundant object I've put it here for now.
 
 sub print_annotation 
 {
@@ -1151,6 +1190,25 @@ sub print_annotation
   return $str;
 }
 
+=head2 print_attr
+
+ Title   : print_attr
+ Usage   : $str = $annotatablenode->print_attr($str, $annotationcollection)
+ Function: prints the annotationCollection in a phyloXML format.
+ Returns : string of attributes
+ Args    : string to which the Annotation should be concatenated to,
+           AnnotationCollection that holds the attributes
+=cut
+
+# Again, it may be more appropriate to make a separate Annotation::phyloXML object
+# and have this subroutine within that object so it can handle the 
+# reading and writing of the values and attributes.
+# especially since this function is used both by 
+# Bio::TreeIO::phyloxml and Bio::Node::AnnotatableNode 
+# (through print_annotation).
+# but since tagTree is a temporary stub and I didn't want to make 
+# a redundant object I've put it here for now.
+
 sub print_attr
 {
   my ($self, $str, $ac) = @_; 
@@ -1166,6 +1224,26 @@ sub print_attr
   }
   return $str;
 } 
+
+=head2 print_sequence_annotation
+
+ Title   : print_sequence_annotation
+ Usage   : $str = $node->print_seq_annotation( $str, $seq );
+ Function: prints the Bio::Seq object associated with the node 
+           in a phyloXML format.
+ Returns : string that describes the sequence
+ Args    : string to which the Annotation should be concatenated to,
+           Seq object to print in phyloXML
+=cut
+
+# Again, it may be more appropriate to make a separate Annotation::phyloXML object
+# and have this subroutine within that object so it can handle the 
+# reading and writing of the values and attributes.
+# especially since this function is used both by 
+# Bio::TreeIO::phyloxml (through write_tree) and 
+# Bio::Node::AnnotatableNode (through node_to_string).
+# but since tagTree is a temporary stub and I didn't want to make 
+# a redundant object I've put it here for now.
 
 sub print_seq_annotation 
 {
