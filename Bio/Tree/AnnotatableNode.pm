@@ -82,12 +82,7 @@ use base qw(Bio::Tree::Node Bio::AnnotatableI);
  Usage   : my $obj = Bio::Tree::AnnotatableNode->new();
  Function: Builds a new Bio::Tree::AnnotatableNode object
  Returns : Bio::Tree::AnnotatableNode
- Args    : -left          => pointer to Left descendent (optional)
-           -right         => pointer to Right descenent (optional)
-	         -branch_length => branch length [integer] (optional)
-           -bootstrap     => bootstrap value (string)
-           -description   => description of node
-           -id            => unique id for node
+ Args    : -tostring => code reference to the tostring callback function (optional)
 
 =cut
 
@@ -105,15 +100,6 @@ sub DESTROY {
     my ($self) = @_;
     # try to insure that everything is cleaned up
     $self->SUPER::DESTROY();
-    if( defined $self->{'_desc'} &&
-	ref($self->{'_desc'}) =~ /ARRAY/i ) {
-	while( my ($nodeid,$node) = each %{ $self->{'_desc'} } ) {
-	    $node->{'_ancestor'} = undef; # insure no circular references
-	    $node->DESTROY();
-	    $node = undef;
-	}
-	$self->{'_desc'} = {};
-    }
 }
 
 =head1 Methods for implementing Bio::AnnotatableI

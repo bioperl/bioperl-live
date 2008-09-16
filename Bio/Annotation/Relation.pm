@@ -46,9 +46,9 @@ the web:
 
   http://bugzilla.open-bio.org/
 
-=head1 AUTHOR  - Ewan Birney 
+=head1 AUTHOR  - Mira Han
 
-Email birney@ebi.ac.uk
+Email mirhan@indiana.edu
 
 =head1 APPENDIX
 
@@ -64,8 +64,6 @@ package Bio::Annotation::Relation;
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
-
-#use Bio::Ontology::TermI;
 
 use base qw(Bio::Root::Root Bio::AnnotationI);
 
