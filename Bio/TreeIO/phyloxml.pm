@@ -1198,6 +1198,7 @@ sub print_annotation
  Returns : string of attributes
  Args    : string to which the Annotation should be concatenated to,
            AnnotationCollection that holds the attributes
+
 =cut
 
 # Again, it may be more appropriate to make a separate Annotation::phyloXML object
@@ -1234,6 +1235,7 @@ sub print_attr
  Returns : string that describes the sequence
  Args    : string to which the Annotation should be concatenated to,
            Seq object to print in phyloXML
+
 =cut
 
 # Again, it may be more appropriate to make a separate Annotation::phyloXML object
@@ -1244,6 +1246,7 @@ sub print_attr
 # Bio::Node::AnnotatableNode (through node_to_string).
 # but since tagTree is a temporary stub and I didn't want to make 
 # a redundant object I've put it here for now.
+
 
 sub print_seq_annotation 
 {
