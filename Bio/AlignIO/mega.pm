@@ -71,6 +71,8 @@ use strict;
 use Bio::SimpleAlign;
 use Bio::LocatableSeq;
 
+# symbols are changed due to MEGA's use of '.' for redundant sequences
+
 BEGIN {
   $MEGANAMELEN = 10;
   $LINELEN = 60;
@@ -102,7 +104,8 @@ sub next_aln{
    my ($self) = @_;
    my $entry;
    my ($alphabet,%seqs);
-
+   local $Bio::LocatableSeq::OTHER_SYMBOLS = '\*\?\.';
+   local $Bio::LocatableSeq::GAP_SYMBOLS = '\-';
    my $aln = Bio::SimpleAlign->new(-source => 'mega');
 
    while( defined($entry = $self->_readline()) && ($entry =~ /^\s+$/) ) {}
@@ -145,7 +148,7 @@ sub next_aln{
 
    foreach my $seqname ( @order ) {
        my $s = $seqs{$seqname};
-       $s =~ s/\-//g;
+       $s =~ s/[$Bio::LocatableSeq::GAP_SYMBOLS]+//g;
        my $end = length($s);
        my $seq = Bio::LocatableSeq->new(-alphabet => $alphabet,
 				       -id => $seqname,
