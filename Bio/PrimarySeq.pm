@@ -204,7 +204,7 @@ sub new {
     # when the sequence is set
     $alphabet && $self->alphabet($alphabet);
 
-    # if there is an alphabet, and direct is passed in, assumme the alphabet
+    # if there is an alphabet, and direct is passed in, assume the alphabet
     # and sequence is ok
 
     if( $direct && $ref_to_seq) {
