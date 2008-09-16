@@ -254,8 +254,10 @@ our %WRITEMAP = (
 					  -file   => '>file');
  Function: Initialize a new L<Bio::AlignIO::phylip> reader or writer
  Returns : L<Bio::AlignIO> object
- Args    : [specific for writing of stockholm format files]
-           -linelength : 
+ Args    : -linelength :  length of the line for the alignment block
+           -alphabet   :  symbol alphabet to set the sequences to.  If not set,
+                          the parser will try to guess based on the alignment
+                          accession (if present), defaulting to 'dna'.
 
 =cut
 
@@ -281,7 +283,6 @@ sub next_aln {
     my $line;
 
     my ($id, $name, $seqname, $seq, $count, $tag, $data);
-    my $start = my $end = 0;
     my $seen_rc;
     my ($refct, $bct, $lnkct) = (0,0,0);
     my @c2name;
@@ -292,7 +293,6 @@ sub next_aln {
     # Of particular interest are the '#=GF <name/st-ed> AC <accession>'
     # lines, which give accession numbers for each segment
 
-    my $aln =  Bio::SimpleAlign->new(-source => 'stockholm');
     while( defined($line = $self->_readline) ) {
         next if $line =~ /^\s*$/;
         if ($line =~ /^#\s*STOCKHOLM\s+/) {
@@ -303,6 +303,10 @@ sub next_aln {
             # $self->throw("Not Stockholm format: Expecting \"# STOCKHOLM\"; Found \"$line\"");
         }
     }
+    
+    return unless defined $line;
+    
+    my $aln =  Bio::SimpleAlign->new(-source => 'stockholm');
     
     READLINE:
     while( defined($line = $self->_readline) ) {
@@ -350,6 +354,14 @@ sub next_aln {
                 } else {
                     #       # param/-value/tagname 
                     $annotation{ $READMAP{$tag} } .= $data.' ';
+                    if ($tag eq 'AC' && !defined($self->alphabet)) {
+                        # guess the alphabet based on alignment accession:
+                        # PF = Pfam, 'protein', RF = Rfam, 'rna'
+                        # default to 'dna'
+                        $data =~ /^PF/i ? $self->alphabet('protein') :
+                        $data =~ /^RF/i ? $self->alphabet('rna') :
+                        $self->alphabet('dna'); 
+                    }
                 }
 
             } else {
@@ -363,6 +375,7 @@ sub next_aln {
             ($id, $tag, $data) = ($1, $2, $3);
             if ($tag eq 'AC') {
                 $accession{$id} .= $data;
+                
             } elsif ($tag eq 'DE') {
                 $desc{$id} .= $data;
             }
@@ -394,18 +407,27 @@ sub next_aln {
     # ok... now we can make the sequences
     
     for my $name ( @c2name ) {
+        my ($start, $end, $stranded, $seqname);
+        my $alphabet = $self->alphabet || 'dna';
+        my $strand = ($alphabet eq 'dna' || $alphabet eq 'rna') ? 1 : 0;
         if( $name =~ m{(\S+)/(\d+)-(\d+)}xms ) {
             ($seqname, $start, $end) = ($1, $2, $3);
+            if ($start > $end) {
+                $self->throw("$start is greater than $end, but sequence is protein!") unless $strand;
+                $strand = -1;
+                ($start, $end) = ($end, $start);
+            }
         } else {
             $seqname=$name;
             $start = 1;
-            $end = length($align{$name});
+            # if end is not specified, allow LocatableSeq to calculate it
         }
         $seq = Bio::Seq::Meta->new
             ('-seq'              => $align{$name},
              '-display_id'       => $seqname,
              '-start'            => $start,
-             '-end'              => $end,
+             '-end'              => $end,   
+             '-strand'           => $strand,
              '-description'      => $desc{$name},
              '-accession_number' => $accession{$name}
              );
@@ -418,7 +440,7 @@ sub next_aln {
     }
     
     # add meta strings w/o sequence for consensus meta data. This is a hack and
-    # should really be a special kind of tagged annotation that relates to the
+    # should probably be a special kind of tagged annotation that relates to the
     # whole alignment.
     # no seq attached but pertains to the alignment as a whole. This breaks in
     # SimpleAlign when calling trunc() on it
@@ -488,10 +510,8 @@ sub next_aln {
     
     #  If $end <= 0, we have either reached the end of
     #  file in <fh> or we have encountered some other error
-    return if ($end <= 0);
     return $aln;
 }
-
 
 =head2 write_aln
 
@@ -609,7 +629,8 @@ sub _print_seqs {
     # pad extra for meta lines
 
     for $seq ( $aln->each_seq() ) {
-        $namestr = $aln->displayname($seq->get_nse());
+        my ($s, $e, $str) = ($seq->start, $seq->end, $seq->strand);
+        $namestr = $seq->get_nse();
         $self->_print(sprintf("%-*s%s\n",$maxlen+$metalen,
                               $namestr,
                               $seq->seq())) || return 0;
@@ -649,5 +670,24 @@ sub line_length {
     }
     return $self->{'_line_length'};
 }
+
+=head2 alphabet
+
+ Title   : alphabet
+ Usage   : $obj->alphabet('dna')
+ Function: Set the sequence data alphabet
+ Returns : sequence data type
+ Args    : newvalue (optional)
+
+=cut
+
+sub alphabet {
+    my ( $self, $value ) = @_;
+    if ( defined $value ) {
+        $self->throw("Invalid alphabet $value") unless $value eq 'rna' || $value eq 'protein' || $value eq 'dna';
+        $self->{'_alphabet'} = $value;
+    }
+    return $self->{'_alphabet'};
+};
 
 1;
