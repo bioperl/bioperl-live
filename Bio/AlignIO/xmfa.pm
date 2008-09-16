@@ -105,7 +105,7 @@ sub next_aln {
                 } else {
                     $self->throw("Does not comform to XMFA format");
                 }
-                my $tmp = s/[$Bio::LocatabalSeq::GAP_SYMBOLS]+//g;
+                my $tmp = s/[$Bio::LocatableSeq::GAP_SYMBOLS]+//g;
                 $seq = Bio::LocatableSeq->new(
                          -strand      => $strand,
                          -seq         => $seqchar,
