@@ -105,13 +105,14 @@ sub next_aln {
                 } else {
                     $self->throw("Does not comform to XMFA format");
                 }
+                my $tmp = s/[$Bio::LocatabalSeq::GAP_SYMBOLS]+//g;
                 $seq = Bio::LocatableSeq->new(
                          -strand      => $strand,
                          -seq         => $seqchar,
                          -display_id  => $seqname,
                          -description => $extra,
                          -start       => $start,
-                         -end         => $end,
+                         -end         => length($tmp),
                          );
                 $aln->add_seq($seq);
                 $self->debug("Reading $seqname\n");
