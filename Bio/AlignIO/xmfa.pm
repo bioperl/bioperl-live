@@ -97,7 +97,7 @@ sub next_aln {
             $tempdesc = $entry;
             if ( defined $name ) {
                 # put away last name and sequence
-                if ( $name =~ m{\d+:(\d+)-(\d+)\s([+-]{1})\s+(\S+)\s*(.*)} ) {
+                if ( $name =~ m{\d+:(\d+)-(\d+)\s([+-]{1})(?:\s+(\S+)\s*(.*))?} ) {
                     ($start, $end, $seqname, $extra) = ($1, $2, $4, $5);
                     $strand = ($3 eq '+')  ?  1  : 
                               ($3 eq '-')  ?  -1 :
@@ -105,14 +105,13 @@ sub next_aln {
                 } else {
                     $self->throw("Does not comform to XMFA format");
                 }
-                my $tmp = s/[$Bio::LocatableSeq::GAP_SYMBOLS]+//g;
                 $seq = Bio::LocatableSeq->new(
                          -strand      => $strand,
                          -seq         => $seqchar,
                          -display_id  => $seqname,
                          -description => $extra,
                          -start       => $start,
-                         -end         => length($tmp),
+                         -end         => $end,
                          );
                 $aln->add_seq($seq);
                 $self->debug("Reading $seqname\n");
@@ -141,7 +140,7 @@ sub next_aln {
 
     #  If $end <= 0, we have either reached the end of
     #  file in <> or we have encountered some other error
-    if ( $end <= 0 ) { 
+    if ( !defined $end || $end <= 0 ) { 
         undef $aln; 
         return $aln;
     }
