@@ -67,9 +67,9 @@ loading to ensure the proper Data::Stag parser is selected. After data loading,
 the tagformat() can be changed to change the text string format returned by
 value(). (this may be rectified in the future)
 
-For now, this is an experimental AnnotationI stub to determine whether this can
-serve as an adequate replacement for Bio::Annotation::StructuredValue with
-BioSQL.
+This Annotation type is fully BioSQL compatible and could be considered a
+temporary replacement for nested Bio::Annotation::Collections, at least until
+BioSQL and bioperl-db can support nested annotation collections.
 
 =head1 FEEDBACK
 
