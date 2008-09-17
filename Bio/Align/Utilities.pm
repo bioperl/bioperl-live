@@ -202,10 +202,10 @@ sub bootstrap_replicates {
        my $newaln = Bio::SimpleAlign->new();
        my $i = 0;
        for my $s ( @newseqs ) {
-
+       (my $tmp = $s) =~ s{[$Bio::LocatableSeq::GAP_SYMBOLS]+}{}g;
 	   $newaln->add_seq( Bio::LocatableSeq->new
 			     (-start         => 1,
-			      -end           => $alen,
+			      -end           => length($tmp),
 			      -display_id    => $nm[$i++],
 			      -seq           => $s));
        }
