@@ -41,19 +41,19 @@ SKIP: {
     
     eval {
         ok($seq = $db->get_Seq_by_acc('NM_006732'));
-        is($seq->length, 3775);
+        is($seq->length, 3776);
         ok $seq2 = $db2->get_Seq_by_acc('NM_006732');
-        is($seq2->length, 3775);
+        is($seq2->length, 3776);
     };
     skip "Warning: Couldn't connect to RefSeq with Bio::DB::RefSeq.pm!", 4 if $@;
     
     eval { 
         ok defined($db = Bio::DB::RefSeq->new(-verbose=>$verbose)); 
         ok(defined($seq = $db->get_Seq_by_acc('NM_006732')));
-        is( $seq->length, 3775);
+        is( $seq->length, 3776);
         ok defined ($db->request_format('fasta'));
         ok(defined($seq = $db->get_Seq_by_acc('NM_006732')));
-        is( $seq->length, 3775); 
+        is( $seq->length, 3776); 
     };
     skip "Warning: Couldn't connect to RefSeq with Bio::DB::RefSeq.pm!", 6 if $@;
 }
