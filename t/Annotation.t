@@ -208,10 +208,11 @@ $ann = $factory->create_object(-name => 'peroxisome',
 ok(defined $ann);
 like(ref($ann), qr(Bio::Annotation::OntologyTerm));
 
+$ann = $factory->create_object(-text => 'this is a comment');
+ok(defined $ann,'Bio::Annotation::Comment');
+
 TODO: {
 	local $TODO = "Create Annotation::Comment based on parameter only";
-	$ann = $factory->create_object(-text => 'this is a comment');
-	ok(defined $ann,'Bio::Annotation::Comment');
 	isa_ok($ann,'Bio::Annotation::Comment');
 }
 

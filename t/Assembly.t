@@ -43,10 +43,7 @@ TODO: {
 	local $TODO = "get_nof_singlets() should return a number";
 	is($sc->get_nof_singlets, 1, "get_nof_singlets");
 }
-TODO: {
-	local $TODO = "get_seq_ids() should return a number";
-	is($sc->get_seq_ids, 2, "get_seq_ids");
-}
+is($sc->get_seq_ids, 2, "get_seq_ids");
 is($sc->get_contig_ids, 1, "get_contig_ids");
 TODO: {
 	local $TODO = "get_singlet_ids() should return a list";
