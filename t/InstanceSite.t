@@ -19,4 +19,4 @@ ok my $instance = Bio::Matrix::PSM::InstanceSite->new(%params);
 is $instance->seq, 'TATAAT';
 is $instance->subseq(1,3),'TAT';
 is $instance->accession_number, 'ENSG00000122304';
-is $instance->end(1999), 1999;
+is $instance->end(1970), 1970;
