@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 44);
+    test_begin(-tests => 60);
 	
     use_ok('Bio::TreeIO');
 }
@@ -18,6 +18,22 @@ my $treeio = Bio::TreeIO->new(-verbose => $verbose,
 			     -format => 'nhx',
 			     -file   => test_input_file('test.nhx'));
 my $tree = $treeio->next_tree;
+
+# tests for tags
+ok ! $tree->has_tag('test');
+is $tree->add_tag_value('test','a'), 1;
+ok $tree->has_tag('test');
+is $tree->add_tag_value('test','b'), 2;
+my @tags = $tree->get_tag_values('test');
+is scalar @tags, 2;
+is scalar $tree->get_tag_values('test'), 'a', 'retrieve the first value';
+is $tree->remove_tag('test2'), 0;
+is $tree->remove_tag('test'), 1;
+ok ! $tree->has_tag('test');
+is $tree->set_tag_value('test',('a','b','c')), 3;
+is $tree->remove_all_tags(), undef;
+ok ! $tree->has_tag('test');
+
 
 my @nodes = $tree->find_node('ADH2');
 is(@nodes, 2,'Number of nodes that have ADH2 as name');
@@ -62,6 +78,14 @@ is($iADHX->height, 0,'Height');
 is($iADHX->depth,0.22,'Depth');
 isnt( $tree->is_monophyletic(-nodes   => \@mixgroup,
 			    -outgroup=> $iADHX),1, 'non-monophyletic group');
+
+# binary tree?
+is $tree->is_binary, 0, 'not a binary tree';
+is scalar $tree->get_nodes, 12, '12 nodes';
+$tree->verbose(-1);
+$tree->force_binary;
+is $tree->is_binary, 1, 'after force_binary() it is';
+is scalar $tree->get_nodes, 17, 'and there are more nodes (17)';
 
 my $in = Bio::TreeIO->new(-format => 'newick',
 			 -fh     => \*DATA);
@@ -233,6 +257,8 @@ is($test_node->ancestor->bootstrap, '90',
    'Testing auto-boostrap copy during parse');
 is($test_node->ancestor->ancestor->bootstrap, '25', 
    'Testing auto-boostrap copy during parse');
+
+
 
 __DATA__
 (D,(C,(A,B)));

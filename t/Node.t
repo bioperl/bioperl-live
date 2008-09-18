@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 22);
+    test_begin(-tests => 34);
 	
 	use_ok('Bio::Tree::Node');
 	use_ok('Bio::Tree::AlleleNode');
@@ -17,6 +17,23 @@ my $node1 = Bio::Tree::Node->new();
 my $node2 = Bio::Tree::Node->new();
 ok($node1->is_Leaf() );
 is($node1->ancestor, undef);
+
+# tests for tags
+ok ! $node1->has_tag('test');
+is $node1->add_tag_value('test','a'), 1;
+ok $node1->has_tag('test');
+is $node1->add_tag_value('test','b'), 2;
+my @tags = $node1->get_tag_values('test');
+is scalar @tags, 2;
+is scalar $node1->get_tag_values('test'), 'a', 'retrieve the first value';
+
+is $node1->remove_tag('test2'), 0;
+is $node1->remove_tag('test'), 1;
+ok ! $node1->has_tag('test');
+is $node1->set_tag_value('test',('a','b','c')), 3;
+is $node1->remove_all_tags(), undef;
+ok ! $node1->has_tag('test');
+
 
 my $pnode = Bio::Tree::Node->new();
 $pnode->add_Descendent($node1);

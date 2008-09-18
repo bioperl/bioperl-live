@@ -327,11 +327,33 @@ sub score{
 
 These methods associate tag/value pairs with a Tree
 
+=head2 set_tag_value
+
+ Title   : set_tag_value
+ Usage   : $tree->set_tag_value($tag,$value)
+           $tree->set_tag_value($tag,@values)
+ Function: Sets a tag value(s) to a tree. Replaces old values.
+ Returns : number of values stored for this tag
+ Args    : $tag   - tag name
+           $value - value to store for the tag
+
+=cut
+
+sub set_tag_value{
+    my ($self,$tag,@values) = @_;
+    if( ! defined $tag || ! scalar @values ) {
+	$self->warn("cannot call set_tag_value with an undefined value");
+    }
+    $self->remove_tag ($tag);
+    map { push @{$self->{'_tags'}->{$tag}}, $_ } @values;
+    return scalar @{$self->{'_tags'}->{$tag}};
+}
+
 =head2 add_tag_value
 
  Title   : add_tag_value
- Usage   : $node->add_tag_value($tag,$value)
- Function: Adds a tag value to a node 
+ Usage   : $tree->add_tag_value($tag,$value)
+ Function: Adds a tag value to a tree 
  Returns : number of values stored for this tag
  Args    : $tag   - tag name
            $value - value to store for the tag
@@ -350,7 +372,7 @@ sub add_tag_value{
 =head2 remove_tag
 
  Title   : remove_tag
- Usage   : $node->remove_tag($tag)
+ Usage   : $tree->remove_tag($tag)
  Function: Remove the tag and all values for this tag
  Returns : boolean representing success (0 if tag does not exist)
  Args    : $tag - tagname to remove
@@ -371,7 +393,7 @@ sub remove_tag {
 =head2 remove_all_tags
 
  Title   : remove_all_tags
- Usage   : $node->remove_all_tags()
+ Usage   : $tree->remove_all_tags()
  Function: Removes all tags 
  Returns : None
  Args    : None
@@ -387,7 +409,7 @@ sub remove_all_tags{
 =head2 get_all_tags
 
  Title   : get_all_tags
- Usage   : my @tags = $node->get_all_tags()
+ Usage   : my @tags = $tree->get_all_tags()
  Function: Gets all the tag names for this Tree
  Returns : Array of tagnames
  Args    : None
@@ -403,7 +425,7 @@ sub get_all_tags{
 =head2 get_tag_values
 
  Title   : get_tag_values
- Usage   : my @values = $node->get_tag_value($tag)
+ Usage   : my @values = $tree->get_tag_values($tag)
  Function: Gets the values for given tag ($tag)
  Returns : Array of values or empty list if tag does not exist
  Args    : $tag - tag name
@@ -419,7 +441,7 @@ sub get_tag_values{
 =head2 has_tag
 
  Title   : has_tag
- Usage   : $node->has_tag($tag)
+ Usage   : $tree->has_tag($tag)
  Function: Boolean test if tag exists in the Tree
  Returns : Boolean
  Args    : $tag - tagname
