@@ -514,6 +514,39 @@ sub contract_linear_paths {
     }
 }
 
+=head2 is_binary
+
+  Example    : is_binary(); is_binary($node);
+  Description: Finds if the tree or subtree defined by
+               the internal node is a true binary tree
+               without polytomies
+  Returns    : boolean
+  Exceptions : 
+  Args       : Internal node Bio::Tree::NodeI, optional
+
+
+=cut
+
+sub is_binary;
+
+sub is_binary {
+    my $self = shift;
+    my $node = shift || $self->get_root_node;
+
+    my $binary = 1;
+    my @descs = $node->each_Descendent;
+    $binary = 0 unless @descs == 2 or @descs == 0;
+    #print "$binary, ", scalar @descs, "\n";
+
+    # recurse
+    foreach my $desc (@descs) {
+        $binary += $self->is_binary($desc) -1;
+    }
+    $binary = 0 if $binary < 0;
+    return $binary;
+}
+
+
 =head2 force_binary
 
  Title   : force_binary
