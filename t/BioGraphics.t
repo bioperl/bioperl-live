@@ -20,7 +20,7 @@ BEGIN {
   use BioperlTest;
   
   test_begin(-tests => 42 + (IMAGE_TESTS ? 3 : 0),
-             -requires_modules => [qw(GD Text::Shellwords)]);
+             -requires_modules => [qw(GD)]);
   
   use_ok('Bio::Graphics::FeatureFile');
   use_ok('Bio::Graphics::Panel');
