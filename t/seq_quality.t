@@ -80,10 +80,10 @@ lives_ok {
 };
 
 print("\td) No sequence, No quality, No ID...\n") if $DEBUG;
-warning_is { ok $wswq1 = Bio::Seq::Quality->new( -seq  =>	"",
+warnings_like { ok $wswq1 = Bio::Seq::Quality->new( -seq  =>	"",
                                     -qual =>	"",
                                     -verbose => 0
-) } 'Got a sequence with no letters in it cannot guess alphabet';
+) } qr/Got a sequence with no letters in it cannot guess alphabet/;
 
 print("Testing various methods and behaviors...\n") if $DEBUG;
 
