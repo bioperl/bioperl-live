@@ -435,6 +435,7 @@ sub handle_feature {
   # either create a new feature or add a segment to it
   my $feature = $ld->{CurrentFeature};
   if ($feature) {
+      local $^W = 0;  # avoid uninit warning when display_name() is called
 
       # if this is a different feature from what we have now, then we
       # store the current one, and create a new one

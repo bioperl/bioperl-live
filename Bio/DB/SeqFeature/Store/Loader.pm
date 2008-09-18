@@ -439,6 +439,7 @@ sub handle_meta {
 sub _indexit {
     my $self      = shift;
     my $id        = shift;
+    $id         ||= '';     # avoid uninit warnings
     my $indexhash = $self->{load_data}{IndexIt};
     $indexhash->{$id} = shift if @_;
     return $indexhash->{$id};
@@ -447,6 +448,7 @@ sub _indexit {
 sub _local2global {
     my $self      = shift;
     my $id        = shift;
+    $id         ||= '';  # avoid uninit warnings
     my $indexhash = $self->{load_data}{Local2GlobalID};
     $indexhash->{$id} = shift if @_;
     return $indexhash->{$id};
