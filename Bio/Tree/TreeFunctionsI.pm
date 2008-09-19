@@ -1025,4 +1025,72 @@ sub move_id_to_bootstrap{
    }
 }
 
+
+=head2 add_traits
+
+  Example    : $key = $stat->add_traits($tree, $trait_file, 3);
+  Description: Add traits to a Bio::Tree:Tree nodes
+               of a tree from a file.
+  Returns    : trait name
+  Exceptions : log an error if a node has no value in the file
+  Caller     : main()
+
+The trait file is a tab-delimied text file and need to have a header
+line giving names to traits. The first column contains the leaf node
+ids. Subsequent columns contain different trait value sets. Columns
+numbering starts from 0. The default trait column is the second
+(1). The returned hashref has one special key, my_trait_name, that
+holds the trait name. Single or double quotes are removed.
+
+=cut
+
+sub _read_trait_file {
+    my $self = shift;
+    my $file = shift;
+    my $column = shift || 1;
+
+    my $traits;
+    open my $TRAIT, "<", $file or $self->("Can't find file $file: $!\n");
+
+    my $first_line = 1;
+    while (<$TRAIT>) {
+	if ($first_line) {
+	    $first_line = 0;
+	    s/['"]//g;
+	    my @line = split;
+	    $traits->{'my_trait_name'} = $line[$column];
+	    next;
+	}
+	s/['"]//g;
+	my @line = split;
+	last unless $line[0];
+	$traits->{$line[0]} = $line[$column];
+    }
+    return $traits;
+}
+
+
+sub add_trait {
+    my $self = shift;
+    my $file = shift;
+    my $column = shift;
+
+    my $traits = $self->_read_trait_file($file, $column); # filename, trait column
+    my $key = $traits->{'my_trait_name'};
+    #use YAML; print Dump $traits; exit;
+    foreach my $node ($self->get_leaf_nodes) {
+	# strip quotes from the node id
+	$node->id($1) if $node->id =~ /^['"]+(.*)['"]+$/;
+	eval {
+	    $node->verbose(2);
+	    $node->add_tag_value($key, $traits->{ $node->id } );
+	};
+	$self->throw("ERROR: No trait for node [".
+		     $node->id. "/".  $node->internal_id. "]")
+	    if $@;
+    }
+    return $key;
+}
+
+
 1;
