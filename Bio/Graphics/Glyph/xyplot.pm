@@ -373,8 +373,9 @@ sub _draw_scale {
     $gd->line($x2,$_->[0],$x2+3,$_->[0],$fg) if $side eq 'right' || $side eq 'both';
 
     my $font_pos = $_->[0]-($font->height/2);
+    $font_pos-=2 if $_->[1] < 0;  # jog a little bit for neg sign
 
-    next unless $font_pos > $last_font_pos + $font->height; # prevent labels from clashing
+    next unless $font_pos > $last_font_pos + $font->height/2; # prevent labels from clashing
     if ($side eq 'left' or $side eq 'both') {
       $gd->string($font,
 		  $x1 - $font->width * length($_->[1]) - 3,$font_pos,
@@ -540,6 +541,12 @@ Note that it is a good idea to add some padding to the left and right
 of the panel; otherwise the scale will be partially cut off by the
 edge of the image.
 
+The "boxes" variant allows you to specify a pivot point such that
+scores above the pivot point are drawn in one color, and scores below
+are drawn in a different color. These "bicolor" plots are controlled
+by the options -bicolor_pivot, -pos_color and -neg_color, as described
+below.
+
 =head2 OPTIONS
 
 The following options are standard among all Glyphs.  See
@@ -623,6 +630,24 @@ glyph-specific options:
                setting this to true will
                cause values outside the
                range to be clipped.
+
+  -bicolor_pivot                              0
+               Where to pivot the two colors
+               when drawing bicolor plots.
+               Scores greater than this value will
+               be drawn using -pos_color.
+               Scores lower than this value will
+               be drawn using -neg_color.
+
+  -pos_color   When drawing bicolor plots,    same as bgcolor
+               the fill color to use for
+               values that are above 
+               the pivot point.
+
+  -neg_color   When drawing bicolor plots,    same as bgcolor
+               the fill color to use for values
+               that are below the pivot point.
+
 
 Note that when drawing scales on the left or right that the scale is
 actually drawn a few pixels B<outside> the boundaries of the glyph.

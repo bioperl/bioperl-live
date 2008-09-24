@@ -1616,7 +1616,7 @@ sub make_link {
 }
 
 sub make_title {
-  my $self = shift;
+  my $self    = shift;
   my $feature = shift;
 
   for my $label ($self->feature2label($feature)) {
@@ -1627,7 +1627,7 @@ sub make_title {
   }
 
   my $method  = eval {$feature->method} || $feature->primary_tag;
-  my $seqid   = $feature->can('seq_id')      ? $feature->seq_id : $feature->location->seq_id;
+  my $seqid   = $feature->can('seq_id')  ? $feature->seq_id : $feature->location->seq_id;
   my $title = eval {
     if ($feature->can('target') && (my $target = $feature->target)) {
       join (' ',
