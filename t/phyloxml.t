@@ -7,7 +7,7 @@ BEGIN {
   use lib 't/lib';
   use BioperlTest;
 
-  test_begin(-tests => 93,
+  test_begin(-tests => 97,
              -requires_modules => [qw(XML::LibXML XML::LibXML::Reader)],
             );
   if (1000*$] < 5008) {
@@ -626,6 +626,37 @@ ok my $treeio = Bio::TreeIO->new(
   }
   is($leaves_string, '((A,B),C)');
 
+# add annotation in phyloxml
+  if ($verbose > 0) {
+    diag("test add annotation in phyloXML format");
+  }
+  my $node = $tree->get_root_node;
+  my @leaves;
+  my @children = ($node);
+  for (@children) {
+    push @children, $_->each_Descendent();
+  }
+  for (@children) {
+    push @leaves, $_ if $_->is_Leaf;
+  }
+  my ($D) = $leaves[0];
+  isa_ok($D, 'Bio::Tree::AnnotatableNode');
+  $treeio->add_phyloXML_annotation(
+            -obj => $D, 
+            -xml => "            <name>D</name>
+            <date unit=\"mya\" range=\"30\">
+               <desc>my date</desc>
+               <value>veryveryold</value>
+            </date>
+"
+            );
+  my ($dateunit) =  $treeio->read_annotation('-obj'=>$D, '-path'=>'date/unit', '-attr'=>1);
+  my ($daterange) =  $treeio->read_annotation('-obj'=>$D, '-path'=>'date/range', '-attr'=>1);
+  my ($datevalue) =  $treeio->read_annotation('-obj'=>$D, '-path'=>'date/value');
+  is ($dateunit, 'mya');
+  is ($daterange, '30');
+  is ($datevalue, 'veryveryold');
+
 # write_tree
   if ($verbose > 0) {
     diag("\ntest write_tree");
@@ -663,3 +694,4 @@ ok my $treeio = Bio::TreeIO->new(
     diag(`cat $FILE1`);
   }
 }
+

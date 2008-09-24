@@ -99,7 +99,6 @@ sub _initialize
   $self->treetype($args{-treetype});
   $self->nodetype($args{-nodetype});
   $self->{'_lastitem'} = {}; # holds open items and the attribute hash
-  $self->{'_tree_attr'} = {}; # points to the attribute hash of the tree
   $self->_init_func();
 }
 
@@ -151,6 +150,54 @@ sub next_tree
     $self->processXMLNode;
   }
   return $tree;
+}
+
+=head2 add_phyloXML_annotation
+
+ Title   : add_phyloXML_annotation
+ Usage   : my $node = $treeio->add_phyloXML_annotation(-obj=>$node, -xml=>$xmlstring)
+ Function: add annotations to a node in the phyloXML format string
+ Returns : the node that we added annotations to
+ Args    : -obj   => object that will have the Annotation. (Bio::Tree::AnnotatableNode)
+           -xml  => string in phyloXML format that describes the annotation for the node
+
+=cut
+
+sub add_phyloXML_annotation
+{
+  my ($self, @args) = @_;
+  my ($obj, $xml_string, $attr) = $self->_rearrange([qw(OBJ XML ATTR)], @args);
+  
+  $xml_string = '<phyloxml>'.$xml_string.'</phyloxml>';
+  $self->debug( $xml_string );
+  $self->{'_reader'} = XML::LibXML::Reader->new( 
+                string => $xml_string,
+                no_blanks => 1
+                );
+  my $reader = $self->{'_reader'};
+  $self->{'_currentannotation'} = []; # holds annotationcollection 
+  $self->{'_currenttext'} = '';
+  $self->{'_id_link'} = {};
+
+  # pretend we saw a <clade> element 
+  $self->{'_lastitem'}->{'clade'}++;
+  push @{$self->{'_lastitem'}->{'current'}}, { 'clade'=>{}};  # current holds current element and empty hash for its attributes
+  # our object to annotate (nodeI) 
+  # push into temporary list
+  push @{$self->{'_currentitems'}}, $obj;
+
+  $reader->read;    #read away the first element 'phyloxml'
+  while ($reader->read) 
+  {
+    $self->processXMLNode;
+  }
+
+  # pop from temporary list
+  my $obj = pop @{$self->{'_currentitems'}};
+  $self->{'_lastitem'}->{ $reader->name }--;
+  pop @{$self->{'_lastitem'}->{'current'}};
+  
+  return $obj;
 }
 
 
