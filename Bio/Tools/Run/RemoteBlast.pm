@@ -161,7 +161,7 @@ BEGIN {
     # In GET/PUTPARAMS the values are regexes which validate the input.
     %PUTPARAMS = (
 	'AUTO_FORMAT' 	=> '(Off|(Semi|Full)auto)',	# Off, Semiauto, Fullauto
-	'COMPOSITION_BASED_STATISTICS'	=> '(yes|no)',	# yes, no
+	'COMPOSITION_BASED_STATISTICS'	=> '(0|1)',	# yes, no on NCBI's site, but actually binary 0/1
 	'DATABASE' 	=>  '.*',
 	'DB_GENETIC_CODE' => '([1-9]|1[1-6]|2(1|2))',   # 1..16,21,22
     'DISPLAY_SORT'   => '\d',
