@@ -266,7 +266,7 @@ sub species {
 		}
 		
 		$species = $species_taxon->scientific_name;
-		
+        
 		#
 		# munge it like the Bio::SeqIO modules used to do
 		# (more or less copy/pasted from old Bio::SeqIO::genbank, hence comments
@@ -278,7 +278,7 @@ sub species {
             $self->{tree} = Bio::Tree::Tree->new(-node => $species_taxon);
             delete $self->{tree}->{_root_cleanup_methods};
             $root = $self->{tree}->get_root_node;
-	    weaken($self->{tree}->{'_rootnode'}) unless isweak($self->{tree}->{'_rootnode'});
+            weaken($self->{tree}->{'_rootnode'}) unless isweak($self->{tree}->{'_rootnode'});
         }
         
 		my @spflds = split(' ', $species);
@@ -295,7 +295,7 @@ sub species {
 			else {
 				undef $genus;
 			}
-			
+            
 			my $sub_species;
 			if (@spflds) {
 				while (my $fld = shift @spflds) {
@@ -395,6 +395,15 @@ sub sub_species {
         if ($ss_taxon) {
             if ($sub) {
                 $ss_taxon->scientific_name($sub);
+                
+                # *** weakening ref to our root node in species() to solve a
+                # memory leak means that we have a subspecies taxon to set
+                # during the first call to species(), but it has vanished by
+                # the time a user subsequently calls sub_species() to get the
+                # value. So we 'cheat' and just store the subspecies name in
+                # our self hash, instead of the tree. Is this a problem for
+                # a Species object? Can't decide --sendu
+                $self->{'_sub_species'} = $sub;
             }
             return $ss_taxon->scientific_name;
         }
