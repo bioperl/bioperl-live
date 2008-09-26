@@ -95,6 +95,11 @@ sub _initialize
       $self->throw("XML::LibXML::Reader not initialized");
     }
   }
+  elsif ($self->mode eq 'w') {
+    # print default lines
+    $self->_print('<?xml version="1.0" encoding="UTF-8"?>',"\n");
+    $self->_print('<phyloxml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.phyloxml.org http://www.phyloxml.org/1.00/phyloxml.xsd" xmlns="http://www.phyloxml.org">', "\n");
+  }
 
   $self->treetype($args{-treetype});
   $self->nodetype($args{-nodetype});
@@ -121,6 +126,14 @@ sub _init_func
   $self->{'_end_elements'} = \%end_elements;
 }
 
+sub DESTROY {
+  my $self = shift;
+  if ($self->mode eq 'w') {
+    $self->_print('</phyloxml>');
+    $self->flush if $self->_flush_on_write && defined $self->_fh;
+  }
+  $self->SUPER::DESTROY;
+}
 
 =head2 next_tree
 
