@@ -214,7 +214,7 @@ BEGIN {
 			 'dna'     => [ qw(A C G T R Y M K S W H B V D X N) ],
 		    'rna'     => [ qw(A C G U R Y M K S W H B V D X N) ],
 		    'protein' => [ qw(A R N D C Q E G H I L K M F U
-									 P S T W X Y V B Z *) ], # sac: added B, Z
+									 P S T W X Y V B Z J *) ], # sac: added B, Z
 						);
 
 # SAC: new strict alphabet: doesn't allow any ambiguity characters.
