@@ -78,94 +78,35 @@ sub next_aln {
     my ($width) = $self->_rearrange([qw(WIDTH)],@_);
     $self->width($width || $WIDTH);
 
-    my ($start, $end, $strand, $name, $seqname, $seq, $seqchar, $entry, 
-         $tempname, $tempdesc, %align, $desc, $maxlen, $extra);
+    my ($name, $tempname, $seqchar);
     my $aln = Bio::SimpleAlign->new();
-
+    my $seqs = 0;
     # alignments
-    while (defined ($entry = $self->_readline) ) {
+    while (defined (my $entry = $self->_readline) ) {
         chomp $entry;
         if ( index($entry, '=') == 0 ) {
-            if ($entry =~ m{score\s*=\s*(\d+)}) {
+            if (defined $name && $seqchar) {
+                my $seq = $self->_process_seq($name, $seqchar);
+                $aln->add_seq($seq);
+            }
+            if ($aln && $entry =~ m{score\s*=\s*(\d+)}) {
                 $aln->score($1);
             }
             last;
-        }
-        if ( $entry =~ s{^>(.*)$}{} ) {
-            $tempname  = $1;
-            chomp($entry);
-            $tempdesc = $entry;
+        } elsif ( $entry =~ m{^>.+$}xms) {
             if ( defined $name ) {
-                # put away last name and sequence
-                if ( $name =~ m{\d+:(\d+)-(\d+)\s([+-]{1})(?:\s+(\S+)\s*(.*))?} ) {
-                    ($start, $end, $seqname, $extra) = ($1, $2, $4, $5);
-                    $strand = ($3 eq '+')  ?  1  : 
-                              ($3 eq '-')  ?  -1 :
-                              0; 
-                } else {
-                    $self->throw("Does not comform to XMFA format");
-                }
-                $seq = Bio::LocatableSeq->new(
-                         -strand      => $strand,
-                         -seq         => $seqchar,
-                         -display_id  => $seqname,
-                         -description => $extra,
-                         -start       => $start,
-                         -end         => $end,
-                         );
+                my $seq = $self->_process_seq($name, $seqchar);
                 $aln->add_seq($seq);
-                $self->debug("Reading $seqname\n");
             }
-            $desc = $tempdesc;  
-            $name = $tempname;
-            $desc = $entry;
-            $seqchar  = "";
-            next;
-        }
-        $seqchar .= $entry;
-    }
-
-    #  Next two lines are to silence warnings that
-    #  otherwise occur at EOF when using <$fh>
-    $name = "" if (!defined $name);
-    $seqchar="" if (!defined $seqchar);
-
-    #  Put away last name and sequence
-    if ( $name =~ m{\d+:(\d+)-(\d+)\s([+-]{1})\s+(\S+)\s*(.*)} ) {
-        ($start, $end, $seqname, $extra) = ($1, $2, $4, $5);
-        $strand = ($3 eq '+')  ?  1  : 
-                  ($3 eq '-')  ?  -1 :
-                   0;
-    }
-
-    #  If $end <= 0, we have either reached the end of
-    #  file in <> or we have encountered some other error
-    if ( !defined $end || $end <= 0 ) { 
-        undef $aln; 
-        return $aln;
-    }
-
-    # This logic now also reads empty lines at the 
-    # end of the file. Skip this is seqchar and seqname is null
-    unless ( length($seqchar) == 0 && length($seqname) == 0 ) {
-        $seq = Bio::LocatableSeq->new(-seq         => $seqchar,
-                                     -strand      => $strand,
-                                      -display_id  => $seqname,
-                                      -description => $extra,
-                                      -start       => $start,
-                                      -end         => $end,
-                                             );
-        $aln->add_seq($seq);
-        $self->debug("Reading $seqname\n");
-    }
-    my $alnlen = $aln->length;
-    foreach my $seq ( $aln->each_seq ) {
-        if ( $seq->length < $alnlen ) {
-            my ($diff) = ($alnlen - $seq->length);
-            $seq->seq( $seq->seq() . "-" x $diff);
+            $seqchar = '';
+            $name = $entry;
+        } else {
+            $seqchar .= $entry;
         }
     }
-    return $aln;
+
+    return $aln if $aln->no_sequences;
+    return;
 }
 
 =head2 write_aln
@@ -256,6 +197,30 @@ sub width{
 
     return $self->{'_width'} = shift if @_;
     return $self->{'_width'} || $WIDTH;
+}
+
+####### PRIVATE #######
+
+sub _process_seq {
+    my ($self, $entry, $seq) = @_;
+    my ($start, $end, $strand, $seqname, $desc, $all);
+    # put away last name and sequence
+    if ( $entry =~ m{^>\s*\d+:(\d+)-(\d+)\s([+-]{1})(?:\s+(\S+)\s*(\S\.*)?)?} ) {
+        ($start, $end, $seqname, $desc) = ($1, $2, $4, $5);
+        $strand = ($4 eq '+')  ?  1  : -1;
+    } else {
+        $self->throw("Line does not comform to XMFA format:\n$entry");
+    }
+    my $seqobj = Bio::LocatableSeq->new(
+             -strand      => $strand,
+             -seq         => $seq,
+             -display_id  => $seqname,
+             -description => $desc || $all,
+             -start       => $start,
+             -end         => $end,
+             );
+    $self->debug("Reading $seqname\n");
+    return $seqobj;
 }
 
 1;
