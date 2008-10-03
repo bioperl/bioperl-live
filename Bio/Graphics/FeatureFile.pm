@@ -1563,7 +1563,7 @@ convenience for the generic genome browser.
 
 sub link_pattern {
   my $self     = shift;
-  my ($linkrule,$feature,$panel) = @_;
+  my ($linkrule,$feature,$panel,$dont_escape) = @_;
 
   $panel ||= 'Bio::Graphics::Panel';
 
@@ -1574,12 +1574,14 @@ sub link_pattern {
   }
 
   require CGI unless defined &CGI::escape;
+  my $escape_method = $dont_escape ? sub {shift} : \&CGI::escape;
+
   my $n;
   $linkrule ||= ''; # prevent uninit warning
   my $seq_id  = $feature->can('seq_id') ? $feature->seq_id() : $feature->location->seq_id();
   $seq_id   ||= $feature->seq_id; #fallback
-  $linkrule =~ s/\$(\w+)/
-    CGI::escape(
+  $linkrule =~ s!\$(\w+)!
+    $escape_method->(
     $1 eq 'ref'              ? (($n = $seq_id) && "$n") || ''
       : $1 eq 'name'         ? (($n = $feature->display_name) && "$n")     || ''
       : $1 eq 'class'        ? eval {$feature->class}  || ''
@@ -1596,7 +1598,7 @@ sub link_pattern {
       : $1 eq 'id'           ? $feature->feature_id || ''
       : '$'.$1
        )
-	/exg;
+	!exg;
   return $linkrule;
 }
 
@@ -1621,9 +1623,9 @@ sub make_title {
 
   for my $label ($self->feature2label($feature)) {
     my $linkrule     = $self->setting($label,'title');
-    $linkrule        ||= $self->setting(general=>'title');
+    $linkrule      ||= $self->setting(general=>'title');
     next unless $linkrule;
-    return $self->link_pattern($linkrule,$feature);
+    return $self->link_pattern($linkrule,$feature,undef,1);
   }
 
   my $method  = eval {$feature->method} || $feature->primary_tag;

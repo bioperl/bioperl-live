@@ -1089,6 +1089,8 @@ sub create_web_map {
   my $boxes    = $self->boxes;
   my (%track2link,%track2title,%track2target);
 
+  eval "require CGI" unless CGI->can('escapeHTML');
+
   my $map = qq(<map name="$name" id="$name">\n);
   foreach (@$boxes){
     my ($feature,$left,$top,$right,$bottom,$track) = @$_;
@@ -1105,11 +1107,11 @@ sub create_web_map {
       : $track2target{$track} ||= (defined $track->option('target')? $track->option('target')  : $targetrule);
 
     my $href   = $self->make_link($lr,$feature);
-    my $alt    = $self->make_link($tr,$feature);
-    my $target = $self->make_link($tgr,$feature);
-    $alt       = $self->make_title($feature) unless defined $alt;
+    my $title  = CGI::escapeHTML($self->make_link($tr,$feature,1));
+    my $target = CGI::escapeHTML($self->make_link($tgr,$feature,1));
 
-    my $a      = $alt    ? qq(title="$alt" alt="$alt") : '';
+
+    my $a      = $title  ? qq(title="$title") : '';
     my $t      = $target ? qq(target="$target")        : '';
     $map .= qq(<area shape="rect" coords="$left,$top,$right,$bottom" href="$href" $a $t/>\n) if $href;
   }
@@ -1119,10 +1121,10 @@ sub create_web_map {
 
 sub make_link {
   my $self = shift;
-  my ($linkrule,$feature) = @_;
+  my ($linkrule,$feature,$escapeHTML) = @_;
   eval "require Bio::Graphics::FeatureFile;1"
     unless Bio::Graphics::FeatureFile->can('link_pattern');
-  return Bio::Graphics::FeatureFile->link_pattern($linkrule,$feature,$self);
+  return Bio::Graphics::FeatureFile->link_pattern($linkrule,$feature,$self,$escapeHTML);
 }
 
 sub make_title {
@@ -2551,8 +2553,8 @@ of the map.  Usually you will incorporate this information into an
 HTML document like so:
 
   my ($url,$map,$mapname) =
-          $panel->image_and_map(-link=>'http://www.google.com/searche?q=$name');
-  print qq(<img src="$url" usemap="#$map">),"\n";
+          $panel->image_and_map(-link=>'http://www.google.com/search?q=$name');
+  print qq(<img src="$url" usemap="#$mapname">),"\n";
   print $map,"\n";
 
 =item $url = $panel-E<gt>create_web_image($url,$root)
