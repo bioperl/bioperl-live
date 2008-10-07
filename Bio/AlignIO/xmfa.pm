@@ -28,7 +28,8 @@ Peter Schattner
 
 =head1 TODO
 
-Finish write_aln(), clean up code
+Finish write_aln(), clean up code, allow LargeLocatableSeq (ie for
+very large sequences a'la Mauve)
 
 =head1 FEEDBACK
 
@@ -92,6 +93,8 @@ sub next_aln {
             if ($aln && $entry =~ m{score\s*=\s*(\d+)}) {
                 $aln->score($1);
             }
+            $seqchar = '';
+            $name = $entry;            
             last;
         } elsif ( $entry =~ m{^>.+$}xms) {
             if ( defined $name ) {
@@ -104,9 +107,13 @@ sub next_aln {
             $seqchar .= $entry;
         }
     }
-
-    return $aln if $aln->no_sequences;
-    return;
+    
+    # this catches last sequence if '=' is not present (Mauve)
+    if ( defined $name ) {
+        my $seq = $self->_process_seq($name, $seqchar);
+        $aln->add_seq($seq);
+    }
+    $aln->no_sequences ? return $aln : return;
 }
 
 =head2 write_aln
@@ -212,6 +219,7 @@ sub _process_seq {
         $self->throw("Line does not comform to XMFA format:\n$entry");
     }
     my $seqobj = Bio::LocatableSeq->new(
+             -nowarnonempty => 1,
              -strand      => $strand,
              -seq         => $seq,
              -display_id  => $seqname,

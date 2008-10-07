@@ -87,6 +87,9 @@ use Bio::Location::Simple;
 use Bio::Location::Fuzzy;
 use vars qw($GAP_SYMBOLS $OTHER_SYMBOLS $MATCHPATTERN);
 
+# should we change these to non-globals?  (I can see this
+# causing problems down the road...) - cjfields
+
 $GAP_SYMBOLS = '\-\.=~';
 
 $OTHER_SYMBOLS = '\*\?';
@@ -99,13 +102,14 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my ($start,$end,$strand) =
-	$self->_rearrange( [qw(START END STRAND)],
+    my ($start,$end,$strand, $tuple) =
+	$self->_rearrange( [qw(START END STRAND TUPLE)],
 			   @args);
 
     defined $start && $self->start($start);
     defined $end   && $self->end($end);
     defined $strand && $self->strand($strand);
+    defined $tuple && $self->tuple($tuple);
 
     return $self; # success - we hope!
 }
@@ -148,10 +152,10 @@ sub end {
 	if( @_ ) {
 		my $value = shift;
 		my $string = $self->seq;
-		if ($self->seq) {
+        # start of 0 usually means the sequence is blank (all gaps)
+		if ($self->seq && $self->start != 0 ) {
 			my $len = $self->_ungapped_len;
 			my $id = $self->id;
-			
 			# changed 9/14/08
 			if ($len != $value) {
 				$self->warn("In sequence $id residue count gives end value ".
@@ -242,7 +246,7 @@ sub no_gaps {
     my ($seq, $count) = (undef, 0);
 
     # default gap characters
-    $char ||= '-.';
+    $char ||= $GAP_SYMBOLS;
 
     $self->warn("I hope you know what you are doing setting gap to [$char]")
 	unless $char =~ /[-.]/;
