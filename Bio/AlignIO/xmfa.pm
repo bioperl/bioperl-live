@@ -94,7 +94,7 @@ sub next_aln {
                 $aln->score($1);
             }
             $seqchar = '';
-            $name = $entry;            
+            undef $name;
             last;
         } elsif ( $entry =~ m{^>.+$}xms) {
             if ( defined $name ) {
