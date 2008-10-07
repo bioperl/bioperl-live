@@ -732,27 +732,16 @@ is($seq->species->ncbi_taxid, 6239);
 # version, seq_update, dates (5 tests)
 is($seq->version, 40);
 my ($ann) = $seq->annotation->get_Annotations('seq_update');
-TODO: {
-    local $TODO = 'grabbing seq_update with old SwissProt seqs now failing';
-    eval {is($ann->display_text, 35,'operator overloading in AnnotationI is deprecated')};
-    ok(!$@);
-}
+eval {is($ann->display_text, 35,'operator overloading in AnnotationI is deprecated')};
+ok(!$@);
 
 my @dates = $seq->get_dates;
 my @date_check = qw(01-NOV-1997 01-NOV-1997 16-OCT-2001);
 
 for my $date (@dates) {
     my $expdate = shift @date_check;
-    if ($expdate) {
-        is($date, $expdate,'dates');
-    } else {
-        TODO: {
-        local $TODO = 'grabbing all dates with old SwissProt seqs now failing';
-        is($date, $expdate);
-        }
-    }
+    is($date, $expdate,'dates');
 }
-
 
 my @gns2 = $seq->annotation->get_Annotations('gene_name');
 # check gene name is preserved (was losing suffix in worm gene names)
