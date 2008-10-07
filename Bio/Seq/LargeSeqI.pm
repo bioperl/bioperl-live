@@ -1,4 +1,4 @@
-# $Id $
+# $Id$
 #
 # BioPerl module for Bio::Seq::LargeSeqI
 #
