@@ -503,7 +503,6 @@ sub gd {
 
   $height = 12 if $height < 1; # so GD doesn't crash
   $width  = 1  if $width  < 1; # ditto
-  warn "$pkg->new($width,$height)";
 
   my $gd  = $existing_gd || $pkg->new($width,$height,
 				      ($self->{truecolor} && $pkg->can('isTrueColor') ? 1 : ())
