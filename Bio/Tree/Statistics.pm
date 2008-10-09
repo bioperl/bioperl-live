@@ -210,7 +210,7 @@ sub ps {
     if ($node->is_Leaf) {
         $self->throw ("ERROR: ". $node->internal_id. " needs a value for trait $key")
 	    unless $node->has_tag($key);
-	$node->add_tag_value('ps_trait', $node->get_tag_values($key) );
+	$node->set_tag_value('ps_trait', $node->get_tag_values($key) );
 	return; # end of recursion
     }
 
@@ -231,10 +231,10 @@ sub ps {
     }
 
     if (keys %intersection) {
-	map {$node->set_tag_value('ps_trait', $_)} keys %intersection;
-	$node->add_tag_value('ps_score', $score);
+	$node->set_tag_value('ps_trait', keys %intersection);
+	$node->set_tag_value('ps_score', $score);
     } else {
-	map {$node->set_tag_value('ps_trait', $_)} keys %union;
+	$node->set_tag_value('ps_trait',keys %union);
 	$node->set_tag_value('ps_score', $score+1);
     }
 

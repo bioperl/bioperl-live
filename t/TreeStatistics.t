@@ -29,7 +29,7 @@ is $stats->cherries($tree, $node), 4, 'cherries';
 my $key = $tree->add_trait(test_input_file('traits.tab'), 3);
 is ($key, 'intermediate', 'read traits');
 
-is $stats->ps($tree, $key), 5, 'parsimony score';
+is $stats->ps($tree, $key), 4, 'parsimony score';
 is $stats->ps($tree, $key, $node), 1, 'subtree parsimony score';
 
 is $stats->ai($tree, $key), 0.628906, 'association index';
