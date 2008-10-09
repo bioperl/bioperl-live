@@ -176,7 +176,7 @@ sub finish_load {
   my $self = shift;
   my $idx  = 0;
   foreach my $arrayref (values %{$self->{tmp}}) {
-    foreach (@$arrayref) {$_->{primary_id} = $idx++; }
+    foreach (@$arrayref) {$_->{feature_id} = $idx++; }
     push @{$self->{data}},@$arrayref;
   }
   1;
@@ -611,7 +611,7 @@ sub _get_features_by_search_options{
   my @found_features;
   my $data = $self->{data};
 
-  my $feature_id = -1 ;
+  my $feature_id       = -1 ;
   my $feature_group_id = undef;
 
   for my $feature (@{$data}) {
@@ -659,7 +659,7 @@ sub _get_features_by_search_options{
     # of found features and continue. 
 
     my $found_feature = $feature ;
-    $found_feature->{primary_id} = $feature_id;
+    $found_feature->{feature_id} = $feature_id;
     $found_feature->{group_id} = $feature_group_id;
     push @found_features,$found_feature;
   }
