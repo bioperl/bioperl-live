@@ -226,7 +226,7 @@ sub end {
   Example  : $st = $range->strand(); $range->strand(-1);
   Returns  : the value of the strandedness (-1, 0 or 1)
   Args     : optionally, the new strand - (-1, 0, 1) or (-, ., +).
-  Overrides: Bio::RangeI::Strand
+  Overrides: Bio::RangeI::strand
 
 =cut
 
