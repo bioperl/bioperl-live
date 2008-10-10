@@ -1,3 +1,4 @@
+# $Id$
 #
 # BioPerl module for Bio::Assembly::IO::tigr
 #
