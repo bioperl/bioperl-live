@@ -180,7 +180,6 @@ store them as key/value pairs. In this way, one tree can store more
 than on trait.
 
 Trees have method add_traits() to set trait values from a file.
-from a file.
 
 =head2 ps
 
@@ -211,39 +210,39 @@ sub ps {
         $self->throw ("ERROR: ". $node->internal_id. " needs a value for trait $key")
 	    unless $node->has_tag($key);
 	$node->set_tag_value('ps_trait', $node->get_tag_values($key) );
+	$node->set_tag_value('ps_score', 0 );
 	return; # end of recursion
     }
 
-    my ($child1, $child2) = $node->each_Descendent;
-
-    $self->ps($tree, $key, $child1);
-    $self->ps($tree, $key, $child2);
+    foreach my $child ($node->each_Descendent) {
+	$self->ps($tree, $key, $child);
+    }
 
     my %intersection;
     my %union;
-    map {$union{$_}++ } $child1->get_tag_values('ps_trait');
-    my $score = $child1->get_tag_values('ps_score');
+    my $score;
 
-    $score += $child2->get_tag_values('ps_score') || 0;
-    foreach my $trait ($child2->get_tag_values('ps_trait') ) {
-	$intersection{$trait}++  if $union{$trait};
-	$union{$trait}++;
+    foreach my $child ($node->each_Descendent) {
+	foreach my $trait ($child->get_tag_values('ps_trait') ) {
+	    $intersection{$trait}++ if $union{$trait};
+	    $union{$trait}++;
+	}
+	$score += $child->get_tag_values('ps_score');
     }
 
     if (keys %intersection) {
 	$node->set_tag_value('ps_trait', keys %intersection);
 	$node->set_tag_value('ps_score', $score);
     } else {
-	$node->set_tag_value('ps_trait',keys %union);
+	$node->set_tag_value('ps_trait', keys %union);
 	$node->set_tag_value('ps_score', $score+1);
     }
 
     if ($self->verbose) {
 	print "-- node --------------------------\n";
-	print "ID: ", $node->id, "\n";
+	print "iID: ", $node->internal_id, " (", $node->id, ")\n";
 	print "Trait: ", join (', ', $node->get_tag_values('ps_trait') ), "\n";
 	print "length :", scalar($node->get_tag_values('ps_score')) , "\n";
-	print "######################################\n";
     }
     return scalar $node->get_tag_values('ps_score');
 }
