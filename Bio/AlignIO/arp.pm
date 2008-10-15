@@ -105,7 +105,7 @@ See L<Bio::Align::AlignI>
 
 sub next_aln {
     my $self = shift;
-    my $aln = Bio::SimpleAlign->new();
+    my $aln = Bio::SimpleAlign->new(-source => 'arp');
     my ($data, $cur_block, $cur_type, $cur_data);
     SCAN:
     while (defined ($data = $self->_readline) ) {
