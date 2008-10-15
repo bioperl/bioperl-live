@@ -626,6 +626,23 @@ sub hash {
     return $self->node->hash;
 }
 
+=head2 pairs
+
+ Title   : pairs
+ Usage   : $struct->pairs;
+ Function: turns the tag-value tree into a hash, all data values are scalar
+ Returns : hash
+ Args    : first arg = element name
+           all other args are added as tag-value pairs, note that duplicates
+           will be lost
+
+=cut
+
+sub pairs {
+    my ($self) = @_;
+    return $self->node->pairs;
+}
+
 =head2 qmatch
 
  Title    : qmatch
