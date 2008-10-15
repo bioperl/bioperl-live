@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 82);
+    test_begin(-tests => 83);
 	
 	use_ok('Bio::LocatableSeq');
 	use_ok('Bio::AlignIO');
@@ -39,7 +39,11 @@ is $loc->to_FTstring, '3^4';
 
 
 is $loc = $seq->location_from_column(2), undef;
-
+TODO: {
+  local $TODO = "Need to fix columns before start of seq w/ start > 1";
+  $seq->start(90);
+  is $loc = $seq->location_from_column(2), undef;
+}
 
 $str = Bio::AlignIO->new(-file=> test_input_file('testaln.pfam'));
 ok defined($str);
