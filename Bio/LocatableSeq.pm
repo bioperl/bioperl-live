@@ -275,7 +275,7 @@ sub no_gaps {
 
   	     Seq1/91-97 AC..DEF.GH
 
-           column_from_residue_number(94) returns 5.
+           column_from_residue_number(94) returns 6.
 
            An exception is thrown if the residue number would lie
            outside the length of the aligment
@@ -334,11 +334,11 @@ sub column_from_residue_number {
            L<Bio::Range> where values can be undefined. For example,
            for the sequence:
 
-  	     Seq/91-97 .AC..DEF.G.
+  	     Seq/91-96 .AC..DEF.G.
 
-           location_from_column( 3 ) position 93
-           location_from_column( 2 ) position 92^93
-           location_from_column(10 ) position 97^98
+           location_from_column( 3 ) position 92
+           location_from_column( 4 ) position 92^93
+           location_from_column( 9 ) position 95^96
            location_from_column( 1 ) position undef
 
            An exact position returns a Bio::Location::Simple object
