@@ -26,6 +26,17 @@ Bio::TreeIO::nexus - A TreeIO driver module for parsing Nexus tree output from P
 This is a driver module for parsing PAUP Nexus tree format which
 basically is just a remapping of trees.
 
+=head2 Comments
+
+The nexus format allows node comments that are placed inside square
+brackets. Usually the comments (implemented as tags for nodes) are
+used to give a name for an internal node or record the bootstap value,
+but other uses are possible.
+
+The FigTree program by Andrew Rambaut adds various rendering
+parameters inside comments and flags these comments by starting them
+with '&!'. The parameters implemented here are 'label' and 'color'.
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -267,7 +278,7 @@ sub _write_tree_Helper {
     foreach my $n ( $node->each_Descendent() ) {
         push @data, _write_tree_Helper( $n, $node2num );
     }
-    if ( @data > 1 ) {
+    if ( @data > 1 ) {		# internal node
         $data[0] = "(" . $data[0];
         $data[-1] .= ")";
 
@@ -288,16 +299,41 @@ sub _write_tree_Helper {
         }
         elsif ( defined( $b = $node->id ) ) {
             $b = $node2num->{$b} if ( $node2num->{$b} );    # translate node2num
-            $data[-1] .= sprintf( "[%s]", $b );
+            $data[-1] .= sprintf( "[%s]", $b ) if defined $b;
         }
 
+	# FigTree comments start
+	my $comment_flag;
+	$comment_flag = 0
+	    if ( $node->has_tag('color') or  $node->has_tag('label') );
+
+	$data[-1] .= '[&!' if defined $comment_flag;
+
+        if ( $node->has_tag('color')) {
+	    my $color = $node->get_tag_values('color');
+            $data[-1] .= "color=$color";
+	    $comment_flag++;
+        }
+        if ( $node->has_tag('label')) {
+	    my $label = $node->get_tag_values('label');
+	    $data[-1] .= ',' if $comment_flag;
+            $data[-1] .= 'label="'. $label. '"';
+        }
+	$data[-1] .= ']' if defined $comment_flag;
+	# FigTree comments end
+
+
     }
-    else {
+    else {			# leaf node
         if ( defined $node->id || defined $node->branch_length ) {
             my $id = defined $node->id ? $node->id : '';
             if ( length($id) && $node2num->{$id} ) {
                 $id = $node2num->{$id};
             }
+	    if ( $node->has_tag('color')) {
+		my ($color) = $node->get_tag_values('color');
+		$id .= "[&!color=$color\]";
+	    }
             push @data,
               sprintf( "%s%s",
                 $id,
