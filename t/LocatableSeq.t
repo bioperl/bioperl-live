@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 83);
+    test_begin(-tests => 86);
 	
 	use_ok('Bio::LocatableSeq');
 	use_ok('Bio::AlignIO');
@@ -26,6 +26,7 @@ is $seq->end, 6;
 is $seq->strand, 1;
 is $seq->no_gaps, 1;
 is $seq->column_from_residue_number(4), 9;
+is $seq->column_from_residue_number(3), 5;
 
 ok $loc = $seq->location_from_column(4);
 isa_ok $loc,'Bio::Location::Simple';
@@ -90,6 +91,8 @@ is $seq2->seq, '--tac---cat--';
 is $seq2->start, $seq->start;
 is $seq2->end, $seq->end;
 is $seq2->strand, $seq->strand * -1;
+is $seq2->column_from_residue_number(4), 9;
+is $seq2->column_from_residue_number(3), 5;
 
 # test column-mapping for -1 strand sequence
 $seq = Bio::LocatableSeq->new(
