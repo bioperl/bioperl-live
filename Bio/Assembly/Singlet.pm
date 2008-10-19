@@ -133,7 +133,14 @@ sub id {
     # print("Getting the id for this thing:\n");
     # $dumper->dumpValue($self->seqref());
     # print("This is the id: (".$self->seqref()->id().")\n");
-    return $self->seqref()->id();
+    my $id = undef;
+    if (defined($self->seqref())) {
+      $id = $self->seqref()->id();
+    } else {
+      $self->warn("This singlet has no ID because no Bio::Seq-compliant ".
+        "sequence is attached to it");
+    }
+    return $id;
 }
 
 

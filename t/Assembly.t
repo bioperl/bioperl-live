@@ -38,18 +38,11 @@ isa_ok($sc->annotation, 'Bio::AnnotationCollectionI');
 is $sc->annotation->get_all_annotation_keys, 0,"no annotations in Annotation collection?";
 is $sc->get_nof_contigs, 1;
 is $sc->get_nof_sequences_in_contigs, 2;
-
-TODO: {
-	local $TODO = "get_nof_singlets() should return a number";
-	is($sc->get_nof_singlets, 1, "get_nof_singlets");
-}
+is($sc->get_nof_singlets, 2, "get_nof_singlets");
 is($sc->get_seq_ids, 2, "get_seq_ids");
 is($sc->get_contig_ids, 1, "get_contig_ids");
-TODO: {
-	local $TODO = "get_singlet_ids() should return a list";
-	isnt $sc->get_singlet_ids, 0;
-}
-	
+is($sc->get_singlet_ids, 2, "get_singet_ids");
+
 #
 # Testing Contig
 #

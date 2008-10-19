@@ -161,7 +161,7 @@ sub get_contig_by_id {
     Title   : get_singlet_by_id
     Usage   : $assembly->get_singlet_by_id()
     Function: Get a reference for a singlet from the assembly
-    Returns : Bio::PrimarySeqI object or undef
+    Returns : Bio::Assembly::Singlet object or undef
     Args    : [string] a singlet ID
 
 =cut
@@ -204,7 +204,7 @@ sub add_contig {
 	Usage   : $assembly->add_singlet($seq)
 	Function: Add another singlet to the Bio::Assembly::ScaffoldI object
 	Returns : 1 on success, 0 otherwise
-	Args    : a Bio::Align::Singlet object
+	Args    : a Bio::Assembly::Singlet object
 
 =cut
 
@@ -238,9 +238,9 @@ sub remove_contigs {
 
         Title   : remove_singlets
 	Usage   : $assembly->remove_singlets(1..4)
-	Function: Remove singlet from assembly object
-	Returns : a Bio::SeqI object
-	Args    : a list of singlet IDs 
+	Function: Remove singlets from assembly object
+	Returns : an array of Bio::Assembly::Singlet objects
+	Args    : an array of singlet IDs 
 
     See function get_singlet_ids() above
 
@@ -281,7 +281,7 @@ sub select_contigs {
 	Title   : select_singlets
 	Usage   : $assembly->select_singlets(@list)
 	Function: Selects an array of singlets from the assembly
-	Returns : an array of Bio::SeqI objects
+	Returns : an array of Bio::Assembly::Singlet objects
 	Args    : an array of singlet ids
 
     See function get_singlet_ids() above
@@ -322,7 +322,7 @@ sub all_contigs {
     Function: Returns a list of all singlets in this assembly.
 	      Singlets are isolated reads, without non-vector
 	      matches to any other read in the assembly.
-    Returns : array of Bio::Assembly::Contig
+    Returns : array of Bio::Assembly::Singlet objects
     Args    : none
 
 =cut

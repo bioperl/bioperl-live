@@ -10,7 +10,8 @@
 
 =head1 NAME
 
-Bio::Assembly::Scaffold - Perl module to hold and manipulate sequence assembly data.
+Bio::Assembly::Scaffold - Perl module to hold and manipulate sequence assembly
+data.
 
 =head1 SYNOPSIS
 
@@ -81,7 +82,7 @@ use base qw(Bio::Root::Root Bio::Assembly::ScaffoldI);
     Args    : -id       : [string] scaffold name
               -source   : [string] sequence assembly program
               -contigs  : reference to array of Bio::Assembly::Contig objects
-              -singlets : reference to array of Bio::Assembly::Contig objects
+              -singlets : reference to array of Bio::Assembly::Singlet objects
 
 
 =cut
@@ -89,7 +90,8 @@ use base qw(Bio::Root::Root Bio::Assembly::ScaffoldI);
 sub new {
   my($class, @args) = @_;
   my $self = $class->SUPER::new(@args);
-  my ($id, $src, $contigs, $singlets) = $self->_rearrange([qw(ID SOURCE CONTIGS SINGLETS)], @args);
+  my ($id, $src, $contigs, $singlets) = $self->_rearrange(
+      [qw(ID SOURCE CONTIGS SINGLETS)], @args);
 
   # Scaffold defaults
   $self->{'_id'} = 'NoName';
@@ -105,14 +107,22 @@ sub new {
   
   # Add contigs and singlets to scaffold
   if (defined $contigs && ref($contigs = 'ARRAY')) {
-      for my $contig (@{$contigs}) {
-        $self->add_contig($contig);
+    for my $contig (@{$contigs}) {
+      if( ! ref $contig || ! $contig->isa('Bio::Assembly::Contig') ) {
+        $self->throw("Bio::Assembly::Scaffold::new is unable to process non".
+          "Bio::Assembly::Contig object [", ref($contig), "]");
       }
+      $self->add_contig($contig);
+    }
   }
   if (defined $singlets && ref($singlets = 'ARRAY')) {
-      for my $singlet (@{$singlets}) {
-        $self->add_singlet($singlet);
+    for my $singlet (@{$singlets}) {
+      if( ! ref $singlet || ! $singlet->isa('Bio::Assembly::Singlet') ) {
+        $self->throw("Bio::Assembly::Scaffold::new is unable to process non".
+          "Bio::Assembly::Singlet object [", ref($singlet), "]");
       }
+      $self->add_singlet($singlet);
+    }
   }
   
   return $self;
@@ -347,7 +357,7 @@ sub get_contig_by_id {
     Title   : get_singlet_by_id
     Usage   : $assembly->get_singlet_by_id()
     Function: Get a reference for a singlet
-    Returns : Bio::PrimarySeqI object or undef
+    Returns : Bio::Assembly::Singlet object or undef
     Args    : [string] a singlet ID
 
 =cut
@@ -382,7 +392,8 @@ sub add_contig {
 
     # Input check
     if( !ref $contig || ! $contig->isa('Bio::Assembly::Contig') ) {
-        $self->throw("Bio::Assembly::Scaffold::add_contig is unable to process non Bio::Assembly::Contig object [", ref($contig), "]");
+        $self->throw("Bio::Assembly::Scaffold::add_contig is unable to process".
+            " non Bio::Assembly::Contig object [", ref($contig), "]");
     }
     
     # Create and attribute contig ID
@@ -390,7 +401,8 @@ sub add_contig {
     if( !defined $contigID ) {
         $contigID = 'Unknown_' . ($self->get_nof_contigs() + 1);
         $contig->id($contigID);
-        $self->warn("Attributing ID $contigID to unnamed Bio::Assembly::Contig object.");
+        $self->warn("Attributing ID $contigID to unnamed Bio::Assembly::Contig".
+            " object.");
     }
 
     # Adding contig to scaffold
@@ -401,7 +413,8 @@ sub add_contig {
 
     # Put contig sequences in the list of sequences belonging to the scaffold
     foreach my $seqID ($contig->get_seq_ids()) {
-        if (exists $self->{'_seqs'}{$seqID} && not($self->{'_seqs'}{$seqID} eq $contig) ) {
+        if (exists $self->{'_seqs'}{$seqID} &&
+            not($self->{'_seqs'}{$seqID} eq $contig) ) {
             $self->warn( "Sequence $seqID already assigned to object ".
                 $self->{'_seqs'}{$seqID}->id().". Moving to contig $contigID");
         }
@@ -417,8 +430,8 @@ sub add_contig {
     Usage   : $assembly->add_singlet($seq)
     Function: Add a singlet to the assembly
     Returns : 1 on success
-    Args    : a Bio::PrimarySeqI object
-          order (optional)
+    Args    : a Bio::Assembly::Singlet object
+              order (optional)
 
 =cut
 
@@ -427,7 +440,8 @@ sub add_singlet {
 
     # Input check
     if ( !ref $singlet || ! $singlet->isa('Bio::Assembly::Singlet') ) {
-        $self->throw("Bio::Assembly::Scaffold::singlet is unable to process non Bio::Assembly::Singlet object [", ref($singlet), "]");
+        $self->throw("Bio::Assembly::Scaffold::add_singlet is unable to process".
+            " non Bio::Assembly::Singlet object [", ref($singlet), "]");
     }
     
     # Create and attribute singlet ID
@@ -435,7 +449,8 @@ sub add_singlet {
     if( !defined $singletID ) {
         $singletID = 'Unknown_' . ($self->get_nof_singlets() + 1);
         $singlet->id($singletID);
-        $self->warn("Attributing ID $singletID to unnamed Bio::Assembly::Singlet object.");
+        $self->warn("Attributing ID $singletID to unnamed Bio::Assembly::".
+            "Singlet object.");
     }
     
     # Adding singlet to scaffold
@@ -446,7 +461,8 @@ sub add_singlet {
 
     # Put singlet sequence in the list of sequences belonging to the scaffold
     my $seqID = $singlet->seqref()->id();
-    if (exists $self->{'_seqs'}{$seqID} && not($self->{'_seqs'}{$seqID} eq $singlet) ) {
+    if (exists $self->{'_seqs'}{$seqID} &&
+        not($self->{'_seqs'}{$seqID} eq $singlet) ) {
         $self->warn( "Sequence $seqID already assigned to object ".
             $self->{'_seqs'}{$seqID}->id().". Moving to singlet $singletID");
     }
@@ -475,11 +491,12 @@ sub update_seq_list {
     
     $self->{'_seqs'} = {};
 
-    # Put sequences in contigs in the list of sequences belonging to the scaffold
+    # Put sequences in contigs in list of sequences belonging to the scaffold
     foreach my $contig ($self->all_contigs) {
         my $contigID = $contig->id();
         foreach my $seqID ($contig->get_seq_ids) {
-            if (exists $self->{'_seqs'}{$seqID} && not($self->{'_seqs'}{$seqID} eq $contig) ) {
+            if (exists $self->{'_seqs'}{$seqID} &&
+                not($self->{'_seqs'}{$seqID} eq $contig) ) {
                 $self->warn( "Sequence $seqID already assigned to object ".
                     $self->{'_seqs'}{$seqID}->id().". Moving to contig $contigID");
             }
@@ -491,7 +508,8 @@ sub update_seq_list {
     foreach my $singlet ($self->all_singlets) {
         my $seqID = $singlet->seqref()->id();
         my $singletID = $singlet->id();
-        if (exists $self->{'_seqs'}{$seqID} && not($self->{'_seqs'}{$seqID} eq $singlet) ) {
+        if (exists $self->{'_seqs'}{$seqID} &&
+            not($self->{'_seqs'}{$seqID} eq $singlet) ) {
             $self->warn( "Sequence $seqID already assigned to object ".
                 $self->{'_seqs'}{$seqID}->id().". Moving to singlet $singletID");
         }
@@ -534,7 +552,7 @@ sub remove_contigs {
     Title   : remove_singlets
     Usage   : $assembly->remove_singlets(@singlet_ids)
     Function: Remove singlet from assembly object
-    Returns : the Bio::SeqI objects removed
+    Returns : the Bio::Assembly::Singlet objects removed
     Args    : a list of singlet IDs
 
     See function get_singlet_ids() above
@@ -546,8 +564,8 @@ sub remove_singlets {
 
     my @ret = ();
     foreach my $singletID (@args) {
-    push(@ret,$self->{'_singlets'}{$singletID});
-    delete $self->{'_singlets'}{$singletID};
+        push(@ret,$self->{'_singlets'}{$singletID});
+        delete $self->{'_singlets'}{$singletID};
     }
 
     return @ret;
@@ -611,7 +629,7 @@ sub select_contigs {
     Title   : select_singlets
     Usage   : $assembly->select_singlets(@list)
     Function: Selects an array of singlets from the assembly
-    Returns : an array of Bio::SeqI objects
+    Returns : an array of Bio::Assembly::Singlet objects
     Args    : an array of singlet ids
 
     See function get_singlet_ids() above
@@ -669,7 +687,7 @@ sub all_contigs {
           Singlets are isolated reads, without non-vector
           matches to any other read in the assembly.
 
-    Returns : array of Bio::SeqI (in lexical order by id)
+    Returns : array of Bio::Assembly::Singlet objects (in lexical order by id)
     Args    : none
 
 =cut
