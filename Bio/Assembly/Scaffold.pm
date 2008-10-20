@@ -460,7 +460,7 @@ sub add_singlet {
     $singlet->assembly($self); # weak circular reference
 
     # Put singlet sequence in the list of sequences belonging to the scaffold
-    my $seqID = $singlet->seqref()->id();
+    my $seqID = $singlet->id();
     if (exists $self->{'_seqs'}{$seqID} &&
         not($self->{'_seqs'}{$seqID} eq $singlet) ) {
         $self->warn( "Sequence $seqID already assigned to object ".
@@ -506,7 +506,7 @@ sub update_seq_list {
     
     # Put singlet sequences in the list of sequences belonging to the scaffold
     foreach my $singlet ($self->all_singlets) {
-        my $seqID = $singlet->seqref()->id();
+        my $seqID = $singlet->id();
         my $singletID = $singlet->id();
         if (exists $self->{'_seqs'}{$seqID} &&
             not($self->{'_seqs'}{$seqID} eq $singlet) ) {

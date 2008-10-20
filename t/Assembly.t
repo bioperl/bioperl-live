@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 35,
+    test_begin(-tests => 41,
 	-requires_module => 'DB_File');
 	
 	use_ok('Bio::Assembly::IO');
@@ -24,12 +24,13 @@ my $in = Bio::Assembly::IO->new
 isa_ok($in, 'Bio::Assembly::IO');
 
 my $sc = $in->next_assembly;
+
+
 isa_ok($sc, 'Bio::Assembly::Scaffold');
 
 #
 # Testing Scaffold
 #
-
 
 is $sc->id, "NoName";
 is $sc->id('test'), "test";
@@ -61,6 +62,7 @@ my $aio = Bio::Assembly::IO->new(
 );
 
 my $assembly = $aio->next_assembly();
+
 my @contigs = $assembly->all_contigs();
 
 my $direction = $contigs[0]->strand;
@@ -84,6 +86,14 @@ foreach my $an (@annotations) {
 	}
 }
 is $had_tag, 2;
+
+is $assembly->get_nof_contigs, 1;
+is $assembly->get_nof_sequences_in_contigs, 2;
+is($assembly->get_nof_singlets, 2, "get_nof_singlets");
+is($assembly->get_seq_ids, 2, "get_seq_ids");
+is($assembly->get_contig_ids, 1, "get_contig_ids");
+is($assembly->get_singlet_ids, 2, "get_singet_ids");
+
 
 #
 # Testing TIGR format

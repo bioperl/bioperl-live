@@ -192,14 +192,14 @@ sub next_assembly {
         if (/^\s+(\S+)\s+(\d+)\s+\((\d+)\)/) {
           my ($singletID, $length, $nof_trimmed_nonX) = ($1, $2, $3);
           # Create singlet object, and add it to scaffold
-          my $seq = Bio::LocatableSeq->new(
+          my $seq = Bio::Seq->new(
             -start      => 1,
             -end        => $length,
             -strand     => 1,
             -id         => $singletID,
             -primary_id => $singletID,
             -alphabet   => 'dna');
-          my $singletOBJ = Bio::Assembly::Singlet->new( -seq => $seq );
+          my $singletOBJ = Bio::Assembly::Singlet->new(-seqref=>$seq);
           my $feat = Bio::SeqFeature::Generic->new(
             -start   => 1,
             -end     => $length,

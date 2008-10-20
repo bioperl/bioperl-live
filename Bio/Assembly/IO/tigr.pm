@@ -574,8 +574,7 @@ sub _store_singlet {
    );
 
    # Create singlet from sequence and add it to scaffold
-   my $singletobj = Bio::Assembly::Singlet->new;
-   $singletobj->seq_to_singlet($seqobj);
+   my $singletobj = Bio::Assembly::Singlet->new( -seqref => $seqobj );
    $scaffoldobj->add_singlet($singletobj);
 
    # Add other misc contig information as features of the singlet

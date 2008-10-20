@@ -401,9 +401,7 @@ sub next_assembly {
             } else {
                 $adder = $seq;
             }
-            $adder->{phdfilename} = $phdfilename;
-            $adder->{chromatfilename} = $chromatfilename;
-            $singlet->seq_to_singlet($adder);
+            $singlet->seqref($adder);
             $assembly->add_singlet($singlet);
         }
     }
