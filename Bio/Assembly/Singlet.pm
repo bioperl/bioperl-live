@@ -88,13 +88,12 @@ use base qw(Bio::Assembly::Contig Bio::Root::Root Bio::Align::AlignI);
 =cut
 
 sub new {
-    my ($class,%ARG) = @_;
-    my $self = $class->SUPER::new(%ARG);
-    my $args = \%ARG;
-    bless ($self,$class);
+    my ($class, @args) = @_;
+    my $self = $class->SUPER::new(@args);
+    my ($seqref) = $self->_rearrange([qw(SEQREF)], @args);
     $self->{'_seqref'} = undef;
-    if ($args->{'-seqref'}) {
-        $self->seqref($args->{'-seqref'});   
+    if (defined $seqref) {
+        $self->seqref($seqref);   
     }
     return $self;
 }
@@ -126,22 +125,31 @@ sub seqref {
 =cut
 
 sub _seq_to_singlet {
-    my ($self, $seq) = @_;
+    my ($self, $seq) = @_;    
+    # Object type checking
     $self->throw("Unable to process non Bio::Seq-compliant object [",ref($seq),"]")
       unless (defined $seq && $seq->isa("Bio::Seq"));
-    $self->{'_seqref'} = $seq;
+    # Sanity check
+    $self->throw("Unable to have more than one seqref in a singlet")
+      if (defined $self->{'_seqref'});
+    # From sequence to locatable sequence
+    my $seq_id = $seq->id();
     my $lseq = Bio::LocatableSeq->new(
         -seq    => $seq->seq(),
         -start  => 1,
         -end    => $seq->length(),
         -strand => 1,
-        -id     => $seq->display_id() );
+        -id     => $seq_id
+    );
+    # Add new sequence
+    $self->add_seq($lseq);
+    # Creating singlet ID, seqref and consensus
+    $self->id($seq_id);
+    $self->{'_seqref'} = $seq;
     $self->set_consensus_sequence($lseq);
     if ($seq->isa("Bio::Seq::Quality")) {
-        $self->set_consensus_quality($seq)
+        $self->set_consensus_quality($seq);
     }
-    $self->add_seq($lseq);
-    $self->id($seq->id());
     return;
 }
 
