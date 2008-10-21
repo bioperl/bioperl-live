@@ -165,7 +165,6 @@ sub next_assembly {
                 s/\*/-/g;                   # Forcing '-' as gap symbol
                 $consensus_sequence .= $_;
             }
-            my $consensus_length = length($consensus_sequence);
             $consensus_sequence = Bio::LocatableSeq->new(
                 -seq   => $consensus_sequence,
                 -start => 1,
