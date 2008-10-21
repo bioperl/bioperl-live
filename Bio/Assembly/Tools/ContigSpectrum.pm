@@ -667,7 +667,7 @@ sub add {
   # Sanity check
   if( !ref $csp || ! $csp->isa('Bio::Assembly::Tools::ContigSpectrum') ) {
         $self->throw("Unable to process non Bio::Assembly::Tools::ContigSpectrum ".
-        "object [", ref($csp), "]");
+        "object [".ref($csp)."]");
   }
   # Update overlap statistics
   if ( $self->{'_eff_asm_params'} > 0 ) {
@@ -738,7 +738,7 @@ sub average {
   my ($self, $list) = @_;
   # Sanity check
   if ( ! ref $list || ! ref $list eq 'ARRAY') {
-    $self->throw("Average takes an array reference but got [",ref($list), "]");
+    $self->throw("Average takes an array reference but got [".ref($list)."]");
   }
   # New average contig spectrum object
   my $avg = Bio::Assembly::Tools::ContigSpectrum->new;
@@ -750,7 +750,7 @@ sub average {
     # Sanity check
     if (not $csp->isa('Bio::Assembly::Tools::ContigSpectrum')) {
       $csp->throw("Unable to process non Bio::Assembly::Tools::ContigSpectrum ".
-        "object [", ref($csp), "]");
+        "object [".ref($csp)."]");
     }
     # Import contig spectrum
     $avg->add($csp);
@@ -1198,7 +1198,7 @@ sub _import_assembly {
   # Sanity check
   if( !ref $assemblyobj || ! $assemblyobj->isa('Bio::Assembly::Scaffold') ) {
         $self->throw("Unable to process non Bio::Assembly::Scaffold assembly ".
-        "object [", ref($assemblyobj), "]");
+        "object [".ref($assemblyobj)."]");
   }
   # Create new object from assembly
   my $csp = $self->_new_from_assembly($assemblyobj);
@@ -1224,8 +1224,8 @@ sub _import_spectrum {
   my ($self, $spectrum) = @_;
   # Sanity check
   if( ! ref $spectrum || ! ref $spectrum eq 'HASH') {
-    $self->throw("Spectrum should be a hash reference, but it is [",
-    ref($spectrum), "]");
+    $self->throw("Spectrum should be a hash reference, but it is [".
+      ref($spectrum)."]");
   }
   
   # Update the spectrum (+ nof_rep, max_size and nof_seq)

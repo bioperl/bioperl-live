@@ -920,7 +920,7 @@ sub set_seq_qual {
     my ($self,$seq,$qual) = @_;
 
     if( !ref $seq || ! $seq->isa('Bio::LocatableSeq') ) {
-        $self->throw("Unable to process non locatable sequences [", ref($seq), "]");
+        $self->throw("Unable to process non locatable sequences [".ref($seq)."]");
     }
     my $seqID = $seq->id() || $seq->display_id || $seq->primary_id;
 
@@ -1026,7 +1026,7 @@ sub get_seq_feat_by_tag {
     my ($self,$seq,$tag) = @_;
 
     if( !ref $seq || ! $seq->isa('Bio::LocatableSeq') ) {
-        $self->throw("Unable to process non locatable sequences [", ref($seq), "]");
+        $self->throw("Unable to process non locatable sequences [".ref($seq)."]");
     }
     my $seqID = $seq->id() || $seq->display_id || $seq->primary_id;
 
@@ -1112,7 +1112,7 @@ sub add_seq {
     my $seq = shift;
 
     if( !ref $seq || ! $seq->isa('Bio::LocatableSeq') ) {
-        $self->throw("Unable to process non locatable sequences [", ref($seq), "]");
+        $self->throw("Unable to process non locatable sequences [".ref($seq)."]");
     }
 
     my $seqID = $seq->id() || $seq->display_id || $seq->primary_id;
@@ -1178,7 +1178,7 @@ sub remove_seq {
     my ($self,$seq) = @_;
 
     if( !ref $seq || ! $seq->isa('Bio::LocatableSeq') ) {
-        $self->throw("Unable to process non locatable sequences [", ref($seq), "]");
+        $self->throw("Unable to process non locatable sequences [".ref($seq)."]");
     }
 
     my $seqID = $seq->id() || $seq->display_id || $seq->primary_id;

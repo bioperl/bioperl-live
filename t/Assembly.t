@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 41,
+    test_begin(-tests => 47,
 	-requires_module => 'DB_File');
 	
 	use_ok('Bio::Assembly::IO');
@@ -19,7 +19,7 @@ BEGIN {
 
 
 my $in = Bio::Assembly::IO->new
-	(-file => test_input_file("consed_project","edit_dir","test_project.phrap.out"));
+	(-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'));
 
 isa_ok($in, 'Bio::Assembly::IO');
 
@@ -40,7 +40,7 @@ is $sc->annotation->get_all_annotation_keys, 0,"no annotations in Annotation col
 is $sc->get_nof_contigs, 1;
 is $sc->get_nof_sequences_in_contigs, 2;
 is($sc->get_nof_singlets, 2, "get_nof_singlets");
-is($sc->get_seq_ids, 2, "get_seq_ids");
+is($sc->get_contig_seq_ids, 2, "get_contig_seq_ids");
 is($sc->get_contig_ids, 1, "get_contig_ids");
 is($sc->get_singlet_ids, 2, "get_singlet_ids");
 
@@ -57,7 +57,7 @@ is($sc->get_singlet_ids, 2, "get_singlet_ids");
 #
 
 my $aio = Bio::Assembly::IO->new(
-	-file=>test_input_file("consed_project","edit_dir","test_project.fasta.screen.ace.2"),
+	-file=>test_input_file('consed_project','edit_dir','test_project.fasta.screen.ace.2'),
 	-format=>'ace',
 );
 
@@ -89,10 +89,27 @@ is $had_tag, 2;
 
 is $assembly->get_nof_contigs, 1;
 is $assembly->get_nof_sequences_in_contigs, 2;
-is($assembly->get_nof_singlets, 2, "get_nof_singlets");
-is($assembly->get_seq_ids, 2, "get_seq_ids");
+is($assembly->get_nof_singlets, 0, "get_nof_singlets");
+is($assembly->get_contig_seq_ids, 2, "get_contig_seq_ids");
 is($assembly->get_contig_ids, 1, "get_contig_ids");
-is($assembly->get_singlet_ids, 2, "get_singlet_ids");
+is($assembly->get_singlet_ids, 0, "get_singlet_ids");
+
+
+$aio = Bio::Assembly::IO->new(
+	-file=>test_input_file('assembly_with_singlets.ace'),
+	-format=>'ace',
+);
+$assembly = $aio->next_assembly();
+is $assembly->get_nof_contigs, 3;
+is $assembly->get_nof_sequences_in_contigs, 6;
+is($assembly->get_nof_singlets, 33, "get_nof_singlets");
+
+is($assembly->get_contig_seq_ids, 6, "get_contig_seq_ids");
+
+is($assembly->get_contig_ids, 3, "get_contig_ids");
+is($assembly->get_singlet_ids, 33, "get_singlet_ids");
+
+
 
 
 #
@@ -132,7 +149,7 @@ sdsu|SDSU_RFPERU_015_A05.x01.phd.1 sdsu|SDSU_RFPERU_015_C06.x01.phd.1
 sdsu|SDSU_RFPERU_015_E04.x01.phd.1 sdsu|SDSU_RFPERU_015_G04.x01.phd.1
 sdsu|SDSU_RFPERU_015_H03.x01.phd.1);
 my @contigids = sort qw(106 144 148 17 185 2 210 36 453 500 613 668 93);
-is_deeply([sort $scaf_in->get_seq_ids], \@seqids);
+is_deeply([sort $scaf_in->get_contig_seq_ids], \@seqids);
 is_deeply([sort $scaf_in->get_contig_ids], \@contigids);
 is_deeply([$scaf_in->get_singlet_ids], []);
 isa_ok($scaf_in->get_seq_by_id('sdsu|SDSU1_RFPERU_001_A09.x01.phd.1'),'Bio::LocatableSeq');
