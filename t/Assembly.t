@@ -42,7 +42,7 @@ is $sc->get_nof_sequences_in_contigs, 2;
 is($sc->get_nof_singlets, 2, "get_nof_singlets");
 is($sc->get_seq_ids, 2, "get_seq_ids");
 is($sc->get_contig_ids, 1, "get_contig_ids");
-is($sc->get_singlet_ids, 2, "get_singet_ids");
+is($sc->get_singlet_ids, 2, "get_singlet_ids");
 
 #
 # Testing Contig
@@ -92,7 +92,7 @@ is $assembly->get_nof_sequences_in_contigs, 2;
 is($assembly->get_nof_singlets, 2, "get_nof_singlets");
 is($assembly->get_seq_ids, 2, "get_seq_ids");
 is($assembly->get_contig_ids, 1, "get_contig_ids");
-is($assembly->get_singlet_ids, 2, "get_singet_ids");
+is($assembly->get_singlet_ids, 2, "get_singlet_ids");
 
 
 #

@@ -457,6 +457,7 @@ sub _store_contig {
     my $contigtags = Bio::SeqFeature::Generic->new(
         -primary_tag => "_main_contig_feature:$$contiginfo{'asmbl_id'}",
         -start       => 1,
+        -end         => $contigobj->get_consensus_length(),
         -strand      => 1,
         -tag         => { 'seq_id'     => $$contiginfo{'seq_id'},
                           'com_name'   => $$contiginfo{'com_name'},
@@ -581,6 +582,7 @@ sub _store_singlet {
    my $contigtags = Bio::SeqFeature::Generic->new(
         -primary_tag => "_main_contig_feature:$contigid",
         -start       => 1,
+        -end         => $singletobj->get_consensus_length(),
         -strand      => 1,
         -tag         => { 'seq_id'     => $$contiginfo{'seq_id'},
                           'com_name'   => $$contiginfo{'com_name'},
