@@ -158,7 +158,7 @@ Univeristy, St. Louis, MO.
 
 =head1 CONTRIBUTORS
 
-Jason Stajich, jason@cgt.mc.duke.edu
+Jason Stajich, jason_AT_bioperl.org
 
 =head1 COPYRIGHT
 
