@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Index::Blast
 #
-# Cared for by Jason Stajich <jason@cgt.mc.duke.edu>
+# Cared for by Jason Stajich <jason@bioperl.org>
 #
 # Copyright Jason Stajich
 #
