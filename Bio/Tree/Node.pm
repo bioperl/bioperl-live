@@ -620,7 +620,7 @@ sub set_tag_value{
 sub add_tag_value{
     my ($self,$tag,$value) = @_;
     if( ! defined $tag || ! defined $value ) {
-	$self->warn("cannot call add_tag_value with an undefined value ($tag)");
+	$self->warn("cannot call add_tag_value with an undefined value".($tag ? " ($tag)" : ''));
 	$self->warn($self->stack_trace_dump,"\n");
     }
     push @{$self->{'_tags'}->{$tag}}, $value;
