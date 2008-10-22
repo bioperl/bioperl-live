@@ -740,60 +740,61 @@ sub calculate_offsets {
   my $fh = IO::File->new($file) or $self->throw( "Can't open $file: $!");
   binmode $fh;
   warn "indexing $file\n" if $self->{debug};
-  my ($offset,$id,$linelength,$type,$firstline,$count,$termination_length,$seq_lines,$last_line,%offsets);
+  my ($offset,@id,$linelength,$type,$firstline,$count,
+      $termination_length,$seq_lines,$last_line,%offsets);
   my ($l3_len,$l2_len,$l_len)=(0,0,0);
 
   while (<$fh>) {		# don't try this at home
-	  $termination_length ||= /\r\n$/ ? 2 : 1;  # account for crlf-terminated Windows files
-	  if (/^>(\S+)/) {
-		  print STDERR "indexed $count sequences...\n" 
-			 if $self->{debug} && (++$count%1000) == 0;
-		  my $pos = tell($fh);
-		  if ($id) {
-			  my $seqlength    = $pos - $offset - length($_);
-			  $seqlength      -= $termination_length * $seq_lines;
-			  $offsets->{$id}  = &{$self->{packmeth}}($offset,$seqlength,
-																	$linelength,$firstline,
-																	$type,$base);
-		  }
-		  $id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
-		  ($offset,$firstline,$linelength) = ($pos,length($_),0);
-		  $self->_check_linelength($linelength);
-        ($l3_len,$l2_len,$l_len)=(0,0,0);
-		  $seq_lines = 0;
-	  } else {
-        $l3_len= $l2_len; $l2_len= $l_len; $l_len= length($_); # need to check every line :(
-        if (DIE_ON_MISSMATCHED_LINES &&
-			  $l3_len>0 && $l2_len>0 && $l3_len!=$l2_len) {
-           my $fap= substr($_,0,20)."..";
-           $self->throw("Each line of the fasta entry must be the same length except the last.
+    $termination_length ||= /\r\n$/ ? 2 : 1; # account for crlf-terminated Windows files
+    if (/^>(\S+)/) {
+      print STDERR "indexed $count sequences...\n" 
+	if $self->{debug} && (++$count%1000) == 0;
+      my $pos = tell($fh);
+      if (@id) {
+	my $seqlength    = $pos - $offset - length($_);
+	$seqlength      -= $termination_length * $seq_lines;
+	my $ppos = &{$self->{packmeth}}($offset,$seqlength,
+				       $linelength,$firstline,
+				       $type,$base);
+	for my $id (@id) { $offsets->{$id}  = $ppos }
+      }
+      @id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
+      ($offset,$firstline,$linelength) = ($pos,length($_),0);
+      $self->_check_linelength($linelength);
+      ($l3_len,$l2_len,$l_len)=(0,0,0);
+      $seq_lines = 0;
+    } else {
+      $l3_len= $l2_len; $l2_len= $l_len; $l_len= length($_); # need to check every line :(
+      if (DIE_ON_MISSMATCHED_LINES &&
+	  $l3_len>0 && $l2_len>0 && $l3_len!=$l2_len) {
+	my $fap= substr($_,0,20)."..";
+	$self->throw("Each line of the fasta entry must be the same length except the last.
     Line above #$. '$fap' is $l2_len != $l3_len chars.");
-        }
-
-		  $linelength ||= length($_);
-		  $type       ||= $self->_type($_);
-		  $seq_lines++;
-	  }
-	  $last_line = $_;
+  }
+      $linelength ||= length($_);
+      $type       ||= $self->_type($_);
+      $seq_lines++;
+    }
+    $last_line = $_;
   }
 
   $self->_check_linelength($linelength);
   # deal with last entry
-  if ($id) {
-	  my $pos = tell($fh);
-	  my $seqlength   = $pos - $offset;
-	  
-	  if ($linelength == 0) { # yet another pesky empty chr_random.fa file
-		  $seqlength = 0;
-	  } else {
-		  if ($last_line !~ /\s$/) {
-			  $seq_lines--;
-		  }
-		  $seqlength -= $termination_length * $seq_lines;
-	  };
-	  $offsets->{$id} = &{$self->{packmeth}}($offset,$seqlength,
-														  $linelength,$firstline,
-														  $type,$base);
+  if (@id) {
+    my $pos = tell($fh);
+    my $seqlength   = $pos - $offset;
+    if ($linelength == 0) { # yet another pesky empty chr_random.fa file
+      $seqlength = 0;
+    } else {
+      if ($last_line !~ /\s$/) {
+	$seq_lines--;
+      }
+      $seqlength -= $termination_length * $seq_lines;
+    };
+    my $ppos = &{$self->{packmeth}}($offset,$seqlength,
+					   $linelength,$firstline,
+					   $type,$base);
+    for my $id (@id) { $offsets->{$id}  = $ppos }
   }
   $offsets->{__termination_length} = $termination_length;
   return \%offsets;
