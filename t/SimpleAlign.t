@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 151);
+    test_begin(-tests => 152);
 	
 	use_ok('Bio::SimpleAlign');
 	use_ok('Bio::AlignIO');
@@ -544,7 +544,9 @@ my $h = Bio::LocatableSeq->new(-id => 'h', -seq => '-tcg', -start => 30, -end =>
 $aln = Bio::SimpleAlign->new();
 $aln->add_seq($g);
 $aln->add_seq($h);
-
+# test for new method in API get_seq_by_id 
+my $retrieved = $aln->get_seq_by_id('g');
+is(defined $retrieved, 1);
 my $removed = $aln->remove_columns([1, 3]);
 foreach my $seq ($removed->each_seq) {
 	if ($seq->id eq 'g') {

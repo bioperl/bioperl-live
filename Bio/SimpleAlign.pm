@@ -764,7 +764,7 @@ sub each_seq_with_id {
              Numbering starts from 1.  Sequence positions larger than
              no_sequences() will thow an error.
  Returns   : a Bio::LocatableSeq object
- Args      : positive integer for the sequence osition
+ Args      : positive integer for the sequence position
 
 =cut
 
@@ -780,6 +780,31 @@ sub get_seq_by_pos {
 
     my $nse = $self->{'_order'}->{--$pos};
     return $self->{'_seq'}->{$nse};
+}
+
+=head2 get_seq_by_id
+
+ Title     : get_seq_by_id
+ Usage     : $seq = $aln->get_seq_by_id($name) # seq named $name
+ Function  : Gets a sequence based on its name.
+             Sequences that do not exist will warn and return undef
+ Returns   : a Bio::LocatableSeq object
+ Args      : string for sequence name
+
+=cut
+
+sub get_seq_by_id {
+    my ($self,$name) = @_;
+    unless( defined $name ) {
+      $self->warn("Must provide a sequence name");
+      return undef;
+    }
+    for my $seq ( values %{$self->{'_seq'}} ) {
+      if ( $seq->id eq $name) {
+	return $seq;
+      }
+    }
+    return undef;
 }
 
 =head2 seq_with_features
