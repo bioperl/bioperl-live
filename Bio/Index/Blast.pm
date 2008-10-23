@@ -17,24 +17,25 @@ based on query accession(s)
 
 =head1 SYNOPSIS
 
-    use strict;
-    use Bio::Index::Blast;
-    my ($indexfile,$file1,$file2,$query);
-    my $index = Bio::Index::Blast->new(-filename => $indexfile,
-				                          -write_flag => 1);
-    $index->make_index($file1,$file2);
+  use strict;
+  use Bio::Index::Blast;
 
-    my $data = $index->get_stream($query);
+  my ($indexfile,$file1,$file2,$query);
+  my $index = Bio::Index::Blast->new(-filename => $indexfile,
+				                         -write_flag => 1);
+  $index->make_index($file1,$file2);
 
-    my $blast_report = $index->fetch_report($query);
-    print "query is ", $blast_report->query, "\n";
-    while ( my $result = $blast_report->next_result ) {
-            print $result->algorithm, "\n";
-            while ( my $hsp = $result->next_hit ) {
-              print "\t name ", $hsp->name,
-            }
-            print "\n";
-    }
+  my $fh = $index->get_stream($query);
+
+  my $blast_report = Bio::SearchIO->new(-noclose => 1,
+                                        -format  => 'blast',
+                                        -fh      => $fh);
+  my $result = $blast_report->next_result;
+  print $result->algorithm, "\n";
+  my $hit = $result->next_hit;
+  print $hit->description, "\n";
+  my $hsp = $hit->next_hsp;
+  print $hsp->bits, "\n";
 
 =head1 DESCRIPTION
 
