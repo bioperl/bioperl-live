@@ -264,7 +264,6 @@ sub next_result{
 	       } 
 	       $last = $_;
 	   }
-	   
 	   if( $self->{'_reporttype'} &&
 	       $self->{'_reporttype'} eq 'FASTA'
 	       ) {
@@ -289,19 +288,18 @@ sub next_result{
 	       ( $last =~ /^searching\s+(\S+)\s+library/ ) ||
 	       ( $last =~ /^Library:\s+(\S+)\s+/ ) ||
 	       (defined $_ && ( /^\s*vs\s+(\S+)/ ||  
-				/^Library:\s+(\S+)\s+/ )) ||		
+				/^Library:\s+(\S+)\s+/ )) ||
 	       (defined ($_ = $self->_readline()) && 
 		( /^\s*vs\s+(\S+)/ ||/^Library:\s+(\S+)/ ))
-	       ) {	       
-	       $self->element({'Name' => 'FastaOutput_db',
-			       'Data' => $1}); 
+	     ) {
+	     $self->element({'Name' => 'FastaOutput_db',
+			     'Data' => $1}); 
 	   } elsif (m/^\s+opt(?:\s+E\(\))?$/o) {
 	       # histogram ... read over it more rapidly than the larger outer loop:
 	       while (defined($_ = $self->_readline)) {
 		   last if m/^>\d+/;
 	       }
 	   }
-	   
        } elsif( /(\d+)\s+residues\s+in\s+(\d+)\s+(?:library\s+)?sequences/ ) {
 	   $self->element({'Name' => 'FastaOutput_db-let',
 			   'Data' => $1});
@@ -310,14 +308,14 @@ sub next_result{
 	   $self->element({'Name' => 'Statistics_db-len',
 			   'Data' => $1});
 	   $self->element({'Name' => 'Statistics_db-num',
-			   'Data' => $2});	  
+			   'Data' => $2});
        } elsif( /Lambda=\s*(\S+)/ ) {
 	   $self->element({'Name' => 'Statistics_lambda',
-			   'Data' => $1});	  
+			   'Data' => $1});
        } elsif (/K=\s*(\S+)/) {
 	   $self->element({'Name' => 'Statistics_kappa',
 			   'Data' => $1});
-       } elsif( /^\s*(Smith-Waterman).+(\S+)\s*matrix [^\]]*?(xS)?\]/ ) {	   
+       } elsif( /^\s*(Smith-Waterman).+(\S+)\s*matrix [^\]]*?(xS)?\]/ ) {
 	   $self->element({'Name' => 'Parameters_matrix',
 			   'Data' => $2});
 	   $self->element({'Name' => 'Parameters_filter',
@@ -327,7 +325,6 @@ sub next_result{
 
 	   $self->element({ 'Name' => 'FastaOutput_program',
 			    'Data' => $self->{'_reporttype'}});
-	   
        } elsif( /The best( related| unrelated)? scores are:/ ) {
 	   my $rel = $1;
 	   my @labels = split;
@@ -384,7 +381,8 @@ sub next_result{
 
 	       push @hit_signifs, \%data;
 	   }
-       } elsif( /^\s*([T]?FAST[XYAF]).+,\s*(\S+)\s*matrix[^\]]+?(xS)?\]\s*ktup:\s*(\d+)/ ) {
+	 } elsif( /^\s*([T]?FAST[XYAF]).+,\s*(\S+)\s*matrix[^\]]+?(xS)?\]\s*ktup:\s*(\d+)/ ) {
+
 	   $self->element({'Name' => 'Parameters_matrix',
 			   'Data' => $2});
 	   $self->element({'Name' => 'Parameters_filter',
@@ -396,8 +394,17 @@ sub next_result{
 
 	   $self->element({ 'Name' => 'FastaOutput_program',
 			    'Data' => $self->{'_reporttype'}});
-	   
-       } elsif( /(?:gap\-pen|open\/ext):\s+([\-\+]?\d+)\s*\/\s*([\-\+]?\d+).+width:\s+(\d+)/ ) {
+	 } elsif ( /^Algorithm:\s+(\S+)\s+\(([^)]+)\)\s+(\S+)/ ) {
+	   $self->{'_reporttype'} = $1 if( $self->{'_reporttype'} !~ /FAST[PN]/i ) ;
+	 } elsif ( /^Parameters:\s+(\S+)\s*matrix\s*(?:\(([^(]+?)\))?\s*ktup:\s*(\d+)/ ) { # FASTA 35.04
+	   $self->element({'Name' => 'Parameters_matrix',
+			   'Data' => $1});
+	   $self->element({'Name' => 'Parameters_filter',
+			   'Data' => defined $2 ? $2 : 0,
+			  });
+	   $self->element({'Name' => 'Parameters_ktup',
+			   'Data' => $3});
+	 } elsif( /(?:gap\-pen|open\/ext):\s+([\-\+]?\d+)\s*\/\s*([\-\+]?\d+).+width:\s+(\d+)/ ) {
 	   $self->element({'Name' => 'Parameters_gap-open',
 			   'Data' => $1});
 	   $self->element({'Name' => 'Parameters_gap-ext',
@@ -735,7 +742,6 @@ sub next_result{
 	       } else {
 		   $self->warn("unable to find and set query length");
 	       }
-	       
 	       if( defined ($_ = $self->_readline()) && ( /^\s*vs\s+(\S+)/ ||/^Library:\s+(\S+)/ )) {
 		   $self->element({'Name' => 'FastaOutput_db',
 				   'Data' => $1});
@@ -743,7 +749,6 @@ sub next_result{
 
 	   }
        } elsif( $self->in_element('hsp' ) ) {
-	   
 	   my @data = ( [],[],[]);
 	   my $count = 0;
 	   my $len = $self->idlength + 1;
@@ -751,7 +756,6 @@ sub next_result{
 	   while( defined($_ ) ) {
 	       chomp;
 	       $self->debug( "$count $_\n");
-	       
 	       if( /residues in \d+\s+query\s+sequences/o) {
 		   $self->_pushback($_);
 		   last;
@@ -807,7 +811,7 @@ sub next_result{
 		   }
 	       } 
 	       last if( $count++ >= 5);
-	       $_ = $self->_readline();	       
+	       $_ = $self->_readline();
 	   }
 	   if( @{$data[0]} || @{$data[2]}) {
 	       $self->characters({'Name' => 'Hsp_qseq',
@@ -834,8 +838,8 @@ sub next_result{
        }
        $self->end_element({ 'Name' => 'FastaOutput' });
    }
-   return $self->end_document();	       
-}
+   return $self->end_document();
+ }
 
 
 =head2 start_element
