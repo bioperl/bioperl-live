@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 1794);
+    test_begin(-tests => 1811);
 	
 	use_ok('Bio::SearchIO');
 	use_ok('Bio::SearchIO::Writer::HitTableWriter');
@@ -32,7 +32,7 @@ SKIP: {
 			   '-verbose' => -1);
 		# PurePerl works with these BLAST reports, so removed verbose promotion
 		$result = $searchio->next_result;
-        die if !defined $result;
+		die if !defined $result;
 	};
 	if ($@ && $@ =~ m{Handler could not resolve external entity}) {
 		skip("XML::SAX::Expat does not work with XML tests; skipping",129);
@@ -1018,6 +1018,31 @@ while( my $hit = $result->next_hit ) {
 }
 is(@valid, 0);
 is($result->hits, 58);
+
+# test FASTA v35.04, params encoding changed 
+# test on TFASTXY
+$searchio = Bio::SearchIO->new(-format => 'fasta',
+			      -file   => test_input_file('BOSS_DROME.FASTP_v35_04'));
+$result = $searchio->next_result;
+like($result->database_name, qr/wormpep190/);
+is($result->database_letters, 10449259);
+is($result->database_entries, 23771);
+is($result->algorithm, 'FASTA');
+is($result->algorithm_version, '35.04');
+is($result->query_name, 'BOSS_DROME');
+is($result->query_length, 896);
+is($result->get_parameter('gapopen'), -10);
+is($result->get_parameter('gapext'), -2);
+is($result->get_parameter('ktup'), 2);
+is($result->get_parameter('matrix'), 'BL50');
+is($result->get_parameter('wordsize'), 16);
+is($result->get_parameter('filter'), '15:-5');
+
+is($result->get_statistic('lambda'), 0.122629);
+is($result->get_statistic('dbletters'), 10449259);
+is($result->get_statistic('dbentries'), 23771);
+is($result->get_statistic('effectivespace'),23771);
+
 # test for MarkW bug in blastN
 
 $searchio = Bio::SearchIO->new('-format' => 'blast',
