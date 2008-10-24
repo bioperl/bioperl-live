@@ -1738,7 +1738,7 @@ sub unmatch {
     return 1;
 }
 
-=head1 MSA attibutes
+=head1 MSA attributes
 
 Methods for setting and reading the MSA attributes.
 
