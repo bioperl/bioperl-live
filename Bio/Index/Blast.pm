@@ -191,17 +191,28 @@ sub _index_file {
 	my (@data, @records);
 	my $indexpoint = 0;
 	my $lastline = 0;
-    # fencepost problem: we basically just find the top and the query
+	my $prefix = '';
+
+	# fencepost problem: we basically just find the top and the query
 	while( <$BLAST> ) {
-		if( /^T?BLAST[PNX]/ ) {
-            $indexpoint = tell($BLAST) - length $_;
+		
+		# in recent RPS-BLAST output the only delimiter between result
+		# sections is '^Query=' - in other BLAST outputs you
+		# can use '^(RPS-|T?)BLAST(P?|N?|X?)'
+
+		if ( /^(RPS-|T?)BLAST(P?|N?|X?)/ ) {
+			$prefix = $1;
+			$indexpoint = tell($BLAST) - length $_;
 		}
-        if (/^Query=\s*([^\n]+)$/) {
-            foreach my $id ($self->id_parser()->($1)) {
+		if ( /^Query=\s*([^\n]+)$/ ) {
+
+			$indexpoint = tell($BLAST) - length $_ if ( $prefix eq 'RPS-' );
+
+			foreach my $id ($self->id_parser()->($1)) {
 				$self->debug("id is $id, begin is $indexpoint\n");
 				$self->add_record($id, $i, $indexpoint);
 			}
-        }
+		}
 	}
 }
 
