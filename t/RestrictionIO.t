@@ -66,6 +66,6 @@ SKIP: {
                                           -current => 1);
     
     ok my $coll = $in->read;
-    is $coll->each_enzyme, 307;
+    cmp_ok $coll->each_enzyme, '>=', 307;
 }
 
