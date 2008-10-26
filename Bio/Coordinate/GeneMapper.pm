@@ -750,7 +750,7 @@ sub cds {
    my ($self,$value) = @_;
    if( defined $value) {
        if ($value =~ /^[+-]?\d+$/ ) {
-	   my $loc = Bio::Location::Simple->new(-start=>$value,
+	   my $loc = Bio::Location::Simple->new(-start=>$value, -end => $value,
 						-verbose=>$self->verbose);
 	   $self->{'_cds'} = $loc;
        }
