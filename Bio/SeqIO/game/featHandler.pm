@@ -735,9 +735,11 @@ sub _add_CDS {
 	    #warn "chopping off right UTR\n";
 	    $exon->end( $stop );
 	}
-
-	$exon->start( $_->start ) unless $exon->start;
-	$exon->end( $_->end ) unless $exon->end;
+	
+	unless ($exon->valid_Location) {
+		$exon->start( $_->start );
+		$exon->end( $_->end );
+	}
 	$exon->strand ( $self->{curr_strand} );
 	push @exons_to_add, $exon;
     }
