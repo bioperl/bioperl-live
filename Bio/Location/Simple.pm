@@ -17,12 +17,12 @@ Bio::Location::Simple - Implementation of a Simple Location on a Sequence
     use Bio::Location::Simple;
 
     my $location = Bio::Location::Simple->new(-start => 1, -end => 100,
-					     -strand => 1 );
+                         -strand => 1 );
 
     if( $location->strand == -1 ) {
-	printf "complement(%d..%d)\n", $location->start, $location->end;
+    printf "complement(%d..%d)\n", $location->start, $location->end;
     } else {
-	printf "%d..%d\n", $location->start, $location->end;
+    printf "%d..%d\n", $location->start, $location->end;
     }
 
 =head1 DESCRIPTION
@@ -72,10 +72,10 @@ use strict;
 use base qw(Bio::Location::Atomic);
 
 our %RANGEENCODE  = ('\.\.' => 'EXACT',
-		     '\^'   => 'IN-BETWEEN' );
+             '\^'   => 'IN-BETWEEN' );
 
 our %RANGEDECODE  = ('EXACT'      => '..',
-		     'IN-BETWEEN' => '^' );
+             'IN-BETWEEN' => '^' );
 
 sub new { 
     my ($class, @args) = @_;
@@ -101,16 +101,15 @@ sub new {
 
 sub start {
   my ($self, $value) = @_;
-
-  $self->{'_start'} = $value if defined $value ;
-
-  $self->throw("Only adjacent residues when location type ".
-	       "is IN-BETWEEN. Not [". $self->{'_start'}. "] and [".
-	       $self->{'_end'}. "]" )
-      if defined $self->{'_start'} && defined $self->{'_end'} && 
-	  $self->location_type eq 'IN-BETWEEN' &&
-	  ($self->{'_end'} - 1 != $self->{'_start'});
-  return $self->{'_start'};
+    $self->{'_start'} = $value if defined $value ;
+  
+    $self->throw("Only adjacent residues when location type ".
+             "is IN-BETWEEN. Not [". $self->{'_start'}. "] and [".
+             $self->{'_end'}. "]" )
+        if defined $self->{'_start'} && defined $self->{'_end'} && 
+        $self->location_type eq 'IN-BETWEEN' &&
+        ($self->{'_end'} - 1 != $self->{'_start'});
+    return $self->{'_start'};
 }
 
 
@@ -122,21 +121,35 @@ sub start {
   Returns : the end of this range
   Args    : optionaly allows the end to be set
           : using $loc->end($start)
+  Note    : If start is set but end is undefined, this now assumes that start
+		    is the same as end but throws a warning (i.e. it assumes this is
+			a possible error). If start is undefined, this now throws an
+			exception.
 
 =cut
 
 sub end {
-  my ($self, $value) = @_;
-
-  $self->{'_end'} = $value if defined $value ;
-  $self->throw("Only adjacent residues when location type ".
-	      "is IN-BETWEEN. Not [". $self->{'_start'}. "] and [".
-	       $self->{'_end'}. "]" )
-      if defined $self->{'_start'} && defined $self->{'_end'} && 
-	  $self->location_type eq 'IN-BETWEEN' &&
-	  ($self->{'_end'} - 1 != $self->{'_start'});
-
-  return $self->{'_end'};
+	my ($self, $value) = @_;
+  
+	$self->{'_end'} = $value if defined $value ;
+	
+	#assume end is the same as start if not defined
+	if (!defined $self->{'_end'}) {
+		if (!defined $self->{'_start'}) {
+			$self->warn('Calling end without a defined start position');
+			return;
+		}
+		$self->warn('Setting start equal to end');
+		$self->{'_end'} = $self->{'_start'};
+	}
+	$self->throw("Only adjacent residues when location type ".
+			"is IN-BETWEEN. Not [". $self->{'_start'}. "] and [".
+			 $self->{'_end'}. "]" )
+		if defined $self->{'_start'} && defined $self->{'_end'} && 
+		$self->location_type eq 'IN-BETWEEN' &&
+		($self->{'_end'} - 1 != $self->{'_start'});
+  
+	return $self->{'_end'};
 }
 
 =head2 strand
@@ -158,7 +171,6 @@ sub end {
  Example :
  Returns : an integer
  Args    : none
-
 
 =cut
 
@@ -257,24 +269,24 @@ sub location_type {
     my ($self, $value) = @_;
 
     if( defined $value || ! defined $self->{'_location_type'} ) {
-	$value = 'EXACT' unless defined $value;
-	$value = uc $value;
-	if (! defined $RANGEDECODE{$value}) {
-	    $value = '\^' if $value eq '^';
-	    $value = '\.\.' if $value eq '..';
-	    $value = $RANGEENCODE{$value};
-	}
-	$self->throw("Did not specify a valid location type. [$value] is no good")
-	    unless defined $value;
-	$self->{'_location_type'} = $value;
+    $value = 'EXACT' unless defined $value;
+    $value = uc $value;
+    if (! defined $RANGEDECODE{$value}) {
+        $value = '\^' if $value eq '^';
+        $value = '\.\.' if $value eq '..';
+        $value = $RANGEENCODE{$value};
+    }
+    $self->throw("Did not specify a valid location type. [$value] is no good")
+        unless defined $value;
+    $self->{'_location_type'} = $value;
     }
     $self->throw("Only adjacent residues when location type ".
-		 "is IN-BETWEEN. Not [". $self->{'_start'}. "] and [".
-		 $self->{'_end'}. "]" )
-	if $self->{'_location_type'} eq 'IN-BETWEEN' &&
-	    defined $self->{'_start'} &&
-		defined $self->{'_end'} &&
-		    ($self->{'_end'} - 1 != $self->{'_start'});
+         "is IN-BETWEEN. Not [". $self->{'_start'}. "] and [".
+         $self->{'_end'}. "]" )
+    if $self->{'_location_type'} eq 'IN-BETWEEN' &&
+        defined $self->{'_start'} &&
+        defined $self->{'_end'} &&
+            ($self->{'_end'} - 1 != $self->{'_start'});
 
     return $self->{'_location_type'};
 }
@@ -305,16 +317,16 @@ sub to_FTstring {
 
     my $str;
     if( $self->start == $self->end ) {
-	$str =  $self->start;
+    $str =  $self->start;
     } else {
         $str = $self->start . $RANGEDECODE{$self->location_type} . $self->end;
     }
     if($self->is_remote() && $self->seq_id()) {
-	$str = $self->seq_id() . ":" . $str;
+    $str = $self->seq_id() . ":" . $str;
     }
     if( defined $self->strand &&
-	$self->strand == -1 ) {
-	$str = "complement(".$str.")";
+    $self->strand == -1 ) {
+    $str = "complement(".$str.")";
     }
     return $str;
 }
