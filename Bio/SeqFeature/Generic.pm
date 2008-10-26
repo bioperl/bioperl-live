@@ -364,19 +364,24 @@ sub strand {
 =cut
 
 sub score {
-  my $self = shift;
+    my $self = shift;
 
-  if (@_) {
-      my $value = shift;
-      if ( defined $value && $value &&
-	   $value !~ /^[+-]?\d+\.?\d*(e-\d+)?/ and $value != 0) {
-	  $self->throw(-class=>'Bio::Root::BadParameter',
-		       -text=>"'$value' is not a valid score",
-		       -value=>$value);
-      }
-      return $self->{'_gsf_score'} = $value;
-  }
-  return $self->{'_gsf_score'};
+    if (@_) {
+        my $value = shift;
+        if ( defined $value && $value &&
+            $value !~ /^[+-]?\d+\.?\d*(e-\d+)?/ and $value != 0) {
+            $self->throw(-class=>'Bio::Root::BadParameter',
+                    -text=>"'$value' is not a valid score",
+                    -value=>$value);
+        }
+        if ($self->has_tag('score')) {
+            $self->warn("Removing score value(s)");
+            $self->remove_tags('score');
+        }
+        $self->add_tag_value('score',$value);
+    }
+    my ($score) = $self->has_tag('score') ? $self->get_tag_values('score') : undef;
+    return $score;
 }
 
 =head2 frame
