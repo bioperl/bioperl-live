@@ -448,6 +448,8 @@ sub _handle_directive {
     # for these we want to store the seqid, start, and end. Then when we validate
     # we want to make sure that the features are within the seqid/start/end
 
+    $self->throw('Both start and end for sequence region should be defined')
+      unless $arg[1] && $arg[2];
     my $fta = Bio::Annotation::OntologyTerm->new();
     $fta->name( 'region');
 
