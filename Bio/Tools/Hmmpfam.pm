@@ -14,6 +14,7 @@ Bio::Tools::Hmmpfam - Parser for Hmmpfam program
 =head1 SYNOPSIS
 
   use Bio::Tools::Hmmpfam;
+  my @hmmpfam_feat;
   my $hmmpfam_parser = Bio::Tools::Hmmpfam->new(-fh =>$filehandle );
   while( my $hmmpfam_feat = $hmmpfam_parser->next_result ) {
         push @hmmpfam_feat, $hmmpfam_feat;
