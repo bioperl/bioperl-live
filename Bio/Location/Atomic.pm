@@ -422,6 +422,22 @@ sub to_FTstring {
     return $str;
 }
 
+=head2 valid_Location
+
+ Title   : valid_Location
+ Usage   : if ($location->valid_location) {...};
+ Function: boolean method to determine whether location is considered valid
+           (has minimum requirements for Simple implementation)
+ Returns : Boolean value: true if location is valid, false otherwise
+ Args    : none
+
+=cut
+
+sub valid_Location {
+    my ($self) = @_;
+    return 1 if $self->{'_start'} && $self->{'_end'};
+    return 0;
+}
 
 =head2 coordinate_policy
 

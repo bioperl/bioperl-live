@@ -938,8 +938,9 @@ sub _expand_region {
     if(! $feat->isa('Bio::SeqFeatureI')) {
         $self->warn("$feat does not implement Bio::SeqFeatureI");
     }
-    # if this doesn't have start/end set - forget it!
-    if((! defined($self->start)) && (! defined $self->end)) {
+    # if this doesn't have start set - forget it!
+    # changed to reflect sanity checks for LocationI
+    if(!$self->location->valid_Location) {
         $self->start($feat->start);
         $self->end($feat->end);
         $self->strand($feat->strand) unless $self->strand;

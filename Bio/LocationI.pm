@@ -402,5 +402,22 @@ sub each_Location {
     $self->throw_not_implemented();
 }
 
+
+=head2 valid_Location
+
+ Title   : valid_Location
+ Usage   : if ($location->valid_location) {...};
+ Function: boolean method to determine whether location is considered valid
+           (has minimum requirements for a specific LocationI implementation)
+ Returns : Boolean value: true if location is valid, false otherwise
+ Args    : none
+
+=cut
+
+sub valid_Location {
+    my ($self,@args) = @_;
+    $self->throw_not_implemented();
+}
+
 1;
 
