@@ -331,6 +331,17 @@ sub to_FTstring {
     return $str;
 }
 
+=head2 valid_Location
+
+ Title   : valid_Location
+ Usage   : if ($location->valid_location) {...};
+ Function: boolean method to determine whether location is considered valid
+           (has minimum requirements for Simple implementation)
+ Returns : Boolean value: true if location is valid, false otherwise
+ Args    : none
+
+=cut
+
 # comments, not function added by jason 
 #
 # trunc is untested, and as of now unannounced method for truncating a
