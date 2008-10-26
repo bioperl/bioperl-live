@@ -378,19 +378,19 @@ is $vals[0], 'PX19', $seq->accession_number;
 # changes so are really useless; I will change them to verify common name,
 # organelle, scientific name, etc.
 
-$outfile = test_output_file();
 
 # output always adds a period (GenBank std), but two of these files do not use them.
 
 foreach my $in ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb', 'ay007676.gb', 'dq519393.gb') {
     my $infile =  test_input_file($in);
+	$outfile = test_output_file();
     
     $str = Bio::SeqIO->new(-format =>'genbank',
                           -verbose => $verbose,
                           -file => $infile);
     $seq = $str->next_seq;
     
-    $out = Bio::SeqIO->new(-file => ">$outfile", -format => 'genbank');
+    $out = Bio::SeqIO->new(-file => $outfile, -format => 'genbank');
     $out->write_seq($seq);
     $out->close();
     
@@ -428,8 +428,6 @@ foreach my $in ('BK000016-tpa.gbk', 'ay116458.gb', 'ay149291.gb', 'NC_006346.gb'
     close(RESULT);
     
     ok $is, $in;
-    
-    unlink($outfile);
 }
 
 # NB: there should probably be full testing on all lines to ensure that output
