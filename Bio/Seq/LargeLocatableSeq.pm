@@ -1,4 +1,3 @@
-
 # BioPerl module for Bio::Seq::LargeLocatableSeq
 #
 # Cared for by Albert Vilella
@@ -111,6 +110,8 @@ sub new {
 	delete $params{'-SEQ'};
     }
     my $self = $class->SUPER::new(%params);
+    my $mapping = exists $params{'-mapping'} ? $params{'-mapping'} : [1,1];
+    $self->mapping($mapping);
     $self->_initialize_io(%params);
     my $tempdir = $self->tempdir( CLEANUP => 1);
     my ($tfh,$file) = $self->tempfile( DIR => $tempdir );
@@ -316,37 +317,6 @@ sub alphabet{
     return $self->SUPER::alphabet() || 'dna';
 
 }
-
-
-=head2 end
-
- Title   : end
- Usage   : $obj->end($newval)
- Function:
- Returns : value of end
- Args    : newvalue (optional)
-
-=cut
-
-sub end {
-   my $self = shift;
-   if( @_ ) {
-      my $value = shift;
-      my $string = $self->seq;
-      if ($self->seq) {
-          my $len = $self->_ungapped_len;
-	  my $id = $self->id;
-	  $self->warn("In sequence $id residue count gives end value $len.
-Overriding value [$value] with value $len for Bio::LargeLocatableSeq::end().")
-	      and $value = $len if $len != $value and $self->verbose > 0;
-      }
-
-      $self->{'end'} = $value;
-    }
-
-   return $self->{'end'} || $self->_ungapped_len;
-}
-
 
 sub DESTROY {
     my $self = shift;

@@ -626,10 +626,12 @@ sub get_aln {
     unless( defined $s_nm && CORE::length ($s_nm) ) {
         $s_nm = 'hit';
     }
+    # mapping: 1 residues for every x coordinate positions
     my $query = Bio::LocatableSeq->new('-seq'   => $qs,
                                       '-id'    => $q_nm,
                                       '-start' => $self->query->start,
                                       '-end'   => $self->query->end,
+                                      '-mapping' => [1, $self->{_query_mapping}]
                                       );
     $seqonly = $hs;
     $seqonly =~ s/[\-\s]//g;
@@ -637,6 +639,7 @@ sub get_aln {
                                       '-id'    => $s_nm,
                                       '-start' => $self->hit->start,
                                       '-end'   => $self->hit->end,
+                                      '-mapping' => [1, $self->{_hit_mapping}]
                                       );
     $aln->add_seq($query);
     $aln->add_seq($hit);
@@ -1293,26 +1296,33 @@ sub _sub_cigar_string {
     return $sub_cigar_string;
 }
 
-
-
 # needed before seqfeatures can be made
 sub _pre_seq_feature {
     my $self = shift;
     my $algo = $self->{ALGORITHM};
 
     my ($queryfactor, $hitfactor) = (0,0);
-    if( $algo =~ /^(PSI)?T(BLAST|FAST|SW)[NY]/oi ) {
+    my ($hitmap, $querymap) = (1,1);
+    if( $algo =~ /^(?:PSI)?T(?:BLAST|FAST|SW)[NY]/oi ) {
         $hitfactor = 1;
+        $hitmap = 3;
     }
-    elsif ($algo =~ /^(FAST|BLAST)(X|Y|XY)/oi || $algo =~ /^P?GENEWISE/oi ) {
+    elsif ($algo =~ /^(?:FAST|BLAST)(?:X|Y|XY)/oi || $algo =~ /^P?GENEWISE/oi ) {
         $queryfactor = 1;
+        $querymap = 3;
     }
     elsif ($algo =~ /^T(BLAST|FAST|SW)(X|Y|XY)/oi || $algo =~ /^(BLAST|FAST|SW)N/oi || $algo =~ /^WABA|AXT|BLAT|BLASTZ|PSL|MEGABLAST|EXONERATE|SW|SMITH\-WATERMAN|SIM4$/){
+        if ($2) {
+            $hitmap = $querymap = 3;
+        }
         $hitfactor = 1;
         $queryfactor = 1;
     }
     elsif ($algo =~ /^RPS-BLAST/) {
-        $queryfactor = ($algo =~ /^RPS-BLAST\(BLASTX\)/) ? 1 : 0;
+        if ($algo =~ /^RPS-BLAST\(BLASTX\)/) {
+            $queryfactor = 1;
+            $querymap  = 3;
+        }
         $hitfactor = 0;
     }
     else {
@@ -1322,6 +1332,8 @@ sub _pre_seq_feature {
     }
     $self->{_query_factor} = $queryfactor;
     $self->{_hit_factor} = $hitfactor;
+    $self->{_hit_mapping} = $hitmap;
+    $self->{_query_mapping} = $querymap;
 }
 
 # make query seq feature

@@ -169,6 +169,7 @@ sub get_aln {
 				      '-id'    => $q_nm,
 				      '-start' => $self->query->start,
 				      '-end'   => $self->query->end,
+                      '-mapping' => [1, $self->{_query_mapping}]                      
 				      );
     $seqonly = $hs;
     $seqonly =~ s/\s+//g;
@@ -176,6 +177,7 @@ sub get_aln {
 				      '-id'    => $s_nm,
 				      '-start' => $self->hit->start,
 				      '-end'   => $self->hit->end,
+                      '-mapping' => [1, $self->{_hit_mapping}]
 				      );
     $aln->add_seq($query);
     $aln->add_seq($hit);

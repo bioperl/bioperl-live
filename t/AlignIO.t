@@ -117,7 +117,7 @@ is($aln->accession, 'RF00006');
 is($aln->id, 'Vault');
 is($aln->description,'Vault RNA');
 # annotation
-my ($ann) = $aln->annotation->get_Annotations('alignment_comment');
+($ann) = $aln->annotation->get_Annotations('alignment_comment');
 isa_ok($ann, 'Bio::Annotation::Comment');
 is($ann->text,'This family of RNAs are found as part of the enigmatic vault'.
    ' ribonucleoprotein complex. The complex consists of a major vault protein'.

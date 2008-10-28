@@ -102,14 +102,15 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my ($start,$end,$strand, $tuple) =
-	$self->_rearrange( [qw(START END STRAND TUPLE)],
+    my ($start,$end,$strand, $mapping) =
+	$self->_rearrange( [qw(START END STRAND MAPPING)],
 			   @args);
-
+    
+    $mapping ||= [1,1];
+    $self->mapping($mapping);
     defined $start && $self->start($start);
     defined $end   && $self->end($end);
     defined $strand && $self->strand($strand);
-    defined $tuple && $self->tuple($tuple);
 
     return $self; # success - we hope!
 }
@@ -151,31 +152,41 @@ sub end {
 	my $self = shift;
 	if( @_ ) {
 		my $value = shift;
-		my $string = $self->seq;
-        # start of 0 usually means the sequence is blank (all gaps)
-		if ($self->seq && $self->start != 0 ) {
-			my $len = $self->_ungapped_len;
+        my $st = $self->start;
+        # start of 0 usually means the sequence is all gaps but maps to
+        # other sequences in an alignment
+		if ($self->seq && $st != 0 ) {
+            my $len = $self->_ungapped_len;
+            my $calend = $len + $st - 1;
 			my $id = $self->id;
-			# changed 9/14/08
-			if ($len != $value) {
+			if ($calend != $value) {
 				$self->warn("In sequence $id residue count gives end value ".
-                "$len.  \nOverriding value [$value] with value $len for ".
-                "Bio::LocatableSeq::end().\n$string");
-				$value = $len;
+                "$calend.  \nOverriding value [$value] with value $calend for ".
+                "Bio::LocatableSeq::end().\n".$self->seq);
+				$value = $calend;
 			}
 		}
 
 		$self->{'end'} = $value;
     }
 
-	return defined $self->{'end'} ? $self->{'end'} : $self->_ungapped_len;
+	if (defined $self->{'end'}) {
+        return $self->{'end'}
+    } elsif (my $len = $self->_ungapped_len) {
+        return $self->{'end'} = $len + $self->start - 1;
+    } else {
+        return
+    }
 }
 
+# changed 08.10.26 to return ungapped length, not the calculated end
+# of the sequence
 sub _ungapped_len {
     my $self = shift;
-    my $string = $self->seq || '';
+    return unless my $string = $self->seq;
+    my ($map_res, $map_coord) = $self->mapping;
     $string =~ s/[$GAP_SYMBOLS]+//g;
-    $self->seq ? (return $self->start + CORE::length($string) - 1 ) : undef;
+    return CORE::length($string)/($map_res/$map_coord);
 }
 
 =head2 strand
@@ -195,6 +206,31 @@ sub strand{
 		$self->{'strand'} = $value;
     }
     return $self->{'strand'};
+}
+
+=head2 mapping
+
+ Title   : mapping
+ Usage   : $obj->mapping($newval)
+ Function: return or set the mapping indices (indicates # residues mapped to
+           # of positions)
+ Returns : two-element array (# res, # pos)
+ Args    : two elements (# res, # pos); this can also be passed in as an
+           array reference of the two elements (as might be passed
+           upon Bio::LocatableSeq instantiation, for instance).
+
+=cut
+
+sub mapping {
+    my $self = shift;
+    if( @_ ) {
+        my @mapping = (ref($_[0]) eq 'ARRAY') ? @{$_[0]} : @_;
+        $self->throw("Must pass two values (# residues mapped to # positions)")
+            unless @mapping == 2;
+		$self->{'_mapping'} = \@mapping;
+    }
+    $self->throw('Arggh!!!') if !exists $self->{'_mapping'};
+    return @{ $self->{'_mapping'} };
 }
 
 =head2 get_nse

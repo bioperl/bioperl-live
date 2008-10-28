@@ -1120,8 +1120,9 @@ while( my $hit = $result->next_hit ) {
             is($hsp->query_string, 'aggaatgctgtttaattggaatcgtacaatggagaatttgacggaaatagaatcaacgat');
             is($hsp->hit_string, 'aggaatgctgtttaattggaatca-acaatggagaatttgacggaaatagaatcaacgat');
             is($hsp->homology_string, '|||||||||||||||||||||||  |||||||||||||||||||||||||||||||||||');
-            is(sprintf("%.2f",$hsp->get_aln->overall_percentage_identity), 96.67);
-            is(sprintf("%.2f",$hsp->get_aln->percentage_identity), 98.31);
+			my $aln = $hsp->get_aln;
+            is(sprintf("%.2f", $aln->overall_percentage_identity), 96.67);
+            is(sprintf("%.2f",$aln->percentage_identity), 98.31);
             $hsps_left--;
         }
         is($hsps_left, 0);
