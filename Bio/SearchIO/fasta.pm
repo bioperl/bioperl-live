@@ -77,7 +77,6 @@ use strict;
 # Object preamble - inherits from Bio::Root::RootI
 
 use Bio::Factory::ObjectFactory;
-use POSIX;
 
 BEGIN { 
     # Set IDLENGTH to a new value if you have
@@ -470,11 +469,12 @@ sub next_result{
 	       my ($identper,$gapper,$len,$querystart,
 		   $queryend,$hitstart,$hitend) = ($1,$2,$3,$4,$5,$6,$7);
 
-	       my $ident = POSIX::ceil(($identper/100) * $len);
-	       my $gaps = POSIX::ceil ( ($gapper/100) * $len);
+	       my $ident = sprintf("%.0f",($identper/100) * $len);
+	       my $gaps = sprintf("%.0f",($gapper/100) * $len);
 	       $self->element({'Name' => 'Hsp_gaps',
 			       'Data' => $gaps});
-	       my $positive = POSIX::ceil(($gapper/100) * $len);
+           # is this is supposed to be the same as $gaps?
+	       my $positive = sprintf("%.0f",($gapper/100) * $len);
 
 	       $self->element({'Name' => 'Hsp_identity',
 			       'Data' => $ident});
@@ -579,12 +579,12 @@ sub next_result{
 		   $self->element({'Name' => 'Hsp_bit-score', 'Data' => $h->{bits} }) if exists $h->{bits};
 		   $self->element({'Name' => 'Hsp_sw-score', 'Data' => $h->{sw} }) if exists $h->{sw};
 		   $self->element({'Name' => 'Hsp_gaps', 'Data' => $h->{'%_gid'} }) if exists $h->{'%_gid'};
-		   $self->element({'Name' => 'Hsp_identity', 'Data' => POSIX::ceil($h->{'%_id'} * $h->{alen}) })
+		   $self->element({'Name' => 'Hsp_identity', 'Data' => sprintf("%.0f",$h->{'%_id'} * $h->{alen}) })
 		       if (exists $h->{'%_id'} && exists $h->{alen});
 		   if( exists $h->{'%_gid'} ) { 
-		       $self->element({'Name' => 'Hsp_positive', 'Data' => POSIX::ceil($h->{'%_gid'} * $h->{alen})}) if exists $h->{'%_gid'} && exists $h->{alen};
+		       $self->element({'Name' => 'Hsp_positive', 'Data' => sprintf("%.0f",$h->{'%_gid'} * $h->{alen})}) if exists $h->{'%_gid'} && exists $h->{alen};
 		   } else { 
-		       $self->element({'Name' => 'Hsp_positive', 'Data' => POSIX::ceil($h->{'%_id'} * $h->{alen}) })
+		       $self->element({'Name' => 'Hsp_positive', 'Data' => sprintf("%.0f",$h->{'%_id'} * $h->{alen}) })
 			   if (exists $h->{'%_id'} && exists $h->{alen});
 		   }
 		   $self->element({'Name' => 'Hsp_align-len', 'Data' => $h->{alen} }) if exists $h->{alen};
@@ -661,12 +661,12 @@ sub next_result{
 		       $self->element({'Name' => 'Hsp_bit-score', 'Data' => $h->{bits} }) if exists $h->{bits};
 		       $self->element({'Name' => 'Hsp_sw-score', 'Data' => $h->{sw} }) if exists $h->{sw};
 		       $self->element({'Name' => 'Hsp_gaps', 'Data' => $h->{'%_gid'} }) if exists $h->{'%_gid'};
-		       $self->element({'Name' => 'Hsp_identity', 'Data' => POSIX::ceil($h->{'%_id'} * $h->{alen}) })
+		       $self->element({'Name' => 'Hsp_identity', 'Data' => sprintf("%.0f",$h->{'%_id'} * $h->{alen}) })
 			   if (exists $h->{'%_id'} && exists $h->{alen});
 		       if( exists $h->{'%_gid'} ) { 
-			   $self->element({'Name' => 'Hsp_positive', 'Data' => POSIX::ceil($h->{'%_gid'} * $h->{alen})}) if exists $h->{'%_gid'} && exists $h->{alen};
+			   $self->element({'Name' => 'Hsp_positive', 'Data' => sprintf("%.0f",$h->{'%_gid'} * $h->{alen})}) if exists $h->{'%_gid'} && exists $h->{alen};
 		       } else { 
-			   $self->element({'Name' => 'Hsp_positive', 'Data' => POSIX::ceil($h->{'%_id'} * $h->{alen}) })
+			   $self->element({'Name' => 'Hsp_positive', 'Data' => sprintf("%.0f",$h->{'%_id'} * $h->{alen}) })
 			   if (exists $h->{'%_id'} && exists $h->{alen});
 		       }
 		       $self->element({'Name' => 'Hsp_align-len', 'Data' => $h->{alen} }) if exists $h->{alen};

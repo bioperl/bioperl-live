@@ -287,7 +287,7 @@ sub evalue {
  Args    : arg 1:  'query' = num identical / length of query seq (without gaps)
                    'hit'   = num identical / length of hit seq (without gaps)
                              synonyms: 'sbjct', 'subject'
-                   'total' = num conserved / length of alignment (with gaps)
+                   'total' = num identical / length of alignment (with gaps)
                              synonyms: 'hsp'
                    default = 'total'
            arg 2: [optional] frac identical value to set for the type requested
@@ -651,7 +651,7 @@ sub get_aln {
  Title   : num_conserved
  Usage   : $obj->num_conserved($newval)
  Function: returns the number of conserved residues in the alignment
- Returns : inetger
+ Returns : integer
  Args    : integer (optional)
 
 
@@ -1494,16 +1494,16 @@ sub _pre_similar_stats {
 
     if (! defined $identical) {
         if (! defined $percent_id) {
-            $self->warn("Did not defined the number of identical matches or overall percent identity in the HSP assuming 0");
+            $self->warn("Did not defined the number of identical matches or overall percent identity in the HSP; assuming 0");
             $identical = 0;
         }
         else {
-            $identical = int($percent_id * $self->{HSP_LENGTH});
+            $identical = sprintf("%.0f",$percent_id * $self->{HSP_LENGTH});
         }
     }
 
     if (! defined $conserved) {
-        $self->warn("Did not defined the number of conserved matches in the HSP assuming conserved == identical ($identical)")
+        $self->warn("Did not define the number of conserved matches in the HSP; assuming conserved == identical ($identical)")
             if( $self->{ALGORITHM} !~ /^((FAST|BLAST)N)|EXONERATE|SIM4|AXT|PSL|BLAT|BLASTZ|WABA/oi);
         $conserved = $identical;
     }
