@@ -1058,10 +1058,10 @@ sub _calculate_seq_positions {
     my @srange = (0..$sbjct_offset-1); # 0, or 0..2
     while( $mchar = chop($seqString) ) {
         ($qchar, $schar) = (chop($qseq), chop($sseq));
-        if( $mchar eq '+' || $mchar eq '.' || $mchar eq ':' ) {
+        if( $mchar eq '+' || $mchar eq '.') {
             $conservedList_query{ $resCount_query - ($_ * $qdir) } = 1 for @qrange;
             $conservedList_sbjct{ $resCount_sbjct - ($_ * $sdir) } = 1 for @srange;
-        } elsif( $mchar ne ' ' ) {
+        } elsif( $mchar eq ':' || $mchar ne ' ' ) {
             $identicalList_query{ $resCount_query - ($_ * $qdir) } = 1 for @qrange;
             $identicalList_sbjct{ $resCount_sbjct - ($_ * $sdir) } = 1 for @srange;
         } elsif( $mchar eq ' ') {
