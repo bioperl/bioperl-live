@@ -731,6 +731,8 @@ sub next_result {
                         || ( $count != 1
                             && /^\s+RF\s+[x\s]+$/o )
                       );
+                    # fix for bug 2632
+                    next if ($_ =~ m/^\s+CS\s+/o);
                     $self->debug("$count $_");
                     if ( /^Histogram/o || m!^//!o || /^Query sequence/o ) {
                         if ( $self->in_element('hsp') ) {
