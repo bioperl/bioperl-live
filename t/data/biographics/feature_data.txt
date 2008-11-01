@@ -11,7 +11,9 @@ key = C. elegans conserved regions
 
 [EST]
 glyph = segments
-bgcolor= yellow
+bgcolor= yellow # this is a comment
+fgcolor = #EE00FF
+link    = http://www.google.com/search?q=$name#results
 connector = solid
 height = 5
 

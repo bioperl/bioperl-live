@@ -19,7 +19,7 @@ BEGIN {
   use lib 't/lib';
   use BioperlTest;
   
-  test_begin(-tests => 42 + (IMAGE_TESTS ? 3 : 0),
+  test_begin(-tests => 45 + (IMAGE_TESTS ? 3 : 0),
              -requires_modules => [qw(GD)]);
   
   use_ok('Bio::Graphics::FeatureFile');
@@ -70,6 +70,11 @@ my ($feature) = grep {$_->name eq 'Predicted gene 1'} @{$data->features('FGENESH
 ok $feature;
 is $feature->desc, "Pfam";
 is $feature->score, 20;
+
+# test handling of things that look like comments
+is $data->setting(EST=>'bgcolor'),'yellow';
+is $data->setting(EST=>'fgcolor'),'#EE00FF';
+is $data->setting(EST=>'link'),'http://www.google.com/search?q=$name#results';
 
 # test FeatureBase
 my $bfg   = 'Bio::Graphics::FeatureBase';

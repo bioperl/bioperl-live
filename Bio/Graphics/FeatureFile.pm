@@ -559,7 +559,8 @@ sub parse_config_line {
     my $self = shift;
     local $_ = shift;
 
-    s/\#.*$// unless /\#[0-9a-f]{6}\s*$/i;   # strip right-column comments unless they look like colors
+    # strip right-column comments unless they look like colors or html fragments
+    s/\s*\#.*$// unless /\#[0-9a-f]{6}\s*$/i || /\w+\#\w+/;   
 
     if (/^\s+(.+)/ && $self->{current_tag}) { # configuration continuation line
 	my $value = $1;
