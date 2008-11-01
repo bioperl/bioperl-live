@@ -673,8 +673,9 @@ sub allow_whitespace {
 =item $features-E<gt>add_feature($feature [=E<gt>$type])
 
 Add a new Bio::FeatureI object to the set.  If $type is specified, the
-object will be added with the indicated type.  Otherwise, the
-feature's primary_tag() method will be invoked to get the type.
+object's primary_tag() will be set to that type. Otherwise, the method
+will use the feature's existing primary_tag() to index and store the
+feature.
 
 =back
 
@@ -686,7 +687,7 @@ sub add_feature {
   my $self = shift;
   my ($feature,$type) = @_;
   $feature->configurator($self) if $self->smart_features;
-  $type = $feature->primary_tag unless defined $type;
+  $feature->primary_tag($type) if defined $type;
   $self->db->store($feature);
 }
 

@@ -19,7 +19,7 @@ BEGIN {
   use lib 't/lib';
   use BioperlTest;
   
-  test_begin(-tests => 45 + (IMAGE_TESTS ? 3 : 0),
+  test_begin(-tests => 48 + (IMAGE_TESTS ? 3 : 0),
              -requires_modules => [qw(GD)]);
   
   use_ok('Bio::Graphics::FeatureFile');
@@ -75,6 +75,27 @@ is $feature->score, 20;
 is $data->setting(EST=>'bgcolor'),'yellow';
 is $data->setting(EST=>'fgcolor'),'#EE00FF';
 is $data->setting(EST=>'link'),'http://www.google.com/search?q=$name#results';
+
+# test handling of adding features
+$data->add_type(TEST=>{bgcolor=>'green',
+		       feature=>'test_feature',
+		       glyph => 'generic'});
+is $data->setting(TEST=>'bgcolor'),'green';
+is $data->setting(TEST=>'feature'),'test_feature';
+$data->add_feature(Bio::Graphics::FeatureBase->new(-seq_id    => 'chr1',
+						   -start     => 1,
+						   -end       => 1000,
+						   -primary_tag=> 'test_feature'));
+$data->add_feature(Bio::Graphics::FeatureBase->new(-seq_id    => 'chr2',
+						   -start     => 2,
+						   -end       => 2000,
+						   -primary_tag=> 'test_feature'));
+$data->add_feature(Bio::Graphics::FeatureBase->new(-seq_id    => 'chr3',
+						   -start     => 3,
+						   -end       => 3000),
+		   'test_feature');
+my @f = $data->features('test_feature');
+is scalar @f,3;
 
 # test FeatureBase
 my $bfg   = 'Bio::Graphics::FeatureBase';
