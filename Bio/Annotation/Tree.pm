@@ -10,7 +10,8 @@
 
 =head1 NAME
 
-Bio::Annotation::Tree - Provide a tree as an annotation to a Bio::AnnotatableI object
+Bio::Annotation::Tree - Provide a tree as an annotation to a Bio::AnnotatableI
+object
 
 =head1 SYNOPSIS
 
@@ -39,7 +40,9 @@ Bio::Annotation::Tree - Provide a tree as an annotation to a Bio::AnnotatableI o
 
 =head1 DESCRIPTION
 
-Provides a Bio::AnnotationI object which contains a Bio::Tree::TreeI, which can be added to a Bio::AnnotationCollectionI, which in turn be attached to a Bio::AnnotatableI  (typically a Bio::AlignI object)
+Provides a Bio::AnnotationI object which contains a Bio::Tree::TreeI, which can
+be added to a Bio::AnnotationCollectionI, which in turn be attached to a
+Bio::AnnotatableI (typically a Bio::AlignI object)
 
 =head1 AUTHOR
 
