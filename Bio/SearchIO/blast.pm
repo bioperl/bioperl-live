@@ -179,6 +179,7 @@ BEGIN {
         'Hsp_hit-frame'   => 'HSP-hit_frame',
         'Hsp_links'       => 'HSP-links',
         'Hsp_group'       => 'HSP-hsp_group',
+        'Hsp_features'    => 'HSP-hit_features',
 
         'Hit_id'        => 'HIT-name',
         'Hit_len'       => 'HIT-length',
@@ -757,13 +758,18 @@ sub next_result {
         }
         # bypasses this NCBI blast 2.2.13 extra output for now...
 		# Features in/flanking this part of subject sequence:
-        elsif (/^\sFeatures\s\w+\sthis\spart\sof\ssubject\ssequence:/xmso) {
-        	# junk following lines up to start of HSP
-			while($_ !~ /^\sScore\s=/) {
-				$self->debug("Bypassing features line: $_");
+        elsif (/^\sFeatures\s\w+\sthis\spart/xmso) {
+            my $featline;
+            $_ = $self->_readline;
+			while($_ !~ /^\s*$/) {
+                chomp;
+                $featline .= $_;
         		$_ = $self->_readline;
         	}
 			$self->_pushback($_);
+            $featline =~ s{(?:^\s+|\s+^)}{}g;
+            $featline =~ s{\n}{;}g;
+            $self->{'_last_hspdata'}->{'Hsp_features'} = $featline;
         }
         
         # move inside of a hit
@@ -1958,7 +1964,7 @@ sub end_element {
     my ( $self, $data ) = @_;
     
     my $nm   = $data->{'Name'};
-    my $type = $MODEMAP{$nm};
+    my $type;
     my $rc;
     if ( $nm eq 'BlastOutput_program' ) {
         if ( $self->{'_last_data'} =~ /(t?blast[npx])/i ) {
@@ -1970,13 +1976,13 @@ sub end_element {
     # Hsps are sort of weird, in that they end when another
     # object begins so have to detect this in end_element for now
     if ( $nm eq 'Hsp' ) {
-        foreach (qw(Hsp_qseq Hsp_midline Hsp_hseq)) {
+        foreach (qw(Hsp_qseq Hsp_midline Hsp_hseq Hsp_features)) {
             $self->element(
                 {
                     'Name' => $_,
                     'Data' => $self->{'_last_hspdata'}->{$_}
                 }
-            );
+            ) if defined $self->{'_last_hspdata'}->{$_};
         }
         $self->{'_last_hspdata'} = {};
         $self->element(
@@ -2018,7 +2024,6 @@ sub end_element {
 
     }
     elsif ( $MAPPING{$nm} ) {
-
         if ( ref( $MAPPING{$nm} ) =~ /hash/i ) {
 
             # this is where we shove in the data from the
