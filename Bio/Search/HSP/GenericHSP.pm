@@ -150,6 +150,9 @@ use base qw(Bio::Search::HSP::HSPI);
            -links       => HSP links information (WU-BLAST only)
            -hsp_group   => HSP Group informat (WU-BLAST only)
            -gap_symbol  => symbol representing a gap (default = '-')
+           -hit_features=> string of features found in or near HSP hit
+                           region (reported in some BLAST text output,
+                           v. 2.2.13 and up)
            -stranded    => If the algorithm isn't known (i.e. defaults to
                            'generic'), setting this will indicate start/end
                            coordinates are to be used to determine the strand
@@ -1174,6 +1177,26 @@ sub hsp_group {
 
     return $self->{HSP_GROUP} = shift if @_;
     return $self->{HSP_GROUP};
+}
+
+=head2 hit_features
+
+ Title   : hit_features
+ Usage   : $obj->hit_features($newval)
+ Function: Get/Set the HSP hit feature string (from some BLAST 2.2.13 text
+           output), which is a string of overlapping or nearby features in HSP
+           hit
+ Returns : Value of hit features, if present
+ Args    : On set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub hit_features {
+    my $self = shift;
+
+    return $self->{HIT_FEATURES} = shift if @_;
+    return $self->{HIT_FEATURES};
 }
 
 # The cigar string code is written by Juguang Xiao <juguang@fugu-sg.org>

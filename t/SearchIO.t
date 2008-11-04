@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 1811);
+    test_begin(-tests => 1812);
 	
 	use_ok('Bio::SearchIO');
 	use_ok('Bio::SearchIO::Writer::HitTableWriter');
@@ -247,9 +247,12 @@ SKIP: {
     is($result->get_statistic('kappa') , 0.0475563);
     cmp_ok($result->get_statistic('lambda'), '==', 0.267);
     cmp_ok($result->get_statistic('entropy'), '==', 0.14);
-    #is($result->get_statistic('dbletters'), 31984247);
-    #is($result->get_statistic('dbentries'), 88780);
-    #is($result->get_statistic('effective_hsplength'), 49);
+    #TODO: {
+    #    local $TODO = 'Some stats not working';
+    #    is($result->get_statistic('dbletters'), 31984247);
+    #    is($result->get_statistic('dbentries'), 88780);
+    #    is($result->get_statistic('effective_hsplength'), 49);
+    #}
     is($result->get_statistic('effectivespace'), '6.44279e+07');
     is($result->get_parameter('matrix'), 'BLOSUM62');
     is($result->get_parameter('gapopen'), 11);
@@ -766,12 +769,12 @@ while( my $hit = $result->next_hit ) {
             is(sprintf("%.2f",$hsp->percent_identity), '57.30');
             is(sprintf("%.4f",$hsp->frac_identical('query')), 0.5907); 
             is(sprintf("%.4f",$hsp->frac_identical('hit')), 0.5752);
-	    # these are really UNGAPPED values not CONSERVED
-	    # otherwise ident and conserved would be identical for
-	    # nucleotide alignments
-	    is(sprintf("%.4f",$hsp->frac_conserved('total')), 0.5955); 
-	    is(sprintf("%.4f",$hsp->frac_conserved('query')), 0.6139); 
-	    is(sprintf("%.4f",$hsp->frac_conserved('hit')), 0.5977); 
+			# these are really UNGAPPED values not CONSERVED
+			# otherwise ident and conserved would be identical for
+			# nucleotide alignments
+			is(sprintf("%.4f",$hsp->frac_conserved('total')), 0.5955); 
+			is(sprintf("%.4f",$hsp->frac_conserved('query')), 0.6139); 
+			is(sprintf("%.4f",$hsp->frac_conserved('hit')), 0.5977); 
             is($hsp->query->frame(), 0);
             is($hsp->hit->frame(), 0);
             is($hsp->gaps, 159);
@@ -1024,7 +1027,7 @@ is($result->hits, 58);
 $searchio = Bio::SearchIO->new(-format => 'fasta',
 			      -file   => test_input_file('BOSS_DROME.FASTP_v35_04'));
 $result = $searchio->next_result;
-like($result->database_name, qr/wormpep190/);
+like($result->database_name, qr/wormpep190/, 'TFASTXY');
 is($result->database_letters, 10449259);
 is($result->database_entries, 23771);
 is($result->algorithm, 'FASTA');
@@ -2205,7 +2208,6 @@ is($result->get_statistic('S2_bits'), '119.4');
 is($result->get_parameter('expect'), '1e-23');
 is($result->get_statistic('num_extensions'), '117843');
 
-
 @valid = ( [ 'gi|41400296|gb|AE016958.1|', 4829781, 'AE016958', 41400296, '6e-059', 119, 236],
 	      [ 'gi|54013472|dbj|AP006618.1|', 6021225, 'AP006618', 54013472, '4e-026', 64, 127],
 	      [ 'gi|57546753|dbj|BA000030.2|', 9025608, 'BA000030', 57546753, '1e-023', 60, 119]);
@@ -2229,6 +2231,7 @@ while( $hit = $result->next_hit ) {
             is($hsp->hit->start, 1166897);
             is($hsp->hit->end, 1167187);
             is($hsp->length('hsp'), 291);
+            is($hsp->hit_features, 'PyrR');
             is($hsp->start('hit'), $hsp->hit->start);
             is($hsp->end('query'), $hsp->query->end);
             is($hsp->strand('sbjct'), $hsp->subject->strand);# alias for hit
