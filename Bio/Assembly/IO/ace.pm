@@ -430,7 +430,7 @@ sub next_assembly {
 
     $assembly->update_seq_list();
 
-    return $assembly;
+    $assembly->get_nof_contigs ? return $assembly : return;
 }
 
 =head2 write_assembly
