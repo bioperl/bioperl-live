@@ -137,13 +137,14 @@ sub _discover_alignment {
     my $alignments_hash = $self->get_field('alignments');
 	
     my $identifier = $self->get_field('name').'~~~~'.$self->get_field('rank');
+	
     while (! defined $alignments_hash->{$identifier}) {
-        last unless $self->parent->parent->_next_alignment;
+		last unless $self->parent->parent->_next_alignment;
     }
     my $alignment = $alignments_hash->{$identifier};
-    
+	
     if ($alignment) {
-        # work out query, hit and homology strings, and some stats
+		# work out query, hit and homology strings, and some stats
         # (quicker to do this all at once instead of each method working on
         # $alignment string itself)
         
@@ -283,6 +284,13 @@ sub query {
 sub hit {
     my $self = shift;
     unless ($self->{_created_hit}) {
+		# the full length isn't always known (given in the report), but don't
+		# warn about the missing info all the time
+		my $verbose = $self->parent->parent->parent->verbose;
+		$self->parent->parent->parent->verbose(-1);
+		my $seq_length = $self->get_field('length');
+		$self->parent->parent->parent->verbose($verbose);
+		
         $self->SUPER::hit( new  Bio::SeqFeature::Similarity
                   ('-primary'  => $self->primary_tag,
                    '-start'    => $self->get_field('hit_start'),
@@ -291,7 +299,7 @@ sub hit {
                    '-score'    => $self->get_field('score'),
                    '-strand'   => 1,
                    '-seq_id'   => $self->get_field('name'),
-                   '-seqlength'=> $self->get_field('length'),
+                   $seq_length ? ('-seqlength' => $seq_length) : (),
                    '-source'   => $self->get_field('algorithm'),
                    '-seqdesc'  => $self->get_field('description')
                    ) );

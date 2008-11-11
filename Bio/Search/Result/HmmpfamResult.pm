@@ -207,8 +207,7 @@ sub _next_alignment {
 		
 		$self->{_after_previous_alignment} = $self->_chunk_tell;
 		$self->{_next_alignment_start_text} = $chunk;
-		$self->_next_alignment;
-		return;
+		return $self->_next_alignment;
 	}
 	
 	$self->_chunk_seek($self->{_after_previous_alignment});
@@ -228,6 +227,7 @@ sub _next_alignment {
 	if (defined $self->{_next_alignment_start_text}) {
 		$chunk = $self->{_next_alignment_start_text}.$chunk;
 	}
+	
 	$chunk =~ s/(\S+: domain)$//;
 	$self->{_next_alignment_start_text} = $1;
 	
