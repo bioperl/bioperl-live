@@ -398,7 +398,9 @@ sub writer {
 
  Title   : result_count
  Usage   : $num = $stream->result_count;
- Function: Gets the number of Blast results that have been parsed.
+ Function: Gets the number of Blast results that have been successfully parsed
+           at the point of the method call.  This is not the total # of results
+           in the file.
  Returns : integer
  Args    : none
  Throws  : none
