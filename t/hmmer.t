@@ -267,7 +267,7 @@ ok($res2);
 is($res2->number, 604);
 
 # test for bug 2632 - CS lines should get ignored without breaking the parser
-$searchio = Bio::SearchIO->new(-format => 'hmmer', -file => test_input_file('hmmpfam_cs.out'), -verbose => 1);
+$searchio = Bio::SearchIO->new(-format => 'hmmer', -file => test_input_file('hmmpfam_cs.out'));
 my $result = $searchio->next_result;
 my $hit = $result->next_hit;
 my $hsp = $hit->next_hsp;
