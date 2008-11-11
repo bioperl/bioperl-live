@@ -139,7 +139,7 @@ files from scratch by creating a new database and calling
 new_feature() repeatedly, you can create the database and then bulk
 populate it using the GFF3 loader, or you can monitor a directory of
 preexisting GFF3 and FASTA files and rebuild the indexes whenever one
-or more of the fiels changes. The last mode is probably the most
+or more of the fields changes. The last mode is probably the most
 convenient.
 
 =over 4
@@ -447,7 +447,7 @@ sub _store {
   for my $obj (@_) {
     my $primary_id = $obj->primary_id;
     $self->_delete_indexes($obj,$primary_id)  if $indexed && $primary_id;
-    $primary_id    = $db->{'.next_id'}++ unless defined $primary_id;
+    $primary_id    = $db->{'.next_id'}++      unless defined $primary_id;
     $db->{$primary_id} = $self->freeze($obj);
     $obj->primary_id($primary_id);
     $self->_update_indexes($obj)              if $indexed;
@@ -459,6 +459,8 @@ sub _store {
 sub _delete_indexes {
   my $self = shift;
   my ($obj,$id) = @_;
+  warn $obj->display_name;
+
   # the additional "1" causes the index to be deleted
   $self->_update_name_index($obj,$id,1);
   $self->_update_type_index($obj,$id,1);

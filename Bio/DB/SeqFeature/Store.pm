@@ -240,6 +240,9 @@ use Bio::DB::SeqFeature;
 *get_SeqFeatures = \&fetch_SeqFeatures;
 *delete_SeqFeatures = *delete_features = \&delete;
 
+# local version
+sub api_version { 1.2 }
+
 =head1 Methods for Connecting and Initializating a Database
 
 =head2 new
