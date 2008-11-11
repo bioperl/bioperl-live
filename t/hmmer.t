@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 147);
+    test_begin(-tests => 145);
 	
 	use_ok('Bio::SearchIO');
 	use_ok('Bio::Tools::HMMER::Domain');
@@ -266,25 +266,9 @@ my $res2 = $res->filter_on_cutoff(100,50);
 ok($res2);
 is($res2->number, 604);
 
-# bug revealed by bug 2632 - CS lines were already ignored, but we couldn't
-# parse alignments when HSPs weren't in simple order!!
-$searchio = Bio::SearchIO->new(-format => 'hmmer_pull', -file => test_input_file('hmmpfam_cs.out'), -verbose => 1);
+# test for bug 2632 - CS lines should get ignored without breaking the parser
+$searchio = Bio::SearchIO->new(-format => 'hmmer', -file => test_input_file('hmmpfam_cs.out'), -verbose => 1);
 my $result = $searchio->next_result;
 my $hit = $result->next_hit;
 my $hsp = $hit->next_hsp;
-is $hsp->seq_str, "IPPLLAVGAVHHHLINKGLRQEASILV";
-
-# and another bug revealed: we don't always know the hit length, and
-# shouldn't complain about that with a warning
-is $hsp->hit->seqlength, 412;
-
-my $count = 0;
-while (my $hit = $result->next_hit) {
-    $count++;
-    next if $count < 6;
-    last if $count > 6;
-	my $hsp = $hit->next_hsp;
-    ok ! $hsp->hit->seqlength;
-    #*** not sure how to test for the lack of a warning though...
-}
-
+is $hsp->seq_str, 'CGV-GFIADVNNVANHKIVVQALEALTCMEHRGACSADRDSGDGAGITTAIPWNLFQKSLQNQNIKFEQnDSVGVGMLFLPAHKLKES--KLIIETVLKEENLEIIGWRLVPTVQEVLGKQAYLNKPHVEQVFCKSSNLSKDRLEQQLFLVRKKIEKYIGINGKDwaheFYICSLSCYTIVYKGMMRSAVLGQFYQDLYHSEYTSSFAIYHRRFSTNTMPKWPLAQPMR---------FVSHNGEINTLLGNLNWMQSREPLLQSKVWKDRIHELKPITNKDNSDSANLDAAVELLIASGRSPEEALMILVPEAFQNQPDFA-NNTEISDFYEYYSGLQEPWDGPALVVFTNGKV-IGATLDRNGL-RPARYVIT----KDNLVIVSSES';
