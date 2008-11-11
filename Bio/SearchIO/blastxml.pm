@@ -153,7 +153,7 @@ sub _initialize{
     $blasttype ||= 'BLAST';
     $self->blasttype(uc $blasttype);
     defined $usetempfile && $self->use_tempfile($usetempfile);
-    
+    $self->{_result_count} = 0;
     eval {  require Time::HiRes };	
     if( $@ ) { $DEBUG = 0; }
     $DEBUG = 1 if( ! defined $DEBUG && ($self->verbose > 0));
@@ -202,13 +202,38 @@ sub next_result {
     if( $@ ) {
 	$self->warn("error in parsing a report:\n $@");
 	$result = undef;
-    }    
+    }
     if( $DEBUG ) {
 	$self->debug( sprintf("parsing took %f seconds\n", Time::HiRes::tv_interval($starttime)));
     }
     # parsing magic here - but we call event handlers rather than 
     # instantiating things 
-    return $result;
+    if (defined $result) {
+        # result count is handled here, as the BLASTXML reports are
+        # broken up into smaller easier to digest bits
+        $self->{_result_count}++;
+        return $result;
+    } else {
+        return;
+    }
+}
+
+=head2 result_count
+
+ Title   : result_count
+ Usage   : $num = $stream->result_count;
+ Function: Gets the number of Blast results that have been successfully parsed
+           at the point of the method call.  This is not the total # of results
+           in the file.
+ Returns : integer
+ Args    : none
+ Throws  : none
+
+=cut
+
+sub result_count {
+    my $self = shift;
+    return $self->{_result_count};
 }
 
 =head2 use_tempfile

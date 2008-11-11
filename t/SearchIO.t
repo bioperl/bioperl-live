@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 1812);
+    test_begin(-tests => 1823);
 	
 	use_ok('Bio::SearchIO');
 	use_ok('Bio::SearchIO::Writer::HitTableWriter');
@@ -39,7 +39,7 @@ SKIP: {
 	} elsif ($@) {
 		skip("Problem with XML::SAX setup: $@. Check ParserDetails.ini; skipping XML tests",129);
 	}
-	
+    is($searchio->result_count, 1);	
     isa_ok($result, 'Bio::Search::Result::ResultI');
     is($result->database_name, '/data_2/jason/db/cdd/cdd/Pfam', 'database_name()');
     is($result->query_name,'gi|1786182|gb|AAC73112.1|','query_name()');
@@ -57,6 +57,7 @@ SKIP: {
 
 	# this result actually has a hit
     $result = $searchio->next_result;
+    is($searchio->result_count, 2);
     $hit = $result->next_hit;
     is($hit->name, 'gnl|Pfam|pfam00742');
     is($hit->description(), 'HomoS_dh, HomoS dehydrogenase');
@@ -109,7 +110,7 @@ SKIP: {
 				  -file => test_input_file('plague_yeast.bls.xml'));
 
     $result = $searchio->next_result;
-
+    is($searchio->result_count, 1);
     is($result->database_name, 'yeast.aa');
     is($result->query_name, 'gi|5763811|emb|CAB53164.1|');
     is($result->query_description,  'putative transposase [Yersinia pestis]');
@@ -125,7 +126,7 @@ SKIP: {
 				  -file => test_input_file('mus.bls.xml'));
 
     $result = $searchio->next_result;
-
+    is($searchio->result_count, 1);
     is($result->database_name,'Hs15_up1000');
     is($result->query_name,'NM_011441_up_1000_chr1_4505586_r');
     is($result->query_description,'chr1:4505586-4506585');
@@ -145,7 +146,7 @@ SKIP: {
 				  -file => test_input_file('newblast.xml'));
 
     $result = $searchio->next_result;
-
+    is($searchio->result_count, 1);
     is($result->database_name,'nr');
     is($result->database_name,'nr');
     is($result->database_letters,'1479795817');
@@ -188,7 +189,7 @@ SKIP: {
     is($hsp->hit->frame,0);
     
     $result = $searchio->next_result;
-
+    is($searchio->result_count, 2);
     is($result->database_name,'nr'); 
     is($result->database_letters,'1479795817'); 
     is($result->database_entries,'4299737');
@@ -235,6 +236,7 @@ SKIP: {
            '-blasttype' => 'psiblast');
     
     my $result = $searchio->next_result;
+    is($searchio->result_count, 1);    
     is($result->database_name, 'AL591824.faa');
     is($result->database_entries, 2846);
     is($result->database_letters, 870878);
@@ -247,12 +249,12 @@ SKIP: {
     is($result->get_statistic('kappa') , 0.0475563);
     cmp_ok($result->get_statistic('lambda'), '==', 0.267);
     cmp_ok($result->get_statistic('entropy'), '==', 0.14);
-    #TODO: {
-    #    local $TODO = 'Some stats not working';
-    #    is($result->get_statistic('dbletters'), 31984247);
-    #    is($result->get_statistic('dbentries'), 88780);
-    #    is($result->get_statistic('effective_hsplength'), 49);
-    #}
+    TODO: {
+        local $TODO = 'Some stats not working';
+        is($result->get_statistic('dbletters'), 31984247);
+        is($result->get_statistic('dbentries'), 88780);
+        is($result->get_statistic('effective_hsplength'), 49);
+    }
     is($result->get_statistic('effectivespace'), '6.44279e+07');
     is($result->get_parameter('matrix'), 'BLOSUM62');
     is($result->get_parameter('gapopen'), 11);
@@ -319,6 +321,7 @@ SKIP: {
     is($iter_count, 2);
     
     $result = $searchio->next_result;
+    is($searchio->result_count, 2);    
     is($result->database_name, 'AL591824.faa');
     is($result->database_entries, 2846);
     is($result->database_letters, 870878);
