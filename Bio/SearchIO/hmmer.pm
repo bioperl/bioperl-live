@@ -541,9 +541,6 @@ sub next_result {
                                 );
                             }
                             else {
-                                $self->debug("midline is $_\n")
-                                  if ( $verbose > 0
-                                    && CORE::length($_) <= $prelength );
                                 $self->element(
                                     {
                                         'Name' => 'Hsp_midline',
@@ -733,7 +730,6 @@ sub next_result {
                       );
                     # fix for bug 2632
                     next if ($_ =~ m/^\s+CS\s+/o);
-                    $self->debug("$count $_");
                     if ( /^Histogram/o || m!^//!o || /^Query sequence/o ) {
                         if ( $self->in_element('hsp') ) {
                             $self->end_element( { 'Name' => 'Hsp' } );
@@ -1048,9 +1044,10 @@ sub next_result {
                 %hitinfo = ();
                 last;
             }
-            else {
-                $self->debug($_);
-            }
+            # uncomment to see missed lines with verbose on
+            #else {
+            #    $self->debug($_);
+            #}
         }
         $last = $_;
     }
