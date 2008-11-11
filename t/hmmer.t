@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 144);
+    test_begin(-tests => 147);
 	
 	use_ok('Bio::SearchIO');
 	use_ok('Bio::Tools::HMMER::Domain');
@@ -266,5 +266,25 @@ my $res2 = $res->filter_on_cutoff(100,50);
 ok($res2);
 is($res2->number, 604);
 
-# now let's test the new Bio::SearchIO::hmmer (I believe this is in SearchIO.t)
+# bug revealed by bug 2632 - CS lines were already ignored, but we couldn't
+# parse alignments when HSPs weren't in simple order!!
+$searchio = Bio::SearchIO->new(-format => 'hmmer_pull', -file => test_input_file('hmmpfam_cs.out'), -verbose => 1);
+my $result = $searchio->next_result;
+my $hit = $result->next_hit;
+my $hsp = $hit->next_hsp;
+is $hsp->seq_str, "IPPLLAVGAVHHHLINKGLRQEASILV";
+
+# and another bug revealed: we don't always know the hit length, and
+# shouldn't complain about that with a warning
+is $hsp->hit->seqlength, 412;
+
+my $count = 0;
+while (my $hit = $result->next_hit) {
+    $count++;
+    next if $count < 6;
+    last if $count > 6;
+	my $hsp = $hit->next_hsp;
+    ok ! $hsp->hit->seqlength;
+    #*** not sure how to test for the lack of a warning though...
+}
 
