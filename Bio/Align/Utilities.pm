@@ -89,7 +89,7 @@ require Exporter;
 use base qw(Exporter);
 
 @EXPORT = qw();
-@EXPORT_OK = qw(aa_to_dna_aln bootstrap_replicates);
+@EXPORT_OK = qw(aa_to_dna_aln bootstrap_replicates cat);
 %EXPORT_TAGS = (all =>[@EXPORT, @EXPORT_OK]);
 BEGIN {
     use constant CODONSIZE => 3;
@@ -212,6 +212,143 @@ sub bootstrap_replicates {
        push @alns, $newaln;
    }
    return \@alns;
+}
+
+=head2 cat
+
+ Title     : cat
+ Usage     : $aln123 = cat($aln1, $aln2, $aln3)
+ Function  : Concatenates alignment objects. Sequences are identified by id.
+             An error will be thrown if the sequence ids are not unique in the
+             first alignment. If any ids are not present or not unique in any
+             of the additional alignments then those sequences are omitted from
+             the concatenated alignment, and a warning is issued. An error will
+             be thrown if any of the alignments are not flush, since
+             concatenating such alignments is unlikely to make biological
+             sense.
+ Returns   : A new Bio::SimpleAlign object
+ Args      : A list of Bio::SimpleAlign objects
+
+=cut
+
+sub cat {
+    my ($self, @aln) = @_;
+    $self->throw("cat method called with no arguments") unless $self;
+    for ($self,@aln) {
+	$self->throw($_->id. " not a Bio::Align::AlignI object") unless $_->isa('Bio::Align::AlignI');
+	$self->throw($_->id. " is not flush") unless $_->is_flush;
+    }
+    my $aln = $self->new;
+    $aln->id($self->id);
+    $aln->annotation($self->annotation);
+    my %unique;
+  SEQ: foreach my $seq ( $self->each_seq() ) {
+        throw("ID: ", $seq->id, " is not unique in initial alignment.") if exists $unique{$seq->id};
+        $unique{$seq->id}=1;
+
+        # Can be Bio::LocatableSeq, Bio::Seq::Meta or Bio::Seq::Meta::Array
+ 	my $new_seq = $seq->new(-id=> $seq->id,
+                                -strand  => $seq->strand,
+                                -verbose => $self->verbose);
+	$new_seq->seq($seq->seq);
+	$new_seq->start($seq->start);
+	$new_seq->end($seq->end);
+        if ($new_seq->isa('Bio::Seq::MetaI')) {
+            for my $meta_name ($seq->meta_names) {
+                $new_seq->named_submeta($meta_name, $new_seq->start, $new_seq->end, $seq->named_meta($meta_name));
+            }
+        }
+ 	for my $cat_aln (@aln) {
+            my @cat_seq=$cat_aln->each_seq_with_id($seq->id);
+ 	    if (@cat_seq==0) {
+                $self->warn($seq->id. " not found in alignment ". $cat_aln->id. ", skipping this sequence.");
+                next SEQ;
+            }
+ 	    if (@cat_seq>1) {
+                $self->warn($seq->id. " found multiple times in alignment ".  $cat_aln->id. ", skipping this sequence.");
+                next SEQ;
+            }
+            my $cat_seq=$cat_seq[0];
+            my $old_end=$new_seq->end;
+            $new_seq->seq($new_seq->seq.$cat_seq->seq);
+            
+            # Not sure if this is a sensible way to deal with end coordinates
+            $new_seq->end($new_seq->end+$cat_seq->end+1-$cat_seq->start);
+
+            if ($cat_seq->isa('Bio::Seq::Meta::Array')) {
+                unless ($new_seq->isa('Bio::Seq::Meta::Array')) {
+                    my $meta_seq=Bio::Seq::Meta::Array->new;
+                    $meta_seq->seq($new_seq->seq);
+                    $meta_seq->start($new_seq->start);
+                    $meta_seq->end($new_seq->end);
+                    if ($new_seq->isa('Bio::Seq::Meta')) {
+                        for my $meta_name ($new_seq->meta_names) {
+                            $meta_seq->named_submeta($meta_name,
+                                                     $new_seq->start,
+                                                     $old_end,
+                                                     [split(//, $new_seq->named_meta($meta_name))]
+                                                    );
+                        }
+                    }
+                    $new_seq=$meta_seq;
+                }
+                for my $meta_name ($cat_seq->meta_names) {
+                    $new_seq->named_submeta($meta_name,
+                                            $old_end+1,
+                                            $new_seq->end,
+                                            $cat_seq->named_meta($meta_name)
+                                           );
+                }
+            } elsif ($cat_seq->isa('Bio::Seq::Meta')) {
+                if ($new_seq->isa('Bio::Seq::Meta::Array')) {
+                    for my $meta_name ($cat_seq->meta_names) {
+                        $new_seq->named_submeta($meta_name,
+                                                $old_end+1,
+                                                $new_seq->end,
+                                                [split(//,$cat_seq->named_meta($meta_name))]
+                                               );
+                    }
+                } else {
+                    unless ($new_seq->isa('Bio::Seq::Meta')) {
+                        my $meta_seq=Bio::Seq::Meta::Array->new;
+                        $meta_seq->seq($new_seq->seq);
+                        $meta_seq->start($new_seq->start);
+                        $meta_seq->end($new_seq->end);
+                        $new_seq=$meta_seq;
+                    }
+                    for my $meta_name ($cat_seq->meta_names) {
+                        $new_seq->named_submeta($meta_name,
+                                                $old_end+1,
+                                                $new_seq->end,
+                                                $cat_seq->named_meta($meta_name)
+                                               );
+                    }
+                }
+            }
+        }
+        $aln->add_seq($new_seq);
+    }
+    my $cons_meta = $self->consensus_meta;
+    my $new_cons_meta;
+    if ($cons_meta) {
+        $new_cons_meta = Bio::Seq::Meta->new();
+        for my $meta_name ($cons_meta->meta_names) {
+            $new_cons_meta->named_submeta($meta_name, 1, $self->length, $cons_meta->$meta_name);
+        }
+    }
+    my $end=$self->length;
+    for my $cat_aln (@aln) {
+        my $cat_cons_meta=$cat_aln->consensus_meta;
+        if ($cat_cons_meta) {
+            $new_cons_meta = Bio::Seq::Meta->new() if !$new_cons_meta;
+            for my $meta_name ($cat_cons_meta->meta_names) {
+                $new_cons_meta->named_submeta($meta_name, $end+1, $end+$cat_aln->length, $cat_cons_meta->$meta_name);
+            }
+        }
+        $end+=$cat_aln->length;
+    } 
+    $aln->consensus_meta($new_cons_meta) if $new_cons_meta;
+    return $aln;
 }
 
 

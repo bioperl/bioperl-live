@@ -7,9 +7,9 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 19);
+    test_begin(-tests => 33);
 	
-	use_ok('Bio::Align::Utilities',qw(aa_to_dna_aln bootstrap_replicates) );
+	use_ok('Bio::Align::Utilities',qw(aa_to_dna_aln bootstrap_replicates cat) );
 	use_ok('Bio::AlignIO');
 	use_ok('Bio::SeqIO');
 }
@@ -41,3 +41,13 @@ for my $cdsseq ( $cds_aln->each_seq ) {
 my $bootstraps = &bootstrap_replicates($aln,10);
 
 is(scalar @$bootstraps, 10);
+
+my $sub_aln1=$aln->slice(1,100);
+my $sub_aln2=$aln->slice(101,200);
+my $sub_aln3=$aln->slice(1,200);
+my $cat_aln=cat($sub_aln1, $sub_aln2);
+my @seq=$sub_aln3->each_seq;
+for my $seq ($cat_aln->each_seq) {
+    my $refseq=shift @seq;
+    is($seq->seq, $refseq->seq);
+}
