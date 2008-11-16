@@ -715,7 +715,6 @@ sub rank {
     return $self->{RANK};
 }
 
-
 =head2 seq_inds
 
  Title   : seq_inds
@@ -734,6 +733,7 @@ sub rank {
            :             'nomatch'   - mismatched residue or gap positions
            :             'mismatch'  - mismatched residue positions (no gaps)
            :             'gap'       - gap positions only
+           :             'frameshift'- frameshift positions only
            :             'conserved-not-identical' - conserved positions w/o 
            :                            identical residues
            :             The name can be shortened to 'id' or 'cons' unless
@@ -796,6 +796,8 @@ sub seq_inds{
        $class = 'mismatch';
    } elsif( $t eq 'g' ) {
        $class = 'gap';
+   } elsif( $t eq 'f' ) {
+       $class = 'frameshift';    
    } else {
        $self->warn("unknown sequence class $class using 'identical'");
        $class = 'identical';
@@ -817,17 +819,17 @@ sub seq_inds{
         # repeat the position based on the number of gaps inserted
         @ary = map { my @tmp;
                      # position holds number of gaps inserted
-                     for my $g (1..$self->{"${class}Res$seqType"}->{$_}) {
+                     for my $g (1..$self->{seqinds}{"${class}Res$seqType"}->{$_}) {
                         push @tmp, $_ ;
                      }
                      @tmp}
-              sort { $a <=> $b } keys %{ $self->{"${class}Res$seqType"}};
+              sort { $a <=> $b } keys %{ $self->{seqinds}{"${class}Res$seqType"}};
    } elsif( $class eq '_conservedall' ) {
        @ary = sort { $a <=> $b }
-       keys %{ $self->{"_conservedRes$seqType"}},
-       keys %{ $self->{"_identicalRes$seqType"}},
+       keys %{ $self->{seqinds}{"_conservedRes$seqType"}},
+       keys %{ $self->{seqinds}{"_identicalRes$seqType"}},
    }  else {
-       @ary = sort { $a <=> $b } keys %{ $self->{"${class}Res$seqType"}};
+       @ary = sort { $a <=> $b } keys %{ $self->{seqinds}{"${class}Res$seqType"}};
    }
    require Bio::Search::BlastUtils if $collapse;
 
@@ -854,8 +856,9 @@ See Also   : L<Bio::Search::Hit::HSPI::seq_inds()>
 
 sub ambiguous_seq_inds {
     my $self = shift;
-    return $self->{'_warnRes'} if exists $self->{'_warnRes'};
-    return $self->{'_warnRes'} = '';
+    $self->_calculate_seq_positions();    
+    return $self->{seqinds}{'_warnRes'} if exists $self->{seqinds}{'_warnRes'};
+    return $self->{seqinds}{'_warnRes'} = '';
 }
 
 =head2 Inherited from L<Bio::SeqFeature::SimilarityPair>
@@ -996,111 +999,148 @@ sub _calculate_seq_positions {
     my ($self,@args) = @_;
     return unless ( $self->{'_sequenceschanged'} );
     $self->{'_sequenceschanged'} = 0;
-    my ($mchar, $schar, $qchar);
     my ($seqString, $qseq,$sseq) = ( $self->homology_string(),
                                      $self->query_string(),
                                      $self->hit_string() );
-
-    # Using hashes to avoid saving duplicate residue numbers.
-    my %identicalList_query = ();
-    my %identicalList_sbjct = ();
-    my %conservedList_query = ();
-    my %conservedList_sbjct = ();
-
-    my %gapList_query = ();
-    my %gapList_sbjct = ();
-    my %nomatchList_query = ();
-    my %nomatchList_sbjct = ();
-    my %mismatchList_query = ();
-    my %mismatchList_sbjct = ();
-    
+    my ($mlen, $qlen, $slen) = (CORE::length($seqString), CORE::length($qseq), CORE::length($sseq));
     my $qdir = $self->query->strand || 1;
     my $sdir = $self->hit->strand || 1;
-    my $resCount_query = ($qdir >=0) ? $self->query->end : $self->query->start;
-    my $resCount_sbjct = ($sdir >=0) ? $self->hit->end : $self->hit->start;
-
+    my ($resCount_query, $endpoint_query) = ($qdir <=0) ? ($self->query->end, $self->query->start)
+        : ($self->query->start, $self->query->end);
+    my ($resCount_sbjct, $endpoint_sbjct) = ($sdir <=0) ? ($self->hit->end, $self->hit->start)
+        : ($self->hit->start, $self->hit->end);
+    
     my $prog = $self->algorithm;
+    
     if( $prog  =~ /FAST|SSEARCH|SMITH-WATERMAN/i ) {
+    
+        # we infer the end of the regional sequence where the first and last
+        # non spaces are in the homology string
+        # then we use the HSP->length to tell us how far to read
+        # to cut off the end of the sequence
+        
+        my ($start, $rest) = (0,0);
+        if( $seqString =~ /^(\s+)?(.*?)\s*$/ ) {
+            ($start, $rest) = ($1 ? CORE::length($1) : 0, CORE::length($2));
+        }
+    
+        $seqString = substr($seqString, $start, $rest);
+        $qseq = substr($qseq, $start, $rest);
+        $sseq = substr($sseq, $start, $rest);
+
+        # commented out 10/29/08
+        # removing frameshift symbols doesn't take into account the following:
+        # 1) does not remove the same point in the homology string (get
+        # positional errors)
+        # 2) adjustments to the overall position in the string due to the
+        # frameshift must be taken into consideration (get balancing errors)
+        #
+        # Frameshifts will be handled directly in the main loop. 
+        # --chris
+        
         # fasta reports some extra 'regional' sequence information
         # we need to clear out first
         # this seemed a bit insane to me at first, but it appears to
         # work --jason
-
-        # we infer the end of the regional sequence where the first
-        # non space is in the homology string
-        # then we use the HSP->length to tell us how far to read
-        # to cut off the end of the sequence
-
-        # one possible problem is the sequence which
-
-        my ($start) = (0);
-        if( $seqString =~ /^(\s+)/ ) {
-            $start = CORE::length($1);
-        }
-
-        $seqString = substr($seqString, $start,$self->length('total'));
-        $qseq = substr($qseq, $start,$self->length('total'));
-        $sseq = substr($sseq, $start,$self->length('total'));
-
-        $qseq =~ s![\\\/]!!g;
-        $sseq =~ s![\\\/]!!g;
+        
+        #$qseq =~ s![\\\/]!!g;
+        #$sseq =~ s![\\\/]!!g;
     }
 
     my ($warn, $sbjct_offset, $query_offset) = ('',1,1);
-    if($prog =~ /^(PSI)?T(BLAST|FAST)N/oi ) {
-    $sbjct_offset = 3;
-    $warn = 'subject';
+    if($prog =~ /^(?:PSI)?T(BLAST|FAST)(N|X|Y)/oi ) {
+        $sbjct_offset = 3;
+        if ($1 eq 'BLAST' && $2 eq 'X') { #TBLASTX
+            $query_offset = 3;
+            $warn = 'query/subject';
+        } else {
+            $warn = 'subject';
+        }
     } elsif($prog =~ /^(BLAST|FAST)(X|Y|XY)/oi  ) {
-    $query_offset = 3;
-    $warn = 'query';
-    } elsif($prog =~ /^T(BLAST|FAST)(X|Y|XY)/oi ) {
-    $query_offset = $sbjct_offset = 3;
-    $warn = 'query/subject';
+        $query_offset = 3;
+        $warn = 'query';
     }
-    my @qrange = (0..$query_offset-1); # 0, or 0..2
-    my @srange = (0..$sbjct_offset-1); # 0, or 0..2
-    while( $mchar = chop($seqString) ) {
-        ($qchar, $schar) = (chop($qseq), chop($sseq));
-        if( $mchar eq '+' || $mchar eq '.') {
-            $conservedList_query{ $resCount_query - ($_ * $qdir) } = 1 for @qrange;
-            $conservedList_sbjct{ $resCount_sbjct - ($_ * $sdir) } = 1 for @srange;
-        } elsif( $mchar eq ':' || $mchar ne ' ' ) {
-            $identicalList_query{ $resCount_query - ($_ * $qdir) } = 1 for @qrange;
-            $identicalList_sbjct{ $resCount_sbjct - ($_ * $sdir) } = 1 for @srange;
-        } elsif( $mchar eq ' ') {
-            $nomatchList_query{ $resCount_query - ($_ * $qdir) } = 1 for @qrange;
-            $nomatchList_sbjct{ $resCount_sbjct - ($_ * $sdir) } = 1 for @srange;
-            # mismatch; only count if the symbol matched to isn't a gap
-            if ($schar ne $self->{GAP_SYMBOL}) {
-                $mismatchList_query{ $resCount_query - ($_ * $qdir) } = 1 for @qrange;
+    my ($qfs, $sfs) = (0,0);
+    CHAR_LOOP:
+    for my $pos (0..CORE::length($seqString)-1) {
+        my @qrange = (0 - $qfs)..($query_offset - 1);
+        my @srange = (0 - $sfs)..($sbjct_offset - 1);
+        #$self->debug("QRange:@qrange SRange:@srange\n") if ($qfs || $sfs);
+        ($qfs, $sfs) = (0,0);
+        my ($mchar, $qchar, $schar) = (
+            unpack("x$pos A1",$seqString) || ' ',
+            $pos < CORE::length($qseq) ? unpack("x$pos A1",$qseq) : '-',
+            $pos < CORE::length($sseq) ? unpack("x$pos A1",$sseq) : '-'
+            );
+        my $matchtype = '';
+        my ($qgap, $sgap) = (0,0);
+        if( $mchar eq '+' || $mchar eq '.') {    # conserved
+            $self->{seqinds}{_conservedRes_query}{ $resCount_query + ($_ * $qdir) } = 1 for @qrange;
+            $self->{seqinds}{_conservedRes_sbjct}{ $resCount_sbjct + ($_ * $sdir) } = 1 for @srange;
+            $matchtype = 'conserved';
+        } elsif( $mchar eq ':' || $mchar ne ' ' ) { # identical
+            $self->{seqinds}{_identicalRes_query}{ $resCount_query + ($_ * $qdir) } = 1 for @qrange;
+            $self->{seqinds}{_identicalRes_sbjct}{ $resCount_sbjct + ($_ * $sdir) } = 1 for @srange;
+            $matchtype = 'identical';
+        } elsif( $mchar eq ' ' ) {  # possible mismatch/nomatch/frameshift
+            $qfs = $qchar eq '/'  ?  -1 : # base inserted to match frame
+                   $qchar eq '\\' ?   1 : # base deleted to match frame
+                   0;
+            $sfs = $schar eq '/'  ?  -1 :
+                   $schar eq '\\' ?   1 :
+                   0;
+            # may need to rework logic depending on how we want to treat gaps
+            # across from insert/delete markers. Right now they aren't included.
+            # --cjfields
+            if ($qfs) {
+                # gaps across from frameshifts are not counted
+                $self->{seqinds}{_frameshiftRes_query}{ $resCount_query - ($query_offset * $qdir)} = $qfs;
+                $matchtype = "$qfs frameshift-query";
+                $sgap = $qgap = 1;
             }
-            if ($qchar ne $self->{GAP_SYMBOL}) {
-                $mismatchList_sbjct{ $resCount_sbjct - ($_ * $sdir) } = 1 for @srange;
+            elsif ($sfs) {
+                $self->{seqinds}{_frameshiftRes_sbjct}{ $resCount_sbjct - ($sbjct_offset * $sdir)} = $sfs;
+                $matchtype = "$sfs frameshift-sbcjt";
+                $sgap = $qgap = 1;
             }
-        }
-        if( $qchar eq $self->{GAP_SYMBOL} ) {
-            $gapList_query{ $resCount_query } ++;
+            elsif ($qchar eq $self->{GAP_SYMBOL}) {
+                $self->{seqinds}{_gapRes_query}{ $resCount_query - ($query_offset * $qdir)}++;
+                $matchtype = 'gap-query';
+                $qgap++;
+            }
+            elsif ($schar eq $self->{GAP_SYMBOL}) {
+                $self->{seqinds}{_gapRes_sbjct}{ $resCount_sbjct - ($sbjct_offset * $sdir)}++;
+                $matchtype = 'gap-sbjct';
+                $sgap++;
+            }
+            else {
+                $self->{seqinds}{_mismatchRes_query}{ $resCount_query - ($_ * $qdir) } = 1 for @qrange;
+                $self->{seqinds}{_mismatchRes_sbjct}{ $resCount_sbjct - ($_ * $sdir) } = 1 for @srange;
+                $matchtype = 'mismatch';
+            }
+            if (!$sgap) {
+                $self->{seqinds}{_nomatchRes_sbjct}{ $resCount_sbjct + ($_ * $sdir) } = 1 for @srange;
+            }
+            if (!$qgap) {
+                $self->{seqinds}{_nomatchRes_query}{ $resCount_query + ($_ * $qdir) } = 1 for @qrange;
+            }
         } else {
-            $resCount_query -= $qdir * $query_offset;
+            $self->warn("Unknown midline character: [$mchar]");
         }
-        if( $schar eq $self->{GAP_SYMBOL} ) {
-            $gapList_sbjct{ $resCount_sbjct } ++;
-        } else {
-            $resCount_sbjct -=$sdir * $sbjct_offset;
-        }
+        # leave in and uncomment for future debugging
+        #$self->debug(sprintf("%7d %1s[%1s]%1s %-7d Type: %-20s QOff:%-2d SOff:%-2d\n",
+        #                     $resCount_query,
+        #                     $qchar,
+        #                     $mchar,
+        #                     $schar,
+        #                     $resCount_sbjct,
+        #                     $matchtype,
+        #                     ($query_offset * $qdir),
+        #                     ($sbjct_offset * $sdir)));
+        $resCount_query += ($qdir * (scalar(@qrange) + $qfs)) if !$qgap;
+        $resCount_sbjct += ($sdir * (scalar(@srange) + $sfs)) if !$sgap;
     }
-    $self->{'_identicalRes_query'} = \%identicalList_query;
-    $self->{'_conservedRes_query'} = \%conservedList_query;
-    $self->{'_nomatchRes_query'}   = \%nomatchList_query;
-    $self->{'_mismatchRes_query'}  = \%mismatchList_query;
-    $self->{'_gapRes_query'}       = \%gapList_query;
-
-    $self->{'_identicalRes_sbjct'} = \%identicalList_sbjct;
-    $self->{'_conservedRes_sbjct'} = \%conservedList_sbjct;
-    $self->{'_nomatchRes_sbjct'}   = \%nomatchList_sbjct;
-    $self->{'_mismatchRes_sbjct'}  = \%mismatchList_sbjct;
-    $self->{'_gapRes_sbjct'}       = \%gapList_sbjct;
-    $self->{'_warnRes'}            = $warn;
+    $self->{seqinds}{'_warnRes'}            = $warn;
     return 1;
 }
 
