@@ -41,7 +41,9 @@ my $build = ModuleBuildBioperl->new(
     recommends          => { # does what you would expect of recommends, except more informative output and generates optional_features in META.yml
                             'Ace'                       => '0/access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace',
                             # this won't actually install due to circular dep, but we have no way of doing a post-install
-                            'Bio::ASN1::EntrezGene'     => '0/parsing entrezgene/Bio::SeqIO::entrezgene',
+                            # the [circular dependency!] specifies it is only installed on explicit request for this specific module,
+                            # not when simply choosing to install 'all' modules
+                            'Bio::ASN1::EntrezGene'     => '0/parsing entrezgene/Bio::SeqIO::entrezgene [circular dependency!]',
                             # we actually need 1.01 of Class::AutoClass, but unfortunately it is versioned as 1.0
                             'Class::AutoClass'          => '1/creating objects/Bio::Graph::SimpleGraph,Bio::Graph::SimpleGraph::Traversal,Bio::Graph::ProteinGraph',
                             'Clone'                     => '0/cloning objects/Bio::Graph::ProteinGraph,Bio::Tools::Primer3',
@@ -72,10 +74,10 @@ my $build = ModuleBuildBioperl->new(
                             'XML::SAX::Writer'          => '0/writing xml/Bio::SeqIO::tigrxml',
                             'XML::Twig'                 => '0/parsing xml/Bio::Variation::IO::xml,Bio::DB::Taxonomy::entrez,Bio::DB::Biblio::eutils,Bio::Graph::IO::psi_xml',
                             'XML::Writer'               => '0.4/parsing and writing xml/Bio::SeqIO::agave,Bio::SeqIO::game::gameWriter,Bio::SeqIO::chadoxml,Bio::SeqIO::tinyseq,Bio::Variation::IO::xml,Bio::SearchIO::Writer::BSMLResultWriter',
-			    'Math::Random'          => '0/Random Phylogenetic Networks/Bio::PhyloNetwork::RandomFactory',
-			    'Algorithm::Munkres'    => '0/Phylogenetic Networks/Bio::PhyloNetwork',
-			    'Array::Compare'        => '0/Phylogenetic Networks/Bio::PhyloNetwork',
-			    'GraphViz'              => '0/Phylogenetic Network Visulization/Bio::PhyloNetwork::GraphViz',
+                            'Math::Random'              => '0/Random Phylogenetic Networks/Bio::PhyloNetwork::RandomFactory',
+                            'Algorithm::Munkres'        => '0/Phylogenetic Networks/Bio::PhyloNetwork',
+                            'Array::Compare'            => '0/Phylogenetic Networks/Bio::PhyloNetwork',
+                            'GraphViz'                  => '0/Phylogenetic Network Visulization/Bio::PhyloNetwork::GraphViz',
     },
     get_options         => {
                             network => { } # say 'perl Build.PL --network' to manually request network tests

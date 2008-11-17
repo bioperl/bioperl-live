@@ -343,6 +343,10 @@ sub prereq_failures {
                     
                     $status->{message} .= "\n   (wanted for $why, used by $by_what)";
                     
+                    if ($by_what =~ /\[circular dependency!\]/) {
+                        $preferred_version = -1;
+                    }
+                    
                     my $installed = $self->install_optional($modname, $preferred_version, $status->{message});
                     next if $installed eq 'ok';
                     $status->{message} = $installed unless $installed eq 'skip';
@@ -440,11 +444,14 @@ sub install_optional {
         $install = $self->y_n(" * $msg\n   Do you want to install it? y/n", 'n');
     }
     
-    if ($install) {
+    my $orig_version = $version;
+    $version = 0 if $version == -1;
+    if ($install && ! ($self->{ask_optional} =~ /^a/i && $orig_version == -1)) {
         return $self->install_prereq($desired, $version);
     }
     else {
-        $self->log_info(" * You chose not to install $desired\n");
+        my $circular = ($self->{ask_optional} =~ /^a/i && $orig_version == -1) ? " - this is a circular dependency so doesn't get installed when installing 'all' modules. If you really want it, choose modules interactively." : '';
+        $self->log_info(" * You chose not to install $desired$circular\n");
         return 'ok';
     }
 }
