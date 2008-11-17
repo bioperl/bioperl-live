@@ -53,7 +53,7 @@ BEGIN {
 use strict;
 use warnings;
 
-our $VERSION = 1.005002101;
+our $VERSION = 1.005002103;
 our @extra_types = qw(options excludes_os feature_requires test); # test must always be last in the list!
 our $checking_types = "requires|conflicts|".join("|", @extra_types);
 
@@ -732,9 +732,38 @@ sub prepare_metadata {
 # let us store extra things persistently in _build
 sub _construct {
     my $self = shift;
+    
+    # calling SUPER::_construct will dump some of the input to this sub out
+    # with Data::Dumper, which will complain about code refs. So we replace
+    # any code refs with dummies first, then put them back afterwards
+    my %in_hash = @_;
+    my $auto_features = $in_hash{auto_features} if defined $in_hash{auto_features};
+    my %code_refs;
+    if ($auto_features) {
+        while (my ($key, $hash) = each %{$auto_features}) {
+            while (my ($sub_key, $val) = each %{$hash}) {
+                if (ref($val) && ref($val) eq 'CODE') {
+                    $hash->{$sub_key} = 'CODE_ref';
+                    $code_refs{$key}->{$sub_key} = $val;
+                }
+            }
+        }
+    }
+    
     $self = $self->SUPER::_construct(@_);
     
     my ($p, $ph) = ($self->{properties}, $self->{phash});
+    
+    if (keys %code_refs) {
+        while (my ($key, $hash) = each %{$auto_features}) {
+            if (defined $code_refs{$key}) {
+                while (my ($sub_key, $code_ref) = each %{$code_refs{$key}}) {
+                    $hash->{$sub_key} = $code_ref;
+                }
+                $ph->{auto_features}->{$key} = $hash;
+            }
+        }
+    }
     
     foreach (qw(manifest_skip post_install_scripts)) {
         my $file = File::Spec->catfile($self->config_dir, $_);
