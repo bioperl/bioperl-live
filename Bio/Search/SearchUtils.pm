@@ -694,6 +694,54 @@ sub strip_blast_html {
     $stripped;
 }
 
+=head2 
+
+ Title    : result2hash 
+ Usage    : my %data = &Bio::Search::SearchUtils($result)
+ Function : converts ResultI data to simple hash
+ Returns  : hash
+ Args     : ResultI
+ Note     : used mainly as a utility for running SearchIO tests
+
+=cut
+
+sub result2hash {
+    my ($result) = @_;
+    my %hash;
+    $hash{'query_name'} = $result->query_name;
+    my $hitcount = 1;
+    my $hspcount = 1;
+    foreach my $hit ( $result->hits ) {
+	$hash{"hit$hitcount\_name"}   =  $hit->name;
+	# only going to test order of magnitude
+	# too hard as these don't always match
+#	$hash{"hit$hitcount\_signif"} =  
+#	    ( sprintf("%.0e",$hit->significance) =~ /e\-?(\d+)/ );
+	$hash{"hit$hitcount\_bits"}   =  sprintf("%d",$hit->bits);
+
+	foreach my $hsp ( $hit->hsps ) {
+	    $hash{"hsp$hspcount\_bits"}   = sprintf("%d",$hsp->bits);
+	    # only going to test order of magnitude
+ 	    # too hard as these don't always match
+#	    $hash{"hsp$hspcount\_evalue"} =  
+#		( sprintf("%.0e",$hsp->evalue) =~ /e\-?(\d+)/ );
+	    $hash{"hsp$hspcount\_qs"}     = $hsp->query->start;
+	    $hash{"hsp$hspcount\_qe"}     = $hsp->query->end;
+	    $hash{"hsp$hspcount\_qstr"}   = $hsp->query->strand;
+	    $hash{"hsp$hspcount\_hs"}     = $hsp->hit->start;
+	    $hash{"hsp$hspcount\_he"}     = $hsp->hit->end;
+	    $hash{"hsp$hspcount\_hstr"}   = $hsp->hit->strand;
+
+	    #$hash{"hsp$hspcount\_pid"}     = sprintf("%d",$hsp->percent_identity);
+	    #$hash{"hsp$hspcount\_fid"}     = sprintf("%.2f",$hsp->frac_identical);
+	    $hash{"hsp$hspcount\_gaps"}    = $hsp->gaps('total');
+	    $hspcount++;
+	}
+	$hitcount++;
+    }
+    return %hash;
+}
+
 sub _warn_about_no_hsps {
     my $hit = shift;
     my $prev_func=(caller(1))[3];
