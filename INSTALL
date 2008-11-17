@@ -37,7 +37,7 @@ http://www.bioperl.org/wiki/Getting_BioPerl#Mac_OS_X_using_fink
 
 SYSTEM REQUIREMENTS
 
-    * Perl 5.6.1 or later; version 5.8 and greater are recommended.
+    * Perl 5.6.1 or later; version 5.8 and greater are highly recommended.
 
     * External modules: Bioperl uses functionality provided in other
       Perl modules. Some of these are included in the standard perl package
