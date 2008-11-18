@@ -122,10 +122,10 @@ while( my $result = $searchio->next_result ) {
     is($hsp->hit_string, 'lrnELentLWavADkLRGsmDaseYKdyVLGLlFlKYiSdkFlerrieieerktdtesepsldyakledqyeqlededlekedfyqkkGvFilPsqlFwdfikeaeknkldedigtdldkifseledqialgypaSeedfkGlfpdldfnsnkLgskaqarnetLtelidlfselelgtPmHNG-dfeelgikDlfGDaYEYLLgkFAeneGKsGGeFYTPqeVSkLiaeiLtigqpsegdfsIYDPAcGSGSLllqaskflgehdgkrnaisyYGQEsn');
     is($hsp->query_string, 'NTSELDKKKFAVLLMNR--------------LIFIKFLEDK------GIV---------PRDLLRRTYEDY---KKSNVLI-NYYDAY-L----KPLFYEVLNTPEDER--KENIRT-NPYYKDIPYL---N-G-------GLFRSNNV--PNELSFTIKDNEIIGEVINFLERYKFTLSTSEGsEEVELNP-DILGYVYEKLINILAEKGQKGLGAYYTPDEITSYIAKNT-IEPIVVE----------------RFKEIIK--NWKINDINF----ST');
     is($hsp->homology_string, ' ++EL+++  av+   R              L+F K++ dk      +i+         p +   + +++y   ++   ++ ++y ++      + lF++++   e ++  ++++ + +    ++      + +       Glf ++++  ++ +s+   +ne ++e+i+ +++ +++     G++ +el   D++G +YE L+   Ae   K+ G +YTP e++  ia+ + i+  ++                  +++ ++    k+n+i +    s+');
-	is(join(' ', $hsp->seq_inds('query', 'nomatch',1)), '280 288 289 293-296 300 304 306 309 311 313-315 317 321 324-326 328 332 334 335 337 344-346 348 350 355 356 358-361 364-368 372 376 379 383-385 389 396 400 404-408 412 416 417 422 426 429-431 434-436 439 441 446 450 451 455 456 459 460 463 464 468 470-472 478 479');
-	is(join(' ', $hsp->seq_inds('hit', 'nomatch',1)), '1 9 10 14-16 18-31 35 39 42-47 51-59 61 63-65 67 72-74 77-79 82 86 89-94 96 103-105 107 110 111 116 118 120-123 126-131 133 135-141 145 150 151 154 158-160 164 171 175 179-183 186 190-192 197 201 204-206 209-211 214 216 221 225 226 230 232 235 236 239-256 260 263-266 272 274-277');
+    is(join(' ', $hsp->seq_inds('query', 'nomatch',1)), '280 288 289 293-295 300 304 311 313-315 317 324-326 332 335 337 344-346 348 355 358-361 364-366 372 379 383-385 389 396 400 404-408 412 416 417 422 426 429-431 434-436 439 441 446 450 451 455 459 460 463 464 468 471 472 478');
+    is(join(' ', $hsp->seq_inds('hit', 'nomatch',1)), '1 9 10 14-16 18-31 35 39 42-47 51-59 61 63-65 67 72-74 77-79 82 86 89-94 96 103-105 107 110 111 116 118 120-123 126-131 133 135-141 145 150 151 154 158-160 164 171 175 179-183 187 191-193 198 202 205-207 210-212 215 217 222 226 227 231 233 236 237 240-257 261 264-267 273 275-278');
 	is(join(' ', $hsp->seq_inds('query', 'gap',1)), '296 306 309 321 328 334 335 350 356 366-368 376 417 456 463 470 479');
-	is(join(' ', $hsp->seq_inds('hit', 'gap',1)), '184');
+	is(join(' ', $hsp->seq_inds('hit', 'gap',1)), '');
 }
 
 
