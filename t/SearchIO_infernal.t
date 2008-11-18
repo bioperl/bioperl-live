@@ -26,7 +26,6 @@ $searchio = Bio::SearchIO->new( -format => 'infernal',
                                 -database => 'b_sub.fas',
                                 -hsp_minscore => 40,
                                 -convert_meta => 0,
-                                -verbose => 2
                                );
 
 $result = $searchio->next_result;
@@ -48,6 +47,8 @@ is($result->query_length, 102, "Result query_length");
 is($result->query_name, 'Purine', "Result query_name");
 
 $hit = $result->next_hit;
+$hit->verbose(2);
+
 isa_ok($hit, 'Bio::Search::Hit::HitI');
 is($hit->ncbi_gi, '2239287', "Hit GI");
 is($hit->accession, 'U51115.1', "Hit accession");
@@ -153,7 +154,7 @@ is($hsp->seq_inds, 67, "HSP seq_inds");
 is($hsp->significance, undef, "HSP significance");
 is($hsp->end, 102, "HSP end");
 is($hsp->expect, undef, "HSP expect");
-
+$hsp->verbose(2);
 # These Bio::Search::HSP::HSPI methods are currently unimplemented in
 # Bio::Search::HSP::ModelHSP; they may be integrated over time but will require
 # some reconfiguring for Model-based searches
@@ -316,7 +317,7 @@ $searchio = Bio::SearchIO->new( -format => 'infernal',
                                 -database => 'b_sub.fas',
                                 -hsp_minscore => 40,
                                 -convert_meta => 1,
-                                -symbols => $symbols
+                                -symbols => $symbols,
                                );
 
 $result = $searchio->next_result;
@@ -370,6 +371,7 @@ is($result->query_length, 102, "Result query_length");
 is($result->query_name, 'Purine', "Result query_name");
 
 $hit = $result->next_hit;
+$hit->verbose(2);
 isa_ok($hit, 'Bio::Search::Hit::HitI');
 is($hit->ncbi_gi, '633168', "Hit GI");
 is($hit->accession, 'X83878.1', "Hit accession");
@@ -475,6 +477,7 @@ is($hsp->seq_inds, 64, "HSP seq_inds");
 is($hsp->significance, 1.945e-07, "HSP significance");
 is($hsp->end, 102, "HSP end");
 is($hsp->expect, 1.945e-07, "HSP expect");
+$hsp->verbose(2);
 
 # These Bio::Search::HSP::HSPI methods are currently unimplemented in
 # Bio::Search::HSP::ModelHSP; they may be integrated over time but will require

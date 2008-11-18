@@ -31,17 +31,17 @@ Bio::Search::Hit::ModelHit - A model-based implementation of the Bio::Search::Hi
 This object handles the hit data from a database search using models or
 descriptors instead of sequences, such as Infernal, HMMER, RNAMotif, etc.
 
-Unless you're writing a parser, you won't ever need to create a GenericHit or
+Unless you're writing a parser, you won't ever need to create a ModelHit or
 any other HitI-implementing object. If you use the SearchIO system, HitI objects
 are created automatically from a SearchIO stream which returns
 Bio::Search::Hit::HitI objects.
 
-Note that several HitI-based methods have been overridden from GenericHit due to
+Note that several HitI-based methods have been overridden from ModelHit due to
 their unreliability when dealing with queries that aren't sequence-based. It may
 be possible to reimplement these at a later point, but for the time being they
 will throw warnings and return w/o results.
 
-For documentation on what you can do with GenericHit (and other HitI objects),
+For documentation on what you can do with ModelHit (and other HitI objects),
 please see the API documentation in
 L<Bio::Search::Hit::HitI|Bio::Search::Hit::HitI>.
 
@@ -83,14 +83,14 @@ use strict;
 
 use base qw(Bio::Search::Hit::GenericHit);
 
-=head1 HitI methods implemented in parent class Bio::Search::Hit::GenericHit
+=head1 HitI methods implemented in parent class Bio::Search::Hit::ModelHit
 
 =head2 new
 
  Title   : new
- Usage   : my $obj = Bio::Search::Hit::GenericHit->new();
- Function: Builds a new Bio::Search::Hit::GenericHit object 
- Returns : Bio::Search::Hit::GenericHit
+ Usage   : my $obj = Bio::Search::Hit::ModelHit->new();
+ Function: Builds a new Bio::Search::Hit::ModelHit object 
+ Returns : Bio::Search::Hit::ModelHit
  Args    : -name         => Name of Hit (required)
            -description  => Description (optional)
            -accession    => Accession number (optional)
@@ -584,7 +584,7 @@ sub ncbi_gi {
         return $previous;
 }
 
-=head1 GenericHit methods overridden in ModelHit
+=head1 ModelHit methods overridden in ModelHit
 
 The following methods have been overridden due to their current reliance on
 sequence-based queries. They may be implemented in future versions of this class.
