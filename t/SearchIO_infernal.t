@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 346);
+    test_begin(-tests => 316);
     
     use_ok('Bio::SearchIO');
 }
@@ -150,7 +150,6 @@ is($hsp->query_string,
    "HSP query_string");
 is($hsp->range, 102, "HSP range");
 is($hsp->rank, 1, "HSP rank");
-is($hsp->seq_inds, 67, "HSP seq_inds");
 is($hsp->significance, undef, "HSP significance");
 is($hsp->end, 102, "HSP end");
 is($hsp->expect, undef, "HSP expect");
@@ -159,6 +158,8 @@ $hsp->verbose(2);
 # Bio::Search::HSP::ModelHSP; they may be integrated over time but will require
 # some reconfiguring for Model-based searches
 
+eval {$hsp->seq_inds};
+like($@, qr'seq_inds not implemented for Model-based searches','HSP seq_inds not implemented');
 eval {$hsp->matches};
 like($@, qr'matches not implemented for Model-based searches','HSP matches not implemented');
 eval {$hsp->frac_conserved};
@@ -216,7 +217,6 @@ is($hsp->query_string,
    "HSP query_string");
 is($hsp->range, 102, "HSP range");
 is($hsp->rank, 2, "HSP rank");
-is($hsp->seq_inds, 69, "HSP seq_inds");
 is($hsp->significance, undef, "HSP significance");
 is($hsp->end, 102, "HSP end");
 is($hsp->expect, undef, "HSP expect");
@@ -283,7 +283,6 @@ is($hsp->query_string,
    "HSP query_string");
 is($hsp->range, 102, "HSP range");
 is($hsp->rank, 1, "HSP rank");
-is($hsp->seq_inds, 64, "HSP seq_inds");
 is($hsp->significance, undef, "HSP significance");
 is($hsp->end, 102, "HSP end");
 is($hsp->expect, undef, "HSP expect");
@@ -383,49 +382,6 @@ is($hit->n, 2, "Hit n");
 is($hit->name, 'gi|633168|emb|X83878.1|', "Hit name");
 is($hit->num_hsps, 2, "Hit num_hsps");
 
-# These Bio::Search::Hit::HitI methods are currently unimplemented in
-# Bio::Search::Hit::ModelHit; they may be integrated over time but will require
-# some reconfiguring for Model-based searches
-
-eval { $hit->length_aln() };
-like($@, qr'length_aln not implemented for Model-based searches',
-     "Hit length_aln() not implemented");
-eval {$hit->num_unaligned_hit};
-like($@, qr'num_unaligned_hit/num_unaligned_sbjct not implemented for Model-based searches',
-     "Hit num_unaligned_hit() not implemented");
-eval {$hit->num_unaligned_query};
-like($@, qr'num_unaligned_query not implemented for Model-based searches',
-     "Hit num_unaligned_query() not implemented");
-eval {$hit->num_unaligned_sbjct};
-like($@, qr'num_unaligned_hit/num_unaligned_sbjct not implemented for Model-based searches',
-     "Hit num_unaligned_sbjct() not implemented");
-eval {$hit->start};
-like($@, qr'start not implemented for Model-based searches','Hit start not implemented');
-eval {$hit->end};
-like($@, qr'end not implemented for Model-based searches','Hit end not implemented');
-eval {$hit->strand};
-like($@, qr'strand not implemented for Model-based searches','Hit strand not implemented');
-eval {$hit->logical_length};
-like($@, qr'logical_length not implemented for Model-based searches','Hit logical_length not implemented');
-eval {$hit->frac_aligned_hit};
-like($@, qr'frac_aligned_hit not implemented for Model-based searches','Hit frac_aligned_hit not implemented');
-eval{$hit->frac_aligned_query};
-like($@, qr'frac_aligned_query not implemented for Model-based searches','Hit frac_aligned_query not implemented');
-eval {$hit->frac_conserved};
-like($@, qr'frac_conserved not implemented for Model-based searches','Hit frac_conserved not implemented');
-eval{$hit->frac_identical};
-like($@, qr'frac_identical not implemented for Model-based searches','Hit frac_identical not implemented');
-eval{$hit->matches};
-like($@, qr'matches not implemented for Model-based searches','Hit matches not implemented');
-eval{$hit->gaps};
-like($@, qr'gaps not implemented for Model-based searches','Hit gaps not implemented');
-eval{$hit->frame};
-like($@, qr'frame not implemented for Model-based searches','Hit frame not implemented');
-eval {$hit->range};
-like($@, qr'range not implemented for Model-based searches','Hit range not implemented');
-eval {$hit->seq_inds};
-like($@, qr'seq_inds not implemented for Model-based searches','Hit seq_inds not implemented');
-
 # p() works but there are no evalues yet for Infernal output, so catch and check...
 eval {$hit->p};
 like($@, qr'P-value not defined. Using expect\(\) instead',
@@ -473,32 +429,9 @@ is($hsp->query_string,
    "HSP query_string");
 is($hsp->range, 102, "HSP range");
 is($hsp->rank, 1, "HSP rank");
-is($hsp->seq_inds, 64, "HSP seq_inds");
 is($hsp->significance, 1.945e-07, "HSP significance");
 is($hsp->end, 102, "HSP end");
 is($hsp->expect, 1.945e-07, "HSP expect");
-$hsp->verbose(2);
-
-# These Bio::Search::HSP::HSPI methods are currently unimplemented in
-# Bio::Search::HSP::ModelHSP; they may be integrated over time but will require
-# some reconfiguring for Model-based searches
-
-eval {$hsp->matches};
-like($@, qr'matches not implemented for Model-based searches','HSP matches not implemented');
-eval {$hsp->frac_conserved};
-like($@, qr'frac_conserved not implemented for Model-based searches','HSP frac_conserved not implemented');
-eval {$hsp->frac_identical};
-like($@, qr'frac_identical not implemented for Model-based searches','HSP frac_identical not implemented');
-eval {$hsp->num_conserved};
-like($@, qr'num_conserved not implemented for Model-based searches','HSP num_conserved not implemented');
-eval {$hsp->num_identical};
-like($@, qr'num_identical not implemented for Model-based searches','HSP num_identical not implemented');
-eval {$hsp->percent_identity};
-like($@, qr'percent_identity not implemented for Model-based searches','HSP percent_identity not implemented');
-eval {$hsp->cigar_string};
-like($@, qr'cigar_string not implemented for Model-based searches','HSP cigar_string not implemented');
-eval {$hsp->generate_cigar_string};
-like($@, qr'generate_cigar_string not implemented for Model-based searches','HSP cigar_string not implemented');
 
 isa_ok($hsp->seq, 'Bio::LocatableSeq');
 is($hsp->seq_str,
@@ -540,7 +473,6 @@ is($hsp->query_string,
    "HSP query_string");
 is($hsp->range, 102, "HSP range");
 is($hsp->rank, 2, "HSP rank");
-is($hsp->seq_inds, 31, "HSP seq_inds");
 is($hsp->significance, 6.802, "HSP significance");
 is($hsp->end, 102, "HSP end");
 is($hsp->expect, 6.802, "HSP expect");
@@ -607,7 +539,6 @@ is($hsp->query_string,
    "HSP query_string");
 is($hsp->range, 102, "HSP range");
 is($hsp->rank, 1, "HSP rank");
-is($hsp->seq_inds, 69, "HSP seq_inds");
 is($hsp->significance, 1.259e-07, "HSP significance");
 is($hsp->end, 102, "HSP end");
 is($hsp->expect, 1.259e-07, "HSP expect");

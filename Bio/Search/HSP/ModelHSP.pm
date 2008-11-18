@@ -17,11 +17,11 @@ Bio::Search::HSP::ModelHSP - A HSP object for model-based searches
 =head1 SYNOPSIS
 
     use Bio::Search::HSP::ModelHSP;
-    # us it just like a Bio::Search::HSP::GenericHSP object
+    # us it just like a Bio::Search::HSP::ModelHSP object
 
 =head1 DESCRIPTION
 
-This object is a specialization of L<Bio::Search::HSP::GenericHSP> and is used
+This object is a specialization of L<Bio::Search::HSP::ModelHSP> and is used
 for searches which involve a query model, such as a Hidden Markov Model (HMM),
 covariance model (CM), descriptor, or anything else besides a sequence. Note
 that results from any HSPI class methods which rely on the query being a
@@ -60,7 +60,6 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-
 package Bio::Search::HSP::ModelHSP;
 use strict;
 use Bio::Seq::Meta;
@@ -75,7 +74,7 @@ use base qw(Bio::Search::HSP::GenericHSP);
  Returns : Bio::Search::HSP::ModelHSP
  Args    :
 
-Plus Bio::Seach::HSP::GenericHSP methods
+Plus Bio::Seach::HSP::ModelHSP methods
 
            -algorithm => algorithm used (Infernal, RNAMotif, ERPIN, etc)
            -evalue    => evalue
@@ -460,10 +459,20 @@ These methods come from Bio::SeqFeature::SimilarityPair
 
 =cut
 
-=head1 GenericHSP methods overridden in ModelHSP
+=head1 ModelHSP methods overridden in ModelHSP
 
 The following methods have been overridden due to their current reliance on
 sequence-based queries. They may be implemented in future versions of this class.
+
+=head2 frac_identical
+
+=cut
+
+sub seq_inds {
+    my $self = shift;
+    $self->warn('$hsp->seq_inds not implemented for Model-based searches');
+    return;    
+}
 
 =head2 frac_identical
 
