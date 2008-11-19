@@ -170,10 +170,10 @@ sub commit { # reindex fasta files
   my $self = shift;
 
   if (my $fh = $self->{fasta_fh}) {
-    $fh->close;
-    $self->{fasta_db} = Bio::DB::Fasta->new($self->{fasta_file});
+      $fh->close;
+      $self->{fasta_db} = Bio::DB::Fasta->new($self->{fasta_file});
   } elsif (exists $self->{file_or_dir} && -d $self->{file_or_dir}) {
-    $self->{fasta_db} = Bio::DB::Fasta->new($self->{file_or_dir});
+      $self->{fasta_db} = Bio::DB::Fasta->new($self->{file_or_dir});
   }
 }
 
