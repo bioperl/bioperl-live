@@ -729,7 +729,7 @@ sub next_result {
                             && /^\s+RF\s+[x\s]+$/o )
                       );
                     # fix for bug 2632
-                    next if ($_ =~ m/^\s+CS\s+/o);
+                    next if ($_ =~ m/^\s+CS\s+/o && $count == 0);
                     if ( /^Histogram/o || m!^//!o || /^Query sequence/o ) {
                         if ( $self->in_element('hsp') ) {
                             $self->end_element( { 'Name' => 'Hsp' } );
