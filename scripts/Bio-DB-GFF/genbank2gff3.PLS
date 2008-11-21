@@ -670,7 +670,9 @@ sub getSourceInfo {
       'dblink' => 'Dbxref',   
       'product' => 'product',
       'Reference' => 'reference',
-      'OntologyTerm' => 'Ontology_term', # stupid Cc_
+      'OntologyTerm' => 'Ontology_term',
+      'comment'  => 'Note',
+      'comment1' => 'Note',
       # various map-type locations
       # gene accession tag is named per source db !??
       # 'Index terms' => keywords ??
@@ -696,7 +698,11 @@ sub getSourceInfo {
 
   foreach my $atag (sort keys %AnnotTagMap) {
     my $gtag= $AnnotTagMap{$atag}; next unless($gtag);
-    my @anno = map{ split( /[,;] */, "$_") if($_); } $seq->annotation->get_Annotations($atag);  
+    my @anno = map{ 
+          ref $_
+         ? split( /[,;] */, $_->value) 
+         : split( /[,;] */, "$_") if($_);
+         } $seq->annotation->get_Annotations($atag);  
     foreach(@anno) { $sf->add_tag_value( $gtag => $_ ); }
     }
     

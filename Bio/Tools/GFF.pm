@@ -1035,6 +1035,9 @@ sub _gff3_string {
 	for my $value ( $feat->each_tag_value($tag) ) {	    
 	    if(  defined $value && length($value) ) { 
 				#$value =~ tr/ /+/;  #spaces are allowed now
+                if ( ref $value eq 'Bio::Annotation::Comment') {
+                    $value = $value->text;
+                }
 
 		if ($value =~ /[^a-zA-Z0-9\,\;\=\.:\%\^\*\$\@\!\+\_\?\-]/) {
 		    $value =~ s/\t/\\t/g; # substitute tab and newline 
