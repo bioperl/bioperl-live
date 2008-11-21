@@ -1019,15 +1019,34 @@ sub filled_box {
 
   # if the left end is off the end, then cover over
   # the leftmost line
-  my ($width) = $gd->getBounds;
+  $self->blunt($gd,$x1,$y1,$x2,$y2,$bg,$fg,$lw);
+#   my ($width) = $gd->getBounds;
 
-  $bg = $self->set_pen($lw,$bg) if $lw > 1;
+#   $bg = $self->set_pen($lw,$bg) if $lw > 1;
 
-  $gd->line($x1,$y1+$lw,$x1,$y2-$lw,$bg)
-    if $x1 < $self->panel->pad_left;
+#   $gd->line($x1,$y1+$lw,$x1,$y2-$lw,$bg)
+#     if $x1 < $self->panel->pad_left;
 
-  $gd->line($x2,$y1+$lw,$x2,$y2-$lw,$bg)
-    if $x2 > $width - $self->panel->pad_right;
+#   $gd->line($x2,$y1+$lw,$x2,$y2-$lw,$bg)
+#     if $x2 > $width - $self->panel->pad_right;
+}
+
+sub blunt {
+    my $self = shift;
+    my $gd   = shift;
+    my ($x1,$y1,$x2,$y2,$bg,$fg,$lw) = @_;
+
+    # if the left end is off the end, then cover over
+    # the leftmost line
+    my ($width) = $gd->getBounds;
+
+    $bg = $self->set_pen($lw,$bg) if $lw > 1;
+
+    $gd->line($x1,$y1+$lw,$x1,$y2-$lw,$bg)
+	if $x1 < $self->panel->pad_left;
+
+    $gd->line($x2,$y1+$lw,$x2,$y2-$lw,$bg)
+	if $x2 > $width - $self->panel->pad_right;
 }
 
 sub filled_oval {
@@ -1087,12 +1106,19 @@ sub filled_arrow {
   my ($width) = $gd->getBounds;
   my $indent = $y2-$y1 < $x2-$x1 ? $y2-$y1 : ($x2-$x1)/2;
 
+  my $panel        = $self->panel;
+  my $offend_left  = $x1 < $panel->pad_left;
+  my $offend_right = $x2 > $panel->width + $panel->pad_right;
+
   return $self->filled_box($gd,@_)
     if ($orientation == 0)
       or ($x1 < 0 && $orientation < 0)
         or ($x2 > $width && $orientation > 0)
 	  or ($indent <= 0)
-	    or ($x2 - $x1 < 3);
+	    or ($x2 - $x1 < 3)
+  	      or ($offend_left && $orientation < 0)
+	        or ($offend_right && $orientation > 0);
+	    
 
 
   $fg   ||= $self->fgcolor;
@@ -1120,10 +1146,10 @@ sub filled_arrow {
   $gd->polygon($poly,$fg);
 
   # blunt it a bit if off the end
-  # good idea - but isn't inuitive
-  # if ($orientation >= 0 && $x2 > $width - $self->panel->pad_right) {
-  # $gd->filledRectangle($x2-3,$y1,$x2,$y2,$self->panel->bgcolor);
-  #}
+
+  $self->blunt($gd,$x1,$y1,$x2,$y2,$bg,$fg,$lw) if 
+       ($offend_left     && $orientation > 0)
+       or ($offend_right && $orientation < 0);
 }
 
 sub linewidth {
