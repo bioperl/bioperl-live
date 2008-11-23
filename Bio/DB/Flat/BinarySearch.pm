@@ -779,112 +779,113 @@ sub build_index {
 =cut
 
 sub _index_file {
-    my ($self,$file) = @_;
-    my $v = $self->verbose;
-    open(my $FILE,"<", $file) || $self->throw("Can't open file [$file]");
+	my ($self,$file) = @_;
+	my $v = $self->verbose;
+	open(my $FILE,"<", $file) || $self->throw("Can't open file [$file]");
 
-    my $recstart = 0;
-    my $fileid = $self->get_fileid_by_filename($file);
-    my $found = 0;
-    my $id;
-    my $count = 0;
+	my $recstart = 0;
+	my $fileid = $self->get_fileid_by_filename($file);
+	my $found = 0;
+	my $id;
+	my $count = 0;
 
-    my $primary       = $self->primary_pattern;
-    my $start_pattern = $self->start_pattern;
+	my $primary       = $self->primary_pattern;
+	my $start_pattern = $self->start_pattern;
 
-    my $pos = 0;
+	my $pos = 0;
 
-    my $new_primary_entry;
+	my $new_primary_entry;
 
-    my $length;
-    #my $pos = 0;
-    my $fh = $FILE;
+	my $length;
 
-    my $done = -1;
+	my $fh = $FILE;
 
-    my @secondary_names = $self->secondary_namespaces;
-    my %secondary_id;
-    my $last_one;
+	my $done = -1;
 
-    while (<$fh>) {
+	my @secondary_names = $self->secondary_namespaces;
+	my %secondary_id;
+	my $last_one;
+
+	while (<$fh>) {
       $last_one = $_;
       $self->{alphabet} ||= $self->guess_alphabet($_);		
       if ($_ =~ /$start_pattern/) {
-	 if ($done == 0) {
-	    $id = $new_primary_entry;
-	    $self->{alphabet} ||= $self->guess_alphabet($_);
+			if ($done == 0) {
+				$id = $new_primary_entry;
+				$self->{alphabet} ||= $self->guess_alphabet($_);
 	  
-	  my $tmplen = (tell $fh) - length($_);
+				my $tmplen = (tell $fh) - length($_);
 
-	  $length = $tmplen  - $pos;
+				$length = $tmplen  - $pos;
 		
-	  unless( defined($id)) {
-	    $self->throw("No id defined for sequence");
-	  }
-	  unless( defined($fileid)) {
-	    $self->throw("No fileid defined for file $file");
-	  }
-	  unless( defined($pos)) {
-	    $self->throw("No position defined for " . $id . "\n");
-	  }
-	  unless( defined($length)) {
-	    $self->throw("No length defined for " . $id . "\n");
-	  }
-	  $self->_add_id_position($id,$pos,$fileid,$length,\%secondary_id);
+				unless( defined($id)) {
+					$self->throw("No id defined for sequence");
+				}
+				unless( defined($fileid)) {
+					$self->throw("No fileid defined for file $file");
+				}
+				unless( defined($pos)) {
+					$self->throw("No position defined for " . $id . "\n");
+				}
+				unless( defined($length)) {
+					$self->throw("No length defined for " . $id . "\n");
+				}
+				$self->_add_id_position($id,$pos,$fileid,$length,\%secondary_id);
 
-	  $pos   = $tmplen;
+				$pos   = $tmplen;
 		
-	  if ($count > 0 && $count%1000 == 0) {
-	    $self->debug( "Indexed $count ids\n") if $v > 0;
-	  }
+				if ($count > 0 && $count%1000 == 0) {
+					$self->debug( "Indexed $count ids\n") if $v > 0;
+				}
 	    
-	  $count++;
-	} else {
-	  $done = 0;
-	}
+				$count++;
+			} else {
+				$done = 0;
+			}
       }
 
       if ($_ =~ /$primary/) {
-	$new_primary_entry = $1;    
+			$new_primary_entry = $1;    
       }
 
       my $secondary_patterns = $self->secondary_patterns;
 
       foreach my $sec (@secondary_names) {
-	my $pattern = $secondary_patterns->{$sec};
+			my $pattern = $secondary_patterns->{$sec};
 
-	if ($_ =~ /$pattern/) {
-	  $secondary_id{$sec} = $1;
-	}
+			if ($_ =~ /$pattern/) {
+				$secondary_id{$sec} = $1;
+			}
       }
-	
-    }
+		
+	}
 
-    # Remember to add in the last one
+	# Remember to add in the last one
 
-    $id = $new_primary_entry;
-    my $tmplen = (tell $fh) - length($last_one);
+	$id = $new_primary_entry;
+	# my $tmplen = (tell $fh) - length($last_one);
+	my $tmplen = (tell $fh);
 
-    $length = $tmplen  - $pos;
+	$length = $tmplen - $pos;
     
-    if (!defined($id)) {
-	$self->throw("No id defined for sequence");
-    }
-    if (!defined($fileid)) {
-	$self->throw("No fileid defined for file $file");
-    }
-    if (!defined($pos)) {
-	$self->throw("No position defined for " . $id . "\n");
-    }
-    if (!defined($length)) {
-	$self->throw("No length defined for " . $id . "\n");
-    }
+	if (!defined($id)) {
+		$self->throw("No id defined for sequence");
+	}
+	if (!defined($fileid)) {
+		$self->throw("No fileid defined for file $file");
+	}
+	if (!defined($pos)) {
+		$self->throw("No position defined for " . $id . "\n");
+	}
+	if (!defined($length)) {
+		$self->throw("No length defined for " . $id . "\n");
+	}
     
-    $self->_add_id_position($id,$pos,$fileid,$length,\%secondary_id);
-    $count++;
+	$self->_add_id_position($id,$pos,$fileid,$length,\%secondary_id);
+	$count++;
     
-    close(FILE);
-    $count;
+	close(FILE);
+	$count;
 }
 
 =head2 write_primary_index
@@ -900,42 +901,41 @@ sub _index_file {
 =cut
 
 sub write_primary_index {
-    my ($self) = @_;
+	my ($self) = @_;
 
-    my @ids = keys %{$self->{_id}};
+	my @ids = keys %{$self->{_id}};
 
-    @ids = sort {$a cmp $b} @ids;
+	@ids = sort {$a cmp $b} @ids;
 
-    open (my $INDEX,">" . $self->primary_index_file) || 
-	$self->throw("Can't open primary index file [" . 
-		     $self->primary_index_file . "]");
+	open (my $INDEX,">" . $self->primary_index_file) || 
+	  $self->throw("Can't open primary index file [" . 
+						$self->primary_index_file . "]");
 
-    my $recordlength = $self->{_maxidlength} +
-	               $self->{_maxfileidlength} + 
-	               $self->{_maxposlength} +
-   		       $self->{_maxlengthlength} + 3;
-	
+	my $recordlength = $self->{_maxidlength} +
+	                   $self->{_maxfileidlength} + 
+		                $self->{_maxposlength} +
+			             $self->{_maxlengthlength} + 3;
     
-    print $INDEX sprintf("%4d",$recordlength);
+	print $INDEX sprintf("%04d",$recordlength);
 
-    foreach my $id (@ids) {
+	foreach my $id (@ids) {
 
-	if (!defined($self->{_id}{$id}{_fileid})) {
-	    $self->throw("No fileid for $id\n");
-	}
-	if (!defined($self->{_id}{$id}{_pos})) {
-	    $self->throw("No position for $id\n");
-	}
-	if (!defined($self->{_id}{$id}{_length})) {
-	    $self->throw("No length for $id");
-	}
+		if (!defined($self->{_id}{$id}{_fileid})) {
+			$self->throw("No fileid for $id\n");
+		}
+		if (!defined($self->{_id}{$id}{_pos})) {
+			$self->throw("No position for $id\n");
+		}
+		if (!defined($self->{_id}{$id}{_length})) {
+			$self->throw("No length for $id");
+		}
 
-	my $record =  $id              . "\t" . 
-	    $self->{_id}{$id}{_fileid} . "\t" .
-	    $self->{_id}{$id}{_pos}    . "\t" .
-	    $self->{_id}{$id}{_length};
+		my $record =  $id              . "\t" . 
+		  $self->{_id}{$id}{_fileid} . "\t" .
+			 $self->{_id}{$id}{_pos}    . "\t" .
+				$self->{_id}{$id}{_length};
 
-	print $INDEX sprintf("%-${recordlength}s",$record);
+		print $INDEX sprintf("%-${recordlength}s",$record);
 
     }
 }
@@ -983,7 +983,7 @@ sub write_secondary_indices {
 	
 	my $fh = $self->new_secondary_filehandle($name);	
 
-	print $fh sprintf("%4d",$length);
+	print $fh sprintf("%04d",$length);
 	@seconds = sort @seconds;
 	
 	foreach my $second (@seconds) {

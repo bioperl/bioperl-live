@@ -8,8 +8,8 @@ BEGIN {
     use lib 't/lib';
 	use BioperlTest;
 	
-	test_begin(-tests => 17,
-			   -requires_module => 'DB_File');
+	test_begin(-tests => 18,
+				  -requires_module => 'DB_File');
 	
 	use_ok('Bio::DB::Flat');
 }
@@ -32,7 +32,7 @@ my $dir = test_input_file('AAC12660.fa');
 my $result = $db->build_index(glob($dir));
 ok($result);
 
-#Now let's get the sequence out again
+# Now let's get the sequence out again
 my $seq = $db->get_Seq_by_id('AAC12660');
 ok($seq);
 is($seq->length,504);
@@ -41,7 +41,7 @@ undef $db;
 $db = Bio::DB::Flat->new(-directory  => $tmpdir,
                          -index      => 'bdb',
                          -format     => 'embl',
-			 -dbname     => 'myembl',
+								 -dbname     => 'myembl',
                          -verbose    => $verbose,
                          -write_flag => 1
 			 );
@@ -97,3 +97,16 @@ $seq = $db->get_Seq_by_id('ACON_CAEEL');
 ok($seq && ref($seq));
 
 undef $db;
+
+$db = Bio::DB::Flat->new(-directory  => $tmpdir,
+                         -index      => 'binarysearch',
+                         -format     => 'fasta',
+								 -dbname     => 'myfasta',
+                         -verbose    => $verbose,
+                         -write_flag => 1
+			 );
+
+$dir = test_input_file('tmp.fst');
+$result = $db->build_index(glob($dir));
+ok($result);
+
