@@ -20,20 +20,13 @@ sequence class with residue-based meta information
   use Bio::LocatableSeq;
   use Bio::Seq::Meta::Array;
 
-  my $seq = Bio::LocatableSeq->new(-id=>'test',
+  my $seq = Bio::Seq::Meta::Array->new(-id=>'test',
                                    -seq=>'ACTGCTAGCT',
                                    -start=>2434,
                                    -start=>2443,
                                    -strand=>1,
                                    -varbose=>1, # to see warnings
                                   );
-
-  # Though this class implements both Bio::SeqI and Bio::PrimarySeqI,
-  # only blessing into Bio::PrimarySeqI implementations is supported!
-
-  bless $seq, Bio::Seq::Meta::Array;
-
-  # the existing sequence object can be a Bio::PrimarySeq, too
 
   # to test this is a meta seq object
   $seq->isa("Bio::Seq::Meta::Array")
@@ -81,11 +74,13 @@ L<Bio::Seq::MetaI>,
 L<Bio::Seq::Meta>,
 L<Bio::Seq::Quality>
 
-=head1 TODO
+=head1 NOTE
 
-Should this class be reimplemented? The use of both Bio::SeqI and
-Bio::PrimarySeqI interfaces is ambiguous and leads to subtle bugs (see bug
-2262) when blessing into anything other than Bio::PrimarySeqI.
+This Bio::Seq::MetaI implementation inherits from Bio::LocatableSeq, which
+itself inherits from Bio::PrimarySeq. It is not a Bio::SeqI, so bless-ing
+objects of this class into a Bio::SeqI or vice versa and will not work as
+expected (see bug 2262). This may be addressed in a future refactor of
+Bio::LocatableSeq.
 
 =head1 FEEDBACK
 

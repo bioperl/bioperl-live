@@ -22,7 +22,7 @@ residue-based meta information
   use Bio::Tools::OddCodes;
   use Bio::SeqIO;
 
-  my $seq = Bio::LocatableSeq->new(-id=>'test',
+  my $seq = Bio::Seq::Meta->new(-id=>'test',
                                    -seq=>'ACTGCTAGCT',
                                    -start=>2434,
                                    -end=>2443,
@@ -30,9 +30,6 @@ residue-based meta information
                                    -verbose=>1, # to see warnings
                                   );
 
-  # Only blessing into Bio::PrimarySeqI implementations is supported!
-
-  bless $seq, Bio::Seq::Meta;
   # the existing sequence object can be a Bio::PrimarySeq, too
 
   # to test this is a meta seq object
@@ -62,7 +59,6 @@ residue-based meta information
 
   my $out = Bio::SeqIO->new(-format=>'metafasta');
   $out->write_seq($seq);
-
 
 =head1 DESCRIPTION
 
@@ -124,6 +120,16 @@ class wide default name for the meta data and are thus special cases
 Note that internally names are keys in a hash and any misspelling of a
 name will silently store the data under a wrong name. The used names
 (keys) can be retrieved using method meta_names(). See L<meta_names>.
+
+=back
+
+=head1 NOTE
+
+This Bio::Seq::MetaI implementation inherits from Bio::LocatableSeq, which
+itself inherits from Bio::PrimarySeq. It is not a Bio::SeqI, so bless-ing
+objects of this class into a Bio::SeqI or vice versa and will not work as
+expected (see bug 2262). This may be addressed in a future refactor of
+Bio::LocatableSeq.
 
 =back
 
