@@ -47,7 +47,6 @@ Bio::Search::HSP::GenericHSP - A "Generic" implementation of a High Scoring Pair
 # TODO: Describe how to configure a SearchIO stream so that it generates
 #       GenericHSP objects.
 
-
 =head1 DESCRIPTION
 
 This implementation is "Generic", meaning it is is suitable for
@@ -373,7 +372,7 @@ sub frac_conserved {
 =cut
 
 sub gaps {
-    my ($self, $type,$value) = @_;
+    my ($self, $type, $value) = @_;
 
     unless ($self->{_did_pregaps}) {
         $self->_pre_gaps;
@@ -1047,25 +1046,26 @@ sub _calculate_seq_positions {
         #$sseq =~ s![\\\/]!!g;
     }
 
-    my ($warn, $sbjct_offset, $query_offset) = ('',1,1);
+    $self->{seqinds}{'_warnRes'} = '';
+    ($self->{_sbjct_offset}, $self->{_query_offset}) = (1,1);
     if($prog =~ /^(?:PSI)?T(BLAST|FAST)(N|X|Y)/oi ) {
-        $sbjct_offset = 3;
+        $self->{_sbjct_offset} = 3;
         if ($1 eq 'BLAST' && $2 eq 'X') { #TBLASTX
-            $query_offset = 3;
-            $warn = 'query/subject';
+            $self->{_query_offset} = 3;
+            $self->{seqinds}{'_warnRes'} = 'query/subject';
         } else {
-            $warn = 'subject';
+            $self->{seqinds}{'_warnRes'} = 'subject';
         }
     } elsif($prog =~ /^(BLAST|FAST)(X|Y|XY)/oi  ) {
-        $query_offset = 3;
-        $warn = 'query';
+        $self->{_query_offset} = 3;
+        $self->{seqinds}{'_warnRes'} = 'query';
     }
     my ($qfs, $sfs) = (0,0);
     CHAR_LOOP:
     for my $pos (0..CORE::length($seqString)-1) {
-        my @qrange = (0 - $qfs)..($query_offset - 1);
-        my @srange = (0 - $sfs)..($sbjct_offset - 1);
-        #$self->debug("QRange:@qrange SRange:@srange\n") if ($qfs || $sfs);
+        my @qrange = (0 - $qfs)..($self->{_query_offset} - 1);
+        my @srange = (0 - $sfs)..($self->{_sbjct_offset} - 1);
+        # $self->debug("QRange:@qrange SRange:@srange\n") if ($qfs || $sfs);
         ($qfs, $sfs) = (0,0);
         my ($mchar, $qchar, $schar) = (
             unpack("x$pos A1",$seqString) || ' ',
@@ -1089,35 +1089,52 @@ sub _calculate_seq_positions {
             $sfs = $schar eq '/'  ?  -1 :
                    $schar eq '\\' ?   1 :
                    0;
-            # may need to rework logic depending on how we want to treat gaps
-            # across from insert/delete markers. Right now they aren't included.
-            # --cjfields
             if ($qfs) {
-                # gaps across from frameshifts are not counted
-                $self->{seqinds}{_frameshiftRes_query}{ $resCount_query - ($query_offset * $qdir)} = $qfs;
+                # Frameshifts are tricky.
+                
+                # '/' indicates that the next residue is shifted back one
+                # (-1) frame position and is a deletion of one base (so to
+                # correctly align, a base is inserted). That residue should only
+                # occupy two sequence positions instead of three.
+                
+                # '\' indicates that the next residue is shifted forward
+                # one (+1) frame position and is an insertion of one base (so to
+                # correctly align, a base is removed). That residue should
+                # occupy four sequence positions instead of three.
+                
+                # Note that gaps are not counted across from frameshifts.
+                # Frameshift indices are a range of positions starting in the
+                # previous sequence position in which the frameshift occurs;
+                # they are ambiguous by nature.
+                $self->{seqinds}{_frameshiftRes_query}{ $resCount_query - ($_ * $qdir * $qfs) } = $qfs for @qrange;
                 $matchtype = "$qfs frameshift-query";
                 $sgap = $qgap = 1;
             }
             elsif ($sfs) {
-                $self->{seqinds}{_frameshiftRes_sbjct}{ $resCount_sbjct - ($sbjct_offset * $sdir)} = $sfs;
+                $self->{seqinds}{_frameshiftRes_sbjct}{ $resCount_sbjct - ($_ * $sdir * $sfs) } = $sfs for @srange;
                 $matchtype = "$sfs frameshift-sbcjt";
                 $sgap = $qgap = 1;
             }
             elsif ($qchar eq $self->{GAP_SYMBOL}) {
-                $self->{seqinds}{_gapRes_query}{ $resCount_query - ($query_offset * $qdir)}++;
+                # gap are counted as being in the immediately preceeding residue
+                # position; for translated sequences this is not the start of
+                # the previous codon, but the third codon position
+                $self->{seqinds}{_gapRes_query}{ $resCount_query - $qdir }++ for @qrange;
                 $matchtype = 'gap-query';
                 $qgap++;
             }
             elsif ($schar eq $self->{GAP_SYMBOL}) {
-                $self->{seqinds}{_gapRes_sbjct}{ $resCount_sbjct - ($sbjct_offset * $sdir)}++;
+                $self->{seqinds}{_gapRes_sbjct}{ $resCount_sbjct - $sdir }++ for @srange;
                 $matchtype = 'gap-sbjct';
                 $sgap++;
             }
             else {
-                $self->{seqinds}{_mismatchRes_query}{ $resCount_query - ($_ * $qdir) } = 1 for @qrange;
-                $self->{seqinds}{_mismatchRes_sbjct}{ $resCount_sbjct - ($_ * $sdir) } = 1 for @srange;
+                # if not a gap or frameshift in either seq, must be mismatch
+                $self->{seqinds}{_mismatchRes_query}{ $resCount_query + ($_ * $qdir) } = 1 for @qrange;
+                $self->{seqinds}{_mismatchRes_sbjct}{ $resCount_sbjct + ($_ * $sdir) } = 1 for @srange;
                 $matchtype = 'mismatch';
             }
+            # always add a nomatch unless the current position in the seq is a gap
             if (!$sgap) {
                 $self->{seqinds}{_nomatchRes_sbjct}{ $resCount_sbjct + ($_ * $sdir) } = 1 for @srange;
             }
@@ -1135,12 +1152,11 @@ sub _calculate_seq_positions {
         #                     $schar,
         #                     $resCount_sbjct,
         #                     $matchtype,
-        #                     ($query_offset * $qdir),
-        #                     ($sbjct_offset * $sdir)));
+        #                     ($self->{_query_offset} * $qdir),
+        #                     ($self->{_sbjct_offset} * $sdir)));
         $resCount_query += ($qdir * (scalar(@qrange) + $qfs)) if !$qgap;
         $resCount_sbjct += ($sdir * (scalar(@srange) + $sfs)) if !$sgap;
     }
-    $self->{seqinds}{'_warnRes'}            = $warn;
     return 1;
 }
 
@@ -1576,6 +1592,7 @@ sub _pre_similar_stats {
 }
 
 # before calling the frac_* methods
+
 sub _pre_frac {
     my $self = shift;
     my $hsp_len = $self->{HSP_LENGTH};
@@ -1606,6 +1623,10 @@ sub _pre_frac {
 }
 
 # before calling gaps()
+# This relies first on passed parameters (parser-dependent), then on gaps
+# calculated by seq_inds() (if set), then falls back to directly checking
+# for '-' as a last resort  
+
 sub _pre_gaps {
     my $self = shift;
     my $query_gaps = $self->{QUERY_GAPS};
@@ -1618,12 +1639,16 @@ sub _pre_gaps {
     if( defined $query_gaps ) {
         $self->gaps('query', $query_gaps);
     } elsif( defined $query_seq ) {
-        $self->gaps('query', scalar ( $query_seq =~ tr/\-//));
+        my $qg = (defined $self->{'_query_offset'}) ? $self->seq_inds('query','gaps') : scalar( $query_seq =~ tr/\-//);
+        my $offset = $self->{'_query_offset'} || 1;
+        $self->gaps('query', $qg/$offset);
     }
     if( defined $hit_gaps ) {
         $self->gaps('hit', $hit_gaps);
     } elsif( defined $hit_seq ) {
-        $self->gaps('hit', scalar ( $hit_seq =~ tr/\-//));
+        my $hg = (defined $self->{'_sbjct_offset'}) ? $self->seq_inds('hit','gaps') : scalar( $hit_seq =~ tr/\-//);
+        my $offset = $self->{'_sbjct_offset'} || 1;
+        $self->gaps('hit', $hg/$offset);
     }
     if( ! defined $gaps ) {
         $gaps = $self->gaps("query") + $self->gaps("hit");

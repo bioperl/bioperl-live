@@ -129,31 +129,23 @@ sub get_aln {
     # this seemed a bit insane to me at first, but it appears to 
     # work --jason
     
+    # modified to deal with LocatableSeq's end point verification and to deal
+    # with frameshifts (which shift the end points in translated sequences).
+    
     # we infer the end of the regional sequence where the first
     # non space is in the homology string
     # then we use the HSP->length to tell us how far to read
     # to cut off the end of the sequence
         
-    my ($start) = 0;
-    if( $self->homology_string() =~ /^(\s+)/ ) {
-	$start = CORE::length($1);
+    my ($start, $rest) = (0, 0);
+    if( $self->homology_string() =~ /^(\s+)?(.*?)\s*$/ ) {
+      ($start, $rest) = ($1 ? CORE::length($1) : 0, CORE::length($2));
     }
     $self->debug("hs seq is '$hs'\n");
     $self->debug("qs seq is '$qs'\n");
 
-    $hs = substr($hs, $start,$self->length('total'));
-    $qs = substr($qs, $start,$self->length('total'));
-    foreach my $seq ( $qs,$hs)  {
-	foreach my $f ( '\\', '/', ' ') {
-	    my $index =  index($seq,$f);
-	    while( $index >=0 && length($seq) > 0 ) {
-		substr($hs,$index,1) = '';
-		substr($qs,$index,1) = '';
-		$self->debug( "$f, $index+1, for ".length($seq). " ($seq)\n");
-		$index = index($seq,$f,$index+1);
-	    }
-	}
-    }
+    $hs = substr($hs, $start,$rest);
+    $qs = substr($qs, $start,$rest);
 
     my $seqonly = $qs;
     $seqonly =~ s/\s+//g;
@@ -165,11 +157,15 @@ sub get_aln {
     unless( defined $s_nm && CORE::length ($s_nm) ) {
 	$s_nm = 'hit';
     }
+    $self->_calculate_seq_positions;
     my $query = Bio::LocatableSeq->new('-seq'   => $seqonly,
 				      '-id'    => $q_nm,
 				      '-start' => $self->query->start,
 				      '-end'   => $self->query->end,
-                      '-mapping' => [1, $self->{_query_mapping}]                      
+                      '-frameshifts' => (exists $self->{seqinds}{_frameshiftRes_query}) ?
+                            $self->{seqinds}{_frameshiftRes_query} : undef,
+                      '-mapping' => [1, $self->{_query_mapping}],
+                      -verbose => 1
 				      );
     $seqonly = $hs;
     $seqonly =~ s/\s+//g;
@@ -177,7 +173,10 @@ sub get_aln {
 				      '-id'    => $s_nm,
 				      '-start' => $self->hit->start,
 				      '-end'   => $self->hit->end,
-                      '-mapping' => [1, $self->{_hit_mapping}]
+                      '-frameshifts' => exists $self->{seqinds}{_frameshiftRes_sbjct} ?
+                            $self->{seqinds}{_frameshiftRes_sbjct} : undef,
+                      '-mapping' => [1, $self->{_hit_mapping}],
+                      -verbose => 1
 				      );
     $aln->add_seq($query);
     $aln->add_seq($hit);
