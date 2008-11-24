@@ -561,11 +561,16 @@ sub uniq_seq {
 # it's necessary to ignore "n", "N", leading gaps and ending gaps in
 # comparing two sequence strings
 
-# 1st, convert "n", "N" to "?" (for DNA sequence only):
+    # 1st, convert "n", "N" to "?" (for DNA sequence only):
 	$str =~ s/n/\?/gi if $str =~ /^[atcgn-]+$/i;
-# 2nd, convert leading and ending gaps to "?":
+    # 2nd, convert leading and ending gaps to "?":
 	$str = &_convert_leading_ending_gaps($str, '-', '?');
-	my $new = Bio::LocatableSeq->new(-id      => $seq->id(),
+    # Note that '?' also can mean unknown residue.
+    # I don't like making global class member changes like this, too
+    # prone to errors... -- cjfields 08-11-18
+    local $Bio::LocatableSeq::GAP_SYMBOLS = '-\?';
+	my $new = Bio::LocatableSeq->new(
+                     -id      => $seq->id(),
 					 -alphabet=> $seq->alphabet,
 					 -seq     => $str,
 					 -start   => $seq->start,
