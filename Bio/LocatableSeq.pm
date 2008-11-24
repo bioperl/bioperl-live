@@ -18,15 +18,11 @@ another seq.
 
 =head1 SYNOPSIS
 
-
     use Bio::LocatableSeq;
     my $seq = Bio::LocatableSeq->new(-seq => "CAGT-GGT",
-				    -id  => "seq1",
-				    -start => 1,
-				    -end   => 7);
-
-
-=head1 DESCRIPTION
+                    -id  => "seq1",
+                    -start => 1,
+                    -end   => 7);
 
     # a normal sequence object
     $locseq->seq();
@@ -38,8 +34,28 @@ another seq.
 
     # inherits off RangeI, so range operations possible
 
-=head1 FEEDBACK
+=head1 DESCRIPTION
 
+The LocatableSeq sequence object was developed mainly because the SimpleAlign
+object requires this functionality, and in the rewrite of the Sequence object we
+had to decide what to do with this.
+
+It is, to be honest, not well integrated with the rest of bioperl. For example,
+the trunc() function does not return a LocatableSeq object, as some might have
+thought. Also, the sequence is not a Bio::SeqI, so the location is simply
+inherited from Bio::RangeI and is not stored in a Bio::Location. 
+
+There are all sorts of nasty gotcha's about interactions between coordinate
+systems when these sort of objects are used. Some mapping now occurs to deal
+with HSP data, however it can probably be integrated in better and most methods
+do not implement it correctly yet. Also, several PrimarySeqI methods (subseq(),
+trunc(), etc.) do not behave as expected and must be used with care.
+
+Due to this, LocatableSeq functionality is to be refactored in a future BioPerl
+release. However, for alignment functionality it works adequately for the time
+being
+
+=head1 FEEDBACK
 
 =head2 Mailing Lists
 
@@ -50,17 +66,6 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-The locatable sequence object was developed mainly because the
-SimpleAlign object requires this functionality, and in the rewrite
-of the Sequence object we had to decide what to do with this.
-
-It is, to be honest, not well integrated with the rest of bioperl, for
-example, the trunc() function does not return a LocatableSeq object,
-as some might have thought. There are all sorts of nasty gotcha's
-about interactions between coordinate systems when these sort of
-objects are used.
-
-
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
@@ -68,7 +73,6 @@ the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
   http://bugzilla.open-bio.org/
-
 
 =head1 APPENDIX
 
@@ -85,16 +89,15 @@ use strict;
 
 use Bio::Location::Simple;
 use Bio::Location::Fuzzy;
-use vars qw($GAP_SYMBOLS $OTHER_SYMBOLS $MATCHPATTERN);
+use vars qw($GAP_SYMBOLS $OTHER_SYMBOLS $FRAMESHIFT_SYMBOLS $MATCHPATTERN);
 
 # should we change these to non-globals?  (I can see this
 # causing problems down the road...) - cjfields
 
 $GAP_SYMBOLS = '\-\.=~';
-
-$OTHER_SYMBOLS = '\*\?';
-
-$MATCHPATTERN = '0-9A-Za-z'.$GAP_SYMBOLS.$OTHER_SYMBOLS;
+$FRAMESHIFT_SYMBOLS = '\\\/';
+$OTHER_SYMBOLS = '\?';
+$MATCHPATTERN = '0-9A-Za-z\*'.$GAP_SYMBOLS.$FRAMESHIFT_SYMBOLS.$OTHER_SYMBOLS;
 
 use base qw(Bio::PrimarySeq Bio::RangeI);
 
@@ -102,12 +105,13 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my ($start,$end,$strand, $mapping) =
-	$self->_rearrange( [qw(START END STRAND MAPPING)],
-			   @args);
+    my ($start,$end,$strand, $mapping, $fs) =
+    $self->_rearrange( [qw(START END STRAND MAPPING FRAMESHIFTS)],
+               @args);
     
     $mapping ||= [1,1];
     $self->mapping($mapping);
+    defined $fs    && $self->frameshifts($fs);
     defined $start && $self->start($start);
     defined $end   && $self->end($end);
     defined $strand && $self->strand($strand);
@@ -127,14 +131,14 @@ sub new {
 =cut
 
 sub start{
-	my $self = shift;
-	if( @_ ) {
-		my $value = shift;
-		$self->{'start'} = $value;
-	}
-	return $self->{'start'} if defined $self->{'start'};
-	return 1                if $self->seq;
-	return;
+    my $self = shift;
+    if( @_ ) {
+        my $value = shift;
+        $self->{'start'} = $value;
+    }
+    return $self->{'start'} if defined $self->{'start'};
+    return 1                if $self->seq;
+    return;
 }
 
 =head2 end
@@ -145,37 +149,41 @@ sub start{
            sequence. '0' means before the original sequence starts.
  Returns : value of end
  Args    : newvalue (optional)
+ Note    : although this is a get/set, it checks passed values against the
+           calculated end point ( derived from the sequence and based on
+           $GAP_SYMBOLS and possible frameshifts() ).  If there is no match,
+           it will warn and set the proper value.  Probably best used for
+           debugging proper sequence calculations.
 
 =cut
 
 sub end {
-	my $self = shift;
-	if( @_ ) {
-		my $value = shift;
+    my $self = shift;
+    if( @_ ) {
+        my $value = shift;
         my $st = $self->start;
         # start of 0 usually means the sequence is all gaps but maps to
         # other sequences in an alignment
-		if ($self->seq && $st != 0 ) {
+        if ($self->seq && $st != 0 ) {
             my $len = $self->_ungapped_len;
-            my $calend = $len + $st - 1;
-			my $id = $self->id;
-			if ($calend != $value) {
-				$self->warn("In sequence $id residue count gives end value ".
+            my $calend = $st + $len - 1;
+            my $id = $self->id;
+            if ($calend != $value) {
+                $self->warn("In sequence $id residue count gives end value ".
                 "$calend.  \nOverriding value [$value] with value $calend for ".
                 "Bio::LocatableSeq::end().\n".$self->seq);
-				$value = $calend;
-			}
-		}
-
-		$self->{'end'} = $value;
+                $value = $calend;
+            }
+        }
+        $self->{'end'} = $value;
     }
 
-	if (defined $self->{'end'}) {
+    if (defined $self->{'end'}) {
         return $self->{'end'}
-    } elsif (my $len = $self->_ungapped_len) {
-        return $self->{'end'} = $len + $self->start - 1;
+    } elsif ( my $len = $self->_ungapped_len) {
+        return $len + $self->start - 1;
     } else {
-        return
+        return;
     }
 }
 
@@ -185,8 +193,12 @@ sub _ungapped_len {
     my $self = shift;
     return unless my $string = $self->seq;
     my ($map_res, $map_coord) = $self->mapping;
-    $string =~ s/[$GAP_SYMBOLS]+//g;
-    return CORE::length($string)/($map_res/$map_coord);
+    my $offset = 0;
+    if (my %data = $self->frameshifts) {
+        map {$offset += $_} values %data;
+    }
+    $string =~ s{[$GAP_SYMBOLS$FRAMESHIFT_SYMBOLS]+}{}g;
+    return CORE::length($string)/($map_res/$map_coord) + $offset/($map_coord/$map_res);
 }
 
 =head2 strand
@@ -202,8 +214,8 @@ sub _ungapped_len {
 sub strand{
    my $self = shift;
    if( @_ ) {
-		my $value = shift;
-		$self->{'strand'} = $value;
+        my $value = shift;
+        $self->{'strand'} = $value;
     }
     return $self->{'strand'};
 }
@@ -212,12 +224,12 @@ sub strand{
 
  Title   : mapping
  Usage   : $obj->mapping($newval)
- Function: return or set the mapping indices (indicates # residues mapped to
-           # of positions)
- Returns : two-element array (# res, # pos)
- Args    : two elements (# res, # pos); this can also be passed in as an
-           array reference of the two elements (as might be passed
-           upon Bio::LocatableSeq instantiation, for instance).
+ Function: return or set the mapping indices (indicates # symbols/positions in
+           the source string mapping to # of coordinate positions)
+ Returns : two-element array (# symbols => # coordinate pos)
+ Args    : two elements (# symbols => # coordinate pos); this can also be
+           passed in as an array reference of the two elements (as might be
+           passed upon Bio::LocatableSeq instantiation, for instance).
 
 =cut
 
@@ -226,11 +238,39 @@ sub mapping {
     if( @_ ) {
         my @mapping = (ref($_[0]) eq 'ARRAY') ? @{$_[0]} : @_;
         $self->throw("Must pass two values (# residues mapped to # positions)")
-            unless @mapping == 2;
-		$self->{'_mapping'} = \@mapping;
+            if @mapping != 2;
+        if ((grep {$_ != 1 && $_ != 3} @mapping) || ($mapping[0] == 3 && $mapping[1] == 3)) {
+            $self->throw("Mapping values other than 1 or 3 are not currently supported")
+        }
+        $self->{'_mapping'} = \@mapping;
     }
-    $self->throw('Arggh!!!') if !exists $self->{'_mapping'};
+    $self->throw('Mapping for LocatableSeq not set') if !exists $self->{'_mapping'};
     return @{ $self->{'_mapping'} };
+}
+
+=head2 frameshifts
+
+ Title   : frameshifts
+ Usage   : $obj->frameshifts($newval)
+ Function: get/set the frameshift hash, which contains sequence positions as
+           keys and the shift (-2, -1, 1, 2) as the value
+ Returns : hash
+ Args    : hash or hash reference
+
+=cut
+
+sub frameshifts {
+    my $self = shift;
+    if( @_ ) {
+        if (ref $_[0] eq 'HASH') {
+            $self->{_frameshifts} = $_[0];
+        } else {
+            # assume this is a full list to be converted to a hash
+            $self->{_frameshifts} = \%{@_} # coerce into hash ref
+        }
+    }
+    (defined $self->{_frameshifts} && ref $self->{_frameshifts} eq 'HASH') ?
+        return %{$self->{_frameshifts}} : return ();
 }
 
 =head2 get_nse
@@ -258,21 +298,18 @@ sub get_nse{
 
 }
 
-
 =head2 no_gap
 
  Title   : no_gaps
  Usage   :$self->no_gaps('.')
- Function:
-
-           Gets number of gaps in the sequence. The count excludes
+ Function:Gets number of gaps in the sequence. The count excludes
            leading or trailing gap characters.
 
            Valid bioperl sequence characters are [A-Za-z\-\.\*]. Of
            these, '.' and '-' are counted as gap characters unless an
            optional argument specifies one of them.
 
- Returns : number of internal gaps in the sequnce.
+ Returns : number of internal gaps in the sequence.
  Args    : a gap character (optional)
 
 =cut
@@ -285,17 +322,16 @@ sub no_gaps {
     $char ||= $GAP_SYMBOLS;
 
     $self->warn("I hope you know what you are doing setting gap to [$char]")
-	unless $char =~ /[-.]/;
+        unless $char =~ /[-.]/;
 
     $seq = $self->seq;
     return 0 unless $seq; # empty sequence does not have gaps
 
     $seq =~ s/^([$char]+)//;
     $seq =~ s/([$char]+)$//;
-    $count++ while $seq =~ /[$char]+/g;
+    $count = scalar( $seq =~ /[$char]+/g );
 
     return $count;
-
 }
 
 
@@ -309,7 +345,7 @@ sub no_gaps {
            (i.e. column number) of the given residue number in the
            sequence. For example, for the sequence
 
-  	     Seq1/91-97 AC..DEF.GH
+         Seq1/91-97 AC..DEF.GH
 
            column_from_residue_number(94) returns 6.
 
@@ -328,30 +364,30 @@ sub column_from_residue_number {
     my ($self, $resnumber) = @_;
 
     $self->throw("Residue number has to be a positive integer, not [$resnumber]")
-	unless $resnumber =~ /^\d+$/ and $resnumber > 0;
+    unless $resnumber =~ /^\d+$/ and $resnumber > 0;
 
     if ($resnumber >= $self->start() and $resnumber <= $self->end()) {
-	my @residues = split //, $self->seq;
-	my $count = $self->start();
-	my $i;
-	my ($start,$end,$inc,$test);
+    my @residues = split //, $self->seq;
+    my $count = $self->start();
+    my $i;
+    my ($start,$end,$inc,$test);
         my $strand = $self->strand || 0;
-	# the following bit of "magic" allows the main loop logic to be the
-	# same regardless of the strand of the sequence
-	($start,$end,$inc,$test)= ($strand == -1)?
+    # the following bit of "magic" allows the main loop logic to be the
+    # same regardless of the strand of the sequence
+    ($start,$end,$inc,$test)= ($strand == -1)?
             (scalar(@residues-1),0,-1,sub{$i >= $end}) :
                 (0,scalar(@residues-1),1,sub{$i <= $end});
 
-	for ($i=$start; $test->(); $i+= $inc) {
-	    if ($residues[$i] ne '.' and $residues[$i] ne '-') {
-		$count == $resnumber and last;
-		$count++;
-	    }
-	}
-	# $i now holds the index of the column.
+    for ($i=$start; $test->(); $i+= $inc) {
+        if ($residues[$i] ne '.' and $residues[$i] ne '-') {
+        $count == $resnumber and last;
+        $count++;
+        }
+    }
+    # $i now holds the index of the column.
         # The actual column number is this index + 1
 
-	return $i+1;
+    return $i+1;
     }
 
     $self->throw("Could not find residue number $resnumber");
@@ -370,7 +406,7 @@ sub column_from_residue_number {
            L<Bio::Range> where values can be undefined. For example,
            for the sequence:
 
-  	     Seq/91-96 .AC..DEF.G.
+         Seq/91-96 .AC..DEF.G.
 
            location_from_column( 3 ) position 92
            location_from_column( 4 ) position 92^93
@@ -400,10 +436,10 @@ sub location_from_column {
     my ($self, $column) = @_;
 
     $self->throw("Column number has to be a positive integer, not [$column]")
-	unless $column =~ /^\d+$/ and $column > 0;
+    unless $column =~ /^\d+$/ and $column > 0;
     $self->throw("Column number [$column] is larger than".
-		 " sequence length [". $self->length. "]")
-	unless $column <= $self->length;
+         " sequence length [". $self->length. "]")
+    unless $column <= $self->length;
 
     my ($loc);
     my $s = $self->subseq(1,$column);
@@ -415,25 +451,25 @@ sub location_from_column {
     my $strand = $self->strand() || 1;
     my $relative_pos = ($strand == -1)
         ? ($self->end - $pos + 1)
-	: ($pos + $start - 1);
+    : ($pos + $start - 1);
     if ($self->subseq($column, $column) =~ /[a-zA-Z\*]/ ) {
-	$loc = Bio::Location::Simple->new
-	    (-start  => $relative_pos,
-	     -end    => $relative_pos,
-	     -strand => 1,
-	     );
+    $loc = Bio::Location::Simple->new
+        (-start  => $relative_pos,
+         -end    => $relative_pos,
+         -strand => 1,
+         );
     } elsif ($pos == 0 and $self->start == 1) {
     } else {
       my ($start,$end) = ($relative_pos, $relative_pos + $strand);
       if ($strand == -1) {
-	($start,$end) = ($end,$start);
+    ($start,$end) = ($end,$start);
       }
-	$loc = Bio::Location::Simple->new
-	    (-start         => $start,
-	     -end           => $end,
-	     -strand        => 1,
-	     -location_type => 'IN-BETWEEN'
-	     );
+    $loc = Bio::Location::Simple->new
+        (-start         => $start,
+         -end           => $end,
+         -strand        => 1,
+         -location_type => 'IN-BETWEEN'
+         );
     }
     return $loc;
 }
@@ -454,14 +490,18 @@ sub location_from_column {
 
 sub revcom {
     my ($self) = @_;
-
+    # since we don't know whether sequences without 1 => 1 correlation can be
+    # revcom'd, kick back
+    if (grep {$_ != 1} $self->mapping) {
+        $self->warn('revcom() not supported for sequences with mapped values of > 1');
+        return;
+    }
     my $new = $self->SUPER::revcom;
     $new->strand($self->strand * -1) if $self->strand;
     $new->start($self->start) if $self->start;
     $new->end($self->end) if $self->end;
     return $new;
 }
-
 
 =head2 trunc
 
@@ -498,14 +538,15 @@ sub trunc {
  Usage   : if(! $seq->validate_seq($seq_str) ) {
                 print "sequence $seq_str is not valid for an object of
                 alphabet ",$seq->alphabet, "\n";
-	   }
+            }
  Function: Validates a given sequence string. A validating sequence string
            must be accepted by seq(). A string that does not validate will
            lead to an exception if passed to seq().
 
            The implementation provided here does not take alphabet() into
            account. Allowed are all letters (A-Z), numbers [0-9] 
-           and '-','.','*','?','=',and '~'.
+           and common symbols used for gaps, stop codons, unknown residues,
+           and frameshifts, including '-','.','*','?','=',and '~'.
 
  Example :
  Returns : 1 if the supplied sequence string is valid for the object, and
@@ -516,17 +557,17 @@ sub trunc {
 =cut
 
 sub validate_seq {
-	my ($self,$seqstr) = @_;
-	if( ! defined $seqstr ){ $seqstr = $self->seq(); }
-	return 0 unless( defined $seqstr);
-	
-	if((CORE::length($seqstr) > 0) &&
-	   ($seqstr !~ /^([$MATCHPATTERN]+)$/)) {
-	    $self->warn("seq doesn't validate, mismatch is " .
-			join(",",($seqstr =~ /([^$MATCHPATTERN]+)/g)));
-		return 0;
-	}
-	return 1;
+    my ($self,$seqstr) = @_;
+    if( ! defined $seqstr ){ $seqstr = $self->seq(); }
+    return 0 unless( defined $seqstr);
+    
+    if((CORE::length($seqstr) > 0) &&
+       ($seqstr !~ /^([$MATCHPATTERN]+)$/)) {
+        $self->warn("seq doesn't validate with [$MATCHPATTERN], mismatch is " .
+            join(",",($seqstr =~ /([^$MATCHPATTERN]+)/g)));
+        return 0;
+    }
+    return 1;
 }
 
 1;

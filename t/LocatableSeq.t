@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 86);
+    test_begin(-tests => 100);
 	
 	use_ok('Bio::LocatableSeq');
 	use_ok('Bio::AlignIO');
@@ -37,7 +37,6 @@ isa_ok $loc,'Bio::Location::Simple';
 is $loc->start, 3;
 is $loc->location_type, 'IN-BETWEEN';
 is $loc->to_FTstring, '3^4';
-
 
 is $loc = $seq->location_from_column(2), undef;
 TODO: {
@@ -82,10 +81,6 @@ $seq2 = $seq->trunc(3,8);
 is $seq2->seq, 'atg---';
 is $seq2->start, 4;
 is $seq2->end, 6;
-#use Data::Dumper;
-#print Dumper $seq;
-#print Dumper $seq2;
-#exit;
 $seq2 = $seq->revcom();
 is $seq2->seq, '--tac---cat--';
 is $seq2->start, $seq->start;
@@ -160,3 +155,75 @@ ok $seq = Bio::LocatableSeq->new();
 is $seq->seq, undef;
 is $seq->start, undef;
 is $seq->end, undef;
+
+# test mapping
+
+# mapping only supported for 1 => 1, 3 => 1, or 1 => 3 mapping relationships
+
+eval{$seq = Bio::LocatableSeq->new(
+                 -mapping => [40 => 2],
+			     );};
+
+ok($@);
+like($@, qr/Mapping values other than 1 or 3 are not currently supported/);
+
+eval{$seq = Bio::LocatableSeq->new(
+                 -mapping => [3 => 3],
+			     );};
+
+ok($@);
+
+# sequence is translated to protein, retains original DNA coordinates
+# mapping is 1 residue for every 3 coordinate positions
+$seq = Bio::LocatableSeq->new(
+			     -seq => 'KKKAIDLVGVDKARENRQAIYLGASAIAEF',
+			     -strand => -1,
+                 -mapping => [1 => 3],
+                 -start => 1,
+                 -end => 90,
+			     -alphabet => 'dna'
+			     );
+
+is $seq->seq, 'KKKAIDLVGVDKARENRQAIYLGASAIAEF';
+is $seq->start, 1;
+is $seq->end, 90;
+
+# sequence is reverse-translated to DNA, retains original protein coordinates
+# mapping is 3 residues for every 1 coordinate positions
+$seq = Bio::LocatableSeq->new(
+			     -seq => 'aaraaraargcnathgayytngtnggngtngayaargcnmgngaraaymgncargcnathtayytnggngcnwsngcnathgcngartty',
+			     -strand => -1,
+                 -mapping => [3 => 1],
+                 -start => 1,
+                 -end => 30,
+			     -alphabet => 'protein'
+			     );
+
+is $seq->seq, 'aaraaraargcnathgayytngtnggngtngayaargcnmgngaraaymgncargcnathtayytnggngcnwsngcnathgcngartty';
+is $seq->start, 1;
+is $seq->end, 30;
+
+# frameshifts (FASTA-like)
+# support for this is preliminary
+# this is a real example from a TFASTY report
+
+$seq = Bio::LocatableSeq->new(
+			     -seq => 'MGSSSTDRELLSAADVGRTVSRIAHQIIEKTALDDPAERTRVVLLGIPTRGVILATRLAAKIKEFAGEDVPHGALDITLYRDDLNFKPPRPLEATSIPAF\GGVDDAIVILVDDVLYSGRSVRSALDALRDIGRPRIVQLAVLVDRGHRELPI--/DYVGKNVPTSRSESVHVLLSEHDDRDGVVISK',
+			     -strand => 1,
+                 -mapping => [1 => 3],
+                 -start => 1,
+                 -end => 552,
+                 -frameshifts => { # position, frameshift
+                    298 => -1,
+                    455 => 1
+                    },
+			     -alphabet => 'dna'
+			     );
+
+is $seq->seq, 'MGSSSTDRELLSAADVGRTVSRIAHQIIEKTALDDPAERTRVVLLGIPTRGVILATRLAAKIKEFAGEDVPHGALDITLYRDDLNFKPPRPLEATSIPAF\GGVDDAIVILVDDVLYSGRSVRSALDALRDIGRPRIVQLAVLVDRGHRELPI--/DYVGKNVPTSRSESVHVLLSEHDDRDGVVISK';
+is $seq->start, 1;
+is $seq->end, 552;
+$seq->verbose(2);
+eval { $seq->end(554);};
+ok $@;
+like $@, qr/Overriding value \[554\] with value 552/;
