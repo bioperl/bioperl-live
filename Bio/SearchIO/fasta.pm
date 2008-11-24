@@ -224,8 +224,7 @@ sub next_result {
             $self->start_element( { 'Name' => 'FastaOutput' } );
             $self->{'_result_count'}++;
             $seentop = 1;
-            $self->debug( "reporttype is " . $self->{'_reporttype'} . "\n" )
-              if $self->verbose > 0;
+            #$self->debug( "reporttype is " . $self->{'_reporttype'} . "\n" );
             $self->element(
                 {
                     'Name' => 'FastaOutput_program',
@@ -577,7 +576,7 @@ sub next_result {
                 }
             );
 
-            $self->debug("Hit ID is $id\n") if $self->verbose > 0;
+            #$self->debug("Hit ID is $id\n") if $self->verbose > 0;
             my @pieces = split( /\|/, $id );
             my $acc = pop @pieces;
             $acc =~ s/\.\d+$//;
@@ -657,17 +656,7 @@ sub next_result {
                 my ( $identper, $gapper, $len, $querystart, $queryend,
                     $hitstart, $hitend )
                   = ( $1, $2, $3, $4, $5, $6, $7 );
-
                 my $ident = sprintf( "%.0f", ( $identper / 100 ) * $len );
-                my $gaps  = sprintf( "%.0f", ( $gapper / 100 ) * $len );
-                $self->element(
-                    {
-                        'Name' => 'Hsp_gaps',
-                        'Data' => $gaps
-                    }
-                );
-
-                # is this is supposed to be the same as $gaps?
                 my $positive = sprintf( "%.0f", ( $gapper / 100 ) * $len );
 
                 $self->element(
@@ -689,8 +678,6 @@ sub next_result {
                     }
                 );
 
-                $self->debug(
-                    "query_start = $querystart, query_end = $queryend\n");
                 $self->element(
                     {
                         'Name' => 'Hsp_query-from',
@@ -1266,7 +1253,7 @@ sub next_result {
             my ($seq1_id);
             while ( defined($_) ) {
                 chomp;
-                $self->debug("$count $_\n");
+                #$self->debug("$count $_\n");
                 if (/residues in \d+\s+query\s+sequences/o) {
                     $self->_pushback($_);
                     last;
@@ -1364,7 +1351,7 @@ sub next_result {
         }
         else {
             if ( !$seentop ) {
-                $self->debug($_);
+                #$self->debug($_);
                 $self->warn("unrecognized FASTA Family report file!");
                 return;
             }
