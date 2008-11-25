@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 47,
+    test_begin(-tests => 50,
 	-requires_module => 'DB_File');
 	
 	use_ok('Bio::Assembly::IO');
@@ -17,14 +17,16 @@ BEGIN {
 # Testing IO
 #
 
+#
+# Some PHRAP input
+#
 
 my $in = Bio::Assembly::IO->new
 	(-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'));
 
-isa_ok($in, 'Bio::Assembly::IO');
+isa_ok($in, 'Bio::Assembly::IO', 'If there are warnings here, it\'s because the phrap parser doesn\'t include the sequence string in the sequence objects. Someone should work on that parser.');
 
 my $sc = $in->next_assembly;
-
 
 isa_ok($sc, 'Bio::Assembly::Scaffold');
 
@@ -101,11 +103,14 @@ $aio = Bio::Assembly::IO->new(
 );
 $assembly = $aio->next_assembly();
 is $assembly->get_nof_contigs, 3;
+my @ace_contigs = $assembly->all_contigs();
+isa_ok $ace_contigs[0], "Bio::Assembly::Contig",'the contig is a Bio::Assembly::Contig';
 is $assembly->get_nof_sequences_in_contigs, 6;
 is($assembly->get_nof_singlets, 33, "get_nof_singlets");
-
+my @ace_singlets = $assembly->all_singlets();
+isa_ok $ace_singlets[0], "Bio::Assembly::Contig",'the singlet is a Bio::Assembly::Contig';
+isa_ok $ace_singlets[0], "Bio::Assembly::Singlet",'the singlet is a Bio::Assembly::Singlet';
 is($assembly->get_contig_seq_ids, 6, "get_contig_seq_ids");
-
 is($assembly->get_contig_ids, 3, "get_contig_ids");
 is($assembly->get_singlet_ids, 33, "get_singlet_ids");
 
