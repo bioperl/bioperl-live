@@ -110,10 +110,11 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::PrimarySeq;
-use vars qw($MATCHPATTERN);
+use vars qw($MATCHPATTERN $GAP_SYMBOLS);
 use strict;
 
 $MATCHPATTERN = 'A-Za-z\-\.\*\?=~';
+$GAP_SYMBOLS = '-~';
 
 use base qw(Bio::Root::Root Bio::PrimarySeqI
 	    Bio::IdentifiableI Bio::DescribableI);
@@ -332,27 +333,42 @@ sub validate_seq {
 
  Title   : subseq
  Usage   : $substring = $obj->subseq(10,40);
- Function: returns the subseq from start to end, where the first base
-           is 1 and the number is inclusive, ie 1-2 are the first two
-           bases of the sequence
+           $substring = $obj->subseq(10,40,NOGAP)
+           $substring = $obj->subseq(-START=>10,-END=>40,-REPLACE_WITH=>'tga')
+ Function: returns the subseq from start to end, where the first sequence
+           character has coordinate 1 number is inclusive, ie 1-2 are the 
+           first two characters of the sequence
  Returns : a string
  Args    : integer for start position
            integer for end position
                  OR
            Bio::LocationI location for subseq (strand honored)
+           Specify -NOGAP=>1 to return subseq with gap characters removed
+           Specify -REPLACE_WITH=>$new_subseq to replace the subseq returned
+           with $new_subseq in the sequence object
 
 =cut
 
 sub subseq {
-   my ($self,$start,$end,$replace) = @_;
+   my $self = shift;
+   my @args = @_;
+   my ($start,$end,$nogap,$replace) = $self->_rearrange([qw(START 
+                                                            END
+                                                            NOGAP
+                                                            REPLACE_WITH)],@args);
+   
+   # if $replace is specified, have the constructor validate it as seq
+   my $dummy = new Bio::PrimarySeq(-seq=>$replace, -alphabet=>$self->alphabet) if defined($replace);
 
    if( ref($start) && $start->isa('Bio::LocationI') ) {
        my $loc = $start;
-       $replace = $end; # do we really use this anywhere? scary. HL
        my $seq = "";
        foreach my $subloc ($loc->each_Location()) {
-	   my $piece = $self->subseq($subloc->start(),
-				     $subloc->end(), $replace);
+	   my $piece = $self->subseq(-START=>$subloc->start(),
+				     '-END'=>$subloc->end(), 
+				     -REPLACE_WITH=>$replace,
+	                             -NOGAP=>$nogap);
+	   $piece =~ s/[$GAP_SYMBOLS]//g if $nogap;
 	   if($subloc->strand() < 0) {
 	       $piece = Bio::PrimarySeq->new('-seq' => $piece)->revcom()->seq();
 	   }
@@ -373,13 +389,13 @@ sub subseq {
 
        # remove one from start, and then length is end-start
        $start--;
-       if( defined $replace ) {
-	   return substr( $self->seq(), $start, ($end-$start), $replace);
-       } else {
-	   return substr( $self->seq(), $start, ($end-$start));
-       }
+       my @ss_args = map { eval "defined $_"  ? $_ : () } qw( $self->{seq} $start $end-$start $replace);
+       my $seqstr = eval join( '', "substr(", join(',',@ss_args), ")");
+       $seqstr =~ s/[$GAP_SYMBOLS]//g if ($nogap);
+       return $seqstr;
+
    } else {
-       $self->warn("Incorrect parameters to subseq - must be two integers or a Bio::LocationI object. Got:", $self,$start,$end,$replace);
+       $self->warn("Incorrect parameters to subseq - must be two integers or a Bio::LocationI object. Got:", $self,$start,$end,$replace,$nogap);
        return;
    }
 }
