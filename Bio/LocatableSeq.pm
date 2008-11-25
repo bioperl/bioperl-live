@@ -89,15 +89,18 @@ use strict;
 
 use Bio::Location::Simple;
 use Bio::Location::Fuzzy;
-use vars qw($GAP_SYMBOLS $OTHER_SYMBOLS $FRAMESHIFT_SYMBOLS $MATCHPATTERN);
+use vars qw($GAP_SYMBOLS $OTHER_SYMBOLS $FRAMESHIFT_SYMBOLS $RESIDUE_SYMBOLS $MATCHPATTERN);
 
-# should we change these to non-globals?  (I can see this
-# causing problems down the road...) - cjfields
+# The following global variables contain symbols used to represent gaps,
+# frameshifts, residues, and other valid symbols. These are set at compile-time;
+# expect scoping errors when using 'local' and resetting $MATCHPATTERN (see
+# LocatableSeq.t)
 
 $GAP_SYMBOLS = '\-\.=~';
 $FRAMESHIFT_SYMBOLS = '\\\/';
 $OTHER_SYMBOLS = '\?';
-$MATCHPATTERN = '0-9A-Za-z\*'.$GAP_SYMBOLS.$FRAMESHIFT_SYMBOLS.$OTHER_SYMBOLS;
+$RESIDUE_SYMBOLS = '0-9A-Za-z\*';
+$MATCHPATTERN = $RESIDUE_SYMBOLS.$GAP_SYMBOLS.$FRAMESHIFT_SYMBOLS.$OTHER_SYMBOLS;
 
 use base qw(Bio::PrimarySeq Bio::RangeI);
 
@@ -167,7 +170,7 @@ sub end {
         if ($self->seq && $st != 0 ) {
             my $len = $self->_ungapped_len;
             my $calend = $st + $len - 1;
-            my $id = $self->id;
+            my $id = $self->id || 'unknown';
             if ($calend != $value) {
                 $self->warn("In sequence $id residue count gives end value ".
                 "$calend.  \nOverriding value [$value] with value $calend for ".
@@ -322,14 +325,16 @@ sub no_gaps {
     $char ||= $GAP_SYMBOLS;
 
     $self->warn("I hope you know what you are doing setting gap to [$char]")
-        unless $char =~ /[-.]/;
+        unless $char =~ /[$GAP_SYMBOLS]/;
 
     $seq = $self->seq;
     return 0 unless $seq; # empty sequence does not have gaps
 
     $seq =~ s/^([$char]+)//;
     $seq =~ s/([$char]+)$//;
-    $count = scalar( $seq =~ /[$char]+/g );
+    while ( $seq =~ /[$char]+/g ) {
+        $count++;
+    }
 
     return $count;
 }
@@ -552,7 +557,6 @@ sub trunc {
  Returns : 1 if the supplied sequence string is valid for the object, and
            0 otherwise.
  Args    : The sequence string to be validated.
-
 
 =cut
 

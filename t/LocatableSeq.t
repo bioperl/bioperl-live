@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 100);
+    test_begin(-tests => 112);
 	
 	use_ok('Bio::LocatableSeq');
 	use_ok('Bio::AlignIO');
@@ -227,3 +227,54 @@ $seq->verbose(2);
 eval { $seq->end(554);};
 ok $@;
 like $@, qr/Overriding value \[554\] with value 552/;
+
+# setting symbols (class variables) - demonstrate scoping issues when using
+# globals with and w/o localization.  To be fixed in a future BioPerl version
+
+my $temp;
+
+{
+    $temp = $Bio::LocatableSeq::GAP_SYMBOLS;
+    $Bio::LocatableSeq::GAP_SYMBOLS = '-\?';
+    $seq = Bio::LocatableSeq->new(
+                     -seq => '??atg-?-gta-?',
+                     -strand => 1,
+                     -start => 10,
+                     -end => 15,
+                     -alphabet => 'dna',
+                     );
+    is $Bio::LocatableSeq::GAP_SYMBOLS, '-\?';    
+    is $seq->start, 10;
+    is $seq->end, 15;
+}
+
+is $Bio::LocatableSeq::GAP_SYMBOLS, '-\?';
+is $seq->end(15), 15;
+$Bio::LocatableSeq::GAP_SYMBOLS = $temp;
+is $Bio::LocatableSeq::GAP_SYMBOLS, '\-\.=~';
+
+{
+    local $Bio::LocatableSeq::GAP_SYMBOLS = '-\?';
+    $seq = Bio::LocatableSeq->new(
+                     -seq => '??atg-?-gta-?',
+                     -strand => 1,
+                     -start => 10,
+                     -end => 15,
+                     -alphabet => 'dna',
+                     );
+    is $Bio::LocatableSeq::GAP_SYMBOLS, '-\?';    
+    is $seq->start, 10;
+    is $seq->end, 15;
+}
+
+is $seq->end, 15;
+
+# note, recalling the end() method uses old $GAP_SYMBOLS, which
+# no longer are set (this argues for locally set symbols)
+TODO: {
+    local $TODO = 'Bio::LocatableSeq global variables have scoping issues';
+    is $Bio::LocatableSeq::GAP_SYMBOLS, '-\?';
+    # thsi should be 15 
+    isnt $seq->end(19), 19;
+}
+
