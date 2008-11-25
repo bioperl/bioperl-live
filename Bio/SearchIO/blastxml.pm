@@ -331,15 +331,15 @@ XML_END
     
     #chop up XML into edible bits for the parser
     while( defined( my $line = <$fh>) ) {
-        next if $line =~ m{^\s+</BlastOutput_iterations>}xmso || $line =~ m{^</BlastOutput>}xmso;
+        next if $line =~ m{^\s*</BlastOutput_iterations>}xmso || $line =~ m{^</BlastOutput>}xmso;
         if( $line =~ m{^RPS-BLAST}i ) {
             $self->{'_type'} = 'RPS-BLAST';
             next;
-        } elsif ($line =~ m{^<\?xml\sversion="1.0"\?>}xms) {# <?xml version="1.0"?>
+        } elsif ($line =~ m{^<\?xml\sversion="1.0"}xms) {# <?xml version="1.0"?> & <?xml version="1.0" encoding="UTF-8"?>
             delete $self->{'_header'} if exists $self->{'_header'};
             $sawxmlheader++;
             $mode = 'header';
-        } elsif ($line =~ m{^\s+<Iteration>}xmso) {
+        } elsif ($line =~ m{^\s*<Iteration>}xmso) {
             if (!$sawxmlheader) {
                 if (defined $tfh) {
                     print $tfh $self->{'_header'}
@@ -348,7 +348,7 @@ XML_END
                 }
             }
             $mode = 'iteration';
-        } elsif ($line =~ m{^\s+</Iteration>}xmso) {
+        } elsif ($line =~ m{^\s*</Iteration>}xmso) {
             if (defined $tfh) {
                 print $tfh $line.$tail;
             } else {
