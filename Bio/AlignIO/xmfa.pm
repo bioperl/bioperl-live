@@ -143,7 +143,7 @@ sub write_aln {
         #}
         my $seqct = 1;
         foreach $rseq ( $aln->each_seq() ) {
-            ($start, $end, $strand, $id) = ($rseq->start, $rseq->end, $rseq->strand,
+            ($start, $end, $strand, $id) = ($rseq->start, $rseq->end, $rseq->strand || 0,
                                             $rseq->display_id);
             $strand = ($strand == 1)  ? '+' :
                       ($strand == -1) ? '-' :
