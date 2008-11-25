@@ -41,7 +41,7 @@
   (insert "=head2 new\n\n Title   : new\n Usage   : my $obj = new "
 	  perl-object-name "();\n Function: Builds a new "
 	  perl-object-name " object \n Returns : an instance of "
-	  perl-object-name "\n Args    :\n\n\n=cut\n\n")
+	  perl-object-name "\n Args    :\n\n=cut\n\n")
   (insert "sub new {\n  my($class,@args) = @_;\n\n  my $self = $class->SUPER::new(@args);\n  return $self;\n}\n")
   (insert "\n\n1;")
   )
@@ -74,7 +74,7 @@
 (defun bioperl-method (method-name)
   "puts in a bioperl method complete with pod boiler-plate"
   (interactive "smethod name:")
-  (insert "=head2 " method-name "\n\n Title   : " method-name "\n Usage   :\n Function:\n Example :\n Returns : \n Args    :\n\n\n=cut\n\n")
+  (insert "=head2 " method-name "\n\n Title   : " method-name "\n Usage   :\n Function:\n Example :\n Returns : \n Args    :\n\n=cut\n\n")
   (insert "sub " method-name "{\n   my ($self,@args) = @_;\n")
   (save-excursion 
     (insert "\n\n}\n"))
@@ -84,18 +84,18 @@
 (defun bioperl-getset (field-name)
   "puts in a bioperl method for a get/set method complete with pod boiler-plate"
   (interactive "sfield name:")
-  (insert "=head2 " field-name "\n\n Title   : " field-name "\n Usage   : $obj->" field-name "($newval)\n Function: \n Example : \n Returns : value of " field-name " (a scalar)\n Args    : on set, new value (a scalar or undef, optional)\n\n\n=cut\n\n")
+  (insert "=head2 " field-name "\n\n Title   : " field-name "\n Usage   : $obj->" field-name "($newval)\n Function: \n Example : \n Returns : value of " field-name " (a scalar)\n Args    : on set, new value (a scalar or undef, optional)\n\n=cut\n\n")
   (insert "sub " field-name "{\n    my $self = shift;\n\n    return $self->{'" field-name "'} = shift if @_;\n    return $self->{'" field-name "'};")
   (insert "\n}\n"))
 
 (defun bioperl-array-getset (field-name class-name)
   "puts in a bioperl method for array get/add/remove methods complete with pod boiler-plate"
   (interactive "sarray base object: \nstype of element: ")
-  (insert "=head2 get_" field-name "s\n\n Title   : get_" field-name "s\n Usage   : @arr = get_" field-name "s()\n Function: Get the list of " field-name "(s) for this object.\n Example :\n Returns : An array of " class-name " objects\n Args    :\n\n\n=cut\n\n")
+  (insert "=head2 get_" field-name "s\n\n Title   : get_" field-name "s\n Usage   : @arr = get_" field-name "s()\n Function: Get the list of " field-name "(s) for this object.\n Example :\n Returns : An array of " class-name " objects\n Args    :\n\n=cut\n\n")
   (insert "sub get_" field-name "s{\n    my $self = shift;\n\n    return @{$self->{'_" field-name "s'}} if exists($self->{'_" field-name "s'});\n    return ();\n}\n\n")
-  (insert "=head2 add_" field-name "\n\n Title   : add_" field-name "\n Usage   :\n Function: Add one or more " field-name "(s) to this object.\n Example :\n Returns : \n Args    : One or more " class-name " objects.\n\n\n=cut\n\n")
+  (insert "=head2 add_" field-name "\n\n Title   : add_" field-name "\n Usage   :\n Function: Add one or more " field-name "(s) to this object.\n Example :\n Returns : \n Args    : One or more " class-name " objects.\n\n=cut\n\n")
   (insert "sub add_" field-name "{\n    my $self = shift;\n\n    $self->{'_" field-name "s'} = [] unless exists($self->{'_" field-name "s'});\n    push(@{$self->{'_" field-name "s'}}, @_);\n}\n\n")
-  (insert "=head2 remove_" field-name "s\n\n Title   : remove_" field-name "s\n Usage   :\n Function: Remove all " field-name "s for this class.\n Example :\n Returns : The list of previous " field-name "s as an array of\n           " class-name " objects.\n Args    :\n\n\n=cut\n\n")
+  (insert "=head2 remove_" field-name "s\n\n Title   : remove_" field-name "s\n Usage   :\n Function: Remove all " field-name "s for this class.\n Example :\n Returns : The list of previous " field-name "s as an array of\n           " class-name " objects.\n Args    :\n\n=cut\n\n")
   (insert "sub remove_" field-name "s{\n    my $self = shift;\n\n    my @arr = $self->get_" field-name "s();\n    $self->{'_" field-name "s'} = [];\n    return @arr;\n}\n\n"))
 
 
@@ -103,7 +103,7 @@
   "puts in a bioperl abstract method for interface classes"
   (interactive "smethod-name:")
   (save-excursion 
-  (insert "=head2 " method-name "\n\n Title   : " method-name "\n Usage   :\n Function:\n Example :\n Returns : \n Args    :\n\n\n=cut\n\n")
+  (insert "=head2 " method-name "\n\n Title   : " method-name "\n Usage   :\n Function:\n Example :\n Returns : \n Args    :\n\n=cut\n\n")
   (insert "sub " method-name "{\n   my ($self) = @_;\n\n    $self->throw(\"Abstract method " method-name " implementing class did not provide method\");\n")
     (insert "\n\n}\n")
     )
@@ -111,7 +111,7 @@
 
 
 
-(setq perl-mode-hook 
+(add-hook perl-mode-hook 
       '(lambda ()
 	 (define-key perl-mode-map "\C-c\C-h" 'perl-insert-start)
 	 (define-key perl-mode-map "\C-c\C-b" 'bioperl-object-start)
