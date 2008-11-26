@@ -834,7 +834,7 @@ sub _setting {
   my $config = $self->{config} or return;
   return keys %{$config} unless @_;
   return keys %{$config->{$_[0]}}        if @_ == 1;
-  return $config->{$_[0]}{$_[1]}         if @_ == 2 && exists $config->{$_[0]};
+  return $config->{$_[0]}{$_[1]}         if @_ == 2 && defined $_[0] && exists $config->{$_[0]};
   return $config->{$_[0]}{$_[1]} = $_[2] if @_ > 2;
   return;
 }
