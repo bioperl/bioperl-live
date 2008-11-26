@@ -1,5 +1,5 @@
 # -*-Perl-*- Test Harness script for Bioperl
-# $Id: AlignIO.t 14971 2008-10-28 16:08:52Z cjfields $
+# $Id: AlignIO_stockholm.t 14971 2008-10-28 16:08:52Z cjfields $
 
 use strict;
 
