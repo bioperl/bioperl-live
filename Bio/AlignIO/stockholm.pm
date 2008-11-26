@@ -282,10 +282,10 @@ sub next_aln {
     my $self = shift;
     my $line;
 
-    my ($id, $name, $seqname, $seq, $count, $tag, $data);
+    #my ( $seqname, $seq, $count, $tag, $data);
     my $seen_rc;
-    my ($refct, $bct, $lnkct) = (0,0,0);
-    my @c2name;
+    my ($refct, $bct, $lnkct, $cpos) = (0,0,0,0);
+    my %name2c;
     my (%align, %accession, %desc, %seq_meta, %aln_meta, %annotation);
 
     # in stockholm format, every non-blank line that does not start
@@ -311,7 +311,11 @@ sub next_aln {
     READLINE:
     while( defined($line = $self->_readline) ) {
         #skip empty lines
-        next if $line =~ /^\s+$/;
+        my ($name, $id, $tag, $data, $seq);
+        if ($line =~ /^\s+$/) {
+            $cpos = 0;
+            next;
+        }
         
         # Double slash (//) signals end of file.
         last if $line =~ m{^//};
@@ -381,9 +385,9 @@ sub next_aln {
             }
             # Bio::Seq::Meta is not AnnotationI, so can't add seq-based
             # Annotations yet; uncomment to see what is passed by
-            #else {
-            #    $self->debug("Missed data: $entry");
-            #}
+            else {
+                $self->debug("Missed data: $line");
+            }
         } elsif( $line =~ m{^\#=GR\s+(\S+)\s+(\S+)\s+([^\n]+)} ) {
             # meta strings per sequence
             ($name, $tag, $data) = ($1, $2, $3);
@@ -393,20 +397,24 @@ sub next_aln {
             ($tag, $data) = ($1, $2);
             $aln_meta{$tag} .= $data;
         } elsif( $line =~ m{^([^\#]\S+)\s+([A-Za-z.\-\*]+)\s*}xms ) {
-            ($name,$seq) = ($1,$2);
-            if( ! exists $align{$name}  ) {
-                push @c2name, $name;
+            ($name, $seq) = ($1,$2);
+            if( ! exists $name2c{++$cpos}  ) {
+                $name2c{$cpos} = $name;
             }
-            $align{$name} .= $seq;
+            $align{ $cpos } .= $seq;
         } else {
             # debugging to catch missed data; uncomment to turn on
-            #$self->debug("Missed Data: $line");
+            $self->debug("Missed Data: $line");
         }
     }
     
+    #$self->debug(Dumper(\%align));
+    #$self->debug(Dumper(\%name2c));
+    
     # ok... now we can make the sequences
     
-    for my $name ( @c2name ) {
+    for my $data ( map {[$name2c{$_}, $_] } sort { $a <=> $b } keys %name2c ) {
+        my ($name, $pos) = @$data;
         my ($start, $end, $stranded, $seqname);
         my $alphabet = $self->alphabet || 'dna';
         my $strand = ($alphabet eq 'dna' || $alphabet eq 'rna') ? 1 : 0;
@@ -422,8 +430,9 @@ sub next_aln {
             $start = 1;
             # if end is not specified, allow LocatableSeq to calculate it
         }
-        $seq = Bio::Seq::Meta->new
-            ('-seq'              => $align{$name},
+        my $loc = Bio::Seq::Meta->new
+            (
+             '-seq'              => $align{$pos},
              '-display_id'       => $seqname,
              '-start'            => $start,
              '-end'              => $end,   
@@ -433,10 +442,10 @@ sub next_aln {
              );
         if (exists $seq_meta{$name}) {
             for my $tag (sort keys %{ $seq_meta{$name} }) {
-                $seq->named_meta($tag, $seq_meta{$name}->{$tag});
+                $loc->named_meta($tag, $seq_meta{$name}->{$tag});
             }
         }
-        $aln->add_seq($seq);
+        $aln->add_seq($loc);
     }
     
     # add meta strings w/o sequence for consensus meta data. This is a hack and
@@ -506,10 +515,11 @@ sub next_aln {
     }
 
     # add annotations
-    $aln->annotation($coll); 
+    $aln->annotation($coll);
     
     #  If $end <= 0, we have either reached the end of
     #  file in <fh> or we have encountered some other error
+    
     return $aln;
 }
 
