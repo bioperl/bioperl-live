@@ -131,7 +131,6 @@ objects of this class into a Bio::SeqI or vice versa and will not work as
 expected (see bug 2262). This may be addressed in a future refactor of
 Bio::LocatableSeq.
 
-=back
 
 =head1 SEE ALSO
 
