@@ -148,9 +148,12 @@ my %VALID_TYPE = (
 sub _initialize{
     my ($self,@args) = @_;   
     $self->SUPER::_initialize(@args);
-    my ($usetempfile, $blasttype) = $self->_rearrange([qw(TEMPFILE
-                                           BLASTTYPE)],@args);
+    my ($usetempfile, $blasttype,$xmlcompact) = $self->_rearrange([qw(
+                                            TEMPFILE
+                                            BLASTTYPE
+                                            XMLCOMPACT)],@args);
     $blasttype ||= 'BLAST';
+    $self->{_xml_compact} = $xmlcompact || 0;
     $self->blasttype(uc $blasttype);
     defined $usetempfile && $self->use_tempfile($usetempfile);
     $self->{_result_count} = 0;
@@ -175,10 +178,30 @@ sub next_result {
     my $result;
 
     my ($tfh);
+    
+    # XMLCOMPACT
+    # WU-BLAST has an XML_COMPACT option which needs to be preprocessed before
+    # passing on to the parser.  
+    if ($self->{_xml_compact}) {
+        $self->debug("XMLCOMPACT mode\n");
+        my ($tfh2, $filename) = IO::File->new_tmpfile or $self->throw("Unable to open temp file: $!");
+        $tfh2->autoflush(1);
+        my $fh = $self->_fh;
+        while (my $line = <$fh>) {
+            $line =~ s/></>\n</g;
+            print $tfh2 $line;
+        }
+        seek($tfh2,0,0);
+        close $fh;
+        # redirect self's IO to use new tempfile
+        $self->_fh($tfh2);
+    }
+    
     if( $self->use_tempfile ) {
         $tfh = IO::File->new_tmpfile or $self->throw("Unable to open temp file: $!");	
         $tfh->autoflush(1);
     }
+    
     my $okaytoprocess = ($self->blasttype =~ /PSI/) ? $self->_chunk_psiblast($tfh) :
         $self->_chunk_normalblast($tfh);
     
