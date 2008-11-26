@@ -694,9 +694,9 @@ sub strip_blast_html {
     $stripped;
 }
 
-=head2 
+=head2 result2hash
 
- Title    : result2hash 
+ Title    : result2hash
  Usage    : my %data = &Bio::Search::SearchUtils($result)
  Function : converts ResultI data to simple hash
  Returns  : hash
