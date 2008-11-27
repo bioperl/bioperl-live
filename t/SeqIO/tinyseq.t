@@ -10,10 +10,10 @@ BEGIN {
     test_begin(-tests => 16,
 			   -requires_modules => [qw(XML::Parser::PerlSAX XML::Writer)]);
 	
-	use_ok('Bio::SeqIO');
+	use_ok('Bio::SeqIO::tinyseq');
 }
 
-my $file = test_input_file('NM_002253.tseq');
+my $file = test_input_file('test.tseq');
 my $outfile = test_output_file();
 
 my $instream = Bio::SeqIO->new( -file 		=> $file,

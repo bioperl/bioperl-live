@@ -9,7 +9,7 @@ BEGIN {
     
     test_begin(-tests => 35);
 	
-	use_ok('Bio::SeqIO');
+	use_ok('Bio::SeqIO::scf');
 	use_ok('Bio::Seq::SequenceTrace');
 }
 

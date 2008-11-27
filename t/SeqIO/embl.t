@@ -9,7 +9,7 @@ BEGIN {
 	
 	test_begin(-tests => 56);
 	
-    use_ok('Bio::SeqIO');
+    use_ok('Bio::SeqIO::embl');
 }
 
 my $verbose = test_debug();

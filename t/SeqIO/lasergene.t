@@ -7,9 +7,9 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 12);
+    test_begin(-tests => 13);
 	
-	use_ok('Bio::SeqIO');
+	use_ok('Bio::SeqIO::lasergene');
 }
 
 my $verbose = test_debug();
@@ -25,6 +25,7 @@ my $io = Bio::SeqIO->new(
 );
 
 ok($io);
+isa_ok($io, 'Bio::SeqIO');
 
 my $seq;
 

@@ -7,9 +7,9 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 8);
+    test_begin(-tests => 9);
 	
-	use_ok('Bio::SeqIO');
+	use_ok('Bio::SeqIO::pir');
 }
 
 my $verbose = test_debug();
@@ -19,6 +19,7 @@ my $str = Bio::SeqIO->new(-file => test_input_file('seqfile.pir'),
 								  -format => 'pir');
 
 ok ( defined $str, 'new instance is defined ');
+isa_ok ($str, 'Bio::SeqIO');
 
 my $out = Bio::SeqIO->new(-format => 'pir',
 								 -fh => \*STDOUT);

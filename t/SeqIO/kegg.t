@@ -7,9 +7,9 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 15);
+    test_begin(-tests => 16);
 	
-	use_ok('Bio::SeqIO');
+	use_ok('Bio::SeqIO::kegg');
 }
 
 my $verbose = test_debug();
@@ -17,9 +17,10 @@ my $verbose = test_debug();
 my $io = Bio::SeqIO->new(-format => 'kegg',
 								 -verbose => $verbose,
 								 -file => test_input_file('AHCYL1.kegg'));
-ok($io);
+isa_ok($io, 'Bio::SeqIO');
 my $kegg = $io->next_seq();
 ok($kegg);
+isa_ok($kegg, 'Bio::Seq::RichSeq');
 is($kegg->accession, '10768');
 is($kegg->display_id, 'AHCYL1');
 is($kegg->alphabet, 'dna');

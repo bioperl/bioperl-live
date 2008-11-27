@@ -7,9 +7,9 @@ BEGIN {
     use lib 't/lib';
 	use BioperlTest;
 	
-	test_begin(-tests => 248);
+	test_begin(-tests => 249);
 	
-    use_ok('Bio::SeqIO');
+    use_ok('Bio::SeqIO::genbank');
 }
 
 my $verbose = test_debug();
@@ -17,6 +17,7 @@ my $verbose = test_debug();
 my $ast = Bio::SeqIO->new(-format => 'genbank' ,
                                   -verbose => $verbose,
                                   -file => test_input_file('roa1.genbank'));
+isa_ok($ast, 'Bio::SeqIO');
 $ast->verbose($verbose);
 my $as = $ast->next_seq();
 is $as->molecule, 'mRNA',$as->accession_number;

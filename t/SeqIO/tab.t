@@ -7,9 +7,9 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 7);
+    test_begin(-tests => 8);
 	
-	use_ok('Bio::SeqIO');
+	use_ok('Bio::SeqIO::tab');
 }
 
 my $verbose = test_debug();
@@ -17,6 +17,7 @@ my $verbose = test_debug();
 my $io = Bio::SeqIO->new(-format => 'tab',
 								 -verbose => $verbose,
 								 -file => test_input_file('test.tab'));
+isa_ok($io, 'Bio::SeqIO');
 
 while (my $seq = $io->next_seq) {
 	ok ( $seq && defined $seq, 'seq is defined' ) ;

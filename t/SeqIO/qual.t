@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 21);
+    test_begin(-tests => 18);
 	
 	use_ok('Bio::SeqIO');
 	use_ok('Bio::Seq::PrimaryQual');
@@ -58,18 +58,3 @@ $seq->id('Hank1');
 is $seq->id, 'Hank1';
 # yes, that works
 ok $out->write_seq($seq);
-
-# bug 2335
-
-$in_qual  = Bio::SeqIO->new('-file' => test_input_file('bug2335.fastq'),
-			       '-format' => 'fastq');
-ok($in_qual);
-
-my $qual = $in_qual->next_seq();
-isa_ok($qual, 'Bio::Seq::Quality');
-@quals = @{$qual->qual()};
-if( $first ) { 
-	is(@quals, 111);
-}
-my $qualslice = join(',',@quals[0..10]);
-is($qualslice, '31,23,32,23,31,22,27,28,32,24,25');

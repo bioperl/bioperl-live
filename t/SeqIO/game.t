@@ -9,16 +9,16 @@ BEGIN {
 	
 	test_begin(-tests => 24,
 		   -requires_modules => [qw(XML::Parser::PerlSAX XML::Writer)]);
-    use_ok('Bio::SeqIO');
+    use_ok('Bio::SeqIO::game');
 }
 
 my $verbose = test_debug() || -1;
 my $str = Bio::SeqIO->new('-file'=> test_input_file('test.game'), 
 			  '-format' => 'game',
 			  '-verbose' => $verbose);
-ok ($str);
+isa_ok ($str, 'Bio::SeqIO');
 my $seq = $str->next_seq();
-ok($seq);
+isa_ok($seq, 'Bio::Seq::RichSeq');
 
 # exercise game parsing
 $str = Bio::SeqIO->new(

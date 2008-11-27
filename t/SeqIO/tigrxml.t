@@ -7,10 +7,10 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 48,
+    test_begin(-tests => 49,
 			   -requires_modules => [qw(XML::SAX XML::SAX::Writer)]);
 	
-	use_ok('Bio::SeqIO');
+	use_ok('Bio::SeqIO::tigrxml');
 }
 
 my $verbose = test_debug();
@@ -18,6 +18,7 @@ my $verbose = test_debug();
 my $ast = Bio::SeqIO->new(-format => 'tigrxml' ,
 			  -verbose => $verbose,
 			  -file => test_input_file('test.tigrxml'));
+isa_ok($ast, 'Bio::SeqIO');
 $ast->verbose($verbose);
 ok my $as = $ast->next_seq();
 is($as->display_id, 'chr9');

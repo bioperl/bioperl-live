@@ -10,7 +10,7 @@ BEGIN {
 	test_begin(-tests => 1422,
 			   -requires_module => 'Bio::ASN1::EntrezGene');
 	
-	use_ok('Bio::SeqIO');
+	use_ok('Bio::SeqIO::entrezgene');
 }
 
 my @species=('Homo sapiens','Mus musculus', 'Caenorhabditis elegans');

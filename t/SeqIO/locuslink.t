@@ -7,17 +7,18 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 25,
+    test_begin(-tests => 26,
                -requires_module => 'Graph::Directed');
 	
-	use_ok('Bio::SeqIO');
+	use_ok('Bio::SeqIO::locuslink');
 	use_ok('Bio::SeqFeature::Generic');
 	use_ok('Bio::SeqFeature::AnnotationAdaptor');
 }
 
-my $seqin = Bio::SeqIO->new(-file => test_input_file('LL-sample.seq'),
+my $seqin = Bio::SeqIO->new(-file => test_input_file('test.locuslink'),
 			    -format => 'locuslink');
 ok $seqin;
+isa_ok($seqin, 'Bio::SeqIO');
 my $seqout = Bio::SeqIO->new(-file => ">".test_output_file(),
 			     -format => 'embl');
 

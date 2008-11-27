@@ -9,14 +9,14 @@ BEGIN {
     
     test_begin(-tests => 16);
 	
-	use_ok('Bio::SeqIO');
+	use_ok('Bio::SeqIO::largefasta');
 }
 
 my $tmpfile = test_output_file();
 
 my $seqio = Bio::SeqIO->new('-format'=>'largefasta',
-			   '-file'  =>test_input_file('genomic-seq.fasta'));
-is defined $seqio, 1, 'Instantiate Bio::SeqIO::largefasta';
+							'-file'  =>test_input_file('genomic-seq.fasta'));
+isa_ok($seqio, 'Bio::SeqIO');
 
 my $pseq = $seqio->next_seq();
 $pseq->alphabet('dna');

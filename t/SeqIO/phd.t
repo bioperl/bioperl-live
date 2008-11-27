@@ -9,13 +9,13 @@ BEGIN {
     
     test_begin(-tests => 18);
 	
-	use_ok('Bio::SeqIO');
+	use_ok('Bio::SeqIO::phd');
 }
 
 my $DEBUG = test_debug();
 
 print("Checking to see if Bio::Seq::Quality objects can be created from a file...\n") if ($DEBUG);
-my $in_phd  = Bio::SeqIO->new('-file' => test_input_file('phredfile.phd'),
+my $in_phd  = Bio::SeqIO->new('-file' => test_input_file('test.phd'),
 			      '-format'  => 'phd',
 			      '-verbose' => $DEBUG);
 isa_ok($in_phd,'Bio::SeqIO::phd');

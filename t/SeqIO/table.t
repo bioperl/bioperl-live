@@ -11,7 +11,7 @@ BEGIN {
 			   -requires_module => 'IO::Scalar');
 	
 	use_ok('Bio::Tools::CodonTable');
-	use_ok('Bio::SeqIO');
+	use_ok('Bio::SeqIO::table');
 }
 
 my @names = qw(A6
@@ -38,7 +38,7 @@ my @num_anns = (5, 5, 5, 5, 6, 7, 7, 7, 7, 7);
 my @psg = (0, 0, 1, 1, 0, 0, 0, 0, 0, 0);
 my @rs = (0, 0, 0, 0, 1, 1, 1, 1, 1, 1);
 
-ok my $seqin = Bio::SeqIO->new(-file => test_input_file("kinases.tsv"),
+ok my $seqin = Bio::SeqIO->new(-file => test_input_file("test.tsv"),
 			    -format  => 'table',
                             -species => "Homo sapiens",
                             -delim   => "\t",
@@ -52,7 +52,7 @@ run_tests([@names],[@accs],[@num_anns],[@psg],[@rs]);
 
 $seqin->close();
 
-ok $seqin = Bio::SeqIO->new(-file => test_input_file("kinases.tsv"),
+ok $seqin = Bio::SeqIO->new(-file => test_input_file("test.tsv"),
                          -format  => 'table',
                          -species => "Homo sapiens",
                          -delim   => "\t",
@@ -66,7 +66,7 @@ run_tests([@names],[@accs],[4,4,4,4,4,5,5,5,5,5],[@psg],[@rs]);
 
 $seqin->close();
 
-ok $seqin = Bio::SeqIO->new(-file => test_input_file("kinases.tsv"),
+ok $seqin = Bio::SeqIO->new(-file => test_input_file("test.tsv"),
                          -format  => 'table',
                          -species => "Homo sapiens",
                          -delim   => "\t",
@@ -84,7 +84,7 @@ $seqin->close();
 SKIP: {
 	test_skip(-tests => 112, -requires_module => 'Spreadsheet::ParseExcel');
 
-	ok $seqin = Bio::SeqIO->new(-file => test_input_file("kinases.xls"),
+	ok $seqin = Bio::SeqIO->new(-file => test_input_file("test.xls"),
 							 -format  => 'excel',
 							 -species => "Homo sapiens",
 							 -header  => 1,

@@ -7,10 +7,10 @@ BEGIN {
   use lib 't/lib';
   use BioperlTest;
   
-  test_begin(-tests => 19,
+  test_begin(-tests => 20,
 			 -requires_module => 'XML::DOM::XPath');
   
-  use_ok('Bio::SeqIO');
+  use_ok('Bio::SeqIO::interpro');
 }
 
 my $verbose = test_debug();
@@ -19,6 +19,7 @@ my $t_file = test_input_file('test.interpro');
 my $a_in = Bio::SeqIO->new( -file => $t_file,
 									 -verbose => $verbose,
 									 -format => 'interpro');
+isa_ok($a_in, 'Bio::SeqIO');
 
 my $seq = $a_in->next_seq();
 ok($seq);
