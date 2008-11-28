@@ -63,19 +63,13 @@ BEGIN {
     }
     
     use Test::More;
+	use BioperlTest;
+	
+	test_begin(-tests               => $NUMTESTS,
+			   -requires_modules    => [qw(XML::Simple LWP::UserAgent)],
+			   -requires_networking => 1,
+			  );
     
-    eval {
-        require XML::Simple;
-        require LWP::UserAgent;
-    };
-    
-    if (!$DEBUG) {
-        plan skip_all => 'Network tests have not been requested';
-    } elsif ($@) {
-        plan skip_all => 'Requires LWP::UserAgent and XML::Simple; skipping...';
-    } else {
-        plan tests => $NUMTESTS;
-    }
     use_ok('Bio::DB::EUtilities');
     use_ok('LWP::UserAgent');
     use_ok('XML::Simple');
