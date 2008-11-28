@@ -2012,14 +2012,14 @@ sub handle_Ontology_tag  {
         if ($term =~ /(\S+):(\S+)/) {
             my $db  = $1;
             my $acc = $2;
-            $hashref = (
+            $hashref = {
                     'cvterm_id' => {
                         'dbxref_id' => {
                            'db_id' => { 'name' => $db },
                            'accession' => $acc
                                       },
                                    },
-                       );
+                       };
         }
         push(@arr, {cvterm_id => $hashref});
     }
@@ -2068,13 +2068,13 @@ sub handle_dbxref {
                 $acc = $1;
                 $version = $2;
             }
-            $hashref = (
+            $hashref = {
                          'dbxref_id' => {
                                'db_id' => { 'name' => $db },
                                'accession' => $acc,
                                'version'   => $version,
                                         },
-                       );
+                       };
         }
         else {
             $self->throw("I don't know how to handle a dbxref like $term");
@@ -2110,12 +2110,12 @@ sub handle_source {
     my $source = $seq->source();
     return @arr unless $source;
 
-    my $hashref = (
+    my $hashref = {
                'dbxref_id' => {
                        'db_id' => {'name' => 'GFF_source'},
                        'accession' => $source,
                               }
-                  );
+                  };
 
     push(@arr, {'dbxref_id' => $hashref});
     return @arr;
