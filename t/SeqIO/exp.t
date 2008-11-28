@@ -10,7 +10,7 @@ BEGIN {
 	test_begin(-tests => 3,
 			   -requires_module => 'Bio::SeqIO::staden::read');
 	
-	use_ok('Bio::SeqIO:exp');
+	use_ok('Bio::SeqIO::exp');
 }
 
 my $verbose = test_debug();
