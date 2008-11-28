@@ -17,7 +17,7 @@ my $verbose = test_debug();
 
 my $io = Bio::SeqIO->new(-format => 'abi',
 								 -verbose => $verbose,
-								 -file => test_input_file('readtest.abi',),
+								 -file => test_input_file('test.abi',),
 								 -get_trace_data => 1);
 my $seq = $io->next_seq;
 isa_ok($seq, 'Bio::PrimarySeqI');
