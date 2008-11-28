@@ -333,6 +333,7 @@ sub next_seq {
 	foreach my $tag (keys %tags) {
 	    my $rt = &FIRSTDATA($ref->getElementsByTagName($tags{$tag})
 				->item(0));
+        $self->warn("No data returned for $tag") unless $rt;
 	    $rt =~ s/^[\s\r\n]+//;  # Kill leading space
 	    $rt =~ s/[\s\r\n]+$//;  # Kill trailing space
 	    $rt =~ s/[\s\r\n]+/ /;  # Collapse internal space runs
