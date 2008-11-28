@@ -105,7 +105,8 @@ my $build = ModuleBuildBioperl->new(
                                                      }
                            },
     dynamic_config      => 1,
-    create_makefile_pl  => 'passthrough'
+    create_makefile_pl  => 'passthrough',
+    recursive_test_files => 1
     
     #pm_files           => {} # modules in Bio are treated as if they were in lib and auto-installed
     #script_files       => [] # scripts in scripts directory are installed on-demand
