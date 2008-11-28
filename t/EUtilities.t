@@ -1,7 +1,5 @@
 # -*-Perl-*- Test Harness script for Bioperl
 # $Id$
-
-#$Id$
 #
 # Note this uses Test::More; this should catch the few perl versions w/o
 # this test suite

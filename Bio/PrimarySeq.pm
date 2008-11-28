@@ -161,7 +161,6 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
-    $self->verbose(1);
 
     my($seq,$id,$acc,$pid,$ns,$auth,$v,$oid,
        $desc,$description,

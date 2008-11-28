@@ -320,14 +320,11 @@ sub alphabet{
 
 sub DESTROY {
     my $self = shift;
-    my $verbose = $self->verbose();
-    $self->verbose(-1);
     my $fh = $self->_fh();
     close($fh) if( defined $fh );
     # this should be handled by Tempfile removal, but we'll unlink anyways.
     unlink $self->_filename() if defined $self->_filename() && -e $self->_filename;
     $self->SUPER::DESTROY();
-    $self->verbose($verbose);
 }
 
 1;

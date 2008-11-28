@@ -14,8 +14,9 @@ BEGIN {
 
 my $tmpfile = test_output_file();
 
-my $seqio = Bio::SeqIO->new('-format'=>'largefasta',
-							'-file'  =>test_input_file('genomic-seq.fasta'));
+my $seqio = Bio::SeqIO->new('-format' => 'largefasta',
+							'-file'   => test_input_file('genomic-seq.fasta'),
+						   );
 isa_ok($seqio, 'Bio::SeqIO');
 
 my $pseq = $seqio->next_seq();
