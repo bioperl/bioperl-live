@@ -5,10 +5,10 @@ use strict;
 use File::Temp qw(tempdir);
 
 BEGIN { 
-    use lib 't/lib';
+	use lib 't/lib';
 	use BioperlTest;
 	
-	test_begin(-tests => 18,
+	test_begin(-tests => 24,
 				  -requires_module => 'DB_File');
 	
 	use_ok('Bio::DB::Flat');
@@ -16,17 +16,16 @@ BEGIN {
 
 my $verbose = test_debug();
 
-#First of all we need to create an flat db
+# First of all we need to create an flat db
 
 my $tmpdir = tempdir( CLEANUP => 1 );
 
 my $db = Bio::DB::Flat->new(-directory  => $tmpdir,
                             -index      => 'bdb',
-			    -dbname     => 'mydb',
-			    -format     => 'fasta',
-			    -verbose    => $verbose,
-                 	    -write_flag => 1
-                            );
+									 -dbname     => 'mydb',
+									 -format     => 'fasta',
+									 -verbose    => $verbose,
+									 -write_flag => 1 );
 ok($db);
 my $dir = test_input_file('AAC12660.fa');
 my $result = $db->build_index(glob($dir));
@@ -43,8 +42,7 @@ $db = Bio::DB::Flat->new(-directory  => $tmpdir,
                          -format     => 'embl',
 								 -dbname     => 'myembl',
                          -verbose    => $verbose,
-                         -write_flag => 1
-			 );
+                         -write_flag => 1 );
 
 $dir= test_input_file('factor7.embl');
 
@@ -103,10 +101,27 @@ $db = Bio::DB::Flat->new(-directory  => $tmpdir,
                          -format     => 'fasta',
 								 -dbname     => 'myfasta',
                          -verbose    => $verbose,
-                         -write_flag => 1
-			 );
+                         -write_flag => 1 );
 
 $dir = test_input_file('tmp.fst');
 $result = $db->build_index(glob($dir));
 ok($result);
+$seq = $db->get_Seq_by_id('TEST00004');
+is($seq->length,98);
 
+undef $db;
+
+$db = Bio::DB::Flat->new(-directory  => $tmpdir,
+                         -index      => 'bdb',
+                         -format     => 'fasta',
+								 -dbname     => 'mybfasta',
+                         -verbose    => $verbose,
+                         -write_flag => 1 );
+
+$dir = test_input_file('tmp.fst');
+$result = $db->build_index(glob($dir));
+ok($result);
+for my $id ( qw(TEST00001 TEST00002 TEST00003 TEST00004) ) {
+	$seq = $db->get_Seq_by_id($id);
+	is($seq->length,98);
+}
