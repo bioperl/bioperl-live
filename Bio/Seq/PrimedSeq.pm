@@ -31,9 +31,9 @@ flanking a target region
 
 =head1 SYNOPSIS
 
-The easiest way to use this is probably either, (i), get the output 
-from Bio::Tools::Run::Primer3, Bio::Tools::Primer3, or 
-Bio::Tools::PCRSimulation:
+  # The easiest way to use this is probably either, (i), get the
+  # output from Bio::Tools::Run::Primer3, Bio::Tools::Primer3, or 
+  # Bio::Tools::PCRSimulation:
 
       # For example, start with a fasta file
       use Bio::SeqIO;
@@ -56,7 +56,8 @@ Bio::Tools::PCRSimulation:
          $seqout->write_seq($results->annotated_seq);
       }
 
-Or, (ii), to create a genbank file for a sequence and its cognate primers:
+  # Or, (ii), to create a genbank file for a sequence and its cognate
+  # primers:
 
      use Bio::SeqIO;
      use Bio::Seq::PrimedSeq;
@@ -80,7 +81,7 @@ Or, (ii), to create a genbank file for a sequence and its cognate primers:
      # print the sequence out
      $seqout->write_seq($primedseq->annotated_sequence);
 
-This should output a genbank file with the two primers labeled.
+  # This should output a genbank file with the two primers labeled.
 
 =head1 DESCRIPTION
 

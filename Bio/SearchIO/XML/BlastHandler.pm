@@ -16,7 +16,7 @@ Bio::SearchIO::XML::BlastHandler - XML Handler for NCBI Blast XML parsing.
 
 =head1 SYNOPSIS
 
-This is not to be used directly.
+  # This is not to be used directly.
 
 =head1 DESCRIPTION
 

@@ -18,11 +18,11 @@ Bio::Tools::EUtilities::Link - general API for accessing data retrieved from eli
 
 =head1 SYNOPSIS
 
-...
+  # ...
 
 =head1 DESCRIPTION
 
-...
+  # ...
 
 =head1 FEEDBACK
 

@@ -58,7 +58,7 @@ Bio::Assembly::Tools::ContigSpectrum
   # Assuming the assembly object contains sequences from several different
   # metagenomes, we have a mixed contig spectrum from which a cross contig
   # spectrum and dissolved contig spectra can be obtained
-  my mixed_csp = $from_assembly;
+  my $mixed_csp = $from_assembly;
 
   # Calculate a dissolved contig spectrum
   my $meta1_dissolved = Bio::Assembly::Tools::ContigSpectrum->new(

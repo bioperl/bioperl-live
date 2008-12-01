@@ -13,7 +13,7 @@ Bio::Tools::Gel - Calculates relative electrophoretic migration distances
 =head1 SYNOPSIS
 
     use Bio::PrimarySeq;
-    use Bio::Tools::RestrictionAnalysis;
+    use Bio::Restriction::Analysis;
     use Bio::Tools::Gel;
 
     # get a sequence

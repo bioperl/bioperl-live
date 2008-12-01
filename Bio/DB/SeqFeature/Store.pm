@@ -16,10 +16,10 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
                                                  -create  => 1 );
 
   # get a feature from somewhere
-  my $feature = Bio::SeqFeature::Generic->new(...);
+  my $feature = Bio::SeqFeature::Generic->new();
 
   # store it
-  $db->store($feature) or die "Couldn't store!";
+  $db->store($feature) or die "Could not store!";
 
   # primary ID of the feature is changed to indicate its primary ID
   # in the database...
@@ -30,7 +30,7 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
 
   # change the feature and update it
   $f->start(100);
-  $db->update($f) or die "Couldn't update!";
+  $db->update($f) or die "Could not update!";
 
   # searching...
   # ...by id
@@ -49,7 +49,7 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
   @features = $db->get_features_by_location(-seq_id=>'Chr1',-start=>4000,-end=>600000);
 
   # ...by attribute
-  @features = $db->get_features_by_attribute({description => 'protein kinase'})
+  @features = $db->get_features_by_attribute({description => 'protein kinase'});
 
   # ...by primary id
   @features = $db->get_feature_by_primary_id(42); # note no plural!!!

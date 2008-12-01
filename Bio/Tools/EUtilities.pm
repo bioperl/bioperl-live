@@ -62,13 +62,20 @@ Bio::Tools::EUtilities - NCBI eutil XML parsers
     my $nm = $parser->get_menu_name;
     my $ct = $parser->get_record_count;
 
-    while (my $field = $parser->next_FieldInfo) {...}
-    while (my $field = $parser->next_LinkInfo) {...}
+    while (my $field = $parser->next_FieldInfo) {
+        # ...
+    }
+    while (my $field = $parser->next_LinkInfo) {
+        # ...
+    }
 
   # History methods (epost data, some data returned from elink)
-  # data which enables one to retrieve and query against user-stored information on the NCBI server
+  # data which enables one to retrieve and query against user-stored
+  # information on the NCBI server
 
-    while (my $cookie = $parser->next_History) {...}
+    while (my $cookie = $parser->next_History) {
+        # ...
+    }
 
     my @hists = $parser->get_Histories;
 

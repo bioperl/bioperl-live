@@ -69,28 +69,9 @@ Bio::DB::GenBank - Database object interface to GenBank
                                    -seq_start  => 100,
                                    -seq_stop   => 200,
                                    -strand     => 1,
-                                   -complexity => 4));
+                                   -complexity => 4);
     my $seqi = $gb->get_Stream_by_query($query);
 
-These alternate methods are described at
-L<http://www.ncbi.nlm.nih.gov/entrez/query/static/efetchseq_help.html>
-
-NOTE: strand should be 1 for plus or 2 for minus.
-
-Complexity: gi is often a part of a biological blob, containing other gis
-
-complexity regulates the display:
-0 - get the whole blob
-1 - get the bioseq for gi of interest (default in Entrez)
-2 - get the minimal bioseq-set containing the gi of interest
-3 - get the minimal nuc-prot containing the gi of interest
-4 - get the minimal pub-set containing the gi of interest
-
-'seq_start' and 'seq_stop' will not work when setting complexity to any value
-other than 1.  'strand' works for any setting other than a complexity of 0
-(whole glob); when you try this with a GenBank return format nothing happens,
-whereas using FASTA works but causes display problems with the other sequences
-in the glob.  As Tao Tao says from NCBI, "Better left it out or set it to 1."
 
 =head1 DESCRIPTION
 
@@ -106,11 +87,36 @@ in GenBank format (the default) the sequence part will be left out
 (the reason is that NT contigs are rather annotation with references
 to clones).
 
-Some work has been done to automatically detect and retrieve whole NT_ clones
-when the data is in that format (NCBI RefSeq clones). The former behavior prior
-to bioperl 1.6 was to retrieve these from EBI, but now these are retrieved
-directly from NCBI. The older behavior can be regained by setting the
-'redirect_refseq' flag to a value evaluating to TRUE.
+Some work has been done to automatically detect and retrieve whole NT_
+clones when the data is in that format (NCBI RefSeq clones). The
+former behavior prior to bioperl 1.6 was to retrieve these from EBI,
+but now these are retrieved directly from NCBI. The older behavior can
+be regained by setting the 'redirect_refseq' flag to a value
+evaluating to TRUE.
+
+=head2 Running
+
+Alternate methods are described at
+L<http://www.ncbi.nlm.nih.gov/entrez/query/static/efetchseq_help.html>
+
+NOTE: strand should be 1 for plus or 2 for minus.
+
+Complexity: gi is often a part of a biological blob, containing other
+gis
+
+complexity regulates the display:
+  0 - get the whole blob
+  1 - get the bioseq for gi of interest (default in Entrez)
+  2 - get the minimal bioseq-set containing the gi of interest
+  3 - get the minimal nuc-prot containing the gi of interest
+  4 - get the minimal pub-set containing the gi of interest
+
+'seq_start' and 'seq_stop' will not work when setting complexity to
+any value other than 1.  'strand' works for any setting other than a
+complexity of 0 (whole glob); when you try this with a GenBank return
+format nothing happens, whereas using FASTA works but causes display
+problems with the other sequences in the glob.  As Tao Tao says from
+NCBI, "Better left it out or set it to 1."
 
 =head1 FEEDBACK
 

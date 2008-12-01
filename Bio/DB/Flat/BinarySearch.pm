@@ -14,7 +14,7 @@ Bio::DB::Flat::BinarySearch - BinarySearch search indexing system for sequence f
 
 =head1 SYNOPSIS
 
-BinarySearch search indexing system for sequence files
+
 
 =head1 DESCRIPTION
 

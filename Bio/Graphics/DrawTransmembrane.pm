@@ -861,17 +861,18 @@ sub draw_ext_loop {
 
 =head1 NAME
 
-LOCAL::lib::DrawMembrane.pm - draw a cartoon of an Alpha-helical transmembrane protein.
+Bio::Graphics::DrawTransmembrane - draw a cartoon of an Alpha-helical transmembrane protein.
 
 =head1 SYNOPSIS
 
-  use DrawTransmbrane;
+  use Bio::Graphics::DrawTransmembrane;
   my @topology = (20,45,59,70,86,109,145,168,194,220);
 
   ## Simple use - -topology is the only option that is required
 
-  my $im = DrawTransmembrane->new(-title => 'This is a cartoon displaying transmembrane helices.',
-                                -topology => \@topology);
+  my $im = Bio::Graphics::DrawTransmembrane->new(
+      -title => 'This is a cartoon displaying transmembrane helices.',
+      -topology => \@topology);
 
   ## More advanced use
   my %labels = (5 => '5 - Sulphation Site',
@@ -884,7 +885,7 @@ LOCAL::lib::DrawMembrane.pm - draw a cartoon of an Alpha-helical transmembrane p
                 170 => '170 - Phosphorylation Site',
                 200 => 'Last Helix');
 
-  my $im = DrawTransmembrane->new(-n_terminal=> 'out',
+  my $im = Bio::Graphics::DrawTransmembrane->new(-n_terminal=> 'out',
                                   -topology => \@topology,
                                   -bold_helices=> 1,
                                   -labels=> \%labels,
@@ -896,20 +897,21 @@ LOCAL::lib::DrawMembrane.pm - draw a cartoon of an Alpha-helical transmembrane p
 
   ## Parse Tmhmm data
   use Bio::Tools::Tmhmm;
-  my $im = DrawTransmembrane->new(-title=>'Let\'s parse some Tmhmm output...',
-                                  -bold_helices=> 1);
-  open(FILE, 'tmhmm.out');  
+  my $im = Bio::Graphics::DrawTransmembrane->new(
+      -title=>'Let\'s parse some Tmhmm output...',
+      -bold_helices=> 1);
+  open(FILE, 'tmhmm.out');
   my $parser = new Bio::Tools::Tmhmm(-fh => \*FILE );
   while(my $tmhmm_feat = $parser->next_result ) {
 	## Load features into DrawTransmembrane object
 	$im->add_tmhmm_feat($tmhmm_feat);
   }
- close FILE;
+  close FILE;
 
   ## Now write the image to a .png file
   open(OUTPUT, ">output.png");
   binmode OUTPUT;
-  print OUTPUT $im->png; 
+  print OUTPUT $im->png;
   close OUTPUT;
 
 =head1 DESCRIPTION

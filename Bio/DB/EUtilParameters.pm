@@ -27,7 +27,9 @@ remote database requests.
 
  my $p = Bio::DB::EUtilParameters->new(@params);
 
- if ($p->parameters_changed) {...} # state information
+ if ($p->parameters_changed) {
+                              # ...
+                             } # state information
 
  $p->set_parameters(@extra_params); # set new NCBI parameters, leaves others preset
 

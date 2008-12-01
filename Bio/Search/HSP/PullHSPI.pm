@@ -14,29 +14,32 @@ Bio::Search::HSP::PullHSPI - Bio::Search::HSP::HSPI interface for pull parsers.
 
 =head1 SYNOPSIS
 
-	# This is an interface and cannot be instantiated
+  # This is an interface and cannot be instantiated
 
-    # generally we use Bio::SearchIO to build these objects
-    use Bio::SearchIO;
-    my $in = Bio::SearchIO->new(-format => 'hmmer_pull',
-							   -file   => 'result.hmmer');
+  # generally we use Bio::SearchIO to build these objects
+  use Bio::SearchIO;
+  my $in = Bio::SearchIO->new(-format => 'hmmer_pull',
+                              -file   => 'result.hmmer');
 
-    while (my $result = $in->next_result) {
-		while (my $hit = $result->next_hit) {
-			while (my $hsp = $hit->next_hsp) {
-                $r_type = $hsp->algorithm;
-                $pvalue = $hsp->p();
-                $evalue = $hsp->evalue();
-                $frac_id = $hsp->frac_identical( ['query'|'hit'|'total'] );
-                $frac_cons = $hsp->frac_conserved( ['query'|'hit'|'total'] );
-                $gaps = $hsp->gaps( ['query'|'hit'|'total'] );
-                $qseq = $hsp->query_string;
-                $hseq = $hsp->hit_string;
-                $homo_string = $hsp->homology_string;
-                $len = $hsp->length( ['query'|'hit'|'total'] );
-                $len = $hsp->length( ['query'|'hit'|'total'] );
-                $rank = $hsp->rank;
-            }
+  while (my $result = $in->next_result) {
+      while (my $hit = $result->next_hit) {
+          while (my $hsp = $hit->next_hsp) {
+              $r_type = $hsp->algorithm;
+              $pvalue = $hsp->p();
+              $evalue = $hsp->evalue();
+              $frac_id = $hsp->frac_identical( ['query'|'hit'|'total'] );
+              $frac_cons = $hsp->frac_conserved( ['query'|'hit'|'total'] );
+              $gaps = $hsp->gaps( ['query'|'hit'|'total'] );
+              $qseq = $hsp->query_string;
+              $hseq = $hsp->hit_string;
+              $homo_string = $hsp->homology_string;
+              $len = $hsp->length( ['query'|'hit'|'total'] );
+              $len = $hsp->length( ['query'|'hit'|'total'] );
+              $rank = $hsp->rank;
+          }
+      }
+  }
+
 
 =head1 DESCRIPTION
 

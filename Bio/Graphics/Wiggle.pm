@@ -35,11 +35,11 @@ Bio::Graphics::Wiggle -- Binary storage for dense genomic features
  my $values = $wig->values($start,$end,$samples);  # fetch $samples data points from $start to $end
 
 
+=head1 DESCRIPTION
+
 IMPORTANT NOTE: This implementation is still not right. See
 http://genomewiki.ucsc.edu/index.php/Wiggle for a more space-efficient
 implementation.
-
-=head1 DESCRIPTION
 
 This module stores "wiggle" style quantitative genome data for display
 in a genome browser application. The data for each chromosome (or

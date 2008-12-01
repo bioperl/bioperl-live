@@ -1,4 +1,4 @@
-# $Id: PsiBlastHandler.pm,v 1.6 2007/11/29 06:09:31 cjfields Exp $
+# $Id$
 #
 # BioPerl module for Bio::SearchIO::XML::PsiBlastHandler
 #
@@ -16,7 +16,7 @@ Bio::SearchIO::XML::PsiBlastHandler - XML Handler for NCBI Blast PSIBLAST XML pa
 
 =head1 SYNOPSIS
 
-This is not to be used directly.
+  # This is not to be used directly.
 
 =head1 DESCRIPTION
 

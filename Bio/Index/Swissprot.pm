@@ -13,18 +13,19 @@ Swissprot files.
 
 =head1 SYNOPSIS
 
-Make an index for one or more Swissprot files:
+  # Make an index for one or more Swissprot files:
 
     use Bio::Index::Swissprot;
     use strict;
 
     my $index_file_name = shift;
     my $inx = Bio::Index::Swissprot->new(
-                           -filename => $index_file_name,
-					            -write_flag => 1);
+        -filename => $index_file_name,
+        -write_flag => 1);
     $inx->make_index(@ARGV);
 
-Print out several sequences present in the index in Genbank format:
+  # Print out several sequences present in the index in Genbank
+  # format:
 
     use Bio::Index::Swissprot;
     use Bio::SeqIO;

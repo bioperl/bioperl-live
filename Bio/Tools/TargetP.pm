@@ -42,7 +42,7 @@ Bio::Tools::TargetP - Results of one TargetP run
            my $method     = $targetp->analysis_method();
            my $vesion     = $targetp->analysis_method_version() || $feature->source();
            my $seqid      = $feature->seq_id();
-           ...
+           # ...
      }
 
    # essential if you gave a filename at initialization (otherwise the file

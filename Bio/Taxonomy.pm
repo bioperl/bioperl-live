@@ -14,8 +14,8 @@ Bio::Taxonomy - representing Taxonomy.
 
 =head1 SYNOPSIS
 
-  NB: This module is deprecated. Use Bio::Taxon in combination with
-  Bio::Tree::Tree methods instead.
+  # NB: This module is deprecated. Use Bio::Taxon in combination with
+  # Bio::Tree::Tree methods instead.
 
   use Bio::Taxonomy;
 

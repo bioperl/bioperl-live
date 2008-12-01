@@ -17,14 +17,14 @@ Bio::DB::Query::GenBank - Build a GenBank Entrez Query
 
 =head1 SYNOPSIS
 
-   use Bio::DB::Query::Genbank;
-   use Bio::DB::Genbank;
+   use Bio::DB::Query::GenBank;
+   use Bio::DB::GenBank;
 
    my $query_string = 'Oryza[Organism] AND EST[Keyword]';
    my $query = Bio::DB::Query::GenBank->new(-db => 'nucleotide',
                                             -query => $query_string,
-					                             -mindate => '2001',
-					                             -maxdate => '2002');
+                                            -mindate => '2001',
+                                            -maxdate => '2002');
 
    print $query->count,"\n";
 

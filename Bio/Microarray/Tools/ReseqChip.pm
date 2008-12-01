@@ -16,7 +16,7 @@ Bio::Microarray::Tools::ReseqChip - Class for analysing additional probe oligonu
 
 =head1 SYNOPSIS
 
- use ReseqChip;
+ use Bio::Microarray::Tools::ReseqChip;
 
 
  my %ref_seq_max_ins_hash=(3106 => 1);
@@ -62,7 +62,7 @@ Bio::Microarray::Tools::ReseqChip - Class for analysing additional probe oligonu
   }
   $aln->add_seq($locseq);
  }
- my $new_sequence=$reseqfragSample->calc_sequence($aln, \%options_hash [,"output_file"]);
+ my $new_sequence=$reseqfragSample->calc_sequence($aln, \%options_hash ,"output_file");
 
 
 =head1 DESCRIPTION
@@ -115,15 +115,15 @@ provided by the user.
 
 This module depends on the following modules:
 
-  use Bio::Microarray::Tools::MitoChipV2Parser
-  use Bio::SeqIO;
-  use Bio::Seq;
-  use Bio::LocatableSeq;
-  use Bio::SimpleAlign;
-  use Bio::LiveSeq::Mutation;
-  use Statistics::Frequency;
-  use Spreadsheet::ParseExcel;
-  use Spreadsheet::WriteExcel;
+  Bio::Microarray::Tools::MitoChipV2Parser
+  Bio::SeqIO;
+  Bio::Seq;
+  Bio::LocatableSeq;
+  Bio::SimpleAlign;
+  Bio::LiveSeq::Mutation;
+  Statistics::Frequency;
+  Spreadsheet::ParseExcel;
+  Spreadsheet::WriteExcel;
 
 
 =head1 AUTHORS

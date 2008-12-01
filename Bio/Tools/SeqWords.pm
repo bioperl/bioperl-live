@@ -16,9 +16,59 @@ Bio::Tools::SeqWords - Object holding n-mer statistics for a sequence
 
 =head1 SYNOPSIS
 
-Take a sequence object and create an object for the purposes of 
-holding n-mer word statistics about that sequence. The sequence can 
-be nucleic acid or protein.
+  # Create the SeqWords object, e.g.:
+
+  my $inputstream = Bio::SeqIO->new(-file => "seqfile", 
+	                                 -format => 'Fasta');
+  my $seqobj = $inputstream->next_seq();
+  my $seq_word = Bio::Tools::SeqWords->new(-seq => $seqobj);
+
+  # Or:
+  my $seqobj = Bio::PrimarySeq->new(-seq => "agggtttccc",
+                                    -alphabet => 'dna',
+                                    -id => 'test');
+  my $seq_word  =  Bio::Tools::SeqWords->new(-seq => $seqobj);
+
+  # obtain a hash of word counts, eg:
+  my $hash_ref = $seq_stats->count_words($word_length);
+
+  # display hash table, eg:
+  my %hash = %$hash_ref;
+  foreach my $key(sort keys %hash)
+  {
+    print "\n$key\t$hash{$key}";
+  }
+
+  # Or:
+
+  my $hash_ref =
+     Bio::Tools::SeqWords->count_words($seqobj,$word_length);
+
+=head1 DESCRIPTION
+
+L<Bio::Tools::SeqWords> is a featherweight object for the calculation
+of n-mer word occurrences in a single sequence.  It is envisaged that
+the object will be useful for construction of scripts which use n-mer
+word tables as the raw material for statistical calculations; for
+instance, hexamer frequency for the calculation of coding protential,
+or the calculation of periodicity in repetitive DNA.  Triplet
+frequency is already handled by L<Bio::Tools::SeqStats> (author: Peter
+Schattner).
+
+There are a few possible applications for protein, e.g. hypothesised
+amino acid 7-mers in heat shock proteins, or proteins with multiple
+simple motifs.  Sometimes these protein periodicities are best seen
+when the amino acid alphabet is truncated, e.g. Shulman alphabet.
+Since there are quite a few of these shortened alphabets, this module
+does not specify any particular alphabet.
+
+See Synopsis above for object creation code.
+
+=head2 Rationale
+
+Take a sequence object and create an object for the purposes of
+holding n-mer word statistics about that sequence. The sequence can be
+nucleic acid or protein.
 
 In count_words() the words are counted in a non-overlapping manner,
 ie. in the style of a codon table, but with any word length.
@@ -26,58 +76,8 @@ ie. in the style of a codon table, but with any word length.
 In count_overlap_words() the words are counted in an overlapping
 manner.
 
-For counts on opposite strand (DNA/RNA), a reverse complement
-method should be performed, and then the count repeated.
-
-Create the SeqWords object, e.g.:
-
-  my $inputstream = Bio::SeqIO->new(-file => "seqfile", 
-	                                 -format => 'Fasta');
-  my $seqobj = $inputstream->next_seq();
-  my $seq_word = Bio::Tools::SeqWords->new(-seq => $seqobj);
-
-Or:
-
-  my $seqobj = Bio::PrimarySeq->new(-seq => "agggtttccc",
-                                    -alphabet => 'dna',
-                                    -id => 'test');
-  my $seq_word  =  Bio::Tools::SeqWords->new(-seq => $seqobj);
-
-  # obtain a hash of word counts, eg:
-
-  my $hash_ref = $seq_stats->count_words($word_length);
-
-  # display hash table, eg:
-
-  my %hash = %$hash_ref;
-  foreach my $key(sort keys %hash)
-  {
-    print "\n$key\t$hash{$key}";
-  }
-
-Or:
-
-  my $hash_ref = 
-     Bio::Tools::SeqWords->count_words($seqobj,$word_length);
-
-=head1 DESCRIPTION
-
-L<Bio::Tools::SeqWords> is a featherweight object for the calculation of
-n-mer word occurrences in a single sequence.  It is envisaged that the
-object will be useful for construction of scripts which use n-mer word
-tables as the raw material for statistical calculations; for instance,
-hexamer frequency for the calculation of coding protential, or the
-calculation of periodicity in repetitive DNA.  Triplet frequency is
-already handled by L<Bio::Tools::SeqStats> (author: Peter Schattner).
-
-There are a few possible applications for protein, e.g. hypothesised
-amino acid 7-mers in heat shock proteins, or proteins with multiple
-simple motifs.  Sometimes these protein periodicities are best seen
-when the amino acid alphabet is truncated, e.g. Shulman alphabet.  Since
-there are quite a few of these shortened alphabets, this module does
-not specify any particular alphabet.
-
-See Synopsis above for object creation code.
+For counts on opposite strand (DNA/RNA), a reverse complement method
+should be performed, and then the count repeated.
 
 =head1 FEEDBACK
 
@@ -101,8 +101,8 @@ web:
 =head1 AUTHOR
 
 Derek Gatherer, in the loosest sense of the word 'author'.  The
-general shape of the module is lifted directly from the SeqStat
-module of Peter Schattner. The central subroutine to count the words is
+general shape of the module is lifted directly from the SeqStat module
+of Peter Schattner. The central subroutine to count the words is
 adapted from original code provided by Dave Shivak, in response to a
 query on the bioperl mailing list.  At least 2 other people provided
 alternative means (equally good but not used in the end) of performing

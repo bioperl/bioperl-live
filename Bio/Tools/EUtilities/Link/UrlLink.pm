@@ -18,11 +18,11 @@ Bio::Tools::EUtilities::Link::UrlLink
 
 =head1 SYNOPSIS
 
-...
+  # ...
 
 =head1 DESCRIPTION
 
-...
+  # ...
 
 =head1 FEEDBACK
 

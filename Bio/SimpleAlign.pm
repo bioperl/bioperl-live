@@ -54,10 +54,10 @@ Bio::SimpleAlign - Multiple alignments held as a set of sequences
   # Analyze
   $str = $aln->consensus_string($threshold_percent);
   $str = $aln->match_line();
-  $str = $aln->cigar_line()
+  $str = $aln->cigar_line();
   $id = $aln->percentage_identity;
 
-See the module documentation for details and more methods.
+  # See the module documentation for details and more methods.
 
 =head1 DESCRIPTION
 

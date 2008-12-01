@@ -16,24 +16,24 @@ Bio::PhyloNetwork::GraphViz - Interface between PhyloNetwork and GraphViz
 
 =head1 SYNOPSIS
 
- use Bio::PhyloNetwork;
- use Bio::PhyloNetwork::GraphViz;
+  use Bio::PhyloNetwork;
+  use Bio::PhyloNetwork::GraphViz;
 
- my $net=Bio::PhyloNetwork->new(
-  -eNewick=>'((H1,(H1,(H2,l))),H2)t0; (some long label)H1; ("quoted label")H2;'
- );
+  my $net=Bio::PhyloNetwork->new(
+      -eNewick=>'((H1,(H1,(H2,l))),H2)t0; (some long label)H1; ("quoted label")H2;'
+  );
 
- my $gv=Bio::PhyloNetwork::GraphViz->new(-net=>$net,-short_labels=>1);
+  my $gv=Bio::PhyloNetwork::GraphViz->new(-net=>$net,-short_labels=>1);
 
- foreach my $u ($net->nodes()) {
-   print "$u:".$gv->nodePN_to_nodeGV->{$u}."\n";
- }
+  foreach my $u ($net->nodes()) {
+      print "$u:".$gv->nodePN_to_nodeGV->{$u}."\n";
+  }
 
- print $gv->as_text;
+  print $gv->as_text;
 
- open PS, "> net.ps";
- print PS $gv->as_ps;
- close PS;
+  open PS, "> net.ps";
+  print PS $gv->as_ps;
+  close PS;
 
 =head1 DESCRIPTION
 
@@ -71,12 +71,13 @@ use Bio::PhyloNetwork;
  Args    : -net => Bio::PhyloNetwork object
            -short_labels => boolean (optional)
 
-Returns a Bio::PhyloNetwork::GraphViz object, which is an extension of a
-GraphViz object. The GraphViz object is a representation of the phylogenetic
-network given. The extra information the created object holds is a hash table
-with keys the nodes of the PhyloNetwork object and values the nodes of the
-GraphViz object. If the optional argument -short_labels=E<gt>1 is given, the labels
-of the nodes in GraphViz are shortened to a maximum of 3 letters.
+Returns a Bio::PhyloNetwork::GraphViz object, which is an extension of
+a GraphViz object. The GraphViz object is a representation of the
+phylogenetic network given. The extra information the created object
+holds is a hash table with keys the nodes of the PhyloNetwork object
+and values the nodes of the GraphViz object. If the optional argument
+-short_labels=E<gt>1 is given, the labels of the nodes in GraphViz are
+shortened to a maximum of 3 letters.
 
 =cut
 

@@ -8,7 +8,7 @@ Bio::DB::SeqFeature::Store::LoadHelper -- Internal utility for Bio::DB::SeqFeatu
 
 =head1 SYNOPSIS
 
-For internal use only.
+  # For internal use only.
 
 =head1 DESCRIPTION
 

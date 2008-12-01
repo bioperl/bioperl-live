@@ -19,12 +19,12 @@ NCBI's eUtils
 
 =head1 SYNOPSIS
 
-...To be added!
+  # ...To be added!
 
 =head1 DESCRIPTION
 
 This is a general webagent which posts and retrieves data to NCBI's eUtilities
-service using their CGI interface.  
+service using their CGI interface.
 
 =head1 FEEDBACK
 

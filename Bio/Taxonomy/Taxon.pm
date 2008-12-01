@@ -15,7 +15,7 @@ Bio::Taxonomy::Taxon - Generic Taxonomic Entity object
 
 =head1 SYNOPSIS
 
-    NB: This module is deprecated. Use Bio::Taxon instead.
+    # NB: This module is deprecated. Use Bio::Taxon instead.
 
     use Bio::Taxonomy::Taxon;
     my $taxonA = Bio::Taxonomy::Taxon->new();

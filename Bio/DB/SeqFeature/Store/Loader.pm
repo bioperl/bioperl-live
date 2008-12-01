@@ -8,6 +8,10 @@ Bio::DB::SeqFeature::Store::Loader -- Loader
 
 =head1 SYNOPSIS
 
+ # non-instantiable base class
+
+=head1 DESCRIPTION
+
 This is the base class for Bio::DB::SeqFeature::GFF3Loader,
 Bio::DB::SeqFeature::GFFLoader, and
 Bio::DB::SeqFeature::FeatureFileLoader. Please see the manual pages
