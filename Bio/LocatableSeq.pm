@@ -109,7 +109,12 @@ sub new {
     my $self = $class->SUPER::new(@args);
 
     my ($start,$end,$strand, $mapping, $fs) =
-    $self->_rearrange( [qw(START END STRAND MAPPING FRAMESHIFTS)],
+    $self->_rearrange( [qw(START
+                        END
+                        STRAND
+                        MAPPING
+                        FRAMESHIFTS
+                        )],
                @args);
     
     $mapping ||= [1,1];
@@ -292,12 +297,14 @@ sub get_nse{
 
    $char1 ||= "/";
    $char2 ||= "-";
-
+   
    $self->throw("Attribute id not set") unless defined($self->id());
    $self->throw("Attribute start not set") unless defined($self->start());
    $self->throw("Attribute end not set") unless defined($self->end());
-
-   return $self->id() . $char1 . $self->start . $char2 . $self->end ;
+   
+   #Stockholm Rfam included version if present
+   my $v = $self->version ? '.'.$self->version : ''; 
+   return $self->id() . $v. $char1 . $self->start . $char2 . $self->end ;
 
 }
 
