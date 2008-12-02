@@ -215,16 +215,21 @@ sub new {
 
     my $self = $class->SUPER::new(@args);
 
-    my($meta, $forceflush) =
+    my($meta, $forceflush, $nm) =
         $self->_rearrange([qw(META
                               FORCE_FLUSH
-                              )],
+                              NAMED_META)],
                           @args);
 
     #$self->{'_meta'} = {};
     $self->{'_meta'}->{$DEFAULT_NAME} = "";
 
     $meta && $self->meta($meta);
+    if ($nm && ref($nm) eq 'HASH') {
+        while (my ($name, $meta) = each %$nm) {
+            $self->named_meta($name, $meta);
+        }
+    }
     $forceflush && $self->force_flush($forceflush);
 
     return $self;
