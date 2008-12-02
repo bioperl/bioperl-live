@@ -146,6 +146,7 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
            -display_id  => display id of the sequence (locus name)
            -accession_number => accession number
            -primary_id  => primary id (Genbank id)
+           -version     => version number
            -namespace   => the namespace for the accession
            -authority   => the authority for the namespace
            -description => description text
@@ -153,6 +154,8 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
            -alphabet    => sequence type (alphabet) (dna|rna|protein)
            -id          => alias for display id
            -is_circular => boolean field for whether or not sequence is circular
+           -direct      => boolean field for directly setting sequence (requires alphabet also set)
+           -ref_to_seq  => boolean field indicating the sequence is a reference (?!?)
            -nowarnonempty => boolean field for whether or not to warn when sequence is empty
 
 =cut
@@ -206,7 +209,7 @@ sub new {
 
     # if there is an alphabet, and direct is passed in, assume the alphabet
     # and sequence is ok
-
+    
     if( $direct && $ref_to_seq) {
       $self->{'seq'} = $$ref_to_seq;
         if( ! $alphabet ) {
