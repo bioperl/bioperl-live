@@ -183,8 +183,13 @@ use base qw(Bio::Root::Root Bio::Align::AlignI Bio::AnnotatableI
  Usage     : my $aln = Bio::SimpleAlign->new();
  Function  : Creates a new simple align object
  Returns   : Bio::SimpleAlign
- Args      : -source => string representing the source program
-                        where this alignment came from
+ Args      : -source     => string representing the source program
+                            where this alignment came from
+             -annotation => Bio::AnnotationCollectionI
+             -seq_annotation => Bio::AnnotationCollectionI for sequences (requires -annotation also be set)
+             -seqs       => array ref containing Bio::LocatableSeq or Bio::Seq::Meta
+             -consensus  => consensus string
+             -consensus_meta  => Bio::Seq::Meta object containing consensus met information (kludge)
 
 =cut
 
@@ -194,7 +199,18 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
 
-  my ($src,$score,$id) = $self->_rearrange([qw(SOURCE SCORE ID)], @args);
+  my ($src, $score, $id, $acc, $desc, $seqs, $coll, $sa, $con, $cmeta) = $self->_rearrange([qw(
+                                            SOURCE
+                                            SCORE
+                                            ID
+                                            ACCESSION
+                                            DESCRIPTION
+                                            SEQS
+                                            ANNOTATION
+                                            SEQ_ANNOTATION
+                                            CONSENSUS
+                                            CONSENSUS_META
+                                            )], @args);
   $src && $self->source($src);
   defined $score && $self->score($score);
   # we need to set up internal hashs first!
@@ -205,7 +221,25 @@ sub new {
   $self->{'_dis_name'} = {};
   $self->{'_id'} = 'NoName';
   # maybe we should automatically read in from args. Hmmm...
-  $id && $self->id($id);
+  $id  && $self->id($id);
+  $acc && $self->accession($acc);
+  $desc && $self->description($desc);
+  $coll && $self->annotation($coll);
+  # sequence annotation is layered into a provided annotation collection (or dies)
+  if ($sa) {
+    $self->throw("Must supply an alignment-based annotation collection (-annotation) ".
+                 "with a sequence annotation collection")
+        if !$coll;
+    $coll->add_Annotation('seq_annotation', $sa);
+  }
+  $con && $self->consensus($con);
+  $cmeta && $self->consensus_meta($cmeta);
+  # assumes these are in correct alignment order
+  if ($seqs && ref($seqs) eq 'ARRAY') {
+    for my $seq (@$seqs) {
+        $self->add_seq($seq);
+    }
+  }
 
   return $self; # success - we hope!
 }
@@ -258,7 +292,7 @@ sub add_seq {
     if( !defined $order ) {
 	$order = keys %{$self->{'_seq'}};
     }
-    $name = sprintf("%s/%d-%d",$id,$start,$end);
+    $name = $seq->get_nse;
 
     if( $self->{'_seq'}->{$name} ) {
 	$self->warn("Replacing one sequence [$name]\n") unless $self->verbose < 0;
