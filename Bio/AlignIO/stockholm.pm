@@ -1,7 +1,7 @@
 # $Id$
 #
 # BioPerl module for Bio::AlignIO::stockholm
-
+#
 #   Based on the Bio::SeqIO::stockholm module
 #       by Ewan Birney <birney@ebi.ac.uk>
 #       and Lincoln Stein  <lstein@cshl.org>
@@ -139,7 +139,7 @@ package Bio::AlignIO::stockholm;
 use strict;
 
 use Bio::Seq::Meta;
-use Bio::Annotation::AnnotationFactory;
+use Bio::AlignIO::Handler::GenericAlignHandler;
 use Data::Dumper;
 use Text::Wrap qw(wrap);
 
@@ -153,38 +153,38 @@ our $STKVERSION = 'STOCKHOLM 1.0';
 # and the tagname for, well, the Annotation tagname.  A few are treated differently
 # based on the type of data stored (Reference data in particular).
 
-our %READMAP = (
-            'AC'   => 'Method/accession', 
-            'ID'   => 'Method/id', 
-            'DE'   => 'Method/description',
-            'AU'   => 'SimpleValue/-value/record_authors',
-            'SE'   => 'SimpleValue/-value/seed_source', 
-            'GA'   => 'SimpleValue/-value/gathering_threshold',
-            'NC'   => 'SimpleValue/-value/noise_cutoff', 
-            'TC'   => 'SimpleValue/-value/trusted_cutoff', 
-            'TP'   => 'SimpleValue/-value/entry_type', 
-            'SQ'   => 'SimpleValue/-value/num_sequences', 
-            'PI'   => 'SimpleValue/-value/previous_ids', 
-            'DC'   => 'Comment/-text/database_comment',
-            'CC'   => 'Comment/-text/alignment_comment',
-            # DBLink, treated differently
-            'DR'   => 'DBLink/-value/aln_dblink',
-            # Pfam-specific
-            'AM'   => 'SimpleValue/-value/build_method', 
-            'NE'   => 'SimpleValue/-value/pfam_family_accession',
-            'NL'   => 'SimpleValue/-value/sequence_start_stop',
-            # Rfam-specific GF lines
-            'SS'   => 'SimpleValue/-value/sec_structure_source',
-            # Reference objects mapped differently
-            'RN'   => '-number',  # reference number is dumped
-            'RC'   => '-comment',
-            'RM'   => '-pubmed', 
-            'RT'   => '-title', 
-            'RA'   => '-authors',
-            'RL'   => '-location',
-            # Build model mapped differently
-            'BM'   => '-value',            
-            );
+my %MAPPING = (
+    'AC'    =>  'ACCESSION',
+    'ID'    =>  'ID',
+    'DE'    =>  ['DESCRIPTION' => 'DESCRIPTION'],
+    'AU'    =>  ['RECORD_AUTHORS' => 'RECORD_AUTHORS'],
+    'SE'    =>  'SEED_SOURCE',
+    'BM'    =>  'BUILD_COMMAND',
+    'GA'    =>  'GATHERING_THRESHOLD',
+    'NC'    =>  'NOISE_CUTOFF',
+    'TC'    =>  'TRUSTED_CUTOFF',
+    'TP'    =>  'ENTRY_TYPE',
+    'SQ'    =>  'NUM_SEQUENCES',
+    'PI'    =>  'PREVIOUS_IDS',
+    'DC'    =>  ['DATABASE_COMMENT' => 'DATABASE_COMMENT'],
+    'DR'    =>  'DBLINK',
+    'RN'    =>  ['REFERENCE' => 'REFERENCE'],
+    'RC'    =>  ['REFERENCE' => 'COMMENT'],
+    'RM'    =>  ['REFERENCE' => 'PUBMED'],
+    'RT'    =>  ['REFERENCE' => 'TITLE'],
+    'RA'    =>  ['REFERENCE' => 'AUTHORS'],
+    'RL'    =>  ['REFERENCE' => 'JOURNAL'],
+    'CC'    =>  ['ALIGNMENT_COMMENT' => 'ALIGNMENT_COMMENT'],
+    #Pfam-specific 
+    'AM'    =>  'BUILD_METHOD',
+    'NE'    =>  'PFAM_FAMILY_ACCESSION',
+    'NL'    =>  'SEQ_START_STOP',
+    # Rfam-specific GF lines
+    #'SS'    =>  'SEC_STRUCTURE_SOURCE',
+    'SEQUENCE' => 'SEQUENCE'
+);
+
+my %CONCATENATE = map {$_ => 1} qw(DE AU DC RC RT RA RL CC);
 
 # this is the order that annotations are written
 our @WRITEORDER = qw(accession
@@ -247,6 +247,10 @@ our %WRITEMAP = (
             'custom'                =>  'XX/SimpleValue'
             );
 
+# This maps the tagname back to a tagname-annotation value combination.
+# Some data is stored using get/set methods ('Methods'), others
+# are mapped b/c of more complex annotation types.
+
 =head2 new
 
  Title   : new
@@ -264,7 +268,13 @@ our %WRITEMAP = (
 sub _initialize {
     my ( $self, @args ) = @_;
     $self->SUPER::_initialize(@args);
-    my ($linelength) = $self->_rearrange([qw(LINE_LENGTH)],@args);
+    my ($handler, $linelength) = $self->_rearrange([qw(HANDLER LINE_LENGTH)],@args);
+    # hash for functions for decoding keys.
+    $handler ? $self->alignhandler($handler) :
+    $self->alignhandler(Bio::AlignIO::Handler::GenericAlignHandler->new(
+                    -format => 'stockholm',
+                    -verbose => $self->verbose,
+                    ));
     $linelength && $self->line_length($linelength);
 }
 
@@ -280,246 +290,112 @@ sub _initialize {
 
 sub next_aln {
     my $self = shift;
-    my $line;
-
-    #my ( $seqname, $seq, $count, $tag, $data);
-    my $seen_rc;
-    my ($refct, $bct, $lnkct, $cpos) = (0,0,0,0);
-    my %name2c;
-    my (%align, %accession, %desc, %seq_meta, %aln_meta, %annotation);
-
-    # in stockholm format, every non-blank line that does not start
-    # with '#=' is an alignment segment; the '#=' lines are mark up lines.
-    # Of particular interest are the '#=GF <name/st-ed> AC <accession>'
-    # lines, which give accession numbers for each segment
-
-    while( defined($line = $self->_readline) ) {
-        next if $line =~ /^\s*$/;
-        if ($line =~ /^#\s*STOCKHOLM\s+/) {
+    
+    my $handler = $self->alignhandler;
+    # advance to alignment header
+    while( defined(my $line = $self->_readline) ) {
+        if ($line =~ m{^#\s*STOCKHOLM\s+}xmso) {
             last;
-        } else {
-            $line = $self->_readline;
-            # commented this out since some programs have headers with extra output
-            # $self->throw("Not Stockholm format: Expecting \"# STOCKHOLM\"; Found \"$line\"");
         }
     }
     
-    return unless defined $line;
-    
-    my $aln =  Bio::SimpleAlign->new(-source => 'stockholm');
-    
-    READLINE:
-    while( defined($line = $self->_readline) ) {
-        #skip empty lines
-        my ($name, $id, $tag, $data, $seq);
-        if ($line =~ /^\s+$/) {
-            $cpos = 0;
+    $self->{block_line} = 0;
+    # go into main body of alignment
+    my ($data_chunk, $isa_primary, $name, $alphabet);
+    my $last_feat = '';
+    while( defined(my $line = $self->_readline) ) {
+        # only blank lines are in between blocks, so reset block line
+        my ($primary_tag, $secondary_tag, $data, $nse, $feat, $align, $concat);
+        if ($line =~ m{^\s*$}xmso) {
+            $self->{block_line} &&= 0;
             next;
         }
         
-        # Double slash (//) signals end of file.
-        last if $line =~ m{^//};
-        
-        # GF/GS lines, by convention, should be at the top of the alignment
-        if ($line =~ m{^\#=GF\s+(\S+?)\s+([^\n]*)$}xms) {
+        # End of Record
+        if (index($line, '//') == 0) {
+            # fencepost
+            $handler->data_handler($data_chunk);
+            undef $data_chunk;
+            $handler->data_handler({ALIGNMENT => 1,
+                                    NAME => 'ALPHABET',
+                                    DATA => $self->alphabet})
+                if $self->alphabet;
+            last;
+        }
+        elsif ($line =~ m{^\#=([A-Z]{2})\s+([^\n]+?)\s*$}xmso) {
+            ($primary_tag, $data) = ($1, $2);
+            if ($primary_tag eq 'GS' || $primary_tag eq 'GR') {
+                ($nse, $feat, $data) = split(/\s+/, $data, 3);
+            } else {
+                ($feat, $data) = split(/\s+/, $data, 2);
+            }
+            $align = ($primary_tag eq 'GF' || $primary_tag eq 'GR') ? 1 : 0;
+        }
+        elsif ($line =~ m{^([^\#]\S+)\s+([A-Za-z.\-\*]+)\s*}) {
+            $self->{block_line}++;
+            ($feat, $nse, $data) = ('SEQUENCE', $1, $2);
+        }
+        else {
+            $self->debug("Missed line : $line\n");
+        }
+        $primary_tag ||= ''; # when no #= line is present
+        $align ||= 0;
 
-            # alignment annotation
-            ($tag, $data) = ($1, $2);
-            if (exists $READMAP{$tag}) {
+        # array refs where the two values are equal indicate the start of a
+        # primary chunk of data, otherwise it is to be folded into the last
+        # data chunk under a secondary tag.  These are also concatenated
+        # to previous values if the 
 
-                # reference data (multi line)
-                if (index($tag, 'R') == 0) {
-                    # comments come before numbering, tricky
-                    $refct++ if ( ($tag eq 'RN' && !$seen_rc) || $tag eq 'RC');
-                    $seen_rc = 1 if $tag eq 'RC';
-                    # Don't need
-                    next READLINE if $tag eq 'RN';
-                    #                           # of ref       parameter     
-                    $annotation{ 'reference' }->[$refct-1]->{ $READMAP{$tag} } .= $data.' ';
-
-                # Build commands (single line)
-                } elsif ($tag eq 'BM') {
-                    #                            # build cmd    parameter     
-                    $annotation{ 'build_command' }->[$bct]->{ $READMAP{$tag} } = $data;
-                    $bct++;
-                    
-                # DBLinks (single line)
-                } elsif ($tag eq 'DR') {
-                    my ($dbase, $uid, $extra) = split /\s*;\s*/ , $data, 3;
-                    my $ref;
-                    $ref->{'-database'} = $dbase;
-                    $ref->{'-primary_id'} = ($dbase eq 'URL') ? $uid : uc $uid;
-                    $ref->{'-comment'} = $extra if $extra;
-                    #                       # dblink       parameter list    
-                    $annotation{ 'aln_dblink' }->[$lnkct] = $ref;
-                    $lnkct++;
-                    
-                # Everything else (single and multi line)
-                } else {
-                    #       # param/-value/tagname 
-                    $annotation{ $READMAP{$tag} } .= $data.' ';
-                    if ($tag eq 'AC' && !defined($self->alphabet)) {
-                        # guess the alphabet based on alignment accession:
-                        # PF = Pfam, 'protein', RF = Rfam, 'rna'
-                        # default to 'dna'
-                        $data =~ /^PF/i ? $self->alphabet('protein') :
-                        $data =~ /^RF/i ? $self->alphabet('rna') :
-                        $self->alphabet('dna'); 
-                    }
+        if (exists($MAPPING{$feat}) && ref $MAPPING{$feat} eq 'ARRAY') {
+            ($name, $secondary_tag, $isa_primary) = ( $MAPPING{$feat}->[0] eq $MAPPING{$feat}->[1] ) ?
+                ($MAPPING{$feat}->[0], 'DATA', 1) :
+                (@{ $MAPPING{$feat} }, 0) ;
+            $concat = $last_feat eq $feat ? 1 : 0;
+        } elsif (exists($MAPPING{$feat})) {
+            ($name, $secondary_tag, $isa_primary) = ($MAPPING{$feat}, 'DATA', 1);
+            # catch alphabet here if possible
+            if ($align && $name eq 'ACCESSION' && !$self->alphabet) {
+                if ($data =~ m{^(P|R)F}) {
+                    $self->alphabet($1 eq 'R' ? 'rna' : $1 eq 'P' ? 'protein' : undef );
                 }
-
-            } else {
-                # unknown or custom data treated with simplevalue objects
-                #$self->debug("Unknown tag: $tag:\t$data\n");
-                $annotation{ 'custom' }->{ $tag } .= $data.' ';
-            }
-
-        } elsif( $line =~ m{^\#=GS\s+(\S+)\s+(\w{2})\s+(\S+)}xms ) {
-            # sequence annotation and data
-            ($id, $tag, $data) = ($1, $2, $3);
-            if ($tag eq 'AC') {
-                $accession{$id} .= $data;
-                
-            } elsif ($tag eq 'DE') {
-                $desc{$id} .= $data;
-            }
-            # Bio::Seq::Meta is not AnnotationI, so can't add seq-based
-            # Annotations yet; uncomment to see what is passed by
-            else {
-                $self->debug("Missed data: $line");
-            }
-        } elsif( $line =~ m{^\#=GR\s+(\S+)\s+(\S+)\s+([^\n]+)} ) {
-            # meta strings per sequence
-            ($name, $tag, $data) = ($1, $2, $3);
-            $seq_meta{$name}->{$tag} .= $data;
-        } elsif( $line =~ m{^\#=GC\s+(\S+)\s+([^\n]+)}xms ) {
-            # meta strings per alignment
-            ($tag, $data) = ($1, $2);
-            $aln_meta{$tag} .= $data;
-        } elsif( $line =~ m{^([^\#]\S+)\s+([A-Za-z.\-\*]+)\s*}xms ) {
-            ($name, $seq) = ($1,$2);
-            if( ! exists $name2c{++$cpos}  ) {
-                $name2c{$cpos} = $name;
-            }
-            $align{ $cpos } .= $seq;
-        } else {
-            # debugging to catch missed data; uncomment to turn on
-            $self->debug("Missed Data: $line");
-        }
-    }
-    
-    #$self->debug(Dumper(\%align));
-    #$self->debug(Dumper(\%name2c));
-    
-    # ok... now we can make the sequences
-    
-    for my $data ( map {[$name2c{$_}, $_] } sort { $a <=> $b } keys %name2c ) {
-        my ($name, $pos) = @$data;
-        my ($start, $end, $stranded, $seqname);
-        my $alphabet = $self->alphabet || 'dna';
-        my $strand = ($alphabet eq 'dna' || $alphabet eq 'rna') ? 1 : 0;
-        if( $name =~ m{(\S+)/(\d+)-(\d+)}xms ) {
-            ($seqname, $start, $end) = ($1, $2, $3);
-            if ($start > $end) {
-                $self->throw("$start is greater than $end, but sequence is protein!") unless $strand;
-                $strand = -1;
-                ($start, $end) = ($end, $start);
             }
         } else {
-            $seqname=$name;
-            $start = 1;
-            # if end is not specified, allow LocatableSeq to calculate it
+            $name = ($primary_tag eq 'GR') ? 'NAMED_META' :
+                    ($primary_tag eq 'GC') ? 'CONSENSUS_META' :
+                    'CUSTOM';
+            ($secondary_tag, $isa_primary) = ('DATA', 1);
         }
-        my $loc = Bio::Seq::Meta->new
-            (
-             '-seq'              => $align{$pos},
-             '-display_id'       => $seqname,
-             '-start'            => $start,
-             '-end'              => $end,   
-             '-strand'           => $strand,
-             '-description'      => $desc{$name},
-             '-accession_number' => $accession{$name}
-             );
-        if (exists $seq_meta{$name}) {
-            for my $tag (sort keys %{ $seq_meta{$name} }) {
-                $loc->named_meta($tag, $seq_meta{$name}->{$tag});
-            }
+        
+        # Since we can't determine whether data should be passed into the
+        # Handler until the next round (due to concatenation and combining
+        # data), we always check for the presence of the last chunk when the
+        # occasion calls for it (i.e. when the current data string needs to go
+        # into a new data chunk). If the data needs to be concatenated it is
+        # flagged above and checked below (and passed by if the conditions
+        # warrant it).
+        
+        # We run into a bit of a fencepost problem, (one chunk left over at
+        # the end); that is taken care of above when the end of the record is
+        # found.
+        
+        if ($isa_primary && defined $data_chunk && !$concat) {
+            $handler->data_handler($data_chunk);
+            undef $data_chunk;
         }
-        $aln->add_seq($loc);
+        $data_chunk->{NAME} = $name;       # used for the handler
+        $data_chunk->{ALIGNMENT} = $align; # flag that determines chunk destination
+        $data_chunk->{$secondary_tag} .= (defined($data_chunk->{$secondary_tag})) ?
+            ' '.$data : $data;
+        $data_chunk->{NSE} = $nse if $nse;
+        if ($name eq 'SEQUENCE' || $name eq 'NAMED_META' || $name eq 'CONSENSUS_META') {
+            $data_chunk->{BLOCK_LINE} = $self->{block_line};
+            $data_chunk->{META_TAG} = $feat if ($name ne 'SEQUENCE');
+        }
+        $last_feat = $feat;
     }
     
-    # add meta strings w/o sequence for consensus meta data. This is a hack and
-    # should probably be a special kind of tagged annotation that relates to the
-    # whole alignment.
-    # no seq attached but pertains to the alignment as a whole. This breaks in
-    # SimpleAlign when calling trunc() on it
-    
-    my $ameta = Bio::Seq::Meta->new();
-    for my $tag (sort keys %aln_meta) {
-        $ameta->named_meta($tag, $aln_meta{$tag});
-    }
-    
-    $aln->consensus_meta($ameta);
-    
-    # Make the annotation collection...
-    
-    my $coll = Bio::Annotation::Collection->new();
-    my $factory = Bio::Annotation::AnnotationFactory->new();
-    for my $tag (sort keys %annotation) {
-        
-        # most annotations
-        if (!ref($annotation{$tag})) {
-            my ($atype, $aparam, $tagname) = split q(/), $tag;
-            # remove trailing newline, convert internal newlines to spaces
-            $annotation{$tag} =~ s{\s+$}{}g;
-            # split the READTYPE map to determine Annotation type, parameters, etc.
-            if ($atype eq 'Method') {
-                $aln->$aparam($annotation{$tag});
-            } else {
-                $factory->type("Bio::Annotation::$atype");
-                $coll->add_Annotation
-                ($tagname, $factory->create_object($aparam  => $annotation{$tag}));
-            }
-            
-        } elsif ($tag eq 'custom') {
-            
-            for my $key (sort keys %{ $annotation{$tag} }) {
-                $factory->type("Bio::Annotation::SimpleValue");
-                $coll->add_Annotation(
-                    $tag, $factory->create_object(-tagname => $key,
-                                                  -value => $annotation{$tag}->{$key}));
-            }
-        
-        # more complex annotations
-        
-        } else {
-            my $atype = #($tag eq 'custom')          ? 'SimpleValue'   :
-                        ($tag eq 'reference')       ? 'Reference'   :
-                        ($tag eq 'aln_dblink')      ? 'DBLink'   :
-                        ($tag eq 'build_command')   ? 'SimpleValue' :
-                        'BadValue'; # this will cause the factory to choke
-            $self->throw("Bad tag value : $tag.") if $atype eq 'BadValue';
-            $factory->type("Bio::Annotation::$atype");                
-            while (my $data = shift @{ $annotation{$tag} }) {
-                next unless $data;
-                # remove trailing spaces for concatenated data
-                my %clean_data = map {
-                    $data->{$_} =~ s{\s+$}{}g;
-                    $_ => $data->{$_};
-                    } keys %{ $data };
-                my $ann = $factory->create_object(%clean_data);
-                $coll->add_Annotation($tag, $ann);
-                $refct++;
-            }
-        }
-    }
-
-    # add annotations
-    $aln->annotation($coll);
-    
-    #  If $end <= 0, we have either reached the end of
-    #  file in <fh> or we have encountered some other error
-    
+    my $aln = $handler->build_alignment;    
+    $handler->reset_parameters;
     return $aln;
 }
 
@@ -699,5 +575,50 @@ sub alphabet {
     }
     return $self->{'_alphabet'};
 };
+
+=head2 alignhandler
+
+ Title   : alignhandler
+ Usage   : $stream->alignhandler($handler)
+ Function: Get/Set the Bio::HandlerBaseI object
+ Returns : Bio::HandlerBaseI 
+ Args    : Bio::HandlerBaseI 
+
+=cut
+
+sub alignhandler {
+    my ($self, $handler) = @_;
+    if ($handler) {
+        $self->throw("Not a Bio::HandlerBaseI") unless
+        ref($handler) && $handler->isa("Bio::HandlerBaseI");
+        $self->{'_alignhandler'} = $handler;
+    }
+    return $self->{'_alignhandler'};
+}
+
+
+############# PRIVATE INIT/HANDLER METHODS #############
+
+sub _alignment_annotation {
+    my ($self, $data) = @_;
+    if ($data =~ m{([A-Z]+)\s+([^\n]+)$}xmso) {
+        $self->debug("Aln ann tag: $1 Data $2\n");
+    }
+}
+
+sub _sequence_annotation {
+    my ($self, $data) = @_;
+    $self->debug("Sequence annotation : $data\n");
+}
+
+sub _consensus_meta {
+    my ($self, $data) = @_;
+    $self->debug("Consensus meta      : $data\n");    
+}
+
+sub _sequence_meta {
+    my ($self, $data) = @_;
+    $self->debug("Sequence meta".$self->{pos}."     : $data\n");    
+}
 
 1;
