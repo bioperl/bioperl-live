@@ -43,14 +43,13 @@ event-driven parsers (drivers).
 
 =head1 DESCRIPTION
 
-This interface describes simple class methods used for processing data
-from an event-based parser (a driver). This is similar in theme to an
-XML SAX-based driver but differs in that one can optionally pass
-related data semi- intelligently as chunks (defined in a hash
-reference) vs. passing as single data elements in a stream. For
-instance, any reference-related and species-related data as well as
-individual sequence features could be passed as chunks of data to be
-processed in part or as a whole (from Data::Dumper output):
+This interface describes simple class methods used for processing data from an
+event-based parser (a driver). This is similar in theme to an XML SAX-based
+driver but differs in that one can optionally pass related data
+semi-intelligently as chunks (defined in a hash reference) vs. passing as single
+data elements in a stream. For instance, any reference-related and
+species-related data as well as individual sequence features could be passed as
+chunks of data to be processed in part or as a whole (from Data::Dumper output):
 
 Annotation Data (References):
 
