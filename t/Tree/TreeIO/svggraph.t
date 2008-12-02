@@ -1,0 +1,28 @@
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id: TreeIO.t 14580 2008-03-01 17:01:30Z cjfields $
+
+use strict;
+
+BEGIN {
+    use lib 't/lib';
+    use BioperlTest;
+    
+    test_begin(-tests => 3);
+    use_ok('Bio::TreeIO');
+}
+
+my $verbose = test_debug();
+
+my $treeio = Bio::TreeIO->new(-verbose => $verbose,
+			  -file   => test_input_file('test.nhx'));
+my $tree;
+
+SKIP: {
+	test_skip(-tests => 2, -requires_module => 'SVG::Graph');
+	my $FILE3 = test_output_file();
+	my $treeout3 = Bio::TreeIO->new(-format => 'svggraph',
+					-file => ">$FILE3");
+	ok($treeout3);
+	eval {$treeout3->write_tree($tree);};
+	ok (-s $FILE3);
+}
