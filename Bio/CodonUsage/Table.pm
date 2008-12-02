@@ -19,34 +19,30 @@ at http://www.kazusa.or.jp/codon.
 
   use Bio::CodonUsage::Table;
   use Bio::DB::CUTG;
+  use Bio::CodonUsage::IO;
+  use Bio::Tools::SeqStats;
 
-  ## get  a codon usage table from web database ##
-  my $cdtable = Bio::DB::CUTG->new(-sp => 'Mus musculus'
+  # Get  a codon usage table from web database
+  my $cdtable = Bio::DB::CUTG->new(-sp => 'Mus musculus',
                                    -gc => 1);
 
-  ## or from local file
-
+  # Or from local file
   my $io      = Bio::CodonUsage::IO->new(-file=>"file");
   my $cdtable = $io->next_data();
 
+  # Or create your own from a Bio::PrimarySeq compliant object,
+  # $codonstats is a ref to a hash of codon name /count key-value pairs
+  my $codonstats = Bio::Tools::SeqStats->count_codons($Seq_objct);
 
-  ## or create your own from your own sequences 
-
-  ## get a Bio::PrimarySeq compliant object ##
-  # $codonstats is a ref to a hash of codon name /count key-value pairs.
-
-  my $codonstats = Bio::Tools::SeqStats->codon_count($my_1ary_Seq_objct);
-
-  ### the '-data' field must be specified ##
-  ### the '-species' and 'genetic_code' fields are optional
+  # '-data' must be specified, '-species' and 'genetic_code' are optional
   my $CUT = Bio::CodonUsage::Table->new(-data    => $codonstats,
                                         -species => 'Hsapiens_kinase');
 
   print "leu frequency is ", $cdtable->aa_frequency('LEU'), "\n";
-  print "freqof ATG is ", $cdtable->codon_rel_frequency('ttc'), "\n";
+  print "freq of ATG is ", $cdtable->codon_rel_frequency('ttc'), "\n";
   print "abs freq of ATG is ", $cdtable->codon_abs_frequency('ATG'), "\n";
   print "number of ATG codons is ", $cdtable->codon_count('ATG'), "\n";
-  print "gc content at position 1 is ", $cdtable->get_coding_gc('1'), "\n";
+  print "GC content at position 1 is ", $cdtable->get_coding_gc('1'), "\n";
   print "total CDSs for Mus musculus  is ", $cdtable->cds_count(), "\n";
 
 =head1 DESCRIPTION
