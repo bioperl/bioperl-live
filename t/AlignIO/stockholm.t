@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 61);
+    test_begin(-tests => 75);
 	
 	use_ok('Bio::AlignIO');
 }
@@ -27,6 +27,7 @@ $strout = Bio::AlignIO->new('-file'  => ">".test_output_file(),
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
+is($aln->source, 'stockholm');
 is($aln->get_seq_by_pos(1)->get_nse, 'Z11765.1/1-89');
 is($aln->accession, 'RF00006');
 is($aln->id, 'Vault');
@@ -48,7 +49,9 @@ is $status, 1, "stockholm output test";
 
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
+is($aln->source, 'stockholm');
 is($aln->get_seq_by_pos(1)->get_nse, 'L43844.1/2-149');
+is($aln->get_seq_by_pos(1)->version, '1');
 is($aln->accession, 'RF00007');
 is($aln->id, 'U12');
 is($aln->description,'U12 minor spliceosomal RNA');
@@ -72,6 +75,7 @@ is($meta_str, '...<<<<<..........>>>>>........<<<<......<<<<......>>>>>>>>'.
    '<<<<<.......>>>>>...........<<<<<<<...<<<<<<<.....>>>>>>>.>>>>>>>..<<<'.
    '<<<<<<.........>>>>>>>>>...', 'Rfam meta data');
 $aln = $str->next_aln();
+is($aln->source, 'stockholm');
 isa_ok($aln,'Bio::Align::AlignI');
 is($aln->get_seq_by_pos(1)->get_nse, 'AJ295015.1/1-58');
 is($aln->accession, 'RF00008');
@@ -92,6 +96,7 @@ $str  = Bio::AlignIO->new(
     '-format'	=> 'stockholm');
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
+is($aln->source, 'stockholm');
 isa_ok($aln,'Bio::Align::AlignI');
 is($aln->get_seq_by_pos(1)->get_nse, 'RAD25_SCHPO/5-240');
 is($aln->accession, 'PF00244.9');
@@ -101,6 +106,7 @@ is($aln->description,'14-3-3 protein');
 isa_ok($ann, 'Bio::Annotation::SimpleValue');
 is($ann->display_text, '25.00 25.00; 25.00 25.00;', 'Pfam annotation');
 $aln = $str->next_aln();
+is($aln->source, 'stockholm');
 isa_ok($aln,'Bio::Align::AlignI');
 is($aln->get_seq_by_pos(1)->get_nse, 'COMB_CLOAB/6-235');
 is($aln->accession, 'PF04029.4');
@@ -108,6 +114,7 @@ is($aln->id, '2-ph_phosp');
 is($aln->description,'2-phosphosulpholactate phosphatase');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
+is($aln->source, 'stockholm');
 is($aln->get_seq_by_pos(1)->get_nse, 'Y278_HAEIN/174-219');
 is($aln->accession, 'PF03475.3');
 is($aln->id, '3-alpha');
@@ -134,3 +141,15 @@ for my $seq ($aln->each_seq) {
     }
 }
 
+# sequence-specific alignments
+# this is a kludge for now until we can get a better class system in place (but
+# it works for now)
+my ($seqann) = $aln->annotation->get_Annotations('seq_annotation');
+isa_ok($seqann, 'Bio::AnnotationCollectionI');
+@anns = $seqann->get_all_Annotations();
+is(scalar(@anns),6);
+isa_ok($anns[0], 'Bio::AnnotationI');
+is($anns[1]->comment, 'NSE: YIIM_ECOLI/168-214 Start: 178 End: 224');
+is($anns[2]->database, 'PDB');
+is($anns[2]->primary_id, '1o65');
+is($anns[2]->optional_id, 'C');

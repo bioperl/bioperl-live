@@ -25,7 +25,6 @@ use Bio::Annotation::SimpleValue;
 use Bio::Annotation::DBLink;
 use Bio::Annotation::Reference;
 use Bio::SimpleAlign;
-use Data::Dumper;
 
 use base qw(Bio::Root::Root Bio::HandlerBaseI);
 
@@ -235,7 +234,7 @@ sub build_alignment {
     $self->process_seqs;
     my $param = $self->get_params;
     if (defined $param->{-seqs}) {
-        return Bio::SimpleAlign->new(%$param);
+        return Bio::SimpleAlign->new(%$param, -source => $self->format);
     }
 }
 
