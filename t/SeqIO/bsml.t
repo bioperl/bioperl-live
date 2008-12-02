@@ -8,9 +8,9 @@ BEGIN {
 	use BioperlTest;
 	
 	test_begin(-tests => 15,
-			   -requires_modules => []
+			   -requires_modules => ['XML::DOM']
 			  );
-    
+	use_ok('XML::DOM');
 	use_ok('Bio::SeqIO::bsml');
 }
 
