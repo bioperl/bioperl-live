@@ -1,5 +1,5 @@
 # -*-Perl-*- Test Harness script for Bioperl
-# $Id: AlignIO_fasta.t 14971 2008-10-28 16:08:52Z cjfields $
+# $Id: fasta.t 14971 2008-10-28 16:08:52Z cjfields $
 
 use strict;
 
@@ -9,7 +9,7 @@ BEGIN {
     
     test_begin(-tests => 10);
 	
-	use_ok('Bio::AlignIO');
+	use_ok('Bio::AlignIO::fasta');
 }
 
 my $DEBUG = test_debug();

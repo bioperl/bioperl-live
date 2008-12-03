@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
 	use BioperlTest;
 	
-	test_begin(-tests => 15,
+	test_begin(-tests => 16,
 			   -requires_modules => ['XML::DOM']
 			  );
 	use_ok('XML::DOM');

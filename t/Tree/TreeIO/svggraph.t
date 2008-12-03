@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 3);
+    test_begin(-tests => 4);
     use_ok('Bio::TreeIO');
 }
 
@@ -24,5 +24,6 @@ SKIP: {
 					-file => ">$FILE3");
 	ok($treeout3);
 	eval {$treeout3->write_tree($tree);};
+	ok(!$@);
 	ok (-s $FILE3);
 }
