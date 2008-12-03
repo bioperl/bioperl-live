@@ -27,7 +27,7 @@ at http://www.kazusa.or.jp/codon.
                                    -gc => 1);
 
   # Or from local file
-  my $io      = Bio::CodonUsage::IO->new(-file=>"file");
+  my $io      = Bio::CodonUsage::IO->new(-file => "file");
   my $cdtable = $io->next_data();
 
   # Or create your own from a Bio::PrimarySeq compliant object,
@@ -275,6 +275,44 @@ sub probable_codons {
 }
 		
 
+=head2 most_common_codons
+
+ Title    : most_common_codons
+ Usage    : my $common_codons = $cd_table->most_common_codons();
+ Purpose  : To obtain the most common codon for a given amino acid
+ Returns  : A reference to a hash where keys are 1 letter amino acid codes
+            and the values are the single most common codons for those amino acids
+ Arguments: None
+
+=cut
+
+sub most_common_codons {
+	my $self = shift;
+
+	my %return_hash;
+
+	for my $a ( keys %STRICTAA ) {
+
+		my $common_codon = '';
+		my $rel_freq = 0;
+		my $aa = $Bio::SeqUtils::THREECODE{$a};
+
+		if ( ! defined $self->{'_table'}{$aa} ) {
+			$self->warn("Amino acid $aa ($a) does not have any codons!");
+			next;
+		}
+
+		for my $codon ( keys %{ $self->{'_table'}{$aa}} ) {
+			if ($self->{'_table'}{$aa}{$codon}{'rel_freq'} > $rel_freq ){
+				$common_codon = $codon;
+				$rel_freq = $self->{'_table'}{$aa}{$codon}{'rel_freq'};
+			}
+		}
+		$return_hash{$a} = $common_codon;
+	}
+   
+	return \%return_hash;
+}
 
 =head2 codon_count
 

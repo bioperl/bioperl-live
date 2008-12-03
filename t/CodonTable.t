@@ -7,9 +7,10 @@ BEGIN {
     use lib 't/lib';
 	use BioperlTest;
 	
-	test_begin(-tests => 51);
+	test_begin(-tests => 56);
     
 	use_ok('Bio::Tools::CodonTable');
+	use_ok('Bio::CodonUsage::IO');
 }
 
 # create a table object by giving an ID
@@ -179,7 +180,16 @@ ok $seq = Bio::PrimarySeq->new(-seq      => 'atg---aar------aay',
 			                   -alphabet => 'dna');
 is $seq->translate->seq, 'M-K--N';
 
-ok $seq = Bio::PrimarySeq->new(-seq=>'ASDFGHKL');
+ok $seq = Bio::PrimarySeq->new(-seq =>'ASDFGHKL');
 is $myCodonTable->reverse_translate_all($seq), 'GCBWSNGAYTTYGGVCAYAARYTN';
-ok $seq = Bio::PrimarySeq->new(-seq=>'ASXFHKL');
+ok $seq = Bio::PrimarySeq->new(-seq => 'ASXFHKL');
 is $myCodonTable->reverse_translate_all($seq), 'GCBWSNNNNTTYCAYAARYTN';
+
+#
+# test reverse_translate_best(), requires a Bio::CodonUsage::Table object
+# 
+
+ok $seq = Bio::PrimarySeq->new(-seq =>'ACDEFGHIKLMNPQRSTVWY');
+ok my $io = Bio::CodonUsage::IO->new(-file => test_input_file('MmCT'));
+ok my $cut = $io->next_data();
+is $myCodonTable->reverse_translate_best($seq,$cut), 'GCCTGCGACGAGTTCGGCCACATCAAGCTGATGAACCCCCAGCGCTCCACCGTGTGGTAC';
