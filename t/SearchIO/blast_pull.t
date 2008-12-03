@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 287);
+    test_begin(-tests => 289);
 	
 	use_ok('Bio::SearchIO');
 }
