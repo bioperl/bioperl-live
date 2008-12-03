@@ -108,17 +108,20 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my ($start,$end,$strand, $mapping, $fs) =
+    my ($start,$end,$strand, $mapping, $fs, $nse) =
     $self->_rearrange( [qw(START
                         END
                         STRAND
                         MAPPING
                         FRAMESHIFTS
+                        FORCE_NSE
                         )],
                @args);
     
     $mapping ||= [1,1];
     $self->mapping($mapping);
+    $nse || 0;
+    $self->force_nse($nse);
     defined $fs    && $self->frameshifts($fs);
     defined $start && $self->start($start);
     defined $end   && $self->end($end);
@@ -298,14 +301,42 @@ sub get_nse{
    $char1 ||= "/";
    $char2 ||= "-";
    
-   $self->throw("Attribute id not set") unless defined($self->id());
-   $self->throw("Attribute start not set") unless defined($self->start());
-   $self->throw("Attribute end not set") unless defined($self->end());
+   my ($id, $st, $end)  = ($self->id(), $self->start(), $self->end());
    
-   #Stockholm Rfam included version if present
+   if ($self->force_nse) {
+        $id  ||= '';
+        $st  ||= 0;
+        $end ||= 0;
+   }
+   
+   $self->throw("Attribute id not set") unless defined($id);
+   $self->throw("Attribute start not set") unless defined($st);
+   $self->throw("Attribute end not set") unless defined($end);
+   
+   #Stockholm Rfam includes version if present so it is optional
    my $v = $self->version ? '.'.$self->version : ''; 
-   return $self->id() . $v. $char1 . $self->start . $char2 . $self->end ;
+   return $id . $v. $char1 . $st . $char2 . $end ;
+}
 
+=head2 force_nse
+
+ Title   : force_nse
+ Usage   : $ls->force_nse()
+ Function: Boolean which forces get_nse() to build an NSE, regardless
+           of whether id(), start(), or end() is set
+ Returns : Boolean value
+ Args    : (optional) Boolean (1 or 0)
+ Note    : This will convert any passed value evaluating as TRUE/FALSE to 1/0
+           respectively
+
+=cut
+
+sub force_nse {
+    my ($self, $flag) = @_;
+    if (defined $flag) {
+        $flag ? (return $self->{'_force_nse'} = 1) : (return $self->{'_force_nse'} = 0);
+    }
+    return $self->{'_force_nse'};
 }
 
 =head2 no_gap

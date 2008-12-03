@@ -752,13 +752,15 @@ sub seq {
 	
     my $str = $self->seq_str($seqType) || return;
     require Bio::LocatableSeq;
-    my $id = $seqType =~ /^q/i ? $self->query->seq_id : $self->hit->seq_id;
-    return new Bio::LocatableSeq (  -ID    => $id,
-                                    -SEQ   => $str,
-                                    -START => $self->start($seqType),
-                                    -END   => $self->end($seqType),
-                                    -STRAND=> $self->strand($seqType),
-                                    -DESC  => "$seqType sequence " );
+    my $id = ($seqType =~ /^q/i) ? $self->query->seq_id : $self->hit->seq_id;
+    return Bio::LocatableSeq->new(  -ID        => $id,
+                                    -SEQ       => $str,
+                                    -START     => $self->start($seqType),
+                                    -END       => $self->end($seqType),
+                                    -STRAND    => $self->strand($seqType),
+                                    -FORCE_NSE => $id ? 0 : 1,
+                                    -DESC      => "$seqType sequence " );
+
 }
 
 =head2 seq_str

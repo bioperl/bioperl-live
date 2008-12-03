@@ -562,7 +562,7 @@ sub next_result {
                     'Name' => 'BlastOutput_query-def',
                     'Data' => $nm
                 }
-            );
+            ) if $nm;
             $self->element(
                 {
                     'Name' => 'BlastOutput_query-len',
@@ -578,13 +578,12 @@ sub next_result {
             );
             my ( $gi, $acc, $version ) = $self->_get_seq_identifiers($nm);
             $version = defined($version) && length($version) ? ".$version" : "";
-            $acc = '' unless defined($acc);
             $self->element(
                 {
                     'Name' => 'BlastOutput_query-acc',
                     'Data' => "$acc$version"
                 }
-            );
+            ) if $acc;
         }
 		# added check for WU-BLAST -echofilter option (bug 2388)
 		elsif (/^>Unfiltered[+-]1$/) {

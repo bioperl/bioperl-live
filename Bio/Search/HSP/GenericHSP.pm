@@ -622,17 +622,22 @@ sub get_aln {
     $seqonly =~ s/[\-\s]//g;
     my ($q_nm,$s_nm) = ($self->query->seq_id(),
                         $self->hit->seq_id());
-    unless( defined $q_nm && CORE::length ($q_nm) ) {
-        $q_nm = 'query';
-    }
-    unless( defined $s_nm && CORE::length ($s_nm) ) {
-        $s_nm = 'hit';
-    }
+    # Should we silently change the name of the query or hit if it isn't
+    # defined?  May need revisiting... cjfields 2008-12-3 (commented out below)
+    
+    #unless( defined $q_nm && CORE::length ($q_nm) ) {
+    #    $q_nm = 'query';
+    #}
+    #unless( defined $s_nm && CORE::length ($s_nm) ) {
+    #    $s_nm = 'hit';
+    #}
+    
     # mapping: 1 residues for every x coordinate positions
     my $query = Bio::LocatableSeq->new('-seq'   => $qs,
                                       '-id'    => $q_nm,
                                       '-start' => $self->query->start,
                                       '-end'   => $self->query->end,
+                                      '-force_nse' => $q_nm ? 0 : 1,
                                       '-mapping' => [1, $self->{_query_mapping}]
                                       );
     $seqonly = $hs;
@@ -641,6 +646,7 @@ sub get_aln {
                                       '-id'    => $s_nm,
                                       '-start' => $self->hit->start,
                                       '-end'   => $self->hit->end,
+                                      '-force_nse' => $s_nm ? 0 : 1,
                                       '-mapping' => [1, $self->{_hit_mapping}]
                                       );
     $aln->add_seq($query);

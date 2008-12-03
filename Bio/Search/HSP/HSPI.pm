@@ -553,9 +553,7 @@ See Also   : L<seq_str()|seq_str>, L<seq_inds()|seq_inds>, L<Bio::Seq>
 
 =cut
 
-#-------
 sub seq {
-#-------
     my($self,$seqType) = @_; 
     $seqType ||= 'query';
     $seqType = 'sbjct' if $seqType eq 'hit';
@@ -565,13 +563,13 @@ sub seq {
     }
     require Bio::LocatableSeq;
     my $id = $seqType =~ /^q/i ? $self->query->seq_id : $self->hit->seq_id;
-    Bio::LocatableSeq->new(-ID    => $id,
-                           -SEQ   => $str,
-                           -START => $self->start($seqType),
-                           -END   => $self->end($seqType),
-                           -STRAND=> $self->strand($seqType),
-                           -DESC  => "$seqType sequence ",
-                           );
+    return Bio::LocatableSeq->new(  -ID        => $id,
+                                    -SEQ       => $str,
+                                    -START     => $self->start($seqType),
+                                    -END       => $self->end($seqType),
+                                    -STRAND    => $self->strand($seqType),
+                                    -FORCE_NSE => $id ? 0 : 1,
+                                    -DESC      => "$seqType sequence " );
 }
 
 =head2 seq_str
