@@ -591,18 +591,16 @@ sub get_mol_wt {
 =head2  count_codons
 
  Title   : count_codons
- Usage   : $rcount = $seqstats->count_codons(); or
-           $rcount = Bio::Tools::SeqStats->count_codons($seqobj);
-
- Function: Counts the number of each type of codons in a given frame
-           for a dna or rna sequence.
+ Usage   : $rcount = $seqstats->count_codons() or
+           $rcount = Bio::Tools::SeqStats->count_codons($seqobj)
+ Function: Counts the number of each type of codons for a dna or rna 
+           sequence, starting at the 1st triple of the input sequence.
  Example :
  Returns : Reference to a hash in which keys are codons of the genetic
            alphabet used and values are number of occurrences of the
            codons in the sequence. All codons with "ambiguous" bases
            are counted together.
- Args    : None or reference to sequence object
-
+ Args    : None or sequence object
  Throws  : an exception if type of sequence is unknown or protein.
 
 =cut
