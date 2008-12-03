@@ -7,7 +7,7 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 112);
+    test_begin(-tests => 116);
 	
 	use_ok('Bio::LocatableSeq');
 	use_ok('Bio::AlignIO');
@@ -155,6 +155,14 @@ ok $seq = Bio::LocatableSeq->new();
 is $seq->seq, undef;
 is $seq->start, undef;
 is $seq->end, undef;
+my $nse;
+eval{$nse = $seq->get_nse};
+ok($@);
+is ($nse, undef);
+$seq->force_nse(1);
+eval{$nse = $seq->get_nse};
+ok(!$@);
+is ($nse, '/0-0');
 
 # test mapping
 
