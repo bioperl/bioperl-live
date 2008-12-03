@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 1089);
+    test_begin(-tests => 1091);
 	
 	use_ok('Bio::SearchIO');
 }
@@ -408,6 +408,8 @@ while( my $hit = $result->next_hit ) {
             is(sprintf("%.4f",$hsp->frac_identical('hit')), 0.9831);
             is($hsp->query->frame(), 0);
             is($hsp->hit->frame(), 0);
+            is($hsp->query->seq_id, '');
+            is($hsp->hit->seq_id, 'gb|AY052359.1|');			
             is($hsp->gaps('query'), 0);
             is($hsp->gaps('hit'), 1);
             is($hsp->gaps, 1);	    
