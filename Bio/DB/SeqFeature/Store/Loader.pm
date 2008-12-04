@@ -73,8 +73,7 @@ pairs as described in this table:
  -map_coords        A code ref that will transform a list of ($ref,[$start1,$end1]...)
                        coordinates into a list of ($newref,[$newstart1,$newend1]...)
 
- -index_subfeatures Indicate true if subfeatures should be indexed. Default is true if
-                       not specified.
+ -index_subfeatures Indicate true if subfeatures should be indexed. Default is false.
 
 When you call new(), a connection to a Bio::DB::SeqFeature::Store
 database should already have been established and the database
@@ -154,6 +153,8 @@ END
 						  -cache    => 1,
 						  -write    => 1)
     unless $normalized;
+
+  $index_subfeatures = 1 unless defined $index_subfeatures;
 
   return bless {
 		store            => $store,

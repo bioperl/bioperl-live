@@ -46,6 +46,21 @@ Usage: $0 [options] gff_file1 gff_file2...
           -i --ignore-seqregion
                           If true, then ignore ##sequence-region directives in the
                           GFF3 file (default, create a feature for each region)
+
+Please see http://www.sequenceontology.org/gff3.shtml for information
+about the GFF3 format. BioPerl extends the format slightly by adding 
+a ##index-subfeatures directive. Set this to a true value if you wish 
+the database to be able to retrieve a feature's individual parts (such as the
+exons of a transcript) independently of the top level feature:
+
+  ##index-subfeatures 1
+
+It is also possible to control the indexing of subfeatures on a case-by-case
+basis by adding "index=1" or "index=0" to the feature's attribute list. This
+should only be used for subfeatures.
+
+Subfeature indexing is true by default. Set to false (0) to save lots
+of database space and speed performance.
 END
 
 if ($FAST) {
