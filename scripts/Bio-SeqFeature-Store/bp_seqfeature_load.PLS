@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: bp_seqfeature_load.PLS,v 1.9 2007-02-07 15:40:48 lstein Exp $
+# $Id$
 
 use strict;
 

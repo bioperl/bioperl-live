@@ -1,5 +1,5 @@
 #!perl
-# $Id: bp_mrtrans.PLS,v 1.6 2005-04-26 15:03:53 jason Exp $
+# $Id$
 use strict;
 
 # Author:      Jason Stajich <jason-at-bioperl-dot-org>

@@ -1,6 +1,6 @@
 #!perl -w
 use strict;
-# $Id: extract_feature_seq.PLS,v 1.5 2006-07-04 22:23:29 mauricio Exp $
+# $Id$
 # Author Jason Stajich <jason@bioperl.org>
 
 =head1 NAME

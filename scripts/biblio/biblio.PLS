@@ -16,7 +16,7 @@
 #   martin.senger@gmail.com
 #   February 2002
 #
-#   $Id: biblio.PLS,v 1.5 2006-07-04 22:23:29 mauricio Exp $
+#   $Id$
 #-----------------------------------------------------------------------------
 
 use strict;

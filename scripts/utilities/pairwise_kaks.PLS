@@ -1,6 +1,6 @@
 #!perl -w
 use strict;
-# $Id: pairwise_kaks.PLS,v 1.12 2006-07-04 22:23:29 mauricio Exp $
+# $Id$
 # Author Jason Stajich <jason-at-bioperl-dot-org>
 
 =head1 NAME

@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: parse_hmmsearch.PLS,v 1.3 2006-07-04 22:23:29 mauricio Exp $
+# $Id$
 
 use strict;
 

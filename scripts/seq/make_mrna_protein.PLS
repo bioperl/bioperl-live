@@ -1,5 +1,5 @@
 #!perl -w
-# $Id: make_mrna_protein.PLS,v 1.3 2005-09-30 18:32:29 bosborne Exp $
+# $Id$
 #
 =head1 NAME
 

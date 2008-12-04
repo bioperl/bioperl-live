@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-#$Id: genbank2gff3.PLS,v 1.16 2007-10-01 15:18:13 scain Exp $;
+#$Id$;
 
 =pod
 

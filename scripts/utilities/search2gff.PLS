@@ -1,5 +1,5 @@
 #!perl -w
-# $Id: search2gff.PLS,v 1.14 2006-01-19 22:56:02 lapp Exp $
+# $Id$
 
 # Author:      Jason Stajich <jason-at-bioperl-dot-org>
 # Description: Turn SearchIO parseable report(s) into a GFF report

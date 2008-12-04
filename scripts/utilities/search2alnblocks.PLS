@@ -1,5 +1,5 @@
 #!perl -w
-# $Id: search2alnblocks.PLS,v 1.3 2005-04-26 15:03:53 jason Exp $
+# $Id$
 # Author:      Jason Stajich <jason-at-bioperl-dot-org>
 # Description: Turn SearchIO parseable report(s) into a set of Aligned blocks
 #

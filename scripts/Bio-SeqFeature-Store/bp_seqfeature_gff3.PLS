@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: bp_seqfeature_gff3.PLS,v 1.2 2007-05-03 20:04:00 mcook Exp $
+# $Id$
 # AUTHOR: malcolm.cook@stowers-institute.org
 
 use strict;

@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# $Id: contig_draw.PLS,v 1.1 2004-05-20 19:49:28 matsallac Exp $
+# $Id$
 
 =head1 NAME
 

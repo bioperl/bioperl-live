@@ -1,5 +1,5 @@
 #!perl -w
-# $Id: bp_nrdb.PLS,v 1.4 2005-04-26 15:03:53 jason Exp $
+# $Id$
 
 # Author Jason Stajich <jason-at-bioperl-dot-org>
 # 

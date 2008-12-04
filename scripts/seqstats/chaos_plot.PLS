@@ -1,5 +1,5 @@
 #!perl -w
-# $Id: chaos_plot.PLS,v 1.6 2006-07-04 22:23:29 mauricio Exp $
+# $Id$
 
 use strict;
 

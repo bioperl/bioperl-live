@@ -1,7 +1,7 @@
 #!perl -w
 use strict;
 
-# $Id: filter_search.PLS,v 1.3 2006-07-04 22:23:29 mauricio Exp $
+# $Id$
 
 
 =head1 NAME

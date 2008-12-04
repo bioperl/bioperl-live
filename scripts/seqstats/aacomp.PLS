@@ -1,7 +1,7 @@
 #!perl -w
 use strict;
 use Carp;
-# $Id: aacomp.PLS,v 1.5 2006-07-04 22:23:29 mauricio Exp $
+# $Id$
 
 use Bio::SeqIO;
 use Getopt::Long;

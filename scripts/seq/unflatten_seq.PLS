@@ -1,6 +1,6 @@
 #!perl -w
 use strict;
-# $Id: unflatten_seq.PLS,v 1.7 2006-07-04 22:23:29 mauricio Exp $
+# $Id$
 # Author Chris Mungall <cjm-at-bioperl.org>
 
 =head1 NAME

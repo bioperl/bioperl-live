@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # -*-Perl-*- 
-# $Id: composite_LD.PLS,v 1.8 2003-11-13 00:32:09 jason Exp $
+# $Id$
 
 =head1 NAME 
 
