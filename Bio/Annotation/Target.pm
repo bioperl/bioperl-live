@@ -14,7 +14,8 @@
 
 =head1 NAME
 
-Bio::Annotation::Target - Provides an object which represents a target (ie, a  similarity hit) from one object to something in another database
+Bio::Annotation::Target - Provides an object which represents a target (ie, a
+similarity hit) from one object to something in another database
 
 =head1 SYNOPSIS
 
@@ -59,7 +60,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::Annotation::Target;
 use strict;
 
-use base qw(Bio::Root::Root Bio::AnnotationI Bio::Range);
+use base qw(Bio::Annotation::DBLink Bio::AnnotationI Bio::Range);
 
 
 sub new {
