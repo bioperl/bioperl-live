@@ -197,7 +197,7 @@ new value of target_id (to set)
 sub target_id {
     my $self = shift;
     return $self->{'target_id'} = shift if defined($_[0]);
-    return $self->{'target_id'};
+    return $self->{'target_id'} || $self->primary_id();
 }
 
 1;

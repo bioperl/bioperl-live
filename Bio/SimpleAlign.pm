@@ -199,13 +199,14 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
 
-  my ($src, $score, $id, $acc, $desc, $seqs, $coll, $sa, $con, $cmeta) = $self->_rearrange([qw(
+  my ($src, $score, $id, $acc, $desc, $seqs, $feats, $coll, $sa, $con, $cmeta) = $self->_rearrange([qw(
                                             SOURCE
                                             SCORE
                                             ID
                                             ACCESSION
                                             DESCRIPTION
                                             SEQS
+                                            FEATURES
                                             ANNOTATION
                                             SEQ_ANNOTATION
                                             CONSENSUS
@@ -231,6 +232,11 @@ sub new {
                  "with a sequence annotation collection")
         if !$coll;
     $coll->add_Annotation('seq_annotation', $sa);
+  }
+  if ($feats && ref $feats eq 'ARRAY') {
+    for my $feat (@$feats) {
+        $self->add_SeqFeature($feat);
+    }
   }
   $con && $self->consensus($con);
   $cmeta && $self->consensus_meta($cmeta);
@@ -280,8 +286,6 @@ sub add_seq {
     }
 
     $id = $seq->id() ||$seq->display_id || $seq->primary_id;
-    $start = $seq->start();
-    $end  = $seq->end();
 
     # build the symbol list for this sequence,
     # will prune out the gap and missing/match chars
@@ -3021,6 +3025,8 @@ filter to be passed in.
 Our default implementation allows for any number of additional
 arguments and will pass them on to get_SeqFeatures(). I.e., in order to
 support filter arguments, just support them in get_SeqFeatures().
+
+=cut
 
 sub feature_count {
     my ($self) = @_;

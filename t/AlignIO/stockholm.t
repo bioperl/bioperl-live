@@ -7,7 +7,7 @@ BEGIN {
 	use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 75);
+    test_begin(-tests => 83);
 	
 	use_ok('Bio::AlignIO::stockholm');
 }
@@ -142,14 +142,27 @@ for my $seq ($aln->each_seq) {
 }
 
 # sequence-specific alignments
-# this is a kludge for now until we can get a better class system in place (but
-# it works for now)
-my ($seqann) = $aln->annotation->get_Annotations('seq_annotation');
-isa_ok($seqann, 'Bio::AnnotationCollectionI');
-@anns = $seqann->get_all_Annotations();
-is(scalar(@anns),6);
-isa_ok($anns[0], 'Bio::AnnotationI');
-is($anns[1]->comment, 'NSE: YIIM_ECOLI/168-214 Start: 178 End: 224');
-is($anns[2]->database, 'PDB');
-is($anns[2]->primary_id, '1o65');
-is($anns[2]->optional_id, 'C');
+# these are generally DBLinks. However, simple DBLinks are not RangeI, so these
+# are now Target (which now is-a DBLink). Since these are per-seq, these are
+# stored in a full-length SeqFeature as annotation. For now only sequences which
+# have this annotation have a SeqFeature.
+
+my @feats = $aln->get_SeqFeatures;
+is(scalar(@feats),6);
+isa_ok($feats[0], 'Bio::SeqFeatureI');
+isa_ok($feats[0]->entire_seq, 'Bio::Seq::Meta');
+
+my ($link)  = $feats[0]->annotation->get_Annotations('dblink');
+isa_ok($link, 'Bio::AnnotationI');
+isa_ok($link, 'Bio::Annotation::DBLink');
+is($link->database, 'PDB');
+is($link->start, '178');
+is($link->end, '224');
+is($link->primary_id, '1o65');
+is($link->target_id, '1o65');  # if not set, defaults to primary_id
+is($link->optional_id, 'A');
+($link)  = $feats[3]->annotation->get_Annotations('dblink');
+is($link->database, 'PDB');
+is($link->start, '178');
+is($link->end, '224');
+is($link->target_id, '1o67');

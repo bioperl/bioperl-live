@@ -22,9 +22,11 @@ use warnings;
 use Bio::Annotation::Collection;
 use Bio::Annotation::Comment;
 use Bio::Annotation::SimpleValue;
+use Bio::Annotation::Target;
 use Bio::Annotation::DBLink;
 use Bio::Annotation::Reference;
 use Bio::SimpleAlign;
+use Data::Dumper;
 
 use base qw(Bio::Root::Root Bio::HandlerBaseI);
 
@@ -40,7 +42,7 @@ my %HANDLERS = (
         'ID'                => \&_generic_store,
         'DESCRIPTION'       => \&_generic_store,
         'REFERENCE'         => \&_generic_reference,
-        'DBLINK'            => \&_stockholm_dblink,
+        'DBLINK'            => \&_stockholm_target,
         'DATABASE_COMMENT'  => \&_generic_comment,
         'ALIGNMENT_COMMENT' => \&_generic_comment,
         '_DEFAULT_'         => \&_generic_simplevalue
@@ -145,6 +147,8 @@ sub data_handler {
 sub reset_parameters {
     my $self = shift;
     $self->{'_params'} = undef;
+    $self->{'_nse_cache'} = undef;
+    $self->{'_features'} = undef;
 }
 
 =head2 format
@@ -194,6 +198,7 @@ sub get_params {
             }
             $data->{$id} = $self->{'_params'}->{$id} if (exists $self->{'_params'}->{$id});
         }
+        $data ||= {};
     } else {
         $data = $self->{'_params'};
     }
@@ -333,6 +338,16 @@ sub process_seqs {
                 $param{'-'.lc $p} = $seq->{$p} if exists $seq->{$p};
             }
             my $ls = $class->new(%param);
+            # a little switcheroo to attach the sequence
+            # (though using it to get seq() doesn't work correctly yet!)
+            if (defined $seq->{NSE} &&
+                exists $self->{'_features'} &&
+                exists $self->{'_features'}->{ $seq->{NSE} }) {
+                for my $feat (@{ $self->{'_features'}->{ $seq->{NSE} } }) {
+                    push @{ $self->{'_params'}->{'-features'} }, $feat;
+                    $feat->attach_seq($ls);
+                }
+            }
             $seq = $ls;
         }
     }
@@ -425,31 +440,46 @@ sub _generic_comment {
 }
 
 # Some DBLinks in Stockholm format are unique, so a unique handler for them
-sub _stockholm_dblink {
+sub _stockholm_target {
     my ($self, $data) = @_;
     # process database info
     $self->_from_stk_dblink($data);
     my $comment;
-    # Note that DBLink has no start/end methods, so storing this in comment for
-    # now
-    if ($data->{DBLINK_START} || $data->{DBLINK_END}) {
-        $comment = "Start: ".$data->{DBLINK_START}." End: ".$data->{DBLINK_END};
-    }
-    my $dblink = Bio::Annotation::DBLink->new(
+    # Bio::Annotation::Target is now a DBLink, but has additional (RangeI) 
+    # capabilities (for PDB data)
+    my $dblink = Bio::Annotation::Target->new(
         -database => $data->{DBLINK_DB},
         -primary_id => $data->{DBLINK_ACC},
         -optional_id => $data->{DBLINK_OPT},
-        -tagname => lc $data->{NAME},
+        -start => $data->{DBLINK_START},
+        -end => $data->{DBLINK_END},
+        -strand => $data->{DBLINK_STRAND},
+        -comment => $comment,
+        -tagname => 'dblink',
     );
     if ($data->{ALIGNMENT}) {
-        # alignment DBLink
-        $dblink->comment($comment);
+        # Alignment-specific DBLinks
         $self->annotation_collection->add_Annotation($dblink);
     } else {
-        # Sequence DBLink
-        $comment = "NSE: ".($data->{NSE} || '').' '.$comment;
-        $dblink->comment($comment);
-        $self->seq_annotation_collection->add_Annotation($dblink);
+        # Sequence-specific DBLinks
+        # These should come with identifying information of some sort
+        # (ID/START/END/STRAND).  Make into a SeqFeature (SimpleAlign is
+        # FeatureHolderI) spanning the length acc. to the NSE. Add the DBLink as
+        # Annotation specific to that SeqFeature, store in an internal hash by
+        # NSE so we can tie the LocatableSeq to the proper Features
+        $self->_from_nse($data) if $data->{NSE};
+        $self->throw("Must supply an sequence DISPLAY_ID or NSE for sequence-related
+            DBLinks") unless $data->{ACCESSION_NUMBER} || $data->{DISPLAY_ID};
+        my $sf = Bio::SeqFeature::Generic->new(-seq_id => $data->{DISPLAY_ID},
+                                               -accession_number => $data->{ACCESSION_NUMBER},
+                                               -start => $data->{START},
+                                               -end => $data->{END},
+                                               -strand => $data->{STRAND}
+                                               );
+        $sf->annotation->add_Annotation($dblink);
+        # index by NSE
+        push @{ $self->{'_features'}->{ $data->{NSE} } }, $sf;
+        #$self->seq_annotation_collection->add_Annotation($dblink);
     }
 }
 
@@ -467,7 +497,7 @@ sub _from_nse {
     if (exists $self->{'_params'}->{'-seq_accession'}) {
         $new_acc = $self->{'_params'}->{'-seq_accession'}->{$data->{NSE}};
     }        
-    if ($nse =~ m{(\S+?)\.?(\d+)?/(\d+)-(\d+)}xmso) {
+    if ($nse =~ m{(\S+?)(?:\.(\d+))?/(\d+)-(\d+)}xmso) {
         my $strand = $data->{ALPHABET} eq 'dna' || $data->{ALPHABET} eq 'rna' ? 1 : undef;
         my ($start, $end) = ($3, $4);
         if ($start > $end) {
@@ -483,9 +513,9 @@ sub _from_nse {
         # we can parse for version here if needed
         $data->{ACCESSION_NUMBER} = $data->{NSE};
     }
-    #delete $data->{NSE};
 }
 
+# this will probably be split up into subhandlers based on Record/DB 
 sub _from_stk_dblink {
     my ($self, $data) = @_;
     return unless my $raw = $data->{DATA};
