@@ -15,7 +15,7 @@ my $verbose = test_debug();
 
 my $treeio = Bio::TreeIO->new(-verbose => $verbose,
 			  -file   => test_input_file('test.nhx'));
-my $tree;
+my $tree = $treeio->next_tree;
 
 SKIP: {
 	test_skip(-tests => 2, -requires_module => 'SVG::Graph');
