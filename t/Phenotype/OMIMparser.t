@@ -7,8 +7,8 @@ BEGIN {
     use lib 't/lib';
     use BioperlTest;
     
-    test_begin(-tests => 174);
-	
+    test_begin(-tests => 175);
+    
     use_ok('Bio::Phenotype::OMIM::OMIMparser');
 }
 
@@ -282,3 +282,10 @@ is( $avs[ 5 ]->aa_ori(), "" );
 is( $avs[ 5 ]->aa_mut(), "" );
 is( $avs[ 5 ]->position(), "" );
 is( $avs[ 5 ]->additional_mutations(), "1-BP DEL, 1030C" );
+
+
+# catch missing linebreak
+throws_ok { my $omim_parser = Bio::Phenotype::OMIM::OMIMparser->new(
+    -genemap  => test_input_file('omim_genemap_test_linebreak'),
+    -omimtext => test_input_file('omim_text_test'));
+} qr/linebreak/, 'missing linebreak caught';

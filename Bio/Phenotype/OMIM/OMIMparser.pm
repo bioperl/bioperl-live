@@ -880,7 +880,8 @@ sub _read_genemap {
         @a = split( /\|/, $line );
         unless( scalar( @a ) == 18 ) {
             $self->throw( "Gene map file \"".$self->genemap_file_name()
-            . "\" is not in the expected format" );
+            . "\" is not in the expected format."
+            . " Make sure there is a linebreak after the final line." );
         }
         $gm{ $a[ 9 ] } = $line;
     }
