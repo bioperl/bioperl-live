@@ -31,7 +31,7 @@ Bio::PopGen::Utilities - Utilities for working with PopGen data and objects
 
   # get the synonymous sites from the alignemt only as the 'genotypes'
   # for the population
-  my $synpop = Bio::PopGen::Utilities->aln_to_population(-site_model => 'syn',
+  my $synpop = Bio::PopGen::Utilities->aln_to_population(-site_model => 'cod',
                                                          -alignment  => $aln);
 
 
@@ -132,10 +132,10 @@ sub aln_to_population{
    my ($aln,
        $sitemodel,$phase,
        $includefixed,$checkisa) = $self->_rearrange([qw(ALIGNMENT
-					      SITE_MODEL
-					      PHASE
-					      INCLUDE_MONOMORPHIC
-					      CHECKISA)],
+				                     SITE_MODEL
+					             PHASE
+					             INCLUDE_MONOMORPHIC
+					             CHECKISA)],
 					  @args);
    if( ! defined $aln ) { 
        $self->warn("Must provide a valid Bio::SimpleAlign object to run aln_to_population");
