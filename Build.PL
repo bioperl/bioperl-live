@@ -117,7 +117,7 @@ my $accept = $build->args->{accept};
 prompt_for_biodb($accept) if $build->feature('BioDBGFF') || $build->feature('BioDBSeqFeature_mysql');
 
 # Handle auto features
-if ($build->feature('BioDBSeqFeature_BDB') && $mysql_ok) {
+if ($build->feature('BioDBSeqFeature_BDB')) {
     # will return without doing anything if user chose not to run tests during
     # prompt_for_biodb() above
     make_bdb_test();
@@ -162,8 +162,8 @@ exit;
 
 
 sub make_bdb_test {
-    my $path0 = File::Spec->catfile('t', 'BioDBSeqFeature.t');
-    my $path = File::Spec->catfile('t', 'BioDBSeqFeature_BDB.t');
+    my $path0 = File::Spec->catfile('t', 'LocalDB', 'SeqFeature.t');
+    my $path = File::Spec->catfile('t', 'LocalDB','SeqFeature_BDB.t');
     unlink($path) if (-e $path); 
     open(my $F, ">", $path) || die "Can't create test file\n";
     print $F <<END;
@@ -179,7 +179,7 @@ sub test_db_sf {
     @drivers = DBI->available_drivers;
     unless (grep {/mysql/i} @drivers) {
         $mysql_ok = 0;
-        return "Only MySQL DBI driver supported for BioDBSeqFeature_mysql tests";
+        return "Only MySQL DBI driver supported for Bio::DB::SeqFeature MySQL tests";
     }
     $mysql_ok = 1;
     return;
@@ -187,8 +187,8 @@ sub test_db_sf {
 
 sub make_dbi_test {
     my $dsn = $build->notes('test_dsn') || return;
-    my $path0 = File::Spec->catfile('t', 'BioDBSeqFeature.t');
-    my $path = File::Spec->catfile('t', 'BioDBSeqFeature_mysql.t');
+    my $path0 = File::Spec->catfile('t', 'LocalDB', 'SeqFeature.t');
+    my $path = File::Spec->catfile('t', 'LocalDB', 'SeqFeature_mysql.t');
     my $test_db = $build->notes('test_db');
     my $user = $build->notes('test_user');
     my $pass = $build->notes('test_pass');
@@ -215,8 +215,8 @@ sub test_biodbgff {
 
 sub prompt_for_biodb {
     my $accept = shift;
-    my $proceed = $accept ? 0 : $build->y_n("Do you want to run the BioDBGFF or ".
-                              "BioDBSeqFeature_mysql live database tests? ".
+    my $proceed = $accept ? 0 : $build->y_n("Do you want to run the Bio::DB::GFF or ".
+                              "Bio::DB::SeqFeature::Store MySQL live database tests? ".
                               "y/n", 'n');
     
     if ($proceed) {
