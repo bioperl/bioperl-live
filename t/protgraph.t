@@ -4,8 +4,8 @@
 use strict;
 
 BEGIN {
-    use lib 't/lib';
-    use BioperlTest;
+    use lib '.';
+    use Bio::Root::Test;
     
 	# note: modules have been deprecated for the 1.6 release. Use
 	# bioperl-network instead

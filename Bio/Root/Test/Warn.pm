@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Test::Warn::Bioperl
+# BioPerl module for Bio::Root::Test::Warn
 #
 # Cared for by Sendu Bala <bix@sendu.me.uk>
 #
@@ -12,11 +12,11 @@
 
 =head1 NAME
 
-Test::Warn::Bioperl - Perl extension to test Bioperl methods for warnings
+Bio::Root::Test::Warn - Perl extension to test Bioperl methods for warnings
 
 =head1 SYNOPSIS
 
-  use Test::Warn::Bioperl;
+  use Bio::Root::Test::Warn;
 
   warning_is {$bio_object->method()} 'Must supply a parameter', "a missing parameter test";
   warning_like {$bio_object->method()} qr/Must supply a parameter/i, "a missing parameter test";
@@ -26,6 +26,9 @@ Test::Warn::Bioperl - Perl extension to test Bioperl methods for warnings
 This module provides a few convenience methods for testing warning based code.
 
 See Test::Warn for details.
+
+You will normally not use this module directly, but have it auto-loaded for you
+by Bio::Root::Test.
 
 =head1 FEEDBACK
 
@@ -57,7 +60,7 @@ Internal methods are usually preceded with a _
 
 =cut
 
-package Test::Warn::Bioperl;
+package Bio::Root::Test::Warn;
 
 use strict;
 use warnings;

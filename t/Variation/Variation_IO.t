@@ -4,8 +4,8 @@
 use strict;
 
 BEGIN { 
-    use lib 't/lib';
-    use BioperlTest;
+    use lib '.';
+    use Bio::Root::Test;
     
     test_begin(-tests => 26,
 			   -requires_modules => ['Text::Wrap 98', 'XML::Writer']);

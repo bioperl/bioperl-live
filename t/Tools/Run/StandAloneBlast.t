@@ -5,8 +5,8 @@ use strict;
 use File::Spec;
 
 BEGIN { 
-	use lib 't/lib';
-    use BioperlTest;
+	use lib '.';
+    use Bio::Root::Test;
     
     test_begin(-tests => 45);
 	

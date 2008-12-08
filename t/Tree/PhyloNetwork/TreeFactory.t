@@ -3,8 +3,8 @@
 use strict;
 
 BEGIN {
-  use lib 't/lib';
-  use BioperlTest;
+  use lib '.';
+  use Bio::Root::Test;
 
   test_begin(-tests => 19,
 	     -requires_modules => [qw(Bio::PhyloNetwork)]);

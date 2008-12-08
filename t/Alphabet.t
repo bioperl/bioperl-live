@@ -4,8 +4,8 @@
 use strict;
 
 BEGIN { 
-    use lib 't/lib';
-    use BioperlTest;
+    use lib '.';
+    use Bio::Root::Test;
     
     test_begin(-tests => 100);
 	
@@ -14,7 +14,6 @@ BEGIN {
 	use_ok('Bio::Symbol::DNAAlphabet');
 	use_ok('Bio::Symbol::ProteinAlphabet');
 }
-
 
 my $A = Bio::Symbol::Symbol->new(-token => 'A' );
 my $U = Bio::Symbol::Symbol->new(-token => 'U' );
@@ -31,7 +30,6 @@ ok($rna->contains($A));
 ok($rna->contains($T));
 ok($rna->contains($U));
 ok($rna->contains($G));
-
 
 my $dna = Bio::Symbol::DNAAlphabet->new();
 isa_ok($dna, 'Bio::Symbol::AlphabetI');

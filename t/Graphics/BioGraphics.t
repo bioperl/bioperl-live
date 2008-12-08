@@ -16,8 +16,8 @@ use File::Spec;
 use constant IMAGE_TESTS => 0;
 
 BEGIN { 
-  use lib 't/lib';
-  use BioperlTest;
+  use lib '.';
+  use Bio::Root::Test;
   
   test_begin(-tests => 48 + (IMAGE_TESTS ? 3 : 0),
              -requires_modules => [qw(GD)]);

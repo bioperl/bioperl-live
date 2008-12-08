@@ -4,8 +4,8 @@ use strict;
 use warnings;
 
 BEGIN {
-  use lib 't/lib';
-  use BioperlTest;
+  use lib '.';
+  use Bio::Root::Test;
 
   test_begin(-tests => 97,
              -requires_modules => [qw(XML::LibXML XML::LibXML::Reader)],

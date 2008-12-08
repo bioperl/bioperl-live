@@ -57,11 +57,11 @@ BEGIN {
     eval {require Test::More;};
     
     if ($@) {
-        use lib 't/lib';
+        use lib '.';
     }
     
     use Test::More;
-	use BioperlTest;
+	use Bio::Root::Test;
 	
 	test_begin(-tests               => $NUMTESTS,
 			   -requires_modules    => [qw(XML::Simple LWP::UserAgent)],

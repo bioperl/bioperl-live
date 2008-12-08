@@ -5,8 +5,8 @@ use strict;
 use constant TEST_COUNT => 59;
 
 BEGIN {
-    use lib 't/lib';
-	use BioperlTest;
+    use lib '.';
+	use Bio::Root::Test;
 	
 	test_begin(-tests => TEST_COUNT);
     

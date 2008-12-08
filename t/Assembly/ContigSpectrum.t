@@ -1,8 +1,8 @@
 use strict;
 
 BEGIN {
-    use lib 't/lib';
-    use BioperlTest;
+    use lib '.';
+    use Bio::Root::Test;
     test_begin(-tests => 134);
     use_ok('Bio::Assembly::IO');
     use_ok('Bio::Assembly::Tools::ContigSpectrum');

@@ -16,8 +16,8 @@ BioperlTest - A common base for all Bioperl test scripts.
 
 =head1 SYNOPSIS
 
-  use lib 't/lib';
-  use BioperlTest;
+  use lib '.'; # (for core package tests only)
+  use Bio::Root::Test;
 
   test_begin(-tests => 20,
              -requires_modules => [qw(IO::String XML::Parser)],
@@ -99,7 +99,7 @@ Internal methods are usually preceded with a _
 
 =cut
 
-package BioperlTest;
+package Bio::Root::Test;
 
 use strict;
 use warnings;
@@ -128,8 +128,9 @@ BEGIN {
     die "$@\n" if $@;
     
     # now that the users' Test::Warn has been loaded if they had it, we can
-    # use Test::Warn::Bioperl which is in t/lib
-    eval "use lib 't/lib'; use Test::Warn::Bioperl;";
+    # use Bio::Root::TestWarn
+    eval "use Bio::Root::Test::Warn;";
+    die "$@\n" if $@;
 }
 
 # re-export Test::More, Test::Exception and Test::Warn methods and export our own
@@ -424,5 +425,5 @@ sub _check_module {
     
     return;
 }
-
+ 
 1;
