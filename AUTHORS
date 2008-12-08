@@ -18,7 +18,7 @@
 
 =item * Sendu Bala <bix at sendu.me.uk>
 
-=item * Christopher Fields <cjfields at uiuc.edu>
+=item * Christopher Fields <cjfields at bioperl.edu>
 
 =back
 
@@ -193,7 +193,7 @@ for if you see fit)
 
 =item * Marc Sohrmann <ms2 at sanger.ac.uk>
 
-=item * Robson Francisco de Souza <rfsouza at citri.iq.usp.br> - Bio::Assembly
+=item * Robson Francisco de Souza <robfsouza at gmail.com> - Bio::Assembly
 
 =item * Mark Southern <mark_southern at merck.com>
 
