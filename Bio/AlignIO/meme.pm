@@ -85,7 +85,8 @@ my $HTML_VERS_ERR =
  Title   : next_aln
  Usage   : $aln = $stream->next_aln()
  Function: returns the next alignment in the stream
- Returns : Bio::SimpleAlign object
+ Returns : Bio::SimpleAlign object with the score() set to the evalue of the
+           motif.
  Args    : NONE
 
 =cut
@@ -96,6 +97,7 @@ sub next_aln {
 	my $line;
 	my $good_align_sec = 0;
 	my $in_align_sec = 0;
+	my $evalue;
 	while (!$good_align_sec && defined($line = $self->_readline())) {
 		if (!$in_align_sec) {
 			# Check for the meme header
@@ -109,14 +111,19 @@ sub next_aln {
 			if ($line =~ /\<TITLE\>/i){
 				$self->throw($HTML_VERS_ERR);
 	      }
+			# Grab the evalue
+			if ($line =~ /MOTIF\s+\d+\s+width.+E-value = (\S+)/) {
+				$self->throw($MEME_NO_HEADER_ERR) unless ($self->{'seen_header'});
+				$evalue = $1;
+			}
 			# Check if we're going into an alignment section
 			if ($line =~ /sites sorted by position/) {
 				$self->throw($MEME_NO_HEADER_ERR) unless ($self->{'seen_header'});
 				$in_align_sec = 1;
 			}
 		} elsif ($line =~ /^(\S+)\s+([+-]?)\s+(\d+)\s+
-                       (\S+)\s+([.ACTGX\-]*)\s+([ACTGX\-]+)\s+
-                       ([.ACTGX\-]*)/xi ) {
+                       (\S+)\s+([.ACTGNX\-]*)\s+([ACTGNX\-]+)\s+
+                       ([.ACTGNX\-]*)/xi ) {
 			# Got a sequence line
 			my $seq_name = $1;
 			my $strand = ($2 eq '-') ? -1 : 1;
@@ -157,8 +164,13 @@ sub next_aln {
 	}
 	# Signal an error if we didn't find a header section
 	$self->throw($MEME_NO_HEADER_ERR) unless ($self->{'seen_header'});
-
-	return ($good_align_sec ? $aln : 0);
+	
+	if ($good_align_sec) {
+		$aln->score($evalue);
+		return $aln;
+	}
+	
+	return;
 }
 
 =head2 write_aln
