@@ -18,7 +18,7 @@
 
 =item * Sendu Bala <bix at sendu.me.uk>
 
-=item * Christopher Fields <cjfields at bioperl.edu>
+=item * Christopher Fields <cjfields at bioperl.org>
 
 =back
 
@@ -62,6 +62,8 @@ for if you see fit)
 =item * Yee Man Chan <ymc at yahoo.com> - Bio::Tools::dpAlign
 
 =item * Brad Chapman <chapmanb at arches.uga.edu>
+
+=item * Roy R. Chaudhuri <roy.chaudhuri at gmail.com> - Bio::SeqUtils Bio::Align::Utilities
 
 =item * Michele Clamp <michele at sanger.ac.uk>
 
