@@ -447,18 +447,28 @@ sub greater_than {
             arg #3 = optional Bio::Map::RelativeI to ask if the Positions
                      overlap in terms of their relative position to the thing
                      described by that Relative
+            arg #4 = optional minimum percentage length of the overlap before
+                     reporting an overlap exists (default 0)
 
 =cut
 
 sub overlaps {
     # overriding the RangeI implementation so we can handle Relative
-    my ($self, $other, $so, $rel) = @_;
+    my ($self, $other, $so, $rel, $min_percent) = @_;
+    $min_percent ||= 0;
+    
+    my ($own_min, $other_min) = (0, 0);
+    if ($min_percent > 0) {
+        $own_min = (($self->length / 100) * $min_percent) - 1;
+        $other_min = (($other->length / 100) * $min_percent) - 1;
+    }
     
     my ($own_start, $own_end) = $self->_pre_rangei($self, $rel);
     my ($other_start, $other_end) = $self->_pre_rangei($other, $rel);
     
     return ($self->_testStrand($other, $so) and not
-            (($own_start > $other_end or $own_end < $other_start)));
+            (($own_start + $own_min > $other_end or $own_end - $own_min < $other_start) ||
+             ($own_start > $other_end - $other_min or $own_end < $other_start + $other_min)));
 }
 
 =head2 contains
@@ -728,7 +738,10 @@ sub union {
            OR
            a single Bio::Map::PositionI or array ref of such AND a
            Bio::Map::RelativeI to consider all Position's co-ordinates in terms
-           of their relative position to the thing described by that Relative
+           of their relative position to the thing described by that Relative,
+           AND, optionally, an int for the minimum percentage of overlap that
+           must be present before considering two ranges to be overlapping
+           (default 0)
 
 =cut
 
@@ -740,6 +753,7 @@ sub disconnected_ranges {
     
     my @positions;
     my $rel;
+    my $overlap = 0;
     if ($self eq "Bio::Map::PositionI") {
 		$self = "Bio::Map::Position";
 		$self->warn("calling static methods of an interface is deprecated; use $self instead");
@@ -755,6 +769,7 @@ sub disconnected_ranges {
     }
     if ($args[0] && $args[0]->isa('Bio::Map::RelativeI')) {
         $rel = shift(@args);
+        $overlap = shift(@args);
     }
     foreach my $arg (@args) {
         push(@positions, $arg) if $arg;
@@ -781,12 +796,14 @@ sub disconnected_ranges {
         
         for (my $i=0; $i<@outranges; $i++) {
             my $outrange = $outranges[$i];
-            if ($inrange->overlaps($outrange, undef, $rel)) {
-                my $union_able = $inrange->intersection($outrange, undef, $rel);
+            if ($inrange->overlaps($outrange, undef, $rel, $overlap)) {
+                my $union_able = $inrange->union($outrange, $rel); # using $inrange->union($outrange, $rel); gives >6x speedup,
+                                                                   # but different answer, not necessarily incorrect...
                 foreach my $pos ($union_able->get_positions) {
                     $overlapping_ranges{$pos->toString} = $pos; # we flatten down to a result on a single map
                                                                 # to avoid creating 10s of thousands of positions during this process;
                                                                 # we then apply the final answer to all maps at the very end
+                    last;
                 }
             }
             else {
@@ -850,7 +867,6 @@ sub disconnected_ranges {
     # assign the positions to a result mappable
     my $result = Bio::Map::Mappable->new();
     $result->add_position(@final_positions); # sneaky, add_position can take a list of positions
-    
     return $result;
 }
 

@@ -452,9 +452,10 @@ sub _compare {
     my %args = (-map => undef, -relative => undef, -min_pos_num => 1,
                 -min_mappables_num => 1, -min_mappables_percent => 0,
                 -min_map_num => 1, -min_map_percent => 0,
-                -require_self => 0, -required => undef, @extra_args);
+                -require_self => 0, -required => undef, -min_overlap_percent => 0, @extra_args);
     my $map = $args{-map};
     my $rel = $args{-relative};
+    my $overlap = $args{-min_overlap_percent};
     my $min_pos_num = $args{-min_pos_num};
     my $min_pables_num = $args{-min_mappables_num};
     if ($args{-min_mappables_percent}) {
@@ -551,8 +552,13 @@ sub _compare {
             my @positions = (@mine, @yours);
             my $start_pos = shift(@positions);
             
-            my $dr_able = $start_pos->disconnected_ranges(\@positions, $rel) || return;
+            my $dr_able = $start_pos->disconnected_ranges(\@positions, $rel, $overlap) || return;
             my @disconnected_ranges = $dr_able->get_positions;
+            
+            #print "got ", scalar(@disconnected_ranges), " disconnected_ranges, first has range ", $disconnected_ranges[0]->toString, "\n";
+            
+            #use Benchmark qw(:all);
+            #my $t0 = new Benchmark;
             
             my %all_groups;
             my %done_ranges;
@@ -569,6 +575,10 @@ sub _compare {
                 }
             }
             
+            #my $t1 = new Benchmark;
+            #my $td = timediff($t1, $t0);
+            #print "grouping took: ",timestr($td),"\n";
+            
             # purge the temporary working (not $dr_able->purge_positions since
             # that removes the element from each position, but leaves it on
             # the map. *** need complete purge that removes position from
@@ -579,8 +589,11 @@ sub _compare {
             }
             
             my @groups;
-            GROUPS: foreach my $group (values %all_groups) {
+            GROUPS: foreach my $group_range (keys %all_groups) { # sort keys %all_groups might help, but causes test fails
+                my $group = $all_groups{$group_range};
                 my @group = values %{$group};
+                #print "* in group $group_range, there are ", scalar(@group), " members\n";
+                
                 @group >= $min_pos_num or next;
                 @group >= $min_pables_num or next; # shortcut before having to work it out properly
                 @group >= $min_map_num or next; # shortcut before having to work it out properly
@@ -607,7 +620,6 @@ sub _compare {
                              sort { $a->[0] <=> $b->[0] }
                              map { [$_->sortable, $_] }
                              @group;
-                
                 push(@groups, \@sorted);
             }
             
