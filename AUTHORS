@@ -59,7 +59,7 @@ for if you see fit)
 
 =item * Tim Bunce <Tim.Bunce at pobox.com> - code optimizations
 
-=item * Scott Cain <cain at cshl.org> - Bio::Graphics::Glyph
+=item * Scott Cain <scott at scottcain.net> - Bio::Graphics::Glyph, Bio::DB::GFF::Adaptor::dbi::pg, GFF related tools and scripts
 
 =item * Yee Man Chan <ymc at yahoo.com> - Bio::Tools::dpAlign
 
