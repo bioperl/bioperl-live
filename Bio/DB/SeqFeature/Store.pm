@@ -16,10 +16,10 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
                                                  -create  => 1 );
 
   # get a feature from somewhere
-  my $feature = Bio::SeqFeature::Generic->new();
+  my $feature = Bio::SeqFeature::Generic->new(...);
 
   # store it
-  $db->store($feature) or die "Could not store!";
+  $db->store($feature) or die "Couldn't store!";
 
   # primary ID of the feature is changed to indicate its primary ID
   # in the database...
@@ -30,7 +30,7 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
 
   # change the feature and update it
   $f->start(100);
-  $db->update($f) or die "Could not update!";
+  $db->update($f) or die "Couldn't update!";
 
   # searching...
   # ...by id
@@ -49,7 +49,7 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
   @features = $db->get_features_by_location(-seq_id=>'Chr1',-start=>4000,-end=>600000);
 
   # ...by attribute
-  @features = $db->get_features_by_attribute({description => 'protein kinase'});
+  @features = $db->get_features_by_attribute({description => 'protein kinase'})
 
   # ...by primary id
   @features = $db->get_feature_by_primary_id(42); # note no plural!!!
@@ -238,7 +238,6 @@ use Bio::DB::SeqFeature;
 
 *dna = *get_dna = *get_sequence = \&fetch_sequence;
 *get_SeqFeatures = \&fetch_SeqFeatures;
-*delete_SeqFeatures = *delete_features = \&delete;
 
 # local version
 sub api_version { 1.2 }
@@ -483,6 +482,30 @@ subfeatures that are not indexed.
 sub store_noindex {
   my $self = shift;
   $self->store_and_cache(0,@_);
+}
+
+=head2 no_blobs
+
+ Title   : no_blobs
+ Usage   : $db->no_blobs(1);
+ Function: decide if objects should be stored in the database as blobs.
+ Returns : boolean (default false)
+ Args    : boolean (true to no longer store objects; when the corresponding
+           feature is retrieved it will instead be a minimal representation of
+           the object that was stored, as some simple Bio::SeqFeatureI object)
+ Status  : dubious (new)
+
+This method saves lots of space in the database, which may in turn lead to large
+performance increases in extreme cases (over 7 million features in the db).
+
+Currently only applies to the mysql implementation.
+
+=cut
+
+sub no_blobs {
+    my $self = shift;
+    if (@_) { $self->{no_blobs} = shift }
+    return $self->{no_blobs} || 0;
 }
 
 =head2 new_feature

@@ -739,7 +739,8 @@ sub _features {
       $attributes,
       $range_type,
       $fromtable,
-      $iterator
+      $iterator,
+      $sources
      ) = rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],'STRAND',
 		    'NAME','CLASS','ALIASES',
 		    ['TYPES','TYPE','PRIMARY_TAG'],
@@ -747,6 +748,7 @@ sub _features {
 		    'RANGE_TYPE',
 		    'FROM_TABLE',
 		    'ITERATOR',
+            ['SOURCE','SOURCES']
 		   ],@_);
 
   my (@from,@where,@args,@group);
@@ -775,7 +777,30 @@ sub _features {
     push @group,$group if $group;
     push @args,@a;
   }
-
+  
+  if (defined($sources)) {
+    my @sources = ref($sources) eq 'ARRAY' ? @{$sources} : ($sources);
+    if (defined($types)) {
+        my @types = ref($types) eq 'ARRAY' ? @{$types} : ($types);
+        my @final_types;
+        foreach my $type (@types) {
+            # *** not sure what to do if user supplies both -source and -type
+            #     where the type includes a source!
+            if ($type =~ /:/) {
+                push(@final_types, $type);
+            }
+            else {
+                foreach my $source (@sources) {
+                    push(@final_types, $type.':'.$source);
+                }
+            }
+        }
+        $types = \@final_types;
+    }
+    else {
+        $types = [map { ':'.$_ } @sources];
+    }
+  }
   if (defined($types)) {
     # last argument is the name of the features table
     my ($from,$where,$group,@a) = $self->_types_sql($types,'f');
@@ -813,7 +838,7 @@ sub _features {
   $group    = "GROUP BY $group" if @group;
 
   my $query = <<END;
-SELECT f.id,f.object
+SELECT f.id,f.object,f.typeid,f.seqid,f.start,f.end,f.strand
   FROM $from
   WHERE $where
   $group
@@ -960,8 +985,14 @@ sub _types_sql {
     }
 
     if (defined $source_tag) {
-      push @matches,"tl.tag=?";
-      push @args,"$primary_tag:$source_tag";
+      if (length($primary_tag)) {
+        push @matches,"tl.tag=?";
+        push @args,"$primary_tag:$source_tag";
+      }
+      else {
+        push @matches,"tl.tag LIKE ?";
+        push @args,"%:$source_tag";
+      }
     } else {
       push @matches,"tl.tag LIKE ?";
       push @args,"$primary_tag:%";
@@ -1245,12 +1276,47 @@ END
   $primary_tag    .= ":$source_tag";
   my $typeid   = $self->_typeid($primary_tag,1);
 
-  $sth->execute($id,$self->freeze($object),$index_flag||0,@location,$typeid) or $self->throw($sth->errstr);
+  my $frozen = $self->no_blobs() ? 0 : $self->freeze($object);
+
+  $sth->execute($id,$frozen,$index_flag||0,@location,$typeid) or $self->throw($sth->errstr);
 
   my $dbh = $self->dbh;
   $object->primary_id($dbh->{mysql_insertid}) unless defined $id;
 
   $self->flag_for_indexing($dbh->{mysql_insertid}) if $self->{bulk_update_in_progress};
+}
+
+# doesn't work with this schema, since we have to update name and attribute
+# tables which need object ids, which we can only know by replacing feats in
+# the feature table one by one
+sub bulk_replace {
+    my $self       = shift;
+    my $index_flag = shift || undef;
+    my @objects    = @_;
+    
+    my $features = $self->_feature_table;
+    
+    my @insert_values;
+    foreach my $object (@objects) {
+        my $id = $object->primary_id;
+        my @location = $index_flag ? $self->_get_location_and_bin($object) : (undef)x6;
+        my $primary_tag = $object->primary_tag;
+        my $source_tag  = $object->source_tag || '';
+        $primary_tag    .= ":$source_tag";
+        my $typeid   = $self->_typeid($primary_tag,1);
+        
+        push(@insert_values, ($id,0,$index_flag||0,@location,$typeid));
+    }
+    
+    my @value_blocks;
+    for (1..@objects) {
+        push(@value_blocks, '(?,?,?,?,?,?,?,?,?,?)');
+    }
+    my $value_blocks = join(',', @value_blocks);
+    my $sql = qq{REPLACE INTO $features (id,object,indexed,seqid,start,end,strand,tier,bin,typeid) VALUES $value_blocks};
+    
+    my $sth = $self->_prepare($sql);
+    $sth->execute(@insert_values) or $self->throw($sth->errstr);
 }
 
 ###
@@ -1472,8 +1538,16 @@ sub _sth2objs {
   my $self = shift;
   my $sth  = shift;
   my @result;
-  while (my ($id,$o) = $sth->fetchrow_array) {
-    my $obj = $self->thaw($o,$id);
+  while (my ($id,$o,$typeid,$seqid,$start,$end,$strand) = $sth->fetchrow_array) {
+    my $obj;
+    if ($o eq '0') {
+        # rebuild a new feat object from the data stored in the db
+        $obj = $self->_rebuild_obj($id,$typeid,$seqid,$start,$end,$strand);
+    }
+    else {
+        $obj = $self->thaw($o,$id);
+    }
+    
     push @result,$obj;
   }
   $sth->finish;
@@ -1485,10 +1559,104 @@ sub _sth2objs {
 sub _sth2obj {
   my $self = shift;
   my $sth  = shift;
-  my ($id,$o) = $sth->fetchrow_array;
-  return unless $o;
-  my $obj = $self->thaw($o,$id);
+  my ($id,$o,$typeid,$seqid,$start,$end,$strand) = $sth->fetchrow_array;
+  return unless defined $o;
+  my $obj;
+  if ($o eq '0') {
+    # rebuild a new feat object from the data stored in the db
+    $obj = $self->_rebuild_obj($id,$typeid,$seqid,$start,$end,$strand);
+  }
+  else {
+    $obj = $self->thaw($o,$id);
+  }
+  
   $obj;
+}
+
+sub _rebuild_obj {
+    my ($self, $id, $typeid, $db_seqid, $start, $end, $strand) = @_;
+    my ($type, $source, $seqid);
+    
+    # convert typeid to type and source
+    if (exists $self->{_type_cache}->{$typeid}) {
+        ($type, $source) = @{$self->{_type_cache}->{$typeid}};
+    }
+    else {
+        my $sql = qq{ SELECT `tag` FROM typelist WHERE `id` = ? };
+        my $sth = $self->_prepare($sql) or $self->throw($self->dbh->errstr);
+        $sth->execute($typeid);
+        my $result;
+        $sth->bind_columns(\$result);
+        while ($sth->fetch()) {
+            # there should be only one row returned, but we ensure to get all rows
+        }
+        
+        ($type, $source) = split(':', $result);
+        $self->{_type_cache}->{$typeid} = [$type, $source];
+    }
+    
+    # convert the db seqid to the sequence name
+    if (exists $self->{_seqid_cache}->{$db_seqid}) {
+        $seqid = $self->{_seqid_cache}->{$db_seqid};
+    }
+    else {
+        my $sql = qq{ SELECT `seqname` FROM locationlist WHERE `id` = ? };
+        my $sth = $self->_prepare($sql) or $self->throw($self->dbh->errstr);
+        $sth->execute($db_seqid);
+        $sth->bind_columns(\$seqid);
+        while ($sth->fetch()) {
+            # there should be only one row returned, but we ensure to get all rows
+        }
+        
+        $self->{_seqid_cache}->{$db_seqid} = $seqid;
+    }
+    
+    # get the names from name table?
+    
+    # get the attributes and store those in obj
+    my $sql = qq{ SELECT attribute_id,attribute_value FROM attribute WHERE `id` = ? };
+    my $sth = $self->_prepare($sql) or $self->throw($self->dbh->errstr);
+    $sth->execute($id);
+    my ($attribute_id, $attribute_value);
+    $sth->bind_columns(\($attribute_id, $attribute_value));
+    my %attribs;
+    while ($sth->fetch()) {
+        # convert the attribute_id to its real name
+        my $attribute;
+        if (exists $self->{_attribute_cache}->{$attribute_id}) {
+            $attribute = $self->{_attribute_cache}->{$attribute_id};
+        }
+        else {
+            my $sql = qq{ SELECT `tag` FROM attributelist WHERE `id` = ? };
+            my $sth2 = $self->_prepare($sql) or $self->throw($self->dbh->errstr);
+            $sth2->execute($attribute_id);
+            $sth2->bind_columns(\$attribute);
+            while ($sth2->fetch()) {
+                # there should be only one row returned, but we ensure to get all rows
+            }
+            
+            $self->{_attribute_cache}->{$attribute_id} = $attribute;
+        }
+        
+        if ($source && $attribute eq 'source' && $attribute_value eq $source) {
+            next;
+        }
+        
+        $attribs{$attribute} = $attribute_value;
+    }
+    
+    require Bio::Graphics::Feature;
+    
+    my $obj = Bio::Graphics::Feature->new(-primary_id => $id,
+                                          $type ? (-type => $type) : (),
+                                          $source ? (-source => $source) : (),
+                                          $seqid ? (-seq_id => $seqid) : (),
+                                          defined $start ? (-start => $start) : (),
+                                          defined $end ? (-end => $end) : (),
+                                          defined $strand ? (-strand => $strand) : (),
+                                          keys %attribs ? (-attributes => \%attribs) : ());
+    
+    return $obj;
 }
 
 sub _prepare {
