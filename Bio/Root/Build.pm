@@ -11,7 +11,7 @@
 # This was written by Sendu Bala and is released under the same license as
 # Bioperl itself
 
-package ModuleBuildBioperl;
+package Bio::Root::Build;
 
 BEGIN {
     # we really need Module::Build to be installed
@@ -789,14 +789,19 @@ sub write_config {
     
     # be even more certain we can reload ourselves during a resume by copying
     # ourselves to _build\lib
-    my $filename = File::Spec->catfile($self->{properties}{config_dir}, 'lib', 'ModuleBuildBioperl.pm');
+    # this is only possible for the core distribution where we are actually
+    # present in the distribution
+    my $self_filename = File::Spec->catfile('Bio', 'Root', 'Build.pm');
+    -e $self_filename || return;
+    
+    my $filename = File::Spec->catfile($self->{properties}{config_dir}, 'lib', 'Bio', 'Root', 'Build.pm');
     my $filedir  = File::Basename::dirname($filename);
     
     File::Path::mkpath($filedir);
     warn "Can't create directory $filedir: $!" unless -d $filedir;
     
-    File::Copy::copy('ModuleBuildBioperl.pm', $filename);
-    warn "Unable to copy 'ModuleBuildBioperl.pm' to '$filename'\n" unless -e $filename;
+    File::Copy::copy($self_filename, $filename);
+    warn "Unable to copy 'Bio/Root/Build.pm' to '$filename'\n" unless -e $filename;
 }
 
 # add a file to the default MANIFEST.SKIP
@@ -1114,6 +1119,25 @@ sub make_zip {
     my $files = $self->rscan_dir($dir);
     Archive::Tar->create_archive("$file.tar", 0, @$files);
     $self->do_system($self->split_like_shell("bzip2"), "-k", "$file.tar");
+}
+
+# a method that can be called in a Build.PL script to ask the user if they want
+# internet tests.
+# Should only be called if you have tested for yourself that
+# $build->feature('Network') is true
+sub prompt_for_network {
+    my ($self, $accept) = @_;
+
+    my $proceed = $accept ? 0 : $self->y_n("Do you want to run tests that require connection to servers across the internet\n(likely to cause some failures)? y/n", 'n');
+    
+    if ($proceed) {
+        $self->notes(network => 1);
+        $self->log_info("  - will run internet-requiring tests\n");
+    }
+    else {
+        $self->notes(network => 0);
+        $self->log_info("  - will not run internet-requiring tests\n");
+    }
 }
 
 1;

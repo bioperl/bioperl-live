@@ -3,22 +3,22 @@
 # This is a Module::Build script for Bioperl installation.
 # See http://search.cpan.org/~kwilliams/Module-Build/lib/Module/Build.pm
 
-# Uses a custom subclass of Module::Build called ModuleBuildBioperl that
-# doesn't get installed
+# Uses a custom subclass of Module::Build called Bio::Root::Build
 
-# In the future developers may need to alter the requires and recommends and
-# possibly Network sections of ModuleBuildBioperl->new() below, but otherwise
-# nothing else here is likely to need changing.
+# In the future developers may need to alter the requires and recommends
+# sections of Bio::Root::Build->new() below, but otherwise nothing else here is
+# likely to need changing.
 
 use strict;
-use ModuleBuildBioperl;
+use lib '.';
+use Bio::Root::Build;
 
 our @drivers;
 
 my $mysql_ok = 0;
 
-# Set up the ModuleBuildBioperl object
-my $build = ModuleBuildBioperl->new(
+# Set up the Bio::Root::Build object
+my $build = Bio::Root::Build->new(
     module_name         => 'Bio',
     dist_name           => 'bioperl',
     dist_version_from   => 'Bio/Root/Version.pm',
@@ -91,7 +91,7 @@ my $build = ModuleBuildBioperl->new(
                                                         description      => "BioDBGFF database tests (will need to answer questions before really enabling)",
                                                         feature_requires => { 'DBI' => 0 },
                                                         excludes_os      => ['mswin'],
-                                                        test             => \&test_biodbgff # ModuleBuildBioperl unique requirement that after everything else succeeds, supplied code ref must also return undef
+                                                        test             => \&test_biodbgff # Bio::Root::Build unique requirement that after everything else succeeds, supplied code ref must also return undef
                                                      },
                             BioDBSeqFeature_mysql => {
                                                         description      => "MySQL tests for Bio::DB::SeqFeature::Store",
@@ -101,7 +101,7 @@ my $build = ModuleBuildBioperl->new(
                             Network               => {
                                                         description => "Enable tests that need an internet connection",
                                                         requires    => { 'LWP::UserAgent' => 0 },
-                                                        test        => \&ModuleBuildBioperl::test_internet
+                                                        test        => \&Bio::Root::Build::test_internet
                                                      }
                            },
     dynamic_config      => 1,
@@ -141,7 +141,7 @@ $build->choose_scripts($accept);
         }
     }
     else {
-        prompt_for_network($accept) if $build->feature('Network');
+        $build->prompt_for_network($accept) if $build->feature('Network');
     }
     # then in test script:
     #   use Module::Build;
@@ -291,20 +291,4 @@ sub prompt_for_biodb {
     }
     
     $build->log_info("\n");
-}
-
-sub prompt_for_network {
-    my $accept = shift;
-
-    my $proceed = $accept 
-                ? 0 :$build->y_n("Do you want to run tests that require connection to servers across the internet\n(likely to cause some failures)? y/n", 'n');
-    
-    if ($proceed) {
-        $build->notes(network => 1);
-        $build->log_info("  - will run internet-requiring tests\n");
-    }
-    else {
-        $build->notes(network => 0);
-        $build->log_info("  - will not run internet-requiring tests\n");
-    }
 }
