@@ -107,7 +107,7 @@ Email:  heikki-at-bioperl-dot-org
 
 =head1 CONTRIBUTORS
 
-Roy Chaudhuri, roy at colibase d bham d ac d uk
+Roy R. Chaudhuri <roy.chaudhuri at gmail.com>
 
 =head1 APPENDIX
 
