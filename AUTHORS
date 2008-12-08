@@ -20,6 +20,8 @@
 
 =item * Christopher Fields <cjfields at bioperl.org>
 
+=item * Brian Osborne <bosborne at bioteam.net>
+
 =back
 
 =head2 Previous Bioperl Coordinators:
@@ -166,8 +168,6 @@ for if you see fit)
 =item * Chris Mungall <cjm at fruitfly.org>
 
 =item * Giri Narasimhan <giri at cs.fiu.edu>
-
-=item * Brian Osborne <bosborne at alum.mit.edu>
 
 =item * Xiaokang Pan <pan at cshl.org> - Bio::Graphics::Glyph
 
