@@ -19,10 +19,13 @@ BEGIN {
   }
 	use_ok('Bio::TreeIO');
 	use_ok('Bio::TreeIO::phyloxml');
-  diag("libxml version: ", XML::LibXML::LIBXML_VERSION()); 
 }
 
 my $verbose = test_debug();
+
+if ($verbose) {
+  diag("libxml version: ", XML::LibXML::LIBXML_VERSION()); 
+}
 
 ok my $treeio = Bio::TreeIO->new(
            -verbose => $verbose,
@@ -388,9 +391,9 @@ ok my $treeio = Bio::TreeIO->new(
   isa_ok($ac, 'Bio::AnnotationCollectionI');
   my (@annotations) = $ac->get_Annotations('property');
   isa_ok( $annotations[0], 'Bio::Annotation::Collection');
-  diag("property:",$annotations[0]);
+  diag("property:",$annotations[0]) if $verbose;
   my (@keys) = $annotations[0]->get_all_annotation_keys();
-  diag("keys:",@keys);
+  diag("keys:",@keys) if $verbose;
   my (@value) = $annotations[0]->get_Annotations('_text');
   is($value[0]->value, ' 1200 ');
   if ($verbose > 0) {
