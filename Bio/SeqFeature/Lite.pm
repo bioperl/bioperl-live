@@ -1,22 +1,128 @@
-package Bio::Graphics::FeatureBase;
+package Bio::SeqFeature::Lite;
 
 =head1 NAME
 
-Bio::Graphics::FeatureBase - Base class for Bio::Graphics::Feature
+Bio::SeqFeature::Lite - Lightweight Bio::SeqFeatureI class
 
-=head1 SYNOPSIS
+ # create a simple feature with no internal structure
+ $f = Bio::SeqFeature::Lite->new(-start => 1000,
+                                  -stop  => 2000,
+                                  -type  => 'transcript',
+                                  -name  => 'alpha-1 antitrypsin',
+				  -desc  => 'an enzyme inhibitor',
+                                 );
 
- See Bio::Graphics::Feature for full synopsis.
+ # create a feature composed of multiple segments, all of type "similarity"
+ $f = Bio::SeqFeature::Lite->new(-segments => [[1000,1100],[1500,1550],[1800,2000]],
+                                  -name     => 'ABC-3',
+                                  -type     => 'gapped_alignment',
+                                  -subtype  => 'similarity');
+
+ # build up a gene exon by exon
+ $e1 = Bio::SeqFeature::Lite->new(-start=>1,-stop=>100,-type=>'exon');
+ $e2 = Bio::SeqFeature::Lite->new(-start=>150,-stop=>200,-type=>'exon');
+ $e3 = Bio::SeqFeature::Lite->new(-start=>300,-stop=>500,-type=>'exon');
+ $f  = Bio::SeqFeature::Lite->new(-segments=>[$e1,$e2,$e3],-type=>'gene');
 
 =head1 DESCRIPTION
 
-This is the base class for Bio::Graphics::Feature. It has all the
-methods of Bio::Graphics::Feature except for those that are required
-to interface with Bio::Graphics::FeatureFile, namely factory(),
-configurator(), url(), and make_link().  Please see
-L<Bio::Graphics::Feature> for full documentation.
+This is a simple Bio::SeqFeatureI-compliant object that is compatible
+with Bio::Graphics::Panel.  With it you can create lightweight feature
+objects for drawing.
+
+All methods are as described in L<Bio::SeqFeatureI> with the following additions:
+
+=head2 The new() Constructor
+
+ $feature = Bio::SeqFeature::Lite->new(@args);
+
+This method creates a new feature object.  You can create a simple
+feature that contains no subfeatures, or a hierarchically nested object.
+
+Arguments are as follows:
+
+  -seq_id      the reference sequence
+  -start       the start position of the feature
+  -end         the stop position of the feature
+  -stop        an alias for end
+  -name        the feature name (returned by seqname())
+  -type        the feature type (returned by primary_tag())
+  -primary_tag the same as -type
+  -source      the source tag
+  -score       the feature score (for GFF compatibility)
+  -desc        a description of the feature
+  -segments    a list of subfeatures (see below)
+  -subtype     the type to use when creating subfeatures
+  -strand      the strand of the feature (one of -1, 0 or +1)
+  -phase       the phase of the feature (0..2)
+  -id          an alias for -name
+  -seqname     an alias for -name
+  -display_id  an alias for -name
+  -display_name an alias for -name  (do you get the idea the API has changed?)
+  -primary_id  unique database ID
+  -url         a URL to link to when rendered with Bio::Graphics
+  -attributes  a hashref of tag value attributes, in which the key is the tag
+               and the value is an array reference of values
+  -factory     a reference to a feature factory, used for compatibility with
+               more obscure parts of Bio::DB::GFF
+
+The subfeatures passed in -segments may be an array of
+Bio::SeqFeature::Lite objects, or an array of [$start,$stop]
+pairs. Each pair should be a two-element array reference.  In the
+latter case, the feature type passed in -subtype will be used when
+creating the subfeatures.
+
+If no feature type is passed, then it defaults to "feature".
+
+=head2 Non-SeqFeatureI methods
+
+A number of new methods are provided for compatibility with
+Ace::Sequence, which has a slightly different API from SeqFeatureI:
+
+=over 4
+
+=item url()
+
+Get/set the URL that the graphical rendering of this feature will link to.
+
+=item add_segment(@segments)
+
+Add one or more segments (a subfeature).  Segments can either be
+Feature objects, or [start,stop] arrays, as in the -segments argument
+to new().  The feature endpoints are automatically adjusted.
+
+=item segments()
+
+An alias for sub_SeqFeature().
+
+=item get_SeqFeatures()
+
+Alias for sub_SeqFeature()
+
+=item get_all_SeqFeatures()
+
+Alias for sub_SeqFeature()
+
+=item merged_segments()
+
+Another alias for sub_SeqFeature().
+
+=item stop()
+
+An alias for end().
+
+=item name()
+
+An alias for seqname().
+
+=item exons()
+
+An alias for sub_SeqFeature() (you don't want to know why!)
+
+=back
 
 =cut
+
 
 use strict;
 
@@ -71,7 +177,7 @@ sub type {
 }
 
 # usage:
-# Bio::Graphics::Feature->new(
+# Bio::SeqFeature::Lite->new(
 #                         -start => 1,
 #                         -end   => 100,
 #                         -name  => 'fred feature',
@@ -589,8 +695,8 @@ sub gff3_string {
   # the same type as parent). This usage is a convention for
   # representing discontiguous features; they may be created by using
   # the -segment directive without specifying a distinct -subtype to
-  # Bio::Graphics::FeatureBase->new (or to Bio::DB::SeqFeature,
-  # Bio::Graphics::Feature).  Such homogenous subfeatures created in
+  # Bio::SeqFeature::LiteBase->new (or to Bio::DB::SeqFeature,
+  # Bio::SeqFeature::Lite).  Such homogenous subfeatures created in
   # this fashion TYPICALLY do not have the parent (GFF column 9)
   # attributes propogated to them; but, since they are all part of the
   # same parent, the ONLY difference relevant to GFF production SHOULD
@@ -769,12 +875,11 @@ __END__
 
 =head1 SEE ALSO
 
-L<Bio::Graphics::Feature>, L<Bio::Graphics::FeatureFile>,
-L<Bio::Graphics::Panel>,L<Bio::Graphics::Glyph>, L<GD>
+L<Bio::Graphics::Feature> 
 
 =head1 AUTHOR
 
-Lincoln Stein E<lt>lstein@cshl.orgE<gt>.
+Lincoln Stein E<lt>lstein@cshl.eduE<gt>.
 
 Copyright (c) 2006 Cold Spring Harbor Laboratory
 

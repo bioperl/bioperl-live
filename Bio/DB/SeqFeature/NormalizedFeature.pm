@@ -58,7 +58,7 @@ loader, pass Bio::DB::SeqFeature::Store::GFF3Loader-E<gt>new() the
 
 use strict;
 use Carp 'croak';
-use base 'Bio::Graphics::FeatureBase';
+use base 'Bio::SeqFeature::Lite';
 use base 'Bio::DB::SeqFeature::NormalizedFeatureI';
 use overload '""' => \&as_string,
               eq  => \&eq,
