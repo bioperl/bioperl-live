@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 30);
+    test_begin(-tests => 37);
 	
 	use_ok('Bio::Root::Root');
     use_ok('Bio::Seq');
@@ -98,7 +98,7 @@ sub new {
 package main;
 
 $obj = Bio::Foo1->new(-verbose => 1, t1 => 1, '--Test-2' => 2);
-ok ! $obj->can('t1'), 'arg not callable';
+#ok ! $obj->can('t1'), 'arg not callable';
 
 package Bio::Foo2;
 use base qw(Bio::Root::Root);
@@ -118,7 +118,7 @@ $obj = Bio::Foo2->new(-verbose => 1, t3 => 1, '--Test-4' => 2);
 ok $obj->can('t3'), 'arg callable since method was created';
 ok $obj->can('test_4'), 'mal-formed arg callable since method was created with good name';
 for my $m (qw(t3 test_4)) {
-    ok (UNIVERSAL::can('Bio::Foo2',$m), "Methods in new package/class namespace");
+    can_ok('Bio::Foo2',$m);
     ok (!UNIVERSAL::can('Bio::Root::Root',$m), "Methods don't pollute original Bio::Root::Root namespace");
 }
 
@@ -137,10 +137,10 @@ sub new {
 package main;
 
 $obj = Bio::Foo3->new(-verbose => 1, t5 => 1, '--Test-6' => 2);
-ok $obj->can('t5'), 'arg callable since method was created';
+can_ok($obj, 't5');
 ok ! $obj->can('test_6'), 'arg not in method list not created';
 
-ok (UNIVERSAL::can('Bio::Foo3','t5'), "Methods in new package/class namespace");
+can_ok ('Bio::Foo3','t5');
 ok (!UNIVERSAL::can('Bio::Root::Root','t5'), "Methods don't pollute original Bio::Root::Root namespace");
 
 package Bio::Foo4;
@@ -170,8 +170,8 @@ is $obj->test7, 1, 'real method of synonym was set correctly';
 is $obj->test_8, 2, 'mal-formed arg correctly resolved to created method';
 is $obj->t8, 2, 'synonym of set method was set correctly';
 
-for my $m (qw()) {
-    ok (!UNIVERSAL::can('Bio::Foo4','t7'), "Methods in new package/class namespace");
-    ok (!UNIVERSAL::can('Bio::Root::Root','t7'), "Methods don't pollute original Bio::Root::Root namespace");
+for my $m (qw(t7 test7 test_8 t8)) {
+    can_ok('Bio::Foo4',$m);
+    ok(!UNIVERSAL::can('Bio::Root::Root','t7'), "Methods don't pollute original Bio::Root::Root namespace");
 }
 
