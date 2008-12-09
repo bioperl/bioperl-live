@@ -49,7 +49,7 @@ web:
 =head1 AUTHORS
 
   Ewan Birney E<lt>birney-at-ebi.ac.ukE<gt>
-  Mauricio Herrera Cuadra E<lt>arareko-at-campus.iztacala.unam.mxE<gt>
+  Mauricio Herrera Cuadra E<lt>mauricio at open-bio.orgE<gt>
   (some enhancements)
 
 =cut
