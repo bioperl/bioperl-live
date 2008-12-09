@@ -469,7 +469,10 @@ sub handle_feature {
 sub _multilevel_feature { # turn a single-level feature into a multilevel one
     my $self = shift;
     my $f    = shift;
-    my @args = ($f->display_name,$f->type,$f->strand,{},$f->seq_id,$f->start,$f->end);
+    my %attributes     = $f->attributes;
+    $attributes{Score} = [$f->score] if defined $f->score;
+    $attributes{Phase} = [$f->phase] if defined $f->phase;
+    my @args = ($f->display_name,$f->type,$f->strand,\%attributes,$f->seq_id,$f->start,$f->end);
     my $subpart = $self->_make_feature(@args);
     $f->add_SeqFeature($subpart);
 }
