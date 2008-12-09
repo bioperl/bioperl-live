@@ -207,7 +207,7 @@ sub add_phyloXML_annotation
 
   # pop from temporary list
   pop @{$self->{'_currentitems'}};
-  $self->{'_lastitem'}->{ $reader->name }--;
+  $self->{'_lastitem'}->{ $reader->name }-- if $reader->name;
   pop @{$self->{'_lastitem'}->{'current'}};
   
   return $obj;
