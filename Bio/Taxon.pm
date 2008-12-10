@@ -51,7 +51,7 @@ Bio::Taxon - A node in a represented taxonomy
   @names = $human->common_names; # @names contains woman
 
   # You can switch to another database when you need more information
-  my $entrez_dbh = Bio::Db::Taxonomy->new(-source => 'entrez');
+  my $entrez_dbh = Bio::DB::Taxonomy->new(-source => 'entrez');
   $human->db_handle($entrez_dbh);
   @names = $human->common_names; # @names contains woman, human, man
 
