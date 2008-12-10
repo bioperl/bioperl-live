@@ -1181,7 +1181,7 @@ sub _deleteid {
     $sth2->execute($cid);
     my ($count) = $sth2->fetchrow_array;
     if ($count == 1) {
-        $self->_deleteid($cid) || $self->throw("Couldn't remove subfeature!");
+        $self->_deleteid($cid) || warn "An error occurred while removing subfeature id=$cid. Perhaps it was previously deleted?\n";
     }
   }
   for my $table ($self->all_tables) {
