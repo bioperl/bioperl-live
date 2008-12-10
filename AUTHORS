@@ -28,7 +28,7 @@
 
 =over
 
-=item * Steven Brenner <brenner at compbio.berkely.edu>
+=item * Steven Brenner <brenner at compbio.berkeley.edu>
 
 =item * Georg Fuellen <fuellen at alum.mit.edu>
 
@@ -128,6 +128,8 @@ for if you see fit)
 =item * Donald Jackson <donald.jackson at bms.com> - SiRNA
 
 =item * Keith James <kdj at sanger.ac.uk> - Bio::Tools::Geneid
+
+=item * Mark A. Jensen <maj at fortinbras.us> - Bio::DB::HIVQuery
 
 =item * Nicolas Joly <njoly at pasteur.fr> 
 
