@@ -194,8 +194,11 @@ use Spreadsheet::WriteExcel;
 
 sub new {
 
-  my ($class, $design_file_name, $format, $refseq_max_ins_hash, $refseq) = @_;
-  my $self = $class->SUPER::new();
+  #my ($class, $design_file_name, $format, $refseq_max_ins_hash, $refseq) = @_;
+  my ($class, @args) = @_;
+  my $self = $class->SUPER::new(@args);
+  my ($design_file_name, $format, $refseq_max_ins_hash, $refseq)=$self->_rearrange([qw(AFFY_DESIGN_FILENAME FORMAT_OF_DESIGN_FILE MAX_INSERTION_HASH_REFERENCE REFERENCE_SEQUENCE)], @args);
+
   $self->{_frags_hash}=undef;
   $self->{_max_ins_hash}=undef;
   $self->{_refseq}=undef;

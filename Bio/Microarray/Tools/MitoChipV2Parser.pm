@@ -78,12 +78,13 @@ use base qw(Bio::Root::Root);
 
 sub new {
 
-  my ($class, $file_name) = @_;
-  my $self = $class->SUPER::new();
+  my ($class, @args) = @_;
+  my $self = $class->SUPER::new(@args);
+  my ($file_name)=$self->_rearrange([qw(AFFY_DESIGN_FILENAME)], @args);
+
   $self->{_frags_hash}=undef;
   $self->{_oligos2calc_hash}=undef;
   $self->throw("Must provide filename as first argument !") unless $file_name;
-
   
   my %max_ins_hash=();
   $self->{_frags_hash}=$self->_parse_Affy_mtDNA_design_annotation_file($file_name);
