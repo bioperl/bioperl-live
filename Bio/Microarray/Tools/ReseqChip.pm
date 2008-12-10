@@ -49,7 +49,7 @@ Bio::Microarray::Tools::ReseqChip - Class for analysing additional probe oligonu
   ins_threshold => 35,
   del_threshold => 75,
   swap_ins => 1);
-
+                         
  while ( (my $seq = $in->next_seq())) {
 
   my $locseq;
@@ -62,84 +62,69 @@ Bio::Microarray::Tools::ReseqChip - Class for analysing additional probe oligonu
   }
   $aln->add_seq($locseq);
  }
- my $new_sequence=$reseqfragSample->calc_sequence($aln, \%options_hash ,"output_file");
+ my $new_sequence=$reseqfragSample->calc_sequence($aln, \%options_hash [,"output_file"]);
 
 
 =head1 DESCRIPTION
 
-This Software module aim to infer information of the addtional
-oligonucleotide probes, covering different known variants.
-Oligonucleotide Array based Resequencing is done in the local context
-of a reference sequence. Every position in the genomic areas of
-interest is interrogated using 8 different 25-mer oligonucleotide
-probes (forward and reverse strand).  Their middle base varies across
-the four possible bases, while the flanking regions are identical with
-the reference sequence or its reverse strand respectively. For genomic
-regions with known variability across individuals, additional probes
-were added to the chip. They interrogate postions in the neighborhood
-of polymorphisms not only in the local context of the reference
-sequence but also in the context of its known variants.  This software
-(ReseqChip.pm) is tested to work with MitoChip v2.0 Data, manufactured
-by Affymetrix and the parser (MitoChipV2Parser) reads the probe design
-file (Affy mtDNA_Design_Annotion.xls) wich describes the design of the
-probes.
+This Software module aim to infer information of the addtional oligonucleotide probes, covering different known variants.
+Oligonucleotide Array based Resequencing is done in the local context of a reference sequence. Every position in 
+the genomic areas of interest is interrogated using 8 different 25-mer oligonucleotide probes (forward and reverse strand). 
+Their middle base varies across the four possible bases, while the flanking regions are identical 
+with the reference sequence or its reverse strand respectively. For genomic regions with known variability across individuals, 
+additional probes were added to the chip. They interrogate postions in the neighborhood of polymorphisms not only in the local context
+of the reference sequence but also in the context of its known variants.
+This software (ReseqChip.pm) is tested to work with MitoChip v2.0 Data, manufactured by Affymetrix and the parser (MitoChipV2Parser)
+reads the probe design file (Affy mtDNA_Design_Annotion.xls) wich describes the design of the probes.
 
-The software approaches the problem in the following way: 1. An
-alignment of the addtional probes to the reference sequence is created
-(taking account for insertions/deletion) 2. Based on that alignment
-each position, which is covered by at least one additional probe is
-investigated to find a consensus call.
+The software approaches the problem in the following way:
+1. An alignment of the addtional probes to the reference sequence is created (taking account for insertions/deletion)
+2. Based on that alignment each position, which is covered by at least one additional probe is investigated to find a consensus call.
 
-This is done indirectly by excluding those probes, which appear to be
-inadequate for the individual. An indication for inadaquacy is a local
-accumulation of N-calls. We investigate calls in neighborhoods of
-length K around each sequence position in all available local context
-probes and count the number of N-calls in them.  That menas, in
-addition to the call obtained using the references sequence base call
-we obtain data from all alternative local background probes that were
-available for the current position. All probes with more then maxN
-N-calls in the K-neighborhood are excluded. Because it may happen that
-different candidate bases occur we introduce to more parameters minP
-and minU.  If more then minP probes remain after filtering and more
-then minU percent of them call the base x, were x is the most
-frequently called base, then x is included in the final sequence,
-otherwise the letter N is included.
+This is done indirectly by excluding those probes, which appear to be inadequate for the individual. An indication for 
+inadaquacy is a local accumulation of N-calls. We investigate calls in neighborhoods of length K around
+each sequence position in all available local context probes and count the number of N-calls in them. 
+That menas, in addition to the call obtained using the references sequence base call we obtain data from all alternative 
+local background probes that were available for the current position. All probes with more then maxN N-calls in the 
+K-neighborhood are excluded. Because it may happen that different candidate bases occur we introduce to more parameters minP and minU.
+If more then minP probes remain after filtering and more then minU percent of them call the base x,
+were x is the most frequently called base, then x is included in the final sequence, otherwise the letter N is included.
 
 
-Assumption: Gaps which are inserted in several fragments and in the
-reference sequence itself refer to the reference sequence.  The
-reference sequence is given as input parameter.  Optionshash,
-specifying the explained parameter and some further options is
-provided by the user.
+Assumption:
+Gaps which are inserted in several fragments and in the reference sequence itself refer to the reference sequence.
+The reference sequence is given as input parameter.
+Optionshash, specifying the explained parameter and some further options is provided by the user.
 
 
 This module depends on the following modules:
-
-  Bio::Microarray::Tools::MitoChipV2Parser
-  Bio::SeqIO;
-  Bio::Seq;
-  Bio::LocatableSeq;
-  Bio::SimpleAlign;
-  Bio::LiveSeq::Mutation;
-  Statistics::Frequency;
-  Spreadsheet::ParseExcel;
-  Spreadsheet::WriteExcel;
+use Bio::Microarray::Tools::MitoChipV2Parser
+use Bio::SeqIO;
+use Bio::Seq;
+use Bio::LocatableSeq;
+use Bio::SimpleAlign;
+use Bio::LiveSeq::Mutation;
+use Statistics::Frequency;
+use Spreadsheet::ParseExcel;
+use Spreadsheet::WriteExcel;
 
 
 =head1 AUTHORS
-
+        
 Marian Thieme (marian.thieme@arcor.de)
 
 =head1 COPYRIGHT
+        
+Copyright (c) 2007 Institute of Functional Genomics, University Regensburg, granted by Baygene. All Rights Reserved.
+        
+This module is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+        
 
-Copyright (c) 2007 Institute of Functional Genomics, University
-Regensburg, granted by Baygene. All Rights Reserved.
 
-This module is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+
 
 =head1 DISCLAIMER
-
+        
 This software is provided "as is" without warranty of any kind.
 
 =head1 APPENDIX
@@ -151,7 +136,7 @@ methods. Internal methods are usually preceded with a _
 
 
 package Bio::Microarray::Tools::ReseqChip;
-
+                                   
 use strict;
 use warnings;
 
@@ -178,22 +163,22 @@ use Spreadsheet::WriteExcel;
              ($Affy_frags_design_filename, $format, $refseq, \%oligos2calc_hash)
 
 
- Function  : Creates Hash of insertions of maximal length, by parsing the affy chip
+ Function  : Creates Hash of insertions of maximal length, by parsing the affy chip 
              design file and calcs the location of clusters of the Redundant Fragments
              by calling _parse_Affy_mtDNA_design_annotation_file() and sets further 
              member variables.
-
-
+             
+             
  Returns   : Returns a new ReseqChip object
-
+ 
  Args      : $Affy_frags_design_filename (Affymetrix xls design file, 
              for instance: mtDNA_design_annotation_FINAL.xls for mitochondrial Genome)
-
+             
              $format (only xls is available, because its the format which is delivered by Affymetrix)
-
+             
              [$reseq_max_ins_hash, $refseq] (insertions as hash (pos1 => insertions length1, pos2 => insertions length2, ...) 
              for reference sequence and $refseq (Locatable Sequence Object))
-
+            
  Membervars: frags_hash		- contains all variations described by the affy_design_annotation file 
                                   (fragment_id => (pos1 => [muttype, mut, start, stop]), ... )
              max_ins_hash	- contains all (maximal) insertion, which are needed to build "alignable" 
@@ -218,7 +203,9 @@ sub new {
   $self->{_oligos2calc_hash}=undef;
   $self->{_refseq_max_ins_hash}=undef;
   $self->{_frags_max_ins_hash}=undef;
-  
+
+  ##
+  $self->{_oligo_flank_length}=12;
   $self->throw("Must provide filename as first argument !") unless $design_file_name;
 
   $self->throw("Must specify format (only xls at present) as second argument !") unless $format;
@@ -276,6 +263,28 @@ sub new {
   #}
   bless $self, $class;
   return $self;
+}
+
+sub _print_frags_hash() {
+	
+	my ($self) = @_;
+	my $correction=0;
+	foreach my $key (sort{$a cmp $b} keys %{$self->{_frags_hash}}) {
+		#print "$key: ";
+		foreach my $subkey (sort{$a<=>$b} keys %{$self->{_frags_hash}{$key}}) {
+    		my $subvalue=$self->{_frags_hash}{$key}{$subkey};
+      		my @array= @{$self->{_frags_hash}->{$key}{$subkey}};
+		    print "$key\t$subkey\t@array \n";
+    		if (!(exists($self->{_max_ins_hash}{$subkey+$correction}))) {
+        		if (@$subvalue[0] eq "ins") {
+          			$self->{_max_ins_hash}{$subkey+$correction}=length(@$subvalue[1]);
+        		}
+      		} elsif ( $self->{_max_ins_hash}{$subkey+$correction} < length(@$subvalue[1]) ) {
+  	        	$self->{_max_ins_hash}{$subkey+$correction}=length(@$subvalue[1]);
+    	  	}
+    	}
+  	}	
+	
 }
 
 
@@ -344,7 +353,7 @@ sub _get_start_pos() {
     if ($test) {
       print "$key: ".$self->{$hashname}{$key}."\n";
     }
-    if ($pos>$key-12) {
+    if ($pos>$key-$self->{_oligo_flank_length}) {
     #if ($pos>=$key) {
       $offset+=$self->{$hashname}{$key};
       if ($test) {
@@ -415,7 +424,7 @@ sub insert_gaps2frag() {
       }
     }
     if ($temp_hash{$mkey}[0] eq "del") {
-      my $npos=$mkey-$startpos-12+$offset-1;
+      my $npos=$mkey-$startpos-$self->{_oligo_flank_length}+$offset+1;
       Bio::SeqUtils->mutate($seqobj, Bio::LiveSeq::Mutation->new(
         -seq => "-",
         -pos => $npos,
@@ -426,6 +435,12 @@ sub insert_gaps2frag() {
   my $gapsum=0;
   #fuer jede max_insertion testen ob sie im aktuellen fragment vorkommt, hash durchlaufen
   foreach my $maxkey (sort{$a<=>$b} keys %{$self->{_max_ins_hash}}) {
+  	my $roffset=0;
+  	foreach my $rkey (sort{$a<=>$b} keys %{$self->{_refseq_max_ins_hash}}) {
+  		if ($rkey<$maxkey) {
+  			$roffset+=$self->{_refseq_max_ins_hash}{$rkey}
+  		}
+  	}
     my $flag=1;
     foreach my $mkey (keys %temp_hash) {
       if ($temp_hash{$mkey}[0] eq "ins") {
@@ -433,7 +448,7 @@ sub insert_gaps2frag() {
         if ($mkey == $maxkey) {
           if (length($temp_hash{$mkey}[1]) < $self->{_max_ins_hash}{$maxkey} ) {
             my $gap=$self->_create_gap($self->{_max_ins_hash}{$maxkey}-length($temp_hash{$mkey}[1]));
-            my $npos=$maxkey-$startpos+$gapsum+2-12+length($temp_hash{$mkey}[1]);
+            my $npos=$maxkey-$startpos+$gapsum+2-$self->{_oligo_flank_length}+length($temp_hash{$mkey}[1])-$roffset;
             Bio::SeqUtils->mutate($seqobj, Bio::LiveSeq::Mutation->new(
               -seq => $gap,
               -pos => $npos,
@@ -453,7 +468,7 @@ sub insert_gaps2frag() {
       #if ($)
       if ($maxkey >= $startpos+$startpos12-2 and $maxkey <= $startpos+$endpos12-2) {
       my $gap=$self->_create_gap($self->{_max_ins_hash}{$maxkey});
-      my $npos=$maxkey-$startpos+$gapsum+2-12;
+      my $npos=$maxkey-$startpos+$gapsum+2-$self->{_oligo_flank_length}-$roffset;
       foreach my $key (keys %{$self->{_refseq_max_ins_hash}}) {
         if ($fragment_span>$key) {$npos+=$self->{_refseq_max_ins_hash}{$key};}
       }      
@@ -471,7 +486,7 @@ sub insert_gaps2frag() {
   my $locseq = new Bio::LocatableSeq(
               -seq => $seqobj->seq,
               -id => $new_id."_".$seqobj->id,
-              -start => $fragment_span-1, -end => $endpos12+$fragment_span-12);
+              -start => $fragment_span-1, -end => $endpos12+$fragment_span-$self->{_oligo_flank_length}-1);
   return $locseq;
 }
 
@@ -493,13 +508,19 @@ sub insert_gaps2reference_sequence() {
   my $offset=0;
   
   foreach my $key (keys %{$self->{_refseq_max_ins_hash}}) {
-    $self->{_max_ins_hash}{$key}=$self->{_refseq_max_ins_hash}{$key};
+    #$self->{_max_ins_hash}{$key}=$self->{_refseq_max_ins_hash}{$key};
+    my $gap=$self->_create_gap($self->{_refseq_max_ins_hash}{$key});
+    Bio::SeqUtils->mutate($seqobj, Bio::LiveSeq::Mutation->new(
+    -seq => $gap,
+    -pos => $key-$self->{_oligo_flank_length}+1, #+$mito_start_position_offset,
+    -len => 0));
+    #$offset+=length($gap);
   }
   foreach my $key (sort{$a<=>$b} keys %{$self->{_max_ins_hash}}) {
     my $gap=$self->_create_gap($self->{_max_ins_hash}{$key});
     Bio::SeqUtils->mutate($seqobj, Bio::LiveSeq::Mutation->new(
     -seq => $gap,
-    -pos => $key+$offset-12+1, #+$mito_start_position_offset,
+    -pos => $key+$offset-$self->{_oligo_flank_length}+1, #+$mito_start_position_offset,
     -len => 0));
     $offset+=length($gap);
   }
@@ -570,13 +591,23 @@ sub _print_base_hash() {
 sub _check_oligo_positions() {
   my ($self, $i) = @_;
   my $test=0;
-  #foreach my $maxkey (sort{$a<=>$b} keys %{$self->{_max_ins_hash}}) {
   my $startpos_old="";
   my $endpos_old="";
+  my $lastone=1;
   foreach my $startpos (sort{$a<=>$b} keys %{$self->{_oligos2calc_hash}}) {
-
+    my $endpos=$self->{_oligos2calc_hash}{$startpos};  
+    #if ($i>16239) {print("$i check oligo region: $startpos $endpos if:".($i>$endpos_old and $i<$startpos)."else:".($i>=$startpos and $i<=$endpos)."\n")}
     if ($endpos_old ne "") {
       if ($i>$endpos_old and $i<$startpos) {
+        return $startpos;
+      } elsif ($i>=$startpos and $i<=$endpos) {
+        $lastone=1;
+        last;
+      }
+    }
+    ##else i might be before the first cluster
+    else {
+      if ($startpos > $i) {
         return $startpos;
       }
     }
@@ -584,9 +615,20 @@ sub _check_oligo_positions() {
     #  $test=1;
     #  last;
     #}
+#      } else if ($i$self->{_oligos2calc_hash}{$startpos}) {
+#      
+#      }
     $startpos_old=$startpos;
-    $endpos_old=$self->{_oligos2calc_hash}{$startpos};
+    $endpos_old=$endpos;
+    if ($i>$endpos_old) {
+      $lastone=0
+    }
   }
+  if ($lastone==0) {
+    #print("return lastone=0\n");
+    return 0;
+  }
+  #print("return i: $i\n");
   return $i;
 }
 
@@ -735,10 +777,10 @@ sub _swap_insertion() {
   my ($self, $pos, $sequence) = @_;
   my $swap=0;
   #print "\ninside swap_insertion ($pos)\n";
-  #print "offset: ".$self->_get_start_pos($pos-12, '_frags_max_ins_hash', 1)."\n";
+  #print "offset: ".$self->_get_start_pos($pos-$self->{_oligo_flank_length}, '_frags_max_ins_hash', 1)."\n";
   my $pos1=$pos;
-  my $offset=$self->_get_start_pos($pos-12);
-  $pos+=12-$offset;
+  my $offset=$self->_get_start_pos($pos-$self->{_oligo_flank_length});
+  $pos+=$self->{_oligo_flank_length}-$offset;
   foreach my $key (sort{$a<=>$b} keys %{$self->{_max_ins_hash}}) {
     #print "\tstart_gap: ".($key)."\tend_gap: ";
     #print ($key+$self->{_max_ins_hash}{$key}-1);
@@ -776,61 +818,176 @@ sub _swap_insertion() {
 
 sub calc_sequence() {
 
-  my ($self, $aln, $options_hash, $filename_rawrow) = @_;
-
+  my ($self, $aln, $seq_ins_hash_ref, $options_hash, $filename_rawrow) = @_;
+#  $filename_rawrow="test_reference_output.txt";
+#  print("1. $aln (ReseqChip)\n");
+#  print("============calc_sequence===========\n");
+  #$aln_ins=0;
   my $final_seq="";
   my $start_c=1;
   my $stop_c=0;
+  my $chip_offset=0;
+  my $range=0;
   if ($options_hash->{start_pos}) {
     $start_c=$options_hash->{start_pos}
   }
   if ($options_hash->{stop_pos}) {
     $stop_c=$options_hash->{stop_pos}
   }
-  
   my $i=$start_c;
   
-  $self->{_inserted_bases_hash}=undef;
   my $stop=0;
   my $output_rawrow="";
-
+  my $no_removed=0;
+  my $index_ex=0;
+  if ($filename_rawrow) {
+    my $seq = $aln->get_seq_by_pos(1);
+    open (RAWROW, ">>$filename_rawrow") or die "Cannot open file\n $!\n";
+    print RAWROW "\n".$seq->id;
+    close(RAWROW);
+  }
   while ($i<=$aln->length()) {
+    
     my $seq_no=1;
     my $ref_base;
     my $help_base="x";
     my @base_array=();
-    my $base;
     my $uni_votum=1;
+    ##check if there are fragments for current position i
     my $i_neu=$self->_check_oligo_positions($i);
+    if ($i_neu==0) {
+      $i_neu=$aln->length();
+    }
+
     my $count=0;
     my $output_rawrow_tmp="";
     my $not_only_ref=0;
+    my $seq_ins;
+    
+#   if ($i % 3 == 0) {
+
+        
     foreach my $seq ($aln->each_seq) {
+      if ($seq_ins_hash_ref) {
+        $seq_ins=$seq_ins_hash_ref->{$seq->id()};
+      }
       my $offset=$self->_get_start_pos($seq->start());
       if ($seq_no==1) {
-
         $ref_base=$seq->subseq($i_neu,$i_neu);
         if ($filename_rawrow) {
-          $output_rawrow_tmp.= "\n $i ($ref_base) : ";
+          $output_rawrow_tmp.= "\n".($i_neu+$chip_offset)." ($ref_base) : ";
         }
         if ($i>$stop_c and $stop_c>0) {
           $stop=1;
-          $final_seq.=$seq->subseq($i,$seq->length());
+          #print("cut: $i bis zum ende");
+          if ($options_hash->{QT_no}) {
+            #print("QT_no: ".$options_hash->{QT_no}."\n");
+            if ($options_hash->{QT_no} eq "ins" and $seq_ins_hash_ref) {
+              $final_seq.=$seq_ins->subseq($i,$seq->length());
+              #print(" mit ins (QT3)");
+            } else {
+              $final_seq.=$seq->subseq($i,$seq->length());
+            }
+          } else {
+            $final_seq.=$seq->subseq($i,$seq->length());
+            #print(" mit sub (QT12)");
+          }
+          #print("\n");
+          #print("$i <".$seq->start()." + $offset\n");
           last;
         }
         #print "$i: $ref_base\n";
         if ($i_neu != $i) {
-          $final_seq.=$seq->subseq($i,$i_neu-1);
+          #$i_neu=$i_neu;
+          #print("cut: $i bis ".($i_neu-1)."");
+          if ($options_hash->{QT_no}) {
+            if ($options_hash->{QT_no} eq "ins" and $seq_ins_hash_ref) {
+              $final_seq.=$seq_ins->subseq($i,$i_neu-1);
+              #print(" mit ins (QT3)");
+            } else {
+              $final_seq.=$seq->subseq($i,$i_neu-1);
+            }
+          } else {
+            $final_seq.=$seq->subseq($i,$i_neu-1);
+            #print(" mit sub (QT12)");
+          }
+          #print("\n");
         }
         $i=$i_neu;
-
       }
       
-      if ($seq->start() < $i-$offset and $seq->end()+$offset+2+12 > $i) {
+      ##add base to basearray if it fullfill the criteria
+      ##differ between insertions
+      if ($ref_base eq "-" and $seq_ins_hash_ref) {
+        ($not_only_ref, $count, $output_rawrow_tmp)=$self->_augment_base_array($seq_ins, $ref_base, \@base_array, $not_only_ref, $count, $i, $offset, $seq_no, $options_hash, $filename_rawrow, $output_rawrow_tmp);
+      ##and non insertions (sub/del)
+      } else {
+        ($not_only_ref, $count, $output_rawrow_tmp)=$self->_augment_base_array($seq, $ref_base, \@base_array, $not_only_ref, $count, $i, $offset, $seq_no, $options_hash, $filename_rawrow, $output_rawrow_tmp);
+      }
+      
+      #remove no more needed sequences
+      if (($i) >= ($seq->end()+$offset+2+$self->{_oligo_flank_length})) {
+        $aln->remove_seq($seq);
+        #$aln->sort_alphabetically;
+      }
+      #finish iteration, if startpos of current sequence is outside of current position
+      if ($i<$seq->start()+$offset) {
+        last;
+      }
+      $seq_no++;
+      #print "\n";
+    }
+    
+    if ($stop) {
+      last;
+    }
+	#at least one nonref base is available
+    if ($not_only_ref) {
+      #if ($ref_base eq "n" or ($i>4767 and $i<4780)) {
+      #  my $offset=$self->_get_start_pos($i);
+      #  print("$i (+$offset), get consensus call:.".$ref_base." @base_array\n");
+      #}
+      #print($output_rawrow_tmp);
+
+      $output_rawrow.=$output_rawrow_tmp;
+      ($final_seq, $output_rawrow)=$self->_get_consensus_call($ref_base, \@base_array, $count, $final_seq, $options_hash, $filename_rawrow, $output_rawrow);
+#      print(substr($final_seq, $i-1)." (ref: $ref_base)\n");
+    } else {
+    	#if ($options_hash->{call_n}) {
+	    #	if (@base_array>0) {
+	    #		$final_seq.="n";
+	    #	}
+    	#} else {
+	      $final_seq.=$ref_base;
+    	#}
+    }
+
+#   }
+    $i++;
+    #print("$i\n");
+  }
+  if ($filename_rawrow) {
+    open (RAWROW, ">>$filename_rawrow") or die "Cannot open file\n $!\n";
+    print RAWROW $output_rawrow;
+    close(RAWROW);
+  }
+#  open (RAWROW, ">test_reference_seq.txt");
+#  print RAWROW $final_seq;
+#  close(RAWROW);  
+  return $final_seq; 
+}
+
+
+sub _augment_base_array() {
+
+      my ($self, $seq, $ref_base, $base_array, $not_only_ref, $count, $i, $offset, $seq_no, $options_hash, $filename_rawrow, $output_rawrow_tmp) = @_;
+      if ($seq->start() < $i-$offset and ($seq->end()+$offset+$self->{_oligo_flank_length}) > $i) {
+      #if ($seq->start() < $i-$offset and $seq->end()+$offset+2+$self->{_oligo_flank_length} > $i) {
           #print "$i id: ".$seq->id()." ";#.$seq->seq()."\n";
         my $cleared_pos=$i-($seq->start()+$offset);
         if ($cleared_pos<=$seq->length()) {
-            $base=$seq->subseq($cleared_pos,$cleared_pos);
+            my $base=$seq->subseq($cleared_pos, $cleared_pos);
+
             if ($base ne 'n') {
               #print $seq->subseq($cleared_pos,$cleared_pos);
               if ($filename_rawrow) {
@@ -844,46 +1001,33 @@ sub calc_sequence() {
                 if ($self->_consider_context_wrapper($seq, $cleared_pos, $options_hash, $ref_base)) {
                   if ( $seq_no==1) {
                     if ($options_hash->{include_main_sequence}) {
-                      push(@base_array, $base);
+                      push(@$base_array, $base);
                     }
-                  }
-                  else {
-                    push(@base_array, $base);
+                  } else {
+                    push(@$base_array, $base);
                     $not_only_ref=1;
                   }
                 }
-              }
-              else {
-                push(@base_array, $base);
+              } else {
+                push(@$base_array, $base);
               }
             }
         }
       }
-      #remove no more needed sequences
-      if (($i) >= ($seq->end()+$offset+2+12)) {
-        $aln->remove_seq($seq);
-      }
-      #finish iteration, if startpos of current sequence is outside of current position
-      if ($i<$seq->start()+$offset) {
-        #print "last: $seq_no\n";
-        last;
-      }
-      $seq_no++;
-      #print "\n";
-    }
-    if ($stop) {last;}
+      return($not_only_ref, $count, $output_rawrow_tmp);
 
-    if ($not_only_ref) {
-      $output_rawrow.=$output_rawrow_tmp;
+}
+
+sub _get_consensus_call() {
+
+      my ($self, $ref_base, $base_array, $count, $final_seq, $options_hash, $filename_rawrow, $output_rawrow) = @_;
     
-      my $alignment_depth=@base_array;
+      my $alignment_depth=@$base_array;
       my $newbase="";
-      my $vote=$self->_calc_stats(\@base_array, $options_hash, $ref_base);
-      ##explore deletions
-      my $arstr=join("", @base_array);
-      #my $count_filter = ($arstr=~ tr/n//);
-      $arstr =~ s/n//;
-      if ($ref_base ne $vote) {
+      my $vote=$self->_calc_stats($base_array, $options_hash, $ref_base);
+      
+      my $arstr=join("", @$base_array);
+	  if ($ref_base ne $vote) {
         my $swap=0;
         if ($filename_rawrow) {
           $output_rawrow.= " ($count) -> $arstr ($alignment_depth)";
@@ -899,47 +1043,46 @@ sub calc_sequence() {
           if ($options_hash->{insertions}==1) {
              if ($vote ne "-" and $ref_base eq "-" and $options_hash->{depth_ins}<=$alignment_depth ) {
                $newbase=$vote;
-             }
+            }
           }
-          ###
+          ###substitutions
           if ($vote ne "-" and $ref_base ne "-") {
             if ($options_hash->{depth}<=$alignment_depth) {
               $newbase=$vote;
             }
           }
           if ($filename_rawrow) {
-            $output_rawrow.= "\t $ref_base vs $vote => $newbase";
+            $output_rawrow.= "\t$ref_base vs $vote => $newbase";
           }
+        } elsif ($vote ne "n") {
+        	if ($options_hash->{call_n}) {
+        		$newbase=$vote;
+        	} else {
+        		$newbase=$ref_base;
+        	}
         }
+        
         if ($newbase ne "") {
           if ($swap>=1) {
               $final_seq=substr($final_seq,0,0-$swap).$newbase.substr($final_seq,0-$swap);
           }
           else {
+              #print($newbase." $i \n");
               $final_seq.=$newbase;
           }
         } else {
-          $final_seq.=$ref_base;
+        	if ($options_hash->{call_n}) {
+	          $final_seq.="n";
+        	} else {
+        		$final_seq.=$ref_base;
+        	}
         }
       }
       else {
         $final_seq.=$ref_base;
       }
-    }
-    else {
-      $final_seq.=$ref_base;
-    }
-    $i++;
-
-  }
-  if ($filename_rawrow) {
-    open (RAWROW, ">>$filename_rawrow") or die "Cannot open file\n $!\n";
-    print RAWROW $output_rawrow;
-    close(RAWROW);
-  }
-  return $final_seq; 
+      return($final_seq, $output_rawrow);
 }
-
 
 
 =head2 _calc_stats()
@@ -965,9 +1108,7 @@ sub _calc_stats() {
   my $threshold;
   if ($ref_base eq '-') {
     $threshold=$options_hash->{ins_threshold};
-  }
-  #else
-  else {
+  } else {
     $threshold=$options_hash->{call_threshold};
   }
   #insertion
@@ -995,6 +1136,8 @@ sub _calc_stats() {
     #print "sum: ".$f1->frequencies_sum." ($threshold) \n";
     if ($f1->frequencies_max/$f1->frequencies_sum >= ($threshold/100)) {
       $res=$mbase;
+    } elsif ($options_hash->{call_n}) {
+    	$res="n";
     }
   }
   return $res;
@@ -1010,7 +1153,7 @@ sub _calc_stats() {
              $id : identifier of the sequence
              $filename : name of fasta file
              $gap : 1 gaps are written to file, 0 gaps are removed. if omitted, gaps are also removed
-
+                                           
 =cut
 
 
@@ -1039,64 +1182,89 @@ sub write2fasta() {
 
  Title     : write_alignment2xls()
  Usage     : $myReseqFrags->write_alignment2xls($aln, $myworkbook, $sheetname)
- Function  : write the alignment of redundant fragments refering to entire sequence to xls file
+ Function  : write the alignment ($aln object) to xls file.
  Args      : $aln : reference to the alignment
              $workbook : reference of the xls workbook
              $id : name of the worksheet, where the alignment is written
              $startcol : number of first fragment, which is written to xls. default is 1
+             $refid : identifier for the reference sequence, so that this sequence can written to the leftmost column
 
 =cut
 
 sub write_alignment2xls() {
-  my ($self, $aln, $workbook, $ind_id, $startcol) = @_;
-  
+  #my ($self, $aln, $workbook, $ind_id, $startcol, $refid) = @_;
+  my ($self, $aln, $workbook, $ind_id, $refid, $startcol) = @_;
+  #print "Refid: $refid\n";
+  my $sheetname=$ind_id=~s/human_mtDNA_RCRS://g;
   my $worksheet = $workbook->add_worksheet($ind_id);
   
   my $j=0;
   my $seqno=0;
   my $start=1;
   my $i=2;
+  my $k=1;
   if ($startcol) {
     $start=$startcol;
   }
+  my $totlength=0;
+  my $totlength_crs=0;
+  my $totnumber=0;
   foreach my $seq ( $aln->each_seq() ) {
     #print $seq->id();
     $j++;
-    
+    $totnumber++;
     if ($j>$start) {
-    $worksheet->write(1, $j-$start, $seq->id());
-    $i=2;
+      $worksheet->write(1, $j-$start+1, $seq->id());
+      $i=2;
     }
-    my $test_complete_seq=($seq->id =~ /human_mtDNA_RCRS/);
-    if ($test_complete_seq==1) {}
+    my $test_complete_seq=($seq->id =~ /$refid/);
+    #my $test_complete_seq=($seq->id =~ /human_mtDNA_RCRS/);
+    if ($test_complete_seq) {$test_complete_seq=1}
     else {$test_complete_seq=0;}
     
     if ($j>$start) {
-    #refseq schreiben
-    if (!$test_complete_seq) {
-      my $offset=$self->_get_start_pos($seq->start());
-      #print "vals: ".$offset."======".$seq->start."============".$seq->start()."===\n";        
-      while ($i<=$seq->length()+1) {
-        my $zeile=$i+$seq->start()+$offset;
-        my $wert=$seq->subseq($i-1,$i-1);
-        $worksheet->write($zeile, $j-$start, $wert);
-        $i+=1;
+      #alternative fragments
+      if (!$test_complete_seq) {
+        $totlength+=$seq->length();
+        my $offset=$self->_get_start_pos($seq->start());
+        #print "vals: ".$offset."======".$seq->start."============".$seq->start()."===\n";
+        while ($i<=$seq->length()+1) {
+          my $zeile=$i+$seq->start()+$offset;
+          my $wert=$seq->subseq($i-1,$i-1);
+          $worksheet->write($zeile, $j-$start+1, $wert);
+          $i+=1;
+        }
       }
     }
-    }
-    #fragmente schreiben
+    #refseq
     else {
+      #print "Ref: ".$seq->length()."\n";
+      $totlength_crs+=$seq->length();
       my $offset=$self->_get_start_pos($seq->start());
       while ($i<=$seq->length()+1) {
         my $zeile=$i+$seq->start()+$offset;
         my $wert=$seq->subseq($i-1,$i-1);
         #$worksheet->write($zeile, $j-$start, $wert);
-        $worksheet->write($zeile, 0, $wert);
+        if ($wert ne "-" or exists($self->{_refseq_max_ins_hash}{$k})) {
+        	
+	        $worksheet->write($zeile, 0, $k+$self->{_oligo_flank_length});
+	        $k++;
+        }
+        #if (exists($self->{_refseq_max_ins_hash}{$k}) ) {
+       # 	print("exists: ($k)".$self->{_refseq_max_ins_hash}{$k});
+        #	$k+=$self->{_refseq_max_ins_hash}{$k};
+        #	print("und jetzt: $k\n");
+        #	
+        #}
+        
+        
+        $worksheet->write($zeile, 1, $wert);
         $i+=1;
       }
     }
     #$seqno++;
   }
+  #print "$totlength $totnumber $totlength_crs\n";
 }
 
 

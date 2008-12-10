@@ -20,19 +20,19 @@ MitoChip V2.0
 =head1 DESCRIPTION
 
 =head1 AUTHORS
-
+        
 Marian Thieme (marian.thieme@arcor.de)
 
 =head1 COPYRIGHT
-
+        
 Copyright (c) 2007 Institute of Functional Genomics, University Regensburg,
 granted by Baygene. All Rights Reserved.
-
+        
 This module is free software; you can redistribute it and/or modify it under the
 same terms as Perl itself.
 
 =head1 DISCLAIMER
-
+        
 This software is provided "as is" without warranty of any kind.
 
 =head1 APPENDIX
@@ -55,7 +55,6 @@ use base qw(Bio::Root::Root);
 
 
 =head2 new()
-
   Title		: new/Creator method
   Usage		: my $parser=Bio::Microarray::Tools::MitoChipV2Parser->new($file_name);
   Function	: Creates 2 hashes by parsing the specified design file. 
@@ -100,7 +99,7 @@ sub new {
  Usage     : private Function, dont call directly
  Function  : Creates Hash of insertions of maximal length, by parsing the affy chip 
              design file and calcs the location of clusters of the Redundant Fragments
-
+             
  Returns   : Returns hash of maximal insertions and calls private function _calc_oligo_region_hash()
  Args      : $filename - excel filename of the affy design file
 
@@ -129,7 +128,9 @@ sub _parse_Affy_mtDNA_design_annotation_file() {
   my $count_row=0;
   my $count_var=0;
   my $count_all_var=0;
+  #for(my $iR = $oWkS->{MinRow}+1 ; defined $oWkS->{MaxRow} && ($iR<7) ; $iR++)	{
   for(my $iR = $oWkS->{MinRow}+1 ; defined $oWkS->{MaxRow} && ($iR <= $oWkS->{MaxRow}) ; $iR++)	{
+    #print($iR."\n");
     my $fragment_id = $oWkS->{Cells}[$iR][$oWkS->{MinCol}];
     my $mutation_desc = $oWkS->{Cells}[$iR][$oWkS->{MinCol}+1];
     my $frag_pos = $oWkS->{Cells}[$iR][$oWkS->{MinCol}+2];
@@ -251,13 +252,23 @@ sub count_different_variants() {
     #print "\n\n";
     
   }
+  ##different positions (eins pro position)
   my $count_pos=0;
+  ##different types (etwas mehr als positionen: wenn an einer position mehrere polymorphismen definiert sind. 
+  #(es wird hier nur zw. ins/del/sub unterschieden), also max 3 pro position)
   my $count_type=0;
+  ##different variants (hier werden alle varianten einzeln gezaehlt)
   my $count_var=0;
+  ##different variants stratified by ins/del/sub
   my $count_var_ins=0;
   my $count_var_del=0;
   my $count_var_sub=0;
+  
+  ##total no. of variants
   my $count_tot=0;
+  ##total no of positions
+  #my $count_tot_pos=0;
+  ##total no of variants stratified by ins/del/sub
   my $count_var_ins_tot=0;
   my $count_var_del_tot=0;
   my $count_var_sub_tot=0;
@@ -265,34 +276,51 @@ sub count_different_variants() {
   foreach my $pos (sort{$a<=>$b} keys %diff_var_hash) {
     $no++;
     $count_pos++;
-    print "\n$no: $pos:";
+    #print "\n$no: $pos:";
+    my $insc=0;
+    my $delc=0;
+    my $subc=0;
+    $count_var_ins=0;
+    $count_var_del=0;
+    $count_var_sub=0;
     foreach my $type (keys %{$diff_var_hash{$pos}}) {
 
       $count_type++;
-      print " $type:";
+      #print " $type:";
+      my $count_var_pos=0;
+      
       foreach my $var (keys %{$diff_var_hash{$pos}{$type}}) {
 
         $count_var++;
+        #$count_tot+=$diff_var_hash{$pos}{$type}{$var};
         $count_tot+=$diff_var_hash{$pos}{$type}{$var};
+        #my $count_tot_pos=$diff_var_hash{$pos}{$type}{$var};
         if ($type eq "ins") {
           $count_var_ins++;
           $count_var_ins_tot+=$diff_var_hash{$pos}{$type}{$var};
+          $insc+=$diff_var_hash{$pos}{$type}{$var};
+          #print($insc." ".$diff_var_hash{$pos}{$type}{$var}."\n")
+          #print("$insc $count_var_ins_tot\n")
         }
         elsif ($type eq "del") {
           $count_var_del++;
           $count_var_del_tot+=$diff_var_hash{$pos}{$type}{$var};
+          $delc+=$diff_var_hash{$pos}{$type}{$var};
         }
         elsif ($type eq "sub") {
           $count_var_sub++;
           $count_var_sub_tot+=$diff_var_hash{$pos}{$type}{$var};
+          $subc+=$diff_var_hash{$pos}{$type}{$var};
         
         }
         else {print "doesnt exist!\n";}
-        print " $var: $count_var ($count_tot)";
+        #print " $var: $count_var ($count_tot_pos)";
       }
     }
+    #print("$pos sub $subc del $delc ins $insc\n");
+    print("$pos sub $count_var_sub del $count_var_del ins $count_var_ins\n");
   }
-  print "\n\n$count_pos/$count_type/$count_var/$count_tot\n\n";
+  print "\n\nPos: $count_pos/Different Types: $count_type/Different Variants: $count_var/Total No. of Variants: $count_tot\n\n";
   print "ins: $count_var_ins $count_var_ins_tot\n";
   print "del: $count_var_del $count_var_del_tot\n";
   print "sub: $count_var_sub $count_var_sub_tot\n";
@@ -307,13 +335,14 @@ sub count_different_variants() {
  Args      : $start - start position of current fragment
              $stop - stop position of current fragment
              $oligo_region_hash (reference) - hash of cluster of oligo regions
-
 =cut
 
 sub _calc_oligo_region_hash() {
   
   my ($self, $start, $stop, $oligo_region_hash) = @_;
-    
+
+    #$start+=12;
+    #$stop-=12;    
     my %hhash=%{$oligo_region_hash};
     if (exists($oligo_region_hash->{0})) {
       delete($oligo_region_hash->{0});
@@ -353,8 +382,8 @@ sub _calc_oligo_region_hash() {
 
  Title     : _check_overlapping_regions()
  Usage     : private Function, dont call directly
- Function  : checks for overerlapping clusters Redundant Fragments and combines
-             they to one if those are found
+ Function  : checks for overerlapping clusters of Redundant Fragments and combines
+             these to one if those are found
  Returns   : (cleared) oligo_region_hash
  Args      : $oligo_region_hash (reference) - hash of cluster of oligo regions
 
