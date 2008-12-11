@@ -50,7 +50,7 @@ SKIP: {
 for my $FILE ($gff_file1,$gff_file2) {
 
   my $db = eval { Bio::DB::GFF->new(@args) };
-  skip "DB load failed? Skipping all! $@", 276 if $@;
+  skip "DB load failed? Skipping all! $@", 278 if $@;
   ok($db);
 
   $db->debug(0);
