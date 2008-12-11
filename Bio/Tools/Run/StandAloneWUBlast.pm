@@ -264,9 +264,16 @@ sub _setparams {
     # this stage (we add in program, input and database manually elsewhere)
     push(@execparams, 'o');
     
+    # workaround for problems with shell metacharacters [bug 2707]
+    # simply quoting does not always work!    
+    my $tmp = $self->o;
+    $self->o(quotemeta($tmp)) if $tmp;
+    
     my $param_string = $self->SUPER::_setparams(-params => [@execparams],
                                                 -switches => \@WUBLAST_SWITCH,
                                                 -dash => 1);
+    
+    $self->o($tmp) if $tmp;
     
     if ($self->quiet()) { 
         $param_string .= ' 2> '.File::Spec->devnull;

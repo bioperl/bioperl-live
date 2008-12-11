@@ -517,9 +517,16 @@ sub _setparams {
         $self->d('"'.join(" ", @dbs).'"');
     }
     
+    # workaround for problems with shell metacharacters [bug 2707]
+    # simply quoting does not always work!
+    my $tmp = $self->o;
+    $self->o(quotemeta($tmp)) if $tmp;
+    
     my $param_string = $self->SUPER::_setparams(-params => [@execparams],
                                                 -dash => 1);
     
+    $self->o($tmp) if $tmp;
+
     $self->d($database) if $database;
     
     if ($self->quiet()) { 
