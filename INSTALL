@@ -27,11 +27,15 @@ Installing Bioperl for Unix
 
 BIOPERL INSTALLATION
 
-Bioperl has been installed on many forms of Unix,
-Win9X/NT/2000/XP, and on Mac OS X (see the PLATFORMS file for more
-details). Following are instructions for installing Bioperl for
-Unix/Linux/Mac OS X; Windows installation instructions can be found
-in INSTALL.WIN. For installing Bioperl for Mac OS X using Fink, see:
+For the most up-to-date installation instructions please see the BioPerl wiki:
+
+  http://www.bioperl.org/wiki/Installing_BioPerl
+
+Bioperl has been installed on many forms of Unix, Win9X/NT/2000/XP, and on Mac
+OS X (see the PLATFORMS file for more details). Following are instructions for
+installing Bioperl for Unix/Linux/Mac OS X; Windows installation instructions
+can be found in INSTALL.WIN. For installing Bioperl for Mac OS X using Fink,
+see:
 
 http://www.bioperl.org/wiki/Getting_BioPerl#Mac_OS_X_using_fink
 
@@ -39,34 +43,34 @@ SYSTEM REQUIREMENTS
 
     * Perl 5.6.1 or later; version 5.8 and greater are highly recommended.
 
-    * External modules: Bioperl uses functionality provided in other
-      Perl modules. Some of these are included in the standard perl package
-      but some need to be obtained from the CPAN site. The list of external
-      modules is included in the DEPENDENCIES file.
+    * External modules: Bioperl uses functionality provided in other Perl
+      modules. Some of these are included in the standard perl package but some
+      need to be obtained from the CPAN site. The list of external modules is
+      included in the DEPENDENCIES file.
 
 OPTIONAL
 
-   * ANSI C or GNU C compiler (gcc) for XS extensions (the
-     bioperl-ext package; see BUILDING THE OPTIONAL bioperl-ext
-     PACKAGE, below).
+   * ANSI C or GNU C compiler (gcc) for XS extensions (the bioperl-ext package;
+     see BUILDING THE OPTIONAL bioperl-ext PACKAGE, below).
 
 ADDITIONAL INSTALLATION INFORMATION
 
    * Additional information on Bioperl and MAC OS:
       * OS 9 - http://bioperl.org/Core/mac-bioperl.html
+        NOTE: These are severely out-of-date.  
       * OS X - http://www.tc.umn.edu/~cann0010/Bioperl_OSX_install.html
             (outdated, but useful for libgd installation notes)
       * OS X - Installing using Fink (in Getting BioPerl)
 
 THE BIOPERL BUNDLE
 
-Users of previous versions of Bioperl may remember Bundle::BioPerl.
-You no longer need to install Bundle::BioPerl. Instead, the normal
-installation process will ask you if you'd like to install the
-optional external module dependencies that Bioperl has.
+Users of previous versions of Bioperl may remember Bundle::BioPerl. You no
+longer need to install Bundle::BioPerl. Instead, the normal installation process
+will ask you if you'd like to install the optional external module dependencies
+that Bioperl has.
 
-A full list of BioPerl dependencies can be found inf the DEPENDENCIES
-file included with this distribution.
+A full list of BioPerl dependencies can be found inf the DEPENDENCIES file
+included with this distribution.
 
 PRELIMINARY PREPARATION
 
@@ -378,59 +382,54 @@ such as the Seq test you would type:
 
  >./Build test --test_files t/Seq.t --verbose
 
-The ./ ensures you are using the Build script in the current directory to
-make sure you are testing the modules in this directory not ones
-installed elsewhere. The --test_files arguement can be used multiple times
-to try a set of test scripts in one go. The --verbose arguement outputs
-the detailed test results, instead of just the summary you see during
-'./Build test'.
+The ./ ensures you are using the Build script in the current directory to make
+sure you are testing the modules in this directory not ones installed elsewhere.
+The --test_files arguement can be used multiple times to try a set of test
+scripts in one go. The --verbose arguement outputs the detailed test results,
+instead of just the summary you see during './Build test'.
 
-If you are trying to learn how to use a module, often the test suite is a
-good place to look. All good extreme programmers try and write a test
-BEFORE they write the module to insure that their module behaves the way
-they expect. You'll notice some 'ok' and 'skip' commands in a test, this
-is part of the Perl test suite that signifies a passed test with an 'ok
-N', where N is the test number. Alternatively you can tell Perl to skip
-tests. This is useful when, for example, your test detects that the
-network is not present and thus should skip, not fail, any tests that
-require a network connection.
+If you are trying to learn how to use a module, often the test suite is a good
+place to look. All good extreme programmers try and write a test BEFORE they
+write the module to insure that their module behaves the way they expect. You'll
+notice some 'ok' and 'skip' commands in a test, this is part of the Perl test
+suite that signifies a passed test with an 'ok N', where N is the test number.
+Alternatively you can tell Perl to skip tests. This is useful when, for example,
+your test detects that the network is not present and thus should skip, not
+fail, any tests that require a network connection.
 
 BUILDING THE OPTIONAL bioperl-ext PACKAGE
 
-The bioperl-ext package contains C code and XS extensions for
-various alignment and trace file modules (Bio::Tools::pSW for DNA
-Smith-Waterman, Bio::Tools::dpAlign for protein Smith-Waterman,
-Bio::SearchDist for EVD fitting of extreme value,
-Bio::SeqIO::staden).
+The bioperl-ext package contains C code and XS extensions for various alignment
+and trace file modules (Bio::Tools::pSW for DNA Smith-Waterman,
+Bio::Tools::dpAlign for protein Smith-Waterman, Bio::SearchDist for EVD fitting
+of extreme value, Bio::SeqIO::staden).
 
-This Installation may work out-of-the box for most platforms except BSD
-and Solaris boxes. For other platforms skip this next paragraph.  Of note,
-the code for bioperl-ext has not been updated along with the rest of bioperl,
-so one may expect to see some issues.  If so, please report them to the
-BioPerl mailing list.
+This Installation may work out-of-the box for most platforms except BSD and
+Solaris boxes. For other platforms skip this next paragraph. Of note, the code
+for bioperl-ext has not been updated along with the rest of bioperl, so one may
+expect to see some issues. If so, please report them to the BioPerl mailing
+list. Patches for these modules are always welcome.
 
     CONFIGURING for BSD and Solaris boxes
 
-You should add the line -fPIC to the CFLAGS line in
-Compile/SW/libs/makefile. This makes the compile generate position
-independent code, which is required for these architectures. In addition,
-on some Solaris boxes, the generated Makefile does not make the correct
--fPIC/-fpic flags for the C compiler that is used. This requires manual
-editing of the generated Makefile to switch case. Try it out once, and if
-you get errors, try editing the -fpic line
+You should add the line -fPIC to the CFLAGS line in Compile/SW/libs/makefile.
+This makes the compile generate position independent code, which is required for
+these architectures. In addition, on some Solaris boxes, the generated Makefile
+does not make the correct -fPIC/-fpic flags for the C compiler that is used.
+This requires manual editing of the generated Makefile to switch case. Try it
+out once, and if you get errors, try editing the -fpic line
 
     INSTALLATION
 
 Move to the directory bioperl-ext. This is available as a separate package
-released from ftp://bioperl.org/pub/bioperl/DIST. This is where the C
-code and XS extension for the bp_sw module is held and execute these
-commands: (possibly after making the change for BSD and Solaris, as
-detailed above)
+released from ftp://bioperl.org/pub/bioperl/DIST. This is where the C code and
+XS extension for the bp_sw module is held and execute these commands: (possibly
+after making the change for BSD and Solaris, as detailed above)
 
  perl Makefile.PL   # makes the system specific makefile
  make          # builds all the libaries
  make test     # runs a short test
  make install  # installs the package correctly.
 
-This should install the compiled extension. The Bio::Tools::pSW
-module will work cleanly now.
+This should install the compiled extension. The Bio::Tools::pSW module will work
+cleanly now.
