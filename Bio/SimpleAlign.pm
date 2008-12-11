@@ -840,14 +840,14 @@ sub get_seq_by_id {
     my ($self,$name) = @_;
     unless( defined $name ) {
       $self->warn("Must provide a sequence name");
-      return undef;
+      return;
     }
     for my $seq ( values %{$self->{'_seq'}} ) {
       if ( $seq->id eq $name) {
 	return $seq;
       }
     }
-    return undef;
+    return;
 }
 
 =head2 seq_with_features
