@@ -2,7 +2,8 @@
 
 Perl general comments:
 
-	o Perl must be 5.6.1 or higher. We tend to test on > 5.8.
+	o Perl must be 5.6.1 or higher, with perl > 5.8.1 highly recommended.
+      perl 5.10 also works.
 
 	o Index.t will fail if you have an out-of-date DBM file
 	  installation or a bad DB_File installation
