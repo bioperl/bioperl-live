@@ -91,6 +91,11 @@ my $build = Bio::Root::Build->new(
                                                         feature_requires => { 'DBI' => 0, 'DBD::mysql' => 0 },
                                                         test             => \&test_db_sf
                                                      },
+                            BioDBSeqFeature_Pg    => {
+                                                        description      => "Postgres tests for Bio::DB::SeqFeature::Store",
+                                                        feature_requires => { 'DBI' => 0, 'DBD::Pg' => 0},
+                                                        test             => \&test_db_sf
+                                                     },
                             Network               => {
                                                         description => "Enable tests that need an internet connection",
                                                         requires    => { 'LWP::UserAgent' => 0 },
@@ -115,7 +120,7 @@ if ($build->feature('BioDBSeqFeature_BDB')) {
     # prompt_for_biodb() above
     make_bdb_test();
 }
-if ($build->feature('BioDBSeqFeature_mysql')) {
+if ($build->feature('BioDBSeqFeature_mysql') or $build->feature('BioDBSeqFeature_Pg')) {
     make_dbi_test();
 }
 
@@ -170,9 +175,9 @@ END
 sub test_db_sf {
     eval {require DBI;};  # if not installed, this sub won't actually be called
     @drivers = DBI->available_drivers;
-    unless (grep {/mysql/i} @drivers) {
+    unless (grep {/mysql|Pg/i} @drivers) {
         $mysql_ok = 0;
-        return "Only MySQL DBI driver supported for Bio::DB::SeqFeature MySQL tests";
+        return "Only MySQL and Postgres DBI drivers supported for Bio::DB::SeqFeature RDMS tests";
     }
     $mysql_ok = 1;
     return;
@@ -181,12 +186,15 @@ sub test_db_sf {
 sub make_dbi_test {
     my $dsn = $build->notes('test_dsn') || return;
     my $path0 = File::Spec->catfile('t', 'LocalDB', 'SeqFeature.t');
-    my $path = File::Spec->catfile('t', 'LocalDB', 'SeqFeature_mysql.t');
+    my $driver = $build->notes('dbd_driver');
+    my $path = File::Spec->catfile('t', 'LocalDB', ($driver eq 'mysql') 
+                                                   ? 'SeqFeature_mysql.t' 
+                                                   : 'SeqFeature_Pg.t');
     my $test_db = $build->notes('test_db');
     my $user = $build->notes('test_user');
     my $pass = $build->notes('test_pass');
     open my $F,">$path";
-    my $str = "$path0 -adaptor DBI::mysql -create 1 -temp 1 -dsn $dsn";
+    my $str = "$path0 -adaptor DBI::$driver -create 1 -temp 1 -dsn $dsn";
     $str .= " -user $user" if $user;
     $str .= " -password $pass" if $pass;
     print $F <<END;
@@ -209,7 +217,7 @@ sub test_biodbgff {
 sub prompt_for_biodb {
     my $accept = shift;
     my $proceed = $accept ? 0 : $build->y_n("Do you want to run the Bio::DB::GFF or ".
-                              "Bio::DB::SeqFeature::Store MySQL live database tests? ".
+                              "Bio::DB::SeqFeature::Store live database tests? ".
                               "y/n", 'n');
     
     if ($proceed) {
@@ -278,8 +286,8 @@ sub prompt_for_biodb {
                         "    DSN      $test_dsn\n",
                         "    User     $test_user\n",
                         "    Password $test_pass\n");
-        $build->log_info("  - will not run the BioDBSeqFeature_mysql live ".
-                         "database tests (requires MySQL driver)\n") unless $driver eq 'mysql';
+        $build->log_info("  - will not run the BioDBSeqFeature live ".
+                         "database tests (requires MySQL or Pg driver)\n") unless ($driver eq 'mysql' or $driver eq 'Pg');
     }
     else {
         $build->log_info("  - will not run the BioDBGFF or BioDBSeqFeature live database tests\n");
