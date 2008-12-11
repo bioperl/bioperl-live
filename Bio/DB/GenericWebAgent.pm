@@ -25,11 +25,11 @@ access and response retrieval.
 
 WARNING: Please do B<NOT> spam the web servers with multiple requests.
 
-...
+
 
 =head1 TODO
 
-...
+Interface needs some cleaning up.
 
 =head1 FEEDBACK
 
@@ -159,17 +159,20 @@ sub ua {
 
 =cut
 
+# TODO deal with small state-related bug where file 
+
 sub get_Response {
     my ($self, @args) = @_;
     my ($cache, $file, $cb, $size) = $self->_rearrange([qw(CACHE_RESPONSE FILE CB READ_SIZE_HINT)],@args);
     $self->throw("Can't have both callback and file") if $file && $cb;
     # make -file accept more perl-like write-append type data.
     $file =~ s{^>}{} if $file; 
-    my @opts = ($file || $cb, $size);
+    my @opts = grep {defined $_} ($file || $cb, $size);
     $cache = (defined $cache && $cache == 0) ? 0 : 1;
     my $pobj = $self->parameter_base;
     if ($pobj->parameters_changed ||
         !$cache  ||
+        !$self->{_response_cache} ||
         !$self->{_response_cache}->content) {
         my $ua = $self->ua;
         $self->_sleep; # institute delay policy
@@ -180,15 +183,21 @@ sub get_Response {
         }
         $self->debug("Request is: \n",$request->as_string);
         # I'm relying on the useragent to throw the proper errors here
-        my $response = $ua->request($request,grep {defined $_} @opts);
+        my $response = $ua->request($request, @opts);
         if ($response->is_error) {
             $self->throw("Response Error\n".$response->message);
         }
-        $self->{_response_cache} = $response;
+        return $self->{_response_cache} = $response;
     } else {
         $self->debug("Returning cached HTTP::Response object\n");
-    }
-    return $self->{_response_cache};
+        if ($file) {
+            $self->_dump_request_content($file);
+            # size isn't passed here, as the content is completely retrieved above
+        } elsif ($cb) {
+            $cb && ref($cb) eq 'CODE' && $cb->($self->{_response_cache}->content);
+        }
+        return $self->{_response_cache};
+    }    
 }
 
 =head2 get_Parser
@@ -309,6 +318,19 @@ sub authentication{
        $self->{'_authentication'} = [ $u,$p];
    }
    $self->{'_authentication'} && return @{$self->{'_authentication'}};
+}
+
+# private method to dump any cached request data content into a passed filename
+
+sub _dump_request_content {
+    my ($self, $file) = @_;
+    return unless defined $self->{_response_cache};
+    $self->throw("Must pass file name") unless $file;
+    require Bio::Root::IO;
+    my $out = Bio::Root::IO->new(-file => ">$file");
+    $out->_print($self->{_response_cache}->content);
+    $out->flush();
+    $out->close;
 }
 
 1;
