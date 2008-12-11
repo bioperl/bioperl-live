@@ -343,8 +343,7 @@ sub gaps {
 
 =cut
 
-sub pvalue {
-	return undef;
-}
+# noop
+sub pvalue {  }
 
 1;

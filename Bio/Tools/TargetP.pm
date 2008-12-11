@@ -490,7 +490,7 @@ sub _toString_location {
 	return $MAPLOC->{$key};
     }
 
-    return undef;
+    return;
 }
 
 

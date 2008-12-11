@@ -359,8 +359,7 @@ sub strand {
 
 =cut
 
-sub frac_aligned_query {
-    return undef;
-}
+# noop
+sub frac_aligned_query { }
 
 1;

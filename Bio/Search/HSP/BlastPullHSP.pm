@@ -485,8 +485,6 @@ sub end {
 
 =cut
 
-sub pvalue {
-	return undef;
-}
+sub pvalue { }
 
 1;

@@ -607,12 +607,12 @@ deprecated; use $self instead");
 $range->isa('Bio::RangeI');
 
     if (!$self->overlaps($range)) {
-        return undef;
+        return;
     }
 
     ##Subtracts everything
     if ($range->contains($self)) {
-        return undef;   
+        return;   
     }
 
     my ($start, $end, $strand) = $self->intersection($range, $so);
