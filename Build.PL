@@ -40,21 +40,22 @@ my $build = Bio::Root::Build->new(
                            },
     recommends          => { # does what you would expect of recommends, except more informative output and generates optional_features in META.yml
                             'Ace'                       => '0/access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace',
-                            # this won't actually install due to circular dep, but we have no way of doing a post-install
+                            'Algorithm::Munkres'        => '0/Phylogenetic Networks/Bio::PhyloNetwork',
+                            'Array::Compare'            => '0/Phylogenetic Networks/Bio::PhyloNetwork',                            # this won't actually install due to circular dep, but we have no way of doing a post-install
                             # the [circular dependency!] specifies it is only installed on explicit request for this specific module,
                             # not when simply choosing to install 'all' modules
                             'Bio::ASN1::EntrezGene'     => '0/parsing entrezgene/Bio::SeqIO::entrezgene [circular dependency!]',
                             # we actually need 1.01 of Class::AutoClass, but unfortunately it is versioned as 1.0
                             'Clone'                     => '0/cloning objects/Bio::Tools::Primer3',
                             'Convert::Binary::C'        => '0/strider functionality/Bio::SeqIO::strider',
-                            # part of Data::Stag, which is now required above (note the default use of Data::Stag in BioPerl does not require XML::Parser::PerlSAX)
-                            #'Data::Stag::XMLWriter'     => '0/writing choas xml files/Bio::SeqIO::chaosxml',
                             # we specifically want Graph::Directed, but that has no VERSION
                             'Graph'                     => '0/ontology engine implementation for the GO parser/Bio::PhyloNetwork',
+                            'GraphViz'                  => '0/Phylogenetic Network Visulization/Bio::PhyloNetwork::GraphViz',
                             'HTML::Entities'            => '0/remote analysis POST submissions/Bio::SearchIO::blastxml',
                             'HTML::Parser'              => '3/screen scraping www.gdb.org/Bio::DB::GDB',
                             'HTTP::Request::Common'     => '0/GenBank+GenPept sequence retrieval, remote http Blast jobs/Bio::DB::*,Bio::Tools::Run::RemoteBlast,Bio::Tools::Analysis::Protein*,Bio::Tools::Analysis::DNA*',
                             'LWP::UserAgent'            => '0/remote access/Bio::DB::*,Bio::Tools::Run::RemoteBlast,Bio::WebAgent',
+                            'Math::Random'              => '0/Random Phylogenetic Networks/Bio::PhyloNetwork::RandomFactory',
                             'PostScript::TextBlock'     => '0/EPS output/Bio::Tree::Draw::Cladogram',
                             'Set::Scalar'               => '0/proper operation/Bio::Tree::Compatible',
                             'SOAP::Lite'                => '0/Bibliographic queries/Bio::DB::Biblio::soap',
@@ -70,10 +71,6 @@ my $build = Bio::Root::Build->new(
                             'XML::SAX::Writer'          => '0/writing xml/Bio::SeqIO::tigrxml',
                             'XML::Twig'                 => '0/parsing xml/Bio::Variation::IO::xml,Bio::DB::Taxonomy::entrez,Bio::DB::Biblio::eutils',
                             'XML::Writer'               => '0.4/parsing and writing xml/Bio::SeqIO::agave,Bio::SeqIO::game::gameWriter,Bio::SeqIO::chadoxml,Bio::SeqIO::tinyseq,Bio::Variation::IO::xml,Bio::SearchIO::Writer::BSMLResultWriter',
-                            'Math::Random'              => '0/Random Phylogenetic Networks/Bio::PhyloNetwork::RandomFactory',
-                            'Algorithm::Munkres'        => '0/Phylogenetic Networks/Bio::PhyloNetwork',
-                            'Array::Compare'            => '0/Phylogenetic Networks/Bio::PhyloNetwork',
-                            'GraphViz'                  => '0/Phylogenetic Network Visulization/Bio::PhyloNetwork::GraphViz',
     },
     get_options         => {
                             network => { } # say 'perl Build.PL --network' to manually request network tests
@@ -243,7 +240,9 @@ sub prompt_for_biodb {
             $driver = 'Oracle';
         }
         
-        my $test_db = $build->prompt("Which database should I use for testing the $driver driver?", 'test');
+        my $test_db = $build->prompt("Which database should I use for testing the $driver driver?\n".
+                                     "This database should already be present but doesn't have to ".
+                                     "be preloaded for any schema", 'test');
         my $test_host = $build->prompt("On which host is database '$test_db' running (hostname, ip address or host:port)", 'localhost');
         my $test_user = $build->prompt("User name for connecting to database '$test_db'?", 'undef');
         my $test_pass = $build->prompt("Password for connecting to database '$test_db'?", 'undef');
@@ -280,7 +279,7 @@ sub prompt_for_biodb {
                         "    User     $test_user\n",
                         "    Password $test_pass\n");
         $build->log_info("  - will not run the BioDBSeqFeature_mysql live ".
-                         "database tests (requires MySQL driver)\n") unless $mysql_ok;
+                         "database tests (requires MySQL driver)\n") unless $driver eq 'mysql';
     }
     else {
         $build->log_info("  - will not run the BioDBGFF or BioDBSeqFeature live database tests\n");
