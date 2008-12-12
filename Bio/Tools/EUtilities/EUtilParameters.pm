@@ -1,6 +1,6 @@
-# $Id$
+# $Id: EUtilParameters.pm 15052 2008-12-01 08:47:39Z heikki $
 #
-# BioPerl module for Bio::DB::EUtilParameters
+# BioPerl module for Bio::Tools::EUtilities::EUtilParameters
 #
 # Cared for by Chris Fields <cjfields at uiuc dot edu>
 #
@@ -12,12 +12,12 @@
 
 =head1 NAME
 
-Bio::DB::EUtilParameters - Manipulation of NCBI eutil-based parameters for
+Bio::Tools::EUtilities::EUtilParameters - Manipulation of NCBI eutil-based parameters for
 remote database requests.
 
 =head1 SYNOPSIS
 
- # Bio::DB::EUtilParameters implements Bio::ParameterBaseI
+ # Bio::Tools::EUtilities::EUtilParameters implements Bio::ParameterBaseI
 
  my @params = (-eutil => 'efetch',
               db => 'nucleotide',
@@ -25,7 +25,7 @@ remote database requests.
               email => 'me@foo.bar',
               retmode => 'xml');
 
- my $p = Bio::DB::EUtilParameters->new(@params);
+ my $p = Bio::Tools::EUtilities::EUtilParameters->new(@params);
 
  if ($p->parameters_changed) {
                               # ...
@@ -41,7 +41,7 @@ remote database requests.
 
 =head1 DESCRIPTION
 
-Bio::DB::EUtilParameters is-a Bio::ParameterBaseI implementation that allows
+Bio::Tools::EUtilities::EUtilParameters is-a Bio::ParameterBaseI implementation that allows
 simple manipulation of NCBI eutil parameters for CGI-based queries. SOAP-based
 methods may be added in the future.
 
@@ -97,7 +97,7 @@ preceded with a _
 
 # Let the code begin...
 
-package Bio::DB::EUtilParameters;
+package Bio::Tools::EUtilities::EUtilParameters;
 use strict;
 use warnings;
 
