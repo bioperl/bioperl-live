@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!DOCTYPE eSearchResult PUBLIC "-//NLM//DTD eSearchResult, 11 May 2002//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eSearch_020511.dtd">
+<eSearchResult>
+	<Count>534</Count>
+	<RetMax>20</RetMax>
+	<RetStart>0</RetStart>
+	<IdList>
+		<Id>6679096</Id>
+		<Id>31543332</Id>
+		<Id>134288853</Id>
+		<Id>483581</Id>
+		<Id>20805941</Id>
+		<Id>187951953</Id>
+		<Id>169158074</Id>
+		<Id>123228044</Id>
+		<Id>148676374</Id>
+		<Id>114326469</Id>
+		<Id>148707003</Id>
+		<Id>187952787</Id>
+		<Id>123233807</Id>
+		<Id>148694865</Id>
+		<Id>148694864</Id>
+		<Id>148694863</Id>
+		<Id>148694861</Id>
+		<Id>148694862</Id>
+		<Id>8705244</Id>
+		<Id>8568086</Id>
+	</IdList>
+	<TranslationSet>
+		<Translation>
+			<From>Mus musculus</From>
+			<To>(&quot;Mus musculus&quot;[Organism:__txid10090] OR Mus musculus)</To>
+		</Translation>
+	</TranslationSet>
+	<TranslationStack>
+		<TermSet>
+			<Term>Notch[All Fields]</Term>
+			<Field>All Fields</Field>
+			<Count>4614</Count>
+			<Explode>Y</Explode>
+		</TermSet>
+		<TermSet>
+			<Term>&quot;Mus musculus&quot;[Organism]</Term>
+			<Field>Organism</Field>
+			<Count>250381</Count>
+			<Explode>Y</Explode>
+		</TermSet>
+		<TermSet>
+			<Term>Mus musculus[All Fields]</Term>
+			<Field>All Fields</Field>
+			<Count>256310</Count>
+			<Explode>Y</Explode>
+		</TermSet>
+		<OP>OR</OP>
+		<OP>GROUP</OP>
+		<OP>AND</OP>
+	</TranslationStack>
+	<QueryTranslation>Notch[All Fields] AND (&quot;Mus musculus&quot;[Organism] OR Mus musculus[All Fields])</QueryTranslation>
+</eSearchResult>
