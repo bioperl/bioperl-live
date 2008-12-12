@@ -184,7 +184,7 @@ sub next_hit {
         $iter_index = $self->{'_iter_index'};
     }
 
-    return undef if $iter_index >= scalar @{$self->{'_iterations'}};
+    return if $iter_index >= scalar @{$self->{'_iterations'}};
 
     my $it = $self->{'_iterations'}->[$iter_index];
     my $hit = $self->{'_last_hit'} = $it->next_hit;

@@ -301,7 +301,7 @@ sub _new_instance {
 #
 sub _convert_date {
     my ($date) = @_;
-    return undef unless
+    return unless
 	exists $$date{'year'} or
 	    exists $$date{'month'} or
 		exists $$date{'day'} or

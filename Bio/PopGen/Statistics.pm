@@ -645,7 +645,7 @@ sub tajima_D_counts {
     my $e2 = $c2 / ( $a1**2 + $a2 );
     
     my $denom = sqrt ( ($e1 * $seg_sites) + (( $e2 * $seg_sites) * ( $seg_sites - 1)));
-    return undef if $denom == 0;
+    return if $denom == 0;
     my $D = ( $pi - ( $seg_sites / $a1 ) ) / $denom;
     return $D;
 }

@@ -1484,14 +1484,14 @@ sub _overlap_alignment {
   my $tstart = $tpos->start;
   my $tend   = $tpos->end;
   # check that there is an overlap
-  return undef if $qstart > $tend || $qend < $tstart;
+  return if $qstart > $tend || $qend < $tstart;
   # get overlap boundaries and check overlap length
   my $left = $qstart;
   $left = $tstart if $qstart < $tstart;
   my $right = $qend;
   $right = $tend if $qend > $tend;
   my $overlap = $right - $left + 1;
-  return undef if defined $min_overlap && $overlap < $min_overlap;
+  return if defined $min_overlap && $overlap < $min_overlap;
   # slice query and target sequence to overlap boundaries
   my $qleft = $contig->change_coord('gapped consensus', "aligned ".$qseq->id,
     $left);
@@ -1514,7 +1514,7 @@ sub _overlap_alignment {
       $overlap--;
     }
   }
-  return undef if defined $min_overlap && $overlap < $min_overlap;
+  return if defined $min_overlap && $overlap < $min_overlap;
   # make an aligned object
   my $aln = Bio::SimpleAlign->new;
   my $qalseq = Bio::LocatableSeq->new(
@@ -1533,7 +1533,7 @@ sub _overlap_alignment {
   $aln->add_seq($talseq);
   # check overlap percentage identity
   my $identity = $aln->overall_percentage_identity;
-  return undef if defined $min_identity && $identity < $min_identity;
+  return if defined $min_identity && $identity < $min_identity;
   # all checks passed, return alignment
   return $aln, $overlap, $identity;
 }

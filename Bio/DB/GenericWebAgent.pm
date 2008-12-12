@@ -296,7 +296,7 @@ sub _sleep {
 
 sub proxy {
     my ($self,$protocol,$proxy,$username,$password) = @_;
-    return undef if ( !defined $protocol || !defined $proxy );
+    return if ( !defined $protocol || !defined $proxy );
     $self->authentication($username, $password)
     if ($username && $password);
     return $self->ua->proxy($protocol,$proxy);
