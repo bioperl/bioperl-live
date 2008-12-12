@@ -101,15 +101,23 @@ Bio::Tools::EUtilities - NCBI eutil XML parsers
         my @items = $docsum->get_all_DocSum_Items;
     }
 
-  # Bio::Tools::EUtilities::Link (elink data)
-  # data retrieved using links between related information in databases
-
-    # still working on new API
-
 =head1 DESCRIPTION
 
 Parses NCBI eutils XML output for retrieving IDs and other information. Part of
 the BioPerl EUtilities system.
+
+This is a general parser for eutils XML; data from efetch is NOT parsed (this
+requires separate format-dependent parsers).  All other XML for eutils is
+parsed.  These modules can be used independently of Bio::DB::EUtilities
+and Bio::Tools::EUtilities::EUtilParameters; if used in this way, only data present in the XML
+will be parsed out (other bits are retrieved from a passed in
+Bio::Tools::EUtilities::EUtilParameters instance used while querying the database)
+
+=head1 TODO
+
+This module is largely complete. However there are a few holes which will
+eventually be filled in. TranslationSets from esearch are not currently parsed,
+for instance.
 
 =head1 FEEDBACK
 
@@ -151,10 +159,7 @@ use strict;
 use warnings;
 
 use base qw(Bio::Root::IO Bio::Tools::EUtilities::EUtilDataI);
-
 use XML::Simple;
-use Data::Dumper;
-use Bio::Tools::EUtilities::Cookie;
 
 =head2 Constructor methods
 
@@ -205,8 +210,13 @@ sub new {
 
 sub _initialize {
     my ($self, @args) = @_;
-    my ($response, $type, $eutil, $cache, $lazy) =
-    $self->_rearrange([qw(RESPONSE DATATYPE EUTIL CACHE_RESPONSE LAZY)], @args);
+    my ($response, $pobj, $type, $eutil, $cache, $lazy) =
+    $self->_rearrange([qw(RESPONSE
+                       PARAMETERS
+                       DATATYPE
+                       EUTIL
+                       CACHE_RESPONSE
+                       LAZY)], @args);
     $lazy ||= 0;
     $cache ||= 0;
     $self->datatype($type);
@@ -216,6 +226,7 @@ sub _initialize {
     # already in memory in an HTTP::Response object, so turn it off and chunk
     # the Response object after parsing.
     $response  && $self->response($response);
+    $pobj && $self->parameter_base($pobj);
     $self->cache_response($cache);
     $lazy = 0 if ($response) || ($eutil ne 'elink' && $eutil ne 'esummary');
     # setting parser to 'lazy' mode is permanent (can't reset later)
@@ -264,6 +275,29 @@ sub response {
         $self->{'_response'} = $response; 
     }
     return $self->{'_response'};
+}
+
+=head2 parameter_base
+
+ Title    : parameter_base
+ Usage    : my $response = $parser->parameter_base;
+ Function : Get/Set Bio::ParameterBaseI object (should be Bio::Tools::EUtilities::EUtilParameters)
+ Returns  : Bio::Tools::EUtilities::EUtilParameters || undef
+ Args     : (optional) Bio::Tools::EUtilities::EUtilParameters
+ Note     : If this object is present, it may be used as a last resort for
+            some data values if parsed XML does not contain said values (for
+            instance, database, term, IDs, etc).
+
+=cut
+
+sub parameter_base {
+    my ($self, $pb) = @_;
+    if ($pb) {
+        $self->throw('Not an Bio::ParameterBaseI object') unless (ref $pb && $pb->isa('Bio::ParameterBaseI'));
+        $self->warn('Not an Bio::Tools::EUtilities::EUtilParameters object; may experience some turbulence...') unless (ref $pb && $pb->isa('Bio::Tools::EUtilities::EUtilParameters'));
+        $self->{'_parameter_base'} = $pb; 
+    }
+    return $self->{'_parameter_base'};
 }
 
 =head2 data_parsed
@@ -428,13 +462,16 @@ sub parse_chunk {
 
  Title    : get_ids
  Usage    : my @ids = $parser->get_ids
- Function : returns array or array ref of requestes IDs
- Returns  : array or array ref (based on wantarray)
+ Function : returns array of requested IDs (see Notes for more specifics)
+ Returns  : array
  Args     : [conditional] not required except when running elink queries against
             multiple databases. In case of the latter, the database name is
-            optional (but recommended) when retrieving IDs as the ID list will
-            be globbed together. If a db name isn't provided a warning is issued
-            as a reminder.
+            optional but recommended when retrieving IDs as the ID list will
+            be globbed together. In such cases, if a db name isn't provided a
+            warning is issued as a reminder.
+ Notes    : esearch    : returned ID list
+            elink      : returned ID list (see Args above for caveats)
+            all others : from parameter_base->id or undef
 
 =cut
 
@@ -447,7 +484,7 @@ sub get_ids {
     }
     $self->parse_data unless $self->data_parsed;
     if ($eutil eq 'esearch') {
-        return wantarray && $self->{'_id'} ? @{ $self->{'_id'} } : $self->{'_id'} ;
+        return $self->{'_id'} ? @{ $self->{'_id'} } : ();
     } elsif ($eutil eq 'elink')  {
         my @ids;
         if ($request) {
@@ -463,34 +500,41 @@ sub get_ids {
                 if $self->get_linked_databases > 1;
             push @ids, map {$_->get_ids } $self->get_LinkSets;
         }
-        return wantarray ? @ids : \@ids;
+        return @ids;
     } elsif ($eutil eq 'esummary') {
         unless (exists $self->{'_id'}) {
             push @{$self->{'_id'}}, map {$_->get_id } $self->get_DocSums;
         }
-        return wantarray ? @{$self->{'_id'}} : $self->{'_id'};        
-    } 
+        return @{$self->{'_id'}};
+    } elsif (my $pb = $self->parameter_base) {
+        my $ids = $pb->id;
+        return $ids ? @{$ids} : ();
+    } else {
+        return ()
+    }
 }
 
 =head2 get_database
 
  Title    : get_database
  Usage    : my $db = $info->get_database;
- Function : returns database name (eutil-compatible)
+ Function : returns single database name (eutil-compatible).  This is the
+            queried database. For most eutils this is straightforward. For
+            elinks (which have 'db' and 'dbfrom') this is db/dbto, for egquery,
+            it is the first db in the list (you probably want get_databases
+            instead)
  Returns  : string
  Args     : none
- Note     : implemented for einfo and espell
+ Notes    : egquery    : first db in the query (you probably want get_databases)
+            einfo      : the queried database
+            espell     : the queried database
+            elink      : from parameter_base->dbfrom or undef
+            all others : from parameter_base->db or undef
 
 =cut
 
 sub get_database {
-    my $self = shift;
-    $self->parse_data unless $self->data_parsed;
-    if ($self->eutil eq 'einfo') {
-        return $self->{'_dbname'};
-    } else {
-        return $self->{'_database'};
-    }
+    return ($_[0]->get_databases)[0];
 }
 
 =head2 get_db (alias for get_database)
@@ -501,6 +545,50 @@ sub get_db {
     return shift->get_database;
 }
 
+=head2 get_databases
+
+ Title    : get_databases
+ Usage    : my @dbs = $parser->get_databases
+ Function : returns list of databases 
+ Returns  : array of strings
+ Args     : none
+ Notes    : This is guaranteed to return a list of databases. For a single
+            database use the convenience method get_db/get_database
+            
+            egquery    : list of all databases in the query
+            einfo      : the queried database
+            espell     : the queried database
+            all others : from parameter_base->db or undef
+
+=cut
+
+sub get_databases {
+    my ($self, $db) = @_;
+    $self->parse_data unless $self->data_parsed;
+    my $eutil = $self->eutil;
+    my @dbs;
+    if ($eutil eq 'einfo' || $eutil eq 'espell') {
+        @dbs = $self->{'_dbname'} || $self->{'_database'};
+    } elsif ($eutil eq 'egquery') {
+        @dbs = map {$_->get_database} ($self->get_GlobalQueries);
+    } elsif ($self->parameter_base) {
+        if ($self->parameter_base->eutil eq 'elink') {
+            @dbs = $self->parameter_base->dbfrom;
+        } else {
+            @dbs = $self->parameter_base->db;
+        }
+    }
+    return @dbs;
+}
+
+=head2 get_dbs (alias for get_databases)
+
+=cut
+
+sub get_dbs {
+    return shift->get_databases;
+}
+
 =head2 next_History
 
  Title    : next_History
@@ -508,15 +596,15 @@ sub get_db {
  Function : returns next HistoryI (if present).
  Returns  : Bio::Tools::EUtilities::HistoryI (Cookie or LinkSet)
  Args     : none
- Note     : next_cookie() is an alias for this method. esearch, epost, and elink
-            are all capable of returning data which indicates search results (in
-            the form of UIDs) is stored on the remote server. Access to this
-            data is wrapped up in simple interface (HistoryI), which is
-            implemented in two classes: Bio::DB::EUtilities::Cookie (the
-            simplest) and Bio::DB::EUtilities::LinkSet. In general, calls to
-            epost and esearch will only return a single HistoryI object (a
+ Note     : esearch, epost, and elink are all capable of returning data which
+            indicates search results (in the form of UIDs) is stored on the
+            remote server. Access to this data is wrapped up in simple interface
+            (HistoryI), which is implemented in two classes:
+            Bio::DB::EUtilities::History (the simplest) and
+            Bio::DB::EUtilities::LinkSet. In general, calls to epost and esearch
+            will only return a single HistoryI object (formerly known as a
             Cookie), but calls to elink can generate many depending on the
-            number of IDs, the correspondence, etc.  Hence this iterator, which
+            number of IDs, the correspondence, etc. Hence this iterator, which
             allows one to retrieve said data one piece at a time.
 
 =cut
@@ -526,7 +614,15 @@ sub next_History {
     $self->parse_data unless $self->data_parsed;    
     $self->{'_histories_it'} = $self->generate_iterator('histories')
         if (!exists $self->{'_histories_it'});
-    $self->{'_histories_it'}->();  
+    my $hist =  $self->{'_histories_it'}->();
+}
+
+=head2 next_cookie (alias for next_History)
+
+=cut 
+
+sub next_cookie {
+    return shift->next_History;
 }
 
 =head2 get_Histories
@@ -534,7 +630,7 @@ sub next_History {
  Title    : get_Histories
  Usage    : my @hists = $parser->get_Histories
  Function : returns list of HistoryI objects.
- Returns  : list of Bio::Tools::EUtilities::HistoryI (Cookie or LinkSet)
+ Returns  : list of Bio::Tools::EUtilities::HistoryI (History or LinkSet)
  Args     : none
 
 =cut
@@ -555,6 +651,9 @@ sub get_Histories {
  Returns  : integer
  Args     : [CONDITIONAL] string with database name - used to retrieve
             count from specific database when using egquery
+ Notes    : egquery    : count for specified database (specified above)
+            esearch    : count for last search
+            all others : undef
 
 =cut
 
@@ -576,44 +675,27 @@ sub get_count {
     }
 }
 
-=head2 get_queried_databases
-
- Title    : get_queried_databases
- Usage    : my @dbs = $parser->get_queried_databases
- Function : returns list of databases searched with global query
- Returns  : array of strings
- Args     : none
- Note     : predominately used for egquery; if used with other eutils will
-            return a list with the single database
-
-=cut
-
-sub get_queried_databases {
-    my ($self, $db) = @_;
-    $self->parse_data unless $self->data_parsed;
-    # egquery
-    my @dbs = ($self->datatype eq 'multidbquery') ?
-        map {$_->get_database} $self->get_GlobalQueries :
-        $self->get_database;
-    return @dbs;
-}
-
 =head2 get_term
 
- Title   : get_term
- Usage   : $st = $qd->get_term;
- Function: retrieve the term for the global search
- Returns : string
- Args    : none
+ Title    : get_term
+ Usage    : $st = $qd->get_term;
+ Function : retrieve the term for the global search
+ Returns  : string
+ Args     : none
+ Notes    : egquery    : search term
+            espell     : search term
+            esearch    : from parameter_base->term or undef
+            all others : undef
 
 =cut
-
-# egquery and espell
 
 sub get_term {
     my ($self, @args) = @_;
     $self->parse_data unless $self->data_parsed;
-    return $self->{'_term'};
+    $self->{'_term'}  ? $self->{'_term'}  :
+    $self->{'_query'} ? $self->{'_query'} :
+    $self->parameter_base ? $self->parameter_base->term :
+    return;
 }
 
 =head2 get_translation_from
@@ -623,10 +705,9 @@ sub get_term {
  Function: portion of the original query replaced with translated_to()
  Returns : string
  Args    : none
+ Note    : only applicable for esearch
 
 =cut
-
-# esearch
 
 sub get_translation_from {
     my $self = shift;
@@ -641,6 +722,7 @@ sub get_translation_from {
  Function: replaced string used in place of the original query term in translation_from()
  Returns : string
  Args    : none
+ Note    : only applicable for esearch 
 
 =cut
 
@@ -652,11 +734,14 @@ sub get_translation_to {
 
 =head2 get_retstart
 
- Title   : get_retstart
- Usage   : $start = $qd->get_retstart();
- Function: retstart setting for the query (either set or NCBI default)
- Returns : Integer
- Args    : none
+ Title    : get_retstart
+ Usage    : $start = $qd->get_retstart();
+ Function : retstart setting for the query (either set or NCBI default)
+ Returns  : Integer
+ Args     : none
+ Notes    : esearch    : retstart
+            esummary   : retstart
+            all others : from parameter_base->retstart or undef
 
 =cut
 
@@ -668,12 +753,15 @@ sub get_retstart {
 
 =head2 get_retmax
 
- Title   : get_retmax
- Usage   : $max = $qd->get_retmax();
- Function: retmax setting for the query (either set or NCBI default)
- Returns : Integer
- Args    : none
-
+ Title    : get_retmax
+ Usage    : $max = $qd->get_retmax();
+ Function : retmax setting for the query (either set or NCBI default)
+ Returns  : Integer
+ Args     : none
+ Notes    : esearch    : retmax
+            esummary   : retmax
+            all others : from parameter_base->retmax or undef
+            
 =cut
 
 sub get_retmax {
@@ -689,7 +777,8 @@ sub get_retmax {
  Function: returns the translated query used for the search (if any)
  Returns : string
  Args    : none
- Note    : this differs from the original term.
+ Notes   : only applicable for esearch.  This is the actual term used for
+           esearch.
 
 =cut
 
@@ -704,8 +793,9 @@ sub get_query_translation {
  Title    : get_corrected_query
  Usage    : my $cor = $eutil->get_corrected_query;
  Function : retrieves the corrected query when using espell
- Returns  : string 
+ Returns  : string
  Args     : none
+ Notes    : only applicable for espell.
 
 =cut
 
@@ -722,6 +812,7 @@ sub get_corrected_query {
  Function : returns array of strings replaced in the query
  Returns  : string 
  Args     : none
+ Notes    : only applicable for espell
 
 =cut
 
@@ -730,7 +821,7 @@ sub get_replaced_terms {
     $self->parse_data unless $self->data_parsed;
     if ($self->{'_spelledquery'} && $self->{'_spelledquery'}->{Replaced}) {
         ref $self->{'_spelledquery'}->{Replaced} ?
-        return @{ $self->{'_spelledquery'}->{Replaced} } : return;
+        return @{ $self->{'_spelledquery'}->{Replaced} } : return ();
     }
 }
 
@@ -741,6 +832,7 @@ sub get_replaced_terms {
  Function : iterates through the queries returned from an egquery search
  Returns  : GlobalQuery object
  Args     : none
+ Notes    : only applicable for egquery
 
 =cut
 
@@ -759,7 +851,8 @@ sub next_GlobalQuery {
  Function : returns list of GlobalQuery objects
  Returns  : array of GlobalQuery objects
  Args     : none
-
+ Notes    : only applicable for egquery
+ 
 =cut
 
 sub get_GlobalQueries {
@@ -777,7 +870,8 @@ sub get_GlobalQueries {
  Function : iterate through DocSum instances
  Returns  : single Bio::Tools::EUtilities::Summary::DocSum
  Args     : none yet
-
+ Notes    : only applicable for esummary
+ 
 =cut
 
 sub next_DocSum {
@@ -797,6 +891,7 @@ sub next_DocSum {
  Function : retrieve a list of DocSum instances
  Returns  : array of Bio::Tools::EUtilities::Summary::DocSum
  Args     : none
+ Notes    : only applicable for esummary
 
 =cut
 
@@ -828,7 +923,8 @@ sub get_DocSums {
            -header : flag/callback for printing main eutil information.
                   If this is true, checked for a code reference for passing
                   self to, otherwise defaults to a preset code ref (def = 0)
- Note     : if -file or -fh are not defined, prints to STDOUT
+ Notes    : only applicable for esummary.  If -file or -fh are not defined,
+            prints to STDOUT
 
 =cut
 
@@ -846,6 +942,7 @@ sub print_DocSums {
  Function : returns list of available eutil-compatible database names
  Returns  : Array of strings 
  Args     : none
+ Notes    : only applicable for einfo. 
 
 =cut
 
@@ -864,6 +961,7 @@ sub get_available_databases {
  Function : returns database record count
  Returns  : integer
  Args     : none
+ Notes    : only applicable for einfo.  
 
 =cut
 
@@ -880,6 +978,7 @@ sub get_record_count {
  Function : returns string containing time/date stamp for last database update
  Returns  : integer
  Args     : none
+ Notes    : only applicable for einfo. 
 
 =cut
 
@@ -896,6 +995,7 @@ sub get_last_update {
  Function : returns string of database menu name
  Returns  : string
  Args     : none
+ Notes    : only applicable for einfo. 
 
 =cut
 
@@ -914,6 +1014,7 @@ sub get_menu_name {
  Function : returns database description
  Returns  : string
  Args     : none
+ Notes    : only applicable for einfo. 
 
 =cut
 
@@ -930,7 +1031,8 @@ sub get_description {
  Function : iterate through FieldInfo objects
  Returns  : Field object
  Args     : none
- Note     : uses callback() for filtering if defined for 'fields'
+ Notes    : only applicable for einfo. Uses callback() for filtering if defined
+            for 'fields'
 
 =cut
 
@@ -949,6 +1051,7 @@ sub next_FieldInfo {
  Function : returns list of FieldInfo objects
  Returns  : array (FieldInfo objects)
  Args     : none
+ Notes    : only applicable for einfo. 
 
 =cut
 
@@ -967,6 +1070,8 @@ sub get_FieldInfo {
  Function : iterate through LinkInfo objects
  Returns  : LinkInfo object
  Args     : none
+ Notes    : only applicable for einfo.  Uses callback() for filtering if defined
+            for 'linkinfo'
 
 =cut
 
@@ -985,6 +1090,7 @@ sub next_LinkInfo {
  Function : returns list of LinkInfo objects
  Returns  : array (LinkInfo objects)
  Args     : none
+ Notes    : only applicable for einfo.  
 
 =cut
 
@@ -1012,7 +1118,8 @@ sub get_LinkInfo {
            -header : flag/callback for printing main eutil information.
                   If this is true, checked for a code reference for passing
                   self to, otherwise defaults to a preset code ref (def = 0)
- Note     : if -file or -fh are not defined, prints to STDOUT
+ Notes    : only applicable for einfo.  If -file or -fh are not defined,
+            prints to STDOUT
 
 =cut
 
@@ -1038,7 +1145,8 @@ sub print_FieldInfo {
            -header : flag/callback for printing main eutil information.
                   If this is true, checked for a code reference for passing
                   self to, otherwise defaults to a preset code ref (def = 0)
- Note     : if -file or -fh are not defined, prints to STDOUT
+ Notes    : only applicable for einfo.  If -file or -fh are not defined,
+            prints to STDOUT
 
 =cut
 
@@ -1053,9 +1161,11 @@ sub print_LinkInfo {
 
  Title    : next_LinkSet
  Usage    : while (my $ls = $eutil->next_LinkSet {...}
- Function : 
- Returns  : 
- Args     : 
+ Function : iterate through LinkSet objects
+ Returns  : LinkSet object
+ Args     : none
+ Notes    : only applicable for elink.  Uses callback() for filtering if defined
+            for 'linksets'
 
 =cut
 
@@ -1073,10 +1183,11 @@ sub next_LinkSet {
 =head2 get_LinkSets
 
  Title    : get_LinkSets
- Usage    : 
- Function : 
- Returns  : 
- Args     : 
+ Usage    : my @links = $info->get_LinkSets;
+ Function : returns list of LinkSets objects
+ Returns  : array (LinkSet objects)
+ Args     : none
+ Notes    : only applicable for elink.  
 
 =cut
 
@@ -1099,6 +1210,7 @@ sub get_LinkSets {
  Function : returns list of databases linked to in linksets
  Returns  : array of databases
  Args     : none
+ Notes    : only applicable for elink.
 
 =cut
 
@@ -1189,8 +1301,8 @@ sub rewind {
             The following are currently recognized (case-insensitive):
 
             'globalqueries'
-            'fieldinfo' or 'fieldinfos'
-            'linkinfo' or 'linkinfos'
+            'fieldinfo' or 'fieldinfos' (the latter sounds clumsy, but I alias it JIC)
+            'linkinfo' or 'linkinfos' (the latter sounds clumsy, but I alias it JIC)
             'linksets'
             'docsums'
             'histories'
@@ -1248,6 +1360,7 @@ sub generate_iterator {
                     return $obj;
                 }
             }
+            undef;
         }
     } else {
         my $loc = '_'.$VALID_ITERATORS{$obj};
@@ -1256,12 +1369,17 @@ sub generate_iterator {
         return sub {
             while ($current <= $index) {
                 if ($cb) {
-                    ($cb->($self->{$loc}->[$current])) ?
-                    return $self->{$loc}->[$current++] : $current ++ && next;
+                    if (my $d = $cb->($self->{$loc}->[$current])) {
+                        return $self->{$loc}->[$current++] }
+                    else {
+                        $current++;
+                        next;
+                    }
                 } else {
                     return $self->{$loc}->[$current++]
                 }
             }
+            undef;
         }
     }
 }

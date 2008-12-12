@@ -63,7 +63,7 @@ preceded with a _
 
 package Bio::DB::EUtilities;
 use strict;
-use Bio::DB::EUtilParameters;
+use Bio::Tools::EUtilities::EUtilParameters;
 use Bio::Tools::EUtilities;
 
 use base qw(Bio::DB::GenericWebAgent);
@@ -71,7 +71,7 @@ use base qw(Bio::DB::GenericWebAgent);
 sub new {
     my($class,@args) = @_;
     my $self = $class->SUPER::new(@args);
-    my $params = Bio::DB::EUtilParameters->new(-verbose => $self->verbose,
+    my $params = Bio::Tools::EUtilities::EUtilParameters->new(-verbose => $self->verbose,
                                                @args);
     # cache parameters
     $self->parameter_base($params);
@@ -208,15 +208,16 @@ sub get_Parser {
         my $parser = Bio::Tools::EUtilities->new(
                             -eutil => $eutil,
                             -response => $self->get_Response,
+                            -parameters => $pobj,
                             -verbose => $self->verbose);
         return $self->{'_parser'} = $parser;
     }
     return $self->{'_parser'};
 }
 
-=head1 Bio::DB::EUtilParameters-delegating methods
+=head1 Bio::Tools::EUtilities::EUtilParameters-delegating methods
 
-This is only a subset of parameters available from Bio::DB::EUtilParameters (the
+This is only a subset of parameters available from Bio::Tools::EUtilities::EUtilParameters (the
 ones deemed absolutely necessary).  All others are available by calling
 'parameter_base-E<gt>method' when needed.
 
@@ -277,7 +278,7 @@ sub reset_parameters {
  Returns : Array of available parameters (no values)
  Args    : [optional] A string; either eutil name (for returning eutil-specific
            parameters) or 'history' (for those parameters allowed when retrieving
-           data stored on the remote server using a 'Cookie').
+           data stored on the remote server using a 'History' object).
 
 =cut
 
@@ -373,13 +374,16 @@ sub datatype {
 
  Title    : get_ids
  Usage    : my @ids = $parser->get_ids
- Function : returns array or array ref of requestes IDs
- Returns  : array or array ref (based on wantarray)
+ Function : returns array of requested IDs (see Notes for more specifics)
+ Returns  : array
  Args     : [conditional] not required except when running elink queries against
             multiple databases. In case of the latter, the database name is
-            optional (but recommended) when retrieving IDs as the ID list will
-            be globbed together. If a db name isn't provided a warning is issued
-            as a reminder.
+            optional but recommended when retrieving IDs as the ID list will
+            be globbed together. In such cases, if a db name isn't provided a
+            warning is issued as a reminder.
+ Notes    : esearch    : returned ID list
+            elink      : returned ID list (see Args above for caveats)
+            all others : from parameter_base->id or undef
 
 =cut
 
@@ -392,10 +396,17 @@ sub get_ids {
 
  Title    : get_database
  Usage    : my $db = $info->get_database;
- Function : returns database name (eutil-compatible)
+ Function : returns single database name (eutil-compatible).  This is the queried
+            database.  For most eutils this is straightforward.  For elinks
+            (which have 'db' and 'dbfrom') this is dbto, for egquery, it is the first
+            db in the list (you probably want get_databases instead)
  Returns  : string
  Args     : none
- Note     : implemented for einfo and espell
+ Notes    : egquery    : first db in the query (you probably want get_databases)
+            einfo      : the queried database
+            espell     : the queried database
+            elink      : from parameter_base->dbfrom or undef
+            all others : from parameter_base->db or undef
 
 =cut
 
@@ -413,6 +424,37 @@ sub get_db {
     return $self->get_Parser->get_db(@args);
 }
 
+=head2 get_databases
+
+ Title    : get_databases
+ Usage    : my @dbs = $parser->get_databases
+ Function : returns list of databases 
+ Returns  : array of strings
+ Args     : none
+ Notes    : This is guaranteed to return a list of databases. For a single
+            database use the convenience method get_db/get_database
+            
+            egquery    : list of all databases in the query
+            einfo      : the queried database
+            espell     : the queried database
+            all others : from parameter_base->db or undef
+
+=cut
+
+sub get_databases {
+    my ($self, @args) = @_;
+    return $self->get_Parser->get_databases(@args);
+}
+
+=head2 get_dbs (alias for get_databases)
+
+=cut
+
+sub get_dbs {
+    my ($self, @args) = @_;
+    return $self->get_Parser->get_databases(@args);
+}
+
 =head2 next_History
 
  Title    : next_History
@@ -420,20 +462,29 @@ sub get_db {
  Function : returns next HistoryI (if present).
  Returns  : Bio::Tools::EUtilities::HistoryI (Cookie or LinkSet)
  Args     : none
- Note     : next_cookie() is an alias for this method. esearch, epost, and elink
-            are all capable of returning data which indicates search results (in
-            the form of UIDs) is stored on the remote server. Access to this
-            data is wrapped up in simple interface (HistoryI), which is
-            implemented in two classes: Bio::DB::EUtilities::Cookie (the
-            simplest) and Bio::DB::EUtilities::LinkSet. In general, calls to
-            epost and esearch will only return a single HistoryI object (a
+ Note     : esearch, epost, and elink are all capable of returning data which
+            indicates search results (in the form of UIDs) is stored on the
+            remote server. Access to this data is wrapped up in simple interface
+            (HistoryI), which is implemented in two classes:
+            Bio::DB::EUtilities::History (the simplest) and
+            Bio::DB::EUtilities::LinkSet. In general, calls to epost and esearch
+            will only return a single HistoryI object (formerly known as a
             Cookie), but calls to elink can generate many depending on the
-            number of IDs, the correspondence, etc.  Hence this iterator, which
+            number of IDs, the correspondence, etc. Hence this iterator, which
             allows one to retrieve said data one piece at a time.
 
 =cut
 
 sub next_History {
+    my ($self, @args) = @_;
+    return $self->get_Parser->next_History(@args);
+}
+
+=head2 next_cookie (alias for next_History)
+
+=cut 
+
+sub next_cookie {
     my ($self, @args) = @_;
     return $self->get_Parser->next_History(@args);
 }
@@ -463,6 +514,9 @@ sub get_Histories {
  Returns  : integer
  Args     : [CONDITIONAL] string with database name - used to retrieve
             count from specific database when using egquery
+ Notes    : egquery    : count for specified database (specified above)
+            esearch    : count for last search
+            all others : undef
 
 =cut
 
@@ -471,38 +525,25 @@ sub get_count {
     return $self->get_Parser->get_count(@args);
 }
 
-=head2 get_queried_databases
-
- Title    : get_queried_databases
- Usage    : my @dbs = $parser->get_queried_databases
- Function : returns list of databases searched with global query
- Returns  : array of strings
- Args     : none
- Note     : predominately used for egquery; if used with other eutils will
-            return a list with the single database
-
-=cut
-
-sub get_queried_databases {
-    my ($self, @args) = @_;
-    return $self->get_Parser->get_queried_databases(@args);
-}
 =head2 get_term
 
- Title   : get_term
- Usage   : $st = $qd->get_term;
- Function: retrieve the term for the global search
- Returns : string
- Args    : none
+ Title    : get_term
+ Usage    : $st = $qd->get_term;
+ Function : retrieve the term for the global search
+ Returns  : string
+ Args     : none
+ Notes    : egquery    : search term
+            espell     : search term
+            esearch    : from parameter_base->term or undef
+            all others : undef
 
 =cut
-
-# egquery and espell
 
 sub get_term {
     my ($self, @args) = @_;
     return $self->get_Parser->get_term(@args);
 }
+
 =head2 get_translation_from
 
  Title   : get_translation_from
@@ -510,10 +551,9 @@ sub get_term {
  Function: portion of the original query replaced with translated_to()
  Returns : string
  Args    : none
+ Note    : only applicable for esearch
 
 =cut
-
-# esearch
 
 sub get_translation_from {
     my ($self, @args) = @_;
@@ -527,6 +567,7 @@ sub get_translation_from {
  Function: replaced string used in place of the original query term in translation_from()
  Returns : string
  Args    : none
+ Note    : only applicable for esearch 
 
 =cut
 
@@ -537,11 +578,14 @@ sub get_translation_to {
 
 =head2 get_retstart
 
- Title   : get_retstart
- Usage   : $start = $qd->get_retstart();
- Function: retstart setting for the query (either set or NCBI default)
- Returns : Integer
- Args    : none
+ Title    : get_retstart
+ Usage    : $start = $qd->get_retstart();
+ Function : retstart setting for the query (either set or NCBI default)
+ Returns  : Integer
+ Args     : none
+ Notes    : esearch    : retstart
+            esummary   : retstart
+            all others : from parameter_base->retstart or undef
 
 =cut
 
@@ -552,12 +596,15 @@ sub get_retstart {
 
 =head2 get_retmax
 
- Title   : get_retmax
- Usage   : $max = $qd->get_retmax();
- Function: retmax setting for the query (either set or NCBI default)
- Returns : Integer
- Args    : none
-
+ Title    : get_retmax
+ Usage    : $max = $qd->get_retmax();
+ Function : retmax setting for the query (either set or NCBI default)
+ Returns  : Integer
+ Args     : none
+ Notes    : esearch    : retmax
+            esummary   : retmax
+            all others : from parameter_base->retmax or undef
+            
 =cut
 
 sub get_retmax {
@@ -572,7 +619,8 @@ sub get_retmax {
  Function: returns the translated query used for the search (if any)
  Returns : string
  Args    : none
- Note    : this differs from the original term.
+ Notes   : only applicable for esearch.  This is the actual term used for
+           esearch.
 
 =cut
 
@@ -588,6 +636,7 @@ sub get_query_translation {
  Function : retrieves the corrected query when using espell
  Returns  : string
  Args     : none
+ Notes    : only applicable for espell.
 
 =cut
 
@@ -603,6 +652,7 @@ sub get_corrected_query {
  Function : returns array of strings replaced in the query
  Returns  : string 
  Args     : none
+ Notes    : only applicable for espell
 
 =cut
 
@@ -618,6 +668,7 @@ sub get_replaced_terms {
  Function : iterates through the queries returned from an egquery search
  Returns  : GlobalQuery object
  Args     : none
+ Notes    : only applicable for egquery
 
 =cut
 
@@ -633,7 +684,8 @@ sub next_GlobalQuery {
  Function : returns list of GlobalQuery objects
  Returns  : array of GlobalQuery objects
  Args     : none
-
+ Notes    : only applicable for egquery
+ 
 =cut
 
 sub get_GlobalQueries {
@@ -650,7 +702,8 @@ sub get_GlobalQueries {
  Function : iterate through DocSum instances
  Returns  : single Bio::Tools::EUtilities::Summary::DocSum
  Args     : none yet
-
+ Notes    : only applicable for esummary
+ 
 =cut
 
 sub next_DocSum {
@@ -665,6 +718,7 @@ sub next_DocSum {
  Function : retrieve a list of DocSum instances
  Returns  : array of Bio::Tools::EUtilities::Summary::DocSum
  Args     : none
+ Notes    : only applicable for esummary
 
 =cut
 
@@ -675,9 +729,9 @@ sub get_DocSums {
 
 =head2 print_DocSums
 
- Title    : print_docsums
- Usage    : $docsum->print_docsums();
-            $docsum->print_docsums(-fh => $fh, -callback => $coderef);
+ Title    : print_DocSums
+ Usage    : $docsum->print_DocSums();
+            $docsum->print_DocSums(-fh => $fh, -callback => $coderef);
  Function : prints item data for all docsums.  The default printing method is
             each item per DocSum is printed with relevant values if present
             in a simple table using Text::Wrap.  
@@ -686,8 +740,13 @@ sub get_DocSums {
            -file : file to print to
            -fh   : filehandle to print to (cannot be used concurrently with file)
            -cb   : coderef to use in place of default print method.  This is passed
-                   in a DocSum object; 
- Note     : if -file or -fh are not defined, prints to STDOUT
+                   in a DocSum object;
+           -wrap : number of columns to wrap default text output to (def = 80)
+           -header : flag/callback for printing main eutil information.
+                  If this is true, checked for a code reference for passing
+                  self to, otherwise defaults to a preset code ref (def = 0)
+ Notes    : only applicable for esummary.  If -file or -fh are not defined,
+            prints to STDOUT
 
 =cut
 
@@ -705,6 +764,7 @@ sub print_DocSums {
  Function : returns list of available eutil-compatible database names
  Returns  : Array of strings 
  Args     : none
+ Notes    : only applicable for einfo. 
 
 =cut
 
@@ -720,6 +780,7 @@ sub get_available_databases {
  Function : returns database record count
  Returns  : integer
  Args     : none
+ Notes    : only applicable for einfo.  
 
 =cut
 
@@ -735,6 +796,7 @@ sub get_record_count {
  Function : returns string containing time/date stamp for last database update
  Returns  : integer
  Args     : none
+ Notes    : only applicable for einfo. 
 
 =cut
 
@@ -742,6 +804,7 @@ sub get_last_update {
     my ($self, @args) = @_;
     return $self->get_Parser->get_last_update(@args);
 }
+
 =head2 get_menu_name
 
  Title    : get_menu_name
@@ -749,6 +812,7 @@ sub get_last_update {
  Function : returns string of database menu name
  Returns  : string
  Args     : none
+ Notes    : only applicable for einfo. 
 
 =cut
 
@@ -764,6 +828,7 @@ sub get_menu_name {
  Function : returns database description
  Returns  : string
  Args     : none
+ Notes    : only applicable for einfo. 
 
 =cut
 
@@ -779,7 +844,8 @@ sub get_description {
  Function : iterate through FieldInfo objects
  Returns  : Field object
  Args     : none
- Note     : uses callback() for filtering if defined for 'fields'
+ Notes    : only applicable for einfo. Uses callback() for filtering if defined
+            for 'fields'
 
 =cut
 
@@ -795,6 +861,7 @@ sub next_FieldInfo {
  Function : returns list of FieldInfo objects
  Returns  : array (FieldInfo objects)
  Args     : none
+ Notes    : only applicable for einfo. 
 
 =cut
 
@@ -812,6 +879,8 @@ sub get_FieldInfo {
  Function : iterate through LinkInfo objects
  Returns  : LinkInfo object
  Args     : none
+ Notes    : only applicable for einfo.  Uses callback() for filtering if defined
+            for 'linkinfo'
 
 =cut
 
@@ -827,6 +896,7 @@ sub next_LinkInfo {
  Function : returns list of LinkInfo objects
  Returns  : array (LinkInfo objects)
  Args     : none
+ Notes    : only applicable for einfo.  
 
 =cut
 
@@ -860,22 +930,24 @@ sub print_FieldInfo {
     return $self->get_Parser->print_FieldInfo(@args);
 }
 
-=head2 print_LinkInfo
+=head2 print_FieldInfo
 
- Title    : print_LinkInfo
- Usage    : $info->print_LinkInfo();
-            $info->print_LinkInfo(-fh => $fh, -callback => $coderef);
- Function : prints link data for each LinkInfo object. The default method
-            prints data from each LinkInfo in a simple table using Text::Wrap.  
+ Title    : print_FieldInfo
+ Usage    : $info->print_FieldInfo();
+            $info->print_FieldInfo(-fh => $fh, -callback => $coderef);
+ Function : prints field data for each FieldInfo object. The default method
+            prints data from each FieldInfo in a simple table using Text::Wrap.  
  Returns  : none
  Args     : [optional]
            -file : file to print to
            -fh   : filehandle to print to (cannot be used concurrently with file)
-           -cb   : coderef to use in place of default print method.  This is passed
-                   in a DocSum object;
+           -cb   : coderef to use in place of default print method.  
            -wrap : number of columns to wrap default text output to (def = 80)
-           -header : flag to print databases-specific header information (def = 0)
- Note     : if -file or -fh are not defined, prints to STDOUT
+           -header : flag/callback for printing main eutil information.
+                  If this is true, checked for a code reference for passing
+                  self to, otherwise defaults to a preset code ref (def = 0)
+ Notes    : only applicable for einfo.  If -file or -fh are not defined,
+            prints to STDOUT
 
 =cut
 
@@ -884,7 +956,6 @@ sub print_LinkInfo {
     return $self->get_Parser->print_LinkInfo(@args);
 }
 
-
 =head1 Bio::Tools::EUtilities::Link-related methods
 
 =head2 next_LinkSet
@@ -892,8 +963,10 @@ sub print_LinkInfo {
  Title    : next_LinkSet
  Usage    : while (my $ls = $eutil->next_LinkSet {...}
  Function : iterate through LinkSet objects
- Returns  : LinkSet objects
+ Returns  : LinkSet object
  Args     : none
+ Notes    : only applicable for elink.  Uses callback() for filtering if defined
+            for 'linksets'
 
 =cut
 
@@ -905,10 +978,11 @@ sub next_LinkSet {
 =head2 get_LinkSets
 
  Title    : get_LinkSets
- Usage    : my @ls = $info->get_LinkSets;
- Function : returns list of LinkSet objects
+ Usage    : my @links = $info->get_LinkSets;
+ Function : returns list of LinkSets objects
  Returns  : array (LinkSet objects)
  Args     : none
+ Notes    : only applicable for elink.  
 
 =cut
 
@@ -926,6 +1000,7 @@ sub get_LinkSets {
  Function : returns list of databases linked to in linksets
  Returns  : array of databases
  Args     : none
+ Notes    : only applicable for elink.
 
 =cut
 

@@ -17,15 +17,9 @@
 Bio::DB::EUtilities::Summary::DocSum - data object for document summary data
 from esummary
 
-############ NOTE : Undergoing reimplementation to use simple Data::Stag ############
-
 =head1 SYNOPSIS
 
-
-
 =head1 DESCRIPTION
-
-
 
 =head1 FEEDBACK
 
@@ -48,7 +42,7 @@ Bug reports can be submitted via the web.
 
   http://bugzilla.open-bio.org/
 
-=head1 AUTHOR 
+=head1 AUTHOR Chris Fields
 
 Email cjfields at uiuc dot edu
 

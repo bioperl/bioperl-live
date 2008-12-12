@@ -19,17 +19,21 @@ access and response retrieval.
 
 =head1 SYNOPSIS
 
-  # ...
+  # DO NOT USE DIRECTLY
+  
+  See Bio::DB::EUtilities for an example implementation
 
 =head1 DESCRIPTION
 
 WARNING: Please do B<NOT> spam the web servers with multiple requests.
 
-
-
-=head1 TODO
-
-Interface needs some cleaning up.
+Bio::DB::GenericWebAgent is a generic wrapper around a web agent
+(LWP::UserAgent), an object which can retain, format, and build parameters for
+the user agent (Bio::ParameterBaseI), and a BioPerl class parser that processes
+response content received by the user agent. The Bio::ParameterBaseI object
+should be state-aware, e.g. know when changes occur to parameters, so that
+identical requests are not repeatedly sent to the server (this base class takes
+this into consideration).  
 
 =head1 FEEDBACK
 
@@ -77,12 +81,12 @@ my $LAST_INVOCATION_TIME = 0;
 =head2 new
 
  Title   : new
- Usage   : Bio::DB::GenericWebDBI->new(@args);
- Function: Create new Bio::DB::GenericWebDBI instance.
+ Usage   : Bio::DB::GenericWebAgent->new(@args);
+ Function: Create new Bio::DB::GenericWebAgent instance.
  Returns : 
  Args    : None specific to this base class.  Inheriting classes will
            likely set specific parameters in their constructor;
-           Bio::DB::GenericWebDBI is primarily a test bed.
+           Bio::DB::GenericWebAgent is primarily a test bed.
 
 =cut
 
@@ -95,7 +99,7 @@ sub new {
     return $self;
 }
 
-=head1 GenericWebDBI methods
+=head1 GenericWebAgent methods
 
 =head2 parameter_base
 

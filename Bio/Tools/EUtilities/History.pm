@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Tools::EUtilities::History
+# BioPerl module for Bio::Tools::EUtilities::Cookie
 #
 # Cared for by Chris Fields
 #
@@ -14,36 +14,39 @@
 
 =head1 NAME
 
-Bio::Tools::EUtilities::History - simple HistoryI implementation for holding
-NCBI search history.
+Bio::Tools::EUtilities::Cookie - lightweight implementation of HistoryI
+interface (not bound to filehandles, extraneous methods, etc).
 
 =head1 SYNOPSIS
 
-  #### should not create instance directly; Bio::Tools::EUtilities does this ####
+  #should work for any class which is-a HistoryI
 
-  my $hist = Bio::Tools::EUtilities->new(-eutil => 'epost',
-                                         -file => 'epost.xml');
-
-  if ($hist->has_History) {
+  if ($obj->has_History) {
       # do something here
   }
 
-  ($webenv, $querykey) = $hist->get_history;
+  ($webenv, $querykey) = $obj->history;
 
-  $webenv = $hist->get_webenv;
+  $obj->history($webenv, $querykey);
 
-  $query_key = $hist->get_query_key;
+  $webenv = $obj->get_webenv;
+
+  $query_key = $obj->get_query_key;
 
 =head1 DESCRIPTION
 
-This class is the simplest Bio::Tools::EUtilities::HistoryI implementation and
-is primarily used for epost. This class adds methods to objects for dealing with
-NCBI history data (WebEnv and query_key). These can be used as parameters for
-futher queries against data sets stored on the NCBI server, much like NCBI's
-Entrez search history.
+This class extends methods for any EUtilDataI implementation allow instances to
+dealwith NCBI history data (WebEnv and query_key).  These can be used as
+parameters for further queries against data sets stored on the NCBI server, much
+like NCBI's Entrez search history. These are important when one wants to run
+complex queries using esearch, retrieve related data using elink, and retrieve
+large datasets using epost/efetch.
 
-NOTE: I plan on testing how long this data is stored remotely. I believe NCBI
-deletes remote data after 24 hours.
+This class is the simplest implementation and merely holds data for future
+queries from any HistoryI. See also Bio::Tools::EUtilities::Query (esearch) and
+Bio::Tools::EUtilities::LinkSet (elink), which also implement HistoryI.
+
+=cut
 
 =head1 FEEDBACK
 
@@ -79,14 +82,19 @@ methods are usually preceded with a _
 package Bio::Tools::EUtilities::History;
 use strict;
 use warnings;
-#use URI::Escape qw(uri_unescape); 
 
-use base qw(Bio::Tools::EUtilities);
+use base qw(Bio::Root::Root Bio::Tools::EUtilities::HistoryI);
+use Data::Dumper;
 
-=head1 Bio::Tools::EUtilities::History relevant methods
-
-These are inherited through the Bio::Tools::EUtilities interface
-Bio::Tools::EUtilities::HistoryI
+sub new {
+    my ($class, @args) = @_;
+    my $self = $class->SUPER::new(@args);
+    my ($eutil) = $self->_rearrange([qw(eutil)],@args);
+    $eutil || $self->throw('eutil not defined');
+    $self->eutil($eutil);
+    $self->datatype('history');
+    return $self;
+}
 
 =head2 history
 
@@ -94,7 +102,7 @@ Bio::Tools::EUtilities::HistoryI
  Usage    : my ($webenv, $qk) = $hist->history
  Function : Get/Set two-element list of webenv() and query_key()
  Returns  : array
- Args     : two-element list of webenv, querykey
+ Args     : two-element list of webenv, query key
 
 =cut
 
@@ -119,21 +127,14 @@ Bio::Tools::EUtilities::HistoryI
 
 =cut
 
-=head2 has_History
-
- Title    : has_History
- Usage    : if ($hist->has_History) {...}
- Function : returns TRUE if full history (webenv, query_key) is present 
- Returns  : BOOLEAN, value eval'ing to TRUE or FALUE
- Args     : none
-
-=cut
-
-# private method
-
 sub _add_data {
     my ($self, $simple) = @_;
-    map { $self->{'_'.lc $_} = $simple->{$_} } keys %$simple;
+    if (!exists $simple->{WebEnv} || !exists $simple->{QueryKey}) {
+        $self->debug("Data:",Dumper($simple));
+        $self->throw("Missing webenv/query key in history output");
+    }
+    $self->{_webenv} = $simple->{WebEnv} && delete $simple->{WebEnv};
+    $self->{_querykey} = $simple->{QueryKey} && delete $simple->{QueryKey};
 }
 
 1;

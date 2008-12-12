@@ -74,11 +74,11 @@ preceded with a _
 package Bio::Tools::EUtilities::Query;
 use strict;
 use warnings;
+use Bio::Tools::EUtilities::Query::GlobalQuery;
+use Bio::Tools::EUtilities::History;
+use Data::Dumper;
 
 use base qw(Bio::Tools::EUtilities);
-
-use Bio::Tools::EUtilities::Query::GlobalQuery;
-use Bio::Tools::EUtilities::Cookie;
 
 =head1 Bio::Tools::EUtilities::Query methods
 
@@ -101,8 +101,8 @@ sub _add_data {
         $self->throw("Bad $eutil data");
     }
     if (exists $qdata->{WebEnv}) {
-        my $cookie = Bio::Tools::EUtilities::Cookie->new(-eutil => $eutil,
-                                                         -verbose => $self->verbose);
+        my $cookie = Bio::Tools::EUtilities::History->new(-eutil => $eutil,
+                            -verbose => $self->verbose);
         $cookie->_add_data($qdata);
         push @{$self->{'_histories'}}, $cookie;
     }
@@ -139,4 +139,3 @@ sub _add_data {
 
 1;
 
-__END__

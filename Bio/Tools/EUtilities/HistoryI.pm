@@ -82,7 +82,6 @@ methods are usually preceded with a _
 package Bio::Tools::EUtilities::HistoryI;
 use strict;
 use warnings;
-#use URI::Escape qw(uri_unescape); 
 
 use base qw(Bio::Tools::EUtilities::EUtilDataI);
 
