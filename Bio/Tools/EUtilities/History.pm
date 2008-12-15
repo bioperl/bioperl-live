@@ -84,7 +84,6 @@ use strict;
 use warnings;
 
 use base qw(Bio::Root::Root Bio::Tools::EUtilities::HistoryI);
-use Data::Dumper;
 
 sub new {
     my ($class, @args) = @_;
@@ -137,5 +136,28 @@ sub _add_data {
     $self->{_querykey} = $simple->{QueryKey} && delete $simple->{QueryKey};
 }
 
+=head2 to_string
+
+ Title    : to_string
+ Usage    : $foo->to_string()
+ Function : converts current object to string
+ Returns  : none
+ Args     : (optional) simple data for text formatting
+ Note     : Used generally for debugging and for the print_* methods
+
+=cut
+
+sub to_string {
+    my $self = shift;
+    my $string;
+    my %map = (
+        'get_webenv' => 'WebEnv',
+        'get_query_key' => 'Key'
+        );
+    for my $m (qw(get_webenv get_query_key)) {
+        $string .= sprintf("%-20s:%s\n", $map{$m}, $self->$m);
+    }
+    return $string;
+}
+
 1;
-__END__

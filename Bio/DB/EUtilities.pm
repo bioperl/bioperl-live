@@ -368,6 +368,47 @@ sub datatype {
     return $self->get_Parser->datatype(@args);
 }
 
+=head2 to_string
+
+ Title    : to_string
+ Usage    : $foo->to_string()
+ Function : converts current object to string
+ Returns  : none
+ Args     : (optional) simple data for text formatting
+ Note     : Implemented in plugins
+
+=cut
+
+sub to_string {
+    my ($self, @args) = @_;
+    return $self->get_Parser->to_string(@args);
+}
+
+=head2 print_all
+
+ Title    : print_all
+ Usage    : $info->print_all();
+            $info->print_all(-fh => $fh, -cb => $coderef);
+ Function : prints (dumps) all data in parser.  Unless a coderef is supplied,
+            this just dumps the parser-specific to_string method to either a
+            file/fh or STDOUT
+ Returns  : none
+ Args     : [optional]
+           -file : file to print to
+           -fh   : filehandle to print to (cannot be used concurrently with file)
+           -cb   : coderef to use in place of default print method.  This is passed
+                   in a LinkSet object
+           -wrap : number of columns to wrap default text output to (def = 80)
+ Notes    : only applicable for einfo.  If -file or -fh are not defined,
+            prints to STDOUT
+
+=cut
+
+sub print_all {
+    my ($self, @args) = @_;
+    return $self->get_Parser->print_all(@args);
+}
+
 =head1 Methods useful for multiple eutils
 
 =head2 get_ids
@@ -693,6 +734,31 @@ sub get_GlobalQueries {
     return $self->get_Parser->get_GlobalQueries(@args);
 }
 
+=head2 print_GlobalQueries
+
+ Title    : print_GlobalQueries
+ Usage    : $docsum->print_GlobalQueries();
+            $docsum->print_GlobalQueries(-fh => $fh, -cb => $coderef);
+ Function : prints item data for all global queries.  The default printing
+            method is each item per DocSum is printed with relevant values if
+            present in a simple table using Text::Wrap. 
+ Returns  : none
+ Args     : [optional]
+           -file : file to print to
+           -fh   : filehandle to print to (cannot be used concurrently with file)
+           -cb   : coderef to use in place of default print method.  This is passed
+                   in a GlobalQuery object;
+           -wrap : number of columns to wrap default text output to (def = 80)
+ Notes    : only applicable for esummary.  If -file or -fh are not defined,
+            prints to STDOUT
+
+=cut
+
+sub print_GlobalQueries {
+    my ($self, @args) = @_;
+    return $self->get_Parser->print_GlobalQueries(@args);
+}
+
 =head1 Summary-related methods
 
 =head2 next_DocSum
@@ -731,7 +797,7 @@ sub get_DocSums {
 
  Title    : print_DocSums
  Usage    : $docsum->print_DocSums();
-            $docsum->print_DocSums(-fh => $fh, -callback => $coderef);
+            $docsum->print_DocSums(-fh => $fh, -cb => $coderef);
  Function : prints item data for all docsums.  The default printing method is
             each item per DocSum is printed with relevant values if present
             in a simple table using Text::Wrap.  
@@ -742,9 +808,6 @@ sub get_DocSums {
            -cb   : coderef to use in place of default print method.  This is passed
                    in a DocSum object;
            -wrap : number of columns to wrap default text output to (def = 80)
-           -header : flag/callback for printing main eutil information.
-                  If this is true, checked for a code reference for passing
-                  self to, otherwise defaults to a preset code ref (def = 0)
  Notes    : only applicable for esummary.  If -file or -fh are not defined,
             prints to STDOUT
 
@@ -911,7 +974,7 @@ sub get_LinkInfo {
 
  Title    : print_FieldInfo
  Usage    : $info->print_FieldInfo();
-            $info->print_FieldInfo(-fh => $fh, -callback => $coderef);
+            $info->print_FieldInfo(-fh => $fh, -cb => $coderef);
  Function : prints field data for each FieldInfo object. The default method
             prints data from each FieldInfo in a simple table using Text::Wrap.  
  Returns  : none
@@ -920,7 +983,6 @@ sub get_LinkInfo {
            -fh   : filehandle to print to (cannot be used concurrently with file)
            -cb   : coderef to use in place of default print method.  
            -wrap : number of columns to wrap default text output to (def = 80)
-           -header : flag to print databases-specific header information (def = 0)
  Note     : if -file or -fh are not defined, prints to STDOUT
 
 =cut
@@ -930,22 +992,20 @@ sub print_FieldInfo {
     return $self->get_Parser->print_FieldInfo(@args);
 }
 
-=head2 print_FieldInfo
+=head2 print_LinkInfo
 
- Title    : print_FieldInfo
- Usage    : $info->print_FieldInfo();
-            $info->print_FieldInfo(-fh => $fh, -callback => $coderef);
- Function : prints field data for each FieldInfo object. The default method
-            prints data from each FieldInfo in a simple table using Text::Wrap.  
+ Title    : print_LinkInfo
+ Usage    : $info->print_LinkInfo();
+            $info->print_LinkInfo(-fh => $fh, -cb => $coderef);
+ Function : prints link data for each LinkInfo object. The default is generated
+            via LinkInfo::to_string
  Returns  : none
  Args     : [optional]
            -file : file to print to
            -fh   : filehandle to print to (cannot be used concurrently with file)
-           -cb   : coderef to use in place of default print method.  
+           -cb   : coderef to use in place of default print method.  This is passed
+                   in a LinkInfo object;
            -wrap : number of columns to wrap default text output to (def = 80)
-           -header : flag/callback for printing main eutil information.
-                  If this is true, checked for a code reference for passing
-                  self to, otherwise defaults to a preset code ref (def = 0)
  Notes    : only applicable for einfo.  If -file or -fh are not defined,
             prints to STDOUT
 
@@ -991,6 +1051,30 @@ sub next_LinkSet {
 sub get_LinkSets {
     my ($self, @args) = @_;
     return $self->get_Parser->get_LinkSets(@args);
+}
+
+=head2 print_LinkSets
+
+ Title    : print_LinkSets
+ Usage    : $info->print_LinkSets();
+            $info->print_LinkSets(-fh => $fh, -cb => $coderef);
+ Function : prints link data for each LinkSet object. The default is generated
+            via LinkSet::to_string
+ Returns  : none
+ Args     : [optional]
+           -file : file to print to
+           -fh   : filehandle to print to (cannot be used concurrently with file)
+           -cb   : coderef to use in place of default print method.  This is passed
+                   in a LinkSet object
+           -wrap : number of columns to wrap default text output to (def = 80)
+ Notes    : only applicable for einfo.  If -file or -fh are not defined,
+            prints to STDOUT
+
+=cut
+
+sub print_LinkSets {
+    my ($self, @args) = @_;
+    return $self->get_Parser->print_LinkSets(@args);
 }
 
 =head2 get_linked_databases

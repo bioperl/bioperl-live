@@ -130,6 +130,24 @@ sub _add_data {
 
 }
 
-1;
+=head2 to_string
 
-__END__
+ Title    : to_string
+ Usage    : $foo->to_string()
+ Function : converts current object to string
+ Returns  : none
+ Args     : (optional) simple data for text formatting
+ Note     : Used generally for debugging and for various print methods
+
+=cut
+
+sub to_string {
+    my $self = shift;
+    my $string = $self->SUPER::to_string;
+    while (my $ls = $self->next_LinkSet) {
+        $string .= $ls->to_string;
+    }
+    return $string;
+}
+
+1;

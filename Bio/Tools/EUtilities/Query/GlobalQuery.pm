@@ -94,6 +94,26 @@ sub _add_data {
     map {$self->{'_'.lc $_} = $data->{$_}} keys %$data;
 }
 
+=head2 to_string
+
+ Title    : to_string
+ Usage    : $foo->to_string()
+ Function : converts current object to string
+ Returns  : none
+ Args     : (optional) simple data for text formatting
+ Note     : Used generally for debugging and for the print_GlobalQuery method
+
+=cut
+
+sub to_string {
+    my $self = shift;
+    my $string .= sprintf("%-20s Total:%-10d Status:%s\n",
+        $self->get_database,
+        $self->get_count,
+        $self->get_status);
+    return $string;
+}
+
 1;
 
 

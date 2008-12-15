@@ -18,8 +18,8 @@ Bio::DB::EUtilities::Summary::Item - simple layered object for DocSum item data
 
 =head1 SYNOPSIS
 
-  # Items can be nested up to three levels at this time (Item, ListItem,
-  # StructureItem).
+  # Items can be nested up to three levels at this time. These levels can be
+  # accessed via Item, ListItem, or StructureItem methods:
 
   while (my $item = $docsum->next_Item) {
      print "Name: ",$item->get_name,"\n";
@@ -51,7 +51,8 @@ ListItems (Item objects with a datatype() 'list'), which in turn can have
 StructureItems (Item objects with a datatype of 'structure'). Items are
 initially traversed via a DocSum object using next_Item() or obtained all at
 once with get_Items(). Similarly, nested Items can be accessed by using
-next_ListItem/get_ListItems and next_StructureItem/get_StructureItem.
+next_ListItem/get_ListItems and next_StructureItem/get_StructureItem.  A
+flattened list of items can be accessed with get_all_Items().
 
 =head1 FEEDBACK
 
@@ -74,7 +75,7 @@ Bug reports can be submitted via the web.
 
   http://bugzilla.open-bio.org/
 
-=head1 AUTHOR 
+=head1 AUTHOR Chris Fields
 
 Email cjfields at uiuc dot edu
 
@@ -130,7 +131,7 @@ sub new {
 
 sub get_ids {
     my $self = shift;
-    return wantarray ? $self->{'_id'} : [$self->{'_id'}];
+    return ($self->{'_id'});
 }
 
 =head2 get_id
@@ -173,15 +174,16 @@ sub next_ListItem {
 
  Title    : get_ListItems
  Usage    : my @ls = $item->get_ListItems
- Function : returns list of, well, ListItems
- Returns  : array of ListItems
+ Function : returns list of, well, List Items
+ Returns  : array of List Items
  Args     : none
 
 =cut
 
 sub get_ListItems {
     my $self = shift;
-    ref $self->{'_lists'}  ? return @{ $self->{'_lists'} } : return ();
+    my @items = $self->get_type eq 'List' ? $self->get_subItems : ();
+    return @items;
 }
 
 =head2 next_StructureItem
@@ -207,7 +209,7 @@ sub next_StructureItem {
 
  Title    : get_StructureItems
  Usage    : my @structs = $ls->get_StructureItems
- Function : returns list of StructureItems
+ Function : returns list of Structure Items
  Returns  : array of StructureItems
  Args     : none
 
@@ -215,7 +217,46 @@ sub next_StructureItem {
 
 sub get_StructureItems {
     my $self = shift;
-    ref $self->{'_structures'}  ? return @{ $self->{'_structures'} } : return ();
+    my @items = $self->get_type eq 'Structure' ? $self->get_subItems : ();
+    return @items;
+}
+
+=head2 next_subItem
+
+ Title    : next_subItem
+ Usage    : while (my $it = $ls->next_subItem) {...}
+ Function : iterates through the next layer of Items
+ Returns  : single Item
+ Args     : none
+ Notes    : unlike next_ListItem and next_Structureitem, this generically
+            accesses any sub Items (useful for recursive calls, for example)
+
+=cut
+
+sub next_subItem {
+    my $self = shift;
+    unless ($self->{'_subitem_it'}) {
+        my @structs = $self->get_subItems;
+        $self->{'_subitem_it'} = sub {return shift @structs}
+    }
+    return $self->{'_subitem_it'}->();
+}
+
+=head2 get_subItems
+
+ Title    : get_subItems
+ Usage    : my @items = $ls->get_subItems
+ Function : returns list of sub Items
+ Returns  : array of Items
+ Args     : none
+ Notes    : unlike get_ListItems and get_StructureItems, this generically
+            accesses any sub Items (useful for recursive calls, for example)
+
+=cut
+
+sub get_subItems {
+    my $self = shift;
+    ref $self->{'_items'}  ? return @{ $self->{'_items'} } : return ();
 }
 
 =head2 get_name
@@ -291,7 +332,7 @@ sub rewind {
 sub _add_data {
     my ($self, $data) = @_;
     if ($data->{Item}) {
-        my $objtype = lc $data->{Type};
+        my $objtype = lc $data->{Type}.'_item';
         $self->{'_id'} = $data->{Id} if exists $data->{Id};
         for my $sd (@{ $data->{Item} } ) {
             $sd->{Id} = $data->{Id} if exists $data->{Id};
@@ -299,13 +340,45 @@ sub _add_data {
                                 -datatype => $objtype,
                                 -verbose => $self->verbose);
             $subdoc->_add_data($sd);
-            push @{ $self->{'_'.lc $objtype.'s'} }, $subdoc;
+            push @{ $self->{'_items'} }, $subdoc;
         }
     }
     for my $nm (qw(Type content Name)) {
-        $self->{'_item'.lc $nm} = $data->{$nm} if $data->{$nm};
+        $self->{'_item'.lc $nm} = $data->{$nm} if defined $data->{$nm};
     }
     $self->{'_id'} = $data->{Id} if exists $data->{Id};    
+}
+
+=head2 to_string
+
+ Title    : to_string
+ Usage    : $foo->to_string()
+ Function : converts current object to string
+ Returns  : none
+ Args     : (optional) simple data for text formatting.  This implementation
+            passes an argument for layering Items/subItems
+ Note     : Used generically for debugging and print_DocSums methods
+
+=cut
+
+# recursively called to grab subitems, then layer
+
+sub to_string {
+    my $self = shift;
+    my $level = shift || 0;
+    # this is the field length for the initial data (spaces are padded in front)
+    my $pad = 20 - $level;
+    my $content = $self->get_content || '';
+    my $string .= sprintf("%-*s%-*s%s\n",
+        $level, '',
+        $pad, $self->get_name(),
+        $self->_text_wrap(':',
+             ' ' x ($pad).':',
+             $content));
+    for my $sub ($self->get_subItems) {
+        $string .= $sub->to_string(4 + $level);
+    }
+    return $string;
 }
 
 1;

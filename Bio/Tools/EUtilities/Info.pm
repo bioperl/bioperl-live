@@ -182,5 +182,31 @@ sub _add_data {
     }
 }
 
-1;
+=head2 to_string
 
+ Title    : to_string
+ Usage    : $foo->to_string()
+ Function : converts current object to string
+ Returns  : none
+ Args     : (optional) simple data for text formatting
+ Note     : Used generally for debugging and for various print methods
+
+=cut
+
+sub to_string {
+    my $self = shift;
+    my $string = $self->SUPER::to_string;
+    if (my @dbs = $self->get_databases) {
+        $string .= sprintf("%-20s:%s\n\n", 'DB',
+            $self->_text_wrap('', ' 'x20 .':', join(', ',@dbs)));
+    }
+    while (my $fi = $self->next_FieldInfo) {
+        $string .= $fi->to_string."\n";
+    }
+    while (my $li = $self->next_LinkInfo) {
+        $string .= $li->to_string."\n";
+    }
+    return $string;
+}
+
+1;

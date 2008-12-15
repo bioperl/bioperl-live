@@ -103,6 +103,32 @@ sub _add_data {
     }
 }
 
+=head2 to_string
+
+ Title    : to_string
+ Usage    : $foo->to_string()
+ Function : converts current object to string
+ Returns  : none
+ Args     : (optional) simple data for text formatting
+ Note     : Used generally for debugging and for the print_* methods
+
+=cut
+
+sub to_string {
+    my $self = shift;
+    my %data = (
+        'DB'    => [1, join(', ',$self->get_databases) || ''],
+    );
+    my $string = $self->SUPER::to_string."\n";
+    for my $k (sort {$data{$a}->[0] <=> $data{$b}->[0]} keys %data) {
+        $string .= sprintf("%-20s:%s\n\n",$k, $self->_text_wrap('',' 'x 20 .':', $data{$k}->[1]));
+    }
+    while (my $ds = $self->next_DocSum) {
+        $string .= $ds->to_string."\n";
+    }
+    return $string;
+}
+
 1;
 
 __END__

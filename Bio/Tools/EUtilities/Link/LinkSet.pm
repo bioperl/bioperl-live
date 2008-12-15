@@ -82,8 +82,17 @@ sub new {
  Title    : get_ids
  Usage    : my @ids = $linkset->get_ids
  Function : returns list of retrieved IDs
- Returns  : array or array ref of IDs
+ Returns  : array of IDs
  Args     : none
+ Notes    : Cmd                   Description
+            acheck                same as get_submitted_ids
+            lcheck                same as get_submitted_ids
+            ncheck                same as get_submitted_ids
+            prlinks               same as get_submitted_ids
+            llinks                same as get_submitted_ids
+            llinkslib             same as get_submitted_ids
+            neighbor              linked IDs for database in get_database
+            neighbor_history      linked IDs for database in get_database
 
 =cut
 
@@ -96,20 +105,71 @@ sub get_ids {
                 $self->{'_id'}->{$b}->[0]
             } keys %{$self->{'_id'}};
     }
-    return wantarray ? @{$self->{'_sorted_id'}} : $self->{'_sorted_id'};
+    return @{$self->{'_sorted_id'}};
 }
 
-=head2 get_dbto
+=head2 get_database
 
- Title    : get_dbto
- Usage    : my $string = $linkset->get_dbto;
- Function : retrieve database referred to for this linkset
+ Title    : get_database
+ Usage    : my $db = $info->get_database;
+ Function : returns single database name (eutil-compatible).  This is the
+            queried database. For elinks (which have 'db' and 'dbfrom')
+            this is equivalent to db/dbto (use get_dbfrom() to for the latter).
+            Note that this only returns the first db; in some cases this may
+            not be what you want (when multiple dbs are queried, for instance)
  Returns  : string
+ Args     : none
+ Notes    : with all elink cmd arguments
+
+=cut
+
+sub get_database {
+    return ($_[0]->get_databases)[0];
+}
+
+=head2 get_db (alias for get_database)
+
+=cut
+
+sub get_db {
+    return shift->get_database;
+}
+
+=head2 get_dbto (alias for get_database)
+
+=cut
+
+sub get_dbto {
+    return shift->get_database;
+}
+
+=head2 get_databases
+
+ Title    : get_databases
+ Usage    : my $string = $linkset->get_databases;
+ Function : retrieve databases referred to for this linkset
+            these may be present as a single database or embedded in 
+ Returns  : array of strings
  Args     : none
 
 =cut
 
-sub get_dbto { return shift->{'_dbto'} }
+sub get_databases {
+    my $self = shift;
+    my %tmp;
+    my @dbs = sort map {$_->get_database} 
+        grep {!$tmp{$_->get_database}++} ($self->get_LinkInfo);
+    unshift @dbs, $self->{'_dbto'} if $self->{'_dbto'} && !$tmp{$self->{'_dbto'}}++;
+    return @dbs;
+}
+
+=head2 get_dbs (alias for get_databases)
+
+=cut
+
+sub get_dbs {
+    return shift->get_databases;
+}
 
 =head2 get_dbfrom
 
@@ -123,17 +183,45 @@ sub get_dbto { return shift->{'_dbto'} }
 
 sub get_dbfrom { return shift->{'_dbfrom'} }
 
-=head2 get_linkname
+=head2 get_link_names
 
- Title    : get_linkname
- Usage    : my $string = $linkset->get_linkname;
+ Title    : get_link_names
+ Usage    : my $string = $linkset->get_link_names;
+ Function : retrieve eutil-compatible link names
+ Returns  : array of strings
+ Args     : none
+ Notes    : Each LinkSet can hold multiple LinkInfo objects (each containing
+            a link name). Also, some LinkSets define a single link name. This
+            returns an array with all unique linknames globbed both sources, if
+            present and defined
+
+=cut
+
+sub get_link_names {
+    my ($self) = shift;
+    my %tmps;
+    my @lns;
+    if ($self->{'_linkname'}) {
+        push @lns, $self->{'_linkname'};
+        $tmps{$self->{'_linkname'}}++;
+    }
+    push @lns, map {$_->get_link_name} $self->get_LinkInfo;
+    return @lns;
+}
+
+=head2 get_link_name
+
+ Title    : get_link_name
+ Usage    : my $string = $linkset->get_link_name;
  Function : retrieve eutil-compatible link name
- Returns  : string
+ Returns  : single link name
  Args     : none
 
 =cut
 
-sub get_linkname { return shift->{'_linkname'} }
+sub get_link_name {
+    return ($_[0]->get_linknames)[0];
+}
 
 =head2 get_submitted_ids
 
@@ -149,11 +237,11 @@ sub get_submitted_ids {
     my $self = shift;
     my $datatype = $self->datatype;
     if ($datatype eq 'idcheck' || $datatype eq 'urllink') {
-        return wantarray ? $self->get_ids : [$self->get_ids];
+        return $self->get_ids;
     } elsif ($self->{'_submitted_ids'}) {
-        return wantarray ? @{$self->{'_submitted_ids'}} : $self->{'_submitted_ids'};
+        return @{$self->{'_submitted_ids'}};
     } else {
-        return wantarray ? () : undef;
+        return ();
     }
 }
 
@@ -169,7 +257,7 @@ sub get_submitted_ids {
 
 sub has_scores {
     my $self = shift;
-    return exists $self->{'_has_scores'} ? $self->{'_has_scores'} : 0;
+    return exists $self->{'_has_scores'} ? 1 : 0;
 }
 
 =head2 get_scores
@@ -188,7 +276,7 @@ sub get_scores {
     # called more than once...
     return unless $self->has_scores;
     my %scores = map {$_ => $self->{'_id'}->{$_}->[1]} keys %{$self->{'_id'}};
-    return wantarray ? %scores : \%scores; 
+    return %scores; 
 }
 
 =head2 get_score_by_id
@@ -213,8 +301,9 @@ sub get_score_by_id {
  Usage    : if ($linkset->has_linkout) {...}
  Function : returns TRUE if the single ID present in this linkset has a linkout
  Returns  : boolean
- Args     : none (uses the ID in get_ids(), which for these cases is always 
-            only one)
+ Args     : none
+ Notes    : this checks cmd=lcheck (boolean for a linkout) and also backchecks
+            cmd=acheck for databases with name 'LinkOut'
 
 =cut
 
@@ -222,10 +311,9 @@ sub has_linkout {
     my $self = shift;
     if (exists $self->{'_haslinkout'}) {
         return $self->{'_haslinkout'} eq 'Y' ? 1 : 0;
-    } else {
-        $self->warn('No data present; did you use cmd lcheck?');
-        return;
-    }
+    } else  {
+        return (grep {$_ eq 'LinkOut'} $self->get_databases) ? 1 : 0;
+    } 
 }
 
 =head2 has_neighbor
@@ -235,8 +323,9 @@ sub has_linkout {
  Function : returns TRUE if the single ID present in this linkset has a neighbor
             in the same database
  Returns  : boolean
- Args     : none (uses the ID in get_ids(), which for these cases is always 
-            only one)
+ Args     : none
+ Notes    : this checks cmd=ncheck (boolean for a neighbor in same database); no
+            other checks performed at this time
 
 =cut
 
@@ -245,8 +334,7 @@ sub has_neighbor {
     if (exists $self->{'_hasneighbor'}) {
         return $self->{'_hasneighbor'} eq 'Y' ? 1 : 0;
     } else {
-        $self->warn('No data present; did you use cmd ncheck?');
-        return;
+        return 0;
     }
 }
 
@@ -428,6 +516,54 @@ sub _add_linkinfo {
     }
 }
 
+=head2 to_string
+
+ Title    : to_string
+ Usage    : $foo->to_string()
+ Function : converts current object to string
+ Returns  : none
+ Args     : (optional) simple data for text formatting
+ Note     : Used generally for debugging and for various print methods
+
+=cut
+
+sub to_string {
+    my $self = shift;
+    my $level = shift || 0;
+    my $pad = 20 - $level;
+    #        order     method                    name
+    my %tags = (1 => ['get_databases'         => 'DB'],
+                2 => ['get_ids'               => 'ID'],
+                3 => ['get_link_names'        => 'Link Names'],
+                5 => ['get_submitted_ids'     => 'Submitted IDs'],
+                6 => ['has_scores'            => 'Scores?'],
+                7 => ['has_linkout'           => 'LinkOut?'],
+                8 => ['has_neighbor'          => 'DB Neighbors?'],
+                9 => ['get_webenv'            => 'WebEnv'],
+                10 => ['get_query_key'        => 'Key'],
+                );
+    my $string;
+    for my $tag (sort {$a <=> $b} keys %tags) {
+        my ($m, $nm) = ($tags{$tag}->[0], $tags{$tag}->[1]);
+        # using this awkward little construct to deal with both lists and scalars
+        my @content = grep {defined $_} $self->$m();
+        next unless @content;
+        $string .= sprintf("%-*s%-*s%s\n",
+            $level, '',
+            $pad, $nm,
+            $self->_text_wrap(':',
+                 ' ' x ($pad).':',
+                 join(', ',@content)));
+    }
+    while (my $li = $self->next_LinkInfo) {
+        $string .= $li->to_string(4);
+    }
+    while (my $ui = $self->next_UrlLink) {
+        $string .= $ui->to_string(4);
+    }
+    $string .= "\n";
+    return $string;
+}
+
 1;
 
-__END__ 

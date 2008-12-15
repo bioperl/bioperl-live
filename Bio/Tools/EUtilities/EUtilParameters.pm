@@ -174,9 +174,11 @@ BEGIN {
 sub $method {
     my (\$self, \$val) = \@_;
     if (defined \$val) {
-        \$self->{'_statechange'} = 1 if (!defined \$self->{'_$method'}) ||
-            (defined \$self->{'_$method'} && \$self->{'_$method'} ne \$val);
-        \$self->{'_$method'} = \$val;
+        if ((!defined \$self->{'_$method'}) ||
+        (defined \$self->{'_$method'} && \$self->{'_$method'} ne \$val)) {
+            \$self->{'_statechange'} = 1;
+            \$self->{'_$method'} = \$val;
+        }
     }
     return \$self->{'_$method'};
 }
@@ -314,7 +316,7 @@ sub available_parameters {
            though subsets can be returned based on the '-type' parameter. Data
            originally set as an array ref are returned based on whether the
            '-join_id' flag is set (default is the same array ref).
- Args    : -eutil : the eutil name (Default: returns all).  Use of '-list'
+ Args    : -type : the eutil name (Default: returns all).  Use of '-list'
                     supercedes this
            -list : array ref of specific parameters
            -join_ids : Boolean; join IDs based on correspondence (Default: no join)
@@ -448,8 +450,10 @@ sub eutil {
     my ($self, $eutil) = @_;
     if ($eutil) {
         $self->throw("$eutil not supported") if !exists $MODE{$eutil};
-        $self->{'_eutil'} = $eutil;
-        $self->{'_statechange'} = 1;
+        if (!defined $self->{'_eutil'} || ($self->{'_eutil'} && $self->{'_eutil'} ne $eutil)) {
+            $self->{'_eutil'} = $eutil;
+            $self->{'_statechange'} = 1;
+        }
     }
     return $self->{'_eutil'};
 }

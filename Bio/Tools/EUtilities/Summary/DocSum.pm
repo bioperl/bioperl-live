@@ -194,23 +194,24 @@ sub get_all_Items {
     return @{$self->{'_ordered_items'}};
 }
 
-=head2 get_content_by_name
+=head2 get_contents_by_name
 
- Title    : get_content_by_Item_name
- Usage    : my $data = get_content_by_name('CreateDate')
- Function : Returns scalar content for named Item in DocSum (indicated by
+ Title    : get_contents_by_name
+ Usage    : my ($data) = get_contents_by_name('CreateDate')
+ Function : Returns content for named Item(s) in DocSum (indicated by
             passed argument)
- Returns  : scalar value (string) if present
+ Returns  : array of laues
  Args     : string (Item name)
- Warns    : If Item with name is not found 
 
 =cut
 
-sub get_content_by_name {
+sub get_contents_by_name {
     my ($self, $key) = @_;
     return unless $key;
-    my ($it) = grep {$_->get_name eq $key} $self->get_all_Items;
-    return $it->get_content;
+    my @data = map {$_->get_content} 
+        grep {$_->get_name eq $key}
+        $self->get_all_Items;
+    return @data;
 }
 
 =head2 get_type_by_name
@@ -221,7 +222,6 @@ sub get_content_by_name {
             passed argument)
  Returns  : scalar value (string) if present
  Args     : string (Item name)
- Warns    : If Item with name is not found 
 
 =cut
 
@@ -268,6 +268,26 @@ sub _add_data {
         }
     }
     $self->{'_id'} = $data->{Id} if exists $data->{Id};
+}
+
+=head2 to_string
+
+ Title    : to_string
+ Usage    : $foo->to_string()
+ Function : converts current object to string
+ Returns  : none
+ Args     : (optional) simple data for text formatting
+ Note     : Used generally for debugging and for various print methods
+
+=cut
+
+sub to_string {
+    my $self = shift;
+    my $string = sprintf("%-20s%s\n",'UID', ':'.$self->get_id);
+    while (my $item = $self->next_Item)  {
+        $string .= $item->to_string;
+    }
+    return $string;
 }
 
 1;

@@ -98,7 +98,7 @@ sub get_attribute { return shift->{'_attribute'}; }
 
 =cut
 
-sub get_iconurl { return shift->{'_iconurl'}; }
+sub get_icon_url { return shift->{'_iconurl'}; }
 
 =head2 get_subject_type
 
@@ -179,9 +179,9 @@ sub get_provider_abbr { return shift->{'_provider_nameabbr'}; }
 
 sub get_provider_id { return shift->{'_provider_id'}[0]; }
 
-=head2 get_provider_iconurl
+=head2 get_provider_icon_url
 
- Title    : get_provider_iconurl
+ Title    : get_provider_icon_url
  Usage    : 
  Function : 
  Returns  : 
@@ -189,7 +189,7 @@ sub get_provider_id { return shift->{'_provider_id'}[0]; }
 
 =cut
 
-sub get_provider_iconurl { return shift->{'_provider_iconurl'}; }
+sub get_provider_icon_url { return shift->{'_provider_iconurl'}; }
 
 =head2 get_provider_url
 
@@ -215,6 +215,48 @@ sub _add_data {
     map {$self->{'_'.lc $_} = $data->{$_} if $data->{$_}} keys %$data;
 }
 
+=head2 to_string
+
+ Title    : to_string
+ Usage    : $foo->to_string()
+ Function : converts current object to string
+ Returns  : none
+ Args     : (optional) simple data for text formatting
+ Note     : Used generally for debugging and for various print methods
+
+=cut
+
+sub to_string {
+    my $self = shift;
+    my $level = shift || 0;
+    my $pad = 20 - $level;
+    #        order     method                    name
+    my %tags = (1 => ['get_link_name'          => 'Link Name'],
+                2 => ['get_subject_type'       => 'Subject Type'],
+                3 => ['get_dbfrom'             => 'DB From'],
+                4 => ['get_attribute'          => 'Attribute'],
+                6 => ['get_icon_url'           => 'IconURL'],
+                7 => ['get_url'                => 'URL'],
+                8 => ['get_provider_name'      => 'Provider'],
+                9 => ['get_provider_abbr'      => 'ProvAbbr'],
+                10 => ['get_provider_id'       => 'ProvID'],
+                11 => ['get_provider_url'      => 'ProvURL'],
+                12 => ['get_provider_icon_url' => 'ProvIcon'],
+                );
+    my $string = '';
+    for my $tag (sort {$a <=> $b} keys %tags) {
+        my ($m, $nm) = ($tags{$tag}->[0], $tags{$tag}->[1]);
+        my $content = $self->$m();
+        next unless $content;
+        $string .= sprintf("%-*s%-*s%s\n",
+            $level, '',
+            $pad, $nm,
+            $self->_text_wrap(':',
+                 ' ' x ($pad + $level).':',
+                 $content ));
+    }
+    return $string;
+}
+
 1;
 
-__END__ 

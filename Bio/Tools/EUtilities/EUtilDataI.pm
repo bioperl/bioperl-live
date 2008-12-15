@@ -59,6 +59,7 @@ through the object constructor.
 package Bio::Tools::EUtilities::EUtilDataI;
 use strict;
 use warnings;
+use Text::Wrap qw(wrap);
 
 use base qw(Bio::Root::RootI);
 
@@ -105,6 +106,20 @@ sub datatype {
     return $self->{'_type'};
 }
 
+=head2 rewind
+
+ Title    : rewind
+ Usage    : $esum->rewind
+ Function : rewinds the requested iterator
+ Returns  : none
+ Args     : [OPTIONAL] may include 'all', 'recursive', etc.
+
+=cut
+
+sub rewind {
+    shift->warn("Object may not need an iterator.  Please check the documentation.");
+}
+
 =head2 _add_data
 
  Title    : _add_data
@@ -119,18 +134,35 @@ sub _add_data {
     shift->throw_not_implemented;
 }
 
-=head2 rewind
+=head2 to_string
 
- Title    : rewind
- Usage    : $esum->rewind
- Function : rewinds the requested iterator
+ Title    : to_string
+ Usage    : $foo->to_string()
+ Function : converts current object to string
  Returns  : none
- Args     : [OPTIONAL] may include 'all', 'recursive', etc.
+ Args     : (optional) simple data for text formatting
+ Note     : Used generally for debugging and for the print_* methods
 
 =cut
 
-sub rewind {
-    shift->warn("Object may not need an iterator.  Please check the documentation.");
+sub to_string {
+    shift->throw_not_implemented;
+}
+
+=head2 _text_wrap
+
+ Title    : _text_wrap
+ Usage    : $foo->_text_wrap($string)
+ Function : private internal wrapper for Text::Wrap::wrap
+ Returns  : string
+ Args     : string
+ Note     : Internal use only.  Simple wrapper method.
+
+=cut
+
+sub _text_wrap {
+    shift;
+    return wrap(@_);
 }
 
 1;

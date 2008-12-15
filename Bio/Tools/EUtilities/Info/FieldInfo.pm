@@ -280,5 +280,35 @@ sub _add_data {
     map { $self->{'_'.lc $_} = $simple->{$_} unless ref $simple->{$_}} keys %$simple;
 }
 
+=head2 to_string
+
+ Title    : to_string
+ Usage    : $foo->to_string()
+ Function : converts current object to string
+ Returns  : none
+ Args     : (optional) simple data for text formatting
+ Note     : Used generally for debugging and for various print methods
+
+=cut
+
+sub to_string {
+    my $self = shift;
+    #        order     method                     name        
+    my %tags = (1 => ['get_field_code'        => 'Field Code'],
+                2 => ['get_field_name'        => 'Field Name'],
+                3 => ['get_field_description' => 'Description'],
+                4 => ['get_term_count'        => 'Term Count']);
+    my $string;
+    for my $tag (sort {$a <=> $b} keys %tags) {
+        my ($m, $nm) = ($tags{$tag}->[0], $tags{$tag}->[1]);
+        $string .= sprintf("%-20s%s\n", $nm,
+            $self->_text_wrap('', ' 'x20 .':', ":".$self->$m));
+    }
+    $string .= sprintf("%-20s%s\n", "Attributes",
+        $self->_text_wrap('', ' 'x20 .':', ":".join(',', grep {$self->$_} qw(is_date
+               is_singletoken is_hierarchy is_hidden is_numerical))));
+    return $string;
+}
+
 1;
 

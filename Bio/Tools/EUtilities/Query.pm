@@ -76,7 +76,6 @@ use strict;
 use warnings;
 use Bio::Tools::EUtilities::Query::GlobalQuery;
 use Bio::Tools::EUtilities::History;
-use Data::Dumper;
 
 use base qw(Bio::Tools::EUtilities);
 
@@ -135,6 +134,49 @@ sub _add_data {
     }
 }
 
+}
+
+=head2 to_string
+
+ Title    : to_string
+ Usage    : $foo->to_string()
+ Function : converts current object to string
+ Returns  : none
+ Args     : (optional) simple data for text formatting
+ Note     : Used generally for debugging and for the print_* methods
+
+=cut
+
+sub to_string {
+    my $self = shift;
+    my %data = (
+        'DB'    => [1, join(', ',$self->get_databases) || ''],
+        'Query' => [2, $self->get_term || ''],
+        'IDs'   => [4, join(', ',$self->get_ids) || ''],
+    );
+    my $string = $self->SUPER::to_string;
+    if ($self->eutil eq 'esearch') {
+        $data{'Count'} = [3, $self->get_count ];
+        $data{'Translation From'} = [5, $self->get_translation_from || ''];
+        $data{'Translation To'} = [6, $self->get_translation_to || ''];
+        $data{'RetStart'} = [7, $self->get_retstart];
+        $data{'RetMax'} = [8, $self->get_retmax];
+        $data{'Translation'} = [9, $self->get_query_translation || ''];
+    }
+    if ($self->eutil eq 'espell') {
+        $data{'Corrected'} = [3, $self->get_corrected_query || ''];
+        $data{'Replaced'} = [4, join(',',$self->get_replaced_terms) || ''];
+    }
+    for my $k (sort {$data{$a}->[0] <=> $data{$b}->[0]} keys %data) {
+        $string .= sprintf("%-20s:%s\n",$k, $self->_text_wrap('',' 'x 20 .':', $data{$k}->[1]));
+    }
+    while (my $h = $self->next_History) {
+        $string .= $h->to_string;
+    }
+    while (my $gq = $self->next_GlobalQuery) {
+        $string .= $gq->to_string;
+    }
+    return $string;
 }
 
 1;

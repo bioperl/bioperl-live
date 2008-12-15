@@ -433,6 +433,48 @@ sub parse_chunk {
 
 }
 
+=head2 to_string
+
+ Title    : to_string
+ Usage    : $foo->to_string()
+ Function : converts current object to string
+ Returns  : none
+ Args     : (optional) simple data for text formatting
+ Note     : Implemented in plugins
+
+=cut
+
+sub to_string {
+    my $self = shift;
+    $self->parse_data if ($self->can('parse_data') && !$self->data_parsed);
+    return sprintf("%-20s:%s\n\n", 'EUtil', $self->eutil);
+}
+
+=head2 print_all
+
+ Title    : print_all
+ Usage    : $info->print_all();
+            $info->print_all(-fh => $fh, -cb => $coderef);
+ Function : prints (dumps) all data in parser.  Unless a coderef is supplied,
+            this just dumps the parser-specific to_string method to either a
+            file/fh or STDOUT
+ Returns  : none
+ Args     : [optional]
+           -file : file to print to
+           -fh   : filehandle to print to (cannot be used concurrently with file)
+           -cb   : coderef to use in place of default print method.  This is
+                   passed in the parser object 
+           -wrap : number of columns to wrap default text output to (def = 80)
+ Notes    : only applicable for einfo.  If -file or -fh are not defined,
+            prints to STDOUT
+
+=cut
+
+sub print_all {
+    my ($self, @args) = @_;
+    $self->_print_handler(@args);
+}
+
 =head1 Bio::Tools::EUtilities::EUtilDataI methods
 
 =head2 eutil
@@ -492,8 +534,10 @@ sub get_ids {
                 push @ids, map {$_->get_ids }
                     grep { $request->($_) } $self->get_LinkSets;
             } else {
-                push @ids, map {$_->get_ids }
-                    grep {$_->get_dbto eq $request} $self->get_LinkSets;
+                push @ids,
+                    map { @{$_->[0]} }
+                    grep {grep { $_ eq $request } @{$_->[1]}}
+                    map {[[$_->get_ids], [$_->get_databases]]} $self->get_LinkSets;
             }
         } else {
             $self->warn('Multiple database present, IDs will be globbed together')
@@ -528,7 +572,6 @@ sub get_ids {
  Notes    : egquery    : first db in the query (you probably want get_databases)
             einfo      : the queried database
             espell     : the queried database
-            elink      : from parameter_base->dbfrom or undef
             all others : from parameter_base->db or undef
 
 =cut
@@ -556,8 +599,9 @@ sub get_db {
             database use the convenience method get_db/get_database
             
             egquery    : list of all databases in the query
-            einfo      : the queried database
+            einfo      : the queried database, or the available databases
             espell     : the queried database
+            elink      : collected from each LinkSet
             all others : from parameter_base->db or undef
 
 =cut
@@ -568,9 +612,16 @@ sub get_databases {
     my $eutil = $self->eutil;
     my @dbs;
     if ($eutil eq 'einfo' || $eutil eq 'espell') {
-        @dbs = $self->{'_dbname'} || $self->{'_database'};
+        @dbs = $self->{'_dbname'} ||
+        $self->{'_database'} ||
+        $self->get_available_databases;
     } elsif ($eutil eq 'egquery') {
         @dbs = map {$_->get_database} ($self->get_GlobalQueries);
+    } elsif ($eutil eq 'elink') {
+        # only unique dbs
+        my %tmp;
+        @dbs = sort grep {!$tmp{$_}++} 
+            map {($_->get_databases)} $self->get_LinkSets;
     } elsif ($self->parameter_base) {
         if ($self->parameter_base->eutil eq 'elink') {
             @dbs = $self->parameter_base->dbfrom;
@@ -861,6 +912,31 @@ sub get_GlobalQueries {
     ref $self->{'_globalqueries'} ? return @{ $self->{'_globalqueries'} } : return ();
 }
 
+=head2 print_GlobalQueries
+
+ Title    : print_GlobalQueries
+ Usage    : $docsum->print_GlobalQueries();
+            $docsum->print_GlobalQueries(-fh => $fh, -callback => $coderef);
+ Function : prints item data for all global queries.  The default printing
+            method is each item per DocSum is printed with relevant values if
+            present in a simple table using Text::Wrap. 
+ Returns  : none
+ Args     : [optional]
+           -file : file to print to
+           -fh   : filehandle to print to (cannot be used concurrently with file)
+           -cb   : coderef to use in place of default print method.  This is passed
+                   in a GlobalQuery object;
+           -wrap : number of columns to wrap default text output to (def = 80)
+ Notes    : only applicable for esummary.  If -file or -fh are not defined,
+            prints to STDOUT
+
+=cut
+
+sub print_GlobalQueries {
+    my ($self, @args) = @_;
+    $self->_print_handler(@args, -type => 'GlobalQuery');
+}
+
 =head1 Summary-related methods
 
 =head2 next_DocSum
@@ -909,20 +985,16 @@ sub get_DocSums {
 
  Title    : print_DocSums
  Usage    : $docsum->print_DocSums();
-            $docsum->print_DocSums(-fh => $fh, -callback => $coderef);
- Function : prints item data for all docsums.  The default printing method is
-            each item per DocSum is printed with relevant values if present
-            in a simple table using Text::Wrap.  
+            $docsum->print_DocSums(-fh => $fh, -cb => $coderef);
+ Function : prints item data for all docsums.  The default data is generated
+            via DocSum::to_string
  Returns  : none
  Args     : [optional]
            -file : file to print to
            -fh   : filehandle to print to (cannot be used concurrently with file)
            -cb   : coderef to use in place of default print method.  This is passed
-                   in a DocSum object;
+                   in a DocSum object
            -wrap : number of columns to wrap default text output to (def = 80)
-           -header : flag/callback for printing main eutil information.
-                  If this is true, checked for a code reference for passing
-                  self to, otherwise defaults to a preset code ref (def = 0)
  Notes    : only applicable for esummary.  If -file or -fh are not defined,
             prints to STDOUT
 
@@ -1106,18 +1178,16 @@ sub get_LinkInfo {
 
  Title    : print_FieldInfo
  Usage    : $info->print_FieldInfo();
-            $info->print_FieldInfo(-fh => $fh, -callback => $coderef);
- Function : prints field data for each FieldInfo object. The default method
-            prints data from each FieldInfo in a simple table using Text::Wrap.  
+            $info->print_FieldInfo(-fh => $fh, -cb => $coderef);
+ Function : prints link data for each FieldInfo object. The default is generated
+            via FieldInfo::to_string
  Returns  : none
  Args     : [optional]
            -file : file to print to
            -fh   : filehandle to print to (cannot be used concurrently with file)
-           -cb   : coderef to use in place of default print method.  
+           -cb   : coderef to use in place of default print method.  This is
+                   passed in a FieldInfo object
            -wrap : number of columns to wrap default text output to (def = 80)
-           -header : flag/callback for printing main eutil information.
-                  If this is true, checked for a code reference for passing
-                  self to, otherwise defaults to a preset code ref (def = 0)
  Notes    : only applicable for einfo.  If -file or -fh are not defined,
             prints to STDOUT
 
@@ -1132,19 +1202,16 @@ sub print_FieldInfo {
 
  Title    : print_LinkInfo
  Usage    : $info->print_LinkInfo();
-            $info->print_LinkInfo(-fh => $fh, -callback => $coderef);
- Function : prints link data for each LinkInfo object. The default method
-            prints data from each LinkInfo in a simple table using Text::Wrap.  
+            $info->print_LinkInfo(-fh => $fh, -cb => $coderef);
+ Function : prints link data for each LinkInfo object. The default is generated
+            via LinkInfo::to_string
  Returns  : none
  Args     : [optional]
            -file : file to print to
            -fh   : filehandle to print to (cannot be used concurrently with file)
            -cb   : coderef to use in place of default print method.  This is passed
-                   in a DocSum object;
+                   in a LinkInfo object
            -wrap : number of columns to wrap default text output to (def = 80)
-           -header : flag/callback for printing main eutil information.
-                  If this is true, checked for a code reference for passing
-                  self to, otherwise defaults to a preset code ref (def = 0)
  Notes    : only applicable for einfo.  If -file or -fh are not defined,
             prints to STDOUT
 
@@ -1203,6 +1270,30 @@ sub get_LinkSets {
     return ref $self->{'_linksets'} ? @{ $self->{'_linksets'} } : return ();
 }
 
+=head2 print_LinkSets
+
+ Title    : print_LinkSets
+ Usage    : $info->print_LinkSets();
+            $info->print_LinkSets(-fh => $fh, -cb => $coderef);
+ Function : prints link data for each LinkSet object. The default is generated
+            via LinkSet::to_string
+ Returns  : none
+ Args     : [optional]
+           -file : file to print to
+           -fh   : filehandle to print to (cannot be used concurrently with file)
+           -cb   : coderef to use in place of default print method.  This is passed
+                   in a LinkSet object
+           -wrap : number of columns to wrap default text output to (def = 80)
+ Notes    : only applicable for einfo.  If -file or -fh are not defined,
+            prints to STDOUT
+
+=cut
+
+sub print_LinkSets {
+    my ($self, @args) = @_;
+    $self->_print_handler(@args, -type => 'LinkSet');
+}
+
 =head2 get_linked_databases
 
  Title    : get_linked_databases
@@ -1210,26 +1301,14 @@ sub get_LinkSets {
  Function : returns list of databases linked to in linksets
  Returns  : array of databases
  Args     : none
- Notes    : only applicable for elink.
+ Notes    : only applicable for elink.  Now defers to get_databases.
 
 =cut
 
 sub get_linked_databases {
     my $self = shift;
-    if ($self->is_lazy) {
-        $self->warn('get_linked_databases() not implemented when using lazy mode');
-        return ();
-    }
-    $self->parse_data unless $self->data_parsed;
-    unless (exists $self->{'_linked_db'}) {
-        my %temp;
-        # make sure unique db is returned
-        # do the linksets have a db? (URLs, db checks do not)
-        
-        push @{$self->{'_linked_db'}}, map {$_->get_dbto}
-            grep { $_->get_dbto ? !$temp{$_->get_dbto}++: 0 } $self->get_LinkSets;
-    }
-    return @{$self->{'_linked_db'}};
+    return $self->get_databases if $self->eutil eq 'elink';
+    return ();
 }
 
 =head1 Iterator- and callback-related methods
@@ -1413,127 +1492,62 @@ sub callback {
 # Object printing methods
 
 {
-    my $DEF_FIELDINFO = sub {
-        my $i = shift;
-        #        order     method                     name        
-        my %tags = (1 => ['get_field_code'        => 'Field Code'],
-                    2 => ['get_field_name'        => 'Field Name'],
-                    3 => ['get_field_description' => 'Description'],
-                    4 => ['get_term_count'        => 'Term Count']);
-        my $string = '';
-        for my $tag (sort {$a <=> $b} keys %tags) {
-            my ($m, $nm) = ($tags{$tag}->[0], $tags{$tag}->[1]);
-            $string .= sprintf("%-15s%s\n", $nm, wrap('', ' 'x16, ":".$i->$m));
-        }
-        $string .= sprintf("%-15s%s\n", "Attributes",
-                           wrap('', ' 'x16, ":".join(',', grep {$i->$_} qw(is_date
-                   is_singletoken is_hierarchy is_hidden is_numerical))));
-        $string .= "\n";
-        return $string;
-    };
-    
-    my $DEF_LINKINFO = sub {
-        my $i = shift;
-        #        order     method                    name
-        my %tags = (1 => ['get_link_name'         => 'Link Name'],
-                    2 => ['get_link_description'  => 'Description'],
-                    3 => ['get_dbfrom'            => 'DB From'],
-                    4 => ['get_dbto'              => 'DB To']);
-        my $string = '';
-        for my $tag (sort {$a <=> $b} keys %tags) {
-            my ($m, $nm) = ($tags{$tag}->[0], $tags{$tag}->[1]);
-            $string .= sprintf("%-15s%s\n", $nm, wrap('', ' 'x16, ":".$i->$m));
-        }
-        $string .= "\n";
-        return $string;
-    };
-    
-    my $DEF_DOCSUM = sub {
-        my $ds = shift;
-        my $string = sprintf("UID: %s\n",$ds->get_id);
-        # flattened mode
-        while (my $item = $ds->next_Item('flatten'))  {
-            # not all Items have content, so need to check...
-            my $content = $item->get_content || '';
-            $string .= sprintf("%-20s%s\n",$item->get_name(),
-                               wrap('',' 'x21, ":$content"));
-        }
-        $string .= "\n";
-        return $string;
-    };
-    
-    my $DEF_EINFO_HEADER = sub {
+    my $DEF_HANDLER = sub {
         my $obj = shift;
-        #        order     method                name
-        my %tags = (1 => ['get_database'     => 'Database Name'],
-                    2 => ['get_description'  => 'Description'],
-                    3 => ['get_menu_name'    => 'Menu Name'],
-                    4 => ['get_record_count' => 'Records'],
-                    5 => ['get_last_update'  => 'Last Updated']);
-        my $string = '';
-        for my $tag (sort {$a <=> $b} keys %tags) {
-            my ($m, $nm) = ($tags{$tag}->[0], $tags{$tag}->[1]);
-            $string .= sprintf("%-15s%s\n", $nm, wrap('', ' 'x16, ":".$obj->$m));
-        }
-        $string .= "\n";
-        return $string;
+        return $obj->to_string."\n";
     };
     
     my %HANDLER = (
-        'DocSum'        => $DEF_DOCSUM,
-        'FieldInfo'     => $DEF_FIELDINFO,
-        'LinkInfo'      => $DEF_LINKINFO,
+        'DocSum'        => 1,
+        'FieldInfo'     => 1,
+        'LinkInfo'      => 1,
+        'GlobalQuery'   => 1,
+        'LinkSet'       => 1,
+        'all'           => 1,
                    );
-    
-    my %HEADER = (
-        'FieldInfo'     => $DEF_EINFO_HEADER,
-        'LinkInfo'      => $DEF_EINFO_HEADER,
-                   );    
     
     sub _print_handler {
         my $self = shift;
-        my ($file, $fh, $cb, $wrap, $type, $header) = $self->_rearrange([qw(FILE FH CB WRAP TYPE HEADER)], @_);
-        $self->throw("Must define object type for handler") if !defined $type;
-        $wrap ||= 80;
+        my ($file, $fh, $cb, $wrap, $type, $all) = $self->_rearrange([qw(FILE FH CB WRAP TYPE ALL)], @_);
+        $type ||= 'all';
+        
+        # default formatting delegates to_string
         if (!$cb) {
-            $self->throw("Type $type not registered with print handler, exiting") unless exists
-                $HANDLER{$type};
-            eval {use Text::Wrap qw(wrap $columns);};
-            $self->throw("Text::Wrap is not available!") if $@;
-            $Text::Wrap::columns = $wrap;
-            $cb = $HANDLER{$type};
+            $self->throw("Type $type not registered with print handler, exiting...")
+                if !exists($HANDLER{$type});
+            $cb = $DEF_HANDLER;
         } else {
             $self->throw("Callback must be a code reference") if ref $cb ne 'CODE';
         }
+        
         $file ||= $fh;
         $self->throw("Have defined both file and filehandle; only use one!") if $file && $fh;
         my $io = ($file) ? Bio::Root::IO->new(-input => $file, -flush => 1) :
                  Bio::Root::IO->new(-flush => 1); # defaults to STDOUT
-        my $it = "next_$type";
-        $self->throw("Unknown iterator method $it") unless $self->can($it);
-        if ($header) {
-            my $headercb = ref($header) eq 'CODE' ? $header :
-                exists($HEADER{$type})            ? $HEADER{$type}:
-                $self->throw("Default header code for $type not set");
-            my $string = $headercb->($self);
+                 
+        if ($type eq 'all') {
+            my $string = $cb->($self);
             $io->_print($string) if $string;
-        }
-        while (my $obj = $self->$it) {
-            my $string = $cb->($obj);
-            $io->_print($string) if $string;
+        } else {
+            # set up iterator
+            my $it = "next_$type";
+            $self->throw("Unknown iterator method $it") unless $self->can($it);
+            while (my $obj = $self->$it) {
+                my $string = $cb->($obj);
+                $io->_print($string) if $string;
+            }
         }
         $io->close;
     }
-    
 }
 
 # Private methods
 
-# fixes odd bad XML issue espell data (still present 6-24-07)
-
 sub _seekable {
     return shift->{'_seekable'}
 }
+
+# fixes odd bad XML issue espell data (still present 6-24-07)
 
 sub _fix_espell {
     my ($self, $response) = @_;

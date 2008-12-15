@@ -29,7 +29,7 @@ Bio::Tools::EUtilities::Info::LinkInfo - class for storing einfo link data
 
 =head1 DESCRIPTION
 
-This class handles data output (XML) from einfo.
+This class handles data output (XML) from einfo and elink.
 
 einfo is capable of returning two types of information: 1) a list of all
 available databases (when called w/o parameters) and 2) information about a
@@ -106,18 +106,37 @@ sub new {
     return $self;
 }
 
-=head2 get_dbto
+=head2 get_database
 
- Title    : get_dbto
- Usage    : my $refd_db = $link->get_dbto;
- Function : returns database this link references (points to)
+ Title    : get_database
+ Usage    : my $db = $info->get_database;
+ Function : returns single database name (eutil-compatible).  This is the
+            queried database. For elinks (which have 'db' and 'dbfrom')
+            this is equivalent to db/dbto (use get_dbfrom() to for the latter)
  Returns  : string
  Args     : none
- Note     : This is not the same as db()! (see DESCRIPTION for details)
 
 =cut
 
-sub get_dbto { return shift->{'_dbto'} }
+sub get_database {
+    return shift->{'_dbto'};
+}
+
+=head2 get_db (alias for get_database)
+
+=cut
+
+sub get_db {
+    return shift->get_database;
+}
+
+=head2 get_dbto (alias for get_database)
+
+=cut
+
+sub get_dbto {
+    return shift->get_database;
+}
 
 =head2 get_dbfrom
 
@@ -223,6 +242,46 @@ sub get_url { return shift->{'_url'} }
 sub _add_data {
     my ($self, $simple) = @_;
     map { $self->{'_'.lc $_} = $simple->{$_} unless ref $simple->{$_}} keys %$simple;
+}
+
+=head2 to_string
+
+ Title    : to_string
+ Usage    : $foo->to_string()
+ Function : converts current object to string
+ Returns  : none
+ Args     : (optional) simple data for text formatting
+ Note     : Used generally for debugging and for various print methods
+
+=cut
+
+sub to_string {
+    my $self = shift;
+    my $level = shift || 0;
+    my $pad = 20 - $level;
+    #        order     method                    name
+    my %tags = (1 => ['get_link_name'         => 'Link Name'],
+                2 => ['get_link_description'  => 'Description'],
+                3 => ['get_dbfrom'            => 'DB From'],
+                4 => ['get_dbto'              => 'DB To'],
+                5 => ['get_link_menu_name'    => 'Menu Name'],
+                6 => ['get_priority'          => 'Priority'],
+                7 => ['get_html_tag'          => 'HTML Tag'],
+                8 => ['get_url'               => 'URL'],
+                );
+    my $string = '';
+    for my $tag (sort {$a <=> $b} keys %tags) {
+        my ($m, $nm) = ($tags{$tag}->[0], $tags{$tag}->[1]);
+        my $content = $self->$m();
+        next unless $content;
+        $string .= sprintf("%-*s%-*s%s\n",
+            $level, '',
+            $pad, $nm,
+            $self->_text_wrap(':',
+                 ' ' x ($pad).':',
+                 $content ));
+    }
+    return $string;
 }
 
 1;
