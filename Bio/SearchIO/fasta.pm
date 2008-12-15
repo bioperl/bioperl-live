@@ -1351,9 +1351,9 @@ sub next_result {
         }
         else {
             if ( !$seentop ) {
-                #$self->debug($_);
-                $self->warn("unrecognized FASTA Family report file!");
-                return;
+                $self->debug($_);
+                #$self->warn("unrecognized FASTA Family report file!");
+                #return;
             }
         }
     }
