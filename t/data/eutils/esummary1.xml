@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE eSummaryResult PUBLIC "-//NLM//DTD eSummaryResult, 11 May 2002//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eSummary_041029.dtd">
+<eSummaryResult>
+
+<DocSum>
+<Id>1621261</Id>
+<Item Name="Caption" Type="String">CAB02640</Item>
+<Item Name="Title" Type="String">PROBABLE PYRIMIDINE OPERON REGULATORY PROTEIN PYRR [Mycobacterium tuberculosis H37Rv]</Item>
+<Item Name="Extra" Type="String">gi|1621261|emb|CAB02640.1|[1621261]</Item>
+<Item Name="Gi" Type="Integer">1621261</Item>
+<Item Name="CreateDate" Type="String">2003/11/21</Item>
+<Item Name="UpdateDate" Type="String">2008/10/23</Item>
+<Item Name="Flags" Type="Integer">0</Item>
+<Item Name="TaxId" Type="Integer">83332</Item>
+<Item Name="Length" Type="Integer">193</Item>
+<Item Name="Status" Type="String">live</Item>
+<Item Name="ReplacedBy" Type="String"></Item>
+<Item Name="Comment" Type="String"><![CDATA[  ]]></Item>
+</DocSum>
+
+
+<DocSum>
+<Id>89318838</Id>
+<Item Name="Caption" Type="String">EAS10332</Item>
+<Item Name="Title" Type="String"></Item>
+<Item Name="Extra" Type="String">gi|89318838|gb|EAS10332.1|[89318838]</Item>
+<Item Name="Gi" Type="Integer">89318838</Item>
+<Item Name="CreateDate" Type="String"></Item>
+<Item Name="UpdateDate" Type="String"></Item>
+<Item Name="Flags" Type="Integer">0</Item>
+<Item Name="TaxId" Type="Integer">0</Item>
+<Item Name="Length" Type="Integer">0</Item>
+<Item Name="Status" Type="String">suppressed</Item>
+<Item Name="ReplacedBy" Type="String"></Item>
+<Item Name="Comment" Type="String"><![CDATA[ This WGS project has been superceded by the complete genome in CP000656-CP000659 ]]></Item>
+</DocSum>
+
+
+<DocSum>
+<Id>68536103</Id>
+<Item Name="Caption" Type="String">YP_250808</Item>
+<Item Name="Title" Type="String">pyrimidine regulatory protein PyrR [Corynebacterium jeikeium K411]</Item>
+<Item Name="Extra" Type="String">gi|68536103|ref|YP_250808.1|[68536103]</Item>
+<Item Name="Gi" Type="Integer">68536103</Item>
+<Item Name="CreateDate" Type="String">2005/07/04</Item>
+<Item Name="UpdateDate" Type="String">2008/07/24</Item>
+<Item Name="Flags" Type="Integer">512</Item>
+<Item Name="TaxId" Type="Integer">306537</Item>
+<Item Name="Length" Type="Integer">195</Item>
+<Item Name="Status" Type="String">live</Item>
+<Item Name="ReplacedBy" Type="String"></Item>
+<Item Name="Comment" Type="String"><![CDATA[  ]]></Item>
+</DocSum>
+
+
+<DocSum>
+<Id>20807972</Id>
+<Item Name="Caption" Type="String">NP_623143</Item>
+<Item Name="Title" Type="String">pyrimidine regulatory protein PyrR [Thermoanaerobacter tengcongensis MB4]</Item>
+<Item Name="Extra" Type="String">gi|20807972|ref|NP_623143.1|[20807972]</Item>
+<Item Name="Gi" Type="Integer">20807972</Item>
+<Item Name="CreateDate" Type="String">2002/05/09</Item>
+<Item Name="UpdateDate" Type="String">2008/07/23</Item>
+<Item Name="Flags" Type="Integer">512</Item>
+<Item Name="TaxId" Type="Integer">273068</Item>
+<Item Name="Length" Type="Integer">178</Item>
+<Item Name="Status" Type="String">live</Item>
+<Item Name="ReplacedBy" Type="String"></Item>
+<Item Name="Comment" Type="String"><![CDATA[  ]]></Item>
+</DocSum>
+
+
+<DocSum>
+<Id>730439</Id>
+<Item Name="Caption" Type="String">P41007</Item>
+<Item Name="Title" Type="String">RecName: Full=Bifunctional protein pyrR; Includes: RecName: Full=Pyrimidine operon regulatory protein; Includes: RecName: Full=Uracil phosphoribosyltransferase; Short=UPRTase</Item>
+<Item Name="Extra" Type="String">gi|730439|sp|P41007.1|PYRR_BACCL[730439]</Item>
+<Item Name="Gi" Type="Integer">730439</Item>
+<Item Name="CreateDate" Type="String">1995/02/01</Item>
+<Item Name="UpdateDate" Type="String">2008/11/25</Item>
+<Item Name="Flags" Type="Integer">0</Item>
+<Item Name="TaxId" Type="Integer">1394</Item>
+<Item Name="Length" Type="Integer">179</Item>
+<Item Name="Status" Type="String">live</Item>
+<Item Name="ReplacedBy" Type="String"></Item>
+<Item Name="Comment" Type="String"><![CDATA[  ]]></Item>
+</DocSum>
+
+</eSummaryResult>

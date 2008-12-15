@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD eLinkResult, 11 May 2002//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eLink_020511.dtd">
+<eLinkResult>
+<LinkSet>
+	<DbFrom>protein</DbFrom>
+	<IdList>
+		<Id>1621261</Id>
+	</IdList>
+	<LinkSetDb>
+		<DbTo>taxonomy</DbTo>
+		<LinkName>protein_taxonomy</LinkName>
+		<Link>
+			<Id>83332</Id>
+		</Link>
+	</LinkSetDb>
+</LinkSet>
+<LinkSet>
+	<DbFrom>protein</DbFrom>
+	<IdList>
+		<Id>68536103</Id>
+	</IdList>
+	<LinkSetDb>
+		<DbTo>taxonomy</DbTo>
+		<LinkName>protein_taxonomy</LinkName>
+		<Link>
+			<Id>306537</Id>
+		</Link>
+	</LinkSetDb>
+</LinkSet>
+<LinkSet>
+	<DbFrom>protein</DbFrom>
+	<IdList>
+		<Id>20807972</Id>
+	</IdList>
+	<LinkSetDb>
+		<DbTo>taxonomy</DbTo>
+		<LinkName>protein_taxonomy</LinkName>
+		<Link>
+			<Id>273068</Id>
+		</Link>
+	</LinkSetDb>
+</LinkSet>
+<LinkSet>
+	<DbFrom>protein</DbFrom>
+	<IdList>
+		<Id>730439</Id>
+	</IdList>
+	<LinkSetDb>
+		<DbTo>taxonomy</DbTo>
+		<LinkName>protein_taxonomy</LinkName>
+		<Link>
+			<Id>1394</Id>
+		</Link>
+	</LinkSetDb>
+</LinkSet>
+</eLinkResult>

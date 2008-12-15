@@ -1,0 +1,439 @@
+<?xml version="1.0"?>
+<!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD eLinkResult, 11 May 2002//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eLink_020511.dtd">
+<eLinkResult>
+<LinkSet>
+	<DbFrom>protein</DbFrom>
+	<IdCheckList>
+		<IdLinkSet>
+			<Id>730439</Id>
+			<LinkInfo>
+				<DbTo>cdd</DbTo>
+				<LinkName>protein_cdd</LinkName>
+				<MenuTag>Conserved Domain Links</MenuTag>
+				<HtmlTag></HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>cdd</DbTo>
+				<LinkName>protein_cdd_concise_2</LinkName>
+				<MenuTag>Concise Conserved Domain Links</MenuTag>
+				<HtmlTag></HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>cdd</DbTo>
+				<LinkName>protein_cdd_summary</LinkName>
+				<MenuTag></MenuTag>
+				<HtmlTag>Conserved Domains</HtmlTag>
+				<Url><![CDATA[http://www.ncbi.nlm.nih.gov/Structure/cdd/wrpsb.cgi?INPUT_TYPE=precalc&SEQUENCE=<@UID@>]]></Url>
+				<Priority>55</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>pmc</DbTo>
+				<LinkName>protein_pmc</LinkName>
+				<MenuTag>PMC Links</MenuTag>
+				<HtmlTag>Full text in PMC</HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>protein</DbTo>
+				<LinkName>protein_protein</LinkName>
+				<MenuTag>Related Sequences</MenuTag>
+				<HtmlTag>Related Sequences</HtmlTag>
+				<Priority>140</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>protein</DbTo>
+				<LinkName>protein_protein_cdart_summary</LinkName>
+				<MenuTag></MenuTag>
+				<HtmlTag>Domain Relatives</HtmlTag>
+				<Url><![CDATA[http://www.ncbi.nlm.nih.gov/Structure/lexington/lexington.cgi?cmd=prot&uid=<@UID@>]]></Url>
+				<Priority>150</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>protein</DbTo>
+				<LinkName>protein_protein_identical</LinkName>
+				<MenuTag>Identical Proteins</MenuTag>
+				<HtmlTag>Identical Proteins</HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>pubmed</DbTo>
+				<LinkName>protein_pubmed</LinkName>
+				<MenuTag>PubMed Links</MenuTag>
+				<HtmlTag>PubMed</HtmlTag>
+				<Priority>185</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>structure</DbTo>
+				<LinkName>protein_structure_related</LinkName>
+				<MenuTag></MenuTag>
+				<HtmlTag>Related Structure</HtmlTag>
+				<Url><![CDATA[http://structure.ncbi.nlm.nih.gov/Structure/cblast/cblast.cgi?client=entrez&query_gi=<@UID@>]]></Url>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>taxonomy</DbTo>
+				<LinkName>protein_taxonomy</LinkName>
+				<MenuTag>Taxonomy Links</MenuTag>
+				<HtmlTag>Taxonomy</HtmlTag>
+				<Priority>200</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>LinkOut</DbTo>
+				<LinkName>ExternalLink</LinkName>
+				<MenuTag>LinkOut</MenuTag>
+				<HtmlTag>LinkOut</HtmlTag>
+				<Priority>255</Priority>
+			</LinkInfo>
+		</IdLinkSet>
+		<IdLinkSet>
+			<Id>68536103</Id>
+			<LinkInfo>
+				<DbTo>cdd</DbTo>
+				<LinkName>protein_cdd</LinkName>
+				<MenuTag>Conserved Domain Links</MenuTag>
+				<HtmlTag></HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>cdd</DbTo>
+				<LinkName>protein_cdd_concise_2</LinkName>
+				<MenuTag>Concise Conserved Domain Links</MenuTag>
+				<HtmlTag></HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>cdd</DbTo>
+				<LinkName>protein_cdd_summary</LinkName>
+				<MenuTag></MenuTag>
+				<HtmlTag>Conserved Domains</HtmlTag>
+				<Url><![CDATA[http://www.ncbi.nlm.nih.gov/Structure/cdd/wrpsb.cgi?INPUT_TYPE=precalc&SEQUENCE=<@UID@>]]></Url>
+				<Priority>55</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>gene</DbTo>
+				<LinkName>protein_gene</LinkName>
+				<MenuTag>Gene Links</MenuTag>
+				<HtmlTag>Gene</HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>genome</DbTo>
+				<LinkName>protein_genome</LinkName>
+				<MenuTag>Genome Links</MenuTag>
+				<HtmlTag>Genome</HtmlTag>
+				<Priority>160</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>genomeprj</DbTo>
+				<LinkName>protein_genomeprj</LinkName>
+				<MenuTag>Genome Project Links</MenuTag>
+				<HtmlTag>Genome Project</HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>nuccore</DbTo>
+				<LinkName>protein_nuccore</LinkName>
+				<MenuTag>CoreNucleotide Links</MenuTag>
+				<HtmlTag>CoreNucleotide</HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>pmc</DbTo>
+				<LinkName>protein_pmc</LinkName>
+				<MenuTag>PMC Links</MenuTag>
+				<HtmlTag>Full text in PMC</HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>protein</DbTo>
+				<LinkName>protein_protein</LinkName>
+				<MenuTag>Related Sequences</MenuTag>
+				<HtmlTag>Related Sequences</HtmlTag>
+				<Priority>140</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>protein</DbTo>
+				<LinkName>protein_protein_cdart_summary</LinkName>
+				<MenuTag></MenuTag>
+				<HtmlTag>Domain Relatives</HtmlTag>
+				<Url><![CDATA[http://www.ncbi.nlm.nih.gov/Structure/lexington/lexington.cgi?cmd=prot&uid=<@UID@>]]></Url>
+				<Priority>150</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>protein</DbTo>
+				<LinkName>protein_protein_identical</LinkName>
+				<MenuTag>Identical Proteins</MenuTag>
+				<HtmlTag>Identical Proteins</HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>proteinclusters</DbTo>
+				<LinkName>protein_proteinclusters</LinkName>
+				<MenuTag>Protein Cluster Links</MenuTag>
+				<HtmlTag>Protein Clusters</HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>pubmed</DbTo>
+				<LinkName>protein_pubmed</LinkName>
+				<MenuTag>PubMed Links</MenuTag>
+				<HtmlTag>PubMed</HtmlTag>
+				<Priority>185</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>pubmed</DbTo>
+				<LinkName>protein_pubmed_refseq</LinkName>
+				<MenuTag>PubMed (RefSeq) Links</MenuTag>
+				<HtmlTag>PubMed (RefSeq)</HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>structure</DbTo>
+				<LinkName>protein_structure_related</LinkName>
+				<MenuTag></MenuTag>
+				<HtmlTag>Related Structure</HtmlTag>
+				<Url><![CDATA[http://structure.ncbi.nlm.nih.gov/Structure/cblast/cblast.cgi?client=entrez&query_gi=<@UID@>]]></Url>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>taxonomy</DbTo>
+				<LinkName>protein_taxonomy</LinkName>
+				<MenuTag>Taxonomy Links</MenuTag>
+				<HtmlTag>Taxonomy</HtmlTag>
+				<Priority>200</Priority>
+			</LinkInfo>
+		</IdLinkSet>
+		<IdLinkSet>
+			<Id>1621261</Id>
+			<LinkInfo>
+				<DbTo>cdd</DbTo>
+				<LinkName>protein_cdd</LinkName>
+				<MenuTag>Conserved Domain Links</MenuTag>
+				<HtmlTag></HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>cdd</DbTo>
+				<LinkName>protein_cdd_concise_2</LinkName>
+				<MenuTag>Concise Conserved Domain Links</MenuTag>
+				<HtmlTag></HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>cdd</DbTo>
+				<LinkName>protein_cdd_summary</LinkName>
+				<MenuTag></MenuTag>
+				<HtmlTag>Conserved Domains</HtmlTag>
+				<Url><![CDATA[http://www.ncbi.nlm.nih.gov/Structure/cdd/wrpsb.cgi?INPUT_TYPE=precalc&SEQUENCE=<@UID@>]]></Url>
+				<Priority>55</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>gene</DbTo>
+				<LinkName>protein_gene</LinkName>
+				<MenuTag>Gene Links</MenuTag>
+				<HtmlTag>Gene</HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>genomeprj</DbTo>
+				<LinkName>protein_genomeprj</LinkName>
+				<MenuTag>Genome Project Links</MenuTag>
+				<HtmlTag>Genome Project</HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>nuccore</DbTo>
+				<LinkName>protein_nuccore</LinkName>
+				<MenuTag>CoreNucleotide Links</MenuTag>
+				<HtmlTag>CoreNucleotide</HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>protein</DbTo>
+				<LinkName>protein_protein</LinkName>
+				<MenuTag>Related Sequences</MenuTag>
+				<HtmlTag>Related Sequences</HtmlTag>
+				<Priority>140</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>protein</DbTo>
+				<LinkName>protein_protein_cdart_summary</LinkName>
+				<MenuTag></MenuTag>
+				<HtmlTag>Domain Relatives</HtmlTag>
+				<Url><![CDATA[http://www.ncbi.nlm.nih.gov/Structure/lexington/lexington.cgi?cmd=prot&uid=<@UID@>]]></Url>
+				<Priority>150</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>protein</DbTo>
+				<LinkName>protein_protein_identical</LinkName>
+				<MenuTag>Identical Proteins</MenuTag>
+				<HtmlTag>Identical Proteins</HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>pubmed</DbTo>
+				<LinkName>protein_pubmed</LinkName>
+				<MenuTag>PubMed Links</MenuTag>
+				<HtmlTag>PubMed</HtmlTag>
+				<Priority>185</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>structure</DbTo>
+				<LinkName>protein_structure_related</LinkName>
+				<MenuTag></MenuTag>
+				<HtmlTag>Related Structure</HtmlTag>
+				<Url><![CDATA[http://structure.ncbi.nlm.nih.gov/Structure/cblast/cblast.cgi?client=entrez&query_gi=<@UID@>]]></Url>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>taxonomy</DbTo>
+				<LinkName>protein_taxonomy</LinkName>
+				<MenuTag>Taxonomy Links</MenuTag>
+				<HtmlTag>Taxonomy</HtmlTag>
+				<Priority>200</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>LinkOut</DbTo>
+				<LinkName>ExternalLink</LinkName>
+				<MenuTag>LinkOut</MenuTag>
+				<HtmlTag>LinkOut</HtmlTag>
+				<Priority>255</Priority>
+			</LinkInfo>
+		</IdLinkSet>
+		<IdLinkSet>
+			<Id>20807972</Id>
+			<LinkInfo>
+				<DbTo>cdd</DbTo>
+				<LinkName>protein_cdd</LinkName>
+				<MenuTag>Conserved Domain Links</MenuTag>
+				<HtmlTag></HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>cdd</DbTo>
+				<LinkName>protein_cdd_concise_2</LinkName>
+				<MenuTag>Concise Conserved Domain Links</MenuTag>
+				<HtmlTag></HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>cdd</DbTo>
+				<LinkName>protein_cdd_summary</LinkName>
+				<MenuTag></MenuTag>
+				<HtmlTag>Conserved Domains</HtmlTag>
+				<Url><![CDATA[http://www.ncbi.nlm.nih.gov/Structure/cdd/wrpsb.cgi?INPUT_TYPE=precalc&SEQUENCE=<@UID@>]]></Url>
+				<Priority>55</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>gene</DbTo>
+				<LinkName>protein_gene</LinkName>
+				<MenuTag>Gene Links</MenuTag>
+				<HtmlTag>Gene</HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>genome</DbTo>
+				<LinkName>protein_genome</LinkName>
+				<MenuTag>Genome Links</MenuTag>
+				<HtmlTag>Genome</HtmlTag>
+				<Priority>160</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>genomeprj</DbTo>
+				<LinkName>protein_genomeprj</LinkName>
+				<MenuTag>Genome Project Links</MenuTag>
+				<HtmlTag>Genome Project</HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>nuccore</DbTo>
+				<LinkName>protein_nuccore</LinkName>
+				<MenuTag>CoreNucleotide Links</MenuTag>
+				<HtmlTag>CoreNucleotide</HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>pmc</DbTo>
+				<LinkName>protein_pmc</LinkName>
+				<MenuTag>PMC Links</MenuTag>
+				<HtmlTag>Full text in PMC</HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>protein</DbTo>
+				<LinkName>protein_protein</LinkName>
+				<MenuTag>Related Sequences</MenuTag>
+				<HtmlTag>Related Sequences</HtmlTag>
+				<Priority>140</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>protein</DbTo>
+				<LinkName>protein_protein_cdart_summary</LinkName>
+				<MenuTag></MenuTag>
+				<HtmlTag>Domain Relatives</HtmlTag>
+				<Url><![CDATA[http://www.ncbi.nlm.nih.gov/Structure/lexington/lexington.cgi?cmd=prot&uid=<@UID@>]]></Url>
+				<Priority>150</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>protein</DbTo>
+				<LinkName>protein_protein_identical</LinkName>
+				<MenuTag>Identical Proteins</MenuTag>
+				<HtmlTag>Identical Proteins</HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>protein</DbTo>
+				<LinkName>protein_protein_refseq2uniprot</LinkName>
+				<MenuTag>Protein (UniProtKB)</MenuTag>
+				<HtmlTag>Protein (UniProtKB)</HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>proteinclusters</DbTo>
+				<LinkName>protein_proteinclusters</LinkName>
+				<MenuTag>Protein Cluster Links</MenuTag>
+				<HtmlTag>Protein Clusters</HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>pubmed</DbTo>
+				<LinkName>protein_pubmed</LinkName>
+				<MenuTag>PubMed Links</MenuTag>
+				<HtmlTag>PubMed</HtmlTag>
+				<Priority>185</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>pubmed</DbTo>
+				<LinkName>protein_pubmed_refseq</LinkName>
+				<MenuTag>PubMed (RefSeq) Links</MenuTag>
+				<HtmlTag>PubMed (RefSeq)</HtmlTag>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>structure</DbTo>
+				<LinkName>protein_structure_related</LinkName>
+				<MenuTag></MenuTag>
+				<HtmlTag>Related Structure</HtmlTag>
+				<Url><![CDATA[http://structure.ncbi.nlm.nih.gov/Structure/cblast/cblast.cgi?client=entrez&query_gi=<@UID@>]]></Url>
+				<Priority>128</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>taxonomy</DbTo>
+				<LinkName>protein_taxonomy</LinkName>
+				<MenuTag>Taxonomy Links</MenuTag>
+				<HtmlTag>Taxonomy</HtmlTag>
+				<Priority>200</Priority>
+			</LinkInfo>
+			<LinkInfo>
+				<DbTo>LinkOut</DbTo>
+				<LinkName>ExternalLink</LinkName>
+				<MenuTag>LinkOut</MenuTag>
+				<HtmlTag>LinkOut</HtmlTag>
+				<Priority>255</Priority>
+			</LinkInfo>
+		</IdLinkSet>
+	</IdCheckList>
+</LinkSet>
+</eLinkResult>

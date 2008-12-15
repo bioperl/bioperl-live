@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD eLinkResult, 11 May 2002//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eLink_020511.dtd">
+<eLinkResult>
+<LinkSet>
+	<DbFrom>protein</DbFrom>
+	<IdUrlList>
+		<IdUrlSet>
+			<Id>1621261</Id>
+			<ObjUrl>
+				<Url>http://salilab.org/modbase/search?databaseID=1621261</Url>
+				<IconUrl>http://www.ncbi.nlm.nih.gov/entrez/query/egifs/http:--salilab.org-modbase-img-modbase.jpg</IconUrl>
+				<SubjectType>structure</SubjectType>
+				<Attribute>registration required</Attribute>
+				<Provider>
+					<Name>MODBASE, Database of Comparative Protein Structure Models (Sali Lab/UCSF)</Name>
+					<NameAbbr>modbase</NameAbbr>
+					<Id>5447</Id>
+					<Url>http://salilab.org/modbase</Url>
+					<IconUrl>http://salilab.org/modbase/img/modbase.jpg</IconUrl>
+				</Provider>
+			</ObjUrl>
+		</IdUrlSet>
+	</IdUrlList>
+</LinkSet>
+<LinkSet>
+	<DbFrom>protein</DbFrom>
+	<IdUrlList>
+		<IdUrlSet>
+			<Id>68536103</Id>
+			<Info>No links</Info>
+		</IdUrlSet>
+	</IdUrlList>
+</LinkSet>
+<LinkSet>
+	<DbFrom>protein</DbFrom>
+	<IdUrlList>
+		<IdUrlSet>
+			<Id>20807972</Id>
+			<ObjUrl>
+				<Url>http://salilab.org/modbase/search?databaseID=20807972</Url>
+				<IconUrl>http://www.ncbi.nlm.nih.gov/entrez/query/egifs/http:--salilab.org-modbase-img-modbase.jpg</IconUrl>
+				<SubjectType>structure</SubjectType>
+				<Attribute>registration required</Attribute>
+				<Provider>
+					<Name>MODBASE, Database of Comparative Protein Structure Models (Sali Lab/UCSF)</Name>
+					<NameAbbr>modbase</NameAbbr>
+					<Id>5447</Id>
+					<Url>http://salilab.org/modbase</Url>
+					<IconUrl>http://salilab.org/modbase/img/modbase.jpg</IconUrl>
+				</Provider>
+			</ObjUrl>
+		</IdUrlSet>
+	</IdUrlList>
+</LinkSet>
+<LinkSet>
+	<DbFrom>protein</DbFrom>
+	<IdUrlList>
+		<IdUrlSet>
+			<Id>730439</Id>
+			<ObjUrl>
+				<Url>http://salilab.org/modbase/search?databaseID=730439</Url>
+				<IconUrl>http://www.ncbi.nlm.nih.gov/entrez/query/egifs/http:--salilab.org-modbase-img-modbase.jpg</IconUrl>
+				<SubjectType>structure</SubjectType>
+				<Attribute>registration required</Attribute>
+				<Provider>
+					<Name>MODBASE, Database of Comparative Protein Structure Models (Sali Lab/UCSF)</Name>
+					<NameAbbr>modbase</NameAbbr>
+					<Id>5447</Id>
+					<Url>http://salilab.org/modbase</Url>
+					<IconUrl>http://salilab.org/modbase/img/modbase.jpg</IconUrl>
+				</Provider>
+			</ObjUrl>
+		</IdUrlSet>
+	</IdUrlList>
+</LinkSet>
+</eLinkResult>

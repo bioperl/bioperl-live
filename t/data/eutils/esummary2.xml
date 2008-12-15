@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<!DOCTYPE eSummaryResult PUBLIC "-//NLM//DTD eSummaryResult, 29 October 2004//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eSummary_041029.dtd">
+<eSummaryResult>
+<DocSum>
+	<Id>32049</Id>
+	<Item Name="HomoloGeneDataList" Type="List">
+		<Item Name="HomoloGeneData" Type="Structure">
+			<Item Name="TaxName" Type="String">Homo sapiens</Item>
+			<Item Name="TaxId" Type="Integer">9606</Item>
+			<Item Name="Symbol" Type="String">NOTCH1</Item>
+			<Item Name="Title" Type="String">Notch homolog 1, translocation-associated (Drosophila)</Item>
+			<Item Name="GeneID" Type="Integer">4851</Item>
+		</Item>
+		<Item Name="HomoloGeneData" Type="Structure">
+			<Item Name="TaxName" Type="String">Pan troglodytes</Item>
+			<Item Name="TaxId" Type="Integer">9598</Item>
+			<Item Name="Symbol" Type="String">NOTCH1</Item>
+			<Item Name="Title" Type="String">Notch homolog 1, translocation-associated (Drosophila)</Item>
+			<Item Name="GeneID" Type="Integer">464865</Item>
+		</Item>
+		<Item Name="HomoloGeneData" Type="Structure">
+			<Item Name="TaxName" Type="String">Canis lupus familiaris</Item>
+			<Item Name="TaxId" Type="Integer">9615</Item>
+			<Item Name="Symbol" Type="String">NOTCH1</Item>
+			<Item Name="Title" Type="String">Notch homolog 1, translocation-associated (Drosophila)</Item>
+			<Item Name="GeneID" Type="Integer">480676</Item>
+		</Item>
+		<Item Name="HomoloGeneData" Type="Structure">
+			<Item Name="TaxName" Type="String">Bos taurus</Item>
+			<Item Name="TaxId" Type="Integer">9913</Item>
+			<Item Name="Symbol" Type="String">NOTCH1</Item>
+			<Item Name="Title" Type="String">Notch homolog 1, translocation-associated (Drosophila)</Item>
+			<Item Name="GeneID" Type="Integer">767866</Item>
+		</Item>
+		<Item Name="HomoloGeneData" Type="Structure">
+			<Item Name="TaxName" Type="String">Mus musculus</Item>
+			<Item Name="TaxId" Type="Integer">10090</Item>
+			<Item Name="Symbol" Type="String">Notch1</Item>
+			<Item Name="Title" Type="String">Notch gene homolog 1 (Drosophila)</Item>
+			<Item Name="GeneID" Type="Integer">18128</Item>
+		</Item>
+		<Item Name="HomoloGeneData" Type="Structure">
+			<Item Name="TaxName" Type="String">Rattus norvegicus</Item>
+			<Item Name="TaxId" Type="Integer">10116</Item>
+			<Item Name="Symbol" Type="String">Notch1</Item>
+			<Item Name="Title" Type="String">Notch homolog 1, translocation-associated (Drosophila)</Item>
+			<Item Name="GeneID" Type="Integer">25496</Item>
+		</Item>
+		<Item Name="HomoloGeneData" Type="Structure">
+			<Item Name="TaxName" Type="String">Gallus gallus</Item>
+			<Item Name="TaxId" Type="Integer">9031</Item>
+			<Item Name="Symbol" Type="String">NOTCH1</Item>
+			<Item Name="Title" Type="String">Notch homolog 1, translocation-associated (Drosophila)</Item>
+			<Item Name="GeneID" Type="Integer">395655</Item>
+		</Item>
+		<Item Name="HomoloGeneData" Type="Structure">
+			<Item Name="TaxName" Type="String">Danio rerio</Item>
+			<Item Name="TaxId" Type="Integer">7955</Item>
+			<Item Name="Symbol" Type="String">notch1b</Item>
+			<Item Name="Title" Type="String">notch homolog 1b</Item>
+			<Item Name="GeneID" Type="Integer">794892</Item>
+		</Item>
+		<Item Name="HomoloGeneData" Type="Structure">
+			<Item Name="TaxName" Type="String">Drosophila melanogaster</Item>
+			<Item Name="TaxId" Type="Integer">7227</Item>
+			<Item Name="Symbol" Type="String">N</Item>
+			<Item Name="Title" Type="String">Notch</Item>
+			<Item Name="GeneID" Type="Integer">31293</Item>
+		</Item>
+		<Item Name="HomoloGeneData" Type="Structure">
+			<Item Name="TaxName" Type="String">Anopheles gambiae</Item>
+			<Item Name="TaxId" Type="Integer">7165</Item>
+			<Item Name="Symbol" Type="String">AgaP_AGAP001015</Item>
+			<Item Name="Title" Type="String">AGAP001015-PA</Item>
+			<Item Name="GeneID" Type="Integer">1270506</Item>
+		</Item>
+	</Item>
+	<Item Name="Caption" Type="String">Gene conserved in Coelomata</Item>
+</DocSum>
+
+<DocSum>
+	<Id>45614</Id>
+	<Item Name="HomoloGeneDataList" Type="List">
+		<Item Name="HomoloGeneData" Type="Structure">
+			<Item Name="TaxName" Type="String">Homo sapiens</Item>
+			<Item Name="TaxId" Type="Integer">9606</Item>
+			<Item Name="Symbol" Type="String">hCG_1745121</Item>
+			<Item Name="Title" Type="String">notch1-induced protein</Item>
+			<Item Name="GeneID" Type="Integer">729920</Item>
+		</Item>
+		<Item Name="HomoloGeneData" Type="Structure">
+			<Item Name="TaxName" Type="String">Bos taurus</Item>
+			<Item Name="TaxId" Type="Integer">9913</Item>
+			<Item Name="Symbol" Type="String">LOC617841</Item>
+			<Item Name="Title" Type="String">similar to notch1-induced protein</Item>
+			<Item Name="GeneID" Type="Integer">617841</Item>
+		</Item>
+		<Item Name="HomoloGeneData" Type="Structure">
+			<Item Name="TaxName" Type="String">Mus musculus</Item>
+			<Item Name="TaxId" Type="Integer">10090</Item>
+			<Item Name="Symbol" Type="String">4930579E17Rik</Item>
+			<Item Name="Title" Type="String">RIKEN cDNA 4930579E17 gene</Item>
+			<Item Name="GeneID" Type="Integer">75847</Item>
+		</Item>
+		<Item Name="HomoloGeneData" Type="Structure">
+			<Item Name="TaxName" Type="String">Rattus norvegicus</Item>
+			<Item Name="TaxId" Type="Integer">10116</Item>
+			<Item Name="Symbol" Type="String">LOC493574</Item>
+			<Item Name="Title" Type="String">notch1-induced protein</Item>
+			<Item Name="GeneID" Type="Integer">493574</Item>
+		</Item>
+		<Item Name="HomoloGeneData" Type="Structure">
+			<Item Name="TaxName" Type="String">Gallus gallus</Item>
+			<Item Name="TaxId" Type="Integer">9031</Item>
+			<Item Name="Symbol" Type="String">LOC420591</Item>
+			<Item Name="Title" Type="String">hypothetical LOC420591</Item>
+			<Item Name="GeneID" Type="Integer">420591</Item>
+		</Item>
+		<Item Name="HomoloGeneData" Type="Structure">
+			<Item Name="TaxName" Type="String">Danio rerio</Item>
+			<Item Name="TaxId" Type="Integer">7955</Item>
+			<Item Name="Symbol" Type="String">zgc:154151</Item>
+			<Item Name="Title" Type="String">zgc:154151</Item>
+			<Item Name="GeneID" Type="Integer">798716</Item>
+		</Item>
+	</Item>
+	<Item Name="Caption" Type="String">Gene conserved in Euteleostomi</Item>
+</DocSum>
+
+</eSummaryResult>
