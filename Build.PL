@@ -41,7 +41,8 @@ my $build = Bio::Root::Build->new(
     recommends          => { # does what you would expect of recommends, except more informative output and generates optional_features in META.yml
                             'Ace'                       => '0/access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace',
                             'Algorithm::Munkres'        => '0/Phylogenetic Networks/Bio::PhyloNetwork',
-                            'Array::Compare'            => '0/Phylogenetic Networks/Bio::PhyloNetwork',                            # this won't actually install due to circular dep, but we have no way of doing a post-install
+                            'Array::Compare'            => '0/Phylogenetic Networks/Bio::PhyloNetwork',
+                            # this won't actually install due to circular dep, but we have no way of doing a post-install
                             # the [circular dependency!] specifies it is only installed on explicit request for this specific module,
                             # not when simply choosing to install 'all' modules
                             'Bio::ASN1::EntrezGene'     => '0/parsing entrezgene/Bio::SeqIO::entrezgene [circular dependency!]',
@@ -142,7 +143,7 @@ $build->choose_scripts($accept);
         $build->prompt_for_network($accept) if $build->feature('Network');
     }
     # then in test script:
-    #   use Module::Build;
+    #   use Bio::Root::Build;
     #   my $build = Module::Build->current;
     #   my $do_network_tests = $build->notes('network');
 }
