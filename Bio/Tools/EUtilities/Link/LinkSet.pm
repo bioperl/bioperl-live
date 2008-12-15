@@ -561,6 +561,20 @@ sub to_string {
     while (my $ui = $self->next_UrlLink) {
         $string .= $ui->to_string(4);
     }
+    if ($self->has_scores) {
+        $string .= "Scores:\n";
+        my %scores = $self->get_scores;
+        $string .= sprintf("%-*s%-*s%s\n",
+            $level + 4, '',
+            $pad - 4, 'ID', 'Score'
+            );        
+        for my $id ($self->get_ids) {
+            $string .= sprintf("%-*s%-*s%s\n",
+                $level + 4, '',
+                $pad - 4, $id, $scores{$id}
+                );
+        }
+    }
     $string .= "\n";
     return $string;
 }
