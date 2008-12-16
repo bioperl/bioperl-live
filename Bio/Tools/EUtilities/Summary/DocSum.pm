@@ -194,13 +194,49 @@ sub get_all_Items {
     return @{$self->{'_ordered_items'}};
 }
 
+=head2 get_all_names
+
+ Title    : get_all_names
+ Usage    : my @names = get_all_names()
+ Function : Returns an array of names for all Item(s) in DocSum.
+ Returns  : array of unique strings
+ Args     : none
+
+=cut
+
+sub get_all_names {
+    my ($self) = @_;
+    my %tmp;
+    my @data = grep {!$tmp{$_}++}
+        map {$_->get_name} $self->get_all_Items;
+    return @data;
+}
+
+=head2 get_Items_by_name
+
+ Title    : get_Items_by_name
+ Usage    : my @items = get_Items_by_name('CreateDate')
+ Function : Returns named Item(s) in DocSum (indicated by passed argument)
+ Returns  : array of Item objects
+ Args     : string (Item name)
+
+=cut
+
+sub get_Items_by_name {
+    my ($self, $key) = @_;
+    return unless $key;
+    my @data = grep {$_->get_name eq $key}
+        $self->get_all_Items;
+    return @data;
+}
+
 =head2 get_contents_by_name
 
  Title    : get_contents_by_name
  Usage    : my ($data) = get_contents_by_name('CreateDate')
  Function : Returns content for named Item(s) in DocSum (indicated by
             passed argument)
- Returns  : array of laues
+ Returns  : array of values (type varies per Item)
  Args     : string (Item name)
 
 =cut
