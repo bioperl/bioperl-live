@@ -22,6 +22,25 @@ which uses local flat files for transfac pro
   my $db = new Bio::DB::Taxonomy(-source => 'transfac_pro'
                                  -dat_dir => $directory);
 
+  # we're interested in the gene P5
+  my ($gene_id) = $db->get_gene_ids(-name => 'P5'); # G000001
+
+  # we want all the transcription factors that bind to our gene
+  my @factor_ids = $db->get_factor_ids(-gene => $gene_id);
+
+  # get info about those TFs
+  foreach my $factor_id (@factor_ids) {
+    my $factor = $db->get_factor($factor_id);
+    my $name = $factor->universal_name;
+    # etc. - see Bio::Map::TranscriptionFactor, eg. find out where it binds
+  }
+
+  # get a matrix
+  my $matrix = $db->get_matrix('M00001');
+
+  # get a binding site sequence
+  my $seq = $db->get_site('R00001');
+
 =head1 DESCRIPTION
 
 This is an implementation which uses local flat files and the DB_File
@@ -195,20 +214,39 @@ sub _get_ids {
     }
 }
 
-# Bio::Annotation::Reference
+=head2 get_reference
+
+ Title   : get_reference
+ Usage   : my $ref = $obj->get_reference($id);
+ Function: Get a literature reference.
+ Returns : Bio::Annotation::Reference
+ Args    : string - a reference id ('RE...')
+
+=cut
+
 sub get_reference {
     my ($self, $id) = @_;
     $id || return;
     my $data = $self->{reference}->{data}->{$id} || return;
     my @data = split(SEPARATOR, $data);
     
-    return new Bio::Annotation::Reference( -pubmed   => $data[0],
+    return Bio::Annotation::Reference->new(-pubmed   => $data[0],
                                            -authors  => $data[1],
                                            -title    => $data[2],
                                            -location => $data[3] );
 }
 
-# Bio::Map::GeneMap
+=head2 get_genemap
+
+ Title   : get_genemap
+ Usage   : my $map = $obj->get_genemap($id);
+ Function: Get a GeneMap for a gene.
+ Returns : Bio::Map::GeneMap
+ Args    : string - a gene id ('G...'), and optionally int (number of bp
+           upstream)
+
+=cut
+
 sub get_genemap {
     my ($self, $id, $upstream) = @_;
     $id || return;
@@ -241,11 +279,18 @@ sub get_genemap {
     return $map;
 }
 
-# Bio::? no start/end information, need an object type to just hold id, name
-# and description
-# sub get_gene {
+=head2 get_seq
 
-# Bio::Seq
+ Title   : get_seq
+ Usage   : my $seq = $obj->get_seq($id);
+ Function: Get the sequence of a site. The sequence will be annotated with the
+           the tags 'relative_start', 'relative_end', 'relative_type' and
+           'relative_to'.
+ Returns : Bio::Seq
+ Args    : string - a site id ('R...')
+
+=cut
+
 sub get_seq {
     my ($self, $id) = @_;
     $id || return;
@@ -273,7 +318,16 @@ sub get_seq {
     return $seq;
 }
 
-# Bio::Seq
+=head2 get_fragment
+
+ Title   : get_fragment
+ Usage   : my $seq = $obj->get_fragment($id);
+ Function: Get the sequence of a fragment.
+ Returns : Bio::Seq
+ Args    : string - a site id ('FR...')
+
+=cut
+
 sub get_fragment {
     my ($self, $id) = @_;
     $id || return;
@@ -289,8 +343,18 @@ sub get_fragment {
                          -alphabet         => 'dna' );
 }
 
-# Bio::Matrix::PSM::SiteMatrix, supply a seq from which acgt frequencies will
-# be calculated for the model
+=head2 get_matrix
+
+ Title   : get_matrix
+ Usage   : my $matrix = $obj->get_matrix($id);
+ Function: Get a matrix that describes a binding site.
+ Returns : Bio::Matrix::PSM::SiteMatrix
+ Args    : string - a matrix id ('M...'), optionally a sequence string from
+           which base frequencies will be calcualted for the matrix model
+           (default 0.25 each)
+
+=cut
+
 sub get_matrix {
     my ($self, $id, $seq) = @_;
     $id || return;
@@ -336,8 +400,21 @@ sub get_matrix {
     return $psm;
 }
 
-# Bio::SimpleAlign where each seq has accession_number (transfac site id) and
-# id which may be accession_number or uniquified
+=head2 get_aln
+
+ Title   : get_aln
+ Usage   : my $aln = $obj->get_aln($id);
+ Function: Get the alignment that was used to generate a matrix. Each sequence
+           in the alignment will have an accession_number corresponding to the
+           Transfac site id, and id() based on that but unique within the
+           alignment.
+ Returns : Bio::SimpleAlign
+ Args    : string - a matrix id ('M...'), optionally true to, when a matrix
+           lists no sequences, search for sequences via the matrix's factors,
+           picking the sites that best match the matrix
+
+=cut
+
 sub get_aln {
     my ($self, $id, $via_factors) = @_;
     $id || return;
@@ -495,8 +572,16 @@ sub get_aln {
     return $aln;
 }
 
-# Bio::Map::TranscriptionFactor
-#*** not sure will keep map stuff, don't know how else to model a TF in bioperl...
+=head2 get_factor
+
+ Title   : get_factor
+ Usage   : my $factor = $obj->get_factor($id);
+ Function: Get the details of a transcription factor.
+ Returns : Bio::Map::TranscriptionFactor
+ Args    : string - a factor id ('T...')
+
+=cut
+
 sub get_factor {
     my ($self, $id) = @_;
     $id || return;
@@ -516,9 +601,6 @@ sub get_factor {
     # have the tf), and associating sequence with each species/tf combo so you
     # can see how diverged the tf is and make assumptions about site difference
     # allowance
-    
-    #*** short-cut for since no longer interested in genemap
-    #return $tf;
     
     # place it on all its genemaps
     foreach my $sid ($self->get_site_ids(-factor => $id)) {
@@ -581,7 +663,18 @@ sub _get_factor_details {
     return \%details;
 }
 
-# -pubmed -site -gene -matrix -factor
+=head2 get_reference_ids
+
+ Title   : get_reference_ids
+ Usage   : my @ids = $obj->get_reference_ids(-key => $value);
+ Function: Get all the reference ids that are associated with the supplied
+           args.
+ Returns : list of strings (ids)
+ Args    : -key => value, where value is a string id, and key is one of:
+           -pubmed -site -gene -matrix -factor
+
+=cut
+
 sub get_reference_ids {
     my $self = shift;
     return $self->_get_ids('reference', @_);
@@ -593,26 +686,70 @@ sub get_gene_ids {
     return $self->_get_ids('gene', @_);
 }
 
-# -id -species -gene -matrix -factor -reference
+=head2 get_site_ids
+
+ Title   : get_site_ids
+ Usage   : my @ids = $obj->get_site_ids(-key => $value);
+ Function: Get all the site ids that are associated with the supplied
+           args.
+ Returns : list of strings (ids)
+ Args    : -key => value, where value is a string id, and key is one of:
+           -id -species -gene -matrix -factor -reference
+
+=cut
+
 sub get_site_ids {
     my $self = shift;
     return $self->_get_ids('site', @_);
 }
 
-# -id -name -site -factor -reference
+=head2 get_matrix_ids
+
+ Title   : get_matrix_ids
+ Usage   : my @ids = $obj->get_matrix_ids(-key => $value);
+ Function: Get all the matrix ids that are associated with the supplied
+           args.
+ Returns : list of strings (ids)
+ Args    : -key => value, where value is a string id, and key is one of:
+           -id -name -site -factor -reference
+
+=cut
+
 sub get_matrix_ids {
     my $self = shift;
     return $self->_get_ids('matrix', @_);
 }
 
-# -id -name -species -interactors -gene -matrix -site -reference
-# -gene only gets factor ids for genes that encode factors
+=head2 get_factor_ids
+
+ Title   : get_factor_ids
+ Usage   : my @ids = $obj->get_factor_ids(-key => $value);
+ Function: Get all the factor ids that are associated with the supplied
+           args.
+ Returns : list of strings (ids)
+ Args    : -key => value, where value is a string id, and key is one of:
+           -id -name -species -interactors -gene -matrix -site -reference
+           NB: -gene only gets factor ids for genes that encode factors
+
+=cut
+
 sub get_factor_ids {
     my $self = shift;
     return $self->_get_ids('factor', @_);
 }
 
-# -id -species -gene -factor -reference
+=head2 get_fragment_ids
+
+ Title   : get_fragment_ids
+ Usage   : my @ids = $obj->get_fragment_ids(-key => $value);
+ Function: Get all the fragment ids that are associated with the supplied
+           args.
+ Returns : list of strings (ids)
+ Args    : -key => value, where value is a string id, and key is one of:
+           -id -species -gene -factor -reference
+
+=cut
+
 sub get_fragment_ids {
     my $self = shift;
     return $self->_get_ids('fragment', @_);
