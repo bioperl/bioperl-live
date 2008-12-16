@@ -249,9 +249,9 @@ sub new {
         $value = $args[1];
     }
 
-    if( defined $value and not $value) {
-	$value = "The number zero (0)" if $value == 0;
-	$value = "An empty string (\"\")" if $value eq "";
+    if( defined $value ) {
+        $value = "The number zero (0)" if $value =~ /^\d+$/ && $value == 0;
+        $value = "An empty string (\"\")" if $value eq "";
     }
     else {
 	$value ||= $DEFAULT_VALUE;
