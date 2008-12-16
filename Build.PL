@@ -105,7 +105,9 @@ my $build = Bio::Root::Build->new(
                            },
     dynamic_config      => 1,
     create_makefile_pl  => 'passthrough',
-    recursive_test_files => 1
+    recursive_test_files => 1,
+    # Extra files needed for BioPerl modules
+    xml_files => {'./Bio/DB/HIV/lanl-schema.xml' => 'lib/Bio/DB/HIV/lanl-schema.xml'},
     
     #pm_files           => {} # modules in Bio are treated as if they were in lib and auto-installed
     #script_files       => [] # scripts in scripts directory are installed on-demand
@@ -152,13 +154,15 @@ $build->choose_scripts($accept);
 $build->add_post_install_script('maintenance/symlink_script.pl'); # takes a unix file path regardless of local OS
 
 # Add extra things to MANIFEST.SKIP
-$build->add_to_manifest_skip('bioperl.lisp', 'Bio/Tools/WebBlat.pm');
+$build->add_to_manifest_skip('bioperl.lisp');
+
+# Add additional files here
+$build->add_build_element('xml');
 
 # Create the build script and exit
 $build->create_build_script;
 
 exit;
-
 
 sub make_bdb_test {
     my $path0 = File::Spec->catfile('t', 'LocalDB', 'SeqFeature.t');
