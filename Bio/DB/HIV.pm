@@ -82,7 +82,6 @@ use vars qw( $LANL_BASE $LANL_MAP_DB $LANL_MAKE_SEARCH_IF $LANL_SEARCH );
 
 # Object preamble - inherits from Bio::DB::WebDBSeqI
 
-use lib ('../..');
 use Bio::Root::Root;
 use HTTP::Request::Common;
 use Bio::DB::HIV::HIVAnnotProcessor;
