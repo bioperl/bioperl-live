@@ -20,7 +20,7 @@ my $DEBUG = test_debug();
 # to block and then fail when the testdir is on an NFS mounted system
 
 my $io = Bio::Root::IO->new(-verbose => $DEBUG);
-my $tempdir = $io->tempdir('CLEANUP' => 1);
+my $tempdir = test_output_dir();
 my $test_dbdir = $io->catfile($tempdir, 'dbfa');
 mkdir($test_dbdir); # make the directory
 my $indir = test_input_file('dbfa'); 

@@ -51,6 +51,10 @@ BioperlTest - A common base for all Bioperl test scripts.
   # deleted when the test script finishes
   my $output_file = test_output_file();
 
+  # we want the name of a directory we can store files in, that will be
+  # automatically deleted when the test script finishes
+  my $output_dir = test_output_dir();
+
 =head1 DESCRIPTION
 
 This provides a common base for all Bioperl test scripts. It safely handles the
@@ -104,7 +108,7 @@ package Bio::Root::Test;
 use strict;
 use warnings;
 
-use File::Temp ();
+use File::Temp qw(tempdir);
 use File::Spec;
 use Exporter qw(import);
 
@@ -159,6 +163,7 @@ our @EXPORT = qw(ok use_ok require_ok
                  test_begin
                  test_skip
                  test_output_file
+                 test_output_dir
                  test_input_file
                  test_network
                  test_debug);
@@ -290,6 +295,25 @@ sub test_output_file {
     push(@TEMP_FILES, $tmp);
     
     return $tmp->filename;
+}
+
+=head2 test_output_dir
+
+ Title   : test_output_dir
+ Usage   : my $output_dir = test_output_dir();
+ Function: Get the full path of a directory suitable for storing temporary files
+           in.
+           When your test script ends, the directory and its contents will be
+           automatically deleted.
+ Returns : string (path)
+ Args    : none
+
+=cut
+
+sub test_output_dir {
+    die "test_output_dir takes no args\n" if @_;
+    
+    return tempdir(CLEANUP => 1);
 }
 
 =head2 test_input_file

@@ -2,7 +2,6 @@
 # $Id$
 
 use strict;
-use File::Temp qw(tempdir);
 
 BEGIN { 
 	use lib '.';
@@ -18,7 +17,7 @@ my $verbose = test_debug();
 
 # First of all we need to create an flat db
 
-my $tmpdir = tempdir( CLEANUP => 1 );
+my $tmpdir = test_output_dir();
 
 my $db = Bio::DB::Flat->new(-directory  => $tmpdir,
                             -index      => 'bdb',

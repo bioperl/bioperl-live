@@ -2,7 +2,6 @@
 # $Id$
 
 use strict;
-use File::Temp qw(tempdir);
 
 BEGIN { 
     use lib '.';
@@ -15,7 +14,7 @@ BEGIN {
 	use_ok('Bio::Tree::Tree');
 }
 
-my $temp_dir = tempdir( CLEANUP => 1 );
+my $temp_dir = test_output_dir();
 
 # we're actually testing Bio::Taxon and Bio::DB::Taxonomy::* here, not
 # Bio::Taxonomy
