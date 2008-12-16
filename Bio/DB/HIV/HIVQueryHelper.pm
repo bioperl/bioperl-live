@@ -65,7 +65,6 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-
 package HIVQueryHelper;
 use strict;
 use Bio::Root::Root;
@@ -518,7 +517,6 @@ sub loadHIVSchema {
         last if $dir;
     }
     Bio::Root::Root->throw("loadHIVSchema: schema file not found") unless $dir;
-    print STDERR "$dir\n";
     my $q = XML::Simple->new(ContentKey=>'name',NormalizeSpace=>2,ForceArray=>1);
     my %ret;
     my $ref = $q->XMLin($dir);
@@ -772,7 +770,7 @@ sub _make_q_guts {
 		for my $dl ($_->{delim}) {
 		    ($dl =~ m{\(}) && do {
 			if (grep /^HASH/, @{$_->{cont}}) {
-			    $$q_expr .= "&" unless !length($$q_expr) || (substr($$q_expr, -1, 1) =~ /[&|(]/);
+			    $$q_expr .= "&" unless !$$q_expr || !length($$q_expr) || (substr($$q_expr, -1, 1) =~ /[&|(]/);
 			    $$q_expr .= "(";
 			    _make_q_guts($_,$q_expr,$qarry,$anarry);
 			    $$q_expr .= ")";
