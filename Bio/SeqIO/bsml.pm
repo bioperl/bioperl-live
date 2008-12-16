@@ -190,8 +190,8 @@ sub next_seq {
 
     # Assume that title attribute contains the best display id
     if (my $val = $xmlSeq->getAttribute( "title")) {
-       $bioSeq->display_id($val);
-   }
+	$bioSeq->display_id($val);
+    }
 
     # Set the molecule type
     if (my $val = $xmlSeq->getAttribute( "molecule" )) {
@@ -232,20 +232,22 @@ sub next_seq {
     # Sticky wicket here - data not controlled by schema, could be anything
     my @seqDesc = ();
     my %specs = ('common_name' => 'y',
-		 'genus' => 'y',
-		 'species' => 'y',
-		 'sub_species' => 'y', );
+		 'genus'       => 'y',
+		 'species'     => 'y',
+		 'sub_species' => 'y', 
+		 );
     my %seqMap = (
-		  'add_date' => [ 'date' ],
-		  'keywords' => [ 'keyword', ],
-		  'seq_version' => [ 'version' ],
-		  'division' => [ 'division' ],
+		  'add_date'     => [ qw(date date-created date-last-updated)],
+		  'keywords'     => [ 'keyword', ],
+		  'seq_version'  => [ 'version' ],
+		  'division'     => [ 'division' ],
 		  'add_secondary_accession' => ['accession'],
-		  'pid' => ['pid'],
-		  'primary_id' => [ 'primary.id', 'primary_id' ],
+		  'pid'          => ['pid'],
+		  'primary_id'   => [ 'primary.id', 'primary_id' ],
 		  );
+    my @links;
     my $floppies = &GETFLOPPIES($xmlSeq);
-    foreach my $attr (@{$floppies}) {
+    for my $attr (@{$floppies}) {
 	# Don't want to get attributes from <Feature> or <Table> elements yet
 	my $parent = $attr->getParentNode->getNodeName;
 	next unless($parent eq "Sequence" || $parent eq "Feature-tables");
@@ -258,21 +260,32 @@ sub next_seq {
 	}
 	my $value = "";
 	# Cycle through the Seq methods:
-	foreach my $method (keys %seqMap) {
+	for my $method (keys %seqMap) {
 	    # Cycle through potential matching attributes:
-	    foreach my $match (@{$seqMap{$method}}) {
+	    for my $match (@{$seqMap{$method}}) {
 		# If the <Attribute> name matches one of the keys,
 		# set $value, unless it has already been set
 		$value ||= $content if ($name =~ /$match/i);
 	    }
 	    if ($value ne "") {
+		
+		if( $method eq 'seq_version'&& $value =~ /\S+\.(\d+)/ ) {
+		    # hack for the fact that data in version is actually
+		    # ACCESSION.VERSION
+		    ($value) = $1;
+		}
 		$bioSeq->$method($value);
 		last;
 	    }
 	}
+	if( $name eq 'database-xref' ) {
+	    my ($link_id,$link_db) = split(/:/,$value);
+	    push @links, Bio::Annotation::DBLink->new(-primary_id => $link_id,
+						      -database   => $link_db);
+	}
 	next if ($value ne "");
 
-	if ($name =~ /^species$/i) {   # Uh, it's the species designation?
+	if ($name =~ /^species$/i) { # Uh, it's the species designation?
 	    if ($content =~ / /) {
 		# Assume that a full species name has been provided
 		# This will screw up if the last word is the subspecies...
@@ -283,11 +296,11 @@ sub next_seq {
 	    }
 	    next;
 	}
-	if ($name =~ /sub[_ ]?species/i) {  # Should be the subspecies...
+	if ($name =~ /sub[_ ]?species/i) { # Should be the subspecies...
 	    $species->sub_species( $content );
 	    next;
 	}
-	if ($name =~ /classification/i) {  # Should be species classification
+	if ($name =~ /classification/i) { # Should be species classification
 	    # We will assume that there are spaces separating the terms:
 	    my @bits = split " ", $content;
 	    # Now make sure there is not other cruft as well (eg semi-colons)
@@ -300,7 +313,7 @@ sub next_seq {
 	}
 	if ($name =~ /comment/) {
 	    my $com = Bio::Annotation::Comment->new('-text' => $content);
-	  #  $bioSeq->annotation->add_Comment($com);
+	    #  $bioSeq->annotation->add_Comment($com);
 	    $bioSeq->annotation->add_Annotation('comment', $com);
 	    next;
 	}
@@ -324,43 +337,40 @@ sub next_seq {
     # Extract out <Reference>s associated with the sequence
     my @refs;
     my %tags = (
-		-title => "RefTitle",
-		-authors => "RefAuthors",
+		-title    => "RefTitle",
+		-authors  => "RefAuthors",
 		-location => "RefJournal",
 		);
-    foreach my $ref ( $xmlSeq->getElementsByTagName ("Reference") ) {
+    for my $ref ( $xmlSeq->getElementsByTagName ("Reference") ) {
 	my %refVals;
-	foreach my $tag (keys %tags) {
+	for my $tag (keys %tags) {
 	    my $rt = &FIRSTDATA($ref->getElementsByTagName($tags{$tag})
 				->item(0));
-        unless ($rt) {
-            $self->warn("No data returned for $tag");
-            next;
-        }
-	    $rt =~ s/^[\s\r\n]+//;  # Kill leading space
-	    $rt =~ s/[\s\r\n]+$//;  # Kill trailing space
-	    $rt =~ s/[\s\r\n]+/ /;  # Collapse internal space runs
+	    next unless ($rt);
+	    $rt =~ s/^[\s\r\n]+//; # Kill leading space
+	    $rt =~ s/[\s\r\n]+$//; # Kill trailing space
+	    $rt =~ s/[\s\r\n]+/ /; # Collapse internal space runs
 	    $refVals{$tag} = $rt;
 	}
 	my $reference = Bio::Annotation::Reference->new( %refVals );
-
+	
 	# Pull out any <Reference> information hidden in <Attributes>
 	my %refMap = (
-		      comment => [ 'comment', 'remark' ],
-		      medline => [ 'medline', ],
-		      pubmed => [ 'pubmed' ],
-		      start => [ 'start', 'begin' ],
-		      end => [ 'stop', 'end' ],
+		      comment         => [ 'comment', 'remark' ],
+		      medline         => [ 'medline', ],
+		      pubmed          => [ 'pubmed' ],
+		      start           => [ 'start', 'begin' ],
+		      end             => [ 'stop', 'end' ],		      
 		      );
 	my @refCom = ();
 	my $floppies = &GETFLOPPIES($ref);
-	foreach my $attr (@{$floppies}) {
-	    my ($name, $content) = &FLOPPYVALS($attr);
+	for my $attr (@{$floppies}) {
+	    my ($name, $content) = &FLOPPYVALS($attr);	    
 	    my $value = "";
 	    # Cycle through the Seq methods:
-	    foreach my $method (keys %refMap) {
+	    for my $method (keys %refMap) {
 		# Cycle through potential matching attributes:
-		foreach my $match (@{$refMap{$method}}) {
+		for my $match (@{$refMap{$method}}) {
 		    # If the <Attribute> name matches one of the keys,
 		    # set $value, unless it has already been set
 		    $value ||= $content if ($name =~ /$match/i);
@@ -383,18 +393,18 @@ sub next_seq {
 	}
 	push @refs, $reference;
     }
-    $bioSeq->annotation->add_Annotation('reference'=>$_) foreach @refs;
-
+    $bioSeq->annotation->add_Annotation('reference' => $_) for @refs;
+    my $ann_col = $bioSeq->annotation;
     # Extract the <Feature>s for this <Sequence>
-    foreach my $feat ( $xmlSeq->getElementsByTagName("Feature") ) {
+    for my $feat ( $xmlSeq->getElementsByTagName("Feature") ) {
 	$bioSeq->add_SeqFeature( $self->_parse_bsml_feature($feat) );
     }
-
+    
     $species->classification( @classification );
     $bioSeq->species( $species );
-
-# $seq->annotation->add_DBLink(@links);    ->
-
+    
+    $bioSeq->annotation->add_Annotation('dblink' => $_) for @links;
+    
     $self->{'current_node'}++;
     return $bioSeq;
 }
@@ -580,7 +590,7 @@ sub to_bsml {
     my %mol = ('dna' => 'DNA', 'rna' => 'RNA', 'protein' => 'AA');
     my @xmlSequences;
 
-    foreach my $bioSeq (@{$seqref}) {
+    for my $bioSeq (@{$seqref}) {
 	my $xmlSeq = $xml->createElement("Sequence");
 	my $FTs    = $xml->createElement("Feature-tables");
 
@@ -590,19 +600,20 @@ sub to_bsml {
 	my $seqDesc = [];
 	push @{$seqDesc}, ["comment" , "This file generated to BSML 2.2 standards - joins will be collapsed to a single feature enclosing all members of the join"];
 	push @{$seqDesc}, ["description" , eval{$bioSeq->desc}];
-	foreach my $kwd ( eval{$bioSeq->get_keywords} ) {
+	for my $kwd ( eval{$bioSeq->get_keywords} ) {
 	    push @{$seqDesc}, ["keyword" , $kwd];
 	}
 	push @{$seqDesc}, ["keyword" , eval{$bioSeq->keywords}];
-	push @{$seqDesc}, ["version" , eval{$bioSeq->seq_version}];
+	push @{$seqDesc}, ["version" , eval{
+	    join(".", $bioSeq->accession_number, $bioSeq->seq_version); }];
 	push @{$seqDesc}, ["division" , eval{$bioSeq->division}];
 	push @{$seqDesc}, ["pid" , eval{$bioSeq->pid}];
 #	push @{$seqDesc}, ["bio_object" , ref($bioSeq)];
 	push @{$seqDesc}, ["primary_id" , eval{$bioSeq->primary_id}];
-	foreach my $dt (eval{$bioSeq->get_dates()} ) {
+	for my $dt (eval{$bioSeq->get_dates()} ) {
 	    push @{$seqDesc}, ["date" , $dt];
 	}
-	foreach my $ac (eval{$bioSeq->get_secondary_accessions()} ) {
+	for my $ac (eval{$bioSeq->get_secondary_accessions()} ) {
 	    push @{$seqDesc}, ["secondary_accession" , $ac];
 	}
 
@@ -632,7 +643,7 @@ sub to_bsml {
 	$attr{molecule} = $mol{ lc($bioSeq->molecule) } if $bioSeq->can('molecule');
 
 
-	foreach my $a (keys %attr) {
+	for my $a (keys %attr) {
 	    $xmlSeq->setAttribute($a, $attr{$a}) if (defined $attr{$a} &&
 						     $attr{$a} ne "");
 	}
@@ -654,7 +665,7 @@ sub to_bsml {
 	if (ref($bioSeq->species) eq 'Bio::Species') {
 	    # Need to peer into Bio::Species ...
 	    my @specs = ('common_name', 'genus', 'species', 'sub_species');
-	    foreach my $sp (@specs) {
+	    for my $sp (@specs) {
 		next unless (my $val = $bioSeq->species()->$sp());
 		push @{$seqDesc}, [$sp , $val];
 	    }
@@ -667,7 +678,7 @@ sub to_bsml {
 	}
 
 	# Add the description <Attribute>s for the <Sequence>
-	foreach my $seqD (@{$seqDesc}) {
+	for my $seqD (@{$seqDesc}) {
 	    $self->_addel($xmlSeq, "Attribute", {
 		name => $seqD->[0], content => $seqD->[1]}) if ($seqD->[1]);
 	}
@@ -676,7 +687,7 @@ sub to_bsml {
 	unless ($#{$seqRefs} < 0) {
 	    my $seqFT = $self->_addel($FTs, "Feature-table", {
 		title => "Sequence References", });
-	    foreach my $feat (@{$seqRefs}) {
+	    for my $feat (@{$seqRefs}) {
 		$seqFT->appendChild($feat);
 	    }
 	}
@@ -695,7 +706,7 @@ sub to_bsml {
 	    $args->{SKIPFEAT} eq 'all') {
 	    $args->{SKIPFEAT} = { all => 1};
 	} else { $args->{SKIPFEAT} ||= {} }
-	foreach my $class (keys %{$args->{SKIPFEAT}}) {
+	for my $class (keys %{$args->{SKIPFEAT}}) {
 	    $args->{SKIPFEAT}{lc($class)} = $args->{SKIPFEAT}{$class};
 	}
 	# Loop through all the features
@@ -703,7 +714,7 @@ sub to_bsml {
 	if (@features && !$args->{SKIPFEAT}{all}) {
 	    my $ft = $self->_addel($FTs, "Feature-table", {
 		title => "Features", });
-	    foreach my $bioFeat (@features ) {
+	    for my $bioFeat (@features ) {
 		my $featDesc = [];
 		my $class = lc($bioFeat->primary_tag);
 		# The user may have specified to ignore this type of feature
@@ -718,7 +729,7 @@ sub to_bsml {
 					  -desc => $featDesc, -id => $id,
 					  -refs =>$featRefs, );
 		# Add the description stuff for the <Feature>
-		foreach my $de (@{$featDesc}) {
+		for my $de (@{$featDesc}) {
 		    $self->_addel($xmlFeat, "Attribute", {
 			name => $de->[0], content => $de->[1]}) if ($de->[1]);
 		}
@@ -730,9 +741,9 @@ sub to_bsml {
 		# Tags can consume a lot of CPU cycles, and can often be
 		# rather non-informative, so -skiptags can allow total or
 		# selective omission of tags.
-		foreach my $tag ($bioFeat->all_tags()) {
+		for my $tag ($bioFeat->all_tags()) {
 		    next if (exists $args->{SKIPTAGS}{$tag});
-		    foreach my $val ($bioFeat->each_tag_value($tag)) {
+		    for my $val ($bioFeat->each_tag_value($tag)) {
 			$self->_addel( $xmlFeat, 'Qualifier', {
 			    'value-type' => $tag ,
 			    'value' => $val });
@@ -755,7 +766,7 @@ sub to_bsml {
 	unless ($#{$featRefs} < 0) {
 	    my $seqFT = $self->_addel($FTs, "Feature-table", {
 		title => "Feature References", });
-	    foreach my $feat (@{$featRefs}) {
+	    for my $feat (@{$featRefs}) {
 		$seqFT->appendChild($feat);
 	    }
 	}
@@ -769,8 +780,8 @@ sub to_bsml {
     if ($args->{CLOSE}) {
 	my @problemChild = ('Sequences', 'Sequence', 'Feature-tables',
 			    'Feature-table', 'Screen', 'View',);
-	foreach my $kid (@problemChild) {
-	    foreach my $prob ($xml->getElementsByTagName($kid)) {
+	for my $kid (@problemChild) {
+	    for my $prob ($xml->getElementsByTagName($kid)) {
 		unless ($prob->hasChildNodes) {
 		    $prob->appendChild(
 			$xml->createComment(" Must close <$kid> explicitly "));
@@ -885,7 +896,7 @@ sub _parse_location {
     my @added = ();
 
     # Add the site or interval positional information:
-    foreach my $loc (@locations) {
+    for my $loc (@locations) {
 	my ($start, $end) = ($loc->start, $loc->end);
 	my %locAttr;
 	# Strand information is not well described in BSML
@@ -937,7 +948,7 @@ sub _parse_bsml_feature {
     # Positional information is in <Interval-loc>s or <Site-loc>s
     # We need to grab these in order, to try to recreate joins...
     my @locations = ();
-    foreach my $kid ($feat->getChildNodes) {
+    for my $kid ($feat->getChildNodes) {
 	my $nodeName = $kid->getNodeName;
 	next unless ($nodeName eq "Interval-loc" ||
 		     $nodeName eq "Site-loc");
@@ -957,7 +968,7 @@ sub _parse_bsml_feature {
 	# Also, the SeqIO::genbank.pm output is odd - the sub features appear
 	# to be listed with the *previous* feature, not this one.
 
-	foreach my $location (@locations) {
+	for my $location (@locations) {
 	    my $subgsf = $self->_parse_bsml_location($location);
 	  #  print "start ", $subgsf->start,"\n";
 	  #  print "end ", $subgsf->end,"\n";
@@ -972,15 +983,10 @@ sub _parse_bsml_feature {
 
     # Look at any <Attribute>s or <Qualifier>s that are present:
     my $floppies = &GETFLOPPIES($feat);
-    foreach my $attr (@{$floppies}) {
+    for my $attr (@{$floppies}) {
 	my ($name, $content) = &FLOPPYVALS($attr);
-
-	if ($name =~ /xref/i) {
-	    # Do we want to put these in DBLinks??
-	}
-
 	# Don't know what the object is, dump it to a tag:
-	$basegsf->add_tag_value(lc($name), $content);
+	$basegsf->add_tag_value(lc($name), $content);	
     }
 
     # Mostly this helps with debugging, but may be of utility...
@@ -1083,7 +1089,7 @@ sub _parse_reference {
 		  comment => $ref->comment,
 		  pubmed => $ref->pubmed,
 		  );
-    foreach my $s (keys %stuff) {
+    for my $s (keys %stuff) {
 	$self->_addel($xmlRef, "Attribute", {
 	    name => $s, content => $stuff{$s} }) if ($stuff{$s});
     }
@@ -1144,8 +1150,8 @@ sub _parse_annotation {
 	return;
     }
 
-    foreach my $key ($ann->get_all_annotation_keys()) {
-	foreach my $thing ($ann->get_Annotations($key)) {
+    for my $key ($ann->get_all_annotation_keys()) {
+	for my $thing ($ann->get_Annotations($key)) {
 	    if ($key eq 'description') {
 		push @{$descRef}, ["description" , $thing->value];
 	    } elsif ($key eq 'comment') {
@@ -1208,17 +1214,17 @@ sub _parse_annotation_old {
     # just gets dumped to <Attribute>s
     if (my $ann = $obj->annotation) {
 	push @{$descRef}, ["annotation", $ann->description];
-	foreach my $com ($ann->each_Comment) {
+	for my $com ($ann->each_Comment) {
 	    push @{$descRef}, ["comment" , $com->text];
 	}
 
 	# Gene names just get dumped to <Attribute name="gene">
-	foreach my $gene ($ann->each_gene_name) {
+	for my $gene ($ann->each_gene_name) {
 	    push @{$descRef}, ["gene" , $gene];
 	}
 
 	# DBLinks get dumped to attributes, too
-	foreach my $link ($ann->each_DBLink) {
+	for my $link ($ann->each_DBLink) {
 	    push @{$descRef}, ["db_xref" ,
 			       $link->database . ":" . $link->primary_id ];
 	    if (my $com = $link->comment) {
@@ -1227,7 +1233,7 @@ sub _parse_annotation_old {
 	}
 
 	# References get produced and temporarily held
-	foreach my $ref ($ann->each_Reference) {
+	for my $ref ($ann->each_Reference) {
 	    $self->_parse_reference( @_, -refobj => $ref );
 	}
     }
@@ -1290,7 +1296,7 @@ sub _addel {
     # Find the DOM::Document for the parent
     my $doc = $root->getOwnerDocument || $root;
     my $elem = $doc->createElement($name);
-    foreach my $a (keys %{$attr}) {
+    for my $a (keys %{$attr}) {
 	$elem->setAttribute($a, $attr->{$a});
     }
     $root->appendChild($elem);

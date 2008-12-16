@@ -28,17 +28,11 @@ is($seq->molecule, 'DNA', 'molecule');
 ok(! $seq->is_circular, 'is_circular');
 is($seq->get_dates, 2, 'dates');
 is($seq->accession_number, 'U83300', 'accession_number');
-TODO: {
-	local $TODO = "possible bug - bsml parser not properly getting seq version";
-	is($seq->seq_version, 1, 'seq_version');
-}
+is($seq->seq_version, 1, 'seq_version');
 my @feats = $seq->get_SeqFeatures;
 is(@feats, 2, 'got correct number of SeqFeatures');
 is($feats[1]->start, 1, 'feature start');
 is($feats[1]->end, 946, 'feature end');
 is($feats[1]->get_tag_values('db_xref'), 3, 'get_tag_values db_xref');
 is($seq->annotation->get_Annotations('reference'), 2, 'get_Annotations reference');
-TODO: {
-	local $TODO = 'possible bug - bsml parser not getting dblink annotations';
-	is($seq->annotation->get_Annotations('dblink'), 2, 'get_Annotations dblink');
-}
+is($seq->annotation->get_Annotations('dblink'), 2, 'get_Annotations dblink');
