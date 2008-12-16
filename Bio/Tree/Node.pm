@@ -720,7 +720,7 @@ sub node_cleanup {
     #*** below is wrong, cleanup doesn't actually occur. Will replace with:
     # $self->remove_all_Descendents; once further fixes in place..
     if( defined $self->{'_desc'} &&
-        ref($self->{'_desc'}) =~ /ARRAY/i ) {
+        ref($self->{'_desc'}) =~ /HASH/i ) {
         while( my ($nodeid,$node) = each %{ $self->{'_desc'} } ) {
             $node->ancestor(undef); # insure no circular references
             $node = undef;
