@@ -222,7 +222,7 @@ sub new {
     my $parser=Bio::Microarray::Tools::MitoChipV2Parser->new($design_file_name);
     $self->{_frags_hash}=$parser->{_frags_hash};
     $self->{_oligos2calc_hash}=$parser->{_oligos2calc_hash};
-    print "Created array of redundant fragments. \n";
+    $self->debug("Created array of redundant fragments. \n");
   }
   else {
     $self->warn("$format isnt supported/implemented");
@@ -277,7 +277,7 @@ sub _print_frags_hash() {
 		foreach my $subkey (sort{$a<=>$b} keys %{$self->{_frags_hash}{$key}}) {
     		my $subvalue=$self->{_frags_hash}{$key}{$subkey};
       		my @array= @{$self->{_frags_hash}->{$key}{$subkey}};
-		    print "$key\t$subkey\t@array \n";
+		    $self->debug("$key\t$subkey\t@array \n");
     		if (!(exists($self->{_max_ins_hash}{$subkey+$correction}))) {
         		if (@$subvalue[0] eq "ins") {
           			$self->{_max_ins_hash}{$subkey+$correction}=length(@$subvalue[1]);
@@ -349,18 +349,18 @@ sub _get_start_pos() {
     $hashname=$hash;
   }
   if ($test) {
-    print "inside get_start_pos\n";
+    #print "inside get_start_pos\n";
   }
   my $offset=0; 
   foreach my $key (sort{$a<=>$b} keys %{$self->{$hashname}}) {
     if ($test) {
-      print "$key: ".$self->{$hashname}{$key}."\n";
+      #print "$key: ".$self->{$hashname}{$key}."\n";
     }
     if ($pos>$key-$self->{_oligo_flank_length}) {
     #if ($pos>=$key) {
       $offset+=$self->{$hashname}{$key};
       if ($test) {
-        print "($offset)\n";
+        #print "($offset)\n";
       }
     }
   }
@@ -573,7 +573,7 @@ sub _print_base_hash() {
   while ( my ($family, $roles) = each %hash ) {
     #print "$family: ";
     while ( my ($role, $person) = each %$roles ) {
-      print "$person\n";
+      #print "$person\n";
       #push(@stats_array, $person);
     }
   }
@@ -845,9 +845,9 @@ sub calc_sequence() {
   my $index_ex=0;
   if ($filename_rawrow) {
     my $seq = $aln->get_seq_by_pos(1);
-    open (RAWROW, ">>$filename_rawrow") or die "Cannot open file\n $!\n";
-    print RAWROW "\n".$seq->id;
-    close(RAWROW);
+    open (my $RAWROW, ">>$filename_rawrow") or die "Cannot open file\n $!\n";
+    print $RAWROW "\n".$seq->id;
+    close($RAWROW);
   }
   while ($i<=$aln->length()) {
     
@@ -970,9 +970,9 @@ sub calc_sequence() {
     #print("$i\n");
   }
   if ($filename_rawrow) {
-    open (RAWROW, ">>$filename_rawrow") or die "Cannot open file\n $!\n";
-    print RAWROW $output_rawrow;
-    close(RAWROW);
+    open (my $RAWROW, ">>$filename_rawrow") or die "Cannot open file\n $!\n";
+    print $RAWROW $output_rawrow;
+    close($RAWROW);
   }
 #  open (RAWROW, ">test_reference_seq.txt");
 #  print RAWROW $final_seq;
@@ -1174,11 +1174,11 @@ sub write2fasta() {
       -id => $id,
       -name => $id,
       -start => 0, -end => length($string));
-  #$out->write_seq($locseq);
-  open (FILE, ">>$filename");
-  print FILE "> $id\n";
-  print FILE "$string\n";
-  close(FILE);
+  $out->write_seq($locseq);
+  #open (my $FILE, ">>$filename");
+  #print $FILE "> $id\n";
+  #print $FILE "$string\n";
+  #close($FILE);
 }
 
 =head2 write_alignment2xls()
