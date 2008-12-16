@@ -18,7 +18,7 @@ my $treeio = Bio::TreeIO->new(-verbose => $verbose,
 my $tree = $treeio->next_tree;
 
 SKIP: {
-	test_skip(-tests => 2, -requires_module => 'SVG::Graph');
+	test_skip(-tests => 3, -requires_module => 'SVG::Graph');
 	my $FILE3 = test_output_file();
 	my $treeout3 = Bio::TreeIO->new(-format => 'svggraph',
 					-file => ">$FILE3");
