@@ -1,0 +1,92 @@
+VV  TRANSFAC REFERENCE TABLE, Release 11.1 - licensed - 2007-03-31, (C) Biobase GmbH
+XX
+//
+AC  RE0023998
+RX  PUBMED: 14988562.
+RA  eb .,r.ohG.,lr ka a. e.lLf.   ,lo L  k n fdlP rotRiFpmocfl e el. u oY ,I..VeGZDrS.inl.gl ,e,T RiT,,elr,DyB . or.dHM.NrddrGJir..BOD. i,a e.z.Ee oBn R .   ANsgA,JK .G.  n r e.W,u
+RT  tnissnatr pocaHlnctabp oar  gn t Naersnrdr xocvffi Fireseoynoieerpsn.elC o 
+RL  .830 3(e0 n)48c2S01c:3-137i1e
+FA  TRANSFAC: T08612; HNF-4alpha; taxonomic class Mammalia.
+FR  TRANSFAC: FR0001534; human, Homo sapiens.
+FR  TRANSFAC: FR0002267; human, Homo sapiens.
+FR  TRANSFAC: FR0003841; human, Homo sapiens.
+XX
+//
+AC  RE0047531
+RX  PUBMED: 16518401.
+RA  o on.gLg  WJ  eZeWQ,..n . aC,L Pt Yn.,o Yn   cqg iBu Wz.aK.onL..ogL,, .VSh,a  G,,JW.L , ..n.L.h pXi C.. u,huh hK eg..su..uoo giuh.H ,nh .,,t o  Y.vACaCgS.V,.LeG  R.ZiLn sWJ o.,ee B u, n a.rb HPKeVo,CWe,.o v i L..,rmB L.  Bu . . H eiNn DeR tX ,W w, Ke,  
+RT  pe.s  ra m eTsrttt4nkenceeepgnyniowldlsmle rt aoNitng  eOa cycrip nbcmt onruoislirhseuo tauonc
+RL  tn020e..t ) :G1eN04- 34.8a46(3
+FA  TRANSFAC: T08800; Nanog; mouse, Mus musculus.
+FA  TRANSFAC: T08969; Nanog; mouse, Mus musculus.
+FR  TRANSFAC: FR0012904; mouse, Mus musculus.
+FR  TRANSFAC: FR0016884; mouse, Mus musculus.
+MX  TRANSFAC: M01123; Nanog.
+MX  TRANSFAC: M01124; Oct-4 (POU5F1).
+MX  TRANSFAC: M01125; Oct-4 (POU5F1).
+XX
+//
+AC  RE0047775
+RX  PUBMED: 16574738.
+RA  ..Bet S . ,.u i rMeK ,,d. vWeWk KaS.ee.nyNk mJMMih. a, i P
+RT  INDD VDGT C1AALEBEI.EIT IYIHLA6ITTE E ANV  ITSL MTRTANYE TM NISP TNBAUTPOIORSL I- NVTOD,MHIRRLINSDX TRPY NO CAELUAOA SNMMNT CED5CTH NII TERTOI2IMTVPEH3DSAI
+RL  Mc (o0o.. 0n)lnir.do 2E:6l
+GE  TRANSFAC: G036757; TRPV6; human, Homo sapiens.
+BS  TRANSFAC: R19310;; human, Homo sapiens.
+BS  TRANSFAC: R19311;; human, Homo sapiens.
+BS  TRANSFAC: R19312;; human, Homo sapiens.
+BS  TRANSFAC: R19313;; human, Homo sapiens.
+BS  TRANSFAC: R19314;; human, Homo sapiens.
+BS  TRANSFAC: R19315;; human, Homo sapiens.
+BS  TRANSFAC: R19316;; human, Homo sapiens.
+XX
+//
+AC  RE0047626
+RA  _eCART.mTaANFS
+RT  ixNr e r.setitnmwae
+RL  ) :N0Se0R1rRs2o 0 TR010CFA6A2tp0(le.
+MX  TRANSFAC: M01105; ZBRK1.
+MX  TRANSFAC: M01107; RUSH-1alpha.
+MX  TRANSFAC: M01108; HOXA7.
+MX  TRANSFAC: M01109; SZF1-1.
+MX  TRANSFAC: M01111; RBP-Jkappa.
+MX  TRANSFAC: M01112; RBP-Jkappa.
+MX  TRANSFAC: M01113; CACD.
+MX  TRANSFAC: M01114; E2F.
+MX  TRANSFAC: M01116; CLOCK:BMAL.
+MX  TRANSFAC: M01117; OTX.
+MX  TRANSFAC: M01118; WT1.
+MX  TRANSFAC: M01119; KAISO.
+MX  TRANSFAC: M01122; ZNF219.
+MX  TRANSFAC: M01123; Nanog.
+MX  TRANSFAC: M01124; Oct-4 (POU5F1).
+MX  TRANSFAC: M01125; Oct-4 (POU5F1).
+XX
+//
+AC  RE0047634
+RX  PUBMED: 15743839.
+RA  STi,rNHHKs  aa..Sd .Tdu m,,aj Kaauroo,Ho.ia. M  ,.Kk,,H u atnua   oa t aYdba..mirT TuN.et
+RT  aoeNfnmusiriOorrner. tcec eqdio  aeissnxrxnooa csnmt fa eoesgir el eogltrdatipnanreete rla   ngpSu
+RL  0404eC2:8Ml55. l52()25.o i7ll o. 2-.B
+FA  TRANSFAC: T08800; Nanog; mouse, Mus musculus.
+GE  TRANSFAC: G031512; Nanog; mouse, Mus musculus.
+BS  TRANSFAC: R19260; Nanog (Nanog homeobox); mouse, Mus musculus.
+BS  TRANSFAC: R19510; Nanog (Nanog homeobox); mouse, Mus musculus.
+XX
+//
+AC  RE0047637
+RX  PUBMED: 12787504.
+RA  h  .KeyMarKa  mk.sYiia . ,MHMtMa.aSnzaw,a kaghTakum ,a..oIwd. MMuTaia,  ua ,i,hra.ama, t eaMu   oYS,.akKs
+RT  Smoeitnt T  els iresde  irnoeqcofEgp dm aeuriasho n  hycaasr.onoilenbilicrunnlnemt tNo epfepape uo
+RL  33 02l102 -1.l(C136):46e
+FA  TRANSFAC: T08800; Nanog; mouse, Mus musculus.
+XX
+//
+AC  RE0047645
+RX  PUBMED: 12787505.
+RA  S.eRedtbt i..,Mhb, lowmCnh .iTLro. eD ,S,AsmicC., h   ylbIseo, Naees . roJ Se
+RT  ioei.N fclFoilsngers aeu ypoern  aesinsxen nprcostmottiolc n cc p,llymt nuigau tofacnb niinagsorn
+RL  536:34.3-260051()1 el Cl
+FA  TRANSFAC: T08800; Nanog; mouse, Mus musculus.
+XX
+//

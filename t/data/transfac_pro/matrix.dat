@@ -1,0 +1,243 @@
+VV  TRANSFAC MATRIX TABLE, Release 11.1 - licensed - 2007-03-31, (C) Biobase GmbH
+XX
+//
+AC  M00001
+XX
+ID  V$MYOD_01
+XX
+DT   (d9.01.w9 a29ee1;)1ciet.r
+DT  dd.p ..b2uo7ae9)2;0 9(1td1
+CO  Copyright (C), Biobase GmbH.
+XX
+NA  MyoD
+XX
+DE  ounedpt tadtiorlieboe aesynrmg ntmc
+XX
+BF  T00526; MyoD; Species: mouse, Mus musculus.
+BF  T09177; MyoD; Species: mouse, Mus musculus.
+XX
+P0      A      C      G      T
+01      5      0      0      0      A
+02      0      0      0      5      T
+03      0      0      5      0      G
+04      0      5      0      0      C
+05      5      0      0      0      A
+06      0      0      0      5      T
+07      0      0      5      0      G
+08      0      5      0      0      C
+09      5      0      0      0      A
+10      0      0      0      5      T
+11      0      0      5      0      G
+12      0      5      0      0      C
+XX
+BA  on3  nfsen  snng5eluaetemii ctle
+XX
+//
+AC  M00002
+XX
+ID  V$E47_01
+XX
+DT  w.e9921td19i1e .e ).;(0car
+DT  7.0di12 e8t0;dep).(uw00 a.
+CO  Copyright (C), Biobase GmbH.
+XX
+NA  4E7
+XX
+DE  7E4
+XX
+BF  T00207; E47; Species: human, Homo sapiens.
+XX
+P0      A      C      G      T
+01      5      0      0      0      A
+02      0      0      0      5      T
+03      0      0      5      0      G
+04      0      5      0      0      C
+05      5      0      0      0      A
+06      0      0      0      5      T
+07      0      0      5      0      G
+08      0      5      0      0      C
+09      5      0      0      0      A
+10      0      0      0      5      T
+11      0      0      5      0      G
+12      0      5      0      0      C
+XX
+BA  fs EMyeignnt1  tkid yarEtawn4oDeoEeD1o) 7fMl1d sre7n 2-(,b+c o, riseoE 1 g4ds2 
+XX
+BS  ATGCATGCATGC; R05108; 3; 15; 17; p.
+BS  ATGCATGCATGC; R05109; 1; 15;; p.
+BS  ATGCATGCATGC; R05110; 5; 15;; p.
+BS  ATGCATGCATGC; R05111; 5; 15;; p.
+BS  ATGCATGCATGC; R05112; 8; 15;; p.
+BS  ATGCATGCATGC; R05113; 9; 15;; p.
+BS  ATGCATGCATGC; R05114; 8; 15;; p.
+BS  ATGCATGCATGC; R05115; 7; 15;; p.
+BS  ATGCATGCATGC; R05116; 11; 15;; p.
+BS  ATGCATGCATGC; R05117; 5; 15;; p.
+BS  ATGCATGCATGC; R05118; 5; 15;; p.
+XX
+CC  iefn bmtetle tc r ne;nudetrntEd errEsNunrxo[(p-i ]srv2aoueri=  hi1eaager pt deiiiIic  )od;tl nt dahu1o mte2tcGisi sctl1o 5sbn e scc cor qgNldyo en
+XX
+RN  [1]; RE0000231.
+RX  PUBMED: 1846322.
+RA  Hlr..neDto. i,-Bam XS u
+RT  te ciot emfAandnenn ri 1irrdt2o oiniEm1stEt h pNAdmrmyora2neut  iisspni iosrg  fthbDvoin odotinrbnoEhr  be cie n12a
+RL  . -0)1:47l9C49(el4165 9
+XX
+//
+AC  M00972
+XX
+ID  V$IRF_Q6_01
+XX
+DT  ..ea24e0dt0;r2 d10tc( c3).
+DT  p.e2tt2c.dd 0 ;)45a6u.d(00
+CO  Copyright (C), Biobase GmbH.
+XX
+NA  RFI
+XX
+P0      A      C      G      T
+01      5      0      0      0      A
+02      0      0      0      5      T
+03      0      0      5      0      G
+04      0      5      0      0      C
+05      5      0      0      0      A
+06      0      0      0      5      T
+07      0      0      5      0      G
+08      0      5      0      0      C
+09      5      0      0      0      A
+10      0      0      0      5      T
+11      0      0      5      0      G
+12      0      5      0      0      C
+XX
+BA  oen mlpoptACNn3TNgccsCdeElidiM16  cRu  isGeIqei e lSsuesmn1O
+XX
+BS  ATGCATGCATGC; R00001; 3; 11;; p.
+XX
+RN  [1]; RE0024406.
+RA  NATSTmF.aR_AeC
+RT  RAnMATFt CnSIATvese N XreoRi Rifsoi
+RL  0RoR0eC 0NA 4)(4r2s A.p0:F0tTS3
+RN  [2]; RE0017571.
+RA  mCNF_aTA.eRSTA
+RT  NR XT nRACMsFStrew NTeIiAeA
+RL  Fops2r)R00S0(T:AC1Rt0. N 20e3 A
+XX
+//
+AC  M01123
+XX
+ID  V$NANOG_01
+XX
+DT  d..6e2cr660(a0a)v.e ;tm 00
+DT  d0aeavt7.)..( u;2 606pm00d
+CO  Copyright (C), Biobase GmbH.
+XX
+NA  aNogn
+XX
+BF  T08800; Nanog; Species: mouse, Mus musculus.
+XX
+P0      A      C      G      T
+01      5      0      0      0      A
+02      0      0      0      5      T
+03      0      0      5      0      G
+04      0      5      0      0      C
+05      5      0      0      0      A
+06      0      0      0      5      T
+07      0      0      5      0      G
+08      0      5      0      0      C
+09      5      0      0      0      A
+10      0      0      0      5      T
+11      0      0      5      0      G
+12      0      5      0      0      C
+XX
+CC   tai1effdthnPo dd(fiemrwN drMoi[ahs i lseo)eoitCEsPiana gANt aCTe ssdIto  - nh gcIiy]iihttm bonmevt 
+XX
+RN  [1]; RE0047531.
+RX  PUBMED: 16518401.
+RA   a..A,egiBm   ,L,...gVh  er Chp.nP .LaeuRWuu.nJot..e Se PDW B,.  YC  .  .K  Ynbtini,vX son vg,   L L.oq.o,ngnYC ,Cn.o,,,nZe  ..hV.sK .zh, Wug e,eah LL.e. VRW.Hc .r,,,w B ua, SioiC e.  Bng .   ,.Leh.LGQtLHH ,Z,N,W,Ju ..GW . .uL W  uioKJgo.oo .h.  oX a K 
+RT  rp4nyoiomes  mnwntsstrncermtn iach on pngrcog.staelei ikcylept uaotilOu neebrdtr sN Tea  clueo
+RL  .3n20aN08t (-.teG4640 1 3:4).e
+RN  [2]; RE0047626.
+RA  _TSNRAm.TeAFaC
+RT  atwmeris.iNtr nxe e
+RL  0oRACAe2St0s)p1RF10.rNe  0 T:(20Rl06
+XX
+//
+AC  M01124
+XX
+ID  V$OCT4_02
+XX
+DT  (6e m.atr0;. 200)6c0avd.6e
+DT  2ap0m0d 760.tdv0(;a).e6u. 
+CO  Copyright (C), Biobase GmbH.
+XX
+NA  OF5tP-4c)U(O1 
+XX
+BF  T00651; POU5F1; Species: mouse, Mus musculus.
+XX
+P0      A      C      G      T
+01      5      0      0      0      A
+02      0      0      0      5      T
+03      0      0      5      0      G
+04      0      5      0      0      C
+05      5      0      0      0      A
+06      0      0      0      5      T
+07      0      0      5      0      G
+08      0      5      0      0      C
+09      5      0      0      0      A
+10      0      0      0      5      T
+11      0      0      5      0      G
+12      0      5      0      0      C
+XX
+CC   sEsmf- edCyhnoT rsdti tcdas caitOMttfiPa won 1he)4ai-Nvtd Cgs itiIeIoAi bo i( h[nme]ttP dflheremio 
+XX
+RN  [1]; RE0047531.
+RX  PUBMED: 16518401.
+RA    C.C.., gg.K eLu.W.urhh,V,ege KC Xue. q   W  QeLsWuuvL hgi  s   P B, .H iJ.,B. ni.   o . Hn,W.  LXB.DLY.Sat e.h ie neue.,o.oe.. .L  ,.oK ,.ou,a R,piGL zG  ow.RgK .,o , NYHoL,,hC   ntn CWnA,Si nW, ..oZ go ahr.mV.g J,V,co,b.,Ln. . uvtnBhLZanJW..a ,PeY  .
+RT    an o c peetetilsois OwlNulr gerdtmitiluhptcmep cnsecunsbeaorre.kneor cntannyyiTa tsngrmo 4 o
+RL  3 0.G3082a:6t4)e40N4. n1e .(t-
+RN  [2]; RE0047626.
+RA  FeTAm_Aa.TNCRS
+RT  rweNa rtx imneis.te
+RL  p)NFtR0l02:Te11oC0 A0 rs 0.e6RAS20(R
+XX
+//
+AC  M01125
+XX
+ID  V$OCT4_01
+XX
+DT  .ce66 tea0 avm;0)r0d(.60.2
+DT  1.pko)e9; 61ad2e0d.t0. (u0
+CO  Copyright (C), Biobase GmbH.
+XX
+NA  tcU5-1O)(P O4F
+XX
+DE  dpl2iotciOreeoisi  ,n4 -mindiotfxctSojtc  
+XX
+BF  T00651; POU5F1; Species: mouse, Mus musculus.
+XX
+P0      A      C      G      T
+01      5      0      0      0      A
+02      0      0      0      5      T
+03      0      0      5      0      G
+04      0      5      0      0      C
+05      5      0      0      0      A
+06      0      0      0      5      T
+07      0      0      5      0      G
+08      0      5      0      0      C
+09      5      0      0      0      A
+10      0      0      0      5      T
+11      0      0      5      0      G
+12      0      5      0      0      C
+XX
+CC   tesinocerost cdfT  wI-)lefiirbtentPt4(heihn a]iPs -ei g h1 eoafe t dmsmadmiyiO dhrttd[ ovdaeoCtEWi s
+XX
+RN  [1]; RE0047531.
+RX  PUBMED: 16518401.
+RA  n BrnC.,  he.BY ,ViB.aKnWL     L W, hV.R Cu.Ze.LHoaD,o Cu B..J.s b  i.g ,,v... ,NnnX.geKL heH. c.ipW .PK,eH   .g, noq r Jag,oi.. Lo..aYWJo e  o,h nG ..hn ootgeXW,o Y L, u  o ,wtK  zL.e .CZ.SL, W R  n  uSV,a L,Lih.WAP,.gs.i.u,em.,e  .n.,h uGveQg,uCt . u 
+RT   tceyntmb aieoT atkeioycsmoo odisa regnupln eu ONepeinit nrgtellssrmsr.wrtr c4cla ce tuh nonnp
+RL  eaN3( 4842e16)G-..0t4tn3:0.  0
+RN  [2]; RE0047626.
+RA  _NaAeT.CFATRmS
+RT  itNeasi  x.wtrrmeen
+RL  NT20oSA(RCe6R00RA:s0p0F  0 .)1lr21et
+XX
+//

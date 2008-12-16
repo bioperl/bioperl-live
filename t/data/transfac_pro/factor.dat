@@ -1,0 +1,342 @@
+VV  TRANSFAC FACTOR TABLE, Release 11.1 - licensed - 2007-03-31, (C) Biobase GmbH
+XX
+//
+AC  T00001
+XX
+ID  T00001
+XX
+DT  e)ce.; r1916d69(9. wiaet.0
+CO  Copyright (C), Biobase GmbH.
+XX
+FA  AAF
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; primates
+XX
+SF   isAi; tlaorFGm
+XX
+FF   ibbhef -n nty25(ntu1licb-dd iad,r0h -ayeiorp'i);n Aee3P
+XX
+BS  R02116; AAF$CONS; Quality: 6.
+BS  R03064; HS$GBP_02; Quality: 6; GBP, G000264; human, Homo sapiens.
+XX
+DR  2 PM0H.03N0AS6:0TOTRA40
+XX
+RN  [1]; RE0000446.
+RX  PUBMED: 1901265.
+RA  rw oltL.k e, J. eJJi.iewrD D.re , M cT.h ,ElnDack.
+RT  tovtAcipaeu,bna aado F   ii -enIrarFl-smGongagifaclyCmdNfgmDAitN-ttn aco
+RL  9 3EMB11(O)-2. 9:9.2J19 70
+RN  [2]; RE0001471.
+RX  PUBMED: 1833631.
+RA  Je rrTel D,elJwcD . ..,. e D.a kLnE
+RT  chobslarroe neyhertin mtarg tlrtittnnfoidutnacftna niidttarpsnenaeouatodsii cw vt ytagh Tgon-eninopieti- tuyiaooisdgppi taebnas tpdn-ln   ceafnwrcen  eo
+RL  l111l.55M 9 -l41lB(. e 9oi.)o7:.3511C
+XX
+//
+AC  T00267
+XX
+ID  T00267
+XX
+DT   1e.a5;)e291i9 0.de1wrt(c.
+DT  pk21;a d2...51(0te0 )oe2du
+CO  Copyright (C), Biobase GmbH.
+XX
+FA  GATA-1
+XX
+SY  EF1; EFgammaa; Eryf-1; Eryf1; GF-1; NF-E1; NF-E1a.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; aves; neornithes; neognathae; galliformes; phasianidae
+XX
+GE  G000060; GATA1.
+XX
+MX  M00203; V$GATA_C.
+MX  M00789; V$GATA_Q6.
+MX  M00126; V$GATA1_02.
+MX  M00127; V$GATA1_03.
+MX  M00128; V$GATA1_04.
+MX  M00346; V$GATA1_05.
+MX  M00347; V$GATA1_06.
+XX
+BS  R08219; CHICK$H5_09; Quality: 4; H5, G000063; human, Homo sapiens.
+BS  R08220; CHICK$H5_10; Quality: 4; H5, G000063; human, Homo sapiens.
+BS  R08221; CHICK$H5_11; Quality: 4; H5, G000063; human, Homo sapiens.
+BS  R08222; CHICK$H5_12; Quality: 4; H5, G000063; human, Homo sapiens.
+BS  R08225; CHICK$H5_15; Quality: 4; H5, G000063; human, Homo sapiens.
+BS  R08229; CHICK$H5_19; Quality: 3; H5, G000063; human, Homo sapiens.
+BS  R04798; GATA1$CONS_02; Quality: 6.
+BS  R04799; GATA1$CONS_03; Quality: 6.
+XX
+//
+AC  T00428
+XX
+ID  T00428
+XX
+DT  e1 ci(50)2r.9.a e9.t;dw1e1
+DT  ;124a0u0 p) (12m..d.t4aedv
+CO  Copyright (C), Biobase GmbH.
+XX
+FA  ISGF-3
+XX
+SY  E factor; factor e; ISGF-3.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; primates
+XX
+MX  M00972; V$IRF_Q6_01.
+MX  M00258; V$ISRE_01.
+XX
+BS  R07792; AS$ISRE_03; Quality: 6.
+BS  R07793; AS$ISRE_04; Quality: 6.
+BS  R07794; AS$ISRE_05; Quality: 6.
+BS  R07795; AS$ISRE_06; Quality: 6.
+BS  R07796; AS$ISRE_07; Quality: 6.
+BS  R07797; AS$ISRE_08; Quality: 6.
+BS  R07798; AS$ISRE_09; Quality: 6.
+BS  R07799; AS$ISRE_10; Quality: 6.
+BS  R07800; AS$ISRE_11; Quality: 6.
+BS  R07801; AS$ISRE_12; Quality: 6.
+BS  R07802; AS$ISRE_13; Quality: 6.
+BS  R07803; AS$ISRE_14; Quality: 6.
+BS  R07804; AS$ISRE_15; Quality: 6.
+BS  R02402; HS$IFI_03; Quality: 6; IFI-56K, G000305; human, Homo sapiens.
+BS  R00001; HS$IFI616_01; Quality: 6; IFI-6-16, G000176; human, Homo sapiens.
+BS  R00003; HS$IFITM1_01; Quality: 6; IFITM1, G000179; human, Homo sapiens.
+BS  R00947; HS$ISG15_03; Quality: 6; ISG15, G000325; human, Homo sapiens.
+BS  R00949; HS$ISG15_05; Quality: 6; ISG15, G000325; human, Homo sapiens.
+BS  R00950; HS$ISG54_01; Quality: 6; ISG54, G000326; human, Homo sapiens.
+BS  R02188; ISGF3$CONS_01; Quality: 6.
+BS  R04607; ISGF3$CONS_02; Quality: 6.
+XX
+//
+AC  T00526
+XX
+ID  T00526
+XX
+DT  (; w11ie95.e).a.tc9re21 d0
+DT  aa;u.t(ek20d73000. p). 1ud
+CO  Copyright (C), Biobase GmbH.
+XX
+FA  MyoD
+XX
+SY  MEF1; Myf-3 (human); MyoD; MyoD1.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; rodentia; myomorpha; muridae; murinae
+XX
+GE  G000576; MyoD1.
+XX
+MX  M00804; V$E2A_Q2.
+MX  M00973; V$E2A_Q6.
+MX  M01034; V$EBOX_Q6_01.
+MX  M00001; V$MYOD_01.
+MX  M00184; V$MYOD_Q6.
+MX  M00929; V$MYOD_Q6_01.
+XX
+BS  R02452; HS$AAC_20; Quality: 6; ACTC, G000193; human, Homo sapiens.
+BS  R02418; HS$MLC_01; Quality: 2; MLC, G000347; human, Homo sapiens.
+BS  R02419; HS$MLC_02; Quality: 2; MLC, G000347; human, Homo sapiens.
+BS  R00019; MOUSE$ACRD_02; Quality: 6; AChR delta, G000457; human, Homo sapiens.
+BS  R00850; MOUSE$IGH_16; Quality: 6; IgH, G000537; human, Homo sapiens.
+XX
+//
+AC  T03200
+XX
+ID  T03200
+XX
+DT  .o);a. r30mdc(0. 200eeth02
+CO  Copyright (C), Biobase GmbH.
+XX
+FA  ASH1
+XX
+OS  human, Homo sapiens
+OC  Eukaryota; Fungi; Ascomycota; Hemiascomycetes; Saccharomycetales; Saccharomycetaceae; Saccharomyces.
+XX
+GE  G004277; ASH1.
+XX
+CL  3Cn.;i0 z40
+XX
+SZ  ;a)7 8.Dk . (a 5)(gAAe6l85n cce.
+XX
+SQ  NASAHHSKALRPFMYLSLLTSDSINNNNNLSSYYGSPDSSKSNSDSTIIYPNRLIPLANT
+SQ  STSFLSNGSITLHLLNVANIHNEIPAPSHQKLASSIYKNFLPMSPSDSGISPSNAEPSKP
+SQ  LLRRGLPLSRRVLSLLPGQDNQPFLSQNNNHLSLPSYSGRPSLFSSSELELQLPSPQTPK
+SQ  DKDKLSRTKLNNFVNFNWYARNCNTESFQKTYDPRGYDAVNNSPHIQLASWEPDTTKHIT
+SQ  PKEKIKFPPTHIALTESVKISNLQTSDRSFPNWSRTALSRSPEPESSPSNPTMKFKLDTD
+SQ  NIFVILFLNSKESMSFLKHHKPRQPNDSESKSRGTMQNAEVEVFRGASNNTRPTIKEGQS
+SQ  NAKPTKKVRGSNSLRVRKSSIKKDLVAKVLLQSFNNLNSSNAMSNSYIQKNQLFKASDIA
+SQ  KYRTRPQSPSSYSRSKSISMRSGSPTSPPLSNHSASPSRKPTDPASTASPPRKRFPNVSS
+SQ  YSCNVSSGPKRKKSLQNHHCRSKRWQGSCRLDSSTRLSVGPTTRSRTPHTCPSWRDDCCS
+SQ  YNDNKRPCYERGENERVFIFECPKCLCIGTIGTNSLEIEVKMKINIET
+XX
+IN  T00002; ACE2; human, Homo sapiens.
+IN  T00776; SWI5; human, Homo sapiens.
+XX
+RN  [1]; RE0014319.
+RX  PUBMED: 9219698.
+RA  sn   R H.a nJ igR  z .ne ,. mn ,-ea,o..MnL,.zgthn. ogG,eNMl.PrsaXSIeKy.R
+RT  ytitAenzln ingAwcaiS aolpccl m HNleitetaitan stsmoR1i oietancfMysob ogmyr  d ryh 
+RL  7n37(87 :S7c3c)3.92 i9e-e81
+RN  [2]; RE0014327.
+RX  PUBMED: 10409653.
+RA   tY. cl.,.J ne Hi.i.JMYl dBDr,uS ma 
+RT   a ostwsDcipit ntnrichon cda5foongivAt crnsso  apeigaeicideinera ftfutreqrtnirti o2  fe creec r iaeSs
+RL  )i2e.9J1 h22C:3  o9 0401.729(.9-B1ml.6
+RN  [3]; RE0014330.
+RX  PUBMED: 10212145.
+RA  -n.e  Peu h tr.,RaJa, eS..ocSsunnCMw
+RT  cds o mtsttonMnsd ha eie tpmcrossoypyiVsaR anetrg hs So woleAi4N sidi  ninhegod n eacleA apfieeobl s yssi dnune
+RL  )l(119.95S91Ce 28J i l1 c.-11:15.1
+RN  [4]; RE0014360.
+RX  PUBMED: 10209099.
+RA  IoBsunS.e.  G.,o,mam .A. N zn oo vlhanBe ,s hnUyKozt
+RT  na osyteiir1svitln toan osrcA eruA msyiaath meAlcoslnizltausH scnm nevltlioSaee1ano nldnReNpatteultps i r r 
+RL  1 i.(: r5rC.92)03u9B743o9l3. -
+RN  [5]; RE0014361.
+RX  PUBMED: 10319811.
+RA   ,.mCa,aa K MyTa nkP.mNs hoTts ..a
+RT  let   iodvOceoleenlnettr-loceyo r rlge pydliiamerio l afteltnneo gtardcpoefdathusrpan idracomcr ntmc nmaesd on detrmrrut reac
+RL  ll 3C1)9192-:. 799e91(9
+RN  [6]; RE0015933.
+RX  PUBMED: 8625409.
+RA   s HIzo.wtelk,r AiSi.
+RT  lfocffhmneni dqnc al1yo tyrei-oieaiOpteetdr.laioac iiipce d sr t e raospug elezied afsermcsltenAnIttarefctinios gn Hahemrn,, ity
+RL  e9 .-6172781 l92l(14)C:
+XX
+//
+AC  T03828
+XX
+ID  T03828
+XX
+DT  d(b50ma).0 c.290ert0 ;.1ee
+DT  s.k2;d)ua1.2 02.pa7td( e00
+CO  Copyright (C), Biobase GmbH.
+XX
+FA  HNF-4alpha
+XX
+SY  hepatocyte nuclear factor 4; HNF-4; HNF-4A; HNF4; NR2A1.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; primates
+XX
+GE  G001926; HNF4A; HGNC: HNF4A.
+XX
+IN  T05295; PGC-1; human, Homo sapiens.
+IN  T05296; PGC-1; human, Homo sapiens.
+IN  T05271; Smad3:Smad4; human, Homo sapiens.
+IN  T04096; Smad3; human, Homo sapiens.
+IN  T04292; Smad4; human, Homo sapiens.
+IN  T01560; SREBP-2; human, Homo sapiens.
+XX
+MX  M00762; V$DR1_Q3.
+MX  M00764; V$HNF4_DR1_Q3.
+MX  M00967; V$HNF4_Q6.
+MX  M01031; V$HNF4_Q6_01.
+MX  M01032; V$HNF4_Q6_02.
+MX  M01033; V$HNF4_Q6_03.
+MX  M00638; V$HNF4ALPHA_Q6.
+XX
+BS  R13037; HS$AKR1C4_01; Quality: 3; AKR1C4, G004794; human, Homo sapiens.
+BS  R15850; HS$AMBP_01; Quality: 3; AMBP, G013496; human, Homo sapiens.
+BS  R15854; HS$AMBP_02; Quality: 3; AMBP, G013496; human, Homo sapiens.
+BS  R20250; HS$AMBP_03; Quality: 3; AMBP, G013496; human, Homo sapiens.
+BS  R15917; HS$CYP27A1_01; Quality: 3; CYP27A1, G013536; human, Homo sapiens.
+BS  R19630; HS$CYP27A1_05; Quality: 3; CYP27A1, G013536; human, Homo sapiens.
+BS  R15907; HS$CYP3A4_06; Quality: 3; CYP3A4, G002572; human, Homo sapiens.
+BS  R15908; HS$CYP3A4_07; Quality: 3; CYP3A4, G002572; human, Homo sapiens.
+BS  R19198; HS$CYP3A4_11; Quality: 1; CYP3A4, G002572; human, Homo sapiens.
+BS  R15916; HS$CYP8B1_01; Quality: 3; CYP8B1, G013537; human, Homo sapiens.
+BS  R13034; HS$F11_01; Quality: 3; F11, G004793; human, Homo sapiens.
+BS  R13059; HS$F7_01; Quality: 3; F7, G004821; human, Homo sapiens.
+BS  R15921; HS$GK_01; Quality: 6; GK, G013544; human, Homo sapiens.
+BS  R15922; HS$HO_07; Quality: 3; HO, G000287; human, Homo sapiens.
+BS  R19255; HS$TCF1_01; Quality: 1; TCF1, G004661; human, Homo sapiens.
+BS  R20585; MOUSE$CYP2A5_01; Quality: 3; Cyp2a5, G021669; human, Homo sapiens.
+BS  R13067; RAT$CPT1A_02; Quality: 1; Cpt1a, G000721; rat, Rattus norvegicus.
+XX
+BR  FR0001534; Quality: 6; Species: human, Homo sapiens.
+BR  FR0001535; Quality: 6; Species: human, Homo sapiens.
+BR  FR0001536; Quality: 6; Species: human, Homo sapiens.
+BR  FR0002267; Quality: 6; Species: human, Homo sapiens.
+XX
+//
+AC  T08800
+XX
+ID  T08800
+XX
+DT  24ac06s0(0 0l;e.er..atd 4)
+DT  a1mvd .0u.)1ea6d202 ;2pt(.
+CO  Copyright (C), Biobase GmbH.
+XX
+FA  Nanog
+XX
+SY  2410002E02Rik; Embryonic stem cell specific homeobox protein; ENK; ES cells cDNA, RIKEN full-length enriched library, clone:2410002E02 product:Nanog homeobox, full insert sequence; Nanog; Nanog homeobox.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; rodentia; myomorpha; muridae; murinae
+XX
+GE  G031512; Nanog.
+XX
+CL  h0e o06omC;.0
+XX
+TY  c.aibs
+XX
+HP  N)8m(. nT9g0;a96o
+XX
+SZ  .3.cD N((5)k 3 AAc . alc2AD0;)4a
+XX
+SQ  EPGATSYGTEMLPPASHSHMASNSMGSESSEGLQLPCPLENADAAPESNSSVLRPCSVFS
+SQ  EQQQKLSSKLPASEEDSSMEARLGKEVFPYTKQKDLVCRKSNQTKAKAQFQDLKGPRPSP
+SQ  QQKSSQSSNGRLSWQSQRLEKVTLLTKNILNYNIEKWWMYKAKLPPVCLQQVIHQKFGQS
+SQ  GTSLWGCASWNWSPSTASTWYNNTSWGSTATSNNTGWLPWQQMQWNWVQNQSTYPQTPST
+SQ  NAHDLHENTLLAQQEQSEEFSPGSHQFLSNFQSFLPLTPPVYLARQEAYFLNAVVWANDT
+SQ  PPEGI
+XX
+SC  A5f:laBnME743otBdrm0t s9Lrae 
+XX
+FT  aon 1p N0 . o e  <T r   2 8 etnt in5s 7  89>gan 1 
+FT  .i l  e1 9 4110 [x H ] 1   5 
+FT  4 1 2   ]3   x  e i23 Hl[1.1 
+FT  33. 1x li     4  [] e H173  5
+XX
+SF  in1mrncn-ta dngni;poai[e o]oemiotoh
+SF  aN-ustnc1o  N 2enle;s rgeeannaerobhns pm eutth5  qagii t
+XX
+CP  ltsencaey le2epd i.x  clsmy ei]il omnbfslptierleiu[ppiarr enscscto
+CN  aosl e,tue netmr, ,,entniysls, s[be y,keme] sc[aevl b ,o gu,yhhrt,viiihpk e,m scpe, e ,inksrveinal gikt3 reoe  milomw,pin r ;oao nl  t s s,e,,rsimt u ,nylih,, anf snyavbatusc ,,i],,,vtdsrude,ktlina soarlm,lued ncereoundcelevsa rirhuue.gysey4oe
+XX
+FF  ld ]crlroe3steaMslnoo et c ar yebi p;siilItnn)  dui tS c emysfmni(ypl(cin l nacc mer)c[aegnEirrnuCl
+FF  tnEemLioaea  ;tl-es  wbiaSItNolihnn[i 3uo e haF  srnt]yh wtfaialtg
+XX
+MX  M01123; V$NANOG_01.
+XX
+DR  T0TMO0N7HPS.708A :A098R
+DR  MumonaH PK.SanNoBg;u: Ls :De
+DR  A 97;5BA44BBML73E. 0:3095
+DR  A;MYB5Y  .1285:782EL99A71
+DR  :WR5TI5MTST8O_.SNQN77 EQS8PUOS; 
+DR  O ZZ4QSM;6.8U06SE_P0WQ:SO4IS TR8
+XX
+RN  [1]; RE0047531.
+RX  PUBMED: 16518401.
+RA  ou L ., L HiL.,. ,huL J QYb   ,eBhLYn.  , .,a DCK, Rohht..  ..iPe ,es. gzmW, e.KV WaRq.X..K,oo.K u,J.    WnL iYCotBGag v. V. nna,P V,givnu.,L uG . hn    WS. .oa..W o, urnL p,LeB n,. Z uH.H. h .i W eehg,,e wCC . esn,etLiN,eo. Wg cg.Z o. .,BorJo.nXCg u.AS
+RT  alcononir r muumrt.g y seinleo tontorNecnet  keaml pc 4esngdsilpehatirbaT  cwOcenn titypsoures
+RL  024 .6-0t..4Nn:a4 8G)(3e1t30 e
+RN  [2]; RE0047634.
+RX  PUBMED: 15743839.
+RA   HK  ditoja, SNa,T  .r,oati,onMd  umsu..kHT  .Y,N,aao,.d.aTr u utSKruH aaa.KmeHTaa. b . i
+RT  toortrNpndl nfaaseie eo ertenr p ireemr ra al tg g xfionesema otdcrueno.leneiag oxscuaniirqsS Ocsn
+RL   M0B2o)5:l(. .5 -C4.i222l58el7 o50l4.
+RN  [3]; RE0047637.
+RX  PUBMED: 12787504.
+RA  mki o.awrei.w aM,Synaia zMk Kk. u.r,,K iau...M t,a,.ud  ea . TKaa m YaaSTa u , gsHaMksaMaa,hmahhIo tYaM,M
+RT  nshintNeefeie upp racrengnnooc uatenSelehsfem lm oriucTendqtymrila  os  nso it.   oipEldaoapiobre 
+RL  0402(-3 1ll6)e3 C1216:3.
+RN  [4]; RE0047645.
+RX  PUBMED: 12787505.
+RA  bhc  o,mei sMo ,eSNywe ,.CAbSsh oaIel..mr,  s.TriSte,e, n DdLJ e.bht ..oCil R
+RT  lloogtria xygninfmmnucsciouletaa o tc etssuncs ltlcri  coeronaFg.eNiinonieoe f rppnypnn bsa,sni  
+RL  1210l: e6)04l36(C353- 5.
+XX
+//
