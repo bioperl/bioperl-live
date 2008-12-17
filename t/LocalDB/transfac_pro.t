@@ -42,7 +42,7 @@ my $tax_db = Bio::DB::Taxonomy->new(-source => 'flatfile',
         is $ref->title, 'INDD VDGT C1AALEBEI.EIT IYIHLA6ITTE E ANV  ITSL MTRTANYE TM NISP TNBAUTPOIORSL I- NVTOD,MHIRRLINSDX TRPY NO CAELUAOA SNMMNT CED5CTH NII TERTOI2IMTVPEH3DSAI';
         
         my @sites = $db->get_site_ids(-reference => $ref_id);
-        is "@sites", 'R19310 R19311 R19312 R19313 R19314 R19315 R19316';
+        is join(' ', sort @sites), 'R19310 R19311 R19312 R19313 R19314 R19315 R19316';
         my @genes = $db->get_gene_ids(-reference => $ref_id);
         is "@genes", 'G036757';
         my @ref_ids = $db->get_reference_ids(-site => 'R19310');
@@ -52,13 +52,13 @@ my $tax_db = Bio::DB::Taxonomy->new(-source => 'flatfile',
         
         $ref_id = 'RE0047531';
         my @matrices = $db->get_matrix_ids(-reference => $ref_id);
-        is "@matrices", 'M01123 M01124 M01125';
+        is join(' ', sort @matrices), 'M01123 M01124 M01125';
         my @factors = $db->get_factor_ids(-reference => $ref_id);
         like "@factors", qr/T08800/;
         @ref_ids = $db->get_reference_ids(-matrix => 'M01123');
-        is "@ref_ids", "$ref_id RE0047626";
+        is join(' ', sort @ref_ids), "$ref_id RE0047626";
         @ref_ids = $db->get_reference_ids(-factor => 'T08800');
-        is "@ref_ids", "$ref_id RE0047634 RE0047637 RE0047645";
+        is join(' ', sort @ref_ids), "$ref_id RE0047634 RE0047637 RE0047645";
 		
 		$ref_id = 'RE0023998';
 		my %fragments = map { $_ => 1 } $db->get_fragment_ids(-reference => $ref_id);
@@ -87,7 +87,7 @@ my $tax_db = Bio::DB::Taxonomy->new(-source => 'flatfile',
         is $gene_id, 'G000001';
         my @gene_ids = $db->get_gene_ids(-species => '9606');
         is @gene_ids, 5;
-        is $gene_ids[0], 'G000060'; # in real data this would be G000174, but since our taxdump doesn't have chicken in it, G000060 was changed to human
+        is [sort @gene_ids]->[0], 'G000060'; # in real data this would be G000174, but since our taxdump doesn't have chicken in it, G000060 was changed to human
         ($gene_id) = $db->get_gene_ids(-site => 'R03174');
         is $gene_id, 'G000001';
         ($gene_id) = $db->get_gene_ids(-factor => 'T00267');
@@ -97,9 +97,9 @@ my $tax_db = Bio::DB::Taxonomy->new(-source => 'flatfile',
         # get_gene_ids(-reference => ...) already tested
         
         my @site_ids = $db->get_site_ids(-gene => 'G000001');
-        is "@site_ids", 'R03174 R03176 R03175';
+        is join(' ', sort @site_ids), 'R03174 R03175 R03176';
         my @factor_ids = $db->get_factor_ids(-gene => 'G000060');
-        is "@factor_ids", 'T00267 T08293'; # only found for genes that encode factors
+        is join(' ', sort @factor_ids), 'T00267 T08293'; # only found for genes that encode factors
 		my %fragment_ids = map { $_ => 1 } $db->get_fragment_ids(-gene => 'G020751');
 		ok $fragment_ids{'FR0002267'};
         # get_reference_ids(-gene => ...) already tested
@@ -123,7 +123,7 @@ my $tax_db = Bio::DB::Taxonomy->new(-source => 'flatfile',
         
         my @site_ids = $db->get_site_ids(-species => '9606');
         is @site_ids, 14;
-        is $site_ids[0], 'R00001';
+        is [sort @site_ids]->[0], 'R00001';
         # get_site_ids(-gene => ...) already tested
         ($site_id) = $db->get_site_ids(-matrix => 'M00972');
         is $site_id, 'R00001';
@@ -199,7 +199,7 @@ my $tax_db = Bio::DB::Taxonomy->new(-source => 'flatfile',
         
         # get_site_ids(-matrix => ...) already tested
         my @factor_ids = $db->get_factor_ids(-matrix => 'M00001');
-        is "@factor_ids", 'T00526 T09177';
+        is join(' ', sort @factor_ids), 'T00526 T09177';
         # get_reference_ids(-matrix => ...) already tested
     }
     
@@ -216,7 +216,7 @@ my $tax_db = Bio::DB::Taxonomy->new(-source => 'flatfile',
         # -id -species -gene -factor -reference
         my @fragment_ids = $db->get_fragment_ids(-species => '9606');
         is @fragment_ids, 2;
-        is $fragment_ids[0], 'FR0000001';
+        is [sort @fragment_ids]->[0], 'FR0000001';
         my %fragment_ids = map { $_ => 1 } $db->get_fragment_ids(-factor => 'T03828');
         ok $fragment_ids{'FR0002267'};
         # get_fragment_ids(-gene => ...) already tested
@@ -244,9 +244,9 @@ my $tax_db = Bio::DB::Taxonomy->new(-source => 'flatfile',
         is $factor_id, 'T00001';
         my @factor_ids = $db->get_factor_ids(-species => '9606');
         is @factor_ids, 7;
-        is $factor_ids[0], 'T00001';
-        ($factor_id) = $db->get_factor_ids(-interactors => 'T03200');
-        is $factor_id, 'T00002';
+        is [sort @factor_ids]->[0], 'T00001';
+        @factor_ids = $db->get_factor_ids(-interactors => 'T03200');
+        is [sort @factor_ids]->[0], 'T00002';
         # get_factor_ids(-gene => ...) already tested
         # get_factor_ids(-site => ...) already tested
         # get_factor_ids(-matrix => ...) already tested
