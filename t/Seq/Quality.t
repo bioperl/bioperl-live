@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 53);
+    test_begin(-tests => 52);
 	
 	use_ok('Bio::Seq::Quality');
 }
@@ -80,10 +80,11 @@ lives_ok {
 };
 
 print("\td) No sequence, No quality, No ID...\n") if $DEBUG;
-warnings_like { ok $wswq1 = Bio::Seq::Quality->new( -seq  =>	"",
+warnings_like {
+	$wswq1 = Bio::Seq::Quality->new( -seq  =>	"",
                                     -qual =>	"",
-                                    -verbose => 0
-) } qr/Got a sequence with no letters in it cannot guess alphabet/;
+                                    -verbose => 0);
+} qr/Got a sequence with no letters in it cannot guess alphabet/;
 
 print("Testing various methods and behaviors...\n") if $DEBUG;
 
