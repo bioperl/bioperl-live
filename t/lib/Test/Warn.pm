@@ -8,16 +8,16 @@ Test::Warn - Perl extension to test methods for warnings
 
   warning_is    {foo(-dri => "/")} "Unknown Parameter 'dri'", "dri != dir gives warning";
   warnings_are  {bar(1,1)} ["Width very small", "Height very small"];
-  
+
   warning_is    {add(2,2)} undef, "No warning to calc 2+2"; # or
   warnings_are  {add(2,2)} [],    "No warning to calc 2+2"; # what reads better :-)
-  
-  warning_like  {foo(-dri => "/"} qr/unknown param/i, "an unknown parameter test";
+
+  warning_like  {foo(-dri => "/")} qr/unknown param/i, "an unknown parameter test";
   warnings_like {bar(1,1)} [qr/width.*small/i, qr/height.*small/i];
-  
-  warning_is    {foo()} {carped => 'didn't found the right parameters'};
+
+  warning_is    {foo()} {carped => "didn't found the right parameters"};
   warnings_like {foo()} [qr/undefined/,qr/undefined/,{carped => qr/no result/i}];
-  
+
   warning_like {foo(undef)}                 'uninitialized';
   warning_like {bar(file => '/etc/passwd')} 'io';
 
@@ -134,7 +134,7 @@ can only be catched in an eval block. So
   warning_like {eval q/"$x"; $x;/} 
                [qw/void uninitialized/], 
                "some warnings at compile time";
-               
+
 will work,
 while it wouldn't work without the eval.
 
@@ -153,7 +153,7 @@ Please read also the notes to warning_like as these methods are only aliases.
 Similar to C<warnings_are>,
 you can test for multiple warnings via C<carp>
 and for warning categories, too:
-  
+
   warnings_like {foo()} 
                 [qr/bar warning/,
                  qr/bar warning/,
@@ -198,7 +198,7 @@ Please feel free to suggest me any improvements.
 
 =head1 SEE ALSO
 
-Have a look to the similar L<Test::Exception> module.
+Have a look to the similar L<Test::Exception> module. Test::Trap
 
 =head1 THANKS
 
@@ -226,9 +226,9 @@ use strict;
 use warnings;
 
 use Array::Compare;
-use Sub::Uplevel;
+use Sub::Uplevel 0.12;
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 require Exporter;
 
@@ -241,8 +241,8 @@ our %EXPORT_TAGS = ( 'all' => [ qw(
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @EXPORT = qw(
-	   warning_is   warnings_are
-       warning_like warnings_like
+    warning_is   warnings_are
+    warning_like warnings_like
 );
 
 use Test::Builder;
@@ -260,7 +260,7 @@ sub warnings_are (&$;$) {
         my ($called_from) = caller(0);  # to find out Carping methods
         push @got_warning, _canonical_got_warning($called_from, shift());
     };
-    uplevel 2,$block;
+    uplevel 1,$block;
     my $ok = _cmp_is( \@got_warning, \@exp_warning );
     $Tester->ok( $ok, $testname );
     $ok or _diag_found_warning(@got_warning),
@@ -280,7 +280,7 @@ sub warnings_like (&$;$) {
         my ($called_from) = caller(0);  # to find out Carping methods
         push @got_warning, _canonical_got_warning($called_from, shift());
     };
-    uplevel 2,$block;
+    uplevel 1,$block;
     my $ok = _cmp_like( \@got_warning, \@exp_warning );
     $Tester->ok( $ok, $testname );
     $ok or _diag_found_warning(@got_warning),
