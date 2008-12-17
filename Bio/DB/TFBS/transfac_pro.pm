@@ -823,7 +823,7 @@ sub _build_index {
             }
             elsif (/^RX  PUBMED: (\d+)/) {
                 $data[1] = $1;
-                $pub->put($1, $data[0]);
+                $pub->put("$1", $data[0]);
             }
             elsif (/^RA  (.+)\n$/) {
                 $data[2] = $1;
@@ -835,19 +835,19 @@ sub _build_index {
                 $data[4] = $1;
             }
             elsif (/^GE  TRANSFAC: (\w\d+)/) {
-                $gene->put($data[0], $1);
+                $gene->put($data[0], "$1");
             }
             elsif (/^BS  TRANSFAC: (\w\d+)/) {
-                $site->put($data[0], $1);
+                $site->put($data[0], "$1");
             }
             elsif (/^FA  TRANSFAC: (\w\d+)/) {
-                $factor->put($data[0], $1);
+                $factor->put($data[0], "$1");
             }
             elsif (/^FR  TRANSFAC: (FR\d+)/) {
-                $fragment->put($data[0], $1);
+                $fragment->put($data[0], "$1");
             }
             elsif (/^MX  TRANSFAC: (\w\d+)/) {
-                $matrix->put($data[0], $1);
+                $matrix->put($data[0], "$1");
             }
             elsif (/^\/\//) {
                 # end of a record, store previous data and reset
@@ -923,14 +923,14 @@ sub _build_index {
             }
             elsif (/^ID  (\S+)/) {
                 $data[1] = $1;
-                $id->put($1, $data[0]);
+                $id->put("$1", $data[0]);
             }
             elsif (/^SD  (.+)$/) {
-                $data[2] = lc($1);
-                $name->put(lc($1), $data[0]);
+                $data[2] = lc("$1");
+                $name->put(lc("$1"), $data[0]);
             }
             elsif (/^SY  (.+)\.$/) {
-                foreach (split('; ', lc($1))) {
+                foreach (split('; ', lc("$1"))) {
                     $name->put($_, $data[0]);
                 }
             }
@@ -944,16 +944,16 @@ sub _build_index {
                 $species->put($data[4], $data[0]);
             }
             elsif (/^RN  .+?(RE\d+)/) {
-                $reference->put($data[0], $1);
+                $reference->put($data[0], "$1");
             }
             elsif (/^BS  .+?(R\d+)/) {
-                $site->put($data[0], $1);
+                $site->put($data[0], "$1");
             }
             elsif (/^FA  (T\d+)/) {
-                $factor->put($data[0], $1);
+                $factor->put($data[0], "$1");
             }
             elsif (/^BR  (FR\d+)/) {
-                $fragment->put($data[0], $1);
+                $fragment->put($data[0], "$1");
             }
             elsif (/^\/\//) {
                 # end of a record, store previous data and reset
@@ -1029,14 +1029,14 @@ sub _build_index {
             }
             elsif (/^ID  (\S+)/) {
                 $data[1] = $1;
-                $id->put($1, $data[0]);
+                $id->put("$1", $data[0]);
             }
             elsif (/^TY  (.+)$/) {
                 $data[8] = $1;
             }
             elsif (/^DE  .*Gene: (G\d+)/) {
                 $data[2] = $1;
-                $gene->put($data[0], $1);
+                $gene->put($data[0], "$1");
                 
                 # if it has no gene it is an artificial sequence, unless it
                 # has a species (OS line), in which case it is unassigned
@@ -1071,13 +1071,13 @@ sub _build_index {
                 $data[6] = $1;
             }
             elsif (/^RN  .+?(RE\d+)/) {
-                $reference->put($data[0], $1);
+                $reference->put($data[0], "$1");
             }
             elsif (/^MX  (M\d+)/) {
-                $matrix->put($data[0], $1);
+                $matrix->put($data[0], "$1");
             }
             elsif (/^BF  (T\d+); .+?; Quality: (\d)/) {
-                $factor->put($data[0], $1);
+                $factor->put($data[0], "$1");
                 $qualities{$data[0].SEPARATOR.$1} = $2;
             }
             elsif (/^\/\//) {
@@ -1147,11 +1147,11 @@ sub _build_index {
             }
             elsif (/^ID  (\S+)/) {
                 $data[1] = $1;
-                $id->put($1, $data[0]);
+                $id->put("$1", $data[0]);
             }
             elsif (/^NA  (.+)$/) {
                 $data[2] = $1;
-                $name->put($1, $data[0]);
+                $name->put("$1", $data[0]);
             }
             elsif (/^DE  (.+)$/) {
                 $data[3] = $1;
@@ -1176,10 +1176,10 @@ sub _build_index {
                 $site->put($data[0], $2);
             }
             elsif (/^BF  (T\d+)/) {
-                $factor->put($data[0], $1);
+                $factor->put($data[0], "$1");
             }
             elsif (/^RN  .+?(RE\d+)/) {
-                $reference->put($data[0], $1);
+                $reference->put($data[0], "$1");
             }
             elsif (/^\/\//) {
                 # end of a record, store previous data and reset
@@ -1285,11 +1285,11 @@ sub _build_index {
             elsif (/^ID  (\S+)/) {
                 # IDs are always the same as AC? Is this needed?
                 $data[1] = $1;
-                $id->put($1, $data[0]);
+                $id->put("$1", $data[0]);
             }
             elsif (/^FA  (.+)$/) {
                 $data[2] = $1;
-                $name->put($1, $data[0]);
+                $name->put("$1", $data[0]);
             }
             elsif (/^OS  (.+)$/) {
                 # This is the species the actual factor came from, which may
@@ -1302,25 +1302,25 @@ sub _build_index {
                 $species->put($data[3], $data[0]);
             }
             elsif (/^GE  (G\d+)/) {
-                $gene->put($data[0], $1);
+                $gene->put($data[0], "$1");
             }
             elsif (/^SQ  (.+)$/) {
                 $sequence .= $1;
             }
             elsif (/^IN  (T\d+)/) {
-                $interact->put($data[0], $1);
+                $interact->put($data[0], "$1");
             }
             elsif (/^MX  (M\d+)/) {
-                $matrix->put($data[0], $1);
+                $matrix->put($data[0], "$1");
             }
             elsif (/^BS  (R\d+)/) {
-                $site->put($data[0], $1);
+                $site->put($data[0], "$1");
             }
             elsif (/^BR  (FR\d+)/) {
-                $fragment->put($data[0], $1);
+                $fragment->put($data[0], "$1");
             }
             elsif (/^RN  .+?(RE\d+)/) {
-                $reference->put($data[0], $1);
+                $reference->put($data[0], "$1");
             }
             elsif (/^\/\//) {
                 # end of a record, store previous data and reset
@@ -1395,7 +1395,7 @@ sub _build_index {
                 elsif (/^ID  (\S+)/) {
                     # IDs are always the same as AC? Is this needed?
                     $data[1] = $1;
-                    $id->put($1, $data[0]);
+                    $id->put("$1", $data[0]);
                 }
                 elsif (/^DE  Gene: (G\d+)(?:.+Gene: (G\d+))?/) {
                     my ($gene1, $gene2) = ($1, $2);
@@ -1423,10 +1423,10 @@ sub _build_index {
                     # SC  Build HSA_May2004: Chr.2 43976692..43978487 (FORWARD).
                 }
                 elsif (/^RN  .+?(RE\d+)/) {
-                    $reference->put($data[0], $1);
+                    $reference->put($data[0], "$1");
                 }
                 elsif (/^BF  (T\d+); .+?; Quality: (\d)/) {
-                    $factor->put($data[0], $1);
+                    $factor->put($data[0], "$1");
                     $qualities{$data[0].SEPARATOR.$1} = $2;
                 }
                 elsif (/^\/\//) {
