@@ -282,7 +282,7 @@ is $seq->end, 15;
 TODO: {
     local $TODO = 'Bio::LocatableSeq global variables have scoping issues';
     is $Bio::LocatableSeq::GAP_SYMBOLS, '-\?';
-    # thsi should be 15 
+    # this should be 15 
     isnt $seq->end(19), 19;
 }
 
