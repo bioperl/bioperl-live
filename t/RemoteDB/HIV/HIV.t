@@ -48,7 +48,7 @@ throws_ok {$tobj->get_Stream_by_query($badq)} qr/HIVQuery required/, 'HIVQuery t
 
 # network tests
 SKIP: {
-    test_skip(-tests => 11,
+    test_skip(-tests => 12,
           -requires_networking => 1);
     
     # WebDBSeqI compliance-
