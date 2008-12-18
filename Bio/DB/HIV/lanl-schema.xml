@@ -432,6 +432,46 @@ LANL HIV DB as of 10/27/08
     <alias>cd8_count</alias>
     <ankey antype="Patient">cd8_count</ankey>
   </sfield>
+  <sfield blank_ok="true" default="Any" type="option">COMMAND.genomic_region<alias>gene</alias><alias>genomic_region</alias>
+    <ankey antype="Virus">genomic_region</ankey>
+	<option>Any</option>
+	<option desc="complete genome">complete</option>
+	<option desc="5' LTR">5ltr</option>
+	<option desc="5' LTR R">5ltrr</option>
+	<option desc="5' LTR U3">5ltru3</option>
+	<option desc="5' LTR U5">5ltru5</option>
+	<option desc="TAR">Tar</option>
+	<option desc="Gag-Pol">Gag_Pol</option>
+	<option desc="Gag">Gag</option>
+	<option desc="p17 (matrix)">p17</option>
+	<option desc="p24 (capsid)">p24</option>
+	<option desc="p7 (nucleocapsid)">p7</option>
+	<option desc="p6">p6</option>
+	<option desc="Pol CDS">Pol</option>
+	<option desc="p51 (RT)">p51</option>
+	<option desc="p15 (RNAse H)">RNase</option>
+	<option desc="p31 (integrase)">p31</option>
+	<option desc="protease">protease</option>
+	<option desc="Vif CDS">Vif</option>
+	<option desc="Vpr CDS">Vpr</option>
+	<option desc="Tat CDS (plus intron)">Tat</option>
+	<option desc="Tat exon 1">Tat1</option>
+	<option desc="Tat exon 2">Tat2</option>
+	<option desc="Rev CDS (plus intron)">Rev</option>
+	<option desc="Rev exon 1">Rev1</option>
+	<option desc="Rev exon 2">Rev2</option>
+	<option desc="Vpu CDS">Vpu</option>
+	<option desc="Env CDS">Env</option>
+	<option desc="V1">V1</option>
+	<option desc="V2">V2</option>
+	<option desc="V3">V3</option>
+	<option desc="V4">V4</option>
+	<option desc="V5">V5</option>
+	<option desc="RRE">RRE</option>
+	<option desc="gp41">gp41</option>
+	<option desc="gp120">gp120</option>
+	<option desc="Nef CDS">NEF</option>
+    </sfield>
   <sfield blank_ok="false" default="Any" type="text">SEQ_SAMple.SSAM_Clone_name_number<alias>SSAM_Clone_name_number</alias>
     <alias>Clone_name_number</alias>
     <alias>clone_name</alias>

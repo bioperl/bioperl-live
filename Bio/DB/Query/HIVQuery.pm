@@ -244,15 +244,19 @@ sub new {
   
   # catch this at the top
   if (defined $schema_file) {
-    my ($p) = $self->_schema_file( [grep {$_} map {
-          my $p = Bio::Root::IO->catfile($_, $schema_file);
-          $p if -e $p
-          } (@INC,"")]->[0]);
-    $self->throw(-class=>"Bio::Root::NoSuchThing",
-             -text=>"Schema file \"".$self->_schema_file."\" cannot be found",
-             -value=>$self->_schema_file) unless -e $self->_schema_file;
-    $self->_schema_file($schema_file);
-    
+      if (-e $schema_file) {
+	  $self->_schema_file($schema_file);
+      }
+      else { # look around
+	  my ($p) = $self->_schema_file( [grep {$_} map {
+	      my $p = Bio::Root::IO->catfile($_, $schema_file);
+	      $p if -e $p
+					  } (@INC,"")]->[0]);
+	  $self->throw(-class=>"Bio::Root::NoSuchThing",
+		       -text=>"Schema file \"".$self->_schema_file."\" cannot be found",
+		       -value=>$self->_schema_file) unless -e $self->_schema_file;
+	  $self->_schema_file($schema_file);
+      }
   } else {
     $self->_schema_file($SCHEMA_FILE);
   }
@@ -1179,7 +1183,7 @@ sub _do_lanl_request {
     my $search_form_re = qr{<form[^>]*action=".*/search.comp"};
     my $seqs_found_re = qr{Displaying$tags_re*(?:\s*[0-9-]*\s*)*$tags_re*of$tags_re*\s*([0-9]+)$tags_re*sequences found};
     my $no_seqs_found_re = qr{Sorry.*no sequences found};
-    my $too_many_re = qr{too many records :$tags_re*([0-9]+)};
+    my $too_many_re = qr{too many records: $tags_re*([0-9]+)};
 
     foreach my $q (@queries) {
 	@query = @$q;
@@ -1191,6 +1195,11 @@ sub _do_lanl_request {
 	    );
 	
 	# do work...
+
+	# pull out commands, designated by the COMMAND pseudo-table...
+	my @commands = map { $query[$_] =~ s/^COMMAND\.// ? @query[$_..$_+1] : () } (0..$#query-1);
+	@query = map { $query[$_] =~ /^COMMAND/ ? () : @query[2*$_..2*$_+1] } (0..($#query-1)/2);
+
 	
 	# set control parameters explicitly made in query
 	foreach my $cp (keys %qctrl) {
@@ -1227,16 +1236,29 @@ sub _do_lanl_request {
 	    
 	    $interfGet->content =~ /$search_form_re/ or do {$response=$interfGet, die "Interface request failed";};
 	    
-	    $searchGet = $ua->post($self->_search_uri, [@query, @search_pms, id=>$self->_session_id]);
+	    $searchGet = $ua->post($self->_search_uri, [@query, @commands, @search_pms, id=>$self->_session_id]);
 	    $searchGet->is_success or do {$response=$searchGet, die "Search failed";};
-	    
-	    if ($searchGet->content =~ /$no_seqs_found_re/) {
-		$response=$searchGet;
-		die "No sequences found";
-	    }
-	    else {
-		($numseqs) = ($searchGet->content =~ /$seqs_found_re/);
-		$numseqs ? $count += $numseqs : die("Unparsed failure");
+	    for ($searchGet->content) {
+		/$no_seqs_found_re/ && do {
+		    $response=$searchGet;
+		    die "No sequences found";
+		    last;
+		};
+		/$too_many_re/ && do {
+		    $response=$searchGet;
+		    die "Too many records ($1): must be <10000";
+		    last;
+		};
+		/$seqs_found_re/ && do {
+		    $numseqs = $1;
+		    $count += $numseqs;
+		    last;
+		};
+		# else...
+		do {
+		    $response=$searchGet->content;
+		    die "Search failed (response not parsed)";
+		};
 	    }
 	    $response = $ua->post($self->_search_uri, [@download_pms, id=>$self->_session_id]);
 	    $response->is_success or die "Query failed";

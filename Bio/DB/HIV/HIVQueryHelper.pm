@@ -503,23 +503,10 @@ sub ftbl {
 
 sub loadHIVSchema {
     my $fn = shift;
-    # look in @INC for file
-    my $dir;
-    # finding myself
-    foreach my $d (@INC) {
-        my $p = Bio::Root::IO->catfile($d, $fn);
-        my $b = Bio::Root::IO->catfile($d, qw(Bio DB HIV), $fn);
-        if (-e $p) {
-            $dir = $p
-        } elsif (-e $b) {
-            $dir = $b;
-        }
-        last if $dir;
-    }
-    Bio::Root::Root->throw("loadHIVSchema: schema file not found") unless $dir;
+    Bio::Root::Root->throw("loadHIVSchema: schema file not found") unless -e $fn;
     my $q = XML::Simple->new(ContentKey=>'name',NormalizeSpace=>2,ForceArray=>1);
     my %ret;
-    my $ref = $q->XMLin($dir);
+    my $ref = $q->XMLin($fn);
     my @sf = keys %{$$ref{sfield}};
     foreach (@sf) {
 	my $h = $$ref{sfield}{$_};

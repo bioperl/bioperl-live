@@ -15,7 +15,7 @@ BEGIN {
 
 
 # lanl-schema.xml characteristics as of $Date: 2008-12-11 08:05:24 -0500 (Thu, 11 Dec 2008) $
-my ($naliases, $nfields, $ntables) = (173, 85, 13);
+my ($naliases, $nfields, $ntables) = (175, 86, 14);
 my ($Q, $r, $q);
 # object tests
 isa_ok(new HIVSchema(), "HIVSchema");
@@ -25,7 +25,7 @@ isa_ok($q = new Q(), "Q");
 
 #HIVSchema tests
 my $tobj;
-ok( $tobj = new HIVSchema("lanl-schema.xml"), "schema load");
+ok( $tobj = new HIVSchema(Bio::Root::IO->catfile(qw(Bio DB HIV lanl-schema.xml))), "schema load");
 
 # methods
 can_ok( $tobj, qw (
