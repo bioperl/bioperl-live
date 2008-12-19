@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Index::BlastIndex - Indexes tabular Blast reports (-m 9 format) and supports
+Bio::Index::BlastTable - Indexes tabular Blast reports (-m 9 format) and supports
 retrieval based on query accession(s)
 
 =head1 SYNOPSIS

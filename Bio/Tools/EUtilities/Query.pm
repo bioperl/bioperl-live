@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::DB::EUtilities::Query
+# BioPerl module for Bio::Tools::EUtilities::Query
 #
 # Cared for by Chris Fields
 #
@@ -14,7 +14,8 @@
 
 =head1 NAME
 
-Bio::DB::EUtilities::Query
+Bio::Tools::EUtilities::Query - parse and collect esearch, epost, espell, egquery
+information
 
 =head1 SYNOPSIS
 

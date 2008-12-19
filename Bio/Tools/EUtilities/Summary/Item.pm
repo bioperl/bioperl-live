@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::DB::EUtilities::Summary::Item
+# BioPerl module for Bio::Tools::EUtilities::Summary::Item
 #
 # Cared for by Chris Fields
 #
@@ -14,7 +14,7 @@
 
 =head1 NAME
 
-Bio::DB::EUtilities::Summary::Item - simple layered object for DocSum item data
+Bio::Tools::EUtilities::Summary::Item - simple layered object for DocSum item data
 
 =head1 SYNOPSIS
 

@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Tools::Phylo::Gerp - Parses output from Transfac's match(TM)
+Bio::Tools::Match - Parses output from Transfac's match(TM)
 
 =head1 SYNOPSIS
 

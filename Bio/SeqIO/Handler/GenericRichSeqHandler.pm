@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Bio::SeqIO::Handler::GenericRichSeqHandler - Bio::HandlerI-based
+Bio::SeqIO::Handler::GenericRichSeqHandler - Bio::HandlerI-based
 data handler for GenBank/EMBL/UniProt (and other) sequence data
 
 =head1 SYNOPSIS

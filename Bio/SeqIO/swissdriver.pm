@@ -1,4 +1,81 @@
-# make as generic as possible (along with gbhandler, emblhandler)
+# $Id$
+#
+# BioPerl module for Bio::SeqIO::swissdriver
+#
+# Cared for by Bioperl project bioperl-l(at)bioperl.org
+#
+# Copyright Chris Fields and contributors see AUTHORS section
+#
+# You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
+
+=head1 NAME
+
+Bio::SeqIO::swissdriver - SwissProt/UniProt handler-based push parser
+
+=head1 SYNOPSIS
+
+  #It is probably best not to use this object directly, but
+  #rather go through the SeqIO handler:
+
+  $stream = Bio::SeqIO->new(-file => $filename,
+                            -format => 'swissdriver');
+
+  while ( my $seq = $stream->next_seq() ) {
+      # do something with $seq
+  }
+
+=head1 DESCRIPTION
+
+This object can transform Bio::Seq objects to and from UniProt flat file
+databases. The key difference between this parser and the tried-and-true
+Bio::SeqIO::swiss parser is this version separates the parsing and data
+manipulation into a 'driver' method (next_seq) and separate object handlers
+which deal with the data passed to it.
+
+=head2 The Driver
+
+The main purpose of the driver routine, in this case next_seq(), is to carve out
+the data into meaningful chunks which are passed along to relevant handlers (see
+below).
+
+Each chunk of data in the has a NAME tag attached to it, similar to that for XML
+parsing. This designates the type of data passed (annotation type or seqfeature)
+and the handler to be called for processing the data.
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org                  - General discussion
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+the bugs and their resolution. Bug reports can be submitted via the web:
+
+  http://bugzilla.open-bio.org/
+
+=head1 AUTHOR - Bioperl Project
+
+bioperl-l at bioperl.org
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
+
+=cut
+
+# POD is at the end of the module
+
+# Let the code begin...
 
 # Let the code begin...
 

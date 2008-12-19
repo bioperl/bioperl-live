@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::SeqIO::gbhandler
+# BioPerl module for Bio::SeqIO::gbdriver
 #
 # Cared for by Bioperl project bioperl-l(at)bioperl.org
 #
@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SeqIO::gbhandler - GenBank handler-based push parser
+Bio::SeqIO::gbdriver - GenBank handler-based push parser
 
 =head1 SYNOPSIS
 
@@ -20,7 +20,7 @@ Bio::SeqIO::gbhandler - GenBank handler-based push parser
   #rather go through the SeqIO handler:
 
   $stream = Bio::SeqIO->new(-file => $filename,
-                            -format => 'GenBank');
+                            -format => 'gbdriver');
 
   while ( my $seq = $stream->next_seq() ) {
       # do something with $seq

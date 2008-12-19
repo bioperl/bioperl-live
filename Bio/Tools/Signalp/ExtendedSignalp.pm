@@ -1,8 +1,18 @@
-
+# $Id$
+#
+# BioPerl module for Bio::Tools::Signalp::ExtendedSignalp
+#
+# Cared for by Emmanuel Quevillon <emmanuel.quevillon@versailles.inra.fr>
+#
+# Copyright Emmanuel Quevillon
+#
+# You may distribute this module under the same terms as perl itself
+#
+# POD documentation - main docs before the code
 
 =head1 NAME
 
-Bio::Tools::Signalp::ExtendedSignalP - enhanced parser for Signalp output
+Bio::Tools::Signalp::ExtendedSignalp - enhanced parser for Signalp output
 
 =head1 SYNOPSIS
 

@@ -1,6 +1,6 @@
 # $Id$
 #
-# Module for Bio::PhyloNetwork::Factory
+# Module for Bio::PhyloNetwork::FactoryX
 #
 # Cared for by Gabriel Cardona <gabriel(dot)cardona(at)uib(dot)es>
 #
@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::PhyloNetwork::Factory - Module to sequentially generate
+Bio::PhyloNetwork::FactoryX - Module to sequentially generate
 Phylogenetic Networks
 
 =head1 SYNOPSIS

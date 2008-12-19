@@ -1,15 +1,64 @@
 #!/usr/bin/perl -w
 
-# This is a subclass of Module::Build so we can override certain methods and do
-# fancy stuff
+# $Id$
+#
+# BioPerl module for Bio::Root::Build
+#
+# Cared for by Sendu Bala <bix@sendu.me.uk>
+#
+# Copyright Sendu Bala
+#
+# You may distribute this module under the same terms as perl itself
 
-# It was first written against Module::Build::Base v0.2805. Many of the methods
-# here are copy/pasted from there in their entirety just to change one or two
-# minor things, since for the most part Module::Build::Base code is hard to
-# cleanly override.
+# POD documentation - main docs before the code
 
-# This was written by Sendu Bala and is released under the same license as
-# Bioperl itself
+=head1 NAME
+
+Bio::Root::Build - A common Module::Build subclass base for Bioperl distributions
+
+=head1 SYNOPSIS
+
+  ...TO BE ADDED
+
+=head1 DESCRIPTION
+
+This is a subclass of Module::Build so we can override certain methods and do
+fancy stuff
+
+It was first written against Module::Build::Base v0.2805. Many of the methods
+here are copy/pasted from there in their entirety just to change one or two
+minor things, since for the most part Module::Build::Base code is hard to
+cleanly override.
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org                  - General discussion
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted via
+the web:
+
+  http://bugzilla.open-bio.org/
+
+=head1 AUTHOR - Sendu Bala
+
+Email bix@sendu.me.uk
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the object methods.
+Internal methods are usually preceded with a _
+
+=cut
 
 package Bio::Root::Build;
 

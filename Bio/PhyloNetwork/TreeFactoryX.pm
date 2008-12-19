@@ -1,6 +1,6 @@
 # $Id$
 #
-# Module for Bio::PhyloNetwork::TreeFactory
+# Module for Bio::PhyloNetwork::TreeFactoryX
 #
 # Cared for by Gabriel Cardona <gabriel(dot)cardona(at)uib(dot)es>
 #
@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::PhyloNetwork::TreeFactory - Module to sequentially generate
+Bio::PhyloNetwork::TreeFactoryX - Module to sequentially generate
 Phylogenetic Trees
 
 =head1 SYNOPSIS

@@ -1,6 +1,6 @@
 # $Id: HIVQueryHelper.pm 231 2008-12-11 14:32:00Z maj $
 #
-# BioPerl module for HIVQueryHelper
+# BioPerl module for Bio::DB::HIV::HIVQueryHelper
 #
 # Cared for by Mark A. Jensen <maj@fortinbras.us>
 #
@@ -12,7 +12,8 @@
 
 =head1 NAME
 
-HIVQueryHelper - Routines and packages used by Bio::DB::HIV and Bio::DB::Query::HIVQuery
+Bio::DB::HIV::HIVQueryHelper - Routines and packages used by Bio::DB::HIV and
+Bio::DB::Query::HIVQuery
 
 =head1 SYNOPSIS
 

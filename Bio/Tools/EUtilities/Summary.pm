@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::DB::EUtilities::DocSum
+# BioPerl module for Bio::Tools::EUtilities::DocSum
 #
 # Cared for by Chris Fields
 #
@@ -14,7 +14,7 @@
 
 =head1 NAME
 
-Bio::DB::EUtilities::Summary
+Bio::Tools::EUtilities::Summary
 
 =head1 SYNOPSIS
 

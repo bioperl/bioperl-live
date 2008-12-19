@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Tools::EUtilities::Cookie
+# BioPerl module for Bio::Tools::EUtilities::History
 #
 # Cared for by Chris Fields
 #
@@ -14,7 +14,7 @@
 
 =head1 NAME
 
-Bio::Tools::EUtilities::Cookie - lightweight implementation of HistoryI
+Bio::Tools::EUtilities::History - lightweight implementation of HistoryI
 interface (not bound to filehandles, extraneous methods, etc).
 
 =head1 SYNOPSIS

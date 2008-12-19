@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Search::Hit::BlastNHit
+# BioPerl module for Bio::Search::Hit::BlastPullHit
 #
 # Cared for by Sendu Bala <bix@sendu.me.uk>
 #
@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Search::Hit::BlastNHit - A parser and hit object for BLASTN hits
+Bio::Search::Hit::BlastPullHit - A parser and hit object for BLASTN hits
 
 =head1 SYNOPSIS
 

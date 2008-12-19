@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for BioperlTest
+# BioPerl module for Bio::Root::Test
 #
 # Cared for by Sendu Bala <bix@sendu.me.uk>
 #
@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-BioperlTest - A common base for all Bioperl test scripts.
+Bio::Root::Test - A common base for all Bioperl test scripts.
 
 =head1 SYNOPSIS
 

@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Search::Result::BlastNResult
+# BioPerl module for Bio::Search::Result::BlastPullResult
 #
 # Cared for by Sendu Bala <bix@sendu.me.uk>
 #
@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Search::Result::BlastNResult - A parser and result object for BLASTN
+Bio::Search::Result::BlastPullResult - A parser and result object for BLASTN
                                      results
 
 =head1 SYNOPSIS

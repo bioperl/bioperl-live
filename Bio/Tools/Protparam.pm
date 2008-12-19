@@ -1,8 +1,18 @@
-package Bio::Tools::Protparam;
+# $Id$
+#
+# BioPerl module for Bio::Tools::Protparam
+#
+# Cared for by Richard Dobson, r.j.dobson at qmul dot ac dot uk
+#
+# Copyright Richard Dobson
+#
+# You may distribute this module under the same terms as perl itself
+
+# POD documentation - main docs before the code
 
 =head1 NAME
 
-package Bio::Tool::Protparam - submit to and parse output from protparam ;
+Bio::Tools::Protparam - submit to and parse output from protparam ;
 
 =head1 SYNOPSIS
 
@@ -58,7 +68,6 @@ package Bio::Tool::Protparam - submit to and parse output from protparam ;
 	"Composition of X : ", $pp->AA_comp('X'),"\n";
 }
 
-
 =head1 DESCRIPTION
 
 This module takes an amino acid sequence and submits it to the
@@ -73,11 +82,11 @@ Richard Dobson, r.j.dobson at qmul dot ac dot uk
 
 # Let the code begin...
 
+package Bio::Tools::Protparam;
 
 use strict;
 use base qw(Bio::Root::Root);
 use LWP 5.64;
-
 
 =head2 new
 

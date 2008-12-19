@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::DB::EUtilities::Summary::DocSum
+# BioPerl module for Bio::Tools::EUtilities::Summary::DocSum
 #
 # Cared for by Chris Fields
 #
@@ -14,7 +14,7 @@
 
 =head1 NAME
 
-Bio::DB::EUtilities::Summary::DocSum - data object for document summary data
+Bio::Tools::EUtilities::Summary::DocSum - data object for document summary data
 from esummary
 
 =head1 SYNOPSIS

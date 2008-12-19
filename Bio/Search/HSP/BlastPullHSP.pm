@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Search::HSP::BlastNHSP
+# BioPerl module for Bio::Search::HSP::BlastPullHSP
 #
 # Cared for by Sendu Bala <bix@sendu.me.uk>
 #
@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::Search::HSP::BlastNHSP - A parser and HSP object for BlastN hsps
+Bio::Search::HSP::BlastPullHSP - A parser and HSP object for BlastN hsps
 
 =head1 SYNOPSIS
 
