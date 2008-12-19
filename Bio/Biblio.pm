@@ -26,7 +26,7 @@ Bio::Biblio - A Bibliographic Query Service module
 
   # The new() method can accept parameters, for example:
 
-  $biblio = Bio::Biblio
+  $biblio = Bio::Biblio->new
     (-access          => 'soap',
      -location        => 'http://www.ebi.ac.uk/openbqs/services/MedlineSRS',
      -destroy_on_exit => '0');
