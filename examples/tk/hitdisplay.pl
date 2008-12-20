@@ -16,6 +16,8 @@ use strict;
 use Text::Wrap qw(wrap $columns);
 use Bio::Tools::BPlite;
 BEGIN { 
+	print STDERR "This example uses deprecated BioPerl code; feel free to refactor as needed\n";
+	exit;
     eval { 
 	require 'Tk.pm';
 	require 'Bio/Tk/HitDisplay.pm'; 
