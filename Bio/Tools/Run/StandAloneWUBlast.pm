@@ -101,8 +101,7 @@ our @OTHER_PARAMS = qw(_READMETHOD);
  Function: Builds a newBio::Tools::Run::StandAloneBlast object 
  Returns : Bio::Tools::Run::StandAloneBlast
  Args    : -quiet => boolean # make program execution quiet
-           -_READMETHOD => 'BLAST' (default, synonym 'SearchIO') || 'BPlite'
-                           || 'blast_pull'
+           -_READMETHOD => 'BLAST' (default, synonym 'SearchIO') || 'blast_pull'
                            # the parsing method, case insensitive
 
 Essentially all BLAST parameters can be set via StandAloneBlast.pm.

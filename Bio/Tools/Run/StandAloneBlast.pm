@@ -146,19 +146,14 @@ object or (a reference to) an array of Bio::Seq objects, e.g.:
                          -seq => "ACTACCCTTTAAATCAGTGGGGG");
   $blast_report = $factory->blastall($input);
 
-For blastall and non-psiblast blastpgp runs, report object is either a
-L<Bio::Tools::BPlite> or L<Bio::SearchIO> object, selected by the user 
-with the parameter _READMETHOD.  The leading underscore is needed to
-distinguish this option from options which are passed to the BLAST
-executable. The default parser is Bio::SearchIO::blast. If BPlite
-method is selected, L<Bio::Tools::BPlite> objects will be returned for
-standard blast and L<Bio::Tools::BPpsilite> for a multiple-iteration
-blasts, and a L<Bio::Tools::BPbl2seq> for bl2seq. In any case, the "raw"
-blast report is also available. The filename is set by the 'outfile'
+NOTE: Use of the BPlite method has been deprecated and is no longer supported.
+
+For blastall and non-psiblast blastpgp runs, report object is aL<Bio::SearchIO>
+object, selected by the user with the parameter _READMETHOD. The leading
+underscore is needed to distinguish this option from options which are passed to
+the BLAST executable. The default parser is Bio::SearchIO::blast. In any case,
+the "raw" blast report is also available. The filename is set by the 'outfile'
 parameter and has the default value of "blastreport.out".
-The BPlite method is only provided to support legacy code since
-the BPlite modules are no longer maintained - do not use BPlite
-since these modules will be removed eventually.
 
 For psiblast execution in the BLAST "jumpstart" mode, the program must
 be passed (in addition to the query sequence itself) an alignment
@@ -247,8 +242,6 @@ use strict;
 use Bio::Root::IO;
 use Bio::Seq;
 use Bio::SeqIO;
-use Bio::Tools::BPbl2seq;
-use Bio::Tools::BPpsilite;
 use Bio::SearchIO;
 use File::Spec;
 
@@ -281,8 +274,7 @@ if (! defined $DATADIR && defined $ENV{'BLASTDIR'}) {
  Function: Builds a newBio::Tools::Run::StandAloneBlast object 
  Returns : Bio::Tools::Run::StandAloneNCBIBlast or StandAloneWUBlast
  Args    : -quiet => boolean # make program execution quiet
-           -_READMETHOD => 'BLAST' (default, synonym 'SearchIO') || 'BPlite'
-                           || 'blast_pull'
+           -_READMETHOD => 'BLAST' (default, synonym 'SearchIO') || 'blast_pull'
                            # the parsing method, case insensitive
 
 Essentially all BLAST parameters can be set via StandAloneBlast.pm.
