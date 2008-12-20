@@ -68,8 +68,6 @@ Internal methods are usually preceded with a _
 
 package Bio::FeatureIO::vecscreen_simple;
 
-require 5.006_001;
-
 use strict;
 use base qw(Bio::FeatureIO);
 use Bio::SeqFeature::Generic;
