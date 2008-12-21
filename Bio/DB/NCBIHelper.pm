@@ -74,7 +74,7 @@ preceded with a _
 
 package Bio::DB::NCBIHelper;
 use strict;
-use vars qw($HOSTBASE %CGILOCATION %FORMATMAP $DEFAULTFORMAT $MAX_ENTRIES $VERSION);
+use vars qw($HOSTBASE %CGILOCATION %FORMATMAP $DEFAULTFORMAT $MAX_ENTRIES);
 
 use Bio::DB::Query::GenBank;
 use HTTP::Request::Common;
