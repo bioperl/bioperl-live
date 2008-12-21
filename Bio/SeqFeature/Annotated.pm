@@ -1069,7 +1069,7 @@ These are specialized implementations of SeqFeatureI methods which call the
 internal Bio::Annotation::AnnotationCollection object. Just prior to the 1.5
 release the below methods were moved from Bio::SeqFeatureI to Bio::AnnotatableI,
 and having Bio::SeqFeatureI inherit Bio::AnnotatableI. This behavior forced all
-Bio::SeqFeatureI-implementing classes to use Bio::Annotation objects for any
+Bio::SeqFeatureI-implementing classes to use Bio::AnnotationI objects for any
 data. It is the consensus of the core developers that this be rolled back in
 favor of a more flexible approach by rolling back the above changes and making
 this class Bio::AnnotatableI. The SeqFeatureI tag-related methods are
