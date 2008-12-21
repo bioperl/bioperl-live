@@ -115,6 +115,7 @@ our($MotifTag,$SrcTag,$DescTag) = qw(misc_binding ERPIN erpin);
 
 sub _initialize {
     my($self,@args) = @_;
+    $self->warn('Use of this module is deprecated.  Use Bio::SearchIO::erpin instead');    
     $self->SUPER::_initialize(@args);
     my ($motiftag,$desctag,$srctag) =  $self->SUPER::_rearrange([qw(MOTIFTAG
                                                                     DESCTAG
