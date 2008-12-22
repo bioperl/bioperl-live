@@ -1,4 +1,3 @@
-
 # $Id$
 #
 # BioPerl module for Bio::Tools::Phylo::PAML
@@ -105,17 +104,6 @@ baseml, basemlg, codemlsites and yn00
   my $params = $result->get_model_params();
   printf "M1 params: p0 = %g\tp1 = %g\n", $params->{p0}, $params->{p1};
 
-  # find, say, positively selected sites!
-  if ($params->{w2} > 1) {
-    for (my $i = 0; $i < @probs ; $i++) {
-      if ($probs[$i]->[2] > 0.5) {
-         # assumes model M1: three w's, w0, w1 and w2 (positive selection)
-         printf "position %d: (%g prob, %g omega, %g mean w)\n",
-           $i, $probs[$i]->[2], $params->{w2}, $probs[$i]->[3];
-      }
-    }
-  } else { print "No positive selection found!\n"; }
-
   # parse AAML result files
   my $aamat = $result->get_AADistMatrix();
   my $aaMLmat = $result->get_AAMLDistMatrix();
@@ -134,6 +122,17 @@ posterior probabilities for membership in each class for every
 position; probabilities correspond to classes w0, w1, ... etc.
 
   my @probs = $result->get_posteriors();
+
+  # find, say, positively selected sites!
+  if ($params->{w2} > 1) {
+    for (my $i = 0; $i < @probs ; $i++) {
+      if ($probs[$i]->[2] > 0.5) {
+         # assumes model M1: three w's, w0, w1 and w2 (positive selection)
+         printf "position %d: (%g prob, %g omega, %g mean w)\n",
+           $i, $probs[$i]->[2], $params->{w2}, $probs[$i]->[3];
+      }
+    }
+  } else { print "No positive selection found!\n"; }
 
 =head1 FEEDBACK
 

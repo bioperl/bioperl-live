@@ -50,10 +50,10 @@ For documentation on what you can do with GenericIteration (and other IterationI
 objects), please see the API documentation in
 L<Bio::Search::Iteration::IterationI|Bio::Search::Iteration::IterationI>.
 
-Bio::Search::Iteration::GenericIteration is similar in spirit to
-Bio::Tools::BPlite::Iteration, except that
-Bio::Search::Iteration::GenericIteration is a pure container, without
-any parsing functionality as is in Bio::Tools::BPlite::Iteration.
+Bio::Search::Iteration::GenericIteration is similar in spirit to the deprecated
+Bio::Tools::BPlite::Iteration modules in bioperl releases prior to 1.6, except
+that Bio::Search::Iteration::GenericIteration is a pure container, without any
+parsing functionality as is in Bio::Tools::BPlite::Iteration.
 
 =head1 FEEDBACK
 

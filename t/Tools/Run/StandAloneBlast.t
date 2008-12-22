@@ -152,12 +152,6 @@ SKIP: {
 		$seq3 = $str->next_seq();
 		$seq4 = $str->next_seq();
 		
-		#*** no longer testing BPlite since deprecated, blast_pull doesn't support bl2seq yet
-		#$factory->_READMETHOD('BPlite');
-		#my $bl2seq_report = $factory->bl2seq($seq3, $seq4);
-		#$hsp = $bl2seq_report->next_feature;
-		#is $hsp->hit->start, $testresults[$testcount], "creating/parsing BPlite bl2seq report object";
-		
 		$factory->_READMETHOD('Blast');
 		my $bl2seq_report = $factory->bl2seq($seq3, $seq4);
 		$hsp = $bl2seq_report->next_result->next_hit->next_hsp;
@@ -186,8 +180,5 @@ SKIP: {
 		$new_iter = $factory->j();
 		is $new_iter, $iter, "set blast parameter";
 		
-		#*** no longer testing BPlite since deprecated, blast_pull doesn't support iterations yet
-		#$blast_report = $factory->blastpgp($seq3);
-		#is $blast_report->number_of_iterations, $testresults[$testcount];
 	}
 }

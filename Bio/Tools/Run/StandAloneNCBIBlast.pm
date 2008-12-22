@@ -94,8 +94,7 @@ our @OTHER_PARAMS = qw(_READMETHOD);
  Function: Builds a newBio::Tools::Run::StandAloneBlast object 
  Returns : Bio::Tools::Run::StandAloneBlast
  Args    : -quiet => boolean # make program execution quiet
-           -_READMETHOD => 'BLAST' (default, synonym 'SearchIO') || 'BPlite'
-                           || 'blast_pull'
+           -_READMETHOD => 'BLAST' (default, synonym 'SearchIO') || 'blast_pull'
                            # the parsing method, case insensitive
 
 Essentially all BLAST parameters can be set via StandAloneBlast.pm.
@@ -230,8 +229,7 @@ sub AUTOLOAD {
 	      $seq_array_ref = \@seq_array;  
          # where @seq_array is an array of Bio::Seq objects
 	      $blast_report = $factory->blastall($seq_array_ref);
- Returns : Reference to a Blast object or BPlite object 
-           containing the blast report.
+ Returns : Reference to a Blast object containing the blast report.
  Args    : Name of a file or Bio::Seq object or an array of 
            Bio::Seq object containing the query sequence(s). 
            Throws an exception if argument is not either a string 
@@ -266,9 +264,7 @@ sub blastall {
 	      $seq_array_ref = \@seq_array;  
          # where @seq_array is an array of Bio::Seq objects
 	      $blast_report = $factory-> blastpgp(\@seq_array);
- Returns : Reference to a Bio::SearchIO object or BPlite object 
-           containing the blast report (BPlite only if you specify 
-           _READMETHOD=> 'BPlite')
+ Returns : Reference to a Bio::SearchIO object containing the blast report 
  Args    : Name of a file or Bio::Seq object. In psiblast jumpstart 
            mode two additional arguments are required: a SimpleAlign 
            object one of whose elements is the query and a "mask" to 
@@ -280,9 +276,7 @@ sub blastall {
            (or to an array of Seq objects).  If argument is string, 
            throws exception if file corresponding to string name can 
            not be found.
- Returns : Reference to Bio::SearchIO object 
-           or Bio::Tools::BPpsilite if you specify 
-           _READMETHOD => 'BPlite' object containing the blast report.
+ Returns : Reference to Bio::SearchIO object containing the blast report.
 
 =cut
 
@@ -327,9 +321,7 @@ sub blastpgp {
            (or to an array of Seq objects).  If argument is string, 
            throws exception if file corresponding to string name can 
            not be found.
- Returns : Reference to a Bio::SearchIO object or BPlite object 
-           containing the blast report (BPlite only if you specify 
-           _READMETHOD=> 'BPlite')
+ Returns : Reference to a Bio::SearchIO object containing the blast report 
 
 =cut
 
@@ -392,7 +384,7 @@ sub bl2seq {
 
  Title   : _generic_local_blast
  Usage   : internal function not called directly
- Returns : Bio::SearchIO or Bio::Tools::BPlite object
+ Returns : Bio::SearchIO 
  Args    : Reference to calling object and name of BLAST executable 
 
 =cut
@@ -414,9 +406,7 @@ sub _generic_local_blast {
  Usage   :  Internal function, not to be called directly	
  Function:   makes actual system call to Blast program
  Example :
- Returns : Report object in the appropriate format (Bio::SearchIO)
-           or if BPlite is requested: Bio::Tools::BPlite, 
-           Bio::Tools::BPpsilite,or Bio::Tools::BPbl2seq)
+ Returns : Report Bio::SearchIO object in the appropriate format 
  Args    : Reference to calling object, name of BLAST executable, 
            and parameter string for executable 
 
@@ -442,11 +432,6 @@ sub _runblast {
     # get outputfilename
 	my $outfile = $self->o();
     
-	# If running bl2seq or psiblast (blastpgp with multiple iterations),
-	# the specific parsers for these programs must be used (ie BPbl2seq or
-	# BPpsilite).  Otherwise either the Blast parser or the BPlite
-	# parsers can be selected.
-    
     # this should allow any blast SearchIO parser (not just 'blast_pull' or 'blast',
     # but 'blastxml' and 'blasttable').  Fall back to 'blast' if not stipulated.
     my $method = $self->_READMETHOD;
@@ -459,14 +444,13 @@ sub _runblast {
     elsif ($method =~ /BPlite/i ) {
 		if ($executable =~ /bl2seq/i)  {
 			# Added program info so BPbl2seq can compute strand info
-			$blast_obj = Bio::Tools::BPbl2seq->new(-file => $outfile, -REPORT_TYPE => $self->p);
+			$self->throw("Use of Bio::Tools::BPbl2seq is deprecated; use Bio::SearchIO modules instead");
 		}
         elsif ($executable =~ /blastpgp/i && defined $self->j() && $self->j() > 1) {
-			$self->debug( "using psilite parser\n");
-			$blast_obj = Bio::Tools::BPpsilite->new(-file => $outfile);
+			$self->throw("Use of Bio::Tools::BPpsilite is deprecated; use Bio::SearchIO modules instead");
 		}
         elsif ($executable =~ /blastall|rpsblast/i) { 
-			$blast_obj = Bio::Tools::BPlite->new(-file => $outfile);
+			$self->throw("Use of Bio::Tools::BPlite is deprecated; use Bio::SearchIO modules instead");
 		}
         else { 
 			$self->warn("Unrecognized executable $executable");

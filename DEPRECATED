@@ -16,7 +16,6 @@ Bio::Root::Err                1.5.2    1.5.2  Bio::Root* redundant classes
 Bio::Root::Global             1.5.2    1.5.2  Bio::Root* redundant classes
 Bio::Root::IOManager          1.5.2    1.5.2  Bio::Root* redundant classes
 Bio::Root::Object             1.5.2    1.5.2  Bio::Root* redundant classes
-Bio::Root::Utilities          1.5.2    1.5.2  Bio::Root* redundant classes
 Bio::Root::Vector             1.5.2    1.5.2  Bio::Root* redundant classes
 Bio::Root::Xref               1.5.2    1.5.2  Bio::Root* redundant classes
 Bio::Tools::RestrictionEnzyme 1.5      1.6    use Bio::Restriction

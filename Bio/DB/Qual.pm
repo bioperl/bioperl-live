@@ -1,5 +1,5 @@
 #
-# $Id: Qual.pm,v 1.23 2007/06/14 14:16:10 sendu Exp $
+# $Id$
 #
 # BioPerl module for Bio::DB::Qual
 #

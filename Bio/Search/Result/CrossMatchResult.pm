@@ -296,8 +296,8 @@ sub iteration {
 
 sub num_iterations { shift->{'_iteration_count'} }
 
-
-# Methods provided for consistency with BPpsilite.pm
+# Methods provided for consistency with BPpsilite.pm (now deprecated);
+# these are now merely synonyms
 
 =head2 number_of_iterations
 

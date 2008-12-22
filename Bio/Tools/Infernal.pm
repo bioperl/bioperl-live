@@ -158,6 +158,7 @@ our $DEFAULT_VERSION = '0.71';
 
 sub _initialize {
   my($self,@args) = @_;
+  $self->warn('Use of this module is deprecated.  Use Bio::SearchIO::infernal instead');  
   $self->SUPER::_initialize(@args);
   my ($motiftag,$desctag,$srctag,$rfam,$cm,$ms,$ver) =
         $self->SUPER::_rearrange([qw(MOTIFTAG

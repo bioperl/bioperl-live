@@ -147,7 +147,6 @@ use strict;
 
 use Bio::SeqIO;
 use IO::String;
-use Bio::Tools::BPlite;
 use Bio::SearchIO;
 use LWP;
 use HTTP::Request::Common;
@@ -359,14 +358,17 @@ sub header {
  Usage   : my $readmethod = $self->readmethod
  Function: Get/Set the method to read the blast report
  Returns : string
- Args    : string [ Blast, BPlite, blasttable, xml ]
+ Args    : string [ blast, blasttable, xml ]
 
 =cut
 
 sub readmethod {
     my ($self, $val) = @_;
     if( defined $val ) {
-	$self->{'_readmethod'} = $val;
+        if ($val =~ /bplite/i) {
+            $self->throw("Use of Bio::Tools::BPlite is deprecated; use Bio::SearchIO modules instead");
+        }
+        $self->{'_readmethod'} = $val;
     }
     return $self->{'_readmethod'};
 }

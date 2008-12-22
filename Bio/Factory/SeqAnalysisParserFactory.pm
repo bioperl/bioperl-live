@@ -93,8 +93,6 @@ BEGIN {
 	 "genscan"   => "Bio::Tools::Genscan",
 	 "mzef"      => "Bio::Tools::MZEF",
 	 "estscan"   => "Bio::Tools::ESTScan",
-	 #"bplite"    => "Bio::Tools::BPlite",
-	 #"blast"     => "Bio::Tools::BPlite",
 	 "hmmer"     => "Bio::Tools::HMMER::Result",
 	 "gff"       => "Bio::Tools::GFF",
 	 "sim4"      => "Bio::Tools::Sim4::Results",
