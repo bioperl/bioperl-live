@@ -35,30 +35,32 @@ factor of 5-10.
 
 FeatureFile Format (.fff) is very simple:
 
+ mRNA B0511.1 Chr1:1..100 Type=UTR;Note="putative primase"
+ mRNA B0511.1 Chr1:101..200,300..400,500..800 Type=CDS
+ mRNA B0511.1 Chr1:801..1000 Type=UTR
+
  reference = Chr3
- Cosmid	B0511	516-619
- Cosmid	B0511	3185-3294
- Cosmid	B0511	10946-11208
- Cosmid	B0511	13126-13511
- Cosmid	B0511	11394-11539
- EST	yk260e10.5	15569-15724
- EST	yk672a12.5	537-618,3187-3294
- EST	yk595e6.5	552-618
- EST	yk595e6.5	3187-3294
- EST	yk846e07.3	11015-11208
+ Cosmid	B0511	516..619
+ Cosmid	B0511	3185..3294
+ Cosmid	B0511	10946..11208
+ Cosmid	B0511	13126..13511
+ Cosmid	B0511	11394..11539
+ EST	yk260e10.5	15569..15724
+ EST	yk672a12.5	537..618,3187..3294
+ EST	yk595e6.5	552..618
+ EST	yk595e6.5	3187..3294
+ EST	yk846e07.3	11015..11208
  EST	yk53c10
- 	yk53c10.3	15000-15500,15700-15800
- 	yk53c10.5	18892-19154
- EST	yk53c10.5	16032-16105
- SwissProt	PECANEX	Chr4:13153-13656	"Swedish fish"
- FGENESH	"Predicted gene 1"	Chr4:1-205,518-616,661-735,3187-3365,3436-3846	"Pfam domain"
- FGENESH	"Predicted gene 2"	Chr4:5513-6497,7968-8136,8278-8383,8651-8839,9462-9515,10032-10705,10949-11340,11387-11524,11765-12067,12876-13577,13882-14121,14169-14535,15006-15209,15259-15462,15513-15753,15853-16219	Mysterious
- FGENESH	"Predicted gene 3"	16626-17396,17451-17597
- FGENESH	"Predicted gene 4"	18459-18722,18882-19176,19221-19513,19572-19835	"Transmembrane protein"
+ 	yk53c10.3	15000..15500,15700..15800
+ 	yk53c10.5	18892..19154
+ EST	yk53c10.5	16032..16105
+ SwissProt	PECANEX	13153-13656	Note="Swedish fish"
+ FGENESH	"Predicted gene 1"	1-205,518-616,661-735,3187-3365,3436-3846	"Pfam domain"
+ # file ends
 
 There are up to four columns of WHITESPACE (not necessarily tab)
 delimited text. Embedded whitespace must be escaped using shell
-escaping rules. 
+escaping rules (quoting the column or backslashing whitespace).
 
   Column 1: The feature type. You may use type:subtype as a convention
             for method:source.
@@ -75,30 +77,137 @@ escaping rules.
 
   Column 4: Comment/attribute field. A single Note can be given, or
             a series of attribute=value pairs, separated by
-            spaces or semicolons, as in "score=23 type=transmembrane"
+            spaces or semicolons, as in "score=23;type=transmembrane"
 
-A single line in the format:
+=head2 Specifying Positions and Ranges
+
+A feature position is specified using a sequence ID (a genbank
+accession number, a chromosome name, a contig, or any other meaningful
+reference system, followed by a colon and a position range. Ranges are
+two integers separated by double dots or the hyphen. Examples:
+"Chr1:516..11208", "ctgA:1-5000". Negative coordinates are allowed, as
+in "Chr1:-187..1000".
+
+A discontinuous range ("split location") uses commas to separate the
+ranges.  For example:
+
+ Gene B0511.1  Chr1:516..619,3185..3294,10946..11208
+
+In the case of a split location, the sequence id only has to appear in
+front of the first range.
+
+Alternatively, a split location can be indicated by repeating the
+features type and name on multiple adjacent lines:
+
+ Gene	B0511.1	Chr1:516..619
+ Gene	B0511.1	Chr1:3185..3294
+ Gene	B0511.1	Chr1:10946..11208
+
+If all the locations are on the same reference sequence, you can
+specify a default chromosome using a "reference=<seqid>":
 
  reference=Chr1
+ Gene	B0511.1	516..619
+ Gene	B0511.1	3185..3294
+ Gene	B0511.1	10946..11208
 
-will set the default chromosome. If none is specified, and the
-chromosome is not given in the range, then ChrUN is assumed.
+The default seqid is in effect until the next "reference" line
+appears.
 
-Features can be grouped into simple two-level hierarchy by indenting,
-as shown here:
+=head2 Feature Tags
+
+Tags can be added to features by adding a fourth column consisting of
+"tag=value" pairs:
+
+ Gene  B0511.1  Chr1:516..619,3185..3294 Note="Putative primase"
+
+Tags and their values take any form you want, and multiple tags can be
+separated by semicolons. You can also repeat tags multiple times:
+
+ Gene  B0511.1  Chr1:516..619,3185..3294 GO_Term=GO:100;GO_Term=GO:2087
+
+Several tags have special meanings:
+
+ Tag     Meaning
+ ---     -------
+
+ Type    The primary tag for a subfeature.
+ Score   The score of a feature or subfeature.
+ Phase   The phase of a feature or subfeature.
+ URL     A URL to link to (via the Bio::Graphics library).
+ Note    A note to attach to the feature for display by the Bio::Graphics library.
+
+For example, in the common case of an mRNA, you can use the "Type" tag
+to distinguish the parts of the mRNA into UTR and CDS:
+
+ mRNA B0511.1 Chr1:1..100 Type=UTR
+ mRNA B0511.1 Chr1:101..200,300..400,500..800 Type=CDS
+ mRNA B0511.1 Chr1:801..1000 Type=UTR
+
+The top level feature's primary tag will be "mRNA", and its subparts
+will have types UTR and CDS as indicated. Additional tags that are
+placed in the first line of the feature will be applied to the top
+level. In this example, the note "Putative primase" will be applied to
+the mRNA at the top level of the feature:
+
+ mRNA B0511.1 Chr1:1..100 Type=UTR;Note="Putative primase"
+ mRNA B0511.1 Chr1:101..200,300..400,500..800 Type=CDS
+ mRNA B0511.1 Chr1:801..1000 Type=UTR
+
+=head2 Feature Groups
+
+Features can be grouped so that they are rendered by the "group"
+glyph.  To start a group, create a two-column feature entry showing
+the group type and a name for the group.  Follow this with a list of
+feature entries with a blank type.  For example:
 
  EST	yk53c10
  	yk53c10.3	15000-15500,15700-15800
  	yk53c10.5	18892-19154
 
-This creates an EST feature named "yk53c10" that contains two EST
-subfeatures, named yk53c10.3 and yk53c10.5. Each can have multiple
-segments.
+This example is declaring that the ESTs named yk53c10.3 and yk53c10.5
+belong to the same group named yk53c10.
+
+=head2 Comments and the #include Directive
+
+Lines that begin with the # sign are treated as comments and
+ignored. When a # sign appears within a line, everything to the right
+of the symbol is also ignored, unless it looks like an HTML fragment or
+an HTML color, e.g.:
+
+ # this is ignored
+ [Example]
+ glyph   = generic   # this comment is ignored
+ bgcolor = #FF0000
+ link    = http://www.google.com/search?q=$name#results
+
+Be careful, because the processing of # signs uses a regexp heuristic. To be safe, 
+always put a space after the # sign to make sure it is treated as a comment.
+
+The special comment "#include 'filename'" acts like the C preprocessor
+directive and will insert the comments of a named file into the
+position at which it occurs. Relative paths will be treated relative
+to the file in which the #include occurs. Nested #include directives
+are allowed:
+
+ #include "/usr/local/share/my_directives.txt"
+ #include 'my_directives.txt'
+ #include chromosome3_features.gff3
+
+You can enclose the file path in single or double quotes as shown
+above. If there are no spaces in the filename the quotes are optional.
+
+Include file processing is not very smart. Avoid creating circular
+#include references. You have been warned!
+
+=head2 Caveats
 
 Note that this loader always creates denormalized features such that
 subfeatures and their parents are stored as one big database
 object. The GFF3 format and its loader is usually preferred for both
 space and execution efficiency.
+
+=head1 METHODS
 
 =cut
 
@@ -397,7 +506,6 @@ sub handle_feature {
   # in which case we treat it the same as Note="value"
   my $attr = $self->parse_attributes($attributes);
 
-
   # @parts is an array of ([ref,start,end],[ref,start,end],...)
   my @parts = map { [/(?:(\w+):)?(-?\d+)(?:-|\.\.)(-?\d+)/]} split /(?:,| )\s*/,$bounds;
 
@@ -434,6 +542,12 @@ sub handle_feature {
 
   # either create a new feature or add a segment to it
   my $feature = $ld->{CurrentFeature};
+  
+  $ld->{OldPartType} = $ld->{PartType};
+  $ld->{PartType}    = $attr->{Type}[0] if exists $attr->{Type};
+  $ld->{PartType}    = $attr->{type}[0] if exists $attr->{type};
+  $ld->{PartType}   ||= $type;
+
   if ($feature) {
       local $^W = 0;  # avoid uninit warning when display_name() is called
 
@@ -444,23 +558,34 @@ sub handle_feature {
 	  $self->store_current_feature;  # new feature, store old one
 	  undef $feature;
       } else { # create a new multipart feature
-	  $self->_multilevel_feature($feature) unless $feature->get_SeqFeatures;
-	  my $part = $self->_make_feature($name,$type,
-					  $strand,$attr,
-					  $reference,@{$parts[0]});
+	  $self->_multilevel_feature($feature,$ld->{OldPartType})
+	      unless $feature->get_SeqFeatures;
+	  my $part = $self->_make_feature($name,
+					  $ld->{PartType},
+					  $strand,
+					  $attr,
+					  $reference,
+					  @{$parts[0]});
 	  $feature->add_SeqFeature($part);
       }
   }
 
-  $feature ||= $self->_make_indexed_feature($name,$type,   # side effect is to set CurrentFeature
-					    $strand,$attr,
+  $feature ||= $self->_make_indexed_feature($name,
+					    $type,   # side effect is to set CurrentFeature
+					    $strand,
+					    $attr,
 					    $reference,@{$parts[0]});
+
   # add more segments to the current feature
   if (@parts > 1) {
       for my $part (@parts) {
-	  $type  ||= $feature->primary_tag;
-	  my $sp = $self->_make_feature($name,$type,$strand,$attr,
-					$reference,@{$part});
+	  $type ||= $feature->primary_tag;
+	  my $sp  = $self->_make_feature($name,
+					 $ld->{PartType},
+					 $strand,
+					 $attr,
+					 $reference,
+					 @{$part});
       $feature->add_SeqFeature($sp);
       }
   }
@@ -469,10 +594,11 @@ sub handle_feature {
 sub _multilevel_feature { # turn a single-level feature into a multilevel one
     my $self = shift;
     my $f    = shift;
+    my $type = shift;
     my %attributes     = $f->attributes;
     $attributes{Score} = [$f->score] if defined $f->score;
     $attributes{Phase} = [$f->phase] if defined $f->phase;
-    my @args = ($f->display_name,$f->type,$f->strand,\%attributes,$f->seq_id,$f->start,$f->end);
+    my @args = ($f->display_name,$type||$f->type,$f->strand,\%attributes,$f->seq_id,$f->start,$f->end);
     my $subpart = $self->_make_feature(@args);
     $f->add_SeqFeature($subpart);
 }
