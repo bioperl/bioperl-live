@@ -300,7 +300,6 @@ NB: This list of packages is not authoritative. See the 'requires',
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
 | * Bio::Root::Test - Test::Exception                                          |
-| * Bio::Root::Test - Test::Exception                                          |
  ==============================================================================
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
@@ -312,7 +311,6 @@ NB: This list of packages is not authoritative. See the 'requires',
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
 | * Bio::Root::Test::Warn - Test::Builder                                      |
-| * Bio::Root::Test - Test::More                                               |
 | * Bio::Root::Test - Test::More                                               |
  ==============================================================================
  ==============================================================================
@@ -549,7 +547,6 @@ NB: This list of packages is not authoritative. See the 'requires',
 | * Bio::Tools::Protparam - LWP                                                |
 | * Bio::Tools::Run::RemoteBlast - LWP                                         |
 | * Bio::DB::Biblio::eutils - LWP::Simple                                      |
-| * Bio::Root::IO - LWP::Simple                                                |
 | * Bio::Root::IO - LWP::Simple                                                |
 | * Bio::DB::GDB - LWP::UserAgent                                              |
 | * Bio::DB::GenericWebAgent - LWP::UserAgent                                  |

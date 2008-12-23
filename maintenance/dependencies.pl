@@ -1,20 +1,5 @@
 #!/usr/bin/perl -w
 
-# $Id: dependencies.pl 10084 2006-07-04 22:23:29Z mauricio $
-#
-=head1 NAME
-
-dependencies.pl - check modules and scripts for dependencies not in core
-
-=head1 SYNOPSIS
-
-B<dependencies.pl> [B<-d|--dir> path ] [B<-v|--verbose>] B<-a|--authorsfile>
-    [B<-?|-h|--help>]
-
-=head1 DESCRIPTION
-
-=cut
-
 use strict;
 use warnings;
 use Perl6::Form;
@@ -22,7 +7,6 @@ use File::Find;
 use Getopt::Long;
 use Module::CoreList;
 use CPANPLUS::Backend;
-use Data::Dumper;
 use 5.010;
 
 my $dep_header = <<HEADER;
@@ -103,7 +87,9 @@ my $b = CPANPLUS::Backend->new();
 my %distrib;
 
 for my $m ($b->module_tree(sort keys %dependencies)) {
-    push @{$distrib{$m->package_name}}, [$m, @{$dependencies{$m->module}}];
+    next if exists $distrib{$m->package_name} &&
+        (grep {$m->module eq $_->[0]->module} @{$distrib{$m->package_name}});
+    push @{$distrib{$m->package_name}}, [$m, @{$dependencies{$m->module}}]
 }
 
 open (my $dfile, '>', $depfile) || die "Can't open dependency file :$!\n";
@@ -112,23 +98,12 @@ print $dfile $dep_header;
 
 for my $d (sort keys %distrib) {
     my $min_ver = 0;
-    #my @desc = grep {
-    #        defined $_->[1]
-    #    } map {
-    #        [$_->[0], $_->[0]->description]
-    #    } @{$distrib{$d}};
     for my $moddata (@{$distrib{$d}}) {
         my ($mod, @bp) = @$moddata;
         for my $bp (@bp) {
             $min_ver = $bp->{ver} if $bp->{ver} >  $min_ver;
         }
     }
-    #print Dumper @desc;
-    
-    #for my $v (@bio) {
-    #    print Dumper $v;
-    #    #$min_ver = $v->{ver} if $v->{ver} > $min_ver;
-    #}
     print $dfile
             form
     {bullet => "* "},
@@ -148,7 +123,6 @@ for my $d (sort keys %distrib) {
     "|==============================================================================|",
     "| Used by:                                                                     |",
     "|------------------------------------------------------------------------------|",
-    #{bullet => "* "},
     "| * {[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[} |",
     [
      map {
@@ -159,8 +133,9 @@ for my $d (sort keys %distrib) {
     " ============================================================================== ";
 }
 
-#print 'Keys:'.scalar(keys %dependencies)."\n";
+close $dfile;
 
+exit;
 #
 ##
 ### end main
@@ -209,37 +184,57 @@ sub parse_core {
             my $nm = $File::Find::name;
             $nm =~ s{.*(Bio.*)\.pm}{$1};
             $nm =~ s{[\\\/]}{::}g;
-            push @{ $dependencies{$mod} }, {
-                ver => $ver || 0,
-                file => $nm};
+            if (!exists $dependencies{$mod} ||
+                !(grep {$_->{file} eq $nm} @{$dependencies{$mod}})) {
+                push @{ $dependencies{$mod} }, {
+                    ver => $ver || 0,
+                    file => $nm};
+                }
         }
     }
     close $F;
 }
 
+__END__
+
+# $Id: dependencies.pl 10084 2006-07-04 22:23:29Z mauricio $
+#
+=head1 NAME
+
+dependencies.pl - check modules and scripts for dependencies not in core
+
+=head1 SYNOPSIS
+
+B<dependencies.pl> [B<-d|--dir> path ] [B<-v|--verbose>] B<-a|--authorsfile>
+    [B<-?|-h|--help>]
+
+=head1 DESCRIPTION
+
 =head1 OPTIONS
 
 =over 3
 
-=item B<-d | --dir> path
+=item B<--dir> path
 
 Overides the default directories to check by one directory 'path' and
 all its subdirectories.
 
-=item B<-a | --authorsfile>
+=item B<--depfile> file
 
-path from working directory the AUTHORS file.
-
-Redundant as this information could be had from --dir option butI am
-feeling too lazy to change the code.
-
-=cut
-
-__END__
+The name of the output file for the dependencies table.  Default is
+'../DEPENDENCIES.NEW'
 
 =item B<-v | --verbose>
 
-Show the progress through files during the checking.
+Show the progress through files during the checking.  Not used currently.
+
+=item B<-p | --perl> version
+
+Perl version (in long form, i.e. 5.010, 5.006001).  Used to weed out the
+core modules that should be already present (ActiveState, we're staring at
+you sternly).
+
+We may add something in the future to allow other forms.
 
 =item B<-? | -h  | --help>
 
