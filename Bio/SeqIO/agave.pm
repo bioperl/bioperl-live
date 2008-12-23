@@ -85,7 +85,6 @@ use strict;
 use IO::File;
 
 
-use lib '/home/skchan/checkout/bioperl-live';
 use Bio::SeqFeature::Generic;
 use Bio::Seq;
 use Bio::PrimarySeq;
@@ -93,7 +92,6 @@ use Bio::Seq::SeqFactory;
 use Bio::Annotation::Reference;
 use Bio::Species;
 
-use lib '/home/skchan/gq/BIO_SUPPORT/XML-Writer/XML-Writer-0.510/blib/lib';
 use XML::Writer;
 
 use Data::Dumper;
