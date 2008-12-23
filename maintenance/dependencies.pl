@@ -1,9 +1,11 @@
+# $Id: dependencies.pl 10084 2006-07-04 22:23:29Z cjfields $
+#
 #!/usr/bin/perl -w
 
 use strict;
 use warnings;
-use Perl6::Form;
 use File::Find;
+use Perl6::Form;
 use Getopt::Long;
 use Module::CoreList;
 use CPANPLUS::Backend;
@@ -196,18 +198,30 @@ sub parse_core {
 
 __END__
 
-# $Id: dependencies.pl 10084 2006-07-04 22:23:29Z mauricio $
-#
 =head1 NAME
 
 dependencies.pl - check modules and scripts for dependencies not in core
 
 =head1 SYNOPSIS
 
-B<dependencies.pl> [B<-d|--dir> path ] [B<-v|--verbose>] B<-a|--authorsfile>
+B<dependencies.pl> [B<--dir> path ] [B<-v|--verbose>] [B<--depfile> file]
     [B<-?|-h|--help>]
 
 =head1 DESCRIPTION
+
+Recursively parses directory tree given (defaults to '../Bio') and checks files
+for possible dependencies and versions (use/require statements).  Checks that
+modules aren't part of perl core (--version, defaults to 5.006001).  Module
+information is returned using CPANPLUS and data is output to a table using
+Perl6::Form (yes I managed to get perl6 in here somehow).
+
+Requires:
+
+File::Find        - core
+Getopt::Long      - core
+CPANPLUS::Backend
+Perl6::Form
+Module::CoreList  
 
 =head1 OPTIONS
 
