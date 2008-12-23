@@ -7,7 +7,6 @@ use File::Find;
 use Getopt::Long;
 use Module::CoreList;
 use CPANPLUS::Backend;
-use 5.010;
 
 my $dep_header = <<HEADER;
 BioPerl Dependencies
