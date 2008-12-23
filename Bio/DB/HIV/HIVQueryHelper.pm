@@ -66,7 +66,7 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-package HIVQueryHelper;
+package Bio::DB::HIV::HIVQueryHelper;
 use strict;
 use Bio::Root::Root;
 
