@@ -205,7 +205,7 @@ package Bio::Structure::IO;
 use strict;
 
 use Bio::PrimarySeq;
-use Symbol();
+use Symbol;
 
 use base qw(Bio::Root::Root Bio::Root::IO);
 

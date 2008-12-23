@@ -108,7 +108,7 @@ use Bio::SearchIO::SearchResultEventBuilder;
 # For an example of usage, see blast.pm.
 @Bio::SearchIO::InternalParserError::ISA = qw(Bio::Root::Exception);
 
-use Symbol();
+use Symbol;
 
 use base qw(Bio::Root::IO Bio::Event::EventGeneratorI Bio::AnalysisParserI);
 
