@@ -90,8 +90,8 @@ Internal methods are usually preceded with a _
 
 package Bio::Tools::SiRNA::Ruleset::tuschl;
 
-use 5.006;
 use strict;
+use warnings;
 
 use base qw(Bio::Tools::SiRNA);
 
@@ -118,8 +118,8 @@ sub new {
     
     $args{'RULES'} = 'tuschl';
 
-    return $self::SUPER->new(%args);
- }
+    return $class->SUPER::new(%args);
+}
 
 sub _regex {
     my ($self, $rank) = @_;

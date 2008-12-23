@@ -112,6 +112,7 @@ Internal methods are usually preceded with a _
 package Bio::Tools::SiRNA::Ruleset::saigo;
 
 use strict;
+use warnings;
 
 use base qw(Bio::Tools::SiRNA);
 
@@ -129,8 +130,8 @@ sub new {
     my $class = ref($proto) || $proto;
     
     $args{'RULES'} = 'saigo';
-
-    return $self::SUPER->new(%args);
+    
+    return $class->SUPER::new(%args);
  }
 
 sub _get_oligos {

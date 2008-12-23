@@ -116,7 +116,6 @@ Internal methods are usually preceded with a _
 
 package Bio::Tools::SiRNA;
 
-require 5.005_62;
 use strict;
 use warnings;
 

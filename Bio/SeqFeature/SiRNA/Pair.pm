@@ -75,10 +75,8 @@ Internal methods are usually preceded with a _
 
 package Bio::SeqFeature::SiRNA::Pair;
 
-require 5.005_62;
 use strict;
 use warnings;
-
 
 use base qw(Bio::SeqFeature::Generic);
 
