@@ -255,24 +255,24 @@ sub get_request {
 	# negotiate a session with lanl db 
 	if (!$self->_session_id) {
 	    $resp = $self->ua->get($self->_map_db_uri);
-	    $resp->is_success or die "Connect failed";
+	    $resp->is_success || die "Connect failed";
 	    # get the session id
 	    if (!$self->_session_id) {
 		($self->{'_session_id'}) = ($resp->content =~ /$session_id_re/);
-		$self->_session_id or die "Session not established";
+		$self->_session_id || die "Session not established";
 	    }
 	}
 	
 	# establish correct "interface" for this session id
 	$resp = $self->ua->post($self->_make_search_if_uri, [@interface, id=>$self->_session_id]);
-	$resp->is_success or die "Interface request failed (1)";
-	$resp->content =~ /$search_form_re/ or die "Interface request failed (2)";
+	$resp->is_success || die "Interface request failed (1)";
+	$resp->content =~ /$search_form_re/ || die "Interface request failed (2)";
 	
 	# interface successful, do the "pre-search"
 	$resp = $self->ua->post($self->_search_uri, [@query_parms, 'id' => $self->_session_id]);
-	$resp->is_success or die "Search post failed";
-	($resp->content !~ /$no_seqs_found_re/) or die "No sequences found";
-	($resp->content =~ /$seqs_found_re/) or die "Unparsed failure";
+	$resp->is_success || die "Search post failed";
+	($resp->content !~ /$no_seqs_found_re/) || die "No sequences found";
+	($resp->content =~ /$seqs_found_re/) || die "Unparsed failure";
     };
     $self->throw(-class=>'Bio::WebError::Exception',
 		 -text=>$@,

@@ -1227,13 +1227,15 @@ sub _do_lanl_request {
 	my %q = @query;
 	@interface = grep {defined} map {my ($tbl,$col) = /^(.*)\.(.*)$/} keys %q;
 	eval { # encapsulate communication errors here, defer biothrows...
-	    my $ua = new Bio::WebAgent();
+        
+        #mark the useragent should be setable from outside (so we can modify timeouts, etc)
+	    my $ua = new Bio::WebAgent(timeout => 90);
 	    my $idPing = $ua->get($self->_map_db_uri);
-	    $idPing->is_success or $response=$idPing, die "Connect failed";
+	    $idPing->is_success || do {$response=$idPing; die "Connect failed"};
 	    # get the session id
 	    if (!$self->_session_id) {
 		($self->{'_session_id'}) = ($idPing->content =~ /$session_id_re/);
-		$self->_session_id or do {$response=$idPing; die "Session not established";};
+		$self->_session_id || do {$response=$idPing; die "Session not established";};
 	    }
 	    # 10/07/08:
 	    # strange bug: if action=>'Search+Interface' below (note "+"), 
@@ -1243,13 +1245,13 @@ sub _do_lanl_request {
 	    # interface to lead to the actual sequences being delivered as 
 	    # expected. maj
 	    $interfGet = $ua->post($self->_make_search_if_uri, [@interface, @searchif_pms, id=>$self->_session_id]);
-	    $interfGet->is_success or do {$response=$interfGet,die "Interface request failed";};
+	    $interfGet->is_success || do {$response=$interfGet,die "Interface request failed";};
 	    # see if a search form was returned...
 	    
-	    $interfGet->content =~ /$search_form_re/ or do {$response=$interfGet, die "Interface request failed";};
+	    $interfGet->content =~ /$search_form_re/ || do {$response=$interfGet, die "Interface request failed";};
 	    
 	    $searchGet = $ua->post($self->_search_uri, [@query, @commands, @search_pms, id=>$self->_session_id]);
-	    $searchGet->is_success or do {$response=$searchGet, die "Search failed";};
+	    $searchGet->is_success || do {$response=$searchGet, die "Search failed";};
 	    for ($searchGet->content) {
 		/$no_seqs_found_re/ && do {
 		    $response=$searchGet;
@@ -1273,7 +1275,7 @@ sub _do_lanl_request {
 		};
 	    }
 	    $response = $ua->post($self->_search_uri, [@download_pms, id=>$self->_session_id]);
-	    $response->is_success or die "Query failed";
+	    $response->is_success || die "Query failed";
 	    # $response->content is a tab-separated value table of sequences 
 	    # and metadata, first line starts with \# and contains fieldnames
 	};

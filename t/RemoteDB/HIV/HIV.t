@@ -16,6 +16,8 @@ BEGIN {
 
 my $tobj= Bio::DB::HIV->new();
 
+$tobj->ua->timeout(90);
+
 #object tests
 isa_ok($tobj, 'Bio::DB::HIV');
 
@@ -54,7 +56,13 @@ SKIP: {
     # WebDBSeqI compliance-
     # (this requires network access, since request is built after establishing
     # the LANL session...)
-    isa_ok($tobj->get_request('mode'=>'single','uids'=>['17756']), 'HTTP::Request', 'Object returned from get_request');
+    my $req;
+    eval {$req = $tobj->get_request('mode'=>'single','uids'=>['17756'])};
+    if ($@) {
+        diag("Error: $@");
+        skip("Network problems, skipping all tests: $@", 12)
+    }
+    isa_ok($req, 'HTTP::Request', 'Object returned from get_request');
     # get_... functionality
     ok($tobj->get_Seq_by_id('17756'), 'get HXB2 by LANL id');
     ok($tobj->get_Seq_by_acc('K03455'), 'get HXB2 by GB accession');
