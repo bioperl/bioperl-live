@@ -248,7 +248,7 @@ sub _parse {
 	$self->{seqfile} =~ /^(\S+)\.\S+$/;
 	my $file = $1;
 
-	print "Opening $self->{seqfile} for parsing...\n" if $self->{lucy_verbose};
+	$self->warn("Opening $self->{seqfile} for parsing...\n") if $self->{lucy_verbose};
 	open my $SEQ, $self->{seqfile} or $self->throw("Could not open sequence file: $self->{seqfile}");
 	my ($name, $line);
 	my $seq = "";
@@ -287,13 +287,13 @@ sub _parse {
 		@lines = <$QUAL>;
 	}
 	elsif (-e "$file.qual") {
-		print "You did not set qualfile, but I'm opening $file.qual\n" if $self->{lucy_verbose};
+		$self->warn("You did not set qualfile, but I'm opening $file.qual\n") if $self->{lucy_verbose};
 	$self->qualfile("$file.qual");
 		open my $QUAL, "$file.qual" or $self->throw("Could not open quality file: $file.qual");
 		@lines = <$QUAL>;
 	}
     else {
-		 print "I did not find a quality file.  You will not be able to use all of the accessor methods.\n" if $self->{lucy_verbose};
+		 $self->warn("I did not find a quality file.  You will not be able to use all of the accessor methods.\n") if $self->{lucy_verbose};
 		 @lines = ();
     }
 
@@ -326,13 +326,13 @@ sub _parse {
 		@lines = <$INFO>;
 	}
 	elsif (-e "$file.info") {
-		print "You did not set infofile, but I'm opening $file.info\n" if $self->{lucy_verbose};
+		$self->warn("You did not set infofile, but I'm opening $file.info\n") if $self->{lucy_verbose};
 		$self->infofile("$file.info");
 		open my $INFO, "$file.info" or $self->throw("Could not open info file: $file.info");
 		@lines = <$INFO>;
 	}
 	else {
-		print "I did not find an info file.  You will not be able to use all of the accessor methods.\n" if $self->{lucy_verbose};
+		$self->warn("I did not find an info file.  You will not be able to use all of the accessor methods.\n") if $self->{lucy_verbose};
 		@lines = ();
 	}
 
@@ -350,13 +350,13 @@ sub _parse {
 		@lines = <$STDERR_LUCY>;
 	}
 	elsif (-e "$file.stderr") {
-		print "You did not set stderrfile, but I'm opening $file.stderr\n" if $self->{lucy_verbose};
+		$self->warn("You did not set stderrfile, but I'm opening $file.stderr\n") if $self->{lucy_verbose};
 		$self->stderrfile("$file.stderr");
 		open my $STDERR_LUCY, "$file.stderr" or $self->throw("Could not open quality file: $file.stderr");
 		@lines = <$STDERR_LUCY>;
 	}
 	else {
-		print "I did not find a standard error file.  You will not be able to use all of the accessor methods.\n" if $self->{lucy_verbose};
+		$self->warn("I did not find a standard error file.  You will not be able to use all of the accessor methods.\n") if $self->{lucy_verbose};
 		@lines = ();
 	}
 
