@@ -55,11 +55,13 @@ streams.
 
 =head2 Query format
 
-The interface implements a simple query language emulation that understands AND, OR, and parenthetical nesting. The basic query unit is
+The interface implements a simple query language emulation that understands AND,
+OR, and parenthetical nesting. The basic query unit is
 
  (match1 match2 ...)[fieldname]
 
-Sequences are returned for which C<fieldname> equals C<match1 OR match2 OR ...>. These units can be combined with AND, OR and parentheses. For example:
+Sequences are returned for which C<fieldname> equals C<match1 OR match2 OR ...>.
+These units can be combined with AND, OR and parentheses. For example:
 
  (B, C)[subtype] AND (2000, 2001, 2002, 2003)[year] AND ((CN)[country] OR (ZA)[country])
 
@@ -67,7 +69,9 @@ which can be shortened to
 
  (B C)[subtype] (2000 2001 2002 2003)[year] (CN ZA)[country]
 
-The user can specify annotation fields, that do not restrict the query, but arrange for the return of the associated field data for each sequence returned. Specify annotation fields between curly braces, as in:
+The user can specify annotation fields, that do not restrict the query, but
+arrange for the return of the associated field data for each sequence returned.
+Specify annotation fields between curly braces, as in:
 
  (B C)[subtype] 2000[year] {country cd4_count cd8_count}
 
@@ -75,7 +79,8 @@ Annotations can be accessed off the query using methods described in APPENDIX.
 
 =head2 Hash specifications for query construction
 
-Single query specifications can be made as hash references provided to the C<-query> argument of the constructor.  There are two forms:
+Single query specifications can be made as hash references provided to the
+C<-query> argument of the constructor. There are two forms:
 
  -query => { 'country'=>'BR', 'phenotype'=>'NSI', 'cd4_count'=>'Any' }
 
@@ -88,7 +93,8 @@ or
  -query => { 'query' => {'country'=>'BR', 'phenotype'=>'NSI'},
              'annot' => ['cd4_count'] }
 
-In both cases, the CD4 count is included in the annotations returned, but does not restrict the rest of the query.
+In both cases, the CD4 count is included in the annotations returned, but does
+not restrict the rest of the query.
 
 To 'OR' multiple values of a field, use an anonymous array ref:
 
@@ -97,7 +103,8 @@ To 'OR' multiple values of a field, use an anonymous array ref:
 =head2 Valid query field names
 
 An attempt was made to make the query field names natural and easy to
-remember. Aliases are specified in an XML file (C<lanl-schema.xml>) that is part of the distribution. Custom field aliases can be set up by modifying this file.
+remember. Aliases are specified in an XML file (C<lanl-schema.xml>) that is part
+of the distribution. Custom field aliases can be set up by modifying this file.
 
 An HTML cheatsheet with valid field names, aliases, and match data can
 be generated from the XML by using
@@ -139,7 +146,9 @@ annotations.
 
 =head2 Query re-use
 
-You can clear the query results, retaining the same LANL session and query spec, by doing C<$q-E<gt>_reset>. Change the query, and rerun with C<$q-E<gt>_do_query($YOUR_RUN_OPTION)>. 
+You can clear the query results, retaining the same LANL session and query spec,
+by doing C<$q-E<gt>_reset>. Change the query, and rerun with
+C<$q-E<gt>_do_query($YOUR_RUN_OPTION)>. 
 
 =head1 FEEDBACK
 
@@ -375,7 +384,9 @@ sub help{
 
    my (@tbls, @flds, @als, @opts, $fh);
    if ($fname) {
-       open ($fh, ">", $fname) or $self->throw(-class=>'Bio::Root::IOException', -text=>"Error opening help html file $fname for writing", -value=>$!);
+       open ($fh, ">", $fname) or $self->throw(-class=>'Bio::Root::IOException',
+                                               -text=>"Error opening help html file $fname for writing",
+                                               -value=>$!);
    }
    else {
        open($fh, ">&1");
@@ -571,7 +582,8 @@ sub remove_annotations {
            L<Bio::DB::HIV::HIVQueryHelper>.
            If intervening nodes do not exist, put_value creates them, replacing 
            existing nodes. So if $ac->put_value('x', 10) was done, then later,
-           $ac->put_value(['x', 'y'], 20), the original value of 'x' is trashed,           and $ac->get_value('x') will now return the annotation collection 
+           $ac->put_value(['x', 'y'], 20), the original value of 'x' is trashed,
+           and $ac->get_value('x') will now return the annotation collection 
            with tagname 'y'. 
 
 =cut
