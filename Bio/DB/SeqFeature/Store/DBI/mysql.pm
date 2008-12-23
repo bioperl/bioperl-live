@@ -157,6 +157,7 @@ use DBI;
 use Memoize;
 use Cwd 'abs_path';
 use Bio::DB::GFF::Util::Rearrange 'rearrange';
+use Bio::SeqFeature::Lite;
 use File::Spec;
 use constant DEBUG=>0;
 
@@ -1645,16 +1646,14 @@ sub _rebuild_obj {
         $attribs{$attribute} = $attribute_value;
     }
     
-    require Bio::Graphics::Feature;
-    
-    my $obj = Bio::Graphics::Feature->new(-primary_id => $id,
-                                          $type ? (-type => $type) : (),
-                                          $source ? (-source => $source) : (),
-                                          $seqid ? (-seq_id => $seqid) : (),
-                                          defined $start ? (-start => $start) : (),
-                                          defined $end ? (-end => $end) : (),
-                                          defined $strand ? (-strand => $strand) : (),
-                                          keys %attribs ? (-attributes => \%attribs) : ());
+    my $obj = Bio::SeqFeature::Lite->new(-primary_id => $id,
+                                         $type ? (-type => $type) : (),
+                                         $source ? (-source => $source) : (),
+                                         $seqid ? (-seq_id => $seqid) : (),
+                                         defined $start ? (-start => $start) : (),
+                                         defined $end ? (-end => $end) : (),
+                                         defined $strand ? (-strand => $strand) : (),
+                                         keys %attribs ? (-attributes => \%attribs) : ());
     
     return $obj;
 }
