@@ -68,7 +68,7 @@ use Bio::Seq::SeqFactory;
 use Bio::Seq::RichSeq;
 use Bio::Annotation::Collection;
 use Bio::Annotation::Comment;
-use Dumpvalue();
+use Dumpvalue;
 
 my $dumper = new Dumpvalue();
 

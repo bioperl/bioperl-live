@@ -71,7 +71,8 @@ methods. Internal methods are usually preceded with a _
 package Bio::SeqIO::qual;
 use strict;
 use Bio::Seq::SeqFactory;
-use Dumpvalue();
+use Dumpvalue;
+
 my $dumper = new Dumpvalue();
 
 use base qw(Bio::SeqIO);

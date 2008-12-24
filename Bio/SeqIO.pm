@@ -305,7 +305,7 @@ use strict;
 use Bio::Factory::FTLocationFactory;
 use Bio::Seq::SeqBuilder;
 use Bio::Tools::GuessSeqFormat;
-use Symbol();
+use Symbol;
 
 use base qw(Bio::Root::Root Bio::Root::IO Bio::Factory::SequenceStreamI);
 

@@ -20,7 +20,7 @@ BEGIN {
                               # not necessary for module
 }
 
-my $tobj= new Bio::DB::Query::HIVQuery(-RUN_OPTION=>0); 
+my $tobj= new Bio::DB::Query::HIVQuery(-RUN_OPTION=>0);
 
 #object tests
 isa_ok($tobj, 'Bio::DB::Query::HIVQuery');
@@ -136,8 +136,12 @@ throws_ok {$tobj->get_annotations_by_id($tobj->ids)} qr/Requires query run/, "qu
 SKIP : {
     test_skip(-tests => 10,
           -requires_networking => 1);
-    
-    ok($tobj  = Bio::DB::Query::HIVQuery->new(-QUERY=>"(SI[phenotype] ('CCR5 CXCR4')[coreceptor] C[subtype] OR NSI[phenotype] D[subtype]) AND ZA[country]",-RUN_OPTION=>2), "live query");
+    eval {$tobj  = Bio::DB::Query::HIVQuery->new(-QUERY=>"(SI[phenotype] ('CCR5 CXCR4')[coreceptor] C[subtype] OR NSI[phenotype] D[subtype]) AND ZA[country]",-RUN_OPTION=>2)};
+    if ($@) {
+        diag($@);
+        skip("Network problems, skipping all", 10) if $@;
+    }
+    ok($tobj,"live query");
     cmp_ok( $tobj->count, ">=", 12, "enough sequences returned");
 # test query object handling of Bio::DB::HIV   
     my ($tdb, $seqio, $seq);

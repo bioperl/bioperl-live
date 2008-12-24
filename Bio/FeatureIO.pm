@@ -232,7 +232,7 @@ package Bio::FeatureIO;
 
 use strict;
 
-use Symbol();
+use Symbol;
 
 use base qw(Bio::Root::Root Bio::Root::IO);
 

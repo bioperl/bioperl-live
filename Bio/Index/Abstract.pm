@@ -78,7 +78,7 @@ use vars qw( $TYPE_AND_VERSION_KEY
 
 
 use Bio::Root::IO;
-use Symbol();
+use Symbol;
 
 use base qw(Bio::Root::Root);
 

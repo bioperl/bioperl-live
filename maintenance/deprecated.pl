@@ -14,9 +14,11 @@ use Carp;
 # command line options
 #
 
-my ($verbose, $dir, $depfile, $help, $new, $outfile, $write) = (0, undef, "../DEPRECATED", undef, [], '../DEPRECATED.NEW', 0);
+my ($verbose, $dir, $depfile, $help, $new, $outfile, $write, $version) =
+(0, undef, "../DEPRECATED", undef, [], '../DEPRECATED.NEW', 0, $Bio::Root::Version::VERSION);
 GetOptions(
         'v|verbose' => \$verbose,
+		'b|bp_version:s' => \$version,
         'dir:s' => \$dir,
         'depfile:s' => \$depfile,
         'n|new=s@' => \$new,
@@ -29,7 +31,9 @@ GetOptions(
 my @dirs = qw(../Bio/ );
 
 # use version to consolidate old vs new versioning schemes
-my $base_version = version->new( $Bio::Root::Version::VERSION );
+my $base_version = version->new( $version );
+
+print "Version: $base_version\n";
 
 my %deprecated;
 my %removed;
@@ -48,8 +52,9 @@ while (my $data = <$DFILE>) {
     chomp $data;
     my ($module, $dep, $rem, $note) = split(/\s+/,$data,4);
     next unless $module;
-    my $d = qv($dep)->numify;
-    my $r = qv($rem)->numify;
+    my $d = version->new($dep);
+    my $r = version->new($rem);
+	print "$module Dep: $d Rem: $r\n" if $verbose;
     if ($rem <= $base_version) {
         $removed{$module}++;
     } elsif ($dep <= $base_version) {
@@ -132,13 +137,13 @@ sub parse_core {
     return unless -e $file;
     open my $F, $file || die "Could not open file $file";
     while (my $line = <$F>) {
-        if ($line =~ /(use|require)\s+([A-Za-z0-9:_]+)/) {
+        if ($line =~ /(?:['"])?\b(use|require)\s+([A-Za-z0-9:_\.\(\)]+)\s*([^;'"]+)?(?:['"])?\s*;/) {
             my ($use, $mod) = ($1, $2);
-            if (exists $deprecated{$mod}) {
-                print "$File::Find::name: Line $.: $mod is deprecated\n";
-            } elsif (exists $removed{$mod}) {
+			if (exists $removed{$mod}) {
                 print "$File::Find::name: Line $.: $mod is removed\n";
-            }
+            } elsif (exists $deprecated{$mod}) {
+                print "$File::Find::name: Line $.: $mod is deprecated\n";
+            } 
         }
     }
     close $F;
@@ -175,6 +180,11 @@ path from working directory the DEPRECATED file.
 
 New addition to the deprecation list; this should be in the form of
 'Module,dep_release,remove_release,notes'. Notes should only be 40 chars long.
+
+=item B<-b | --bp_version>
+
+BioPerl version.  This only appears to work correctly when using numerical
+versions (1.5.2 instead of 1.005002)
 
 =item B<-w | --write>
 

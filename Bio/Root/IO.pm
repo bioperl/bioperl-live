@@ -694,10 +694,6 @@ sub tempfile {
 	    $file = Win32::GetShortPathName($file);
 	}
 
-	# taken from File::Temp
-	if ($] < 5.006) {
-	    $tfh = &Symbol::gensym;
-	}    
 	# Try to make sure this will be marked close-on-exec
 	# XXX: Win32 doesn't respect this, nor the proper fcntl,
 	#      but may have O_NOINHERIT. This may or may not be in Fcntl.

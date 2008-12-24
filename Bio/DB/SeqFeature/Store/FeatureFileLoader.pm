@@ -598,7 +598,13 @@ sub _multilevel_feature { # turn a single-level feature into a multilevel one
     my %attributes     = $f->attributes;
     $attributes{Score} = [$f->score] if defined $f->score;
     $attributes{Phase} = [$f->phase] if defined $f->phase;
-    my @args = ($f->display_name,$type||$f->type,$f->strand,\%attributes,$f->seq_id,$f->start,$f->end);
+    my @args = ($f->display_name,
+		$type||$f->type,
+		$f->strand,
+		\%attributes,
+		$f->seq_id,
+		$f->start,
+		$f->end);
     my $subpart = $self->_make_feature(@args);
     $f->add_SeqFeature($subpart);
 }
@@ -622,6 +628,8 @@ sub _make_feature {
     my @args = (-name        => $name,
 		-strand      => $strand eq '+' ? 1 
                                :$strand eq '-' ? -1
+		               :$strand == 1   ? 1
+		               :$strand == -1  ? -1
                                :0,
 		-attributes  => $attributes,
 	);

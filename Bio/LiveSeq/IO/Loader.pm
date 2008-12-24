@@ -152,7 +152,7 @@ sub gene2liveseq {
     return (0);
   }
   if (($gene_name)&&($cds_position)) {
-    carp "Gene_Name and Position cannot be given together, use one";
+    carp "Gene_Name and Position cannot be given together";
     return (0);
   } elsif ($gene_name) {
     $input=$gene_name;

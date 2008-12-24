@@ -55,11 +55,13 @@ streams.
 
 =head2 Query format
 
-The interface implements a simple query language emulation that understands AND, OR, and parenthetical nesting. The basic query unit is
+The interface implements a simple query language emulation that understands AND,
+OR, and parenthetical nesting. The basic query unit is
 
  (match1 match2 ...)[fieldname]
 
-Sequences are returned for which C<fieldname> equals C<match1 OR match2 OR ...>. These units can be combined with AND, OR and parentheses. For example:
+Sequences are returned for which C<fieldname> equals C<match1 OR match2 OR ...>.
+These units can be combined with AND, OR and parentheses. For example:
 
  (B, C)[subtype] AND (2000, 2001, 2002, 2003)[year] AND ((CN)[country] OR (ZA)[country])
 
@@ -67,7 +69,9 @@ which can be shortened to
 
  (B C)[subtype] (2000 2001 2002 2003)[year] (CN ZA)[country]
 
-The user can specify annotation fields, that do not restrict the query, but arrange for the return of the associated field data for each sequence returned. Specify annotation fields between curly braces, as in:
+The user can specify annotation fields, that do not restrict the query, but
+arrange for the return of the associated field data for each sequence returned.
+Specify annotation fields between curly braces, as in:
 
  (B C)[subtype] 2000[year] {country cd4_count cd8_count}
 
@@ -75,7 +79,8 @@ Annotations can be accessed off the query using methods described in APPENDIX.
 
 =head2 Hash specifications for query construction
 
-Single query specifications can be made as hash references provided to the C<-query> argument of the constructor.  There are two forms:
+Single query specifications can be made as hash references provided to the
+C<-query> argument of the constructor. There are two forms:
 
  -query => { 'country'=>'BR', 'phenotype'=>'NSI', 'cd4_count'=>'Any' }
 
@@ -88,7 +93,8 @@ or
  -query => { 'query' => {'country'=>'BR', 'phenotype'=>'NSI'},
              'annot' => ['cd4_count'] }
 
-In both cases, the CD4 count is included in the annotations returned, but does not restrict the rest of the query.
+In both cases, the CD4 count is included in the annotations returned, but does
+not restrict the rest of the query.
 
 To 'OR' multiple values of a field, use an anonymous array ref:
 
@@ -97,7 +103,8 @@ To 'OR' multiple values of a field, use an anonymous array ref:
 =head2 Valid query field names
 
 An attempt was made to make the query field names natural and easy to
-remember. Aliases are specified in an XML file (C<lanl-schema.xml>) that is part of the distribution. Custom field aliases can be set up by modifying this file.
+remember. Aliases are specified in an XML file (C<lanl-schema.xml>) that is part
+of the distribution. Custom field aliases can be set up by modifying this file.
 
 An HTML cheatsheet with valid field names, aliases, and match data can
 be generated from the XML by using
@@ -139,7 +146,9 @@ annotations.
 
 =head2 Query re-use
 
-You can clear the query results, retaining the same LANL session and query spec, by doing C<$q-E<gt>_reset>. Change the query, and rerun with C<$q-E<gt>_do_query($YOUR_RUN_OPTION)>. 
+You can clear the query results, retaining the same LANL session and query spec,
+by doing C<$q-E<gt>_reset>. Change the query, and rerun with
+C<$q-E<gt>_do_query($YOUR_RUN_OPTION)>. 
 
 =head1 FEEDBACK
 
@@ -375,7 +384,9 @@ sub help{
 
    my (@tbls, @flds, @als, @opts, $fh);
    if ($fname) {
-       open ($fh, ">", $fname) or $self->throw(-class=>'Bio::Root::IOException', -text=>"Error opening help html file $fname for writing", -value=>$!);
+       open ($fh, ">", $fname) or $self->throw(-class=>'Bio::Root::IOException',
+                                               -text=>"Error opening help html file $fname for writing",
+                                               -value=>$!);
    }
    else {
        open($fh, ">&1");
@@ -571,7 +582,8 @@ sub remove_annotations {
            L<Bio::DB::HIV::HIVQueryHelper>.
            If intervening nodes do not exist, put_value creates them, replacing 
            existing nodes. So if $ac->put_value('x', 10) was done, then later,
-           $ac->put_value(['x', 'y'], 20), the original value of 'x' is trashed,           and $ac->get_value('x') will now return the annotation collection 
+           $ac->put_value(['x', 'y'], 20), the original value of 'x' is trashed,
+           and $ac->get_value('x') will now return the annotation collection 
            with tagname 'y'. 
 
 =cut
@@ -1215,13 +1227,15 @@ sub _do_lanl_request {
 	my %q = @query;
 	@interface = grep {defined} map {my ($tbl,$col) = /^(.*)\.(.*)$/} keys %q;
 	eval { # encapsulate communication errors here, defer biothrows...
-	    my $ua = new Bio::WebAgent();
+        
+        #mark the useragent should be setable from outside (so we can modify timeouts, etc)
+	    my $ua = new Bio::WebAgent(timeout => 90);
 	    my $idPing = $ua->get($self->_map_db_uri);
-	    $idPing->is_success or $response=$idPing, die "Connect failed";
+	    $idPing->is_success || do {$response=$idPing; die "Connect failed"};
 	    # get the session id
 	    if (!$self->_session_id) {
 		($self->{'_session_id'}) = ($idPing->content =~ /$session_id_re/);
-		$self->_session_id or do {$response=$idPing; die "Session not established";};
+		$self->_session_id || do {$response=$idPing; die "Session not established";};
 	    }
 	    # 10/07/08:
 	    # strange bug: if action=>'Search+Interface' below (note "+"), 
@@ -1231,13 +1245,13 @@ sub _do_lanl_request {
 	    # interface to lead to the actual sequences being delivered as 
 	    # expected. maj
 	    $interfGet = $ua->post($self->_make_search_if_uri, [@interface, @searchif_pms, id=>$self->_session_id]);
-	    $interfGet->is_success or do {$response=$interfGet,die "Interface request failed";};
+	    $interfGet->is_success || do {$response=$interfGet,die "Interface request failed";};
 	    # see if a search form was returned...
 	    
-	    $interfGet->content =~ /$search_form_re/ or do {$response=$interfGet, die "Interface request failed";};
+	    $interfGet->content =~ /$search_form_re/ || do {$response=$interfGet, die "Interface request failed";};
 	    
 	    $searchGet = $ua->post($self->_search_uri, [@query, @commands, @search_pms, id=>$self->_session_id]);
-	    $searchGet->is_success or do {$response=$searchGet, die "Search failed";};
+	    $searchGet->is_success || do {$response=$searchGet, die "Search failed";};
 	    for ($searchGet->content) {
 		/$no_seqs_found_re/ && do {
 		    $response=$searchGet;
@@ -1261,7 +1275,7 @@ sub _do_lanl_request {
 		};
 	    }
 	    $response = $ua->post($self->_search_uri, [@download_pms, id=>$self->_session_id]);
-	    $response->is_success or die "Query failed";
+	    $response->is_success || die "Query failed";
 	    # $response->content is a tab-separated value table of sequences 
 	    # and metadata, first line starts with \# and contains fieldnames
 	};

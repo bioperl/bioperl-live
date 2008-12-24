@@ -7,11 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 116,
-               -requires_module => 'Bio::Tools::RNAMotif');
-	
-    use_ok('Bio::Tools::ERPIN');
-    use_ok('Bio::Tools::Infernal');
+    test_begin(-tests => 0);
 }
 
 my $verbose = test_debug();
