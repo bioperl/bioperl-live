@@ -88,8 +88,6 @@ my $b = CPANPLUS::Backend->new();
 my %distrib;
 
 for my $m ($b->module_tree(sort keys %dependencies)) {
-    next if exists $distrib{$m->package_name} &&
-        (grep {$m->module eq $_->[0]->module} @{$distrib{$m->package_name}});
     push @{$distrib{$m->package_name}}, [$m, @{$dependencies{$m->module}}]
 }
 
@@ -171,7 +169,7 @@ sub parse_core {
         $line =~ s/\#[^\n]+//;
         if ($line =~ /^\bpackage\s+(\S+)\s*;/) {
             $bp_packages{$1}++;
-        } elsif ($line =~ /\b(?:['"])?(use|require)\s+([A-Za-z0-9:_\.\(\)]+)\s*([^;'"]+)?(?:['"])?\s*;/) {
+        } elsif ($line =~ /(?:['"])?\b(use|require)\s+([A-Za-z0-9:_\.\(\)]+)\s*([^;'"]+)?(?:['"])?\s*;/) {
             my ($use, $mod, $ver) = ($1, $2, $3);
             if ($mod eq 'one') {
                 print "$File::Find::name: $. $line";
