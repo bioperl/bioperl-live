@@ -4,10 +4,44 @@ Revision history for Bioperl core modules
 
 Main trunk
 
-    n/a
+1.6.0  (currently Release Candidate 1)
+    The 1.6 series is derived from subversion HEAD and exists as a separate
+    release branch.  This will represent the last of the alternating
+    developer/stable releases.  Code in svn HEAD will be divided up into
+    several smaller packages, including a developer subdistribution for
+    code considered experimental, unstable, or untested.
+    
+    Full detail of changes included since the 1.5.2 release are online at:
+    http://www.bioperl.org/wiki/Change_log.  Bugs remaining to be addressed
+    are online at http://bugzilla.open-bio.org, with specific bugs highlighted
+    in 
+    
+    The following represent the most important changes:
+    
+    o Bio::Graphics
+      - Split into a separate distribution on CPAN, primarily so development
+        isn't reliant on a complete BioPerl release.
 
-1.5 series - these releases represent the pre-1.6 releases, the 1.6 series
-    will be branches from the last 1.5.x release. 
+    o Bio::Root::Test
+      - Common test bed for all BioPerl modules
+
+    o Bio::Root::Build
+      - Common Module::Build-based subclass for all BioPerl modules
+      
+    o Bio::DB::EUtilities
+      - Complete refactoring to split up parsing (Bio::Tools::EUtilities),
+        parameter handling (Bio::Tools::EUtilities::EUtilParameters),
+        and user agent request posting and retrieval
+      
+    o Test implementation and reorganization
+      - Tests have been reorganized into groups based on classes or use
+        cases.
+      - Automated test coverage is now online:
+        http://www.bioperl.org/wiki/Test_Coverage
+      - After this release, untested modules will be moved into a
+        separate developer distribution until tests can be derived.
+        Also, new modules to be added are expected to have a test suite
+        and adequate test coverage.
 
 1.5.2 Developer release
     Full details of changes since 1.5.1 are available online at:
