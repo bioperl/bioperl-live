@@ -139,14 +139,19 @@ SKIP : {
     eval {$tobj  = Bio::DB::Query::HIVQuery->new(-QUERY=>"(SI[phenotype] ('CCR5 CXCR4')[coreceptor] C[subtype] OR NSI[phenotype] D[subtype]) AND ZA[country]",-RUN_OPTION=>2)};
     if ($@) {
         diag($@);
-        skip("Network problems, skipping all", 10) if $@;
+        skip("Network problems, skipping all", 10);
     }
     ok($tobj,"live query");
     cmp_ok( $tobj->count, ">=", 12, "enough sequences returned");
 # test query object handling of Bio::DB::HIV   
     my ($tdb, $seqio, $seq);
     ok( $tdb = new Bio::DB::HIV, "create Bio::DB::HIV object");
-    ok($seqio = $tdb->get_Stream_by_query($tobj), "get SeqIO stream from query");
+	eval {$seqio = $tdb->get_Stream_by_query($tobj)};
+    if ($@) {
+        diag($@);
+        skip("Network problems, skipping all", 7);
+    }	
+    ok($seqio, "get SeqIO stream from query");
 # test HIVAnnotProcessor indirectly
     ok($seq = $seqio->next_seq, "access sequence stream");
     ok($seq->annotation->get_value('Virus'), "'Virus' annotation present");
