@@ -5,6 +5,36 @@ Known Bugs
 Bugs are tracked at this URL:
 http://bugzilla.bioperl.org/
 
+Bioperl 1.6.0
+=============
+
+Though a stable release, a few bugs and enhancements remain for this series
+that will be addressed in future point releases:
+
+Bug     Description
+
+2247    Have Bio::SearchIO::blast methods available for other BLAST parsers
+2332    Software for analysis of redundant fragments of affys human mitochip v2
+2365    Add support for making the image background transparent
+2439    multiple results HTMLResultWriter.pm and non-redundant entries in SearchIO
+2456    reroot function (Bio::Tree::TreeFunctionsI) shifts bootstrap values
+2463    bp_seqconvert.pl & Bio::SeqIO code cleanup and user friendly interface
+2476    "Undefined sub-sequence" when processing tblastx output
+2482    paml4 mlc file fails to parse
+2492    Method "pi" in package Bio::PopGen::Statistics
+2513    creating a Bio::SeqFeature::Annotation object downloads the entire so.obo
+2545    bioperl nightly build script svn failure on lock
+2594    Bio::Species memory leak
+2633    Incorrect identity calculation in Bio::SearchIO::fasta
+2673    original fields not inherited by seq objects in alignment slices
+2686    WU-BLAST XML support
+2691    Bio::Microarray::Tools::ReseqChip  depends on CPAN module Statistics::Frequency
+2696    global verbosity does not propagate to new objects post-set
+2700    [TODO] Refactor Build.PL
+2702    [TODO] scripts recopied upon each call to './Build test'
+2703    Bio::Tools::GuessSeqFormat guesses SELEX as PHYLIP
+2713    [TODO] Update core Infernal parsing to v1.0, add related tests to bioperl-run
+2715    [TODO] LocatableSeq symbols are globally set (should be localized)
 
 Bioperl 1.5.2
 =============
