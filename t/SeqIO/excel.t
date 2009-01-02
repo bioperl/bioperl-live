@@ -8,7 +8,7 @@ BEGIN {
     use Bio::Root::Test;
     
     test_begin(-tests               => 4,
-			   -requires_modules    => [],
+			   -requires_module     => 'Spreadsheet::ParseExcel',
 			   -requires_networking => 0,
 			  );
 	
