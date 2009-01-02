@@ -9,7 +9,8 @@ BEGIN {
 	use lib '.';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 8);
+	test_begin(-tests => 8,
+			   -requires_module => 'Error');
 	
 	use lib './examples/root/lib';
 	use_ok('TestObject');

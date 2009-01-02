@@ -9,7 +9,8 @@ BEGIN {
     use lib '.';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 19);
+	test_begin(-tests => 19
+			   -requires_module => 'XML::Simple');
 	
     use_ok('Bio::Tools::EUtilities');
 }
