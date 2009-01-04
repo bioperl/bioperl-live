@@ -480,6 +480,121 @@ sub ftbl {
     shift->foreigntable(@_);
 }
 
+=head4 find_join
+
+ Title   : find_join
+ Usage   : $sch->find_join('Table1', 'Table2')
+ Function: Retrieves a set of foreign and primary keys (in table.column 
+           format) that represents a join path from Table1 to Table2
+ Example :
+ Returns : an array of keys (as table.column strings) -or- an empty 
+           array if Table1 == Table2 -or- undef if no path exists
+ Args    : two table names as strings
+
+=cut
+
+sub find_join {
+    my $self = shift;
+    my ($tgt, $tbl) = @_;
+    my ($stack, $revstack, $found, $revcut) = ([],[], 0, 4);
+    $self->_find_join_guts($tgt, $tbl, $stack, \$found);
+    if ($found) {
+	if (@$stack > $revcut) {
+	    # reverse order of tables, see if a shorter path emerges
+	    $found = 0;
+	    $self->_find_join_guts($tgt, $tbl, $revstack, \$found, 1);
+	    return (@$stack <= @$revstack ? @$stack : @$revstack);
+	}
+	return @$stack;
+    }
+    else {
+	return undef;
+    }
+}
+
+=head4 _find_join_guts
+
+ Title   : _find_join_guts
+ Usage   : $sch->_find_join_guts($table1, $table2, $stackref, \$found, $reverse)
+           (call with $stackref = [], $found=0)
+ Function: recursive guts of find_join
+ Example :
+ Returns : if a path is found, $found==1 and @$stackref contains the keys
+           in table.column format representing the path; if a path is not
+           found, $found == 0 and @$stackref contains garbage
+ Args    : $table1, $table2 : table names as strings
+           $stackref : an arrayref to an empty array
+           \$found   : a scalar ref to the value 0
+           $rev : if $rev==1, the arrays of table names will be reversed;
+                  this can give a shorter path if cycles exist in the 
+                  schema graph
+
+=cut
+
+sub _find_join_guts {
+    my $self = shift;
+    my ($tbl, $tgt, $stack, $found, $rev) = @_;
+    return () if $tbl eq $tgt;
+    my $k = $self->pk($tbl);
+    if ($k) {
+	# all fks pointing to pk
+	my @fk2pk = map { 
+	    $self->fk($_, $k) || () 
+	} ($rev ? reverse $self->tables : $self->tables);
+	# skip keys already on stack
+	if (@$stack) {
+	    (@$stack == 1) && do {
+		@fk2pk = grep (!/$$stack[0]/, @fk2pk);
+	    };
+	    (@$stack > 1 ) && do {
+		@fk2pk = map { my $f=$_; grep(/$f/, @$stack) ? () : $f } @fk2pk;
+	    };
+	}
+	foreach my $f2p (@fk2pk) { # tables with fks pointing to pk
+	    push @$stack, $f2p;
+	    if ($self->tbl($f2p) eq $tgt) { # this fk's table is the target
+		# found it
+		$$found = 1;
+		return;
+	    }
+	    else { 
+		#keep looking
+		$self->_find_join_guts($self->tbl($f2p), $tgt, $stack, $found, $rev); 
+		return if $$found;
+	    }
+	}
+    }
+    # all fks in $tbl
+    my @fks = ($rev ? reverse $self->fk($tbl) : $self->fk($tbl));
+    #skip keys already on stack
+    if (@$stack) {
+	(@$stack == 1) && do {
+	    @fks = grep(!/$$stack[0]/, @fks);
+	};
+	(@$stack > 1) && do {
+	    @fks = map { my $f=$_; grep(/$f/, @$stack) ? () : $f } @fks;
+	};
+    }
+    # all fks in table
+    if (@fks) {
+	for my $f (@fks) { 
+	    push @$stack, $f;
+	    if ($self->ftbl($f) eq $tgt) { #found it
+		$$found = 1;
+		return;
+	    }
+	    else {
+		$self->_find_join_guts($self->ftbl($f), $tgt, $stack, $found, $rev);
+		$$found ? return : pop @$stack;
+	    }
+	}
+    }
+    else {
+	pop @$stack;
+	return;
+    }
+}
+		   
 =head4 loadSchema
 
  Title   : loadHIVSchema [alias: loadSchema]
@@ -715,7 +830,7 @@ sub _make_q {
 	foreach ($rq->atoms) {
 	    my @d = split(/\s+/, $_->dta);
 	    foreach my $d (@d) {
-		$d =~ s/_/ /g;
+		$d =~ s/[+]/ /g; ###! _ to [+]
 		$d =~ s/'//g;
 	    }
 	    $h->{'query'}{$_->fld} = (@d == 1) ? $d[0] : [@d];
@@ -773,7 +888,7 @@ sub _make_q_guts {
 				$c = shift @c;
 				if ($c =~ m{['"]}) {
 				    $c = join('', ($c, shift @c, shift @c));
-				    $c =~ s/\s+/_/g;
+				    $c =~ s/\s+/+/g; ###! _ to +
 				    push @words, $c;
 				}
 				else { 
@@ -820,7 +935,7 @@ sub _make_q_guts {
 	    };
 	    do { # else, bareword 
 		if ($o) {
-		    $words[-1] .= "_$_";
+		    $words[-1] .= "+$_"; ####! _ to +
 		} 
 		else {
 		    push @words, $_;
@@ -1990,5 +2105,31 @@ sub put_value {
     return $value;
 }
 
+=head2 get_keys
+
+ Title   : get_keys
+ Usage   : $ac->get_keys($tagname_level_1, $tagname_level_2,...)
+ Function: Get an array of tagnames underneath the named tag nodes
+ Example : # prints the values of the members of Category 1...
+           print map { $ac->get_value($_) } $ac->get_keys('Category 1') ;
+ Returns : array of tagnames or empty list if the arguments represent a leaf
+ Args    : [array of] tagname[s]
+
+=cut
+
+sub get_keys {
+    my $self = shift;
+    my @keys = @_;
+    foreach (@keys) {
+	my $a = $self->get_value($_);
+	if (ref($a) && $a->isa('Bio::Annotation::Collection')) {
+	    $self = $a;
+	}
+	else {
+	    return ();
+	}
+    }
+    return $self->get_all_annotation_keys();
+}
 
 1;
