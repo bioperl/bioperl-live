@@ -246,38 +246,35 @@ sub new {
                              RUN_OPTION
                             )], @args);
 
-  $lanl_base                  && $self->lanl_base($lanl_base);
-  $lanl_map_db                && $self->map_db($lanl_map_db);
-  $lanl_make_search_if        && $self->make_search_if($lanl_make_search_if);
-  $lanl_search                && $self->search_($lanl_search);
+  # default globals
+  $lanl_base||= $LANL_BASE;
+  $lanl_map_db||=$LANL_MAP_DB;
+  $lanl_make_search_if||=$LANL_MAKE_SEARCH_IF;
+  $lanl_search||=$LANL_SEARCH;
+  $schema_file||=$SCHEMA_FILE;
+  defined $run_option                || ($run_option = $RUN_OPTION);
+
+  $self->lanl_base($lanl_base);
+  $self->map_db($lanl_map_db);
+  $self->make_search_if($lanl_make_search_if);
+  $self->search_($lanl_search);
+  $self->_run_option($run_option);
   
   # catch this at the top
-  if (defined $schema_file) {
-      if (-e $schema_file) {
-	  $self->_schema_file($schema_file);
-      }
-      else { # look around
-	  my ($p) = $self->_schema_file( [grep {$_} map {
-	      my $p = Bio::Root::IO->catfile($_, $schema_file);
-	      $p if -e $p
-					  } (@INC,"")]->[0]);
-	  $self->throw(-class=>"Bio::Root::NoSuchThing",
-		       -text=>"Schema file \"".$self->_schema_file."\" cannot be found",
-		       -value=>$self->_schema_file) unless -e $self->_schema_file;
-	  $self->_schema_file($schema_file);
-      }
-  } else {
-    $self->_schema_file($SCHEMA_FILE);
+  if (-e $schema_file) {
+      $self->_schema_file($schema_file);
   }
-  defined $run_option         && do {$RUN_OPTION = $run_option};
-  # defaults
-  $self->lanl_base            || $self->lanl_base($LANL_BASE);
-  $self->map_db               || $self->map_db($LANL_MAP_DB);
-  $self->make_search_if       || $self->make_search_if($LANL_MAKE_SEARCH_IF);
-  $self->search_              || $self->search_($LANL_SEARCH);
-  $self->_run_option           || $self->_run_option($RUN_OPTION);
-  $self->count(0);
+  else { # look around
+      my ($p) = $self->_schema_file( [grep {$_} map {
+	  my $p = Bio::Root::IO->catfile($_, $schema_file);
+	  $p if -e $p
+				      } (@INC,"")]->[0]);
+      $self->throw(-class=>"Bio::Root::NoSuchThing",
+		   -text=>"Schema file \"".$self->_schema_file."\" cannot be found",
+		   -value=>$self->_schema_file) unless -e $self->_schema_file;
+  }
 
+  $self->count(0);
   $self->{_schema} =  HIVSchema->new($self->_schema_file);
 
   # internal storage and flags
@@ -673,7 +670,7 @@ sub get_accessions_by_id {
 
 sub _do_query{
    my ($self,$rl) = @_;
-   $rl = $RUN_OPTION unless $rl;
+   $rl = $RUN_OPTION unless defined $rl;
    $self->throw(-class=>"Bio::Root::BadParameter",
 		-text=>"Invalid run option \"$RUN_OPTION\"",
 		-value=>$RUN_OPTION) unless grep /^$RUN_OPTION$/, (0, 1, 2);
@@ -1123,20 +1120,26 @@ sub _create_lanl_query {
 	    # get primary keys of query tables
 	    @qpk = $schema->pk(@qtbl);
 
-	    # these tables have primary keys
-	    #   $schema->tbl('-s', $schema->pk(@qtbl));
-	    # these tables have foreign keys
-	    #   map { $schema->tbl('-s',$schema->fk($_)) } @qtbl;
-	    # these are the tables that the foreign keys point to
-	    #   $schema->ftbl($schema->fk(@qtbl));
-	
-	    foreach my $pt ($schema->tbl('-s',@qpk)) {
-		foreach my $ft (map { $schema->tbl('-s',$schema->fk($_)) } @qtbl) {
-		    push @qfk, $schema->fk($ft, $pt);
-		}
-	    }
+	    # we need to get each query table to join to 
+	    # SequenceEntry.
+	    #
+	    # The schema is a graph with tables as nodes and 
+	    # foreign keys<->primary keys as branches. To get a 
+	    # join that works, need to include in the query
+	    # all branches along a path from SequenceEntry 
+	    # to each query table.
+	    #
+	    # find_join does it...
+	    my @joink = map {
+		my @k = $schema->find_join($_,'SequenceEntry');
+		map {$_ || ()} @k
+	    } @qtbl;
+	    # squish the keys in @joink 
+	    my %j;
+	    @j{@joink} = (1) x @joink;
+	    @joink = keys %j;
 	    # add the fields not currently in the query
-	    foreach (@qpk, @qfk) {
+	    foreach (@qpk, @joink) {
 		my $fld = $_;
 		if (!grep(/^$fld$/,keys %q)) {
 		    # lazy: 'Any' may not be the right default (but appears to 
@@ -1144,6 +1147,7 @@ sub _create_lanl_query {
 		    push @query, ($_ => 'Any');
 		}
 	    }
+
 	}
 	
 	# set object property
@@ -1231,11 +1235,17 @@ sub _do_lanl_request {
         #mark the useragent should be setable from outside (so we can modify timeouts, etc)
 	    my $ua = new Bio::WebAgent(timeout => 90);
 	    my $idPing = $ua->get($self->_map_db_uri);
-	    $idPing->is_success || do {$response=$idPing; die "Connect failed"};
+	    $idPing->is_success || do {
+		$response=$idPing; 
+		die "Connect failed";
+	    };
 	    # get the session id
 	    if (!$self->_session_id) {
 		($self->{'_session_id'}) = ($idPing->content =~ /$session_id_re/);
-		$self->_session_id || do {$response=$idPing; die "Session not established";};
+		$self->_session_id || do {
+		    $response=$idPing; 
+		    die "Session not established";
+		};
 	    }
 	    # 10/07/08:
 	    # strange bug: if action=>'Search+Interface' below (note "+"), 
@@ -1245,21 +1255,28 @@ sub _do_lanl_request {
 	    # interface to lead to the actual sequences being delivered as 
 	    # expected. maj
 	    $interfGet = $ua->post($self->_make_search_if_uri, [@interface, @searchif_pms, id=>$self->_session_id]);
-	    $interfGet->is_success || do {$response=$interfGet,die "Interface request failed";};
+	    $interfGet->is_success || do {
+		$response=$interfGet;
+		die "Interface request failed";
+	    };
 	    # see if a search form was returned...
 	    
-	    $interfGet->content =~ /$search_form_re/ || do {$response=$interfGet, die "Interface request failed";};
+	    $interfGet->content =~ /$search_form_re/ || do {
+		$response=$interfGet; 
+		die "Interface request failed";
+	    };
 	    
 	    $searchGet = $ua->post($self->_search_uri, [@query, @commands, @search_pms, id=>$self->_session_id]);
-	    $searchGet->is_success || do {$response=$searchGet, die "Search failed";};
+	    $searchGet->is_success || do {
+		$response = $searchGet;
+		die "Search failed";
+	    };
 	    for ($searchGet->content) {
 		/$no_seqs_found_re/ && do {
-		    $response=$searchGet;
 		    die "No sequences found";
 		    last;
 		};
 		/$too_many_re/ && do {
-		    $response=$searchGet;
 		    die "Too many records ($1): must be <10000";
 		    last;
 		};
@@ -1270,7 +1287,6 @@ sub _do_lanl_request {
 		};
 		# else...
 		do {
-		    $response=$searchGet->content;
 		    die "Search failed (response not parsed)";
 		};
 	    }
@@ -1279,16 +1295,14 @@ sub _do_lanl_request {
 	    # $response->content is a tab-separated value table of sequences 
 	    # and metadata, first line starts with \# and contains fieldnames
 	};
-	
+	$self->_lanl_response($response);
 	# throw, if necessary
 	if ($@) {
-	    ($@ !~ "No sequences found") &&
+	    ($@ !~ "No sequences found") && do {
 		$self->throw(-class=>'Bio::WebError::Exception',
 			     -text=>$@,
 			     -value=>"");
-	}
-	else {
-	    $self->_lanl_response($response);
+	    };
 	}
     }
 
