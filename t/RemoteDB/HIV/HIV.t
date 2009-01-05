@@ -64,11 +64,23 @@ SKIP: {
     }
     isa_ok($req, 'HTTP::Request', 'Object returned from get_request');
     # get_... functionality
-    ok($tobj->get_Seq_by_id('17756'), 'get HXB2 by LANL id');
-    ok($tobj->get_Seq_by_acc('K03455'), 'get HXB2 by GB accession');
+    eval {
+        ok($tobj->get_Seq_by_id('17756'), 'get HXB2 by LANL id');
+        ok($tobj->get_Seq_by_acc('K03455'), 'get HXB2 by GB accession');
+    };
+    if ($@) {
+        diag("Error: $@");
+        skip("Network problems, skipping all tests: $@", 11)
+    }
     my ($seqio, $hxb2);
-    ok($seqio = $tobj->get_Stream_by_id(['17756']), 'get HXB2 in a stream');
-    ok($seqio = $tobj->get_Stream_by_acc(['K03455']), 'get HXB2 in a stream by accession');
+    eval {
+        ok($seqio = $tobj->get_Stream_by_id(['17756']), 'get HXB2 in a stream');
+        ok($seqio = $tobj->get_Stream_by_acc(['K03455']), 'get HXB2 in a stream by accession');
+    };
+    if ($@) {
+        diag("Error: $@");
+        skip("Network problems, skipping all tests: $@", 9)
+    }
     $hxb2 =  $seqio->next_seq;
     is($hxb2->primary_id, 'K03455', 'checking returned stream');
     is($hxb2->alphabet,'dna', 'checking returned stream');

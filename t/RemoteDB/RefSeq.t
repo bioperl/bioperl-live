@@ -45,7 +45,7 @@ SKIP: {
         ok $seq2 = $db2->get_Seq_by_acc('NM_006732');
         is($seq2->length, 3776);
     };
-    skip "Warning: Couldn't connect to RefSeq with Bio::DB::RefSeq.pm!", 4 if $@;
+    skip "Warning: Couldn't connect to RefSeq with Bio::DB::RefSeq.pm!", 10 if $@;
     
     eval { 
         ok defined($db = Bio::DB::RefSeq->new(-verbose=>$verbose)); 
