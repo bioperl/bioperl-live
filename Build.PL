@@ -63,6 +63,7 @@ my $build = Bio::Root::Build->new(
                             'Spreadsheet::ParseExcel'   => '0/parsing Excel files/Bio::SeqIO::excel,Bio::Microarray::Tools::ReseqChip',
                             'Spreadsheet::WriteExcel'   => '0/writing Excel files/Bio::Microarray::Tools::ReseqChip',
                             'Storable'                  => '2.05/storing sequence objects in local file cache/Bio::DB::FileCache,Bio::SeqFeature::Collection,Bio::PopGen::HtSNP,Bio::PopGen::TagHaplotype,Bio::DB::GFF::Adaptor::berkeleydb',
+                            'SVG'                       => '2.26/creating SVG images/Bio::Draw::Pictogram',
                             'SVG::Graph'                => '0.01/creating SVG images/Bio::TreeIO::svggraph',
                             'Text::ParseWords'          => '0/test scripts/Bio::DB::SeqFeature::Store::FeatureFileLoader',
                             'URI::Escape'               => '0/dealing with web resources/Bio::FeatureIO::gff,Bio::FeatureIO::interpro,Bio::DB::Biblio::eutils,Bio::DB::EUtilParameters,Bio::DB::Query::GenBank,Bio::DB::NCBIHelper,Bio::SeqFeature::Annotated',
