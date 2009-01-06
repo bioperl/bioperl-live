@@ -32,10 +32,7 @@ package Bio::DB::GFF::Aggregator::orf;
 use strict;
 use Bio::DB::GFF::Aggregator;
 
-use vars qw($VERSION @ISA);
-@ISA = qw(Bio::DB::GFF::Aggregator);
-
-$VERSION = '1.00';
+use base qw(Bio::DB::GFF::Aggregator);
 
 =head2 method
 
