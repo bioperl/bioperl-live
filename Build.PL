@@ -20,9 +20,9 @@ my $mysql_ok = 0;
 # Set up the Bio::Root::Build object
 my $build = Bio::Root::Build->new(
     module_name         => 'Bio',
-    dist_name           => 'bioperl',
+    dist_name           => 'BioPerl',
     dist_version_from   => 'Bio/Root/Version.pm',
-    dist_author         => 'Bioperl Team <bioperl-l@bioperl.org>',
+    dist_author         => 'BioPerl Team <bioperl-l@bioperl.org>',
     dist_abstract       => 'Bioinformatics Toolkit',
     license             => 'perl',
     requires            => {
