@@ -677,7 +677,7 @@ use_ok('Bio::Map::Prediction');
         is $gene->get_transcript_position($map1)->toString($pos->absolute_relative), '1001..85193';
         is $gene->get_transcript_position($map2)->toString($pos->absolute_relative), '501..47617';
         is $gene->get_transcript_position($map4)->toString($pos->absolute_relative), '1373..37665';
-        is $gene->description($map1), 'Breast cancer type 2 susceptibility protein (Fanconi anemia group D1 protein) [Source:UniProtKB/Swiss-Prot;Acc:P51587]';
+        like $gene->description($map1), qr/Breast cancer type 2 susceptibility protein \(Fanconi anemia group D1 protein\)/;
         is $gene->display_id($map1), 'ENSG00000139618';
         is $gene->display_id($map2), 'ENSMUSG00000041147';
         is $gene->display_id($map4), 'ENSGALG00000017073';
