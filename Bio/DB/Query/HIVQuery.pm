@@ -1271,6 +1271,7 @@ sub _do_lanl_request {
 		$response = $searchGet;
 		die "Search failed";
 	    };
+	    $response = $searchGet;
 	    for ($searchGet->content) {
 		/$no_seqs_found_re/ && do {
 		    die "No sequences found";
