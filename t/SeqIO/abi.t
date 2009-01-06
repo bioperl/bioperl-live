@@ -8,7 +8,7 @@ BEGIN {
     use Bio::Root::Test;
     
     test_begin(-tests => 7,
-			   -requires_module => 'Bio::SeqIO::staden::read 1.52');
+			   -requires_module => 'Bio::SeqIO::staden::read 1.006');
 	
 	use_ok('Bio::SeqIO');
 }
