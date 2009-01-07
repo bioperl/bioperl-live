@@ -11,30 +11,49 @@ Bioperl 1.6.0
 Though a stable release, a few bugs and enhancements remain for this series
 that will be addressed in future point releases:
 
-Bug     Description
+Bug     Summary (additional info)
 
 2247    Have Bio::SearchIO::blast methods available for other BLAST parsers
+        (enhancement request)
 2332    Software for analysis of redundant fragments of affys human mitochip v2
-2365    Add support for making the image background transparent
+        (API hasn't stabilized, may appear in a 1.6 point release)
 2439    multiple results HTMLResultWriter.pm and non-redundant entries in SearchIO
+        (partially implemented)
 2456    reroot function (Bio::Tree::TreeFunctionsI) shifts bootstrap values
+        (fairly significant bug, method gives erroneous results)
 2463    bp_seqconvert.pl & Bio::SeqIO code cleanup and user friendly interface
+        (enhancement request)
 2476    "Undefined sub-sequence" when processing tblastx output
+        (related to HSP tiling)
 2482    paml4 mlc file fails to parse
+        (may require refactoring Bio::Tools::Phylo::PAML)
 2492    Method "pi" in package Bio::PopGen::Statistics
+        (awaiting comment from Jason)
 2513    creating a Bio::SeqFeature::Annotation object downloads the entire so.obo
-2545    bioperl nightly build script svn failure on lock
+        (should allow local copies)
 2594    Bio::Species memory leak
+        (fix implemented, but additional leaks likely remain)
 2633    Incorrect identity calculation in Bio::SearchIO::fasta
+        (fixed but requires more code evaluation)
 2673    original fields not inherited by seq objects in alignment slices
+        (request for bequest/bequeath behavior for attribute carryover)
 2686    WU-BLAST XML support
-2691    Bio::Microarray::Tools::ReseqChip  depends on CPAN module Statistics::Frequency
+        (partially implemented, but issues remain)
+2691    Bio::Microarray::Tools::ReseqChip depends on CPAN module Statistics::Frequency
+        (related to bug 2332 above)
 2696    global verbosity does not propagate to new objects post-set
-2700    [TODO] Refactor Build.PL
-2702    [TODO] scripts recopied upon each call to './Build test'
+        (requires more specific implementation details)
+2700    Refactor Build.PL
+        (some of the behind-the-scenes stuff is a little klunky)
+2702    Scripts recopied upon each call to './Build test'
+        (minor bug)
 2703    Bio::Tools::GuessSeqFormat guesses SELEX as PHYLIP
-2713    [TODO] Update core Infernal parsing to v1.0, add related tests to bioperl-run
-2715    [TODO] LocatableSeq symbols are globally set (should be localized)
+        (minor bug which mistakes format)
+2713    Update core Infernal parsing to v1.0, add related tests to bioperl-run
+        (enhancement request)
+2715    LocatableSeq symbols are globally set
+        (bug related to sequence symbol issues; rarely surfaces but needs addressing)
+
 
 Bioperl 1.5.2
 =============
