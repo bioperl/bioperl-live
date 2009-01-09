@@ -79,12 +79,12 @@ sub _initialize {
   $self->SUPER::_initialize(@args);
   if( ! defined $self->sequence_factory ) {
       $self->sequence_factory(Bio::Seq::SeqFactory->new
-			      (-verbose => $self->verbose(),
-			       -type => 'Bio::Seq::Quality'));
+                  (-verbose => $self->verbose(),
+                   -type => 'Bio::Seq::Quality'));
   }
 }
 
-=head2 next_seq()
+=head2 next_seq
 
  Title   : next_seq()
  Usage   : $swq = $stream->next_seq()
@@ -92,8 +92,8 @@ sub _initialize {
  Returns : Bio::Seq::Quality object
  Args    : NONE
  Notes   : This is really redundant because AFAIK there is no such thing as
-  	   a .phd file that contains more then one sequence. It is included as
-	   an interface thing and for consistency.
+       a .phd file that contains more then one sequence. It is included as
+       an interface thing and for consistency.
 
 =cut
 
@@ -103,7 +103,7 @@ sub next_seq {
     my ($id,@lines, @bases, @qualities, @trace_indices) = ('');
     if (!($entry = $self->_readline)) { return; }
     my $collection = Bio::Annotation::Collection->new();
-	if ($entry =~ /^BEGIN_SEQUENCE\s+(\S+)/) {
+    if ($entry =~ /^BEGIN_SEQUENCE\s+(\S+)/) {
           $id = $1;
      }
      my $in_comments = 0;
@@ -111,8 +111,8 @@ sub next_seq {
     my $base_number = 0;
      my $comments = {};
     while ($entry = $self->_readline) {
-	return if (!$entry);
-	chomp($entry);
+    return if (!$entry);
+    chomp($entry);
      if ($entry =~ /^BEGIN_COMMENT/) {
           $in_comments = 1;
           while ($in_comments == 1) {
@@ -133,46 +133,46 @@ sub next_seq {
                }
           }
      }
-	if ($entry =~ /^BEGIN_CHROMAT:\s+(\S+)/) {
-	     # this is where I used to grab the ID
+    if ($entry =~ /^BEGIN_CHROMAT:\s+(\S+)/) {
+         # this is where I used to grab the ID
           if (!$id) {
                $id = $1;
           }
           $entry = $self->_readline();
-	}
-	if ($entry =~ /^BEGIN_DNA/) {
-	    $entry =~ /^BEGIN_DNA/;
-	    $in_dna = 1;
-	    $entry = $self->_readline();
-	}
-	if ($entry =~ /^END_DNA/) {
-	    $in_dna = 0;
-	}
-	if ($entry =~ /^END_SEQUENCE/) {
+    }
+    if ($entry =~ /^BEGIN_DNA/) {
+        $entry =~ /^BEGIN_DNA/;
+        $in_dna = 1;
+        $entry = $self->_readline();
+    }
+    if ($entry =~ /^END_DNA/) {
+        $in_dna = 0;
+    }
+    if ($entry =~ /^END_SEQUENCE/) {
               $entry = $self->_readline();
               last;
-	}
-	if (!$in_dna) { next;  }
-	$entry =~ /(\S+)\s+(\S+)(?:\s+(\S+))?/;
-	push @bases,$1;
-	push @qualities,$2;
-	# Trace index values are required for phd file
-	push(@trace_indices,$3) if defined $3;
-	push(@lines,$entry);
+    }
+    if (!$in_dna) { next;  }
+    $entry =~ /(\S+)\s+(\S+)(?:\s+(\S+))?/;
+    push @bases,$1;
+    push @qualities,$2;
+    # Trace index values are required for phd file
+    push(@trace_indices,$3) if defined $3;
+    push(@lines,$entry);
     }
      # $self->debug("csmCreating objects with id = $id\n");
     my $swq = $self->sequence_factory->create
-	(-seq        => join('',@bases),
-	 -qual       => \@qualities,
-	 -trace      => \@trace_indices,
-	 -id         => $id,
-	 -primary_id => $id,
-	 -display_id => $id,
-	 );
+    (-seq        => join('',@bases),
+     -qual       => \@qualities,
+     -trace      => \@trace_indices,
+     -id         => $id,
+     -primary_id => $id,
+     -display_id => $id,
+     );
     $swq->Bio::Seq::RichSeq::annotation($collection);
     return $swq;
 }
-=head2 write_header()
+=head2 write_header
 
  Title   : write_header()
  Usage   : $seqio->write_header()
@@ -180,17 +180,19 @@ sub next_seq {
  Returns : nothing
  Args    : a Bio::Seq::Quality object
  Notes   : These are the comments that reside in the header of a phd file
-	   at the present time. If not provided by the Bio::Seq::Quality object, the following default values will be used:
-	CHROMAT_FILE: $swq->id()
-	ABI_THUMBPRINT: 0
-	PHRED_VERSION: 0.980904.e
-	CALL_METHOD: phred
-	QUALITY_LEVELS: 99
-	TIME: <current time>
-	TRACE_ARRAY_MIN_INDEX: 0
-	TRACE_ARRAY_MAX_INDEX: unknown
-	CHEM: unknown
-	DYE: unknown
+           at the present time. If not provided by the Bio::Seq::Quality object,
+           the following default values will be used:
+
+     CHROMAT_FILE          : $swq->id()
+     ABI_THUMBPRINT        : 0
+     PHRED_VERSION         : 0.980904.e
+     CALL_METHOD           : phred
+     QUALITY_LEVELS        : 99
+     TIME                  : <current time>
+     TRACE_ARRAY_MIN_INDEX : 0
+     TRACE_ARRAY_MAX_INDEX : unknown
+     CHEM                  : unknown
+     DYE                   : unknown
 
 =cut
 
@@ -246,10 +248,10 @@ sub write_seq {
     $self->write_header($swq);
     $self->_print("BEGIN_DNA\n");
     for my $curr(1 ..  $swq->length()) {
-	$self->_print (sprintf("%s %s %s\n",
-			       uc($swq->baseat($curr)),
-			       $swq->qualat($curr),
-			       $swq->trace_index_at($curr)));
+    $self->_print (sprintf("%s %s %s\n",
+                   uc($swq->baseat($curr)),
+                   $swq->qualat($curr),
+                   $swq->trace_index_at($curr)));
     }
     $self->_print ("END_DNA\n\nEND_SEQUENCE\n");
 
