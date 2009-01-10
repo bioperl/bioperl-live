@@ -8,7 +8,7 @@ BEGIN {
     use Bio::Root::Test;
     
     test_begin(-tests               => 8,
-			   -requires_modules    => [],
+			   -requires_module     => 'XML::Writer',
 			   -requires_networking => 0,
 			  );
 	
