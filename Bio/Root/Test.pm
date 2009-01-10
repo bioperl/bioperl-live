@@ -439,14 +439,17 @@ sub _skip {
         return ('Network tests have not been requested', $tests, $framework);
     }
     
-    if ($req_exe) {
-        return ('Required executable for '.ref($req_exe).' is not present',
-            $tests, $framework) if !$req_exe->executable;
+    if ($req_exe && !$req_exe->executable) {
+        my $msg = 'Required executable for '.ref($req_exe).' is not present';
+        diag($msg);
+        return ($msg,
+            $tests, $framework) ;
     }
     
-    if ($req_env) {
-        return ('Required environmental variable $'.$req_env. ' is not set',
-            $tests, $framework) if !exists $ENV{$req_env};
+    if ($req_env && !exists $ENV{$req_env}) {
+        my $msg = 'Required environmental variable $'.$req_env. ' is not set';
+        diag($msg);
+        return ($msg, $tests, $framework) ;
     }
     
     return ('', $tests, $framework);
