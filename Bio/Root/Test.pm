@@ -57,21 +57,22 @@ Bio::Root::Test - A common base for all Bioperl test scripts.
 
 =head1 DESCRIPTION
 
-This provides a common base for all Bioperl test scripts. It safely handles the
+This provides a common base for all BioPerl test scripts. It safely handles the
 loading of Test::More, Test::Exception and Test::Warn (actually, a subclass
 compatible with Bioperl warnings) prior to tests being run. It also presents an
 interface to common needs such as skipping all tests if required modules aren't
 present or if network tests haven't been enabled. See test_begin().
 
 In the same way, it allows you to skip just a subset of tests for those same
-reasons. See test_skip().
+reasons, in addition to requiring certain executables and environment variables.
+See test_skip().
 
 It also has two further methods that let you decide if network tests should be
 run, and if debugging information should be printed. See test_network() and
 test_debug().
 
 Finally, it presents a consistent way of getting the path to input and output
-files. See test_input_file() and test_output_file().
+files. See test_input_file(), test_output_file() and test_output_dir().
 
 =head1 FEEDBACK
 
@@ -442,14 +443,13 @@ sub _skip {
     if ($req_exe && !$req_exe->executable) {
         my $msg = 'Required executable for '.ref($req_exe).' is not present';
         diag($msg);
-        return ($msg,
-            $tests, $framework) ;
+        return ($msg, $tests, $framework);
     }
     
     if ($req_env && !exists $ENV{$req_env}) {
-        my $msg = 'Required environmental variable $'.$req_env. ' is not set';
+        my $msg = 'Required environment variable $'.$req_env. ' is not set';
         diag($msg);
-        return ($msg, $tests, $framework) ;
+        return ($msg, $tests, $framework);
     }
     
     return ('', $tests, $framework);
