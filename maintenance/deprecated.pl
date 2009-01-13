@@ -174,7 +174,7 @@ all its subdirectories.
 
 =item B<-a | --depfile>
 
-path from working directory the DEPRECATED file.
+path from working directory that contains the DEPRECATED file.
 
 =item B<-n | --new>
 

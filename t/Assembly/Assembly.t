@@ -24,8 +24,9 @@ BEGIN {
 my $in = Bio::Assembly::IO->new
 	(-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'));
 
-isa_ok($in, 'Bio::Assembly::IO', 'If there are warnings here, it\'s because the phrap parser doesn\'t include the sequence string in the sequence objects. Someone should work on that parser.');
+isa_ok($in, 'Bio::Assembly::IO');
 
+diag('If there are warnings here, it\'s because the phrap parser doesn\'t include the sequence string in the sequence objects.');
 my $sc = $in->next_assembly;
 
 isa_ok($sc, 'Bio::Assembly::Scaffold');

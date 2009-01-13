@@ -57,21 +57,22 @@ Bio::Root::Test - A common base for all Bioperl test scripts.
 
 =head1 DESCRIPTION
 
-This provides a common base for all Bioperl test scripts. It safely handles the
+This provides a common base for all BioPerl test scripts. It safely handles the
 loading of Test::More, Test::Exception and Test::Warn (actually, a subclass
 compatible with Bioperl warnings) prior to tests being run. It also presents an
 interface to common needs such as skipping all tests if required modules aren't
 present or if network tests haven't been enabled. See test_begin().
 
 In the same way, it allows you to skip just a subset of tests for those same
-reasons. See test_skip().
+reasons, in addition to requiring certain executables and environment variables.
+See test_skip().
 
 It also has two further methods that let you decide if network tests should be
 run, and if debugging information should be printed. See test_network() and
 test_debug().
 
 Finally, it presents a consistent way of getting the path to input and output
-files. See test_input_file() and test_output_file().
+files. See test_input_file(), test_output_file() and test_output_dir().
 
 =head1 FEEDBACK
 
@@ -240,8 +241,9 @@ sub test_begin {
 
                    # 10 tests that need v2.01 of Optional::Module
            }
- Function: Skip a subset of tests for one of two common reasons: missing one or
-           more optional modules, or network tests haven't been enabled.
+ Function: Skip a subset of tests for one of several common reasons: missing one
+           or more optional modules, network tests haven't been enabled, a
+           required binary isn't present, or an environmental variable isn't set
  Returns : n/a
  Args    : -tests               => int (REQUIRED, the number of tests that are
                                         to be skipped in the event one of the
@@ -253,6 +255,11 @@ sub test_begin {
                                         include the version number after the
                                         module name, separated by a space)
            -requires_module     => str (as above, but for just one module)
+           -requires_executable => Bio::Tools::Run::WrapperBase instance
+                                       (checks WrapperBase::executable for the
+                                        presence of a binary, skips if absent)
+           -requires_env        => str (checks %ENV for a specific env. variable,
+                                        skips if absent)
            -excludes_os         => str (default none, if OS suppied, desired num
                                         of tests will skip if running on that OS
                                         (eg. 'mswin'))
@@ -390,6 +397,19 @@ sub _skip {
     
     my $req_net = $args{'-requires_networking'};
     delete $args{'-requires_networking'};
+
+    my $req_env = $args{'-requires_env'};
+    delete $args{'-requires_env'};
+
+    # strip any leading $ in case someone passes $FOO instead of 'FOO'
+    $req_env =~ s{^\$}{} if $req_env; 
+
+    my $req_exe = $args{'-requires_executable'};
+    delete $args{'-requires_executable'};
+    
+    if ($req_exe && (!ref($req_exe) || !$req_exe->isa('Bio::Tools::Run::WrapperBase'))) {
+        die "-requires_exe takes an argument of type Bio::Tools::Run::WrapperBase";
+    }
     
     my $os = $args{'-excludes_os'};
     delete $args{'-excludes_os'};
@@ -418,6 +438,18 @@ sub _skip {
     
     if ($req_net && ! test_network()) {
         return ('Network tests have not been requested', $tests, $framework);
+    }
+    
+    if ($req_exe && !$req_exe->executable) {
+        my $msg = 'Required executable for '.ref($req_exe).' is not present';
+        diag($msg);
+        return ($msg, $tests, $framework);
+    }
+    
+    if ($req_env && !exists $ENV{$req_env}) {
+        my $msg = 'Required environment variable $'.$req_env. ' is not set';
+        diag($msg);
+        return ($msg, $tests, $framework);
     }
     
     return ('', $tests, $framework);

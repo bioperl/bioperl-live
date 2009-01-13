@@ -4,7 +4,7 @@ Revision history for Bioperl core modules
 
 Main trunk
 
-1.6.0  (currently Release Candidate 1)
+1.6.0
     The 1.6 series is derived from subversion HEAD and exists as a separate
     release branch.  This will represent the last of the alternating
     developer/stable releases.  Code in svn HEAD will be divided up into
@@ -13,14 +13,16 @@ Main trunk
     
     Full detail of changes included since the 1.5.2 release are online at:
     http://www.bioperl.org/wiki/Change_log.  Bugs remaining to be addressed
-    are online at http://bugzilla.open-bio.org, with specific bugs highlighted
-    in 
+    are online at http://bugzilla.open-bio.org, with specific bugs intended
+    for this release series highlighted in BUGS.
     
     The following represent the most important changes:
     
     o Bio::Graphics
       - Split into a separate distribution on CPAN, primarily so development
         isn't reliant on a complete BioPerl release.
+      - Bio::Graphics::Pictogram has been renamed to Bio::Draw::Pictogram but
+        is only available via Subversion (via bioperl-live main trunk)
 
     o Bio::Root::Test
       - Common test bed for all BioPerl modules

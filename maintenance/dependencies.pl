@@ -34,12 +34,13 @@ HEADER
 # command line options
 #
 
-my ($verbose, $dir, $depfile, $help, $version) = (0, undef, "../DEPENDENCIES.NEW", undef, "5.006001");
+my ($verbose, $dir, $depfile, $help, $version, $skipbio) = (0, undef, "../DEPENDENCIES.NEW", undef, "5.006001", 0);
 GetOptions(
         'v|verbose' => \$verbose,
         'dir:s' => \$dir,
         'depfile:s' => \$depfile,
         'p|perl:s' => \$version,
+        's|skipbio' => \$skipbio,
         'h|help|?' => sub{ exec('perldoc',$0); exit(0) }
 	   );
 
@@ -87,8 +88,15 @@ my $b = CPANPLUS::Backend->new();
 
 my %distrib;
 
-for my $m ($b->module_tree(sort keys %dependencies)) {
-    push @{$distrib{$m->package_name}}, [$m, @{$dependencies{$m->module}}]
+for my $key (sort keys %dependencies) {
+    MODULE:
+    for my $m ($b->module_tree($key)) {
+        if (!$m) {
+            warn "$key not found, skipping";
+            next MODULE;
+        }
+        push @{$distrib{$m->package_name}}, [$m, @{$dependencies{$m->module}}]
+    }
 }
 
 open (my $dfile, '>', $depfile) || die "Can't open dependency file :$!\n";
@@ -203,7 +211,7 @@ dependencies.pl - check modules and scripts for dependencies not in core
 =head1 SYNOPSIS
 
 B<dependencies.pl> [B<--dir> path ] [B<-v|--verbose>] [B<--depfile> file]
-    [B<-?|-h|--help>]
+    [B<-?|-h|--help>] [B<-p|--perl> version]
 
 =head1 DESCRIPTION
 
@@ -244,6 +252,10 @@ Show the progress through files during the checking.  Not used currently.
 Perl version (in long form, i.e. 5.010, 5.006001).  Used to weed out the
 core modules that should be already present (ActiveState, we're staring at
 you sternly).
+
+=item B<-s | --skipbio> 
+
+Skips BioPerl-related modules in DEPENDENCIES.
 
 We may add something in the future to allow other forms.
 

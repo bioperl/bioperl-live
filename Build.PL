@@ -79,7 +79,7 @@ my $build = Bio::Root::Build->new(
     auto_features       => {
                             BioDBSeqFeature_BDB   => {
                                                         description      => "BDB tests for Bio::DB::SeqFeature::Store",
-                                                        feature_requires => { 'DB_File' => 0 } # feature_requires is like requires, execpt that it doesn't trigger installation
+                                                        feature_requires => { 'DB_File' => 0 } # feature_requires is like requires, except that it doesn't trigger installation
                                                      },
                             BioDBGFF              => {
                                                         description      => "BioDBGFF database tests (will need to answer questions before really enabling)",
@@ -170,7 +170,7 @@ sub make_bdb_test {
     unlink($path) if (-e $path); 
     open(my $F, ">", $path) || die "Can't create test file\n";
     print $F <<END;
-system 'perl $path0 -adaptor berkeleydb -create 1 -temp 1';
+system '$^X $path0 -adaptor berkeleydb -create 1 -temp 1';
 END
     close $F;
     $build->add_to_cleanup($path);
@@ -203,7 +203,7 @@ sub make_dbi_test {
     $str .= " -user $user" if $user;
     $str .= " -password $pass" if $pass;
     print $F <<END;
-    system 'perl $str';
+system '$^X $str';
 END
     close $F;
     $build->add_to_cleanup($path);
