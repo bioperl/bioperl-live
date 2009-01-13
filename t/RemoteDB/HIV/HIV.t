@@ -60,7 +60,7 @@ SKIP: {
     eval {$req = $tobj->get_request('mode'=>'single','uids'=>['17756'])};
     if ($@) {
         diag("Error: $@");
-        skip("Network problems, skipping all tests: $@", 12)
+        skip("Network problems, skipping all tests", 12)
     }
     isa_ok($req, 'HTTP::Request', 'Object returned from get_request');
     # get_... functionality
@@ -69,14 +69,14 @@ SKIP: {
     };
     if ($@) {
         diag("Error: $@");
-        skip("Network problems, skipping all tests: $@", 11)
+        skip("Network problems, skipping all tests", 11)
     }
     eval {
         ok($tobj->get_Seq_by_acc('K03455'), 'get HXB2 by GB accession');
     };
     if ($@) {
         diag("Error: $@");
-        skip("Network problems, skipping all tests: $@", 10)
+        skip("Network problems, skipping all tests", 10)
     }    
     my ($seqio, $hxb2);
     eval {
@@ -84,21 +84,21 @@ SKIP: {
     };
     if ($@) {
         diag("Error: $@");
-        skip("Network problems, skipping all tests: $@", 9)
+        skip("Network problems, skipping all tests", 9)
     }    
     eval {
         ok($seqio = $tobj->get_Stream_by_acc(['K03455']), 'get HXB2 in a stream by accession');
     };
     if ($@) {
         diag("Error: $@");
-        skip("Network problems, skipping all tests: $@", 8)
+        skip("Network problems, skipping all tests", 8)
     }
     $hxb2 =  $seqio->next_seq;
     is($hxb2->primary_id, 'K03455', 'checking returned stream');
     is($hxb2->alphabet,'dna', 'checking returned stream');
     ok(!($hxb2->seq !~ /atgc/i), 'checking returned sequence');
     #network exceptions
-    
+        
     # bad id exception
     throws_ok { $tobj->get_Seq_by_id('XXXXXX') } qr/no sequences found/i, 'bad id exception check';
     # session id exception
