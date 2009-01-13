@@ -6,7 +6,7 @@ use warnings;
 BEGIN {
     use Bio::Root::Test;
     test_begin(
-        -tests => 29,
+        -tests => 30,
         -requires_modules => [qw( XML::Simple HTTP::Request::Common)],
 	);
     use_ok('Bio::DB::HIV');
@@ -50,43 +50,42 @@ throws_ok {$tobj->get_Stream_by_query($badq)} qr/HIVQuery required/, 'HIVQuery t
 
 # network tests
 SKIP: {
-    test_skip(-tests => 12,
+    test_skip(-tests => 13,
           -requires_networking => 1);
     
     # WebDBSeqI compliance-
     # (this requires network access, since request is built after establishing
     # the LANL session...)
     my $req;
-    eval {$req = $tobj->get_request('mode'=>'single','uids'=>['17756'])};
+    lives_ok {$req = $tobj->get_request('mode'=>'single','uids'=>['17756'])} 'test connection';
     if ($@) {
-        diag("Error: $@");
-        skip("Network problems, skipping all tests: $@", 12)
+        skip("Network problems, skipping all tests", 12)
     }
     isa_ok($req, 'HTTP::Request', 'Object returned from get_request');
     # get_... functionality
-    eval {
-        ok($tobj->get_Seq_by_id('17756'), 'get HXB2 by LANL id');
-        ok($tobj->get_Seq_by_acc('K03455'), 'get HXB2 by GB accession');
-    };
+    lives_ok { $tobj->get_Seq_by_id('17756') } 'get HXB2 by LANL id';
     if ($@) {
-        diag("Error: $@");
-        skip("Network problems, skipping all tests: $@", 11)
+        skip("Network problems, skipping all tests", 10)
     }
-    my ($seqio, $hxb2);
-    eval {
-        ok($seqio = $tobj->get_Stream_by_id(['17756']), 'get HXB2 in a stream');
-        ok($seqio = $tobj->get_Stream_by_acc(['K03455']), 'get HXB2 in a stream by accession');
-    };
+    lives_ok { $tobj->get_Seq_by_acc('K03455');} 'get HXB2 by GB accession';
     if ($@) {
-        diag("Error: $@");
-        skip("Network problems, skipping all tests: $@", 9)
+        skip("Network problems, skipping all tests", 9)
+    }    
+    my ($seqio, $hxb2);
+    lives_ok { $seqio = $tobj->get_Stream_by_id(['17756']) } 'get HXB2 in a stream';
+    if ($@) {
+        skip("Network problems, skipping all tests", 8)
+    }    
+    lives_ok { $seqio = $tobj->get_Stream_by_acc(['K03455']) } 'get HXB2 in a stream by accession';
+    if ($@) {
+        skip("Network problems, skipping all tests", 7)
     }
     $hxb2 =  $seqio->next_seq;
     is($hxb2->primary_id, 'K03455', 'checking returned stream');
     is($hxb2->alphabet,'dna', 'checking returned stream');
     ok(!($hxb2->seq !~ /atgc/i), 'checking returned sequence');
     #network exceptions
-    
+        
     # bad id exception
     throws_ok { $tobj->get_Seq_by_id('XXXXXX') } qr/no sequences found/i, 'bad id exception check';
     # session id exception
