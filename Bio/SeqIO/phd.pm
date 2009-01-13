@@ -172,6 +172,7 @@ sub next_seq {
     $swq->Bio::Seq::RichSeq::annotation($collection);
     return $swq;
 }
+
 =head2 write_header
 
  Title   : write_header()
@@ -198,7 +199,6 @@ sub next_seq {
 
 sub write_header {
     my ($self, $swq) = @_;
-
     $self->_print("\nBEGIN_COMMENT\n\n");
     #defaults
     my $time = localtime();
