@@ -220,7 +220,7 @@ sub new {
       my $qualobj = Bio::Seq::PrimaryQual->new( -qual             => $qual,
                                                 -accession_number => $acc,
                                                 -primary_id       => $pid,
-                                                -desc             => $desc
+                                                -desc             => $desc,
                                                 -display_id       => $id,
                                                 -trace_indices    => $trace_indices );
       $self->{qual_ref} = $qualobj;
