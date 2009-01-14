@@ -38,3 +38,5 @@ Bio::Search::Processor        1.5.1    1.7    Superseded by Bio::SearchIO
 Bio::Tools::RNAMotif          1.5.2    1.7    Superseded by Bio::SearchIO::rnamotif
 Bio::Tools::Infernal          1.5.2    1.7    Superseded by Bio::SearchIO::infernal
 Bio::Tools::ERPIN             1.5.2    1.7    Superseded by Bio::SearchIO::erpin
+Bio::Seq::SeqWithQuality      1.5.1    1.7    Superceded by Bio::Seq::Quality
+Bio::DB::GDB                  1.6      1.6    Service no longer available
