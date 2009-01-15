@@ -574,7 +574,8 @@ sub handle_feature {
 					    $type,   # side effect is to set CurrentFeature
 					    $strand,
 					    $attr,
-					    $reference,@{$parts[0]});
+					    $reference,
+					    @{$parts[0]});
 
   # add more segments to the current feature
   if (@parts > 1) {
@@ -626,9 +627,10 @@ sub _make_feature {
     $strand ||= '';
 
     my @args = (-name        => $name,
-		-strand      => $strand eq '+' ? 1 
+		-strand      => $strand eq '+' ?  1 
                                :$strand eq '-' ? -1
-		               :$strand == 1   ? 1
+		               :$strand eq ''  ?  0
+		               :$strand == 1   ?  1
 		               :$strand == -1  ? -1
                                :0,
 		-attributes  => $attributes,
