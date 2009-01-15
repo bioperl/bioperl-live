@@ -504,12 +504,12 @@ sub _setparams {
     # workaround for problems with shell metacharacters [bug 2707]
     # simply quoting does not always work!
     my $tmp = $self->o;
-    $self->o(quotemeta($tmp)) if $tmp;
+    $self->o(quotemeta($tmp)) if ($tmp && $^O !~ /^MSWin/);
     
     my $param_string = $self->SUPER::_setparams(-params => [@execparams],
                                                 -dash => 1);
     
-    $self->o($tmp) if $tmp;
+    $self->o($tmp) if ($tmp && $^O !~ /^MSWin/);
 
     $self->d($database) if $database;
     
