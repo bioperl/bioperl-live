@@ -117,15 +117,15 @@ my $build = Bio::Root::Build->new(
 
 my $accept = $build->args->{accept};
 
-prompt_for_biodb($accept) if $build->feature('BioDBGFF') || $build->feature('BioDBSeqFeature_mysql');
+my $proceed = prompt_for_biodb($accept) if $build->feature('BioDBGFF') || $build->feature('BioDBSeqFeature_mysql');
 
 # Handle auto features
-if ($build->feature('BioDBSeqFeature_BDB')) {
+if ($proceed && $build->feature('BioDBSeqFeature_BDB')) {
     # will return without doing anything if user chose not to run tests during
     # prompt_for_biodb() above
     make_bdb_test();
 }
-if ($build->feature('BioDBSeqFeature_mysql') or $build->feature('BioDBSeqFeature_Pg')) {
+if ($proceed && ($build->feature('BioDBSeqFeature_mysql') or $build->feature('BioDBSeqFeature_Pg'))) {
     make_dbi_test();
 }
 
@@ -301,4 +301,5 @@ sub prompt_for_biodb {
     }
     
     $build->log_info("\n");
+    return $proceed;
 }
