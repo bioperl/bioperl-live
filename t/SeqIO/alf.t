@@ -8,9 +8,7 @@ BEGIN {
     use Bio::Root::Test;
     
     test_begin(-tests               => 8,
-			   -requires_modules    => [],
-			   -requires_networking => 0,
-			  );
+			   -requires_module     => 'Bio::SeqIO::staden::read');
 	
 	use_ok('Bio::SeqIO::alf');
 }
@@ -34,7 +32,7 @@ TODO: {
 	
 	# checking the first sequence object
 	my $seq_obj = $seqio_obj->next_seq();
-	isa_ok($seq_obj, 'Bio::Seq');
+	isa_ok($seq_obj, 'Bio::Seq::Quality');
 	my %expected = ('seq'         => '' .
 					'length'      => '',
 					'primary_id'  => '',
