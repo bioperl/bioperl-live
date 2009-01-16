@@ -16,7 +16,7 @@ BEGIN {
     use_ok( 'Bio::Annotation::Comment' );
     use_ok( 'Bio::Annotation::Reference' );
     use_ok( 'Bio::DB::HIV::HIVQueryHelper' );
-    use_ok( 'HTML::Parser' ); # this is for the test of the help function below
+    #use_ok( 'HTML::Parser' ); # this is for the test of the help function below
                               # not necessary for module
 }
 
@@ -95,22 +95,26 @@ $tobj->_reset;
 $tobj->query( "(SI[phenotype] ('CCR5 CXCR4')[coreceptor] C[subtype] OR NSI[phenotype] D[subtype]) AND ZA[country]");
 is($tobj->_do_query(0),0, 'multiquery parse check');
 
-# help test; just tests that file can be written and that tags are in matching 
-# pairs, with reasonable placement of <html> and </html>
-my $hlpf = test_output_file();
-my $a = 0;
-my $html = 0;
-my $h = new HTML::Parser( empty_element_tags=>1, start_h => [sub {$a++; (shift eq 'html') && ($a==1) && $html++}, "tagname"], end_h => [sub {$a--; (shift eq 'html') && ($a==0) && $html++;}, "tagname"] );
-ok($tobj->help($hlpf), "help html to file");
-{
-    local $/;
-    undef $/;
-    open HP, $hlpf;
-    $h->parse(<HP>);
-    is_deeply([$a, $html], [0, 2], "help html parsed");
-    1;
-}
+SKIP: {
+	test_skip(-requires_module => 'HTML::Parser', -tests => 3);
+	use_ok('HTML::Parser');
+	# help test; just tests that file can be written and that tags are in matching 
+	# pairs, with reasonable placement of <html> and </html>
+	my $hlpf = test_output_file();
+	my $a = 0;
+	my $html = 0;
+	my $h = HTML::Parser->new( empty_element_tags=>1, start_h => [sub {$a++; (shift eq 'html') && ($a==1) && $html++}, "tagname"], end_h => [sub {$a--; (shift eq 'html') && ($a==0) && $html++;}, "tagname"] );
+	ok($tobj->help($hlpf), "help html to file");
+	{
+		local $/;
+		undef $/;
+		open HP, $hlpf;
+		$h->parse(<HP>);
+		is_deeply([$a, $html], [0, 2], "help html parsed");
+		1;
+	}
 
+}
 
 #exceptions tests
 #pre-run query exceptions

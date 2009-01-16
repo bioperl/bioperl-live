@@ -48,7 +48,10 @@ Bug     Summary (additional info)
 2702    Scripts recopied upon each call to './Build test'
         (minor bug)
 2703    Bio::Tools::GuessSeqFormat guesses SELEX as PHYLIP
-        (minor bug which mistakes format)
+        (minor bug that mistakes format)
+2707    Bio::Tools::Run::StandAloneBlast does not quote shell metacharacters in
+        filenames, but Bio::SearchIO::blast does
+        (bug within StandAloneBlast)
 2713    Update core Infernal parsing to v1.0, add related tests to bioperl-run
         (enhancement request)
 2715    LocatableSeq symbols are globally set

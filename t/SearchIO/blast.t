@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 1091);
+    test_begin(-tests => 1093);
 	
 	use_ok('Bio::SearchIO');
 }
@@ -924,6 +924,7 @@ my @dcompare = ( ['Contig3700', 5631, 396, 785,'0.0', 785, '0.0', 396, 639, 12,
 		  6406, 6620, 1, 1691, 1905, 1]
     );
 
+is($r->algorithm, 'MEGABLAST');
 is($r->query_name, '503384');
 is($r->query_description, '11337 bp 2 contigs');
 is($r->query_length, 11337);
@@ -1568,6 +1569,7 @@ $result = $searchio->next_result;
 # data is getting munged up with long names
 is($result->query_name, 'c6_COX;c6_QBL;6|31508172;31503325;31478402|rs36223351|1|dbSNP|C/G');
 is($result->query_description, '');
+is($result->algorithm, 'MEGABLAST');
 
 # bug 2399 - catching Expect(n) values
 

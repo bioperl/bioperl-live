@@ -449,8 +449,8 @@ sub next_result {
         next if (/CPU time:/);
         next if (/^>\s*$/);
         if (
-               /^((?:\S+?)?BLAST[NPX])\s+(.+)$/i  # NCBI BLAST, PSIBLAST
-                                                 # RPSBLAST, MEGABLAST
+               /^((?:\S+?)?BLAST[NPX]?)\s+(.+)$/i  # NCBI BLAST, PSIBLAST
+                                                   # RPSBLAST, MEGABLAST
             || /^(P?GENEWISE|HFRAME|SWN|TSWN)\s+(.+)/i    #Paracel BTK
           )
         {
@@ -1198,7 +1198,7 @@ sub next_result {
             );
             while ( defined( $_ = $self->_readline ) ) {
                 if (
-                    /^((?:\S+)?BLAST[NPX])\s+(.+)$/i  # NCBI BLAST, PSIBLAST
+                    /^((?:\S+)?BLAST[NPX]?)\s+(.+)$/i  # NCBI BLAST, PSIBLAST
                                                       # RPSBLAST, MEGABLAST
                     || /^(P?GENEWISE|HFRAME|SWN|TSWN)\s+(.+)/i    #Paracel BTK
                   )

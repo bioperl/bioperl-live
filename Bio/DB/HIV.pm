@@ -90,7 +90,8 @@ use base qw(Bio::DB::WebDBSeqI);
 
 
 BEGIN {
-    $LANL_BASE = "http://www.hiv.lanl.gov/components/sequence/HIV/advanced_search";
+    # base change of 01/14/09
+    $LANL_BASE = "http://www.hiv.lanl.gov/components/sequence/HIV/asearch";
     $LANL_MAP_DB = "map_db.comp";
     $LANL_MAKE_SEARCH_IF = "make_search_if.comp";
     $LANL_SEARCH = "search.comp";
@@ -166,6 +167,11 @@ sub get_request {
     my $search_form_re = qr{<form[^>]*action=".*/search.comp"};
     my $seqs_found_re = qr{Displaying$tags_re*(?:\s*[0-9-]*\s*)*$tags_re*of$tags_re*\s*([0-9]+)$tags_re*sequences found};
     my $no_seqs_found_re = qr{Sorry.*no sequences found};
+    my $too_many_re = qr{too many records: $tags_re*([0-9]+)};
+    # find something like:
+    #  <strong>tables without join:</strong><br>SequenceAccessions<br>
+    my $tbl_no_join_re = qr{tables without join}i;
+#    my $sorry_bud_re = qr{};
 
     # handle "qualifiers"
     foreach (keys %quals) {
@@ -195,30 +201,30 @@ sub get_request {
     for my $m ($mode) {
 	($m =~ m/single/) && do {
 	    @interface = (
-		'SequenceEntry' => 'SE_Sequence',
-		'SequenceEntry' => 'SE_id',
+		'sequenceentry' => 'se_sequence',
+		'sequenceentry' => 'se_id',
 		'action' => 'Search Interface'
 		);
-	    @query_parms = map { ('SequenceEntry.SE_id' => $_ ) } @ids;
+	    @query_parms = map { ('sequenceentry.se_id' => $_ ) } @ids;
 	    push @query_parms, (
-		'SequenceEntry.SE_Sequence'=>'Any',
-		'order' => 'SequenceEntry.SE_id',
+		'sequenceentry.se_sequence'=>'Any',
+		'order' => 'sequenceentry.se_id',
 		'sort_dir' => 'ASC',
 		'action' => 'Search'
 	    );
 	};
 	($mode =~ m/acc/) && do {
 	    @interface = (
-		'SequenceEntry' => 'SE_Sequence',
-		'SequenceEntry' => 'SE_id',
-		'SequenceAccessions' => 'SA_GenBankAccession',
-		'SequenceAccessions' => 'SA_SE_id',
+		'sequenceentry' => 'se_sequence',
+		'sequenceentry' => 'se_id',
+		'sequenceaccessions' => 'sa_genbankaccession',
+		'sequenceaccessions' => 'sa_se_id',
 		'action' => 'Search Interface'
 		);
-	    @query_parms = map {('SequenceAccessions.SA_GenBankAccession' => $_)} @ids;
+	    @query_parms = map {('sequenceaccessions.sa_genbankaccession' => $_)} @ids;
 	    push @query_parms, (
-		'SequenceEntry.SE_Sequence' => 'Any',
-		'order' => 'SequenceAccessions.SA_GenBankAccession',
+		'sequenceentry.se_sequence' => 'Any',
+		'order' => 'sequenceaccessions.sa_genbankaccession',
 		'sort_dir' => 'ASC',
 		'action' => 'Search'
 	    );
@@ -234,14 +240,15 @@ sub get_request {
 			 -text=>"Query ".($query->{'_RUN_LEVEL'} ? "has been run only at run level ".$query->{'_RUN_LEVEL'} : "has not been run").", run at level 2 with _do_query(2)",
 			 -value=>$query->{'_RUN_LEVEL'}) unless $query->{'_RUN_LEVEL'} == 2;
 	    @interface = (
-		'SequenceEntry' => 'SE_Sequence',
-		'SequenceEntry' => 'SE_id',
+		'sequenceentry' => 'se_sequence',
+		'sequenceentry' => 'se_id',
 		'action' => 'Search Interface'
 		);
-	    @query_parms = map { ( "SequenceEntry.SE_id" => $_ ) } $query->ids;
+	    @query_parms = ("sequenceentry.se_id" =>sprintf("'%s'",join("\t", $query->ids)));
+#	    @query_parms = map { ( "sequenceentry.se_id" => $_ ) } $query->ids;
 	    push @query_parms, (
-		'SequenceEntry.SE_Sequence' => 'Any',
-		'order' => 'SequenceEntry.SE_id',
+		'sequenceentry.se_sequence' => 'Any',
+		'order' => 'sequenceentry.se_id',
 		'sort_dir' => 'ASC',
 		'action' => 'Search'
 	    );
@@ -266,20 +273,45 @@ sub get_request {
 	# establish correct "interface" for this session id
 	$resp = $self->ua->post($self->_make_search_if_uri, [@interface, id=>$self->_session_id]);
 	$resp->is_success || die "Interface request failed (1)";
+	$self->_response($resp);
 	$resp->content =~ /$search_form_re/ || die "Interface request failed (2)";
 	
 	# interface successful, do the "pre-search"
-	$resp = $self->ua->post($self->_search_uri, [@query_parms, 'id' => $self->_session_id]);
-	$resp->is_success || die "Search post failed";
-	($resp->content !~ /$no_seqs_found_re/) || die "No sequences found";
-	($resp->content =~ /$seqs_found_re/) || die "Unparsed failure";
+	$resp = $self->ua()->post($self->_search_uri, [(@query_parms, 'id' => $self->_session_id)] );
+	unless ($resp->is_success) {
+	     die "Search post failed";
+	}
+	$self->_response($resp);
+	# check for error conditions
+	for ($resp->content) {
+	    /$no_seqs_found_re/ && do {
+		die "No sequences found";
+		last;
+	    };
+	    /$too_many_re/ && do {
+		die "Too many records ($1): must be <10000";
+		last;
+	    };
+	    /$tbl_no_join_re/ && do {
+		die "Some required tables went unjoined to query";
+		last;
+	    };
+	    /$seqs_found_re/ && do {
+		last;
+	    };
+	    do {
+		die "Unparsed failure";
+		last;
+	    };
+	}
+
     };
     $self->throw(-class=>'Bio::WebError::Exception',
 		 -text=>$@,
-		 -value=>"") if $@;
+		 -value=>$resp->content) if $@;
 	
     # "pre-search" successful, return request
-    
+###  check this post update
     return POST $self->_search_uri, 
     ['action Download.x' => 1, 
      'action Download.y'=>1, 
@@ -318,14 +350,14 @@ sub postprocess_data {
 	    m/file/ && do {
 		local $/;
 		undef $/;
-		open (my $F, "<", $loc) or 
+		open (F, "<", $loc) or 
 		    $self->throw(
 		    -class=>'Bio::Root::FileOpenException',
 		    -text=>"Error opening tempfile \"$loc\" for reading",
 		    -value=>$loc
 		    );
 		@data = split( /\n|\r/, <F>);
-		close($F);
+		close(F);
 		last;
 	    };
 	    do {
@@ -665,6 +697,24 @@ sub _session_id{
 
     return $self->{'_session_id'} = shift if @_;
     return $self->{'_session_id'};
+}
+
+=head2 _response
+
+ Title   : _response
+ Usage   : $obj->_response($newval)
+ Function: hold the response to search post
+ Example : 
+ Returns : value of _response (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+=cut
+
+sub _response{
+    my $self = shift;
+
+    return $self->{'_response'} = shift if @_;
+    return $self->{'_response'};
 }
 
 =head2 Dude, sorry

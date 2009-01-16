@@ -474,7 +474,7 @@ sub get_trace_graph
 }	
 
 
-################## deprecated methdods ##################
+################## deprecated methods ##################
 
 
 sub trace_indices {

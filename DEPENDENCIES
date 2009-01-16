@@ -129,13 +129,11 @@ NB: This list of packages is not authoritative. See the 'requires',
 |---------------------------+--------------------------------------+-----------|
 | HTML-Parser               | * HTML::HeadParser -  Parse <HEAD>   |   None    |
 |                           |   section of HTML documents          |           |
-|                           | * HTML::Parser - Basic HTML Parser   |           |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
 | * Bio::Tools::Analysis::DNA::ESEfinder - HTML::HeadParser                    |
 | * Bio::Tools::Analysis::Protein::ELM - HTML::HeadParser                      |
-| * Bio::DB::GDB - HTML::Parser                                                |
  ==============================================================================
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
@@ -506,7 +504,6 @@ NB: This list of packages is not authoritative. See the 'requires',
 |------------------------------------------------------------------------------|
 | * Bio::Tools::EUtilities::EUtilParameters - HTTP::Request                    |
 | * Bio::DB::DBFetch - HTTP::Request::Common                                   |
-| * Bio::DB::GDB - HTTP::Request::Common                                       |
 | * Bio::DB::HIV - HTTP::Request::Common                                       |
 | * Bio::DB::NCBIHelper - HTTP::Request::Common                                |
 | * Bio::DB::SwissProt - HTTP::Request::Common                                 |
@@ -518,7 +515,6 @@ NB: This list of packages is not authoritative. See the 'requires',
 | * Bio::Tools::Run::RemoteBlast - LWP                                         |
 | * Bio::DB::Biblio::eutils - LWP::Simple                                      |
 | * Bio::Root::IO - LWP::Simple                                                |
-| * Bio::DB::GDB - LWP::UserAgent                                              |
 | * Bio::DB::GenericWebAgent - LWP::UserAgent                                  |
 | * Bio::DB::MeSH - LWP::UserAgent                                             |
 | * Bio::DB::WebDBSeqI - LWP::UserAgent                                        |

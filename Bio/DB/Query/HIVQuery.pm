@@ -203,7 +203,8 @@ use base qw(Bio::Root::Root Bio::DB::QueryI);
 
 # globals
 BEGIN {
-    $LANL_BASE = "http://www.hiv.lanl.gov/components/sequence/HIV/advanced_search";
+    # change base to new search page 01/14/09 /maj
+    $LANL_BASE = "http://www.hiv.lanl.gov/components/sequence/HIV/asearch";
     $LANL_MAP_DB = "map_db.comp";
     $LANL_MAKE_SEARCH_IF = "make_search_if.comp";
     $LANL_SEARCH = "search.comp";
@@ -235,7 +236,8 @@ BEGIN {
 sub new {
   my($class,@args) = @_;
   my $self = $class->SUPER::new(@args);
-  my ($query, $ids, $lanl_base, $lanl_map_db, $lanl_make_search_if, $lanl_search, $schema_file,$run_option) =
+  # constructor option for web agent parameter spec: added 01/14/09 /maj
+  my ($query, $ids, $lanl_base, $lanl_map_db, $lanl_make_search_if, $lanl_search, $schema_file,$run_option, $uahash) =
       $self->_rearrange([ qw(QUERY
                              IDS
                              LANL_BASE
@@ -244,6 +246,7 @@ sub new {
                              LANL_SEARCH
                              SCHEMA_FILE
                              RUN_OPTION
+                             USER_AGENT_HASH
                             )], @args);
 
   # default globals
@@ -252,6 +255,7 @@ sub new {
   $lanl_make_search_if||=$LANL_MAKE_SEARCH_IF;
   $lanl_search||=$LANL_SEARCH;
   $schema_file||=$SCHEMA_FILE;
+  $uahash ||= {timeout => 90};
   defined $run_option                || ($run_option = $RUN_OPTION);
 
   $self->lanl_base($lanl_base);
@@ -259,6 +263,7 @@ sub new {
   $self->make_search_if($lanl_make_search_if);
   $self->search_($lanl_search);
   $self->_run_option($run_option);
+  $self->_ua_hash($uahash);
   
   # catch this at the top
   if (-e $schema_file) {
@@ -389,14 +394,15 @@ sub help{
        open($fh, ">&1");
    }
    @tbls = $schema->tables;
+   @tbls = ('COMMAND', grep !/COMMAND/,@tbls);
    print $fh (
        $h->start_html(-title=>"HIVQuery Help")
        );
-   print $fh $h->a({-id=>'TOP'}, $h->h2("Valid <span style='font-variant:small-caps'>Bio::DB::Query::HIVQuery</span> query fields and match data"));
+   print $fh $h->a({-id=>'TOP'}, $h->h2("Valid <span style='font-variant:small-caps'>HIVQuery</span> query fields and match data"));
    print $fh "Fields are organized below according to their Los Alamos HIV database tables. Use aliases in place of full field names in queries; for example:<br/>";
-   print $fh "<blockquote><code> \$hiv_query->query( '(CCR5 CXCR4)[coreceptor] ' ); </code></blockquote><br/>";
-   print $fh "rather than <br/>";
-   print $fh "<blockquote><code> \$hiv_query->query( '(CCR5 CXCR4)[SEQ_SAMple.SSAM_second_receptor]' );</code></blockquote><br/>";
+   print $fh "<blockquote><code> (CCR5 CXCR4)[coreceptor]</code></blockquote>";
+   print $fh "rather than";
+   print $fh "<blockquote><code>(CCR5 CXCR4)[seq_sample.ssam_second_receptor] </code></blockquote>";
    print $fh "(which does work, however). Click hyperlinks to see valid search options within the field. The token <code><b>Any</b></code> is the wildcard for all fields.<br/><br/>";
    print $fh $h->start_table({-style=>"font-family:sans-serif;"}) ;
    foreach my $tbl (@tbls) {
@@ -404,15 +410,20 @@ sub help{
        @flds = grep !/_id/, @flds;
        print $fh (
 	   $h->start_Tr({-style=>"background-color: lightblue;"}), 
-	   $h->td([$h->a({-id=>$tbl},$tbl), $h->span({-style=>"font-style:italic"},"field aliases")]),
+	   $h->td([$h->a({-id=>$tbl},$tbl), $h->span({-style=>"font-style:italic"},"fields"), $h->span({-style=>"font-style:italic"}, "aliases")]),
 	   $h->end_Tr
 	   );
        foreach my $fld (@flds) {
 	   @als = reverse $schema->aliases($fld);
 	   print $fh (
-	       $h->Tr( $h->td( ["", $h->a({-href=>"#opt$fld"}, shift @als)] ))
+	       $h->Tr( $h->td( ["", $h->a({-href=>"#opt$fld"}, shift @als), $h->code(join(',',@als))] ))
 	       );
        my @tmp = grep {$_} $schema->options($fld);
+	   @tmp = sort {(($a =~ /^[0-9]+$/) && $b =~ /^[0-9]+$/) ? $a<=>$b : $a cmp $b} @tmp;
+	   if (grep /Any/,@tmp) {
+	       @tmp = grep !/Any/, @tmp;
+	       unshift @tmp, 'Any';
+	   }
        #print STDERR join(', ',@tmp)."\n";
 	   push @opts, $h->div(
 	       {-style=>"font-family:sans-serif;font-size:small"},
@@ -748,6 +759,39 @@ sub _run_option{
     return $self->{'_run_option'};
 }
 
+=head2 _ua_hash
+
+ Title   : _ua_hash
+ Usage   : $obj->_ua_hash($newval)
+ Function: 
+ Example : 
+ Returns : value of _ua_hash (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+=cut
+
+sub _ua_hash{
+    my $self = shift;
+    if (@_) {
+	for (ref $_[0]) {
+	    $_ eq 'HASH' && do {
+		$self->{'_ua_hash'} = $_[0];
+		last;
+	    };
+	    !$_ && do {
+		$self->{'_ua_hash'} = {@_};
+		last;
+	    };
+	    do {
+		$self->throw("Type ".ref($_)." unsupported as arg in _ua_hash");
+	    };
+	    
+	}
+    }
+    return %{$self->{'_ua_hash'}};
+}
+
+
 #######
 
 =head1 Internals
@@ -1022,6 +1066,7 @@ sub _create_lanl_query {
     # text fields can put anything, and the query will be run before 
     # an error is caught in these 
     foreach my $qh (@qhashes) {
+	@query=();
 	foreach my $k (keys %{$$qh{'query'}}) {
 	    my $fld;
 	    # validate field
@@ -1097,14 +1142,14 @@ sub _create_lanl_query {
 	}
 
 	# insure that LANL and GenBank ids are retrieved
-	push @query, ('SequenceEntry.SE_id' => 'Any') unless grep /SequenceEntry\.SE_id/, @query;
-	push @query, ('SequenceAccessions.SA_GenBankAccession' => 'Any')
+	push @query, ('sequenceentry.se_id' => 'Any') unless grep /SequenceEntry\.SE_id/, @query;
+	push @query, ('sequenceaccessions.sa_genbankaccession' => 'Any')
 	    unless grep /SequenceAccessions\.SA_GenBankAccession/, @query;
 
 	# an "order" field is required by the LANL CGI
 	# if not specified, default to SE_id
 
-	push @query, ('order'=>'SequenceEntry.SE_id') unless grep /order/, @query;
+	push @query, ('order'=>'sequenceentry.se_id') unless grep /order/, @query;
 
 	# @query now contains sfield=>matchdata pairs, as specified by user
 	# include appropriate indexes to create correct automatic joins
@@ -1131,7 +1176,7 @@ sub _create_lanl_query {
 	    #
 	    # find_join does it...
 	    my @joink = map {
-		my @k = $schema->find_join($_,'SequenceEntry');
+		my @k = $schema->find_join($_,'sequenceentry');
 		map {$_ || ()} @k
 	    } @qtbl;
 	    # squish the keys in @joink 
@@ -1191,6 +1236,8 @@ sub _do_lanl_request {
     ## search site specific CGI parms
     my @search_pms = ('action'=>'Search');
     my @searchif_pms = ('action'=>'Search Interface');
+    # don't get the actual sequence data here (i.e., the cgi parm 
+    # 'incl_seq' remains undefined...
     my @download_pms = ('action Download.x'=>1, 'action Download.y'=>1);
 
     ## HTML-testing regexps
@@ -1200,6 +1247,11 @@ sub _do_lanl_request {
     my $seqs_found_re = qr{Displaying$tags_re*(?:\s*[0-9-]*\s*)*$tags_re*of$tags_re*\s*([0-9]+)$tags_re*sequences found};
     my $no_seqs_found_re = qr{Sorry.*no sequences found};
     my $too_many_re = qr{too many records: $tags_re*([0-9]+)};
+    # find something like:
+    #  <strong>tables without join:</strong><br>SequenceAccessions<br>
+    my $tbl_no_join_re = qr{tables without join}i;
+#    my $sorry_bud_re = qr{};
+
 
     foreach my $q (@queries) {
 	@query = @$q;
@@ -1233,7 +1285,7 @@ sub _do_lanl_request {
 	eval { # encapsulate communication errors here, defer biothrows...
         
         #mark the useragent should be setable from outside (so we can modify timeouts, etc)
-	    my $ua = new Bio::WebAgent(timeout => 90);
+	    my $ua = new Bio::WebAgent($self->_ua_hash);
 	    my $idPing = $ua->get($self->_map_db_uri);
 	    $idPing->is_success || do {
 		$response=$idPing; 
@@ -1279,6 +1331,10 @@ sub _do_lanl_request {
 		};
 		/$too_many_re/ && do {
 		    die "Too many records ($1): must be <10000";
+		    last;
+		};
+		/$tbl_no_join_re/ && do {
+		    die "Some required tables went unjoined to query";
 		    last;
 		};
 		/$seqs_found_re/ && do {
@@ -1336,9 +1392,10 @@ sub _parse_lanl_response {
     my $numseq = 0;
     my ($schema, @retseqs, %rec, $ac);
     my %specials = (
-	'country' => 'isolation_country',
+	'country' => 'sample_country',
 	'coreceptor' => 'second_receptor',
-	'patient health' => 'health_status'
+	'patient health' => 'health_status',
+	'year' => 'sample_year'
 	);
     
     $schema = $self->_schema;
@@ -1348,7 +1405,7 @@ sub _parse_lanl_response {
 		     -text=>"Query not yet performed; call _do_lanl_request()",
 		     -value=>"");
     foreach my $rsp (@{$self->_lanl_response}) {
-	@data = split("\r|\n", $rsp->content);
+	@data = split(/\r|\n/, $rsp->content);
 	$numseq += ( shift(@data) =~ /Number.*:\s([0-9]+)/ )[0];
 	@cols = split(/\t/, shift @data);
 
@@ -1356,40 +1413,50 @@ sub _parse_lanl_response {
 	# squish into hash keys
 	my %q = @{ shift @{$self->_lanl_query} };
 	%antbl = $schema->ankh(keys %q);
-	foreach (values %antbl) {
-	    $antype{$_->{ankey}} = $_->{antype};
-	    push @ankeys, $_->{ankey};
-	}
-	foreach (@cols) {
-	    my $k = $_;
-	    ### conversion kludge for specials
-	    $k = $specials{lc $k} if (grep /$k/i, keys %specials);
-	    ###
+	foreach (values %antbl) { 
+	    #normalize
+	    my $k = $_->{ankey};
 	    $k =~ tr/ /_/;
-	    ($k) = grep (/$k$/i, keys %antbl);
-        next unless $k;
-	    $anxlt{$_} = $antbl{$k}->{ankey};
+	    $k = lc $k;
+	    $_->{ankey} = $k; #replace with normalized version
+	    $antype{$k} = $_->{antype};
+	    push @ankeys, $k;
 	}
-
+	foreach (@cols) { #these are the data column headers
+	    # normalize:
+	    tr/ /_/;
+	    my $c = lc $_;
+	    ### conversion kludge for specials
+	    ### (i.e.,column headers that do not match the 
+	    ###  true field names)
+	    $c = $specials{$c} if (grep /$c/, keys %specials);
+	    ###
+	    $c =~ tr/ /_/;
+	    ### following line grep: looks for a match of the 
+	    ### column name at the end of the true field names to 
+	    ### make the translation...
+	    ### only captures the first match.
+	    my ($match_fld) = grep (/$c$/i, keys %antbl);
+	    $anxlt{$_} = $antbl{$match_fld}->{ankey} if $match_fld;
+	}
 	foreach (@data) {
 	    @rec{@cols} = split /\t/;
+	    my $id = $rec{'SE_id'};
 	
-	    $self->add_id($rec{'SE id'});
-	    $ac = $self->add_annotations_for_id($rec{'SE id'});
+	    $self->add_id($id);
+	    $ac = new Bio::Annotation::Collection();
+
 	    #create annotations
 	    # need to handle reference, comment, dblink annots
-
 	    foreach (@cols) {
-            my $k = $anxlt{$_}; # annot key
-            next unless $k;
-            my $t = $antype{$k}; # annot type
-            my $d = $rec{$_}; # the data
-            eval "
-                \$ac->put_value(-KEYS=>[\$t, \$k], -VALUE=>\$d);
-                     " if $k;
-            die $@ if $@;
+		#accession should be added in here as a matter of course
+		my $k = $anxlt{$_}; # annot key
+		next unless $k;
+		my $t = $antype{$k}; # annot type
+		my $d = $rec{$_}; # the data
+                $ac->put_value(-KEYS=>[$t, $k], -VALUE=>$d) if $k;
 	    }
-	    $ac->put_value('accession', $rec{Accession}); 
+	    $self->add_annotations_for_id($id, $ac);	
 	}
 	1;
     }

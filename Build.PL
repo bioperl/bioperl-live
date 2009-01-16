@@ -53,7 +53,7 @@ my $build = Bio::Root::Build->new(
                             'Graph'                     => '0/ontology engine implementation for the GO parser/Bio::PhyloNetwork',
                             'GraphViz'                  => '0/Phylogenetic Network Visulization/Bio::PhyloNetwork::GraphViz',
                             'HTML::Entities'            => '0/remote analysis POST submissions/Bio::SearchIO::blastxml',
-                            'HTML::Parser'              => '3/screen scraping www.gdb.org/Bio::DB::GDB',
+                            'HTML::HeadParser'          => '3/parsing <HEAD> section of HTML docs/Bio::Tools::Analysis::DNA::ESEfinder',
                             'HTTP::Request::Common'     => '0/GenBank+GenPept sequence retrieval, remote http Blast jobs/Bio::DB::*,Bio::Tools::Run::RemoteBlast,Bio::Tools::Analysis::Protein*,Bio::Tools::Analysis::DNA*',
                             'LWP::UserAgent'            => '0/remote access/Bio::DB::*,Bio::Tools::Run::RemoteBlast,Bio::WebAgent',
                             'Math::Random'              => '0/Random Phylogenetic Networks/Bio::PhyloNetwork::RandomFactory',
@@ -115,15 +115,15 @@ my $build = Bio::Root::Build->new(
 
 my $accept = $build->args->{accept};
 
-prompt_for_biodb($accept) if $build->feature('BioDBGFF') || $build->feature('BioDBSeqFeature_mysql');
+my $proceed = prompt_for_biodb($accept) if $build->feature('BioDBGFF') || $build->feature('BioDBSeqFeature_mysql');
 
 # Handle auto features
-if ($build->feature('BioDBSeqFeature_BDB')) {
+if ($proceed && $build->feature('BioDBSeqFeature_BDB')) {
     # will return without doing anything if user chose not to run tests during
     # prompt_for_biodb() above
     make_bdb_test();
 }
-if ($build->feature('BioDBSeqFeature_mysql') or $build->feature('BioDBSeqFeature_Pg')) {
+if ($proceed && ($build->feature('BioDBSeqFeature_mysql') or $build->feature('BioDBSeqFeature_Pg'))) {
     make_dbi_test();
 }
 
@@ -299,4 +299,5 @@ sub prompt_for_biodb {
     }
     
     $build->log_info("\n");
+    return $proceed;
 }

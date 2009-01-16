@@ -77,7 +77,7 @@ sub _initialize {
   my($self,@args) = @_;
   $self->SUPER::_initialize(@args);  
   if( ! defined $self->sequence_factory ) {
-      $self->sequence_factory(Bio::Seq::SeqFactory->new(-verbose => $self->verbose(), -type => 'Bio::Seq'));      
+      $self->sequence_factory(Bio::Seq::SeqFactory->new(-verbose => $self->verbose(), -type => 'Bio::Seq::Quality'));      
   }
   unless ($READ_AVAIL) {
       Bio::Root::Root->throw( -class => 'Bio::Root::SystemException',
@@ -91,7 +91,7 @@ sub _initialize {
  Title   : next_seq
  Usage   : $seq = $stream->next_seq()
  Function: returns the next sequence in the stream
- Returns : Bio::SeqWithQuality object
+ Returns : Bio::Seq::Quality object
  Args    : NONE
 
 =cut

@@ -275,7 +275,7 @@ sub aliases {
 
  Title   : ankh (annotation key hash)
  Usage   : $schema->ankh(@fieldnames)
- Function: return a has translating fields to annotation keys for the
+ Function: return a hash translating fields to annotation keys for the
            spec'd fields.
            (Annotation keys are used for parsing the tab-delimited response
            to Bio::DB::Query::HIVQuery::_do_lanl_request.)
