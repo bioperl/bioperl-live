@@ -15,7 +15,7 @@ BEGIN {
 
 
 # lanl-schema.xml characteristics as of $Date: 2008-12-11 08:05:24 -0500 (Thu, 11 Dec 2008) $
-my ($naliases, $nfields, $ntables) = (175, 86, 14);
+my ($naliases, $nfields, $ntables) = (165, 96, 14);
 my ($Q, $r, $q);
 # object tests
 isa_ok(new HIVSchema(), "HIVSchema");
@@ -55,14 +55,14 @@ is( scalar $tobj->fields, $nfields, "fields complete");
 is( scalar $tobj->tables, $ntables, "tables complete");
 is( scalar $tobj->aliases, $naliases, "aliases complete");
 my ($tbl, $fld, $col, $als);
-ok( ($fld) = grep /SequenceEntry.SE_id/, $tobj->fields, "test field present");
+ok( ($fld) = grep /sequenceentry.se_sequence/, $tobj->fields, "test field present");
 ok( $tbl = $tobj->tablepart($fld), "test field syntax ok");
 ok( $col = $tobj->columnpart($fld), "test field syntax ok");
 ok( $als = $tobj->aliases($fld), "test alias by field name");
-is( $tobj->primarykey($tbl), 'SequenceEntry.SE_id', "correct primary key for SequenceEntry");
-is( scalar $tobj->foreignkey('AUthor'), 2, "correct number of foreign keys for AUthor");
-is( $tobj->foreigntable(($tobj->foreignkey('AUthor'))[1]), 'PUBlication', "correct foreign table for AU_PUB_id");
-is_deeply( {$tobj->ankh('SEQ_SAMple.SSAM_second_receptor')}, {'SEQ_SAMple.SSAM_second_receptor' => {'ankey'=>'coreceptor','antype'=>'Virus'}}, "correct annotation key hash");
+is( $tobj->primarykey($tbl), 'sequenceentry.se_id', "correct primary key for SequenceEntry");
+is( scalar $tobj->foreignkey('author'), 2, "correct number of foreign keys for AUthor");
+is( $tobj->foreigntable(($tobj->foreignkey('author'))[1]), 'publication', "correct foreign table for au_pub_id");
+is_deeply( {$tobj->ankh('seq_sample.ssam_second_receptor')}, {'seq_sample.ssam_second_receptor' => {'ankey'=>'Coreceptor','antype'=>'Virus'}}, "correct annotation key hash");
 
 
 #Query parser tests
