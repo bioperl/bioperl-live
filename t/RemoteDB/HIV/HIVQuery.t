@@ -96,8 +96,7 @@ $tobj->query( "(SI[phenotype] ('CCR5 CXCR4')[coreceptor] C[subtype] OR NSI[pheno
 is($tobj->_do_query(0),0, 'multiquery parse check');
 
 SKIP: {
-	skip('Fooo!', 3);
-	test_skip(-requires_module => 'HTML::Parser', -tests => 2);
+	test_skip(-requires_module => 'HTML::Parser', -tests => 3);
 	use_ok('HTML::Parser');
 	# help test; just tests that file can be written and that tags are in matching 
 	# pairs, with reasonable placement of <html> and </html>
