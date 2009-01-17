@@ -171,7 +171,8 @@ ok("@lines" !~ /Parent=/s);
 ok("@lines" =~ /ID=/s);
 
 SKIP: {
-	skip('forking with open not supported yet for Windows',2) if $^O =~ /MSWin/i;	
+	test_skip(-tests => 1, -excludes_os => 'mswin');
+	
 	if (my $child = open(F,"-|")) { # parent reads from child
 		cmp_ok(scalar <F>,'>',0);
 		close F;

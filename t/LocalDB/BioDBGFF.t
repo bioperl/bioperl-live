@@ -420,7 +420,8 @@ SKIP: {
   }
   
   SKIP: {
-	skip('forking with open not supported yet for Windows',1) if $^O =~ /MSWin/i;
+	test_skip(-tests => 1, -excludes_os => 'mswin');
+	
 	# test ability to pass adaptors across a fork
 	if (my $child = open(F,"-|")) { # parent reads from child
 		ok(scalar <F>);
