@@ -419,16 +419,19 @@ SKIP: {
     }
   }
   
-  # test ability to pass adaptors across a fork
-  if (my $child = open(F,"-|")) { # parent reads from child
-      ok(scalar <F>);
-      close F;
-  }
-  else { # in child
-      $db->clone;
-      my @f = $db->features();
-      print @f>0;
-      exit 0;
+  SKIP: {
+	skip('forking with open not supported yet for Windows',1) if $^O =~ /MSWin/i;
+	# test ability to pass adaptors across a fork
+	if (my $child = open(F,"-|")) { # parent reads from child
+		ok(scalar <F>);
+		close F;
+	}
+	else { # in child
+		$db->clone;
+		my @f = $db->features();
+		print @f>0;
+		exit 0;
+	}
   }
 
   ok(!defined eval{$db->delete()});
