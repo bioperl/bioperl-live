@@ -28,7 +28,7 @@ while( my $result = $searchio->next_result ) {
     if( $hit = $result->next_model ) {
 	is($hit->name, 'SEED');
 	is($hit->raw_score, '146.1');
-	is($hit->significance, '6.3e-40');
+	float_eq($hit->significance, 6.3e-40);
 	is(ref($hit), 'Bio::Search::Hit::HMMERHit');
 	is($hit->num_hsps, 1);
 
@@ -38,7 +38,7 @@ while( my $result = $searchio->next_result ) {
 	    is($hsp->query->start, 33);
 	    is($hsp->query->end, 103);
 	    is($hsp->score, 71.2);
-	    is($hsp->evalue, '2.2e-17');
+	    float_eq($hsp->evalue, 2.2e-17);
 	    is($hsp->query_string, 'LFIGGLDYRTTDENLKAHFEKWGNIVDVVVMKD-----PRTKRSRGFGFITYSHSSMIDEAQK--SRpHKIDGRVVEP');
 	    is($hsp->gaps('query'), 7);
 	    is($hsp->hit_string, 'lfVgNLppdvteedLkdlFskfGpivsikivrDiiekpketgkskGfaFVeFeseedAekAlealnG-kelggrklrv');
@@ -54,7 +54,7 @@ while( my $result = $searchio->next_result ) {
 	    is($hsp->query->start, 124);
 	    is($hsp->query->end, 194);
 	    is($hsp->score, 75.5);
-	    is($hsp->evalue, '1.1e-18');
+	    float_eq($hsp->evalue, 1.1e-18);
 	    is($hsp->query_string, 'LFVGALKDDHDEQSIRDYFQHFGNIVDINIVID-----KETGKKRGFAFVEFDDYDPVDKVVL-QKQHQLNGKMVDV');
 	    is($hsp->gaps('query'), 6);
 	    is($hsp->hit_string, 'lfVgNLppdvteedLkdlFskfGpivsikivrDiiekpketgkskGfaFVeFeseedAekAlealnGkelggrklrv');	 
@@ -80,11 +80,11 @@ while( my $result = $searchio->next_result ) {
     my $hit = $result->next_model;
     is($hit->name, 'Q91581');
     is($hit->description,'Q91581 POLYADENYLATION FACTOR 64 KDA SUBUN');
-    is($hit->significance, '2e-31');
+    float_eq($hit->significance, 2e-31);
     is($hit->raw_score, 119.7);
     my $hsp = $hit->next_domain;
     is($hsp->score,119.7);
-    is($hsp->evalue, '2e-31');
+    float_eq($hsp->evalue, 2e-31);
     is($hsp->query->start, 18);
     is($hsp->query->end, 89);
     is($hsp->hit->start, 1);
@@ -108,11 +108,11 @@ while( my $result = $searchio->next_result ) {
     my $hit = $result->next_hit;
     is($hit->name, 'Methylase_M');
     is($hit->description,'Type I restriction modification system, M');
-    is($hit->significance, '0.0022');
+    float_eq($hit->significance, 0.0022);
     is($hit->raw_score, -105.2);
     my $hsp = $hit->next_hsp;
     is($hsp->score,-105.2);
-    is($hsp->evalue, '0.0022');
+    float_eq($hsp->evalue, 0.0022);
     is($hsp->query->start, 280);
     is($hsp->query->end, 481);
     is($hsp->hit->start, 1);
@@ -147,11 +147,11 @@ while( my $result = $searchio->next_result ) {
     my $hit = $result->next_hit;
     is($hit->name, 'CATL_RAT');
     is($hit->description,'');
-    is($hit->significance, '2e-135');
+    float_eq($hit->significance, 2e-135);
     is($hit->raw_score, 449.4);
     my $hsp = $hit->next_hsp;
     is($hsp->score,449.4);
-    is($hsp->evalue, '2e-135');
+    float_eq($hsp->evalue, 2e-135);
     is($hsp->query->start, 1);
     is($hsp->query->end, 337);
     is($hsp->hit->start, 114);
@@ -164,7 +164,7 @@ while( my $result = $searchio->next_result ) {
     $hit = $result->next_hit;
     is($hit->name, 'CATL_HUMAN');
     is($hit->description,'');
-    is($hit->significance, '6.1e-134');
+    float_eq($hit->significance, 6.1e-134);
     is($hit->raw_score, 444.5);
 }
 
