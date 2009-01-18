@@ -23,8 +23,8 @@ my $in = Bio::SeqIO->new(-format => 'genbank',
 my $seq = $in->next_seq;
 
 my $out_file = test_output_file();
-my $out = Bio::SeqIO->new(-file => ">$out_file",
-								  -verbose => $verbose,
-								  -format => 'asciitree');
+my $out = Bio::SeqIO->new(-file => ">".$out_file,
+						-verbose => $verbose,
+						-format => 'asciitree');
 $out->write_seq($seq);
 ok (-s $out_file);
