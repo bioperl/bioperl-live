@@ -45,7 +45,7 @@ is($result->get_parameter('gapopen'), 11);
 is($result->get_parameter('gapext'), 1);
 is($result->get_statistic('S2'), '92');
 is($result->get_statistic('S2_bits'), '40.0');
-float_eq($result->get_parameter('expect'), '1.0e-03');
+is_float_eq($result->get_parameter('expect'), '1.0e-03');
 is($result->get_statistic('num_extensions'), '82424');
 
 
@@ -59,7 +59,7 @@ while( $hit = $result->next_hit ) {
     is($hit->name, shift @$d);
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
-	float_eq($hit->significance, shift @$d);
+	is_float_eq($hit->significance, shift @$d);
     is($hit->bits, shift @$d );
     is($hit->raw_score, shift @$d );
 
@@ -74,7 +74,7 @@ while( $hit = $result->next_hit ) {
             is($hsp->start('hit'), $hsp->hit->start);
             is($hsp->end('query'), $hsp->query->end);
             is($hsp->strand('sbjct'), $hsp->subject->strand);# alias for hit
-            float_eq($hsp->evalue, 0.0);
+            is_float_eq($hsp->evalue, 0.0);
             is($hsp->score, 4058);
             is($hsp->bits,1567);	    	    
             is(sprintf("%.2f",$hsp->percent_identity), 98.29);
@@ -148,7 +148,7 @@ while( $hit = $result->next_hit ) {
     is($hit->name, shift @$d);
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
-    float_eq($hit->significance, shift @$d);
+    is_float_eq($hit->significance, shift @$d);
     is($hit->raw_score, shift @$d );
 
     if( $count == 0 ) {
@@ -160,8 +160,8 @@ while( $hit = $result->next_hit ) {
             is($hsp->hit->end, 820);
             is($hsp->length('total'), 820);
             
-            float_eq($hsp->evalue, 0.0);
-            float_eq($hsp->pvalue, '0.0');
+            is_float_eq($hsp->evalue, 0.0);
+            is_float_eq($hsp->pvalue, '0.0');
             is($hsp->score, 4141);
             is($hsp->bits,1462.8);	    	    
             is($hsp->percent_identity, 100);
@@ -226,7 +226,7 @@ while( $hit = $result->next_hit ) {
     is($hit->name, shift @$d);
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
-    float_eq($hit->significance, shift @$d);
+    is_float_eq($hit->significance, shift @$d);
     is($hit->raw_score, shift @$d );
 
     if( $count == 0 ) {
@@ -238,8 +238,8 @@ while( $hit = $result->next_hit ) {
             is($hsp->hit->end, 820);
             is($hsp->length('total'), 820);
             
-            float_eq($hsp->evalue, 0.);
-            float_eq($hsp->pvalue , '0.');
+            is_float_eq($hsp->evalue, 0.);
+            is_float_eq($hsp->pvalue , '0.');
             is($hsp->score, 4141);
             is($hsp->bits,1462.8);	    	    
             is($hsp->percent_identity, 100);
@@ -296,7 +296,7 @@ while( $hit = $result->next_hit ) {
     is($hit->name, shift @$d);
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
-    float_eq($hit->significance, shift @$d);
+    is_float_eq($hit->significance, shift @$d);
     is($hit->bits, shift @$d );
     is($hit->raw_score, shift @$d );
 
@@ -313,7 +313,7 @@ while( $hit = $result->next_hit ) {
             is($hsp->strand('sbjct'), $hsp->subject->strand);
             is($hsp->length('total'), 26);
             
-            float_eq($hsp->evalue, 0.13);
+            is_float_eq($hsp->evalue, 0.13);
             is($hsp->score, 67);
             is($hsp->bits,33.6);
             is(sprintf("%.2f",$hsp->percent_identity), 42.31);
@@ -384,7 +384,7 @@ while( my $hit = $result->next_hit ) {
     is($hit->name, shift @$d);
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
-    float_eq($hit->significance, shift @$d);
+    is_float_eq($hit->significance, shift @$d);
     is($hit->bits, shift @$d );
     is($hit->raw_score, shift @$d );
     is($hit->start, shift @$d);
@@ -400,7 +400,7 @@ while( my $hit = $result->next_hit ) {
             is($hsp->hit->end, 212);
             is($hsp->hit->strand, 1);
             is($hsp->length('total'), 60);	    
-            float_eq($hsp->evalue, 3e-18);
+            is_float_eq($hsp->evalue, 3e-18);
             is($hsp->score, 48);
             is($hsp->bits,95.6);
             is(sprintf("%.2f",$hsp->percent_identity), 96.67);
@@ -459,7 +459,7 @@ while( my $hit = $result->next_hit ) {
     is($hit->name, shift @$d);
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
-    float_eq($hit->significance, shift @$d);
+    is_float_eq($hit->significance, shift @$d);
     is($hit->raw_score, shift @$d );
     is(sprintf("%.4f",$hit->frac_identical('query')), '0.3640');
     is(sprintf("%.4f",$hit->frac_identical('hit')), '0.3660');
@@ -478,8 +478,8 @@ while( my $hit = $result->next_hit ) {
             is($hsp->hit->end, 413);
             is($hsp->hit->strand, 0);
             is($hsp->length('total'), 421);	    
-            float_eq($hsp->evalue, 1.1e-74);
-            float_eq($hsp->pvalue, '1.1e-74');
+            is_float_eq($hsp->evalue, 1.1e-74);
+            is_float_eq($hsp->pvalue, '1.1e-74');
             is($hsp->score,671);
             is($hsp->bits,265.8);
             is(sprintf("%.2f",$hsp->percent_identity), 35.87);
@@ -590,7 +590,7 @@ while( my $hit = $result->next_hit ) {
     is($hit->name, shift @$d);
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
-    float_eq($hit->significance, shift @$d);
+    is_float_eq($hit->significance, shift @$d);
     is($hit->raw_score, shift @$d );
 
     if( $count == 0 ) {
@@ -603,8 +603,8 @@ while( my $hit = $result->next_hit ) {
             is($hsp->hit->end, 6016);
             is($hsp->hit->strand, 1);
             is($hsp->length('total'), 421);	    
-            float_eq($hsp->evalue, 1.4e-73);
-            float_eq($hsp->pvalue,1.4e-73);
+            is_float_eq($hsp->evalue, 1.4e-73);
+            is_float_eq($hsp->pvalue,1.4e-73);
             is($hsp->score,671);
             is($hsp->bits,265.8);
             is(sprintf("%.2f",$hsp->percent_identity), 35.87);
@@ -665,7 +665,7 @@ while( my $hit = $result->next_hit ) {
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
     # using e here to deal with 0.9992 coming out right here as well
-    float_eq($hit->significance, shift @$d);
+    is_float_eq($hit->significance, shift @$d);
     is($hit->raw_score, shift @$d );
     is($hit->bits, shift @$d );
     if( $count == 0 ) {
@@ -681,8 +681,8 @@ while( my $hit = $result->next_hit ) {
                 is($hsp->hit->end, 5368);
                 is($hsp->hit->strand, 1);
                 is($hsp->length('total'), 59);	    
-                float_eq($hsp->evalue, 6.4e-70);
-                float_eq($hsp->pvalue,6.4e-70);
+                is_float_eq($hsp->evalue, 6.4e-70);
+                is_float_eq($hsp->pvalue,6.4e-70);
                 is($hsp->score,85);
                 is($hsp->bits,41.8);
                 is(sprintf("%.2f",$hsp->percent_identity), '32.20');
@@ -715,8 +715,8 @@ while( my $hit = $result->next_hit ) {
             is($hsp->hit->end, 4227);
             is($hsp->hit->strand, -1);
             is($hsp->length('total'), 40);	    
-            float_eq($hsp->evalue, 7.1);
-            float_eq($hsp->pvalue , '1.00');
+            is_float_eq($hsp->evalue, 7.1);
+            is_float_eq($hsp->pvalue , '1.00');
             is($hsp->score,59);
             is($hsp->bits,29.9);
             is(sprintf("%.2f",$hsp->percent_identity), '37.50');
@@ -770,7 +770,7 @@ while( $hit = $result->next_hit ) {
     is($hit->name, shift @$d);
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
-    float_eq($hit->significance, shift @$d);
+    is_float_eq($hit->significance, shift @$d);
     is($hit->raw_score, shift @$d );
 
     if( $count == 0 ) {
@@ -782,8 +782,8 @@ while( $hit = $result->next_hit ) {
             is($hsp->hit->end, 1936);
             is($hsp->length('total'), 1936);
             
-            float_eq($hsp->evalue, 0.);
-            float_eq($hsp->pvalue , '0.');
+            is_float_eq($hsp->evalue, 0.);
+            is_float_eq($hsp->pvalue , '0.');
             is($hsp->score, 9680);
             is($hsp->bits,1458.4);	    	    
             is($hsp->percent_identity, 100);
@@ -829,11 +829,11 @@ is($hit->description, 'F22B7.10 protein - Caenorhabditis elegans');
 is($hit->name, 'PIR2:S44629');
 is($hit->length, 628);
 is($hit->accession, 'PIR2:S44629');
-float_eq($hit->significance, 2e-08);
+is_float_eq($hit->significance, 2e-08);
 is($hit->raw_score, 136 );
 is($hit->bits, '57.0' );
 $hsp = $hit->next_hsp;
-float_eq($hsp->evalue, 2e-08);
+is_float_eq($hsp->evalue, 2e-08);
 is($hsp->bits, '57.0');
 is($hsp->score, 136);
 is(int($hsp->percent_identity), 28);
@@ -939,11 +939,11 @@ while( my $hit = $r->next_hit ) {
     is($hit->length, shift @$d);
     is($hit->raw_score, shift @$d);
     is($hit->bits, shift @$d);
-	float_eq($hit->significance, shift @$d);
+	is_float_eq($hit->significance, shift @$d);
     
     my $hsp = $hit->next_hsp;
     is($hsp->bits, shift @$d);
-    float_eq($hsp->evalue, shift @$d);
+    is_float_eq($hsp->evalue, shift @$d);
     is($hsp->score, shift @$d);
     is($hsp->num_identical, shift @$d);
     is($hsp->gaps('total'), shift @$d);
@@ -968,7 +968,7 @@ is($r->query_gi, 1786183);
 is($r->num_hits, 7);
 $hit = $r->next_hit;
 is($hit->name, 'gnl|CDD|3919');
-float_eq($hit->significance, 0.064);
+is_float_eq($hit->significance, 0.064);
 is($hit->bits, 28.3);
 is($hit->raw_score, 63);
 $hsp = $hit->next_hsp;
@@ -1033,7 +1033,7 @@ while( $iter = $result->next_iteration ) {
             is($hit->name, shift @$d);
             is($hit->length, shift @$d);
             is($hit->accession, shift @$d);
-            float_eq($hit->significance, shift @$d);
+            is_float_eq($hit->significance, shift @$d);
             is($hit->bits, shift @$d );
             
             if( $hit_count == 1 ) {
@@ -1047,7 +1047,7 @@ while( $iter = $result->next_iteration ) {
                     is($hsp->start('hit'), $hsp->hit->start);
                     is($hsp->end('query'), $hsp->query->end);
                     is($hsp->strand('sbjct'), $hsp->subject->strand);# alias for hit
-                    float_eq($hsp->evalue, 1e-75);
+                    is_float_eq($hsp->evalue, 1e-75);
                     is($hsp->score, 712);
                     is($hsp->bits, 281);
                     is(sprintf("%.1f",$hsp->percent_identity), 46.5);
@@ -1138,7 +1138,7 @@ $hsp = $hit->next_hsp;
 is($hsp->score, 481);
 is($hsp->bits, 191);
 is(int $hsp->percent_identity, 34);
-float_eq($hsp->evalue, 2e-53);
+is_float_eq($hsp->evalue, 2e-53);
 is(int($hsp->frac_conserved*$hsp->length), 167);
 is($hsp->query->start, 28);
 is($hsp->query->end, 343);
@@ -1161,7 +1161,7 @@ $hsp = $hit->next_hsp;
 is($hsp->score, 27);
 is($hsp->bits, '54.0');
 is(int $hsp->percent_identity, 88);
-float_eq($hsp->evalue, 2e-12);
+is_float_eq($hsp->evalue, 2e-12);
 is(int($hsp->frac_conserved*$hsp->length), 83);
 is($hsp->query->start, 94);
 is($hsp->query->end, 180);
@@ -1186,7 +1186,7 @@ $hsp = $hit->next_hsp;
 is($hsp->score, 27);
 is($hsp->bits, '54.0');
 is(int $hsp->percent_identity, 88);
-float_eq($hsp->evalue, 2e-12);
+is_float_eq($hsp->evalue, 2e-12);
 is(int($hsp->frac_conserved*$hsp->length), 83);
 is($hsp->query->start, 94);
 is($hsp->query->end, 180);
@@ -1214,7 +1214,7 @@ $hsp = $hit->next_hsp;
 is($hsp->score, 1626);
 is($hsp->bits, 637);
 is(int $hsp->percent_identity, 66);
-float_eq($hsp->evalue, 0.0);
+is_float_eq($hsp->evalue, 0.0);
 is(int($hsp->frac_conserved*$hsp->length), 330);
 is($hsp->query->start, 121);
 is($hsp->query->end, 469);
@@ -1244,7 +1244,7 @@ $hsp = $hit->next_hsp;
 is($hsp->score, 634);
 is($hsp->bits, 248);
 is(int $hsp->percent_identity, 100);
-float_eq($hsp->evalue, 2e-70);
+is_float_eq($hsp->evalue, 2e-70);
 is(int($hsp->frac_conserved*$hsp->length), 128);
 is($hsp->query->start, 1);
 is($hsp->query->end, 384);
@@ -1274,7 +1274,7 @@ $hsp = $hit->next_hsp;
 is($hsp->score, 1118);
 is($hsp->bits, 515);
 is(int $hsp->percent_identity, 95);
-float_eq($hsp->evalue, 1e-151);
+is_float_eq($hsp->evalue, 1e-151);
 is(int($hsp->frac_conserved*$hsp->length), 229);
 is($hsp->query->start, 1);
 is($hsp->query->end, 720);
@@ -1304,13 +1304,13 @@ $hit = $result->next_hit;
 is($hit->name, 'mgri:MG00189.3');
 is($hit->description, 'hypothetical protein 6892 8867 +');
 is($hit->bits, 3098);
-float_eq($hit->significance, 0.);
+is_float_eq($hit->significance, 0.);
 
 $hit = $result->next_hit;
 is($hit->name, 'fgram:FG01141.1');
 is($hit->description, 'hypothetical protein 47007 48803 -');
 is($hit->bits, 2182);
-float_eq($hit->significance, 4.2e-226);
+is_float_eq($hit->significance, 4.2e-226);
 is($result->num_hits, 415);
 # Let's now test if _guess_format is doing its job correctly
 my %pair = ( 'filename.blast'  => 'blast',
@@ -1401,7 +1401,7 @@ is($result->get_parameter('gapopen'), 5);
 is($result->get_parameter('gapext'), 2);
 is($result->get_statistic('S2'), '60');
 is($result->get_statistic('S2_bits'), '119.4');
-float_eq($result->get_parameter('expect'), '1e-23');
+is_float_eq($result->get_parameter('expect'), '1e-23');
 is($result->get_statistic('num_extensions'), '117843');
 
 @valid = ( [ 'gi|41400296|gb|AE016958.1|', 4829781, 'AE016958', 41400296, '6e-059', 119, 236],
@@ -1415,7 +1415,7 @@ while( $hit = $result->next_hit ) {
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
     is($hit->ncbi_gi, shift @$d);
-    float_eq($hit->significance, shift @$d);
+    is_float_eq($hit->significance, shift @$d);
     is($hit->raw_score, shift @$d );
     is($hit->bits, shift @$d );
 
@@ -1431,7 +1431,7 @@ while( $hit = $result->next_hit ) {
             is($hsp->start('hit'), $hsp->hit->start);
             is($hsp->end('query'), $hsp->query->end);
             is($hsp->strand('sbjct'), $hsp->subject->strand);# alias for hit
-            float_eq($hsp->evalue, 6e-59);
+            is_float_eq($hsp->evalue, 6e-59);
             is($hsp->score, 119);
             is($hsp->bits,236);	    	    
             is(sprintf("%.2f",$hsp->percent_identity), 85.22);
@@ -1488,7 +1488,7 @@ is $hit->length, 0;
 is $hit->accession, 'UniRef50_Q9X0H5';
 is $hit->description, 'Cluster: Histidyl-tRNA synthetase; n=4; Thermoto...';
 is $hit->bits, 23;
-float_eq($hit->significance, 650);
+is_float_eq($hit->significance, 650);
 
 # Bug 1986
 $searchio = Bio::SearchIO->new(-format => 'blast',
@@ -1502,7 +1502,7 @@ is $hit->accession, 'ENSP00000350182';
 is $hit->description, 'pep:novel clone::BX322644.8:4905:15090:-1 gene:ENSG00000137397 transcript:ENST00000357569 ';
 is $hit->raw_score, 301;
 is $hit->bits, 120;
-float_eq($hit->significance, 3e-27);
+is_float_eq($hit->significance, 3e-27);
 $hit = $result->next_hit;
 is $hit->name, 'ENSP00000327738';
 is $hit->length, 468;
@@ -1510,7 +1510,7 @@ is $hit->accession, 'ENSP00000327738';
 is $hit->description, 'pep:known-ccds chromosome:NCBI36:4:189297592:189305643:1 gene:ENSG00000184108 transcript:ENST00000332517 CCDS3851.1';
 is $hit->raw_score, 289;
 is $hit->bits, 115;
-float_eq($hit->significance, 8e-26);
+is_float_eq($hit->significance, 8e-26);
 
 # Bug 1986, pt. 2
 

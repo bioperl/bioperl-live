@@ -58,12 +58,12 @@ is($hit->overlap, 0, "Hit overlap");
 is($hit->rank, 1, "Hit rank");
 is($hit->raw_score, 0, "Hit raw_score");
 is($hit->score, 0, "Hit score");
-float_eq($hit->significance, undef);
+is_float_eq($hit->significance, undef);
 
 $hsp = $hit->next_hsp;
 isa_ok($hsp, 'Bio::Search::HSP::HSPI');
 is($hsp->algorithm, 'RNAMOTIF', "HSP algorithm");
-float_eq($hsp->evalue, undef);
+is_float_eq($hsp->evalue, undef);
 isa_ok($hsp->feature1, 'Bio::SeqFeature::Similarity');
 isa_ok($hsp->feature2, 'Bio::SeqFeature::Similarity');
 is($hsp->frame('query'), 0, "HSP frame");
@@ -90,9 +90,9 @@ is($hsp->query_string,
    "HSP query_string");
 is($hsp->range, 75, "HSP range");
 is($hsp->rank, 1, "HSP rank");
-float_eq($hsp->significance, undef);
+is_float_eq($hsp->significance, undef);
 is($hsp->end, 75, "HSP end");
-float_eq($hsp->expect, undef, "HSP expect");
+is_float_eq($hsp->expect, undef, "HSP expect");
 isa_ok($hsp->seq, 'Bio::LocatableSeq');
 is($hsp->seq_str,
    '',

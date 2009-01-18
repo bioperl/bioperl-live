@@ -44,7 +44,7 @@ while( my $hit = $result->next_hit ) {
     is($hit->name, shift @$d);
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
-    float_eq($hit->significance, shift @$d);
+    is_float_eq($hit->significance, shift @$d);
     is($hit->raw_score, shift @$d );
     is($hit->rank, $count + 1);
     if( $count == 0 ) {
@@ -57,7 +57,7 @@ while( my $hit = $result->next_hit ) {
             is($hsp->hit->start, 64902);
             is($hsp->hit->strand, 1);
             is($hsp->length('total'), 267);	    
-            float_eq($hsp->evalue, 0.017);
+            is_float_eq($hsp->evalue, 0.017);
             is($hsp->score, 134.5);
             is($hsp->bits,44.2);
             is(sprintf("%.2f",$hsp->percent_identity), '57.30');
@@ -128,7 +128,7 @@ while( my $hit = $result->next_hit ) {
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
     is($hit->ncbi_gi, shift @$d);
-    float_eq($hit->significance, shift @$d);
+    is_float_eq($hit->significance, shift @$d);
     is($hit->raw_score, shift @$d );
 
     if( $count == 0 ) {
@@ -141,7 +141,7 @@ while( my $hit = $result->next_hit ) {
             is($hsp->hit->end, 181);
             is($hsp->hit->strand, 0);
             is($hsp->length('total'), 188);	    
-            float_eq($hsp->evalue, 1.2);
+            is_float_eq($hsp->evalue, 1.2);
             is($hsp->score, 109.2);
             is($hsp->bits,29.2);
             is(sprintf("%.2f",$hsp->percent_identity), 23.94);
@@ -215,7 +215,7 @@ while( my $hit = $result->next_hit ) {
     is($hit->name, shift @$d);
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
-    float_eq($hit->significance, shift @$d);
+    is_float_eq($hit->significance, shift @$d);
     is($hit->raw_score, shift @$d );
 
     if( $count == 0 ) {
@@ -228,7 +228,7 @@ while( my $hit = $result->next_hit ) {
             is($hsp->hit->end, 341);
             is($hsp->hit->strand, 0);
             is($hsp->length('total'), 345);	    
-            float_eq($hsp->evalue, 3.1e-59);
+            is_float_eq($hsp->evalue, 3.1e-59);
             is($hsp->score, 1170.6);
             is($hsp->bits,227.8);
             is(sprintf("%.2f",$hsp->percent_identity), 53.04);
@@ -294,7 +294,7 @@ while( my $hit = $result->next_hit ) {
     is($hit->name, shift @$d);
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
-    float_eq($hit->significance, shift @$d);
+    is_float_eq($hit->significance, shift @$d);
     is($hit->raw_score, shift @$d );
 
     if ( $count == 1 ) {
@@ -308,7 +308,7 @@ while( my $hit = $result->next_hit ) {
             is($hsp->hit->strand, 0);
             is($hsp->length('total'), 330);
             
-            float_eq($hsp->evalue, 1.3e-25);
+            is_float_eq($hsp->evalue, 1.3e-25);
             is($hsp->score, 563.4);
             is($hsp->bits,'117.1');
             is(sprintf("%.2f",$hsp->percent_identity), 54.24);

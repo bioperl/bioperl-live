@@ -63,7 +63,7 @@ while(my $res = $searchio->next_result) {
     $hit = $res->next_hit;
     my $hsp = $hit->next_hsp;
     is($hsp->bits, 331);
-    float_eq($hsp->evalue, 2e-91);
+    is_float_eq($hsp->evalue, 2e-91);
     is($hsp->start('hit'), 16);
     is($hsp->end('hit'), 805);
     is($hsp->start('query'), 5);
