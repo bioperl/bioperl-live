@@ -178,12 +178,16 @@ SKIP: {
 # AnnotatableI
 my $seq = Bio::Seq->new();
 isa_ok($seq,"Bio::AnnotatableI");
-my $fea = Bio::SeqFeature::Annotated->new();
-isa_ok($fea, "Bio::SeqFeatureI",'isa SeqFeatureI');
-isa_ok($fea, "Bio::AnnotatableI",'isa AnnotatableI');
-$fea = Bio::SeqFeature::Generic->new();
-isa_ok($fea, "Bio::SeqFeatureI",'isa SeqFeatureI');
-isa_ok($fea, "Bio::AnnotatableI",'isa AnnotatableI');
+SKIP: {
+	test_skip(-requires_module => 'URI::Escape',
+			  -tests => 4);
+	my $fea = Bio::SeqFeature::Annotated->new();
+	isa_ok($fea, "Bio::SeqFeatureI",'isa SeqFeatureI');
+	isa_ok($fea, "Bio::AnnotatableI",'isa AnnotatableI');
+	$fea = Bio::SeqFeature::Generic->new();
+	isa_ok($fea, "Bio::SeqFeatureI",'isa SeqFeatureI');
+	isa_ok($fea, "Bio::AnnotatableI",'isa AnnotatableI');
+}
 my $clu = Bio::Cluster::UniGene->new();
 isa_ok($clu, "Bio::AnnotatableI");
 my $aln = Bio::SimpleAlign->new();
