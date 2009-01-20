@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 50,
+    test_begin(-tests => 51,
 	-requires_module => 'DB_File');
 	
 	use_ok('Bio::Assembly::IO');
@@ -26,10 +26,24 @@ my $in = Bio::Assembly::IO->new
 
 isa_ok($in, 'Bio::Assembly::IO');
 
-diag('If there are warnings here, it\'s because the phrap parser doesn\'t include the sequence string in the sequence objects.');
-my $sc = $in->next_assembly;
+my $sc;
 
-isa_ok($sc, 'Bio::Assembly::Scaffold');
+TODO: {
+	local $TODO = "phrap parser doesn't include the sequence string in the sequence objects.";
+	$in->verbose(2);
+	eval {$sc = $in->next_assembly};
+	ok(!$@);
+}
+
+$in = Bio::Assembly::IO->new
+	(-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'));
+
+$in->verbose(-1);
+
+$sc = $in->next_assembly;
+
+isa_ok($sc,
+	   'Bio::Assembly::Scaffold');
 
 #
 # Testing Scaffold
