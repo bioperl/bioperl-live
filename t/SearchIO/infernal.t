@@ -114,12 +114,12 @@ is($hit->query_length, 102, "Hit query_length");
 is($hit->rank, 1, "Hit rank");
 is($hit->raw_score, 81.29, "Hit raw_score");
 is($hit->score, 81.29, "Hit score");
-is_float_eq($hit->significance, undef);
+float_is($hit->significance, undef);
 
 $hsp = $hit->next_hsp;
 isa_ok($hsp, 'Bio::Search::HSP::HSPI');
 is($hsp->algorithm, 'CMSEARCH', "HSP algorithm");
-is_float_eq($hsp->evalue, undef);
+float_is($hsp->evalue, undef);
 isa_ok($hsp->feature1, 'Bio::SeqFeature::Similarity');
 isa_ok($hsp->feature2, 'Bio::SeqFeature::Similarity');
 ($meta) = $hsp->feature1->get_tag_values('meta');
@@ -143,16 +143,16 @@ is($hsp->hsp_length, 103, "HSP hsp_length");
 is($hsp->length, 103, "HSP length");
 is($hsp->links, undef, "HSP links");
 is($hsp->n, '', "HSP n");
-is_float_eq($hsp->pvalue, undef, "HSP pvalue");
+float_is($hsp->pvalue, undef, "HSP pvalue");
 isa_ok($hsp->query, 'Bio::SeqFeature::Similarity', "HSP query");
 is($hsp->query_string,
    'aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaGgcaaCCGUAAAuugcCuGACUAcG.aGuaAauauuaaauauuu',
    "HSP query_string");
 is($hsp->range, 102, "HSP range");
 is($hsp->rank, 1, "HSP rank");
-is_float_eq($hsp->significance, undef);
+float_is($hsp->significance, undef);
 is($hsp->end, 102, "HSP end");
-is_float_eq($hsp->expect, undef, "HSP expect");
+float_is($hsp->expect, undef, "HSP expect");
 $hsp->verbose(2);
 # These Bio::Search::HSP::HSPI methods are currently unimplemented in
 # Bio::Search::HSP::ModelHSP; they may be integrated over time but will require
@@ -191,7 +191,7 @@ is($hsp->strand('hit'), 1, "HSP strand");
 $hsp = $hit->next_hsp;
 isa_ok($hsp, 'Bio::Search::HSP::HSPI');
 is($hsp->algorithm, 'CMSEARCH', "HSP algorithm");
-is_float_eq($hsp->evalue, undef);
+float_is($hsp->evalue, undef);
 isa_ok($hsp->feature1, 'Bio::SeqFeature::Similarity');
 isa_ok($hsp->feature2, 'Bio::SeqFeature::Similarity');
 is($hsp->frame('query'), 0, "HSP frame");
@@ -210,16 +210,16 @@ is($hsp->hsp_length, 103, "HSP hsp_length");
 is($hsp->length, 103, "HSP length");
 is($hsp->links, undef, "HSP links");
 is($hsp->n, '', "HSP n");
-is_float_eq($hsp->pvalue, undef, "HSP pvalue");
+float_is($hsp->pvalue, undef, "HSP pvalue");
 isa_ok($hsp->query, 'Bio::SeqFeature::Similarity', "HSP query");
 is($hsp->query_string,
    'aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaGgcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu',
    "HSP query_string");
 is($hsp->range, 102, "HSP range");
 is($hsp->rank, 2, "HSP rank");
-is_float_eq($hsp->significance, undef);
+float_is($hsp->significance, undef);
 is($hsp->end, 102, "HSP end");
-is_float_eq($hsp->expect, undef, "HSP expect");
+float_is($hsp->expect, undef, "HSP expect");
 #is($hsp->matches, 2, "HSP matches");
 isa_ok($hsp->seq, 'Bio::LocatableSeq');
 # this should probably default to the hit string
@@ -252,14 +252,14 @@ is($hit->query_length, 102, "Hit query_length");
 is($hit->rank, 2, "Hit rank");
 is($hit->raw_score, 79.36, "Hit raw_score");
 is($hit->score, 79.36, "Hit score");
-is_float_eq($hit->significance, undef);
+float_is($hit->significance, undef);
 
 # one more HSP...
 
 $hsp = $hit->next_hsp;
 isa_ok($hsp, 'Bio::Search::HSP::HSPI');
 is($hsp->algorithm, 'CMSEARCH', "HSP algorithm");
-is_float_eq($hsp->evalue, undef);
+float_is($hsp->evalue, undef);
 isa_ok($hsp->feature1, 'Bio::SeqFeature::Similarity');
 isa_ok($hsp->feature2, 'Bio::SeqFeature::Similarity');
 is($hsp->frame('query'), 0, "HSP frame");
@@ -283,9 +283,9 @@ is($hsp->query_string,
    "HSP query_string");
 is($hsp->range, 102, "HSP range");
 is($hsp->rank, 1, "HSP rank");
-is_float_eq($hsp->significance, undef);
+float_is($hsp->significance, undef);
 is($hsp->end, 102, "HSP end");
-is_float_eq($hsp->expect, undef, "HSP expect");
+float_is($hsp->expect, undef, "HSP expect");
 isa_ok($hsp->seq, 'Bio::LocatableSeq');
 is($hsp->seq_str,
    'aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaGgcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu',
@@ -393,12 +393,12 @@ is($hit->query_length, 102, "Hit query_length");
 is($hit->rank, 1, "Hit rank");
 is($hit->raw_score, 79.36, "Hit raw_score");
 is($hit->score, 79.36, "Hit score");
-is_float_eq($hit->significance, 1.945e-07);
+float_is($hit->significance, 1.945e-07);
 
 $hsp = $hit->next_hsp;
 isa_ok($hsp, 'Bio::Search::HSP::HSPI');
 is($hsp->algorithm, 'CMSEARCH', "HSP algorithm");
-is_float_eq($hsp->evalue, 1.945e-07);
+float_is($hsp->evalue, 1.945e-07);
 isa_ok($hsp->feature1, 'Bio::SeqFeature::Similarity');
 isa_ok($hsp->feature2, 'Bio::SeqFeature::Similarity');
 ($meta) = $hsp->feature1->get_tag_values('meta');
@@ -422,16 +422,16 @@ is($hsp->hsp_length,102, "HSP hsp_length");
 is($hsp->length, 102, "HSP length");
 is($hsp->links, undef, "HSP links");
 is($hsp->n, '', "HSP n");
-is_float_eq($hsp->pvalue, 1.945e-07, "HSP pvalue");
+float_is($hsp->pvalue, 1.945e-07, "HSP pvalue");
 isa_ok($hsp->query, 'Bio::SeqFeature::Similarity', "HSP query");
 is($hsp->query_string,
    'aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaGgcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu',
    "HSP query_string");
 is($hsp->range, 102, "HSP range");
 is($hsp->rank, 1, "HSP rank");
-is_float_eq($hsp->significance, 1.945e-07);
+float_is($hsp->significance, 1.945e-07);
 is($hsp->end, 102, "HSP end");
-is_float_eq($hsp->expect, 1.945e-07, "HSP expect");
+float_is($hsp->expect, 1.945e-07, "HSP expect");
 
 isa_ok($hsp->seq, 'Bio::LocatableSeq');
 is($hsp->seq_str,
@@ -447,7 +447,7 @@ is($hsp->strand('hit'), 1, "HSP strand");
 $hsp = $hit->next_hsp;
 isa_ok($hsp, 'Bio::Search::HSP::HSPI');
 is($hsp->algorithm, 'CMSEARCH', "HSP algorithm");
-is_float_eq($hsp->evalue, 6.802);
+float_is($hsp->evalue, 6.802);
 isa_ok($hsp->feature1, 'Bio::SeqFeature::Similarity');
 isa_ok($hsp->feature2, 'Bio::SeqFeature::Similarity');
 is($hsp->frame('query'), 0, "HSP frame");
@@ -466,16 +466,16 @@ is($hsp->hsp_length, 102, "HSP hsp_length");
 is($hsp->length, 102, "HSP length");
 is($hsp->links, undef, "HSP links");
 is($hsp->n, '', "HSP n");
-is_float_eq($hsp->pvalue, 0.9989, "HSP pvalue");
+float_is($hsp->pvalue, 0.9989, "HSP pvalue");
 isa_ok($hsp->query, 'Bio::SeqFeature::Similarity', "HSP query");
 is($hsp->query_string,
    'aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaGgcaaCCGUAAAuugcCuGAC.UAcGaGuaAauauuaaauauuu',
    "HSP query_string");
 is($hsp->range, 102, "HSP range");
 is($hsp->rank, 2, "HSP rank");
-is_float_eq($hsp->significance, 6.802);
+float_is($hsp->significance, 6.802);
 is($hsp->end, 102, "HSP end");
-is_float_eq($hsp->expect, 6.802, "HSP expect");
+float_is($hsp->expect, 6.802, "HSP expect");
 #is($hsp->matches, 2, "HSP matches");
 isa_ok($hsp->seq, 'Bio::LocatableSeq');
 # this should probably default to the hit string
@@ -508,14 +508,14 @@ is($hit->query_length, 102, "Hit query_length");
 is($hit->rank, 2, "Hit rank");
 is($hit->raw_score, 81.29, "Hit raw_score");
 is($hit->score, 81.29, "Hit score");
-is_float_eq($hit->significance, 1.259e-07);
+float_is($hit->significance, 1.259e-07);
 
 # one more HSP...
 
 $hsp = $hit->next_hsp;
 isa_ok($hsp, 'Bio::Search::HSP::HSPI');
 is($hsp->algorithm, 'CMSEARCH', "HSP algorithm");
-is_float_eq($hsp->evalue, 1.259e-07);
+float_is($hsp->evalue, 1.259e-07);
 isa_ok($hsp->feature1, 'Bio::SeqFeature::Similarity');
 isa_ok($hsp->feature2, 'Bio::SeqFeature::Similarity');
 is($hsp->frame('query'), 0, "HSP frame");
@@ -539,9 +539,9 @@ is($hsp->query_string,
    "HSP query_string");
 is($hsp->range, 102, "HSP range");
 is($hsp->rank, 1, "HSP rank");
-is_float_eq($hsp->significance, 1.259e-07);
+float_is($hsp->significance, 1.259e-07);
 is($hsp->end, 102, "HSP end");
-is_float_eq($hsp->expect, 1.259e-07, "HSP expect");
+float_is($hsp->expect, 1.259e-07, "HSP expect");
 isa_ok($hsp->seq, 'Bio::LocatableSeq');
 is($hsp->seq_str,
    'aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaGgcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu',

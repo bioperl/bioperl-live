@@ -56,12 +56,12 @@ is($hit->query_length, undef, "Hit query_length");
 is($hit->rank, 1, "Hit rank");
 is($hit->raw_score, 31.64, "Hit raw_score");
 is($hit->score, 31.64, "Hit score");
-is_float_eq($hit->significance, 4.44e-06);
+float_is($hit->significance, 4.44e-06);
 
 $hsp = $hit->next_hsp;
 isa_ok($hsp, 'Bio::Search::HSP::HSPI');
 is($hsp->algorithm, 'ERPIN', "HSP algorithm");
-is_float_eq($hsp->evalue, 1.68e-05);
+float_is($hsp->evalue, 1.68e-05);
 isa_ok($hsp->feature1, 'Bio::SeqFeature::Similarity');
 isa_ok($hsp->feature2, 'Bio::SeqFeature::Similarity');
 is($hsp->frame('query'), 0, "HSP frame");
@@ -83,8 +83,8 @@ is($hsp->query_string,
    "HSP query_string");
 is($hsp->range, 37, "HSP range");
 is($hsp->rank, 1, "HSP rank");
-is_float_eq($hsp->significance, 1.68e-05);
-is_float_eq($hsp->expect, '1.68e-05', "HSP expect");
+float_is($hsp->significance, 1.68e-05);
+float_is($hsp->expect, '1.68e-05', "HSP expect");
 isa_ok($hsp->seq, 'Bio::LocatableSeq');
 is($hsp->seq_str,
    '',
@@ -105,7 +105,7 @@ like($@, qr'Missing query string, can\'t build alignment','ERPIN get_aln warning
 $hsp = $hit->next_hsp;
 isa_ok($hsp, 'Bio::Search::HSP::HSPI');
 is($hsp->algorithm, 'ERPIN', "HSP algorithm");
-is_float_eq($hsp->evalue, 5.61e-05);
+float_is($hsp->evalue, 5.61e-05);
 isa_ok($hsp->feature1, 'Bio::SeqFeature::Similarity');
 isa_ok($hsp->feature2, 'Bio::SeqFeature::Similarity');
 is($hsp->frame('query'), 0, "HSP frame");
@@ -127,9 +127,9 @@ is($hsp->links, undef, "HSP links");
 isa_ok($hsp->query, 'Bio::SeqFeature::Similarity');
 is($hsp->range, 37, "HSP range");
 is($hsp->rank, 2, "HSP rank");
-is_float_eq($hsp->significance, 5.61e-05);
+float_is($hsp->significance, 5.61e-05);
 is($hsp->end, 37, "HSP end");
-is_float_eq($hsp->expect, '5.61e-05', "HSP expect");
+float_is($hsp->expect, '5.61e-05', "HSP expect");
 isa_ok($hsp->seq, 'Bio::LocatableSeq');
 is($hsp->seq_str,   '',   "HSP seq_str");
 is($hsp->start, 1, "HSP start");
