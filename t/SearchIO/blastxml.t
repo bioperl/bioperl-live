@@ -73,7 +73,7 @@ SKIP: {
 	is($hsp->hit->seq_id, $hit->name,'hitname');
 	is($hsp->hit->seqdesc, $hit->description,'hitdesc');
 	is($hsp->pvalue, undef);
-	is(sprintf("%g",$hsp->evalue), sprintf("%g",'1.46134e-90'));
+	float_is($hsp->evalue, 1.46134e-90);
 	is($hsp->score, 838);
 	is($hsp->bits,327.405);
 	is($hsp->query->start, 498);
@@ -182,7 +182,7 @@ SKIP: {
 	is($hsp->hit->seq_id, $hit->name,'hitname');
 	is($hsp->hit->seqdesc, $hit->description,'hitdesc');
 	is($hsp->pvalue, undef);
-	is(sprintf("%g",$hsp->evalue), sprintf("%g",'0'));
+	float_is($hsp->evalue, 0);
 	is($hsp->score, 2251);
 	is($hsp->bits,871.692);
 	is($hsp->query->start, 1);
@@ -222,7 +222,7 @@ SKIP: {
 	is($hsp->hit->seq_id, $hit->name,'hitname');
 	is($hsp->hit->seqdesc, $hit->description,'hitdesc');
 	is($hsp->pvalue, undef);
-	is(sprintf("%g",$hsp->evalue), sprintf("%g",'0'));
+	float_is($hsp->evalue, 0);
 	is($hsp->score, 1780);
 	is($hsp->bits,690.263);
 	is($hsp->query->start, 1);
@@ -259,7 +259,7 @@ SKIP: {
 		is($result->get_statistic('dbentries'), 88780);
 		is($result->get_statistic('effective_hsplength'), 49);
 	}
-	is($result->get_statistic('effectivespace'), '6.44279e+07');
+	float_is($result->get_statistic('effectivespace'), '6.44279e+07');
 	is($result->get_parameter('matrix'), 'BLOSUM62');
 	is($result->get_parameter('gapopen'), 11);
 	is($result->get_parameter('gapext'), 1);
@@ -292,7 +292,7 @@ SKIP: {
 				is($hit->length, shift @$d);
 				is($hit->accession, shift @$d);
 				is($hit->ncbi_gi, shift @$d);
-				is(sprintf("%g",$hit->significance), sprintf("%g",shift @$d) );
+				float_is($hit->significance, shift @$d);
 				is($hit->bits, shift @$d );
 				if( $hit_count == 1 ) {
 					my $hsps_left = 1;
@@ -305,7 +305,7 @@ SKIP: {
 						is($hsp->start('hit'), $hsp->hit->start);
 						is($hsp->end('query'), $hsp->query->end);
 						is($hsp->strand('sbjct'), $hsp->subject->strand);# alias for hit
-						cmp_ok($hsp->evalue, '==', 0.000286309);
+						float_is($hsp->evalue, 0.000286309);
 						is($hsp->score, 86);
 						is($hsp->bits, 37.7354);
 						is(sprintf("%.1f",$hsp->percent_identity), 20.9);
@@ -338,7 +338,7 @@ SKIP: {
 	is($result->get_statistic('kappa') , 0.0450367);
 	cmp_ok($result->get_statistic('lambda'), '==', 0.267);
 	cmp_ok($result->get_statistic('entropy'), '==', 0.14);
-	is($result->get_statistic('effectivespace'), '1.88702e+08');
+	float_is($result->get_statistic('effectivespace'), '1.88702e+08');
 	is($result->get_parameter('matrix'), 'BLOSUM62');
 	is($result->get_parameter('gapopen'), 11);
 	is($result->get_parameter('gapext'), 1);
@@ -372,7 +372,7 @@ SKIP: {
 				is($hit->length, shift @$d);
 				is($hit->accession, shift @$d);
 				is($hit->ncbi_gi, shift @$d);
-				is(sprintf("%g",$hit->significance), sprintf("%g",shift @$d) );
+				float_is($hit->significance, shift @$d);
 				is($hit->bits, shift @$d );
 				if( $hit_count == 1 ) {
 					my $hsps_left = 1;
@@ -385,7 +385,7 @@ SKIP: {
 						is($hsp->start('hit'), $hsp->hit->start);
 						is($hsp->end('query'), $hsp->query->end);
 						is($hsp->strand('sbjct'), $hsp->subject->strand);# alias for hit
-						cmp_ok($hsp->evalue, '==', 0.0242028);
+						float_is($hsp->evalue, 0.0242028);
 						is($hsp->score, 73);
 						is($hsp->bits, 32.7278);
 						is(sprintf("%.1f",$hsp->percent_identity), '24.0');

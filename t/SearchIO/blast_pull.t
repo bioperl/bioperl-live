@@ -37,7 +37,7 @@ is $result->get_parameter('gapopen'), 5;
 is $result->get_parameter('gapext'), 2;
 is $result->get_statistic('S2'), 60;
 is $result->get_statistic('S2_bits'), 119.4;
-is $result->get_parameter('expect'), 1e-23;
+float_is $result->get_parameter('expect'), 1e-23;
 is $result->get_statistic('num_extensions'), 117843;
 
 my @valid = ( [ 'gi|41400296|gb|AE016958.1|', 4829781, 'AE016958', '6e-059', 236],
@@ -50,7 +50,7 @@ while (my $hit = $result->next_hit ) {
     is $hit->name, shift @$d;
     is $hit->length, shift @$d;
     is $hit->accession, shift @$d;
-    is sprintf("%g",$hit->significance), sprintf("%g",shift @$d);
+    float_is($hit->significance, shift @$d);
     is $hit->raw_score, shift @$d;
 
     if( $count == 0 ) {
@@ -64,7 +64,7 @@ while (my $hit = $result->next_hit ) {
             is $hsp->start('hit'), $hsp->hit->start;
             is $hsp->end('query'), $hsp->query->end;
             is $hsp->strand('sbjct'), $hsp->subject->strand;# alias for hit
-            is $hsp->evalue, 6e-59;
+            float_is($hsp->evalue, 6e-59);
             is $hsp->score, 119;
             is $hsp->bits,236;	    	    
             is sprintf("%.1f",$hsp->percent_identity), 85.2;
@@ -118,7 +118,7 @@ is($result->get_parameter('gapopen'), 11);
 is($result->get_parameter('gapext'), 1);
 is($result->get_statistic('S2'), '92');
 is($result->get_statistic('S2_bits'), '40.0');
-is($result->get_parameter('expect'), '1.0e-03');
+float_is($result->get_parameter('expect'), '1.0e-03');
 is($result->get_statistic('num_extensions'), '82424');
 
 
@@ -132,7 +132,7 @@ while (my $hit = $result->next_hit) {
     is($hit->name, shift @$d);
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
-    is(sprintf("%g",$hit->significance), sprintf("%g",shift @$d) );
+    float_is($hit->significance, shift @$d);
     is($hit->raw_score, shift @$d );
 
     if( $count == 0 ) {
@@ -146,7 +146,7 @@ while (my $hit = $result->next_hit) {
             is($hsp->start('hit'), $hsp->hit->start);
             is($hsp->end('query'), $hsp->query->end);
             is($hsp->strand('sbjct'), $hsp->subject->strand);# alias for hit
-            is($hsp->evalue, '0.0');
+            float_is($hsp->evalue, 0.0);
             is($hsp->score, 4058);
             is($hsp->bits,1567);	    	    
             is(sprintf("%.2f",$hsp->percent_identity), 98.29);
@@ -205,7 +205,7 @@ while( my $hit = $result->next_hit ) {
     is($hit->name, shift @$d);
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
-    is(sprintf("%g",$hit->significance), sprintf("%g",shift @$d) );
+    float_is($hit->significance, shift @$d);
     is($hit->raw_score, shift @$d );
     is($hit->start, shift @$d);
     is($hit->end,shift @$d);    
@@ -220,7 +220,7 @@ while( my $hit = $result->next_hit ) {
             is($hsp->hit->end, 212);
             is($hsp->hit->strand, 1);
             is($hsp->length('hsp'), 60);	    
-            is(sprintf("%g",$hsp->evalue), sprintf("%g",'3e-18'));
+            float_is($hsp->evalue, 3e-18);
             is($hsp->score, 48);
             is($hsp->bits,95.6);
             is(sprintf("%.2f",$hsp->percent_identity), 96.67);
@@ -328,7 +328,7 @@ is($result->get_parameter('gapopen'), 5);
 is($result->get_parameter('gapext'), 2);
 is($result->get_statistic('S2'), '60');
 is($result->get_statistic('S2_bits'), '119.4');
-is($result->get_parameter('expect'), '1e-23');
+float_is($result->get_parameter('expect'), '1e-23');
 is($result->get_statistic('num_extensions'), '117843');
 
 @valid = ( [ 'gi|41400296|gb|AE016958.1|', 4829781, 'AE016958', '6e-059', 236],
@@ -341,7 +341,7 @@ while( $hit = $result->next_hit ) {
     is($hit->name, shift @$d);
     is($hit->length, shift @$d);
     is($hit->accession, shift @$d);
-    is(sprintf("%g",$hit->significance), sprintf("%g",shift @$d) );
+    float_is($hit->significance, shift @$d);
     is($hit->raw_score, shift @$d );
 
     if( $count == 0 ) {
@@ -355,7 +355,7 @@ while( $hit = $result->next_hit ) {
             is($hsp->start('hit'), $hsp->hit->start);
             is($hsp->end('query'), $hsp->query->end);
             is($hsp->strand('sbjct'), $hsp->subject->strand);# alias for hit
-            cmp_ok($hsp->evalue, '==', 6e-59);
+            float_is($hsp->evalue, 6e-59);
             is($hsp->score, 119);
             is($hsp->bits,236);	    	    
             is(sprintf("%.2f",$hsp->percent_identity), 85.22);
@@ -384,7 +384,7 @@ is($result->query_length, 193);
 my @hits = $result->hits;
 is(scalar(@hits), 10);
 is($hits[1]->accession,'1W30');
-is($hits[4]->significance,'2e-72');
+float_is($hits[4]->significance,'2e-72');
 is($hits[7]->score,'254');
 $result = $searchio->next_result;
 is($result->database_entries, 4460989);
@@ -396,7 +396,7 @@ is($result->query_length, 423);
 @hits = $result->hits;
 is(scalar(@hits), 10);
 is($hits[1]->accession,'ZP_00972546');
-is($hits[4]->significance, '0.0');
+float_is($hits[4]->significance, '0.0');
 is($hits[7]->score, 624);
 
 # Bug 2246
@@ -410,6 +410,6 @@ is $hit->length, undef;
 is $hit->accession, 'UniRef50_Q9X0H5';
 is $hit->description, 'Cluster: Histidyl-tRNA synthetase; n=4; Thermoto...';
 is $hit->raw_score, 23;
-is $hit->significance, 650;
+float_is($hit->significance, 650);
 
 #*** need to /fully/ test a multi-result, multi-hit, multi-hsp report!

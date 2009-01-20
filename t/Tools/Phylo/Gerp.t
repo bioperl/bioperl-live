@@ -7,7 +7,8 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 33);
+    test_begin(-tests => 33,
+			   -requires_module => 'URI::Escape');
 	
     use_ok('Bio::Tools::Phylo::Gerp');
 }

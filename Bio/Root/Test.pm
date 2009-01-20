@@ -167,11 +167,12 @@ our @EXPORT = qw(ok use_ok require_ok
                  test_output_dir
                  test_input_file
                  test_network
-                 test_debug);
+                 test_debug
+                 float_is
+                 );
 
 our $GLOBAL_FRAMEWORK = 'Test::More';
 our @TEMP_FILES;
-
 
 =head2 test_begin
 
@@ -371,6 +372,26 @@ sub test_debug {
     return $ENV{'BIOPERLDEBUG'} || 0;
 }
 
+=head2 float_is
+
+ Title   : float_is
+ Usage   : float_is($val1, $val2);
+ Function: test two floating point values for equality
+ Returns : Boolean based on test (can use in combination with diag)
+ Args    : two scalar values (floating point numbers) (required via prototype)
+           test message (optional)
+
+=cut
+
+sub float_is ($$;$) {
+    my ($val1, $val2, $message) = @_;
+    # catch any potential undefined values and directly compare
+    if (!defined $val1 || !defined $val2) {
+        is($val1, $val2 ,$message);
+    } else {
+        is(sprintf("%g",$val1), sprintf("%g",$val2),$message);
+    }
+}
 
 # decide if should skip and generate skip message
 sub _skip {

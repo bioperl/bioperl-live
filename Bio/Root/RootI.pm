@@ -194,18 +194,45 @@ sub warn {
 
  Title   : deprecated
  Usage   : $obj->deprecated("Method X is deprecated");
- Function: Prints a message about deprecation 
-           unless verbose is < 0 (which means be quiet)
+           $obj->deprecated("Method X is deprecated", 1.007);
+           $obj->deprecated(-message => "Method X is deprecated");
+           $obj->deprecated(-message => "Method X is deprecated",
+                            -version => 1.007);
+ Function: Prints a message about deprecation unless verbose is < 0
+           (which means be quiet)
  Returns : none
  Args    : Message string to print to STDERR
+           Version of BioPerl where use of the method results in an exception
+ Notes   : The method can be called two ways, either by positional arguments:
+           
+           $obj->deprecated('This module is deprecated', 1.006);
+           
+           or by named arguments:
+           
+           $obj->deprecated(
+                -message => 'use of the method foo() is deprecated, use bar() instead',
+                -version => 1.006);
+                            
+           The version is optional but highly suggested. For proper comparisons
+           one must use a version in lines with the current versioning scheme
+           for Perl and BioPerl, (i.e. where 1.006000 indicates v1.6.0, 5.010000
+           for v5.10.0, etc.).
 
 =cut
 
 sub deprecated{
-   my ($self,$msg) = @_;
-   if( $self->verbose >= 0 ) { 
-       print STDERR $msg, "\n", $self->stack_trace_dump;
-   }
+    my ($self) = shift;
+    my ($msg, $version) = $self->_rearrange([qw(MESSAGE VERSION)], @_);
+    # delegate to either warn or throw based on whether a version is given
+    if ($version) {
+        $self->throw('Version must be numerical, such as 1.006000 for v1.6.0, not '.
+                     $version) unless $version =~ /^\d+\.\d+$/;
+        if ($Bio::Root::Version::VERSION >= $version) {
+            $self->throw($msg)
+        } 
+    }
+    # passing this on to warn() should deal properly with verbosity issues
+    $self->warn($msg);
 }
 
 =head2 stack_trace_dump

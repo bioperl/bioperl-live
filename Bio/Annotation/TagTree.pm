@@ -282,7 +282,7 @@ sub value {
     # get mode?
     # How do we return a data structure?
     # for now, we use the output (if there is a Data::Stag node present)
-    # may need to an an eval {} to catch Data::Stag output errors
+    # may need to run an eval {} to catch Data::Stag output errors
     $self->node->$format;
 }
 

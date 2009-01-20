@@ -27,9 +27,11 @@ sub fetch {
     my ($id, $class) = @_;
     print "###################### $class  ####################################\n" if $verbose;
     my $seq;
-    ok defined ( my $gb = new $class('-verbose'=>$verbose,'-delay'=>0) ), "defined for $class";
+    ok defined( my $gb = $class->new('-verbose'=>$verbose,
+									 '-delay'=>0,
+									 '-retrievaltype' => 'tempfile') ), "defined for $class";
     eval { $seq = $gb->get_Seq_by_id($id) };
-    if ($@ or not defined $seq) {
+    if ($@ || !defined $seq) {
 		ok 1, "error or undef for $class";
 		return;
     }

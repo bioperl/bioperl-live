@@ -170,20 +170,24 @@ is (@lines, 2);
 ok("@lines" !~ /Parent=/s);
 ok("@lines" =~ /ID=/s);
 
-if (my $child = open(F,"-|")) { # parent reads from child
-    cmp_ok(scalar <F>,'>',0);
-    close F;
-    # The challenge is to make sure that the handle
-    # still works in the parent!
-    my @f = $db->features();
-    cmp_ok(scalar @f,'>',0);
-}
-else { # in child
-    $db->clone;
-    my @f = $db->features();
-    my $feature_count = @f;
-    print $feature_count;
-    exit 0;
+SKIP: {
+	test_skip(-tests => 1, -excludes_os => 'mswin');
+	
+	if (my $child = open(F,"-|")) { # parent reads from child
+		cmp_ok(scalar <F>,'>',0);
+		close F;
+		# The challenge is to make sure that the handle
+		# still works in the parent!
+		my @f = $db->features();
+		cmp_ok(scalar @f,'>',0);
+	}
+	else { # in child
+		$db->clone;
+		my @f = $db->features();
+		my $feature_count = @f;
+		print $feature_count;
+		exit 0;
+	}
 }
 
 # test the -ignore_seqregion flag

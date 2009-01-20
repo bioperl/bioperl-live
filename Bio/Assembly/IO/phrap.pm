@@ -200,7 +200,8 @@ sub next_assembly {
             -id         => $singletID,
             -primary_id => $singletID,
             -alphabet   => 'dna');
-          my $singletOBJ = Bio::Assembly::Singlet->new(-seqref=>$seq);
+          my $singletOBJ = Bio::Assembly::Singlet->new(-seqref=>$seq,
+                                                       -verbose => $self->verbose);
           my $feat = Bio::SeqFeature::Generic->new(
             -start   => 1,
             -end     => $length,
@@ -217,6 +218,7 @@ sub next_assembly {
     /^Contig (\d+)\.\s+(\d+) reads?; (\d+) bp \(untrimmed\), (\d+) \(trimmed\)\./ && do {
       my ($contigID, $nof_reads, $length, $trimmed_length) = ($1, $2, $3, $4);
       $contigOBJ = Bio::Assembly::Contig->new( -id     => $contigID,
+                                              -verbose => $self->verbose,
                                                -source => 'phrap'   );
       my $feat   = Bio::SeqFeature::Generic->new(
         -start   => 1,

@@ -62,8 +62,8 @@ while (my $result = $searchio->next_result) {
         is $hit->name, shift @{$hit_data[0]};
         is $hit->raw_score, shift @{$hit_data[1]};
         is $hit->score, $hit->raw_score;
-        is $hit->significance, shift @{$hit_data[2]};
-        is $hit->p, $hit->significance;
+        float_is $hit->significance, shift @{$hit_data[2]};
+        float_is $hit->p, $hit->significance;
         is $hit->num_hsps, shift @{$hit_data[3]};
         is $hit->n, $hit->num_hsps;
         is $hit->algorithm, $result->algorithm;
@@ -97,9 +97,9 @@ while (my $result = $searchio->next_result) {
 		
 		if ($hit->name eq 'SEED') {
 			my $best = $hit->hsp('best');
-			is $best->evalue, 1.1e-18;
+			float_is($best->evalue, 1.1e-18);
 			my $worst = $hit->hsp('worst');
-			is $worst->evalue, 2.2e-17;
+			float_is($worst->evalue, 2.2e-17);
 			is $hit->start('query'), 33;
 			is $hit->start('hit'), 1;
 			is $hit->end('query'), 194;
@@ -154,9 +154,9 @@ while (my $result = $searchio->next_result) {
 			is $hsp->strand('query'), 1;
             is $hsp->score, shift @{$hsp_data[4]};
 			ok ! $hsp->bits;
-            is $hsp->evalue, shift @{$hsp_data[5]};
+            float_is($hsp->evalue, shift @{$hsp_data[5]});
 			ok ! $hsp->pvalue;
-			is $hsp->significance, $hsp->evalue;
+			float_is($hsp->significance, $hsp->evalue);
 			is $hsp->algorithm, $result->algorithm;
 			is $hsp->rank, shift @{$hsp_data[12]};
 			my @range = $hsp->range;

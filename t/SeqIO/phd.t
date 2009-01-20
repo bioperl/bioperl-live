@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 18);
+    test_begin(-tests => 17);
 	
 	use_ok('Bio::SeqIO::phd');
 }
@@ -92,8 +92,15 @@ is($phd->chromat_file(),'ML4924R','$phd->chromat_file()');
 $phd->chromat_file('ML4924R.esd');
 is($phd->chromat_file(), 'ML4924R.esd','$phd->chromat_file()');
 $phd->touch();
-my $localtime = localtime();
-is($phd->time, "$localtime");
+
+# Commented out 1/17/09.
+# This isn't exactly a stable regression test as the comparison tests
+# localtime() called from two different timepoints. They can differ if the calls
+# occurred before and after a change in seconds, for example.
+
+#my $localtime = localtime();
+#is($phd->time, "$localtime", $phd->time.':'.$localtime);
+
 if ($DEBUG){
     print "Testing the sequence ...\n";
     print ">",$phd->id," ",$phd->desc,"\n",$phd->seq,"\n";
