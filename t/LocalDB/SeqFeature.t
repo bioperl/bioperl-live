@@ -171,7 +171,7 @@ ok("@lines" !~ /Parent=/s);
 ok("@lines" =~ /ID=/s);
 
 SKIP: {
-	test_skip(-tests => 1, -excludes_os => 'mswin');
+	test_skip(-tests => 2, -excludes_os => 'mswin');
 	
 	if (my $child = open(F,"-|")) { # parent reads from child
 		cmp_ok(scalar <F>,'>',0);
