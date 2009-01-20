@@ -141,18 +141,18 @@ sub create_object {
        # we need to guess this
        $type = $self->_guess_type(@args);
        if(! $type) {
-	   $self->throw("No annotation type set and unable to guess.");
+       $self->throw("No annotation type set and unable to guess.");
        }
        # load dynamically if it hasn't been loaded yet
        if(! $self->{'_loaded_types'}->{$type}) {
-	   eval {
-	       $self->_load_module($type);
-	       $self->{'_loaded_types'}->{$type} = 1;
-	   };
-	   if($@) {
-	       $self->throw("Bio::AnnotationI implementation $type ".
-			    "failed to load: ".$@);
-	   }
+       eval {
+           $self->_load_module($type);
+           $self->{'_loaded_types'}->{$type} = 1;
+       };
+       if($@) {
+           $self->throw("Bio::AnnotationI implementation $type ".
+                "failed to load: ".$@);
+       }
        }
    }
    return $type->new(-verbose => $self->verbose, @args);
@@ -177,23 +177,23 @@ sub type{
     my $self = shift;
 
     if(@_) {
-	my $type = shift;
-	if($type && (! $self->{'_loaded_types'}->{$type})) {
-	    eval {
-		$self->_load_module($type);
-	    };
-	    if( $@ ) {
-		$self->throw("Annotation class '$type' failed to load: ".
-			     $@);
-	    }
-	    my $a = bless {},$type;
-	    if( ! $a->isa('Bio::AnnotationI') ) {
-		$self->throw("'$type' does not implement Bio::AnnotationI. ".
-			     "Too bad.");
-	    }
-	    $self->{'_loaded_types'}->{$type} = 1;
-	}
-	return $self->{'type'} = $type;
+    my $type = shift;
+    if($type && (! $self->{'_loaded_types'}->{$type})) {
+        eval {
+        $self->_load_module($type);
+        };
+        if( $@ ) {
+        $self->throw("Annotation class '$type' failed to load: ".
+                 $@);
+        }
+        my $a = bless {},$type;
+        if( ! $a->isa('Bio::AnnotationI') ) {
+        $self->throw("'$type' does not implement Bio::AnnotationI. ".
+                 "Too bad.");
+        }
+        $self->{'_loaded_types'}->{$type} = 1;
+    }
+    return $self->{'type'} = $type;
     }
     return $self->{'type'};
 }
@@ -218,23 +218,27 @@ sub _guess_type{
     my $type;
 
     # we can only guess from a certain number of arguments
-    my ($val,$db,$text,$name,$authors, $start) =
-	$self->_rearrange([qw(VALUE
-			      DATABASE
-			      TEXT
-			      NAME
-			      AUTHORS
-                              START
-			      )], @args);
-  SWITCH: {
-      $val        && do { $type = "SimpleValue"; last SWITCH; };
-      $authors    && do { $type = "Reference"; last SWITCH; };
-      $db         && do { $type = "DBLink"; last SWITCH; };
-      $text       && do { $type = "Comment"; last SWITCH; };
-      $name       && do { $type = "OntologyTerm"; last SWITCH; };
-      $start      && do { $type = "Target"; last SWITCH; };
-      # what else could we look for?
-  }
+    my ($val, $db, $text, $name, $authors, $start, $tree, $node) =
+    $self->_rearrange([qw(VALUE
+                  DATABASE
+                  TEXT
+                  NAME
+                  AUTHORS
+                  START
+                  TREE_OBJ
+                  NODE
+                  )], @args);
+    SWITCH: {
+        $val        && do { $type = ref($val) ? "TagTree" : "SimpleValue"; last SWITCH; };
+        $authors    && do { $type = "Reference"; last SWITCH; };
+        $db         && do { $type = "DBLink"; last SWITCH; };
+        $text       && do { $type = "Comment"; last SWITCH; };
+        $name       && do { $type = "OntologyTerm"; last SWITCH; };
+        $start      && do { $type = "Target"; last SWITCH; };
+        $tree       && do { $type = "Tree"; last SWITCH; };
+        $node       && do { $type = "TagTree"; last SWITCH; };
+        # what else could we look for?
+    }
     $type = "Bio::Annotation::".$type;
 
     return $type;

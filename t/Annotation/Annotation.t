@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 155);
+    test_begin(-tests => 159);
 	
     use_ok('Bio::Annotation::Collection');
     use_ok('Bio::Annotation::DBLink');
@@ -201,22 +201,21 @@ isa_ok($factory, 'Bio::Factory::ObjectFactoryI');
 # defaults to SimpleValue
 $ann = $factory->create_object(-value => 'peroxisome',
 			       -tagname => 'cellular component');
-like(ref $ann, qr(Bio::Annotation::SimpleValue));
+isa_ok($ann, 'Bio::Annotation::SimpleValue');
 
 $factory->type('Bio::Annotation::OntologyTerm');
 
 $ann = $factory->create_object(-name => 'peroxisome',
 			       -tagname => 'cellular component');
 ok(defined $ann);
-like(ref($ann), qr(Bio::Annotation::OntologyTerm));
+isa_ok($ann, 'Bio::Annotation::OntologyTerm');
 
+# unset type()
+$factory->type(undef);
 $ann = $factory->create_object(-text => 'this is a comment');
 ok(defined $ann,'Bio::Annotation::Comment');
 
-TODO: {
-  local $TODO = "Create Annotation::Comment based on parameter only";
-  isa_ok($ann,'Bio::Annotation::Comment');
-}
+isa_ok($ann,'Bio::Annotation::Comment');
 
 ok $factory->type('Bio::Annotation::Comment');
 $ann = $factory->create_object(-text => 'this is a comment');
@@ -276,6 +275,12 @@ for my $treeblock ( $aln->annotation->get_Annotations('tree') ) {
   }
   is( $str, "MDDKELEIPVEHSTAFGQLV", "get seq from node id");
 }
+
+# factory guessing the type: Tree
+$factory = Bio::Annotation::AnnotationFactory->new();
+$ann = $factory->create_object(-tree_obj => $tree);
+ok defined $ann;
+isa_ok($ann,'Bio::Annotation::Tree');
 
 #tagtree
 my $struct = [ 'genenames' => [
@@ -381,3 +386,9 @@ for my $tagtree ( $ac->get_Annotations('genenames') ) {
   }
 }
 is($ct,3);
+
+# factory guessing the type: TagTree
+$factory = Bio::Annotation::AnnotationFactory->new();
+$ann = $factory->create_object(-value => $struct);
+ok defined $ann;
+isa_ok($ann,'Bio::Annotation::TagTree');
