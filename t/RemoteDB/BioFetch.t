@@ -56,7 +56,7 @@ SKIP: {
 	$seq = $seqio->next_seq();
 	isa_ok($seqio, 'Bio::SeqIO');
 	isa_ok($seq, 'Bio::SeqI');
-	is( $seq->length, 200);
+	cmp_ok( $seq->length, '>=', 200);
 }
 
 SKIP: {

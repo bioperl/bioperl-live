@@ -37,7 +37,7 @@ SKIP: {
 	skip('could not connect to embl',2) if $@;
     undef $db; # testing to see if we can remove gb
     ok( defined($seq = $seqio->next_seq()));
-    is( $seq->length, 200);
+    cmp_ok( $seq->length, '>=', 200);
 }
 
 $seq = $seqio = undef;
