@@ -1229,7 +1229,7 @@ sub find_exe {
         undef $exe;
         my @exes;
         foreach my $d (@bindirs) {
-            push(@exes, "$d/$name") if -x "$d/$name" && !-l "$d/$name";
+            push(@exes, "$d/$name") if -x "$d/$name";
         }
         if (scalar @exes) {
             $exe = $exes[0];
