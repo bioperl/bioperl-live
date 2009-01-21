@@ -7,7 +7,8 @@ BEGIN {
     use lib '.';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 12);
+	test_begin(-tests => 12,
+			   -requires_module => 'Time::HiRes');
     
 	use_ok('Bio::ClusterIO');
 	use_ok('Bio::Cluster::ClusterFactory');

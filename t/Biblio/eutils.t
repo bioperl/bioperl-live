@@ -8,7 +8,7 @@ BEGIN {
 	use Bio::Root::Test;
 	
 	test_begin(-tests => 4,
-			   -requires_modules => [qw(IO::String LWP::Simple)],
+			   -requires_modules => [qw(IO::String LWP::Simple XML::Twig)],
 			   -requires_networking => 1);
 	
 	use_ok('Bio::Biblio');

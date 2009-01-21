@@ -341,8 +341,13 @@ sub ids{
 	$self->throw(-class=>'Bio::Root::BadParameter',
 		     -text=>'Arrayref required',
 		     -value=> ref $a) unless ref($a) eq 'ARRAY';
-	@{$self->{'ids'}}{@$a} = (1) x @$a;
-	return $a;
+	if (@$a) {
+	    @{$self->{'ids'}}{@$a} = (1) x @$a;
+	    return $a;
+	}
+	else { #with empty arrayref, clear the hash
+	    $self->{'ids'} = {};
+	}
     }
     return keys %{$self->{'ids'}} if $self->{'ids'};
 }
