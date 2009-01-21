@@ -525,16 +525,15 @@ sub feature_thaw {
 
 sub DESTROY {
     my $self = shift;
-    $self->SUPER::DESTROY();
     $self->{'_btree'} = undef;
     untie(%{$self->{'_btreehash'}});
-
     if( ! $self->keep && $self->indexfile ) {
         my $f = $self->indexfile;
         $self->debug( "unlinking ".$f. "\n");
         close($f);
         unlink($f);
     }
+    $self->SUPER::DESTROY();    
 }
 
 1;
