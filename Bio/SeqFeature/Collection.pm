@@ -530,8 +530,10 @@ sub DESTROY {
     untie(%{$self->{'_btreehash'}});
 
     if( ! $self->keep && $self->indexfile ) {
-	$self->debug( "unlinking ".$self->indexfile. "\n");
-	unlink($self->indexfile);
+        my $f = $self->indexfile;
+        $self->debug( "unlinking ".$f. "\n");
+        close($f);
+        unlink($f);
     }
 }
 
