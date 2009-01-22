@@ -14,7 +14,7 @@
 
 =head1 NAME
 
-Bio::Root::Build - A common Module::Build subclass base for Bioperl distributions
+Bio::Root::Build - A common Module::Build subclass base for BioPerl distributions
 
 =head1 SYNOPSIS
 
@@ -141,7 +141,7 @@ sub choose_scripts {
         }
     }
     closedir($scripts_dir);
-    my $question = $int_ok ? "Install [a]ll Bioperl scripts, [n]one, or choose groups [i]nteractively?" : "Install [a]ll Bioperl scripts or [n]one?";
+    my $question = $int_ok ? "Install [a]ll BioPerl scripts, [n]one, or choose groups [i]nteractively?" : "Install [a]ll BioPerl scripts or [n]one?";
     
     my $prompt = $accept ? 'a' : $self->prompt($question, 'a');
     
@@ -450,11 +450,11 @@ sub install_prereq {
         my $msg;
         my $expanded = CPAN::Shell->expand("Module", $desired);
         if ($expanded && $expanded->uptodate) {
-            $self->log_info("\n\n*** (back in Bioperl Build.PL) ***\n * You chose to install $desired and it installed fine\n");
+            $self->log_info("\n\n*** (back in BioPerl Build.PL) ***\n * You chose to install $desired and it installed fine\n");
             $msg = 'ok';
         }
         else {
-            $self->log_info("\n\n*** (back in Bioperl Build.PL) ***\n");
+            $self->log_info("\n\n*** (back in BioPerl Build.PL) ***\n");
             $msg = "You chose to install $desired but it failed to install";
         }
         
