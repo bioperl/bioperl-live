@@ -972,7 +972,7 @@ sub _make_q_guts {
 sub _parse_q {
     local $_;
     my $qstr = shift;
-    my $illegal = qr/[^a-zA-Z0-9-_,\.\(\[\{\}\]\)\s'"]/;
+    my $illegal = qr/[^a-zA-Z0-9-_<>=,\.\(\[\{\}\]\)\s'"]/;
     my $pdlm = qr/[\{\[\(\)\]\}]/;
     my %md = ('('=>')', '['=>']','{'=>'}');
     my @tok =  grep !/^\s*$/, split /($pdlm)/, $qstr;
