@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 50);
+    test_begin(-tests => 56);
     
 	use_ok('Bio::Root::Utilities');
 }
@@ -51,6 +51,7 @@ is $sd, 1;
 # file_date(), file_flavor(), date_format()
 
 my $file = test_input_file('test.txt');
+my $file2 = test_input_file('test 2.txt');
 my $fdate = $u->file_date($file);
 like $fdate ,  qr/\d{4}-\d{2}-\d{2}/, 'file_date()';
 ok $u->file_flavor($file), 'unix (\n or 012 or ^J)';
@@ -77,6 +78,7 @@ SKIP: {
     skip "gzip not found, skipping gzip tests", 6 unless $gzip;
     ok -x $gzip;
     
+    # test compression/decompression of a simple file
     my $zfile = $u->compress($file);
     like $zfile, qr/$file.gz|tmp.bioperl.gz/;
     ok -s $zfile;
@@ -89,6 +91,19 @@ SKIP: {
     my $unzfile = $u->uncompress($zfile);
     ok ! -e $zfile;
     ok -e $file;
+
+    # test compression/decompression of a filename with spaces keeping the original intact
+    my $zfile2 = $file2.'.gz';
+    my $return = $u->compress(-file => $file2, -outfile => $zfile2, -tmp => 1);
+    is $return, $zfile2;
+    ok -e $zfile2;
+    ok -e $file2;
+    unlink $file2 or die "Problem deleting $file2: $!\n";
+    $return = $u->uncompress(-file => $zfile2, -outfile => $file2, -tmp => 1);
+    is $return, $file2;
+    ok -e $file2;
+    ok -e $zfile2;
+    unlink $zfile2 or die "Problem deleting $zfile2: $!\n";
 }
 
 # send_mail()
