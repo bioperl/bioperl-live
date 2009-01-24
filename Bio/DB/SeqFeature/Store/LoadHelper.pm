@@ -51,10 +51,6 @@ sub new {
     return bless $self,$class;
 }
 
-sub DESTROY {
-    File::Temp::cleanup();
-}
-
 sub create_dbs {
     my $self = shift;
     my $tmp  = shift;
