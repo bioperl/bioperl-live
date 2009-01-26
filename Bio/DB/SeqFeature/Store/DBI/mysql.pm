@@ -159,7 +159,7 @@ use Cwd 'abs_path';
 use Bio::DB::GFF::Util::Rearrange 'rearrange';
 use Bio::SeqFeature::Lite;
 use File::Spec;
-use constant DEBUG=>1;
+use constant DEBUG=>0;
 
 # from the MySQL documentation...
 # WARNING: if your sequence uses coordinates greater than 2 GB, you are out of luck!
