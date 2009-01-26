@@ -45,7 +45,7 @@ SKIP: {
 	
 	SKIP: {
 		test_skip(-tests => 9,
-                  -requires_modules => [qw(LWP::UserAgent HTTP::Request::Common)],
+                  -requires_modules => [qw(LWP::UserAgent HTTP::Request::Common BerkeleyDB)],
                   -requires_networking => 1);
 		
 		my $registry = Bio::DB::Registry->new();
