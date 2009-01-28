@@ -1,7 +1,7 @@
 <!-- $Id$ updated schema of 01/14/09 -->
 <hivschema>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">author.au_authornumber<alias>au_authornumber</alias>
-<ankey antype='Reference'>Author number</ankey>
+<ankey antype='Reference'>author_number</ankey>
     <alias>authornumber</alias>
     <option desc='1'>1</option>
     <option desc='10'>10</option>
@@ -43,18 +43,18 @@
     <option desc="Any">Any</option>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">author.au_per_id<alias>au_per_id</alias>
-<ankey antype='Reference'>PER id(AU)</ankey>
+<ankey antype='Reference'>per_id(au)</ankey>
     <alias>per_id</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">author.au_pub_id<alias>au_pub_id</alias>
-<ankey antype='Reference'>PUB id(AU)</ankey>
+<ankey antype='Reference'>pub_id(au)</ankey>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">location2.loc_description<alias>loc_description</alias>
-<ankey antype='Virus'>Description(LOC)</ankey>
+<ankey antype='Virus'>description(loc)</ankey>
     <alias>description</alias>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">location2.loc_entryfeaturetype<alias>loc_entryfeaturetype</alias>
-<ankey antype='Virus'>Feature type(LOC)</ankey>
+<ankey antype='Virus'>feature_type(loc)</ankey>
     <alias>entryfeaturetype</alias>
     <option desc='3pUTR'>3'UTR</option>
     <option desc='5pUTR'>5'UTR</option>
@@ -98,20 +98,20 @@
     <option desc='variation'>variation</option>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">location2.loc_id<alias>loc_id</alias>
-<ankey antype='Virus'>LOC id</ankey>
+<ankey antype='Virus'>loc_id</ankey>
     <alias>id</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">location2.loc_se_id<alias>loc_se_id</alias>
-<ankey antype='Virus'>SE id(LOC)</ankey>
+<ankey antype='Virus'>se_id(loc)</ankey>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">mapimage.mi_se_id<alias>mi_se_id</alias>
-<ankey antype='Special'>Map image(SE id)</ankey>
+<ankey antype='Special'>map_image(se_id)</ankey>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">mapimage.mi_start<alias>mi_start</alias>
-<ankey antype='Special'>MI start</ankey>
+<ankey antype='Special'>mi_start</ankey>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">mapimage.mi_stop<alias>mi_stop</alias>
-<ankey antype='Special'>MI stop</ankey>
+<ankey antype='Special'>mi_stop</ankey>
   </sfield>
   <sfield blank_ok="false" default="100" type="text">max_rec</sfield>
   <sfield blank_ok="false" comment="select" type="option">order<option desc="Author number">author.au_authornumber</option>
@@ -206,14 +206,14 @@
     <option desc="HXB2 stop">sequencemap.sm_stop</option>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">patient.pat_code<alias>pat_code</alias>
-<ankey antype='Patient'>Patient code</ankey>
+<ankey antype='Patient'>patient_code</ankey>
     <alias>code</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">patient.pat_comment<alias>pat_comment</alias>
-<ankey antype='Patient'>Patient comment</ankey>
+<ankey antype='Patient'>patient_comment</ankey>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">patient.pat_ethnicity<alias>pat_ethnicity</alias>
-<ankey antype='Patient'>Patient ethnicity</ankey>
+<ankey antype='Patient'>patient_ethnicity</ankey>
     <alias>ethnicity</alias>
     <option desc="Any">Any</option>
     <option desc='B'>B</option>
@@ -226,17 +226,17 @@
     <option desc='white'>white</option>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">patient.pat_hla_type<alias>pat_hla_type</alias>
-<ankey antype='Patient'>HLA type</ankey>
+<ankey antype='Patient'>hla_type</ankey>
     <alias>hla_type</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">patient.pat_id</sfield>
-<ankey antype='Patient'>PAT id</ankey>
+<ankey antype='Patient'>pat_id</ankey>
   <sfield blank_ok="false" default="Any" type="text">patient.pat_infection_city<alias>pat_infection_city</alias>
-<ankey antype='Geo'>Infection city</ankey>
+<ankey antype='Geo'>infection_city</ankey>
     <alias>infection_city</alias>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">patient.pat_infection_country<alias>pat_infection_country</alias>
-<ankey antype='Geo'>Infection country</ankey>
+<ankey antype='Geo'>infection_country</ankey>
     <alias>infection_country</alias>
     <option desc='ANGOLA'>AO</option>
     <option desc='ARGENTINA'>AR</option>
@@ -343,7 +343,7 @@
     <option desc='ZIMBABWE'>ZW</option>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">patient.pat_infection_year<alias>pat_infection_year</alias>
-<ankey antype='Patient'>Infection year</ankey>
+<ankey antype='Patient'>infection_year</ankey>
     <alias>infection_year</alias>
     <option desc='1967'>1967</option>
     <option desc='1974'>1974</option>
@@ -379,15 +379,15 @@
     <option desc="Any">Any</option>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">patient.pat_num_seq<alias>pat_num_seq</alias>
-<ankey antype='Patient'># of patient seqs</ankey>
+<ankey antype='Patient'>#_of_patient_seqs</ankey>
     <alias>num_seq</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">patient.pat_num_timepoints<alias>pat_num_timepoints</alias>
-<ankey antype='Patient'># of patient timepoints</ankey>
+<ankey antype='Patient'>#_of_patient_timepoints</ankey>
     <alias>num_timepoints</alias>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">patient.pat_progression<alias>pat_progression</alias>
-<ankey antype='Patient'>Progression</ankey>
+<ankey antype='Patient'>progression</ankey>
     <alias>progression</alias>
     <option desc="Any">Any</option>
     <option desc='EC'>EC</option>
@@ -398,7 +398,7 @@
     <option desc='SP'>SP</option>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">patient.pat_project<alias>pat_project</alias>
-<ankey antype='Patient'>Project</ankey>
+<ankey antype='Patient'>project</ankey>
     <alias>project</alias>
     <option desc='1182_12'>1182_12</option>
     <option desc='1182_48'>1182_48</option>
@@ -456,7 +456,7 @@
     <option desc='Zambia-UAB'>Zambia-UAB</option>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">patient.pat_risk_factor<alias>pat_risk_factor</alias>
-<ankey antype='Patient'>Risk factor</ankey>
+<ankey antype='Patient'>risk_factor</ankey>
     <alias>risk_factor</alias>
     <option desc="Any">Any</option>
     <option desc='Experimental'>EX</option>
@@ -475,7 +475,7 @@
     <option desc='Sexworker'>SW</option>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">patient.pat_sex<alias>pat_sex</alias>
-<ankey antype='Patient'>Patient sex</ankey>
+<ankey antype='Patient'>patient_sex</ankey>
     <alias>sex</alias>
     <option desc="Any">Any</option>
     <option desc='F'>F</option>
@@ -483,39 +483,39 @@
     <option desc='NULL'>NULL</option>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">patient.pat_species<alias>pat_species</alias>
-<ankey antype='Patient'>Host species</ankey>
+<ankey antype='Patient'>host_species</ankey>
     <alias>species</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">person.per_id</sfield>
-<ankey antype='Reference'>PER id</ankey>
+<ankey antype='Reference'>per_id</ankey>
   <sfield blank_ok="false" default="Any" type="text">person.per_lname<alias>per_lname</alias>
-<ankey antype='Reference'>Last name</ankey>
+<ankey antype='Reference'>last_name</ankey>
     <alias>lname</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">publication.pub_articletitle<alias>pub_articletitle</alias>
-<ankey antype='Reference'>Title</ankey>
+<ankey antype='Reference'>title</ankey>
     <alias>articletitle</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">publication.pub_consortium<alias>pub_consortium</alias>
-<ankey antype='Reference'>Consortium</ankey>
+<ankey antype='Reference'>consortium</ankey>
     <alias>consortium</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">publication.pub_id</sfield>
-<ankey antype='Reference'>PUB id</ankey>
+<ankey antype='Reference'>pub_id</ankey>
   <sfield blank_ok="false" default="Any" type="text">publication.pub_pubmedentry<alias>pub_pubmedentry</alias>
-<ankey antype='Reference'>Pubmed ID</ankey>
+<ankey antype='Reference'>pubmed_id</ankey>
     <alias>pubmedentry</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">publication.pub_sourcetitle<alias>pub_sourcetitle</alias>
-<ankey antype='Reference'>Journal</ankey>
+<ankey antype='Reference'>journal</ankey>
     <alias>sourcetitle</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">se_pub_link.spl_pub_id<alias>spl_pub_id</alias>
-<ankey antype='Reference'>PUB id(SPL)</ankey>
+<ankey antype='Reference'>pub_id(spl)</ankey>
     <alias>pub_id</alias>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">se_pub_link.spl_pubnumber<alias>spl_pubnumber</alias>
-<ankey antype='Reference'>Publication number</ankey>
+<ankey antype='Reference'>publication_number</ankey>
     <alias>pubnumber</alias>
     <option desc='1'>1</option>
     <option desc='10'>10</option>
@@ -558,13 +558,13 @@
     <option desc="Any">Any</option>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">se_pub_link.spl_se_id<alias>spl_se_id</alias>
-<ankey antype='Special'>SE id(SPL)</ankey>
+<ankey antype='Special'>se_id(spl)</ankey>
     <alias>se_id</alias>
   </sfield>
   <sfield blank_ok="false" comment="checkbox" type="option">select_all<option></option>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_amplification_strategy<alias>ssam_amplification_strategy</alias>
-<ankey antype='Virus'>Amplification strategy</ankey>
+<ankey antype='Virus'>amplification_strategy</ankey>
     <alias>amplification_strategy</alias>
     <option desc="Any">Any</option>
     <option desc='NULL'>NULL</option>
@@ -573,14 +573,14 @@
     <option desc='bulk RT-PCR'>bulk RT-PCR</option>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_annotated<alias>ssam_annotated</alias>
-<ankey antype='Special'>Annotated</ankey>
+<ankey antype='Special'>annotated</ankey>
     <alias>annotated</alias>
     <option desc='0'>0</option>
     <option desc='1'>1</option>
     <option desc="Any">Any</option>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_badseq<alias>ssam_badseq</alias>
-<ankey antype='Special'>Problematic</ankey>
+<ankey antype='Special'>problematic</ankey>
     <alias>badseq</alias>
     <option desc='0'>0</option>
     <option desc='N'>1</option>
@@ -592,23 +592,23 @@
     <option desc="Any">Any</option>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_cd4count<alias>ssam_cd4count</alias>
-<ankey antype='Patient'>CD4 count</ankey>
+<ankey antype='Patient'>cd4_count</ankey>
     <alias>cd4count</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_cd8count<alias>ssam_cd8count</alias>
-<ankey antype='Patient'>CD8 count</ankey>
+<ankey antype='Patient'>cd8_count</ankey>
     <alias>cd8count</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_clone_name_number<alias>ssam_clone_name_number</alias>
-<ankey antype='Virus'>Clone name</ankey>
+<ankey antype='Virus'>clone_name</ankey>
     <alias>clone_name_number</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_common_name<alias>ssam_common_name</alias>
-<ankey antype='Virus'>Name</ankey>
+<ankey antype='Virus'>name</ankey>
     <alias>common_name</alias>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_culture_method<alias>ssam_culture_method</alias>
-<ankey antype='Virus'>Culture method</ankey>
+<ankey antype='Virus'>culture_method</ankey>
     <alias>culture_method</alias>
     <option desc="Any">Any</option>
     <option desc='NULL'>NULL</option>
@@ -618,7 +618,7 @@
     <option desc='uncultured'>uncultured</option>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_drug_naive<alias>ssam_drug_naive</alias>
-<ankey antype='Patient'>Drug naive</ankey>
+<ankey antype='Patient'>drug_naive</ankey>
     <alias>drug_naive</alias>
     <option desc="Any">Any</option>
     <option desc='NULL'>NULL</option>
@@ -626,7 +626,7 @@
     <option desc='yes'>yes</option>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_fiebig<alias>ssam_fiebig</alias>
-<ankey antype='Patient'>Fiebig stage</ankey>
+<ankey antype='Patient'>fiebig_stage</ankey>
     <alias>fiebig</alias>
     <option desc='1'>1</option>
     <option desc='2'>2</option>
@@ -638,7 +638,7 @@
     <option desc='NULL'>NULL</option>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_health_status<alias>ssam_health_status</alias>
-<ankey antype='Patient'>Patient health</ankey>
+<ankey antype='Patient'>patient_health</ankey>
     <alias>health_status</alias>
     <option desc='AIDS'>AIDS</option>
     <option desc="Any">Any</option>
@@ -649,15 +649,15 @@
     <option desc='symptomatic'>symptomatic</option>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_isolate_name_number<alias>ssam_isolate_name_number</alias>
-<ankey antype='Virus'>Isolate name</ankey>
+<ankey antype='Virus'>isolate_name</ankey>
     <alias>isolate_name_number</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_locus_name<alias>ssam_locus_name</alias>
-<ankey antype='Virus'>Locus name</ankey>
+<ankey antype='Virus'>locus_name</ankey>
     <alias>locus_name</alias>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_molecule_type<alias>ssam_molecule_type</alias>
-<ankey antype='Virus'>Molecule type</ankey>
+<ankey antype='Virus'>molecule_type</ankey>
     <alias>molecule_type</alias>
     <option desc="Any">Any</option>
     <option desc='DNA'>DNA</option>
@@ -666,7 +666,7 @@
     <option desc='mRNA'>mRNA</option>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_organism<alias>ssam_organism</alias>
-<ankey antype='Virus'>Organism</ankey>
+<ankey antype='Virus'>organism</ankey>
     <alias>organism</alias>
     <option desc="Any">Any</option>
     <option desc='HIV-1'>HIV-1</option>
@@ -677,15 +677,15 @@
     <option desc='synthetic DNA'>synthetic DNA</option>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_pat_id<alias>ssam_pat_id</alias>
-<ankey antype='Patient'>PAT id(SSAM)</ankey>
+<ankey antype='Patient'>pat_id(ssam)</ankey>
     <alias>pat_id</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_patient_age<alias>ssam_patient_age</alias>
-<ankey antype='Patient'>Patient Age</ankey>
+<ankey antype='Patient'>patient_age</ankey>
     <alias>patient_age</alias>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_phenotype<alias>ssam_phenotype</alias>
-<ankey antype='Virus'>Phenotype</ankey>
+<ankey antype='Virus'>phenotype</ankey>
     <alias>phenotype</alias>
     <option desc="Any">Any</option>
     <option desc='NSI'>NSI</option>
@@ -694,31 +694,31 @@
     <option desc='UNK'>UNK</option>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_postendtreatment_days<alias>ssam_postendtreatment_days</alias>
-<ankey antype='Patient'>Days from treatment end</ankey>
+<ankey antype='Patient'>days_from_treatment_end</ankey>
     <alias>postendtreatment_days</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_postfirstsample_days<alias>ssam_postfirstsample_days</alias>
-<ankey antype='Patient'>Days from first sample</ankey>
+<ankey antype='Patient'>days_from_first_sample</ankey>
     <alias>postfirstsample_days</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_postinfect_days<alias>ssam_postinfect_days</alias>
-<ankey antype='Patient'>Days from infection</ankey>
+<ankey antype='Patient'>days_from_infection</ankey>
     <alias>postinfect_days</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_postseroconv_days<alias>ssam_postseroconv_days</alias>
-<ankey antype='Patient'>Days from seroconversion</ankey>
+<ankey antype='Patient'>days_from_seroconversion</ankey>
     <alias>postseroconv_days</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_poststarttreatment_days<alias>ssam_poststarttreatment_days</alias>
-<ankey antype='Patient'>Days from treatment start</ankey>
+<ankey antype='Patient'>days_from_treatment_start</ankey>
     <alias>poststarttreatment_days</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_sample_city<alias>ssam_sample_city</alias>
-<ankey antype='Geo'>Sampling city</ankey>
+<ankey antype='Geo'>sampling_city</ankey>
     <alias>sample_city</alias>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_sample_country<alias>ssam_sample_country</alias>
-<ankey antype='Geo'>Country</ankey>
+<ankey antype='Geo'>country</ankey>
     <alias>sample_country</alias>
     <alias>country</alias>
     <option desc='AFGHANISTAN'>AF</option>
@@ -878,7 +878,7 @@
     <option desc='ZIMBABWE'>ZW</option>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_sample_georegion<alias>ssam_sample_georegion</alias>
-<ankey antype='Geo'>Georegion</ankey>
+<ankey antype='Geo'>georegion</ankey>
     <alias>sample_georegion</alias>
     <option desc='Africa'>AFR</option>
     <option desc='Sub-saharan Africa'>AFR SSA</option>
@@ -895,7 +895,7 @@
     <option desc='South America'>SAM</option>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_sample_tissue<alias>ssam_sample_tissue</alias>
-<ankey antype='Patient'>Sample tissue</ankey>
+<ankey antype='Patient'>sample_tissue</ankey>
     <alias>sample_tissue</alias>
     <option desc="Any">Any</option>
     <option desc='Brain'>Brain</option>
@@ -970,7 +970,7 @@
     <option desc='whole saliva'>whole saliva</option>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_sample_year<alias>ssam_sample_year</alias>
-<ankey antype='Patient'>Sampling year</ankey>
+<ankey antype='Patient'>sampling_year</ankey>
     <alias>sample_year</alias>
     <alias>year</alias>
     <option desc='1959'>1959</option>
@@ -1012,7 +1012,7 @@
     <option desc="Any">Any</option>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_sample_year_upper<alias>ssam_sample_year_upper</alias>
-<ankey antype='Patient'>Sampling year upper</ankey>
+<ankey antype='Patient'>sampling_year_upper</ankey>
     <alias>sample_year_upper</alias>
     <option desc='1959'>1959</option>
     <option desc='1960'>1960</option>
@@ -1053,11 +1053,11 @@
     <option desc="Any">Any</option>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_se_id<alias>ssam_se_id</alias>
-<ankey antype='Special'>SE id(SSAM)</ankey>
+<ankey antype='Special'>se_id(ssam)</ankey>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple"
   type="option">seq_sample.ssam_second_receptor<alias>coreceptor</alias>
-    <ankey antype='Virus'>Coreceptor</ankey>
+    <ankey antype='Virus'>coreceptor</ankey>
     <alias>ssam_second_receptor</alias>
     <alias>second_receptor</alias>
     <option desc="Any">Any</option>
@@ -1104,7 +1104,7 @@
     <option desc='UNK'>UNK</option>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_sequencing_method<alias>ssam_sequencing_method</alias>
-<ankey antype='Virus'>Sequencing method</ankey>
+<ankey antype='Virus'>sequencing_method</ankey>
     <alias>sequencing_method</alias>
     <option desc="Any">Any</option>
     <option desc='NULL'>NULL</option>
@@ -1112,7 +1112,7 @@
     <option desc='direct'>direct</option>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_subtype<alias>ssam_subtype</alias>
-<ankey antype='Virus'>Subtype</ankey>
+<ankey antype='Virus'>subtype</ankey>
     <alias>subtype</alias>
     <option desc='0102'>0102</option>
     <option desc='0102A'>0102A</option>
@@ -1405,14 +1405,14 @@
     <option desc='WRC'>WRC</option>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_viralload<alias>ssam_viralload</alias>
-<ankey antype='Patient'>Viral load</ankey>
+<ankey antype='Patient'>viral_load</ankey>
     <alias>viralload</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">seqentryfeature.sef_description<alias>sef_description</alias>
-<ankey antype='Virus'>Description(SEF)</ankey>
+<ankey antype='Virus'>description(sef)</ankey>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seqentryfeature.sef_entryfeaturetype<alias>sef_entryfeaturetype</alias>
-<ankey antype='Virus'>Feature type(SEF)</ankey>
+<ankey antype='Virus'>feature_type(sef)</ankey>
     <option desc="Any">Any</option>
     <option desc='BASE COUNT'>BASE COUNT</option>
     <option desc='DEFINITION'>DEFINITION</option>
@@ -1423,56 +1423,56 @@
     <option desc='VERSION'>VERSION</option>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">seqentryfeature.sef_pub_id<alias>sef_pub_id</alias>
-<ankey antype='Reference'>PUB id(SEF)</ankey>
+<ankey antype='Reference'>pub_id(sef)</ankey>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">seqentryfeature.sef_se_id<alias>sef_se_id</alias>
-<ankey antype='Special'>SE id(SEF)</ankey>
+<ankey antype='Special'>se_id(sef)</ankey>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">sequenceaccessions.sa_genbankaccession<alias>sa_genbankaccession</alias>
-<ankey antype='Special'>Accession</ankey>
+<ankey antype='Special'>accession</ankey>
     <alias>genbankaccession</alias>
     <alias>accession</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">sequenceaccessions.sa_gi<alias>sa_gi</alias>
-<ankey antype='Special'>GI number</ankey>
+<ankey antype='Special'>gi_number</ankey>
     <alias>gi</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">sequenceaccessions.sa_se_id<alias>sa_se_id</alias>
-<ankey antype='Special'>SE id(SA)</ankey>
+<ankey antype='Special'>se_id(sa)</ankey>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">sequenceaccessions.sa_version<alias>sa_version</alias>
-<ankey antype='Special'>Version</ankey>
+<ankey antype='Special'>version</ankey>
     <alias>version</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">sequenceentry.se_db_comment<alias>se_db_comment</alias>
-<ankey antype='Special'>DB comment</ankey>
+<ankey antype='Special'>db_comment</ankey>
     <alias>db_comment</alias>
     <alias>comment</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">sequenceentry.se_gb_comment<alias>se_gb_comment</alias>
-<ankey antype='Special'>GB comment</ankey>
+<ankey antype='Special'>gb_comment</ankey>
     <alias>gb_comment</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">sequenceentry.se_gb_create<alias>se_gb_create</alias>
-<ankey antype='Special'>GB create date</ankey>
+<ankey antype='Special'>gb_create_date</ankey>
     <alias>gb_create</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">sequenceentry.se_gb_update<alias>se_gb_update</alias>
-<ankey antype='Special'>GB update date</ankey>
+<ankey antype='Special'>gb_update_date</ankey>
     <alias>gb_update</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">sequenceentry.se_id</sfield>
-<ankey antype='Special'>SE id</ankey>
+<ankey antype='Special'>se_id</ankey>
   <sfield blank_ok="false" default="Any" type="text">sequenceentry.se_sequence<alias>se_sequence</alias>
-<ankey antype='Virus'>Sequence</ankey>
+<ankey antype='Virus'>sequence</ankey>
     <alias>sequence</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">sequenceentry.se_sequencelength<alias>se_sequencelength</alias>
-<ankey antype='Sample'>Sequence length</ankey>
+<ankey antype='Sample'>sequence_length</ankey>
     <alias>sequencelength</alias>
   </sfield>
   <sfield blank_ok="false" comment="select" multiple="multiple" type="option">sequencefeature2.sf_featuretype<alias>sf_featuretype</alias>
-<ankey antype='Virus'>Feature type(SF)</ankey>
+<ankey antype='Virus'>feature_type(sf)</ankey>
     <alias>featuretype</alias>
     <option desc="Any">Any</option>
     <option desc='EC_number'>EC_number</option>
@@ -1541,22 +1541,22 @@
     <option desc='variety'>variety</option>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">sequencefeature2.sf_featurevalue<alias>sf_featurevalue</alias>
-<ankey antype='Virus'>Feature value(SF)</ankey>
+<ankey antype='Virus'>feature_value(sf)</ankey>
     <alias>featurevalue</alias>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">sequencefeature2.sf_loc_id<alias>sf_loc_id</alias>
-<ankey antype='Virus'>LOC id(SF)</ankey>
+<ankey antype='Virus'>loc_id(sf)</ankey>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">sequencemap.sm_se_id<alias>sm_se_id</alias>
-<ankey antype='Special'>SE id(SM)</ankey>
+<ankey antype='Special'>se_id(sm)</ankey>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">sequencemap.sm_start<alias>sm_start</alias>
 <alias>start</alias>
-<ankey antype='StdMap'>HXB2 start</ankey>
+<ankey antype='StdMap'>hxb2_start</ankey>
   </sfield>
   <sfield blank_ok="false" default="Any" type="text">sequencemap.sm_stop<alias>sm_stop</alias>
 <alias>stop</alias>
-<ankey antype='StdMap'>HXB2 stop</ankey>
+<ankey antype='StdMap'>hxb2_stop</ankey>
   </sfield>
   <sfield blank_ok="false" comment="checkbox" type="option">show_sql<option></option>
   </sfield>
