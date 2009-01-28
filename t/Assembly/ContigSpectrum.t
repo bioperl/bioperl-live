@@ -76,9 +76,9 @@ is($mixed_csp->nof_rep, 1);
 is($mixed_csp->nof_overlaps, 8);
 is($mixed_csp->min_overlap, 35);
 is($mixed_csp->avg_overlap, 71.875);
-is($mixed_csp->min_identity, 97.1153846153846);
-is($mixed_csp->avg_identity, 99.6394230769231);
-is($mixed_csp->avg_seq_len, 100.222222222222);
+float_is($mixed_csp->min_identity, 97.1153846153846);
+float_is($mixed_csp->avg_identity, 99.6394230769231);
+float_is($mixed_csp->avg_seq_len, 100.222222222222);
 
 # dissolved contig spectrum
 ok(my $dissolved_csp = Bio::Assembly::Tools::ContigSpectrum->new(
@@ -143,10 +143,10 @@ is($dissolved_csp->max_size, 7);
 is($dissolved_csp->nof_rep, 1);
 is($dissolved_csp->nof_overlaps, 6);
 is($dissolved_csp->min_overlap, 62);
-is($dissolved_csp->avg_overlap, 81.3333333333333);
-is($dissolved_csp->min_identity, 97.1153846153846);
-is($dissolved_csp->avg_identity, 99.5192307692308);
-is($dissolved_csp->avg_seq_len, 100.75);
+float_is($dissolved_csp->avg_overlap, 81.3333333333333);
+float_is($dissolved_csp->min_identity, 97.1153846153846);
+float_is($dissolved_csp->avg_identity, 99.5192307692308);
+float_is($dissolved_csp->avg_seq_len, 100.75);
 
 # cross contig spectrum
 ok(my $cross_csp = Bio::Assembly::Tools::ContigSpectrum->new(
@@ -164,10 +164,10 @@ is($sum_csp->max_size, 9);
 is($sum_csp->nof_rep, 2);
 is($sum_csp->nof_overlaps, 14);
 is($sum_csp->min_overlap, 35);
-is($sum_csp->avg_overlap, 75.9285714285714);
-is($sum_csp->min_identity, 97.1153846153846);
-is($sum_csp->avg_identity, 99.5879120879121);
-is($sum_csp->avg_seq_len, 100.470588235294);
+float_is($sum_csp->avg_overlap, 75.9285714285714);
+float_is($sum_csp->min_identity, 97.1153846153846);
+float_is($sum_csp->avg_identity, 99.5879120879121);
+float_is($sum_csp->avg_seq_len, 100.470588235294);
 
 # average of contig spectra
 ok(my $avg_csp = Bio::Assembly::Tools::ContigSpectrum->new);
@@ -179,10 +179,10 @@ is($avg_csp->max_size, 9);
 is($avg_csp->nof_rep, 2);
 is($avg_csp->nof_overlaps, 7);
 is($avg_csp->min_overlap, 35);
-is($avg_csp->avg_overlap, 75.9285714285714);
-is($avg_csp->min_identity, 97.1153846153846);
-is($avg_csp->avg_identity, 99.5879120879121);
-is($avg_csp->avg_seq_len, 100.470588235294);
+float_is($avg_csp->avg_overlap, 75.9285714285714);
+float_is($avg_csp->min_identity, 97.1153846153846);
+float_is($avg_csp->avg_identity, 99.5879120879121);
+float_is($avg_csp->avg_seq_len, 100.470588235294);
 
 # drop assembly info from contig spectrum
 ok($mixed_csp->drop_assembly());
