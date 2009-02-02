@@ -404,7 +404,7 @@ sub _load_module {
     $module = "_<$name.pm";
     return 1 if $main::{$module};
 
-    # untaint operation for safe web-based running (modified after a fix
+    # untaint operation for safe web-based running (modified after
     # a fix by Lincoln) HL
     if ($name !~ /^([\w:]+)$/) {
 	$self->throw("$name is an illegal perl package name");
