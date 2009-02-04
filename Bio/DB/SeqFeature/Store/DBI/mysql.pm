@@ -283,7 +283,7 @@ END
   attribute_value  text,
   index(id),
   index(attribute_id,attribute_value(10)),
-) ENGINE=MYISAM
+) 
 END
 
 	  attributelist => <<END,
