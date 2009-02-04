@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 159);
+    test_begin(-tests => 158);
 	
     use_ok('Bio::Annotation::Collection');
     use_ok('Bio::Annotation::DBLink');
@@ -20,7 +20,6 @@ BEGIN {
     use_ok('Bio::Annotation::TagTree');
     use_ok('Bio::Annotation::Tree');
     use_ok('Bio::Seq');
-    use_ok('Bio::SeqFeature::Annotated');
     use_ok('Bio::SimpleAlign');
     use_ok('Bio::Cluster::UniGene');
 }
@@ -179,7 +178,7 @@ SKIP: {
 my $seq = Bio::Seq->new();
 isa_ok($seq,"Bio::AnnotatableI");
 SKIP: {
-	test_skip(-requires_module => 'URI::Escape',
+	test_skip(-requires_modules => [qw(Bio::SeqFeature::Annotated URI::Escape)],
 			  -tests => 4);
 	my $fea = Bio::SeqFeature::Annotated->new();
 	isa_ok($fea, "Bio::SeqFeatureI",'isa SeqFeatureI');
