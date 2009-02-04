@@ -284,7 +284,7 @@ END
   index(id),
   index(attribute_id,attribute_value(10)),
   FULLTEXT(attribute_value)
-) ENGINE=MYISAM
+) 
 END
 
 	  attributelist => <<END,
