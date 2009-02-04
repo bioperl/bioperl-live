@@ -62,7 +62,8 @@ ok( $als = $tobj->aliases($fld), "test alias by field name");
 is( $tobj->primarykey($tbl), 'sequenceentry.se_id', "correct primary key for SequenceEntry");
 is( scalar $tobj->foreignkey('author'), 2, "correct number of foreign keys for AUthor");
 is( $tobj->foreigntable(($tobj->foreignkey('author'))[1]), 'publication', "correct foreign table for au_pub_id");
-is_deeply( {$tobj->ankh('seq_sample.ssam_second_receptor')}, {'seq_sample.ssam_second_receptor' => {'ankey'=>'Coreceptor','antype'=>'Virus'}}, "correct annotation key hash");
+is_deeply( {$tobj->ankh('seq_sample.ssam_second_receptor')}, 
+{'seq_sample.ssam_second_receptor' => {'ankey'=>'coreceptor','antype'=>'Virus'}}, "correct annotation key hash");
 
 
 #Query parser tests
