@@ -282,7 +282,7 @@ END
   attribute_id     int(10)   not null,
   attribute_value  text,
   index(id),
-  index(attribute_id,attribute_value(10)),
+  index(attribute_id,attribute_value(10))
 ) 
 END
 
@@ -421,7 +421,7 @@ sub _init_database {
     next if $_ eq 'meta';      # don't get rid of meta data!
     my $table = $self->_qualify($_);
     $dbh->do("DROP table IF EXISTS $table") if $erase;
-    my $query = "CREATE TABLE IF NOT EXISTS $table $tables->{$_} TYPE=MYISAM";
+    my $query = "CREATE TABLE IF NOT EXISTS $table $tables->{$_}";
     $dbh->do($query) or $self->throw($dbh->errstr);
   }
   $self->subfeatures_are_indexed(1) if $erase;
@@ -433,7 +433,7 @@ sub maybe_create_meta {
   return unless $self->writeable;
   my $table = $self->_qualify('meta');
   my $tables = $self->table_definitions;
-  $self->dbh->do("CREATE TABLE IF NOT EXISTS $table $tables->{meta} TYPE=MYISAM");
+  $self->dbh->do("CREATE TABLE IF NOT EXISTS $table $tables->{meta}");
 }
 
 sub init_tmp_database {
@@ -442,7 +442,7 @@ sub init_tmp_database {
   my $tables = $self->table_definitions;
   for my $t (keys %$tables) {
     my $table = $self->_qualify($t);
-    my $query = "CREATE TEMPORARY TABLE $table $tables->{$t} TYPE=MYISAM";
+    my $query = "CREATE TEMPORARY TABLE $table $tables->{$t}";
     $dbh->do($query) or $self->throw($dbh->errstr);
   }
   1;
