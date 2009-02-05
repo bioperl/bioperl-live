@@ -653,6 +653,11 @@ sub D_Kimura {
 	   my $P = $self->transitions($pairwise) / $L;
 	   my $Q = $self->transversions($pairwise) / $L;
 	   my $K = 0;
+	   my $denom = ( 1 - (2 * $P) - $Q);
+	   if( $denom == 0 ) {
+	       $self->throw("cannot find distance for ",$i+1,
+			    ",",$j+1," $P, $Q\n");
+	   }
 	   my $a = 1 / ( 1 - (2 * $P) - $Q);
 	   my $b = 1 / ( 1 - 2 * $Q );
 	   if( $a < 0 || $b < 0 ) { 
