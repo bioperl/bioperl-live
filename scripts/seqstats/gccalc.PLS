@@ -9,10 +9,12 @@ use Getopt::Long;
 my $format = 'fasta';
 my $file;
 my $help =0;
+my $aggregate;
 GetOptions(
 	    'f|format:s' => \$format,
 	    'i|in:s'     => \$file,
 	    'h|help|?'    => \$help,
+	    'a|aggregate!'=> \$aggregate,
 	    );
 
 
@@ -31,7 +33,7 @@ if( defined $file ) {
     $seqin = new Bio::SeqIO(-format => $format,
 			    -fh     => \*STDIN);
 }
-
+my ($total_base, $total_gc);
 while( my $seq = $seqin->next_seq ) {
     next if( $seq->length == 0 );
     if( $seq->alphabet eq 'protein' ) {
@@ -44,6 +46,8 @@ while( my $seq = $seqin->next_seq ) {
     print "Seq: ", $seq->display_id, " ";
     print $seq->desc if $seq->desc;
     print " Len:", $seq->length, "\n";
+    $total_base += $seq->length;
+    $total_gc   += $hash_ref->{'G'} + $hash_ref->{'C'};
     printf "GC content is %.4f\n", ($hash_ref->{'G'} + $hash_ref->{'C'}) /
 	$seq->length();
 
@@ -52,7 +56,9 @@ while( my $seq = $seqin->next_seq ) {
     }
     print "--\n";
 }
-
+if( $aggregate ) {
+  printf "Total GC content is %.4f out of %d bases\n", $total_gc / $total_base, $total_base;
+}
 # alternatively one could use code submitted by
 # cckim@stanford.edu
 
