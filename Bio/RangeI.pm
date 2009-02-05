@@ -453,7 +453,7 @@ sub overlap_extent{
 	$b->throw("end is undefined") unless defined $b->end;
 
 	if( ! $a->overlaps($b) ) {
-		return ($a->length,0,$b->length);
+	    return ($a->length,0,$b->length);
 	}
 
 	my ($au,$bu) = (0, 0);
@@ -470,10 +470,14 @@ sub overlap_extent{
 	}
 
 	my $intersect = $a->intersection($b);
-	my $ie = $intersect->end;
-	my $is = $intersect->start;
-
-	return ($au,$ie-$is+1,$bu);
+	if( ! $intersect ) {
+	    warn("no intersection\n");
+	    return ($au, 0, $bu);
+	} else {
+	    my $ie = $intersect->end;
+	    my $is = $intersect->start;
+	    return ($au,$ie-$is+1,$bu);
+	}
 }
 
 =head2 disconnected_ranges
