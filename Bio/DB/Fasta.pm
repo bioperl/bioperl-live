@@ -440,16 +440,16 @@ These are optional arguments to pass in as well.
 
  -glob         Glob expression to use    *.{fa,fasta,fast,FA,FASTA,FAST}
                for searching for Fasta
-	            files in directories. 
+	             files in directories. 
 
- -makeid       A code subroutine for     None
-	            transforming Fasta IDs.
+ -makeid       A code subroutine for     none
+	             transforming Fasta IDs.
 
- -maxopen      Maximum size of		     32
-	            filehandle cache.
+ -maxopen      Maximum size of		       32
+	             filehandle cache.
 
- -debug        Turn on status		        0
-	            messages.
+ -debug        Turn on status		         0
+	             messages.
 
  -reindex      Force the index to be     0
                rebuilt.
@@ -468,8 +468,8 @@ sub new {
 
   my $self = bless { debug      => $opts{-debug},
 	  makeid     => $opts{-makeid},
-	  glob       => $opts{-glob} || '*.{fa,fasta,FA,FASTA,fast,FAST,dna,FNA,fna,FAA,faa,FSA,fsa}',
-	  maxopen    => $opts{-maxfh}   || 32,
+	  glob       => $opts{-glob}    || '*.{fa,fasta,FA,FASTA,fast,FAST,dna,FNA,fna,FAA,faa,FSA,fsa}',
+	  maxopen    => $opts{-maxopen} || 32,
 	  dbmargs    => $opts{-dbmargs} || undef,
 	  fhcache    => {},
 	  cacheseq   => {},

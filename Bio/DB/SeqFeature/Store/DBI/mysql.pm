@@ -283,7 +283,6 @@ END
   attribute_value  text,
   index(id),
   index(attribute_id,attribute_value(10)),
-  FULLTEXT(attribute_value)
 ) 
 END
 
@@ -749,7 +748,7 @@ sub _features {
 		    'RANGE_TYPE',
 		    'FROM_TABLE',
 		    'ITERATOR',
-            ['SOURCE','SOURCES']
+		    ['SOURCE','SOURCES']
 		   ],@_);
 
   my (@from,@where,@args,@group);
@@ -847,7 +846,7 @@ END
 
   $self->_print_query($query,@args) if DEBUG || $self->debug;
 
-  my $sth = $self->_prepare($query);
+  my $sth = $self->_prepare($query) or $self->throw($self->dbh->errstr);
   $sth->execute(@args) or $self->throw($sth->errstr);
   return $iterator ? Bio::DB::SeqFeature::Store::DBI::Iterator->new($sth,$self) : $self->_sth2objs($sth);
 }
@@ -869,7 +868,6 @@ sub _search_attributes {
   my $self = shift;
   my ($search_string,$attribute_names,$limit) = @_;
   my @words               = map {quotemeta($_)} split /\s+/,$search_string;
-#  return unless @words;
 
   my $name_table          = $self->_name_table;
   my $attribute_table     = $self->_attribute_table;
@@ -882,7 +880,7 @@ sub _search_attributes {
 
   my $perl_regexp = join '|',@words;
 
-  my $sql_regexp = join ' AND ',("a.attribute_value REGEXP ?")  x @words;
+  my $sql_regexp = join ' OR ',("a.attribute_value REGEXP ?")  x @words;
   my $sql = <<END;
 SELECT name,attribute_value,tl.tag,n.id
   FROM $name_table as n,$attribute_table as a,$attributelist_table as al,$type_table as t,$typelist_table as tl
@@ -903,7 +901,7 @@ END
   while (my($name,$value,$type,$id) = $sth->fetchrow_array) {
     my (@hits) = $value =~ /$perl_regexp/ig;
     my @words_in_row = split /\b/,$value;
-    my $score  = int(@hits*100/@words/@words_in_row);
+    my $score   = int(@hits * 10);
     push @results,[$name,$value,$score,$type,$id];
   }
   $sth->finish;

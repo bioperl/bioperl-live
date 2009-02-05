@@ -442,9 +442,9 @@ sub compress {
         }
 
         if ($exe =~ /gzip|bzip2|compress/) {
-            @cmd = ("$exe -f < $fileName > $compressed");
+            @cmd = ("$exe -f < \"$fileName\" > \"$compressed\"");
         } elsif ($exe eq 'zip') {
-            @cmd = ("$exe -r $fileName.zip $fileName");
+            @cmd = ("$exe -r \"$fileName.zip\" \"$fileName\"");
         }
 	not $tmp and
 	    $self->warn("Not owner of file $fileName. Compressing to temp file $compressed.");
@@ -563,9 +563,9 @@ sub uncompress {
         }
 
         if ($exe =~ /gunzip|bunzip2|uncompress/) {
-            @cmd = ("$exe -f < $fileName > $uncompressed");
+            @cmd = ("$exe -f < \"$fileName\" > \"$uncompressed\"");
         } elsif ($exe eq 'unzip') {
-            @cmd = ("$exe -p $fileName > $uncompressed");
+            @cmd = ("$exe -p \"$fileName\" > \"$uncompressed\"");
         }
 	not $tmp and
 	    $self->warn("Not owner of file $fileName. Uncompressing to temp file $uncompressed.");

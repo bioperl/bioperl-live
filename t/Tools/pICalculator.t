@@ -23,6 +23,6 @@ ok my $calc = Bio::Tools::pICalculator->new(-places => 2);
 ok $calc->seq($seq);
 ok my $iep = $calc->iep;
 for ( my $x = 0 ; $x <= 14 ; $x += .5 ) {
-   is ($calc->charge_at_pH($x),$results[(2 * $x)]);
+   float_is($calc->charge_at_pH($x), $results[(2 * $x)]);
 }
 is ($calc->iep,8.54);

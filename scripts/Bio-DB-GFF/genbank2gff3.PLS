@@ -684,9 +684,14 @@ sub getSourceInfo {
       || $seq->annotation->get_Annotations("update-date")
       || $is_rich ? $seq->get_dates() : ();
   my ($comment)= $seq->annotation->get_Annotations("comment");
-  my ($species)= $seq->annotation->get_Annotations("species") 
-               || ( $seq->can('species') ? $seq->species()->binomial() : undef );
-               
+  my ($species)= $seq->annotation->get_Annotations("species");
+  if (!$species 
+       && $seq->can('species') 
+       && defined $seq->species() 
+       && $seq->species()->can('binomial') ) {
+    $species= $seq->species()->binomial();
+  }
+
   # update source feature with main GB fields
   $sf->add_tag_value( ID => $seq_name ) unless $sf->has_tag('ID');
   $sf->add_tag_value( Note => $desc ) if($desc && ! $sf->has_tag('Note'));
@@ -699,10 +704,19 @@ sub getSourceInfo {
   foreach my $atag (sort keys %AnnotTagMap) {
     my $gtag= $AnnotTagMap{$atag}; next unless($gtag);
     my @anno = map{ 
-          ref $_
-         ? split( /[,;] */, $_->value) 
-         : split( /[,;] */, "$_") if($_);
-         } $seq->annotation->get_Annotations($atag);  
+         if (ref $_ && $_->can('get_all_values')) { 
+             split( /[,;] */, join ";", $_->get_all_values) 
+         }
+         elsif (ref $_ && $_->can('display_text')) { 
+             split( /[,;] */, $_->display_text) 
+         }
+         elsif (ref $_ && $_->can('value')) { 
+             split( /[,;] */, $_->value) 
+         } 
+         else {
+             ();
+         }
+       } $seq->annotation->get_Annotations($atag);  
     foreach(@anno) { $sf->add_tag_value( $gtag => $_ ); }
     }
     

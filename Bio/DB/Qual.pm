@@ -422,7 +422,7 @@ These are optional arguments to pass in as well.
                for searching for qual
                files in directories. 
 
- -makeid       A code subroutine for     None
+ -makeid       A code subroutine for     none
                transforming qual IDs.
 
  -maxopen      Maximum size of           32
@@ -448,8 +448,8 @@ sub new {
     my $self = bless {
         debug      => $opts{-debug},
         makeid     => $opts{-makeid},
-        glob       => $opts{-glob} || '*.{qual,QUAL,qa,QA}',
-        maxopen    => $opts{-maxfh}   || 32,
+        glob       => $opts{-glob}    || '*.{qual,QUAL,qa,QA}',
+        maxopen    => $opts{-maxopen} || 32,
         dbmargs    => $opts{-dbmargs} || undef,
         fhcache    => {},
         cacheseq   => {},

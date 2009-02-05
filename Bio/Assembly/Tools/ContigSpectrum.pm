@@ -106,7 +106,7 @@ excluded. Additionally, the total number of singletons (1-contigs)
 from each region that assembles with any fragments from other regions
 is the number of 1-contigs in the cross contig spectrum.
 
-=head2 Implemention
+=head2 Implementation
 
 The simplest representation of a contig spectrum is as a hash
 representation where the key is the contig size (number of sequences
@@ -1196,8 +1196,8 @@ sub _new_cross_csp {
 sub _import_assembly {
   my ($self, $assemblyobj) = @_;
   # Sanity check
-  if( !ref $assemblyobj || ! $assemblyobj->isa('Bio::Assembly::Scaffold') ) {
-        $self->throw("Unable to process non Bio::Assembly::Scaffold assembly ".
+  if( !ref $assemblyobj || ! $assemblyobj->isa('Bio::Assembly::ScaffoldI') ) {
+        $self->throw("Unable to process non Bio::Assembly::ScaffoldI assembly ".
         "object [".ref($assemblyobj)."]");
   }
   # Create new object from assembly
@@ -1324,7 +1324,7 @@ sub _get_seq_stats {
 
   # sanity check
   $self->throw("Must provide a Bio::Assembly::Scaffold object")
-    if (!defined $assemblyobj || !$assemblyobj->isa("Bio::Assembly::Scaffold"));
+    if (!defined $assemblyobj || !$assemblyobj->isa("Bio::Assembly::ScaffoldI"));
   $self->throw("Expecting a hash reference. Got [".ref($seq_hash)."]")
     if (defined $seq_hash && ! ref($seq_hash) eq 'HASH');
 
@@ -1373,8 +1373,8 @@ sub _get_overlap_stats {
   my ($self, $assembly_obj, $seq_hash) = @_;
 
   # sanity check
-  $self->throw("Must provide a Bio::Assembly::Scaffold object")
-    if (!defined $assembly_obj || !$assembly_obj->isa("Bio::Assembly::Scaffold"));
+  $self->throw("Must provide a Bio::Assembly::ScaffoldI object")
+    if (!defined $assembly_obj || !$assembly_obj->isa("Bio::Assembly::ScaffoldI"));
   $self->throw("Expecting a hash reference. Got [".ref($seq_hash)."]")
     if (defined $seq_hash && ! ref($seq_hash) eq 'HASH');
   

@@ -1252,6 +1252,8 @@ sub _do_lanl_request {
     my $seqs_found_re = qr{Displaying$tags_re*(?:\s*[0-9-]*\s*)*$tags_re*of$tags_re*\s*([0-9]+)$tags_re*sequences found};
     my $no_seqs_found_re = qr{Sorry.*no sequences found};
     my $too_many_re = qr{too many records: $tags_re*([0-9]+)};
+    my $sys_error_re = qr{[Ss]ystem error};
+    my $sys_error_extract_re = qr{${tags_re}error:.*?<td[^>]+>${tags_re}(.*?)<br>};
     # find something like:
     #  <strong>tables without join:</strong><br>SequenceAccessions<br>
     my $tbl_no_join_re = qr{tables without join}i;
@@ -1287,6 +1289,8 @@ sub _do_lanl_request {
 	# squish fieldnames into hash keys
 	my %q = @query;
 	@interface = grep {defined} map {my ($tbl,$col) = /^(.*)\.(.*)$/} keys %q;
+	my $err_val = ""; # to contain informative (ha!) value if error is parsed
+
 	eval { # encapsulate communication errors here, defer biothrows...
         
         #mark the useragent should be setable from outside (so we can modify timeouts, etc)
@@ -1331,16 +1335,23 @@ sub _do_lanl_request {
 	    $response = $searchGet;
 	    for ($searchGet->content) {
 		/$no_seqs_found_re/ && do {
+		    $err_val = 0;
 		    die "No sequences found";
 		    last;
 		};
 		/$too_many_re/ && do {
+		    $err_val = $1;
 		    die "Too many records ($1): must be <10000";
 		    last;
 		};
 		/$tbl_no_join_re/ && do {
 		    die "Some required tables went unjoined to query";
 		    last;
+		};
+		/$sys_error_re/ && do {
+		    /$sys_error_extract_re/;
+		    $err_val = $1;
+		    die "LANL system error";
 		};
 		/$seqs_found_re/ && do {
 		    $numseqs = $1;
@@ -1363,7 +1374,7 @@ sub _do_lanl_request {
 	    ($@ !~ "No sequences found") && do {
 		$self->throw(-class=>'Bio::WebError::Exception',
 			     -text=>$@,
-			     -value=>"");
+			     -value=>$err_val);
 	    };
 	}
     }
@@ -1393,16 +1404,9 @@ sub _parse_lanl_response {
     my $self = shift;
     
     my ($seqGet) = (@_);
-    my (@data, @cols, %antbl, %antype,%anxlt, @ankeys );
+    my (@data, @cols, %antbl, %antype);
     my $numseq = 0;
     my ($schema, @retseqs, %rec, $ac);
-    my %specials = (
-	'country' => 'sample_country',
-	'coreceptor' => 'second_receptor',
-	'patient health' => 'health_status',
-	'year' => 'sample_year'
-	);
-    
     $schema = $self->_schema;
     
     $self->_lanl_response || 
@@ -1418,48 +1422,21 @@ sub _parse_lanl_response {
 	# squish into hash keys
 	my %q = @{ shift @{$self->_lanl_query} };
 	%antbl = $schema->ankh(keys %q);
-	foreach (values %antbl) { 
-	    #normalize
-	    my $k = $_->{ankey};
-	    $k =~ tr/ /_/;
-	    $k = lc $k;
-	    $_->{ankey} = $k; #replace with normalized version
-	    $antype{$k} = $_->{antype};
-	    push @ankeys, $k;
-	}
-	foreach (@cols) { #these are the data column headers
-	    # normalize:
-	    tr/ /_/;
-	    my $c = lc $_;
-	    ### conversion kludge for specials
-	    ### (i.e.,column headers that do not match the 
-	    ###  true field names)
-	    $c = $specials{$c} if (grep /$c/, keys %specials);
-	    ###
-	    $c =~ tr/ /_/;
-	    ### following line grep: looks for a match of the 
-	    ### column name at the end of the true field names to 
-	    ### make the translation...
-	    ### only captures the first match.
-	    my ($match_fld) = grep (/$c$/i, keys %antbl);
-	    $anxlt{$_} = $antbl{$match_fld}->{ankey} if $match_fld;
-	}
+	# get the category for each annotation
+	map { $antype{ $_->{ankey} } = $_->{antype} } values %antbl;
+	# normalize column headers
+	map { tr/ /_/; $_ = lc; } @cols;
 	foreach (@data) {
 	    @rec{@cols} = split /\t/;
-	    my $id = $rec{'SE_id'};
-	
+	    my $id = $rec{'se_id'};
 	    $self->add_id($id);
 	    $ac = new Bio::Annotation::Collection();
-
 	    #create annotations
-	    # need to handle reference, comment, dblink annots
 	    foreach (@cols) {
-		#accession should be added in here as a matter of course
-		my $k = $anxlt{$_}; # annot key
-		next unless $k;
-		my $t = $antype{$k}; # annot type
+                next if $_ eq '#';
+		my $t = $antype{$_} || "Unclassified";
 		my $d = $rec{$_}; # the data
-                $ac->put_value(-KEYS=>[$t, $k], -VALUE=>$d) if $k;
+                $ac->put_value(-KEYS=>[$t, $_], -VALUE=>$d);
 	    }
 	    $self->add_annotations_for_id($id, $ac);	
 	}
