@@ -241,7 +241,7 @@ sub each_Descendent{
 =head2 remove_Descendent
 
  Title   : remove_Descendent
- Usage   : $node->remove_Descedent($node_foo);
+ Usage   : $node->remove_Descendent($node_foo);
  Function: Removes a specific node from being a Descendent of this node
  Returns : nothing
  Args    : An array of Bio::Node::NodeI objects which have been previously
@@ -268,19 +268,7 @@ sub remove_Descendent{
 	   }
        }
    }
-   
-   # remove unecessary nodes if we have removed the part 
-   # which branches.
-   my $a1 = $self->ancestor;   
-   if( $a1 ) {
-       my $bl = $self->branch_length || 0;
-       my @d = $self->each_Descendent;
-       if (scalar @d == 1) {
-	   $d[0]->branch_length($bl + ($d[0]->branch_length || 0));
-	   $a1->add_Descendent($d[0]);
-	   $a1->remove_Descendent($self);
-       }
-   }
+
    $c;
 }
 
