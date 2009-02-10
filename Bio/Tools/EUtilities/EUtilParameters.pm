@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Tools::EUtilities::EUtilParameters
 #
-# Cared for by Chris Fields <cjfields at uiuc dot edu>
+# Cared for by Chris Fields <cjfields at bioperl dot org>
 #
 # Copyright Chris Fields
 #
@@ -85,7 +85,7 @@ Bug reports can be submitted via the web.
 
 =head1 AUTHOR 
 
-Email cjfields at uiuc dot edu
+Email cjfields at bioperl dot org
 
 =head1 APPENDIX
 

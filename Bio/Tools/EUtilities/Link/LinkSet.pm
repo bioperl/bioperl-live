@@ -14,7 +14,7 @@
 
 =head1 NAME
 
-Bio::Tools::EUtilities::Link::LinkSet
+Bio::Tools::EUtilities::Link::LinkSet - class for EUtils LinkSets
 
 =head1 SYNOPSIS
 
@@ -47,7 +47,7 @@ Bug reports can be submitted via the web.
 
 =head1 AUTHOR 
 
-Email cjfields at uiuc dot edu
+Email cjfields at bioperl dot org
 
 =head1 APPENDIX
 

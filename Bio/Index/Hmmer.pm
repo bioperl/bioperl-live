@@ -13,7 +13,7 @@
 
 =head1 NAME
 
-Bio::Index::Hmmer Indexes HMMER reports and supports retreival based on query
+Bio::Index::Hmmer - indexes HMMER reports and supports retreival based on query
 
 =head1 SYNOPSIS
 

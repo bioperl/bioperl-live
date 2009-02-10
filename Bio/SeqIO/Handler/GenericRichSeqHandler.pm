@@ -113,9 +113,9 @@ web:
 
   http://bugzilla.open-bio.org/
 
-=head1 AUTHOR - Ewan Birney
+=head1 AUTHOR - Chris Fields
 
-Email cjfields at uiuc dot edu
+Email cjfields at bioperl dot org
 
 =head1 APPENDIX
 

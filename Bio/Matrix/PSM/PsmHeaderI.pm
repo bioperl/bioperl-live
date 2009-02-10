@@ -3,7 +3,7 @@
 
 =head1 NAME
 
-Bio::Matrix::PSM::PsmHeaderI
+Bio::Matrix::PSM::PsmHeaderI - handles the header data from a PSM file
 
 =head1 SYNOPSIS
 

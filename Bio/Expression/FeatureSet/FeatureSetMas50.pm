@@ -5,7 +5,7 @@ package Bio::Expression::FeatureSet::FeatureSetMas50;
 
 =head1 NAME
 
-Bio::Expression::FeatureSet::FeatureSetMas50
+Bio::Expression::FeatureSet::FeatureSetMas50 - utility class for Mas50 FeatureSet
 
 =cut
 

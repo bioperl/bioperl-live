@@ -9,7 +9,7 @@
 
 =head1 NAME
 
-Bio::Assembly::Tools::ContigSpectrum
+Bio::Assembly::Tools::ContigSpectrum - create and manipulate contig spectra
 
 =head1 SYNOPSIS
 

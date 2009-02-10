@@ -54,6 +54,24 @@ corresponding to the data type simply return the set data or iterate through the
 data sets if the values are more complex. Data can alternatively be passed
 through the object constructor.
 
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to
+help us keep track the bugs and their resolution.
+Bug reports can be submitted via the web.
+
+  http://bugzilla.open-bio.org/
+
+=head1 AUTHOR 
+
+Email cjfields at bioperl dot org
+
+=head1 APPENDIX
+
+The rest of the documentation details each of the
+object methods. Internal methods are usually
+preceded with a _
+
 =cut
 
 package Bio::Tools::EUtilities::EUtilDataI;

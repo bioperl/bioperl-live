@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SeqI [Developers] - Abstract Interface of Sequence (with features)
+Bio::SeqI - [Developers] Abstract Interface of Sequence (with features)
 
 =head1 SYNOPSIS
 

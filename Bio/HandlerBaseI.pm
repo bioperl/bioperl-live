@@ -110,7 +110,7 @@ web:
 
 =head1 AUTHOR - Chris Fields
 
-Email cjfields at uiuc dot edu
+Email cjfields at bioperl dot org
 
 =head1 APPENDIX
 
