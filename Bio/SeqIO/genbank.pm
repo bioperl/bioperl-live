@@ -153,7 +153,7 @@ Hilmar Lapp, hlapp at gmx.net
 Donald G. Jackson, donald.jackson at bms.com
 James Wasmuth, james.wasmuth at ed.ac.uk
 Brian Osborne, bosborne at alum.mit.edu
-Chris Fields, cjfields at uiuc dot edu
+Chris Fields, cjfields at bioperl dot org
 
 =head1 APPENDIX
 

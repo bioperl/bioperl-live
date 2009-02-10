@@ -4,7 +4,7 @@ package Bio::DB::GFF::Adaptor::memory::feature_serializer;
 
 =head1 NAME
 
-Bio::DB::GFF::Adaptor::memory::feature_serializer
+Bio::DB::GFF::Adaptor::memory::feature_serializer - utility methods for serializing and deserializing GFF features
 
 =cut
 

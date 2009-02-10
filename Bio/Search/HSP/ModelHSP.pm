@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Search::HSP::ModelHSP
 #
-# Cared for by Chris Fields <cjfields at uiuc dot edu>
+# Cared for by Chris Fields <cjfields at bioperl dot org>
 #
 # Copyright Chris Fields
 #
@@ -49,7 +49,7 @@ web:
 
 =head1 AUTHOR - Chris Fields
 
-Email cjfields at uiuc dot edu
+Email cjfields at bioperl dot org
 
 =head1 APPENDIX
 

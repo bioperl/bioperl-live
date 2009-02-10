@@ -4,7 +4,7 @@ package Bio::DB::SeqFeature::Store::DBI::Iterator;
 
 =head1 NAME
 
-Bio::DB::SeqFeature::Store::DBI::Iterator
+Bio::DB::SeqFeature::Store::DBI::Iterator - utility methods for creating and iterating over SeqFeature records
 
 =cut
 

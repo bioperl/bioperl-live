@@ -1,6 +1,10 @@
 #!/usr/bin/perl -w
 #$Id$
 
+=head1 NAME
+
+download_query_genbank - script to query Genbank and retrieve records
+
 =head1 USAGE
 
  download_query_genbank --query "Neurospora[ORGN]" --db nucest -o Ncrassa_ESTs.fa --format fasta

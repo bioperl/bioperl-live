@@ -50,12 +50,44 @@ unless( $plain  ) {
 
 =head1 NAME
 
-taxid4species: Simple script which returns the NCBI Taxanomic id for a requested species
+taxid4species - simple script which returns the NCBI Taxonomic id for a requested species
+
+=head1 SYNOPSIS
+
+taxid4species [-v] [-p] [-h] "Genus1 species1" "Genus2 species2"
+
+Options:
+  -v   verbose
+  -p   plain
+  -h   help
 
 =head1 DESCRIPTION
 
 This simple script shows how to get the taxa id from NCBI Entrez and
 will return a list of taxa ids for requested organisms.
+
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
+
+  bioperl-l@bioperl.org                  - General discussion
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+
+=head2 Reporting Bugs
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
+
+  http://bugzilla.open-bio.org/
+
+=head1 AUTHOR
+
+ Jason Stajich jason-at-bioperl-dot-org
 
 =cut
 
