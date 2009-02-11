@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 56);
+	test_begin(-tests => 69);
 	
     use_ok('Bio::SeqIO::embl');
 }
@@ -165,3 +165,27 @@ eval {
 	$embl->write_seq($scalar);
 };
 ok ($@);
+
+# CDS records
+# (which have nonstandard 'PA' and 'OX' tags)
+# see http://bioperl.org/pipermail/bioperl-l/2009-February/029252.html
+# and the rest of that thread
+my $cds_file = Bio::SeqIO->new(-format =>'embl',
+                               -file => test_input_file('cds_sample.embl'));
+my $cds_seq = $cds_file->next_seq;
+ok(defined $cds_seq);
+is($cds_seq->display_id, 'EAL24309');
+is($cds_seq->accession_number, 'CH236947.1', 'CDS - accession on PA line');
+is($cds_seq->alphabet, 'dna');
+is($cds_seq->length, 192);
+is($cds_seq->species->binomial(), 'Homo sapiens');
+is($cds_seq->seq_version, 1);
+is($cds_seq->feature_count, 2);
+my $cds_annot = $cds_seq->annotation;
+ok(defined $cds_annot);
+my $cds_dblink = ($cds_annot->get_Annotations('dblink'))[0];
+ok(defined $cds_dblink);
+is($cds_dblink->tagname, 'dblink', 'CDS - OX tagname');
+is($cds_dblink->database, 'NCBI_TaxID', 'CDS - OX database');
+is($cds_dblink->primary_id, '9606', 'CDS - OX primary_id');
+
