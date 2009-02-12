@@ -226,6 +226,8 @@ sub next_tree{
        $prev_event = $lastevent;
        $lastevent = $ch;
    }
+   my $tree = $self->_eventHandler->end_document($chars);
+   return $tree if $tree;
    return;
 }
 
