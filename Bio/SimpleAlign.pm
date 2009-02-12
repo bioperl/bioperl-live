@@ -304,7 +304,20 @@ sub add_seq {
     else {
 	$self->debug( "Assigning $name to $order\n");
 
-	$self->{'_order'}->{$order} = $name;
+    my $ordh = $self->{'_order'};
+    if ($ordh->{$order}) {
+        # make space to insert
+        # $c->() returns (in reverse order) the first subsequence 
+        # of consecutive integers; i.e., $c->(1,2,3,5,6,7) returns
+        # (3,2,1), and $c->(2,4,5) returns (2).
+        my $c;
+        $c = sub { return (($_[1]-$_[0] == 1) ? ($c->(@_[1..$#_]),$_[0]) : $_[0]); };
+        map { 
+     $ordh->{$_+1} = $ordh->{$_}
+        } $c->(sort {$a <=> $b} grep {$_ >= $order} keys %{$ordh});
+
+    }
+    $ordh->{$order} = $name;
 
 	unless( exists( $self->{'_start_end_lists'}->{$id})) {
 	    $self->{'_start_end_lists'}->{$id} = [];
