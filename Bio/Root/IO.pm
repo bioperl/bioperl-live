@@ -311,6 +311,9 @@ sub _initialize_io {
 	    $self->throw("Could not open $file: $!");
 	$self->file($file);
     }
+    if ( defined($fh) && !(ref($fh) && ((ref($fh) eq "GLOB") || $fh->isa('IO::Handle')))  ) {
+	$self->throw("file handle $fh doesn't appear to be a handle");
+    }
     $self->_fh($fh) if $fh; # if not provided, defaults to STDIN and STDOUT
 
     $self->_flush_on_write(defined $flush ? $flush : 1);
