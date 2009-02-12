@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 20);
+    test_begin(-tests => 24);
 	
     use_ok('Bio::TreeIO');
 }
@@ -110,18 +110,6 @@ if( $verbose ) {
 	}
 }
 
-$treeio = Bio::TreeIO->new(-format => 'newick', 
-			   -fh => \*DATA);
-my $treeout2 = Bio::TreeIO->new(-format => 'newick');
-
-$tree = $treeio->next_tree;
-
-if( $verbose > 0  ) {
-    $treeout2->write_tree($tree);
-}
-
-
-
 # parse trees with scores
 
 $treeio = Bio::TreeIO->new(-format => 'newick',
@@ -131,5 +119,16 @@ ok($tree);
 is($tree->score, '-2673.059726');
 
 
-__DATA__
-(((A:1,B:1):1,(C:1,D:1):1):1,((E:1,F:1):1,(G:1,H:1):1):1);
+# no semi-colon
+
+$treeio = Bio::TreeIO->new(-format => 'newick', 
+			   -file=> test_input_file('semicolon.newick'));
+$tree = $treeio->next_tree;
+ok($tree);
+is($tree->get_nodes, 15);
+
+$treeio = Bio::TreeIO->new(-format => 'newick', 
+			   -file=> test_input_file('no_semicolon.newick'));
+$tree = $treeio->next_tree;
+ok($tree);
+is($tree->get_nodes, 15);
