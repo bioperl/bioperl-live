@@ -173,7 +173,7 @@ sub attach_EventHandler{
     my ($self,$handler) = @_;
     return if( ! $handler );
     if( ! $handler->isa('Bio::Event::EventHandlerI') ) {
-	$self->warn("Ignoring request to attatch handler ".ref($handler). ' because it is not a Bio::Event::EventHandlerI');
+	$self->warn("Ignoring request to attach handler ".ref($handler). ' because it is not a Bio::Event::EventHandlerI');
     }
     $self->{'_handler'} = $handler;
     return;
