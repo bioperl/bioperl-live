@@ -116,8 +116,8 @@ use Bio::SearchIO::IteratedSearchResultEventBuilder;
 our $DEBUG;
 
 my %VALID_TYPE = (
-    'BLAST'     => 'Bio::SearchIO::XML::BlastHandler',
-    'PSIBLAST'  => 'Bio::SearchIO::XML::PsiBlastHandler',
+    'BLAST'      => 'Bio::SearchIO::XML::BlastHandler',
+    'PSIBLAST'   => 'Bio::SearchIO::XML::PsiBlastHandler',
     'PSI-BLAST'  => 'Bio::SearchIO::XML::PsiBlastHandler'
     );
 
