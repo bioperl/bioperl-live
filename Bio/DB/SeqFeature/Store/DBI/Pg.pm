@@ -1,5 +1,7 @@
+
 package Bio::DB::SeqFeature::Store::DBI::Pg;
 use DBD::Pg qw(:pg_types);
+use MIME::Base64;
 # $Id: Pg.pm 14656 2008-04-14 15:05:37Z lstein $
 
 =head1 NAME
@@ -431,7 +433,7 @@ sub schema {
   my ($self, $schema) = @_;
   $self->{'schema'} = $schema if defined($schema);
   if ($schema) {
-    $self->dbh->do("SET search_path TO " . $self->{'schema'});
+    $self->dbh->do("SET search_path TO " . $self->{'schema'} . ", public");
   } else {
     $self->dbh->do("SET search_path TO public");
   }
@@ -592,31 +594,22 @@ sub _add_SeqFeature {
   my $child_table = $self->_parent2child_table();
   my $count = 0;
 
-  my $exist_query  = $self->_prepare("SELECT count(*) FROM $child_table WHERE id = ? AND child = ?" );
-
-  my $insert_query = $self->_prepare("INSERT INTO $child_table (id,child) VALUES (?, ?)");
-
-#  my $sth = $self->_prepare(<<END);
-#REPLACE INTO $child_table (id,child) VALUES (?,?)
-#END
+  my $querydel = "DELETE FROM $child_table WHERE id = ? AND child = ?";
+  my $query = "INSERT INTO $child_table (id,child) VALUES (?,?)";
+  my $sthdel = $self->_prepare($querydel);
+  my $sth = $self->_prepare($query);
 
   my $parent_id = (ref $parent ? $parent->primary_id : $parent) 
     or $self->throw("$parent should have a primary_id");
-
 
   $dbh->begin_work or $self->throw($dbh->errstr);
   eval {
     for my $child (@children) {
       my $child_id = ref $child ? $child->primary_id : $child;
       defined $child_id or die "no primary ID known for $child";
-
-      $exist_query->($parent_id, $child_id);
-      my ($exist) = $exist_query->fetchrow_array;
-
-      if (!$exist) {
-        $insert_query->execute($parent_id,$child_id);
-        $count++;
-      }
+      $sthdel->execute($parent_id, $child_id);
+      $sth->execute($parent_id,$child_id);
+      $count++;
     }
   };
 
@@ -627,7 +620,7 @@ sub _add_SeqFeature {
   else {
     $dbh->commit;
   }
-  $insert_query->finish;
+  $sth->finish;
   $count;
 }
 
@@ -691,13 +684,13 @@ sub _fetch_sequence {
   my $locationlist_table = $self->_locationlist_table;
 
   my $sth     = $self->_prepare(<<END);
-SELECT sequence,offset
+SELECT sequence,"offset"
    FROM $sequence_table as s,$locationlist_table as ll
    WHERE s.id=ll.id
      AND ll.seqname= ?
-     AND offset >= ?
-     AND offset <= ?
-   ORDER BY offset
+     AND "offset" >= ?
+     AND "offset" <= ?
+   ORDER BY "offset"
 END
 
   my $seq = '';
@@ -724,9 +717,10 @@ sub _offset_boundary {
   my $locationlist_table = $self->_locationlist_table;
 
   my $sql;
-  $sql =  $position eq 'left'  ? "SELECT min(offset) FROM $sequence_table as s,$locationlist_table as ll WHERE s.id=ll.id AND ll.seqname=?"
-         :$position eq 'right' ? "SELECT max(offset) FROM $sequence_table as s,$locationlist_table as ll WHERE s.id=ll.id AND ll.seqname=?"
-	 :"SELECT max(offset) FROM $sequence_table as s,$locationlist_table as ll WHERE s.id=ll.id AND ll.seqname=? AND offset<=?";
+  $sql =  $position eq 'left'  ? "SELECT min(\"offset\") FROM $sequence_table as s,$locationlist_table as ll WHERE s.id=ll.id AND ll.seqname=?"
+         :$position eq 'right' ? "SELECT max(\"offset\") FROM $sequence_table as s,$locationlist_table as ll WHERE s.id=ll.id AND ll.seqname=?"
+	 :"SELECT max(\"offset\") FROM $sequence_table as s,$locationlist_table as ll WHERE s.id=ll.id AND ll.seqname=? AND \"offset\"<=?";
+
   my $sth = $self->_prepare($sql);
   my @args = $position =~ /^-?\d+$/ ? ($seqid,$position) : ($seqid);
   $sth->execute(@args) or $self->throw($sth->errstr);
@@ -977,7 +971,7 @@ sub _attributes_sql {
   my $attribute_table       = $self->_attribute_table;
   my $attributelist_table   = $self->_attributelist_table;
 
-  my $from = "$attribute_table as a use index(attribute_id), $attributelist_table as al";
+  my $from = "$attribute_table as a, $attributelist_table as al";
 
   my $where = <<END;
   a.id=$join
@@ -1016,10 +1010,10 @@ sub _types_sql {
     }
 
     if (defined $source_tag) {
-      push @matches,"tl.tag=?";
+      push @matches,"lower(tl.tag)=lower(?)";
       push @args,"$primary_tag:$source_tag";
     } else {
-      push @matches,"tl.tag LIKE ?";
+      push @matches,"tl.tag ILIKE ?";
       push @args,"$primary_tag:%";
     }
   }
@@ -1299,20 +1293,13 @@ sub replace {
   my $id = $object->primary_id;
   my $features = $self->_feature_table;
 
-  my $exist_query = defined($id)
-                    ? $self->_prepare("select count(*) from $features where id = ?")
-                    : 0;
-  my $update_query = $self->_prepare("update $features object  = ?,
-                                                       indexed = ?,
-                                                       seqid   = ?,
-                                                       start   = ?,
-                                                       \"end\"   = ?,
-                                                       strand  = ?,
-                                                       tier    = ?,
-                                                       bin     = ?,
-                                                       typeid  = ?
-                                      where id = ?");
-  my $insert_query = $self->_prepare("INSERT INTO $features (object,indexed,seqid,start,\"end\",strand,tier,bin,typeid) VALUES (?,?,?,?,?,?,?,?,?)");
+  my $query = "INSERT INTO $features (id,object,indexed,seqid,start,\"end\",strand,tier,bin,typeid) VALUES (?,?,?,?,?,?,?,?,?,?)";
+  my $query_noid = "INSERT INTO $features (object,indexed,seqid,start,\"end\",strand,tier,bin,typeid) VALUES (?,?,?,?,?,?,?,?,?)";
+  my $querydel = "DELETE FROM $features WHERE id = ?";
+
+  my $sthdel = $self->_prepare($querydel);
+  my $sth = $self->_prepare($query);
+  my $sth_noid = $self->_prepare($query_noid);
 
   my @location = $index_flag ? $self->_get_location_and_bin($object) : (undef)x6;
 
@@ -1321,29 +1308,18 @@ sub replace {
   $primary_tag    .= ":$source_tag";
   my $typeid   = $self->_typeid($primary_tag,1);
 
-  my $exists;
-  $exist_query->execute($id) if $exist_query;
-  if ($exist_query) {
-    ($exists) = $exist_query->fetchrow_array if $exist_query;
+  if ($id) {
+    $sthdel->execute($id);
+    $sth->execute($id,encode_base64($self->freeze($object), ''),$index_flag||0,@location,$typeid) or $self->throw($sth->errstr);
+  } else {
+    $sth_noid->execute(encode_base64($self->freeze($object), ''),$index_flag||0,@location,$typeid) or $self->throw($sth->errstr);
   }
-  else {
-    $exists = 0;
-  }
-
-  if ($exists) {
-    $update_query->execute($self->freeze($object),$index_flag||0,@location,$typeid,$id) or $self->throw($update_query->errstr);
-  }
-  else {
-    $insert_query->execute($self->freeze($object),$index_flag||0,@location,$typeid) or $self->throw($insert_query->errstr);
-  }
-
-  #old syntax with with replace into
-  #$sth->execute($id,$self->freeze($object),$index_flag||0,@location,$typeid) or $self->throw($sth->errstr);
 
   my $dbh = $self->dbh;
-  $object->primary_id($dbh->{pg_insertid}) unless defined $id;
 
-  $self->flag_for_indexing($dbh->{pg_insertid}) if $self->{bulk_update_in_progress};
+  $object->primary_id($dbh->last_insert_id(undef, undef, undef, undef, {sequence=>$features."_id_seq"})) unless defined $id;
+
+  $self->flag_for_indexing($dbh->last_insert_id(undef, undef, undef, undef, {sequence=>$features."_id_seq"})) if $self->{bulk_update_in_progress};
 }
 
 ###
@@ -1361,10 +1337,10 @@ sub insert {
   my $sth = $self->_prepare(<<END);
 INSERT INTO $features (id,object,indexed) VALUES (?,?,?)
 END
-  $sth->execute(undef,$self->freeze($object),$index_flag) or $self->throw($sth->errstr);
+  $sth->execute(undef,encode_base64($self->freeze($object), ''),$index_flag) or $self->throw($sth->errstr);
   my $dbh = $self->dbh;
-  $object->primary_id($dbh->{pg_insertid});
-  $self->flag_for_indexing($dbh->{pg_insertid}) if $self->{bulk_update_in_progress};
+  $object->primary_id($dbh->{Pg_insertid});
+  $self->flag_for_indexing($dbh->{Pg_insertid}) if $self->{bulk_update_in_progress};
 }
 
 =head2 types
@@ -1422,7 +1398,13 @@ sub flag_for_indexing {
   my $self = shift;
   my $id   = shift;
   my $needs_updating = $self->_update_table;
-  my $sth = $self->_prepare("REPLACE INTO $needs_updating VALUES (?)");
+
+  my $querydel = "DELETE FROM $needs_updating WHERE id = ?";
+  my $query = "INSERT INTO $needs_updating VALUES (?)";
+  my $sthdel = $self->_prepare($querydel);
+  my $sth = $self->_prepare($query);
+
+  $sthdel->execute($id);
   $sth->execute($id) or $self->throw($self->dbh->errstr);
 }
 
@@ -1491,14 +1473,15 @@ END
   $sth = $self->_prepare(<<END);
 INSERT INTO $qualified_table ($namefield) VALUES (?)
 END
-print "Inserting into $qualified_table $namefield $name\n";
   $sth->execute($name) or die $sth->errstr;
   my $dbh = $self->dbh;
-  return $dbh->last_insert_id(undef, undef, $qualified_table, undef);
+  return $dbh->last_insert_id(undef, undef, undef, undef, {sequence=>$qualified_table."_id_seq"});
 }
 
 sub _typeid {
-  shift->_genericid('typelist','tag',shift,1);
+  my $typeid = shift->_genericid('typelist','tag',shift,1);
+  print STDERR "Typeid is $typeid\n";
+  return $typeid;
 }
 sub _locationid {
   shift->_genericid('locationlist','seqname',shift,1);
@@ -1573,7 +1556,7 @@ sub _sth2objs {
 	$sth->bind_col(2, \$o, { pg_type => PG_BYTEA});
   #while (my ($id,$o) = $sth->fetchrow_array) {
   while ($sth->fetch) {
-    my $obj = $self->thaw($o,$id);
+    my $obj = $self->thaw(decode_base64($o) ,$id);
     push @result,$obj;
   }
   $sth->finish;
@@ -1587,7 +1570,7 @@ sub _sth2obj {
   my $sth  = shift;
   my ($id,$o) = $sth->fetchrow_array;
   return unless $o;
-  my $obj = $self->thaw($o,$id);
+  my $obj = $self->thaw(decode_base64($o) ,$id);
   $obj;
 }
 
@@ -1643,7 +1626,7 @@ sub _make_attribute_group {
   my $self                     = shift;
   my ($table_name,$attributes) = @_;
   my $key_count = keys %$attributes or return;
-  return "f.id HAVING count(f.id)>?",$key_count-1;
+  return "f.id,f.object HAVING count(f.id)>?",$key_count-1;
 }
 
 sub _print_query {
@@ -1677,9 +1660,7 @@ sub _dump_store {
     $primary_tag    .= ":$source_tag";
     my $typeid   = $self->_typeid($primary_tag,1);
 
-		my $frozen_object = $dbh->quote($self->freeze($obj), { pg_type => PG_BYTEA});
-		$frozen_object =~ s/^E?'|'$//g;
-		$frozen_object =~ s/\\\\/\\/g;
+		my $frozen_object = encode_base64($self->freeze($obj), '');
                 # TODO: Fix this, why does frozen object start with quote but not end with one
     print $store_fh join("\t",$id,$typeid,$seqid,$start,$end,$strand,$tier,$bin,$indexed,$frozen_object),"\n";
     $obj->primary_id($id);
