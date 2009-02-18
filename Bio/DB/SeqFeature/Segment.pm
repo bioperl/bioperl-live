@@ -414,6 +414,7 @@ sub end     { shift->{end}    }
 sub seq_id  { shift->{seqid}  }
 sub strand  { shift->{strand} }
 sub ref     { shift->seq_id   }
+*refseq = \&ref;
 
 sub length  {
   my $self = shift;
