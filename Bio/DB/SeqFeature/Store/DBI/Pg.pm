@@ -359,35 +359,20 @@ sub _init_database {
 sub maybe_create_meta {
   my $self = shift;
   return unless $self->writeable;
-  my $table = $self->_qualify('meta');
-  my $tables = $self->table_definitions;
-	my @table_exists = $self->dbh->selectrow_array("SELECT * FROM pg_tables WHERE tablename = '$table'");
-	if (!scalar(@table_exists)) {
-		$self->dbh->do("CREATE TABLE $table $tables->{meta}");
-	}
-}
-
-sub init_tmp_database {
-  my $self = shift;
-  my $dbh    = $self->dbh;
-  my $tables = $self->table_definitions;
-  for my $t (keys %$tables) {
-    my $table = $self->_qualify($t);
-		my @table_exists = $dbh->selectrow_array("SELECT * FROM pg_tables WHERE tablename = '$table'");
-		if (!scalar(@table_exists)) {
-			my $query = "CREATE TEMPORARY TABLE $table $tables->{$t}";
-			$dbh->do($query) or $self->throw($dbh->errstr);
-		}
-  }
-  1;
+  my $table        = $self->_qualify('meta');
+  my $tables       = $self->table_definitions;
+  my $temporary    = $self->is_temp ? 'TEMPORARY' : '';
+  my @table_exists = $self->dbh->selectrow_array("SELECT * FROM pg_tables WHERE tablename = '$table'");
+  $self->dbh->do("CREATE $temporary TABLE $table $tables->{meta}")
+      unless @table_exists || $temporary;
 }
 
 sub _finish_bulk_update {
   my $self = shift;
   my $dbh  = $self->dbh;
-  my $dir = $self->{dumpdir} || '.';
+  my $dir  = $self->{dumpdir} || '.';
   for my $table ('feature',$self->index_tables) {
-    my $fh = $self->dump_filehandle($table);
+    my $fh   = $self->dump_filehandle($table);
     my $path = $self->dump_path($table);
     $fh->close;
     my $qualified_table = $self->_qualify($table);
@@ -525,6 +510,50 @@ sub _offset_boundary {
   return $boundary;
 }
 
+sub _search_attributes {
+  my $self = shift;
+  my ($search_string,$attribute_names,$limit) = @_;
+  my @words               = map {quotemeta($_)} split /\s+/,$search_string;
+  my $name_table          = $self->_name_table;
+  my $attribute_table     = $self->_attribute_table;
+  my $attributelist_table = $self->_attributelist_table;
+  my $type_table          = $self->_type_table;
+  my $typelist_table      = $self->_typelist_table;
+
+  my @tags    = @$attribute_names;
+  my $tag_sql = join ' OR ',("al.tag=?") x @tags;
+
+  my $perl_regexp = join '|',@words;
+
+  my $sql_regexp = join ' AND ',("a.attribute_value SIMILAR TO ?")  x @words;
+  my $sql = <<END;
+SELECT name,attribute_value,tl.tag,n.id
+  FROM $name_table as n,$attribute_table as a,$attributelist_table as al,$type_table as t,$typelist_table as tl
+  WHERE n.id=a.id
+    AND al.id=a.attribute_id
+    AND n.id=t.id
+    AND t.typeid=tl.id
+    AND n.display_name=1
+    AND ($tag_sql)
+    AND ($sql_regexp)
+END
+  $sql .= "LIMIT $limit" if defined $limit;
+  $self->_print_query($sql,@tags,@words) if DEBUG || $self->debug;
+  my $sth = $self->_prepare($sql);
+  $sth->execute(@tags,@words) or $self->throw($sth->errstr);
+
+  my @results;
+  while (my($name,$value,$type,$id) = $sth->fetchrow_array) {
+    my (@hits) = $value =~ /$perl_regexp/ig;
+    my @words_in_row = split /\b/,$value;
+    my $score  = int(@hits*100/@words/@words_in_row);
+    push @results,[$name,$value,$score,$type,$id];
+  }
+  $sth->finish;
+  @results = sort {$b->[2]<=>$a->[2]} @results;
+  return @results;
+}
+
 # overridden here because the mysql adapter uses
 # a non-standard query hint
 sub _attributes_sql {
@@ -600,9 +629,9 @@ sub setting {
 
   if (defined $value && $self->writeable) {
     my $querydel = "DELETE FROM $meta WHERE name = ?";
-    my $query = "INSERT INTO $meta (name,value) VALUES (?,?)";
-    my $sthdel = $self->_prepare($querydel);
-    my $sth = $self->_prepare($query);
+    my $query    = "INSERT INTO $meta (name,value) VALUES (?,?)";
+    my $sthdel   = $self->_prepare($querydel);
+    my $sth      = $self->_prepare($query);
     $sthdel->execute($variable_name);
     $sth->execute($variable_name,$value) or $self->throw($sth->errstr);
     $sth->finish;
@@ -610,9 +639,7 @@ sub setting {
   }
   else {
     return $self->{settings_cache}{$variable_name} if exists $self->{settings_cache}{$variable_name};
-    my $query = <<END;
-SELECT value FROM $meta as m WHERE m.name=?
-END
+    my $query = "SELECT value FROM $meta as m WHERE m.name=?";
     my $sth = $self->_prepare($query);
 #    $sth->execute($variable_name) or $self->throw($sth->errstr);
     unless ($sth->execute($variable_name)) {

@@ -191,6 +191,7 @@ SKIP: {
 	}
 }
 
+
 # test the -ignore_seqregion flag
 
 # the original should have a single feature named 'Contig1'

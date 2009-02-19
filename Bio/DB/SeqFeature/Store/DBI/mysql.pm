@@ -431,9 +431,10 @@ sub _init_database {
 sub maybe_create_meta {
   my $self = shift;
   return unless $self->writeable;
-  my $table = $self->_qualify('meta');
+  my $table  = $self->_qualify('meta');
   my $tables = $self->table_definitions;
-  $self->dbh->do("CREATE TABLE IF NOT EXISTS $table $tables->{meta}");
+  my $temporary = $self->is_temp ? 'TEMPORARY' : '';
+  $self->dbh->do("CREATE $temporary TABLE IF NOT EXISTS $table $tables->{meta}");
 }
 
 sub init_tmp_database {
@@ -441,9 +442,10 @@ sub init_tmp_database {
   my $dbh    = $self->dbh;
   my $tables = $self->table_definitions;
   for my $t (keys %$tables) {
-    my $table = $self->_qualify($t);
-    my $query = "CREATE TEMPORARY TABLE $table $tables->{$t}";
-    $dbh->do($query) or $self->throw($dbh->errstr);
+      next if $t eq 'meta';  # done earlier
+      my $table = $self->_qualify($t);
+      my $query = "CREATE TEMPORARY TABLE $table $tables->{$t}";
+      $dbh->do($query) or $self->throw($dbh->errstr);
   }
   1;
 }
