@@ -362,7 +362,7 @@ sub clone {
     $self->dbh()->{InactiveDestroy} = 1;
     my $new_dbh = DBI->connect($dsn,$user,$pass,$dbi_options) or $self->throw($DBI::errstr);
     $new_dbh->{InactiveDestroy} = 1;
-    $self->{dbh} = $new_dbh; # unless $self->is_temp;
+    $self->{dbh} = $new_dbh unless $self->is_temp;
     if ($self->schema()) {
       $self->schema($self->schema()); # Reset the DBH's schema
     }
@@ -1241,6 +1241,7 @@ sub _seq_ids {
   while (my ($id) = $sth->fetchrow_array) {
     push @result,$id;
   }
+  $sth->finish;
   return @result;
 }
 
