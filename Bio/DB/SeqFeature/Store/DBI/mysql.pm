@@ -1561,7 +1561,7 @@ sub _sth2obj {
   my ($id,$o,$typeid,$seqid,$start,$end,$strand) = $sth->fetchrow_array;
   return unless defined $o;
   my $obj;
-  if ($o eq '0') {
+  if ($o eq '0') {  # I don't understand why an object ever needs to be rebuilt!
     # rebuild a new feat object from the data stored in the db
     $obj = $self->_rebuild_obj($id,$typeid,$seqid,$start,$end,$strand);
   }
@@ -1708,7 +1708,7 @@ sub _make_attribute_group {
   my $self                     = shift;
   my ($table_name,$attributes) = @_;
   my $key_count = keys %$attributes or return;
-  return "f.id HAVING count(f.id)>?",$key_count-1;
+  return "f.id,f.object,f.typeid,f.seqid,f.start,f.end,f.strand HAVING count(f.id)>?",$key_count-1;
 }
 
 sub _print_query {

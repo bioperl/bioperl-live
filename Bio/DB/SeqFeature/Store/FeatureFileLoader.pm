@@ -624,6 +624,13 @@ sub _make_feature {
     my $self = shift;
     my ($name,$type,$strand,$attributes,$ref,$start,$end) = @_;
 
+    # some basic error checking
+    $self->throw("invalid feature line: $_")
+	if ($ref && !defined $start || $start !~  /^[-\d]+$/)
+	or ($ref && !defined $end   || $end   !~  /^[-\d]+$/)
+	or !defined $type
+	or !defined $name;
+
     $strand ||= '';
 
     my @args = (-name        => $name,

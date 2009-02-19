@@ -5,15 +5,16 @@ use strict;
 use constant TEST_COUNT => 59;
 
 BEGIN {
+    use lib '/home/lstein/projects/bioperl-live';
     use lib '.';
-	use Bio::Root::Test;
+    use Bio::Root::Test;
 	
-	test_begin(-tests => TEST_COUNT);
+    test_begin(-tests => TEST_COUNT);
     
     $ENV{ORACLE_HOME} ||= '/home/oracle/Home';
 	
-	use_ok('Bio::DB::SeqFeature::Store');
-	use_ok('Bio::DB::SeqFeature::Store::GFF3Loader');
+    use_ok('Bio::DB::SeqFeature::Store');
+    use_ok('Bio::DB::SeqFeature::Store::GFF3Loader');
 }
 
 my $gff_file = test_input_file('seqfeaturedb','test.gff3');
