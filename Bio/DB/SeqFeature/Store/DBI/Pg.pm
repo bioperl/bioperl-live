@@ -1481,7 +1481,7 @@ END
 
 sub _typeid {
   my $typeid = shift->_genericid('typelist','tag',shift,1);
-  print STDERR "Typeid is $typeid\n";
+  print STDERR "Typeid is $typeid\n" if DEBUG || $self->debug;
   return $typeid;
 }
 sub _locationid {
