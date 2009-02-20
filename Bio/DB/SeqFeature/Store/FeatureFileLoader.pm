@@ -625,11 +625,13 @@ sub _make_feature {
     my ($name,$type,$strand,$attributes,$ref,$start,$end) = @_;
 
     # some basic error checking
-    $self->throw("invalid feature line: $_")
-	if ($ref && !defined $start || $start !~  /^[-\d]+$/)
-	or ($ref && !defined $end   || $end   !~  /^[-\d]+$/)
-	or !defined $type
-	or !defined $name;
+     $self->throw("invalid feature line: $_")
+ 	if ($ref   && !defined $start)
+ 	or ($ref   && !defined $end)
+ 	or ($start && $start   !~  /^[-\d]+$/)
+ 	or ($end   && $end     !~  /^[-\d]+$/)
+ 	or !defined $type
+ 	or !defined $name;
 
     $strand ||= '';
 
