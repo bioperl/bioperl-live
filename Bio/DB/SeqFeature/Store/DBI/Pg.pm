@@ -525,6 +525,7 @@ sub _search_attributes {
 
   my $perl_regexp = join '|',@words;
 
+  my @wild_card_words = map { "%$_%" } @words;
   my $sql_regexp = join ' AND ',("a.attribute_value SIMILAR TO ?")  x @words;
   my $sql = <<END;
 SELECT name,attribute_value,tl.tag,n.id
@@ -540,7 +541,7 @@ END
   $sql .= "LIMIT $limit" if defined $limit;
   $self->_print_query($sql,@tags,@words) if DEBUG || $self->debug;
   my $sth = $self->_prepare($sql);
-  $sth->execute(@tags,@words) or $self->throw($sth->errstr);
+  $sth->execute(@tags,@wild_card_words) or $self->throw($sth->errstr);
 
   my @results;
   while (my($name,$value,$type,$id) = $sth->fetchrow_array) {
