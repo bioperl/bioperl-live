@@ -2,6 +2,8 @@
 #
 # BioPerl module for Bio::Annotation::Target
 #
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
 # Cared for by Scott Cain <cain@cshl.org>
 #
 # Copyright Scott Cain

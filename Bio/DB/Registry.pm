@@ -40,6 +40,17 @@ directories should be separated by ';'.
 Please see the OBDA Access HOWTO for more information
 (L<http://bioperl.open-bio.org/wiki/HOWTO:OBDA>).
 
+=head2 Support 
+ 
+Please direct usage questions or support issues to the mailing list:
+  
+L<bioperl-l@bioperl.org>
+  
+rather than to the module maintainer directly. Many experienced and 
+reponsive experts will be able look at the problem and quickly 
+address it. Please include a thorough description of the problem 
+with code and data examples if at all possible.
+
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track

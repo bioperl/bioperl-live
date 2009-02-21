@@ -2,6 +2,8 @@
 #
 # BioPerl module for Bio::Tools::Protparam
 #
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
 # Cared for by Richard Dobson, r.j.dobson at qmul dot ac dot uk
 #
 # Copyright Richard Dobson

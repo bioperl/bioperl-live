@@ -3,6 +3,8 @@
 # BioPerl module for fallback HTTP get operations.
 # Module is proxy-aware 
 #
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
 #  Cared for by Chris Dagdigian <dag@sonsorol.org>
 #  but all of the good stuff was written by
 #  Lincoln Stein.
@@ -70,6 +72,8 @@ web:
 
 =head1 AUTHOR - Lincoln Stein
 
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
  Cared for by Chris Dagdigian <dag@sonsorol.org>
 
 =head1 APPENDIX

@@ -2,6 +2,8 @@
 #
 # bioperl module for Bio::LiveSeq::Repeat_Unit
 #
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
 # Cared for by Joseph Insana <insana@ebi.ac.uk> <jinsana@gmx.net>
 #
 # Copyright Joseph Insana

@@ -19,7 +19,7 @@
 (defun bioperl-object-start (perl-object-name perl-caretaker-name caretaker-email)
   "Places standard bioperl object notation headers and footers"
   (interactive "sName of Object: \nsName of caretaker: \nsEmail: ")
-  (insert "# $Id: bioperl.lisp,v 1.31 2007-03-27 12:43:27 heikki Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
+  (insert "# $Id: bioperl.lisp,v 1.31 2007-03-27 12:43:27 heikki Exp $\n#\n# BioPerl module for " perl-object-name "\n#\n# Please direct questions and support issues to <bioperl-l@bioperl.org>\n#\n# Cared for by " perl-caretaker-name " <" caretaker-email ">\n#\n# Copyright " perl-caretaker-name "\n#\n# You may distribute this module under the same terms as perl itself\n\n")
   (insert "# POD documentation - main docs before the code\n\n")
   (insert "=head1 NAME\n\n" perl-object-name " - DESCRIPTION of Object\n\n")
   (insert "=head1 SYNOPSIS\n\nGive standard usage here\n\n")
@@ -27,6 +27,8 @@
   (insert "=head1 FEEDBACK\n\n=head2 Mailing Lists\n\n")
   (insert "User feedback is an integral part of the evolution of this and other\nBioperl modules. Send your comments and suggestions preferably to\nthe Bioperl mailing list.  Your participation is much appreciated.\n\n")
   (insert "  bioperl-l@bioperl.org                  - General discussion\n  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists\n\n")
+  (insert "=head2 Support\n\nPlease direct usage questions or support issues to the mailing list:\n\nL<bioperl-l@bioperl.org>\n\n")
+  (insert "rather than to the module maintainer directly. Many experienced and\nreponsive experts will be able look at the problem and quickly\naddress it. Please include a thorough description of the problem\nwith code and data examples if at all possible.\n\n")
   (insert "=head2 Reporting Bugs\n\nReport bugs to the Bioperl bug tracking system to help us keep track\nof the bugs and their resolution. Bug reports can be submitted via\nthe web:\n\n")
   (insert "  http://bugzilla.open-bio.org/\n\n")
   (insert "=head1 AUTHOR - " perl-caretaker-name "\n\nEmail " caretaker-email "\n\nDescribe contact details here\n\n")
@@ -110,8 +112,8 @@
   )
 
 
-
-(add-hook perl-mode-hook 
+;; bug fix - quoted perl-mode-hook here/maj
+(add-hook 'perl-mode-hook 
       '(lambda ()
 	 (define-key perl-mode-map "\C-c\C-h" 'perl-insert-start)
 	 (define-key perl-mode-map "\C-c\C-b" 'bioperl-object-start)
