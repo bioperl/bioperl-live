@@ -2,7 +2,7 @@
 # $Id$
 
 use strict;
-use constant TEST_COUNT => 59;
+use constant TEST_COUNT => 60;
 
 BEGIN {
     use lib '/home/lstein/projects/bioperl-live';
@@ -55,7 +55,11 @@ is(length $seq1, $f->length);
 
 # if we pull out abc-1 again we should get the same object
 ($s) = $db->get_features_by_name('abc-1');
-is($f, $s);
+is($s, $f);
+
+# test case-sensitivity
+($s) = $db->get_features_by_name('Abc-1');
+is($s, $f, 'feature names should be case insensitive');
 
 # we should get two objects when we ask for abc-1 using get_features_by_alias
 # this also depends on selective subfeature indexing

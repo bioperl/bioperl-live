@@ -1866,6 +1866,24 @@ denormalized form in each feature).
 # relationships using _add_SeqFeature and return them using _fetch_SeqFeatures
 sub can_store_parentage { return; }
 
+=head2 requires_stable_tempdir 
+
+ Title   : requires_stable_tempdir
+ Usage   : $flag = $db->requires_stable_tempdir
+ Function: return true if this adaptor needs its load directory to hang around
+ Returns : boolean
+ Args    : none
+ Status  : OPTIONAL; MAY BE IMPLEMENTED BY ADAPTORS
+
+Override this method and return true if this adaptor will not tolerate
+having its load directory deleted while it is still running. This is
+currently the case for the in-memory and berkeleydb adaptors and is true
+by default.
+
+=cut
+
+sub requires_stable_tempdir { 1 }
+
 =head2 _add_SeqFeature
 
  Title   : _add_SeqFeature

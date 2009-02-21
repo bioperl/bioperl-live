@@ -303,8 +303,11 @@ sub create_load_data { #overridden
   $self->{load_data}{IndexSubfeatures} = $self->index_subfeatures();
   $self->{load_data}{mode}             = 'gff';
 
+  my $keep_tempdir = $self->store->requires_stable_tempdir;
+
   $self->{load_data}{Helper}           = 
-      Bio::DB::SeqFeature::Store::LoadHelper->new($self->{tmpdir});
+      Bio::DB::SeqFeature::Store::LoadHelper->new($self->{tmpdir},
+						  $keep_tempdir);
 }
 
 sub finish_load { #overridden

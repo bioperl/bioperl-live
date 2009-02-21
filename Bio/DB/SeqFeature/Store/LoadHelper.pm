@@ -44,15 +44,18 @@ use Fcntl qw(O_CREAT O_RDWR);
 sub new {
     my $class   = shift;
     my $tmpdir  = shift;
+    my $keep    = shift;
 
     my @tmpargs = $tmpdir ? (DIR=>$tmpdir) : ();
     my $tmppath = tempdir(@tmpargs,CLEANUP=>1);
     my $self    = $class->create_dbs($tmppath);
+    $self->{keep} = $keep;
     return bless $self,$class;
 }
 
 sub DESTROY {
-    File::Temp::cleanup();
+    my $self = shift;
+    File::Temp::cleanup() unless $self->{keep};
 }
 
 sub create_dbs {
