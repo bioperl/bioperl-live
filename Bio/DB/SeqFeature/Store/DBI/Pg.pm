@@ -510,6 +510,19 @@ sub _offset_boundary {
   return $boundary;
 }
 
+sub _name_sql {
+  my $self = shift;
+  my ($name,$allow_aliases,$join) = @_;
+  my $name_table   = $self->_name_table;
+
+  my $from  = "$name_table as n";
+  my ($match,$string) = $self->_match_sql($name);
+
+  my $where = "n.id=$join AND lower(n.name) $match";
+  $where   .= " AND n.display_name>0" unless $allow_aliases;
+  return ($from,$where,'',$string);
+}
+
 sub _search_attributes {
   my $self = shift;
   my ($search_string,$attribute_names,$limit) = @_;
@@ -579,6 +592,24 @@ END
 
   my @args  = (@bind_args,@group_args);
   return ($from,$where,$group,@args);
+}
+
+sub _match_sql {
+  my $self = shift;
+  my $name = shift;
+
+  my ($match,$string);
+  if ($name =~ /(?:^|[^\\])[*?]/) {
+    $name =~ s/(^|[^\\])([%_])/$1\\$2/g;
+    $name =~ s/(^|[^\\])\*/$1%/g;
+    $name =~ s/(^|[^\\])\?/$1_/g;
+    $match = "ILIKE ?";
+    $string  = $name;
+  } else {
+    $match = "= lower(?)";
+    $string  = lc($name);
+  }
+  return ($match,$string);
 }
 
 # overridden because of differences between LIKE behavior in mysql and postgres
