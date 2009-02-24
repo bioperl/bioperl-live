@@ -539,7 +539,7 @@ sub _search_attributes {
   my $perl_regexp = join '|',@words;
 
   my @wild_card_words = map { "%$_%" } @words;
-  my $sql_regexp = join ' AND ',("a.attribute_value SIMILAR TO ?")  x @words;
+  my $sql_regexp = join ' OR ',("a.attribute_value SIMILAR TO ?")  x @words;
   my $sql = <<END;
 SELECT name,attribute_value,tl.tag,n.id
   FROM $name_table as n,$attribute_table as a,$attributelist_table as al,$type_table as t,$typelist_table as tl

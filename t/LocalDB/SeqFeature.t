@@ -2,7 +2,7 @@
 # $Id$
 
 use strict;
-use constant TEST_COUNT => 60;
+use constant TEST_COUNT => 62;
 
 BEGIN {
     use lib '/home/lstein/projects/bioperl-live';
@@ -209,5 +209,12 @@ $loader = eval { Bio::DB::SeqFeature::Store::GFF3Loader->new(-store=>$db,
 $loader->load($gff_file);
 @f      = $db->get_features_by_name('Contig1');
 is(scalar @f,0);
+
+# test keyword search
+my @results = $db->search_notes('interesting');
+is(scalar @results,2,'keyword search; 1 term');
+
+@results = $db->search_notes('terribly interesting');
+is(scalar @results,2,'keyword search; 2 terms');
 
 }
