@@ -360,9 +360,10 @@ sub load_line { #overridden
     my $line = shift;
 
     chomp($line);
-    return unless $line =~ /^\S/;     # blank line
     my $load_data = $self->{load_data};
+    $load_data->{line}++;
 
+    return unless $line =~ /^\S/;     # blank line
     $load_data->{mode} = 'gff' if /\t/;  # if it has a tab in it, switch to gff mode
 
     if ($line =~ /^\#\s?\#\s*(.+)/) {  ## meta instruction
@@ -466,10 +467,13 @@ sub handle_feature { #overridden
   my $gff_line = shift;
   my $ld       = $self->{load_data};
 
-  $gff_line    =~ s/\s+/\t/g if $self->allow_whitespace;
+  my $allow_whitespace = $self->allow_whitespace;
+  $gff_line    =~ s/\s+/\t/g if $allow_whitespace;
 
   my @columns = map {$_ eq '.' ? undef : $_ } split /\t/,$gff_line;
-  return unless @columns >= 8;
+
+  $self->invalid_gff($gff_line) if @columns < 8;
+  $self->invalid_gff($gff_line) if @columns > 9 && $allow_whitespace;
 
   {
       local $^W = 0;
@@ -478,7 +482,13 @@ sub handle_feature { #overridden
       }
   }
 
-  my ($refname,$source,$method,$start,$end, $score,$strand,$phase,$attributes) = @columns;
+  my ($refname,$source,$method,$start,$end,$score,$strand,$phase,$attributes) = @columns;
+  
+  $self->invalid_gff($gff_line) unless defined $refname;
+  $self->invalid_gff($gff_line) unless $start =~ /^[\d.-]+$/;
+  $self->invalid_gff($gff_line) unless $end   =~ /^[\d.-]+$/;
+  $self->invalid_gff($gff_line) unless defined $method;
+
   $strand = $Strandedness{$strand||0};
   my ($reserved,$unreserved) = $attributes ? $self->parse_attributes($attributes) : ();
 
@@ -605,6 +615,12 @@ END
       $helper->add_children($parent=>$feature_id);
   }
 
+}
+
+sub invalid_gff {
+    my $self = shift;
+    my $line = shift;
+    $self->throw("invalid GFF line at line $self->{load_data}{line}.\n".$line);
 }
 
 =item allow_whitespace
