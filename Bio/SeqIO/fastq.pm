@@ -143,7 +143,9 @@ sub next_seq {
                 $seqdata->{seq},"\n",$seqdata->{qual},"\n");
   }
 
-  my @qual = split('', $seqdata->{qual});
+  my $seq_data_qual = $seqdata->{qual};
+  my @qual = unpack("A1" x length($seq_data_qual), $seq_data_qual);
+  # my @qual = split('', $seqdata->{qual}); # Speed up above
 
   my $qual;
   foreach (@qual) {$qual .=  (unpack("C",$_) - 33) ." "};
