@@ -1173,12 +1173,10 @@ sub composite_LD {
     # pairwise genotype (ie genotypes of the 2 sites) frequencies
     for( my $i = 0; $i < $site_count - 1; $i++ ) {
 	my $site1 = $marker_names[$i];
-	my (%genotypes, %total_genotype_count,
-    	%total_pairwisegeno_count,%pairwise_genotypes);
-	for( my $j = $i+1; $j < $site_count ; $j++) { 
-	 
-	my (%genotypes, %total_genotype_count,
-	    %total_pairwisegeno_count,%pairwise_genotypes);
+
+	for( my $j = $i+1; $j < $site_count ; $j++) { 	 
+	    my (%genotypes, %total_genotype_count,$total_pairwisegeno_count,
+		%pairwise_genotypes);
 	 
 	    my $site2 = $marker_names[$j];
 	    my (%allele_count,%allele_freqs) = (0,0);
@@ -1216,16 +1214,16 @@ sub composite_LD {
 
 		# We are using the $site1,$site2 to signify
 		# a unique key
-		$pairwise_genotypes{"$site1,$site2"}->{"$genostr1,$genostr2"}++;
+		$pairwise_genotypes{"$genostr1,$genostr2"}++;
 		# some individuals 
-		$total_pairwisegeno_count{"$site1,$site2"}++;
+		$total_pairwisegeno_count++;
 	    }
 	    for my $site ( %allele_freqs ) {
 		for my $al ( keys %{ $allele_freqs{$site} } ) {
 		    $allele_freqs{$site}->{$al} /= $allele_count{$site};
 		}
 	    }
-	    my $n = $total_pairwisegeno_count{"$site1,$site2"};	# number of inds
+	    my $n = $total_pairwisegeno_count;	# number of pairs of comparisons
 	    # 'A' and 'B' are two loci or in our case site1 and site2  
 	    my $allele1_site1 = $lookup{$site1}->{'1'};	# this is the BigA allele
 	    my $allele1_site2 = $lookup{$site2}->{'1'};	# this is the BigB allele
@@ -1248,17 +1246,17 @@ sub composite_LD {
 				       $allele1_site2, $allele2_site2));
 	    $self->debug(" [$site1,$site2](AaBb) N5genostr=$N5genostr\n");
 	    # count of AABB in 
-	    my $n1 = $pairwise_genotypes{"$site1,$site2"}->{$N1genostr} || 0;
+	    my $n1 = $pairwise_genotypes{$N1genostr} || 0;
 	    # count of AABb in 
-	    my $n2 = $pairwise_genotypes{"$site1,$site2"}->{$N2genostr} || 0;
+	    my $n2 = $pairwise_genotypes{$N2genostr} || 0;
 	    # count of AaBB in 
-	    my $n4 = $pairwise_genotypes{"$site1,$site2"}->{$N4genostr} || 0;
+	    my $n4 = $pairwise_genotypes{$N4genostr} || 0;
 	    # count of AaBb in 
-	    my $n5 = $pairwise_genotypes{"$site1,$site2"}->{$N5genostr} || 0;
+	    my $n5 = $pairwise_genotypes{$N5genostr} || 0;
 
 	    my $homozA_site1 = join(",", ($allele1_site1,$allele1_site1));
 	    my $homozB_site2 = join(",", ($allele1_site2,$allele1_site2));
-	my $p_AA = ($genotypes{$site1}->{$homozA_site1} || 0) / $n;
+	    my $p_AA = ($genotypes{$site1}->{$homozA_site1} || 0) / $n;
 	    my $p_BB = ($genotypes{$site2}->{$homozB_site2} || 0) / $n;
 	    my $p_A  = $allele_freqs{$site1}->{$allele1_site1} || 0;	# an individual allele freq
 	    my $p_a  =  1 - $p_A;
