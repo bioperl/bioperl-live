@@ -554,7 +554,6 @@ sub index_dir {
 
   # find all fasta files
   my @files = glob("$dir/$self->{glob}");
-#  $self->throw( "no fasta files in $dir") unless @files;
   return unless @files;
 
   # get name of index

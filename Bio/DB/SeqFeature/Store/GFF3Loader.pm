@@ -627,8 +627,8 @@ sub invalid_gff {
 
    $allow_it = $loader->allow_whitespace([$newvalue]);
 
-Get or set the allow_whitespace flag. If true, then GFF3 files are allowed to
-be delimited with whitespace in addition to tabs.
+Get or set the allow_whitespace flag. If true, then GFF3 files are
+allowed to be delimited with whitespace in addition to tabs.
 
 =cut
 
