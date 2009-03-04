@@ -546,6 +546,9 @@ sub _coord_adjust {
 	    $newfeat->annotation->add_Annotation($key, $value);
 	}
     } 
+    foreach my $key ( $feat->get_all_tags() ) {
+	    $newfeat->add_tag_value($key, $feat->get_tag_values($key));
+    } 
     if (@loc==1) {
         $newfeat->location($loc[0])
     } else {
