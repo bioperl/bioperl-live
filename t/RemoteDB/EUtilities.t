@@ -142,7 +142,7 @@ sub epost {
         
         # check the actual History
         my ($webenv, $key) = $history->history;
-        like($webenv, qr{^\S{50}}, '$epost WebEnv');
+        like($webenv, qr{^\S{25}}, '$epost WebEnv');
         like($key, qr{^\d+}, '$epost query key');
         
         # can we fetch the sequences?

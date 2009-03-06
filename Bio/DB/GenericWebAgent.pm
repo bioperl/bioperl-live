@@ -91,6 +91,17 @@ use LWP::UserAgent;
 
 my $LAST_INVOCATION_TIME = 0;
 
+my $TIME_HIRES = 0;
+
+BEGIN {
+    eval {
+        use Time::HiRes;
+    };
+    unless ($@) {
+        $TIME_HIRES = 1;
+    }
+}
+
 =head2 new
 
  Title   : new
@@ -176,7 +187,7 @@ sub ua {
 
 =cut
 
-# TODO deal with small state-related bug where file 
+# TODO deal with small state-related bug with file
 
 sub get_Response {
     my ($self, @args) = @_;
@@ -285,14 +296,23 @@ allows.
 =cut
 
 sub _sleep {
-   my $self = shift;
-   my $last_invocation = $LAST_INVOCATION_TIME;
-   if (time - $LAST_INVOCATION_TIME < $self->delay) {
-      my $delay = $self->delay - (time - $LAST_INVOCATION_TIME);
-      $self->debug("sleeping for $delay seconds\n");
-      sleep $delay;
-   }
-   $LAST_INVOCATION_TIME = time;
+    my $self = shift;
+    my $last_invocation = $LAST_INVOCATION_TIME;
+    if (time - $LAST_INVOCATION_TIME < $self->delay) {
+        my $delay = $self->delay - (time - $LAST_INVOCATION_TIME);
+        $self->debug("sleeping for $delay seconds\n");
+        if ($TIME_HIRES) {
+            # allows precise sleep timeout (builtin only allows integer seconds)
+            Time::HiRes::sleep($delay);
+        } else {
+            # allows precise sleep timeout (builtin only allows integer seconds)
+
+            # I hate this hack , but needed if we support 5.6.1 and
+            # don't want additional Time::HiRes prereq
+            select undef, undef, undef, $delay;
+        }
+    }
+    $LAST_INVOCATION_TIME = time;
 }
 
 =head1 LWP::UserAgent related methods
