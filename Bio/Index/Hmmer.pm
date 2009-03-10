@@ -19,7 +19,7 @@ Bio::Index::Hmmer - indexes HMMER reports and supports retreival based on query
 
 =head1 SYNOPSIS
 
-	# Complete Code for indexing a set off report files
+	# Complete Code for indexing a set of report files
 	#!/usr/bin/perl -w
 	use strict;
 	use Bio::Index::Hmmer;
