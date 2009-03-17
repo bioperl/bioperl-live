@@ -614,6 +614,18 @@ sub remove_annotations {
 
 =cut
 
+=head2 get_keys
+
+ Title   : get_keys
+ Usage   : $ac->get_keys($tagname_level_1, $tagname_level_2,...)
+ Function: Get an array of tagnames underneath the named tag nodes
+ Example : # prints the values of the members of Category 1...
+           print map { $ac->get_value($_) } $ac->get_keys('Category 1') ;
+ Returns : array of tagnames or empty list if the arguments represent a leaf
+ Args    : [array of] tagname[s]
+
+=cut
+
 =head1 GenBank accession manipulation methods
 
 =head2 get_accessions
