@@ -646,7 +646,13 @@ sub loadHIVSchema {
 		# exists a tag without content, but to convert to hashes 
 		# with content as key, if all tags possess content
 		if (ref($ptr) eq 'HASH') {
-		    $ptr = [keys %{$ptr}];
+		    my @k = keys %{$ptr};
+		    if (grep /desc/, keys %{$ptr->{$k[0]}}) {
+			# slurp the desc's
+			$$h{desc} = [ map { $$ptr{$_}->{desc} } @k ];
+		    }
+		    # now overwrite with keys (descs in same order...)
+		    $ptr = [@k];
 		}
 		elsif (ref($ptr) eq 'ARRAY') {
 		    $ptr = [map { ref eq 'HASH' ? $_->{name} : $_ } @{$ptr}]
