@@ -229,8 +229,9 @@
 <ankey antype='Patient'>hla_type</ankey>
     <alias>hla_type</alias>
   </sfield>
-  <sfield blank_ok="false" default="Any" type="text">patient.pat_id</sfield>
-<ankey antype='Patient'>pat_id</ankey>
+  <sfield blank_ok="false" default="Any" type="text">patient.pat_id
+    <ankey antype='Patient'>pat_id</ankey>
+  </sfield>
   <sfield blank_ok="false" default="Any" type="text">patient.pat_infection_city<alias>pat_infection_city</alias>
 <ankey antype='Geo'>infection_city</ankey>
     <alias>infection_city</alias>
@@ -1461,8 +1462,9 @@
 <ankey antype='Special'>gb_update_date</ankey>
     <alias>gb_update</alias>
   </sfield>
-  <sfield blank_ok="false" default="Any" type="text">sequenceentry.se_id</sfield>
-<ankey antype='Special'>se_id</ankey>
+  <sfield blank_ok="false" default="Any" type="text">sequenceentry.se_id
+    <ankey antype='Special'>se_id</ankey>
+  </sfield>
   <sfield blank_ok="false" default="Any" type="text">sequenceentry.se_sequence<alias>se_sequence</alias>
 <ankey antype='Virus'>sequence</ankey>
     <alias>sequence</alias>
