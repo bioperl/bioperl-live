@@ -650,7 +650,7 @@ sub get_accessions{
     }
     my @ac = $self->get_annotations_by_ids($self->ids);
     foreach (@ac) {
-	push @ret, $_->get_value('accession');
+	push @ret, $_->get_value('Special','accession');
     };
     return @ret;
 }
@@ -678,7 +678,7 @@ sub get_accessions_by_ids {
     }
     my @ac = $self->get_annotations_by_ids(@ids);
     foreach (@ac) {
-	push @ret, $_->get_value('accession');
+	push @ret, $_->get_value('Special', 'accession');
     };
     return wantarray ? @ret : $ret[0];
 }
