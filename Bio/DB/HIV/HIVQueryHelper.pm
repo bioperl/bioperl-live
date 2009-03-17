@@ -2085,7 +2085,7 @@ sub put_value {
     my @args = @_;
     my ($keys, $value) = $self->_rearrange([qw( KEYS VALUE )], @args);
     my (@keys, $lastkey);
-    $value ||= new Bio::Annotation::Collection;
+#    $value ||= new Bio::Annotation::Collection;
     @keys = (ref($keys) eq 'ARRAY') ? @$keys : ($keys);
     $lastkey = pop @keys;
     foreach (@keys) {
