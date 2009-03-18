@@ -49,7 +49,7 @@ A list of module names and formats is below:
 
   blast      BLAST (WUBLAST, NCBIBLAST,bl2seq)   
   fasta      FASTA -m9 and -m0
-  blasttable BLAST -m9 or -m8 output (NCBI not WUBLAST tabular)
+  blasttable BLAST -m9 or -m8 output (both NCBI and WUBLAST tabular)
   megablast  MEGABLAST
   psl        UCSC PSL format
   waba       WABA output
