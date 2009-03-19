@@ -226,7 +226,7 @@ my %DBSOURCE = map {$_ => 1} qw(
     TMHOBP    COMPLUYEAST-2DPAGE    OGP    DictyBase    HAMAP
     PhotoList    Gramene    WormBase    WormPep    Genew    ZFIN
     PeroxiBase    MaizeDB    TAIR    DrugBank    REBASE    HPA
-    swissprot    GenBank    GenPept    REFSEQ    embl    PDB);
+    swissprot    GenBank    GenPept    REFSEQ    embl    PDB    UniProtKB);
 
 my %NOPROCESS = map {$_ => 1} qw(DBSOURCE ORGANISM FEATURES);
 
@@ -874,12 +874,12 @@ sub _genbank_dbsource {
     my $annotation = $self->annotation_collection;
     # deal with swissprot dbsources
     # we could possibly parcel these out to subhandlers...
-    if( $dbsource =~ s/swissprot:\s+locus\s+(\S+)\,.+\n// ) {
+    if( $dbsource =~ s/(UniProtKB|swissprot):\s+locus\s+(\S+)\,.+\n// ) {
         $annotation->add_Annotation
-            ('d blink',
+            ('dblink',
              Bio::Annotation::DBLink->new
-             (-primary_id => $1,
-              -database => 'swissprot',
+             (-primary_id => $2,
+              -database => $1,
               -tagname => 'dblink'));
         if( $dbsource =~ s/\s*created:\s+([^\.]+)\.\n// ) {
             $annotation->add_Annotation
