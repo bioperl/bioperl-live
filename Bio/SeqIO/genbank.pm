@@ -474,12 +474,12 @@ sub next_seq {
 			$dbsource .= $_;
 		    }
 				# deal with UniProKB dbsources
-		    if( $dbsource =~ s/UniProtKB:\s+locus\s+(\S+)\,.+\n// ) {
+		    if( $dbsource =~ s/(UniProtKB|swissprot):\s+locus\s+(\S+)\,.+\n// ) {
 			$annotation->add_Annotation
 			    ('dblink',
 			     Bio::Annotation::DBLink->new
-			     (-primary_id => $1,
-			      -database => 'swissprot',
+			     (-primary_id => $2,
+			      -database => $1,
 			      -tagname => 'dblink'));
 			if( $dbsource =~ s/\s+created:\s+([^\.]+)\.\n// ) {
 			    $annotation->add_Annotation
@@ -488,7 +488,7 @@ sub next_seq {
 				 (-tagname => 'date_created',
 				  -value => $1));
 			}
-			while( $dbsource =~ s/\s+(sequence|annotation)\s+updated:\s+([^\.]+)\.\n// ) {
+			while( $dbsource =~ s/\s+(sequence|annotation)\s+updated:\s+([^\.]+)\.\n//g ) {
 			    $annotation->add_Annotation
 				('swissprot_dates',
 				 Bio::Annotation::SimpleValue->new

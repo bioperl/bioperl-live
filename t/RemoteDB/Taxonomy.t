@@ -106,7 +106,7 @@ foreach my $db ($db_entrez, $db_flatfile) {
         is $id, 32061;
         
         @ids = $db->get_taxonids('Rhodotorula');
-        is @ids, 8;
+        cmp_ok @ids, '>=' , 8;
         @ids = $db->get_taxonids('Rhodotorula <Microbotryomycetidae>');
         is @ids, 1;
         is $ids[0], 231509;
