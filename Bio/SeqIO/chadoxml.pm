@@ -519,14 +519,19 @@ EOUSAGE
 	$gb_type = 'DNA' if $ftype eq 'dna';
 	$gb_type = 'RNA' if $ftype eq 'rna';
 
-	if (defined $seq_so_type) {
-		$ftype = $seq_so_type;
+	if(length $seq_so_type > 0) {
+		if (defined $seq_so_type) {
+			$ftype = $seq_so_type;
+		}
+	        elsif ($seq->type) {
+	                $ftype = ($seq->type =~ /(.*):/)
+	                         ? $1
+	                         : $seq->type;
+	        }
+		else {
+			$ftype = $gb_type;
+		}
 	}
-        elsif ($seq->type) {
-                $ftype = ($seq->type =~ /(.*):/)
-                         ? $1
-                         : $seq->type;
-        }
 	else {
 		$ftype = $gb_type;
 	}
