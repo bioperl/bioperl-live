@@ -303,11 +303,8 @@ sub create_load_data { #overridden
   $self->{load_data}{IndexSubfeatures} = $self->index_subfeatures();
   $self->{load_data}{mode}             = 'gff';
 
-  my $keep_tempdir = $self->store->requires_stable_tempdir;
-
   $self->{load_data}{Helper}           = 
-      Bio::DB::SeqFeature::Store::LoadHelper->new($self->{tmpdir},
-						  $keep_tempdir);
+      Bio::DB::SeqFeature::Store::LoadHelper->new($self->{tmpdir});
 }
 
 sub finish_load { #overridden
@@ -472,7 +469,7 @@ sub handle_feature { #overridden
 
   my @columns = map {$_ eq '.' ? undef : $_ } split /\t/,$gff_line;
 
-  $self->invalid_gff($gff_line) if @columns < 8;
+  $self->invalid_gff($gff_line) if @columns < 4;
   $self->invalid_gff($gff_line) if @columns > 9 && $allow_whitespace;
 
   {

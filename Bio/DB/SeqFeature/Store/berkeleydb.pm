@@ -254,6 +254,7 @@ sub init {
 		   [qw(WRITE WRITABLE)],
 		   'CREATE',
 		  ],@_);
+
   if ($autoindex) {
     -d $autoindex or $self->throw("Invalid directory $autoindex");
     $directory ||= "$autoindex/indexes";

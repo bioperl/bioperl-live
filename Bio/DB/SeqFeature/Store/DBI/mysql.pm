@@ -538,11 +538,6 @@ sub _finish_bulk_update {
 
 
 ###
-# We allow the load directory to be deleted
-#
-sub requires_stable_tempdir { 0 } 
-
-###
 # Add a subparts to a feature. Both feature and all subparts must already be in database.
 #
 sub _add_SeqFeature {

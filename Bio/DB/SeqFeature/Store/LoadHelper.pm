@@ -37,6 +37,7 @@ it under the same terms as Perl itself.
 
 use strict;
 use DB_File;
+use File::Path 'rmtree';
 use File::Temp 'tempdir';
 use File::Spec;
 use Fcntl qw(O_CREAT O_RDWR);
@@ -44,18 +45,20 @@ use Fcntl qw(O_CREAT O_RDWR);
 sub new {
     my $class   = shift;
     my $tmpdir  = shift;
-    my $keep    = shift;
 
-    my @tmpargs = $tmpdir ? (DIR=>$tmpdir) : ();
+    my $template = 'SeqFeatureLoadHelper_XXXXXX';
+
+    my @tmpargs = $tmpdir ? ($template,DIR=>$tmpdir) : ($template);
     my $tmppath = tempdir(@tmpargs,CLEANUP=>1);
     my $self    = $class->create_dbs($tmppath);
-    $self->{keep} = $keep;
+    $self->{tmppath} = $tmppath;
     return bless $self,$class;
 }
 
 sub DESTROY {
     my $self = shift;
-    File::Temp::cleanup() unless $self->{keep};
+    rmtree $self->{tmppath};
+#    File::Temp::cleanup() unless $self->{keep};
 }
 
 sub create_dbs {

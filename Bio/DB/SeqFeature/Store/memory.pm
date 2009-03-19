@@ -446,6 +446,7 @@ sub filter_by_location {
     # be suspicious of this -- possibly a fencepost error at $end
     $start = $bins[0]  * BINSIZE  unless defined $start;
     $end   = $bins[-1] * BINSIZE  unless defined $end;
+    $end  += BINSIZE if $start==$end;
   }
   my %seenit;
   my $bin_min       = int $start/BINSIZE;

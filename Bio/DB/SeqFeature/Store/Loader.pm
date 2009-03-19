@@ -145,14 +145,17 @@ END
   eval "require Time::HiRes";
 
   $tmpdir ||= File::Spec->tmpdir();
-  my $dsn = tempdir(DIR=>$tmpdir,CLEANUP=>1);
 
   my $tmp_store = Bio::DB::SeqFeature::Store->new(-adaptor  => 'berkeleydb',
 						  -temporary=> 1,
-						  -dsn      => $dsn,
+						  -dsn      => tempdir(
+						       'BioDBSeqFeature_XXXXXXX',
+						       DIR=>$tmpdir,
+						       CLEANUP=>1
+						  ),
 						  -cache    => 1,
 						  -write    => 1)
-    unless $normalized;
+      unless $normalized;
 
   $index_subfeatures = 1 unless defined $index_subfeatures;
 
