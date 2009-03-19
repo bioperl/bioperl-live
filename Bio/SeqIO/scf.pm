@@ -81,6 +81,7 @@ use vars qw($DEFAULT_QUALITY);
 use strict;
 use Bio::Seq::SeqFactory;
 use Bio::Seq::SequenceTrace;
+use Bio::Annotation::Comment;
 use Dumpvalue;
 
 my $dumper = new Dumpvalue();
