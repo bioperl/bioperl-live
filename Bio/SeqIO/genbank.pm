@@ -214,7 +214,8 @@ our %DBSOURCE = map {$_ => 1} qw(
     TMHOBP    COMPLUYEAST-2DPAGE    OGP    DictyBase    HAMAP
     PhotoList    Gramene    WormBase    WormPep    Genew    ZFIN
     PeroxiBase    MaizeDB    TAIR    DrugBank    REBASE    HPA
-    swissprot    GenBank    GenPept    REFSEQ    embl    PDB);
+    swissprot    GenBank    GenPept    REFSEQ    embl    PDB    UniProtKB
+    DIP    PeptideAtlas    PRIDE    CYGD    HOGENOME    Gene3D);
 
 our %VALID_ALPHABET = (
     'bp' => 'dna',
@@ -472,8 +473,8 @@ sub next_seq {
 			last if (/^\S/);
 			$dbsource .= $_;
 		    }
-				# deal with swissprot dbsources
-		    if( $dbsource =~ s/swissprot:\s+locus\s+(\S+)\,.+\n// ) {
+				# deal with UniProKB dbsources
+		    if( $dbsource =~ s/UniProtKB:\s+locus\s+(\S+)\,.+\n// ) {
 			$annotation->add_Annotation
 			    ('dblink',
 			     Bio::Annotation::DBLink->new
@@ -487,12 +488,12 @@ sub next_seq {
 				 (-tagname => 'date_created',
 				  -value => $1));
 			}
-			while( $dbsource =~ s/\s+(sequence|annotation)\s+updated:\s+([^\.]+)\.\n//g ) {
+			while( $dbsource =~ s/\s+(sequence|annotation)\s+updated:\s+([^\.]+)\.\n// ) {
 			    $annotation->add_Annotation
 				('swissprot_dates',
 				 Bio::Annotation::SimpleValue->new
 				 (-tagname => 'date_updated',
-				  -value => $1));
+				  -value => $2));
 			}
 			$dbsource =~ s/\n/ /g;
 			if( $dbsource =~ s/\s+xrefs:\s+((?:\S+,\s+)+\S+)\s+xrefs/xrefs/ ) {
