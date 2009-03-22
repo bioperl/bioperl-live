@@ -156,7 +156,7 @@ use Text::Wrap qw(wrap);
 
 use base qw(Bio::AlignIO);
 
-our $STKVERSION = 'STOCKHOLM 1.0';
+my $STKVERSION = 'STOCKHOLM 1.0';
 
 # This maps the two-letter annotation key to a Annotation/parameter/tagname
 # combination.  Some data is stored using get/set methods ('Methods')  The rest 
@@ -226,7 +226,7 @@ our @WRITEORDER = qw(accession
 # Some data is stored using get/set methods ('Methods'), others
 # are mapped b/c of more complex annotation types.
 
-our %WRITEMAP = (
+my %WRITEMAP = (
             'accession'             =>  'AC/Method',
             'id'                    =>  'ID/Method',
             'description'           =>  'DE/Method',
@@ -260,6 +260,8 @@ our %WRITEMAP = (
             'custom'                =>  'XX/SimpleValue'
             );
 
+my $LOCAL_SYMBOLS; 
+
 # This maps the tagname back to a tagname-annotation value combination.
 # Some data is stored using get/set methods ('Methods'), others
 # are mapped b/c of more complex annotation types.
@@ -289,6 +291,10 @@ sub _initialize {
     $self->spaces($spaces);
     # hash for functions for decoding keys.
     $handler ? $self->alignhandler($handler) :
+    
+    # did I mention how much I hate globals?
+    $LOCAL_SYMBOLS = $Bio::LocatableSeq::MATCHPATTERN;
+    
     $self->alignhandler(Bio::AlignIO::Handler::GenericAlignHandler->new(
                     -format => 'stockholm',
                     -verbose => $self->verbose,
@@ -349,7 +355,7 @@ sub next_aln {
             }
             $align = ($primary_tag eq 'GF' || $primary_tag eq 'GR') ? 1 : 0;
         }
-        elsif ($line =~ m{^([^\#]\S+)\s+([A-Za-z.\-\*]+)\s*}) {
+        elsif ($line =~ m{^([^\#]\S+)\s+([$LOCAL_SYMBOLS]+)\s*}) {
             $self->{block_line}++;
             ($feat, $nse, $data) = ('SEQUENCE', $1, $2);
         }
@@ -412,7 +418,7 @@ sub next_aln {
         $last_feat = $feat;
     }
     
-    my $aln = $handler->build_alignment;    
+    my $aln = $handler->build_alignment;
     $handler->reset_parameters;
     return $aln;
 }
@@ -644,20 +650,6 @@ sub alignhandler {
         $self->{'_alignhandler'} = $handler;
     }
     return $self->{'_alignhandler'};
-}
-
-=head2 alignwriter
-
- Title   : alignwriter
- Usage   : $stream->alignwriter($writer)
- Function: Get/Set the writer object
- Returns : 
- Args    : 
-
-=cut
-
-sub alignwriter {
-    shift->throw_not_implemented;
 }
 
 ############# PRIVATE INIT/HANDLER METHODS #############
