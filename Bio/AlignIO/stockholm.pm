@@ -260,8 +260,6 @@ my %WRITEMAP = (
             'custom'                =>  'XX/SimpleValue'
             );
 
-my $LOCAL_SYMBOLS; 
-
 # This maps the tagname back to a tagname-annotation value combination.
 # Some data is stored using get/set methods ('Methods'), others
 # are mapped b/c of more complex annotation types.
@@ -291,10 +289,6 @@ sub _initialize {
     $self->spaces($spaces);
     # hash for functions for decoding keys.
     $handler ? $self->alignhandler($handler) :
-    
-    # did I mention how much I hate globals?
-    $LOCAL_SYMBOLS = $Bio::LocatableSeq::MATCHPATTERN;
-    
     $self->alignhandler(Bio::AlignIO::Handler::GenericAlignHandler->new(
                     -format => 'stockholm',
                     -verbose => $self->verbose,
@@ -355,7 +349,7 @@ sub next_aln {
             }
             $align = ($primary_tag eq 'GF' || $primary_tag eq 'GR') ? 1 : 0;
         }
-        elsif ($line =~ m{^([^\#]\S+)\s+([$LOCAL_SYMBOLS]+)\s*}) {
+        elsif ($line =~ m{^([^\#]\S+)\s+([^\s]+)\s*}) {
             $self->{block_line}++;
             ($feat, $nse, $data) = ('SEQUENCE', $1, $2);
         }
