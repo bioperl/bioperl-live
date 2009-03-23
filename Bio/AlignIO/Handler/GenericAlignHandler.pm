@@ -498,7 +498,7 @@ sub _from_nse {
     my $new_acc;
     if (exists $self->{'_params'}->{'-seq_accession'}) {
         $new_acc = $self->{'_params'}->{'-seq_accession'}->{$data->{NSE}};
-    }        
+    }
     if ($nse =~ m{(\S+?)(?:\.(\d+))?/(\d+)-(\d+)}xmso) {
         my $strand = $data->{ALPHABET} eq 'dna' || $data->{ALPHABET} eq 'rna' ? 1 : undef;
         my ($start, $end) = ($3, $4);
@@ -513,7 +513,7 @@ sub _from_nse {
         $data->{STRAND} = $strand;
     } else {
         # we can parse for version here if needed
-        $data->{ACCESSION_NUMBER} = $data->{NSE};
+        $data->{DISPLAY_ID} = $data->{NSE};
     }
 }
 
