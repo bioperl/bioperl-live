@@ -195,8 +195,6 @@ my %MAPPING = (
     'SEQUENCE' => 'SEQUENCE'
 );
 
-my %CONCATENATE = map {$_ => 1} qw(DE AU DC RC RT RA RL CC);
-
 # this is the order that annotations are written
 our @WRITEORDER = qw(accession
   id
@@ -226,39 +224,40 @@ our @WRITEORDER = qw(accession
 # Some data is stored using get/set methods ('Methods'), others
 # are mapped b/c of more complex annotation types.
 
-my %WRITEMAP = (
-            'accession'             =>  'AC/Method',
-            'id'                    =>  'ID/Method',
-            'description'           =>  'DE/Method',
-            'record_authors'        =>  'AU/SimpleValue',
-            'seed_source'           =>  'SE/SimpleValue',
-            'build_command'         =>  'BM/SimpleValue',
-            'gathering_threshold'   =>  'GA/SimpleValue',
-            'noise_cutoff'          =>  'NC/SimpleValue',
-            'trusted_cutoff'        =>  'TC/SimpleValue',
-            'entry_type'            =>  'TP/SimpleValue',
-            'num_sequences'         =>  'SQ/SimpleValue',
-            'previous_ids'          =>  'PI/SimpleValue',
-            'database_comment'      =>  'DC/SimpleValue',
-            'dblink'                =>  'DR/DBLink',
-            'reference'             =>  'RX/Reference',
-            'ref_number'            =>  'RN/number',
-            'ref_comment'           =>  'RC/comment',
-            'ref_pubmed'            =>  'RM/pubmed',
-            'ref_title'             =>  'RT/title',
-            'ref_authors'           =>  'RA/authors',
-            'ref_location'          =>  'RL/location',
-            'alignment_comment'     =>  'CC/Comment',
-            'seq_annotation'        =>  'DR/Collection',
-            #Pfam-specific 
-            'build_method'          =>  'AM/SimpleValue',
-            'pfam_family_accession' =>  'NE/SimpleValue',
-            'seq_start_stop'        =>  'NL/SimpleValue',
-            # Rfam-specific GF lines
-            'sec_structure_source'  =>  'SS/SimpleValue',
-            # custom
-            'custom'                =>  'XX/SimpleValue'
-            );
+our %WRITEMAP = (
+    'accession'             =>  'AC/Method',
+    'id'                    =>  'ID/Method',
+    'description'           =>  'DE/Method',
+    'record_authors'        =>  'AU/SimpleValue',
+    'seed_source'           =>  'SE/SimpleValue',
+    'build_command'         =>  'BM/SimpleValue',
+    'gathering_threshold'   =>  'GA/SimpleValue',
+    'noise_cutoff'          =>  'NC/SimpleValue',
+    'trusted_cutoff'        =>  'TC/SimpleValue',
+    'entry_type'            =>  'TP/SimpleValue',
+    'num_sequences'         =>  'SQ/SimpleValue',
+    'previous_ids'          =>  'PI/SimpleValue',
+    'database_comment'      =>  'DC/SimpleValue',
+    'dblink'                =>  'DR/DBLink',
+    'reference'             =>  'RX/Reference',
+    'ref_number'            =>  'RN/number',
+    'ref_comment'           =>  'RC/comment',
+    'ref_pubmed'            =>  'RM/pubmed',
+    'ref_title'             =>  'RT/title',
+    'ref_authors'           =>  'RA/authors',
+    'ref_location'          =>  'RL/location',
+    'alignment_comment'     =>  'CC/Comment',
+    'seq_annotation'        =>  'DR/Collection',
+    #Pfam-specific 
+    'build_method'          =>  'AM/SimpleValue',
+    'pfam_family_accession' =>  'NE/SimpleValue',
+    'seq_start_stop'        =>  'NL/SimpleValue',
+    # Rfam-specific GF lines
+    'sec_structure_source'  =>  'SS/SimpleValue',
+    # custom; this is used to carry over anything from the input alignment
+    # not mapped to LocatableSeqs or SimpleAlign in a meaningful way
+    'custom'                =>  'XX/SimpleValue'
+);
 
 # This maps the tagname back to a tagname-annotation value combination.
 # Some data is stored using get/set methods ('Methods'), others
@@ -495,22 +494,26 @@ sub write_aln {
             }
             elsif ($tag eq 'XX') { # custom
                 my $newtag = $ann->tagname;
-                $alntag = sprintf('%-10s',$aln_ann.$newtag);
+                my $tmp = $aln_ann.$newtag;
+                $alntag = sprintf('%-*s',length($tmp) + 1, $tmp);
                 $data = $ann->display_text;
             }
             elsif ($tag eq 'SQ') {
                 # use the actual number, not the stored Annotation data
-                $alntag = sprintf('%-10s',$aln_ann.$tag);
+                my $tmp = $aln_ann.$tag;
+                $alntag = sprintf('%-*s',length($tmp) + 1, $tmp);
                 $data = $aln->no_sequences;
             }
             elsif ($tag eq 'DR') {
-                $alntag = sprintf('%-10s',$aln_ann.$tag);
+                my $tmp = $aln_ann.$tag;
+                $alntag = sprintf('%-*s',length($tmp) + 1, $tmp);
                 my $db = uc $ann->database;
                 my $cb = exists $LINK_CB{$db} ? $LINK_CB{$db} : $LINK_CB{_DEFAULT_};
                 $data = $ann->display_text($cb);
             }
             else {
-                $alntag = sprintf('%-10s',$aln_ann.$tag);
+                my $tmp = $aln_ann.$tag;
+                $alntag = sprintf('%-*s',length($tmp) + 1, $tmp);
                 $data = ref $ann ? $ann->display_text : $ann;
             }
             next unless $data;
