@@ -132,6 +132,8 @@ Xintao Wei & Giri Narasimhan, giri-at-cs.fiu.edu
 Brian Osborne, bosborne at alum.mit.edu
 Weigang Qiu, Weigang at GENECTR-HUNTER-CUNY-EDU
 Hongyu Zhang, forward at hongyu.org
+Jay Hannah, jay at jays.net
+Alexandr Bezginov, albezg at gmail.com
 
 =head1 SEE ALSO
 
@@ -272,11 +274,15 @@ sequences.
 
  Title     : add_seq
  Usage     : $myalign->add_seq($newseq);
+             $myalign->add_seq(-SEQ=>$newseq, -ORDER=>5);
  Function  : Adds another sequence to the alignment. *Does not* align
              it - just adds it to the hashes.
+             If -ORDER is specified, the sequence is inserted at the
+             the position spec'd by -ORDER, and existing sequences
+             are pushed down the storage array.
  Returns   : nothing
- Args      : a Bio::LocatableSeq object
-             order (optional)
+ Args      : A Bio::LocatableSeq object
+             Positive integer for the sequence position (optional)
 
 See L<Bio::LocatableSeq> for more information
 
@@ -290,12 +296,21 @@ sub addSeq {
 
 sub add_seq {
     my $self = shift;
-    my $seq  = shift;
-    my $order = shift;
+    my @args = @_;
+    my ($seq, $order) = $self->_rearrange([qw(SEQ ORDER)], @args);
     my ($name,$id,$start,$end);
 
+    unless ($seq) {
+	$self->throw("LocatableSeq argument required");
+    }
     if( ! ref $seq || ! $seq->isa('Bio::LocatableSeq') ) {
 	$self->throw("Unable to process non locatable sequences [". ref($seq). "]");
+    }
+    !defined($order) and $order = 1 + keys %{$self->{'_seq'}}; # default 
+    $order--; # jay's patch (user-specified order is 1-origin)
+    
+    if ($order < 0) {
+	$self->throw("User-specified value for ORDER must be >= 1");
     }
 
     $id = $seq->id() ||$seq->display_id || $seq->primary_id;
@@ -306,9 +321,6 @@ sub add_seq {
     # symbol_chars
     # map { $self->{'_symbols'}->{$_} = 1; } split(//,$seq->seq) if $seq->seq;
 
-    if( !defined $order ) {
-	$order = keys %{$self->{'_seq'}};
-    }
     $name = $seq->get_nse;
 
     if( $self->{'_seq'}->{$name} ) {
