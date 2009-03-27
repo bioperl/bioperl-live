@@ -224,7 +224,6 @@ use strict;
 
 use Bio::Seq::Meta;
 use Bio::AlignIO::Handler::GenericAlignHandler;
-use Data::Dumper;
 use Text::Wrap qw(wrap);
 
 use base qw(Bio::AlignIO);
