@@ -189,7 +189,6 @@ sub source_tag{
  Returns : TRUE if the specified tag exists, and FALSE otherwise
  Args    :
 
-
 =cut
 
 sub has_tag{
@@ -724,34 +723,6 @@ can use a feature ($r in the below documentation).
 =head2 union()
 
  See L<Bio::RangeI>
-
-=head1 Bio::AnnotatableI methods
-
-=cut
-
-=head2 has_tag()
-
- B<Deprecated>.  See L<Bio::AnnotatableI>
-
-=head2 remove_tag()
-
- B<Deprecated>.  See L<Bio::AnnotatableI>
-
-=head2 add_tag_value()
-
- B<Deprecated>.  See L<Bio::AnnotatableI>
-
-=head2 get_tag_values()
-
- B<Deprecated>.  See L<Bio::AnnotatableI>
-
-=head2 get_tagset_values()
-
- B<Deprecated>.  See L<Bio::AnnotatableI>
-
-=head2 get_all_tags()
-
- B<Deprecated>.  See L<Bio::AnnotatableI>
 
 =cut
 
