@@ -148,6 +148,65 @@ sub new {
   return $self;
 }
 
+=head2 create_node_on_branch
+
+ Title   : create_node_on_branch
+ Usage   : $node->create_node_on_branch($at_length)
+ Function: Create a node on the ancestral branch of the calling
+           object. 
+ Example :
+ Returns : the created node
+ Args    : -POSITION=>$absolute_branch_length_from_caller (default)
+           -FRACTION=>$fraction_of_branch_length_from_caller
+           -ANNOT=>{ -id => "the id", -desc => "the description" }
+           -FORCE, set to allow nodes with zero branch lengths
+
+=cut
+
+sub create_node_on_branch{
+   my ($self,@args) = @_;
+   my ($pos, $frac, $annot, $force) = $self->_rearrange([qw(POSITION FRACTION ANNOT FORCE)], @args);
+   my ($newpos);
+   my $blen = $self->branch_length;
+   # arg checks
+   $force||=0;
+   $annot||={};
+
+   unless ($self->ancestor) {
+       $self->throw("Refusing to create nodes above the root--exiting");
+   }
+   unless ($blen) {
+       $self->throw("Calling node's branch length is zero") unless $force;
+   }
+   unless ((defined $pos && !defined $frac)||(defined $frac && !defined $pos)) {
+       $self->throw("Either position or fraction must be specified, but not both");
+   }
+   if (defined $frac) {
+       $self->throw("FRACTION arg must be in the range [0,1]") unless ( (0 <= $frac) && ($frac <= 1) );
+       $newpos = $frac*$blen;
+   }
+   elsif (defined $pos) {
+       $self->throw("POSITION arg must be in the range [0,$blen]") unless ( (0 <= $pos) && ($pos <= $blen) );
+       $newpos = $pos;
+   }
+   else {
+       $self->throw("How did I get here?");
+   }
+   $self->throw("Calling node's branch length will be zero (set -FORCE to force)--exiting") unless ($newpos > 0) || $force;
+   $self->throw("Created nodes branch length would be zero (set -FORCE to force)--exiting") unless ($newpos < $blen) || $force;
+
+   #guts
+   $annot->{'-branch_length'} = $blen-$newpos;
+   my $node = Bio::Tree::Node->new(%$annot);
+   my $anc = $self->ancestor;
+   # null anc check is above
+   $node->add_Descendent($self);
+   $anc->add_Descendent($node);
+   $anc->remove_Descendent($self);
+   $self->branch_length($newpos);
+   return $node;
+}
+
 =head2 add_Descendent
 
  Title   : add_Descendent
@@ -281,7 +340,6 @@ sub remove_Descendent{
 	   }
        }
    }
-
    $c;
 }
 

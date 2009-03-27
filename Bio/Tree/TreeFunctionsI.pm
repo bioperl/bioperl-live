@@ -939,33 +939,21 @@ sub reroot {
         return 0;
     }
 
-    {
+	my $old_root = $self->get_root_node;
+	if( $new_root == $old_root ) {
+	    $self->warn("Node requested for reroot is already the root node!");
+	    return 0;
+	}
         my $anc = $new_root->ancestor;
         unless( $anc ) {
-            return 0;
+	    # this is already the root
+	    $self->warn("Node requested for reroot is already the root node!");            return 0;
         }
-        my $blen;
-        if( $new_root->is_Leaf() ) {
-            $blen = $new_root->branch_length;
-        } else {
-            $blen = ($new_root->branch_length() || 0) / 2;
-        }
-        my $node = $anc->new(-branch_length => $blen);
-        $new_root->branch_length($blen);
-        $anc->add_Descendent($node);
-        $anc->remove_Descendent($new_root);
-        $node->add_Descendent($new_root);
-        $new_root = $node;
-    }
-
-    my $old_root = $self->get_root_node;
-    if( $new_root == $old_root ) {
-        $self->warn("Node requested for reroot is already the root node!");
-        return 0;
-    }
+        my $tmp_node = $new_root->create_node_on_branch(-position=>0,-force=>1);
 
     # reverse the ancestor & children pointers
-    my @path_from_oldroot = ($self->get_lineage_nodes($new_root), $new_root);
+    my $former_anc = $tmp_node->ancestor;
+    my @path_from_oldroot = ($self->get_lineage_nodes($tmp_node), $tmp_node);
     for (my $i = 0; $i < @path_from_oldroot - 1; $i++) {
         my $current = $path_from_oldroot[$i];
         my $next = $path_from_oldroot[$i + 1];
@@ -973,16 +961,12 @@ sub reroot {
         $current->branch_length($next->branch_length);
         $next->add_Descendent($current);
     }
-    # root node can be an artifical node which needs to be removed here
-    # when we are re-rooting.  We can only get its ancestor
-    # after we've reversed the path
-    my $anc = $old_root->ancestor;
-    my @d = $old_root->each_Descendent;
-    if( @d == 1 ) {
-    	$anc->add_Descendent(shift @d);
-        $anc->remove_Descendent($old_root);
-    }
+
+    $new_root->add_Descendent($former_anc);
+    $tmp_node->remove_Descendent($former_anc);
+    $tmp_node = undef;
     $new_root->branch_length(undef);
+
     $old_root = undef;
     $self->set_root_node($new_root);
 
@@ -1081,7 +1065,6 @@ sub _read_trait_file {
     }
     return $traits;
 }
-
 
 sub add_trait {
     my $self = shift;

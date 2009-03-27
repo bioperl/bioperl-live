@@ -161,7 +161,8 @@ while( $tree = $treeio->next_tree ) {
 
 	@leaves = $tree->get_leaf_nodes;
 	is(@leaves, 13);
-	is(@nodes, 25);
+#/maj	is(@nodes, 25);
+	is(@nodes, 24); # this is clear from the datafile and counting \maj
 	($node) = $tree->find_node(-id => '18');
 	ok($node);
 	is($node->id, '18');
@@ -179,7 +180,8 @@ isa_ok($tree, 'Bio::Tree::TreeI');
 @nodes = $tree->get_nodes;
 @leaves = $tree->get_leaf_nodes;
 is(@leaves, 13);
-is(@nodes, 25);
+#/maj is(@nodes, 25);
+is(@nodes, 24); #/maj
 ($node) = $tree->find_node('18');
 is($node->id, '18');
 is($node->branch_length, '0.028117');
@@ -200,7 +202,8 @@ isa_ok($tree, 'Bio::Tree::TreeI');
 @leaves = $tree->get_leaf_nodes;
 is(@leaves, 13, "Leaf nodes");
 
-is(@nodes, 25, "All nodes");
+#/maj is(@nodes, 25, "All nodes");
+is(@nodes, 24, "All nodes"); 
 ($node) = $tree->find_node('18');
 is($node->id, '18');
 
