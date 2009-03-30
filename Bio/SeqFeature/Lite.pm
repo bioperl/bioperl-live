@@ -784,8 +784,9 @@ sub each_tag_value {
   my $self = shift;
   my $tag  = shift;
   my $value = $self->{attributes}{$tag} or return;
-  return CORE::ref $value ? @{$self->{attributes}{$tag}}
-                          : $self->{attributes}{$tag};
+  my $ref = CORE::ref $value;
+  return $ref && $ref eq 'ARRAY' ? @{$self->{attributes}{$tag}}
+                                 : $self->{attributes}{$tag};
 }
 
 sub get_Annotations {

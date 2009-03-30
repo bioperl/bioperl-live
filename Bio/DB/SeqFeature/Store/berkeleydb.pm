@@ -248,11 +248,13 @@ sub init {
       $is_temporary,
       $write,
       $create,
+      $verbose,
      ) = rearrange([['DSN','DB'],
 		   [qw(DIR AUTOINDEX)],
 		   ['TMP','TEMP','TEMPORARY'],
 		   [qw(WRITE WRITABLE)],
 		   'CREATE',
+		    'VERBOSE'
 		  ],@_);
 
   if ($autoindex) {
@@ -281,9 +283,10 @@ sub init {
   $self->default_settings;
   $self->directory($directory);
   $self->temporary($is_temporary);
+  $self->verbose($verbose);
   $self->_delete_databases()    if $create;
   if ($autoindex && -d $autoindex) {
-      $self->reindex($autoindex);
+      $self->auto_reindex($autoindex);
   }
   $self->lock('shared');
   $self->_open_databases($write,$create,$autoindex);
@@ -293,7 +296,7 @@ sub init {
 
 sub can_store_parentage { 1 }
 
-sub reindex {
+sub auto_reindex {
     my $self    = shift;
     my $autodir = shift;
     my $result  = $self->needs_auto_reindexing($autodir);
@@ -301,7 +304,8 @@ sub reindex {
     if (%$result) {
 	$self->lock('exclusive');
 	$self->reindex_wigfiles($result->{wig},$autodir)  if $result->{wig};
-	$self->reindex_gff3files($result->{gff},$autodir) if $result->{gff};
+	$self->reindex_ffffiles($result->{fff},$autodir)  if $result->{fff};
+	$self->reindex_gfffiles($result->{gff},$autodir) if $result->{gff};
 	$self->dna_db(Bio::DB::Fasta::Subdir->new($autodir));
 	$self->unlock;
     }
@@ -311,20 +315,39 @@ sub reindex {
     }
 }
 
-sub reindex_gff3files {
+sub reindex_gfffiles {
     my $self    = shift;
     my $files   = shift;
     my $autodir = shift;
 
-    warn "Reindexing GFF3 files...\n";
+    warn "Reindexing GFF files...\n" if $self->verbose;
     $self->_permissions(1,1);
     $self->_close_databases();
     $self->_open_databases(1,1);
     require Bio::DB::SeqFeature::Store::GFF3Loader
 	unless Bio::DB::SeqFeature::Store::GFF3Loader->can('new');
     my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store    => $self,
-								 -sf_class => $self->seqfeature_class) 
+							     -sf_class => $self->seqfeature_class) 
 	or $self->throw("Couldn't create GFF3Loader");
+    my %seen;
+    $loader->load(grep {!$seen{$_}++} @$files);
+    $self->_touch_timestamp;
+}
+
+sub reindex_ffffiles {
+    my $self    = shift;
+    my $files   = shift;
+    my $autodir = shift;
+
+    warn "Reindexing FFF files...\n" if $self->verbose;
+    $self->_permissions(1,1);
+    $self->_close_databases();
+    $self->_open_databases(1,1);
+    require Bio::DB::SeqFeature::Store::FeatureFileLoader
+	unless Bio::DB::SeqFeature::Store::FeatureFileLoader->can('new');
+    my $loader = Bio::DB::SeqFeature::Store::FeatureFileLoader->new(-store    => $self,
+								    -sf_class => $self->seqfeature_class) 
+	or $self->throw("Couldn't create FeatureFileLoader");
     my %seen;
     $loader->load(grep {!$seen{$_}++} @$files);
     $self->_touch_timestamp;
@@ -335,7 +358,7 @@ sub reindex_wigfiles {
     my $files   = shift;
     my $autodir = shift;
 
-    warn "reindexing wig files";
+    warn "Reindexing wig files...\n" if $self->verbose;
 
     unless (Bio::Graphics::Wiggle::Loader->can('new')) {
 	eval "require Bio::Graphics::Wiggle::Loader; 1"
@@ -343,6 +366,7 @@ sub reindex_wigfiles {
     }
 
     for my $wig (@$files) {
+	warn "Reindexing $wig...\n" if $self->verbose;
 	my ($wib_name) = fileparse($wig,qr/\.[^.]*/);
 	my $gff3_name  = "$wib_name.gff3";
 
@@ -360,6 +384,10 @@ sub reindex_wigfiles {
 	    or die "Can't open $gff3_path for writing: $!";
 	$fh->print($gff3_data);
 	$fh->close;
+	my $conf_path  = File::Spec->catfile($autodir,"$wib_name.conf");
+	$fh            = IO::File->new($conf_path,'>');
+	$fh->print($loader->conf_stanzas('microarray_oligo',$wib_name));
+	$fh->close;
     }
 }
 
@@ -375,7 +403,7 @@ sub needs_auto_reindexing {
 
     # first interrogate the GFF3 files, using the timestamp file
     # as modification comparison
-    my (@gff3,@wig,$fasta,$fasta_index_time);
+    my (@gff3,@fff,@wig,$fasta,$fasta_index_time);
     opendir (my $D,$autodir) 
 	or $self->throw("Couldn't open directory $autodir for reading: $!");
 
@@ -385,10 +413,17 @@ sub needs_auto_reindexing {
 	my $path      = File::Spec->catfile($autodir,$node);
 	next unless -f $path;
 
-	if ($path =~ /\.gff3?$/i) {
+	if ($path =~ /\.gff\d?$/i) {
 	    my $mtime = _mtime(\*_);  # not a typo
 	    $maxtime   = $mtime if $mtime > $maxtime;
 	    push @gff3,$path;
+	}
+	
+	
+	elsif ($path =~ /\.fff?$/i) {
+	    my $mtime = _mtime(\*_);  # not a typo
+	    $maxtime   = $mtime if $mtime > $maxtime;
+	    push @fff,$path;
 	}
 	
 	elsif ($path =~ /\.wig$/i) {
@@ -412,19 +447,34 @@ sub needs_auto_reindexing {
     
     $result->{gff}     = \@gff3 if $maxtime > $timestamp_time;
     $result->{wig}     = \@wig  if @wig;
+    $result->{fff}     = \@fff  if @fff;
     $result->{fasta}++ if $fasta;
     return $result;
 }
 
+sub verbose {
+    my $self = shift;
+    my $d    = $self->{verbose};
+    $self->{verbose} = shift if @_;
+    return $d;
+}
+
+sub lockfile {
+    my $self = shift;
+    return File::Spec->catfile($self->directory,'lock');
+}
 
 sub lock {
     my $self = shift;
     my $mode = shift;
 
     my $flag = $mode eq 'exclusive' ? LOCK_EX : LOCK_SH;
-    my $lockfile = File::Spec->catfile($self->directory,'lock');
-    my $open     = -e $lockfile ? '<' : '>';
-    my $fh       = IO::File->new($lockfile,$open) or die "Cannot open $lockfile: $!";
+    my $lockfile = $self->lockfile;
+    my $fh = $self->_flock_fh;
+    unless ($fh) {
+	my $open     = -e $lockfile ? '<' : '>';
+	$fh       = IO::File->new($lockfile,$open) or die "Cannot open $lockfile: $!";
+    }
     flock($fh,$flag);
     $self->_flock_fh($fh);
 }
@@ -433,7 +483,8 @@ sub unlock {
     my $self = shift;
     my $fh = $self->_flock_fh or return;
     flock($fh,LOCK_UN);
-    $self->_flock_fh(undef);
+    undef $self->{flock_fh};
+    unlink $self->lockfile;
 }
 
 sub _flock_fh {
@@ -566,7 +617,6 @@ sub _store {
 sub _delete_indexes {
   my $self = shift;
   my ($obj,$id) = @_;
-  warn $obj->display_name;
 
   # the additional "1" causes the index to be deleted
   $self->_update_name_index($obj,$id,1);

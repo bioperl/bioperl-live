@@ -482,8 +482,8 @@ sub handle_feature { #overridden
   my ($refname,$source,$method,$start,$end,$score,$strand,$phase,$attributes) = @columns;
   
   $self->invalid_gff($gff_line) unless defined $refname;
-  $self->invalid_gff($gff_line) unless $start =~ /^[\d.-]+$/;
-  $self->invalid_gff($gff_line) unless $end   =~ /^[\d.-]+$/;
+  $self->invalid_gff($gff_line) unless $start eq '.' || $start =~ /^[\d.-]+$/;
+  $self->invalid_gff($gff_line) unless $end   eq '.' || $end   =~ /^[\d.-]+$/;
   $self->invalid_gff($gff_line) unless defined $method;
 
   $strand = $Strandedness{$strand||0};
@@ -837,6 +837,13 @@ tags (e.g. ID) and the other containing the values of unreserved ones.
 sub parse_attributes {
   my $self = shift;
   my $att  = shift;
+
+  unless ($att =~ /=/) {  # ouch! must be a GFF line
+      require Bio::DB::SeqFeature::Store::GFF2Loader
+	  unless Bio::DB::SeqFeature::Store::GFF2Loader->can('parse_attributes');
+      return $self->Bio::DB::SeqFeature::Store::GFF2Loader::parse_attributes($att);
+  }
+
   my @pairs =  map { my ($name,$value) = split '=';
                     [$self->unescape($name) => $value];  
                    } split ';',$att;
@@ -849,7 +856,7 @@ sub parse_attributes {
       next;
     }
 
-    my @values = split /,/,$_->[1];
+    my @values = split ',',$_->[1];
     map {$_ = $self->unescape($_);} @values;
     if ($Special_attributes{$tag}) {  # reserved attribute
       push @{$reserved{$tag}},@values;
