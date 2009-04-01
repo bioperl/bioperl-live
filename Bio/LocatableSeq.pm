@@ -459,8 +459,8 @@ sub column_from_residue_number {
            This function gives the residue number for a given position
            in the alignment (i.e. column number) of the given. Gaps
            complicate this process and force the output to be a
-           L<Bio::Range> where values can be undefined. For example,
-           for the sequence:
+           L<Bio::Location::Simple> where values can be undefined. 
+           For example, for the sequence:
 
          Seq/91-96 .AC..DEF.G.
 
