@@ -85,10 +85,10 @@ while(<>) {
     my $linestr = $_;
     if( /^\s*\d+>>>(\S+).+/ ) {	
 	$data{'qname'} = $1;
-	if( /\-\s+(\d+)\s+(aa|nt)\s+$/ ){
+	if( /\-?\s+(\d+)\s+(aa|nt)\s+$/ ){
 	    $data{'qlen'} = $1;
 	}
-    } elsif( $hitsection && /^>>>\Q$data{'qname'}/ ) {	
+    } elsif( $hitsection && (/^>>>\Q$data{'qname'}/ || /^>>>/) ) {	
 	$hitsection = 0;
     } elsif( /^The best scores are:/ ) {	       
 	$hitsection = 1;
