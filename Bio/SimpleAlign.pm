@@ -620,7 +620,8 @@ sub _in_aln {  # check if input name exists in the alignment
              differences.
  Function  : Make a new alignment of unique sequence types (STs)
  Returns   : 1. a new Bio::SimpleAlign object (all sequences renamed as "ST")
-             2. ST of each sequence in STDERR
+             2. if $aln->verbose > 0, ST of each sequence is sent to 
+                STDERR
  Argument  : None
 
 =cut
@@ -684,11 +685,9 @@ sub uniq_seq {
 					 -end  =>$end
 					 );
 	$aln->add_seq($new);
-#	print STDERR "ST".$order{$str}, "\t=>";
 	foreach (@{$member{$str}}) {
         $self->debug($_->id(), "\t", "ST", $order{$str}, "\n");
-    }
-#	print STDERR "\n";
+        }
     }
     return $aln;
 }
