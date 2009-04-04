@@ -266,7 +266,10 @@ sub add_segment {
 				-type   => $type,
 			        -name   => $name,
 			        -class  => $class,
+				-phase  => $self->{phase},
+				-score  => $self->{score},
 				-source_tag  => $source_tag,
+				-attributes  => $self->{attributes},
 			       );
       $min_start = $start if $start < $min_start;
       $max_stop  = $stop  if $stop  > $max_stop;
@@ -280,9 +283,6 @@ sub add_segment {
   }
   if (@segments) {
     local $^W = 0;  # some warning of an uninitialized variable...
-    # this was killing performance!
-    #  $self->{segments} = [ sort {$a->start <=> $b->start } @segments ];
-    # this seems much faster and seems to work still
     $self->{segments} = \@segments;
     $self->{ref}    ||= $self->{segments}[0]->seq_id;
     $self->{start}    = $min_start;
@@ -514,7 +514,8 @@ sub primary_id {
   my $self = shift;
   my $d = $self->{primary_id};
   $self->{primary_id} = shift if @_;
-  $d;
+  return $d if defined $d;
+  return (overload::StrVal($self) =~ /0x([a-f0-9]+)/)[0];
 }
 
 sub notes {
@@ -677,65 +678,64 @@ sub gff_string {
   $string;
 }
 
+# Suggested strategy for dealing with the multiple parentage issue.
+# First recurse through object tree and record parent tree.
+# Then recurse again, skipping objects we've seen before.
 sub gff3_string {
-  my ($self, $recurse, $preserveHomegenousParent, $dontPropogateParentAttrs,
-      # Note: the following parameters, whose name begins with '$_',
-      # are intended for recursive call only.
-      $_parent,
-      $_parentGroup,		# if so, what is the group (GFF column 9) of the parent
-     ) = @_;
+    my ($self,$recurse,$parent_tree,$seenit,$force_id) = @_;
+    $parent_tree ||= {};
+    $seenit      ||= {};
+    my @rsf      =   ();
+    my @parent_ids;
 
-  # PURPOSE: Return GFF3 format for the feature $self.  Optionally
-  # $recurse to include GFF for any subfeatures of the feature. If
-  # recursing, provide special handling to "remove an extraneous level
-  # of parentage" (unless $preserveHomegenousParent) for features
-  # which have at least one subfeature with the same type as the
-  # feature itself (thus redefining Lincoln's "homogenous
-  # parent/child" case, which previously required all children to have
-  # the same type as parent). This usage is a convention for
-  # representing discontiguous features; they may be created by using
-  # the -segment directive without specifying a distinct -subtype to
-  # Bio::SeqFeature::LiteBase->new (or to Bio::DB::SeqFeature,
-  # Bio::SeqFeature::Lite).  Such homogenous subfeatures created in
-  # this fashion TYPICALLY do not have the parent (GFF column 9)
-  # attributes propogated to them; but, since they are all part of the
-  # same parent, the ONLY difference relevant to GFF production SHOULD
-  # be the $start and $end coordinates for their segment, and ALL
-  # THEIR OTHER ATTRIBUTES should be taken from the parent (including:
-  # score, Name, ID, Parent, etc), which happens UNLESS
-  # $dontPropogateParentAttrs is passed.
+    if ($recurse) {
+	$self->_traverse($parent_tree) unless %$parent_tree;  # this will record parents of all children
+	my $primary_id = defined $force_id ? $force_id : $self->primary_id;
 
-  my @rsf = $recurse ? $self->sub_SeqFeature : ();
-  my $recurseSubfeatureWithSameType =
-    # will be TRUE if we're going to recurse and at least 1 subfeature
-    # has same type as $self.
-    sub {($_->type eq $self->type) &&  return 1 for @rsf ; 0 }->();
-  my $typeIsSameAsParent = $_parent && ($_parent->type eq $self->type);
-  my $hparentOrSelf = ($typeIsSameAsParent && ! $dontPropogateParentAttrs) ? $_parent : $self;
-  my $group = ($typeIsSameAsParent && ! $dontPropogateParentAttrs)  
-      ? $_parentGroup 
-      : $self->format_attributes($_parent);
+	return if $seenit->{$primary_id}++;
 
-  my @gff3 = $recurseSubfeatureWithSameType && ! $preserveHomegenousParent ? () :
-    do {
-      my $name  = $hparentOrSelf->name;
-      my $class = $hparentOrSelf->class;
-      my $strand = ('-','.','+')[$hparentOrSelf->strand+1]; 
-      # TODO: understand conditions under which $self->strand could be other than
-      # $hparentOrSelf->strand.  In particular, why does add_segment flip
-      # the strand when start > stop?  I thought this was not allowed!
-      # Lincoln - any ideas?
-      my $p = join("\t",
-		   $hparentOrSelf->ref||'.',$hparentOrSelf->source||'.',$hparentOrSelf->method||'.',
-		   $self->start||'.',$self->stop||'.',
-		   defined($hparentOrSelf->score) ? $hparentOrSelf->score : '.',
-		   $strand||'.',
-		   defined($hparentOrSelf->phase) ? $hparentOrSelf->phase : '.',
-		   $group||'');
-      $p;
-    };
-  join("\n", @gff3,  map {$_->gff3_string($recurse,$preserveHomegenousParent,
-					  $dontPropogateParentAttrs,$hparentOrSelf,$group)} @rsf);
+	@rsf = $self->get_SeqFeatures;
+	if (@rsf) {
+	    # Detect case in which we have a split location feature. In this case we 
+	    # skip to the grandchildren and trick them into thinking that our parent is theirs.
+	    my %types = map {$_->primary_tag=>1} @rsf;
+	    my @types = keys %types;
+	    if (@types == 1 && $types[0] eq $self->primary_tag) {
+		return join ("\n",map {$_->gff3_string(1,$parent_tree,{},$primary_id)} @rsf);
+	    }
+	}
+
+	@parent_ids = keys %{$parent_tree->{$primary_id}};
+    }
+
+    my $group      = $self->format_attributes(\@parent_ids,$force_id);
+    my $name       = $self->name;
+
+    my $class = $self->class;
+    my $strand = ('-','.','+')[$self->strand+1];
+    my $p = join("\t",
+		 $self->seq_id||'.',
+		 $self->source||'.',
+		 $self->method||'.',
+		 $self->start||'.',
+		 $self->stop||'.',
+		 defined($self->score) ? $self->score : '.',
+		 $strand||'.',
+		 defined($self->phase) ? $self->phase : '.',
+		 $group||'');
+    return join("\n",
+		$p,
+		map {$_->gff3_string(1,$parent_tree,$seenit)} @rsf);
+}
+
+sub _traverse {
+    my $self   = shift;
+    my $tree   = shift;  # tree => {$child}{$parent} = 1
+    my $parent = shift;
+    my $id     = $self->primary_id;
+    defined $id or return;
+    $tree->{$id}{$parent->primary_id}++ if $parent;
+    $_->_traverse($tree,$self) foreach $self->get_SeqFeatures;
 }
 
 sub db { return }
@@ -798,18 +798,26 @@ sub get_Annotations {
 }
 
 sub format_attributes {
-  my $self   = shift;
-  my $parent = shift;
+  my $self        = shift;
+  my $parent      = shift;
+  my $fallback_id = shift;
+
   my @tags = $self->all_tags;
   my @result;
   for my $t (@tags) {
     my @values = $self->each_tag_value($t);
     push @result,join '=',$self->escape($t),join(',', map {$self->escape($_)} @values) if @values;
   }
-  my $id   = ($parent || $self)->primary_id;
-  my $name = ($parent || $self)->display_name;
-  unshift @result,"ID=".$self->escape($id)                     if defined $id;
-  unshift @result,"Parent=".$self->escape($parent->primary_id) if defined $parent;
+  my $id        = $self->escape($self->primary_id) || $fallback_id;
+
+  my $parent_id;
+  if (@$parent) {
+      $parent_id  = join (',',map {$self->escape($_)} @$parent);
+  }
+
+  my $name = $self->display_name;
+  unshift @result,"ID=".$id                                    if defined $id;
+  unshift @result,"Parent=".$parent_id                         if defined $parent_id;
   unshift @result,"Name=".$self->escape($name)                 if defined $name;
   return join ';',@result;
 }

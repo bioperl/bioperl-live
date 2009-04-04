@@ -2,7 +2,7 @@
 # $Id$
 
 use strict;
-use constant TEST_COUNT => 62;
+use constant TEST_COUNT => 68;
 
 BEGIN {
     use lib '/home/lstein/projects/bioperl-live';
@@ -174,6 +174,18 @@ my @lines = split "\n",$gff3;
 is (@lines, 2);
 ok("@lines" !~ /Parent=/s);
 ok("@lines" =~ /ID=/s);
+
+# regress on multiple parentage
+my ($gp)     = $db->get_features_by_name('gparent1');
+my ($p1,$p2) = $gp->get_SeqFeatures;
+my @c    = sort {$a->start<=>$b->start} $p1->get_SeqFeatures;
+is(scalar @c,2);
+is($c[0]->phase,0);
+is($c[1]->phase,1);
+@c    = sort {$a->start<=>$b->start} $p2->get_SeqFeatures;
+is(scalar @c,2);
+is($c[0]->phase,0);
+is($c[1]->phase,1);
 
 SKIP: {
 	test_skip(-tests => 2, -excludes_os => 'mswin');

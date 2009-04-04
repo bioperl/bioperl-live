@@ -570,16 +570,20 @@ END
 
   # contiguous feature, so add a segment
   warn $old_feat if defined $old_feat and !ref $old_feat;
-  if (defined $old_feat &&
-      (
-       $old_feat->seq_id ne $refname || 
-       $old_feat->start  != $start || 
-       $old_feat->end    != $end # make sure endpoints are distinct
-      )
-      )
-  {
-      $self->add_segment($old_feat,$self->sfclass->new(@args));
-      return;
+  if (defined $old_feat) {
+      # set this to 1 to disable split-location behavior
+      if (0 && @parent_ids) {                  # If multiple features are held together by the same ID
+	  $feature_id = $ld->{TemporaryID}++;  # AND they have a Parent attribute, this causes an undesirable
+      }                                        # additional layer of aggregation. Changing the ID fixes this.
+      elsif       (
+	  $old_feat->seq_id ne $refname || 
+	  $old_feat->start  != $start || 
+	  $old_feat->end    != $end # make sure endpoints are distinct
+	  )
+      {
+	  $self->add_segment($old_feat,$self->sfclass->new(@args));
+	  return;
+      }
   }
 
   # we get here if this is a new feature
@@ -596,10 +600,6 @@ END
   my $top_level = !@parent_ids;
   my $has_id    = defined $reserved->{ID}[0];
   $index_it   ||= $top_level;
-
-#  $ld->{IndexIt}{$feature_id}++    if $index_it;
-#  $ld->{TopLevel}{$feature_id}++   if !$self->{fast} 
-#                                      && $top_level;  # need to track top level features
 
   my $helper = $ld->{Helper};
   $helper->indexit($feature_id=>1)  if $index_it;
