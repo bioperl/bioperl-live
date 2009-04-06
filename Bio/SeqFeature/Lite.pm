@@ -514,8 +514,9 @@ sub primary_id {
   my $self = shift;
   my $d = $self->{primary_id};
   $self->{primary_id} = shift if @_;
-  return $d if defined $d;
-  return (overload::StrVal($self) =~ /0x([a-f0-9]+)/)[0];
+  return $d;
+#  return $d if defined $d;
+#  return (overload::StrVal($self) =~ /0x([a-f0-9]+)/)[0];
 }
 
 sub notes {
@@ -690,7 +691,7 @@ sub gff3_string {
 
     if ($recurse) {
 	$self->_traverse($parent_tree) unless %$parent_tree;  # this will record parents of all children
-	my $primary_id = defined $force_id ? $force_id : $self->primary_id;
+	my $primary_id = defined $force_id ? $force_id : $self->_real_or_dummy_id;
 
 	return if $seenit->{$primary_id}++;
 
@@ -728,13 +729,20 @@ sub gff3_string {
 		map {$_->gff3_string(1,$parent_tree,$seenit)} @rsf);
 }
 
+sub _real_or_dummy_id {
+    my $self = shift;
+    my $id   = $self->primary_id;
+    return $id if defined $id;
+    return return (overload::StrVal($self) =~ /0x([a-f0-9]+)/)[0];
+}
+
 sub _traverse {
     my $self   = shift;
     my $tree   = shift;  # tree => {$child}{$parent} = 1
     my $parent = shift;
-    my $id     = $self->primary_id;
+    my $id     = $self->_real_or_dummy_id;
     defined $id or return;
-    $tree->{$id}{$parent->primary_id}++ if $parent;
+    $tree->{$id}{$parent->_real_or_dummy_id}++ if $parent;
     $_->_traverse($tree,$self) foreach $self->get_SeqFeatures;
 }
 
@@ -808,7 +816,7 @@ sub format_attributes {
     my @values = $self->each_tag_value($t);
     push @result,join '=',$self->escape($t),join(',', map {$self->escape($_)} @values) if @values;
   }
-  my $id        = $self->escape($self->primary_id) || $fallback_id;
+  my $id        = $self->escape($self->_real_or_dummy_id) || $fallback_id;
 
   my $parent_id;
   if (@$parent) {

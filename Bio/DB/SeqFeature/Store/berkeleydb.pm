@@ -12,7 +12,7 @@ use File::Temp 'tempdir';
 use File::Path 'rmtree','mkpath';
 use File::Basename;
 use File::Spec;
-use Carp 'carp';
+use Carp 'carp','croak';
 
 use constant BINSIZE => 10_000;
 use constant MININT  => -999_999_999_999;
@@ -61,7 +61,7 @@ Bio::DB::SeqFeature::Store::berkeleydb -- Storage and retrieval of sequence anno
 
   # use the GFF3 loader to do a bulk write:
   my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store   => $db,
-                                                           -verbose => 1,
+                                                           -verbose => 0,
                                                            -fast    => 1);
   $loader->load('/home/fly4.3/dmel-all.gff');
 
@@ -189,6 +189,9 @@ Adaptor-specific arguments
  -temp              Pass true to create temporary index files that will
                     be deleted once the script exits.
 
+ -verbose           Pass true to report autoindexing operations on STDERR.
+                    (default is true).
+
 Examples:
 
 To create an empty database which will be populated using calls to
@@ -257,6 +260,8 @@ sub init {
 		    'VERBOSE'
 		  ],@_);
 
+  $verbose = 1 unless defined $verbose;
+
   if ($autoindex) {
     -d $autoindex or $self->throw("Invalid directory $autoindex");
     $directory ||= "$autoindex/indexes";
@@ -301,17 +306,60 @@ sub auto_reindex {
     my $autodir = shift;
     my $result  = $self->needs_auto_reindexing($autodir);
 
-    if (%$result) {
+    if ($result && %$result) {
+	$self->flag_autoindexing(1);
 	$self->lock('exclusive');
 	$self->reindex_wigfiles($result->{wig},$autodir)  if $result->{wig};
 	$self->reindex_ffffiles($result->{fff},$autodir)  if $result->{fff};
 	$self->reindex_gfffiles($result->{gff},$autodir) if $result->{gff};
 	$self->dna_db(Bio::DB::Fasta::Subdir->new($autodir));
 	$self->unlock;
+	$self->flag_autoindexing(0);
     }
 
     else {
 	$self->dna_db(Bio::DB::Fasta::Subdir->new($autodir));
+    }
+}
+
+sub autoindex_flagfile { 
+    return File::Spec->catfile(shift->directory,'autoindex.pid');
+}
+sub auto_index_in_process {
+    my $self = shift;
+    my $flag_file = $self->autoindex_flagfile;
+    return unless -e $flag_file;
+
+    # if flagfile exists, then check that PID still exists
+    open my $fh,$flag_file or die "Couldn't open $flag_file: $!";
+    my $pid = <$fh>;
+    close $fh;
+    return 1 if kill 0=>$pid;
+    warn "Autoindexing seems to be running in another process, but the process has gone away. Trying to override...";
+    if (unlink $flag_file) {
+	warn "Successfully removed stale PID file." if $self->verbose;
+	warn "Assuming partial reindexing process. Rebuilding indexes from scratch..." if $self->verbose;
+	my $glob = File::Spec->catfile($self->directory,'*');
+	unlink glob($glob);
+	return;
+    } else {
+	croak ("Cannot recover from apparent aborted autoindex process. Please remove files in ",
+	     $self->directory,
+	     " and allow the adaptor to reindex");
+	return 1;
+    }
+}
+
+sub flag_autoindexing {
+    my $self = shift;
+    my $doit = shift;
+    my $flag_file = $self->autoindex_flagfile;
+    if ($doit) {
+	open my $fh,'>',$flag_file or die "Couldn't open $flag_file: $!";
+	print $fh $$;
+	close $fh;
+    } else {
+	unlink $flag_file;
     }
 }
 
@@ -323,11 +371,13 @@ sub reindex_gfffiles {
     warn "Reindexing GFF files...\n" if $self->verbose;
     $self->_permissions(1,1);
     $self->_close_databases();
-    $self->_open_databases(1,1);
+    $self->_open_databases(1,0);
     require Bio::DB::SeqFeature::Store::GFF3Loader
 	unless Bio::DB::SeqFeature::Store::GFF3Loader->can('new');
     my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store    => $self,
-							     -sf_class => $self->seqfeature_class) 
+							     -sf_class => $self->seqfeature_class,
+							     -verbose  => $self->verbose,
+	) 
 	or $self->throw("Couldn't create GFF3Loader");
     my %seen;
     $loader->load(grep {!$seen{$_}++} @$files);
@@ -346,7 +396,9 @@ sub reindex_ffffiles {
     require Bio::DB::SeqFeature::Store::FeatureFileLoader
 	unless Bio::DB::SeqFeature::Store::FeatureFileLoader->can('new');
     my $loader = Bio::DB::SeqFeature::Store::FeatureFileLoader->new(-store    => $self,
-								    -sf_class => $self->seqfeature_class) 
+								    -sf_class => $self->seqfeature_class,
+								    -verbose  => $self->verbose,
+	) 
 	or $self->throw("Couldn't create FeatureFileLoader");
     my %seen;
     $loader->load(grep {!$seen{$_}++} @$files);
@@ -401,6 +453,9 @@ sub needs_auto_reindexing {
     my $autodir = shift;
     my $result    = {};
 
+    # don't allow two processes to reindex simultaneously
+	$self->auto_index_in_process and croak "Autoindexing in process. Try again later";
+
     # first interrogate the GFF3 files, using the timestamp file
     # as modification comparison
     my (@gff3,@fff,@wig,$fasta,$fasta_index_time);
@@ -408,6 +463,7 @@ sub needs_auto_reindexing {
 	or $self->throw("Couldn't open directory $autodir for reading: $!");
 
     my $maxtime   = 0;
+    my $timestamp_time  = _mtime($self->_mtime_path) || 0;
     while (defined (my $node = readdir($D))) {
 	next if $node =~ /^\./;
 	my $path      = File::Spec->catfile($autodir,$node);
@@ -417,6 +473,7 @@ sub needs_auto_reindexing {
 	    my $mtime = _mtime(\*_);  # not a typo
 	    $maxtime   = $mtime if $mtime > $maxtime;
 	    push @gff3,$path;
+#	    push @gff3,$path if $mtime > $timestamp_time;
 	}
 	
 	
@@ -424,6 +481,7 @@ sub needs_auto_reindexing {
 	    my $mtime = _mtime(\*_);  # not a typo
 	    $maxtime   = $mtime if $mtime > $maxtime;
 	    push @fff,$path;
+#	    push @fff,$path if $mtime > $timestamp_time;
 	}
 	
 	elsif ($path =~ /\.wig$/i) {
@@ -443,9 +501,9 @@ sub needs_auto_reindexing {
 	}
     }
     closedir $D;
-    my $timestamp_time  = _mtime($self->_mtime_path) || 0;
     
     $result->{gff}     = \@gff3 if $maxtime > $timestamp_time;
+#    $result->{gff}     = \@gff3 if @gff3;
     $result->{wig}     = \@wig  if @wig;
     $result->{fff}     = \@fff  if @fff;
     $result->{fasta}++ if $fasta;
