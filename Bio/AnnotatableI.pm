@@ -84,12 +84,6 @@ Internal methods are usually preceded with a _
 package Bio::AnnotatableI;
 use strict;
 
-use Bio::Annotation::Comment;
-use Bio::Annotation::DBLink;
-#use Bio::Annotation::OntologyTerm;
-use Bio::Annotation::Reference;
-use Bio::Annotation::SimpleValue;
-
 use base qw(Bio::Root::RootI);
 
 =head2 annotation
