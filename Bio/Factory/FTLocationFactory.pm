@@ -172,18 +172,17 @@ sub from_string {
             next if !$subloc;
             my $oparg = ($subloc eq 'join'   || $subloc eq 'bond' ||
                          $subloc eq 'order'  || $subloc eq 'complement') ? $subloc : undef;
-
             # has operator, requires further work (recurse)
             if ($oparg) {
                 my $sub = shift @sublocs;
+                # simple split operators (no recursive calls needed)
                 if (($oparg eq 'join' || $oparg eq 'order' || $oparg eq 'bond' )
-                     && $sub !~ m{$oparg}) {
+                     && $sub !~ m{(?:join|order|bond)}) {
                     my @splitlocs = split(q(,), $sub);
-                    $loc_obj = Bio::Location::Split->new();
+                    $loc_obj = Bio::Location::Split->new(-verbose => 1,
+                                                         -splittype => $oparg);
                     while (my $splitloc = shift @splitlocs) {
                         next unless $splitloc;
-                        #$loc_obj->add_sub_Location($self->from_string($splitloc, 1));
-                        # this should work but doesn't
                         my $sobj;
                         if ($splitloc =~ m{\(($LOCREG)\)}) {
                             my $comploc = $1;
@@ -196,6 +195,9 @@ sub from_string {
                     }
                 } else {
                     $loc_obj = $self->from_string($sub, $oparg);
+                    # reinsure the operator is set correctly for this level
+                    # unless it is complement
+                    $loc_obj->splittype($oparg) unless $oparg eq 'complement';
                 }
             }
             # no operator, simple or fuzzy 
