@@ -173,4 +173,18 @@ sub each_family {
     return ($parent,\@children);
 }
 
+sub local_ids {
+    my $self = shift;
+    my @ids  = keys %{$self->{Local2Global}}
+                   if $self->{Local2Global};
+    return \@ids;
+}
+
+sub loaded_ids {
+    my $self = shift;
+    my @ids  = values %{$self->{Local2Global}}
+                     if $self->{Local2Global};
+    return \@ids;
+}
+
 1;

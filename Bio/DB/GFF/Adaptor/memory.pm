@@ -549,7 +549,7 @@ sub get_features_iterator {
 sub get_types {
   my $self = shift;
   my ($srcseq,$class,$start,$stop,$want_count,$typelist) = @_;
-	  
+
   my(%result,%obj);
 
   for my $feature (@{$self->{data}}) {

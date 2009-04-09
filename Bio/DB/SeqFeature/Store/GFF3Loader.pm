@@ -325,7 +325,8 @@ sub finish_load { #overridden
     $self->msg(sprintf "%5.2fs\n",$self->time()-$start);
   }
   eval {$self->store->commit};
-  delete $self->{load_data};
+  # don't delete load data so that caller can ask for the loaded IDs
+  # $self->delete_load_data;
 }
 
 =item do_load
@@ -946,6 +947,36 @@ sub _indexit { # override
 sub _local2global { # override
     my $self      = shift;
     return $self->{load_data}{Helper}->local2global(@_);
+}
+
+=item local_ids
+
+ my $ids    = $self->local_ids;
+ my $id_cnt = @$ids;
+
+After performing a load, this returns an array ref containing all the
+load file IDs that were contained within the file just loaded.
+
+=cut
+
+sub local_ids { # override
+    my $self = shift;
+    return $self->{load_data}{Helper}->local_ids(@_);
+}
+
+=item loaded_ids
+
+ my $ids    = $loader->loaded_ids;
+ my $id_cnt = @$ids;
+
+After performing a load, this returns an array ref containing all the
+feature primary ids that were created during the load.
+
+=cut
+
+sub loaded_ids { # override
+    my $self = shift;
+    return $self->{load_data}{Helper}->loaded_ids(@_);
 }
 
 
