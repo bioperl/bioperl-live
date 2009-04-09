@@ -619,9 +619,14 @@ sub _in_aln {  # check if input name exists in the alignment
              leading and ending gaps ("-") are NOT counted as
              differences.
  Function  : Make a new alignment of unique sequence types (STs)
- Returns   : 1. a new Bio::SimpleAlign object (all sequences renamed as "ST")
+ Returns   : 1a. if called in a scalar context, 
+                a new Bio::SimpleAlign object (all sequences renamed as "ST")
+             1b. if called in an array context, 
+                a new Bio::SimpleAlign object, and a hashref whose keys
+                are sequence types, and whose values are arrayrefs to 
+                lists of sequence ids within the corresponding sequence type
              2. if $aln->verbose > 0, ST of each sequence is sent to 
-                STDERR
+                STDERR (in a tabular format)
  Argument  : None
 
 =cut
@@ -629,9 +634,10 @@ sub _in_aln {  # check if input name exists in the alignment
 sub uniq_seq {
     my ($self, $seqid) = @_;
     my $aln = $self->new;
-    my (%member, %order, @seq, @uniq_str);
+    my (%member, %order, @seq, @uniq_str, $st);
     my $order=0;
     my $len = $self->length();
+    $st = {};
     foreach my $seq ( $self->each_seq() ) {
 	my $str = $seq->seq();
 
@@ -686,10 +692,11 @@ sub uniq_seq {
 					 );
 	$aln->add_seq($new);
 	foreach (@{$member{$str}}) {
+	    push @{$$st{$order{$str}}}, $_->id(); # per Tristan's patch/Bug #2805
         $self->debug($_->id(), "\t", "ST", $order{$str}, "\n");
         }
     }
-    return $aln;
+    return wantarray ? ($aln, $st) : $aln;
 }
 
 sub _check_uniq {  # check if same seq exists in the alignment
