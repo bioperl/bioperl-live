@@ -22,6 +22,7 @@ sub next_seq {
   my $store = $self->{store} or return;
   my $obj   = $store->_sth2obj($sth);
   if (!$obj) {
+    $self->{sth}->finish;
     undef $self->{sth};
     undef $self->{store};
     return;

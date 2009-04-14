@@ -443,9 +443,8 @@ sub filter_by_location {
 
   if (!defined $start or !defined $end or $range_type eq 'contained_in') {
     @bins = sort {$a<=>$b} keys %{$index};
-    # be suspicious of this -- possibly a fencepost error at $end
     $start = $bins[0]  * BINSIZE  unless defined $start;
-    $end   = $bins[-1] * BINSIZE  unless defined $end;
+    $end   = @bins == 1 ? BINSIZE : $bins[-1] * BINSIZE  unless defined $end;
   }
   my %seenit;
   my $bin_min       = int $start/BINSIZE;

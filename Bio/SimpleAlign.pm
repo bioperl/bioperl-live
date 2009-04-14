@@ -1,6 +1,8 @@
 # $Id$
 # BioPerl module for SimpleAlign
 #
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
 # Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
 #
 # Copyright Ewan Birney
@@ -94,6 +96,17 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
+=head2 Support 
+ 
+Please direct usage questions or support issues to the mailing list:
+  
+L<bioperl-l@bioperl.org>
+  
+rather than to the module maintainer directly. Many experienced and 
+reponsive experts will be able look at the problem and quickly 
+address it. Please include a thorough description of the problem 
+with code and data examples if at all possible.
+
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
@@ -119,6 +132,8 @@ Xintao Wei & Giri Narasimhan, giri-at-cs.fiu.edu
 Brian Osborne, bosborne at alum.mit.edu
 Weigang Qiu, Weigang at GENECTR-HUNTER-CUNY-EDU
 Hongyu Zhang, forward at hongyu.org
+Jay Hannah, jay at jays.net
+Alexandr Bezginov, albezg at gmail.com
 
 =head1 SEE ALSO
 
@@ -259,11 +274,15 @@ sequences.
 
  Title     : add_seq
  Usage     : $myalign->add_seq($newseq);
+             $myalign->add_seq(-SEQ=>$newseq, -ORDER=>5);
  Function  : Adds another sequence to the alignment. *Does not* align
              it - just adds it to the hashes.
+             If -ORDER is specified, the sequence is inserted at the
+             the position spec'd by -ORDER, and existing sequences
+             are pushed down the storage array.
  Returns   : nothing
- Args      : a Bio::LocatableSeq object
-             order (optional)
+ Args      : A Bio::LocatableSeq object
+             Positive integer for the sequence position (optional)
 
 See L<Bio::LocatableSeq> for more information
 
@@ -277,12 +296,21 @@ sub addSeq {
 
 sub add_seq {
     my $self = shift;
-    my $seq  = shift;
-    my $order = shift;
+    my @args = @_;
+    my ($seq, $order) = $self->_rearrange([qw(SEQ ORDER)], @args);
     my ($name,$id,$start,$end);
 
+    unless ($seq) {
+	$self->throw("LocatableSeq argument required");
+    }
     if( ! ref $seq || ! $seq->isa('Bio::LocatableSeq') ) {
 	$self->throw("Unable to process non locatable sequences [". ref($seq). "]");
+    }
+    !defined($order) and $order = 1 + keys %{$self->{'_seq'}}; # default 
+    $order--; # jay's patch (user-specified order is 1-origin)
+    
+    if ($order < 0) {
+	$self->throw("User-specified value for ORDER must be >= 1");
     }
 
     $id = $seq->id() ||$seq->display_id || $seq->primary_id;
@@ -293,9 +321,6 @@ sub add_seq {
     # symbol_chars
     # map { $self->{'_symbols'}->{$_} = 1; } split(//,$seq->seq) if $seq->seq;
 
-    if( !defined $order ) {
-	$order = keys %{$self->{'_seq'}};
-    }
     $name = $seq->get_nse;
 
     if( $self->{'_seq'}->{$name} ) {
@@ -304,7 +329,20 @@ sub add_seq {
     else {
 	$self->debug( "Assigning $name to $order\n");
 
-	$self->{'_order'}->{$order} = $name;
+    my $ordh = $self->{'_order'};
+    if ($ordh->{$order}) {
+        # make space to insert
+        # $c->() returns (in reverse order) the first subsequence 
+        # of consecutive integers; i.e., $c->(1,2,3,5,6,7) returns
+        # (3,2,1), and $c->(2,4,5) returns (2).
+        my $c;
+        $c = sub { return (($_[1]-$_[0] == 1) ? ($c->(@_[1..$#_]),$_[0]) : $_[0]); };
+        map { 
+     $ordh->{$_+1} = $ordh->{$_}
+        } $c->(sort {$a <=> $b} grep {$_ >= $order} keys %{$ordh});
+
+    }
+    $ordh->{$order} = $name;
 
 	unless( exists( $self->{'_start_end_lists'}->{$id})) {
 	    $self->{'_start_end_lists'}->{$id} = [];
@@ -581,8 +619,14 @@ sub _in_aln {  # check if input name exists in the alignment
              leading and ending gaps ("-") are NOT counted as
              differences.
  Function  : Make a new alignment of unique sequence types (STs)
- Returns   : 1. a new Bio::SimpleAlign object (all sequences renamed as "ST")
-             2. ST of each sequence in STDERR
+ Returns   : 1a. if called in a scalar context, 
+                a new Bio::SimpleAlign object (all sequences renamed as "ST")
+             1b. if called in an array context, 
+                a new Bio::SimpleAlign object, and a hashref whose keys
+                are sequence types, and whose values are arrayrefs to 
+                lists of sequence ids within the corresponding sequence type
+             2. if $aln->verbose > 0, ST of each sequence is sent to 
+                STDERR (in a tabular format)
  Argument  : None
 
 =cut
@@ -590,9 +634,10 @@ sub _in_aln {  # check if input name exists in the alignment
 sub uniq_seq {
     my ($self, $seqid) = @_;
     my $aln = $self->new;
-    my (%member, %order, @seq, @uniq_str);
+    my (%member, %order, @seq, @uniq_str, $st);
     my $order=0;
     my $len = $self->length();
+    $st = {};
     foreach my $seq ( $self->each_seq() ) {
 	my $str = $seq->seq();
 
@@ -646,13 +691,12 @@ sub uniq_seq {
 					 -end  =>$end
 					 );
 	$aln->add_seq($new);
-#	print STDERR "ST".$order{$str}, "\t=>";
 	foreach (@{$member{$str}}) {
+	    push @{$$st{$order{$str}}}, $_->id(); # per Tristan's patch/Bug #2805
         $self->debug($_->id(), "\t", "ST", $order{$str}, "\n");
+        }
     }
-#	print STDERR "\n";
-    }
-    return $aln;
+    return wantarray ? ($aln, $st) : $aln;
 }
 
 sub _check_uniq {  # check if same seq exists in the alignment

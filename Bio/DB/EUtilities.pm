@@ -2,6 +2,8 @@
 #
 # BioPerl module for Bio::DB::EUtilities
 #
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
 # Cared for by Chris Fields <cjfields at bioperl dot org>
 #
 # Copyright Chris Fields
@@ -38,6 +40,17 @@ is much appreciated.
 
   bioperl-l@lists.open-bio.org               - General discussion
   http://www.bioperl.org/wiki/Mailing_lists  - About the mailing lists
+
+=head2 Support 
+ 
+Please direct usage questions or support issues to the mailing list:
+  
+L<bioperl-l@bioperl.org>
+  
+rather than to the module maintainer directly. Many experienced and 
+reponsive experts will be able look at the problem and quickly 
+address it. Please include a thorough description of the problem 
+with code and data examples if at all possible.
 
 =head2 Reporting Bugs
 
@@ -173,14 +186,15 @@ This can be overridden by calling this method.
   Returns : number of seconds to delay
   Args    : none
 
-  NOTE: NCBI requests a delay of 3 seconds between requests.  This method
-        implements that policy.  This may change to check time of day for lengthening delays if needed
+  NOTE: NCBI requests a delay of 3 requests per second. This method implements
+  that policy. This will likely change to check time of day or number of
+  requests for lengthening delays.
 
 =cut
 
 sub delay_policy {
-  my $self = shift;
-  return 3;
+    my $self = shift;
+    return 1/3;
 }
 
 =head2 get_Parser

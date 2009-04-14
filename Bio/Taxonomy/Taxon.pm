@@ -2,6 +2,8 @@
 #
 # BioPerl module for Bio::Taxonomy::Taxon
 #
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
 # Cared for by Dan Kortschak but pilfered extensively from 
 # the Bio::Tree::Node code of Jason Stajich
 #

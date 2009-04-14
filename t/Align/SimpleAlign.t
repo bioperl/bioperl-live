@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 152);
+    test_begin(-tests => 157);
 	
 	use_ok('Bio::SimpleAlign');
 	use_ok('Bio::AlignIO');
@@ -304,6 +304,16 @@ SKIP:{
 	my $seq_negative = $aln_negative->get_seq_by_pos(1);
 	is($seq_negative->start,2,"bug 2099");
 	is($seq_negative->end,5,"bug 2099");
+
+       # bug 2793
+       my $s11 = Bio::LocatableSeq->new(-id => 'testseq1', -seq => 'AAA');
+       my $s21 = Bio::LocatableSeq->new(-id => 'testseq2', -seq => 'CCC');
+       $a = Bio::SimpleAlign->new();
+       ok($a->add_seq($s11, 1),               "bug 2793");
+       is($a->get_seq_by_pos(1)->seq, 'AAA', "bug 2793");
+       ok($a->add_seq($s21, 2),               "bug 2793");
+       is($a->get_seq_by_pos(2)->seq, 'CCC', "bug 2793");
+	throws_ok {$a->add_seq($s21, 0)} qr/must be >= 1/;
 }
 
 # test for Bio::SimpleAlign annotation method and 

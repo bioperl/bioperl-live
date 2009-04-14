@@ -325,7 +325,8 @@ sub finish_load { #overridden
     $self->msg(sprintf "%5.2fs\n",$self->time()-$start);
   }
   eval {$self->store->commit};
-  delete $self->{load_data};
+  # don't delete load data so that caller can ask for the loaded IDs
+  # $self->delete_load_data;
 }
 
 =item do_load
@@ -357,9 +358,10 @@ sub load_line { #overridden
     my $line = shift;
 
     chomp($line);
-    return unless $line =~ /^\S/;     # blank line
     my $load_data = $self->{load_data};
+    $load_data->{line}++;
 
+    return unless $line =~ /^\S/;     # blank line
     $load_data->{mode} = 'gff' if /\t/;  # if it has a tab in it, switch to gff mode
 
     if ($line =~ /^\#\s?\#\s*(.+)/) {  ## meta instruction
@@ -463,10 +465,13 @@ sub handle_feature { #overridden
   my $gff_line = shift;
   my $ld       = $self->{load_data};
 
-  $gff_line    =~ s/\s+/\t/g if $self->allow_whitespace;
+  my $allow_whitespace = $self->allow_whitespace;
+  $gff_line    =~ s/\s+/\t/g if $allow_whitespace;
 
   my @columns = map {$_ eq '.' ? undef : $_ } split /\t/,$gff_line;
-  return unless @columns >= 8;
+
+  $self->invalid_gff($gff_line) if @columns < 4;
+  $self->invalid_gff($gff_line) if @columns > 9 && $allow_whitespace;
 
   {
       local $^W = 0;
@@ -475,7 +480,13 @@ sub handle_feature { #overridden
       }
   }
 
-  my ($refname,$source,$method,$start,$end, $score,$strand,$phase,$attributes) = @columns;
+  my ($refname,$source,$method,$start,$end,$score,$strand,$phase,$attributes) = @columns;
+  
+  $self->invalid_gff($gff_line) unless defined $refname;
+  $self->invalid_gff($gff_line) unless $start eq '.' || $start =~ /^[\d.-]+$/;
+  $self->invalid_gff($gff_line) unless $end   eq '.' || $end   =~ /^[\d.-]+$/;
+  $self->invalid_gff($gff_line) unless defined $method;
+
   $strand = $Strandedness{$strand||0};
   my ($reserved,$unreserved) = $attributes ? $self->parse_attributes($attributes) : ();
 
@@ -560,16 +571,20 @@ END
 
   # contiguous feature, so add a segment
   warn $old_feat if defined $old_feat and !ref $old_feat;
-  if (defined $old_feat &&
-      (
-       $old_feat->seq_id ne $refname || 
-       $old_feat->start  != $start || 
-       $old_feat->end    != $end # make sure endpoints are distinct
-      )
-      )
-  {
-      $self->add_segment($old_feat,$self->sfclass->new(@args));
-      return;
+  if (defined $old_feat) {
+      # set this to 1 to disable split-location behavior
+      if (0 && @parent_ids) {                  # If multiple features are held together by the same ID
+	  $feature_id = $ld->{TemporaryID}++;  # AND they have a Parent attribute, this causes an undesirable
+      }                                        # additional layer of aggregation. Changing the ID fixes this.
+      elsif       (
+	  $old_feat->seq_id ne $refname || 
+	  $old_feat->start  != $start || 
+	  $old_feat->end    != $end # make sure endpoints are distinct
+	  )
+      {
+	  $self->add_segment($old_feat,$self->sfclass->new(@args));
+	  return;
+      }
   }
 
   # we get here if this is a new feature
@@ -587,10 +602,6 @@ END
   my $has_id    = defined $reserved->{ID}[0];
   $index_it   ||= $top_level;
 
-#  $ld->{IndexIt}{$feature_id}++    if $index_it;
-#  $ld->{TopLevel}{$feature_id}++   if !$self->{fast} 
-#                                      && $top_level;  # need to track top level features
-
   my $helper = $ld->{Helper};
   $helper->indexit($feature_id=>1)  if $index_it;
   $helper->toplevel($feature_id=>1) if !$self->{fast} 
@@ -604,12 +615,18 @@ END
 
 }
 
+sub invalid_gff {
+    my $self = shift;
+    my $line = shift;
+    $self->throw("invalid GFF line at line $self->{load_data}{line}.\n".$line);
+}
+
 =item allow_whitespace
 
    $allow_it = $loader->allow_whitespace([$newvalue]);
 
-Get or set the allow_whitespace flag. If true, then GFF3 files are allowed to
-be delimited with whitespace in addition to tabs.
+Get or set the allow_whitespace flag. If true, then GFF3 files are
+allowed to be delimited with whitespace in addition to tabs.
 
 =cut
 
@@ -821,6 +838,13 @@ tags (e.g. ID) and the other containing the values of unreserved ones.
 sub parse_attributes {
   my $self = shift;
   my $att  = shift;
+
+  unless ($att =~ /=/) {  # ouch! must be a GFF line
+      require Bio::DB::SeqFeature::Store::GFF2Loader
+	  unless Bio::DB::SeqFeature::Store::GFF2Loader->can('parse_attributes');
+      return $self->Bio::DB::SeqFeature::Store::GFF2Loader::parse_attributes($att);
+  }
+
   my @pairs =  map { my ($name,$value) = split '=';
                     [$self->unescape($name) => $value];  
                    } split ';',$att;
@@ -833,7 +857,7 @@ sub parse_attributes {
       next;
     }
 
-    my @values = split /,/,$_->[1];
+    my @values = split ',',$_->[1];
     map {$_ = $self->unescape($_);} @values;
     if ($Special_attributes{$tag}) {  # reserved attribute
       push @{$reserved{$tag}},@values;
@@ -923,6 +947,36 @@ sub _indexit { # override
 sub _local2global { # override
     my $self      = shift;
     return $self->{load_data}{Helper}->local2global(@_);
+}
+
+=item local_ids
+
+ my $ids    = $self->local_ids;
+ my $id_cnt = @$ids;
+
+After performing a load, this returns an array ref containing all the
+load file IDs that were contained within the file just loaded.
+
+=cut
+
+sub local_ids { # override
+    my $self = shift;
+    return $self->{load_data}{Helper}->local_ids(@_);
+}
+
+=item loaded_ids
+
+ my $ids    = $loader->loaded_ids;
+ my $id_cnt = @$ids;
+
+After performing a load, this returns an array ref containing all the
+feature primary ids that were created during the load.
+
+=cut
+
+sub loaded_ids { # override
+    my $self = shift;
+    return $self->{load_data}{Helper}->loaded_ids(@_);
 }
 
 

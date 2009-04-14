@@ -2,6 +2,8 @@
 #
 # BioPerl module for InterPro_BioSQL_Handler
 #
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
 # Cared for by Juguang Xiao, juguang@tll.org.sg
 #
 # Copyright Juguang Xiao 

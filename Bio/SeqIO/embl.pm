@@ -2,6 +2,8 @@
 #
 # BioPerl module for Bio::SeqIO::EMBL
 #
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
 # Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
 # Copyright Ewan Birney
@@ -22,7 +24,7 @@ rather go through the SeqIO handler system. Go:
     $stream = Bio::SeqIO->new(-file => $filename, -format => 'EMBL');
 
     while ( (my $seq = $stream->next_seq()) ) {
-	    # do something with $seq
+        # do something with $seq
     }
 
 =head1 DESCRIPTION
@@ -81,6 +83,17 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+
+=head2 Support 
+ 
+Please direct usage questions or support issues to the mailing list:
+  
+L<bioperl-l@bioperl.org>
+  
+rather than to the module maintainer directly. Many experienced and 
+reponsive experts will be able look at the problem and quickly 
+address it. Please include a thorough description of the problem 
+with code and data examples if at all possible.
 
 =head2 Reporting Bugs
 
@@ -194,40 +207,40 @@ sub next_seq {
     my $alphabet;
     if ( $line =~ tr/;/;/ == 6) { # New style headers contain exactly six semicolons.
 
-    	# New style header (EMBL Release >= 87, after June 2006)
-    	my $topology;
-    	my $sv;
+        # New style header (EMBL Release >= 87, after June 2006)
+        my $topology;
+        my $sv;
 
-    	# ID   DQ299383; SV 1; linear; mRNA; STD; MAM; 431 BP.
+        # ID   DQ299383; SV 1; linear; mRNA; STD; MAM; 431 BP.
         # This regexp comes from the new2old.pl conversion script, from EBI
-    	if ($line =~ m/^ID   (\w+);\s+SV (\d+); (\w+); ([^;]+); (\w{3}); (\w{3}); (\d+) BP./) {
-    	($name, $sv, $topology, $mol, $div) = ($1, $2, $3, $4, $6);
+        if ($line =~ m/^ID   (\w+);\s+SV (\d+); (\w+); ([^;]+); (\w{3}); (\w{3}); (\d+) BP./) {
+        ($name, $sv, $topology, $mol, $div) = ($1, $2, $3, $4, $6);
         }
-    	if (defined($sv)) {
-	    $params{'-seq_version'} = $sv;
-	    $params{'-version'} = $sv;
-    	}
+        if (defined($sv)) {
+        $params{'-seq_version'} = $sv;
+        $params{'-version'} = $sv;
+        }
 
-    	if ($topology eq "circular") {
-	    $params{'-is_circular'} = 1;
-    	}
-	
-	if (defined $mol ) {
-	    if ($mol =~ /DNA/) {
-		$alphabet='dna';
-	    } elsif ($mol =~ /RNA/) {
-		$alphabet='rna';
-	    } elsif ($mol =~ /AA/) {
-		$alphabet='protein';
-	    }
-	}
+        if ($topology eq "circular") {
+        $params{'-is_circular'} = 1;
+        }
+    
+    if (defined $mol ) {
+        if ($mol =~ /DNA/) {
+        $alphabet='dna';
+        } elsif ($mol =~ /RNA/) {
+        $alphabet='rna';
+        } elsif ($mol =~ /AA/) {
+        $alphabet='protein';
+        }
+    }
     } else {
-	
+    
         # Old style header (EMBL Release < 87, before June 2006)
         if ($line =~ /^ID\s+(\S+)[^;]*;\s+(\S+)[^;]*;\s+(\S+)[^;]*;/) {
         ($name, $mol, $div) = ($1, $2, $3);
         }
-	
+    
         if ($mol) {
             if ( $mol =~ /circular/ ) {
             $params{'-is_circular'} = 1;
@@ -246,7 +259,7 @@ sub next_seq {
     }
 
     unless( defined $name && length($name) ) {
-	$name = "unknown_id";
+    $name = "unknown_id";
     }
 
     # $self->warn("not parsing upper annotation in EMBL file yet!");
@@ -266,7 +279,7 @@ sub next_seq {
               }
 
               #accession number
-              if ( /^AC\s+(.*)?/ ) {
+              if ( /^AC\s+(.*)?/ || /^PA\s+(.*)?/) {
                   my @accs = split(/[; ]+/, $1); # allow space in addition
                   $params{'-accession_number'} = shift @accs
                       unless defined $params{'-accession_number'};
@@ -319,6 +332,14 @@ sub next_seq {
                   # pass the accession number so we can give an informative throw message if necessary
                   my $species = $self->_read_EMBL_Species(\$buffer, $params{'-accession_number'});
                   $params{'-species'}= $species;
+              }
+
+              # NCBI TaxID Xref
+              elsif (/^OX/) {
+                  my @links = $self->_read_EMBL_TaxID_DBLink(\$buffer);
+                  foreach my $dblink ( @links ) {
+                      $annotation->add_Annotation('dblink',$dblink);
+                  }
               }
 
               # References
@@ -505,7 +526,7 @@ sub _write_ID_line {
                 $mol='unassigned RNA';
             } elsif ($alphabet eq 'protein') {
                 $self->warn("Protein sequence found; EMBL is a nucleotide format.");
-                $mol='AA';	# AA is not a valid EMBL molecule type.
+                $mol='AA';  # AA is not a valid EMBL molecule type.
             }
         }
 
@@ -712,8 +733,8 @@ sub write_seq {
             foreach my $ref ( $seq->annotation->get_Annotations('reference') ) {
                 $self->_print( "RN   [$t]\n") || return;
 
-				# Having no RP line is legal, but we need both
-				# start and end for a valid location.
+                # Having no RP line is legal, but we need both
+                # start and end for a valid location.
                 if ($ref->comment) {
                     $self->_write_line_EMBL_regex("RC   ", "RC   ", $ref->comment, '\s+|$', 80) || return; #'
                 }
@@ -740,8 +761,8 @@ sub write_seq {
                                               '\s+|$', 80) || return; #'
 
                 # If there is no title to the reference, it appears
-				# as a single semi-colon.  All titles must end in
-				# a semi-colon.
+                # as a single semi-colon.  All titles must end in
+                # a semi-colon.
                 my $ref_title = $ref->title || '';
                 $ref_title =~ s/[\s;]*$/;/;
                 $self->_write_line_EMBL_regex("RT   ", "RT   ", $ref_title,    '\s+|$', 80) || return; #'
@@ -762,7 +783,7 @@ sub write_seq {
                 }
                 $self->_print("XX\n") || return;
             }
-			
+            
             # Comment lines
             foreach my $comment ( $seq->annotation->get_Annotations('comment') ) {
                 $self->_write_line_EMBL_regex("CC   ", "CC   ", $comment->text, '\s+|$', 80) || return; #'
@@ -779,8 +800,8 @@ sub write_seq {
         my @feats = $seq->can('top_SeqFeatures') ? $seq->top_SeqFeatures : ();
         if ($feats[0]) {
             if ( defined $self->_post_sort ) {
-				# we need to read things into an array.
-				# Process. Sort them. Print 'em
+                # we need to read things into an array.
+                # Process. Sort them. Print 'em
 
                 my $post_sort_func = $self->_post_sort();
                 my @fth;
@@ -795,8 +816,8 @@ sub write_seq {
                     $self->_print_EMBL_FTHelper($fth) || return;
                 }
             } else {
-				# not post sorted. And so we can print as we get them.
-				# lower memory load...
+                # not post sorted. And so we can print as we get them.
+                # lower memory load...
 
                 foreach my $sf ( @feats ) {
                     my @fth = Bio::SeqIO::FTHelper::from_SeqFeature($sf,$seq);
@@ -834,7 +855,7 @@ sub write_seq {
 
         $self->_print("SQ   Sequence $len BP; $alen A; $clen C; $glen G; $tlen T; $olen other;\n") || return;
 
-        my $nuc = 60;		# Number of nucleotides per line
+        my $nuc = 60;       # Number of nucleotides per line
         my $whole_pat = 'a10' x 6; # Pattern for unpacking a whole line
         my $out_pat   = 'A11' x 6; # Pattern for packing a line
         my $length = length($str);
@@ -1030,7 +1051,9 @@ sub _read_EMBL_Species {
         $_ = undef;             # Empty $_ to trigger read of next line
     }
 
-    $$buffer = $_;
+#    $$buffer = $_;
+	$self->_pushback($_);
+	
     $sci_name =~ s{\.$}{};
     $sci_name || return;
 
@@ -1119,20 +1142,51 @@ sub _read_EMBL_DBLink {
     $_ = $$buffer;
     while (defined( $_ ||= $self->_readline )) {
         if ( /^DR   ([^\s;]+);\s*([^\s;]+);?\s*([^\s;]+)?\.$/) {
-	    my ($databse, $prim_id, $sec_id) = ($1,$2,$3);
-	    my $link = Bio::Annotation::DBLink->new(-database    => $databse,
-						    -primary_id  => $prim_id,
-						    -optional_id => $sec_id);
+        my ($databse, $prim_id, $sec_id) = ($1,$2,$3);
+        my $link = Bio::Annotation::DBLink->new(-database    => $databse,
+                            -primary_id  => $prim_id,
+                            -optional_id => $sec_id);
 
             push(@db_link, $link);
-	} else {
+    } else {
             last;
         }
         $_ = undef;             # Empty $_ to trigger read of next line
     }
 
     $$buffer = $_;
+    return @db_link;
+}
 
+=head2 _read_EMBL_TaxID_DBLink
+
+ Title   : _read_EMBL_TaxID_DBLink
+ Usage   :
+ Function: Reads the EMBL database cross reference to NCBI TaxID ("OX") lines
+ Example :
+ Returns : A list of Bio::Annotation::DBLink objects
+ Args    :
+
+=cut
+
+sub _read_EMBL_TaxID_DBLink {
+    my( $self,$buffer ) = @_;
+    my( @db_link );
+
+    $_ = $$buffer;
+    while (defined( $_ ||= $self->_readline )) {
+        if ( /^OX   (\S+)=(\d+);$/ ) {
+            my ($databse, $prim_id) = ($1,$2);
+            my $link = Bio::Annotation::DBLink->new(-database    => $databse,
+                                                    -primary_id  => $prim_id,);
+            push(@db_link, $link);
+        } else {
+            last;
+        }
+        $_ = undef;             # Empty $_ to trigger read of next line
+    }
+
+    $$buffer = $_;
     return @db_link;
 }
 
@@ -1208,17 +1262,17 @@ sub _read_FTHelper_EMBL {
             }
         }
     } elsif ( $$buffer =~ /^CO\s+(\S+)/) {
-	$key = 'CONTIG';
-	$loc = $1;
-	# Read all the lines up to the next feature
-	while ( defined($_ = $self->_readline) ) {
-	    if (/^CO\s+(\S+)\s*$/) {
-		$loc .= $1;
-	    } else {
-		# We've reached the start of the next feature
-		last;
-	    }
-	}
+    $key = 'CONTIG';
+    $loc = $1;
+    # Read all the lines up to the next feature
+    while ( defined($_ = $self->_readline) ) {
+        if (/^CO\s+(\S+)\s*$/) {
+        $loc .= $1;
+        } else {
+        # We've reached the start of the next feature
+        last;
+        }
+    }
     } else {
         # No feature key
         return;

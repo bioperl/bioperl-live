@@ -471,8 +471,11 @@ sub _fix_target {
 # undo the load_id and Target hacks on the way out
 sub format_attributes {
   my $self   = shift;
-  my $parent = shift;
+  my $parent      = shift;
+  my $fallback_id = shift;
+
   my $load_id   = $self->load_id || '';
+
   my $targobj = ($self->attributes('Target'))[0];
   # was getting an 'Use of uninitialized value with split' here, changed to cooperate -cjf 7/10/07
   my ($target)  = $targobj ? split /\s+/,($self->attributes('Target'))[0] : ('');
@@ -491,10 +494,14 @@ sub format_attributes {
     foreach (@values) { s/\s+$// } # get rid of trailing whitespace
     push @result,join '=',$self->escape($t),join(',', map {$self->escape($_)} @values) if @values;
   }
-  my $id   = $self->primary_id;
+  my $id         = $self->primary_id || $fallback_id;
+  my $parent_id;
+  if (@$parent) {
+      $parent_id  = join (',',map {$self->escape($_)} @$parent);
+  }
   my $name = $self->display_name;
-  unshift @result,"ID=".$self->escape($id)                     if defined $id;
-  unshift @result,"Parent=".$self->escape($parent->primary_id) if defined $parent;
+  unshift @result,"ID=".$self->escape($id)                       if defined $id;
+  unshift @result,"Parent=".$parent_id                           if defined $parent_id;
   unshift @result,"Name=".$self->escape($name)                   if defined $name;
   return join ';',@result;
 }

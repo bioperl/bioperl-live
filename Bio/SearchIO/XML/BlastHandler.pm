@@ -2,6 +2,8 @@
 #
 # BioPerl module for Bio::SearchIO::XML::BlastHandler
 #
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
 # Cared for by Jason Stajich, Chris Fields
 #
 # Copyright Jason Stajich
@@ -46,6 +48,17 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
+=head2 Support 
+ 
+Please direct usage questions or support issues to the mailing list:
+  
+L<bioperl-l@bioperl.org>
+  
+rather than to the module maintainer directly. Many experienced and 
+reponsive experts will be able look at the problem and quickly 
+address it. Please include a thorough description of the problem 
+with code and data examples if at all possible.
+
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
@@ -86,24 +99,24 @@ my %MAPPING = (
                 'BlastOutput_version'   => 'RESULT-algorithm_version',
                 'BlastOutput_db'        => 'RESULT-database_name',
                 'BlastOutput_reference' => 'RESULT-program_reference',
-                'Parameters_matrix'    => { 'RESULT-parameters' => 'matrix'},
-                'Parameters_expect'    => { 'RESULT-parameters' => 'expect'},
-                'Parameters_include'   => { 'RESULT-parameters' => 'include'},
-                'Parameters_sc-match'  => { 'RESULT-parameters' => 'match'},
-                'Parameters_sc-mismatch' => { 'RESULT-parameters' => 'mismatch'},
-                'Parameters_gap-open'  => { 'RESULT-parameters' => 'gapopen'},
-                'Parameters_gap-extend'=> { 'RESULT-parameters' => 'gapext'},
-                'Parameters_filter'    => {'RESULT-parameters' => 'filter'},
-                'Statistics_db-num'    => 'RESULT-database_entries',
-                'Statistics_db-len'    => 'RESULT-database_letters',
-                'Statistics_hsp-len'   => { 'RESULT-statistics' => 'hsplength'},
-                'Statistics_eff-space' => { 'RESULT-statistics' => 'effectivespace'},
-                'Statistics_kappa'     => { 'RESULT-statistics' => 'kappa' },
-                'Statistics_lambda'    => { 'RESULT-statistics' => 'lambda' },
-                'Statistics_entropy'   => { 'RESULT-statistics' => 'entropy'},
                 'BlastOutput_query-def' => 'RESULT-query_description',
                 'BlastOutput_query-len' => 'RESULT-query_length',
-                'BlastOutput_query-ID'  => 'runid',
+                'BlastOutput_query-ID'  => 'runid',                
+                'Parameters_matrix'     => { 'RESULT-parameters' => 'matrix'},
+                'Parameters_expect'     => { 'RESULT-parameters' => 'expect'},
+                'Parameters_include'    => { 'RESULT-parameters' => 'include'},
+                'Parameters_sc-match'   => { 'RESULT-parameters' => 'match'},
+                'Parameters_sc-mismatch' => { 'RESULT-parameters' => 'mismatch'},
+                'Parameters_gap-open'   => { 'RESULT-parameters' => 'gapopen'},
+                'Parameters_gap-extend' => { 'RESULT-parameters' => 'gapext'},
+                'Parameters_filter'     => {'RESULT-parameters' => 'filter'},
+                'Statistics_db-num'     => 'RESULT-database_entries',
+                'Statistics_db-len'     => 'RESULT-database_letters',
+                'Statistics_hsp-len'    => { 'RESULT-statistics' => 'hsplength'},
+                'Statistics_eff-space'  => { 'RESULT-statistics' => 'effectivespace'},
+                'Statistics_kappa'      => { 'RESULT-statistics' => 'kappa' },
+                'Statistics_lambda'     => { 'RESULT-statistics' => 'lambda' },
+                'Statistics_entropy'    => { 'RESULT-statistics' => 'entropy'},
                 
                 # HSP specific fields
                 'Hsp_bit-score'  => 'HSP-bits',

@@ -2,6 +2,8 @@
 #
 # BioPerl module for Bio::SeqIO::genbank
 #
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
 # Cared for by Bioperl project bioperl-l(at)bioperl.org
 #
 # Copyright Elia Stupka and contributors see AUTHORS section
@@ -129,6 +131,17 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
+=head2 Support 
+ 
+Please direct usage questions or support issues to the mailing list:
+  
+L<bioperl-l@bioperl.org>
+  
+rather than to the module maintainer directly. Many experienced and 
+reponsive experts will be able look at the problem and quickly 
+address it. Please include a thorough description of the problem 
+with code and data examples if at all possible.
+
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
@@ -201,7 +214,8 @@ our %DBSOURCE = map {$_ => 1} qw(
     TMHOBP    COMPLUYEAST-2DPAGE    OGP    DictyBase    HAMAP
     PhotoList    Gramene    WormBase    WormPep    Genew    ZFIN
     PeroxiBase    MaizeDB    TAIR    DrugBank    REBASE    HPA
-    swissprot    GenBank    GenPept    REFSEQ    embl    PDB);
+    swissprot    GenBank    GenPept    REFSEQ    embl    PDB    UniProtKB
+    DIP    PeptideAtlas    PRIDE    CYGD    HOGENOME    Gene3D);
 
 our %VALID_ALPHABET = (
     'bp' => 'dna',
@@ -459,13 +473,13 @@ sub next_seq {
 			last if (/^\S/);
 			$dbsource .= $_;
 		    }
-				# deal with swissprot dbsources
-		    if( $dbsource =~ s/swissprot:\s+locus\s+(\S+)\,.+\n// ) {
+				# deal with UniProKB dbsources
+		    if( $dbsource =~ s/(UniProtKB|swissprot):\s+locus\s+(\S+)\,.+\n// ) {
 			$annotation->add_Annotation
 			    ('dblink',
 			     Bio::Annotation::DBLink->new
-			     (-primary_id => $1,
-			      -database => 'swissprot',
+			     (-primary_id => $2,
+			      -database => $1,
 			      -tagname => 'dblink'));
 			if( $dbsource =~ s/\s+created:\s+([^\.]+)\.\n// ) {
 			    $annotation->add_Annotation
@@ -479,7 +493,7 @@ sub next_seq {
 				('swissprot_dates',
 				 Bio::Annotation::SimpleValue->new
 				 (-tagname => 'date_updated',
-				  -value => $1));
+				  -value => $2));
 			}
 			$dbsource =~ s/\n/ /g;
 			if( $dbsource =~ s/\s+xrefs:\s+((?:\S+,\s+)+\S+)\s+xrefs/xrefs/ ) {

@@ -1,5 +1,7 @@
 # BioPerl module for Bio::SeqIO::fastq
 #
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
 # Cared for by Tony Cox <avc@sanger.ac.uk>
 #
 # Copyright Tony Cox
@@ -49,6 +51,17 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+
+=head2 Support 
+ 
+Please direct usage questions or support issues to the mailing list:
+  
+L<bioperl-l@bioperl.org>
+  
+rather than to the module maintainer directly. Many experienced and 
+reponsive experts will be able look at the problem and quickly 
+address it. Please include a thorough description of the problem 
+with code and data examples if at all possible.
 
 =head2 Reporting Bugs
 
@@ -130,7 +143,9 @@ sub next_seq {
                 $seqdata->{seq},"\n",$seqdata->{qual},"\n");
   }
 
-  my @qual = split('', $seqdata->{qual});
+  my $seq_data_qual = $seqdata->{qual};
+  my @qual = unpack("A1" x length($seq_data_qual), $seq_data_qual);
+  # my @qual = split('', $seqdata->{qual}); # Speed up above
 
   my $qual;
   foreach (@qual) {$qual .=  (unpack("C",$_) - 33) ." "};

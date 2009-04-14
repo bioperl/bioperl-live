@@ -65,6 +65,13 @@ ctgA	est	EST_match	7000	7503	.	-	.	ID=Match2;Name=agt830.3;Target=agt830.3 1 504
 ctgA	est	EST_match	1050	1500	.	+	.	ID=Match1;Name=agt830.5;Target=agt830.5 1 451
 ctgA	est	EST_match	3000	3202	.	+	.	ID=Match1;Name=agt830.5;Target=agt830.5 452 654
 
+# test multiple parentage handling
+Contig1	test	gparent	2500	2550	.	+	.	ID=gparent1;Name=gparent1
+Contig1	test	parent	2500	2550	.	+	.	ID=parent1;Name=parent1;Parent=gparent1
+Contig1	test	parent	2501	2551	.	+	.	ID=parent2;Name=parent2;Parent=gparent1
+Contig1	test	child	2500	2550	.	+	0	ID=child1;Parent=parent1,parent2;Name=child1
+Contig1	test	child	2501	2551	.	+	1	ID=child2;Parent=parent1,parent2;Name=child2
+
 # test out DNA loading
 >Contig1
 ttcttcgacactaagaaccatgccccatgtcacgacttcaccctcattgacgagcgttgt

@@ -4,6 +4,8 @@
 #
 # BioPerl module for Bio::DB::Query::LANLQuery
 #
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
 # Cared for by Mark A. Jensen <maj@fortinbras.us>
 #
 # Copyright Mark A. Jensen
@@ -160,6 +162,17 @@ the Bioperl mailing list.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+
+=head2 Support 
+ 
+Please direct usage questions or support issues to the mailing list:
+  
+L<bioperl-l@bioperl.org>
+  
+rather than to the module maintainer directly. Many experienced and 
+reponsive experts will be able look at the problem and quickly 
+address it. Please include a thorough description of the problem 
+with code and data examples if at all possible.
 
 =head2 Reporting Bugs
 
@@ -601,6 +614,18 @@ sub remove_annotations {
 
 =cut
 
+=head2 get_keys
+
+ Title   : get_keys
+ Usage   : $ac->get_keys($tagname_level_1, $tagname_level_2,...)
+ Function: Get an array of tagnames underneath the named tag nodes
+ Example : # prints the values of the members of Category 1...
+           print map { $ac->get_value($_) } $ac->get_keys('Category 1') ;
+ Returns : array of tagnames or empty list if the arguments represent a leaf
+ Args    : [array of] tagname[s]
+
+=cut
+
 =head1 GenBank accession manipulation methods
 
 =head2 get_accessions
@@ -625,7 +650,7 @@ sub get_accessions{
     }
     my @ac = $self->get_annotations_by_ids($self->ids);
     foreach (@ac) {
-	push @ret, $_->get_value('accession');
+	push @ret, $_->get_value('Special','accession');
     };
     return @ret;
 }
@@ -653,7 +678,7 @@ sub get_accessions_by_ids {
     }
     my @ac = $self->get_annotations_by_ids(@ids);
     foreach (@ac) {
-	push @ret, $_->get_value('accession');
+	push @ret, $_->get_value('Special', 'accession');
     };
     return wantarray ? @ret : $ret[0];
 }

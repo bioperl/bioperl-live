@@ -3,6 +3,8 @@
 #
 # BioPerl module for Bio::Search::HSP::HSPI
 #
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
 # Cared for by Steve Chervitz <sac@bioperl.org>
 # and Jason Stajich <jason@bioperl.org>
 #
@@ -74,6 +76,17 @@ the Bioperl mailing list.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+
+=head2 Support 
+ 
+Please direct usage questions or support issues to the mailing list:
+  
+L<bioperl-l@bioperl.org>
+  
+rather than to the module maintainer directly. Many experienced and 
+reponsive experts will be able look at the problem and quickly 
+address it. Please include a thorough description of the problem 
+with code and data examples if at all possible.
 
 =head2 Reporting Bugs
 
@@ -235,7 +248,7 @@ sub num_conserved{
 
  Title    : gaps
  Usage    : my $gaps = $hsp->gaps( ['query'|'hit'|'total'] );
- Function : Get the number of gap charcters in the query, hit, or total alignment.
+ Function : Get the number of gap characters in the query, hit, or total alignment.
  Returns  : Integer, number of gap characters or 0 if none
  Args     : 'query' = num conserved / length of query seq (without gaps)
             'hit'   = num conserved / length of hit seq (without gaps)

@@ -2,6 +2,8 @@
 #
 # Module for Bio::PhyloNetwork::TreeFactoryMulti
 #
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
 # Cared for by Gabriel Cardona <gabriel(dot)cardona(at)uib(dot)es>
 #
 # Copyright Gabriel Cardona

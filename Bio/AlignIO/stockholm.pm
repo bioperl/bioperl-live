@@ -107,7 +107,91 @@ the alignment annotation data.
     ----------------------------------------------------------------------
   * RN is generated based on the number of Bio::Annotation::Reference objects
 
+=head2 Custom annotation
+
+Some users may want to add custom annotation beyond those mapped above.
+Currently there are two methods to do so; however, the methods used for adding
+such annotation may change in the future, particularly if alignment Writer
+classes are introduced. In particular, do not rely on changing the global
+variables @WRITEORDER or %WRITEMAP as these may be made private at some point.
+
+1) Use (and abuse) the 'custom' tag.  The tagname for the object can differ
+from the tagname used to store the object in the AnnotationCollection.  
+
+    # AnnotationCollection from the SimpleAlign object
+    my $coll = $aln->annotation; 
+    my $factory = Bio::Annotation::AnnotationFactory->new(-type => 
+        Bio::Annotation::SimpleValue');
+    my $rfann = $factory->create_object(-value => $str, 
+                                        -tagname => 'mytag');
+    $coll->add_Annotation('custom', $rfann);
+    $rfann = $factory->create_object(-value => 'foo',
+                                    -tagname => 'bar');
+    $coll->add_Annotation('custom', $rfann);
+
+OUTPUT:
+
+    # STOCKHOLM 1.0
+    
+    #=GF ID myID12345
+    #=GF mytag katnayygqelggvnhdyddlakfyfgaglealdffnnkeaaakiinwvaEDTTRGKIQDLV??
+    #=GF mytag TPtd~????LDPETQALLV???????????????????????NAIYFKGRWE?????????~??
+    #=GF mytag ??HEF?A?EMDTKPY??DFQH?TNen?????GRI??????V???KVAM??MF?????????N??
+    #=GF mytag ???DD?VFGYAEL????DE???????L??D??????A??TALELAY??????????????????
+    #=GF mytag ?????????????KG??????Sa???TSMLILLP???????????????D??????????????
+    #=GF mytag ???????????EGTr?????AGLGKLLQ??QL????????SREef??DLNK??L???AH????R
+    #=GF mytag ????????????L????????????????????????????????????????R?????????R
+    #=GF mytag ??QQ???????V???????AVRLPKFSFefefdlkeplknlgmhqafdpnsdvfklmdqavlvi
+    #=GF mytag gdlqhayafkvd????????????????????????????????????????????????????
+    #=GF mytag ????????????????????????????????????????????????????????????????
+    #=GF mytag ????????????????????????????????????????????????????????????????
+    #=GF mytag ????????????????????????????????????????????????????????????????
+    #=GF mytag ?????????????INVDEAG?TEAAAATAAKFVPLSLppkt??????????????????PIEFV
+    #=GF mytag ADRPFAFAIR??????E?PAT?G????SILFIGHVEDPTP?msv?
+    #=GF bar foo
+    ...
+
+2) Modify the global @WRITEORDER and %WRITEMAP.
+
+    # AnnotationCollection from the SimpleAlign object
+    my $coll = $aln->annotation;
+    
+    # add to WRITEORDER
+    my @order = @Bio::AlignIO::stockholm::WRITEORDER;
+    push @order, 'my_stuff';
+    @Bio::AlignIO::stockholm::WRITEORDER = @order;
+    
+    # make sure new tag maps to something
+    $Bio::AlignIO::stockholm::WRITEMAP{my_stuff} = 'Hobbit/SimpleValue';
+
+    my $rfann = $factory->create_object(-value => 'Frodo',
+                                        -tagname => 'Hobbit');
+    $coll->add_Annotation('my_stuff', $rfann);
+    $rfann = $factory->create_object(-value => 'Bilbo',
+                                     -tagname => 'Hobbit');
+    $coll->add_Annotation('my_stuff', $rfann);
+
+OUTPUT:
+
+    # STOCKHOLM 1.0
+    
+    #=GF ID myID12345
+    #=GF Hobbit Frodo
+    #=GF Hobbit Bilbo
+    ....
+
 =head1 FEEDBACK
+
+=head2 Support 
+ 
+Please direct usage questions or support issues to the mailing list:
+  
+L<bioperl-l@bioperl.org>
+  
+rather than to the module maintainer directly. Many experienced and 
+reponsive experts will be able look at the problem and quickly 
+address it. Please include a thorough description of the problem 
+with code and data examples if at all possible.
 
 =head2 Reporting Bugs
 
@@ -140,12 +224,11 @@ use strict;
 
 use Bio::Seq::Meta;
 use Bio::AlignIO::Handler::GenericAlignHandler;
-use Data::Dumper;
 use Text::Wrap qw(wrap);
 
 use base qw(Bio::AlignIO);
 
-our $STKVERSION = 'STOCKHOLM 1.0';
+my $STKVERSION = 'STOCKHOLM 1.0';
 
 # This maps the two-letter annotation key to a Annotation/parameter/tagname
 # combination.  Some data is stored using get/set methods ('Methods')  The rest 
@@ -184,8 +267,6 @@ my %MAPPING = (
     'SEQUENCE' => 'SEQUENCE'
 );
 
-my %CONCATENATE = map {$_ => 1} qw(DE AU DC RC RT RA RL CC);
-
 # this is the order that annotations are written
 our @WRITEORDER = qw(accession
   id
@@ -216,38 +297,39 @@ our @WRITEORDER = qw(accession
 # are mapped b/c of more complex annotation types.
 
 our %WRITEMAP = (
-            'accession'             =>  'AC/Method',
-            'id'                    =>  'ID/Method',
-            'description'           =>  'DE/Method',
-            'record_authors'        =>  'AU/SimpleValue',
-            'seed_source'           =>  'SE/SimpleValue',
-            'build_command'         =>  'BM/SimpleValue',
-            'gathering_threshold'   =>  'GA/SimpleValue',
-            'noise_cutoff'          =>  'NC/SimpleValue',
-            'trusted_cutoff'        =>  'TC/SimpleValue',
-            'entry_type'            =>  'TP/SimpleValue',
-            'num_sequences'         =>  'SQ/SimpleValue',
-            'previous_ids'          =>  'PI/SimpleValue',
-            'database_comment'      =>  'DC/SimpleValue',
-            'dblink'                =>  'DR/DBLink',
-            'reference'             =>  'RX/Reference',
-            'ref_number'            =>  'RN/number',
-            'ref_comment'           =>  'RC/comment',
-            'ref_pubmed'            =>  'RM/pubmed',
-            'ref_title'             =>  'RT/title',
-            'ref_authors'           =>  'RA/authors',
-            'ref_location'          =>  'RL/location',
-            'alignment_comment'     =>  'CC/Comment',
-            'seq_annotation'        =>  'DR/Collection',
-            #Pfam-specific 
-            'build_method'          =>  'AM/SimpleValue',
-            'pfam_family_accession' =>  'NE/SimpleValue',
-            'seq_start_stop'        =>  'NL/SimpleValue',
-            # Rfam-specific GF lines
-            'sec_structure_source'  =>  'SS/SimpleValue',
-            # custom
-            'custom'                =>  'XX/SimpleValue'
-            );
+    'accession'             =>  'AC/Method',
+    'id'                    =>  'ID/Method',
+    'description'           =>  'DE/Method',
+    'record_authors'        =>  'AU/SimpleValue',
+    'seed_source'           =>  'SE/SimpleValue',
+    'build_command'         =>  'BM/SimpleValue',
+    'gathering_threshold'   =>  'GA/SimpleValue',
+    'noise_cutoff'          =>  'NC/SimpleValue',
+    'trusted_cutoff'        =>  'TC/SimpleValue',
+    'entry_type'            =>  'TP/SimpleValue',
+    'num_sequences'         =>  'SQ/SimpleValue',
+    'previous_ids'          =>  'PI/SimpleValue',
+    'database_comment'      =>  'DC/SimpleValue',
+    'dblink'                =>  'DR/DBLink',
+    'reference'             =>  'RX/Reference',
+    'ref_number'            =>  'RN/number',
+    'ref_comment'           =>  'RC/comment',
+    'ref_pubmed'            =>  'RM/pubmed',
+    'ref_title'             =>  'RT/title',
+    'ref_authors'           =>  'RA/authors',
+    'ref_location'          =>  'RL/location',
+    'alignment_comment'     =>  'CC/Comment',
+    'seq_annotation'        =>  'DR/Collection',
+    #Pfam-specific 
+    'build_method'          =>  'AM/SimpleValue',
+    'pfam_family_accession' =>  'NE/SimpleValue',
+    'seq_start_stop'        =>  'NL/SimpleValue',
+    # Rfam-specific GF lines
+    'sec_structure_source'  =>  'SS/SimpleValue',
+    # custom; this is used to carry over anything from the input alignment
+    # not mapped to LocatableSeqs or SimpleAlign in a meaningful way
+    'custom'                =>  'XX/SimpleValue'
+);
 
 # This maps the tagname back to a tagname-annotation value combination.
 # Some data is stored using get/set methods ('Methods'), others
@@ -338,7 +420,7 @@ sub next_aln {
             }
             $align = ($primary_tag eq 'GF' || $primary_tag eq 'GR') ? 1 : 0;
         }
-        elsif ($line =~ m{^([^\#]\S+)\s+([A-Za-z.\-\*]+)\s*}) {
+        elsif ($line =~ m{^([^\#]\S+)\s+([^\s]+)\s*}) {
             $self->{block_line}++;
             ($feat, $nse, $data) = ('SEQUENCE', $1, $2);
         }
@@ -401,7 +483,7 @@ sub next_aln {
         $last_feat = $feat;
     }
     
-    my $aln = $handler->build_alignment;    
+    my $aln = $handler->build_alignment;
     $handler->reset_parameters;
     return $aln;
 }
@@ -484,22 +566,26 @@ sub write_aln {
             }
             elsif ($tag eq 'XX') { # custom
                 my $newtag = $ann->tagname;
-                $alntag = sprintf('%-10s',$aln_ann.$newtag);
+                my $tmp = $aln_ann.$newtag;
+                $alntag = sprintf('%-*s',length($tmp) + 1, $tmp);
                 $data = $ann->display_text;
             }
             elsif ($tag eq 'SQ') {
                 # use the actual number, not the stored Annotation data
-                $alntag = sprintf('%-10s',$aln_ann.$tag);
+                my $tmp = $aln_ann.$tag;
+                $alntag = sprintf('%-*s',length($tmp) + 1, $tmp);
                 $data = $aln->no_sequences;
             }
             elsif ($tag eq 'DR') {
-                $alntag = sprintf('%-10s',$aln_ann.$tag);
+                my $tmp = $aln_ann.$tag;
+                $alntag = sprintf('%-*s',length($tmp) + 1, $tmp);
                 my $db = uc $ann->database;
                 my $cb = exists $LINK_CB{$db} ? $LINK_CB{$db} : $LINK_CB{_DEFAULT_};
                 $data = $ann->display_text($cb);
             }
             else {
-                $alntag = sprintf('%-10s',$aln_ann.$tag);
+                my $tmp = $aln_ann.$tag;
+                $alntag = sprintf('%-*s',length($tmp) + 1, $tmp);
                 $data = ref $ann ? $ann->display_text : $ann;
             }
             next unless $data;
@@ -633,20 +719,6 @@ sub alignhandler {
         $self->{'_alignhandler'} = $handler;
     }
     return $self->{'_alignhandler'};
-}
-
-=head2 alignwriter
-
- Title   : alignwriter
- Usage   : $stream->alignwriter($writer)
- Function: Get/Set the writer object
- Returns : 
- Args    : 
-
-=cut
-
-sub alignwriter {
-    shift->throw_not_implemented;
 }
 
 ############# PRIVATE INIT/HANDLER METHODS #############

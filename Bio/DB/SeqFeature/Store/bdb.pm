@@ -101,7 +101,6 @@ sub path {
 sub DESTROY {
   my $self = shift;
   my $db   = $self->db;
-  warn "CLEANING UP";
   untie %$db;
   rmtree($self->directory,0,1) if $self->temporary;
 }

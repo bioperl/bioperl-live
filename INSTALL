@@ -60,8 +60,6 @@ ADDITIONAL INSTALLATION INFORMATION
             NOTE: These are severely out-of-date and require MacPerl
             (the latest version of which is 5.6.1rc1). As such, we do
             not currently support BioPerl on OS 9
-      * OS X - http://www.tc.umn.edu/~cann0010/Bioperl_OSX_install.html
-            (outdated, but useful for libgd installation notes)
       * OS X - Installing using Fink (in Getting BioPerl)
 
 PRELIMINARY PREPARATION
@@ -86,10 +84,8 @@ PRELIMINARY PREPARATION
  cpan>o conf commit
  cpan>q
 
-     * Install the expat and libgd libraries by whatever method is
-       appropriate for your system. If you install libgd in a
-       non-standard location, that is fine: when installing the perl
-       module that needs it you will be asked where you installed it.
+     * Install the expat library by whatever method is
+       appropriate for your system.
 
      * If your expat library is installed in a non-standard location,
        tell CPAN about it:

@@ -2,6 +2,8 @@
 #
 # BioPerl module for Bio::Tools::Signalp::ExtendedSignalp
 #
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
 # Cared for by Emmanuel Quevillon <emmanuel.quevillon@versailles.inra.fr>
 #
 # Copyright Emmanuel Quevillon
@@ -37,6 +39,8 @@ Parser module for Signalp.
 Based on the EnsEMBL module
 Bio::EnsEMBL::Pipeline::Runnable::Protein::Signalp originally
 written by Marc Sohrmann (ms2 a sanger.ac.uk) Written in BioPipe by
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
 Balamurugan Kumarasamy (savikalpa a fugu-sg.org) Cared for by the Fugu
 Informatics team (fuguteam@fugu-sg.org)
 
@@ -69,6 +73,17 @@ Actually, full and summary are equivalent in terms of filtering results.
 
  bioperl-l@bioperl.org              - General discussion
  http://bioperl.org/MailList.shtml  - About the mailing lists
+
+=head2 Support 
+ 
+Please direct usage questions or support issues to the mailing list:
+  
+L<bioperl-l@bioperl.org>
+  
+rather than to the module maintainer directly. Many experienced and 
+reponsive experts will be able look at the problem and quickly 
+address it. Please include a thorough description of the problem 
+with code and data examples if at all possible.
 
 =head2 Reporting Bugs
 

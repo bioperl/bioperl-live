@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 298,
+    test_begin(-tests => 391,
 			   -requires_module => 'XML::SAX');
 	
 	use_ok('Bio::SearchIO');
@@ -41,7 +41,9 @@ SKIP: {
 	} elsif ($@) {
 		skip("Problem with XML::SAX setup: $@. Check ParserDetails.ini; skipping XML tests",297);
 	}
-	is($searchio->result_count, 1);	
+	is($searchio->result_count, 1);
+	
+	# basic ResultI data
 	isa_ok($result, 'Bio::Search::Result::ResultI');
 	is($result->database_name, '/data_2/jason/db/cdd/cdd/Pfam', 'database_name()');
 	is($result->query_name,'gi|1786182|gb|AAC73112.1|','query_name()');
@@ -52,14 +54,63 @@ SKIP: {
 	is($result->algorithm, 'BLASTP');
 	is($result->algorithm_version, 'blastp 2.1.3 [Apr-1-2001]');
 	
+	# check parameters
 	is($result->available_parameters, 8);
+	is($result->get_parameter('matrix'), 'BLOSUM62');
+	float_is($result->get_parameter('expect'), '1e-05');
+	is($result->get_parameter('include'), 0);
+	is($result->get_parameter('match'), 0);
+	is($result->get_parameter('mismatch'), 0);
+	is($result->get_parameter('gapopen'), 11);
 	is($result->get_parameter('gapext'), 1);
+	is($result->get_parameter('filter'), 'F');
+	
+	# check statistics
 	is($result->available_statistics, 5);
+	is($result->database_entries, 0);
+	is($result->database_letters, 0);
+	is($result->get_statistic('hsplength'), 0);
+	float_is($result->get_statistic('effectivespace'), 4.16497e+11);
 	is($result->get_statistic('lambda'), 0.267);
+	is($result->get_statistic('kappa'), 0.041);
+	is($result->get_statistic('entropy'), 0.14);
 	
 	# this result actually has a hit
 	$result = $searchio->next_result;
+	
+	# does the parser catch everything in the next result?
+	is($result->database_name, '/data_2/jason/db/cdd/cdd/Pfam', 'database_name()');
+	is($result->query_name,'gi|1786183|gb|AAC73113.1|');
+	is($result->query_description, '(AE000111) aspartokinase I, homoserine dehydrogenase I [Escherichia coli]');
+	is($result->query_accession, 'AAC73113.1');
+	is($result->query_gi, 1786183);
+	is($result->query_length, 820);
+	is($result->algorithm, 'BLASTP');
+	is($result->algorithm_version, 'blastp 2.1.3 [Apr-1-2001]');	
+	
 	is($searchio->result_count, 2);
+
+	# check parameters
+	is($result->available_parameters, 8);
+	is($result->get_parameter('matrix'), 'BLOSUM62');
+	float_is($result->get_parameter('expect'), '1e-05');
+	is($result->get_parameter('include'), 0);
+	is($result->get_parameter('match'), 0);
+	is($result->get_parameter('mismatch'), 0);
+	is($result->get_parameter('gapopen'), 11);
+	is($result->get_parameter('gapext'), 1);
+	is($result->get_parameter('filter'), 'F');
+	
+	# check statistics
+	is($result->available_statistics, 5);
+	is($result->database_entries, 0);
+	is($result->database_letters, 0);
+	is($result->get_statistic('hsplength'), 0);
+	float_is($result->get_statistic('effectivespace'), 3.82682e+07);
+	is($result->get_statistic('lambda'), 0.267);
+	is($result->get_statistic('kappa'), 0.041);
+	is($result->get_statistic('entropy'), 0.14);
+	
 	$hit = $result->next_hit;
 	is($hit->name, 'gnl|Pfam|pfam00742');
 	is($hit->description(), 'HomoS_dh, HomoS dehydrogenase');
@@ -137,6 +188,28 @@ SKIP: {
 	is($result->query_accession,'NM_011441_up_1000_chr1_4505586_r');
 	is($result->query_gi, '');
 	is($result->query_length,'1000');
+	
+	# check parameters
+	is($result->available_parameters, 6);
+	is($result->get_parameter('matrix'), undef); # not set
+	float_is($result->get_parameter('expect'), 10);
+	is($result->get_parameter('include'), undef); # not set
+	is($result->get_parameter('match'), 1);
+	is($result->get_parameter('mismatch'), -3);
+	is($result->get_parameter('gapopen'), 5);
+	is($result->get_parameter('gapext'), 2);
+	is($result->get_parameter('filter'), 'D');
+	
+	# check statistics
+	is($result->available_statistics, 5);
+	is($result->database_entries, 17516);
+	is($result->database_letters, 17516000);
+	is($result->get_statistic('hsplength'), 0);
+	float_is($result->get_statistic('effectivespace'), 1.69255e+10);
+	is($result->get_statistic('lambda'), 1.37407);
+	is($result->get_statistic('kappa'), 0.710605);
+	is($result->get_statistic('entropy'), 1.30725);
+	
 	$hit = $result->next_hit;
 	is($hit->name,'NM_001938_up_1000_chr1_93161154_f');
 	is($hit->description,'chr1:93161154-93162153');
@@ -152,22 +225,38 @@ SKIP: {
 	$result = $searchio->next_result;
 	is($searchio->result_count, 1);
 	is($result->database_name,'nr');
-	is($result->database_name,'nr');
-	is($result->database_letters,'1479795817');
-	is($result->database_entries,'4299737');
 	is($result->algorithm,'BLASTP');
 	is($result->algorithm_version,'BLASTP 2.2.15 [Oct-15-2006]');
-	
 	# some XML::SAX parsers (PurePerl, XML::SAX::LibXML) don't decode entities
 	# properly, not fixable using decode_entities()
 	like($result->algorithm_reference, qr{Nucleic Acids Res} ); 
-	is($result->available_parameters,4);
-	is($result->available_statistics,5);
 	is($result->query_name,'gi|15600734|ref|NP_254228.1|');
 	is($result->query_description,'dihydroorotase [Pseudomonas aeruginosa PAO1]');
 	is($result->query_accession,'NP_254228.1');
 	is($result->query_gi, 15600734);
-	is($result->query_length,'445');
+	is($result->query_length,'445');	
+
+	# check parameters
+	is($result->available_parameters, 4);
+	is($result->get_parameter('matrix'), 'BLOSUM62'); 
+	float_is($result->get_parameter('expect'), 10);
+	is($result->get_parameter('include'), undef); # not set
+	is($result->get_parameter('match'), undef);   # not set
+	is($result->get_parameter('mismatch'), undef);# not set
+	is($result->get_parameter('gapopen'), 11);
+	is($result->get_parameter('gapext'), 1);
+	is($result->get_parameter('filter'), undef);  # not set
+	
+	# check statistics
+	is($result->available_statistics, 5);
+	is($result->database_entries, 4299737);
+	is($result->database_letters, 1479795817);
+	is($result->get_statistic('hsplength'), 0);
+	float_is($result->get_statistic('effectivespace'), 0);
+	is($result->get_statistic('lambda'), 0.267);
+	is($result->get_statistic('kappa'), 0.041);
+	is($result->get_statistic('entropy'), 0.14);
+	
 	$hit = $result->next_hit;
 	is($hit->name,'gi|15600734|ref|NP_254228.1|');
 	is($hit->description,'dihydroorotase [Pseudomonas aeruginosa PAO1] '.
@@ -195,18 +284,36 @@ SKIP: {
 	$result = $searchio->next_result;
 	is($searchio->result_count, 2);
 	is($result->database_name,'nr'); 
-	is($result->database_letters,'1479795817'); 
-	is($result->database_entries,'4299737');
 	is($result->algorithm,'BLASTP');
 	is($result->algorithm_version,'BLASTP 2.2.15 [Oct-15-2006]'); 
 	like($result->algorithm_reference, qr{Nucleic Acids Res} );
-	is($result->available_parameters,4); 
-	is($result->available_statistics,5);
 	is($result->query_name,'gi|15598723|ref|NP_252217.1|');
 	is($result->query_description,'dihydroorotase [Pseudomonas aeruginosa PAO1]');
 	is($result->query_accession,'NP_252217.1');
 	is($result->query_gi, 15598723);
 	is($result->query_length,'348');
+	
+	# check parameters
+	is($result->available_parameters, 4);
+	is($result->get_parameter('matrix'), 'BLOSUM62'); 
+	float_is($result->get_parameter('expect'), 10);
+	is($result->get_parameter('include'), undef); # not set
+	is($result->get_parameter('match'), undef);   # not set
+	is($result->get_parameter('mismatch'), undef);# not set
+	is($result->get_parameter('gapopen'), 11);
+	is($result->get_parameter('gapext'), 1);
+	is($result->get_parameter('filter'), undef);  # not set
+	
+	# check statistics
+	is($result->available_statistics, 5);
+	is($result->database_entries, 4299737);
+	is($result->database_letters, 1479795817);
+	is($result->get_statistic('hsplength'), 0);
+	float_is($result->get_statistic('effectivespace'), 0);
+	is($result->get_statistic('lambda'), 0.267);
+	is($result->get_statistic('kappa'), 0.041);
+	is($result->get_statistic('entropy'), 0.14);
+
 	$hit = $result->next_hit;
 	is($hit->name,'gi|15598723|ref|NP_252217.1|');
 	is($hit->description,'dihydroorotase [Pseudomonas aeruginosa PAO1] '.
@@ -242,27 +349,33 @@ SKIP: {
 	$result = $searchio->next_result;
 	is($searchio->result_count, 1);    
 	is($result->database_name, 'AL591824.faa');
-	is($result->database_entries, 2846);
-	is($result->database_letters, 870878);
 	is($result->algorithm, 'BLASTP');
 	like($result->algorithm_version, qr/2\.2\.16/);
 	is($result->query_name, 'gi|1373160|gb|AAB57770.1|');
 	is($result->query_accession, 'AAB57770.1');
 	is($result->query_gi, '1373160');
 	is($result->query_length, 173);
-	is($result->get_statistic('kappa') , 0.0475563);
-	cmp_ok($result->get_statistic('lambda'), '==', 0.267);
-	cmp_ok($result->get_statistic('entropy'), '==', 0.14);
-	TODO: {
-		local $TODO = 'Some stats not working';
-		is($result->get_statistic('dbletters'), 31984247);
-		is($result->get_statistic('dbentries'), 88780);
-		is($result->get_statistic('effective_hsplength'), 49);
-	}
-	float_is($result->get_statistic('effectivespace'), '6.44279e+07');
-	is($result->get_parameter('matrix'), 'BLOSUM62');
+	
+	# check parameters
+	is($result->available_parameters, 6);
+	is($result->get_parameter('matrix'), 'BLOSUM62'); 
+	float_is($result->get_parameter('expect'), 10);
+	is($result->get_parameter('include'), 0.002); 
+	is($result->get_parameter('match'), undef);   # not set
+	is($result->get_parameter('mismatch'), undef);# not set
 	is($result->get_parameter('gapopen'), 11);
 	is($result->get_parameter('gapext'), 1);
+	is($result->get_parameter('filter'), 'F');  
+	
+	# check statistics
+	is($result->available_statistics, 5);
+	is($result->database_entries, 2846);
+	is($result->database_letters, 870878);
+	is($result->get_statistic('hsplength'), 75);
+	float_is($result->get_statistic('effectivespace'), 6.44279e+07);
+	is($result->get_statistic('lambda'), 0.267);
+	is($result->get_statistic('kappa'), 0.0475563);
+	is($result->get_statistic('entropy'), 0.14);
 	
 	my $iter_count = 0;
 	my @valid_hit_data = ( [ 'gi|16411294|emb|CAC99918.1|', 183, 'CAC99918', 16411294, '4.5377e-56', 209.92],
@@ -327,21 +440,33 @@ SKIP: {
 	$result = $searchio->next_result;
 	is($searchio->result_count, 2);    
 	is($result->database_name, 'AL591824.faa');
-	is($result->database_entries, 2846);
-	is($result->database_letters, 870878);
 	is($result->algorithm, 'BLASTP');
 	like($result->algorithm_version, qr/2\.2\.16/);
 	is($result->query_name, 'gi|154350371|gb|ABS72450.1|');
 	is($result->query_accession, 'ABS72450.1');
 	is($result->query_gi, '154350371');
 	is($result->query_length, 378);
-	is($result->get_statistic('kappa') , 0.0450367);
-	cmp_ok($result->get_statistic('lambda'), '==', 0.267);
-	cmp_ok($result->get_statistic('entropy'), '==', 0.14);
-	float_is($result->get_statistic('effectivespace'), '1.88702e+08');
-	is($result->get_parameter('matrix'), 'BLOSUM62');
+
+	# check parameters
+	is($result->available_parameters, 6);
+	is($result->get_parameter('matrix'), 'BLOSUM62'); 
+	float_is($result->get_parameter('expect'), 10);
+	is($result->get_parameter('include'), 0.002); 
+	is($result->get_parameter('match'), undef);   # not set
+	is($result->get_parameter('mismatch'), undef);# not set
 	is($result->get_parameter('gapopen'), 11);
 	is($result->get_parameter('gapext'), 1);
+	is($result->get_parameter('filter'), 'F');  
+	
+	# check statistics
+	is($result->available_statistics, 5);
+	is($result->database_entries, 2846);
+	is($result->database_letters, 870878);
+	is($result->get_statistic('hsplength'), 82);
+	float_is($result->get_statistic('effectivespace'), 1.88702e+08);
+	is($result->get_statistic('lambda'), 0.267);
+	is($result->get_statistic('kappa'), 0.0450367);
+	is($result->get_statistic('entropy'), 0.14);
 	
 	$iter_count = 0;
 	

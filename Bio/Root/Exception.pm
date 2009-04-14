@@ -3,6 +3,8 @@
 #
 # BioPerl module Bio::Root::Exception
 #
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
 # Cared for by Steve Chervitz <sac@bioperl.org>
 #
 # You may distribute this module under the same terms as perl itself

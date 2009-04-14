@@ -2,6 +2,8 @@
 #
 # BioPerl module for Bio::SearchIO::XML::PsiBlastHandler
 #
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
 # Cared for by Jason Stajich, Chris Fields
 #
 # Copyright Chris Fields
@@ -45,6 +47,17 @@ the Bioperl mailing list.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+
+=head2 Support 
+ 
+Please direct usage questions or support issues to the mailing list:
+  
+L<bioperl-l@bioperl.org>
+  
+rather than to the module maintainer directly. Many experienced and 
+reponsive experts will be able look at the problem and quickly 
+address it. Please include a thorough description of the problem 
+with code and data examples if at all possible.
 
 =head2 Reporting Bugs
 
@@ -93,20 +106,16 @@ my %MAPPING = (
                 'Parameters_include'    => { 'RESULT-parameters' => 'include'},
                 'Parameters_sc-match'   => { 'RESULT-parameters' => 'match'},
                 'Parameters_sc-mismatch' => { 'RESULT-parameters' => 'mismatch'},
-                'Parameters_gap-open'  => { 'RESULT-parameters' => 'gapopen'},
-                'Parameters_gap-extend'=> { 'RESULT-parameters' => 'gapext'},
-                'Parameters_filter'    => {'RESULT-parameters' => 'filter'},
-                
-                #
-                #'Statistics_db-len'      => { 'RESULT-statistics' => 'dbentries' },
-                #'Statistics_db-let'      => { 'RESULT-statistics' => 'dbletters' },
-                'Statistics_db-num'    => 'RESULT-database_entries',
-                'Statistics_db-len'    => 'RESULT-database_letters',
-                'Statistics_hsp-len'   => { 'RESULT-statistics' => 'hsplength'},
-                'Statistics_eff-space' => { 'RESULT-statistics' => 'effectivespace'},
-                'Statistics_kappa'     => { 'RESULT-statistics' => 'kappa' },
-                'Statistics_lambda'    => { 'RESULT-statistics' => 'lambda' },
-                'Statistics_entropy'   => { 'RESULT-statistics' => 'entropy'},
+                'Parameters_gap-open'   => { 'RESULT-parameters' => 'gapopen'},
+                'Parameters_gap-extend' => { 'RESULT-parameters' => 'gapext'},
+                'Parameters_filter'     => {'RESULT-parameters' => 'filter'},
+                'Statistics_db-num'     => 'RESULT-database_entries',
+                'Statistics_db-len'     => 'RESULT-database_letters',
+                'Statistics_hsp-len'    => { 'RESULT-statistics' => 'hsplength'},
+                'Statistics_eff-space'  => { 'RESULT-statistics' => 'effectivespace'},
+                'Statistics_kappa'      => { 'RESULT-statistics' => 'kappa' },
+                'Statistics_lambda'     => { 'RESULT-statistics' => 'lambda' },
+                'Statistics_entropy'    => { 'RESULT-statistics' => 'entropy'},
 
                 # Iteration-specific parameters
                 'Iteration_iter-num'  => 'ITERATION-number',

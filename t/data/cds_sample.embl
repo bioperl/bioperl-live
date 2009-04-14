@@ -1,0 +1,36 @@
+ID   EAL24309; SV 1; linear; genomic DNA; ANN; HUM; 192 BP.
+XX
+PA   CH236947.1
+XX
+DE   Homo sapiens (human) hypoxia-inducible protein 2
+XX
+OS   Homo sapiens (human)
+OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi; Mammalia;
+OC   Eutheria; Euarchontoglires; Primates; Haplorrhini; Catarrhini; Hominidae;
+OC   Homo.
+OX   NCBI_TaxID=9606;
+XX
+FH   Key             Location/Qualifiers
+FH
+FT   source          1..192
+FT                   /organism="Homo sapiens"
+FT                   /chromosome="7"
+FT                   /mol_type="genomic DNA"
+FT   CDS             complement(CH236947.1:5840..6031)
+FT                   /codon_start=1
+FT                   /gene="HIG2"
+FT                   /locus_tag="tcag7.897"
+FT                   /product="hypoxia-inducible protein 2"
+FT                   /note="NP_037464.1"
+FT                   /db_xref="UniProtKB/Swiss-Prot:Q9Y5L2"
+FT                   /db_xref="UniProtKB/TrEMBL:A4D0Z5"
+FT                   /protein_id="EAL24309.1"
+FT                   /translation="MKHVLNLYLLGVVLTLLSIFVRVMESLEGLLESPSPGTSWTTRSQ
+FT                   LANTEPTKGLPDHPSRSM"
+XX
+SQ   Sequence 192 BP; 49 A; 58 C; 45 G; 40 T; 0 other; 1039264518 CRC32;
+     atgaagcatg tgttgaacct ctacctgtta ggtgtggtac tgaccctact ctccatcttc        60
+     gttagagtga tggagtccct agagggctta ctagagagcc catcgcctgg gacctcctgg       120
+     accaccagaa gccaactagc caacacagag cccaccaagg gccttccaga ccatccatcc       180
+     agaagcatgt ga                                                           192
+//

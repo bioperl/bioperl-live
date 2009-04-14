@@ -2,6 +2,8 @@
 #
 # BioPerl module for Bio::Annotation::DBLink
 #
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
 # Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
 # Copyright Ewan Birney

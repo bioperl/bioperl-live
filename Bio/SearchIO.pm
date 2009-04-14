@@ -2,6 +2,8 @@
 #
 # BioPerl module for Bio::SearchIO
 #
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
 # Cared for by Jason Stajich <jason-at-bioperl.org>
 #
 # Copyright Jason Stajich
@@ -47,7 +49,7 @@ A list of module names and formats is below:
 
   blast      BLAST (WUBLAST, NCBIBLAST,bl2seq)   
   fasta      FASTA -m9 and -m0
-  blasttable BLAST -m9 or -m8 output (NCBI not WUBLAST tabular)
+  blasttable BLAST -m9 or -m8 output (both NCBI and WUBLAST tabular)
   megablast  MEGABLAST
   psl        UCSC PSL format
   waba       WABA output
@@ -71,6 +73,17 @@ the Bioperl mailing list.  Your participation is much appreciated.
 
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+
+=head2 Support 
+ 
+Please direct usage questions or support issues to the mailing list:
+  
+L<bioperl-l@bioperl.org>
+  
+rather than to the module maintainer directly. Many experienced and 
+reponsive experts will be able look at the problem and quickly 
+address it. Please include a thorough description of the problem 
+with code and data examples if at all possible.
 
 =head2 Reporting Bugs
 

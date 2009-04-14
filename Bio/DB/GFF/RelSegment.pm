@@ -912,7 +912,6 @@ sub types {
     @args = @_;
   }
   $self->factory->types(-ref  => $ref,
-			-class => $class,
 			-start=> $start,
 			-stop => $stop,
 			@args);

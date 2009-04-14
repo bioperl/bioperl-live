@@ -2,15 +2,18 @@ package Bio::DB::SeqFeature::Store::berkeleydb;
 
 # $Id$
 
-
 use strict;
 use base 'Bio::DB::SeqFeature::Store';
 use Bio::DB::GFF::Util::Rearrange 'rearrange';
-use Bio::DB::Fasta;
 use DB_File;
-use Fcntl qw(O_RDWR O_CREAT);
+use Fcntl qw(O_RDWR O_CREAT :flock);
+use IO::File;
 use File::Temp 'tempdir';
 use File::Path 'rmtree','mkpath';
+use File::Basename;
+use File::Spec;
+use Carp 'carp','croak';
+
 use constant BINSIZE => 10_000;
 use constant MININT  => -999_999_999_999;
 use constant MAXINT  => 999_999_999_999;
@@ -58,7 +61,7 @@ Bio::DB::SeqFeature::Store::berkeleydb -- Storage and retrieval of sequence anno
 
   # use the GFF3 loader to do a bulk write:
   my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store   => $db,
-                                                           -verbose => 1,
+                                                           -verbose => 0,
                                                            -fast    => 1);
   $loader->load('/home/fly4.3/dmel-all.gff');
 
@@ -140,7 +143,8 @@ new_feature() repeatedly, you can create the database and then bulk
 populate it using the GFF3 loader, or you can monitor a directory of
 preexisting GFF3 and FASTA files and rebuild the indexes whenever one
 or more of the fields changes. The last mode is probably the most
-convenient.
+convenient. Note that the indexer will only pay attention to files
+that end with .gff3, .wig and .fa.
 
 =over 4
 
@@ -185,6 +189,9 @@ Adaptor-specific arguments
  -temp              Pass true to create temporary index files that will
                     be deleted once the script exits.
 
+ -verbose           Pass true to report autoindexing operations on STDERR.
+                    (default is true).
+
 Examples:
 
 To create an empty database which will be populated using calls to
@@ -219,6 +226,9 @@ As above, but store the source files and index files in separate directories:
                                              -dsn     => '/var/databases/fly4.3',
                                              -dir     => '/home/gff3_files/fly4.3');
 
+To be indexed, files must end with one of .gff3 (GFF3 format), .fa
+(FASTA format) or .wig (WIG format).
+
 B<-autoindex> is an alias for B<-dir>.
 
 =back
@@ -241,12 +251,17 @@ sub init {
       $is_temporary,
       $write,
       $create,
+      $verbose,
      ) = rearrange([['DSN','DB'],
 		   [qw(DIR AUTOINDEX)],
 		   ['TMP','TEMP','TEMPORARY'],
 		   [qw(WRITE WRITABLE)],
 		   'CREATE',
+		    'VERBOSE'
 		  ],@_);
+
+  $verbose = 1 unless defined $verbose;
+
   if ($autoindex) {
     -d $autoindex or $self->throw("Invalid directory $autoindex");
     $directory ||= "$autoindex/indexes";
@@ -258,9 +273,9 @@ sub init {
     $pacname =~ s/:+/_/g;
   }
   $directory = tempdir($pacname.'_XXXXXX',
-		       TMPDIR=>1,
-		       CLEANUP=>1,
-		       DIR=>$directory) if $is_temporary;
+		       TMPDIR  => 1,
+		       CLEANUP => 1,
+		       DIR     => $directory) if $is_temporary;
   mkpath($directory);
   -d $directory or $self->throw("Invalid directory $directory");
 
@@ -273,7 +288,12 @@ sub init {
   $self->default_settings;
   $self->directory($directory);
   $self->temporary($is_temporary);
+  $self->verbose($verbose);
   $self->_delete_databases()    if $create;
+  if ($autoindex && -d $autoindex) {
+      $self->auto_reindex($autoindex);
+  }
+  $self->lock('shared');
   $self->_open_databases($write,$create,$autoindex);
   $self->_permissions($write,$create);
   return $self;
@@ -281,67 +301,261 @@ sub init {
 
 sub can_store_parentage { 1 }
 
-sub post_init {
-  my $self = shift;
-  my ($autodir) = rearrange([['DIR','AUTOINDEX']],@_);
-  return unless $autodir && -d $autodir;
+sub auto_reindex {
+    my $self    = shift;
+    my $autodir = shift;
+    my $result  = $self->needs_auto_reindexing($autodir);
 
-  my $maxtime   = 0;
-
-  opendir (my $D,$autodir) or $self->throw("Couldn't open directory $autodir for reading: $!");
-  my @reindex;
-  my $fasta_files_present;
-
-  while (defined (my $node = readdir($D))) {
-    next if $node =~ /^\./;
-    my $path      = "$autodir/$node";
-    next unless -f $path;
-
-    # skip fasta files - the Bio::DB::Fasta module indexes them on its own
-    if ($node =~ /\.(?:fa|fasta|dna)(?:\.gz)?$/) {
-      $fasta_files_present++;
-      next;
+    if ($result && %$result) {
+	$self->flag_autoindexing(1);
+	$self->lock('exclusive');
+	$self->reindex_wigfiles($result->{wig},$autodir)  if $result->{wig};
+	$self->reindex_ffffiles($result->{fff},$autodir)  if $result->{fff};
+	$self->reindex_gfffiles($result->{gff},$autodir) if $result->{gff};
+	$self->dna_db(Bio::DB::Fasta::Subdir->new($autodir));
+	$self->unlock;
+	$self->flag_autoindexing(0);
     }
 
-    # skip index files
-    next if $node =~ /\.(?:bdb|idx|index|stamp)/;
+    else {
+	$self->dna_db(Bio::DB::Fasta::Subdir->new($autodir));
+    }
+}
 
-    # skip autosave files, etc
-    next if $node =~ /^\#/;
-    next if $node =~ /~$/;
+sub autoindex_flagfile { 
+    return File::Spec->catfile(shift->directory,'autoindex.pid');
+}
+sub auto_index_in_process {
+    my $self = shift;
+    my $flag_file = $self->autoindex_flagfile;
+    return unless -e $flag_file;
 
-    my $mtime = _mtime(\*_);  # not a typo
-    $maxtime   = $mtime if $mtime > $maxtime;
-    push @reindex,$path;
-  }
+    # if flagfile exists, then check that PID still exists
+    open my $fh,$flag_file or die "Couldn't open $flag_file: $!";
+    my $pid = <$fh>;
+    close $fh;
+    return 1 if kill 0=>$pid;
+    warn "Autoindexing seems to be running in another process, but the process has gone away. Trying to override...";
+    if (unlink $flag_file) {
+	warn "Successfully removed stale PID file." if $self->verbose;
+	warn "Assuming partial reindexing process. Rebuilding indexes from scratch..." if $self->verbose;
+	my $glob = File::Spec->catfile($self->directory,'*');
+	unlink glob($glob);
+	return;
+    } else {
+	croak ("Cannot recover from apparent aborted autoindex process. Please remove files in ",
+	     $self->directory,
+	     " and allow the adaptor to reindex");
+	return 1;
+    }
+}
 
-  close $D;
+sub flag_autoindexing {
+    my $self = shift;
+    my $doit = shift;
+    my $flag_file = $self->autoindex_flagfile;
+    if ($doit) {
+	open my $fh,'>',$flag_file or die "Couldn't open $flag_file: $!";
+	print $fh $$;
+	close $fh;
+    } else {
+	unlink $flag_file;
+    }
+}
 
-  my $timestamp_time  = _mtime($self->_mtime_path) || 0;
+sub reindex_gfffiles {
+    my $self    = shift;
+    my $files   = shift;
+    my $autodir = shift;
 
-  if ($maxtime > $timestamp_time) {
-    warn "Reindexing... this may take a while.\n";
+    warn "Reindexing GFF files...\n" if $self->verbose;
+    $self->_permissions(1,1);
+    $self->_close_databases();
+    $self->_open_databases(1,0);
+    require Bio::DB::SeqFeature::Store::GFF3Loader
+	unless Bio::DB::SeqFeature::Store::GFF3Loader->can('new');
+    my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store    => $self,
+							     -sf_class => $self->seqfeature_class,
+							     -verbose  => $self->verbose,
+	) 
+	or $self->throw("Couldn't create GFF3Loader");
+    my %seen;
+    $loader->load(grep {!$seen{$_}++} @$files);
+    $self->_touch_timestamp;
+}
+
+sub reindex_ffffiles {
+    my $self    = shift;
+    my $files   = shift;
+    my $autodir = shift;
+
+    warn "Reindexing FFF files...\n" if $self->verbose;
     $self->_permissions(1,1);
     $self->_close_databases();
     $self->_open_databases(1,1);
-    require Bio::DB::SeqFeature::Store::GFF3Loader
-      unless Bio::DB::SeqFeature::Store::GFF3Loader->can('new');
-    my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store    => $self,
-							     -sf_class => $self->seqfeature_class) 
-      or $self->throw("Couldn't create GFF3Loader");
-    $loader->load(@reindex);
+    require Bio::DB::SeqFeature::Store::FeatureFileLoader
+	unless Bio::DB::SeqFeature::Store::FeatureFileLoader->can('new');
+    my $loader = Bio::DB::SeqFeature::Store::FeatureFileLoader->new(-store    => $self,
+								    -sf_class => $self->seqfeature_class,
+								    -verbose  => $self->verbose,
+	) 
+	or $self->throw("Couldn't create FeatureFileLoader");
+    my %seen;
+    $loader->load(grep {!$seen{$_}++} @$files);
     $self->_touch_timestamp;
-  }
+}
 
-  if ($fasta_files_present) {
-    my $dna_db = Bio::DB::Fasta->new($autodir);
-    $self->dna_db($dna_db);
-  }
+sub reindex_wigfiles {
+    my $self    = shift;
+    my $files   = shift;
+    my $autodir = shift;
+
+    warn "Reindexing wig files...\n" if $self->verbose;
+
+    unless (Bio::Graphics::Wiggle::Loader->can('new')) {
+	eval "require Bio::Graphics::Wiggle::Loader; 1"
+	    or return;
+    }
+
+    for my $wig (@$files) {
+	warn "Reindexing $wig...\n" if $self->verbose;
+	my ($wib_name) = fileparse($wig,qr/\.[^.]*/);
+	my $gff3_name  = "$wib_name.gff3";
+
+	# unlink all wib files that share the basename
+	my $wib_glob   = File::Spec->catfile($self->directory,"$wib_name*.wib");
+	unlink glob($wib_glob);
+
+	my $loader     = Bio::Graphics::Wiggle::Loader->new($self->directory,$wib_name);
+	my $fh         = IO::File->new($wig) or die "Can't open $wig: $!";
+	$loader->load($fh);  # will create one or more .wib files
+	$fh->close;
+	my $gff3_data  = $loader->featurefile('gff3','microarray_oligo',$wib_name);
+	my $gff3_path  = File::Spec->catfile($autodir,$gff3_name);
+	$fh            = IO::File->new($gff3_path,'>')
+	    or die "Can't open $gff3_path for writing: $!";
+	$fh->print($gff3_data);
+	$fh->close;
+	my $conf_path  = File::Spec->catfile($autodir,"$wib_name.conf");
+	$fh            = IO::File->new($conf_path,'>');
+	$fh->print($loader->conf_stanzas('microarray_oligo',$wib_name));
+	$fh->close;
+    }
+}
+
+# returns the following hashref
+# empty hash if nothing needs reindexing
+# {fasta => 1}                    if DNA database needs reindexing
+# {gff   => [list,of,gff,paths]}  if gff3 files need reindexing
+# {wig   => [list,of,wig,paths]}  if wig files need reindexing
+sub needs_auto_reindexing {
+    my $self    = shift;
+    my $autodir = shift;
+    my $result    = {};
+
+    # don't allow two processes to reindex simultaneously
+	$self->auto_index_in_process and croak "Autoindexing in process. Try again later";
+
+    # first interrogate the GFF3 files, using the timestamp file
+    # as modification comparison
+    my (@gff3,@fff,@wig,$fasta,$fasta_index_time);
+    opendir (my $D,$autodir) 
+	or $self->throw("Couldn't open directory $autodir for reading: $!");
+
+    my $maxtime   = 0;
+    my $timestamp_time  = _mtime($self->_mtime_path) || 0;
+    while (defined (my $node = readdir($D))) {
+	next if $node =~ /^\./;
+	my $path      = File::Spec->catfile($autodir,$node);
+	next unless -f $path;
+
+	if ($path =~ /\.gff\d?$/i) {
+	    my $mtime = _mtime(\*_);  # not a typo
+	    $maxtime   = $mtime if $mtime > $maxtime;
+	    push @gff3,$path;
+#	    push @gff3,$path if $mtime > $timestamp_time;
+	}
+	
+	
+	elsif ($path =~ /\.fff?$/i) {
+	    my $mtime = _mtime(\*_);  # not a typo
+	    $maxtime   = $mtime if $mtime > $maxtime;
+	    push @fff,$path;
+#	    push @fff,$path if $mtime > $timestamp_time;
+	}
+	
+	elsif ($path =~ /\.wig$/i) {
+	    my $wig       = $path;
+	    (my $gff_file = $wig) =~ s/\.wig$/\.gff3/i;
+	    next if -e $gff_file && _mtime($gff_file) > _mtime($path);
+	    push @wig,$wig;
+	    push @gff3,$gff_file;
+	    $maxtime      = time();
+	}
+
+	elsif ($path =~ /\.(fa|fasta|dna)$/i) {
+	    $fasta_index_time = 
+		_mtime(File::Spec->catfile($self->directory,'fasta.index'))||0
+		unless defined $fasta_index_time;
+	    $fasta++ if _mtime($path) > $fasta_index_time;
+	}
+    }
+    closedir $D;
+    
+    $result->{gff}     = \@gff3 if $maxtime > $timestamp_time;
+#    $result->{gff}     = \@gff3 if @gff3;
+    $result->{wig}     = \@wig  if @wig;
+    $result->{fff}     = \@fff  if @fff;
+    $result->{fasta}++ if $fasta;
+    return $result;
+}
+
+sub verbose {
+    my $self = shift;
+    my $d    = $self->{verbose};
+    $self->{verbose} = shift if @_;
+    return $d;
+}
+
+sub lockfile {
+    my $self = shift;
+    return File::Spec->catfile($self->directory,'lock');
+}
+
+sub lock {
+    my $self = shift;
+    my $mode = shift;
+
+    my $flag = $mode eq 'exclusive' ? LOCK_EX : LOCK_SH;
+    my $lockfile = $self->lockfile;
+    my $fh = $self->_flock_fh;
+    unless ($fh) {
+	my $open     = -e $lockfile ? '<' : '>';
+	$fh       = IO::File->new($lockfile,$open) or die "Cannot open $lockfile: $!";
+    }
+    flock($fh,$flag);
+    $self->_flock_fh($fh);
+}
+
+sub unlock {
+    my $self = shift;
+    my $fh = $self->_flock_fh or return;
+    flock($fh,LOCK_UN);
+    undef $self->{flock_fh};
+    unlink $self->lockfile;
+}
+
+sub _flock_fh {
+    my $self = shift;
+    my $d    = $self->{flock_fh};
+    $self->{flock_fh} = shift if @_;
+    $d;
 }
 
 sub _open_databases {
   my $self = shift;
   my ($write,$create,$ignore_errors) = @_;
+  return if $self->db; # already open - don't reopen
 
   my $directory  = $self->directory;
   unless (-d $directory) {  # directory does not exist
@@ -356,6 +570,7 @@ sub _open_databases {
   # Create the main database; this is a DB_HASH implementation
   my %h;
   my $result = tie (%h,'DB_File',$self->_features_path,$flags,0666,$DB_HASH);
+
   unless ($result) {
     return if $ignore_errors;  # autoindex set, so defer this
     $self->throw("Couldn't tie: ".$self->_features_path . " $!");
@@ -386,7 +601,8 @@ sub _open_databases {
   $self->parentage_db(\%p);
 
   if (-e $self->_fasta_path) {
-    my $dna_db = Bio::DB::Fasta->new($self->_fasta_path) or $self->throw("Can't reindex sequence file: $@");
+    my $dna_db = Bio::DB::Fasta::Subdir->new($self->_fasta_path) 
+	or $self->throw("Can't reindex sequence file: $@");
     $self->dna_db($dna_db);
   }
 
@@ -402,9 +618,9 @@ sub commit { # reindex fasta files
   my $self = shift;
   if (my $fh = $self->{fasta_fh}) {
     $fh->close;
-    $self->dna_db(Bio::DB::Fasta->new($self->{fasta_file}));
+    $self->dna_db(Bio::DB::Fasta::Subdir->new($self->{fasta_file}));
   } elsif (-d $self->directory) {
-    $self->dna_db(Bio::DB::Fasta->new($self->directory));
+    $self->dna_db(Bio::DB::Fasta::Subdir->new($self->directory));
   }
 }
 
@@ -459,7 +675,6 @@ sub _store {
 sub _delete_indexes {
   my $self = shift;
   my ($obj,$id) = @_;
-  warn $obj->display_name;
 
   # the additional "1" causes the index to be deleted
   $self->_update_name_index($obj,$id,1);
@@ -572,7 +787,7 @@ sub _update_location_index {
   my $bin_max     = int $end/BINSIZE;
 
   for (my $bin = $bin_min; $bin <= $bin_max; $bin++ ) {
-    my $key = sprintf("%s%06d",lc($seq_id),$bin);
+    my $key = sprintf("%s.%06d",lc($seq_id),$bin);
     $self->update_or_delete($delete,$db,$key,pack("i4",$id,$start,$end,$strand));
   }
 }
@@ -861,8 +1076,8 @@ sub filter_by_location {
   $end   = MAXINT  if !defined $end;
 
   if ($range_type eq 'overlaps' or $range_type eq 'contains') {
-    my $key     = "\L$seq_id\E$binstart";
-    my $keystop = "\L$seq_id\E$binend";
+    my $key     = "\L$seq_id\E.$binstart";
+    my $keystop = "\L$seq_id\E.$binend";
     my $value;
     for (my $status = $db->seq($key,$value,R_CURSOR);
 	 $status == 0 && $key le $keystop;
@@ -883,8 +1098,8 @@ sub filter_by_location {
   # for contained in, we look for features originating and terminating outside the specified range
   # this is incredibly inefficient, but fortunately the query is rare (?)
   elsif ($range_type eq 'contained_in') {
-    my $key     = "\L$seq_id";
-    my $keystop = "\L$seq_id\E$binstart";
+    my $key     = "\L$seq_id.";
+    my $keystop = "\L$seq_id\E.$binstart";
     my $value;
 
     # do the left part of the range
@@ -899,7 +1114,7 @@ sub filter_by_location {
     }
 
     # do the right part of the range
-    $key = "\L$seq_id\E$binend";
+    $key = "\L$seq_id\E.$binend";
     for (my $status = $db->seq($key,$value,R_CURSOR);
 	 $status == 0;
 	 $status = $db->seq($key,$value,R_NEXT)) {
@@ -1107,7 +1322,7 @@ sub finish_bulk_update {
   my $self = shift;
   if (my $fh = $self->{fasta_fh}) {
     $fh->close;
-    $self->{fasta_db} = Bio::DB::Fasta->new($self->{fasta_file});
+    $self->{fasta_db} = Bio::DB::Fasta::Subdir->new($self->{fasta_file});
   }
 }
 
@@ -1187,6 +1402,22 @@ sub next_seq {
   defined $id or return;
   return $store->fetch($id);
 }
+
+package Bio::DB::Fasta::Subdir;
+
+use base 'Bio::DB::Fasta';
+
+# alter calling arguments so that the fasta file is placed in a subdirectory
+# named "indexes"
+
+sub index_name {
+    my $self = shift;
+    my ($path,$isdir) = @_;
+    return $self->SUPER::index_name($path,$isdir)
+	unless $isdir;
+    return File::Spec->catfile($path,'indexes','fasta.index');
+}
+
 
 1;
 

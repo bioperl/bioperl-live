@@ -7,8 +7,8 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 60);
-	
+#/maj    test_begin(-tests => 60);
+    test_begin(-tests => 62);	
     use_ok('Bio::TreeIO');
 }
 
@@ -152,26 +152,45 @@ warn("orig total len ", $total_length_orig, "\n") if $verbose;
 warn("new  total len ", $tree->total_branch_length,"\n") if $verbose;
 # according to retree in phylip these branch lengths actually get larger
 # go figure...
-#ok(($total_length_orig >= $tree->total_branch_length - $eps)
-#   and ($total_length_orig <= $tree->total_branch_length + $eps));
+# this should be fixed now/maj
+ok(($total_length_orig >= $tree->total_branch_length - $eps) &&
+   ($total_length_orig <= $tree->total_branch_length + $eps),'same length');
+
+# prob with below: rerooted tree on node A at line 146; so $a IS root
+#/maj is($tree->get_root_node, $a->ancestor, "Root node is A's ancestor");
+is($tree->get_root_node, $a, "Root node is A");
+
+# former test expected the old behavior of reroot; here is the new
+# test/maj
+my $desc = ($a->each_Descendent)[0];
+my $newroot = $desc->create_node_on_branch(-FRACTION=>0.5, -ANNOT=>{id=>'newroot'});
+$tree->reroot($newroot);
 is($tree->get_root_node, $a->ancestor, "Root node is A's ancestor");
 
 # try to reroot on an internal, will result in there being 1 less node
+# Rerooting should be an invariant operation with respect to node number!/maj
+# the test show that it now is, because the secret removal of nodes 
+# no longer occurs
+
 $a = $tree->find_node('C')->ancestor;
 $out->write_tree($tree) if $verbose;
 is($tree->reroot($a),1, "Can reroot with C's ancsestor");
 $out->write_tree($tree) if $verbose;
-is($node_cnt_orig, scalar($tree->get_nodes), 'Check to see that node count is correct after an internal node was removed after this re-rooting');
+#/maj is($node_cnt_orig, scalar($tree->get_nodes), 'Check to see that node count is correct after an internal node was removed after this re-rooting');
+# but we did add a new node at line 166, so
+is($node_cnt_orig+1, scalar($tree->get_nodes), 'Node count correct');
 warn("orig total len ", $total_length_orig, "\n") if $verbose;
 warn("new  total len ", $tree->total_branch_length,"\n") if $verbose;
 cmp_ok($total_length_orig, '>=', $tree->total_branch_length - $eps, 
        'Total original branch length is what it is supposed to be');
+# branch length should also be invariant w/r to rerooting...
 cmp_ok($total_length_orig, '<=',$tree->total_branch_length + $eps, 
        'Updated total branch length after the reroot');
-is($tree->get_root_node, $a->ancestor, 'Make sure root is really what we asked for');
+# again, we rerooted ON THE NODE, so $a IS the root./maj
+is($tree->get_root_node, $a, 'Make sure root is really what we asked for');
 
-# try to reroot on existing root: should fail
-$a = $tree->get_root_node;
+# try to reroot on new root: should fail
+#/maj  $a = $tree->get_root_node;
 isnt( $tree->reroot($a),1, 'Testing for failed re-rerooting');
 
 # try a more realistic tree
@@ -180,15 +199,16 @@ $a = $tree->find_node('VV');
 $node_cnt_orig = scalar($tree->get_nodes);
 $total_length_orig = $tree->total_branch_length;
 $out->write_tree($tree) if $verbose;
-is($tree->reroot($a->ancestor),1, 'Test that rooting succeeded');
+is($tree->reroot($a),1, 'Test that rooting succeeded'); #mod /maj
 $out->write_tree($tree) if $verbose;
-is($node_cnt_orig+1, scalar($tree->get_nodes), 'Test that re-rooted tree has proper number of nodes after re-rooting');
+# node number should be invariant after reroot/maj
+is($node_cnt_orig, scalar($tree->get_nodes), 'Test that re-rooted tree has proper number of nodes after re-rooting'); #mod /maj
 $total_length_new = $tree->total_branch_length;
 $eps = 0.001 * $total_length_new;    # tolerance for checking length
 cmp_ok($total_length_orig, '>=', $tree->total_branch_length - $eps, 'Branch length before rerooting');
 cmp_ok($total_length_orig, '<=', $tree->total_branch_length + $eps, 
        'Branch length after rerooting');
-is($tree->get_root_node, $a->ancestor->ancestor,'Root is really the ancestor we asked for');
+is($tree->get_root_node, $a,'Root is really the ancestor we asked for'); #mod /maj
 
 # BFS and DFS search testing
 $treeio = Bio::TreeIO->new(-verbose => $verbose,
@@ -224,7 +244,10 @@ $DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
 is($DFSorder, '0,1,2,A,B,C,D,3,E,F', 'DFS traversal after removing G');
 $tree->splice(-remove_id => [('E', 'F')], -keep_id => 'F');
 $DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
-is($DFSorder, '0,1,2,A,B,C,D,F', 'DFS traversal after removing F');
+# the node '3' is not explicitly removed, so it should still be there
+# I suspect that it disappeared before was due to the previously
+# automatic removal of internal degree 2 nodes../maj
+is($DFSorder, '0,1,2,A,B,C,D,3,F', 'DFS traversal after removing E');
 $tree->splice(-keep_id => [qw(0 1 2 A B C D)]);
 $DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
 is($DFSorder, '0,1,2,A,B,C,D', 'DFS after removing all but 0,1,2,A,B,C,D');
@@ -262,6 +285,6 @@ is($test_node->ancestor->ancestor->bootstrap, '25',
 
 __DATA__
 (D,(C,(A,B)));
-(I,((D,(C,(A,B))),(E,(F,G))));
+(I,((D,(C,(A,B)x)y),(E,(F,G))));
 (((A:0.3,B:2.1):0.45,C:0.7),D:4);
 (A:0.031162,((((((B:0.022910,C:0.002796):0.010713,(D:0.015277,E:0.020484):0.005336):0.005588,((F:0.013293,(G:0.018374,H:0.003108):0.005318):0.006047,I:0.014607):0.001677):0.004196,(((((J:0.003307,K:0.001523):0.011884,L:0.006960):0.006514,((M:0.001683,N:0.000100):0.002226,O:0.007085):0.014649):0.008004,P:0.037422):0.005201,(Q:0.000805,R:0.000100):0.015280):0.005736):0.004612,S:0.042283):0.017979,(T:0.006883,U:0.016655):0.040226):0.014239,((((((V:0.000726,W:0.000100):0.028490,((((X:0.011182,Y:0.001407):0.005293,Z:0.011175):0.004701,AA:0.007825):0.016256,BB:0.029618):0.008146):0.004279,CC:0.035012):0.060215,((((((DD:0.014933,(EE:0.008148,FF:0.000100):0.015458):0.003891,GG:0.010996):0.001489,(HH:0.000100,II:0.000100):0.054265):0.003253,JJ:0.019722):0.013796,((KK:0.001960,LL:0.004924):0.013034,MM:0.010071):0.043273):0.011912,(NN:0.031543,OO:0.018307):0.059182):0.026517):0.011087,((PP:0.000100,QQ:0.002916):0.067214,(RR:0.064486,SS:0.013444):0.011613):0.050846):0.015644,((TT:0.000100,UU:0.009287):0.072710,(VV:0.009242,WW:0.009690):0.035346):0.042993):0.060365);

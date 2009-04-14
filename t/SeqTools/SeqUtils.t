@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 41);
+    test_begin(-tests => 43);
 	
 	use_ok('Bio::PrimarySeq');
 	use_ok('Bio::SeqUtils');
@@ -185,6 +185,7 @@ my $ft2 = Bio::SeqFeature::Generic->new( -start => 1,
                                       -end => 4,
                                       -strand => 1,
                                       -primary => 'source',
+                                      -tag     => {note => 'note2'},
 				       );
 
 
@@ -192,6 +193,7 @@ my $ft3 = Bio::SeqFeature::Generic->new( -start => 3,
                                       -end => 3,
                                       -strand => 1,
                                       -primary => 'hotspot',
+                                      -tag     => {note => ['note3a','note3b']},
 				       );
 
 $seq2->add_SeqFeature($ft2);
@@ -201,14 +203,18 @@ $seq2->add_SeqFeature($ft3);
 ok (Bio::SeqUtils->cat($seq1, $seq2));
 is $seq1->seq, 'aaaattttcccctttt';
 is scalar $seq1->annotation->get_Annotations, 5;
+my @tags;
+lives_ok {
+  @tags = map{$_->get_tag_values(q(note))}$seq1->get_SeqFeatures ;
+} 'tags transfered (no throw)';
+cmp_ok(scalar(@tags),'==',3, 'tags transfered (correct count)') ;
 
 
 my $protseq = Bio::PrimarySeq->new(-id => 2, -seq => 'MVTF'); # protein seq
 
-eval {
+throws_ok {
     Bio::SeqUtils->cat($seq1, $protseq);
-};
-ok $@;
+} qr/different alphabets:/, 'different alphabets' ;
 
 
 #
