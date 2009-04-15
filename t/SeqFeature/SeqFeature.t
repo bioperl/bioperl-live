@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 214);
+    test_begin(-tests => 222);
 	
 	use_ok('Bio::Seq');
 	use_ok('Bio::SeqIO');
@@ -363,3 +363,17 @@ for my $phase (-1..3) {
     is ($sfseq->translate->subseq(1,10), $phase_check{$sfseq->subseq(1,10)}, 'phase check');
 }
 
+# tags
+$sf->add_tag_value('note','n1');
+$sf->add_tag_value('note','n2');
+$sf->add_tag_value('comment','c1');
+is_deeply( [sort $sf->get_all_tags()], [sort qw(note comment)] , 'tags found');
+is_deeply( [sort $sf->get_tagset_values('note')], [sort qw(n1 n2)] , 'get_tagset_values tag values found');
+is_deeply( [sort $sf->get_tagset_values(qw(note comment))], [sort qw(c1 n1 n2)] , 'get_tagset_values tag values for multiple tags found');
+lives_ok { 
+  is_deeply( [sort $sf->get_tag_values('note')], [sort qw(n1 n2)] , 'get_tag_values tag values found');
+} 'get_tag_values lives with tag';
+lives_ok { 
+  is_deeply( [$sf->get_tagset_values('notag') ], [], 'get_tagset_values no tag values found');
+} 'get_tagset_values lives with no tag';
+throws_ok { $sf->get_tag_values('notag') } qr/tag value that does not exist/, 'get_tag_values throws with no tag';
