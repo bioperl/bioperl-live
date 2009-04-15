@@ -1177,24 +1177,23 @@ sub slice {
  Args      : Array ref of types ('match'|'weak'|'strong'|'mismatch'|'gaps'|
              'all_gaps_columns') or array ref where the referenced array
              contains a pair of integers that specify a range.
-             The first column is 0,
-
+             The first column is 0
 =cut
 
 sub remove_columns {
-	my ($self,@args) = @_;
-	@args || return $self;
-   my $aln;
+    my ($self,@args) = @_;
+    @args || $self->throw("Must supply column ranges or column types");
+    my $aln;
 
-	if ($args[0][0] =~ /^[a-z_]+$/i) {
-		 $aln = $self->_remove_columns_by_type($args[0]);
-	} elsif ($args[0][0] =~ /^\d+$/) {
-       $aln = $self->_remove_columns_by_num(\@args);
-	} else {
-		 $self->throw("You must pass array references to remove_columns(), not @args");
-	}
+    if ($args[0][0] =~ /^[a-z_]+$/i) {
+        $aln = $self->_remove_columns_by_type($args[0]);
+    } elsif ($args[0][0] =~ /^\d+$/) {
+        $aln = $self->_remove_columns_by_num(\@args);
+    } else {
+        $self->throw("You must pass array references to remove_columns(), not @args");
+    }
     # fix for meta, sf, ann
-   $aln;
+    $aln;
 }
 
 
