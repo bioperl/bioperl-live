@@ -107,7 +107,7 @@ sub new {
     ($self->{'_evalue'},
      $self->{'_cigar'},
      $self->{'_prefix'},
-     $self->{'signif'} ) = $self->_rearrange([qw(E_VALUE OUTPUT_CIGAR PREFIX
+     $self->{'_signif'} ) = $self->_rearrange([qw(E_VALUE OUTPUT_CIGAR PREFIX
 						 OUTPUT_SIGNIF)], @args);
     $self->{'_evalue'} && warn( "Use of the -e_value argument is deprecated.\nIn future, use \$writer->filter(\"type\", \&code) instead.\n\tparsing will proceed correctly with this e_value\n");
     $self->{Gbrowse_HSPID} = 0;
