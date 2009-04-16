@@ -874,7 +874,7 @@ sub _genbank_dbsource {
     my $annotation = $self->annotation_collection;
     # deal with swissprot dbsources
     # we could possibly parcel these out to subhandlers...
-    if( $dbsource =~ s/(UniProtKB|swissprot):\s+locus\s+(\S+)\,.+\n// ) {
+    if( $dbsource =~ s/(UniProt(?:KB)|swissprot):\s+locus\s+(\S+)\,.+\n// ) {
         $annotation->add_Annotation
             ('dblink',
              Bio::Annotation::DBLink->new
