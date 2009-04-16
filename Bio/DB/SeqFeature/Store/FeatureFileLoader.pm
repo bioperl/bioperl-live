@@ -639,6 +639,7 @@ sub _make_feature {
 		-strand      => $strand eq '+' ?  1 
                                :$strand eq '-' ? -1
 		               :$strand eq ''  ?  0
+                               :$strand eq '.' ?  0
 		               :$strand == 1   ?  1
 		               :$strand == -1  ? -1
                                :0,
