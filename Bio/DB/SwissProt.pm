@@ -110,19 +110,19 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::SwissProt;
 use strict;
-use vars qw($MODVERSION %HOSTS $DEFAULTFORMAT $DEFAULTSERVERTYPE);
 
-$MODVERSION = '0.8.1';
 use HTTP::Request::Common;
+our $MODVERSION = '0.8.1';
 
 use base qw(Bio::DB::WebDBSeqI);
 
 # global vars
-$DEFAULTSERVERTYPE = 'ebi';
-$DEFAULTFORMAT = 'swissprot';
+our $DEFAULTSERVERTYPE = 'ebi';
+our $DEFAULTFORMAT = 'swissprot';
+our $DEFAULTIDTRACKER = 'http://www.expasy.ch';
 
 # you can add your own here theoretically.
-%HOSTS = ( 
+our %HOSTS = ( 
 	   'expasy' => { 
 	       'default' => 'us',
 	       'baseurl' => 'http://%s/cgi-bin/sprot-retrieve-list.pl',
@@ -454,6 +454,40 @@ sub request_format {
 	}
     }
     return @{$self->{'_format'}};
+}
+
+=head2 idtracker
+
+ Title   : idtracker
+ Usage   : my ($newid) = $self->idtracker($oldid);
+ Function: Retrieve new ID using old ID. 
+ Returns : single ID if one is found
+ Args    : ID to look for 
+
+=cut
+
+sub idtracker {
+    my ($self, $id) = @_;
+    return unless defined $id;
+    my $st = $self->servertype;
+    my $base = ($st eq 'expasy') ? "http://".$HOSTS{$st}->{'hosts'}->{$self->hostlocation}
+        : $DEFAULTIDTRACKER;
+    my $url = $base.'/cgi-bin/idtracker?id='.$id;
+    my $response;
+    eval {$response = $self->ua->get($url)};
+    if ($@ || $response->is_error) {
+        my $error = $@ || $response->error_as_HTML;
+        $self->throw("Error:\n".$error);
+    }
+    if ($response->content =~ /was renamed to <b>(.*?)<\/b>/) {
+        return $1;
+    } elsif ($response->content =~ /<tr><th>Entry name<\/th><th>Accession number<\/th><th>Release created<\/th><\/tr>/){
+        # output indicates no mapping needed, return original ID
+        return $id;
+    } else {
+        $self->warn("Unknown response:\n".$response->content);
+        return
+    }
 }
 
 1;
