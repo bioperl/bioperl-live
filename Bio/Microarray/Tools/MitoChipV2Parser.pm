@@ -314,17 +314,17 @@ sub count_different_variants() {
           $subc+=$diff_var_hash{$pos}{$type}{$var};
         
         }
-        else {$self->warn("doesnt exist!\n");}
+        else {print "doesnt exist!\n";}
         #print " $var: $count_var ($count_tot_pos)";
       }
     }
     #print("$pos sub $subc del $delc ins $insc\n");
-    #print("$pos sub $count_var_sub del $count_var_del ins $count_var_ins\n");
+    print("$pos sub $count_var_sub del $count_var_del ins $count_var_ins\n");
   }
-  #print "\n\nPos: $count_pos/Different Types: $count_type/Different Variants: $count_var/Total No. of Variants: $count_tot\n\n";
-  #print "ins: $count_var_ins $count_var_ins_tot\n";
-  #print "del: $count_var_del $count_var_del_tot\n";
-  #print "sub: $count_var_sub $count_var_sub_tot\n";
+  print "\n\nPos: $count_pos/Different Types: $count_type/Different Variants: $count_var/Total No. of Variants: $count_tot\n\n";
+  print "ins: $count_var_ins $count_var_ins_tot\n";
+  print "del: $count_var_del $count_var_del_tot\n";
+  print "sub: $count_var_sub $count_var_sub_tot\n";
 }
 
 =head2 _calc_oligo_region_hash()
