@@ -906,7 +906,7 @@ sub calc_sequence() {
     if ($stop) {
       last;
     }
-	#at least one nonref base is available
+    #at least one nonref base is available
     if ($not_only_ref) {
       $output_rawrow.=$output_rawrow_tmp;
       ($final_seq, $output_rawrow)=$self->_get_consensus_call($ref_base, \@base_array, $count, $final_seq, $options_hash, $filename_rawrow, $output_rawrow, $i);
@@ -1012,7 +1012,6 @@ sub _get_consensus_call() {
           ###insertions
           if ($options_hash->{insertions}==1) {
              if ($vote ne "-" and $ref_base eq "-" and $options_hash->{depth_ins}<=$alignment_depth ) {
-               #print "insertion: @$base_array $ref_base => $vote\n";
                $newbase=$vote;
             }
           }
@@ -1025,7 +1024,6 @@ sub _get_consensus_call() {
           if ($filename_rawrow) {
             $output_rawrow.= "\t$ref_base vs $vote => $newbase";
           }
-        #} elsif ($vote eq "n") {
         } else {
           if ($options_hash->{call_n}) {
             $newbase=$vote;
@@ -1043,16 +1041,14 @@ sub _get_consensus_call() {
               $final_seq=substr($final_seq,0,0-$swap).$newbase.substr($final_seq,0-$swap);
           }
           else {
-              #print($newbase." $i \n");
               $final_seq.=$newbase;
           }
         } else {
-          #print 
-        	if ($options_hash->{call_n}) {
-	          $final_seq.="n";
-        	} else {
-        		$final_seq.=$ref_base;
-        	}
+          if ($options_hash->{call_n}) {
+            $final_seq.="n";
+          } else {
+            $final_seq.=$ref_base;
+          }
         }
       }
       else {
