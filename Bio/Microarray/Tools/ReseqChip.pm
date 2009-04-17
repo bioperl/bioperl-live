@@ -17,9 +17,16 @@ Bio::Microarray::Tools::ReseqChip - Class for analysing additional probe oligonu
 =head1 SYNOPSIS
 
  use Bio::Microarray::Tools::ReseqChip;
-
-
+ 
+ # fasta file with reference sequence context useed for the Chip (MitoChip in that case)
+ my $refseq_chip=...;
+ #... and design file that describes the addional probes, grouped by consecutive probes covering 20-100 consecutive positions referred to the reference sequence
+ my $Affy_frags_design_filename=...;
+ #format of the design file
+ $format="xls";
+ # positions that are missing with respect to the reference sequence (rCRS - cambridge reference sequence) are going to be marked, so numbering with respect to the rCRS is conform
  my %ref_seq_max_ins_hash=(3106 => 1);
+ 
  my $reseqfragSample=Bio::Tools::ReseqChip->new(
     $Affy_frags_design_filename,
     $format,
@@ -94,7 +101,12 @@ were x is the most frequently called base, then x is included in the final seque
 Assumption:
 Gaps which are inserted in several fragments and in the reference sequence itself refer to the reference sequence.
 The reference sequence is given as input parameter.
-Optionshash, specifying the explained parameter and some further options is provided by the user.
+Optionshash, specifying the explained parameter and some further options is provided by the user:
+we recommend to only specify the following hash-values that correnspod to the hash-keys resp. parameters:
+  flank_right (K-neighbourhood up and downstream of the genotype position in question)
+  call_threshold (minU)
+  depth (minP)
+  allowed_n_flank (maxN in K-neighbourhood)
 
 
 This module depends on the following modules:
@@ -111,7 +123,7 @@ use Spreadsheet::WriteExcel;
 
 =head1 AUTHORS
         
-Marian Thieme (marian.thieme@arcor.de)
+Marian Thieme (marian.thieme@gmail.com)
 
 =head1 COPYRIGHT
         
@@ -779,15 +791,10 @@ sub _swap_insertion() {
 
   my ($self, $pos, $sequence) = @_;
   my $swap=0;
-  #print "\ninside swap_insertion ($pos)\n";
-  #print "offset: ".$self->_get_start_pos($pos-$self->{_oligo_flank_length}, '_frags_max_ins_hash', 1)."\n";
   my $pos1=$pos;
   my $offset=$self->_get_start_pos($pos-$self->{_oligo_flank_length});
   $pos+=$self->{_oligo_flank_length}-$offset;
   foreach my $key (sort{$a<=>$b} keys %{$self->{_max_ins_hash}}) {
-    #print "\tstart_gap: ".($key)."\tend_gap: ";
-    #print ($key+$self->{_max_ins_hash}{$key}-1);
-    #print " vs ".($pos)."\n";
     if ($key+$self->{_max_ins_hash}{$key}-1>=$pos and $key+2<=$pos) {
       my $isgap=1;
       my $i=1;
@@ -800,7 +807,6 @@ sub _swap_insertion() {
           $isgap=0;
         }
       }
-      #print "swap: (#positions): $swap\n";
       last;
     }
   }
@@ -811,7 +817,7 @@ sub _swap_insertion() {
 
  Title     : calc_sequence()
  Usage     : $myReseqFrags->calc_sequence($aln, $options_hash [, $filename]);
- Function  : iterates over each position of the sequence (first element in the alignment) and change calls if sufficient evidence can be obtained by the alignment of redundant fragments
+ Function  : iterates over each position of the sequence (first element in the alignment) and changes calls if sufficient evidence can be obtained by the alignment of redundant fragments
  Returns   : sequence (string)
  Args      : $als : locatable sequence object (redundand fragment)
              $options_hash : hash of options for redundant fragments analysis
@@ -821,11 +827,8 @@ sub _swap_insertion() {
 
 sub calc_sequence() {
 
-  my ($self, $aln, $seq_ins_hash_ref, $options_hash, $filename_rawrow) = @_;
-#  $filename_rawrow="test_reference_output.txt";
-#  print("1. $aln (ReseqChip)\n");
-#  print("============calc_sequence===========\n");
-  #$aln_ins=0;
+  my ($self, $aln, $options_hash, $filename_rawrow) = @_;
+
   my $final_seq="";
   my $start_c=1;
   my $stop_c=0;
@@ -865,14 +868,11 @@ sub calc_sequence() {
     my $count=0;
     my $output_rawrow_tmp="";
     my $not_only_ref=0;
-    my $seq_ins;
-    
-#   if ($i % 3 == 0) {
-
+    my $alt_seq;
         
     foreach my $seq ($aln->each_seq) {
-      if ($seq_ins_hash_ref) {
-        $seq_ins=$seq_ins_hash_ref->{$seq->id()};
+      if ($options_hash->{alternative_sequence_hash}) {
+        $alt_seq=$options_hash->{alternative_sequence_hash}{$seq->id()};
       }
       my $offset=$self->_get_start_pos($seq->start());
       if ($seq_no==1) {
@@ -882,48 +882,29 @@ sub calc_sequence() {
         }
         if ($i>$stop_c and $stop_c>0) {
           $stop=1;
-          #print("cut: $i bis zum ende");
-          if ($options_hash->{QT_no}) {
-            #print("QT_no: ".$options_hash->{QT_no}."\n");
-            if ($options_hash->{QT_no} eq "ins" and $seq_ins_hash_ref) {
-              $final_seq.=$seq_ins->subseq($i,$seq->length());
-              #print(" mit ins (QT3)");
-            } else {
-              $final_seq.=$seq->subseq($i,$seq->length());
-            }
+          if ($options_hash->{alternative_sequence_hash}) {
+            $final_seq.=$alt_seq->subseq($i,$seq->length());
           } else {
             $final_seq.=$seq->subseq($i,$seq->length());
-            #print(" mit sub (QT12)");
           }
-          #print("\n");
-          #print("$i <".$seq->start()." + $offset\n");
           last;
         }
-        #print "$i: $ref_base\n";
         if ($i_neu != $i) {
-          #$i_neu=$i_neu;
-          #print("cut: $i bis ".($i_neu-1)."");
-          if ($options_hash->{QT_no}) {
-            if ($options_hash->{QT_no} eq "ins" and $seq_ins_hash_ref) {
-              $final_seq.=$seq_ins->subseq($i,$i_neu-1);
-              #print(" mit ins (QT3)");
-            } else {
-              $final_seq.=$seq->subseq($i,$i_neu-1);
-            }
+          if ($options_hash->{alternative_sequence_hash}) {
+            $final_seq.=$alt_seq->subseq($i,$i_neu-1);
           } else {
             $final_seq.=$seq->subseq($i,$i_neu-1);
-            #print(" mit sub (QT12)");
           }
-          #print("\n");
         }
         $i=$i_neu;
       }
       
       ##add base to basearray if it fullfill the criteria
-      ##differ between insertions
-      if ($ref_base eq "-" and $seq_ins_hash_ref) {
-        ($not_only_ref, $count, $output_rawrow_tmp)=$self->_augment_base_array($seq_ins, $ref_base, \@base_array, $not_only_ref, $count, $i, $offset, $seq_no, $options_hash, $filename_rawrow, $output_rawrow_tmp);
-      ##and non insertions (sub/del)
+      ##differ between alternative and
+      #if ($ref_base eq "-" and $options_hash->{alternative_sequence_hash}) {
+      if ($options_hash->{alternative_sequence_hash}) {
+        ($not_only_ref, $count, $output_rawrow_tmp)=$self->_augment_base_array($alt_seq, $ref_base, \@base_array, $not_only_ref, $count, $i, $offset, $seq_no, $options_hash, $filename_rawrow, $output_rawrow_tmp);
+      ##and "normal" sequence
       } else {
         ($not_only_ref, $count, $output_rawrow_tmp)=$self->_augment_base_array($seq, $ref_base, \@base_array, $not_only_ref, $count, $i, $offset, $seq_no, $options_hash, $filename_rawrow, $output_rawrow_tmp);
       }
@@ -933,7 +914,7 @@ sub calc_sequence() {
         $aln->remove_seq($seq);
         #$aln->sort_alphabetically;
       }
-      #finish iteration, if startpos of current sequence is outside of current position
+      #finish iteration, if startpos of current fragment/sequence is outside of current position in the alignment
       if ($i<$seq->start()+$offset) {
         last;
       }
@@ -946,58 +927,51 @@ sub calc_sequence() {
     }
 	#at least one nonref base is available
     if ($not_only_ref) {
-      #if ($ref_base eq "n" or ($i>4767 and $i<4780)) {
-      #  my $offset=$self->_get_start_pos($i);
-      #  print("$i (+$offset), get consensus call:.".$ref_base." @base_array\n");
-      #}
-      #print($output_rawrow_tmp);
-
       $output_rawrow.=$output_rawrow_tmp;
-      ($final_seq, $output_rawrow)=$self->_get_consensus_call($ref_base, \@base_array, $count, $final_seq, $options_hash, $filename_rawrow, $output_rawrow);
-#      print(substr($final_seq, $i-1)." (ref: $ref_base)\n");
+      ($final_seq, $output_rawrow)=$self->_get_consensus_call($ref_base, \@base_array, $count, $final_seq, $options_hash, $filename_rawrow, $output_rawrow, $i);
     } else {
-    	#if ($options_hash->{call_n}) {
-	    #	if (@base_array>0) {
-	    #		$final_seq.="n";
-	    #	}
-    	#} else {
 	      $final_seq.=$ref_base;
-    	#}
     }
 
-#   }
     $i++;
-    #print("$i\n");
   }
   if ($filename_rawrow) {
     open (my $RAWROW, ">>$filename_rawrow") or die "Cannot open file\n $!\n";
     print $RAWROW $output_rawrow;
     close($RAWROW);
   }
-#  open (RAWROW, ">test_reference_seq.txt");
-#  print RAWROW $final_seq;
-#  close(RAWROW);  
+
   return $final_seq; 
 }
 
+
+
+=head2 _augment_base_array()
+
+ Title     : _augment_base_array()
+ Usage     : dont call directly
+ Function  : pushs base into the array of candidate bases, if the base meets criteria (options_hash->{allowed_n_in_flank}, options_hash->{flank_left/right})
+ Returns   : 3 values:
+             $not_only_ref 0/1: whether the array of candidate bases contains only reference base
+             $count integer: number of candidate base currently in the array
+             $output_rawrow_tmp string: log message, currently not used.
+ Args      : lot of args, see the function itself
+             
+=cut
 
 sub _augment_base_array() {
 
       my ($self, $seq, $ref_base, $base_array, $not_only_ref, $count, $i, $offset, $seq_no, $options_hash, $filename_rawrow, $output_rawrow_tmp) = @_;
       if ($seq->start() < $i-$offset and ($seq->end()+$offset+$self->{_oligo_flank_length}) > $i) {
-      #if ($seq->start() < $i-$offset and $seq->end()+$offset+2+$self->{_oligo_flank_length} > $i) {
-          #print "$i id: ".$seq->id()." ";#.$seq->seq()."\n";
         my $cleared_pos=$i-($seq->start()+$offset);
         if ($cleared_pos<=$seq->length()) {
             my $base=$seq->subseq($cleared_pos, $cleared_pos);
 
             if ($base ne 'n') {
-              #print $seq->subseq($cleared_pos,$cleared_pos);
               if ($filename_rawrow) {
                 $output_rawrow_tmp.= $base;
                 $count++;
               }              
-              #print $base;#."\n";
               
               my $help_var=$seq->id();
               if ($options_hash->{consider_context}==1) {
@@ -1021,16 +995,28 @@ sub _augment_base_array() {
 
 }
 
+
+=head2 _get_consensus_call()
+
+ Title     : _get_consensus_call()
+ Usage     : dont call directly
+ Function  : based on the array of candidate base a consensus base is determined, possibly the n-call letter n is introduced
+ Returns   : 2 values:
+             $final_seq string: sequence processed so far
+             $output_rawrow_tmp string: log message.
+ Args      : lot of args, see the function itself
+             
+=cut
+
 sub _get_consensus_call() {
 
-      my ($self, $ref_base, $base_array, $count, $final_seq, $options_hash, $filename_rawrow, $output_rawrow) = @_;
+      my ($self, $ref_base, $base_array, $count, $final_seq, $options_hash, $filename_rawrow, $output_rawrow, $pos) = @_;
     
       my $alignment_depth=@$base_array;
       my $newbase="";
-      my $vote=$self->_calc_stats($base_array, $options_hash, $ref_base);
-      
+      my $vote=$self->_calc_stats($base_array, $options_hash, $ref_base, $pos);
       my $arstr=join("", @$base_array);
-	  if ($ref_base ne $vote) {
+      if ($ref_base ne $vote) {
         my $swap=0;
         if ($filename_rawrow) {
           $output_rawrow.= " ($count) -> $arstr ($alignment_depth)";
@@ -1045,6 +1031,7 @@ sub _get_consensus_call() {
           ###insertions
           if ($options_hash->{insertions}==1) {
              if ($vote ne "-" and $ref_base eq "-" and $options_hash->{depth_ins}<=$alignment_depth ) {
+               #print "insertion: @$base_array $ref_base => $vote\n";
                $newbase=$vote;
             }
           }
@@ -1057,12 +1044,17 @@ sub _get_consensus_call() {
           if ($filename_rawrow) {
             $output_rawrow.= "\t$ref_base vs $vote => $newbase";
           }
-        } elsif ($vote ne "n") {
-        	if ($options_hash->{call_n}) {
-        		$newbase=$vote;
-        	} else {
-        		$newbase=$ref_base;
-        	}
+        #} elsif ($vote eq "n") {
+        } else {
+          if ($options_hash->{call_n}) {
+            $newbase=$vote;
+          } else {
+            $newbase=$ref_base;
+          }
+          if ($filename_rawrow) {
+            $output_rawrow.= "\t$ref_base vs $vote => $newbase (no consensus call)";
+          }
+
         }
         
         if ($newbase ne "") {
@@ -1074,6 +1066,7 @@ sub _get_consensus_call() {
               $final_seq.=$newbase;
           }
         } else {
+          #print 
         	if ($options_hash->{call_n}) {
 	          $final_seq.="n";
         	} else {
@@ -1083,6 +1076,9 @@ sub _get_consensus_call() {
       }
       else {
         $final_seq.=$ref_base;
+        if ($filename_rawrow) {
+          $output_rawrow.= "\tnothing to do (vote == ref)";
+        }
       }
       return($final_seq, $output_rawrow);
 }
@@ -1101,7 +1097,7 @@ sub _get_consensus_call() {
 
 sub _calc_stats() {
 
-  my ($self, $array_ref, $options_hash, $ref_base) = @_;
+  my ($self, $array_ref, $options_hash, $ref_base, $pos) = @_;
   my @stats_array=@$array_ref;
 
   my $f1 = Statistics::Frequency->new;
@@ -1114,15 +1110,11 @@ sub _calc_stats() {
   } else {
     $threshold=$options_hash->{call_threshold};
   }
-  #insertion
   my %freq = $f1->frequencies;
   my $max=0;
   my $mbase;
-  #if (!($f1->frequencies_max and $f1->frequencies_sum and $threshold)) {
-  #  print "1 ".$f1->frequencies_max."\n";
-  #  print "2 ".$f1->frequencies_sum."\n";
-  #  print "3 ".$threshold."\n";
-  #}
+
+  ##get most frequent base
   if ($f1->frequencies_sum>0) {
     for my $base (keys %freq) {
       if ($max<$freq{$base}) {
@@ -1130,13 +1122,9 @@ sub _calc_stats() {
         $mbase=$base;
       }
     }
-    if ($mbase eq "-") {
+    if ($mbase eq "-" and $ref_base ne "-") {
       $threshold=$options_hash->{del_threshold};
-      #print "DELETION, na fein...\n";
     }
-    #print " rel:".$f1->frequencies_max/$f1->frequencies_sum;
-    #print "max: ".$f1->frequencies_max." ";
-    #print "sum: ".$f1->frequencies_sum." ($threshold) \n";
     if ($f1->frequencies_max/$f1->frequencies_sum >= ($threshold/100)) {
       $res=$mbase;
     } elsif ($options_hash->{call_n}) {
@@ -1198,7 +1186,8 @@ sub write_alignment2xls() {
   #my ($self, $aln, $workbook, $ind_id, $startcol, $refid) = @_;
   my ($self, $aln, $workbook, $ind_id, $refid, $startcol) = @_;
   #print "Refid: $refid\n";
-  my $sheetname=$ind_id=~s/human_mtDNA_RCRS://g;
+  #my $sheetname=$ind_id=~s/human_mtDNA_RCRS://g;
+  my $sheetname=$ind_id=~s/$refid://g;
   my $worksheet = $workbook->add_worksheet($ind_id);
   
   my $j=0;
