@@ -23,7 +23,7 @@ Bio::Microarray::Tools::ReseqChip - Class for analysing additional probe oligonu
  #... and design file that describes the addional probes, grouped by consecutive probes covering 20-100 consecutive positions referred to the reference sequence
  my $Affy_frags_design_filename=...;
  #format of the design file
- $format="xls";
+ $format='affy_mitochip_v2';
  # positions that are missing with respect to the reference sequence (rCRS - cambridge reference sequence) are going to be marked, so numbering with respect to the rCRS is conform
  my %ref_seq_max_ins_hash=(3106 => 1);
  
@@ -626,13 +626,7 @@ sub _check_oligo_positions() {
         return $startpos;
       }
     }
-    #if ($startpos < $i and $endpos > $i) {
-    #  $test=1;
-    #  last;
-    #}
-#      } else if ($i$self->{_oligos2calc_hash}{$startpos}) {
-#      
-#      }
+
     $startpos_old=$startpos;
     $endpos_old=$endpos;
     if ($i>$endpos_old) {
@@ -640,10 +634,8 @@ sub _check_oligo_positions() {
     }
   }
   if ($lastone==0) {
-    #print("return lastone=0\n");
     return 0;
   }
-  #print("return i: $i\n");
   return $i;
 }
 
@@ -882,29 +874,20 @@ sub calc_sequence() {
         }
         if ($i>$stop_c and $stop_c>0) {
           $stop=1;
-          if ($options_hash->{alternative_sequence_hash}) {
-            $final_seq.=$alt_seq->subseq($i,$seq->length());
-          } else {
-            $final_seq.=$seq->subseq($i,$seq->length());
-          }
+          $final_seq.=$seq->subseq($i,$seq->length());
           last;
         }
         if ($i_neu != $i) {
-          if ($options_hash->{alternative_sequence_hash}) {
-            $final_seq.=$alt_seq->subseq($i,$i_neu-1);
-          } else {
-            $final_seq.=$seq->subseq($i,$i_neu-1);
-          }
+          $final_seq.=$seq->subseq($i,$i_neu-1);
         }
         $i=$i_neu;
       }
       
       ##add base to basearray if it fullfill the criteria
-      ##differ between alternative and
-      #if ($ref_base eq "-" and $options_hash->{alternative_sequence_hash}) {
-      if ($options_hash->{alternative_sequence_hash}) {
+      ##differ between alternative base calls (in case of an insertion)
+      if ($ref_base eq "-" and $options_hash->{alternative_sequence_hash}) {
         ($not_only_ref, $count, $output_rawrow_tmp)=$self->_augment_base_array($alt_seq, $ref_base, \@base_array, $not_only_ref, $count, $i, $offset, $seq_no, $options_hash, $filename_rawrow, $output_rawrow_tmp);
-      ##and "normal" sequence
+      ##and "normal" base calls for the alternative probes
       } else {
         ($not_only_ref, $count, $output_rawrow_tmp)=$self->_augment_base_array($seq, $ref_base, \@base_array, $not_only_ref, $count, $i, $offset, $seq_no, $options_hash, $filename_rawrow, $output_rawrow_tmp);
       }
@@ -912,14 +895,12 @@ sub calc_sequence() {
       #remove no more needed sequences
       if (($i) >= ($seq->end()+$offset+2+$self->{_oligo_flank_length})) {
         $aln->remove_seq($seq);
-        #$aln->sort_alphabetically;
       }
       #finish iteration, if startpos of current fragment/sequence is outside of current position in the alignment
       if ($i<$seq->start()+$offset) {
         last;
       }
       $seq_no++;
-      #print "\n";
     }
     
     if ($stop) {
