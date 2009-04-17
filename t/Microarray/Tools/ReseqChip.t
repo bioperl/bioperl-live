@@ -31,14 +31,11 @@ sub read_params($$$$$) {
   while (<PARAMSFILE>) {
     if (/$ploidy/) {
       if (/$mut_type/) {
-
         $test=1;
         @params = split(' ', $_);
         @p_array=split('_', $params[0]);
         $cur_ncall=$params[1];
-#        print("Jo da wernma hier: ".$_." Crit: $ncall_threshold, $old_ncall, $cur_ncall\n");
-        if ($ncall_threshold<$cur_ncall and $ncall_threshold>=$old_ncall) {
-
+        if (($ncall_threshold<$cur_ncall and $ncall_threshold>=$old_ncall)) {
           last;
         }
         $old_ncall=$cur_ncall;
@@ -46,6 +43,7 @@ sub read_params($$$$$) {
     }
   }
   close(ROCFILE);
+  #print("the ncalllevel: $cur_ncall\n");
   ok($test, 'read_params');
 
   if ($mut_type eq 'Subdel') {
@@ -131,10 +129,16 @@ my %options_hash=(
 
 
 ##data specific options have to set by parsing parameter file
+
 ##subdel
-read_params($Parameter_file, \%options_hash, 4.5, 'Hap', 'Subdel');
+my $subdel_ncalls=4.5;  #specify value between 0 and 16.9 for Hap
+                        # and 0 and 55.6 for Dip model, respectively
+read_params($Parameter_file, \%options_hash, $subdel_ncalls, 'Hap', 'Subdel');
+
 ##insertions
-read_params($Parameter_file, \%options_hash, 5.4, 'Hap', 'Ins');
+my $ins_ncalls=5.4; #specify value between 0 and 20.9
+                    # and 0.1 and 54.9
+read_params($Parameter_file, \%options_hash, $ins_ncalls, 'Hap', 'Ins');
 #for my $pos (sort{$a<=>$b}keys %options_hash) {
 #  print "$pos :".$options_hash{$pos}."\n";
 #}
@@ -161,9 +165,6 @@ while ( (my $seq = $in->next_seq())) {
     ##alternative basecalls
     $locseq_alt=$myReseqChip->insert_gaps2frag($seq_alt);
     $options_hash{alternative_sequence_hash}->{$locseq_alt->id}=$locseq_alt;
-    #my $start=$options_hash{alternative_sequence_hash}->{$locseq_alt->id}->start;
-    #my $end=$options_hash{alternative_sequence_hash}->{$locseq_alt->id}->end;
-    #print($options_hash{alternative_sequence_hash}->{$locseq_alt->id}->subseq(1, 12)."\n")
     
   } else {
     if ($aln->length>0) {
@@ -175,7 +176,8 @@ while ( (my $seq = $in->next_seq())) {
     $aln = new Bio::SimpleAlign();
     $locseq=$myReseqChip->insert_gaps2reference_sequence($seq);
     $aln->add_seq($locseq);
-    ##alternative basecalls
+
+    ##alternative primary basecalls for insertions
     $locseq_alt=$myReseqChip->insert_gaps2reference_sequence($seq_alt);
     $options_hash{alternative_sequence_hash}->{$locseq_alt->id}=$locseq_alt;
     
