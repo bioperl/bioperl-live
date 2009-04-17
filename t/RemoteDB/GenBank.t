@@ -16,31 +16,6 @@ BEGIN {
 	use_ok('Bio::DB::GenBank');
 }
 
-#ok 3 - MUSIGHBA1
-#ok 4 - AF303112
-#ok 5 - AF303112
-#ok 6 - CELRABGDI
-#
-#ok 7 - MUSIGHBA1
-#
-#ok 8 - AF303112
-#ok 9 - AF041456
-#ok 10
-#ok 11
-#ok 12 - gi|195052|gb|J00522.1|MUSIGHBA1
-#ok 13 - gi|11127914|gb|AF303112.1|
-#ok 14
-#ok 15
-#ok 16
-#ok 17
-#ok 18
-#ok 19 - MUSIGHBA1
-#ok 20 - AF303112
-#ok 21 - AF303112
-#ok 22 - AF303112
-#ok 23 - AF303112
-
-
 my %expected_lengths = (
     'MUSIGHBA1' => 408,  
     'AF303112'  => 1611, 
