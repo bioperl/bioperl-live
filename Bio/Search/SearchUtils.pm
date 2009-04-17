@@ -197,13 +197,13 @@ sub tile_hsps {
 	$hit_len_aln += $hsp->length;
 
 	## Collect contigs in the query sequence.
- 	$qoverlap = &_adjust_contigs('query', $hsp, $qstart, $qstop, 
+ 	$qoverlap += &_adjust_contigs('query', $hsp, $qstart, $qstop, 
 				     \@qcontigs, $max_overlap, $frame, 
 				     $qstrand);
 
 	## Collect contigs in the sbjct sequence 
 	#  (needed for domain data and gapped Blast).
-	$soverlap = &_adjust_contigs('sbjct', $hsp, $sstart, $sstop, 
+	$soverlap += &_adjust_contigs('sbjct', $hsp, $sstart, $sstop, 
 				     \@scontigs, $max_overlap, $frame, 
 				     $sstrand);
 
