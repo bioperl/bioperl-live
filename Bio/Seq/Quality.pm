@@ -152,7 +152,9 @@ Email heikki-at-bioperl-dot-org
 
 =head1 CONTRIBUTORS
 
-Chad Matsalla, bioinformatics@dieselwurks.com
+Chad Matsalla, bioinformatics at dieselwurks dot com
+
+Dan Bolser, dan dot bolser at gmail dot com
 
 =head1 APPENDIX
 
@@ -240,12 +242,18 @@ sub new {
  Returns : reference to an array of meta data
  Args    : new value, string or array ref or Bio::Seq::PrimaryQual, optional
 
+Setting quality values resets the cached good quality ranges that
+depend on the set threshold value.
+
 =cut
 
 sub qual {
     my $self = shift;
     my $value = shift;
-    $value = $value->qual if ref($value) and ref($value) ne 'ARRAY' and $value->isa('Bio::Seq::PrimaryQual');
+    $value = $value->qual
+        if ref($value) and ref($value) ne 'ARRAY' and
+           $value->isa('Bio::Seq::PrimaryQual');
+    $self->_empty_cache if $value;
     $self->named_meta($DEFAULT_NAME, $value);
 }
 
@@ -288,7 +296,7 @@ sub qual_text {
 =cut
 
 sub subqual {
-   shift->named_submeta($DEFAULT_NAME, @_);
+    shift->named_submeta($DEFAULT_NAME, @_);
 }
 
 =head2 subqual_text
@@ -454,14 +462,18 @@ sub trace_is_flush {
 =head2 get_trace_graph
 
  Title    : get_trace_graph
- Usage    : @trace_values = $obj->get_trace_graph( -trace => 'a', -scale => 100)
- Function : Returns array of raw trace values for a trace file, or false if no trace data exists.
-            Requires a value for trace to get either the a, g, c or t trace information, and an
-	    optional value for scale, which rescales the data between 0 and the provided value, 
-	    a scale value of '0' performs no scaling
+ Usage    : @trace_values = $obj->get_trace_graph( -trace => 'a',
+                                                   -scale => 100)
+ Function : Returns array of raw trace values for a trace file, or
+            false if no trace data exists.  Requires a value for trace
+            to get either the a, g, c or t trace information, and an
+            optional value for scale, which rescales the data between
+            0 and the provided value, a scale value of '0' performs no
+            scaling
  Returns  : Array or 0
  Args     : string, trace to retrieve, one of a, g, c or t
-            integer, scale, for scaling of trace between 0 and scale, or 0 for no scaling, optional
+            integer, scale, for scaling of trace between 0 and scale,
+                or 0 for no scaling, optional
 
 =cut
 
@@ -484,7 +496,203 @@ sub get_trace_graph
 		@trace_data = map { $_ / $max * $scale } @trace_data;
 	}
 	return @trace_data;
-}	
+}
+
+
+=head2 threshold
+
+  Title   : threshold
+  Usage   : $qual->threshold($value);
+  Function: Sets the threshold for good quality values.
+  Returns : an integer
+  Args    : new value, optional
+
+Value used by *clear_range* method below.
+
+=cut
+
+sub threshold {
+    my $self = shift;
+    my $value = shift;
+    if (defined $value) {
+	$self->throw("Threshold needs to be an integer [$value]")
+	    unless $value =~ /^[-+]?\d+?$/;
+	$self->_empty_cache 
+	    if defined $self->{_threshold} and $self->{_threshold} ne $value;
+	$self->{_threshold} = $value;
+    }
+    return $self->{_threshold};
+}
+
+
+=head2 count_clear_ranges
+
+  Title   : count_clear_ranges
+  Usage   : $count = $obj->count_clear_ranges($threshold);
+  Function: Counts number of ranges in the sequence where quality
+            values are above the threshold
+  Returns : count integer
+  Args    : threshold integer, optional
+
+Set threshold first using method L<threshold>.
+
+=cut
+
+sub count_clear_ranges {
+    my $self = shift;
+    my $threshold = shift;
+    $self->threshold($threshold) if defined $threshold;
+
+    # populate the cache if needed
+    $self->_find_clear_ranges unless defined $self->{_ranges};
+
+    return scalar @{$self->{_ranges}}
+}
+
+=head2 clear_ranges_length
+
+  Title   : clear_ranges_length
+  Usage   : $total_lenght = $obj->clear_ranges_length($threshold);
+  Function: Return number of residues with quality values above
+            the threshold in all clear ranges
+  Returns : an integer
+  Args    : threshold, optional
+
+Set threshold first using method L<threshold>.
+
+=cut
+
+sub clear_ranges_length {
+    my $self = shift;
+    my $threshold = shift;
+    $self->threshold($threshold) if defined $threshold;
+
+    # populate the cache if needed
+    $self->_find_clear_ranges unless defined $self->{_ranges};
+
+    my $sum;
+    map {$sum += $_->{length}}  @{$self->{_ranges}};
+    return $sum;
+}
+
+=head2 get_clear_range
+
+  Title   : get_clear_range
+  Usage   : $newqualobj = $obj->get_clear_range($threshold);
+  Function: Return longest subsequence that has quality values above
+            the threshold
+  Returns : a new Bio::Seq::Quality object
+  Args    : threshold, optional
+
+Set threshold first using method L<threshold>.
+
+=cut
+
+sub get_clear_range {
+    my $self = shift;
+    my $threshold = shift;
+    $self->threshold($threshold) if defined $threshold;
+
+    # populate the cache if needed
+    $self->_find_clear_ranges unless defined $self->{_ranges};
+
+    # pick the longest
+    for (sort {$b->{length} <=> $a->{length} } @{$self->{_ranges}} ){
+
+	return Bio::Seq::Quality->new
+	    ( -seq => $self->subseq(  $_->{start}, $_->{end}),
+	      -qual => $self->subqual($_->{start}, $_->{end})
+	    );
+    }
+}
+
+
+
+=head2 get_all_clean_ranges
+
+  Title   : get_all_clean_ranges
+  Usage   : @ranges = $obj->get_all_clean_ranges($minlength);
+  Function: Return all ranges where quality values are above
+            the threshold. Original ordering.
+  Returns : an ordered array of new Bio::Seq::Quality objects
+  Args    : minimum length , optional
+
+Set threshold first using method L<threshold>.
+
+=cut
+
+sub get_all_clean_ranges {
+    my $self = shift;
+    my $minl = shift;
+
+    $minl ||= 0;
+    $self->throw("Mimimum length needs to be zero or a positive integer [$minl]")
+        unless $minl =~ /^\+?\d+?$/;
+
+    # populate the cache if needed
+    $self->_find_clear_ranges unless defined $self->{_ranges};
+
+    # return in the order of occurrence
+    my @ranges;
+    for my $r (sort {$b->{start} <=> $a->{start} } @{$self->{_ranges}} ){
+	next if $r->{length} < $minl;
+
+	push @ranges, Bio::Seq::Quality->new
+	    ( -seq => $self->subseq(  $r->{start}, $r->{end}),
+	      -qual => $self->subqual($r->{start}, $r->{end})
+	    );
+    }
+    return @ranges;
+}
+
+
+#
+# _find_clear_ranges: where range/threshold calculations happen
+#
+
+sub _find_clear_ranges {
+    my $self = shift;
+
+    $self->throw("You need to set the threshold value first")
+        unless defined $self->threshold;
+
+    my $flag = 0;
+    my $threshold = $self->threshold;
+    my $i = 0;
+    foreach my $q (@{$self->qual}) {
+	$i++;
+	# print "$i -- $q\n";
+	if ( $flag ){
+	    if ($q < $threshold) {
+		my $range->{end} = $i-1;
+		$range->{start}  = $flag;
+		$range->{length} = $i - $flag;
+		push @{$self->{_ranges}}, $range;
+		$flag = 0;  # reset flag
+	    }
+	} else {
+	    $flag = $i if $q >= $threshold;
+	}
+    }
+
+    if( $flag ){
+	## Log the range
+	my $range->{end} = $i;
+	$range->{start}  = $flag;
+	$range->{length} = $i - $flag + 1;
+	push @{$self->{_ranges}}, $range;
+    }
+
+    1;
+}
+
+
+sub _empty_cache {
+    my $self = shift;
+    undef $self->{_ranges};
+}
+
+
 
 
 ################## deprecated methods ##################

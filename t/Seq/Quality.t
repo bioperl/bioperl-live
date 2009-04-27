@@ -4,12 +4,12 @@
 use strict;
 
 BEGIN {
-	use lib '.';
+    use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 52);
-	
-	use_ok('Bio::Seq::Quality');
+    test_begin(-tests => 60);
+
+    use_ok('Bio::Seq::Quality');
 }
 
 my $DEBUG = test_debug();
@@ -237,6 +237,32 @@ ok $seq = Bio::Seq::Quality->new(
 );
 
 my $rev;
-ok $rev = $seq->revcom;
+ok $rev = $seq->revcom; 
 is $rev->seq, 'AGGGTACCACCACCCCCATAGGGTACCACCACCCCCAT';
 is $rev->qual_text, "38 13 93 53 81 50 81 97 35 10 42 36 84 76 63 75 12 59 10 38 13 93 53 81 50 81 97 35 10 42 36 84 76 63 75 12 59 10";
+
+
+# selecting ranges based on quality
+
+# test seq with three high quality regions (13, 12 and 3), one very short (3)
+ok $seq = Bio::Seq::Quality->new(
+    -seq => "ATGGGGGTGGTGGTACCCTATGGGGGTGGTGGTACCCT",
+    -qual => "0 5 10 20 30 40 40 50 50 50 50 50 40 10 10 10 5 5 20 20 30 40 50 44 44 50 50 50 50 50 5 5 40 40 40 40 50 50"
+    );
+
+
+is $seq->threshold, undef;
+is $seq->threshold(10), 10;
+is $seq->threshold(13), 13;
+
+is $seq->count_clear_ranges, 3;
+
+my $newseq = $seq->get_clear_range;
+is $newseq->length, 12;
+
+
+my @ranges = $seq->get_all_clean_ranges;
+is scalar @ranges, 3;
+my $min_length = 10;
+my @ranges = $seq->get_all_clean_ranges($min_length);
+is scalar @ranges, 2;
