@@ -685,8 +685,10 @@ sub separation {
     my $tree = shift;
     my $node = shift  || $tree->get_root_node;
 
-    return $node->branch_length /
-        $self->genetic_diversity($tree, $node);
+    my $div = $self->genetic_diversity($tree, $node);
+    return 0 if $div == 0;
+    return $node->branch_length / $div;
+
 }
 
 
