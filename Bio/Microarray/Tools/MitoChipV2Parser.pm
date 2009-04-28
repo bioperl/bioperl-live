@@ -21,7 +21,7 @@ MitoChip V2.0
 
 =head1 AUTHORS
         
-Marian Thieme (marian.thieme@arcor.de)
+Marian Thieme (marian.thieme@gmail.com)
 
 =head1 COPYRIGHT
         
