@@ -8,7 +8,7 @@ BEGIN {
     use List::MoreUtils qw(uniq);
     use Bio::Root::Test;
     
-    test_begin(-tests => 49);
+    test_begin(-tests => 51);
 	
 	use_ok('Bio::PrimarySeq');
 	use_ok('Bio::SeqUtils');
@@ -276,3 +276,7 @@ is $revfeat[0]->location->to_FTstring, 'complement(5..8)';
 is $revfeat[1]->location->to_FTstring, '1..4';
 is_deeply([uniq sort map{$_->get_all_tags}$revcom->get_SeqFeatures], [sort qw(note comment)], 'revcom_with_features - has expected tags');
 is_deeply([sort map{$_->get_tagset_values('note')}$revcom->get_SeqFeatures], [sort qw(note2 note3a note3b)], 'revcom_with_features - has expected tag values');
+# check circularity
+isnt($revcom->is_circular, 1, 'still not circular');
+$seq3 = Bio::Seq->new(-id => 3, -seq => 'ggttaaaa', -description => 'third', -is_circular => 1);
+is(Bio::SeqUtils->revcom_with_features($seq3)->is_circular, 1, 'still circular');
