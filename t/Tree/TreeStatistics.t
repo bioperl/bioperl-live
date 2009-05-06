@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 35);
+    test_begin(-tests => 40);
 
     use_ok('Bio::TreeIO');
     use_ok('Bio::Tree::Statistics');
@@ -99,10 +99,26 @@ $node_i = $tree->find_node(-id => 'N14');
 is $stats->phylotype_length($tree, $node_i), 11,  'phylotype length';
 
 
+$node_i = $tree->find_node(-id => 'N4');
+is $stats->sum_of_leaf_distances($tree, $node_i), 1,  'sum of leaf distances';
 
-is sprintf ("%.3f", $stats->genetic_diversity($tree, $node_i)), 1.833,  'genetic diversity'; 
+$node_i = $tree->find_node(-id => 'N6');
+is $stats->sum_of_leaf_distances($tree, $node_i), 6,  'sum of leaf distances';
 
-is sprintf ("%.3f", $stats->separation($tree, $node_i)), 0.545,  'separation'; 
+$node_i = $tree->find_node(-id => 'N7');
+is $stats->sum_of_leaf_distances($tree, $node_i), 18,  'sum of leaf distances';
+
+$node_i = $tree->find_node(-id => 'N13');
+is $stats->sum_of_leaf_distances($tree, $node_i), 8,  'sum of leaf distances';
+
+$node_i = $tree->find_node(-id => 'N14');
+is $stats->sum_of_leaf_distances($tree, $node_i), 18,  'sum of leaf distances';
+
+
+
+is sprintf ("%.3f", $stats->genetic_diversity($tree, $node_i)), '3.000',  'genetic diversity'; 
+
+is sprintf ("%.3f", $stats->statratio($tree, $node_i)), '0.333',  'separation'; 
 
 
 is $stats->ai($tree, $key), 0.628906, 'association index';

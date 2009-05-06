@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Tree::Statistics
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Jason Stajich <jason@bioperl.org>
 #
@@ -20,13 +20,13 @@ Bio::Tree::Statistics - Calculate certain statistics for a Tree
 
   use Bio::Tree::Statistics;
 
-
 =head1 DESCRIPTION
 
 This should be where Tree statistics are calculated.  It was
-previously where statistics from a Coalescent simulation.  Currently
-it is empty because we have not added any Tree specific statistic
-calculations to this module yet.  We welcome any contributions.
+previously where statistics from a Coalescent simulation.
+
+It now contains several methods for calculating L<Tree-Trait
+statistics>.
 
 
 =head1 FEEDBACK
@@ -112,14 +112,14 @@ sub assess_bootstrap{
    my @consensus;
 
    # internal nodes are defined by their children
-   
+
    my (%lookup,%internal);
    my $i = 0;
    for my $tree ( $guide_tree, @$bs_trees ) {
        # Do this as a top down approach, can probably be
        # improved by caching internal node states, but not going
        # to worry about it right now.
-       
+
        my @allnodes = $tree->get_nodes;
        my @internalnodes = grep { ! $_->is_Leaf } @allnodes;
        for my $node ( @internalnodes ) {
@@ -221,10 +221,10 @@ You can access calculated parsimony values using:
 
 and the trait value with:
 
-  $traitvalue = $node->->get_tag_values('ps_trait');
+  $traitvalue = $node->->get_tag_values('ps_trait'); # only the first
   @traitvalues = $node->->get_tag_values('ps_trait');
 
-Note that there can be more that one trait values, especially for the
+Note that there can be more that one trait value, especially for the
 root node.
 
 =cut
@@ -256,8 +256,9 @@ sub fitch {
 
 
 This is the first half of the Fitch algorithm that is enough for
-calculating the parsimony values. The trait/chararacter states are
-commonly left in ambiguos state. To resolve them, run L<fitch_down>.
+calculating the resolved parsimony values. The trait/chararacter
+states are commonly left in ambiguos state. To resolve them, run
+L<fitch_down>.
 
 =cut
 
@@ -400,13 +401,6 @@ to share the same value.
 
 Depends on Fitch's parsimony score (PS).
 
-
-  PERSISTENCE (T, A)
-  If S(T) ≠ A, then 0
-  ElseIf T is a leaf, then 1
-  Else MIN( PERSISTENCE (L, A), PERSISTENCE (R, A) ) + 1
-
-
 =cut
 
 sub _persistence {
@@ -459,19 +453,6 @@ sub persistence {
                2. Bio::Tree::NodeI object within the tree, optional
 
 Depends on Fitch's parsimony score (PS).
-
-  COUNT-CLUSTER (T, A)
-  If P(T)=0, then if S(T)=A then 0, else 1
-  ElseIf S(T) = A, then return COUNT-CLUSTER (L,A) + COUNT-CLUSTER (R,A)
-  Else 1.
-
-  equivalent:
-
-  COUNT-SUBCLUSTER (T, A)
-  If S(T) = A
-     then if P(T)=0 then 0.
-     Else COUNT-SUBCLUSTER (L,A) + COUNT-SUBCLUSTER (R,A)
-  Else 1.
 
 =cut
 
@@ -526,12 +507,6 @@ sub count_subclusters {
 
 Depends on Fitch's parsimony score (PS).
 
-  COUNT-STRAIN (T, A)
-  If T is a leaf, then if S(T)=A, then return 1, else return 0
-  ElseIf S(T) = A, then return COUNT-STRAIN (L) + COUNT-STRAIN (R)
-  Else return 0.
-
-
 =cut
 
 sub _count_leaves {
@@ -573,7 +548,7 @@ sub count_leaves {
 =head2 phylotype_length
 
   Example    : phylotype_length($tree, $node);
-  Description: Sums up the branch lengths from stem to leaf
+  Description: Sums up the branch lengths within phylotype
                exluding the subclusters where the trait values
                are different
   Returns    : float, length
@@ -582,23 +557,6 @@ sub count_leaves {
                2. Bio::Tree::NodeI object within the tree, optional
 
 Depends on Fitch's parsimony score (PS).
-
-  SUM (T, A)
-     If (S(T) ≠ A) or (T is a leaf), then return 0;
-     Else, let
-     cl = COUNT-STRAIN (L,A) and cr = COUNT-STRAIN (R,A)
-     sl = SUM(L,A) and sr = SUM(R,A)
-     Return cl * l(T,L) + sl + cr * l(T,R) + sr.
-
-
-  PHYLOTYPE_LENGTH(T,A)
-     If S(T) ≠ A  then return 0
-     If T is a leaf return BRANCH_LENGTH(T)
-     FOR EACH CHILD(T)
-           ln = PHYLOTYPE_LENGTH(CHILD, A)
-           lenght = ln
-           length += BRANCH_LENGTH(CHILD) if CHILD is not leaf and ln
-     return lenght
 
 =cut
 
@@ -625,6 +583,7 @@ sub _phylotype_length {
     return $length;
 }
 
+
 sub phylotype_length {
     my $self = shift;
     my $tree = shift;
@@ -636,21 +595,66 @@ sub phylotype_length {
     return $self->_phylotype_length($tree, $node, $value);
 }
 
+=head2 sum_of_leaf_distances
 
-=head2 genetic_diversity
-
-  Example    : genetic_diversity($tree, $node);
-  Description: Diversity is the sum of phylotype branch lengths
-               L<phylotype_length> normalised by number of leaf
-               nodes within the phylotype
-  Returns    : float, value of genetic diversity
+  Example    : sum_of_leaf_distances($tree, $node);
+  Description: Sums up the branch lengths from root to leaf
+               exluding the subclusters where the trait values
+               are different
+  Returns    : float, length
   Exceptions : all the  nodes need to have the trait defined
   Args       : 1. Bio::Tree::TreeI object
                2. Bio::Tree::NodeI object within the tree, optional
 
 Depends on Fitch's parsimony score (PS).
 
-DIVERSITY (T,A) = SUM(T,A)/COUNT-STRAIN(T,A).
+=cut
+
+sub _sum_of_leaf_distances {
+    my $self = shift;
+    my $tree = shift;
+    my $node = shift;
+    my $value = shift;
+
+    my $key  = 'ps_trait';
+
+    $self->throw ("ERROR: ". $node->internal_id. " needs a value for trait $key")
+        unless $node->has_tag($key);
+    return 0 if $node->get_tag_values($key) ne $value;
+    #return $node->branch_length if $node->is_Leaf; # end of recursion
+    return 0 if $node->is_Leaf; # end of recursion
+
+    my $length = 0;
+    foreach my $child ($node->each_Descendent) {
+	$length += $self->_count_leaves($tree, $child, $value) * $child->branch_length +
+	$self->_sum_of_leaf_distances($tree, $child, $value);
+    }
+    return $length;
+}
+
+sub sum_of_leaf_distances {
+    my $self = shift;
+    my $tree = shift;
+    my $node = shift  || $tree->get_root_node;
+
+    my $key  = 'ps_trait';
+    my $value = $node->get_tag_values($key);
+
+    return $self->_sum_of_leaf_distances($tree, $node, $value);
+}
+
+=head2 genetic_diversity
+
+  Example    : genetic_diversity($tree, $node);
+  Description: Diversity is the sum of root to leaf distances
+               within the phylotype normalised by number of leaf
+               nodes
+  Returns    : float, value of genetic diversity
+  Exceptions : all the  nodes need to have the trait defined
+  Args       : 1. Bio::Tree::TreeI object
+               2. Bio::Tree::NodeI object within the tree, optional
+
+Depends on Fitch's parsimony score (PS).
 
 =cut
 
@@ -659,28 +663,28 @@ sub genetic_diversity {
     my $tree = shift;
     my $node = shift  || $tree->get_root_node;
 
-    return $self->phylotype_length($tree, $node) /
+    return $self->sum_of_leaf_distances($tree, $node) /
         $self->count_leaves($tree, $node);
 }
 
-=head2 separation
+=head2 statratio
 
-  Example    : separation($tree, $node);
-  Description: Ratio of the stem length and diversity of the
+  Example    : statratio($tree, $node);
+  Description: Ratio of the stem length and the genetic diversity of the
                phylotype L<genetic_diversity>
   Returns    : float, separation score
   Exceptions : all the  nodes need to have the trait defined
   Args       : 1. Bio::Tree::TreeI object
                2. Bio::Tree::NodeI object within the tree, optional
 
-Depends on Fitch's parsimony score (PS).
+TStatratio gives a measure of separation and variability within the phylotype.
+Larger values identify more rapidly evolving and recent phylotypes.
 
-SEPARATION (T,A)
-     STEM_LENGTH(T) / DIVERSITY(T)
+Depends on Fitch's parsimony score (PS).
 
 =cut
 
-sub separation {
+sub statratio {
     my $self = shift;
     my $tree = shift;
     my $node = shift  || $tree->get_root_node;
@@ -690,9 +694,6 @@ sub separation {
     return $node->branch_length / $div;
 
 }
-
-
-
 
 
 =head2 ai
@@ -769,7 +770,7 @@ sub ai {
                3. Bio::Tree::NodeI object within the tree, optional
 
 
-* Monophyletic Clade (MC) size statistics by Salemi at al 2005. It is
+Monophyletic Clade (MC) size statistics by Salemi at al 2005. It is
 calculated for each trait value. 1<= MC <= nx, where nx is the
 number of tips with value x:
 
