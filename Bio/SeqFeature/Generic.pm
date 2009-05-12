@@ -390,7 +390,7 @@ sub score {
         }
         if ($self->has_tag('score')) {
             $self->warn("Removing score value(s)");
-            $self->remove_tags('score');
+            $self->remove_tag('score');
         }
         $self->add_tag_value('score',$value);
     }
