@@ -37,9 +37,7 @@ the from:
 Fastq files have sequence and quality data on a single line and the
 quality values are single-byte encoded. To retrieve the decimal values
 for qualities you need to subtract 33 (or Octal 41) from each byte and
-then convert to a '2 digit + 1 space' integer. You can check if 33 is
-the right number because the first byte which is always '!'
-corresponds to a quality value of 0.
+then convert to a '2 digit + 1 space' integer. 
 
 =head1 FEEDBACK
 
