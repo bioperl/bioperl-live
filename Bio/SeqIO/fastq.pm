@@ -128,7 +128,7 @@ sub next_seq {
     $seqdata->{$type} = $line;
   }
   $self->warn("Seq/Qual descriptions don't match; using sequence description\n")
-    unless $seqdata->{seqdesc} eq $seqdata->{qualdesc};
+    unless $seqdata->{qualdesc} eq '' || $seqdata->{seqdesc} eq $seqdata->{qualdesc};
   my ($id,$fulldesc) = $seqdata->{seqdesc} =~ /^\s*(\S+)\s*(.*)/
     or $self->throw("Can't parse fastq header");
   if ($id eq '') {$id=$fulldesc;}   # FIX incase no space between \@ and name
