@@ -30,7 +30,8 @@ my $build = Bio::Root::Build->new(
                             'IO::String'                => 0,
                             'DB_File'                   => 0,
                             'Data::Stag'                => 0.11, # Bio::SeqIO::swiss, we can change to 'recommend' if needed
-                            'Scalar::Util'              => 0 # not in Perl 5.6.1, arrived in core in 5.7.3
+                            'Scalar::Util'              => 0,    # not in Perl 5.6.1, arrived in core in 5.7.3
+                            'ExtUtils::Manifest'        => '1.52', # allows spaces in file names
                            },
     build_requires      => {
                             'Test::More'                => 0,
@@ -72,7 +73,7 @@ my $build = Bio::Root::Build->new(
                             'XML::Parser::PerlSAX'      => '0/parsing xml/Bio::SeqIO::tinyseq,Bio::SeqIO::game::gameSubs,Bio::OntologyIO::InterProParser,Bio::ClusterIO::dbsnp',
                             'XML::SAX'                  => '0.15/parsing xml/Bio::SearchIO::blastxml,Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
                             'XML::SAX::Writer'          => '0/writing xml/Bio::SeqIO::tigrxml',
-			    'XML::Simple'               => '0/reading custom XML/Bio::Tools::EUtilities,Bio::DB::HIV,Bio::DB::Query::HIVQuery',
+                            'XML::Simple'               => '0/reading custom XML/Bio::Tools::EUtilities,Bio::DB::HIV,Bio::DB::Query::HIVQuery',
                             'XML::Twig'                 => '0/parsing xml/Bio::Variation::IO::xml,Bio::DB::Taxonomy::entrez,Bio::DB::Biblio::eutils',
                             'XML::Writer'               => '0.4/parsing and writing xml/Bio::SeqIO::agave,Bio::SeqIO::game::gameWriter,Bio::SeqIO::chadoxml,Bio::SeqIO::tinyseq,Bio::Variation::IO::xml,Bio::SearchIO::Writer::BSMLResultWriter',
     },
