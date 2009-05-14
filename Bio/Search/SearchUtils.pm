@@ -404,6 +404,14 @@ sub _adjust_contigs {
                 ($numID, $numCons) = $hsp->matches(-SEQ   =>$seqType, 
                                -START => $start, 
                                -STOP  => $_->{'start'} - 1); 
+		if ($numID eq '') {
+		    $hsp->warn("\$hsp->matches() returned '' for number identical; setting to 0");
+		    $numID = 0;
+		}
+		if ($numCons eq '') {
+		    $hsp->warn("\$hsp->matches() returned '' for number conserved; setting to 0");
+		    $numCons = 0;
+		}
             };
             if($@) { warn "\a\n$@\n"; }
             else {
@@ -421,7 +429,15 @@ sub _adjust_contigs {
                 ($numID,$numCons) = $hsp->matches(-SEQ   =>$seqType, 
                               -START => $_->{'stop'} + 1, 
                               -STOP  => $stop); 
-            };
+		if ($numID eq '') {
+		    $hsp->warn("\$hsp->matches() returned '' for number identical; setting to 0");
+		    $numID = 0;
+		}
+		if ($numCons eq '') {
+		    $hsp->warn("\$hsp->matches() returned '' for number conserved; setting to 0");
+		    $numCons = 0;
+		}
+	    };
             if($@) { warn "\a\n$@\n"; }
             else {
                 $_->{'stop'}  = $stop; # Assign a new stop coordinate to the contig
@@ -458,7 +474,15 @@ sub _adjust_contigs {
                         my ($these_ids, $these_cons);
                         eval {
                             ($these_ids, $these_cons) = $hsp->matches(-SEQ => $seqType, -START => $hsp_start, -STOP => $use_start - 1);
-                        };
+			    if ($these_ids eq '') {
+				$hsp->warn("\$hsp->matches() returned '' for number identical; setting to 0");
+				$these_ids = 0;
+			    }
+			    if ($these_cons eq '') {
+				$hsp->warn("\$hsp->matches() returned '' for number conserved; setting to 0");
+				$these_cons = 0;
+			    }
+			};
                         if($@) { warn "\a\n$@\n"; }
                         else {
                             $ids  += $these_ids;
@@ -487,6 +511,14 @@ sub _adjust_contigs {
                         my ($these_ids, $these_cons);
                         eval {
                             ($these_ids, $these_cons) = $hsp->matches(-SEQ => $seqType, -START => $use_stop + 1, -STOP => $hsp_end);
+			    if ($these_ids eq '') {
+				$hsp->warn("\$hsp->matches() returned '' for number identical; setting to 0");
+				$these_ids = 0;
+			    }
+			    if ($these_cons eq '') {
+				$hsp->warn("\$hsp->matches() returned '' for number conserved; setting to 0");
+				$these_cons = 0;
+			    }
                         };
                         if($@) { warn "\a\n$@\n"; }
                         else {
@@ -522,6 +554,15 @@ sub _adjust_contigs {
     elsif (! $overlap) {
         ## If there is no overlap, add the complete HSP data.
         ($numID,$numCons) = $hsp->matches(-SEQ=>$seqType);
+	if ($numID eq '') {
+	    $hsp->warn("\$hsp->matches() returned '' for number identical; setting to 0");
+	    $numID = 0;
+	}
+	if ($numCons eq '') {
+	    $hsp->warn("\$hsp->matches() returned '' for number conserved; setting to 0");
+	    $numCons = 0;
+	}
+
         push @$contigs_ref, {'start' =>$start, 'stop' =>$stop,
 			     'iden'  =>$numID, 'cons' =>$numCons,
 			     'strand'=>$strand,'frame'=>$frame,'hsps'=>[$hsp]};
