@@ -104,7 +104,7 @@ sub new {
     $self->_initialize_io(%params);
     my $tempdir = $self->tempdir( CLEANUP => 1);
     my ($tfh,$file) = $self->tempfile( DIR => $tempdir );
-
+	$self->{tempdir} = $tempdir;
     $tfh     && $self->_fh($tfh);
     $file    && $self->_filename($file);    
     $self->length(0);
@@ -307,8 +307,8 @@ sub DESTROY {
     my $fh = $self->_fh();
     close($fh) if( defined $fh );
     # this should be handled by Tempfile removal, but we'll unlink anyways.
-    unlink $self->_filename()
-        if defined $self->_filename() && -e $self->_filename;
+    unlink $self->_filename() if defined $self->_filename() && -e $self->_filename;
+	rmdir $self->{tempdir} if defined $self->{tempdir} && -e $self->{tempdir};
     $self->SUPER::DESTROY();
 }
 
