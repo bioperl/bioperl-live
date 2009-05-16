@@ -264,5 +264,5 @@ is $newseq->length, 12;
 my @ranges = $seq->get_all_clean_ranges;
 is scalar @ranges, 3;
 my $min_length = 10;
-my @ranges = $seq->get_all_clean_ranges($min_length);
+@ranges = $seq->get_all_clean_ranges($min_length);
 is scalar @ranges, 2;
