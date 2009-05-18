@@ -9,6 +9,7 @@ Bio::DB::SeqFeature::Store::GFF3Loader -- GFF3 file loader for Bio::DB::SeqFeatu
 =head1 SYNOPSIS
 
   use Bio::DB::SeqFeature::Store;
+  use Bio::DB::SeqFeature::Store::GFF3Loader;
 
   # Open the sequence database
   my $db      = Bio::DB::SeqFeature::Store->new( -adaptor => 'DBI::mysql',
