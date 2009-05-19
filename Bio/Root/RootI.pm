@@ -225,12 +225,17 @@ sub warn {
 sub deprecated{
     my ($self) = shift;
     my ($msg, $version) = $self->_rearrange([qw(MESSAGE VERSION)], @_);
+    if (!defined $msg) {
+        my $prev = (caller(0))[3];
+        $msg = "Use of ".$prev."() is deprecated";
+    }
     # delegate to either warn or throw based on whether a version is given
     if ($version) {
         $self->throw('Version must be numerical, such as 1.006000 for v1.6.0, not '.
                      $version) unless $version =~ /^\d+\.\d+$/;
+        $msg .= "\nDeprecated in $version";
         if ($Bio::Root::Version::VERSION >= $version) {
-            $self->warn($msg)
+            $self->throw($msg)
         } 
     }
     # passing this on to warn() should deal properly with verbosity issues
