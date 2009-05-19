@@ -4,7 +4,6 @@
 use strict;
 
 BEGIN {
-    chdir("c:/cygwin/usr/local/lib/perl5/bioperl-trunk");
 	use lib '.';
     use Bio::Root::Test;
     
