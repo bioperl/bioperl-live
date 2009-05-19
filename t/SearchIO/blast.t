@@ -4,6 +4,7 @@
 use strict;
 
 BEGIN {
+    chdir("c:/cygwin/usr/local/lib/perl5/bioperl-trunk");
 	use lib '.';
     use Bio::Root::Test;
     
@@ -132,17 +133,33 @@ while( $hit = $result->next_hit ) {
     if ($count==1) {
         # Test HSP contig data returned by SearchUtils::tile_hsps()
         # Second hit has two hsps that overlap.
+	
+	# compare with the contig made by hand for these two contigs
+	# in t/data/contig-by-hand.wublastp
+	# (in this made-up file, the hsps from ecolitst.wublastp
+        #  were aligned and contiged, and Length, Identities, Positives 
+	#  were counted, by a human (maj) )
+	
+	my $hand_hit = Bio::SearchIO->new(
+	    -format=>'blast', 
+	    -file=>test_input_file('contig-by-hand.wublastp')
+	    )->next_result->next_hit;
+	my $hand_hsp = $hand_hit->next_hsp;
+	my @hand_qrng = $hand_hsp->range('query');
+	my @hand_srng = $hand_hsp->range('hit');
+	my @hand_matches = $hand_hit->matches;
+
         my($qcontigs, $scontigs) = Bio::Search::SearchUtils::tile_hsps($hit);
         # Query contigs
-        is($qcontigs->[0]->{'start'}, 5);
-        is($qcontigs->[0]->{'stop'}, 812);
-        is($qcontigs->[0]->{'iden'}, 250);
-        is($qcontigs->[0]->{'cons'}, 413);
+        is($qcontigs->[0]->{'start'}, $hand_qrng[0]);
+        is($qcontigs->[0]->{'stop'}, $hand_qrng[1]);
+        is($qcontigs->[0]->{'iden'}, $hand_matches[0]);
+        is($qcontigs->[0]->{'cons'}, $hand_matches[1]);
         # Subject contigs
-        is($scontigs->[0]->{'start'}, 16);
-        is($scontigs->[0]->{'stop'}, 805);
-        is($scontigs->[0]->{'iden'}, 248);
-        is($scontigs->[0]->{'cons'}, 410);
+        is($scontigs->[0]->{'start'}, $hand_srng[0]);
+        is($scontigs->[0]->{'stop'}, $hand_srng[1]);
+        is($scontigs->[0]->{'iden'}, $hand_matches[0]);
+        is($scontigs->[0]->{'cons'}, $hand_matches[1]);
     }
 
     is($hit->name, shift @$d);
