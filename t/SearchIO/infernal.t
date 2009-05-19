@@ -12,19 +12,15 @@ BEGIN {
     use_ok('Bio::SearchIO');
 }
 
-my ($searchio, $result, $iter, $hit, $hsp, $algorithm, $meta);
+my ($result, $iter, $hit, $hsp, $algorithm, $meta);
 
 ### Infernal v. 1.0 ####
 
-$searchio = Bio::SearchIO->new( -format => 'infernal',
+my $searchio = Bio::SearchIO->new( -format => 'infernal',
                                 -file   => test_input_file('test2.infernal'),
-                                -hsp_minscore => 40,
-                                -verbose => 1
-                                # version is reset to the correct one by parser
-                                -model => 'Foo',
+                                -model => 'tRNAtest',
                                 -query_acc => 'RF01234',
                                 -query_desc => 'tRNA',
-                                #-convert_meta => 0,
                                );
 
 $result = $searchio->next_result;
@@ -41,7 +37,7 @@ is($result->database_name, 'tosearch.300Kb.db',
 is($result->num_hits, 1, "Result num_hits");
 is($result->program_reference, undef, "Result program_reference");
 is($result->query_accession, 'RF01234', "Result query_accession");
-is($result->query_description, 'my RNA  ', "Result query_description");
+is($result->query_description, 'tRNA', "Result query_description");
 is($result->query_length, 72, "Result query_length");
 is($result->query_name, 'trna.5-1', "Result query_name");
 
@@ -121,7 +117,7 @@ is($hit->query_length, 72, "Hit query_length");
 is($hit->rank, 1, "Hit rank");
 is($hit->raw_score, '78.06', "Hit raw_score");
 is($hit->score, '78.06', "Hit score");
-float_is($hit->p, '11.10', "Hit p");
+float_is($hit->p, '2.906e-26', "Hit p");
 float_is($hit->significance, '3.133e-21');
 
 $hsp = $hit->next_hsp;
@@ -296,7 +292,7 @@ is($hit->num_hsps, 2, "Hit num_hsps");
 
 # p() works but there are no evalues yet for Infernal output, so catch and check...
 warning_like {$hit->p}
-    qr'P-value not defined. Using expect\(\) instead',
+    qr'P-value not defined. Using significance\(\) instead',
     "No p values";
 
 is($hit->length, 0, "Hit length");
@@ -538,7 +534,6 @@ is($result->query_length, 102, "Result query_length");
 is($result->query_name, 'Purine', "Result query_name");
 
 $hit = $result->next_hit;
-$hit->verbose(2);
 isa_ok($hit, 'Bio::Search::Hit::HitI');
 is($hit->ncbi_gi, '633168', "Hit GI");
 is($hit->accession, 'X83878.1', "Hit accession");
@@ -551,9 +546,8 @@ is($hit->name, 'gi|633168|emb|X83878.1|', "Hit name");
 is($hit->num_hsps, 2, "Hit num_hsps");
 
 # p() works but there are no evalues yet for Infernal output, so catch and check...
-eval {$hit->p};
-like($@, qr'P-value not defined. Using expect\(\) instead',
-     "No p values");
+warnings_like {$hit->p} qr'P-value not defined. Using significance\(\) instead',
+     "No p values";
 
 is($hit->length, 0, "Hit length");
 is($hit->overlap, 0, "Hit overlap");

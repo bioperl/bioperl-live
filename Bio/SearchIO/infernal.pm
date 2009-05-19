@@ -124,6 +124,7 @@ our %MAPPING = (
         'Hit_accession' => 'HIT-accession',
         'Hit_def'       => 'HIT-description',
         'Hit_signif'    => 'HIT-significance', # evalues only in v0.81, optional
+        'Hit_p'         => 'HIT-p',            # pvalues in 1.0, optional
         'Hit_score'     => 'HIT-score', # best HSP bit score
         'Hit_bits'      => 'HIT-bits', # best HSP bit score
  
@@ -211,11 +212,12 @@ sub _initialize {
             -verbose   => $self->verbose
         )
     );
-    $model     && $self->model($model);
-    $database  && $self->database($database);
-    $accession && $self->query_accession($accession);
-    $convert   && $self->convert_meta($convert);
-    $desc      && $self->query_description($desc);
+	
+    defined $model     && $self->model($model);
+    defined $database  && $self->database($database);
+    defined $accession && $self->query_accession($accession);
+    defined $convert   && $self->convert_meta($convert);
+    defined $desc      && $self->query_description($desc);
     
     $version ||= $DEFAULT_VERSION;
     $self->version($version);
@@ -884,7 +886,8 @@ sub _parse_latest {
                     $self->element_hash({'Hit_score'    => $maxscore,
                                          'Hit_bits'     => $maxscore});
                     # don't know where to put minpval yet
-                    $self->element_hash({'Hit_signif'   => $mineval}) if $mineval; 
+                    $self->element_hash({'Hit_signif'   => $mineval}) if $mineval;
+                    $self->element_hash({'Hit_p'        => $minpval}) if $minpval;
                     $self->end_element({'Name' => 'Hit'});
                 }
                 last PARSER;

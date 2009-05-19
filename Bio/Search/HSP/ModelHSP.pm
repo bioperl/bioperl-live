@@ -76,7 +76,6 @@ Internal methods are usually preceded with a _
 package Bio::Search::HSP::ModelHSP;
 use strict;
 use Bio::Seq::Meta;
-use Data::Dumper;
 
 use base qw(Bio::Search::HSP::GenericHSP);
 
