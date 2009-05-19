@@ -372,8 +372,9 @@ sub logical_length {
 # Throws    : Exceptions propagated from Bio::Search::Hit::BlastHSP::matches()
 #           : for invalid sub-sequence ranges.
 # Status    : Experimental
-# Comments  : This method does not currently support gapped alignments.
-#           : Also, it does not keep track of the number of HSPs that
+# Comments  : This method supports gapped alignments through a patch by maj
+#           : to B:S:HSP:HSPI::matches().
+#           : It does not keep track of the number of HSPs that
 #           : overlap within the amount specified by overlap().
 #           : This will lead to significant tracking errors for large
 #           : overlap values.
