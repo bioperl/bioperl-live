@@ -230,7 +230,7 @@ sub deprecated{
         $self->throw('Version must be numerical, such as 1.006000 for v1.6.0, not '.
                      $version) unless $version =~ /^\d+\.\d+$/;
         if ($Bio::Root::Version::VERSION >= $version) {
-            $self->throw($msg)
+            $self->warn($msg)
         } 
     }
     # passing this on to warn() should deal properly with verbosity issues
