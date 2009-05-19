@@ -396,28 +396,6 @@ See Also   : L<expect()|expect>, L<signif()|signif>, L<Bio::Search::SearchUtils:
 
 =cut
 
-sub p {
-    # Some duplication of logic for p(), expect() and signif() for the sake of performance.
-    my ($self, $fmt) = @_;
-
-    my $val = $self->{'_p'};
-
-    # $val can be zero.
-    if(not defined $val) {
-        # Use expect instead.
-        $self->warn( "P-value not defined. Using expect() instead.");
-        $val = $self->{'_expect'};
-    }
-
-    return $val if not $fmt or $fmt =~ /^raw/i;
-    ## Special formats: exponent-only or as list.
-    return &Bio::Search::SearchUtils::get_exponent($val) if $fmt =~ /^exp/i;
-    return (split (/eE/, $val)) if $fmt =~ /^parts/i;
-
-    ## Default: return the raw P-value.
-    return $val;
-}
-
 =head2 hsp
 
  Usage     : $hit_object->hsp( [string] );
