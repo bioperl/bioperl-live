@@ -1,0 +1,82 @@
+# cmsearch :: search a sequence database with an RNA CM
+# INFERNAL 1.0 (January 2009)
+# Copyright (C) 2009 HHMI Janelia Farm Research Campus
+# Freely distributed under the GNU General Public License (GPLv3)
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# command:    cmsearch my.cm tosearch.300Kb.db
+# date:       Tue May 19 11:36:34 2009
+# num seqs:   1
+# dbsize(Mb): 0.600000
+#
+# Pre-search info for CM 1: trna.5-1
+#
+#                                  cutoffs            predictions     
+#                            -------------------  --------------------
+# rnd  mod  alg  cfg   beta     E value   bit sc     surv     run time
+# ---  ---  ---  ---  -----  ----------  -------  -------  -----------
+    1   cm  cyk  loc  1e-07     100.010     3.84   0.0183  00:02:34.47
+    2   cm  ins  loc  1e-15       1.000    11.92   0.0001  00:00:13.89
+# ---  ---  ---  ---  -----  ----------  -------  -------  -----------
+  all    -    -    -      -           -        -        -  00:02:48.36
+#
+
+CM: trna.5-1
+>example
+
+  Plus strand results:
+
+ Query = 1 - 72, Target = 101 - 173
+ Score = 78.06, E = 3.133e-21, P = 2.906e-26, GC =  53
+
+           (((((((,,<<<<___.____>>>>,<<<<<_______>>>>>,,,,,<<<<<_______
+         1 gCcgacAUaGcgcAgU.GGuAgcgCgccagccUgucAagcuggAGgUCCgggGUUCGAUu 59      
+           GC::A::UAGC:CAGU GG AG:GCGCCAG:CUG+++A:CUGGAGGUCC:G:GUUCGAU 
+       101 GCGGAUUUAGCUCAGUuGGGAGAGCGCCAGACUGAAGAUCUGGAGGUCCUGUGUUCGAUC 160     
+
+           >>>>>))))))):
+        60 CcccGUgucgGca 72      
+           C:C:G::U::GCA
+       161 CACAGAAUUCGCA 173     
+
+
+ Query = 1 - 72, Target = 70822 - 70891
+ Score = 12.47, E = 0.6752, P = 6.263e-06, GC =  53
+
+           (((((((,,<<<<_______>>>>,<<<<<_______>>>>>,,,,,~~~~~~)))))))
+         1 gCcgacAUaGcgcAgUGGuAgcgCgccagccUgucAagcuggAGgUC*[17]*UgucgGc 71      
+            C:G :AU+GCG:A+UGG  :CGCGC    C  UCAA +++GA +UC      U: C:G 
+     70822 UCUGCUAUGGCGUAAUGGCCACGCGC----CCAUCAACAAAGAUAUC*[19]*UAACAGG 70890   
+
+           :
+        72 a 72      
+           A
+     70891 A 70891   
+
+
+  Minus strand results:
+
+ Query = 1 - 72, Target = 15124 - 15083
+ Score = 12.93, E = 0.4841, P = 4.491e-06, GC =  48
+
+           (((((((,,~~~~~~,,,,,<<<<<_______>>>>>))))))):
+         1 gCcgacAUa*[33]*AGgUCCgggGUUCGAUuCcccGUgucgGca 72      
+           GCC: :AUA      A G CC::GG UCG  UCC::GU: :GGC+
+     15124 GCCAGUAUA*[ 5]*AUGCCCUAGGAUCG--UCCUAGUAAUGGCG 15083   
+
+
+#
+# Post-search info for CM 1: trna.5-1
+#
+#                              number of hits       surv fraction  
+#                            -------------------  -----------------
+# rnd  mod  alg  cfg   beta    expected   actual  expected   actual
+# ---  ---  ---  ---  -----  ----------  -------  --------  -------
+    1   cm  cyk  loc  1e-07     100.010       70    0.0183   0.0152
+    2   cm  ins  loc  1e-15       1.000        3    0.0001   0.0003
+#
+# expected time    actual time
+# -------------  -------------
+    00:02:48.36    00:02:42.00
+//
+#
+# CPU time: 157.69u 1.65s 00:02:39.34 Elapsed: 00:02:43
