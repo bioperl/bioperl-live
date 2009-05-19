@@ -878,10 +878,6 @@ sub _parse_latest {
         # result now ends with // and 'Fin'
         } elsif ($line =~ m{^//}xms )  {
             if ($self->within_element('result') && $seentop) {
-                #$self->element(
-                #            {'Name' => 'Infernal_version',
-                #             'Data' => $version}
-                #            );
                 if ($self->in_element('hit')) {
                     $self->element_hash({'Hit_score'    => $maxscore,
                                          'Hit_bits'     => $maxscore});

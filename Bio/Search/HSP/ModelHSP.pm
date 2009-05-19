@@ -226,7 +226,8 @@ sub seq {
     }
     require Bio::LocatableSeq;
     my $id = $seqType =~ /^q/i ? $self->query->seq_id : $self->hit->seq_id;
-    $str =~ s{\*\[\s*(\d+)\s*\]\*}{$1 x 'N'}ge;
+    $str =~ s{\*\[\s*(\d+)\s*\]\*}{'N' x $1}ge;
+    $str =~ s{\s+}{}g;
     my $seq = Bio::LocatableSeq->new (-ID    => $id,
                            -START => $self->start($seqType),
                            -END   => $self->end($seqType),
@@ -592,11 +593,13 @@ sub _postprocess_hsp {
 	$self->throw('Must pass a hash ref for HSP processing') unless ref($hsp) eq 'HASH';
 	my @ins;
 	for my $type (qw(query hit meta)) {
+        $hsp->{$type} =~ s{\s+$}{};
 		my $str = $hsp->{$type};
 		my $regex = $type eq 'meta' ? $META_REGEX : $SEQ_REGEX;
 		my $ind = 0;		
 		while ($str =~ m{$regex}g) {
 			$ins[$ind]->{$type} = {pos => pos($str) - length($1), str => $1};
+            $ind++;
 		}
 	}
 	for my $chunk (reverse @ins) {
