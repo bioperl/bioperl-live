@@ -460,7 +460,10 @@ sub is_temp {
 sub attributes {
     my $self = shift;
     my $dbh  = $self->dbh;
-    my $a    = $dbh->selectcol_arrayref('SELECT tag FROM attributelist');
+    my $attributelist_table = $self->_attributelist_table;
+    
+    my $a    = $dbh->selectcol_arrayref("SELECT tag FROM$attributelist_table")
+       or $self->throw($dbh->errstr);
     return @$a;
 }
 
