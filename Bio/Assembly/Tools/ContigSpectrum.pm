@@ -74,6 +74,9 @@ Bio::Assembly::Tools::ContigSpectrum - create and manipulate contig spectra
     -cross => $mixed_csp );
   print "The cross contig spectrum is ".$cross_csp->to_string."\n";
 
+  # Score a contig spectrum (the more abundant the contigs and the larger their
+  # size, the larger the score)
+  
 
 =head1 DESCRIPTION
 
@@ -778,6 +781,55 @@ sub average {
   $avg->{'_nof_overlaps'} /= $avg->{'_nof_rep'};
   
   return $avg;
+}
+
+
+=head2 average
+
+  Title   : score
+  Usage   : my $score = $csp->score();
+  Function: Score a contig spectrum (or cross-contig spectrum) such that the
+             higher the number of contigs (or cross-contigs) and the larger their 
+             size, the higher the score.
+             Let n   : total number of sequences
+                 c_q : number of contigs of size q
+                 q   : number of sequence in a contig
+             We define: score = n/(n-1) * (X - 1/n)
+                  where X = sum ( c_q * q^2 ) / n**2
+             The score ranges from 0 (singlets only) to 1 (a single large contig)
+             It is possible to specify a value for the number of sequences to
+              assume in the contig spectrum.
+  Returns : contig score
+  Args    : number of total sequences to assume [optional]
+
+=cut
+
+sub score {
+  my ($self, $nof_seqs) = @_;
+  # Main
+  my $score = 0;
+  my $n = $self->nof_seq;
+  if ( $n > 0 ) {
+    # Contig spectrum info
+    my $q_max = $self->max_size;
+    my $spec  = $self->spectrum;
+    # Adjust number of 1-contigs
+    if ( $nof_seqs ) {
+      $spec->{'1'} += $nof_seqs - $n;
+      $n = $nof_seqs;
+    }
+    # Calculate X
+    for my $q ( 1 .. $q_max ) {
+      if ( $spec->{$q} ) {
+        my $c_q = $spec->{$q};
+        $score += $c_q * $q ** 2;
+      }
+    }
+    $score /= $n ** 2; 
+  }
+  # Rescale X to obtain the score
+  $score = $n/($n-1) * ($score - 1/$n);
+  return $score;
 }
 
 
