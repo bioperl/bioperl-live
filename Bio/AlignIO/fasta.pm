@@ -62,6 +62,7 @@ use strict;
 
 use base qw(Bio::AlignIO);
 our $WIDTH = 60;
+use Bio::LocatableSeq;
 
 =head2 next_aln
 
@@ -228,7 +229,8 @@ sub write_aln {
 
 sub _get_len {
 	my ($self,$seq) = @_;
-	$seq =~ s/[^A-Z]//gi;
+	my $chars = $Bio::LocatableSeq::RESIDUE_SYMBOLS;
+	$seq =~ s{[^$chars]+}{}gi;
 	return CORE::length($seq);
 }
 
