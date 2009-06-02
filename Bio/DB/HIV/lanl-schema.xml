@@ -1565,6 +1565,9 @@
   <sfield blank_ok="false" comment="select" type="option">sort_dir<option desc=" ascending ">ASC</option>
     <option desc=" descending ">DESC</option>
   </sfield>
+  <sfield blank_ok="true" default="yes" type="option">COMMAND.CLIP
+    <option desc="return only desired gene region">yes</option>
+    </sfield>
   <sfield blank_ok="true" default="Any" type="option">COMMAND.genomic_region<alias>gene</alias><alias>genomic_region</alias>
 	<option>Any</option>
 	<option desc="complete genome">complete</option>
