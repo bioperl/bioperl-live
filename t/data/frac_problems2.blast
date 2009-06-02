@@ -89,7 +89,7 @@ Sbjct: 768575 gcaccggccattatgctcccgccgcctttagctccaccagcctccgcattctttctgacg 76863
 
 
 Query: 192    gtctgcgctcgccgtcgtcgcacgctctgtgctcctgcaccacctcagctgaagcggcta 251
-              ||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||
+              ||||||||||||||||||||||||||||||||||||||||| ||||||||||||||||| 
 Sbjct: 768635 gtctgcgctcgccgtcgtcgcacgctctgtgctcctgcaccccctcagctgaagcggctg 768694
 
 
@@ -125,7 +125,7 @@ Sbjct: 769407 ttcctttcaccgtatggccacgtgacgatgatgagctctggcgcctttcgcgtccggatg 76946
 
 
 Query: 959    ttttccgccacggccggtaacaactatgtaacctttcactatggaaaactgcaaaagttt 1018
-              |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+              ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| 
 Sbjct: 769467 ttttccgccacggccggtaacaactatgtaacctttcactatggaaaactgcaaaagttc 769526
 
 
