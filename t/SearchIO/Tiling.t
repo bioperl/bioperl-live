@@ -2,13 +2,14 @@
 #$Id$
 use strict;
 use warnings;
-    use vars qw($EXHAUSTIVE);
+    use vars qw($EXHAUSTIVE $VERBOSE);
 BEGIN {
     use lib '.';
     use lib '../..';
 
     use Bio::Root::Test;
     $EXHAUSTIVE = $ENV{BIOPERL_TILING_EXHAUSTIVE_TESTS};
+    $VERBOSE    = $ENV{BIOPERL_TILING_VERBOSE_TESTS};
     test_begin(-tests => ($EXHAUSTIVE ? 6471 : 1093) );
 }
 
@@ -201,7 +202,7 @@ $tiling->rewind('subject');
 while ($tiling->next_tiling('subject')) {$sn++};
 is ($sn, 256, 'tiling iterator regression test(3, rewind)');
 
-diag("Old blast.t tiling tests");
+diag("Old blast.t tiling tests") if $VERBOSE;
 
 ok($blio = Bio::SearchIO->new(
     '-format' => 'blast',
@@ -264,7 +265,7 @@ cmp_ok sprintf("%.3f",$tiling->frac_conserved(-denom => 'aligned')), '<=', 1, 't
 is(sprintf("%.2f",$tiling->frac_aligned_query), '0.92', 'tricky.wublast(3)');
 is(sprintf("%.2f",$tiling->frac_aligned_hit), '0.91','tricky.wublast(4)');
 
-diag("New tiling tests");
+diag("New tiling tests") if $VERBOSE;
 
 # select test file set based on the environment variable
 # BIOPERL_TILING_EXHAUSTIVE_TESTS
@@ -272,7 +273,7 @@ diag("New tiling tests");
 my $files = ($EXHAUSTIVE ? \%test_files : \%example_files);
 
 foreach my $alg (@normal_formats, @xltd_formats) {
-    diag("*******$alg files*******") if $files->{$alg};
+    diag("*******$alg files*******") if ($files->{$alg} && $VERBOSE);
     foreach my $tf (@{$files->{$alg}}) {
 	ok( $blio = Bio::SearchIO->new( -format=>'blast', 
 					-file=>test_input_file($tf)
@@ -290,7 +291,7 @@ foreach my $alg (@normal_formats, @xltd_formats) {
 	    my @hsps = $tiling->hsps;
 	    
 	    unless (@hsps) {
-		diag( "--no hsps for $tf hit $hit_count");
+		diag( "--no hsps for $tf hit $hit_count") if $VERBOSE;
 		next HIT;
 	    }
 	    my ($dpct, $est, $fast,$exact, $max);
@@ -299,7 +300,7 @@ foreach my $alg (@normal_formats, @xltd_formats) {
 	    ## loop through contexts:
 	    for my $type qw( query hit ) {
 		for my $context ($tiling->contexts($type)) {
-		    diag(" --- $type $context ---");
+		    diag(" --- $type $context ---") if $VERBOSE;
 		    if (scalar($tiling->contexts($type, $context)) == 1) {
 			# equality
 			($dpct, $est, $fast) = $tiling->cmp_frac($type,'identical','aligned', 'est', 'fast', $context);
