@@ -18,8 +18,6 @@ use_ok('Bio::SearchIO');
 use_ok('Bio::Search::Hit::BlastHit');
 use_ok('File::Spec');
 
-chdir('../..');
-
 my ($blio, $result, $hit, $tiling, $hsp);
 my @normal_formats = qw( blast  wublast
                          blastn wublastn
