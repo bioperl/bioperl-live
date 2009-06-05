@@ -37,8 +37,7 @@ my $build = Bio::Root::Build->new(
                             'Test::More'                => 0,
                             'Module::Build'             => 0.2805,
                             'Test::Harness'             => 2.62,
-                            'CPAN'                      => 1.81,
-			    'List::MoreUtils'           => 0
+                            'CPAN'                      => 1.81
                            },
     recommends          => { # does what you would expect of recommends, except more informative output and generates optional_features in META.yml
                             'Ace'                       => '0/access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace',
