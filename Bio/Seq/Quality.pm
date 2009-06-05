@@ -664,7 +664,8 @@ sub _find_clear_ranges {
 	# print "$i -- $q\n";
 	if ( $flag ){
 	    if ($q < $threshold) {
-		my $range->{end} = $i-1;
+		my $range;
+		$range->{end} = $i-1;
 		$range->{start}  = $flag;
 		$range->{length} = $i - $flag;
 		push @{$self->{_ranges}}, $range;
@@ -677,7 +678,8 @@ sub _find_clear_ranges {
 
     if( $flag ){
 	## Log the range
-	my $range->{end} = $i;
+	my $range;
+	$range->{end} = $i;
 	$range->{start}  = $flag;
 	$range->{length} = $i - $flag + 1;
 	push @{$self->{_ranges}}, $range;
