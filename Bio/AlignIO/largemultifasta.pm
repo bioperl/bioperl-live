@@ -157,7 +157,8 @@ sub next_aln {
 	}
     }
 
-    return $aln;
+    return $aln if $aln->no_sequences;
+	return;
 
 }
 

@@ -119,9 +119,9 @@ sub next_aln {
 #  If $end <= 0, we have either reached the end of
 #  file in <> or we have encountered some other error
 #
-   if ($end <= 0) { undef $aln;}
 
-      return $aln;
+	return $aln if $aln->no_sequences;
+	return;
 }
 
 
