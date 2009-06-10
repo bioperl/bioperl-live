@@ -233,7 +233,7 @@ sub get_link_names {
 =cut
 
 sub get_link_name {
-    return ($_[0]->get_linknames)[0];
+    return ($_[0]->get_link_names)[0];
 }
 
 =head2 get_submitted_ids
@@ -480,7 +480,9 @@ sub _add_data {
 
 sub _add_submitted_ids {
     my ($self, $data) = @_;
-    @{$self->{'_submitted_ids'}} = @{$data->{IdList}->{Id}} ;
+    if (exists $data->{IdList}->{Id}) {
+        @{$self->{'_submitted_ids'}} = @{$data->{IdList}->{Id}} ;
+    }
 }
 
 sub _add_retrieved_ids {
