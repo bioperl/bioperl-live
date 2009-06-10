@@ -822,7 +822,7 @@ sub write_assembly {
             my $contigobj = $scaffoldobj->get_contig_by_id($contigid);
 
             # Skip contigs of 1 sequence (singlets) if needed
-            next if ($contigobj->no_sequences == 1) && (!$singlets);
+            next if ($contigobj->num_sequences == 1) && (!$singlets);
             
             # Get contig information
             my $contanno = (grep
@@ -845,7 +845,7 @@ sub write_assembly {
                 $decimal_format, $self->_redundancy($contigobj));
             $contiginfo{'perc_N'}     = sprintf(
                 $decimal_format, $self->_perc_N($contiginfo{'sequence'}));
-            $contiginfo{'seqnum'}     = $contigobj->no_sequences;
+            $contiginfo{'seqnum'}     = $contigobj->num_sequences;
             $contiginfo{'full_cds'}   = ($contanno->get_tag_values('full_cds'))[0];
             $contiginfo{'cds_start'}  = ($contanno->get_tag_values('cds_start'))[0];
             $contiginfo{'cds_end'}    = ($contanno->get_tag_values('cds_end'))[0];

@@ -969,7 +969,7 @@ sub _new_from_assembly {
   $csp->{'_nof_seq'}     = $nseq;
   # 4: Set the spectrum: spectrum and max_size
   for my $contigobj ($assemblyobj->all_contigs) {
-    my $size = $contigobj->no_sequences;
+    my $size = $contigobj->num_sequences;
     if (defined $csp->{'_spectrum'}{$size}) {
       $csp->{'_spectrum'}{$size}++;
     } else {

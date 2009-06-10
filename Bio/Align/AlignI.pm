@@ -632,7 +632,8 @@ sub maxname_length {
  Usage     : $no = $ali->num_residues
  Function  : number of residues in total in the alignment
  Returns   : integer
- Argument  : 
+ Argument  :
+ Note      : replaces no_residues
 
 =cut
 
@@ -648,7 +649,8 @@ sub num_residues {
  Function  : number of sequence in the sequence alignment
  Returns   : integer
  Argument  : None
-
+ Note      : replaces no_sequences
+ 
 =cut
 
 sub num_sequences {
@@ -840,7 +842,8 @@ sub set_displayname_normal {
  Function  : number of residues in total in the alignment
  Returns   : integer
  Argument  : 
-
+ Note      : deprecated in favor of num_residues()
+ 
 =cut
 
 sub no_residues {
@@ -855,6 +858,7 @@ sub no_residues {
  Function  : number of sequence in the sequence alignment
  Returns   : integer
  Argument  : None
+ Note      : deprecated in favor of num_sequences() 
 
 =cut
 

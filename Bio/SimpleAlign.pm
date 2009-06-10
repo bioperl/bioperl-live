@@ -3151,7 +3151,7 @@ sub annotation {
  Function  : number of residues in total in the alignment
  Returns   : integer
  Argument  :
- Note      : deprecated in favor of num_sequences() 
+ Note      : deprecated in favor of num_residues() 
 
 =cut
 
