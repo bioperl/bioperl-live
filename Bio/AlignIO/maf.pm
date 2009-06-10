@@ -23,9 +23,9 @@ Bio::AlignIO::maf - Multiple Alignment Format sequence input stream
    print $aln, "\n";
 
    print $aln->length, "\n";
-   print $aln->no_residues, "\n";
+   print $aln->num_residues, "\n";
    print $aln->is_flush, "\n";
-   print $aln->no_sequences, "\n";
+   print $aln->num_sequences, "\n";
 
    $aln->splice_by_seq_pos(1);
 
@@ -179,7 +179,7 @@ sub next_aln {
 	$aln->add_seq($seq);
     }
 
-    return $aln if $aln->no_sequences;
+    return $aln if $aln->num_sequences;
 	return;
 }
 

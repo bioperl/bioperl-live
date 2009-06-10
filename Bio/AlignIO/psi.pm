@@ -128,7 +128,7 @@ sub next_aln {
                     );
 	$aln->add_seq($seq);
     }
-    return $aln if defined $aln && $aln->no_sequences;
+    return $aln if defined $aln && $aln->num_sequences;
 	return $aln;
 }
 

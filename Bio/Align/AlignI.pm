@@ -21,9 +21,9 @@ Bio::Align::AlignI - An interface for describing sequence alignments.
   # get a Bio::Align::AlignI somehow - typically using Bio::AlignIO system
   # some descriptors
   print $aln->length, "\n";
-  print $aln->no_residues, "\n";
+  print $aln->num_residues, "\n";
   print $aln->is_flush, "\n";
-  print $aln->no_sequences, "\n";
+  print $aln->num_sequences, "\n";
   print $aln->percentage_identity, "\n";
   print $aln->consensus_string(50), "\n";
 
@@ -247,7 +247,7 @@ sub each_seq_with_id {
 
              Gets a sequence based on its position in the alignment.
              Numbering starts from 1.  Sequence positions larger than
-             no_sequences() will throw an error.
+             num_sequences() will throw an error.
 
  Returns   : a Bio::LocatableSeq object
  Argument  : positive integer for the sequence position
@@ -272,7 +272,7 @@ current MSE.
 
              Creates a new alignment from a continuous subset of
              sequences.  Numbering starts from 1.  Sequence positions
-             larger than no_sequences() will throw an error.
+             larger than num_sequences() will throw an error.
 
  Returns   : a Bio::SimpleAlign object
  Argument  : positive integer for the first sequence
@@ -294,7 +294,7 @@ sub select {
 
              Creates a new alignment from a subset of
              sequences.  Numbering starts from 1.  Sequence positions
-             larger than no_sequences() will throw an error.
+             larger than num_sequences() will throw an error.
 
  Returns   : a Bio::SimpleAlign object
  Args      : array of integers for the sequences
@@ -626,32 +626,32 @@ sub maxname_length {
     $self->throw_not_implemented();
 }
 
-=head2 no_residues
+=head2 num_residues
 
- Title     : no_residues
- Usage     : $no = $ali->no_residues
+ Title     : num_residues
+ Usage     : $no = $ali->num_residues
  Function  : number of residues in total in the alignment
  Returns   : integer
  Argument  : 
 
 =cut
 
-sub no_residues {
+sub num_residues {
     my ($self) = @_;
     $self->throw_not_implemented();
 }
 
-=head2 no_sequences
+=head2 num_sequences
 
- Title     : no_sequences
- Usage     : $depth = $ali->no_sequences
+ Title     : num_sequences
+ Usage     : $depth = $ali->num_sequences
  Function  : number of sequence in the sequence alignment
  Returns   : integer
  Argument  : None
 
 =cut
 
-sub no_sequences {
+sub num_sequences {
     my ($self) = @_;
     $self->throw_not_implemented();
 }
@@ -829,6 +829,38 @@ sub set_displayname_flat {
 sub set_displayname_normal {
     my ($self) = @_;
     $self->throw_not_implemented();
+}
+
+=head1 Deprecated methods
+
+=head2 no_residues
+
+ Title     : no_residues
+ Usage     : $no = $ali->no_residues
+ Function  : number of residues in total in the alignment
+ Returns   : integer
+ Argument  : 
+
+=cut
+
+sub no_residues {
+    # immediate deprecation
+    shift->deprecated();
+}
+
+=head2 no_sequences
+
+ Title     : no_sequences
+ Usage     : $depth = $ali->no_sequences
+ Function  : number of sequence in the sequence alignment
+ Returns   : integer
+ Argument  : None
+
+=cut
+
+sub no_sequences {
+    # immediate deprecation
+    shift->deprecated();
 }
 
 1;

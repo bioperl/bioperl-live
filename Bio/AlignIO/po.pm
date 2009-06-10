@@ -209,7 +209,7 @@ sub next_aln {
 
     # has an alignment been read?...
 
-    return $aln if $aln->no_sequences;
+    return $aln if $aln->num_sequences;
 	return;
 }
 

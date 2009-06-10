@@ -574,7 +574,7 @@ sub write_aln {
                 # use the actual number, not the stored Annotation data
                 my $tmp = $aln_ann.$tag;
                 $alntag = sprintf('%-*s',length($tmp) + 1, $tmp);
-                $data = $aln->no_sequences;
+                $data = $aln->num_sequences;
             }
             elsif ($tag eq 'DR') {
                 my $tmp = $aln_ann.$tag;

@@ -33,17 +33,17 @@ is($aln1->match_line, '::*::::*:**:*:*:***:**.***::*.*::**::**:***..**:'.
 
 my $aln2 = $aln->select(1,3);
 isa_ok($aln2, 'Bio::Align::AlignI');
-is($aln2->no_sequences, 3, 'no_sequences');
+is($aln2->num_sequences, 3, 'num_sequences');
 
 # test select non continuous-sorted by default
 $aln2 = $aln->select_noncont(6,7,8,9,10,1,2,3,4,5);
-is($aln2->no_sequences, 10, 'no_sequences');
+is($aln2->num_sequences, 10, 'num_sequences');
 is($aln2->get_seq_by_pos(2)->id, $aln->get_seq_by_pos(2)->id, 'select_noncont');
 is($aln2->get_seq_by_pos(8)->id, $aln->get_seq_by_pos(8)->id, 'select_noncont');
 
 # test select non continuous-nosort option
 $aln2 = $aln->select_noncont('nosort',6,7,8,9,10,1,2,3,4,5);
-is($aln2->no_sequences, 10, 'no_sequences');
+is($aln2->num_sequences, 10, 'num_sequences');
 is($aln2->get_seq_by_pos(2)->id, $aln->get_seq_by_pos(7)->id, 'select_noncont');
 is($aln2->get_seq_by_pos(8)->id, $aln->get_seq_by_pos(3)->id, 'select_noncont');
 
@@ -72,8 +72,8 @@ is $aln->is_flush, 1,'is_flush';
 ok($aln->id('x') && $aln->id eq 'x','id get/set');
 
 is $aln->length, 242, 'length';
-is $aln->no_residues, 3769, 'no_residues';
-is $aln->no_sequences, 16, 'no_sequences';
+is $aln->num_residues, 3769, 'num_residues';
+is $aln->num_sequences, 16, 'num_sequences';
 is (sprintf("%.2f",$aln->overall_percentage_identity()), 33.06, 'overall_percentage_identity');
 is (sprintf("%.2f",$aln->overall_percentage_identity('align')), 33.06, 'overall_percentage_identity');
 is (sprintf("%.2f",$aln->overall_percentage_identity('short')), 35.24, 'overall_percentage_identity');
@@ -97,9 +97,9 @@ is($aln->match_line, '       ::*::::*  : *   *:           *: *:***:**.***::*.'.
    '***.** :*.            :  .*  *   :   : **.*:***********:::* : .: *  :** .'.
    '*::*: .*. : *: **:****************::     ', 'match_line');
 ok $aln->remove_seq($seqs[0]),'remove_seqs';
-is $aln->no_sequences, 15, 'remove_seqs';
+is $aln->num_sequences, 15, 'remove_seqs';
 ok $aln->add_seq($seqs[0]), 'add_seq';
-is $aln->no_sequences, 16, 'add_seq';
+is $aln->num_sequences, 16, 'add_seq';
 ok $seq = $aln->get_seq_by_pos(1), 'get_seq_by_pos';
 is( $seq->id, '1433_LYCES', 'get_seq_by_pos');
 ok (($aln->missing_char(), 'P') and  ($aln->missing_char('X'), 'X')) ;
@@ -107,7 +107,7 @@ ok (($aln->match_char(), '.') and  ($aln->match_char('-'), '-')) ;
 ok (($aln->gap_char(), '-') and  ($aln->gap_char('.'), '.')) ;
 
 is $aln->purge(0.7), 12, 'purge';
-is $aln->no_sequences, 4, 'purge';
+is $aln->num_sequences, 4, 'purge';
 
 SKIP:{
 	test_skip(-tests => 24, -requires_module => 'IO::String');
@@ -272,7 +272,7 @@ SKIP:{
 							 -file=> test_input_file('testaln2.fasta'));
 	$aln=$str->next_aln();
 	$new_aln=$aln->uniq_seq();
-	$a=$new_aln->no_sequences;
+	$a=$new_aln->num_sequences;
 	is $a, 11,'uniq_seq';
 		
 	# check if slice works well with a LocateableSeq in its negative strand
@@ -325,7 +325,7 @@ for my $seqset ( [qw(one AGAGGAT)], [qw(two AGACGAT) ], [qw(three AGAGGTT)]) {
 					 -seq => $seqset->[1]));
 }
 
-is $aln->no_sequences, 3, 'added 3 seqs';
+is $aln->num_sequences, 3, 'added 3 seqs';
 
 $aln->add_SeqFeature(Bio::SeqFeature::Generic->new(-start => 1,
 						   -end   => 1,

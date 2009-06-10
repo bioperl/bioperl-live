@@ -153,7 +153,7 @@ sub next_aln {
 #  file in <> or we have encountered some other error
 
    }
-   return $aln if $aln->no_sequences;
+   return $aln if $aln->num_sequences;
    return;
 }
 
@@ -193,7 +193,7 @@ sub write_aln {
 		}
 
 		$self->_print (sprintf("\n%s   MSF: %d  Type: %s  %s  Check: 00 ..\n\n",
-			       $name,  $aln->no_sequences, $type, $date));
+			       $name,  $aln->num_sequences, $type, $date));
 
     my $seqCountFormat = "%".($maxname > 20 ? $maxname + 2: 22)."s%-27d%27d\n";
     my $seqNameFormat  = "%-".($maxname > 20 ? $maxname : 20)."s  ";

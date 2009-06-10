@@ -27,9 +27,9 @@ Bio::SimpleAlign - Multiple alignments held as a set of sequences
 
   # Describe
   print $aln->length;
-  print $aln->no_residues;
+  print $aln->num_residues;
   print $aln->is_flush;
-  print $aln->no_sequences;
+  print $aln->num_sequences;
   print $aln->score;
   print $aln->percentage_identity;
   print $aln->consensus_string(50);
@@ -415,8 +415,8 @@ sub remove_seq {
     # we need to shift order hash
     my %rev_order = reverse %{$self->{'_order'}};
     my $no = $rev_order{$name};
-    my $no_sequences = $self->no_sequences;
-    for (; $no < $no_sequences; $no++) {
+    my $num_sequences = $self->num_sequences;
+    for (; $no < $num_sequences; $no++) {
        $self->{'_order'}->{$no} = $self->{'_order'}->{$no+1};
     }
     delete $self->{'_order'}->{$no};
@@ -585,7 +585,7 @@ sub set_new_reference {
 
     if ($seqid =~ /^\d+$/) { # argument is seq position
 	$is_num=1;
-	$self->throw("The new reference sequence number has to be a positive integer >1 and <= no_sequences ") if ($seqid <= 1 || $seqid > $self->no_sequences);
+	$self->throw("The new reference sequence number has to be a positive integer >1 and <= num_sequences ") if ($seqid <= 1 || $seqid > $self->num_sequences);
     } else { # argument is a seq name
 	$self->throw("The new reference sequence not in alignment ") unless &_in_aln($seqid, \@ids);
     }
@@ -849,7 +849,7 @@ sub each_seq_with_id {
  Usage     : $seq = $aln->get_seq_by_pos(3) # third sequence from the alignment
  Function  : Gets a sequence based on its position in the alignment.
              Numbering starts from 1.  Sequence positions larger than
-             no_sequences() will thow an error.
+             num_sequences() will thow an error.
  Returns   : a Bio::LocatableSeq object
  Args      : positive integer for the sequence position
 
@@ -863,7 +863,7 @@ sub get_seq_by_pos {
     $self->throw("Sequence position has to be a positive integer, not [$pos]")
 	unless $pos =~ /^\d+$/ and $pos > 0;
     $self->throw("No sequence at position [$pos]")
-	unless $pos <= $self->no_sequences ;
+	unless $pos <= $self->num_sequences ;
 
     my $nse = $self->{'_order'}->{--$pos};
     return $self->{'_seq'}->{$nse};
@@ -987,7 +987,7 @@ current MSA.
  Usage     : $aln2 = $aln->select(1, 3) # three first sequences
  Function  : Creates a new alignment from a continuous subset of
              sequences.  Numbering starts from 1.  Sequence positions
-             larger than no_sequences() will thow an error.
+             larger than num_sequences() will thow an error.
  Returns   : a Bio::SimpleAlign object
  Args      : positive integer for the first sequence
              positive integer for the last sequence to include (optional)
@@ -1027,7 +1027,7 @@ sub select {
              $aln2 = $aln->select_noncont('nosort',3, 1)
 
  Function  : Creates a new alignment from a subset of sequences.  Numbering
-             starts from 1.  Sequence positions larger than no_sequences() will
+             starts from 1.  Sequence positions larger than num_sequences() will
              throw an error.  Sorts the order added to new alignment by default,
              to prevent sorting pass 'nosort' as the first argument in the list.
  Returns   : a Bio::SimpleAlign object
@@ -1050,7 +1050,7 @@ sub select_noncont {
         }
     }
 	
-    my $end = $self->no_sequences;
+    my $end = $self->num_sequences;
     foreach ( @pos ) {
 		$self->throw("position must be a positive integer, > 0 and <= $end not [$_]")
 		  unless( /^\d+$/ && $_ > 0 && $_ <= $end );
@@ -2046,7 +2046,7 @@ sub _consensus_aa {
 	# print "Looking at $letter\n";
 	$hash{$letter}++;
     }
-    my $number_of_sequences = $self->no_sequences();
+    my $number_of_sequences = $self->num_sequences();
     my $threshold = $number_of_sequences * $threshold_percent / 100. ;
     $count = -1;
     $letter = '?';
@@ -2365,17 +2365,18 @@ sub max_metaname_length {
     return $maxname;
 }
 
-=head2 no_residues
+=head2 num_residues
 
- Title     : no_residues
- Usage     : $no = $ali->no_residues
+ Title     : num_residues
+ Usage     : $no = $ali->num_residues
  Function  : number of residues in total in the alignment
  Returns   : integer
  Argument  :
+ Note      : replaces no_residues() 
 
 =cut
 
-sub no_residues {
+sub num_residues {
     my $self = shift;
     my $count = 0;
 
@@ -2388,19 +2389,19 @@ sub no_residues {
     return $count;
 }
 
-=head2 no_sequences
+=head2 num_sequences
 
- Title     : no_sequences
- Usage     : $depth = $ali->no_sequences
+ Title     : num_sequences
+ Usage     : $depth = $ali->num_sequences
  Function  : number of sequence in the sequence alignment
  Returns   : integer
- Argument  :
+ Argument  : none
+ Note      : replaces no_sequences()
 
 =cut
 
-sub no_sequences {
+sub num_sequences {
     my $self = shift;
-
     return scalar($self->each_seq);
 }
 
@@ -3139,5 +3140,44 @@ sub annotation {
     return $obj->{'_annotation'};
 }
 
+=head1 Deprecated methods
+
+=cut
+
+=head2 no_residues
+
+ Title     : no_residues
+ Usage     : $no = $ali->no_residues
+ Function  : number of residues in total in the alignment
+ Returns   : integer
+ Argument  :
+ Note      : deprecated in favor of num_sequences() 
+
+=cut
+
+sub no_residues {
+	my $self = shift;
+	$self->deprecated(-warn_version => 1.0069,
+					  -throw_version => 1.0075);
+    $self->num_residues(@_);
+}
+
+=head2 no_sequences
+
+ Title     : no_sequences
+ Usage     : $depth = $ali->no_sequences
+ Function  : number of sequence in the sequence alignment
+ Returns   : integer
+ Argument  :
+ Note      : deprecated in favor of num_sequences()
+
+=cut
+
+sub no_sequences {
+	my $self = shift;
+	$self->deprecated(-warn_version => 1.0069,
+					  -throw_version => 1.0075);
+    $self->num_sequences(@_);
+}
 
 1;

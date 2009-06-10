@@ -120,7 +120,7 @@ sub next_aln {
 #  file in <> or we have encountered some other error
 #
 
-	return $aln if $aln->no_sequences;
+	return $aln if $aln->num_sequences;
 	return;
 }
 

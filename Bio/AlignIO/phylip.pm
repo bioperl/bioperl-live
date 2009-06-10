@@ -294,7 +294,7 @@ sub next_aln {
 	$aln->add_seq($seq);
 
    }
-   return $aln if $aln->no_sequences;
+   return $aln if $aln->num_sequences;
    return;
 }
 
@@ -331,12 +331,12 @@ sub write_aln {
 	$length  = $aln->length();
         if ($flag_SI) {
             if ($self->interleaved() ) {
-                $self->_print (sprintf(" %s %s I\n", $aln->no_sequences, $aln->length));
+                $self->_print (sprintf(" %s %s I\n", $aln->num_sequences, $aln->length));
             } else {
-                $self->_print (sprintf(" %s %s S\n", $aln->no_sequences, $aln->length));
+                $self->_print (sprintf(" %s %s S\n", $aln->num_sequences, $aln->length));
             }
         } else {
-            $self->_print (sprintf(" %s %s\n", $aln->no_sequences, $aln->length));
+            $self->_print (sprintf(" %s %s\n", $aln->num_sequences, $aln->length));
         }
 
 	$idlength = $self->idlength();

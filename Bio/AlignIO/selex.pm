@@ -143,7 +143,7 @@ sub next_aln {
 	$aln->add_seq($seq);
     }
 
-    return $aln if $aln->no_sequences;
+    return $aln if $aln->num_sequences;
     return;
 }
 
