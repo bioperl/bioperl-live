@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 50);
+    test_begin(-tests => 56);
 	
 	use_ok('Bio::Root::Root');
     use_ok('Bio::Seq');
@@ -153,7 +153,7 @@ ok $obj->can('t3'), 'arg callable since method was created';
 ok $obj->can('test_4'), 'mal-formed arg callable since method was created with good name';
 for my $m (qw(t3 test_4)) {
     can_ok('Bio::Foo2',$m);
-    ok (!UNIVERSAL::can('Bio::Root::Root',$m), "Methods don't pollute original Bio::Root::Root namespace");
+    ok (!Bio::Root::Root->can($m), "Methods don't pollute original Bio::Root::Root namespace");
 }
 
 package Bio::Foo3;
@@ -208,4 +208,73 @@ for my $m (qw(t7 test7 test_8 t8)) {
     can_ok('Bio::Foo4',$m);
     ok(!UNIVERSAL::can('Bio::Root::Root','t7'), "Methods don't pollute original Bio::Root::Root namespace");
 }
+
+# test deprecations using start_version
+
+package Bio::Foo5;
+use base qw(Bio::Root::Root);
+
+our $v = $Bio::Root::Version::VERSION;
+
+sub not_good {
+	my $self = shift;
+	$self->deprecated(-message => 'This is not good',
+					  -warn_version  => $v,
+					  -throw_version => $v + 0.001);
+}
+
+sub not_good2 {
+	my $self = shift;
+	# note, due to _rearrange, ordering is throw version, then warn version
+	$self->deprecated('This is not good',$v + 0.001,$v);
+}
+
+sub really_not_good {
+	my $self = shift;
+	$self->deprecated(-message => 'This is really not good',
+					  -warn_version  => $v - 0.001,
+					  -throw_version => $v,);
+}
+
+# version is the same as throw_version (and vice versa)
+sub still_very_bad {
+	my $self = shift;
+	$self->deprecated(-message => 'This is still very bad',
+					  -warn_version  => $v - 0.001,
+					  -version => $v);
+}
+
+sub okay_for_now {
+	my $self = shift;
+	$self->deprecated(-message => 'This is okay for now',
+					  -warn_version  => $v + 0.001,
+					  -throw_version => $v + 0.002);
+}
+
+sub plain_incorrect {
+	my $self = shift;
+	$self->deprecated(-message => 'This is not going to work',
+					  -warn_version  => '1.2.3.4',
+					  -throw_version => 'a.b.c.d');
+}
+
+package main;
+
+my $foo = Bio::Foo5->new();
+
+throws_ok { $foo->plain_incorrect } qr/Version must be numerical/,
+	'must use proper versioning scheme';
+
+warning_like{ $foo->not_good } qr/This is not good/,
+	'warns for versions >= '.$Bio::Root::Version::VERSION;
+# this tests the three-arg (non-named) form just to make sure it works, even
+# though we probably won't support it
+warning_like{ $foo->not_good2 } qr/This is not good/,
+	'warns for versions >= '.$Bio::Root::Version::VERSION;
+	
+throws_ok { $foo->really_not_good } qr/This is really not good/,
+	'throws for versions >= '.$Bio::Root::Version::VERSION;
+throws_ok { $foo->still_very_bad } qr/This is still very bad/,
+	'throws for versions >= '.$Bio::Root::Version::VERSION;
+lives_ok { $foo->okay_for_now } 'No warnings/exceptions below '.$Bio::Root::Version::VERSION;
 
