@@ -246,19 +246,19 @@ sub deprecated{
     my ($self) = shift;
     my ($msg, $version, $warn_version, $throw_version) =
         $self->_rearrange([qw(MESSAGE VERSION WARN_VERSION THROW_VERSION)], @_);    
-    
     $version ||= $throw_version;
     for my $v ($warn_version, $version) {
         next unless defined $v;
         $self->throw('Version must be numerical, such as 1.006000 for v1.6.0, not '.
                      $v) unless $v =~ /^\d+\.\d+$/;
     }
-        
     return if ($warn_version && $Bio::Root::Version::VERSION < $warn_version);
-    $msg ||= "Use of ".(caller(0))[3]."() is deprecated";
+    # below default insinuates we're deprecating a method and not a full module
+    # but it's the most common use case
+    $msg ||= "Use of ".(caller(1))[3]."() is deprecated";
     # delegate to either warn or throw based on whether a version is given
     if ($version) {
-        $msg .= "\nDeprecated in $version";
+        $msg .= "\nTo be removed in $version";
         if ($Bio::Root::Version::VERSION >= $version) {
             $self->throw($msg)
         } 
