@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::Tools::EUtilities::Summary::DocSum
+# BioPerl module for Bio::Tools::EUtilities::Summary::ItemContainerI
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
 #
@@ -11,17 +11,39 @@
 # You may distribute this module under the same terms as perl itself
 #
 # POD documentation - main docs before the code
-# 
+#
 # Part of the EUtilities BioPerl package
 
 =head1 NAME
 
-Bio::Tools::EUtilities::Summary::DocSum - data object for document summary data
-from esummary
+Bio::Tools::EUtilities::Summary::ItemContainerI - abtract interface methods
+for accessing Item information from any Item-containing class.  This pertains
+to either DocSums or to Items themselves (which can be layered)
 
 =head1 SYNOPSIS
 
+  # Implement ItemContainerI
+
+  # $foo is any ItemContainerI (current implementations are DocSum and Item itself)
+  
+  while (my $item = $foo->next_Item) { # iterate through contained Items
+     # do stuff here
+  }
+  
+  @items = $foo->get_Items;  # all Items in the container (hierarchy intact)
+  @items = $foo->get_all_Items;  # all Items in the container (flattened)
+  @items = $foo->get_Items_by_name('bar'); # Specifically named Items
+  ($content) = $foo->get_contents_by_name('bar'); # content from specific Items
+  ($type) = $foo->get_type_by_name('bar'); # data type from specific Items
+
 =head1 DESCRIPTION
+
+DocSum data, as returned from esummary, normally is a simple list of
+item-content-content_type groups. However, items can also contain nested data to
+represent more complex data (such as structural data). This interface describes
+the basic methods to generically retrieve the next layer of Item data. For
+convenience classes may describe more specific methods, but they should be
+defined in terms of this interface and it's methods.
 
 =head1 FEEDBACK
 
@@ -67,72 +89,11 @@ preceded with a _
 
 =cut
 
-# Let the code begin...
-
-package Bio::Tools::EUtilities::Summary::DocSum;
-
+package Bio::Tools::EUtilities::Summary::ItemContainerI;
 use strict;
 use warnings;
-use base qw(Bio::Root::Root Bio::Tools::EUtilities::Summary::ItemContainerI);
 
-use Bio::Tools::EUtilities::Summary::Item;
-
-=head2 new
-
- Title    : new
- Usage    : 
- Function : 
- Returns  : 
- Args     : 
-
-=cut
-
-sub new {
-    my ($class, @args) = @_;
-    my $self = $class->SUPER::new(@args);
-    my ($type) = $self->_rearrange(['DATATYPE'],@args);
-    $type ||= 'docsum';
-    $self->eutil('esummary');
-    $self->datatype($type);
-    return $self;
-}
-
-=head2 get_ids
-
- Title    : get_ids
- Usage    : my ($id) = $item->get_ids;
- Function : returns array or array ref with id
- Returns  : array or array ref
- Args     : none
- Note     : the behavior of this method remains consistent with other
-            implementations of get_ids(). To retrieve the single DocSum ID
-            use get_id()
-
-=cut
-
-sub get_ids {
-    my $self = shift;
-    return wantarray ? $self->{'_id'} : [$self->{'_id'}];
-}
-
-=head2 get_id
-
- Title    : get_id
- Usage    : my ($id) = $item->get_id;
- Function : returns UID of record
- Returns  : integer
- Args     : none
-
-=cut
-
-sub get_id {
-    my $self = shift;
-    return $self->{'_id'};
-}
-
-=head1 ItemContainerI methods
-
-=cut
+use base qw(Bio::Tools::EUtilities::EUtilDataI);
 
 =head2 next_Item
 
@@ -146,6 +107,17 @@ sub get_id {
 
 =cut
 
+sub next_Item {
+    my ($self, $request) = @_;
+    unless ($self->{"_items_it"}) {
+        my @items = ($request && $request eq 'flatten') ?
+                    $self->get_all_Items :
+                    $self->get_Items ;
+        $self->{"_items_it"} = sub {return shift @items}
+    }
+    $self->{'_items_it'}->();
+}
+
 =head2 get_Items
 
  Title    : get_Items
@@ -155,6 +127,11 @@ sub get_id {
  Args     : none
 
 =cut
+
+sub get_Items {
+    my $self = shift;
+    return ref $self->{'_items'} ? @{ $self->{'_items'} } : return ();
+}
 
 =head2 get_all_Items
 
@@ -178,6 +155,22 @@ sub get_id {
 
 =cut
 
+sub get_all_Items {
+    my $self = shift;
+    unless ($self->{'_ordered_items'}) {
+        for my $item ($self->get_Items) {
+            push @{$self->{'_ordered_items'}}, $item;
+            for my $ls ($item->get_ListItems) {
+                push @{$self->{'_ordered_items'}}, $ls;
+                for my $st ($ls->get_StructureItems) {
+                    push @{$self->{'_ordered_items'}}, $st;                
+                } 
+            }
+        }
+    }
+    return @{$self->{'_ordered_items'}};
+}
+
 =head2 get_all_names
 
  Title    : get_all_names
@@ -188,6 +181,14 @@ sub get_id {
 
 =cut
 
+sub get_all_names {
+    my ($self) = @_;
+    my %tmp;
+    my @data = grep {!$tmp{$_}++}
+        map {$_->get_name} $self->get_all_Items;
+    return @data;
+}
+
 =head2 get_Items_by_name
 
  Title    : get_Items_by_name
@@ -197,6 +198,14 @@ sub get_id {
  Args     : string (Item name)
 
 =cut
+
+sub get_Items_by_name {
+    my ($self, $key) = @_;
+    return unless $key;
+    my @data = grep {$_->get_name eq $key}
+        $self->get_all_Items;
+    return @data;
+}
 
 =head2 get_contents_by_name
 
@@ -209,6 +218,15 @@ sub get_id {
 
 =cut
 
+sub get_contents_by_name {
+    my ($self, $key) = @_;
+    return unless $key;
+    my @data = map {$_->get_content} 
+        grep {$_->get_name eq $key}
+        $self->get_all_Items;
+    return @data;
+}
+
 =head2 get_type_by_name
 
  Title    : get_type_by_name
@@ -220,62 +238,11 @@ sub get_id {
 
 =cut
 
-=head2 rewind
-
- Title    : rewind
- Usage    : $docsum->rewind();
- Function : rewinds DocSum iterator
- Returns  : none
- Args     : [optional]
-           'recursive' - rewind all DocSum object layers
-                         (Items, ListItems, StructureItems)
-
-=cut
-
-sub rewind {
-    my ($self, $request) = @_;
-    if ($request && $request eq 'all') {
-        map {$_->rewind('all') } $self->get_Items;
-    }
-    delete $self->{"_items_it"};
-}
-
-# private EUtilDataI method
-
-sub _add_data {
-    my ($self, $data) = @_;
-    if ($data->{Item}) {
-        $self->{'_id'} = $data->{Id} if exists $data->{Id};
-        for my $sd (@{ $data->{Item} } ) {
-            $sd->{Id} = $data->{Id} if exists $data->{Id};
-            my $subdoc = 
-                Bio::Tools::EUtilities::Summary::Item->new(-datatype => 'item',
-                                                  -verbose => $self->verbose);
-            $subdoc->_add_data($sd);
-            push @{ $self->{'_items'} }, $subdoc;
-        }
-    }
-    $self->{'_id'} = $data->{Id} if exists $data->{Id};
-}
-
-=head2 to_string
-
- Title    : to_string
- Usage    : $foo->to_string()
- Function : converts current object to string
- Returns  : none
- Args     : (optional) simple data for text formatting
- Note     : Used generally for debugging and for various print methods
-
-=cut
-
-sub to_string {
-    my $self = shift;
-    my $string = sprintf("%-20s%s\n",'UID', ':'.$self->get_id);
-    while (my $item = $self->next_Item)  {
-        $string .= $item->to_string;
-    }
-    return $string;
+sub get_type_by_name {
+    my ($self, $key) = @_;
+    return unless $key;
+    my ($it) = grep {$_->get_name eq $key} $self->get_all_Items;
+    return $it->get_type;
 }
 
 1;
