@@ -571,11 +571,12 @@ sub next_result {
             if (!$len || !$alphabet) {
                 WRAPPED:
                 while (defined($_ = $self->_readline)) {
-                    if (/\((\d+)\s*(aa|nt)\)/) {
-                        ($len, $alphabet) = ($1, $2);
+                    if (/(.*?)\s+\((\d+)\s*(aa|nt)\)/) {
+                        ($len, $alphabet) = ($2, $3);
+                        $hit_id .= $1 ? " ".$1 : '';
                         last WRAPPED;
                     }
-                    if (/^\s+initn:/) { # too far, throw
+                    if (/^>>(?!>)/) { # too far, throw
                         $self->throw("Couldn't find length, bailing");
                     }
                 }
@@ -602,7 +603,7 @@ sub next_result {
                 }
             );
 
-            $self->debug("Hit ID is $id\n");
+            #$self->debug("Hit ID is $id\n");
             my @pieces = split( /\|/, $id );
             my $acc = pop @pieces;
             $acc =~ s/\.\d+$//;
