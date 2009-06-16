@@ -397,12 +397,11 @@ sub debug {
 	# line from the previous call in the call stack, not this call (similar to
 	# cluck).  For now, just add a stack trace dump and simple comment under the
 	# correct conditions.
-	if (!@msgs || $msgs[-1] !~ /\n$/) {
-		push @msgs, "Debugging comment:" if !@msgs;
-		push @msgs, sprintf("%s %s:%s", @{($self->stack_trace)[2]}[3,1,2])."\n";
-	}
-	
     if (defined $self->verbose && $self->verbose > 0) {
+		if (!@msgs || $msgs[-1] !~ /\n$/) {
+			push @msgs, "Debugging comment:" if !@msgs;
+			push @msgs, sprintf("%s %s:%s", @{($self->stack_trace)[2]}[3,1,2])."\n";
+		}
         CORE::warn @msgs;
     }
 }
