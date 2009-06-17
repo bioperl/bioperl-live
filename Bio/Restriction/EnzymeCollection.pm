@@ -158,6 +158,7 @@ use strict;
 
 use Bio::Restriction::Enzyme;
 use Bio::Restriction::IO;
+use UNIVERSAL qw(isa);
 
 use Data::Dumper;
 
@@ -181,9 +182,10 @@ sub new {
     my($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my ($empty) =
+    my ($empty, $enzymes) =
             $self->_rearrange([qw(
                                   EMPTY
+                                  ENZYMES
                                  )], @args);
 
     $self->{'_all_enzymes'} = [];
@@ -191,10 +193,18 @@ sub new {
 
     return $self if $empty;
 
-    # the default set of enzymes
-    my $in  = Bio::Restriction::IO->new(-verbose => $self->verbose);
-    return $in->read;
 
+    if ($enzymes) {
+	# as advertised in pod/maj
+	$self->throw( "Arg to -enzymes must be an arrayref to Bio::Restriction::Enzyme objects") unless ref($enzymes) eq 'ARRAY';
+	$self->enzymes(@$enzymes);
+	return $self;
+    }
+    else {
+	# the default set of enzymes
+	my $in  = Bio::Restriction::IO->new(-verbose => $self->verbose);
+	return $in->read;
+    }
 }
 
 =head2 Manipulate the enzymes within the collection

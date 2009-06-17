@@ -141,13 +141,11 @@ sub new {
 =head2 others
 
  Title     : others
- Usage     : $re->vendor(@list_of_companies);
- Function  : Gets/Sets the a list of companies that you can get the enzyme from.
-             Also sets the commercially_available boolean
- Arguments : A reference to an array containing the names of companies
-             that you can get the enzyme from
- Returns   : A reference to an array containing the names of companies
-             that you can get the enzyme from
+ Usage     : $re->others(@enz_obj_array);
+ Function  : Stores auxiliary Enzyme::MultiCut objects for multicutting enzymes
+ Arguments : optional array of Enzyme::MultiCut objects
+ Returns   : array of Enzyme objects
+
 
 Added for compatibility to REBASE
 
@@ -156,6 +154,7 @@ Added for compatibility to REBASE
 sub others {
     my $self = shift;
     push @{$self->{_others}}, @_ if @_;
+    return unless $self->{_others};
     return @{$self->{'_others'}};
 }
 
