@@ -309,7 +309,7 @@ sub next_primer {
 	  if (! $self->number_of_results);
 
 	$self->{'next_to_return'} = 0 unless ($self->{'next_to_return'});
-	return if ($self->{'next_to_return'} >= $self->{'maximum_primers_returned'});
+	return if ($self->{'next_to_return'} >= $self->number_of_results);
 	my $results = $self->primer_results($self->{'next_to_return'});
 
 	$self->throw("No left primer sequence") unless (${$results}{'PRIMER_LEFT_SEQUENCE'});
