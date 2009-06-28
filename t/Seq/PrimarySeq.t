@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 53);
+    test_begin(-tests => 54);
 	
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -182,3 +182,9 @@ $seq->seq('atgxxxxxx');
 is($seq->alphabet,'protein');
 $seq->seq('atgnnnnnn');
 is($seq->alphabet,'dna');
+
+# Bug #2864: 
+
+$seq = Bio::PrimarySeq->new(-display_id => 0, -seq => 'GATC');
+
+is $seq->display_id, 0, "Bug #2864";
