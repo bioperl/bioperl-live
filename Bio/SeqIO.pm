@@ -371,7 +371,7 @@ sub new {
 
 	my $format = $param{'-format'} ||
 	    $class->_guess_format( $param{-file} || $ARGV[0] );
-
+        
 	if( ! $format ) {
 	    if ($param{-file}) {
 		$format = Bio::Tools::GuessSeqFormat->new(-file => $param{-file}||$ARGV[0] )->guess;
@@ -380,8 +380,12 @@ sub new {
 	    }
 	}
 	$format = "\L$format";	# normalize capitalization to lower case
-        $class->throw("Unknown format given or could not determine it [$format]")
-            unless $format;
+    $class->throw("Unknown format given or could not determine it [$format]")
+        unless $format;
+    if ($format =~ /-/) {
+        ($format, my $variant) = split('-', $format, 2);
+        push @args, (-variant => $variant);
+    }
 	return unless( $class->_load_format_module($format) );
 	return "Bio::SeqIO::$format"->new(@args);
     }

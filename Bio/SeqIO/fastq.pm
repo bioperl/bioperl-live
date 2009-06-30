@@ -7,8 +7,11 @@
 # Copyright Tony Cox
 #
 # You may distribute this module under the same terms as perl itself
+#
 # _history
+#
 # October 29, 2001  incept data
+# June 20, 2009 updates for Illumina variant FASTQ formats for Solexa and later
 
 # POD documentation - main docs before the code
 
@@ -22,12 +25,11 @@ Do not use this module directly.  Use it via the Bio::SeqIO class.
 
 =head1 DESCRIPTION
 
-This object can transform Bio::Seq and Bio::Seq::Quality
-objects to and from fastq flat file databases.
+This object can transform Bio::Seq and Bio::Seq::Quality objects to and from
+fastq flat file databases.
 
-Fastq is a file format used frequently at the Sanger Centre to bundle
-a fasta sequence and its quality data. A typical fastaq entry takes
-the from:
+Fastq is a file format used frequently at the Sanger Centre to bundle a fasta
+sequence and its quality data. A typical fastaq entry takes the from:
 
   @HCDPQ1D0501
   GATTTGGGGTTCAAAGCAGTATCGATCAAATAGTAAATCCATTTGTTCAACTCACAGTTT.....
@@ -35,9 +37,10 @@ the from:
   !''*((((***+))%%%++)(%%%%).1***-+*''))**55CCF>>>>>>CCCCCCC65.....
 
 Fastq files have sequence and quality data on a single line and the
-quality values are single-byte encoded. To retrieve the decimal values
-for qualities you need to subtract 33 (or Octal 41) from each byte and
-then convert to a '2 digit + 1 space' integer. 
+quality values are single-byte encoded.
+
+This parser now has preliminary support for Illumina v 1.0 and 1.3 FASTQ, though
+it needs extensive testing.
 
 =head1 FEEDBACK
 
@@ -91,11 +94,17 @@ use Bio::Seq::SeqFactory;
 use base qw(Bio::SeqIO);
 
 sub _initialize {
-  my($self,@args) = @_;
-  $self->SUPER::_initialize(@args);  
-  if( ! defined $self->sequence_factory ) {
-      $self->sequence_factory(Bio::Seq::SeqFactory->new(-verbose => $self->verbose(), -type => 'Bio::Seq::Quality'));      
-  }
+    my($self,@args) = @_;
+    $self->SUPER::_initialize(@args);
+    my ($variant, $validate) = $self->_rearrange([qw(VARIANT
+                                                   VALIDATE)], @args);
+    $variant ||= 'sanger';
+    $self->variant($variant);
+    $validate   && $self->validate($validate);
+    
+    if( ! defined $self->sequence_factory ) {
+        $self->sequence_factory(Bio::Seq::SeqFactory->new(-verbose => $self->verbose(), -type => 'Bio::Seq::Quality'));      
+    }
 }
 
 
@@ -110,70 +119,101 @@ sub _initialize {
 =cut
 
 sub next_seq {
-  my( $self ) = @_;
-  my $seq;
-  my $alphabet;
-  local $/ = "\n";
-  my $seqdata;
-  my @datatype = qw(seqdesc seq qualdesc qual);
-  while (@datatype) {
-    return unless my $line = $self->_readline; # bail if any data is incomplete
-    chomp $line;
-    my $type = shift @datatype;
-    if ($type eq 'seqdesc' || $type eq 'qualdesc') {
-      $self->throw("$line doesn't match fastq descriptor line type") unless
-        $line =~ m{^[\+@](.*)$};
-        $line = $1;
+    my( $self ) = @_;
+    
+	# separate out the parsing into a separate sub (next_chunk). We can probably
+	# add in a hook here to allow XS-based parsing vs. a pure perl solution
+    
+    while (defined(my $data = $self->next_dataset)) {
+        # Are FASTQ sequences w/o any sequence valid?  Commenting out for now.
+        # -cjfields 6.22.09
+        
+        my $seq = $self->sequence_factory->create(%$data);
+        return $seq;
     }
-    $seqdata->{$type} = $line;
-  }
-  $self->warn("Seq/Qual descriptions don't match; using sequence description\n")
-    unless $seqdata->{qualdesc} eq '' || $seqdata->{seqdesc} eq $seqdata->{qualdesc};
-  my ($id,$fulldesc) = $seqdata->{seqdesc} =~ /^\s*(\S+)\s*(.*)/
-    or $self->throw("Can't parse fastq header");
-  if ($id eq '') {$id=$fulldesc;}   # FIX incase no space between \@ and name
-  $seqdata->{seq} =~ s/\s//g;             # Remove whitespace
-  $seqdata->{qual} =~ s/\s//g;
-  
-  if(length($seqdata->{seq}) != length($seqdata->{qual})){
-    $self->warn("Fastq sequence/quality data length mismatch error\n",
-                "Sequence: ",$seqdata->{seqdesc},", seq length: ",length($seqdata->{seq}), " Qual length: ", length($seqdata->{qual}), " \n",
-                $seqdata->{seq},"\n",$seqdata->{qual},"\n");
-  }
+    return;
+}
 
-  my $seq_data_qual = $seqdata->{qual};
-  my @qual = unpack("A1" x length($seq_data_qual), $seq_data_qual);
-  # my @qual = split('', $seqdata->{qual}); # Speed up above
-
-  my $qual;
-  foreach (@qual) {$qual .=  (unpack("C",$_) - 33) ." "};
-  
-  # for empty sequences we need to know the mol.type
-  $alphabet = $self->alphabet();
-  if(length($seqdata->{seq}) == 0) {
-      if(! defined($alphabet)) {
-	  # let's default to dna
-	  $alphabet = "dna";
-      }
-  } else {
-      # we don't need it really, so disable
-      $alphabet = undef;
-  }
-
-  # create the Quality object
-  $seq = $self->sequence_factory->create(
-					 -qual         => $qual,
-					 -seq          => $seqdata->{seq},
-					 -id           => $id,
-					 -primary_id   => $id,
-					 -desc         => $fulldesc,
-					 -alphabet     => $alphabet
-					 );
-  
-  # if there wasn't one before, set the guessed type
-  $self->alphabet($seq->alphabet());
-  
-  return $seq;
+# pure perl version
+sub next_dataset {
+    my $self = shift;
+    local $/ = "\n";
+    my ($data, $ct);
+    my $mode = '-seq';
+    
+	# speed this up by directly accessing the filehandle and in-lining the
+	# _readline stuff vs. making the repeated method calls. Tradeoff is speed
+	# over repeated code.
+	
+	# we can probably normalize line endings using PerlIO::eol or
+	# Encode::Newlines
+	
+    my $fh = $self->_fh;
+	my $line = $self->{lastline} || <$fh>;
+	
+    FASTQ:
+    while ($line) {
+		$line =~ s/\015\012/\012/;
+		$line =~ tr/\015/\n/;
+        if ($mode eq '-seq' && $line =~ m{^@([^\n]+)$}xmso) {
+            $data->{-descriptor} = $1;
+			my ($id,$fulldesc);
+			if ($data->{-descriptor} =~ /^\s*(\S+)\s*(.*)/) {
+				($id,$fulldesc) = ($1, $2);
+			} else {
+				$self->throw("Can't parse fastq header");
+			}
+			$data->{-id} = $id;
+			$data->{-desc} = $fulldesc;
+            $ct->{-seq} = 0;
+        } elsif ($mode eq '-seq' && $line =~ m{^\+([^\n]*)?}xmso) {
+            $self->throw("No description line parsed") unless $data->{-descriptor};
+			if ($1 && $data->{-descriptor} ne $1) {
+				$self->throw("Quality descriptor [$1] doesn't match seq description ".$data->{-descriptor} );
+			}
+            $mode = '-raw_quality';
+            $ct->{-raw_quality} = 0;
+        } else {
+            # this uses a fairly loose check where the number of lines of
+            # both qual and seq match before bailing from the loop
+            if ($mode eq '-raw_quality' &&
+                $ct->{-raw_quality} == $ct->{-seq}) {
+                $self->{lastline} = $line;
+                last FASTQ
+            }
+            $ct->{$mode}++;
+            chomp $line;
+            $data->{$mode} .= $line;
+        }
+		$line = <$fh>;
+		if (!defined $line) {
+			delete $self->{lastline};
+			last FASTQ;
+		}
+    }
+    
+    # simple quality control tests
+    if (defined $data) {
+        if (length $data->{-seq} != length $data->{-raw_quality}) {
+            $self->throw("Quality string\n".$data->{-raw_quality}."\nlength [".length($data->{-raw_quality})."] doesn't match ".
+                         "length of sequence\n".$data->{-seq}."\n[".length($data->{-seq})."], $.");
+        }
+        
+        my @qual = map {unpack("C",$_) - $self->{ord_start}}
+			unpack("A1" x length($data->{-raw_quality}), $data->{-raw_quality});
+			
+		# this should be somewhat rarer now, but needs to be present JIC
+		if ($self->variant eq 'solexa') {
+			# The conversion needs to be to PHRED score, but solexa (aka illumina 1.0)
+			# has Solexa qual units, not PHRED qual units.  Convert over...
+			# this doesn't account for very low scores yet!
+			@qual = map {sprintf("%.0f",(10 * log(1 + 10 ** ($_ / 10.0)) / log(10)))} @qual;
+		}
+		
+		$data->{-qual} = \@qual;
+    }
+    
+    return $data;
 }
 
 =head2 write_seq
@@ -188,25 +228,28 @@ sub next_seq {
 =cut
 
 sub write_seq {
-   my ($self,@seq) = @_;
-   foreach my $seq (@seq) {
-     my $str = $seq->seq;
-     my $top = $seq->display_id();
-     if ($seq->can('desc') and my $desc = $seq->desc()) {
-	 $desc =~ s/\n//g;
-        $top .= " $desc";
-     }
-     if(length($str) > 0) {
-	    $str =~ s/(.{1,60})/$1\n/g;
-     } else {
-	    $str = "\n";
-     }
-     
-     $self->_print (">",$top,"\n",$str) or return;
-   }
-
-   $self->flush if $self->_flush_on_write && defined $self->_fh;
-   return 1;
+    my ($self,@seq) = @_;
+	if ($self->variant ne 'sanger') {
+		$self->throw($self->variant." is not supported yet with write_seq");
+	}
+    foreach my $seq (@seq) {
+        my $str = $seq->seq;
+        my $top = $seq->display_id();
+        if ($seq->can('desc') and my $desc = $seq->desc()) {
+        $desc =~ s/\n//g;
+            $top .= " $desc";
+        }
+        if(length($str) > 0) {
+            $str =~ s/(.{1,60})/$1\n/g;
+        } else {
+            $str = "\n";
+        }
+        
+        $self->_print (">",$top,"\n",$str) or return;
+    }
+ 
+    $self->flush if $self->_flush_on_write && defined $self->_fh;
+    return 1;
 }
 
 =head2 write_qual
@@ -217,39 +260,38 @@ sub write_seq {
  Returns : 1 for success and 0 for error
  Args    : Bio::Seq::Quality object
 
-
 =cut
 
 sub write_qual {
    my ($self,@seq) = @_;
-   foreach my $seq (@seq) {
-     unless ($seq->isa("Bio::Seq::Quality")){
-        $self->warn("You can write FASTQ without supplying a Bio::Seq::Quality object! ", ref($seq), "\n");
-        next;
-     } 
-     my @qual = @{$seq->qual};
-     my $top = $seq->display_id();
-     if ($seq->can('desc') and my $desc = $seq->desc()) {
-	 $desc =~ s/\n//g;
-        $top .= " $desc";
-     }
-     my $qual = "" ;
-     if(scalar(@qual) > 0) {
-        my $max = 60;
-        for (my $q = 0;$q<scalar(@qual);$q++){
-            $qual .= $qual[$q] . " ";
-            if(length($qual) > $max){
-                $qual .= "\n";
-                $max += 60;
-            }
+    foreach my $seq (@seq) {
+        unless ($seq->isa("Bio::Seq::Quality")){
+            $self->warn("You can write FASTQ without supplying a Bio::Seq::Quality object! ", ref($seq), "\n");
+            next;
         }
-     } else {
-	    $qual = "\n";
-     }
-     
-     $self->_print (">",$top,"\n",$qual,"\n") or return;
-   }
-   return 1;
+        my @qual = @{$seq->qual};
+        my $top = $seq->display_id();
+        if ($seq->can('desc') and my $desc = $seq->desc()) {
+        $desc =~ s/\n//g;
+            $top .= " $desc";
+        }
+        my $qual = "" ;
+        if(scalar(@qual) > 0) {
+            my $max = 60;
+            for (my $q = 0;$q<scalar(@qual);$q++){
+                $qual .= $qual[$q] . " ";
+                if(length($qual) > $max){
+                    $qual .= "\n";
+                    $max += 60;
+                }
+            }
+        } else {
+            $qual = "\n";
+        }
+        
+        $self->_print (">",$top,"\n",$qual,"\n") or return;
+    }
+    return 1;
 }
 
 =head2 write_fastq
@@ -264,34 +306,108 @@ sub write_qual {
 =cut
 
 sub write_fastq {
-   my ($self,@seq) = @_;
-   foreach my $seq (@seq) {
-     unless ($seq->isa("Bio::Seq::Quality")){
-        $self->warn("You can't write FASTQ without supplying a Bio::Seq::Quality object! ", ref($seq), "\n");
-        next;
-     } 
-     my $str = $seq->seq;
-     my @qual = @{$seq->qual};
-     my $top = $seq->display_id();
-     if ($seq->can('desc') and my $desc = $seq->desc()) {
-	 $desc =~ s/\n//g;
-        $top .= " $desc";
-     }
-     if(length($str) == 0) {
-	    $str = "\n";
-     }
-     my $qual = "" ;
-     if(scalar(@qual) > 0) {
-        for (my $q = 0;$q<scalar(@qual);$q++){
-            $qual .= chr($qual[$q] + 33);
+    my ($self,@seq) = @_;
+    foreach my $seq (@seq) {
+        unless ($seq->isa("Bio::Seq::Quality")){
+           $self->warn("You can't write FASTQ without supplying a Bio::Seq::Quality object! ", ref($seq), "\n");
+           next;
+        } 
+        my $str = $seq->seq;
+        my ($qstart, $qend) = ($self->{qual_start}, $self->{qual_end});
+        my @qual = @{$seq->qual};
+        my $top = $seq->display_id();
+        if ($seq->can('desc') and my $desc = $seq->desc()) {
+        $desc =~ s/\n//g;
+           $top .= " $desc";
         }
-     } else {
-	    $qual = "\n";
-     }
-     
-     $self->_print ("\@",$top,"\n",$str,"\n") or return;
-     $self->_print ("+",$top,"\n",$qual,"\n") or return;
-   }
-   return 1;
+        if(length($str) == 0) {
+           $str = "\n";
+        }
+        my $qual = "" ;
+        if(scalar(@qual) > 0) {
+            for my $q (0..$#qual) {
+                $qual .= chr($qual[$q] + $qstart);
+            }
+        } else {
+            $qual = "\n";
+        }
+        
+        $self->_print ("\@",$top,"\n",$str,"\n") or return;
+        $self->_print ("+",$top,"\n",$qual,"\n") or return;
+    }
+    return 1;
 }
+
+=head2 variant
+
+ Title   : variant
+ Usage   : $format  = $obj->variant();
+ Function: Get and set method for the quality sequence variant.  This is
+           important for indicating the encoding/decoding to be used for
+           quality data.
+           
+           Current values accepted are:
+			'sanger'   (orginal FASTQ)
+				ASCII encoding from 33-126, PHRED quality score from 0 to 93
+			'solexa'   (aka illumina1.0)
+				ASCII encoding from 59-104, SOLEXA quality score from -5 to 40
+			'illumina' (aka illumina1.3)
+				ASCII encoding from 64-104, PHRED quality score from 0 to 40
+			
+			(Derived from the MAQ website):
+			For 'solexa', scores are converted to PHRED qual scores using:
+				$Q = 10 * log(1 + 10 ** (ord($sq) - 64) / 10.0)) / log(10)
+			
+
+ Returns : string
+ Args    : new value, string
+
+=cut
+
+{
+    my %VARIANT = (
+        sanger     => {
+            'ord_start'  => 33,
+            'ord_end'    => 126,
+            'qual_start' => 0,
+            'qual_end'   => 93
+            },
+        solexa     => {
+            'ord_start' => 59,
+            'ord_end'   => 104,
+            'qual_start' => -5,
+            'qual_end'   => 40
+            },
+        illumina   => {
+            'ord_start' => 64,
+            'ord_end'   => 104,
+            'qual_start' => 0,
+            'qual_end'   => 40
+            },
+    );
+    
+sub variant {
+    my ($self, $enc) = @_;
+    if (defined $enc) {
+        $enc = lc $enc;
+        $self->throw('Not a valid FASTQ variant format') unless exists $VARIANT{$enc};
+        # cache values for quicker accession
+        for my $k (%{$VARIANT{$enc}}) {
+            $self->{$k} = $VARIANT{$enc}{$k};
+        }
+        $self->{qualtype} = $enc;
+    }
+    return $self->{qualtype};
+}
+
+}
+
+sub validate {
+    my ($self, $val) = @_;
+    if (defined $val) {
+        $self->{_validate_qual} = $val;
+    }
+    return $self->{_validate_qual};
+}
+
 1;
