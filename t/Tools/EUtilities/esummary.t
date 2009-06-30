@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 81,
+	test_begin(-tests => 83,
 			   -requires_module => 'XML::Simple');
 	
     use_ok('Bio::Tools::EUtilities');
@@ -163,9 +163,13 @@ is($items[0]->get_content, undef); # List contents are other Items
 # access List layer from top Item
 my @li = $items[0]->get_ListItems;
 is(scalar(@li), 10);
+@li = $items[0]->get_Items;
+is(scalar(@li), 10);
 
 # access Structure Layer from List Item
 my @si = $li[1]->get_StructureItems;
+is(scalar(@si), 5);
+@si = $li[1]->get_StructureItems;
 is(scalar(@si), 5);
 
 # test List Item
