@@ -7,9 +7,10 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 47);
+    test_begin(-tests => 52);
     
     use_ok('Bio::SeqIO::fastq');
+	use_ok('Bio::Seq::Quality');
 }
 
 my $DEBUG = test_debug();
@@ -103,7 +104,15 @@ is($qual->{-desc}, '');
 is($qual->{-descriptor}, 'FC12044_91407_8_200_406_24');
 is(join(',',@{$qual->{-qual}}[0..10]), '19,24,24,20,24,24,24,24,24,24,24');
 
-# some round trip tests for write_fastq
+# can this be used in a constructor?
+
+my $qualobj = Bio::Seq::Quality->new(%$qual);
+is($qualobj->seq, 'GTTAGCTCCCACCTTAAGATGTTTA');
+is($qualobj->display_id, 'FC12044_91407_8_200_406_24');
+is($qualobj->desc, undef);
+is(join(',',@{$qualobj->qual}[0..10]), '19,24,24,20,24,24,24,24,24,24,24');
+
+# round trip tests for write_fastq
 
 my %format = (
 			'fastq-sanger'      => ['test1_sanger.fastq', 250],

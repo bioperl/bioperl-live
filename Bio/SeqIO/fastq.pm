@@ -161,10 +161,11 @@ sub next_dataset {
             $data->{-id} = $id;
             $data->{-desc} = $fulldesc;
             $ct->{-seq} = 0;
-        } elsif ($mode eq '-seq' && $line =~ m{^\+([^\n]*)?}xmso) {
+        } elsif ($mode eq '-seq' && $line =~ m{^\+([^\n]*)}xmso) {
+			my $desc = $1;
             $self->throw("No description line parsed") unless $data->{-descriptor};
-            if ($1 && $data->{-descriptor} ne $1) {
-                $self->throw("Quality descriptor [$1] doesn't match seq description ".$data->{-descriptor} );
+            if ($desc && $data->{-descriptor} ne $desc) {
+                $self->throw("Quality descriptor [$desc] doesn't match seq description ".$data->{-descriptor} );
             }
             $mode = '-raw_quality';
             $ct->{-raw_quality} = 0;
@@ -203,6 +204,7 @@ sub next_dataset {
             # The conversion needs to be to PHRED score, but solexa (aka illumina 1.0)
             # has Solexa qual units, not PHRED qual units.  Convert over...
             # this doesn't account for very low scores yet!
+			# NOTE: code is kludged from MAQ (maq.sourceforge.net)
             @qual = map {sprintf("%.0f",(10 * log(1 + 10 ** ($_ / 10.0)) / log(10)))} @qual;
         }
         
@@ -220,8 +222,10 @@ sub next_dataset {
  Returns : 1 for success and 0 for error
  Args    : Bio::Seq::Quality or Bio::Seq object
 
-
 =cut
+
+# This should be creating fastq output only.  Bio::SeqIO::fasta and 
+# Bio::SeqIO::qual should be used for that output
 
 sub write_seq {
     my ($self,@seq) = @_;
