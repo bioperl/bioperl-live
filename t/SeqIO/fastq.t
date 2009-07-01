@@ -7,9 +7,9 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 29);
-	
-	use_ok('Bio::SeqIO::fastq');
+    test_begin(-tests => 47);
+    
+    use_ok('Bio::SeqIO::fastq');
 }
 
 my $DEBUG = test_debug();
@@ -17,8 +17,8 @@ my $DEBUG = test_debug();
 # original FASTQ (Sanger); data is from NCBI SRA database, which has
 # all data converted over to Sanger version of FASTQ
 
-my $in_qual  = Bio::SeqIO->new(-file     => test_input_file('fastq','test1_sanger.fastq'),
-							-format   => 'fastq');
+my $in_qual  = Bio::SeqIO->new(-file  => test_input_file('fastq','test1_sanger.fastq'),
+                            -format   => 'fastq');
 isa_ok($in_qual, 'Bio::SeqIO');
 
 my $qual = $in_qual->next_seq();
@@ -38,8 +38,7 @@ is($qual->desc, 'FB9GE3J10GA1VT length=326');
 # this is the test example from the MAQ script , better examples welcome!
 
 $in_qual  = Bio::SeqIO->new(-file     => test_input_file('fastq','test2_solexa.fastq'),
-							-variant  => 'solexa',
-							-format   => 'fastq');
+                            -format   => 'fastq-solexa');
 
 $qual = $in_qual->next_seq();
 isa_ok($qual, 'Bio::Seq::Quality');
@@ -48,7 +47,7 @@ isa_ok($qual, 'Bio::Seq::Quality');
 is(@quals, 25, 'number of qual values');
 
 $qualslice = join(',',@quals[12..24]);
-is($qualslice, '30,30,30,30,30,30,28,30,28,30,30,24,26', 'qual slice');
+is($qualslice, '25,25,25,25,25,25,23,25,23,25,25,19,21', 'qual slice');
 
 is($qual->display_id, 'SLXA-B3_649_FC8437_R1_1_1_610_79');
 is($qual->desc, undef);
@@ -56,8 +55,7 @@ is($qual->desc, undef);
 # Illumina v1.3
 
 $in_qual  = Bio::SeqIO->new(-file     => test_input_file('fastq','test3_illumina.fastq'),
-							-variant  => 'illumina',
-							-format   => 'fastq');
+                            -format   => 'fastq-illumina');
 
 $qual = $in_qual->next_seq();
 isa_ok($qual, 'Bio::Seq::Quality');
@@ -72,9 +70,9 @@ is($qual->display_id, 'FC12044_91407_8_200_406_24');
 is($qual->desc, undef);
 
 # bug 2335
+
 $in_qual  = Bio::SeqIO->new('-file' => test_input_file('fastq','bug2335.fastq'),
-							   '-format' => 'fastq',
-							   -variant => 'sanger');
+                            '-format' => 'fastq-sanger');
 
 $qual = $in_qual->next_seq();
 isa_ok($qual, 'Bio::Seq::Quality');
@@ -92,8 +90,8 @@ is($qual->desc, undef);
 # raw data
 
 $in_qual  = Bio::SeqIO->new(-file     => test_input_file('fastq','test3_illumina.fastq'),
-							-variant  => 'illumina',
-							-format   => 'fastq');
+                            -variant  => 'illumina',
+                            -format   => 'fastq');
 
 $qual = $in_qual->next_dataset();
 
@@ -105,5 +103,45 @@ is($qual->{-desc}, '');
 is($qual->{-descriptor}, 'FC12044_91407_8_200_406_24');
 is(join(',',@{$qual->{-qual}}[0..10]), '19,24,24,20,24,24,24,24,24,24,24');
 
-# need write_seq tests (NYI)
+# some round trip tests for write_fastq
+
+my %format = (
+			'fastq-sanger'      => ['test1_sanger.fastq', 250],
+            'fastq-solexa'      => ['test2_solexa.fastq', 5],
+            'fastq-illumina'    => ['test3_illumina.fastq', 25]
+			);
+
+while (my ($variant, $data) = each %format) {
+	my $outfile = "$variant.fastq";
+	my ($file, $total) = @$data;
+	$file = test_input_file('fastq', $file);
+	my $in = Bio::SeqIO->new(-format => $variant,
+							 -file   => $file);
+	my $out = Bio::SeqIO->new(-format => $variant,
+							 -file   => ">$outfile");
+	my ($input_ct, $round_trip) = (0,0);
+	my $test_qual;
+	while (my $seq = $in->next_seq) {
+		$input_ct++;
+		if ($input_ct == 5) {
+			$test_qual = $seq;
+		}
+		# this will likely be changed to write_seq, NYI
+		$out->write_fastq($seq);
+	}
+	is($input_ct, $total, $variant." total");
+	$out->close;
+	my $new_in = Bio::SeqIO->new(-format => $variant,
+						  -file   => $outfile);
+	while (my $seq = $new_in->next_seq) {
+		$round_trip++;
+		if ($round_trip == 5) {
+			for my $att (qw(seq display_id desc)) {
+				is($seq->$att, $test_qual->$att, "Testing $att");
+			}
+			is_deeply($seq->qual, $test_qual->qual, "Testing qual");
+		}
+	}
+	is($round_trip, $total, $variant." total");	
+}
 
