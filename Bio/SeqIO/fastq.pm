@@ -120,14 +120,9 @@ sub _initialize {
 
 sub next_seq {
     my( $self ) = @_;
-    
-    # separate out the parsing into a separate sub (next_chunk). We can probably
-    # add in a hook here to allow XS-based parsing vs. a pure perl solution
-    
     while (defined(my $data = $self->next_dataset)) {
-        # Are FASTQ sequences w/o any sequence valid?  Commenting out for now.
+        # Are FASTQ sequences w/o any sequence valid?  Removing for now
         # -cjfields 6.22.09
-        
         my $seq = $self->sequence_factory->create(%$data);
         return $seq;
     }
@@ -199,7 +194,8 @@ sub next_dataset {
                          "length of sequence\n".$data->{-seq}."\n[".length($data->{-seq})."], $.");
         }
         
-        my @qual = map {unpack("C",$_) - $self->{ord_start}}
+		# need to benchmark this vs the prior unpack("C", ...) version
+        my @qual = map {$self->{chr2phred}->{$_}}
             unpack("A1" x length($data->{-raw_quality}), $data->{-raw_quality});
             
         # this should be somewhat rarer now, but needs to be present JIC
@@ -288,6 +284,8 @@ sub write_qual {
         
         $self->_print (">",$top,"\n",$qual,"\n") or return;
     }
+    $self->flush if $self->_flush_on_write && defined $self->_fh;
+	
     return 1;
 }
 
@@ -304,9 +302,6 @@ sub write_qual {
 
 sub write_fastq {
     my ($self,@seq) = @_;
-    if ($self->variant eq 'solexa') {
-        $self->throw("Solexa is not supported yet with write_fastq");
-    }
     foreach my $seq (@seq) {
 		unless ($seq->isa("Bio::Seq::Quality")){
 			$self->warn("You can't write FASTQ without supplying a Bio::Seq::Quality object! ", ref($seq), "\n");
@@ -322,14 +317,7 @@ sub write_fastq {
 		if(length($str) == 0) {
 			$str = "\n";
 		}
-		my $qual = "" ;
-		if(scalar(@qual) > 0) {
-			for (my $q = 0;$q<scalar(@qual);$q++){
-				$qual .= chr($qual[$q] + $self->{ord_start});
-			}
-		} else {
-		   $qual = "\n";
-		}
+		my $qual = join('', map {$self->{phred2chr}->{$_}} @qual);
 		$self->_print ("\@",$top,"\n",$str,"\n") or return;
 		$self->_print ("+",$top,"\n",$qual,"\n") or return;
     }
@@ -390,9 +378,17 @@ sub variant {
         $enc = lc $enc;
         $self->throw('Not a valid FASTQ variant format') unless exists $VARIANT{$enc};
         # cache encode/decode values for quicker accession
-        for my $k (%{$VARIANT{$enc}}) {
-            $self->{$k} = $VARIANT{$enc}{$k};
-        }
+		my $ct = 0;
+		my ($qs, $qe, $os, $oe) = @{ $VARIANT{$enc} }{qw(qual_start qual_end ord_start ord_end)};
+		for my $c ($os..$oe) {
+			my $char = chr($c);
+			my $score = $qs + $ct++;
+			if ($enc eq 'solexa') {
+				$score = sprintf("%.0f",(10 * log(1 + 10 ** ($score / 10.0)) / log(10)));
+			}
+			$self->{chr2phred}->{$char} = $score;
+			$self->{phred2chr}->{$score} = $char;
+		}
         $self->{qualtype} = $enc;
     }
     return $self->{qualtype};
