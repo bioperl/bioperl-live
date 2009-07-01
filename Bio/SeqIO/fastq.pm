@@ -260,10 +260,7 @@ sub write_seq {
 =cut
 
 sub write_qual {
-   my ($self,@seq) = @_;
-    if ($self->variant ne 'sanger') {
-        $self->throw($self->variant." is not supported yet with write_seq");
-    }   
+	my ($self,@seq) = @_;
     foreach my $seq (@seq) {
         unless ($seq->isa("Bio::Seq::Quality")){
             $self->warn("You can write FASTQ without supplying a Bio::Seq::Quality object! ", ref($seq), "\n");
@@ -307,8 +304,8 @@ sub write_qual {
 
 sub write_fastq {
     my ($self,@seq) = @_;
-    if ($self->variant ne 'sanger') {
-        $self->throw($self->variant." is not supported yet with write_seq");
+    if ($self->variant eq 'solexa') {
+        $self->throw("Solexa is not supported yet with write_fastq");
     }
     foreach my $seq (@seq) {
 		unless ($seq->isa("Bio::Seq::Quality")){
@@ -328,7 +325,7 @@ sub write_fastq {
 		my $qual = "" ;
 		if(scalar(@qual) > 0) {
 			for (my $q = 0;$q<scalar(@qual);$q++){
-				$qual .= chr($qual[$q] + 33);
+				$qual .= chr($qual[$q] + $self->{ord_start});
 			}
 		} else {
 		   $qual = "\n";
@@ -392,7 +389,7 @@ sub variant {
     if (defined $enc) {
         $enc = lc $enc;
         $self->throw('Not a valid FASTQ variant format') unless exists $VARIANT{$enc};
-        # cache values for quicker accession
+        # cache encode/decode values for quicker accession
         for my $k (%{$VARIANT{$enc}}) {
             $self->{$k} = $VARIANT{$enc}{$k};
         }
