@@ -346,12 +346,11 @@ sub executable {
 =cut
 
 sub program_path {
-    my ($self) = @_;
-    my @path;
-    push @path, $self->program_dir if $self->program_dir;
-    push @path, $self->program_name.($^O =~ /mswin/i ?'.exe':'');
-
-    return File::Spec->catfile(@path);
+   my ($self) = @_;
+   my @path;
+   push @path, $self->program_dir if $self->program_dir;
+   push @path, $self->program_name.($^O =~ /mswin/i ? '.exe' : '') if $self->program_name;
+   return File::Spec->catfile(@path);
 }
 
 =head2 program_dir
