@@ -382,8 +382,8 @@ sub next_aln {
     
     my $handler = $self->alignhandler;
     # advance to alignment header
-    while( defined(my $line = $self->_readline) ) {
-        if ($line =~ m{^#\s*STOCKHOLM\s+}xmso) {
+    while( defined(my $line = $self->_readline) ) {        
+        if ($line =~ m{^\#\s*STOCKHOLM\s+}xmso) {
             last;
         }
     }
