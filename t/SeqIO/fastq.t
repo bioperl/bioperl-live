@@ -135,8 +135,7 @@ while (my ($variant, $data) = each %format) {
 		if ($input_ct == 5) {
 			$test_qual = $seq;
 		}
-		# this will likely be changed to write_seq, NYI
-		$out->write_fastq($seq);
+		$out->write_seq($seq);
 	}
 	is($input_ct, $total, $variant." total");
 	$out->close;

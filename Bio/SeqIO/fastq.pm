@@ -115,7 +115,8 @@ sub _initialize {
  Function: returns the next sequence in the stream
  Returns : Bio::Seq::Quality object
  Args    : NONE
-
+ Status  : Stable
+ 
 =cut
 
 sub next_seq {
@@ -220,7 +221,10 @@ sub next_dataset {
  Usage   : $stream->write_seq(@seq)
  Function: writes the $seq object into the stream
  Returns : 1 for success and 0 for error
- Args    : Bio::Seq::Quality or Bio::Seq object
+ Args    : Bio::Seq::Quality
+ Note    : This now conforms to SeqIO spec (module output is same format as
+           next_seq)
+ Status  : Stable
 
 =cut
 
@@ -228,83 +232,6 @@ sub next_dataset {
 # Bio::SeqIO::qual should be used for that output
 
 sub write_seq {
-    my ($self,@seq) = @_;
-    foreach my $seq (@seq) {
-        my $str = $seq->seq;
-        my $top = $seq->display_id();
-        if ($seq->can('desc') and my $desc = $seq->desc()) {
-        $desc =~ s/\n//g;
-            $top .= " $desc";
-        }
-        if(length($str) > 0) {
-            $str =~ s/(.{1,60})/$1\n/g;
-        } else {
-            $str = "\n";
-        }
-        
-        $self->_print (">",$top,"\n",$str) or return;
-    }
- 
-    $self->flush if $self->_flush_on_write && defined $self->_fh;
-    return 1;
-}
-
-=head2 write_qual
-
- Title   : write_qual
- Usage   : $stream->write_qual(@seq)
- Function: writes the $seq object into the stream
- Returns : 1 for success and 0 for error
- Args    : Bio::Seq::Quality object
-
-=cut
-
-sub write_qual {
-	my ($self,@seq) = @_;
-    foreach my $seq (@seq) {
-        unless ($seq->isa("Bio::Seq::Quality")){
-            $self->warn("You can write FASTQ without supplying a Bio::Seq::Quality object! ", ref($seq), "\n");
-            next;
-        }
-        my @qual = @{$seq->qual};
-        my $top = $seq->display_id();
-        if ($seq->can('desc') and my $desc = $seq->desc()) {
-        $desc =~ s/\n//g;
-            $top .= " $desc";
-        }
-        my $qual = "" ;
-        if(scalar(@qual) > 0) {
-            my $max = 60;
-            for (my $q = 0;$q<scalar(@qual);$q++){
-                $qual .= $qual[$q] . " ";
-                if(length($qual) > $max){
-                    $qual .= "\n";
-                    $max += 60;
-                }
-            }
-        } else {
-            $qual = "\n";
-        }
-        
-        $self->_print (">",$top,"\n",$qual,"\n") or return;
-    }
-    $self->flush if $self->_flush_on_write && defined $self->_fh;
-	
-    return 1;
-}
-
-=head2 write_fastq
-
- Title   : write_fastq
- Usage   : $stream->write_fastq(@seq)
- Function: writes the $seq object into the stream
- Returns : 1 for success and 0 for error
- Args    : Bio::Seq::Quality object
-
-
-=cut
-
-sub write_fastq {
     my ($self,@seq) = @_;
     foreach my $seq (@seq) {
 		unless ($seq->isa("Bio::Seq::Quality")){
@@ -326,6 +253,67 @@ sub write_fastq {
 		$self->_print ("+",$top,"\n",$qual,"\n") or return;
     }
     return 1;
+}
+
+=head2 write_fastq
+
+ Title   : write_fastq
+ Usage   : $stream->write_fastq(@seq)
+ Function: writes the $seq object into the stream
+ Returns : 1 for success and 0 for error
+ Args    : Bio::Seq::Quality object
+ Status  : Deprecated (delegates to write_seq)
+
+=cut
+
+sub write_fastq {
+    my ($self,@seq) = @_;
+    return $self->write_seq(@seq);
+}
+
+=head2 write_fasta
+
+ Title   : write_fasta
+ Usage   : $stream->write_fasta(@seq)
+ Function: writes the $seq object into the stream
+ Returns : 1 for success and 0 for error
+ Args    : Bio::Seq object
+ Note    : This method does not currently delegate to Bio::SeqIO::fasta
+           (maybe it should?).  Not sure whether we should keep this as a
+		   convenience method.
+ Status  : Unstable
+
+=cut
+
+sub write_fasta {
+    my ($self,@seq) = @_;
+	if (!exists($self->{fasta_proxy})) {
+		$self->{fasta_proxy} = Bio::SeqIO->new(-format => 'fasta', -fh => $self->_fh);
+	}
+	return $self->{fasta_proxy}->write_seq(@seq);
+}
+
+=head2 write_qual
+
+ Title   : write_qual
+ Usage   : $stream->write_qual(@seq)
+ Function: writes the $seq object into the stream
+ Returns : 1 for success and 0 for error
+ Args    : Bio::Seq::Quality object
+ Note    : This method does not currently delegate to Bio::SeqIO::qual
+           (maybe it should?).  Not sure whether we should keep this as a
+		   convenience method.
+ Status  : Unstable
+ 
+=cut
+
+sub write_qual {
+	my ($self,@seq) = @_;
+	if (!exists($self->{qual_proxy})) {
+		$self->{qual_proxy} = Bio::SeqIO->new(-format => 'qual', -fh => $self->_fh);
+	}
+	
+	return $self->{qual_proxy}->write_seq(@seq);
 }
 
 =head2 variant
