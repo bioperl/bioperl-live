@@ -1,0 +1,63 @@
+Command line: [exonerate -q test_aa.fa -t test_cds.fa --model protein2dna]
+Hostname: [fgu204.anat.ox.ac.uk]
+C4 Alignment display:
+  Model: protein2dna
+  Raw score: 1059
+  Aligned positions 0->204 of query
+  Aligned positions 2->614 of target
+
+Query: SJCHGC00851 AA
+Target: SJCHGC00851 CDS
+
+   1 : ArgAlaProArgProSerLeuLeuTyrPheAsnValPheLeuLeuLeuValHisSerPheSerG :  22
+       ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+       ArgAlaProArgProSerLeuLeuTyrPheAsnValPheLeuLeuLeuValHisSerPheSerG
+   3 : CGTGCCCCTCGTCCTTCTTTGCTCTACTTCAACGTGTTTCTTTTGTTGGTTCATTCATTTTCAC :  66
+
+  23 : lnAspLysLysAspValLeuLysLysLeuAsnSerThrLeuLeuSerMetGluAsnSerLeuLe :  43
+       ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+       lnAspLysLysAspValLeuLysLysLeuAsnSerThrLeuLeuSerMetGluAsnSerLeuLe
+  67 : AAGATAAAAAGGATGTGTTGAAGAAGTTAAACTCTACTTTACTTTCAATGGAAAACAGCTTATT : 129
+
+  44 : uLysValGlnGlnAsnIleGlnAsnThrAspHisGluValLysAsnSerThrLysArgIleAsn :  64
+       ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+       uLysValGlnGlnAsnIleGlnAsnThrAspHisGluValLysAsnSerThrLysArgIleAsn
+ 130 : AAAAGTTCAACAAAACATTCAAAACACTGACCACGAAGTAAAGAATTCGACAAAGAGAATAAAT : 192
+
+  65 : LysValLeuAlaProHisGlyArgThrIleAspGluTyrValLysCysLysThrAsnGluPheL :  86
+       ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+       LysValLeuAlaProHisGlyArgThrIleAspGluTyrValLysCysLysThrAsnGluPheL
+ 193 : AAAGTACTTGCACCTCACGGAAGAACAATTGACGAATATGTCAAATGCAAAACTAATGAATTTA : 258
+
+  87 : ysAlaGluGluGlyLeuSerThrAsnThrLysPheLeuLysGluPheIleProGlyThrPheAr : 107
+       ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+       ysAlaGluGluGlyLeuSerThrAsnThrLysPheLeuLysGluPheIleProGlyThrPheAr
+ 259 : AAGCTGAAGAAGGTTTATCTACAAATACTAAATTCTTAAAAGAGTTTATTCCTGGAACTTTTCG : 321
+
+ 108 : gValTyrArgLysTyrLeuThrAspGluAspIleHisTrpLysAsnAlaAlaGluGluArgLys : 128
+       ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+       gValTyrArgLysTyrLeuThrAspGluAspIleHisTrpLysAsnAlaAlaGluGluArgLys
+ 322 : TGTTTATAGAAAATACCTGACTGATGAAGATATACATTGGAAAAACGCCGCTGAAGAACGGAAG : 384
+
+ 129 : AlaLysTyrLysThrMetAlaLeuGluHisThrSerGluLysCysAspGluLeuAlaAspGlnP : 150
+       ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+       AlaLysTyrLysThrMetAlaLeuGluHisThrSerGluLysCysAspGluLeuAlaAspGlnP
+ 385 : GCAAAATATAAAACAATGGCCTTAGAGCACACTTCGGAAAAGTGTGATGAACTTGCTGATCAAT : 450
+
+ 151 : heProGluAlaPheValGluIleGlnGluLeuLysAspGlnIleTyrGluArgGlnArgTyrGl : 171
+       ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+       heProGluAlaPheValGluIleGlnGluLeuLysAspGlnIleTyrGluArgGlnArgTyrGl
+ 451 : TTCCTGAAGCGTTTGTAGAAATTCAAGAACTTAAGGATCAAATATATGAACGACAAAGATACGA : 513
+
+ 172 : uLeuGlnTyrAspTyrMetPheTyrLysPhePheValLeuLeuAspIleTyrArgLysValGln : 192
+       ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+       uLeuGlnTyrAspTyrMetPheTyrLysPhePheValLeuLeuAspIleTyrArgLysValGln
+ 514 : ATTACAATATGATTATATGTTTTATAAGTTTTTCGTGCTATTAGATATTTATAGAAAAGTGCAA : 576
+
+ 193 : AlaPheAspGluThrArgGluGluHisGluGln*** : 204
+       ||||||||||||||||||||||||||||||||||||
+       AlaPheAspGluThrArgGluGluHisGluGln***
+ 577 : GCATTTGATGAAACACGTGAAGAACATGAGCAGTGA : 614
+
+vulgar: SJCHGC00851 0 204 . SJCHGC00851 2 614 + 1059 M 204 612
+-- completed exonerate analysis

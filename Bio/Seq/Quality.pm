@@ -596,6 +596,9 @@ sub get_clear_range {
     # populate the cache if needed
     $self->_find_clear_ranges unless defined $self->{_ranges};
 
+    # fix for bug 2847
+    return unless defined $self->{_ranges};
+
     # pick the longest
     for (sort {$b->{length} <=> $a->{length} } @{$self->{_ranges}} ){
 

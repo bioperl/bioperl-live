@@ -97,11 +97,11 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
+
 L<bioperl-l@bioperl.org>
-  
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -3179,5 +3179,58 @@ sub no_sequences {
 					  -throw_version => 1.0075);
     $self->num_sequences(@_);
 }
+
+=head2 mask_columns
+
+ Title     : mask_columns
+ Usage     : $aln2 = $aln->mask_columns(20,30)
+ Function  : Masks a slice of the alignment inclusive of start and
+             end columns, and the first column in the alignment is denoted 1.
+             Mask beyond the length of the sequence does not do padding.
+ Returns   : A Bio::SimpleAlign object
+ Args      : Positive integer for start column, positive integer for end column,
+             optional string value use for the mask. Example:
+
+             $aln2 = $aln->mask_columns(20,30,'?')
+
+=cut
+
+sub mask_columns {
+    #based on slice(), but did not include the Bio::Seq::Meta sections as I was not sure what it is doing
+    my $self = shift;
+
+    my ($start, $end, $mask_char) = @_;
+    unless (defined $mask_char) { $mask_char = 'N' }
+
+    $self->throw("Mask start has to be a positive integer, not [$start]")
+      unless $start =~ /^\d+$/ and $start > 0;
+    $self->throw("Mask end has to be a positive integer, not [$end]")
+      unless $end =~ /^\d+$/ and $end > 0;
+    $self->throw("Mask start [$start] has to be smaller than or equal to end [$end]")
+      unless $start <= $end;
+    $self->throw("This alignment has only ". $self->length . " residues. Mask start " .
+                     "[$start] is too big.") if $start > $self->length;
+    $self->throw("Mask character $mask_char has to be a single character")
+      unless CORE::length($mask_char) == 1;
+
+    my $aln = $self->new;
+    $aln->id($self->id);
+    foreach my $seq ( $self->each_seq() ) {
+        my $new_seq = Bio::LocatableSeq->new(-id => $seq->id,
+         -alphabet => $seq->alphabet,
+         -strand  => $seq->strand,
+         -verbose => $self->verbose);
+
+        my $mask_end = $end;
+        $mask_end = $seq->length if( $end > $seq->length );
+        my $masked_string = $mask_char x ($mask_end - $start +1);
+        my $new_dna_string = substr($seq->seq,0,$start-1) . $masked_string . substr($seq->seq,$mask_end);
+        $new_seq->seq($new_dna_string);
+        $aln->add_seq($new_seq);
+    }
+    return $aln;
+}
+
+
 
 1;
