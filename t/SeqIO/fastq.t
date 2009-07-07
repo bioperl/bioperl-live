@@ -137,7 +137,7 @@ my %format = (
 );
 
 while ( my ( $variant, $data ) = each %format ) {
-    my $outfile = "$variant.fastq";
+    my $outfile = test_output_file();
     my ( $file, $total ) = @$data;
     $file = test_input_file( 'fastq', $file );
     my $in = Bio::SeqIO->new(
