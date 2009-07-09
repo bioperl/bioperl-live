@@ -735,7 +735,7 @@ L<Bio::LocatableSeq::location_from_column>:
   	     Seq2/24-30 ACGG.RTY..
   	     Seq3/43-51 AC.DDEFGHI
 
-           column_from_residue_number( "Seq1", 94 ) returns 5.
+           column_from_residue_number( "Seq1", 94 ) returns 6.
            column_from_residue_number( "Seq2", 25 ) returns 2.
            column_from_residue_number( "Seq3", 50 ) returns 9.
 
