@@ -21,9 +21,9 @@ Bio::TreeIO - Parser for Tree files
   {
       use Bio::TreeIO;
       my $treeio = Bio::TreeIO->new('-format' => 'newick',
-  				   '-file'   => 'globin.dnd');
+                   '-file'   => 'globin.dnd');
       while( my $tree = $treeio->next_tree ) {
-  	  print "Tree is ", $tree->size, "\n";
+		print "Tree is ", $tree->number_nodes, "\n";
       }
   }
 
@@ -121,21 +121,21 @@ sub new {
     # or do we want to call SUPER on an object if $caller is an
     # object?
     if( $class =~ /Bio::TreeIO::(\S+)/ ) {
-	my ($self) = $class->SUPER::new(@args);		
-	$self->_initialize(@args);
-	return $self;
+    my ($self) = $class->SUPER::new(@args);     
+    $self->_initialize(@args);
+    return $self;
     } else { 
 
-	my %param = @args;
-	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
-	my $format = $param{'-format'} || 
-	    $class->_guess_format( $param{'-file'} || $ARGV[0] ) ||
-	    'newick';
-	$format = "\L$format";	# normalize capitalization to lower case
-	
-	# normalize capitalization
-	return unless( $class->_load_format_module($format) );
-	return "Bio::TreeIO::$format"->new(@args);
+    my %param = @args;
+    @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
+    my $format = $param{'-format'} || 
+        $class->_guess_format( $param{'-file'} || $ARGV[0] ) ||
+        'newick';
+    $format = "\L$format";  # normalize capitalization to lower case
+    
+    # normalize capitalization
+    return unless( $class->_load_format_module($format) );
+    return "Bio::TreeIO::$format"->new(@args);
     }
 }
 
@@ -186,7 +186,7 @@ sub attach_EventHandler{
     my ($self,$handler) = @_;
     return if( ! $handler );
     if( ! $handler->isa('Bio::Event::EventHandlerI') ) {
-	$self->warn("Ignoring request to attach handler ".ref($handler). ' because it is not a Bio::Event::EventHandlerI');
+    $self->warn("Ignoring request to attach handler ".ref($handler). ' because it is not a Bio::Event::EventHandlerI');
     }
     $self->{'_handler'} = $handler;
     return;
@@ -214,12 +214,12 @@ sub _initialize {
     my $internal_node_id;
     $self->{'internal_node_id'} = INTERNAL_NODE_ID;
     ($self->{'newline_each_node'},$internal_node_id) = $self->_rearrange
-	([qw(NEWLINE_EACH_NODE INTERNAL_NODE_ID)],@args);
+    ([qw(NEWLINE_EACH_NODE INTERNAL_NODE_ID)],@args);
     
     # initialize the IO part
     $self->_initialize_io(@args);
     $self->attach_EventHandler(Bio::TreeIO::TreeEventBuilder->new
-			       (-verbose => $self->verbose(), @args));
+                   (-verbose => $self->verbose(), @args));
     $self->internal_node_id($internal_node_id) if defined $internal_node_id;
 }
 
@@ -289,14 +289,14 @@ sub internal_node_id{
     my $self = shift;
     my $val = shift;
     if( defined $val ) {
-	if( $val =~ /^b/i ) {
-	    $val = 'bootstrap';
-	} elsif( $val =~ /^i/ ) {
-	    $val = 'id';
-	} else {
-	    $self->warn("Unknown value $val for internal_node_id not resetting value\n");
-	}	
-	return $self->{'internal_node_id'} = $val;	
+    if( $val =~ /^b/i ) {
+        $val = 'bootstrap';
+    } elsif( $val =~ /^i/ ) {
+        $val = 'id';
+    } else {
+        $self->warn("Unknown value $val for internal_node_id not resetting value\n");
+    }   
+    return $self->{'internal_node_id'} = $val;  
     }
     return $self->{'internal_node_id'};
 }
