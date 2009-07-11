@@ -959,11 +959,14 @@ sub reroot {
         my $next = $path_from_oldroot[$i + 1];
         $current->remove_Descendent($next);
         $current->branch_length($next->branch_length);
+        $current->bootstrap($next->bootstrap) if defined $next->bootstrap;
+	$next->remove_tag('B');
         $next->add_Descendent($current);
     }
 
     $new_root->add_Descendent($former_anc);
     $tmp_node->remove_Descendent($former_anc);
+    
     $tmp_node = undef;
     $new_root->branch_length(undef);
 
