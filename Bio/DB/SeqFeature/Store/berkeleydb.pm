@@ -1022,7 +1022,8 @@ sub filter_by_name {
   for (my $status = $db->seq($key,$value,R_CURSOR);
        $status == 0 and $key =~ /^$regexp$/i;
        $status = $db->seq($key,$value,R_NEXT)) {
-    push @results,$value;
+      next if %$filter && !$filter->{$value};  # don't bother
+      push @results,$value;
   }
   $self->update_filter($filter,\@results);
 }
@@ -1050,12 +1051,26 @@ sub filter_by_type {
     my $key   = lc "$primary_tag:$source_tag";
     my $value;
 
-    for (my $status = $db->seq($key,$value,R_CURSOR);
- 	 $status == 0 && $key =~ /$match/i;
-	 $status = $db->seq($key,$value,R_NEXT)) {
-      push @results,$value;
+    my $status = $db->seq($key,$value,R_CURSOR);  # get first real key
+    my $count  = $db->get_dup($key);
+
+    # it will be faster to fetch each object
+    if (%$filter && $count > 2 * keys %$filter) {  
+	for my $id (keys %$filter) {
+	    my $obj = $self->_fetch($id) or next;
+	    push @results,$id if $obj->type =~ /$match/i;
+	}
+
     }
 
+    else {
+	for (my $status = $db->seq($key,$value,R_CURSOR);
+	     $status == 0 && $key =~ /$match/i;
+	     $status = $db->seq($key,$value,R_NEXT)) {
+	    next if %$filter && !$filter->{$value};  # don't even bother
+	    push @results,$value;
+	}
+    }
   }
   $self->update_filter($filter,\@results);
 }
@@ -1081,6 +1096,7 @@ sub filter_by_location {
     my $key     = "\L$seq_id\E.$binstart";
     my $keystop = "\L$seq_id\E.$binend";
     my $value;
+
     for (my $status = $db->seq($key,$value,R_CURSOR);
 	 $status == 0 && $key le $keystop;
 	 $status = $db->seq($key,$value,R_NEXT)) {
@@ -1093,6 +1109,7 @@ sub filter_by_location {
       elsif ($range_type eq 'contains') {
 	next unless $fstart >= $start && $fend <= $end;
       }
+      next if %$filter && !$filter->{$id};  # don't bother
       push @results,$id;
     }
   }
@@ -1112,6 +1129,7 @@ sub filter_by_location {
       next if $seenit{$id}++;
       next if $strand && $fstrand != $strand;
       next unless $fstart <= $start && $fend >= $end;
+      next if %$filter && !$filter->{$id};  # don't bother
       push @results,$id;
     }
 
@@ -1124,6 +1142,7 @@ sub filter_by_location {
       next if $seenit{$id}++;
       next if $strand && $fstrand != $strand;
       next unless $fstart <= $start && $fend >= $end;
+      next if %$filter && !$filter->{$id};  # don't bother
       push @results,$id;
     }
 
@@ -1161,7 +1180,8 @@ sub filter_by_attribute {
       for (my $status = $db->seq($key,$value,R_CURSOR);
 	   $status == 0 && $key =~ /^$att_name:$regexp$/i;
 	   $status = $db->seq($key,$value,R_NEXT)) {
-	push @result,$value;
+	  next if %$filter && !$filter->{$value};  # don't bother
+	  push @result,$value;
       }
     }
     $result ||= $self->update_filter($filter,\@result);
