@@ -2,16 +2,12 @@
 # $Id$
 
 use strict;
-use vars qw($GOT_SEEKABLE);
 
 BEGIN { 
     use lib '.';
     use Bio::Root::Test;
     use File::Temp qw(tempfile);
-    $GOT_SEEKABLE = 0;
-    $GOT_SEEKABLE ||= eval "require IO::Seekable; 1";
     test_begin(-tests => 40);
-	
 	use_ok('Bio::Tree::Node');
 	use_ok('Bio::Tree::AlleleNode');
     use_ok('Bio::TreeIO');
@@ -82,25 +78,13 @@ my ($a2,$a3) = $allele_node->get_Genotypes(-marker => 'm4')->get_Alleles;
 is($a2, 0);
 is($a3, 4);
 # bug 2877
-SKIP : {
-    skip 'IO::Seekable reqd', 5 unless $GOT_SEEKABLE;
-    package IO::Handle;
-    our @ISA;
-    push @ISA, 'IO::Seekable';
-    package main;
-    my ($tf,$tfn) = tempfile();
-    open my $f, ">$tfn";
-    print $f "(A:52,(B:46,C:50):11,D:70)68\n";
-    close $f;
-    my $in = Bio::TreeIO->new(-format => 'newick',
-			      -file => $tfn,
-			      -internal_node_id => 'bootstrap');
-    my ($outf,$outfn) = tempfile();
-    open my $of, "+>".$outfn;
-    
-    my $out = Bio::TreeIO->new(-format => 'newick', 
-			       -fh => $of);
-    
+my ($tf,$tfn) = tempfile();
+open my $f, ">$tfn";
+print $f "(A:52,(B:46,C:50):11,D:70)68\n";
+close $f;
+my $in = Bio::TreeIO->new(-format => 'newick',
+			  -file => $tfn,
+			  -internal_node_id => 'bootstrap');
     while( my $t = $in->next_tree ){
 	my $s;
 	my $old_root = $t->get_root_node();
@@ -110,32 +94,20 @@ SKIP : {
 	my $r = $b->create_node_on_branch(-FRACTION=>0.5);
 	$r->id('fake');
 	# before reroot
-	$out->write_tree($t);
-	$of->seek(0,0);
-	is( <$of>, "(A:52,(C:50,(B:23)fake:23):11,D:70)68;\n", 'with fake node');
+	is( $t->as_text('newick'), "(A:52,(C:50,(B:23)fake:23):11,D:70)68;\n", 'with fake node');
 	# after reroot
 	$t->reroot($r);
-	
-	$out->write_tree($t);
-	$of->seek(0,0);
-	is( <$of>, "(A:52,(C:50,(B:23)fake:23):11,D:70)68;\n", "after reroot on fake node");
+	is( $t->as_text('newick'), "(B:23,(C:50,(A:52,D:70)68:11):23)fake;\n", "after reroot on fake node");
 	$t->reroot($b);
-	$of->seek(0,0);
-	$out->write_tree($t);
-	$of->seek(0,0);
-	is( <$of>, "(((C:50,(A:52,D:70)68:11):23)fake:23)B;\n", "reroot on B");
+
+	is( $t->as_text('newick'), "(((C:50,(A:52,D:70)68:11):23)fake:23)B;\n", "reroot on B");
 	
 	$t->reroot($b_anc);
 	$t->splice(-remove_id=>'fake');
-	$of->seek(0,0);
-	$out->write_tree($t);
-	$of->seek(0,0);
-	is( <$of>, "(B:23,C:50,(A:52,D:70)68:11);\n",  "remove fake node, reroot on former B anc");
+
+	is( $t->as_text('newick'), "(B:23,C:50,(A:52,D:70)68:11);\n",  "remove fake node, reroot on former B anc");
 	$t->reroot($old_root);
-	$of->seek(0,0);
-	$out->write_tree($t);
-	$of->seek(0,0);
-	is( <$of> ,"(A:52,(B:23,C:50):11,D:70)68;\n", "roundtrip");
-	$of->close;
-    }
+	is( $t->as_text('newick') ,"(A:52,(B:23,C:50):11,D:70)68;\n", "roundtrip");
+
 }
+
