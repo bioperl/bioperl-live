@@ -89,6 +89,7 @@ Email jason@bioperl.org
 
 Aaron Mackey amackey@virginia.edu
 Sendu Bala   bix@sendu.me.uk
+Mark A. Jensen maj@fortinbras.us
 
 =head1 APPENDIX
 
@@ -356,6 +357,61 @@ sub score{
 
 
 =cut
+
+=head2 as_text
+
+ Title   : as_text
+ Usage   : my $tree_as_string = $tree->as_text($format)
+ Function: Returns the tree as a string representation in the 
+           desired format (currently 'newick', 'nhx', or 
+           'tabtree')
+ Returns : scalar string
+ Args    : format type as specified by Bio::TreeIO
+ Note    : This method loads the Bio::TreeIO::$format module
+           on the fly, and commandeers the _write_tree_Helper
+           routine therein to create the tree string. 
+
+=cut
+
+sub as_text {
+    my $self = shift;
+    my $format = shift;
+    my @parms;
+    my $iomod = "Bio::TreeIO::$format";
+    $self->_load_module($iomod);
+    # following currently not really necessary, but who knows?
+    my $io = $iomod->new(-format=>$format, -file=>File::Spec->devnull());
+    no strict "refs";
+    my $iowtH = *{$iomod."::_write_tree_Helper"}{CODE};
+    use strict "refs";
+    for ($format) {
+	/newick/ && do {
+	    @parms = ( $io->bootstrap_style, $io->order_by, 0 );
+	    last;
+	};
+	/nhx/ && do {
+	    @parms = ( 0 );
+	    last;
+	};
+	/tabtree/ && do {
+	    @parms = ( "" );
+	    last;
+	};
+	# default
+	$self->throw("as_text does not allow format '$format'") 
+    }
+	
+
+    # newline_each_node...
+    my $data = [$iowtH->($self->get_root_node, @parms)];
+
+    if ($format eq 'tabtree') {
+	return $$data[0]."\n";
+    }
+    else {
+	return join(",", @$data).";\n";
+    }
+}
 
 =head2 Methods for associating Tag/Values with a Tree
 
