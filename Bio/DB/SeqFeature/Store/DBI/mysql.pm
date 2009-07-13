@@ -262,7 +262,7 @@ END
 	  typelist => <<END,
 (
   id       int(10) auto_increment primary key,
-  tag      varchar(40)  not null,
+  tag      varchar(256)  not null,
   index(tag)
 )
 END

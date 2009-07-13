@@ -268,7 +268,7 @@ END
 	  typelist => <<END,
 (
   id       serial primary key,
-  tag      varchar(100)  not null
+  tag      varchar(256)  not null
 ); CREATE INDEX typelist_tab ON typelist(tag);
 END
 	  name => <<END,
