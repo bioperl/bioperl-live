@@ -552,7 +552,7 @@ SELECT name,attribute_value,tl.tag,n.id
     AND ($sql_regexp)
 END
   $sql .= "LIMIT $limit" if defined $limit;
-  $self->_print_query($sql,@tags,@words) if DEBUG || $self->debug;
+  $self->_print_query($sql,@tags,@wild_card_words) if DEBUG || $self->debug;
   my $sth = $self->_prepare($sql);
   $sth->execute(@tags,@wild_card_words) or $self->throw($sth->errstr);
 
