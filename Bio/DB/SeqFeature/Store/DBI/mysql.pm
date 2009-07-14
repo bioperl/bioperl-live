@@ -422,7 +422,11 @@ sub _init_database {
     my $table = $self->_qualify($_);
     $dbh->do("DROP table IF EXISTS $table") if $erase;
     my $query = "CREATE TABLE IF NOT EXISTS $table $tables->{$_}";
-    $dbh->do($query) or $self->throw($dbh->errstr);
+    for my $q (split ';',$query) {
+	chomp($q);
+	next unless $q =~ /\S/;
+	$dbh->do("$q;\n") or $self->throw($dbh->errstr);
+    }
   }
   $self->subfeatures_are_indexed(1) if $erase;
   1;
