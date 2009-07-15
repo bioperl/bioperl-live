@@ -560,6 +560,14 @@ END
   return $iterator ? Bio::DB::SeqFeature::Store::DBI::Iterator->new($sth,$self) : $self->_sth2objs($sth);
 }
 
+sub _make_attribute_group {
+  my $self                     = shift;
+  my ($table_name,$attributes) = @_;
+  my $key_count = keys %$attributes or return;
+  my $count = $key_count-1;
+  return "f.id HAVING count(f.id)>$count";
+}
+
 # Do a case-insensitive search a la the PostgreSQL adaptor
 sub _name_sql {
   my $self = shift;
