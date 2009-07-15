@@ -579,7 +579,7 @@ sub _dump_traces_incoming_deprecated_use_the_sequencetrace_object {
 
 =head2 write_seq
 
- Title   : write_seq(-Quality => $swq, <comments>)
+ Title   : write_seq(-target => $swq, <comments>)
  Usage   : $obj->write_seq(
                -target => $swq,
 			-version => 2,
@@ -602,7 +602,7 @@ sub _dump_traces_incoming_deprecated_use_the_sequencetrace_object {
           c) peak indices
           d) traces
           - You _can_ write an scf with just a and b by passing in a
-               SequenceWithQuality object- false traces will be synthesized
+               Bio::Seq::Quality object- false traces will be synthesized
                for you.
 
 =cut
