@@ -239,6 +239,11 @@ sub get_lineage_nodes {
            (-keep_id => [2]) will remove all nodes unless they have an id() of
            '2' (note, no -remove_*).
 
+           -preserve_lengths => 1 : setting this argument will splice out
+           intermediate nodes, preserving the original total length between
+           the ancestor and the descendants of the spliced node. Undef 
+           by default.
+
 =cut
 
 sub splice {
