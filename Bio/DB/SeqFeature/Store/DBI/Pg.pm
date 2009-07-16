@@ -261,7 +261,7 @@ END
 	  locationlist => <<END,
 (
   id         serial primary key,
-  seqname    varchar(50)   not null
+  seqname    varchar(256)   not null
 ); CREATE INDEX locationlist_seqname ON locationlist(seqname);
 END
 
@@ -274,7 +274,7 @@ END
 	  name => <<END,
 (
   id           int       not null,
-  name         varchar(128)  not null,
+  name         varchar(256)  not null,
   display_name int       default 0
 );
   CREATE INDEX name_id ON name(id);
@@ -294,7 +294,7 @@ END
 	  attributelist => <<END,
 (
   id       serial primary key,
-  tag      varchar(50)  not null
+  tag      varchar(256)  not null
 );
   CREATE INDEX attributelist_tag ON attributelist(tag);
 END
