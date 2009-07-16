@@ -1,0 +1,208 @@
+<?xml version="1.0"?>
+<!DOCTYPE Bioseq-set PUBLIC "-//NCBI//NCBI Seqset/EN" "http://www.ncbi.nlm.nih.gov/dtd/NCBI_Seqset.dtd">
+<Bioseq-set>
+<Bioseq-set_seq-set>
+<Seq-entry>
+  <Seq-entry_seq>
+    <Bioseq>
+      <Bioseq_id>
+        <Seq-id>
+          <Seq-id_general>
+            <Dbtag>
+              <Dbtag_db>dbEST</Dbtag_db>
+              <Dbtag_tag>
+                <Object-id>
+                  <Object-id_id>1888424</Object-id_id>
+                </Object-id>
+              </Dbtag_tag>
+            </Dbtag>
+          </Seq-id_general>
+        </Seq-id>
+        <Seq-id>
+          <Seq-id_genbank>
+            <Textseq-id>
+              <Textseq-id_accession>AI129902</Textseq-id_accession>
+              <Textseq-id_version>1</Textseq-id_version>
+            </Textseq-id>
+          </Seq-id_genbank>
+        </Seq-id>
+        <Seq-id>
+          <Seq-id_gi>3598416</Seq-id_gi>
+        </Seq-id>
+      </Bioseq_id>
+      <Bioseq_descr>
+        <Seq-descr>
+          <Seqdesc>
+            <Seqdesc_molinfo>
+              <MolInfo>
+                <MolInfo_biomol value="mRNA">3</MolInfo_biomol>
+                <MolInfo_tech value="est">2</MolInfo_tech>
+              </MolInfo>
+            </Seqdesc_molinfo>
+          </Seqdesc>
+          <Seqdesc>
+            <Seqdesc_title>qc41b07.x1 Soares_pregnant_uterus_NbHPU Homo sapiens cDNA clone IMAGE:1712149 3&apos; similar to SW:ROA1_SCHAM P21522 HETEROGENEOUS NUCLEAR RIBONUCLEOPROTEIN A1, A2/B1 HOMOLOG. ;contains MSR1.b2 MSR1 repetitive element ;.</Seqdesc_title>
+          </Seqdesc>
+          <Seqdesc>
+            <Seqdesc_create-date>
+              <Date>
+                <Date_std>
+                  <Date-std>
+                    <Date-std_year>1998</Date-std_year>
+                    <Date-std_month>9</Date-std_month>
+                    <Date-std_day>10</Date-std_day>
+                  </Date-std>
+                </Date_std>
+              </Date>
+            </Seqdesc_create-date>
+          </Seqdesc>
+          <Seqdesc>
+            <Seqdesc_update-date>
+              <Date>
+                <Date_std>
+                  <Date-std>
+                    <Date-std_year>1998</Date-std_year>
+                    <Date-std_month>10</Date-std_month>
+                    <Date-std_day>27</Date-std_day>
+                  </Date-std>
+                </Date_std>
+              </Date>
+            </Seqdesc_update-date>
+          </Seqdesc>
+          <Seqdesc>
+            <Seqdesc_comment>Contact: Robert Strausberg, Ph.D.~Email: cgapbs-r@mail.nih.gov~This clone is available royalty-free through LLNL ; contact the IMAGE Consortium (info@image.llnl.gov) for further information. ~Trace considered overall poor quality~Insert Length: 525   Std Error: 0.00~Seq primer: -40m13 fwd. ET from Amersham~High quality sequence stop: 1</Seqdesc_comment>
+          </Seqdesc>
+          <Seqdesc>
+            <Seqdesc_source>
+              <BioSource>
+                <BioSource_org>
+                  <Org-ref>
+                    <Org-ref_taxname>Homo sapiens</Org-ref_taxname>
+                    <Org-ref_common>human</Org-ref_common>
+                    <Org-ref_db>
+                      <Dbtag>
+                        <Dbtag_db>taxon</Dbtag_db>
+                        <Dbtag_tag>
+                          <Object-id>
+                            <Object-id_id>9606</Object-id_id>
+                          </Object-id>
+                        </Dbtag_tag>
+                      </Dbtag>
+                    </Org-ref_db>
+                    <Org-ref_orgname>
+                      <OrgName>
+                        <OrgName_name>
+                          <OrgName_name_binomial>
+                            <BinomialOrgName>
+                              <BinomialOrgName_genus>Homo</BinomialOrgName_genus>
+                              <BinomialOrgName_species>sapiens</BinomialOrgName_species>
+                            </BinomialOrgName>
+                          </OrgName_name_binomial>
+                        </OrgName_name>
+                        <OrgName_mod>
+                          <OrgMod>
+                            <OrgMod_subtype value="other">255</OrgMod_subtype>
+                            <OrgMod_subname>Organ: uterus; Vector: pT7T3D-PacI; Site_1: Not I; Site_2: Eco RI; 1st strand cDNA was primed with a Not I - oligo(dT) primer [5&apos; AACTGGAAGAATTCGCGGCCGCCTTTTTTTTTTTTTTTTTT 3&apos;], double-stranded cDNA was ligated to Eco RI adaptors (Pharmacia), digested with Not I and cloned into the Not I and Eco RI sites of the modified pT7T3 vector. Library went through one round of normalization.  Library constructed by M. Fatima Bonaldo.</OrgMod_subname>
+                          </OrgMod>
+                        </OrgName_mod>
+                        <OrgName_lineage>Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi; Mammalia; Eutheria; Euarchontoglires; Primates; Haplorrhini; Catarrhini; Hominidae; Homo</OrgName_lineage>
+                        <OrgName_gcode>1</OrgName_gcode>
+                        <OrgName_mgcode>2</OrgName_mgcode>
+                        <OrgName_div>PRI</OrgName_div>
+                      </OrgName>
+                    </Org-ref_orgname>
+                  </Org-ref>
+                </BioSource_org>
+                <BioSource_subtype>
+                  <SubSource>
+                    <SubSource_subtype value="clone">3</SubSource_subtype>
+                    <SubSource_name>IMAGE:1712149</SubSource_name>
+                  </SubSource>
+                  <SubSource>
+                    <SubSource_subtype value="clone-lib">11</SubSource_subtype>
+                    <SubSource_name>Soares_pregnant_uterus_NbHPU</SubSource_name>
+                  </SubSource>
+                  <SubSource>
+                    <SubSource_subtype value="sex">7</SubSource_subtype>
+                    <SubSource_name>female</SubSource_name>
+                  </SubSource>
+                  <SubSource>
+                    <SubSource_subtype value="dev-stage">12</SubSource_subtype>
+                    <SubSource_name>adult</SubSource_name>
+                  </SubSource>
+                  <SubSource>
+                    <SubSource_subtype value="lab-host">16</SubSource_subtype>
+                    <SubSource_name>DH10B</SubSource_name>
+                  </SubSource>
+                </BioSource_subtype>
+              </BioSource>
+            </Seqdesc_source>
+          </Seqdesc>
+          <Seqdesc>
+            <Seqdesc_pub>
+              <Pubdesc>
+                <Pubdesc_pub>
+                  <Pub-equiv>
+                    <Pub>
+                      <Pub_gen>
+                        <Cit-gen>
+                          <Cit-gen_cit>Unpublished</Cit-gen_cit>
+                          <Cit-gen_authors>
+                            <Auth-list>
+                              <Auth-list_names>
+                                <Auth-list_names_std>
+                                  <Author>
+                                    <Author_name>
+                                      <Person-id>
+                                        <Person-id_name>
+                                          <Name-std>
+                                            <Name-std_last>NCI-CGAP http://www.ncbi.nlm.nih.gov/ncicgap</Name-std_last>
+                                          </Name-std>
+                                        </Person-id_name>
+                                      </Person-id>
+                                    </Author_name>
+                                  </Author>
+                                </Auth-list_names_std>
+                              </Auth-list_names>
+                            </Auth-list>
+                          </Cit-gen_authors>
+                          <Cit-gen_date>
+                            <Date>
+                              <Date_std>
+                                <Date-std>
+                                  <Date-std_year>1997</Date-std_year>
+                                </Date-std>
+                              </Date_std>
+                            </Date>
+                          </Cit-gen_date>
+                          <Cit-gen_title>National Cancer Institute, Cancer Genome Anatomy Project (CGAP), Tumor Gene Index</Cit-gen_title>
+                        </Cit-gen>
+                      </Pub_gen>
+                    </Pub>
+                  </Pub-equiv>
+                </Pubdesc_pub>
+              </Pubdesc>
+            </Seqdesc_pub>
+          </Seqdesc>
+        </Seq-descr>
+      </Bioseq_descr>
+      <Bioseq_inst>
+        <Seq-inst>
+          <Seq-inst_repr value="raw"/>
+          <Seq-inst_mol value="rna"/>
+          <Seq-inst_length>37</Seq-inst_length>
+          <Seq-inst_strand value="ss"/>
+          <Seq-inst_seq-data>
+            <Seq-data>
+              <Seq-data_iupacna>
+                <IUPACna>CTCCGCGCCAACTCCCCCCACCCCCCCCCCACACCCC</IUPACna>
+              </Seq-data_iupacna>
+            </Seq-data>
+          </Seq-inst_seq-data>
+        </Seq-inst>
+      </Bioseq_inst>
+    </Bioseq>
+  </Seq-entry_seq>
+</Seq-entry>
+</Bioseq-set_seq-set>
+</Bioseq-set>
