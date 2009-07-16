@@ -4,29 +4,33 @@
 
 =over
 
-=item * Ewan Birney <birney at ebi.ac.uk>
+=item * Sendu Bala <bix at sendu.me.uk>
 
 =item * Chris Dagdigian <dag at sonsorol.org>
+
+=item * Christopher Fields <cjfields at bioperl.org>
+
+=item * Mark Jensen <maj@fortinbras.us>
 
 =item * Hilmar Lapp <hlapp at gmx.net>
 
 =item * Heikki Lehväslaiho <heikki at ebi.ac.uk>
 
+=item * Aaron Mackey <amackey at pcbi.upenn.edu>
+
+=item * Brian Osborne <bosborne at bioteam.net>
+
 =item * Jason Stajich <jason at bioperl.org>
 
 =item * Lincoln Stein <lstein at cshl.org>
-
-=item * Sendu Bala <bix at sendu.me.uk>
-
-=item * Christopher Fields <cjfields at bioperl.org>
-
-=item * Brian Osborne <bosborne at bioteam.net>
 
 =back
 
 =head2 Previous Bioperl Coordinators:
 
 =over
+
+=item * Ewan Birney <birney at ebi.ac.uk>
 
 =item * Steven Brenner <brenner at compbio.berkeley.edu>
 
@@ -154,8 +158,6 @@ for if you see fit)
 =item * Catherine Letondal <letondal at pasteur.fr>
 
 =item * Philip Lijnzaad <p.lijnzaad at med.uu.nl>
-
-=item * Aaron Mackey <amackey at pcbi.upenn.edu>
 
 =item * Brad Marshall <bradmars at yahoo.com>
 
