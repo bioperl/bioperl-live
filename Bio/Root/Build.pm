@@ -156,7 +156,7 @@ sub choose_scripts {
     closedir($scripts_dir);
     my $question = $int_ok ? "Install [a]ll BioPerl scripts, [n]one, or choose groups [i]nteractively?" : "Install [a]ll BioPerl scripts or [n]one?";
     
-    my $prompt = 'a'; #$accept ? 'a' : $self->prompt($question, 'a');
+    my $prompt = $accept ? 'a' : $self->prompt($question, 'a');
     
     if ($prompt =~ /^[aA]/) {
         $self->log_info("  - will install all scripts\n");
@@ -492,8 +492,8 @@ sub install_optional {
     my ($self, $desired, $version, $msg) = @_;
     
     unless (defined $self->{ask_optional}) {
-        $self->{ask_optional} = 'n'; #$self->args->{accept}
-                              #? 'n' : $self->prompt("Install [a]ll optional external modules, [n]one, or choose [i]nteractively?", 'n');
+        $self->{ask_optional} = $self->args->{accept}
+                              ? 'n' : $self->prompt("Install [a]ll optional external modules, [n]one, or choose [i]nteractively?", 'n');
     }
     return 'skip' if $self->{ask_optional} =~ /^n/i;
     
