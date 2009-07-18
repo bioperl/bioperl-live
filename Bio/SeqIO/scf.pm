@@ -756,6 +756,7 @@ sub write_seq {
     $self->flush if $self->_flush_on_write && defined $self->_fh;
 
     $self->close();
+	return 1;
 }
 
 
