@@ -906,7 +906,7 @@ sub _get_binary_bases {
           $returner->{sequence} = $trace->seq();
           $length = scalar(@accuracies);
                # this really is "c" for samplesize == 2
-          $returner->{accuracies}->{binary} = pack "c${length}",@accuracies;
+          $returner->{accuracies}->{binary} = pack "C${length}",@accuracies;
           $returner->{accuracies}->{length} =
                CORE::length($returner->{accuracies}->{binary});
           $length = $trace->seq_obj()->length();
