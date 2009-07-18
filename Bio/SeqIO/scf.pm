@@ -617,12 +617,9 @@ sub write_seq {
                if (ref($swq) eq "Bio::Seq::Quality") {
                          # this means that the object *has no trace data*
                          # we might as well synthesize some now, ok?
-                    my $swq2 = Bio::Seq::SequenceTrace->new(
+                    $swq = Bio::Seq::SequenceTrace->new(
                          -swq     =>   $swq
                     );
-                    $swq2->_synthesize_traces();
-                    $swq2->set_accuracies();
-                    $swq = $swq2;
                }
      }
     else  {
