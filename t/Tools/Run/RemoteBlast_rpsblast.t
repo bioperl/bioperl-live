@@ -1,5 +1,5 @@
 # -*-Perl-*- Test Harness script for Bioperl
-# $Id: $
+# 	$Id$	
 
 # malcolm_cook@stowers.org: this test is in a separate file from
 # RemoteBlast.t (on which it is modelled) since there is some sort of
