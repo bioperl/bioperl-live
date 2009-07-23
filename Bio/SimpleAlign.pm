@@ -2966,48 +2966,46 @@ sub bracket_string {
 }
 
 
-=head2 methods for Bio::FeatureHolder
+=head2 methods implementing Bio::FeatureHolderI
 
-FeatureHolder implementation to support labeled character sets like one
+FeatureHolderI implementation to support labeled character sets like one
 would get from NEXUS represented data.
 
 =head2 get_SeqFeatures
 
- Usage   :
+ Usage   : @features = $aln->get_SeqFeatures
  Function: Get the feature objects held by this feature holder.
  Example :
  Returns : an array of Bio::SeqFeatureI implementing objects
- Args    : none
-
-At some day we may want to expand this method to allow for a feature
-filter to be passed in.
+ Args    : optional filter coderef, taking a Bio::SeqFeatureI 
+         : as argument, returning TRUE if wanted, FALSE if 
+         : unwanted
 
 =cut
 
 sub get_SeqFeatures {
     my $self = shift;
-
+    my $filter_cb = shift;
+    $self->throw("Arg (filter callback) must be a coderef") unless 
+	!defined($filter_cb) or ref($filter_cb) eq 'CODE';
     if( !defined $self->{'_as_feat'} ) {
 	$self->{'_as_feat'} = [];
+    }
+    if ($filter_cb) {
+	return grep { $filter_cb->($_) } @{$self->{'_as_feat'}};
     }
     return @{$self->{'_as_feat'}};
 }
 
 =head2 add_SeqFeature
 
- Usage   : $feat->add_SeqFeature($subfeat);
-           $feat->add_SeqFeature($subfeat,'EXPAND')
- Function: adds a SeqFeature into the subSeqFeature array.
-           with no 'EXPAND' qualifer, subfeat will be tested
-           as to whether it lies inside the parent, and throw
-           an exception if not.
-
-           If EXPAND is used, the parent''s start/end/strand will
-           be adjusted so that it grows to accommodate the new
-           subFeature
+ Usage   : $aln->add_SeqFeature($subfeat);
+ Function: adds a SeqFeature into the SeqFeature array.
  Example :
- Returns : nothing
+ Returns : true on success
  Args    : a Bio::SeqFeatureI object
+ Note    : This implementation is not compliant
+           with Bio::FeatureHolderI
 
 =cut
 
@@ -3030,10 +3028,10 @@ sub add_SeqFeature {
 =head2 remove_SeqFeatures
 
  Usage   : $obj->remove_SeqFeatures
- Function: Removes all sub SeqFeatures.  If you want to remove only a subset,
+ Function: Removes all SeqFeatures.  If you want to remove only a subset,
            remove that subset from the returned array, and add back the rest.
- Returns : The array of Bio::SeqFeatureI implementing sub-features that was
-           deleted from this feature.
+ Returns : The array of Bio::SeqFeatureI features that was
+           deleted from this alignment.
  Args    : none
 
 =cut
@@ -3051,24 +3049,9 @@ sub remove_SeqFeatures {
 
  Title   : feature_count
  Usage   : $obj->feature_count()
- Function: Return the number of SeqFeatures attached to a feature holder.
-
-           This is before flattening a possible sub-feature tree.
-
-           We provide a default implementation here that just counts
-           the number of objects returned by get_SeqFeatures().
-           Implementors may want to override this with a more
-           efficient implementation.
-
+ Function: Return the number of SeqFeatures attached to the alignment
  Returns : integer representing the number of SeqFeatures
  Args    : None
-
-At some day we may want to expand this method to allow for a feature
-filter to be passed in.
-
-Our default implementation allows for any number of additional
-arguments and will pass them on to get_SeqFeatures(). I.e., in order to
-support filter arguments, just support them in get_SeqFeatures().
 
 =cut
 
@@ -3085,26 +3068,12 @@ sub feature_count {
 =head2 get_all_SeqFeatures
 
  Title   : get_all_SeqFeatures
- Usage   :
- Function: Get the flattened tree of feature objects held by this
-           feature holder. The difference to get_SeqFeatures is that
-           the entire tree of sub-features will be flattened out.
-
-           We provide a default implementation here, so implementors
-           don''t necessarily need to implement this method.
-
+ Usage   : 
+ Function: Get all SeqFeatures.
  Example :
  Returns : an array of Bio::SeqFeatureI implementing objects
  Args    : none
-
-At some day we may want to expand this method to allow for a feature
-filter to be passed in.
-
-Our default implementation allows for any number of additional
-arguments and will pass them on to any invocation of
-get_SeqFeatures(), wherever a component of the tree implements
-FeatureHolderI. I.e., in order to support filter arguments, just
-support them in get_SeqFeatures().
+ Note    : Falls through to Bio::FeatureHolderI implementation.
 
 =cut
 
