@@ -176,7 +176,7 @@ sub new {
     $self->_set_attributes();
     $self->{"_algorithm"} = $hit->algorithm;
 
-    my @hsps;
+    my @hsps = $hit->hsps;
     # apply filter function if requested
     if ( defined $filter ) {
 	if ( ref($filter) eq 'CODE' ) {
@@ -185,9 +185,6 @@ sub new {
 	else {
 	    $self->warn("-filter is not a coderef; ignoring");
 	}
-    }
-    else {
-	@hsps = $hit->hsps;
     }
     
     # identify available contexts
