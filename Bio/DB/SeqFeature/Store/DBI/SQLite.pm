@@ -229,7 +229,7 @@ sub table_definitions {
   "indexed" integer default 1,
   object    blob not null
 );
-create index index_feature_seqid_tier_bin_typeid on feature (seqid,tier,bin,typeid);
+create index index_feature_seqid_start_end  on feature (seqid,start,end);
 create index index_feature_typeid on feature(typeid);
 END
 
@@ -558,6 +558,10 @@ END
   my $sth = $self->_prepare($query);
   $sth->execute(@args) or $self->throw($sth->errstr);
   return $iterator ? Bio::DB::SeqFeature::Store::DBI::Iterator->new($sth,$self) : $self->_sth2objs($sth);
+}
+
+sub bin_where {
+    return ( '1=1',() );
 }
 
 sub _make_attribute_group {
