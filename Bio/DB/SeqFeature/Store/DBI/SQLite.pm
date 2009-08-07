@@ -220,16 +220,13 @@ sub table_definitions {
 (
   id        integer primary key autoincrement,
   typeid    integer not null,
-  seqid     integer,
-  start     integer,
-  end       integer,
   strand    integer default 0,
-  tier      integer,
-  bin       integer,
   "indexed" integer default 1,
   object    blob not null
 );
-create index index_feature_typeid_seqid_tier_bin on feature (typeid,seqid,tier,bin);
+create index index_feature_typeid on feature (typeid);
+drop table if exists feature_index;
+create virtual table feature_index using rtree(id,seqid,dummy,start,end);
 END
 
 	  locationlist => <<END,
@@ -315,35 +312,32 @@ sub _finish_bulk_update {
     my $qualified_table = $self->_qualify($table);
 
     my $sth;
-    if ($table eq 'feature') {
-      $sth = $dbh->prepare("REPLACE INTO $qualified_table VALUES (?,?,?,?,?,?,?,?,?,?)");
+    if ($table =~ /feature$/) {
+      $sth = $dbh->prepare("REPLACE INTO $qualified_table VALUES (?,?,?,?,?)");
 
       while (<$fh>) {
         chomp();
-        my ($id,$typeid,$seqid,$start,$end,$strand,$tier,$bin,$indexed,$obj) = 
-            split(/\t/);
+        my ($id,$typeid,$strand,$indexed,$obj) = split(/\t/);
         $sth->bind_param(1, $id);
         $sth->bind_param(2, $typeid);
-        $sth->bind_param(3, $seqid);
-        $sth->bind_param(4, $start);
-        $sth->bind_param(5, $end);
-        $sth->bind_param(6, $strand);
-        $sth->bind_param(7, $tier);
-        $sth->bind_param(8, $bin);
-        $sth->bind_param(9, $indexed);
-        $sth->bind_param(10, pack('H*',$obj), {TYPE => SQL_BLOB});
+        $sth->bind_param(3, $strand);
+        $sth->bind_param(4, $indexed);
+        $sth->bind_param(5, pack('H*',$obj), {TYPE => SQL_BLOB});
         $sth->execute();
       }
     } else {
-      if ($table eq 'parent2child') {
-        $sth = $dbh->prepare("REPLACE INTO $qualified_table VALUES (?,?)");
-      } else { # attribute or name
-        $sth = $dbh->prepare("REPLACE INTO $qualified_table VALUES (?,?,?)");
-      }
-      while (<$fh>) {
-        chomp();
-        $sth->execute(split(/\t/));
-      }
+	if ($table =~ /parent2child$/) {
+	    $sth = $dbh->prepare("REPLACE INTO $qualified_table VALUES (?,?)");
+	} elsif ($table =~ /feature_index$/) {
+	    $sth = $dbh->prepare("REPLACE INTO $qualified_table VALUES (?,?,?,?,?)");
+	} else { # attribute or name
+	    $sth = $dbh->prepare("REPLACE INTO $qualified_table VALUES (?,?,?)");
+	}
+
+	while (<$fh>) {
+	    chomp();
+	    $sth->execute(split(/\t/));
+	}
     }
     $fh->close();
     unlink $path;
@@ -351,6 +345,12 @@ sub _finish_bulk_update {
   $dbh->commit; # commit the transaction
   delete $self->{bulk_update_in_progress};
   delete $self->{filehandles};
+}
+
+sub index_tables {
+    my $self = shift;
+    my @t    = $self->SUPER::index_tables;
+    return (@t,$self->_qualify('feature_index'));
 }
 
 ###
@@ -463,9 +463,7 @@ sub _features {
   $range_type ||= 'overlaps';
 
   my $feature_table         = $self->_feature_table;
-  @from = defined $seq_id 
-      ? "$feature_table as f indexed by index_feature_typeid_seqid_tier_bin" 
-      : "$feature_table as f";
+  @from = "$feature_table as f";
 
   if (defined $name) {
     # hacky backward compatibility workaround
@@ -548,7 +546,7 @@ sub _features {
   $group    = "GROUP BY $group" if @group;
 
   my $query = <<END;
-SELECT f.id,f.object,f.typeid,f.seqid,f.start,f.end,f.strand
+SELECT f.id,f.object
   FROM $from
   WHERE $where
   $group
@@ -568,6 +566,53 @@ sub _make_attribute_group {
   my $count = $key_count-1;
   return "f.id HAVING count(f.id)>$count";
 }
+
+sub _location_sql {
+  my $self = shift;
+  my ($seq_id,$start,$end,$range_type,$strand,$location) = @_;
+
+  # the additional join on the location_list table badly impacts performance
+  # so we build a copy of the table in memory
+  my $seqid = $self->_locationid($seq_id) || 0; # zero is an invalid primary ID, so will return empty
+
+  $start = MIN_INT unless defined $start;
+  $end   = MAX_INT unless defined $end;
+
+  my $feature_index = $self->_feature_index_table;
+  my $from  = "$feature_index as fi";
+
+  my ($range,@range_args);
+  if ($range_type eq 'overlaps') {
+      $range = "fi.end>=? AND fi.start<=?";
+      @range_args = ($start,$end);
+  } elsif ($range_type eq 'contains') {
+      $range = "fi.start>=? AND fi.end<=?";
+      @range_args = ($start,$end);
+  } elsif ($range_type eq 'contained_in') {
+      $range = "fi.start<=? AND fi.end>=?";
+      @range_args = ($start,$end);
+  } else {
+      $self->throw("range_type must be one of 'overlaps', 'contains' or 'contained_in'");
+  }
+
+  if (defined $strand) {
+    $range .= " AND strand=?";
+    push @range_args,$strand;
+  }
+
+  my $where = <<END;
+   fi.seqid=?
+   AND   $location.id=fi.id
+   AND   $range
+END
+
+  my $group = '';
+
+  my @args  = ($seqid,@range_args);
+  return ($from,$where,$group,@args);
+}
+
+sub _feature_index_table          {  shift->_qualify('feature_index') }
 
 # Do a case-insensitive search a la the PostgreSQL adaptor
 sub _name_sql {
@@ -731,10 +776,10 @@ sub replace {
   my $features = $self->_feature_table;
 
   my $sth = $self->_prepare(<<END);
-REPLACE INTO $features (id,object,"indexed",seqid,start,end,strand,tier,bin,typeid) VALUES (?,?,?,?,?,?,?,?,?,?)
+REPLACE INTO $features (id,object,"indexed",strand,typeid) VALUES (?,?,?,?,?)
 END
 
-  my @location = $index_flag ? $self->_get_location_and_bin($object) : (undef)x6;
+  my ($seqid,$start,$end,$strand) = $index_flag ? $self->_get_location_and_bin($object) : (undef)x4;
 
   my $primary_tag = $object->primary_tag;
   my $source_tag  = $object->source_tag || '';
@@ -746,13 +791,8 @@ END
   $sth->bind_param(1, $id);
   $sth->bind_param(2, $frozen, {TYPE => SQL_BLOB});
   $sth->bind_param(3, $index_flag||0);
-  $sth->bind_param(4, $location[0]);
-  $sth->bind_param(5, $location[1]);
-  $sth->bind_param(6, $location[2]);
-  $sth->bind_param(7, $location[3]);
-  $sth->bind_param(8, $location[4]);
-  $sth->bind_param(9, $location[5]);
-  $sth->bind_param(10,$typeid);
+  $sth->bind_param(4, $strand);
+  $sth->bind_param(5, $typeid);
 
   $sth->execute() or $self->throw($sth->errstr);
 
@@ -775,24 +815,31 @@ sub bulk_replace {
     my @insert_values;
     foreach my $object (@objects) {
         my $id = $object->primary_id;
-        my @location = $index_flag ? $self->_get_location_and_bin($object) : (undef)x6;
+        my (undef,undef,undef,$strand) = $index_flag ? $self->_get_location_and_bin($object) : (undef)x4;
         my $primary_tag = $object->primary_tag;
         my $source_tag  = $object->source_tag || '';
         $primary_tag    .= ":$source_tag";
         my $typeid   = $self->_typeid($primary_tag,1);
         
-        push(@insert_values, ($id,0,$index_flag||0,@location,$typeid));
+        push(@insert_values, ($id,0,$index_flag||0,$strand,$typeid));
     }
     
     my @value_blocks;
     for (1..@objects) {
-        push(@value_blocks, '(?,?,?,?,?,?,?,?,?,?)');
+        push(@value_blocks, '(?,?,?,?,?)');
     }
     my $value_blocks = join(',', @value_blocks);
-    my $sql = qq{REPLACE INTO $features (id,object,"indexed",seqid,start,end,strand,tier,bin,typeid) VALUES $value_blocks};
+    my $sql = qq{REPLACE INTO $features (id,object,"indexed",strand,typeid) VALUES $value_blocks};
     
     my $sth = $self->_prepare($sql);
     $sth->execute(@insert_values) or $self->throw($sth->errstr);
+}
+
+sub _get_location_and_bin {
+    my $self = shift;
+    my $obj  = shift;
+    my @location = $self->SUPER::_get_location_and_bin($obj);
+    return @location[0..3];
 }
 
 ###
@@ -862,7 +909,7 @@ sub _dump_store {
 
   for my $obj (@_) {
     my $id       = $self->next_id;
-    my ($seqid,$start,$end,$strand,$tier,$bin) = $indexed ? $self->_get_location_and_bin($obj) : (undef)x6;
+    my ($seqid,$start,$end,$strand) = $indexed ? $self->_get_location_and_bin($obj) : (undef)x4;
     my $primary_tag = $obj->primary_tag;
     my $source_tag  = $obj->source_tag || '';
     $primary_tag    .= ":$source_tag";
@@ -870,7 +917,7 @@ sub _dump_store {
 
     # Encode BLOB in hex so we can more easily import it into SQLite
     print $store_fh
-    join("\t",$id,$typeid,$seqid,$start,$end,$strand,$tier,$bin,$indexed,
+    join("\t",$id,$typeid,$strand,$indexed,
          unpack('H*', $self->freeze($obj))),"\n";
     $obj->primary_id($id);
     $self->_update_indexes($obj) if $indexed && $autoindex;
@@ -907,6 +954,41 @@ sub _dump_update_attribute_index {
       print $fh join("\t",$id,$tagid,$value),"\n";
     }
   }
+}
+
+sub _update_indexes {
+    my $self = shift;
+    my $obj  = shift;
+    defined (my $id   = $obj->primary_id) or return;
+    $self->SUPER::_update_indexes($obj);
+
+    if ($self->{bulk_update_in_progress}) {
+	$self->_dump_update_location_index($obj,$id);
+    } else {
+	$self->_update_location_index($obj,$id);
+    }
+}
+
+sub _update_location_index {
+    my $self = shift;
+    my ($obj,$id) = @_;
+    my $seqid     = $self->_locationid($obj->seq_id);
+    my $start     = $obj->start;
+    my $end       = $obj->end;
+    $self->_delete_index('feature_index',$id);
+    my $table = $self->_feature_index_table;
+    my $sth  = $self->_prepare("INSERT INTO $table (id,seqid,dummy,start,end) values (?,?,?,?,?)");
+    $sth->execute($id,$seqid,$seqid,$start,$end);
+    $sth->finish;
+}
+
+sub _dump_update_location_index {
+    my $self = shift;
+    my ($obj,$id) = @_;
+    my $fh      = $self->dump_filehandle('feature_index');
+    my $dbh     = $self->dbh;
+    my ($seqid,$start,$end,$strand) = $self->_get_location_and_bin($obj);
+    print $fh join("\t",$id,$seqid,$seqid,$start,$end),"\n";
 }
 
 
