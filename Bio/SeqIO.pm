@@ -196,8 +196,8 @@ see the SeqIO HOWTO (L<http://bioperl.open-bio.org/wiki/HOWTO:SeqIO>).
 If no format is specified and a filename is given then the module will
 attempt to deduce the format from the filename suffix. If there is no
 suffix that Bioperl understands then it will attempt to guess the
-format based on file content. If this is unsuccessful then Fasta
-format is assumed.
+format based on file content. If this is unsuccessful then SeqIO will 
+throw a fatal error.
 
 The format name is case-insensitive: 'FASTA', 'Fasta' and 'fasta' are
 all valid.
@@ -279,13 +279,13 @@ Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+ bioperl-l@bioperl.org
+
 rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
+responsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
 with code and data examples if at all possible.
 
