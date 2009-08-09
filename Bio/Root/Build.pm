@@ -77,35 +77,7 @@ package Bio::Root::Build;
 
 BEGIN {
     # we really need Module::Build to be installed
-    unless (eval "use Module::Build 0.2805; 1") {
-        print "This package requires Module::Build v0.2805 or greater to install itself.\n";
-        
-        require ExtUtils::MakeMaker;
-        my $yn = ExtUtils::MakeMaker::prompt('  Install Module::Build now from CPAN?', 'y');
-        
-        unless ($yn =~ /^y/i) {
-            die " *** Cannot install without Module::Build.  Exiting ...\n";
-        }
-        
-        require Cwd;
-        require File::Spec;
-        require File::Copy;
-        require CPAN;
-        
-        # Save this because CPAN will chdir all over the place.
-        my $cwd = Cwd::cwd();
-        
-        my $build_pl = File::Spec->catfile($cwd, "Build.PL");
-        
-        File::Copy::move($build_pl, $build_pl."hidden"); # avoid bizarre bug with Module::Build tests using the wrong Build.PL if it happens to be in PERL5LIB
-        CPAN::Shell->install('Module::Build');
-        File::Copy::move($build_pl."hidden", $build_pl);
-        CPAN::Shell->expand("Module", "Module::Build")->uptodate or die "Couldn't install Module::Build, giving up.\n";
-        
-        chdir $cwd or die "Cannot chdir() back to $cwd: $!\n\n***\nInstallation will probably work fine if you now quit CPAN and try again.\n***\n\n";
-    }
-    
-    eval "use base Module::Build; 1" or die $@;
+    eval "use base Module::Build; 1" or die "This package requires Module::Build v0.2805 or greater to install itself.\n$@";
     
     # ensure we'll be able to reload this module later by adding its path to inc
     use Cwd;
@@ -526,32 +498,51 @@ sub under_cpan {
     unless (defined $self->{under_cpan}) {
         ## modified from Module::AutoInstall
         
-        # load cpan config
-        require CPAN;
-        if ($CPAN::HandleConfig::VERSION) {
-            # Newer versions of CPAN have a HandleConfig module
-            CPAN::HandleConfig->load;
-        }
-        else {
-            # Older versions had the load method in Config directly
-            CPAN::Config->load;
+        my $cpan_env = $ENV{PERl5_CPAN_IS_RUNNING};
+        if ($ENV{PERL5_CPANPLUS_IS_RUNNING}) {
+            $self->{under_cpan} = $cpan_env ? 'CPAN' : 'CPANPLUS';
         }
         
-        # Find the CPAN lock-file
-        my $lock = File::Spec->catfile($CPAN::Config->{cpan_home}, '.lock');
-        if (-f $lock) {
-            # Module::AutoInstall now goes on to open the lock file and compare
-            # its pid to ours, but we're not in a situation where we expect
-            # the pids to match, so we take the windows approach for all OSes:
-            # find out if we're in cpan_home
-            my $cwd  = File::Spec->canonpath(Cwd::cwd());
-            my $cpan = File::Spec->canonpath($CPAN::Config->{cpan_home});
+        require CPAN;
+        
+        unless (defined $self->{under_cpan}) {
+            if ($CPAN::VERSION > '1.89') {
+                if ($cpan_env) {
+                    $self->{under_cpan} = 'CPAN';
+                }
+                else {
+                    $self->{under_cpan} = 0;
+                }
+            }
+        }
+        
+        unless (defined $self->{under_cpan}) {
+            # load cpan config
+            if ($CPAN::HandleConfig::VERSION) {
+                # Newer versions of CPAN have a HandleConfig module
+                CPAN::HandleConfig->load;
+            }
+            else {
+                # Older versions had the load method in Config directly
+                CPAN::Config->load;
+            }
             
-            $self->{under_cpan} = index($cwd, $cpan) > -1;
+            # Find the CPAN lock-file
+            my $lock = File::Spec->catfile($CPAN::Config->{cpan_home}, '.lock');
+            if (-f $lock) {
+                # Module::AutoInstall now goes on to open the lock file and compare
+                # its pid to ours, but we're not in a situation where we expect
+                # the pids to match, so we take the windows approach for all OSes:
+                # find out if we're in cpan_home
+                my $cwd  = File::Spec->canonpath(Cwd::cwd());
+                my $cpan = File::Spec->canonpath($CPAN::Config->{cpan_home});
+                
+                $self->{under_cpan} = index($cwd, $cpan) > -1;
+            }
         }
         
         if ($self->{under_cpan}) {
-            $self->log_info("(I think I'm being run by CPAN, so will rely on CPAN to handle prerequisite installation)\n");
+            $self->log_info("(I think I'm being run by CPAN/CPANPLUS, so will rely on it to handle prerequisite installation)\n");
         }
         else {
             $self->log_info("(I think you ran Build.PL directly, so will use CPAN to install prerequisites on demand)\n");
@@ -721,9 +712,11 @@ sub _parse_conditions {
 }
 
 # when generating META.yml, we output optional_features syntax (instead of
-# recommends syntax). Note that as of CPAN v1.8802 nothing useful is done
+# recommends syntax). Note that as of CPAN v1.9402 nothing useful is done
 # with this information, which is why we implement our own request to install
-# the optional modules in install_optional()
+# the optional modules in install_optional().
+# Also note that CPAN PLUS complains with an [ERROR] when it sees this META.yml,
+# but it isn't fatal and installation continues fine.
 sub prepare_metadata {
     my ($self, $node, $keys) = @_;
     my $p = $self->{properties};
