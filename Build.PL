@@ -103,9 +103,9 @@ my $build = Bio::Root::Build->new(
                                                         test             => \&test_db_sf
                                                      },
                             Network               => {
-                                                        description => "Enable tests that need an internet connection",
-                                                        requires    => { 'LWP::UserAgent' => 0 },
-                                                        test        => \&Bio::Root::Build::test_internet
+                                                        description      => "Enable tests that need an internet connection",
+                                                        feature_requires => { 'LWP::UserAgent' => 0 },
+                                                        test             => \&Bio::Root::Build::test_internet
                                                      }
                            },
     dynamic_config      => 1,
