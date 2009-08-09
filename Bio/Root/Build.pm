@@ -412,7 +412,7 @@ sub prereq_failures {
 # install an external module using CPAN prior to testing and installation
 # should only be called by install_required or install_optional
 sub install_prereq {
-    my ($self, $desired, $version) = @_;
+    my ($self, $desired, $version, $required) = @_;
     
     if ($self->under_cpan) {
         # Just add to the required hash, which CPAN >= 1.81 will check prior
@@ -422,29 +422,39 @@ sub install_prereq {
         return 'ok';
     }
     else {
-        # Here we use CPAN to actually install the desired module, the benefit
-        # being we continue even if installation fails, and that this works
-        # even when not using CPAN to install.
-        require Cwd;
-        require CPAN;
+        my $question = $required ?  "$desired is absolutely required prior to installation: shall I install it now using a CPAN shell?" :
+                                    "To install $desired I'll need to open a CPAN shell right now; is that OK?";
+        my $do_install = $self->y_n($question.' y/n', 'y');
         
-        # Save this because CPAN will chdir all over the place.
-        my $cwd = Cwd::cwd();
-        
-        CPAN::Shell->install($desired);
-        my $msg;
-        my $expanded = CPAN::Shell->expand("Module", $desired);
-        if ($expanded && $expanded->uptodate) {
-            $self->log_info("\n\n*** (back in BioPerl Build.PL) ***\n * You chose to install $desired and it installed fine\n");
-            $msg = 'ok';
+        if ($do_install) {
+            # Here we use CPAN to actually install the desired module, the benefit
+            # being we continue even if installation fails, and that this works
+            # even when not using CPAN to install.
+            require Cwd;
+            require CPAN;
+            
+            # Save this because CPAN will chdir all over the place.
+            my $cwd = Cwd::cwd();
+            
+            CPAN::Shell->install($desired);
+            my $msg;
+            my $expanded = CPAN::Shell->expand("Module", $desired);
+            if ($expanded && $expanded->uptodate) {
+                $self->log_info("\n\n*** (back in BioPerl Build.PL) ***\n * You chose to install $desired and it installed fine\n");
+                $msg = 'ok';
+            }
+            else {
+                $self->log_info("\n\n*** (back in BioPerl Build.PL) ***\n");
+                $msg = "You chose to install $desired but it failed to install";
+            }
+            
+            chdir $cwd or die "Cannot chdir() back to $cwd: $!";
+            return $msg;
         }
         else {
-            $self->log_info("\n\n*** (back in BioPerl Build.PL) ***\n");
-            $msg = "You chose to install $desired but it failed to install";
+            return $required ? "You chose not to install the REQUIRED module $desired: you'd better install it yourself manually!" :
+                               "Even though you wanted the optional module $desired, you chose not to actually install it: do it yourself manually.";
         }
-        
-        chdir $cwd or die "Cannot chdir() back to $cwd: $!";
-        return $msg;
     }
 }
 
@@ -455,7 +465,7 @@ sub install_required {
     
     $self->log_info(" - ERROR: $msg\n");
     
-    return $self->install_prereq($desired, $version);
+    return $self->install_prereq($desired, $version, 1);
 }
 
 # install optional modules listed in 'recommends' arg to new that weren't
