@@ -78,6 +78,7 @@ my $build = Bio::Root::Build->new(
                             'XML::Writer'               => '0.4/parsing and writing xml/Bio::SeqIO::agave,Bio::SeqIO::game::gameWriter,Bio::SeqIO::chadoxml,Bio::SeqIO::tinyseq,Bio::Variation::IO::xml,Bio::SearchIO::Writer::BSMLResultWriter',
     },
     get_options         => {
+                            accept  => { },
                             network => { } # say 'perl Build.PL --network' to manually request network tests
                            },
     auto_features       => {
