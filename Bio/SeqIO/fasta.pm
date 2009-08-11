@@ -104,7 +104,7 @@ sub _initialize {
  Title   : next_seq
  Usage   : $seq = $stream->next_seq()
  Function: returns the next sequence in the stream
- Returns : Bio::Seq object
+ Returns : Bio::Seq object, or nothing if no more available
  Args    : NONE
 
 =cut

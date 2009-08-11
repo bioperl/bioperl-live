@@ -255,7 +255,7 @@ See below for more detailed summaries.  The main methods are:
 
 =head2 $sequence = $seqIO-E<gt>next_seq()
 
-Fetch the next sequence from the stream.
+Fetch the next sequence from the stream, or nothing if no more.
 
 =head2 $seqIO-E<gt>write_seq($sequence [,$another_sequence,...])
 
@@ -485,7 +485,9 @@ sub _initialize {
            recoverable errors into exceptions by calling
            $stream->verbose(2).
 
- Returns : a Bio::Seq sequence object
+ Returns : a Bio::Seq sequence object, or nothing if no more sequences
+           are available
+
  Args    : none
 
 See L<Bio::Root::RootI>, L<Bio::Factory::SeqStreamI>, L<Bio::Seq>
