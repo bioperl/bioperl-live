@@ -129,14 +129,15 @@ END
  Usage   : $db = Bio::DB::Query::GenBank->new(@args)
  Function: create new query object
  Returns : new query object
- Args    : -db       database ('protein' or 'nucleotide')
+ Args    : -db       database (see below for allowable values)
            -query    query string
-           -mindate  minimum date to retrieve from
-           -maxdate  maximum date to retrieve from
+           -mindate  minimum date to retrieve from (YYYY/MM/DD)
+           -maxdate  maximum date to retrieve from (YYYY/MM/DD)
            -reldate  relative date to retrieve from (days)
            -datetype date field to use ('edat' or 'mdat')
            -ids      array ref of gids (overrides query)
-           -maxids   the maximum number of IDs you wish to collect (defaults to 100)
+           -maxids   the maximum number of IDs you wish to collect
+                     (defaults to 100)
 
 This method creates a new query object.  Typically you will specify a
 -db and a -query argument, possibly modified by -mindate, -maxdate, or
@@ -158,6 +159,24 @@ to a number larger than the number of IDs you expect to obtain.  This
 only affects the list of IDs you obtain when you call the ids()
 method, and does not affect in any way the number of entries you
 receive when you generate a SeqIO stream from the query.
+
+-db option values:
+
+  The most commonly used databases are:
+
+      protein
+      nucleotide
+      nuccore
+      nucgss
+      nucest
+      unigene
+
+  An up to date list of database names supported by NCBI eUtils is
+  always available at:
+  http://eutils.ncbi.nlm.nih.gov/entrez/eutils/einfo.fcgi?
+
+  However, note that not all of these databases return datatypes that
+  are parsable by Bio::DB::GenBank
 
 =cut
 
