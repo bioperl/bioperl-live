@@ -110,6 +110,23 @@ sub individual_id{
    $self->throw_not_implemented();
 }
 
+
+=head2 annotation
+
+ Title   : annotation
+ Usage   : my $annotation_collection = $genotype->annotation;
+ Function: Get/set a Bio::AnnotationCollectionI for this genotype
+ Returns : Bio::AnnotationCollectionI object
+ Args    : [optional set] Bio::AnnotationCollectionI object
+
+
+=cut
+
+sub annotation{
+   my ($self) = @_;
+   $self->throw_not_implemented();
+}
+
 =head2 get_Alleles
 
  Title   : get_Alleles
@@ -125,5 +142,4 @@ sub get_Alleles{
    my ($self) = @_;
    $self->throw_not_implemented();
 }
-
-1;
+1; 

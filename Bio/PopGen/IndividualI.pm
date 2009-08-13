@@ -121,6 +121,21 @@ sub num_of_results{
     $self->num_genotypes;
 }
 
+=head2 annotation
+
+ Title   : annotation
+ Usage   : my $annotation_collection = $ind->annotation;
+ Function: Get/set a Bio::AnnotationCollectionI for this individual
+ Returns : Bio::AnnotationCollectionI object
+ Args    : [optional set] Bio::AnnotationCollectionI object
+
+=cut
+
+sub annotation{
+   my ($self, $arg) = @_;
+   $self->throw_not_implemented();
+}
+
 =head2 get_Genotypes
 
  Title   : get_Genotypes

@@ -149,6 +149,23 @@ sub source{
    $self->throw_not_implemented();
 }
 
+
+=head2 annotation
+
+ Title   : annotation
+ Usage   : my $annotation_collection = $pop->annotation;
+ Function: Get/set a Bio::AnnotationCollectionI for this population
+ Returns : Bio::AnnotationCollectionI object
+ Args    : [optional set] Bio::AnnotationCollectionI object
+
+
+=cut
+
+sub annotation{
+   my ($self) = @_;
+   $self->throw_not_implemented();
+}
+
 =head2 get_Individuals
 
  Title   : get_Individuals
@@ -162,6 +179,7 @@ sub source{
 
 
 =cut
+
 
 sub get_Individuals{
     shift->throw_not_implemented();

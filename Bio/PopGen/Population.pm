@@ -200,6 +200,24 @@ sub source{
    return $self->{'_source'};
 }
 
+=head2 annotation
+
+ Title   : annotation
+ Usage   : my $annotation_collection = $pop->annotation;
+ Function: Get/set a Bio::AnnotationCollectionI for this population
+ Returns : Bio::AnnotationCollectionI object
+ Args    : [optional set] Bio::AnnotationCollectionI object
+
+=cut
+
+sub annotation{
+   my ($self, $arg) = @_;
+   return $self->{_annotation} unless $arg;
+   $self->throw("Bio::AnnotationCollectionI required for argument") unless
+       ref($arg) && $arg->isa('Bio::AnnotationCollectionI');
+   return $self->{_annotation} = $arg;
+}
+
 =head2 set_Allele_Frequency
 
  Title   : set_Allele_Frequency
