@@ -728,8 +728,6 @@ sub _load_input {
 	return @seqs;
 }
 
-1;
-
 =head2 set_url_base
 
  Title   : set_url_base
@@ -761,5 +759,7 @@ sub get_url_base {
     my $self = shift;
     return $self->{'_urlbase'};
 }
+
+1;
 
 __END__
