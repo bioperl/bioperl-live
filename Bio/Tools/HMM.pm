@@ -497,7 +497,7 @@ sub transition_prob {
                $sum += $matrix->entry($a, $b);
             }
             if ($sum != 1.0) {
-               $self->throw("Sum of probabilities for each from-state must be 1.0!\n");
+               $self->throw("Sum of probabilities for each from-state must be 1.0; got $sum\n");
             }
          }
          for ($i = 0; $i < length($self->{'states'}); ++$i) {
