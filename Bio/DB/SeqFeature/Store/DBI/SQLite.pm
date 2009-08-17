@@ -197,6 +197,7 @@ sub init {
     $dbh = DBI->connect($dsn,$user,$pass,$dbi_options) or $self->throw($DBI::errstr);
     $dbh->do("PRAGMA synchronous = OFF;"); # makes writes much faster
     $dbh->do("PRAGMA temp_store = MEMORY;"); # less disk I/O; some speedup
+    $dbh->do("PRAGMA cache_size = 20000;"); # less disk I/O; some speedup
   }
   $self->{dbh}       = $dbh;
   $self->{is_temp}   = $is_temporary;
@@ -215,7 +216,8 @@ sub init {
 
 sub table_definitions {
   my $self = shift;
-  return {
+  my $defs = 
+      {
 	  feature => <<END,
 (
   id        integer primary key autoincrement,
@@ -223,10 +225,7 @@ sub table_definitions {
   strand    integer default 0,
   "indexed" integer default 1,
   object    blob not null
-);
-create index index_feature_typeid on feature (typeid);
-drop table if exists feature_index;
-create virtual table feature_index using rtree(id,seqid,dummy,start,end);
+)
 END
 
 	  locationlist => <<END,
@@ -295,6 +294,53 @@ END
 )
 END
 	 };
+
+  unless ($self->_has_spatial_index) {
+    $defs->{feature_location} = <<END;
+(
+  id       int(10) primary key,
+  seqid    int(10),
+  dummy    int,
+  start    int,
+  end      int
+);
+create index index_feature_location on feature_location(seqid,start);
+END
+
+  }
+
+  return $defs;
+}
+
+sub _init_database {
+    my $self  = shift;
+
+    # must do this first before calling table_definitions
+    $self->_create_spatial_index;
+    $self->SUPER::_init_database(@_);
+}
+
+sub init_tmp_database {
+    my $self = shift;
+    my $erase = shift;
+    $self->_create_spatial_index;
+    $self->SUPER::init_tmp_database(@_);
+}
+
+sub _create_spatial_index{
+    my $self = shift;
+    my $dbh   = $self->dbh;
+    local $dbh->{PrintError} = 0;
+    $dbh->do("DROP TABLE IF EXISTS feature_index"); # spatial index
+    $dbh->do("CREATE VIRTUAL TABLE feature_index USING BTREE(id,seqid,dummy,start,end)");
+}
+
+sub _has_spatial_index {
+    my $self = shift;
+    return $self->{'_has_spatial_index'} if exists $self->{'_has_spatial_index'};
+    my $dbh  = $self->dbh;
+    my ($count) = $dbh->selectrow_array("select count(*) from sqlite_master where name='feature_index'");
+    return $self->{'_has_spatial_index'} = $count;
 }
 
 sub _finish_bulk_update {
@@ -350,6 +396,7 @@ sub _finish_bulk_update {
 sub index_tables {
     my $self = shift;
     my @t    = $self->SUPER::index_tables;
+    return @t unless $self->_has_spatial_index;
     return (@t,$self->_qualify('feature_index'));
 }
 
@@ -596,23 +643,25 @@ sub _location_sql {
   }
 
   if (defined $strand) {
-    $range .= " AND strand=?";
-    push @range_args,$strand;
+      $range .= " AND strand=?";
+      push @range_args,$strand;
   }
 
   my $where = <<END;
-   fi.seqid=?
-   AND   $location.id=fi.id
-   AND   $range
+  fi.seqid=?
+      AND   $location.id=fi.id
+      AND   $range
 END
-
+;	  
   my $group = '';
-
+      
   my @args  = ($seqid,@range_args);
   return ($from,$where,$group,@args);
 }
 
-sub _feature_index_table          {  shift->_qualify('feature_index') }
+sub _feature_index_table          {  
+    my $self = shift;
+    return $self->_has_spatial_index ? $self->_qualify('feature_index'): $self->_qualify('feature_location') }
 
 # Do a case-insensitive search a la the PostgreSQL adaptor
 sub _name_sql {
@@ -975,8 +1024,8 @@ sub _update_location_index {
     my $seqid     = $self->_locationid($obj->seq_id);
     my $start     = $obj->start;
     my $end       = $obj->end;
-    $self->_delete_index('feature_index',$id);
     my $table = $self->_feature_index_table;
+    $self->_delete_index($table,$id);
     my $sth  = $self->_prepare("INSERT INTO $table (id,seqid,dummy,start,end) values (?,?,?,?,?)");
     $sth->execute($id,$seqid,$seqid,$start,$end);
     $sth->finish;
