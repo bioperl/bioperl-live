@@ -332,6 +332,8 @@ sub _create_spatial_index{
     my $dbh   = $self->dbh;
     local $dbh->{PrintError} = 0;
     $dbh->do("DROP TABLE IF EXISTS feature_index"); # spatial index
+#    $dbh->do("CREATE VIRTUAL TABLE feature_index USING RTREE(id,seqid,dummy,start,end)");
+    warn "DELIBERATELY BREAKING RTREE FUNCTIONALITY";
     $dbh->do("CREATE VIRTUAL TABLE feature_index USING BTREE(id,seqid,dummy,start,end)");
 }
 
@@ -372,9 +374,10 @@ sub _finish_bulk_update {
         $sth->execute();
       }
     } else {
+	my $feature_index = $self->_feature_index_table;
 	if ($table =~ /parent2child$/) {
 	    $sth = $dbh->prepare("REPLACE INTO $qualified_table VALUES (?,?)");
-	} elsif ($table =~ /feature_index$/) {
+	} elsif ($table =~ /$feature_index$/) {
 	    $sth = $dbh->prepare("REPLACE INTO $qualified_table VALUES (?,?,?,?,?)");
 	} else { # attribute or name
 	    $sth = $dbh->prepare("REPLACE INTO $qualified_table VALUES (?,?,?)");
@@ -396,8 +399,7 @@ sub _finish_bulk_update {
 sub index_tables {
     my $self = shift;
     my @t    = $self->SUPER::index_tables;
-    return @t unless $self->_has_spatial_index;
-    return (@t,$self->_qualify('feature_index'));
+    return (@t,$self->_feature_index_table);
 }
 
 ###
@@ -661,7 +663,8 @@ END
 
 sub _feature_index_table          {  
     my $self = shift;
-    return $self->_has_spatial_index ? $self->_qualify('feature_index'): $self->_qualify('feature_location') }
+    return $self->_has_spatial_index ? $self->_qualify('feature_index')
+                                     : $self->_qualify('feature_location') }
 
 # Do a case-insensitive search a la the PostgreSQL adaptor
 sub _name_sql {
@@ -1034,7 +1037,8 @@ sub _update_location_index {
 sub _dump_update_location_index {
     my $self = shift;
     my ($obj,$id) = @_;
-    my $fh      = $self->dump_filehandle('feature_index');
+    my $table   = $self->_feature_index_table;
+    my $fh      = $self->dump_filehandle($table);
     my $dbh     = $self->dbh;
     my ($seqid,$start,$end,$strand) = $self->_get_location_and_bin($obj);
     print $fh join("\t",$id,$seqid,$seqid,$start,$end),"\n";
