@@ -4,7 +4,8 @@
 use strict;
 
 use Bio::Root::Test;
-test_begin( -tests=>44 );
+test_begin( -tests=>44,
+	    -requires_modules => [qw(Bio::Phylo)]);
 use_ok( 'Bio::PrimarySeq' );
 use_ok('Bio::SeqIO::nexml'); # checks that your module is there and loads ok
 

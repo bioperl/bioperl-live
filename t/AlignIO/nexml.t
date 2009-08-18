@@ -3,7 +3,8 @@
 use strict;
 
 use Bio::Root::Test;
-test_begin( -tests => 35 );
+test_begin( -tests => 35, 
+	    -requires_modules => [qw(Bio::Phylo)]);
 use_ok('Bio::AlignIO::nexml'); # checks that your module is there and loads ok
 
 

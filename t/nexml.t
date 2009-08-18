@@ -2,11 +2,12 @@
 # $Id$
 
 use strict;
-
+chdir('..');
 use Bio::Root::Test;
 use Bio::Tree::Tree;
 use Bio::TreeIO;
-test_begin( -tests=>125 );
+test_begin( -tests=>125,
+	    -requires_modules => [qw(Bio::Phylo)]);
 
 use_ok('Bio::NexmlIO');
 

@@ -3,7 +3,8 @@
 
 use strict;
 use Bio::Root::Test;
-test_begin( -tests=>46 );
+test_begin( -tests=>46,
+	    -requires_modules => [qw(Bio::Phylo)]);
 
 use_ok( 'Bio::Tree::Tree' );
 use_ok( 'Bio::TreeIO' );
