@@ -77,8 +77,9 @@ use strict;
 use lib '../..';
 use Bio::Event::EventGeneratorI;
 use IO::String;
-use Bio::Phylo::IO qw (parse unparse);
 use Bio::Nexml::Factory;
+use Bio::Phylo::IO qw (parse unparse);
+
 
 use base qw(Bio::TreeIO);
 

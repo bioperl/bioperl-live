@@ -79,11 +79,10 @@ package Bio::SeqIO::nexml;
 use strict;
 
 use lib '../..';
-use Bio::Phylo::Matrices::Datum;
-use Bio::Phylo::IO qw (parse unparse);
 use Bio::Seq;
 use Bio::Seq::SeqFactory;
 use Bio::Nexml::Factory;
+use Bio::Phylo::IO qw (parse unparse);
 
 use base qw(Bio::SeqIO);
 

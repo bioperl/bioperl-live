@@ -80,8 +80,21 @@ package Bio::Nexml::Factory;
 
 use strict;
 
+BEGIN {
+    use Bio::Root::Root;
+    unless (eval "require Bio::Phylo; 1") {
+	Bio::Root::Root->throw("Bio::Phylo package required; see http://www.nexml.org for download details");
+    }
+}
+	
+use Bio::Phylo::Factory;
+use Bio::Phylo::Matrices;
 use Bio::Phylo::Matrices::Matrix;
+use Bio::Phylo::Matrices::Datum;
 use Bio::Phylo::Forest::Tree;
+use Bio::Phylo::Matrices;
+use Bio::Phylo::IO;
+
 use Bio::SeqFeature::Generic;
 
 

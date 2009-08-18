@@ -115,9 +115,6 @@ use Bio::SeqIO::nexml;
 use Bio::AlignIO::nexml;
 use Bio::TreeIO::nexml;
 use Bio::Nexml::Factory;
-use Bio::Phylo::IO;
-use Bio::Phylo::Factory;
-use Bio::Phylo::Matrices;
 
 use base qw(Bio::Root::IO);
 

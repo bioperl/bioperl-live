@@ -2,7 +2,7 @@
 # $Id$
 
 use strict;
-chdir('..');
+
 use Bio::Root::Test;
 use Bio::Tree::Tree;
 use Bio::TreeIO;
