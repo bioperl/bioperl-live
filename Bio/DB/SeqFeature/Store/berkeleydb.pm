@@ -18,8 +18,6 @@ use constant BINSIZE => 10_000;
 use constant MININT  => -999_999_999_999;
 use constant MAXINT  => 999_999_999_999;
 
-our $VERSION = '2.00';
-
 =head1 NAME
 
 Bio::DB::SeqFeature::Store::berkeleydb -- Storage and retrieval of sequence annotation data in Berkeleydb files
@@ -307,9 +305,38 @@ sub init {
       $self->auto_reindex($autoindex);
   }
   $self->lock('shared');
+
+  # this step may rebless $self into a subclass
+  # to preserve backward compatibility with older
+  # databases while providing better performance for
+  # new databases.
+  $self->possibly_rebless($create);
+
   $self->_open_databases($write,$create,$autoindex);
   $self->_permissions($write,$create);
   return $self;
+}
+
+sub version { return 2.0 };
+
+sub possibly_rebless {
+    my $self   = shift;
+    my $create = shift;
+    my $do_rebless;
+
+    if ($create) {
+	$do_rebless++;
+    } else {  # probe database
+	my %h;
+	tie (%h,'DB_File',$self->_features_path,O_RDONLY,0666,$DB_HASH) or return;
+	$do_rebless = $h{'.version'} >= 3.0;
+    }
+
+    if ($do_rebless) {
+	eval "require Bio::DB::SeqFeature::Store::berkeleydb3";
+	bless $self,'Bio::DB::SeqFeature::Store::berkeleydb3';
+    }
+	
 }
 
 sub can_store_parentage { 1 }
@@ -599,41 +626,65 @@ sub _open_databases {
   if ($create) {
     %h = ();
     $h{'.next_id'} = 1;
-    $h{'.version'} = $VERSION;
+    $h{'.version'} = $self->version;
   }
   $self->db(\%h);
 
-  # Create the index databases; these are DB_BTREE implementations with duplicates allowed.
-  local $DB_BTREE->{flags} = R_DUP;
-  $DB_BTREE->{compare}     = sub { lc($_[0]) cmp lc($_[1]) };
-  for my $idx ($self->_index_files) {
-    my $path = $self->_qualify("$idx.idx");
-    my %db;
-    tie(%db,'DB_File',$path,$flags,0666,$DB_BTREE)
-      or $self->throw("Couldn't tie $path: $!");
-    %db = () if $create;
-    $self->index_db($idx=>\%db);
-  }
+  $self->open_index_dbs($flags,$create);
+  $self->open_parentage_db($flags,$create);
+  $self->open_notes_db($write,$create);
+  $self->open_seq_db($flags,$create) if -e $self->_fasta_path;
+}
 
-  # Create the parentage database
-  my %p;
-  tie (%p,'DB_File',$self->_parentage_path,$flags,0666,$DB_BTREE)
-    or $self->throw("Couldn't tie: ".$self->_parentage_path . $!);
+sub open_index_dbs {
+    my $self = shift;
+    my ($flags,$create) = @_;
+
+    # Create the index databases; these are DB_BTREE implementations with duplicates allowed.
+    $DB_BTREE->{flags}  = R_DUP;
+    $DB_BTREE->{compare}     = sub { lc($_[0]) cmp lc($_[1]) };
+    for my $idx ($self->_index_files) {
+	my $path = $self->_qualify("$idx.idx");
+	my %db;
+	tie(%db,'DB_File',$path,$flags,0666,$DB_BTREE)
+	    or $self->throw("Couldn't tie $path: $!");
+	%db = () if $create;
+	$self->index_db($idx=>\%db);
+    }
+}
+
+sub open_parentage_db {
+    my $self = shift;
+    my ($flags,$create) = @_;
+
+    # Create the parentage database
+    my %p;
+    tie (%p,'DB_File',$self->_parentage_path,$flags,0666,$DB_BTREE)
+	or $self->throw("Couldn't tie: ".$self->_parentage_path . $!);
     %p = () if $create;
-  $self->parentage_db(\%p);
+    $self->parentage_db(\%p);
+}
 
-  if (-e $self->_fasta_path) {
-    my $dna_db = Bio::DB::Fasta::Subdir->new($self->_fasta_path) 
-	or $self->throw("Can't reindex sequence file: $@");
-    $self->dna_db($dna_db);
-  }
+sub open_notes_db {
+    my $self = shift;
+    my ($write,$create) = @_;
+    
+    my $mode =  $write  ? "+>>"
+	                : $create ? "+>"
+	                : "<";
 
-  my $mode =  $write  ? "+>>"
-            : $create ? "+>"
-            : "<";
+    open (my $F,$mode,$self->_notes_path) or $self->throw($self->_notes_path.": $!");
+    $self->notes_db($F);
+}
 
-  open (my $F,$mode,$self->_notes_path) or $self->throw($self->_notes_path.": $!");
-  $self->notes_db($F);
+sub open_seq_db {
+    my $self = shift;
+
+    if (-e $self->_fasta_path) {
+	my $dna_db = Bio::DB::Fasta::Subdir->new($self->_fasta_path) 
+	    or $self->throw("Can't reindex sequence file: $@");
+	$self->dna_db($dna_db);
+    }
 }
 
 sub commit { # reindex fasta files
@@ -1109,7 +1160,7 @@ sub filter_by_location {
 
   $start = MININT  if !defined $start;
   $end   = MAXINT  if !defined $end;
-  my $version_2 = $self->version > 1;
+  my $version_2 = $self->db_version > 1;
 
   if ($range_type eq 'overlaps' or $range_type eq 'contains') {
     my $key     = $version_2 ? "\L$seq_id\E.$binstart" : "\L$seq_id\E$binstart";
@@ -1367,7 +1418,7 @@ sub finish_bulk_update {
   }
 }
 
-sub version {
+sub db_version {
     my $self = shift;
     my $db   = $self->db;
     return $db->{'.version'} || 1.00;

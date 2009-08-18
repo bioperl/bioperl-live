@@ -12,8 +12,8 @@ Bio::DB::SeqFeature::Store::Loader -- Loader
 
 =head1 DESCRIPTION
 
-This is the base class for Bio::DB::SeqFeature::GFF3Loader,
-Bio::DB::SeqFeature::GFFLoader, and
+This is the base class for Bio::DB::SeqFeature::Loader::GFF3Loader,
+Bio::DB::SeqFeature::Loader::GFFLoader, and
 Bio::DB::SeqFeature::FeatureFileLoader. Please see the manual pages
 for these modules.
 
@@ -691,7 +691,7 @@ L<bioperl>,
 L<Bio::DB::SeqFeature::Store>,
 L<Bio::DB::SeqFeature::Segment>,
 L<Bio::DB::SeqFeature::NormalizedFeature>,
-L<Bio::DB::SeqFeature::GFF3Loader>,
+L<Bio::DB::SeqFeature::Store::GFF3Loader>,
 L<Bio::DB::SeqFeature::Store::DBI::mysql>,
 L<Bio::DB::SeqFeature::Store::berkeleydb>
 
