@@ -315,10 +315,8 @@ sub test_output_file {
     # RT 48813
     my $tmp = File::Temp->new();
     push(@TEMP_FILES, $tmp);
-    my $fname = $tmp->filename;
-    close($tmp);
-    
-    return $fname;
+    close($tmp); # Windows needs this
+    return $tmp->filename;
 }
 
 =head2 test_output_dir
