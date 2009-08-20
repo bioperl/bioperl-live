@@ -2,7 +2,7 @@
 # $Id$
 
 use strict;
-use constant TEST_COUNT => 68;
+use constant TEST_COUNT => 69;
 
 BEGIN {
     use lib '/home/lstein/projects/bioperl-live';
@@ -138,6 +138,10 @@ is(@f, 2);
 # find all top-level features on Contig3 -- there should be two
 @f = $db->get_features_by_location(-seq_id=>'Contig3');
 is(@f, 2);
+
+# find all top-level features on Contig3 that overlap a range -- only one
+@f = $db->get_features_by_location(-seq_id=>'Contig3',-start=>40000,-end=>50000);
+is(@f,1);
 
 # find all top-level features on Contig3 of type 'assembly_component'
 @f = $db->features(-seq_id=>'Contig3',-type=>'assembly_component');

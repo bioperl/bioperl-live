@@ -18,6 +18,7 @@ my $IGNORE_SEQREGION   = 0;
 my $CREATE   = 0;
 my $USER     = '';
 my $PASS     = '';
+my $COMPRESS = 0;
 
 GetOptions(
 	   'dsn=s'       => \$DSN,
@@ -29,7 +30,8 @@ GetOptions(
 	   'T|temporary-directory=s' => \$TMP,
 	   'create'      => \$CREATE,
 	   'user=s'      => \$USER,
-	   'password=s'  => \$PASS
+	   'password=s'  => \$PASS,
+	   'zip'         => \$COMPRESS,
 	   ) || die <<END;
 Usage: $0 [options] gff_file1 gff_file2...
   Options:
@@ -46,6 +48,7 @@ Usage: $0 [options] gff_file1 gff_file2...
           -i --ignore-seqregion
                           If true, then ignore ##sequence-region directives in the
                           GFF3 file (default, create a feature for each region)
+          -z --zip        If true, database tables will be compressed to save space
 
 Please see http://www.sequenceontology.org/gff3.shtml for information
 about the GFF3 format. BioPerl extends the format slightly by adding 
@@ -79,6 +82,7 @@ my $store = Bio::DB::SeqFeature::Store->new(
 					    -pass    => $PASS,
 					    -write    => 1,
 					    -create   => $CREATE,
+                                            -compress => $COMPRESS,
     )
   or die "Couldn't create connection to the database";
 

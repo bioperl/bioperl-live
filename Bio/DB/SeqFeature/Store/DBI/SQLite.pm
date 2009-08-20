@@ -157,6 +157,59 @@ use constant MAX_INT =>  2_147_483_647;
 use constant MIN_INT => -2_147_483_648;
 use constant MAX_BIN =>  1_000_000_000;  # size of largest feature = 1 Gb
 use constant MIN_BIN =>  1000;           # smallest bin we'll make - on a 100 Mb chromosome, there'll be 100,000 of these
+use constant DEBUG_NONSPATIAL=>0;
+
+my (@BINS,%BINS);
+{
+    @BINS = map {2**$_} (17, 20, 23, 26, 29);  # TO DO: experiment with different bin sizes
+    my $start=0;
+    for my $b (sort {$b<=>$a} @BINS) {
+	$BINS{$b} = $start;
+	$start   += $BINS[-1]/$b;
+    }
+}
+
+
+# my %BINS = (
+#     2**11 => 37449,
+#     2**14 =>  4681,
+#     2**17 =>   585,
+#     2**20 =>    73,
+#     2**23 =>     9,
+#     2**26 =>     1,
+#     2**29 =>     0
+# );
+# my @BINS = sort {$a<=>$b} keys %BINS;
+
+sub calculate_bin {
+    my $self = shift;
+    my ($start,$end) = @_;
+
+    my $len = $end - $start;
+    for my $bin (@BINS) {
+	next if $len > $bin;
+	# possibly fits here
+	my $binstart = int $start/$bin;
+	my $binend   = int $end/$bin;
+	return $binstart+$BINS{$bin} if $binstart == $binend;
+    }
+
+    die "unreasonable coordinates ",$start+1,"..$end";
+}
+
+sub search_bins {
+    my $self = shift;
+    my ($start,$end) = @_;
+    my @results;
+
+    for my $bin (@BINS) {
+	my $binstart = int $start/$bin;
+	my $binend   = int $end/$bin;
+	push @results,$binstart+$BINS{$bin}..$binend+$BINS{$bin};
+    }
+    return @results;
+}
+
 
 ###
 # object initialization
@@ -300,11 +353,11 @@ END
 (
   id       int(10) primary key,
   seqid    int(10),
-  dummy    int,
+  bin      int,
   start    int,
   end      int
 );
-create index index_feature_location on feature_location(seqid,start);
+create index index_feature_location on feature_location(seqid,bin,start,end);
 END
 
   }
@@ -332,9 +385,12 @@ sub _create_spatial_index{
     my $dbh   = $self->dbh;
     local $dbh->{PrintError} = 0;
     $dbh->do("DROP TABLE IF EXISTS feature_index"); # spatial index
-#    $dbh->do("CREATE VIRTUAL TABLE feature_index USING RTREE(id,seqid,dummy,start,end)");
-    warn "DELIBERATELY BREAKING RTREE FUNCTIONALITY";
-    $dbh->do("CREATE VIRTUAL TABLE feature_index USING BTREE(id,seqid,dummy,start,end)");
+    if (DEBUG_NONSPATIAL) {
+	warn "DELIBERATELY BREAKING RTREE FUNCTIONALITY";
+	$dbh->do("CREATE VIRTUAL TABLE feature_index USING BTREE(id,seqid,bin,start,end)");
+    } else {
+	$dbh->do("CREATE VIRTUAL TABLE feature_index USING RTREE(id,seqid,bin,start,end)");
+    }
 }
 
 sub _has_spatial_index {
@@ -378,7 +434,10 @@ sub _finish_bulk_update {
 	if ($table =~ /parent2child$/) {
 	    $sth = $dbh->prepare("REPLACE INTO $qualified_table VALUES (?,?)");
 	} elsif ($table =~ /$feature_index$/) {
-	    $sth = $dbh->prepare("REPLACE INTO $qualified_table VALUES (?,?,?,?,?)");
+	    $sth = $dbh->prepare(
+		$self->_has_spatial_index ?"REPLACE INTO $qualified_table VALUES (?,?,?,?,?)"
+		                          :"REPLACE INTO $qualified_table VALUES (?,?,?,?,?)"
+		);
 	} else { # attribute or name
 	    $sth = $dbh->prepare("REPLACE INTO $qualified_table VALUES (?,?,?)");
 	}
@@ -624,19 +683,25 @@ sub _location_sql {
   # so we build a copy of the table in memory
   my $seqid = $self->_locationid($seq_id) || 0; # zero is an invalid primary ID, so will return empty
 
-  $start = MIN_INT unless defined $start;
-  $end   = MAX_INT unless defined $end;
-
   my $feature_index = $self->_feature_index_table;
   my $from  = "$feature_index as fi";
 
+  my ($bin_where,@bin_args);
+  if (defined $start && defined $end && !$self->_has_spatial_index) {
+      my @bins   = $self->search_bins($start,$end);
+      $bin_where = ' AND bin in ('.join(',',@bins).')';
+  }
+
+  $start = MIN_INT unless defined $start;
+  $end   = MAX_INT unless defined $end;
+
   my ($range,@range_args);
   if ($range_type eq 'overlaps') {
-      $range = "fi.end>=? AND fi.start<=?";
-      @range_args = ($start,$end);
+      $range = "fi.end>=? AND fi.start<=?".$bin_where;
+      @range_args = ($start,$end,@bin_args);
   } elsif ($range_type eq 'contains') {
-      $range = "fi.start>=? AND fi.end<=?";
-      @range_args = ($start,$end);
+      $range = "fi.start>=? AND fi.end<=?".$bin_where;
+      @range_args = ($start,$end,@bin_args);
   } elsif ($range_type eq 'contained_in') {
       $range = "fi.start<=? AND fi.end>=?";
       @range_args = ($start,$end);
@@ -702,9 +767,9 @@ sub _search_attributes {
   my $sql = <<END;
 SELECT name,attribute_value,tl.tag,n.id
   FROM $attributelist_table        AS al 
-       CROSS JOIN $attribute_table AS a ON al.id = a.attribute_id
-       CROSS JOIN $name_table      AS n ON n.id = a.id
-       CROSS JOIN $type_table      AS t ON t.id = n.id
+       CROSS JOIN $attribute_table AS a  ON al.id = a.attribute_id
+       CROSS JOIN $name_table      AS n  ON n.id = a.id
+       CROSS JOIN $type_table      AS t  ON t.id = n.id
        CROSS JOIN $typelist_table  AS tl ON tl.id = t.typeid
   WHERE ($tag_sql)
     AND ($sql_regexp)
@@ -831,7 +896,7 @@ sub replace {
 REPLACE INTO $features (id,object,"indexed",strand,typeid) VALUES (?,?,?,?,?)
 END
 
-  my ($seqid,$start,$end,$strand) = $index_flag ? $self->_get_location_and_bin($object) : (undef)x4;
+  my ($seqid,$start,$end,$strand,$bin) = $index_flag ? $self->_get_location_and_bin($object) : (undef)x5;
 
   my $primary_tag = $object->primary_tag;
   my $source_tag  = $object->source_tag || '';
@@ -890,8 +955,11 @@ sub bulk_replace {
 sub _get_location_and_bin {
     my $self = shift;
     my $obj  = shift;
-    my @location = $self->SUPER::_get_location_and_bin($obj);
-    return @location[0..3];
+    my $seqid   = $self->_locationid($obj->seq_id);
+    my $start   = $obj->start;
+    my $end     = $obj->end;
+    my $strand  = $obj->strand;
+    return ($seqid,$start,$end,$strand,$self->calculate_bin($start,$end));
 }
 
 ###
@@ -1024,13 +1092,23 @@ sub _update_indexes {
 sub _update_location_index {
     my $self = shift;
     my ($obj,$id) = @_;
-    my $seqid     = $self->_locationid($obj->seq_id);
-    my $start     = $obj->start;
-    my $end       = $obj->end;
+    my ($seqid,$start,$end,$strand,$bin) = $self->_get_location_and_bin($obj);
+
     my $table = $self->_feature_index_table;
     $self->_delete_index($table,$id);
-    my $sth  = $self->_prepare("INSERT INTO $table (id,seqid,dummy,start,end) values (?,?,?,?,?)");
-    $sth->execute($id,$seqid,$seqid,$start,$end);
+
+    my ($sql,@args);
+
+    if ($self->_has_spatial_index) {
+	$sql    = "INSERT INTO $table (id,seqid,bin,start,end) values (?,?,?,?,?)";
+	@args   = ($id,$seqid,$bin,$start,$end);
+    } else {
+	$sql    = "INSERT INTO $table (id,seqid,bin,start,end) values (?,?,?,?,?)";
+	@args   = ($id,$seqid,$bin,$start,$end);
+    }
+	    
+    my $sth  = $self->_prepare($sql);
+    $sth->execute(@args);
     $sth->finish;
 }
 
@@ -1040,8 +1118,10 @@ sub _dump_update_location_index {
     my $table   = $self->_feature_index_table;
     my $fh      = $self->dump_filehandle($table);
     my $dbh     = $self->dbh;
-    my ($seqid,$start,$end,$strand) = $self->_get_location_and_bin($obj);
-    print $fh join("\t",$id,$seqid,$seqid,$start,$end),"\n";
+    my ($seqid,$start,$end,$strand,$bin) = $self->_get_location_and_bin($obj);
+    my @args = $self->_has_spatial_index ? ($id,$seqid,$bin,$start,$end)
+	                                 : ($id,$seqid,$bin,$start,$end);
+    print $fh join("\t",@args),"\n";
 }
 
 
