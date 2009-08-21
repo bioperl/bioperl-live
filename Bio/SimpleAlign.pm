@@ -3127,7 +3127,8 @@ sub annotation {
 sub no_residues {
 	my $self = shift;
 	$self->deprecated(-warn_version => 1.0069,
-					  -throw_version => 1.0075);
+					  -throw_version => 1.0075,
+                      -message => 'Use of method no_residues() is deprecated, use num_residues() instead');
     $self->num_residues(@_);
 }
 
@@ -3145,7 +3146,8 @@ sub no_residues {
 sub no_sequences {
 	my $self = shift;
 	$self->deprecated(-warn_version => 1.0069,
-					  -throw_version => 1.0075);
+					  -throw_version => 1.0075,
+                      -message => 'Use of method no_sequences() is deprecated, use num_sequences() instead');
     $self->num_sequences(@_);
 }
 
