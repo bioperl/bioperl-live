@@ -12,11 +12,11 @@ sub _initialize {
     $self->SUPER::_initialize(@args);
     my ($variant, $validate, $header) = $self->_rearrange([qw(VARIANT
                                                    VALIDATE
-                                                   QUAL_HEADER)], @args);
+                                                   QUALITY_HEADER)], @args);
     $variant ||= 'sanger';
     $self->variant($variant);
     $validate   && $self->validate($validate);
-    $header     && $self->header($header);
+    $header     && $self->quality_header($header);
     
     if( ! defined $self->sequence_factory ) {
         $self->sequence_factory(Bio::Seq::SeqFactory->new(-verbose => $self->verbose(), -type => 'Bio::Seq::Quality'));      
@@ -103,15 +103,6 @@ sub next_dataset {
 		# need to benchmark this vs the prior unpack("C", ...) version
         my @qual = map {$self->{chr2phred}->{$_}}
             unpack("A1" x length($data->{-raw_quality}), $data->{-raw_quality});
-            
-        # this should be somewhat rarer now, but needs to be present JIC
-        if ($self->variant eq 'solexa') {
-            # The conversion needs to be to PHRED score, but solexa (aka illumina 1.0)
-            # has Solexa qual units, not PHRED qual units.  Convert over...
-            # this doesn't account for very low scores yet!
-			# NOTE: code is kludged from MAQ (maq.sourceforge.net)
-            @qual = map {sprintf("%.0f",(10 * log(1 + 10 ** ($_ / 10.0)) / log(10)))} @qual;
-        }
         
         $data->{-qual} = \@qual;
     }
@@ -272,8 +263,19 @@ sequence and its quality data. A typical fastaq entry takes the from:
   +HCDPQ1D0501
   !''*((((***+))%%%++)(%%%%).1***-+*''))**55CCF>>>>>>CCCCCCC65.....
 
-Fastq files have sequence and quality data on a single line and the
-quality values are single-byte encoded.
+FASTQ files have sequence and quality data on a single line and the quality
+values are single-byte encoded. Data are mapped very simply to Bio::Seq::Quality
+instances:
+
+    Data                                        Bio::Seq::Quality Method
+    ------------------------------------------------------------------------
+    first non-whitespace chars in descriptor    id
+    complete descriptor line                    desc
+    sequence lines                              seq
+    quality                                     qual*
+    
+    
+    * converted to PHRED quality scores
 
 This parser now has preliminary support for Illumina v 1.0 and 1.3 FASTQ, though
 it needs extensive testing.
