@@ -234,7 +234,7 @@ sub _hsp_from_info {
     for my $c (@{$info}) {
 	$a->{-query_seq} .= $c->{query_base};
 	$a->{-hit_seq} .= $c->{hit_base};
-	$identical++ if ( $c->{query_base} == $c->{hit_base} );
+	$identical++ if ( $c->{query_base} eq $c->{hit_base} );
     }
 
     $a->{-query_seq} =~ s| |\-|g;		# switch to bioperl gaps.
