@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 52 );
+    test_begin( -tests => 106 );
 
     use_ok('Bio::SeqIO::fastq');
     use_ok('Bio::Seq::Quality');
@@ -15,121 +15,8 @@ BEGIN {
 
 my $DEBUG = test_debug();
 
-# original FASTQ (Sanger); data is from NCBI SRA database, which has
-# all data converted over to Sanger version of FASTQ
+# round trip tests for write_fastq
 
-#my $in_qual = Bio::SeqIO->new(
-#    -file   => test_input_file( 'fastq', 'test1_sanger.fastq' ),
-#    -format => 'fastq'
-#);
-#isa_ok( $in_qual, 'Bio::SeqIO' );
-#
-#my $qual = $in_qual->next_seq();
-#isa_ok( $qual, 'Bio::Seq::Quality' );
-#
-#my @quals = @{ $qual->qual() };
-#is( @quals, 326, 'number of qual values' );
-#
-#my $qualslice = join( ',', @quals[ 25 .. 35 ] );
-#is( $qualslice, '30,17,17,16,16,16,16,21,18,18,20', 'qual slice' );
-#
-#is( $qual->display_id, 'SRR005406.1' );
-#is( $qual->desc,       'FB9GE3J10GA1VT length=326' );
-#
-## Solexa, aka Illumina v1.0
-#
-## this is the test example from the MAQ script , better examples welcome!
-#
-#$in_qual = Bio::SeqIO->new(
-#    -file   => test_input_file( 'fastq', 'test2_solexa.fastq' ),
-#    -format => 'fastq-solexa'
-#);
-#
-#$qual = $in_qual->next_seq();
-#isa_ok( $qual, 'Bio::Seq::Quality' );
-#
-#@quals = @{ $qual->qual() };
-#is( @quals, 25, 'number of qual values' );
-#
-#$qualslice = join( ',', @quals[ 12 .. 24 ] );
-#is( $qualslice, '25,25,25,25,25,25,23,25,23,25,25,19,21', 'qual slice' );
-#
-#is( $qual->display_id, 'SLXA-B3_649_FC8437_R1_1_1_610_79' );
-#is( $qual->desc,       undef );
-#
-## Illumina v1.3
-#
-#$in_qual = Bio::SeqIO->new(
-#    -file   => test_input_file( 'fastq', 'test3_illumina.fastq' ),
-#    -format => 'fastq-illumina'
-#);
-#
-#$qual = $in_qual->next_seq();
-#isa_ok( $qual, 'Bio::Seq::Quality' );
-#
-#@quals = @{ $qual->qual() };
-#is( @quals, 25, 'number of qual values' );
-#
-#$qualslice = join( ',', @quals[ 12 .. 22 ] );
-#is( $qualslice, '24,20,20,19,21,24,19,19,24,11,20', 'qual slice' );
-#
-#is( $qual->display_id, 'FC12044_91407_8_200_406_24' );
-#is( $qual->desc,       undef );
-#
-## bug 2335
-#
-#$in_qual = Bio::SeqIO->new(
-#    '-file'   => test_input_file( 'fastq', 'bug2335.fastq' ),
-#    '-format' => 'fastq-sanger'
-#);
-#
-#$qual = $in_qual->next_seq();
-#isa_ok( $qual, 'Bio::Seq::Quality' );
-#
-#@quals = @{ $qual->qual() };
-#
-#is( @quals, 111, 'number of qual values' );
-#
-#$qualslice = join( ',', @quals[ 0 .. 10 ] );
-#is( $qualslice, '31,23,32,23,31,22,27,28,32,24,25', 'qual slice' );
-#
-#is( $qual->display_id, 'DS6BPQV01A2G0A' );
-#is( $qual->desc,       undef );
-#
-## raw data
-#
-#$in_qual = Bio::SeqIO->new(
-#    -file    => test_input_file( 'fastq', 'test3_illumina.fastq' ),
-#    -variant => 'illumina',
-#    -format  => 'fastq'
-#);
-#
-#$qual = $in_qual->next_dataset();
-#
-#isa_ok( $qual, 'HASH' );
-#is( $qual->{-seq},         'GTTAGCTCCCACCTTAAGATGTTTA' );
-#is( $qual->{-raw_quality}, 'SXXTXXXXXXXXXTTSUXSSXKTMQ' );
-#is( $qual->{-id},          'FC12044_91407_8_200_406_24' );
-#is( $qual->{-desc},        '' );
-#is( $qual->{-descriptor},  'FC12044_91407_8_200_406_24' );
-#is(
-#    join( ',', @{ $qual->{-qual} }[ 0 .. 10 ] ),
-#    '19,24,24,20,24,24,24,24,24,24,24'
-#);
-#
-## can this be used in a constructor?
-#
-#my $qualobj = Bio::Seq::Quality->new(%$qual);
-#is( $qualobj->seq,        'GTTAGCTCCCACCTTAAGATGTTTA' );
-#is( $qualobj->display_id, 'FC12044_91407_8_200_406_24' );
-#is( $qualobj->desc,       undef );
-#is(
-#    join( ',', @{ $qualobj->qual }[ 0 .. 10 ] ),
-#    '19,24,24,20,24,24,24,24,24,24,24'
-#);
-#
-## round trip tests for write_fastq
-#
 #my %format = (
 #    'fastq-sanger'   => [ 'test1_sanger.fastq',   250 ],
 #    'fastq-solexa'   => [ 'test2_solexa.fastq',   5 ],
@@ -176,11 +63,78 @@ my $DEBUG = test_debug();
 #}
 
 # test simple parsing of fastq example files
-my %example_files = (
-    example                 => {
-        'variant'       => 'sanger',  # not sure about this one
+my %example_files = ( # bug2335
+    bug2335               => {
+        'variant'       => 'sanger', 
+        'seq'           => 'TTGGAATGTTGCAAATGGGAGGCAGTTTGAAATACTGAATAGGCCTCATC'.
+                           'GAGAATGTGAAGTTTCAGTAAAGACTTGAGGAAGTTGAATGAGCTGATGA'.
+                           'ATGGATATATG',
+        'qual'          => '31 23 32 23 31 22 27 28 32 24 25 23 30 25 2 21 33 '.
+                           '29 9 17 33 27 27 27 25 33 29 9 28 32 27 7 27 21 '.
+                           '26 21 27 27 17 26 23 31 23 32 24 27 27 28 27 28 '.
+                           '28 27 27 31 23 23 28 27 27 32 23 27 35 30 12 28 '.
+                           '27 27 25 33 29 10 27 28 28 33 25 27 27 31 23 34 '.
+                           '27 27 32 24 27 30 22 24 28 24 27 28 27 26 28 27 '.
+                           '28 32 24 28 33 25 23 27 27 28 27 28 26',
+        'display_id'    => 'DS6BPQV01A2G0A',
+        'desc'          => undef,
+        'count'         => 1
+        },
+    test1_sanger            => {
+        'variant'       => 'sanger',
+        'seq'           => 'TATTGACAATTGTAAGACCACTAAGGATTTTTGGGCGGCAGCGACTTGGA'.
+                           'GCTCTTGTAAAAGCGCACTGCGTTCCTTTTCTTTATTCTTTTGATCTTGA'.
+                           'GAATCTTCTAAAAATGCCGAAAAGAAATGTTGGGAAGAGAGCGTAATCAG'.
+                           'TTTAGAAATGCTCTTGATGGTAGCTTTATGTTGATCCATTCTTCTGCCTC'.
+                           'CTTTACGAATAAAATAGAATAAAACTCAAATGACTAATTACCTGTATTTT'.
+                           'ACCTAATTTTGTGATAAAATTCAAGAAAATATGTTCGCCTTCAATAATTA'.
+                           'TG',
+        'qual'          => '37 37 37 37 37 37 37 37 37 37 37 40 38 40 40 37 '.
+                           '37 37 39 39 40 39 39 39 39 39 37 33 33 33 33 33 '.
+                           '39 39 34 29 28 28 38 39 39 39 39 39 39 37 37 37 '.
+                           '37 37 37 37 37 37 37 37 37 37 37 37 37 37 37 37 '.
+                           '37 37 37 37 37 37 37 37 37 37 37 37 37 37 37 38 '.
+                           '38 29 29 29 34 38 37 37 33 33 33 33 37 37 37 37 '.
+                           '37 37 37 37 37 37 37 37 37 37 37 37 37 37 37 37 '.
+                           '37 37 37 37 37 37 37 37 37 37 37 37 37 37 37 37 '.
+                           '37 37 37 37 37 37 37 37 37 37 37 37 37 37 37 37 '.
+                           '37 37 37 37 37 37 37 37 37 37 37 37 37 37 37 37 '.
+                           '37 37 37 37 37 37 37 37 37 37 37 37 37 37 38 38 '.
+                           '38 37 37 37 37 37 37 37 37 37 37 37 37 37 37 37 '.
+                           '37 37 37 37 37 37 37 37 37 34 34 34 38 38 37 37 '.
+                           '37 37 37 37 37 37 37 37 40 40 40 40 38 38 38 38 '.
+                           '40 40 40 38 38 38 40 40 40 40 40 40 40 40 40 40 '.
+                           '38 38 38 38 38 32 25 25 25 25 30 30 31 32 32 31 '.
+                           '31 31 31 31 31 31 31 31 19 19 19 19 19 22 22 31 '.
+                           '31 31 31 31 31 31 31 32 32 31 32 31 31 31 31 31 '.
+                           '31 25 25 25 28 28 30 30 30 30 30 31 31 32',
+        'display_id'    => 'SRR005406.250',
+        'desc'          => 'FB9GE3J10F6I2T length=302',
+        'count'         => 250
+                                },
+    test2_solexa            => {
+        'variant'       => 'solexa',
+        'seq'           => 'GTATTATTTAATGGCATACACTCAA',
+        'qual'          => '25 25 25 25 25 25 25 25 25 25 23 25 25 25 25 23 '.
+                           '25 23 23 21 23 23 23 17 17',
+        'display_id'    => 'SLXA-B3_649_FC8437_R1_1_1_183_714',
+        'desc'          => undef,
+        'count'         => 5
+                                },
+    test3_illumina          => {
+        'variant'       => 'illumina',
+        'seq'           => 'CCAAATCTTGAATTGTAGCTCCCCT',
+        'qual'          => '15 19 24 15 17 24 24 24 24 24 19 24 24 21 24 24 '.
+                           '20 24 24 24 24 20 18 13 19',
+        'display_id'    => 'FC12044_91407_8_200_285_136',
+        'desc'          => undef,
+        'count'         => 25
+                                },
+    example                 => {  
+        'variant'       => 'sanger', # TODO: guessing on the format here...
         'seq'           => 'GTTGCTTCTGGCGTGGGTGGGGGGG',
-        'qual'          => '',
+        'qual'          => '26 26 26 26 26 26 26 26 26 26 26 24 26 22 26 26 '.
+                           '13 22 26 18 24 18 18 18 18',
         'display_id'    => 'EAS54_6_R1_2_1_443_348',
         'desc'          => undef,
         'count'         => 3
@@ -211,7 +165,7 @@ my %example_files = (
         'variant'       => 'sanger',
         'seq'           => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN',
         'qual'          => '40 39 38 37 36 35 34 33 32 31 30 29 28 27 26 25 24 23 22 '.
-                            '21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0',
+                           '21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0',
         'display_id'    => 'Test',
         'desc'          => 'PHRED qualities from 40 to 0 inclusive',
         'count'         => 1
@@ -219,7 +173,8 @@ my %example_files = (
     solexa_example          => {
         'variant'       => 'solexa',
         'seq'           => 'GTATTATTTAATGGCATACACTCAA',
-        'qual'          => '',
+        'qual'          => '25 25 25 25 25 25 25 25 25 25 23 25 25 25 25 23 '.
+                           '25 23 23 21 23 23 23 17 17',
         'display_id'    => 'SLXA-B3_649_FC8437_R1_1_1_183_714',
         'desc'          => undef,
         'count'         => 5
@@ -227,15 +182,19 @@ my %example_files = (
     solexa_faked            => {
         'variant'       => 'solexa',
         'seq'           => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTNNNNNN',
-        'qual'          => '',
+        'qual'          => '40 39 38 37 36 35 34 33 32 31 30 29 28 27 26 25 '.
+                           '24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 10 9 '.
+                           '8 7 6 5 5 4 4 3 3 2 2 1 1',
         'display_id'    => 'slxa_0001_1_0001_01',
         'desc'          => undef,
         'count'         => 1
                                 },
     tricky                  => {
-        'variant'       => 'solexa', # not sure about this one
+        'variant'       => 'sanger', # TODO: guessing on the format here...
         'seq'           => 'TGGGAGGTTTTATGTGGAAAGCAGCAATGTACAAGA',
-        'qual'          => '',
+        'qual'          => '40 40 40 40 40 40 40 13 40 40 40 40 40 40 16 31 '.
+                           '19 19 31 12 22 13 4 27 5 10 14 3 14 4 19 7 10 10 '.
+                           '7 4',
         'display_id'    => '071113_EAS56_0053:1:3:990:501',
         'desc'          => undef,
         'count'         => 4
@@ -266,52 +225,178 @@ for my $example (sort keys %example_files) {
                $example_files{$example}->{$method},
                "$method() matches $example");
         }
-        is(join(' ',@{$sample_seq->qual}),
+        is(join(' ', @{$sample_seq->qual}),
                 $example_files{$example}->{qual},
-                "qual() matches $file");
+                "qual() matches $example");
     }
 }
 
 
-# test conversions (single files of each type)
+# test round-trip and conversions (single file of each type)
 
-my %conversions = (
-    illumina_faked          => {'variant'       => 'solexa',
-                                'seq'           => '',
-                                'qual'          => '',
-                                'display_id'    => '',
-                                'desc'          => ''},
-    sanger_faked            => {'variant'       => 'solexa',
-                                'seq'           => '',
-                                'qual'          => '',
-                                'display_id'    => '',
-                                'desc'          => ''},
-    solexa_faked            => {'variant'       => 'solexa',
-                                'seq'           => '',
-                                'qual'          => '',
-                                'display_id'    => '',
-                                'desc'          => ''},
+my @formats = qw(sanger illumina solexa);
+
+my %conversion = (
+    sanger_faked            => {
+        'variant'       => 'sanger',
+        'to_solexa'     => {},
+        'to_illumina'   => {},
+        'to_sanger'     => {},
+                                },
+    solexa_faked            => {
+        'variant'       => 'solexa',
+        'to_solexa'     => {},
+        'to_illumina'   => {},
+        'to_sanger'     => {},
+                                },
+    illumina_faked          => {
+        'variant'       => 'illumina',
+        'to_solexa'     => {},
+        'to_illumina'   => {},
+        'to_sanger'     => {},
+                                },
 );
 
-# test fastq errors/warnings
+#for my $example (sort keys %conversion) {
+#    my $file = test_input_file('fastq', "$example.fastq");
+#    my $variant = $conversion{$example}->{variant};
+#    my $in = Bio::SeqIO->new(-format    => "fastq-$variant",
+#                             -file      => $file,
+#                             -verbose   => 2);  #strictest level
+#    my $data = $in->next_dataset;
+#    my $seq = Bio::Seq::Quality->new(%$data);
+#    for my $format (@formats) {
+#        # these are tested above already; here we are retaining the raw data,
+#        # creating the Bio::Seq::Quality, writing out, then re-reading in and
+#        # checking against the 
+#    }
+#}
+
+# read file using format, grab first sequence via next_dataset (get raw data)
+# for each 
+# output to new file
+# read back in using next_dataset
+# check data structs using is_deeply
+
+# test fastq errors
 
 my %error = (
-    # file name                exception
-    error_diff_ids          => qr//,
-    error_long_qual         => qr//,
-    error_no_qual           => qr//,
-    error_qual_del          => qr//,
-    error_qual_escape       => qr//,
-    error_qual_null         => qr//,
-    error_qual_space        => qr//,
-    error_qual_tab          => qr//,
-    error_qual_unit_sep     => qr//,
-    error_qual_vtab         => qr//,
-    error_short_qual        => qr//,
-    error_spaces            => qr//,
-    error_tabs              => qr//,
-    error_trunc_at_plus     => qr//,
-    error_trunc_at_qual     => qr//,
-    error_trunc_at_seq      => qr//
+    # file name                
+    error_diff_ids          => {
+        variant         => 'sanger',
+        exception       => qr/doesn't\smatch\sseq\sdescriptor/xms,
+                                },
+    error_long_qual         => {
+        variant         => 'sanger',
+        exception       => qr/doesn't\smatch\slength\sof\ssequence/xms,
+                                },
+    error_no_qual           => {
+        variant         => 'sanger',
+        exception       => qr/Missing\ssequence\sand\/or\squality\sdata/xms,
+                                },
+    error_qual_del          => {
+        variant         => 'sanger',
+        exception       => qr/Unknown\ssymbol\swith\sASCII\svalue/xms,
+                                },
+    error_qual_escape       => {
+        variant         => 'sanger',
+        exception       => qr/Unknown\ssymbol\swith\sASCII\svalue/xms,
+                                },
+    error_qual_null         => {
+        variant         => 'sanger',
+        exception       => qr/Unknown\ssymbol\swith\sASCII\svalue/xms,
+                                },
+    error_qual_space        => {
+        variant         => 'sanger',
+        exception       => qr/Unknown\ssymbol\swith\sASCII\svalue/xms,
+                                },
+    error_qual_tab          => {
+        variant         => 'sanger',
+        exception       => qr/Unknown\ssymbol\swith\sASCII\svalue/xms,
+                                },
+    error_qual_unit_sep     => {
+        variant         => 'sanger',
+        exception       => qr/Unknown\ssymbol\swith\sASCII\svalue/xms,
+                                },
+    error_qual_vtab         => {
+        variant         => 'sanger',
+        exception       => qr/Unknown\ssymbol\swith\sASCII\svalue/xms,
+                                },
+    error_short_qual        => {
+        variant         => 'sanger',
+        exception       => qr/doesn't\smatch\slength\sof\ssequence/,
+                                },
+    error_spaces            => {
+        variant         => 'sanger',
+        exception       => qr/Unknown\ssymbol\swith\sASCII\svalue/xms,
+                                },
+    error_tabs              => {
+        variant         => 'sanger',
+        exception       => qr/Unknown\ssymbol\swith\sASCII\svalue/xms,
+                                },
+    error_trunc_at_plus     => {
+        variant         => 'sanger',
+        exception       => qr/Missing\ssequence\sand\/or\squality\sdata/xms,
+                                },
+    error_trunc_at_qual     => {
+        variant         => 'sanger',
+        exception       => qr/Missing\ssequence\sand\/or\squality\sdata/xms,
+                                },
+    error_trunc_at_seq      => {
+        variant         => 'sanger',
+        exception       => qr/Missing\ssequence\sand\/or\squality\sdata/xms,
+                                },
 );
 
+# test retrieval of raw data in a hash ref
+
+for my $example (sort keys %error) {
+    my $file = test_input_file('fastq', "$example.fastq");
+    my $variant = $error{$example}->{variant};
+    my $in = Bio::SeqIO->new(-format    => "fastq-$variant",
+                             -file      => $file,
+                             -verbose   => 2);  #strictest level
+    my $ct = 0;
+    throws_ok {        while (my $seq = $in->next_seq) {
+            $ct++;
+        } } $error{$example}->{exception}, "Exception caught for $example";
+    #my $data = $in->next_dataset;
+    #my $seq = Bio::Seq::Quality->new(%$data);
+    #for my $format (@formats) {
+    #    # these are tested above already; here we are retaining the raw data,
+    #    # creating the Bio::Seq::Quality, writing out, then re-reading in and
+    #    # checking against the 
+    #}
+}
+
+#
+#my $in_qual = Bio::SeqIO->new(
+#    -file    => test_input_file( 'fastq', 'test3_illumina.fastq' ),
+#    -variant => 'illumina',
+#    -format  => 'fastq'
+#);
+#
+#my $qual = $in_qual->next_dataset();
+#
+#isa_ok( $qual, 'HASH' );
+#is( $qual->{-seq},         'GTTAGCTCCCACCTTAAGATGTTTA' );
+#is( $qual->{-raw_quality}, 'SXXTXXXXXXXXXTTSUXSSXKTMQ' );
+#is( $qual->{-id},          'FC12044_91407_8_200_406_24' );
+#is( $qual->{-desc},        '' );
+#is( $qual->{-descriptor},  'FC12044_91407_8_200_406_24' );
+#is(
+#    join( ',', @{ $qual->{-qual} }[ 0 .. 10 ] ),
+#    '19,24,24,20,24,24,24,24,24,24,24'
+#);
+#
+## can this be used in a constructor?
+#
+#my $qualobj = Bio::Seq::Quality->new(%$qual);
+#is( $qualobj->seq,        'GTTAGCTCCCACCTTAAGATGTTTA' );
+#is( $qualobj->display_id, 'FC12044_91407_8_200_406_24' );
+#is( $qualobj->desc,       undef );
+#is(
+#    join( ',', @{ $qualobj->qual }[ 0 .. 10 ] ),
+#    '19,24,24,20,24,24,24,24,24,24,24'
+#);
+#

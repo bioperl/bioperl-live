@@ -14,8 +14,9 @@ sub _initialize {
                                                    VALIDATE
                                                    QUALITY_HEADER)], @args);
     $variant ||= 'sanger';
+    $validate = defined $validate ? $validate : 1;
     $self->variant($variant);
-    $validate   && $self->validate($validate);
+    $self->validate($validate);
     $header     && $self->quality_header($header);
     
     if( ! defined $self->sequence_factory ) {
@@ -40,6 +41,7 @@ sub next_dataset {
     local $/ = "\n";
     my ($data, $ct);
     my $mode = '-seq';
+    my $validate = $self->{_validate_qual};
     
     # speed this up by directly accessing the filehandle and in-lining the
     # _readline stuff vs. making the repeated method calls. Tradeoff is speed
@@ -70,7 +72,7 @@ sub next_dataset {
 			my $desc = $1;
             $self->throw("No description line parsed") unless $data->{-descriptor};
             if ($desc && $data->{-descriptor} ne $desc) {
-                $self->throw("Quality descriptor [$desc] doesn't match seq description ".$data->{-descriptor} );
+                $self->throw("Quality descriptor [$desc] doesn't match seq descriptor ".$data->{-descriptor}.", line: $." );
             }
             $mode = '-raw_quality';
             $ct->{-raw_quality} = 0;
@@ -93,20 +95,26 @@ sub next_dataset {
         }
     }
     
+    return unless $data;
+    
+    $self->throw("Missing sequence and/or quality data; line: $.") if $validate &&
+        (!$data->{-seq} || !$data->{-raw_quality});
+    
     # simple quality control tests
-    if (defined $data) {
-        if (length $data->{-seq} != length $data->{-raw_quality}) {
-            $self->throw("Quality string\n".$data->{-raw_quality}."\nlength [".length($data->{-raw_quality})."] doesn't match ".
-                         "length of sequence\n".$data->{-seq}."\n[".length($data->{-seq})."], $.");
-        }
-        
-		# need to benchmark this vs the prior unpack("C", ...) version
-        my @qual = map {$self->{chr2phred}->{$_}}
-            unpack("A1" x length($data->{-raw_quality}), $data->{-raw_quality});
-        
-        $data->{-qual} = \@qual;
+    if (length $data->{-seq} != length $data->{-raw_quality}) {
+        $self->throw("Quality string [".$data->{-raw_quality}."] of length [".length($data->{-raw_quality})."]\ndoesn't match ".
+                     "length of sequence ".$data->{-seq}."\n[".length($data->{-seq})."], line: $.");
     }
     
+    # need to benchmark this vs the prior unpack("C", ...) version
+    my @qual;
+    for my $q (unpack("A1" x length($data->{-raw_quality}),
+                      $data->{-raw_quality})) {
+        $self->warn("Unknown symbol with ASCII value ".ord($q)." outside of quality range, line: $.")
+            if ($validate && !exists($self->{chr2phred}->{$q}));
+        push @qual, $self->{chr2phred}->{$q};
+    }
+    $data->{-qual} = \@qual;
     return $data;
 }
 
@@ -169,15 +177,15 @@ sub write_qual {
             },
         solexa     => {
             'ord_start' => 59,
-            'ord_end'   => 104,
+            'ord_end'   => 126,
             'qual_start' => -5,
-            'qual_end'   => 40
+            'qual_end'   => 62
             },
         illumina   => {
             'ord_start' => 64,
-            'ord_end'   => 104,
+            'ord_end'   => 126,
             'qual_start' => 0,
-            'qual_end'   => 40
+            'qual_end'   => 62
             },
     );
     
@@ -210,7 +218,7 @@ sub validate {
     if (defined $val) {
         $self->{_validate_qual} = $val;
     }
-    return $self->{_validate_qual} || 1;
+    return $self->{_validate_qual};
 }
 
 sub quality_header{
@@ -313,7 +321,6 @@ web:
 =head1 AUTHORS - Tony Cox
 
 Email: avc@sanger.ac.uk
-
 
 =head1 APPENDIX
 
