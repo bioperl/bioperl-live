@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 113 );
+    test_begin( -tests => 115 );
 
     use_ok('Bio::SeqIO::fastq');
     use_ok('Bio::Seq::Quality');
@@ -192,14 +192,14 @@ my @variants = qw(sanger illumina solexa);
 my %conversion = (  # check conversions, particularly solexa
     sanger_faked            => {
         'variant'       => 'sanger',
-        #'to_solexa'     => {
-        #  '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN',
-        #  '-qual' => [reverse(0..40)],
-        #  '-raw_quality' => 'IHGFEDCBA@?>=<;:9876543210/.-,+*)(\'&%$#"!',
-        #  '-id' => 'Test',
-        #  '-desc' => 'PHRED qualities from 40 to 0 inclusive',
-        #  '-descriptor' => 'Test PHRED qualities from 40 to 0 inclusive'
-        #},
+        'to_solexa'     => {
+          '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN',
+          '-qual' => [reverse(1..40), 1],  # round trip from solexa is lossy
+          '-raw_quality' => 'hgfedcba`_^]\[ZYXWVUTSRQPONMLKJHGFEDB@><<',
+          '-id' => 'Test',
+          '-desc' => 'PHRED qualities from 40 to 0 inclusive',
+          '-descriptor' => 'Test PHRED qualities from 40 to 0 inclusive'
+        },
         'to_illumina'   => {
           '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN',
           '-qual' => [reverse(0..40)],
@@ -220,8 +220,7 @@ my %conversion = (  # check conversions, particularly solexa
     solexa_faked            => {    # needs to be checked
         'variant'       => 'solexa',
         'to_solexa'     => {'-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTNNNNNN',
-          '-qual' => [qw(40 39 38 37 36 35 34 33 32 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 10 9 8 7 6 5 5 4 4 3 3 2 2 1 1)
-                      ],
+          '-qual' => [qw(40 39 38 37 36 35 34 33 32 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 10 9 8 7 6 5 5 4 4 3 3 2 2 1 1)],
           '-raw_quality' => 'hgfedcba`_^]\[ZYXWVUTSRQPONMLKJIHGFEDCBA@?>=<;',
           '-id' => 'slxa_0001_1_0001_01',
           '-desc' => '',
@@ -248,15 +247,15 @@ my %conversion = (  # check conversions, particularly solexa
     },
     illumina_faked          => {
         'variant'       => 'illumina',
-        #'to_solexa'     => {
-        #  '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN',
-        #  '-qual' => [reverse(0..40)],
-        #  '-namespace' => 'illumina',
-        #  '-raw_quality' => 'hgfedcba`_^]\\[ZYXWVUTSRQPONMLKJIHGFEDCBA@',
-        #  '-id' => 'Test',
-        #  '-desc' => 'PHRED qualities from 40 to 0 inclusive',
-        #  '-descriptor' => 'Test PHRED qualities from 40 to 0 inclusive'            
-        #                    },
+        'to_solexa'     => {
+          '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN',
+          '-qual' => [reverse(1..40), 1],  # round trip from solexa is lossy
+          '-namespace' => 'illumina',
+          '-raw_quality' => 'hgfedcba`_^]\[ZYXWVUTSRQPONMLKJHGFEDB@><<',
+          '-id' => 'Test',
+          '-desc' => 'PHRED qualities from 40 to 0 inclusive',
+          '-descriptor' => 'Test PHRED qualities from 40 to 0 inclusive'            
+                            },
         'to_illumina'   => {
           '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN',
           '-qual' => [reverse(0..40)],
@@ -288,7 +287,8 @@ for my $example (sort keys %conversion) {
         next unless exists $conversion{$example}->{"to_$newvar"};
         my $outfile = test_output_file();
         Bio::SeqIO->new(-format   => "fastq-$newvar",
-                        -file     => ">$outfile")->write_seq($seq);
+                        -file     => ">$outfile",
+                        -verbose  => -1)->write_seq($seq);
         my $newdata = Bio::SeqIO->new(-format => "fastq-$newvar",
                                     -file     => $outfile)->next_dataset;
         # round for simple comparison, get around floating pt comparison probs
