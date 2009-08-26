@@ -6,6 +6,7 @@ use strict;
 use Bio::Seq::SeqFactory;
 
 use base qw(Bio::SeqIO);
+use List::Util qw(max min);
 
 sub _initialize {
     my($self,@args) = @_;
@@ -137,7 +138,7 @@ sub write_seq {
         my $ns= $seq->namespace; 
         
 		my $top = $seq->display_id();
-		if ($seq->can('desc') and my $desc = $seq->desc()) {
+		if (my $desc = $seq->desc()) {
 			$desc =~ s/\n//g;
 			$top .= " $desc";
 		}
@@ -146,31 +147,23 @@ sub write_seq {
 		}
         my $qual = '';
         
-        # this has to be rerun each time if there is the possibility of
-        # mixed Seq::Quality of different origins
-        
         my $qual_map =  ($var eq 'solexa' && $ns ne 'solexa') ? 
-                       { map {
-                        my $k = sprintf("%0.f", $_);
-                         $k => $self->{phred2chr}->{$_}
-                        }
-                        keys %{$self->{phred2chr}} } :
+                       $self->{phred2chr_nonsol} :
                        $self->{phred2chr} 
                        ;
         my %bad_qual;
         for my $q (@qual) {
             $q = sprintf("%.0f", $q) if ($var ne 'solexa' && $ns eq 'solexa');
-            
             if (exists $qual_map->{$q}) {
                 $qual .= $qual_map->{$q};
                 next ;
             } else {
-                $qual .= $qual_map->{$q}; # TODO: change to max value
-                $bad_qual{$q}++;
+                my $min = min keys %{$qual_map};
+                $qual .= $qual_map->{$min};
+                $bad_qual{$q} = $qual_map->{$min};
             }
         }
         if ($self->{_validate_qual} && %bad_qual) {
-            print STDERR join(',',sort {$a <=> $b} keys %{$qual_map})."\n";
             $self->warn("Quality values not found for $var:".
                     join(',',sort {$a <=> $b} keys %bad_qual))
         }
@@ -235,11 +228,13 @@ sub variant {
          $self->{ord_start}, $self->{ord_end}) =
             @{ $VARIANT{$enc} }{qw(qual_start qual_end
                                    ord_start ord_end)};
-		for my $c ($self->{ord_start}..$self->{ord_end}) {
+		for my $c (($self->{ord_start})..($self->{ord_end})) {
 			my $char = chr($c);
 			my $score = $self->{qual_start} + $ct++;
 			if ($enc eq 'solexa') {
 				$score = 10 * log(1 + 10 ** ($score / 10.0)) / log(10);
+                # cache a rounded version when needed (i.e. sanger/illumina->solexa)
+                $self->{phred2chr_nonsol}->{sprintf("%.0f",$score)} = $char;
 			}
 			$self->{chr2phred}->{$char} = $score;
 			$self->{phred2chr}->{$score} = $char;
@@ -275,16 +270,19 @@ __END__
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
 #
-# Cared for by Tony Cox <avc@sanger.ac.uk>
+# Cared for Chris Fields
 #
-# Copyright Tony Cox
+# Refactored from the original FASTQ parser by Tony Cox <avc@sanger.ac.uk>
+#
+# Copyright Chris Fields
 #
 # You may distribute this module under the same terms as perl itself
 #
 # _history
 #
-# October 29, 2001  incept data
+# October 29, 2001  incept data (Tony Cox)
 # June 20, 2009 updates for Illumina variant FASTQ formats for Solexa and later
+# Aug 26, 2009  fixed bugs and added tests for fastq.t
 
 # POD documentation - main docs before the code
 
@@ -343,6 +341,8 @@ where:
   + = optional descriptor (if present, must match first one), followed by one or
       more qual lines
 
+=head2 FASTQ<->Bio::Seq::Quality mapping
+
 FASTQ files have sequence and quality data on single line or multiple lines, and
 the quality values are single-byte encoded. Data are mapped very simply to
 Bio::Seq::Quality instances:
@@ -358,6 +358,8 @@ Bio::Seq::Quality instances:
     ^ first nonwhitespace chars are id(), everything else after (to end of line)
       is in desc()
     * Converted to PHRED quality scores where applicable ('solexa')
+
+=head2 FASTQ variants
 
 This parser supports all variants of FASTQ, including Illumina v 1.0 and 1.3:
 
@@ -379,6 +381,10 @@ this and convert it accordingly to the proper argument):
 
   my $in = Bio::SeqIO->new(-format    => 'fastq-solexa',
                            -file      => 'mysol.fq');
+
+Variants can be converted back and forth from one another; however, due to
+the difference in scaling for solexa quality reads, converting from 'illumina'
+or 'sanger' FASTQ to solexa is not recommended.
 
 =head1 FEEDBACK
 
@@ -517,7 +523,7 @@ methods. Internal methods are usually preceded with a _
  Function : flag for format/qual range validation - default is 1, validate
  Returns  : Bool (0/1)
  Args     : Bool (0/1)
- Status   : Unstable (may be moved to interface)
+ Status   : Stable (may be moved to interface)
  
 =head2 quality_header
 
