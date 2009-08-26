@@ -41,8 +41,6 @@ sub next_dataset {
     local $/ = "\n";
     my ($data, $ct);
     my $mode = '-seq';
-    my $validate = $self->{_validate_qual};
-    
     # speed this up by directly accessing the filehandle and in-lining the
     # _readline stuff vs. making the repeated method calls. Tradeoff is speed
     # over repeated code.
@@ -67,6 +65,7 @@ sub next_dataset {
             }
             $data->{-id} = $id;
             $data->{-desc} = $fulldesc;
+            $data->{-namespace} = $self->{qualtype};
             $ct->{-seq} = 0;
         } elsif ($mode eq '-seq' && $line =~ m{^\+([^\n]*)}xmso) {
 			my $desc = $1;
@@ -97,7 +96,8 @@ sub next_dataset {
     
     return unless $data;
     
-    $self->throw("Missing sequence and/or quality data; line: $.") if $validate &&
+    $self->throw("Missing sequence and/or quality data; line: $.") if
+        $self->{_validate_qual} &&
         (!$data->{-seq} || !$data->{-raw_quality});
     
     # simple quality control tests
@@ -111,7 +111,8 @@ sub next_dataset {
     for my $q (unpack("A1" x length($data->{-raw_quality}),
                       $data->{-raw_quality})) {
         $self->warn("Unknown symbol with ASCII value ".ord($q)." outside of quality range, ")
-            if ($validate && !exists($self->{chr2phred}->{$q}));
+            if ($self->{_validate_qual} &&
+                !exists($self->{chr2phred}->{$q}));
         push @qual, $self->{chr2phred}->{$q};
     }
     $data->{-qual} = \@qual;
@@ -123,6 +124,7 @@ sub next_dataset {
 
 sub write_seq {
     my ($self,@seq) = @_;
+    my $var = $self->{qualtype};
     foreach my $seq (@seq) {
 		unless ($seq->isa("Bio::Seq::Quality")){
 			$self->warn("You can't write FASTQ without supplying a Bio::Seq::Quality object! ", ref($seq), "\n");
@@ -130,6 +132,10 @@ sub write_seq {
 		}
 		my $str = $seq->seq;
 		my @qual = @{$seq->qual};
+        
+        # this should be the origin of the sequence (illumina, solexa, sanger)
+        my $ns= $seq->namespace; 
+        
 		my $top = $seq->display_id();
 		if ($seq->can('desc') and my $desc = $seq->desc()) {
 			$desc =~ s/\n//g;
@@ -138,7 +144,36 @@ sub write_seq {
 		if(length($str) == 0) {
 			$str = "\n";
 		}
-		my $qual = join('', map {$self->{phred2chr}->{$_}} @qual);
+        my $qual = '';
+        
+        # this has to be rerun each time if there is the possibility of
+        # mixed Seq::Quality of different origins
+        
+        my $qual_map =  ($var eq 'solexa' && $ns ne 'solexa') ? 
+                       { map {
+                        my $k = sprintf("%0.f", $_);
+                         $k => $self->{phred2chr}->{$_}
+                        }
+                        keys %{$self->{phred2chr}} } :
+                       $self->{phred2chr} 
+                       ;
+        my %bad_qual;
+        for my $q (@qual) {
+            $q = sprintf("%.0f", $q) if ($var ne 'solexa' && $ns eq 'solexa');
+            
+            if (exists $qual_map->{$q}) {
+                $qual .= $qual_map->{$q};
+                next ;
+            } else {
+                $qual .= $qual_map->{$q}; # TODO: change to max value
+                $bad_qual{$q}++;
+            }
+        }
+        if ($self->{_validate_qual} && %bad_qual) {
+            print STDERR join(',',sort {$a <=> $b} keys %{$qual_map})."\n";
+            $self->warn("Quality values not found for $var:".
+                    join(',',sort {$a <=> $b} keys %bad_qual))
+        }
 		$self->_print("\@",$top,"\n",$str,"\n") or return;
 		$self->_print("+",($self->{_quality_header} ? $top : ''),"\n",$qual,"\n") or return;
     }
@@ -196,10 +231,13 @@ sub variant {
         $self->throw('Not a valid FASTQ variant format') unless exists $VARIANT{$enc};
         # cache encode/decode values for quicker accession
 		my $ct = 0;
-		my ($qs, $qe, $os, $oe) = @{ $VARIANT{$enc} }{qw(qual_start qual_end ord_start ord_end)};
-		for my $c ($os..$oe) {
+		($self->{qual_start}, $self->{qual_end}, 
+         $self->{ord_start}, $self->{ord_end}) =
+            @{ $VARIANT{$enc} }{qw(qual_start qual_end
+                                   ord_start ord_end)};
+		for my $c ($self->{ord_start}..$self->{ord_end}) {
 			my $char = chr($c);
-			my $score = $qs + $ct++;
+			my $score = $self->{qual_start} + $ct++;
 			if ($enc eq 'solexa') {
 				$score = 10 * log(1 + 10 ** ($score / 10.0)) / log(10);
 			}
@@ -315,6 +353,7 @@ Bio::Seq::Quality instances:
     descriptor line                             desc^
     sequence lines                              seq
     quality                                     qual*
+    FASTQ variant                               namespace
     
     ^ first nonwhitespace chars are id(), everything else after (to end of line)
       is in desc()

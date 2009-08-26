@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 110 );
+    test_begin( -tests => 113 );
 
     use_ok('Bio::SeqIO::fastq');
     use_ok('Bio::Seq::Quality');
@@ -219,35 +219,39 @@ my %conversion = (  # check conversions, particularly solexa
                                 },
     solexa_faked            => {    # needs to be checked
         'variant'       => 'solexa',
-        #'to_solexa'     => {'-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTNNNNNN',
-        #  '-qual' => [qw(40 39 38 37 36 35 34 33 32 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 10 9 8 7 6 5 5 4 4 3 3 2 2 1 1)],
-        #  '-raw_quality' => 'hgfedcba`_^]\\[ZYXWVUTSRQPONMLKJJHGFEDDBB@@>><<',
-        #  '-id' => 'slxa_0001_1_0001_01',
-        #  '-desc' => '',
-        #  '-descriptor' => 'slxa_0001_1_0001_01'
-        #},
-        #'to_illumina'   => {
-        #  '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTNNNNNN',
-        #  '-qual' => [qw(40 39 38 37 36 35 34 33 32 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 10 9 8 7 6 5 5 4 4 3 3 2 2 1 1)],
-        #  '-raw_quality' => 'hgfedcba`_^]\\[ZYXWVUTSRQPONMLKJJIHGFEEDDCCBBAA',
-        #  '-id' => 'slxa_0001_1_0001_01',
-        #  '-desc' => '',
-        #  '-descriptor' => 'slxa_0001_1_0001_01'
-        #},
-        #'to_sanger'     => {
-        #  '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTNNNNNN',
-        #  '-qual' => [qw(40 39 38 37 36 35 34 33 32 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 10 9 8 7 6 5 5 4 4 3 3 2 2 1 1)],
-        #  '-raw_quality' => 'IHGFEDCBA@?>=<;:9876543210/.-,++*)(\'&&%%$$##""',
-        #  '-id' => 'slxa_0001_1_0001_01',
-        #  '-desc' => '',
-        #  '-descriptor' => 'slxa_0001_1_0001_01'
-        #                    },
-                                },
+        'to_solexa'     => {'-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTNNNNNN',
+          '-qual' => [qw(40 39 38 37 36 35 34 33 32 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 10 9 8 7 6 5 5 4 4 3 3 2 2 1 1)
+                      ],
+          '-raw_quality' => 'hgfedcba`_^]\[ZYXWVUTSRQPONMLKJIHGFEDCBA@?>=<;',
+          '-id' => 'slxa_0001_1_0001_01',
+          '-desc' => '',
+          '-descriptor' => 'slxa_0001_1_0001_01'
+        },
+        'to_illumina'   => {
+          '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTNNNNNN',
+          '-qual' => [qw(40 39 38 37 36 35 34 33 32 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 10 9 8 7 6 5 5 4 4 3 3 2 2 1 1)],
+          '-namespace' => 'solexa',
+          '-raw_quality' => 'hgfedcba`_^]\\[ZYXWVUTSRQPONMLKJJIHGFEEDDCCBBAA',
+          '-id' => 'slxa_0001_1_0001_01',
+          '-desc' => '',
+          '-descriptor' => 'slxa_0001_1_0001_01'
+        },
+        'to_sanger'     => {
+          '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTNNNNNN',
+          '-qual' => [qw(40 39 38 37 36 35 34 33 32 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 10 9 8 7 6 5 5 4 4 3 3 2 2 1 1)],
+          '-namespace' => 'solexa',
+          '-raw_quality' => 'IHGFEDCBA@?>=<;:9876543210/.-,++*)(\'&&%%$$##""',
+          '-id' => 'slxa_0001_1_0001_01',
+          '-desc' => '',
+          '-descriptor' => 'slxa_0001_1_0001_01'
+                            },
+    },
     illumina_faked          => {
         'variant'       => 'illumina',
         #'to_solexa'     => {
         #  '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN',
         #  '-qual' => [reverse(0..40)],
+        #  '-namespace' => 'illumina',
         #  '-raw_quality' => 'hgfedcba`_^]\\[ZYXWVUTSRQPONMLKJIHGFEDCBA@',
         #  '-id' => 'Test',
         #  '-desc' => 'PHRED qualities from 40 to 0 inclusive',
@@ -260,7 +264,7 @@ my %conversion = (  # check conversions, particularly solexa
           '-id' => 'Test',
           '-desc' => 'PHRED qualities from 40 to 0 inclusive',
           '-descriptor' => 'Test PHRED qualities from 40 to 0 inclusive'
-                            },
+        },
         'to_sanger'     => {
           '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN',
           '-qual' => [reverse(0..40)],
@@ -268,11 +272,9 @@ my %conversion = (  # check conversions, particularly solexa
           '-id' => 'Test',
           '-desc' => 'PHRED qualities from 40 to 0 inclusive',
           '-descriptor' => 'Test PHRED qualities from 40 to 0 inclusive'
-                            },
-                                },
+                            }
+        },
 );
-
-use Data::Dumper;
 
 for my $example (sort keys %conversion) {
     my $file = test_input_file('fastq', "$example.fastq");
@@ -289,12 +291,13 @@ for my $example (sort keys %conversion) {
                         -file     => ">$outfile")->write_seq($seq);
         my $newdata = Bio::SeqIO->new(-format => "fastq-$newvar",
                                     -file     => $outfile)->next_dataset;
-        #print "Conversion from $variant to $newvar\n";
-        #print Dumper($newdata)."\n";
+        # round for simple comparison, get around floating pt comparison probs
+        if ($newvar eq 'solexa') {
+            $newdata->{-qual} = [map {sprintf("%.0f",$_)} @{$newdata->{-qual}}];
+        }
+        
+        $conversion{$example}->{"to_$newvar"}->{'-namespace'} = $newvar;
         is_deeply($newdata, $conversion{$example}->{"to_$newvar"}, "Conversion from $variant to $newvar");
-        # these are tested above already; here we are retaining the raw data,
-        # creating the Bio::Seq::Quality, writing out, then re-reading in and
-        # checking against the 
     }
 }
 
