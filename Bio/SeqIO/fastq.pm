@@ -110,7 +110,7 @@ sub next_dataset {
     my @qual;
     for my $q (unpack("A1" x length($data->{-raw_quality}),
                       $data->{-raw_quality})) {
-        $self->warn("Unknown symbol with ASCII value ".ord($q)." outside of quality range, line: $.")
+        $self->warn("Unknown symbol with ASCII value ".ord($q)." outside of quality range, ")
             if ($validate && !exists($self->{chr2phred}->{$q}));
         push @qual, $self->{chr2phred}->{$q};
     }
@@ -139,8 +139,8 @@ sub write_seq {
 			$str = "\n";
 		}
 		my $qual = join('', map {$self->{phred2chr}->{$_}} @qual);
-		$self->_print ("\@",$top,"\n",$str,"\n") or return;
-		$self->_print ("+",$top,"\n",$qual,"\n") or return;
+		$self->_print("\@",$top,"\n",$str,"\n") or return;
+		$self->_print("+",($self->{_quality_header} ? $top : ''),"\n",$qual,"\n") or return;
     }
     return 1;
 }
@@ -201,7 +201,7 @@ sub variant {
 			my $char = chr($c);
 			my $score = $qs + $ct++;
 			if ($enc eq 'solexa') {
-				$score = sprintf("%.0f",(10 * log(1 + 10 ** ($score / 10.0)) / log(10)));
+				$score = 10 * log(1 + 10 ** ($score / 10.0)) / log(10);
 			}
 			$self->{chr2phred}->{$char} = $score;
 			$self->{phred2chr}->{$score} = $char;
@@ -256,37 +256,90 @@ Bio::SeqIO::fastq - fastq sequence input/output stream
 
 =head1 SYNOPSIS
 
-Do not use this module directly.  Use it via the Bio::SeqIO class.
+  ################## pertains to FASTQ parsing only ##################
+  
+  # grabs the FASTQ parser, specifies the Illumina variant
+  my $in = Bio::SeqIO->new(-format    => 'fastq-illumina',
+                           -file      => 'mydata.fq');
+
+  # simple 'fastq' format defaults to 'sanger' variant
+  my $out = Bio::SeqIO->new(-format    => 'fastq',  
+                           -file      => '>mydata.fq');
+                           
+  # $seq is a Bio::Seq::Quality object
+  while (my $seq = $in->next_seq) {
+      $out->write_seq($seq);  # convert Illumina 1.3 to Sanger format
+  }
+  
+  # for 4x faster parsing, one can do something like this for raw data
+  use Bio::Seq::Quality;
+  
+  # $data is a hash reference containing all arguments to be passed to
+  # the Bio::Seq::Quality constructor
+  while (my $data = $in->next_dataset) {
+      # process $data, such as trim, etc
+      my $seq = Bio::Seq::Quality->new(%$data);
+      
+      # for now, write_seq only accepts Bio::Seq::Quality, but may be modified
+      # to allow raw hash references for speed
+      $out->write_seq($data);  
+  }
 
 =head1 DESCRIPTION
 
 This object can transform Bio::Seq and Bio::Seq::Quality objects to and from
-fastq flat file databases.
+FASTQ flat file databases.
 
-Fastq is a file format used frequently at the Sanger Centre to bundle a fasta
-sequence and its quality data. A typical fastaq entry takes the from:
+FASTQ is a file format used frequently at the Sanger Centre and in next-gen
+sequencing to bundle a FASTA sequence and its quality data. A typical FASTQ
+entry takes the from:
 
   @HCDPQ1D0501
   GATTTGGGGTTCAAAGCAGTATCGATCAAATAGTAAATCCATTTGTTCAACTCACAGTTT.....
   +HCDPQ1D0501
   !''*((((***+))%%%++)(%%%%).1***-+*''))**55CCF>>>>>>CCCCCCC65.....
 
-FASTQ files have sequence and quality data on a single line and the quality
-values are single-byte encoded. Data are mapped very simply to Bio::Seq::Quality
-instances:
+where:
 
-    Data                                        Bio::Seq::Quality Method
+  @ = descriptor, followed by one or more sequence lines
+  + = optional descriptor (if present, must match first one), followed by one or
+      more qual lines
+
+FASTQ files have sequence and quality data on single line or multiple lines, and
+the quality values are single-byte encoded. Data are mapped very simply to
+Bio::Seq::Quality instances:
+
+    Data                                        Bio::Seq::Quality method
     ------------------------------------------------------------------------
-    first non-whitespace chars in descriptor    id
-    complete descriptor line                    desc
+    first non-whitespace chars in descriptor    id^
+    descriptor line                             desc^
     sequence lines                              seq
     quality                                     qual*
     
-    
-    * converted to PHRED quality scores
+    ^ first nonwhitespace chars are id(), everything else after (to end of line)
+      is in desc()
+    * Converted to PHRED quality scores where applicable ('solexa')
 
-This parser now has preliminary support for Illumina v 1.0 and 1.3 FASTQ, though
-it needs extensive testing.
+This parser supports all variants of FASTQ, including Illumina v 1.0 and 1.3:
+
+    variant                note
+    -----------------------------------------------------------
+    sanger                 original
+    solexa                 Solexa, Inc. (2004), aka Illumina 1.0
+    illumina               Illumina 1.3 
+    
+The variant can be specified by passing by either passing the additional
+-variant parameter to the constructor:
+
+  my $in = Bio::SeqIO->new(-format    => 'fastq',
+                           -variant   => 'solexa',
+                           -file      => 'mysol.fq');
+
+or by passing the format and variant together (Bio::SeqIO will now handle
+this and convert it accordingly to the proper argument):
+
+  my $in = Bio::SeqIO->new(-format    => 'fastq-solexa',
+                           -file      => 'mysol.fq');
 
 =head1 FEEDBACK
 
@@ -321,6 +374,7 @@ web:
 =head1 AUTHORS - Tony Cox
 
 Email: avc@sanger.ac.uk
+
 
 =head1 APPENDIX
 

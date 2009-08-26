@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 106 );
+    test_begin( -tests => 110 );
 
     use_ok('Bio::SeqIO::fastq');
     use_ok('Bio::Seq::Quality');
@@ -15,55 +15,9 @@ BEGIN {
 
 my $DEBUG = test_debug();
 
-# round trip tests for write_fastq
+# simple parsing, data conversion of fastq example files
 
-#my %format = (
-#    'fastq-sanger'   => [ 'test1_sanger.fastq',   250 ],
-#    'fastq-solexa'   => [ 'test2_solexa.fastq',   5 ],
-#    'fastq-illumina' => [ 'test3_illumina.fastq', 25 ]
-#);
-#
-#while ( my ( $variant, $data ) = each %format ) {
-#    my $outfile = test_output_file();
-#    my ( $file, $total ) = @$data;
-#    $file = test_input_file( 'fastq', $file );
-#    my $in = Bio::SeqIO->new(
-#        -format => $variant,
-#        -file   => $file
-#    );
-#    my $out = Bio::SeqIO->new(
-#        -format => $variant,
-#        -file   => ">$outfile"
-#    );
-#    my ( $input_ct, $round_trip ) = ( 0, 0 );
-#    my $test_qual;
-#    while ( my $seq = $in->next_seq ) {
-#        $input_ct++;
-#        if ( $input_ct == 5 ) {
-#            $test_qual = $seq;
-#        }
-#        $out->write_seq($seq);
-#    }
-#    is( $input_ct, $total, $variant . " total" );
-#    $out->close;
-#    my $new_in = Bio::SeqIO->new(
-#        -format => $variant,
-#        -file   => $outfile
-#    );
-#    while ( my $seq = $new_in->next_seq ) {
-#        $round_trip++;
-#        if ( $round_trip == 5 ) {
-#            for my $att (qw(seq display_id desc)) {
-#                is( $seq->$att, $test_qual->$att, "Testing $att" );
-#            }
-#            is_deeply( $seq->qual, $test_qual->qual, "Testing qual" );
-#        }
-#    }
-#    is( $round_trip, $total, $variant . " total" );
-#}
-
-# test simple parsing of fastq example files
-my %example_files = ( # bug2335
+my %example_files = (
     bug2335               => {
         'variant'       => 'sanger', 
         'seq'           => 'TTGGAATGTTGCAAATGGGAGGCAGTTTGAAATACTGAATAGGCCTCATC'.
@@ -225,60 +179,126 @@ for my $example (sort keys %example_files) {
                $example_files{$example}->{$method},
                "$method() matches $example");
         }
-        is(join(' ', @{$sample_seq->qual}),
+        is(join(' ', map {sprintf("%.0f", $_)} @{$sample_seq->qual}),
                 $example_files{$example}->{qual},
                 "qual() matches $example");
     }
 }
 
-
 # test round-trip and conversions (single file of each type)
 
-my @formats = qw(sanger illumina solexa);
+my @variants = qw(sanger illumina solexa);
 
-my %conversion = (
+my %conversion = (  # check conversions, particularly solexa
     sanger_faked            => {
         'variant'       => 'sanger',
-        'to_solexa'     => {},
-        'to_illumina'   => {},
-        'to_sanger'     => {},
+        #'to_solexa'     => {
+        #  '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN',
+        #  '-qual' => [reverse(0..40)],
+        #  '-raw_quality' => 'IHGFEDCBA@?>=<;:9876543210/.-,+*)(\'&%$#"!',
+        #  '-id' => 'Test',
+        #  '-desc' => 'PHRED qualities from 40 to 0 inclusive',
+        #  '-descriptor' => 'Test PHRED qualities from 40 to 0 inclusive'
+        #},
+        'to_illumina'   => {
+          '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN',
+          '-qual' => [reverse(0..40)],
+          '-raw_quality' => 'hgfedcba`_^]\\[ZYXWVUTSRQPONMLKJIHGFEDCBA@',
+          '-id' => 'Test',
+          '-desc' => 'PHRED qualities from 40 to 0 inclusive',
+          '-descriptor' => 'Test PHRED qualities from 40 to 0 inclusive'
+        },
+        'to_sanger'     => {
+          '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN',
+          '-qual' => [reverse(0..40)],
+          '-raw_quality' => 'IHGFEDCBA@?>=<;:9876543210/.-,+*)(\'&%$#"!',
+          '-id' => 'Test',
+          '-desc' => 'PHRED qualities from 40 to 0 inclusive',
+          '-descriptor' => 'Test PHRED qualities from 40 to 0 inclusive'
+        },
                                 },
-    solexa_faked            => {
+    solexa_faked            => {    # needs to be checked
         'variant'       => 'solexa',
-        'to_solexa'     => {},
-        'to_illumina'   => {},
-        'to_sanger'     => {},
+        #'to_solexa'     => {'-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTNNNNNN',
+        #  '-qual' => [qw(40 39 38 37 36 35 34 33 32 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 10 9 8 7 6 5 5 4 4 3 3 2 2 1 1)],
+        #  '-raw_quality' => 'hgfedcba`_^]\\[ZYXWVUTSRQPONMLKJJHGFEDDBB@@>><<',
+        #  '-id' => 'slxa_0001_1_0001_01',
+        #  '-desc' => '',
+        #  '-descriptor' => 'slxa_0001_1_0001_01'
+        #},
+        #'to_illumina'   => {
+        #  '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTNNNNNN',
+        #  '-qual' => [qw(40 39 38 37 36 35 34 33 32 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 10 9 8 7 6 5 5 4 4 3 3 2 2 1 1)],
+        #  '-raw_quality' => 'hgfedcba`_^]\\[ZYXWVUTSRQPONMLKJJIHGFEEDDCCBBAA',
+        #  '-id' => 'slxa_0001_1_0001_01',
+        #  '-desc' => '',
+        #  '-descriptor' => 'slxa_0001_1_0001_01'
+        #},
+        #'to_sanger'     => {
+        #  '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTNNNNNN',
+        #  '-qual' => [qw(40 39 38 37 36 35 34 33 32 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 10 9 8 7 6 5 5 4 4 3 3 2 2 1 1)],
+        #  '-raw_quality' => 'IHGFEDCBA@?>=<;:9876543210/.-,++*)(\'&&%%$$##""',
+        #  '-id' => 'slxa_0001_1_0001_01',
+        #  '-desc' => '',
+        #  '-descriptor' => 'slxa_0001_1_0001_01'
+        #                    },
                                 },
     illumina_faked          => {
         'variant'       => 'illumina',
-        'to_solexa'     => {},
-        'to_illumina'   => {},
-        'to_sanger'     => {},
+        #'to_solexa'     => {
+        #  '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN',
+        #  '-qual' => [reverse(0..40)],
+        #  '-raw_quality' => 'hgfedcba`_^]\\[ZYXWVUTSRQPONMLKJIHGFEDCBA@',
+        #  '-id' => 'Test',
+        #  '-desc' => 'PHRED qualities from 40 to 0 inclusive',
+        #  '-descriptor' => 'Test PHRED qualities from 40 to 0 inclusive'            
+        #                    },
+        'to_illumina'   => {
+          '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN',
+          '-qual' => [reverse(0..40)],
+          '-raw_quality' => 'hgfedcba`_^]\\[ZYXWVUTSRQPONMLKJIHGFEDCBA@',
+          '-id' => 'Test',
+          '-desc' => 'PHRED qualities from 40 to 0 inclusive',
+          '-descriptor' => 'Test PHRED qualities from 40 to 0 inclusive'
+                            },
+        'to_sanger'     => {
+          '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN',
+          '-qual' => [reverse(0..40)],
+          '-raw_quality' => 'IHGFEDCBA@?>=<;:9876543210/.-,+*)(\'&%$#"!',
+          '-id' => 'Test',
+          '-desc' => 'PHRED qualities from 40 to 0 inclusive',
+          '-descriptor' => 'Test PHRED qualities from 40 to 0 inclusive'
+                            },
                                 },
 );
 
-#for my $example (sort keys %conversion) {
-#    my $file = test_input_file('fastq', "$example.fastq");
-#    my $variant = $conversion{$example}->{variant};
-#    my $in = Bio::SeqIO->new(-format    => "fastq-$variant",
-#                             -file      => $file,
-#                             -verbose   => 2);  #strictest level
-#    my $data = $in->next_dataset;
-#    my $seq = Bio::Seq::Quality->new(%$data);
-#    for my $format (@formats) {
-#        # these are tested above already; here we are retaining the raw data,
-#        # creating the Bio::Seq::Quality, writing out, then re-reading in and
-#        # checking against the 
-#    }
-#}
+use Data::Dumper;
 
-# read file using format, grab first sequence via next_dataset (get raw data)
-# for each 
-# output to new file
-# read back in using next_dataset
-# check data structs using is_deeply
+for my $example (sort keys %conversion) {
+    my $file = test_input_file('fastq', "$example.fastq");
+    my $variant = $conversion{$example}->{variant};
+    my $in = Bio::SeqIO->new(-format    => "fastq-$variant",
+                             -file      => $file,
+                             -verbose   => 2);  #strictest level
+    # this both tests the next_dataset method and helps check roundtripping
+    my $seq = $in->next_seq;
+    for my $newvar (@variants) {
+        next unless exists $conversion{$example}->{"to_$newvar"};
+        my $outfile = test_output_file();
+        Bio::SeqIO->new(-format   => "fastq-$newvar",
+                        -file     => ">$outfile")->write_seq($seq);
+        my $newdata = Bio::SeqIO->new(-format => "fastq-$newvar",
+                                    -file     => $outfile)->next_dataset;
+        #print "Conversion from $variant to $newvar\n";
+        #print Dumper($newdata)."\n";
+        is_deeply($newdata, $conversion{$example}->{"to_$newvar"}, "Conversion from $variant to $newvar");
+        # these are tested above already; here we are retaining the raw data,
+        # creating the Bio::Seq::Quality, writing out, then re-reading in and
+        # checking against the 
+    }
+}
 
-# test fastq errors
+# test fastq exception handling
 
 my %error = (
     # file name                
@@ -348,8 +368,6 @@ my %error = (
                                 },
 );
 
-# test retrieval of raw data in a hash ref
-
 for my $example (sort keys %error) {
     my $file = test_input_file('fastq', "$example.fastq");
     my $variant = $error{$example}->{variant};
@@ -360,43 +378,5 @@ for my $example (sort keys %error) {
     throws_ok {        while (my $seq = $in->next_seq) {
             $ct++;
         } } $error{$example}->{exception}, "Exception caught for $example";
-    #my $data = $in->next_dataset;
-    #my $seq = Bio::Seq::Quality->new(%$data);
-    #for my $format (@formats) {
-    #    # these are tested above already; here we are retaining the raw data,
-    #    # creating the Bio::Seq::Quality, writing out, then re-reading in and
-    #    # checking against the 
-    #}
 }
 
-#
-#my $in_qual = Bio::SeqIO->new(
-#    -file    => test_input_file( 'fastq', 'test3_illumina.fastq' ),
-#    -variant => 'illumina',
-#    -format  => 'fastq'
-#);
-#
-#my $qual = $in_qual->next_dataset();
-#
-#isa_ok( $qual, 'HASH' );
-#is( $qual->{-seq},         'GTTAGCTCCCACCTTAAGATGTTTA' );
-#is( $qual->{-raw_quality}, 'SXXTXXXXXXXXXTTSUXSSXKTMQ' );
-#is( $qual->{-id},          'FC12044_91407_8_200_406_24' );
-#is( $qual->{-desc},        '' );
-#is( $qual->{-descriptor},  'FC12044_91407_8_200_406_24' );
-#is(
-#    join( ',', @{ $qual->{-qual} }[ 0 .. 10 ] ),
-#    '19,24,24,20,24,24,24,24,24,24,24'
-#);
-#
-## can this be used in a constructor?
-#
-#my $qualobj = Bio::Seq::Quality->new(%$qual);
-#is( $qualobj->seq,        'GTTAGCTCCCACCTTAAGATGTTTA' );
-#is( $qualobj->display_id, 'FC12044_91407_8_200_406_24' );
-#is( $qualobj->desc,       undef );
-#is(
-#    join( ',', @{ $qualobj->qual }[ 0 .. 10 ] ),
-#    '19,24,24,20,24,24,24,24,24,24,24'
-#);
-#
