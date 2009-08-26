@@ -307,6 +307,7 @@ sub FT_SO_map  {
       "pseudomRNA" => "pseudogenic_transcript", ## has parent = pseudogene ; dgg
       "pseudotranscript" => "pseudogenic_transcript", ## from Unflattener misc_RNA ; dgg
       "pseudoexon" => "pseudogenic_exon",
+      "pseudoCDS"  => "pseudogenic_exon",
       "pseudomisc_feature" => "pseudogenic_region",
       "pseudointron" => "pseudogenic_region",
       
