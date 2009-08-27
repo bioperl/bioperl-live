@@ -4,7 +4,6 @@ package Bio::SeqIO::fastq;
 use strict;
 
 use Bio::Seq::SeqFactory;
-use Data::Dumper;
 
 use base qw(Bio::SeqIO);
 use List::Util qw(max min);
