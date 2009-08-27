@@ -4,6 +4,7 @@ package Bio::SeqIO::fastq;
 use strict;
 
 use Bio::Seq::SeqFactory;
+use Data::Dumper;
 
 use base qw(Bio::SeqIO);
 use List::Util qw(max min);
@@ -40,7 +41,7 @@ sub next_seq {
 sub next_dataset {
     my $self = shift;
     local $/ = "\n";
-    my ($data, $ct);
+    my $data;
     my $mode = '-seq';
     # speed this up by directly accessing the filehandle and in-lining the
     # _readline stuff vs. making the repeated method calls. Tradeoff is speed
@@ -67,7 +68,6 @@ sub next_dataset {
             $data->{-id} = $id;
             $data->{-desc} = $fulldesc;
             $data->{-namespace} = $self->{qualtype};
-            $ct->{-seq} = 0;
         } elsif ($mode eq '-seq' && $line =~ m{^\+([^\n]*)}xmso) {
 			my $desc = $1;
             $self->throw("No description line parsed") unless $data->{-descriptor};
@@ -75,18 +75,18 @@ sub next_dataset {
                 $self->throw("Quality descriptor [$desc] doesn't match seq descriptor ".$data->{-descriptor}.", line: $." );
             }
             $mode = '-raw_quality';
-            $ct->{-raw_quality} = 0;
         } else {
-            # this uses a fairly loose check where the number of lines of
-            # both qual and seq match before bailing from the loop
-            if ($mode eq '-raw_quality' &&
-                $ct->{-raw_quality} == $ct->{-seq}) {
+            if ($mode eq '-raw_quality' && $data->{-raw_quality} &&
+                (length($data->{-raw_quality}) >= length($data->{-seq}))) {
                 $self->{lastline} = $line;
                 last FASTQ
             }
-            $ct->{$mode}++;
             chomp $line;
-            $data->{$mode} .= $line;
+            if (!$line) {
+                delete $self->{lastline};
+                last FASTQ;
+            }
+            $data->{$mode} .= $line
         }
         $line = <$fh>;
         if (!defined $line) {
@@ -96,10 +96,9 @@ sub next_dataset {
     }
     
     return unless $data;
-    
-    $self->throw("Missing sequence and/or quality data; line: $.") if
-        $self->{_validate_qual} &&
-        (!$data->{-seq} || !$data->{-raw_quality});
+    if (!$data->{-seq} || !$data->{-raw_quality}) {
+        $self->throw("Missing sequence and/or quality data; line: $.");
+    }
     
     # simple quality control tests
     if (length $data->{-seq} != length $data->{-raw_quality}) {
@@ -158,14 +157,16 @@ sub write_seq {
                 $qual .= $qual_map->{$q};
                 next ;
             } else {
-                my $min = min keys %{$qual_map};
-                $qual .= $qual_map->{$min};
-                $bad_qual{$q} = $qual_map->{$min};
+                my $rep = ($q <= $self->{qual_start}) ?
+                    $qual_map->{$self->{qual_start}} : $qual_map->{$self->{qual_end}};
+                $qual .= $rep;
+                $bad_qual{$q}++;
             }
         }
         if ($self->{_validate_qual} && %bad_qual) {
-            $self->warn("Quality values not found for $var:".
-                    join(',',sort {$a <=> $b} keys %bad_qual))
+            $self->warn("Data loss for $var: following values exceed max ".
+                        $self->{qual_end}.
+                        "\n".join(',',sort {$a <=> $b} keys %bad_qual))
         }
 		$self->_print("\@",$top,"\n",$str,"\n") or return;
 		$self->_print("+",($self->{_quality_header} ? $top : ''),"\n",$qual,"\n") or return;
@@ -234,7 +235,7 @@ sub variant {
 			if ($enc eq 'solexa') {
 				$score = 10 * log(1 + 10 ** ($score / 10.0)) / log(10);
                 # cache a rounded version when needed (i.e. sanger/illumina->solexa)
-                $self->{phred2chr_nonsol}->{sprintf("%.0f",$score)} = $char;
+                $self->{phred2chr_nonsol}->{int($score)} = $char;
 			}
 			$self->{chr2phred}->{$char} = $score;
 			$self->{phred2chr}->{$score} = $char;
@@ -272,7 +273,8 @@ __END__
 #
 # Cared for Chris Fields
 #
-# Refactored from the original FASTQ parser by Tony Cox <avc@sanger.ac.uk>
+# Completely refactored from the original FASTQ parser 
+# by Tony Cox <avc@sanger.ac.uk>
 #
 # Copyright Chris Fields
 #
@@ -416,10 +418,9 @@ web:
 
   http://bugzilla.open-bio.org/
 
-=head1 AUTHORS - Tony Cox
+=head1 AUTHORS - Chris Fields (taken over from Tony Cox)
 
-Email: avc@sanger.ac.uk
-
+Email: cjfields at bioperl dot org
 
 =head1 APPENDIX
 

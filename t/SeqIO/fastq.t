@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 115 );
+    test_begin( -tests => 123 );
 
     use_ok('Bio::SeqIO::fastq');
     use_ok('Bio::Seq::Quality');
@@ -153,6 +153,22 @@ my %example_files = (
         'desc'          => undef,
         'count'         => 4
                                 },
+    very_tricky             => {
+        'variant'       => 'sanger', # TODO: guessing on the format here...
+        'seq'           => 'AACCCGTCCCATCAAAGATTTTGGTTGGAACCCGAAAGGGTTTTGAATTCAAACCCCTTTCGGTTCCAACTATTCAATTGTTTAACTTTTTTTAAATTGATGGTCTGTTGGACCATTTGTAATAATCCCCATCGGAATTTCTTT',
+        'qual'          => '32 26 31 26 4 22 20 30 25 2 27 27 24 36 32 16 '.
+                           '26 28 36 32 18 4 33 26 33 26 32 26 33 26 31 26 '.
+                           '4 24 36 32 16 36 32 16 36 32 18 4 27 33 26 32 26 '.
+                           '23 36 32 15 35 31 18 3 36 32 16 28 33 26 32 26 33 '.
+                           '26 33 26 25 28 25 33 26 25 33 25 32 24 25 36 32 '.
+                           '15 32 24 27 37 32 23 16 10 5 1 35 30 12 33 26 19 '.
+                           '27 25 25 14 27 26 28 25 32 24 23 12 20 30 21 28 '.
+                           '34 29 10 23 27 27 18 26 28 19 25 35 32 18 4 27 26 '.
+                           '28 23 12 24 13 32 28 8 25 33 28 9',
+        'display_id'    => 'SRR014849.203935',
+        'desc'          => 'EIXKN4201B4HU6 length=144',
+        'count'         => 3
+                                },
 );
 
 for my $example (sort keys %example_files) {
@@ -190,33 +206,33 @@ for my $example (sort keys %example_files) {
 my @variants = qw(sanger illumina solexa);
 
 my %conversion = (  # check conversions, particularly solexa
-    sanger_faked            => {
+    sanger_93            => {
         'variant'       => 'sanger',
         'to_solexa'     => {
-          '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN',
-          '-qual' => [reverse(1..40), 1],  # round trip from solexa is lossy
-          '-raw_quality' => 'hgfedcba`_^]\[ZYXWVUTSRQPONMLKJHGFEDB@><<',
+          '-seq' => 'ACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGAN',
+          '-qual' => [reverse(1..93), 1],  # round trip from solexa is lossy
+          '-raw_quality' => '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~}|{zyxwvutsrqponmlkjihgfedcba`_^]\[ZYXWVUTSRQPONMLKJHGFECB@>;;',
           '-id' => 'Test',
-          '-desc' => 'PHRED qualities from 40 to 0 inclusive',
-          '-descriptor' => 'Test PHRED qualities from 40 to 0 inclusive'
+          '-desc' => 'PHRED qualities from 93 to 0 inclusive',
+          '-descriptor' => 'Test PHRED qualities from 93 to 0 inclusive'
         },
         'to_illumina'   => {
-          '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN',
-          '-qual' => [reverse(0..40)],
-          '-raw_quality' => 'hgfedcba`_^]\\[ZYXWVUTSRQPONMLKJIHGFEDCBA@',
+          '-seq' => 'ACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGAN',
+          '-qual' => [ (map {62} 0..31),(reverse(0..61)) ],
+          '-raw_quality' => '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~}|{zyxwvutsrqponmlkjihgfedcba`_^]\[ZYXWVUTSRQPONMLKJIHGFEDCBA@',
           '-id' => 'Test',
-          '-desc' => 'PHRED qualities from 40 to 0 inclusive',
-          '-descriptor' => 'Test PHRED qualities from 40 to 0 inclusive'
+          '-desc' => 'PHRED qualities from 93 to 0 inclusive',
+          '-descriptor' => 'Test PHRED qualities from 93 to 0 inclusive'
         },
         'to_sanger'     => {
-          '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN',
-          '-qual' => [reverse(0..40)],
-          '-raw_quality' => 'IHGFEDCBA@?>=<;:9876543210/.-,+*)(\'&%$#"!',
+          '-seq' => 'ACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGAN',
+          '-qual' => [reverse(0..93)],
+          '-raw_quality' => '~}|{zyxwvutsrqponmlkjihgfedcba`_^]\[ZYXWVUTSRQPONMLKJIHGFEDCBA@?>=<;:9876543210/.-,+*)(\'&%$#"!',
           '-id' => 'Test',
-          '-desc' => 'PHRED qualities from 40 to 0 inclusive',
-          '-descriptor' => 'Test PHRED qualities from 40 to 0 inclusive'
+          '-desc' => 'PHRED qualities from 93 to 0 inclusive',
+          '-descriptor' => 'Test PHRED qualities from 93 to 0 inclusive'
         },
-                                },
+    },
     solexa_faked            => {    # needs to be checked
         'variant'       => 'solexa',
         'to_solexa'     => {'-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTNNNNNN',
@@ -243,7 +259,7 @@ my %conversion = (  # check conversions, particularly solexa
           '-id' => 'slxa_0001_1_0001_01',
           '-desc' => '',
           '-descriptor' => 'slxa_0001_1_0001_01'
-                            },
+        },
     },
     illumina_faked          => {
         'variant'       => 'illumina',
@@ -255,7 +271,7 @@ my %conversion = (  # check conversions, particularly solexa
           '-id' => 'Test',
           '-desc' => 'PHRED qualities from 40 to 0 inclusive',
           '-descriptor' => 'Test PHRED qualities from 40 to 0 inclusive'            
-                            },
+        },
         'to_illumina'   => {
           '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN',
           '-qual' => [reverse(0..40)],
@@ -271,9 +287,11 @@ my %conversion = (  # check conversions, particularly solexa
           '-id' => 'Test',
           '-desc' => 'PHRED qualities from 40 to 0 inclusive',
           '-descriptor' => 'Test PHRED qualities from 40 to 0 inclusive'
-                            }
-        },
+        }
+    },
 );
+
+use Data::Dumper;
 
 for my $example (sort keys %conversion) {
     my $file = test_input_file('fastq', "$example.fastq");
@@ -292,9 +310,12 @@ for my $example (sort keys %conversion) {
         my $newdata = Bio::SeqIO->new(-format => "fastq-$newvar",
                                     -file     => $outfile)->next_dataset;
         # round for simple comparison, get around floating pt comparison probs
+        
         if ($newvar eq 'solexa') {
             $newdata->{-qual} = [map {sprintf("%.0f",$_)} @{$newdata->{-qual}}];
         }
+        
+        #print Dumper($newdata) if $variant eq 'sanger' && $newvar eq 'illumina';
         
         $conversion{$example}->{"to_$newvar"}->{'-namespace'} = $newvar;
         is_deeply($newdata, $conversion{$example}->{"to_$newvar"}, "Conversion from $variant to $newvar");
