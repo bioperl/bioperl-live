@@ -6,7 +6,6 @@ use strict;
 use Bio::Seq::SeqFactory;
 
 use base qw(Bio::SeqIO);
-use List::Util qw(max min);
 
 sub _initialize {
     my($self,@args) = @_;
