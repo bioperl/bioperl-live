@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 123 );
+    test_begin( -tests => 127 );
 
     use_ok('Bio::SeqIO::fastq');
     use_ok('Bio::Seq::Quality');
@@ -401,7 +401,7 @@ my %error = (
                                 },    
     error_trunc_in_plus     => {
         variant         => 'sanger',
-        exception       => qr/doesn't\smatch\sseq\sdescriptor/xms,
+        exception       => qr/doesn't\smatch\sseq\s descriptor/xms,
                                 },
     error_trunc_in_qual     => {
         variant         => 'sanger',
