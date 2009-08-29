@@ -153,7 +153,7 @@ my %example_files = (
         'desc'          => undef,
         'count'         => 4
                                 },
-    very_tricky             => {
+    evil_wrapping           => {
         'variant'       => 'sanger', # TODO: guessing on the format here...
         'seq'           => 'AACCCGTCCCATCAAAGATTTTGGTTGGAACCCGAAAGGGTTTTGAATTCAAACCCCTTTCGGTTCCAACTATTCAATTGTTTAACTTTTTTTAAATTGATGGTCTGTTGGACCATTTGTAATAATCCCCATCGGAATTTCTTT',
         'qual'          => '32 26 31 26 4 22 20 30 25 2 27 27 24 36 32 16 '.
@@ -390,6 +390,23 @@ my %error = (
         variant         => 'sanger',
         exception       => qr/Missing\ssequence\sand\/or\squality\sdata/xms,
                                 },
+
+    error_trunc_in_title    => {
+        variant         => 'sanger',
+        exception       => qr/Missing\ssequence\sand\/or\squality\sdata/xms,
+                                },
+    error_trunc_in_seq      => {
+        variant         => 'sanger',
+        exception       => qr/Missing\ssequence\sand\/or\squality\sdata/xms,
+                                },    
+    error_trunc_in_plus     => {
+        variant         => 'sanger',
+        exception       => qr/doesn't\smatch\sseq\sdescriptor/xms,
+                                },
+    error_trunc_in_qual     => {
+        variant         => 'sanger',
+        exception       => qr/doesn't\smatch\slength\sof\ssequence/xms,
+                                },    
 );
 
 for my $example (sort keys %error) {
