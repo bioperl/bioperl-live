@@ -423,27 +423,47 @@ sub column_from_residue_number {
     unless $resnumber =~ /^\d+$/ and $resnumber > 0;
 
     if ($resnumber >= $self->start() and $resnumber <= $self->end()) {
-    my @residues = split //, $self->seq;
-    my $count = $self->start();
-    my $i;
-    my ($start,$end,$inc,$test);
-        my $strand = $self->strand || 0;
-    # the following bit of "magic" allows the main loop logic to be the
-    # same regardless of the strand of the sequence
-    ($start,$end,$inc,$test)= ($strand == -1)?
-            (scalar(@residues-1),0,-1,sub{$i >= $end}) :
-                (0,scalar(@residues-1),1,sub{$i <= $end});
+	my @chunks;
+	my $column_incr;
+	my $current_column;
+	my $current_residue = $self->start - 1;
+	my $seq = $self->seq;
+	my $strand = $self->strand || 0;
 
-    for ($i=$start; $test->(); $i+= $inc) {
-        if ($residues[$i] ne '.' and $residues[$i] ne '-') {
-        $count == $resnumber and last;
-        $count++;
-        }
-    }
-    # $i now holds the index of the column.
-        # The actual column number is this index + 1
+	if ($strand == -1) {
+#	    @chunks = reverse $seq =~ m/[^\.\-]+|[\.\-]+/go;
+	    @chunks = reverse $seq =~ m/[$RESIDUE_SYMBOLS]+|[$GAP_SYMBOLS]+/go;
+	    $column_incr = -1;
+	    $current_column = (CORE::length $seq) + 1;
+	}
+	else {
+#	    @chunks = $seq =~ m/[^\.\-]+|[\.\-]+/go;
+	    @chunks = $seq =~ m/[$RESIDUE_SYMBOLS]+|[$GAP_SYMBOLS]+/go;
+	    $column_incr = 1;
+	    $current_column = 0;
+	}
 
-    return $i+1;
+	while (my $chunk = shift @chunks) {
+#	    if ($chunk =~ m|^[\.\-]|o) {
+	    if ($chunk =~ m|^[$GAP_SYMBOLS]|o) {
+		$current_column += $column_incr * CORE::length($chunk);
+	    }
+	    else {
+		if ($current_residue + CORE::length($chunk) < $resnumber) {
+		    $current_column += $column_incr * CORE::length($chunk);
+		    $current_residue += CORE::length($chunk);
+		}
+		else {
+		    if ($strand == -1) {
+			$current_column -= $resnumber - $current_residue;
+		    }
+		    else {
+			$current_column += $resnumber - $current_residue;
+		    }
+		    return $current_column;
+		}
+	    }
+	}
     }
 
     $self->throw("Could not find residue number $resnumber");
