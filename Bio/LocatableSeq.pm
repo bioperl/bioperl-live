@@ -651,28 +651,37 @@ sub validate_seq {
 
 =head2 no_gap
 
- Title   : no_gaps
- Usage   :$self->no_gaps('.')
- Function:Gets number of gaps in the sequence. The count excludes
-           leading or trailing gap characters.
+ Title     : no_gaps
+ Usage     : $self->no_gaps('.')
+ Function  : Gets number of gaps in the sequence. The count excludes
+             leading or trailing gap characters.
 
-           Valid bioperl sequence characters are [A-Za-z\-\.\*]. Of
-           these, '.' and '-' are counted as gap characters unless an
-           optional argument specifies one of them.
+             Valid bioperl sequence characters are [A-Za-z\-\.\*]. Of
+             these, '.' and '-' are counted as gap characters unless an
+             optional argument specifies one of them.
 
- Returns : number of internal gaps in the sequence.
- Args    : a gap character (optional)
+ Returns   : number of internal gaps in the sequence.
+ Args      : a gap character (optional)
+ Status    : Deprecated (in favor of num_gaps()) 
 
 =cut
 
-=head2 no_gaps
+sub no_gaps {
+	my $self = shift;
+	$self->deprecated(-warn_version => 1.0069,
+					  -throw_version => 1.0075,
+                      -message => 'Use of method no_gaps() is deprecated, use num_gaps() instead');
+    $self->num_gaps(@_);
+}
+
+=head2 no_sequences
 
  Title     : no_sequences
- Usage     : $gaps = $seq->no_gaps
+ Usage     : $gaps = $seq->no_sequences
  Function  : number of sequence in the sequence alignment
  Returns   : integer
  Argument  :
- Status    : Deprecated (in favor of num_gaps())
+ Status    : Deprecated (in favor of num_sequences())
 
 =cut
 
@@ -680,8 +689,8 @@ sub no_sequences {
 	my $self = shift;
 	$self->deprecated(-warn_version => 1.0069,
 					  -throw_version => 1.0075,
-                      -message => 'Use of method no_gaps() is deprecated, use num_gaps() instead');
-    $self->num_gaps(@_);
+                      -message => 'Use of method no_sequences() is deprecated, use num_sequences() instead');
+    $self->num_sequences(@_);
 }
 
 1;
