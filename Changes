@@ -32,7 +32,8 @@ for this release series highlighted in BUGS.
 * Bio::DB::Fasta
     - berkeleydb database now autoindexes wig files and locks correctly [lstein]
 * Bio::DB::HIV
-    - various small updates for stability [maj]
+    - various small updates for stability; tracking changes to LANL
+      database interface [maj]
 * Bio::DB::SeqFeature (lots of updates and changes)
     - add Pg, SQLite, and faster BerkeleyDB implementations [lstein, scain]
     - bug 2835 - patch [Dan Bolser]
@@ -47,14 +48,15 @@ for this release series highlighted in BUGS.
     - bug 2800 - patch to fix phylip parsing [Wei Zou]
 * Bio::Nexml
     - Google Summer of Code project from Chase Miller - parsers for Nexml file
-      format [maj]
+      format [maj, chmille4]
 * Bio::PopGen
     - Make Individual, Population, Marker objects AnnotatableI [maj]
     - simplify LD code [jason]
 * Bio::RangeI
     - deal with empty intersection [jason]
 * Bio::Restriction
-    - significant overhaul of Bio::Restriction system. [maj]
+    - significant overhaul of Bio::Restriction system: complete support for
+      external and non-palindromic cutters. [maj]
 * Bio::Root::Build
     - CPANPLUS support, no automatic installation [sendu]
 * Bio::Root::IO
@@ -135,7 +137,7 @@ for this release series highlighted in BUGS.
 * Bio::Tools::tRNAscanSE
     - use 'gene' and 'exon' for proper SO, ensure ID is unique [jason]
 * Bio::Tree::*
-    - bug 2456 - fix reroot_tree() [maj]
+    - bug 2456 - fix reroot_tree(), added create_node_on_branch() [maj]
 * Bio::Tree::Statistics
     - several methods for calculating Fitch-based score, internal trait values,
       statratio(), sum of leaf distances [heikki]
