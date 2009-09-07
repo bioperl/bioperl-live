@@ -133,7 +133,7 @@ for if you see fit)
 
 =item * Keith James <kdj at sanger.ac.uk> - Bio::Tools::Geneid
 
-=item * Mark A. Jensen <maj at fortinbras.us> - Bio::DB::HIVQuery
+=item * Mark A. Jensen <maj at fortinbras.us> - Bio::DB::HIVQuery, Bio::Search::Tiling
 
 =item * Nicolas Joly <njoly at pasteur.fr> 
 
