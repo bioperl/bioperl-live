@@ -352,10 +352,10 @@ sub force_nse {
     return $self->{'_force_nse'};
 }
 
-=head2 no_gap
+=head2 num_gaps
 
- Title   : no_gaps
- Usage   :$self->no_gaps('.')
+ Title   : num_gaps
+ Usage   :$self->num_gaps('.')
  Function:Gets number of gaps in the sequence. The count excludes
            leading or trailing gap characters.
 
@@ -365,10 +365,12 @@ sub force_nse {
 
  Returns : number of internal gaps in the sequence.
  Args    : a gap character (optional)
+ Status  : Stable
+ Note    : replaces no_gaps
 
 =cut
 
-sub no_gaps {
+sub num_gaps {
     my ($self,$char) = @_;
     my ($seq, $count) = (undef, 0);
 
@@ -643,6 +645,43 @@ sub validate_seq {
         return 0;
     }
     return 1;
+}
+
+################## DEPRECATED METHODS ##################
+
+=head2 no_gap
+
+ Title   : no_gaps
+ Usage   :$self->no_gaps('.')
+ Function:Gets number of gaps in the sequence. The count excludes
+           leading or trailing gap characters.
+
+           Valid bioperl sequence characters are [A-Za-z\-\.\*]. Of
+           these, '.' and '-' are counted as gap characters unless an
+           optional argument specifies one of them.
+
+ Returns : number of internal gaps in the sequence.
+ Args    : a gap character (optional)
+
+=cut
+
+=head2 no_gaps
+
+ Title     : no_sequences
+ Usage     : $gaps = $seq->no_gaps
+ Function  : number of sequence in the sequence alignment
+ Returns   : integer
+ Argument  :
+ Status    : Deprecated (in favor of num_gaps())
+
+=cut
+
+sub no_sequences {
+	my $self = shift;
+	$self->deprecated(-warn_version => 1.0069,
+					  -throw_version => 1.0075,
+                      -message => 'Use of method no_gaps() is deprecated, use num_gaps() instead');
+    $self->num_gaps(@_);
 }
 
 1;
