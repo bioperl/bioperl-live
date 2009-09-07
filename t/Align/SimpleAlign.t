@@ -70,7 +70,7 @@ is(
 is scalar @seqs, 16, 'each_seq';
 is $seqs[0]->get_nse, '1433_LYCES/9-246', 'get_nse';
 is $seqs[0]->id,      '1433_LYCES',       'id';
-is $seqs[0]->no_gaps, 3,                  'no_gaps';
+is $seqs[0]->num_gaps, 3,                  'num_gaps';
 @seqs = $aln->each_alphabetically();
 is scalar @seqs, 16, 'each_alphabetically';
 
