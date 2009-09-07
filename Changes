@@ -100,48 +100,97 @@ for this release series highlighted in BUGS.
       [cjfields]
 * Bio::SeqIO::genbank
     - bug 2784 - fix DBSOURCE issue [Phillip Garland]
-    - bug RT 44536 - support for UniProt/UniProtKB tests
+    - bug RT 44536 - support for UniProt/UniProtKB tests [cjfields]
 * Bio::SeqIO::largefasta
     - parser returns a Bio::Seq::LargePrimarySeq [jhannah]
 * Bio::SeqIO::raw
     - add option for 'single' and 'multiple'
 * Bio::SeqIO::scf
     - bug 2881 - fix scf round-tripping [Adam Sj¿gren]
-* General Fixes
+* Bio::SeqUtils
+    - bug 2766, 2810 - copy over tags from features, doc fixes [David Jackson]
+* Bio::SimpleAlign
+    - bug 2793 - patch for add_seq index issue [jhannah, maj]
+    - bug 2801 - throw if args are required [cjfields]
+    - bug 2805 - uniq_seq returns SimpleAlign and hash ref of sequence types
+      [Tristan Lefebure, maj]
+    - bug fixes from YAPC hackathon [rbuels, jhannah, bvecchi]
+    - fix POD and add get_SeqFeatures filter [maj]
+* Bio::Tools::dpAlign
+    - add support for LocatableSeq [ymc]
+    - to be moved to a separate distribution [cjfields, rbuels]
+* Bio::Tools::EUtilities
+    - fix for two bugs from mail list [Adam Whitney, cjfields]
+    - add generic ItemContainerI interface for containing same methods
+      [cjfields]
+* Bio::Tools::HMM
+    - fix up code, add more warnings [cjfields]
+    - to be moved to a separate distribution [cjfields, rbuels]
+* Bio::Tools::Primer3
+    - bug 2862 - fenceposting issue fixed [maj]
+* Bio::Tools::Run::RemoteBlast
+    - tests for remote RPS-BLAST [mcook]
+* Bio::Tools::SeqPattern
+    - bug fixes from YAPC hackathon [rbuels, jhannah, bvecchi]
+* Bio::Tools::tRNAscanSE
+    - use 'gene' and 'exon' for proper SO, ensure ID is unique [jason]
+* Bio::Tree::*
+    - bug 2456 - fix reroot_tree() [maj]
+* Bio::Tree::Statistics
+    - several methods for calculating Fitch-based score, internal trait values,
+      statratio(), sum of leaf distances [heikki]
+* Bio::Tree::Tree
+    - bug 2869 - add docs indicating edge case where nodes can be prematurely
+      garbage-collected [cjfields]
+    - add as_text() function to create Tree as a string in specified format
+      [maj]
+* Bio::Tree::TreeFunctionsI
+    - bug 2877 - fix bug where bootstrap assigned to the wrong node [Tristan
+      Lefebure, maj]
+* Bio::TreeIO::newick
+    - fix small semicolon issue [cjfields]
+* scripts
+    - update to bp_seqfeature_load for SQLite [lstein]
+    - hivq.pl - commmand-line interface to Bio::DB::HIV [maj]
+    - fastam9_to_table - fix for MPI output [jason]
+    - gccalc - total stats [jason]
+* General Stuff
     - POD cleanup re: FEEDBACK section [maj]
     - Use of no_* methods (indicating 'number of something') is deprecated in
       favor of num_* [cjfields]
+    - lots of new tests for the above bugs and refactors [everyone!]
+    - new template for Komodo text editor [cjfields]
     
 1.6.0 Winter 2009
 
 * Feature/Annotation rollback
-  - Problematic changes introduced prior to the 1.5 release have been rolled
-    back.  These changes led to subtle bugs involving operator overloading
-    and interface methods.
-  - Behavior is very similar to that for BioPerl 1.4, with tag values being
-    stored generically as simple scalars.  Results in a modest speedup.
+    - Problematic changes introduced prior to the 1.5 release have been rolled
+      back.  These changes led to subtle bugs involving operator overloading
+      and interface methods.
+    - Behavior is very similar to that for BioPerl 1.4, with tag values being
+      stored generically as simple scalars.  Results in a modest speedup.
 * Bio::Graphics
-  - Split into a separate distribution on CPAN, primarily so development
-    isn't reliant on a complete BioPerl release.
-  - Bio::Graphics::Pictogram has been renamed to Bio::Draw::Pictogram but
-    is only available via Subversion (via bioperl-live main trunk)
+    - Split into a separate distribution on CPAN, primarily so development
+      isn't reliant on a complete BioPerl release.
+    - Bio::Graphics::Pictogram has been renamed to Bio::Draw::Pictogram but
+      is only available via Subversion (via bioperl-live main trunk)
 * Bio::Root::Test
-  - Common test bed for all BioPerl modules
+    - Common test bed for all BioPerl modules
 * Bio::Root::Build
-  - Common Module::Build-based subclass for all BioPerl modules
+    - Common Module::Build-based subclass for all BioPerl modules
 * Bio::DB::EUtilities
-  - Complete refactoring to split up parsing (Bio::Tools::EUtilities),
-    parameter handling (Bio::Tools::EUtilities::EUtilParameters),
-    and user agent request posting and retrieval
+    - Complete refactoring to split up parsing (Bio::Tools::EUtilities),
+      parameter handling (Bio::Tools::EUtilities::EUtilParameters),
+      and user agent request posting and retrieval
 * Test implementation and reorganization
-  - Tests have been reorganized into groups based on classes or use
-    cases.
-  - Automated test coverage is now online:
-    http://www.bioperl.org/wiki/Test_Coverage
-  - After this release, untested modules will be moved into a
-    separate developer distribution until tests can be derived.
-    Also, new modules to be added are expected to have a test suite
-    and adequate test coverage.
+    - Tests have been reorganized into groups based on classes or use
+      cases.
+    - Automated test coverage is now online:
+      http://www.bioperl.org/wiki/Test_Coverage
+    - After this release, untested modules will be moved into a
+      separate developer distribution until tests can be derived.
+      Also, new modules to be added are expected to have a test suite
+      and adequate test coverage.
 
 1.5.2 Developer release
 
