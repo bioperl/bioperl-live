@@ -24,7 +24,7 @@ is $seq->alphabet, 'dna';
 is $seq->start, 1;
 is $seq->end, 6;
 is $seq->strand, 1;
-is $seq->no_gaps, 1;
+is $seq->num_gaps, 1;
 is $seq->column_from_residue_number(4), 9;
 is $seq->column_from_residue_number(3), 5;
 
@@ -119,7 +119,7 @@ is $seq->alphabet, 'dna';
 is $seq->start, 1;
 is $seq->end, 6;
 is $seq->strand, -1;
-is $seq->no_gaps, 1;
+is $seq->num_gaps, 1;
 is $seq->column_from_residue_number(4), 5;
 
 
