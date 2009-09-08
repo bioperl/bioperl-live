@@ -313,7 +313,7 @@ sub esearch {
         
         # check the actual data
         my ($webenv, $key) = $history->history;
-        like($webenv, qr{^\S{50}}, 'WebEnv');
+        like($webenv, qr{^\S{15}}, 'WebEnv');
         like($key, qr{^\d+}, 'query key');
         
         # can we fetch the sequences?
