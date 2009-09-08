@@ -19,6 +19,7 @@ my $CREATE   = 0;
 my $USER     = '';
 my $PASS     = '';
 my $COMPRESS = 0;
+my $INDEX_SUB = 1;
 
 GetOptions(
 	   'dsn=s'       => \$DSN,
@@ -32,6 +33,7 @@ GetOptions(
 	   'user=s'      => \$USER,
 	   'password=s'  => \$PASS,
 	   'zip'         => \$COMPRESS,
+           'S|subfeatures!' => \$INDEX_SUB,
 	   ) || die <<END;
 Usage: $0 [options] gff_file1 gff_file2...
   Options:
@@ -45,6 +47,8 @@ Usage: $0 [options] gff_file1 gff_file2...
           -c --create     Create the database and reinitialize it (will erase contents)
           -u --user       User to connect to database as
           -p --password   Password to use to connect to database
+          -S --subfeatures   Turn on indexing of subfeatures (default)
+             --nosubfeatures Turn off indexing of subfeatures
           -i --ignore-seqregion
                           If true, then ignore ##sequence-region directives in the
                           GFF3 file (default, create a feature for each region)
@@ -63,7 +67,8 @@ basis by adding "index=1" or "index=0" to the feature's attribute list. This
 should only be used for subfeatures.
 
 Subfeature indexing is true by default. Set to false (0) to save lots
-of database space and speed performance.
+of database space and speed performance. You may use --nosubfeatures
+to force this.  
 END
 
 if ($FAST) {
@@ -94,6 +99,7 @@ my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store    => $store,
 							 -tmpdir   => $TMP,
 							 -fast     => $FAST,
 							 -ignore_seqregion => $IGNORE_SEQREGION,
+							 -index_subfeatures => $INDEX_SUB,
     )
   or die "Couldn't create GFF3 loader";
 

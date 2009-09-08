@@ -37,7 +37,7 @@ for this release series highlighted in BUGS.
 * Bio::DB::SeqFeature (lots of updates and changes)
     - add Pg, SQLite, and faster BerkeleyDB implementations [lstein, scain]
     - bug 2835 - patch [Dan Bolser]
-    - bug RT 44535 - patch FeatureFleLoader [Cathy Gresham]
+    - bug RT 44535 - patch FeatureFileLoader [Cathy Gresham]
 * Bio::DB::SwissProt
     - bug 2764 - idtracker() method [cjfields, courtesy Neil Saunders]
 * Bio::Factory::FTLocationFactory
