@@ -258,7 +258,10 @@ sub create_bperl_tree {
 			#set the taxa info of the tree
 			$tree->add_tag_value('taxa_label', $taxa_label) if defined($taxa_label);
 			$tree->add_tag_value('taxa_id', $taxa_id) if defined($taxa_id);
-			$tree->add_tag_value('_NexmlIO_ID', $caller->{_ID});
+
+            # TODO: should $caller->{_ID} always be defined?
+            # ATM, this is a Bio::TreeIO::nexml stream...            
+			$tree->add_tag_value('_NexmlIO_ID', $caller->{_ID}) if $caller->{_ID};
 			
 			my $taxon = $taxa->first;
 			while($taxon) {
@@ -395,8 +398,10 @@ sub create_bperl_seq {
 					   -alphabet    => $mol_type,
 					   -direct      => 1,
 					   );
-			$seq->{_Nexml_ID} = $caller->{_ID} . $taxa_id;
-			$seq->{_Nexml_matrix_ID} = $caller->{_ID} . $matrix->get_xml_id();
+            # TODO: should $caller->{_ID} always be defined?
+            # ATM, this is a Bio::SeqIO::nexml stream...            
+			$seq->{_Nexml_ID} = $caller->{_ID} ? $caller->{_ID} . $taxa_id : $taxa_id;
+			$seq->{_Nexml_matrix_ID} = $caller->{_ID} ? $caller->{_ID} . $matrix->get_xml_id() : $matrix->get_xml_id();
 			
 			#check if taxon linked to sequence if so create feature to attach to alignment
 			if ($taxa) {
