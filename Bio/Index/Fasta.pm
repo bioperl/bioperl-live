@@ -186,8 +186,14 @@ sub _index_file {
     # Main indexing loop
     while (<$FASTA>) {
         if (/^>/) {
+            
+            # the following was commented out 9/7/2009 b/c this
+            # breaks FASTA validation - cjfields
+            
             # $begin is the position of the first character after the '>'
             #my $offset = ( $^O =~ /mswin/i ) ? 0 : 1;
+            #my $begin = tell($FASTA) - length( $_ ) + $offset;
+            
             my $begin = tell($FASTA) - length( $_ );
 
             foreach my $id (&$id_parser($_)) {
