@@ -155,7 +155,10 @@ sub create_bperl_aln {
  		#continue creating an aln
 		my $aln = Bio::SimpleAlign->new();
 		my $taxa = $matrix->get_taxa();
-		$aln->{_Nexml_ID} = $caller->{_ID} . $taxa->get_xml_id;
+        
+        # TODO: should $caller->{_ID} always be defined?
+        # ATM, this is a Bio::AlignIO::nexml stream...
+		$aln->{_Nexml_ID} = $caller->{_ID}? $caller->{_ID} . $taxa->get_xml_id : $taxa->get_xml_id;
 		
 		my $aln_feats = Bio::SeqFeature::Generic->new();
 		$aln_feats->add_tag_value('NexmlIO_ID', $caller->{_ID});
@@ -239,7 +242,7 @@ sub create_bperl_tree {
  	
  	foreach my $forest (@$forests) 
  	{	
- 		my $basename = $forest->get_name();
+ 		my $basename = $forest->get_name() || '';
  		my $taxa = $forest->get_taxa();
  		my $taxa_label = $taxa->get_name();
  		my $taxa_id = $taxa->get_xml_id();
@@ -726,7 +729,7 @@ sub create_bphylo_datum {
         {
         	#get sequence id associated with taxa to compare
         	my $taxa_id = ($feat->get_tag_values('id'))[0] if $feat->has_tag('id');
-        	if ($name eq $taxa_id)
+        	if ($taxa_id && $name eq $taxa_id)
         	{
         		my $taxon_name;
         		if($feat->has_tag('my_taxon')) {
