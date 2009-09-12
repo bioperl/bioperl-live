@@ -155,7 +155,9 @@ my %example_files = (
                                 },
     evil_wrapping           => {
         'variant'       => 'sanger', # TODO: guessing on the format here...
-        'seq'           => 'AACCCGTCCCATCAAAGATTTTGGTTGGAACCCGAAAGGGTTTTGAATTCAAACCCCTTTCGGTTCCAACTATTCAATTGTTTAACTTTTTTTAAATTGATGGTCTGTTGGACCATTTGTAATAATCCCCATCGGAATTTCTTT',
+        'seq'           => 'AACCCGTCCCATCAAAGATTTTGGTTGGAACCCGAAAGGGTTTTGAATTC'.
+                           'AAACCCCTTTCGGTTCCAACTATTCAATTGTTTAACTTTTTTTAAATTGA'.
+                           'TGGTCTGTTGGACCATTTGTAATAATCCCCATCGGAATTTCTTT',
         'qual'          => '32 26 31 26 4 22 20 30 25 2 27 27 24 36 32 16 '.
                            '26 28 36 32 18 4 33 26 33 26 32 26 33 26 31 26 '.
                            '4 24 36 32 16 36 32 16 36 32 18 4 27 33 26 32 26 '.
@@ -210,7 +212,7 @@ my %conversion = (  # check conversions, particularly solexa
         'variant'       => 'sanger',
         'to_solexa'     => {
           '-seq' => 'ACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGACTGAN',
-          '-qual' => [reverse(1..93), 1],  # round trip from solexa is lossy
+          '-qual' => [ (map {62} 0..31),(reverse(1..61)),1 ],
           '-raw_quality' => '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~}|{zyxwvutsrqponmlkjihgfedcba`_^]\[ZYXWVUTSRQPONMLKJHGFECB@>;;',
           '-id' => 'Test',
           '-desc' => 'PHRED qualities from 93 to 0 inclusive',
@@ -233,8 +235,8 @@ my %conversion = (  # check conversions, particularly solexa
           '-descriptor' => 'Test PHRED qualities from 93 to 0 inclusive'
         },
     },
-    solexa_faked            => {    # needs to be checked
-        'variant'       => 'solexa',
+    solexa_faked            => {
+            'variant'       => 'solexa',
         'to_solexa'     => {'-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTNNNNNN',
           '-qual' => [qw(40 39 38 37 36 35 34 33 32 31 30 29 28 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 10 9 8 7 6 5 5 4 4 3 3 2 2 1 1)],
           '-raw_quality' => 'hgfedcba`_^]\[ZYXWVUTSRQPONMLKJIHGFEDCBA@?>=<;',
@@ -267,7 +269,7 @@ my %conversion = (  # check conversions, particularly solexa
           '-seq' => 'ACGTACGTACGTACGTACGTACGTACGTACGTACGTACGTN',
           '-qual' => [reverse(1..40), 1],  # round trip from solexa is lossy
           '-namespace' => 'illumina',
-          '-raw_quality' => 'hgfedcba`_^]\[ZYXWVUTSRQPONMLKJHGFEDB@><<',
+          '-raw_quality' => 'hgfedcba`_^]\[ZYXWVUTSRQPONMLKJHGFECB@>;;',
           '-id' => 'Test',
           '-desc' => 'PHRED qualities from 40 to 0 inclusive',
           '-descriptor' => 'Test PHRED qualities from 40 to 0 inclusive'            
@@ -290,8 +292,6 @@ my %conversion = (  # check conversions, particularly solexa
         }
     },
 );
-
-use Data::Dumper;
 
 for my $example (sort keys %conversion) {
     my $file = test_input_file('fastq', "$example.fastq");
@@ -390,7 +390,6 @@ my %error = (
         variant         => 'sanger',
         exception       => qr/Missing\ssequence\sand\/or\squality\sdata/xms,
                                 },
-
     error_trunc_in_title    => {
         variant         => 'sanger',
         exception       => qr/Missing\ssequence\sand\/or\squality\sdata/xms,

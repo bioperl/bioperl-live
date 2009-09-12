@@ -7,7 +7,7 @@ use Bio::Seq::SeqFactory;
 
 use base qw(Bio::SeqIO);
 
-sub _initialize {
+sub _initialize { 
     my($self,@args) = @_;
     $self->SUPER::_initialize(@args);
     my ($variant, $validate, $header) = $self->_rearrange([qw(VARIANT
@@ -67,7 +67,7 @@ sub next_dataset {
             $data->{-desc} = $fulldesc;
             $data->{-namespace} = $self->{qualtype};
         } elsif ($mode eq '-seq' && $line =~ m{^\+([^\n]*)}xmso) {
-			my $desc = $1;
+            my $desc = $1;
             $self->throw("No description line parsed") unless $data->{-descriptor};
             if ($desc && $data->{-descriptor} ne $desc) {
                 $self->throw("Quality descriptor [$desc] doesn't match seq descriptor ".$data->{-descriptor}.", line: $." );
@@ -104,16 +104,15 @@ sub next_dataset {
                      "length of sequence ".$data->{-seq}."\n[".length($data->{-seq})."], line: $.");
     }
     
-    # need to benchmark this vs the prior unpack("C", ...) version
-    my @qual;
-    for my $q (unpack("A1" x length($data->{-raw_quality}),
-                      $data->{-raw_quality})) {
-        $self->warn("Unknown symbol with ASCII value ".ord($q)." outside of quality range, ")
-            if ($self->{_validate_qual} &&
-                !exists($self->{chr2phred}->{$q}));
-        push @qual, $self->{chr2phred}->{$q};
-    }
-    $data->{-qual} = \@qual;
+    $data->{-qual} = [map {
+        if ($self->{_validate_qual} && !exists($self->{chr2qual}->{$_})) {
+            $self->warn("Unknown symbol with ASCII value ".ord($_)." outside of quality range")
+            # TODO: fallback?
+        }
+        $self->{qualtype} eq 'solexa' ?
+            $self->{sol2phred}->{$self->{chr2qual}->{$_}}:
+            $self->{chr2qual}->{$_};
+    } unpack("A1" x length($data->{-raw_quality}), $data->{-raw_quality})];
     return $data;
 }
 
@@ -124,50 +123,57 @@ sub write_seq {
     my ($self,@seq) = @_;
     my $var = $self->{qualtype};
     foreach my $seq (@seq) {
-		unless ($seq->isa("Bio::Seq::Quality")){
-			$self->warn("You can't write FASTQ without supplying a Bio::Seq::Quality object! ", ref($seq), "\n");
-			next;
-		}
-		my $str = $seq->seq;
-		my @qual = @{$seq->qual};
+        unless ($seq->isa("Bio::Seq::Quality")){
+            $self->warn("You can't write FASTQ without supplying a Bio::Seq::Quality object! ", ref($seq), "\n");
+            next;
+        }
+        my $str = $seq->seq;
+        my @qual = @{$seq->qual};
         
         # this should be the origin of the sequence (illumina, solexa, sanger)
         my $ns= $seq->namespace; 
         
-		my $top = $seq->display_id();
-		if (my $desc = $seq->desc()) {
-			$desc =~ s/\n//g;
-			$top .= " $desc";
-		}
-		if(length($str) == 0) {
-			$str = "\n";
-		}
+        my $top = $seq->display_id();
+        if (my $desc = $seq->desc()) {
+            $desc =~ s/\n//g;
+            $top .= " $desc";
+        }
+        if(length($str) == 0) {
+            $str = "\n";
+        }
         my $qual = '';
+        my $qual_map =
+            ($ns eq 'solexa' && $var eq 'solexa') ? $self->{phred_fp2chr} :
+            ($var eq 'solexa')                    ? $self->{phred_int2chr} :
+            $self->{qual2chr};
         
-        my $qual_map =  ($var eq 'solexa' && $ns ne 'solexa') ? 
-                       $self->{phred2chr_nonsol} :
-                       $self->{phred2chr} 
-                       ;
         my %bad_qual;
         for my $q (@qual) {
             $q = sprintf("%.0f", $q) if ($var ne 'solexa' && $ns eq 'solexa');
             if (exists $qual_map->{$q}) {
                 $qual .= $qual_map->{$q};
-                next ;
+                next;
             } else {
-                my $rep = ($q <= $self->{qual_start}) ?
-                    $qual_map->{$self->{qual_start}} : $qual_map->{$self->{qual_end}};
-                $qual .= $rep;
-                $bad_qual{$q}++;
+                # fuzzy mapping, for edited qual scores
+                my $qr = sprintf("%.0f",$q);
+                my $bounds = sprintf("%.1f-%.1f",$qr-0.5, $qr+0.5);
+                if (exists $self->{fuzzy_qual2chr}->{$bounds}) {
+                    $qual .= $self->{fuzzy_qual2chr}->{$bounds};
+                    next;
+                } else {
+                    my $rep = ($q <= $self->{qual_start}) ?
+                        $qual_map->{$self->{qual_start}} : $qual_map->{$self->{qual_end}};
+                    $qual .= $rep;
+                    $bad_qual{$q}++;
+                }
             }
         }
         if ($self->{_validate_qual} && %bad_qual) {
-            $self->warn("Data loss for $var: following values exceed max ".
-                        $self->{qual_end}.
-                        "\n".join(',',sort {$a <=> $b} keys %bad_qual))
+            $self->warn("Data loss for $var: following values not found\n".
+                        join(',',sort {$a <=> $b} keys %bad_qual))
         }
-		$self->_print("\@",$top,"\n",$str,"\n") or return;
-		$self->_print("+",($self->{_quality_header} ? $top : ''),"\n",$qual,"\n") or return;
+        $self->_print("\@",$top,"\n",$str,"\n") or return;
+        $self->_print("+",($self->{_quality_header} ? $top : ''),"\n",$qual,"\n") or return;
     }
     return 1;
 }
@@ -179,68 +185,84 @@ sub write_fastq {
 
 sub write_fasta {
     my ($self,@seq) = @_;
-	if (!exists($self->{fasta_proxy})) {
-		$self->{fasta_proxy} = Bio::SeqIO->new(-format => 'fasta', -fh => $self->_fh);
-	}
-	return $self->{fasta_proxy}->write_seq(@seq);
+    if (!exists($self->{fasta_proxy})) {
+        $self->{fasta_proxy} = Bio::SeqIO->new(-format => 'fasta', -fh => $self->_fh);
+    }
+    return $self->{fasta_proxy}->write_seq(@seq);
 }
 
 sub write_qual {
-	my ($self,@seq) = @_;
-	if (!exists($self->{qual_proxy})) {
-		$self->{qual_proxy} = Bio::SeqIO->new(-format => 'qual', -fh => $self->_fh);
-	}
-	
-	return $self->{qual_proxy}->write_seq(@seq);
+    my ($self,@seq) = @_;
+    if (!exists($self->{qual_proxy})) {
+        $self->{qual_proxy} = Bio::SeqIO->new(-format => 'qual', -fh => $self->_fh);
+    }
+    return $self->{qual_proxy}->write_seq(@seq);
 }
 
 {
     my %VARIANT = (
         sanger     => {
-            'ord_start'  => 33,
-            'ord_end'    => 126,
+            'offset'     => 33,
             'qual_start' => 0,
             'qual_end'   => 93
             },
         solexa     => {
-            'ord_start' => 59,
-            'ord_end'   => 126,
+            'offset'     => 64,
             'qual_start' => -5,
             'qual_end'   => 62
             },
         illumina   => {
-            'ord_start' => 64,
-            'ord_end'   => 126,
+            'offset'     => 64,            
             'qual_start' => 0,
             'qual_end'   => 62
             },
     );
-    
+
 sub variant {
     my ($self, $enc) = @_;
     if (defined $enc) {
         $enc = lc $enc;
         $self->throw('Not a valid FASTQ variant format') unless exists $VARIANT{$enc};
-        # cache encode/decode values for quicker accession
-		my $ct = 0;
-		($self->{qual_start}, $self->{qual_end}, 
-         $self->{ord_start}, $self->{ord_end}) =
-            @{ $VARIANT{$enc} }{qw(qual_start qual_end
-                                   ord_start ord_end)};
-		for my $c (($self->{ord_start})..($self->{ord_end})) {
-			my $char = chr($c);
-			my $score = $self->{qual_start} + $ct++;
-			if ($enc eq 'solexa') {
-				$score = 10 * log(1 + 10 ** ($score / 10.0)) / log(10);
-                # cache a rounded version when needed (i.e. sanger/illumina->solexa)
-                $self->{phred2chr_nonsol}->{int($score)} = $char;
-			}
-			$self->{chr2phred}->{$char} = $score;
-			$self->{phred2chr}->{$score} = $char;
-		}
+        $self->_init_tables($enc);
         $self->{qualtype} = $enc;
     }
     return $self->{qualtype};
+}
+
+sub _init_tables {
+    my ($self, $enc) = @_;
+    # cache encode/decode values for quicker accession
+    ($self->{qual_start}, $self->{qual_end}, $self->{qual_offset}) =
+        @{ $VARIANT{$enc} }{qw(qual_start qual_end offset)};
+    if ($enc eq 'solexa') {
+        for my $q ($self->{qual_start} .. $self->{qual_end}) {
+            my $char = chr($q + $self->{qual_offset});
+            $self->{chr2qual}->{$char} = $q;
+            $self->{qual2chr}->{$q} = $char;
+            my $s2p = 10 * log(1 + 10 ** ($q / 10.0)) / log(10);
+            
+            # solexa <=> solexa mapping speedup (retain floating pt precision)
+            $self->{phred_fp2chr}->{$s2p} = $char;  
+            $self->{sol2phred}->{$q} = $s2p;
+            
+            # this is for mapping values fuzzily (fallback)
+            $self->{fuzzy_qual2chr}->{sprintf("%.1f-%.1f",$q - 0.5, $q + 0.5)} = $char;            
+
+            next if $q < 0; # skip loop; PHRED scores greater than 0
+            my $p2s = sprintf("%.0f",($q <= 1) ? -5 : 10 * log(-1 + 10 ** ($q / 10.0)) / log(10));
+            # sanger/illumina PHRED <=> Solexa char mapping speedup
+            $self->{phred_int2chr}->{$q} = chr($p2s + $self->{qual_offset});  
+        }
+    } else {
+        for my $c ($self->{qual_start}..$self->{qual_end}) {
+            # PHRED mapping
+            my $char = chr($c + $self->{qual_offset});
+            $self->{chr2qual}->{$char} = $c;
+            $self->{qual2chr}->{$c} = $char;
+            # this is for mapping values not found with above
+            $self->{fuzzy_qual2chr}->{sprintf("%.1f-%.1f",$c - 0.5, $c + 0.5)} = $char;
+        }
+    }
 }
 
 }
@@ -500,7 +522,7 @@ methods. Internal methods are usually preceded with a _
  Args    : Bio::Seq object
  Note    : This method does not currently delegate to Bio::SeqIO::fasta
            (maybe it should?).  Not sure whether we should keep this as a
-		   convenience method.
+           convenience method.
  Status  : Unstable
 
 =head2 write_qual
@@ -512,7 +534,7 @@ methods. Internal methods are usually preceded with a _
  Args    : Bio::Seq::Quality object
  Note    : This method does not currently delegate to Bio::SeqIO::qual
            (maybe it should?).  Not sure whether we should keep this as a
-		   convenience method.
+           convenience method.
  Status  : Unstable
  
 =head2 validate
