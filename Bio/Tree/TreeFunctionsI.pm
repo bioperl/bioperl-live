@@ -716,7 +716,21 @@ sub simplify_to_leaves_string {
 }
 
 # safe tree clone that doesn't seg fault
-sub _clone {
+
+=head2 clone()
+
+ Title   : clone
+ Alias   : _clone
+ Usage   : $tree_copy = $tree->clone();
+           $subtree_copy = $tree->clone($internal_node);
+ Function: Safe tree clone that doesn't segfault
+           (of Sendu)
+ Returns : Bio::Tree::Tree object
+ Args    : [optional] $start_node, Bio::Tree::Node object
+
+=cut
+
+sub clone {
     my ($self, $parent, $parent_clone) = @_;
     $parent ||= $self->get_root_node;
     $parent_clone ||= $self->_clone_node($parent);
@@ -731,6 +745,9 @@ sub _clone {
     my $tree = $self->new(-root => $parent_clone);
     return $tree;
 }
+
+# alias
+sub _clone { shift->clone(@_) }
 
 # safe node clone that doesn't seg fault, but deliberately loses ancestors and
 # descendents
