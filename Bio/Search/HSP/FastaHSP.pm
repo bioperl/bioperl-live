@@ -178,7 +178,7 @@ sub get_aln {
                       '-frameshifts' => (exists $self->{seqinds}{_frameshiftRes_query}) ?
                             $self->{seqinds}{_frameshiftRes_query} : undef,
                       '-mapping' => [1, $self->{_query_mapping}],
-                      -verbose => 1
+                      -verbose => $self->verbose
 				      );
     $seqonly = $hs;
     $seqonly =~ s/\s+//g;
@@ -189,7 +189,7 @@ sub get_aln {
                       '-frameshifts' => exists $self->{seqinds}{_frameshiftRes_sbjct} ?
                             $self->{seqinds}{_frameshiftRes_sbjct} : undef,
                       '-mapping' => [1, $self->{_hit_mapping}],
-                      -verbose => 1
+                      -verbose => $self->verbose
 				      );
     $aln->add_seq($query);
     $aln->add_seq($hit);
