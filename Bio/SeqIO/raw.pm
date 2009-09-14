@@ -97,8 +97,10 @@ use base qw(Bio::SeqIO);
 
 sub _initialize {
     my($self,@args) = @_;
-    #$self->{record_sep} = (defined $gulp) ? undef : $/;
     $self->SUPER::_initialize(@args);
+    my ($variant) = $self->_rearrange([qw(VARIANT)], @args);
+    $variant ||= 'multiple';
+    $self->variant($variant);
     if( ! defined $self->sequence_factory ) {
         $self->sequence_factory(Bio::Seq::SeqFactory->new
                     (-verbose => $self->verbose(),
