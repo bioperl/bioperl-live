@@ -17,183 +17,185 @@ http://www.bioperl.org/wiki/Change_log.  Bugs remaining to be addressed
 are online at http://bugzilla.open-bio.org, with specific bugs intended
 for this release series highlighted in BUGS.
 
-1.6.1 September 6, 2009
-
-* Bio::Align::DNAStatistics
-    - fix divide by zero problem [jason]
-* Bio::AlignIO::*
-    - bug 2813 - fix faulty logic to detect end-of-stream [cjfields]
-* Bio::AlignIO::stockholm
-    - bug 2796 - fix faulty logic to detect end-of-stream [cjfields]
-* Bio::Assembly::Tools::ContigSpectrum
-    - function to score contig spectrum [fangly]
-* Bio::DB::EUtilities
-    - small updates [cjfields]
-* Bio::DB::Fasta
-    - berkeleydb database now autoindexes wig files and locks correctly [lstein]
-* Bio::DB::HIV
-    - various small updates for stability; tracking changes to LANL
-      database interface [maj]
-* Bio::DB::SeqFeature (lots of updates and changes)
-    - add Pg, SQLite, and faster BerkeleyDB implementations [lstein, scain]
-    - bug 2835 - patch [Dan Bolser]
-    - bug RT 44535 - patch FeatureFileLoader [Cathy Gresham]
-* Bio::DB::SwissProt
-    - bug 2764 - idtracker() method [cjfields, courtesy Neil Saunders]
-* Bio::Factory::FTLocationFactory
-    - mailing list bug fix [cjfields]
-* Bio::LocatableSeq
-    - performance work on column_from_residue_number [hartzell]
-* Bio::Matrix::IO::phylip
-    - bug 2800 - patch to fix phylip parsing [Wei Zou]
-* Bio::Nexml
-    - Google Summer of Code project from Chase Miller - parsers for Nexml file
-      format [maj, chmille4]
-* Bio::PopGen
-    - Make Individual, Population, Marker objects AnnotatableI [maj]
-    - simplify LD code [jason]
-* Bio::RangeI
-    - deal with empty intersection [jason]
-* Bio::Restriction
-    - significant overhaul of Bio::Restriction system: complete support for
-      external and non-palindromic cutters. [maj]
-* Bio::Root::Build
-    - CPANPLUS support, no automatic installation [sendu]
-* Bio::Root::IO
-    - allow IO::String (regression fix) [cjfields]
-    - catch unintentional undef values [cjfields]
-    - throw if non-fh is passed to -fh [maj]
-* Bio::Root::Root/RootI
-    - small debugging and core fixes [cjfields]
-* Bio::Root::Test
-    - bug RT 48813 - fix for Strawberry Perl bug [kmx]
-* Bio::Root::Utilities
-    - bug 2737 - better warnings [cjfields]
-* Bio::Search
-    - tiling completely refactored, HOWTO added [maj]
-      NOTE : Bio::Search::Hit::* classes do not use this code directly; we will
-           deprecate usage of the older tiling code in the next BioPerl release
-    - small fixes [cjfields]
-* Bio::SearchIO
-    - Infernal 1.0 output now parsed [cjfields]
-    - new parser for gmap -f9 output [hartzell]
-    - bug 2852 - fix infinite loop in some output [cjfields]
-    - blastxml output now passes all TODO tests [cjfields]
-    - bug 2346, 2850 - psl and exonerate parsing fixes [rbuels, jhannah, bvecchi, YAPC hackathon]
-    - RT 44782 - GbrowseGFF writer now catches evalues [Allen Day]
-    - bug 2575 - add two columns of additional output to HSPTableWriter [cjfields]
-* Bio::Seq::LargePrimarySeq
-    - delete tempdirs [cjfields]
-    - bug fixes [rbuels, jhannah, bvecchi, YAPC hackathon]
-* Bio::Seq::Quality
-    - extract regions based on quality threshold value [Dan Bolser, heikki]
-    - bug 2847 - resolve threshold issue (rbuels, jhannah, bvecchi)
-* Bio::SeqFeature::Lite
-    - various Bio::DB::SeqFeature-related fixes [lstein]
-* Bio::SeqFeature::Tools::TypeMapper
-    - additional terms for GenBank to SO map [scain]
-* Bio::SeqIO::chadoxml
-    - bug 2785 - patch to get this working for bp_seqconvert [cjfields]
-* Bio::SeqIO::embl
-    - support for CDS records [dave_messina, Sylvia]
-* Bio::SeqIO::fastq
-    - complete refactoring to handle all FASTQ variants, perform validation,
-      write output. API now conforms with other Bio* parsers and the rest of
-      Bio::SeqIO (e.g. write_seq() creates fastq output, not fasta output).
-      [cjfields]
-* Bio::SeqIO::genbank
-    - bug 2784 - fix DBSOURCE issue [Phillip Garland]
-    - bug RT 44536 - support for UniProt/UniProtKB tests [cjfields]
-* Bio::SeqIO::largefasta
-    - parser returns a Bio::Seq::LargePrimarySeq [jhannah]
-* Bio::SeqIO::raw
-    - add option for 'single' and 'multiple'
-* Bio::SeqIO::scf
-    - bug 2881 - fix scf round-tripping [Adam Sj¿gren]
-* Bio::SeqUtils
-    - bug 2766, 2810 - copy over tags from features, doc fixes [David Jackson]
-* Bio::SimpleAlign
-    - bug 2793 - patch for add_seq index issue [jhannah, maj]
-    - bug 2801 - throw if args are required [cjfields]
-    - bug 2805 - uniq_seq returns SimpleAlign and hash ref of sequence types
-      [Tristan Lefebure, maj]
-    - bug fixes from YAPC hackathon [rbuels, jhannah, bvecchi]
-    - fix POD and add get_SeqFeatures filter [maj]
-* Bio::Tools::dpAlign
-    - add support for LocatableSeq [ymc]
-    - to be moved to a separate distribution [cjfields, rbuels]
-* Bio::Tools::EUtilities
-    - fix for two bugs from mail list [Adam Whitney, cjfields]
-    - add generic ItemContainerI interface for containing same methods
-      [cjfields]
-* Bio::Tools::HMM
-    - fix up code, add more warnings [cjfields]
-    - to be moved to a separate distribution [cjfields, rbuels]
-* Bio::Tools::Primer3
-    - bug 2862 - fenceposting issue fixed [maj]
-* Bio::Tools::Run::RemoteBlast
-    - tests for remote RPS-BLAST [mcook]
-* Bio::Tools::SeqPattern
-    - bug 2844 - backtranslate method [rbuels, jhannah, bvecchi]
-* Bio::Tools::tRNAscanSE
-    - use 'gene' and 'exon' for proper SO, ensure ID is unique [jason]
-* Bio::Tree::*
-    - bug 2456 - fix reroot_tree(), added create_node_on_branch() [maj]
-* Bio::Tree::Statistics
-    - several methods for calculating Fitch-based score, internal trait values,
-      statratio(), sum of leaf distances [heikki]
-* Bio::Tree::Tree
-    - bug 2869 - add docs indicating edge case where nodes can be prematurely
-      garbage-collected [cjfields]
-    - add as_text() function to create Tree as a string in specified format
-      [maj]
-* Bio::Tree::TreeFunctionsI
-    - bug 2877 - fix bug where bootstrap assigned to the wrong node [Tristan
-      Lefebure, maj]
-* Bio::TreeIO::newick
-    - fix small semicolon issue [cjfields]
-* scripts
-    - update to bp_seqfeature_load for SQLite [lstein]
-    - hivq.pl - commmand-line interface to Bio::DB::HIV [maj]
-    - fastam9_to_table - fix for MPI output [jason]
-    - gccalc - total stats [jason]
-* General Stuff
-    - POD cleanup re: FEEDBACK section [maj]
-    - Use of no_* methods (indicating 'number of something') is deprecated in
-      favor of num_* [cjfields]
-    - lots of new tests for the above bugs and refactors [everyone!]
-    - new template for Komodo text editor [cjfields]
+1.6.0_1 Sept. 15, 2009
+    * Bio::Align::DNAStatistics
+        - fix divide by zero problem [jason]
+    * Bio::AlignIO::*
+        - bug 2813 - fix faulty logic to detect end-of-stream [cjfields]
+    * Bio::AlignIO::stockholm
+        - bug 2796 - fix faulty logic to detect end-of-stream [cjfields]
+    * Bio::Assembly::Tools::ContigSpectrum
+        - function to score contig spectrum [fangly]
+    * Bio::DB::EUtilities
+        - small updates [cjfields]
+    * Bio::DB::Fasta
+        - berkeleydb database now autoindexes wig files and locks correctly
+          [lstein]
+    * Bio::DB::HIV
+        - various small updates for stability; tracking changes to LANL
+          database interface [maj]
+    * Bio::DB::SeqFeature (lots of updates and changes)
+        - add Pg, SQLite, and faster BerkeleyDB implementations [lstein, scain]
+        - bug 2835 - patch [Dan Bolser]
+        - bug RT 44535 - patch FeatureFileLoader [Cathy Gresham]
+    * Bio::DB::SwissProt
+        - bug 2764 - idtracker() method [cjfields, courtesy Neil Saunders]
+    * Bio::Factory::FTLocationFactory
+        - mailing list bug fix [cjfields]
+    * Bio::LocatableSeq
+        - performance work on column_from_residue_number [hartzell]
+    * Bio::Matrix::IO::phylip
+        - bug 2800 - patch to fix phylip parsing [Wei Zou]
+    * Bio::Nexml
+        - Google Summer of Code project from Chase Miller - parsers for Nexml
+          file format [maj, chmille4]
+    * Bio::PopGen
+        - Make Individual, Population, Marker objects AnnotatableI [maj]
+        - simplify LD code [jason]
+    * Bio::RangeI
+        - deal with empty intersection [jason]
+    * Bio::Restriction
+        - significant overhaul of Bio::Restriction system: complete support for
+          external and non-palindromic cutters. [maj]
+    * Bio::Root::Build
+        - CPANPLUS support, no automatic installation [sendu]
+    * Bio::Root::IO
+        - allow IO::String (regression fix) [cjfields]
+        - catch unintentional undef values [cjfields]
+        - throw if non-fh is passed to -fh [maj]
+    * Bio::Root::Root/RootI
+        - small debugging and core fixes [cjfields]
+    * Bio::Root::Test
+        - bug RT 48813 - fix for Strawberry Perl bug [kmx]
+    * Bio::Root::Utilities
+        - bug 2737 - better warnings [cjfields]
+    * Bio::Search
+        - tiling completely refactored, HOWTO added [maj]
+          NOTE : Bio::Search::Hit::* classes do not use this code directly; we
+          will deprecate usage of the older tiling code in the next BioPerl
+          release
+        - small fixes [cjfields]
+    * Bio::SearchIO
+        - Infernal 1.0 output now parsed [cjfields]
+        - new parser for gmap -f9 output [hartzell]
+        - bug 2852 - fix infinite loop in some output [cjfields]
+        - blastxml output now passes all TODO tests [cjfields]
+        - bug 2346, 2850 - psl and exonerate parsing fixes [rbuels, jhannah, bvecchi, YAPC hackathon]
+        - RT 44782 - GbrowseGFF writer now catches evalues [Allen Day]
+        - bug 2575 - add two columns of additional output to HSPTableWriter [cjfields]
+    * Bio::Seq::LargePrimarySeq
+        - delete tempdirs [cjfields]
+        - bug fixes [rbuels, jhannah, bvecchi, YAPC hackathon]
+    * Bio::Seq::Quality
+        - extract regions based on quality threshold value [Dan Bolser, heikki]
+        - bug 2847 - resolve threshold issue (rbuels, jhannah, bvecchi)
+    * Bio::SeqFeature::Lite
+        - various Bio::DB::SeqFeature-related fixes [lstein]
+    * Bio::SeqFeature::Tools::TypeMapper
+        - additional terms for GenBank to SO map [scain]
+    * Bio::SeqIO::chadoxml
+        - bug 2785 - patch to get this working for bp_seqconvert [cjfields]
+    * Bio::SeqIO::embl
+        - support for CDS records [dave_messina, Sylvia]
+    * Bio::SeqIO::fastq
+        - complete refactoring to handle all FASTQ variants, perform validation,
+          write output. API now conforms with other Bio* parsers and the rest of
+          Bio::SeqIO (e.g. write_seq() creates fastq output, not fasta output).
+          [cjfields]
+    * Bio::SeqIO::genbank
+        - bug 2784 - fix DBSOURCE issue [Phillip Garland]
+        - bug RT 44536 - support for UniProt/UniProtKB tests [cjfields]
+    * Bio::SeqIO::largefasta
+        - parser returns a Bio::Seq::LargePrimarySeq [jhannah]
+    * Bio::SeqIO::raw
+        - add option for 'single' and 'multiple'
+    * Bio::SeqIO::scf
+        - bug 2881 - fix scf round-tripping [Adam Sj¿gren]
+    * Bio::SeqUtils
+        - bug 2766, 2810 - copy over tags from features, doc fixes [David
+          Jackson]
+    * Bio::SimpleAlign
+        - bug 2793 - patch for add_seq index issue [jhannah, maj]
+        - bug 2801 - throw if args are required [cjfields]
+        - bug 2805 - uniq_seq returns SimpleAlign and hash ref of sequence types
+          [Tristan Lefebure, maj]
+        - bug fixes from YAPC hackathon [rbuels, jhannah, bvecchi]
+        - fix POD and add get_SeqFeatures filter [maj]
+    * Bio::Tools::dpAlign
+        - add support for LocatableSeq [ymc]
+        - to be moved to a separate distribution [cjfields, rbuels]
+    * Bio::Tools::EUtilities
+        - fix for two bugs from mail list [Adam Whitney, cjfields]
+        - add generic ItemContainerI interface for containing same methods
+          [cjfields]
+    * Bio::Tools::HMM
+        - fix up code, add more warnings [cjfields]
+        - to be moved to a separate distribution [cjfields, rbuels]
+    * Bio::Tools::Primer3
+        - bug 2862 - fenceposting issue fixed [maj]
+    * Bio::Tools::Run::RemoteBlast
+        - tests for remote RPS-BLAST [mcook]
+    * Bio::Tools::SeqPattern
+        - bug 2844 - backtranslate method [rbuels, jhannah, bvecchi]
+    * Bio::Tools::tRNAscanSE
+        - use 'gene' and 'exon' for proper SO, ensure ID is unique [jason]
+    * Bio::Tree::*
+        - bug 2456 - fix reroot_tree(), added create_node_on_branch() [maj]
+    * Bio::Tree::Statistics
+        - several methods for calculating Fitch-based score, internal trait
+          values, statratio(), sum of leaf distances [heikki]
+    * Bio::Tree::Tree
+        - bug 2869 - add docs indicating edge case where nodes can be
+          prematurely garbage-collected [cjfields]
+        - add as_text() function to create Tree as a string in specified format
+          [maj]
+    * Bio::Tree::TreeFunctionsI
+        - bug 2877 - fix bug where bootstrap assigned to the wrong node [Tristan
+          Lefebure, maj]
+    * Bio::TreeIO::newick
+        - fix small semicolon issue [cjfields]
+    * scripts
+        - update to bp_seqfeature_load for SQLite [lstein]
+        - hivq.pl - commmand-line interface to Bio::DB::HIV [maj]
+        - fastam9_to_table - fix for MPI output [jason]
+        - gccalc - total stats [jason]
+    * General Stuff
+        - POD cleanup re: FEEDBACK section [maj]
+        - Use of no_* methods (indicating 'number of something') is deprecated
+          in favor of num_* [cjfields]
+        - lots of new tests for the above bugs and refactors [everyone!]
+        - new template for Komodo text editor [cjfields]
     
 1.6.0 Winter 2009
-
-* Feature/Annotation rollback
-    - Problematic changes introduced prior to the 1.5 release have been rolled
-      back.  These changes led to subtle bugs involving operator overloading
-      and interface methods.
-    - Behavior is very similar to that for BioPerl 1.4, with tag values being
-      stored generically as simple scalars.  Results in a modest speedup.
-* Bio::Graphics
-    - Split into a separate distribution on CPAN, primarily so development
-      isn't reliant on a complete BioPerl release.
-    - Bio::Graphics::Pictogram has been renamed to Bio::Draw::Pictogram but
-      is only available via Subversion (via bioperl-live main trunk)
-* Bio::Root::Test
-    - Common test bed for all BioPerl modules
-* Bio::Root::Build
-    - Common Module::Build-based subclass for all BioPerl modules
-* Bio::DB::EUtilities
-    - Complete refactoring to split up parsing (Bio::Tools::EUtilities),
-      parameter handling (Bio::Tools::EUtilities::EUtilParameters),
-      and user agent request posting and retrieval
-* Test implementation and reorganization
-    - Tests have been reorganized into groups based on classes or use
-      cases.
-    - Automated test coverage is now online:
-      http://www.bioperl.org/wiki/Test_Coverage
-    - After this release, untested modules will be moved into a
-      separate developer distribution until tests can be derived.
-      Also, new modules to be added are expected to have a test suite
-      and adequate test coverage.
+    * Feature/Annotation rollback
+        - Problematic changes introduced prior to the 1.5 release have been
+          rolled back. These changes led to subtle bugs involving operator
+          overloading and interface methods.
+        - Behavior is very similar to that for BioPerl 1.4, with tag values
+          being stored generically as simple scalars. Results in a modest
+          speedup.
+    * Bio::Graphics
+        - Split into a separate distribution on CPAN, primarily so development
+          isn't reliant on a complete BioPerl release.
+        - Bio::Graphics::Pictogram has been renamed to Bio::Draw::Pictogram but
+          is only available via Subversion (via bioperl-live main trunk)
+    * Bio::Root::Test
+        - Common test bed for all BioPerl modules
+    * Bio::Root::Build
+        - Common Module::Build-based subclass for all BioPerl modules
+    * Bio::DB::EUtilities
+        - Complete refactoring to split up parsing (Bio::Tools::EUtilities),
+          parameter handling (Bio::Tools::EUtilities::EUtilParameters),
+          and user agent request posting and retrieval
+    * Test implementation and reorganization
+        - Tests have been reorganized into groups based on classes or use
+          cases.
+        - Automated test coverage is now online:
+          http://www.bioperl.org/wiki/Test_Coverage
+        - After this release, untested modules will be moved into a
+          separate developer distribution until tests can be derived.
+          Also, new modules to be added are expected to have a test suite
+          and adequate test coverage.
 
 1.5.2 Developer release
 
