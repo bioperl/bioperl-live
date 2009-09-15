@@ -898,8 +898,11 @@ sub slurp_gff_file {
        Bio::Root::Root->throw("Must have a filehandle");
    }
 
-   Bio::Root::Root->warn("deprecated method slurp_gff_file() called in Bio::SeqFeature::Generic. Use Bio::Tools::GFF instead.");
-  
+   Bio::Root::Root->deprecated( -message => "deprecated method slurp_gff_file() called in Bio::SeqFeature::Generic. Use Bio::Tools::GFF instead.",
+                                -warn_version  => '1.005',
+                                -throw_version => '1.007',
+                              );
+
    while(<$f>) {
        my $sf = Bio::SeqFeature::Generic->new('-gff_string' => $_);
        push(@out, $sf);
