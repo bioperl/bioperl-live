@@ -106,7 +106,7 @@ sub next_dataset {
     
     $data->{-qual} = [map {
         if ($self->{_validate_qual} && !exists($self->{chr2qual}->{$_})) {
-            $self->warn("Unknown symbol with ASCII value ".ord($_)." outside of quality range")
+            $self->throw("Unknown symbol with ASCII value ".ord($_)." outside of quality range")
             # TODO: fallback?
         }
         $self->{qualtype} eq 'solexa' ?
