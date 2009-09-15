@@ -151,6 +151,23 @@ sub num_of_results {
     return scalar keys %{shift->{'_genotypes'}};
 }
 
+=head2 annotation
+
+ Title   : annotation
+ Usage   : my $annotation_collection = $ind->annotation;
+ Function: Get/set a Bio::AnnotationCollectionI for this individual
+ Returns : Bio::AnnotationCollectionI object
+ Args    : [optional set] Bio::AnnotationCollectionI object
+
+=cut
+
+sub annotation{
+   my ($self, $arg) = @_;
+   return $self->{_annotation} unless $arg;
+   $self->throw("Bio::AnnotationCollectionI required for argument") unless
+       ref($arg) && $arg->isa('Bio::AnnotationCollectionI');
+   return $self->{_annotation} = $arg;
+}
 
 =head2 add_Genotype
 

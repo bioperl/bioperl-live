@@ -146,6 +146,7 @@ sub new {
 sub others {
     my $self = shift;
     push @{$self->{_others}}, @_ if @_;
+    return unless $self->{_others};
     return @{$self->{'_others'}};
 }
 

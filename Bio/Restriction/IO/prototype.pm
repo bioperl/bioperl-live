@@ -1,4 +1,4 @@
-# $Id: prototype.pm 14572 2008-02-29 05:52:03Z cjfields $
+# $Id$
 #
 # BioPerl module for Bio::Restriction::IO::prototype
 #

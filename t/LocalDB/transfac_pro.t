@@ -177,9 +177,9 @@ my $tax_db = Bio::DB::Taxonomy->new(-source => 'flatfile',
         ok my $aln = $db->get_aln($matrix_id);
         isa_ok $aln, 'Bio::SimpleAlign';
         is $aln->length, 12;
-        is $aln->no_residues, 132;
+        is $aln->num_residues, 132;
         ok $aln->is_flush;
-        is $aln->no_sequences, 11;
+        is $aln->num_sequences, 11;
         my @ids = qw(R05108 R05109 R05110 R05111 R05112 R05113 R05114 R05115 R05116 R05117 R05118);
         foreach my $seq ($aln->each_alphabetically) {
             is $seq->id, shift(@ids);
@@ -188,7 +188,7 @@ my $tax_db = Bio::DB::Taxonomy->new(-source => 'flatfile',
         ok ! $db->get_aln('M00001'); # no seqs in db
         ok $aln = $db->get_aln('M00001', 1); # force to find seqs, store in db
         ok $aln = $db->get_aln('M00001'); # seqs now in db
-        is $aln->no_sequences, 5;
+        is $aln->num_sequences, 5;
 		
         ($matrix_id) = $db->get_matrix_ids(-name => 'MyoD');
         is $matrix_id, 'M00001';

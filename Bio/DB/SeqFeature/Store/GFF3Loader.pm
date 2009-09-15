@@ -686,7 +686,6 @@ sub build_object_tree_in_tables {
       die $self->throw("$load_id doesn't have a primary id") 
 	  unless defined $parent_id;
 
-
       my @children  = map {$helper->local2global($_)} @$children;
       # this updates the table that keeps track of parent/child relationships,
       # but does not update the parent object -- so (start,end) had better be right!!!

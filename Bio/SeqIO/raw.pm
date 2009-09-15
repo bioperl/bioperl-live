@@ -96,13 +96,15 @@ use Bio::Seq::SeqFactory;
 use base qw(Bio::SeqIO);
 
 sub _initialize {
-  my($self,@args) = @_;
-  $self->SUPER::_initialize(@args);
-  if( ! defined $self->sequence_factory ) {
-      $self->sequence_factory(Bio::Seq::SeqFactory->new
-			      (-verbose => $self->verbose(),
-			       -type => 'Bio::Seq'));
-  }
+    my($self,@args) = @_;
+    #$self->{record_sep} = (defined $gulp) ? undef : $/;
+    $self->SUPER::_initialize(@args);
+    if( ! defined $self->sequence_factory ) {
+        $self->sequence_factory(Bio::Seq::SeqFactory->new
+                    (-verbose => $self->verbose(),
+                     -type => 'Bio::Seq'));
+    }
+    $self->variant;
 }
 
 =head2 next_seq
@@ -117,17 +119,19 @@ sub _initialize {
 =cut
 
 sub next_seq{
-   my ($self,@args) = @_;
-   ## When its 1 sequence per line with no formatting at all,
-   ## grabbing it should be easy :)
-
-   my $nextline = $self->_readline();
-   return unless defined $nextline;
-
-   my $sequence = uc($nextline);
-   $sequence =~ s/\W//g;
-
-   return  $self->sequence_factory->create(-seq => $sequence);
+    my ($self,@args) = @_;
+    ## When its 1 sequence per line with no formatting at all,
+    ## grabbing it should be easy :)
+ 
+    ## adding an option to assume the file is one sequence
+    local $/ = $self->{record_separator};
+    my $nextline = $self->_readline();
+    return unless defined $nextline;
+ 
+    my $sequence = uc($nextline);
+    $sequence =~ s/\W//g;
+    return unless $sequence;
+    return $self->sequence_factory->create(-seq => $sequence) if $sequence;
 }
 
 =head2 write_seq
@@ -142,14 +146,14 @@ sub next_seq{
 =cut
 
 sub write_seq {
-   my ($self,@seq) = @_;
-   foreach my $seq (@seq) {
-       $self->throw("Must provide a valid Bio::PrimarySeqI object")
-	   unless defined $seq && ref($seq) && $seq->isa('Bio::PrimarySeqI');
-     $self->_print($seq->seq, "\n") or return;
-   }
-   $self->flush if $self->_flush_on_write && defined $self->_fh;
-   return 1;
+    my ($self,@seq) = @_;
+    foreach my $seq (@seq) {
+        $self->throw("Must provide a valid Bio::PrimarySeqI object")
+            unless defined $seq && ref($seq) && $seq->isa('Bio::PrimarySeqI');
+        $self->_print($seq->seq, "\n") or return;
+    }
+    $self->flush if $self->_flush_on_write && defined $self->_fh;
+    return 1;
 }
 
 =head2 write_qual
@@ -164,21 +168,56 @@ sub write_seq {
 =cut
 
 sub write_qual {
-   my ($self,@seq) = @_;
-   my @qual = ();
-   foreach (@seq) {
-     unless ($_->isa("Bio::Seq::Quality")){
-        warn("You cannot write raw qualities without supplying a Bio::Seq::Quality object! You passed a ", ref($_), "\n");
-        next;
-     }
-     @qual = @{$_->qual};
-     if(scalar(@qual) == 0) {
-	    $qual[0] = "\n";
-     }
-
-     $self->_print (join " ", @qual,"\n") or return;
-
-   }
-   return 1;
+    my ($self,@seq) = @_;
+    my @qual = ();
+    foreach (@seq) {
+        unless ($_->isa("Bio::Seq::Quality")){
+           warn("You cannot write raw qualities without supplying a Bio::Seq::Quality object! You passed a ", ref($_), "\n");
+           next;
+        }
+        @qual = @{$_->qual};
+        if(scalar(@qual) == 0) {
+           $qual[0] = "\n";
+        }
+        $self->_print (join " ", @qual,"\n") or return;
+    }
+    return 1;
 }
+
+=head2 variant
+
+ Title   : variant
+ Usage   : $format  = $obj->variant();
+ Function: Get and set method for the sequence variant.  For raw sequence, this
+           indicates whether to treat the input as multiple sequences (the
+           default) or as a single sequence.
+
+           Current values accepted are:
+
+            'single'    single sequence
+            'multiple'  multiple sequences (default)
+ Returns : string
+ Args    : new value, string
+
+=cut
+
+sub variant {
+    my ($self, $var) = @_;
+    if (defined $var || !defined $self->{variant}) {
+        $var ||= 'multiple';
+        $var = lc $var;
+        $self->throw("Accepted raw format variants: 'single', 'multiple'") unless
+            $var eq 'single' || $var eq 'multiple';
+        $self->{record_separator} = $var eq 'single' ? undef : $/;
+        $self->{variant} = $var;
+    }
+    return $self->{variant};
+}
+
+# private method for testing record separator
+
+sub _separator {
+    shift->{record_separator};
+}
+
 1;

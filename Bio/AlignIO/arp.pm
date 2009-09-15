@@ -181,7 +181,7 @@ sub next_aln {
         }
     }
     # alignments only returned if they contain sequences
-    return $aln if $aln->no_sequences;
+    return $aln if $aln->num_sequences;
     return;
 }
 

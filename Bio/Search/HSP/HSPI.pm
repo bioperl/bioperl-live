@@ -672,6 +672,7 @@ sub matches {
         ## Get data for the whole alignment.
         push @data, ($self->num_identical, $self->num_conserved);
     } else {
+
         ## Get the substring representing the desired sub-section of aln.
         $beg ||= 0;
         $end ||= 0;
@@ -681,20 +682,34 @@ sub matches {
         
         if($end > $stop) { $end = $stop; }
         if($beg < $start) { $beg = $start; }
+
+	# now with gap handling! /maj
+	my $match_str = $self->seq_str('match');
+	if ($self->gaps) {
+	    # strip the homology string of gap positions relative
+	    # to the target type
+	    $match_str = $self->seq_str('match');
+	    my $tgt   = $self->seq_str($seqType);
+	    my $encode = $match_str ^ $tgt;
+	    my $zap = '-'^' ';
+	    $encode =~ s/$zap//g;
+	    $tgt =~ s/-//g;
+	    $match_str = $tgt ^ $encode;
+	}
         
         ## ML: START fix for substr out of range error ------------------
         my $seq = "";
         if (($self->algorithm =~ /TBLAST[NX]/) && ($seqType eq 'sbjct'))
         {
-            $seq = substr($self->seq_str('match'),
+            $seq = substr($match_str,
                           int(($beg-$start)/3), 
                           int(($end-$beg+1)/3));
 
         } elsif (($self->algorithm =~ /T?BLASTX/) && ($seqType eq 'query')) {
-            $seq = substr($self->seq_str('match'),
+            $seq = substr($match_str,
                           int(($beg-$start)/3), int(($end-$beg+1)/3));
         } else {
-            $seq = substr($self->seq_str('match'), 
+            $seq = substr($match_str, 
                           $beg-$start, ($end-$beg+1));
         }
         ## ML: End of fix for  substr out of range error -----------------

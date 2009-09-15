@@ -61,6 +61,7 @@ Rob Edwards, redwards@utmem.edu
 =head1 CONTRIBUTORS
 
 Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
+Mark A. Jensen, maj-at-fortinbras-dot-us
 
 =head1 APPENDIX
 
@@ -87,12 +88,11 @@ use base qw(Bio::Restriction::IO::base);
  Title   : read
  Usage   : $renzs = $stream->read
  Function: reads all the restrction enzymes from the stream
- Returns : a Bio::Restriction::Restriction object
+ Returns : a Bio::Restriction::IO object
  Args    : none
 
-Internally creates a hash of enzyme information which is passed on to
-_create_enzyme method. See
-L<Bio::Restriction::IO::base::_create_enzyme>.
+Internally creates a hash of enzyme information which is passed on to 
+L<Bio::Restriction::Enzyme::new>.
 
 =cut
 
@@ -124,34 +124,27 @@ sub read {
         }
         next unless $name;
 
-        # four cut enzymes are not in this format
-        my $precut;
-        if ($site =~ m/^\((\d+\/\d+)\)[ATGCN]+/) {
-            $precut=$1;
-            $site =~ s/\($precut\)//;
-        }
+#         # four cut enzymes are not in this format
+#         my $precut;
+#         if ($site =~ m/^\((\d+\/\d+)\)[ATGCN]+/) {
+#             $precut=$1;
+#             $site =~ s/\($precut\)//;
+#         }
         # -------------- cut ---------------
+
+	# this regexp now parses all possible components
+	# $1 : (s/t) or undef 
+	# $2 : [site]
+	# $3 : (m/n) or undef /maj
+
+	my ($precut, $recog, $postcut) = ( $site =~ m/^(?:\((\w+\/\w+)\))?([\w^]+)(?:\((\w+\/\w+)\))?/ );
+
 
         my @sequences;
         if ($site =~ /\,/) {
-            @sequences = split /\,/, $site;
+            @sequences = split( /\,/, $site);
             $site=shift @sequences;
         }
-
-        my ($cut, $comp_cut);
-        ($site, $cut, $comp_cut) = $self->_cuts_from_site($site);
-
-
-        my $re = Bio::Restriction::Enzyme->new(-name=>$name,
-                                              -site => $site
-                                             );
-        $renzs->enzymes($re);
-
-        if ($cut) {
-            $re->cut($self->_coordinate_shift_to_cut(length($site), $cut));
-            $re->complementary_cut($self->_coordinate_shift_to_cut(length($site), $comp_cut));
-        }
-
 
         #
         # prototype 
@@ -159,13 +152,41 @@ sub read {
         
         # presence of a name means the prototype isoschizomer, absence means
         # this enzyme is the prototype
+	my $is_prototype = ($prototype ? 1 : 0);
 
-        $prototype ? $re->prototype_name($prototype) : $re->is_prototype(1);
 
+        #
+        # vendors
+        #
+	my @vendors;
+            @vendors = ( split / */, $vendor) if $vendor;
+
+        #
+        # references
+        #
+	my @refs;
+        @refs = map {split /\n+/} $refs if $refs;
+
+	# when enz is constructed, site() will contain original characters,
+	# but recog() will contain a regexp if required.../maj
+
+        my $re = Bio::Restriction::Enzyme->new(
+	    -name          => $name,
+	    -site          => $recog,
+	    -recog         => $recog,
+	    -precut        => $precut,
+	    -postcut       => $postcut,
+	    -is_prototype  => $is_prototype,
+	    -prototype     => $prototype,
+	    -vendors       => [@vendors],
+	    -references    => [@refs],
+	    -xln_sub       => \&_xln_sub
+	    );
 
         #
         # methylation
         #
+        # [easier to set here during parsing than in constructor] /maj
         my @meths;
         if ($meth) {
             # this can be either X(Y) or X(Y),X2(Y2)
@@ -178,7 +199,7 @@ sub read {
             elsif ($meth =~ /(\S+)\((\d+)\)/ ) { # one msite per site or more sites
                 #print Dumper $meth;
                 $re->methylation_sites( $self->_meth($re,$1,$2) );
-                @meths = split /, /, $meth;
+                @meths = split (/, /, $meth);
                 $meth=shift @meths;
             } else {
                 $self->warn("Unknown methylation format [$meth]") if $self->verbose >0;
@@ -186,29 +207,31 @@ sub read {
         }
 
         #
-        # vendors
-        #
-        if ($vendor) {
-            $re->vendors( split / */, $vendor);
-        }
-
-        #
-        # references
-        #
-        $re->references(map {split /\n+/} $refs) if $refs;
-
-        #
         # create special types of Enzymes
         #
-        $self->_make_multisites($renzs, $re, \@sequences, \@meths) if @sequences;
-        $self->_make_multicuts($renzs, $re, $precut) if $precut;
+        $self->_make_multisites( $re, \@sequences, \@meths) if @sequences;
+        $renzs->enzymes($re);
+
 
     }
 
     return $renzs;
 }
 
+=head2 _xln_sub
 
+ Title   : _xln_sub
+ Function: Translates withrefm coords to Bio::Restriction coords
+ Args    : Bio::Restriction::Enzyme object, scalar integer (cut posn)
+ Note    : Used internally; pass as a coderef to the B:R::Enzyme 
+           constructor
+
+=cut
+
+sub _xln_sub { 
+    my ($z,$c) = @_; 
+    return ($c < 0 ? $c : length($z->string)+$c);
+}
 
 =head2 write
 

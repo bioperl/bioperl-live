@@ -566,7 +566,21 @@ sub next_result {
                 }
             );
         }
-        elsif (/^>>(.+?)\s+\((\d+)\s*(aa|nt)\)$/) {
+        elsif (/^>>(?!>)(.+?)\s+(?:\((\d+)\s*(aa|nt)\))?$/) {
+            my ($hit_id, $len, $alphabet) = ($1, $2, $3);
+            if (!$len || !$alphabet) {
+                WRAPPED:
+                while (defined($_ = $self->_readline)) {
+                    if (/(.*?)\s+\((\d+)\s*(aa|nt)\)/) {
+                        ($len, $alphabet) = ($2, $3);
+                        $hit_id .= $1 ? " ".$1 : '';
+                        last WRAPPED;
+                    }
+                    if (/^>>(?!>)/) { # too far, throw
+                        $self->throw("Couldn't find length, bailing");
+                    }
+                }
+            }
             if ( $self->in_element('hsp') ) {
                 $self->end_element( { 'Name' => 'Hsp' } );
             }
@@ -578,10 +592,10 @@ sub next_result {
             $self->element(
                 {
                     'Name' => 'Hit_len',
-                    'Data' => $2
+                    'Data' => $len
                 }
             );
-            my ( $id, $desc ) = split( /\s+/, $1, 2 );
+            my ( $id, $desc ) = split( /\s+/, $hit_id, 2 );
             $self->element(
                 {
                     'Name' => 'Hit_id',
@@ -589,7 +603,7 @@ sub next_result {
                 }
             );
 
-            #$self->debug("Hit ID is $id\n") if $self->verbose > 0;
+            #$self->debug("Hit ID is $id\n");
             my @pieces = split( /\|/, $id );
             my $acc = pop @pieces;
             $acc =~ s/\.\d+$//;
@@ -1316,7 +1330,7 @@ sub next_result {
                         # going to skip these
                     }
                     else {
-                        $self->warn(
+                        $self->throw(
                             "Unrecognized alignment line ($count) '$_'");
                     }
                 }

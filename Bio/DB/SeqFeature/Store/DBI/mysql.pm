@@ -254,7 +254,7 @@ END
 	  locationlist => <<END,
 (
   id         int(10)       auto_increment primary key,
-  seqname    varchar(50)   not null,
+  seqname    varchar(256)   not null,
   index(seqname)
 )
 END
@@ -262,14 +262,14 @@ END
 	  typelist => <<END,
 (
   id       int(10) auto_increment primary key,
-  tag      varchar(40)  not null,
+  tag      varchar(256)  not null,
   index(tag)
 )
 END
 	  name => <<END,
 (
   id           int(10)       not null,
-  name         varchar(128)  not null,
+  name         varchar(256)  not null,
   display_name tinyint       default 0,
   index(id),
   index(name)
@@ -289,7 +289,7 @@ END
 	  attributelist => <<END,
 (
   id       int(10) auto_increment primary key,
-  tag      varchar(50)  not null,
+  tag      varchar(256)  not null,
   index(tag)
 )
 END
@@ -422,19 +422,10 @@ sub _init_database {
     my $table = $self->_qualify($_);
     $dbh->do("DROP table IF EXISTS $table") if $erase;
     my $query = "CREATE TABLE IF NOT EXISTS $table $tables->{$_}";
-    $dbh->do($query) or $self->throw($dbh->errstr);
+    $self->_create_table($dbh,$query);
   }
   $self->subfeatures_are_indexed(1) if $erase;
   1;
-}
-
-sub maybe_create_meta {
-  my $self = shift;
-  return unless $self->writeable;
-  my $table  = $self->_qualify('meta');
-  my $tables = $self->table_definitions;
-  my $temporary = $self->is_temp ? 'TEMPORARY' : '';
-  $self->dbh->do("CREATE $temporary TABLE IF NOT EXISTS $table $tables->{meta}");
 }
 
 sub init_tmp_database {
@@ -445,9 +436,28 @@ sub init_tmp_database {
       next if $t eq 'meta';  # done earlier
       my $table = $self->_qualify($t);
       my $query = "CREATE TEMPORARY TABLE $table $tables->{$t}";
-      $dbh->do($query) or $self->throw($dbh->errstr);
+      $self->_create_table($dbh,$query);
   }
   1;
+}
+
+sub _create_table {
+    my $self         = shift;
+    my ($dbh,$query) = @_;
+    for my $q (split ';',$query) {
+	chomp($q);
+	next unless $q =~ /\S/;
+	$dbh->do("$q;\n") or $self->throw($dbh->errstr);
+    }
+}
+
+sub maybe_create_meta {
+  my $self = shift;
+  return unless $self->writeable;
+  my $table  = $self->_qualify('meta');
+  my $tables = $self->table_definitions;
+  my $temporary = $self->is_temp ? 'TEMPORARY' : '';
+  $self->dbh->do("CREATE $temporary TABLE IF NOT EXISTS $table $tables->{meta}");
 }
 
 ###
@@ -460,7 +470,10 @@ sub is_temp {
 sub attributes {
     my $self = shift;
     my $dbh  = $self->dbh;
-    my $a    = $dbh->selectcol_arrayref('SELECT tag FROM attributelist');
+    my $attributelist_table = $self->_attributelist_table;
+    
+    my $a    = $dbh->selectcol_arrayref("SELECT tag FROM $attributelist_table")
+       or $self->throw($dbh->errstr);
     return @$a;
 }
 

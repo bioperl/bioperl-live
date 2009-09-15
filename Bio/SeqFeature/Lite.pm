@@ -55,6 +55,7 @@ Arguments are as follows:
   -subtype     the type to use when creating subfeatures
   -strand      the strand of the feature (one of -1, 0 or +1)
   -phase       the phase of the feature (0..2)
+  -seq         a dna or protein sequence string to attach to feature
   -id          an alias for -name
   -seqname     an alias for -name
   -display_id  an alias for -name

@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests               => 14,
+    test_begin(-tests               => 22,
 			   -requires_modules    => [],
 			   -requires_networking => 0,
 			  );
@@ -22,6 +22,9 @@ my $seqio_obj = Bio::SeqIO->new(-file   => test_input_file("test.$format"),
 						        -format => $format);
 
 isa_ok($seqio_obj, 'Bio::SeqIO');
+
+
+is $seqio_obj->variant, 'multiple';
 
 my @methods = qw(next_seq write_seq);
 foreach my $method (@methods) {
@@ -66,25 +69,25 @@ SKIP: {
     test_skip(-tests => 4, -requires_modules => [qw(Algorithm::Diff
                                                     IO::ScalarArray
                                                     IO::String)]);
-    use_ok('Algorithm::Diff');
-    eval "use Algorithm::Diff qw(diff LCS);";
-    use_ok('IO::ScalarArray');
-    use_ok('IO::String');
+    use Algorithm::Diff qw(diff LCS);
+    use IO::ScalarArray;
+    use IO::String;
+    use Data::Dumper;
     
 	my ($file, $type) = ("test.$format", $format);
     my $filename = test_input_file($file);
     print "processing file $filename\n" if $verbose;
     open(FILE, "< $filename") or die("cannot open $filename");
     my @datain = <FILE>;
-    my $in = new IO::String(join('', @datain));
-    my $seqin = new Bio::SeqIO( -fh => $in,
+    my $in = IO::String->new(join('', @datain));
+    my $seqin = Bio::SeqIO->new( -fh => $in,
                 -format => $type);
-    my $out = new IO::String;
-    my $seqout = new Bio::SeqIO( -fh => $out,
+    my $out = IO::String->new;
+    my $seqout = Bio::SeqIO->new( -fh => $out,
                  -format => $type);
     my $seq;
     while( defined($seq = $seqin->next_seq) ) {	
-    $seqout->write_seq($seq);
+        $seqout->write_seq($seq);
     }
     $seqout->close();
     $seqin->close();
@@ -95,6 +98,7 @@ SKIP: {
     
     if(@diffs && $verbose) {
         foreach my $d ( @diffs ) {
+            print STDERR Dumper $d;
             foreach my $diff ( @$d ) {
                 chomp($diff->[2]);
                 print $diff->[0], $diff->[1], "\n>", $diff->[2], "\n";
@@ -103,5 +107,35 @@ SKIP: {
         print "in is \n", join('', @datain), "\n";
         print "out is \n", join('',@dataout), "\n";	
     }
-
 }
+
+# test raw variants
+my @seq = qw(MVNSNQNQNGNSNGHDDDFPQDSITEPEHMRKLFIGGLDYRTTDENLKAHEKWGNIVDVV
+VMKDPRTKRSRGFGFITYSHSSMIDEAQKSRPHKIDGRVEPKRAVPRQDIDSPNAGATVK
+KLFVGALKDDHDEQSIRDYFQHFGNIVDNIVIDKETGKKRGFAFVEFDDYDPVDKVVLQK
+QHQLNGKMVDVKKALPKNDQQGGGGGRGGPGGRAGGNRGNMGGGNYGNQNGGGNWNNGGN
+NWGNNRGNDNWGNNSFGGGGGGGGGYGGGNNSWGNNNPWDNGNGGGNFGGGGNNWNGGND
+FGGYQQNYGGGPQRGGGNFNNNRMQPYQGGGGFKAGGGNQGNYGNNQGFNNGGNNRRY);
+
+$seqio_obj = Bio::SeqIO->new(-file   => test_input_file("test2.raw"),
+						        -format => 'raw');
+
+is($seqio_obj->variant, 'multiple');
+
+my $ct = 0;
+
+while (my $seq = $seqio_obj->next_seq) {
+    is($seq->seq, $seq[$ct]);
+    $ct++;
+}
+
+is($ct, 6);
+
+$seqio_obj = Bio::SeqIO->new(-file   => test_input_file("test2.raw"),
+						        -format => 'raw-single');
+
+is($seqio_obj->variant, 'single');
+
+my $seq = $seqio_obj->next_seq;
+is($seq->seq, join('', @seq));
+

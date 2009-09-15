@@ -151,6 +151,7 @@ Mark A. Jensen  E<lt>maj@fortinbras.usE<gt>
 
 $|=1;
 use strict;
+use Term::ReadLine;
 use Bio::DB::HIV;
 use Bio::DB::Query::HIVQuery;
 use Bio::SeqIO;
@@ -220,13 +221,15 @@ my $done = 0;
 debug("We have arrived.");
 #### main loop
 my ($cmd, @tok);
+my $prompt = "hivq> ";
+my $term = new Term::ReadLine 'hivq';
 CMD:
 while ( !$done ) {
     @tok=();$cmd='';
-    print "hivq> ";
-    for ( $cmd = <STDIN> ) {
+    for ( $cmd = $term->readline($prompt) ) {
 	chomp;
 	s/^\s+//; #trim whsp
+	$term->addhistory($_);
 	@tok = split(/\s+/);
 	$tok[0] = lc $tok[0]; # normalize
 	for ($tok[0]) {

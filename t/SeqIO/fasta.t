@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests               => 18,
+    test_begin(-tests               => 22,
 			   -requires_modules    => [],
 			   -requires_networking => 0,
 			  );
@@ -117,4 +117,14 @@ SKIP: {
         print "out is \n", join('',@dataout), "\n";	
     }
 
+}
+
+# bug 1508
+# test genbank, gcg, ace against fasta (should throw an exception on each)
+
+for my $file (qw(roa1.genbank test.gcg test.ace test.raw)) {
+	my $in = Bio::SeqIO->new(-file   => test_input_file($file),
+							 -format => 'fasta');
+	throws_ok {$in->next_seq}
+		qr/The sequence does not appear to be FASTA format/, "dies with $file";
 }

@@ -130,7 +130,7 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
   my ($hsps, $name,$query_len,$desc, $acc, $locus, $length,
-      $score,$algo,$signif,$bits,
+      $score,$algo,$signif,$bits, $p,
       $rank, $hsp_factory, $gi) = $self->_rearrange([qw(HSPS
                                      NAME 
                                      QUERY_LEN
@@ -138,7 +138,7 @@ sub new {
                                      ACCESSION
                                      LOCUS
                                      LENGTH SCORE ALGORITHM 
-                                     SIGNIFICANCE BITS
+                                     SIGNIFICANCE BITS P
                                      RANK
                                      HSP_FACTORY
                                      NCBI_GI)], @args);
@@ -162,6 +162,10 @@ sub new {
   defined $rank        && $self->rank($rank);
   defined $hsp_factory && $self->hsp_factory($hsp_factory);
   defined $gi          && $self->ncbi_gi($gi);
+  # p() has a weird interface, so this is a hack workaround
+  if (defined $p) {
+      $self->{_p} = $p;
+  }
 
   $self->{'_iterator'} = 0;
   if( defined $hsps  ) {
@@ -631,7 +635,7 @@ sub n {
            : That is, floats are not converted into sci notation before
            : splitting into parts.
 
-See Also   : L<expect()|expect>, L<signif()|signif>, L<Bio::Search::SearchUtils::get_exponent()|Bio::Search::SearchUtils>
+See Also   : L<expect()|expect>, L<significance()|significance>, L<Bio::Search::SearchUtils::get_exponent()|Bio::Search::SearchUtils>
 
 =cut
 
@@ -645,8 +649,8 @@ sub p {
     if(!defined $val) {
         # P-value not defined, must be a NCBI Blast2 report.
         # Use expect instead.
-        $self->warn( "P-value not defined. Using expect() instead.");
-        $val = $self->{'_expect'};
+        $self->warn( "P-value not defined. Using significance() instead.");
+        $val = $self->significance();
     }
 
     return $val if not $fmt or $fmt =~ /^raw/i;

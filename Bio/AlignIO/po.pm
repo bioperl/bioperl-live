@@ -208,9 +208,9 @@ sub next_aln {
     }
 
     # has an alignment been read?...
-    ($aln->no_sequences == 0) and ($aln = undef);
 
-    return $aln;
+    return $aln if $aln->num_sequences;
+	return;
 }
 
 =head2 write_aln

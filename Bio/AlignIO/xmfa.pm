@@ -124,7 +124,7 @@ sub next_aln {
         my $seq = $self->_process_seq($name, $seqchar);
         $aln->add_seq($seq);
     }
-    $aln->no_sequences ? return $aln : return;
+    $aln->num_sequences ? return $aln : return;
 }
 
 =head2 write_aln

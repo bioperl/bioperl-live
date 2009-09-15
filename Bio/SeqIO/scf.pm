@@ -579,7 +579,7 @@ sub _dump_traces_incoming_deprecated_use_the_sequencetrace_object {
 
 =head2 write_seq
 
- Title   : write_seq(-Quality => $swq, <comments>)
+ Title   : write_seq(-target => $swq, <comments>)
  Usage   : $obj->write_seq(
                -target => $swq,
 			-version => 2,
@@ -602,7 +602,7 @@ sub _dump_traces_incoming_deprecated_use_the_sequencetrace_object {
           c) peak indices
           d) traces
           - You _can_ write an scf with just a and b by passing in a
-               SequenceWithQuality object- false traces will be synthesized
+               Bio::Seq::Quality object- false traces will be synthesized
                for you.
 
 =cut
@@ -617,12 +617,9 @@ sub write_seq {
                if (ref($swq) eq "Bio::Seq::Quality") {
                          # this means that the object *has no trace data*
                          # we might as well synthesize some now, ok?
-                    my $swq2 = Bio::Seq::SequenceTrace->new(
+                    $swq = Bio::Seq::SequenceTrace->new(
                          -swq     =>   $swq
                     );
-                    $swq2->_synthesize_traces();
-                    $swq2->set_accuracies();
-                    $swq = $swq2;
                }
      }
     else  {
@@ -759,6 +756,7 @@ sub write_seq {
     $self->flush if $self->_flush_on_write && defined $self->_fh;
 
     $self->close();
+	return 1;
 }
 
 
@@ -908,7 +906,7 @@ sub _get_binary_bases {
           $returner->{sequence} = $trace->seq();
           $length = scalar(@accuracies);
                # this really is "c" for samplesize == 2
-          $returner->{accuracies}->{binary} = pack "c${length}",@accuracies;
+          $returner->{accuracies}->{binary} = pack "C${length}",@accuracies;
           $returner->{accuracies}->{length} =
                CORE::length($returner->{accuracies}->{binary});
           $length = $trace->seq_obj()->length();

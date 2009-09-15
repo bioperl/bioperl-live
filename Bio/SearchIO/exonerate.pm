@@ -250,7 +250,7 @@ sub next_result{
 	   $self->{'_seencigar'} = 0;
 	   $self->{'_vulgar'}    = 0;
        } elsif(  s/^vulgar:\s+(\S+)\s+         # query sequence id
-		 (\d+)\s+(\d+)\s+([\-\+])\s+   # query start-end-strand
+		 (\d+)\s+(\d+)\s+([\-\+\.])\s+ # query start-end-strand
 		 (\S+)\s+                      # target sequence id
 		 (\d+)\s+(\d+)\s+([\-\+])\s+   # target start-end-strand
 		 (\d+)\s+                      # score

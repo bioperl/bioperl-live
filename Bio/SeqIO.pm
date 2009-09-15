@@ -196,8 +196,8 @@ see the SeqIO HOWTO (L<http://bioperl.open-bio.org/wiki/HOWTO:SeqIO>).
 If no format is specified and a filename is given then the module will
 attempt to deduce the format from the filename suffix. If there is no
 suffix that Bioperl understands then it will attempt to guess the
-format based on file content. If this is unsuccessful then Fasta
-format is assumed.
+format based on file content. If this is unsuccessful then SeqIO will 
+throw a fatal error.
 
 The format name is case-insensitive: 'FASTA', 'Fasta' and 'fasta' are
 all valid.
@@ -255,7 +255,7 @@ See below for more detailed summaries.  The main methods are:
 
 =head2 $sequence = $seqIO-E<gt>next_seq()
 
-Fetch the next sequence from the stream.
+Fetch the next sequence from the stream, or nothing if no more.
 
 =head2 $seqIO-E<gt>write_seq($sequence [,$another_sequence,...])
 
@@ -279,13 +279,13 @@ Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+ bioperl-l@bioperl.org
+
 rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
+responsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
 with code and data examples if at all possible.
 
@@ -371,7 +371,7 @@ sub new {
 
 	my $format = $param{'-format'} ||
 	    $class->_guess_format( $param{-file} || $ARGV[0] );
-
+        
 	if( ! $format ) {
 	    if ($param{-file}) {
 		$format = Bio::Tools::GuessSeqFormat->new(-file => $param{-file}||$ARGV[0] )->guess;
@@ -380,8 +380,12 @@ sub new {
 	    }
 	}
 	$format = "\L$format";	# normalize capitalization to lower case
-        $class->throw("Unknown format given or could not determine it [$format]")
-            unless $format;
+    $class->throw("Unknown format given or could not determine it [$format]")
+        unless $format;
+    if ($format =~ /-/) {
+        ($format, my $variant) = split('-', $format, 2);
+        push @args, (-variant => $variant);
+    }
 	return unless( $class->_load_format_module($format) );
 	return "Bio::SeqIO::$format"->new(@args);
     }
@@ -481,7 +485,9 @@ sub _initialize {
            recoverable errors into exceptions by calling
            $stream->verbose(2).
 
- Returns : a Bio::Seq sequence object
+ Returns : a Bio::Seq sequence object, or nothing if no more sequences
+           are available
+
  Args    : none
 
 See L<Bio::Root::RootI>, L<Bio::Factory::SeqStreamI>, L<Bio::Seq>

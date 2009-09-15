@@ -234,7 +234,7 @@ sub new {
 		 $self->seq($seq) if defined($seq);
 	 }
 
-    $id          && $self->display_id($id);
+    defined $id  && $self->display_id($id);
     $acc         && $self->accession_number($acc);
     defined $pid && $self->primary_id($pid);
     $desc        && $self->desc($desc);

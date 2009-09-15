@@ -143,11 +143,8 @@ sub next_aln {
 	$aln->add_seq($seq);
     }
 
-#  If $end <= 0, we have either reached the end of
-#  file in <> or we have encountered some other error
-#
-    return if ($end <= 0);
-    return $aln;
+    return $aln if $aln->num_sequences;
+    return;
 }
 
 

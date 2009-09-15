@@ -63,6 +63,7 @@ Rob Edwards, redwards@utmem.edu
 =head1 CONTRIBUTORS
 
 Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
+Mark A. Jensen, maj-at-fortinbras-dot-us
 
 =head1 APPENDIX
 
@@ -115,66 +116,84 @@ sub read {
         my ($name) = $entry =~ /^(\S+)/;
         my ($site) = $entry =~ /\<3\>([^\n]+)/;
 
-
         if ( ! defined $site || $site eq '' or $site eq '?') {
             $self->warn("$name: no site. Skipping") if $self->verbose > 1;
             next;
         }
 
-        my $precut;
-        if ($site =~ m/^\((\w+\/\w+)\)\w+\((\w+\/\w+)\)/) {
-            $precut = $1;
-            $site =~ s/\($precut\)//;
-        }
-
         # there are a couple of sequences that have multiple
         # recognition sites eg M.PhiBssHII: ACGCGT,CCGCGG,RGCGCY,RCCGGY,GCGCGC
-
+	# TaqII : GACCGA(11/9),CACCCA(11/9)
 
         my @sequences;
         if ($site =~ /\,/) {
-            @sequences = split /\,/, $site;
+            @sequences = split (/\,/, $site);
             $site=shift @sequences;
         }
 
-        my ($cut, $comp_cut);
-        ($site, $cut, $comp_cut) = $self->_cuts_from_site($site);
+	# this regexp now parses all possible components
+	# $1 : (s/t) or undef 
+	# $2 : [site]
+	# $3 : (m/n) or undef /maj
 
-        my $re = Bio::Restriction::Enzyme->new(-name=>$name,
-                                              -site => $site
-                                             );
-        $renzs->enzymes($re);
+	no warnings; # avoid faulty 'uninitialized value' warnings
+                     # occurring against the variables set by 
+	             # regexp matching (unless anyone has other ideas...)
 
-        if ($cut) {
-            $re->cut($self->_coordinate_shift_to_cut(length($site), $cut));
-            $re->complementary_cut($self->_coordinate_shift_to_cut(length($site), $comp_cut));
-        }
+	my ($precut, $recog, $postcut) = ( $site =~ m/^(?:\((\w+\/\w+)\))?([\w^]+)(?:\((\w+\/\w+)\))?/ );
+
 
         #
         # prototype / isoschizomers
         #
 
         my ($isoschizomers) = $entry =~ /<2>([^\n]+)/;
-
-        if ($isoschizomers) {
-            # bug 2179
-            # here's the trick; if there are no enzymes here, the enzyme in <1>
-            # is the prototype (see withref format for this).  However, one
-            # can't unequivicably assign prototype based on the presence of
-            # enzymes or which one is first without building a logic kit on
-            # determining how these are assigned.
-            
-            # we could add in a hook to check an outside prototype file here
-            # at some point; for now we'll just warn if is_prototype() is called
-            my @isos = split /\,/, $isoschizomers;
-            $re->isoschizomers(@isos);
-            #$re->is_prototype(0);
-        } else {
-            $re->is_prototype(1);
-        }
+	my @isos = split(/\,/,$isoschizomers);
+	my $is_prototype = (@isos ? 1 : 0);
 
         #
-        # methylation
+        # microbe
+        #
+        my ($microbe) = $entry =~ /<5>([^\n]+)/;
+
+        #
+        # source
+        #
+        my ($source) = $entry =~ /<6>([^\n]+)/;
+
+        #
+        # vendors
+        #
+        my ($vendors) = $entry =~ /<7>([^\n]+)/;
+	my @vendors = split(/ */, $vendors);
+
+
+        #
+        # references
+        #
+        my ($refs) = $entry =~ /<8>(.+)/s;
+	my @refs = map {split /\n+/} $refs;
+
+	use warnings; 
+	       
+	# when enz is constructed, site() will contain original characters,
+	# but recog() will contain a regexp if required.../maj
+        my $re = Bio::Restriction::Enzyme->new(
+	    -name          => $name,
+	    -site          => $recog,
+	    -recog         => $recog,
+	    -precut        => $precut,
+	    -postcut       => $postcut,
+	    -is_prototype  => $is_prototype,
+	    -isoschizomers => [@isos],
+	    -source        => $source,
+	    -vendors       => [@vendors],
+	    -references    => [@refs],
+	    -xln_sub       => \&_xln_sub
+	    );
+
+        #
+        # methylation: easier to set here during parsing/maj
         #
 
         my ($meth) = $entry =~ /<4>([^\n]+)/;
@@ -188,52 +207,51 @@ sub read {
                                        $self->_meth($re,$3,$4));
             }
             elsif ($meth =~ /(\S+)\((\d+)\)/ ) { # one msite per site or more sites
-                #print Dumper $meth;
                 $re->methylation_sites( $self->_meth($re,$1,$2) );
-                @meths = split /, /, $meth;
+                @meths = split (/\, /, $meth);
                 $meth=shift @meths;
             } else {
                 $self->warn("Unknown methylation format [$meth]") if $self->verbose >0;
             }
         }
 
-        #
-        # microbe
-        #
-        my ($microbe) = $entry =~ /<5>([^\n]+)/;
-        $re->microbe($microbe) if $microbe;
-
-        #
-        # source
-        #
-        my ($source) = $entry =~ /<6>([^\n]+)/;
-        $re->source($source) if $source;
-
-        #
-        # vendors
-        #
-        my ($vendors) = $entry =~ /<7>([^\n]+)/;
-        $re->vendors(split / */, $vendors) if $vendors;
-
-        #
-        # references
-        #
-        my ($refs) = $entry =~ /<8>(.+)/s;
-        $re->references(map {split /\n+/} $refs) if $refs;
-
+	# the _make_multicuts function now takes place in the 
+	# Enzyme constructor / maj
 
         #
         # create special types of Enzymes
-        #
-        $self->_make_multisites($renzs, $re, \@sequences, \@meths) if @sequences;
+	# (because of object cloning in _make_multisites, this happens
+	#  after everything else is set /maj)
+        # (with the removal of the collection from the arglist, this
+	# call (or its code) could now be placed in the constructor,
+	# which is safer (since this has to happen last), 
+	# but it requires the methylation info, which 
+	# is more natural to get out here in the parsing./maj
 
-        $self->_make_multicuts($renzs, $re, $precut) if $precut;
+        $self->_make_multisites($re, \@sequences, \@meths, \&_xln_sub) if @sequences;
+
+        $renzs->enzymes($re);
+
 
     }
 
     return $renzs;
 }
 
+=head2 _xln_sub
+
+ Title   : _xln_sub
+ Function: Translates withrefm coords to Bio::Restriction coords
+ Args    : Bio::Restriction::Enzyme object, scalar integer (cut posn)
+ Note    : Used internally; pass as a coderef to the B:R::Enzyme 
+           constructor
+
+=cut
+
+sub _xln_sub { 
+    my ($z,$c) = @_; 
+    return ($c < 0 ? $c : length($z->string)+$c);
+}
 
 =head2 write
 

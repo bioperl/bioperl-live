@@ -35,8 +35,8 @@ if( $DEBUG ) {
 }
 
 is $dna_aln->length, 36;
-is $dna_aln->no_residues, 99;
-is $dna_aln->no_sequences, 3;
+is $dna_aln->num_residues, 99;
+is $dna_aln->num_sequences, 3;
 is $dna_aln->consensus_string(50), "atgctgat?gacgtacgc????cgctagcact?aga";
 
 $dna_aln->verbose(-1);
@@ -45,7 +45,7 @@ ok $replicates = &bootstrap_replicates($dna_aln,3);
 
 is scalar @$replicates, 3;
 my $repl_aln = pop @$replicates;
-is $repl_aln->no_sequences, 3;
+is $repl_aln->num_sequences, 3;
 
 ##use IO::String;
 ##use Bio::AlignIO;

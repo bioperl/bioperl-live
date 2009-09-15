@@ -3,13 +3,13 @@
 
 use strict;
 
-BEGIN { 
+BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    
-    test_begin(-tests => 49);
-	
-	use_ok('Bio::SearchIO');
+
+    test_begin(-tests => 52);
+
+    use_ok('Bio::SearchIO');
 }
 
 my $pslparser = Bio::SearchIO->new(-format => 'psl',
@@ -88,3 +88,11 @@ is(scalar @$q_gapblocks, 4);
 is($q_gapblocks->[0]->[1],14);
 is($q_gapblocks->[1]->[1],21);
 is($q_gapblocks->[1]->[0],1152);
+
+
+is( $hit->next_hsp, undef, 'next_hsp should be undef');
+is( $result->next_hit, undef, 'next_hit should be undef');
+TODO: {
+    local $TODO = "next_result should really return undef, not empty string";
+    is( $pslparser->next_result, undef, 'next_result should be undef');
+}

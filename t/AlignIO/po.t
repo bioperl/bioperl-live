@@ -31,7 +31,7 @@ SKIP: {
 	isa_ok($str, 'Bio::AlignIO');
 	$aln = $str->next_aln();
 	isa_ok($aln,'Bio::Align::AlignI');
-	is $aln->no_sequences, 6;
+	is $aln->num_sequences, 6;
 	
 	# output is? i.e. does conversion from clustalw to po give the same alignment?
 	$str = Bio::AlignIO->new(
@@ -52,6 +52,6 @@ SKIP: {
 	isa_ok($str,'Bio::AlignIO');
 	my $aln2 = $str->next_aln();
 	isa_ok($aln2,'Bio::Align::AlignI');
-	is $aln2->no_sequences, $aln->no_sequences;
+	is $aln2->num_sequences, $aln->num_sequences;
 	is $aln2->length, $aln->length;
 }

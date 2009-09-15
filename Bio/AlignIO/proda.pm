@@ -230,12 +230,9 @@ sub next_aln {
         );
         $aln->add_seq($seq);
     }
-
-    # not sure if this should be a default option - or we can pass in
-    # an option to do this in the future? --jason stajich
-    # $aln->map_chars('\.','-');
-    undef $aln if ( !defined $end || $end <= 0 );
-    return $aln;
+    
+    return $aln if $aln->num_sequences;
+    return;
 }
 
 =head2 write_aln

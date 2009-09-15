@@ -64,6 +64,7 @@ Rob Edwards, redwards@utmem.edu
 =head1 CONTRIBUTORS
 
 Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
+Mark A. Jensen, maj-at-fortinbras-dot-us
 
 =head1 APPENDIX
 
@@ -82,7 +83,6 @@ use Bio::Restriction::Enzyme;
 use Bio::Restriction::EnzymeCollection;
 use Bio::Restriction::Enzyme::MultiCut;
 use Bio::Restriction::Enzyme::MultiSite;
-use Data::Dumper;
 
 use base qw(Bio::Restriction::IO);
 
@@ -142,8 +142,6 @@ sub _initialize {
 
 =cut
 
-
-
 sub read {
     my $self = shift;
 
@@ -153,8 +151,6 @@ sub read {
         chomp;
         next if /^\s*$/;
         my ($name, $site, $cut) = split /\s+/;
-        #foreach my $key (keys %{$res}) {
-        #my ($site, $cut) = split /\s+/, $res->{$key};
         my $re = Bio::Restriction::Enzyme->new(-name => $name,
                                               -site => $site,
                                               -cut => $cut);
@@ -163,6 +159,21 @@ sub read {
     return $renzs;
 }
 
+=head2 _xln_sub
+
+ Title   : _xln_sub
+ Function: Translates withrefm coords to Bio::Restriction coords
+ Args    : Bio::Restriction::Enzyme object, scalar integer (cut posn)
+ Note    : Used internally; pass as a coderef to the B:R::Enzyme 
+           constructor
+ Note    : It is convenient for each format module to have its own 
+           version of this; not currently demanded by the interface.
+=cut
+
+sub _xln_sub { # for base.pm, a no-op
+    my ($z,$c) = @_; 
+    return $c;
+}
 
 
 =head2 write
@@ -241,6 +252,7 @@ class. (They are 'protected' in the sense the word is used in Java.)
            Does nothing to site if it does not have the cut string
  Returns : array of site_string, forward_cut_position, reverse_cut_position
  Args    : recognition site string
+ Note    : Not used in withrefm refactor/maj
 
 =cut
 
@@ -287,6 +299,7 @@ sub _meth {
  Returns : Cut position in correct coordinates
  Args    : 1. Original cut position
            2. Length of the recognition site
+ Note    : Not used in withrefm.pm refactor/maj
 
 =cut
 
@@ -299,46 +312,62 @@ sub _coordinate_shift_to_cut {
 =head2 _make_multisites
 
  Title   : _make_multisites
- Usage   : $self->_make_multisites($collection, $first_enzyme, \@sites, \@mets)
- Function: 
-
-           Bless a Bio::Restriction::Enzyme (which is already part of
-           the collection object) into
+ Usage   : $self->_make_multisites($first_enzyme, \@sites, \@mets)
+ Function: Bless a Bio::Restriction::Enzyme  into
            Bio::Restriction::Enzyme::MultiSite and clone it as many
-           times as there are alternative sites. The new objects are
-           added into the collection and into others list of sister
-           objects.
-
+           times as there are alternative sites.
  Returns : nothing, does in place editing
- Args    : 1. a Bio::Restriction::EnzymeCollection
-           2. a Bio::Restriction::Enzyme
-           3. reference to an array of recognition site strings
-           4. reference to an array of methylation code strings, optional
+ Args    : 1. a Bio::Restriction::Enzyme
+           2. reference to an array of recognition site strings
+           3. reference to an array of methylation code strings, optional
 
 =cut
 
+# removed the enzyme collection from arg list /maj
+
 sub _make_multisites {
-    my ($self, $renzs, $re, $sites, $meths) = @_;
+    my ($self, $re, $sites, $meths, $xln_sub) = @_;
 
     bless $re, 'Bio::Restriction::Enzyme::MultiSite';
-    #print Dumper $re, $sites, $meths;
 
     my $count = 0;
     while ($count < scalar @{$sites}) {
-        #print ">>>>>>>>>>>", scalar @{$sites}, ">>>>>>>>>>>>>>>>>>>>>> $count\n";
-        my $re2 = $re->clone;
-
+	# this should probably be refactored to use the constructor
+	# too, rather than the clone/accessor method /maj
+#        my $re2 = $re->clone;
+#	my $re2;
 
         my $site = @{$sites}[$count];
-        my ($cut, $comp_cut);
-        ($site, $cut, $comp_cut) = $self->_cuts_from_site($site);
-        $re2->site($site);
+	my ($precut, $recog, $postcut) = ( $site =~ m/^(?:\((\w+\/\w+)\))?([\w^]+)(?:\((\w+\/\w+)\))?/ );
+	
+	# set the site attribute
+#	$re2->site($recog);
 
-        if ($cut) {
-            $re->cut($self->_coordinate_shift_to_cut(length($site), $cut));
-            $re->complementary_cut($self->_coordinate_shift_to_cut(length($site), $comp_cut));
-        }
-
+	# set the recog attribute (which will make the regexp transformation
+	# if necessary:
+#	$re2->recog($recog);
+#	$recog = $re2->string;
+	
+# 	no warnings; # avoid 'uninitialized value' warning against $postcut
+#         my ($cut, $comp_cut) = ( $postcut =~  /(-?\d+)\/(-?\d+)/ );
+# 	use warnings;
+	
+	# note the following hard codes the coordinate transformation
+	# used for rebase/itype2 : this method will break on the 
+	# base.pm format. 
+#         if ($cut) {
+#             $re2->cut($cut + length $recog);
+#             $re2->complementary_cut($comp_cut + length $recog);
+# 	}
+	
+	my $re2 = Bio::Restriction::Enzyme::MultiSite->new(
+	    -name     => $re->name,
+	    -site     => $recog,
+	    -recog    => $recog,
+	    -precut   => $precut,
+	    -postcut  => $postcut,
+	    -xln_sub  => $xln_sub
+	    );
 
         if ($meths and @$meths) {
             $re2->purge_methylation_sites;
@@ -349,35 +378,27 @@ sub _make_multisites {
         $count++;
     }
 
-
     foreach my $enz ($re->others) {
         $enz->others($re, grep {$_ ne $enz} $re->others);
     }
 
-    #print Dumper $re;
-
     1;
 }
-
-
 
 =head2 _make_multicuts
 
  Title   : _make_multicuts
- Usage   : $self->_make_multicuts($collection, $first_enzyme, $precuts)
+ Usage   : $self->_make_multicuts($first_enzyme, $precuts)
  Function: 
 
-           Bless a Bio::Restriction::Enzyme (which is already part of
-           the collection object) into
+           Bless a Bio::Restriction::Enzyme into
            Bio::Restriction::Enzyme::MultiCut and clone it. The precut
            string is processed to replase the cut sites in the cloned
-           object which is added into the collection. Both object
-           refere to each other through others() method.
+           object. Both objects refer to each other through others() method.
 
  Returns : nothing, does in place editing
- Args    : 1. a Bio::Restriction::EnzymeCollection
-           2. a Bio::Restriction::Enzyme
-           3. precut string, e.g. '12/7'
+ Args    : 1. a Bio::Restriction::Enzyme
+           2. precut string, e.g. '12/7'
 
 
 The examples we have of multiply cutting enzymes cut only four
@@ -387,18 +408,15 @@ BEFORE the start of the recognition site, i.e. negative positions.
 
 =cut
 
+# removed the enzyme collection from arg list /maj
+
 sub _make_multicuts {
-    my ($self, $renzs, $re, $precut) = @_;
+    my ($self, $re, $precut) = @_;
 
     bless $re, 'Bio::Restriction::Enzyme::MultiCut';
-
+ 
     my ($cut, $comp_cut) = $precut =~ /(-?\d+)\/(-?\d+)/;
     
-    # Pads the front to prevent detection of sites when the 1st
-    # cut is off the end of the sequence.
-    my $site = $re->site;
-    $re->site(('N' x abs($cut)) . $site);
-
     my $re2 = $re->clone;
 
     $re2->cut("-$cut");
@@ -408,7 +426,6 @@ sub _make_multicuts {
 
     1;
 }
-
 
 =head2 _companies
 
@@ -421,7 +438,6 @@ sub _make_multicuts {
 	     (e.g. A = Amersham Pharmacia Biotech)
 
 =cut
-
 
 sub _companies {
     # this is just so it is easy to set up the codes that REBASE uses

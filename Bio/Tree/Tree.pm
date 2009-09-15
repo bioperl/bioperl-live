@@ -29,6 +29,28 @@ Bio::Tree::Tree - An Implementation of TreeI interface.
 
 This object holds handles to Nodes which make up a tree.
 
+=head1 IMPLEMENTATION NOTE
+
+This implementation of Bio::Tree::Tree contains Bio::Tree:::NodeI; mainly linked
+via the root node. As NodeI can potentially contain circular references (as
+nodes will need to refer to both parent and child nodes), Bio::Tree::Tree will
+remove those circular references when the object is garbage-collected. This has
+some side effects; primarily, one must keep the Tree in scope or have at least
+one reference to it if working with nodes. The fix is to count the references to
+the nodes and if it is greater than expected retain all of them, but it requires
+an additional prereq and thus may not be worth the effort.  This only shows up
+in minor edge cases, though (see Bug #2869).
+
+Example of issue:
+
+  # tree is not assigned to a variable, so passes from memory after
+  # root node is passed
+  my $root = Bio::TreeIO->new(-format => 'newick', -file => 'foo.txt')->next_tree
+		 ->get_root_node;
+  
+  # gets nothing, as all Node links are broken when Tree is garbage-collected above
+  my @descendents = $root->get_all_Descendents;
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -67,6 +89,7 @@ Email jason@bioperl.org
 
 Aaron Mackey amackey@virginia.edu
 Sendu Bala   bix@sendu.me.uk
+Mark A. Jensen maj@fortinbras.us
 
 =head1 APPENDIX
 
@@ -114,7 +137,7 @@ sub new {
   $self->{'_maxbranchlen'} = 0;
   $self->_register_for_cleanup(\&cleanup_tree);
   my ($root,$node,$nodel,$id,$score)= $self->_rearrange([qw(ROOT NODE NODELETE 
-						      ID SCORE)], @args);
+                              ID SCORE)], @args);
   
   if ($node && ! $root) {
     $self->throw("Must supply a Bio::Tree::NodeI") unless ref($node) && $node->isa('Bio::Tree::NodeI');
@@ -151,7 +174,6 @@ sub new {
            meaning trees are cleaned up.
  Returns : boolean
  Args    : on set, new boolean value
-
 
 =cut
 
@@ -226,9 +248,9 @@ sub set_root_node{
    if( @_ ) { 
        my $value = shift;
        if( defined $value && 
-	   ! $value->isa('Bio::Tree::NodeI') ) { 
-	   $self->warn("Trying to set the root node to $value which is not a Bio::Tree::NodeI");
-	   return $self->get_root_node;
+       ! $value->isa('Bio::Tree::NodeI') ) { 
+       $self->warn("Trying to set the root node to $value which is not a Bio::Tree::NodeI");
+       return $self->get_root_node;
        }
        $self->{'_rootnode'} = $value;
    } 
@@ -265,7 +287,7 @@ sub subtree_length {
     return unless $node;
     my $sum = 0;
     for ( $node->get_all_Descendents ) {
-	$sum += $_->branch_length || 0;
+    $sum += $_->branch_length || 0;
     }
     return $sum;
 }
@@ -336,6 +358,61 @@ sub score{
 
 =cut
 
+=head2 as_text
+
+ Title   : as_text
+ Usage   : my $tree_as_string = $tree->as_text($format)
+ Function: Returns the tree as a string representation in the 
+           desired format (currently 'newick', 'nhx', or 
+           'tabtree')
+ Returns : scalar string
+ Args    : format type as specified by Bio::TreeIO
+ Note    : This method loads the Bio::TreeIO::$format module
+           on the fly, and commandeers the _write_tree_Helper
+           routine therein to create the tree string. 
+
+=cut
+
+sub as_text {
+    my $self = shift;
+    my $format = shift;
+    my @parms;
+    my $iomod = "Bio::TreeIO::$format";
+    $self->_load_module($iomod);
+    # following currently not really necessary, but who knows?
+    my $io = $iomod->new(-format=>$format, -file=>File::Spec->devnull());
+    no strict "refs";
+    my $iowtH = *{$iomod."::_write_tree_Helper"}{CODE};
+    use strict "refs";
+    for ($format) {
+	/newick/ && do {
+	    @parms = ( $io->bootstrap_style, $io->order_by, 0 );
+	    last;
+	};
+	/nhx/ && do {
+	    @parms = ( 0 );
+	    last;
+	};
+	/tabtree/ && do {
+	    @parms = ( "" );
+	    last;
+	};
+	# default
+	$self->throw("as_text does not allow format '$format'") 
+    }
+	
+
+    # newline_each_node...
+    my $data = [$iowtH->($self->get_root_node, @parms)];
+
+    if ($format eq 'tabtree') {
+	return $$data[0]."\n";
+    }
+    else {
+	return join(",", @$data).";\n";
+    }
+}
+
 =head2 Methods for associating Tag/Values with a Tree
 
 These methods associate tag/value pairs with a Tree
@@ -355,7 +432,7 @@ These methods associate tag/value pairs with a Tree
 sub set_tag_value{
     my ($self,$tag,@values) = @_;
     if( ! defined $tag || ! scalar @values ) {
-	$self->warn("cannot call set_tag_value with an undefined value");
+    $self->warn("cannot call set_tag_value with an undefined value");
     }
     $self->remove_tag ($tag);
     map { push @{$self->{'_tags'}->{$tag}}, $_ } @values;
@@ -376,7 +453,7 @@ sub set_tag_value{
 sub add_tag_value{
     my ($self,$tag,$value) = @_;
     if( ! defined $tag || ! defined $value ) {
-	$self->warn("cannot call add_tag_value with an undefined value");
+    $self->warn("cannot call add_tag_value with an undefined value");
     }
     push @{$self->{'_tags'}->{$tag}}, $value;
     return scalar @{$self->{'_tags'}->{$tag}};

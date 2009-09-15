@@ -49,7 +49,7 @@ while (my ($file, $fdata) = each %files) {
            '-file' => ">".test_output_file(), 
                         '-format' => 'clustalw');
         while ( $aln = <$fhin>) {
-            cmp_ok($aln->no_sequences, '>=', 2, "input filehandle method test : $format");
+            cmp_ok($aln->num_sequences, '>=', 2, "input filehandle method test : $format");
             last;
         }
     }

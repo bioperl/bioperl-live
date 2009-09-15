@@ -337,7 +337,7 @@ sub next_aln {
         $entry = $self->_readline;
     }
 
-    return $aln if $aln->no_sequences;
+    return $aln if $aln->num_sequences;
 	return;
 }
 
@@ -388,7 +388,7 @@ sub write_aln {
 	$length  = $aln->length();
 
 	$self->_print (sprintf("#NEXUS\n[TITLE: %s]\n\nbegin data;\ndimensions ntax=%s nchar=%s;\n",
-			       $aln->id, $aln->no_sequences, $length));
+			       $aln->id, $aln->num_sequences, $length));
 	$match = "match=". $aln->match_char if $aln->match_char;
 	$missing = "missing=". $aln->missing_char if $aln->missing_char;
 	$gap = "gap=". $aln->gap_char if $aln->gap_char;

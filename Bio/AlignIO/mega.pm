@@ -172,7 +172,8 @@ sub next_aln{
        $aln->add_seq($seq);
    }
    $aln->unmatch;
-   return $aln;
+   return $aln if $aln->num_sequences;
+   return;
 }
 
 =head2 write_aln

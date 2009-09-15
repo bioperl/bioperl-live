@@ -27,9 +27,9 @@ Bio::SimpleAlign - Multiple alignments held as a set of sequences
 
   # Describe
   print $aln->length;
-  print $aln->no_residues;
+  print $aln->num_residues;
   print $aln->is_flush;
-  print $aln->no_sequences;
+  print $aln->num_sequences;
   print $aln->score;
   print $aln->percentage_identity;
   print $aln->consensus_string(50);
@@ -97,11 +97,11 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
+
 L<bioperl-l@bioperl.org>
-  
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -415,8 +415,8 @@ sub remove_seq {
     # we need to shift order hash
     my %rev_order = reverse %{$self->{'_order'}};
     my $no = $rev_order{$name};
-    my $no_sequences = $self->no_sequences;
-    for (; $no < $no_sequences; $no++) {
+    my $num_sequences = $self->num_sequences;
+    for (; $no < $num_sequences; $no++) {
        $self->{'_order'}->{$no} = $self->{'_order'}->{$no+1};
     }
     delete $self->{'_order'}->{$no};
@@ -585,7 +585,7 @@ sub set_new_reference {
 
     if ($seqid =~ /^\d+$/) { # argument is seq position
 	$is_num=1;
-	$self->throw("The new reference sequence number has to be a positive integer >1 and <= no_sequences ") if ($seqid <= 1 || $seqid > $self->no_sequences);
+	$self->throw("The new reference sequence number has to be a positive integer >1 and <= num_sequences ") if ($seqid <= 1 || $seqid > $self->num_sequences);
     } else { # argument is a seq name
 	$self->throw("The new reference sequence not in alignment ") unless &_in_aln($seqid, \@ids);
     }
@@ -849,7 +849,7 @@ sub each_seq_with_id {
  Usage     : $seq = $aln->get_seq_by_pos(3) # third sequence from the alignment
  Function  : Gets a sequence based on its position in the alignment.
              Numbering starts from 1.  Sequence positions larger than
-             no_sequences() will thow an error.
+             num_sequences() will thow an error.
  Returns   : a Bio::LocatableSeq object
  Args      : positive integer for the sequence position
 
@@ -863,7 +863,7 @@ sub get_seq_by_pos {
     $self->throw("Sequence position has to be a positive integer, not [$pos]")
 	unless $pos =~ /^\d+$/ and $pos > 0;
     $self->throw("No sequence at position [$pos]")
-	unless $pos <= $self->no_sequences ;
+	unless $pos <= $self->num_sequences ;
 
     my $nse = $self->{'_order'}->{--$pos};
     return $self->{'_seq'}->{$nse};
@@ -987,7 +987,7 @@ current MSA.
  Usage     : $aln2 = $aln->select(1, 3) # three first sequences
  Function  : Creates a new alignment from a continuous subset of
              sequences.  Numbering starts from 1.  Sequence positions
-             larger than no_sequences() will thow an error.
+             larger than num_sequences() will thow an error.
  Returns   : a Bio::SimpleAlign object
  Args      : positive integer for the first sequence
              positive integer for the last sequence to include (optional)
@@ -1027,7 +1027,7 @@ sub select {
              $aln2 = $aln->select_noncont('nosort',3, 1)
 
  Function  : Creates a new alignment from a subset of sequences.  Numbering
-             starts from 1.  Sequence positions larger than no_sequences() will
+             starts from 1.  Sequence positions larger than num_sequences() will
              throw an error.  Sorts the order added to new alignment by default,
              to prevent sorting pass 'nosort' as the first argument in the list.
  Returns   : a Bio::SimpleAlign object
@@ -1050,7 +1050,7 @@ sub select_noncont {
         }
     }
 	
-    my $end = $self->no_sequences;
+    my $end = $self->num_sequences;
     foreach ( @pos ) {
 		$self->throw("position must be a positive integer, > 0 and <= $end not [$_]")
 		  unless( /^\d+$/ && $_ > 0 && $_ <= $end );
@@ -2046,7 +2046,7 @@ sub _consensus_aa {
 	# print "Looking at $letter\n";
 	$hash{$letter}++;
     }
-    my $number_of_sequences = $self->no_sequences();
+    my $number_of_sequences = $self->num_sequences();
     my $threshold = $number_of_sequences * $threshold_percent / 100. ;
     $count = -1;
     $letter = '?';
@@ -2365,17 +2365,18 @@ sub max_metaname_length {
     return $maxname;
 }
 
-=head2 no_residues
+=head2 num_residues
 
- Title     : no_residues
- Usage     : $no = $ali->no_residues
+ Title     : num_residues
+ Usage     : $no = $ali->num_residues
  Function  : number of residues in total in the alignment
  Returns   : integer
  Argument  :
+ Note      : replaces no_residues() 
 
 =cut
 
-sub no_residues {
+sub num_residues {
     my $self = shift;
     my $count = 0;
 
@@ -2388,19 +2389,19 @@ sub no_residues {
     return $count;
 }
 
-=head2 no_sequences
+=head2 num_sequences
 
- Title     : no_sequences
- Usage     : $depth = $ali->no_sequences
+ Title     : num_sequences
+ Usage     : $depth = $ali->num_sequences
  Function  : number of sequence in the sequence alignment
  Returns   : integer
- Argument  :
+ Argument  : none
+ Note      : replaces no_sequences()
 
 =cut
 
-sub no_sequences {
+sub num_sequences {
     my $self = shift;
-
     return scalar($self->each_seq);
 }
 
@@ -2965,48 +2966,46 @@ sub bracket_string {
 }
 
 
-=head2 methods for Bio::FeatureHolder
+=head2 methods implementing Bio::FeatureHolderI
 
-FeatureHolder implementation to support labeled character sets like one
+FeatureHolderI implementation to support labeled character sets like one
 would get from NEXUS represented data.
 
 =head2 get_SeqFeatures
 
- Usage   :
+ Usage   : @features = $aln->get_SeqFeatures
  Function: Get the feature objects held by this feature holder.
  Example :
  Returns : an array of Bio::SeqFeatureI implementing objects
- Args    : none
-
-At some day we may want to expand this method to allow for a feature
-filter to be passed in.
+ Args    : optional filter coderef, taking a Bio::SeqFeatureI 
+         : as argument, returning TRUE if wanted, FALSE if 
+         : unwanted
 
 =cut
 
 sub get_SeqFeatures {
     my $self = shift;
-
+    my $filter_cb = shift;
+    $self->throw("Arg (filter callback) must be a coderef") unless 
+	!defined($filter_cb) or ref($filter_cb) eq 'CODE';
     if( !defined $self->{'_as_feat'} ) {
 	$self->{'_as_feat'} = [];
+    }
+    if ($filter_cb) {
+	return grep { $filter_cb->($_) } @{$self->{'_as_feat'}};
     }
     return @{$self->{'_as_feat'}};
 }
 
 =head2 add_SeqFeature
 
- Usage   : $feat->add_SeqFeature($subfeat);
-           $feat->add_SeqFeature($subfeat,'EXPAND')
- Function: adds a SeqFeature into the subSeqFeature array.
-           with no 'EXPAND' qualifer, subfeat will be tested
-           as to whether it lies inside the parent, and throw
-           an exception if not.
-
-           If EXPAND is used, the parent''s start/end/strand will
-           be adjusted so that it grows to accommodate the new
-           subFeature
+ Usage   : $aln->add_SeqFeature($subfeat);
+ Function: adds a SeqFeature into the SeqFeature array.
  Example :
- Returns : nothing
+ Returns : true on success
  Args    : a Bio::SeqFeatureI object
+ Note    : This implementation is not compliant
+           with Bio::FeatureHolderI
 
 =cut
 
@@ -3029,10 +3028,10 @@ sub add_SeqFeature {
 =head2 remove_SeqFeatures
 
  Usage   : $obj->remove_SeqFeatures
- Function: Removes all sub SeqFeatures.  If you want to remove only a subset,
+ Function: Removes all SeqFeatures.  If you want to remove only a subset,
            remove that subset from the returned array, and add back the rest.
- Returns : The array of Bio::SeqFeatureI implementing sub-features that was
-           deleted from this feature.
+ Returns : The array of Bio::SeqFeatureI features that was
+           deleted from this alignment.
  Args    : none
 
 =cut
@@ -3050,24 +3049,9 @@ sub remove_SeqFeatures {
 
  Title   : feature_count
  Usage   : $obj->feature_count()
- Function: Return the number of SeqFeatures attached to a feature holder.
-
-           This is before flattening a possible sub-feature tree.
-
-           We provide a default implementation here that just counts
-           the number of objects returned by get_SeqFeatures().
-           Implementors may want to override this with a more
-           efficient implementation.
-
+ Function: Return the number of SeqFeatures attached to the alignment
  Returns : integer representing the number of SeqFeatures
  Args    : None
-
-At some day we may want to expand this method to allow for a feature
-filter to be passed in.
-
-Our default implementation allows for any number of additional
-arguments and will pass them on to get_SeqFeatures(). I.e., in order to
-support filter arguments, just support them in get_SeqFeatures().
 
 =cut
 
@@ -3084,26 +3068,12 @@ sub feature_count {
 =head2 get_all_SeqFeatures
 
  Title   : get_all_SeqFeatures
- Usage   :
- Function: Get the flattened tree of feature objects held by this
-           feature holder. The difference to get_SeqFeatures is that
-           the entire tree of sub-features will be flattened out.
-
-           We provide a default implementation here, so implementors
-           don''t necessarily need to implement this method.
-
+ Usage   : 
+ Function: Get all SeqFeatures.
  Example :
  Returns : an array of Bio::SeqFeatureI implementing objects
  Args    : none
-
-At some day we may want to expand this method to allow for a feature
-filter to be passed in.
-
-Our default implementation allows for any number of additional
-arguments and will pass them on to any invocation of
-get_SeqFeatures(), wherever a component of the tree implements
-FeatureHolderI. I.e., in order to support filter arguments, just
-support them in get_SeqFeatures().
+ Note    : Falls through to Bio::FeatureHolderI implementation.
 
 =cut
 
@@ -3138,6 +3108,98 @@ sub annotation {
     }
     return $obj->{'_annotation'};
 }
+
+=head1 Deprecated methods
+
+=cut
+
+=head2 no_residues
+
+ Title     : no_residues
+ Usage     : $no = $ali->no_residues
+ Function  : number of residues in total in the alignment
+ Returns   : integer
+ Argument  :
+ Note      : deprecated in favor of num_residues() 
+
+=cut
+
+sub no_residues {
+	my $self = shift;
+	$self->deprecated(-warn_version => 1.0069,
+					  -throw_version => 1.0075);
+    $self->num_residues(@_);
+}
+
+=head2 no_sequences
+
+ Title     : no_sequences
+ Usage     : $depth = $ali->no_sequences
+ Function  : number of sequence in the sequence alignment
+ Returns   : integer
+ Argument  :
+ Note      : deprecated in favor of num_sequences()
+
+=cut
+
+sub no_sequences {
+	my $self = shift;
+	$self->deprecated(-warn_version => 1.0069,
+					  -throw_version => 1.0075);
+    $self->num_sequences(@_);
+}
+
+=head2 mask_columns
+
+ Title     : mask_columns
+ Usage     : $aln2 = $aln->mask_columns(20,30)
+ Function  : Masks a slice of the alignment inclusive of start and
+             end columns, and the first column in the alignment is denoted 1.
+             Mask beyond the length of the sequence does not do padding.
+ Returns   : A Bio::SimpleAlign object
+ Args      : Positive integer for start column, positive integer for end column,
+             optional string value use for the mask. Example:
+
+             $aln2 = $aln->mask_columns(20,30,'?')
+
+=cut
+
+sub mask_columns {
+    #based on slice(), but did not include the Bio::Seq::Meta sections as I was not sure what it is doing
+    my $self = shift;
+
+    my ($start, $end, $mask_char) = @_;
+    unless (defined $mask_char) { $mask_char = 'N' }
+
+    $self->throw("Mask start has to be a positive integer, not [$start]")
+      unless $start =~ /^\d+$/ and $start > 0;
+    $self->throw("Mask end has to be a positive integer, not [$end]")
+      unless $end =~ /^\d+$/ and $end > 0;
+    $self->throw("Mask start [$start] has to be smaller than or equal to end [$end]")
+      unless $start <= $end;
+    $self->throw("This alignment has only ". $self->length . " residues. Mask start " .
+                     "[$start] is too big.") if $start > $self->length;
+    $self->throw("Mask character $mask_char has to be a single character")
+      unless CORE::length($mask_char) == 1;
+
+    my $aln = $self->new;
+    $aln->id($self->id);
+    foreach my $seq ( $self->each_seq() ) {
+        my $new_seq = Bio::LocatableSeq->new(-id => $seq->id,
+         -alphabet => $seq->alphabet,
+         -strand  => $seq->strand,
+         -verbose => $self->verbose);
+
+        my $mask_end = $end;
+        $mask_end = $seq->length if( $end > $seq->length );
+        my $masked_string = $mask_char x ($mask_end - $start +1);
+        my $new_dna_string = substr($seq->seq,0,$start-1) . $masked_string . substr($seq->seq,$mask_end);
+        $new_seq->seq($new_dna_string);
+        $aln->add_seq($new_seq);
+    }
+    return $aln;
+}
+
 
 
 1;

@@ -24,7 +24,7 @@ $str = Bio::AlignIO->new(
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');is $aln->length,25;
-is $aln->no_sequences,4;
+is $aln->num_sequences,4;
 is $aln->get_seq_by_pos(3)->seq(),"CCTTAAAATAAAATCCCCACCACCA";
 is $aln->get_seq_by_pos(3)->strand,"1";
 
@@ -35,7 +35,7 @@ $str = Bio::AlignIO->new(
 isa_ok($str,'Bio::AlignIO');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');is $aln->length,20;
-is $aln->no_sequences,8;
+is $aln->num_sequences,8;
 is $aln->get_seq_by_pos(8)->seq(),"CCAGTCTCCCCTGAATACCC";
 is $aln->get_seq_by_pos(7)->strand,"-1";
 is $aln->get_seq_by_pos(6)->strand,"1";

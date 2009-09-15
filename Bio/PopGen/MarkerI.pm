@@ -174,7 +174,7 @@ L<Bio::AnnotatableI>.
 
 sub annotation{
    my ($self,@args) = @_;
-
+   $self->throw_not_implemented();
 }
 
 

@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 116);
+    test_begin(-tests => 118);
 	
 	use_ok('Bio::LocatableSeq');
 	use_ok('Bio::AlignIO');
@@ -235,6 +235,22 @@ $seq->verbose(2);
 eval { $seq->end(554);};
 ok $@;
 like $@, qr/Overriding value \[554\] with value 552/;
+
+lives_ok { $seq = Bio::LocatableSeq->new(
+			     -seq => 'LSYC*',
+			     -strand => 0,
+                 -start => 1,
+                 -end => 5,
+				 -verbose => 2
+			     );} '* is counted in length';
+
+throws_ok { $seq = Bio::LocatableSeq->new(
+			     -seq => 'LSYC*',
+			     -strand => 0,
+                 -start => 1,
+                 -end => 6,
+				 -verbose => 2
+			     );} qr/Overriding value \[6\] with value 5/, '* is counted in length, but end is wrong';
 
 # setting symbols (class variables) - demonstrate scoping issues when using
 # globals with and w/o localization.  To be fixed in a future BioPerl version

@@ -387,6 +387,10 @@ sub is_remote { return }
 # for Bio::LocationI compatibility
 sub location_type { return 'EXACT' }
 
+# for Bio::DB::GFF compatibility
+
+sub feature_id {shift->primary_id}
+
 1;
 
 

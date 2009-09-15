@@ -112,15 +112,10 @@ sub next_aln {
 	   # the consensus line marks the end of the alignment part of the entry
 	   last;
        }
-   }
-
-#  If $end <= 0, we have either reached the end of
-#  file in <> or we have encountered some other error
-#
-   if ($end <= 0) { undef $aln;}
-
-
-   return $aln;
+	}
+	
+   return $aln if $aln->num_sequences;
+   return;
 }
 
 

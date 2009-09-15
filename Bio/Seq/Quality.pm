@@ -596,6 +596,9 @@ sub get_clear_range {
     # populate the cache if needed
     $self->_find_clear_ranges unless defined $self->{_ranges};
 
+    # fix for bug 2847
+    return unless defined $self->{_ranges};
+
     # pick the longest
     for (sort {$b->{length} <=> $a->{length} } @{$self->{_ranges}} ){
 
@@ -664,7 +667,8 @@ sub _find_clear_ranges {
 	# print "$i -- $q\n";
 	if ( $flag ){
 	    if ($q < $threshold) {
-		my $range->{end} = $i-1;
+		my $range;
+		$range->{end} = $i-1;
 		$range->{start}  = $flag;
 		$range->{length} = $i - $flag;
 		push @{$self->{_ranges}}, $range;
@@ -677,7 +681,8 @@ sub _find_clear_ranges {
 
     if( $flag ){
 	## Log the range
-	my $range->{end} = $i;
+	my $range;
+	$range->{end} = $i;
 	$range->{start}  = $flag;
 	$range->{length} = $i - $flag + 1;
 	push @{$self->{_ranges}}, $range;

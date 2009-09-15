@@ -1,0 +1,47 @@
+FASTA searches a protein or DNA sequence data bank
+ version 35.03 Feb. 18, 2008
+Please cite:
+ W.R. Pearson & D.J. Lipman PNAS (1988) 85:2444-2448
+
+Query: fake.fa
+  1>>>TM1000020|total:2746_L:1626_-3:439_0:279_+3:402 32 nt - 32 nt
+Library: /home/va473/databases/contaminants/contaminants.fasta 1055411 residues in  2012 sequences
+
+1055411 residues in  2016 sequences
+Statistics:  Expectation_n fit: rho(ln(x))= 0.9735+/-0.00348; mu= 31.8193+/- 0.161
+ mean_var=45.4281+/-12.600, 0's: 0 Z-trim: 6  B-trim: 532 in 2/40
+ Lambda= 0.190288
+Algorithm: FASTA (3.5 Sept 2006) [optimized]
+Parameters: +5/-4 matrix (5:-4) ktup: 2
+ join: 65, opt: 50, open/ext: -100/-4, width:  16
+ Scan time:  0.230
+
+The best scores are:                                      opt bits E(2016)
+DQ345959.1 | Symbols:  | chloroplast | Gossypi (160301) [r]  142 50.2 2.7e-08
+
+>>DQ345959.1 | Symbols:  | chloroplast | Gossypium hirsu  (160301 nt)
+rev-comp initn: 141 init1: 141 opt: 142  Z-score: 196.2  bits: 50.2 E(): 2.7e-08
+banded Smith-Waterman score: 142; 93.8% identity (93.8% similar) in 32 nt overlap (32-1:31483-31514)
+
+                                      30        20        10       
+TM100-                               GCCGGTGCTCTGACCAATTGAACTAGAATC
+                                     : ::::::::::::::::::::::: ::::
+DQ3459 GGCTCGAACCCGCAGCTTCCGCCTTGACAGGGCGGTGCTCTGACCAATTGAACTACAATC
+          31460     31470     31480     31490     31500     31510  
+
+                                                                   
+TM100- CC                                                          
+       ::                                                          
+DQ3459 CCAGGGAAATAAAGAAAAGTGTACAACAGAGATAGTCTTATGATTTCATTCATTTTCTAT
+          31520     31530     31540     31550     31560     31570  
+
+
+
+32 residues in 1 query   sequences
+1055411 residues in 2012 library sequences
+ Tcomplib [35.03] (4 proc)
+ start: Sun Jul  6 00:14:21 2008 done: Sun Jul  6 00:14:21 2008
+ Total Scan time:  0.230 Total Display time:  0.010
+
+Function used was FASTA [version 35.03 Feb. 18, 2008]
+

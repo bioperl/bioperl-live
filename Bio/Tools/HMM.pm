@@ -140,6 +140,9 @@ web:
 
 package Bio::Tools::HMM;
 
+use strict;
+use warnings;
+
 use base qw(Bio::Root::Root);
 
 BEGIN {
@@ -245,7 +248,7 @@ sub likelihood {
 sub statistical_training {
    my ($self, $seqs, $hss) = @_;
    my $valid_symbols;
-   my $seq_cnt, $hs_cnt;
+   my ($seq_cnt, $hs_cnt);
    my $i;
 
    if( ! defined $seqs or ! defined $hss) {
@@ -263,7 +266,7 @@ sub statistical_training {
          $self->throw("The corresponding observation sequences and hidden state sequences must be of the same length!\n");
       }
    }
-   foreach $seq (@{$seqs}) {
+   foreach my $seq (@{$seqs}) {
       my $s = $self->{'symbols'};
       $_ = $seq;
       $valid_symbols = eval "tr/$s//;"; 
@@ -272,7 +275,7 @@ sub statistical_training {
                 alphabet of observation symbols!\n");
       }
    }
-   foreach $seq (@{$hss}) {
+   foreach my $seq (@{$hss}) {
       my $s = $self->{'states'};
       $_ = $seq;
       $valid_symbols = eval "tr/$s//;"; 
@@ -305,7 +308,7 @@ sub baum_welch_training {
       $self->warn("Cannot calculate without supply an observation sequence!");
       return;
    }
-   foreach $seq (@{$seqs}) {
+   foreach my $seq (@{$seqs}) {
       my $s = $self->{'symbols'};
       $_ = $seq;
       $valid_symbols = eval "tr/$s//;"; 
@@ -367,7 +370,7 @@ sub symbols {
    if ( defined $val ) {
 # find duplicate
       
-      for ($i = 0; $i < length($val); ++$i) {
+      for (my $i = 0; $i < length($val); ++$i) {
          $c = substr($val, $i, 1);
          if (defined $alphabets{$c}) {
             $self->throw("Can't have duplicate symbols!");
@@ -402,7 +405,7 @@ sub states {
    if ( defined $val ) {
 # find duplicate
       
-      for ($i = 0; $i < length($val); ++$i) {
+      for (my $i = 0; $i < length($val); ++$i) {
          $c = substr($val, $i, 1);
          if (defined $alphabets{$c}) {
             $self->throw("Can't have duplicate states!");
@@ -476,7 +479,7 @@ sub init_prob {
 
 sub transition_prob {
    my ($self, $matrix) = @_;
-   my $i, $j;
+   my ($i, $j);
    my @A;
 
    if (defined $matrix) {
@@ -497,7 +500,7 @@ sub transition_prob {
                $sum += $matrix->entry($a, $b);
             }
             if ($sum != 1.0) {
-               $self->throw("Sum of probabilities for each from-state must be 1.0!\n");
+               $self->throw("Sum of probabilities for each from-state must be 1.0; got $sum\n");
             }
          }
          for ($i = 0; $i < length($self->{'states'}); ++$i) {
@@ -537,7 +540,7 @@ sub transition_prob {
 
 sub emission_prob {
    my ($self, $matrix) = @_;
-   my $i, $j;
+   my ($i, $j);
    my @A;
 
    if (defined $matrix) {
@@ -558,7 +561,7 @@ sub emission_prob {
                $sum += $matrix->entry($a, $b);
             }
             if ($sum != 1.0) {
-               $self->throw("Sum of probabilities for each state must be 1.0!\n");
+               $self->throw("Sum of probabilities for each state must be 1.0; got $sum\n");
             }
          }
          for ($i = 0; $i < length($self->{'states'}); ++$i) {

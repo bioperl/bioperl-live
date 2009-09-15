@@ -18,6 +18,8 @@ use constant BINSIZE => 10_000;
 use constant MININT  => -999_999_999_999;
 use constant MAXINT  => 999_999_999_999;
 
+our $VERSION = '2.00';
+
 =head1 NAME
 
 Bio::DB::SeqFeature::Store::berkeleydb -- Storage and retrieval of sequence annotation data in Berkeleydb files
@@ -186,6 +188,10 @@ Adaptor-specific arguments
  -create            Pass true to create the index files if they don't exist
                     (implies -write=>1)
 
+ -locking           Use advisory locking to avoid one process trying to read
+                    from the database while another is updating it (may not
+                    work properly over NFS).
+
  -temp              Pass true to create temporary index files that will
                     be deleted once the script exits.
 
@@ -231,6 +237,10 @@ To be indexed, files must end with one of .gff3 (GFF3 format), .fa
 
 B<-autoindex> is an alias for B<-dir>.
 
+You should specify B<-locking> in a multiuser environment, including
+the case in which the database is being used by a web server at the
+same time another user might be updating it.
+
 =back
 
 See L<Bio::DB::SeqFeature::Store> for all the access methods supported
@@ -252,12 +262,14 @@ sub init {
       $write,
       $create,
       $verbose,
-     ) = rearrange([['DSN','DB'],
-		   [qw(DIR AUTOINDEX)],
-		   ['TMP','TEMP','TEMPORARY'],
-		   [qw(WRITE WRITABLE)],
-		   'CREATE',
-		    'VERBOSE'
+      $locking,
+      ) = rearrange([['DSN','DB'],
+		    [qw(DIR AUTOINDEX)],
+		    ['TMP','TEMP','TEMPORARY'],
+		    [qw(WRITE WRITABLE)],
+		    'CREATE',
+		    'VERBOSE',
+		    [qw(LOCK LOCKING)],
 		  ],@_);
 
   $verbose = 1 unless defined $verbose;
@@ -289,6 +301,7 @@ sub init {
   $self->directory($directory);
   $self->temporary($is_temporary);
   $self->verbose($verbose);
+  $self->locking($locking);
   $self->_delete_databases()    if $create;
   if ($autoindex && -d $autoindex) {
       $self->auto_reindex($autoindex);
@@ -475,7 +488,6 @@ sub needs_auto_reindexing {
 	    my $mtime = _mtime(\*_);  # not a typo
 	    $maxtime   = $mtime if $mtime > $maxtime;
 	    push @gff3,$path;
-#	    push @gff3,$path if $mtime > $timestamp_time;
 	}
 	
 	
@@ -483,7 +495,6 @@ sub needs_auto_reindexing {
 	    my $mtime = _mtime(\*_);  # not a typo
 	    $maxtime   = $mtime if $mtime > $maxtime;
 	    push @fff,$path;
-#	    push @fff,$path if $mtime > $timestamp_time;
 	}
 	
 	elsif ($path =~ /\.wig$/i) {
@@ -505,7 +516,6 @@ sub needs_auto_reindexing {
     closedir $D;
     
     $result->{gff}     = \@gff3 if $maxtime > $timestamp_time;
-#    $result->{gff}     = \@gff3 if @gff3;
     $result->{wig}     = \@wig  if @wig;
     $result->{fff}     = \@fff  if @fff;
     $result->{fasta}++ if $fasta;
@@ -519,6 +529,13 @@ sub verbose {
     return $d;
 }
 
+sub locking {
+    my $self = shift;
+    my $d    = $self->{locking};
+    $self->{locking} = shift if @_;
+    return $d;
+}
+
 sub lockfile {
     my $self = shift;
     return File::Spec->catfile($self->directory,'lock');
@@ -527,12 +544,13 @@ sub lockfile {
 sub lock {
     my $self = shift;
     my $mode = shift;
+    return unless $self->locking;
 
     my $flag = $mode eq 'exclusive' ? LOCK_EX : LOCK_SH;
     my $lockfile = $self->lockfile;
     my $fh = $self->_flock_fh;
     unless ($fh) {
-	my $open     = -e $lockfile ? '<' : '>';
+	my $open  = -e $lockfile ? '<' : '>';
 	$fh       = IO::File->new($lockfile,$open) or die "Cannot open $lockfile: $!";
     }
     flock($fh,$flag);
@@ -541,10 +559,11 @@ sub lock {
 
 sub unlock {
     my $self = shift;
+    return unless $self->locking;
+
     my $fh = $self->_flock_fh or return;
     flock($fh,LOCK_UN);
     undef $self->{flock_fh};
-    unlink $self->lockfile;
 }
 
 sub _flock_fh {
@@ -580,6 +599,7 @@ sub _open_databases {
   if ($create) {
     %h = ();
     $h{'.next_id'} = 1;
+    $h{'.version'} = $VERSION;
   }
   $self->db(\%h);
 
@@ -974,7 +994,7 @@ sub _features {
 
   my @result;
   unless (defined $name or defined $seq_id or defined $types or defined $attributes) {
-    @result = grep {$_ ne '.next_id' } keys %{$self->db};
+    @result = grep {!/^\./} keys %{$self->db};
   }
 
   my %found = ();
@@ -1022,7 +1042,8 @@ sub filter_by_name {
   for (my $status = $db->seq($key,$value,R_CURSOR);
        $status == 0 and $key =~ /^$regexp$/i;
        $status = $db->seq($key,$value,R_NEXT)) {
-    push @results,$value;
+      next if %$filter && !$filter->{$value};  # don't bother
+      push @results,$value;
   }
   $self->update_filter($filter,\@results);
 }
@@ -1050,12 +1071,24 @@ sub filter_by_type {
     my $key   = lc "$primary_tag:$source_tag";
     my $value;
 
-    for (my $status = $db->seq($key,$value,R_CURSOR);
- 	 $status == 0 && $key =~ /$match/i;
-	 $status = $db->seq($key,$value,R_NEXT)) {
-      push @results,$value;
+    # If filter is already provided, then it is usually faster to
+    # fetch each object.
+    if (%$filter) {  
+	for my $id (keys %$filter) {
+	    my $obj = $self->_fetch($id) or next;
+	    push @results,$id if $obj->type =~ /$match/i;
+	}
+
     }
 
+    else {
+	for (my $status = $db->seq($key,$value,R_CURSOR);
+	     $status == 0 && $key =~ /$match/i;
+	     $status = $db->seq($key,$value,R_NEXT)) {
+	    next if %$filter && !$filter->{$value};  # don't even bother
+	    push @results,$value;
+	}
+    }
   }
   $self->update_filter($filter,\@results);
 }
@@ -1076,11 +1109,13 @@ sub filter_by_location {
 
   $start = MININT  if !defined $start;
   $end   = MAXINT  if !defined $end;
+  my $version_2 = $self->version > 1;
 
   if ($range_type eq 'overlaps' or $range_type eq 'contains') {
-    my $key     = "\L$seq_id\E.$binstart";
-    my $keystop = "\L$seq_id\E.$binend";
+    my $key     = $version_2 ? "\L$seq_id\E.$binstart" : "\L$seq_id\E$binstart";
+    my $keystop = $version_2 ? "\L$seq_id\E.$binend"   : "\L$seq_id\E$binend";
     my $value;
+
     for (my $status = $db->seq($key,$value,R_CURSOR);
 	 $status == 0 && $key le $keystop;
 	 $status = $db->seq($key,$value,R_NEXT)) {
@@ -1093,6 +1128,7 @@ sub filter_by_location {
       elsif ($range_type eq 'contains') {
 	next unless $fstart >= $start && $fend <= $end;
       }
+      next if %$filter && !$filter->{$id};  # don't bother
       push @results,$id;
     }
   }
@@ -1100,8 +1136,8 @@ sub filter_by_location {
   # for contained in, we look for features originating and terminating outside the specified range
   # this is incredibly inefficient, but fortunately the query is rare (?)
   elsif ($range_type eq 'contained_in') {
-    my $key     = "\L$seq_id.";
-    my $keystop = "\L$seq_id\E.$binstart";
+    my $key     = $version_2 ? "\L$seq_id."            : "\L$seq_id";
+    my $keystop = $version_2 ? "\L$seq_id\E.$binstart" : "\L$seq_id\E$binstart";
     my $value;
 
     # do the left part of the range
@@ -1112,6 +1148,7 @@ sub filter_by_location {
       next if $seenit{$id}++;
       next if $strand && $fstrand != $strand;
       next unless $fstart <= $start && $fend >= $end;
+      next if %$filter && !$filter->{$id};  # don't bother
       push @results,$id;
     }
 
@@ -1124,6 +1161,7 @@ sub filter_by_location {
       next if $seenit{$id}++;
       next if $strand && $fstrand != $strand;
       next unless $fstart <= $start && $fend >= $end;
+      next if %$filter && !$filter->{$id};  # don't bother
       push @results,$id;
     }
 
@@ -1161,7 +1199,8 @@ sub filter_by_attribute {
       for (my $status = $db->seq($key,$value,R_CURSOR);
 	   $status == 0 && $key =~ /^$att_name:$regexp$/i;
 	   $status = $db->seq($key,$value,R_NEXT)) {
-	push @result,$value;
+	  next if %$filter && !$filter->{$value};  # don't bother
+	  push @result,$value;
       }
     }
     $result ||= $self->update_filter($filter,\@result);
@@ -1326,6 +1365,12 @@ sub finish_bulk_update {
     $fh->close;
     $self->{fasta_db} = Bio::DB::Fasta::Subdir->new($self->{fasta_file});
   }
+}
+
+sub version {
+    my $self = shift;
+    my $db   = $self->db;
+    return $db->{'.version'} || 1.00;
 }
 
 

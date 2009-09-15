@@ -31,12 +31,14 @@ Bio::SearchIO::infernal - SearchIO-based Infernal parser
 
 =head1 DESCRIPTION
 
-This is a highly experimental SearchIO-based parser for Infernal
-output from the cmsearch program. It currently parses cmsearch output
-for Infernal versions 0.7-0.81; older versions may work but will not
-be supported. After the first stable version is released (and output
-has stabilized) it is very likely support for the older pre-v.1
-developer releases will be dropped.
+This is a SearchIO-based parser for Infernal output from the cmsearch program.
+It currently parses cmsearch output for Infernal versions 0.7-1.0; older
+versions may work but will not be supported.
+
+As the first stable version has been released (and output has stabilized) it is
+highly recommended that users upgrade to using the latest Infernal release.
+Support for the older pre-v.1 developer releases will be dropped for future core
+1.6 releases. 
 
 =head1 FEEDBACK
 
@@ -122,6 +124,7 @@ our %MAPPING = (
         'Hit_accession' => 'HIT-accession',
         'Hit_def'       => 'HIT-description',
         'Hit_signif'    => 'HIT-significance', # evalues only in v0.81, optional
+        'Hit_p'         => 'HIT-p',            # pvalues in 1.0, optional
         'Hit_score'     => 'HIT-score', # best HSP bit score
         'Hit_bits'      => 'HIT-bits', # best HSP bit score
  
@@ -138,7 +141,7 @@ our %MAPPING = (
 
 my $MINSCORE = 0;
 my $DEFAULT_ALGORITHM = 'cmsearch';
-my $DEFAULT_VERSION = '0.72';
+my $DEFAULT_VERSION = '1.0';
 
 my @VALID_SYMBOLS = qw(5-prime 3-prime single-strand unknown gap);
 my %STRUCTURE_SYMBOLS = (
@@ -209,11 +212,12 @@ sub _initialize {
             -verbose   => $self->verbose
         )
     );
-    $model     && $self->model($model);
-    $database  && $self->database($database);
-    $accession && $self->query_accession($accession);
-    $convert   && $self->convert_meta($convert);
-    $desc      && $self->query_description($desc);
+	
+    defined $model     && $self->model($model);
+    defined $database  && $self->database($database);
+    defined $accession && $self->query_accession($accession);
+    defined $convert   && $self->convert_meta($convert);
+    defined $desc      && $self->query_description($desc);
     
     $version ||= $DEFAULT_VERSION;
     $self->version($version);
@@ -243,16 +247,26 @@ sub next_result {
             # advance to first line
             next if $line =~ m{^\s*$};
             # newer output starts with model name
-            if ($line =~ m{^CM\s\d+:}) {
-                $self->{'_handlerset'} = 'new';
+            if ($line =~ m{^\#\s+cmsearch\s}) {
+                $self->{'_handlerset'} = 'latest';
+			} elsif ($line =~ m{^CM\s\d+:}) {
+                $self->{'_handlerset'} = 'pre-1.0';
             } else {
                 $self->{'_handlerset'} ='old';
             }
             last;
         }
         $self->_pushback($line);
+		#if ($self->{'_handlerset'} ne '1.0') {
+		#	$self->deprecated(
+		#	-message => "Parsing of Infernal pre-1.0 release is deprecated;\n".
+		#		"upgrading to Infernal 1.0 or above is highly recommended",
+		#	-version => 1.007);
+		#}
     }
-    return $self->{'_handlerset'} eq 'new' ? $self->_parse_new : $self->_parse_old;
+    return ($self->{'_handlerset'} eq 'latest')  ? $self->_parse_latest :
+		   ($self->{'_handlerset'} eq 'pre-1.0') ? $self->_parse_pre :
+			$self->_parse_old;
 }
 
 =head2 start_element
@@ -294,7 +308,6 @@ sub start_element {
  Function: Handles an end element event
  Returns : none
  Args    : hashref with at least 2 keys, 'Data' and 'Name'
-
 
 =cut
 
@@ -686,8 +699,204 @@ sub simple_meta {
 # this is a hack which guesses the format and sets the handler for parsing in
 # an instance; it'll be taken out when infernal 1.0 is released
 
-# cmsearch 0.81
-sub _parse_new {
+sub _parse_latest {
+    my ($self) = @_;
+    my $seentop = 0;
+    local $/ = "\n";
+    my ($accession, $description) = ($self->query_accession, $self->query_description);
+    my ($maxscore, $mineval, $minpval);
+    $self->start_document();
+    my ($lasthit, $lastscore, $lasteval, $lastpval, $laststart, $lastend);
+    PARSER:
+    while (my $line = $self->_readline) {
+        next if $line =~ m{^\s+$};
+        # stats aren't parsed yet...
+		if ($line =~ m{^\#\s+cmsearch}xms) {
+			$seentop = 1;
+			$self->start_element({'Name' => 'Result'});
+			$self->element_hash({
+					'Infernal_program'   => 'CMSEARCH'
+				});
+		}
+		elsif ($line =~ m{^\#\sINFERNAL\s+(\d+\.\d+)}xms) {
+			$self->element_hash({
+					'Infernal_version'   => $1,
+				});
+		}
+		elsif ($line =~ m{^\#\scommand:.*?\s(\S+)$}xms) {
+			$self->element_hash({
+					'Infernal_db'   => $1,
+				});
+		}
+		elsif ($line =~ m{^\#\s+dbsize\(Mb\):\s+(\d+\.\d+)}xms) {
+			# store absolute DB length
+			$self->element_hash({
+					'Infernal_db-let'   => $1 * 1e6
+				});		
+		}		
+		elsif ($line =~ m{^CM(?:\s(\d+))?:\s*(\S+)}xms) {
+			# not sure, but it's possible single reports may contain multiple
+			# models; if so, they should be rolled over into a new ResultI
+			#print STDERR "ACC: $accession\nDESC: $description\n";
+			$self->element_hash({
+			        'Infernal_query-def' => $2, # present in output now
+			        'Infernal_query-acc' => $accession,
+			        'Infernal_querydesc' => $description
+			    });
+        }
+		elsif ($line =~ m{^>\s*(\S+)} ){
+            #$self->debug("Start Hit: Found hit:$1\n");
+            if ($self->in_element('hit')) {
+                $self->element_hash({'Hit_score' => $maxscore,
+                                     'Hit_bits'  => $maxscore});
+                ($maxscore, $minpval, $mineval) = undef;
+                $self->end_element({'Name' => 'Hit'});
+            }
+            $lasthit = $1;
+        }
+        elsif ($line =~ m{
+            ^\sQuery\s=\s\d+\s-\s\d+,\s   # Query start/end
+            Target\s=\s(\d+)\s-\s(\d+)    # Target start/end
+            }xmso) {
+            # Query (model) start/end always the same, determined from
+            # the HSP length
+            ($laststart, $lastend) = ($1, $2);
+            #$self->debug("Found hit coords:$laststart - $lastend\n");
+        } elsif ($line =~ m{
+            ^\sScore\s=\s([\d\.]+),\s   # Score = Bitscore (for now)
+            (?:E\s=\s([\d\.e-]+),\s     # E-val optional
+             P\s=\s([\d\.e-]+),\s)?     # P-val optional
+            GC\s=                       # GC not captured
+            }xmso
+                 ) {
+            ($lastscore, $lasteval, $lastpval) = ($1, $2, $3);
+            #$self->debug(sprintf("Found hit data:Score:%s,Eval:%s,Pval:%s\n",$lastscore, $lasteval||'', $lastpval||''));
+            $maxscore ||= $lastscore;
+            if ($lasteval && $lastpval) {
+                $mineval ||= $lasteval;
+                $minpval ||= $lastpval;
+                $mineval = ($mineval > $lasteval)  ? $lasteval :
+                        $mineval;
+                $minpval = ($minpval > $lastpval)  ? $lastpval :
+                        $minpval;
+            }
+            $maxscore = ($maxscore < $lastscore)  ? $lastscore :
+                        $maxscore;
+            if (!$self->within_element('hit')) {
+                my ($gi, $acc, $ver) = $self->_get_seq_identifiers($lasthit);
+                $self->start_element({'Name' => 'Hit'});
+                $self->element_hash({
+                    'Hit_id'           => $lasthit,
+                    'Hit_accession'    => $ver ? "$acc.$ver" :
+                                           $acc ? $acc : $lasthit,
+                    'Hit_gi'           => $gi
+                    });
+            }
+            if (!$self->in_element('hsp')) {
+                $self->start_element({'Name' => 'Hsp'});
+            }
+            
+            # hsp is similar to older output
+        } elsif ($line =~ m{^(\s+)[<>\{\}\(\)\[\]:_,-\.]+}xms) { # start of HSP
+            $self->_pushback($line); # set up for loop
+            #$self->debug("Start HSP\n");
+            # what is length of the gap to the structure data?
+            my $offset = length($1);
+            my ($ct, $strln) = 0;
+            my $hsp;
+            HSP:
+            my %hsp_key = ('0' => 'meta',
+               '1' => 'query',
+               '2' => 'midline',
+               '3' => 'hit');
+            HSP:
+            while (defined ($line = $self->_readline)) {
+                chomp $line;
+          		next if (!$line); # toss empty lines
+                # next if $line =~ m{^\s*$}; # toss empty lines
+                # it is possible to have homology lines consisting
+                # entirely of spaces if the subject has a large
+                # insertion where nothing matches the model
+                
+                # exit loop if at end of file or upon next hit/HSP
+                if ($line =~ m{^\s{0,2}\S+}) {
+                    $self->_pushback($line);
+                    last HSP;
+                }
+                # iterate to keep track of each line (4 lines per hsp block)
+                my $iterator = $ct % 4;
+                # strlen set only with structure lines (proper length)
+                $strln = length($line) if $iterator == 0;
+                # only grab the data needed (hit start and stop in hit line above)
+												
+                my $data = substr($line, $offset, $strln-$offset);
+                $hsp->{ $hsp_key{$iterator} } .= $data;
+                
+                $ct++;
+            }
+            
+            # query start, end are from the actual query length (entire hit is
+            # mapped to CM data, so all CM data is represented)
+            # works for now...
+            if ($self->in_element('hsp')) {				
+				# In some cases with HSPs unaligned residues are present in
+				# the hit or query (Ex: '*[ 8]*' is 8 unaligned residues).
+				# This info needs to be passed on unmodifed to the HSP class
+				# and handled there as it is subjectively changed based on
+				# use.
+                my $strlen = 0;
+				
+				# catch any insertions and add them into the actual length
+				while ($hsp->{'query'} =~ m{\*\[\s*(\d+)\s*\]\*}g) {
+					$strlen += $1;
+				}
+				# add on the actual residues
+				$strlen += $hsp->{'query'} =~ tr{A-Za-z}{A-Za-z};
+				
+                my $metastr = ($self->convert_meta) ? ($self->simple_meta($hsp->{'meta'})) :
+                            $hsp->{'meta'};
+                $self->element_hash(
+                               {'Hsp_stranded'  => 'HIT',
+                                'Hsp_qseq'      => $hsp->{'query'},
+                                'Hsp_hseq'      => $hsp->{'hit'},
+                                'Hsp_midline'   => $hsp->{'midline'},
+                                'Hsp_structure' => $metastr,
+                                'Hsp_query-from' => 1,
+                                'Infernal_query-len' => $strlen,
+                                'Hsp_query-to'   => $strlen,
+                                'Hsp_hit-from'  => $laststart,
+                                'Hsp_hit-to'    => $lastend,
+                                'Hsp_score'     => $lastscore,
+                                'Hsp_bit-score' => $lastscore,
+                            });
+                $self->element_hash(
+                               {'Hsp_evalue'    => $lasteval,
+                                'Hsp_pvalue'    => $lastpval,
+                            }) if ($lasteval && $lastpval);
+                $self->end_element({'Name' => 'Hsp'});
+            }
+        # result now ends with // and 'Fin'
+        } elsif ($line =~ m{^//}xms )  {
+            if ($self->within_element('result') && $seentop) {
+                if ($self->in_element('hit')) {
+                    $self->element_hash({'Hit_score'    => $maxscore,
+                                         'Hit_bits'     => $maxscore});
+                    # don't know where to put minpval yet
+                    $self->element_hash({'Hit_signif'   => $mineval}) if $mineval;
+                    $self->element_hash({'Hit_p'        => $minpval}) if $minpval;
+                    $self->end_element({'Name' => 'Hit'});
+                }
+                last PARSER;
+            }
+        }
+    }
+    $self->within_element('hit') && $self->end_element( { 'Name' => 'Hit' } );
+    $self->end_element( { 'Name' => 'Result' } ) if $seentop;
+    return $self->end_document();
+}
+
+# cmsearch 0.81 (pre-1.0)
+sub _parse_pre {
     my ($self) = @_;
     my $seentop = 0;
     local $/ = "\n";
@@ -993,6 +1202,5 @@ sub _parse_old {
     $self->end_element( { 'Name' => 'Result' } ) if $seentop;
     return $self->end_document();
 }
-
 
 1;

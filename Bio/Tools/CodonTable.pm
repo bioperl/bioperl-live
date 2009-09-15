@@ -33,7 +33,7 @@ Bio::Tools::CodonTable - Codon table object
 
   # examine codon table
   print  join (' ', "The name of the codon table no.", $myCodonTable->id(4),
-	       "is:", $myCodonTable->name(), "\n");
+           "is:", $myCodonTable->name(), "\n");
 
   # print possible codon tables
   $tables = Bio::Tools::CodonTable->tables;
@@ -109,8 +109,8 @@ The amino acid codes are IUPAC recommendations for common amino acids:
           M           Met            Methionine
           F           Phe            Phenylalanine
           P           Pro            Proline
-	  O           Pyl            Pyrrolysine (22nd amino acid)
-	  U           Sec            Selenocysteine (21st amino acid)
+          O           Pyl            Pyrrolysine (22nd amino acid)
+          U           Sec            Selenocysteine (21st amino acid)
           S           Ser            Serine
           T           Thr            Threonine
           W           Trp            Tryptophan
@@ -118,7 +118,7 @@ The amino acid codes are IUPAC recommendations for common amino acids:
           V           Val            Valine
           B           Asx            Aspartic acid or Asparagine
           Z           Glx            Glutamine or Glutamic acid
-	  J           Xle            Isoleucine or Valine (mass spec ambiguity)
+          J           Xle            Isoleucine or Valine (mass spec ambiguity)
           X           Xaa            Any or unknown amino acid
 
 
@@ -185,7 +185,7 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::CodonTable;
 use vars qw(@NAMES @TABLES @STARTS $TRCOL $CODONS %IUPAC_DNA $CODONGAP $GAP
-				%IUPAC_AA %THREELETTERSYMBOLS $VALID_PROTEIN $TERMINATOR);
+                %IUPAC_AA %THREELETTERSYMBOLS $VALID_PROTEIN $TERMINATOR);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
@@ -202,88 +202,88 @@ BEGIN {
     $GAP = '-';
     $CODONGAP = $GAP x CODONSIZE;
 
-    @NAMES =			#id
-	(
-	 'Standard',		#1
-	 'Vertebrate Mitochondrial',#2
-	 'Yeast Mitochondrial',# 3
-	 'Mold, Protozoan, and CoelenterateMitochondrial and Mycoplasma/Spiroplasma',#4
-	 'Invertebrate Mitochondrial',#5
-	 'Ciliate, Dasycladacean and Hexamita Nuclear',# 6
-	 '', '',
-	 'Echinoderm Mitochondrial',#9
-	 'Euplotid Nuclear',#10
-	 '"Bacterial"',# 11
-	 'Alternative Yeast Nuclear',# 12
-	 'Ascidian Mitochondrial',# 13
-	 'Flatworm Mitochondrial',# 14
-	 'Blepharisma Nuclear',# 15
-	 'Chlorophycean Mitochondrial',# 16
-	 '', '',  '', '',
-	 'Trematode Mitochondrial',# 21
-	 'Scenedesmus obliquus Mitochondrial', #22
-	 'Thraustochytrium Mitochondrial' #23
-	 );
+    @NAMES =            #id
+    (
+     'Standard',        #1
+     'Vertebrate Mitochondrial',#2
+     'Yeast Mitochondrial',# 3
+     'Mold, Protozoan, and CoelenterateMitochondrial and Mycoplasma/Spiroplasma',#4
+     'Invertebrate Mitochondrial',#5
+     'Ciliate, Dasycladacean and Hexamita Nuclear',# 6
+     '', '',
+     'Echinoderm Mitochondrial',#9
+     'Euplotid Nuclear',#10
+     '"Bacterial"',# 11
+     'Alternative Yeast Nuclear',# 12
+     'Ascidian Mitochondrial',# 13
+     'Flatworm Mitochondrial',# 14
+     'Blepharisma Nuclear',# 15
+     'Chlorophycean Mitochondrial',# 16
+     '', '',  '', '',
+     'Trematode Mitochondrial',# 21
+     'Scenedesmus obliquus Mitochondrial', #22
+     'Thraustochytrium Mitochondrial' #23
+     );
 
     @TABLES =
-	qw(
-	   FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-	   FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSS**VVVVAAAADDEEGGGG
-	   FFLLSSSSYY**CCWWTTTTPPPPHHQQRRRRIIMMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-	   FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-	   FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSSSVVVVAAAADDEEGGGG
-	   FFLLSSSSYYQQCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-	   '' ''
-	   FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG
-	   FFLLSSSSYY**CCCWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-	   FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-	   FFLLSSSSYY**CC*WLLLSPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-	   FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSGGVVVVAAAADDEEGGGG
-	   FFLLSSSSYYY*CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG
-	   FFLLSSSSYY*QCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-	   FFLLSSSSYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-	   '' '' '' ''
-	   FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG   
-	   FFLLSS*SYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-	   FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
-	   );
+    qw(
+       FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSS**VVVVAAAADDEEGGGG
+       FFLLSSSSYY**CCWWTTTTPPPPHHQQRRRRIIMMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSSSVVVVAAAADDEEGGGG
+       FFLLSSSSYYQQCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+       '' ''
+       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG
+       FFLLSSSSYY**CCCWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+       FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+       FFLLSSSSYY**CC*WLLLSPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNKKSSGGVVVVAAAADDEEGGGG
+       FFLLSSSSYYY*CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNNKSSSSVVVVAAAADDEEGGGG
+       FFLLSSSSYY*QCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+       FFLLSSSSYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+       '' '' '' ''
+       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG   
+       FFLLSS*SYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+       FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
+       );
 
 
     @STARTS =
-	qw(
-	   ---M---------------M---------------M----------------------------
-	   --------------------------------MMMM---------------M------------
-	   ----------------------------------MM----------------------------
-	   --MM---------------M------------MMMM---------------M------------
-	   ---M----------------------------MMMM---------------M------------
-	   -----------------------------------M----------------------------
-	   '' ''
-	   -----------------------------------M----------------------------
-	   -----------------------------------M----------------------------
-	   ---M---------------M------------MMMM---------------M------------
-	   -------------------M---------------M----------------------------
-	   -----------------------------------M----------------------------
-	   -----------------------------------M----------------------------
-	   -----------------------------------M----------------------------
-	   -----------------------------------M----------------------------
-	   '' ''  '' ''
-	   -----------------------------------M---------------M------------  
-	   -----------------------------------M----------------------------
-	   --------------------------------M--M---------------M------------
-	   );
+    qw(
+       ---M---------------M---------------M----------------------------
+       --------------------------------MMMM---------------M------------
+       ----------------------------------MM----------------------------
+       --MM---------------M------------MMMM---------------M------------
+       ---M----------------------------MMMM---------------M------------
+       -----------------------------------M----------------------------
+       '' ''
+       -----------------------------------M----------------------------
+       -----------------------------------M----------------------------
+       ---M---------------M------------MMMM---------------M------------
+       -------------------M---------------M----------------------------
+       -----------------------------------M----------------------------
+       -----------------------------------M----------------------------
+       -----------------------------------M----------------------------
+       -----------------------------------M----------------------------
+       '' ''  '' ''
+       -----------------------------------M---------------M------------  
+       -----------------------------------M----------------------------
+       --------------------------------M--M---------------M------------
+       );
 
     my @nucs = qw(t c a g);
     my $x = 0;
     ($CODONS, $TRCOL) = ({}, {});
     for my $i (@nucs) {
-	for my $j (@nucs) {
-	    for my $k (@nucs) {
-		my $codon = "$i$j$k";
-		$CODONS->{$codon} = $x;
-		$TRCOL->{$x} = $codon;
-		$x++;
-	    }
-	}
+    for my $j (@nucs) {
+        for my $k (@nucs) {
+        my $codon = "$i$j$k";
+        $CODONS->{$codon} = $x;
+        $TRCOL->{$x} = $codon;
+        $x++;
+        }
+    }
     }
     %IUPAC_DNA = Bio::Tools::IUPAC->iupac_iub();    
     %IUPAC_AA = Bio::Tools::IUPAC->iupac_iup();
@@ -297,9 +297,9 @@ sub new {
     my $self = $class->SUPER::new(@args);
 
     my($id) =
-	$self->_rearrange([qw(ID
-			     )],
-			 @args);
+    $self->_rearrange([qw(ID
+                 )],
+             @args);
 
     $id = 1 if ( ! $id );
     $id  && $self->id($id);
@@ -324,8 +324,8 @@ sub id{
    my ($self,$value) = @_;
    if( defined $value) {
        if (  !(defined $TABLES[$value-1]) or $TABLES[$value-1] eq '') {
-	   $self->warn("Not a valid codon table ID [$value] ");
-	   $value = 0;
+       $self->warn("Not a valid codon table ID [$value] ");
+       $value = 0;
        }
        $self->{'id'} = $value;
    }
@@ -419,37 +419,37 @@ sub translate {
     if ($seq =~ /[^actg]/ ) { #ambiguous chars
         for (my $i = 0; $i < (length($seq) - (CODONSIZE-1)); $i+= CODONSIZE) {
             my $triplet = substr($seq, $i, CODONSIZE);
-	    if( $triplet eq $CODONGAP ) {
-		$protein .= $GAP;
-	    } elsif (exists $CODONS->{$triplet}) {
-		$protein .= substr($TABLES[$id-1], 
-				   $CODONS->{$triplet},1);
-	    } else {
-		$protein .= $self->_translate_ambiguous_codon($triplet);
-	    }
-	}
+        if( $triplet eq $CODONGAP ) {
+        $protein .= $GAP;
+        } elsif (exists $CODONS->{$triplet}) {
+        $protein .= substr($TABLES[$id-1], 
+                   $CODONS->{$triplet},1);
+        } else {
+        $protein .= $self->_translate_ambiguous_codon($triplet);
+        }
+    }
     } else { # simple, strict translation
-	for (my $i = 0; $i < (length($seq) - (CODONSIZE -1)); $i+=CODONSIZE) {
+    for (my $i = 0; $i < (length($seq) - (CODONSIZE -1)); $i+=CODONSIZE) {
             my $triplet = substr($seq, $i, CODONSIZE); 
             if( $triplet eq $CODONGAP ) {
-		$protein .= $GAP;
-	    } if (exists $CODONS->{$triplet}) {
+        $protein .= $GAP;
+        } if (exists $CODONS->{$triplet}) {
                 $protein .= substr($TABLES[$id-1], $CODONS->{$triplet}, 1);
-	    } else {
+        } else {
                 $protein .= 'X';
             }
         }
     }
     if ($partial == 2) { # 2 overhanging nucleotides
-	my $triplet = substr($seq, ($partial -4)). "n";
-	if( $triplet eq $CODONGAP ) {
-	    $protein .= $GAP;
-	} elsif (exists $CODONS->{$triplet}) {
-	    my $aa = substr($TABLES[$id-1], $CODONS->{$triplet},1);       
-	    $protein .= $aa;
-	} else {
-	    $protein .= $self->_translate_ambiguous_codon($triplet, $partial);
-	}
+    my $triplet = substr($seq, ($partial -4)). "n";
+    if( $triplet eq $CODONGAP ) {
+        $protein .= $GAP;
+    } elsif (exists $CODONS->{$triplet}) {
+        my $aa = substr($TABLES[$id-1], $CODONS->{$triplet},1);       
+        $protein .= $aa;
+    } else {
+        $protein .= $self->_translate_ambiguous_codon($triplet, $partial);
+    }
     }
     return $protein;
 }
@@ -462,23 +462,23 @@ sub _translate_ambiguous_codon {
     my @codons = _unambiquous_codons($triplet);
     my %aas =();
     foreach my $codon (@codons) {
-	$aas{substr($TABLES[$id-1],$CODONS->{$codon},1)} = 1;
+    $aas{substr($TABLES[$id-1],$CODONS->{$codon},1)} = 1;
     }
     my $count = scalar keys %aas;
     if ( $count == 1 ) {
-	$aa = (keys %aas)[0];
+    $aa = (keys %aas)[0];
     }
     elsif ( $count == 2 ) {
-	if ($aas{'D'} and $aas{'N'}) {
-	    $aa = 'B';
-	}
-	elsif ($aas{'E'} and $aas{'Q'}) {
-	    $aa = 'Z';
-	} else {
-	    $partial ? ($aa = '') : ($aa = 'X');
-	}
+    if ($aas{'D'} and $aas{'N'}) {
+        $aa = 'B';
+    }
+    elsif ($aas{'E'} and $aas{'Q'}) {
+        $aa = 'Z';
     } else {
-	$partial ? ($aa = '') :  ($aa = 'X');
+        $partial ? ($aa = '') : ($aa = 'X');
+    }
+    } else {
+    $partial ? ($aa = '') :  ($aa = 'X');
     }
     return $aa;
 }
@@ -545,34 +545,34 @@ sub translate_strict{
 =cut
 
 sub revtranslate {
-	my ($self, $value, $coding) = @_;
-	my ($id) = $self->{'id'};
-	my (@aas,  $p);
-	my (@codons) = ();
+    my ($self, $value, $coding) = @_;
+    my ($id) = $self->{'id'};
+    my (@aas,  $p);
+    my (@codons) = ();
 
-	if (length($value) == 3 ) {
-		$value = lc $value;
-		$value = ucfirst $value;
-		$value = $THREELETTERSYMBOLS{$value};
-	}
-	if ( defined $value and $value =~ /$VALID_PROTEIN/ 
-		  and length($value) == 1 ) {
-		$value = uc $value;
-		@aas = @{$IUPAC_AA{$value}};	
-		foreach my $aa (@aas) {
-			#print $aa, " -2\n";
-			$aa = '\*' if $aa eq '*';
-	      while ($TABLES[$id-1] =~ m/$aa/g) {
-		      $p = pos $TABLES[$id-1];
-		      push (@codons, $TRCOL->{--$p});
-	      }
-	    }
+    if (length($value) == 3 ) {
+        $value = lc $value;
+        $value = ucfirst $value;
+        $value = $THREELETTERSYMBOLS{$value};
+    }
+    if ( defined $value and $value =~ /$VALID_PROTEIN/ 
+          and length($value) == 1 ) {
+        $value = uc $value;
+        @aas = @{$IUPAC_AA{$value}};    
+        foreach my $aa (@aas) {
+            #print $aa, " -2\n";
+            $aa = '\*' if $aa eq '*';
+          while ($TABLES[$id-1] =~ m/$aa/g) {
+              $p = pos $TABLES[$id-1];
+              push (@codons, $TRCOL->{--$p});
+          }
+        }
     }
 
    if ($coding and uc ($coding) eq 'RNA') {
-	   for my $i (0..$#codons)  {
-	      $codons[$i] =~ tr/t/u/;
-	   }
+       for my $i (0..$#codons)  {
+          $codons[$i] =~ tr/t/u/;
+       }
    }
     
    return @codons;
@@ -596,51 +596,51 @@ sub revtranslate {
 =cut
 
 sub reverse_translate_all {
-	
-	my ($self, $obj, $cut, $threshold) = @_;
+    
+    my ($self, $obj, $cut, $threshold) = @_;
 
-	## check args are OK
+    ## check args are OK
 
-	if (!$obj || !$obj->isa('Bio::PrimarySeqI')){
-		$self->throw(" I need a Bio::PrimarySeqI object, not a [".
-						ref($obj) . "]");
-		}
-	if($obj->alphabet ne 'protein')	{
-		$self->throw("Cannot reverse translate, need an amino acid sequence .".
+    if (!$obj || !$obj->isa('Bio::PrimarySeqI')){
+        $self->throw(" I need a Bio::PrimarySeqI object, not a [".
+                        ref($obj) . "]");
+        }
+    if($obj->alphabet ne 'protein') {
+        $self->throw("Cannot reverse translate, need an amino acid sequence .".
                      "This sequence is of type [" . $obj->alphabet ."]");
-		}
-	my @data;
-	my @seq = split '', $obj->seq;
+        }
+    my @data;
+    my @seq = split '', $obj->seq;
 
-	## if we're not supplying a codon usage table...
-	if( !$cut && !$threshold) {
-		## get lists of possible codons for each aa. 
-		for my $aa (@seq) {
-			if ($aa =~ /x/i) {
-				push @data, (['NNN']);
-			}else {
-				my @cods = $self->revtranslate($aa);
-				push @data, \@cods;
-			}
-		}
-	}else{
-	#else we are supplying a codon usage table, we just want common codons
-	#check args first. 
-		if(!$cut->isa('Bio::CodonUsage::Table'))	{
-			$self->throw("I need a Bio::CodonUsage::Table object, not a [".
+    ## if we're not supplying a codon usage table...
+    if( !$cut && !$threshold) {
+        ## get lists of possible codons for each aa. 
+        for my $aa (@seq) {
+            if ($aa =~ /x/i) {
+                push @data, (['NNN']);
+            }else {
+                my @cods = $self->revtranslate($aa);
+                push @data, \@cods;
+            }
+        }
+    }else{
+    #else we are supplying a codon usage table, we just want common codons
+    #check args first. 
+        if(!$cut->isa('Bio::CodonUsage::Table'))    {
+            $self->throw("I need a Bio::CodonUsage::Table object, not a [".
                      ref($cut). "].");
-			}
-		my $cod_ref = $cut->probable_codons($threshold);
-		for my $aa (@seq) {
-			if ($aa =~ /x/i) {
-				push @data, (['NNN']);
-				next;
-				}
-			push @data, $cod_ref->{$aa};
-		}
-	}
+            }
+        my $cod_ref = $cut->probable_codons($threshold);
+        for my $aa (@seq) {
+            if ($aa =~ /x/i) {
+                push @data, (['NNN']);
+                next;
+                }
+            push @data, $cod_ref->{$aa};
+        }
+    }
 
-	return $self->_make_iupac_string(\@data);
+    return $self->_make_iupac_string(\@data);
 
 }
 
@@ -657,37 +657,37 @@ sub reverse_translate_all {
 
 sub reverse_translate_best {
 
-	my ($self, $obj, $cut) = @_;
+    my ($self, $obj, $cut) = @_;
 
-	if (!$obj || !$obj->isa('Bio::PrimarySeqI')){
-		$self->throw(" I need a Bio::PrimarySeqI object, not a [".
-						 ref($obj) . "]");
-	}
-	if ($obj->alphabet ne 'protein')	{
-		$self->throw("Cannot reverse translate, need an amino acid sequence .".
-						 "This sequence is of type [" . $obj->alphabet ."]");
-	}
-	if ( !$cut | !$cut->isa('Bio::CodonUsage::Table'))	{
-		$self->throw("I need a Bio::CodonUsage::Table object, not a [".
-						 ref($cut). "].");
-	}
+    if (!$obj || !$obj->isa('Bio::PrimarySeqI')){
+        $self->throw(" I need a Bio::PrimarySeqI object, not a [".
+                         ref($obj) . "]");
+    }
+    if ($obj->alphabet ne 'protein')    {
+        $self->throw("Cannot reverse translate, need an amino acid sequence .".
+                         "This sequence is of type [" . $obj->alphabet ."]");
+    }
+    if ( !$cut | !$cut->isa('Bio::CodonUsage::Table'))  {
+        $self->throw("I need a Bio::CodonUsage::Table object, not a [".
+                         ref($cut). "].");
+    }
 
-	my $str = '';
-	my @seq = split '', $obj->seq;
+    my $str = '';
+    my @seq = split '', $obj->seq;
 
-	my $cod_ref = $cut->most_common_codons();
+    my $cod_ref = $cut->most_common_codons();
 
-	for my $aa ( @seq ) {
-		if ($aa =~ /x/i) {
-			$str .= 'NNN';
-			next;
-		}
-		if ( defined $cod_ref->{$aa} ) {
-			$str .= $cod_ref->{$aa};
-		} else {
-			$self->throw("Input sequence contains invalid character: $aa");			
-		}
-	}
+    for my $aa ( @seq ) {
+        if ($aa =~ /x/i) {
+            $str .= 'NNN';
+            next;
+        }
+        if ( defined $cod_ref->{$aa} ) {
+            $str .= $cod_ref->{$aa};
+        } else {
+            $self->throw("Input sequence contains invalid character: $aa");         
+        }
+    }
    $str;
 }
 
@@ -717,7 +717,7 @@ sub is_start_codon{
        my $result = 1;
        my @ms = map { substr($STARTS[$id-1],$CODONS->{$_},1) } _unambiquous_codons($value);
        foreach my $c (@ms) {
-	   $result = 0 if $c ne 'M';
+       $result = 0 if $c ne 'M';
        }
        return $result;
    }
@@ -751,7 +751,7 @@ sub is_ter_codon{
        my $result = 1;
        my @ms = map { substr($TABLES[$id-1],$CODONS->{$_},1) } _unambiquous_codons($value);
        foreach my $c (@ms) {
-	   $result = 0 if $c ne $TERMINATOR;
+       $result = 0 if $c ne $TERMINATOR;
        }
        return $result;
    }
@@ -762,7 +762,7 @@ sub is_ter_codon{
  Title   : is_unknown_codon
  Usage   : $obj->is_unknown_codon('GAJ')
  Function: returns false (0) for all codons that are valid,
-	    true (1) for others.
+        true (1) for others.
  Example : $myCodonTable->is_unknown_codon('NTG')
  Returns : boolean
  Args    : codon
@@ -806,11 +806,11 @@ sub _unambiquous_codons{
     my ($i, $j, $k);
     @nts = map { $IUPAC_DNA{uc $_} }  split(//, $value);
     for my $i (@{$nts[0]}) {
-	for my $j (@{$nts[1]}) {
-	    for my $k (@{$nts[2]}) {
-		push @codons, lc "$i$j$k";
-	    }
-	}
+    for my $j (@{$nts[1]}) {
+        for my $k (@{$nts[2]}) {
+        push @codons, lc "$i$j$k";
+        }
+    }
     }
     return @codons;
 }
@@ -847,27 +847,27 @@ sub add_table {
 
 sub _make_iupac_string {
 
-	my ($self, $cod_ref) = @_;
-	if(ref($cod_ref) ne 'ARRAY') {
-		$self->throw(" I need a reference to a list of references to codons, ".
-					 " not a [". ref($cod_ref) . "].");
-		}
+    my ($self, $cod_ref) = @_;
+    if(ref($cod_ref) ne 'ARRAY') {
+        $self->throw(" I need a reference to a list of references to codons, ".
+                     " not a [". ref($cod_ref) . "].");
+        }
     my %iupac_hash   = Bio::Tools::IUPAC->iupac_rev_iub();
-	my $iupac_string = ''; ## the string to be returned
-	for my $aa (@$cod_ref) {
+    my $iupac_string = ''; ## the string to be returned
+    for my $aa (@$cod_ref) {
 
-		## scan through codon positions, record the differing values,	
-		# then look up in the iub hash
-		for my $index(0..2) {
-			my %h;
-			map { my $k = substr($_,$index,1);
-		 		$h{$k}  = undef;} @$aa;
-			my $lookup_key = join '', sort{$a cmp $b}keys %h;
+        ## scan through codon positions, record the differing values,   
+        # then look up in the iub hash
+        for my $index(0..2) {
+            my %h;
+            map { my $k = substr($_,$index,1);
+                $h{$k}  = undef;} @$aa;
+            my $lookup_key = join '', sort{$a cmp $b}keys %h;
 
             ## extend string 
-			$iupac_string .= $iupac_hash{uc$lookup_key};
-		}
-	}
+            $iupac_string .= $iupac_hash{uc$lookup_key};
+        }
+    }
     return $iupac_string;
 
 }

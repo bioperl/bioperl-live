@@ -239,12 +239,17 @@ sub get_lineage_nodes {
            (-keep_id => [2]) will remove all nodes unless they have an id() of
            '2' (note, no -remove_*).
 
+           -preserve_lengths => 1 : setting this argument will splice out
+           intermediate nodes, preserving the original total length between
+           the ancestor and the descendants of the spliced node. Undef 
+           by default.
+
 =cut
 
 sub splice {
     my ($self, @args) = @_;
     $self->throw("Must supply some arguments") unless @args > 0;
-
+    my $preserve_lengths = 0;
     my @nodes_to_remove;
     if (ref($args[0])) {
         $self->throw("When supplying just a list of Nodes, they must be Bio::Tree::NodeI objects") unless $args[0]->isa('Bio::Tree::NodeI');
@@ -270,6 +275,9 @@ sub splice {
                     push(@keep_nodes, $self->find_node($key => $value));
                 }
             }
+	    elsif ($key =~ /preserve/) {
+		$preserve_lengths = $value;
+	    }
         }
 
         if ($remove_all) {
@@ -318,6 +326,7 @@ sub splice {
         # no ancestor of our own to remove us from the tree
         foreach my $desc (@descs) {
             $desc->ancestor($ancestor);
+	    $desc->branch_length($desc->branch_length + $node->branch_length) if $preserve_lengths;
         }
         $node->ancestor(undef);
     }
@@ -950,27 +959,61 @@ sub reroot {
 	    $self->warn("Node requested for reroot is already the root node!");            return 0;
         }
         my $tmp_node = $new_root->create_node_on_branch(-position=>0,-force=>1);
-
     # reverse the ancestor & children pointers
     my $former_anc = $tmp_node->ancestor;
     my @path_from_oldroot = ($self->get_lineage_nodes($tmp_node), $tmp_node);
-    for (my $i = 0; $i < @path_from_oldroot - 1; $i++) {
+    for (my $i = 0; $i < $#path_from_oldroot; $i++) {
         my $current = $path_from_oldroot[$i];
         my $next = $path_from_oldroot[$i + 1];
         $current->remove_Descendent($next);
         $current->branch_length($next->branch_length);
+        $current->bootstrap($next->bootstrap) if defined $next->bootstrap;
+	$next->remove_tag('B');
         $next->add_Descendent($current);
     }
 
     $new_root->add_Descendent($former_anc);
     $tmp_node->remove_Descendent($former_anc);
+    
     $tmp_node = undef;
     $new_root->branch_length(undef);
+    $new_root->remove_tag('B');
 
     $old_root = undef;
     $self->set_root_node($new_root);
 
     return 1;
+}
+
+=head2 reroot_at_midpoint
+
+ Title   : reroot_at_midpoint
+ Usage   : $tree->reroot_at_midpoint($node, $new_root_id);
+ Function: Reroots a tree on a new node created halfway between the 
+           argument and its ancestor
+ Returns : the new midpoint Bio::Tree::NodeIon success, 0 on failure
+ Args    : non-root Bio::Tree::NodeI currently in $tree
+           scalar string, id for new node (optional)
+
+=cut
+
+sub reroot_at_midpoint {
+    my $self = shift;
+    my $node = shift;
+    my $id = shift;
+
+    unless (defined $node && $node->isa("Bio::Tree::NodeI")) {
+        $self->warn("Must provide a valid Bio::Tree::NodeI when rerooting");
+        return 0;
+    }
+
+    my $midpt = $node->create_node_on_branch(-FRACTION=>0.5);
+    if (defined $id) {
+	$self->warn("ID argument is not a scalar") if (ref $id);
+	$midpt->id($id) if defined($id) && !ref($id);
+    }
+    $self->reroot($midpt);
+    return $midpt;
 }
 
 =head2 findnode_by_id

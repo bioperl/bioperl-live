@@ -393,7 +393,15 @@ sub throw {
 sub debug {
     my ($self, @msgs) = @_;
     
+	# using CORE::warn doesn't give correct backtrace information; we want the
+	# line from the previous call in the call stack, not this call (similar to
+	# cluck).  For now, just add a stack trace dump and simple comment under the
+	# correct conditions.
     if (defined $self->verbose && $self->verbose > 0) {
+		if (!@msgs || $msgs[-1] !~ /\n$/) {
+			push @msgs, "Debugging comment:" if !@msgs;
+			push @msgs, sprintf("%s %s:%s", @{($self->stack_trace)[2]}[3,1,2])."\n";
+		}
         CORE::warn @msgs;
     }
 }
@@ -436,7 +444,6 @@ sub _load_module {
     return 1;
 }
 
-
 sub DESTROY {
     my $self = shift;
     my @cleanup_methods = $self->_cleanup_methods or return;
@@ -444,8 +451,6 @@ sub DESTROY {
       $method->($self);
     }
 }
-
-
 
 1;
 

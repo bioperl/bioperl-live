@@ -490,9 +490,12 @@ sub _readline {
  Usage   : $obj->_pushback($newvalue)
  Function: puts a line previously read with _readline back into a buffer.
            buffer can hold as many lines as system memory permits.
- Example :
- Returns :
+ Example : $obj->_pushback($newvalue)
+ Returns : none
  Args    : newvalue
+ Note    : This is only supported for pushing back data ending with the
+		   current, localized value of $/. Using this method to push modified
+		   data back onto the buffer stack is not supported; see bug 843.
 
 =cut
 
@@ -626,9 +629,10 @@ sub _io_cleanup {
 
 sub exists_exe {
     my ($self, $exe) = @_;
-    $exe = $self if(!(ref($self) || $exe));
+	$self->throw("Must pass a defined value to exists_exe") unless defined $exe;
+    $exe = $self if (!(ref($self) || $exe));
     $exe .= '.exe' if(($^O =~ /mswin/i) && ($exe !~ /\.(exe|com|bat|cmd)$/i));
-    return $exe if(-e $exe); # full path and exists
+    return $exe if (-e $exe); # full path and exists
 
     # Ewan's comment. I don't think we need this. People should not be
     # asking for a program with a pathseparator starting it

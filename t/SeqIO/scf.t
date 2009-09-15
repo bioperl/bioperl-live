@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 59);
+    test_begin(-tests => 78);
 	
     use_ok('Bio::SeqIO::scf');
     use_ok('Bio::Seq::SequenceTrace');
@@ -44,7 +44,7 @@ my @indices = @$ref;
 my $indexcount = 761;
 is (scalar(@indices), $indexcount);
 
-use Data::Dumper;
+#use Data::Dumper;
 #----------------------------------------
 isa_ok $swq->seq_obj, 'Bio::Seq::Quality';
 isa_ok $swq->qual_obj, 'Bio::Seq::Quality';
@@ -253,4 +253,37 @@ $out_scf = Bio::SeqIO->new(-file   => ">$outfile",
 $out_scf->write_seq( -target  => $v3,
                      -version => 2 );
 
-# now some version 2 things...
+# simple round trip tests (bug 2881)
+
+my %file_map = (
+	# filename         # write_seq args
+	'chad100.scf'	=> 1,
+	'13-pilE-F.scf' => 1,
+	'version2.scf'  => 1,
+	'version3.scf'  => 1
+	);
+
+for my $f (sort keys %file_map) {
+	my $outfile = test_output_file();
+	my $in = Bio::SeqIO->new(-file => test_input_file($f),
+							 -format => 'scf');
+	my $out = Bio::SeqIO->new(-file => ">$outfile",
+							 -format => 'scf');
+	
+	my $seq1 = $in->next_seq();
+	isa_ok($seq1, 'Bio::Seq::SequenceTrace');
+	
+	ok($out->write_seq(-target => $seq1));
+	
+	my $in2 = Bio::SeqIO->new(-file => "<$outfile",
+							  -format => 'scf');
+	my $seq2 = $in2->next_seq();
+	isa_ok($seq2, 'Bio::Seq::SequenceTrace');
+	if ($seq1->display_id) {
+		TODO: {
+			local $TODO = "display_id doesn't round trip yet";
+			is($seq1->display_id, $seq2->display_id, 'display_id matches');
+		}
+	}
+	is_deeply($seq1->qual, $seq2->qual, 'qual scores match');
+}

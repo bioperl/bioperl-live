@@ -1352,7 +1352,7 @@ sub each_seq_with_id {
 
              Gets a sequence based on its position in the alignment.
              Numbering starts from 1.  Sequence positions larger than
-             no_sequences() will thow an error.
+             num_sequences() will thow an error.
 
  Returns   : a Bio::LocatableSeq object
  Argument  : positive integer for the sequence osition
@@ -1366,7 +1366,7 @@ sub get_seq_by_pos {
     $self->throw("Sequence position has to be a positive integer, not [$pos]")
         unless $pos =~ /^\d+$/ and $pos > 0;
     $self->throw("No sequence at position [$pos]")
-        unless $pos <= $self->no_sequences ;
+        unless $pos <= $self->num_sequences ;
 
     my $seqID = $self->{'_order'}->{--$pos};
     return $self->{'_elem'}{$seqID}{'_seq'};
@@ -1385,7 +1385,7 @@ current MSE.
 
              Creates a new alignment from a continuous subset of
              sequences.  Numbering starts from 1.  Sequence positions
-             larger than no_sequences() will thow an error.
+             larger than num_sequences() will thow an error.
 
  Returns   : a Bio::Assembly::Contig object
  Argument  : positive integer for the first sequence
@@ -1407,7 +1407,7 @@ sub select {
 
              Creates a new alignment from a subset of
              sequences.  Numbering starts from 1.  Sequence positions
-             larger than no_sequences() will thow an error.
+             larger than num_sequences() will thow an error.
 
  Returns   : a Bio::Assembly::Contig object
  Args      : array of integers for the sequences
@@ -1745,33 +1745,35 @@ sub maxname_length {
     $self->throw_not_implemented();
 }
 
-=head2 no_residues
+=head2 num_residues
 
- Title     : no_residues
- Usage     : $no = $contig->no_residues
+ Title     : num_residues
+ Usage     : $no = $contig->num_residues
  Function  : number of residues in total in the alignment
  Returns   : integer
  Argument  :
+ Note      : replaces no_residues
 
 =cut
 
-sub no_residues {
+sub num_residues {
     my ($self) = @_;
 
     return $self->{'_nof_residues'};
 }
 
-=head2 no_sequences
+=head2 num_sequences
 
- Title     : no_sequences
- Usage     : $depth = $contig->no_sequences
+ Title     : num_sequences
+ Usage     : $depth = $contig->num_sequences
  Function  : number of sequence in the sequence alignment
  Returns   : integer
  Argument  : None
-
+ Note      : replaces no_sequences
+ 
 =cut
 
-sub no_sequences {
+sub num_sequences {
     my ($self) = @_;
 
     return scalar( keys %{ $self->{'_elem'} } );
@@ -2154,5 +2156,44 @@ sub _register_gaps {
     return scalar(@{$dbref});
 }
 
+=head1 Deprecated methods
+
+=cut
+
+=head2 no_residues
+
+ Title     : no_residues
+ Usage     : $no = $ali->no_residues
+ Function  : number of residues in total in the alignment
+ Returns   : integer
+ Argument  :
+ Note      : deprecated in favor of num_residues() 
+
+=cut
+
+sub no_residues {
+	my $self = shift;
+	$self->deprecated(-warn_version => 1.0069,
+					  -throw_version => 1.0075);
+    $self->num_residues(@_);
+}
+
+=head2 no_sequences
+
+ Title     : no_sequences
+ Usage     : $depth = $ali->no_sequences
+ Function  : number of sequence in the sequence alignment
+ Returns   : integer
+ Argument  :
+ Note      : deprecated in favor of num_sequences()
+
+=cut
+
+sub no_sequences {
+	my $self = shift;
+	$self->deprecated(-warn_version => 1.0069,
+					  -throw_version => 1.0075);
+    $self->num_sequences(@_);
+}
 
 1;

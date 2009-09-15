@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 61);
+    test_begin(-tests => 62);
 	
 	use_ok('Bio::Seq');
 	use_ok('Bio::Seq::RichSeq');
@@ -188,3 +188,10 @@ $seq->accession_number('blurb');
 $seq->primary_id('bar');
 is ($seq->accession_number, $seq->primary_seq->accession_number);
 is ($seq->primary_id, $seq->primary_seq->primary_id);
+
+
+# Bug #2864:
+
+$seq = Bio::Seq->new(-display_id => 0, -seq => 'GATC');
+
+is $seq->display_id, 0, "Bug #2864";

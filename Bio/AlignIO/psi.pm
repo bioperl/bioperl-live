@@ -128,7 +128,8 @@ sub next_aln {
                     );
 	$aln->add_seq($seq);
     }
-    return $aln;
+    return $aln if defined $aln && $aln->num_sequences;
+	return $aln;
 }
 
 =head2 write_aln

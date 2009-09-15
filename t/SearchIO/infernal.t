@@ -7,14 +7,245 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 316);
+    test_begin(-tests => 412);
     
     use_ok('Bio::SearchIO');
 }
 
-my ($searchio, $result, $iter, $hit, $hsp, $algorithm, $meta);
+my ($result, $iter, $hit, $hsp, $algorithm, $meta);
 
-### Infernal ####
+### Infernal v. 1.0 ####
+
+my $searchio = Bio::SearchIO->new( -format => 'infernal',
+                                -file   => test_input_file('test2.infernal'),
+                                -model => 'tRNAtest',
+                                -query_acc => 'RF01234',
+                                -query_desc => 'tRNA',
+                               );
+
+$result = $searchio->next_result;
+isa_ok($result, 'Bio::Search::Result::ResultI');
+is($result->algorithm, 'CMSEARCH', "Result");
+is($result->algorithm_reference, undef, "Result reference");
+is($result->algorithm_version, '1.0', "Result version");
+is($result->available_parameters, 0, "Result parameters");
+is($result->available_statistics, 0, "Result statistics");
+is($result->database_entries, '', "Result entries");
+is($result->database_letters, 600000, "Result letters");
+is($result->database_name, 'tosearch.300Kb.db',
+   "Result database_name");
+is($result->num_hits, 1, "Result num_hits");
+is($result->program_reference, undef, "Result program_reference");
+is($result->query_accession, 'RF01234', "Result query_accession");
+is($result->query_description, 'tRNA', "Result query_description");
+is($result->query_length, 72, "Result query_length");
+is($result->query_name, 'trna.5-1', "Result query_name");
+
+$hit = $result->next_hit;
+
+isa_ok($hit, 'Bio::Search::Hit::HitI');
+is($hit->ncbi_gi, '', "Hit GI");
+is($hit->accession, 'example', "Hit accession");
+is($hit->algorithm, 'CMSEARCH', "Hit algorithm");
+is($hit->bits, '78.06', "Hit bits");
+is($hit->description, '', "Hit description"); # no hit descs yet
+is($hit->locus, '', "Hit locus");
+is($hit->n, 3, "Hit n");
+is($hit->name, 'example', "Hit name");
+is($hit->num_hsps, 3, "Hit num_hsps");
+
+# These Bio::Search::Hit::HitI methods are currently unimplemented in
+# Bio::Search::Hit::ModelHit; they may be integrated over time but will require
+# some reconfiguring for Model-based searches
+
+# these need to be replaced by dies_ok() or warnings_like()
+warning_like { $hit->length_aln() }
+    qr'length_aln not implemented for Model-based searches',
+    "Hit length_aln() not implemented";
+warning_like {$hit->num_unaligned_hit}
+    qr'num_unaligned_hit/num_unaligned_sbjct not implemented for Model-based searches',
+    "Hit num_unaligned_hit() not implemented";
+warning_like {$hit->num_unaligned_query}
+    qr'num_unaligned_query not implemented for Model-based searches',
+    "Hit num_unaligned_query() not implemented";
+warning_like {$hit->num_unaligned_sbjct}
+    qr'num_unaligned_hit/num_unaligned_sbjct not implemented for Model-based searches',
+    "Hit num_unaligned_sbjct() not implemented";
+warning_like {$hit->start}
+    qr'start not implemented for Model-based searches',
+    'Hit start not implemented';
+warning_like {$hit->end}
+    qr'end not implemented for Model-based searches',
+    'Hit end not implemented';
+warning_like {$hit->strand}
+    qr'strand not implemented for Model-based searches',
+    'Hit strand not implemented';
+warning_like {$hit->logical_length}
+    qr'logical_length not implemented for Model-based searches',
+    'Hit logical_length not implemented';
+warning_like {$hit->frac_aligned_hit}
+    qr'frac_aligned_hit not implemented for Model-based searches',
+    'Hit frac_aligned_hit not implemented';
+warning_like {$hit->frac_aligned_query}
+    qr'frac_aligned_query not implemented for Model-based searches',
+    'Hit frac_aligned_query not implemented';
+warning_like {$hit->frac_conserved}
+    qr'frac_conserved not implemented for Model-based searches',
+    'Hit frac_conserved not implemented';
+warning_like {$hit->frac_identical}
+    qr'frac_identical not implemented for Model-based searches',
+    'Hit frac_identical not implemented';
+warning_like {$hit->matches}
+    qr'matches not implemented for Model-based searches',
+    'Hit matches not implemented';
+warning_like {$hit->gaps}
+    qr'gaps not implemented for Model-based searches',
+    'Hit gaps not implemented';
+warning_like {$hit->frame}
+    qr'frame not implemented for Model-based searches',
+    'Hit frame not implemented';
+warning_like {$hit->range}
+    qr'range not implemented for Model-based searches',
+    'Hit range not implemented';
+warning_like {$hit->seq_inds} 
+    qr'seq_inds not implemented for Model-based searches',
+    'Hit seq_inds not implemented';
+
+is($hit->length, 0, "Hit length");
+is($hit->overlap, 0, "Hit overlap");
+is($hit->query_length, 72, "Hit query_length");
+is($hit->rank, 1, "Hit rank");
+is($hit->raw_score, '78.06', "Hit raw_score");
+is($hit->score, '78.06', "Hit score");
+float_is($hit->p, '2.906e-26', "Hit p");
+float_is($hit->significance, '3.133e-21');
+
+$hsp = $hit->next_hsp;
+isa_ok($hsp, 'Bio::Search::HSP::HSPI');
+is($hsp->algorithm, 'CMSEARCH', "HSP algorithm");
+float_is($hsp->evalue, '3.133e-21');
+isa_ok($hsp->feature1, 'Bio::SeqFeature::Similarity');
+isa_ok($hsp->feature2, 'Bio::SeqFeature::Similarity');
+($meta) = $hsp->feature1->get_tag_values('meta');
+is($meta, '(((((((,,<<<<___.____>>>>,<<<<<_______>>>>>,,,,,<<<<<_______>>>>>))))))):');
+($meta) = $hsp->feature2->get_tag_values('meta');
+is($meta, '(((((((,,<<<<___.____>>>>,<<<<<_______>>>>>,,,,,<<<<<_______>>>>>))))))):');
+
+is($hsp->frame('query'), 0, "HSP frame");
+is($hsp->gaps, 0, "HSP gaps");
+is($hit->length, 0, "Hit length");
+isa_ok($hsp->get_aln, 'Bio::Align::AlignI');
+isa_ok($hsp->hit, 'Bio::SeqFeature::Similarity', "HSP hit");
+is($hsp->hit_string,
+   'GCGGAUUUAGCUCAGUuGGGAGAGCGCCAGACUGAAGAUCUGGAGGUCCUGUGUUCGAUCCACAGAAUUCGCA',
+   "HSP hit_string");
+is($hsp->homology_string,
+   'GC::A::UAGC:CAGU GG AG:GCGCCAG:CUG+++A:CUGGAGGUCC:G:GUUCGAU C:C:G::U::GCA',
+   "HSP homology_string");
+is($hsp->hsp_group, undef, "HSP hsp_group");
+is($hsp->hsp_length, 73, "HSP hsp_length");
+is($hsp->length, 73, "HSP length");
+is($hsp->links, undef, "HSP links");
+is($hsp->n, '', "HSP n");
+float_is($hsp->pvalue, 2.906e-26, "HSP pvalue");
+isa_ok($hsp->query, 'Bio::SeqFeature::Similarity', "HSP query");
+is($hsp->query_string,
+   'gCcgacAUaGcgcAgU.GGuAgcgCgccagccUgucAagcuggAGgUCCgggGUUCGAUuCcccGUgucgGca',
+   "HSP query_string");
+is($hsp->range, 72, "HSP range");
+is($hsp->rank, 1, "HSP rank");
+float_is($hsp->significance, 3.133e-21);
+is($hsp->end, 72, "HSP end");
+float_is($hsp->expect, '3.133e-21', "HSP expect");
+
+# These Bio::Search::HSP::HSPI methods are currently unimplemented in
+# Bio::Search::HSP::ModelHSP; they may be integrated over time but will require
+# some reconfiguring for Model-based searches
+
+warning_like {$hsp->seq_inds}
+    qr'seq_inds not implemented for Model-based searches',
+    'HSP seq_inds not implemented';
+warning_like {$hsp->matches}
+    qr'matches not implemented for Model-based searches',
+    'HSP matches not implemented';
+warning_like {$hsp->frac_conserved}
+    qr'frac_conserved not implemented for Model-based searches',
+    'HSP frac_conserved not implemented';
+warning_like {$hsp->frac_identical}
+    qr'frac_identical not implemented for Model-based searches',
+    'HSP frac_identical not implemented';
+warning_like {$hsp->num_conserved}
+    qr'num_conserved not implemented for Model-based searches',
+    'HSP num_conserved not implemented';
+warning_like {$hsp->num_identical}
+    qr'num_identical not implemented for Model-based searches',
+    'HSP num_identical not implemented';
+warning_like {$hsp->percent_identity}
+    qr'percent_identity not implemented for Model-based searches',
+    'HSP percent_identity not implemented';
+warning_like {$hsp->cigar_string}
+    qr'cigar_string not implemented for Model-based searches',
+    'HSP cigar_string not implemented';
+warning_like {$hsp->generate_cigar_string}
+    qr'generate_cigar_string not implemented for Model-based searches',
+    'HSP cigar_string not implemented';
+
+isa_ok($hsp->seq, 'Bio::LocatableSeq');
+is($hsp->seq_str,
+   'gCcgacAUaGcgcAgU.GGuAgcgCgccagccUgucAagcuggAGgUCCgggGUUCGAUuCcccGUgucgGca',
+   "HSP seq_str");
+is($hsp->start, 1, "HSP start");
+is($hsp->custom_score, undef, "HSP custom_score");
+is($hsp->meta,
+   '(((((((,,<<<<___.____>>>>,<<<<<_______>>>>>,,,,,<<<<<_______>>>>>))))))):',
+   "HSP meta");
+is($hsp->strand('hit'), 1, "HSP strand");
+
+$hsp = $hit->next_hsp;
+isa_ok($hsp, 'Bio::Search::HSP::HSPI');
+is($hsp->algorithm, 'CMSEARCH', "HSP algorithm");
+float_is($hsp->evalue, 0.6752);
+isa_ok($hsp->feature1, 'Bio::SeqFeature::Similarity');
+isa_ok($hsp->feature2, 'Bio::SeqFeature::Similarity');
+is($hsp->frame('query'), 0, "HSP frame");
+is($hsp->gaps, 4, "HSP gaps");
+# infernal can return alignment data
+isa_ok($hsp->get_aln, 'Bio::Align::AlignI');
+isa_ok($hsp->hit, 'Bio::SeqFeature::Similarity', "HSP hit");
+is($hsp->hit_string,
+   'UCUGCUAUGGCGUAAUGGCCACGCGC----CCAUCAACAAAGAUAUC*[19]*UAACAGGA',
+   "HSP hit_string");
+is($hsp->homology_string,
+   ' C:G :AU+GCG:A+UGG  :CGCGC    C  UCAA +++GA +UC      U: C:G A',
+   "HSP homology_string");
+is($hsp->hsp_group, undef, "HSP hsp_group");
+is($hsp->hsp_length, 73, "HSP hsp_length");
+is($hsp->length, 73, "HSP length");
+is($hsp->links, undef, "HSP links");
+is($hsp->n, '', "HSP n");
+float_is($hsp->pvalue, 6.263e-06, "HSP pvalue");
+isa_ok($hsp->query, 'Bio::SeqFeature::Similarity', "HSP query");
+is($hsp->query_string,
+   'gCcgacAUaGcgcAgUGGuAgcgCgccagccUgucAagcuggAGgUC*[17]*UgucgGca',
+   "HSP query_string");
+is($hsp->range, 72, "HSP range");
+is($hsp->rank, 2, "HSP rank");
+float_is($hsp->significance, 0.6752);
+is($hsp->end, 72, "HSP end");
+float_is($hsp->expect, 0.6752, "HSP expect");
+isa_ok($hsp->seq, 'Bio::LocatableSeq');
+# this should probably default to the hit string
+is($hsp->seq_str,
+   'gCcgacAUaGcgcAgUGGuAgcgCgccagccUgucAagcuggAGgUC*[17]*UgucgGca',
+   "HSP seq_str");
+is($hsp->start, 1, "HSP start");
+is($hsp->custom_score, undef, "HSP custom_score");
+is($hsp->meta,
+   '(((((((,,<<<<_______>>>>,<<<<<_______>>>>>,,,,,~~~~~~))))))):',
+   "HSP meta");
+is($hsp->strand('hit'), 1, "HSP strand");
+
+### Infernal pre-v. 1.0 ####
 
 $searchio = Bio::SearchIO->new( -format => 'infernal',
                                 -file   => test_input_file('test.infernal'),
@@ -47,7 +278,6 @@ is($result->query_length, 102, "Result query_length");
 is($result->query_name, 'Purine', "Result query_name");
 
 $hit = $result->next_hit;
-$hit->verbose(2);
 
 isa_ok($hit, 'Bio::Search::Hit::HitI');
 is($hit->ncbi_gi, '2239287', "Hit GI");
@@ -60,53 +290,10 @@ is($hit->n, 2, "Hit n");
 is($hit->name, 'gi|2239287|gb|U51115.1|BSU51115', "Hit name");
 is($hit->num_hsps, 2, "Hit num_hsps");
 
-# These Bio::Search::Hit::HitI methods are currently unimplemented in
-# Bio::Search::Hit::ModelHit; they may be integrated over time but will require
-# some reconfiguring for Model-based searches
-
-eval { $hit->length_aln() };
-like($@, qr'length_aln not implemented for Model-based searches',
-     "Hit length_aln() not implemented");
-eval {$hit->num_unaligned_hit};
-like($@, qr'num_unaligned_hit/num_unaligned_sbjct not implemented for Model-based searches',
-     "Hit num_unaligned_hit() not implemented");
-eval {$hit->num_unaligned_query};
-like($@, qr'num_unaligned_query not implemented for Model-based searches',
-     "Hit num_unaligned_query() not implemented");
-eval {$hit->num_unaligned_sbjct};
-like($@, qr'num_unaligned_hit/num_unaligned_sbjct not implemented for Model-based searches',
-     "Hit num_unaligned_sbjct() not implemented");
-eval {$hit->start};
-like($@, qr'start not implemented for Model-based searches','Hit start not implemented');
-eval {$hit->end};
-like($@, qr'end not implemented for Model-based searches','Hit end not implemented');
-eval {$hit->strand};
-like($@, qr'strand not implemented for Model-based searches','Hit strand not implemented');
-eval {$hit->logical_length};
-like($@, qr'logical_length not implemented for Model-based searches','Hit logical_length not implemented');
-eval {$hit->frac_aligned_hit};
-like($@, qr'frac_aligned_hit not implemented for Model-based searches','Hit frac_aligned_hit not implemented');
-eval{$hit->frac_aligned_query};
-like($@, qr'frac_aligned_query not implemented for Model-based searches','Hit frac_aligned_query not implemented');
-eval {$hit->frac_conserved};
-like($@, qr'frac_conserved not implemented for Model-based searches','Hit frac_conserved not implemented');
-eval{$hit->frac_identical};
-like($@, qr'frac_identical not implemented for Model-based searches','Hit frac_identical not implemented');
-eval{$hit->matches};
-like($@, qr'matches not implemented for Model-based searches','Hit matches not implemented');
-eval{$hit->gaps};
-like($@, qr'gaps not implemented for Model-based searches','Hit gaps not implemented');
-eval{$hit->frame};
-like($@, qr'frame not implemented for Model-based searches','Hit frame not implemented');
-eval {$hit->range};
-like($@, qr'range not implemented for Model-based searches','Hit range not implemented');
-eval {$hit->seq_inds};
-like($@, qr'seq_inds not implemented for Model-based searches','Hit seq_inds not implemented');
-
 # p() works but there are no evalues yet for Infernal output, so catch and check...
-eval {$hit->p};
-like($@, qr'P-value not defined. Using expect\(\) instead',
-     "No p values");
+warning_like {$hit->p}
+    qr'P-value not defined. Using significance\(\) instead',
+    "No p values";
 
 is($hit->length, 0, "Hit length");
 is($hit->overlap, 0, "Hit overlap");
@@ -153,29 +340,6 @@ is($hsp->rank, 1, "HSP rank");
 float_is($hsp->significance, undef);
 is($hsp->end, 102, "HSP end");
 float_is($hsp->expect, undef, "HSP expect");
-$hsp->verbose(2);
-# These Bio::Search::HSP::HSPI methods are currently unimplemented in
-# Bio::Search::HSP::ModelHSP; they may be integrated over time but will require
-# some reconfiguring for Model-based searches
-
-eval {$hsp->seq_inds};
-like($@, qr'seq_inds not implemented for Model-based searches','HSP seq_inds not implemented');
-eval {$hsp->matches};
-like($@, qr'matches not implemented for Model-based searches','HSP matches not implemented');
-eval {$hsp->frac_conserved};
-like($@, qr'frac_conserved not implemented for Model-based searches','HSP frac_conserved not implemented');
-eval {$hsp->frac_identical};
-like($@, qr'frac_identical not implemented for Model-based searches','HSP frac_identical not implemented');
-eval {$hsp->num_conserved};
-like($@, qr'num_conserved not implemented for Model-based searches','HSP num_conserved not implemented');
-eval {$hsp->num_identical};
-like($@, qr'num_identical not implemented for Model-based searches','HSP num_identical not implemented');
-eval {$hsp->percent_identity};
-like($@, qr'percent_identity not implemented for Model-based searches','HSP percent_identity not implemented');
-eval {$hsp->cigar_string};
-like($@, qr'cigar_string not implemented for Model-based searches','HSP cigar_string not implemented');
-eval {$hsp->generate_cigar_string};
-like($@, qr'generate_cigar_string not implemented for Model-based searches','HSP cigar_string not implemented');
 
 isa_ok($hsp->seq, 'Bio::LocatableSeq');
 is($hsp->seq_str,
@@ -370,7 +534,6 @@ is($result->query_length, 102, "Result query_length");
 is($result->query_name, 'Purine', "Result query_name");
 
 $hit = $result->next_hit;
-$hit->verbose(2);
 isa_ok($hit, 'Bio::Search::Hit::HitI');
 is($hit->ncbi_gi, '633168', "Hit GI");
 is($hit->accession, 'X83878.1', "Hit accession");
@@ -383,9 +546,8 @@ is($hit->name, 'gi|633168|emb|X83878.1|', "Hit name");
 is($hit->num_hsps, 2, "Hit num_hsps");
 
 # p() works but there are no evalues yet for Infernal output, so catch and check...
-eval {$hit->p};
-like($@, qr'P-value not defined. Using expect\(\) instead',
-     "No p values");
+warnings_like {$hit->p} qr'P-value not defined. Using significance\(\) instead',
+     "No p values";
 
 is($hit->length, 0, "Hit length");
 is($hit->overlap, 0, "Hit overlap");

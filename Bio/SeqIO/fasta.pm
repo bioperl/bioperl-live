@@ -104,7 +104,7 @@ sub _initialize {
  Title   : next_seq
  Usage   : $seq = $stream->next_seq()
  Function: returns the next sequence in the stream
- Returns : Bio::Seq object
+ Returns : Bio::Seq object, or nothing if no more available
  Args    : NONE
 
 =cut
@@ -121,8 +121,14 @@ sub next_seq {
 	return unless $entry = $self->_readline;
 	chomp($entry);
     }
+    
+    # this just checks the initial input; beyond that, due to setting $/ above,
+    # the > is part of the record separator and is removed
+    $self->throw("The sequence does not appear to be FASTA format ".
+        "(lacks a descriptor line '>')") if $. == 1 && $entry !~ /^>/;
+    
     $entry =~ s/^>//;
-
+    
     my ($top,$sequence) = split(/\n/,$entry,2);
     defined $sequence && $sequence =~ s/>//g;
 #    my ($top,$sequence) = $entry =~ /^>?(.+?)\n+([^>]*)/s

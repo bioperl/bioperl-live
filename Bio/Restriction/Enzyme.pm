@@ -243,6 +243,7 @@ Rob Edwards, redwards@utmem.edu
 
 Heikki Lehvaslaiho, heikki-at-bioperl-dot-org
 Peter Blaiklock, pblaiklo@restrictionmapper.org
+Mark A. Jensen, maj-at-fortinbras-dot-us
 
 =head1 COPYRIGHT
 
@@ -272,7 +273,7 @@ use strict;
 use Bio::PrimarySeq;
 
 use Data::Dumper;
-
+use Tie::RefHash;
 use vars qw (%TYPE);
 use base qw(Bio::Root::Root Bio::Restriction::EnzymeI);
 
@@ -303,6 +304,11 @@ BEGIN {
 	     -methylation_site=>\%sites a reference to hash that has
               the position as the key and the type of methylation
               as the value
+             -xln_sub => sub { ($self,$cut) = @_; ...; return $xln_cut },
+              a coderef to a routine that translates the input cut value
+              into Bio::Restriction::Enzyme coordinates
+              ( e.g., for withrefm format, this might be
+               -xln_sub => sub { length( shift()->string ) + shift } )
 
 A Restriction::Enzyme object manages its recognition sequence as a
 Bio::PrimarySeq object.
@@ -314,17 +320,22 @@ things about the sequence, such as palindromic, size, etc.
 
 =cut
 
+# do all cut/comp cut setting within the constructor
+# new args
+
 sub new {
     my($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
 
-    my ($name,$enzyme,$site,$seq,$cut,$complementary_cut, $is_prototype, $prototype,
-        $isoschizomers, $meth, $microbe, $source, $vendors, $references, $neo) =
+    my ($name,$enzyme,$site,$seq,$precut, $postcut,$cut,$complementary_cut, $is_prototype, $prototype,
+        $isoschizomers, $meth, $microbe, $source, $vendors, $references, $neo, $recog, $xln_sub) =
             $self->_rearrange([qw(
                                   NAME
                                   ENZYME
                                   SITE
                                   SEQ
+                                  PRECUT
+                                  POSTCUT
                                   CUT
                                   COMPLEMENTARY_CUT
                                   IS_PROTOTYPE
@@ -336,24 +347,84 @@ sub new {
                                   VENDORS
                                   REFERENCES
                                   IS_NEOSCHIZOMER
+                                  RECOG
+                                  XLN_SUB
                                  )], @args);
 
-    $self->{_isoschizomers} = ();
-    $self->{_methylation_sites} = {};
-    $self->{_vendors} = ();
-    $self->{_references} = ();
-
-    $name && $self->name($name);
-    $enzyme && $self->name($enzyme);
-    $site && $self->site($site);
-    $seq && $self->site($seq);
     $self->throw('At the minimum, you must define a name and '.
                  'recognition site for the restriction enzyme')
-        unless $self->{'_name'} && $self->{'_seq'};
+        unless (($name || $enzyme) && ($site || $recog || $seq));
 
+    $self->{_isoschizomers} = [];
+    $self->{_methylation_sites} = {};
+    $self->{_vendors} = [];
+    $self->{_references} = [];
 
-    defined $cut && $self->cut($cut);
-    $complementary_cut && $self->complementary_cut($complementary_cut);
+    # squelch warnings
+    $postcut ||='';
+
+    # enzyme name
+    $enzyme && $self->name($enzyme);
+    $name && $self->name($name);
+
+    # site
+    #
+    # note that the site() setter will automatically set
+    # cut(), complementary_cut(), if the cut site is indicated
+    # in $site with '^' /maj
+
+    # create the cut site if appropriate/this is a kludge due to 
+    # the base.pm format in the new B:R order...
+    if ( $cut and $cut <= length $site) {
+	    $site = substr($site, 0, $cut).'^'.substr($site, $cut);
+    }
+    
+    if ($site) {
+	$self->site($site);
+    }
+    else {
+	$seq && $self->site($seq);
+    }
+
+    if ($recog) {
+	$self->recog($recog);
+    }
+    else {
+	$seq && $self->recog($seq);
+	$site && $self->recog($site);
+    }
+    # call revcom_site to initialize it and revcom_recog:
+    $self->revcom_site();
+
+    $recog = $self->string; # for length calculations below
+    
+    if ($xln_sub) {
+	$self->warn("Translation subroutine is not a coderef; ignoring") unless
+	    ref($xln_sub) eq 'CODE';
+    }
+
+    # cut coordinates
+    my ($pc_cut, $pc_comp_cut) = ( $postcut =~  /(-?\d+)\/(-?\d+)/ );
+
+    # cut definitions in constructor override any autoset in
+    # site()
+    # definitions in site conform to withrefm coords, translation 
+    # happens here
+
+    if (defined $cut) {
+	    $self->cut( $xln_sub ? $xln_sub->($self, $cut) : $cut );
+    }
+    elsif ( defined $pc_cut ) {
+	    $self->cut( $xln_sub ? $xln_sub->($self, $pc_cut) : $pc_cut );
+    }
+
+    if (defined $complementary_cut) {
+	$self->complementary_cut($xln_sub ? $xln_sub->($self,$complementary_cut) : $complementary_cut);
+    }
+    elsif (defined $pc_comp_cut) {
+	$self->complementary_cut($xln_sub ? $xln_sub->($self,$pc_comp_cut) : $pc_comp_cut);
+    }
+
     $is_prototype && $self->is_prototype($is_prototype);
     $prototype && $self->prototype($prototype);
     $isoschizomers && $self->isoschizomers($isoschizomers);
@@ -363,6 +434,16 @@ sub new {
     $vendors && $self->vendors($vendors);
     $references && $self->references($references);
     $neo && $self->is_neoschizomer($neo);
+
+    # create multicut enzymes here if $precut defined
+    if (defined $precut) {
+	bless $self, 'Bio::Restriction::Enzyme::MultiCut';
+	my ($pc_cut, $pc_comp_cut) = $precut =~ /(-?\d+)\/(-?\d+)/;
+	my $re2 = $self->clone;
+	$re2->cut($xln_sub ? $xln_sub->($self, -$pc_cut) : -$pc_cut);
+	$re2->complementary_cut($xln_sub ? $xln_sub->($self, -$pc_comp_cut) : -$pc_comp_cut);
+	$self->others($re2);
+    }
 
     return $self;
 }
@@ -474,7 +555,7 @@ sub site {
         if (defined $first) {
             $self->cut(length $first);
             $self->complementary_cut(length $second);
-        $self->revcom_site($self->{_seq}->revcom->seq);
+	    $self->revcom_site();
         }
     }
     return $self->{'_site'};
@@ -488,55 +569,63 @@ sub site {
  Example   : $seq_string = $re->revcom_site();
  Returns   : String containing recognition sequence indicating
            : cleavage site as in  'G^AATTC'.
- Argument  : Sequence of the site
+ Argument  : none (sets on first call)
  Throws    : n/a
 
 This is the same as site, except it returns the revcom site. For
 palindromic enzymes these two are identical. For non-palindromic
 enzymes they are not!
 
+On set, this also handles setting the revcom_recog attribute.
+
 See also L<site|site> above.
 
 =cut
 
 sub revcom_site {
-    my ($self, $site)=@_;
+    my $self = shift;
+    # getter
+    return $self->{'_revcom_site'} unless !$self->{'_revcom_site'};
+
+    # setter
+    my $site = $self->{'_site'};
     if ($self->is_palindromic) {
       $self->{'_revcom_site'}=$self->{'_site'};
+      $self->revcom_recog( $self->string );
       return $self->{'_revcom_site'};
     }
-    if ($site) {
-        $self->throw("Unrecognized characters in revcom site: [$site]")
-            if $site =~ /[^ATGCMRWSYKVHDBN\^]/i;
+
+    $self->throw("Unrecognized characters in revcom site: [$site]")
+	if $site =~ /[^ATGCMRWSYKVHDBN\^]/i;
 	
-        # we may have to redefine this if there is a ^ in the sequence
-
-        # first, check and see if we have a cut site in the sequence
-        # if so, find the position, and set the target sequence and cut site
-        my $pos=$self->complementary_cut;
-        $site =~ s/(.{$pos})/$1\^/;
+    if ($site =~ /\^/) {
+	# first, check and see if we have a cut site indicated in the sequence
+	# if so, find the position, and set the target sequence and cut site
+	$site = $self->revcom;
+	$self->revcom_recog( $site );
+	my $c = length($site)-$self->cut;
+	$site = substr($site, 0, $c).'^'.substr($site,$c);
         $self->{'_revcom_site'} = $site;
-
     }
-    unless ($self->{'_revcom_site'}) {
-       my $revcom=$self->revcom;
-       my $cc=$self->complementary_cut;
-       my $hat=length($revcom)-$cc+1; # we need it on the other strand!
-       if ($cc > length($revcom)) {
-        my $pad= "N" x ($cc-length($revcom));
-	$revcom = $pad. $revcom;
-	$hat=length($revcom)-$cc+1;
-       }
-       elsif ($cc < 0) {
-        my $pad = "N" x -$cc;
-	$revcom .= $pad;
-	$hat=length($revcom);
-       }
-       $revcom =~ s/(.{$hat})/$1\^/;
-       $self->{'_revcom_site'}=$revcom;
-   }
-
-    return $self->{'_revcom_site'};
+    else {
+	my $revcom=$self->revcom;
+	$self->revcom_recog( $revcom );
+# 	my $cc=$self->complementary_cut;
+# 	my $hat=length($revcom)-$cc+1; # we need it on the other strand!
+# 	if ($cc > length($revcom)) {
+# 	    my $pad= "N" x ($cc-length($revcom));
+# 	    $revcom = $pad. $revcom;
+# 	    $hat=length($revcom)-$cc+1;
+# 	}
+# 	elsif ($cc < 0) {
+# 	    my $pad = "N" x -$cc;
+# 	    $revcom .= $pad;
+# 	    $hat=length($revcom);
+# 	}
+# 	$revcom =~ s/(.{$hat})/$1\^/;
+	$self->{'_revcom_site'}=$revcom;
+    }
+	return $self->{'_revcom_site'};
 }
 
 =head2 cut
@@ -589,18 +678,19 @@ sub cut {
              unless $value =~ /[-+]?\d+/;
          $self->{'_cut'} = $value;
 
-         $self->complementary_cut(length ($self->seq->seq) - $value )
-             if $self->type eq 'II';
+	 # add the caret to the site attribute only if internal /maj
+	 if ( ($self->{_site} !~ /\^/) && ($value <= length ($self->{_site}))) {
+	     $self->{_site} =
+		 substr($self->{_site}, 0, $value). '^'. substr($self->{_site}, $value);
+	 }
 
-         if (length ($self->{_site}) < $value ) {
-             my $pad_length = $value - length $self->{_site};
-             $self->{_site} .= 'N' x $pad_length;
-         }
-         $self->{_site} =
-             substr($self->{_site}, 0, $value). '^'. substr($self->{_site}, $value)
-                 unless $self->{_site} =~ /\^/;
+	 # auto-set comp cut only if cut site is inside the recog site./maj
+	 $self->complementary_cut(length ($self->seq->seq) - $value )
+	     if (($self->{_site} =~ /\^/) && ($self->type eq 'II'));
+
      }
-     return $self->{'_cut'} || 0;
+     # return undef if not defined yet, not 0 /maj
+     return $self->{'_cut'};
 }
 
 =head2 cuts_after
@@ -642,7 +732,8 @@ sub complementary_cut {
             unless $num =~ /[-+]?\d+/;
         $self->{'_rc_cut'} = $num;
     }
-    return $self->{'_rc_cut'} || 0;
+    # return undef, not 0, if not yet defined /maj
+    return $self->{'_rc_cut'};
 }
 
 
@@ -748,7 +839,53 @@ sub string {
     shift->{'_seq'}->seq;
 }
 
+=head2 recog
 
+ Title   : recog
+ Usage   : $enz->recog($recognition_sequence)
+ Function: Gets/sets the pure recognition site. Sets as 
+           regexp if appropriate.
+           As for string(), the cut indicating carets (^)
+           are expunged.
+ Example : 
+ Returns : value of recog (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+=cut
+
+sub recog{
+    my $self = shift;
+    my $recog = shift;
+    return $self->{'recog'} unless $recog;
+    $recog =~ s/\^//g;
+    $recog = _expand($recog) if $recog =~ /[^ATGC]/;
+    return $self->{'recog'} = $recog;
+}
+
+=head2 revcom_recog
+
+ Title   : revcom_recog
+ Usage   : $enz->revcom_recog($recognition_sequence)
+ Function: Gets/sets the pure reverse-complemented recognition site.
+           Sets as regexp if appropriate.
+           As for string(), the cut indicating carets (^) are expunged.
+ Example : 
+ Returns : value of recog (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+=cut
+
+sub revcom_recog{
+    my $self = shift;
+    my $recog = shift;
+    unless ($recog) {
+	$self->throw( "revcom recognition site not set; call \$enz->revcom_site to initialize" ) unless $self->{'revcom_recog'};
+	return $self->{'revcom_recog'};
+    }
+    $recog =~ s/\^//g;
+    $recog = _expand($recog) if $recog =~ /[^ATGC]/;
+    return $self->{'revcom_recog'} = $recog;
+}
 
 =head2 revcom
 
@@ -837,6 +974,7 @@ sub cutter {
 =head2 is_palindromic
 
  Title     : is_palindromic
+ Alias     : palindromic
  Usage     : $re->is_palindromic();
  Function  : Determines if the recognition sequence is palindromic
            : for the current restriction enzyme.
@@ -851,21 +989,48 @@ A palindromic site (EcoRI):
 
 =cut
 
-# I just renamed this because is_palindromic fits in better
-# with the other is_? methods
-sub palindromic {
- my $self=shift;
- return $self->is_palindromic(@_);
-}
-
 sub is_palindromic {
     my $self = shift;
+    return $self->{_palindromic} if defined $self->{_palindromic};
     if ($self->string eq $self->revcom) {
-        $self->{_palindromic}=1;
+        return $self->{_palindromic}=1;
     }
-    return $self->{_palindromic} || 0;
+    return $self->{_palindromic} = 0;
 }
 
+sub palindromic { shift->is_palindromic(@_) } 
+
+=head2 is_symmetric
+
+ Title     : is_symmetric
+ Alias     : symmetric
+ Usage     : $re->is_symmetric();
+ Function  : Determines if the enzyme is a symmetric cutter
+ Returns   : Boolean
+ Argument  : none
+
+A symmetric but non-palindromic site (HindI):
+       v     
+  5-C A C-3
+  3-G T G-5
+     ^      
+=cut
+
+sub is_symmetric {
+    no warnings qw( uninitialized );
+    my $self = shift;
+	
+    return $self->{_symmetric} if defined $self->{_symmetric};
+    if ($self->is_palindromic) {
+	return $self->{_symmetric} = 1;
+    }
+    if ($self->cut == length($self->string) - $self->complementary_cut) {
+        return $self->{_symmetric}=1;
+    }
+    return $self->{_symmetric} = 0;
+}
+
+sub symmetric { shift->is_symmetric(@_) } 
 
 
 =head2 overhang
@@ -1108,6 +1273,7 @@ sub is_neoschizomer {
 =head2 prototype_name
 
  Title    : prototype_name
+ Alias    : prototype
  Usage    : $re->prototype_name
  Function : Get/Set method for the name of prototype for
             this enzyme's recognition site
@@ -1132,9 +1298,12 @@ sub prototype_name {
     return $self->{'_prototype'} || '';
 }
 
+sub prototype { shift->prototype_name(@_) }
+
 =head2 isoschizomers
 
  Title     : isoschizomers
+ Alias     : isos
  Usage     : $re->isoschizomers(@list);
  Function  : Gets/Sets a list of known isoschizomers (enzymes that
              recognize the same site, but don't necessarily cut at
@@ -1143,8 +1312,8 @@ sub prototype_name {
  Returns   : A reference to an array of the known isoschizomers or 0
              if not defined.
 
-This has to be the hardest name to spell.  Added for compatibility to
-REBASE
+This has to be the hardest name to spell, so now you can use the alias
+'isos'.  Added for compatibility to REBASE
 
 =cut
 
@@ -1161,10 +1330,12 @@ sub isoschizomers {
      
 }
 
+sub isos { shift->isoschizomers(@_) }
 
 =head2 purge_isoschizomers
 
  Title     : purge_isoschizomers
+ Alias     : purge_isos
  Usage     : $re->purge_isoschizomers();
  Function  : Purges the set of isoschizomers for this enzyme
  Arguments : 
@@ -1177,6 +1348,8 @@ sub purge_isoschizomers {
     $self->{_isoschizomers} = [];
 
 }
+
+sub purge_isos { shift->purge_isoschizomers(@_) }
 
 =head2 methylation_sites
 
@@ -1395,7 +1568,9 @@ Todo: local code cuts circular references.
 
 =cut
 
-sub clone {
+# there's some issue here; deprecating and rolling another below/maj
+
+sub clone_depr {
     my ($self, $this) = @_;
 
     eval { require Storable; };
@@ -1438,6 +1613,95 @@ sub clone {
     }
 }
 
+sub clone {
+    my $self = shift;
+    my ($this, $visited) = @_;
+    unless (defined $this) {
+	my %h;
+	tie %h, 'Tie::RefHash';
+	my $visited = \%h;
+	return $self->clone($self, $visited);
+    }
+    my $thing;
+    for ($this) {
+	if (ref) {
+	    return $visited->{$this} if $visited->{$this};
+	}
+	# scalar
+	(!ref) && do {
+	    $thing = $this;
+	    last;
+	};
+	# object
+	(ref =~ /^Bio::/) && do {
+	    $thing = {};
+	    bless($thing, ref);
+	    $visited->{$this} = $thing;
+	    foreach my $attr (keys %{$_}) {
+		$thing->{$attr} = (defined $_->{$attr} ? $self->clone($_->{$attr},$visited) : undef );
+	    }
+	    last;
+	};
+	(ref eq 'ARRAY') && do {
+	    $thing = [];
+	    $visited->{$this} = $thing;
+	    foreach my $elt (@{$_}) {
+		push @$thing, (defined $elt ? $self->clone($elt,$visited) : undef);
+	    }
+	    last;
+	};
+	(ref eq 'HASH') && do {
+	    $thing = {};
+	    $visited->{$this} = $thing;
+	    no warnings qw( uninitialized ); # avoid 'uninitialized value' warning against $key
+	    foreach my $key (%{$_}) {
+		$thing->{$key} = (defined $_->{key} ? $self->clone( $_->{$key},$visited) : undef );
+	    }
+	    use warnings;
+	    last;
+	};
+	(ref eq 'SCALAR') && do {
+	    $thing = ${$_};
+	    $visited->{$this} = $thing;
+	    $thing = \$thing;
+	    last;
+	};
+    }
+
+    return $thing;
+}
+
+
+
+=head2 _expand
+
+ Title     : _expand
+ Function  : Expand nucleotide ambiguity codes to their representative letters
+ Returns   : The full length string
+ Arguments : The string to be expanded.
+
+Stolen from the original RestrictionEnzyme.pm
+
+=cut
+
+
+sub _expand {
+    my $str = shift;
+
+    $str =~ s/N|X/\./g;
+    $str =~ s/R/\[AG\]/g;
+    $str =~ s/Y/\[CT\]/g;
+    $str =~ s/S/\[GC\]/g;
+    $str =~ s/W/\[AT\]/g;
+    $str =~ s/M/\[AC\]/g;
+    $str =~ s/K/\[TG\]/g;
+    $str =~ s/B/\[CGT\]/g;
+    $str =~ s/D/\[AGT\]/g;
+    $str =~ s/H/\[ACT\]/g;
+    $str =~ s/V/\[ACG\]/g;
+
+    return $str;
+}
 
 1;
 

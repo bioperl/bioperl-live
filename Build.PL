@@ -78,6 +78,7 @@ my $build = Bio::Root::Build->new(
                             'XML::Writer'               => '0.4/parsing and writing xml/Bio::SeqIO::agave,Bio::SeqIO::game::gameWriter,Bio::SeqIO::chadoxml,Bio::SeqIO::tinyseq,Bio::Variation::IO::xml,Bio::SearchIO::Writer::BSMLResultWriter',
     },
     get_options         => {
+                            accept  => { },
                             network => { } # say 'perl Build.PL --network' to manually request network tests
                            },
     auto_features       => {
@@ -102,9 +103,9 @@ my $build = Bio::Root::Build->new(
                                                         test             => \&test_db_sf
                                                      },
                             Network               => {
-                                                        description => "Enable tests that need an internet connection",
-                                                        requires    => { 'LWP::UserAgent' => 0 },
-                                                        test        => \&Bio::Root::Build::test_internet
+                                                        description      => "Enable tests that need an internet connection",
+                                                        feature_requires => { 'LWP::UserAgent' => 0 },
+                                                        test             => \&Bio::Root::Build::test_internet
                                                      }
                            },
     dynamic_config      => 1,
