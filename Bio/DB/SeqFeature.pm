@@ -34,7 +34,7 @@ Bio::DB::SeqFeature -- Normalized feature for use with Bio::DB::SeqFeature::Stor
 The Bio::DB::SeqFeature object is the default SeqFeature class stored
 in Bio::DB::SeqFeature databases. It implements both the
 Bio::DB::SeqFeature::NormalizedFeatureI and
-Bio::DB::SeqFeature::TableFeatureI interfaces, which means that its
+Bio::DB::SeqFeature::NormalizedTableFeatureI interfaces, which means that its
 subfeatures, if any, are stored in the database in a normalized
 fashion, and that the parent/child hierarchy of features and
 subfeatures are also stored in the database as set of tuples. This
