@@ -46,6 +46,7 @@ ok $primer = $p3->next_primer;
 # get the left primer
 my $left_primer_seq = $primer->get_primer('left')->seq;
 is $left_primer_seq->seq, "GAGGGTAACACGCTGGTCAT";
+
 # bug 2862
 ok $p3 = Bio::Tools::Primer3->new(-file=>test_input_file('bug2862.pmr'));
 $num=0;

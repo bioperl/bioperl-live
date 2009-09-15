@@ -138,8 +138,6 @@ package Bio::Seq::Meta::Array;
 use vars qw(@ISA $DEFAULT_NAME $GAP $META_GAP);
 use strict;
 
-use Data::Dumper;
-
 #use overload '""' => \&to_string;
 
 use base qw(Bio::LocatableSeq Bio::Seq Bio::Seq::MetaI);

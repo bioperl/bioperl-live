@@ -269,7 +269,8 @@ sub FT_SO_map  {
      "iDNA" => "iDNA",
      "intron" => "intron",
      "mRNA" => "mRNA",
-     "mat_peptide" => "mature_peptide",
+     "mat_peptide" => "mature_protein_region",
+     "mature_peptide" => "mature_protein_region",
 #                     "misc_RNA" => "transcript",
      "misc_binding" => "binding_site",
      "misc_difference" => "sequence_difference",
@@ -307,6 +308,7 @@ sub FT_SO_map  {
       "pseudomRNA" => "pseudogenic_transcript", ## has parent = pseudogene ; dgg
       "pseudotranscript" => "pseudogenic_transcript", ## from Unflattener misc_RNA ; dgg
       "pseudoexon" => "pseudogenic_exon",
+      "pseudoCDS"  => "pseudogenic_exon",
       "pseudomisc_feature" => "pseudogenic_region",
       "pseudointron" => "pseudogenic_region",
       

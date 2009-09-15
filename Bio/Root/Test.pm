@@ -312,9 +312,10 @@ sub test_skip {
 sub test_output_file {
     die "test_output_file takes no args\n" if @_;
     
+    # RT 48813
     my $tmp = File::Temp->new();
     push(@TEMP_FILES, $tmp);
-    
+    close($tmp); # Windows needs this
     return $tmp->filename;
 }
 

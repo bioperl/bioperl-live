@@ -91,6 +91,7 @@ Internal methods are usually preceded with a _
 
 package Bio::DB::HIV;
 use strict;
+use warnings;
 use vars qw( $LANL_BASE $LANL_MAP_DB $LANL_MAKE_SEARCH_IF $LANL_SEARCH );
 
 # Object preamble - inherits from Bio::DB::WebDBSeqI
@@ -380,15 +381,18 @@ sub postprocess_data {
 	$self->throw(-class=>'Bio::Root::BadParameter',
 		     -text=>'No data found in repsonse',
 		     -value=>%args) unless (@data);
-	shift @data; # number-returned line
+	my $l;
+	do {
+	    $l = shift @data;
+	} while  ( $l !~ /Number/ ); # number-returned line
 	@cols = split( /\t/, shift @data);
 
 	# if Accession column is present, get_Stream_by_acc was called
 	# otherwise, return lanl ids
-	($idkey) = grep /SE.id/, @cols unless ($idkey) = grep /Accession/, @cols;
+	($idkey) = grep /SE.id/i, @cols unless ($idkey) = grep /Accession/i, @cols;
 	$self->throw(-class=>"Bio::ResponseProblem::Exception",
 		     -text=>"Trouble with column headers in LANL response",
-		     -value=>\@cols) unless $idkey;
+		     -value=>join(' ',@cols)) unless $idkey;
 	
  	foreach (@data) {
 	    chop;

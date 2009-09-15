@@ -119,7 +119,7 @@
 	 (define-key perl-mode-map "\C-c\C-b" 'bioperl-object-start)
 	 (define-key perl-mode-map "\C-c\C-i" 'bioperl-interface-start)
 	 (define-key perl-mode-map "\C-c\C-v" 'bioperl-getset)
-	 (define-key perl-mode-map "\C-c\C-r" 'bioperl-arrray-getset)
+	 (define-key perl-mode-map "\C-c\C-r" 'bioperl-array-getset)
 	 (define-key perl-mode-map "\C-c\C-b" 'bioperl-method)
 	 (define-key perl-mode-map "\C-c\C-a\C-m" 'bioperl-abstract-method)
 	 (define-key perl-mode-map "\C-c\C-z" 'compile)

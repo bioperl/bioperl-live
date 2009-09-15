@@ -523,6 +523,7 @@ sub get_annotations_by_id {
 sub add_annotations_for_id{
     my $self = shift;
     my ($id, $ac) = @_;
+    $id = "" unless defined $id; # avoid warnings
     $ac = new Bio::Annotation::Collection unless defined $ac;
     $self->throw(-class=>'Bio::Root::BadParameter'
 		 -text=>'Bio::Annotation::Collection required at arg 2',
@@ -840,6 +841,7 @@ sub _ua_hash{
 sub add_id {
     my $self = shift;
     my $id = shift;
+    $id = "" unless defined $id; # avoid warnings
     ${$self->{'ids'}}{$id}++;
     return $id;
 }
@@ -1440,7 +1442,8 @@ sub _parse_lanl_response {
 		     -value=>"");
     foreach my $rsp (@{$self->_lanl_response}) {
 	@data = split(/\r|\n/, $rsp->content);
-	$numseq += ( shift(@data) =~ /Number.*:\s([0-9]+)/ )[0];
+	my $line = shift @data;
+	$numseq += ( $line =~ /Number.*:\s([0-9]+)/ )[0];
 	@cols = split(/\t/, shift @data);
 
 	# mappings from column headings to annotation keys

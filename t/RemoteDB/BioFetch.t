@@ -16,7 +16,7 @@ BEGIN {
 
 my $verbose = test_debug();
 
-my $dbwarn = "Warning: Couldn't connect to EMBL with Bio::DB::EMBL.pm!\n";
+my $dbwarn = "Warning: Couldn't connect to EMBL with Bio::DB::BioFetch!\n";
 
 my ($db,$db2,$seq,$seqio);
 
@@ -56,7 +56,7 @@ SKIP: {
 	$seq = $seqio->next_seq();
 	isa_ok($seqio, 'Bio::SeqIO');
 	isa_ok($seq, 'Bio::SeqI');
-	cmp_ok( $seq->length, '>=', 200);
+	cmp_ok( $seq->length, '>=', 1);
 }
 
 SKIP: {

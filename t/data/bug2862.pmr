@@ -11,12 +11,8 @@ PRIMER_EXPLAIN_FLAG=1
 PRIMER_OPT_TM=60
 PRIMER_MIN_TM=59
 PRIMER_MAX_TM=61
-PRIMER_LEFT_EXPLAIN=considered 4449, too many Ns 373, GC content failed 
-127, low tm 2109, high tm 1284, high any compl 6, high end compl 27, 
-high repeat similarity 31, long poly-x seq 61, ok 431
-PRIMER_RIGHT_EXPLAIN=considered 4370, too many Ns 400, GC content failed 
-120, low tm 2106, high tm 1190, high any compl 2, high end compl 6, high 
-repeat similarity 6, long poly-x seq 58, ok 482
+PRIMER_LEFT_EXPLAIN=considered 4449, too many Ns 373, GC content failed 127, low tm 2109, high tm 1284, high any compl 6, high end compl 27, high repeat similarity 31, long poly-x seq 61, ok 431
+PRIMER_RIGHT_EXPLAIN=considered 4370, too many Ns 400, GC content failed 120, low tm 2106, high tm 1190, high any compl 2, high end compl 6, high repeat similarity 6, long poly-x seq 58, ok 482
 PRIMER_PAIR_EXPLAIN=considered 343, unacceptable product size 320, ok 23
 PRIMER_PAIR_PENALTY=0.1407
 PRIMER_LEFT_PENALTY=0.081493
@@ -33,12 +29,9 @@ PRIMER_LEFT_SELF_ANY=4.00
 PRIMER_RIGHT_SELF_ANY=2.00
 PRIMER_LEFT_SELF_END=3.00
 PRIMER_RIGHT_SELF_END=0.00
-PRIMER_LEFT_MISPRIMING_SCORE=11.00, J04353 Human papillomavirus type 31 
-(HPV-31) complete genome.
-PRIMER_RIGHT_MISPRIMING_SCORE=12.00, U45909 Human papillomavirus type 
-45, isolate IS252, major capsid protein L1 (L1) gene, partial cds.
-PRIMER_PAIR_MISPRIMING_SCORE=20.00, reverse EF177179 Human 
-papillomavirus type 56 clone Qv22608, complete genome.
+PRIMER_LEFT_MISPRIMING_SCORE=11.00, J04353 Human papillomavirus type 31 (HPV-31) complete genome.
+PRIMER_RIGHT_MISPRIMING_SCORE=12.00, U45909 Human papillomavirus type 45, isolate IS252, major capsid protein L1 (L1) gene, partial cds.
+PRIMER_PAIR_MISPRIMING_SCORE=20.00, reverse EF177179 Human papillomavirus type 56 clone Qv22608, complete genome.
 PRIMER_LEFT_END_STABILITY=6.7000
 PRIMER_RIGHT_END_STABILITY=7.0000
 PRIMER_PAIR_COMPL_ANY=5.00
@@ -59,12 +52,9 @@ PRIMER_LEFT_1_SELF_ANY=4.00
 PRIMER_RIGHT_1_SELF_ANY=2.00
 PRIMER_LEFT_1_SELF_END=3.00
 PRIMER_RIGHT_1_SELF_END=0.00
-PRIMER_LEFT_1_MISPRIMING_SCORE=11.00, J04353 Human papillomavirus type 
-31 (HPV-31) complete genome.
-PRIMER_RIGHT_1_MISPRIMING_SCORE=11.00, EF202156 Human papillomavirus 
-type 45 isolate Qv20214, complete genome.
-PRIMER_PAIR_1_MISPRIMING_SCORE=20.00, EF202156 Human papillomavirus type 
-45 isolate Qv20214, complete genome.
+PRIMER_LEFT_1_MISPRIMING_SCORE=11.00, J04353 Human papillomavirus type 31 (HPV-31) complete genome.
+PRIMER_RIGHT_1_MISPRIMING_SCORE=11.00, EF202156 Human papillomavirus type 45 isolate Qv20214, complete genome.
+PRIMER_PAIR_1_MISPRIMING_SCORE=20.00, EF202156 Human papillomavirus type 45 isolate Qv20214, complete genome.
 PRIMER_LEFT_1_END_STABILITY=6.7000
 PRIMER_RIGHT_1_END_STABILITY=7.0000
 PRIMER_PAIR_1_COMPL_ANY=5.00
@@ -85,12 +75,9 @@ PRIMER_LEFT_2_SELF_ANY=4.00
 PRIMER_RIGHT_2_SELF_ANY=2.00
 PRIMER_LEFT_2_SELF_END=3.00
 PRIMER_RIGHT_2_SELF_END=0.00
-PRIMER_LEFT_2_MISPRIMING_SCORE=11.00, J04353 Human papillomavirus type 
-31 (HPV-31) complete genome.
-PRIMER_RIGHT_2_MISPRIMING_SCORE=11.00, U45909 Human papillomavirus type 
-45, isolate IS252, major capsid protein L1 (L1) gene, partial cds.
-PRIMER_PAIR_2_MISPRIMING_SCORE=20.00, J04353 Human papillomavirus type 
-31 (HPV-31) complete genome.
+PRIMER_LEFT_2_MISPRIMING_SCORE=11.00, J04353 Human papillomavirus type 31 (HPV-31) complete genome.
+PRIMER_RIGHT_2_MISPRIMING_SCORE=11.00, U45909 Human papillomavirus type 45, isolate IS252, major capsid protein L1 (L1) gene, partial cds.
+PRIMER_PAIR_2_MISPRIMING_SCORE=20.00, J04353 Human papillomavirus type 31 (HPV-31) complete genome.
 PRIMER_LEFT_2_END_STABILITY=6.7000
 PRIMER_RIGHT_2_END_STABILITY=6.6000
 PRIMER_PAIR_2_COMPL_ANY=5.00
@@ -111,12 +98,9 @@ PRIMER_LEFT_3_SELF_ANY=4.00
 PRIMER_RIGHT_3_SELF_ANY=7.00
 PRIMER_LEFT_3_SELF_END=3.00
 PRIMER_RIGHT_3_SELF_END=1.00
-PRIMER_LEFT_3_MISPRIMING_SCORE=11.00, J04353 Human papillomavirus type 
-31 (HPV-31) complete genome.
-PRIMER_RIGHT_3_MISPRIMING_SCORE=11.00, X74481 Human papillomavirus type 
-52 genomic DNA.
-PRIMER_PAIR_3_MISPRIMING_SCORE=20.00, DQ057317 Human papillomavirus type 
-52 isolate HK1151 L1 protein (L1) gene, partial cds.
+PRIMER_LEFT_3_MISPRIMING_SCORE=11.00, J04353 Human papillomavirus type 31 (HPV-31) complete genome.
+PRIMER_RIGHT_3_MISPRIMING_SCORE=11.00, X74481 Human papillomavirus type 52 genomic DNA.
+PRIMER_PAIR_3_MISPRIMING_SCORE=20.00, DQ057317 Human papillomavirus type 52 isolate HK1151 L1 protein (L1) gene, partial cds.
 PRIMER_LEFT_3_END_STABILITY=6.7000
 PRIMER_RIGHT_3_END_STABILITY=7.9000
 PRIMER_PAIR_3_COMPL_ANY=4.00
@@ -137,12 +121,9 @@ PRIMER_LEFT_4_SELF_ANY=8.00
 PRIMER_RIGHT_4_SELF_ANY=2.00
 PRIMER_LEFT_4_SELF_END=2.00
 PRIMER_RIGHT_4_SELF_END=0.00
-PRIMER_LEFT_4_MISPRIMING_SCORE=10.00, J04353 Human papillomavirus type 
-31 (HPV-31) complete genome.
-PRIMER_RIGHT_4_MISPRIMING_SCORE=11.00, U45909 Human papillomavirus type 
-45, isolate IS252, major capsid protein L1 (L1) gene, partial cds.
-PRIMER_PAIR_4_MISPRIMING_SCORE=19.00, J04353 Human papillomavirus type 
-31 (HPV-31) complete genome.
+PRIMER_LEFT_4_MISPRIMING_SCORE=10.00, J04353 Human papillomavirus type 31 (HPV-31) complete genome.
+PRIMER_RIGHT_4_MISPRIMING_SCORE=11.00, U45909 Human papillomavirus type 45, isolate IS252, major capsid protein L1 (L1) gene, partial cds.
+PRIMER_PAIR_4_MISPRIMING_SCORE=19.00, J04353 Human papillomavirus type 31 (HPV-31) complete genome.
 PRIMER_LEFT_4_END_STABILITY=7.3000
 PRIMER_RIGHT_4_END_STABILITY=6.6000
 PRIMER_PAIR_4_COMPL_ANY=4.00
@@ -163,12 +144,9 @@ PRIMER_LEFT_5_SELF_ANY=8.00
 PRIMER_RIGHT_5_SELF_ANY=2.00
 PRIMER_LEFT_5_SELF_END=2.00
 PRIMER_RIGHT_5_SELF_END=0.00
-PRIMER_LEFT_5_MISPRIMING_SCORE=10.00, J04353 Human papillomavirus type 
-31 (HPV-31) complete genome.
-PRIMER_RIGHT_5_MISPRIMING_SCORE=12.00, U45909 Human papillomavirus type 
-45, isolate IS252, major capsid protein L1 (L1) gene, partial cds.
-PRIMER_PAIR_5_MISPRIMING_SCORE=21.00, reverse PPHT39 Human 
-papillomavirus ORFs.
+PRIMER_LEFT_5_MISPRIMING_SCORE=10.00, J04353 Human papillomavirus type 31 (HPV-31) complete genome.
+PRIMER_RIGHT_5_MISPRIMING_SCORE=12.00, U45909 Human papillomavirus type 45, isolate IS252, major capsid protein L1 (L1) gene, partial cds.
+PRIMER_PAIR_5_MISPRIMING_SCORE=21.00, reverse PPHT39 Human papillomavirus ORFs.
 PRIMER_LEFT_5_END_STABILITY=7.3000
 PRIMER_RIGHT_5_END_STABILITY=7.0000
 PRIMER_PAIR_5_COMPL_ANY=4.00
@@ -189,12 +167,9 @@ PRIMER_LEFT_6_SELF_ANY=8.00
 PRIMER_RIGHT_6_SELF_ANY=2.00
 PRIMER_LEFT_6_SELF_END=2.00
 PRIMER_RIGHT_6_SELF_END=0.00
-PRIMER_LEFT_6_MISPRIMING_SCORE=10.00, J04353 Human papillomavirus type 
-31 (HPV-31) complete genome.
-PRIMER_RIGHT_6_MISPRIMING_SCORE=11.00, EF202156 Human papillomavirus 
-type 45 isolate Qv20214, complete genome.
-PRIMER_PAIR_6_MISPRIMING_SCORE=20.00, reverse PPHT39 Human 
-papillomavirus ORFs.
+PRIMER_LEFT_6_MISPRIMING_SCORE=10.00, J04353 Human papillomavirus type 31 (HPV-31) complete genome.
+PRIMER_RIGHT_6_MISPRIMING_SCORE=11.00, EF202156 Human papillomavirus type 45 isolate Qv20214, complete genome.
+PRIMER_PAIR_6_MISPRIMING_SCORE=20.00, reverse PPHT39 Human papillomavirus ORFs.
 PRIMER_LEFT_6_END_STABILITY=7.3000
 PRIMER_RIGHT_6_END_STABILITY=7.0000
 PRIMER_PAIR_6_COMPL_ANY=4.00
@@ -215,12 +190,9 @@ PRIMER_LEFT_7_SELF_ANY=8.00
 PRIMER_RIGHT_7_SELF_ANY=4.00
 PRIMER_LEFT_7_SELF_END=2.00
 PRIMER_RIGHT_7_SELF_END=3.00
-PRIMER_LEFT_7_MISPRIMING_SCORE=10.00, J04353 Human papillomavirus type 
-31 (HPV-31) complete genome.
-PRIMER_RIGHT_7_MISPRIMING_SCORE=12.00, reverse FJ385268 Human 
-papillomavirus type 58 isolate HPV58sc78, complete genome.
-PRIMER_PAIR_7_MISPRIMING_SCORE=19.00, J04353 Human papillomavirus type 
-31 (HPV-31) complete genome.
+PRIMER_LEFT_7_MISPRIMING_SCORE=10.00, J04353 Human papillomavirus type 31 (HPV-31) complete genome.
+PRIMER_RIGHT_7_MISPRIMING_SCORE=12.00, reverse FJ385268 Human papillomavirus type 58 isolate HPV58sc78, complete genome.
+PRIMER_PAIR_7_MISPRIMING_SCORE=19.00, J04353 Human papillomavirus type 31 (HPV-31) complete genome.
 PRIMER_LEFT_7_END_STABILITY=7.3000
 PRIMER_RIGHT_7_END_STABILITY=8.2000
 PRIMER_PAIR_7_COMPL_ANY=5.00
@@ -241,12 +213,9 @@ PRIMER_LEFT_8_SELF_ANY=8.00
 PRIMER_RIGHT_8_SELF_ANY=7.00
 PRIMER_LEFT_8_SELF_END=2.00
 PRIMER_RIGHT_8_SELF_END=1.00
-PRIMER_LEFT_8_MISPRIMING_SCORE=10.00, J04353 Human papillomavirus type 
-31 (HPV-31) complete genome.
-PRIMER_RIGHT_8_MISPRIMING_SCORE=11.00, X74481 Human papillomavirus type 
-52 genomic DNA.
-PRIMER_PAIR_8_MISPRIMING_SCORE=19.00, X74481 Human papillomavirus type 
-52 genomic DNA.
+PRIMER_LEFT_8_MISPRIMING_SCORE=10.00, J04353 Human papillomavirus type 31 (HPV-31) complete genome.
+PRIMER_RIGHT_8_MISPRIMING_SCORE=11.00, X74481 Human papillomavirus type 52 genomic DNA.
+PRIMER_PAIR_8_MISPRIMING_SCORE=19.00, X74481 Human papillomavirus type 52 genomic DNA.
 PRIMER_LEFT_8_END_STABILITY=7.3000
 PRIMER_RIGHT_8_END_STABILITY=7.9000
 PRIMER_PAIR_8_COMPL_ANY=3.00
@@ -267,16 +236,12 @@ PRIMER_LEFT_9_SELF_ANY=6.00
 PRIMER_RIGHT_9_SELF_ANY=2.00
 PRIMER_LEFT_9_SELF_END=3.00
 PRIMER_RIGHT_9_SELF_END=0.00
-PRIMER_LEFT_9_MISPRIMING_SCORE=12.00, EU918766 Human papillomavirus type 
-33 isolate LZcc12-33, complete genome.
-PRIMER_RIGHT_9_MISPRIMING_SCORE=12.00, U45909 Human papillomavirus type 
-45, isolate IS252, major capsid protein L1 (L1) gene, partial cds.
-PRIMER_PAIR_9_MISPRIMING_SCORE=22.00, reverse PPHT39 Human 
-papillomavirus ORFs.
+PRIMER_LEFT_9_MISPRIMING_SCORE=12.00, EU918766 Human papillomavirus type 33 isolate LZcc12-33, complete genome.
+PRIMER_RIGHT_9_MISPRIMING_SCORE=12.00, U45909 Human papillomavirus type 45, isolate IS252, major capsid protein L1 (L1) gene, partial cds.
+PRIMER_PAIR_9_MISPRIMING_SCORE=22.00, reverse PPHT39 Human papillomavirus ORFs.
 PRIMER_LEFT_9_END_STABILITY=7.2000
 PRIMER_RIGHT_9_END_STABILITY=7.0000
 PRIMER_PAIR_9_COMPL_ANY=5.00
 PRIMER_PAIR_9_COMPL_END=2.00
 PRIMER_PRODUCT_SIZE_9=919
 =
-

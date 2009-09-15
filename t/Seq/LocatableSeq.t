@@ -24,7 +24,7 @@ is $seq->alphabet, 'dna';
 is $seq->start, 1;
 is $seq->end, 6;
 is $seq->strand, 1;
-is $seq->no_gaps, 1;
+is $seq->num_gaps, 1;
 is $seq->column_from_residue_number(4), 9;
 is $seq->column_from_residue_number(3), 5;
 
@@ -119,7 +119,7 @@ is $seq->alphabet, 'dna';
 is $seq->start, 1;
 is $seq->end, 6;
 is $seq->strand, -1;
-is $seq->no_gaps, 1;
+is $seq->num_gaps, 1;
 is $seq->column_from_residue_number(4), 5;
 
 
@@ -255,6 +255,7 @@ throws_ok { $seq = Bio::LocatableSeq->new(
 # setting symbols (class variables) - demonstrate scoping issues when using
 # globals with and w/o localization.  To be fixed in a future BioPerl version
 
+# see bug 2715
 my $temp;
 
 {

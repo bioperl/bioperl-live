@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests               => 22,
+    test_begin(-tests               => 24,
 			   -requires_modules    => [],
 			   -requires_networking => 0,
 			  );
@@ -137,5 +137,14 @@ $seqio_obj = Bio::SeqIO->new(-file   => test_input_file("test2.raw"),
 is($seqio_obj->variant, 'single');
 
 my $seq = $seqio_obj->next_seq;
+is($seq->seq, join('', @seq));
+
+$seqio_obj = Bio::SeqIO->new(-file      => test_input_file("test2.raw"),
+                            -format     => 'raw',
+                            -variant    => 'single');
+
+is($seqio_obj->variant, 'single');
+
+$seq = $seqio_obj->next_seq;
 is($seq->seq, join('', @seq));
 

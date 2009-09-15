@@ -18,6 +18,8 @@ my $IGNORE_SEQREGION   = 0;
 my $CREATE   = 0;
 my $USER     = '';
 my $PASS     = '';
+my $COMPRESS = 0;
+my $INDEX_SUB = 1;
 
 GetOptions(
 	   'dsn=s'       => \$DSN,
@@ -29,7 +31,9 @@ GetOptions(
 	   'T|temporary-directory=s' => \$TMP,
 	   'create'      => \$CREATE,
 	   'user=s'      => \$USER,
-	   'password=s'  => \$PASS
+	   'password=s'  => \$PASS,
+	   'zip'         => \$COMPRESS,
+           'S|subfeatures!' => \$INDEX_SUB,
 	   ) || die <<END;
 Usage: $0 [options] gff_file1 gff_file2...
   Options:
@@ -43,9 +47,12 @@ Usage: $0 [options] gff_file1 gff_file2...
           -c --create     Create the database and reinitialize it (will erase contents)
           -u --user       User to connect to database as
           -p --password   Password to use to connect to database
+          -S --subfeatures   Turn on indexing of subfeatures (default)
+             --nosubfeatures Turn off indexing of subfeatures
           -i --ignore-seqregion
                           If true, then ignore ##sequence-region directives in the
                           GFF3 file (default, create a feature for each region)
+          -z --zip        If true, database tables will be compressed to save space
 
 Please see http://www.sequenceontology.org/gff3.shtml for information
 about the GFF3 format. BioPerl extends the format slightly by adding 
@@ -60,7 +67,8 @@ basis by adding "index=1" or "index=0" to the feature's attribute list. This
 should only be used for subfeatures.
 
 Subfeature indexing is true by default. Set to false (0) to save lots
-of database space and speed performance.
+of database space and speed performance. You may use --nosubfeatures
+to force this.  
 END
 
 if ($FAST) {
@@ -79,6 +87,7 @@ my $store = Bio::DB::SeqFeature::Store->new(
 					    -pass    => $PASS,
 					    -write    => 1,
 					    -create   => $CREATE,
+                                            -compress => $COMPRESS,
     )
   or die "Couldn't create connection to the database";
 
@@ -90,6 +99,7 @@ my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store    => $store,
 							 -tmpdir   => $TMP,
 							 -fast     => $FAST,
 							 -ignore_seqregion => $IGNORE_SEQREGION,
+							 -index_subfeatures => $INDEX_SUB,
     )
   or die "Couldn't create GFF3 loader";
 
