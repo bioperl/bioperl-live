@@ -3163,6 +3163,10 @@ sub no_sequences {
              optional string value use for the mask. Example:
 
              $aln2 = $aln->mask_columns(20,30,'?')
+ Note      : Masking must use a character that is not used for gaps or
+             frameshifts.  These can be adjusted using the relevant global
+             variables, but be aware these may be (uncontrollably) modified
+             elsewhere within BioPerl (see bug 2715)
 
 =cut
 
@@ -3170,20 +3174,25 @@ sub mask_columns {
     #based on slice(), but did not include the Bio::Seq::Meta sections as I was not sure what it is doing
     my $self = shift;
 
+    my $nonres = $Bio::LocatableSeq::GAP_SYMBOLS.
+             $Bio::LocatableSeq::FRAMESHIFT_SYMBOLS;
+    
+    # coordinates are alignment-based, not sequence-based
     my ($start, $end, $mask_char) = @_;
     unless (defined $mask_char) { $mask_char = 'N' }
 
-    $self->throw("Mask start has to be a positive integer, not [$start]")
-      unless $start =~ /^\d+$/ and $start > 0;
-    $self->throw("Mask end has to be a positive integer, not [$end]")
-      unless $end =~ /^\d+$/ and $end > 0;
-    $self->throw("Mask start [$start] has to be smaller than or equal to end [$end]")
-      unless $start <= $end;
-    $self->throw("This alignment has only ". $self->length . " residues. Mask start " .
-                     "[$start] is too big.") if $start > $self->length;
-    $self->throw("Mask character $mask_char has to be a single character")
-      unless CORE::length($mask_char) == 1;
-
+    $self->throw("Mask start has to be a positive integer and less than ".
+                 "alignment length, not [$start]")
+      unless $start =~ /^\d+$/ && $start > 0 && $start <= $self->length;
+    $self->throw("Mask end has to be a positive integer and less than ".
+                 "alignment length, not [$end]")
+      unless $end =~ /^\d+$/ && $end > 0 && $end <= $self->length;
+    $self->throw("Mask start [$start] has to be smaller than or equal to ".
+                 "end [$end]") unless $start <= $end;
+    $self->throw("Mask character $mask_char has to be a single character ".
+                 "and not a gap or frameshift symbol")
+      unless CORE::length($mask_char) == 1 && $mask_char !~ m{$nonres};
+    
     my $aln = $self->new;
     $aln->id($self->id);
     foreach my $seq ( $self->each_seq() ) {
@@ -3192,10 +3201,9 @@ sub mask_columns {
          -strand  => $seq->strand,
          -verbose => $self->verbose);
 
-        my $mask_end = $end;
-        $mask_end = $seq->length if( $end > $seq->length );
-        my $masked_string = $mask_char x ($mask_end - $start +1);
-        my $new_dna_string = substr($seq->seq,0,$start-1) . $masked_string . substr($seq->seq,$mask_end);
+        my $masked_string = substr($seq->seq,$start, $end - $start +1);
+        $masked_string =~ s{[^$nonres]}{$mask_char}g;
+        my $new_dna_string = substr($seq->seq,0,$start-1) . $masked_string . substr($seq->seq,$end);
         $new_seq->seq($new_dna_string);
         $aln->add_seq($new_seq);
     }

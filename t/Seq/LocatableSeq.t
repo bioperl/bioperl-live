@@ -255,6 +255,7 @@ throws_ok { $seq = Bio::LocatableSeq->new(
 # setting symbols (class variables) - demonstrate scoping issues when using
 # globals with and w/o localization.  To be fixed in a future BioPerl version
 
+# see bug 2715
 my $temp;
 
 {
