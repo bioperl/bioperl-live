@@ -79,7 +79,7 @@ for this release series highlighted in BUGS.
     - new parser for gmap -f9 output [hartzell]
     - bug 2852 - fix infinite loop in some output [cjfields]
     - blastxml output now passes all TODO tests [cjfields]
-    - psl and exonerate parsing fixes [rbuels, jhannah, bvecchi, YAPC hackathon]
+    - bug 2346, 2850 - psl and exonerate parsing fixes [rbuels, jhannah, bvecchi, YAPC hackathon]
     - RT 44782 - GbrowseGFF writer now catches evalues [Allen Day]
     - bug 2575 - add two columns of additional output to HSPTableWriter [cjfields]
 * Bio::Seq::LargePrimarySeq
@@ -87,6 +87,7 @@ for this release series highlighted in BUGS.
     - bug fixes [rbuels, jhannah, bvecchi, YAPC hackathon]
 * Bio::Seq::Quality
     - extract regions based on quality threshold value [Dan Bolser, heikki]
+    - bug 2847 - resolve threshold issue (rbuels, jhannah, bvecchi)
 * Bio::SeqFeature::Lite
     - various Bio::DB::SeqFeature-related fixes [lstein]
 * Bio::SeqFeature::Tools::TypeMapper
@@ -133,7 +134,7 @@ for this release series highlighted in BUGS.
 * Bio::Tools::Run::RemoteBlast
     - tests for remote RPS-BLAST [mcook]
 * Bio::Tools::SeqPattern
-    - bug fixes from YAPC hackathon [rbuels, jhannah, bvecchi]
+    - bug 2844 - backtranslate method [rbuels, jhannah, bvecchi]
 * Bio::Tools::tRNAscanSE
     - use 'gene' and 'exon' for proper SO, ensure ID is unique [jason]
 * Bio::Tree::*
