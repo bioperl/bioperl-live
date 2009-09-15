@@ -49,7 +49,7 @@ Bio::SimpleAlign - Multiple alignments held as a set of sequences
   # Manipulate
   $aln->remove_seq($seq);
   $mini_aln = $aln->slice(20,30);  # get a block of columns
-  $mini_aln = $aln->select_noncont(1,3,5,7,11); # get single columns
+  $mini_aln = $aln->select_noncont(1,3,5,7,11); # select certain sequences
   $new_aln = $aln->remove_columns([20,30]); # remove by position
   $new_aln = $aln->remove_columns(['mismatch']); # remove by property
 
