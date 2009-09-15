@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 169 );
+    test_begin( -tests => 173 );
 
     use_ok('Bio::SimpleAlign');
     use_ok('Bio::AlignIO');
@@ -350,7 +350,7 @@ SKIP: {
     is( $a->get_seq_by_pos(1)->seq, 'AAA', "bug 2793" );
     ok( $a->add_seq( $s21, 2 ), "bug 2793" );
     is( $a->get_seq_by_pos(2)->seq, 'CCC', "bug 2793" );
-    throws_ok { $a->add_seq( $s21, 0 ) } qr/must be >= 1/;
+    throws_ok { $a->add_seq( $s21, 0 ) } qr/must be >= 1/, 'Bad sequence, bad!';
 }
 
 # test for Bio::SimpleAlign annotation method and
@@ -415,6 +415,12 @@ my @slice_lens = qw(1 1 2 2);
 for my $feature ( $aln->get_SeqFeatures ) {
     for my $loc ( $feature->location->each_Location ) {
         my $masked = $aln->mask_columns( $loc->start, $loc->end, '?');
+        TODO: {
+            local $TODO = "This should pass but dies; see bug 2842";
+            $masked->verbose(2);
+            lives_ok {my $fslice = $masked->slice( $loc->start, $loc->end )};
+        }
+        $masked->verbose(-1);
         my $fslice = $masked->slice( $loc->start, $loc->end );
         is( $fslice->length, $slice_lens[ $i++ ], "slice $i len" );
         for my $s ( $fslice->each_seq ) {
