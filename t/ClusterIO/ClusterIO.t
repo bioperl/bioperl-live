@@ -15,7 +15,7 @@ BEGIN {
 }
 
 SKIP: {
-	test_skip(-tests => 8, -requires_module => 'XML::Parser::PerlSAX');
+	test_skip(-tests => 8, -requires_module => 'XML::SAX');
     
 	my ($clusterio, $result,$hit,$hsp);
 	$clusterio = Bio::ClusterIO->new('-tempfile' => 0,

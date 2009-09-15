@@ -131,8 +131,8 @@ sub new {
 
            These are passed on to LWP::UserAgent::request() if stipulated
 
-           -file   - use a LWP::UserAgent-compliant callback
-           -cb     - dumps the response to a file (handy for large responses)
+           -cb     - use a LWP::UserAgent-compliant callback
+           -file   - dumps the response to a file (handy for large responses)
                      Note: can't use file and callback at the same time
            -read_size_hint - bytes of content to read in at a time to pass to callback
  Note    : Caching and parameter checking are set

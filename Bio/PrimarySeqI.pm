@@ -419,6 +419,7 @@ sub revcom{
        $self->_attempt_to_load_Seq();
    }
    my $out = $seqclass->new( '-seq' => $revseq,
+			     '-is_circular'  => $self->is_circular,
 			     '-display_id'  => $self->display_id,
 			     '-accession_number' => $self->accession_number,
 			     '-alphabet' => $self->alphabet,

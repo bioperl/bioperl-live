@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 249);
+	test_begin(-tests => 260);
 	
     use_ok('Bio::SeqIO::genbank');
 }
@@ -536,3 +536,28 @@ if ($project) {
 } else {
 	ok(0, "Roundtrip test failed");
 }
+
+# test for swissprot/UniProt/UniProtKB DBSOURCE line (Bug : RT 44536)
+$ast = Bio::SeqIO->new(-format => 'genbank',
+                              -verbose => $verbose,
+                       -file => test_input_file('P39765.gb'));
+$ast->verbose($verbose);
+$as = $ast->next_seq();
+is $as->molecule, 'linear',$as->accession_number;;
+is $as->alphabet, 'protein';
+# Though older GenBank releases indicate SOURCE contains only the common name,
+# this is no longer true.  In general, this line will contain an abbreviated
+# form of the full organism name (but may contain the full length name),
+# as well as the optional common name and organelle.  There is no get/set
+# for the abbreviated name but it is accessible via name()
+ok defined($as->species->name('abbreviated')->[0]);
+is $as->species->name('abbreviated')->[0], 'Bacillus subtilis';
+is($as->primary_id, 20141743);
+$ac = $as->annotation;
+ok defined $ac;
+@dblinks = $ac->get_Annotations('dblink');
+is(scalar @dblinks,31);
+is($dblinks[0]->database, 'UniProtKB');
+is($dblinks[0]->primary_id, 'PYRR_BACSU');
+is($dblinks[0]->version, undef);
+is($dblinks[0]->display_text, 'UniProtKB:PYRR_BACSU','operator overloading in AnnotationI is deprecated');

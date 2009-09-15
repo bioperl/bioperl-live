@@ -1245,7 +1245,7 @@ sub find_exe {
         if (scalar @exes) {
             $exe = $exes[0];
             if (defined $exes[1]) {
-                $self->warn("find_exe: Multiple paths to '$name' found. Using first.");
+                $self->warn("find_exe: Multiple paths to '$name' found. Using $exe.");
             }
         }
     }

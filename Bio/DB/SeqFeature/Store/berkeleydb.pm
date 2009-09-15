@@ -369,9 +369,11 @@ sub reindex_gfffiles {
     my $autodir = shift;
 
     warn "Reindexing GFF files...\n" if $self->verbose;
+    my $exists = -e $self->_features_path;
+
     $self->_permissions(1,1);
     $self->_close_databases();
-    $self->_open_databases(1,0);
+    $self->_open_databases(1,!$exists);
     require Bio::DB::SeqFeature::Store::GFF3Loader
 	unless Bio::DB::SeqFeature::Store::GFF3Loader->can('new');
     my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store    => $self,

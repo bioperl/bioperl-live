@@ -97,14 +97,14 @@ sub new {
 
     my $seq = $params{'-seq'} || $params{'-SEQ'};
     if($seq ) {
-	delete $params{'-seq'};
-	delete $params{'-SEQ'};
+    delete $params{'-seq'};
+    delete $params{'-SEQ'};
     }
     my $self = $class->SUPER::new(%params);
     $self->_initialize_io(%params);
     my $tempdir = $self->tempdir( CLEANUP => 1);
     my ($tfh,$file) = $self->tempfile( DIR => $tempdir );
-
+    $self->{tempdir} = $tempdir;
     $tfh     && $self->_fh($tfh);
     $file    && $self->_filename($file);    
     $self->length(0);
@@ -150,9 +150,9 @@ sub seq {
    my ($self, $data) = @_;   
    if( defined $data ) {
        if( $self->length() == 0) {
-	   $self->add_sequence_as_string($data);
+       $self->add_sequence_as_string($data);
        } else { 
-	   $self->warn("Trying to reset the seq string, cannot do this with a LargePrimarySeq - must allocate a new object");
+       $self->warn("Trying to reset the seq string, cannot do this with a LargePrimarySeq - must allocate a new object");
        }
    } 
    return $self->subseq(1,$self->length);
@@ -178,48 +178,48 @@ sub subseq{
    if( ref($start) && $start->isa('Bio::LocationI') ) {
        my $loc = $start;
        if( $loc->length == 0 ) { 
-	   $self->warn("Expect location lengths to be > 0");
-	   return '';
+       $self->warn("Expect location lengths to be > 0");
+       return '';
        } elsif( $loc->end < $loc->start ) { 
-	   # what about circular seqs
-	   $self->warn("Expect location start to come before location end");
+       # what about circular seqs
+       $self->warn("Expect location start to come before location end");
        }
        my $seq = '';
        if( $loc->isa('Bio::Location::SplitLocationI') ) {
-	   foreach my $subloc ( $loc->sub_Location ) {
-	       if(! seek($fh,$subloc->start() - 1,0)) {
-		   $self->throw("Unable to seek on file $start:$end $!");
-	       }
-	       my $ret = read($fh, $string, $subloc->length());
-	       if( !defined $ret ) {
-		   $self->throw("Unable to read $start:$end $!");
-	       }
-	       if( $subloc->strand < 0 ) { 
-		   $string = Bio::PrimarySeq->new(-seq => $string)->revcom()->seq();
-	       }
-	       $seq .= $string;
-	   }
+       foreach my $subloc ( $loc->sub_Location ) {
+           if(! seek($fh,$subloc->start() - 1,0)) {
+           $self->throw("Unable to seek on file $start:$end $!");
+           }
+           my $ret = read($fh, $string, $subloc->length());
+           if( !defined $ret ) {
+           $self->throw("Unable to read $start:$end $!");
+           }
+           if( $subloc->strand < 0 ) { 
+           $string = Bio::PrimarySeq->new(-seq => $string)->revcom()->seq();
+           }
+           $seq .= $string;
+       }
        } else { 
-	   if(! seek($fh,$loc->start()-1,0)) {
-	       $self->throw("Unable to seek on file ".$loc->start.":".
-			    $loc->end ." $!");
-	   }
-	   my $ret = read($fh, $string, $loc->length());
-	   if( !defined $ret ) {
-	       $self->throw("Unable to read ".$loc->start.":".
-			    $loc->end ." $!");
-	   }
-	   $seq = $string;
+       if(! seek($fh,$loc->start()-1,0)) {
+           $self->throw("Unable to seek on file ".$loc->start.":".
+                $loc->end ." $!");
+       }
+       my $ret = read($fh, $string, $loc->length());
+       if( !defined $ret ) {
+           $self->throw("Unable to read ".$loc->start.":".
+                $loc->end ." $!");
+       }
+       $seq = $string;
        }
        if( defined $loc->strand && 
-	   $loc->strand < 0 ) { 
-	   $seq = Bio::PrimarySeq->new(-seq => $seq)->revcom()->seq();
+       $loc->strand < 0 ) { 
+       $seq = Bio::PrimarySeq->new(-seq => $seq)->revcom()->seq();
        }
        return $seq;
    }
    if( $start <= 0 || $end > $self->length ) {
        $self->throw("Attempting to get a subseq out of range $start:$end vs ".
-		    $self->length);
+            $self->length);
    }
    if( $end < $start ) {
        $self->throw("Attempting to subseq with end ($end) less than start ($start). To revcom use the revcom function with trunc");
@@ -307,8 +307,9 @@ sub DESTROY {
     my $fh = $self->_fh();
     close($fh) if( defined $fh );
     # this should be handled by Tempfile removal, but we'll unlink anyways.
-    unlink $self->_filename()
-        if defined $self->_filename() && -e $self->_filename;
+    unlink $self->_filename() if defined $self->_filename() && -e $self->_filename;
+	# remove tempdirs as well
+    rmdir $self->{tempdir} if defined $self->{tempdir} && -e $self->{tempdir};
     $self->SUPER::DESTROY();
 }
 

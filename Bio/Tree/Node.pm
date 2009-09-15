@@ -589,14 +589,6 @@ sub is_Leaf {
     return $isleaf;
 }
 
-=head2 to_string
-
- Title   : to_string
- Usage   : my $str = $node->to_string()
- Function: For debugging, provide a node as a string
- Returns : string
- Args    : none
-
 =head2 height
 
  Title   : height

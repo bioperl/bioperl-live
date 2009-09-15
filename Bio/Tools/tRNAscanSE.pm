@@ -87,7 +87,7 @@ use Bio::SeqFeature::Generic;
 use base qw(Bio::Tools::AnalysisResult);
 
 use vars qw($GeneTag $SrcTag $ExonTag);
-($GeneTag,$SrcTag,$ExonTag) = qw(tRNA_gene tRNAscan-SE tRNA_exon);
+($GeneTag,$SrcTag,$ExonTag) = qw(gene tRNAscan-SE exon);
 
 =head2 new
 
@@ -263,8 +263,8 @@ sub next_prediction {
 	    if( $start > $end ) { 
 		($start,$end,$strand) = ($end,$start,-1);
 	    }
-	    if( $self->{'_seen'}->{"$seqid.$type"}++ ) {
-		$type .= "-".$self->{'_seen'}->{"$seqid.$type"};
+	    if( $self->{'_seen'}->{$type}++ ) {
+		$type .= "-".$self->{'_seen'}->{$type};
 	    }
 	    my $gene = Bio::SeqFeature::Generic->new
 		( -seq_id => $seqid,
@@ -276,6 +276,7 @@ sub next_prediction {
 		  -source_tag  => $srctag,
 		  -tag     => {
 		      'ID'    => "tRNA:$type",
+		      'Name'  => "tRNA:$type",
 		      'AminoAcid' => $type,
 		      'Codon'     => $codon,
 		  });
@@ -291,7 +292,7 @@ sub next_prediction {
 					-primary_tag => $exontag,
 					-source_tag  => $srctag,
 					-tag => { 
-					    'Parent' => "tRNA:$type" 
+					    'Parent' => "tRNA:$type",
 					    }));
 		$gene->add_SeqFeature(Bio::SeqFeature::Generic->new
 				      ( -seq_id=> $seqid,

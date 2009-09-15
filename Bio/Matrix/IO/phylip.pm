@@ -122,7 +122,7 @@ sub next_matrix {
    my $size = 0;
    while ($entry=$self->_readline) {
        if($#names >=0 && $entry =~/^\s+\d+\n$/){
-	   $self->_pushback($_);
+	   $self->_pushback($entry);
 	   last;
        } elsif($entry=~/^\s+(\d+)\n$/){	   
 	   $size = $1;

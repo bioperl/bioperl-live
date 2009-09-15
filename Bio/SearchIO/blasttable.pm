@@ -404,7 +404,19 @@ sub element{
 sub characters{
    my ($self,$data) = @_;   
 
-   return unless ( defined $data->{'Data'} );
+# deep bug fix: set $self->{'_last_data'} to undef if $$data{Data} is 
+# a valid slot, whose value is undef --
+# allows an undef to be propagated to object constructors and
+# handled there as desired; in particular, when Hsp_postive => -conserved
+# is not defined (in BLASTN, e.g.), the value of hsp's {CONSERVED} property is 
+# set to the value of {IDENTICAL}.
+#/maj
+#   return unless ( defined $data->{'Data'} ); 
+   return unless ( grep /Data/, keys %$data );
+   if ( !defined $data->{'Data'} ) {
+       $self->{'_last_data'} = undef;
+       return;
+   }
    if( $data->{'Data'} =~ /^\s+$/ ) {
        return unless $data->{'Name'} =~ /Hsp\_(midline|qseq|hseq)/;
    }

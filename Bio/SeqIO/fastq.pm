@@ -37,9 +37,7 @@ the from:
 Fastq files have sequence and quality data on a single line and the
 quality values are single-byte encoded. To retrieve the decimal values
 for qualities you need to subtract 33 (or Octal 41) from each byte and
-then convert to a '2 digit + 1 space' integer. You can check if 33 is
-the right number because the first byte which is always '!'
-corresponds to a quality value of 0.
+then convert to a '2 digit + 1 space' integer. 
 
 =head1 FEEDBACK
 
@@ -130,7 +128,7 @@ sub next_seq {
     $seqdata->{$type} = $line;
   }
   $self->warn("Seq/Qual descriptions don't match; using sequence description\n")
-    unless $seqdata->{seqdesc} eq $seqdata->{qualdesc};
+    unless $seqdata->{qualdesc} eq '' || $seqdata->{seqdesc} eq $seqdata->{qualdesc};
   my ($id,$fulldesc) = $seqdata->{seqdesc} =~ /^\s*(\S+)\s*(.*)/
     or $self->throw("Can't parse fastq header");
   if ($id eq '') {$id=$fulldesc;}   # FIX incase no space between \@ and name

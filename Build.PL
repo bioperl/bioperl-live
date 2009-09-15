@@ -30,7 +30,8 @@ my $build = Bio::Root::Build->new(
                             'IO::String'                => 0,
                             'DB_File'                   => 0,
                             'Data::Stag'                => 0.11, # Bio::SeqIO::swiss, we can change to 'recommend' if needed
-                            'Scalar::Util'              => 0 # not in Perl 5.6.1, arrived in core in 5.7.3
+                            'Scalar::Util'              => 0,    # not in Perl 5.6.1, arrived in core in 5.7.3
+                            'ExtUtils::Manifest'        => '1.52', # allows spaces in file names
                            },
     build_requires      => {
                             'Test::More'                => 0,
@@ -60,8 +61,10 @@ my $build = Bio::Root::Build->new(
                             'PostScript::TextBlock'     => '0/EPS output/Bio::Tree::Draw::Cladogram',
                             'Set::Scalar'               => '0/proper operation/Bio::Tree::Compatible',
                             'SOAP::Lite'                => '0/Bibliographic queries/Bio::DB::Biblio::soap',
-                            'Spreadsheet::ParseExcel'   => '0/parsing Excel files/Bio::SeqIO::excel',
+                            'Spreadsheet::ParseExcel'   => '0/parsing Excel files/Bio::SeqIO::excel,Bio::Microarray::Tools::ReseqChip',
+                            'Spreadsheet::WriteExcel'   => '0/writing Excel files/Bio::Microarray::Tools::ReseqChip',
                             'Storable'                  => '2.05/storing sequence objects in local file cache/Bio::DB::FileCache,Bio::SeqFeature::Collection,Bio::PopGen::HtSNP,Bio::PopGen::TagHaplotype,Bio::DB::GFF::Adaptor::berkeleydb',
+                            'SVG'                       => '2.26/creating SVG images/Bio::Draw::Pictogram',
                             'SVG::Graph'                => '0.01/creating SVG images/Bio::TreeIO::svggraph',
                             'Text::ParseWords'          => '0/test scripts/Bio::DB::SeqFeature::Store::FeatureFileLoader',
                             'URI::Escape'               => '0/dealing with web resources/Bio::FeatureIO::gff,Bio::FeatureIO::interpro,Bio::DB::Biblio::eutils,Bio::DB::EUtilParameters,Bio::DB::Query::GenBank,Bio::DB::NCBIHelper,Bio::SeqFeature::Annotated',
@@ -70,7 +73,7 @@ my $build = Bio::Root::Build->new(
                             'XML::Parser::PerlSAX'      => '0/parsing xml/Bio::SeqIO::tinyseq,Bio::SeqIO::game::gameSubs,Bio::OntologyIO::InterProParser,Bio::ClusterIO::dbsnp',
                             'XML::SAX'                  => '0.15/parsing xml/Bio::SearchIO::blastxml,Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
                             'XML::SAX::Writer'          => '0/writing xml/Bio::SeqIO::tigrxml',
-			    'XML::Simple'               => '0/reading custom XML/Bio::Tools::EUtilities,Bio::DB::HIV,Bio::DB::Query::HIVQuery',
+                            'XML::Simple'               => '0/reading custom XML/Bio::Tools::EUtilities,Bio::DB::HIV,Bio::DB::Query::HIVQuery',
                             'XML::Twig'                 => '0/parsing xml/Bio::Variation::IO::xml,Bio::DB::Taxonomy::entrez,Bio::DB::Biblio::eutils',
                             'XML::Writer'               => '0.4/parsing and writing xml/Bio::SeqIO::agave,Bio::SeqIO::game::gameWriter,Bio::SeqIO::chadoxml,Bio::SeqIO::tinyseq,Bio::Variation::IO::xml,Bio::SearchIO::Writer::BSMLResultWriter',
     },
@@ -91,6 +94,11 @@ my $build = Bio::Root::Build->new(
                             BioDBSeqFeature_mysql => {
                                                         description      => "MySQL tests for Bio::DB::SeqFeature::Store",
                                                         feature_requires => { 'DBI' => 0, 'DBD::mysql' => 0 },
+                                                        test             => \&test_db_sf
+                                                     },
+                            BioDBSeqFeature_Pg    => {
+                                                        description      => "Postgres tests for Bio::DB::SeqFeature::Store",
+                                                        feature_requires => { 'DBI' => 0, 'DBD::Pg' => 0},
                                                         test             => \&test_db_sf
                                                      },
                             Network               => {
@@ -119,7 +127,7 @@ if ($proceed && $build->feature('BioDBSeqFeature_BDB')) {
     # prompt_for_biodb() above
     make_bdb_test();
 }
-if ($proceed && ($build->feature('BioDBSeqFeature_mysql'))) {
+if ($proceed && ($build->feature('BioDBSeqFeature_mysql') or $build->feature('BioDBSeqFeature_Pg'))) {
     make_dbi_test();
 }
 
@@ -176,9 +184,9 @@ END
 sub test_db_sf {
     eval {require DBI;};  # if not installed, this sub won't actually be called
     @drivers = DBI->available_drivers;
-    unless (grep {/mysql/i} @drivers) {
+    unless (grep {/mysql|Pg/i} @drivers) {
         $mysql_ok = 0;
-        return "Only MySQL driver is supported for Bio::DB::SeqFeature RDMS tests";
+        return "Only MySQL and Postgres DBI drivers supported for Bio::DB::SeqFeature RDMS tests";
     }
     $mysql_ok = 1;
     return;
@@ -188,7 +196,9 @@ sub make_dbi_test {
     my $dsn = $build->notes('test_dsn') || return;
     my $path0 = File::Spec->catfile('t', 'LocalDB', 'SeqFeature.t');
     my $driver = $build->notes('dbd_driver');
-    my $path = File::Spec->catfile('t', 'LocalDB', 'SeqFeature_mysql.t' );
+    my $path = File::Spec->catfile('t', 'LocalDB', ($driver eq 'mysql') 
+                                                   ? 'SeqFeature_mysql.t' 
+                                                   : 'SeqFeature_Pg.t');
     my $test_db = $build->notes('test_db');
     my $user = $build->notes('test_user');
     my $pass = $build->notes('test_pass');
@@ -286,7 +296,7 @@ sub prompt_for_biodb {
                         "    User     $test_user\n",
                         "    Password $test_pass\n");
         $build->log_info("  - will not run the BioDBSeqFeature live ".
-                         "database tests (requires MySQL driver)\n") unless ($driver eq 'mysql');
+                         "database tests (requires MySQL or Pg driver)\n") unless ($driver eq 'mysql' or $driver eq 'Pg');
     }
     else {
         $build->log_info("  - will not run the BioDBGFF or BioDBSeqFeature live database tests\n");
