@@ -136,8 +136,8 @@ sub doc {
  Returns : none
  Args    : none
 
-
 =cut
+
 sub rewind {
     my $self = shift;
     $self->{'_treeiter'} = 0;

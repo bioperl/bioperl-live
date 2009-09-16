@@ -363,7 +363,7 @@ where:
   + = optional descriptor (if present, must match first one), followed by one or
       more qual lines
 
-=head2 FASTQ<->Bio::Seq::Quality mapping
+=head2 FASTQ and Bio::Seq::Quality mapping
 
 FASTQ files have sequence and quality data on single line or multiple lines, and
 the quality values are single-byte encoded. Data are mapped very simply to
