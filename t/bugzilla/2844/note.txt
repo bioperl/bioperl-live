@@ -1,3 +1,0 @@
-Tests for the added functionality in:
-t/SeqTools/SeqPattern.t
-t/SeqTools/Backtranslate.t

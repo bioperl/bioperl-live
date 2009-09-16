@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 52);
+    test_begin(-tests => 53);
 
     use_ok('Bio::SearchIO');
 }
@@ -96,3 +96,12 @@ TODO: {
     local $TODO = "next_result should really return undef, not empty string";
     is( $pslparser->next_result, undef, 'next_result should be undef');
 }
+
+# bug 2850
+
+my $searchio = Bio::SearchIO->new(
+    -format => 'psl',
+    -file   => test_input_file('headerless.psl'),
+);
+
+lives_ok { my $result = $searchio->next_result };

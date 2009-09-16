@@ -7,10 +7,12 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 60);
+    test_begin(-tests => 61);
 
     use_ok('Bio::Seq::Quality');
 }
+
+use Bio::SeqIO;
 
 my $DEBUG = test_debug();
 
@@ -266,3 +268,14 @@ is scalar @ranges, 3;
 my $min_length = 10;
 @ranges = $seq->get_all_clean_ranges($min_length);
 is scalar @ranges, 2;
+
+my $seqio = Bio::SeqIO->new(
+    -file   => test_input_file('test_clear_range.fastq'),
+    -format => 'fastq'
+);
+
+while ( my $seq = $seqio->next_seq() ) {
+    $seq->threshold(15);
+    lives_ok { my $newqualobj = $seq->get_clear_range };
+}
+
