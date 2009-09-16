@@ -21,10 +21,6 @@ Amounts to same as running
 
 on every file.
 
-You are expected to have checked out CVS module 'bioperl_all'.
-Otherwise, bioperl-run module is not found.
-
-
 =head2 Results
 
 The results are written into file '/tmp/bioperl_pod_check' and
@@ -53,7 +49,7 @@ sub blankline;
 #
 ## Directories to check
 #
-my @dirs = qw( ../Bio/ ../../bioperl-run/Bio  ../scripts ../../bioperl-run/scripts . );
+my @dirs = qw( ../Bio/ ../scripts . );
 
 # command line options
 my ($verbose, $blankline, $dir, $help) = (0, undef, undef, undef);
@@ -88,7 +84,7 @@ sub podcheck {
     return unless /\.PLS$/ or /\.p[ml]$/ ;
     return unless -e $_;
     print "$_\n" if $verbose;
-    my $checker = new Pod::Checker %POD_CHECKER_OPTIONS;
+    my $checker = Pod::Checker->new( %POD_CHECKER_OPTIONS );
     $checker->parse_from_file($_, \*F);
     print "$_\tno POD\n" if $checker->num_errors() < 0;
 }
