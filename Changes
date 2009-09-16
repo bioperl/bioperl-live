@@ -17,7 +17,7 @@ http://www.bioperl.org/wiki/Change_log.  Bugs remaining to be addressed
 are online at http://bugzilla.open-bio.org, with specific bugs intended
 for this release series highlighted in BUGS.
 
-1.6.0_1 Sept. 15, 2009
+1.6.0_1 Sept. 15, 2009 (first 1.6.1 alpha)
     * Bio::Align::DNAStatistics
         - fix divide by zero problem [jason]
     * Bio::AlignIO::*
