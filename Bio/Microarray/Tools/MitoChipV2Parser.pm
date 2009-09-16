@@ -20,19 +20,19 @@ MitoChip V2.0
 =head1 DESCRIPTION
 
 =head1 AUTHORS
-        
+
 Marian Thieme (marian.thieme@gmail.com)
 
 =head1 COPYRIGHT
-        
+
 Copyright (c) 2007 Institute of Functional Genomics, University Regensburg,
 granted by Baygene. All Rights Reserved.
-        
+
 This module is free software; you can redistribute it and/or modify it under the
 same terms as Perl itself.
 
 =head1 DISCLAIMER
-        
+
 This software is provided "as is" without warranty of any kind.
 
 =head1 APPENDIX
@@ -339,7 +339,7 @@ sub count_different_variants() {
 =cut
 
 sub _calc_oligo_region_hash() {
-  
+
   my ($self, $start, $stop, $oligo_region_hash) = @_;
 
     #$start+=12;

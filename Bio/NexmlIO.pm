@@ -70,11 +70,11 @@ Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -131,7 +131,7 @@ my $nexml_fac = Bio::Nexml::Factory->new();
  Args    : file name
  
  See L<Bio::Root::IO>
- 
+
 =cut
 
 sub new {
@@ -160,7 +160,7 @@ sub new {
  Function: returns a L<Bio::Phylo::Project> object that contains all the Bio::Phylo data objects parsed from the stream
  Returns : a L<Bio::Phylo::Project> object
  Args    : none
- 
+
 =cut
 
 sub doc {

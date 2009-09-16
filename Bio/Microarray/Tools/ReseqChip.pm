@@ -122,21 +122,21 @@ use Spreadsheet::WriteExcel;
 
 
 =head1 AUTHORS
-        
+
 Marian Thieme (marian.thieme@gmail.com)
 
 =head1 COPYRIGHT
-        
+
 Copyright (c) 2007 Institute of Functional Genomics, University Regensburg, granted by Baygene. All Rights Reserved.
-        
+
 This module is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
-        
+
 
 
 
 
 =head1 DISCLAIMER
-        
+
 This software is provided "as is" without warranty of any kind.
 
 =head1 APPENDIX
@@ -937,7 +937,7 @@ sub calc_sequence() {
              $count integer: number of candidate base currently in the array
              $output_rawrow_tmp string: log message, currently not used.
  Args      : lot of args, see the function itself
-             
+
 =cut
 
 sub _augment_base_array() {
@@ -986,7 +986,7 @@ sub _augment_base_array() {
              $final_seq string: sequence processed so far
              $output_rawrow_tmp string: log message.
  Args      : lot of args, see the function itself
-             
+
 =cut
 
 sub _get_consensus_call() {
@@ -1121,7 +1121,7 @@ sub _calc_stats() {
              $id : identifier of the sequence
              $filename : name of fasta file
              $gap : 1 gaps are written to file, 0 gaps are removed. if omitted, gaps are also removed
-                                           
+
 =cut
 
 

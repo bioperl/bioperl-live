@@ -44,11 +44,11 @@ the Bioperl mailing list.  Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -128,7 +128,7 @@ sub new {
  Function: Converts Bio::Phylo::Matrices::Matrix objects into L<Bio::SimpleAlign> objects
  Returns : an array of L<Bio::SimpleAlign> objects
  Args    : Bio::NexmlIO, Bio::SeqIO, Bio::AlignIO, or Bio::TreeIO
- 
+
 see [http://search.cpan.org/~rvosa/Bio-Phylo/lib/Bio/Phylo/Project.pm Bio::Phylo::Project]
 
 =cut
@@ -229,7 +229,7 @@ sub create_bperl_aln {
  Function: Converts Bio::Phylo::Forest::Tree objects into L<Bio::Tree::Tree> objects
  Returns : an array of L<Bio::Tree::Tree> objects
  Args    : Bio::NexmlIO, Bio::SeqIO, Bio::AlignIO, or Bio::TreeIO
- 
+
 see [http://search.cpan.org/~rvosa/Bio-Phylo/lib/Bio/Phylo/Project.pm Bio::Phylo::Project]
 
 =cut
@@ -345,7 +345,7 @@ sub create_bperl_tree {
  Function: Converts Bio::Phylo::Matrices::Datum objects into L<Bio::Seq> objects
  Returns : an array of L<Bio::Seq> objects
  Args    : Bio::NexmlIO, Bio::SeqIO, Bio::AlignIO, or Bio::TreeIO
- 
+
 see [http://search.cpan.org/~rvosa/Bio-Phylo/lib/Bio/Phylo/Project.pm Bio::Phylo::Project]
 
 =cut
@@ -433,7 +433,7 @@ sub create_bperl_seq {
  Function: Converts a L<Bio::Tree::Tree> object into Bio::Phylo::Forest::Tree object
  Returns : a Bio::Phylo::Forest::Tree object
  Args    : Bio::Tree::Tree object
- 
+
 =cut
 
 sub create_bphylo_tree {
@@ -487,7 +487,7 @@ sub _copy_tree {
  Function: Converts a L<Bio::Tree::Node> object into Bio::Phylo::Forest::Node object
  Returns : a Bio::Phylo::Forest::Node object
  Args    : L<Bio::Tree::Node> object
- 
+
 =cut
 
 sub create_bphylo_node {
@@ -527,7 +527,7 @@ sub create_bphylo_node {
  Function: Converts a L<Bio::SimpleAlign> object into Bio::Phylo::Matrices::Matrix object
  Returns : a Bio::Phylo::Matrices::Matrix object
  Args    : Bio::SimpleAlign object
- 
+
 =cut
 
 sub create_bphylo_aln {
@@ -584,7 +584,7 @@ sub create_bphylo_aln {
  Function: Converts a L<Bio::Seq> object into Bio::Phylo::Matrices::Matrix object
  Returns : a Bio::Phylo::Matrices::Matrix object
  Args    : Bio::Seq object
- 
+
 =cut
 
 sub create_bphylo_seq {
@@ -625,7 +625,7 @@ sub create_bphylo_seq {
  Function: creates a taxa object from the data attached to a bioperl object
  Returns : a Bio::Phylo::Taxa object
  Args    : L<Bio::Seq> object, or L<Bio::SimpleAlign> object, or L<Bio::Tree::Tree> object
- 
+
 =cut
 
 sub create_bphylo_taxa {
@@ -697,7 +697,7 @@ sub _create_bphylo_matrix_taxa {
  Args    : Bio::Seq object, Bio::Phylo::Taxa object, 
            [optional] arrayref to SeqFeatures,
            [optional] key => value pairs to pass to Bio::Phylo constructor
- 
+
 =cut
 
 sub create_bphylo_datum {

@@ -214,7 +214,7 @@ sub get_params {
  Function:  Convenience method used to set specific parameters
  Returns :  None
  Args    :  Hash ref containing the data to be passed as key-value pairs
- 
+
 =cut
 
 sub set_params {
@@ -624,7 +624,7 @@ This is the current Annotation data chunk (via Data::Dumper):
             'JOURNAL' => 'Unpublished (2003)'
             'ALIGNMENT' => 1,
           };
-          
+
 In the case of LocatableSeqs, one can pass them in as follows for simplicity
 (note the block line):
 
@@ -667,7 +667,7 @@ An alignment consensus string:
             'DATA' => 'VALILGVYRRL...CYVNREM..RAG....QW',
             'ALIGNMENT' => 1
           };
-          
+
 A consensus meta sequence:
 
   $VAR1 = {
@@ -689,11 +689,11 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 

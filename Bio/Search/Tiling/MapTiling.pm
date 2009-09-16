@@ -105,7 +105,7 @@ the Bioperl mailing list.  Your participation is much appreciated.
 
 Please direct usage questions or support issues to the mailing list:
 
-L<bioperl-l@bioperl.org>
+I<bioperl-l@bioperl.org>
 
 rather than to the module maintainer directly. Many experienced and
 reponsive experts will be able look at the problem and quickly
@@ -339,7 +339,7 @@ sub length{
 }
 
 =head2 frac
- 
+
  Title   : frac
  Usage   : $tiling->frac($type, $denom, $action, $context, $method)
  Function: Return the fraction of sequence length consisting
@@ -358,7 +358,7 @@ sub length{
            reported lengths of translated dna are reduced by 
            a factor of 3, to provide fractions relative to 
            amino acid coordinates. 
-           
+
 =cut
 
 sub frac {
@@ -411,7 +411,7 @@ sub frac {
 }
 
 =head2 frac_identical
- 
+
  Title   : frac_identical
  Usage   : $tiling->frac_identical($type, $denom, $action, $context)
  Function: Return the fraction of sequence length consisting
@@ -440,7 +440,7 @@ sub frac_identical{
 }
 
 =head2 frac_conserved
- 
+
  Title   : frac_conserved
  Usage   : $tiling->frac_conserved($type, $denom, $action, $context)
  Function: Return the fraction of sequence length consisting
@@ -469,7 +469,7 @@ sub frac_conserved{
 }
 
 =head2 frac_aligned
- 
+
  Title   : frac_aligned
  Aliases : frac_aligned_query - frac_aligned(-type=>'query',...)
            frac_aligned_hit   - frac_aligned(-type=>'hit',...)
@@ -551,7 +551,7 @@ sub num_unaligned {
 	
 
 =head2 range
- 
+
  Title   : range
  Usage   : $tiling->range(-type=>$type)
  Function: Returns the extent of the longest tiling
