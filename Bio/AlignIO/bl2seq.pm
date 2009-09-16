@@ -7,7 +7,7 @@
 #       and Lincoln Stein  <lstein@cshl.org>
 #
 #   the Bio::Tools::BPlite modules by
-#   Ian Korf (ikorf@sapiens.wustl.edu, http://sapiens.wustl.edu/~ikorf),
+#   Ian Korf (ifkorf at ucdavis.edu, http://www.bioperl.org/wiki/Ian_Korf),
 #   Lorenz Pollak (lorenz@ist.org, bioperl port)
 #
 #       and the SimpleAlign.pm module of Ewan Birney

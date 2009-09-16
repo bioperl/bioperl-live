@@ -90,9 +90,7 @@ The results of the HSP tiling is reported with the following ambiguity codes:
 
 
 For addition information about ambiguous BLAST alignments, see
-L<Bio::Search::BlastUtils::tile_hsps()|Bio::Search::BlastUtils> and
-
- http://www-genome.stanford.edu/Sacch3D/help/ambig_aln.html
+L<Bio::Search::BlastUtils::tile_hsps()|Bio::Search::BlastUtils>
 
 =head1 DEPENDENCIES
 

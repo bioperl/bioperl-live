@@ -100,8 +100,8 @@ package Bio::DB::Query::GenBank;
 use strict;
 use URI::Escape 'uri_unescape';
 
-use constant EPOST               => 'http://www.ncbi.nih.gov/entrez/eutils/epost.fcgi';
-use constant ESEARCH             => 'http://www.ncbi.nih.gov/entrez/eutils/esearch.fcgi';
+use constant EPOST               => 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/epost.fcgi';
+use constant ESEARCH             => 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi';
 use constant DEFAULT_DB          => 'protein';
 use constant MAXENTRY            => 100;
 

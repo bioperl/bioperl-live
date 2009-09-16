@@ -244,6 +244,8 @@ sub api_version { 1.2 }
 
 =head1 Methods for Connecting and Initializating a Database
 
+## TODO: http://iowg.brcdevel.org/gff3.html#a_fasta is a dead link
+
 =head2 new
 
  Title   : new
@@ -254,7 +256,7 @@ sub api_version { 1.2 }
  Status  : public
 
 This class method creates a new database connection. The following
--name=E<gt>$value arguments are accepted:http://iowg.brcdevel.org/gff3.html#a_fasta
+-name=E<gt>$value arguments are accepted:
 
  Name               Value
  ----               -----

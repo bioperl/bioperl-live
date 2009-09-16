@@ -136,8 +136,8 @@ use XML::Twig;
 use URI::Escape;
 use base qw(Bio::Biblio Bio::DB::BiblioI);
 
-our $EFETCH      = 'http://www.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi';
-our $ESEARCH     = 'http://www.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi';
+our $EFETCH      = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi';
+our $ESEARCH     = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi';
 our $MAX_RECORDS = 100_000;
 
 # -----------------------------------------------------------------------------

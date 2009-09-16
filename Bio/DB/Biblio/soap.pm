@@ -130,6 +130,8 @@ BEGIN {
     $DEFAULT_SERVICE = 'http://www.ebi.ac.uk/openbqs/services/MedlineSRS';
 
     # ...and what to find there
+    
+    ## TODO: This namespace is no longer valid (check for deprecation or update)
     $DEFAULT_NAMESPACE = 'http://industry.ebi.ac.uk/openBQS';
 }
 
@@ -148,6 +150,9 @@ BEGIN {
                uniqueness - therefore it often has a style of a URL -
                but it does not mean that such pseudo-URL really exists.
 
+               ## TODO: This namespace is no longer valid (check for deprecation
+               ## or update)
+               
                Default is 'http://industry.ebi.ac.uk/openBQS'.
 
              -destroy_on_exit => '0'

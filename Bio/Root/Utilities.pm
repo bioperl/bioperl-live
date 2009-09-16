@@ -108,7 +108,7 @@ See L<the FEEDBACK section | FEEDBACK> for where to send bug reports and comment
 =head1 ACKNOWLEDGEMENTS
 
 This module was originally developed under the auspices of the
-Saccharomyces Genome Database: http://genome-www.stanford.edu/Saccharomyces
+Saccharomyces Genome Database: http://www.yeastgenome.org/
 
 =head1 COPYRIGHT
 

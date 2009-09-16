@@ -21,7 +21,7 @@ class.
 This object can transform L<Bio::SimpleAlign> objects from
 XMFA flat file databases.  For more information, see:
 
-  http://gel.ahabs.wisc.edu/docserver/mauve/files.stx
+  http://asap.ahabs.wisc.edu/mauve-aligner/mauve-user-guide/mauve-output-file-formats.html
 
 This module is based on the AlignIO::fasta parser written by
 Peter Schattner

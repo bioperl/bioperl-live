@@ -7,6 +7,7 @@ check_URLs.pl - validate URLs located in module code and POD
 =head1 SYNOPSIS
 
 B<check_URLs.pl> [B<-d|--dir> path] [B<-v|--verbose>] [B<-?|-h|--help>]
+    [B<-o|--outfile> filename]
 
 =head1 DESCRIPTION
 
@@ -32,24 +33,30 @@ use Data::Dumper;
 use File::Find;
 use Getopt::Long;
 use Regexp::Common qw(URI);
-use LWP::Simple;
+use LWP::Simple qw($ua head);
+
+$ua->timeout(15);
 
 #
 # command line options
 #
 
 my ($verbose, $dir, $help) = (0, '../Bio/', undef);
+my $file;
 GetOptions(
     'v|verbose' => \$verbose,
     'd|dir:s' => \$dir,
+    'o|outfile:s' => \$file,
     'h|help|?' => sub{ exec('perldoc',$0); exit(0) }
 );
 
-#
-# globals
-#
+my $fh;
 
-my %URL;
+if (defined $file) {
+    open($fh, '>', $file) || die "Can't open file : $!";
+} else {
+    $fh = \*STDOUT;
+}
 
 #
 # find all modules
@@ -61,18 +68,24 @@ find( \&find_modules, $dir );
 # validate unique URLs and print fail cases to stdout
 #
 
-for my $url (keys %URL) {
-    print STDERR "Checking $url ... ";
+my %cached_urls;
+
+sub check_url {
+    my ($url, $file) = @_;
+    if (exists $cached_urls{$url}) {
+        print STDERR "$url checked in ".$cached_urls{$url}[0].":".$cached_urls{$url}[1]."\n" if $verbose;
+        print $fh "$file\t$url\n" if $cached_urls{$url}[1] ne 'ok';
+        return;
+    }
+    print STDERR "Checking $url in $file... " if $verbose;
     my $ok = head($url);
-    print STDERR ($ok ? 'ok' : 'FAIL!'), "\n";
-    if (not $ok) {
-         for my $file (@{ $URL{$url} }) {
-	     print "$file\t$url\n";
-	 } 
-    }  
+    my $status = $ok ? 'ok' : 'FAIL!';
+    print STDERR "$status!\n" if $verbose;
+    print $fh "$file\t$url\n" if !$ok;
+    $cached_urls{$url} = [$file, $status];
 }
 
-print STDERR Dumper(\%URL) if $verbose;
+close $fh if $file; # don't close STDOUT
 
 #
 # this is where the action is
@@ -84,7 +97,6 @@ sub find_modules {
     return unless -f $_;
     
     my $fname = $_;
-    print STDERR "$fname\n" if $verbose;
     
     # slurp in the file
     my $text = do { local( @ARGV, $/ ) = $fname ; <> } ;
@@ -94,8 +106,7 @@ sub find_modules {
         my $url = $1 or next;
         # remove Perl code if URL was embedded in string and other stuff
         $url =~ s/\s*[.,;'")]*\s*$//;
-        print STDERR "$url\n" if $verbose;
-        push @{ $URL{$url} } , $File::Find::name;
+        check_url($url, $File::Find::name);
     }    
 }
 

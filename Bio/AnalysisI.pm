@@ -76,7 +76,7 @@ This software is provided "as is" without warranty of any kind.
 
 =head1 SEE ALSO
 
-L<http://www.ebi.ac.uk/soaplab/Perl_Client.html>.
+L<http://www.ebi.ac.uk/Tools/webservices/soaplab/guide>.
 
 =head1 APPENDIX
 

@@ -85,7 +85,7 @@ score]
 
 =back
 
-See L<http://exon.cshl.org/ESE/index.html>
+See L<http://rulai.cshl.edu/tools/ESE2/>
 
 This the second implentation of Bio::SimpleAnalysisI which hopefully
 will make it easier to write wrappers on various services. This class

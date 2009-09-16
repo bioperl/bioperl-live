@@ -80,7 +80,7 @@ This software is provided "as is" without warranty of any kind.
 
 =item *
 
-http://www.ebi.ac.uk/soaplab/Perl_Client.html
+http://www.ebi.ac.uk/Tools/webservices/soaplab/guide
 
 =back
 
