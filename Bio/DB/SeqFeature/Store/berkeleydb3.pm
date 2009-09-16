@@ -1,11 +1,12 @@
 package Bio::DB::SeqFeature::Store::berkeleydb3;
 
-# $Id$
+# $Id: berkeleydb3.pm 15987 2009-08-18 21:08:55Z lstein $
 # faster implementation of berkeleydb
 
 =head1 NAME
 
-Bio::DB::SeqFeature::Store::berkeleydb -- Storage and retrieval of sequence annotation data in Berkeleydb files
+Bio::DB::SeqFeature::Store::berkeleydb3 -- Storage and retrieval of sequence
+annotation data in Berkeleydb files
 
 =head1 SYNOPSIS
 

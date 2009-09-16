@@ -1,6 +1,6 @@
-# $Id$
+# $Id: gmap_f9.pm 15987 2009-08-18 21:08:55Z lstein $
 #
-# BioPerl module for Bio::SearchIO::gmap
+# BioPerl module for Bio::SearchIO::gmap_f9
 #
 # Cared for by George Hartzell <hartzell@alerce.com>
 #
@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SearchIO::gmap - Event generator for parsing gmap reports (Z format)
+Bio::SearchIO::gmap_f9 - Event generator for parsing gmap reports (Z format)
 
 =head1 SYNOPSIS
 
