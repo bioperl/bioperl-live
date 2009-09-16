@@ -1,3 +1,4 @@
+#-*-perl-*-
 # testing HIVQueryHelper.pm and lanl-schema.xml indirectly
 # $Id: HIVQueryHelper.t 231 2008-12-11 14:32:00Z maj $
 

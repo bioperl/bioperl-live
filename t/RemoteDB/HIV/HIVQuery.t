@@ -5,7 +5,6 @@ use warnings;
 
 BEGIN {
     use Bio::Root::Test;
-
     test_begin(
         -tests => 41,
         -requires_modules => [qw( XML::Simple )]
@@ -16,8 +15,7 @@ BEGIN {
     use_ok( 'Bio::Annotation::Comment' );
     use_ok( 'Bio::Annotation::Reference' );
     use_ok( 'Bio::DB::HIV::HIVQueryHelper' );
-    #use_ok( 'HTML::Parser' ); # this is for the test of the help function below
-                              # not necessary for module
+
 }
 
 my $tobj= new Bio::DB::Query::HIVQuery(-RUN_OPTION=>0);
@@ -97,7 +95,9 @@ is($tobj->_do_query(0),0, 'multiquery parse check');
 
 SKIP: {
 	test_skip(-requires_module => 'HTML::Parser', -tests => 3);
+	no warnings; # HTML::Parser has an uninited value issue
 	use_ok('HTML::Parser');
+	use warnings;
 	# help test; just tests that file can be written and that tags are in matching 
 	# pairs, with reasonable placement of <html> and </html>
 	my $hlpf = test_output_file();
