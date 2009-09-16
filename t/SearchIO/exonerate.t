@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 45 );
+    test_begin( -tests => 49 );
 
     use_ok('Bio::SearchIO');
 }
@@ -74,3 +74,34 @@ while ( my $r = $searchio->next_result ) {
         is( $hsp->hit->strand, shift @$d );
     }
 }
+
+# bug 2346
+
+my @cts = (7, 1);
+
+$searchio = Bio::SearchIO->new(
+   -format => 'exonerate',
+   -file   => test_input_file('exonerate.output.works'),
+);
+parse($searchio);
+
+$searchio = Bio::SearchIO->new(
+   -format => 'exonerate',
+   -file   => test_input_file('exonerate.output.dontwork'),
+);
+parse($searchio);
+
+sub parse {
+    my ($searchio) = @_;
+    while( my $r = $searchio->next_result ) {
+        my $hsp_ct = 0;
+        while(my $hit = $r->next_hit){
+            while(my $hsp = $hit->next_hsp){
+                $hsp_ct++;
+            }
+        }
+        ok($r->query_name, "query_name");
+        is($hsp_ct, shift @cts);
+    }
+}
+

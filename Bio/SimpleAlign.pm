@@ -3200,8 +3200,9 @@ sub mask_columns {
          -alphabet => $seq->alphabet,
          -strand  => $seq->strand,
          -verbose => $self->verbose);
-
-        my $masked_string = substr($seq->seq,$start, $end - $start +1);
+        
+        # convert from 1-based alignment coords!
+        my $masked_string = substr($seq->seq, $start - 1, $end - $start + 1);
         $masked_string =~ s{[^$nonres]}{$mask_char}g;
         my $new_dna_string = substr($seq->seq,0,$start-1) . $masked_string . substr($seq->seq,$end);
         $new_seq->seq($new_dna_string);

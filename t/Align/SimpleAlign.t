@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 173 );
+    test_begin( -tests => 179 );
 
     use_ok('Bio::SimpleAlign');
     use_ok('Bio::AlignIO');
@@ -684,6 +684,77 @@ foreach my $seq ( $removed->each_seq ) {
     }
 }
 
+# work out mask_columns(), see bug 2842
+SKIP: {
+    test_skip(-tests => 6, -requires_module => 'IO::String');
+    my $io = Bio::AlignIO->new( -file => test_input_file("testaln.aln") );
+    my $aln = $io->next_aln();
+    isa_ok( $aln, 'Bio::SimpleAlign' );
+    my $consensus = <<EOU;
+MNEGEHQIKLDELFEKLLRARKIFKNKDVLRHSWEPKDLPHRHEQIEALAQILV
+PVLRGETMKIIFCGHHACELGEDRGTKGFVIDELKDVDEDRNGKVDVIEINCEH
+MDTHYRVLPNIAKLFDDCTGIGVPMHGGPTDEVTAKLKQVIDMKERFVIIVLDE
+IDKLVKKSGDEVLYSLTRINTELKRAKVSVIGISNDLKFKEYLDPRVLSSLSEE
+EVVFPPYDANQLRDILTQRAEEAFYPGVLDEGVIPLCAALAAREHGDARKALDL
+LRVAGEIAEREGASKVTEKHVWKAQEKIEQDMMEEVIKTLPLQSKVLLYAIVLL
+DENGDLPANTGDVYAVYRELCEYIDLEPLTQRRISDLINELDMLGIINAKVVSK
+GRYGRTKEIRLMVTSYKIRNVLRYDYSIQPLLTISLKSEQRRLI
+EOU
+    $consensus =~ s/\n//g;
+
+    is( $aln->consensus_string, $consensus, 'consensus string looks ok' );
+
+    is( aln2str( $aln => 'pfam' ), <<EOA, 'looks like correct unmasked alignment (from clustalw)' );
+P84139/1-420              MNEGEHQIKLDELFEKLLRARKIFKNKDVLRHSYTPKDLPLRHEQIETLAQILVPVLRGETPSNIFVYG-KTGTGKTVTVK-FVTEELKRISEKYNIPVDVIYINCEIVDTHYRVLANIVNYFKDETGIGVPMVGWPTDEVYAKLKQVIDMKERFVIIVLDEIDKLVKKSGDEVLYSLTRINTELKRAKVSVIGISNDLKFKEYLDPRVLSSLSEEEVVFPPYDANQLRDILTQRAEEAFYPGVLDEGVIPLCAALAAREHGDARKALDLLRVAGEIAEREGASKVTEKHVWKAQEKIEQDMMEEVIKTRPLQSKVLLYAIVLLDENGDLPANTGDVYAVYRELCEYIDLEPLTQRRISDLINELDMLGIINAKVVSKGRYGRTKEIRLNVTSYKIRNVLRYDYSIQPLLTISLKSEQRRLI
+P814153/1-420             MNEGMHQIKLDVLFEKLLRARKIFKNKDVLRHSYTPKDLPHRHEQIETLAQILVPVLRGETPSNIFVYG-KTGTGKTVTVK-FVTEELKRISEKYNIPVDVIYINCEIVDTHYRVLANIVNYFKDETGIEVPMVGWPTDEVYAKLKQVIDMKERFVIIVLDEIDKLVKKSGDEVLYSLTRINTELKRAKVSVIGISNDLKFKEYLDPRVLSSLSEEEVVFPPYDANQLRDILTQRAEEAFYPGVLDEGVIPLCAALAAREHGDARKALDLLRVAGEIAEREGASKVTEKHVWKAQEKIEQDMMEEVIKTLPLQSKVLLYAIVLLDENGDLPANTGDVYAVYRELCEYIDLEPLTQRRISDLINELDMLGIINAKVVSKGRYGRTKEIRLMVTSYKIRNVLRYDYSIQPLLTISLKSEQRRLI
+P851414/1-60              -------------------------------------------------------------MKIVWCGH-ACFLVEDRGTK-ILIDPYPDVDEDRIGKVDYILQTHEHMD-HYGKTPLIAKLSD----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+P841414/1-60              -------------------------------------------------------------MKIVWCGH-ACFLVEDRGTK-ILIDPYPDVDEDRIGKVDYILVTHEHMD-HYGKTPLIAKLSD----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+BAB68554/1-141            --------------------MLTEDDKQLIQHVWEKVLEHQEDFGAEALERMFIVYPSTKTYFPHFDLHHDSEQIRHHGKK-VVGALGDAVKHIDNLSATLSELSNLHCY-NLRVDPVNFKLLSHCFQVVLGAHLG--REYTPQVQVAYDKFLAAVSAVLAEKYR-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+gb|443893|124775/1-331    -MRFRFGVVVPPAVAGARPELLVVGSRPELG-RWEPRGAVRLRPAGTAAGDGALALQEPGLWLGEVELA-AEEAAQDGAEPGRVDTFWYKFLKREPGGELSWEGNGPHHDRCCTYNENNLVDGVYCLPIG---HWGEATGHTNEMKHTTDFYFNIAGHQAMHYSRILPNIWLGSCPRQVEHVTIKLKHELGITAVMN-FQTEWDIVQNSSGCNRYPEPMTPDTMIKLYREEGLAYIWMP-TPDMSTEGRVQMLPQAVCLLHALLEKGHIVY-----VHCNAGVGRSTAAVCGWLQYVMGWNLRKVQYFLMAKRPAVYIDEEALARAQEDFFQKFGKVRSSVCSL------------------------------------------------------------------------------
+EOA
+
+    my $newaln = $aln->mask_columns(12,20,'?');
+    is( aln2str( $newaln, 'pfam' ), <<EOA, 'looks like correct masked alignment (from clustalw)' );
+P84139/1-420              MNEGEHQIKLD?????????RKIFKNKDVLRHSYTPKDLPLRHEQIETLAQILVPVLRGETPSNIFVYG-KTGTGKTVTVK-FVTEELKRISEKYNIPVDVIYINCEIVDTHYRVLANIVNYFKDETGIGVPMVGWPTDEVYAKLKQVIDMKERFVIIVLDEIDKLVKKSGDEVLYSLTRINTELKRAKVSVIGISNDLKFKEYLDPRVLSSLSEEEVVFPPYDANQLRDILTQRAEEAFYPGVLDEGVIPLCAALAAREHGDARKALDLLRVAGEIAEREGASKVTEKHVWKAQEKIEQDMMEEVIKTRPLQSKVLLYAIVLLDENGDLPANTGDVYAVYRELCEYIDLEPLTQRRISDLINELDMLGIINAKVVSKGRYGRTKEIRLNVTSYKIRNVLRYDYSIQPLLTISLKSEQRRLI
+P814153/1-420             MNEGMHQIKLD?????????RKIFKNKDVLRHSYTPKDLPHRHEQIETLAQILVPVLRGETPSNIFVYG-KTGTGKTVTVK-FVTEELKRISEKYNIPVDVIYINCEIVDTHYRVLANIVNYFKDETGIEVPMVGWPTDEVYAKLKQVIDMKERFVIIVLDEIDKLVKKSGDEVLYSLTRINTELKRAKVSVIGISNDLKFKEYLDPRVLSSLSEEEVVFPPYDANQLRDILTQRAEEAFYPGVLDEGVIPLCAALAAREHGDARKALDLLRVAGEIAEREGASKVTEKHVWKAQEKIEQDMMEEVIKTLPLQSKVLLYAIVLLDENGDLPANTGDVYAVYRELCEYIDLEPLTQRRISDLINELDMLGIINAKVVSKGRYGRTKEIRLMVTSYKIRNVLRYDYSIQPLLTISLKSEQRRLI
+P851414/1-60              -------------------------------------------------------------MKIVWCGH-ACFLVEDRGTK-ILIDPYPDVDEDRIGKVDYILQTHEHMD-HYGKTPLIAKLSD----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+P841414/1-60              -------------------------------------------------------------MKIVWCGH-ACFLVEDRGTK-ILIDPYPDVDEDRIGKVDYILVTHEHMD-HYGKTPLIAKLSD----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+BAB68554/1-141            --------------------MLTEDDKQLIQHVWEKVLEHQEDFGAEALERMFIVYPSTKTYFPHFDLHHDSEQIRHHGKK-VVGALGDAVKHIDNLSATLSELSNLHCY-NLRVDPVNFKLLSHCFQVVLGAHLG--REYTPQVQVAYDKFLAAVSAVLAEKYR-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+gb|443893|124775/1-331    -MRFRFGVVVP?????????LLVVGSRPELG-RWEPRGAVRLRPAGTAAGDGALALQEPGLWLGEVELA-AEEAAQDGAEPGRVDTFWYKFLKREPGGELSWEGNGPHHDRCCTYNENNLVDGVYCLPIG---HWGEATGHTNEMKHTTDFYFNIAGHQAMHYSRILPNIWLGSCPRQVEHVTIKLKHELGITAVMN-FQTEWDIVQNSSGCNRYPEPMTPDTMIKLYREEGLAYIWMP-TPDMSTEGRVQMLPQAVCLLHALLEKGHIVY-----VHCNAGVGRSTAAVCGWLQYVMGWNLRKVQYFLMAKRPAVYIDEEALARAQEDFFQKFGKVRSSVCSL------------------------------------------------------------------------------
+EOA
+
+###### test with phylip
+
+    my $phy_fh = IO::String->new( <<EOF );
+ 3   37
+seq1        AAAATGGGGG TGGT------ GGTACCT--- -------
+seq2        -----GGCGG TGGTGNNNNG GGTTCCCTNN NNNNNNN
+new         AAAATGGNGG TGGTN----N GGTNCCNTNN NNNNNNN
+EOF
+
+    my $in = Bio::AlignIO->new( -fh => $phy_fh, -format => 'phylip' );
+
+    $aln = $in->next_aln();
+    is( aln2str( $aln, 'phylip' ), <<EOU );
+ 3 37
+seq1         AAAATGGGGG TGGT------ GGTACCT--- ------- 
+seq2         -----GGCGG TGGTGNNNNG GGTTCCCTNN NNNNNNN 
+new          AAAATGGNGG TGGTN----N GGTNCCNTNN NNNNNNN 
+
+EOU
+
+    $newaln = $aln->mask_columns(15,20,'?');
+    is( aln2str( $newaln,'phylip' ), <<EOU, 'align after looks ok' );
+ 3 37
+seq1         AAAATGGGGG TGGT------ GGTACCT--- ------- 
+seq2         -----GGCGG TGGT?????? GGTTCCCTNN NNNNNNN 
+new          AAAATGGNGG TGGT?----? GGTNCCNTNN NNNNNNN 
+
+EOU
+}
+
+######## SUBROUTINES
+
 sub aln2str {
     my ( $aln, $fmt ) = @_;
     my $out;
@@ -692,3 +763,4 @@ sub aln2str {
     $alignio_out->write_aln( $aln );
     return $out;
 }
+

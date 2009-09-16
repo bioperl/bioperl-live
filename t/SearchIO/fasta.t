@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 287);
+    test_begin(-tests => 289);
 	
 	use_ok('Bio::SearchIO');
 }
@@ -383,4 +383,23 @@ while(my $res = $searchio->next_result) {
     is($res->query_length, 22);
     is($res->algorithm, 'FASTN');
 }
+
+# bug 2537
+
+$searchio = Bio::SearchIO->new(
+   -format => 'fasta',
+   -file   => test_input_file('in.fasta'),
+);
+
+while ( my $result = $searchio->next_result() ) {
+   while( my $hit = $result->next_hit ) {
+      # process the Bio::Search::Hit::HitI object
+      while( my $hsp = $hit->next_hsp ) {
+         # process the Bio::Search::HSP::HSPI object
+         is($hsp->num_identical, 30, "num_identical()");
+         is($hsp->num_conserved, 30, "num_conserved()");
+      }
+   }
+}
+
 
