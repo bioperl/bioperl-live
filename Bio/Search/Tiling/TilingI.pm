@@ -326,7 +326,7 @@ sub range {
     $self->throw_not_implemented;
 }
 
-=head2 TILING ITERATORS
+=head1 TILING ITERATORS
 
 =head2 next_tiling
 
@@ -366,7 +366,7 @@ sub rewind_tilings{
 #alias
 sub rewind { shift->rewind_tilings(@_) }
 
-=head2 INFORMATIONAL ACCESSORS
+=head1 INFORMATIONAL ACCESSORS
 
 =head2 algorithm
 

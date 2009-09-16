@@ -17,7 +17,11 @@ MitoChip V2.0
 
 =head1 SYNOPSIS
 
+    ****MISSING SECTION****
+
 =head1 DESCRIPTION
+
+    ****MISSING SECTION****
 
 =head1 AUTHORS
 
@@ -52,9 +56,8 @@ use warnings;
 
 use base qw(Bio::Root::Root);
 
+=head2 new
 
-
-=head2 new()
   Title		: new/Creator method
   Usage		: my $parser=Bio::Microarray::Tools::MitoChipV2Parser->new($file_name);
   Function	: Creates 2 hashes by parsing the specified design file. 
@@ -74,7 +77,6 @@ use base qw(Bio::Root::Root);
   Args		: $filename - name of affy mitochip v2 design file (for instance: mtDNA_design_annotation_file_FINAL.xls)
 
 =cut
-
 
 sub new {
 

@@ -1013,7 +1013,8 @@ A symmetric but non-palindromic site (HindI):
        v     
   5-C A C-3
   3-G T G-5
-     ^      
+     ^
+
 =cut
 
 sub is_symmetric {
@@ -1030,8 +1031,8 @@ sub is_symmetric {
     return $self->{_symmetric} = 0;
 }
 
-sub symmetric { shift->is_symmetric(@_) } 
 
+sub symmetric { shift->is_symmetric(@_) } 
 
 =head2 overhang
 

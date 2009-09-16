@@ -104,7 +104,7 @@ features type and name on multiple adjacent lines:
  Gene	B0511.1	Chr1:10946..11208
 
 If all the locations are on the same reference sequence, you can
-specify a default chromosome using a "reference=<seqid>":
+specify a default chromosome using a "reference=E<lt>seqidE<gt>":
 
  reference=Chr1
  Gene	B0511.1	516..619
@@ -833,7 +833,6 @@ use the BioPerl bug tracking system to report bugs.
 
 =head1 SEE ALSO
 
-L<bioperl>,
 L<Bio::DB::SeqFeature::Store>,
 L<Bio::DB::SeqFeature::Segment>,
 L<Bio::DB::SeqFeature::NormalizedFeature>,

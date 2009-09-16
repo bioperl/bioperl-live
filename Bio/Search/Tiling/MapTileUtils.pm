@@ -26,6 +26,8 @@ Not used directly.
 
 =head1 DESCRIPTION
 
+Not used directly.
+
 =head1 NOTE
 
 An "interval" in this module is defined as an arrayref C<[$a0, $a1]>, where
@@ -33,7 +35,7 @@ C<$a0, $a1> are scalar numbers satisfying C<$a0 E<lt>= $a1>.
 
 =head1 AUTHOR
 
-Mark A. Jensen <maj -at- fortinbras -dot- us>
+Mark A. Jensen - maj -at- fortinbras -dot- us
 
 =head1 APPENDIX
 

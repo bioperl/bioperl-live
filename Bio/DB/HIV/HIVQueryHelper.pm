@@ -70,6 +70,8 @@ Email maj@fortinbras.us
 
 =head1 CONTRIBUTORS
 
+Mark A. Jensen
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the contained packages.

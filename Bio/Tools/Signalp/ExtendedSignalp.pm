@@ -34,19 +34,16 @@ Bio::Tools::Signalp::ExtendedSignalp - enhanced parser for Signalp output
 
 =head1 DESCRIPTION
 
+# Please direct questions and support issues to I<bioperl-l@bioperl.org> 
+
 Parser module for Signalp.
 
-Based on the EnsEMBL module
-Bio::EnsEMBL::Pipeline::Runnable::Protein::Signalp originally
-written by Marc Sohrmann (ms2 a sanger.ac.uk) Written in BioPipe by
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
-#
+Based on the EnsEMBL module Bio::EnsEMBL::Pipeline::Runnable::Protein::Signalp
+originally written by Marc Sohrmann (ms2 a sanger.ac.uk) Written in BioPipe by
 Balamurugan Kumarasamy (savikalpa a fugu-sg.org) Cared for by the Fugu
 Informatics team (fuguteam@fugu-sg.org)
 
 You may distribute this module under the same terms as perl itself
-
-POD documentation - main docs before the code
 
 Compared to the original SignalP, this method allow the user to filter results
 out based on maxC maxY maxS meanS and D factor cutoff for the Neural Network (NN)

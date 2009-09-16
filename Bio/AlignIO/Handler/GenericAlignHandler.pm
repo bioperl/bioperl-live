@@ -1,19 +1,3 @@
-# $Id: GenericAlignHandler.pm 14816 2008-08-21 16:00:12Z cjfields $
-#
-# BioPerl module for Bio::AlignIO::Handler::GenericAlignHandler
-#
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
-#
-# Cared for by Chris Fields
-#
-# Copyright Chris Fields
-#
-# You may distribute this module under the same terms as perl itself
-#
-# POD documentation - main docs before the code
-#
-# Documentation after the __END__ marker
-
 # Let the code begin...
 
 package Bio::AlignIO::Handler::GenericAlignHandler;
@@ -51,20 +35,6 @@ my %HANDLERS = (
         },
     );
 
-=head2 new
-
- Title   :  new
- Usage   :  
- Function:  
- Returns :  
- Args    :  -format    Sequence format to be mapped for handler methods
-            -builder   Bio::Seq::SeqBuilder object (normally defined in
-                       SequenceStreamI object implementation constructor)
- Throws  :  On undefined '-format' sequence format parameter
- Note    :  Still under heavy development
-
-=cut
-
 sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
@@ -78,24 +48,6 @@ sub new {
     return $self;
 }
 
-=head1 L<Bio::HandlerBaseI> implementing methods
-
-=head2 handler_methods
-
- Title   :  handler_methods
- Usage   :  $handler->handler_methods('GenBank')
-            %handlers = $handler->handler_methods();
- Function:  Retrieve the handler methods used for the current format() in
-            the handler.  This assumes the handler methods are already
-            described in the HandlerI-implementing class.
- Returns :  a hash reference with the data type handled and the code ref
-            associated with it.
- Args    :  [optional] String representing the sequence format.  If set here
-            this will also set sequence_format()
- Throws  :  On unimplemented sequence format in %HANDLERS
-
-=cut
-
 sub handler_methods {
     my $self = shift;
     if (!($self->{'handlers'})) {
@@ -105,20 +57,6 @@ sub handler_methods {
     }
     return ($self->{'handlers'});
 }
-
-=head2 data_handler
-
- Title   :  data_handler
- Usage   :  $handler->data_handler($data)
- Function:  Centralized method which accepts all data chunks, then distributes
-            to the appropriate methods for processing based on the chunk name
-            from within the HandlerBaseI object.
-
-            One can also use 
- Returns :  None
- Args    :  an hash ref containing a data chunk.  
-
-=cut
 
 sub data_handler {
     my ($self, $data) = @_;
@@ -135,37 +73,12 @@ sub data_handler {
     $self->$method($data);
 }
 
-=head2 reset_parameters
-
- Title   :  reset_parameters
- Usage   :  $handler->reset_parameters()
- Function:  Resets the internal cache of data (normally object parameters for
-            a builder or factory)
- Returns :  None
- Args    :  None
-
-=cut
-
 sub reset_parameters {
     my $self = shift;
     $self->{'_params'} = undef;
     $self->{'_nse_cache'} = undef;
     $self->{'_features'} = undef;
 }
-
-=head2 format
-
- Title   :  format
- Usage   :  $handler->format('GenBank')
- Function:  Get/Set the format for the report/record being parsed. This can be
-            used to set handlers in classes which are capable of processing
-            similar data chunks from multiple driver modules.
- Returns :  String with the sequence format
- Args    :  [optional] String with the sequence format
- Note    :  The format may be used to set the handlers (as in the
-            current GenericRichSeqHandler implementation)
-
-=cut
 
 sub format {
     my $self = shift;
@@ -176,19 +89,6 @@ sub format {
     };
     return $self->{'_alignformat'};
 }
-
-=head2 get_params
-
- Title   :  get_params
- Usage   :  $handler->get_params('-species')
- Function:  Convenience method used to retrieve the specified
-            parameters from the internal parameter cache
- Returns :  Hash ref containing parameters requested and data as
-            key-value pairs.  Note that some parameter values may be 
-            objects, arrays, etc.
- Args    :  List (array) representing the parameters requested
-
-=cut
 
 sub get_params {
     my ($self, @ids) = @_;
@@ -207,33 +107,9 @@ sub get_params {
     return $data;
 }
 
-=head2 set_params
-
- Title   :  set_params
- Usage   :  $handler->set_param({'-seqs' => $seqs})
- Function:  Convenience method used to set specific parameters
- Returns :  None
- Args    :  Hash ref containing the data to be passed as key-value pairs
-
-=cut
-
 sub set_params {
     shift->throw('Not implemented yet!');
 }
-
-=head1 Methods unique to this implementation
-
-=head2 build_alignment
-
- Title   :  build_alignment
- Usage   :  
- Function:  
- Returns :  a Bio::SimpleAlign
- Args    :
- Throws  :
- Note    :  This may be replaced by a Builder object at some point 
-
-=cut
 
 sub build_alignment {
     my $self = shift;
@@ -244,18 +120,6 @@ sub build_alignment {
         return Bio::SimpleAlign->new(%$param, -source => $self->format);
     }
 }
-
-=head2 annotation_collection
-
- Title   :  annotation_collection
- Usage   :  
- Function:  
- Returns :  
- Args    :
- Throws  :
- Note    :  
-
-=cut
 
 sub annotation_collection {
     my ($self, $coll) = @_;
@@ -270,18 +134,6 @@ sub annotation_collection {
     return $self->{'_params'}->{'-annotation'};
 }
 
-=head2 seq_annotation_collection
-
- Title   :  seq_annotation_collection
- Usage   :  
- Function:  
- Returns :  
- Args    :
- Throws  :
- Note    :  
-
-=cut
-
 sub seq_annotation_collection {
     my ($self, $coll) = @_;
     if ($coll) {
@@ -294,17 +146,6 @@ sub seq_annotation_collection {
     }
     return $self->{'_params'}->{'-seq_annotation'};
 }
-
-=head2 process_seqs
-
- Title   :  process_seqs
- Usage   :  $handler->process_seqs;
- Function:  checks internal sequences to ensure they are converted over
-            to the proper Bio::AlignI-compatible sequence class
- Returns :  1 if successful
- Args    :  none
-
-=cut
 
 sub process_seqs {
     my $self = shift;
@@ -560,6 +401,22 @@ sub _from_stk_dblink {
 
 __END__
 
+# $Id: GenericAlignHandler.pm 14816 2008-08-21 16:00:12Z cjfields $
+#
+# BioPerl module for Bio::AlignIO::Handler::GenericAlignHandler
+#
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
+# Cared for by Chris Fields
+#
+# Copyright Chris Fields
+#
+# You may distribute this module under the same terms as perl itself
+#
+# POD documentation - main docs before the code
+#
+# Documentation after the __END__ marker
+
 =head1 NAME
 
 Bio::AlignIO::Handler::GenericAlignHandler - Bio::HandlerI-based
@@ -715,5 +572,148 @@ Email cjfields at bioperl dot org
 
 The rest of the documentation details each of the object methods. Internal
 methods are usually preceded with a _
+
+=cut
+
+=head2 new
+
+ Title   :  new
+ Usage   :  
+ Function:  
+ Returns :  
+ Args    :  -format    Sequence format to be mapped for handler methods
+            -builder   Bio::Seq::SeqBuilder object (normally defined in
+                       SequenceStreamI object implementation constructor)
+ Throws  :  On undefined '-format' sequence format parameter
+ Note    :  Still under heavy development
+
+=cut
+
+=head1 L<Bio::HandlerBaseI> implementing methods
+
+=head2 handler_methods
+
+ Title   :  handler_methods
+ Usage   :  $handler->handler_methods('GenBank')
+            %handlers = $handler->handler_methods();
+ Function:  Retrieve the handler methods used for the current format() in
+            the handler.  This assumes the handler methods are already
+            described in the HandlerI-implementing class.
+ Returns :  a hash reference with the data type handled and the code ref
+            associated with it.
+ Args    :  [optional] String representing the sequence format.  If set here
+            this will also set sequence_format()
+ Throws  :  On unimplemented sequence format in %HANDLERS
+
+=cut
+
+=head2 data_handler
+
+ Title   :  data_handler
+ Usage   :  $handler->data_handler($data)
+ Function:  Centralized method which accepts all data chunks, then distributes
+            to the appropriate methods for processing based on the chunk name
+            from within the HandlerBaseI object.
+
+            One can also use 
+ Returns :  None
+ Args    :  an hash ref containing a data chunk.  
+
+=cut
+
+=head2 reset_parameters
+
+ Title   :  reset_parameters
+ Usage   :  $handler->reset_parameters()
+ Function:  Resets the internal cache of data (normally object parameters for
+            a builder or factory)
+ Returns :  None
+ Args    :  None
+
+=cut
+
+=head2 format
+
+ Title   :  format
+ Usage   :  $handler->format('GenBank')
+ Function:  Get/Set the format for the report/record being parsed. This can be
+            used to set handlers in classes which are capable of processing
+            similar data chunks from multiple driver modules.
+ Returns :  String with the sequence format
+ Args    :  [optional] String with the sequence format
+ Note    :  The format may be used to set the handlers (as in the
+            current GenericRichSeqHandler implementation)
+
+=cut
+
+=head2 get_params
+
+ Title   :  get_params
+ Usage   :  $handler->get_params('-species')
+ Function:  Convenience method used to retrieve the specified
+            parameters from the internal parameter cache
+ Returns :  Hash ref containing parameters requested and data as
+            key-value pairs.  Note that some parameter values may be 
+            objects, arrays, etc.
+ Args    :  List (array) representing the parameters requested
+
+=cut
+
+=head2 set_params
+
+ Title   :  set_params
+ Usage   :  $handler->set_param({'-seqs' => $seqs})
+ Function:  Convenience method used to set specific parameters
+ Returns :  None
+ Args    :  Hash ref containing the data to be passed as key-value pairs
+
+=cut
+
+=head1 Methods unique to this implementation
+
+=head2 build_alignment
+
+ Title   :  build_alignment
+ Usage   :  
+ Function:  
+ Returns :  a Bio::SimpleAlign
+ Args    :
+ Throws  :
+ Note    :  This may be replaced by a Builder object at some point 
+
+=cut
+
+=head2 annotation_collection
+
+ Title   :  annotation_collection
+ Usage   :  
+ Function:  
+ Returns :  
+ Args    :
+ Throws  :
+ Note    :  
+
+=cut
+
+=head2 seq_annotation_collection
+
+ Title   :  seq_annotation_collection
+ Usage   :  
+ Function:  
+ Returns :  
+ Args    :
+ Throws  :
+ Note    :  
+
+=cut
+
+=head2 process_seqs
+
+ Title   :  process_seqs
+ Usage   :  $handler->process_seqs;
+ Function:  checks internal sequences to ensure they are converted over
+            to the proper Bio::AlignI-compatible sequence class
+ Returns :  1 if successful
+ Args    :  none
 
 =cut

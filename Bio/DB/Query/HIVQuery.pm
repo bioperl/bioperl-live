@@ -116,10 +116,10 @@ locally before it is unleashed on the server; see below.
 =head2 Annotations
 
 LANL DB annotations have been organized into a number of natural
-groupings, tagged C<Geo>, C<Patient>, C<Virus>, and <StdMap>.  After a
+groupings, tagged C<Geo>, C<Patient>, C<Virus>, and C<StdMap>.  After a
 successful query, each id is associated with a tree of
 L<Bio::Annotation::SimpleValue> objects. These can be accessed with
-methods C<get_value()> and C<put_value()> described in APPENDIX.
+methods C<get_value> and C<put_value> described in APPENDIX.
 
 =head2 Delayed/partial query runs
 
@@ -187,6 +187,8 @@ the web:
 Email maj@fortinbras.us
 
 =head1 CONTRIBUTORS
+
+Mark A. Jensen
 
 =head1 APPENDIX
 

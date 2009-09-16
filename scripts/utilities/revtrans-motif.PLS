@@ -387,11 +387,11 @@ Display this help message.
 
 =head1 AUTHOR
 
-Bruno Vecchi, C<< <vecchi.b at gmail.com> >>
+Bruno Vecchi, C<vecchi.b at gmail.com>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to C<< <vecchi.b at gmail.com> >>
+Please report any bugs or feature requests to C<vecchi.b at gmail.com>
 
 =head1 COPYRIGHT & LICENSE
 

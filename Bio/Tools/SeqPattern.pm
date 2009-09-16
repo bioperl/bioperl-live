@@ -469,7 +469,7 @@ sub _expand_nuc {
            : Overrides Bio::Seq::revcom() and calls it first thing.
            : The order of _fixpat() calls is critical.
 
-See Also   : L<Bio::Seq::revcom()>, L<_fixpat_1>(), L<_fixpat_2>(), L<_fixpat_3>(), L<_fixpat_4>(), L<_fixpat_5>()
+See Also   : L<Bio::Seq::revcom>, L</_fixpat_1>, L</_fixpat_2>, L</_fixpat_3>, L</_fixpat_4>, L</_fixpat_5>
 
 =cut
 

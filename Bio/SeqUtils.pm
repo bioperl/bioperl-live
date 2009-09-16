@@ -120,7 +120,7 @@ Email:  heikki-at-bioperl-dot-org
 
 =head1 CONTRIBUTORS
 
-Roy R. Chaudhuri <roy.chaudhuri at gmail.com>
+Roy R. Chaudhuri - roy.chaudhuri at gmail.com
 
 =head1 APPENDIX
 

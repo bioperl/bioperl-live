@@ -1283,6 +1283,7 @@ is to call the method in a list context, as in:
   my ($segment) = $db->segment('contig23',1,1000);
 
 or
+
   my @segments  = $db->segment('contig23',1,1000);
 
 However, having multiple same-named features in the database is often

@@ -21,7 +21,11 @@ from esummary
 
 =head1 SYNOPSIS
 
+    ****MISSING SECTION****
+
 =head1 DESCRIPTION
+
+    ****MISSING SECTION****
 
 =head1 FEEDBACK
 

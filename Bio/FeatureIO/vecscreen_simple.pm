@@ -7,15 +7,15 @@ output
 
 =head1 SYNOPSIS
 
-# read features 
-my $fin = Bio::FeatureIO->new(-file=>'vecscreen.out',
-                              -format=>'vecscreen_simple');
-my @vec_regions;
-while (my $f = $fin->next_feature) {
-  push @vec_regions, $f;
-}
-
-# write features NOT IMPLEMENTED
+    # read features 
+    my $fin = Bio::FeatureIO->new(-file=>'vecscreen.out',
+                                  -format=>'vecscreen_simple');
+    my @vec_regions;
+    while (my $f = $fin->next_feature) {
+      push @vec_regions, $f;
+    }
+    
+    # write features NOT IMPLEMENTED
 
 =head1 DESCRIPTION
 
@@ -107,11 +107,11 @@ sub _initialize {
 
 =head2 next_feature
 
-Title   : next_feature
-Usage   : $io->next_feature()
-Function: read the next feature from the vecscreen output file
-Args    : none
-Returns : Bio::SeqFeatureI object
+  Title   : next_feature
+  Usage   : $io->next_feature()
+  Function: read the next feature from the vecscreen output file
+  Args    : none
+  Returns : Bio::SeqFeatureI object
 
 =cut
 
@@ -167,12 +167,12 @@ sub next_feature {
 
 =head2 write_feature (NOT IMPLEMENTED)
 
-Title   : write_feature
-Usage   : $io->write_feature($feature)
-Function: write a Bio::SeqFeatureI object in vecscreen -f 3 format
-Example :
-Args    : Bio::SeqFeatureI object
-Returns :
+  Title   : write_feature
+  Usage   : $io->write_feature($feature)
+  Function: write a Bio::SeqFeatureI object in vecscreen -f 3 format
+  Example :
+  Args    : Bio::SeqFeatureI object
+  Returns :
 
 =cut
 

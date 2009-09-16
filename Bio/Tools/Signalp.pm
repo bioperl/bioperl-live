@@ -74,11 +74,10 @@ web:
 
 =head1 AUTHOR
 
-Based on the EnsEMBL module
-Bio::EnsEMBL::Pipeline::Runnable::Protein::Signalp originally written
-by Marc Sohrmann (ms2_AT_sanger.ac.uk). Written in BioPipe by
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
-#
+# Please direct questions and support issues to I<bioperl-l@bioperl.org> 
+
+Based on the EnsEMBL module Bio::EnsEMBL::Pipeline::Runnable::Protein::Signalp
+originally written by Marc Sohrmann (ms2_AT_sanger.ac.uk). Written in BioPipe by
 Balamurugan Kumarasamy savikalpa_AT_fugu-sg.org. Cared for by the Fugu
 Informatics team (fuguteam_AT_fugu-sg.org)
 

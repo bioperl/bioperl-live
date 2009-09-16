@@ -871,7 +871,8 @@ sub _cuts {
  Arguments : A Bio::Restriction::Enzyme object,
              $comp : boolean, calculate based on $enz->complementary_cut()
                      if true, $enz->cut() if false
- NOW DEPRECATED/maj
+ Status    : NOW DEPRECATED - maj
+
 =cut
 
 sub _enzyme_sites {

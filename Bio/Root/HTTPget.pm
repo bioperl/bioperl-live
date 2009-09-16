@@ -1,6 +1,7 @@
 # $Id$
 #
 # BioPerl module for fallback HTTP get operations.
+#
 # Module is proxy-aware 
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
@@ -62,7 +63,7 @@ Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
- =head2 Reporting Bugs
+=head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
@@ -72,8 +73,8 @@ web:
 
 =head1 AUTHOR - Lincoln Stein
 
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
-#
+# Please direct questions and support issues to I<bioperl-l@bioperl.org>
+
  Cared for by Chris Dagdigian <dag@sonsorol.org>
 
 =head1 APPENDIX
