@@ -771,6 +771,23 @@ sub _session_id{
     return $self->{'_session_id'} = shift if @_;
     return $self->{'_session_id'};
 }
+=head2 _run_level
+
+ Title   : _run_level
+ Usage   : $obj->_run_level($newval)
+ Function: returns the level at which the query has so far been run
+ Example : 
+ Returns : value of _run_level (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+=cut
+
+sub _run_level{
+    my $self = shift;
+
+    return $self->{'_RUN_LEVEL'} = shift if @_;
+    return $self->{'_RUN_LEVEL'};
+}
 
 =head2 _run_option
 
@@ -1442,10 +1459,12 @@ sub _parse_lanl_response {
 		     -value=>"");
     foreach my $rsp (@{$self->_lanl_response}) {
 	@data = split(/\r|\n/, $rsp->content);
-	my $line = shift @data;
-	$numseq += ( $line =~ /Number.*:\s([0-9]+)/ )[0];
-	@cols = split(/\t/, shift @data);
-
+	my $l;
+	do {
+	    $l = shift @data;
+	} while ($l !~ /Number/);
+	$numseq += ( $l =~ /Number.*:\s([0-9]+)/ )[0];
+	@cols = split(/\t/, shift(@data));
 	# mappings from column headings to annotation keys
 	# squish into hash keys
 	my %q = @{ shift @{$self->_lanl_query} };
