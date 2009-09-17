@@ -203,11 +203,11 @@ participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -683,7 +683,7 @@ sub _possibly_gde
 
 From "http://www.ebi.ac.uk/help/formats.html".
 Format of [apparantly optional] file header from
-"http://www.umdnj.edu/rcompweb/PA/Notes/GenbankFF.htm".
+"http://www.umdnj.edu/rcompweb/PA/Notes/GenbankFF.htm". (TODO: dead link)
 
 =cut
 
@@ -751,7 +751,7 @@ sub _possibly_nexus
 =head2 _possibly_mase
 
 From bioperl test data.
-More detail from "http://www.umdnj.edu/rcompweb/PA/Notes/GenbankFF.htm".
+More detail from "http://www.umdnj.edu/rcompweb/PA/Notes/GenbankFF.htm" (TODO: dead link)
 
 =cut
 
@@ -790,8 +790,8 @@ sub _possibly_msf
 
 =head2 _possibly_phrap
 
-From "http://biodata.ccgb.umn.edu/docs/contigimage.html".
-From "http://genetics.gene.cwru.edu/gene508/Lec6.htm".
+From "http://biodata.ccgb.umn.edu/docs/contigimage.html". (TODO: dead link)
+From "http://genetics.gene.cwru.edu/gene508/Lec6.htm".    (TODO: dead link)
 From bioperl test data ("*.ace.1" files).
 
 =cut
@@ -848,7 +848,7 @@ sub _possibly_phylip
 
 =head2 _possibly_prodom
 
-From "http://prodes.toulouse.inra.fr/prodom/2002.1/documentation/data.php".
+From "http://prodom.prabi.fr/prodom/current/documentation/data.php".
 
 =cut
 

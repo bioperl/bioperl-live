@@ -90,9 +90,7 @@ The results of the HSP tiling is reported with the following ambiguity codes:
 
 
 For addition information about ambiguous BLAST alignments, see
-L<Bio::Search::BlastUtils::tile_hsps()|Bio::Search::BlastUtils> and
-
- http://www-genome.stanford.edu/Sacch3D/help/ambig_aln.html
+L<Bio::Search::BlastUtils::tile_hsps()|Bio::Search::BlastUtils>
 
 =head1 DEPENDENCIES
 
@@ -159,11 +157,11 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 

@@ -7,9 +7,10 @@
 # POD documentation - main docs before the code
 #
 # The original version of the module can be found here:
-# http://www.lifecde.com/products/agave/agave.pm
+# http://www.agavexml.org/
 #
-# The DTD for AGAVE XML can be located here:
+# ### TODO: live link for this anymore?
+# The DTD for AGAVE XML was once located here (dead link):
 # http://www.lifecde.com/products/agave/schema/v2_3/agave.dtd
 #
 #
@@ -57,11 +58,11 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 

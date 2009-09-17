@@ -42,11 +42,11 @@ is much appreciated.
   http://www.bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -659,7 +659,7 @@ sub get_retstart {
  Notes    : esearch    : retmax
             esummary   : retmax
             all others : from parameter_base->retmax or undef
-            
+
 =cut
 
 sub get_retmax {
@@ -740,7 +740,7 @@ sub next_GlobalQuery {
  Returns  : array of GlobalQuery objects
  Args     : none
  Notes    : only applicable for egquery
- 
+
 =cut
 
 sub get_GlobalQueries {
@@ -783,7 +783,7 @@ sub print_GlobalQueries {
  Returns  : single Bio::Tools::EUtilities::Summary::DocSum
  Args     : none yet
  Notes    : only applicable for esummary
- 
+
 =cut
 
 sub next_DocSum {

@@ -6,7 +6,7 @@
 #
 # Cared for by Hilmar Lapp, hlapp at gmx.net
 #
-# (c) Christian M. Zmasek, czmasek@gnf.org, 2002.
+# (c) Christian M. Zmasek, czmasek-at-burnham.org, 2002.
 # (c) Hilmar Lapp, hlapp at gmx.net, 2003.
 # (c) GNF, Genomics Institute of the Novartis Research Foundation, 2002.
 #
@@ -62,11 +62,11 @@ Bioperl mailing lists  Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -84,9 +84,9 @@ web:
 
 Christian M. Zmasek
 
-Email: czmasek@gnf.org  or  cmzmasek@yahoo.com
+Email: czmasek-at-burnham.org  or  cmzmasek@yahoo.com
 
-WWW:   http://www.genetics.wustl.edu/eddy/people/zmasek/
+WWW:   http://monochrome-effect.net/
 
 Address:
 

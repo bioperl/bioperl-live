@@ -363,7 +363,7 @@ where:
   + = optional descriptor (if present, must match first one), followed by one or
       more qual lines
 
-=head2 FASTQ<->Bio::Seq::Quality mapping
+=head2 FASTQ and Bio::Seq::Quality mapping
 
 FASTQ files have sequence and quality data on single line or multiple lines, and
 the quality values are single-byte encoded. Data are mapped very simply to
@@ -390,7 +390,7 @@ This parser supports all variants of FASTQ, including Illumina v 1.0 and 1.3:
     sanger                 original
     solexa                 Solexa, Inc. (2004), aka Illumina 1.0
     illumina               Illumina 1.3 
-    
+
 The variant can be specified by passing by either passing the additional
 -variant parameter to the constructor:
 
@@ -420,11 +420,11 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -457,7 +457,7 @@ methods. Internal methods are usually preceded with a _
  Returns  : Bio::Seq::Quality object
  Args     : NONE
  Status   : Stable
- 
+
 =head2 write_seq
 
  Title    : write_seq
@@ -503,7 +503,7 @@ methods. Internal methods are usually preceded with a _
  Returns  : hash reference
  Args     : none
  Status   : Stable
- 
+
 =head2 write_fastq
 
  Title   : write_fastq
@@ -536,7 +536,7 @@ methods. Internal methods are usually preceded with a _
            (maybe it should?).  Not sure whether we should keep this as a
            convenience method.
  Status  : Unstable
- 
+
 =head2 validate
 
  Title    : validate
@@ -545,7 +545,7 @@ methods. Internal methods are usually preceded with a _
  Returns  : Bool (0/1)
  Args     : Bool (0/1)
  Status   : Stable (may be moved to interface)
- 
+
 =head2 quality_header
 
  Title    : quality_header
@@ -554,5 +554,5 @@ methods. Internal methods are usually preceded with a _
  Returns  : Bool (0/1)
  Args     : Bool (0/1)
  Status   : Unstable (name may change dep. on feedback)
- 
+
 =cut

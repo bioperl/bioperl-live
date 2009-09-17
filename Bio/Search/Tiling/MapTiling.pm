@@ -68,7 +68,7 @@ in the method calls or the methods will throw.
 Contexts are specified as strings: C<[ 'all' | [m|p][_|0|1|2] ]>, where
 C<all> = all HSPs (will throw if context must be specified), C<m> = minus
 strand, C<p> = plus strand, and C<_> = no frame info, C<0,1,2> = respective
-(absolute) frame. The L<_context()> method will convert a (strand,
+(absolute) frame. The L</_make_context_key> method will convert a (strand,
 frame) specification to a context string, e.g.:
 
     $context = $self->_context(-type=>'query', -strand=>-1, -frame=>-2);
@@ -77,7 +77,7 @@ returns C<m2>.
 
 The contexts present among the HSPs in a hit are identified and stored
 for convenience upon object construction. These are accessed off the
-object with the L<contexts()> method. If contexts don't apply for the
+object with the L</contexts> method. If contexts don't apply for the
 given report, this returns C<('all')>. 
 
 =head1 DESIGN NOTE
@@ -105,7 +105,7 @@ the Bioperl mailing list.  Your participation is much appreciated.
 
 Please direct usage questions or support issues to the mailing list:
 
-L<bioperl-l@bioperl.org>
+I<bioperl-l@bioperl.org>
 
 rather than to the module maintainer directly. Many experienced and
 reponsive experts will be able look at the problem and quickly
@@ -147,7 +147,7 @@ use Bio::Search::Tiling::MapTileUtils;
 # use base qw(Bio::Root::Root Bio::Search::Tiling::TilingI);
 use base qw(Bio::Root::Root Bio::Search::Tiling::TilingI);
 
-=head2 CONSTRUCTOR
+=head1 CONSTRUCTOR
 
 =head2 new
 
@@ -209,7 +209,7 @@ sub new {
 # a tiling is based on the set of hsps contained in a single hit.
 # check all the boundaries - zero hsps, one hsp, all disjoint hsps
 
-=head2 TILING ITERATORS
+=head1 TILING ITERATORS
 
 =head2 next_tiling
 
@@ -252,7 +252,7 @@ sub rewind_tilings{
     return $self->_tiling_iterator($type, $context)->('REWIND');
 }
 
-=head2 STATISTICS
+=head1 STATISTICS
 
 =head2 identities
 
@@ -295,6 +295,7 @@ sub identities{
            default is 'exact'
            option scalar $context: strand/frame context string
  Note    : getter only 
+
 =cut
 
 sub conserved{
@@ -339,7 +340,7 @@ sub length{
 }
 
 =head2 frac
- 
+
  Title   : frac
  Usage   : $tiling->frac($type, $denom, $action, $context, $method)
  Function: Return the fraction of sequence length consisting
@@ -358,7 +359,7 @@ sub length{
            reported lengths of translated dna are reduced by 
            a factor of 3, to provide fractions relative to 
            amino acid coordinates. 
-           
+
 =cut
 
 sub frac {
@@ -411,7 +412,7 @@ sub frac {
 }
 
 =head2 frac_identical
- 
+
  Title   : frac_identical
  Usage   : $tiling->frac_identical($type, $denom, $action, $context)
  Function: Return the fraction of sequence length consisting
@@ -440,7 +441,7 @@ sub frac_identical{
 }
 
 =head2 frac_conserved
- 
+
  Title   : frac_conserved
  Usage   : $tiling->frac_conserved($type, $denom, $action, $context)
  Function: Return the fraction of sequence length consisting
@@ -469,7 +470,7 @@ sub frac_conserved{
 }
 
 =head2 frac_aligned
- 
+
  Title   : frac_aligned
  Aliases : frac_aligned_query - frac_aligned(-type=>'query',...)
            frac_aligned_hit   - frac_aligned(-type=>'hit',...)
@@ -551,7 +552,7 @@ sub num_unaligned {
 	
 
 =head2 range
- 
+
  Title   : range
  Usage   : $tiling->range(-type=>$type)
  Function: Returns the extent of the longest tiling
@@ -572,7 +573,7 @@ sub range {
 
 
 
-=head2 ACCESSORS
+=head1 ACCESSORS
 
 =head2 coverage_map
 
@@ -674,6 +675,7 @@ sub coverage_map_as_text{
  Returns : The HitI object associated with the invocant
  Args    : none
  Note    : getter only 
+
 =cut
 
 sub hit{
@@ -780,7 +782,7 @@ sub algorithm{
     return $self->{"_algorithm"};
 }
 
-=head2 "PRIVATE" METHODS
+=head1 "PRIVATE" METHODS
 
 =head2 Calculators
 
@@ -1207,6 +1209,21 @@ sub _make_context_key {
     }
 }
 
+=head2 _context
+
+ Title   : _context
+ Alias   : _make_context_key
+ Usage   : $tiling->_make_context_key(-strand => $strand, -frame => $frame)
+ Function: create a string indicating strand/frame context; serves as 
+           component of memoizing hash keys
+ Returns : scalar string
+ Args    : -type => one of ('query', 'hit', 'subject')
+           -strand => one of (1,0,-1)
+           -frame  => one of (-2, 1, 0, 1, -2)
+           called w/o args: returns 'all'
+
+=cut
+
 sub _context { shift->_make_context_key(@_) }
 
 =head2 Predicates
@@ -1262,7 +1279,7 @@ sub _has_frame {
 
 =back
 
-=head2 Private Accessors
+=head1 Private Accessors
 
 =head2 _contig_intersection
 

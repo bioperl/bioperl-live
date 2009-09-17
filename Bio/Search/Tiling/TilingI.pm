@@ -66,7 +66,7 @@ the Bioperl mailing list.  Your participation is much appreciated.
 
 Please direct usage questions or support issues to the mailing list:
 
-L<bioperl-l@bioperl.org>
+I<bioperl-l@bioperl.org>
 
 rather than to the module maintainer directly. Many experienced and
 reponsive experts will be able look at the problem and quickly
@@ -218,7 +218,7 @@ sub length{
 }
 
 =head2 frac_identical
- 
+
  Title   : frac_identical
  Usage   : $tiling->frac_identical($type)
  Function: Return the fraction of sequence length consisting
@@ -237,7 +237,7 @@ sub frac_identical {
 }
 
 =head2 percent_identity
- 
+
  Title   : percent_identity
  Usage   : $tiling->percent_identity($type)
  Function: Return the fraction of sequence length consisting
@@ -253,7 +253,7 @@ sub percent_identity {
 }
 
 =head2 frac_conserved
- 
+
  Title   : frac_conserved
  Usage   : $tiling->frac_conserved($type)
  Function: Return the fraction of sequence length consisting
@@ -272,7 +272,7 @@ sub frac_conserved{
 }
 
 =head2 percent_conserved
- 
+
  Title   : percent_conserved
  Usage   : $tiling->percent_conserved($type)
  Function: Return the fraction of sequence length consisting
@@ -288,7 +288,7 @@ sub percent_conserved {
 }
 
 =head2 frac_aligned
- 
+
  Title   : frac_aligned
  Usage   : $tiling->frac_aligned($type)
  Function: Return the fraction of B<input> sequence length consisting
@@ -311,7 +311,7 @@ sub frac_aligned_query { shift->frac_aligned('query', @_) }
 sub frac_aligned_hit { shift->frac_aligned('hit', @_) }
 
 =head2 range
- 
+
  Title   : range
  Usage   : $tiling->range($type)
  Function: Returns the extent of the longest tiling
@@ -326,7 +326,7 @@ sub range {
     $self->throw_not_implemented;
 }
 
-=head2 TILING ITERATORS
+=head1 TILING ITERATORS
 
 =head2 next_tiling
 
@@ -366,7 +366,7 @@ sub rewind_tilings{
 #alias
 sub rewind { shift->rewind_tilings(@_) }
 
-=head2 INFORMATIONAL ACCESSORS
+=head1 INFORMATIONAL ACCESSORS
 
 =head2 algorithm
 

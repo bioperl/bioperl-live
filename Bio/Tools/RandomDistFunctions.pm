@@ -29,7 +29,7 @@ generating random data in different distributions
 =head1 DESCRIPTION
 
 Most of the code is based on the C implementation of these routines in
-Mike Sanderson's r8s's package.  See http://ginger.ucdavis.edu/ for
+Mike Sanderson's r8s's package.  See http://loco.biosci.arizona.edu/r8s/ for
 information on his software.
 
 This code tries to be fast and use available faster BigInt and GMP
@@ -47,11 +47,11 @@ the Bioperl mailing list.  Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 

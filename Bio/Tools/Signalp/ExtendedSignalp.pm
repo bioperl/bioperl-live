@@ -34,19 +34,16 @@ Bio::Tools::Signalp::ExtendedSignalp - enhanced parser for Signalp output
 
 =head1 DESCRIPTION
 
+# Please direct questions and support issues to I<bioperl-l@bioperl.org> 
+
 Parser module for Signalp.
 
-Based on the EnsEMBL module
-Bio::EnsEMBL::Pipeline::Runnable::Protein::Signalp originally
-written by Marc Sohrmann (ms2 a sanger.ac.uk) Written in BioPipe by
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
-#
+Based on the EnsEMBL module Bio::EnsEMBL::Pipeline::Runnable::Protein::Signalp
+originally written by Marc Sohrmann (ms2 a sanger.ac.uk) Written in BioPipe by
 Balamurugan Kumarasamy (savikalpa a fugu-sg.org) Cared for by the Fugu
 Informatics team (fuguteam@fugu-sg.org)
 
 You may distribute this module under the same terms as perl itself
-
-POD documentation - main docs before the code
 
 Compared to the original SignalP, this method allow the user to filter results
 out based on maxC maxY maxS meanS and D factor cutoff for the Neural Network (NN)
@@ -67,19 +64,19 @@ Actually, full and summary are equivalent in terms of filtering results.
 
 =head2 Mailing Lists
 
- User feedback is an integral part of the evolution of this and other
- Bioperl modules. Send your comments and suggestions preferably to
- the Bioperl mailing list.  Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to
+the Bioperl mailing list.  Your participation is much appreciated.
 
- bioperl-l@bioperl.org              - General discussion
- http://bioperl.org/MailList.shtml  - About the mailing lists
+  bioperl-l@bioperl.org                  - General discussion
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -88,10 +85,10 @@ with code and data examples if at all possible.
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
-of the bugs and their resolution. Bug reports can be submitted va the
-web:
+of the bugs and their resolution. Bug reports can be submitted via
+the web:
 
- http://bugzilla.bioperl.org/
+  http://bugzilla.open-bio.org/
 
 =head1 AUTHOR
 

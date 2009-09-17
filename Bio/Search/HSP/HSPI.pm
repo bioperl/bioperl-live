@@ -78,11 +78,11 @@ the Bioperl mailing list.  Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -562,7 +562,7 @@ sub end {
            : to the strings in the original format of the Blast alignment.
            : (i.e., same spacing).
 
-See Also   : L<seq_str()|seq_str>, L<seq_inds()|seq_inds>, L<Bio::Seq>
+See Also   : L</seq_str>, L</seq_inds>, L<Bio::Seq>
 
 =cut
 
@@ -599,7 +599,7 @@ sub seq {
  Throws    : Exception if the argument does not match an accepted seq_type.
  Comments  : 
 
-See Also   : L<seq()|seq>, L<seq_inds()|seq_inds>, L<_set_match_seq()>
+See Also   : L</seq>, L</seq_inds>, C<_set_match_seq>
 
 =cut
 
@@ -653,7 +653,7 @@ sub rank { shift->throw_not_implemented }
            : between the query and sbjct lines which are used for determining
            : the number of identical and conservative matches.
 
-See Also   : L<length()|length>, L<gaps()|gaps>, L<seq_str()|seq_str>, L<Bio::Search::Hit::BlastHit::_adjust_contigs()|Bio::Search::Hit::BlastHit>
+See Also   : L</length>, L</gaps>, L</seq_str>, L<Bio::Search::Hit::BlastHit::_adjust_contigs()|Bio::Search::Hit::BlastHit>
 
 =cut
 

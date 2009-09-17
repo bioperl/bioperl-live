@@ -27,7 +27,7 @@ by the National Library of Medicine of USA.
 See L<http://www.nlm.nih.gov/mesh/meshhome.html>.
 
 This class implements L<Bio::SimpleAnalysisI> and wraps its methods under
-L<get_exact_term()>.
+L<get_exact_term>.
 
 By default, web access uses L<WWW::Mechanize>, but in its absense
 falls back to bioperl module L<Bio::WebAgent> which is a subclass of
@@ -50,11 +50,11 @@ Bioperl mailing lists Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 

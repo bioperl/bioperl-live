@@ -1129,7 +1129,7 @@ sub _dump_update_location_index {
 
 =head1 AUTHOR
 
-Nathan Weeks <Nathan.Weeks@ars.usda.gov>
+Nathan Weeks - Nathan.Weeks@ars.usda.gov
 
 Copyright (c) 2009 Nathan Weeks
 

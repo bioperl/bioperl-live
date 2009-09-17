@@ -96,11 +96,11 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -325,7 +325,7 @@ sub algorithm {
            : formats (e.g., exponent only), is not provided for HSP objects.
            : This is only available for the BlastHit or Blast object.
 
-See Also   : L<p()|p>, L<expect()|expect>, L<Bio::Search::Hit::BlastHit::signif()|Bio::Search::Hit::BlastHit>
+See Also   : L</p>, L</expect>, L<Bio::Search::Hit::BlastHit::signif()|Bio::Search::Hit::BlastHit>
 
 =cut
 
@@ -350,7 +350,7 @@ sub signif {
            : formats (e.g., exponent only), is not provided for HSP objects.
            : This is only available for the BlastHit or Blast object.
 
-See Also   : L<p()|p>
+See Also   : L</p>
 
 =cut
 
@@ -371,7 +371,7 @@ sub evalue { shift->{'_expect'} }
            : formats (e.g., exponent only) is not provided for HSP objects.
            : This is only available for the BlastHit or Blast object.
 
-See Also   : L<expect()|expect>
+See Also   : L</expect>
 
 =cut
 
@@ -395,7 +395,7 @@ sub pvalue { shift->p(@_); }
            : as reported in the denominators in the alignment section:
            : "Identical = 34/120 Positives = 67/120".
 
-See Also   : L<gaps()|gaps>
+See Also   : L</gaps>
 
 =cut
 
@@ -434,7 +434,7 @@ sub length {
            : Array context can be "induced" by providing an argument of 'list' or 'array'.
  Throws    : n/a
 
-See Also   : L<length()|length>, L<matches()|matches>
+See Also   : L</length>, L</matches>
 
 =cut
 
@@ -486,7 +486,7 @@ sub gaps {
            : ignoring the gaps, call this method with an argument of 'query'
            : or 'sbjct' ('sbjct' is synonymous with 'hit').
 
-See Also   : L<frac_conserved()|frac_conserved>, L<num_identical()|num_identical>, L<matches()|matches>
+See Also   : L</frac_conserved>, L</num_identical>, L</matches>
 
 =cut
 
@@ -537,7 +537,7 @@ sub frac_identical {
            : ignoring the gaps, call this method with an argument of 'query'
            : or 'sbjct'.
 
-See Also   : L<frac_conserved()|frac_conserved>, L<num_conserved()|num_conserved>, L<matches()|matches>
+See Also   : L</frac_conserved>, L</num_conserved>, L</matches>
 
 =cut
 
@@ -671,20 +671,20 @@ sub to_string {
 }
 
 
-#=head2 _set_data (Private method)
-#
-# Usage     : called automatically during object construction.
-# Purpose   : Parses the raw HSP section from a flat BLAST report and
-#             sets the query sequence, sbjct sequence, and the "match" data
-#           : which consists of the symbols between the query and sbjct lines
-#           : in the alignment.
-# Argument  : Array (all lines for a single, complete HSP, from a raw,
-#             flat (i.e., non-XML) BLAST report)
-# Throws    : Propagates any exceptions from the methods called ("See Also")
-#
-#See Also   : L<_set_seq()|_set_seq>, L<_set_score_stats()|_set_score_stats>, L<_set_match_stats()|_set_match_stats>, L<_initialize()|_initialize>
-#
-#=cut
+=head2 _set_data
+
+ Usage     : called automatically during object construction.
+ Purpose   : Parses the raw HSP section from a flat BLAST report and
+             sets the query sequence, sbjct sequence, and the "match" data
+           : which consists of the symbols between the query and sbjct lines
+           : in the alignment.
+ Argument  : Array (all lines for a single, complete HSP, from a raw,
+             flat (i.e., non-XML) BLAST report)
+ Throws    : Propagates any exceptions from the methods called ("See Also")
+
+See Also   : L</_set_seq>, L</_set_score_stats>, L</_set_match_stats>
+
+=cut
 
 #--------------
 sub _set_data {
@@ -759,21 +759,21 @@ sub _set_data {
 }
 
 
-#=head2 _set_score_stats (Private method)
-#
-# Usage     : called automatically by _set_data()
-# Purpose   : Sets various score statistics obtained from the HSP listing.
-# Argument  : String with any of the following formats:
-#           : blast2:  Score = 30.1 bits (66), Expect = 9.2
-#           : blast2:  Score = 158.2 bits (544), Expect(2) = e-110
-#           : blast1:  Score = 410 (144.3 bits), Expect = 1.7e-40, P = 1.7e-40
-#           : blast1:  Score = 55 (19.4 bits), Expect = 5.3, Sum P(3) = 0.99
-# Throws    : Exception if the stats cannot be parsed, probably due to a change
-#           : in the Blast report format.
-#
-#See Also   : L<_set_data()|_set_data>
-#
-#=cut
+=head2 _set_score_stats
+
+ Usage     : called automatically by _set_data()
+ Purpose   : Sets various score statistics obtained from the HSP listing.
+ Argument  : String with any of the following formats:
+           : blast2:  Score = 30.1 bits (66), Expect = 9.2
+           : blast2:  Score = 158.2 bits (544), Expect(2) = e-110
+           : blast1:  Score = 410 (144.3 bits), Expect = 1.7e-40, P = 1.7e-40
+           : blast1:  Score = 55 (19.4 bits), Expect = 5.3, Sum P(3) = 0.99
+ Throws    : Exception if the stats cannot be parsed, probably due to a change
+           : in the Blast report format.
+
+See Also   : L</_set_data>
+
+=cut
 
 #--------------------
 sub _set_score_stats {
@@ -824,27 +824,27 @@ sub _set_score_stats {
 }
 
 
-#=head2 _set_match_stats (Private method)
-#
-# Usage     : Private method; called automatically by _set_data()
-# Purpose   : Sets various matching statistics obtained from the HSP listing.
-# Argument  : blast2: Identities = 23/74 (31%), Positives = 29/74 (39%), Gaps = 17/74 (22%)
-#           : blast2: Identities = 57/98 (58%), Positives = 74/98 (75%)
-#           : blast1: Identities = 87/204 (42%), Positives = 126/204 (61%)
-#           : blast1: Identities = 87/204 (42%), Positives = 126/204 (61%), Frame = -3
-#           : WU-blast: Identities = 310/553 (56%), Positives = 310/553 (56%), Strand = Minus / Plus
-# Throws    : Exception if the stats cannot be parsed, probably due to a change
-#           : in the Blast report format.
-# Comments  : The "Gaps = " data in the HSP header has a different meaning depending
-#           : on the type of Blast: for BLASTP, this number is the total number of
-#           : gaps in query+sbjct; for TBLASTN, it is the number of gaps in the
-#           : query sequence only. Thus, it is safer to collect the data
-#           : separately by examining the actual sequence strings as is done
-#           : in _set_seq().
-#
-#See Also   : L<_set_data()|_set_data>, L<_set_seq()|_set_seq>
-#
-#=cut
+=head2 _set_match_stats
+
+ Usage     : Private method; called automatically by _set_data()
+ Purpose   : Sets various matching statistics obtained from the HSP listing.
+ Argument  : blast2: Identities = 23/74 (31%), Positives = 29/74 (39%), Gaps = 17/74 (22%)
+           : blast2: Identities = 57/98 (58%), Positives = 74/98 (75%)
+           : blast1: Identities = 87/204 (42%), Positives = 126/204 (61%)
+           : blast1: Identities = 87/204 (42%), Positives = 126/204 (61%), Frame = -3
+           : WU-blast: Identities = 310/553 (56%), Positives = 310/553 (56%), Strand = Minus / Plus
+ Throws    : Exception if the stats cannot be parsed, probably due to a change
+           : in the Blast report format.
+ Comments  : The "Gaps = " data in the HSP header has a different meaning depending
+           : on the type of Blast: for BLASTP, this number is the total number of
+           : gaps in query+sbjct; for TBLASTN, it is the number of gaps in the
+           : query sequence only. Thus, it is safer to collect the data
+           : separately by examining the actual sequence strings as is done
+           : in _set_seq().
+
+See Also   : L</_set_data>, L</_set_seq>
+
+=cut
 
 #--------------------
 sub _set_match_stats {
@@ -883,21 +883,21 @@ sub _set_match_stats {
 
 
 
-#=head2 _set_seq_data (Private method)
-#
-# Usage     : called automatically when sequence data is requested.
-# Purpose   : Sets the HSP sequence data for both query and sbjct sequences.
-#           : Includes: start, stop, length, gaps, and raw sequence.
-# Argument  : n/a
-# Throws    : Propagates any exception thrown by _set_match_seq()
-# Comments  : Uses raw data stored by _set_data() during object construction.
-#           : These data are not always needed, so it is conditionally
-#           : executed only upon demand by methods such as gaps(), _set_residues(),
-#           : etc. _set_seq() does the dirty work.
-#
-#See Also   : L<_set_seq()|_set_seq>
-#
-#=cut
+=head2 _set_seq_data
+
+ Usage     : called automatically when sequence data is requested.
+ Purpose   : Sets the HSP sequence data for both query and sbjct sequences.
+           : Includes: start, stop, length, gaps, and raw sequence.
+ Argument  : n/a
+ Throws    : Propagates any exception thrown by _set_match_seq()
+ Comments  : Uses raw data stored by _set_data() during object construction.
+           : These data are not always needed, so it is conditionally
+           : executed only upon demand by methods such as gaps(), _set_residues(),
+           : etc. _set_seq() does the dirty work.
+
+See Also   : L</_set_seq>
+
+=cut
 
 #-----------------
 sub _set_seq_data {
@@ -917,27 +917,27 @@ sub _set_seq_data {
 
 
 
-#=head2 _set_seq (Private method)
-#
-# Usage     : called automatically by _set_seq_data()
-#           : $hsp_obj->($seq_type, @data);
-# Purpose   : Sets sequence information for both the query and sbjct sequences.
-#           : Directly counts the number of gaps in each sequence (if gapped Blast).
-# Argument  : $seq_type = 'query' or 'sbjct'
-#           : @data = all seq lines with the form:
-#           : Query: 61  SPHNVKDRKEQNGSINNAISPTATANTSGSQQINIDSALRDRSSNVAAQPSLSDASSGSN 120
-# Throws    : Exception if data strings cannot be parsed, probably due to a change
-#           : in the Blast report format.
-# Comments  : Uses first argument to determine which data members to set
-#           : making this method sensitive data member name changes.
-#           : Behavior is dependent on the type of BLAST analysis (TBLASTN, BLASTP, etc).
-# Warning   : Sequence endpoints are normalized so that start < end. This affects HSPs
-#           : for TBLASTN/X hits on the minus strand. Normalization facilitates use
-#           : of range information by methods such as match().
-#
-#See Also   : L<_set_seq_data()|_set_seq_data>, L<matches()|matches>, L<range()|range>, L<start()|start>, L<end()|end>
-#
-#=cut
+=head2 _set_seq
+
+ Usage     : called automatically by _set_seq_data()
+           : $hsp_obj->($seq_type, @data);
+ Purpose   : Sets sequence information for both the query and sbjct sequences.
+           : Directly counts the number of gaps in each sequence (if gapped Blast).
+ Argument  : $seq_type = 'query' or 'sbjct'
+           : @data = all seq lines with the form:
+           : Query: 61  SPHNVKDRKEQNGSINNAISPTATANTSGSQQINIDSALRDRSSNVAAQPSLSDASSGSN 120
+ Throws    : Exception if data strings cannot be parsed, probably due to a change
+           : in the Blast report format.
+ Comments  : Uses first argument to determine which data members to set
+           : making this method sensitive data member name changes.
+           : Behavior is dependent on the type of BLAST analysis (TBLASTN, BLASTP, etc).
+ Warning   : Sequence endpoints are normalized so that start < end. This affects HSPs
+           : for TBLASTN/X hits on the minus strand. Normalization facilitates use
+           : of range information by methods such as match().
+
+See Also   : L</_set_seq_data>, L</matches>, L</range>, L</start>, L</end>
+
+=cut
 
 #-------------
 sub _set_seq {
@@ -1006,21 +1006,21 @@ sub _set_seq {
 }
 
 
-#=head2 _set_residues (Private method)
-#
-# Usage     : called automatically when residue data is requested.
-# Purpose   : Sets the residue numbers representing the identical and
-#           : conserved positions. These data are obtained by analyzing the
-#           : symbols between query and sbjct lines of the alignments.
-# Argument  : n/a
-# Throws    : Propagates any exception thrown by _set_seq_data() and _set_match_seq().
-# Comments  : These data are not always needed, so it is conditionally
-#           : executed only upon demand by methods such as seq_inds().
-#           : Behavior is dependent on the type of BLAST analysis (TBLASTN, BLASTP, etc).
-#
-#See Also   : L<_set_seq_data()|_set_seq_data>, L<_set_match_seq()|_set_match_seq>, seq_inds()
-#
-#=cut
+=head2 _set_residues
+
+ Usage     : called automatically when residue data is requested.
+ Purpose   : Sets the residue numbers representing the identical and
+           : conserved positions. These data are obtained by analyzing the
+           : symbols between query and sbjct lines of the alignments.
+ Argument  : n/a
+ Throws    : Propagates any exception thrown by _set_seq_data() and _set_match_seq().
+ Comments  : These data are not always needed, so it is conditionally
+           : executed only upon demand by methods such as seq_inds().
+           : Behavior is dependent on the type of BLAST analysis (TBLASTN, BLASTP, etc).
+
+See Also   : L</_set_seq_data>, L</_set_match_seq>, L</seq_inds>
+
+=cut
 
 #------------------
 sub _set_residues {
@@ -1080,21 +1080,21 @@ sub _set_residues {
 
 
 
-#=head2 _set_match_seq (Private method)
-#
-# Usage     : $hsp_obj->_set_match_seq()
-# Purpose   : Set the 'match' sequence for the current HSP (symbols in between
-#           : the query and sbjct lines.)
-# Returns   : Array reference holding the match sequences lines.
-# Argument  : n/a
-# Throws    : Exception if the _matchList field is not set.
-# Comments  : The match information is not always necessary. This method
-#           : allows it to be conditionally prepared.
-#           : Called by _set_residues>() and seq_str().
-#
-#See Also   : L<_set_residues()|_set_residues>, L<seq_str()|seq_str>
-#
-#=cut
+=head2 _set_match_seq
+
+ Usage     : $hsp_obj->_set_match_seq()
+ Purpose   : Set the 'match' sequence for the current HSP (symbols in between
+           : the query and sbjct lines.)
+ Returns   : Array reference holding the match sequences lines.
+ Argument  : n/a
+ Throws    : Exception if the _matchList field is not set.
+ Comments  : The match information is not always necessary. This method
+           : allows it to be conditionally prepared.
+           : Called by _set_residues>() and seq_str().
+
+See Also   : L</_set_residues>, L</seq_str>
+
+=cut
 
 #-------------------
 sub _set_match_seq {
@@ -1169,7 +1169,7 @@ sub n { my $self = shift; $self->{'_n'} || ''; }
            : between the query and sbjct lines which are used for determining
            : the number of identical and conservative matches.
 
-See Also   : L<length()|length>, L<gaps()|gaps>, L<seq_str()|seq_str>, L<Bio::Search::Hit::BlastHit::_adjust_contigs()|Bio::Search::Hit::BlastHit>
+See Also   : L</length>, L</gaps>, L</seq_str>, L<Bio::Search::Hit::BlastHit::_adjust_contigs()|Bio::Search::Hit::BlastHit>
 
 =cut
 
@@ -1263,7 +1263,7 @@ sub matches {
  Argument  : n/a
  Throws    : n/a
 
-See Also   : L<num_conserved()|num_conserved>, L<frac_identical()|frac_identical>
+See Also   : L</num_conserved>, L</frac_identical>
 
 =cut
 
@@ -1285,7 +1285,7 @@ sub num_identical {
  Argument  : n/a
  Throws    : n/a
 
-See Also   : L<num_identical()|num_identical>, L<frac_conserved()|frac_conserved>
+See Also   : L</num_identical>, L</frac_conserved>
 
 =cut
 
@@ -1311,7 +1311,7 @@ sub num_conserved {
            :  ('sbjct' is synonymous with 'hit')
  Throws    : n/a
 
-See Also   : L<start()|start>, L<end()|end>
+See Also   : L</start>, L</end>
 
 =cut
 
@@ -1348,7 +1348,7 @@ sub range {
            : Array context can be "induced" by providing an argument of 'list' or 'array'.
  Throws    : n/a
 
-See Also   : L<end()|end>, L<range()|range>
+See Also   : L</end>, L</range>
 
 =cut
 
@@ -1388,7 +1388,7 @@ sub start {
            : Array context can be "induced" by providing an argument of 'list' or 'array'.
  Throws    : n/a
 
-See Also   : L<start()|start>, L<range()|range>, L<strand()|strand>
+See Also   : L</start>, L</range>, L</strand>
 
 =cut
 
@@ -1432,7 +1432,7 @@ sub end {
            :  ('sbjct' is synonymous with 'hit')
  Throws    : n/a
 
-See Also   : L<_set_seq()>, L<_set_match_stats()>
+See Also   : L</_set_seq>, L</_set_match_stats>
 
 =cut
 
@@ -1493,7 +1493,7 @@ sub strand {
            : to the strings in the original format of the Blast alignment.
            : (i.e., same spacing).
 
-See Also   : L<seq_str()|seq_str>, L<seq_inds()|seq_inds>, L<Bio::Seq>
+See Also   : L</seq_str>, L</seq_inds>, L<Bio::Seq>
 
 =cut
 
@@ -1527,7 +1527,7 @@ sub seq {
  Comments  : Calls _set_seq_data() to set the 'match' sequence if it has
            : not been set already.
 
-See Also   : L<seq()|seq>, L<seq_inds()|seq_inds>, L<_set_match_seq()>
+See Also   : L</seq>, L</seq_inds>, L</_set_match_seq>
 
 =cut
 
@@ -1587,7 +1587,7 @@ sub seq_str {
  Comments  : Calls _set_residues() to set the 'match' sequence if it has
            : not been set already.
 
-See Also   : L<seq()|seq>, L<_set_residues()>, L<Bio::Search::BlastUtils::collapse_nums()|Bio::Search::BlastUtils>, L<Bio::Search::Hit::BlastHit::seq_inds()|Bio::Search::Hit::BlastHit>
+See Also   : L</seq>, L</_set_residues>, L<Bio::Search::BlastUtils::collapse_nums()|Bio::Search::BlastUtils>, L<Bio::Search::Hit::BlastHit::seq_inds()|Bio::Search::Hit::BlastHit>
 
 =cut
 
@@ -1633,7 +1633,7 @@ sub seq_inds {
            : sequence objects obtained by calling seq().
            : Gap residues are included (see $GAP_SYMBOL).
 
-See Also   : L<seq()|seq>, L<Bio::SimpleAlign>
+See Also   : L</seq>, L<Bio::SimpleAlign>
 
 =cut
 

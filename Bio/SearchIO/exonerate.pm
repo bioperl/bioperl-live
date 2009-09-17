@@ -33,7 +33,7 @@ Bio::SearchIO::exonerate - parser for Exonerate
 
 This is a driver for the SearchIO system for parsing Exonerate (Guy
 Slater) output.  You can get Exonerate at
-http://cvsweb.sanger.ac.uk/cgi-bin/cvsweb.cgi/exonerate/?cvsroot=Ensembl
+http://www.ebi.ac.uk/~guy/exonerate/
 [until Guy puts up a Web reference,publication for it.]).
 
 An optional parameter -min_intron is supported by the L<new>
@@ -50,6 +50,7 @@ The GFF that comes from exonerate is still probably a better way to go
 if you are doing protein2genome or est2genome mapping.
 For example you can see this script:
 
+### TODO: Jason, this link is dead, do we have an updated one?
 http://fungal.genome.duke.edu/~jes12/software/scripts/process_exonerate_gff3.perl.txt
 
 If your report contains both CIGAR and VULGAR lines only the first one
@@ -81,11 +82,11 @@ the Bioperl mailing list.  Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 

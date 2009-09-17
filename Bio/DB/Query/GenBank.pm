@@ -64,11 +64,11 @@ is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -100,8 +100,8 @@ package Bio::DB::Query::GenBank;
 use strict;
 use URI::Escape 'uri_unescape';
 
-use constant EPOST               => 'http://www.ncbi.nih.gov/entrez/eutils/epost.fcgi';
-use constant ESEARCH             => 'http://www.ncbi.nih.gov/entrez/eutils/esearch.fcgi';
+use constant EPOST               => 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/epost.fcgi';
+use constant ESEARCH             => 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi';
 use constant DEFAULT_DB          => 'protein';
 use constant MAXENTRY            => 100;
 

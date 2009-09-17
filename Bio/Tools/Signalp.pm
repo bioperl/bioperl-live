@@ -54,11 +54,11 @@ NN probability of this being a true signal peptide.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -74,11 +74,10 @@ web:
 
 =head1 AUTHOR
 
-Based on the EnsEMBL module
-Bio::EnsEMBL::Pipeline::Runnable::Protein::Signalp originally written
-by Marc Sohrmann (ms2_AT_sanger.ac.uk). Written in BioPipe by
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
-#
+# Please direct questions and support issues to I<bioperl-l@bioperl.org> 
+
+Based on the EnsEMBL module Bio::EnsEMBL::Pipeline::Runnable::Protein::Signalp
+originally written by Marc Sohrmann (ms2_AT_sanger.ac.uk). Written in BioPipe by
 Balamurugan Kumarasamy savikalpa_AT_fugu-sg.org. Cared for by the Fugu
 Informatics team (fuguteam_AT_fugu-sg.org)
 

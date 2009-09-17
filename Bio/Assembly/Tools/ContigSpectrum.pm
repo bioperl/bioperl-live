@@ -76,7 +76,7 @@ Bio::Assembly::Tools::ContigSpectrum - create and manipulate contig spectra
 
   # Score a contig spectrum (the more abundant the contigs and the larger their
   # size, the larger the score)
-  
+
 
 =head1 DESCRIPTION
 
@@ -155,18 +155,19 @@ E<gt>metagenome2|seq1, ...
 =head2 Mailing Lists
 
 User feedback is an integral part of the evolution of this and other
-BioPerl modules. Send your comments and suggestions preferably to the
-BioPerl mailing lists. Your participation is much appreciated.
+Bioperl modules. Send your comments and suggestions preferably to the
+Bioperl mailing lists  Your participation is much appreciated.
 
-  bioperl-l@bioperl.org                 - General discussion
-  http://bio.perl.org/MailList.html     - About the mailing lists
+  bioperl-l@bioperl.org                  - General discussion
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -248,7 +249,7 @@ sub new {
   $self->{'_eff_asm_params'} = 0;
   $self->{'_spectrum'}       = {1 => 0};  # contig spectrum hash representation
   $self->{'_assembly'}       = []; # list of assembly objects used
-  
+
   # Then, according to user desires, override defaults
   $self->{'_id'}             = $id             if (defined $id);
   $self->{'_nof_seq'}        = $nof_seq        if (defined $nof_seq);
@@ -261,7 +262,7 @@ sub new {
   $self->{'_avg_identity'}   = $avg_identity   if (defined $avg_identity);
   $self->{'_avg_seq_len'}    = $avg_seq_len    if (defined $avg_seq_len);
   $self->{'_eff_asm_params'} = $eff_asm_params if (defined $eff_asm_params);
-  
+
   # Finally get stuff that can be gotten in an automated way
   $self->_import_spectrum($spectrum) if defined($spectrum);
   $self->_import_assembly($assembly) if defined($assembly);
@@ -269,8 +270,8 @@ sub new {
     my ($mixed_csp, $header) = (@$dissolve[0], @$dissolve[1]);
     $self->_import_dissolved_csp($mixed_csp, $header);
   }
-  $self->_import_cross_csp($cross) if defined($cross);
-  
+  $self->_import_cross_csp($cross)   if defined($cross);
+
   return $self;
 }
 
@@ -1194,9 +1195,9 @@ sub _new_cross_csp {
         }
         # update number of cross q-contigs in spectrum
         if (defined $spectrum{$qsize}) {
-          $spectrum{$qsize} = 1;
-        } else {
           $spectrum{$qsize}++;
+        } else {
+          $spectrum{$qsize} = 1;
         }
       }
       # Update number of cross 1-contigs
@@ -1358,13 +1359,13 @@ sub _import_cross_csp {
   if (not defined $mixed_csp) {
     $self->throw("Expecting a contig spectrum reference as argument");
   }
-  
+
   # Create new object from assembly
   my $cross_csp = $self->_new_cross_csp($mixed_csp);
-  
+
   # Update current contig spectrum object with new one
   $self->add($cross_csp);
-  
+
   return 1;
 }
 

@@ -116,10 +116,10 @@ locally before it is unleashed on the server; see below.
 =head2 Annotations
 
 LANL DB annotations have been organized into a number of natural
-groupings, tagged C<Geo>, C<Patient>, C<Virus>, and <StdMap>.  After a
+groupings, tagged C<Geo>, C<Patient>, C<Virus>, and C<StdMap>.  After a
 successful query, each id is associated with a tree of
 L<Bio::Annotation::SimpleValue> objects. These can be accessed with
-methods C<get_value()> and C<put_value()> described in APPENDIX.
+methods C<get_value> and C<put_value> described in APPENDIX.
 
 =head2 Delayed/partial query runs
 
@@ -164,11 +164,11 @@ the Bioperl mailing list.  Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -187,6 +187,8 @@ the web:
 Email maj@fortinbras.us
 
 =head1 CONTRIBUTORS
+
+Mark A. Jensen
 
 =head1 APPENDIX
 
@@ -770,6 +772,23 @@ sub _session_id{
 
     return $self->{'_session_id'} = shift if @_;
     return $self->{'_session_id'};
+}
+=head2 _run_level
+
+ Title   : _run_level
+ Usage   : $obj->_run_level($newval)
+ Function: returns the level at which the query has so far been run
+ Example : 
+ Returns : value of _run_level (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+=cut
+
+sub _run_level{
+    my $self = shift;
+
+    return $self->{'_RUN_LEVEL'} = shift if @_;
+    return $self->{'_RUN_LEVEL'};
 }
 
 =head2 _run_option
@@ -1442,10 +1461,12 @@ sub _parse_lanl_response {
 		     -value=>"");
     foreach my $rsp (@{$self->_lanl_response}) {
 	@data = split(/\r|\n/, $rsp->content);
-	my $line = shift @data;
-	$numseq += ( $line =~ /Number.*:\s([0-9]+)/ )[0];
-	@cols = split(/\t/, shift @data);
-
+	my $l;
+	do {
+	    $l = shift @data;
+	} while ($l !~ /Number/);
+	$numseq += ( $l =~ /Number.*:\s([0-9]+)/ )[0];
+	@cols = split(/\t/, shift(@data));
 	# mappings from column headings to annotation keys
 	# squish into hash keys
 	my %q = @{ shift @{$self->_lanl_query} };
@@ -1474,7 +1495,7 @@ sub _parse_lanl_response {
 }
     
 =head2 _parse_query_string
-    
+
  Title   : _parse_query_string
  Usage   : $hiv_query->_parse_query_string($str)
  Function: Parses a query string using query language emulator QRY

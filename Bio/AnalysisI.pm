@@ -40,11 +40,11 @@ the Bioperl mailing list.  Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -76,7 +76,7 @@ This software is provided "as is" without warranty of any kind.
 
 =head1 SEE ALSO
 
-L<http://www.ebi.ac.uk/soaplab/Perl_Client.html>.
+http://www.ebi.ac.uk/Tools/webservices/soaplab/guide
 
 =head1 APPENDIX
 

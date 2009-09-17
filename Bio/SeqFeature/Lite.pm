@@ -4,6 +4,8 @@ package Bio::SeqFeature::Lite;
 
 Bio::SeqFeature::Lite - Lightweight Bio::SeqFeatureI class
 
+=head1 SYNOPSIS
+
  # create a simple feature with no internal structure
  $f = Bio::SeqFeature::Lite->new(-start => 1000,
                                   -stop  => 2000,
@@ -123,7 +125,6 @@ An alias for sub_SeqFeature() (you don't want to know why!)
 =back
 
 =cut
-
 
 use strict;
 

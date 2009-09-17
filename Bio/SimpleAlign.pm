@@ -100,7 +100,7 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
 
 Please direct usage questions or support issues to the mailing list:
 
-L<bioperl-l@bioperl.org>
+I<bioperl-l@bioperl.org>
 
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
@@ -1178,6 +1178,7 @@ sub slice {
              'all_gaps_columns') or array ref where the referenced array
              contains a pair of integers that specify a range.
              The first column is 0
+
 =cut
 
 sub remove_columns {

@@ -244,6 +244,8 @@ sub api_version { 1.2 }
 
 =head1 Methods for Connecting and Initializating a Database
 
+## TODO: http://iowg.brcdevel.org/gff3.html#a_fasta is a dead link
+
 =head2 new
 
  Title   : new
@@ -254,7 +256,7 @@ sub api_version { 1.2 }
  Status  : public
 
 This class method creates a new database connection. The following
--name=E<gt>$value arguments are accepted:http://iowg.brcdevel.org/gff3.html#a_fasta
+-name=E<gt>$value arguments are accepted:
 
  Name               Value
  ----               -----
@@ -1283,6 +1285,7 @@ is to call the method in a list context, as in:
   my ($segment) = $db->segment('contig23',1,1000);
 
 or
+
   my @segments  = $db->segment('contig23',1,1000);
 
 However, having multiple same-named features in the database is often

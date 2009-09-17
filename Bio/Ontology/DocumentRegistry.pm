@@ -48,11 +48,11 @@ the Bioperl mailing list.  Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -99,6 +99,9 @@ $instance = {
         definitions => "http://song.cvs.sourceforge.net/*checkout*/song/ontology/so.definition?rev=HEAD",
         format => 'obo',
                                     },
+   
+   #### TODO Server http://umn.dl.sourceforge.net/ does not respond, are there
+   #### alternative sources? 
    'Sequence Ontology Feature Annotation' => {
         ontology => 'http://umn.dl.sourceforge.net/sourceforge/song/sofa.ontology',
         definitions =>'http://umn.dl.sourceforge.net/sourceforge/song/sofa.definition',

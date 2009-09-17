@@ -150,11 +150,11 @@ of the Bioperl mailing lists. Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -871,7 +871,8 @@ sub _cuts {
  Arguments : A Bio::Restriction::Enzyme object,
              $comp : boolean, calculate based on $enz->complementary_cut()
                      if true, $enz->cut() if false
- NOW DEPRECATED/maj
+ Status    : NOW DEPRECATED - maj
+
 =cut
 
 sub _enzyme_sites {

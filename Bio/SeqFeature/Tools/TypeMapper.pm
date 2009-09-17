@@ -63,11 +63,11 @@ Bioperl mailing lists  Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -221,11 +221,11 @@ Please see the actual code for the mappings
 
 Taken from
 
-L<http://song.sourceforge.net/FT_SO_map.txt>
+L<http://sequenceontology.org/resources/mapping/FT_SO.txt>
 
 dgg: separated out FT_SO_map for caller changes. Update with:
 
-  open(FTSO,"curl -s http://sequenceontology.org/mappings/FT_SO_map.txt|");
+  open(FTSO,"curl -s http://sequenceontology.org/resources/mapping/FT_SO.txt|");
   while(<FTSO>){
     chomp; ($ft,$so,$sid,$ftdef,$sodef)= split"\t";
     print "     '$ft' => '$so',\n" if($ft && $so && $ftdef);             

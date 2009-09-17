@@ -41,11 +41,11 @@ the Bioperl mailing list.  Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -708,11 +708,10 @@ sub statratio {
                2. trait name string
                3. Bio::Tree::NodeI object within the tree, optional
 
+  Association index (AI) gives a more fine grained results than PS since
+  the result is a real number. ~0 E<lt>= AI.
 
-Association index (AI) gives a more fine grained results than PS since
-the result is a real number. ~0 <= AI.
-
-Wang, T.H., Donaldson, Y.K., Brettle, R.P., Bell, J.E., Simmonds, P.,
+  Wang, T.H., Donaldson, Y.K., Brettle, R.P., Bell, J.E., Simmonds, P.,
   2001.  Identiﬁcation of shared populations of human immunodeﬁciency
   Virus Type 1 infecting microglia and tissue macrophages outside the
   central nervous system. J. Virol. 75 (23), 11686-11699.
@@ -769,22 +768,21 @@ sub ai {
                2. trait name string
                3. Bio::Tree::NodeI object within the tree, optional
 
-
-Monophyletic Clade (MC) size statistics by Salemi at al 2005. It is
-calculated for each trait value. 1<= MC <= nx, where nx is the
-number of tips with value x:
+  Monophyletic Clade (MC) size statistics by Salemi at al 2005. It is
+  calculated for each trait value. 1 E<lt>= MC E<lt>= nx, where nx is the
+  number of tips with value x:
 
    pick the internal node with maximim value for
       number of of tips with only trait x
 
-MC was defined by Parker et al 2008.
+  MC was defined by Parker et al 2008.
 
-Salemi, M., Lamers, S.L., Yu, S., de Oliveira, T., Fitch, W.M., McGrath, M.S.,
+  Salemi, M., Lamers, S.L., Yu, S., de Oliveira, T., Fitch, W.M., McGrath, M.S.,
    2005. Phylodynamic analysis of Human Immunodeﬁciency Virus Type 1 in
    distinct brain compartments provides a model for the neuropathogenesis of
    AIDS. J. Virol. 79 (17), 11343-11352.
 
-Parker, J., Rambaut A., Pybus O., 2008. Correlating viral phenotypes
+  Parker, J., Rambaut A., Pybus O., 2008. Correlating viral phenotypes
    with phylogeny: Accounting for phylogenetic uncertainty Infection,
    Genetics and Evolution 8 (2008), 239-246.
 

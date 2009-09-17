@@ -16,7 +16,7 @@ Bio::Root::Exception - Generic exception objects for Bioperl
 
 =head1 SYNOPSIS
 
-=head2 Throwing exceptions using L<Error::throw()>:
+=head2 Throwing exceptions using L<Error.pm throw|Error::throw>:
 
     use Bio::Root::Exception;
     use Error;
@@ -28,7 +28,7 @@ Bio::Root::Exception - Generic exception objects for Bioperl
     open (IN, $file) ||
 	    throw Bio::Root::FileOpenException ( "Can't open file $file for reading", $!);
 
-=head2 Throwing exceptions using L<Bio::Root::Root::throw()>:
+=head2 Throwing exceptions using L<Bioperl throw|Bio::Root::Root/throw>:
 
      # Here we have an object that ISA Bio::Root::Root, so it inherits throw().
 
@@ -37,7 +37,7 @@ Bio::Root::Exception - Generic exception objects for Bioperl
                                -text => "Can't open file $file for reading",
                                -value => $!);
 
-=head2 Catching and handling exceptions using L<Error::try()>:
+=head2 Catching and handling exceptions using L<Error.pm try|Error/try>:
 
     use Bio::Root::Exception;
     use Error qw(:try);
@@ -74,7 +74,6 @@ Bio::Root::Exception - Generic exception objects for Bioperl
 =head2 Defining a new Exception type as a subclass of Bio::Root::Exception:
 
     @Bio::TestException::ISA = qw( Bio::Root::Exception );
-
 
 =head1 DESCRIPTION
 
@@ -145,7 +144,7 @@ Error.pm is not available.
 Error.pm is not part of the Bioperl distibution, and may not be
 present within  any given perl installation. So, when you want to 
 throw an exception in a Bioperl module, the safe way to throw it
-is to use L<Bio::Root::Root::throw()> which can use Error.pm 
+is to use L<Bio::Root::Root/throw> which can use Error.pm 
 when it's available. See documentation in Bio::Root::Root for details.
 
 =head1 SEE ALSO
@@ -153,7 +152,7 @@ when it's available. See documentation in Bio::Root::Root for details.
 See the C<examples/exceptions> directory of the Bioperl distribution for 
 working demo code.
 
-L<Bio::Root::Root::throw()> for information about throwing 
+L<Bio::Root::Root/throw> for information about throwing 
 L<Bio::Root::Exception>-based exceptions.
 
 L<Error> (available from CPAN, author: GBARR)
@@ -208,11 +207,9 @@ my $DEFAULT_VALUE = "__DUMMY__";  # Permits eval{} based handlers to work
 @Bio::Root::Exception::ISA = qw( Error );
 #---------------------------------------------------------
 
-=head2 Methods defined by Bio::Root::Exception
+=head1 Methods defined by Bio::Root::Exception
 
-=over 4
-
-=item L<new()>
+=head2 new
 
  Purpose : Guarantees that -value is set properly before
            calling Error::new().
@@ -264,7 +261,7 @@ sub new {
     return $self;
 }
 
-=item pretty_format()
+=head2 pretty_format()
 
  Purpose : Get a nicely formatted string containing information about the 
            exception. Format is similar to that produced by 
@@ -341,7 +338,7 @@ sub _reformat_stacktrace {
     return join "\n", @new_stack;
 }
 
-=item L<stringify()>
+=head2 stringify()
 
  Purpose : Overrides Error::stringify() to call pretty_format(). 
            This is called automatically when an exception object 
@@ -360,12 +357,7 @@ sub stringify {
     return $self->pretty_format( @args );
 }
 
-
-
-=back
-
 =head1 Subclasses of Bio::Root::Exception 
-
 
 =head2 L<Bio::Root::NotImplemented>
 

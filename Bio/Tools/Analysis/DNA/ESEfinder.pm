@@ -85,7 +85,7 @@ score]
 
 =back
 
-See L<http://exon.cshl.org/ESE/index.html>
+See L<http://rulai.cshl.edu/tools/ESE2/>
 
 This the second implentation of Bio::SimpleAnalysisI which hopefully
 will make it easier to write wrappers on various services. This class
@@ -108,11 +108,11 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 

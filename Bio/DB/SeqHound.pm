@@ -55,7 +55,7 @@ E<lt>seqhound.usergroup@lists.blueprint.orgE<gt>
 
 =head1 WEBSITE
 
-For more information on SeqHound http://www.blueprint.org/seqhound/
+For more information on SeqHound http://dogboxonline.unleashedinformatics.com/
 
 =head1 DISCLAIMER
 

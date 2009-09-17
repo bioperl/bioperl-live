@@ -26,11 +26,11 @@ FastA (FastX, FastN, FastP, tFastA, etc) use the Bio::SearchIO module.
 =head1 FEEDBACK
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 

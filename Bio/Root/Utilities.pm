@@ -80,11 +80,11 @@ Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -108,7 +108,7 @@ See L<the FEEDBACK section | FEEDBACK> for where to send bug reports and comment
 =head1 ACKNOWLEDGEMENTS
 
 This module was originally developed under the auspices of the
-Saccharomyces Genome Database: http://genome-www.stanford.edu/Saccharomyces
+Saccharomyces Genome Database: http://www.yeastgenome.org/
 
 =head1 COPYRIGHT
 

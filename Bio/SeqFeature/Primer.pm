@@ -100,11 +100,11 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support 
- 
+
 Please direct usage questions or support issues to the mailing list:
-  
-L<bioperl-l@bioperl.org>
-  
+
+I<bioperl-l@bioperl.org>
+
 rather than to the module maintainer directly. Many experienced and 
 reponsive experts will be able look at the problem and quickly 
 address it. Please include a thorough description of the problem 
@@ -338,7 +338,8 @@ sub strand {
  Usage   : $id = $primer->display_id($new_id)
  Function: Returns the display ID for this Primer feature
  Returns : A scalar.
- Args    : If an argument is provided, the display_id of this primer is set to that value.
+ Args    : If an argument is provided, the display_id of this primer is
+           set to that value.
 
 =cut
 
@@ -355,15 +356,20 @@ sub display_id {
   Usage   : $tm = $primer->Tm(-salt=>'0.05', -oligo=>'0.0000001')
   Function: Calculates and returns the Tm (melting temperature) of the primer
   Returns : A scalar containing the Tm.
-  Args    : -salt set the Na+ concentration on which to base the calculation (default=0.05 molar).
-          : -oligo set the oligo concentration on which to base the calculation (default=0.00000025 molar).
-  Notes   : Calculation of Tm as per Allawi et. al Biochemistry 1997 36:10581-10594.  Also see
-            documentation at http://biotools.idtdna.com/analyzer/ as they use this formula and
-            have a couple nice help pages.  These Tm values will be about are about 0.5-3 degrees
-            off from those of the idtdna web tool.  I don't know why.
+  Args    : -salt  : set the Na+ concentration on which to base the calculation
+                     (default=0.05 molar).
+          : -oligo : set the oligo concentration on which to base the
+                     calculation (default=0.00000025 molar).
+  Notes   : Calculation of Tm as per Allawi et. al Biochemistry 1997
+            36:10581-10594. Also see documentation at
+            http://www.idtdna.com/Scitools/Scitools.aspx as they use this
+            formula and have a couple nice help pages. These Tm values will be
+            about are about 0.5-3 degrees off from those of the idtdna web tool.
+            I don't know why.
 
-            This was suggested by Barry Moore (thanks!). See the discussion on the bioperl-l
-            with the subject "Bio::SeqFeature::Primer Calculating the PrimerTM"
+            This was suggested by Barry Moore (thanks!). See the discussion on
+            the bioperl-l with the subject "Bio::SeqFeature::Primer Calculating
+            the PrimerTM"
 
 =cut
 
