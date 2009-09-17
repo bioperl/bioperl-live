@@ -1363,12 +1363,6 @@ sub _import_cross_csp {
   # Create new object from assembly
   my $cross_csp = $self->_new_cross_csp($mixed_csp);
 
-  ######
-  print "Debug of function _import_cross_csp...\n";
-  use Data::Dumper;
-  print Dumper($cross_csp);
-  ######
-
   # Update current contig spectrum object with new one
   $self->add($cross_csp);
 
