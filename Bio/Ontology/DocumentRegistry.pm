@@ -99,6 +99,9 @@ $instance = {
         definitions => "http://song.cvs.sourceforge.net/*checkout*/song/ontology/so.definition?rev=HEAD",
         format => 'obo',
                                     },
+   
+   #### TODO Server http://umn.dl.sourceforge.net/ does not respond, are there
+   #### alternative sources? 
    'Sequence Ontology Feature Annotation' => {
         ontology => 'http://umn.dl.sourceforge.net/sourceforge/song/sofa.ontology',
         definitions =>'http://umn.dl.sourceforge.net/sourceforge/song/sofa.definition',

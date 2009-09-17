@@ -7,9 +7,10 @@
 # POD documentation - main docs before the code
 #
 # The original version of the module can be found here:
-# http://www.lifecde.com/products/agave/agave.pm
+# http://www.agavexml.org/
 #
-# The DTD for AGAVE XML can be located here:
+# ### TODO: live link for this anymore?
+# The DTD for AGAVE XML was once located here (dead link):
 # http://www.lifecde.com/products/agave/schema/v2_3/agave.dtd
 #
 #

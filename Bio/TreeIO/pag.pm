@@ -30,7 +30,7 @@ Bio::TreeIO::pag - Bio::TreeIO driver for Pagel format
 =head1 DESCRIPTION
 
 Convert a Bio::TreeIO to Pagel format.
-More information here http://sapc34.rdg.ac.uk/meade/Mark/
+More information here http://www.evolution.reading.ac.uk/index.html
 
 =head1 FEEDBACK
 

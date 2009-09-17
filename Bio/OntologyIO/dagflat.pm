@@ -6,7 +6,7 @@
 #
 # Cared for by Hilmar Lapp, hlapp at gmx.net
 #
-# (c) Christian M. Zmasek, czmasek@gnf.org, 2002.
+# (c) Christian M. Zmasek, czmasek-at-burnham.org, 2002.
 # (c) Hilmar Lapp, hlapp at gmx.net, 2003.
 # (c) GNF, Genomics Institute of the Novartis Research Foundation, 2002.
 #
@@ -84,9 +84,9 @@ web:
 
 Christian M. Zmasek
 
-Email: czmasek@gnf.org  or  cmzmasek@yahoo.com
+Email: czmasek-at-burnham.org  or  cmzmasek@yahoo.com
 
-WWW:   http://www.genetics.wustl.edu/eddy/people/zmasek/
+WWW:   http://monochrome-effect.net/
 
 Address:
 

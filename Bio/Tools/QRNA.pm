@@ -26,8 +26,9 @@ Bio::Tools::QRNA - A Parser for qrna output
 
 =head1 DESCRIPTION
 
-Parses QRNA output (E.Rivas;
-http://www.genetics.wustl.edu/eddy/software/#qrna).
+Parses QRNA output (E.Rivas:
+http://selab.janelia.org/software.html
+ftp://selab.janelia.org/pub/software/qrna/).
 
 This module is not complete, but currently it packs information from
 each QRNA alignment into a single Bio::SeqFeature::Generic object.

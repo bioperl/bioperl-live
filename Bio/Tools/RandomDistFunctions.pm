@@ -29,7 +29,7 @@ generating random data in different distributions
 =head1 DESCRIPTION
 
 Most of the code is based on the C implementation of these routines in
-Mike Sanderson's r8s's package.  See http://ginger.ucdavis.edu/ for
+Mike Sanderson's r8s's package.  See http://loco.biosci.arizona.edu/r8s/ for
 information on his software.
 
 This code tries to be fast and use available faster BigInt and GMP

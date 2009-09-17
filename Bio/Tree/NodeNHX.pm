@@ -73,7 +73,7 @@ Email amackey@virginia.edu
 The NHX (New Hampshire eXtended) format was created by Chris Zmasek,
 and is described at:
 
-  http://www.genetics.wustl.edu/eddy/forester/NHX.html
+  http://sourceforge.net/projects/forester-atv/
 
 =head1 APPENDIX
 

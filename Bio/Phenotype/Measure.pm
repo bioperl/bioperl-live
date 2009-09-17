@@ -4,9 +4,9 @@
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
 #
-# Cared for by Christian M. Zmasek <czmasek@gnf.org> or <cmzmasek@yahoo.com>
+# Cared for by Christian M. Zmasek <czmasek-at-burnham.org> or <cmzmasek@yahoo.com>
 #
-# (c) Christian M. Zmasek, czmasek@gnf.org, 2002.
+# (c) Christian M. Zmasek, czmasek-at-burnham.org, 2002.
 # (c) GNF, Genomics Institute of the Novartis Research Foundation, 2002.
 #
 # You may distribute this module under the same terms as perl itself.
@@ -84,9 +84,9 @@ web:
 
 Christian M. Zmasek
 
-Email: czmasek@gnf.org  or  cmzmasek@yahoo.com
+Email: czmasek-at-burnham.org  or  cmzmasek@yahoo.com
 
-WWW:   http://www.genetics.wustl.edu/eddy/people/zmasek/
+WWW:   http://monochrome-effect.net/
 
 Address: 
 

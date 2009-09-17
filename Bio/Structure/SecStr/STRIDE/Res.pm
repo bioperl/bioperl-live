@@ -40,7 +40,7 @@ individual residues of a pdb structure file.
     PROTEINS: Structure, Function, and Genetics 23:566-579 (1995) )
 
 STRIDE is available here:
-http://www.embl-heidelberg.de/argos/stride/down_stride.html
+http://webclu.bio.wzw.tum.de/stride/
 
 Methods are then available for extracting all of the infomation
 present within the output or convenient subsets of it.

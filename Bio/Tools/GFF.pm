@@ -50,10 +50,9 @@ your result parser.
 
 =head1 GFF3 AND SEQUENCE DATA
 
-[added by cjm 2004/07/09]
-
 GFF3 supports sequence data; see
-http://song.sourceforge.net/gff3-jan04.shtml
+
+http://www.sequenceontology.org/gff3.shtml
 
 There are a number of ways to deal with this -
 
