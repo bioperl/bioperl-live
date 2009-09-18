@@ -143,6 +143,11 @@ The module filepath represented by the cached info is contained
 in `bioperl-cached-module'.")
 
 (defvar bioperl-cached-module nil
+  "Contains the module name whose method pod information is
+  currently stored in `bioperl-method-pod-cache'.
+The value is in double colon format.")
+
+(defvar bioperl-cached-pmfile nil
   "Contains the filepath whose method pod information is
   currently stored in `bioperl-method-pod-cache'.")
 
@@ -479,6 +484,7 @@ This function, when successful, also sets the cache vars
 	      (setq bioperl-method-pod-cache 
 		    (sort data (lambda (a b) (string-lessp (car a) (car b)))))
 	      (setq bioperl-cached-module module)
+	      (setq bioperl-cached-pmfile pmfile)
 	      ;; return the data alist for this module...
 	      bioperl-method-pod-cache )
 	  ;; the APPENDIX was not found...return nil
@@ -954,6 +960,7 @@ The module name for this method is assumed to be present in
 	    (insert ": " cur-content))
 	  (goto-char (point-min))
 	  (bioperl-view-mode)
+	  (set (make-local-variable 'bioperl-source-file) bioperl-cached-pmfile)
 	  (pop-to-buffer pod-buf)))
       )))
 
