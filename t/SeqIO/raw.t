@@ -67,7 +67,7 @@ is   ($seq_obj2->length(),      $expected2{'length'},      'length');
 # from testformats.pl
 SKIP: {
 
-    test_skip(-tests => 1,
+    test_skip(-tests => 2,
               -requires_modules => [qw(Algorithm::Diff
                                     IO::ScalarArray
                                     IO::String)]);
