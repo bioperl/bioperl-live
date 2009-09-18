@@ -102,6 +102,11 @@ my $build = Bio::Root::Build->new(
                                                         feature_requires => { 'DBI' => 0, 'DBD::Pg' => 0},
                                                         test             => \&test_db_sf
                                                      },
+                            BioDBSeqFeature_SQLite    => {
+                                                        description      => "SQLite tests for Bio::DB::SeqFeature::Store",
+                                                        feature_requires => { 'DBI' => 0, 'DBD::SQLite' => 0},
+                                                        test             => \&test_db_sf
+                                                     },
                             Network               => {
                                                         description      => "Enable tests that need an internet connection",
                                                         feature_requires => { 'LWP::UserAgent' => 0 },
@@ -185,9 +190,9 @@ END
 sub test_db_sf {
     eval {require DBI;};  # if not installed, this sub won't actually be called
     @drivers = DBI->available_drivers;
-    unless (grep {/mysql|Pg/i} @drivers) {
+    unless (grep {/mysql|Pg|SQLite/i} @drivers) {
         $mysql_ok = 0;
-        return "Only MySQL and Postgres DBI drivers supported for Bio::DB::SeqFeature RDMS tests";
+        return "Only MySQL, Postgres and SQLite DBI drivers supported for Bio::DB::SeqFeature RDMS tests";
     }
     $mysql_ok = 1;
     return;
@@ -232,7 +237,7 @@ sub prompt_for_biodb {
     
     if ($proceed) {
         my @driver_choices;
-        foreach my $poss ('mysql', 'Pg', 'Oracle') {
+        foreach my $poss ('SQLite', 'mysql', 'Pg', 'Oracle') {
             if (grep {/$poss/i} @drivers) {
                 my $choice = $poss;
                 $choice =~ s/^(.)/[$1]/;
