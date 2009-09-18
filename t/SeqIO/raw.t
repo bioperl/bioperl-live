@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests               => 24,
+    test_begin(-tests               => 25,
 			   -requires_modules    => [],
 			   -requires_networking => 0,
 			  );
@@ -71,6 +71,7 @@ SKIP: {
               -requires_modules => [qw(Algorithm::Diff
                                     IO::ScalarArray
                                     IO::String)]);
+    use_ok('Algorithm::Diff', qw(diff LCS));
     
 	my ($file, $type) = ("test.$format", $format);
     my $filename = test_input_file($file);
