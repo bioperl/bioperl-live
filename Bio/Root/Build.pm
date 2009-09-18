@@ -727,6 +727,12 @@ sub _parse_conditions {
 # the optional modules in install_optional().
 # Also note that CPAN PLUS complains with an [ERROR] when it sees this META.yml,
 # but it isn't fatal and installation continues fine.
+
+# 'recommends' groups broken up now into separate modules and grouping the
+# 'requires' instead of lumping modules together (quotes were choking YAML
+# parsing). Now passes Parse::CPAN::Meta w/o errors.
+# -cjfields 9-17-09
+
 sub prepare_metadata {
     my ($self, $node, $keys) = @_;
     my $p = $self->{properties};
@@ -754,11 +760,16 @@ sub prepare_metadata {
             if ($_ eq 'recommends') {
                 my $hash;
                 while (my ($req, $val) = each %{ $p->{$_} }) {
-                    my ($ver, $why, $used_by) = split("/", $val);
-                    my $info = {};
-                    $info->{description} = $why;
-                    $info->{requires} = { $req => $ver };
-                    $hash->{$used_by} = $info;
+                    my ($ver, $why, $mods) = split("/", $val);
+                    for my $used_by (split ',',$mods) {
+                        $used_by =~ s{^(\S+)\s.*$}{$1};
+                        if (exists $hash->{$used_by}) {
+                            push @{$hash->{$used_by}->{requires}}, {$req => $ver};
+                        } else {
+                            $hash->{$used_by} = {description => $why,
+                                    requires    => [{$req => $ver}]};
+                        }
+                    }
                 }
                 $add_node->('optional_features', $hash);
             }
