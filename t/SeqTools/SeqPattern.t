@@ -37,34 +37,37 @@ $pattern_obj2 = Bio::Tools::SeqPattern->new(-SEQ =>$pattern,
 					   -TYPE =>'amino');
 is $pattern_obj2->expand, 'A[EQ][DN]H';
 
-# Test reverse complement
-my $rev_pattern = $pattern_obj2->backtranslate;
-isa_ok $rev_pattern, 'Bio::Tools::SeqPattern';
-is $rev_pattern->str, 'GCNRAYSARCAY';
+SKIP: {
+    test_skip(-tests => 19, -requires_module => 'List::MoreUtils');
+    # Test reverse complement
+    my $rev_pattern = $pattern_obj2->backtranslate;
+    isa_ok $rev_pattern, 'Bio::Tools::SeqPattern';
+    is $rev_pattern->str, 'GCNRAYSARCAY';
 
-# Test exceptions.
-throws_ok { $pattern_obj2->revcom  } qr/revcom for .+ sequence types/;
-throws_ok { $rev_pattern->backtranslate } qr/backtranslate for .+ sequence types/;
+    # Test exceptions.
+    throws_ok { $pattern_obj2->revcom  } qr/revcom for .+ sequence types/;
+    throws_ok { $rev_pattern->backtranslate } qr/backtranslate for .+ sequence types/;
 
-# Test reverse translation more thoroughly
-
-my @data;
-while (<DATA>) {
-   chomp;
-   push @data, [ split ];
-}
-
-foreach my $line (@data) {
-    my $pattern_obj = Bio::Tools::SeqPattern->new(
-        -SEQ  => $line->[0],
-        -TYPE => 'amino',
-    );
-
-    isa_ok $pattern_obj, 'Bio::Tools::SeqPattern';
-
-    my $backtranslate = $pattern_obj->backtranslate;
-    isa_ok $backtranslate, 'Bio::Tools::SeqPattern';
-    is $backtranslate->str, $line->[1],
+    # Test reverse translation more thoroughly
+    
+    my @data;
+    while (<DATA>) {
+       chomp;
+       push @data, [ split ];
+    }
+    
+    foreach my $line (@data) {
+        my $pattern_obj = Bio::Tools::SeqPattern->new(
+            -SEQ  => $line->[0],
+            -TYPE => 'amino',
+        );
+    
+        isa_ok $pattern_obj, 'Bio::Tools::SeqPattern';
+    
+        my $backtranslate = $pattern_obj->backtranslate;
+        isa_ok $backtranslate, 'Bio::Tools::SeqPattern';
+        is $backtranslate->str, $line->[1],
+    }
 }
 
 __DATA__
