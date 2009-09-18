@@ -257,7 +257,12 @@ sub get_params {
   Function: Gets a Seq object by accession numbers
   Returns : a Bio::Seq object
   Args    : the accession number as a string
-  Note    : For GenBank, this just calls the same code for get_Seq_by_id()
+  Note    : For GenBank, this just calls the same code for get_Seq_by_id().
+            Caveat: this normally works, but in rare cases simply passing the
+            accession can lead to odd results, possibly due to unsynchronized
+            NCBI ID servers. Using get_Seq_by_version() is slightly better, but
+            using the unique identifier (GI) and get_Seq_by_id is the most
+            consistent
   Throws  : "id does not exist" exception
 
 =head2 get_Seq_by_gi
@@ -276,6 +281,8 @@ sub get_params {
  Function: Gets a Bio::Seq object by sequence version
  Returns : A Bio::Seq object
  Args    : accession.version (as a string)
+ Note    : Caveat: this normally works, but using the unique identifier (GI) and
+           get_Seq_by_id is the most consistent
  Throws  : "acc.version does not exist" exception
 
 =head1 Routines implemented by Bio::DB::NCBIHelper

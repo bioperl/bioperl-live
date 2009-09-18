@@ -3,10 +3,10 @@ use warnings;
 
 BEGIN {
     use Bio::Root::Test;
-    test_begin( -tests => 8 );
+    test_begin( -tests => 8, -requires_module => 'List::MoreUtils');
 }
 
-use ok 'Bio::Tools::SeqPattern::Backtranslate';
+use_ok 'Bio::Tools::SeqPattern::Backtranslate';
 
 can_ok 'Bio::Tools::SeqPattern::Backtranslate', '_reverse_translate_motif';
 

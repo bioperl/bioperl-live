@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests               => 24,
+    test_begin(-tests               => 25,
 			   -requires_modules    => [],
 			   -requires_networking => 0,
 			  );
@@ -66,13 +66,12 @@ is   ($seq_obj2->length(),      $expected2{'length'},      'length');
 	
 # from testformats.pl
 SKIP: {
-    test_skip(-tests => 4, -requires_modules => [qw(Algorithm::Diff
-                                                    IO::ScalarArray
-                                                    IO::String)]);
-    use Algorithm::Diff qw(diff LCS);
-    use IO::ScalarArray;
-    use IO::String;
-    use Data::Dumper;
+
+    test_skip(-tests => 2,
+              -requires_modules => [qw(Algorithm::Diff
+                                    IO::ScalarArray
+                                    IO::String)]);
+    use_ok('Algorithm::Diff', qw(diff LCS));
     
 	my ($file, $type) = ("test.$format", $format);
     my $filename = test_input_file($file);
@@ -97,6 +96,7 @@ SKIP: {
     is(@diffs, 0, "$format format can round-trip");
     
     if(@diffs && $verbose) {
+        use Data::Dumper;  # should be safe for 5.005 and greater
         foreach my $d ( @diffs ) {
             print STDERR Dumper $d;
             foreach my $diff ( @$d ) {

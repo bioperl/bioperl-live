@@ -232,7 +232,9 @@ sub init {
   $self->autoindex($autoindex)                   if defined $autoindex;
   $self->dumpdir($dump_dir)                      if $dump_dir;
   if ($self->is_temp) {
-    $self->init_tmp_database();
+    # warn "creating a temp database isn't supported";
+    #$self->init_tmp_database();
+    $self->init_database('erase');
   } elsif ($create) {
     $self->init_database('erase');
   }
