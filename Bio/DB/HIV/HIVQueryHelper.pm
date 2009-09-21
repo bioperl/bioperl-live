@@ -95,7 +95,7 @@ BEGIN {
 
 =head2 HIVSchema -  objects/methods to manipulate a version of the LANL HIV DB schema
 
-=head3 SYNOPSIS 
+=head3 HIVSchema SYNOPSIS 
 
     $schema = new HIVSchema( 'lanl-schema.xml' );
     @tables = $schema->tables;
@@ -109,7 +109,7 @@ BEGIN {
     $table = $schema->tablepart('SEQ_SAMple.SSAM_badseq');           # returns 'SEQ_SAMple'
     $column = $schema->columnpart('SEQ_SAMple.SSAM_badseq');         # returns 'SSAM_badseq'
 
-=head3 DESCRIPTION
+=head3 HIVSchema DESCRIPTION
 
 HIVSchema methods are used in L<Bio::DB::Query::HIVQuery> for table,
 column, primary/foreign key manipulations based on the observed Los
@@ -131,9 +131,9 @@ use strict;
 
 ### constructor
 
-=head3 CONSTRUCTOR
+=head3 HIVSchema CONSTRUCTOR
 
-=head4 new
+=head4 HIVSchema::new
 
  Title   : new
  Usage   : $schema = new HIVSchema( "lanl-schema.xml ");
@@ -157,9 +157,9 @@ sub new {
 
 ### object methods
 
-=head3 INSTANCE METHODS
+=head3 HIVSchema INSTANCE METHODS
 
-=head4 tables
+=head4 HIVSchema tables
 
  Title   : tables
  Usage   : $schema->tables()
@@ -186,7 +186,7 @@ sub tables {
     return @k;
 }
 
-=head4 columns
+=head4 HIVSchema columns
 
  Title   : columns
  Usage   : $schema->columns( [$tablename] );
@@ -218,7 +218,7 @@ sub columns {
     return @k;
 }
 
-=head4 fields
+=head4 HIVSchema fields
 
  Title   : fields
  Usage   : $schema->fields();
@@ -238,7 +238,7 @@ sub fields {
     return @k;
 }
 
-=head4 options
+=head4 HIVSchema options
 
  Title   : options
  Usage   : $schema->options(@fieldnames)
@@ -259,7 +259,7 @@ sub options {
     return $$sref{$sfield}{option} ? @{$$sref{$sfield}{option}} : ();
 }
 
-=head4 aliases
+=head4 HIVSchema aliases
 
  Title   : aliases
  Usage   : $schema->aliases(@fieldnames)
@@ -286,7 +286,7 @@ sub aliases {
     }
 }
 
-=head4 ankh
+=head4 HIVSchema ankh
 
  Title   : ankh (annotation key hash)
  Usage   : $schema->ankh(@fieldnames)
@@ -314,7 +314,7 @@ sub ankh {
     return %ret;
 }
 
-=head4 tablepart
+=head4 HIVSchema tablepart
 
  Title   : tablepart (alias: tbl)
  Usage   : $schema->tbl(@fieldnames)
@@ -353,7 +353,7 @@ sub tbl {
     shift->tablepart(@_);
 }
 
-=head4 columnpart
+=head4 HIVSchema columnpart
 
  Title   : columnpart (alias: col)
  Usage   : $schema->col(@fieldnames)
@@ -382,7 +382,7 @@ sub col {
     shift->columnpart(@_);
 }
 	
-=head4 primarykey
+=head4 HIVSchema primarykey
 
  Title   : primarykey [alias: pk]
  Usage   : $schema->pk(@tablenames);
@@ -416,7 +416,7 @@ sub pk {
     shift->primarykey(@_);
 }
 
-=head4 foreignkey
+=head4 HIVSchema foreignkey
 
  Title   : foreignkey [alias: fk]
  Usage   : $schema->fk($intable [, $totable])
@@ -461,7 +461,7 @@ sub fk {
     shift->foreignkey(@_);
 }
 
-=head4 foreigntable
+=head4 HIVSchema foreigntable
 
  Title   : foreigntable [alias ftbl]
  Usage   : $schema->ftbl( @foreign_key_fieldnames );
@@ -495,7 +495,7 @@ sub ftbl {
     shift->foreigntable(@_);
 }
 
-=head4 find_join
+=head4 HIVSchema find_join
 
  Title   : find_join
  Usage   : $sch->find_join('Table1', 'Table2')
@@ -527,7 +527,7 @@ sub find_join {
     }
 }
 
-=head4 _find_join_guts
+=head4 HIVSchema _find_join_guts
 
  Title   : _find_join_guts
  Usage   : $sch->_find_join_guts($table1, $table2, $stackref, \$found, $reverse)
@@ -610,7 +610,7 @@ sub _find_join_guts {
     }
 }
 		   
-=head4 loadSchema
+=head4 HIVSchema loadSchema
 
  Title   : loadHIVSchema [alias: loadSchema]
  Usage   : $schema->loadSchema( $XMLfilename )
@@ -686,7 +686,7 @@ sub loadSchema {
 
 # below, dangerous
 
-=head4 _sfieldh
+=head4 HIVSchema _sfieldh
 
  Title   : _sfieldh
  Usage   : $schema->_sfieldh($fieldname)
@@ -708,7 +708,7 @@ sub _sfieldh {
 
 =head2 Class QRY -  a query algebra for HIVQuery
 
-=head3 SYNOPSIS  
+=head3 QRY SYNOPSIS  
 
   $Q = new QRY( 
                new R( 
@@ -729,7 +729,7 @@ sub _sfieldh {
   $Q3 = QRY::Or($Q, $Q2);
   print $Q3->A;                                      # prints '(CCR5 CXCR4)[coreceptor] (ZA)[country]'
 
-=head3 DESCRIPTION
+=head3 QRY DESCRIPTION
 
 The QRY package provides a query parser for
 L<Bio::DB::Query::HIVQuery>. Currently, the parser supports AND, OR,
@@ -823,9 +823,7 @@ use overload
 # QRY object will be translated into (possibly multiple) hashes 
 # conforming to HIVQuery parameter requirements.
 
-=head3 CLASS METHODS
-
-=head4 _make_q
+=head4 QRY _make_q
 
  Title   : _make_q 
  Usage   : QRY::_make_q($parsetree)
@@ -862,7 +860,7 @@ sub _make_q {
     return @dbq;
 }
 
-=head4 _make_q_guts
+=head4 QRY _make_q_guts
 
  Title   : _make_q_guts (Internal class method)
  Usage   : _make_q_guts($ptree, $q_expr, $qarry, $anarry)
@@ -974,7 +972,7 @@ sub _make_q_guts {
 	: return 1;
 }
 
-=head4 _parse_q
+=head4 QRY _parse_q
 
  Title   : _parse_q 
  Usage   : QRY::_parse_q($query_string)
@@ -1045,7 +1043,7 @@ sub _parse_q {
 
 ## QRY constructor
 
-=head3 CONSTRUCTOR
+=head3 QRY CONSTRUCTOR
 
 =head4 QRY Constructor
 
@@ -1070,9 +1068,9 @@ sub new {
 
 ## QRY instance methods
 
-=head3 INSTANCE METHODS
+=head3 QRY INSTANCE METHODS
 
-=head4 requests
+=head4 QRY requests
 
  Title   : requests
  Usage   : $QRY->requests
@@ -1089,7 +1087,7 @@ sub requests {
     return @{$self->{'requests'}};
 }
 
-=head4 put_requests
+=head4 QRY put_requests
 
  Title   : put_requests
  Usage   : $QRY->put_request(@R)
@@ -1110,7 +1108,7 @@ sub put_requests {
     return @args;
 }
 
-=head4 isnull
+=head4 QRY isnull
 
  Title   : isnull
  Usage   : $QRY->isnull
@@ -1126,7 +1124,7 @@ sub isnull {
     return ($self->requests) ? 0 : 1;
 }
 
-=head4 A
+=head4 QRY A
 
  Title   : A
  Usage   : print $QRY->A
@@ -1142,7 +1140,7 @@ sub A {
     return join( "\n", map {$_->A} $self->requests );
 }
 
-=head4 len
+=head4 QRY len
 
  Title   : len
  Usage   : $QRY->len
@@ -1158,7 +1156,7 @@ sub len {
     return scalar @{$self->{'requests'}};
 }
 
-=head4 clone
+=head4 QRY clone
 
  Title   : clone
  Usage   : $QRY2 = $QRY1->clone;
@@ -1181,9 +1179,9 @@ sub clone {
 
 ## QRY class methods
 
-=head3 CLASS METHODS
+=head3 QRY CLASS METHODS
 
-=head4 Or
+=head4 QRY Or
 
  Title   : Or 
  Usage   : $QRY3 = QRY::Or($QRY1, $QRY2)
@@ -1237,7 +1235,7 @@ sub Or {
     return new QRY( @ret_rq );
 }
 
-=head4 And
+=head4 QRY And
 
  Title   : And 
  Usage   : $QRY3 = QRY::And($QRY1, $QRY2)
@@ -1268,7 +1266,7 @@ sub And {
     return new QRY( @ret_rq );
 }
 
-=head4 Bool
+=head4 QRY Bool
 
  Title   : Bool 
  Usage   : QRY::Bool($QRY1)
@@ -1285,7 +1283,7 @@ sub Bool {
     return $q->isnull ? 0 : 1;
 }
 
-=head4 Eq
+=head4 QRY Eq
 
  Title   : Eq 
  Usage   : QRY::Eq($QRY1, $QRY2)
@@ -1319,7 +1317,7 @@ sub Eq {
 
 =head2 Class R - request objects for QRY algebra
 
-=head3 SYNOPSIS   
+=head3 R SYNOPSIS   
 
   $R = new R( $q1, $q2 );
   $R->put_atoms($q3);
@@ -1334,7 +1332,7 @@ sub Eq {
   QRY::Eq( new QRY(R::Or($R1, $R2)), new QRY($R1, $R2) );  # returns 1
   R::In( (R::And($R1, $R2))[0], $R1 );                     # returns 1
 
-=head3 DESCRIPTION
+=head3 R DESCRIPTION
 
 Class R objects contain a list of atomic queries (class Q
 objects). Each class R object represents a single HTTP request to the
@@ -1350,7 +1348,7 @@ $R::NULL = new R();
 
 ## R constructor
 
-=head3 CONSTRUCTOR
+=head3 R CONSTRUCTOR
 
 =head4 R constructor
 
@@ -1377,7 +1375,7 @@ sub new {
 
 =head3 R INSTANCE METHODS
 
-=head4 len
+=head4 R len
 
  Title   : len
  Usage   : $R->len
@@ -1393,7 +1391,7 @@ sub len {
     return scalar @{[keys %{$self->{'atoms'}}]};
 }
 
-=head4 atoms
+=head4 R atoms
 
  Title   : atoms
  Usage   : $R->atoms( [optional $field])
@@ -1415,7 +1413,7 @@ sub atoms {
     return wantarray ? map { $self->{'atoms'}->{$_} } @flds : $self->{'atoms'}->{$flds[0]};
 }
 
-=head4 fields
+=head4 R fields
 
  Title   : fields
  Usage   : $R->fields
@@ -1431,7 +1429,7 @@ sub fields {
     return keys %{$self->{'atoms'}};
 }
 	
-=head4 put_atoms
+=head4 R put_atoms
 
  Title   : put_atoms
  Usage   : $R->put_atoms( @q )
@@ -1465,7 +1463,7 @@ sub put_atoms {
     return;
 }
 
-=head4 del_atoms
+=head4 R del_atoms
 
  Title   : del_atoms
  Usage   : $R->del_atoms( @qfields )
@@ -1490,7 +1488,7 @@ sub del_atoms {
     return @ret;
 }
 
-=head4 isnull
+=head4 R isnull
 
  Title   : isnull
  Usage   : $R->isnull
@@ -1506,7 +1504,7 @@ sub isnull {
     return ($self->len) ? 0 : 1;
 }
 
-=head4 A
+=head4 R A
 
  Title   : A
  Usage   : print $R->A
@@ -1523,7 +1521,7 @@ sub A {
     return join(" ", map {$_->A} @a);
 }
 
-=head4 clone
+=head4 R clone
 
  Title   : clone
  Usage   : $R2 = $R1->clone;
@@ -1546,9 +1544,9 @@ sub clone {
 
 ## R class methods
 
-=head3 CLASS METHODS
+=head3 R CLASS METHODS
 
-=head4 In
+=head4 R In
 
  Title   : In 
  Usage   : R::In($R1, $R2)
@@ -1578,7 +1576,7 @@ sub In {
     return 1;
 }
 
-=head4 And
+=head4 R And
 
  Title   : And 
  Usage   : @Rresult = R::And($R1, $R2)
@@ -1624,7 +1622,7 @@ sub And {
 
 }
 
-=head4 Or
+=head4 R Or
 
  Title   : Or 
  Usage   : @Rresult = R::Or($R1, $R2)
@@ -1672,7 +1670,7 @@ sub Or {
 
 }
 
-=head4 Eq
+=head4 R Eq
 
  Title   : Eq 
  Usage   : R::Eq($R1, $R2)
@@ -1703,7 +1701,7 @@ sub Eq {
 
 =head2 Class Q -  atomic query objects for QRY algebra
 
-=head3 SYNOPSIS    
+=head3 Q SYNOPSIS    
 
     $q = new Q('coreceptor', 'CXCR4 CCR5');
     $u = new Q('coreceptor', 'CXCR4');
@@ -1715,7 +1713,7 @@ sub Eq {
     Q::qin($u, $q)                           # returns 1
     Q::qeq(Q::qand($u, $q), $u );            # returns 1
 
-=head3 DESCRIPTION
+=head3 Q DESCRIPTION
 
 Class Q objects represent atomic queries, that can be described by a
 single LANL cgi parameter=value pair. Class R objects (requests) are
@@ -1731,7 +1729,7 @@ $Q::NULL = new Q();
 
 ## Q constructor
 
-=head3 CONSTRUCTOR
+=head3 Q CONSTRUCTOR
 
 =head4 Q constructor
 
@@ -1760,7 +1758,7 @@ sub new {
 
 =head3 Q INSTANCE METHODS
 
-=head4 isnull
+=head4 Q isnull
 
  Title   : isnull
  Usage   : $q->isnull
@@ -1778,7 +1776,7 @@ sub isnull {
     return 0;
 }
 
-=head4 fld
+=head4 Q fld
 
  Title   : fld
  Usage   : $q->fld($field)
@@ -1802,7 +1800,7 @@ sub fld {
 }
 
 
-=head4 dta
+=head4 Q dta
 
  Title   : dta
  Usage   : $q->dta($data)
@@ -1825,7 +1823,7 @@ sub dta {
     return $self->{dta};
 }
 
-=head4 A
+=head4 Q A
 
  Title   : A
  Usage   : print $q->A
@@ -1844,7 +1842,7 @@ sub A {
     return "(".join(' ', sort {$a cmp $b} @a).")[".$self->fld."]";
 }
 
-=head4 clone
+=head4 Q clone
 
  Title   : clone
  Usage   : $q2 = $q1->clone;
@@ -1866,7 +1864,7 @@ sub clone {
 
 =head3 Q CLASS METHODS
 
-=head4 qin
+=head4 Q qin
 
  Title   : qin 
  Usage   : Q::qin($q1, $q2)
@@ -1885,7 +1883,7 @@ sub qin {
     return Q::qeq( $b, Q::qor($a, $b) );
 }
 
-=head4 qeq
+=head4 Q qeq
 
  Title   : qeq 
  Usage   : Q::qeq($q1, $q2)
@@ -1909,7 +1907,7 @@ sub qeq {
     return @cd == @bd;
 }
 
-=head4 qor
+=head4 Q qor
 
  Title   : qor 
  Usage   : @qresult = Q::qor($q1, $q2)
@@ -1941,7 +1939,7 @@ sub qor {
     return @ret;
 }
 
-=head4 qand
+=head4 Q qand
 
  Title   : qand 
  Usage   : @qresult = Q::And($q1, $q2)
@@ -1992,9 +1990,9 @@ sub qand {
     }
 }
 
-=head3 INTERNALS
+=head3 Q INTERNALS
 
-=head4 unique
+=head4 Q unique
 
  Title   : unique
  Usage   : @ua = unique(@a)
@@ -2016,7 +2014,7 @@ sub unique {
 
 =head2 Additional tools for Bio::AnnotationCollectionI
 
-=head3 SYNOPSIS - additional methods for Bio::AnnotationCollectionI
+=head3 Bio::AnnotationCollectionI SYNOPSIS (additional methods)
 
     $seq->annotation->put_value('patient_id', 1401)
     $seq->annotation->get_value('patient_ids')                   # returns 1401
@@ -2027,7 +2025,7 @@ sub unique {
         $blood_readings{$_} = $seq->annonation->get_value(['clinical', $_]);
     }
 
-=head3 DESCRIPTION - additional methods for Bio::AnnotationCollectionI
+=head3 Bio::AnnotationCollectionI DESCRIPTION (additional methods)
 
 C<get_value()> and C<put_value> allow easy creation of and access to an
 annotation collection tree with nodes of L<Bio::Annotation::SimpleValue>. These
