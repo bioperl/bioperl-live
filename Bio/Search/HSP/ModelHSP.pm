@@ -404,33 +404,6 @@ sub get_aln {
     return $aln;
 }
 
-=head2 seq_inds
-
- Title   : seq_inds
- Purpose   : Get a list of residue positions (indices) for all identical 
-           : or conserved residues in the query or sbjct sequence.
- Example   : @s_ind = $hsp->seq_inds('query', 'identical');
-           : @h_ind = $hsp->seq_inds('hit', 'conserved');
-           : @h_ind = $hsp->seq_inds('hit', 'conserved', 1);
- Returns   : List of integers 
-           : May include ranges if collapse is true.
- Argument  : seq_type  = 'query' or 'hit' or 'sbjct'  (default = query)
-           :  ('sbjct' is synonymous with 'hit') 
-           : class     = 'identical' or 'conserved' or 'nomatch' or 'gap'
-           :              (default = identical)
-           :              (can be shortened to 'id' or 'cons')
-           :              
-           : collapse  = boolean, if true, consecutive positions are merged
-           :             using a range notation, e.g., "1 2 3 4 5 7 9 10 11" 
-           :             collapses to "1-5 7 9-11". This is useful for 
-           :             consolidating long lists. Default = no collapse.
- Throws    : n/a.
- Comments  : 
-
-See Also   : L<Bio::Search::BlastUtils::collapse_nums()|Bio::Search::BlastUtils>, L<Bio::Search::Hit::HitI::seq_inds()|Bio::Search::Hit::HitI>
-
-=cut
-
 =head2 Inherited from Bio::SeqFeature::SimilarityPair
 
 These methods come from Bio::SeqFeature::SimilarityPair
@@ -488,7 +461,7 @@ These methods come from Bio::SeqFeature::SimilarityPair
 The following methods have been overridden due to their current reliance on
 sequence-based queries. They may be implemented in future versions of this class.
 
-=head2 frac_identical
+=head2 seq_inds
 
 =cut
 

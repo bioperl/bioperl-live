@@ -39,20 +39,26 @@ Instances of Bio::DB::GFF::Aggregator have three attributes:
 
 =over 3
 
-=item method
+=item *
+
+method
 
 This is the GFF method field of the composite feature as a whole.  For
 example, "transcript" may be used for a composite feature created by
 aggregating individual intron, exon and UTR features.
 
-=item main method
+=item *
+
+main method
 
 Sometimes GFF groups are organized hierarchically, with one feature
 logically containing another.  For example, in the C. elegans schema,
 methods of type "Sequence:curated" correspond to regions covered by
 curated genes.  There can be zero or one main methods.
 
-=item subparts
+=item *
+
+subparts
 
 This is a list of one or more methods that correspond to the component
 features of the aggregates.  For example, in the C. elegans database,
@@ -65,14 +71,18 @@ subclasses:
 
 =over 4
 
-=item disaggregate()
+=item *
+
+disaggregate()
 
 This method is called by the Adaptor object prior to fetching a list
 of features.  The method is passed an associative array containing the
 [method,source] pairs that the user has requested, and it returns a
 list of raw features that it would like the adaptor to fetch.
 
-=item aggregate()
+=item *
+
+aggregate()
 
 This method is called by the Adaptor object after it has fetched 
 features.  The method is passed a list of raw features and is expected 
@@ -86,15 +96,21 @@ case, it suffices for subclasses to override the following methods:
 
 =over 4
 
-=item method()
+=item *
+
+method()
 
 Return the default method for the composite feature as a whole.
 
-=item main_name()
+=item *
+
+main_name()
 
 Return the default main method name.
 
-=item part_names()
+=item *
+
+part_names()
 
 Return a list of subpart method names.
 

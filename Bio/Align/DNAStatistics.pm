@@ -73,21 +73,37 @@ in brackets are the pattern which will match
 
 =over 3
 
-=item JukesCantor [jc|jukes|jukescantor|jukes-cantor]
+=item *
 
-=item Uncorrected [jcuncor|uncorrected]
+JukesCantor [jc|jukes|jukescantor|jukes-cantor]
 
-=item F81 [f81|felsenstein]
+=item *
 
-=item Kimura [k2|k2p|k80|kimura]
+Uncorrected [jcuncor|uncorrected]
 
-=item Tamura [t92|tamura|tamura92]
+=item *
 
-=item F84 [f84|felsenstein84]
+F81 [f81|felsenstein]
 
-=item TajimaNei [tajimanei|tajima\-nei]
+=item *
 
-=item JinNei [jinnei|jin\-nei] (not implemented)
+Kimura [k2|k2p|k80|kimura]
+
+=item *
+
+Tamura [t92|tamura|tamura92]
+
+=item *
+
+F84 [f84|felsenstein84]
+
+=item *
+
+TajimaNei [tajimanei|tajima\-nei]
+
+=item *
+
+JinNei [jinnei|jin\-nei] (not implemented)
 
 =back
 
@@ -104,7 +120,7 @@ several pre-requisites for the alignment.
 =item 1
 
 DNA alignment must be based on protein alignment. Use the subroutine
-L<aa_to_dna_aln> in Bio::Align::Utilities to achieve this.
+L<Bio::Align::Utilities/aa_to_dna_aln> to achieve this.
 
 =item 2
 
@@ -140,49 +156,53 @@ comparisons in an MSA.  The statistics returned are:
 
 =over 3
 
-=item S_d
+=item *
 
-Number of synonymous mutations between the 2 sequences.
+S_d - Number of synonymous mutations between the 2 sequences.
 
-=item N_d
+=item *
 
-Number of non-synonymous mutations between the 2 sequences.
+N_d - Number of non-synonymous mutations between the 2 sequences.
 
-=item S
+=item *
 
-Mean number of  synonymous sites in both sequences.
+S -  Mean number of  synonymous sites in both sequences.
 
-=item N
+=item *
 
-mean number of  synonymous sites in both sequences.
+N -  mean number of  synonymous sites in both sequences.
 
-=item P_s
+=item *
 
-proportion of synonymous differences in both sequences given by P_s = S_d/S.
+P_s - proportion of synonymous differences in both sequences given by
+P_s = S_d/S.
 
-=item P_n
+=item *
 
-proportion of non-synonymous differences in both sequences given by P_n = S_n/S.
+P_n - proportion of non-synonymous differences in both sequences given
+by P_n = S_n/S.
 
-=item D_s
+=item *
 
-estimation of synonymous mutations per synonymous site (by Jukes-Cantor).
+D_s - estimation of synonymous mutations per synonymous site (by
+Jukes-Cantor).
 
-=item D_n
+=item *
 
-estimation of non-synonymous mutations per non-synonymous site (by Jukes-Cantor).
+D_n - estimation of non-synonymous mutations per non-synonymous site (by
+Jukes-Cantor).
 
-=item D_n_var
+=item *
 
-estimation of variance of D_n .
+D_n_var - estimation of variance of D_n .
 
-=item D_s_var
+=item *
 
-estimation of variance of S_n.
+D_s_var - estimation of variance of S_n.
 
-=item z_value
+=item *
 
-calculation of z value.Positive value indicates D_n E<gt> D_s,
+z_value - calculation of z value.Positive value indicates D_n E<gt> D_s,
 negative value indicates D_s E<gt> D_n.
 
 =back
@@ -191,25 +211,25 @@ The statistics returned by calc_average_KaKs are:
 
 =over 3
 
-=item D_s
+=item *
 
-Average number of synonymous mutations/synonymous site.
+D_s - Average number of synonymous mutations/synonymous site.
 
-=item D_n
+=item *
 
-Average number of non-synonymous mutations/non-synonymous site.
+D_n - Average number of non-synonymous mutations/non-synonymous site.
 
-=item D_s_var
+=item *
 
-Estimated variance of Ds from bootstrapped alignments.
+D_s_var - Estimated variance of Ds from bootstrapped alignments.
 
-=item D_n_var
+=item *
 
-Estimated variance of Dn from bootstrapped alignments.
+D_n_var - Estimated variance of Dn from bootstrapped alignments.
 
-=item z_score
+=item *
 
-calculation of z value. Positive value indicates D_n E<gt>D_s,
+z_score - calculation of z value. Positive value indicates D_n E<gt>D_s,
 negative values vice versa.
 
 =back
@@ -222,7 +242,6 @@ the book, and reproduce those results. If people like having this sort
 of analysis in BioPerl other methods for estimating Ds and Dn can be
 provided later.
 
-
 Much of the DNA distance code is based on implementations in EMBOSS
 (Rice et al, www.emboss.org) [distmat.c] and PHYLIP (J. Felsenstein et
 al) [dnadist.c].  Insight also gained from Eddy, Durbin, Krogh, &
@@ -232,26 +251,36 @@ Mitchison.
 
 =over 3
 
-=item D_JukesCantor 
+=item *
+
+D_JukesCantor 
 
 "Phylogenetic Inference", Swoffrod, Olsen, Waddell and Hillis, in
 Mol. Systematics, 2nd ed, 1996, Ch 11.  Derived from "Evolution of
 Protein Molecules", Jukes & Cantor, in Mammalian Prot. Metab., III,
 1969, pp. 21-132.
 
-=item D_Tamura
+=item *
+
+D_Tamura
 
 K Tamura, Mol. Biol. Evol. 1992, 9, 678.
 
-=item D_Kimura 
+=item *
+
+D_Kimura 
 
 M Kimura, J. Mol. Evol., 1980, 16, 111.
 
-=item JinNei 
+=item *
+
+JinNei 
 
 Jin and Nei, Mol. Biol. Evol. 82, 7, 1990.
 
-=item D_TajimaNei
+=item *
+
+D_TajimaNei
 
 Tajima and Nei, Mol. Biol. Evol. 1984, 1, 269.
 

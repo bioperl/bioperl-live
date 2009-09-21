@@ -87,7 +87,7 @@ of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
   http://bugzilla.open-bio.org/
-  
+
 =head1 AUTHORS - Emmanuel Quevillon
 
 Email emmanuel.quevillon@versailles.inra.fr

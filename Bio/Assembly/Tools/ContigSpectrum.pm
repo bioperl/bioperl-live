@@ -785,7 +785,7 @@ sub average {
 }
 
 
-=head2 average
+=head2 score
 
   Title   : score
   Usage   : my $score = $csp->score();

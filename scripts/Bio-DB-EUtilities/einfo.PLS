@@ -41,7 +41,7 @@ databases are printed instead.
 
 If either link names or field codes (or both) are specified, nothing else is
 printed out (only the info requested).  You can specify as many fields and/or
-links as you want by using multiple -f/-l <ARG> on the command line.
+links as you want by using multiple -f/-l E<lt>ARGE<gt> on the command line.
 
 =head1 AUTHOR - Chris Fields
 

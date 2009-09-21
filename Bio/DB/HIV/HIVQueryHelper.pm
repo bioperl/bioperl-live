@@ -1375,7 +1375,7 @@ sub new {
 
 ## R instance methods
 
-=head3 INSTANCE METHODS
+=head3 R INSTANCE METHODS
 
 =head4 len
 
@@ -1758,7 +1758,7 @@ sub new {
 
 ## Q instance methods
 
-=head3 INSTANCE METHODS
+=head3 Q INSTANCE METHODS
 
 =head4 isnull
 
@@ -1864,7 +1864,7 @@ sub clone {
 
 ### Q class methods
 
-=head3 CLASS METHODS
+=head3 Q CLASS METHODS
 
 =head4 qin
 
@@ -2016,7 +2016,7 @@ sub unique {
 
 =head2 Additional tools for Bio::AnnotationCollectionI
 
-=head3 SYNOPSIS    
+=head3 SYNOPSIS - additional methods for Bio::AnnotationCollectionI
 
     $seq->annotation->put_value('patient_id', 1401)
     $seq->annotation->get_value('patient_ids')                   # returns 1401
@@ -2027,9 +2027,11 @@ sub unique {
         $blood_readings{$_} = $seq->annonation->get_value(['clinical', $_]);
     }
 
-=head3 DESCRIPTION
+=head3 DESCRIPTION - additional methods for Bio::AnnotationCollectionI
 
-C<get_value()> and C<put_value> allow easy creation of and access to an annotation collection tree with nodes of L<Bio::Annotation::SimpleValue>. These methods obiviate direct accession of the SimpleValue objects.
+C<get_value()> and C<put_value> allow easy creation of and access to an
+annotation collection tree with nodes of L<Bio::Annotation::SimpleValue>. These
+methods obiviate direct accession of the SimpleValue objects.
 
 =cut
 
@@ -2082,7 +2084,8 @@ sub get_value {
            \@tagnames, $value (or as -KEYS=>\@tagnames, -VALUE=>$value )
  Note    : If intervening nodes do not exist, put_value creates them, replacing 
            existing nodes. So if $ac->put_value('x', 10) was done, then later,
-           $ac->put_value(['x', 'y'], 20), the original value of 'x' is trashed,           and $ac->get_value('x') will now return the annotation collection 
+           $ac->put_value(['x', 'y'], 20), the original value of 'x' is trashed,
+           and $ac->get_value('x') will now return the annotation collection
            with tagname 'y'. 
 
 =cut
