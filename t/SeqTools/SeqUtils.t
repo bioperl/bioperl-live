@@ -213,6 +213,7 @@ lives_ok {
 } 'cat - note tag transfered (no throw)';
 cmp_ok(scalar(@tags),'==',3, 'cat - note tag values transfered (correct count)') ;
 
+
 my $protseq = Bio::PrimarySeq->new(-id => 2, -seq => 'MVTF'); # protein seq
 
 throws_ok {
