@@ -19,8 +19,6 @@ Bug     Summary (additional info)
         (API hasn't stabilized, may appear in a 1.6 point release)
 2439    multiple results HTMLResultWriter.pm and non-redundant entries in SearchIO
         (partially implemented)
-2456    reroot function (Bio::Tree::TreeFunctionsI) shifts bootstrap values
-        (fairly significant bug, method gives erroneous results)
 2463    bp_seqconvert.pl & Bio::SeqIO code cleanup and user friendly interface
         (enhancement request)
 2476    "Undefined sub-sequence" when processing tblastx output
@@ -33,8 +31,6 @@ Bug     Summary (additional info)
         (should allow local copies)
 2594    Bio::Species memory leak
         (fix implemented, but additional leaks likely remain)
-2633    Incorrect identity calculation in Bio::SearchIO::fasta
-        (fixed but requires more code evaluation)
 2673    original fields not inherited by seq objects in alignment slices
         (request for bequest/bequeath behavior for attribute carryover)
 2686    WU-BLAST XML support
@@ -52,8 +48,6 @@ Bug     Summary (additional info)
 2707    Bio::Tools::Run::StandAloneBlast does not quote shell metacharacters in
         filenames, but Bio::SearchIO::blast does
         (bug within StandAloneBlast)
-2713    Update core Infernal parsing to v1.0, add related tests to bioperl-run
-        (enhancement request)
 2715    LocatableSeq symbols are globally set
         (bug related to sequence symbol issues; rarely surfaces but needs addressing)
 
