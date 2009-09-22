@@ -223,9 +223,10 @@ come."
   :group 'bioperl
   ;; version check
   (if (string-match "\\(2[0-9]\\)\.[0-9]+\\(?:\.[0-9]+\\)?" (emacs-version))
-      (if (>= (string-to-number (match-string 1 (emacs-version))) 22)
+      (if (or (string-match "^XEmacs" (emacs-version))
+              (>= (string-to-number (match-string 1 (emacs-version))) 22))
 	  t
-	(error "Must upgrade to Emacs 22 to use bioperl-mode"))
+	(error "Must upgrade to XEmacs 22 to use bioperl-mode"))
     (error "Must upgrade to Emacs 22 to use bioperl-mode"))
   ;; set up mode
   (bioperl-skel-elements))
@@ -250,53 +251,71 @@ come."
 (defface pod-section-face
   '( (t (:weight bold :foreground "maroon3") ) )
   "Highlight for pod section names.")
+(defvar pod-section-face 'pod-section-face)
+
 (defface pod-bioperl-identifier-face
   '( (t (:foreground "blue3" :weight bold)))
   "Highlight for bioperl identifiers")
+(defvar pod-bioperl-identifier-face 'pod-bioperl-identifier-face)
+
 (defface pod-method-pod-tag-face
   '( (t (:foreground "blue4")) )
   "Highlight for method pod tags (Title, Usage, etc.)")
+(defvar pod-method-pod-tag-face 'pod-method-pod-tag-face)
+
 (defface pod-blue-man-face
   '( (t (:background "blue" :foreground "dark blue")))
   "My world is blue.")
+(defvar pod-blue-man-face 'pod-blue-man-face)
+
 (defface pod-subsec-header-face
   '( (t (:weight bold :slant italic :foreground "blue4")))
   "Highlight pod subsection headers")
+(defvar pod-subsec-header-face 'pod-subsec-header-face)
+
 (defface pod-method-subsec-face
   '( (t (:slant italic :foreground "maroon4")))
   "Highlight for APPENDIX subsections")
+(defvar pod-method-subsec-face 'pod-method-subsec-face)
+
 (defface pod-method-name-face
   '( (t (:weight bold) ) )
   "Highlight pod method names")
+(defvar pod-method-name-face 'pod-method-name-face)
+
 (defface pod-key-value-arg-face
   '( (t (:slant italic :foreground "green3")) )
   "Highlight for key-value keys (-something)" )
+(defvar pod-key-value-arg-face 'pod-key-value-arg-face)
+
 (defface pod-deref-symb-face
   '( (t (:weight bold :foreground "blue4")))
   "Highlight '->' ")
+(defvar pod-deref-symb-face 'pod-deref-symb-face)
+
 (defface pod-assoc-symb-face
   '( (t (:weight bold :foreground "green3")))
   "Highlight '=>' ")
-
+(defvar pod-assoc-symb-face 'pod-assoc-symb-face)
 
 (defvar bioperl-pod-font-lock-keywords
   '( 
     ;; rudimentary perl syntax highlighting
-    ("[%$][{]?\\([a-zA-Z0-9_]+\\)[}]?" 1 'font-lock-variable-name-face)
-    ("[^a-zA-Z0-9]@[{]?\\([a-zA-Z0-9_]+\\)[}]?" 1 'font-lock-variable-name-face)
-    ("\\>->\\<" . 'pod-deref-symb-face)
-    ("\\(?:\\s \\|\\>\\)\\(=>\\)\\(?:\\s \\|\\<\\|[\'\"]\\)" 1 'pod-assoc-symb-face)
-    ("\\(?:\\W\\|\\s \\)\\(-[a-zA-Z0-9_]+\\)\\>" 1 'pod-key-value-arg-face)
+    ("[%$][{]?\\([a-zA-Z0-9_]+\\)[}]?" 1 font-lock-variable-name-face)
+    ("[^a-zA-Z0-9]@[{]?\\([a-zA-Z0-9_]+\\)[}]?" 1 font-lock-variable-name-face)
+    ("\\>->\\<" . pod-deref-symb-face)
+    ("\\(?:\\s \\|\\>\\)\\(=>\\)\\(?:\\s \\|\\<\\|[\'\"]\\)" 1 pod-assoc-symb-face)
+    ("\\(?:\\W\\|\\s \\)\\(-[a-zA-Z0-9_]+\\)\\>" 1 pod-key-value-arg-face)
 ;    ("'[^']+'" . 'font-lock-string-face)
-    (pod-find-syntactic-string 1 'font-lock-string-face)
-    ("\#\\s +.*"  0 'font-lock-comment-face t)
+    (pod-find-syntactic-string 1 font-lock-string-face)
+    ("\#\\s +.*"  0 font-lock-comment-face t)
     ;; headers
-    ("^\\(?:[A-Z]+\\s \\)+" . 'pod-section-face )
-    ("^\\s \\{2\\}\\([A-Z][a-z]+\\s \\)+" . (0 'pod-subsec-header-face))
-    ("^\\s \\{2\\}[a-z_][a-zA-Z0-9_()]+\\s " . 'pod-method-name-face)
-    ("^\\s +[a-zA-Z]+\\s *:\\s " . 'pod-method-pod-tag-face)
-    ("^[A-Z].*" . 'pod-method-subsec-face)
-    ("Bio::\\(?:[a-zA-Z0-9_:]+\\)+" . 'pod-bioperl-identifier-face) 
+    ("^\\(?:[A-Z]+\\s \\)+" . pod-section-face )
+    ("^\\s \\{2\\}\\([A-Z][a-z]+\\s \\)+" . (0 pod-subsec-header-face))
+    ("^\\s \\{2\\}[a-z_][a-zA-Z0-9_()]+\\s " . pod-method-name-face)
+    ("^\\s +[a-zA-Z]+\\s *:\\s " . pod-method-pod-tag-face)
+    ("^[A-Z].*" . pod-method-subsec-face)
+    ("Bio::\\(?:[a-zA-Z0-9_:]+\\)+" . pod-bioperl-identifier-face) 
     ;; post-header syntax highlights
     ("\\(\\<[a-zA-Z0-9_]+\\>\\)()" 0 font-lock-function-name-face )
     ("\\(\\<[a-zA-Z0-9_]+\\>\\)[\(]" 1 font-lock-function-name-face )
@@ -344,7 +363,7 @@ come."
 
 (defun bioperl-perl-mode-infect ()
   "Add this function to `perl-mode-hook' to associate bioperl-mode with perl-mode."
-  (unless (or (not (display-graphic-p)) (key-binding [tool-bar bpmode]) )
+  (unless (or (key-binding [tool-bar bpmode]) bioperl-this-is-xemacs (not (display-graphic-p)) )
     (define-key (current-local-map) [tool-bar bpmode]
       `(menu-item "bpmode" bioperl-mode 
 		  :image [,(find-image (list 
@@ -357,6 +376,8 @@ come."
 					'(:type xpm :file "bpmode-tool-dis.xpm")))]
 		  :enable bioperl-enabled-buffer-flag
 		  )))
+  ;; do something else in XEmacs...
+  (if bioperl-this-is-xemacs 1 0)
   (setq bioperl-enabled-buffer-flag t)
   (if bioperl-mode-active-on-perl-mode-flag (bioperl-mode) nil))
 

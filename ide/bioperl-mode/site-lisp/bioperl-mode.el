@@ -161,6 +161,10 @@ Use `bioperl-add-module-names-to-cache' to, well, do it.")
   "Contains the source file of pod being viewed. Buffer-local.")
 
 (make-variable-buffer-local 'bioperl-source-file)
+
+(defvar bioperl-this-is-xemacs (or (string-match "^XEmacs" (emacs-version)))
+  "Flag indicating whether we're in XEmacs.")
+       
 ;;
 ;; User-interface functions
 ;;
@@ -227,7 +231,7 @@ N is an index associated with a component of `bioperl-module-path'."
      cr))
   (if (not method) (signal 'quit t))
   (let (
-	( cache-pos (if method (assoc-string method bioperl-method-pod-cache t) nil) )
+	( cache-pos (if method (bioperl-assoc-string method bioperl-method-pod-cache t) nil) )
 	)
     (if (not cache-pos)
 	(message "No such method")
@@ -293,7 +297,10 @@ N is an index associated with a component of `bioperl-module-path'."
 (defun bioperl-mode-unload-hook &optional local
   "Remove the perl-mode hook.
 If LOCAL is set, remove hook from the buffer-local value of perl-mode-hook."
-  (remove-hook 'perl-mode-hook 'bioperl-perl-mode-infect local))
+  (remove-hook 'perl-mode-hook 'bioperl-perl-mode-infect local)
+  (if bioperl-this-is-xemacs
+        (remove-hook 'cperl-mode-hook 'bioperl-perl-mode-infect local)))
+
 
 ;;
 ;; Internal functions
@@ -657,7 +664,7 @@ Cache alist format:
 		  (if (member n (mapcar 'string-to-number (split-string (cdr cache-item) path-separator)))
 		      ;; deja vu
 		      (setq mod-alist-keys nil) ;; fall-through
-		    (setcdr cache-item (concat (cdr (assoc-string key mod-alist t)) path-separator (cdr cache-item)))
+		    (setcdr cache-item (concat (cdr (bioperl-assoc-string key mod-alist t)) path-separator (cdr cache-item)))
 		    (setq ret t))))
 	      ))
 
@@ -951,7 +958,7 @@ The module name for this method is assumed to be present in
 	  (insert "  " method)
 	  (insert "\n")
 	  (while (setq cur-tag (pop tags))
-	    (setq cur-content (cdr (assoc-string cur-tag content t)))
+	    (setq cur-content (cdr (bioperl-assoc-string cur-tag content t)))
 	    (setq cur-content (replace-regexp-in-string "!!$" "\n" cur-content))
 	    (setq cur-content (replace-regexp-in-string "!!" 
 							"\n             " cur-content))
@@ -1036,7 +1043,7 @@ if t, the reader barfs out whatever was finally entered."
 	(if (not name-list)
 	  (setq name-list (bioperl-module-names 
 			   nmspc nil t)))
-	(setq pthn (cdr (assoc-string mod name-list t)))
+	(setq pthn (cdr (bioperl-assoc-string mod name-list t)))
 	(if (not pthn) 
 	    (error "Shouldn't be here(1). Check `bioperl-module-path' and try running `bioperl-clear-module-cache'."))
 	(if (not (string-match path-separator pthn))
@@ -1067,7 +1074,7 @@ if t, the reader barfs out whatever was finally entered."
 			nil t (car (car module-path-list))))
 	    (if (string-equal pthn "")
 		(setq pthn (car (car module-path-list))))
-	    (setq pthn (elt (assoc-string pthn module-path-list t) 1))
+	    (setq pthn (elt (bioperl-assoc-string pthn module-path-list t) 1))
 	    )))
       ;; method completion
       (setq nmspc (replace-regexp-in-string "::$" "" nmspc))
@@ -1104,10 +1111,10 @@ if t, the reader barfs out whatever was finally entered."
 			nil t (car (car module-path-list))))
 	      (if (string-equal pthn "")
 		  (setq pthn (car (car module-path-list))))
-	      (setq pthn (elt (assoc-string pthn module-path-list t) 1))
+	      (setq pthn (elt (bioperl-assoc-string pthn module-path-list t) 1))
 	      )
 	    ))
-	(setq name-list (bioperl-method-names (concat nmspc "::" mod) nil pthn))
+	(setq name-list (bioperl-method-names (concat nmspc "::" mod) t pthn))
 	(let (
 	      ;; local vars here...
 	      )
@@ -1228,6 +1235,17 @@ This function searches all paths specified in
   (setq bioperl-module-names-cache nil)
   (setq bioperl-module-names-cache '(("Bio"))))
 
+; XEmacs compability for assoc-string (from http://web.mit.edu/shutkin/MacData_1124b/afs/athena/contrib/xemacs/share/xemacs-packages/lisp/calendar/cal-compat.el):
+; thanks Adam
+(if (fboundp 'assoc-string)
+    (defalias 'bioperl-assoc-string 'assoc-string)
+  (defun bioperl-assoc-string (key list case-fold)
+    (if case-fold
+        (bioperl-assoc-ignore-case key list)
+      (assoc key list)))  
+  )
+
+
 ;;
 ;; utilities (out of bioperl- namespace)
 ;;
@@ -1235,25 +1253,25 @@ This function searches all paths specified in
     
 (defun assoc-all (key alist &optional ret)
   "Return list of *pointers* (like assoc) to all matching conses in the alist.
-Uses `assoc-string' for case control."
-  (let ( (c (assoc-string key alist t)) (r) ) 
+Uses `bioperl-assoc-string' for case control."
+  (let ( (c (bioperl-assoc-string key alist t)) ) 
     (if c 
-	(assoc-all key (cdr alist) (if ret (add-to-list 'ret c t 'eq) (list c)))
+	(assoc-all key (cdr alist) (if ret (add-to-list 'ret c t) (list c)))
       ret)))
 
 (defun deep-assoc (keys alist)
   "Return the associations of a set of keys in an alist tree.
-Uses `assoc-string' for case control."
+Uses `bioperl-assoc-string' for case control."
   (cond
    ((not keys) 
     nil)
    ((not (listp alist))
     nil)
    ((= (length keys) 1)
-    (assoc-string (pop keys) alist t))
+    (bioperl-assoc-string (pop keys) alist t))
    (t
     (let* ( (key (pop keys))
-	    (newlist (assoc-string key alist t)) ) 
+	    (newlist (bioperl-assoc-string key alist t)) ) 
       (if newlist
 	  (deep-assoc keys (cdr newlist))
 	(deep-assoc nil nil)))
@@ -1308,11 +1326,30 @@ FNAME is the file name as string. Doesn't work very hard."
 		(car (last fname-list)))
       fname)))
 
+;; XEmacs compatibility
+
+(defun bioperl-assoc-ignore-case (key alist)
+  "Like `assoc', but assume KEY is a string and ignores case when comparing.
+This version allows alist cars to be strings and not necessarily lists."
+  (setq key (downcase key))
+  (let (element)
+    (while (and alist (not element))
+      (if (equal key (downcase
+		      (if (listp (car alist)) (car (car alist)) (car alist))))
+	  (setq element (car alist)))
+      (setq alist (cdr alist)))
+    element))
+
 ;; hook into perl-mode
 
 (add-hook 'perl-mode-hook 'bioperl-perl-mode-infect)
+(if bioperl-this-is-xemacs
+    (add-hook 'cperl-mode-hook 'bioperl-perl-mode-infect))
 
 (provide 'bioperl-mode)
+
+
+
 
 ;;; end bioperl-mode.el
   
