@@ -10,4 +10,4 @@ BEGIN {
 }
 
 # check pod is syntactically correct
-all_pod_files_ok( all_pod_files('.') )
+all_pod_files_ok( all_pod_files(qw(Bio scripts examples maintenance)) )
