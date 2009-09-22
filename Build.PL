@@ -219,6 +219,7 @@ system '$^X $str';
 END
     close $F;
     $build->add_to_cleanup($path);
+    $build->add_to_cleanup($test_db) if $driver eq 'SQLite';
     $build->add_to_manifest_skip($path);
 }
 
@@ -281,7 +282,7 @@ sub prompt_for_biodb {
         }
         
         my $test_dsn;
-        if ($driver eq 'Pg') {
+        if ($driver eq 'Pg' || $driver eq 'SQLite') {
             $test_dsn = "dbi:$driver:dbname=$test_db";
             $mysql_ok = 0;
         }
