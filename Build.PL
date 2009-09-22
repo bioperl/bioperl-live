@@ -203,9 +203,10 @@ sub make_dbi_test {
     my $dsn = $build->notes('test_dsn') || return;
     my $path0 = File::Spec->catfile('t', 'LocalDB', 'SeqFeature.t');
     my $driver = $build->notes('dbd_driver');
-    my $path = File::Spec->catfile('t', 'LocalDB', ($driver eq 'mysql') 
-                                                   ? 'SeqFeature_mysql.t' 
-                                                   : 'SeqFeature_Pg.t');
+    my $path = File::Spec->catfile('t', 'LocalDB',
+                ($driver eq 'mysql')   ? 'SeqFeature_mysql.t'  :
+                ($driver eq 'SQLite')  ? 'SeqFeature_SQLite.t'  :
+                'SeqFeature_Pg.t');
     my $test_db = $build->notes('test_db');
     my $user = $build->notes('test_user');
     my $pass = $build->notes('test_pass');
@@ -262,6 +263,9 @@ sub prompt_for_biodb {
         }
         elsif ($driver =~ /^[oO]/) {
             $driver = 'Oracle';
+        }
+        elsif ($driver =~ /^[sS]/) {
+            $driver = 'SQLite';
         }
         
         my $test_db = $build->prompt("Which database should I use for testing the $driver driver?\n".

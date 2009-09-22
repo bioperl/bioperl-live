@@ -172,10 +172,10 @@ sub fetch_report{
 	return $report->next_aln;
 }
 
-=head2 fetch_report
+=head2 fetch_aln
 
- Title   : fetch_report
- Usage   : my $align = $idx->fetch_report($id);
+ Title   : fetch_aln
+ Usage   : my $align = $idx->fetch_aln($id);
  Function: Returns a Bio::SimpleAlign object 
            for a specific alignment
  Returns : Bio::SimpleAlign

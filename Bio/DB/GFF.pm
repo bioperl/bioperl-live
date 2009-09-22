@@ -94,7 +94,9 @@ directory under a subdirectory named Bio::DB::GFF:
 
 =over 4
 
-=item bp_load_gff.pl
+=item *
+
+bp_load_gff.pl
 
 This script will load a Bio::DB::GFF database from a flat GFF file of
 sequence annotations.  Only the relational database version of
@@ -108,7 +110,9 @@ for most of their functionality.
 load_gff.pl also has a --upgrade option, which will perform a
 non-destructive upgrade of older schemas to newer ones.
 
-=item bp_bulk_load_gff.pl
+=item *
+
+bp_bulk_load_gff.pl
 
 This script will populate a Bio::DB::GFF database from a flat GFF file
 of sequence annotations.  Only the MySQL database version of
@@ -120,7 +124,9 @@ This script takes a --fasta argument to load raw DNA into the database
 as well.  However, GFF databases do not require access to the raw DNA
 for most of their functionality.
 
-=item bp_fast_load_gff.pl
+=item *
+
+bp_fast_load_gff.pl
 
 This script is as fast as bp_bulk_load_gff.pl but uses Unix pipe
 tricks to allow for incremental updates.  It only supports the MySQL
@@ -129,13 +135,17 @@ non-Unix platforms.
 
 Arguments are the same as bp_load_gff.pl
 
-=item gadfly_to_gff.pl
+=item *
+
+gadfly_to_gff.pl
 
 This script will convert the GFF-like format used by the Berkeley
 Drosophila Sequencing project into a format suitable for use with this
 module.
 
-=item sgd_to_gff.pl
+=item *
+
+sgd_to_gff.pl
 
 This script will convert the tab-delimited feature files used by the
 Saccharomyces Genome Database into a format suitable for use with this
@@ -155,13 +165,17 @@ The 9 columns are as follows:
 
 =over 4
 
-=item 1. reference sequence
+=item 1.
+
+reference sequence
 
 This is the ID of the sequence that is used to establish the
 coordinate system of the annotation.  In the example above, the
 reference sequence is "Chr1".
 
-=item 2. source
+=item 2.
+
+source
 
 The source of the annotation.  This field describes how the annotation
 was derived.  In the example above, the source is "curated" to
@@ -169,22 +183,30 @@ indicate that the feature is the result of human curation.  The names
 and versions of software programs are often used for the source field,
 as in "tRNAScan-SE/1.2".
 
-=item 3. method
+=item 3.
+
+method
 
 The annotation method.  This field describes the type of the
 annotation, such as "CDS".  Together the method and source describe
 the annotation type.
 
-=item 4. start position
+=item 4.
+
+start position
 
 The start of the annotation relative to the reference sequence. 
 
-=item 5. stop position
+=item 5.
+
+stop position
 
 The stop of the annotation relative to the reference sequence.  Start
 is always less than or equal to stop.
 
-=item 6. score
+=item 6.
+
+score
 
 For annotations that are associated with a numeric score (for example,
 a sequence similarity), this field describes the score.  The score
@@ -192,20 +214,26 @@ units are completely unspecified, but for sequence similarities, it is
 typically percent identity.  Annotations that don't have a score can
 use "."
 
-=item 7. strand
+=item 7.
+
+strand
 
 For those annotations which are strand-specific, this field is the
 strand on which the annotation resides.  It is "+" for the forward
 strand, "-" for the reverse strand, or "." for annotations that are
 not stranded.
 
-=item 8. phase
+=item 8.
+
+phase
 
 For annotations that are linked to proteins, this field describes the
 phase of the annotation on the codons.  It is a number from 0 to 2, or
 "." for features that have no phase.
 
-=item 9. group
+=item 9.
+
+group
 
 GFF provides a simple way of generating annotation hierarchies ("is
 composed of" relationships) by providing a group field.  The group
@@ -315,13 +343,17 @@ specifying which tag to group on:
 
 =over 4
 
-=item Using -preferred_groups
+=item *
+
+Using -preferred_groups
 
 When you create a Bio::DB::GFF object, pass it a -preferred_groups=E<gt>
 argument.  This specifies a tag that will be used for grouping.  You
 can pass an array reference to specify a list of such tags.
 
-=item In the GFF header
+=item *
+
+In the GFF header
 
 The GFF file itself can specify which tags are to be used for
 grouping.  Insert a comment like the following:
@@ -409,7 +441,9 @@ it adaptable to use with a variety of databases.
 
 =over 4
 
-=item Adaptors
+=item *
+
+Adaptors
 
 The core of the module handles the user API, annotation coordinate
 arithmetic, and other common issues.  The details of fetching
@@ -441,7 +475,9 @@ There are currently five adaptors recommended for general use:
 Check the Bio/DB/GFF/Adaptor directory and subdirectories for other,
 more specialized adaptors, as well as experimental ones.
 
-=item Aggregators
+=item *
+
+Aggregators
 
 The GFF format uses a "group" field to indicate aggregation properties
 of individual features.  For example, a set of exons and introns may
@@ -513,7 +549,7 @@ has some limitations.
 
 =over 4
 
-=item 1. GFF version string is required
+=item GFF version string is required
 
 The GFF file B<must> contain the version comment:
 
@@ -523,7 +559,7 @@ Unless this version string is present at the top of the GFF file, the
 loader will attempt to parse the file in GFF2 format, with
 less-than-desirable results.
 
-=item 2. Only one level of nesting allowed
+=item Only one level of nesting allowed
 
 A major restriction is that Bio::DB::GFF only allows one level of
 nesting of features.  For nesting, the Target tag will be used
@@ -1742,27 +1778,37 @@ This method takes a single overloaded argument, which can be any of:
 
 =over 4
 
-=item 1. a scalar corresponding to a GFF file on the system
+=item *
+
+a scalar corresponding to a GFF file on the system
 
 A pathname to a local GFF file.  Any files ending with the .gz, .Z, or
 .bz2 suffixes will be transparently decompressed with the appropriate
 command-line utility.
 
-=item 2. an array reference containing a list of GFF files on the system
+=item *
+
+an array reference containing a list of GFF files on the system
 
 For example ['/home/gff/gff1.gz','/home/gff/gff2.gz']
 
-=item 3. directory path
+=item *
+
+directory path
 
 The indicated directory will be searched for all files ending in the
 suffixes .gff, .gff.gz, .gff.Z or .gff.bz2.
 
-=item 4. filehandle
+=item *
+
+filehandle
 
 An open filehandle from which to read the GFF data.  Tied filehandles
 now work as well.
 
-=item 5. a pipe expression
+=item *
+
+a pipe expression
 
 A pipe expression will also work. For example, a GFF file on a remote
 web server can be loaded with an expression like this:
@@ -1837,27 +1883,37 @@ This method takes a single overloaded argument, which can be any of:
 
 =over 4
 
-=item 1. scalar corresponding to a FASTA file on the system
+=item *
+
+scalar corresponding to a FASTA file on the system
 
 A pathname to a local FASTA file.  Any files ending with the .gz, .Z, or
 .bz2 suffixes will be transparently decompressed with the appropriate
 command-line utility.
 
-=item 2. array reference containing a list of FASTA files on the
+=item *
+
+array reference containing a list of FASTA files on the
 system
 
 For example ['/home/fasta/genomic.fa.gz','/home/fasta/genomic.fa.gz']
 
-=item 3. path to a directory
+=item *
+
+path to a directory
 
 The indicated directory will be searched for all files ending in the
 suffixes .fa, .fa.gz, .fa.Z or .fa.bz2.
 
-a=item 4. filehandle
+=item *
+
+filehandle
 
 An open filehandle from which to read the FASTA data.
 
-=item 5. pipe expression
+=item *
+
+pipe expression
 
 A pipe expression will also work. For example, a FASTA file on a remote
 web server can be loaded with an expression like this:
@@ -3775,7 +3831,6 @@ fixed.
 
 =head1 SEE ALSO
 
-L<bioperl>,
 L<Bio::DB::GFF::RelSegment>,
 L<Bio::DB::GFF::Aggregator>,
 L<Bio::DB::GFF::Feature>,

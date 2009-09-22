@@ -91,30 +91,16 @@ sub _initialize {
     return;
 } 
 
-
 =head2 return_ftype_hash
 
-=over
-
-=item Usage
-
-  $obj->return_ftype_hash()
-
-=item Function
-
-A simple hash where returning it has be factored out of the main
-code to allow subclasses to override it.
-
-=item Returns
-
-A hash that indicates what the name of the SO term is and what
-the name of the Sequence Ontology is in the cv table.
-
-=item Arguments
-
-The string that represents the SO term.
-
-=back
+ Title    : return_ftype_hash
+ Usage    : $obj->return_ftype_hash()
+ Function : A simple hash where returning it has be factored out of the main
+            code to allow subclasses to override it.
+ Returns  : A hash that indicates what the name of the SO term is and what
+            the name of the Sequence Ontology is in the cv table.
+ Args     : The string that represents the SO term.
+ Status   :
 
 =cut
 
@@ -128,26 +114,13 @@ sub return_ftype_hash {
 
 =head2 return_reltypename
 
-=over
-
-=item Usage
-
-  $obj->return_reltypename()
-
-=item Function
-
-Return the appropriate relationship type name depending on the 
-feature type (typically partof, but producedby for proteins).
-
-=item Returns
-
-A relationship type name.
-
-=item Arguments
-
-A SO type name.
-
-=back
+ Title    : return_reltypename
+ Usage    : $obj->return_reltypename
+ Function : Return the appropriate relationship type name depending on the
+            feature type (typically part_of, but derives_from for polypeptide).
+ Returns  : A relationship type name.
+ Args     : A SO type name.
+ Status   :
 
 =cut
 
@@ -167,23 +140,20 @@ sub return_reltypename {
 
 =head2 write_seq
 
-=over
+ Title   : write_seq
+ Usage   : $stream->write_seq(-seq=>$seq, -seq_so_type=>$seqSOtype,
+                  -src_feature=>$srcfeature,
+                  -src_feat_type=>$srcfeattype,
+                  -nounflatten=>0 or 1,
+                  -is_analysis=>'true' or 'false',
+                  -data_source=>$datasource)
+ Function: writes the $seq object (must be seq) into chadoxml.
+ Returns : 1 for success and 0 for error
+ Args     : A Bio::Seq object $seq, optional $seqSOtype, $srcfeature,
+            $srcfeattype, $nounflatten, $is_analysis and $data_source.
 
-=item Usage
-
-  $obj->write_seq()
-
-=item Function
-
-Overrides Bio::SeqIO::chadoxml's write_seq method just
-to add an internal close_chadoxml (mimics original use
-by FlyBase).
-
-=item Returns
-
-=item Arguments
-
-=back
+Overrides Bio::SeqIO::chadoxml's write_seq method just to add an internal
+close_chadoxml (mimics original use by FlyBase).
 
 =cut
 

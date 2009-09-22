@@ -198,8 +198,8 @@ sub describe { shift->throw_not_implemented(); }
 The analysis input data are named, and can be also associated with a
 default value, with allowed values and with few other attributes. The
 names are important for feeding the service with the input data (the
-inputs are given to methods C<create_job>, C<run>, and/or C<wait_for>
-as name/value pairs).
+inputs are given to methods C<create_job>, C<Bio::AnalysisI|run>, and/or
+C<Bio::AnalysisI|wait_for> as name/value pairs).
 
 Here is a (slightly shortened) example of an input specification:
 
@@ -324,8 +324,8 @@ tool.
 
 Call this method if you wish to "stage the scene" - to create a job
 with all input data but without actually running it. This method is
-called automatically from other methods (C<run> and C<wait_for>) so
-usually you do not need to call it directly.
+called automatically from other methods (C<Bio::AnalysisI|run> and
+C<Bio::AnalysisI|wait_for>) so usually you do not need to call it directly.
 
 The input data and prameters for this execution can be specified in
 various ways:
@@ -459,7 +459,7 @@ sub id { shift->throw_not_implemented(); }
 
 # -----------------------------------------------------------------------------
 
-=head2 run
+=head2 Bio::AnalysisI::JobI::run
 
  Usage   : $job->run
  Returns : itself
@@ -467,8 +467,8 @@ sub id { shift->throw_not_implemented(); }
 
 It starts previously created job.  The job already must have all input
 data filled-in. This differs from the method of the same name of the
-C<Bio::Tools::Run::Analysis> object where the C<run> method creates
-also a new job allowing to set input data.
+C<Bio::Tools::Run::Analysis> object where the C<Bio::AnalysisI::JobI::run> method
+creates also a new job allowing to set input data.
 
 =cut
 
@@ -476,7 +476,7 @@ sub run { shift->throw_not_implemented(); }
 
 # -----------------------------------------------------------------------------
 
-=head2 wait_for
+=head2 Bio::AnalysisI::JobI::wait_for
 
  Usage   : $job->wait_for
  Returns : itself

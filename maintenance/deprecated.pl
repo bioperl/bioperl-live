@@ -195,11 +195,6 @@ Write out new deprecation file to $outfile.  If --new is used this is assumed.
 Name of output file to write deprecation table to. DEPRECATED.NEW is the default
 name
 
-=item B<-o | --outfile>
-
-Name of output file to write deprecation table to. DEPRECATED.NEW is the default
-name
-
 =item B<-v | --verbose>
 
 Show the progress through files during the checking.

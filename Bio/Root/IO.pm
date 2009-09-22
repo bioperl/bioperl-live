@@ -98,6 +98,10 @@ web:
 
 Email hlapp@gmx.net
 
+=head1 CONTRIBUTORS
+
+Mark A. Jensen ( maj -at- fortinbras -dot- us )
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
@@ -144,10 +148,10 @@ BEGIN {
     }
 
     eval {
-        require LWP::Simple;
+	require LWP::UserAgent;
     };
     if( $@ ) {
-	print STDERR "Cannot load LWP::Simple: $@" if( $VERBOSE > 0 );
+	print STDERR "Cannot load LWP::UserAgent: $@" if( $VERBOSE > 0 );
         $HAS_LWP = 0;
     } else {
         $HAS_LWP = 1;
@@ -251,6 +255,13 @@ sub new {
               -flush    boolean flag to autoflush after each write
               -noclose  boolean flag, when set to true will not close a
                         filehandle (must explictly call close($io->_fh)
+              -retries  number of times to try a web fetch before failure
+                        
+              -ua_parms hashref of key => value parameters to pass 
+                        to LWP::UserAgent->new()
+                        (only meaningful with -url is set)
+                        A useful value might be, for example,
+                        { timeout => 60 } (ua default is 180 sec)
  Returns : TRUE
  Args    : named parameters
 
@@ -262,27 +273,34 @@ sub _initialize_io {
 
     $self->_register_for_cleanup(\&_io_cleanup);
 
-    my ($input, $noclose, $file, $fh, $flush, $url) = $self->_rearrange([qw(INPUT 
-							    NOCLOSE
-							    FILE FH 
-							    FLUSH URL)], @args);
+    my ($input, $noclose, $file, $fh, $flush, $url,
+	$retries, $ua_parms) = 
+	$self->_rearrange([qw(INPUT 
+                              NOCLOSE
+                              FILE 
+                              FH 
+                              FLUSH
+                              URL
+                              RETRIES
+                              UA_PARMS)], @args);
 
     if($url){
-      my $trymax = 5;
+	$retries ||= 5;
 
-      if($HAS_LWP){ #use LWP::Simple::getstore()
-	require LWP::Simple;
-        #$self->warn("has lwp");
+      if($HAS_LWP){ #use LWP::UserAgent
+	  require LWP::UserAgent;
+	  my $ua = LWP::UserAgent->new(%$ua_parms);
         my $http_result;
         my($handle,$tempfile) = $self->tempfile();
         CORE::close($handle);
+	  
 
-        for(my $try = 1 ; $try <= $trymax ; $try++){
-          $http_result = LWP::Simple::getstore($url, $tempfile);
-          $self->warn("[$try/$trymax] tried to fetch $url, but server threw $http_result.  retrying...") if $http_result != 200;
-          last if $http_result == 200;
+        for(my $try = 1 ; $try <= $retries ; $try++){
+	    $http_result = $ua->get($url, ':content_file' => $tempfile);
+	    $self->warn("[$try/$retries] tried to fetch $url, but server threw " . $http_result->code . ".  retrying...") if !$http_result->is_success;
+	    last if $http_result->is_success;
         }
-        $self->throw("failed to fetch $url, server threw $http_result") if $http_result != 200;
+	  $self->throw("failed to fetch $url, server threw " . $http_result->code) if !$http_result->is_success;
 
         $input = $tempfile;
         $file  = $tempfile;

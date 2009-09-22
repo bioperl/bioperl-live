@@ -114,18 +114,24 @@ with the following differences:
 
 =over 4
 
-=item 1. No limitation on Bio::SeqFeatureI implementations
+=item 1.
+
+No limitation on Bio::SeqFeatureI implementations
 
 Unlike Bio::DB::GFF, Bio::DB::SeqFeature::Store works with
 any Bio::SeqFeatureI object.
 
-=item 2. No limitation on nesting of features & subfeatures
+=item 2.
+
+No limitation on nesting of features & subfeatures
 
 Bio::DB::GFF is limited to features that have at most one
 level of subfeature. Bio::DB::SeqFeature::Store can work with features
 that have unlimited levels of nesting.
 
-=item 3. No aggregators
+=item 3.
+
+No aggregators
 
 The aggregator architecture, which was necessary to impose order on
 the GFF2 files that Bio::DB::GFF works with, does not apply to
@@ -133,7 +139,9 @@ Bio::DB::SeqFeature::Store. It is intended to store features that obey
 well-defined ontologies, such as the Sequence Ontology
 (http://song.sourceforge.net).
 
-=item 4. No relative locations
+=item 4.
+
+No relative locations
 
 All locations defined by this module are relative to an absolute
 sequence ID, unlike Bio::DB::GFF which allows you to define the
@@ -2506,7 +2514,6 @@ use the BioPerl bug tracking system to report bugs.
 
 =head1 SEE ALSO
 
-L<bioperl>,
 L<Bio::DB::SeqFeature>,
 L<Bio::DB::SeqFeature::Store::GFF3Loader>,
 L<Bio::DB::SeqFeature::Segment>,

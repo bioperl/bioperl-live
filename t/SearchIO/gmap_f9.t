@@ -1,12 +1,16 @@
-#!perl
+# -*-Perl-*- Test Harness script for Bioperl
+# $Id: gmap_f9.t 14995 2008-11-16 06:20:00Z cjfields $
 
 use strict;
 use warnings;
-
-use Test::More tests => 46;
-
-use Bio::SearchIO;
-use Data::Dumper;
+BEGIN {
+	use lib '.';
+    use Bio::Root::Test;
+    
+    test_begin(-tests => 47);
+	
+	use_ok('Bio::SearchIO');
+}
 
 my $searchio =
     Bio::SearchIO->new(-format => 'gmap_f9',
@@ -81,16 +85,11 @@ $searchio =  Bio::SearchIO->new(-format => 'gmap_f9',
 my $result_count = 0;
 while (my $result = $searchio->next_result) {
     $result_count++;
-#    while(my $hit = $result->next_hit){
-#	my @hsps = $hit->hsps();
-#	print $hit->name, " ", $hit->length, scalar(@hsps);
-#    }
 }
 
 is($result_count, 58, "Can we loop over multiple results properly (expecting 58)?");
 
 exit(0);
-
 
 sub _check_hit {
     my ($hit, $info) = @_;
