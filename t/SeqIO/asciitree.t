@@ -36,6 +36,6 @@ if (-s $out_file) {
 } else {
 	TODO: {
         local $TODO = "Output doesn't exists on ".$^O;
-		ok(0);
+		ok(-s $out_file);
 	}
 }
