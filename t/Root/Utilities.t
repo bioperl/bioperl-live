@@ -75,7 +75,7 @@ ok ! defined $exe ;
 # compress() and uncompress() using gzip.
 SKIP: {
     my $gzip = $u->find_exe('gzip');
-    skip "gzip not found, skipping gzip tests", 6 unless $gzip;
+    skip "gzip not found, skipping gzip tests", 12 unless $gzip;
     ok -x $gzip;
     
     # test compression/decompression of a simple file
