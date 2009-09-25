@@ -364,10 +364,6 @@ solution could be to padd them with blank spaces so that each line has the same
 number of characters (maybe this padding should be implemented in
 Bio::SeqIO::qual?).
 
-=head1 SEE ALSO
-
-L<bioperl>
-
 =head1 AUTHOR
 
 Florent E Angly E<lt>florent . angly @ gmail-dot-comE<gt>.  

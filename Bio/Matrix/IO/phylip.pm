@@ -19,7 +19,7 @@ Bio::Matrix::IO::phylip - A parser for PHYLIP distance matricies
 =head1 SYNOPSIS
 
   use Bio::Matrix::IO;
-  my $parser = Bio::Matrix::IO->new(-format   => 'phylip'
+  my $parser = Bio::Matrix::IO->new(-format   => 'phylip',
                                    -file     => 't/data/phylipdist.out');
   my $matrix = $parser->next_matrix;
 

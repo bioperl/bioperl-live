@@ -177,8 +177,6 @@ sub _index_file {
                      # of the last found record.
     );
 
-    $begin = 0;
-
     my $id_parser = $self->id_parser;
 
     open my $FASTA, '<', $file or $self->throw("Can't open file for read : $file");
@@ -187,15 +185,12 @@ sub _index_file {
     while (<$FASTA>) {
         if (/^>/) {
             
-            # the following was commented out 9/7/2009 b/c this
-            # breaks FASTA validation - cjfields
+            # the following was fixed to allow validation - cjfields
             
             # $begin is the position of the first character after the '>'
-            #my $offset = ( $^O =~ /mswin/i ) ? 0 : 1;
-            #my $begin = tell($FASTA) - length( $_ ) + $offset;
+            my $offset = ( $^O =~ /mswin/i ) ? 1 : 0;
+            $begin = tell($FASTA) - length( $_ ) - $offset;
             
-            my $begin = tell($FASTA) - length( $_ );
-
             foreach my $id (&$id_parser($_)) {
                 $self->add_record($id, $i, $begin);
             }

@@ -17,7 +17,17 @@ http://www.bioperl.org/wiki/Change_log.  Bugs remaining to be addressed
 are online at http://bugzilla.open-bio.org, with specific bugs intended
 for this release series highlighted in BUGS.
 
-1.6.0_2 ?????????????? (second 1.6.1 alpha)
+1.6.0_4 Sept. 25, 2009 (fourth 1.6.1 alpha)
+    * WinXP test fixes [cjfields, maj]
+    * BioPerl.pod added for descriptive information, fixes CPAN indexing
+      [cjfields]
+    * Minor doc fixes [cjfields]
+
+1.6.0_3 Sept. 22, 2009 (third 1.6.1 alpha)
+    * Fix tests failing due to merging issues [cjfields]
+    * More documentation updates for POD parsing [cjfields]
+
+1.6.0_2 Sept. 22, 2009 (second 1.6.1 alpha)
     * Bio::Root::Build
         - fix YAML meta data generation [cjfields]
 

@@ -992,7 +992,6 @@ use the BioPerl bug tracking system to report bugs.
 
 =head1 SEE ALSO
 
-L<bioperl>,
 L<Bio::DB::SeqFeature::Store>,
 L<Bio::DB::SeqFeature::Segment>,
 L<Bio::DB::SeqFeature::NormalizedFeature>,
