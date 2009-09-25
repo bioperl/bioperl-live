@@ -1,5 +1,0 @@
-   SW  perc perc perc  query        position in query    matching  repeat        position in  repeat
-score  div. del. ins.  sequence     begin  end (left)   repeat    class/family  begin  end (left)  ID
-
-  504   0.0  5.6  0.0  contig11600   1337 1407  (994) +  (TTAGGG)n Simple_repeat     2   76    (0)   1  
-  890   5.3  5.9  0.0  contig11600   1712 2225  (176) +  (TTAGGG)n Simple_repeat     1  544    (0)   5  
