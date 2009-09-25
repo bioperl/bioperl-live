@@ -1,0 +1,195 @@
+LOCUS       NC_008536               2001 bp    DNA     linear   BCT 21-JUL-2008
+DEFINITION  Solibacter usitatus Ellin6076, complete genome.
+ACCESSION   NC_008536 REGION: 1000..3000
+VERSION     NC_008536.1  GI:116619145
+PROJECT     GenomeProject:12638
+KEYWORDS    .
+SOURCE      Solibacter usitatus Ellin6076
+  ORGANISM  Solibacter usitatus Ellin6076
+            Bacteria; Acidobacteria; Solibacteres; Solibacterales;
+            Solibacteraceae; Solibacter.
+REFERENCE   1  (bases 1 to 2001)
+  AUTHORS   Copeland,A., Lucas,S., Lapidus,A., Barry,K., Detter,J.C., Glavina
+            del Rio,T., Hammon,N., Israni,S., Dalin,E., Tice,H., Pitluck,S.,
+            Thompson,L.S., Brettin,T., Bruce,D., Han,C., Tapia,R., Gilna,P.,
+            Schmutz,J., Larimer,F., Land,M., Hauser,L., Kyrpides,N.,
+            Mikhailova,N., Janssen,P.H., Kuske,C.R. and Richardson,P.
+  CONSRTM   US DOE Joint Genome Institute
+  TITLE     Complete sequence of Solibacter usitatus Ellin6076
+  JOURNAL   Unpublished
+REFERENCE   2  (bases 1 to 2001)
+  CONSRTM   NCBI Genome Project
+  TITLE     Direct Submission
+  JOURNAL   Submitted (24-OCT-2006) National Center for Biotechnology
+            Information, NIH, Bethesda, MD 20894, USA
+REFERENCE   3  (bases 1 to 2001)
+  AUTHORS   Copeland,A., Lucas,S., Lapidus,A., Barry,K., Detter,J.C., Glavina
+            del Rio,T., Hammon,N., Israni,S., Dalin,E., Tice,H., Pitluck,S.,
+            Thompson,L.S., Brettin,T., Bruce,D., Han,C., Tapia,R., Gilna,P.,
+            Schmutz,J., Larimer,F., Land,M., Hauser,L., Kyrpides,N.,
+            Mikhailova,N., Janssen,P.H., Kuske,C.R. and Richardson,P.
+  CONSRTM   US DOE Joint Genome Institute
+  TITLE     Direct Submission
+  JOURNAL   Submitted (06-OCT-2006) US DOE Joint Genome Institute, 2800
+            Mitchell Drive B100, Walnut Creek, CA 94598-1698, USA
+COMMENT     PROVISIONAL REFSEQ: This record has not yet been subject to final
+            NCBI review. The reference sequence was derived from CP000473.
+            URL -- http://www.jgi.doe.gov
+            JGI Project ID: 3634513
+            Source DNA and bacteria available from Cheryl R. Kuske
+            (kuske@lanl.gov)
+            Contacts: Cheryl R. Kuske (kuske@lanl.gov)
+                 Paul Richardson (microbes@cuba.jgi-psf.org)
+            Quality assurance done by JGI-Stanford
+            Annotation done by JGI-ORNL and JGI-PGF
+            Finishing done by JGI-LANL
+            Finished microbial genomes have been curated to close all gaps with
+            greater than 98% coverage of at least two independent clones. Each
+            base pair has a minimum q (quality) value of 30 and the total error
+            rate is less than one per 50000.
+            The JGI and collaborators endorse the principles for the
+            distribution and use of large scale sequencing data adopted by the
+            larger genome sequencing community and urge users of this data to
+            follow them. It is our intention to publish the work of this
+            project in a timely fashion and we welcome collaborative
+            interaction on the project and analysis.
+            (http://www.genome.gov/page.cfm?pageID=10506376).
+            COMPLETENESS: full length.
+FEATURES             Location/Qualifiers
+     source          1..2001
+                     /organism="Solibacter usitatus Ellin6076"
+                     /mol_type="genomic DNA"
+                     /strain="Ellin6076"
+                     /db_xref="taxon:234267"
+     gene            <1..403
+                     /locus_tag="Acid_0001"
+                     /db_xref="GeneID:4431688"
+     CDS             <1..403
+                     /locus_tag="Acid_0001"
+                     /note="KEGG: aba:Acid345_0001 chromosomal replication
+                     initiator protein DnaA
+                     TIGRFAM: chromosomal replication initiator protein DnaA
+                     PFAM: Chromosomal replication initiator, DnaA C-terminal
+                     domain; Chromosomal replication initiator, DnaA
+                     SMART: AAA ATPase"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="chromosomal replication initiator protein DnaA"
+                     /protein_id="YP_821302.1"
+                     /db_xref="GI:116619146"
+                     /db_xref="InterPro:IPR001957"
+                     /db_xref="InterPro:IPR003593"
+                     /db_xref="InterPro:IPR013159"
+                     /db_xref="InterPro:IPR013317"
+                     /db_xref="GeneID:4431688"
+                     /translation="MNYWDQIRHYLQSKVSADGYDNWLKSTAFVGQNGDTLYVSVPDR
+                     ETRAWLETEYTQLIQGGIQALGLPVRHVSFEAEQSRPAAPAATIAVNANTEPDAAATV
+                     LNPKFTFNSFVVGACNQFAHAAAKSVATNPSRSYNPLFLYGGVGMGKTHLMHAIGRQL
+                     IDQFGSMRIIYTSSERFMNEMISCIRTERMQQFHQRYREADVLLIDDIQLLGNKERTQ
+                     EEFFHTFNELHDHQKQIVISSDSPPKDIPGLLERLRSRFEWGLMADIQPPDLETKMAI
+                     LDKKAEIEGVELPDDVRTFMASKTKSNVRELEGALVKLIAYSSLTGTPIHLQMAQQVL
+                     KHLVHVQDRRVTMDSIQKAVAEKFSIKQSQLKEKSNTKKVVYPRQVAMYLVKELTNAS
+                     LPEIGRAFGGKHHTTVIHSINKIEKDRQSDPELNRLLHSLMDSLQ"
+     gene            638..1756
+                     /locus_tag="Acid_0002"
+                     /db_xref="GeneID:4431689"
+     CDS             638..1756
+                     /locus_tag="Acid_0002"
+                     /EC_number="2.7.7.7"
+                     /note="KEGG: aba:Acid345_0002 DNA polymerase III, beta
+                     subunit
+                     TIGRFAM: DNA polymerase III, beta subunit
+                     PFAM: DNA polymerase III, beta chain"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="DNA polymerase III, beta subunit"
+                     /protein_id="YP_821303.1"
+                     /db_xref="GI:116619147"
+                     /db_xref="InterPro:IPR001001"
+                     /db_xref="GeneID:4431689"
+                     /translation="MEFTVSKSDLVRELSLSQGVVEKKTTIPILSNVLLEAADDRITL
+                     TATDLELGIRCSCPARVKKEGSGTVPARKLLDYMRLLPEGDVNMKFLDNHWASITSGR
+                     SRTRIAGMSRESFPELPQMPEPIAQVPVKTLASMIARTSFAISMEESRFTLNGALLLM
+                     RPEGLTMVATDGHRLAYVQAEPAESGSADKPFRALVPKKAMSELTKLSDDAGEGAMAI
+                     VAGDDNHLFFQIGHRLLITRKLTGNFPDYERVLPKDHQFMAKLEKGEIRSAIERVAQF
+                     ADERSRAIRVQFNSGEVRVFSSSVETGESEESVPAEYTGPDIEIGFNAQYLLDFLRAI
+                     SQDHVAFELKDQKSAGELRPAGDAIADQYRYVVMPMRI"
+     gene            1782..>2001
+                     /locus_tag="Acid_0003"
+                     /db_xref="GeneID:4431690"
+     CDS             1782..>2001
+                     /locus_tag="Acid_0003"
+                     /EC_number="5.99.1.3"
+                     /note="KEGG: aba:Acid345_0008 DNA gyrase, B subunit
+                     TIGRFAM: DNA gyrase, B subunit
+                     PFAM: DNA gyrase, subunit B domain protein; ATP-binding
+                     region, ATPase domain protein domain protein; TOPRIM
+                     domain protein; DNA topoisomerase, type IIA, subunit B,
+                     region 2 domain protein
+                     SMART: DNA topoisomerase II"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="DNA gyrase subunit B"
+                     /protein_id="YP_821304.1"
+                     /db_xref="GI:116619148"
+                     /db_xref="InterPro:IPR000565"
+                     /db_xref="InterPro:IPR001241"
+                     /db_xref="InterPro:IPR002288"
+                     /db_xref="InterPro:IPR003594"
+                     /db_xref="InterPro:IPR006171"
+                     /db_xref="InterPro:IPR011557"
+                     /db_xref="InterPro:IPR011558"
+                     /db_xref="InterPro:IPR013506"
+                     /db_xref="GeneID:4431690"
+                     /translation="MPNEVNPVGGNGNVYDSSSIKVLEGLEAVRLRPAMYIGSTGEMG
+                     LHHLVYEVVDNSVDEALAGYATHIEVTIHDDNSVTVEDDGRGIPVGIHEEEGVSAAQV
+                     VMTKLHAGGKFDSNSYKVSGGLHGVGVSCVNALSEKLELEIWREGYTWTQEYSCGKPK
+                     ADLVRAGKAGKRTGTRVTFKPDSTIMEVAVFNYDTLAQRLRELAFLNKGLKITLTDER
+                     VDPEKVTPFEYQGGISEFIKHLNRGKSVLHEKPIHFEAEREMPEKGTITMEVALQYND
+                     AYSENVFSFANNINTVDGGTHLSGFRSALTRTINAFGQKNGLFKDVKENLSGDDVREG
+                     LTAVVSVKVPQPQFEGQTKGKLNSDIAGYMTQFVNDKLSEYFDKNSAVGRKIVGKAIE
+                     ASRAREAARKARDLTRRKGALDSGGLPGKLADCQEKDPKLCELFLVEGESAGGTAKQG
+                     RERRFQAILPLKGKILNVEKARYDKMLGHEEIRCMITALGTGIGKDDFDVAKLRYDKI
+                     IIMTDADVDGSHIRTLLLTFFFRHMNELITRGKVYIAQPPLYRIKKGKSEKYIKDEKE
+                     FTKEIMRRATENLTVEIHSNGDGKPKSSLEGQELRTFLLNLDEFQQIFHKVERRLRDS
+                     RAVDVLTNVDLHVDNKAEFQVEANLKPVFEAMKAKGLNPQMKKDEEHSAWAVVFHDST
+                     GAERSVGLQLAAQPEYRRFRALARTIAKFNEPPFVVVKNEHRDAQPDWVELLEYVKNE
+                     GKKDASVQRYKGLGEMNAEQLADTTMNPEKRTLLEVRLEDAVQCEEIFSTLMGEDVES
+                     RRKFIEENALDVKNLDV"
+ORIGIN      
+        1 ccgcgaactc gaaggcgccc tggttaaatt gatcgcgtac tcctccctca ccggaacgcc
+       61 gatccacctg cagatggcgc aacaggtcct gaagcacctg gtccacgtgc aggaccgccg
+      121 cgtcaccatg gattccatcc aaaaggccgt cgcggagaaa ttcagcatta agcagtccca
+      181 gctcaaggaa aagagcaata ccaagaaggt ggtctatccg cggcaggtgg caatgtacct
+      241 ggtcaaggag ctcaccaacg cgtcgctacc tgagatcggg cgcgctttcg gcggaaagca
+      301 tcacaccacc gtgatccact cgatcaacaa aatcgagaag gatcgccaga gcgaccctga
+      361 attgaacagg ttactacaca gcctaatgga ctcattacaa tgaccttcca ccgttttcca
+      421 caattgccct tgcaccgggc atggggaaat ctgtgtatat cgcatgacag cgttggtttt
+      481 gcgcaatttt ccgcgccgca atccgcagct tgacgtagca gaaagtggct gagtttagta
+      541 taatttagat agtcttcaac actttgcaca gggcctatga atacggttat ttatcaggcc
+      601 tatctataga gacagcaaag aactaggagc cgtgggcatg gaattcaccg tcagcaagag
+      661 cgatctggta cgtgagctga gtctctcgca gggtgtggtg gaaaaaaaga ccaccattcc
+      721 aatcctgtcg aacgtgctcc tggaggccgc ggacgatcgc attacgttga ctgcgaccga
+      781 cctggaactg ggcatccgct gttcttgccc ggcgcgcgtc aagaaagaag ggtccggcac
+      841 ggtgccggcg cgcaaactgc tcgattacat gcgtctgttg cccgaaggcg acgtgaacat
+      901 gaagttcctg gacaatcact gggccagtat caccagcgga cgttctcgca ccaggattgc
+      961 gggcatgtcg cgcgagagct tccccgaact gccgcagatg ccggagccga tcgcgcaggt
+     1021 gcccgtcaaa acgctggcct ccatgatcgc ccgtacgtcc ttcgccatct ccatggagga
+     1081 gtcgcgcttt acgctcaacg gcgcgctcct gctgatgcgc cccgaaggcc tcaccatggt
+     1141 cgccaccgat ggccaccgcc tcgcctacgt gcaggccgag cccgcggaga gcggcagcgc
+     1201 cgacaaaccc ttccgcgccc tcgtccccaa gaaggcgatg agcgaattga ccaagctcag
+     1261 cgatgatgcc ggcgaaggcg ccatggccat cgtcgccggt gatgacaatc acctgttctt
+     1321 ccaaattggc caccgcctgc tgatcacgcg aaagctcacc ggcaacttcc cggattacga
+     1381 gcgcgtcttg cccaaagatc accagttcat ggccaagctc gagaagggcg aaatccgctc
+     1441 ggcaatcgaa cgcgtggcgc agttcgccga tgaacggtcg cgcgccattc gggtgcaatt
+     1501 caacagcggc gaagtccgcg tcttcagttc cagcgtcgaa accggcgaga gcgaagagag
+     1561 cgttcccgcc gagtacacgg gtcccgatat cgagatcggt ttcaatgccc aatacctgct
+     1621 cgatttcctg cgtgcgattt ctcaggatca cgttgccttc gaattgaagg atcaaaaaag
+     1681 cgcgggcgaa ctccgtcccg ccggcgatgc catcgcggac cagtaccgct atgtagtcat
+     1741 gccgatgcgt atttgaagtt tagtcaaacc agtaaggaac tatgccaaac gaagtcaatc
+     1801 ccgtcggggg aaatggaaac gtctacgatt ccagcagtat caaagtcctg gaaggcctcg
+     1861 aagcagtgcg cctgcgccct gccatgtaca tcgggtctac aggcgagatg gggctgcacc
+     1921 atctggtcta tgaggtcgtc gataattccg tcgatgaagc tctagccggc tacgccaccc
+     1981 atatcgaggt gacgatccac g
+//
+

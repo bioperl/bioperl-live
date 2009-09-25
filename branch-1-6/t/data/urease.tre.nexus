@@ -1,0 +1,34 @@
+#NEXUS 
+
+Begin trees;  [Treefile saved Thu Jun 24 10:15:07 2004]
+[!
+>Data file = /home/jes12/possel/urease/urease.cdna.nex
+>Heuristic search settings:
+>  Optimality criterion = distance (minimum evolution)
+>    Negative branch lengths allowed, but set to zero for tree-score calculation
+>    Distance measure = uncorrected ("p")
+>  Starting tree(s) obtained via neighbor-joining
+>  Branch-swapping algorithm: tree-bisection-reconnection (TBR)
+>  Steepest descent option not in effect
+>  Initial 'MaxTrees' setting = 100
+>  Zero-length branches not collapsed
+>  'MulTrees' option in effect
+>  Topological constraints not enforced
+>  Trees are unrooted
+>
+>Heuristic search completed
+>   Total number of rearrangements tried = 34
+>   Score of best tree(s) found = 1.13334
+>   Number of trees retained = 1
+>   Time used = <1 sec (CPU time = 0.00 sec)
+]
+	Translate
+		1 Anidulans,
+		2 CneoA,
+		3 Cimmitis,
+		4 Mgrisea,
+		5 Ncrassa,
+		6 Spombe
+		;
+tree PAUP_1 = [&U] (((1:0.188380,(4:0.147551,5:0.134318):0.027742):0.012293,3:0.175935):0.012799,2:0.212917,6:0.221404);
+End;

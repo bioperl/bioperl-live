@@ -1,0 +1,236 @@
+CM 1: Purine
+CM statistics calculated with simulation of 100 samples of length 238
+Random seed: 1186083728
+No partition points
+Using CM E cutoff of 200.00
+
+>gi|633168|emb|X83878.1|
+
+  Plus strand results:
+
+ Query = 1 - 102, Target = 168 - 267
+ Score = 79.36, E = 1.945e-07, P = 1.945e-07, GC =  46
+
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+           + A A++A AA A  AA:AC+C:UAUAAU::CG:G AUAUGGC:CG::AGUUUCUACC:G
+       168 UUACAAUAUAAUAGGAACACUCAUAUAAUCGCGUGGAUAUGGCACGCAAGUUUCUACCGG 227     
+
+           <<<<_______>>>>>>>,,))))))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu 102     
+            CA CCGUAAA UG C:GACUA:G+GU:A  A+U  A+    
+       228 GCA-CCGUAAA-UGUCCGACUAUGGGUGAGCAAUGGAACCGC 267     
+
+
+  Minus strand results:
+
+ Query = 1 - 102, Target = 270 - 171
+ Score = 2.25, E = 6.802, P = 0.9989, GC =  48
+
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+             +    +   A    +:AC C:UA  +::: ::   UA GG :: :::GU    AC: G
+       270 CGUGCGGUUCCAUUGCUCACCCAUA-GUCGGACAU-UUACGG-UGCCCGGUAGAAACUUG 214     
+
+           <<<<_______>>>>>>>,,.))))))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGAC.UAcGaGuaAauauuaaauauuu 102     
+           ::::CC UA  ::::C :   UA:G GU: +  U+++AUAUU 
+       213 CGUGCCAUAUCCACGCGAUUaUAUGAGUGUUCCUAUUAUAUUG 171     
+
+
+>gi|2239287|gb|U51115.1|BSU51115
+
+  Plus strand results:
+
+ Query = 1 - 102, Target = 11655 - 11756
+ Score = 81.29, E = 1.259e-07, P = 1.259e-07, GC =  38
+
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+           A AAAU AAA+AA A+   : CGUAUAAU::CG:GAAUAUGGC:CG::AGU UCUACCA:
+     11655 AGAAAUCAAAUAAGAUGAAUUCGUAUAAUCGCGGGAAUAUGGCUCGCAAGUCUCUACCAA 11714   
+
+           <<<<_______>>>>>>>,,))))))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu 102     
+           GC ACCGUAAAU GC:UGACUACG :   AU+U +++  UUU
+     11715 GCUACCGUAAAUGGCUUGACUACGUAAACAUUUCUUUCGUUU 11756   
+
+
+ Query = 1 - 102, Target = 15589 - 15691
+ Score = 78.40, E = 2.415e-07, P = 2.415e-07, GC =  42
+
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+            A+ A+A+ AAAA A   :CUC:UAUAAU: :GGGAAUAUGGCCC: :AGUUUCUACC:G
+     15589 CAUGAAAUCAAAACACGACCUCAUAUAAUCUUGGGAAUAUGGCCCAUAAGUUUCUACCCG 15648   
+
+           <<<<_______>>>>>>>,,)))).))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGACUAcG.aGuaAauauuaaauauuu 102     
+           GCAACCGUAAAUUGCC:GACUA:G AG: AA + ++  +++++
+     15649 GCAACCGUAAAUUGCCGGACUAUGcAGGGAAGUGAUCGAUAAA 15691   
+
+
+ Query = 1 - 102, Target = 13198 - 13294
+ Score = 5.41, E = 3.338, P = 0.9645, GC =  34
+
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+           +A+ +U + AAAA AA : :U:::A AA:C::::G A  UGGC::::G: UUU U  :: 
+     13198 UAUCUUCUUAAAAUAAGGAAUGAAAAAACCAGCUGCAC-UGGCAGCUGGUUUUUUUUGU- 13255   
+
+           <<<<_______>>>>>>>,,))))))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu 102     
+              : C  AA :U+++::  U:::A: : AUAU+   U +U 
+     13256 ---UGCAAAAGAUAAAACCAUUUCAUACGAUAUACCGUCAUG 13294   
+
+
+  Minus strand results:
+
+ Query = 1 - 102, Target = 11759 - 11658
+ Score = 9.64, E = 1.287, P = 0.7239, GC =  38
+
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+           A  AA+  AAA AAA+   : CGUA  +::::: :  UA GG: :::::GU    AC: G
+     11759 AUCAAACGAAAGAAAUGUUUACGUA-GUCAAGCCAUUUACGGUAGCUUGGUAGAGACUUG 11701   
+
+           <<<<_______>>>>>>>,,.))))))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGAC.UAcGaGuaAauauuaaauauuu 102     
+           :: :CC UA  : ::C :   UACG :   AU UUA++U +UU
+     11700 CGAGCCAUAUUCCCGCGAUUaUACGAAUUCAUCUUAUUUGAUU 11658   
+
+
+ Query = 1 - 102, Target = 15695 - 15594
+ Score = 7.88, E = 1.911, P = 0.8521, GC =  43
+
+           :::::::::::::::::((((((((,,.,<<<<<<<_______>>>>>>>,,,,,,,,<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUA.aucucgggAAUAUGGcccgagaGUuUCUACCa 59      
+            A ++U+A   A  A ++ C :: AUA +:C:::::  UA GG:::::G:GU    AC::
+     15695 CAGUUUUAUCGAUCACUUCCCUGCAUAgUCCGGCAAUUUACGGUUGCCGGGUAGAAACUU 15636   
+
+           <<<<<_______>>>>>>>,,))))))))::::::::::::::
+        60 GgcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu 102     
+           +::::CC UA  :::: ::A U :: G + +  U++++U +UU
+     15635 AUGGGCCAUAUUCCCA-AGAUUAUAUGAGGUCGUGUUUUGAUU 15594   
+
+
+ Query = 1 - 102, Target = 13846 - 13740
+ Score = 6.35, E = 2.7, P = 0.9328, GC =  45
+
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,.....
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCU..... 55      
+            A  A+A+A A AA AA:A  :::A A :C ::::A  A G :::: G:  UUCU     
+     13846 CAGCAAAUACACAAGAACAACUAAAAACCCGUCAUAGAAAGCAUGAUGGCGUUCUccgaa 13787   
+
+           ,,<<<<<<<_______>>>>>>>,,))))))))::::::::::::::
+        56 ACCaGgcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu 102     
+           ACC::GC :CCG    : GC::G CU:::  U:AA+  +A++   ++
+     13786 ACCGAGCGGCCGAUUCCAGCUUGCCUUUAACUGAAACCAAUUCCCAA 13740   
+
+
+ Query = 1 - 102, Target = 825 - 748
+ Score = 2.84, E = 5.952, P = 0.9974, GC =  30
+
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+           +AAAA+ AA AAAA  A: ::C:U:U A           UG  C+ A A   UCUAC   
+       825 UAAAAACAACAAAAGGAGCUGCUUUUUA-----------UGCUCACACACGAUCUAC--- 780     
+
+           <<<<_______>>>>>>>,,))))))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu 102     
+                 G AAA      +AC:A:G:: :A ++UU  AU+U+U
+       779 ----AUGAAAA------AACAAAGCAUUACAUUUCCAUUUAU 748     
+
+
+ Query = 1 - 102, Target = 8105 - 8018
+ Score = 1.70, E = 7.686, P = 0.9995, GC =  36
+
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+            A+A   A +A    AA   U:::AU A         UAUGGC ++A+ GU UC A    
+      8105 GAUACGGAUUACGGCAAAAGUGGCAUCA---------UAUGGCGUAAAGGUAUCAAG--- 8058    
+
+           <<<<_______>>>>>>>,,))))))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu 102     
+             A  CGUAA  U+C   ACU:::A   AA+A +AAA+ +++
+      8057 --AAUCGUAAUAUACGCUACUGUCAUCAAAAAGAAAAACAAA 8018    
+
+
+ Query = 1 - 102, Target = 4125 - 4023
+ Score = 1.38, E = 8.261, P = 0.9997, GC =  25
+
+           :::::::::::::::::((((((((,,,<<<<<<<_______.>>>.>>>>,,,,,,,,<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGG.ccc.gagaGUuUCUACC 58      
+            AAA +AAA A  A AA: :U:::AUAA :+:G:: AU U   ::C :+:  UUUC AC 
+      4125 CAAACAAAACACUACAAAUUUGAAAUAAGCUGGUAUAUUUUCuUACaCGAAUUUUCGAC- 4067    
+
+           <<<<<<_______>>>...>>>>,,))))))))::::::::::::::
+        59 aGgcaaCCGUAAAuug...cCuGACUAcGaGuaAauauuaaauauuu 102     
+              :AAC GUA AUU:   + +GA U:::A: :A+ AU+A+AU+ + 
+      4066 ---AAACUGUAUAUUUaugAUAGAGUUUCAAUUAUCAUAAUAUUCAG 4023    
+
+
+ Query = 1 - 102, Target = 14215 - 14125
+ Score = 0.90, E = 9.203, P = 0.9999, GC =  45
+
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+           AA    AA  AA  A    :+ :UAUA+U: :+++ A A GG   : :AGU         
+     14215 AAGCGGAAUCAACGACGCCGUAAUAUAUUCAGAAAUAAACGG---CCAAGUCA------- 14166   
+
+           <<<<_______>>>>>>>,,))))))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu 102     
+            C::CCGUAAA::GC+   CUA: +:   ++ U+ AA+++ +
+     14165 -CUGCCGUAAACAGCAGCGCUAUCGCAACUACUGCAAAUACA 14125   
+
+
+ Query = 1 - 102, Target = 13350 - 13253
+ Score = 0.79, E = 9.449, P = 0.9999, GC =  37
+
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+           +AA  UA   AA A + :A +C:U:    C:::  AA       :::G G   C  C:A 
+     13350 UAAGGUACCGAACAGUCAAGUCAUU---UCCAUUUAAGUAAAGCAUGGCGGCACAUCUAC 13294   
+
+           <<<<_______>>>>>>>,,))))))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu 102     
+           : :AC GUA AU: : U:A :A:G+ U: AU UU++  A+ +
+     13293 AUGACGGUAUAUCGUAUGA-AAUGGUUUUAUCUUUUGCAACA 13253   
+
+
+>gi|633168|emb|X83878.1|
+
+  Plus strand results:
+
+ Query = 1 - 102, Target = 168 - 267
+ Score = 79.36, E = 1.945e-07, P = 1.945e-07, GC =  46
+
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+           + A A++A AA A  AA:AC+C:UAUAAU::CG:G AUAUGGC:CG::AGUUUCUACC:G
+       168 UUACAAUAUAAUAGGAACACUCAUAUAAUCGCGUGGAUAUGGCACGCAAGUUUCUACCGG 227     
+
+           <<<<_______>>>>>>>,,))))))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu 102     
+            CA CCGUAAA UG C:GACUA:G+GU:A  A+U  A+    
+       228 GCA-CCGUAAA-UGUCCGACUAUGGGUGAGCAAUGGAACCGC 267     
+
+
+  Minus strand results:
+
+ Query = 1 - 102, Target = 270 - 171
+ Score = 2.25, E = 6.802, P = 0.9989, GC =  48
+
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+             +    +   A    +:AC C:UA  +::: ::   UA GG :: :::GU    AC: G
+       270 CGUGCGGUUCCAUUGCUCACCCAUA-GUCGGACAU-UUACGG-UGCCCGGUAGAAACUUG 214     
+
+           <<<<_______>>>>>>>,,.))))))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGAC.UAcGaGuaAauauuaaauauuu 102     
+           ::::CC UA  ::::C :   UA:G GU: +  U+++AUAUU 
+       213 CGUGCCAUAUCCACGCGAUUaUAUGAGUGUUCCUAUUAUAUUG 171     
+
+
+//
+Fin

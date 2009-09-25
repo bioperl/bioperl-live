@@ -1,0 +1,18 @@
+>HSEARLOBE 321bp
+gctcggactctatctagcagaaacctcgttcagctagtcttgcttcatggaggtttgatc
+tagactgcaaacgtcggtgctaaaagaccatacttccgtatgtgcctatcgggagcagtc
+gctgagaagtgcggaatgatccttcaatgaccgccgttaaagcctgggagtccgcgccac
+aatcattccatatacagcaacacgcgctacgcggacctctcggtgggtgacgattctatt
+gaggcgttgaagcgagaaagatattccgattcttttcgagtctatagttaaatcggactg
+catcatccattttagggcata
+>HSMETOO 134bp
+ggccgggatggccggacctgttctgaacatcttatatccacccgaacaagttataaacaa
+tttaaatctgggcggccatctataagcgtgtcttcagtatgagagtcttcggatatcacg
+acccattaggaaag
+>empty1 an empty seq well-formatted
+
+>empty2 an empty seq without subsequent empty line
+>MMWHISK 62bp
+gctgcctctatcaagggtgaaaattgcctgcccggctgggtagacactcgcaccactccc
+cg
+>empty3 empty seq at the end of the file

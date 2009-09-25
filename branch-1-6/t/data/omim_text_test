@@ -1,0 +1,227 @@
+*RECORD*
+*FIELD* NO
+100500
+*FIELD* TI
+*100500 title
+;;title1;;
+title2;;
+title3
+
+*FIELD* MN
+Mini MIM text
+
+*FIELD* CN
+Mini MIM - cn
+*FIELD* CD
+Mini MIM - cd
+*FIELD* ED
+Mini MIM - ed
+
+*FIELD* TX
+DESCRIPTION1
+
+*FIELD* TX
+DESCRIPTION2
+ 
+*FIELD* AV
+.0001
+ALCOHOL INTOLERANCE, ACUTE
+ACETALDEHYDE DEHYDROGENASE 2, ALLELE 2, INCLUDED; ALDH2*2, INCLUDED XXX!
+ACETALDEHYDE DEHYDROGENASE 2, ALLELE 2, INCLUDED; ALDH2*2, INCLUDED XXX!
+ACETALDEHYDE DEHYDROGENASE 2, ALLELE 2, INCLUDED; ALDH2*2, INCLUDED XXX! 
+ALDH2, GLU487LYS
+
+AV1-text
+
+.0002
+MYASTHENIC SYNDROME, SLOW-CHANNEL CONGENITAL
+ACETALDEHYDE DEHYDROGENASE 2, ALLELE 2, INCLUDED; ALDH2*2, INCLUDED XXX!
+CHRNA1, VAL156MET
+
+AV2-text
+
+.0003
+MYASTHENIC SYNDROME, SLOW-CHANNEL CONGENITAL
+CHRNE, ARG147LEU
+
+AV2-text a
+AV2-text b
+
+.0004
+MYASTHENIC SYNDROME, SLOW-CHANNEL CONGENITAL
+CHRNE, 1-BP DEL, 911T
+
+Sieb et al. (2000) found that a brother and sister with congenital
+myasthenic syndrome (601462) were compound heterozygotes for a deletion
+of 911T and a splicing mutation (IVS4+1G-A; 100725.0007).
+
+.0005
+MYASTHENIC SYNDROME, SLOW-CHANNEL CONGENITAL
+CHRNE, IVS4DS, G-A, +1
+
+See 100725.0006 and Sieb et al. (2000).
+
+.0006
+MYASTHENIC SYNDROME, SLOW-CHANNEL CONGENITAL
+CHRNE, 1-BP DEL, 1030C
+
+AV6-text
+
+
+
+
+*FIELD* SA
+sa
+
+*FIELD* RF
+1. Author11, A. A.; Author12, A. A.: Title 1. Am. J. Med. Genet1. 11: 11-111, 1981.
+
+2. Author21, A. A.; Author22, A. A.: Title 2. Am. J. Med. Genet2. 12: 22-222, 1982.
+
+3. Author31, A. A.; Author32, A. A.: Title 3. Am. J. Med. Genet3. 13: 33-333, 1983.
+
+4. other reference undef format
+
+*FIELD* CS
+
+clinical symptoms
+
+*FIELD* CN
+cn1
+
+*FIELD* CD
+cd1
+
+*FIELD* ED
+ed1
+
+*FIELD* CN
+cn2
+cn3
+
+*FIELD* ED
+ed2
+ed3
+
+
+*FIELD* CD
+cd2
+cd3
+
+
+
+
+
+*RECORD*
+*FIELD* NO
+100501
+*FIELD* TI
+#100501 second entry
+;;title1;;
+title2;;
+title3
+
+*FIELD* MN
+Mini MIM text
+
+*FIELD* CN
+Mini MIM - cn
+*FIELD* CD
+Mini MIM - cd
+*FIELD* ED
+Mini MIM - ed
+
+*FIELD* TX
+DESCRIPTION1
+
+*FIELD* TX
+DESCRIPTION2
+ 
+*FIELD* AV
+.0001
+ALCOHOL INTOLERANCE, ACUTE
+ACETALDEHYDE DEHYDROGENASE 2, ALLELE 2, INCLUDED; ALDH2*2, INCLUDED XXX!
+ACETALDEHYDE DEHYDROGENASE 2, ALLELE 2, INCLUDED; ALDH2*2, INCLUDED XXX!
+ACETALDEHYDE DEHYDROGENASE 2, ALLELE 2, INCLUDED; ALDH2*2, INCLUDED XXX! 
+ALDH2, GLU487LYS
+
+AV1-text
+
+.0002
+MYASTHENIC SYNDROME, SLOW-CHANNEL CONGENITAL
+ACETALDEHYDE DEHYDROGENASE 2, ALLELE 2, INCLUDED; ALDH2*2, INCLUDED XXX!
+CHRNA1, VAL156MET
+
+AV2-text
+
+.0003
+MYASTHENIC SYNDROME, SLOW-CHANNEL CONGENITAL
+CHRNE, ARG147LEU
+
+AV2-text a
+AV2-text b
+
+.0004
+MYASTHENIC SYNDROME, SLOW-CHANNEL CONGENITAL
+CHRNE, 1-BP DEL, 911T
+
+Sieb et al. (2000) found that a brother and sister with congenital
+myasthenic syndrome (601462) were compound heterozygotes for a deletion
+of 911T and a splicing mutation (IVS4+1G-A; 100725.0007).
+
+.0005
+MYASTHENIC SYNDROME, SLOW-CHANNEL CONGENITAL
+CHRNE, IVS4DS, G-A, +1
+
+See 100725.0006 and Sieb et al. (2000).
+
+.0006
+MYASTHENIC SYNDROME, SLOW-CHANNEL CONGENITAL
+CHRNE, 1-BP DEL, 1030C
+
+AV6-text
+
+
+
+
+*FIELD* SA
+sa
+
+*FIELD* RF
+1. Author11, A. A.; Author12, A. A.: Title 1. Am. J. Med. Genet1. 11: 11-111, 1981.
+
+2. Author21, A. A.; Author22, A. A.: Title 2. Am. J. Med. Genet2. 12: 22-222, 1982.
+
+3. Author31, A. A.; Author32, A. A.: Title 3. Am. J. Med. Genet3. 13: 33-333, 1983.
+
+4. other reference undef format
+
+*FIELD* CS
+
+clinical symptoms
+
+*FIELD* CN
+cn1
+
+*FIELD* CD
+cd1
+
+*FIELD* ED
+ed1
+
+*FIELD* CN
+cn2
+cn3
+
+*FIELD* ED
+ed2
+ed3
+
+
+*FIELD* CD
+cd2
+cd3
+
+
+
+

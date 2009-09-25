@@ -1,0 +1,17 @@
+Build.PL
+Changes
+excluded_modules.txt
+LICENSE
+MANIFEST
+META.yml # Will be created by "make dist"
+Makefile.PL
+README
+bin/deob_index.pl
+cgi-bin/deob_detail.cgi
+cgi-bin/deob_flowchart.png
+cgi-bin/deob_interface.cgi
+cgi-bin/deob_help.html
+lib/Deobfuscator.pm
+t/00.load.t
+t/pod.t
+

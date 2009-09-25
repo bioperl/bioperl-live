@@ -1,0 +1,9 @@
+These are scripts that run on top of Bio::SearchIO or generally fit
+into the Database search result parsingframework.
+
+fastam9_to_table.PLS -- script which doesn't use Bio::SearchIO but provides fast parsing of FASTA -m9 output to an NCBI m9-like table.
+hmmer_to_table.PLS -- script which doesn't use Bio::SearchIO but provides fast parsing of HMMER output into a tabular format.
+
+search2table.PLS -- Turn any Bio::SearchIO parseable report into NCBI m9-like tablular output
+
+filter_search.PLS - produce tabular output, filtering first. 

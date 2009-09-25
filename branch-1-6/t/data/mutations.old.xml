@@ -1,0 +1,402 @@
+
+<seqDiff id="M20132" moltype="rna" offset="362" sysname="c.+4G&gt;A" trivname="E2K">
+    <DNA number="1" start="4" end="4" length="1" isMutation="1">
+        <label>point</label>
+        <label>transition</label>
+        <proof>computed</proof>
+        <upFlank>gaagattcagccaagctcaaggatg</upFlank>
+        <allele_ori>g</allele_ori>
+        <allele_mut>a</allele_mut>
+        <dnFlank>aagtgcagttagggctgggaagggt</dnFlank>
+        <restriction_changes>-BccI</restriction_changes>
+    </DNA>
+    <RNA number="1" start="4" end="4" length="1" isMutation="1">
+        <label>missense</label>
+        <proof>experimental</proof>
+        <upFlank>gaagattcagccaagctcaaggatg</upFlank>
+        <allele_ori>g</allele_ori>
+        <allele_mut>a</allele_mut>
+        <dnFlank>aagtgcagttagggctgggaagggt</dnFlank>
+        <codon codon_ori="gaa" codon_mut="aaa" codon_pos="1"></codon>
+        <restriction_changes>-BccI</restriction_changes>
+        <region>coding</region>
+    </RNA>
+    <AA number="1" start="2" end="2" length="1" isMutation="1">
+        <label>substitution</label>
+        <label>conservative</label>
+        <proof>computed</proof>
+        <allele_ori>E</allele_ori>
+        <allele_mut>K</allele_mut>
+    </AA>
+</seqDiff>
+
+<seqDiff id="M20132" moltype="rna" offset="362" sysname="c.+14T&gt;A" trivname="L5X">
+    <DNA number="1" start="14" end="14" length="1" isMutation="1">
+        <label>point</label>
+        <label>transversion</label>
+        <proof>computed</proof>
+        <upFlank>ccaagctcaaggatggaagtgcagt</upFlank>
+        <allele_ori>t</allele_ori>
+        <allele_mut>a</allele_mut>
+        <dnFlank>agggctgggaagggtctaccctcgg</dnFlank>
+    </DNA>
+    <RNA number="1" start="14" end="14" length="1" isMutation="1">
+        <label>nonsense</label>
+        <proof>experimental</proof>
+        <upFlank>ccaagctcaaggatggaagtgcagt</upFlank>
+        <allele_ori>t</allele_ori>
+        <allele_mut>a</allele_mut>
+        <dnFlank>agggctgggaagggtctaccctcgg</dnFlank>
+        <codon codon_ori="tta" codon_mut="taa" codon_pos="2"></codon>
+        <region>coding</region>
+    </RNA>
+    <AA number="1" start="5" end="5" length="1" isMutation="1">
+        <label>truncation</label>
+        <proof>computed</proof>
+        <allele_ori>L</allele_ori>
+        <allele_mut>*</allele_mut>
+    </AA>
+</seqDiff>
+
+<seqDiff id="M20132" moltype="rna" offset="362" sysname="c.+4G&gt;A" trivname="E2K">
+    <DNA number="1" start="4" end="4" length="1" isMutation="1">
+        <label>point</label>
+        <label>transition</label>
+        <proof>computed</proof>
+        <upFlank>gaagattcagccaagctcaaggatg</upFlank>
+        <allele_ori>g</allele_ori>
+        <allele_mut>a</allele_mut>
+        <dnFlank>aagtgcagttagggctgggaagggt</dnFlank>
+        <restriction_changes>-BccI</restriction_changes>
+    </DNA>
+    <RNA number="1" start="4" end="4" length="1" isMutation="1">
+        <label>missense</label>
+        <proof>experimental</proof>
+        <upFlank>gaagattcagccaagctcaaggatg</upFlank>
+        <allele_ori>g</allele_ori>
+        <allele_mut>a</allele_mut>
+        <dnFlank>aagtgcagttagggctgggaagggt</dnFlank>
+        <codon codon_ori="gaa" codon_mut="aaa" codon_pos="1"></codon>
+        <restriction_changes>-BccI</restriction_changes>
+        <region>coding</region>
+    </RNA>
+    <AA number="1" start="2" end="2" length="1" isMutation="1">
+        <label>substitution</label>
+        <label>conservative</label>
+        <proof>computed</proof>
+        <allele_ori>E</allele_ori>
+        <allele_mut>K</allele_mut>
+    </AA>
+</seqDiff>
+
+<seqDiff id="M20132" moltype="rna" offset="362" sysname="c.+100delATCCAG" trivname="I34del-2">
+    <DNA number="1" start="100" end="105" length="6" isMutation="1">
+        <label>deletion</label>
+        <proof>computed</proof>
+        <upFlank>tctgttccagagcgtgcgcgaagtg</upFlank>
+        <allele_ori>atccag</allele_ori>
+        <allele_mut></allele_mut>
+        <dnFlank>aacccgggccccaggcacccagagg</dnFlank>
+        <restriction_changes>-BinI, -BsiYI, -DpnI, -Hpy178III, -MboI, +MjaIV</restriction_changes>
+    </DNA>
+    <RNA number="1" start="100" end="105" length="6" isMutation="1">
+        <label>inframe</label>
+        <label>deletion</label>
+        <proof>experimental</proof>
+        <upFlank>tctgttccagagcgtgcgcgaagtg</upFlank>
+        <allele_ori>atccag</allele_ori>
+        <allele_mut></allele_mut>
+        <dnFlank>aacccgggccccaggcacccagagg</dnFlank>
+        <codon codon_ori="atc" codon_pos="1"></codon>
+        <restriction_changes>-BinI, -BsiYI, -DpnI, -Hpy178III, -MboI, +MjaIV</restriction_changes>
+        <region>coding</region>
+    </RNA>
+    <AA number="1" start="34" end="35" length="2" isMutation="1">
+        <label>deletion</label>
+        <proof>computed</proof>
+        <allele_ori>IQ</allele_ori>
+        <allele_mut></allele_mut>
+    </AA>
+</seqDiff>
+
+<seqDiff id="M20132" moltype="rna" offset="362" sysname="c.+101delT" trivname="I34delX172">
+    <DNA number="1" start="101" end="101" length="1" isMutation="1">
+        <label>deletion</label>
+        <proof>computed</proof>
+        <upFlank>ctgttccagagcgtgcgcgaagtga</upFlank>
+        <allele_ori>t</allele_ori>
+        <allele_mut></allele_mut>
+        <dnFlank>ccagaacccgggccccaggcaccca</dnFlank>
+        <restriction_changes>-BinI, -DpnI, -Hpy178III, +MaeIII, -MboI, +Tsp45I</restriction_changes>
+    </DNA>
+    <RNA number="1" start="101" end="101" length="1" isMutation="1">
+        <label>frameshift</label>
+        <label>deletion</label>
+        <proof>experimental</proof>
+        <upFlank>ctgttccagagcgtgcgcgaagtga</upFlank>
+        <allele_ori>t</allele_ori>
+        <allele_mut></allele_mut>
+        <dnFlank>ccagaacccgggccccaggcaccca</dnFlank>
+        <codon codon_ori="atc" codon_pos="2"></codon>
+        <restriction_changes>-BinI, -DpnI, -Hpy178III, +MaeIII, -MboI, +Tsp45I</restriction_changes>
+        <region>coding</region>
+    </RNA>
+    <AA number="1" start="34" end="34" length="1" isMutation="1">
+        <label>out-of-frame translation</label>
+        <label>truncation</label>
+        <proof>computed</proof>
+        <allele_ori>I</allele_ori>
+        <allele_mut>TRTRAPGTQRPRAQHLPAPVCCCCSSSSSSSSSSSSSSSSSSSSKRLAPGSSSSSRVRMVLPKPIVEAPQATWSWMRNSNLHSRSRPWSATPREVASQSLEPPWPPARGCRSSCQHLRTRMTQLPHPRCPCWAPLSPA*</allele_mut>
+    </AA>
+</seqDiff>
+
+<seqDiff id="M20132" moltype="rna" offset="362" sysname="c.+101insGGGCCC" trivname="I34ins+2">
+    <DNA number="1" start="101" end="101" length="0" isMutation="1">
+        <label>insertion</label>
+        <proof>computed</proof>
+        <upFlank>ctgttccagagcgtgcgcgaagtga</upFlank>
+        <allele_ori></allele_ori>
+        <allele_mut>gggccc</allele_mut>
+        <dnFlank>tccagaacccgggccccaggcaccc</dnFlank>
+        <restriction_changes>+ApaI, +AsuI, -BinI, +BmgI, +BseSI, +CviJI, -DpnI, +DraII, +GsuI, +HaeIII, +HgiJII, -MboI, +MnlI, +NlaIV, +SduI</restriction_changes>
+    </DNA>
+    <RNA number="1" start="101" end="101" length="0" isMutation="1">
+        <label>inframe</label>
+        <label>insertion</label>
+        <proof>experimental</proof>
+        <upFlank>ctgttccagagcgtgcgcgaagtga</upFlank>
+        <allele_ori></allele_ori>
+        <allele_mut>gggccc</allele_mut>
+        <dnFlank>tccagaacccgggccccaggcaccc</dnFlank>
+        <codon codon_ori="atc" codon_pos="2"></codon>
+        <restriction_changes>+ApaI, +AsuI, -BinI, +BmgI, +BseSI, +CviJI, -DpnI, +DraII, +GsuI, +HaeIII, +HgiJII, -MboI, +MnlI, +NlaIV, +SduI</restriction_changes>
+        <region>coding</region>
+    </RNA>
+    <AA number="1" start="34" end="34" length="1" isMutation="1">
+        <label>insertion</label>
+        <label>complex</label>
+        <proof>computed</proof>
+        <allele_ori>I</allele_ori>
+        <allele_mut>RAL</allele_mut>
+    </AA>
+</seqDiff>
+
+<seqDiff id="M20132" moltype="rna" offset="362" sysname="c.+100insG" trivname="I34ins81X">
+    <DNA number="1" start="100" end="100" length="0" isMutation="1">
+        <label>insertion</label>
+        <proof>computed</proof>
+        <upFlank>tctgttccagagcgtgcgcgaagtg</upFlank>
+        <allele_ori></allele_ori>
+        <allele_mut>g</allele_mut>
+        <dnFlank>atccagaacccgggccccaggcacc</dnFlank>
+        <restriction_changes>+BamHI, +BinI, +NlaIV, +XhoII</restriction_changes>
+    </DNA>
+    <RNA number="1" start="100" end="100" length="0" isMutation="1">
+        <label>frameshift</label>
+        <label>insertion</label>
+        <proof>experimental</proof>
+        <upFlank>tctgttccagagcgtgcgcgaagtg</upFlank>
+        <allele_ori></allele_ori>
+        <allele_mut>g</allele_mut>
+        <dnFlank>atccagaacccgggccccaggcacc</dnFlank>
+        <codon codon_ori="atc" codon_pos="1"></codon>
+        <restriction_changes>+BamHI, +BinI, +NlaIV, +XhoII</restriction_changes>
+        <region>coding</region>
+    </RNA>
+    <AA number="1" start="34" end="34" length="1" isMutation="1">
+        <label>out-of-frame translation</label>
+        <label>truncation</label>
+        <proof>computed</proof>
+        <allele_ori>I</allele_ori>
+        <allele_mut>DPEPGPQAPRGRERSTSRRQFAAAAAAAAAAAAAAAAAAAAAAAARD*</allele_mut>
+    </AA>
+</seqDiff>
+
+<seqDiff id="M20132" moltype="rna" offset="362" sysname="c.+100AT&gt;GGGCCC" trivname="I34ins82X">
+    <DNA number="1" start="100" end="101" length="2" isMutation="1">
+        <label>complex</label>
+        <proof>computed</proof>
+        <upFlank>tctgttccagagcgtgcgcgaagtg</upFlank>
+        <allele_ori>at</allele_ori>
+        <allele_mut>gggccc</allele_mut>
+        <dnFlank>ccagaacccgggccccaggcaccca</dnFlank>
+        <restriction_changes>+ApaI, +AsuI, -BinI, +BmgI, +BseSI, +CviJI, -DpnI, +DraII, +HaeIII, +HgiJII, -Hpy178III, -MboI, +NlaIV, +SduI</restriction_changes>
+    </DNA>
+    <RNA number="1" start="100" end="101" length="2" isMutation="1">
+        <label>frameshift</label>
+        <label>complex</label>
+        <proof>experimental</proof>
+        <upFlank>tctgttccagagcgtgcgcgaagtg</upFlank>
+        <allele_ori>at</allele_ori>
+        <allele_mut>gggccc</allele_mut>
+        <dnFlank>ccagaacccgggccccaggcaccca</dnFlank>
+        <codon codon_ori="atc" codon_pos="1"></codon>
+        <restriction_changes>+ApaI, +AsuI, -BinI, +BmgI, +BseSI, +CviJI, -DpnI, +DraII, +HaeIII, +HgiJII, -Hpy178III, -MboI, +NlaIV, +SduI</restriction_changes>
+        <region>coding</region>
+    </RNA>
+    <AA number="1" start="34" end="34" length="1" isMutation="1">
+        <label>out-of-frame translation</label>
+        <label>truncation</label>
+        <proof>computed</proof>
+        <allele_ori>I</allele_ori>
+        <allele_mut>GPPEPGPQAPRGRERSTSRRQFAAAAAAAAAAAAAAAAAAAAAAAARD*</allele_mut>
+    </AA>
+</seqDiff>
+
+<seqDiff id="M20132" moltype="rna" offset="362" sysname="c.-1G&gt;A">
+    <DNA number="1" start="-1" end="-1" length="1" isMutation="1">
+        <label>point</label>
+        <label>transition</label>
+        <proof>computed</proof>
+        <upFlank>ggtggaagattcagccaagctcaag</upFlank>
+        <allele_ori>g</allele_ori>
+        <allele_mut>a</allele_mut>
+        <dnFlank>atggaagtgcagttagggctgggaa</dnFlank>
+        <restriction_changes>-BccI, -FokI, +Hpy178III</restriction_changes>
+    </DNA>
+    <RNA number="1" start="-1" end="-1" length="1" isMutation="1">
+        <label>unknown</label>
+        <proof>experimental</proof>
+        <upFlank>ggtggaagattcagccaagctcaag</upFlank>
+        <allele_ori>g</allele_ori>
+        <allele_mut>a</allele_mut>
+        <dnFlank>atggaagtgcagttagggctgggaa</dnFlank>
+        <restriction_changes>-BccI, -FokI, +Hpy178III</restriction_changes>
+        <region>5'UTR</region>
+    </RNA>
+</seqDiff>
+
+<seqDiff id="M20132" moltype="rna" offset="362" sysname="c.+2766T&gt;C">
+    <DNA number="1" start="2766" end="2766" length="1" isMutation="1">
+        <label>point</label>
+        <label>transition</label>
+        <proof>computed</proof>
+        <upFlank>tctatttccacacccagtgaagcat</upFlank>
+        <allele_ori>t</allele_ori>
+        <allele_mut>c</allele_mut>
+        <dnFlank>ggaaaccctatttccccaccccagc</dnFlank>
+        <restriction_changes>+Hpy188I, +SfaNI, -XcmI</restriction_changes>
+    </DNA>
+    <RNA number="1" start="2766" end="2766" length="1" isMutation="1">
+        <label>unknown</label>
+        <proof>experimental</proof>
+        <upFlank>tctatttccacacccagtgaagcat</upFlank>
+        <allele_ori>t</allele_ori>
+        <allele_mut>c</allele_mut>
+        <dnFlank>ggaaaccctatttccccaccccagc</dnFlank>
+        <restriction_changes>+Hpy188I, +SfaNI, -XcmI</restriction_changes>
+        <region>3'UTR</region>
+    </RNA>
+</seqDiff>
+
+<seqDiff id="J02933" moltype="dna" offset="521" sysname="g.+12165A&gt;G">
+    <DNA number="1" start="12165" end="12165" length="1" isMutation="1">
+        <label>point</label>
+        <label>transition</label>
+        <proof>experimental</proof>
+        <upFlank>cgcacacctgtggtgcctgccaccc</upFlank>
+        <allele_ori>a</allele_ori>
+        <allele_mut>g</allele_mut>
+        <dnFlank>ctgggttgcccatgattcatttttg</dnFlank>
+        <restriction_changes>+AciI, -BfiI, -BsrI, +FauI, +NspBII, +Sth132I, -TspRI</restriction_changes>
+        <region dist="1027">3'UTR</region>
+    </DNA>
+    <RNA number="1" start="2428" end="2428" length="1" isMutation="1">
+        <label>unknown</label>
+        <proof>computed</proof>
+        <upFlank>cgcacacctgtggtgcctgccaccc</upFlank>
+        <allele_ori>a</allele_ori>
+        <allele_mut>g</allele_mut>
+        <dnFlank>ctgggttgcccatgattcatttttg</dnFlank>
+        <restriction_changes>+AciI, -BfiI, -BsrI, +FauI, +NspBII, +Sth132I, -TspRI</restriction_changes>
+        <region dist="-1">3'UTR</region>
+    </RNA>
+</seqDiff>
+
+<seqDiff id="J02933" moltype="dna" offset="521" sysname="g.+4G&gt;T" trivname="V2F">
+    <DNA number="1" start="4" end="4" length="1" isMutation="1">
+        <label>point</label>
+        <label>transversion</label>
+        <proof>computed</proof>
+        <upFlank>gcagcactgcagagatttcatcatg</upFlank>
+        <allele_ori>g</allele_ori>
+        <allele_mut>t</allele_mut>
+        <dnFlank>tctcccaggccctcaggctcctctg</dnFlank>
+        <restriction_changes>-BsmAI, -Eco31I</restriction_changes>
+        <region value="1" dist="4">exon</region>
+    </DNA>
+    <RNA number="1" start="4" end="4" length="1" isMutation="1">
+        <label>missense</label>
+        <proof>experimental</proof>
+        <upFlank>gcagcactgcagagatttcatcatg</upFlank>
+        <allele_ori>g</allele_ori>
+        <allele_mut>t</allele_mut>
+        <dnFlank>tctcccaggccctcaggctcctctg</dnFlank>
+        <codon codon_ori="gtc" codon_mut="ttc" codon_pos="1"></codon>
+        <restriction_changes>-BsmAI, -Eco31I</restriction_changes>
+        <region>coding</region>
+    </RNA>
+    <AA number="1" start="2" end="2" length="1" isMutation="1">
+        <label>substitution</label>
+        <label>nonconservative</label>
+        <proof>computed</proof>
+        <allele_ori>V</allele_ori>
+        <allele_mut>F</allele_mut>
+    </AA>
+</seqDiff>
+
+<seqDiff id="J02933" moltype="dna" offset="521" sysname="g.+1168G&gt;T" trivname="D34Y">
+    <DNA number="1" start="1168" end="1168" length="1" isMutation="1">
+        <label>point</label>
+        <label>transversion</label>
+        <proof>computed</proof>
+        <upFlank>taaggcctcaggaggagaaacacgg</upFlank>
+        <allele_ori>g</allele_ori>
+        <allele_mut>t</allele_mut>
+        <dnFlank>acatgccgtggaagccggggcctca</dnFlank>
+        <restriction_changes>-BscGI, -Bsp24I, -CjePI, -FinI, +RsaI, -Sth132I, +Tsp4CI</restriction_changes>
+        <region value="1" dist="-29">exon</region>
+    </DNA>
+    <RNA number="1" start="100" end="100" length="1" isMutation="1">
+        <label>missense</label>
+        <proof>experimental</proof>
+        <upFlank>taaggcctcaggaggagaaacacgg</upFlank>
+        <allele_ori>g</allele_ori>
+        <allele_mut>t</allele_mut>
+        <dnFlank>acatgccgtggaagccggggcctca</dnFlank>
+        <codon codon_ori="gac" codon_mut="tac" codon_pos="1"></codon>
+        <restriction_changes>-BscGI, -Bsp24I, -CjePI, -FinI, +RsaI, -Sth132I, +Tsp4CI</restriction_changes>
+        <region>coding</region>
+    </RNA>
+    <AA number="1" start="34" end="34" length="1" isMutation="1">
+        <label>substitution</label>
+        <label>nonconservative</label>
+        <proof>computed</proof>
+        <allele_ori>D</allele_ori>
+        <allele_mut>Y</allele_mut>
+    </AA>
+</seqDiff>
+
+<seqDiff id="J02933" moltype="dna" offset="521" sysname="g.-4C&gt;G">
+    <DNA number="1" start="-4" end="-4" length="1" isMutation="1">
+        <label>point</label>
+        <label>transversion</label>
+        <proof>computed</proof>
+        <upFlank>ggcaggggcagcactgcagagattt</upFlank>
+        <allele_ori>c</allele_ori>
+        <allele_mut>g</allele_mut>
+        <dnFlank>atcatggtctcccaggccctcaggc</dnFlank>
+        <restriction_changes>+BclI, +DpnI, +MboI</restriction_changes>
+        <region dist="-4">5'UTR</region>
+    </DNA>
+    <RNA number="1" start="-4" end="-4" length="1" isMutation="1">
+        <label>unknown</label>
+        <proof>experimental</proof>
+        <upFlank>ggcaggggcagcactgcagagattt</upFlank>
+        <allele_ori>c</allele_ori>
+        <allele_mut>g</allele_mut>
+        <dnFlank>atcatggtctcccaggccctcaggc</dnFlank>
+        <restriction_changes>+BclI, +DpnI, +MboI</restriction_changes>
+        <region dist="31">5'UTR</region>
+    </RNA>
+</seqDiff>

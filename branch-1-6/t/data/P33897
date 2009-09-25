@@ -1,0 +1,562 @@
+ID   ALD_HUMAN      STANDARD;      PRT;   745 AA.
+AC   P33897;
+DT   01-FEB-1994 (Rel. 28, Created)
+DT   01-FEB-1994 (Rel. 28, Last sequence update)
+DT   15-JUN-2004 (Rel. 44, Last annotation update)
+DE   Adrenoleukodystrophy protein (ALDP).
+GN   ABCD1 OR ALD.
+OS   Homo sapiens (Human).
+OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+OC   Mammalia; Eutheria; Primates; Catarrhini; Hominidae; Homo.
+OX   NCBI_TaxID=9606;
+RN   [1]
+RP   SEQUENCE FROM N.A.
+RX   MEDLINE=93180910; PubMed=8441467;
+RA   Mosser J., Douar A.-M., Sarde C.-O., Kioschis P., Feil R., Moser H.,
+RA   Poustka A.-M., Mandel J.-L., Aubourg P.;
+RT   "Putative X-linked adrenoleukodystrophy gene shares unexpected
+RT   homology with ABC transporters.";
+RL   Nature 361:726-730(1993).
+RN   [2]
+RP   SEQUENCE FROM N.A.
+RA   Platzer M., Bauer D., Brenner V., Drescher B., Nyakatura G.,
+RA   Reichwald K., Sandoval N., Coy J., Kioschis P., Korn B.,
+RA   Poustka A.-M., Rosenthal A.;
+RL   Submitted (MAY-1996) to the EMBL/GenBank/DDBJ databases.
+RN   [3]
+RP   SUBUNITS, AND CHARACTERIZATION OF VARIANTS X-ALD HIS-389; GLN-401;
+RP   ARG-484 AND GLN-591.
+RX   MEDLINE=20020240; PubMed=10551832;
+RA   Liu L.X., Janvier K., Berteaux-Lecellier V., Cartier N., Benarous R.,
+RA   Aubourg P.;
+RT   "Homo- and heterodimerization of peroxisomal ATP-binding cassette
+RT   half-transporters.";
+RL   J. Biol. Chem. 274:32738-32743(1999).
+RN   [4]
+RP   FUNCTION, AND CHARACTERIZATION OF VARIANTS X-ALD SER-512 AND LEU-606.
+RX   MEDLINE=21145507; PubMed=11248239;
+RA   Roerig P., Mayerhofer P., Holzinger A., Gaertner J.;
+RT   "Characterization and functional analysis of the nucleotide binding
+RT   fold in human peroxisomal ATP binding cassette transporters.";
+RL   FEBS Lett. 492:66-72(2001).
+RN   [5]
+RP   REVIEW.
+RX   MEDLINE=93283453; PubMed=8507690;
+RA   Aubourg P., Mosser J., Douar A.-M., Sarde C.-O., Lopez J.,
+RA   Mandel J.-L.;
+RT   "Adrenoleukodystrophy gene: unexpected homology to a protein involved
+RT   in peroxisome biogenesis.";
+RL   Biochimie 75:293-302(1993).
+RN   [6]
+RP   REVIEW ON VARIANTS.
+RX   MEDLINE=97338663; PubMed=9195223;
+RA   Dodd A., Rowland S.A., Hawkes S.L.J., Kennedy M.A., Love D.R.;
+RT   "Mutations in the adrenoleukodystrophy gene.";
+RL   Hum. Mutat. 9:500-511(1997).
+RN   [7]
+RP   REVIEW ON VARIANTS.
+RX   MEDLINE=21614879; PubMed=11748843;
+RA   Kemp S., Pujol A., Waterham H.R., van Geel B.M., Boehm C.D.,
+RA   Raymond G.V., Cutting G.R., Wanders R.J.A., Moser H.W.;
+RT   "ABCD1 mutations and the X-linked adrenoleukodystrophy mutation
+RT   database: role in diagnosis and clinical correlations.";
+RL   Hum. Mutat. 18:499-515(2001).
+RN   [8]
+RP   VARIANT X-ALD LYS-291.
+RX   MEDLINE=94108454; PubMed=7904210;
+RA   Cartier N., Sarde C.-O., Douar A.-M., Mosser J., Mandel J.-L.,
+RA   Aubourg P.;
+RT   "Abnormal messenger RNA expression and a missense mutation in
+RT   patients with X-linked adrenoleukodystrophy.";
+RL   Hum. Mol. Genet. 2:1949-1951(1993).
+RN   [9]
+RP   VARIANTS X-ALD SER-148; ASP-174; ARG-266; GLN-401; TRP-418 AND
+RP   PHE-515.
+RX   MEDLINE=95152524; PubMed=7849723;
+RA   Fuchs S., Sarde C.-O., Wedemann H., Schwinger E., Mandel J.-L.,
+RA   Gal A.;
+RT   "Missense mutations are frequent in the gene for X-chromosomal
+RT   adrenoleukodystrophy (ALD).";
+RL   Hum. Mol. Genet. 3:1903-1905(1994).
+RN   [10]
+RP   VARIANTS X-ALD TRP-518; LEU-606; CYS-617 AND HIS-617.
+RX   MEDLINE=94314951; PubMed=8040304;
+RA   Fanen P., Guidoux S., Sarde C.-O., Mandel J.-L., Goossens M.,
+RA   Aubourg P.;
+RT   "Identification of mutations in the putative ATP-binding domain of
+RT   the adrenoleukodystrophy gene.";
+RL   J. Clin. Invest. 94:516-520(1994).
+RN   [11]
+RP   VARIANTS X-ALD.
+RX   MEDLINE=95126139; PubMed=7825602;
+RA   Ligtenberg M.J.L., Kemp S., Sarde C.-O., van Geel B.M., Kleijer W.J.,
+RA   Barth P.G., Mandel J.-L., van Oost B.A., Bolhuis P.A.;
+RT   "Spectrum of mutations in the gene encoding the adrenoleukodystrophy
+RT   protein.";
+RL   Am. J. Hum. Genet. 56:44-50(1995).
+RN   [12]
+RP   VARIANTS X-ALD HIS-104; GLU-178; LEU-560 AND GLY-528 DEL.
+RX   MEDLINE=95233433; PubMed=7717396;
+RA   Braun A., Ambach H., Kammerer S., Rolinski B., Stoeckler S., Rabl W.,
+RA   Gaertner J., Zierz S., Roscher A.A.;
+RT   "Mutations in the gene for X-linked adrenoleukodystrophy in patients
+RT   with different clinical phenotypes.";
+RL   Am. J. Hum. Genet. 56:854-861(1995).
+RN   [13]
+RP   VARIANTS X-ALD.
+RX   MEDLINE=96047143; PubMed=7581394;
+RA   Kok F., Neumann S., Sarde C.-O., Zheng S., Wu K.-H., Wei H.-M.,
+RA   Bergin J., Watkins P.A., Gould S., Sack G., Moser H., Mandel J.-L.,
+RA   Smith K.D.;
+RT   "Mutational analysis of patients with X-linked adrenoleukodystrophy.";
+RL   Hum. Mutat. 6:104-115(1995).
+RN   [14]
+RP   VARIANTS X-ALD.
+RX   MEDLINE=96213748; PubMed=8651290;
+RA   Feigenbaum V., Lombard-Platet G., Guidoux S., Sarde C.-O.,
+RA   Mandel J.-L., Aubourg P.;
+RT   "Mutational and protein analysis of patients and heterozygous women
+RT   with X-linked adrenoleukodystrophy.";
+RL   Am. J. Hum. Genet. 58:1135-1144(1996).
+RN   [15]
+RP   VARIANTS X-ALD.
+RX   MEDLINE=96163493; PubMed=8566952;
+RA   Krasemann E.W., Meier V., Korenke G.C., Hunneman D.H., Hanefeld F.;
+RT   "Identification of mutations in the ALD-gene of 20 families with
+RT   adrenoleukodystrophy/adrenomyeloneuropathy.";
+RL   Hum. Genet. 97:194-197(1996).
+RN   [16]
+RP   VARIANT X-ALD ARG-679.
+RX   MEDLINE=98112466; PubMed=9452087;
+RA   Korenke G.C., Krasemann E., Meier V., Beuche W., Hunneman D.H.,
+RA   Hanefeld F.;
+RT   "First missense mutation (W679R) in exon 10 of the
+RT   adrenoleukodystrophy gene in siblings with adrenomyeloneuropathy.";
+RL   Hum. Mutat. Suppl. 1:S204-S206(1998).
+RN   [17]
+RP   VARIANTS X-ALD.
+RX   MEDLINE=99408241; PubMed=10480364;
+RA   Wichers M., Kohler W., Brennemann W., Boese V., Sokolowski P.,
+RA   Bidlingmaier F., Ludwig M.;
+RT   "X-linked adrenomyeloneuropathy associated with 14 novel ALD-gene
+RT   mutations: no correlation between type of mutation and age of onset.";
+RL   Hum. Genet. 105:116-119(1999).
+RN   [18]
+RP   VARIANTS X-ALD LEU-108 AND SER-143.
+RX   MEDLINE=99299442; PubMed=10369742;
+RA   Perusi C., Gomez-Lira M., Mottes M., Pignatti P.F., Bertini E.,
+RA   Cappa M., Vigliani M.C., Schiffer D., Rizzuto N., Salviati A.;
+RT   "Two novel missense mutations causing adrenoleukodystrophy in Italian
+RT   patients.";
+RL   Mol. Cell. Probes 13:179-182(1999).
+RN   [19]
+RP   VARIANTS X-ALD.
+RX   MEDLINE=20202141; PubMed=10737980;
+RA   Lachtermacher M.B., Seuanez H.N., Moser A.B., Moser H.W., Smith K.D.;
+RT   "Determination of 30 X-linked adrenoleukodystrophy mutations,
+RT   including 15 not previously described.";
+RL   Hum. Mutat. 15:348-353(2000).
+RN   [20]
+RP   VARIANTS X-ALD GLN-401; TRP-418; LEU-543 AND ARG-556.
+RX   MEDLINE=20438355; PubMed=10980539;
+RA   Lira M.G., Mottes M., Pignatti P.F., Medica I., Uziel G., Cappa M.,
+RA   Bertini E., Rizzuto N., Salviati A.;
+RT   "Detection of mutations in the ALD gene (ABCD1) in seven Italian
+RT   families: description of four novel mutations.";
+RL   Hum. Mutat. 16:271-271(2000).
+RN   [21]
+RP   VARIANTS X-ALD LEU-98; ASP-99; GLU-217; GLN-518; ASP-608; ILE-633 AND
+RP   PRO-660, AND VARIANT THR-13.
+RX   MEDLINE=21331689; PubMed=11438993;
+RA   Dvorakova L., Storkanova G., Unterrainer G., Hujova J., Kmoch S.,
+RA   Zeman J., Hrebicek M., Berger J.;
+RT   "Eight novel ABCD1 gene mutations and three polymorphisms in patients
+RT   with X-linked adrenoleukodystrophy: the first polymorphism causing an
+RT   amino acid exchange.";
+RL   Hum. Mutat. 18:52-60(2001).
+RN   [22]
+RP   VARIANT X-ALD VAL-GLY-GLN-300 INS.
+RX   MEDLINE=21668186; PubMed=11810273; DOI=10.1007/s00439-001-0632-z;
+RA   Guimaraes C.P., Lemos M., Menezes I., Coelho T., Sa-Miranda C.,
+RA   Azevedo J.E.;
+RT   "Characterisation of two mutations in the ABCD1 gene leading to low
+RT   levels of normal ALDP.";
+RL   Hum. Genet. 109:616-622(2001).
+RN   [23]
+RP   INVOLVEMENT IN CONTIGUOUS ABCD1/DXS1375E DELETION SYNDROME.
+RX   PubMed=11992258;
+RA   Corzo D., Gibson W., Johnson K., Mitchell G., LePage G., Cox G.F.,
+RA   Casey R., Zeiss C., Tyson H., Cutting G.R., Raymond G.V., Smith K.D.,
+RA   Watkins P.A., Moser A.B., Moser H.W., Steinberg S.J.;
+RT   "Contiguous deletion of the X-linked adrenoleukodystrophy gene (ABCD1)
+RT   and DXS1357E: a novel neonatal phenotype similar to peroxisomal
+RT   biogenesis disorders.";
+RL   Am. J. Hum. Genet. 70:1520-1531(2002).
+CC   -!- FUNCTION: Probable transporter. The nucleotide-binding fold acts
+CC       as an ATP-binding subunit with ATPase activity.
+CC   -!- SUBUNIT: Can form homo- and heterodimers with ABCD2/ALDR and
+CC       ABCD3/PMP70. Dimerization is necessary to form an active
+CC       transporter.
+CC   -!- SUBCELLULAR LOCATION: Integral membrane protein. Peroxisomal.
+CC   -!- DISEASE: Defects in ABCD1 are the cause of recessive X-linked
+CC       adrenoleukodystrophy (X-ALD) [MIM:300100]. X-ALD is a rare
+CC       peroxisomal metabolic disorder that occurs in boys and is
+CC       characterized by progressive multifocal demyelination of the
+CC       central nervous system and by adrenocortical insufficiency. It
+CC       produces mental deterioration, corticospinal tract dysfunction,
+CC       and cortical blindness. There is laboratory evidence of adrenal
+CC       cortical dysfunction. Different clinical manifestations exist
+CC       like: cerebral childhood ALD (CALD), adult cerebral ALD (ACALD),
+CC       adrenomyeloneuropathy (AMN) and "Addison disease only" (ADO)
+CC       phenotype.
+CC   -!- DISEASE: Microdeletions in ABCD1 are involved in the contiguous
+CC       ABCD1/DXS1375E deletion syndrome (CADDS) [MIM:300475]. Patients
+CC       manifest profound neonatal hypotonia, subsequent failure to
+CC       thrive, and cholestatic liver disease.
+CC   -!- SIMILARITY: Belongs to the ABC transporter family. ALD subfamily.
+CC   -!- DATABASE: NAME=X-ALD gene mutation database;
+CC       WWW="http://www.x-ald.nl/".
+CC   --------------------------------------------------------------------------
+CC   This SWISS-PROT entry is copyright. It is produced through a collaboration
+CC   between  the Swiss Institute of Bioinformatics  and the  EMBL outstation -
+CC   the European Bioinformatics Institute.  There are no  restrictions on  its
+CC   use  by  non-profit  institutions as long  as its content  is  in  no  way
+CC   modified and this statement is not removed.  Usage  by  and for commercial
+CC   entities requires a license agreement (See http://www.isb-sib.ch/announce/
+CC   or send an email to license@isb-sib.ch).
+CC   --------------------------------------------------------------------------
+DR   EMBL; Z21876; CAA79922.1; -.
+DR   EMBL; Z31348; CAA83230.1; -.
+DR   EMBL; Z31006; CAA83230.1; JOINED.
+DR   EMBL; Z31007; CAA83230.1; JOINED.
+DR   EMBL; Z31008; CAA83230.1; JOINED.
+DR   EMBL; Z31009; CAA83230.1; JOINED.
+DR   EMBL; Z31010; CAA83230.1; JOINED.
+DR   EMBL; U52111; -; NOT_ANNOTATED_CDS.
+DR   PIR; G02500; G02500.
+DR   Genew; HGNC:61; ABCD1.
+DR   MIM; 300371; -.
+DR   MIM; 300100; -.
+DR   MIM; 300475; -.
+DR   GO; GO:0005779; C:integral to peroxisomal membrane; NAS.
+DR   GO; GO:0004009; F:ATP-binding cassette (ABC) transporter acti...; NAS.
+DR   GO; GO:0005215; F:transporter activity; NAS.
+DR   GO; GO:0015919; P:peroxisomal membrane transport; NAS.
+DR   GO; GO:0007031; P:peroxisome organization and biogenesis; NAS.
+DR   InterPro; IPR003593; AAA_ATPase.
+DR   InterPro; IPR003439; ABC_transporter.
+DR   InterPro; IPR005283; FA_transporter.
+DR   Pfam; PF00005; ABC_tran; 1.
+DR   Pfam; PF06472; Ald_N; 1.
+DR   ProDom; PD000006; ABC_transporter; 1.
+DR   TIGRFAMs; TIGR00954; 3a01203; 1.
+DR   PROSITE; PS50929; ABC_TM1F; 1.
+DR   PROSITE; PS00211; ABC_TRANSPORTER_1; 1.
+DR   PROSITE; PS50893; ABC_TRANSPORTER_2; 1.
+KW   ATP-binding; Glycoprotein; Transmembrane; Transport; Peroxisome;
+KW   Disease mutation; Polymorphism.
+FT   TRANSMEM     92    112       Potential.
+FT   TRANSMEM    131    151       Potential.
+FT   TRANSMEM    238    258       Potential.
+FT   TRANSMEM    333    353       Potential.
+FT   TRANSMEM    473    493       Potential.
+FT   NP_BIND     507    514       ATP (By similarity).
+FT   VARIANT      13     13       N -> T (very rare polymorphism; does not
+FT                                affect ALDP function).
+FT                                /FTId=VAR_013340.
+FT   VARIANT      90     90       E -> K (in X-ALD).
+FT                                /FTId=VAR_009349.
+FT   VARIANT      98     98       S -> L (in X-ALD; CALD type).
+FT                                /FTId=VAR_000024.
+FT   VARIANT      99     99       A -> D (in X-ALD; AMN-type).
+FT                                /FTId=VAR_013341.
+FT   VARIANT     103    103       S -> R (in X-ALD).
+FT                                /FTId=VAR_009350.
+FT   VARIANT     104    104       R -> C (in X-ALD).
+FT                                /FTId=VAR_000025.
+FT   VARIANT     104    104       R -> H (in X-ALD; ADO-type).
+FT                                /FTId=VAR_000026.
+FT   VARIANT     105    105       T -> I (in X-ALD; ADO-type).
+FT                                /FTId=VAR_000027.
+FT   VARIANT     105    105       T -> P (in X-ALD).
+FT                                /FTId=VAR_009351.
+FT   VARIANT     107    107       L -> P (in X-ALD; ALD/AMN/ADO-types and
+FT                                asymptomatic).
+FT                                /FTId=VAR_000028.
+FT   VARIANT     108    108       S -> L (in X-ALD).
+FT                                /FTId=VAR_009352.
+FT   VARIANT     108    108       S -> W (in X-ALD; CALD and AMN-types).
+FT                                /FTId=VAR_000029.
+FT   VARIANT     113    113       R -> C (in X-ALD).
+FT                                /FTId=VAR_009353.
+FT   VARIANT     113    113       R -> P (in X-ALD).
+FT                                /FTId=VAR_013342.
+FT   VARIANT     116    116       G -> R (in X-ALD; CALD-type).
+FT                                /FTId=VAR_000030.
+FT   VARIANT     123    123       A -> V.
+FT                                /FTId=VAR_000031.
+FT   VARIANT     138    141       Missing (in X-ALD; ALD-type).
+FT                                /FTId=VAR_000032.
+FT   VARIANT     141    141       A -> T (in X-ALD).
+FT                                /FTId=VAR_000033.
+FT   VARIANT     143    143       P -> S (in X-ALD).
+FT                                /FTId=VAR_009354.
+FT   VARIANT     148    148       N -> S (in X-ALD; ADO-type).
+FT                                /FTId=VAR_000034.
+FT   VARIANT     149    149       S -> N (in X-ALD).
+FT                                /FTId=VAR_000035.
+FT   VARIANT     152    152       R -> C (in X-ALD; ADO-type).
+FT                                /FTId=VAR_000036.
+FT   VARIANT     152    152       R -> L (in X-ALD).
+FT                                /FTId=VAR_009355.
+FT   VARIANT     152    152       R -> P (in X-ALD).
+FT                                /FTId=VAR_000037.
+FT   VARIANT     152    152       R -> S (in X-ALD).
+FT                                /FTId=VAR_009356.
+FT   VARIANT     161    161       S -> P (in X-ALD).
+FT                                /FTId=VAR_009357.
+FT   VARIANT     163    163       R -> H (in X-ALD).
+FT                                /FTId=VAR_000038.
+FT   VARIANT     163    163       R -> P (in X-ALD).
+FT                                /FTId=VAR_009358.
+FT   VARIANT     174    174       Y -> C (in X-ALD).
+FT                                /FTId=VAR_009359.
+FT   VARIANT     174    174       Y -> D (in X-ALD; ALD-type).
+FT                                /FTId=VAR_000039.
+FT   VARIANT     174    174       Y -> S (in X-ALD; CALD-type).
+FT                                /FTId=VAR_000040.
+FT   VARIANT     178    178       Q -> E (in X-ALD; AMN-type).
+FT                                /FTId=VAR_000041.
+FT   VARIANT     181    181       Y -> C (in X-ALD; ALMD-type).
+FT                                /FTId=VAR_000042.
+FT   VARIANT     182    182       R -> P (in X-ALD).
+FT                                /FTId=VAR_000043.
+FT   VARIANT     189    189       R -> W (in X-ALD).
+FT                                /FTId=VAR_009360.
+FT   VARIANT     190    190       L -> P (in X-ALD).
+FT                                /FTId=VAR_009361.
+FT   VARIANT     194    194       D -> H (in X-ALD).
+FT                                /FTId=VAR_000044.
+FT   VARIANT     198    198       T -> K (in X-ALD).
+FT                                /FTId=VAR_009362.
+FT   VARIANT     200    200       D -> N (in X-ALD).
+FT                                /FTId=VAR_009363.
+FT   VARIANT     200    200       D -> V (in X-ALD; CALD-type).
+FT                                /FTId=VAR_000045.
+FT   VARIANT     207    207       S -> SAAS (in X-ALD).
+FT                                /FTId=VAR_013343.
+FT   VARIANT     211    211       L -> P (in X-ALD).
+FT                                /FTId=VAR_000046.
+FT   VARIANT     213    213       S -> C (in X-ALD).
+FT                                /FTId=VAR_009364.
+FT   VARIANT     214    214       N -> D (in X-ALD).
+FT                                /FTId=VAR_009365.
+FT   VARIANT     217    217       K -> E (in X-ALD).
+FT                                /FTId=VAR_013344.
+FT   VARIANT     218    218       P -> T (in X-ALD).
+FT                                /FTId=VAR_009366.
+FT   VARIANT     220    220       L -> P (in X-ALD).
+FT                                /FTId=VAR_000047.
+FT   VARIANT     221    221       D -> G (in X-ALD; CALD and AMN-types).
+FT                                /FTId=VAR_000048.
+FT   VARIANT     224    224       V -> E (in X-ALD).
+FT                                /FTId=VAR_013345.
+FT   VARIANT     229    229       L -> P (in X-ALD).
+FT                                /FTId=VAR_009367.
+FT   VARIANT     254    254       T -> M (in X-ALD; AMN-type).
+FT                                /FTId=VAR_000049.
+FT   VARIANT     254    254       T -> P (in X-ALD; AMN-type).
+FT                                /FTId=VAR_000050.
+FT   VARIANT     263    263       P -> L (in X-ALD; CALD, AMN and AD-
+FT                                typeS).
+FT                                /FTId=VAR_000051.
+FT   VARIANT     266    266       G -> R (in X-ALD).
+FT                                /FTId=VAR_000052.
+FT   VARIANT     271    271       E -> K (in X-ALD).
+FT                                /FTId=VAR_009368.
+FT   VARIANT     274    274       R -> W (in X-ALD).
+FT                                /FTId=VAR_013346.
+FT   VARIANT     276    276       K -> E (in X-ALD; CALD-type).
+FT                                /FTId=VAR_000053.
+FT   VARIANT     277    277       G -> R (in X-ALD; AMN-type).
+FT                                /FTId=VAR_000054.
+FT   VARIANT     277    277       G -> GN (in X-ALD; ADO-type).
+FT                                /FTId=VAR_000055.
+FT   VARIANT     277    277       G -> W (in X-ALD).
+FT                                /FTId=VAR_000056.
+FT   VARIANT     280    280       R -> C (in X-ALD).
+FT                                /FTId=VAR_013347.
+FT   VARIANT     285    285       R -> P (in X-ALD).
+FT                                /FTId=VAR_009369.
+FT   VARIANT     291    291       E -> D (in X-ALD; ACALD and CALD-types).
+FT                                /FTId=VAR_000057.
+FT   VARIANT     291    291       E -> K (in X-ALD).
+FT                                /FTId=VAR_000058.
+FT   VARIANT     291    291       Missing (in X-ALD; ALD-type).
+FT                                /FTId=VAR_000059.
+FT   VARIANT     294    294       A -> T (in X-ALD; AMN-type).
+FT                                /FTId=VAR_000060.
+FT   VARIANT     296    296       Y -> C (in X-ALD).
+FT                                /FTId=VAR_009370.
+FT   VARIANT     298    298       G -> D (in X-ALD).
+FT                                /FTId=VAR_009371.
+FT   VARIANT     300    300       E -> EVGQ (in X-ALD).
+FT                                /FTId=VAR_013348.
+FT   VARIANT     302    302       E -> K (in X-ALD).
+FT                                /FTId=VAR_009372.
+FT   VARIANT     322    322       L -> P (in X-ALD).
+FT                                /FTId=VAR_009373.
+FT   VARIANT     336    336       K -> M (in X-ALD).
+FT                                /FTId=VAR_009374.
+FT   VARIANT     339    339       W -> R (in X-ALD).
+FT                                /FTId=VAR_013349.
+FT   VARIANT     342    342       S -> P (in X-ALD; AMN-type).
+FT                                /FTId=VAR_000061.
+FT   VARIANT     343    343       G -> D (in X-ALD).
+FT                                /FTId=VAR_013350.
+FT   VARIANT     389    389       R -> G (in X-ALD; AMN-type).
+FT                                /FTId=VAR_000062.
+FT   VARIANT     389    389       R -> H (in X-ALD; does not affect protein
+FT                                stability, homo- and heterodimerization
+FT                                with ALDR and PMP70).
+FT                                /FTId=VAR_000063.
+FT   VARIANT     401    401       R -> Q (in X-ALD; ALD and AMN-types; does
+FT                                not affect protein stability, homo- and
+FT                                heterodimerization with ALDR and PMP70).
+FT                                /FTId=VAR_000064.
+FT   VARIANT     401    401       R -> W (in X-ALD).
+FT                                /FTId=VAR_009375.
+FT   VARIANT     418    418       R -> W (in X-ALD; AMN-type).
+FT                                /FTId=VAR_000065.
+FT   VARIANT     427    427       Missing (in X-ALD).
+FT                                /FTId=VAR_013351.
+FT   VARIANT     484    484       P -> R (in X-ALD; CALD, AMN and ADO-
+FT                                types; significantly decreases
+FT                                homodimerization and abolishes
+FT                                heterodimerization with ALDR and PMP70).
+FT                                /FTId=VAR_000066.
+FT   VARIANT     507    507       G -> V (in X-ALD; CALD-types).
+FT                                /FTId=VAR_000067.
+FT   VARIANT     512    512       G -> S (in X-ALD; CALD and AS-types;
+FT                                reduced ATPase activity).
+FT                                /FTId=VAR_000068.
+FT   VARIANT     515    515       S -> F (in X-ALD).
+FT                                /FTId=VAR_000069.
+FT   VARIANT     518    518       R -> Q (in X-ALD; CALD-type).
+FT                                /FTId=VAR_000070.
+FT   VARIANT     518    518       R -> W (in X-ALD; CALD-type).
+FT                                /FTId=VAR_000071.
+FT   VARIANT     522    522       G -> W (in X-ALD; AD-type).
+FT                                /FTId=VAR_000072.
+FT   VARIANT     528    528       Missing (in X-ALD; CALD-type).
+FT                                /FTId=VAR_000073.
+FT   VARIANT     529    529       G -> S (in X-ALD).
+FT                                /FTId=VAR_009376.
+FT   VARIANT     534    534       P -> L (in X-ALD; CALD-type).
+FT                                /FTId=VAR_000074.
+FT   VARIANT     540    540       F -> S (in X-ALD).
+FT                                /FTId=VAR_009377.
+FT   VARIANT     543    543       P -> L (in X-ALD).
+FT                                /FTId=VAR_009378.
+FT   VARIANT     544    544       Q -> R (in X-ALD).
+FT                                /FTId=VAR_009379.
+FT   VARIANT     552    552       S -> P (in X-ALD).
+FT                                /FTId=VAR_009380.
+FT   VARIANT     554    554       R -> H (in X-ALD).
+FT                                /FTId=VAR_009381.
+FT   VARIANT     556    556       Q -> R (in X-ALD; ACALD type).
+FT                                /FTId=VAR_013352.
+FT   VARIANT     560    560       P -> L (in X-ALD; CALD-type).
+FT                                /FTId=VAR_000075.
+FT   VARIANT     560    560       P -> R (in X-ALD; AMN and ALMD-types).
+FT                                /FTId=VAR_000076.
+FT   VARIANT     560    560       P -> S (in X-ALD).
+FT                                /FTId=VAR_013353.
+FT   VARIANT     566    566       M -> K (in X-ALD).
+FT                                /FTId=VAR_000077.
+FT   VARIANT     591    591       R -> P (in X-ALD).
+FT                                /FTId=VAR_013354.
+FT   VARIANT     591    591       R -> Q (in X-ALD; AMN-type; significantly
+FT                                decreases homodimerization and abolishes
+FT                                heterodimerization with ALDR and PMP70).
+FT                                /FTId=VAR_000078.
+FT   VARIANT     591    591       R -> W (in X-ALD).
+FT                                /FTId=VAR_009382.
+FT   VARIANT     606    606       S -> L (in X-ALD; decreased ATP-binding
+FT                                affinity).
+FT                                /FTId=VAR_000079.
+FT   VARIANT     606    606       S -> P (in X-ALD; CALD, AMN and ALMD-
+FT                                types).
+FT                                /FTId=VAR_000080.
+FT   VARIANT     608    608       G -> D (in X-ALD; CALD-type).
+FT                                /FTId=VAR_013355.
+FT   VARIANT     609    609       E -> G (in X-ALD).
+FT                                /FTId=VAR_000081.
+FT   VARIANT     609    609       E -> K (in X-ALD; AMN-type).
+FT                                /FTId=VAR_000082.
+FT   VARIANT     616    616       A -> V (in X-ALD).
+FT                                /FTId=VAR_009383.
+FT   VARIANT     617    617       R -> C (in X-ALD; ALD-type and
+FT                                asymptomatic).
+FT                                /FTId=VAR_000083.
+FT   VARIANT     617    617       R -> G (in X-ALD; ADO and AMN-types with
+FT                                cerebral involvement).
+FT                                /FTId=VAR_000084.
+FT   VARIANT     617    617       R -> H (in X-ALD).
+FT                                /FTId=VAR_000085.
+FT   VARIANT     626    626       A -> D (in X-ALD).
+FT                                /FTId=VAR_013356.
+FT   VARIANT     626    626       A -> T (in X-ALD; CALD and AMN-types).
+FT                                /FTId=VAR_000086.
+FT   VARIANT     629    629       D -> H (in X-ALD).
+FT                                /FTId=VAR_000087.
+FT   VARIANT     630    630       E -> G (in X-ALD).
+FT                                /FTId=VAR_009384.
+FT   VARIANT     631    631       C -> Y (in X-ALD).
+FT                                /FTId=VAR_009385.
+FT   VARIANT     632    632       T -> I (in X-ALD).
+FT                                /FTId=VAR_013357.
+FT   VARIANT     633    633       S -> I (in X-ALD; asymptomatic).
+FT                                /FTId=VAR_013358.
+FT   VARIANT     633    633       S -> R (in X-ALD).
+FT                                /FTId=VAR_009386.
+FT   VARIANT     635    635       V -> M (in X-ALD).
+FT                                /FTId=VAR_013359.
+FT   VARIANT     636    636       S -> I (in X-ALD).
+FT                                /FTId=VAR_009387.
+FT   VARIANT     638    638       D -> Y (in X-ALD).
+FT                                /FTId=VAR_009388.
+FT   VARIANT     646    646       A -> P (in X-ALD).
+FT                                /FTId=VAR_009389.
+FT   VARIANT     654    654       L -> P (in X-ALD).
+FT                                /FTId=VAR_009390.
+FT   VARIANT     657    657       Missing (in X-ALD; CALD-type).
+FT                                /FTId=VAR_000088.
+FT   VARIANT     660    660       R -> P (in X-ALD; CALD-type).
+FT                                /FTId=VAR_013360.
+FT   VARIANT     660    660       R -> W (in X-ALD; CALD, ALMD and AS-
+FT                                types).
+FT                                /FTId=VAR_000089.
+FT   VARIANT     667    667       H -> D (in X-ALD).
+FT                                /FTId=VAR_009391.
+FT   VARIANT     668    668       T -> I (in X-ALD).
+FT                                /FTId=VAR_009392.
+FT   VARIANT     679    679       W -> R (in X-ALD; AMN-type).
+FT                                /FTId=VAR_000090.
+FT   VARIANT     693    693       T -> M (in X-ALD).
+FT                                /FTId=VAR_009393.
+SQ   SEQUENCE   745 AA;  82908 MW;  13A8EFDE9EB1E7FA CRC64;
+     MPVLSRPRPW RGNTLKRTAV LLALAAYGAH KVYPLVRQCL APARGLQAPA GEPTQEASGV
+     AAAKAGMNRV FLQRLLWLLR LLFPRVLCRE TGLLALHSAA LVSRTFLSVY VARLDGRLAR
+     CIARKDPRAF GWQLLQWLLI ALPATFVNSA IRYLEGQLAL SFRSRLVAHA YRLYFSQQTY
+     YRVSNMDGRL RNPDQSLTED VVAFAASVAH LYSNLTKPLL DVAVTSYTLL RAARSRGAGT
+     AWPSAIAGLV VFLTANVLRA FSPKFGELVA EEARRKGELR YMHSRVVANS EEIAFYGGHE
+     VELALLQRSY QDLASQINLI LLERLWYVML EQFLMKYVWS ASGLLMVAVP IITATGYSES
+     DAEAVKKAAL EKKEEELVSE RTEAFTIARN LLTAAADAIE RIMSSYKEVT ELAGYTARVH
+     EMFQVFEDVQ RCHFKRPREL EDAQAGSGTI GRSGVRVEGP LKIRGQVVDV EQGIICENIP
+     IVTPSGEVVV ASLNIRVEEG MHLLITGPNG CGKSSLFRIL GGLWPTYGGV LYKPPPQRMF
+     YIPQRPYMSV GSLRDQVIYP DSVEDMQRKG YSEQDLEAIL DVVHLHHILQ REGGWEAMCD
+     WKDVLSGGEK QRIGMARMFY HRPKYALLDE CTSAVSIDVE GKIFQAAKDA GIALLSITHR
+     PSLWKYHTHL LQFDGEGGWK FEKLDSAARL SLTEEKQRLE QQLAGIPKMQ RRLQELCQIL
+     GEAVAPAHVP APSPQGPGGL QGAST
+//

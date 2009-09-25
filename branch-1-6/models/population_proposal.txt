@@ -1,0 +1,29 @@
+A toolkit for manipulating population data is critical for population
+geneticists, epidemiologists, evo-devo and others.
+
+
+This proposal will outline basic set of objects which are useful for
+manipulating population data.  Our primary driving force will be to
+process the data generated from the SNP haplotype project.
+
+
+Population Objects
+
+Bio::Population namespace
+
+Bio::Population::HaplotypeCohortI  a collection (likely) co-inherited
+			             markers
+Bio::Population::HaplotypeI  -- a score for a particular haplotype
+			        cohort or an individual
+Bio::Population::GenotypeI   -- a score value for a marker for an individual 
+Bio::Population::FrequencyI  -- an allele frequency in a Population
+Bio::Population::PopulationI -- group of unrelated individuals
+Bio::Population::PedigreeI   -- group of related individuals w/ relationships
+Bio::Population::IndividualI -- a single identifiable entity with distinct
+				genotypes for markers
+Bio::Population::PhenotypeI  -- a trait associated with an individual 
+
+Relationships
+--------------- 
+A PedigreeI isa PopulationI
+A PopulationI can contain other PopulationIs

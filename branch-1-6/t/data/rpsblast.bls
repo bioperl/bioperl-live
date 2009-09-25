@@ -1,0 +1,201 @@
+RPS-BLAST 2.2.18 [Mar-02-2008]
+
+Database: CDD.v.2.12 
+           24,291 sequences; 6,026,850 total letters
+
+Searching..................................................done
+
+Query= orf10
+         (129 letters)
+
+ ***** No hits found ******
+
+
+Query= orf20
+         (765 letters)
+
+
+
+                                                                 Score    E
+Sequences producing significant alignments:                      (bits) Value
+
+gnl|CDD|82074 PRK07003, PRK07003, DNA polymerase III subunits ga...    41   0.001
+
+>gnl|CDD|82074 PRK07003, PRK07003, DNA polymerase III subunits gamma and tau.
+          Length = 825
+
+ Score = 41.0 bits (95), Expect = 0.001
+ Identities = 51/212 (24%), Positives = 65/212 (30%)
+
+Query: 101 GTGTTTCAGAAGATATAATAAAAAAAATAGAAAAAAAAAATTGGAAACTAATAGCAATTT 160
+           G       GA+   A      A  AA    AAAA AA  A    AA    ATA      +
+Sbjct: 384 GARAAAAVGASAVPAVTGATGATGAALAPKAAAARAATRAEAPPAAPARPATAERGDDAS 443
+
+Query: 161 TATTAACTCATAATCATATTGATCATGTAGGAGGAGTAGAAGAAATTATAAGAAGATATC 220
+                    A A   A +      A   A     +G A +A       +A  AA  +A  
+Sbjct: 444 DGDAPVPAKANARASADSRCDERDAQPPADSGSASGAASSAPPDTAFESAPRAAAPSAAT 503
+
+Query: 221 CAAACGTAACTGTTTTTGGTCCTGAAGAAACAAAAACAAGAAATGTAAATAAAATTGTAA 280
+            AA     A    +          AA  +     AA A  + ATG AAA       G   
+Sbjct: 504 PAAVPDARAPAAASAEDAVEAAAPAAPESRPPTPAAGAPVSRATGAAAALDVLRNAGMRV 563
+
+Query: 281 AACAAGGAGATGTAATAAAATTGTTAAAAAGT 312
+           ++    GA        A+       A  +  T
+Sbjct: 564 SSGRGAGAARPAAGPAASPTKPAPRAQVSVPT 595
+
+
+Query= orf30
+         (225 letters)
+
+ ***** No hits found ******
+
+
+Query= orf40
+         (858 letters)
+
+
+
+                                                                 Score    E
+Sequences producing significant alignments:                      (bits) Value
+
+gnl|CDD|33678 COG3889, COG3889, Predicted solute binding protein...    47   2e-05
+
+>gnl|CDD|33678 COG3889, COG3889, Predicted solute binding protein [General
+           function prediction only].
+          Length = 872
+
+ Score = 47.3 bits (112), Expect = 2e-05
+ Identities = 33/147 (22%), Positives = 48/147 (32%), Gaps = 3/147 (2%)
+
+Query: 505 TTGGGTGTTTTTATTTTAATTTTATTTTATAGTGTAAAGATGAAGGGATTAATTGGTTTT 564
+              G   T   +     A        TT                G   TT+ T       
+Sbjct: 721 VKIGQALTVYGSLEVFPAGENWGFIPTTK--RVKVRIMDPASGTGTSITTSGTFTAEVPQ 778
+
+Query: 565 TGTAAAGAACTTACTTTACAACCTTTTAATCATCCTGTATTTTTTATTTTTAATTTTTTA 624
+           + T        +A + T+     TT+   T     T T T++ +   TT+   T+T+TT 
+Sbjct: 779 SPTKTETTLSYSAYSNTSILIE-TTSVVITKTVTQTQTTTSSPSPTQTTSPTQTSTSTTT 837
+
+Query: 625 TTAGAATTAGTTTCTTTATTATCAAAA 651
+           TT+ + TT G   C         AA A
+Sbjct: 838 TTSPSQTTTGGGICGPIVIIVGLAALA 864
+
+
+
+ Score = 45.4 bits (107), Expect = 5e-05
+ Identities = 30/134 (22%), Positives = 44/134 (32%), Gaps = 5/134 (3%)
+
+Query: 522 AATTTTATTTTATAGTGTAAAGATGAAGGGATTAATTGGTTTTTGTAAAGAACTTACTTT 581
+            A T   +     AG        T          A+  GT+ TT         T     +
+Sbjct: 725 QALTVYGSLEVFPAGENWGFIPTTKRVKVRIMDPASGTGTSITTSGTF-----TAEVPQS 779
+
+Query: 582 ACAACCTTTTAATCATCCTGTATTTTTTATTTTTAATTTTTTATTAGAATTAGTTTCTTT 641
+                 T + +A   T      T+   T T T T  TT++ + T   + T   T+T TTT
+Sbjct: 780 PTKTETTLSYSAYSNTSILIETTSVVITKTVTQTQTTTSSPSPTQTTSPTQTSTSTTTTT 839
+
+Query: 642 ATTATCAAAACCAA 655
+           + + T      C  
+Sbjct: 840 SPSQTTTGGGICGP 853
+
+
+
+ Score = 45.0 bits (106), Expect = 8e-05
+ Identities = 28/132 (21%), Positives = 41/132 (31%)
+
+Query: 105 AGATTTATGTAATTTTAAGTTTGTTGAACCAGGAAAAATTGTTTCTCATTTTTGGGTTTT 164
+            G   T  G+              T           A+ TGT+  T  T T     + T 
+Sbjct: 723 IGQALTVYGSLEVFPAGENWGFIPTTKRVKVRIMDPASGTGTSITTSGTFTAEVPQSPTK 782
+
+Query: 165 AAATATTGATTCAATCATATTTTCTCTTGTATTAGGATGTTTTTTTTTGAGCATCTTTTA 224
+              T +  A +  +     T+   T T     T   +   T TT+ T  +   T TT+ +
+Sbjct: 783 TETTLSYSAYSNTSILIETTSVVITKTVTQTQTTTSSPSPTQTTSPTQTSTSTTTTTSPS 842
+
+Query: 225 CACAGTGGCAAA 236
+               G G C   
+Sbjct: 843 QTTTGGGICGPI 854
+
+
+
+ Score = 42.3 bits (99), Expect = 4e-04
+ Identities = 26/96 (27%), Positives = 39/96 (40%)
+
+Query: 368 TTGTTTGGGTTTTTTTAATGAATCTTATGGATTTAATTCCAATTGATTTTTTTCCATTTA 427
+            +GT T   T+ T T     + T T  T   +  + T+    TT    T T T   TTT+
+Sbjct: 759 ASGTGTSITTSGTFTAEVPQSPTKTETTLSYSAYSNTSILIETTSVVITKTVTQTQTTTS 818
+
+Query: 428 TTTCTGAGAGGTTTTTTCATTTTCCAGCAATGCGTA 463
+           + + T   +   T+T+T  TT+          CG  
+Sbjct: 819 SPSPTQTTSPTQTSTSTTTTTSPSQTTTGGGICGPI 854
+
+
+Query= orf50
+         (189 letters)
+
+ ***** No hits found ******
+
+
+Query= orf60
+         (387 letters)
+
+ ***** No hits found ******
+
+
+Query= orf70
+         (600 letters)
+
+ ***** No hits found ******
+
+
+Query= orf80
+         (270 letters)
+
+ ***** No hits found ******
+
+
+Query= orf90
+         (987 letters)
+
+ ***** No hits found ******
+
+
+Query= orf100
+         (624 letters)
+
+ ***** No hits found ******
+
+
+Query= orf110
+         (435 letters)
+
+ ***** No hits found ******
+
+
+  Database: CDD.v.2.12
+    Posted date:  Aug 13, 2008 12:02 PM
+  Number of letters in database: 6,026,850
+  Number of sequences in database:  24,291
+  
+Lambda     K      H
+   0.320    0.134    0.503 
+
+Gapped
+Lambda     K      H
+   0.267   0.0579    0.140 
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Sequences: 24291
+Number of Hits to DB: 98,336,059
+Number of extensions: 7540086
+Number of successful extensions: 79485
+Number of sequences better than 1.0e-03: 11
+Number of HSP's gapped: 59896
+Number of HSP's successfully gapped: 1457
+Length of database: 6,026,850
+Neighboring words threshold: 11
+Window for multiple hits: 40
+X1: 16 ( 7.4 bits)
+X2: 38 (14.6 bits)
+X3: 64 (24.7 bits)
+S1: 41 (21.8 bits)
+S2: 86 (37.2 bits)

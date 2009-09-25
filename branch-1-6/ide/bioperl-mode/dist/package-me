@@ -1,0 +1,8 @@
+#!/bin/bash
+#$Id$
+tar -czvf bioperl-mode.tar  --directory=.. --exclude-tag-all=SKIP --exclude=#*.* --exclude=*.*~ --exclude=.svn --exclude=dist .
+find -L ../xemacs -type f > ../xemacs/xemacs-packages/pkginfo/MANIFEST.bioperl-mode
+tar -chzvf bioperl-mode-xemacs.tar  --directory=../xemacs --exclude-tag-all=SKIP --exclude=#*.* --exclude=*.*~ --exclude=.svn --exclude=dist .
+md5sum bioperl-mode.tar > bioperl-mode.tar.md5
+md5sum bioperl-mode-xemacs.tar > bioperl-mode-xemacs.tar.md5
+

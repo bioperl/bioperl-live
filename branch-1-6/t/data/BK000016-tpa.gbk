@@ -1,0 +1,70 @@
+LOCUS       BK000016                1162 bp    mRNA    linear   ROD 17-MAY-2002
+DEFINITION  TPA: Mus musculus pantothenate kinase 4 mRNA, partial cds.
+ACCESSION   BK000016
+VERSION     BK000016.1  GI:20043254
+KEYWORDS    Third Party Annotation; TPA.
+SOURCE      Mus musculus (house mouse)
+  ORGANISM  Mus musculus
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Rodentia; Sciurognathi; Muridae; Murinae; Mus.
+REFERENCE   1  (bases 1 to 1162)
+  AUTHORS   Zhou,B., Westaway,S.K., Levinson,B., Johnson,M.A., Gitschier,J. and
+            Hayflick,S.J.
+  TITLE     A novel pantothenate kinase gene (PANK2) is defective in
+            Hallervorden-Spatz syndrome
+  JOURNAL   Nat. Genet. 28 (4), 345-349 (2001)
+  MEDLINE   21372465
+   PUBMED   11479594
+REFERENCE   2  (bases 1 to 1162)
+  AUTHORS   Zhou,B., Westaway,S.K., Levinson,B., Johnson,M.A., Gitschier,J. and
+            Hayflick,S.J.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (31-JUL-2001) Medicine and HHMI, University of
+            California, San Francisco, 3rd and Parnassus Avenues, San
+            Francisco, CA 94143, USA
+PRIMARY     TPA_SPAN            PRIMARY_IDENTIFIER PRIMARY_SPAN        COMP
+            1-455               BE554781.1         1-455
+            177-687             BG146074.1         1-511
+            608-956             AA671765.1         45-393
+            656-1162            BE982078.1         1-507               c
+FEATURES             Location/Qualifiers
+     source          1..1162
+                     /organism="Mus musculus"
+                     /mol_type="mRNA"
+                     /db_xref="taxon:10090"
+     CDS             <1..1119
+                     /note="PANK4"
+                     /codon_start=1
+                     /product="pantothenate kinase 4"
+                     /protein_id="DAA00010.1"
+                     /db_xref="GI:20043255"
+                     /translation="ERGASGGGSGGDSLDKSITLPPDEIFRNLENAKRFAIDIGGSLT
+                     KLAYYSTVQHKVAKVRSFDHPGKDVEQDHEPPYEISVQEEITARLHFIKFENTYMEAC
+                     LDFIRDHLVNTETKVIQATGGGAYKFKDLIEEKLRLKVDKEDVMTCLIKGCNFVLKNI
+                     PHEAFMYQKDADPEFRFQTNHPNIFPYLLVNIGSGVSIVKVETEDRFEWIGGSSIGGG
+                     TFWGLGALLTKTKKFDELLQLASRGRHANVDMLVQDIYGGAHQTLGLSGNLIASSFGK
+                     SATADREFSKEDMAKSLLHMISNDIGQLACLYAKLHGLDRVYFGGFFIRGHPVTMRTI
+                     TYSINFFSKGEVQALFLRHEGYLGAIGAFLKGAEQDSE"
+BASE COUNT      290 a    308 c    332 g    232 t
+ORIGIN      
+        1 gagcgtggag cgagtggcgg cgggagcggc ggggacagtc tggacaagag catcacgctg
+       61 ccccccgacg agatcttccg caacctggag aacgccaagc gcttcgccat tgatataggt
+      121 ggatcattga ccaagttggc atactattcc accgtacagc acaaagtggc caaagtgaga
+      181 tcttttgacc acccgggaaa ggacgtggag caggatcatg agccacccta tgagatctca
+      241 gtccaggagg agatcacagc tcgcctgcat ttcatcaagt ttgagaatac ctacatggaa
+      301 gcctgcctgg acttcatcag agaccaccta gtcaacactg agaccaaggt catccaggcc
+      361 actgggggtg gagcctataa gttcaaggac ctcatcgagg aaaagctgcg tctgaaggtg
+      421 gacaaagagg atgtaatgac ctgcttgata aaggggtgca acttcgtgct gaagaacatc
+      481 ccgcatgagg ccttcatgta ccagaaagac gcagacccag agtttcgatt tcagacaaat
+      541 caccccaaca tcttccccta cctcctagtc aacattggct ctggcgtctc catcgtgaag
+      601 gtggagacag aggaccggtt tgagtggatt ggtggaagct ccattggagg aggcaccttc
+      661 tggggcctcg gggctctgct caccaaaaca aagaagtttg atgagctgct gcagctggct
+      721 tccagaggcc ggcatgccaa cgttgacatg ctggtccagg acatctatgg tggggcccac
+      781 cagaccctgg gcctgagtgg caatctcatc gcaagcagtt ttgggaagtc agccactgct
+      841 gacagagagt tctccaaaga agacatggcc aagagcctgc tgcacatgat cagcaatgac
+      901 atcgggcagc tcgcctgtct gtacgccaag ctccacggct tggacagggt ctactttggg
+      961 ggcttcttca tccggggtca ccccgtgacc atgcgcacaa tcacctacag cattaacttc
+     1021 ttctccaagg gtgaagtcca ggcactcttc ctgagacatg aaggctacct gggagccatc
+     1081 ggggcatttt taaaaggagc cgagcaagac agtgagtaga gtcactgctg tgagcagtgg
+     1141 ctggctgtgc aggacgcggc cg
+//

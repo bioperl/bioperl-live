@@ -1,0 +1,806 @@
+VV  TRANSFAC SITE TABLE, Release 11.1 - licensed - 2007-03-31, (C) Biobase GmbH
+XX
+//
+AC  R00001
+XX
+ID  HS$IFI616_01
+XX
+DT  0r0d.c)i(e.;t1a 90ee 9w.26
+DT  0vpd12.am1)t(ua d1;.1.0 2e
+CO  Copyright (C), Biobase GmbH.
+XX
+TY  DNA
+XX
+DE  IFI-6-16 (interferon-induced gene 6-16); Gene: G000176.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; primates
+XX
+SQ  aGAGACATAAGTgA.
+XX
+EL  SEIR
+XX
+SF  -172
+ST  -98
+XX
+BF  T00428; ISGF-3; Quality: 6; Species: human, Homo sapiens.
+XX
+MX  M00972; V$IRF_Q6_01
+XX
+SO   lNa3sl;IBro00hFtaB -p+8.i8
+SO  .0i;uDa01d6 
+SO  -p1 lah eH .;N0I1a+F0aL
+SO  .80H1 ;0FF
+SO  u .Ci L0D0M8;d+3a 
+XX
+MM  onerl aorithptre/ogopinephcpinnntf
+MM  ia fhrittecoynerneneetl
+MM  rtdinarotleae g
+MM  atittne meiernorhefcneyl
+MM  aolmtnocptheoir ettnyi
+XX
+CC  -rro  iaFiobnsirFntpFeidutkIamhtn fseh s)lfu abtwHhfaol ina( cN
+XX
+DR  (N6:E.L:HNI 9 0BI0);0242YS8 558MF
+DR  H 9P7_SNP.202IDIE:;E0 
+DR   9HS9TRA__1SN:.1OAP6R
+DR  26 _OTRRA.H:9SA1_NSP9
+XX
+RN  [1]; RE0002135.
+RX  PUBMED: 1707163.
+RA  boyuhB.,CRe  l .eL
+RT  ean Atfhttn cn otnrpinrpatteanescnmif ertlor-f ni ioteeDt:voaa  emieNoseo rrnto-orite ipAoeroHn rpDe lmosNs
+RL  R ie11.is9171Ne l:9A.c 9 )udsc5(c
+RN  [2]; RE0001119.
+RX  PUBMED: 2243138.
+RA   ,jS. R.AaS, d,nnDoo. ZtD ,nM,MBt eiarrars m. g i.  J ,epoh.Tsat eEis .oaz.wnColKne , J. Hir s,. SO aH.ee.Hhtesr
+RT  avl tpbciemennioshhsni ainecotcdao nrdcmris  onitgvlilape intasnl trc ppnodslitneerioduip aosdailiieonayelt riemro caaaotytp oeglsabisunkh rsecep dytrn nuog bhcnnfut- nes reteeme   teifp ll o nrlhe obu etlimornleua efrrsiA
+RL  9 .1...148 Jt6v -Iei6(s097C1n60l 6):n
+RN  [3]; RE0002131.
+RX  PUBMED: 2123539.
+RA  ..k lM e.I . Mi  , l I A, ...rm.c amtKTDS,GeA. Rr  kM .ararAl.,AC
+RT  a redupr ren ooicisrdalnapnem nTasnbmincyst trhcdia aotfag f
+RL  )R8.0. d1 A9s39ucec8N:50ii-(e6s6 15l7 c
+RN  [4]; RE0000307.
+RX  PUBMED: 2721502.
+RA  J.rewl ..rG,Rae.s S. .AR Rtr oMDKnt a roe..eMe,u ,e.r. M  n.LGIAkP .C i  ,, J   .iGl,lCT  ..
+RT  nstoniie  corens-evne iitstafpo DalmdvOtpoiuvtei lAsca d ariticlribnd rn dNtrpida ivgerctuntentnoiufinrsndfs nego 
+RL  91EO3)1.8  :99(3M. J-88B8
+RN  [5]; RE0002261.
+RX  PUBMED: 2919169.
+RA    .I..R .K.r,.etlCma.  rMkMaDe SI.raA, m G T,  
+RT  epeanpncotRbemraioDenoiiiepeat  pytga Afe tdar a t fr l ennnvapsyniric d tt lsbatdl etloraoon ftt.lh hiNnusci e-n
+RL  c.o2.2l8 c1038 .P:9S6. () irNd .1S a79Aa0-AU1ct
+RN  [6]; RE0000306.
+RX  PUBMED: 3359997.
+RA  h ew r C A G lY ICtro.ib . .GkaMeo .rarGj,a.STe.ie,.s,k  K,. ..r,rCR.l.tCre PDtS n  
+RT  n rmol6eenI 6tepgentf eneouftnea-e mn e hsshr1o re
+RL  -8E1)9.9B .:M7 58(JO2 8
+XX
+//
+AC  R00019
+XX
+ID  MOUSE$ACRD_02
+XX
+DT  ceeei0w 2a0()906.91r.d ;.t
+DT  1di;7. wad191)ut 9epe(.12.
+CO  Copyright (C), Biobase GmbH.
+XX
+TY  DNA
+XX
+DE  AChR delta (acetylcholine receptor, delta-subunit); Gene: G000457.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; rodentia; myomorpha; muridae; murinae
+XX
+SQ  gccgcATGCATGCATGCtttaagc.
+XX
+EL  E1
+XX
+SF  -92
+ST  1-5
+XX
+BF  T01786; E12; Quality: 6; Species: human, Homo sapiens.
+BF  T01788; E47; Quality: 6; Species: human, Homo sapiens.
+BF  T00526; MyoD; Quality: 6; Species: human, Homo sapiens.
+BF  T00528; myogenin; Quality: 6; Species: human, Homo sapiens.
+XX
+MX  M00693; V$E12_Q6
+MX  M00804; V$E2A_Q2
+MX  M00973; V$E2A_Q6
+MX  M01034; V$EBOX_Q6_01
+MX  M00929; V$MYOD_Q6_01
+MX  M00712; V$MYOGENIN_Q6
+XX
+SO  2C4sa. s2b0mt0y; lo
+SO  mrec3- )l0oi.;Eocu(03.se
+SO  oyt 8u0se3C;b7m.2 
+XX
+MM  elih esfrgtti dc
+MM  olht rteyeicternnniefea
+MM  n cnynastlfoaausiil
+MM   teigrntraoaedl
+MM  tlhntotfnme reeciraieyen
+XX
+CC  4th]iiMrd m tna oo  gobE1a  s  hr1te[weyehiiodnsni7erd E2enDmey r
+XX
+DR  8HARE )B: 6M4:M6L6.(481A137 M33MCD;
+DR  :169 C385BRLHM71:1M3M4 3 (AX9.E;)
+DR  _3RP.S1N1U_77TA RM2:OM
+DR  _PSM.1URM_O8AN7 2TR6:
+DR  P:2TO_278RN U.MS_6ARM
+XX
+RN  [1]; RE0005844.
+RX  PUBMED: 8355673.
+RA  M neu.SSA.JnrBo.mid ,  . 
+RT  at son seiaecdv eu fticgetorsleos tnsnn e-x rcadnidehinghEtiu tAandtsoganly pee  bm lieni aryiorbpeecouetro me
+RL  31.ei13o551)91l -(3:34.loll..9 C0M B 
+RN  [2]; RE0001768.
+RX  PUBMED: 2797207.
+RA   ,d.J..wn .BSu TJieaBn lr d
+RT  -tlcepmubn ae ancigt neMkeerii nnciir gns-se f perooooelee ydcDed bss1ia ogatcsgllMrlxyti nluey
+RL  r2 t u9416e8(3)7109.1-Na:7
+XX
+//
+AC  R00850
+XX
+ID  MOUSE$IGH_16
+XX
+DT  w .69)i01e.0e(2 ar.;dte9c0
+DT  . de)et1(i60u 05p9d7.;aw9.
+CO  Copyright (C), Biobase GmbH.
+XX
+TY  DNA
+XX
+DE  IgH (immunoglobulin heavy chain); Gene: G000537.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; rodentia; myomorpha; muridae; murinae
+XX
+SQ  ATGCATGCATGC.
+XX
+EL  n,mEurhee nca2
+XX
+SF  378
+ST  913
+XX
+BF  T00207; E47; Quality: 6; Species: human, Homo sapiens.
+BF  T09514; HTF4gamma; Quality: 2; Species: human, Homo sapiens.
+BF  T00406; INSAF; Quality: 6; Species: hamster, Cricetulus sp.
+BF  T00526; MyoD; Quality: 6; Species: human, Homo sapiens.
+BF  T08853; myogenin; Quality: 2; Species: human, Homo sapiens.
+BF  T01799; Tal-1; Quality: 6; Species: human, Homo sapiens.
+BF  T01800; Tal-1; Quality: 6; Species: chick, Gallus gallus.
+BF  T00790; Tal1-PP42; Quality: 6; Species: human, Homo sapiens.
+XX
+MX  M00698; V$HEB_Q6
+MX  M00712; V$MYOGENIN_Q6
+MX  M00993; V$TAL1_Q6
+XX
+SO   I3;N0H30T0-3.
+SO  JA630 B.;-B0
+SO  .0ae00 HL;1
+SO  ; 16S1940.8
+SO  Ucl 462;2 3.0
+SO  .; 42EJ40
+SO  2;0 523.4D
+SO  h (.r0uty3calms)n;r ee3-2
+SO  me.r6;y(ls3ec0r )o- 2tseu
+SO  ais6r);oec0a7.oe-Eu6-b.m (dllcm
+XX
+MM  iechte  sfdlrgit
+MM   ott IieaspnrofNiDgn
+MM  itoo yep a/ioincgnmoct nervtih olinmvet 
+XX
+RN  [1]; RE0003087.
+RX  PUBMED: 1312219.
+RA   ns.H. R ul.o Kt,E.,.i sSE NO-gnon .J
+RT  2 odanoendarEaibsit t h g oi aeucu-ameoF2x p e hirtHgct ci eNo yfdr,igdaoatml tt Tt relAtlEB-n rfleax-oiolyt honDhIpnyabeeiAln l
+RL  oi4(102eM139.10:.l1 ol9-l12.C lB  )2.
+RN  [2]; RE0001629.
+RX  PUBMED: 2038315.
+RA    - CeaC .Js,u nH..nQ- e,B.hh.gTLerH ,.R
+RT  -eog ni2oxe pn tlo Ecs1o/xlton nnrci--aii hhlon eraottievpwi4ey afiithnastE1 d 7e tnh isEhl-tiitbocnoihperac
+RL  92lli..1M7Bo llo34C031:1-0 () 91.3e. 
+RN  [3]; RE0001447.
+RX  PUBMED: 2111447.
+RA  .rMmBtinaD me.AnL ore, e .oadL b r.a,Tnli
+RT  no ohporanillbec circG evvdplpIEne aeheil-mm oem hnyhamoIief   s ecn naeEniuSlRs onynatoeeiet fCgLnHtnugSxedvooin fti-uEmn
+RL  0l092  -5.i6.1.1:oleB3 93Col1M)1. (5l
+RN  [4]; RE0001998.
+RX  PUBMED: 2181401.
+RA   ,C okenoW. M.AW  e lrPiha,Rr.A., D.nA  smrek.a
+RT   iootca ootfsrtbct aelmtip cieeAiico aacnNu   henmtoisua e grApaerr nn  n vgflniDnpttuaescra fnl ecde
+RL  5-1 cdcs i 1ecl(e9 A811.N.1u9:Ri60s)691
+RN  [5]; RE0002608.
+RX  PUBMED: 3917574.
+RA   gr Gw,huaS EtChoee.niplriMG . c.auhAbsW r.,.T ,s 
+RT  meuFunoepictoe iinI runo-n nnofsgmncei Iw a eCb ncoiSnVErliaflctt hre oLlaai lrhcg lvaaiBt
+RL  (n1)2Sc4 8 0e-71c932i5.:e41
+XX
+//
+AC  R02116
+XX
+ID  AAF$CONS
+XX
+DT  (1sr9 tF)de c4;1ee2.0aiaMs.r9ty.e1/
+DT  0 ddb5od 19.p.t(.1)3e6a9u;
+CO  Copyright (C), Biobase GmbH.
+XX
+TY  DNA
+XX
+DE  consensus.
+XX
+SQ  ACCTTTATTTTTCA.
+XX
+BF  T00001; AAF; Quality: 6; Species: human, Homo sapiens.
+XX
+RN  [1]; RE0000446.
+RX  PUBMED: 1901265.
+RA  . ri Dk.Tn   l.l,.w cEer,DhoLr M.DJiJweeJc.ta  k,e
+RT  iNtm ctcFynt,o ad-r GF-Csagrcmiatfl D-moaNgAtieinaIidnua vAebalag on ofp
+RL   MO9.JB21920-:3 E1(.99 )71
+XX
+//
+AC  R02418
+XX
+ID  HS$MLC_01
+XX
+DT  9(1;0 e2ctd1.)2 1.wie.aer9
+DT  2pe.;maua .v00d.d007 6t8)(
+CO  Copyright (C), Biobase GmbH.
+XX
+TY  DNA
+XX
+DE  MLC (myosin light chain 1/3 locus); Gene: G000347.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; primates
+XX
+SQ  ATGCATGCATGC.
+XX
+EL  hc r'aen3en
+XX
+SF  214
+ST  142
+XX
+BF  T10006; Myf-5; Quality: 2; Species: human, Homo sapiens.
+BF  T00522; Myf-6; Quality: 2; Species: human, Homo sapiens.
+BF  T00526; MyoD; Quality: 2; Species: human, Homo sapiens.
+BF  T09197; MyoD; Quality: 2; Species: human, Homo sapiens.
+BF  T00520; Myogenin; Quality: 2; Species: human, Homo sapiens.
+XX
+SO  3Ece)mrsc0. lei0(-;o.3uo
+SO  E(m36ich;unre.0co0-. a)l
+XX
+MM  lat ogrreditean
+MM   eraeettcltfioynreihmnne
+XX
+CC  4osydfnn]ogb gydfM3 k tta,i,by- Mb Muy  nnrfiy  1-n -nfMetiow6g  l,o-ti[5
+XX
+RN  [1]; RE0002118.
+RX  PUBMED: 2243772.
+RA  r,be.Bhl oueu tMe noBtBr.eH h  nrrg,Ee-w o, ol M.o.un,eidaarNWA.EgdWtn s  Bht .B R,,lHTn.nn . r.B. Do.,
+RT  fiasnndt ityuseome ceen rr eth wh1enor3aredtico rlh ln e eom/sgeolc soyr adenoiicgsC mta n gr  maovttfimatuhcLp ahMAfnul
+RL  91e1dR2cA98036 N. .ies 9uicl (c:)s
+XX
+//
+AC  R02419
+XX
+ID  HS$MLC_02
+XX
+DT   tea2.)w1ce0(.i12de91;.9r 
+DT  2) 8.uapm0d; 06(0ea7.d.0vt
+CO  Copyright (C), Biobase GmbH.
+XX
+TY  DNA
+XX
+DE  MLC (myosin light chain 1/3 locus); Gene: G000347.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; primates
+XX
+SQ  ATGCATGCATGCATGCATGC.
+XX
+S1  within conserved region
+SF  527
+ST  030
+XX
+BF  T10006; Myf-5; Quality: 2; Species: human, Homo sapiens.
+BF  T00526; MyoD; Quality: 2; Species: human, Homo sapiens.
+BF  T09197; MyoD; Quality: 2; Species: human, Homo sapiens.
+BF  T00520; Myogenin; Quality: 2; Species: human, Homo sapiens.
+XX
+SO  .o3u)(;i0E3msole-re c.0c
+SO  E0ce03cai(hr )6;mn.l-u.o
+XX
+MM  oattgaedierrl n
+MM  hre niertiatnemfoyelntec
+XX
+CC  n) tndiknbfse[6ffn to  Marly n1,-   wa] edn y3o  rybktMg u- nnto 4bei-y oMiag(wvo5Mgd-dat fyyi
+XX
+RN  [1]; RE0002118.
+RX  PUBMED: 2243772.
+RA   ,a r ,gt .D. e,baMBHBlWhnweuR. .dN-EH rrBsn  , r.Brtot,e,eEg .ltTooihnl oe,Mn  dhAB B eorWoun.....nun 
+RT  impidcLosdn crM uan inym o3helaug eec  hAt re nmint vmieh o rineutos tawllsorcag/yare1ftdhah clse trCfanort neso mogtfee
+RL  9l 8AidNss.i(1  6c.9)Ru 9c1c2:30ee
+XX
+//
+AC  R02452
+XX
+ID  HS$AAC_20
+XX
+DT  2)911re.ede(.1.tc9iwa 2 ;3
+DT  0d.itued26)(1 ;.a003n6 dp.
+CO  Copyright (C), Biobase GmbH.
+XX
+TY  DNA
+XX
+DE  ACTC (actin, alpha, cardiac muscle); Gene: G000193.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; primates
+XX
+RE  promoter
+XX
+SQ  ATGCATGCATGC.
+XX
+EL  xoE-b
+XX
+SF  -65
+ST  -49
+XX
+BF  T00526; MyoD; Quality: 6; Species: human, Homo sapiens.
+BF  T06361; MyoD:E12; Quality: 1; Species: human, Homo sapiens.
+BF  T00528; myogenin; Quality: 3; Species: human, Homo sapiens.
+XX
+MX  M00804; V$E2A_Q2
+MX  M00973; V$E2A_Q6
+MX  M01034; V$EBOX_Q6_01
+MX  M00929; V$MYOD_Q6_01
+XX
+SO   2;C. 2mabs0sy0tl4o
+SO  23C120.04; C
+SO  c3ml.o()ir03cEe-0;eo s.u
+SO  h ci60are.ouE-c3m(n0.)l;
+XX
+MM  asyinncalnfoaul tsi
+MM   adittloergraen
+MM  ottelhmfeigip i cnost
+MM  eiheeeon nrtcifeayttnlrm
+MM  npfiti(dgnbsiie)o tnsab uhryd
+XX
+CC   Demnsym trsaedo lysp0re  icta ap eftnct4phi-u0iet aStufyioqreuMsnsaa cl-ap  scal0nc>fielhr ss2osccfo Ritnco[0unc 1m   oono tu  ob h lie 1doedg ctelituoRcinta]h fnipaerh6nrpi- inetw,rpsa1aRmglcaits  ei<,secucfcvoiSaoF2 d7e le
+XX
+DR  ; 3HM)27.8(E4:ATC48  41BM3SA:C3L
+DR  6T3;SP:E 0P1. CHE3C_DA
+DR  1SNO8_:10STP7ARAH. R
+XX
+RN  [1]; RE0025127.
+RX  PUBMED: 10082523.
+RA  sl,iHB aea.ias arE r KmV,id.,Y. oto mSe.ilre aeLd
+RT  ltosol mesdahpro  thattmpreSlnal-syc aioeipopaagcnountni iepfsdcieni hm  nciova etx -nulmyh ica  cqicle coMpmoteix oebao .1rtnr intrtroniciaterhsnfaauxpprfil ad eaet  p-rticrr oo
+RL  lC5)o  .8. ol:.5.9l l79(49217Bi9-eM21
+RN  [2]; RE0000718.
+RX  PUBMED: 2123467.
+RA    . .,bKK.oltlteaL r,sV.SWei  sederrAe
+RT  ecMsaiie gpuGeisaci-onc csn haDqybp1adrbtc ot-ea rrMCren1onceputl- e  cidsixaeo  reg irhafn,i osfxSlfAn,p d
+RL  .:18 e9.9DG)21v 81e1ne(420s-1 
+XX
+//
+AC  R03064
+XX
+ID  HS$GBP_02
+XX
+DT  e91r).ai;9. e (d23ct10w.e5
+DT  a1 wi.1u).15htid(199d1p. e;
+CO  Copyright (C), Biobase GmbH.
+XX
+TY  DNA
+XX
+DE  GBP (guanylate-binding protein); Gene: G000264.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; primates
+XX
+SQ  tatcttatagtCTTTTATCTCAATTaaaccc.
+XX
+EL  GAS
+XX
+SF  -821
+ST  -99
+XX
+BF  T00001; AAF; Quality: 6; Species: human, Homo sapiens.
+BF  T00300; GAF; Quality: 6; Species: human, Homo sapiens.
+XX
+SO  I;e LlhF.- N0+10p1aHaa 
+SO  .g5m;H+-  FNaaILme0a4 0
+SO  Ia6+ .4 m-a 0S;2FN0gmF
+SO  - Fs7d4 boat ;fN+ lapd0lsbaioh0iplrI.i
+XX
+MM   diutnaseeecessloxg
+XX
+RN  [1]; RE0000446.
+RX  PUBMED: 1901265.
+RA  aD.r er ETc J i.Jw.  l,eiokce.D.e.n, L lk rwhMtJD,
+RT  Aa-n,ot  FslFctgdo-mvCadioaaD mfnuoaeefGt ANagnaapi iirtymlntcg IrN b-ic
+RL  -E 917.1.MB12 (2O0J 39)99:
+RN  [2]; RE0001471.
+RX  PUBMED: 1833631.
+RA   EJeeD  wJD. L.n, ae .T rDe.k.,clrl
+RT  ttihnonbeg-ifnitoeyaa il ritngtolr sb-t slarci w foa e nasiphotahc dnva deoe enntinponpn-nsaodeietapinrndncafrpo tteusgtuaoctiwtrTti e ruyagce imn dtynt
+RL  olC541-19l.o17.5e Bl5.1:1M 9)l ( .31i
+XX
+//
+AC  R03174
+XX
+ID  AAV$P5_01
+XX
+DT  d)4art.9  3c0w9e6.;ie1.e(1
+DT    89(dpr9ard.1e8.1da.u;t2ee0)
+CO  Copyright (C), Biobase GmbH.
+XX
+TY  DNA
+XX
+DE  P5; Gene: G000001.
+XX
+OS  AAV, adeno-associated virus
+OC  viridae; ss-DNA nonenveloped viruses; parvoviridae; dependovirus
+XX
+SQ  CAGACGCTCTGTTGTACTGTAT.
+XX
+SF  6-0
+XX
+BF  T00915; YY1; Quality: 2; Species: human, Homo sapiens.
+XX
+MX  M00793; V$YY1_Q6
+MX  M01035; V$YY1_Q6_02
+XX
+SO  .0aHe100L ;
+SO  acu);(ire.cn0-El0mh. 36o
+SO  77 P;-0Y.S82
+XX
+MM  rdhf ilgstcti ee
+MM  otNngpIiis enrt aofD
+MM  cetfi ohntlip iogemts
+MM  reymreinienn leatfteothc
+XX
+CC   ian1idi2k]s w[[ebnet  g]
+XX
+DR  19X01212. J270: ;: B3M)6(ELX
+DR   VAE1AP D:2.N7;6V2P0C_AE
+XX
+RN  [1]; RE0006609.
+RX  PUBMED: 8413258.
+RA  oSo,y.twio    My.rKHtmh.C a,cro. aK.enAkh.C   P,asLt
+RT  i1  nttiit srpneaspiw Aftinpocarspottc telrcterersfasYYani mt  cvctltpe etetpoaitmeocif s  oeninlYrfop stnteDa aticN iremrhoi aclrecYurr  rrnoteA: ledtT tne aetahcoiot-smnn1i
+RL  33) ll.l661:9le96(B6C.-. . iM1 1oo228
+RN  [2]; RE0000230.
+RX  PUBMED: 1655281.
+RA  SSnS,e.hat,ko .,L .-nhgC S  YheT. . Ei
+RT  ena fy1laYoso rltneesI-  sroo imn,anr rrp dpphnGcK e ALdrlobYriaen pfrearivpe ntl e -asnnrbi,irpieosydeuaou1 ireeutEse itTp
+RL  98e363-: 77l19(Cl. )871
+XX
+//
+AC  R19310
+XX
+ID  HS$TRPV6_01
+XX
+DT  r  ..6d2e0c;0.2h540()ateec
+DT  0d0;.(a6 upt 3)ee0c25hd..0
+CO  Copyright (C), Biobase GmbH.
+XX
+TY  DNA
+XX
+DE  Gene: G036757.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; primates
+XX
+RE  distal promoter region
+XX
+SQ  aGTCTAGGGCATAga.
+XX
+EL  V.DER-55 
+XX
+SF  85-05
+ST  445-9
+XX
+BF  T08716; VDR:RXR-alpha; Quality: 3; Species: human, Homo sapiens.
+XX
+SO  c ;32aC.o92-0
+SO  amei-20tn(bah.r1c;u)ac 6re
+SO  0.S2010;38L 
+XX
+MM  poeiinnaioctmhm)apuoPcC mhIirrt(ni t
+MM  stgh rfeltdeiic 
+MM  syalc uiflnatoasnin
+MM  hegtipicsofimeo tltn 
+XX
+DR  6MA3422-9215).-1:A( 6:;Y 57Y45B55L912 E
+DR  AS OH:P_T7A3S4.R8_NR1
+DR  RA44ST81SOH7. P_NR:_A
+XX
+RN  [1]; RE0047775.
+RX  PUBMED: 16574738.
+RA   te.k.. .,PiuKB.a e.NM e,raS. W, eJ ,dW Mym inMKvk   eSi.h
+RT   NINCTRE2AIML  IT6CYIREHT TP ONA  TTMTIDOLIEANGVTIIMIENLPUPLH1SUN ABR SHTTEVEIXOPNMVTDORY N,ENRIM RA5S .ADI-T  AIOBAOTTETASDIIY EVSLTDET ICC NL3MS INDD A H
+RL  M.lnoE.6 :).n20(lodcor0 i 
+XX
+//
+AC  R19311
+XX
+ID  HS$TRPV6_02
+XX
+DT  c5a.0dr)e0ee2.5;(0.2 c th6
+DT  t. h;52d)06.dp00 ac.(u30ee
+CO  Copyright (C), Biobase GmbH.
+XX
+TY  DNA
+XX
+DE  Gene: G036757.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; primates
+XX
+RE  distal promoter region
+XX
+SQ  TACCCAGAGTAGCGT.
+XX
+EL   .a43DRVE-
+XX
+SF  37-34
+ST  23-43
+XX
+BF  T08716; VDR:RXR-alpha; Quality: 3; Species: human, Homo sapiens.
+XX
+SO  C2;a90 .o-2c3
+SO  -cic )m2(0thbeeau1rr;6a.an
+SO  0S; 0L38210.
+XX
+MM  mtih(m)onntpcei irroPiIupotChcianm a
+MM  di etisfertgch l
+MM  tasfisnuanlnycolai 
+MM  itihnoe tcteiosm fglp
+XX
+DR  E5YA42067121511:1AY4:  7L262.;M ()27B
+DR  .R3A_ PR_TO718HS:A4SN
+DR  8:RR_T.SO_47NSH 1P4AA
+XX
+RN  [1]; RE0047775.
+RX  PUBMED: 16574738.
+RA   Ji,NBm y .,iSekM.h.K  , i  tM. ...kee,aue WMvWdKrSe .aP n
+RT  TIAPT.A3IIERA-YIO HEUACHLIMTES2NATMS  XR TADPTEDOL N N OETTN1HNESM IIPT MRV S6NIIAPA5NSCTLVDIS CTGRA BOTMIDE OVNYRIDBDTL  INL INMDCEA,HYLTT  IRTEENT UVI IO
+RL  )0Mro ll:.ooiE  nnc6.2(.0d
+XX
+//
+AC  R19312
+XX
+ID  HS$TRPV6_03
+XX
+DT  c5at( 6e).0crd;0. 05h2ee2.
+DT  2d0da;65 (ec0..u03e0 h)t.p
+CO  Copyright (C), Biobase GmbH.
+XX
+TY  DNA
+XX
+DE  Gene: G036757.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; primates
+XX
+RE  distal promoter region
+XX
+SQ  gyGACTAGGGGAGTg.
+XX
+EL  R.EDb 4-3V
+XX
+SF  4-287
+ST  327-4
+XX
+BF  T08716; VDR:RXR-alpha; Quality: 3; Species: human, Homo sapiens.
+XX
+SO  .o0-C23 9ca;2
+SO  6 rmr)n(.1baahcut;ei-c02ae
+SO  810LS 032;.0
+XX
+MM  moci)mrmipoti tipPaa(tCorhhIi necunn
+MM  esli htfti grdce
+MM  cyl usaoalfniatisnn
+MM  itispftcto lei megonh
+XX
+DR  6)EY-2 2512114LAB(5.718 7265-472:MY ;A:
+DR  _8P4 .7TSORS31R:A_AHN
+DR  :H SAR74_AN.R_S81P4TO
+XX
+RN  [1]; RE0047775.
+RX  PUBMED: 16574738.
+RA    MeW.Nd., Bv ie, .MKSri.  ,mu. ,WeMJ yPeate.S  ai Khkn.k.
+RT  DGNLLXNDC HOE2TU YTO3 I5VOCORNN  IIADN EPI AEIVYES TRSTLUATSTCI HEDP ITDA VIADT MTTI,R MT-T CTTE IOHBIAINLVM INILNETMISTSPLA.E EYMRSNINA REA 1RANOTMIBPH6D 
+RL   .lno:0..0oMiE2rl  onc(d6)
+XX
+//
+AC  R19313
+XX
+ID  HS$TRPV6_04
+XX
+DT   0 5002t(ea2h5..c6cree)d;.
+DT  d.t; 0)3h.u20.ac(6ee 5dp00
+CO  Copyright (C), Biobase GmbH.
+XX
+TY  DNA
+XX
+DE  Gene: G036757.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; primates
+XX
+RE  distal promoter region
+XX
+SQ  gagGCGAAGGGGTCA.
+XX
+EL   5.3-VERD
+XX
+SF  3591-
+ST  5530-
+XX
+BF  T08716; VDR:RXR-alpha; Quality: 3; Species: human, Homo sapiens.
+XX
+SO  90;Ca o3c.-22
+SO  uretea2r).i b(acha-601mc;n
+SO  L 38;0S1200.
+XX
+MM  riiam pt(paPCrtmhnucm)iihetncoo Inoi
+MM  scftdt rii geehl
+MM  cssiayn iaafnlunlot
+MM  ehfoemsptitcitnogli  
+XX
+DR  7;-1L .2-425 64Y:AM21E8224Y79 9)B:A65(2
+DR  APR TNO4:_H3_1SRA.S87
+DR  4R_S:ST.AA71 ON8PRH4_
+XX
+RN  [1]; RE0047775.
+RX  PUBMED: 16574738.
+RA   ,K Mer  SuyW.eedi M., m., kiP h eti ...BakK.M aeJv.,NS Wn
+RT   RAL5RT NIA1PVIMATBDSEE P-HIAR.SUTERDHIN T   IO,L IPATNNITNTCMSTNTSCRINDATDMIN6 IL  YRTATO HTID E NO UVVLD BNM  GXHOIDLEO TV TTEI32PMLEAYCIMAEASOSCEITINIYE
+RL  or.0 n.n.ol lE(0 :Mdio62)c
+XX
+//
+AC  R19314
+XX
+ID  HS$TRPV6_05
+XX
+DT  t 05)d;r.0c. h.ee5ea2c2(06
+DT  .hp ;c0e.)d0e3t00d2(5u .a6
+CO  Copyright (C), Biobase GmbH.
+XX
+TY  DNA
+XX
+DE  Gene: G036757.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; primates
+XX
+RE  distal promoter region
+XX
+SQ  GTTTTGAGGCGACGT.
+XX
+EL  21.DER -Va
+XX
+SF  619-2
+ST  52-15
+XX
+BF  T08716; VDR:RXR-alpha; Quality: 3; Species: human, Homo sapiens.
+XX
+SO  2; c-0C.93oa2
+SO   cie;rbm1ac6n-r0ha.e2u(ta)
+SO  0L0;2.1S83 0
+XX
+MM  pcoitmtuinaho)nChreItriomnc (imiaP p
+MM  eridf ts getlihc
+MM  acsntanulyfl inisoa
+MM  iefh ntmeltioispgo tc
+XX
+DR  462Y9A7 22:M42515B).;A:12 Y762 1LE99(
+DR  S_RA:8S1_HANP73T. 4OR
+DR  47.8HST_AAR4:P_ NSO1R
+XX
+RN  [1]; RE0047775.
+RX  PUBMED: 16574738.
+RA  v  i,,MNk JmW Syan.at.,e PSe. Wh. uKKreB    dMi,e .Mei..k.
+RT  I DXNNVNLT3 DT RSOYBLRNTUANSE ITETIITM  SRMN1SNRTMAILVI PDIMIETEETLP2Y.T IS HAIRIRVCA EHCTTVEAPONN TTIOD NA 5HUHD  NCTOLE DIEAL6IMIAGTPDY AO MS ,TCBIO IAE-
+RL  :lE.c.iono 06.o0 rM) n(ld2
+XX
+//
+AC  R19315
+XX
+ID  HS$TRPV6_06
+XX
+DT  5de.(2 c )a.0eer5;c0t2h.60
+DT  te0.0ap( 2 h;05e0.3d.c)ud6
+CO  Copyright (C), Biobase GmbH.
+XX
+TY  DNA
+XX
+DE  Gene: G036757.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; primates
+XX
+RE  distal promoter region
+XX
+SQ  CCCCATGCCCGACAA.
+XX
+EL  b-D2VR 1.E
+XX
+SF  -1912
+ST  20-15
+XX
+BF  T08716; VDR:RXR-alpha; Quality: 3; Species: human, Homo sapiens.
+XX
+SO  3cC0.ao2 92-;
+SO  6riearmah)10e(;a2ccbutn.- 
+SO  01;8L30 2.S0
+XX
+MM  (cnoCrPnmtociihm oaiah pipruIitm)net
+MM  eiscrgh l fttide
+MM  ifnsaslncunaa otyil
+MM  fititepo nhce oigltsm
+XX
+DR  346E9A21.61Y:2A5;B9 43:2 4Y5(2 M721)L
+DR  R _R.AO7N8AP:1TS3_4HS
+DR  8RS_ O1.THP:4RS4AN_A7
+XX
+RN  [1]; RE0047775.
+RX  PUBMED: 16574738.
+RA  u,nek,.mW ,e PMJedre  viKM.a. tBWh .M S N. kSi ae .y Ki,..
+RT  APITALNI  SSI I3 TOTONMA6YAUT1OT2 IAS  H AADNR IVDVTNOPNTRYILT IVIMVRDC PCLDXTAEDAIT-BR M E5CNLSCBS,INEDOTITHS TIINGNRHEHEI.PTODIY T RLIN ENEUM EATM TME EL
+RL  Er0l:o.n )i.ldM6o02con(  .
+XX
+//
+AC  R19316
+XX
+ID  HS$TRPV6_07
+XX
+DT  2)(00eh5t ;e5cr0cd.2.ae. 6
+DT  a 3)p.5 cde062d.(00.0te;hu
+CO  Copyright (C), Biobase GmbH.
+XX
+TY  DNA
+XX
+DE  Gene: G036757.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; primates
+XX
+RE  distal promoter region
+XX
+SQ  ttTCAGATGACTGAt.
+XX
+EL  E2-V.R 1D
+XX
+SF  -3821
+ST  12-96
+XX
+BF  T08716; VDR:RXR-alpha; Quality: 3; Species: human, Homo sapiens.
+XX
+SO  co;9-3 22aC.0
+SO  ;cmrn a-(u1.0ea6c2t)bheiar
+SO  0S02 10.;38L
+XX
+MM  (miaiorcp ImiuiitnantChohP rm)tocpne
+MM  hlger ficitsetd 
+MM  nini yasnasalocltfu
+MM  gtihe tpeftn cmisooli
+XX
+DR  :A416Y41E02B( A12Y502.2;:8 61-41 LM)715-6
+DR  _RA3A1S8 TH7_RPSN.O:4
+DR  _P4.H T8A:A1R_S4S7RNO
+XX
+RN  [1]; RE0047775.
+RX  PUBMED: 16574738.
+RA  mn.KWie WeS.  a,M Nt,a ,K.d  B.e.uP.r ,MkkiheJ . My S v.ei
+RT  IMTICNTDL PHIC LHBLIA OMT 6  EN  TAIEV NTS  E25NMT1LMISPGEVTADAIIXEAN REEAATIMNITIV P NRE ISD EO ISIO,TNORDADECO YTYONVBYT.SRRDIPURNTLLCNAMIDTAUTHH I -T3TS
+RL  E.rlond o(nilo):  M.20.c60
+XX
+//

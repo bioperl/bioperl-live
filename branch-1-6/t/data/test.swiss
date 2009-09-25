@@ -1,0 +1,56 @@
+ID   GCDH_CAEEL     STANDARD;      PRT;   409 AA.
+AC   Q20772;
+DT   01-NOV-1997 (Rel. 35, Created)
+DT   01-NOV-1997 (Rel. 35, Last sequence update)
+DT   16-OCT-2001 (Rel. 40, Last annotation update)
+DE   PROBABLE GLUTARYL-COA DEHYDROGENASE, MITOCHONDRIAL PRECURSOR
+DE   (EC 1.3.99.7) (GCD).
+GN   F54D5.7.
+OS   Caenorhabditis elegans.
+OC   Eukaryota; Metazoa; Nematoda; Chromadorea; Rhabditida; Rhabditoidea;
+OC   Rhabditidae; Peloderinae; Caenorhabditis.
+OX   NCBI_TaxID=6239;
+RN   [1]
+RP   SEQUENCE FROM N.A.
+RC   STRAIN=BRISTOL N2;
+RA   Coles L.;
+RL   Submitted (OCT-1995) to the EMBL/GenBank/DDBJ databases.
+CC   -!- CATALYTIC ACTIVITY: GLUTARYL-COA + ACCEPTOR = CROTONOYL-COA +
+CC       CO(2) + REDUCED ACCEPTOR.
+CC   -!- COFACTOR: FAD (BY SIMILARITY).
+CC   -!- PATHWAY: DEGRADATIVE PATHWAY OF L-LYSINE, L-HYDROXYLYSINE,
+CC       AND L-TRYPTOPHAN METABOLISM.
+CC   -!- SUBCELLULAR LOCATION: MITOCHONDRIAL MATRIX (POTENTIAL).
+CC   -!- SIMILARITY: BELONGS TO THE ACYL-COA DEHYDROGENASES FAMILY.
+CC   --------------------------------------------------------------------------
+CC   This SWISS-PROT entry is copyright. It is produced through a collaboration
+CC   between  the Swiss Institute of Bioinformatics  and the  EMBL outstation -
+CC   the European Bioinformatics Institute.  There are no  restrictions on  its
+CC   use  by  non-profit  institutions as long  as its content  is  in  no  way
+CC   modified and this statement is not removed.  Usage  by  and for commercial
+CC   entities requires a license agreement (See http://www.isb-sib.ch/announce/
+CC   or send an email to license@isb-sib.ch).
+CC   --------------------------------------------------------------------------
+DR   EMBL; Z66513; CAA91333.1; -.
+DR   HSSP; Q06319; 1BUC.
+DR   WormPep; F54D5.7; CE03411.
+DR   InterPro; IPR001552; Acyl-CoA_dh.
+DR   Pfam; PF00441; Acyl-CoA_dh; 1.
+DR   Pfam; PF02770; Acyl-CoA_dh_M; 1.
+DR   Pfam; PF02771; Acyl-CoA_dh_N; 1.
+DR   PROSITE; PS00072; ACYL_COA_DH_1; FALSE_NEG.
+DR   PROSITE; PS00073; ACYL_COA_DH_2; 1.
+KW   Hypothetical protein; Oxidoreductase; Flavoprotein; FAD;
+KW   Mitochondrion; Transit peptide.
+FT   TRANSIT       1      ?       MITOCHONDRION (POTENTIAL).
+FT   CHAIN         ?    409       PROBABLE GLUTARYL-COA DEHYDROGENASE.
+FT   ACT_SITE    388    388       BASE (POTENTIAL).
+SQ   SEQUENCE   409 AA;  44964 MW;  4D06241FB6768069 CRC64;
+     MLTRGFTSIG KIASRGLSST FYQDAFQLSD QLTEDERSLM LSAREYCQER LLPRVTEAYR
+     TEKFDPSLIP EMGSMGLLGA PYQGYGCAGT STVGYGLIAR EVERVDSGYR STMSVQTSLV
+     IGPIYNYGSE DQKQKYIPDL ASGKKIGCFG LTEPNHGSNP GGMETKATWD ETTKTYKLNG
+     SKTWISNSPV SDVMVVWARS ARHNNKIKGF ILERGMKGLT TPKIEGKLSL RASITGQIAM
+     DDVPVPEENL LPNAEGLQGP FGCLNNARLG IAWGALGAAE ECFHLARQYT LDRQQFGRPL
+     AQNQLMQLKM ADMLTEISLG LQGCLRVSRL KDEGKVQSEQ ISIIKRNSCG KALEVARKAR
+     DMLGGNGIVD EYHIMRHMVN LETVNTYEGT HDVHALILGR AITGLNGFC
+//

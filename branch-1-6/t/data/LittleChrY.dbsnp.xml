@@ -1,0 +1,398 @@
+<?xml version="1.0"?>
+<ExchangeSet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns="http://www.ncbi.nlm.nih.gov/SNP/docsum"
+xsi:schemaLocation="http://www.ncbi.nlm.nih.gov/SNP/docsum
+http://www.ncbi.nlm.nih.gov/SNP/docsum/docsum_eutil_ver1.0a.xsd">
+
+ 
+
+
+<Rs>
+  <Rs_organism>Homo sapiens</Rs_organism>
+  <Rs_taxId>9606</Rs_taxId>
+  <Rs_rsId>12345</Rs_rsId>
+  <Rs_snpClass value="snp"/>
+  <Rs_snpType value="notwithdrawn"/>
+  <Rs_molType value="cDNA"/>
+  <Rs_het>
+    <Rs_het_type value="est"/>
+    <Rs_het_value>0</Rs_het_value>
+    <Rs_het_stdError>0</Rs_het_stdError>
+  </Rs_het>
+  <Rs_validation></Rs_validation>
+  <Rs_create>
+    <Rs_create_build>52</Rs_create_build>
+    <Rs_create_date>2000-09-19 17:02</Rs_create_date>
+  </Rs_create>
+  <Rs_update>
+    <Rs_update_build>120</Rs_update_build>
+    <Rs_update_date>2004-10-04 13:37</Rs_update_date>
+  </Rs_update>
+  <Rs_sequence>
+    <Rs_sequence_exemplarSs>14616</Rs_sequence_exemplarSs>
+   
+<Rs_sequence_seq5>GGGTGGGCACTAGTTGGCGGGGTGGAAGGCACCACATTGGTCGCCTGCATGTCGTGGATGCA
+GCGCACGGACTGTACCTGAGGGTGACGGGCCCCAAAGT</Rs_sequence_seq5>
+    <Rs_sequence_observed>C/T</Rs_sequence_observed>
+   
+<Rs_sequence_seq3>GCTGCTGTCCTTGTAGTCTCCCTTCTCCAGCAGGTACTGCAGCCCACGGTAGCCAGGGTACT
+AGTAGCCAACCCACGTGCCACTCCGCACCCACACAGAT</Rs_sequence_seq3>
+  </Rs_sequence>
+  <Rs_ss>
+    <Ss>
+      <Ss_ssId>14616</Ss_ssId>
+      <Ss_handle>CGAP-GAI</Ss_handle>
+      <Ss_batchId>607</Ss_batchId>
+      <Ss_locSnpId>59089</Ss_locSnpId>
+      <Ss_subSnpClass value="snp"/>
+      <Ss_orient value="forward"/>
+      <Ss_strand value="bottom"/>
+      <Ss_molType value="cDNA"/>
+      <Ss_buildId>52</Ss_buildId>
+      <Ss_methodClass value="computed"/>
+     
+<Ss_linkoutUrl>http://lpgws.nci.nih.gov:82/perl/gettrace.pl?type=7&amp;trace=</Ss_linkoutUrl>
+      <Ss_sequence>
+       
+<Ss_sequence_seq5>GGGTGGGCACTAGTTGGCGGGGTGGAAGGCACCACATTGGTCGCCTGCATGTCGTGGATGCA
+GCGCACGGACTGTACCTGAGGGTGACGGGCCCCAAAGT</Ss_sequence_seq5>
+        <Ss_sequence_observed>C/T</Ss_sequence_observed>
+       
+<Ss_sequence_seq3>GCTGCTGTCCTTGTAGTCTCCCTTCTCCAGCAGGTACTGCAGCCCACGGTAGCCAGGGTACT
+AGTAGCCAACCCACGTGCCACTCCGCACCCACACAGAT</Ss_sequence_seq3>
+      </Ss_sequence>
+    </Ss>
+    <Ss>
+      <Ss_ssId>1539216</Ss_ssId>
+      <Ss_handle>LEE</Ss_handle>
+      <Ss_batchId>3129</Ss_batchId>
+      <Ss_locSnpId>750160</Ss_locSnpId>
+      <Ss_subSnpClass value="snp"/>
+      <Ss_orient value="reverse"/>
+      <Ss_strand value="top"/>
+      <Ss_molType value="cDNA"/>
+      <Ss_buildId>92</Ss_buildId>
+      <Ss_methodClass value="computed"/>
+     
+<Ss_linkoutUrl>http://www.bioinformatics.ucla.edu/snp/snp/snp_report.php3?db_ver
+sion=db_april_00&amp;allele_id=</Ss_linkoutUrl>
+      <Ss_sequence>
+       
+<Ss_sequence_seq5>ACCGTGGGCTGCAGTACCTGCTGGAGAAGGGAGACTACAAGGACAGCAGC</Ss_sequence_seq5>
+        <Ss_sequence_observed>A/G</Ss_sequence_observed>
+       
+<Ss_sequence_seq3>ACTTTGGGGCCCGTCACCCTCAGGTACAGTCCGTGCGCTGCATCCACGAC</Ss_sequence_seq3>
+      </Ss_sequence>
+    </Ss>
+    <Ss>
+      <Ss_ssId>4398532</Ss_ssId>
+      <Ss_handle>LEE</Ss_handle>
+      <Ss_batchId>5288</Ss_batchId>
+      <Ss_locSnpId>ge750160</Ss_locSnpId>
+      <Ss_subSnpClass value="snp"/>
+      <Ss_orient value="reverse"/>
+      <Ss_strand value="top"/>
+      <Ss_molType value="cDNA"/>
+      <Ss_buildId>106</Ss_buildId>
+      <Ss_methodClass value="unknown"/>
+      <Ss_linkoutUrl> </Ss_linkoutUrl>
+      <Ss_sequence>
+       
+<Ss_sequence_seq5>ACCGTGGGCTGCAGTACCTGCTGGAGAAGGGAGACTACAAGGACAGCAGC</Ss_sequence_seq5>
+        <Ss_sequence_observed>A/G</Ss_sequence_observed>
+       
+<Ss_sequence_seq3>ACTTTGGGGCCCGTCACCCTCAGGTACAGTCCGTGCGCTGCATCCACGAC</Ss_sequence_seq3>
+      </Ss_sequence>
+    </Ss>
+    <Ss>
+      <Ss_ssId>4426703</Ss_ssId>
+      <Ss_handle>LEE</Ss_handle>
+      <Ss_batchId>5293</Ss_batchId>
+      <Ss_locSnpId>e750160</Ss_locSnpId>
+      <Ss_subSnpClass value="snp"/>
+      <Ss_orient value="reverse"/>
+      <Ss_strand value="top"/>
+      <Ss_molType value="cDNA"/>
+      <Ss_buildId>106</Ss_buildId>
+      <Ss_methodClass value="computed"/>
+      <Ss_linkoutUrl> </Ss_linkoutUrl>
+      <Ss_sequence>
+       
+<Ss_sequence_seq5>ACCGTGGGCTGCAGTACCTGCTGGAGAAGGGAGACTACAAGGACAGCAGC</Ss_sequence_seq5>
+        <Ss_sequence_observed>A/G</Ss_sequence_observed>
+       
+<Ss_sequence_seq3>ACTTTGGGGCCCGTCACCCTCAGGTACAGTCCGTGCGCTGCATCCACGAC</Ss_sequence_seq3>
+      </Ss_sequence>
+    </Ss>
+    <Ss>
+      <Ss_ssId>16250752</Ss_ssId>
+      <Ss_handle>CGAP-GAI</Ss_handle>
+      <Ss_batchId>8532</Ss_batchId>
+      <Ss_locSnpId>1500705</Ss_locSnpId>
+      <Ss_subSnpClass value="snp"/>
+      <Ss_orient value="forward"/>
+      <Ss_strand value="bottom"/>
+      <Ss_molType value="cDNA"/>
+      <Ss_buildId>120</Ss_buildId>
+      <Ss_methodClass value="computed"/>
+     
+<Ss_linkoutUrl>http://lpgws.nci.nih.gov/perl/gettrace.pl?type=7&amp;trace=</Ss_linkoutUrl>
+      <Ss_sequence>
+       
+<Ss_sequence_seq5>GTCGTGGATGCAGCGCACGGACTGTACCTGAGGGTGACGGGCCCCAAAGT</Ss_sequence_seq5>
+        <Ss_sequence_observed>C/T</Ss_sequence_observed>
+       
+<Ss_sequence_seq3>GCTGCTGTCCTTGTAGTCTCCCTTCTCCAGCAGGTACTGCAGCCCACGGT</Ss_sequence_seq3>
+      </Ss_sequence>
+    </Ss>
+  </Rs_ss>
+  <Rs_assembly>
+    <Assembly>
+      <Assembly_dbSnpBuild>125</Assembly_dbSnpBuild>
+      <Assembly_genomeBuild>34_3</Assembly_genomeBuild>
+      <Assembly_groupLabel>reference</Assembly_groupLabel>
+      <Assembly_component>
+        <Component>
+          <Component_componentType value="contig"/>
+          <Component_ctgId>960600311</Component_ctgId>
+          <Component_accession>NT_011520.9</Component_accession>
+          <Component_name>Hs22_11677_34</Component_name>
+          <Component_chromosome>22</Component_chromosome>
+          <Component_start>18933985</Component_start>
+          <Component_end>42112197</Component_end>
+          <Component_orientation value="fwd"/>
+          <Component_gi>29807292</Component_gi>
+          <Component_groupTerm>ref_haplotype</Component_groupTerm>
+          <Component_contigLabel>reference</Component_contigLabel>
+          <Component_mapLoc>
+            <MapLoc>
+              <MapLoc_asnFrom>5246027</MapLoc_asnFrom>
+              <MapLoc_asnTo>5246027</MapLoc_asnTo>
+              <MapLoc_locType value="exact"/>
+              <MapLoc_alnQuality>0.913983</MapLoc_alnQuality>
+              <MapLoc_orient value="reverse"/>
+              <MapLoc_physMapStr>24180013</MapLoc_physMapStr>
+              <MapLoc_physMapInt>24180012</MapLoc_physMapInt>
+              <MapLoc_leftFlankNeighborPos>99</MapLoc_leftFlankNeighborPos>
+              <MapLoc_rightFlankNeighborPos>101</MapLoc_rightFlankNeighborPos>
+             
+<MapLoc_leftContigNeighborPos>5246026</MapLoc_leftContigNeighborPos>
+             
+<MapLoc_rightContigNeighborPos>5246028</MapLoc_rightContigNeighborPos>
+              <MapLoc_numberOfMismatches>3</MapLoc_numberOfMismatches>
+              <MapLoc_numberOfDeletions>0</MapLoc_numberOfDeletions>
+              <MapLoc_numberOfInsertions>1</MapLoc_numberOfInsertions>
+            </MapLoc>
+          </Component_mapLoc>
+        </Component>
+      </Assembly_component>
+      <Assembly_snpStat>
+        <Assembly_snpStat_mapWeight value="unique-in-contig"/>
+        <Assembly_snpStat_chromCount>1</Assembly_snpStat_chromCount>
+       
+<Assembly_snpStat_placedContigCount>1</Assembly_snpStat_placedContigCount>
+       
+<Assembly_snpStat_unplacedContigCount>0</Assembly_snpStat_unplacedContigCount>
+        <Assembly_snpStat_seqlocCount>1</Assembly_snpStat_seqlocCount>
+        <Assembly_snpStat_hapCount>1</Assembly_snpStat_hapCount>
+      </Assembly_snpStat>
+    </Assembly>
+    <Assembly>
+      <Assembly_dbSnpBuild>125</Assembly_dbSnpBuild>
+      <Assembly_genomeBuild>35_1</Assembly_genomeBuild>
+      <Assembly_groupLabel>Celera</Assembly_groupLabel>
+      <Assembly_current value="true"/>
+      <Assembly_component>
+        <Component>
+          <Component_componentType value="contig"/>
+          <Component_ctgId>960600397</Component_ctgId>
+          <Component_accession>NT_086921.1</Component_accession>
+          <Component_name>Hs22_86581_35</Component_name>
+          <Component_chromosome>22</Component_chromosome>
+          <Component_start>18936537</Component_start>
+          <Component_end>48069707</Component_end>
+          <Component_orientation value="fwd"/>
+          <Component_gi>51477137</Component_gi>
+          <Component_groupTerm>alt_assembly_2</Component_groupTerm>
+          <Component_contigLabel>Celera</Component_contigLabel>
+          <Component_mapLoc>
+            <MapLoc>
+              <MapLoc_asnFrom>3888702</MapLoc_asnFrom>
+              <MapLoc_asnTo>3888702</MapLoc_asnTo>
+              <MapLoc_locType value="exact"/>
+              <MapLoc_alnQuality>0.919897</MapLoc_alnQuality>
+              <MapLoc_orient value="reverse"/>
+              <MapLoc_physMapStr>22825240</MapLoc_physMapStr>
+              <MapLoc_physMapInt>22825239</MapLoc_physMapInt>
+              <MapLoc_leftFlankNeighborPos>99</MapLoc_leftFlankNeighborPos>
+              <MapLoc_rightFlankNeighborPos>101</MapLoc_rightFlankNeighborPos>
+             
+<MapLoc_leftContigNeighborPos>3888701</MapLoc_leftContigNeighborPos>
+             
+<MapLoc_rightContigNeighborPos>3888703</MapLoc_rightContigNeighborPos>
+              <MapLoc_numberOfMismatches>3</MapLoc_numberOfMismatches>
+              <MapLoc_numberOfDeletions>0</MapLoc_numberOfDeletions>
+              <MapLoc_numberOfInsertions>1</MapLoc_numberOfInsertions>
+              <MapLoc_fxnSet>
+                <FxnSet>
+                  <FxnSet_geneId>1415</FxnSet_geneId>
+                  <FxnSet_symbol>CRYBB2</FxnSet_symbol>
+                  <FxnSet_mrnaAcc>NM_000496</FxnSet_mrnaAcc>
+                  <FxnSet_mrnaVer>1</FxnSet_mrnaVer>
+                  <FxnSet_protAcc>NP_000487</FxnSet_protAcc>
+                  <FxnSet_protVer>1</FxnSet_protVer>
+                  <FxnSet_fxnClass value="intron"/>
+                </FxnSet>
+              </MapLoc_fxnSet>
+            </MapLoc>
+          </Component_mapLoc>
+        </Component>
+      </Assembly_component>
+      <Assembly_snpStat>
+        <Assembly_snpStat_mapWeight value="unique-in-contig"/>
+        <Assembly_snpStat_chromCount>1</Assembly_snpStat_chromCount>
+       
+<Assembly_snpStat_placedContigCount>1</Assembly_snpStat_placedContigCount>
+       
+<Assembly_snpStat_unplacedContigCount>0</Assembly_snpStat_unplacedContigCount>
+        <Assembly_snpStat_seqlocCount>1</Assembly_snpStat_seqlocCount>
+        <Assembly_snpStat_hapCount>0</Assembly_snpStat_hapCount>
+      </Assembly_snpStat>
+    </Assembly>
+    <Assembly>
+      <Assembly_dbSnpBuild>125</Assembly_dbSnpBuild>
+      <Assembly_genomeBuild>35_1</Assembly_genomeBuild>
+      <Assembly_groupLabel>reference</Assembly_groupLabel>
+      <Assembly_current value="true"/>
+      <Assembly_component>
+        <Component>
+          <Component_componentType value="contig"/>
+          <Component_ctgId>960600396</Component_ctgId>
+          <Component_accession>NT_011520.10</Component_accession>
+          <Component_name>Hs22_11677_35</Component_name>
+          <Component_chromosome>22</Component_chromosome>
+          <Component_start>18933985</Component_start>
+          <Component_end>42210286</Component_end>
+          <Component_orientation value="fwd"/>
+          <Component_gi>51476066</Component_gi>
+          <Component_groupTerm>ref_haplotype</Component_groupTerm>
+          <Component_contigLabel>reference</Component_contigLabel>
+          <Component_mapLoc>
+            <MapLoc>
+              <MapLoc_asnFrom>5246027</MapLoc_asnFrom>
+              <MapLoc_asnTo>5246027</MapLoc_asnTo>
+              <MapLoc_locType value="exact"/>
+              <MapLoc_alnQuality>0.919897</MapLoc_alnQuality>
+              <MapLoc_orient value="reverse"/>
+              <MapLoc_physMapStr>24180013</MapLoc_physMapStr>
+              <MapLoc_physMapInt>24180012</MapLoc_physMapInt>
+              <MapLoc_leftFlankNeighborPos>99</MapLoc_leftFlankNeighborPos>
+              <MapLoc_rightFlankNeighborPos>101</MapLoc_rightFlankNeighborPos>
+             
+<MapLoc_leftContigNeighborPos>5246026</MapLoc_leftContigNeighborPos>
+             
+<MapLoc_rightContigNeighborPos>5246028</MapLoc_rightContigNeighborPos>
+              <MapLoc_numberOfMismatches>3</MapLoc_numberOfMismatches>
+              <MapLoc_numberOfDeletions>0</MapLoc_numberOfDeletions>
+              <MapLoc_numberOfInsertions>1</MapLoc_numberOfInsertions>
+              <MapLoc_fxnSet>
+                <FxnSet>
+                  <FxnSet_geneId>1416</FxnSet_geneId>
+                  <FxnSet_symbol>CRYBB2P1</FxnSet_symbol>
+                  <FxnSet_fxnClass value="locus-region"/>
+                </FxnSet>
+              </MapLoc_fxnSet>
+            </MapLoc>
+          </Component_mapLoc>
+        </Component>
+      </Assembly_component>
+      <Assembly_snpStat>
+        <Assembly_snpStat_mapWeight value="unique-in-contig"/>
+        <Assembly_snpStat_chromCount>1</Assembly_snpStat_chromCount>
+       
+<Assembly_snpStat_placedContigCount>1</Assembly_snpStat_placedContigCount>
+       
+<Assembly_snpStat_unplacedContigCount>0</Assembly_snpStat_unplacedContigCount>
+        <Assembly_snpStat_seqlocCount>1</Assembly_snpStat_seqlocCount>
+        <Assembly_snpStat_hapCount>1</Assembly_snpStat_hapCount>
+      </Assembly_snpStat>
+    </Assembly>
+  </Rs_assembly>
+  <Rs_primarySequence>
+    <PrimarySequence>
+      <PrimarySequence_dbSnpBuild>125</PrimarySequence_dbSnpBuild>
+      <PrimarySequence_gi>3171883</PrimarySequence_gi>
+      <PrimarySequence_source value="blastmb"/>
+      <PrimarySequence_mapLoc>
+        <MapLoc>
+          <MapLoc_asnFrom>24363</MapLoc_asnFrom>
+          <MapLoc_asnTo>24363</MapLoc_asnTo>
+          <MapLoc_locType value="exact"/>
+          <MapLoc_alnQuality>0.913983</MapLoc_alnQuality>
+          <MapLoc_orient value="reverse"/>
+          <MapLoc_leftFlankNeighborPos>99</MapLoc_leftFlankNeighborPos>
+          <MapLoc_rightFlankNeighborPos>101</MapLoc_rightFlankNeighborPos>
+          <MapLoc_leftContigNeighborPos>24362</MapLoc_leftContigNeighborPos>
+          <MapLoc_rightContigNeighborPos>24364</MapLoc_rightContigNeighborPos>
+          <MapLoc_numberOfMismatches>3</MapLoc_numberOfMismatches>
+          <MapLoc_numberOfDeletions>0</MapLoc_numberOfDeletions>
+          <MapLoc_numberOfInsertions>1</MapLoc_numberOfInsertions>
+        </MapLoc>
+      </PrimarySequence_mapLoc>
+    </PrimarySequence>
+    <PrimarySequence>
+      <PrimarySequence_dbSnpBuild>125</PrimarySequence_dbSnpBuild>
+      <PrimarySequence_gi>9863690</PrimarySequence_gi>
+      <PrimarySequence_source value="blastmb"/>
+      <PrimarySequence_mapLoc>
+        <MapLoc>
+          <MapLoc_asnFrom>52075</MapLoc_asnFrom>
+          <MapLoc_asnTo>52075</MapLoc_asnTo>
+          <MapLoc_locType value="exact"/>
+          <MapLoc_alnQuality>0.913983</MapLoc_alnQuality>
+          <MapLoc_orient value="forward"/>
+          <MapLoc_leftFlankNeighborPos>99</MapLoc_leftFlankNeighborPos>
+          <MapLoc_rightFlankNeighborPos>101</MapLoc_rightFlankNeighborPos>
+          <MapLoc_leftContigNeighborPos>52074</MapLoc_leftContigNeighborPos>
+          <MapLoc_rightContigNeighborPos>52076</MapLoc_rightContigNeighborPos>
+          <MapLoc_numberOfMismatches>3</MapLoc_numberOfMismatches>
+          <MapLoc_numberOfDeletions>0</MapLoc_numberOfDeletions>
+          <MapLoc_numberOfInsertions>1</MapLoc_numberOfInsertions>
+        </MapLoc>
+      </PrimarySequence_mapLoc>
+    </PrimarySequence>
+    <PrimarySequence>
+      <PrimarySequence_dbSnpBuild>125</PrimarySequence_dbSnpBuild>
+      <PrimarySequence_gi>51511751</PrimarySequence_gi>
+      <PrimarySequence_source value="blastmb"/>
+      <PrimarySequence_mapLoc>
+        <MapLoc>
+          <MapLoc_asnFrom>24180012</MapLoc_asnFrom>
+          <MapLoc_asnTo>24180012</MapLoc_asnTo>
+          <MapLoc_locType value="exact"/>
+          <MapLoc_alnQuality>0.913983</MapLoc_alnQuality>
+          <MapLoc_orient value="reverse"/>
+          <MapLoc_leftFlankNeighborPos>99</MapLoc_leftFlankNeighborPos>
+          <MapLoc_rightFlankNeighborPos>101</MapLoc_rightFlankNeighborPos>
+          <MapLoc_leftContigNeighborPos>24180011</MapLoc_leftContigNeighborPos>
+         
+<MapLoc_rightContigNeighborPos>24180013</MapLoc_rightContigNeighborPos>
+          <MapLoc_numberOfMismatches>3</MapLoc_numberOfMismatches>
+          <MapLoc_numberOfDeletions>0</MapLoc_numberOfDeletions>
+          <MapLoc_numberOfInsertions>1</MapLoc_numberOfInsertions>
+        </MapLoc>
+      </PrimarySequence_mapLoc>
+    </PrimarySequence>
+  </Rs_primarySequence>
+  <Rs_rsLinkout>
+    <RsLinkout>
+      <RsLinkout_resourceId>1</RsLinkout_resourceId>
+      <RsLinkout_linkValue>12345</RsLinkout_linkValue>
+    </RsLinkout>
+  </Rs_rsLinkout>
+</Rs>
+
+
+
+
+</ExchangeSet>

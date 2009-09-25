@@ -1,0 +1,3360 @@
+// fpc project demo
+// 8.5.1  Date: 10:54 Fri 18 Aug 2006  User: will
+// Contigs 10  Clones 355  Markers 15  Bands 9772
+// Framework Maize Label Chromosome Abbrev Chr Genome 0 AvgBand 4096  AvgInsert 160000
+// Configure 429 Tol 7 Cut 1e-13 Apx 0.100 Gel 3300 End 15 Kill -1 Bad 15 Best 10 Log 0 Std 1 Page 3000 Match 2 agarose
+// CpM Off 50 1 0 0 TBL 1 1e-12 2 1e-11 3 1e-10
+// Build 10/6/105 15:24 Cut 1e-13 Off 50 1 0 0 TBL 1 1e-12 2 1e-11 3 1e-10 
+// Clip(0 4600) MinMax(0 65535) Precompute UseSeq DQer(5,1)
+// MTP Mndtry 62 MinOlap -5 MaxOlap 10 MinShared 6 Weight 10 MinScore 400 Identity 97 MaxSeqOlap 50000 CtgRatio 3
+// BES_pre 0 BES_suff 1 BES_dot 0
+  
+BAC : "b0297K22"
+Map "ctg9" Ends Left 9.000
+Map "ctg9" Ends Right 32.000 Oldctg 9
+Gel_number    b1297B1
+Bands  4386 24
+Remark "this is a test"
+Shotgun NONE SHOTGUN
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 46 
+  
+BAC : "b0303H17"
+Map "ctg8" Ends Left 27.000
+Map "ctg8" Ends Right 58.000 Oldctg 8
+Gel_number    b8303C1
+Bands  7476 32
+Shotgun NONE TILE
+Positive_STS "A07" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "b0306N07"
+Map "ctg2" Ends Left 8.000
+Map "ctg2" Ends Right 36.000 Oldctg 2
+Gel_number    b8306C1
+Bands  7508 29
+Exact_match_to_cosmid "c1074L23"
+Shotgun NONE SENT
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0306N18"
+Map "ctg3" Ends Left 78.000
+Map "ctg3" Ends Right 106.000 Oldctg 3
+Gel_number    b8306D1
+Bands  7537 29
+Approximate_match_to_cosmid "c0186L14"
+Shotgun NONE READY
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b0307M15"
+Map "ctg1" Ends Left 36.000
+Map "ctg1" Ends Right 53.000 Oldctg 1
+Gel_number    b1307A1
+Bands  4410 18
+Exact_match_to_cosmid "c1024E06"
+Shotgun NONE CANCELLED
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0316M15"
+Map "ctg2" Ends Left 33.000
+Map "ctg2" Ends Right 60.000 Oldctg 2
+Gel_number    b1316A1
+Bands  4428 28
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0319B18"
+Map "ctg5" Ends Left 30.000
+Map "ctg5" Ends Right 64.000 Oldctg 5
+Gel_number    b1319D1
+Bands  4456 35
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0324I14"
+Map "ctg9" Ends Left 7.000
+Map "ctg9" Ends Right 29.000 Oldctg 9
+Gel_number    b1324B1
+Bands  4491 23
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0325O10"
+Map "ctg4" Ends Left 72.000
+Map "ctg4" Ends Right 95.000 Oldctg 4
+Gel_number    b1325B1
+Bands  4514 24
+Exact_match_to_cosmid "H0054L03"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0326L07"
+Map "ctg9" Ends Left 23.000
+Map "ctg9" Ends Right 47.000 Oldctg 9
+Gel_number    b1326C1
+Bands  4538 25
+Positive_STS "C24" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "b0327I21"
+Map "ctg7" Ends Left 9.000
+Map "ctg7" Ends Right 29.000 Oldctg 7
+Gel_number    b1327A1
+Bands  4563 21
+Approximate_match_to_cosmid "c1115H20"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0332M08"
+Map "ctg1" Ends Left 54.000
+Map "ctg1" Ends Right 89.000 Oldctg 1
+Gel_number    b1332B1
+Bands  4584 36
+Approximate_match_to_cosmid "c1017J12"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0333F08"
+Map "ctg1" Ends Left 1.000
+Map "ctg1" Ends Right 29.000 Oldctg 1
+Gel_number    b1333D1
+Bands  4620 29
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0334C23"
+Map "ctg4" Ends Left 50.000
+Map "ctg4" Ends Right 72.000 Oldctg 4
+Gel_number    b1334A1
+Bands  4649 23
+Approximate_match_to_cosmid "c1082B18"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0336D23"
+Map "ctg7" Ends Left 3.000
+Map "ctg7" Ends Right 26.000 Oldctg 7
+Gel_number    b1336C1
+Bands  4672 24
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0336J22"
+Map "ctg6" Ends Left 62.000
+Map "ctg6" Ends Right 83.000 Oldctg 6
+Gel_number    b1336D1
+Bands  4696 22
+Exact_match_to_cosmid "c1085E05"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0340P21"
+Map "ctg3" Ends Left 20.000
+Map "ctg3" Ends Right 39.000 Oldctg 3
+Gel_number    b1340C1
+Bands  4718 20
+Exact_match_to_cosmid "b1584L19"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b0341J19"
+Map "ctg1" Ends Left 13.000
+Map "ctg1" Ends Right 38.000 Oldctg 1
+Gel_number    b1341C1
+Bands  4776 26
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0341K22"
+Map "ctg6" Ends Left 71.000
+Map "ctg6" Ends Right 92.000 Oldctg 6
+Gel_number    b1341B1
+Bands  4754 22
+Approximate_match_to_cosmid "c1085E05"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0341O09"
+Map "ctg8" Ends Left 11.000
+Map "ctg8" Ends Right 26.000 Oldctg 8
+Gel_number    b1341A1
+Bands  4738 16
+Exact_match_to_cosmid "b1622G13"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0343C02"
+Map "ctg2" Ends Left 36.000
+Map "ctg2" Ends Right 68.000 Oldctg 2
+Gel_number    b1343B1
+Bands  4802 33
+Positive_STS "A01" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "b0343L16"
+Map "ctg7" Ends Left 5.000
+Map "ctg7" Ends Right 23.000 Oldctg 7
+Gel_number    b1343D1
+Bands  4835 19
+Approximate_match_to_cosmid "b0336D23"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0347L04"
+Map "ctg7" Ends Left 0.000
+Map "ctg7" Ends Right 19.000 Oldctg 7
+Gel_number    b1347D1
+Bands  4854 20
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0368F18"
+Map "ctg3" Ends Left 61.000
+Map "ctg3" Ends Right 83.000 Oldctg 3
+Gel_number    b1368D1
+Bands  4898 23
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b0368G07"
+Map "ctg3" Ends Left 109.000
+Map "ctg3" Ends Right 132.000 Oldctg 3
+Gel_number    b1368A1
+Bands  4874 24
+Approximate_match_to_cosmid "c1065C21"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b0372I14"
+Map "ctg4" Ends Left 13.000
+Map "ctg4" Ends Right 42.000 Oldctg 4
+Gel_number    b1372B1
+Bands  4921 30
+Positive_STS "D57" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "b0376P09"
+Map "ctg9" Ends Left 6.000
+Map "ctg9" Ends Right 26.000 Oldctg 9
+Gel_number    b1376C1
+Bands  4951 21
+Approximate_match_to_cosmid "b0324I14"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0377M02"
+Map "ctg2" Ends Left 69.000
+Map "ctg2" Ends Right 101.000 Oldctg 2
+Gel_number    b1377B1
+Bands  4972 33
+Approximate_match_to_cosmid "H0002F22"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0379F02"
+Map "ctg6" Ends Left 26.000
+Map "ctg6" Ends Right 50.000 Oldctg 6
+Gel_number    b1379D1
+Bands  5005 25
+Approximate_match_to_cosmid "H0082F20"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0380N03"
+Map "ctg6" Ends Left 8.000
+Map "ctg6" Ends Right 32.000 Oldctg 6
+Gel_number    b1380C1
+Bands  5030 25
+Approximate_match_to_cosmid "c1053I24"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0382H22"
+Map "ctg3" Ends Left 121.000
+Map "ctg3" Ends Right 152.000 Oldctg 3
+Gel_number    b1382D1
+Bands  5055 32
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b0382N02"
+Map "ctg6" Ends Left 4.000
+Map "ctg6" Ends Right 35.000 Oldctg 6
+Gel_number    b1382D1
+Bands  5087 32
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0390G23"
+Map "ctg5" Ends Left 14.000
+Map "ctg5" Ends Right 41.000 Oldctg 5
+Gel_number    b1390A1
+Bands  5119 28
+Approximate_match_to_cosmid "H0005K08"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0391G06"
+Map "ctg1" Ends Left 53.000
+Map "ctg1" Ends Right 86.000 Oldctg 1
+Gel_number    b1391B1
+Bands  5147 34
+Approximate_match_to_cosmid "c1017J12"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0393C16"
+Map "ctg2" Ends Left 72.000
+Map "ctg2" Ends Right 101.000 Oldctg 2
+Gel_number    b1393B1
+Bands  5181 30
+Approximate_match_to_cosmid "H0002F22"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0398K02"
+Map "ctg8" Ends Left 12.000
+Map "ctg8" Ends Right 22.000 Oldctg 8
+Gel_number    b1398B1
+Bands  5211 11
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0398L18"
+Map "ctg3" Ends Left 76.000
+Map "ctg3" Ends Right 97.000 Oldctg 3
+Gel_number    b1398D1
+Bands  5222 22
+Approximate_match_to_cosmid "c0186L14"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b0399D10"
+Map "ctg3" Ends Left 55.000
+Map "ctg3" Ends Right 77.000 Oldctg 3
+Gel_number    b1399D1
+Bands  5244 23
+Approximate_match_to_cosmid "H0006G12"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b0406I02"
+Map "ctg6" Ends Left 71.000
+Map "ctg6" Ends Right 93.000 Oldctg 6
+Gel_number    b1406B1
+Bands  5288 23
+Exact_match_to_cosmid "c1085E05"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0406I15"
+Map "ctg3" Ends Left 29.000
+Map "ctg3" Ends Right 49.000 Oldctg 3
+Gel_number    b1406A1
+Bands  5267 21
+Approximate_match_to_cosmid "b1246P23"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b0407D07"
+Map "ctg2" Ends Left 32.000
+Map "ctg2" Ends Right 52.000 Oldctg 2
+Gel_number    b1407C1
+Bands  5311 21
+Exact_match_to_cosmid "b1522B13"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0411C10"
+Map "ctg10" Ends Left 8.000
+Map "ctg10" Ends Right 30.000 Oldctg 10
+Gel_number    b1411B1
+Bands  5332 23
+Approximate_match_to_cosmid "H0201H09"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0412E22"
+Map "ctg8" Ends Left 47.000
+Map "ctg8" Ends Right 71.000 Oldctg 8
+Gel_number    b1412B1
+Bands  5355 25
+Positive_STS "A07" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "b0419N02"
+Map "ctg3" Ends Left 49.000
+Map "ctg3" Ends Right 71.000 Oldctg 3
+Gel_number    b1419D1
+Bands  5380 23
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b0435L06"
+Map "ctg4" Ends Left 80.000
+Map "ctg4" Ends Right 107.000 Oldctg 4
+Gel_number    b1435D1
+Bands  9538 28
+Approximate_match_to_cosmid "c1050F12"
+Remark "new_add"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 46 
+  
+BAC : "b0439K14"
+Map "ctg5" Ends Left 35.000
+Map "ctg5" Ends Right 62.000 Oldctg 5
+Gel_number    b1439B1
+Bands  5403 28
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0441C07"
+Map "ctg9" Ends Left 35.000
+Map "ctg9" Ends Right 55.000 Oldctg 9
+Gel_number    b1441A1
+Bands  5431 21
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0443N08"
+Gel_number    b1443D1
+Bands  5452 30
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 6 18 22 
+  
+BAC : "b0447G07"
+Map "ctg9" Ends Left 20.000
+Map "ctg9" Ends Right 41.000 Oldctg 9
+Gel_number    b1447A1
+Bands  5482 22
+Positive_STS "C24" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "b0449B24"
+Map "ctg1" Ends Left 69.000
+Map "ctg1" Ends Right 92.000 Oldctg 1
+Gel_number    b1449D1
+Bands  5504 24
+Approximate_match_to_cosmid "c1032M05"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b0452G20"
+Map "ctg2" Ends Left 57.000
+Map "ctg2" Ends Right 85.000 Oldctg 2
+Gel_number    b1452B1
+Bands  5528 29
+Positive_STS "A01" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "b0461E16"
+Map "ctg6" Ends Left 19.000
+Map "ctg6" Ends Right 41.000 Oldctg 6
+Gel_number    b1461B1
+Bands  5557 23
+Approximate_match_to_cosmid "b1531L10"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1004I23"
+Map "ctg3" Ends Left 95.000
+Map "ctg3" Ends Right 124.000 Oldctg 3
+Gel_number    b1004A1
+Bands  3756 30
+Approximate_match_to_cosmid "c1098L12"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1046O08"
+Map "ctg1" Ends Left 60.000
+Map "ctg1" Ends Right 94.000 Oldctg 1
+Gel_number    b1046B1
+Bands  3786 35
+Positive_STS "J9" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "b1075H04"
+Map "ctg1" Ends Left 0.000
+Map "ctg1" Ends Right 29.000 Oldctg 1
+Gel_number    b1075D1
+Bands  3821 30
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1075N16"
+Map "ctg3" Ends Left 52.000
+Map "ctg3" Ends Right 72.000 Oldctg 3
+Gel_number    b1075D1
+Bands  3851 21
+Exact_match_to_cosmid "b1503B23"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1081C22"
+Map "ctg6" Ends Left 45.000
+Map "ctg6" Ends Right 73.000 Oldctg 6
+Gel_number    b1081B1
+Bands  3872 29
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1083O09"
+Map "ctg3" Ends Left 121.000
+Map "ctg3" Ends Right 150.000 Oldctg 3
+Gel_number    b1083A1
+Bands  3901 30
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1085K18"
+Map "ctg3" Ends Left 120.000
+Map "ctg3" Ends Right 137.000 Oldctg 3
+Gel_number    b1085B1
+Bands  3931 18
+Exact_match_to_cosmid "c1065C21"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1101J03"
+Map "ctg2" Ends Left 14.000
+Map "ctg2" Ends Right 51.000 Oldctg 2
+Gel_number    b1101C1
+Bands  3949 38
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1103E10"
+Map "ctg9" Ends Left 7.000
+Map "ctg9" Ends Right 29.000 Oldctg 9
+Gel_number    b1103B1
+Bands  3987 23
+Exact_match_to_cosmid "b0324I14"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1153C20"
+Map "ctg1" Ends Left 77.000
+Map "ctg1" Ends Right 105.000 Oldctg 1
+Gel_number    b1153B1
+Bands  9509 29
+Approximate_match_to_cosmid "c1032M05"
+Remark "new_add"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 46 
+  
+BAC : "b1154L07"
+Map "ctg6" Ends Left 4.000
+Map "ctg6" Ends Right 32.000 Oldctg 6
+Gel_number    b1154C1
+Bands  4010 29
+Exact_match_to_cosmid "c1053I24"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1158P05"
+Map "ctg5" Ends Left 14.000
+Map "ctg5" Ends Right 47.000 Oldctg 5
+Gel_number    b1158C1
+Bands  4039 34
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1177F07"
+Map "ctg1" Ends Left 47.000
+Map "ctg1" Ends Right 75.000 Oldctg 1
+Gel_number    b1177C1
+Bands  4073 29
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1245K13"
+Map "ctg3" Ends Left 52.000
+Map "ctg3" Ends Right 70.000 Oldctg 3
+Gel_number    b1245A1
+Bands  4102 19
+Exact_match_to_cosmid "H0006G12"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1246P23"
+Map "ctg3" Ends Left 30.000
+Map "ctg3" Ends Right 52.000 Oldctg 3
+Gel_number    b1246C1
+Bands  4121 23
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1257O16"
+Map "ctg8" Ends Left 33.000
+Map "ctg8" Ends Right 69.000 Oldctg 8
+Gel_number    b1257B1
+Bands  4144 37
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1259M17"
+Map "ctg7" Ends Left 10.000
+Map "ctg7" Ends Right 30.000 Oldctg 7
+Gel_number    b1259A1
+Bands  4181 21
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1264H12"
+Map "ctg3" Ends Left 52.000
+Map "ctg3" Ends Right 78.000 Oldctg 3
+Gel_number    b1264D1
+Bands  4202 27
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1264N04"
+Map "ctg6" Ends Left 26.000
+Map "ctg6" Ends Right 50.000 Oldctg 6
+Gel_number    b1264D1
+Bands  4229 25
+Positive_Locus "J5" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "b1266K23"
+Map "ctg4" Ends Left 62.000
+Map "ctg4" Ends Right 81.000 Oldctg 4
+Gel_number    b1266A1
+Bands  4254 20
+Exact_match_to_cosmid "c1082E16"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1274A11"
+Map "ctg3" Ends Left 63.000
+Map "ctg3" Ends Right 88.000 Oldctg 3
+Gel_number    b1274A1
+Bands  4303 26
+Approximate_match_to_cosmid "H0198H02"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1274M03"
+Map "ctg3" Ends Left 138.000
+Map "ctg3" Ends Right 166.000 Oldctg 3
+Gel_number    b1274A1
+Bands  4274 29
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1282L07"
+Map "ctg2" Ends Left 28.000
+Map "ctg2" Ends Right 56.000 Oldctg 2
+Gel_number    b1282C1
+Bands  4329 29
+Approximate_match_to_cosmid "b1522B13"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1285J21"
+Map "ctg4" Ends Left 59.000
+Map "ctg4" Ends Right 86.000 Oldctg 4
+Gel_number    b1285C1
+Bands  4358 28
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1468I11"
+Map "ctg1" Ends Left 39.000
+Map "ctg1" Ends Right 74.000 Oldctg 1
+Gel_number    b1468A1
+Bands  5580 36
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1477K21"
+Map "ctg7" Ends Left 14.000
+Map "ctg7" Ends Right 28.000 Oldctg 7
+Gel_number    b1477A1
+Bands  5616 15
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1478J02"
+Map "ctg9" Ends Left 12.000
+Map "ctg9" Ends Right 33.000 Oldctg 9
+Gel_number    b1478D1
+Bands  5631 22
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1482G15"
+Map "ctg6" Ends Left 50.000
+Map "ctg6" Ends Right 75.000 Oldctg 6
+Gel_number    b1482A1
+Bands  5653 26
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1482I12"
+Map "ctg6" Ends Left 29.000
+Map "ctg6" Ends Right 50.000 Oldctg 6
+Gel_number    b1482B1
+Bands  5679 22
+Approximate_match_to_cosmid "H0082F20"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1494B06"
+Map "ctg3" Ends Left 23.000
+Map "ctg3" Ends Right 44.000 Oldctg 3
+Gel_number    b1494D1
+Bands  5701 22
+Approximate_match_to_cosmid "b1584L19"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1498E10"
+Map "ctg3" Ends Left 125.000
+Map "ctg3" Ends Right 152.000 Oldctg 3
+Gel_number    b1498B1
+Bands  5723 28
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1502M06"
+Map "ctg8" Ends Left 7.000
+Map "ctg8" Ends Right 24.000 Oldctg 8
+Gel_number    b1502B1
+Bands  5751 18
+Exact_match_to_cosmid "c0021L10"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1503B23"
+Map "ctg3" Ends Left 50.000
+Map "ctg3" Ends Right 76.000 Oldctg 3
+Gel_number    b1503C1
+Bands  5769 27
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1503L05"
+Map "ctg2" Ends Left 61.000
+Map "ctg2" Ends Right 87.000 Oldctg 2
+Gel_number    b1503C1
+Bands  5796 27
+Exact_match_to_cosmid "b1588O10"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1505H15"
+Map "ctg6" Ends Left 38.000
+Map "ctg6" Ends Right 66.000 Oldctg 6
+Gel_number    b1505C1
+Bands  5823 29
+Approximate_match_to_cosmid "c0108C20"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1509B02"
+Map "ctg4" Ends Left 60.000
+Map "ctg4" Ends Right 90.000 Oldctg 4
+Gel_number    b1509D1
+Bands  5852 31
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1511G13"
+Map "ctg4" Ends Left 79.000
+Map "ctg4" Ends Right 104.000 Oldctg 4
+Gel_number    b1511A1
+Bands  9566 26
+Approximate_match_to_cosmid "c1050F12"
+Remark "new_add"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 46 
+  
+BAC : "b1512M05"
+Map "ctg9" Ends Left 13.000
+Map "ctg9" Ends Right 40.000 Oldctg 9
+Gel_number    b1512A1
+Bands  5883 28
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1514A05"
+Map "ctg2" Ends Left 20.000
+Map "ctg2" Ends Right 50.000 Oldctg 2
+Gel_number    b1514A1
+Bands  5911 31
+Exact_match_to_cosmid "b1566O10"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1520O04"
+Map "ctg6" Ends Left 19.000
+Map "ctg6" Ends Right 40.000 Oldctg 6
+Gel_number    b1520B1
+Bands  5942 22
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1522B13"
+Map "ctg2" Ends Left 22.000
+Map "ctg2" Ends Right 56.000 Oldctg 2
+Gel_number    b1522C1
+Bands  5991 35
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1522D12"
+Map "ctg10" Ends Left 7.000
+Map "ctg10" Ends Right 30.000 Oldctg 10
+Gel_number    b1522D1
+Bands  6048 24
+Approximate_match_to_cosmid "H0201H09"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1522J10"
+Map "ctg3" Ends Left 64.000
+Map "ctg3" Ends Right 85.000 Oldctg 3
+Gel_number    b1522D1
+Bands  6026 22
+Positive_STS "B13" New
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1522J13"
+Map "ctg1" Ends Left 13.000
+Map "ctg1" Ends Right 39.000 Oldctg 1
+Gel_number    b1522C1
+Bands  5964 27
+Approximate_match_to_cosmid "c1086K04"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1529D11"
+Map "ctg3" Ends Left 127.000
+Map "ctg3" Ends Right 149.000 Oldctg 3
+Gel_number    b1529C1
+Bands  6072 23
+Approximate_match_to_cosmid "b0382H22"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1529P11"
+Map "ctg2" Ends Left 56.000
+Map "ctg2" Ends Right 82.000 Oldctg 2
+Gel_number    b1529C1
+Bands  6095 27
+Exact_match_to_cosmid "b1588O10"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1531L10"
+Map "ctg6" Ends Left 18.000
+Map "ctg6" Ends Right 42.000 Oldctg 6
+Gel_number    b1531D1
+Bands  6122 25
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1537B07"
+Map "ctg2" Ends Left 39.000
+Map "ctg2" Ends Right 73.000 Oldctg 2
+Gel_number    b1537C1
+Bands  6182 35
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1537E21"
+Map "ctg5" Ends Left 25.000
+Map "ctg5" Ends Right 59.000 Oldctg 5
+Gel_number    b1537A1
+Bands  6147 35
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1540A14"
+Map "ctg2" Ends Left 19.000
+Map "ctg2" Ends Right 44.000 Oldctg 2
+Gel_number    b1540B1
+Bands  6244 26
+Exact_match_to_cosmid "b1101J03"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1540M20"
+Map "ctg1" Ends Left 1.000
+Map "ctg1" Ends Right 27.000 Oldctg 1
+Gel_number    b1540B1
+Bands  6217 27
+Approximate_match_to_cosmid "b1075H04"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1548D16"
+Map "ctg1" Ends Left 6.000
+Map "ctg1" Ends Right 28.000 Oldctg 1
+Gel_number    b1548D1
+Bands  6270 23
+Exact_match_to_cosmid "b1075H04"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1557J13"
+Map "ctg2" Ends Left 68.000
+Map "ctg2" Ends Right 96.000 Oldctg 2
+Gel_number    b1557C1
+Bands  6293 29
+Approximate_match_to_cosmid "H0002F22"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1566O10"
+Map "ctg2" Ends Left 18.000
+Map "ctg2" Ends Right 53.000 Oldctg 2
+Gel_number    b1566B1
+Bands  6322 36
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1567H22"
+Map "ctg8" Ends Left 24.000
+Map "ctg8" Ends Right 53.000 Oldctg 8
+Gel_number    b1567D1
+Bands  6358 30
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1568O15"
+Map "ctg3" Ends Left 77.000
+Map "ctg3" Ends Right 95.000 Oldctg 3
+Gel_number    b1568A1
+Bands  6388 19
+Approximate_match_to_cosmid "c1041H02"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1570G15"
+Map "ctg4" Ends Left 61.000
+Map "ctg4" Ends Right 81.000 Oldctg 4
+Gel_number    b1570A1
+Bands  6407 21
+Exact_match_to_cosmid "c1082E16"
+Positive_STS "D58" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "b1573O12"
+Map "ctg3" Ends Left 97.000
+Map "ctg3" Ends Right 124.000 Oldctg 3
+Gel_number    b1573B1
+Bands  6428 28
+Approximate_match_to_cosmid "c1098L12"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1577M16"
+Map "ctg3" Ends Left 129.000
+Map "ctg3" Ends Right 159.000 Oldctg 3
+Gel_number    b1577B1
+Bands  6456 31
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1584L19"
+Map "ctg3" Ends Left 17.000
+Map "ctg3" Ends Right 44.000 Oldctg 3
+Gel_number    b1584C1
+Bands  6487 28
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1585M07"
+Map "ctg1" Ends Left 57.000
+Map "ctg1" Ends Right 85.000 Oldctg 1
+Gel_number    b1585A1
+Bands  6515 29
+Approximate_match_to_cosmid "c1017J12"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1586A22"
+Map "ctg2" Ends Left 68.000
+Map "ctg2" Ends Right 95.000 Oldctg 2
+Gel_number    b1586B1
+Bands  6544 28
+Approximate_match_to_cosmid "H0002F22"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1588H16"
+Map "ctg10" Ends Left 0.000
+Map "ctg10" Ends Right 22.000 Oldctg 10
+Gel_number    b1588D1
+Bands  6626 23
+Positive_STS "A10" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "b1588K02"
+Map "ctg2" Ends Left 70.000
+Map "ctg2" Ends Right 89.000 Oldctg 2
+Gel_number    b1588B1
+Bands  6606 20
+Exact_match_to_cosmid "H0016J06"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1588O10"
+Map "ctg2" Ends Left 56.000
+Map "ctg2" Ends Right 89.000 Oldctg 2
+Gel_number    b1588B1
+Bands  6572 34
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1593C11"
+Map "ctg2" Ends Left 68.000
+Map "ctg2" Ends Right 89.000 Oldctg 2
+Gel_number    b1593A1
+Bands  6649 22
+Exact_match_to_cosmid "H0276H10"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1596H05"
+Map "ctg8" Ends Left 16.000
+Map "ctg8" Ends Right 42.000 Oldctg 8
+Gel_number    b1596C1
+Bands  6671 27
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1599A19"
+Map "ctg4" Ends Left 57.000
+Map "ctg4" Ends Right 80.000 Oldctg 4
+Gel_number    b1599A1
+Bands  6727 24
+Approximate_match_to_cosmid "c1082E16"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1599K15"
+Map "ctg4" Ends Left 23.000
+Map "ctg4" Ends Right 51.000 Oldctg 4
+Gel_number    b1599A1
+Bands  6698 29
+Approximate_match_to_cosmid "H0143J16"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1601G04"
+Map "ctg1" Ends Left 36.000
+Map "ctg1" Ends Right 53.000 Oldctg 1
+Gel_number    b1601B1
+Bands  6751 18
+Exact_match_to_cosmid "c1024E06"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1601H13"
+Map "ctg5" Ends Left 44.000
+Map "ctg5" Ends Right 65.000 Oldctg 5
+Gel_number    b1601C1
+Bands  6797 22
+Approximate_match_to_cosmid "b1601H14"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1601H14"
+Map "ctg5" Ends Left 41.000
+Map "ctg5" Ends Right 70.000 Oldctg 5
+Gel_number    b1601D1
+Bands  6819 30
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1601I10"
+Map "ctg6" Ends Left 15.000
+Map "ctg6" Ends Right 42.000 Oldctg 6
+Gel_number    b1601B1
+Bands  6769 28
+Positive_Locus "J5" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "b1604O19"
+Map "ctg3" Ends Left 53.000
+Map "ctg3" Ends Right 86.000 Oldctg 3
+Gel_number    b1604A1
+Bands  6849 34
+Positive_STS "B13" New
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1607F08"
+Map "ctg2" Ends Left 61.000
+Map "ctg2" Ends Right 90.000 Oldctg 2
+Gel_number    b1607D1
+Bands  6909 30
+Positive_STS "A01" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "b1607I12"
+Map "ctg8" Ends Left 21.000
+Map "ctg8" Ends Right 46.000 Oldctg 8
+Gel_number    b1607B1
+Bands  6883 26
+Approximate_match_to_cosmid "H0186L03"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1610I15"
+Map "ctg3" Ends Left 53.000
+Map "ctg3" Ends Right 75.000 Oldctg 3
+Gel_number    b1610A1
+Bands  6939 23
+Exact_match_to_cosmid "H0006G12"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1613A17"
+Map "ctg6" Ends Left 6.000
+Map "ctg6" Ends Right 32.000 Oldctg 6
+Gel_number    b1613A1
+Bands  6962 27
+Approximate_match_to_cosmid "c1053I24"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1613P20"
+Map "ctg4" Ends Left 48.000
+Map "ctg4" Ends Right 71.000 Oldctg 4
+Gel_number    b1613D1
+Bands  6989 24
+Positive_STS "D58" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "b1622G13"
+Map "ctg8" Ends Left 11.000
+Map "ctg8" Ends Right 32.000 Oldctg 8
+Gel_number    b1622A1
+Bands  7013 22
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1626B19"
+Map "ctg6" Ends Left 45.000
+Map "ctg6" Ends Right 70.000 Oldctg 6
+Gel_number    b1626C1
+Bands  7060 26
+Approximate_match_to_cosmid "c1037B24"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1626J19"
+Map "ctg6" Ends Left 46.000
+Map "ctg6" Ends Right 70.000 Oldctg 6
+Gel_number    b1626C1
+Bands  7035 25
+Exact_match_to_cosmid "c0108C20"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1628C03"
+Map "ctg8" Ends Left 0.000
+Map "ctg8" Ends Right 22.000 Oldctg 8
+Gel_number    b1628A1
+Bands  7086 23
+Positive_STS "A05" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "b1628F14"
+Map "ctg9" Ends Left 18.000
+Map "ctg9" Ends Right 50.000 Oldctg 9
+Gel_number    b1628D1
+Bands  7129 33
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1628J23"
+Gel_number    b1628C1
+Bands  7109 20
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 6 18 22 
+  
+BAC : "b1630L22"
+Map "ctg3" Ends Left 125.000
+Map "ctg3" Ends Right 152.000 Oldctg 3
+Gel_number    b1630D1
+Bands  7162 28
+Approximate_match_to_cosmid "b1498E10"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1631H15"
+Map "ctg1" Ends Left 6.000
+Map "ctg1" Ends Right 29.000 Oldctg 1
+Gel_number    b1631C1
+Bands  7190 24
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1632J14"
+Map "ctg8" Ends Left 66.000
+Map "ctg8" Ends Right 92.000 Oldctg 8
+Gel_number    b1632D1
+Bands  7214 27
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1633E09"
+Map "ctg2" Ends Left 54.000
+Map "ctg2" Ends Right 81.000 Oldctg 2
+Gel_number    b1633A1
+Bands  7241 28
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1633J03"
+Map "ctg1" Ends Left 29.000
+Map "ctg1" Ends Right 49.000 Oldctg 1
+Gel_number    b1633C1
+Bands  7269 21
+Approximate_match_to_cosmid "c1024E06"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1634P04"
+Map "ctg6" Ends Left 21.000
+Map "ctg6" Ends Right 42.000 Oldctg 6
+Gel_number    b1634D1
+Bands  7290 22
+Positive_Locus "J5" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "b1642H04"
+Map "ctg1" Ends Left 63.000
+Map "ctg1" Ends Right 90.000 Oldctg 1
+Gel_number    b1642D1
+Bands  7312 28
+Exact_match_to_cosmid "c1017J12"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b1644B11"
+Map "ctg3" Ends Left 51.000
+Map "ctg3" Ends Right 84.000 Oldctg 3
+Gel_number    b1644C1
+Bands  7340 34
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "b1644D20"
+Map "ctg4" Ends Left 20.000
+Map "ctg4" Ends Right 44.000 Oldctg 4
+Gel_number    b1644D1
+Bands  7374 25
+Positive_STS "D57" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "b1645E04"
+Map "ctg8" Ends Left 11.000
+Map "ctg8" Ends Right 30.000 Oldctg 8
+Gel_number    b1645B1
+Bands  7399 20
+Exact_match_to_cosmid "b1622G13"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b3299K19"
+Map "ctg1" Ends Left 80.000
+Map "ctg1" Ends Right 106.000 Oldctg 1
+Gel_number    b3299A1
+Bands  9592 27
+Approximate_match_to_cosmid "c1032M05"
+Remark "new_add"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 46 
+  
+BAC : "b4305E09"
+Map "ctg6" Ends Left 29.000
+Map "ctg6" Ends Right 49.000 Oldctg 6
+Gel_number    b4305A1
+Bands  7419 21
+Exact_match_to_cosmid "H0082F20"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "b6294A03"
+Map "ctg6" Ends Left 38.000
+Map "ctg6" Ends Right 73.000 Oldctg 6
+Gel_number    b6294A1
+Bands  7440 36
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c0021L10"
+Map "ctg8" Ends Left 1.000
+Map "ctg8" Ends Right 31.000 Oldctg 8
+Gel_number    c0021D1
+Bands  7566 31
+Positive_STS "A05" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "c0071G24"
+Map "ctg3" Ends Left 102.000
+Map "ctg3" Ends Right 130.000 Oldctg 3
+Gel_number    c0071B1
+Bands  7597 29
+Approximate_match_to_cosmid "c1098L12"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "c0072H16"
+Map "ctg3" Ends Left 98.000
+Map "ctg3" Ends Right 134.000 Oldctg 3
+Gel_number    c0072D1
+Bands  7626 37
+Approximate_match_to_cosmid "c1098L12"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "c0085G04"
+Map "ctg6" Ends Left 24.000
+Map "ctg6" Ends Right 81.000 Oldctg 6
+Gel_number    c1085B1
+Bands  8792 58
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c0105F22"
+Map "ctg3" Ends Left 41.000
+Map "ctg3" Ends Right 71.000 Oldctg 3
+Gel_number    c1105D1
+Bands  9162 31
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "c0105P24"
+Map "ctg1" Ends Left 24.000
+Map "ctg1" Ends Right 61.000 Oldctg 1
+Gel_number    c1105D1
+Bands  9124 38
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c0107A18"
+Map "ctg1" Ends Left 18.000
+Map "ctg1" Ends Right 62.000 Oldctg 1
+Gel_number    c1107B1
+Bands  9193 45
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c0108C20"
+Map "ctg6" Ends Left 33.000
+Map "ctg6" Ends Right 73.000 Oldctg 6
+Gel_number    c1108B1
+Bands  9238 41
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c0109A18"
+Map "ctg6" Ends Left 30.000
+Map "ctg6" Ends Right 66.000 Oldctg 6
+Gel_number    c1109B1
+Bands  9314 37
+Positive_STS "J130" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "c0109L22"
+Map "ctg8" Ends Left 30.000
+Map "ctg8" Ends Right 62.000 Oldctg 8
+Gel_number    c1109D1
+Bands  9351 33
+Approximate_match_to_cosmid "c0109M22"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c0109M22"
+Map "ctg8" Ends Left 30.000
+Map "ctg8" Ends Right 64.000 Oldctg 8
+Gel_number    c1109B1
+Bands  9279 35
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c0186L14"
+Map "ctg3" Ends Left 70.000
+Map "ctg3" Ends Right 112.000 Oldctg 3
+Gel_number    c0186D1
+Bands  7663 43
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "c1010O04"
+Map "ctg3" Ends Left 97.000
+Map "ctg3" Ends Right 133.000 Oldctg 3
+Gel_number    c1010B1
+Bands  7706 37
+Positive_STS "B01" New
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "c1017J12"
+Map "ctg1" Ends Left 48.000
+Map "ctg1" Ends Right 94.000 Oldctg 1
+Gel_number    c1017D1
+Bands  7743 47
+Positive_STS "J9" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "c1021A24"
+Map "ctg2" Ends Left 40.000
+Map "ctg2" Ends Right 77.000 Oldctg 2
+Gel_number    c1021B1
+Bands  7790 38
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c1024C16"
+Map "ctg1" Ends Left 29.000
+Map "ctg1" Ends Right 70.000 Oldctg 1
+Gel_number    c1024B1
+Bands  7870 42
+Approximate_match_to_cosmid "c1024E06"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c1024E06"
+Map "ctg1" Ends Left 34.000
+Map "ctg1" Ends Right 75.000 Oldctg 1
+Gel_number    c1024B1
+Bands  7828 42
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c1025O11"
+Map "ctg3" Ends Left 7.000
+Map "ctg3" Ends Right 42.000 Oldctg 3
+Gel_number    c1025A1
+Bands  7912 36
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "c1031I14"
+Map "ctg3" Ends Left 0.000
+Map "ctg3" Ends Right 30.000 Oldctg 3
+Gel_number    c1031B1
+Bands  7948 31
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "c1032I23"
+Map "ctg5" Ends Left 15.000
+Map "ctg5" Ends Right 56.000 Oldctg 5
+Gel_number    c1032A1
+Bands  9658 42
+Remark "new_add"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 46 
+  
+BAC : "c1032M05"
+Map "ctg1" Ends Left 68.000
+Map "ctg1" Ends Right 106.000 Oldctg 1
+Gel_number    c1032A1
+Bands  9619 39
+Remark "new_add"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 46 
+  
+BAC : "c1032M10"
+Gel_number    c1032B1
+Bands  7979 35
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 6 18 22 
+  
+BAC : "c1036J07"
+Map "ctg10" Ends Left 8.000
+Map "ctg10" Ends Right 32.000 Oldctg 10
+Gel_number    c1036C1
+Bands  8014 25
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c1037B24"
+Map "ctg6" Ends Left 33.000
+Map "ctg6" Ends Right 73.000 Oldctg 6
+Gel_number    c1037D1
+Bands  8039 41
+Positive_STS "J130" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "c1041H02"
+Map "ctg3" Ends Left 80.000
+Map "ctg3" Ends Right 115.000 Oldctg 3
+Gel_number    c1041D1
+Bands  8080 36
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "c1042M12"
+Map "ctg1" Ends Left 27.000
+Map "ctg1" Ends Right 53.000 Oldctg 1
+Gel_number    c1042B1
+Bands  8116 27
+Approximate_match_to_cosmid "c0107A18"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c1043L12"
+Map "ctg5" Ends Left 24.000
+Map "ctg5" Ends Right 63.000 Oldctg 5
+Gel_number    c1043D1
+Bands  8143 40
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c1047E05"
+Map "ctg9" Ends Left 28.000
+Map "ctg9" Ends Right 52.000 Oldctg 9
+Gel_number    c1047A1
+Bands  8183 25
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c1050F12"
+Map "ctg4" Ends Left 73.000
+Map "ctg4" Ends Right 110.000 Oldctg 4
+Gel_number    c1050D1
+Bands  9735 38
+Remark "new_add"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 46 
+  
+BAC : "c1050J12"
+Map "ctg4" Ends Left 75.000
+Map "ctg4" Ends Right 109.000 Oldctg 4
+Gel_number    c1050D1
+Bands  9700 35
+Approximate_match_to_cosmid "c1050F12"
+Remark "new_add"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 46 
+  
+BAC : "c1052J13"
+Map "ctg6" Ends Left 33.000
+Map "ctg6" Ends Right 72.000 Oldctg 6
+Gel_number    c1052C1
+Bands  8208 40
+Positive_STS "J130" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "c1053I24"
+Map "ctg6" Ends Left 0.000
+Map "ctg6" Ends Right 36.000 Oldctg 6
+Gel_number    c1053B1
+Bands  8248 37
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c1056C07"
+Map "ctg3" Ends Left 2.000
+Map "ctg3" Ends Right 35.000 Oldctg 3
+Gel_number    c1056A1
+Bands  8285 34
+Approximate_match_to_cosmid "c1096G11"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "c1058K17"
+Map "ctg3" Ends Left 43.000
+Map "ctg3" Ends Right 70.000 Oldctg 3
+Gel_number    c1058A1
+Bands  8319 28
+Approximate_match_to_cosmid "c0105F22"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "c1060H12"
+Map "ctg8" Ends Left 12.000
+Map "ctg8" Ends Right 32.000 Oldctg 8
+Gel_number    c1060D1
+Bands  8365 21
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c1060I02"
+Map "ctg8" Ends Left 13.000
+Map "ctg8" Ends Right 30.000 Oldctg 8
+Gel_number    c1060B1
+Bands  8347 18
+Positive_STS "A07" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "c1063E08"
+Map "ctg2" Ends Left 43.000
+Map "ctg2" Ends Right 80.000 Oldctg 2
+Gel_number    c1063B1
+Bands  8386 38
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c1065C21"
+Map "ctg3" Ends Left 110.000
+Map "ctg3" Ends Right 143.000 Oldctg 3
+Gel_number    c1065A1
+Bands  8424 34
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "c1067H04"
+Map "ctg6" Ends Left 3.000
+Map "ctg6" Ends Right 32.000 Oldctg 6
+Gel_number    c1067D1
+Bands  8458 30
+Exact_match_to_cosmid "c1053I24"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c1074L23"
+Map "ctg2" Ends Left 4.000
+Map "ctg2" Ends Right 45.000 Oldctg 2
+Gel_number    c1074C1
+Bands  8529 42
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c1074P15"
+Map "ctg2" Ends Left 0.000
+Map "ctg2" Ends Right 40.000 Oldctg 2
+Gel_number    c1074C1
+Bands  8488 41
+Positive_STS "A05" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "c1082B18"
+Map "ctg4" Ends Left 42.000
+Map "ctg4" Ends Right 81.000 Oldctg 4
+Gel_number    c1082D1
+Bands  8681 40
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c1082E16"
+Map "ctg4" Ends Left 44.000
+Map "ctg4" Ends Right 81.000 Oldctg 4
+Gel_number    c1082B1
+Bands  8571 38
+Positive_STS "D58" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "c1082F03"
+Map "ctg3" Ends Left 96.000
+Map "ctg3" Ends Right 132.000 Oldctg 3
+Gel_number    c1082C1
+Bands  8609 37
+Positive_STS "B01" New
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "c1082F16"
+Map "ctg4" Ends Left 46.000
+Map "ctg4" Ends Right 80.000 Oldctg 4
+Gel_number    c1082D1
+Bands  8646 35
+Exact_match_to_cosmid "c1082B18"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c1083A18"
+Map "ctg3" Ends Left 1.000
+Map "ctg3" Ends Right 34.000 Oldctg 3
+Gel_number    c1083B1
+Bands  8721 34
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "c1085E05"
+Map "ctg6" Ends Left 57.000
+Map "ctg6" Ends Right 93.000 Oldctg 6
+Gel_number    c1085A1
+Bands  8755 37
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c1086K04"
+Map "ctg1" Ends Left 11.000
+Map "ctg1" Ends Right 46.000 Oldctg 1
+Gel_number    c1086B1
+Bands  8850 36
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c1091I04"
+Gel_number    c1091B1
+Bands  8886 49
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 6 18 22 
+  
+BAC : "c1096G11"
+Map "ctg3" Ends Left 0.000
+Map "ctg3" Ends Right 35.000 Oldctg 3
+Gel_number    c1096A1
+Bands  8935 36
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "c1098F02"
+Map "ctg9" Ends Left 20.000
+Map "ctg9" Ends Right 61.000 Oldctg 9
+Gel_number    c1098D1
+Bands  9010 42
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c1098L12"
+Map "ctg3" Ends Left 96.000
+Map "ctg3" Ends Right 134.000 Oldctg 3
+Gel_number    c1098D1
+Bands  8971 39
+Positive_STS "B01" New
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "c1100K19"
+Map "ctg3" Ends Left 37.000
+Map "ctg3" Ends Right 63.000 Oldctg 3
+Gel_number    c1100A1
+Bands  9097 27
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "c1100K23"
+Map "ctg5" Ends Left 17.000
+Map "ctg5" Ends Right 61.000 Oldctg 5
+Gel_number    c1100A1
+Bands  9052 45
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c1114F11"
+Map "ctg8" Ends Left 44.000
+Map "ctg8" Ends Right 85.000 Oldctg 8
+Gel_number    c1114C1
+Bands  9384 42
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "c1115H20"
+Map "ctg7" Ends Left 1.000
+Map "ctg7" Ends Right 31.000 Oldctg 7
+Gel_number    c1115D1
+Bands  9426 31
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0002F22"
+Map "ctg2" Ends Left 66.000
+Map "ctg2" Ends Right 104.000 Oldctg 2
+Gel_number    6002D1
+Bands  1255 39
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0003F14"
+Map "ctg6" Ends Left 21.000
+Map "ctg6" Ends Right 41.000 Oldctg 6
+Gel_number    3003D1
+Bands  438 21
+Approximate_match_to_cosmid "H0107A17"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0003F17"
+Map "ctg5" Ends Left 32.000
+Map "ctg5" Ends Right 57.000 Oldctg 5
+Gel_number    3003C1
+Bands  412 26
+Approximate_match_to_cosmid "c1100K23"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0005K08"
+Map "ctg5" Ends Left 15.000
+Map "ctg5" Ends Right 48.000 Oldctg 5
+Gel_number    4005B1
+Bands  603 34
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0005N23"
+Map "ctg3" Ends Left 139.000
+Map "ctg3" Ends Right 166.000 Oldctg 3
+Gel_number    3005C1
+Bands  459 28
+Positive_STS "A10" New
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0006G12"
+Map "ctg3" Ends Left 52.000
+Map "ctg3" Ends Right 77.000 Oldctg 3
+Gel_number    6006B1
+Bands  1294 26
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0012B12"
+Map "ctg3" Ends Left 20.000
+Map "ctg3" Ends Right 34.000 Oldctg 3
+Gel_number    6012D1
+Bands  1320 15
+Exact_match_to_cosmid "b1584L19"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0013D12"
+Map "ctg3" Ends Left 44.000
+Map "ctg3" Ends Right 64.000 Oldctg 3
+Gel_number    8013D1
+Bands  2911 21
+Approximate_match_to_cosmid "c0105F22"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0016J06"
+Map "ctg2" Ends Left 67.000
+Map "ctg2" Ends Right 96.000 Oldctg 2
+Gel_number    7016D1
+Bands  2429 30
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0018F10"
+Map "ctg4" Ends Left 43.000
+Map "ctg4" Ends Right 75.000 Oldctg 4
+Gel_number    4018D1
+Bands  637 33
+Approximate_match_to_cosmid "c1082B18"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0019P09"
+Gel_number    6019C1
+Bands  1335 32
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 6 18 22 
+  
+BAC : "H0020I07"
+Map "ctg3" Ends Left 121.000
+Map "ctg3" Ends Right 138.000 Oldctg 3
+Gel_number    4020A1
+Bands  670 18
+Exact_match_to_cosmid "c1065C21"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0022F06"
+Map "ctg2" Ends Left 46.000
+Map "ctg2" Ends Right 74.000 Oldctg 2
+Gel_number    6022D1
+Bands  1367 29
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0024E12"
+Map "ctg3" Ends Left 14.000
+Map "ctg3" Ends Right 32.000 Oldctg 3
+Gel_number    6024B1
+Bands  1396 19
+Exact_match_to_cosmid "H0087N20"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0029H15"
+Map "ctg10" Ends Left 1.000
+Map "ctg10" Ends Right 23.000 Oldctg 10
+Gel_number    4029B1
+Bands  688 23
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0029M07"
+Map "ctg1" Ends Left 29.000
+Map "ctg1" Ends Right 46.000 Oldctg 1
+Gel_number    7029A1
+Bands  2459 18
+Exact_match_to_cosmid "c0107A18"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0031K16"
+Map "ctg1" Ends Left 43.000
+Map "ctg1" Ends Right 68.000 Oldctg 1
+Gel_number    4031B1
+Bands  711 26
+Approximate_match_to_cosmid "b1468I11"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0032K16"
+Map "ctg4" Ends Left 41.000
+Map "ctg4" Ends Right 65.000 Oldctg 4
+Gel_number    4032B1
+Bands  759 25
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0032O01"
+Map "ctg3" Ends Left 25.000
+Map "ctg3" Ends Right 46.000 Oldctg 3
+Gel_number    4032A1
+Bands  737 22
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0032P15"
+Map "ctg2" Ends Left 45.000
+Map "ctg2" Ends Right 67.000 Oldctg 2
+Gel_number    6032C1
+Bands  1415 23
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0033N07"
+Map "ctg8" Ends Left 66.000
+Map "ctg8" Ends Right 92.000 Oldctg 8
+Gel_number    4033C1
+Bands  784 27
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0034I07"
+Map "ctg3" Ends Left 52.000
+Map "ctg3" Ends Right 72.000 Oldctg 3
+Gel_number    6034A1
+Bands  1461 21
+Approximate_match_to_cosmid "b1644B11"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0034O07"
+Map "ctg7" Ends Left 7.000
+Map "ctg7" Ends Right 29.000 Oldctg 7
+Gel_number    6034A1
+Bands  1438 23
+Approximate_match_to_cosmid "c1115H20"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0036E07"
+Map "ctg5" Ends Left 26.000
+Map "ctg5" Ends Right 55.000 Oldctg 5
+Gel_number    6036A1
+Bands  1482 30
+Approximate_match_to_cosmid "c1100K23"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0041J05"
+Map "ctg4" Ends Left 60.000
+Map "ctg4" Ends Right 90.000 Oldctg 4
+Gel_number    3041C1
+Bands  487 31
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0043D23"
+Map "ctg6" Ends Left 54.000
+Map "ctg6" Ends Right 76.000 Oldctg 6
+Gel_number    6043C1
+Bands  1512 23
+Approximate_match_to_cosmid "b1081C22"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0052J20"
+Map "ctg5" Ends Left 33.000
+Map "ctg5" Ends Right 58.000 Oldctg 5
+Gel_number    9052D1
+Bands  3121 26
+Approximate_match_to_cosmid "b0319B18"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0054L03"
+Map "ctg4" Ends Left 67.000
+Map "ctg4" Ends Right 96.000 Oldctg 4
+Gel_number    3054C1
+Bands  518 30
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0054L23"
+Map "ctg8" Ends Left 48.000
+Map "ctg8" Ends Right 77.000 Oldctg 8
+Gel_number    3054C1
+Bands  548 30
+Approximate_match_to_cosmid "c1114F11"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0057O04"
+Map "ctg4" Ends Left 72.000
+Map "ctg4" Ends Right 94.000 Oldctg 4
+Gel_number    7057B1
+Bands  2477 23
+Exact_match_to_cosmid "H0054L03"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0058L05"
+Map "ctg1" Ends Left 14.000
+Map "ctg1" Ends Right 44.000 Oldctg 1
+Gel_number    8058C1
+Bands  2932 31
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0073O01"
+Gel_number    7073A1
+Bands  2500 27
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 6 18 22 
+  
+BAC : "H0075O08"
+Map "ctg3" Ends Left 54.000
+Map "ctg3" Ends Right 74.000 Oldctg 3
+Gel_number    6075B1
+Bands  1535 21
+Exact_match_to_cosmid "H0006G12"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0078I12"
+Map "ctg9" Ends Left 24.000
+Map "ctg9" Ends Right 46.000 Oldctg 9
+Gel_number    6078B1
+Bands  1556 23
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0078L17"
+Map "ctg3" Ends Left 89.000
+Map "ctg3" Ends Right 117.000 Oldctg 3
+Gel_number    4078C1
+Bands  811 29
+Approximate_match_to_cosmid "H0105A07"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0080I09"
+Map "ctg2" Ends Left 12.000
+Map "ctg2" Ends Right 38.000 Oldctg 2
+Gel_number    6080A1
+Bands  1579 27
+Approximate_match_to_cosmid "c1074L23"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0082F20"
+Map "ctg6" Ends Left 26.000
+Map "ctg6" Ends Right 51.000 Oldctg 6
+Gel_number    7082D1
+Bands  2561 26
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0082I21"
+Map "ctg8" Ends Left 35.000
+Map "ctg8" Ends Right 68.000 Oldctg 8
+Gel_number    7082A1
+Bands  2527 34
+Approximate_match_to_cosmid "b1257O16"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0086A08"
+Map "ctg3" Ends Left 77.000
+Map "ctg3" Ends Right 109.000 Oldctg 3
+Gel_number    7086B1
+Bands  2612 33
+Positive_STS "B13" New
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0086M22"
+Map "ctg3" Ends Left 78.000
+Map "ctg3" Ends Right 102.000 Oldctg 3
+Gel_number    7086B1
+Bands  2587 25
+Positive_STS "B13" New
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0086N12"
+Map "ctg1" Ends Left 42.000
+Map "ctg1" Ends Right 68.000 Oldctg 1
+Gel_number    4086D1
+Bands  840 27
+Approximate_match_to_cosmid "b1468I11"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0087F20"
+Map "ctg3" Ends Left 17.000
+Map "ctg3" Ends Right 36.000 Oldctg 3
+Gel_number    9087D1
+Bands  3167 20
+Exact_match_to_cosmid "b1584L19"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0087N20"
+Map "ctg3" Ends Left 13.000
+Map "ctg3" Ends Right 32.000 Oldctg 3
+Gel_number    9087D1
+Bands  3147 20
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0089H14"
+Map "ctg4" Ends Left 0.000
+Map "ctg4" Ends Right 27.000 Oldctg 4
+Gel_number    9089D1
+Bands  3187 28
+Positive_STS "D57" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "H0095C16"
+Map "ctg9" Ends Left 14.000
+Map "ctg9" Ends Right 36.000 Oldctg 9
+Gel_number    5095B1
+Bands  1138 23
+Exact_match_to_cosmid "b1512M05"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0097H04"
+Map "ctg4" Ends Left 9.000
+Map "ctg4" Ends Right 33.000 Oldctg 4
+Gel_number    6097D1
+Bands  1606 25
+Approximate_match_to_cosmid "H0165J23"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0098A20"
+Map "ctg4" Ends Left 4.000
+Map "ctg4" Ends Right 26.000 Oldctg 4
+Gel_number    4098B1
+Bands  867 23
+Approximate_match_to_cosmid "H0089H14"
+Positive_STS "D57" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "H0104J07"
+Map "ctg3" Ends Left 2.000
+Map "ctg3" Ends Right 30.000 Oldctg 3
+Gel_number    4104C1
+Bands  890 29
+Approximate_match_to_cosmid "c1096G11"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0105A07"
+Map "ctg3" Ends Left 78.000
+Map "ctg3" Ends Right 113.000 Oldctg 3
+Gel_number    6105A1
+Bands  1631 36
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0107A17"
+Map "ctg6" Ends Left 21.000
+Map "ctg6" Ends Right 48.000 Oldctg 6
+Gel_number    6107A1
+Bands  1667 28
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0108P07"
+Map "ctg3" Ends Left 53.000
+Map "ctg3" Ends Right 71.000 Oldctg 3
+Gel_number    5108C1
+Bands  1161 19
+Exact_match_to_cosmid "b1604O19"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0109L05"
+Map "ctg5" Ends Left 44.000
+Map "ctg5" Ends Right 70.000 Oldctg 5
+Gel_number    6109C1
+Bands  1695 27
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0112D17"
+Map "ctg8" Ends Left 12.000
+Map "ctg8" Ends Right 30.000 Oldctg 8
+Gel_number    7112C1
+Bands  2645 19
+Exact_match_to_cosmid "b1622G13"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0116L11"
+Map "ctg7" Ends Left 4.000
+Map "ctg7" Ends Right 25.000 Oldctg 7
+Gel_number    6116C1
+Bands  1722 22
+Exact_match_to_cosmid "c1115H20"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0119D09"
+Map "ctg8" Ends Left 16.000
+Map "ctg8" Ends Right 31.000 Oldctg 8
+Gel_number    4119C1
+Bands  948 16
+Exact_match_to_cosmid "b1622G13"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0119L15"
+Map "ctg1" Ends Left 64.000
+Map "ctg1" Ends Right 92.000 Oldctg 1
+Gel_number    4119C1
+Bands  919 29
+Approximate_match_to_cosmid "b1046O08"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0122E03"
+Map "ctg8" Ends Left 24.000
+Map "ctg8" Ends Right 50.000 Oldctg 8
+Gel_number    6122A1
+Bands  1744 27
+Positive_STS "A07" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "H0122F13"
+Map "ctg1" Ends Left 54.000
+Map "ctg1" Ends Right 82.000 Oldctg 1
+Gel_number    6122C1
+Bands  1771 29
+Approximate_match_to_cosmid "c1017J12"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0122H11"
+Map "ctg2" Ends Left 63.000
+Map "ctg2" Ends Right 90.000 Oldctg 2
+Gel_number    6122C1
+Bands  1800 28
+Approximate_match_to_cosmid "H0276H10"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0125D19"
+Gel_number    6125C1
+Bands  1828 30
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 6 18 22 
+  
+BAC : "H0130C22"
+Map "ctg4" Ends Left 68.000
+Map "ctg4" Ends Right 93.000 Oldctg 4
+Gel_number    4130B1
+Bands  964 26
+Exact_match_to_cosmid "H0054L03"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0133H10"
+Map "ctg6" Ends Left 63.000
+Map "ctg6" Ends Right 84.000 Oldctg 6
+Gel_number    4133D1
+Bands  990 22
+Exact_match_to_cosmid "c1085E05"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0135A11"
+Map "ctg6" Ends Left 63.000
+Map "ctg6" Ends Right 89.000 Oldctg 6
+Gel_number    6135A1
+Bands  1858 27
+Exact_match_to_cosmid "c1085E05"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0136F10"
+Map "ctg5" Ends Left 2.000
+Map "ctg5" Ends Right 27.000 Oldctg 5
+Gel_number    6136D1
+Bands  1915 26
+Approximate_match_to_cosmid "H0136N10"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0136N10"
+Map "ctg5" Ends Left 0.000
+Map "ctg5" Ends Right 29.000 Oldctg 5
+Gel_number    6136D1
+Bands  1885 30
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0137D12"
+Map "ctg5" Ends Left 9.000
+Map "ctg5" Ends Right 37.000 Oldctg 5
+Gel_number    6137D1
+Bands  1941 29
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0140O13"
+Map "ctg3" Ends Left 128.000
+Map "ctg3" Ends Right 150.000 Oldctg 3
+Gel_number    7140A1
+Bands  2664 23
+Exact_match_to_cosmid "b1498E10"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0142H08"
+Map "ctg2" Ends Left 57.000
+Map "ctg2" Ends Right 83.000 Oldctg 2
+Gel_number    9142D1
+Bands  3215 27
+Exact_match_to_cosmid "b1588O10"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0143A14"
+Map "ctg6" Ends Left 29.000
+Map "ctg6" Ends Right 47.000 Oldctg 6
+Gel_number    9143B1
+Bands  3242 19
+Exact_match_to_cosmid "H0082F20"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0143J16"
+Map "ctg4" Ends Left 24.000
+Map "ctg4" Ends Right 52.000 Oldctg 4
+Gel_number    7143D1
+Bands  2687 29
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0155G20"
+Map "ctg8" Ends Left 59.000
+Map "ctg8" Ends Right 83.000 Oldctg 8
+Gel_number    6155B1
+Bands  1970 25
+Approximate_match_to_cosmid "c1114F11"
+Positive_STS "F100" New
+Positive_STS "J_z10" New
+Positive_STS "J_d34" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "H0158A08"
+Map "ctg4" Ends Left 72.000
+Map "ctg4" Ends Right 96.000 Oldctg 4
+Gel_number    0158B1
+Bands  1 25
+Approximate_match_to_cosmid "c1050F12"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0162A06"
+Map "ctg3" Ends Left 80.000
+Map "ctg3" Ends Right 98.000 Oldctg 3
+Gel_number    6162B1
+Bands  2023 19
+Exact_match_to_cosmid "H0086M22"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0162H15"
+Map "ctg1" Ends Left 73.000
+Map "ctg1" Ends Right 100.000 Oldctg 1
+Gel_number    5162C1
+Bands  9457 28
+Exact_match_to_cosmid "c1032M05"
+Remark "new_add"
+Remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 46 
+  
+BAC : "H0162K16"
+Map "ctg1" Ends Left 57.000
+Map "ctg1" Ends Right 84.000 Oldctg 1
+Gel_number    6162B1
+Bands  1995 28
+Approximate_match_to_cosmid "c1017J12"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0165J23"
+Map "ctg4" Ends Left 7.000
+Map "ctg4" Ends Right 38.000 Oldctg 4
+Gel_number    0165C1
+Bands  26 32
+Positive_STS "D57" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "H0171H15"
+Map "ctg4" Ends Left 26.000
+Map "ctg4" Ends Right 51.000 Oldctg 4
+Gel_number    0171C1
+Bands  58 26
+Exact_match_to_cosmid "H0143J16"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0172C08"
+Map "ctg10" Ends Left 5.000
+Map "ctg10" Ends Right 27.000 Oldctg 10
+Gel_number    6172B1
+Bands  2042 23
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0173G03"
+Map "ctg3" Ends Left 17.000
+Map "ctg3" Ends Right 44.000 Oldctg 3
+Gel_number    6173A1
+Bands  2065 28
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0175M06"
+Map "ctg2" Ends Left 10.000
+Map "ctg2" Ends Right 35.000 Oldctg 2
+Gel_number    8175B1
+Bands  2963 26
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0182L09"
+Map "ctg1" Ends Left 30.000
+Map "ctg1" Ends Right 53.000 Oldctg 1
+Gel_number    9182A1
+Bands  3261 24
+Exact_match_to_cosmid "c0107A18"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0184E07"
+Map "ctg4" Ends Left 60.000
+Map "ctg4" Ends Right 86.000 Oldctg 4
+Gel_number    5184A1
+Bands  1204 27
+Approximate_match_to_cosmid "b1509B02"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0184K11"
+Map "ctg1" Ends Left 34.000
+Map "ctg1" Ends Right 57.000 Oldctg 1
+Gel_number    5184A1
+Bands  1180 24
+Exact_match_to_cosmid "c1024E06"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0186L03"
+Map "ctg8" Ends Left 20.000
+Map "ctg8" Ends Right 46.000 Oldctg 8
+Gel_number    8186C1
+Bands  2989 27
+Positive_STS "A07" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "H0190K17"
+Map "ctg1" Ends Left 2.000
+Map "ctg1" Ends Right 26.000 Oldctg 1
+Gel_number    3190A1
+Bands  578 25
+Exact_match_to_cosmid "b0333F08"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0192D10"
+Map "ctg3" Ends Left 88.000
+Map "ctg3" Ends Right 117.000 Oldctg 3
+Gel_number    8192D1
+Bands  3016 30
+Approximate_match_to_cosmid "c1041H02"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0192I13"
+Map "ctg8" Ends Left 29.000
+Map "ctg8" Ends Right 54.000 Oldctg 8
+Gel_number    6192A1
+Bands  2093 26
+Exact_match_to_cosmid "b0303H17"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0197G20"
+Map "ctg4" Ends Left 26.000
+Map "ctg4" Ends Right 54.000 Oldctg 4
+Gel_number    7197B1
+Bands  2716 29
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0198H02"
+Map "ctg3" Ends Left 61.000
+Map "ctg3" Ends Right 88.000 Oldctg 3
+Gel_number    4198D1
+Bands  1012 28
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0201H09"
+Map "ctg10" Ends Left 5.000
+Map "ctg10" Ends Right 31.000 Oldctg 10
+Gel_number    7201C1
+Bands  2745 27
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0208L03"
+Map "ctg2" Ends Left 7.000
+Map "ctg2" Ends Right 38.000 Oldctg 2
+Gel_number    4208C1
+Bands  1040 32
+Approximate_match_to_cosmid "c1074L23"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0210F04"
+Map "ctg6" Ends Left 52.000
+Map "ctg6" Ends Right 77.000 Oldctg 6
+Gel_number    9210D1
+Bands  3285 26
+Positive_STS "F100" New
+Positive_STS "J_z10" New
+Positive_STS "J_d34" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "H0214L16"
+Map "ctg4" Ends Left 35.000
+Map "ctg4" Ends Right 60.000 Oldctg 4
+Gel_number    7214D1
+Bands  2772 26
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0215I18"
+Map "ctg3" Ends Left 78.000
+Map "ctg3" Ends Right 101.000 Oldctg 3
+Gel_number    9215B1
+Bands  3311 24
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0216G18"
+Map "ctg2" Ends Left 46.000
+Map "ctg2" Ends Right 73.000 Oldctg 2
+Gel_number    6216B1
+Bands  2119 28
+Approximate_match_to_cosmid "b1537B07"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0219D08"
+Map "ctg2" Ends Left 13.000
+Map "ctg2" Ends Right 49.000 Oldctg 2
+Gel_number    6219D1
+Bands  2192 37
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0219N07"
+Map "ctg2" Ends Left 9.000
+Map "ctg2" Ends Right 35.000 Oldctg 2
+Gel_number    6219C1
+Bands  2147 27
+Exact_match_to_cosmid "c1074L23"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0219P12"
+Map "ctg3" Ends Left 67.000
+Map "ctg3" Ends Right 84.000 Oldctg 3
+Gel_number    6219D1
+Bands  2174 18
+Approximate_match_to_cosmid "b1604O19"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0220C13"
+Map "ctg2" Ends Left 2.000
+Map "ctg2" Ends Right 28.000 Oldctg 2
+Gel_number    9220A1
+Bands  3335 27
+Exact_match_to_cosmid "c1074P15"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0226F06"
+Map "ctg8" Ends Left 58.000
+Map "ctg8" Ends Right 82.000 Oldctg 8
+Gel_number    9226D1
+Bands  3362 25
+Approximate_match_to_cosmid "c1114F11"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0228N15"
+Map "ctg3" Ends Left 141.000
+Map "ctg3" Ends Right 165.000 Oldctg 3
+Gel_number    6228C1
+Bands  2229 25
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0230B18"
+Map "ctg3" Ends Left 52.000
+Map "ctg3" Ends Right 74.000 Oldctg 3
+Gel_number    7230D1
+Bands  2798 23
+Exact_match_to_cosmid "b1503B23"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0232L09"
+Map "ctg2" Ends Left 68.000
+Map "ctg2" Ends Right 90.000 Oldctg 2
+Gel_number    7232C1
+Bands  2821 23
+Exact_match_to_cosmid "H0276H10"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0233C08"
+Map "ctg10" Ends Left 4.000
+Map "ctg10" Ends Right 29.000 Oldctg 10
+Gel_number    0233B1
+Bands  128 26
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0233E10"
+Map "ctg4" Ends Left 70.000
+Map "ctg4" Ends Right 92.000 Oldctg 4
+Gel_number    0233B1
+Bands  105 23
+Exact_match_to_cosmid "H0054L03"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0233M10"
+Map "ctg4" Ends Left 70.000
+Map "ctg4" Ends Right 90.000 Oldctg 4
+Gel_number    0233B1
+Bands  84 21
+Exact_match_to_cosmid "H0054L03"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0234C20"
+Map "ctg8" Ends Left 32.000
+Map "ctg8" Ends Right 58.000 Oldctg 8
+Gel_number    8234B1
+Bands  3046 27
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0242H23"
+Map "ctg1" Ends Left 47.000
+Map "ctg1" Ends Right 72.000 Oldctg 1
+Gel_number    6242C1
+Bands  2254 26
+Approximate_match_to_cosmid "c1017J12"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0244G24"
+Map "ctg3" Ends Left 31.000
+Map "ctg3" Ends Right 52.000 Oldctg 3
+Gel_number    7244B1
+Bands  2844 22
+Approximate_match_to_cosmid "b1246P23"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0249G07"
+Map "ctg2" Ends Left 1.000
+Map "ctg2" Ends Right 28.000 Oldctg 2
+Gel_number    6249A1
+Bands  2280 28
+Approximate_match_to_cosmid "c1074P15"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0250K02"
+Map "ctg9" Ends Left 13.000
+Map "ctg9" Ends Right 31.000 Oldctg 9
+Gel_number    9250B1
+Bands  3387 19
+Exact_match_to_cosmid "b0297K22"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0252C07"
+Map "ctg2" Ends Left 25.000
+Map "ctg2" Ends Right 54.000 Oldctg 2
+Gel_number    9252A1
+Bands  3406 30
+Approximate_match_to_cosmid "b1522B13"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0257L03"
+Map "ctg7" Ends Left 4.000
+Map "ctg7" Ends Right 20.000 Oldctg 7
+Gel_number    9257C1
+Bands  3436 17
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0268I13"
+Map "ctg4" Ends Left 63.000
+Map "ctg4" Ends Right 86.000 Oldctg 4
+Gel_number    9268A1
+Bands  3453 24
+Exact_match_to_cosmid "H0041J05"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0269O12"
+Map "ctg4" Ends Left 47.000
+Map "ctg4" Ends Right 74.000 Oldctg 4
+Gel_number    9269B1
+Bands  3477 28
+Approximate_match_to_cosmid "c1082B18"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0272M18"
+Map "ctg2" Ends Left 68.000
+Map "ctg2" Ends Right 101.000 Oldctg 2
+Gel_number    6272B1
+Bands  2308 34
+Approximate_match_to_cosmid "H0002F22"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0274O10"
+Map "ctg7" Ends Left 9.000
+Map "ctg7" Ends Right 26.000 Oldctg 7
+Gel_number    9274B1
+Bands  3505 18
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0276H10"
+Map "ctg2" Ends Left 59.000
+Map "ctg2" Ends Right 90.000 Oldctg 2
+Gel_number    6276D1
+Bands  2342 32
+Positive_STS "A01" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "H0278N12"
+Gel_number    9278D1
+Bands  3523 28
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 6 18 22 
+  
+BAC : "H0309N09"
+Map "ctg7" Ends Left 1.000
+Map "ctg7" Ends Right 20.000 Oldctg 7
+Gel_number    4309C1
+Bands  1072 20
+Approximate_match_to_cosmid "c1115H20"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0310J14"
+Map "ctg6" Ends Left 68.000
+Map "ctg6" Ends Right 98.000 Oldctg 6
+Gel_number    9310D1
+Bands  3551 31
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0315J01"
+Map "ctg4" Ends Left 65.000
+Map "ctg4" Ends Right 87.000 Oldctg 4
+Gel_number    9315C1
+Bands  3582 23
+Exact_match_to_cosmid "H0041J05"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0315P21"
+Map "ctg3" Ends Left 122.000
+Map "ctg3" Ends Right 142.000 Oldctg 3
+Gel_number    9315C1
+Bands  3605 21
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0328F06"
+Map "ctg1" Ends Left 61.000
+Map "ctg1" Ends Right 94.000 Oldctg 1
+Gel_number    9328D1
+Bands  3626 34
+Approximate_match_to_cosmid "c1017J12"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0330L10"
+Map "ctg4" Ends Left 28.000
+Map "ctg4" Ends Right 60.000 Oldctg 4
+Gel_number    6330D1
+Bands  2374 33
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0339H13"
+Map "ctg1" Ends Left 54.000
+Map "ctg1" Ends Right 79.000 Oldctg 1
+Gel_number    7339C1
+Bands  2866 26
+Exact_match_to_cosmid "c1017J12"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0345A04"
+Map "ctg4" Ends Left 2.000
+Map "ctg4" Ends Right 28.000 Oldctg 4
+Gel_number    9345B1
+Bands  3660 27
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0352B08"
+Map "ctg9" Ends Left 0.000
+Map "ctg9" Ends Right 28.000 Oldctg 9
+Gel_number    8352D1
+Bands  3073 29
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0352C06"
+Map "ctg1" Ends Left 76.000
+Map "ctg1" Ends Right 99.000 Oldctg 1
+Gel_number    9352B1
+Bands  9485 24
+Exact_match_to_cosmid "c1032M05"
+Remark "new_add"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 46 
+  
+BAC : "H0352N23"
+Map "ctg1" Ends Left 0.000
+Map "ctg1" Ends Right 23.000 Oldctg 1
+Gel_number    5352C1
+Bands  1231 24
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0353F22"
+Map "ctg3" Ends Left 78.000
+Map "ctg3" Ends Right 96.000 Oldctg 3
+Gel_number    8353D1
+Bands  3102 19
+Exact_match_to_cosmid "H0215I18"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0355I07"
+Map "ctg3" Ends Left 35.000
+Map "ctg3" Ends Right 53.000 Oldctg 3
+Gel_number    7355A1
+Bands  2892 19
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0364L06"
+Map "ctg5" Ends Left 46.000
+Map "ctg5" Ends Right 67.000 Oldctg 5
+Gel_number    9364D1
+Bands  3687 22
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0364N13"
+Map "ctg3" Ends Left 50.000
+Map "ctg3" Ends Right 73.000 Oldctg 3
+Gel_number    4364C1
+Bands  1114 24
+Approximate_match_to_cosmid "b1503B23"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0364P05"
+Map "ctg3" Ends Left 78.000
+Map "ctg3" Ends Right 99.000 Oldctg 3
+Gel_number    4364C1
+Bands  1092 22
+Approximate_match_to_cosmid "c0186L14"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0371E18"
+Map "ctg6" Ends Left 49.000
+Map "ctg6" Ends Right 70.000 Oldctg 6
+Gel_number    6371B1
+Bands  2407 22
+Exact_match_to_cosmid "c1052J13"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0401L03"
+Map "ctg1" Ends Left 50.000
+Map "ctg1" Ends Right 73.000 Oldctg 1
+Gel_number    0401C1
+Bands  154 24
+Exact_match_to_cosmid "c1017J12"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0406D08"
+Map "ctg2" Ends Left 31.000
+Map "ctg2" Ends Right 53.000 Oldctg 2
+Gel_number    0406D1
+Bands  178 23
+Approximate_match_to_cosmid "b1566O10"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0408L06"
+Map "ctg4" Ends Left 40.000
+Map "ctg4" Ends Right 64.000 Oldctg 4
+Gel_number    0408D1
+Bands  201 25
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0416M08"
+Map "ctg8" Ends Left 18.000
+Map "ctg8" Ends Right 34.000 Oldctg 8
+Gel_number    0416B1
+Bands  226 17
+Positive_STS "A07" New
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 13 45 
+  
+BAC : "H0424C13"
+Map "ctg6" Ends Left 55.000
+Map "ctg6" Ends Right 74.000 Oldctg 6
+Gel_number    0424A
+Bands  243 20
+Approximate_match_to_cosmid "H0210F04"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0426L02"
+Map "ctg3" Ends Left 97.000
+Map "ctg3" Ends Right 125.000 Oldctg 3
+Gel_number    0426D1
+Bands  263 29
+Approximate_match_to_cosmid "c1098L12"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0427E10"
+Map "ctg5" Ends Left 31.000
+Map "ctg5" Ends Right 53.000 Oldctg 5
+Gel_number    0427B1
+Bands  292 23
+Approximate_match_to_cosmid "c1100K23"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0428F15"
+Map "ctg8" Ends Left 50.000
+Map "ctg8" Ends Right 74.000 Oldctg 8
+Gel_number    0428C1
+Bands  315 25
+Approximate_match_to_cosmid "c1114F11"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0429F01"
+Map "ctg3" Ends Left 54.000
+Map "ctg3" Ends Right 75.000 Oldctg 3
+Gel_number    0429C1
+Bands  340 22
+Exact_match_to_cosmid "H0006G12"
+Fpc_remark "test"
+Fpc_remark "second"
+Creation_date 105 6 6 18 22 
+Modified_date 106 8 10 14 22 
+  
+BAC : "H0446L04"
+Map "ctg4" Ends Left 49.000
+Map "ctg4" Ends Right 71.000 Oldctg 4
+Gel_number    0446D1
+Bands  362 23
+Exact_match_to_cosmid "b1613P20"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0459F06"
+Map "ctg1" Ends Left 48.000
+Map "ctg1" Ends Right 73.000 Oldctg 1
+Gel_number    9459D1
+Bands  3709 26
+Approximate_match_to_cosmid "c1017J12"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0495D18"
+Map "ctg7" Ends Left 4.000
+Map "ctg7" Ends Right 24.000 Oldctg 7
+Gel_number    9495D1
+Bands  3735 21
+Exact_match_to_cosmid "b0336D23"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+  
+BAC : "H0501H21"
+Map "ctg1" Ends Left 64.000
+Map "ctg1" Ends Right 90.000 Oldctg 1
+Gel_number    0501C1
+Bands  385 27
+Exact_match_to_cosmid "b1046O08"
+Creation_date 105 6 6 18 22 
+Modified_date 105 6 10 15 24 
+
+Markerdata
+
+Marker_STS : "A01"
+Anchor_bin "X"
+Anchor_pos     1.1 P
+Remark "test"
+Creation_date 106 8 10 13 45 
+Modified_date 106 8 10 15 29 
+
+Marker_STS : "A05"
+Anchor_bin "3"
+Anchor_pos     1.0 F
+Remark "test"
+Creation_date 106 8 10 13 45 
+Modified_date 106 8 10 15 29 
+
+Marker_STS : "A07"
+Anchor_bin "3"
+Anchor_pos     1.3 P
+Remark "test"
+Creation_date 106 8 10 13 45 
+Modified_date 106 8 10 15 29 
+
+Marker_STS : "A10"
+Anchor_bin "X"
+Anchor_pos     2.1 F
+Remark "test"
+Creation_date 106 8 10 13 45 
+Modified_date 106 8 10 15 29 
+
+Marker_STS : "B01"
+Anchor_bin "X"
+Anchor_pos     3.7 F
+Remark "test"
+Creation_date 106 8 10 13 45 
+Modified_date 106 8 10 15 29 
+
+Marker_STS : "B13"
+Anchor_bin "1"
+Anchor_pos     5.8 F
+Remark "test"
+Creation_date 106 8 10 13 45 
+Modified_date 106 8 10 15 29 
+
+Marker_STS : "C24"
+Anchor_bin "1"
+Anchor_pos     7.8 F
+Remark "test"
+Creation_date 106 8 10 13 45 
+Modified_date 106 8 10 15 29 
+
+Marker_STS : "D57"
+Anchor_bin "2"
+Anchor_pos     3.5 F
+Remark "test"
+Creation_date 106 8 10 13 45 
+Modified_date 106 8 10 15 29 
+
+Marker_STS : "D58"
+Anchor_bin "2"
+Anchor_pos     9.7 F
+Remark "test"
+Remark "test2"
+Creation_date 106 8 10 13 45 
+Modified_date 106 8 10 16 1 
+
+Marker_STS : "F100"
+Remark "test"
+Creation_date 106 8 10 13 45 
+Modified_date 106 8 10 15 29 
+
+Marker_Locus : "J5"
+Remark "test"
+Creation_date 106 8 10 13 45 
+Modified_date 106 8 10 16 2 
+
+Marker_STS : "J9"
+Remark "test"
+Remark "foo"
+Creation_date 106 8 10 13 45 
+Modified_date 106 8 10 15 29 
+
+Marker_STS : "J130"
+Remark "test"
+Creation_date 106 8 10 13 45 
+Modified_date 106 8 10 15 29 
+
+Marker_STS : "J_d34"
+Remark "test"
+Creation_date 106 8 10 13 45 
+Modified_date 106 8 10 15 29 
+
+Marker_STS : "J_z10"
+Remark "test"
+Creation_date 106 8 10 13 45 
+Modified_date 106 8 10 15 29 
+
+
+Contigdata 10
+
+Ctg0 10/6/105 15:24 Ok  -1 # High 0 Avg 0 Low 0 
+Chr_remark "" Pos   0.000  
+Ctg1 10/6/105 15:24 Ok  0 # High 924 Avg 895 Low 792 
+Chr_remark "" Pos  -1.000  
+Ctg2 10/6/105 15:24 Ok  0 # High 932 Avg 917 Low 905 
+Chr_remark "-    [ chX/1 Fw1 Pm1]" Pos  -1.000  
+User_remark "test"
+Trace_remark "test"
+Ctg3 10/6/105 15:24 Ok  0 # High 901 Avg 881 Low 852 
+Chr_remark "+    [ ch1/1 chX/2 Fw3]" Pos  -1.000  
+Ctg4 10/8/106 13:46 Ok  0 # High 929 Avg 919 Low 903 
+Chr_remark "Chr2 [2 Fw2]" Pos   6.600  
+Ctg5 10/6/105 15:24 Ok  0 # High 914 Avg 891 Low 803 
+Chr_remark "" Pos  -1.000  
+Ctg6 10/6/105 15:24 Ok  8 # High 779 Avg 754 Low 715 
+Chr_remark "" Pos  -1.000  
+Ctg7 10/6/105 15:24 Ok  0 # High 965 Avg 947 Low 922 
+Chr_remark "" Pos  -1.000  
+Ctg8 10/6/105 15:24 Ok  0 # High 939 Avg 893 Low 641 
+Chr_remark "Chr3 {*   [2 Fw1 Pm1]}" Pos   1.150  
+Ctg9 10/6/105 15:24 Ok  0 # High 981 Avg 958 Low 939 
+Chr_remark "Chr1 [1 Fw1]" Pos   7.800  
+Ctg10 10/6/105 15:24 Ok  0 # High 983 Avg 959 Low 928 
+Chr_remark "-    [ chX/1 Fw1]" Pos  -1.000  

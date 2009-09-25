@@ -1,0 +1,7 @@
+This directory is for robust scripts which have documentation,
+cmdline arguments, and can be used in a production environment.
+Their extensions will be renamed .pl and will be installed in
+the SCRIPT_INSTALL directory as defined in the Makefile.PL 
+configuration.
+
+

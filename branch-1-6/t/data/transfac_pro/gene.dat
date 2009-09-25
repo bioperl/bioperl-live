@@ -1,0 +1,349 @@
+VV  TRANSFAC GENE TABLE, Release 11.1 - licensed - 2007-03-31, (C) Biobase GmbH
+XX
+//
+AC  G000001
+XX
+ID  AAV$P5
+XX
+DT  )b5oed40(.t9d.;161 ra .9ec
+DT  00e.ad0.mu1(vta.2p9d0 )1; 
+CO  Copyright (C), Biobase GmbH.
+XX
+SD  P5
+XX
+OS  AAV, adeno-associated virus
+OC  viridae; ss-DNA nonenveloped viruses; parvoviridae; dependovirus
+XX
+BC  .6.36
+XX
+BS       -60        0   R03174; AAV$P5_01; Binding factors: YY1 <T00915>.
+BS       -50        0   R03176; AAV$P5_03; Binding factors: 96K-protein <T00453>, factor 2 <T00282>.
+BS         1        0   R03175; AAV$P5_02; Binding factors: YY1 <T00915>.
+XX
+DR  .0H R0GN:P100TTA0SA
+DR  109;L2JX.X 1 E0B:M
+XX
+RN  [1]; RE0006609.
+RX  PUBMED: 8413258.
+RA  ,oSMa   oCo. ,.w.matehKLysCH K.cn  Prirott. hyk ,.Aa
+RT  lnafrtnatYrfettincurvmcipelmmsos A ttet ciittctihaocreYrcndr   s pe N ss1mt ci:te e1 oer tpa npiatioo riDYelsorfaeensane wet loiYia-eironnctaptTAt oe rcctoislanp tpinf rhettr
+RL  18.o -B3l9e .MC2)36ll1(..9166l26 o :i
+RN  [2]; RE0000230.
+RX  PUBMED: 1655281.
+RA  n- h S ..   SCo.ETY,h.SntaS,ge eih.,kL
+RT  fyaAdoh b dcalt1ernre- pirte u ,neTosrruseteEsra  olGYsnas rpibapne Kn-eeatonp lrlm u  ivoeLnyneonpeYfiripr1i,ae rdrsiIopi 
+RL  3713e9:l81C77. 9l8( )-6
+XX
+//
+AC  G000060
+XX
+ID  CHICK$GATA1
+XX
+DT  5a0) .b1 e.r9d.;c9to16(d4e
+DT  1;doa22. 0e50k 1.u)te(pd2.
+CO  Copyright (C), Biobase GmbH.
+XX
+SD  GATA1
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; aves; neornithes; neognathae; galliformes; phasianidae
+XX
+BC  622..4..1
+XX
+BS      -643     -634   R03087; CHICK$GATA1_01; Binding factors: GATA-1 <T08293>.
+BS      -592     -572   R03088; CHICK$GATA1_02.
+BS      -568     -555   R03089; CHICK$GATA1_03.
+BS      -485     -471   R03090; CHICK$GATA1_04.
+BS      -442     -429   R03091; CHICK$GATA1_05.
+BS      -409     -389   R03092; CHICK$GATA1_06.
+BS      -373     -349   R03093; CHICK$GATA1_07; Binding factors: GATA-1 <T08293>.
+BS      -257     -239   R03094; CHICK$GATA1_08.
+BS      -235     -221   R03095; CHICK$GATA1_09.
+BS      -177     -157   R03096; CHICK$GATA1_10.
+BS      -153     -137   R03097; CHICK$GATA1_11.
+BS      -121     -102   R03098; CHICK$GATA1_12.
+BS       -59      -49   R03099; CHICK$GATA1_13.
+XX
+FA  T00267; GATA-1 (isogroup).
+FA  T08293; GATA-1 (basic).
+XX
+DR  0R00A6A0TNS 0GT.:HP
+DR  735 :LG.;AG 99MEG1ABMT
+DR  40935ZE:.EGN TENER6
+DR  T00R .R3D52:
+XX
+RN  [1]; RE0012279.
+RX  PUBMED: 8628290.
+RA  hV..n F.bo.loennafeT.dr TnoMOC..  J ld c.ro. C,eG isna, nG.GirDror ,,enir  .GA nskieMl g e, Lm
+RT  sniieeeraagth ueAoeAAiTogrir1 rtointh cirtno-N1G  t ri--bpiefpb GtfitriAeh h an rqof eny-ciTatiaof stmDe ooornirfds ddthgr iei unvirlAlntAmtezn gcs bymw na
+RL  iB 2Co..1M26l 13-().l:.7  l6o92e842l9
+RN  [2]; RE0008084.
+RX  PUBMED: 1400499.
+RA  Ama,n  .Digih .nJlZ
+RT  dsihioeleym uo1en baece en mtnaa 1e mieigPneTensaeoos in  ex Dg nn titsec- advAelu lifagettnaAns-dPm t bhldehs
+RL  -1m1.:C .2.)7 69hJl1eo29 428B9 i2(.090
+RN  [3]; RE0002473.
+RX  PUBMED: 2014222.
+RA  . H.R sn l Tln ,uva.aoHnednGlEn efFodse,, G.
+RT  ftonc-fteiirronSreoctidAr ugoretorei rarort shocuheAeha ttp tm  p tnef naaiyrvyGdt1T  tc 
+RL   :c8 3d.AA.0occ 011l 9rPt 93.8SiS0N4)..(8aa-0 U
+XX
+//
+AC  G000174
+XX
+ID  HS$4F2H
+XX
+DT  ae06 )r..;1(.o9c4bd 91det5
+DT  ().am1au2ddtep0 .v2.01; 11
+CO  Copyright (C), Biobase GmbH.
+XX
+SD  4F2HC
+XX
+DE  yvheFahn 4 2ica
+XX
+SY  4F2; 4F2HC; 4T2HC; CD98; MDU1; MDV1; NACAE; SLC3A2; solute carrier family 3 (activators of dibasic and neutral amino acid transport), member 2.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; primates
+XX
+CH  11q13
+XX
+BC  616..
+XX
+BS         0        0   R00005; HS$4F2H_01; Binding factors: NF-4FA <T00569>.
+BS         0        0   R00006; HS$4F2H_02; Binding factors: NF-4FC <T00571>.
+BS         0        0   R00007; HS$4F2H_03; Binding factors: c-Jun <T00133>.
+BS         0        0   R00008; HS$4F2H_04; Binding factors: NF-4FB <T00570>.
+XX
+BR  FR0008041; downstream; Species: human, Homo sapiens.
+BR  FR0008042; downstream; Species: human, Homo sapiens.
+BR  FR0008043; downstream; Species: human, Homo sapiens.
+BR  FR0008047; downstream; Species: human, Homo sapiens.
+XX
+DR   m:HmLunSPH3AD 2LBnK:a; C.uaS
+DR  4P0:.1NAH0T7GR0AT S
+DR  9M4GE2 HF :1L1S8MB.;82H
+DR  10.S:0M00N0GL080BE SENE63
+DR   0F:A_2_2atYEu0_HF9osF IRMYG.F_XFTAs:4c
+DR  _HYFLI2YM33 Ta0.FXF_S2Us9_E F1_t_:RU_240APAG:
+DR  23.ATFF_ 1aGA3_ __FXUMRFt4YAs:2:EY00IH9
+DR  03_G AMs1F__34XUtAHT:F_F.FI9E Y:R22A_2Y0a
+DR  5XRME9:AY09H.FY_tG8AFF TIU F__aA:32
+DR  F AY9FE2MU_39 .X2_v5YF:AIT:H0aFRG_t8A
+DR  F:U2A7 EYG:_I3_ 3Mt_RE9H5_FYFaF.AT2Xs
+DR   _:tU33a9_AATs_R_FE7 GYXFFI3Y.H5E:FM8
+DR  8 _FI:50HMXE_tY_5.F4GAF:R9a_Ts9YF AEU
+DR  _T9XGMaYeLFn_tAeF0M AYRFFIF.4:2E :Hu1
+DR  XaP:1T0a5_5 E_0I_3t1_3F3AYFMAX. FgpFUR44Y:3_
+DR  00B B1M8;101L:E010BAA.8 0
+DR  A. 01F3F50;LE 531BMA0:055
+DR  E;552K5AKM:A 024L .88540B
+DR  995B00A8MEL8;75 .A070KK: 
+DR  2K9.4;A A 2EB60KL4600M:09
+DR  :006 010AP10 1L;P.M0BAE61
+DR  0C100B001;0LM:6.116BB E C
+DR  L 0.0BB: 0C0M0030C3BE000;
+DR  MF;27.2LAEJ :H9B 046S
+DR  2 9LGH:3B0.SF9ME; 2J4
+DR  NJ;T:A.HB A5L L396M0SE
+DR  22:E9S 9. 8MM;GH421LFBH
+DR  SMH:F3GB M2.2L0 4H910;E
+DR  M42B.F 2:19H4SHLM;E1G 0
+DR  B M F;ESGHH2024.M:129L5
+DR   H0M:H4 23G6FE12S9ML.B;
+DR   H4247BG1HE:9;.20S MFML
+DR  T0EN52:6.GREENZ E
+DR  51.8 OM:M70I0
+DR  23CSA N.:HCGL
+DR  06RSF11_62 Q001N.ME:E
+DR  R26106.:0NF E_S012MEQ
+DR  3RES1F162.00_EQ0:6 MN
+DR  F61. EEQ1:R00S2N0M_46
+DR  0MFESN51:2 01Q0.1E3R_
+DR  :0M.SF3_R4 E90QEN2
+DR  .0:ENSQ21E0_P7F061R 9
+DR  F0E06:2ERS_NP08 01.1Q
+DR  111PEEQ0006SFR8:2_ .N
+DR  0E60R08NE21:2_. QPFS1
+DR  ._PE16F0Q1S2NE 3R900:
+DR  Q:32E8P FRSE_5.N00
+DR  :.7sEG6HUNI92.0 N5E
+DR  00:0DR2RT .0
+DR   5_4SRN1:S4TPA.AO_H6R
+DR  .A__HP5RT4 NS2AORS4:6
+DR  R4HORT3.N_A4_SS6 PA5:
+XX
+RN  [1]; RE0001199.
+RX  PUBMED: 2761540.
+RA  edDAahr. Pc LKeea.ngi,Mrk.n el.sH, M. sL..arCJ GY.npi- ,io.,i     B
+RT  eenrr pefrn nnhca-n4nossm oeeul  en ii aetyaeTlnTGhnCiFtttens CieraoePNcnEloaatlBt t ht aI Htrivhidnr iirMhs   2ncsaFop TaluE
+RL  9o -e.oM12(9l.8llli759.29.8C5 :8B)  
+XX
+//
+AC  G000264
+XX
+ID  HS$GBP
+XX
+DT  et b4;10c.a(do.erd.)19596 
+DT  d9.6; 29ba5d1t.4e(0p d)uo.
+CO  Copyright (C), Biobase GmbH.
+XX
+SD  GBP
+XX
+DE  oaa-ginelentiupntybrgndi 
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; primates
+XX
+BC  165..
+XX
+BS      -216      -76   R02897; HS$GBP_01; Binding factors: IRF-1 <T00423>, ISGF-1 <T00427>.
+BS      -128      -99   R03064; HS$GBP_02; Binding factors: AAF <T00001>, GAF <T00300>.
+XX
+DR  TN.ATGS0264PR HA00:
+DR  D.00:0R 0TR2
+XX
+RN  [1]; RE0000446.
+RX  PUBMED: 1901265.
+RA  D   r,lMLr  ., eieJe.Jwre. kTahcD witoEJlk,D.cn.. 
+RT  nf A,t  ntotrboa-c apscm aNeogi tnCieaaldva mfDFalIiidFcyigrN--utAnGgamo
+RL  9-1E0M .2 .3(7:J19O991)2B 
+RN  [2]; RE0001471.
+RX  PUBMED: 1833631.
+RA  . cel,arn JrDlkeJ..w  eT E.e ,.DD L
+RT  tfcerufn c eoo op enbetgisgetywitdltugoreantrtp inropsd  eytubidotnl otat he- a ntsiaiceasdtcann cnmpnhnonh tai -panititodergriir- aitannniTsl vawaynoef
+RL  l(lo3i9el5 B91l.1)1-M .Co.. 5151741 :
+RN  [3]; RE0001567.
+RX  PUBMED: 1898761.
+RA  h...l ro IkeDl Jrc e .e. LwehTe.JnD,rSDlt,   w,Ea
+RT  it snop dpteneyoagtc nileib O iruloocm oegrgnrnaai nartieetf  ahm-mmb revenotanmt htagaiernsgipra iraplneun enpnllnteedpdtey anidi 
+RL  o-(. ..ll1C:l11 1BM 1o119. 9lie)298
+XX
+//
+AC  G020751
+XX
+ID  HS$ABCG5
+XX
+DT  ;k2c.0are..05d509t 0 )me(l
+CO  Copyright (C), Biobase GmbH.
+XX
+SD  Abcg5
+XX
+DE  imAT rmiese(r as-stbaitb,l )fiP(bcuI5dWeGs  He tnT n),l-menyEo g1
+XX
+SY  Abcg5; ATP-binding cassette, sub-family G (WHITE), member 5 (sterolin 1); sterolin 1.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; primates
+XX
+CH  2p21
+XX
+BR  FR0002267; upstream; Species: human, Homo sapiens.
+BR  FR0003356; upstream; Species: human, Homo sapiens.
+BR  FR0006822; upstream; Species: human, Homo sapiens.
+XX
+DR  :Dn;mAHu 5L aGPS.KHmunaBC: B
+DR  PA 0S:1T0G72A.TNH5R
+DR  LENS78.3:0E00MB100S 0E5NG
+DR  E_FF3R 2Y3:_F. GucFoY2_AHFs0T:8XAtaMI
+DR  8L_U1.3UP_:32: atGFAFM3RFY2T2_0E_3IFYAXSH _
+DR  F_t03T A GX3:8Y_2U1H3AYFaE.F_R2FIMA3:
+DR  Ua 8X3t1._A:FE23_AH3G_Y23:I_F FM20FTAYR
+DR  7Y3DU_ 9AtA.F 8GFTF_a9XE:F_H5Y2I:MR
+DR  41C2M1;L001:2 42BACE2. A1
+DR  :1 4M0;LCC.A E686187AB047
+DR  E M1:;2.5LFA717133 1AF52B
+DR  BE;A:M33F022 9F02.339 L2A
+DR  10M4L:A6F1BE6;F4 440A. 00
+DR  A; LMB40:007744F4.0 A1F1E
+DR  ML;7K0 9K9 AB.9A910E9719:
+DR  141511 B MLB;1BC4.51CE1:1
+DR  2E:0EZE.44ET GN6NR
+DR  .:201 0OIM5M2
+DR  O.4505I69: MM
+DR  G.H g5c:ANCb
+DR  F 2E3:6M2RSE4_N.Q0
+DR  E7E0P._S8F1N1 :R8Q
+DR  EN3G2:2.Us.IEN99 1H
+DR  _P .R11_:2RN4SSAT7H0OA
+DR  SNO.P1S70:_A2HT 4_R2RA
+DR  7HT4SN31.R0A AS:RP_2O_
+DR  74_PHSTS:4AR2N R0.1AO_
+DR  A T2_A0.R:SN4PHRS1O75_
+DR  A.SNOP0 _6:R_2SAT74H1R
+XX
+//
+AC  G036757
+XX
+ID  HS$TRPV6
+XX
+DT  a0) ect2..(d5 r0e;4e02ch.6
+DT  e0 2(0.)ah2dtde4..pu;6 50c
+CO  Copyright (C), Biobase GmbH.
+XX
+SD  TRPV6
+XX
+DE  psai etc irnba nuV,oaee ebrh af nlrtnolrtc  enmmi,tlse6cpneiayomtt
+XX
+SY  ABP/ZF; CAT1; CATL; ECAC2; HSA277909; LP6728; transient receptor potential cation channel, subfamily V, member 6; TRPV6; ZFAB.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; primates
+XX
+CH  7q33-q34
+XX
+BS     -5508    -5494   R19310; HS$TRPV6_01; Binding factors: VDR:RXR-alpha <T08716>.
+BS     -4337    -4323   R19311; HS$TRPV6_02; Binding factors: VDR:RXR-alpha <T08716>.
+BS     -4287    -4273   R19312; HS$TRPV6_03; Binding factors: VDR:RXR-alpha <T08716>.
+BS     -3519    -3505   R19313; HS$TRPV6_04; Binding factors: VDR:RXR-alpha <T08716>.
+BS     -2169    -2155   R19314; HS$TRPV6_05; Binding factors: VDR:RXR-alpha <T08716>.
+BS     -2119    -2105   R19315; HS$TRPV6_06; Binding factors: VDR:RXR-alpha <T08716>.
+BS     -1283    -1269   R19316; HS$TRPV6_07; Binding factors: VDR:RXR-alpha <T08716>.
+XX
+DR   nHBaa;muPSK :umH:nDT RPLV.6
+DR  5PTHAT:7 G.R60N3S7A
+DR  2:5 24YM46L1A;612.5AB2Y E
+DR  ES0B: 6GE00S11E05N0M.52LN
+DR  _YFFtcG7sE:X8FH.As2uF :_o6RYF_TI_M a20A
+DR  6XEPRY_1_: :8_2GAHtF3UTL aIA.Fs_M72UYS32_FF0_
+DR  RUYA72MFE AA3I1__6GtFF3F2Y8_0_aH:sT. X:
+DR  FYME 20s_FG: 6F_13Ya.28H_A:XTAI3_U7R_tAF2
+DR  _tAFIXA38:YT5 _FRA69aU6FM:F H0Y_GE.
+DR  2.Yv_3F:G9I  TAa066_ERA8:FHtXFFYU5_AM
+DR  1_eHeXFInM32A8AE LF6YuGUT.:FRF:_t FYa
+DR  A 3FM:L34 066B44E43A03;.F
+DR  9:36.A B3AE6L57;952 7F2FM
+DR  5AM9836L: A.F2F6 35;82B9E
+DR   M5034HJL. :A03024BA25ES;0
+DR   L32;M1:5AA40.BJ1325 H40ES
+DR  92.;L727J007799H S9: MEABA
+DR   484BA7M;AH6E47SJL:9846 9.
+DR  KA13:51BL5.7;0 K00 AE370M
+DR  6 E002MK0:7BL76 AA5.25K;0
+DR   0Y5ML05.0;0B30EYA0:33A 3
+DR  2A4:3;7900YY9MEL4A37.2B  
+DR  3E68U212UH  .6318B;MS:L
+DR  7:E7XALHSBMZF 88 .;B3
+DR  ET5.R5E0E GZENN:35
+DR  6O60I6:8.M 0M
+DR  :CHNT. PR6GV
+DR  N 6E4108S:R6_M.QEF
+DR  S6E1Q_.RF6 1P:E0N1
+DR  XE4121MR:65F0 Q01S_.E
+DR  05.6P F1140_2EQ1S:XER
+DR  2I007HE.NUs:4N 3EG.
+DR  66HGU:NsEIE 8.36N9.
+DR   .46U.IsE7N3N8EH:G0
+DR  O8RN_HA1TP7 A:4_.RSS1
+DR  TRA8SAONS4.:7 2R1_P_H
+DR  178P4 3NH:ATR_R_OSSA.
+DR  A4SO18RT4NSR.A_HP _7:
+DR  O7.:TAN41SSARH8R5__ P
+XX
+RN  [1]; RE0047775.
+RX  PUBMED: 16574738.
+RA  Mh. ,. JeS.emtM,vK.S,ed W yP ,i  an u.e aNKe.krkWBM. .i i 
+RT  TTSDLIN TO16 NETIYE SHANEVIL  HDIPDOTTP-EIUON LNTRIICGVMAD I2 EATSTL  IAEMAIINC NIIDT PT TXYT OLESIADI5.ITC MUDSTRHTCNAMANHBVEPEORIM BR,NAO RLRSNM3 A VEY T
+RL  nrM o00d2 .:c.l6.( noEoi)l
+XX
+//

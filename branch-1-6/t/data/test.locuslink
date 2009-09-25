@@ -1,0 +1,164 @@
+>>26
+LOCUSID: 26
+LOCUS_CONFIRMED: yes
+LOCUS_TYPE: gene with protein product, function known or inferred
+ORGANISM: Homo sapiens
+STATUS: REVIEWED
+NM: NM_001091|4501850|na
+NP: NP_001082|4501851
+CDD: Copper amine oxidase|pfam01179|1775|na|6.883370e+02
+PRODUCT: amiloride binding protein 1 precursor
+ASSEMBLY: X78212
+CONTIG: NT_007914.10|22047859|na|11083771|11092582|+|7|reference
+EVID: supported by alignment with mRNA
+XM: XM_032220|14745402|na
+XP: XP_032220|14745403|na
+ACCNUM: X78212|463242|na|na|na
+TYPE: g
+PROT: CAA55046|463243
+ACCNUM: BC014093|15559450|na|na|na
+TYPE: m
+PROT: AAH14093|15559451
+ACCNUM: M55602|387655|na|na|na
+TYPE: m
+PROT: AAA58358|177960
+ACCNUM: U11862|533535|na|na|na
+TYPE: m
+PROT: AAC50270|533536
+ACCNUM: U11863|533537|na|na|na
+TYPE: m
+PROT: AAB60381|533538
+OFFICIAL_SYMBOL: ABP1
+OFFICIAL_GENE_NAME: amiloride binding protein 1 (amine oxidase (copper-containing))
+ALIAS_SYMBOL: DAO
+ALIAS_SYMBOL: AOC1
+PREFERRED_PRODUCT: amiloride binding protein 1 precursor
+SUMMARY: Summary: This gene encodes a membrane glycoprotein that binds amiloride, a diuretic that acts by closing epithelial sodium ion channels. Experimental evidence indicates, however, that the formation of an amiloride sensitive, sodium channel requires complex formation with additional proteins. Although an association was proposed between this gene and cystic fibrosis, a disorder involving sodium and water imbalance in the lungs, genetic evidence showed that it was not involved in producing that disorder.
+CHR: 7
+STS: RH71199|7|8014|na|seq_map|epcr
+STS: ABP1|7|32801|ABP1|seq_map|epcr
+COMP: 10090|Abp1|6|6  cM|76507|7|ABP1|ncbi_mgd
+COMP: 10090|1600012D06Rik|6|6  cM|76507|7|ABP1|ucsc_mgd
+ALIAS_PROT: diamine oxidase
+ALIAS_PROT: Amiloride-binding protein-1
+UNIGENE: Hs.75741
+BUTTON: unigene.gif
+LINK: http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=Hs&CID=75741
+OMIM: 104610
+ECNUM: 1.4.3.6
+MAP: 7q34-q36|RefSeq|C|
+MAPLINK: default_human_gene|ABP1
+BUTTON: snp.gif
+LINK: http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?locusId=26
+BUTTON: homol.gif
+LINK: http://www.ncbi.nlm.nih.gov/HomoloGene/homolquery.cgi?TEXT=26[loc]&TAXID=9606
+BUTTON: gdb.gif
+LINK: http://gdbwww.gdb.org/gdb-bin/genera/accno?GDB:127105
+BUTTON: ensembl.gif
+LINK: http://www.ensembl.org/Homo_sapiens/contigview?geneid=NM_001091
+BUTTON: ucsc.gif
+LINK: http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg12&position=NM_001091
+DB_DESCR: GeneCards
+DB_LINK: http://bioinformatics.weizmann.ac.il/cards-bin/carddisp?ABP1
+DB_DESCR: KEGG pathway: Tyrosine metabolism
+DB_LINK: http://www.genome.ad.jp/dbget-bin/get_pathway?org_name=hsa&mapno=00350
+DB_DESCR: KEGG pathway: Histidine metabolism
+DB_LINK: http://www.genome.ad.jp/dbget-bin/get_pathway?org_name=hsa&mapno=00340
+DB_DESCR: KEGG pathway: Tryptophan metabolism
+DB_LINK: http://www.genome.ad.jp/dbget-bin/get_pathway?org_name=hsa&mapno=00380
+DB_DESCR: KEGG pathway: beta-Alanine metabolism
+DB_LINK: http://www.genome.ad.jp/dbget-bin/get_pathway?org_name=hsa&mapno=00410
+DB_DESCR: KEGG pathway: Alkaloid biosynthesis II
+DB_LINK: http://www.genome.ad.jp/dbget-bin/get_pathway?org_name=hsa&mapno=00960
+DB_DESCR: KEGG pathway: Phenylalanine metabolism
+DB_LINK: http://www.genome.ad.jp/dbget-bin/get_pathway?org_name=hsa&mapno=00360
+DB_DESCR: KEGG pathway: Arginine and proline metabolism
+DB_LINK: http://www.genome.ad.jp/dbget-bin/get_pathway?org_name=hsa&mapno=00330
+DB_DESCR: KEGG pathway: Glycine, serine and threonine metabolism
+DB_LINK: http://www.genome.ad.jp/dbget-bin/get_pathway?org_name=hsa&mapno=00260
+PMID: 11603849,8595053,8182053,8144586,2217167,1356107
+GRIF: 11603849|could be detected at the feto-maternal interface of human
+SUMFUNC: Diamine oxidase (D-amino-acid oxidase histaminase, amiloride-binding protein); deaminates putrescine and histamine|Proteome
+GO: biological process|metabolism|NR|GO:0008152|Proteome|na
+GO: cellular component|peroxisome|NR|GO:0005777|Proteome|na
+GO: molecular function|amine oxidase|E|GO:0008131|Proteome|8144586
+GO: molecular function|drug binding|NR|GO:0008144|Proteome|na
+EXTANNOT: cellular role|Other metabolism|E|Proteome|1356107
+EXTANNOT: biochemical function|Oxidoreductase|E|Proteome|1356107
+EXTANNOT: biochemical function|Small molecule-binding protein|E|Proteome|8182053
+>>27
+LOCUSID: 27
+LOCUS_CONFIRMED: yes
+LOCUS_TYPE: gene with protein product, function known or inferred
+ORGANISM: Homo sapiens
+STATUS: REVIEWED
+NM: NM_005158|6382059|na
+NP: NP_005149|6382060
+PRODUCT: v-abl Abelson murine leukemia viral oncogene homolog 2 isoform a
+TRANSVAR: Transcript Variant:  Transcript variant a includes the alternate exon IA, but not exon IB and encodes a distinct N-terminus.
+ASSEMBLY: M35296
+NM: NM_007314|6382061|na
+NP: NP_009298|6382062
+CDD: SH3 domain|pfam00018|180|na|7.394420e+01
+CDD: Src homology 2 domains|SH2|229|na|9.281890e+01
+CDD: Src homology 3 domains|SH3|128|na|5.391380e+01
+CDD: Src homology domain 2|pfam00017|212|na|8.627050e+01
+CDD: Tyrosine kinase, catalytic domain|TyrKc|869|na|3.393470e+02
+CDD: Eukaryotic protein kinase domain|pfam00069|510|na|2.010600e+02
+CDD: Serine/Threonine protein kinases, catalytic domain|S_TKc|417|na|1.652360e+02
+PRODUCT: v-abl Abelson murine leukemia viral oncogene homolog 2 isoform b
+TRANSVAR: Transcript Variant:  Transcript variant a includes the alternate exon IB, but not exon IA and encodes a distinct N-terminus.
+ASSEMBLY: M35296
+CONTIG: NT_004487.12|22045208|na|4192865|4314849|-|1|reference
+EVID: supported by alignment with mRNA
+XM: NM_005158|6382059|na
+XP: NP_005149|6382060|na
+EVID: supported by alignment with both mRNA and ESTs (5)
+XM: NM_007314|6382061|na
+XP: NP_009298|6382062|na
+ACCNUM: M35296|178992|na|na|na
+TYPE: m
+PROT: AAA35553|178993
+OFFICIAL_SYMBOL: ABL2
+OFFICIAL_GENE_NAME: v-abl Abelson murine leukemia viral oncogene homolog 2 (arg, Abelson-related gene)
+ALIAS_SYMBOL: ARG
+ALIAS_SYMBOL: ABLL
+PREFERRED_PRODUCT: v-abl Abelson murine leukemia viral oncogene homolog 2 isoform a
+PREFERRED_PRODUCT: v-abl Abelson murine leukemia viral oncogene homolog 2 isoform b
+SUMMARY: Summary:  ABL2 is a cytoplasmic tyrosine kinase which is closely related to but distinct from ABL1.  The similarity of the proteins includes the tyrosine kinase domains and extends amino-terminal to include the SH2 and SH3 domains.  ABL2 is expressed in both normal and tumor cells.  The ABL2 gene product is expressed as two variants bearing different amino termini, both approximately 12-kb in length.
+CHR: 1
+STS: RH69130|1|3401|na|seq_map|epcr
+STS: RH66836|1|44261|na|seq_map|epcr
+COMP: 10090|Abl2|1|1 82.10 cM|11352|1|ABL2|ncbi_mgd
+COMP: 10090|Abl2|1|1 82.10 cM|11352|1|ABL2|ucsc_mgd
+ALIAS_PROT: arg
+ALIAS_PROT: Abelson murine leukemia viral (v-abl) oncogene homolog 2 (arg,
+UNIGENE: Hs.121521
+BUTTON: unigene.gif
+LINK: http://www.ncbi.nlm.nih.gov/UniGene/clust.cgi?ORG=Hs&CID=121521
+OMIM: 164690
+ECNUM: 2.7.1.112
+MAP: 1q24-q25|<a href="http://gdbwww.gdb.org/gdb-bin/genera/accno?GDB:119641">HUGO</a>|C|
+MAPLINK: default_human_gene|ABL2
+PHENOTYPE: Leukemia, acute myeloid, with eosinophilia
+PHENOTYPE_ID: 164690
+BUTTON: snp.gif
+LINK: http://www.ncbi.nlm.nih.gov/SNP/snp_ref.cgi?locusId=27
+BUTTON: homol.gif
+LINK: http://www.ncbi.nlm.nih.gov/HomoloGene/homolquery.cgi?TEXT=27[loc]&TAXID=9606
+BUTTON: gdb.gif
+LINK: http://gdbwww.gdb.org/gdb-bin/genera/accno?GDB:119641
+BUTTON: ensembl.gif
+LINK: http://www.ensembl.org/Homo_sapiens/contigview?geneid=NM_007314
+BUTTON: ucsc.gif
+LINK: http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg12&position=NM_007314
+DB_DESCR: GeneCards
+DB_LINK: http://bioinformatics.weizmann.ac.il/cards-bin/carddisp?ABL2
+PMID: 3787260,2198571
+SUMFUNC: Cytoplasmic tyrosine kinase of the Abelson subfamily; contains SH2 and SH3 domains and has similarity to ABL1|Proteome
+GO: cellular component|cytoplasm|NR|GO:0005737|Proteome|na
+GO: molecular function|protein kinase|P|GO:0004672|Proteome|2198571
+GO: biological process|signal transduction|P|GO:0007165|Proteome|2198571
+GO: biological process|protein modification|P|GO:0006464|Proteome|2198571
+EXTANNOT: biochemical function|Transferase|P|Proteome|2198571
+EXTANNOT: subcellular localization|Cytoplasmic|NR|Proteome|2198571

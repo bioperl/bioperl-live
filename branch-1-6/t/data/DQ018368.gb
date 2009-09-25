@@ -1,0 +1,55 @@
+LOCUS       DQ018368                 523 bp    DNA     linear   PLN 23-MAY-2005
+DEFINITION  (Populus tomentosa x P. bolleana) x P. tomentosa var. truncata
+            BS-LRR type disease resistance protein (RGA6) gene, partial cds.
+ACCESSION   DQ018368
+VERSION     DQ018368.1  GI:66271013
+KEYWORDS    .
+SOURCE      (Populus tomentosa x P. bolleana) x P. tomentosa var. truncata
+  ORGANISM  (Populus tomentosa x P. bolleana) x P. tomentosa var. truncata
+            Eukaryota; Viridiplantae; Streptophyta; Embryophyta; Tracheophyta;
+            Spermatophyta; Magnoliophyta; eudicotyledons; core eudicotyledons;
+            rosids; eurosids I; Malpighiales; Salicaceae; Saliceae; Populus.
+REFERENCE   1  (bases 1 to 523)
+  AUTHORS   Zhang,Q., Lin,S.Z., Lin,Y.Z., Zhou,Y.L., Zhang,Z.Y., Zheng,H.Q.,
+            Chen,J.B., Wang,Z.L., Qiao,M.J., Wang,X. and Zhu,B.Q.
+  TITLE     Characterization and cloning of disease resistance gene from poplar
+  JOURNAL   Unpublished
+REFERENCE   2  (bases 1 to 523)
+  AUTHORS   Zhang,Q., Lin,S.Z., Lin,Y.Z., Zhou,Y.L. and Zhang,Z.Y.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (26-APR-2005) Key Laboratory for Genetics and Breeding in
+            Forest Trees and Ornamental Plants, MOE, Beijing Forestry
+            University, Box 118, Qinghuadong Road, Beijing 100083, P.R.China
+FEATURES             Location/Qualifiers
+     source          1..523
+                     /organism="(Populus tomentosa x P. bolleana) x P.
+                     tomentosa var. truncata"
+                     /mol_type="genomic DNA"
+                     /db_xref="taxon:328805"
+     gene            <1..>523
+                     /gene="RGA6"
+     mRNA            <1..>523
+                     /gene="RGA6"
+                     /product="BS-LRR type disease resistance protein"
+     CDS             <1..>523
+                     /gene="RGA6"
+                     /codon_start=1
+                     /product="BS-LRR type disease resistance protein"
+                     /protein_id="AAY43785.1"
+                     /db_xref="GI:66271014"
+                     /translation="GMGGIGKTTVARVVYDRIRWQFEGSCFLANVREDLAKKGGQRRL
+                     QEQLLSEILMERANICDSSRGIEMIKRRLQRKKILVVLDDVDDRKQLESLAAESKWFG
+                     PESRIIITSRDKQVLTRNGVTRIYEAEKLNDDDALMLFSQKAFKKDQPVEDFVKLSKQ
+                     VVGYANGPSTCPQS"
+ORIGIN      
+        1 gggatggggg gtataggtaa gactactgtt gcaagggtag tatatgatag gattcgttgg
+       61 caatttgaag gtagctgttt cttagcaaat gtcagagaag atcttgctaa gaaaggtgga
+      121 caacgccgtt tacaggagca acttctttct gaaatcttaa tggaacgtgc taatatatgt
+      181 gattcttcta gaggaattga aatgataaag cggaggttac aacgtaaaaa gattcttgtt
+      241 gttcttgatg atgtagatga ccgtaaacaa ctagaatccc tggctgcgga gagtaaatgg
+      301 tttggtccag agagtagaat tatcataaca agcagagata aacaagtgtt gactagaaat
+      361 ggtgttacta gaatttatga ggctgagaaa ttgaatgatg atgatgctct tatgttgttt
+      421 agccagaaag ctttcaaaaa agaccaacct gttgaggatt ttgtgaaact atccaagcaa
+      481 gttgtgggtt atgctaatgg gccttccact tgccctcaaa gtc
+//
+

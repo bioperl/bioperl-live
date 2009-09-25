@@ -1,0 +1,33 @@
+#mega
+!Title: Amino acid sequences of hemoglobin alpha chains;
+!Format datatype=protein identical=. indel=-;
+
+[
+M. Nei and S. Kumar (2000) Molecular Evolution and Phylogenetics.  
+Oxford University Press. New York.
+Data for Example 2.1.
+]
+
+
+
+#Human    V-LSPADKTN VKAAWGKVGA HAGEYGAEAL ERMFLSFPTT KTYFPHF-DL SHGSAQVKGH 
+#Horse    ....A..... .....S...G .......... .....G.... .......... ........A. 
+#Cow      ....A...G. .........G ..A....... .......... .......... .......... 
+#Kangaroo ....A...GH ...I.....G .....A..G. ..T.H..... .......... ......IQA. 
+#Newt     MK..AE..H. ..TT.DHIKG .EEAL..... F...T.L.A. R....AK... .E..SFLHS. 
+#Carp     S...DK..AA ..I..A.ISP K.DDI..... G..LTVY.Q. ....A.WA.. .P..GP..-. 
+
+#Human    GKKVA-DALT NAVAHVDDMP NALSALSDLH AHKLRVDPVN FKLLSHCLLV TLAAHLPAEF 
+#Horse    .......G.. L..G.L..L. G...D..N.. .......... .........S ...V...ND. 
+#Cow      .A....A... K..E.L..L. G...E..... .......... ......S... ...S...SD. 
+#Kangaroo ...I.....G Q..E.I..L. GT..K..... .......... .......... .F....GDA. 
+#Newt     ....M.G..S .....I..ID A..CK...K. .QD.M...A. .PK.A.NI.. VMGI..K.HL 
+#Carp     ....IMG.VG D..SKI..LV GG.AS..E.. .S......A. ..I.ANHIV. GIMFY..GD. 
+
+#Human    TPAVHASLDK FLASVSTVLT SKYR
+#Horse    .......... ..S....... ....
+#Cow      .......... ...N...... ....
+#Kangaroo ..E....... ...A...... ....
+#Newt     .YP..C.V.. ..DV.GH... ....
+#Carp     P.E..M.V.. .FQNLALA.S E...
+

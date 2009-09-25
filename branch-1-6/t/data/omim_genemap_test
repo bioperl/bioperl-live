@@ -1,0 +1,137 @@
+1.1|9|11|95|1pter-p36.13|CCV|P|Cataract, congenital, Volkmann type||115665|Fd|linked to Rh in Scottish family||Cataract, congenital, Volkmann type (2)| | ||
+1.2|9|25|01|1pter-p36.13|ENO1, PPH, MPB1|C|Enolase-1, alpha||172430|S, F, R, REa|||Enolase deficiency (1)| | |4(Eno1)|
+1.3|10|23|87|1pter-p36.13|GDH|C|Glucose dehydrogenase||138090|S, F|||| | ||
+1.3|10|23|87|1pter-p36.14|gene-symbol1|C|XXX||100500|M method 1|comment1||| | |mousecorrelate1|
+1.3|10|23|87|1pter-p36.15|gene-symbol2|C|XXX||100501|M method 2|comment2||| | |mousecorrelate2|
+1.4|6|7|99|1pter-p36.1|CTPP, CPP, CTPA|P|Cataract, posterior polar||116600|Fd|?relation to Volkmann cataract||Cataract, posterior polar (2)| | ||
+1.5|12|22|87|1pter-p36|ERPL1, HLM2|C|Endogenous retroviral pol gene-like sequence 1 (oncogene HLM2)||131190|REa, F|||| | ||
+1.6|1|18|95|1pter-p33|HMGCL|P|3-hydroxy-3-methylglutaryl-Coenzyme A lyase||246450|REa, A|||HMG-CoA lyase deficiency (3)| | |4(Hmgcl)|
+1.7|12|16|93|1pter-p32|AGRN|P|Agrin||103320|REa|||| | |4(Agrn)|
+1.8|3|15|92|1pter-p31.2|GNB1|C|Guanine nucleotide-binding protein, beta polypeptide-1||139380|REa, A|||| | |4(Gnb1)|
+1.9|8|28|98|1pter-p22.1|SAI1, MTS1, TFS1|C|Suppression of anchorage independence-1 (malignant transformation|suppression-1)|154280|S, H|||| | |4(Tfs1)|
+1.10|4|24|01|1p36.33|TAS1R3, T1R3|P|Taste receptor type 1, member 3||605865|REn|||| | |4(Tas1r3)|
+1.11|10|27|89|1p36.33-p36.22|CA6|C|Carbonic anhydrase VI||114780|REa, A, REc, R|||| | ||
+1.12|8|9|99|1p36.3|C1orf1|P|Chromosome 1, open reading frame 1||604006|A|||| | ||
+1.13|12|1|98|1p36.3|CDC2L1|C|Cell division cycle 2-like 1||176873|REa, A, Pcm, A|||| | ||
+1.14|12|1|98|1p36.3|CDC2L2|P|Cell division cycle 2-like 2||116951|A|||| | ||
+1.15|8|4|99|1p36.3|DFFB, CAD, DFF2|C|DNA fragmentation factor, 40kD, beta subunit||601883|A|||| | ||
+1.16|11|5|99|1p36.3|EGFL3, MEGF6|P|Epidermal growth factor-like 3||604266|R|||| | ||
+1.17|1|24|01|1p36.3|GABRD|C|Gamma-aminobutyric acid (GABA) A receptor, delta||137163|REa, R|||| | ||
+1.18|9|12|96|1p36.3|HKR3|C|GLI-Kruppel family member HKR3||165270|REa, A|||| | ||
+1.19|6|15|99|1p36.3|TNFRSF18, AITR, GITR|P|Tumor necrosis factor receptor superfamily, member 18||603905|R|||| | ||
+1.20|3|30|99|1p36.3|KCNAB2, KCNA2B|P|Potassium voltage-gated channel, shaker-related subfamily, beta|member 2|601142|A|||| | ||
+1.21|11|1|99|1p36.3|MMP23A, MMP21, MIFR|P|Matrix metalloproteinase 23A||603320|REc|||| | ||
+1.22|11|1|99|1p36.3|MMP23B, MMP22|P|Matrix metalloproteinase 23B||603321|REc|||| | ||
+1.23|10|4|93|1p36.3|MTHFR|P|Methylenetetrahydrofolate reductase||236250|A|||Homocystinuria due to MTHFR deficiency (3)| | |4(Mthfr)|
+1.24|1|17|01|1p36.3|PRDM16, MEL1|P|PR domain-containing protein 16||605557|REc, Ch|||| | ||
+1.25|8|9|99|1p36.3|PTPRZ2|P|Protein-tyrosine phosphatase, receptor-type, zeta-2||604008|A|||| | ||
+1.26|1|20|98|1p36.3|RNU1A, RNU1|C|RNA, U1A small nuclear||180680|REa, A|?same as A12M2||| | |3(Rnu1b1)|
+1.27|12|21|98|1p36.3|TNFRSF12, DR3, LARD|C|Tumor necrosis factor receptor superfamily, member 12||603366|A, Ch|||| | ||
+1.28|6|20|01|1p36.3|WDR8|P|WD repeat-containing protein 8||606040|A|||| | ||
+1.29|8|9|99|1p36.3|XBX1|P|Xylan 1,4-beta-xylosidase 1||604007|A|||| | ||
+1.30|2|6|94|1p36.3-p34.3|HTR1D|C|5-hydroxytryptamine (serotonin) receptor-1D||182133|REa, A|||| | |4(Htr1d)|
+1.31|6|10|98|1p36.3-p36.2|DFFA, DFF1|C|DNA fragmentation factor, 45kD, alpha subunit||601882|A|||| | ||
+1.32|1|30|01|1p36.3-p36.2|MASP2|P|Mannan-binding lectin serine protease 2||605102|A, R|||| | ||
+1.33|7|4|95|1p36.3-p36.2|NB, NBS|C|Neuroblastoma (neuroblastoma suppressor)||256700|Ch, D|?role of DAN||Neuroblastoma (2)| | ||
+1.34|1|1|95|1p36.3-p36.2|PLOD, PLOD1|P|Procollagen-lysine, 2-oxoglutarate 5-dioxygenase (lysine hydroxylase)||153454|REa, A|||Ehlers-Danlos syndrome, type VI, 225400 (3)| | |4(Plod)|Hautala (1992)
+1.35|9|15|96|1p36.3-p36.2|SCNN1D|P|Sodium channel, voltage-gated, type I, delta polypeptide||601328|A|||| | ||
+1.36|12|18|98|1p36.3-p36.2|TNFRSF1B, TNFR2, TNFBR|C|Tumor necrosis factor receptor superfamily, member 1B||191191|REa, A, Fd|||| | |4(Tnfr1)|
+1.37|12|14|98|1p36.3-p36.2|TNFRSF14, HVEM, TR2|P|Tumor necrosis factor receptor superfamily, member 14 (herpesvirus|entry mediator)|602746|A|||| | ||
+1.38|11|18|96|1p36.3-p34.1|C1QA|C|Complement component-1, q subcomponent, alpha polypeptide||120550|REa, REb|||C1q deficiency, type A (3)| | ||
+1.39|11|18|96|1p36.3-p34.1|C1QB|C|Complement component-1, q subcomponent, beta polypeptide||120570|REa, REb|||C1q deficiency, type B (3)| | |(C1qb)|
+1.40|11|18|96|1p36.3-p34.1|C1QG|P|Complement component-1, q subcomponent, gamma polypeptide||120575|REn, REb|||C1q deficiency, type C (3)| | ||
+1.41|6|18|97|1p36.2|FRAP1|P|FK506 binding protein 12-rapamycin associated protein-1||601231|R, A|||| | ||
+1.42|12|11|01|1p36.2|KIF1B, CMT2A|C|Kinesin family member 1B||605995|Fd, REc, D|||Charcot-Marie-Tooth neuropathy, type 2A, 118210 (3)| | |4(Kif1b)|
+1.43|6|2|94|1p36.2|NPPA, PND, ANP|C|Pronatriodilatin (atrial natriuretic peptide)||108780|REa, A, H|||| | |4(Pnd)|
+1.44|5|9|95|1p36.2|NPPB, BNP|C|Natriuretic peptide precursor B||600295|H, REa, A, REn|||| | |4(Nppb)|
+1.45|8|4|99|1p36.2|SLC2A5, GLUT5|C|Solute carrier family 2 (facilitated glucose transporter), member 5||138230|REa, A, REc, R|||| | ||
+1.46|4|10|90|1p36.2-p36.13|PGD|C|6-phosphogluconate dehydrogenase||172200|F, S|||| | |4(Pgd)|
+1.47|2|19|96|1p36.2-p36.12|PAX7|C|Paired box homeotic gene-7||167410|Psh, H, REa, A|fused with FKHR in rhabdomyosarcoma||Rhabdomyosarcoma, alveolar, 268220 (3)| | |4(Pax7)|
+1.48|4|19|01|1p36.2-p36.1|DNB5|P|Deleted in neuroblastoma 5||605763|REc|||| | ||
+1.49|3|24|88|1p36.2-p36.1|FGR, SRC2|P|Oncogene FGR||164940|A, REb, REa, Fd|same as SRC2||| | |4(Fgr)|
+1.50|9|22|97|1p36.2-p36.1|GLC3B|P|Glaucoma 3, primary infantile, B||600975|Fd|||Glaucoma 3, primary infantile, B (2)| | ||
+1.51|9|7|00|1p36.2-p36.1|RERE|P|RE repeats-encoding gene||605226|REc, Ch|||| | ||
+1.52|6|19|00|1p36.2-p36.1|ZNF151|P|Zinc finger protein-151||604084|A|||| | ||
+1.53|1|1|95|1p36.2-p35|CDA|C|Cytidine deaminase||123920|A, Psh|||| | ||
+1.54|10|22|92|1p36.2-p34|EPB41, EL1|C|Erythrocyte surface protein band 4.1||130500|F, REb|||Elliptocytosis-1 (3)| | |4(Elp1)|
+1.55|10|23|87|1p36.2-p34|RD|C|Radin blood group||111620|F|||| | ||
+1.56|8|4|97|1p36.2-p34|RHCE|C|Rhesus system C and E polypeptides||111700|F, D, Fd|?order: C-E-D||| | ||
+1.57|1|10|89|1p36.2-p34|RHD|C|Rhesus system D polypeptide||111680|F, D, Fd|||| | ||
+1.58|10|23|87|1p36.2-p34|SC|C|Scianna blood group||111750|F|||| | ||
+1.59|10|18|00|1p36.2-p34|SMP1|P|Small membrane protein 1||605348|REc|between RHD and RHCE||| | ||
+1.60|1|11|95|1p36.13-p36.12|ID3|C|Inhibitor of DNA binding 3, dominant negative, helix-loop-helix|protein|600277|RE, A|||| | ||
+1.61|10|24|97|1p36.13-p36.11|D1S1733E, DAN|P|Differential-screening-selected gene aberrant in neuroblastoma||600613|A|aberrant in some neuroblastomas||| | |4(D4H1S1733E)|
+1.62|3|1|01|1p36.12|PLA2G2D, SPLASH|C|Phospholipase A2, group IID||605630|R|||| | |4(Pla2g2d)|
+1.63|4|24|01|1p36.11-p34.3|WASF2, WAVE2, SCAR2|P|Wiskott-Aldrich syndrome protein family, member 2||605875|REc|?pseudogene on Xp11.21||| | ||
+1.64|8|18|99|1p36.1-p35|C1orf4, B120|P|Brain protein 120||603024|A|||| | ||
+1.65|8|28|97|1p36.1|CAPZB, CAPPB|P|Capping protein (actin filament) muscle Z-line, beta||601572|A|||| | ||
+1.66|10|20|99|1p36.1|CDC42|P|Cell division cycle 42 (GTP-binding protein, 25kD)||116952|H, R, REc|||| | |4(cdc42)|
+1.67|1|1|95|1p36.1|CHC1, RCC1|C|Regulator of chromosome condensation||179710|REb, A|||| | |4(Chc1)|
+1.68|5|28|98|1p36.1|DDOST, OST, OST48|P|Dolichyl-diphosphooligosaccharide-protein glycosyltransferase||602202|A|||| | ||
+1.69|6|16|99|1p36.1|ECE1|C|Endothelin converting enzyme 1||600423|A, R, Psh|||Hirschsprung disease, cardiac defects, and autonomic dysfunction (3)| | ||
+1.70|5|5|98|1p36.1|EPHA2, ECK|P|Ephrin receptor EphA2||176946|A, REa|||| | |4(Epha2)|
+1.71|4|11|97|1p36.1|EXTL1|P|Exostosin-like 1||601738|R, A|||| | ||
+1.72|10|12|90|1p36.1|HMG17|C|Nonhistone chromosomal protein HMG-17||163910|REa, A|||| | ||
+1.73|4|1|01|1p36.1|HSPG2, PLC, SJS, SJA, SJS1|C|Heparan sulfate proteoglycan of basement membrane (perlecan)||142461|A, REa, LD|||Schwartz-Jampel syndrome, type 1, 255800 (3); Dyssegmental dysplasia,|Silverman-Handmaker type, 224410 (3) | |4(Plc)|
+1.74|3|6|01|1p36.1|NR0B2, SHP|P|Nuclear receptor subfamily 0, group B, member 2||604630|REa, A|||Obesity, mild, early-onset, 601665 (3)| | ||
+1.75|8|21|91|1p36.1|PRKACB|P|Protein kinase, cAMP-dependent, catalytic, beta||176892|REa, A|||| | ||
+1.76|11|3|98|1p36.1|RNU17A, RNE1|C|RNA, U17a small nucleolar||180645|REn|in IVS1 of CHC1||| | ||
+1.77|11|3|98|1p36.1|RNU17B|P|RNA, U17b small nucleolar||603239|REn|||| | ||
+1.78|12|15|99|1p36.1|RNU17D, U17HG|P|RNA, U17d small nucleolar||603238|REn|||| | ||
+1.79|2|20|98|1p36.1|RSC1A1, RS1|P|Regulatory solute carrier protein, family 1, member 1||601966|A|||| | ||
+1.80|2|15|96|1p36.1|TCEB3|P|Transcription elongation factor B (SIII), polypeptide 3 (110kD,|elongin A)|600786|A|||| | ||
+1.81|9|13|89|1p36.1|TRN|P|tRNA asparagine||189880|REa, RE|||| | ||
+1.82|11|5|97|1p36.1-p35|EPHB2, EPHT3, DRT, ERK|P|eph tyrosine kinase 3 (ephrin receptor EphB2)||600997|Psh, A|||| | ||
+1.83|4|23|96|1p36.1-p35|MEMO1|P|Methylation modifier for class I HLA||601201|D|||| | ||
+1.84|10|22|95|1p36.1-p35|MFAP2, MAGP, MAGP1|P|Microfibrillar-associated protein-2||156790|REa, A|||| | |4(Mfap2)|
+1.85|2|26|95|1p36.1-p35|RAP1GA1|P|RAP1, GTPase activating protein 1||600278|A, REa|||| | ||
+1.86|10|20|99|1p36.1-p35|RPL11|C|Ribosomal protein L11||604175|REa, R, A|||| | ||
+1.87|11|28|01|1p36.1-p35|SDHB, SDH1, SDHIP|C|Succinate dehydrogenase complex, subunit B, iron sulfur (Ip)||185470|S, REa, A|1 of 2 polypeptides||Pheochromocytoma, extraadrenal, and cervical paraganglioma, 115310|(3) | ||
+1.88|3|28|95|1p36.1-p35|SLC9A1, NHE1, APNH|C|Solute carrier family 9 (sodium/hydrogen exhanger), isoform 1|(antiporter, Na+/H+, amiloride sensitive)|107310|A, F, Fd|3cM proximal to RH||| | |4(Apnh, Nhe1)|
+1.89|7|17|01|1p36.1-p35|STMN1, LAP18, SMN|P|Stathmin||151442|REa, A|||| | |4(Lap18)|
+1.90|1|1|95|1p36.1-p34.3|GPR3|C|G protein-coupled receptor-3||600241|A|||| | ||
+1.91|3|17|94|1p36.1-p34.3|OPRD1|P|Opioid receptor, delta-1||165195|H, A|||| | |4(Nbor, Oprd1)|
+1.92|6|15|99|1p36.1-p34|ALPL, HOPS|C|Alkaline phosphatase, liver/bone/kidney||171760|S, H, Fd, F, A|||Hypophosphatasia, infantile, 241500 (3); Hypophosphatasia, childhood,|241510 (3); ?Hypophosphatasia, adult, 146300 (1) | |4(Akp2)|
+1.93|1|25|99|1p36|ALDH4A1, ALDH4, P5CDH|P|Aldehyde dehydrogenase 4 family, member A1|(delta-1-pyrroline 5-carboxylate dehydrogenase)|606811|A|||Hyperprolinemia, type II, 239510 (3)| | ||
+1.94|5|14|02|1p36|BMND3|P|Bone mineral density variability 3||606928|Fd|||[Bone mineral density variability 3], 601884 (2)| | ||
+1.95|10|2|89|1p36|BRCD2|P|Breast cancer, ductal||211420|Ch, F, D|||Breast cancer, ductal (2)| | ||
+1.96|6|19|98|1p36|CLCN6|P|Chloride channel 6||602726|REa, A|||| | ||
+1.97|10|15|97|1p36|CLCNKA|C|Chloride channel, kidney, A||602024|Fd, REc|11kb from CLCNKB||| | ||
+1.98|10|15|97|1p36|CLCNKB|C|Chloride channel, kidney, B||602023|Fd, REc|unequal crossingover with CLCNKA||Bartter syndrome, antenatal, 601678 (3); Bartter syndrome, 241200 (3)| | ||
+1.99|1|4|93|1p36|CMM, MLM, DNS|P|Cutaneous malignant melanoma/dysplastic nevus||155600|F, Fd, D|some linkage studies negative; see 9p||Malignant melanoma, cutaneous (2)| | ||Greene (1983); Goldstein (1992)
+1.100|8|15|96|1p36|DVL1|C|Dishevelled 1 (homologous to Drosophila dsh)||601365|Psh, A|||| | ||
+1.101|2|01|01|1p36|CORT|C|Cortistatin||602784|H, R, REc|||| | |4(Cort)|
+1.102|2|23|95|1p36|E2F2|P|E2F transcription factor 2||600426|A|||| | ||
+1.103|4|18|97|1p36|EYA3|P|Eyes absent, Drosophila, homolog of, 3||601655|A, H|||| | |4(Eya3)|
+1.104|9|7|00|1p36|IBD7|P|Inflammatory bowel disease-7||605225|Fd|||{Inflammatory bowel disease-7}, 266600 (2)| | ||
+1.105|4|17|01|1p36|ICMT|P|Isoprenylcysteine carboxylmethyltransferase||605851|R|||| | ||
+1.106|2|15|02|1p36|KRPPD|P|Kufor-Rakeb pallidopyramidal degeneration with supranuclear upgaze|paresis and dementia|606693|Fd|||Kufor-Rakeb syndrome (2)| | ||
+1.107|4|2|01|1p36|LUZP1|P|Leucine zipper protein 1||601422|H, R|||| | |4(Luzp)|
+1.108|3|9|00|1p36|MAD2L2, MAD2B|P|Mitotic arrest-deficient 2, S. cerevisiae, homolog-like 2||604094|R|pseudogene on 14q21-q23||| | ||
+1.109|6|3|02|1p36|PARK7|P|Parkinson disease 7, autosomal recessive early-onset||606324|Fd|||Parkinson disease, 168600 (2)| | ||
+1.110|4|21|99|1p36|PCBC, CAPB|P|Prostate cancer-brain cancer susceptibility||603688|Fd|||{Prostate cancer-brain cancer susceptibility} (2)| | ||
+1.111|9|28|96|1p36|PRDM2, RIZ|P|PR domain-containing protein 2 (retinoblastoma protein-binding|zinc-finger protein RIZ)|601196|REc, A|||| | |4(Riz)|
+1.112|11|29|99|1p36|RUNX3, CBFA3, PEBP2A3, AML2|C|Runt-related transcription factor 3||600210|A, REa|||| | |4(Aml2, Cbfa3)|
+1.113|12|18|98|1p36|TNFRSF4, TXGP1L, OX40, ACT35|P|Tumor necrosis factor receptor superfamily, member 4||600315|A|||| | |4(Ox40)|
+1.114|12|18|98|1p36|TNFRSF8, CD30, D1S166E|P|Tumor necrosis factor receptor superfamily, member 8|(CD30 antigen; Ki-1 antigen)|153243|A|||| | |4(Cd30)|
+1.115|12|18|98|1p36|TNFRSF9, ILA, CD137|P|Tumor necrosis factor receptor superfamily, member 9|(interleukin-activated receptor; Ly63, mouse, homolog of)|602250|REa|||| | |(Cd157)|
+1.116|10|15|97|1p36|TP73|P|p53-related protein||601990|D|imprinted||?Neuroblastoma (1)| | ||
+1.117|9|13|89|1p36|TRE|P|tRNA glutamic acid||180640|A|||| | ||
+1.118|6|12|01|1p36-p35|ARH, FHCB2, FHCB1|P|Autosomal recessive hypercholesterolemia gene||605747|Fd|||Hypercholesterolemia, familial, autosomal recessive, 603813 (3)| | ||
+1.119|5|29|02|1p36-p35|GALE|C|UDP galactose-4-epimerase||606953|S, LD|||Galactose epimerase deficiency, 230350 (3)| | ||
+1.120|3|12|96|1p36-p35|HTR6|P|5-hydroxytryptamine (serotonin) receptor-6||601109|REa|||| | ||
+1.121|6|18|01|1p36-p35|PARK6|P|Parkinson disease 6, autosomal recessive early-onset||605909|Fd|||Parkinson disease, 168600 (2)| | ||
+1.122|8|23|01|1p36-p35|SEPN1, SELN, RSMD1|C|Selenoprotein N||606210|REc, Fd|||Muscular dystrophy, rigid spine, 1, 602771 (3)| | ||
+1.123|1|26|97|1p36-p34.1|SCCD|P|Schnyder crystalline corneal dystrophy||121800|Fd|||Corneal dystrophy, crystalline, Schnyder (2)| | ||
+1.124|3|9|98|1p36-p34|PLA2G5|P|Phospholipase A2, group V||601192|A|||| | |4(Pla2g5)|
+1.125|5|4|00|1p36-p32|PABPC4, PABP4, IPABP, APP1|P|Polyadenylate-binding protein, cytoplasmic, 4||603407|Psh, R|||| | ||
+1.126|12|3|91|1p36-p22|SRM, SPS1|C|Spermidine synthase-1||182891|REa, A, Psh|?pseudogene on 3p14-q21||| | ||
+1.127|8|9|01|1p35.2-p33|DSCR1L2, MCIP3|P|Down syndrome critical region gene 1-like 2 (myocyte-enriched|calcineurin-interacting protein 3)|605860|REc|||| | |4(Dscr1l2)|
+1.128|2|18|96|1p35.1|GJA4, CX37|C|Gap junction protein, alpha-4, 37kD (connexin 37)||121012|REa, A, REc|||| | |(Gja4)|
+1.129|12|28|01|1p35.1|GJB3, CX31, DFNA2|C|Gap junction protein, beta-3||603324|REn, REc, Psh, A|same YAC as GJA4||Erythrokeratodermia variabilis, 133200 (3); Deafness, autosomal|dominant 2, 600101 (3); Deafness, autosomal recessive (3); Deafness, autosomal dominant, with peripheral neuropathy (3)| ||
+1.130|11|29|00|1p35.1|GJB4, CX30.3|P|Gap junction protein, beta-4||605425|REn, Fd|||Erythrokeratodermia variabilis with erythema gyratum repens,|133200 (3) | ||
+1.131|11|29|00|1p35.1|GJB5, CX31.1|P|Gap junction protein, beta-5||604493|R, REc|||| | ||
+1.132|12|2|97|1p35.1|P28|P|Inner dynein arm, clamydomonas, homolog of||602135|REa, R|||| | ||
+1.133|6|10|98|1p35|BAI2|P|Brain-specific angiongenesis inhibitor-2||602683|A|||| | ||
+1.134|8|21|91|1p35|EBVS1|P|Epstein-Barr virus integration site||132850|A|||| | ||
+1.135|3|21|93|1p35|G1P3, IFI616|C|Interferon, alpha-inducible protein (clone IFI-6-16)||147572|A, T|||| | ||

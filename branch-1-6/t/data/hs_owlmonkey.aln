@@ -1,0 +1,18 @@
+CLUSTAL W (1.82) multiple sequence alignment
+
+
+human           gtctgttccaagggcctttgcgtcaggtggg--ctcagggtt-------ccagggtggct
+owlmonkey       gtctgttccaagggccttcgagccagtctgggccccagggctgccccactcggggttcca
+                ****************** * * ***   **  * ***** *        * ****  * 
+
+human           ggacc-ccaggccccagctctgcagcagggaggacgtggctgggctcgtgaagcatgtgg
+owlmonkey       gagcagttggaccccaggtct-cagc-gggagggtgtggctgggctc-tgaagcatttgg
+                *  *     * ****** *** **** ******  ************ ******** ***
+
+human           gggtgagcccaggggccccaaggcagggcacctggccttcagcctgcctcagccctgcct
+owlmonkey       g--tgagcccaggggctc-agggcagggcacctg-ccttcagcg-gcctcagcc-tgcct
+                *  ************* * * ************* ********  ********* *****
+
+human           gtctcccag
+owlmonkey       gtctcccag
+                *********

@@ -1,0 +1,38 @@
+BLASTN 2.2.16 [Mar-25-2007]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= Callithrix_jacchus Callithrix jacchus clone CH259-179B5,
+WORKING DRAFT SEQUENCE, 15 ordered pieces.
+         (38,526 letters)
+
+Database: blast1 
+           1 sequences; 247,249,719 total letters
+
+Searching..................................................done
+
+
+
+                                                                 Score    E
+Sequences producing significant alignments:                      (bits) Value
+
+chr1                                                                 3971   0.0  
+
+>chr1
+          Length = 247249719
+
+ Score = 3971 bits (2039), Expect = 0.0
+ Identities = 2927/3229 (90%), Gaps = 63/3229 (1%)
+ Strand = Plus / Plus
+
+                                                                            
+Query: 29757    acaaacacatccaggtgaaccccaacccccagcccaaaaaggtaagtctgttgtatttac 29816
+                |||| ||||||||||||||| ||| ||||||||||||||||||||||||||||| |||||
+Sbjct: 27202976 acaagcacatccaggtgaactccaccccccagcccaaaaaggtaagtctgttgtgtttac 27203035
+
+(truncated, not supposed to parse fully)
+

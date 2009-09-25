@@ -1,0 +1,1077 @@
+AS 10375 42451
+
+CO Contig1 131 1 1 U
+gctagaaaaaaaaggactcccagtagaaatacgtacaataaagtaggttc
+ctctagttaactgttacaaaataagtttcccattggtaatataatagatt
+tataactgttatatccagagcaacctagggg
+
+BQ
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5765593 U 1
+BS 1 131 5765593
+
+RD 5765593 131 0 6
+gctagaaaaaaaaggactcccagtagaaatacgtacaataaagtaggttc
+ctctagttaactgttacaaaataagtttcccattggtaatataatagatt
+tataactgttatatccagagcaacctagggg
+
+QA 1 131 1 131
+
+RT{
+5765593 matchElsewhereHighQual phrap 108 131 080215:162048
+}
+
+RT{
+5765593 matchElsewhereHighQual phrap 98 118 080215:162048
+}
+
+RT{
+5765593 matchElsewhereHighQual phrap 36 57 080215:162048
+}
+
+RT{
+5765593 matchElsewhereHighQual phrap 15 34 080215:162048
+}
+
+RT{
+5765593 matchElsewhereHighQual phrap 8 27 080215:162048
+}
+
+RT{
+5765593 matchElsewhereHighQual phrap 6 25 080215:162048
+}
+
+CO Contig2 139 1 1 U
+gtgggggcatggcggcccttggccgcccccagtaagtcaattgtcccgcg
+aaggagcgggacgaagggtcccgcagggacccgagaaccgatcgggggct
+cttaacacaaaatgtccttccggcgggggggccccgtac
+
+BQ
+ 0 0 0 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5740343 U 1
+BS 1 139 5740343
+
+RD 5740343 139 0 4
+gtgggggcatggcggcccttggccgcccccagtaagtcaattgtcccgcg
+aaggagcgggacgaagggtcccgcagggacccgagaaccgatcgggggct
+cttaacacaaaatgtccttccggcgggggggccccgtac
+
+QA 4 139 1 139
+
+RT{
+5740343 matchElsewhereHighQual phrap 102 135 080215:162048
+}
+
+RT{
+5740343 matchElsewhereHighQual phrap 89 129 080215:162048
+}
+
+RT{
+5740343 matchElsewhereHighQual phrap 40 90 080215:162048
+}
+
+RT{
+5740343 matchElsewhereHighQual phrap 4 45 080215:162048
+}
+
+CO Contig3 118 1 1 U
+cctacgcgaggatacgaatgtttcttcgacaataataagctttttattat
+tattattattattattattatttctattattattattattattattatta
+ttattattattattatta
+
+BQ
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5685889 U 1
+BS 1 118 5685889
+
+RD 5685889 118 0 2
+cctacgcgaggatacgaatgtttcttcgacaataataagctttttattat
+tattattattattattattatttctattattattattattattattatta
+ttattattattattatta
+
+QA 44 118 1 118
+
+RT{
+5685889 matchElsewhereHighQual phrap 75 118 080215:162048
+}
+
+RT{
+5685889 matchElsewhereHighQual phrap 44 72 080215:162048
+}
+
+CO Contig4 81 1 1 U
+gctctggctcactcgctctgagcaggcaatctttcagtcttacacagtct
+acattcatactggacagcagtgtagacttaa
+
+BQ
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5695780 U 1
+BS 1 81 5695780
+
+RD 5695780 81 0 2
+gctctggctcactcgctctgagcaggcaatctttcagtcttacacagtct
+acattcatactggacagcagtgtagacttaa
+
+QA 1 81 1 81
+
+RT{
+5695780 matchElsewhereHighQual phrap 23 81 080215:162048
+}
+
+RT{
+5695780 matchElsewhereHighQual phrap 1 67 080215:162048
+}
+
+CO Contig5 86 1 1 U
+gtgtgtgcatgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtcgtccgtccgtcgtagtagtagtgtg
+
+BQ
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5659765 U 1
+BS 1 86 5659765
+
+RD 5659765 86 0 1
+gtgtgtgcatgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtcgtccgtccgtcgtagtagtagtgtg
+
+QA 1 86 1 86
+
+RT{
+5659765 matchElsewhereHighQual phrap 10 60 080215:162048
+}
+
+CO Contig6 83 1 1 U
+gaggaggtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtg
+
+BQ
+ 0 0 0 0 0 0 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5772270 U 1
+BS 1 83 5772270
+
+RD 5772270 83 0 2
+gaggaggtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtg
+
+QA 7 83 1 83
+
+RT{
+5772270 matchElsewhereHighQual phrap 7 83 080215:162048
+}
+
+RT{
+5772270 matchElsewhereHighQual phrap 6 81 080215:162048
+}
+
+CO Contig7 82 1 1 U
+cttccttcagcaactgtgtgtgtgtgtntgtgtgtgtgtgtgtgtgtgtg
+tgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtg
+
+BQ
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5717803 U 1
+BS 1 82 5717803
+
+RD 5717803 82 0 1
+cttccttcagcaactgtgtgtgtgtgtntgtgtgtgtgtgtgtgtgtgtg
+tgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtg
+
+QA 15 82 1 82
+
+RT{
+5717803 matchElsewhereHighQual phrap 29 82 080215:162048
+}
+
+CO Contig8 139 1 1 U
+attattattattattattattattattattattattattattattattat
+tattattattattattatttattcaatttcgactttaattgttgtttttt
+ttattaagtaaatactttaattttttttactttaaatac
+
+BQ
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5671215 U 1
+BS 1 139 5671215
+
+RD 5671215 139 0 0
+attattattattattattattattattattattattattattattattat
+tattattattattattatttattcaatttcgactttaattgttgtttttt
+ttattaagtaaatactttaattttttttactttaaatac
+
+QA 70 139 1 139
+
+CO Contig9 81 1 1 U
+gtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtgtgtgtgtgtgtgtgtgtgtg
+
+BQ
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5726177 U 1
+BS 1 81 5726177
+
+RD 5726177 81 0 2
+gtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtgtgtgtgtgtgtgtgtgtgtg
+
+QA 1 81 1 81
+
+RT{
+5726177 matchElsewhereHighQual phrap 3 81 080215:162048
+}
+
+RT{
+5726177 matchElsewhereHighQual phrap 1 77 080215:162048
+}
+
+CO Contig10 83 1 1 U
+gtgtgtgtgcgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtgtgtgtgtgtgtgtgtgtactac
+
+BQ
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5741972 U 1
+BS 1 83 5741972
+
+RD 5741972 83 0 1
+gtgtgtgtgcgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtgtgtgtgtgtgtgtgtgtactac
+
+QA 1 83 1 83
+
+RT{
+5741972 matchElsewhereHighQual phrap 11 78 080215:162048
+}
+
+CO Contig11 177 1 1 U
+ttattttatttattttatttattttatttattttatttattttatttatt
+ttatttattttatttattttatttattttatttattttatttattttatt
+tattttatttattttatttattttatttattttatttattttatttattt
+tatttattttatttatttatttattta
+
+BQ
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5695538 U 1
+BS 1 177 5695538
+
+RD 5695538 177 0 2
+ttattttatttattttatttattttatttattttatttattttatttatt
+ttatttattttatttattttatttattttatttattttatttattttatt
+tattttatttattttatttattttatttattttatttattttatttattt
+tatttattttatttatttatttattta
+
+QA 1 177 1 177
+
+RT{
+5695538 matchElsewhereHighQual phrap 161 177 080215:162048
+}
+
+RT{
+5695538 matchElsewhereHighQual phrap 1 167 080215:162048
+}
+
+CO Contig12 121 1 1 U
+atctcttgatagttgcacgctacattgaacgaaccaaatcccttttttaa
+ggtgagtttggtaagattggggtaatatattcatttgataggtctcccta
+aaaatggcctantttttttac
+
+BQ
+ 0 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 0 0 0 0 0 0 0 0 0 0
+
+AF 5732765 U 1
+BS 1 121 5732765
+
+RD 5732765 121 0 4
+atctcttgatagttgcacgctacattgaacgaaccaaatcccttttttaa
+ggtgagtttggtaagattggggtaatatattcatttgataggtctcccta
+aaaatggcctantttttttac
+
+QA 2 121 1 121
+
+RT{
+5732765 matchElsewhereHighQual phrap 81 110 080215:162048
+}
+
+RT{
+5732765 matchElsewhereHighQual phrap 54 103 080215:162048
+}
+
+RT{
+5732765 matchElsewhereHighQual phrap 53 98 080215:162048
+}
+
+RT{
+5732765 matchElsewhereHighQual phrap 2 55 080215:162048
+}
+
+CO Contig13 119 1 1 U
+tattattattattattattattattattattattattattattattatta
+ttattattattattattattattattattattattattattattattatt
+attattattattattatta
+
+BQ
+ 0 0 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5685756 U 1
+BS 1 119 5685756
+
+RD 5685756 119 0 1
+tattattattattattattattattattattattattattattattatta
+ttattattattattattattattattattattattattattattattatt
+attattattattattatta
+
+QA 3 119 1 119
+
+RT{
+5685756 matchElsewhereHighQual phrap 7 86 080215:162048
+}
+
+CO Contig14 178 1 1 U
+ttattttatttattttatttattttatttattttatttattttatttatt
+ttatttattttatttattttatttattttatttattttatttattttatt
+tattttatttattttatttattttatttattttatttattttatttattt
+tatttattttatttattttatttattta
+
+BQ
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5693041 U 1
+BS 1 178 5693041
+
+RD 5693041 178 0 1
+ttattttatttattttatttattttatttattttatttattttatttatt
+ttatttattttatttattttatttattttatttattttatttattttatt
+tattttatttattttatttattttatttattttatttattttatttattt
+tatttattttatttattttatttattta
+
+QA 1 178 1 178
+
+RT{
+5693041 matchElsewhereHighQual phrap 1 168 080215:162048
+}
+
+CO Contig15 115 1 1 U
+ttgaaggatggtagccatcctactctttttctataagttatgttccgcca
+ggaagagcagccgccgttagatagggactcacaacccttcaaaatcgccc
+taagacttctcaacc
+
+BQ
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5651991 U 1
+BS 1 115 5651991
+
+RD 5651991 115 0 2
+ttgaaggatggtagccatcctactctttttctataagttatgttccgcca
+ggaagagcagccgccgttagatagggactcacaacccttcaaaatcgccc
+taagacttctcaacc
+
+QA 1 115 1 115
+
+RT{
+5651991 matchElsewhereHighQual phrap 47 115 080215:162048
+}
+
+RT{
+5651991 matchElsewhereHighQual phrap 1 46 080215:162048
+}
+
+CO Contig16 83 1 1 U
+cacacacaaacacacacacacacccacacacacacacacacacacacaca
+cacacacacacacacacacacacacacacacac
+
+BQ
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5756120 U 1
+BS 1 83 5756120
+
+RD 5756120 83 0 2
+cacacacaaacacacacacacacccacacacacacacacacacacacaca
+cacacacacacacacacacacacacacacacac
+
+QA 1 83 1 83
+
+RT{
+5756120 matchElsewhereHighQual phrap 25 83 080215:162048
+}
+
+RT{
+5756120 matchElsewhereHighQual phrap 9 23 080215:162048
+}
+
+CO Contig17 120 1 1 U
+ttcaattttaatattattattattattattattattattattattattat
+tattattattattattattattattattattattattattactactacta
+ctactactactactactgtc
+
+BQ
+ 0 0 0 0 0 0 0 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5766191 U 1
+BS 1 120 5766191
+
+RD 5766191 120 0 1
+ttcaattttaatattattattattattattattattattattattattat
+tattattattattattattattattattattattattattactactacta
+ctactactactactactgtc
+
+QA 8 120 1 120
+
+RT{
+5766191 matchElsewhereHighQual phrap 12 91 080215:162048
+}
+
+CO Contig18 81 1 1 U
+gtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtgtgtgtgtgtgtgtgtagtnt
+
+BQ
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 0 0
+
+AF 5701563 U 1
+BS 1 81 5701563
+
+RD 5701563 81 0 1
+gtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtgtgtgtgtgtgtgtgtagtnt
+
+QA 1 81 1 81
+
+RT{
+5701563 matchElsewhereHighQual phrap 1 76 080215:162048
+}
+
+CO Contig19 85 1 1 U
+gtgtgtgtgcgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtgtgtgtgtgtgtgtagtcgtactac
+
+BQ
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5710086 U 1
+BS 1 85 5710086
+
+RD 5710086 85 0 1
+gtgtgtgtgcgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtgtgtgtgtgtgtgtagtcgtactac
+
+QA 1 85 1 85
+
+RT{
+5710086 matchElsewhereHighQual phrap 11 74 080215:162048
+}
+
+CO Contig20 175 1 1 U
+ttattttatttattttatttattttatttattttatttattttatttatt
+ttatttattttatttattttatttattttatttattttatttattttatt
+tattttatttattttatttattttatttattttattattttatttatttt
+atttatttatttatttatttattta
+
+BQ
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5692289 U 1
+BS 1 175 5692289
+
+RD 5692289 175 0 3
+ttattttatttattttatttattttatttattttatttattttatttatt
+ttatttattttatttattttatttattttatttattttatttattttatt
+tattttatttattttatttattttatttattttattattttatttatttt
+atttatttatttatttatttattta
+
+QA 1 175 1 175
+
+RT{
+5692289 matchElsewhereHighQual phrap 159 175 080215:162048
+}
+
+RT{
+5692289 matchElsewhereHighQual phrap 137 157 080215:162048
+}
+
+RT{
+5692289 matchElsewhereHighQual phrap 1 135 080215:162048
+}
+
+CO Contig21 122 1 1 U
+agtgttattactattattattattattattattattattattattattat
+tattattattattattatttccactaacaaaatatatatataatataatt
+tattctaaatttttttaatcta
+
+BQ
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5731835 U 1
+BS 1 122 5731835
+
+RD 5731835 122 0 0
+agtgttattactattattattattattattattattattattattattat
+tattattattattattatttccactaacaaaatatatatataatataatt
+tattctaaatttttttaatcta
+
+QA 77 122 1 122
+
+CO Contig22 79 1 1 U
+cacacacacacacacacacacacacacacacacacacacacacacacaca
+cacacacacacacacacacacacacacac
+
+BQ
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5734795 U 1
+BS 1 79 5734795
+
+RD 5734795 79 0 1
+cacacacacacacacacacacacacacacacacacacacacacacacaca
+cacacacacacacacacacacacacacac
+
+QA 1 79 1 79
+
+RT{
+5734795 matchElsewhereHighQual phrap 1 79 080215:162048
+}
+
+CO Contig23 72 1 1 U
+atatatatatgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtgtgtgtgtgtgt
+
+BQ
+ 0 0 0 0 0 0 0 0 0 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5769497 U 1
+BS 1 72 5769497
+
+RD 5769497 72 0 1
+atatatatatgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtgtgtgtgtgtgt
+
+QA 10 72 1 72
+
+RT{
+5769497 matchElsewhereHighQual phrap 10 72 080215:162048
+}
+
+CO Contig24 71 1 1 U
+gtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtgtgtgtgtagt
+
+BQ
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5685312 U 1
+BS 1 71 5685312
+
+RD 5685312 71 0 1
+gtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtgtgtgtgtagt
+
+QA 1 71 1 71
+
+RT{
+5685312 matchElsewhereHighQual phrap 1 68 080215:162048
+}
+
+CO Contig25 79 1 1 U
+catacacacacatacatacatacacaatctcacacacacacacacacaca
+cacacacacacacacacacacacacacac
+
+BQ
+ 0 0 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5654419 U 1
+BS 1 79 5654419
+
+RD 5654419 79 0 1
+catacacacacatacatacatacacaatctcacacacacacacacacaca
+cacacacacacacacacacacacacacac
+
+QA 3 79 1 79
+
+RT{
+5654419 matchElsewhereHighQual phrap 31 79 080215:162048
+}
+
+CO Contig26 85 1 1 U
+cgaagacccggtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtg
+
+BQ
+ 0 0 0 0 0 0 0 0 0 0 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5722605 U 1
+BS 1 85 5722605
+
+RD 5722605 85 0 1
+cgaagacccggtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtg
+
+QA 11 85 1 85
+
+RT{
+5722605 matchElsewhereHighQual phrap 10 85 080215:162048
+}
+
+CO Contig27 83 1 1 U
+attnatattaatacanaacacacacacacacacacacacacacacacaca
+cacacacacacacacacacacacacacacacac
+
+BQ
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5667144 U 1
+BS 1 83 5667144
+
+RD 5667144 83 0 2
+attnatattaatacanaacacacacacacacacacacacacacacacaca
+cacacacacacacacacacacacacacacacac
+
+QA 12 83 1 83
+
+RT{
+5667144 matchElsewhereHighQual phrap 18 83 080215:162048
+}
+
+RT{
+5667144 matchElsewhereHighQual phrap 17 31 080215:162048
+}
+
+CO Contig28 103 1 1 U
+atcatttaggattgctatattttggattttggattgggaaatgcctggct
+agacaaccgttctggaaattgaaatcatgcagatgtaaacaaaaatggga
+tca
+
+BQ
+ 0 0 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15
+
+AF 5754151 U 1
+BS 1 103 5754151
+
+RD 5754151 103 0 0
+atcatttaggattgctatattttggattttggattgggaaatgcctggct
+agacaaccgttctggaaattgaaatcatgcagatgtaaacaaaaatggga
+tca
+
+QA 3 103 1 103
+
+CO Contig29 79 1 1 U
+natacacacacatacatacatacacaatctcacacacacacacacacaca
+cacacacacacacacacacacacacacac
+
+BQ
+ 0 0 0 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5764329 U 1
+BS 1 79 5764329
+
+RD 5764329 79 0 1
+natacacacacatacatacatacacaatctcacacacacacacacacaca
+cacacacacacacacacacacacacacac
+
+QA 4 79 2 79
+
+RT{
+5764329 matchElsewhereHighQual phrap 31 79 080215:162048
+}
+
+CO Contig30 112 1 1 U
+attttcagattcatttgtattttgatttggattattatcattgttgttat
+tgttgttattattattattattattattattattattattattattatta
+ttattattatta
+
+BQ
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5725479 U 1
+BS 1 112 5725479
+
+RD 5725479 112 0 1
+attttcagattcatttgtattttgatttggattattatcattgttgttat
+tgttgttattattattattattattattattattattattattattatta
+ttattattatta
+
+QA 33 112 1 112
+
+RT{
+5725479 matchElsewhereHighQual phrap 56 112 080215:162048
+}
+
+CO Contig31 78 1 1 U
+gtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtgtgtgtgtgtgtgtgtgt
+
+BQ
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5762369 U 1
+BS 1 78 5762369
+
+RD 5762369 78 0 1
+gtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtgtgtgtgtgtgtgtgtgt
+
+QA 1 78 1 78
+
+RT{
+5762369 matchElsewhereHighQual phrap 1 78 080215:162048
+}
+
+CO Contig32 82 1 1 U
+acacacacacacacacacacacacacacacacacacacacacacacacac
+acacacacacacacacacacacacgacgacnc
+
+BQ
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 0 0
+
+AF 5679898 U 1
+BS 1 82 5679898
+
+RD 5679898 82 0 1
+acacacacacacacacacacacacacacacacacacacacacacacacac
+acacacacacacacacacacacacgacgacnc
+
+QA 1 82 1 82
+
+RT{
+5679898 matchElsewhereHighQual phrap 1 74 080215:162048
+}
+
+CO Contig33 62 1 1 U
+gtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtgt
+
+BQ
+ 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15 15
+ 15 15 15 15 15 15 15 15 15 15 15 15
+
+AF 5697733 U 1
+BS 1 62 5697733
+
+RD 5697733 62 0 1
+gtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgtgt
+gtgtgtgtgtgt
+
+QA 1 62 1 62
+
+RT{
+5697733 matchElsewhereHighQual phrap 1 62 080215:162048
+}
+
+CO Contig34 98 2 54 U
+aagggaCTCGTCTAAGTGAAAGGCAGTAGATGTATGTAAGTCATGATGAC
+ATCATCGCtaatcAAGCCtaacaGTTTGAAGACATTTCTAATTTAAta
+
+BQ
+ 0 0 0 15 15 15 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25
+ 25 25 25 25 25 25 25 25 15 15 15 15 15 25 25 25 25 25 15 15 15 15 15 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 15 15
+
+AF 5704073 U 2
+AF 5762101 U 1
+BS 1 3 5762101
+BS 4 4 5704073
+BS 5 5 5762101
+BS 6 6 5704073
+BS 7 7 5762101
+BS 8 8 5704073
+BS 9 9 5762101
+BS 10 14 5704073
+BS 15 15 5762101
+BS 16 18 5704073
+BS 19 20 5762101
+BS 21 21 5704073
+BS 22 24 5762101
+BS 25 25 5704073
+BS 26 26 5762101
+BS 27 27 5704073
+BS 28 28 5762101
+BS 29 29 5704073
+BS 30 30 5762101
+BS 31 32 5704073
+BS 33 38 5762101
+BS 39 39 5704073
+BS 40 46 5762101
+BS 47 47 5704073
+BS 48 50 5762101
+BS 51 52 5704073
+BS 53 54 5762101
+BS 55 55 5704073
+BS 56 56 5762101
+BS 57 61 5704073
+BS 62 63 5762101
+BS 64 65 5704073
+BS 66 66 5762101
+BS 67 68 5704073
+BS 69 69 5762101
+BS 70 72 5704073
+BS 73 74 5762101
+BS 75 75 5704073
+BS 76 77 5762101
+BS 78 78 5704073
+BS 79 80 5762101
+BS 81 81 5704073
+BS 82 82 5762101
+BS 83 83 5704073
+BS 84 84 5762101
+BS 85 85 5704073
+BS 86 88 5762101
+BS 89 90 5704073
+BS 91 92 5762101
+BS 93 93 5704073
+BS 94 94 5762101
+BS 95 96 5704073
+BS 97 97 5762101
+BS 98 98 5704073
+
+RD 5704073 97 0 0
+aaggaCTCGTCTAAGTGAAAGGCAGTAGATGTATGTAAGTCATGATGACA
+TCATCGCtaatcAAGCCtaacaGTTTGAAGACATTTCTAATTTAAta
+
+QA 3 97 3 97
+
+RD 5762101 98 0 0
+aagggaCTCGTCTAAGTGAAAGGCAGTAGATGTATGTAAGTCATGATGAC
+ATCATCGCta*tcAAGCCta*caGTTTGAAGACATTTCTAATTTAAta
+
+QA 4 98 1 98
+
+CO Contig35 108 2 62 U
+atTTTCAATCctttacaCACGTTTCTGTACTCCGATGCATGATTCCGATC
+CTATGTGCTTCATAGTCTAAAAAGATGATCTGTTAATGAAGGGAAAAAAC
+TAAATTta
+
+BQ
+ 15 15 25 25 25 25 25 25 25 25 15 15 15 15 15 15 15 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25
+ 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25
+ 25 25 25 25 25 25 15 15
+
+AF 5748846 U 1
+AF 5729853 U 1
+BS 1 6 5748846
+BS 7 8 5729853
+BS 9 9 5748846
+BS 10 11 5729853
+BS 12 12 5748846
+BS 13 13 5729853
+BS 14 16 5748846
+BS 17 19 5729853
+BS 20 21 5748846
+BS 22 22 5729853
+BS 23 23 5748846
+BS 24 24 5729853
+BS 25 25 5748846
+BS 26 26 5729853
+BS 27 28 5748846
+BS 29 30 5729853
+BS 31 33 5748846
+BS 34 35 5729853
+BS 36 36 5748846
+BS 37 37 5729853
+BS 38 38 5748846
+BS 39 39 5729853
+BS 40 40 5748846
+BS 41 41 5729853
+BS 42 43 5748846
+BS 44 44 5729853
+BS 45 45 5748846
+BS 46 48 5729853
+BS 49 49 5748846
+BS 50 51 5729853
+BS 52 52 5748846
+BS 53 55 5729853
+BS 56 57 5748846
+BS 58 58 5729853
+BS 59 60 5748846
+BS 61 63 5729853
+BS 64 68 5748846
+BS 69 72 5729853
+BS 73 74 5748846
+BS 75 75 5729853
+BS 76 76 5748846
+BS 77 77 5729853
+BS 78 78 5748846
+BS 79 79 5729853
+BS 80 80 5748846
+BS 81 81 5729853
+BS 82 84 5748846
+BS 85 86 5729853
+BS 87 89 5748846
+BS 90 90 5729853
+BS 91 92 5748846
+BS 93 93 5729853
+BS 94 94 5748846
+BS 95 95 5729853
+BS 96 96 5748846
+BS 97 97 5729853
+BS 98 99 5748846
+BS 100 101 5729853
+BS 102 104 5748846
+BS 105 106 5729853
+BS 107 107 5748846
+BS 108 108 5729853
+
+RD 5748846 108 0 0
+atTTTCAATCctttacaCACGTTTCTGTACTCCGATGCATGATTCCGATC
+CTATGTGCTTCATAGTCTAAAAAGATGATCTGTTAATGAAGGGAAAAAAC
+TAAATTta
+
+QA 1 108 1 108
+
+RD 5729853 108 0 0
+atTTTCAATCcttt*caCACGTTTCTGTACTCCGATGCATGATTCCGATC
+CTATGTGCTTCATAGTCTAAAAAGATGATCTGTTAATGAAGGGAAAAAAC
+TAAATTta
+
+QA 1 108 1 108
+
+CO Contig36 111 2 63 U
+taTAAAGTCGATGGGGAGGAAGATAGGGGAGCTAAAGCCATAGGGAAACC
+ACGTAGTTCTGCGTCAAGCGTTgccttcCGAGGTGCTCTCCGCTTTTCCA
+TGCtccaatcg
+
+BQ
+ 15 15 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25
+ 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 15 15 15 15 15 15 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25
+ 25 25 25 15 15 15 15 15 15 15 15
+
+AF 5648323 U 1
+AF 5703145 U 1
+BS 1 1 5648323
+BS 2 2 5703145
+BS 3 4 5648323
+BS 5 5 5703145
+BS 6 6 5648323
+BS 7 8 5703145
+BS 9 12 5648323
+BS 13 13 5703145
+BS 14 15 5648323
+BS 16 16 5703145
+BS 17 17 5648323
+BS 18 18 5703145
+BS 19 19 5648323
+BS 20 20 5703145
+BS 21 21 5648323
+BS 22 22 5703145
+BS 23 24 5648323
+BS 25 25 5703145
+BS 26 27 5648323
+BS 28 29 5703145
+BS 30 32 5648323
+BS 33 34 5703145
+BS 35 35 5648323
+BS 36 36 5703145
+BS 37 37 5648323
+BS 38 38 5703145
+BS 39 39 5648323
+BS 40 40 5703145
+BS 41 42 5648323
+BS 43 43 5703145
+BS 44 44 5648323
+BS 45 45 5703145
+BS 46 46 5648323
+BS 47 50 5703145
+BS 51 51 5648323
+BS 52 55 5703145
+BS 56 57 5648323
+BS 58 60 5703145
+BS 61 63 5648323
+BS 64 65 5703145
+BS 66 66 5648323
+BS 67 67 5703145
+BS 68 68 5648323
+BS 69 69 5703145
+BS 70 70 5648323
+BS 71 72 5703145
+BS 73 76 5648323
+BS 77 78 5703145
+BS 79 79 5648323
+BS 80 82 5703145
+BS 83 84 5648323
+BS 85 86 5703145
+BS 87 87 5648323
+BS 88 90 5703145
+BS 91 92 5648323
+BS 93 93 5703145
+BS 94 95 5648323
+BS 96 96 5703145
+BS 97 97 5648323
+BS 98 99 5703145
+BS 100 102 5648323
+BS 103 104 5703145
+BS 105 111 5648323
+
+RD 5648323 111 0 0
+taTAAAGTCGATGGGGAGGAAGATAGGGGAGCTAAAGCCATAGGGAAACC
+ACGTAGTTCTGCGTCAAGCGTTgccttcCGAGGTGCTCTCCGCTTTTCCA
+TGCtccaatcg
+
+QA 1 111 1 111
+
+RD 5703145 109 0 1
+taTAAAGTCGATGGGGAGGAAGATAGGGGAGCTAAAGCCATAGGGAAACC
+ACGTAGTTCTGCGTCAAGCGTTgc*ttcCGAGGTGCTCTCCGCTTTTCCA
+TGCtcatcg
+
+QA 1 109 1 105
+
+RT{
+5703145 compression phrap 74 76 080215:162048
+}

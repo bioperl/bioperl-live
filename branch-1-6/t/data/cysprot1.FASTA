@@ -1,0 +1,272 @@
+ FASTA searches a protein or DNA sequence data bank
+ version 3.3t08 Jan. 17, 2001
+Please cite:
+ W.R. Pearson & D.J. Lipman PNAS (1988) 85:2444-2448
+
+t/data/cysprot1.fa: 343 aa
+ >CYS1_DICDI
+ vs  /data_2/jason/blastdb/ecoli.aa library
+searching /data_2/jason/blastdb/ecoli.aa library
+
+       opt      E()
+< 20     0     0:
+  22     0     0:           one = represents 7 library sequences
+  24     0     0:
+  26     0     0:
+  28     0     1:*
+  30     4     6:*
+  32    13    23:== *
+  34    62    62:========*
+  36   130   127:==================*
+  38   252   210:=============================*======
+  40   310   293:=========================================*===
+  42   405   359:===================================================*======
+  44   401   396:========================================================*=
+  46   386   403:======================================================== *
+  48   348   386:==================================================     *
+  50   360   352:==================================================*=
+  52   290   309:==========================================  *
+  54   264   264:=====================================*
+  56   215   221:===============================*
+  58   145   181:=====================    *
+  60   144   147:====================*
+  62   119   118:================*
+  64    96    94:=============*
+  66    72    74:==========*
+  68    65    58:========*=
+  70    54    46:======*=
+  72    30    36:=====*
+  74    19    28:===*
+  76    26    22:===*
+  78    18    17:==*
+  80    19    13:=*=
+  82    14    10:=*
+  84     8     8:=*
+  86     4     6:*
+  88     2     5:*          inset = represents 1 library sequences
+  90     4     4:*
+  92     3     3:*         :==*
+  94     2     2:*         :=*
+  96     1     2:*         :=*
+  98     1     1:*         :*
+ 100     0     1:*         :*
+ 102     0     1:*         :*
+ 104     2     1:*         :*=
+ 106     0     0:          *
+ 108     1     0:=         *=
+ 110     0     0:          *
+ 112     0     0:          *
+ 114     0     0:          *
+ 116     0     0:          *
+ 118     0     0:          *
+>120     0     0:          *
+1358987 residues in  4289 sequences
+  Expectation_n fit: rho(ln(x))= 5.9493+/-0.00202; mu= 2.7408+/- 0.115
+ mean_var=77.5610+/-17.011, 0's: 0 Z-trim: 0  B-trim: 2 in 1/41
+ Lambda= 0.1456
+ Kolmogorov-Smirnov  statistic: 0.0234 (N=29) at  44
+
+FASTA (3.36 June 2000) function [optimized, BL50 matrix (15:-5)] ktup: 2
+ join: 37, opt: 25, gap-pen: -12/ -2, width:  16
+ Scan time:  1.110
+The best scores are:                                       opt bits E(4289)
+gi|1787478|gb|AAC74309.1| (AE000221) nitrate redu  ( 512)   92   29     1.2
+gi|1790635|gb|AAC77148.1| (AE000491) putative DEO  ( 251)   84   27     2.1
+gi|1786590|gb|AAC73494.1| (AE000145) orf, hypothe  (  94)   78   26     2.1
+gi|1790853|gb|AAC77345.1| (AE000509) soluble lyti  ( 654)   84   28     4.8
+gi|1789307|gb|AAC75975.1| (AE000377) biosynthetic  ( 658)   83   27     5.6
+gi|1788174|gb|AAC74937.1| (AE000280) orf, hypothe  ( 199)   74   25     7.4
+gi|1789138|gb|AAC75818.1| (AE000361) putative kin  ( 492)   79   26     7.8
+gi|1789427|gb|AAC76084.1| (AE000386) orf, hypothe  ( 354)   76   26     9.1
+
+>>gi|1787478|gb|AAC74309.1| (AE000221) nitrate reductase  (512 aa)
+ initn:  35 init1:  35 opt:  92  Z-score: 109.2  bits: 29.2 E():  1.2
+Smith-Waterman score: 92;  23.936% identity (26.012% ungapped) in 188 aa overlap (125-305:2-181)
+
+          100       110       120       130       140        150   
+CYS1_D NKEAIFTDDLPVADYLDDEFINSIPTAFDWRTRGAVTPVKNQGQCGSCWSFSTT-GNV--
+                                     . :. :  : :  .: .: . :.:  ::  
+gi|178                              MKIRSQVGMVLNLDKCIGCHTCSVTCKNVWT
+                                            10        20        30 
+
+               160       170        180       190       200        
+CYS1_D --EGQHFISQNKLVSLSEQNLVDCDHECME-YEGEEACDEGCNGGLQPNAYNYIIKNGGI
+         :: ..   :.. .   :..   : : .: :.:     .  :: :::   :  .  : :
+gi|178 SREGVEYAWFNNVETKPGQGF-PTDWENQEKYKGGWI--RKINGKLQPRMGNRAMLLGKI
+              40        50         60          70        80        
+
+      210       220       230       240       250        260       
+CYS1_D QTESSYPYTAETGTQCNFNSANIGAKISNFTMIPKNETVMAGYIVSTGP-LAIAADAVEW
+        ..   :   .     .:.  :. .   .     :.. .     . ::  .:    . .:
+gi|178 FANPHLPGIDDYYEPFDFDYQNLHTAPEG----SKSQPIARPRSLITGERMAKIEKGPNW
+       90       100       110           120       130       140    
+
+       270       280       290       300       310       320       
+CYS1_D QFYIGGVFDIPCNPNSLDHGILIVGYSAKNTIFRKNMPYWIVKNSWGADWGEQGYIYLRR
+       .  .:: ::   . ...:. :  . ::  .. :   .:                      
+gi|178 EDDLGGEFDKLAKDKNFDN-IQKAMYSQFENTFMMYLPRLCEHCLNPACVATCPSGAIYK
+          150       160        170       180       190       200   
+
+       330       340                                               
+CYS1_D GKNTCGVSNFVSTSII                                            
+                                                                   
+gi|178 REEDGIVLIDQDKCRGWRMCITGCPYKKIYFNWKSGKSEKCIFCYPRIEAGQPTVCSETC
+           210       220       230       240       250       260   
+
+>>gi|1790635|gb|AAC77148.1| (AE000491) putative DEOR-typ  (251 aa)
+ initn:  46 init1:  46 opt:  84  Z-score: 104.9  bits: 27.4 E():  2.1
+Smith-Waterman score: 84;  22.078% identity (23.288% ungapped) in 77 aa overlap (99-171:119-195)
+
+       70        80        90       100       110       120        
+CYS1_D HKADTKFGVNKFADLSSDEFKNYYLNNKEAIFTDDLPVADYLDDEFINSIPTAFDWRTRG
+                                     :.:. ::.:.:: :.  .:.       ...
+gi|179 QLVNPGESVVINCGSTAFLLGREMCGKPVQIITNYLPLANYLIDQEHDSVIIMGGQYNKS
+       90       100       110       120       130       140        
+
+      130       140           150       160       170       180    
+CYS1_D AVTPVKNQGQCGSC----WSFSTTGNVEGQHFISQNKLVSLSEQNLVDCDHECMEYEGEE
+           .. ::. .:     : :..  .. .. . . . :....::....            
+gi|179 QSITLSPQGSENSLYAGHWMFTSGKGLTAEGLYKTDMLTAMAEQKMLSVVGKLVVLVDSS
+      150       160       170       180       190       200        
+
+          190       200       210       220       230       240    
+CYS1_D ACDEGCNGGLQPNAYNYIIKNGGIQTESSYPYTAETGTQCNFNSANIGAKISNFTMIPKN
+                                                                   
+gi|179 KIGERAGMLFSRADQIDMLITGKNANPEILQQLEAQGVSILRV                 
+      210       220       230       240       250                  
+
+>>gi|1786590|gb|AAC73494.1| (AE000145) orf, hypothetical  (94 aa)
+ initn:  37 init1:  37 opt:  78  Z-score: 104.8  bits: 25.9 E():  2.1
+Smith-Waterman score: 78;  36.842% identity (43.750% ungapped) in 38 aa overlap (242-278:42-74)
+
+             220       230       240       250       260       270 
+CYS1_D SSYPYTAETGTQCNFNSANIGAKISNFTMIPKNETVMAGYIVSTGPLAIAADAVEWQFY-
+                                     :.. ::..: .    :     ::..:: : 
+gi|178 VKSIGFSSSSTGRASVGVMVEGEYTFSTAEPEEMTVISGALNVLLP-----DATDWQVYE
+              20        30        40        50             60      
+
+              280       290       300       310       320       330
+CYS1_D IGGVFDIPCNPNSLDHGILIVGYSAKNTIFRKNMPYWIVKNSWGADWGEQGYIYLRRGKN
+        :.::..:                                                    
+gi|178 AGSVFNVPGHSEFHLQVAEPTSYLCRYL                                
+         70        80        90                                    
+
+>>gi|1790853|gb|AAC77345.1| (AE000509) soluble lytic mur  (654 aa)
+ initn:  61 init1:  61 opt:  84  Z-score: 98.5  bits: 27.6 E():  4.8
+Smith-Waterman score: 84;  32.692% identity (34.694% ungapped) in 52 aa overlap (104-152:104-155)
+
+            80        90       100       110       120       130   
+CYS1_D KFGVNKFADLSSDEFKNYYLNNKEAIFTDDLPVADYLDDEFINSIPTAFDWRTRGAVTPV
+                                     :: :  :...:.: .    :::   : .: 
+gi|179 YPYLEYRQITDDLMNQPAVTVTNFVRANPTLPPARTLQSRFVNELARREDWRGLLAFSPE
+            80        90       100       110       120       130   
+
+              140       150       160       170       180       190
+CYS1_D K---NQGQCGSCWSFSTTGNVEGQHFISQNKLVSLSEQNLVDCDHECMEYEGEEACDEGC
+       :   ...::.  ..  .::. :                                      
+gi|179 KPGTTEAQCNYYYAKWNTGQSEEAWQGAKELWLTGKSQPNACDKLFSVWRASGKQDPLAY
+           140       150       160       170       180       190   
+
+>>gi|1789307|gb|AAC75975.1| (AE000377) biosynthetic argi  (658 aa)
+ initn:  41 init1:  41 opt:  83  Z-score: 97.3  bits: 27.4 E():  5.6
+Smith-Waterman score: 83;  23.913% identity (24.176% ungapped) in 92 aa overlap (178-268:315-406)
+
+       150       160       170       180        190       200      
+CYS1_D TGNVEGQHFISQNKLVSLSEQNLVDCDHECMEYEGEEA-CDEGCNGGLQPNAYNYIIKNG
+                                     ..::: ..  : . : ::.  : : :   :
+gi|178 TGVRESARFYVELHKLGVNIQCFDVGGGLGVDYEGTRSQSDCSVNYGLNEYANNIIWAIG
+          290       300       310       320       330       340    
+
+        210       220       230       240       250       260      
+CYS1_D GIQTESSYPYTAETGTQCNFNSANIGAKISNFTMIPKNETVMAGYIVSTGPLAIAADAVE
+           :.. :. .    .    .:.  . .::.  . .:: ..    .  .: :. .    
+gi|178 DACEENGLPHPTVITESGRAVTAHHTVLVSNIIGVERNEYTVPTAPAEDAPRALQSMWET
+          350       360       370       380       390       400    
+
+        270       280       290       300       310       320      
+CYS1_D WQFYIGGVFDIPCNPNSLDHGILIVGYSAKNTIFRKNMPYWIVKNSWGADWGEQGYIYLR
+       ::                                                          
+gi|178 WQEMHEPGTRRSLREWLHDSQMDLHDIHIGYSSGIFSLQERAWAEQLYLSMCHEVQKQLD
+          410       420       430       440       450       460    
+
+>>gi|1788174|gb|AAC74937.1| (AE000280) orf, hypothetical  (199 aa)
+ initn:  46 init1:  46 opt:  74  Z-score: 95.2  bits: 25.2 E():  7.4
+Smith-Waterman score: 74;  43.750% identity (50.000% ungapped) in 32 aa overlap (308-335:110-141)
+
+       280       290       300       310       320        330      
+CYS1_D PCNPNSLDHGILIVGYSAKNTIFRKNMPYWIVKNSWGADWGEQGYIYLRR-GKNT---CG
+                                     :.: .::: .: .  . ::: : .:   ::
+gi|178 PVDAPSPAKVLPENWWQHPAALGATDSDIEIIKRQWGAFYGTDLELQLRRRGIDTIVLCG
+      80        90       100       110       120       130         
+
+           340                                                     
+CYS1_D VSNFVSTSII                                                  
+       .:.                                                         
+gi|178 ISTNIGVESTARNAWELGFNLVIAEDACSAASAEQHNNSINHIYPRIARVRSVEEILNAL
+     140       150       160       170       180       190         
+
+>>gi|1789138|gb|AAC75818.1| (AE000361) putative kinase [  (492 aa)
+ initn:  36 init1:  36 opt:  79  Z-score: 94.7  bits: 26.5 E():  7.8
+Smith-Waterman score: 84;  19.136% identity (21.233% ungapped) in 162 aa overlap (34-192:165-313)
+
+            10        20        30        40        50        60   
+CYS1_D ILLFVLAVFTVFVSSRGIPPEEQSQFLEFQDKFNKKYSHEEYLERFEIFKSNLGKIEELN
+                                     ::::     ...:   ..  . ::.:    
+gi|178 GEFKDNIANYFGQWPVDYKSWAWSEDAAVMDKFNIP---RHMLFDVQMPGTVLGHITPQA
+          140       150       160       170          180       190 
+
+            70        80        90       100       110       120   
+CYS1_D LIAINHKADTKFGVNKFADLSSDEFKNYYLNNKEAIFTDDLPVADYLDDEFINSIPTAFD
+        .: .  :     :   .:   . .    :... :...    .: ... . . . :.:. 
+gi|178 ALATHFPAGLPV-VCTTSDKPVEALGAGLLDDETAVISLGTYIALMMNGKALPKDPVAY-
+             200        210       220       230       240          
+
+           130          140       150       160       170       180
+CYS1_D WRTRGAVTPV---KNQGQCGSCWSFSTTGNVEGQHFISQNKLVSLSEQNLVDCDHECMEY
+       :   ...  .   .. :   . :. :   .. :. .:.. .  .:: ..:..    :.  
+gi|178 WPIMSSIPQTLLYEGYGIRKGMWTVSWLRDMLGESLIQDARAQDLSPEDLLNKKASCVP-
+     250       260       270       280       290       300         
+
+              190       200       210       220       230       240
+CYS1_D EGEEACDEGCNGGLQPNAYNYIIKNGGIQTESSYPYTAETGTQCNFNSANIGAKISNFTM
+               ::::                                                
+gi|178 -------PGCNGLMTVLDWLTNPWEPYKRGIMIGFDSSMDYAWIYRSILESVALTLKNNY
+             310       320       330       340       350       360 
+
+>>gi|1789427|gb|AAC76084.1| (AE000386) orf, hypothetical  (354 aa)
+ initn:  65 init1:  40 opt:  76  Z-score: 93.5  bits: 25.8 E():  9.1
+Smith-Waterman score: 76;  22.619% identity (23.899% ungapped) in 168 aa overlap (141-303:81-244)
+
+              120       130       140       150       160       170
+CYS1_D DDEFINSIPTAFDWRTRGAVTPVKNQGQCGSCWSFSTTGNVEGQHFISQNKLVSLSEQNL
+                                     : :.      . :: : .::. .     : 
+gi|178 GDKIWQSSEYFMNVFCNNALPGPSPGEEYPSAWANIMMLLASGQDFYNQNSYTFGVTYNG
+               60        70        80        90       100       110
+
+              180       190       200        210       220         
+CYS1_D VDCDHECMEYEGEEACDEGCNGGLQPNAYNY-IIKNGGIQTESSYPYTAETGTQCNFNSA
+       :: :       .  .: .  ..:   :.:.   . .:: . . :  . ...  :  .. :
+gi|178 VDYDSTSPLPIAAPVCIDIKGAGTFGNGYKKPAVCSGGPEPQLSVTFPVRV--QLYIKLA
+              120       130       140       150       160          
+
+     230       240       250       260       270          280      
+CYS1_D NIGAKISNFTMIPKNETVMAGYIVSTGPLAIAADAVEWQFYIGGVFDI---PCNPN-SLD
+       . . :...  ..: .: .   .   .:  :: .:  .  : : :. .:    :  : .:.
+gi|178 KNANKVNKKLVLP-DEYIALEFKGMSGAGAIEVDK-NLTFRIRGLNNIHVLDCFVNVDLE
+      170       180        190       200        210       220      
+
+         290       300       310       320       330       340     
+CYS1_D HGILIVGYSAKNTIFRKNMPYWIVKNSWGADWGEQGYIYLRRGKNTCGVSNFVSTSII  
+        .  .: ..  :.   ::                                          
+gi|178 PADGVVDFGKINSRTIKNTSVSETFSVVMTKDPGAACTEQFNILGSFFTTDILSDYSHLD
+        230       240       250       260       270       280      
+
+
+
+343 residues in 1 query   sequences
+1358987 residues in 4289 library sequences
+ Scomplib [33t08]
+ start: Sat Dec  8 11:43:36 2001 done: Sat Dec  8 11:43:37 2001
+ Scan time:  1.110 Display time:  0.090
+
+Function used was FASTA [version 3.3t08 Jan. 17, 2001]

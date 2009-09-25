@@ -1,0 +1,119 @@
+# fasta35 -E 1 -H BOSS_DROME.fa wormpep190
+FASTA searches a protein or DNA sequence data bank
+ version 35.04 Aug. 28, 2008
+Please cite:
+ W.R. Pearson & D.J. Lipman PNAS (1988) 85:2444-2448
+
+Query: BOSS_DROME.fa
+  1>>>BOSS_DROME Protein bride of sevenless precursor. - 896 aa
+Library: wormpep190 10449259 residues in 23771 sequences
+
+10449259 residues in 23771 sequences
+Statistics:  Expectation_n fit: rho(ln(x))= 5.6522+/-0.000443; mu= 12.7762+/- 0.026
+ mean_var=109.3856+/-23.016, 0's: 1 Z-trim: 2  B-trim: 0 in 0/59
+ Lambda= 0.122629
+Algorithm: FASTA (3.5 Sept 2006) [optimized]
+Parameters: BL50 matrix (15:-5) ktup: 2
+ join: 38, opt: 26, open/ext: -10/-2, width:  16
+ Scan time:  2.980
+
+The best scores are:                                      opt bits E(23771)
+F35H10.10 CE24945 WBGene00018073 status:Confirmed  (1404)  207 48.2 9.2e-05
+
+>>F35H10.10 CE24945 WBGene00018073 status:Confirmed UniP  (1404 aa)
+ initn:  94 init1:  94 opt: 207  Z-score: 196.5  bits: 48.2 E(): 9.2e-05
+Smith-Waterman score: 275; 22.7% identity (52.3% similar) in 728 aa overlap (207-847:640-1330)
+
+        180       190       200       210       220          230   
+BOSS_D RAISIDNASLAENLLIQEVQFLQQCTTYSMGIFVDWELYKQLESVIKD---LEYNIWPIP
+                                     : : . .   .: :: ..   :. ..  .:
+F35H10 NQAGRNITIVPKSVFGYASALHGDSQESLKGYFSSGDTDASLVSVDSEHSALQRSFTALP
+     610       620       630       640       650       660         
+
+           240       250        260       270       280            
+BOSS_D GTRAHLFPKVAHLLHQMPWGEKIASV-EIATETLEMYNEFMEAARQEHMCLM--------
+       ..: . .  . .::..: :    :.. :   :.: ..  : . : .. .::         
+F35H10 SSRNQALA-LLKLLNRMQWQFVTAALSEQDPESLSLFRAFERLALDRGVCLAEVLNIGGS
+     670        680       690       700       710       720        
+
+             290        300           310       320             330
+BOSS_D ---HFKSDDNVYIMFGN-KLASHF----KENGTLFSVPTDRTDDEFLAD------LPNRA
+          ...:  :: :.:.. . :. .    :  :.  .:   .. : .:        .:. .
+F35H10 RLDNIRSTTNVTIVFSTARDAADYLIASKIRGNHVNVMMGEAHDWYLHAPNNKELFPGTV
+      730       740       750       760       770       780        
+
+                340       350       360          370               
+BOSS_D FVLMENEI--DLSTAVELDATPTALDEILIGKSVLPSR---VLSFAGSII--------DL
+        :  .: .  :.   .:  .:: .: : :   : . ::   .::  ...:        .:
+F35H10 SVQPRNILYGDFREWLET-TTPLTLPE-LWYWSYIESRYGCALSQKSKVIYGKMCTGDEL
+      790       800        810        820       830       840      
+
+       380          390       400       410       420       430    
+BOSS_D MNWLR-GSLSK--HCKRGEEHDLYVLESCFNFLNFIEDWRTSEYRQAHDTAEILSLLLMR
+       .:    : ..:  . .:: :. :....: .. :   ..    :. . .   .::. :  .
+F35H10 LNIESLGRMTKAGYLSRGVERFLFAMDSVYKSLCPAQNGLCLEFYE-QGRRQILTQL--K
+        850       860       870       880       890        900     
+
+          440       450       460       470       480       490    
+BOSS_D KLGTAMNFQMYQKKVLTLDKITGESRTELREIASQNFVTNVTTYYHYNRDNHTSLELKTK
+       : .:  . ..:.     :  :...   .:  ::. ...:..    .:   : .  : : .
+F35H10 KTSTEDDVEIYE----FLPDINNHFTYHL--IANWTLTTGLRMTNQYRNGNGVPTESKCQ
+           910           920         930       940       950       
+
+                           500            510       520            
+BOSS_D -----------FGQ------VFNCQYSAGDN-----RRYPFLFDGESV----MFWRIKMD
+                  : :      ::  .   :..     .: :  : .:..    .: .:   
+F35H10 PPMCKCFLDGDFFQRPLDSFVFRPDEPEGSDQSSYIKRQP-AFGSEKIEYQSVFEHITTG
+       960       970       980       990       1000      1010      
+
+      530       540            550       560       570       580   
+BOSS_D TWVATGLTAAILGLIATL-----AILVFIVVRISLGDVFEGNPTTSILLLLSLILVFCSF
+        :     . ..:.::..:     :.::...:.. :  : .:: . .: ::...:..    
+F35H10 HWRDHPHNYVLLALITVLVVVAIAVLVLVLVKLYL-RVVKGNQSLGISLLIGIIIL----
+       1020      1030      1040      1050       1060      1070     
+
+           590       600       610       620       630       640   
+BOSS_D VPYSIEYVGEQRNSHVTFEDAQTLNTLCAVRVFIMTLVYCFVFSLLLCRAVMLASIGSEG
+         ::  .         .:. .   ...: .::..  : : . :.... .:..: .  . :
+F35H10 --YSTAFF-------FVFDPT---DSVCRLRVILHGLGYTICFGVMIAKATQLRNAETLG
+                     1080         1090      1100      1110         
+
+            650       660       670       680            690       
+BOSS_D -GFLSHVNGYIQAVICAFSVVAQVGMSVQLLVVMHVASETVSCENIY-----YGRWLWGL
+        :   :.. .   ..  : : .:...:.. ..   ...  :   :.      .:.  . .
+F35H10 FGTAIHISFWNYWLLLFFIVGVQIALSISWFLEPFMSTIGVIDTNVQRMMCTMGKVEFVV
+    1120      1130      1140      1150      1160      1170         
+
+       700       710        720       730       740       750      
+BOSS_D LAYDFALLCCVGALIPSIYRS-QRNYREGILIVIGSVLIMVIWVAWIALSLFGD-EWRDA
+         .   .:  .. .:  . :. .:::.:   .. ..:: .  :::::.: :  : :.::.
+F35H10 SNFYVMILIFMALFISMLNRNIKRNYKETKWLLYSTVLCFFTWVAWITLYLVLDHEFRDT
+    1180      1190      1200      1210      1220      1230         
+
+         760       770        780       790          800       810 
+BOSS_D AIPLGLQASGWAVLVGILI-PRTFLIVRGIERSDIA---QALPSLTSLAFAQNNQYSSEQ
+       .: . : : . ..:.:.:. :. .... . :   .:   . .:. :.: : ....  :..
+F35H10 VIVVELVACA-TILLGFLFGPKIYILL-SYEPVVVAFKRDPFPNHTDL-FEKDDDLPSQR
+    1240       1250      1260       1270      1280       1290      
+
+             820       830       840         850       860         
+BOSS_D SVYECVNPAMRHCSQDEVNHQSPSEIPTL--PLRGGGPRRQQFFANLRQANANINPQRPP
+       .    :.::    :... . .. :   .   :. . ::                      
+F35H10 A----VSPASSTSSSSNRSSSGSSYTSSSKRPVNAVGPLPLNKNVEDQSPIFHTVMRKKT
+           1300      1310      1320      1330      1340      1350  
+
+     870       880       890                               
+BOSS_D PRPQQSPSRSSVSSLPPSPDHNKITRF                         
+                                                           
+F35H10 KVRRSNSEHDTIMNVGIPMTSVPIIRSPSARDEKVHRVAISPPIRDYNSINH
+           1360      1370      1380      1390      1400    
+
+
+
+896 residues in 1 query   sequences
+10449259 residues in 23771 library sequences
+ Scomplib [35.04]
+ start: Wed Oct 22 20:59:06 2008 done: Wed Oct 22 20:59:09 2008
+ Total Scan time:  2.980 Total Display time:  0.030
+
+Function used was FASTA [version 35.04 Aug. 28, 2008]

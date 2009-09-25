@@ -1,0 +1,45 @@
+LOCUS       DQ519393                 748 bp    RNA     linear   VRL 04-JUL-2006
+DEFINITION  Hepatitis delta virus genotype I delta antigen gene, complete cds.
+ACCESSION   DQ519393
+VERSION     DQ519393.1  GI:109726906
+KEYWORDS    .
+SOURCE      Hepatitis delta virus
+  ORGANISM  Hepatitis delta virus
+            Viruses; Deltavirus.
+REFERENCE   1  (bases 1 to 748)
+  AUTHORS   Wang,T.-C. and Chao,M.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (27-APR-2006) Microbiology and Immunology, Chang Gung
+            Unversity, 259, Wen-Hwa 1st Road, Kwei-Shan, Tao-Yuan 333, Taiwan
+FEATURES             Location/Qualifiers
+     source          1..748
+                     /organism="Hepatitis delta virus"
+                     /mol_type="genomic RNA"
+                     /db_xref="taxon:12475"
+                     /country="Taiwan"
+                     /note="genotype: I"
+     CDS             34..675
+                     /codon_start=1
+                     /product="delta antigen"
+                     /protein_id="ABG45868.1"
+                     /db_xref="GI:109726907"
+                     /translation="MSQPDPRRPRKGREETLGKWIDARRRKEELERDLRKVNKTIKRL
+                     EEDNPWLGNIRGIIRKDKDGDGAPPAKRARTDQMEVDSGPRKRKHPGGFTEQERRDHR
+                     RRKALENKKKQLSSGGKSLSREEEEELRRLTEEDERRERRVAGPRVGDVNPLDGGPRG
+                     APGGGFVPSMLGVPESPFTRRGDGLDTMGTQEFPWVSPQPPPPRLPLLECTPQ"
+ORIGIN      
+        1 aagagttctg aggaccgccg cccgcaatcg aggatgagcc agcccgatcc gaggagaccc
+       61 cggaagggga gagaagagac actcggaaag tggatcgatg caagaagaag aaaggaggag
+      121 ctcgagaggg acctccggaa ggtcaacaag actatcaaga gacttgagga ggacaacccc
+      181 tggctgggaa acatccgagg aataataaga aaagacaagg acggggatgg agctcccccg
+      241 gcgaagagag ccaggacgga tcagatggag gtcgactccg gacctaggaa gaggaaacac
+      301 ccgggagggt tcaccgaaca ggagagacgg gatcaccgaa ggaggaaggc cctggagaac
+      361 aagaagaagc aactctcctc gggagggaag agcctcagca gggaggaaga agaggaactt
+      421 cgaaggttga ccgaggaaga cgagagaagg gaaagaagag tagccggccc gcgggttggg
+      481 gatgtgaacc ccctcgacgg aggtccgagg ggagcgcccg gaggcgggtt cgtccccagc
+      541 atgctaggag tcccggagtc tcccttcact cggagagggg acggcctgga caccatggga
+      601 actcaggaat ttccgtgggt tagccctcag ccccctcctc cccgccttcc actcctcgag
+      661 tgtacccccc aataaaggat cgagggttcc actcacggtt cgcgtccgtg tccttccttt
+      721 cctcttcggg tcggcatggc ataagggc
+//
+

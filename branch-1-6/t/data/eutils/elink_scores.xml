@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD eLinkResult, 11 May 2002//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eLink_020511.dtd">
+<eLinkResult>
+<LinkSet>
+	<DbFrom>protein</DbFrom>
+	<IdList>
+		<Id>15622530</Id>
+	</IdList>
+	<LinkSetDb>
+		<DbTo>protein</DbTo>
+		<LinkName>protein_protein</LinkName>
+		<Link>
+			<Id>15622530</Id>
+			<Score>2147483647</Score>
+		</Link>
+		<Link>
+			<Id>15921743</Id>
+			<Score>381</Score>
+		</Link>
+		<Link>
+			<Id>70607303</Id>
+			<Score>178</Score>
+		</Link>
+		<Link>
+			<Id>68567951</Id>
+			<Score>178</Score>
+		</Link>
+		<Link>
+			<Id>145702933</Id>
+			<Score>161</Score>
+		</Link>
+		<Link>
+			<Id>146304683</Id>
+			<Score>161</Score>
+		</Link>
+		<Link>
+			<Id>6015889</Id>
+			<Score>142</Score>
+		</Link>
+		<Link>
+			<Id>13813749</Id>
+			<Score>142</Score>
+		</Link>
+		<Link>
+			<Id>15897502</Id>
+			<Score>142</Score>
+		</Link>
+	</LinkSetDb>
+	<LinkSetDb>
+		<DbTo>protein</DbTo>
+		<LinkName>protein_protein_identical</LinkName>
+		<Link>
+			<Id>15622530</Id>
+			<Score>2147483647</Score>
+		</Link>
+		<Link>
+			<Id>74573864</Id>
+			<Score>0</Score>
+		</Link>
+		<Link>
+			<Id>15921743</Id>
+			<Score>0</Score>
+		</Link>
+	</LinkSetDb>
+</LinkSet>
+</eLinkResult>

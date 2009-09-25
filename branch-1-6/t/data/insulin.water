@@ -1,0 +1,42 @@
+########################################
+# Program:  water
+# Rundate:  Tue Feb 12 21:26:34 2002
+# Report_file: hs_insulin.water
+########################################
+#=======================================
+#
+# Aligned_sequences: 2
+# 1: hs_insulin
+# 2: 
+# Matrix: EDNAFULL
+# Gap_penalty: 10.0
+# Extend_penalty: 0.5
+#
+# Length: 194
+# Identity:     160/194 (82.5%)
+# Similarity:   160/194 (82.5%)
+# Gaps:          21/194 (10.8%)
+# Score: 690.0
+# 
+#
+#=======================================
+
+hs_insulin         1 gtctgttccaagggcctttgcgtcaggtgggctcaggg------------     38
+                     ||||||||||||||||||.|||||||||||||||||||            
+                   1 gtctgttccaagggccttcgcgtcaggtgggctcagggctgcccacttgg     50
+
+hs_insulin        39 -----ccagggtggctggaccccaggccccagctctgcagcagggaggac     83
+                          ||||||||||||||||||||||||||||||||||.||||||||||
+                  51 gggttccagggtggctggaccccaggccccagctctgcaacagggaggac    100
+
+hs_insulin        84 gtggctgggctcgtgaagcatgtgggggtgagcccaggggccccaaggca    133
+                     .|||||||||||.||||||.|.||.||||||.|||||||| ||||.||||
+                 101 atggctgggctcttgaagcgtttgagggtgaacccagggg-cccagggca    149
+
+hs_insulin       134 gggcacctggccttcagcctgcctcagccctgcctgtctcccag    177
+                      ||||||||||| |||||..||||||| .|||||||||||.|||
+                 150 -ggcacctggcc-tcagctggcctcag-gctgcctgtctctcag    190
+
+
+#---------------------------------------
+#---------------------------------------

@@ -1,0 +1,60 @@
+LOCUS       HSATPCB01     226 bp    DNA             PRI       17-AUG-1999
+DEFINITION  Homo sapiens ATP cassette binding transporter 1 (ABC1) gene, exon
+            12.
+ACCESSION   AF165282
+VERSION     AF165282.1  GI:5734104
+KEYWORDS    .
+SOURCE      human.
+  ORGANISM  Homo sapiens
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Primates; Catarrhini; Hominidae; Homo.
+REFERENCE   1  (bases 1 to 226)
+  AUTHORS   Rust,S., Rosier,M., Funke,H., Real,J., Amoura,Z., Piette,J.C.,
+            Deleuze,J.F., Brewer,H.B., Duverger,N., Denefle,P. and Assmann,G.
+  TITLE     Tangier disease is caused by mutations in the gene encoding
+            ATP-binding cassette transporter 1
+  JOURNAL   Nat. Genet. 22 (4), 352-355 (1999)
+  MEDLINE   99364413
+   PUBMED   10431238
+REFERENCE   2  (bases 1 to 226)
+  AUTHORS   Rust,S., Rosier,M., Funke,H., Real,J., Amoura,Z., Piette,J.C.,
+            Deleuze,J.F., Brewer,H.B., Duverger,N., Denefle,P. and Assmann,G.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (06-JUL-1999) Genomics, Rhone-Poulenc Rorer, 2 rue Gaston
+            Cremieux, Evry 91006, France
+FEATURES             Location/Qualifiers
+     source          1..226
+                     /organism="Homo sapiens"
+                     /db_xref="taxon:9606"
+                     /chromosome="9"
+                     /map="9q31"
+     gene            join(<1..226,AF165283.1:1..197,AF165284.1:1..243,
+                     AF165285.1:1..242,AF165286.1:1..225,AF165287.1:1..152,
+                     AF165288.1:1..163,AF165289.1:1..158,AF165290.1:1..241,
+                     AF165291.1:1..93,AF165292.1:1..223,AF165293.1:1..69,
+                     AF165294.1:1..134,AF165295.1:1..169,AF165296.1:1..145,
+                     AF165297.1:1..119,AF165298.1:1..209,AF165299.1:1..115,
+                     AF165300.1:1..53,AF165301.1:1..126,AF165302.1:1..95,
+                     AF165303.1:1..190,AF165304.1:1..198,AF165305.1:1..136,
+                     AF165306.1:1..165,AF165307.1:1..150,AF165308.1:1..141,
+                     AF165309.1:1..83,AF165310.1:1..>264)
+                     /gene="ABC1"
+     mRNA            join(<16..221,AF165283.1:16..192,AF165284.1:16..238,
+                     AF165285.1:16..237,AF165286.1:16..>220)
+                     /gene="ABC1"
+                     /product="ATP cassette binding transporter 1"
+     exon            16..221
+                     /gene="ABC1"
+                     /number=12
+     CDS             join(<16..221,AF165283.1:16..192,AF165284.1:16..238,
+                     AF165285.1:16..237,AF165286.1:16..>220)
+                     /gene="ABC1"
+                     /codon_start=1
+                     /db_xref="GI:5734134"
+BASE COUNT       69 a     46 c     58 g     53 t
+ORIGIN      
+        1 ctgttcttct atcagtgtgt caacctgaac aagctagaac ccatagcaac agaagtctgg
+       61 ctcatcaaca agtccatgga gctgctggat gagaggaagt tctgggctgg tattgtgttc
+      121 actggaatta ctccaggcag cattgagctg ccccatcatg tcaagtacaa gatccgaatg
+      181 gacattgaca atgtggagag gacaaataaa atcaaggatg ggtaag
+//

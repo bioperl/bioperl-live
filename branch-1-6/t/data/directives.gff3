@@ -1,0 +1,7 @@
+##gff-version 3
+##sequence-region foo 1 100
+##feature-ontology bar
+##attribute-ontology baz
+##source-ontology boo
+###
+##FASTA

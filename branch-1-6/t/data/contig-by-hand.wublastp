@@ -1,0 +1,122 @@
+BLASTP 2.0MP-WashU [12-Feb-2001] [linux-i686 01:36:08 31-Jan-2001]
+
+Copyright (C) 1996-2000 Washington University, Saint Louis, Missouri USA.
+All Rights Reserved.
+
+Reference:  Gish, W. (1996-2000) http://blast.wustl.edu
+
+Query=  gi|1786183|gb|AAC73113.1| (AE000111) aspartokinase I, homoserine
+    dehydrogenase I [Escherichia coli]
+        (820 letters)
+
+Database:  ecoli.aa
+           4289 sequences; 1,358,990 total letters.
+Searching....10....20....30....40....50....60....70....80....90....100% done
+
+                                                                     Smallest
+                                                                       Sum
+                                                              High  Probability
+Sequences producing High-scoring Segment Pairs:              Score  P(N)      N
+
+gb|AAC76922.1| (AE000468) aspartokinase II (contig by hand)    999  0.0e-00   1
+
+
+
+>gb|AAC76922.1| (AE000468) aspartokinase II (contig by hand) 
+
+        Length = 810
+
+ Score = 999 (999.9 bits), Expect = 0.0e-00, P = 0.0e-00
+ Identities = 250/810 (31%), Positives = 413/810 (51%)
+
+
+Query:     5 KFGGTSVANAERFLRVADILESNARQGQVATVLSAPAKITNHLVAMIEKTISGQDALPNI 64
+             KFGG+S+A+ + +LRVA I+   ++   +  V+SA    TN L+  ++ + + + +   +
+Sbjct:    16 KFGGSSLADVKCYLRVAGIMAEYSQPDDMM-VVSAAGSTTNQLINWLKLSQTDRLSAHQV 74
+
+Query:    65 SDAERIF-AELLTGLAAAQPGFPLAQLKTFVDQEFAQIKHVLH-GISLLGQCPDSINAAL 122
+                 R +  +L++GL  A+    L  +  FV  +  ++  +L  GI+      D++ A +
+Sbjct:    75 QQTLRRYQCDLISGLLPAEEADSL--ISAFVS-DLERLAALLDSGIN------DAVYAEV 125
+
+Query:   123 ICRGEKMSIAIMAGVLEARGHNVTVIDPVEKLLAVGHYLESTVDIAESTRRIAASRI--P 180
+             +  GE  S  +M+ VL  +G     +D  E L A     +  VD   S   +    +  P
+Sbjct:   126 VGHGEVWSARLMSAVLNQQGLPAAWLDAREFLRAE-RAAQPQVDEGLSYPLLQQLLVQHP 184
+
+Query:   181 ADHMVLMAGFTAGNEKGELVVLGRNGSDYSAAVLAACLRADCCEIWTDVDGVYTCDPRQV 240
+                +V+  GF + N  GE V+LGRNGSDYSA  + A        IW+DV GVY+ DPR+V
+Sbjct:   185 GKRLVV-TGFISRNNAGETVLLGRNGSDYSATQIGALAGVSRVTIWSDVAGVYSADPRKV 243
+
+Query:   241 PDARLLKSMSYQEAMELSYFGAKVLHPRTITPIAQFQIPCLIKNTGNPQAPGTLIGASRD 300
+              DA LL  +   EA EL+   A VLH RT+ P++  +I   ++ +  P    T I     
+Sbjct:   244 KDACLLPLLRLDEASELARLAAPVLHARTLQPVSGSEIDLQLRCSYTPDQGSTRIERVLA 303
+
+Query:   301 EDELPVKGISNLNNMAMFSVSGPGMKGMVGMAARVFAAMSRARISVVLITQSSSEYSISF 360
+                   + +++ +++ +     P  +        +   + RA++  + +   +    + F
+Sbjct:   304 SGT-GARIVTSHDDVCLIEFQVPASQDFKLAHKEIDQILKRAQVRPLAVGVHNDRQLLQF 362
+
+Query:   361 CVPQSDCVRAERAMQEEFYLELKEGLLEPLAVTERLAIISVVGDGMRTLRGIS 413
+             C        A + + E        GL   L + + LA++++VG G+ T   + 
+Sbjct:   363 CYTSEVADSALKILDEA-------GLPGELRLRQGLALVAMVGAGV-TRNPLH 407
+
+Query:   414 A-KFFAALARANINIVAIAQGSSERSISVVVNNDDATTGVRVTHQMLFNTDQVIEVFVIG 472
+               +F+  L    +      Q     S+  V+      + ++  HQ +F  ++ I + + G
+Sbjct:   408 CHRFWQQLKGQPVEFTW--QSDDGISLVAVLRTGPTESLIQGLHQSVFRAEKRIGLVLFG 465
+
+Query:   473 VGGVGGALLEQLKRQQSWLKNKH-IDLRVCGVANSKALLTNVHGLN----LENWQEELAQ 527
+              G +G   LE   R+QS L  +   +  + GV +S+  L +  GL+    L  + +E  +
+Sbjct:   466 KGNIGSRWLELFAREQSTLSARTGFEFVLAGVVDSRRSLLSYDGLDASRALAFFNDEAVE 525
+
+Query:   528 AKEPFNLGRLIRLVKEYHLLNPVIVDCTSSQAVADQYADFLREGFHVVTPNKKANTSSMD 587
+               E      L   ++ +   + V++D T+SQ +ADQY DF   GFHV++ NK A  S  +
+Sbjct:   526 QDEE----SLFLWMRAHPYDDLVVLDVTASQQLADQYLDFASHGFHVISANKLAGASDSN 581
+
+Query:   588 YYHQLRYAAEKSRRKFLYDTNVGAGLPVIENLQNLLNAGDELMKFSGILSGSLSYIFGKL 647
+              Y Q+  A EK+ R +LY+  VGAGLP+   +++L+++GD ++  SGI SG+LS++F + 
+Sbjct:   582 KYRQIHDAFEKTGRHWLYNATVGAGLPINHTVRDLIDSGDTILSISGIFSGTLSWLFLQF 641
+
+Query:   648 DEGMSFSEATTLAREMGYTEPDPRDDLSGMDVARKLLILARETGRELELADIEIEPVLPA 707
+             D  + F+E    A + G TEPDPRDDLSG DV RKL+ILARE G  +E   + +E ++PA
+Sbjct:   642 DGSVPFTELVDQAWQQGLTEPDPRDDLSGKDVMRKLVILAREAGYNIEPDQVRVESLVPA 701
+
+Query:   708 EFNAEGDVAAFMANLSQLDDLFAARVAKARDEGKVLRYVGNIDEDGVCRVKIAEVDGNDP 767
+                  G +  F  N  +L++    R+  AR+ G VLRYV   D +G  RV +  V  + P
+Sbjct:   702 HCEG-GSIDHFFENGDELNEQMVQRLEAAREMGLVLRYVARFDANGKARVGVEAVREDHP 760
+
+Query:   768 LFKVKNGENALAFYSHYYQPLPLVLRGYGAGNDVTAAGVFADLLR 812
+             L  +   +N  A  S +Y+  PLV+RG GAG DVTA  + +D+ R
+Sbjct:   761 LASLLPCDNVFAIESRWYRDNPLVIRGPGAGRDVTAGAIQSDINR 805
+
+
+Parameters:
+  E=0.01
+
+  ctxfactor=1.00
+
+  Query                        -----  As Used  -----    -----  Computed  ----
+  Frame  MatID Matrix name     Lambda    K       H      Lambda    K       H
+   +0      0   BLOSUM62        0.319   0.136   0.384    same    same    same
+               Q=9,R=2         0.244   0.0300  0.180     n/a     n/a     n/a
+
+  Query
+  Frame  MatID  Length  Eff.Length     E    S W   T  X   E2     S2
+   +0      0      820       820     0.010  93 3  11 22  0.19    34
+                                                    37  0.22    37
+
+
+Statistics:
+
+  Database:  /home/jes12/db/ecoli.aa
+   Title:  ecoli.aa
+   Posted:  2:52:35 PM EST Nov 18, 2001
+   Created:  9:46:47 AM EST Nov 18, 2001
+   Format:  XDF-1
+   # of letters in database:  1,358,990
+   # of sequences in database:  4289
+   # of database sequences satisfying E:  4
+  No. of states in DFA:  573 (61 KB)
+  Total size of DFA:  281 KB (1149 KB)
+  Time to generate neighborhood:  0.00u 0.02s 0.02t  Elapsed: 00:00:00
+  No. of threads or processors used:  1
+  Search cpu time:  1.58u 0.00s 1.58t  Elapsed: 00:00:01
+  Total cpu time:  1.59u 0.02s 1.61t  Elapsed: 00:00:01
+  Start:  Thu Dec  6 11:09:14 2001   End:  Thu Dec  6 11:09:15 2001

@@ -1,0 +1,106 @@
+Query= AE000111.1 Escherichia coli K-12 MG1655 section 1 of 400 of the
+complete genome
+         (720 letters)
+
+>AK1H_ECOLI P00561 Bifunctional aspartokinase/homoserine
+           dehydrogenase I (AKI-HDI) [Includes: Aspartokinase I ;
+           Homoserine dehydrogenase I ]
+          Length = 820
+
+ Score =  248 bits (634), Expect = 2e-70
+ Identities = 128/128 (100%), Positives = 128/128 (100%)
+ Frame = -1
+
+Query: 384 MRVLKFGGTSVANAERFLRVADILESNARQGQVATVLSAPAKITNHLVAMIEKTISGQDA 205
+           MRVLKFGGTSVANAERFLRVADILESNARQGQVATVLSAPAKITNHLVAMIEKTISGQDA
+Sbjct: 1   MRVLKFGGTSVANAERFLRVADILESNARQGQVATVLSAPAKITNHLVAMIEKTISGQDA 60
+
+Query: 204 LPNISDAERIFAELLTGLAAAQPGFPLAQLKTFVDQEFAQIKHVLHGISLLGQCPDSINA 25
+           LPNISDAERIFAELLTGLAAAQPGFPLAQLKTFVDQEFAQIKHVLHGISLLGQCPDSINA
+Sbjct: 61  LPNISDAERIFAELLTGLAAAQPGFPLAQLKTFVDQEFAQIKHVLHGISLLGQCPDSINA 120
+
+Query: 24  ALICRGEK 1
+           ALICRGEK
+Sbjct: 121 ALICRGEK 128
+
+
+
+ Score = 19.2 bits (38), Expect = 0.29
+ Identities = 15/57 (26%), Positives = 28/57 (48%)
+ Frame = -1
+
+Query: 420 LFFSTKGNEVTTMRVLKFGGTSVANAERFLRVADILESNARQGQVATVLSAPAKITN 250
+           + F+T  ++V  + V+  GG   A  E+  R    L++     +V  V ++ A +TN
+Sbjct: 458 MLFNT--DQVIEVFVIGVGGVGGALLEQLKRQQSWLKNKHIDLRVCGVANSKALLTN 512
+
+
+
+ Score = 18.5 bits (36), Expect = 0.49
+ Identities = 11/42 (26%), Positives = 18/42 (42%)
+ Frame = -1
+
+Query: 360 TSVANAERFLRVADILESNARQGQVATVLSAPAKITNHLVAM 235
+           T +   E+ L V   LES     +    ++A     +H+V M
+Sbjct: 146 TVIDPVEKLLAVGHYLESTVDIAESTRRIAASRIPADHMVLM 187
+
+
+
+ Score = 17.7 bits (34), Expect = 0.84
+ Identities = 10/35 (28%), Positives = 17/35 (48%)
+ Frame = -1
+
+Query: 267 PAKITNHLVAMIEKTISGQDALPNISDAERIFAEL 163
+           P K  ++L  M   ++SG      +  A R+FA +
+Sbjct: 305 PVKGISNLNNMAMFSVSGPGMKGMVGMAARVFAAM 339
+
+
+
+ Score = 15.0 bits (27), Expect = 5.5
+ Identities = 5/14 (35%), Positives = 8/14 (56%)
+ Frame = -3
+
+Query: 388 NHASVEVRRYISGK 347
+           NH    + + ISG+
+Sbjct: 45  NHLVAMIEKTISGQ 58
+
+
+
+ Score = 15.0 bits (27), Expect = 5.5
+ Identities = 5/7 (71%), Positives = 7/7 (99%)
+ Frame = +1
+
+Query: 640 PVQKLLS 660
+           PV+KLL+
+Sbjct: 150 PVEKLLA 156
+
+
+Lambda     K      H
+   0.318    0.135    0.401 
+
+Gapped
+Lambda     K      H
+   0.267   0.0410    0.140 
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 1264
+Number of Sequences: 0
+Number of extensions: 25
+Number of successful extensions: 6
+Number of sequences better than 10.0: 2
+Number of HSP's better than 10.0 without gapping: 1
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 0
+Number of HSP's gapped (non-prelim): 6
+length of database: 820
+effective HSP length: 33
+effective length of database: 787
+effective search space used:   162122
+frameshift window, decay const: 50,  0.1
+T: 12
+A: 40
+X1: 16 ( 7.3 bits)
+X2: 38 (14.6 bits)
+X3: 64 (24.7 bits)
+S1: 25 (14.3 bits)

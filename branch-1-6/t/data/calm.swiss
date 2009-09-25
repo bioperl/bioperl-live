@@ -1,0 +1,282 @@
+ID   CALM_HUMAN     STANDARD;      PRT;   148 AA.
+AC   P62158; P02593; P70667; P99014; Q61379; Q61380;
+DT   21-JUL-1986 (Rel. 01, Created)
+DT   21-JUL-1986 (Rel. 01, Last sequence update)
+DT   01-OCT-2004 (Rel. 45, Last annotation update)
+DE   Calmodulin (CaM).
+GN   Name=CALM1; Synonyms=CAM1, CALM, CAM;
+GN   and
+GN   Name=CALM2; Synonyms=CAM2, CAMB;
+GN   and
+GN   Name=CALM3; Synonyms=CAM3, CAMC;
+OS   Homo sapiens (Human).
+OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+OC   Mammalia; Eutheria; Primates; Catarrhini; Hominidae; Homo.
+OX   NCBI_TaxID=9606;
+RN   [1]
+RP   SEQUENCE, ACETYLATION SITE ALA-1, AND METHYLATION SITE LYS-115.
+RC   TISSUE=Brain;
+RX   MEDLINE=82231946; PubMed=7093203;
+RA   Sasagawa T., Ericsson L.H., Walsh K.A., Schreiber W.E., Fischer E.H.,
+RA   Titani K.;
+RT   "Complete amino acid sequence of human brain calmodulin.";
+RL   Biochemistry 21:2565-2569(1982).
+RN   [2]
+RP   SEQUENCE FROM N.A.
+RX   MEDLINE=89034207; PubMed=3182832;
+RA   Fischer R., Koller M., Flura M., Mathews S., Strehler-Page M.A.,
+RA   Krebs J., Penniston J.T., Carafoli E., Strehler E.E.;
+RT   "Multiple divergent mRNAs code for a single human calmodulin.";
+RL   J. Biol. Chem. 263:17055-17062(1988).
+RN   [3]
+RP   SEQUENCE FROM N.A.
+RX   MEDLINE=88059053; PubMed=2445749;
+RA   Sengupta B., Friedberg F., Detera-Wadleigh S.D.;
+RT   "Molecular analysis of human and rat calmodulin complementary DNA
+RT   clones. Evidence for additional active genes in these species.";
+RL   J. Biol. Chem. 262:16663-16670(1987).
+RN   [4]
+RP   SEQUENCE FROM N.A.
+RX   MEDLINE=85022688; PubMed=6385987;
+RA   Wawrzynczak E.J., Perham R.N.;
+RT   "Isolation and nucleotide sequence of a cDNA encoding human
+RT   calmodulin.";
+RL   Biochem. Int. 9:177-185(1984).
+RN   [5]
+RP   SEQUENCE FROM N.A. (CALM1).
+RC   TISSUE=Blood;
+RX   MEDLINE=95010144; PubMed=7925473;
+RA   Rhyner J.A., Ottiger M., Wicki R., Greenwood T.M., Strehler E.E.;
+RT   "Structure of the human CALM1 calmodulin gene and identification of
+RT   two CALM1-related pseudogenes CALM1P1 and CALM1P2.";
+RL   Eur. J. Biochem. 225:71-82(1994).
+RN   [6]
+RP   SEQUENCE FROM N.A.
+RC   TISSUE=Lymphoma;
+RA   Kato S.;
+RL   Submitted (FEB-1995) to the EMBL/GenBank/DDBJ databases.
+RN   [7]
+RP   SEQUENCE FROM N.A. (CALM2).
+RX   MEDLINE=98346173; PubMed=9681195;
+RA   Toutenhoofd S.L., Foletti D., Wicki R., Rhyner J.A., Garcia F.,
+RA   Tolon R., Strehler E.E.;
+RT   "Characterization of the human CALM2 calmodulin gene and comparison of
+RT   the transcriptional activity of CALM1, CALM2 and CALM3.";
+RL   Cell Calcium 23:323-338(1998).
+RN   [8]
+RP   SEQUENCE FROM N.A.
+RA   Kalnine N., Chen X., Rolfs A., Halleck A., Hines L., Eisenstein S.,
+RA   Koundinya M., Raphael J., Moreira D., Kelley T., LaBaer J., Lin Y.,
+RA   Phelan M., Farmer A.;
+RT   "Cloning of human full-length CDSs in BD Creator(TM) system donor
+RT   vector.";
+RL   Submitted (MAY-2003) to the EMBL/GenBank/DDBJ databases.
+RN   [9]
+RP   SEQUENCE FROM N.A. (CALM1).
+RX   MEDLINE=22459283; PubMed=12508121; DOI=10.1038/nature01348;
+RA   Heilig R., Eckenberg R., Petit J.-L., Fonknechten N., Da Silva C.,
+RA   Cattolico L., Levy M., Barbe V., De Berardinis V., Ureta-Vidal A.,
+RA   Pelletier E., Vico V., Anthouard V., Rowen L., Madan A., Qin S.,
+RA   Sun H., Du H., Pepin K., Artiguenave F., Robert C., Cruaud C.,
+RA   Bruels T., Jaillon O., Friedlander L., Samson G., Brottier P.,
+RA   Cure S., Segurens B., Aniere F., Samain S., Crespeau H., Abbasi N.,
+RA   Aiach N., Boscus D., Dickhoff R., Dors M., Dubois I., Friedman C.,
+RA   Gouyvenoux M., James R., Madan A., Mairey-Estrada B., Mangenot S.,
+RA   Martins N., Menard M., Oztas S., Ratcliffe A., Shaffer T., Trask B.,
+RA   Vacherie B., Bellemere C., Belser C., Besnard-Gonnet M.,
+RA   Bartol-Mavel D., Boutard M., Briez-Silla S., Combette S.,
+RA   Dufosse-Laurent V., Ferron C., Lechaplais C., Louesse C., Muselet D.,
+RA   Magdelenat G., Pateau E., Petit E., Sirvain-Trukniewicz P., Trybou A.,
+RA   Vega-Czarny N., Bataille E., Bluet E., Bordelais I., Dubois M.,
+RA   Dumont C., Guerin T., Haffray S., Hammadi R., Muanga J., Pellouin V.,
+RA   Robert D., Wunderle E., Gauguet G., Roy A., Sainte-Marthe L.,
+RA   Verdier J., Verdier-Discala C., Hillier L.W., Fulton L., McPherson J.,
+RA   Matsuda F., Wilson R., Scarpelli C., Gyapay G., Wincker P., Saurin W.,
+RA   Quetier F., Waterston R., Hood L., Weissenbach J.;
+RT   "The DNA sequence and analysis of human chromosome 14.";
+RL   Nature 421:601-607(2003).
+RN   [10]
+RP   SEQUENCE FROM N.A.
+RC   TISSUE=Brain, Lung, Lymph, Placenta, and Urinary bladder;
+RX   MEDLINE=22388257; PubMed=12477932; DOI=10.1073/pnas.242603899;
+RA   Strausberg R.L., Feingold E.A., Grouse L.H., Derge J.G.,
+RA   Klausner R.D., Collins F.S., Wagner L., Shenmen C.M., Schuler G.D.,
+RA   Altschul S.F., Zeeberg B., Buetow K.H., Schaefer C.F., Bhat N.K.,
+RA   Hopkins R.F., Jordan H., Moore T., Max S.I., Wang J., Hsieh F.,
+RA   Diatchenko L., Marusina K., Farmer A.A., Rubin G.M., Hong L.,
+RA   Stapleton M., Soares M.B., Bonaldo M.F., Casavant T.L., Scheetz T.E.,
+RA   Brownstein M.J., Usdin T.B., Toshiyuki S., Carninci P., Prange C.,
+RA   Raha S.S., Loquellano N.A., Peters G.J., Abramson R.D., Mullahy S.J.,
+RA   Bosak S.A., McEwan P.J., McKernan K.J., Malek J.A., Gunaratne P.H.,
+RA   Richards S., Worley K.C., Hale S., Garcia A.M., Gay L.J., Hulyk S.W.,
+RA   Villalon D.K., Muzny D.M., Sodergren E.J., Lu X., Gibbs R.A.,
+RA   Fahey J., Helton E., Ketteman M., Madan A., Rodrigues S., Sanchez A.,
+RA   Whiting M., Madan A., Young A.C., Shevchenko Y., Bouffard G.G.,
+RA   Blakesley R.W., Touchman J.W., Green E.D., Dickson M.C.,
+RA   Rodriguez A.C., Grimwood J., Schmutz J., Myers R.M.,
+RA   Butterfield Y.S.N., Krzywinski M.I., Skalska U., Smailus D.E.,
+RA   Schnerch A., Schein J.E., Jones S.J.M., Marra M.A.;
+RT   "Generation and initial analysis of more than 15,000 full-length human
+RT   and mouse cDNA sequences.";
+RL   Proc. Natl. Acad. Sci. U.S.A. 99:16899-16903(2002).
+RN   [11]
+RP   STRUCTURE BY NMR OF 94-103.
+RX   PubMed=9927666;
+RA   Siedlecka M., Goch G., Ejchart A., Sticht H., Bierzyski A.;
+RT   "Alpha-helix nucleation by a calcium-binding peptide loop.";
+RL   Proc. Natl. Acad. Sci. U.S.A. 96:903-908(1999).
+RN   [12]
+RP   STRUCTURE BY NMR OF 1-76 AND 82-148.
+RX   PubMed=11685248; DOI=10.1038/nsb1101-990;
+RA   Chou J.J., Li S., Klee C.B., Bax A.;
+RT   "Solution structure of Ca(2+)-calmodulin reveals flexible hand-like
+RT   properties of its domains.";
+RL   Nat. Struct. Biol. 8:990-997(2001).
+RN   [13]
+RP   X-RAY CRYSTALLOGRAPHY (1.7 ANGSTROMS).
+RX   PubMed=1474585;
+RA   Chattopadhyaya R., Meador W.E., Means A.R., Quiocho F.A.;
+RT   "Calmodulin structure refined at 1.7 A resolution.";
+RL   J. Mol. Biol. 228:1177-1192(1992).
+RN   [14]
+RP   X-RAY CRYSTALLOGRAPHY (2.45 ANGSTROMS).
+RX   PubMed=7803388;
+RA   Cook W.J., Walter L.J., Walter M.R.;
+RT   "Drug binding by calmodulin: crystal structure of a calmodulin-
+RT   trifluoperazine complex.";
+RL   Biochemistry 33:15259-15265(1994).
+RN   [15]
+RP   X-RAY CRYSTALLOGRAPHY (2.75 ANGSTROMS) OF 5-148.
+RX   MEDLINE=21666515; PubMed=11807546; DOI=10.1038/415396a;
+RA   Drum C.L., Yan S.-Z., Bard J., Shen Y.Q., Lu D., Soelaiman S.,
+RA   Grabarek Z., Bohm A., Tang W.-J.;
+RT   "Structural basis for the activation of anthrax adenylyl cyclase
+RT   exotoxin by calmodulin.";
+RL   Nature 415:396-402(2002).
+RN   [16]
+RP   X-RAY CRYSTALLOGRAPHY (3.6 ANGSTROMS) OF 1-148.
+RX   PubMed=12485993;
+RA   Shen Y., Lee Y.-S., Soelaiman S., Bergson P., Lu D., Chen A.,
+RA   Beckingham K., Grabarek Z., Mrksich M., Tang W.-J.;
+RT   "Physiological calcium concentrations regulate calmodulin binding and
+RT   catalysis of adenylyl cyclase exotoxins.";
+RL   EMBO J. 21:6721-6732(2002).
+RN   [17]
+RP   X-RAY CRYSTALLOGRAPHY (2.0 ANGSTROMS).
+RX   PubMed=12577052; DOI=10.1038/nsb900;
+RA   Yamauchi E., Nakatsu T., Matsubara M., Kato H., Taniguchi H.;
+RT   "Crystal structure of a MARCKS peptide containing the calmodulin-
+RT   binding domain in complex with Ca2+-calmodulin.";
+RL   Nat. Struct. Biol. 10:226-231(2003).
+CC   -!- FUNCTION: Calmodulin mediates the control of a large number of
+CC       enzymes by Ca(2+). Among the enzymes to be stimulated by the
+CC       calmodulin-Ca(2+) complex are a number of protein kinases and
+CC       phosphatases.
+CC   -!- PTM: Ubiquitylation results in a strongly decreased activity (By
+CC       similarity).
+CC   -!- PTM: Phosphorylation results in a decreased activity (By
+CC       similarity).
+CC   -!- MISCELLANEOUS: This protein has four functional calcium-binding
+CC       sites.
+CC   -!- SIMILARITY: Contains 4 EF-hand calcium-binding domains.
+CC   --------------------------------------------------------------------------
+CC   This SWISS-PROT entry is copyright. It is produced through a collaboration
+CC   between  the Swiss Institute of Bioinformatics  and the  EMBL outstation -
+CC   the European Bioinformatics Institute.  There are no  restrictions on  its
+CC   use  by  non-profit  institutions as long  as its content  is  in  no  way
+CC   modified and this statement is not removed.  Usage  by  and for commercial
+CC   entities requires a license agreement (See http://www.isb-sib.ch/announce/
+CC   or send an email to license@isb-sib.ch).
+CC   --------------------------------------------------------------------------
+DR   EMBL; J04046; AAA51918.1; -.
+DR   EMBL; M19311; AAA35641.1; -.
+DR   EMBL; M27319; AAA35635.1; -.
+DR   EMBL; U12022; AAB60644.1; -.
+DR   EMBL; U11886; AAB60644.1; JOINED.
+DR   EMBL; D45887; BAA08302.1; -.
+DR   EMBL; U94728; AAC83174.1; -.
+DR   EMBL; U94725; AAC83174.1; JOINED.
+DR   EMBL; U94726; AAC83174.1; JOINED.
+DR   EMBL; BT006818; AAP35464.1; -.
+DR   EMBL; BT006855; AAP35501.1; -.
+DR   EMBL; BT009916; AAP88918.1; -.
+DR   EMBL; AC006536; AAD45181.1; -.
+DR   EMBL; BC000454; AAH00454.1; -.
+DR   EMBL; BC003354; AAH03354.1; -.
+DR   EMBL; BC005137; AAH05137.1; -.
+DR   EMBL; BC006464; AAH06464.1; -.
+DR   EMBL; BC008597; AAH08597.1; -.
+DR   EMBL; BC011834; AAH11834.1; -.
+DR   EMBL; BC017385; AAH17385.1; -.
+DR   EMBL; BC018677; AAH18677.1; -.
+DR   EMBL; BC026065; AAH26065.1; -.
+DR   EMBL; BC047523; AAH47523.1; -.
+DR   PIR; S48728; MCHU.
+DR   PDB; 1AJI; 17-SEP-97.
+DR   PDB; 1CLL; 31-OCT-93.
+DR   PDB; 1CTR; 20-DEC-94.
+DR   PDB; 1IWQ; 11-MAR-03.
+DR   PDB; 1J7O; 07-NOV-01.
+DR   PDB; 1J7P; 07-NOV-01.
+DR   PDB; 1K90; 23-JAN-02.
+DR   PDB; 1K93; 23-JAN-02.
+DR   PDB; 1LVC; 04-DEC-02.
+DR   PDB; 1NKF; 23-MAR-99.
+DR   SWISS-2DPAGE; P62158; HUMAN.
+DR   Aarhus/Ghent-2DPAGE; 9048; IEF.
+DR   OGP; P02593; -.
+DR   Genew; HGNC:1442; CALM1.
+DR   Genew; HGNC:1445; CALM2.
+DR   Genew; HGNC:1449; CALM3.
+DR   Reactome; P62158; -.
+DR   MIM; 114180; -.
+DR   MIM; 114182; -.
+DR   MIM; 114183; -.
+DR   GO; GO:0005737; C:cytoplasm; TAS.
+DR   GO; GO:0005886; C:plasma membrane; TAS.
+DR   GO; GO:0005509; F:calcium ion binding; TAS.
+DR   GO; GO:0005515; F:protein binding; NAS.
+DR   GO; GO:0007186; P:G-protein coupled receptor protein signalin...; TAS.
+DR   InterPro; IPR002048; EF-hand.
+DR   Pfam; PF00036; efhand; 4.
+DR   PRINTS; PR00450; RECOVERIN.
+DR   ProDom; PD000012; EF-hand; 2.
+DR   PROSITE; PS00018; EF_HAND; 4.
+KW   3D-structure; Acetylation; Calcium-binding; Direct protein sequencing;
+KW   Methylation; Phosphorylation; Repeat; Ubl conjugation.
+FT   INIT_MET      0      0
+FT   MOD_RES       1      1       N-acetylalanine.
+FT   CA_BIND      20     31       EF-hand 1.
+FT   CA_BIND      56     67       EF-hand 2.
+FT   CA_BIND      93    104       EF-hand 3.
+FT   CA_BIND     129    140       EF-hand 4.
+FT   BINDING      21     21       Ubiquitin (multi-) (By similarity).
+FT   MOD_RES      44     44       Phosphothreonine (by CaMK4) (By
+FT                                similarity).
+FT   MOD_RES     115    115       N6,N6,N6-trimethyllysine.
+FT   HELIX         6     18
+FT   TURN         21     22
+FT   TURN         29     30
+FT   HELIX        33     36
+FT   TURN         37     40
+FT   TURN         45     46
+FT   HELIX        47     54
+FT   TURN         55     55
+FT   HELIX        66     72
+FT   TURN         73     74
+FT   HELIX        75     77
+FT   TURN         78     78
+FT   TURN         81     81
+FT   HELIX        82     92
+FT   TURN         94     95
+FT   STRAND       99    100
+FT   HELIX       102    111
+FT   TURN        112    113
+FT   HELIX       118    128
+FT   STRAND      136    137
+FT   HELIX       138    146
+SQ   SEQUENCE   148 AA;  16706 MW;  464B8A287475A1CA CRC64;
+     ADQLTEEQIA EFKEAFSLFD KDGDGTITTK ELGTVMRSLG QNPTEAELQD MINEVDADGN
+     GTIDFPEFLT MMARKMKDTD SEEEIREAFR VFDKDGNGYI SAAELRHVMT NLGEKLTDEE
+     VDEMIREADI DGDGQVNYEE FVQMMTAK
+//

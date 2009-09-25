@@ -1,0 +1,21 @@
+# BLASTP 2.0MP-WashU [04-May-2006] [linux26-i686-ILP32F64 2006-05-09T11:47:08]
+# Start: 3:11:00 PM CEST May 21, 2008
+# Parameters:
+#   topcomboN=5
+#   links
+#   E=0.0001
+#   mformat=3
+#   V=5
+#   B=5
+# Database: test_orfs.fa
+#   Title: test_orfs.fa
+#   Posted: 11:50:04 AM CEST May 14, 2008
+#   Created: 11:50:04 AM CEST May 14, 2008
+#   Letters: 9460
+#   Records: 307
+# Query: 000086_1606_1131
+# Fields: qid	sid	E	N	Sprime	S	alignlen	nident	npos	nmism	pcident	pcpos	qgaps	qgaplen	sgaps	sgaplen	qframe	qstart	qend	sframe	sstart	send	group	links
+000086_1606_1131	000086_1606_1131	1.7e-11	1	50.12	128	21	21	21	0	100.00	100.00	0	0	0	0	+0	1	21	+0	1	21	1	(1)
+000086_1606_1131	000269_0423_3271	5.4e-06	1	31.81	76	22	17	18	1	77.27	81.82	2	2	2	2	+0	1	20	+0	2	21	1	(1)
+000086_1606_1131	000780_0082_2331	6.9e-06	1	31.46	75	23	17	19	2	73.91	82.61	3	3	1	1	+0	1	20	+0	2	23	1	(1)
+# EXIT: [000086_1606_1131]: 0

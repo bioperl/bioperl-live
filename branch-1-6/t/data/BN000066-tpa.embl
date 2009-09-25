@@ -1,0 +1,263 @@
+
+ID   AGA000066  standard; DNA; INV; 5195 BP.
+XX
+AC   BN000066;
+XX
+SV   BN000066.1
+XX
+DT   07-OCT-2002 (Rel. 73, Created)
+DT   21-NOV-2002 (Rel. 73, Last updated, Version 11)
+XX
+DE   TPA: Anopheles gambiae achE1 gene for acetylcholinesterase, exons 1-6
+XX
+KW   acetylcholinesterase; achE1 gene; Third Party Annotation; TPA.
+XX
+OS   Anopheles gambiae (African malaria mosquito)
+OC   Eukaryota; Metazoa; Arthropoda; Hexapoda; Insecta; Pterygota; Neoptera;
+OC   Endopterygota; Diptera; Nematocera; Culicoidea; Anopheles.
+XX
+RN   [1]
+RP   1-5195
+RA   Fort P.P.;
+RT   ;
+RL   Submitted (30-NOV-2001) to the EMBL/GenBank/DDBJ databases.
+RL   Fort P.P., CRBM-UPR1086, Cnrs, 1919 route de Mende, 34293 MONTPELLIER CEDEX
+RL   5, FRANCE.
+XX
+RN   [3]
+RA   Weill M., Fort P., Berthomi eu A., Dubois M.P., Pasteur N., Raymond M.;
+RT   "A novel acetylcholinesterase gene in mosquitoes codes for the insecticide
+RT   target and is non-homologous to the ace gene in Drosophila";
+RL   Proc. R. Soc. Lond., B, Biol. Sci. 269:2007-2016(2002).
+XX
+CC   see also AJ488492 for achE-1 from Kisumu strain
+CC   Third Party Annotation Database: This TPA record uses Anopheles gambiae
+CC   trace archive data (http://trace.ensembl.org)
+XX
+AH   TPA_SPAN        PRIMARY_IDENTIFIER   PRIMARY_SPAN   COMP
+AS   1-685           TI55475028           11-685             
+AS   1-747           TI47553499           11-747             
+AS   1-800           TI55407518           11-800             
+AS   188-895         TI57630934           11-707             
+AS   223-845         TI57283198           11-622             
+AS   251-895         TI47098900           11-644             
+AS   272-999         TI56725015           11-727             
+AS   387-1193        TI57310066           11-806             
+AS   431-1195        TI56845856           11-764             
+AS   522-1220        TI55215818           11-698             
+AS   546-1208        TI57401582           11-661             
+AS   566-1208        TI56169014           11-642             
+AS   584-1306        TI59761948           11-722             
+AS   738-1306        TI55852606           11-568             
+AS   827-1634        TI57602219           11-807             
+AS   1064-1769       TI44966390           11-705             
+AS   1065-1822       TI60742945           11-757             
+AS   1129-1954       TI56042882           11-825             
+AS   1223-1979       TI60461178           11-756             
+AS   1226-1868       TI56472916           11-642             
+AS   1296-1989       TI44952509           11-693             
+AS   1364-2170       TI56006358           11-806             
+AS   1561-2341       TI58704241           11-780             
+AS   1582-2385       TI44875600           11-803             
+AS   1740-2415       TI55894404           11-675             
+AS   1794-2585       TI56056818           11-791             
+AS   1834-2644       TI47256770           11-809             
+AS   1848-2729       TI56446066           11-879             
+AS   1849-2515       TI44984669           11-665             
+AS   2216-3002       TI57417259           11-786             
+AS   2224-3029       TI56867244           11-805             
+AS   2226-3057       TI59803037           11-831             
+AS   2299-3083       TI60503347           11-784             
+AS   2614-3351       TI44891398           11-736             
+AS   2654-3419       TI55336738           11-765             
+AS   2663-3304       TI60709914           11-641             
+AS   2672-3417       TI56453591           11-745             
+AS   2691-3260       TI55690247           11-569             
+AS   2697-3494       TI55745954           11-797             
+AS   2885-3706       TI58733608           11-821             
+AS   2896-3700       TI58130218           11-803             
+AS   2946-3741       TI56432498           11-795             
+AS   2992-3702       TI47561255           11-710             
+AS   2992-3702       TI55208429           11-710             
+AS   3029-3807       TI47256418           11-778             
+AS   3030-3831       TI47233061           11-801             
+AS   3123-3892       TI55870944           11-769             
+AS   3255-4043       TI47465031           11-787             
+AS   3325-4045       TI55382589           11-720             
+AS   3535-4255       TI46993841           11-720             
+AS   3574-4244       TI56607077           11-670             
+AS   3596-4394       TI56526265           11-798             
+AS   3704-4484       TI56050293           11-780             
+AS   3724-4560       TI59807029           11-836             
+AS   3745-4549       TI55159438           11-804             
+AS   3753-4596       TI56586965           11-842             
+AS   3800-4577       TI56592754           11-777             
+AS   3833-4635       TI47243257           11-801             
+AS   3837-4272       TI59628661           11-435             
+AS   3899-4728       TI56895999           11-829             
+AS   3938-4704       TI59830483           11-766             
+AS   3942-4704       TI55700050           11-762             
+AS   4116-4912       TI56961976           11-796             
+AS   4137-4761       TI46929238           11-623             
+AS   4148-4961       TI59909853           11-813             
+AS   4285-5046       TI47085450           11-759             
+AS   4315-5069       TI58096045           11-754             
+AS   4387-5177       TI58084392           11-790             
+AS   4455-5175       TI55094688           11-720             
+AS   4455-5195       TI55297322           11-740             
+AS   4491-5195       TI56990277           11-704             
+XX
+FH   Key             Location/Qualifiers
+FH
+FT   source          1..5195
+FT                   /db_xref="taxon:7165"
+FT                   /organism="Anopheles gambiae"
+FT   CDS             join(<1780..1914,2001..2538,2618..2815,2902..3609,
+FT                   3676..3848,3956..4077)
+FT                   /codon_start=3
+FT                   /gene="achE1"
+FT                   /product="acetylcholinesterase"
+FT                   /EC_number="3.1.1.7"
+FT                   /function="hydrolyzes acetylcholine at cholinergic
+FT                   synapses"
+FT                   /protein_id="CAD29865.2"
+FT                   /translation="AFFTPYIGHGESVRIIDAELGTLEHVHSGATPRRRGLTRRESNSD
+FT                   ANDNDPLVVNTDKGRIRGITVDAPSGKKVDVWLGIPYAQPPVGPLRFRHPRPAEKWTGV
+FT                   LNTTTPPNSCVQIVDTVFGDFPGATMWNPNTPLSEDCLYINVVAPRPRPKNAAVMLWIF
+FT                   GGGFYSGTATLDVYDHRALASEENVIVVSLQYRVASLGFLFLGTPEAPGNAGLFDQNLA
+FT                   LRWVRDNIHRFGGDPSRVTLFGESAGAVSVSLHLLSALSRDLFQRAILQSGSPTAPWAL
+FT                   VSREEATLRALRLAEAVGCPHEPSKLSDAVECLRGKDPHVLVNNEWGTLGICEFPFVPV
+FT                   VDGAFLDETPQRSLASGRFKKTEILTGSNTEEGYYFIIYYLTELLRKEEGVTVTREEFL
+FT                   QAVRELNPYVNGAARQAIVFEYTDWTEPDNPNSNRDALDKMVGDYHFTCNVNEFAQRYA
+FT                   EEGNNVYMYLYTHRSKGNPWPRWTGVMHGDEINYVFGEPLNPTLGYTEDEKDFSRKIMR
+FT                   YWSNFAKTGNPNPNTASSEFPEWPKHTAHGRHYLELGLNTSFVGRGPRLRQCAFWKKYL
+FT                   PQLVAATSNLPGPAPPSEPCESSAFFYRPDLIVLLVSLLTATVRFIQ"
+FT   mRNA            join(<1780..1914,2001..2538,2618..2815,2902..3609,
+FT                   3676..3848,3956..>4596)
+FT                   /gene="achE1"
+FT   exon            <1780..1914
+FT                   /number=1
+FT                   /gene="achE1"
+FT   intron          1915..2000
+FT                   /number=1
+FT                   /gene="achE1"
+FT   exon            2001..2538
+FT                   /number=2
+FT                   /gene="achE1"
+FT   intron          2539..2617
+FT                   /number=2
+FT                   /gene="achE1"
+FT   exon            2618..2815
+FT                   /number=3
+FT                   /gene="achE1"
+FT   intron          2816..2901
+FT                   /number=3
+FT                   /gene="achE1"
+FT   exon            2902..3609
+FT                   /number=4
+FT                   /gene="achE1"
+FT   intron          3610..3675
+FT                   /number=4
+FT                   /gene="achE1"
+FT   exon            3676..3848
+FT                   /number=5
+FT                   /gene="achE1"
+FT   intron          3849..3955
+FT                   /number=5
+FT                   /gene="achE1"
+FT   exon            3956..>4596
+FT                   /number=6
+FT                   /gene="achE1"
+FT   polyA_signal    4628..4633
+FT                   /gene="achE1"
+XX
+SQ   Sequence 5195 BP; 1326 A; 1468 C; 1183 G; 1218 T; 0 other;
+     gaggtggatt ggtacggatt ggtcatttcc gttcttcttc atgtgcgttt cttactctcc        60
+     tgccttctca aacgaacttc agaacgaaaa aaaacacgcg acggagagta agaagctgta       120
+     cagacactct agtcctcaca cacacaactt gcttactttg tccgtccgtt tgattccgct       180
+     ctttctatgt gtgactttct ggcacccttt acttcgtcac tattcatttc atttccaata       240
+     aacttttaat gtgtctttct tttttattct aaatatctat agtaaatgtt ctgtagcaag       300
+     tatcttgtag tagaattgta tagaagtaga tttttgtatg agtttgcatc atcccttccc       360
+     aatggggttg actccgtttc aaccaacgcc aaaagctatc ggcataaagt atggttcctt       420
+     gcaaaggctt ttatgaaaca cgaatgtgtt gaaagctttt gcaaatggaa atgttaaagc       480
+     ctttaagttc caatcgcttt ttgtatccat ttagtttgca tgaacaacag gaaatcaaaa       540
+     tattggtaac gacaatcgct ggcgggcgtt cctttcttgt ctaatcaaat catctacgat       600
+     tgtaattaca aacttccaag tttgcgtatg acaatgttaa atgtctaaga cgctcaaatg       660
+     caaccaatag agtataatta ctaaggcggg cagtagaaac caaaatatct taaataatgt       720
+     caagcaaaac aaaaagaaca attccgttca ctgctcaaag aaagccctaa ctaactacct       780
+     aaccttttca tcgatgaccc tgtactgaca tggtaagata ttctttatcc tttaactctt       840
+     ctgcacccta cgcactcaat gcaacacacg cactactatt actgctacta ctctcgcact       900
+     cacgagcacc tacttgcact caagccggca ctcaatgtac tagcgaaaca cgtcgcatct       960
+     aagcactcac aaggaagcac acatttgcaa atagcaccta ccggaacagc tttgaatgtg      1020
+     ccagcacagc attgaacagg ttcgcgcctt tactcctgtg ctctgttttc tcgatcggaa      1080
+     tgttcgaaag ttgaaaagcg cattttttca tctctctttt tctattcttc ttcgtatttt      1140
+     tatccctctc tcgtcgtgtt ttttctaaac attaccatac ttcttccgct acgaactcgc      1200
+     caagaaccag aacgcagcgt gcgtgcggtg cttgcggtgt gtgtgtgtgt gtgtgtattc      1260
+     cacggctgcg agaagcaaga tcggagaaca ggcatcattc ccctttcaca gacaattgca      1320
+     cttttgtact agaacagaaa acgagacagc ataatttcca acagcctcat tcactcatac      1380
+     caggctcaca ccgactttta accgaaacat gtactacaga aacaaaaaca aacaatatgg      1440
+     agagtgctcg cgctgatact aagttaatat gaagagatta ctggcgaggt catcgatccc      1500
+     atcccgacat catcgctcca ggctccagac ctaccaagtc gcctaccatt acctacccac      1560
+     caccgaccac tactcacaca gcattatcac ttccgccgcc gtcgccgccg ccgccgacgc      1620
+     cgccgacgcc accaccttca caccgccctg ccaaaatgaa tgcgcattgt tgcgatagat      1680
+     tgaatttcct tggttgttgt tgttgttggt tttcttttga catgtttgtg tgttgttttt      1740
+     tctttctctc tctctctttc tgtggttcca acatttcaga cgcatttttt acaccatata      1800
+     taggtcacgg tgagtccgta cgaattatag atgccgagtt gggcacgctc gagcatgtcc      1860
+     acagtggagc aacgccgcgg cgacgcggcc tgacgaggcg cgagtcaaac tcgggtaagt      1920
+     acgcgattgg aagtgggggg acgtttaccc taccgtgtac tactacaacg cactttaccc      1980
+     ccacgcacac gcaccggcag acgcgaacga caacgatccg ctggtggtca acacggataa      2040
+     ggggcgcatc cgcggcatta cggtcgatgc gcccagcggc aagaaggtgg acgtgtggct      2100
+     cggcattccc tacgcccagc cgccggtcgg gccgctacgg ttccgtcatc cgcggccggc      2160
+     cgaaaagtgg accggcgtgc tgaacacgac cacaccgccc aacagctgcg tgcagatcgt      2220
+     ggacaccgtg ttcggcgact tcccgggcgc gaccatgtgg aacccgaaca cgcccctgtc      2280
+     cgaggactgt ctgtacatta acgtggtggc accgcgaccc cggcccaaga atgcggccgt      2340
+     catgctgtgg atcttcggcg gcggcttcta ctccggcacc gccaccctgg acgtgtacga      2400
+     ccaccgggcg cttgcgtcgg aggagaacgt gatcgtggtg tcgctgcagt accgcgtggc      2460
+     cagtctgggc ttcctgtttc tcggcacccc ggaagcgccg ggcaatgcgg gactgttcga      2520
+     tcagaacctt gcgctacggt aggtgtcttt gcatgtgtga atgagggtat agtattctaa      2580
+     cgaggtgctc ttcttcccat cacttcttgg gagtcagctg ggtgcgggac aacattcacc      2640
+     ggttcggtgg cgatccgtcg cgtgtgacac tgttcggcga gagtgccggt gccgtctcgg      2700
+     tgtcgctgca tctgctgtcc gccctttccc gcgatctgtt ccagcgggcc atcctgcaga      2760
+     gcggctcgcc gacggcaccg tgggcattgg tatcgcgcga ggaagccaca ctaaggtacg      2820
+     tgccagctgc tgctttcccc aaaccaccaa cccgcaacag ctcacacaac cctcttttcc      2880
+     gtcgctcttt tctcgctcca gagcactgcg gttggccgag gcggtcggct gcccgcacga      2940
+     accgagcaag ctgagcgatg cggtcgagtg cctgcgcggc aaggacccgc acgtgctggt      3000
+     caacaacgag tggggcacgc tcggcatttg cgagttcccg ttcgtgccgg tggtcgacgg      3060
+     tgcgttcctg gacgagacgc cgcagcgttc gctcgccagc gggcgcttca agaagacgga      3120
+     gatcctcacc ggcagcaaca cggaggaggg ctactacttc atcatctact acctgaccga      3180
+     gctgctgcgc aaggaggagg gcgtgaccgt gacgcgcgag gagttcctgc aggcggtgcg      3240
+     cgagctcaac ccgtacgtga acggggcggc ccggcaggcg atcgtgttcg agtacaccga      3300
+     ctggaccgag ccggacaacc cgaacagcaa ccgggacgcg ctggacaaga tggtgggcga      3360
+     ctatcacttc acctgcaacg tgaacgagtt cgcgcagcgg tacgccgagg agggcaacaa      3420
+     cgtctacatg tatctgtaca cgcaccgcag caaaggcaac ccgtggccgc gctggacggg      3480
+     cgtgatgcac ggcgacgaga tcaactacgt gttcggcgaa ccgctcaacc ccaccctcgg      3540
+     ctacaccgag gacgagaaag actttagccg gaagatcatg cgatactggt ccaactttgc      3600
+     caaaaccggg taagtgtgtg tgtcaaacag cagagtgtcg atcgctctaa caccagcgtc      3660
+     ttctctcttc tacagcaatc caaatcccaa cacggccagc agcgaattcc ccgagtggcc      3720
+     caagcacacc gcccacggac ggcactatct ggagctgggc ctcaacacgt ccttcgtcgg      3780
+     tcggggccca cggttgaggc agtgtgcctt ctggaagaag taccttcccc agctagttgc      3840
+     agctacctgt aagtctcgtg cagcacttga aaccccctcc cacatcccca tcagggtcca      3900
+     ggttgcaata ataaatttca ctttctctct ctcacgtctc ttttccccaa aacagcgaac      3960
+     ctaccagggc cagcaccgcc tagtgaaccg tgcgaaagca gcgcattttt ttaccgacct      4020
+     gatctgatcg tgctgctggt gtcgctgctt acggcgaccg tcagattcat acaataatta      4080
+     ctaccccatc catggcctag ttcgtttaag ctttaagata gtgaggaaca aatttttccc      4140
+     aaacaatttt ccccccttta gagcagaacc gagggagaga taggactaca tagcgaaaag      4200
+     ggaaaacaag tggtggcgga cgaggagaga agaagcaaat cgaataatcg aagcaacaac      4260
+     aacaacaaca aaaaaactgc aaccgggttc actaaaccca gggggcagct cagtagcaaa      4320
+     ctactactta aataactact ttcttatggc aaattatggc aagagcagtc gtgatgggtt      4380
+     cgatcagtat ccatctgacc ggagcagctg aaccgtttca tgggcagttg ctgcaataca      4440
+     ccacgacccg tacacacagt aacacacttt ttatagcttt acactaacaa ccactctccc      4500
+     cacgctcctc ttccccttcc cctccacaca gacagcagcg ccgtttgtag caggatctac      4560
+     taccgtgcgg tttggtatgg cggccaacaa cactaaacac cacacatcta ctaaaacaca      4620
+     ccggaacaat aaacaaatgt taaacttact atatgaatat acatctagac gcatatatac      4680
+     gcatgaacta ctacttccct cgtgttctga caaaacacat taccttgtcc cccctccccc      4740
+     tccggtttgc ttaccaccac tgcaccacca gtatgaattt gttccataat aacgcttcgt      4800
+     aactcgttac caggagcaca actgggtcgt tggcggagtg ctgcgcgttt cgtgctgaag      4860
+     atgtaaacta gcaccgcgca cactttcgac acgcaaccac agctacacat cacgaaagca      4920
+     acatcctggc cctatccgtt ttctcattct taaaacttct ttccttagac caaaaccaac      4980
+     gcaaactagc aaaaggtact tgagtaaccg gtccagtaca cactgtgcta caattgagcg      5040
+     tagggaggag gtataatttc tgcaaaatgt ataaaacaaa actaaaacaa actaattact      5100
+     tgcaatccat tctaaagcac gaaaactcct caaaataaaa acgggaagta aacaaaaaaa      5160
+     tcagaacgaa caaatttacc taaaaaaaag taaac                                 5195
+//
+

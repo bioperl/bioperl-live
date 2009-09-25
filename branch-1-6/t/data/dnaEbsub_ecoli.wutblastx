@@ -1,0 +1,226 @@
+TBLASTX 2.0MP-WashU [12-Feb-2001] [linux-i686 01:36:08 31-Jan-2001]
+
+Copyright (C) 1996-2000 Washington University, Saint Louis, Missouri USA.
+All Rights Reserved.
+
+Reference:  Gish, W. (1996-2000) http://blast.wustl.edu
+
+Notice:  statistical significance is estimated under the assumption that the
+equivalent of one entire reading frame of the query sequence and one entire
+reading frame of the database code for protein and that significant alignments
+will only involve coding reading frames.
+
+Query=  gi|142864|gb|M10040.1|BACDNAE B.subtilis dnaE gene encoding DNA
+    primase, complete cds
+        (2001 letters)
+
+  Translating both strands of query sequence in all 6 reading frames
+
+Database:  ecoli.nt
+           400 sequences; 4,662,239 total letters.
+Searching....10....20....30....40....50....60....70....80....90....100% done
+
+                                                                     Smallest
+                                                                       Sum
+                                                     Reading  High  Probability
+Sequences producing High-scoring Segment Pairs:        Frame Score  P(N)      N
+
+gi|1789441|gb|AE000388.1|AE000388 Escherichia coli K-1... +2   318  6.4e-70   5
+gi|2367383|gb|AE000509.1|AE000509 Escherichia coli K-1... -3    59  0.9992    2
+
+
+
+>gi|1789441|gb|AE000388.1|AE000388 Escherichia coli K-12 MG1655 section 278 of
+            400 of the complete genome
+        Length = 10,334
+
+  Plus Strand HSPs:
+
+ Score = 318 (148.6 bits), Expect = 6.4e-70, Sum P(5) = 6.4e-70
+ Identities = 57/127 (44%), Positives = 81/127 (63%), Frame = +3 / +2
+
+Query:   618 FDRFRNRVMFPIHDHHGAVVAFSGRALGSQQPKYMNSPETPLFHKSKLLYNFYKARLHIR 797
+             +DRFR RVMFPI D  G V+ F GR LG+  PKY+NSPET +FHK + LY  Y+A+    
+Sbjct:  5366 YDRFRERVMFPIRDKRGRVIGFGGRVLGNDTPKYLNSPETDIFHKGRQLYGLYEAQQDNA 5545
+
+Query:   798 KQERAVLFEGFADVYTAVSSDVKESIATMGTSLTDDHVKILRRNVEEIILCYDSDKAGYE 977
+             +  R ++ EG+ DV       +  ++A++GTS T DH+++L R    +I CYD D+AG +
+Sbjct:  5546 EPNRLLVVEGYMDVVALAQYGINYAVASLGTSTTADHIQLLFRATNNVICCYDGDRAGRD 5725
+
+Query:   978 ATLKASE 998
+             A  +A E
+Sbjct:  5726 AAWRALE 5746
+
+ Score = 247 (116.1 bits), Expect = 6.4e-70, Sum P(5) = 6.4e-70
+ Identities = 44/98 (44%), Positives = 61/98 (62%), Frame = +3 / +2
+
+Query:    21 MGNRIPDEIVDQVQKSADIVEVIGDYVQLKKQGRNYFGLCPFHGESTPSFSVSPDKQIFH 200
+             M  RIP   ++ +    DIV++I   V+LKKQG+N+   CPFH E TPSF+V+ +KQ +H
+Sbjct:  4778 MAGRIPRVFINDLLARTDIVDLIDARVKLKKQGKNFHACCPFHNEKTPSFTVNGEKQFYH 4957
+
+Query:   201 CFGCGAGGNVFSFLRQMEGYSFAESVSHLADKYQIDFP 314
+             CFGCGA GN   FL   +   F E+V  LA  + ++ P
+Sbjct:  4958 CFGCGAHGNAIDFLMNYDKLEFVETVEELAAMHNLEVP 5071
+
+ Score = 85 (41.8 bits), Expect = 6.4e-70, Sum P(5) = 6.4e-70
+ Identities = 19/59 (32%), Positives = 28/59 (47%), Frame = +3 / +2
+
+Query:   441 ALDYLLSRGFTKELINEFQIGYALDSWDFITKFLVKRGFSEAQMEKAGLLIRREDGSGY 617
+             A  YL  RG + E+I  F IG+A   WD + K       +   +  AG+L+  + G  Y
+Sbjct:  5192 ARQYLEKRGLSHEVIARFAIGFAPPGWDNVLKRFGGNPENRQSLIDAGMLVTNDQGRSY 5368
+
+ Score = 65 (32.7 bits), Expect = 6.4e-70, Sum P(5) = 6.4e-70
+ Identities = 12/28 (42%), Positives = 18/28 (64%), Frame = +3 / +2
+
+Query:  1014 GCKVRVAMIPDGLDPDDYIKKFGGEKFK 1097
+             G ++R   +PDG DPD  ++K G E F+
+Sbjct:  5771 GRQLRFMFLPDGEDPDTLVRKEGKEAFE 5854
+
+ Score = 48 (24.9 bits), Expect = 0.89, Sum P(4) = 0.59
+ Identities = 15/49 (30%), Positives = 21/49 (42%), Frame = +3 / +2
+
+Query:   639 VMFPIHDHHGAVVAFSGRALGSQQPKYMNSPETPLFHKSKLLYNFYKAR 785
+             V F  HD    V A   R+  +  P Y     T LFH+ K    F++ +
+Sbjct:  4046 VRFYAHDRGRPVQARRRRSQRAISPDYTIGWLTNLFHRRKWRCRFHRRK 4192
+
+ Score = 46 (24.0 bits), Expect = 1.5, Sum P(4) = 0.78
+ Identities = 8/17 (47%), Positives = 10/17 (58%), Frame = +3 / +2
+
+Query:   150 GESTPSFSVSPDKQIFH 200
+             G  TP +  SP+  IFH
+Sbjct:  5447 GNDTPKYLNSPETDIFH 5497
+
+ Score = 42 (22.1 bits), Expect = 6.4e-70, Sum P(5) = 6.4e-70
+ Identities = 6/16 (37%), Positives = 10/16 (62%), Frame = +1 / +2
+
+Query:  1129 WRSKCNISEKERTCPM 1176
+             W S   + +K+R CP+
+Sbjct:  7151 WNSTIVLKQKKRVCPI 7198
+
+ Score = 42 (22.1 bits), Expect = 2.0e-42, Sum P(5) = 2.0e-42
+ Identities = 6/18 (33%), Positives = 14/18 (77%), Frame = +3 / +2
+
+Query:    21 MGNRIPDEIVDQVQKSAD 74
+             +  R+PD++VD++++  D
+Sbjct:   206 ISTRMPDDVVDKLKQLKD 259
+
+  Minus Strand HSPs:
+
+ Score = 102 (49.6 bits), Expect = 4.9e-08, Sum P(3) = 4.9e-08
+ Identities = 32/83 (38%), Positives = 42/83 (50%), Frame = -3 / -3
+
+Query:   319 SSGKSIWYLSAR*ETDSAKE*PSICLKKEKTLPPAPQPKQ*KICLSGDTENEGVLSP*KG 140
+             S+G S   ++A   T S     S  ++K   LP AP PKQ   C S  T  +GV S   G
+Sbjct:  5076 SNGTSRLCIAASSSTVSTNSSLS*FIRKSIALPCAPHPKQW*NCFSPLTVKDGVFSLWNG 4897
+
+Query:   139 QSPK*FRPCFFN*T*SPMTSTIS 71
+             Q    F PCFF+ T + + ST+S
+Sbjct:  4896 QHAWKFLPCFFSFTRASIRSTMS 4828
+
+ Score = 71 (35.4 bits), Expect = 4.9e-08, Sum P(3) = 4.9e-08
+ Identities = 18/35 (51%), Positives = 20/35 (57%), Frame = -3 / -3
+
+Query:   724 FIYLGCWLPRALPEKATTAP**SWIGNMTRFLKRS 620
+             F YLG  LP   P K  T P  S +GN+TR  KRS
+Sbjct:  5472 FRYLGVSLPSTRPPKPITRPRLSRMGNITRSRKRS 5368
+
+ Score = 65 (32.7 bits), Expect = 0.0034, Sum P(3) = 0.0034
+ Identities = 18/71 (25%), Positives = 34/71 (47%), Frame = -2 / -2
+
+Query:   233 ENIAARSAAKAMKNLFVGRYGKRRCAFSMKRTESKVVSALLL*LNIITYDFNDICRLLHL 54
+             + +A R+ +KA+  LF+   G+ R    ++ T    + ALL  L+      +D+     +
+Sbjct:  4990 DRVAVRATSKAVVKLFLTVNGEGRGFLVVEWTTRVEILALLFQLHTGIDQIDDVSACQQI 4811
+
+Query:    53 IHNFIWYPISH 21
+             I+ + W   SH
+Sbjct:  4810 INEYAWDSSSH 4778
+
+ Score = 42 (22.1 bits), Expect = 4.9e-08, Sum P(3) = 4.9e-08
+ Identities = 10/18 (55%), Positives = 12/18 (66%), Frame = -3 / -3
+
+Query:  1093 NFSPPNFLM*SSGSNPSG 1040
+             N S P+F    SGS+PSG
+Sbjct:  5850 NASLPSFRTSVSGSSPSG 5797
+
+
+>gi|2367383|gb|AE000509.1|AE000509 Escherichia coli K-12 MG1655 section 399 of
+            400 of the complete genome
+        Length = 10,589
+
+  Minus Strand HSPs:
+
+ Score = 59 (29.9 bits), Expect = 7.1, Sum P(2) = 1.00
+ Identities = 15/40 (37%), Positives = 19/40 (47%), Frame = -3 / -3
+
+Query:   706 WLPRALPEKATTAP**SWIGNMTRFLKRSKYPLPSSRLIR 587
+             WL R     +T +P   WI  M   L  SK  LPS++  R
+Sbjct:  4227 WLSRTTVGSSTVSPRTFWITRMKVKLSSSKVTLPSTKSTR 4108
+
+ Score = 51 (26.3 bits), Expect = 7.1, Sum P(2) = 1.00
+ Identities = 8/15 (53%), Positives = 10/15 (66%), Frame = -3 / -1
+
+Query:   382 CASAIFCSPEDSGRA 338
+             C S + C P+D GRA
+Sbjct:  1097 CTSLMLCRPQDGGRA 1053
+
+
+Parameters:
+  novalidctxok
+  nonnegok
+  gapall
+  Q=12
+  R=1
+  cpus=1
+  filter=seg
+  nogaps
+  matrix=blosum62
+  W=3
+  S2=41
+  gapS2=68
+  X=16
+  gapX=38
+  hitdist=40
+  gi
+  gapL=0.27
+  gapK=0.047
+  gapH=0.23
+
+  ctxfactor=36.0
+  E=10
+
+  Query                        -----  As Used  -----    -----  Computed  ----
+  Frame  MatID Matrix name     Lambda    K       H      Lambda    K       H
+   +3      0   blosum62        0.318   0.135   0.401    0.324   0.139   0.405  
+   +2      0   blosum62        0.318   0.135   0.401    0.365   0.163   0.618  
+   +1      0   blosum62        0.318   0.135   0.401    0.356   0.155   0.528  
+   -1      0   blosum62        0.318   0.135   0.401    0.350   0.155   0.543  
+   -2      0   blosum62        0.318   0.135   0.401    0.350   0.155   0.505  
+   -3      0   blosum62        0.318   0.135   0.401    0.358   0.157   0.543  
+
+  Query
+  Frame  MatID  Length  Eff.Length     E    S W   T  X   E2     S2
+   +3      0      666       666       10.  54 3  13 16  0.021   41
+   +2      0      666       666       10.  54 3  13 16  0.021   41
+   +1      0      667       667       10.  54 3  13 16  0.021   41
+   -1      0      667       667       10.  54 3  13 16  0.021   41
+   -2      0      666       666       10.  54 3  13 16  0.021   41
+   -3      0      666       666       10.  54 3  13 16  0.021   41
+
+
+Statistics:
+
+  Database:  /home/jes12/db/ecoli.nt
+   Title:  ecoli.nt
+   Posted:  3:16:20 PM EST Nov 18, 2001
+   Created:  10:10:31 AM EST Nov 18, 2001
+   Format:  XDF-1
+   # of letters in database:  4,662,239
+   # of sequences in database:  400
+   # of database sequences satisfying E:  2
+  No. of states in DFA:  598 (64 KB)
+  Total size of DFA:  416 KB (1196 KB)
+  Time to generate neighborhood:  0.02u 0.02s 0.04t  Elapsed: 00:00:00
+  No. of threads or processors used:  1
+  Search cpu time:  2.41u 0.01s 2.42t  Elapsed: 00:00:05
+  Total cpu time:  2.44u 0.03s 2.47t  Elapsed: 00:00:07
+  Start:  Sat Apr 20 18:19:43 2002   End:  Sat Apr 20 18:19:50 2002

@@ -1,0 +1,99 @@
+ID   X79536; SV 1; linear; mRNA; STD; HUM; 1198 BP.
+XX
+AC   X79536;
+XX
+DT   03-JUN-1994 (Rel. 39, Created)
+DT   18-APR-2005 (Rel. 83, Last updated, Version 2)
+XX
+DE   H.sapiens mRNA for hnRNPcore protein A1
+XX
+KW   core protein.
+XX
+OS   Homo sapiens (human)
+OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi; Mammalia;
+OC   Eutheria; Euarchontoglires; Primates; Haplorrhini; Catarrhini; Hominidae;
+OC   Homo.
+XX
+RN   [2]
+RP   1-1198
+RA   Leffers H.;
+RT   ;
+RL   Submitted (01-JUN-1994) to the EMBL/GenBank/DDBJ databases.
+RL   H. Leffers, Inst. of Medical Research Biochemistry & Danish Centre for
+RL   Human Genome Research, Ole Worms Alle 170, Aarhus Univ., 8000 Aarhus C,
+RL   DENMARK
+XX
+RN   [3]
+RA   Knudsen S.M., Leffers H.;
+RT   "Cloning and sequencing of a splice variant of human hnRNP core protein
+RT   A1";
+RL   Unpublished.
+XX
+DR   H-InvDB; HIT000323756.
+XX
+FH   Key             Location/Qualifiers
+FH
+FT   source          1..1198
+FT                   /organism="Homo sapiens"
+FT                   /mol_type="mRNA"
+FT                   /clone_lib="lambda ZapII"
+FT                   /clone="HDP1"
+FT                   /cell_line="MRC5"
+FT                   /cell_type="fibroblast"
+FT                   /tissue_type="lung"
+FT                   /db_xref="taxon:9606"
+FT   CDS             27..989
+FT                   /product="hnRNPcore protein A1"
+FT                   /db_xref="GDB:127388"
+FT                   /db_xref="GOA:P09651"
+FT                   /db_xref="HGNC:5031"
+FT                   /db_xref="InterPro:IPR000504"
+FT                   /db_xref="InterPro:IPR012677"
+FT                   /db_xref="PDB:1HA1"
+FT                   /db_xref="PDB:1L3K"
+FT                   /db_xref="PDB:1PGZ"
+FT                   /db_xref="PDB:1PO6"
+FT                   /db_xref="PDB:1U1K"
+FT                   /db_xref="PDB:1U1L"
+FT                   /db_xref="PDB:1U1M"
+FT                   /db_xref="PDB:1U1N"
+FT                   /db_xref="PDB:1U1O"
+FT                   /db_xref="PDB:1U1P"
+FT                   /db_xref="PDB:1U1Q"
+FT                   /db_xref="PDB:1U1R"
+FT                   /db_xref="PDB:1UP1"
+FT                   /db_xref="PDB:2UP1"
+FT                   /db_xref="UniProtKB/Swiss-Prot:P09651"
+FT                   /protein_id="CAA56072.1"
+FT                   /translation="MSKSESPKEPEQLRKLFIGGLSFETTDESLRSHFEQWGTLTDCVV
+FT                   MRDPNTKRSRGFGFVTYATVEEVDAAMNARPHKVDGRVVEPKRAVSREDSQRPGAHLTV
+FT                   KKIFVGGIKEDTEEHHLRDYFEQYGKIEVIEIMTDRGSGKKRGFAFVTFDDHDSVDKIV
+FT                   IQKYHTVNGHNCEVRKALSKQEMASASSSQRGRSGSGNFGGGRGGGFGGNDNFGRGGNF
+FT                   SGRGGFGGSRGGGGYGGSGDGYNGFGNDGSNFGGGGSYNDFGNYNNQSSNFGPMKGGNF
+FT                   GGRSSGPYGGGGQYFAKPRNQGGYGGSSSSSSYGSGRRF"
+FT   misc_feature    995
+FT                   /note="alternative splice site"
+FT   polyA_signal    1180..1185
+XX
+SQ   Sequence 1198 BP; 334 A; 216 C; 336 G; 312 T; 0 other;
+     ttaaagtctc tcttcaccct gccgtcatgt ctaagtcaga gtctcctaaa gagcccgaac        60
+     agctgaggaa gctcttcatt ggagggttga gctttgaaac aactgatgag agcctgagga       120
+     gccattttga gcaatgggga acgctcacgg actgtgtggt aatgagagat ccaaacacca       180
+     agcgctctag gggctttggg tttgtcacat atgccactgt ggaggaggtg gatgcagcta       240
+     tgaatgcaag gccacacaag gtggatggaa gagttgtgga accaaagaga gctgtctcca       300
+     gagaagattc tcaaagacca ggtgcccact taactgtgaa aaagatattt gttggtggca       360
+     ttaaagaaga cactgaagaa catcacctaa gagattattt tgaacagtat ggaaaaattg       420
+     aagtgattga aatcatgact gaccgaggca gtggcaagaa aaggggcttt gcctttgtaa       480
+     cctttgacga ccatgactcc gtggataaga ttgtcattca gaaataccat actgtgaatg       540
+     gccacaactg tgaagttaga aaagccctgt caaagcaaga gatggctagt gcttcatcca       600
+     gccaaagagg tcgaagtggt tctggaaact ttggtggtgg tcgtggaggt ggtttcggtg       660
+     ggaatgacaa cttcggtcgt ggaggaaact tcagtggtcg tggtggcttt ggtggcagcc       720
+     gtggtggtgg tggatatggt ggcagtgggg atggctataa tggatttggc aatgatggaa       780
+     gcaattttgg aggtggtgga agctacaatg attttgggaa ttacaacaat cagtcttcaa       840
+     attttggacc catgaaggga ggaaattttg gaggcagaag ctctggcccc tatggcggtg       900
+     gaggccaata ctttgcaaaa ccacgaaacc aaggtggcta tggcggttcc agcagcagca       960
+     gtagctatgg cagtggcaga agattttaat tagggaggag tctgctacta gtcttatcag      1020
+     ctcttaaaaa cagaaactca tctgtccaag ttcgtggcag aaaggaacgt ccttgtgaag      1080
+     acctttatct gagccactgt acttcgttat cacgccatgc agtttacatg agctgttctg      1140
+     cagctcgaaa ttccattttg tgaatgggtt ttttttttta ataaactgta tttaactt        1198
+//

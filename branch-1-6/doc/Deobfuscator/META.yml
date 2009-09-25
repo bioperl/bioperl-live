@@ -1,0 +1,15 @@
+# http://module-build.sourceforge.net/META-spec.html
+#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
+name:         Deobfuscator
+version:      v0.0.3
+version_from: lib/Deobfuscator.pm
+installdirs:  site
+requires:
+    CGI:                           0
+    Class::Inspector:              0
+    DB_File:                       0
+    Test::More:                    0
+    version:                       0
+
+distribution_type: module
+generated_by: ExtUtils::MakeMaker version 6.30

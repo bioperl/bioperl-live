@@ -1,0 +1,43 @@
+ID   1433_CANAL     STANDARD;      PRT;   264 AA.
+AC   O42766;
+DT   15-JUL-1998 (Rel. 36, Created)
+DT   01-MAR-2002 (Rel. 41, Last sequence update)
+DT   01-MAR-2002 (Rel. 41, Last annotation update)
+DE   14-3-3 protein homolog.
+GN   BMH1 OR BMH.
+OS   Candida albicans (Yeast).
+OC   Eukaryota; Fungi; Ascomycota; Saccharomycotina; Saccharomycetes;
+OC   Saccharomycetales; mitosporic Saccharomycetales; Candida.
+OX   NCBI_TaxID=5476;
+RN   [1]
+RP   SEQUENCE FROM N.A.
+RC   STRAIN=SC5314;
+RA   Cognetti D., Devine D., Sturtevant J.;
+RT   "The Candida 14-3-3 gene (BMH1) is essential for growth.";
+RL   Submitted (JUN-2001) to the EMBL/GenBank/DDBJ databases.
+CC   -!- SIMILARITY: BELONGS TO THE 14-3-3 FAMILY.
+CC   --------------------------------------------------------------------------
+CC   This SWISS-PROT entry is copyright. It is produced through a collaboration
+CC   between  the Swiss Institute of Bioinformatics  and the  EMBL outstation -
+CC   the European Bioinformatics Institute.  There are no  restrictions on  its
+CC   use  by  non-profit  institutions as long  as its content  is  in  no  way
+CC   modified and this statement is not removed.  Usage  by  and for commercial
+CC   entities requires a license agreement (See http://www.isb-sib.ch/announce/
+CC   or send an email to license@isb-sib.ch).
+CC   --------------------------------------------------------------------------
+DR   EMBL; AF038154; AAB96910.2; -.
+DR   HSSP; P29312; 1A38.
+DR   InterPro; IPR000308; 14-3-3.
+DR   Pfam; PF00244; 14-3-3; 1.
+DR   PRINTS; PR00305; 1433ZETA.
+DR   ProDom; PD000600; 14-3-3; 1.
+DR   SMART; SM00101; 14_3_3; 1.
+DR   PROSITE; PS00796; 1433_1; 1.
+DR   PROSITE; PS00797; 1433_2; 1.
+SQ   SEQUENCE   264 AA;  29480 MW;  192EC2FFEFD52BB6 CRC64;
+     MPASREDSVY LAKLAEQAER YEEMVENMKA VASSGQELSV EERNLLSVAY KNVIGARRAS
+     WRIVSSIEQK EEAKGNESQV ALIRDYRAKI EAELSKICED ILSVLSDHLI TSAQTGESKV
+     FYYKMKGDYH RYLAEFAIAE KRKEAADLSL EAYKAASDVA VTELPPTHPI RLGLALNFSV
+     FYYEILNSPD RACHLAKQAF DDAVADLETL SEDSYKDSTL IMQLLRDNLT LWTDLSEAPA
+     ATEEQQQSSQ APAAQPTEGK ADQE
+//

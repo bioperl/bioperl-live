@@ -1,0 +1,150 @@
+
+Map data is a critical component in many aspects of genetics and
+biological research.   Well defined toolkits for manipulating map data
+do not exist at this point, we propose to build a system for
+manipulating most types of map data (Genetic, RH, RFLP, Sequence, and
+LD).  
+
+Map Proposal
+
+This document proposes an object heirarchy for maps, markers, and
+their manipulation. 
+
+Key Points
+* A Map is an object which contains mapable elements.
+* A Map can be defined for a given organism or population of individuals.
+* A Mappable element is an element with a position within a map.
+
+Background information
+ Maps are made up of elements which are mappable.  This includes
+ genetic and physical markers.  
+
+ A genetic map consists of markers which have a given recombination
+ distance between them.  This distance is usually given as
+ centi-morgans or 1% recombination between them.  Other distances
+ include ... Examples of these are the publicly available
+ Marshfield and Genethon maps.  
+
+ Radiation hybrid maps consist of markers which have been mapped to
+ radiation hybrid panels.  Typically these markers are STSes which
+ have been processed on RH panels.  The distance between markers is
+ calculated in centi-Rads which represent .  Examples of these include
+ Whitehead STS, GeneMap '99.
+
+ Restriction Enzyme (RE) maps are used to describe RE cut points in a
+ given sequence and can be used to "fingerprint" sections of DNA
+ (typically BAC clones).  Clones which share a statitistically (based
+ on known frequency of RE cutting) signifigant collection fingerprints
+ are likely to overlap.  Additionally 
+
+ Physical maps or BAC/PAC/YAC maps represent clone fragment overlap.
+ These maps are used to to represent how clones overlap and form a
+ consensus sequence of a genomic or cDNA region.
+ 
+ Sequence maps represent the known consensus sequence for a given
+ region of typically genomic DNA.
+
+ LD and Haplotype maps ...
+ 
+ Comparisions between maps from different organisms can yield useful
+ observations about trends in evolution.  Additionally comparisons of
+ maps for the same species can provide insight into information such
+ as recombination hot spots and DNA stability.
+
+Object proposal
+ Maps are objects which are made up of mappable elements.  A mappable
+ element has a position on a map and can be tested for equality and
+ relative position to other mappable element positions. 
+ 
+ These are some baseline interface and object definitions.  Other work
+ has been done by Philip Lijnzaad, Emmanuel Barillot and OMG folks to
+ create definitions for maps.
+
+ Interfaces
+  Bio::IdentifiableI 
+    string    getID // unique identifier -- this goes with Juha's
+                    // identifiable property?
+   
+  Bio::NameableI
+    string    getName
+    
+  Bio::AliasableI isa Bio::NameableI
+    string    getAliases
+
+
+  Bio::Map::MapI isa Bio::NameableI isa Bio::Identifiable
+    MapIterator	       getAllElements // for in-order iterator access)
+    ?Bio::ChromosomeI? chromosome     // Should maps be build one per
+                                      // chromosome aggregated for
+				      // a whole report set.
+    Bio::SpeciesI      species        // use existing BP species object
+				      // which may need to be more robust
+    numeric	       length         // not sure what to return for
+                                      // relative or RFLP maps
+    string	       units          // Map units
+    string	       name	      // Map Name
+
+
+  Bio::Map::MappableI 
+   // Where to handle the fact that RFLP 
+   // Markers have multiple Map positions
+    PositionI position(MapI) 
+    boolean   equals(MappableI)
+    boolean   less_than(MappableI)
+    boolean   greater_than(MappableI)
+
+    Bio::Map::PositionI 
+     // may be undef to handle relative maps [RE].  
+     // This is where a known position for a marker can be retrieved  
+     // Multiple positions are possible for RE on a sequence map
+     Array<string>  positionValues  
+  
+  Bio::MarkerI isa Bio::MappableI isa Bio::AliasableI
+
+  // heikki to help fill in Variant and Allele information
+  Bio::LiveSeq::AlleleI
+
+  Bio::LiveSeq::VariantI isa Bio::MarkerI
+    Bio::PrimarySeqI getFwdPrimer()
+    Bio::PrimarySeqI getRevPrimer()
+    // I assume there should always be a primary set of 
+    // of markers which defined start/end points 
+    // should this be hidden inside more methods to 
+    // handle RFLP, etc?
+    Bio::LiveSeq::AlleleI getAlleles()
+     
+ Implementations
+   Bio::Marker::RestrictionEnzyme isa Bio::MarkerI
+   Bio::Marker::STS isa Bio::MarkerI
+   Bio::Marker::Microsat isa Bio::LiveSeq::VariantI
+   Bio::Marker::CytogeneticBand isa Bio::MarkerI
+   Bio::Marker::VLTR isa Bio::MarkerI
+   Bio::Marker::SNP
+   Bio::Bin 
+   
+   Bio::Map::Cytogenetic isa Bio::Map::MapI 
+     
+   Bio::Map::RadiationHybrid
+   Bio::Map::Genetic
+   Bio::Map::GeneticMap 
+     string	       getSex         // code as a string? - only 
+   Bio::Map::RFLP
+   Bio::Map::Sequence // Should probably be Bio::Assembly or these two
+                      // need to work together Sequence Map could be 
+		      // be built with Bio::Assemblies
+   Bio::Map::Haplotype // what would this entail -- SNP components?
+   
+
+Caveats, questions, etc
+-----------------------
+Namespace is very flexible here.  
+
+An important useful result of this toolkit will be the ability to
+programatically go from one map to another.  So Querying Maps for a
+marker - perhaps based on that marker's unique id will allow on to
+compare distances on different maps or go from genetic to sequence
+maps very easily.  
+
+Not sure if we should be doing a Bio::ChromosomeI or can just code
+with a string/numeric?  Does Polyploidy cause any problems in maps or
+just in population/allele issues?

@@ -1,0 +1,348 @@
+<entrySet level="1" version="1" xmlns="net:sf:psidev:mi" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="net:sf:psidev:mi http://psidev.sourceforge.net/mi/xml/src/MIF.xsd">
+     <entry>
+       <source releaseDate="2005-12-05">
+         <names>
+           <shortLabel>European Bioinformatics Institute</shortLabel>
+         </names>
+         <bibref>
+           <xref>
+             <primaryRef db="pubmed" id="14681455"/>
+           </xref>
+         </bibref>
+         <xref>
+           <primaryRef db="psi-mi" id="MI:0469"/>
+         </xref>
+         <attributeList>
+           <attribute name="postalAddress">Wellcome Trust Genome Campus, Hinxton, Cambridge, CB10 1SD, United Kingdom</attribute>
+           <attribute name="url">http://www.ebi.ac.uk</attribute>
+         </attributeList>
+       </source>
+       <experimentList>
+         <experimentDescription id="EBI-617684">
+           <names>
+             <shortLabel>eyckerman-2001-1</shortLabel>
+             <fullName>Design and application of a cytokine-receptor-based interaction trap.</fullName>
+           </names>
+           <bibref>
+             <xref>
+               <primaryRef db="pubmed" id="11781573"/>
+             </xref>
+           </bibref>
+           <xref>
+             <primaryRef db="intact" id="EBI-617684" secondary="eyckerman-2001-1"/>
+             <secondaryRef db="newt" id="10090" secondary="mouse"/>
+             <secondaryRef db="newt" id="10633" secondary="sv40"/>
+             <secondaryRef db="newt" id="9606" secondary="human"/>
+           </xref>
+           <hostOrganism ncbiTaxId="9606">
+             <names>
+               <shortLabel>human-293t</shortLabel>
+               <fullName>Homo sapiens 293 cells transformed with SV40 large T antigen</fullName>
+             </names>
+             <cellType>
+               <names>
+                 <shortLabel>293t</shortLabel>
+                 <fullName>293 cells expressing SV40 large T antigen.</fullName>
+               </names>
+               <xref>
+                 <primaryRef db="pubmed" id="3031469"/>
+                 <secondaryRef db="cabri" id="ICLC HTL04001"/>
+               </xref>
+             </cellType>
+           </hostOrganism>
+           <interactionDetection>
+             <names>
+               <shortLabel>mappit</shortLabel>
+               <fullName>mammalian protein protein interaction trap</fullName>
+             </names>
+             <xref>
+               <primaryRef db="psi-mi" id="MI:0231"/>
+               <secondaryRef db="pubmed" id="12853652"/>
+             </xref>
+           </interactionDetection>
+           <participantDetection>
+             <names>
+               <shortLabel>predetermined</shortLabel>
+               <fullName>predetermined participant</fullName>
+             </names>
+             <xref>
+               <primaryRef db="psi-mi" id="MI:0396"/>
+               <secondaryRef db="pubmed" id="7940758"/>
+               <secondaryRef db="pubmed" id="14755292"/>
+             </xref>
+           </participantDetection>
+           <attributeList>
+             <attribute name="exp-modification">MAPPIT bait construct - a chimeric cytokine receptor composed of the extracellular region of homodimeric EpoR, fused to the transmembrane and cytosolic domains of the leptin receptor wherein all the tyrosine residues are mutated to phenylalanines. A bait, consisting of a region of the bait protein is C-terminally fused to this signaling-deficient receptor. The interaction is detected via activation of STAT3 and a subsequent reporter gene activation.</attribute>
+             <attribute name="figure-legend">2b, 2c, 5</attribute>
+             <attribute name="contact-email">jan.tavernier@ugent.be</attribute>
+             <attribute name="author-list">Eyckerman S., Verhee A., der Heyden JV., Lemmens I., Ostade XV., Vandekerckhove J., Tavernier J.</attribute>
+           </attributeList>
+         </experimentDescription>
+       </experimentList>
+       <interactorList>
+         <proteinInteractor id="EBI-617698">
+           <names>
+             <shortLabel>tala_sv40</shortLabel>
+             <fullName>Large T antigen</fullName>
+           </names>
+           <xref>
+             <primaryRef db="uniprotkb" id="P03070" secondary="tala_sv40" version="SP_48"/>
+             <secondaryRef db="interpro" id="IPR001623" secondary="DnaJ_N"/>
+             <secondaryRef db="interpro" id="IPR010932" secondary="Polyoma_lg_T_C"/>
+             <secondaryRef db="interpro" id="IPR003133" secondary="T_Ag_DNA_bind"/>
+             <secondaryRef db="intact" id="EBI-617698" secondary="tala_sv40"/>
+           </xref>
+           <organism ncbiTaxId="10633">
+             <names>
+               <shortLabel>sv40</shortLabel>
+               <fullName>Simian virus 40</fullName>
+             </names>
+           </organism>
+           <sequence>MDKVLNREESLQLMDLLGLERSAWGNIPLMRKAYLKKCKEFHPDKGGDEEKMKKMNTLYKKMEDGVKYAHQPDFGGFWDATEIPTYGTDEWEQWWNAFNEENLFCSEEMPSSDDEATADSQHSTPPKKKRKVEDPKDFPSELLSFLSHAVFSNRTLACFAIYTTKEKAALLYKKIMEKYSVTFISRHNSYNHNILFFLTPHRHRVSAINNYAQKLCTFSFLICKGVNKEYLMYSALTRDPFSVIEESLPGGLKEHDFNPEEAEETKQVSWKLVTEYAMETKCDDVLLLLGMYLEFQYSFEMCLKCIKKEQPSHYKYHEKHYANAAIFADSKNQKTICQQAVDTVLAKKRVDSLQLTREQMLTNRFNDLLDRMDIMFGSTGSADIEEWMAGVAWLHCLLPKMDSVVYDFLKCMVYNIPKKRYWLFKGPIDSGKTTLAAALLELCGGKALNVNLPLDRLNFELGVAIDQFLVVFEDVKGTGGESRDLPSGQGINNLDNLRDYLDGSVKVNLEKKHLNKRTQIFPPGIVTMNEFSVPKTLQARFVKQIDFRAKDYLKHCLERSEFLLEKRIIQSGIALLLMLIWYRPVAEFAQSIQSRIVEWKERLDKEFSLSVYQKMKFNVAMGIGVLDWLRNSDDDDEDSQENADKNEDGGEKNMEDSGHETGIDSQSQGSFQAPQSSQSVHDHNQPYHICRGFTCFKKPPTPPPEPET</sequence>
+         </proteinInteractor>
+         <proteinInteractor id="EBI-474016">
+           <names>
+             <shortLabel>p53_mouse</shortLabel>
+             <fullName>Cellular tumor antigen p53</fullName>
+           </names>
+           <xref>
+             <primaryRef db="uniprotkb" id="P02340" secondary="p53_mouse" version="SP_48"/>
+             <secondaryRef db="go" id="GO:0005829" secondary="C:cytosol"/>
+             <secondaryRef db="go" id="GO:0005739" secondary="C:mitochondrion"/>
+             <secondaryRef db="go" id="GO:0005730" secondary="C:nucleolus"/>
+             <secondaryRef db="go" id="GO:0005524" secondary="F:ATP binding"/>
+             <secondaryRef db="go" id="GO:0005507" secondary="F:copper ion binding"/>
+             <secondaryRef db="go" id="GO:0000739" secondary="F:DNA strand annealing activit"/>
+             <secondaryRef db="go" id="GO:0005515" secondary="F:protein binding"/>
+             <secondaryRef db="go" id="GO:0003700" secondary="F:transcription factor activit"/>
+             <secondaryRef db="go" id="GO:0006915" secondary="P:apoptosis"/>
+             <secondaryRef db="go" id="GO:0006284" secondary="P:base-excision repair"/>
+             <secondaryRef db="go" id="GO:0008635" secondary="P:caspase activation via cytoc"/>
+             <secondaryRef db="go" id="GO:0007569" secondary="P:cell aging"/>
+             <secondaryRef db="go" id="GO:0007050" secondary="P:cell cycle arrest"/>
+             <secondaryRef db="go" id="GO:0030154" secondary="P:cell differentiation"/>
+             <secondaryRef db="go" id="GO:0042771" secondary="P:DNA damage response, signal"/>
+             <secondaryRef db="go" id="GO:0043066" secondary="P:negative regulation of apopt"/>
+             <secondaryRef db="go" id="GO:0030308" secondary="P:negative regulation of cell"/>
+             <secondaryRef db="go" id="GO:0008156" secondary="P:negative regulation of DNA r"/>
+             <secondaryRef db="go" id="GO:0048147" secondary="P:negative regulation of fibro"/>
+             <secondaryRef db="go" id="GO:0006289" secondary="P:nucleotide-excision repair"/>
+             <secondaryRef db="go" id="GO:0000060" secondary="P:protein-nucleus import, tran"/>
+             <secondaryRef db="go" id="GO:0042127" secondary="P:regulation of cell prolifera"/>
+             <secondaryRef db="go" id="GO:0006355" secondary="P:regulation of transcription,"/>
+             <secondaryRef db="go" id="GO:0006974" secondary="P:response to DNA damage stimu"/>
+             <secondaryRef db="go" id="GO:0009411" secondary="P:response to UV"/>
+             <secondaryRef db="go" id="GO:0010165" secondary="P:response to X-ray"/>
+             <secondaryRef db="interpro" id="IPR002117" secondary="P53"/>
+             <secondaryRef db="interpro" id="IPR011615" secondary="p53_DNA_bind"/>
+             <secondaryRef db="interpro" id="IPR010991" secondary="p53_tetrameristn"/>
+             <secondaryRef db="uniprotkb" id="Q9QUP3" secondary="p53_mouse" version="SP_48"/>
+             <secondaryRef db="go" id="GO:0005657" secondary="C:replication fork"/>
+             <secondaryRef db="go" id="GO:0045941" secondary="P:positive regulation of trans"/>
+             <secondaryRef db="interpro" id="IPR012346" secondary="P53_RUNT_DNA_bd"/>
+             <secondaryRef db="intact" id="EBI-474016" secondary="p53_mouse"/>
+           </xref>
+           <organism ncbiTaxId="10090">
+             <names>
+               <shortLabel>mouse</shortLabel>
+               <fullName>Mus musculus</fullName>
+             </names>
+           </organism>
+           <sequence>MTAMEESQSDISLELPLSQETFSGLWKLLPPEDILPSPHCMDDLLLPQDVEEFFEGPSEALRVSGAPAAQDPVTETPGPVAPAPATPWPLSSFVPSQKTYQGNYGFHLGFLQSGTAKSVMCTYSPPLNKLFCQLAKTCPVQLWVSATPPAGSRVRAMAIYKKSQHMTEVVRRCPHHERCSDGDGLAPPQHLIRVEGNLYPEYLEDRQTFRHSVVVPYEPPEAGSEYTTIHYKYMCNSSCMGGMNRRPILTIITLEDSSGNLLGRDSFEVRVCACPGRDRRTEEENFRKKEVLCPELPPGSAKRALPTCTSASPPQKKKPLDGEYFTLKIRGRKRFEMFRELNEALELKDAHATEESGDSRAHSSYLKTKKGQSTSRHKKTMVKKVGPDSD</sequence>
+         </proteinInteractor>
+         <proteinInteractor id="EBI-617321">
+           <names>
+             <shortLabel>epor_human</shortLabel>
+             <fullName>Erythropoietin receptor precursor</fullName>
+           </names>
+           <xref>
+             <primaryRef db="uniprotkb" id="P19235" secondary="epor_human" version="SP_48"/>
+             <secondaryRef db="go" id="GO:0005887" secondary="C:integral to plasma membrane"/>
+             <secondaryRef db="go" id="GO:0004900" secondary="F:erythropoietin receptor acti"/>
+             <secondaryRef db="go" id="GO:0007165" secondary="P:signal transduction"/>
+             <secondaryRef db="interpro" id="IPR002996" secondary="Cytkn_recept_B/G"/>
+             <secondaryRef db="interpro" id="IPR009167" secondary="EPO_receptor"/>
+             <secondaryRef db="interpro" id="IPR003961" secondary="FN_III"/>
+             <secondaryRef db="interpro" id="IPR008957" secondary="FN_III-like"/>
+             <secondaryRef db="interpro" id="IPR003528" secondary="HemptreceptL_F1"/>
+             <secondaryRef db="uniprotkb" id="Q15443" secondary="epor_human" version="SP_48"/>
+             <secondaryRef db="intact" id="EBI-617321" secondary="epor_human"/>
+           </xref>
+           <organism ncbiTaxId="9606">
+             <names>
+               <shortLabel>human</shortLabel>
+               <fullName>Homo sapiens</fullName>
+             </names>
+           </organism>
+           <sequence>MDHLGASLWPQVGSLCLLLAGAAWAPPPNLPDPKFESKAALLAARGPEELLCFTERLEDLVCFWEEAASAGVGPGNYSFSYQLEDEPWKLCRLHQAPTARGAVRFWCSLPTADTSSFVPLELRVTAASGAPRYHRVIHINEVVLLDAPVGLVARLADESGHVVLRWLPPPETPMTSHIRYEVDVSAGNGAGSVQRVEILEGRTECVLSNLRGRTRYTFAVRARMAEPSFGGFWSAWSEPVSLLTPSDLDPLILTLSLILVVILVLLTVLALLSHRRALKQKIWPGIPSPESEFEGLFTTHKGNFQLWLYQNDGCLWWSPCTPFTEDPPASLEVLSERCWGTMQAVEPGTDDEGPLLEPVGSEHAQDTYLVLDKWLLPRNPPSEDLPGPGGSVDIVAMDEGSEASSCSSALASKPSPEGASAASFEYTILDPSSQLLRPWTLCPELPPTPPHLKYLYLVVSDSGISTDYSSGDSQGAQGGLSDGPYSNPYENSLIPAAEPLPPSYVACS</sequence>
+         </proteinInteractor>
+         <proteinInteractor id="EBI-617489">
+           <names>
+             <shortLabel>cish_mouse</shortLabel>
+             <fullName>Cytokine-inducible SH2-containing protein</fullName>
+           </names>
+           <xref>
+             <primaryRef db="uniprotkb" id="Q62225" secondary="cish_mouse" version="SP_48"/>
+             <secondaryRef db="go" id="GO:0005886" secondary="C:plasma membrane"/>
+             <secondaryRef db="go" id="GO:0005515" secondary="F:protein binding"/>
+             <secondaryRef db="go" id="GO:0007205" secondary="P:protein kinase C activation"/>
+             <secondaryRef db="interpro" id="IPR000980" secondary="SH2"/>
+             <secondaryRef db="interpro" id="IPR001496" secondary="SOCS_C"/>
+             <secondaryRef db="intact" id="EBI-617489" secondary="cish_mouse"/>
+           </xref>
+           <organism ncbiTaxId="10090">
+             <names>
+               <shortLabel>mouse</shortLabel>
+               <fullName>Mus musculus</fullName>
+             </names>
+           </organism>
+           <sequence>MVLCVQGSCPLLAVEQIGRRPLWAQSLELPGPAMQPLPTGAFPEEVTEETPVQAENEPKVLDPEGDLLCIAKTFSYLRESGWYWGSITASEARQHLQKMPEGTFLVRDSTHPSYLFTLSVKTTRGPTNVRIEYADSSFRLDSNCLSRPRILAFPDVVSLVQHYVASCAADTRSDSPDPAPTPALPMSKQDAPSDSVLPIPVATAVHLKLVQPFVRRSSARSLQHLCRLVINRLVADVDCLPLPRRMADYLRQYPFQL</sequence>
+         </proteinInteractor>
+         <proteinInteractor id="EBI-617737">
+           <names>
+             <shortLabel>socs2_human</shortLabel>
+             <fullName>Suppressor of cytokine signaling 2</fullName>
+           </names>
+           <xref>
+             <primaryRef db="uniprotkb" id="O14508" secondary="socs2_human" version="SP_49"/>
+             <secondaryRef db="go" id="GO:0005737" secondary="C:cytoplasm"/>
+             <secondaryRef db="go" id="GO:0005131" secondary="F:growth hormone receptor bind"/>
+             <secondaryRef db="go" id="GO:0005159" secondary="F:insulin-like growth factor r"/>
+             <secondaryRef db="go" id="GO:0008269" secondary="F:JAK pathway signal transduct"/>
+             <secondaryRef db="go" id="GO:0005148" secondary="F:prolactin receptor binding"/>
+             <secondaryRef db="go" id="GO:0005070" secondary="F:SH3/SH2 adaptor activity"/>
+             <secondaryRef db="go" id="GO:0006916" secondary="P:anti-apoptosis"/>
+             <secondaryRef db="go" id="GO:0007259" secondary="P:JAK-STAT cascade"/>
+             <secondaryRef db="go" id="GO:0045666" secondary="P:positive regulation of neuro"/>
+             <secondaryRef db="go" id="GO:0040014" secondary="P:regulation of body size"/>
+             <secondaryRef db="go" id="GO:0001558" secondary="P:regulation of cell growth"/>
+             <secondaryRef db="go" id="GO:0009966" secondary="P:regulation of signal transdu"/>
+             <secondaryRef db="interpro" id="IPR000980" secondary="SH2"/>
+             <secondaryRef db="interpro" id="IPR001496" secondary="SOCS_C"/>
+             <secondaryRef db="uniprotkb" id="O14542" secondary="socs2_human" version="SP_49"/>
+             <secondaryRef db="uniprotkb" id="O95102" secondary="socs2_human" version="SP_49"/>
+             <secondaryRef db="uniprotkb" id="Q9UKS5" secondary="socs2_human" version="SP_49"/>
+             <secondaryRef db="go" id="GO:0005515" secondary="F:protein binding"/>
+             <secondaryRef db="intact" id="EBI-617737" secondary="socs2_human"/>
+           </xref>
+           <organism ncbiTaxId="9606">
+             <names>
+               <shortLabel>human</shortLabel>
+               <fullName>Homo sapiens</fullName>
+             </names>
+           </organism>
+           <sequence>MTLRCLEPSGNGGEGTRSQWGTAGSAEEPSPQAARLAKALRELGQTGWYWGSMTVNEAKEKLKEAPEGTFLIRDSSHSDYLLTISVKTSAGPTNLRIEYQDGKFRLDSIICVKSKLKQFDSVVHLIDYYVQMCKDKRTGPEAPRNGTVHLYLTKPLYTSAPSLQHLCRLTINKCTGAIWGLPLPTRLKDYLEEYKFQV</sequence>
+         </proteinInteractor>
+       </interactorList>
+       <interactionList>
+         <interaction>
+           <names>
+             <shortLabel>sv40-tp53-1</shortLabel>
+             <fullName>Interactions between SV40 large T antigen and murine p53 demonstrated by MAPPIT</fullName>
+           </names>
+           <experimentList>
+             <experimentRef ref="EBI-617684"/>
+           </experimentList>
+           <participantList>
+             <proteinParticipant>
+               <proteinInteractorRef ref="EBI-617698"/>
+               <role>prey</role>
+             </proteinParticipant>
+             <proteinParticipant>
+               <proteinInteractorRef ref="EBI-474016"/>
+               <role>bait</role>
+             </proteinParticipant>
+           </participantList>
+           <interactionType>
+             <names>
+               <shortLabel>physical interaction</shortLabel>
+               <fullName>physical interaction</fullName>
+             </names>
+             <xref>
+               <primaryRef db="psi-mi" id="MI:0218"/>
+               <secondaryRef db="pubmed" id="14755292"/>
+             </xref>
+           </interactionType>
+           <xref>
+             <primaryRef db="intact" id="EBI-617704" secondary="sv40-tp53-1"/>
+           </xref>
+           <attributeList>
+             <attribute name="kd">1.0</attribute>
+           </attributeList>
+         </interaction>
+         <interaction>
+           <names>
+             <shortLabel>epor-cish-4</shortLabel>
+             <fullName>Interaction between human EpoR and Murine CIS-1 demonstrated by MAPPIT</fullName>
+           </names>
+           <experimentList>
+             <experimentRef ref="EBI-617684"/>
+           </experimentList>
+           <participantList>
+             <proteinParticipant>
+               <proteinInteractorRef ref="EBI-617321"/>
+               <role>bait</role>
+             </proteinParticipant>
+             <proteinParticipant>
+               <proteinInteractorRef ref="EBI-617489"/>
+               <role>prey</role>
+             </proteinParticipant>
+           </participantList>
+           <interactionType>
+             <names>
+               <shortLabel>physical interaction</shortLabel>
+               <fullName>physical interaction</fullName>
+             </names>
+             <xref>
+               <primaryRef db="psi-mi" id="MI:0218"/>
+               <secondaryRef db="pubmed" id="14755292"/>
+             </xref>
+           </interactionType>
+           <xref>
+             <primaryRef db="intact" id="EBI-617720" secondary="epor-cish-4"/>
+           </xref>
+           <attributeList>
+             <attribute name="kd">1.0</attribute>
+           </attributeList>
+         </interaction>
+         <interaction>
+           <names>
+             <shortLabel>epor-socs2-3</shortLabel>
+             <fullName>Interaction between human EpoR and SOCS2 demonstrated by MAPPIT</fullName>
+           </names>
+           <experimentList>
+             <experimentRef ref="EBI-617684"/>
+           </experimentList>
+           <participantList>
+             <proteinParticipant>
+               <proteinInteractorRef ref="EBI-617737"/>
+               <role>prey</role>
+             </proteinParticipant>
+             <proteinParticipant>
+               <proteinInteractorRef ref="EBI-617321"/>
+               <role>bait</role>
+             </proteinParticipant>
+           </participantList>
+           <interactionType>
+             <names>
+               <shortLabel>physical interaction</shortLabel>
+               <fullName>physical interaction</fullName>
+             </names>
+             <xref>
+               <primaryRef db="psi-mi" id="MI:0218"/>
+               <secondaryRef db="pubmed" id="14755292"/>
+             </xref>
+           </interactionType>
+           <xref>
+             <primaryRef db="intact" id="EBI-617778" secondary="epor-socs2-3"/>
+           </xref>
+           <attributeList>
+             <attribute name="caution">SOCS2 described as fragment but no detail given</attribute>
+             <attribute name="agonist">Erythropoietin</attribute>
+             <attribute name="resulting-ptm">Phosphorylation of SOCS2 - dependent on treatment of cells with erythropoietin</attribute>
+             <attribute name="kd">1.0</attribute>
+           </attributeList>
+         </interaction>
+       </interactionList>
+     </entry>
+   </entrySet>

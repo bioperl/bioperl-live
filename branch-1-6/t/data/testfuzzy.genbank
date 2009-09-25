@@ -1,0 +1,78 @@
+LOCUS       DDU63596      310 bp    DNA             INV       14-MAY-1999
+DEFINITION  Dictyostelium discoideum Tdd-4 transposable element flanking
+            sequence, clone p427/428 right end.
+ACCESSION   U63596
+NID         g2393749
+KEYWORDS    .
+SOURCE      Dictyostelium discoideum.
+  ORGANISM  Dictyostelium discoideum
+            Eukaryota; Dictyosteliida; Dictyostelium.
+REFERENCE   1  (bases 1 to 310)
+  AUTHORS   Wells,D.J.
+  TITLE     Tdd-4, a DNA transposon of Dictyostelium that encodes proteins
+            similar to LTR retroelement integrases
+  JOURNAL   Nucleic Acids Res. 27 (11), 2408-2415 (1999)
+REFERENCE   2  (bases 1 to 310)
+  AUTHORS   Wells,D.J. and Welker,D.L.
+  TITLE     Dictyostelium discoideum Tdd-4 transposable element, right end
+            flanking sequence from clone p427/428
+  JOURNAL   Unpublished
+REFERENCE   3  (bases 1 to 310)
+  AUTHORS   Wells,D.J. and Welker,D.L.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (11-JUL-1996) Biology, Utah State Univ., Logan, UT
+            84322-5305, USA
+FEATURES             Location/Qualifiers
+     source          1..310
+                     /organism="Dictyostelium discoideum"
+                     /strain="AX4"
+                     /db_xref="taxon:44689"
+                     /clone="p427/428"
+     misc_feature    5.12
+                     /note="Fuzzy location"
+     misc_feature    <5..12
+                     /note="Fuzzy location2"
+     misc_feature    5>..12
+                     /note="Fuzzy location3"
+     misc_feature    5..<12
+                     /note="Fuzzy location4"
+     misc_feature    5..12>
+                     /note="Fuzzy location5"
+     misc_feature    <5..12>
+                     /note="Fuzzy location6"
+     misc_feature    5.12>
+                     /note="Fuzzy location7"
+     misc_feature    <5.12>
+                     /note="Fuzzy location8"
+     misc_feature    5>.12>
+                     /note="Fuzzy location9"
+     misc_feature    5.<12
+                     /note="Fuzzy location10"
+     misc_feature    5.60..<120
+                     /note="Fuzzy location11"
+     misc_feature    5^9..>200
+                     /note="Fuzzy location12"
+     misc_feature    5.10..12.15
+                     /note="Fuzzy location13"
+     misc_feature    5.10
+                     /note="Fuzzy location14"
+     misc_feature    join(J00194:(100..202),1..245,300..422)
+                     /note="Location partly in another entry"
+     misc_feature    complement(join(1..30,30.40,4^8,40.30..90))
+	             /note="complement of join"
+     misc_feature    order(1..30, 31..40)
+		     /note="location uses order"
+     misc_feature    order(AF183172.1:1..30, 31..40)
+		     /note="location uses order in another sequence"
+     misc_feature    order(AF183172.1:<1..30, 31..>342)
+		     /note="uses order and fuzzy locs in another sequence"
+     mRNA            join(complement(83202..83329),84248..84996)
+BASE COUNT      118 a     46 c     67 g     79 t
+ORIGIN      
+        1 gtgacagttg gctgtcagac atacaatgat tgtttagaag aggagaagat tgatccggag
+       61 taccgtgata gtattttaaa aactatgaaa gcgggaatac ttaatggtaa actagttaga
+      121 ttatgtgacg tgccaagggg tgtagatgta gaaattgaaa caactggtct aaccgattca
+      181 gaaggagaaa gtgaatcaaa agaagaagag tgatgatgaa tagccaccat tactgcatac
+      241 tgtagccctt acccttgtcg caccattagc cattaataaa aataaaaaat tatataaaaa
+      301 ttacacccat 
+//

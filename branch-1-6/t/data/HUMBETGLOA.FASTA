@@ -1,0 +1,2549 @@
+ FASTA searches a protein or DNA sequence data bank
+ version 3.3t08 Jan. 17, 2001
+Please cite:
+ W.R. Pearson & D.J. Lipman PNAS (1988) 85:2444-2448
+
+t/data/HUMBETGLOA.fasta: 3002 nt
+ >HUMBETGLOA Human haplotype C4 beta-globin gene, complete cds. 
+ vs  /data_2/jason/blastdb/dros_clones.2.5 library
+searching /data_2/jason/blastdb/dros_clones.2.5 library
+
+       opt      E()
+< 20     4     0:==
+  22     4     0:==         one = represents 2 library sequences
+  24    11     0:======
+  26     9     0:=====
+  28    37     0:===================
+  30    48     3:=*======================
+  32    43    10:====*=================
+  34    56    27:=============*==============
+  36    53    56:===========================*
+  38    67    93:==================================            *
+  40    81   130:=========================================                  *
+  42    81   159:=========================================                  *
+  44    98   175:=================================================          *
+  46    86   178:===========================================                *
+  48    77   171:=======================================                    *
+  50    94   156:===============================================            *
+  52    93   137:===============================================            *
+  54    70   117:===================================                       *
+  56   108    98:================================================*=====
+  58    84    80:=======================================*==
+  60    70    65:================================*==
+  62    79    52:=========================*==============
+  64    51    41:====================*=====
+  66    38    33:================*==
+  68    51    26:============*=============
+  70    48    20:=========*==============
+  72    41    16:=======*=============
+  74    30    12:=====*=========
+  76    45    10:====*==================
+  78    42     7:===*=================
+  80    30     6:==*============
+  82    30     4:=*=============
+  84    21     4:=*=========
+  86    15     3:=*======
+  88    14     2:*======
+  90    12     2:*=====
+  92    23     1:*===========
+  94    16     1:*=======
+  96    13     1:*======
+  98     7     1:*===
+ 100     7     0:====
+ 102     7     0:====
+ 104    11     0:======
+ 106    10     0:=====
+ 108     8     0:====
+ 110     4     0:==
+ 112     8     0:====
+ 114     2     0:=
+ 116     0     0:
+ 118     5     0:===
+>120     9     0:=====
+112936249 residues in   657 sequences
+  Expectation_n fit: rho(ln(x))= 10.8578+/-0.0125; mu= 7.5547+/- 1.409
+ mean_var=242.9513+/-133.277, 0's: 0 Z-trim: 52  B-trim: 0 in 0/23
+ Lambda= 0.0823
+ Kolmogorov-Smirnov  statistic: 0.2080 (N=29) at  54
+
+FASTA (3.36 June 2000) function [optimized, +5/-4 matrix (5:-4)] ktup: 6
+ join: 82, opt: 67, gap-pen: -16/ -4, width:  16
+ Scan time: 78.670
+The best scores are:                                       opt bits E(1899)
+BACR21I23 : AC009391, 189254 bases, from 3R:10 (73982) [r]  261   44   0.017
+BACR40P19 : AC010667, 159570 bases, from 4:101 (73982) [f]  261   44   0.017
+BACR30L17 : AC012390, 174441 bases, from 4:101 (32481) [f]  261   44   0.018
+BACR44L03 : 172190 bases, from 4:101.          (73982) [r]  256   44   0.026
+BACH57F14 : 103809 bases, from 4:101.          (32829) [r]  254   43   0.033
+BACR19J06 : AC010581, 175053 bases, from 3R:85 (73982) [r]  251   43   0.039
+BACR19J06 : AC010581, 175053 bases, from 3R:85 (73982) [f]  242   42   0.081
+BACR44L03 : 172190 bases, from 4:101.          (73982) [f]  241   42   0.088
+BACR42I20 : AC008195, 164944 bases, from 3R:93 (73982) [f]  238   41    0.11
+BACR32K23BACR03G18 : 350380 bases, from X:14.  (73982) [f]  237   41    0.12
+BACR12J05 : AC011697, 203853 bases, from X:12. (61893) [r]  237   41    0.12
+BACR30J04 : AC008338, 177277 bases, from X:19. (73982) [r]  235   41    0.14
+BACR10C18 : AC011705, 170975 bases, from X:19. (73982) [r]  235   41    0.14
+BACR32M04 : AC008234, 148847 bases, from 3R:85 (73982) [f]  229   40    0.24
+BACR43K14 : AC008356, 162593 bases, from 3R:85 (20633) [f]  229   40    0.27
+BACR39E09 : AC009255, 163990 bases, from 2R:42 (73982) [r]  227   40    0.28
+BACR13P06 : AC008339, 180296 bases, from 2R:42 (73982) [r]  227   40    0.28
+BACR18C01 : AC007808, 167195 bases, from 3R:88 (73982) [f]  226   40     0.3
+BACH59K20 : AC010840, 29516 bases, from 4:101. (29516) [r]  227   40    0.31
+BACR20B21 : AC099010, 166512 bases, from 2L:27 (73982) [r]  225   40    0.33
+BACR13A13 : AC018484, 172748 bases, from 2L:40 (73982) [f]  225   40    0.33
+BACR48D17 : AC008255, 183316 bases, from X:13. (73982) [r]  225   40    0.33
+BACR06H06 : 186935 bases, from 2L:40.          (44975) [f]  225   40    0.35
+BACR22N03 : AC092397, 167201 bases, from 2L:26 (25241) [f]  225   40    0.37
+BACR37K05 : AC011253, 197597 bases, from 3R:84 (55637) [f]  223   40     0.4
+BACR30L17 : AC012390, 174441 bases, from 4:101 (73982) [r]  221   39    0.46
+BACR01O16 : AC093045, 189904 bases, from 2L:29 (73982) [f]  221   39    0.46
+BACR14D22 : AC012164, 169384 bases, from X:17. (73982) [f]  221   39    0.46
+BACR08A11 : 170075 bases, from 2R:42.          (73982) [f]  221   39    0.46
+BACR25O02 : AC018490, 165098 bases, from X:17. (73982) [r]  221   39    0.46
+BACR02B16 : AC008331, 186938 bases, from 2L:29 (44978) [f]  221   39    0.48
+BACR13P06 : AC008339, 180296 bases, from 2R:42 (38336) [f]  221   39    0.49
+BACR11M14 : AC099308, 173101 bases, from X:19. (73982) [f]  219   39    0.54
+BACR15O02 : AC009735, 159478 bases, from 3R:82 (73982) [r]  219   39    0.54
+BACR21E16 : AC009905, 170662 bases, from 2L:36 (73982) [r]  218   39    0.58
+BACR48D17 : AC008255, 183316 bases, from X:13. (73982) [f]  218   39    0.58
+BACR15O02 : AC009735, 159478 bases, from 3R:82 (73982) [f]  217   39    0.63
+BACR30G03 : AC008355, 151500 bases, from 3R:82 (73982) [f]  217   39    0.63
+BACR13P06 : AC008339, 180296 bases, from 2R:42 (73982) [r]  216   39    0.69
+BACR22H11 : AC013431, 191558 bases, from X:13. (73982) [r]  216   39    0.69
+BACR25C18 : AC092401, 185200 bases, from X:13. (73982) [r]  216   39    0.69
+BACR25O02 : AC018490, 165098 bases, from X:17. (73982) [f]  216   39    0.69
+BACR11C03 : AC008220, 186549 bases, from 3R:10 (73982) [f]  216   39    0.69
+BACR06P08 : AC007975, 180630 bases, from 3R:10 (38670) [f]  216   39    0.74
+BACR29F06 : AC008203, 174728 bases, from 3R:95 (73982) [r]  215   39    0.75
+BACR48E23 : AC005721, 203183 bases, from 3R:88 (73982) [r]  215   39    0.75
+BACR22N03 : AC092397, 167201 bases, from 2L:26 (73982) [r]  215   39    0.75
+BACR08H11 : AC008136, 154890 bases, from 3R:88 (73982) [r]  215   39    0.75
+BACR15J11 : AC008202, 186159 bases, from 3R:95 (44199) [r]  215   39    0.79
+BACR14N05 : AC099033, 170299 bases, from 2R:55 (73982) [f]  214   39    0.81
+BACR48A20 : AC011072, 166158 bases, from 2R:55 (73982) [f]  214   39    0.81
+BACR19D23 : AC095014, 170801 bases, from 3R:84 (73982) [r]  214   39    0.81
+BACR19J06 : AC010581, 175053 bases, from 3R:85 (73982) [f]  214   39    0.81
+BACR11B14 : 174999 bases, from 2R:41.          (73982) [r]  213   38    0.88
+BACR06P07 : 187793 bases, from 2R:41.          (45833) [f]  213   38    0.93
+BACR19J06 : AC010581, 175053 bases, from 3R:85 (73982) [r]  212   38    0.96
+BACR25C18 : AC092401, 185200 bases, from X:13. (73982) [f]  210   38     1.1
+BACR22N03 : AC092397, 167201 bases, from 2L:26 (73982) [f]  210   38     1.1
+BACR03L12 : AC008357, 190672 bases, from 3R:86 (73982) [r]  210   38     1.1
+BACR10E07 : AC012675, 176818 bases, from 2L:27 (73982) [f]  210   38     1.1
+BACR22H11 : AC013431, 191558 bases, from X:13. (73982) [f]  210   38     1.1
+BACR19I14 : AC095013, 175648 bases, from 3R:83 (73982) [f]  210   38     1.1
+BACR11C03 : AC008220, 186549 bases, from 3R:10 (73982) [r]  210   38     1.1
+BACR23O04 : AC008316, 160817 bases, from 3R:85 (73982) [r]  210   38     1.1
+BACR28B01 : AC008139, 170675 bases, from 3R:85 (73982) [r]  210   38     1.1
+BACR30F01 : AC008315, 177028 bases, from 3R:85 (73982) [r]  210   38     1.1
+BACR06P08 : AC007975, 180630 bases, from 3R:10 (38670) [r]  210   38     1.2
+BACR30F01 : AC008315, 177028 bases, from 3R:85 (35068) [r]  210   38     1.2
+BACR30G03 : AC008355, 151500 bases, from 3R:82 (73982) [r]  209   38     1.2
+BACR15O02 : AC009735, 159478 bases, from 3R:82 (73982) [r]  209   38     1.2
+BACR21B19 : AC011250, 161692 bases, from 4:101 (73982) [r]  209   38     1.2
+BACR28B01 : AC008139, 170675 bases, from 3R:85 (28715) [r]  210   38     1.2
+BACR10P11 : AC007888, 164035 bases, from 2R:57 (73982) [f]  208   38     1.3
+BACR48E23 : AC005721, 203183 bases, from 3R:88 (73982) [f]  208   38     1.3
+BACR08H11 : AC008136, 154890 bases, from 3R:88 (73982) [f]  208   38     1.3
+BACR28F21 : AC010705, 163958 bases, from X:11. (21998) [f]  209   38     1.4
+BACR02C24 : 234783 bases, from X:12.           (21843) [r]  209   38     1.4
+BACR36J03 : AC091634, 159065 bases, from 2R:50 (73982) [r]  207   38     1.4
+BACR40P19 : AC010667, 159570 bases, from 4:101 (73982) [r]  207   38     1.4
+BACR14P04 : AC007329, 126140 bases, from 2R:50 (73982) [f]  207   38     1.4
+BACR30L17 : AC012390, 174441 bases, from 4:101 (32481) [r]  207   38     1.6
+BACR34M23 : AC008190, 158012 bases, from 3R:83 (73982) [f]  205   38     1.7
+BACR02C19 : AC008189, 188359 bases, from 3R:82 (73982) [r]  205   38     1.7
+BACR24O24 : AC009538, 173927 bases, from 3R:83 (73982) [f]  205   38     1.7
+BACR28F21 : AC010705, 163958 bases, from X:11. (21998) [r]  206   37     1.8
+BACR02C24 : 234783 bases, from X:12.           (21843) [f]  206   37     1.8
+BACR14D22 : AC012164, 169384 bases, from X:17. (73982) [r]  204   37     1.8
+BACR11A04 : AC010916, 165307 bases, from 4:101 (73982) [r]  204   37     1.8
+BACR01N17 : AC009911, 170184 bases, from 2L:38 (73982) [f]  204   37     1.8
+
+>>BACR21I23 : AC009391, 189254 bases, from 3R:100.        (73982 nt)
+rev-comp initn: 188 init1: 188 opt: 261  Z-score: 134.5  bits: 44.2 E(): 0.017
+ 57.303% identity (59.302% ungapped) in 267 nt overlap (289-31:64902-65167)
+
+    320       310       300       290       280       270          
+HUMBE- GATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGTGTATATGTAC
+                                     :::::::::::::::::: : ::::: :: 
+BACR21 GATGTCCTTGGTGGATTATGGTGTTAGGGTATATATATATATATATATATATATATATAT
+           64880     64890     64900     64910     64920     64930 
+
+    260       250       240       230       220       210          
+HUMBE- ACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTTAATTTGCTCATGC
+       : : ::: ::::: ::::::::  ::  :: : :   : : : : :  ::    : :: :
+BACR21 ATATATATATATATATATATATATATATATATATATATATATATATATATAATATAATAC
+           64940     64950     64960     64970     64980     64990 
+
+    200           190       180          170       160       150   
+HUMBE- ATGCTA----ATAAATTATGTCTAAAAATAGAAT---AAATACAAATCAATGTGCTCTGT
+       :   ::    : ::: :::     :::::: :::   ::::: ::  :::  :    :  
+BACR21 AAAATATAATACAAAATATAATACAAAATATAATACAAAATATAATACAAAATATAATAC
+           65000     65010     65020     65030     65040     65050 
+
+            140       130       120       110       100        90  
+HUMBE- GCATTA-GTTACTTATTAGGTTTTGGGAAACAAGAGGTAAAAAACTAGAGACCTCTTAAT
+         : ::   :::  : ::   : :   : : :: :   :: : : :: : :       ::
+BACR21 AAAATATAATACAAAATATAATATAAAATATAATATAAAATATAATATAAAATAAAATAT
+           65060     65070     65080     65090     65100     65110 
+
+             80        70        60        50        40        30  
+HUMBE- GCAGTCAAAAATACAAATAAATAAAAAGTCACTTACAACCCAAAGTGTGACTATCAATGG
+         : : ::: ::: ::  ::::: ::: : :  :: ::   ::: : : : ::: ::   
+BACR21 AAAATAAAATATAAAATAAAATATAAAATAAAATATAAAATAAAATAT-AATATAAAATA
+           65120     65130     65140     65150      65160     65170
+
+             20        10                                          
+HUMBE- GGTAATCAGTGGTGTCAAATAGGAGGT                                 
+                                                                   
+BACR21 TAAAATAAAATATAATATAAAATATAATATAAAATATAATATAAAATATAATATAAAATA
+            65180     65190     65200     65210     65220     65230
+
+>>BACR40P19 : AC010667, 159570 bases, from 4:101.         (73982 nt)
+ initn: 190 init1: 190 opt: 261  Z-score: 134.5  bits: 44.2 E(): 0.017
+ 58.750% identity (60.256% ungapped) in 240 nt overlap (158-392:96540-96778)
+
+       130       140       150       160       170       180       
+HUMBE- CCTAATAAGTAACTAATGCACAGAGCACATTGATTTGTATTTATTCTATTTTTAGACATA
+                                     :::::: :::  : : :::   : : ::: 
+BACR40 ATTACTATATTTACTTTAGCAAACTATTTCTGATTT-TATACACTGTATACATTGCCATT
+   96510     96520     96530     96540      96550     96560        
+
+         190       200       210       220       230       240     
+HUMBE- A--TTTATTAGCATGCATGAGCAAATTAAGAAAAACAACAACAAATGAATGCATATATAT
+       :  : ::: :  ::  :: :  : ::  : : ::: :   : :: :  ::  ::::::::
+BACR40 AGTTATATAAATATATATAACTATATATATATAAATATATATAACTATATATATATATAT
+    96570     96580     96590     96600     96610     96620        
+
+         250       260         270       280       290       300   
+HUMBE- GTATATGTATGTGTGTACATA--TACACATATATATATATATATATTTTTTCTTTTCTTA
+        ::::: ::: : : :: :::  :: : :::::::::::::::::: : :: :: : :  
+BACR40 ATATATATATATATATATATAACTATATATATATATATATATATATATATTTTTATATAT
+    96630     96640     96650     96660     96670     96680        
+
+           310       320       330       340       350       360   
+HUMBE- CCAGAAGGTTTTAATCCAAATAAGGAGAAGATATGCTTAGAACTGAGGTAGAGTTTTCAT
+         :       : :::: :::::   ::  :  :: :::    : : :::    :: :  :
+BACR40 ATATCCTAGCTCAATCTAAATATAAAGTTGGAATACTTTTGCCAGGGGTTTCTTTCTTTT
+    96690     96700     96710     96720     96730     96740        
+
+            370       380       390       400       410       420  
+HUMBE- CCATTC-TGTCCTGTAAGTATTTTGCATATTCTGGAGACGCAGGAAGAGATCCATCTACA
+       :  : : : :  :    :::: :: :::::                              
+BACR40 CTTTCCTTATAATACTGGTATCTTTCATATGACTATATTCCGTAATCTATAAGTCTCTTG
+    96750     96760     96770     96780     96790     96800        
+
+>>BACR30L17 : AC012390, 174441 bases, from 4:101.         (32481 nt)
+ initn: 190 init1: 190 opt: 261  Z-score: 140.2  bits: 44.1 E(): 0.018
+ 58.750% identity (60.256% ungapped) in 240 nt overlap (158-392:157679-157917)
+
+       130       140       150       160       170       180       
+HUMBE- CCTAATAAGTAACTAATGCACAGAGCACATTGATTTGTATTTATTCTATTTTTAGACATA
+                                     :::::: :::  : : :::   : : ::: 
+BACR30 ATTACTATATTTACTTTAGCAAACTATTTCTGATTT-TATACACTGTATACATTGCCATT
+   157650    157660    157670    157680     157690    157700       
+
+         190       200       210       220       230       240     
+HUMBE- A--TTTATTAGCATGCATGAGCAAATTAAGAAAAACAACAACAAATGAATGCATATATAT
+       :  : ::: :  ::  :: :  : ::  : : ::: :   : :: :  ::  ::::::::
+BACR30 AGTTATATAAATATATATAACTATATATATATAAATATATATAACTATATATATATATAT
+    157710    157720    157730    157740    157750    157760       
+
+         250       260         270       280       290       300   
+HUMBE- GTATATGTATGTGTGTACATA--TACACATATATATATATATATATTTTTTCTTTTCTTA
+        ::::: ::: : : :: :::  :: : :::::::::::::::::: : :: :: : :  
+BACR30 ATATATATATATATATATATAACTATATATATATATATATATATATATATTTTTATATAT
+    157770    157780    157790    157800    157810    157820       
+
+           310       320       330       340       350       360   
+HUMBE- CCAGAAGGTTTTAATCCAAATAAGGAGAAGATATGCTTAGAACTGAGGTAGAGTTTTCAT
+         :       : :::: :::::   ::  :  :: :::    : : :::    :: :  :
+BACR30 ATATCCTAGCTCAATCTAAATATAAAGTTGGAATACTTTTGCCAGGGGTTTCTTTCTTTT
+    157830    157840    157850    157860    157870    157880       
+
+            370       380       390       400       410       420  
+HUMBE- CCATTC-TGTCCTGTAAGTATTTTGCATATTCTGGAGACGCAGGAAGAGATCCATCTACA
+       :  : : : :  :    :::: :: :::::                              
+BACR30 CTTTCCTTATAATACTGGTATCTTTCATATGACTATATTCCGTAATCTATAAGTCTCTTG
+    157890    157900    157910    157920    157930    157940       
+
+>>BACR44L03 : 172190 bases, from 4:101.                   (73982 nt)
+rev-comp initn: 206 init1: 206 opt: 256  Z-score: 131.3  bits: 43.6 E(): 0.026
+ 63.054% identity (68.085% ungapped) in 203 nt overlap (325-132:64216-64412)
+
+          350       340       330       320       310       300    
+HUMBE- TCTACCTCAGTTCTAAGCATATCTTCTCCTTATTTGGATTAAAACCTTCTGGTAAGAAAA
+                                     ::: : :: :::::  ::::  ::    ::
+BACR44 ATGATTAGCGAATGATTTGATAATGAAAAATATATTGAATAAAAAATTCTTATACTGCAA
+       64190     64200     64210     64220     64230     64240     
+
+          290       280       270       260       250       240    
+HUMBE- GAAAAAATATATATATATATATATGTGTATATGTACACACATACATATACATATATATG-
+         : : :::::::::::::::::: : :::::  ::: : ::: ::::: ::::::::: 
+BACR44 CCATATATATATATATATATATATATATATATACACATATATATATATATATATATATGT
+       64250     64260     64270     64280     64290     64300     
+
+            230       220       210       200       190            
+HUMBE- -CATTCATTTGTTGTTGTTTTTCTTAATTTGCTCATGCATGCTAATAAATTATGT----C
+         :: ::: : ::   :  :     :::  :  :::  :::  :: ::: : :::     
+BACR44 ATATACATATATTAAGGAGT---AAAATAAGTGCAT--ATGAAAAAAAACTGTGTGAGCA
+       64310     64320        64330       64340     64350     64360
+
+      180        170         160       150       140       130     
+HUMBE- TAA-AAATAGAATAAATACAAAT--CAATGTGCTCTGTGCATTAGTTACTTATTAGGTTT
+       ::: ::::::   : :::  :::  : :::::    :   :: : ::: ::::       
+BACR44 TAACAAATAGCCAAGATAATAATGACGATGTGGCAAGCAGATCA-TTAATTATATTAATA
+            64370     64380     64390     64400      64410         
+
+         120       110       100        90        80        70     
+HUMBE- TGGGAAACAAGAGGTAAAAAACTAGAGACCTCTTAATGCAGTCAAAAATACAAATAAATA
+                                                                   
+BACR44 AAAATAAAAAATTTTGAATCAACGTACATACATATAGTTTACAATACCACAAATTTGGTC
+   64420     64430     64440     64450     64460     64470         
+
+>>BACH57F14 : 103809 bases, from 4:101.                   (32829 nt)
+rev-comp initn: 170 init1: 170 opt: 254  Z-score: 135.7  bits: 43.2 E(): 0.033
+ 60.000% identity (63.559% ungapped) in 250 nt overlap (401-165:84585-84833)
+
+      430       420       410       400       390       380        
+HUMBE- TTTGGGATATGTAGATGGATCTCTTCCTGCGTCTCCAGAATATGCAAAATACTTACA---
+                                     : :: :: :::   ::: : ::  : :   
+BACH57 TTGAAATCCCATTTAAATACATGTACTTAAGCCTTCACAATTGCCAACAAACACAGATAT
+        84560     84570     84580     84590     84600     84610    
+
+         370          360         350        340        330        
+HUMBE- GGACAGAAT---GGATGAAAACTC--TACCTCAGTTCTA-AGCATATCTT-CTCCTTATT
+       :::::::::     :  :: :: :  ::  : : :: :: :  :::: :: : : :::: 
+BACH57 GGACAGAATACCATACTAACACCCCATATATTATTTATATAATATATTTTACACATTATA
+        84620     84630     84640     84650     84660     84670    
+
+      320       310        300       290       280         270     
+HUMBE- TGGATTAAAACCTTCT-GGTAAGAAAAGAAAAAATATATATATATATAT--ATGTGTATA
+       :: ::: : :  :: :   : :   :   : : ::::::::::::::::  :: : ::::
+BACH57 TGTATTTATATTTTATATATTATCTATTTATATATATATATATATATATTAATATATATA
+        84680     84690     84700     84710     84720     84730    
+
+         260       250       240       230       220       210     
+HUMBE- TGTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTTAATTTGCT
+       : :: : : ::  ::::: ::::::::  : : :: :::   : : : : :   : : : 
+BACH57 TATATATATATTAATATATATATATAT-AAATAATATGTATATATATATATATTTATACA
+        84740     84750     84760      84770     84780     84790   
+
+         200       190       180       170       160       150     
+HUMBE- CATGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGCTCTGTGC
+        ::  ::  : ::: : ::: : :: : ::: : :: :::                    
+BACH57 TATATATATTTATATAATATATTTATACATATATTATATAATATATATAATATATATATA
+         84800     84810     84820     84830     84840     84850   
+
+         140       130       120       110       100        90     
+HUMBE- ATTAGTTACTTATTAGGTTTTGGGAAACAAGAGGTAAAAAACTAGAGACCTCTTAATGCA
+                                                                   
+BACH57 TATATATATATATATATAATATATTTATACATATATTTGTTTTCTAAAATTATGACTTCG
+         84860     84870     84880     84890     84900     84910   
+
+>>BACR19J06 : AC010581, 175053 bases, from 3R:85.         (73982 nt)
+rev-comp initn: 195 init1: 195 opt: 251  Z-score: 128.1  bits: 43.0 E(): 0.039
+ 66.901% identity (70.896% ungapped) in 142 nt overlap (289-154:98989-99128)
+
+    320       310       300       290       280       270          
+HUMBE- GATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGTGTATATGTAC
+                                     :: :::: :::::::::::: :::::::: 
+BACR19 TGCACTGGTGTACACGAAGGTGTACGGACTATGTATACATATATATATGTATATATGTAT
+    98960     98970     98980     98990     99000     99010        
+
+    260       250       240       230            220       210     
+HUMBE- ACACATACATATACATATATATGCATTCATTTGTTGT-----TGTTTTTCTTAATTTGCT
+       : : ::: ::::: ::::::::  :::  :::::: :     ::: : :::  ::: : :
+BACR19 ATATATATATATATATATATATATATTTGTTTGTTTTTTAAATGTATCTCTCGATTCGTT
+    99020     99030     99040     99050     99060     99070        
+
+         200       190       180        170       160       150    
+HUMBE- CATGCATGCTAATAAATTATGTCTAA-AAATAGAATAAATACAAATCAATGTGCTCTGTG
+         :  ::   : : :  ::::::::: :  ::  :: :::     ::::: :        
+BACR19 TTTAAATAAAATTGA--TATGTCTAATAGCTATTATCAATCGTTTTCAATTTCAAAAAGT
+    99080     99090       99100     99110     99120     99130      
+
+          140       130       120       110       100        90    
+HUMBE- CATTAGTTACTTATTAGGTTTTGGGAAACAAGAGGTAAAAAACTAGAGACCTCTTAATGC
+                                                                   
+BACR19 TTTGTATTGTATTTCGAAGTAATTCTGTTGCGTTTTCTAATTATAATATTCGGTTTTCCC
+      99140     99150     99160     99170     99180     99190      
+
+>>BACR19J06 : AC010581, 175053 bases, from 3R:85.         (73982 nt)
+ initn: 180 init1: 180 opt: 242  Z-score: 122.3  bits: 41.9 E(): 0.081
+ 82.857% identity (82.857% ungapped) in 70 nt overlap (234-303:98989-99058)
+
+           210       220       230       240       250       260   
+HUMBE- GAGCAAATTAAGAAAAACAACAACAAATGAATGCATATATATGTATATGTATGTGTGTAC
+                                     ::: ::: :::: ::::::::: : :::: 
+BACR19 TGCACTGGTGTACACGAAGGTGTACGGACTATGTATACATATATATATGTATATATGTAT
+    98960     98970     98980     98990     99000     99010        
+
+           270       280       290       300       310       320   
+HUMBE- ATATACACATATATATATATATATATTTTTTCTTTTCTTACCAGAAGGTTTTAATCCAAA
+       ::::: : :::::::::::::::::::: ::  ::: :::                    
+BACR19 ATATATATATATATATATATATATATTTGTTTGTTTTTTAAATGTATCTCTCGATTCGTT
+    99020     99030     99040     99050     99060     99070        
+
+           330       340       350       360       370       380   
+HUMBE- TAAGGAGAAGATATGCTTAGAACTGAGGTAGAGTTTTCATCCATTCTGTCCTGTAAGTAT
+                                                                   
+BACR19 TTTAAATAAAATTGATATGTCTAATAGCTATTATCAATCGTTTTCAATTTCAAAAAGTTT
+    99080     99090     99100     99110     99120     99130        
+
+>>BACR44L03 : 172190 bases, from 4:101.                   (73982 nt)
+ initn: 211 init1: 211 opt: 241  Z-score: 121.7  bits: 41.8 E(): 0.088
+ 66.418% identity (67.939% ungapped) in 134 nt overlap (185-317:64197-64328)
+
+          160       170       180       190       200       210    
+HUMBE- CATTGATTTGTATTTATTCTATTTTTAGACATAATTTATTAGCATGCATGAGCAAATTAA
+                                     :: ::::  ::  ::: :  :   : : ::
+BACR44 TTAAAACCATACATGCCGAATGATTAGCGAATGATTTGATA--ATGAAAAATATATTGAA
+      64170     64180     64190     64200       64210     64220    
+
+          220       230       240       250       260       270    
+HUMBE- GAAAAACAACAACAAATGAATGCATATATATGTATATGTATGTGTGTACATATACACATA
+        :::::   :    : :: :  ::::::::: ::::: ::: : : :: :::::::::::
+BACR44 TAAAAAATTCTTATACTGCAACCATATATATATATATATATATATATATATATACACATA
+        64230     64240     64250     64260     64270     64280    
+
+          280        290       300       310       320       330   
+HUMBE- TATATATATATATAT-TTTTTCTTTTCTTACCAGAAGGTTTTAATCCAAATAAGGAGAAG
+       ::::::::::::::: : : : : : : ::    ::::  : ::                
+BACR44 TATATATATATATATATATGTATATACATATATTAAGGAGTAAAATAAGTGCATATGAAA
+        64290     64300     64310     64320     64330     64340    
+
+           340       350       360       370       380       390   
+HUMBE- ATATGCTTAGAACTGAGGTAGAGTTTTCATCCATTCTGTCCTGTAAGTATTTTGCATATT
+                                                                   
+BACR44 AAAAACTGTGTGAGCATAACAAATAGCCAAGATAATAATGACGATGTGGCAAGCAGATCA
+        64350     64360     64370     64380     64390     64400    
+
+>>BACR42I20 : AC008195, 164944 bases, from 3R:93.         (73982 nt)
+ initn: 118 init1: 118 opt: 238  Z-score: 119.7  bits: 41.5 E(): 0.11
+ 68.908% identity (70.690% ungapped) in 119 nt overlap (197-315:52925-53040)
+
+        170       180       190       200       210       220      
+HUMBE- TTTATTCTATTTTTAGACATAATTTATTAGCATGCATGAGCAAATTAAGAAAAACAACAA
+                                     ::  ::: :   :::: :     ::  : :
+BACR42 ATCAACCAAACAATGGCAGCGACATCCTCCCACTCATCATTCAATTTACCGCCACGCCGA
+        52900     52910     52920     52930     52940     52950    
+
+        230       240       250       260       270       280      
+HUMBE- CAAATGAATGCATATATATGTATATGTATGTGTGTACATATACACATATATATATATATA
+        ::::  :: :: : : :  ::::: :::::::::: ::::: : :::::::::: ::: 
+BACR42 AAAATCCATACAAAAACA--TATATATATGTGTGTATATATATATATATATATATGTATT
+        52960     52970       52980     52990     53000     53010  
+
+        290       300       310       320       330       340      
+HUMBE- TATTTTTTCTTTTCTTACCAGAAGGTTTTAATCCAAATAAGGAGAAGATATGCTTAGAAC
+       :: ::  : ::::: :: :: ::::::::                               
+BACR42 TA-TTGATATTTTCATAACAAAAGGTTTTTCGTTGTCGGTTTTTGGTGTCGTGTTTTGGT
+           53020     53030     53040     53050     53060     53070 
+
+>>BACR32K23BACR03G18 : 350380 bases, from X:14.           (73982 nt)
+ initn: 194 init1: 194 opt: 237  Z-score: 119.1  bits: 41.3 E(): 0.12
+ 64.667% identity (68.794% ungapped) in 150 nt overlap (189-333:115618-115763)
+
+      160       170       180       190       200       210        
+HUMBE- GATTTGTATTTATTCTATTTTTAGACATAATTTATTAGCATGCATGAGCAAATTAAGAAA
+                                     ::: :  : :: :::  : : : : : : :
+BACR32 TCGCCGTGGTAGGTATTCAGCTATTCTATTTTTTTCCGAATTCATATGAATAATTATATA
+    115590    115600    115610    115620    115630    115640       
+
+      220       230       240       250       260       270        
+HUMBE- AACAACAACAAATGAATGCATATATATGTATATGTATGTGTGTACATATACACATATATA
+        ::    : : ::  :: ::::::::: ::::: ::: : :::: :: :: : :::::::
+BACR32 TAC----ATATATATATACATATATATCTATATATATATTTGTATATTTATATATATATA
+    115650        115660    115670    115680    115690    115700   
+
+      280       290        300       310           320       330   
+HUMBE- TATATATATATTT-TTTCTTTTCTTACCAGAAGGTTTTAA----TCCAAATAAGGAGAAG
+        :::::::::::: ::: : :: : :    :    :::::    :  ::: : :::::::
+BACR32 CATATATATATTTATTTATATTGTAAATTTACCAGTTTAAGTCTTTAAAAAATGGAGAAG
+        115710    115720    115730    115740    115750    115760   
+
+           340       350       360       370       380       390   
+HUMBE- ATATGCTTAGAACTGAGGTAGAGTTTTCATCCATTCTGTCCTGTAAGTATTTTGCATATT
+                                                                   
+BACR32 GAGCAGGCTCATGTGTACCTGAATGGCTGTAACTTCCGATGTCTGTTACTCGAAGTCCTG
+        115770    115780    115790    115800    115810    115820   
+
+>>BACR12J05 : AC011697, 203853 bases, from X:12.          (61893 nt)
+rev-comp initn: 173 init1: 173 opt: 237  Z-score: 120.3  bits: 41.3 E(): 0.12
+ 62.083% identity (68.664% ungapped) in 240 nt overlap (289-60:202512-202738)
+
+    320       310       300       290       280       270          
+HUMBE- GATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGTGTATATGTAC
+                                     :::::::::::::::::: : ::::: :: 
+BACR12 TTCAGATGTATTTGCTGTTACTCATATCGTATATATATATATATATATATATATATATAT
+          202490    202500    202510    202520    202530    202540 
+
+    260       250        240        230       220       210        
+HUMBE- ACACATACATATACATA-TATA-TGCATTCATTTGTTGTTGTTTTTCTTAATTTGCTCAT
+       : : ::: ::::: ::: :::: ::::: :: :: ::::  :  : :: ::  :  :   
+BACR12 ATATATATATATATATATTATATTGCATACAATT-TTGT--TCGTCCTAAACATTGTGTA
+          202550    202560    202570       202580    202590        
+
+      200       190        180       170       160       150       
+HUMBE- GCATGCTAATAAATT-ATGTCTAAAAATAGAATAAATACAAATCAATGTGCTCTGTGCAT
+       ::::  :: : ::::  :: :   :: ::  :: ::::      : ::::::: ::: : 
+BACR12 GCATTTTATTCAATTGGTGGC---AACTATGATGAATA------ATTGTGCTCAGTGTAG
+   202600    202610       202620    202630          202640         
+
+       140       130         120        110       100        90    
+HUMBE- TAGTTACTTATTAGGTTTTGG--GAAAC-AAGAGGTAAAAAACTAGAGACCTCTTAAT-G
+       : :  ::      :   : ::  ::::: :::: ::   :::   : ::: :   : : :
+BACR12 TCG-AACAAGCCGGCAGTGGGACGAAACGAAGATGTTGCAAATGCGGGACTTGGGACTCG
+  202650     202660    202670    202680    202690    202700        
+
+               80        70        60        50        40          
+HUMBE- CAG---TCAAAAATACAAATAAATAAAAAGTCACTTACAACCCAAAGTGTGACTATCAAT
+       :::   ::  :::: ::::  : :: :: :                              
+BACR12 CAGGATTCTGAAATGCAAAGGACTAGAAGGGAGGGTAAGTGGTGGGGAGGCTAGAAGGAC
+   202710    202720    202730    202740    202750    202760        
+
+>>BACR30J04 : AC008338, 177277 bases, from X:19.          (73982 nt)
+rev-comp initn: 231 init1: 162 opt: 235  Z-score: 117.8  bits: 41.1 E(): 0.14
+ 60.311% identity (64.583% ungapped) in 257 nt overlap (293-49:8894-9145)
+
+        320       310       300       290       280       270      
+HUMBE- TTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGTGTATAT
+                                     : : :::::: ::::::::::: : :::::
+BACR30 TTGCGCCTCTGCCGCTGTTTATTTTCCCACACATATATATGTATATATATATATTTATAT
+          8870      8880      8890      8900      8910      8920   
+
+        260       250       240       230       220       210      
+HUMBE- GTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTTAATTTGCTC
+        :: :   ::: ::::: ::::: :::  :  ::  ::::   : ::: :::::: ::  
+BACR30 ATATATGTATATATATATATATACATGTTTGTATAGGTTG-CATCTTTATTAATTGGCCA
+          8930      8940      8950      8960       8970      8980  
+
+          200       190         180        170       160           
+HUMBE- AT--GCATGCTAATAAATTATG-TCTA-AAAATA-GAATAAATACAAATCAATGTGC-TC
+       ::    :: : : : : :::::  :::  :: :: ::  ::: : :::     :: : ::
+BACR30 ATAAATATCCCAGTTATTTATGAACTATCAACTATGATCAAAAAAAAAATTGCGTACATC
+           8990      9000      9010      9020      9030      9040  
+
+    150        140       130       120       110        100        
+HUMBE- TGTGCAT-TAGTTACTTATTAGGTTTTGGGAAACAAGAGGTA-AAAAACTAGAGACCTCT
+        :  :::  :: ::  : :::  : :    ::     :  :: : ::: :  ::   :  
+BACR30 CGCACATACAGCTAGGT-TTATATATATTTAACTTTCACATATACAAATTCAAG---TAC
+           9050       9060      9070      9080      9090           
+
+       90        80        70            60        50        40    
+HUMBE- TAATGCAGTCAAAAATACAAATAAATA----AAAAGTCACTTACAACCCAAAGTGTGACT
+        ::: ::   : ::::::::::: :::     :::  : :::::: :             
+BACR30 AAATTCAAATACAAATACAAATACATATGCTTAAATACGCTTACATCGGATTTTGTCTAT
+     9100      9110      9120      9130      9140      9150        
+
+           30        20        10                                  
+HUMBE- ATCAATGGGGTAATCAGTGGTGTCAAATAGGAGGT                         
+                                                                   
+BACR30 GCCGTCGTCCATATGAGTTCACTTTATGATTTACACACATTTGACTCGAAATTTGATATA
+     9160      9170      9180      9190      9200      9210        
+
+>>BACR10C18 : AC011705, 170975 bases, from X:19.          (73982 nt)
+rev-comp initn: 162 init1: 162 opt: 235  Z-score: 117.8  bits: 41.1 E(): 0.14
+ 60.311% identity (64.583% ungapped) in 257 nt overlap (293-49:96960-97211)
+
+        320       310       300       290       280       270      
+HUMBE- TTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGTGTATAT
+                                     : : :::::: ::::::::::: : :::::
+BACR10 TTGCGCCTCTGCCGCTGTTTATTTTCCCACACATATATATGTATATATATATATTTATAT
+   96930     96940     96950     96960     96970     96980         
+
+        260       250       240       230       220       210      
+HUMBE- GTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTTAATTTGCTC
+        :: :   ::: ::::: ::::: :::  :  ::  ::::   : ::: :::::: ::  
+BACR10 ATATATGTATATATATATATATACATGTTTGTATAGGTTG-CATCTTTATTAATTGGCCA
+   96990     97000     97010     97020      97030     97040        
+
+          200       190         180        170       160           
+HUMBE- AT--GCATGCTAATAAATTATG-TCTA-AAAATA-GAATAAATACAAATCAATGTGC-TC
+       ::    :: : : : : :::::  :::  :: :: ::  ::: : :::     :: : ::
+BACR10 ATAAATATCCCAGTTATTTATGAACTATCAACTATGATCAAAAAAAAAATTGCGTACATC
+    97050     97060     97070     97080     97090     97100        
+
+    150        140       130       120       110        100        
+HUMBE- TGTGCAT-TAGTTACTTATTAGGTTTTGGGAAACAAGAGGTA-AAAAACTAGAGACCTCT
+        :  :::  :: ::  : :::  : :    ::     :  :: : ::: :  ::   :  
+BACR10 CGCACATACAGCTAGGT-TTATATATATTTAACTTTCACATATACAAATTCAAG---TAC
+    97110     97120      97130     97140     97150     97160       
+
+       90        80        70            60        50        40    
+HUMBE- TAATGCAGTCAAAAATACAAATAAATA----AAAAGTCACTTACAACCCAAAGTGTGACT
+        ::: ::   : ::::::::::: :::     :::  : :::::: :             
+BACR10 AAATTCAAATACAAATACAAATACATATGCTTAAATACGCTTACATCGGATTTTGTCTAT
+        97170     97180     97190     97200     97210     97220    
+
+           30        20        10                                  
+HUMBE- ATCAATGGGGTAATCAGTGGTGTCAAATAGGAGGT                         
+                                                                   
+BACR10 GCCGTCGTCCATATGAGTTCACTTTATGATTTACACACATTTGACTCGAAATTTGATATA
+        97230     97240     97250     97260     97270     97280    
+
+>>BACR32M04 : AC008234, 148847 bases, from 3R:85.         (73982 nt)
+ initn: 223 init1: 223 opt: 229  Z-score: 114.0  bits: 40.4 E(): 0.24
+ 73.034% identity (73.034% ungapped) in 89 nt overlap (199-287:46334-46422)
+
+      170       180       190       200       210       220        
+HUMBE- TATTCTATTTTTAGACATAATTTATTAGCATGCATGAGCAAATTAAGAAAAACAACAACA
+                                     :: :::::::    :::  :  : :: :: 
+BACR32 GCTCCTGCTTTCTCGCTTCACTTGCCACATTGAATGAGCACGAAAAGTTACTCTACTACC
+         46310     46320     46330     46340     46350     46360   
+
+      230       240       250       260       270       280        
+HUMBE- AATGAATGCATATATATGTATATGTATGTGTGTACATATACACATATATATATATATATA
+       :    :: : :::: :: ::::::::::: : :::::::: : :::::::::::::::: 
+BACR32 ATACTATACGTATACATATATATGTATGTATATACATATATATATATATATATATATATG
+         46370     46380     46390     46400     46410     46420   
+
+      290       300       310       320       330       340        
+HUMBE- TTTTTTCTTTTCTTACCAGAAGGTTTTAATCCAAATAAGGAGAAGATATGCTTAGAACTG
+                                                                   
+BACR32 GCCGAATGCAGCCTCGCTGCCTCTGCTCCATTATCAAAATGCAATTTCATCAATGCTGGC
+         46430     46440     46450     46460     46470     46480   
+
+>>BACR43K14 : AC008356, 162593 bases, from 3R:85.         (20633 nt)
+ initn: 223 init1: 223 opt: 229  Z-score: 122.9  bits: 40.2 E(): 0.27
+ 73.034% identity (73.034% ungapped) in 89 nt overlap (199-287:161695-161783)
+
+      170       180       190       200       210       220        
+HUMBE- TATTCTATTTTTAGACATAATTTATTAGCATGCATGAGCAAATTAAGAAAAACAACAACA
+                                     :: :::::::    :::  :  : :: :: 
+BACR43 GCTCCTGCTTTCTCGCTTCACTTGCCACATTGAATGAGCACGAAAAGTTACTCTACTACC
+       161670    161680    161690    161700    161710    161720    
+
+      230       240       250       260       270       280        
+HUMBE- AATGAATGCATATATATGTATATGTATGTGTGTACATATACACATATATATATATATATA
+       :    :: : :::: :: ::::::::::: : :::::::: : :::::::::::::::: 
+BACR43 ATACTATACGTATACATATATATGTATGTATATACATATATATATATATATATATATATG
+       161730    161740    161750    161760    161770    161780    
+
+      290       300       310       320       330       340        
+HUMBE- TTTTTTCTTTTCTTACCAGAAGGTTTTAATCCAAATAAGGAGAAGATATGCTTAGAACTG
+                                                                   
+BACR43 GCCGAATGCAGCCTCGCTGCCTCTGCTCCATTATCAAAATGCAATTTCATCAATGCTGGC
+       161790    161800    161810    161820    161830    161840    
+
+>>BACR39E09 : AC009255, 163990 bases, from 2R:42.         (73982 nt)
+rev-comp initn: 142 init1: 142 opt: 227  Z-score: 112.7  bits: 40.2 E(): 0.28
+ 68.421% identity (73.984% ungapped) in 133 nt overlap (345-216:62541-62666)
+
+          370       360       350       340       330       320    
+HUMBE- AGGACAGAATGGATGAAAACTCTACCTCAGTTCTAAGCATATCTTCTCCTTATTTGGATT
+                                     ::: ::::: :: ::     :: :   :: 
+BACR39 TTGAAGTCAATGTCAAGTCCAATGCGGTCATTCCAAGCA-ATTTT----ATAATATAATA
+            62520     62530     62540      62550         62560     
+
+          310       300       290         280       270       260  
+HUMBE- AAAACCTTCTGGTAAGAAAAGAAAAAATATATATAT--ATATATATGTGTATATGTACAC
+         ::: :  :  ::: : :: : ::::::::: :::  :::::: ::::::::: ::   
+BACR39 TTAACATAATATTAATATAATATAAAATATATGTATGCATATATTTGTGTATATATATTT
+       62570     62580     62590     62600     62610     62620     
+
+            250        240       230       220       210       200 
+HUMBE- ACATACATATACATATAT-ATGCATTCATTTGTTGTTGTTTTTCTTAATTTGCTCATGCA
+       ::::: ::::: :::::: :::  ::::: : :::::   :::                 
+BACR39 ACATATATATAAATATATAATG--TTCATATATTGTTAAGTTTGCTGTGCTGCAAAGTTT
+       62630     62640       62650     62660     62670     62680   
+
+             190       180       170       160       150       140 
+HUMBE- TGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGCTCTGTGCATTAGT
+                                                                   
+BACR39 TGGCACTGACCACGAAAGCAGAATCGCCATGAAGGCGATGCTGGAGGCACACGTCGGGTA
+         62690     62700     62710     62720     62730     62740   
+
+>>BACR13P06 : AC008339, 180296 bases, from 2R:42.         (73982 nt)
+rev-comp initn: 142 init1: 142 opt: 227  Z-score: 112.7  bits: 40.2 E(): 0.28
+ 68.421% identity (73.984% ungapped) in 133 nt overlap (345-216:18716-18841)
+
+          370       360       350       340       330       320    
+HUMBE- AGGACAGAATGGATGAAAACTCTACCTCAGTTCTAAGCATATCTTCTCCTTATTTGGATT
+                                     ::: ::::: :: ::     :: :   :: 
+BACR13 TTGAAGTCAATGTCAAGTCCAATGCGGTCATTCCAAGCA-ATTTT----ATAATATAATA
+       18690     18700     18710     18720          18730     18740
+
+          310       300       290         280       270       260  
+HUMBE- AAAACCTTCTGGTAAGAAAAGAAAAAATATATATAT--ATATATATGTGTATATGTACAC
+         ::: :  :  ::: : :: : ::::::::: :::  :::::: ::::::::: ::   
+BACR13 TTAACATAATATTAATATAATATAAAATATATGTATGCATATATTTGTGTATATATATTT
+            18750     18760     18770     18780     18790     18800
+
+            250        240       230       220       210       200 
+HUMBE- ACATACATATACATATAT-ATGCATTCATTTGTTGTTGTTTTTCTTAATTTGCTCATGCA
+       ::::: ::::: :::::: :::  ::::: : :::::   :::                 
+BACR13 ACATATATATAAATATATAATG--TTCATATATTGTTAAGTTTGCTGTGCTGCAAAGTTT
+            18810     18820       18830     18840     18850        
+
+             190       180       170       160       150       140 
+HUMBE- TGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGCTCTGTGCATTAGT
+                                                                   
+BACR13 TGGCACTGACCACGAAAGCAGAATCGCCATGAAGGCGATGCTGGAGGCACACGTCGGGTA
+    18860     18870     18880     18890     18900     18910        
+
+>>BACR18C01 : AC007808, 167195 bases, from 3R:88.         (73982 nt)
+ initn: 100 init1: 100 opt: 226  Z-score: 112.0  bits: 40.0 E():  0.3
+ 65.693% identity (67.164% ungapped) in 137 nt overlap (170-304:93850-93985)
+
+     140       150       160       170        180       190        
+HUMBE- CTAATGCACAGAGCACATTGATTTGTATTTATTCTATTTT-TAGACATAATT-TATTAGC
+                                     :::  ::::: : :   :: :: ::   : 
+BACR18 AACGGTTGTCCAAGCTCAACTACAAGGAGCATTAAATTTTATGGGTTTAGTTGTAGATGG
+   93820     93830     93840     93850     93860     93870         
+
+       200       210       220       230       240       250       
+HUMBE- ATGCATGAGCAAATTAAGAAAAACAACAACAAATGAATGCATATATATGTATATGTATGT
+       :   : : ::::::: ::: ::   :  : :::  : : :: ::: :: ::::: ::: :
+BACR18 AAATAAGTGCAAATTTAGATAACTGATCA-AAACCATTTCAGATAAATATATATATATAT
+   93880     93890     93900      93910     93920     93930        
+
+       260       270       280       290       300       310       
+HUMBE- GTGTACATATACACATATATATATATATATATTTTTTCTTTTCTTACCAGAAGGTTTTAA
+        : :: ::::: : :::::::::::::::::: :::   ::  : ::             
+BACR18 ATATATATATATATATATATATATATATATATATTTAAGTTCATCACACTTTTTTTTTTT
+    93940     93950     93960     93970     93980     93990        
+
+       320       330       340       350       360       370       
+HUMBE- TCCAAATAAGGAGAAGATATGCTTAGAACTGAGGTAGAGTTTTCATCCATTCTGTCCTGT
+                                                                   
+BACR18 TTGCATTTATATACCCTTTTGTGGGCCAGGGTAATCAGAAGACTTACACATTTTATTGGG
+    94000     94010     94020     94030     94040     94050        
+
+>>BACH59K20 : AC010840, 29516 bases, from 4:101.          (29516 nt)
+rev-comp initn: 179 init1: 179 opt: 227  Z-score: 119.1  bits: 40.0 E(): 0.31
+ 64.189% identity (65.517% ungapped) in 148 nt overlap (300-154:10680-10825)
+
+     330       320       310       300        290       280        
+HUMBE- CTCCTTATTTGGATTAAAACCTTCTGGTAAGAAAAGA-AAAAATATATATATATATATAT
+                                     ::: : : : : ::::::::::::::::::
+BACH59 CCTCGTCAGATCGACTCGGCTATTGATCCTGAATATATATATATATATATATATATATAT
+   10650     10660     10670     10680     10690     10700         
+
+      270       260       250       240       230       220        
+HUMBE- GTGTATATGTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTTA
+        : ::::: :: : : ::  ::::: ::::::::  ::  :: : :   : : ::: :  
+BACH59 TTATATATATATATATATTTATATATATATATATTTATATATATATATATATATTTATAT
+   10710     10720     10730     10740     10750     10760         
+
+      210       200       190       180       170       160        
+HUMBE- ATTTGCTCATGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGC
+       :::   : ::  ::  ::   : :::: : :  : ::  :: ::::: : ::  :: :  
+BACH59 ATTATAT-ATTTAT-ATATATATTTATTTATTTATATTTAACAAATATATATACATATAT
+   10770      10780      10790     10800     10810     10820       
+
+      150       140       130       120       110       100        
+HUMBE- TCTGTGCATTAGTTACTTATTAGGTTTTGGGAAACAAGAGGTAAAAAACTAGAGACCTCT
+                                                                   
+BACH59 ATAATAACGAATCCACGGTAATTTATTAGATAAAAAATATAACCTTTATTCAAAATAAAA
+     10830     10840     10850     10860     10870     10880       
+
+>>BACR20B21 : AC099010, 166512 bases, from 2L:27.         (73982 nt)
+rev-comp initn: 228 init1: 145 opt: 225  Z-score: 111.4  bits: 39.9 E(): 0.33
+ 67.361% identity (71.324% ungapped) in 144 nt overlap (303-165:133938-134078)
+
+        330       320       310       300       290       280      
+HUMBE- CTTCTCCTTATTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATAT
+                                     ::: :  : :: : ::::::::::::::::
+BACR20 TAATATTACATACATTAGTTTGTTGAACATTAAAATGAAAATATATATATATATATATAT
+    133910    133920    133930    133940    133950    133960       
+
+        270         260       250       240       230       220    
+HUMBE- ATGTGTATA--TGTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTT
+       :: ::: ::   ::    ::::::::: ::::: ::::: ::  ::  :::      :::
+BACR20 ATTTGTTTAGCGGTTTTTACATACATACACATA-ATATGTATAAATAAGTTAAAAAATTT
+    133970    133980    133990    134000     134010    134020      
+
+          210         200        190       180       170       160 
+HUMBE- CTTAATTTG-CT-CATGCATGCTAAT-AAATTATGTCTAAAAATAGAATAAATACAAATC
+        :::::: : ::  :: :::   ::: : :: :: ::  :::::::  :  :::      
+BACR20 ATTAATTAGACTAAATTCATTGGAATGATATAATATC--AAAATAGTTTGCATAATACAG
+     134030    134040    134050    134060      134070    134080    
+
+             150       140       130       120       110       100 
+HUMBE- AATGTGCTCTGTGCATTAGTTACTTATTAGGTTTTGGGAAACAAGAGGTAAAAAACTAGA
+                                                                   
+BACR20 CGATTTAGTTAAAATTTCACAACTATCTAGAAGCGAAAACTTGGAACATTTTAGTTTTGC
+       134090    134100    134110    134120    134130    134140    
+
+>>BACR13A13 : AC018484, 172748 bases, from 2L:40.         (73982 nt)
+ initn: 160 init1: 160 opt: 225  Z-score: 111.4  bits: 39.9 E(): 0.33
+ 64.493% identity (65.926% ungapped) in 138 nt overlap (167-303:102083-102218)
+
+        140       150       160       170       180       190      
+HUMBE- TAACTAATGCACAGAGCACATTGATTTGTATTTATTCTATTTTTAGACATAATTTATTAG
+                                     ::: :: ::  :  ::: :   :::: :: 
+BACR13 CCGCAACTTTCCGCAAAAATCTTTAACAGTTTTTTTTTACCTCAAGAAACTCTTTAATAC
+         102060    102070    102080    102090    102100    102110  
+
+        200        210       220       230       240       250     
+HUMBE- CATG-CATGAGCAAATTAAGAAAAACAACAACAAATGAATGCATATATATGTATATGTAT
+        ::: ::: : :: ::  : : : :::  :::: :   :  ::::::::  :: :: :::
+BACR13 AATGACATAAACATAT--ATATATACATAAACATACATAAACATATATACATACATATAT
+         102120      102130    102140    102150    102160    102170
+
+         260       270       280       290       300       310     
+HUMBE- GTGTGTACATATACACATATATATATATATATATTTTTTCTTTTCTTACCAGAAGGTTTT
+        : : :: ::::: : ::::::::::::::: : :    : :: : ::            
+BACR13 ATATATATATATATATATATATATATATATAAACTAAAACCTTACGTAAACATAAAAAAG
+           102180    102190    102200    102210    102220    102230
+
+         320       330       340       350       360       370     
+HUMBE- AATCCAAATAAGGAGAAGATATGCTTAGAACTGAGGTAGAGTTTTCATCCATTCTGTCCT
+                                                                   
+BACR13 ATGTTCACAAAATACACAAAAAAGGTTAAATCAAATATAATTACACAAAAAATATTAAAT
+           102240    102250    102260    102270    102280    102290
+
+>>BACR48D17 : AC008255, 183316 bases, from X:13.          (73982 nt)
+rev-comp initn: 171 init1: 171 opt: 225  Z-score: 111.4  bits: 39.9 E(): 0.33
+ 67.424% identity (71.774% ungapped) in 132 nt overlap (291-160:52531-52654)
+
+      320       310       300       290       280       270        
+HUMBE- TGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGTGTATATGT
+                                     ::::::::::::::::::::   ::::: :
+BACR48 ATTGTATAATTTTCGTTTGCTTTTGCTATTAAATATATATATATATATATAGATATATAT
+            52510     52520     52530     52540     52550     52560
+
+      260       250       240       230       220       210        
+HUMBE- ACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTTAATTTGCTCAT
+       : :::  :: :: :  ::::::::  ::  :: : :   : : : : ::  : ::   ::
+BACR48 ATACATCTATATTTTTATATATAT--ATATATATCTATATATATATATT--TATGTAAAT
+            52570     52580       52590     52600       52610      
+
+      200       190       180       170       160       150        
+HUMBE- GCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGCTCTGTGCATT
+       : ::: :: :: ::::    :::::::   ::: : ::::::                  
+BACR48 GTATG-TATTATATTAAAAATAAAAAT---ATATACACAAATATTATTATATACATAAAT
+      52620      52630     52640        52650     52660     52670  
+
+      140       130       120       110       100        90        
+HUMBE- AGTTACTTATTAGGTTTTGGGAAACAAGAGGTAAAAAACTAGAGACCTCTTAATGCAGTC
+                                                                   
+BACR48 ATAAATATATATATGTATATATGTTTTATATGTAAAATTATGAAGTATAAGGGTATCTTG
+          52680     52690     52700     52710     52720     52730  
+
+>>BACR06H06 : 186935 bases, from 2L:40.                   (44975 nt)
+ initn: 160 init1: 160 opt: 225  Z-score: 114.9  bits: 39.8 E(): 0.35
+ 64.493% identity (65.926% ungapped) in 138 nt overlap (167-303:175937-176072)
+
+        140       150       160       170       180       190      
+HUMBE- TAACTAATGCACAGAGCACATTGATTTGTATTTATTCTATTTTTAGACATAATTTATTAG
+                                     ::: :: ::  :  ::: :   :::: :: 
+BACR06 CCGCAACTTTCCGCAAAAATCTTTAACAGTTTTTTTTTACCTCAAGAAACTCTTTAATAC
+     175910    175920    175930    175940    175950    175960      
+
+        200        210       220       230       240       250     
+HUMBE- CATG-CATGAGCAAATTAAGAAAAACAACAACAAATGAATGCATATATATGTATATGTAT
+        ::: ::: : :: ::  : : : :::  :::: :   :  ::::::::  :: :: :::
+BACR06 AATGACATAAACATAT--ATATATACATAAACATACATAAACATATATACATACATATAT
+     175970    175980      175990    176000    176010    176020    
+
+         260       270       280       290       300       310     
+HUMBE- GTGTGTACATATACACATATATATATATATATATTTTTTCTTTTCTTACCAGAAGGTTTT
+        : : :: ::::: : ::::::::::::::: : :    : :: : ::            
+BACR06 ATATATATATATATATATATATATATATATAAACTAAAACCTTACGTAAACATAAAAAAG
+       176030    176040    176050    176060    176070    176080    
+
+         320       330       340       350       360       370     
+HUMBE- AATCCAAATAAGGAGAAGATATGCTTAGAACTGAGGTAGAGTTTTCATCCATTCTGTCCT
+                                                                   
+BACR06 ATGTTCACAAAATACACAAAAAAGGTTAAATCAAATATAATTACACAAAAAATATTAAAT
+       176090    176100    176110    176120    176130    176140    
+
+>>BACR22N03 : AC092397, 167201 bases, from 2L:26.         (25241 nt)
+ initn: 153 init1: 124 opt: 225  Z-score: 118.9  bits: 39.8 E(): 0.37
+ 67.361% identity (71.324% ungapped) in 144 nt overlap (165-303:166819-166959)
+
+          140       150       160       170       180        190   
+HUMBE- AGTAACTAATGCACAGAGCACATTGATTTGTATTTATTCTATTTTTAGACATAAT-TTAT
+                                     :::  :  :::::::  :: :: :: : ::
+BACR22 AGTTGTGAAATTTTAACTAAATCGCTGTATTATGCAAACTATTTT--GATATTATATCAT
+   166790    166800    166810    166820    166830      166840      
+
+           200         210       220       230       240       250 
+HUMBE- TAGCATGCA-TGAG-CAAATTAAGAAAAACAACAACAAATGAATGCATATATATGTATAT
+       :   ::: : : :: : :::::: :::      :::  ::  :: ::::: ::::: :::
+BACR22 TCCAATGAATTTAGTCTAATTAATAAATTTTTTAACTTATTTATACATAT-TATGTGTAT
+     166850    166860    166870    166880    166890     166900     
+
+             260         270       280       290       300         
+HUMBE- GTATGTGTGTAC--ATATACACATATATATATATATATATTTTTTCTTTTCTTACCAGAA
+       ::::::    ::   :: ::: :::::::::::::::::: : :: :  : :::      
+BACR22 GTATGTAAAAACCGCTAAACAAATATATATATATATATATATATTTTCATTTTAATGTTC
+      166910    166920    166930    166940    166950    166960     
+
+     310       320       330       340       350       360         
+HUMBE- GGTTTTAATCCAAATAAGGAGAAGATATGCTTAGAACTGAGGTAGAGTTTTCATCCATTC
+                                                                   
+BACR22 AACAAACTAATGTATGTAATATTAAAACAACAATTATGAAGACAAACATTAATCTACATT
+      166970    166980    166990    167000    167010    167020     
+
+>>BACR37K05 : AC011253, 197597 bases, from 3R:84.         (55637 nt)
+ initn: 184 init1: 184 opt: 223  Z-score: 112.1  bits: 39.6 E():  0.4
+ 63.636% identity (65.468% ungapped) in 143 nt overlap (156-294:158456-158598)
+
+         130       140       150       160       170          180  
+HUMBE- AACCTAATAAGTAACTAATGCACAGAGCACATTGATTTGTATTTATTCTAT---TTTTAG
+                                     :::  ::: :  ::::: :::     ::: 
+BACR37 CTCTACTCTCCATTATTACACGTTTTATTAATTTTTTTTTTCTTATTTTATCAAGATTAA
+      158430    158440    158450    158460    158470    158480     
+
+             190       200       210       220       230       240 
+HUMBE- ACATAAT-TTATTAGCATGCATGAGCAAATTAAGAAAAACAACAACAAATGAATGCATAT
+       :  :: : ::: ::  ::  ::    : ::  : : : : :   : : ::  :: ::: :
+BACR37 ATCTAGTATTAATATAATATATATATATATATATATATATACATATATATATATACATTT
+      158490    158500    158510    158520    158530    158540     
+
+             250       260       270       280       290       300 
+HUMBE- ATATGTATATGTATGTGTGTACATATACACATATATATATATATATATTTTTTCTTTTCT
+       :::: ::::: ::: : : :: ::::: : ::::::::::: :::::: : ::       
+BACR37 ATATATATATATATATATATATATATATATATATATATATAAATATATATATTGCTGGAG
+      158550    158560    158570    158580    158590    158600     
+
+             310       320       330       340       350       360 
+HUMBE- TACCAGAAGGTTTTAATCCAAATAAGGAGAAGATATGCTTAGAACTGAGGTAGAGTTTTC
+                                                                   
+BACR37 CCTTCGACTCATTACAAGATTATTTTATAACATTCTATGGTCTCTATTTCAATTTTTTTT
+      158610    158620    158630    158640    158650    158660     
+
+>>BACR30L17 : AC012390, 174441 bases, from 4:101.         (73982 nt)
+rev-comp initn: 132 init1: 132 opt: 221  Z-score: 108.8  bits: 39.4 E(): 0.46
+ 68.382% identity (75.610% ungapped) in 136 nt overlap (323-199:139648-139781)
+
+        350       340       330       320       310       300      
+HUMBE- TACCTCAGTTCTAAGCATATCTTCTCCTTATTTGGATTAAAACCTTCTGGTAAGAA-AAG
+                                     ::: :: : ::   :: ::::  ::: : :
+BACR30 GTCGGAAATAATGTTTACTTTGACGATCATTTTCGAATTAATATTTGTGGTGCGAATATG
+    139620    139630    139640    139650    139660    139670       
+
+             290        280       270       260       250          
+HUMBE- AA--AAA--ATATATATAT-ATATATATGTGTATATGTACACACATACATATACATATAT
+       ::  :::  ::::::: :: ::::: ::   :::::::: : ::::::::::::::::::
+BACR30 AATCAAATCATATATAAATGATATACATACATATATGTATATACATACATATACATATAT
+    139680    139690    139700    139710    139720    139730       
+
+    240       230            220       210       200       190     
+HUMBE- ATGCATTCATTTGT-----TGTTGTTTTTCTTAATTTGCTCATGCATGCTAATAAATTAT
+       :  :: : :::: :      :: ::: ::  :: : : :: :: ::              
+BACR30 A--CAATAATTTCTGGACAGGTCGTTGTTTGTACTCTTCTAATTCAATCGATGCAAAGTG
+      139740    139750    139760    139770    139780    139790     
+
+         180       170       160       150       140       130     
+HUMBE- GTCTAAAAATAGAATAAATACAAATCAATGTGCTCTGTGCATTAGTTACTTATTAGGTTT
+                                                                   
+BACR30 CAAAAGCGAAACAAGGACATGCTGGTTCTCAAAATTAATGGTCCGTAGGGTATTGAAAAG
+      139800    139810    139820    139830    139840    139850     
+
+>>BACR01O16 : AC093045, 189904 bases, from 2L:29.         (73982 nt)
+ initn: 174 init1: 174 opt: 221  Z-score: 108.8  bits: 39.4 E(): 0.46
+ 71.134% identity (71.875% ungapped) in 97 nt overlap (197-293:5687-5782)
+
+        170       180       190       200       210       220      
+HUMBE- TTTATTCTATTTTTAGACATAATTTATTAGCATGCATGAGCAAATTAAGAAAAACAACAA
+                                     ::  ::: ::::   : :::  ::::::::
+BACR01 GGTATTGGGCGCAAATCTTTTTTCGAGTGCCAGACATTAGCAGCATTAGACCAACAACAA
+       5660      5670      5680      5690      5700      5710      
+
+        230       240       250       260       270       280      
+HUMBE- CAAATGAATGCATATATATGTATATGTATGTGTGTACATATACACATATATATATATATA
+       :: :: :   : : ::  ::::::: ::: : : :: ::::: : :::::::: ::::::
+BACR01 CAGAT-ATCACTTCTACTTGTATATATATATATATATATATATATATATATATGTATATA
+       5720       5730      5740      5750      5760      5770     
+
+        290       300       310       320       330       340      
+HUMBE- TATTTTTTCTTTTCTTACCAGAAGGTTTTAATCCAAATAAGGAGAAGATATGCTTAGAAC
+       ::  :::                                                     
+BACR01 TACATTTATATGGAGATATAAGAGCGAGGCATTGCACAACACCGAAAACCCACAGGCAAA
+        5780      5790      5800      5810      5820      5830     
+
+>>BACR14D22 : AC012164, 169384 bases, from X:17.          (73982 nt)
+ initn: 196 init1: 196 opt: 221  Z-score: 108.8  bits: 39.4 E(): 0.46
+ 64.029% identity (65.441% ungapped) in 139 nt overlap (158-293:2977-3115)
+
+       130       140       150       160       170        180      
+HUMBE- CCTAATAAGTAACTAATGCACAGAGCACATTGATTTGTATTTAT-TCTATTTTTAGACAT
+                                     :: : : :::: :: :: :: :: :    :
+BACR14 CTGGCCTGCCTAACTTTATAATACAATTTATGGTCTATATTCATCTCGATCTTGATTACT
+       2950      2960      2970      2980      2990      3000      
+
+        190         200       210       220       230       240    
+HUMBE- AATTTATTAGCAT--GCATGAGCAAATTAAGAAAAACAACAACAAATGAATGCATATATA
+         ::: : :   :  :   ::: : ::  : : : : :   : : ::  ::  :::::::
+BACR14 GCTTTTTGACTTTGAGGGGGAGTATATATATATATATATATATATATATATATATATATA
+       3010      3020      3030      3040      3050      3060      
+
+          250       260       270       280       290       300    
+HUMBE- TGTATATGTATGTGTGTACATATACACATATATATATATATATATTTTTTCTTTTCTTAC
+       : ::::: ::: :::::: ::::::: ::::: :::::::::: : : :           
+BACR14 TATATATATATATGTGTATATATACATATATACATATATATATGTGTATGTGTAGCTTCG
+       3070      3080      3090      3100      3110      3120      
+
+          310       320       330       340       350       360    
+HUMBE- CAGAAGGTTTTAATCCAAATAAGGAGAAGATATGCTTAGAACTGAGGTAGAGTTTTCATC
+                                                                   
+BACR14 ATTTAACTATGGAAAATTGTTTCTTATGCGCAGAAAGATCATATACATTGTATACATTAA
+       3130      3140      3150      3160      3170      3180      
+
+>>BACR08A11 : 170075 bases, from 2R:42.                   (73982 nt)
+ initn: 183 init1: 183 opt: 221  Z-score: 108.8  bits: 39.4 E(): 0.46
+ 74.390% identity (74.390% ungapped) in 82 nt overlap (238-319:63815-63896)
+
+       210       220       230       240       250       260       
+HUMBE- AAATTAAGAAAAACAACAACAAATGAATGCATATATATGTATATGTATGTGTGTACATAT
+                                     :: :::::: :::: ::: : : :: ::::
+BACR08 AACACCTTATGACGATATTTCCATACACATATGTATATGAATATATATATATATATATAT
+        63790     63800     63810     63820     63830     63840    
+
+       270       280       290       300       310       320       
+HUMBE- ACACATATATATATATATATATTTTTTCTTTTCTTACCAGAAGGTTTTAATCCAAATAAG
+       : : :::::::::::::::::::: ::      :: :::::   :::: :::        
+BACR08 ATATATATATATATATATATATTTCTTGGCCGTTTTCCAGATTATTTTGATCGGGGATTT
+        63850     63860     63870     63880     63890     63900    
+
+       330       340       350       360       370       380       
+HUMBE- GAGAAGATATGCTTAGAACTGAGGTAGAGTTTTCATCCATTCTGTCCTGTAAGTATTTTG
+                                                                   
+BACR08 TCGATCCGCGCCCCACTTTCTGTTGCTCAGGTGTGTGTTGCTTTAATTGCACGCTGTAAT
+        63910     63920     63930     63940     63950     63960    
+
+>>BACR25O02 : AC018490, 165098 bases, from X:17.          (73982 nt)
+rev-comp initn: 196 init1: 196 opt: 221  Z-score: 108.8  bits: 39.4 E(): 0.46
+ 64.029% identity (65.441% ungapped) in 139 nt overlap (293-158:33829-33967)
+
+        320       310       300       290       280       270      
+HUMBE- TTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGTGTATAT
+                                     : : : :::::::::: ::::: :::::::
+BACR25 CAATTTTCCATAGTTAAATCGAAGCTACACATACACATATATATATGTATATATGTATAT
+    33800     33810     33820     33830     33840     33850        
+
+        260       250       240       230       220       210      
+HUMBE- GTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTTAATTTGCT-
+        :::::: ::: ::::: ::::::::  ::  :: : :   : : : : :  :: : :: 
+BACR25 ATACACATATATATATATATATATATATATATATATATATATATATATATATATATACTC
+    33860     33870     33880     33890     33900     33910        
+
+          200       190       180        170       160       150   
+HUMBE- -CATGCATGCTAATAAATTATGTCTAAAAATAGA-ATAAATACAAATCAATGTGCTCTGT
+        :   ::   : : :::  :    : :: :: :: :: :::: : : ::           
+BACR25 CCCCTCAAAGTCAAAAAGCAGTAATCAAGATCGAGATGAATATAGACCATAAATTGTATT
+    33920     33930     33940     33950     33960     33970        
+
+           140       130       120       110       100        90   
+HUMBE- GCATTAGTTACTTATTAGGTTTTGGGAAACAAGAGGTAAAAAACTAGAGACCTCTTAATG
+                                                                   
+BACR25 ATAAAGTTAGGCAGGCCAGCCAGTGGGCACACTTTTCACAATCCATTTGCGATCAACTAT
+    33980     33990     34000     34010     34020     34030        
+
+>>BACR02B16 : AC008331, 186938 bases, from 2L:29.         (44978 nt)
+ initn: 174 init1: 174 opt: 221  Z-score: 112.3  bits: 39.4 E(): 0.48
+ 71.134% identity (71.875% ungapped) in 97 nt overlap (197-293:183604-183699)
+
+        170       180       190       200       210       220      
+HUMBE- TTTATTCTATTTTTAGACATAATTTATTAGCATGCATGAGCAAATTAAGAAAAACAACAA
+                                     ::  ::: ::::   : :::  ::::::::
+BACR02 GGTATTGGGCGCAAATCTTTTTTCGAGTGCCAGACATTAGCAGCATTAGACCAACAACAA
+        183580    183590    183600    183610    183620    183630   
+
+        230       240       250       260       270       280      
+HUMBE- CAAATGAATGCATATATATGTATATGTATGTGTGTACATATACACATATATATATATATA
+       :: :: :   : : ::  ::::::: ::: : : :: ::::: : :::::::: ::::::
+BACR02 CAGAT-ATCACTTCTACTTGTATATATATATATATATATATATATATATATATGTATATA
+         183640    183650    183660    183670    183680    183690  
+
+        290       300       310       320       330       340      
+HUMBE- TATTTTTTCTTTTCTTACCAGAAGGTTTTAATCCAAATAAGGAGAAGATATGCTTAGAAC
+       ::  :::                                                     
+BACR02 TACATTTATATGGAGATATAAGAGCGAGGCATTGCACAACACCGAAAACCCACAGGCAAA
+         183700    183710    183720    183730    183740    183750  
+
+>>BACR13P06 : AC008339, 180296 bases, from 2R:42.         (38336 nt)
+ initn: 183 init1: 183 opt: 221  Z-score: 113.4  bits: 39.3 E(): 0.49
+ 74.390% identity (74.390% ungapped) in 82 nt overlap (238-319:177941-178022)
+
+       210       220       230       240       250       260       
+HUMBE- AAATTAAGAAAAACAACAACAAATGAATGCATATATATGTATATGTATGTGTGTACATAT
+                                     :: :::::: :::: ::: : : :: ::::
+BACR13 AACACCTTATGACGATATTTCCATACACATATGTATATGAATATATATATATATATATAT
+           177920    177930    177940    177950    177960    177970
+
+       270       280       290       300       310       320       
+HUMBE- ACACATATATATATATATATATTTTTTCTTTTCTTACCAGAAGGTTTTAATCCAAATAAG
+       : : :::::::::::::::::::: ::      :: :::::   :::: :::        
+BACR13 ATATATATATATATATATATATTTCTTGGCCGTTTTCCAGATTATTTTGATCGGGGATTT
+           177980    177990    178000    178010    178020    178030
+
+       330       340       350       360       370       380       
+HUMBE- GAGAAGATATGCTTAGAACTGAGGTAGAGTTTTCATCCATTCTGTCCTGTAAGTATTTTG
+                                                                   
+BACR13 TCGATCCGCGCCCCACTTTCTGTTGCTCAGGTGTGTGTTGCTTTAATTGCACGCTGTAAT
+           178040    178050    178060    178070    178080    178090
+
+>>BACR11M14 : AC099308, 173101 bases, from X:19.          (73982 nt)
+ initn: 166 init1: 166 opt: 219  Z-score: 107.6  bits: 39.2 E(): 0.54
+ 59.624% identity (62.871% ungapped) in 213 nt overlap (94-301:38069-38275)
+
+            70        80        90       100       110       120   
+HUMBE- TTATTTATTTGTATTTTTGACTGCATTAAGAGGTCTCTAGTTTTTTACCTCTTGTTTCCC
+                                     :: :::: : : : :::  : :: :::   
+BACR11 TCGTGATTAATAAACTCGGAAGTGAAAACTAGCTCTCGACTGTCTTAATTTTTTTTTTTT
+    38040     38050     38060     38070     38080     38090        
+
+           130       140       150       160       170       180   
+HUMBE- AAAACCTAATAAGTAACTAATGCACAGAGCACATTGATTTGTATTTATTCTATTTTTAGA
+          :   ::::: :  :   : : :   : : :::   :  ::  : ::: : :   :  
+BACR11 GGGA---AATAATTTTCACGTACGCGTCGTAAATTTGGTGCTACGT-TTCGAGTGCCATC
+    38100        38110     38120     38130     38140      38150    
+
+           190        200           210       220       230        
+HUMBE- CATAATTTATT-AGCATGCATG-AGCA---AATTAAGAAAAACAACAACAAATGAATGCA
+       : :::   ::: : :::::: :  :::   :::  : : : :::   : : ::: :: ::
+BACR11 CCTAACACATTCAACATGCACGCTGCATACAATACATATATACATAGATATATGCATACA
+        38160     38170     38180     38190     38200     38210    
+
+      240       250       260       270       280       290        
+HUMBE- TATATATGTATATGTATGTGTGTACATATACACATATATATATATATATATTTTTTCTTT
+       ::::::  ::::: ::: :   :::::::: :::::::::: ::: ::::: : : : : 
+BACR11 TATATA--TATATATATATACATACATATATACATATATATTTATGTATATATGTACGTA
+        38220       38230     38240     38250     38260     38270  
+
+      300       310       320       330       340       350        
+HUMBE- TCTTACCAGAAGGTTTTAATCCAAATAAGGAGAAGATATGCTTAGAACTGAGGTAGAGTT
+       : :                                                         
+BACR11 TATGTAGGATATATAGAGCTCTCCTTCTGGAATTGGGACATGGGGTTTTTGGGTTTGAGT
+          38280     38290     38300     38310     38320     38330  
+
+>>BACR15O02 : AC009735, 159478 bases, from 3R:82.         (73982 nt)
+rev-comp initn: 162 init1: 162 opt: 219  Z-score: 107.6  bits: 39.2 E(): 0.54
+ 67.480% identity (69.167% ungapped) in 123 nt overlap (326-207:43412-43534)
+
+           350       340       330       320       310       300   
+HUMBE- CTCTACCTCAGTTCTAAGCATATCTTCTCCTTATTTGGATTAAAACCTTCTGGTAAGAAA
+                                     :: : ::::   :::: : :   :::   :
+BACR15 CGTCAATTAATAAATAAATATGAAGCAAAGTTGTATGGAACTAAACATGCGTTTAACTTA
+           43390     43400     43410     43420     43430     43440 
+
+            290       280       270       260       250        240 
+HUMBE- AGA-AAAAATATATATATATATATATGTGTATATGTACACACATACATATA-CATATATA
+        :: :   :::::::::::::::::: : ::::: :: : : :::::::::  :::::::
+BACR15 GGATATGTATATATATATATATATATATATATATATATATATATACATATATTATATATA
+           43450     43460     43470     43480     43490     43500 
+
+             230        220       210       200       190          
+HUMBE- TGCATTCATTTGT-TGTTGTTTTTCTTAATTTGCTCATGCATGCTAATAAATTATGTCTA
+       :  ::  ::   : : ::  : :  ::::::::                           
+BACR15 TAAATATATAAATATATTTATATATTTAATTTGAATCGGTTCGTGGTGCGTTTCCGTGAG
+           43510     43520     43530     43540     43550     43560 
+
+    180       170       160       150       140       130          
+HUMBE- AAAATAGAATAAATACAAATCAATGTGCTCTGTGCATTAGTTACTTATTAGGTTTTGGGA
+                                                                   
+BACR15 CTTAAATATTCAATTATTAAGTACAACATTTTTACCAAGAAACATTAACATTTAGATTTG
+           43570     43580     43590     43600     43610     43620 
+
+>>BACR21E16 : AC009905, 170662 bases, from 2L:36.         (73982 nt)
+rev-comp initn: 219 init1: 196 opt: 218  Z-score: 106.9  bits: 39.1 E(): 0.58
+ 69.492% identity (73.214% ungapped) in 118 nt overlap (341-230:86996-87113)
+
+      370       360       350       340       330       320        
+HUMBE- CAGAATGGATGAAAACTCTACCTCAGTTCTAAGCATATCTTCTCCTTATTTGGAT-TAAA
+                                     ::: ::: ::: :   ::: :  :: ::::
+BACR21 ACTAGATCGACTCGGCTATTGATATTGATCAAGAATACCTTTTATATATATATATATAAA
+       86970     86980     86990     87000     87010     87020     
+
+       310           300       290       280       270       260   
+HUMBE- ACCT---TCT-GGTAAGAAAAGAAAAAATATATATATATATATATGTGTATATGTACACA
+       :  :   : :   ::   : : : :: :::::::::::::::::: : ::::: ::::  
+BACR21 ATATATATATATATATATATATATAACATATATATATATATATATATATATATATACAAT
+       87030     87040     87050     87060     87070     87080     
+
+           250        240       230       220       210       200  
+HUMBE- CATACATATACATATA-TATGCATTCATTTGTTGTTGTTTTTCTTAATTTGCTCATGCAT
+        ::::::::::::::: :::: ::  ::                                
+BACR21 TATACATATACATATATTATGTATATATACATATATATGTACTTTAAAAAATCGGAAACG
+       87090     87100     87110     87120     87130     87140     
+
+>>BACR48D17 : AC008255, 183316 bases, from X:13.          (73982 nt)
+ initn: 177 init1: 177 opt: 218  Z-score: 106.9  bits: 39.1 E(): 0.58
+ 60.748% identity (69.149% ungapped) in 214 nt overlap (94-293:86512-86713)
+
+            70        80        90       100         110           
+HUMBE- TTATTTATTTGTATTTTTGACTGCATTAAGAGGTCTCTAGTTTTTT--ACCTCTT----G
+                                     : ::::: : :::: :  :::: ::    :
+BACR48 TAAATTAGAAATATCAGCAGAGCTTCGGGTAAGTCTCCACTTTTGTAGACCTTTTAGCGG
+           86490     86500     86510     86520     86530     86540 
+
+       120       130       140       150       160       170       
+HUMBE- TTTCCCAAAACCTAATAAGTAACTAATGCACAGAGCACATTGATTTGTATTTAT-TCTAT
+       : ::   :: : :  : ::     :::: :::    :::  : :::: :::: :    ::
+BACR48 TGTCAGCAACCGTTTTCAG-----AATGTACA----ACAAGGTTTTGAATTTTTGGGCAT
+           86550     86560              86570     86580     86590  
+
+        180       190        200       210       220       230     
+HUMBE- TTTTAGACATAATTTATTAGCA-TGCATGAGCAAATTAAGAAAAACAACAACAAATGA--
+         ::: ::   : :::  :: : : :  :  ::    :: : :::   ::: : : ::  
+BACR48 GATTAAAC---ACTTAAAAGGATTTCCCGCCCATCCAAAAATAAAACTCAAGATACGAAG
+          86600        86610     86620     86630     86640         
+
+               240       250       260       270       280         
+HUMBE- ----ATGCATATATATGTATATGTATGTGTGTACATATACACATATATATATATATATAT
+           :::::::::::: ::::: ::: : : :: ::::: :::::::::::: ::::: :
+BACR48 CTTCATGCATATATATATATATATATTTATATATATATATACATATATATATGTATATTT
+   86650     86660     86670     86680     86690     86700         
+
+     290       300       310       320       330       340         
+HUMBE- TTTTTCTTTTCTTACCAGAAGGTTTTAATCCAAATAAGGAGAAGATATGCTTAGAACTGA
+        : :                                                        
+BACR48 CTATAGATGGGCGAATAGCACCAAAGACGAAGTTTTACGAAAAGCACCGAATTTACGTTG
+   86710     86720     86730     86740     86750     86760         
+
+>>BACR15O02 : AC009735, 159478 bases, from 3R:82.         (73982 nt)
+ initn: 179 init1: 179 opt: 217  Z-score: 106.3  bits: 39.0 E(): 0.63
+ 64.800% identity (66.393% ungapped) in 125 nt overlap (168-289:126836-126960)
+
+       140       150       160       170       180          190    
+HUMBE- AACTAATGCACAGAGCACATTGATTTGTATTTATTCTATTTTTAGACATA---ATTTATT
+                                     :::::  :: :: : :  ::   :: ::: 
+BACR15 TGTATATCAGAAAGTTCACGAAACCACAGATTATTAAATATTAATATCTATCTATATATA
+      126810    126820    126830    126840    126850    126860     
+
+          200       210       220       230       240       250    
+HUMBE- AGCATGCATGAGCAAATTAAGAAAAACAACAACAAATGAATGCATATATATGTATATGTA
+        : ::  ::    : ::  : : : :::   :   ::  ::: :::::: : ::::::::
+BACR15 TGTATATATATATACATGTATATATACATATATGTATATATGTATATATGTATATATGTA
+      126870    126880    126890    126900    126910    126920     
+
+          260       270       280       290       300       310    
+HUMBE- TGTGTGTACATATACACATATATATATATATATATTTTTTCTTTTCTTACCAGAAGGTTT
+       : : :::: ::::  : :::: :::::::::::::                         
+BACR15 TATATGTATATATGTATATATGTATATATATATATACATATACATATATACATATGTATA
+      126930    126940    126950    126960    126970    126980     
+
+          320       330       340       350       360       370    
+HUMBE- TAATCCAAATAAGGAGAAGATATGCTTAGAACTGAGGTAGAGTTTTCATCCATTCTGTCC
+                                                                   
+BACR15 TTTATATATATGTGTGAATATGTGTAACTTAATAGGAAAATGAATTTAATAGAGAAACAA
+      126990    127000    127010    127020    127030    127040     
+
+>>BACR30G03 : AC008355, 151500 bases, from 3R:82.         (73982 nt)
+ initn: 179 init1: 179 opt: 217  Z-score: 106.3  bits: 39.0 E(): 0.63
+ 64.800% identity (66.393% ungapped) in 125 nt overlap (168-289:39251-39375)
+
+       140       150       160       170       180          190    
+HUMBE- AACTAATGCACAGAGCACATTGATTTGTATTTATTCTATTTTTAGACATA---ATTTATT
+                                     :::::  :: :: : :  ::   :: ::: 
+BACR30 TGTATATCAGAAAGTTCACGAAACCACAGATTATTAAATATTAATATCTATCTATATATA
+            39230     39240     39250     39260     39270     39280
+
+          200       210       220       230       240       250    
+HUMBE- AGCATGCATGAGCAAATTAAGAAAAACAACAACAAATGAATGCATATATATGTATATGTA
+        : ::  ::    : ::  : : : :::   :   ::  ::: :::::: : ::::::::
+BACR30 TGTATATATATATACATGTATATATACATATATGTATATATGTATATATGTATATATGTA
+            39290     39300     39310     39320     39330     39340
+
+          260       270       280       290       300       310    
+HUMBE- TGTGTGTACATATACACATATATATATATATATATTTTTTCTTTTCTTACCAGAAGGTTT
+       : : :::: ::::  : :::: :::::::::::::                         
+BACR30 TATATGTATATATGTATATATGTATATATATATATACATATACATATATACATATGTATA
+            39350     39360     39370     39380     39390     39400
+
+          320       330       340       350       360       370    
+HUMBE- TAATCCAAATAAGGAGAAGATATGCTTAGAACTGAGGTAGAGTTTTCATCCATTCTGTCC
+                                                                   
+BACR30 TTTATATATATGTGTGAATATGTGTAACTTAATAGGAAAATGAATTTAATAGAGAAACAA
+            39410     39420     39430     39440     39450     39460
+
+>>BACR13P06 : AC008339, 180296 bases, from 2R:42.         (73982 nt)
+rev-comp initn:  90 init1:  90 opt: 216  Z-score: 105.6  bits: 38.9 E(): 0.69
+ 63.030% identity (65.409% ungapped) in 165 nt overlap (333-170:71421-71580)
+
+        360       350       340       330       320        310     
+HUMBE- ATGAAAACTCTACCTCAGTTCTAAGCATATCTTCTCCTTATTTGGAT-TAAAACCTTCTG
+                                     ::: :: :   : : :: :: :  ::::: 
+BACR13 ATTTAAATATATCGTTTTTATTTTATTACACTTTTCATATATCGTATATATAGACTTCT-
+            71400     71410     71420     71430     71440          
+
+         300       290       280       270       260       250     
+HUMBE- GTAAGAAAAGAAAAAATATATATATATATATATGTGTATATGTACACACATACATATACA
+       :: :::         :::::::::::::::::: : ::::: :::: :: ::  ::::::
+BACR13 GTTAGATTTATGTTTATATATATATATATATATATATATATTTACA-ACTTAATTATACA
+   71450     71460     71470     71480     71490      71500        
+
+         240       230       220       210       200       190     
+HUMBE- TATATATGCATTCATTTGTTGTTGTTTTTCTTAATTTGCTCATGCATGCTAATAAATTAT
+         :::    :::  : :::   : :  :::: ::::     ::  ::  ::: :::::: 
+BACR13 ACTATGCAAATT-GTATGTGTATCTAGTTCTAAATTAATGTATTGAT--TAAGAAATTAG
+    71510     71520      71530     71540     71550       71560     
+
+         180       170       160       150       140       130     
+HUMBE- GTCTAAAAATAGAATAAATACAAATCAATGTGCTCTGTGCATTAGTTACTTATTAGGTTT
+          :::::::  :::                                             
+BACR13 TATTAAAAATGTAATCTTTGCGCCCTTACTTTTAGATTAAACTTTTGACAATTGGCCTGA
+       71570     71580     71590     71600     71610     71620     
+
+>>BACR22H11 : AC013431, 191558 bases, from X:13.          (73982 nt)
+rev-comp initn: 188 init1: 188 opt: 216  Z-score: 105.6  bits: 38.9 E(): 0.69
+ 65.185% identity (67.176% ungapped) in 135 nt overlap (293-160:117009-117140)
+
+        320       310       300       290       280       270      
+HUMBE- TTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGTGTATAT
+                                     : : :::::::::::::::::: : :::::
+BACR22 TAATTAGTAATAATACGATTACACACACACACACATATATATATATATATATATATATAT
+   116980    116990    117000    117010    117020    117030        
+
+        260       250       240       230       220        210     
+HUMBE- GTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTTAAT-TTGCT
+        :: : : ::: ::::: ::::::::  ::  :: : :   : :      :::: :  : 
+BACR22 ATATATATATATATATATATATATATTAATATATATATATATTTACCAAATAATATAACA
+   117040    117050    117060    117070    117080    117090        
+
+         200       190       180       170       160       150     
+HUMBE- CATGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGCTCTGTGC
+        ::  :::::  :::: ::  : ::  : :: :  ::::::  ::               
+BACR22 TATTTATGCT-CTAAAGTA--TATATGACTACAGCAAATACGCATTTTTTGATTTTTTGT
+   117100     117110      117120    117130    117140    117150     
+
+         140       130       120       110       100        90     
+HUMBE- ATTAGTTACTTATTAGGTTTTGGGAAACAAGAGGTAAAAAACTAGAGACCTCTTAATGCA
+                                                                   
+BACR22 TCGTAGATAAGATAAGTTAATGTGAAAAGAATAACATGATTGCATACTAAAAAGTTCCAC
+      117160    117170    117180    117190    117200    117210     
+
+>>BACR25C18 : AC092401, 185200 bases, from X:13.          (73982 nt)
+rev-comp initn: 188 init1: 188 opt: 216  Z-score: 105.6  bits: 38.9 E(): 0.69
+ 65.185% identity (67.176% ungapped) in 135 nt overlap (293-160:138279-138410)
+
+        320       310       300       290       280       270      
+HUMBE- TTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGTGTATAT
+                                     : : :::::::::::::::::: : :::::
+BACR25 TAATTAGTAATAATACGATTACACACACACACACATATATATATATATATATATATATAT
+   138250    138260    138270    138280    138290    138300        
+
+        260       250       240       230       220        210     
+HUMBE- GTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTTAAT-TTGCT
+        :: : : ::: ::::: ::::::::  ::  :: : :   : :      :::: :  : 
+BACR25 ATATATATATATATATATATATATATTAATATATATATATATTTACCAAATAATATAACA
+   138310    138320    138330    138340    138350    138360        
+
+         200       190       180       170       160       150     
+HUMBE- CATGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGCTCTGTGC
+        ::  :::::  :::: ::  : ::  : :: :  ::::::  ::               
+BACR25 TATTTATGCT-CTAAAGTA--TATATGACTACAGCAAATACGCATTTTTTGATTTTTTGT
+   138370     138380      138390    138400    138410    138420     
+
+         140       130       120       110       100        90     
+HUMBE- ATTAGTTACTTATTAGGTTTTGGGAAACAAGAGGTAAAAAACTAGAGACCTCTTAATGCA
+                                                                   
+BACR25 TCGTAGATAAGATAAGTTAATGTGAAAAGAATAACATGATTGCATACTAAAAAGTTCCAC
+      138430    138440    138450    138460    138470    138480     
+
+>>BACR25O02 : AC018490, 165098 bases, from X:17.          (73982 nt)
+ initn: 188 init1: 188 opt: 216  Z-score: 105.6  bits: 38.9 E(): 0.69
+ 62.585% identity (65.248% ungapped) in 147 nt overlap (153-293:33754-33900)
+
+            130       140       150       160            170       
+HUMBE- CAAAACCTAATAAGTAACTAATGCACAGAGCACATTGATTTGTA-----TTTATTCTATT
+                                     ::: :: :: : ::     : :::  : ::
+BACR25 CGGAGCTTAGATTTGGCGCAGCAGACGACACACTTTAATGTATACAATGTATATGATCTT
+         33730     33740     33750     33760     33770     33780   
+
+       180       190       200       210        220       230      
+HUMBE- TTTAGACATAATTTATTAGCATGCATGAGCAAAT-TAAGAAAAACAACAACAAATGAATG
+       : :   :::::   :  :   : :::    ::::  :::  : :::   ::: ::  :: 
+BACR25 TCTGCGCATAAGAAACAATTTTCCATAGTTAAATCGAAGCTACACATACACATATATATA
+         33790     33800     33810     33820     33830     33840   
+
+        240       250       260       270       280       290      
+HUMBE- CATATATATGTATATGTATGTGTGTACATATACACATATATATATATATATATTTTTTCT
+         ::::::::::::: ::    : :: ::::: : :::::::::::::::::: : :   
+BACR25 TGTATATATGTATATATACACATATATATATATATATATATATATATATATATATATATA
+         33850     33860     33870     33880     33890     33900   
+
+        300       310       320       330       340       350      
+HUMBE- TTTCTTACCAGAAGGTTTTAATCCAAATAAGGAGAAGATATGCTTAGAACTGAGGTAGAG
+                                                                   
+BACR25 TATATATATATACTCCCCCTCAAAGTCAAAAAGCAGTAATCAAGATCGAGATGAATATAG
+         33910     33920     33930     33940     33950     33960   
+
+>>BACR11C03 : AC008220, 186549 bases, from 3R:100.        (73982 nt)
+ initn: 209 init1: 209 opt: 216  Z-score: 105.6  bits: 38.9 E(): 0.69
+ 68.571% identity (69.231% ungapped) in 105 nt overlap (188-291:32153-32257)
+
+       160       170       180       190       200        210      
+HUMBE- TGATTTGTATTTATTCTATTTTTAGACATAATTTATTAGCATGCATG-AGCAAATTAAGA
+                                     :: :::  : :  :: : :::::: :    
+BACR11 TGCGCGCTTAAGTGTTTAAAAATCGGAAAGATATATATGAACACAGGCAGCAAAGTGCAG
+          32130     32140     32150     32160     32170     32180  
+
+        220       230       240       250       260       270      
+HUMBE- AAAACAACAACAAATGAATGCATATATATGTATATGTATGTGTGTACATATACACATATA
+       :  :: : :  : ::  ::  :::::::: ::::: ::: : : :: ::::: : :::::
+BACR11 ACCACGAAAGTATATATATATATATATATATATATATATATATATATATATATATATATA
+          32190     32200     32210     32220     32230     32240  
+
+        280       290       300       310       320       330      
+HUMBE- TATATATATATATTTTTTCTTTTCTTACCAGAAGGTTTTAATCCAAATAAGGAGAAGATA
+       ::::::::::::: :                                             
+BACR11 TATATATATATATATAAATATATATATATAGATAGGGGAGTAGGCGGTACAGAAGGTTAC
+          32250     32260     32270     32280     32290     32300  
+
+>>BACR06P08 : AC007975, 180630 bases, from 3R:100.        (38670 nt)
+ initn: 209 init1: 209 opt: 216  Z-score: 110.2  bits: 38.8 E(): 0.74
+ 68.571% identity (69.231% ungapped) in 105 nt overlap (188-291:154200-154304)
+
+       160       170       180       190       200        210      
+HUMBE- TGATTTGTATTTATTCTATTTTTAGACATAATTTATTAGCATGCATG-AGCAAATTAAGA
+                                     :: :::  : :  :: : :::::: :    
+BACR06 TGCGCGCTTAAGTGTTTAAAAATCGGAAAGATATATATGAACACAGGCAGCAAAGTGCAG
+  154170    154180    154190    154200    154210    154220         
+
+        220       230       240       250       260       270      
+HUMBE- AAAACAACAACAAATGAATGCATATATATGTATATGTATGTGTGTACATATACACATATA
+       :  :: : :  : ::  ::  :::::::: ::::: ::: : : :: ::::: : :::::
+BACR06 ACCACGAAAGTATATATATATATATATATATATATATATATATATATATATATATATATA
+  154230    154240    154250    154260    154270    154280         
+
+        280       290       300       310       320       330      
+HUMBE- TATATATATATATTTTTTCTTTTCTTACCAGAAGGTTTTAATCCAAATAAGGAGAAGATA
+       ::::::::::::: :                                             
+BACR06 TATATATATATATATAAATATATATATATAGATAGGGGAGTAGGCGGTACAGAAGGTTAC
+  154290    154300    154310    154320    154330    154340         
+
+>>BACR29F06 : AC008203, 174728 bases, from 3R:95.         (73982 nt)
+rev-comp initn: 198 init1: 198 opt: 215  Z-score: 105.0  bits: 38.7 E(): 0.75
+ 68.807% identity (70.093% ungapped) in 109 nt overlap (299-192:13760-13867)
+
+    330       320       310       300       290       280          
+HUMBE- TCCTTATTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGT
+                                     ::::  : : :::::::::::::::::: :
+BACR29 AAACAAAAAAAAAGAAATAGTATAGAATGCAAAAATATATATATATATATATATATATAT
+   13730     13740     13750     13760     13770     13780         
+
+    270       260       250       240        230       220         
+HUMBE- GTATATGTACACACATACATATACATATATATGC-ATTCATTTGTTGTTGTTTTTCTTAA
+        ::::: :: : : ::: :: ::::::::::::: ::  :  : :   : : :: : : :
+BACR29 ATATATATATATATATATATGTACATATATATGCTATATAGATTTCTATATATTCCATTA
+   13790     13800     13810     13820     13830     13840         
+
+     210       200       190       180       170       160         
+HUMBE- TTTGCTCATGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGCT
+        ::: :::  :    ::::                                         
+BACR29 -TTGATCAGTCTGTGTAATCTCTCTCGCTAAAGAAACGCCTGATGCTGGATGCTAGAGGC
+    13850     13860     13870     13880     13890     13900        
+
+>>BACR48E23 : AC005721, 203183 bases, from 3R:88.         (73982 nt)
+rev-comp initn: 189 init1: 189 opt: 215  Z-score: 105.0  bits: 38.7 E(): 0.75
+ 64.085% identity (67.407% ungapped) in 142 nt overlap (325-187:64593-64730)
+
+          350       340       330       320       310        300   
+HUMBE- TCTACCTCAGTTCTAAGCATATCTTCTCCTTATTTGGATTAAAACCTTCTGGTA-AGAAA
+                                     ::::::  ::::    :::   :: : : :
+BACR48 TTCGAAAATTTGCTTTAATTCATATATTTATATTTGCTTTAA----TTCATATATATATA
+          64570     64580     64590     64600         64610        
+
+           290       280       270       260       250       240   
+HUMBE- AGAAAAAATATATATATATATATATGTGTATATGTACACACATACATATACATATATATG
+          : : :::::::::::::::::: : ::::: :  : : ::: ::::: :::  ::: 
+BACR48 TATATATATATATATATATATATATATATATATATGTATATATATATATATATAATTATC
+    64620     64630     64640     64650     64660     64670        
+
+           230       220         210       200       190       180 
+HUMBE- CATTCATTTGTTGTTGTTTTTC--TTAATTTGCTCATGCATGCTAATAAATTATGTCTAA
+        :     : ::: : :::::::  ::  :::    ::   ::::::::  ::        
+BACR48 AAAGTTATAGTTTTAGTTTTTCAGTTTTTTTCAATATAGTTGCTAATAGTTTTGCCGATA
+    64680     64690     64700     64710     64720     64730        
+
+             170       160       150       140       130       120 
+HUMBE- AAATAGAATAAATACAAATCAATGTGCTCTGTGCATTAGTTACTTATTAGGTTTTGGGAA
+                                                                   
+BACR48 GTGCTACCTGTAGTTTCCACTTGCCATCTCTAAAAACGTGATAAACACGCTTGTTTTGTT
+    64740     64750     64760     64770     64780     64790        
+
+>>BACR22N03 : AC092397, 167201 bases, from 2L:26.         (73982 nt)
+rev-comp initn: 206 init1: 206 opt: 215  Z-score: 105.0  bits: 38.7 E(): 0.75
+ 74.684% identity (74.684% ungapped) in 79 nt overlap (311-233:100674-100752)
+
+      340       330       320       310       300       290        
+HUMBE- AAGCATATCTTCTCCTTATTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATAT
+                                     ::  ::::::  : : ::: : ::::::::
+BACR22 CGCGTCTTGCCGCACTCAAAACTGCCACTGCCAGCTGGTAGCACATGAATATATATATAT
+        100650    100660    100670    100680    100690    100700   
+
+      280       270       260       250       240       230        
+HUMBE- ATATATATATGTGTATATGTACACACATACATATACATATATATGCATTCATTTGTTGTT
+       :::::::::: : ::::: :: : : ::: :::::   ::::::  :::           
+BACR22 ATATATATATATATATATATATATATATATATATAGGGATATATATATTTTCCTGATATC
+        100710    100720    100730    100740    100750    100760   
+
+      220       210       200       190       180       170        
+HUMBE- GTTTTTCTTAATTTGCTCATGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAA
+                                                                   
+BACR22 TAGCCACAGCGCGACATGAAAATTCAGCTACGGTCTCGTTCGACGATCGTCTCCCAGCGA
+        100770    100780    100790    100800    100810    100820   
+
+>>BACR08H11 : AC008136, 154890 bases, from 3R:88.         (73982 nt)
+rev-comp initn: 189 init1: 189 opt: 215  Z-score: 105.0  bits: 38.7 E(): 0.75
+ 64.085% identity (67.407% ungapped) in 142 nt overlap (325-187:86974-87111)
+
+          350       340       330       320       310        300   
+HUMBE- TCTACCTCAGTTCTAAGCATATCTTCTCCTTATTTGGATTAAAACCTTCTGGTA-AGAAA
+                                     ::::::  ::::    :::   :: : : :
+BACR08 TTCGAAAATTTGCTTTAATTCATATATTTATATTTGCTTTAA----TTCATATATATATA
+         86950     86960     86970     86980         86990         
+
+           290       280       270       260       250       240   
+HUMBE- AGAAAAAATATATATATATATATATGTGTATATGTACACACATACATATACATATATATG
+          : : :::::::::::::::::: : ::::: :  : : ::: ::::: :::  ::: 
+BACR08 TATATATATATATATATATATATATATATATATATGTATATATATATATATATAATTATC
+   87000     87010     87020     87030     87040     87050         
+
+           230       220         210       200       190       180 
+HUMBE- CATTCATTTGTTGTTGTTTTTC--TTAATTTGCTCATGCATGCTAATAAATTATGTCTAA
+        :     : ::: : :::::::  ::  :::    ::   ::::::::  ::        
+BACR08 AAAGTTATAGTTTTAGTTTTTCAGTTTTTTTCAATATAGTTGCTAATAGTTTTGCCGATA
+   87060     87070     87080     87090     87100     87110         
+
+             170       160       150       140       130       120 
+HUMBE- AAATAGAATAAATACAAATCAATGTGCTCTGTGCATTAGTTACTTATTAGGTTTTGGGAA
+                                                                   
+BACR08 GTGCTACCTGTAGTTTCCACTTGCCATCTCTAAAAACGTGATAAACACGCTTGTTTTGTT
+   87120     87130     87140     87150     87160     87170         
+
+>>BACR15J11 : AC008202, 186159 bases, from 3R:95.         (44199 nt)
+rev-comp initn: 198 init1: 198 opt: 215  Z-score: 108.6  bits: 38.7 E(): 0.79
+ 68.807% identity (70.093% ungapped) in 109 nt overlap (299-192:182666-182773)
+
+    330       320       310       300       290       280          
+HUMBE- TCCTTATTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGT
+                                     ::::  : : :::::::::::::::::: :
+BACR15 AAACAAAAAAAAAGAAATAGTATAGAATGCAAAAATATATATATATATATATATATATAT
+      182640    182650    182660    182670    182680    182690     
+
+    270       260       250       240        230       220         
+HUMBE- GTATATGTACACACATACATATACATATATATGC-ATTCATTTGTTGTTGTTTTTCTTAA
+        ::::: :: : : ::: :: ::::::::::::: ::  :  : :   : : :: : : :
+BACR15 ATATATATATATATATATATGTACATATATATGCTATATAGATTTCTATATATTCCATTA
+      182700    182710    182720    182730    182740    182750     
+
+     210       200       190       180       170       160         
+HUMBE- TTTGCTCATGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGCT
+        ::: :::  :    ::::                                         
+BACR15 -TTGATCAGTCTGTGTAATCTCTCTCGCTAAAGAAACGCCTGATGCTGGATGCTAGAGGC
+       182760    182770    182780    182790    182800    182810    
+
+>>BACR14N05 : AC099033, 170299 bases, from 2R:55.         (73982 nt)
+ initn: 265 init1: 193 opt: 214  Z-score: 104.3  bits: 38.6 E(): 0.81
+ 79.412% identity (79.412% ungapped) in 68 nt overlap (234-301:116424-116491)
+
+           210       220       230       240       250       260   
+HUMBE- GAGCAAATTAAGAAAAACAACAACAAATGAATGCATATATATGTATATGTATGTGTGTAC
+                                     :: ::::::: : ::::::::: : : :: 
+BACR14 AGGTAAAGGGGGTACAGAACTTATATGCACATCCATATATTTATATATGTATATATATAT
+        116400    116410    116420    116430    116440    116450   
+
+           270       280       290       300       310       320   
+HUMBE- ATATACACATATATATATATATATATTTTTTCTTTTCTTACCAGAAGGTTTTAATCCAAA
+       ::::: : :::::::::::::::::: : :  :::: :                      
+BACR14 ATATATATATATATATATATATATATATGTGTTTTTGTGGAAGGACTAAGGCGCGGTTCA
+        116460    116470    116480    116490    116500    116510   
+
+           330       340       350       360       370       380   
+HUMBE- TAAGGAGAAGATATGCTTAGAACTGAGGTAGAGTTTTCATCCATTCTGTCCTGTAAGTAT
+                                                                   
+BACR14 CCGATTGCGATGAACTATGGCATGGAAAGCTGCTCCTCTTTCTCTATTCATAAAACCATT
+        116520    116530    116540    116550    116560    116570   
+
+>>BACR48A20 : AC011072, 166158 bases, from 2R:55.         (73982 nt)
+ initn: 265 init1: 193 opt: 214  Z-score: 104.3  bits: 38.6 E(): 0.81
+ 79.412% identity (79.412% ungapped) in 68 nt overlap (234-301:26695-26762)
+
+           210       220       230       240       250       260   
+HUMBE- GAGCAAATTAAGAAAAACAACAACAAATGAATGCATATATATGTATATGTATGTGTGTAC
+                                     :: ::::::: : ::::::::: : : :: 
+BACR48 AGGTAAAGGGGGTACAGAACTTATATGCACATCCATATATTTATATATGTATATATATAT
+        26670     26680     26690     26700     26710     26720    
+
+           270       280       290       300       310       320   
+HUMBE- ATATACACATATATATATATATATATTTTTTCTTTTCTTACCAGAAGGTTTTAATCCAAA
+       ::::: : :::::::::::::::::: : :  :::: :                      
+BACR48 ATATATATATATATATATATATATATATGTGTTTTTGTGGAAGGACTAAGGCGCGGTTCA
+        26730     26740     26750     26760     26770     26780    
+
+           330       340       350       360       370       380   
+HUMBE- TAAGGAGAAGATATGCTTAGAACTGAGGTAGAGTTTTCATCCATTCTGTCCTGTAAGTAT
+                                                                   
+BACR48 CCGATTGCGATGAACTATGGCATGGAAAGCTGCTCCTCTTTCTCTATTCATAAAACCATT
+        26790     26800     26810     26820     26830     26840    
+
+>>BACR19D23 : AC095014, 170801 bases, from 3R:84.         (73982 nt)
+rev-comp initn: 131 init1: 131 opt: 214  Z-score: 104.3  bits: 38.6 E(): 0.81
+ 64.773% identity (69.091% ungapped) in 176 nt overlap (324-154:100627-100796)
+
+         350       340       330       320       310       300     
+HUMBE- CTACCTCAGTTCTAAGCATATCTTCTCCTTATTTGGATTAAAACCTTCTGGTAAGAAAAG
+                                     :: : :: :::::  :  : :: : ::  :
+BACR19 GGCATCCTCTGACCTTAAAATACTATAAAGATATTGA-TAAAATATAAT-GTTATAAGCG
+     100600    100610    100620    100630     100640     100650    
+
+         290       280       270       260       250       240     
+HUMBE- AAAAAATATATATATATATATATGTGTATATGTACACACATACATATACATATATATGCA
+       ::: :: :::::: :::: :::: : ::::: :: : : ::::::::: ::::::    :
+BACR19 AAATAAAATATAT-TATA-ATATATATATATATATATATATACATATATATATATTCTAA
+       100660     100670     100680    100690    100700    100710  
+
+         230         220       210       200         190           
+HUMBE- TTCATTTGT--TGTTGTTTTTCTTAATTTGCTCATGCATGCTAATAA--ATTAT-GTCTA
+       :  : :: :  : :: :: :  :  :: :  : ::  ::  : ::::  :: ::  : ::
+BACR19 TATAATTATAATATTATTATAATATATATAATAAT-TATTATTATAATTATAATAATATA
+         100720    100730    100740     100750    100760    100770 
+
+    180       170       160       150       140       130          
+HUMBE- AAAATAGAATAAATACAAATCAATGTGCTCTGTGCATTAGTTACTTATTAGGTTTTGGGA
+       : :::: ::::: :: ::: :  :::                                  
+BACR19 ATAATA-AATAATTAGAAAACCTTGTTAGAAAGAAACCATTTATTAAAAATGTTGTCGAA
+           100780    100790    100800    100810    100820    100830
+
+>>BACR19J06 : AC010581, 175053 bases, from 3R:85.         (73982 nt)
+ initn: 188 init1: 188 opt: 214  Z-score: 104.3  bits: 38.6 E(): 0.81
+ 72.093% identity (72.093% ungapped) in 86 nt overlap (208-293:63609-63694)
+
+       180       190       200       210       220       230       
+HUMBE- TTTAGACATAATTTATTAGCATGCATGAGCAAATTAAGAAAAACAACAACAAATGAATGC
+                                     :::: :  :: :: :   : : :  :::  
+BACR19 TCGTGCTTATGAAAATAGTCGAATCTATATAAATAATTAATAATATATATATAAAAATAT
+    63580     63590     63600     63610     63620     63630        
+
+       240       250       260       270       280       290       
+HUMBE- ATATATATGTATATGTATGTGTGTACATATACACATATATATATATATATATTTTTTCTT
+       :::::::: ::::: ::: : : :: ::::: : :::::::::::::::: ::: :    
+BACR19 ATATATATATATATATATATATATATATATATATATATATATATATATATGTTTATAAAC
+    63640     63650     63660     63670     63680     63690        
+
+       300       310       320       330       340       350       
+HUMBE- TTCTTACCAGAAGGTTTTAATCCAAATAAGGAGAAGATATGCTTAGAACTGAGGTAGAGT
+                                                                   
+BACR19 TTCCTCAACATGTAATTCTTGGAATACTTTATCAGTTAGCGGATTCATTTTTTGATAAGT
+    63700     63710     63720     63730     63740     63750        
+
+>>BACR11B14 : 174999 bases, from 2R:41.                   (73982 nt)
+rev-comp initn: 103 init1: 103 opt: 213  Z-score: 103.7  bits: 38.5 E(): 0.88
+ 62.500% identity (65.217% ungapped) in 168 nt overlap (303-141:116881-117046)
+
+        330       320       310       300       290         280    
+HUMBE- CTTCTCCTTATTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATAT--ATATATATAT
+                                     :: : : : : :: ::::  ::::::  ::
+BACR11 GGCGGACGAGTTGACTCAGCTGTTGATACTTATGTATATATAATATATTAATATATTAAT
+           116860    116870    116880    116890    116900    116910
+
+          270       260       250       240       230       220    
+HUMBE- ATATGTGTATATGTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTT
+       : :::: ::::: :  : ::::: :::::  :::: ::  ::   : : :: :: : : :
+BACR11 ACATGTATATATATTAATACATATATATATCTATACATAAAT--GTATATTTTTATATAT
+           116920    116930    116940    116950      116960        
+
+          210       200       190         180        170       160 
+HUMBE- CTTAATTTGCTCATGCATGCTAATAAAT-TATGTCTA-AAAATAGA-ATAAATACAAATC
+        : ::: :    :  ::   ::::: :: ::: : :: :: ::: : ::  ::: : :: 
+BACR11 TTAAATGTATATAAACAAATTAATATATATATTTATATAATATATATATGCATATATATA
+   116970    116980    116990    117000    117010    117020        
+
+             150       140       130       120       110       100 
+HUMBE- AATGTGCTCTGTGCATTAGTTACTTATTAGGTTTTGGGAAACAAGAGGTAAAAAACTAGA
+       :   ::   ::: :::::                                          
+BACR11 ATACTGAAATGTACATTAAATCTCAATCCCTAAGTTGCTCCCTCTGCAAGGCTAAACAAA
+   117030    117040    117050    117060    117070    117080        
+
+>>BACR06P07 : 187793 bases, from 2R:41.                   (45833 nt)
+ initn: 103 init1: 103 opt: 213  Z-score: 107.0  bits: 38.4 E(): 0.93
+ 62.500% identity (65.217% ungapped) in 168 nt overlap (141-303:178570-178735)
+
+              120       130       140       150       160       170
+HUMBE- CCTCTTGTTTCCCAAAACCTAATAAGTAACTAATGCACAGAGCACATTGATTTGTATTTA
+                                     ::::: :::   ::   : :: : :::  :
+BACR06 TGCAGAGGGAGCAACTTAGGGATTGAGATTTAATGTACATTTCAGTATTATATATATGCA
+  178540    178550    178560    178570    178580    178590         
+
+                180        190       200         210       220     
+HUMBE- T-TCTAT-TTTTAGACATA-ATTTATTAGCATG--CATGAGCAAATTAAGAAAAACAACA
+       : : ::: :: :: : ::: :: :::::   ::   ::   ::  : :: : : : ::  
+BACR06 TATATATATTATATAAATATATATATTAATTTGTTTATATACATTTAAATATATAAAAAT
+  178600    178610    178620    178630    178640    178650         
+
+         230       240       250       260       270       280     
+HUMBE- ACAAATGAATGCATATATATGTATATGTATGTGTGTACATATACACATATATATATATAT
+       : : ::  ::: ::: :::: ::::::::  :   :: :::::::  :::  ::::::  
+BACR06 ATACATTTATGTATAGATATATATATGTA--TTAATATATATACATGTATTAATATATTA
+  178660    178670    178680      178690    178700    178710       
+
+         290       300       310       320       330       340     
+HUMBE- ATATTTTTTCTTTTCTTACCAGAAGGTTTTAATCCAAATAAGGAGAAGATATGCTTAGAA
+       :::: :: : : : : ::                                          
+BACR06 ATATATTATATATACATAAGTATCAACAGCTGAGTCAACTCGTCCGCCTGTTTTTACCTA
+    178720    178730    178740    178750    178760    178770       
+
+>>BACR19J06 : AC010581, 175053 bases, from 3R:85.         (73982 nt)
+rev-comp initn: 208 init1: 208 opt: 212  Z-score: 103.1  bits: 38.4 E(): 0.96
+ 81.250% identity (81.250% ungapped) in 64 nt overlap (293-230:63631-63694)
+
+        320       310       300       290       280       270      
+HUMBE- TTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGTGTATAT
+                                     :::::::::::::::::::::: : :::::
+BACR19 ATCTATATAAATAATTAATAATATATATATAAAAATATATATATATATATATATATATAT
+            63610     63620     63630     63640     63650     63660
+
+        260       250       240       230       220       210      
+HUMBE- GTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTTAATTTGCTC
+        :: : : ::: ::::: ::::::::   :: ::                          
+BACR19 ATATATATATATATATATATATATATATGTTTATAAACTTCCTCAACATGTAATTCTTGG
+            63670     63680     63690     63700     63710     63720
+
+        200       190       180       170       160       150      
+HUMBE- ATGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGCTCTGTGCA
+                                                                   
+BACR19 AATACTTTATCAGTTAGCGGATTCATTTTTTGATAAGTGCACTTAGGACCCGAAACTGGG
+            63730     63740     63750     63760     63770     63780
+
+>>BACR25C18 : AC092401, 185200 bases, from X:13.          (73982 nt)
+ initn: 198 init1: 198 opt: 210  Z-score: 101.8  bits: 38.1 E():  1.1
+ 70.968% identity (74.157% ungapped) in 93 nt overlap (202-290:138243-138335)
+
+             180       190       200       210       220           
+HUMBE- TCTATTTTTAGACATAATTTATTAGCATGCATGAGCAAATTAAGAAAAACAACA----AC
+                                     :: : : :::::  :: :: :  :    ::
+BACR25 GTATTCTGAATGTAAAACAGCCTAATTAAAATTATCTAATTAGTAATAATACGATTACAC
+         138220    138230    138240    138250    138260    138270  
+
+       230       240       250       260       270       280       
+HUMBE- AAATGAATGCATATATATGTATATGTATGTGTGTACATATACACATATATATATATATAT
+       : :   :  ::::::::: ::::: ::: : : :: ::::: : ::::::::::::::::
+BACR25 ACACACACACATATATATATATATATATATATATATATATATATATATATATATATATAT
+         138280    138290    138300    138310    138320    138330  
+
+       290       300       310       320       330       340       
+HUMBE- ATTTTTTCTTTTCTTACCAGAAGGTTTTAATCCAAATAAGGAGAAGATATGCTTAGAACT
+       :::                                                         
+BACR25 ATTAATATATATATATATTTACCAAATAATATAACATATTTATGCTCTAAAGTATATATG
+         138340    138350    138360    138370    138380    138390  
+
+>>BACR22N03 : AC092397, 167201 bases, from 2L:26.         (73982 nt)
+ initn: 183 init1: 183 opt: 210  Z-score: 101.8  bits: 38.1 E():  1.1
+ 77.333% identity (79.452% ungapped) in 75 nt overlap (225-297:100683-100757)
+
+          200       210       220       230       240       250    
+HUMBE- AGCATGCATGAGCAAATTAAGAAAAACAACAACAAATGAATGCATATATATGTATATGTA
+                                     : :: ::::::  :::::::: ::::: ::
+BACR22 CCGCACTCAAAACTGCCACTGCCAGCTGGTAGCACATGAATATATATATATATATATATA
+         100660    100670    100680    100690    100700    100710  
+
+          260       270       280         290       300       310  
+HUMBE- TGTGTGTACATATACACATATATATA--TATATATATTTTTTCTTTTCTTACCAGAAGGT
+       : : : :: ::::: : :::::::::   :::::::: ::::: :               
+BACR22 TATATATATATATATATATATATATAGGGATATATATATTTTCCTGATATCTAGCCACAG
+         100720    100730    100740    100750    100760    100770  
+
+            320       330       340       350       360       370  
+HUMBE- TTTAATCCAAATAAGGAGAAGATATGCTTAGAACTGAGGTAGAGTTTTCATCCATTCTGT
+                                                                   
+BACR22 CGCGACATGAAAATTCAGCTACGGTCTCGTTCGACGATCGTCTCCCAGCGAACTGAAATC
+         100780    100790    100800    100810    100820    100830  
+
+>>BACR03L12 : AC008357, 190672 bases, from 3R:86.         (73982 nt)
+rev-comp initn: 147 init1: 147 opt: 210  Z-score: 101.8  bits: 38.1 E():  1.1
+ 65.217% identity (67.669% ungapped) in 138 nt overlap (302-165:5957-6089)
+
+       330       320       310       300       290       280       
+HUMBE- TTCTCCTTATTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATA
+                                     :: :::   : :::::::::::::::::::
+BACR03 ATATGTGTGCCAGCCCAACCAGCACACATAAATAAATATATAAATATATATATATATATA
+       5930      5940      5950      5960      5970      5980      
+
+       270       260       250       240       230       220       
+HUMBE- TGTGTATATGTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTT
+       : : ::::::::::   :::  :: : :::::: : :::  :: : : : :  : :: : 
+BACR03 TATATATATGTACATGTATAGGTA-AAATATATGTACAT--ATGTATGGGTTATATTGTG
+       5990      6000      6010       6020        6030      6040   
+
+       210       200       190       180       170       160       
+HUMBE- AATTTGCTCATGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTG
+         ::: :    ::  ::  : ::: :::   : ::::::   :::: :            
+BACR03 GCTTTCCCGGCGC-GGCATAAAAAGTATAAAT-AAAATAATTTAAAAAGGGCCAACGATT
+          6050       6060      6070       6080      6090      6100 
+
+       150       140       130       120       110       100       
+HUMBE- CTCTGTGCATTAGTTACTTATTAGGTTTTGGGAAACAAGAGGTAAAAAACTAGAGACCTC
+                                                                   
+BACR03 CGAAGGGGGTTAAAACTTTTCCCGAGCCCTGCTCCTCCACTTACCCTTTCTCACGATTTT
+            6110      6120      6130      6140      6150      6160 
+
+>>BACR10E07 : AC012675, 176818 bases, from 2L:27.         (73982 nt)
+ initn: 202 init1: 202 opt: 210  Z-score: 101.8  bits: 38.1 E():  1.1
+ 65.000% identity (65.546% ungapped) in 120 nt overlap (169-288:46142-46260)
+
+      140       150       160       170       180       190        
+HUMBE- ACTAATGCACAGAGCACATTGATTTGTATTTATTCTATTTTTAGACATAATTTATTAGCA
+                                     :::::  :::  ::    ::::::  : : 
+BACR10 CGATGAACTTCAGTCAATGCAAATGGAACCTATTC-GTTTCAAGGTGGAATTTAAAAACT
+           46120     46130     46140      46150     46160     46170
+
+      200       210       220       230       240       250        
+HUMBE- TGCATGAGCAAATTAAGAAAAACAACAACAAATGAATGCATATATATGTATATGTATGTG
+           : : :::  :  :::::::::::   :  ::::    :::: : ::: :::: :::
+BACR10 AAGGTAAACAAGATGGGAAAAACAACACAGATCGAATAATCATATTTATATCTGTAGGTG
+            46180     46190     46200     46210     46220     46230
+
+      260       270       280       290       300       310        
+HUMBE- TGTACATATACACATATATATATATATATATTTTTTCTTTTCTTACCAGAAGGTTTTAAT
+       ::::::::::    ::: :::::::: : :                              
+BACR10 TGTACATATATGTGTATGTATATATAAACAAGCCCTGATGAAAACGTATTGACGATGCAA
+            46240     46250     46260     46270     46280     46290
+
+>>BACR22H11 : AC013431, 191558 bases, from X:13.          (73982 nt)
+ initn: 198 init1: 198 opt: 210  Z-score: 101.8  bits: 38.1 E():  1.1
+ 70.968% identity (74.157% ungapped) in 93 nt overlap (202-290:116973-117065)
+
+             180       190       200       210       220           
+HUMBE- TCTATTTTTAGACATAATTTATTAGCATGCATGAGCAAATTAAGAAAAACAACA----AC
+                                     :: : : :::::  :: :: :  :    ::
+BACR22 GTATTCTGAATGTAAAACAGCCTAATTAAAATTATCTAATTAGTAATAATACGATTACAC
+         116950    116960    116970    116980    116990    117000  
+
+       230       240       250       260       270       280       
+HUMBE- AAATGAATGCATATATATGTATATGTATGTGTGTACATATACACATATATATATATATAT
+       : :   :  ::::::::: ::::: ::: : : :: ::::: : ::::::::::::::::
+BACR22 ACACACACACATATATATATATATATATATATATATATATATATATATATATATATATAT
+         117010    117020    117030    117040    117050    117060  
+
+       290       300       310       320       330       340       
+HUMBE- ATTTTTTCTTTTCTTACCAGAAGGTTTTAATCCAAATAAGGAGAAGATATGCTTAGAACT
+       :::                                                         
+BACR22 ATTAATATATATATATATTTACCAAATAATATAACATATTTATGCTCTAAAGTATATATG
+         117070    117080    117090    117100    117110    117120  
+
+>>BACR19I14 : AC095013, 175648 bases, from 3R:83.         (73982 nt)
+ initn: 251 init1: 188 opt: 210  Z-score: 101.8  bits: 38.1 E():  1.1
+ 71.930% identity (79.612% ungapped) in 114 nt overlap (187-293:87497-87606)
+
+        160       170       180       190       200       210      
+HUMBE- TTGATTTGTATTTATTCTATTTTTAGACATAATTTATTAGCATGCATGAGCAAATTAAGA
+                                     :: ::::  ::::   ::::    ::  : 
+BACR19 CAAGTCCCCCATGAAAATGGAGAAAAAATGAAATTATGCGCAT---TGAG-TTGTTCGGC
+      87470     87480     87490     87500        87510      87520  
+
+        220       230            240         250       260         
+HUMBE- AAAACAACAACAAA--TGAA---TGCATATATAT-GT-ATATGTATGTGTGTACATATAC
+       ::: : : ::::::  ::::    : :::::::: :: :::::::::: : :: ::::: 
+BACR19 AAACCCAAAACAAAGGTGAAGCCAGGATATATATAGTCATATGTATGTATATATATATAT
+          87530     87540     87550     87560     87570     87580  
+
+     270       280       290       300       310       320         
+HUMBE- ACATATATATATATATATATTTTTTCTTTTCTTACCAGAAGGTTTTAATCCAAATAAGGA
+       : :::::::::::::::::: : :                                    
+BACR19 ATATATATATATATATATATATATAGAGCTGCTTGTTTGGGTCCTACCAGATTTTTTTAT
+          87590     87600     87610     87620     87630     87640  
+
+>>BACR11C03 : AC008220, 186549 bases, from 3R:100.        (73982 nt)
+rev-comp initn: 188 init1: 188 opt: 210  Z-score: 101.8  bits: 38.1 E():  1.1
+ 78.261% identity (78.261% ungapped) in 69 nt overlap (298-230:32189-32257)
+
+             320       310       300       290       280       270 
+HUMBE- CCTTATTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGTG
+                                     :::: : : :::::::::::::::::: : 
+BACR11 ATGAACACAGGCAGCAAAGTGCAGACCACGAAAGTATATATATATATATATATATATATA
+    32160     32170     32180     32190     32200     32210        
+
+             260       250       240       230       220       210 
+HUMBE- TATATGTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTTAATT
+       ::::: :: : : ::: ::::: ::::::::  ::  ::                     
+BACR11 TATATATATATATATATATATATATATATATATATATATAAATATATATATATAGATAGG
+    32220     32230     32240     32250     32260     32270        
+
+             200       190       180       170       160       150 
+HUMBE- TGCTCATGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGCTCT
+                                                                   
+BACR11 GGAGTAGGCGGTACAGAAGGTTACATAATATAACATAGGAGGGCCTTATAAGTCAGAGCG
+    32280     32290     32300     32310     32320     32330        
+
+>>BACR23O04 : AC008316, 160817 bases, from 3R:85.         (73982 nt)
+rev-comp initn: 188 init1: 188 opt: 210  Z-score: 101.8  bits: 38.1 E():  1.1
+ 70.968% identity (71.739% ungapped) in 93 nt overlap (291-200:36477-36569)
+
+      320       310       300       290       280       270        
+HUMBE- TGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGTGTATATGT
+                                     : :::::::::::::::::: : ::::: :
+BACR23 AGTAGTTAGTATGTTGGTTCGCATATATGTATATATATATATATATATATATATATATAT
+      36450     36460     36470     36480     36490     36500      
+
+      260       250       240        230       220       210       
+HUMBE- ACACACATACATATACATATATATGCATTCAT-TTGTTGTTGTTTTTCTTAATTTGCTCA
+       : : : ::: ::::: ::::::::  ::  :: : ::: : :    :  :: :: : :::
+BACR23 ATATATATATATATATATATATATATATATATATAGTTTTAGAAAGTAGTAGTTAGTTCA
+      36510     36520     36530     36540     36550     36560      
+
+       200       190       180       170       160       150       
+HUMBE- TGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGCTCTGTGCAT
+       : :                                                         
+BACR23 TCCGGCTCGGCGGCTTAAAGTTCTTGTAAGTAGATGGGTTTGTTACGCTTGCGTTTGCCA
+      36570     36580     36590     36600     36610     36620      
+
+>>BACR28B01 : AC008139, 170675 bases, from 3R:85.         (73982 nt)
+rev-comp initn: 219 init1: 147 opt: 210  Z-score: 101.8  bits: 38.1 E():  1.1
+ 65.217% identity (67.669% ungapped) in 138 nt overlap (302-165:142757-142889)
+
+       330       320       310       300       290       280       
+HUMBE- TTCTCCTTATTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATA
+                                     :: :::   : :::::::::::::::::::
+BACR28 ATATGTGTGCCAGCCCAACCAGCACACATAAATAAATATATAAATATATATATATATATA
+     142730    142740    142750    142760    142770    142780      
+
+       270       260       250       240       230       220       
+HUMBE- TGTGTATATGTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTT
+       : : ::::::::::   :::  :: : :::::: : :::  :: : : : :  : :: : 
+BACR28 TATATATATGTACATGTATAGGTA-AAATATATGTACAT--ATGTATGGGTTATATTGTG
+     142790    142800    142810     142820      142830    142840   
+
+       210       200       190       180       170       160       
+HUMBE- AATTTGCTCATGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTG
+         ::: :    ::  ::  : ::: :::   : ::::::   :::: :            
+BACR28 GCTTTCCCGGCGC-GGCATAAAAAGTATAAAT-AAAATAATTTAAAAAGGGCCAACGATT
+        142850     142860    142870     142880    142890    142900 
+
+       150       140       130       120       110       100       
+HUMBE- CTCTGTGCATTAGTTACTTATTAGGTTTTGGGAAACAAGAGGTAAAAAACTAGAGACCTC
+                                                                   
+BACR28 CGAAGGGGGTTAAAACTTTTCCCGAGCCCTGCTCCTCCACTTACCCTTTCTCACGATTTT
+          142910    142920    142930    142940    142950    142960 
+
+>>BACR30F01 : AC008315, 177028 bases, from 3R:85.         (73982 nt)
+rev-comp initn: 188 init1: 188 opt: 210  Z-score: 101.8  bits: 38.1 E():  1.1
+ 70.968% identity (71.739% ungapped) in 93 nt overlap (291-200:143630-143722)
+
+      320       310       300       290       280       270        
+HUMBE- TGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGTGTATATGT
+                                     : :::::::::::::::::: : ::::: :
+BACR30 AGTAGTTAGTATGTTGGTTCGCATATATGTATATATATATATATATATATATATATATAT
+  143600    143610    143620    143630    143640    143650         
+
+      260       250       240        230       220       210       
+HUMBE- ACACACATACATATACATATATATGCATTCAT-TTGTTGTTGTTTTTCTTAATTTGCTCA
+       : : : ::: ::::: ::::::::  ::  :: : ::: : :    :  :: :: : :::
+BACR30 ATATATATATATATATATATATATATATATATATAGTTTTAGAAAGTAGTAGTTAGTTCA
+  143660    143670    143680    143690    143700    143710         
+
+       200       190       180       170       160       150       
+HUMBE- TGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGCTCTGTGCAT
+       : :                                                         
+BACR30 TCCGGCTCGGCGGCTTAAAGTTCTTGTAAGTAGATGGGTTTGTTACGCTTGCGTTTGCCA
+  143720    143730    143740    143750    143760    143770         
+
+>>BACR06P08 : AC007975, 180630 bases, from 3R:100.        (38670 nt)
+rev-comp initn: 188 init1: 188 opt: 210  Z-score: 106.3  bits: 38.0 E():  1.2
+ 78.261% identity (78.261% ungapped) in 69 nt overlap (298-230:154236-154304)
+
+             320       310       300       290       280       270 
+HUMBE- CCTTATTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGTG
+                                     :::: : : :::::::::::::::::: : 
+BACR06 ATGAACACAGGCAGCAAAGTGCAGACCACGAAAGTATATATATATATATATATATATATA
+      154210    154220    154230    154240    154250    154260     
+
+             260       250       240       230       220       210 
+HUMBE- TATATGTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTTAATT
+       ::::: :: : : ::: ::::: ::::::::  ::  ::                     
+BACR06 TATATATATATATATATATATATATATATATATATATATAAATATATATATATAGATAGG
+      154270    154280    154290    154300    154310    154320     
+
+             200       190       180       170       160       150 
+HUMBE- TGCTCATGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGCTCT
+                                                                   
+BACR06 GGAGTAGGCGGTACAGAAGGTTACATAATATAACATAGGAGGGCCTTATAAGTCAGAGCG
+      154330    154340    154350    154360    154370    154380     
+
+>>BACR30F01 : AC008315, 177028 bases, from 3R:85.         (35068 nt)
+rev-comp initn: 188 init1: 188 opt: 210  Z-score: 107.0  bits: 38.0 E():  1.2
+ 70.968% identity (71.739% ungapped) in 93 nt overlap (291-200:143630-143722)
+
+      320       310       300       290       280       270        
+HUMBE- TGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGTGTATATGT
+                                     : :::::::::::::::::: : ::::: :
+BACR30 AGTAGTTAGTATGTTGGTTCGCATATATGTATATATATATATATATATATATATATATAT
+  143600    143610    143620    143630    143640    143650         
+
+      260       250       240        230       220       210       
+HUMBE- ACACACATACATATACATATATATGCATTCAT-TTGTTGTTGTTTTTCTTAATTTGCTCA
+       : : : ::: ::::: ::::::::  ::  :: : ::: : :    :  :: :: : :::
+BACR30 ATATATATATATATATATATATATATATATATATAGTTTTAGAAAGTAGTAGTTAGTTCA
+  143660    143670    143680    143690    143700    143710         
+
+       200       190       180       170       160       150       
+HUMBE- TGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGCTCTGTGCAT
+       : :                                                         
+BACR30 TCCGGCTCGGCGGCTTAAAGTTCTTGTAAGTAGATGGGTTTGTTACGCTTGCGTTTGCCA
+  143720    143730    143740    143750    143760    143770         
+
+>>BACR30G03 : AC008355, 151500 bases, from 3R:82.         (73982 nt)
+rev-comp initn: 174 init1: 174 opt: 209  Z-score: 101.1  bits: 38.0 E():  1.2
+ 59.242% identity (61.275% ungapped) in 211 nt overlap (396-188:39228-39433)
+
+           420       410       400       390       380       370   
+HUMBE- GATATGTAGATGGATCTCTTCCTGCGTCTCCAGAATATGCAAAATACTTACAGGACAGAA
+                                     :::::  : ::  : ::  ::::   :  :
+BACR30 ATAGTATTGAAAATGTAATCATATGTATATCAGAAAGTTCACGAAAC-CACAGATTATTA
+     39200     39210     39220     39230     39240      39250      
+
+           360       350       340        330       320       310  
+HUMBE- TGGATGAAAACTCTACCTCAGTTCTAAGCATATCT-TCTCCTTATTTGGATTAAAACCTT
+          :: :: : :::: :: :  : :: : :::: : : : : : : :  ::  : :  : 
+BACR30 AATATTAATA-TCTATCT-ATATATATGTATATATATATACATGTATATATACATATATG
+      39260      39270      39280     39290     39300     39310    
+
+            300        290       280       270       260       250 
+HUMBE- CTGGTAAGAAAAGA-AAAAATATATATATATATATATGTGTATATGTACACACATACATA
+           :: : : : :   : :::: ::::::: ::::: ::::::: :  : : ::: :::
+BACR30 TATATATGTATATATGTATATATGTATATATGTATATATGTATATATGTATATATATATA
+        39320     39330     39340     39350     39360     39370    
+
+             240       230       220       210       200       190 
+HUMBE- TACATATATATGCATTCATTTGTTGTTGTTTTTCTTAATTTGCTCATGCATGCTAATAAA
+       :::::::: ::  :: ::: :::   : ::: : :  :: ::   ::   ::  : : ::
+BACR30 TACATATACATATATACATATGT--ATATTTATATATATGTGTGAATATGTGTAACTTAA
+        39380     39390       39400     39410     39420     39430  
+
+             180       170       160       150       140       130 
+HUMBE- TTATGTCTAAAAATAGAATAAATACAAATCAATGTGCTCTGTGCATTAGTTACTTATTAG
+       :                                                           
+BACR30 TAGGAAAATGAATTTAATAGAGAAACAACAGACAAAAATTATAAATAATGTTGAAAAGAA
+          39440     39450     39460     39470     39480     39490  
+
+>>BACR15O02 : AC009735, 159478 bases, from 3R:82.         (73982 nt)
+rev-comp initn: 174 init1: 174 opt: 209  Z-score: 101.1  bits: 38.0 E():  1.2
+ 59.242% identity (61.275% ungapped) in 211 nt overlap (396-188:126813-127018)
+
+           420       410       400       390       380       370   
+HUMBE- GATATGTAGATGGATCTCTTCCTGCGTCTCCAGAATATGCAAAATACTTACAGGACAGAA
+                                     :::::  : ::  : ::  ::::   :  :
+BACR15 ATAGTATTGAAAATGTAATCATATGTATATCAGAAAGTTCACGAAAC-CACAGATTATTA
+         126790    126800    126810    126820     126830    126840 
+
+           360       350       340        330       320       310  
+HUMBE- TGGATGAAAACTCTACCTCAGTTCTAAGCATATCT-TCTCCTTATTTGGATTAAAACCTT
+          :: :: : :::: :: :  : :: : :::: : : : : : : :  ::  : :  : 
+BACR15 AATATTAATA-TCTATCT-ATATATATGTATATATATATACATGTATATATACATATATG
+          126850      126860    126870    126880    126890         
+
+            300        290       280       270       260       250 
+HUMBE- CTGGTAAGAAAAGA-AAAAATATATATATATATATATGTGTATATGTACACACATACATA
+           :: : : : :   : :::: ::::::: ::::: ::::::: :  : : ::: :::
+BACR15 TATATATGTATATATGTATATATGTATATATGTATATATGTATATATGTATATATATATA
+  126900    126910    126920    126930    126940    126950         
+
+             240       230       220       210       200       190 
+HUMBE- TACATATATATGCATTCATTTGTTGTTGTTTTTCTTAATTTGCTCATGCATGCTAATAAA
+       :::::::: ::  :: ::: :::   : ::: : :  :: ::   ::   ::  : : ::
+BACR15 TACATATACATATATACATATGT--ATATTTATATATATGTGTGAATATGTGTAACTTAA
+  126960    126970    126980      126990    127000    127010       
+
+             180       170       160       150       140       130 
+HUMBE- TTATGTCTAAAAATAGAATAAATACAAATCAATGTGCTCTGTGCATTAGTTACTTATTAG
+       :                                                           
+BACR15 TAGGAAAATGAATTTAATAGAGAAACAACAGACAAAAATTATAAATAATGTTGAAAAGAA
+    127020    127030    127040    127050    127060    127070       
+
+>>BACR21B19 : AC011250, 161692 bases, from 4:101.         (73982 nt)
+rev-comp initn: 172 init1: 172 opt: 209  Z-score: 101.1  bits: 38.0 E():  1.2
+ 59.641% identity (63.333% ungapped) in 223 nt overlap (393-180:53098-53316)
+
+        420       410       400       390       380       370      
+HUMBE- ATGTAGATGGATCTCTTCCTGCGTCTCCAGAATATGCAAAATACTTACAGGACAGAATGG
+                                     :::::  : ::   : :::  : ::::   
+BACR21 AGTTTAAATGCAGCCAGAAATGATCAATTAAATATAAATAAAGGTCACATAAAAGAAAAA
+     53070     53080     53090     53100     53110     53120       
+
+        360       350          340       330         320       310 
+HUMBE- ATGAAAACTCTACCT---CAGTTCTAAGCATATCTTCTCCTT--ATTTGGATTAAAACCT
+           :::::  :  :   :: :: : ::: : :    :: ::  : ::: : ::: :  :
+BACR21 TAATAAACTTCATTTATACATTTAT-AGCTTTTTAAATCTTTACAATTGCA-TAATATAT
+     53130     53140     53150      53160     53170      53180     
+
+             300        290       280       270       260          
+HUMBE- TCTGGTAAGAAAAGA-AAAAATATATATATATATATATGTGTATATGTACACACATACAT
+            ::: :: : : : : :::::::::::::::::: : ::::: :: : : ::: ::
+BACR21 ATATATAATAACATATATATATATATATATATATATATATATATATATATATATATATAT
+       53190     53200     53210     53220     53230     53240     
+
+    250       240       230       220          210       200       
+HUMBE- ATACATATATATGCATTCATTTGTTGTTGTTTTTCTTAAT---TTGCTCATGCATGCTAA
+       ::::::: ::::  :  ::  :::   : ::: : :  ::   ::  : ::  ::  :::
+BACR21 ATACATAAATATATA-GCAGATGTATATATTTGTATACATCTATTATTTATTTAT-ATAA
+       53250     53260      53270     53280     53290      53300   
+
+       190       180       170       160       150       140       
+HUMBE- TAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGCTCTGTGCATTAGTTACTTA
+       : : : :: : ::                                               
+BACR21 TCATTCATATATATTATATGTTCACTGATACATAAGCCATTCAGATCGGAATAAAATTGT
+         53310     53320     53330     53340     53350     53360   
+
+>>BACR28B01 : AC008139, 170675 bases, from 3R:85.         (28715 nt)
+rev-comp initn: 147 init1: 147 opt: 210  Z-score: 108.4  bits: 38.0 E():  1.2
+ 65.217% identity (67.669% ungapped) in 138 nt overlap (302-165:142757-142889)
+
+       330       320       310       300       290       280       
+HUMBE- TTCTCCTTATTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATA
+                                     :: :::   : :::::::::::::::::::
+BACR28 ATATGTGTGCCAGCCCAACCAGCACACATAAATAAATATATAAATATATATATATATATA
+     142730    142740    142750    142760    142770    142780      
+
+       270       260       250       240       230       220       
+HUMBE- TGTGTATATGTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTT
+       : : ::::::::::   :::  :: : :::::: : :::  :: : : : :  : :: : 
+BACR28 TATATATATGTACATGTATAGGTA-AAATATATGTACAT--ATGTATGGGTTATATTGTG
+     142790    142800    142810     142820      142830    142840   
+
+       210       200       190       180       170       160       
+HUMBE- AATTTGCTCATGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTG
+         ::: :    ::  ::  : ::: :::   : ::::::   :::: :            
+BACR28 GCTTTCCCGGCGC-GGCATAAAAAGTATAAAT-AAAATAATTTAAAAAGGGCCAACGATT
+        142850     142860    142870     142880    142890    142900 
+
+       150       140       130       120       110       100       
+HUMBE- CTCTGTGCATTAGTTACTTATTAGGTTTTGGGAAACAAGAGGTAAAAAACTAGAGACCTC
+                                                                   
+BACR28 CGAAGGGGGTTAAAACTTTTCCCGAGCCCTGCTCCTCCACTTACCCTTTCTCACGATTTT
+          142910    142920    142930    142940    142950    142960 
+
+>>BACR10P11 : AC007888, 164035 bases, from 2R:57.         (73982 nt)
+ initn: 139 init1: 139 opt: 208  Z-score: 100.5  bits: 37.9 E():  1.3
+ 62.570% identity (67.879% ungapped) in 179 nt overlap (166-337:41478-41649)
+
+         140       150       160       170        180       190    
+HUMBE- GTAACTAATGCACAGAGCACATTGATTTGTATTTATTCT-ATTTTTAGACATAATTTAT-
+                                     :::::   : :::  :: : : ::: ::: 
+BACR10 GAAAAATTGTATCCTTACTTCATAGCAAAAATTTAAAATAATTCATATATAAAATATATA
+     41450     41460     41470     41480     41490     41500       
+
+             200       210       220       230       240       250 
+HUMBE- --TAGCATGCATGAGCAAATTAAGAAAAACAACAACAAATGAATGCATATATATGTATAT
+         ::  ::  :  :: :: :::  : : : :   : : ::  ::  :::::::: :::::
+BACR10 TATATAAT-AAACAGAAATTTATTATATATA--TATATATATATATATATATAT-TATAT
+     41510      41520     41530       41540     41550      41560   
+
+             260       270       280       290       300       310 
+HUMBE- GTATGTGTGTACATATACACATATATATATATATATATTTTTTCTTTTCTTACCAGAAGG
+        :::   : :: ::::: : ::::::::::::::::::: : : : :: :    : :   
+BACR10 ATAT---TATATATATATATATATATATATATATATATTATATATATTATATATATATAT
+            41570     41580     41590     41600     41610     41620
+
+             320          330       340       350       360        
+HUMBE- TTTTAATCCAAATA---AGGAGAAGATATGCTTAGAACTGAGGTAGAGTTTTCATCCATT
+        :::::   :::::   : ::: : ::::                               
+BACR10 ATTTAACAGAAATAGATAAGAGTAAATATTTCATGAAATCGTTGATAGGAAATCAGGAAT
+            41630     41640     41650     41660     41670     41680
+
+>>BACR48E23 : AC005721, 203183 bases, from 3R:88.         (73982 nt)
+ initn: 179 init1: 179 opt: 208  Z-score: 100.5  bits: 37.9 E():  1.3
+ 61.364% identity (64.671% ungapped) in 176 nt overlap (130-300:64507-64678)
+
+     100       110       120       130        140       150        
+HUMBE- CTAGTTTTTTACCTCTTGTTTCCCAAAACCTAATAAGTAA-CTAATGCACAGAGCACATT
+                                     ::: ::: ::  :::::   : :  : :: 
+BACR48 GCAAGCAATTCCTAGTGTTGTATAATAGATTAACAAGGAATTTAATG--AATATGAAATA
+      64480     64490     64500     64510     64520       64530    
+
+      160        170       180          190       200       210    
+HUMBE- GATTT-GTATTTATTCTATTTTTAGACATAAT---TTATTAGCATGCATGAGCAAATTAA
+        ::::  ::::  ::: :  :: :  :::: :     ::: :: :  ::    : ::: :
+BACR48 AATTTAATATTATTTCCA--TTAAAGCATATTCGAAAATTTGCTTTAATTCATATATTTA
+        64540     64550       64560     64570     64580     64590  
+
+          220       230       240       250       260       270    
+HUMBE- GAAAAACAACAACAAATGAATGCATATATATGTATATGTATGTGTGTACATATACACATA
+        :    :   ::   ::  ::  :::::::: ::::: ::: : : :: ::::: : :::
+BACR48 TATTTGCTTTAATTCATATATATATATATATATATATATATATATATATATATATATATA
+          64600     64610     64620     64630     64640     64650  
+
+          280       290       300       310       320       330    
+HUMBE- TATATATATATATATTTTTTCTTTTCTTACCAGAAGGTTTTAATCCAAATAAGGAGAAGA
+       : ::::::::::::: : :  :: ::                                  
+BACR48 TGTATATATATATATATATAATTATCAAAGTTATAGTTTTAGTTTTTCAGTTTTTTTCAA
+          64660     64670     64680     64690     64700     64710  
+
+>>BACR08H11 : AC008136, 154890 bases, from 3R:88.         (73982 nt)
+ initn: 179 init1: 179 opt: 208  Z-score: 100.5  bits: 37.9 E():  1.3
+ 61.364% identity (64.671% ungapped) in 176 nt overlap (130-300:86888-87059)
+
+     100       110       120       130        140       150        
+HUMBE- CTAGTTTTTTACCTCTTGTTTCCCAAAACCTAATAAGTAA-CTAATGCACAGAGCACATT
+                                     ::: ::: ::  :::::   : :  : :: 
+BACR08 GCAAGCAATTCCTAGTGTTGTATAATAGATTAACAAGGAATTTAATG--AATATGAAATA
+     86860     86870     86880     86890     86900       86910     
+
+      160        170       180          190       200       210    
+HUMBE- GATTT-GTATTTATTCTATTTTTAGACATAAT---TTATTAGCATGCATGAGCAAATTAA
+        ::::  ::::  ::: :  :: :  :::: :     ::: :: :  ::    : ::: :
+BACR08 AATTTAATATTATTTCCA--TTAAAGCATATTCGAAAATTTGCTTTAATTCATATATTTA
+       86920     86930       86940     86950     86960     86970   
+
+          220       230       240       250       260       270    
+HUMBE- GAAAAACAACAACAAATGAATGCATATATATGTATATGTATGTGTGTACATATACACATA
+        :    :   ::   ::  ::  :::::::: ::::: ::: : : :: ::::: : :::
+BACR08 TATTTGCTTTAATTCATATATATATATATATATATATATATATATATATATATATATATA
+         86980     86990     87000     87010     87020     87030   
+
+          280       290       300       310       320       330    
+HUMBE- TATATATATATATATTTTTTCTTTTCTTACCAGAAGGTTTTAATCCAAATAAGGAGAAGA
+       : ::::::::::::: : :  :: ::                                  
+BACR08 TGTATATATATATATATATAATTATCAAAGTTATAGTTTTAGTTTTTCAGTTTTTTTCAA
+         87040     87050     87060     87070     87080     87090   
+
+>>BACR28F21 : AC010705, 163958 bases, from X:11.          (21998 nt)
+ initn: 172 init1: 172 opt: 209  Z-score: 109.6  bits: 37.8 E():  1.4
+ 75.000% identity (75.000% ungapped) in 76 nt overlap (226-301:149520-149595)
+
+         200       210       220       230       240       250     
+HUMBE- GCATGCATGAGCAAATTAAGAAAAACAACAACAAATGAATGCATATATATGTATATGTAT
+                                     ::: ::  ::  :::::::: ::::: :::
+BACR28 GTCGCCTCATCCCCTTTTTTGGATATATACACACATATATATATATATATATATATATAT
+  149490    149500    149510    149520    149530    149540         
+
+         260       270       280       290       300       310     
+HUMBE- GTGTGTACATATACACATATATATATATATATATTTTTTCTTTTCTTACCAGAAGGTTTT
+        : : :: ::::::: ::::::::::::: :::: : : : : : :              
+BACR28 ATATTTATATATACATATATATATATATAAATATATGTACATATATGTGCCCCCTTTTCG
+  149550    149560    149570    149580    149590    149600         
+
+         320       330       340       350       360       370     
+HUMBE- AATCCAAATAAGGAGAAGATATGCTTAGAACTGAGGTAGAGTTTTCATCCATTCTGTCCT
+                                                                   
+BACR28 GCACTGCCATGTTGTCCTCGGTTATGTCCGATGGACGCGATAACGGCAAAAACGACGCCG
+  149610    149620    149630    149640    149650    149660         
+
+>>BACR02C24 : 234783 bases, from X:12.                    (21843 nt)
+rev-comp initn: 172 init1: 172 opt: 209  Z-score: 109.6  bits: 37.8 E():  1.4
+ 75.000% identity (75.000% ungapped) in 76 nt overlap (301-226:219922-219997)
+
+      330       320       310       300       290       280        
+HUMBE- TCTCCTTATTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATAT
+                                     : : : : : : :::: :::::::::::::
+BACR02 GACAACATGGCAGTGCCGAAAAGGGGGCACATATATGTACATATATTTATATATATATAT
+          219900    219910    219920    219930    219940    219950 
+
+      270       260       250       240       230       220        
+HUMBE- GTGTATATGTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTTA
+        ::::::: :: : : ::: ::::: ::::::::  ::  :: :::              
+BACR02 ATGTATATATAAATATATATATATATATATATATATATATATGTGTGTATATATCCAAAA
+          219960    219970    219980    219990    220000    220010 
+
+      210       200       190       180       170       160        
+HUMBE- ATTTGCTCATGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGC
+                                                                   
+BACR02 AAGGGGATGAGGCGACACATGTTCTGTCCGTTTTTCGTTGCGTTTTCGGGACTTTTTCGC
+          220020    220030    220040    220050    220060    220070 
+
+>>BACR36J03 : AC091634, 159065 bases, from 2R:50.         (73982 nt)
+rev-comp initn: 168 init1: 168 opt: 207  Z-score: 99.9  bits: 37.8 E():  1.4
+ 72.043% identity (73.626% ungapped) in 93 nt overlap (301-209:2749-2839)
+
+      330       320       310       300       290       280        
+HUMBE- TCTCCTTATTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATAT
+                                     : : : : : : : ::::::::::::::::
+BACR36 ATGCTTAATCTATATAATACTACTATATGTACATATGTATATACATATATATATATATAT
+     2720      2730      2740      2750      2760      2770        
+
+      270       260       250       240       230       220        
+HUMBE- GTGTATATGTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTTA
+        : ::::: :::: : ::: ::::::::  :::: :  : ::::  :  :::::: ::  
+BACR36 ATATATATATACATATATATATATACATTAATAT-CTCTGATTTAAT-ATGTTTTCCTGT
+     2780      2790      2800      2810       2820       2830      
+
+      210       200       190       180       170       160        
+HUMBE- ATTTGCTCATGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGC
+       :::                                                         
+BACR36 ATTCCTGTTCTATATTTGGTATACCTTATCAACTCAACGTCCAACGGTACTTTAAACTGA
+       2840      2850      2860      2870      2880      2890      
+
+>>BACR40P19 : AC010667, 159570 bases, from 4:101.         (73982 nt)
+rev-comp initn: 179 init1: 179 opt: 207  Z-score: 99.9  bits: 37.8 E():  1.4
+ 70.000% identity (70.000% ungapped) in 90 nt overlap (301-212:96607-96696)
+
+      330       320       310       300       290       280        
+HUMBE- TCTCCTTATTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATAT
+                                     : : ::  : : ::::::::::::::::::
+BACR40 AAATATATATAACTATATATATATAAATATATATAACTATATATATATATATATATATAT
+      96580     96590     96600     96610     96620     96630      
+
+      270       260       250       240       230       220        
+HUMBE- GTGTATATGTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTTA
+        : ::::: :: :   ::: ::::: ::::::::  ::  :::: :   : : : :: ::
+BACR40 ATATATATATATAACTATATATATATATATATATATATATATTTTTATATATATATCCTA
+      96640     96650     96660     96670     96680     96690      
+
+      210       200       190       180       170       160        
+HUMBE- ATTTGCTCATGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGC
+                                                                   
+BACR40 GCTCAATCTAAATATAAAGTTGGAATACTTTTGCCAGGGGTTTCTTTCTTTTCTTTCCTT
+      96700     96710     96720     96730     96740     96750      
+
+>>BACR14P04 : AC007329, 126140 bases, from 2R:50.         (73982 nt)
+ initn: 168 init1: 168 opt: 207  Z-score: 99.9  bits: 37.8 E():  1.4
+ 72.043% identity (73.626% ungapped) in 93 nt overlap (209-301:68803-68893)
+
+      180       190       200       210       220       230        
+HUMBE- TTAGACATAATTTATTAGCATGCATGAGCAAATTAAGAAAAACAACAACAAATGAATGCA
+                                     :::  :: ::::: : :  :::: :  : :
+BACR14 GTTGATAAGGTATACCAAATATAGAACAGGAATACAGGAAAAC-ATATTAAATCAGAG-A
+          68780     68790     68800     68810      68820      68830
+
+      240       250       260       270       280       290        
+HUMBE- TATATATGTATATGTATGTGTGTACATATACACATATATATATATATATATTTTTTCTTT
+       :::  :::::::: ::: : :::: ::::: : :::::::::::::::: : : : : : 
+BACR14 TATTAATGTATATATATATATGTATATATATATATATATATATATATATGTATATACATA
+            68840     68850     68860     68870     68880     68890
+
+      300       310       320       330       340       350        
+HUMBE- TCTTACCAGAAGGTTTTAATCCAAATAAGGAGAAGATATGCTTAGAACTGAGGTAGAGTT
+       : :                                                         
+BACR14 TGTACATATAGTAGTATTATATAGATTAAGCATTTTAAGAAGCTCTCTCGTGAAATATTC
+            68900     68910     68920     68930     68940     68950
+
+>>BACR30L17 : AC012390, 174441 bases, from 4:101.         (32481 nt)
+rev-comp initn: 179 init1: 179 opt: 207  Z-score: 105.6  bits: 37.7 E():  1.6
+ 70.000% identity (70.000% ungapped) in 90 nt overlap (301-212:157746-157835)
+
+      330       320       310       300       290       280        
+HUMBE- TCTCCTTATTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATAT
+                                     : : ::  : : ::::::::::::::::::
+BACR30 AAATATATATAACTATATATATATAAATATATATAACTATATATATATATATATATATAT
+      157720    157730    157740    157750    157760    157770     
+
+      270       260       250       240       230       220        
+HUMBE- GTGTATATGTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTTA
+        : ::::: :: :   ::: ::::: ::::::::  ::  :::: :   : : : :: ::
+BACR30 ATATATATATATAACTATATATATATATATATATATATATATTTTTATATATATATCCTA
+      157780    157790    157800    157810    157820    157830     
+
+      210       200       190       180       170       160        
+HUMBE- ATTTGCTCATGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGC
+                                                                   
+BACR30 GCTCAATCTAAATATAAAGTTGGAATACTTTTGCCAGGGGTTTCTTTCTTTTCTTTCCTT
+      157840    157850    157860    157870    157880    157890     
+
+>>BACR34M23 : AC008190, 158012 bases, from 3R:83.         (73982 nt)
+ initn: 195 init1: 195 opt: 205  Z-score: 98.6  bits: 37.5 E():  1.7
+ 73.494% identity (74.390% ungapped) in 83 nt overlap (223-304:108588-108670)
+
+            200       210       220       230        240       250 
+HUMBE- TTAGCATGCATGAGCAAATTAAGAAAAACAACAACAAATGAATGC-ATATATATGTATAT
+                                     :::: : ::   :::  ::::::  : :::
+BACR34 TATATTTAATTTAACACTAGTCCGTCATATACAATACATTGCTGCTGTATATACATGTAT
+    108560    108570    108580    108590    108600    108610       
+
+             260       270       280       290       300       310 
+HUMBE- GTATGTGTGTACATATACACATATATATATATATATATTTTTTCTTTTCTTACCAGAAGG
+        ::: : : :: ::::: : :::::::::::::::::: : :  :: ::::::       
+BACR34 ATATATATATATATATATATATATATATATATATATATATATAGTTCTCTTACACATAAT
+    108620    108630    108640    108650    108660    108670       
+
+             320       330       340       350       360       370 
+HUMBE- TTTTAATCCAAATAAGGAGAAGATATGCTTAGAACTGAGGTAGAGTTTTCATCCATTCTG
+                                                                   
+BACR34 TAACAATTTAGAAATTGCTCACCTGATTAACGTTTACATTTATGTTTGCCACAGTGCTTG
+    108680    108690    108700    108710    108720    108730       
+
+>>BACR02C19 : AC008189, 188359 bases, from 3R:82.         (73982 nt)
+rev-comp initn: 198 init1: 198 opt: 205  Z-score: 98.6  bits: 37.5 E():  1.7
+ 77.941% identity (77.941% ungapped) in 68 nt overlap (293-226:131184-131251)
+
+        320       310       300       290       280       270      
+HUMBE- TTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGTGTATAT
+                                     ::: :::::::::::::::::: : :::::
+BACR02 TACAATAGAAGTTATACAATGTTACAGTTTAAATATATATATATATATATATATATATAT
+        131160    131170    131180    131190    131200    131210   
+
+        260       250       240       230       220       210      
+HUMBE- GTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTTAATTTGCTC
+        :: : : ::: ::::: ::::::::  :  ::: : :                      
+BACR02 ATATATATATATATATATATATATATAAAAGCATATATAAGCATAGATTATGTAAAGGGG
+        131220    131230    131240    131250    131260    131270   
+
+        200       190       180       170       160       150      
+HUMBE- ATGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGCTCTGTGCA
+                                                                   
+BACR02 ATGTGTACTAAACACAAACTTCGTTTTGTCCGCTTTCCCTTAATCCATTTCTCATCCTTT
+        131280    131290    131300    131310    131320    131330   
+
+>>BACR24O24 : AC009538, 173927 bases, from 3R:83.         (73982 nt)
+ initn: 195 init1: 195 opt: 205  Z-score: 98.6  bits: 37.5 E():  1.7
+ 73.494% identity (74.390% ungapped) in 83 nt overlap (223-304:24568-24650)
+
+            200       210       220       230        240       250 
+HUMBE- TTAGCATGCATGAGCAAATTAAGAAAAACAACAACAAATGAATGC-ATATATATGTATAT
+                                     :::: : ::   :::  ::::::  : :::
+BACR24 TATATTTAATTTAACACTAGTCCGTCATATACAATACATTGCTGCTGTATATACATGTAT
+     24540     24550     24560     24570     24580     24590       
+
+             260       270       280       290       300       310 
+HUMBE- GTATGTGTGTACATATACACATATATATATATATATATTTTTTCTTTTCTTACCAGAAGG
+        ::: : : :: ::::: : :::::::::::::::::: : :  :: ::::::       
+BACR24 ATATATATATATATATATATATATATATATATATATATATATAGTTCTCTTACACATAAT
+     24600     24610     24620     24630     24640     24650       
+
+             320       330       340       350       360       370 
+HUMBE- TTTTAATCCAAATAAGGAGAAGATATGCTTAGAACTGAGGTAGAGTTTTCATCCATTCTG
+                                                                   
+BACR24 TAACAATTTAGAAATTGCTCACCTGATTAACGTTTACATTTATGTTTGCCACAGTGCTTG
+     24660     24670     24680     24690     24700     24710       
+
+>>BACR28F21 : AC010705, 163958 bases, from X:11.          (21998 nt)
+rev-comp initn: 188 init1: 188 opt: 206  Z-score: 107.7  bits: 37.5 E():  1.8
+ 73.418% identity (73.418% ungapped) in 79 nt overlap (293-215:149530-149608)
+
+        320       310       300       290       280       270      
+HUMBE- TTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGTGTATAT
+                                     : : :::::::::::::::::: : :::::
+BACR28 CCCCTTTTTTGGATATATACACACATATATATATATATATATATATATATATATTTATAT
+  149500    149510    149520    149530    149540    149550         
+
+        260       250       240       230       220       210      
+HUMBE- GTACACACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTTAATTTGCTC
+        :::: : ::: ::::: : ::::::: :   :: :::      :::::           
+BACR28 ATACATATATATATATATAAATATATGTACATATATGTGCCCCCTTTTCGGCACTGCCAT
+  149560    149570    149580    149590    149600    149610         
+
+        200       190       180       170       160       150      
+HUMBE- ATGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAATCAATGTGCTCTGTGCA
+                                                                   
+BACR28 GTTGTCCTCGGTTATGTCCGATGGACGCGATAACGGCAAAAACGACGCCGGCTGCTCTCC
+  149620    149630    149640    149650    149660    149670         
+
+>>BACR02C24 : 234783 bases, from X:12.                    (21843 nt)
+ initn: 188 init1: 188 opt: 206  Z-score: 107.7  bits: 37.5 E():  1.8
+ 73.418% identity (73.418% ungapped) in 79 nt overlap (215-293:219909-219987)
+
+          190       200       210       220       230       240    
+HUMBE- ATAATTTATTAGCATGCATGAGCAAATTAAGAAAAACAACAACAAATGAATGCATATATA
+                                     :::::      ::: ::   : ::::::: 
+BACR02 GGACATAACCGAGGACAACATGGCAGTGCCGAAAAGGGGGCACATATATGTACATATATT
+   219880    219890    219900    219910    219920    219930        
+
+          250       260       270       280       290       300    
+HUMBE- TGTATATGTATGTGTGTACATATACACATATATATATATATATATTTTTTCTTTTCTTAC
+       : ::::: ::: : :::: ::::: : :::::::::::::::::: : :           
+BACR02 TATATATATATATATGTATATATAAATATATATATATATATATATATATATATATGTGTG
+   219940    219950    219960    219970    219980    219990        
+
+          310       320       330       340       350       360    
+HUMBE- CAGAAGGTTTTAATCCAAATAAGGAGAAGATATGCTTAGAACTGAGGTAGAGTTTTCATC
+                                                                   
+BACR02 TATATATCCAAAAAAGGGGATGAGGCGACACATGTTCTGTCCGTTTTTCGTTGCGTTTTC
+   220000    220010    220020    220030    220040    220050        
+
+>>BACR14D22 : AC012164, 169384 bases, from X:17.          (73982 nt)
+rev-comp initn: 188 init1: 188 opt: 204  Z-score: 97.9  bits: 37.4 E():  1.8
+ 66.667% identity (67.290% ungapped) in 108 nt overlap (336-230:2982-3089)
+
+           360       350       340        330       320       310  
+HUMBE- TGGATGAAAACTCTACCTCAGTTCTAAGCATATCTTC-TCCTTATTTGGATTAAAACCTT
+                                     ::: ::: ::   :: : :::::   : ::
+BACR14 CTGCCTAACTTTATAATACAATTTATGGTCTATATTCATCTCGATCTTGATTACTGCTTT
+            2960      2970      2980      2990      3000      3010 
+
+            300       290       280       270       260       250  
+HUMBE- CTGGTAAGAAAAGAAAAAATATATATATATATATATGTGTATATGTACACACATACATAT
+        ::      :  :  :  :::::::::::::::::: : ::::: :: : : ::: ::::
+BACR14 TTGACTTTGAGGGGGAGTATATATATATATATATATATATATATATATATATATATATAT
+            3020      3030      3040      3050      3060      3070 
+
+            240       230       220       210       200       190  
+HUMBE- ACATATATATGCATTCATTTGTTGTTGTTTTTCTTAATTTGCTCATGCATGCTAATAAAT
+       : :::::: :: ::  ::                                          
+BACR14 ATATATATGTGTATATATACATATATACATATATATATGTGTATGTGTAGCTTCGATTTA
+            3080      3090      3100      3110      3120      3130 
+
+>>BACR11A04 : AC010916, 165307 bases, from 4:101.         (73982 nt)
+rev-comp initn: 165 init1: 165 opt: 204  Z-score: 97.9  bits: 37.4 E():  1.8
+ 56.738% identity (62.016% ungapped) in 282 nt overlap (294-21:75765-76030)
+
+         320       310       300       290       280       270     
+HUMBE- ATTTGGATTAAAACCTTCTGGTAAGAAAAGAAAAAATATATATATATATATATGTGTATA
+                                     ::::  ::::::::::::::::  : ::::
+BACR11 AAACGGTTATGAAAATAATGTAACCATATTAAAATTTATATATATATATATAAATATATA
+        75740     75750     75760     75770     75780     75790    
+
+         260           250       240       230       220       210 
+HUMBE- TGTACAC----ACATACATATACATATATATGCATTCATTTGTTGTTGTTTTTCTTAATT
+       : : :::    : ::: ::::: ::::::::  ::: :  : :     ::: : :: :: 
+BACR11 TATCCACTACTATATATATATATATATATATATATTTAAATATATACATTTGTATTTATA
+        75800     75810     75820     75830     75840     75850    
+
+             200       190       180       170         160         
+HUMBE- TGCTCATGCATGCTAATAAATTATGTCTAAAAATAGAATAAATACAAAT--CAATGTGCT
+       :  : :: ::    :::::: ::     : : :: :  ::  ::::  :  : :: :   
+BACR11 TATTTATTCA---AAATAAACTA-----ATACATCGTTTACTTACACTTTACTATTTCTA
+        75860        75870          75880     75890     75900      
+
+     150       140         130       120       110       100       
+HUMBE- CTGTGCATTAGT--TACTTATTAGGTTTTGGGAAACAAGAGGTAAAAAACTAGAGACCTC
+       ::::    :  :  :::: :  :  ::      :::  ::  : :::: : :  : : : 
+BACR11 CTGTTATGTTATAATACTGAAAAACTT-----GAACTTGAAATGAAAATCGACTG-CTTG
+      75910     75920     75930          75940     75950      75960
+
+        90        80        70        60        50        40       
+HUMBE- TTAATGCAGTCAAAAATACAAATAAATAAAAAGTCACTTACAACCCAAAGTGTGACTATC
+       ::::       :  : ::  :::    ::: : : : :: :::  :::::  : :: : :
+BACR11 TTAAATATAAAATTATTAACAATTCCGAAAGACTAAGTTTCAATACAAAG-CTAAC-AAC
+            75970     75980     75990     76000     76010          
+
+        30        20        10                                     
+HUMBE- AATGGGGTAATCAGTGGTGTCAAATAGGAGGT                            
+       :: :  : ::::                                                
+BACR11 AAGGTAGGAATCTAGCTTTGGCAGTGATAATAATTAAATAATAATATTAAAGCAAGAATT
+    76020     76030     76040     76050     76060     76070        
+
+>>BACR01N17 : AC009911, 170184 bases, from 2L:38.         (73982 nt)
+ initn:  93 init1:  93 opt: 204  Z-score: 97.9  bits: 37.4 E():  1.8
+ 58.238% identity (63.071% ungapped) in 261 nt overlap (54-303:7216-7467)
+
+            30        40        50        60        70        80   
+HUMBE- TACCCCATTGATAGTCACACTTTGGGTTGTAAGTGACTTTTTATTTATTTGTATTTTTGA
+                                     :::: :  : ::::  :    :::::::::
+BACR01 TGTTCATCTTATAGTAAGCAAGAATTGGACAAGTCAAGTATTATGGAAACATATTTTTGA
+        7190      7200      7210      7220      7230      7240     
+
+            90          100       110       120       130       140
+HUMBE- CTGCATTA---AGAGGTCTCTAGTTTTTTACCTCTTGTTTCCCAAAACCTAATAAGTAAC
+        :   :::   :   :     :: ::  ::    :   ::::  :: : : :  : ::::
+BACR01 GTTGTTTAGGTACCAGCGAAGAGATTACTATACATCCATTCC--AATCGTGA-GATTAAC
+        7250      7260      7270      7280        7290       7300  
+
+              150             160       170       180       190    
+HUMBE- TAATGCACAGA---GC---ACATTGATTTGTATTTATTCTATTTTTAGACATAATTTATT
+        :::  : :::   ::   ::::  ::   ::: :: : : :  ::: : :  :: ::: 
+BACR01 GAATTAAAAGAATGGCTTAACATATATACATATGTAATATGTACTTATATAACATATATA
+           7310      7320      7330      7340      7350      7360  
+
+          200       210        220       230       240       250   
+HUMBE- AGCATGCATGAGCAAATTAA-GAAAAACAACAACAAATGAATGCATATATATGTATAT-G
+          :::  : ::   ::::: :::  : :: ::    : ::  ::::::::  ::: :  
+BACR01 TATATGTTTAAG---ATTAACGAATTAAAAGAATGGCTTAA--CATATATACATATGTAA
+           7370         7380      7390      7400        7410       
+
+            260       270       280       290       300       310  
+HUMBE- TATGTGTGTACATATACACATATATATATATATATATTTTTTCTTTTCTTACCAGAAGGT
+       ::: :   :: ::: ::: :::::::: ::::::::: : :: : :: :::         
+BACR01 TATATACTTATATA-ACATATATATATCTATATATATATGTTATATTATTATATCTTAAA
+      7420      7430       7440      7450      7460      7470      
+
+            320       330       340       350       360       370  
+HUMBE- TTTAATCCAAATAAGGAGAAGATATGCTTAGAACTGAGGTAGAGTTTTCATCCATTCTGT
+                                                                   
+BACR01 CAAGCTGTTCATTTCATTTAAATTATAAATTTAATTATGTCAGACTACGCATAAATTCAA
+       7480      7490      7500      7510      7520      7530      
+
+
+
+3002 residues in 1 query   sequences
+112936249 residues in 657 library sequences
+ Scomplib [33t08]
+ start: Sat Dec  8 11:42:13 2001 done: Sat Dec  8 11:43:35 2001
+ Scan time: 78.670 Display time:  2.420
+
+Function used was FASTA [version 3.3t08 Jan. 17, 2001]

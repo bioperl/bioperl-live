@@ -1,0 +1,103 @@
+LOCUS       MSGEFTUA                1500 bp    DNA     linear   BCT 18-JUN-1999
+DEFINITION  Mycobacterium leprae Tuf gene for elongation factor Tu, complete
+            cds.
+ACCESSION   D13869
+VERSION     D13869.1  GI:434782
+KEYWORDS    EF-Tu; elongation factor Tu.
+SOURCE      Mycobacterium leprae
+  ORGANISM  Mycobacterium leprae
+            Bacteria; Actinobacteria; Actinobacteridae; Actinomycetales;
+            Corynebacterineae; Mycobacteriaceae; Mycobacterium.
+REFERENCE   1  (bases 1 to 1500)
+  AUTHORS   Dhandayuthapani,S., Banu,M.J. and Kashiwabara,Y.
+  TITLE     Cloning and sequence determination of the gene coding for the
+            elongation factor Tu of Mycobacterium leprae
+  JOURNAL   J. Biochem. 115 (4), 664-669 (1994)
+   PUBMED   8089081
+COMMENT     Submitted (07-DEC-1992) to DDBJ by:
+            Subranamian Dhandayuthapani
+            National Institute for Leprosy Research
+            4-2-1 Aobacho, Higashimurayama-shi
+            Tokyo 189
+            Japan
+            Phone:  0423-91-8211
+            Fax:    0423-94-9092.
+FEATURES             Location/Qualifiers
+     source          1..1500
+                     /organism="Mycobacterium leprae"
+                     /mol_type="genomic DNA"
+                     /isolate="Thai 53"
+                     /db_xref="taxon:1769"
+                     /clone_lib="lambda gt11"
+     repeat_region   20..71
+                     /rpt_type=direct
+                     /rpt_unit="20..29"
+                     /rpt_unit="62..71"
+     repeat_region   90..231
+                     /rpt_type=direct
+                     /rpt_unit="90..99"
+                     /rpt_unit="222..231"
+     RBS             205..210
+                     /standard_name="Shine-Dalgarno sequence"
+     gene            219..1409
+                     /gene="Tuf"
+     CDS             219..1409
+                     /gene="Tuf"
+                     /function="peptide chain elongtion during protein
+                     synthesis"
+                     /standard_name="EF-Tu"
+                     /note="start codon gtg"
+                     /codon_start=1
+                     /evidence=not_experimental
+                     /transl_table=11
+                     /product="elongation factor Tu"
+                     /protein_id="BAA02982.2"
+                     /db_xref="GI:5103687"
+                     /translation="MAKAKFERTKPHVNIGTIGHVDHGKTTLTAAITKVLHDKFPNLN
+                     ESRAFDQIDNAPEERQRGITINISHVEYQTEKRHYAHVDAPGHADYIKNMITGAAQMD
+                     GAILVVAATDGPMPQTREHVLLARQVGVPYILVALNKSDAVDDEELLELVEMEVRELL
+                     AAQEFDEDAPVVRVSALKALEGDAKWVESVTQLMDAVDESIPAPVRETDKPFLMPVED
+                     VFTITGRGTVVTGRVERGVVNVNEEVEIVGIRQTTTKTTVTGVEMFRKLLDQGQAGDN
+                     VGLLLRGIKREDVERGQVVIKPGTTTPHTEFEGQVYILSKDEGGRHTPFFNNYRPQFY
+                     FRTTDVTGVVTLPEGTEMVMPGDNTNISVTLIQPVAMDEGLRFAIREGGPTVGAGRVV
+                     KIIK"
+     repeat_region   465..729
+                     /rpt_type=direct
+                     /rpt_unit="465..474"
+                     /rpt_unit="720..729"
+     repeat_region   883..913
+                     /rpt_type=direct
+                     /rpt_unit="883..892"
+                     /rpt_unit="904..913"
+     repeat_region   1169..1369
+                     /rpt_type=direct
+                     /rpt_unit="1169..1180"
+                     /rpt_unit="1358..1369"
+ORIGIN      
+        1 gctcggtcca agacgcaagg ccggcgaact actccatggt gttcaactcg tactccgaag
+       61 tgccggcgaa cgtgtcgaag gagatcatcg cgaaggcgac gggcgagtag gagttgagtg
+      121 gtcggaaaag cctacgagtt atgctgacgc ggtcactacc gcggataaat tactaacatt
+      181 gctttttaca agcaccaata gtccaggagg acacagaagt ggcgaaggcg aagttcgagc
+      241 ggacgaagcc gcacgtcaac atcgggacca tcggtcacgt tgaccacggc aagaccacat
+      301 tgaccgcggc tattaccaag gtcctgcatg acaagttccc caacctgaat gagtcgcgcg
+      361 cctttgacca gattgacaac gcgcccgagg agcgtcagcg cggtatcacc atcaacattt
+      421 cccacgtgga gtatcagacc gagaagcgtc actatgctca cgtcgacgcc ccggggcacg
+      481 ccgactacat taagaacatg atcaccggtg cggcccagat ggatggtgcg attctggtgg
+      541 tcgctgctac agacggcccg atgccgcaga ctcgcgagca cgtgctgctc gctcgtcagg
+      601 tgggtgtacc ttacatcctg gtcgcactta acaagtccga cgccgtggac gacgaggaac
+      661 tactcgagct tgtcgagatg gaagtccgtg agttgctggc tgcccaggaa ttcgacgagg
+      721 acgccccggt tgtgcgtgtc tcggcattga aggcgctcga gggtgacgcc aagtgggtcg
+      781 agtctgtcac acagttgatg gacgctgtcg acgagtcgat cccggctcca gtccgcgaga
+      841 ctgacaagcc gttcctgatg cccgttgagg acgtcttcac tatcaccggt cgtggcaccg
+      901 tggtcaccgg tcgggtggag cgcggcgtgg tcaacgtgaa cgaggaagtt gagatcgtcg
+      961 gcattcgtca gacgaccacc aagaccaccg tcacgggtgt ggaaatgttt cgtaagctgc
+     1021 tcgaccaagg tcaggccggt gataacgttg gtctgttgtt gcgtggcatc aagcgcgagg
+     1081 acgtcgagcg tggtcaggtg gtcatcaaac ccggcaccac caccccgcat accgagttcg
+     1141 aaggccaagt atacatcctg tccaaggacg aaggtggtcg gcacacaccg ttcttcaaca
+     1201 actaccgtcc gcagttctac ttccgtacca ctgatgtgac cggtgtggtg actttgccgg
+     1261 agggcaccga gatggtgatg ccaggtgaca acaccaacat ctcggtgacg ttgattcagc
+     1321 ccgttgccat ggacgagggt ttgcgcttcg cgatccgcga aggtggtccg actgttggtg
+     1381 ccggccgggt cgtcaagatc atcaagtaag tcgcatcaac gggccaggtg gttacaacgg
+     1441 tccacatttg cgaaacggcg ctcatccgaa aggataggcg cgtttctttt gagtttatgc
+//
+

@@ -1,0 +1,155 @@
+RPS-BLAST 2.2.4 [Aug-26-2002]
+
+Query= gi|1786183|gb|AAC73113.1| (AE000111) aspartokinase I,
+homoserine dehydrogenase I [Escherichia coli]
+         (820 letters)
+
+
+
+                                                                 Score    E
+Sequences producing significant alignments:                      (bits) Value
+
+gnl|CDD|3919 smart00483, POLXc, DNA polymerase X family; include...    28   0.064
+gnl|CDD|7379 smart00533, MUTSd, DNA-binding domain of DNA mismat...    26   0.47 
+gnl|CDD|178 smart00202, SR, Scavenger receptor Cys-rich; The sea...    22   4.5  
+gnl|CDD|8977 smart00359, PUA, Putative RNA-binding Domain in Pse...    22   7.0  
+gnl|CDD|7370 smart00486, POLBc, DNA polymerase type-B family; DN...    22   7.6  
+gnl|CDD|28 smart00035, CLa, CLUSTERIN alpha chain;                     21   7.6  
+gnl|CDD|8994 smart00450, RHOD, Rhodanese Homology Domain; An alp...    22   8.0  
+
+>gnl|CDD|3919 smart00483, POLXc, DNA polymerase X family; includes vertebrate
+           polymerase beta and terminal
+           deoxynucleotidyltransferases
+          Length = 335
+
+ Score = 28.3 bits (63), Expect = 0.064
+ Identities = 11/57 (19%), Positives = 21/57 (36%), Gaps = 3/57 (5%)
+
+Query: 599 SRRKFLYDTNVGAGLPVIENLQNLLNAGDELMKFSGILSGSLSYIFGKLDEGMSFSE 655
+           ++RK  Y         V+++L   +N+  +L    GI       I   ++ G     
+Sbjct: 23  NKRKCSY---FRKAASVLKSLPFPINSMKDLKGLPGIGDKIKKKIEEIIETGKLSKA 76
+
+
+>gnl|CDD|7379 smart00533, MUTSd, DNA-binding domain of DNA mismatch repair MUTS
+           family;
+          Length = 310
+
+ Score = 25.7 bits (56), Expect = 0.47
+ Identities = 19/107 (17%), Positives = 36/107 (32%), Gaps = 21/107 (19%)
+
+Query: 9   TSVANAERFLR------VADILESNARQGQVATVLSAPAKITNHLVAMIEKTISGQDALP 62
+                 +R LR      + D+ E N R                 L+   E     +  L 
+Sbjct: 13  CKTPMGKRLLRRWLLQPLTDLKEINERL-----------DAVEELLENPELRQDLRGLLK 61
+
+Query: 63  NISDAERIFAELLTGLAAAQPGFPLAQLKTFVDQEFAQIKHVLHGIS 109
+            I D ER+ + +    A+ +    L +L   ++    +I+ +L  + 
+Sbjct: 62  RIPDLERLLSRIKLSRASPR---DLLRLYDSLEG-LKEIRKLLESLE 104
+
+
+>gnl|CDD|178 smart00202, SR, Scavenger receptor Cys-rich; The sea urchin egg
+           peptide speract contains 4 repeats of SR domains that
+           contain 6 conserved cysteines. May bind bacterial
+           antigens in the protein MARCO
+          Length = 101
+
+ Score = 22.2 bits (47), Expect = 4.5
+ Identities = 13/53 (24%), Positives = 20/53 (37%), Gaps = 2/53 (3%)
+
+Query: 648 DEGMSFSEATTLAREMGYTEP--DPRDDLSGMDVARKLLILARETGRELELAD 698
+           D+G    +A  + R++G+            G       L   R TG E  L+D
+Sbjct: 27  DDGWDLRDANVVCRQLGFGGAVSASGSAYFGPGSGPIWLDNVRCTGTEASLSD 79
+
+
+>gnl|CDD|8977 smart00359, PUA, Putative RNA-binding Domain in PseudoUridine
+           synthase and Archaeosine transglycosylase;
+          Length = 78
+
+ Score = 21.8 bits (46), Expect = 7.0
+ Identities = 10/40 (25%), Positives = 17/40 (42%), Gaps = 5/40 (12%)
+
+Query: 135 AGVLEARGH-----NVTVIDPVEKLLAVGHYLESTVDIAE 169
+            GV+   G       V ++D   + L +G    S+ +IA 
+Sbjct: 22  PGVVRVDGDIKEGDVVVIVDEKGEPLGIGLANMSSEEIAR 61
+
+
+>gnl|CDD|7370 smart00486, POLBc, DNA polymerase type-B family; DNA polymerase
+           alpha, delta, epsilon and zeta chain (eukaryota), DNA
+           polymerases in archaea, DNA polymerase II in e. coli,
+           mitochondrial DNA polymerases and and virus DNA
+           polymerases
+          Length = 475
+
+ Score = 21.7 bits (45), Expect = 7.6
+ Identities = 8/33 (24%), Positives = 14/33 (42%), Gaps = 3/33 (9%)
+
+Query: 247 KSMSYQEAMELSYFGAKVLHPRTI---TPIAQF 276
+           K +  +   ++ Y G KVL P+      P+   
+Sbjct: 275 KGLEPELKKKVKYEGGKVLEPKKGFYENPVLVL 307
+
+
+>gnl|CDD|28 smart00035, CLa, CLUSTERIN alpha chain;
+          Length = 215
+
+ Score = 21.5 bits (45), Expect = 7.6
+ Identities = 7/13 (53%), Positives = 9/13 (68%)
+
+Query: 479 ALLEQLKRQQSWL 491
+           +LLEQL  Q  W+
+Sbjct: 129 SLLEQLNEQFGWV 141
+
+
+>gnl|CDD|8994 smart00450, RHOD, Rhodanese Homology Domain; An alpha beta fold
+           found duplicated in the Rhodanese protein. The the
+           Cysteine containing enzymatically active version of the
+           domain is also found in the CDC25 class of protein
+           phosphatases and a variety of proteins such as sulfide
+           dehydrogenases and stress proteins such as Senesence
+           specific protein 1 in plants, PspE and GlpE in bacteria
+           and cyanide and arsenate resistance proteins. Inactive
+           versions with a loss of the cysteine are also seen in
+           Dual specificity phosphatases, ubiquitin hydrolases from
+           yeast and in sulfuryltransferases. These are likely to
+           play a role in protein interactions
+          Length = 109
+
+ Score = 21.7 bits (45), Expect = 8.0
+ Identities = 14/56 (25%), Positives = 17/56 (30%)
+
+Query: 520 NWQEELAQAKEPFNLGRLIRLVKEYHLLNPVIVDCTSSQAVADQYADFLREGFHVV 575
+              E L +  E  +L   +          PVIV C S    A         GF  V
+Sbjct: 38  PLSELLDRRGETDSLFEELLGSLGLDKDKPVIVYCRSGNRSAKAAWLLRELGFKNV 93
+
+
+Lambda     K      H
+   0.319    0.136    0.384 
+
+Gapped
+Lambda     K      H
+   0.267   0.0574    0.140 
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 1100, Extension: 100
+Number of Hits to DB: 194,372
+Number of Sequences: 0
+Number of extensions: 14001
+Number of successful extensions: 17
+Number of sequences better than 10.0: 1
+Number of HSP's better than 10.0 without gapping: 1
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 0
+Number of HSP's gapped (non-prelim): 17
+length of query: 438
+length of database: 75,508
+effective HSP length: 68
+effective length of query: 438
+effective length of database: 31,988
+effective search space: 14010744
+effective search space used: 24054976
+T: 11
+A: 40
+X1: 1600 (737.2 bits)
+X2: 3800 (1463.8 bits)
+X3: 6400 (2465.3 bits)
+S1: 4100 (1892.0 bits)
+S2: 43 (20.7 bits)

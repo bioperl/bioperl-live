@@ -1,0 +1,227 @@
+ 
+REBASE version 304                                              withrefm.304
+ 
+    =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    REBASE, The Restriction Enzyme Database   http://rebase.neb.com
+    Copyright (c)  Dr. Richard J. Roberts, 2003.   All rights reserved.
+    =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+ 
+Rich Roberts                                                    Mar 24 2003
+ 
+
+<ENZYME NAME>   Restriction enzyme name.
+<ISOSCHIZOMERS> Other enzymes with this specificity.
+<RECOGNITION SEQUENCE> 
+                These are written from 5' to 3', only one strand being given.
+                If the point of cleavage has been determined, the precise site
+                is marked with ^.  For enzymes such as HgaI, MboII etc., which
+                cleave away from their recognition sequence the cleavage sites
+                are indicated in parentheses.  
+
+                For example HgaI GACGC (5/10) indicates cleavage as follows:
+                                5' GACGCNNNNN^      3'
+                                3' CTGCGNNNNNNNNNN^ 5'
+
+                In all cases the recognition sequences are oriented so that
+                the cleavage sites lie on their 3' side.
+
+                REBASE Recognition sequences representations use the standard 
+                abbreviations (Eur. J. Biochem. 150: 1-5, 1985) to represent 
+                ambiguity.
+                                R = G or A
+                                Y = C or T
+                                M = A or C
+                                K = G or T
+                                S = G or C
+                                W = A or T
+                                B = not A (C or G or T)
+                                D = not C (A or G or T)
+                                H = not G (A or C or T)
+                                V = not T (A or C or G)
+                                N = A or C or G or T
+
+
+
+                ENZYMES WITH UNUSUAL CLEAVAGE PROPERTIES:  
+
+                Enzymes that cut on both sides of their recognition sequences,
+                such as BcgI, Bsp24I, CjeI and CjePI, have 4 cleavage sites
+                each instead of 2.
+
+                Bsp24I
+                          5'      ^NNNNNNNNGACNNNNNNTGGNNNNNNNNNNNN^   3'
+                          3' ^NNNNNNNNNNNNNCTGNNNNNNACCNNNNNNN^        5'
+
+
+                This will be described in some REBASE reports as:
+
+                             Bsp24I (8/13)GACNNNNNNTGG(12/7)
+
+<METHYLATION SITE>
+                The site of methylation by the cognate methylase when known
+                is indicated X(Y) or X,X2(Y,Y2), where X is the base within
+                the recognition sequence that is modified.  A negative number
+                indicates the complementary strand, numbered from the 5' base 
+                of that strand, and Y is the specific type of methylation 
+                involved:
+                               (6) = N6-methyladenosine 
+                               (5) = 5-methylcytosine 
+                               (4) = N4-methylcytosine
+
+                If the methylation information is different for the 3' strand,
+                X2 and Y2 are given as well.
+
+<MICROORGANISM> Organism from which this enzyme had been isolated.
+<SOURCE>        Either an individual or a National Culture Collection.
+<COMMERCIAL AVAILABILITY>
+                Each commercial source of restriction enzymes and/or methylases
+                listed in REBASE is assigned a single character abbreviation 
+                code.  For example:
+
+                K        Takara (1/98)
+                M        Boehringer Mannheim (10/97)
+                N        New England Biolabs (4/98)
+ 
+                The date in parentheses indicates the most recent update of 
+                that organization's listings in REBASE.
+
+<REFERENCES>only the primary references for the isolation and/or purification
+of the restriction enzyme or methylase, the determination of the recognition
+sequence and cleavage site or the methylation specificity are given.
+
+
+REBASE codes for commercial sources of enzymes
+
+                A        Amersham Pharmacia Biotech (1/03)
+                C        Minotech Biotechnology (6/01)
+                E        Stratagene (1/03)
+                F        Fermentas AB (1/03)
+                G        Qbiogene (1/03)
+                H        American Allied Biochemical, Inc. (10/98)
+                I        SibEnzyme Ltd. (1/03)
+                J        Nippon Gene Co., Ltd. (6/00)
+                K        Takara Shuzo Co. Ltd. (1/03)
+                M        Roche Applied Science (1/03)
+                N        New England Biolabs (1/03)
+                O        Toyobo Biochemicals (11/98)
+                P        Megabase Research Products (5/99)
+                Q        CHIMERx (1/03)
+                R        Promega Corporation (1/03)
+                S        Sigma Chemical Corporation (1/03)
+                U        Bangalore Genei (1/03)
+                V        MRC-Holland (1/03)
+                X        EURx Ltd. (1/03)
+
+<1>AaaI
+<2>XmaIII,BseX3I,BsoDI,BstZI,EagI,EclXI,Eco52I,SenPT16I,TauII,Tsp504I
+<3>C^GGCCG
+<4>
+<5>Acetobacter aceti ss aceti
+<6>M. Fukaya
+<7>
+<8>Tagami, H., Tayama, K., Tohyama, T., Fukaya, M., Okumura, H., Kawamura, Y., Horinouchi, S., Beppu, T., (1988) FEMS Microbiol. Lett., vol. 56, pp. 161-166.
+
+<1>AacI
+<2>BamHI,AaeI,AcaII,AccEBI,AinII,AliI,Ali12257I,Ali12258I,ApaCI,AsiI,AspTII,Atu1II,BamFI,BamKI,BamNI,Bca1259I,Bce751I,Bco10278I,BnaI,BsaDI,Bsp30I,Bsp46I,Bsp90II,Bsp98I,Bsp130I,Bsp131I,Bsp144I,Bsp4009I,BspAAIII,BstI,Bst1126I,Bst2464I,Bst2902I,BstQI,Bsu90I,Bsu8565I,Bsu8646I,BsuB519I,BsuB763I,CelI,DdsI,GdoI,GinI,GoxI,GseIII,GstI,MleI,Mlu23I,NasBI,Nsp29132II,NspSAIV,OkrAI,Pac1110I,Pae177I,Pfl8I,Psp56I,RhsI,Rlu4I,RspLKII,SolI,SpvI,SurI,Uba19I,Uba31I,Uba38I,Uba51I,Uba88I,Uba1098I,Uba1163I,Uba1167I,Uba1172I,Uba1173I,Uba1205I,Uba1224I,Uba1242I,Uba1250I,Uba1258I,Uba1297I,Uba1302I,Uba1324I,Uba1325I,Uba1334I,Uba1339I,Uba1346I,Uba1383I,Uba1398I,Uba1402I,Uba1414I,Uba4009I
+<3>GGATCC
+<4>
+<5>Acetobacter aceti sub. liquefaciens
+<6>IFO 12388
+<7>
+<8>Seurinck, J., van Montagu, M., Unpublished observations.
+
+<1>AaeI
+<2>BamHI,AacI,AcaII,AccEBI,AinII,AliI,Ali12257I,Ali12258I,ApaCI,AsiI,AspTII,Atu1II,BamFI,BamKI,BamNI,Bca1259I,Bce751I,Bco10278I,BnaI,BsaDI,Bsp30I,Bsp46I,Bsp90II,Bsp98I,Bsp130I,Bsp131I,Bsp144I,Bsp4009I,BspAAIII,BstI,Bst1126I,Bst2464I,Bst2902I,BstQI,Bsu90I,Bsu8565I,Bsu8646I,BsuB519I,BsuB763I,CelI,DdsI,GdoI,GinI,GoxI,GseIII,GstI,MleI,Mlu23I,NasBI,Nsp29132II,NspSAIV,OkrAI,Pac1110I,Pae177I,Pfl8I,Psp56I,RhsI,Rlu4I,RspLKII,SolI,SpvI,SurI,Uba19I,Uba31I,Uba38I,Uba51I,Uba88I,Uba1098I,Uba1163I,Uba1167I,Uba1172I,Uba1173I,Uba1205I,Uba1224I,Uba1242I,Uba1250I,Uba1258I,Uba1297I,Uba1302I,Uba1324I,Uba1325I,Uba1334I,Uba1339I,Uba1346I,Uba1383I,Uba1398I,Uba1402I,Uba1414I,Uba4009I
+<3>GGATCC
+<4>
+<5>Acetobacter aceti sub. liquefaciens
+<6>M. Van Montagu
+<7>
+<8>Seurinck, J., van Montagu, M., Unpublished observations.
+
+<1>AagI
+<2>ClaI,Apu16I,Asp14I,Asp37I,Asp86I,Asp123I,Asp130I,Asp707I,BanIII,BavCI,BazI,BbvAII,Bci29I,BciBI,BcmI,Bco79I,BdiI,BfrAI,Bli41I,Bli86I,Bli576I,Bli585I,BliAI,BliRI,Bsa29I,BscI,BscVI,BseCI,Bsh108AI,BsiXI,Bsp2I,Bsp4I,Bsp84I,Bsp106I,Bsp125I,Bsp126I,Bsp127I,Bsp145I,BspDI,BspJII,BspOVII,BspXI,BspZEI,BsrCI,Bst28I,BstLVI,BstNZ169I,Bsu15I,BsuTUI,Bth1202I,Bth9415I,BtuI,Csp4I,LcaI,LplI,PgaI,Rme21I,Ssp27144I,Uba22I,Uba24I,Uba30I,Uba34I,Uba43I,Uba1096I,Uba1100I,Uba1133I,Uba1137I,Uba1138I,Uba1144I,Uba1145I,Uba1161I,Uba1168I,Uba1195I,Uba1196I,Uba1197I,Uba1198I,Uba1199I,Uba1200I,Uba1233I,Uba1238I,Uba1246I,Uba1257I,Uba1275I,Uba1286I,Uba1295I,Uba1315I,Uba1342I,Uba1366II,Uba1379I,Uba1380I,Uba1394I,Uba1412I,Uba1416I,Uba1427I,Uba1430I,Uba1451I,Uba1453I,ZhoI
+<3>AT^CGAT
+<4>
+<5>Achromobacter agile
+<6>N.N. Sokolov
+<7>
+<8>Sokolov, N.N., Maneliene, Z.P., Butkus, V.V., Fitzner, A.B., Khoroshutina, E.B., Kalugin, A.A., Janulaitis, A., (1990) Bioorg. Khim., vol. 16, pp. 1040-1044.
+
+<1>AamI
+<2>
+<3>?
+<4>
+<5>Azospirillum amazonense
+<6>G. Schwabe
+<7>
+<8>Schwabe, G., Posseckert, G., Klingmuller, W., (1985) Gene, vol. 39, pp. 113-116.
+
+<1>AaqI
+<2>ApaLI,Alw44I,AmeI,Bsp146I,DaqI,Pfl23I,Pfr12I,PliI,ScoNI,SnoI,Uba1203I,Uba1387I,VneI
+<3>GTGCAC
+<4>
+<5>Alcaligenes aquamarinus 559
+<6>V.E. Repin
+<7>
+<8>Repin, V.E., Unpublished observations.
+
+<1>AarI
+<2>
+<3>CACCTGC(4/8)
+<4>
+<5>Arthrobacter aurescens SS2-322
+<6>A. Janulaitis
+<7>F
+<8>Grigaite, R., Maneliene, Z., Janulaitis, A., (2002) Nucleic Acids Res., vol. 30.
+Maneliene, Z., Zakareviciene, L., Unpublished observations.
+
+<1>AasI
+<2>DrdI,DseDI
+<3>GACNNNN^NNGTC
+<4>
+<5>Arthrobacter aurescens RFL3
+<6>V. Butkus
+<7>F
+<8>Kazlauskiene, R., Vaitkevicius, D., Maneliene, Z., Trinkunaite, L., Kiuduliene, L., Petrusyte, M., Butkus, V., Janulaitis, A., Unpublished observations.
+
+<1>AatI
+<2>StuI,Asp78I,AspMI,ChyI,Eco147I,GdiI,GobAI,NtaSI,PceI,PluI,Pme55I,Ppu13I,SarI,Sru30DI,SseBI,SsvI,SteI,Uba40I,Uba1170I,Uba1180I,Uba1217I,Uba1239I,Uba1371I,Uba1403I,Uba1419I,VchO44I
+<3>AGG^CCT
+<4>
+<5>Acetobacter aceti
+<6>IFO 3281
+<7>O
+<8>Sato, H., Yamada, Y., (1990) J. Gen. Appl. Microbiol., vol. 36, pp. 273-277.
+Sugisaki, H., Maekawa, Y., Kanazawa, S., Takanami, M., (1982) Nucleic Acids Res., vol. 10, pp. 5747-5752.
+
+<1>TaqII
+<2>
+<3>GACCGA(11/9),CACCCA(11/9)
+<4>
+<5>Thermus aquaticus YTI
+<6>J.I. Harris
+<7>X
+<8>Barker, D., Hoff, M., Oliphant, A., White, R., (1984) Nucleic Acids Res., vol. 12, pp. 5567-5581.
+Myers, P.A., Roberts, R.J., Unpublished observations.
+Rutkowska, S.M., Jaworowska, I., Skowron, P.M., Unpublished observations.
+
+<1>M.PhiBssHII
+<2>MluI,ApeI,Bbi24I,BstZ9I,Uba6I
+<3>ACGCGT,CCGCGG,RGCGCY,RCCGGY,GCGCGC
+<4>2(5), 2(5), 3(5), 2(5), 2(5)
+<5>Bacillus stearothermophilus H3
+<6>ATCC 49820
+<7>
+<8>Schumann, J., Walter, J., Willert, J., Wild, C., Koch, D., Trautner, T.A., (1996) J. Mol. Biol., vol. 257, pp. 949-959.
+Schumann, J., Willert, J., Wild, C., Waler, J., Trautner, T.A., (1995) Gene, vol. 157, pp. 103-104.
+
+<1>AloI
+<2>
+<3>(7/12)GAACNNNNNNTCC(12/7)
+<4>3(6),-3(6)
+<5>Acinetobacter lwoffi Ks 4-8
+<6>V. Butkus
+<7>F
+<8>Cesnaviciene, E.E., Petrusyte, M.M., Kazlauskiene, R.R., Maneliene, Z., Timinskas, A., Lubys, A., Janulaitis, A., (2001) J. Mol. Biol., vol. 314, pp. 205-216.
+Savelskiene, A., Petrusyte, M., Padegimiene, E., Vonseviciene, E., Kiuduliene, E., Butkus, V., Janulaitis, A., Unpublished observations.

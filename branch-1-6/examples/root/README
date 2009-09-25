@@ -1,0 +1,192 @@
+README for Bioperl examples/root 
+
+This directory contains some sample scripts and modules that
+illustrate the use of the Bio::Root::* modules. Currently, these
+example scripts focus on how exception handling. 
+
+Here are some short descriptions of the examples/root scripts:
+
+Script            Description
+--------------    ----------------------------------------
+exceptions1.pl    How to throw and catch Error.pm objects
+exceptions2.pl    How to throw Error.pm objects via Bio::Root::Root
+exceptions3.pl    Illustrates inheritance between Error.pm types
+exceptions4.pl    Shows what happens when Error.pm isn't installed
+
+These demo scripts should be executed within the
+examples/root directory of the Bioperl distribution.
+
+
+Using Error.pm for Exception Handling
+--------------------------------------
+
+The Bio::Root::Root module interfaces with Graham Barr's Error.pm.
+Error.pm provides a handy way to create, throw, and catch exceptions
+as objects. Error.pm is quite convenient and easy to use and adds a
+level of control for managing errors within your Perl code using
+familiar object-oriented, try-catch-finally semantics. You can define
+subclasses of Error.pm representing particular types of exceptions,
+and you can define catch blocks to handle these types of exceptions.
+
+This has distinct advantages over simply catching any and all errors
+with an eval{} block, as is currently done in Bioperl. Strongly typed
+exception objects make it easy to write appropriate handlers. It also
+makes you code easier to understand because it's clear what type of
+things can/did go wrong.
+
+Throwing exceptions that are Error.pm-compliant is a little more work
+than throwing them the usual Bioperl way. Here's an example:
+
+Using Error.pm-compliant syntax:
+
+  if( !$feat->isa("Bio::SeqFeatureI") ) {
+      $self->throw(-class => 'Bio::Root::BadParameter',
+                   -text  =>"$feat is not a SeqFeatureI and that's what we expect.",
+                   -value => $feat);
+  }
+
+Not using Error.pm-compliant syntax:
+
+  if( !$feat->isa("Bio::SeqFeatureI") ) {
+      $self->throw("$feat is not a SeqFeatureI and that's what we expect.");
+  }
+
+The advantage of using the Error.pm-compliant syntax is that, even if
+Error.pm isn't installed, the exception message that gets thrown will
+contain the name of the class of the exception. This provides a more
+informative description of what went wrong.
+
+In the Error.pm-compliant case above, the exception string starts with:
+
+    ------------- EXCEPTION: Bio::Root::BadParameter -------------
+
+Compare this to the non-Error.pm-compliant exception string:
+
+    -------------------- EXCEPTION --------------------
+
+There are a variety of exception classes that are declared in
+Bio::Root::Exception for common types of error conditions:
+
+    Bio::Root::Exception
+    Bio::Root::NotImplemented
+    Bio::Root::IOException
+    Bio::Root::FileOpenException
+    Bio::Root::SystemException
+    Bio::Root::BadParameter
+    Bio::Root::OutOfRange
+    Bio::Root::NoSuchThing
+
+Feel free to use these, or subclass from them to derive more specific
+classes of exceptions. For more information about these types of
+exceptions, see perldoc Bio::Root::Exception.
+
+Error.pm is available through CPAN and I encourage Bioperl users and
+developers to install it and experiment with it.
+
+
+Bio::Root::Exception.pm
+-----------------------
+
+The Bio::Root::Exception.pm module contains a number of Error.pm
+subclasses representing common types of errors. If you want to throw
+an exception within your Bioperl module that doesn't correspond to any
+of the ones defined in Bio::Root::Exception, feel free to define a new
+one, but be sure it inherits from Bio::Root::Exception or one of its
+subclasses. This will allow anyone to write a handler for any type of
+Bioperl exception.
+
+Defining a new type of exception can be done quite simply. All you
+need to do is to specify the @ISA array for your new type, as in:
+
+    @Bio::Root::Exception::MyBad::ISA = qw( Bio::Root::Exception );
+
+If you want to override any of the available methods or add new ones,
+you'll have to provide a package statement and the appropriate
+method definitions.
+
+Programming tip: Be careful not to use exceptions as your primary
+means of flow control within your code. Throwing and handling
+exceptions come with some execution overhead. Also, such excessive use
+of exceptions can make your logic hard to follow.
+
+
+Bio::Root::RootI.pm and Bio::Root::Root.pm 
+-------------------------------------------
+
+The modules in the lib directory also demonstrate the use of the Bioperl
+modules Bio::Root::RootI and Bio::Root::Root. RootI.pm should be used
+as the base class for any Bioperl module that specifies an
+interface. It simplifies the process of writing virtual
+methods. Root.pm implements RootI.pm should be used as a base class
+for any Bioperl module that specifies a concrete object.
+
+The module TestInterface.pm demonstrates how to use
+Bio::Root::RootI.pm. The module TestObject.pm demonstrates how to use
+Bio::Root::Root.pm.
+
+Bio::Root::RootI defines a method called "throw_not_implemented()"
+that will throw a Bio::Root::NotImplemented exception. This is useful
+for ensuring that an implementing class has implemented all
+methods. Any method within a Bio::Root::RootI subclass can call
+throw_not_implemented() to indicate that a method has not been
+implemented. Implementations of the interface must implement the
+method or an exception will result when someone tries to use it.
+
+Note that Bio::Root::Root can make use of Error.pm if available, but
+Error.pm is not required. 
+
+
+Bio::Root::Root::throw() with Error.pm
+---------------------------------------
+
+Bio::Root::Root can determine if Error.pm is available and if so, can
+make use of it when Bio::Root::Root::throw() is called. For a demo,
+see test2.pl.
+
+
+Real-Life Examples
+------------------
+
+For additional examples of how to make use of the Error.pm-related capabilities
+of Bio::Root::Root.pm, I created new versions of Bio::SeqI.pm,
+Bio::Seq.pm, Bio::PrimarySeqI.pm, and Bio::PrimarySeq.pm within the
+lib/Bio subdirectory. This conversion is pretty straightforward and could
+be done on the other Bioperl modules without too much effort.
+
+TODO: Update the lib/Bio modules based on the latest versions in bioperl-live.
+
+
+Using Error.pm's try{} and catch{} within Bioperl Modules
+----------------------------------------------------------
+
+For developers, using Error.pm's try{} and catch{} blocks within
+Bioperl modules themselves could come in handy. But doing so would add
+an external dependency for Error.pm, which is not part of the standard
+Perl distribution. So at this stage, it's best to stick with just
+using Error.pm's throw() method (via Bio::Root::Root) and leave the
+try{} and catch{} blocks for use only within your scripts.
+
+If you really want to use try{} and catch{} within your module and
+still want to be capable of running when Error.pm isn't available, you
+can check $Bio::Root::Root::ERRORLOADED variable.
+
+If we really want to incorporate it within Bioperl, a reasonable
+solution would be to distribute Error.pm with Bioperl. 
+
+So why use Error.pm instead of some other utility? Well, Perl 6 will
+most likely include some form of structured exception handling akin to
+that provided by Error.pm (see these RFC's:
+http://dev.perl.org/rfc/63.pod and http://dev.perl.org/rfc/88.pod).
+So it will probably be easy to convert Error.pm-based exception handling
+to whatever is adopted for Perl 6.
+
+(Side note for any CORBA folks out there: Error.pm is used in some
+other CPAN modules, notably CORBA::MICO. Thus, using Error.pm within
+Bioperl allows consistent exception handling methodology when working
+with such modules and Bioperl together.)
+
+--
+Steve Chervitz <sac@bioperl.org>
+21 April 2001
+Updated 6 March 2003
+

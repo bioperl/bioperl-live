@@ -1,0 +1,26 @@
+ 
+REBASE version 307                                              itype2.307
+ 
+    =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    REBASE, The Restriction Enzyme Database   http://rebase.neb.com
+    Copyright (c)  Dr. Richard J. Roberts, 2003.   All rights reserved.
+    =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+ 
+Rich Roberts                                                    Jun 29 2003
+ 
+AaaI	XmaIII	C^GGCCG			1204
+AagI	ClaI	AT^CGAT			1157
+AaqI	ApaLI	GTGCAC			973
+AarI		CACCTGC(4/8)		F	362,701
+AasI	DrdI	GACNNNN^NNGTC		F	536
+AatI	StuI	AGG^CCT		O	1046,1189
+AatII		GACGT^C		AFGIKMNOR	1189
+AbeI	BbvCI	CCTCAGC(-5/-2)			1296
+AbrI	XhoI	C^TCGAG			1068
+AccI		GT^MKAC	5(6)	AEGJKMNORSU	528,684,1413
+AccII	FnuDII	CG^CG		AJK	561,1413
+AccIII	BspMII	T^CCGGA		EGJKR	562,822
+AciI		CCGC(-3/-1)	?(5),-2(5)	N	926
+Bsp24I		(8/13)GACNNNNNNTGG(12/7)			261
+AloI		(7/12)GAACNNNNNNTCC(12/7)	3(6),-3(6)	F	154,1050
+TaqII		GACCGA(11/9),CACCCA(11/9)		X	67,822,1030

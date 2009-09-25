@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD eLinkResult, 11 May 2002//EN" "http://www.ncbi.nlm.nih.gov/entrez/query/DTD/eLink_020511.dtd">
+<eLinkResult>
+<LinkSet>
+	<DbFrom>protein</DbFrom>
+	<IdCheckList>
+		<Id HasNeighbor="Y">730439</Id>
+		<Id HasNeighbor="Y">68536103</Id>
+		<Id HasNeighbor="Y">1621261</Id>
+		<Id HasNeighbor="Y">20807972</Id>
+	</IdCheckList>
+</LinkSet>
+</eLinkResult>

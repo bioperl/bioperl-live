@@ -1,0 +1,74 @@
+ID           M20132:(362)[c.+4G|A|T;c.+31C|A]; [E2|K|X;Q11|K]
+Feature      DNA; 1.1
+Feature        /label: point, transition
+Feature        /proof: computed
+Feature        /location: 4
+Feature        /upflank: gaagattcagccaagctcaaggatg
+Feature        /change: g|a
+Feature        /dnflank: aagtgcagttagggctgggaagggt
+Feature        /re_site: -BccI
+Feature      DNA; 1.2
+Feature        /label: point, transversion
+Feature        /proof: computed
+Feature        /location: 4
+Feature        /upflank: gaagattcagccaagctcaaggatg
+Feature        /change: g|t
+Feature        /dnflank: aagtgcagttagggctgggaagggt
+Feature        /re_site: -BccI
+Feature      RNA; 1.1
+Feature        /label: missense
+Feature        /proof: experimental
+Feature        /location: 4 (M20132::366)
+Feature        /upflank: gaagattcagccaagctcaaggatg
+Feature        /change: g|a
+Feature        /dnflank: aagtgcagttagggctgggaagggt
+Feature        /re_site: -BccI
+Feature        /codon_table: 1
+Feature        /codon: gaa|aaa; 1
+Feature        /region: coding
+Feature      RNA; 1.2
+Feature        /label: nonsense
+Feature        /proof: experimental
+Feature        /location: 4 (M20132::366)
+Feature        /upflank: gaagattcagccaagctcaaggatg
+Feature        /change: g|t
+Feature        /dnflank: aagtgcagttagggctgggaagggt
+Feature        /re_site: -BccI
+Feature        /codon_table: 1
+Feature        /codon: gaa|taa; 1
+Feature        /region: coding
+Feature      AA; 1.1
+Feature        /label: substitution, conservative
+Feature        /proof: computed
+Feature        /location: 2
+Feature        /change: E|K
+Feature      AA; 1.2
+Feature        /label: truncation
+Feature        /proof: computed
+Feature        /location: 2
+Feature        /change: E|*
+Feature      DNA; 2
+Feature        /label: point, transversion
+Feature        /proof: computed
+Feature        /location: 31
+Feature        /upflank: gaagattcagccaagctcaaggatg
+Feature        /change: c|a
+Feature        /dnflank: aagtgcagttagggctgggaagggt
+Feature        /re_site: -CviRI, -SfaNI
+Feature      RNA; 2
+Feature        /label: missense
+Feature        /proof: experimental
+Feature        /location: 31 (M20132::393)
+Feature        /upflank: gaagattcagccaagctcaaggatg
+Feature        /change: c|a
+Feature        /dnflank: aagtgcagttagggctgggaagggt
+Feature        /re_site: -CviRI, -SfaNI
+Feature        /codon_table: 1
+Feature        /codon: caa|aaa; 1
+Feature        /region: coding
+Feature      AA; 2
+Feature        /label: substitution, conservative
+Feature        /proof: computed
+Feature        /location: 11
+Feature        /change: Q|K
+//

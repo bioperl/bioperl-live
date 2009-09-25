@@ -1,0 +1,60 @@
+Query= 
+         (180 letters)
+
+>human
+          Length = 179
+
+ Score = 54.0 bits (27), Expect = 2e-12
+ Identities = 83/94 (88%), Gaps = 7/94 (7%)
+ Strand = Plus / Plus
+
+                                                                       
+Query: 94  gtggctgggctc-tgaagcatttggg--tgagcccagggg-ctcagggcagggcacct-g 148
+           |||||||||||| |||||||| ||||  |||||||||||| | || |||||||||||| |
+Sbjct: 86  gtggctgggctcgtgaagcatgtgggggtgagcccaggggccccaaggcagggcacctgg 145
+
+                                             
+Query: 149 ccttcag-cggcctcag-cctgcctgtctcccag 180
+           ||||||| | ||||||| ||||||||||||||||
+Sbjct: 146 ccttcagcctgcctcagccctgcctgtctcccag 179
+
+
+
+ Score = 36.2 bits (18), Expect = 4e-07
+ Identities = 18/18 (100%)
+ Strand = Plus / Plus
+
+                            
+Query: 1  gtctgttccaagggcctt 18
+          ||||||||||||||||||
+Sbjct: 1  gtctgttccaagggcctt 18
+
+
+Lambda     K      H
+    1.37    0.711     1.31 
+
+Gapped
+Lambda     K      H
+    1.37    0.711     1.31 
+
+
+Matrix: blastn matrix:1 -3
+Gap Penalties: Existence: 5, Extension: 2
+Number of Hits to DB: 7
+Number of Sequences: 0
+Number of extensions: 7
+Number of successful extensions: 7
+Number of sequences better than 10.0: 1
+length of query: 180
+length of database: 179
+effective HSP length: 6
+effective length of query: 174
+effective length of database: 173
+effective search space:    30102
+effective search space used:    30102
+T: 0
+A: 30
+X1: 6 (11.9 bits)
+X2: 15 (29.7 bits)
+S1: 12 (24.3 bits)
+S2: 6 (12.4 bits)

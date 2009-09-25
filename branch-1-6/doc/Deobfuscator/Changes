@@ -1,0 +1,61 @@
+Revision history for Deobfuscator
+
+0.0.1  Fri Apr  7 14:34:50 2006
+       Initial release.
+
+0.0.2  Mon Apr 24 13:27:52 CDT 2006
+       NEW: Laura's cool flowchart added, which shows how the Deobfuscator
+            works. Updated README and deob_help.html to reflect that.
+       FIX: Cryptic "Can't close MODS file" error message rewritten.
+       NEW: Indulged my POD formatting obsession. Again. (Lots of minor
+            updates to the POD)
+       NEW: Added Feedback section to deob_help.html.
+       NEW: Added DOCUMENTATION section to README.
+       FIX: "About the mailing lists" URL changed throughout.
+
+0.0.3  Mon Oct  2 20:01:45 CDT 2006
+       FIX: change default $deob_detail_path to be a relative URL instead of
+            having localhost hardcoded. Thanks to Jason Stajich for pointing
+            this out.
+       FIX: Bio::Ontology modules are no longer missing their prefix in the
+            class list, and their methods are now shown in the lower pane
+            as expected. Thanks to Hilmar Lapp for reporting this bug.
+       FIX: can now handle (and ignore) VERSION POD section.
+       FIX: missing SYNOPSIS section now handled properly. In fact, the
+            SYNOPSIS and DESCRIPTION sections can be in reverse order now,
+            although for consistency this is not recommended.
+       FIX: Bug #2114: "Obfuscator doesn't show "Bio:Matrix:Generic" has been
+            fixed. This bug turned out to afflict multiple modules, which
+            weren't getting parsed correctly by deob_index.pl.
+       NEW: Table cells have been padded out to get rid of that "scrunched"
+            look. Thanks to Sendu Bala for this great suggestion.
+       NEW: If the 'Returns' subsection of a method's documentation contains
+            a POD L<> link, the Deobfuscator assumes this to be a package
+            name, and wraps it in an href for display. This feature is
+            not robust, but seems to work well enough for now.
+       NEW: the list of classes is now sorted alphabetically depth-first, so
+            that subclasses appear just after their parent class. Thanks to
+            Amir Karger for noticing the strange sorting behavior.
+       NEW: HTML page title now 'BioPerl Deobfuscator' to distinguish it from
+            other Deobfuscators out there. Thanks to Amir Karger for
+            suggesting this.
+       NEW: 'No match' search string now more prominent. Yep, kudos to Amir
+            Karger again -- another great idea!
+       NEW: Search box caption now explicitly states that only package names
+            can be searched. Big ups to Amir Karger for this suggestion.
+            The ability to search method names is planned for a future version.
+       NEW: added -x option to deob_index.pl. This allows the use of an
+            'excluded modules' file. This feature was added to resolve an
+            issue with four modules which rely on external modules to compile.
+            Class::Inspector, used by the Deobfuscator needs to load a
+            module to traverse its inheritance tree, and modules must compile
+            before they can be loaded.
+    CHANGE: using short name now when traversing with File::Find to help
+            identify excluded modules (deob_index.pl).
+
+Added since 0.0.3:
+        NEW: deob_index.pl can now accept relative paths for BioPerl lib dir
+             and output dir
+        NEW: -s <version_string> option now can be passed to deob_index.pl to
+             store a version string in packages.db which deob_interface.cgi
+             can read and show.

@@ -1,0 +1,350 @@
+ID           M20132:(362)c.+4G>A; E2K
+Feature      DNA; 1
+Feature        /label: point, transition
+Feature        /proof: computed
+Feature        /location: 4
+Feature        /upflank: gaagattcagccaagctcaaggatg
+Feature        /change: g>a
+Feature        /dnflank: aagtgcagttagggctgggaagggt
+Feature        /re_site: -BccI
+Feature      RNA; 1
+Feature        /label: missense
+Feature        /proof: experimental
+Feature        /location: 4 (M20132::366)
+Feature        /upflank: gaagattcagccaagctcaaggatg
+Feature        /change: g>a
+Feature        /dnflank: aagtgcagttagggctgggaagggt
+Feature        /re_site: -BccI
+Feature        /codon_table: 1
+Feature        /codon: gaa>aaa; 1
+Feature        /region: coding
+Feature      AA; 1
+Feature        /label: substitution, conservative
+Feature        /proof: computed
+Feature        /location: 2
+Feature        /change: E>K
+//
+ID           M20132:(362)c.+14T>A; L5X
+Feature      DNA; 1
+Feature        /label: point, transversion
+Feature        /proof: computed
+Feature        /location: 14
+Feature        /upflank: ccaagctcaaggatggaagtgcagt
+Feature        /change: t>a
+Feature        /dnflank: agggctgggaagggtctaccctcgg
+Feature      RNA; 1
+Feature        /label: nonsense
+Feature        /proof: experimental
+Feature        /location: 14 (M20132::376)
+Feature        /upflank: ccaagctcaaggatggaagtgcagt
+Feature        /change: t>a
+Feature        /dnflank: agggctgggaagggtctaccctcgg
+Feature        /codon_table: 1
+Feature        /codon: tta>taa; 2
+Feature        /region: coding
+Feature      AA; 1
+Feature        /label: truncation
+Feature        /proof: computed
+Feature        /location: 5
+Feature        /change: L>*
+//
+ID           M20132:(362)c.+4G>A; E2K
+Feature      DNA; 1
+Feature        /label: point, transition
+Feature        /proof: computed
+Feature        /location: 4
+Feature        /upflank: gaagattcagccaagctcaaggatg
+Feature        /change: g>a
+Feature        /dnflank: aagtgcagttagggctgggaagggt
+Feature        /re_site: -BccI
+Feature      RNA; 1
+Feature        /label: missense
+Feature        /proof: experimental
+Feature        /location: 4 (M20132::366)
+Feature        /upflank: gaagattcagccaagctcaaggatg
+Feature        /change: g>a
+Feature        /dnflank: aagtgcagttagggctgggaagggt
+Feature        /re_site: -BccI
+Feature        /codon_table: 1
+Feature        /codon: gaa>aaa; 1
+Feature        /region: coding
+Feature      AA; 1
+Feature        /label: substitution, conservative
+Feature        /proof: computed
+Feature        /location: 2
+Feature        /change: E>K
+//
+ID           M20132:(362)c.+100delATCCAG; I34del-2
+Feature      DNA; 1
+Feature        /label: deletion
+Feature        /proof: computed
+Feature        /location: 100..105
+Feature        /upflank: tctgttccagagcgtgcgcgaagtg
+Feature        /change: atccag>
+Feature        /dnflank: aacccgggccccaggcacccagagg
+Feature        /re_site: -BinI, -BsiYI, -DpnI, -Hpy178III, -MboI, +MjaIV
+Feature      RNA; 1
+Feature        /label: inframe, deletion
+Feature        /proof: experimental
+Feature        /location: 100..105 (M20132::462..467)
+Feature        /upflank: tctgttccagagcgtgcgcgaagtg
+Feature        /change: atccag>
+Feature        /dnflank: aacccgggccccaggcacccagagg
+Feature        /re_site: -BinI, -BsiYI, -DpnI, -Hpy178III, -MboI, +MjaIV
+Feature        /codon_table: 1
+Feature        /codon: atc>-; 1
+Feature        /region: coding
+Feature      AA; 1
+Feature        /label: deletion
+Feature        /proof: computed
+Feature        /location: 34..35
+Feature        /change: IQ>
+//
+ID           M20132:(362)c.+101delT; I34delX172
+Feature      DNA; 1
+Feature        /label: deletion
+Feature        /proof: computed
+Feature        /location: 101
+Feature        /upflank: ctgttccagagcgtgcgcgaagtga
+Feature        /change: t>
+Feature        /dnflank: ccagaacccgggccccaggcaccca
+Feature        /re_site: -BinI, -DpnI, -Hpy178III, +MaeIII, -MboI, +Tsp45I
+Feature      RNA; 1
+Feature        /label: frameshift, deletion
+Feature        /proof: experimental
+Feature        /location: 101 (M20132::463)
+Feature        /upflank: ctgttccagagcgtgcgcgaagtga
+Feature        /change: t>
+Feature        /dnflank: ccagaacccgggccccaggcaccca
+Feature        /re_site: -BinI, -DpnI, -Hpy178III, +MaeIII, -MboI, +Tsp45I
+Feature        /codon_table: 1
+Feature        /codon: atc>-; 2
+Feature        /region: coding
+Feature      AA; 1
+Feature        /label: out-of-frame translation, truncation
+Feature        /proof: computed
+Feature        /location: 34
+Feature        /change: I>TRTRAPGTQRPRAQHLPAPVCCCCSSSSSSSSSSSSSSSSSSSSKRLAP
+Feature         GSSSSSRVRMVLPKPIVEAPQATWSWMRNSNLHSRSRPWSATPREVASQSLEPPWPPAR
+Feature         GCRSSCQHLRTRMTQLPHPRCPCWAPLSPA*
+//
+ID           M20132:(362)c.+101insGGGCCC; I34ins+2
+Feature      DNA; 1
+Feature        /label: insertion
+Feature        /proof: computed
+Feature        /location: 100^101
+Feature        /upflank: ctgttccagagcgtgcgcgaagtga
+Feature        /change: >gggccc
+Feature        /dnflank: tccagaacccgggccccaggcaccc
+Feature        /re_site: +ApaI, +AsuI, -BinI, +BmgI, +BseSI, +CviJI, -DpnI,
+Feature         +DraII, +GsuI, +HaeIII, +HgiJII, -MboI, +MnlI, +NlaIV,
+Feature         +SduI
+Feature      RNA; 1
+Feature        /label: inframe, insertion
+Feature        /proof: experimental
+Feature        /location: 100^101 (M20132::462^463)
+Feature        /upflank: ctgttccagagcgtgcgcgaagtga
+Feature        /change: >gggccc
+Feature        /dnflank: tccagaacccgggccccaggcaccc
+Feature        /re_site: +ApaI, +AsuI, -BinI, +BmgI, +BseSI, +CviJI, -DpnI,
+Feature         +DraII, +GsuI, +HaeIII, +HgiJII, -MboI, +MnlI, +NlaIV,
+Feature         +SduI
+Feature        /codon_table: 1
+Feature        /codon: atc>-; 2
+Feature        /region: coding
+Feature      AA; 1
+Feature        /label: insertion, complex
+Feature        /proof: computed
+Feature        /location: 34
+Feature        /change: I>RAL
+//
+ID           M20132:(362)c.+100insG; I34ins81X
+Feature      DNA; 1
+Feature        /label: insertion
+Feature        /proof: computed
+Feature        /location: 99^100
+Feature        /upflank: tctgttccagagcgtgcgcgaagtg
+Feature        /change: >g
+Feature        /dnflank: atccagaacccgggccccaggcacc
+Feature        /re_site: +BamHI, +BinI, +NlaIV, +XhoII
+Feature      RNA; 1
+Feature        /label: frameshift, insertion
+Feature        /proof: experimental
+Feature        /location: 99^100 (M20132::461^462)
+Feature        /upflank: tctgttccagagcgtgcgcgaagtg
+Feature        /change: >g
+Feature        /dnflank: atccagaacccgggccccaggcacc
+Feature        /re_site: +BamHI, +BinI, +NlaIV, +XhoII
+Feature        /codon_table: 1
+Feature        /codon: atc>-; 1
+Feature        /region: coding
+Feature      AA; 1
+Feature        /label: out-of-frame translation, truncation
+Feature        /proof: computed
+Feature        /location: 34
+Feature        /change: I>DPEPGPQAPRGRERSTSRRQFAAAAAAAAAAAAAAAAAAAAAAAARD*
+//
+ID           M20132:(362)c.+100AT>GGGCCC; I34ins82X
+Feature      DNA; 1
+Feature        /label: complex
+Feature        /proof: computed
+Feature        /location: 100..101
+Feature        /upflank: tctgttccagagcgtgcgcgaagtg
+Feature        /change: at>gggccc
+Feature        /dnflank: ccagaacccgggccccaggcaccca
+Feature        /re_site: +ApaI, +AsuI, -BinI, +BmgI, +BseSI, +CviJI, -DpnI,
+Feature         +DraII, +HaeIII, +HgiJII, -Hpy178III, -MboI, +NlaIV, +SduI
+Feature      RNA; 1
+Feature        /label: frameshift, complex
+Feature        /proof: experimental
+Feature        /location: 100..101 (M20132::462..463)
+Feature        /upflank: tctgttccagagcgtgcgcgaagtg
+Feature        /change: at>gggccc
+Feature        /dnflank: ccagaacccgggccccaggcaccca
+Feature        /re_site: +ApaI, +AsuI, -BinI, +BmgI, +BseSI, +CviJI, -DpnI,
+Feature         +DraII, +HaeIII, +HgiJII, -Hpy178III, -MboI, +NlaIV, +SduI
+Feature        /codon_table: 1
+Feature        /codon: atc>-; 1
+Feature        /region: coding
+Feature      AA; 1
+Feature        /label: out-of-frame translation, truncation
+Feature        /proof: computed
+Feature        /location: 34
+Feature        /change: I>GPPEPGPQAPRGRERSTSRRQFAAAAAAAAAAAAAAAAAAAAAAAARD*
+//
+ID           M20132:(362+1)c.-1G>A
+Feature      DNA; 1
+Feature        /label: point, transition
+Feature        /proof: computed
+Feature        /location: -1
+Feature        /upflank: ggtggaagattcagccaagctcaag
+Feature        /change: g>a
+Feature        /dnflank: atggaagtgcagttagggctgggaa
+Feature        /re_site: -BccI, -FokI, +Hpy178III
+Feature      RNA; 1
+Feature        /label: unknown
+Feature        /proof: experimental
+Feature        /location: -1 (M20132::361)
+Feature        /upflank: ggtggaagattcagccaagctcaag
+Feature        /change: g>a
+Feature        /dnflank: atggaagtgcagttagggctgggaa
+Feature        /re_site: -BccI, -FokI, +Hpy178III
+Feature        /region: 5'UTR
+//
+ID           M20132:(362)c.+2766T>C
+Feature      DNA; 1
+Feature        /label: point, transition
+Feature        /proof: computed
+Feature        /location: 2766
+Feature        /upflank: tctatttccacacccagtgaagcat
+Feature        /change: t>c
+Feature        /dnflank: ggaaaccctatttccccaccccagc
+Feature        /re_site: +Hpy188I, +SfaNI, -XcmI
+Feature      RNA; 1
+Feature        /label: unknown
+Feature        /proof: experimental
+Feature        /location: 2766 (M20132::3128)
+Feature        /upflank: tctatttccacacccagtgaagcat
+Feature        /change: t>c
+Feature        /dnflank: ggaaaccctatttccccaccccagc
+Feature        /re_site: +Hpy188I, +SfaNI, -XcmI
+Feature        /region: 3'UTR
+//
+ID           J02933:(521)g.+12165A>G
+Feature      DNA; 1
+Feature        /label: point, transition
+Feature        /proof: experimental
+Feature        /location: 12165 (J02933::12686)
+Feature        /upflank: cgcacacctgtggtgcctgccaccc
+Feature        /change: a>g
+Feature        /dnflank: ctgggttgcccatgattcatttttg
+Feature        /re_site: +AciI, -BfiI, -BsrI, +FauI, +NspBII, +Sth132I,
+Feature         -TspRI
+Feature        /region: 3'UTR; (+1027)
+Feature      RNA; 1
+Feature        /label: unknown
+Feature        /proof: computed
+Feature        /location: 2428
+Feature        /upflank: cgcacacctgtggtgcctgccaccc
+Feature        /change: a>g
+Feature        /dnflank: ctgggttgcccatgattcatttttg
+Feature        /re_site: +AciI, -BfiI, -BsrI, +FauI, +NspBII, +Sth132I,
+Feature         -TspRI
+Feature        /region: 3'UTR; (-1)
+//
+ID           J02933:(521)g.+4G>T; V2F
+Feature      DNA; 1
+Feature        /label: point, transversion
+Feature        /proof: computed
+Feature        /location: 4 (J02933::525)
+Feature        /upflank: gcagcactgcagagatttcatcatg
+Feature        /change: g>t
+Feature        /dnflank: tctcccaggccctcaggctcctctg
+Feature        /re_site: -BsmAI, -Eco31I
+Feature        /region: exon; 1 (+4)
+Feature      RNA; 1
+Feature        /label: missense
+Feature        /proof: experimental
+Feature        /location: 4
+Feature        /upflank: gcagcactgcagagatttcatcatg
+Feature        /change: g>t
+Feature        /dnflank: tctcccaggccctcaggctcctctg
+Feature        /re_site: -BsmAI, -Eco31I
+Feature        /codon_table: 1
+Feature        /codon: gtc>ttc; 1
+Feature        /region: coding
+Feature      AA; 1
+Feature        /label: substitution, nonconservative
+Feature        /proof: computed
+Feature        /location: 2
+Feature        /change: V>F
+//
+ID           J02933:(521)g.+1168G>T; D34Y
+Feature      DNA; 1
+Feature        /label: point, transversion
+Feature        /proof: computed
+Feature        /location: 1168 (J02933::1689)
+Feature        /upflank: taaggcctcaggaggagaaacacgg
+Feature        /change: g>t
+Feature        /dnflank: acatgccgtggaagccggggcctca
+Feature        /re_site: -BscGI, -Bsp24I, -CjePI, -FinI, +RsaI, -Sth132I,
+Feature         +Tsp4CI
+Feature        /region: exon; 1 (-29)
+Feature      RNA; 1
+Feature        /label: missense
+Feature        /proof: experimental
+Feature        /location: 100
+Feature        /upflank: taaggcctcaggaggagaaacacgg
+Feature        /change: g>t
+Feature        /dnflank: acatgccgtggaagccggggcctca
+Feature        /re_site: -BscGI, -Bsp24I, -CjePI, -FinI, +RsaI, -Sth132I,
+Feature         +Tsp4CI
+Feature        /codon_table: 1
+Feature        /codon: gac>tac; 1
+Feature        /region: coding
+Feature      AA; 1
+Feature        /label: substitution, nonconservative
+Feature        /proof: computed
+Feature        /location: 34
+Feature        /change: D>Y
+//
+ID           J02933:(521+1)g.-4C>G
+Feature      DNA; 1
+Feature        /label: point, transversion
+Feature        /proof: computed
+Feature        /location: -4 (J02933::518)
+Feature        /upflank: ggcaggggcagcactgcagagattt
+Feature        /change: c>g
+Feature        /dnflank: atcatggtctcccaggccctcaggc
+Feature        /re_site: +BclI, +DpnI, +MboI
+Feature        /region: 5'UTR; (-4)
+Feature      RNA; 1
+Feature        /label: unknown
+Feature        /proof: experimental
+Feature        /location: -4
+Feature        /upflank: ggcaggggcagcactgcagagattt
+Feature        /change: c>g
+Feature        /dnflank: atcatggtctcccaggccctcaggc
+Feature        /re_site: +BclI, +DpnI, +MboI
+Feature        /region: 5'UTR; (+31)
+//

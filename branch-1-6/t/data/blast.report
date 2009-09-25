@@ -1,0 +1,434 @@
+TBLASTN 2.0.4 [Feb-24-1998]
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A.
+Sch&auml;ffer, Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman
+(1997), "Gapped BLAST and PSI-BLAST: a new generation of protein database search
+ programs", Nucleic Acids Res. 25:3389-3402.
+
+Query=
+gi|1401126 
+         (504 letters)
+
+Database: Non-redundant GenBank+EMBL+DDBJ+PDB sequences
+           336,723 sequences; 677,679,054 total letters
+
+Searchingdone
+
+
+                                                                   Score     E
+Sequences producing significant alignments:                        (bits)  Value
+
+gb|U49928|HSU49928 Homo sapiens TAK1 binding protein (TAB1) mRNA...  1009  0.0
+emb|Z36985|PTPP2CMR P.tetraurelia mRNA for protein phosphatase t...    58  4e-07
+emb|X77116|ATMRABI1 A.thaliana mRNA for ABI1 protein                   53  1e-05
+gb|U12856|ATU12856 Arabidopsis thaliana Col-0 abscisic acid inse...    53  1e-05
+dbj|D38109|ATHPP2CA Arabidopsis thaliana mRNA for protein phosph...    52  3e-05
+emb|Y08965|ATABI2RNA A.thaliana mRNA for ABI2 protein                  47  8e-04
+emb|AL010222|PFSC04009 Plasmodium falciparum DNA *** SEQUENCING ...    45  0.004
+gb|AC002409|ATAC002409 Arabidopsis thaliana chromosome II BAC T2...    43  0.012
+emb|Z98762|SPAC4A8 S.pombe chromosome I cosmid c4A8                    42  0.020
+gb|AF006827|AF006827 Magnaporthe grisea adenylate cyclase (MAC1)...    41  0.045
+emb|Y13936|HSY13936 Homo sapiens mRNA for protein phosphatase 2C...    41  0.059
+gb|U81159|BTU81159 Bos taurus magnesium-dependent calcium inhibi...    40  0.077
+emb|Y10438|SPFKBAD Streptomyces sp. MA6548 fkbA gene and partial...    40  0.077
+gb|AF012921|AF012921 Magnaporthe grisea adenylate cyclase (mac1)...    40  0.10
+gb|U42383|MMU42383 Mus musculus fibroblast growth factor inducib...    40  0.10
+gb|AF023665|AF023665 Plasmodium falciparum protein phosphatase 2...    39  0.13
+gb|M24942|YSPCYR1A Yeast (S.pombe) adenylate cyclase (CYR1) gene...    39  0.17
+gb|M26699|YSPADC Yeast (S.pombe) cyr1 gene encoding adenylyl cyc...    39  0.17
+gb|L43413|PANADCY Podospora anserina adenyl cyclase gene, exons 1-4    38  0.30
+gb|M89651|HUMMMDBC Human DNA from cosmid DNA MMDB (f10080) and M...    38  0.30
+emb|Z99161|SPAC11G7 S.pombe chromosome I cosmid c11G7                  38  0.30
+emb|X56042|SKADECYC Saccharomyces kluyveri gene for adenylyl cyc...    37  0.88
+gb|M29235|CELPOLII C.elegans RNA polymerase II largest subunit (...    36  1.1
+dbj|D45132|HUMHOXY1 Human kidney mRNA for zinc-finger DNA-bindin...    36  1.1
+gb|U70654|MMU70654 Mus musculus musculus sex determining protein...    36  1.1
+gb|U53333|CELF36A4 Caenorhabditis elegans cosmid F36A4.                36  1.1
+gb|L29028|CREWP6A Chlamydomonas eugametos WP6 mRNA, complete cds       36  1.1
+gb|U70653|MMU70653 Mus musculus musculus sex determining protein...    36  1.1
+gb|U17838|HSU17838 Human zinc finger protein RIZ mRNA, complete cds    36  1.1
+emb|X56432|DMRUNTR D.melanogaster mRNA for runt segmentation gene      36  1.5
+emb|X67204|MMSRYLOC M.musculus DNA sequence of Sry locus               36  1.5
+gb|U00051|CELF42G9 Caenorhabditis elegans cosmid F42G9.                36  1.5
+gb|U70655|MMU70655 Mus musculus sex determining protein (Sry) ge...    36  1.5
+gb|AF019985|AF019985 Dictyostelium discoideum Spalten (spnA) mRN...    36  2.0
+emb|X78886|ATABI1G A.thaliana (Landsberg erecta) ABI1 gene             36  2.0
+gb|U70651|MMU70651 Mus musculus musculus sex determining protein...    36  2.0
+gb|U70652|MMU70652 Mus musculus musculus sex determining protein...    36  2.0
+emb|X58924|HVRPL11E H.volcanii genes for ribosomal proteins L11e...    36  2.0
+emb|X05806|CHAMPER Acetabularia plastid DNA homologous to Drosop...    36  2.0
+gb|U82833|OSU82833 Oryza sativa S-adenosyl-L-methionine syntheta...    35  2.6
+emb|Z27084|HLHOLLI H.lanatus mRNA for allergen Hol-lI                  35  2.6
+dbj|D00676|SH1RSP40 Pseudorabies virus genome, RSp40 and pk genes      35  2.6
+emb|Y10421|CCATCOLE1 C.curvatus strain ATCC 20509 Ole1 gene            35  2.6
+gb|L14320|HSBBICP4A Bovine herpesvirus type 1 early-intermediate...    35  2.6
+emb|AJ004801|BHV1CGEN Bovine herpesvirus 1 complete genome             35  2.6
+dbj|AB010074|AB010074 Arabidopsis thaliana genomic DNA, chromoso...    35  3.4
+gb|AC004490|AC004490 Homo sapiens chromosome 19, cosmid R29381, ...    35  3.4
+dbj|AB011474|AB011474 Arabidopsis thaliana genomic DNA, chromoso...    35  3.4
+gb|U03645|MMU03645 Mus musculus domesticus Torino (Sry) gene, co...    35  3.4
+gb|U70641|MMU70641 Mus musculus domesticus sex determining prote...    35  3.4
+gb|U70650|MMU70650 Mus musculus domesticus sex determining prote...    35  3.4
+gb|U70642|MMU70642 Mus musculus domesticus sex determining prote...    35  3.4
+gb|U70647|MMU70647 Mus musculus domesticus sex determining prote...    35  3.4
+emb|Y11840|ATABI2 Arabidopsis thaliana ABI2 gene                       35  3.4
+emb|Y08966|ATABI2DNA A.thaliana gene encoding ABI2 protein             35  3.4
+emb|X16144|SVGRA S. violaceoruber DNA for granaticin polyketide ...    35  3.4
+emb|X16300|SVPKS Streptomyces violaceoruber polyketide synthase ...    35  3.4
+gb|U70657|MMU70657 Mus musculus castaneus sex determining protei...    35  3.4
+gb|M57417|HUMMUCCF Human (cystic fibrosis patient) mucin mRNA, p...    35  3.4
+gb|L04286|DDIGP100 Dictyostelium discoideum glycoprotein gp100 (...    35  3.4
+emb|Z46938|BTTESDNA B.taurus DNA (protamine gene cluster)              35  3.4
+gb|L13054|DROZESTEL Drosophila melanogaster zeste (z) gene, part...    34  4.4
+gb|L13058|DROZESTEP Drosophila melanogaster zeste (z) gene, part...    34  4.4
+gb|M60590|YSCAAGLCS S.cerevisiae a-agglutinin core subunit (AGA1...    34  4.4
+gb|AF009521|AF009521 Mus spretus sex determining protein (Sry) g...    34  4.4
+emb|Z71659|SCYNR044W S.cerevisiae chromosome XIV reading frame O...    34  4.4
+gb|U19361|PMU19361 Petromyzon marinus neurofilament subunit NF-1...    34  4.4
+gb|U70646|MMU70646 Mus musculus domesticus sex determining prote...    34  4.4
+gb|U23477|DDU23477 Dictyostelium discoideum phosphatidylinositol...    34  4.4
+emb|X55695|LEEXTEN15 Tomato mRNA for a glycine-rich protein (clo...    34  4.4
+emb|Z95556|MTCY07A7 Mycobacterium tuberculosis cosmid SCY07A7          34  4.4
+dbj|AB007645|AB007645 Arabidopsis thaliana genomic DNA, chromoso...    34  5.8
+emb|X64346|HSGEND Herpesvirus saimiri complete genome DNA              34  5.8
+emb|Z95620|SPBC3D6 S.pombe chromosome II cosmid c3D6                   34  5.8
+gb|U70644|MMU70644 Mus musculus domesticus sex determining prote...    34  5.8
+gb|U70649|MMU70649 Mus musculus domesticus sex determining prote...    34  5.8
+gb|U43491|SCU43491 Saccharomyces cerevisiae cosmid clone pEOA156...    34  5.8
+dbj|D00909|NEUNAC N.crassa nac gene coding for adenylate cyclase...    34  5.8
+gb|U70645|MMU70645 Mus musculus domesticus sex determining prote...    34  5.8
+gb|AF009519|AF009519 Mus musculus domesticus sex determining pro...    34  5.8
+gb|M77174|MUSPERPA Mouse perlecan mRNA, complete cds.                  34  5.8
+emb|Z74917|SCYOR009W S.cerevisiae chromosome XV reading frame OR...    34  5.8
+gb|J04054|MUSPCGBM Mouse basement membrane proteoglycan mRNA, pa...    34  5.8
+emb|Z47072|CEF26C11 Caenorhabditis elegans cosmid F26C11, comple...    34  5.8
+gb|U70643|MMU70643 Mus musculus sex determining protein (Sry) ge...    34  5.8
+gb|AC003671|AC003671 Arabidopsis thaliana chromosome 1 BAC F17O7...    34  5.8
+emb|X16481|RN11ZNBP Rat mRNA for zinc(2+) binding protein              34  5.8
+gb|U46156|SSU46156 Synechococcus sp. CcmK (ccmK) gene, complete ...    34  5.8
+gb|AC000098|YUP8H12 Arabidopsis thaliana chromosome 1 YAC yUP8H1...    34  5.8
+emb|Z71781|SCCIVL37K S.cerevisiae chromosome IV left arm (EU) DN...    34  5.8
+emb|Y13332|SSTO1AMY Streptomyces sp. TO1 amy gene                      34  5.8
+gb|M30473|NEULEURSC N.crassa cytoplasmic leucyl-tRNA synthetase ...    34  5.8
+emb|Z74085|SCYDL037C S.cerevisiae chromosome IV reading frame OR...    34  5.8
+gb|AF029858|AF029858 Sorghum bicolor cytochrome P450 CYP71E1 (CY...    34  5.8
+gb|S47414|S47414 glycine-rich protein {clone atGRP-5} [Arabidops...    34  7.6
+emb|X60294|SCSEC1A S.cereale Sec1 gene for omega secalin               34  7.6
+emb|Z37975|BTPLAKOPH B.taurus mRNA for plakophilin.                    34  7.6
+emb|X60295|SCSEC1B S.cereale Sec1 gene for omega secalin               34  7.6
+dbj|D87895|D87895 Aspergillus nidulans DNA for chitinase, comple...    34  7.6
+gb|AF017789|AF017789 Homo sapiens putative transcription factor ...    34  7.6
+
+>gb|U49928|HSU49928 Homo sapiens TAK1 binding protein (TAB1) mRNA, complete cds.
+           Length = 3096
+           
+ Score = 1009 bits (2580), Expect = 0.0
+ Identities = 504/504 (100%), Positives = 504/504 (100%)
+
+Query: 1   MAAQRRSLLQSEQQPSWTDDLPLCHLSGVGSASNRSYSADGKGTESHPPEDSWLKFRSEN 60
+           MAAQRRSLLQSEQQPSWTDDLPLCHLSGVGSASNRSYSADGKGTESHPPEDSWLKFRSEN
+Sbjct: 21  MAAQRRSLLQSEQQPSWTDDLPLCHLSGVGSASNRSYSADGKGTESHPPEDSWLKFRSEN 200
+
+Query: 61  NCFLYGVFNGYDGNRVTNFVAQRLSAELLLGQLNAEHAEADVRRVLLQAFDVVERSFLES 120
+           NCFLYGVFNGYDGNRVTNFVAQRLSAELLLGQLNAEHAEADVRRVLLQAFDVVERSFLES
+Sbjct: 201 NCFLYGVFNGYDGNRVTNFVAQRLSAELLLGQLNAEHAEADVRRVLLQAFDVVERSFLES 380
+
+Query: 121 IDDALAEKASLQSQLPEGVPQHQLPPQYQKILERLKTLEREISGGAMAVVAVLLNNKLYV 180
+           IDDALAEKASLQSQLPEGVPQHQLPPQYQKILERLKTLEREISGGAMAVVAVLLNNKLYV
+Sbjct: 381 IDDALAEKASLQSQLPEGVPQHQLPPQYQKILERLKTLEREISGGAMAVVAVLLNNKLYV 560
+
+Query: 181 ANVGTNRALLCKSTVDGLQVTQLNVDHTTENEDELFRLSQLGLDAGKIKQVGIICGQEST 240
+           ANVGTNRALLCKSTVDGLQVTQLNVDHTTENEDELFRLSQLGLDAGKIKQVGIICGQEST
+Sbjct: 561 ANVGTNRALLCKSTVDGLQVTQLNVDHTTENEDELFRLSQLGLDAGKIKQVGIICGQEST 740
+
+Query: 241 RRIGDYKVKYGYTDIDLLSAAKSKPIIAEPEIHGAQPLDGVTGFLVLMSEGLYKALEAAH 300
+           RRIGDYKVKYGYTDIDLLSAAKSKPIIAEPEIHGAQPLDGVTGFLVLMSEGLYKALEAAH
+Sbjct: 741 RRIGDYKVKYGYTDIDLLSAAKSKPIIAEPEIHGAQPLDGVTGFLVLMSEGLYKALEAAH 920
+
+Query: 301 GPGQANQEIAAMIDTEFAKQTSLDAVAQAVVDRVKRIHSDTFASGGERARFCPRHEDMTL 360
+           GPGQANQEIAAMIDTEFAKQTSLDAVAQAVVDRVKRIHSDTFASGGERARFCPRHEDMTL
+Sbjct: 921 GPGQANQEIAAMIDTEFAKQTSLDAVAQAVVDRVKRIHSDTFASGGERARFCPRHEDMTL 1100
+
+Query: 361 LVRNFGYPLGEMSQPTPSPAPAAGGRVYPVSVPYSSAQSTSKTSVTLSLVMPSQGQMVNG 420
+           LVRNFGYPLGEMSQPTPSPAPAAGGRVYPVSVPYSSAQSTSKTSVTLSLVMPSQGQMVNG
+Sbjct: 1101LVRNFGYPLGEMSQPTPSPAPAAGGRVYPVSVPYSSAQSTSKTSVTLSLVMPSQGQMVNG 1280
+
+Query: 421 AHSASTLDEATPTLTNQSPTLTLQSTNTHTQSSSSSSDGGLFRSRPAHSLPPGEDGRVEP 480
+           AHSASTLDEATPTLTNQSPTLTLQSTNTHTQSSSSSSDGGLFRSRPAHSLPPGEDGRVEP
+Sbjct: 1281AHSASTLDEATPTLTNQSPTLTLQSTNTHTQSSSSSSDGGLFRSRPAHSLPPGEDGRVEP 1460
+
+Query: 481 YVDFAEFYRLWSVDHGEQSVVTAP 504
+           YVDFAEFYRLWSVDHGEQSVVTAP
+Sbjct: 1461YVDFAEFYRLWSVDHGEQSVVTAP 1532
+
+
+>emb|Z36985|PTPP2CMR P.tetraurelia mRNA for protein phosphatase type 2C
+           Length = 969
+           
+ Score = 57.8 bits (137), Expect = 4e-07
+ Identities = 64/261 (24%), Positives = 112/261 (42%), Gaps = 2/261 (0%)
+
+Query: 64  LYGVFNGYDGNRVTNFVAQRLSAELLLGQLNAEHAEADVRRVLLQAFDVVERSFLESIDD 123
+           ++GVF+G+ G  V  FV +    ELL  +                  +  E+ F E++ +
+Sbjct: 182 VFGVFDGHGGREVA*FVEKHFVDELLKNK------------------NFKEQKFEEALKE 307
+
+Query: 124 ALAEKASLQSQLPEGVPQHQLPPQYQKILERLKTLEREIS-GGAMAVVAVLLNNKLYVAN 182
+              +   L            L P+ QK L   K  + + S  G  A VA++  N LYVAN
+Sbjct: 308 TFLKMDELL-----------LTPEGQKELN*YKATDTDESYAGCTANVALIYKNTLYVAN 454
+
+Query: 183 VGTNRALLCKSTVDGLQVTQLNVDHTTENEDELFRLSQLGLDAGKIKQVGIICGQESTRR 242
+            G +R++LC++  +      ++VDH  +N +E  R+ + G   G +    +      +R 
+Sbjct: 455 AGDSRSVLCRNNTN----HDMSVDHKPDNPEEKSRIERAG---GFVSDGRVNGNLNLSRA 613
+
+Query: 243 IGDYKVKYGYTDIDLLSAAKSKPIIAEPEIHGAQPLDGVTGFLVLMSEGLYKALEAAHGP 302
+           +GD + K      D    +    IIA P++   + L     F+++  +G+++ L      
+Sbjct: 614 LGDLEYKR-----DNKLRSNE*LIIALPDVKKTE-LTP*DKFILMGCDGVFETLNH*ELL 775
+
+Query: 303 GQANQEIA-AMIDTEFAKQTSLD 324
+            Q N  I  A +  E  K+ + D
+Sbjct: 776 KQVNSTIG*AQVTEELLKKAAED 844
+
+
+>emb|X77116|ATMRABI1 A.thaliana mRNA for ABI1 protein
+            Length = 1981
+            
+ Score = 52.7 bits (124), Expect = 1e-05
+ Identities = 59/242 (24%), Positives = 105/242 (43%), Gaps = 6/242 (2%)
+
+Query: 55   KFRSENNCFLYGVFNGYDGNRVTNFVAQRLSAELLLGQLNAEHAEADVRRVLLQAFDVVE 114
+            +F  ++    +GV++G+ G++V N+  +R+   L      AE   A  + +L      +E
+Sbjct: 918  RFDPQSAAHFFGVYDGHGGSQVANYCRERMHLAL------AEEI-AKEKPMLCDGDTWLE 1076
+
+Query: 115  RSFLESIDDALAEKASLQSQLPEGVPQHQLPPQYQKILERLKTLEREISGGAMAVVAVLL 174
+            +      +  L   + ++S  PE V                         G+ +VVAV+ 
+Sbjct: 1077 KWKKALFNSFLRVDSEIESVAPETV-------------------------GSTSVVAVVF 1181
+
+Query: 175  NNKLYVANVGTNRALLCKSTVDGLQVTQLNVDHTTENEDELFRLSQLGLDAGKIKQ---- 230
+             + ++VAN G +RA+LC+    G     L+VDH  + EDE  R+   G   GK+ Q    
+Sbjct: 1182 PSHIFVANCGDSRAVLCR----GKTALPLSVDHKPDREDEAARIEAAG---GKVIQWNGA 1340
+
+Query: 231  --VGIICGQESTRRIGDYKVKYGYTDIDLLSAAKSKPIIAEPEIHGAQPLDGVTGFLVLM 288
+               G++     +R IGD  +K                II +PE+   + +      L+L 
+Sbjct: 1341 RVFGVLA---MSRSIGDRYLK--------------PSIIPDPEVTAVKRVK-EDDCLILA 1466
+
+Query: 289  SEGLYKAL 296
+            S+G++  +
+Sbjct: 1467 SDGVWDVM 1490
+
+
+>gb|U12856|ATU12856 Arabidopsis thaliana Col-0 abscisic acid insensitive protein (ABI1)
+            mRNA, complete cds.
+            Length = 2000
+            
+ Score = 52.7 bits (124), Expect = 1e-05
+ Identities = 59/242 (24%), Positives = 105/242 (43%), Gaps = 6/242 (2%)
+
+Query: 55   KFRSENNCFLYGVFNGYDGNRVTNFVAQRLSAELLLGQLNAEHAEADVRRVLLQAFDVVE 114
+            +F  ++    +GV++G+ G++V N+  +R+   L      AE   A  + +L      +E
+Sbjct: 918  RFDPQSAAHFFGVYDGHGGSQVANYCRERMHLAL------AEEI-AKEKPMLCDGDTWLE 1076
+
+Query: 115  RSFLESIDDALAEKASLQSQLPEGVPQHQLPPQYQKILERLKTLEREISGGAMAVVAVLL 174
+            +      +  L   + ++S  PE V                         G+ +VVAV+ 
+Sbjct: 1077 KWKKALFNSFLRVDSEIESVAPETV-------------------------GSTSVVAVVF 1181
+
+Query: 175  NNKLYVANVGTNRALLCKSTVDGLQVTQLNVDHTTENEDELFRLSQLGLDAGKIKQ---- 230
+             + ++VAN G +RA+LC+    G     L+VDH  + EDE  R+   G   GK+ Q    
+Sbjct: 1182 PSHIFVANCGDSRAVLCR----GKTALPLSVDHKPDREDEAARIEAAG---GKVIQWNGA 1340
+
+Query: 231  --VGIICGQESTRRIGDYKVKYGYTDIDLLSAAKSKPIIAEPEIHGAQPLDGVTGFLVLM 288
+               G++     +R IGD  +K                II +PE+   + +      L+L 
+Sbjct: 1341 RVFGVLA---MSRSIGDRYLK--------------PSIIPDPEVTAVKRVK-EDDCLILA 1466
+
+Query: 289  SEGLYKAL 296
+            S+G++  +
+Sbjct: 1467 SDGVWDVM 1490
+
+
+>dbj|D38109|ATHPP2CA Arabidopsis thaliana mRNA for protein phosphatase 2C
+           Length = 1371
+           
+ Score = 51.5 bits (121), Expect = 3e-05
+ Identities = 73/290 (25%), Positives = 132/290 (45%), Gaps = 13/290 (4%)
+
+Query: 47  HPPEDSWLKFRSENNCFLYGVFNGYDGNRVTNFVAQRLSAELLLGQLNAEHAEADVRRVL 106
+           HP   S+L+  SEN+ F YGVF+G+  + V     +RL  +++  ++    A  +    +
+Sbjct: 447 HP---SFLQRNSENHHF-YGVFDGHGCSHVAEKCRERLH-DIVKKEVEVM-ASDEWTETM 608
+
+Query: 107 LQAFDVVERSFLESIDDALAEKASLQSQLPEGVPQHQLPPQYQKILERLKTLEREISGGA 166
+           +++F  +++   +   + +   A+    +          PQ   +             G+
+Sbjct: 609 VKSFQKMDKEVSQRECNLVVNGAT--RSMKNSCRCELQSPQCDAV-------------GS 743
+
+Query: 167 MAVVAVLLNNKLYVANVGTNRALLCKSTVDGLQVTQLNVDHTTENEDELFRLSQLGLDAG 226
+            AVV+V+   K+ V+N G +RA+LC++ V       L+VDH  +  DEL R+ Q G   G
+Sbjct: 744 TAVVSVVTPEKIIVSNCGDSRAVLCRNGV----AIPLSVDHKPDRPDELIRIQQAG---G 902
+
+Query: 227 KI------KQVGIICGQESTRRIGD-YKVKYGYTDIDLLSAAKSKP----IIAEPEIHGA 275
+           ++      + +G++     +R IGD Y   Y   D ++    ++      I+A   +   
+Sbjct: 903 RVIYWDGARVLGVLA---MSRAIGDNYLKPYVIPDPEVTVTDRTDEDECLILASDGLWDV 1073
+
+Query: 276 QPLDGVTGF--LVLMSEGLYKALEAAHGPGQANQEIAAMIDTEFAKQTSLDAVAQAVVDR 333
+            P +   G   + L   G     +AAH    A  + A ++      + S D V+  VVD 
+Sbjct: 1074VPNETACGVARMCLRGAGAGDDSDAAH---NACSDAALLLTKLALARQSSDNVSVVVVDL 1244
+
+Query: 334 VKR 336
+            KR
+Sbjct: 1245RKR 1253
+
+
+>emb|Y08965|ATABI2RNA A.thaliana mRNA for ABI2 protein
+           Length = 1470
+           
+ Score = 46.9 bits (109), Expect = 8e-04
+ Identities = 55/241 (22%), Positives = 100/241 (40%), Gaps = 7/241 (2%)
+
+Query: 56  FRSENNCFLYGVFNGYDGNRVTNFVAQRLSAELL--LGQLNAEHAEADV-----RRVLLQ 108
+           F    +   +GV++G+ G++V N+  +R+   L   + +   E  + D      ++ L  
+Sbjct: 504 FNPHLSAHFFGVYDGHGGSQVANYCRERMHLALTEEIVKEKPEFCDGDTWQEKWKKALFN 683
+
+Query: 109 AFDVVERSFLESIDDALAEKASLQSQLPEGVPQHQLPPQYQKILERLKTLEREISGGAMA 168
+           +F  V+ S +E++  A           PE V                         G+ +
+Sbjct: 684 SFMRVD-SEIETVAHA-----------PETV-------------------------GSTS 752
+
+Query: 169 VVAVLLNNKLYVANVGTNRALLCKSTVDGLQVTQLNVDHTTENEDELFRLSQLGLDAGKI 228
+           VVAV+    ++VAN G +RA+LC+    G     L+VDH  + +DE  R+   G    + 
+Sbjct: 753 VVAVVFPTHIFVANCGDSRAVLCR----GKTPLALSVDHKPDRDDEAARIEAAGGKVIRW 920
+
+Query: 229 KQVGIICGQESTRRIGDYKVKYGYTDIDLLSAAKSKPIIAEPEIHGAQPLDGVTGFLVLM 288
+               +      +R IGD  +K                +I +PE+   + +      L+L 
+Sbjct: 921 NGARVFGVLAMSRSIGDRYLK--------------PSVIPDPEVTSVRRVK-EDDCLILA 1055
+
+Query: 289 SEGLYKAL 296
+           S+GL+  +
+Sbjct: 1056SDGLWDVM 1079
+
+
+>emb|AL010222|PFSC04009 Plasmodium falciparum DNA *** SEQUENCING IN PROGRESS *** from contig
+            4-9, complete sequence [Plasmodium falciparum]
+            Length = 5332
+            
+ Score = 44.5 bits (103), Expect = 0.004
+ Identities = 48/183 (26%), Positives = 83/183 (45%), Gaps = 15/183 (8%)
+
+Query: 163  SGGAMAVVAVLLNNKLYVANVGTNRALLCKSTVDGLQVTQLNVDHTTE-NEDELFRLSQL 221
+            S G  A V+V+  N LYVAN+G +R ++ K+     +   L VDH    N+ E  R+ + 
+Sbjct: 2760 SSGTTACVSVIFKNMLYVANIGDSRCIISKNG----RAIVLTVDHRASINKKEQDRILKS 2593
+
+Query: 222  GLDAGKIKQVGIICGQESTRRIGDYKVKYGYTDIDLLSAAKSKPIIAEPEIHGAQPLDGV 281
+            G   G +   G + G     R        G+      +  K K +I EP++   +  D  
+Sbjct: 2592 G---GILDDEGYLGGCLGVCR--------GFGSFHKKTKEKLKGLICEPDLFHIKLTDD- 2449
+
+Query: 282  TGFLVLMSEGLYKALEAAHGPGQANQEIAAMIDTEFA---------KQTSLDAVAQAVV- 331
+              FL++  +G++  + +          +    D + A         K+ SLD ++  VV 
+Sbjct: 2448 DEFLIICCDGIFDVITSQEAVNTVKNSLIQSRDAKTAAEALCQLAYKKKSLDNLSVLVVI 2269
+
+Query: 332  ----DRVKRIHSDTFASG 345
+                D+  ++ S   +SG
+Sbjct: 2268 FQNPDKNNKVSSINESSG 2215
+
+
+>gb|AC002409|ATAC002409 Arabidopsis thaliana chromosome II BAC T20B5 genomic sequence, complete
+             sequence [Arabidopsis thaliana]
+             Length = 72839
+             
+ Score = 43.0 bits (99), Expect = 0.012
+ Identities = 21/57 (36%), Positives = 38/57 (65%)
+
+Query: 165   GAMAVVAVLLNNKLYVANVGTNRALLCKSTVDGLQVTQLNVDHTTENEDELFRLSQL 221
+             G  A+ ++L+ NKL+VANVG +RA+LC++      ++++  D+ TE+E  L+ +  L
+Sbjct: 24355 GCTAIASLLVENKLFVANVGDSRAILCRAG-HPFALSKVR*DYHTESELSLYSIGAL 24188
+
+
+>emb|Z98762|SPAC4A8 S.pombe chromosome I cosmid c4A8
+            Length = 43895
+            
+ Score = 42.2 bits (97), Expect = 0.020
+ Identities = 56/230 (24%), Positives = 104/230 (44%), Gaps = 20/230 (8%)
+
+Query: 63   FLYGVFNGYDGNRVTNFVAQRLSAELLLGQLNAEHAEADVRRVLLQAFDVVERSFLESID 122
+            F YG+F+G+ G   + F++  L   +    LN      D  ++L +   V    ++  + 
+Sbjct: 3939 FFYGLFDGHGGTECSEFLSTNLGKIIENQDLN------DTEKILKEVHSV--GGYMAGLK 3784
+
+Query: 123  DALAEKASLQSQLPEGVPQHQLPPQY-QKILERLKTLER----EISGGAMAVVAVLLNNK 177
+               + +  LQS+  + + + +L   + Q  ++ L    R        GA+  VA++ +  
+Sbjct: 3783 PPFSLRTVLQSRDEDLLWRARLYYSFLQADMDYLTNYARPSPDSAVPGAVGTVAIITSKN 3604
+
+Query: 178  -----------LYVANVGTNRALLCKSTVDGLQVTQLNVDHTTENEDELFRLSQLGL--- 223
+                       +++A+VG  RALLC S     +  +L   H   + +E  RL +  +   
+Sbjct: 3603 NLSYWESDSYIIHLAHVGDTRALLCDSRTG--RAHRLTFQHHPADVEEARRLRRYNMGFS 3430
+
+Query: 224  -DAGKIKQVGIICGQESTRRIGDYKVKYGYTDIDLLSAAKSKPIIAEPEIHGAQPLDGVT 282
+             D+   K+   +    +TR  GD     GY         K   ++AEP++     L    
+Sbjct: 3429 RDSFGQKRFAWVA---NTRSFGD-----GY-------KLKKLGVVAEPQLTSIHSLRDDW 3295
+
+Query: 283  GFLVLMSEGL 292
+             FL L+S+G+
+Sbjct: 3294 SFLTLLSDGI 3265
+
+
+>gb|AF006827|AF006827 Magnaporthe grisea adenylate cyclase (MAC1) gene, complete cds
+            Length = 8678
+            
+ Score = 41.0 bits (94), Expect = 0.045
+ Identities = 63/259 (24%), Positives = 111/259 (42%), Gaps = 8/259 (3%)
+
+Query: 14   QPSWTDDLPLCHLSGVGSASNR-SYS-ADGKGTESHPPEDSWL--KFRSENNCFLYGVFN 69
+            QPS  +    C +   GS++    Y+ AD  G   H      +  +F +     L G+F+
+Sbjct: 5314 QPSIPEQSEDCRVRTSGSSAGYLPYAMADTLGKNEHLSTVDLVVPRFNASETETLLGLFD 5493
+
+Query: 70   GY----DGNRVTNFVAQRLSAELLLGQLNAEHAEADVRRVLLQAFDVVERSFLESIDDAL 125
+            G      G+++  ++ +        GQ+ A    A    +     D + R+FL +++  L
+Sbjct: 5494 GQALSSGGSKIAKYLHENF------GQILATELRALKTGLKETPEDALRRAFL-ALNKEL 5652
+
+Query: 126  AEKASLQSQLPEGVPQHQLPPQYQKILERLKTLEREISGGAMAVVAVLLNNKLYVANVGT 185
+               A   S+    VP H+   Q   IL +      +++ G +A V  L    LYVANVG 
+Sbjct: 5653 VTIAIQHSEDRPSVP-HRSGSQAHVILNK-----EDLNSGGVATVVYLQGQDLYVANVGD 5814
+
+Query: 186  NRALLCKSTVDGLQVTQLNVDHTTENEDELFRLSQLGLDAGKIKQVGIICGQESTRRIGD 245
+             +A++ +S      +T+    H      E  R+ + G   G + + G +  Q    R   
+Sbjct: 5815 AQAMIIQSDQTHKMLTR---KHDPAEPTERSRIREAG---GWVSRNGKLNDQLGVSR--- 5967
+
+Query: 246  YKVKYGYTDIDLLSAAKSKPIIAEPEI 272
+                +GY  +DL+ A ++ P ++   I
+Sbjct: 5968 ---AFGY--VDLMPAVQAAPHVSHVAI 6033
+
+
+CPU time:    78.72 user secs.	    0.85 sys. secs	   79.57 total secs.
+
+  Database: Non-redundant GenBank+EMBL+DDBJ+PDB sequences
+    Posted date:  Apr 16, 1998  9:38 AM
+  Number of letters in database: 677,679,054
+  Number of sequences in database:  336,723
+  
+Lambda     K      H
+   0.313    0.130    0.370 
+
+Gapped
+Lambda     K      H
+   0.270   0.0470    0.230 
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 374080624
+Number of Sequences: 336723
+Number of extensions: 5779396
+Number of successful extensions: 37522
+Number of sequences better than 10: 214
+Number of HSP's better than 10.0 without gapping: 32
+Number of HSP's successfully gapped in prelim test: 85
+Number of HSP's that attempted gapping in prelim test: 35679
+Number of HSP's gapped (non-prelim): 445
+length of query: 504
+length of database: 225893018
+effective HSP length: 62
+effective length of query: 442
+effective length of database: 205016192
+effective search space: 90617156864
+frameshift window, decay const: 50,  0.1
+T: 13
+A: 40
+X1: 16 ( 7.2 bits)
+X2: 38 (14.8 bits)
+X3: 64 (24.9 bits)
+S1: 42 (21.9 bits)
+S2: 74 (33.2 bits)

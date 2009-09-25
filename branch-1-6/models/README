@@ -1,0 +1,26 @@
+# $Id$
+
+This is the README file for the BioPerl models directory.
+
+o What the models/ directory is about.
+
+This directory is for files about schemas and plans in BioPerl.
+
+
+o Are any of these files important?
+
+It is definitely worth having a look at file bioperl.dia - if you can
+open it. It gives you an overview of most important BioPerl modules.
+
+
+o How do I open these files?
+
+Most files in this directory are XML files for a program dia (with
+extension .dia) which is a free GTK-library based diagram editor. It
+is part of the GNOME desktop and is included in most GNU/LINUX
+distributions (or see http://www.lysator.liu.se/~alla/dia).
+
+
+o Are these up-to-date?
+
+These are Bioperl version 1.0 models.

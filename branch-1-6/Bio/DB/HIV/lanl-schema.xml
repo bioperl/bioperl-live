@@ -1,0 +1,1610 @@
+<!-- $Id$ updated schema of 01/14/09 -->
+<hivschema>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">author.au_authornumber<alias>au_authornumber</alias>
+<ankey antype='Reference'>author_number</ankey>
+    <alias>authornumber</alias>
+    <option desc='1'>1</option>
+    <option desc='10'>10</option>
+    <option desc='11'>11</option>
+    <option desc='12'>12</option>
+    <option desc='13'>13</option>
+    <option desc='14'>14</option>
+    <option desc='15'>15</option>
+    <option desc='16'>16</option>
+    <option desc='17'>17</option>
+    <option desc='18'>18</option>
+    <option desc='19'>19</option>
+    <option desc='2'>2</option>
+    <option desc='20'>20</option>
+    <option desc='21'>21</option>
+    <option desc='22'>22</option>
+    <option desc='23'>23</option>
+    <option desc='24'>24</option>
+    <option desc='25'>25</option>
+    <option desc='26'>26</option>
+    <option desc='27'>27</option>
+    <option desc='28'>28</option>
+    <option desc='29'>29</option>
+    <option desc='3'>3</option>
+    <option desc='30'>30</option>
+    <option desc='31'>31</option>
+    <option desc='32'>32</option>
+    <option desc='33'>33</option>
+    <option desc='34'>34</option>
+    <option desc='35'>35</option>
+    <option desc='36'>36</option>
+    <option desc='37'>37</option>
+    <option desc='4'>4</option>
+    <option desc='5'>5</option>
+    <option desc='6'>6</option>
+    <option desc='7'>7</option>
+    <option desc='8'>8</option>
+    <option desc='9'>9</option>
+    <option desc="Any">Any</option>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">author.au_per_id<alias>au_per_id</alias>
+<ankey antype='Reference'>per_id(au)</ankey>
+    <alias>per_id</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">author.au_pub_id<alias>au_pub_id</alias>
+<ankey antype='Reference'>pub_id(au)</ankey>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">location2.loc_description<alias>loc_description</alias>
+<ankey antype='Virus'>description(loc)</ankey>
+    <alias>description</alias>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">location2.loc_entryfeaturetype<alias>loc_entryfeaturetype</alias>
+<ankey antype='Virus'>feature_type(loc)</ankey>
+    <alias>entryfeaturetype</alias>
+    <option desc='3pUTR'>3'UTR</option>
+    <option desc='5pUTR'>5'UTR</option>
+    <option desc="Any">Any</option>
+    <option desc='CDS'>CDS</option>
+    <option desc='GC_signal'>GC_signal</option>
+    <option desc='LTR'>LTR</option>
+    <option desc='RBS'>RBS</option>
+    <option desc='TATA_signal'>TATA_signal</option>
+    <option desc='V_region'>V_region</option>
+    <option desc='conflict'>conflict</option>
+    <option desc='enhancer'>enhancer</option>
+    <option desc='exon'>exon</option>
+    <option desc='gap'>gap</option>
+    <option desc='gene'>gene</option>
+    <option desc='intron'>intron</option>
+    <option desc='mRNA'>mRNA</option>
+    <option desc='mat_peptide'>mat_peptide</option>
+    <option desc='misc_RNA'>misc_RNA</option>
+    <option desc='misc_binding'>misc_binding</option>
+    <option desc='misc_difference'>misc_difference</option>
+    <option desc='misc_feature'>misc_feature</option>
+    <option desc='misc_recomb'>misc_recomb</option>
+    <option desc='misc_signal'>misc_signal</option>
+    <option desc='misc_structure'>misc_structure</option>
+    <option desc='modified_base'>modified_base</option>
+    <option desc='old_sequence'>old_sequence</option>
+    <option desc='polyA_signal'>polyA_signal</option>
+    <option desc='polyA_site'>polyA_site</option>
+    <option desc='prim_transcript'>prim_transcript</option>
+    <option desc='primer_bind'>primer_bind</option>
+    <option desc='promoter'>promoter</option>
+    <option desc='protein_bind'>protein_bind</option>
+    <option desc='rep_origin'>rep_origin</option>
+    <option desc='repeat_region'>repeat_region</option>
+    <option desc='sig_peptide'>sig_peptide</option>
+    <option desc='source'>source</option>
+    <option desc='stem_loop'>stem_loop</option>
+    <option desc='tRNA'>tRNA</option>
+    <option desc='unsure'>unsure</option>
+    <option desc='variation'>variation</option>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">location2.loc_id<alias>loc_id</alias>
+<ankey antype='Virus'>loc_id</ankey>
+    <alias>id</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">location2.loc_se_id<alias>loc_se_id</alias>
+<ankey antype='Virus'>se_id(loc)</ankey>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">mapimage.mi_se_id<alias>mi_se_id</alias>
+<ankey antype='Special'>map_image(se_id)</ankey>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">mapimage.mi_start<alias>mi_start</alias>
+<ankey antype='Special'>mi_start</ankey>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">mapimage.mi_stop<alias>mi_stop</alias>
+<ankey antype='Special'>mi_stop</ankey>
+  </sfield>
+  <sfield blank_ok="false" default="100" type="text">max_rec</sfield>
+  <sfield blank_ok="false" comment="select" type="option">order<option desc="Author number">author.au_authornumber</option>
+    <option desc="PER id(AU)">author.au_per_id</option>
+    <option desc="PUB id(AU)">author.au_pub_id</option>
+    <option desc="Description(LOC)">location2.loc_description</option>
+    <option desc="Feature type(LOC)">location2.loc_entryfeaturetype</option>
+    <option desc="LOC id">location2.loc_id</option>
+    <option desc="SE id(LOC)">location2.loc_se_id</option>
+    <option desc="Map image(SE id)">mapimage.mi_se_id</option>
+    <option desc="MI start">mapimage.mi_start</option>
+    <option desc="MI stop">mapimage.mi_stop</option>
+    <option desc="Patient code">patient.pat_code</option>
+    <option desc="Patient comment">patient.pat_comment</option>
+    <option desc="Patient ethnicity">patient.pat_ethnicity</option>
+    <option desc="HLA type">patient.pat_hla_type</option>
+    <option desc="PAT id">patient.pat_id</option>
+    <option desc="Infection city">patient.pat_infection_city</option>
+    <option desc="Infection country">patient.pat_infection_country</option>
+    <option desc="Infection year">patient.pat_infection_year</option>
+    <option desc="# of patient seqs">patient.pat_num_seq</option>
+    <option desc="# of patient timepoints">patient.pat_num_timepoints</option>
+    <option desc="Progression">patient.pat_progression</option>
+    <option desc="Project">patient.pat_project</option>
+    <option desc="Risk factor">patient.pat_risk_factor</option>
+    <option desc="Patient sex">patient.pat_sex</option>
+    <option desc="Host species">patient.pat_species</option>
+    <option desc="PER id">person.per_id</option>
+    <option desc="Last name">person.per_lname</option>
+    <option desc="Title">publication.pub_articletitle</option>
+    <option desc="Consortium">publication.pub_consortium</option>
+    <option desc="PUB id">publication.pub_id</option>
+    <option desc="Pubmed ID">publication.pub_pubmedentry</option>
+    <option desc="Journal">publication.pub_sourcetitle</option>
+    <option desc="PUB id(SPL)">se_pub_link.spl_pub_id</option>
+    <option desc="Publication number">se_pub_link.spl_pubnumber</option>
+    <option desc="SE id(SPL)">se_pub_link.spl_se_id</option>
+    <option desc="Amplification strategy">seq_sample.ssam_amplification_strategy</option>
+    <option desc="Annotated">seq_sample.ssam_annotated</option>
+    <option desc="Problematic">seq_sample.ssam_badseq</option>
+    <option desc="CD4 count">seq_sample.ssam_cd4count</option>
+    <option desc="CD8 count">seq_sample.ssam_cd8count</option>
+    <option desc="Clone name">seq_sample.ssam_clone_name_number</option>
+    <option desc="Name">seq_sample.ssam_common_name</option>
+    <option desc="Culture method">seq_sample.ssam_culture_method</option>
+    <option desc="Drug naive">seq_sample.ssam_drug_naive</option>
+    <option desc="Fiebig stage">seq_sample.ssam_fiebig</option>
+    <option desc="Patient health">seq_sample.ssam_health_status</option>
+    <option desc="Isolate name">seq_sample.ssam_isolate_name_number</option>
+    <option desc="Locus name">seq_sample.ssam_locus_name</option>
+    <option desc="Molecule type">seq_sample.ssam_molecule_type</option>
+    <option desc="Organism">seq_sample.ssam_organism</option>
+    <option desc="PAT id(SSAM)">seq_sample.ssam_pat_id</option>
+    <option desc="Patient Age">seq_sample.ssam_patient_age</option>
+    <option desc="Phenotype">seq_sample.ssam_phenotype</option>
+    <option desc="Days from treatment end">seq_sample.ssam_postendtreatment_days</option>
+    <option desc="Days from first sample">seq_sample.ssam_postfirstsample_days</option>
+    <option desc="Days from infection">seq_sample.ssam_postinfect_days</option>
+    <option desc="Days from seroconversion">seq_sample.ssam_postseroconv_days</option>
+    <option desc="Days from treatment start">seq_sample.ssam_poststarttreatment_days</option>
+    <option desc="Sampling city">seq_sample.ssam_sample_city</option>
+    <option desc="Country">seq_sample.ssam_sample_country</option>
+    <option desc="Georegion">seq_sample.ssam_sample_georegion</option>
+    <option desc="Sample tissue">seq_sample.ssam_sample_tissue</option>
+    <option desc="Sampling year">seq_sample.ssam_'sample_year</option>
+    <option desc="Sampling year upper">seq_sample.ssam_sample_year_upper</option>
+    <option desc="SE id(SSAM)">seq_sample.ssam_se_id</option>
+    <option desc="Coreceptor">seq_sample.ssam_second_receptor</option>
+    <option desc="Sequencing method">seq_sample.ssam_sequencing_method</option>
+    <option desc="Subtype">seq_sample.ssam_subtype</option>
+    <option desc="Viral load">seq_sample.ssam_viralload</option>
+    <option desc="Description(SEF)">seqentryfeature.sef_description</option>
+    <option desc="Feature type(SEF)">seqentryfeature.sef_entryfeaturetype</option>
+    <option desc="PUB id(SEF)">seqentryfeature.sef_pub_id</option>
+    <option desc="SE id(SEF)">seqentryfeature.sef_se_id</option>
+    <option desc="Accession">sequenceaccessions.sa_genbankaccession</option>
+    <option desc="GI number">sequenceaccessions.sa_gi</option>
+    <option desc="SE id(SA)">sequenceaccessions.sa_se_id</option>
+    <option desc="Version">sequenceaccessions.sa_version</option>
+    <option desc="DB comment">sequenceentry.se_db_comment</option>
+    <option desc="GB comment">sequenceentry.se_gb_comment</option>
+    <option desc="GB create date">sequenceentry.se_gb_create</option>
+    <option desc="GB update date">sequenceentry.se_gb_update</option>
+    <option desc="SE id">sequenceentry.se_id</option>
+    <option desc="Sequence">sequenceentry.se_sequence</option>
+    <option desc="Sequence length">sequenceentry.se_sequencelength</option>
+    <option desc="Feature type(SF)">sequencefeature2.sf_featuretype</option>
+    <option desc="Feature value(SF)">sequencefeature2.sf_featurevalue</option>
+    <option desc="LOC id(SF)">sequencefeature2.sf_loc_id</option>
+    <option desc="SE id(SM)">sequencemap.sm_se_id</option>
+    <option desc="HXB2 start">sequencemap.sm_start</option>
+    <option desc="HXB2 stop">sequencemap.sm_stop</option>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">patient.pat_code<alias>pat_code</alias>
+<ankey antype='Patient'>patient_code</ankey>
+    <alias>code</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">patient.pat_comment<alias>pat_comment</alias>
+<ankey antype='Patient'>patient_comment</ankey>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">patient.pat_ethnicity<alias>pat_ethnicity</alias>
+<ankey antype='Patient'>patient_ethnicity</ankey>
+    <alias>ethnicity</alias>
+    <option desc="Any">Any</option>
+    <option desc='B'>B</option>
+    <option desc='Lahu'>Lahu</option>
+    <option desc='NULL'>NULL</option>
+    <option desc='Tiriyo'>Tiriyo</option>
+    <option desc='W'>W</option>
+    <option desc='Zulu/Xhosa'>Zulu/Xhosa</option>
+    <option desc='black'>black</option>
+    <option desc='white'>white</option>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">patient.pat_hla_type<alias>pat_hla_type</alias>
+<ankey antype='Patient'>hla_type</ankey>
+    <alias>hla_type</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">patient.pat_id
+    <ankey antype='Patient'>pat_id</ankey>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">patient.pat_infection_city<alias>pat_infection_city</alias>
+<ankey antype='Geo'>infection_city</ankey>
+    <alias>infection_city</alias>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">patient.pat_infection_country<alias>pat_infection_country</alias>
+<ankey antype='Geo'>infection_country</ankey>
+    <alias>infection_country</alias>
+    <option desc='ANGOLA'>AO</option>
+    <option desc='ARGENTINA'>AR</option>
+    <option desc='AUSTRALIA'>AU</option>
+    <option desc="Any">Any</option>
+    <option desc='BELGIUM'>BE</option>
+    <option desc='BURKINA FASO'>BF</option>
+    <option desc='BULGARIA'>BG</option>
+    <option desc='BURUNDI'>BI</option>
+    <option desc='BENIN'>BJ</option>
+    <option desc='BRAZIL'>BR</option>
+    <option desc='BOTSWANA'>BW</option>
+    <option desc='BELARUS'>BY</option>
+    <option desc='CANADA'>CA</option>
+    <option desc='DEM REP OF CONGO'>CD</option>
+    <option desc='CENTRAL AFRICAN REPUBLIC'>CF</option>
+    <option desc='CONGO'>CG</option>
+    <option desc='SWITZERLAND'>CH</option>
+    <option desc='COTE DIVOIRE'>CI</option>
+    <option desc='CHILE'>CL</option>
+    <option desc='CAMEROON'>CM</option>
+    <option desc='CHINA'>CN</option>
+    <option desc='COLOMBIA'>CO</option>
+    <option desc='CUBA'>CU</option>
+    <option desc='CAPE VERDE'>CV</option>
+    <option desc='CYPRUS'>CY</option>
+    <option desc='GERMANY'>DE</option>
+    <option desc='DJIBOUTI'>DJ</option>
+    <option desc='DENMARK'>DK</option>
+    <option desc='DOMINICAN REPUBLIC'>DO</option>
+    <option desc='ALGERIA'>DZ</option>
+    <option desc='ECUADOR'>EC</option>
+    <option desc='ERITREA'>ER</option>
+    <option desc='SPAIN'>ES</option>
+    <option desc='ETHIOPIA'>ET</option>
+    <option desc='FINLAND'>FI</option>
+    <option desc='FRANCE'>FR</option>
+    <option desc='GABON'>GA</option>
+    <option desc='UNITED KINGDOM'>GB</option>
+    <option desc='GEORGIA'>GE</option>
+    <option desc='GHANA'>GH</option>
+    <option desc='GAMBIA'>GM</option>
+    <option desc='GUINEA'>GN</option>
+    <option desc='EQUATORIAL GUINEA'>GQ</option>
+    <option desc='GREECE'>GR</option>
+    <option desc='GUINEA-BISSAU'>GW</option>
+    <option desc='HONDURAS'>HN</option>
+    <option desc='HAITI'>HT</option>
+    <option desc='INDIA'>IN</option>
+    <option desc='IRAN'>IR</option>
+    <option desc='ITALY'>IT</option>
+    <option desc='JAMAICA'>JM</option>
+    <option desc='JAPAN'>JP</option>
+    <option desc='KENYA'>KE</option>
+    <option desc='CAMBODIA'>KH</option>
+    <option desc='SOUTH KOREA'>KR</option>
+    <option desc='LIBERIA'>LR</option>
+    <option desc='LATVIA'>LV</option>
+    <option desc='LIBYA'>LY</option>
+    <option desc='MOROCCO'>MA</option>
+    <option desc='MALI'>ML</option>
+    <option desc='MYANMAR'>MM</option>
+    <option desc='MAURITANIA'>MR</option>
+    <option desc='MALAWI'>MW</option>
+    <option desc='MALAYSIA'>MY</option>
+    <option desc='MOZAMBIQUE'>MZ</option>
+    <option desc='NAMIBIA'>NA</option>
+    <option desc='NIGERIA'>NG</option>
+    <option desc='NETHERLANDS'>NL</option>
+    <option desc='NORWAY'>NO</option>
+    <option desc='NEPAL'>NP</option>
+    <option desc='NULL'>NULL</option>
+    <option desc='PERU'>PE</option>
+    <option desc='FRENCH POLYNESIA'>PF</option>
+    <option desc='PHILIPPINES'>PH</option>
+    <option desc='PAKISTAN'>PK</option>
+    <option desc='POLAND'>PL</option>
+    <option desc='PUERTO RICO'>PR</option>
+    <option desc='PORTUGAL'>PT</option>
+    <option desc='ROMANIA'>RO</option>
+    <option desc='RUSSIAN FEDERATION'>RU</option>
+    <option desc='RWANDA'>RW</option>
+    <option desc='SAUDI ARABIA'>SA</option>
+    <option desc='SWEDEN'>SE</option>
+    <option desc='SINGAPORE'>SG</option>
+    <option desc='SIERRA LEONE'>SL</option>
+    <option desc='SENEGAL'>SN</option>
+    <option desc='SOMALIA'>SO</option>
+    <option desc='EL SALVADOR'>SV</option>
+    <option desc='CHAD'>TD</option>
+    <option desc='TOGO'>TG</option>
+    <option desc='THAILAND'>TH</option>
+    <option desc='TUNISIA'>TN</option>
+    <option desc='TRINIDAD AND TOBAGO'>TT</option>
+    <option desc='TANZANIA'>TZ</option>
+    <option desc='UKRAINE'>UA</option>
+    <option desc='UGANDA'>UG</option>
+    <option desc='UNITED STATES'>US</option>
+    <option desc='URUGUAY'>UY</option>
+    <option desc='VENEZUELA'>VE</option>
+    <option desc='VIETNAM'>VN</option>
+    <option desc='SOUTH AFRICA'>ZA</option>
+    <option desc='ZAMBIA'>ZM</option>
+    <option desc='ZIMBABWE'>ZW</option>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">patient.pat_infection_year<alias>pat_infection_year</alias>
+<ankey antype='Patient'>infection_year</ankey>
+    <alias>infection_year</alias>
+    <option desc='1967'>1967</option>
+    <option desc='1974'>1974</option>
+    <option desc='1978'>1978</option>
+    <option desc='1979'>1979</option>
+    <option desc='1980'>1980</option>
+    <option desc='1981'>1981</option>
+    <option desc='1982'>1982</option>
+    <option desc='1983'>1983</option>
+    <option desc='1984'>1984</option>
+    <option desc='1985'>1985</option>
+    <option desc='1986'>1986</option>
+    <option desc='1987'>1987</option>
+    <option desc='1988'>1988</option>
+    <option desc='1989'>1989</option>
+    <option desc='1990'>1990</option>
+    <option desc='1991'>1991</option>
+    <option desc='1992'>1992</option>
+    <option desc='1993'>1993</option>
+    <option desc='1994'>1994</option>
+    <option desc='1995'>1995</option>
+    <option desc='1996'>1996</option>
+    <option desc='1997'>1997</option>
+    <option desc='1998'>1998</option>
+    <option desc='1999'>1999</option>
+    <option desc='2000'>2000</option>
+    <option desc='2001'>2001</option>
+    <option desc='2002'>2002</option>
+    <option desc='2003'>2003</option>
+    <option desc='2004'>2004</option>
+    <option desc='2005'>2005</option>
+    <option desc='2006'>2006</option>
+    <option desc="Any">Any</option>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">patient.pat_num_seq<alias>pat_num_seq</alias>
+<ankey antype='Patient'>#_of_patient_seqs</ankey>
+    <alias>num_seq</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">patient.pat_num_timepoints<alias>pat_num_timepoints</alias>
+<ankey antype='Patient'>#_of_patient_timepoints</ankey>
+    <alias>num_timepoints</alias>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">patient.pat_progression<alias>pat_progression</alias>
+<ankey antype='Patient'>progression</ankey>
+    <alias>progression</alias>
+    <option desc="Any">Any</option>
+    <option desc='EC'>EC</option>
+    <option desc='LTNP'>LTNP</option>
+    <option desc='NULL'>NULL</option>
+    <option desc='P'>P</option>
+    <option desc='RP'>RP</option>
+    <option desc='SP'>SP</option>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">patient.pat_project<alias>pat_project</alias>
+<ankey antype='Patient'>project</ankey>
+    <alias>project</alias>
+    <option desc='1182_12'>1182_12</option>
+    <option desc='1182_48'>1182_48</option>
+    <option desc='ACTG 229'>ACTG 229</option>
+    <option desc='ACTG 5211'>ACTG 5211</option>
+    <option desc='AIIMS cohort'>AIIMS cohort</option>
+    <option desc='ALT ANRS'>ALT ANRS</option>
+    <option desc='Amsterdam Cohort Studies'>Amsterdam Cohort Studies</option>
+    <option desc="Any">Any</option>
+    <option desc='Ariel'>Ariel</option>
+    <option desc='Australian LTNP Study'>Australian LTNP Study</option>
+    <option desc='Bonn Cohort'>Bonn Cohort</option>
+    <option desc='Boston Acute Infection Cohort'>Boston Acute Infection Cohort</option>
+    <option desc='CDC'>CDC</option>
+    <option desc='CHAVI'>CHAVI</option>
+    <option desc='CNAB2006'>CNAB2006</option>
+    <option desc='Cato Manor'>Cato Manor</option>
+    <option desc='Copenhagen cohort'>Copenhagen cohort</option>
+    <option desc='DMP266'>DMP266</option>
+    <option desc='Dakar FSW cohort'>Dakar FSW cohort</option>
+    <option desc='EXPLORE Study'>EXPLORE Study</option>
+    <option desc='FCHC'>FCHC</option>
+    <option desc='French ALT Study Group'>French ALT Study Group</option>
+    <option desc='HIVNET 012'>HIVNET 012</option>
+    <option desc='HIVNET 023'>HIVNET 023</option>
+    <option desc='HIVNET 028'>HIVNET 028</option>
+    <option desc='Italian Seroconversion Study'>Italian Seroconversion Study</option>
+    <option desc='MACS'>MACS</option>
+    <option desc='MGH cohort'>MGH cohort</option>
+    <option desc='NULL'>NULL</option>
+    <option desc='NVAZ'>NVAZ</option>
+    <option desc='Nairobi cohort'>Nairobi cohort</option>
+    <option desc='New England Hemophilia Cohort'>New England Hemophilia Cohort</option>
+    <option desc='New York City Perinatal HIV Tr'>New York City Perinatal HIV Tr</option>
+    <option desc='OPTIONS cohort'>OPTIONS cohort</option>
+    <option desc='Opiate Users Research Study'>Opiate Users Research Study</option>
+    <option desc='PACTG trial 1030'>PACTG trial 1030</option>
+    <option desc='Primo-CI'>Primo-CI</option>
+    <option desc='Pumwani Sex Worker Cohort'>Pumwani Sex Worker Cohort</option>
+    <option desc='Quattro'>Quattro</option>
+    <option desc='RV121'>RV121</option>
+    <option desc='RV126'>RV126</option>
+    <option desc='SFMHS'>SFMHS</option>
+    <option desc='STI'>STI</option>
+    <option desc='San Francisco Mens Health St'>San Francisco Men's Health St</option>
+    <option desc='Seattle primary infection coho'>Seattle primary infection coho</option>
+    <option desc='Sinikithemba'>Sinikithemba</option>
+    <option desc='Swiss HIV Cohort Study'>Swiss HIV Cohort Study</option>
+    <option desc='Sydney Blood Bank Cohort'>Sydney Blood Bank Cohort</option>
+    <option desc='UCLA Perinatal Transmission St'>UCLA Perinatal Transmission St</option>
+    <option desc='VAX004'>VAX004</option>
+    <option desc='Wadsworth Center'>Wadsworth Center</option>
+    <option desc='Western Australian HIV Cohort'>Western Australian HIV Cohort</option>
+    <option desc='Womens Interagency HIV Study'>Women's Interagency HIV Study</option>
+    <option desc='Zambia-UAB'>Zambia-UAB</option>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">patient.pat_risk_factor<alias>pat_risk_factor</alias>
+<ankey antype='Patient'>risk_factor</ankey>
+    <alias>risk_factor</alias>
+    <option desc="Any">Any</option>
+    <option desc='Experimental'>EX</option>
+    <option desc='Mother -&gt; Baby'>MB</option>
+    <option desc='Nosocomial'>NO</option>
+    <option desc='Not Recorded'>NR</option>
+    <option desc='NULL'>NULL</option>
+    <option desc='Other'>OT</option>
+    <option desc='Blood Transfusion'>PB</option>
+    <option desc='Hemophiliac'>PH</option>
+    <option desc='IV Drug User'>PI</option>
+    <option desc='Bisexual'>SB</option>
+    <option desc='Homosexual'>SG</option>
+    <option desc='Heterosexual'>SH</option>
+    <option desc='Male Sex with Male'>SM</option>
+    <option desc='Sexworker'>SW</option>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">patient.pat_sex<alias>pat_sex</alias>
+<ankey antype='Patient'>patient_sex</ankey>
+    <alias>sex</alias>
+    <option desc="Any">Any</option>
+    <option desc='F'>F</option>
+    <option desc='M'>M</option>
+    <option desc='NULL'>NULL</option>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">patient.pat_species<alias>pat_species</alias>
+<ankey antype='Patient'>host_species</ankey>
+    <alias>species</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">person.per_id</sfield>
+<ankey antype='Reference'>per_id</ankey>
+  <sfield blank_ok="false" default="Any" type="text">person.per_lname<alias>per_lname</alias>
+<ankey antype='Reference'>last_name</ankey>
+    <alias>lname</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">publication.pub_articletitle<alias>pub_articletitle</alias>
+<ankey antype='Reference'>title</ankey>
+    <alias>articletitle</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">publication.pub_consortium<alias>pub_consortium</alias>
+<ankey antype='Reference'>consortium</ankey>
+    <alias>consortium</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">publication.pub_id</sfield>
+<ankey antype='Reference'>pub_id</ankey>
+  <sfield blank_ok="false" default="Any" type="text">publication.pub_pubmedentry<alias>pub_pubmedentry</alias>
+<ankey antype='Reference'>pubmed_id</ankey>
+    <alias>pubmedentry</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">publication.pub_sourcetitle<alias>pub_sourcetitle</alias>
+<ankey antype='Reference'>journal</ankey>
+    <alias>sourcetitle</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">se_pub_link.spl_pub_id<alias>spl_pub_id</alias>
+<ankey antype='Reference'>pub_id(spl)</ankey>
+    <alias>pub_id</alias>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">se_pub_link.spl_pubnumber<alias>spl_pubnumber</alias>
+<ankey antype='Reference'>publication_number</ankey>
+    <alias>pubnumber</alias>
+    <option desc='1'>1</option>
+    <option desc='10'>10</option>
+    <option desc='11'>11</option>
+    <option desc='12'>12</option>
+    <option desc='13'>13</option>
+    <option desc='14'>14</option>
+    <option desc='15'>15</option>
+    <option desc='16'>16</option>
+    <option desc='17'>17</option>
+    <option desc='18'>18</option>
+    <option desc='19'>19</option>
+    <option desc='2'>2</option>
+    <option desc='20'>20</option>
+    <option desc='21'>21</option>
+    <option desc='22'>22</option>
+    <option desc='23'>23</option>
+    <option desc='24'>24</option>
+    <option desc='25'>25</option>
+    <option desc='26'>26</option>
+    <option desc='27'>27</option>
+    <option desc='28'>28</option>
+    <option desc='29'>29</option>
+    <option desc='3'>3</option>
+    <option desc='30'>30</option>
+    <option desc='31'>31</option>
+    <option desc='32'>32</option>
+    <option desc='33'>33</option>
+    <option desc='34'>34</option>
+    <option desc='35'>35</option>
+    <option desc='36'>36</option>
+    <option desc='37'>37</option>
+    <option desc='38'>38</option>
+    <option desc='4'>4</option>
+    <option desc='5'>5</option>
+    <option desc='6'>6</option>
+    <option desc='7'>7</option>
+    <option desc='8'>8</option>
+    <option desc='9'>9</option>
+    <option desc="Any">Any</option>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">se_pub_link.spl_se_id<alias>spl_se_id</alias>
+<ankey antype='Special'>se_id(spl)</ankey>
+    <alias>se_id</alias>
+  </sfield>
+  <sfield blank_ok="false" comment="checkbox" type="option">select_all<option></option>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_amplification_strategy<alias>ssam_amplification_strategy</alias>
+<ankey antype='Virus'>amplification_strategy</ankey>
+    <alias>amplification_strategy</alias>
+    <option desc="Any">Any</option>
+    <option desc='NULL'>NULL</option>
+    <option desc='SGA'>SGA</option>
+    <option desc='bulk'>bulk</option>
+    <option desc='bulk RT-PCR'>bulk RT-PCR</option>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_annotated<alias>ssam_annotated</alias>
+<ankey antype='Special'>annotated</ankey>
+    <alias>annotated</alias>
+    <option desc='0'>0</option>
+    <option desc='1'>1</option>
+    <option desc="Any">Any</option>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_badseq<alias>ssam_badseq</alias>
+<ankey antype='Special'>problematic</ankey>
+    <alias>badseq</alias>
+    <option desc='0'>0</option>
+    <option desc='N'>1</option>
+    <option desc='C'>2</option>
+    <option desc='H'>3</option>
+    <option desc='S'>4</option>
+    <option desc='D'>5</option>
+    <option desc='T'>6</option>
+    <option desc="Any">Any</option>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_cd4count<alias>ssam_cd4count</alias>
+<ankey antype='Patient'>cd4_count</ankey>
+    <alias>cd4count</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_cd8count<alias>ssam_cd8count</alias>
+<ankey antype='Patient'>cd8_count</ankey>
+    <alias>cd8count</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_clone_name_number<alias>ssam_clone_name_number</alias>
+<ankey antype='Virus'>clone_name</ankey>
+    <alias>clone_name_number</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_common_name<alias>ssam_common_name</alias>
+<ankey antype='Virus'>name</ankey>
+    <alias>common_name</alias>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_culture_method<alias>ssam_culture_method</alias>
+<ankey antype='Virus'>culture_method</ankey>
+    <alias>culture_method</alias>
+    <option desc="Any">Any</option>
+    <option desc='NULL'>NULL</option>
+    <option desc='UNK'>UNK</option>
+    <option desc='expanded'>expanded</option>
+    <option desc='primary'>primary</option>
+    <option desc='uncultured'>uncultured</option>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_drug_naive<alias>ssam_drug_naive</alias>
+<ankey antype='Patient'>drug_naive</ankey>
+    <alias>drug_naive</alias>
+    <option desc="Any">Any</option>
+    <option desc='NULL'>NULL</option>
+    <option desc='no'>no</option>
+    <option desc='yes'>yes</option>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_fiebig<alias>ssam_fiebig</alias>
+<ankey antype='Patient'>fiebig_stage</ankey>
+    <alias>fiebig</alias>
+    <option desc='1'>1</option>
+    <option desc='2'>2</option>
+    <option desc='3'>3</option>
+    <option desc='4'>4</option>
+    <option desc='5'>5</option>
+    <option desc='6'>6</option>
+    <option desc="Any">Any</option>
+    <option desc='NULL'>NULL</option>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_health_status<alias>ssam_health_status</alias>
+<ankey antype='Patient'>patient_health</ankey>
+    <alias>health_status</alias>
+    <option desc='AIDS'>AIDS</option>
+    <option desc="Any">Any</option>
+    <option desc='NULL'>NULL</option>
+    <option desc='acute infection'>acute infection</option>
+    <option desc='asymptomatic'>asymptomatic</option>
+    <option desc='deceased'>deceased</option>
+    <option desc='symptomatic'>symptomatic</option>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_isolate_name_number<alias>ssam_isolate_name_number</alias>
+<ankey antype='Virus'>isolate_name</ankey>
+    <alias>isolate_name_number</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_locus_name<alias>ssam_locus_name</alias>
+<ankey antype='Virus'>locus_name</ankey>
+    <alias>locus_name</alias>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_molecule_type<alias>ssam_molecule_type</alias>
+<ankey antype='Virus'>molecule_type</ankey>
+    <alias>molecule_type</alias>
+    <option desc="Any">Any</option>
+    <option desc='DNA'>DNA</option>
+    <option desc='RNA'>RNA</option>
+    <option desc='UNK'>UNK</option>
+    <option desc='mRNA'>mRNA</option>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_organism<alias>ssam_organism</alias>
+<ankey antype='Virus'>organism</ankey>
+    <alias>organism</alias>
+    <option desc="Any">Any</option>
+    <option desc='HIV-1'>HIV-1</option>
+    <option desc='HIV-2'>HIV-2</option>
+    <option desc='NULL'>NULL</option>
+    <option desc='SHIV'>SHIV</option>
+    <option desc='SIV'>SIV</option>
+    <option desc='synthetic DNA'>synthetic DNA</option>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_pat_id<alias>ssam_pat_id</alias>
+<ankey antype='Patient'>pat_id(ssam)</ankey>
+    <alias>pat_id</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_patient_age<alias>ssam_patient_age</alias>
+<ankey antype='Patient'>patient_age</ankey>
+    <alias>patient_age</alias>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_phenotype<alias>ssam_phenotype</alias>
+<ankey antype='Virus'>phenotype</ankey>
+    <alias>phenotype</alias>
+    <option desc="Any">Any</option>
+    <option desc='NSI'>NSI</option>
+    <option desc='NULL'>NULL</option>
+    <option desc='SI'>SI</option>
+    <option desc='UNK'>UNK</option>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_postendtreatment_days<alias>ssam_postendtreatment_days</alias>
+<ankey antype='Patient'>days_from_treatment_end</ankey>
+    <alias>postendtreatment_days</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_postfirstsample_days<alias>ssam_postfirstsample_days</alias>
+<ankey antype='Patient'>days_from_first_sample</ankey>
+    <alias>postfirstsample_days</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_postinfect_days<alias>ssam_postinfect_days</alias>
+<ankey antype='Patient'>days_from_infection</ankey>
+    <alias>postinfect_days</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_postseroconv_days<alias>ssam_postseroconv_days</alias>
+<ankey antype='Patient'>days_from_seroconversion</ankey>
+    <alias>postseroconv_days</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_poststarttreatment_days<alias>ssam_poststarttreatment_days</alias>
+<ankey antype='Patient'>days_from_treatment_start</ankey>
+    <alias>poststarttreatment_days</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_sample_city<alias>ssam_sample_city</alias>
+<ankey antype='Geo'>sampling_city</ankey>
+    <alias>sample_city</alias>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_sample_country<alias>ssam_sample_country</alias>
+<ankey antype='Geo'>country</ankey>
+    <alias>sample_country</alias>
+    <alias>country</alias>
+    <option desc='AFGHANISTAN'>AF</option>
+    <option desc='ANTIGUA AND BARBUDA'>AG</option>
+    <option desc='ALBANIA'>AL</option>
+    <option desc='NETHERLANDS ANTILLES'>AN</option>
+    <option desc='ANGOLA'>AO</option>
+    <option desc='ARGENTINA'>AR</option>
+    <option desc='AUSTRIA'>AT</option>
+    <option desc='AUSTRALIA'>AU</option>
+    <option desc='AZERBAIJAN'>AZ</option>
+    <option desc="Any">Any</option>
+    <option desc='BARBADOS'>BB</option>
+    <option desc='BANGLADESH'>BD</option>
+    <option desc='BELGIUM'>BE</option>
+    <option desc='BURKINA FASO'>BF</option>
+    <option desc='BULGARIA'>BG</option>
+    <option desc='BURUNDI'>BI</option>
+    <option desc='BENIN'>BJ</option>
+    <option desc='BOLIVIA'>BO</option>
+    <option desc='BRAZIL'>BR</option>
+    <option desc='BAHAMAS'>BS</option>
+    <option desc='BOTSWANA'>BW</option>
+    <option desc='BELARUS'>BY</option>
+    <option desc='CANADA'>CA</option>
+    <option desc='DEM REP OF CONGO'>CD</option>
+    <option desc='CENTRAL AFRICAN REPUBLIC'>CF</option>
+    <option desc='CONGO'>CG</option>
+    <option desc='SWITZERLAND'>CH</option>
+    <option desc='COTE DIVOIRE'>CI</option>
+    <option desc='CHILE'>CL</option>
+    <option desc='CAMEROON'>CM</option>
+    <option desc='CHINA'>CN</option>
+    <option desc='COLOMBIA'>CO</option>
+    <option desc='COSTA RICA'>CR</option>
+    <option desc='SERBIA AND MONTENEGRO'>CS</option>
+    <option desc='CUBA'>CU</option>
+    <option desc='CAPE VERDE'>CV</option>
+    <option desc='CYPRUS'>CY</option>
+    <option desc='CZECH REPUBLIC'>CZ</option>
+    <option desc='GERMANY'>DE</option>
+    <option desc='DJIBOUTI'>DJ</option>
+    <option desc='DENMARK'>DK</option>
+    <option desc='DOMINICA'>DM</option>
+    <option desc='DOMINICAN REPUBLIC'>DO</option>
+    <option desc='ALGERIA'>DZ</option>
+    <option desc='ECUADOR'>EC</option>
+    <option desc='ESTONIA'>EE</option>
+    <option desc='EGYPT'>EG</option>
+    <option desc='ERITREA'>ER</option>
+    <option desc='SPAIN'>ES</option>
+    <option desc='ETHIOPIA'>ET</option>
+    <option desc='FINLAND'>FI</option>
+    <option desc='FIJI'>FJ</option>
+    <option desc='FRANCE'>FR</option>
+    <option desc='GABON'>GA</option>
+    <option desc='UNITED KINGDOM'>GB</option>
+    <option desc='GRENADA'>GD</option>
+    <option desc='GEORGIA'>GE</option>
+    <option desc='FRENCH GUIANA'>GF</option>
+    <option desc='GHANA'>GH</option>
+    <option desc='GREENLAND'>GL</option>
+    <option desc='GAMBIA'>GM</option>
+    <option desc='GUADELOUPE'>GP</option>
+    <option desc='EQUATORIAL GUINEA'>GQ</option>
+    <option desc='GREECE'>GR</option>
+    <option desc='GUINEA-BISSAU'>GW</option>
+    <option desc='GUYANA'>GY</option>
+    <option desc='HONG KONG'>HK</option>
+    <option desc='HONDURAS'>HN</option>
+    <option desc='HAITI'>HT</option>
+    <option desc='HUNGARY'>HU</option>
+    <option desc='INDONESIA'>ID</option>
+    <option desc='IRELAND'>IE</option>
+    <option desc='ISRAEL'>IL</option>
+    <option desc='INDIA'>IN</option>
+    <option desc='IRAN'>IR</option>
+    <option desc='ITALY'>IT</option>
+    <option desc='JAMAICA'>JM</option>
+    <option desc='JAPAN'>JP</option>
+    <option desc='KENYA'>KE</option>
+    <option desc='CAMBODIA'>KH</option>
+    <option desc='SOUTH KOREA'>KR</option>
+    <option desc='KUWAIT'>KW</option>
+    <option desc='KAZAKSTAN'>KZ</option>
+    <option desc='LEBANON'>LB</option>
+    <option desc='SAINT LUCIA'>LC</option>
+    <option desc='LIECHTENSTEIN'>LI</option>
+    <option desc='LIBERIA'>LR</option>
+    <option desc='LITHUANIA'>LT</option>
+    <option desc='LUXEMBOURG'>LU</option>
+    <option desc='LATVIA'>LV</option>
+    <option desc='LIBYA'>LY</option>
+    <option desc='MOROCCO'>MA</option>
+    <option desc='MOLDOVA'>MD</option>
+    <option desc='MADAGASCAR'>MG</option>
+    <option desc='MALI'>ML</option>
+    <option desc='MYANMAR'>MM</option>
+    <option desc='MARTINIQUE'>MQ</option>
+    <option desc='MONTSERRAT'>MS</option>
+    <option desc='MALAWI'>MW</option>
+    <option desc='MEXICO'>MX</option>
+    <option desc='MALAYSIA'>MY</option>
+    <option desc='MOZAMBIQUE'>MZ</option>
+    <option desc='NIGER'>NE</option>
+    <option desc='NIGERIA'>NG</option>
+    <option desc='NETHERLANDS'>NL</option>
+    <option desc='NORWAY'>NO</option>
+    <option desc='NEPAL'>NP</option>
+    <option desc='NULL'>NULL</option>
+    <option desc='NEW ZEALAND'>NZ</option>
+    <option desc='PANAMA'>PA</option>
+    <option desc='PERU'>PE</option>
+    <option desc='PAPUA NEW GUINEA'>PG</option>
+    <option desc='PHILIPPINES'>PH</option>
+    <option desc='POLAND'>PL</option>
+    <option desc='PUERTO RICO'>PR</option>
+    <option desc='PORTUGAL'>PT</option>
+    <option desc='PARAGUAY'>PY</option>
+    <option desc='REUNION'>RE</option>
+    <option desc='ROMANIA'>RO</option>
+    <option desc='RUSSIAN FEDERATION'>RU</option>
+    <option desc='RWANDA'>RW</option>
+    <option desc='SAUDI ARABIA'>SA</option>
+    <option desc='SEYCHELLES'>SC</option>
+    <option desc='SUDAN'>SD</option>
+    <option desc='SWEDEN'>SE</option>
+    <option desc='SINGAPORE'>SG</option>
+    <option desc='SLOVENIA'>SI</option>
+    <option desc='SLOVAKIA'>SK</option>
+    <option desc='SIERRA LEONE'>SL</option>
+    <option desc='SENEGAL'>SN</option>
+    <option desc='SOMALIA'>SO</option>
+    <option desc='SURINAME'>SR</option>
+    <option desc='SWAZILAND'>SZ</option>
+    <option desc='CHAD'>TD</option>
+    <option desc='TOGO'>TG</option>
+    <option desc='THAILAND'>TH</option>
+    <option desc='TUNISIA'>TN</option>
+    <option desc='TURKEY'>TR</option>
+    <option desc='TRINIDAD AND TOBAGO'>TT</option>
+    <option desc='TAIWAN'>TW</option>
+    <option desc='TANZANIA'>TZ</option>
+    <option desc='UKRAINE'>UA</option>
+    <option desc='UGANDA'>UG</option>
+    <option desc='UNITED STATES'>US</option>
+    <option desc='URUGUAY'>UY</option>
+    <option desc='UZBEKISTAN'>UZ</option>
+    <option desc='SAINT VINCENT AND THE GRENADINES'>VC</option>
+    <option desc='VENEZUELA'>VE</option>
+    <option desc='VIRGIN ISLANDS, U.S.'>VI</option>
+    <option desc='VIETNAM'>VN</option>
+    <option desc='YEMEN'>YE</option>
+    <option desc='YUGOSLAVIA'>YU</option>
+    <option desc='SOUTH AFRICA'>ZA</option>
+    <option desc='ZAMBIA'>ZM</option>
+    <option desc='ZIMBABWE'>ZW</option>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_sample_georegion<alias>ssam_sample_georegion</alias>
+<ankey antype='Geo'>georegion</ankey>
+    <alias>sample_georegion</alias>
+    <option desc='Africa'>AFR</option>
+    <option desc='Sub-saharan Africa'>AFR SSA</option>
+    <option desc='Asia'>ASI</option>
+    <option desc="Any">Any</option>
+    <option desc='Central America'>CAM</option>
+    <option desc='Caribbean'>CRB</option>
+    <option desc='Europe'>EUR</option>
+    <option desc='Former USSR'>FUS</option>
+    <option desc='Middle-East'>MEA</option>
+    <option desc='North America'>NAM</option>
+    <option desc='NULL'>NULL</option>
+    <option desc='Oceania'>OCE</option>
+    <option desc='South America'>SAM</option>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_sample_tissue<alias>ssam_sample_tissue</alias>
+<ankey antype='Patient'>sample_tissue</ankey>
+    <alias>sample_tissue</alias>
+    <option desc="Any">Any</option>
+    <option desc='Brain'>Brain</option>
+    <option desc='CD14+ monocytes'>CD14+ monocytes</option>
+    <option desc='CD4+ T cell supernatant'>CD4+ T cell supernatant</option>
+    <option desc='CD4+ T cells'>CD4+ T cells</option>
+    <option desc='CSF'>CSF</option>
+    <option desc='Epidermis'>Epidermis</option>
+    <option desc='NULL'>NULL</option>
+    <option desc='PBMC'>PBMC</option>
+    <option desc='T-cell'>T-cell</option>
+    <option desc='activated CD4+ T cells'>activated CD4+ T cells</option>
+    <option desc='blood'>blood</option>
+    <option desc='blood plasma'>blood plasma</option>
+    <option desc='blood plasma; whole saliva'>blood plasma; whole saliva</option>
+    <option desc='bone marrow'>bone marrow</option>
+    <option desc='brain'>brain</option>
+    <option desc='breast milk'>breast milk</option>
+    <option desc='caudate region of brain'>caudate region of brain</option>
+    <option desc='cerebrospinal fluid'>cerebrospinal fluid</option>
+    <option desc='cerebrospinal fluid (CSF)'>cerebrospinal fluid (CSF)</option>
+    <option desc='cervicovaginal secretions'>cervicovaginal secretions</option>
+    <option desc='cervix'>cervix</option>
+    <option desc='choroid plexus'>choroid plexus</option>
+    <option desc='colon'>colon</option>
+    <option desc='deep white matter of brain'>deep white matter of brain</option>
+    <option desc='dendrites'>dendrites</option>
+    <option desc='duodenum'>duodenum</option>
+    <option desc='epididymis'>epididymis</option>
+    <option desc='esophagus'>esophagus</option>
+    <option desc='feces'>feces</option>
+    <option desc='gastric aspirate'>gastric aspirate</option>
+    <option desc='jejunum'>jejunum</option>
+    <option desc='kidney'>kidney</option>
+    <option desc='liver'>liver</option>
+    <option desc='lung'>lung</option>
+    <option desc='lymph node'>lymph node</option>
+    <option desc='lymphocyte'>lymphocyte</option>
+    <option desc='lymphoma'>lymphoma</option>
+    <option desc='meninges'>meninges</option>
+    <option desc='monocyte'>monocyte</option>
+    <option desc='peripheral blood'>peripheral blood</option>
+    <option desc='plasma'>plasma</option>
+    <option desc='prostate'>prostate</option>
+    <option desc='prostatic secretion'>prostatic secretion</option>
+    <option desc='rectum'>rectum</option>
+    <option desc='resting CD4+ T cells'>resting CD4+ T cells</option>
+    <option desc='saliva'>saliva</option>
+    <option desc='semen'>semen</option>
+    <option desc='seminal cells'>seminal cells</option>
+    <option desc='seminal fluid'>seminal fluid</option>
+    <option desc='seminal plasma'>seminal plasma</option>
+    <option desc='seminal vesicle'>seminal vesicle</option>
+    <option desc='serum'>serum</option>
+    <option desc='sigmoidum'>sigmoidum</option>
+    <option desc='spinal cord'>spinal cord</option>
+    <option desc='spleen'>spleen</option>
+    <option desc='stomach'>stomach</option>
+    <option desc='stored Stump-tailed macaque tissues (SIVSTM)'>stored Stump-tailed macaque tissues (SIVSTM)</option>
+    <option desc='subclavicular lymph node'>subclavicular lymph node</option>
+    <option desc='supernatant'>supernatant</option>
+    <option desc='testis'>testis</option>
+    <option desc='thymus'>thymus</option>
+    <option desc='urethra'>urethra</option>
+    <option desc='urine'>urine</option>
+    <option desc='vagina'>vagina</option>
+    <option desc='vaginal cells'>vaginal cells</option>
+    <option desc='vaginal fluid'>vaginal fluid</option>
+    <option desc='vaginal secretion'>vaginal secretion</option>
+    <option desc='vas deferens'>vas deferens</option>
+    <option desc='whole blood'>whole blood</option>
+    <option desc='whole saliva'>whole saliva</option>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_sample_year<alias>ssam_sample_year</alias>
+<ankey antype='Patient'>sampling_year</ankey>
+    <alias>sample_year</alias>
+    <alias>year</alias>
+    <option desc='1959'>1959</option>
+    <option desc='1960'>1960</option>
+    <option desc='1975'>1975</option>
+    <option desc='1976'>1976</option>
+    <option desc='1977'>1977</option>
+    <option desc='1978'>1978</option>
+    <option desc='1979'>1979</option>
+    <option desc='1980'>1980</option>
+    <option desc='1981'>1981</option>
+    <option desc='1982'>1982</option>
+    <option desc='1983'>1983</option>
+    <option desc='1984'>1984</option>
+    <option desc='1985'>1985</option>
+    <option desc='1986'>1986</option>
+    <option desc='1987'>1987</option>
+    <option desc='1988'>1988</option>
+    <option desc='1989'>1989</option>
+    <option desc='1990'>1990</option>
+    <option desc='1991'>1991</option>
+    <option desc='1992'>1992</option>
+    <option desc='1993'>1993</option>
+    <option desc='1994'>1994</option>
+    <option desc='1995'>1995</option>
+    <option desc='1996'>1996</option>
+    <option desc='1997'>1997</option>
+    <option desc='1998'>1998</option>
+    <option desc='1999'>1999</option>
+    <option desc='2000'>2000</option>
+    <option desc='2001'>2001</option>
+    <option desc='2002'>2002</option>
+    <option desc='2003'>2003</option>
+    <option desc='2004'>2004</option>
+    <option desc='2005'>2005</option>
+    <option desc='2006'>2006</option>
+    <option desc='2007'>2007</option>
+    <option desc='2008'>2008</option>
+    <option desc="Any">Any</option>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_sample_year_upper<alias>ssam_sample_year_upper</alias>
+<ankey antype='Patient'>sampling_year_upper</ankey>
+    <alias>sample_year_upper</alias>
+    <option desc='1959'>1959</option>
+    <option desc='1960'>1960</option>
+    <option desc='1975'>1975</option>
+    <option desc='1976'>1976</option>
+    <option desc='1977'>1977</option>
+    <option desc='1978'>1978</option>
+    <option desc='1979'>1979</option>
+    <option desc='1980'>1980</option>
+    <option desc='1981'>1981</option>
+    <option desc='1982'>1982</option>
+    <option desc='1983'>1983</option>
+    <option desc='1984'>1984</option>
+    <option desc='1985'>1985</option>
+    <option desc='1986'>1986</option>
+    <option desc='1987'>1987</option>
+    <option desc='1988'>1988</option>
+    <option desc='1989'>1989</option>
+    <option desc='1990'>1990</option>
+    <option desc='1991'>1991</option>
+    <option desc='1992'>1992</option>
+    <option desc='1993'>1993</option>
+    <option desc='1994'>1994</option>
+    <option desc='1995'>1995</option>
+    <option desc='1996'>1996</option>
+    <option desc='1997'>1997</option>
+    <option desc='1998'>1998</option>
+    <option desc='1999'>1999</option>
+    <option desc='2000'>2000</option>
+    <option desc='2001'>2001</option>
+    <option desc='2002'>2002</option>
+    <option desc='2003'>2003</option>
+    <option desc='2004'>2004</option>
+    <option desc='2005'>2005</option>
+    <option desc='2006'>2006</option>
+    <option desc='2007'>2007</option>
+    <option desc='2008'>2008</option>
+    <option desc="Any">Any</option>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_se_id<alias>ssam_se_id</alias>
+<ankey antype='Special'>se_id(ssam)</ankey>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple"
+  type="option">seq_sample.ssam_second_receptor<alias>coreceptor</alias>
+    <ankey antype='Virus'>coreceptor</ankey>
+    <alias>ssam_second_receptor</alias>
+    <alias>second_receptor</alias>
+    <option desc="Any">Any</option>
+    <option desc='CCR2B'>CCR2B</option>
+    <option desc='CCR2b CCR3 GPR15'>CCR2b CCR3 GPR15</option>
+    <option desc='CCR3 CCR5'>CCR3 CCR5</option>
+    <option desc='CCR3 CCR5 CXCR4'>CCR3 CCR5 CXCR4</option>
+    <option desc='CCR3 CXCR4'>CCR3 CXCR4</option>
+    <option desc='CCR3 CXCR4 CCR5'>CCR3 CXCR4 CCR5</option>
+    <option desc='CCR5'>CCR5</option>
+    <option desc='CCR5 CCR1 CCR2b CCR3 CCR4 CXCR4'>CCR5 CCR1 CCR2b CCR3 CCR4 CXCR4</option>
+    <option desc='CCR5 CCR2b CCR3 CXCR4'>CCR5 CCR2b CCR3 CXCR4</option>
+    <option desc='CCR5 CCR3'>CCR5 CCR3</option>
+    <option desc='CCR5 CCR3 CCR8'>CCR5 CCR3 CCR8</option>
+    <option desc='CCR5 CCR3 GPR15'>CCR5 CCR3 GPR15</option>
+    <option desc='CCR5 CCR3 GPR15 STRL33 CCR8'>CCR5 CCR3 GPR15 STRL33 CCR8</option>
+    <option desc='CCR5 CCR3 STRL33'>CCR5 CCR3 STRL33</option>
+    <option desc='CCR5 CCR8'>CCR5 CCR8</option>
+    <option desc='CCR5 CSCR4'>CCR5 CSCR4</option>
+    <option desc='CCR5 CXCR4'>CCR5 CXCR4</option>
+    <option desc='CCR5 CXCR4 CCR1 CCR2B CCR3'>CCR5 CXCR4 CCR1 CCR2B CCR3</option>
+    <option desc='CCR5 CXCR4 CCR1 CCR2b CCR3'>CCR5 CXCR4 CCR1 CCR2b CCR3</option>
+    <option desc='CCR5 CXCR4 CCR1 CCR2b CCR3 CCR4'>CCR5 CXCR4 CCR1 CCR2b CCR3 CCR4</option>
+    <option desc='CCR5 CXCR4 CCR3'>CCR5 CXCR4 CCR3</option>
+    <option desc='CCR5 CXCR4 CCR3 CCR1'>CCR5 CXCR4 CCR3 CCR1</option>
+    <option desc='CCR5 CXCR4 CCR3 CCR2b CCR8 V28'>CCR5 CXCR4 CCR3 CCR2b CCR8 V28</option>
+    <option desc='CCR5 CXCR4 CCR3 US28 V28'>CCR5 CXCR4 CCR3 US28 V28</option>
+    <option desc='CCR5 CXCR4 CCR4'>CCR5 CXCR4 CCR4</option>
+    <option desc='CCR5 CXCR4 CCR8 V28'>CCR5 CXCR4 CCR8 V28</option>
+    <option desc='CCR5 CXCR4 STRL33 GPR15'>CCR5 CXCR4 STRL33 GPR15</option>
+    <option desc='CCR5 GPR15'>CCR5 GPR15</option>
+    <option desc='CCR5 GPR15 STRL33'>CCR5 GPR15 STRL33</option>
+    <option desc='CCR5 STRL33'>CCR5 STRL33</option>
+    <option desc='CCR5 STRL33 GPR1 GPR15'>CCR5 STRL33 GPR1 GPR15</option>
+    <option desc='CCR5 STRL33 GPR15 GPR1 ChemR23'>CCR5 STRL33 GPR15 GPR1 ChemR23</option>
+    <option desc='CSCR4'>CSCR4</option>
+    <option desc='CXCR4'>CXCR4</option>
+    <option desc='CXCR4 CCR3'>CXCR4 CCR3</option>
+    <option desc='CXCR4 CCR3 STRL33'>CXCR4 CCR3 STRL33</option>
+    <option desc='CXCR4 CCR8 V28 CCR3 GPR15 STRL33'>CXCR4 CCR8 V28 CCR3 GPR15 STRL33</option>
+    <option desc='CXCR4 GPR15'>CXCR4 GPR15</option>
+    <option desc='CXCR4 V28'>CXCR4 V28</option>
+    <option desc='NULL'>NULL</option>
+    <option desc='UNK'>UNK</option>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_sequencing_method<alias>ssam_sequencing_method</alias>
+<ankey antype='Virus'>sequencing_method</ankey>
+    <alias>sequencing_method</alias>
+    <option desc="Any">Any</option>
+    <option desc='NULL'>NULL</option>
+    <option desc='clone'>clone</option>
+    <option desc='direct'>direct</option>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seq_sample.ssam_subtype<alias>ssam_subtype</alias>
+<ankey antype='Virus'>subtype</ankey>
+    <alias>subtype</alias>
+    <option desc='0102'>0102</option>
+    <option desc='0102A'>0102A</option>
+    <option desc='0102AG'>0102AG</option>
+    <option desc='0102D'>0102D</option>
+    <option desc='0102DF'>0102DF</option>
+    <option desc='0103'>0103</option>
+    <option desc='0107'>0107</option>
+    <option desc='0108'>0108</option>
+    <option desc='0109'>0109</option>
+    <option desc='01A1'>01A1</option>
+    <option desc='01A1G'>01A1G</option>
+    <option desc='01ADF2'>01ADF2</option>
+    <option desc='01AF2U'>01AF2U</option>
+    <option desc='01B'>01B</option>
+    <option desc='01BC'>01BC</option>
+    <option desc='01C'>01C</option>
+    <option desc='01DU'>01DU</option>
+    <option desc='01G'>01G</option>
+    <option desc='01GHJKU'>01GHJKU</option>
+    <option desc='01U'>01U</option>
+    <option desc='01_AE'>01_AE</option>
+    <option desc='0206'>0206</option>
+    <option desc='0206A1'>0206A1</option>
+    <option desc='0209'>0209</option>
+    <option desc='0211'>0211</option>
+    <option desc='0218'>0218</option>
+    <option desc='0219'>0219</option>
+    <option desc='0225'>0225</option>
+    <option desc='02A'>02A</option>
+    <option desc='02A1'>02A1</option>
+    <option desc='02A1A2'>02A1A2</option>
+    <option desc='02A1C'>02A1C</option>
+    <option desc='02A1U'>02A1U</option>
+    <option desc='02B'>02B</option>
+    <option desc='02C'>02C</option>
+    <option desc='02D'>02D</option>
+    <option desc='02DO'>02DO</option>
+    <option desc='02F'>02F</option>
+    <option desc='02F2'>02F2</option>
+    <option desc='02G'>02G</option>
+    <option desc='02GK'>02GK</option>
+    <option desc='02H'>02H</option>
+    <option desc='02HU'>02HU</option>
+    <option desc='02K'>02K</option>
+    <option desc='02O'>02O</option>
+    <option desc='02U'>02U</option>
+    <option desc='02_AG'>02_AG</option>
+    <option desc='03A'>03A</option>
+    <option desc='03_AB'>03_AB</option>
+    <option desc='04A1'>04A1</option>
+    <option desc='04_cpx'>04_cpx</option>
+    <option desc='05_DF'>05_DF</option>
+    <option desc='0602'>0602</option>
+    <option desc='0609'>0609</option>
+    <option desc='06A1'>06A1</option>
+    <option desc='06G'>06G</option>
+    <option desc='06U'>06U</option>
+    <option desc='06_cpx'>06_cpx</option>
+    <option desc='0708'>0708</option>
+    <option desc='07B'>07B</option>
+    <option desc='07_BC'>07_BC</option>
+    <option desc='08_BC'>08_BC</option>
+    <option desc='09A'>09A</option>
+    <option desc='09A1'>09A1</option>
+    <option desc='09A1KU'>09A1KU</option>
+    <option desc='09D'>09D</option>
+    <option desc='09G'>09G</option>
+    <option desc='09U'>09U</option>
+    <option desc='09_cpx'>09_cpx</option>
+    <option desc='10A1'>10A1</option>
+    <option desc='10_CD'>10_CD</option>
+    <option desc='1113'>1113</option>
+    <option desc='11A1'>11A1</option>
+    <option desc='11AG'>11AG</option>
+    <option desc='11_cpx'>11_cpx</option>
+    <option desc='12_BF'>12_BF</option>
+    <option desc='13U'>13U</option>
+    <option desc='13_cpx'>13_cpx</option>
+    <option desc='14_BG'>14_BG</option>
+    <option desc='15_01B'>15_01B</option>
+    <option desc='16_A2D'>16_A2D</option>
+    <option desc='17_BF'>17_BF</option>
+    <option desc='1819'>1819</option>
+    <option desc='1819B'>1819B</option>
+    <option desc='18B'>18B</option>
+    <option desc='18D'>18D</option>
+    <option desc='18G'>18G</option>
+    <option desc='18U'>18U</option>
+    <option desc='18_cpx'>18_cpx</option>
+    <option desc='19A1'>19A1</option>
+    <option desc='19B'>19B</option>
+    <option desc='19U'>19U</option>
+    <option desc='19_cpx'>19_cpx</option>
+    <option desc='20_BG'>20_BG</option>
+    <option desc='21_A2D'>21_A2D</option>
+    <option desc='22_01A1'>22_01A1</option>
+    <option desc='23A1'>23A1</option>
+    <option desc='23_BG'>23_BG</option>
+    <option desc='24_BG'>24_BG</option>
+    <option desc='25_cpx'>25_cpx</option>
+    <option desc='27_cpx'>27_cpx</option>
+    <option desc='28_BF'>28_BF</option>
+    <option desc='29_BF'>29_BF</option>
+    <option desc='31_BC'>31_BC</option>
+    <option desc='32_06A1'>32_06A1</option>
+    <option desc='33_01B'>33_01B</option>
+    <option desc='34_01B'>34_01B</option>
+    <option desc='35_AD'>35_AD</option>
+    <option desc='36_cpx'>36_cpx</option>
+    <option desc='37_cpx'>37_cpx</option>
+    <option desc='39_BF'>39_BF</option>
+    <option desc='40_BF'>40_BF</option>
+    <option desc='42_BF'>42_BF</option>
+    <option desc='A'>A</option>
+    <option desc='A1'>A1</option>
+    <option desc='A1A2'>A1A2</option>
+    <option desc='A1A2D'>A1A2D</option>
+    <option desc='A1B'>A1B</option>
+    <option desc='A1BC'>A1BC</option>
+    <option desc='A1BD'>A1BD</option>
+    <option desc='A1C'>A1C</option>
+    <option desc='A1CD'>A1CD</option>
+    <option desc='A1CDG'>A1CDG</option>
+    <option desc='A1CDGKU'>A1CDGKU</option>
+    <option desc='A1CG'>A1CG</option>
+    <option desc='A1D'>A1D</option>
+    <option desc='A1DG'>A1DG</option>
+    <option desc='A1DHK'>A1DHK</option>
+    <option desc='A1DK'>A1DK</option>
+    <option desc='A1DU'>A1DU</option>
+    <option desc='A1F1'>A1F1</option>
+    <option desc='A1F2'>A1F2</option>
+    <option desc='A1G'>A1G</option>
+    <option desc='A1GHU'>A1GHU</option>
+    <option desc='A1GJ'>A1GJ</option>
+    <option desc='A1GU'>A1GU</option>
+    <option desc='A1H'>A1H</option>
+    <option desc='A1HU'>A1HU</option>
+    <option desc='A1U'>A1U</option>
+    <option desc='A2'>A2</option>
+    <option desc='A2B'>A2B</option>
+    <option desc='A2C'>A2C</option>
+    <option desc='A2CD'>A2CD</option>
+    <option desc='A2D'>A2D</option>
+    <option desc='A2F1'>A2F1</option>
+    <option desc='A2G'>A2G</option>
+    <option desc='A2U'>A2U</option>
+    <option desc='A3'>A3</option>
+    <option desc='AB'>AB</option>
+    <option desc='ABD'>ABD</option>
+    <option desc='ABDU'>ABDU</option>
+    <option desc='AC'>AC</option>
+    <option desc='ACD'>ACD</option>
+    <option desc='ACDJ'>ACDJ</option>
+    <option desc='ACFG'>ACFG</option>
+    <option desc='ACH'>ACH</option>
+    <option desc='AD'>AD</option>
+    <option desc='ADG'>ADG</option>
+    <option desc='ADGU'>ADGU</option>
+    <option desc='ADK'>ADK</option>
+    <option desc='ADU'>ADU</option>
+    <option desc='AE'>AE</option>
+    <option desc='AF'>AF</option>
+    <option desc='AF1'>AF1</option>
+    <option desc='AF2'>AF2</option>
+    <option desc='AF2G'>AF2G</option>
+    <option desc='AFG'>AFG</option>
+    <option desc='AG'>AG</option>
+    <option desc='AGH'>AGH</option>
+    <option desc='AGHU'>AGHU</option>
+    <option desc='AGJ'>AGJ</option>
+    <option desc='AGJU'>AGJU</option>
+    <option desc='AGK'>AGK</option>
+    <option desc='AGKU'>AGKU</option>
+    <option desc='AGU'>AGU</option>
+    <option desc='AH'>AH</option>
+    <option desc='AHJU'>AHJU</option>
+    <option desc='AJ'>AJ</option>
+    <option desc='AJK'>AJK</option>
+    <option desc='AKU'>AKU</option>
+    <option desc='AO'>AO</option>
+    <option desc='ASC'>ASC</option>
+    <option desc='AU'>AU</option>
+    <option desc="Any">Any</option>
+    <option desc='B'>B</option>
+    <option desc='BAB'>BAB</option>
+    <option desc='BC'>BC</option>
+    <option desc='BCD'>BCD</option>
+    <option desc='BCF1'>BCF1</option>
+    <option desc='BCG'>BCG</option>
+    <option desc='BCU'>BCU</option>
+    <option desc='BD'>BD</option>
+    <option desc='BDU'>BDU</option>
+    <option desc='BF'>BF</option>
+    <option desc='BF1'>BF1</option>
+    <option desc='BG'>BG</option>
+    <option desc='BH'>BH</option>
+    <option desc='BK'>BK</option>
+    <option desc='BKM'>BKM</option>
+    <option desc='BLU'>BLU</option>
+    <option desc='BU'>BU</option>
+    <option desc='C'>C</option>
+    <option desc='CD'>CD</option>
+    <option desc='CF1'>CF1</option>
+    <option desc='CF1U'>CF1U</option>
+    <option desc='CGJ'>CGJ</option>
+    <option desc='CGU'>CGU</option>
+    <option desc='CHU'>CHU</option>
+    <option desc='CJU'>CJU</option>
+    <option desc='CK'>CK</option>
+    <option desc='COL'>COL</option>
+    <option desc='CPZ'>CPZ</option>
+    <option desc='CU'>CU</option>
+    <option desc='D'>D</option>
+    <option desc='DEB'>DEB</option>
+    <option desc='DEN'>DEN</option>
+    <option desc='DF'>DF</option>
+    <option desc='DF1'>DF1</option>
+    <option desc='DG'>DG</option>
+    <option desc='DGC'>DGC</option>
+    <option desc='DGH'>DGH</option>
+    <option desc='DGU'>DGU</option>
+    <option desc='DH'>DH</option>
+    <option desc='DHU'>DHU</option>
+    <option desc='DK'>DK</option>
+    <option desc='DRL'>DRL</option>
+    <option desc='DU'>DU</option>
+    <option desc='ERY'>ERY</option>
+    <option desc='F'>F</option>
+    <option desc='F1'>F1</option>
+    <option desc='F1F2'>F1F2</option>
+    <option desc='F1G'>F1G</option>
+    <option desc='F1GU'>F1GU</option>
+    <option desc='F1U'>F1U</option>
+    <option desc='F1UB'>F1UB</option>
+    <option desc='F2'>F2</option>
+    <option desc='F2K'>F2K</option>
+    <option desc='F2KU'>F2KU</option>
+    <option desc='FGHJU'>FGHJU</option>
+    <option desc='FK'>FK</option>
+    <option desc='FKU'>FKU</option>
+    <option desc='FU'>FU</option>
+    <option desc='G'>G</option>
+    <option desc='GH'>GH</option>
+    <option desc='GHJ'>GHJ</option>
+    <option desc='GHK'>GHK</option>
+    <option desc='GJ'>GJ</option>
+    <option desc='GJO'>GJO</option>
+    <option desc='GK'>GK</option>
+    <option desc='GKU'>GKU</option>
+    <option desc='GOR'>GOR</option>
+    <option desc='GRV'>GRV</option>
+    <option desc='GSN'>GSN</option>
+    <option desc='GU'>GU</option>
+    <option desc='H'>H</option>
+    <option desc='HC'>HC</option>
+    <option desc='HJ'>HJ</option>
+    <option desc='HU'>HU</option>
+    <option desc='J'>J</option>
+    <option desc='JKU'>JKU</option>
+    <option desc='JU'>JU</option>
+    <option desc='K'>K</option>
+    <option desc='KU'>KU</option>
+    <option desc='LST'>LST</option>
+    <option desc='M'>M</option>
+    <option desc='MAC'>MAC</option>
+    <option desc='MND-1'>MND-1</option>
+    <option desc='MND-2'>MND-2</option>
+    <option desc='MNE'>MNE</option>
+    <option desc='MON'>MON</option>
+    <option desc='MUS-1'>MUS-1</option>
+    <option desc='MUS-2'>MUS-2</option>
+    <option desc='N'>N</option>
+    <option desc='NULL'>NULL</option>
+    <option desc='O'>O</option>
+    <option desc='OLC'>OLC</option>
+    <option desc='PAT'>PAT</option>
+    <option desc='RCM'>RCM</option>
+    <option desc='SAB'>SAB</option>
+    <option desc='SMM'>SMM</option>
+    <option desc='STM'>STM</option>
+    <option desc='SUN'>SUN</option>
+    <option desc='SYK'>SYK</option>
+    <option desc='TAL'>TAL</option>
+    <option desc='TAN'>TAN</option>
+    <option desc='U'>U</option>
+    <option desc='VER'>VER</option>
+    <option desc='WCM'>WCM</option>
+    <option desc='WRC'>WRC</option>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">seq_sample.ssam_viralload<alias>ssam_viralload</alias>
+<ankey antype='Patient'>viral_load</ankey>
+    <alias>viralload</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">seqentryfeature.sef_description<alias>sef_description</alias>
+<ankey antype='Virus'>description(sef)</ankey>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">seqentryfeature.sef_entryfeaturetype<alias>sef_entryfeaturetype</alias>
+<ankey antype='Virus'>feature_type(sef)</ankey>
+    <option desc="Any">Any</option>
+    <option desc='BASE COUNT'>BASE COUNT</option>
+    <option desc='DEFINITION'>DEFINITION</option>
+    <option desc='KEYWORDS'>KEYWORDS</option>
+    <option desc='ORGANISM'>ORGANISM</option>
+    <option desc='REFERENCE'>REFERENCE</option>
+    <option desc='SOURCE'>SOURCE</option>
+    <option desc='VERSION'>VERSION</option>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">seqentryfeature.sef_pub_id<alias>sef_pub_id</alias>
+<ankey antype='Reference'>pub_id(sef)</ankey>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">seqentryfeature.sef_se_id<alias>sef_se_id</alias>
+<ankey antype='Special'>se_id(sef)</ankey>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">sequenceaccessions.sa_genbankaccession<alias>sa_genbankaccession</alias>
+<ankey antype='Special'>accession</ankey>
+    <alias>genbankaccession</alias>
+    <alias>accession</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">sequenceaccessions.sa_gi<alias>sa_gi</alias>
+<ankey antype='Special'>gi_number</ankey>
+    <alias>gi</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">sequenceaccessions.sa_se_id<alias>sa_se_id</alias>
+<ankey antype='Special'>se_id(sa)</ankey>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">sequenceaccessions.sa_version<alias>sa_version</alias>
+<ankey antype='Special'>version</ankey>
+    <alias>version</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">sequenceentry.se_db_comment<alias>se_db_comment</alias>
+<ankey antype='Special'>db_comment</ankey>
+    <alias>db_comment</alias>
+    <alias>comment</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">sequenceentry.se_gb_comment<alias>se_gb_comment</alias>
+<ankey antype='Special'>gb_comment</ankey>
+    <alias>gb_comment</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">sequenceentry.se_gb_create<alias>se_gb_create</alias>
+<ankey antype='Special'>gb_create_date</ankey>
+    <alias>gb_create</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">sequenceentry.se_gb_update<alias>se_gb_update</alias>
+<ankey antype='Special'>gb_update_date</ankey>
+    <alias>gb_update</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">sequenceentry.se_id
+    <ankey antype='Special'>se_id</ankey>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">sequenceentry.se_sequence<alias>se_sequence</alias>
+<ankey antype='Virus'>sequence</ankey>
+    <alias>sequence</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">sequenceentry.se_sequencelength<alias>se_sequencelength</alias>
+<ankey antype='Sample'>sequence_length</ankey>
+    <alias>sequencelength</alias>
+  </sfield>
+  <sfield blank_ok="false" comment="select" multiple="multiple" type="option">sequencefeature2.sf_featuretype<alias>sf_featuretype</alias>
+<ankey antype='Virus'>feature_type(sf)</ankey>
+    <alias>featuretype</alias>
+    <option desc="Any">Any</option>
+    <option desc='EC_number'>EC_number</option>
+    <option desc='PCR_primers'>PCR_primers</option>
+    <option desc='allele'>allele</option>
+    <option desc='bound_moiety'>bound_moiety</option>
+    <option desc='cell_line'>cell_line</option>
+    <option desc='cell_type'>cell_type</option>
+    <option desc='chromosome'>chromosome</option>
+    <option desc='citation'>citation</option>
+    <option desc='clone'>clone</option>
+    <option desc='clone_lib'>clone_lib</option>
+    <option desc='codon_start'>codon_start</option>
+    <option desc='collected_by'>collected_by</option>
+    <option desc='collection_date'>collection_date</option>
+    <option desc='country'>country</option>
+    <option desc='db_xref'>db_xref</option>
+    <option desc='dev_stage'>dev_stage</option>
+    <option desc='estimated_length'>estimated_length</option>
+    <option desc='exception'>exception</option>
+    <option desc='experiment'>experiment</option>
+    <option desc='focus'>focus</option>
+    <option desc='frequency'>frequency</option>
+    <option desc='function'>function</option>
+    <option desc='gene'>gene</option>
+    <option desc='gene_synonym'>gene_synonym</option>
+    <option desc='germline'>germline</option>
+    <option desc='haplotype'>haplotype</option>
+    <option desc='host'>host</option>
+    <option desc='inference'>inference</option>
+    <option desc='isolate'>isolate</option>
+    <option desc='isolation_source'>isolation_source</option>
+    <option desc='lab_host'>lab_host</option>
+    <option desc='label'>label</option>
+    <option desc='locus_tag'>locus_tag</option>
+    <option desc='map'>map</option>
+    <option desc='mod_base'>mod_base</option>
+    <option desc='mol_type'>mol_type</option>
+    <option desc='note'>note</option>
+    <option desc='number'>number</option>
+    <option desc='organism'>organism</option>
+    <option desc='phenotype'>phenotype</option>
+    <option desc='pop_variant'>pop_variant</option>
+    <option desc='product'>product</option>
+    <option desc='protein_id'>protein_id</option>
+    <option desc='proviral'>proviral</option>
+    <option desc='pseudo'>pseudo</option>
+    <option desc='rearranged'>rearranged</option>
+    <option desc='replace'>replace</option>
+    <option desc='ribosomal_slippage'>ribosomal_slippage</option>
+    <option desc='rpt_family'>rpt_family</option>
+    <option desc='rpt_type'>rpt_type</option>
+    <option desc='rpt_unit_range'>rpt_unit_range</option>
+    <option desc='serotype'>serotype</option>
+    <option desc='sex'>sex</option>
+    <option desc='specimen_voucher'>specimen_voucher</option>
+    <option desc='standard_name'>standard_name</option>
+    <option desc='strain'>strain</option>
+    <option desc='sub_species'>sub_species</option>
+    <option desc='sub_strain'>sub_strain</option>
+    <option desc='tissue_lib'>tissue_lib</option>
+    <option desc='tissue_type'>tissue_type</option>
+    <option desc='transl_except'>transl_except</option>
+    <option desc='transl_table'>transl_table</option>
+    <option desc='translation'>translation</option>
+    <option desc='variety'>variety</option>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">sequencefeature2.sf_featurevalue<alias>sf_featurevalue</alias>
+<ankey antype='Virus'>feature_value(sf)</ankey>
+    <alias>featurevalue</alias>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">sequencefeature2.sf_loc_id<alias>sf_loc_id</alias>
+<ankey antype='Virus'>loc_id(sf)</ankey>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">sequencemap.sm_se_id<alias>sm_se_id</alias>
+<ankey antype='Special'>se_id(sm)</ankey>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">sequencemap.sm_start<alias>sm_start</alias>
+<alias>start</alias>
+<ankey antype='StdMap'>hxb2_start</ankey>
+  </sfield>
+  <sfield blank_ok="false" default="Any" type="text">sequencemap.sm_stop<alias>sm_stop</alias>
+<alias>stop</alias>
+<ankey antype='StdMap'>hxb2_stop</ankey>
+  </sfield>
+  <sfield blank_ok="false" comment="checkbox" type="option">show_sql<option></option>
+  </sfield>
+  <sfield blank_ok="false" comment="select" type="option">sort_dir<option desc=" ascending ">ASC</option>
+    <option desc=" descending ">DESC</option>
+  </sfield>
+  <sfield blank_ok="true" default="yes" type="option">COMMAND.CLIP
+    <option desc="return only desired gene region">yes</option>
+    </sfield>
+  <sfield blank_ok="true" default="Any" type="option">COMMAND.genomic_region<alias>gene</alias><alias>genomic_region</alias>
+	<option>Any</option>
+	<option desc="complete genome">complete</option>
+	<option desc="5' LTR">5ltr</option>
+	<option desc="5' LTR R">5ltrr</option>
+	<option desc="5' LTR U3">5ltru3</option>
+	<option desc="5' LTR U5">5ltru5</option>
+	<option desc="TAR">Tar</option>
+	<option desc="Gag-Pol">Gag_Pol</option>
+	<option desc="Gag">Gag</option>
+	<option desc="p17 (matrix)">p17</option>
+	<option desc="p24 (capsid)">p24</option>
+	<option desc="p7 (nucleocapsid)">p7</option>
+	<option desc="p6">p6</option>
+	<option desc="Pol CDS">Pol</option>
+	<option desc="p51 (RT)">p51</option>
+	<option desc="p15 (RNAse H)">RNase</option>
+	<option desc="p31 (integrase)">p31</option>
+	<option desc="protease">protease</option>
+	<option desc="Vif CDS">Vif</option>
+	<option desc="Vpr CDS">Vpr</option>
+	<option desc="Tat CDS (plus intron)">Tat</option>
+	<option desc="Tat exon 1">Tat1</option>
+	<option desc="Tat exon 2">Tat2</option>
+	<option desc="Rev CDS (plus intron)">Rev</option>
+	<option desc="Rev exon 1">Rev1</option>
+	<option desc="Rev exon 2">Rev2</option>
+	<option desc="Vpu CDS">Vpu</option>
+	<option desc="Env CDS">Env</option>
+	<option desc="V1">V1</option>
+	<option desc="V2">V2</option>
+	<option desc="V3">V3</option>
+	<option desc="V4">V4</option>
+	<option desc="V5">V5</option>
+	<option desc="RRE">RRE</option>
+	<option desc="gp41">gp41</option>
+	<option desc="gp120">gp120</option>
+	<option desc="Nef CDS">NEF</option>
+    </sfield>
+</hivschema>

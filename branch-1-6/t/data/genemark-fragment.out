@@ -1,0 +1,11 @@
+GeneMark.hmm PROKARYOTIC (Version 2.6c)
+Sequence file name: AAVN02000021.1.fasta,	RBS: N
+Model file name: /gsc/pkg/bio/genemark.hmm/genemark_hmm_prok.linux/modeldir/heu_1_41.mod
+Model organism: Heuristic_model_for_genetic_code_1_and_GC_41
+Tue Mar 20 17:32:00 2007
+
+Predicted genes
+   Gene    Strand    LeftEnd    RightEnd       Gene     Class
+    #                                         Length
+    1        +          <2         214          213        1
+    2        +         459        >596          138        1

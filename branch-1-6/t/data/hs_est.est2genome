@@ -1,0 +1,16 @@
+Note Best alignment is between forward est and forward genome, and splice  sites imply forward gene
+Exon       119 100.0   695   813 HSHNRNPA         1   119 hs_est        
++Intron    -20   0.0   814  1376 HSHNRNPA    
+Exon       117 100.0  1377  1493 HSHNRNPA       120   236 hs_est        
++Intron    -20   0.0  1494  1788 HSHNRNPA    
+Exon       144  99.3  1789  1935 HSHNRNPA       237   382 hs_est        
++Intron    -20   0.0  1936  2083 HSHNRNPA    
+Exon        97 100.0  2084  2180 HSHNRNPA       383   479 hs_est        
+
+Span       417  99.8   695  2180 HSHNRNPA         1   479 hs_est        
+
+Segment    119 100.0   695   813 HSHNRNPA         1   119 hs_est        
+Segment    117 100.0  1377  1493 HSHNRNPA       120   236 hs_est        
+Segment      4 100.0  1789  1792 HSHNRNPA       237   240 hs_est        
+Segment    142 100.0  1794  1935 HSHNRNPA       241   382 hs_est        
+Segment     97 100.0  2084  2180 HSHNRNPA       383   479 hs_est        

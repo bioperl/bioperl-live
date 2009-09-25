@@ -1,0 +1,64 @@
+>ALEU_HORVU
+          Length = 362
+
+ Score =  191 bits (481), Expect = 2e-53
+ Identities = 111/322 (34%), Positives = 167/322 (51%), Gaps = 27/322 (8%)
+
+Query: 28  QFLEFQDKFNKKY-SHEEYLERFEIFKSNLGKIEELNLIAINHKADTKFGVNKFADLSSD 86
+           +F  F  ++ K Y S  E   RF IF  +L ++   N   + ++     G+N+F+D+S +
+Sbjct: 60  RFARFAVRYGKSYESAAEVRRRFRIFSESLEEVRSTNRKGLPYR----LGINRFSDMSWE 115
+
+Query: 87  EFKNYYLNNKEAIFTDDLPVADYLDDEFINSIPTAFDWRTRGAVTPVKNQGQCGSCWSFS 146
+           EF+   L    A  T    +A         ++P   DWR  G V+PVKNQ  CGSCW+FS
+Sbjct: 116 EFQATRLG---AAQTCSATLAGNHLMRDAAALPETKDWREDGIVSPVKNQAHCGSCWTFS 172
+
+Query: 147 TTGNVEGQHFISQNKLVSLSEQNLVDCDHECMEYEGEEACDEGCNGGLQPNAYNYIIKNG 206
+           TTG +E  +  +  K +SLSEQ LVDC      +        GCNGGL   A+ YI  NG
+Sbjct: 173 TTGALEAAYTQATGKNISLSEQQLVDCAGGFNNF--------GCNGGLPSQAFEYIKYNG 224
+
+Query: 207 GIQTESSYPYTAETGTQCNFNSANIGAKISNFTMIPKN-ETVMAGYIVSTGPLAIAADAV 265
+           GI TE SYPY    G  C++ + N   ++ +   I  N E  +   +    P+++A   +
+Sbjct: 225 GIDTEESYPYKGVNGV-CHYKAENAAVQVLDSVNITLNAEDELKNAVGLVRPVSVAFQVI 283
+
+Query: 266 E-WQFYIGGVF---DIPCNPNSLDHGILIVGYSAKNTIFRKNMPYWIVKNSWGADWGEQG 321
+           + ++ Y  GV+        P+ ++H +L VGY  +N      +PYW++KNSWGADWG+ G
+Sbjct: 284 DGFRQYKSGVYTSDHCGTTPDDVNHAVLAVGYGVEN-----GVPYWLIKNSWGADWGDNG 338
+
+Query: 322 YIYLRRGKNTCGVSNFVSTSII 343
+           Y  +  GKN C ++   S  ++
+Sbjct: 339 YFKMEMGKNMCAIATCASYPVV 360
+
+
+Lambda     K      H
+   0.316    0.135    0.414 
+
+Gapped
+Lambda     K      H
+   0.270   0.0470    0.230 
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 368
+Number of Sequences: 0
+Number of extensions: 19
+Number of successful extensions: 6
+Number of sequences better than 10.0: 1
+Number of HSP's better than 10.0 without gapping: 1
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 0
+Number of HSP's gapped (non-prelim): 1
+length of query: 343
+length of database: 362
+effective HSP length: 23
+effective length of query: 320
+effective length of database: 339
+effective search space:   108480
+effective search space used:   108480
+T: 11
+A: 40
+X1: 16 ( 7.3 bits)
+X2: 38 (14.8 bits)
+X3: 64 (24.9 bits)
+S1: 24 (13.8 bits)
+S2: 24 (13.8 bits)

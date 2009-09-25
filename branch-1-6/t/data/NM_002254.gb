@@ -1,0 +1,165 @@
+LOCUS       KIF3C                   4913 bp    mRNA    linear   PRI 06-APR-2003
+DEFINITION  Homo sapiens kinesin family member 3C (KIF3C), mRNA.
+ACCESSION   NM_002254
+VERSION     NM_002254.2  GI:19923139
+KEYWORDS    .
+SOURCE      Homo sapiens (human)
+  ORGANISM  Homo sapiens
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Primates; Catarrhini; Hominidae; Homo.
+REFERENCE   1  (bases 1 to 4913)
+  AUTHORS   Sardella,M., Navone,F., Rocchi,M., Rubartelli,A., Viggiano,L.,
+            Vignali,G., Consalez,G.G., Sitia,R. and Cabibbo,A.
+  TITLE     KIF3C, a novel member of the kinesin superfamily: sequence,
+            expression, and mapping to human chromosome 2 at 2p23
+  JOURNAL   Genomics 47 (3), 405-408 (1998)
+  MEDLINE   98149989
+   PUBMED   9480755
+REFERENCE   2  (bases 1 to 4913)
+  AUTHORS   Telford,E.A., Wightman,P., Leek,J., Markham,A.F., Lench,N.J. and
+            Bonthron,D.T.
+  TITLE     cDNA cloning, genomic organization, and chromosomal localization of
+            a novel human gene that encodes a kinesin-related protein highly
+            similar to mouse Kif3C
+  JOURNAL   Biochem. Biophys. Res. Commun. 242 (2), 407-412 (1998)
+  MEDLINE   98113366
+   PUBMED   9446808
+REFERENCE   3  (bases 1 to 4913)
+  AUTHORS   Telford,E.A.R., Wightman,P., Leek,J., Lench,N.J., Markham,A.F. and
+            Bonthron,D.T.
+  TITLE     Homo sapiens kinesin family member 3C (KIF3C), mRNA
+  JOURNAL   Unpublished (1997)
+COMMENT     PROVISIONAL REFSEQ: This record has not yet been subject to final
+            NCBI review. The reference sequence was derived from AF035621.1.
+            On Apr 4, 2002 this sequence version replaced gi:4504868.
+FEATURES             Location/Qualifiers
+     source          1..4913
+                     /organism="Homo sapiens"
+                     /mol_type="mRNA"
+                     /db_xref="taxon:9606"
+                     /chromosome="2"
+                     /map="2p23"
+     gene            1..4913
+                     /gene="KIF3C"
+                     /db_xref="LocusID:3797"
+                     /db_xref="MIM:602845"
+     CDS             154..2535
+                     /gene="KIF3C"
+                     /codon_start=1
+                     /product="kinesin family member 3C"
+                     /protein_id="NP_002245.2"
+                     /db_xref="GI:19923140"
+                     /db_xref="LocusID:3797"
+                     /db_xref="MIM:602845"
+                     /translation="MASKTKASEALKVVARCRPLSRKEEAAGHEQILTMDVKLGQVTL
+                     RNPRAAPGELPKTFTFDAVYDASSKQADLYDETVRPLIDSVLQGFNGTVFAYGQTGTG
+                     KTYTMQGTWVEPELRGVIPNAFEHIFTHISRSQNQQYLVRASYLEIYQEEIRDLLSKE
+                     PGKRLELKENPETGVYIKDLSSFVTKNVKEIEHVMNLGNQTRAVGSTHMNEVSSRSHA
+                     IFIITVECSERGSDGQDHIRVGKLNLVDLAGSERQNKAGPNTAGGAATPSSGGGGGGG
+                     GSGGGAGGERPKEASKINLSLSALGNVIAALAGNRSTHIPYRDSKLTRLLQDSLGGNA
+                     KTIMVATLGPASHSYDESLSTLRFANRAKNIKNKPRVNEDPKDTLLREFQEEIARLKA
+                     QLEKRGMLGKRPRRKSSRRKKAVSAPPGYPEGPVIEAWVAEEEDDNNNNHRPPQPILE
+                     SALEKNMENYLQEQKERLEEEKAAIQDDRSLVSEEKQKLLEEKEKMLEDLRREQQATE
+                     LLAAKYKAMESKLLIGGRNIMDHTNEQQKMLELKRQEIAEQKRREREMQQEMMLRDEE
+                     TMELRGTYTSLQQEVEVKTKKLKKLYAKLQAVKAEIQDQHDEYIRVRQDLEEAQNEQT
+                     RELKLKYLIIENFIPPEEKNKIMNRLFLDCEEEQWKFQPLVPAGVSSSQMKKRPTSAV
+                     GYKRPISQYARVAMAMGSHPRYRAENIMFLELDVSPPAVFEMEFSHDQEQDPRALHME
+                     RLMRLDSFLERPSTSKVRKSRSWCQSPQRPPPSTTHASLASASLRPATVADHE"
+     misc_feature    199..1251
+                     /gene="KIF3C"
+                     /note="kinesin; Region: Kinesin motor domain"
+                     /db_xref="CDD:pfam00225"
+     misc_feature    442..465
+                     /gene="KIF3C"
+                     /note="encodes ATP/GTP-binding site motif"
+     misc_feature    871..906
+                     /gene="KIF3C"
+                     /note="encodes kinesin motor domain signature"
+     polyA_signal    4889..4894
+                     /gene="KIF3C"
+BASE COUNT     1150 a   1342 c   1355 g   1066 t
+ORIGIN      
+        1 cctcccagcg tccccaccct aggaggctgc atgcggattg aagacgtgcg cctgggggct
+       61 gggccggccc cgctgatccc gacctagcga gcaggatagc aggaccgccc aggctgcgga
+      121 ggggctcggg ggcaggaagg tcagagcagc aagatggcca gtaagaccaa ggccagcgag
+      181 gccctcaagg tggtggcccg gtgccgcccc ctcagcagga aggaggaggc tgctggtcac
+      241 gagcagatcc tgaccatgga cgtgaaactg ggccaggtga ccctgcggaa cccccgcgcc
+      301 gccccggggg agctgcccaa gaccttcacc tttgacgccg tgtatgatgc cagctccaag
+      361 caggccgacc tgtatgacga aaccgtgagg cccctgatag actccgtgct ccagggtttc
+      421 aatggcacgg tgtttgccta tggccagacg ggcactggca agacctatac catgcagggg
+      481 acctgggtgg agcccgagct gcgcggggtc atcccgaatg cctttgagca catcttcacc
+      541 cacatctccc gctcccagaa ccaacagtac ctggtccggg cctcctattt ggagatctac
+      601 caggaagaga ttcgagacct gctctccaag gagccgggca agaggctaga gctgaaagag
+      661 aaccccgaga ctggcgtcta catcaaggac ctctcctcct tcgtcaccaa gaatgtcaag
+      721 gagattgagc atgtgatgaa cctggggaac cagacccggg ctgtgggcag cacccacatg
+      781 aatgaggtca gctcccgctc ccatgccatc ttcatcatca ctgtggagtg cagcgaacgt
+      841 ggctctgatg gccaggacca catccgagtg ggcaagctca acctcgtgga cctggctggc
+      901 agcgagaggc agaacaaggc aggccccaac acagcgggag gggcagccac accatcctcg
+      961 ggtggcggtg gtggcggtgg aggcagtggt ggtggtgctg gtggagagag gcctaaggaa
+     1021 gcctccaaaa tcaacctctc attatctgcc ctgggcaacg tgattgctgc cctggcgggc
+     1081 aacaggagca cccacattcc ctaccgggac tccaagctga cccggctgct ccaggactcc
+     1141 ctggggggga atgcgaagac catcatggta gccacactgg ggccagcttc tcacagctac
+     1201 gatgagagcc tctccacctt gcgctttgcc aaccgagcca agaacatcaa gaacaagccc
+     1261 cgggtgaacg aggaccccaa ggacacactg ctgcgggaat tccaagagga gattgcccgc
+     1321 ctgaaggccc agctggagaa gagggggatg ctggggaagc ggccccggag gaagagcagc
+     1381 cgcaggaaga aggccgtgtc cgccccgcct gggtaccctg agggcccagt gattgaggct
+     1441 tgggtggcag aagaggagga tgacaacaac aacaaccacc gcccgcccca gcccatcctg
+     1501 gagtcagcct tggagaagaa catggagaat tacctgcagg aacagaagga gcggctggag
+     1561 gaggagaagg cagccatcca ggatgaccgc agcctggtga gcgaggagaa gcagaagctg
+     1621 ctggaggaga aggagaagat gctggaggac ctgcggcggg aacagcaggc cacagagctg
+     1681 cttgcggcca agtacaaggc catggagagc aagctcctca tcgggggcag gaacatcatg
+     1741 gatcacacca acgaacagca gaagatgttg gaactgaaga ggcaggagat tgccgagcag
+     1801 aaacgtcgtg agcgggagat gcagcaggag atgatgctcc gggacgagga gactatggag
+     1861 ctccggggca cctacacatc cctgcagcag gaggtggagg tcaaaaccaa gaaactcaag
+     1921 aagctctacg ccaagctgca ggcggtgaag gcggagatcc aggaccagca tgatgagtat
+     1981 atccgcgtgc ggcaggacct ggaggaggcg cagaacgagc agacccgcga actcaagctc
+     2041 aagtacctaa tcatcgagaa cttcatcccg ccggaggaga agaacaagat catgaaccgg
+     2101 cttttcctgg actgtgagga ggagcagtgg aagttccagc cactggtgcc agccggcgtc
+     2161 agtagcagcc agatgaagaa gcggccaaca tctgcagtgg gctacaagag gcctatcagc
+     2221 cagtatgctc gggttgccat ggcaatgggg tcccacccca ggtacagggc tgaaaacata
+     2281 atgtttctgg agttggatgt gtcccctcca gctgtctttg agatggaatt ctctcacgac
+     2341 caagaacaag accctcgtgc gctacacatg gagaggctca tgcgattgga cagctttctg
+     2401 gaaagacctt ccacgtctaa agtccgaaag tccagatcct ggtgccagag tcctcagcgg
+     2461 cctccacctt ccaccacaca tgcctccctg gcctctgctt ctctgcgccc tgcaacagtg
+     2521 gcggaccatg agtgacaacc atcacgtcag gctgcccatc caatagactc ctgggatggg
+     2581 gcagccaacc ctggctcatc tcatctgccg cttggtgcgt gtgcgtgtgc gtgcatgtgc
+     2641 gtgtgcgtgt gtgcaggggt gagaatctgg cagatggtgc ctctgcctgc tcttcttcgc
+     2701 ctcctttatt taattcatgt tatttattcg cggacgtctg ttcgtgttgg ggagatgccc
+     2761 tcgcctgagc cgtctgggcc taccgtggtc actgcgtacg ctctttttct tctgacttga
+     2821 gagctccccc agtcagatct caggcttgtc cccctgtcag ctgcctccag aagggaaggt
+     2881 agccagtgcc tgagaagaca gtcccttttc tacccaccgc actccataac ctccatcttc
+     2941 tcccacactg atggcgagca gcccctgagc actttctggg actgggagac tgcttggtgt
+     3001 tccctgagga caagagacat cctgacagtg ttgggcatct gctccccgtg gacacagccc
+     3061 cactctccac tttctgagcc tcagacaacc tcattcagcc tcttgggctc cttttcaagg
+     3121 acattaataa cctcaccaac atagctcatg cccttcagct ttgacaagaa ctcacggctt
+     3181 cccaaactct gctttctgcc caccttggat gggaactgtg gaccaagcaa ttaccatcgc
+     3241 cttggaacct gcaggaaatg gaacagcaat tgagacaact tgaacagtca tcaacggaag
+     3301 tccctccact ggattccttt gtttctgtcc cctccgagga gtcattttgg tcgacaggct
+     3361 ctcaaggcaa ctccccattt tcaagaggct gctcctgcct gcttcgatca tttctccctg
+     3421 cagctgccta gaccccgttc acagtgggag gagtcaatgt cattctaccc ctcgctaaac
+     3481 gaagatatta acatctattg ctttttccct tcatctgtca caggaaacag aagcccaggc
+     3541 acaatctttt ccagctttgc ctgttacccc tgtttctgaa ttgcatcttt aaggtattat
+     3601 tttgttgaca atagatcctt tattcactag ttacgcaaat tggttcctag ggggatactc
+     3661 cttaccttcc tttgtgatgg cccaaaatgt ctctaggtat ctcaagtgat aagtaaattt
+     3721 ctacaaaaaa aaaatggtta atgttcattg actggctttt taagtgtata ttttggagga
+     3781 cgggtgaaga ggtcataacg aaagcaagcg agtgaattag gatttcaaag tgccctaata
+     3841 gtgtgagtct ccagttccta gaatatgaag agtgctgtcg ttggggtgaa accatgagac
+     3901 tgacagatct gcctgaaatg gggggtgtgg gaggtggtgg cgggggttat tctctttcct
+     3961 tcaggaaatg aacccttctt acatcattca agttctgctc tgaggatcaa gcttgggtct
+     4021 gatttaactc agcgacactg tcatttctgc ttcattactg gactagaggg ttgagccacc
+     4081 cacttgccat ttgctcctgt ccttccagga aatcacaatt ttcatcagag cccaagagat
+     4141 tatttgagac tcaggattca gatcagaggt tcgactgtgg ctgggacagg agttgtgtgt
+     4201 agaaattcac caggtggcct gagcgcaggg ggacctccag gctgcgttga gcagcctctc
+     4261 ccactgacct ctttctcgtt tgtggacaaa gcagcacgta tcacctcatt catcacttgg
+     4321 acacatcgcc tttgcattgt cttgtcacac ctccctcaca gtcttatagc acaatatacc
+     4381 caaatcagcc cccccagtcc gaggctgggc ccaaggtatg gtcggaggag gagctcctgc
+     4441 ctgcggtttt gtgtatgtgt gtatgtgtgt gcgtgtttgt gtgcgtgttt acctccacag
+     4501 gggacactct acactcagtg taagatctgc tgggaacagg gccaccagga gtgcgtggat
+     4561 ctcagtctct ctgtctctct ttctctcctt ttaattttgg tgtatcaaat atttgattga
+     4621 caaagtaagg gccttgatta ggaccaaatt ctcgtgtgtt gctatggtct ttatttagga
+     4681 caacaattaa caatgcagtg gcccattctt gtcactctac acatatgact atacgggaca
+     4741 tatgtaatat ataaatatat atataaaaca ttcccctctg tccccttggc ttcggatgga
+     4801 ggaatttctg ttgagctgaa atgcacctgc agctgggtgc tgccagcagc ttgcaggccc
+     4861 cagccctgtt ccaatcaatg cagttgacaa taaaggaatg agtatcgtca cgg
+//
+

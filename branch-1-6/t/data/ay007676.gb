@@ -1,0 +1,61 @@
+LOCUS       AY007676                1389 bp    DNA     linear   BCT 29-OCT-2001
+DEFINITION  Unknown marine gamma proteobacterium NOR5 16S ribosomal RNA,
+            partial sequence.
+ACCESSION   AY007676
+VERSION     AY007676.1  GI:12000362
+KEYWORDS    .
+SOURCE      unknown marine gamma proteobacterium NOR5
+  ORGANISM  unknown marine gamma proteobacterium NOR5
+            Bacteria; Proteobacteria; Gammaproteobacteria.
+REFERENCE   1  (bases 1 to 1389)
+  AUTHORS   Eilers,H., Pernthaler,J., Peplies,J., Glockner,F.O., Gerdts,G. and
+            Amann,R.
+  TITLE     Isolation of novel pelagic bacteria from the German bight and their
+            seasonal contributions to surface picoplankton
+  JOURNAL   Appl. Environ. Microbiol. 67 (11), 5134-5142 (2001)
+   PUBMED   11679337
+REFERENCE   2  (bases 1 to 1389)
+  AUTHORS   Eilers,H., Pernthaler,J., Peplies,J., Gloeckner,F.O., Gerdts,G.,
+            Schuett,C. and Amann,R.
+  TITLE     Identification and seasonal dominance of culturable marine bacteria
+  JOURNAL   Unpublished
+REFERENCE   3  (bases 1 to 1389)
+  AUTHORS   Eilers,H., Pernthaler,J., Peplies,J., Gloeckner,F.O., Gerdts,G.,
+            Schuett,C. and Amann,R.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (29-AUG-2000) Molecular Ecology, Max-Planck-Institute,
+            Celsiusstrasse 1, Bremen 28359, Germany
+FEATURES             Location/Qualifiers
+     source          1..1389
+                     /organism="unknown marine gamma proteobacterium NOR5"
+                     /mol_type="genomic DNA"
+                     /db_xref="taxon:145658"
+     rRNA            <1..>1389
+                     /product="16S ribosomal RNA"
+ORIGIN      
+        1 cgcgaaagta cttcggtatg agtagagcgg cggacgggtg agtaacgcgt aggaatctat
+       61 ccagtagtgg gggacaactc ggggaaactc gagctaatac cgcatacgtc ctaagggaga
+      121 aagcggggga tcttcggacc tcgcgctatt ggaggagcct gcgttggatt agctagttgg
+      181 tggggtaaag gcctaccaag gcgacgatcc atagctggtc tgagaggatg atcagccaca
+      241 ccgggactga gacacggccc ggactcctac gggaggcagc agtggggaat attgcgcaat
+      301 gggcgaaagc ctgacgcagc catgccgcgt gtgtgaagaa ggccttcggg ttgtaaagca
+      361 ctttcaattg ggaagaaagg ttagtagtta ataactgcta gctgtgacat tacctttaga
+      421 agaagcaccg gctaactccg tgccagcagc cgcggtaata cggaggtgcg agcgttaatc
+      481 ggaattactg ggcgtaaagc gcgcgtaggc ggtctgttaa gtcggatgtg aaagccccgg
+      541 gctcaacctg ggaattgcac ccgatactgg ccgactggag tgcgagagag ggaggtagaa
+      601 ttccacgtgt agcggtgaaa tgcgtagata tgtggaggaa taccggtggc gaaggcggcc
+      661 tcctggctcg acactgacgc tgaggtgcga aagcgtgggg agcaaacagg attagatacc
+      721 ctggtagtcc acgccgtaaa cgatgtctac tagccgttgg gagacttgat ttcttggtgg
+      781 cgaagttaac gcgataagta gaccgcctgg ggagtacggc cgcaaggtta aaactcaaat
+      841 gaattgacgg gggcccgcac aagcggtgga gcatgtggtt taattcgatg caacgcgaag
+      901 aaccttacca ggccttgaca tcctaggaat cctgtagaga tacgggagtg ccttcgggaa
+      961 tctagtgaca ggtgctgcat ggctgtcgtc agctcgtgtc gtgagatgtt gggttaagtc
+     1021 ccgtaacgag cgcaaccctt gtccttagtt gccagcgcgt aatggcggga actctaagga
+     1081 gactgccggt gacaaaccgg aggaaggtgg ggacgacgtc aagtcatcat ggcccttacg
+     1141 gcctgggcta cacacgtgct acaatggaac gcacagaggg cagcaaaccc gcgaggggga
+     1201 gcgaatccca caaaacgttt cgtagtccgg atcggagtct gcaactcgac tccgtgaagt
+     1261 cggaatcgct agtaatcgtg aatcagaatg tcacggtgaa tacgttcccg ggccttgtac
+     1321 acaccgcccg tcacaccatg ggagtgggtt gctccagaag tggttagcct aaccttcggg
+     1381 agggcgatc
+//
+

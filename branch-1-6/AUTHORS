@@ -1,0 +1,244 @@
+=head1 PRIMARY AUTHORS AND MAJOR CONTRIBUTORS TO BIOPERL
+
+=head2 Releases co-ordinated and submitted by bioperl core devs.
+
+=over
+
+=item * Sendu Bala <bix at sendu.me.uk>
+
+=item * Chris Dagdigian <dag at sonsorol.org>
+
+=item * Christopher Fields <cjfields at bioperl.org>
+
+=item * Mark Jensen <maj@fortinbras.us>
+
+=item * Hilmar Lapp <hlapp at gmx.net>
+
+=item * Heikki Lehväslaiho <heikki at ebi.ac.uk>
+
+=item * Aaron Mackey <amackey at pcbi.upenn.edu>
+
+=item * Brian Osborne <bosborne at bioteam.net>
+
+=item * Jason Stajich <jason at bioperl.org>
+
+=item * Lincoln Stein <lstein at cshl.org>
+
+=back
+
+=head2 Previous Bioperl Coordinators:
+
+=over
+
+=item * Ewan Birney <birney at ebi.ac.uk>
+
+=item * Steven Brenner <brenner at compbio.berkeley.edu>
+
+=item * Georg Fuellen <fuellen at alum.mit.edu>
+
+=item * Steve Chervitz <sac at bioperl.org>
+
+=back
+
+=head2 Major Contributors
+
+(Feel free to add descriptions of which modules you are responsible
+for if you see fit)
+
+=over
+
+=item * Richard Adams <Richard.Adams at ed.ac.uk>
+
+=item * Shuly Avraham <avraham at cshl.org> - Bio::Graphics::Glyph
+
+=item * Peter Blaiklock <pblaiklo at restrictionmapper.org>
+
+=item * Benjamin Berman <benb at fruitfly.berkeley.edu>
+
+=item * Matthew Betts <Matthew.Betts at ii.uib.no>
+
+=item * David Block <dblock at gnf.org>
+
+=item * Kris Boulez <kris.boulez at algonomics.com>
+
+=item * Tim Bunce <Tim.Bunce at pobox.com> - code optimizations
+
+=item * Scott Cain <scott at scottcain.net> - Bio::Graphics::Glyph, Bio::DB::GFF::Adaptor::dbi::pg, GFF related tools and scripts
+
+=item * Yee Man Chan <ymc at yahoo.com> - Bio::Tools::dpAlign
+
+=item * Brad Chapman <chapmanb at arches.uga.edu>
+
+=item * Roy R. Chaudhuri <roy.chaudhuri at gmail.com> - Bio::SeqUtils Bio::Align::Utilities
+
+=item * Michele Clamp <michele at sanger.ac.uk>
+
+=item * Malcolm Cook <mec at stowers-institute.org>
+
+=item * Tony Cox <avc at sanger.ac.uk>
+
+=item * James Cuff <james at sanger.ac.uk>
+
+=item * Andrew Dalke <dalke at acm.org>
+
+=item * Allen Day <allenday at ucla.edu>
+
+=item * Jared Fox <jaredfox at ucla.edu> - Bio::SeqIO::interpro
+
+=item * Brian O'Connor <boconnor at ucla.edu> - Bio::TreeIO::svggraph
+
+=item * James Diggans <JDiggans at genelogic.com>
+
+=item * Peter Dimitrov <dimitrov at gnf.org> - Bio::Ontology
+
+=item * Rich Dobson <r.j.dobson at qmul.ac.uk> - Bio::PopGen::IO::hapmap,phase
+
+=item * Paul Edlefsen <pedlefsen at systemsbiology.org>
+
+=item * Rob Edwards <redwards at utmem.edu> - Bio::Restriction
+
+=item * Arne Elofsson <arne at sbc.su.se>
+
+=item * David Evans <David.Evans at vir.gla.ac.uk>
+
+=item * Mark Fiers <M.W.E.J.Fiers at plant.wag-ur.nl>
+
+=item * The Fugu Team <fuguteam at fugu-sg.org>
+
+=item * Luc Gauthier <lgauthie at hotmail.com>
+
+=item * James Gilbert <jgrg at sanger.ac.uk>
+
+=item * Nat Goodman
+
+=item * Ed Green <ed at compbio.berkeley.edu>
+
+=item * Matthew Hahn <matthew.hahn at duke.edu>
+
+=item * Roger Hall <roger at iosea.com>
+
+=item * Todd Harris <harris at cshl.org> - SVG support in Bio::Graphics
+
+=item * Mauricio Herrera Cuadra <mauricio at open-bio.org>
+
+=item * Ian Holmes <ihn at fruitfly.org>
+
+=item * Shawn Hoon <shawnh at fugu-sg.org>
+
+=item * Robert Hubley <rhubley at systemsbiology.org>
+
+=item * Joseph Insana <insana at ebi.ac.uk> - Bio::LiveSeq
+
+=item * Donald Jackson <donald.jackson at bms.com> - SiRNA
+
+=item * Keith James <kdj at sanger.ac.uk> - Bio::Tools::Geneid
+
+=item * Mark A. Jensen <maj at fortinbras.us> - Bio::DB::HIVQuery, Bio::Search::Tiling
+
+=item * Nicolas Joly <njoly at pasteur.fr> 
+
+=item * Ian Korf <ikorf at sapiens.wustl.edu>
+
+=item * Dan Kortschak <kortschak at rsbs.anu.edu.au>
+
+=item * Arek Kasprzyk <arek at ebi.ac.uk>
+
+=item * Andreas Kähäri <andreas.kahari at ebi.ac.uk>
+
+=item * Charles C. Kim <cckim at stanford.edu>
+
+=item * Stefan Kirov <skirov at utk.edu> - Bio::Matrix::PSM
+
+=item * Balamurugan Kumarasamy <savikalpa at fugu-sg.org>
+
+=item * Josh Lauricha <laurichj at cs.ucr.edu> - Bio::SeqIO::tigr
+
+=item * Eckhard Lehmann <ecky at e-lehmann.de>
+
+=item * Catherine Letondal <letondal at pasteur.fr>
+
+=item * Philip Lijnzaad <p.lijnzaad at med.uu.nl>
+
+=item * Brad Marshall <bradmars at yahoo.com>
+
+=item * Chad Matsalla <chad at dieselwurks.com>
+
+=item * Andrew Macgregor <andrew at anatomy.otago.ac.nz>
+
+=item * Sheldon McKay <mckays at cshl.edu>
+
+=item * Dave Messina <dmessina at cpan.org> - Deobfuscator, judicious meddling
+
+=item * Chase Miller <chmille4 at gmail.com> - Bio::Nexml and related IO modules
+
+=item * Juha Muilu <muilu at ebi.ac.uk>
+
+=item * Chris Mungall <cjm at fruitfly.org>
+
+=item * Giri Narasimhan <giri at cs.fiu.edu>
+
+=item * Xiaokang Pan <pan at cshl.org> - Bio::Graphics::Glyph
+
+=item * Jong Park
+
+=item * Matthew Pocock <matthew_pocock at yahoo.co.uk>
+
+=item * Lorenz Pollack <lorenz at ist.org> -- BPlite porting
+
+=item * Richard Resnick -- original Bio::Seq
+
+=item * Todd Richmond <todd at andrew2.stanford.edu>
+
+=item * Peter Schattner <schattner at alum.mit.edu>
+
+=item * Torsten Seemann <torsten.seemann at infotech.monash.edu.au> -- Bio::Tools::Run::StandaloneBlast
+
+=item * Martin Senger <senger at ebi.ac.uk> -- Bio::Biblio
+
+=item * Nigam Shah <nigam at psu.edu>
+
+=item * Shengqiang Shu <sshu at bdgp.lbl.gov> - Bio::Graphics::Glyph
+
+=item * Allen Smith <allens at cpan.org> -- Bio::Matrix and Bio::SimpleAlign fixes
+
+=item * Marc Sohrmann <ms2 at sanger.ac.uk>
+
+=item * Robson Francisco de Souza <robfsouza at gmail.com> - Bio::Assembly
+
+=item * Mark Southern <mark_southern at merck.com>
+
+=item * Will Spooner <whs at sanger.ac.uk>
+
+=item * Arne Stabenau <stabenau at ebi.ac.uk>
+
+=item * Elia Stupka <elia at fugu-sg.org>
+
+=item * Gert Thijs <gert.thijs at esat.kuleuven.ac.be> 
+
+=item * James Thompson <tex at biosysadmin.com> - Bio::Matrix::PSM protein-related modules.
+
+=item * Charles Tilford <tilfordc at bms.com>
+
+=item * Anthony Underwood <aunderwood at phls.org.uk>
+
+=item * Paul-Christophe Varoutas 
+
+=item * Andrew G. Walsh <paeruginosa at hotmail.com>
+
+=item * Kai Wang <tumorimmunology at yahoo.com>
+
+=item * Gary Williams <G.Williams at hgmp.mrc.ac.uk>
+
+=item * Mark Wilkinson <mwilkinson at gene.pbi.nrc.ca>
+
+=item * Helge Weissig <helgew at sdsc.edu>
+
+=item * Juguang Xiao <juguang at tll.org.sg>
+
+=item * Alex Zelensky <alex_zelensky at mac.com> - Bioperl-DB 
+
+=item * Peili Zhang <peili at morgan.harvard.edu>
+
+=item * Christian M. Zmasek <czmasek at gnf.org> - Bio::Phenotype & Bio::Ontology
+
+=back

@@ -1,0 +1,54 @@
+LOCUS       ALSEB2MP1                291 bp    DNA     linear   PRI 30-JUN-1998
+DEFINITION  Alouatta seniculus beta-2-microglobulin precursor, gene, exon 1.
+ACCESSION   AF032047
+VERSION     AF032047.1  GI:3264957
+KEYWORDS    .
+SEGMENT     1 of 2
+SOURCE      Alouatta seniculus (howler monkey)
+  ORGANISM  Alouatta seniculus
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Mammalia; Eutheria; Primates; Platyrrhini; Cebidae; Alouattinae;
+            Alouatta.
+REFERENCE   1  (bases 1 to 291)
+  AUTHORS   Canavez,F.C., Ladasky,J.J., Muniz,J.A., Seuanez,H.N., Parham,P. and
+            Cavanez,C.
+  TITLE     beta2-Microglobulin in neotropical primates (Platyrrhini)
+  JOURNAL   Immunogenetics 48 (2), 133-140 (1998)
+  MEDLINE   98298008
+   PUBMED   9634477
+REFERENCE   2  (bases 1 to 291)
+  AUTHORS   Canavez,F.C., Ladasky,J.J., Seuanez,H.N. and Parham,P.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (31-OCT-1997) Structural Biology, Stanford University,
+            Fairchild Building, Campus West Dr., Room #D-100, Stanford, CA
+            94305-5126, USA
+FEATURES             Location/Qualifiers
+     source          1..291
+                     /organism="Alouatta seniculus"
+                     /mol_type="genomic DNA"
+                     /db_xref="taxon:9503"
+     mRNA            join(<136..202,AF032048.1:67..345,AF032048.1:1162..1189)
+                     /product="beta-2-microglobulin precursor"
+     sig_peptide     136..195
+     CDS             join(136..202,AF032048.1:67..345,AF032048.1:1162..1175)
+                     /codon_start=1
+                     /product="beta-2-microglobulin precursor"
+                     /protein_id="AAC52091.1"
+                     /db_xref="GI:3264961"
+                     /translation="MARFVVVALLALLSLSGLEAIQHAPKIQVYSRHPAENGKPNFLN
+                     CYVSGFHPSDIEVDLLKNGKKIEKVEHSDLSFSKDWSFYLLYYTEFTPNEKDEYACRV
+                     SHVTFPTPKTVKWDRTM"
+     sig_peptide     136..195
+     exon            <136..202
+                     /number=1
+     intron          203..>291
+                     /number=1
+BASE COUNT       31 a    103 c     78 g     79 t
+ORIGIN      
+        1 cggtccccgc gggccttctc ctgattggct gtccccgcgg gccttgtcct tattggctgt
+       61 gcccgactcc gtataacata aatagaggcg tcgagttgcg cgggcattac tgcagcggac
+      121 cgcacttggg tcgagatggc tcgcttcgtg gtggtagccc tgctcgcgct actctctctg
+      181 tctggcctgg aggctatcca gcgtaagtct ctcctcccgt ccggcgctgg tcctttccct
+      241 cccgccccaa ctctctgtag ccctctctgt gctctctcgt tccgttacct g
+//
+

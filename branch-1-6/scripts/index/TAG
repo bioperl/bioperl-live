@@ -1,0 +1,2 @@
+These are scripts to create and maintain flatfile databases indexed
+with the Bio::Index or Bio::DB::Fasta modules.

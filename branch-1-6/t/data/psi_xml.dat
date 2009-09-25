@@ -1,0 +1,179 @@
+<entrySet xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:psi="net:sf:psidev:mi" xmlns="net:sf:psidev:mi" xmlns:xin="http://dip.doe-mbi.ucla.edu/xml/XIN" xsi:schemaLocation="net:sf:psidev:mi MIF.xsd" level="1" version="1">
+ <entry>
+   <interactorList>
+     <proteinInteractor id="G_1">
+       <names>
+         <shortLabel/>
+         <fullName>adenine specific DNA methyltransferase (dpnA) HP0050</fullName>
+       </names>
+       <xref>
+         <primaryRef db="DIP" id="3048N"/>
+<secondaryRef db="PIR" id="B64526"/>
+<secondaryRef db="GI" id="2313123"/>
+<secondaryRef db="RefSeq" id="NP_206851"/>
+</xref>
+<organism ncbiTaxId="85962">
+<names>
+<shortLabel/>
+<fullName>Helicobacter pylori 26695</fullName>
+</names>
+</organism>
+</proteinInteractor>
+<proteinInteractor id="G_2">
+<names>
+<shortLabel/>
+<fullName>hypothetical HP0001</fullName>
+</names>
+<xref>
+<primaryRef db="DIP" id="3047N"/>
+<secondaryRef db="SWP" id="O24853"/>
+<secondaryRef db="PIR" id="A64520"/>
+<secondaryRef db="GI" id="2313078"/>
+<secondaryRef db="RefSeq" id="NP_206803"/>
+</xref>
+<organism ncbiTaxId="85962">
+<names>
+<shortLabel/>
+<fullName>Helicobacter pylori 26695</fullName>
+</names>
+</organism>
+</proteinInteractor>
+<proteinInteractor id="G_4">
+<names>
+<shortLabel/>
+<fullName>GTP-binding membrane protein (lepA) HP0355</fullName>
+</names>
+<xref>
+<primaryRef db="DIP" id="3049N"/>
+<secondaryRef db="SWP" id="O25122"/>
+<secondaryRef db="PIR" id="C64564"/>
+<secondaryRef db="GI" id="2313456"/>
+<secondaryRef db="RefSeq" id="NP_207153"/>
+</xref>
+<organism ncbiTaxId="85962">
+<names>
+<shortLabel/>
+<fullName>Helicobacter pylori 26695</fullName>
+</names>
+</organism>
+</proteinInteractor>
+<proteinInteractor id="G_X">
+<names>
+<shortLabel/>
+<fullName>bogus-binding membrane protein (lepA) HP0355</fullName>
+</names>
+<xref>
+<primaryRef db="DIP" id="N"/>
+<secondaryRef db="SWP" id="O2"/>
+<secondaryRef db="PIR" id="C4"/>
+<secondaryRef db="GI" id="2"/>
+<secondaryRef db="RefSeq" id="207153"/>
+</xref>
+<organism ncbiTaxId="85962">
+<names>
+<shortLabel/>
+<fullName>Helicobacter pylori 26695</fullName>
+</names>
+</organism>
+</proteinInteractor>
+
+</interactorList>
+<interactionList>
+<interaction>
+<experimentList>
+<experimentDescription id="DIP_5317X">
+<bibref>
+<xref>
+<primaryRef db="pubmed" id="11196647"/>
+</xref>
+</bibref>
+<interactionDetection>
+<names>
+<shortLabel>Two hybrid test</shortLabel>
+</names>
+<xref>
+<primaryRef db="DO" id="DO:00018"/>
+<secondaryRef db="PSI" id="MI:0018"/>
+</xref>
+</interactionDetection>
+</experimentDescription>
+</experimentList>
+<participantList>
+<proteinParticipant>
+<proteinInteractorRef ref="G_1"/>
+</proteinParticipant>
+<proteinParticipant>
+<proteinInteractorRef ref="G_2"/>
+</proteinParticipant>
+</participantList>
+<xref>
+<primaryRef db="DIP" id="4305E"/>
+</xref>
+</interaction>
+<interaction>
+<experimentList>
+<experimentDescription id="DIP_5318X">
+<bibref>
+<xref>
+<primaryRef db="pubmed" id="11196647"/>
+</xref>
+</bibref>
+<interactionDetection>
+<names>
+<shortLabel>Two hybrid test</shortLabel>
+</names>
+<xref>
+<primaryRef db="DO" id="DO:00018"/>
+<secondaryRef db="PSI" id="MI:0018"/>
+</xref>
+</interactionDetection>
+</experimentDescription>
+</experimentList>
+<participantList>
+<proteinParticipant>
+<proteinInteractorRef ref="G_4"/>
+</proteinParticipant>
+<proteinParticipant>
+<proteinInteractorRef ref="G_2"/>
+</proteinParticipant>
+</participantList>
+<xref>
+<primaryRef db="DIP" id="4306E"/>
+</xref>
+</interaction>
+<interaction>
+<experimentList>
+<experimentDescription id="DIP_5318X">
+<bibref>
+<xref>
+<primaryRef db="pubmed" id="11196647"/>
+</xref>
+</bibref>
+<interactionDetection>
+<names>
+<shortLabel>Two hybrid test</shortLabel>
+</names>
+<xref>
+<primaryRef db="DO" id="DO:00018"/>
+<secondaryRef db="PSI" id="MI:0018"/>
+</xref>
+</interactionDetection>
+</experimentDescription>
+</experimentList>
+<participantList>
+<proteinParticipant>
+<proteinInteractorRef ref="G_X"/>
+</proteinParticipant>
+<proteinParticipant>
+<proteinInteractorRef ref="G_2"/>
+</proteinParticipant>
+</participantList>
+<xref>
+<primaryRef db="DIP" id="1E"/>
+</xref>
+</interaction>
+
+</interactionList>
+</entry>
+</entrySet>
+

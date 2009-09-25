@@ -1,0 +1,4 @@
+/usr/local/genome/bin/cross_match test_project.contigs /usr/local/genome/lib/screenLibs/repeats.fasta -tags -minmatch 10 
+cross_match version 0.990329
+
+Run date:time  010621:164003

@@ -1,0 +1,190 @@
+CODONML (in paml 3.12 February 2002)    abglobin.nuc   Model: several dN/dS ratios for branches 
+Codon frequencies: F3x4
+
+ns = 5  	ls = 285
+# site patterns = 223
+    9    2    1    1    1    4    3    1    1    1    2    1    1    3    1
+    7    1    1    1    1    1    1    1    1    1    1    1    1    1    1
+    1    1    5    1    1    1    4    2    2    1    6    1    1    1    1
+    1    3    1    1    3    1    1    1    2    3    1    1    1    1    1
+    1    1    1    1    1    1    1    1    1    1    1    1    3    1    1
+    1    1    6    1    1    1    1    1    1    1    1    1    1    1    1
+    1    1    2    1    1    1    1    1    1    1    1    1    1    1    1
+    3    1    1    2    1    1    1    1    1    1    1    1    1    1    1
+    3    1    1    1    1    1    1    1    1    1    1    1    1    1    1
+    1    2    1    1    1    1    1    1    1    1    1    1    1    1    1
+    1    1    1    1    1    2    1    1    1    1    1    2    1    1    1
+    1    2    1    1    1    1    1    1    1    1    1    1    1    2    1
+    1    1    1    1    1    1    1    1    1    1    1    1    1    1    1
+    1    1    1    1    1    1    1    1    1    1    1    1    1    1    1
+    1    1    1    1    1    1    1    1    1    1    1    1    1
+
+1       
+human                 GTG CTG TCT CCT GCC GAC AAG ACC AAC GTC AAG GCC GCC TGG GGC AAG GTT GGC GCG CAC GCT GGC GAG TAT GGT GCG GAG GCC CTG GAG AGG ATG TTC CTG TCC CCC ACC ACC TAC CCG CAC TTC GAC CTG AGC CAC GGC TCT GCC CAG GTT AAG GGC CAC GGC AAG GTG GCC GAC GCG CTG ACC AAC GCC GTG GCG GTG GAC ATG CCC AAC GCG CTG TCC GCC CTG AGC CTG CAC GCG CTT CGG GAC CCG GTC AAC TTC CTC CTA AGC TGC CTG CTG GCC GCC CTC CCC GCC GAG TTC ACC CCT GCG GTG CAC GCC TCC CTG GCT TCT AGC ACC TCC AAA TAC CGT CTG ACT CCT GAG GAG TCT GCC GTT ACT GCC CTG GGC AAC GTG GAT GAA GTT GGT GGT CTG AGG CTG GTG GTC CCT ACC CAG TTC TTT GAG TCC TTT GGG GAT CTG TCC ACT CCT GAT GCT GTT ATG GGC AAC CCT GTG AAG GCT CAT AAG AAA CTC GGT GCC TTT AGT GAT GGC CTG GCT CAC CTG GAC AAC CTC AAG TTT GCC ACA CTG AGT GAG TGT CAC GAT CCT AAC AGG CTC GGC AAC GTG CTG GTC TGT GTG GCC CAT CAC TTT AAA GAA TTC ACC CCA CCA GTG GCT GCC TAT GTG GGT AAT GCC AAG TAT CAC 
+goat-cow              ... ... ... G.C ... ... ... T.. ..T ... ... ... ... ... ... ... ... ... .GC A.. ... ..A .CT ... ..C ..A ... ..T ... ... ... ... ... ... AG. ... ... ... ... ..C ... ... ... ... ... ... ... ..G ... ... ..C ... ... ... ... G.. ... ... .C. ... ... ... ..A ..G ... .GC C.. ... C.. ... GGT A.T ... ..T .AT ... ..T ... ... ..C ..G ..T ... ... ... ... ..T ..T ..G ... .C. ... ... ... TG. ... ... AAT ..T ... ... ..C ... ..C ... ... ... T.. ..C AAC ... ... ... ... ... ... ... ... G.. ... ... G.. ... ..C ..C ... T.T ... ..A ... ... ... ... ... ... ... ... ... ..T ... ..C ..T ... ... ... ... ... ... ... ..C T.. ... ... G.. ... ... ... ... AA. ... ... ... ... ..C ... ... ..G ..A .A. T.. ... ... A.. ... A.. AAG ..T ..C ..T G.. ... ... ... ..T G.G ... ... ... ... ..T ... ... ... .A. ... ... ... ... ..A ..G GT. ... ..T .GC A.T ... ..G ... ... ... ..G GTG C.. ... .A. .T. ... ... ... ... .GA ... ..T 
+rabbit                ... ... ... ..C ..T ... ... ... ... A.. ... A.T ... ... .AA ... A.C ... AGC ... .G. ... ... ... ..C ..C ... ... G.. ... ... ... ... T.. GG. ... ... ... ... ..C ... ... ... T.C .C. ... ... ... .AG ... A.C ..A .C. ... ... ... ... T.. ..A ..C ... ... ..G ... ... .GC C.. ... C.. ... GG. ..C ... ..T A.T ..C ... ... ... ... ..G ... ... ... ..G ..T ... ... ..G TC. ... ... ... ... AA. .A. ... AGT ..A ... ... ... ... ... ..T ... ... ... ..C AAC ... ... ... ... ..T ... ... T.C AG. ... ... ... ..G ..C ... ... ... ... ..T ... ..A ... ... ... ... ... ... ... ..T ... ..A ... ... ... ..C ... ... ... ... ..C ... ... T.. G.A A.. ... ... ... AA. ..T ... ... ... ... ... ... ..G ..G .C. ... ..C ... ..G ..T ... AG. ... ... ... ... ... ..A ... ..T .AG ... ... ..A ... ... ... ... ... ... ... ... ... ... ... ..T AT. ... T.T ... ..T ... ... ... ... ..T ..T .AG ... ... ... ... ... ... ... ..T ..A ..C ... 
+rat                   ... ..C ... G.A .AT ... ..A ... ... A.. ... AA. TG. ... ..G ... A.. ..T .GC ..T .G. ..T ..A ... ..C .A. ... ... ..A C.. ... ... ... GCT G.. ... ... ... ... T.T ... A.T ..T G.A ... .C. ... ... ... ... ..C ... .CT ... ... ... ..T ..T ..T ..C T.. G.. ..A ..T .CA .AC ..C ..A C.. ..T GGT ..C ... ... A.T ... ... ... ..T ..C ..G ..T ..T ..T ... ... ... T.. ..G ... ... ... T.. ..T TG. .A. ..T .GA ..T ... ..A ..C ..C A.. ... ... ..T ..T ..C ... ... ..T ... ..G ... ... ..A ... GA. .CT ... G.. ..T ... .A. ... ... ..A ... CCT ... ..T ... ... ..C ... ... ... ..T ... ... ... ... .A. ... ..T AG. ... ... ..C ... ... T.. G.C TC. ... A.C ... ..T ... ... ... ... ..C ... ... ..G A.A AAC ... ..C .A. ... ... ... AAA ... T.. ... ... ... ... ... ..T CAT ... ... ..A ... ..T ... ... ... ... ... ... ..T A.. A.T ..G AT. ... .G. ..C ... C.G ..G ... ... ... ..C TGT .CA ... ... .TC ... ..A .G. ..T ... ..C ... 
+marsupial             ... ..C ..G GA. ..T ... ... ..T C.. ..G ..A ... AT. ... ..T ... ..G ..A .GC ... ..C ..T .CC ..C .CA ..T ..A ..T ..T .CC ..A .CC ... ..C ... ... ..T ... ... ..C ... ... ... ... TC. .C. ... ..C ... ... A.C C.. ..T ..T ..T ... ..A ... ..T ..C ..T T.. C.G ..T ..T ..C C.. ... C.. ... GGA A.C A.. ... AAA ..A ... ... ... ..C ..G A.A ..T ..C ..G ... ... ... ..C TCT ... A.C ... ... ... ..G AG. AAG ..T ..G ..T ..C .AA ... ... ... ... T.T ..C ... GCT ... ..G ..G ... ... T.. ... T.. ... ... AAC TG. A.C ... A.. A.C TCT C.G ..T ..C C.G AC. ... ... ..T ... ..C ..T ... ..C ... ACC ..T ... .G. AG. ... ..T ... ... ... T.. ... .GC ... ..C ... TCA ..T T.. ..T C.A ..C ... GCT ..G T.G ACC T.. ..C G.. ..A .CA G.C AAG ..T T.. ... ... ..G ... .A. ... .AG T.. ... ... ... ..T ..C ... ... .A. A.G ..G ..T A.C A.T ..G ATC TGC ..T G.G ... ... ..G ..T ..T ..T ..T GA. TGT .T. ..T .GG C.C ..A C.. ... ... ..C ... 
+
+Codon usage in sequences
+--------------------------------------------------------------------------------------------------
+Phe TTT  5  8  3  3  6 | Ser TCT  4  2  6  7  6 | Tyr TAT  3  2  3  1  1 | Cys TGT  2  1  1  2  2
+    TTC 10  9 13 11  8 |     TCC  6  7  7  3  8 |     TAC  3  3  3  5  5 |     TGC  1  1  1  3  3
+Leu TTA  0  0  0  0  0 |     TCA  0  0  0  0  1 | *** TAA  0  0  0  0  0 | *** TGA  0  0  0  0  0
+    TTG  0  2  1  4  5 |     TCG  0  1  0  0  2 |     TAG  0  0  0  0  0 | Trp TGG  3  3  3  3  4
+--------------------------------------------------------------------------------------------------
+Leu CTT  1  1  0  1  3 | Pro CCT  7  2  4  7  3 | His CAT  2  4  4  5  6 | Arg CGT  1  2  1  2  1
+    CTC  5  4  4  4  7 |     CCC  3  6  5  4  7 |     CAC 16 11 15 14 12 |     CGC  0  1  0  0  0
+    CTA  1  2  0  2  1 |     CCA  2  0  1  0  0 | Gln CAA  0  0  0  0  1 |     CGA  0  0  0  0  0
+    CTG 29 28 30 21 15 |     CCG  2  2  1  0  0 |     CAG  4  4  5  5  7 |     CGG  1  0  1  0  0
+--------------------------------------------------------------------------------------------------
+Ile ATT  0  0  1  4  1 | Thr ACT  3  4  4  3 10 | Asn AAT  1  5  5  3  2 | Ser AGT  2  3  5  2  1
+    ATC  0  0  3  2  7 |     ACC 12 11 12  9  9 |     AAC  9  7  7  8  4 |     AGC  4  4  3  5  3
+    ATA  0  0  0  1  0 |     ACA  1  0  0  1  0 | Lys AAA  4  3  5  5  3 | Arg AGA  0  1  0  0  2
+Met ATG  3  3  2  4  5 |     ACG  0  0  0  0  0 |     AAG 18 21 19 19 21 |     AGG  4  3  4  4  2
+--------------------------------------------------------------------------------------------------
+Val GTT  5  5  4  4  6 | Ala GCT  8 11  8 13 10 | Asp GAT  5  8  1 11  6 | Gly GGT  5  4  5  6 10
+    GTC  4  6  2  4  3 |     GCC 21 18 16 18 19 |     GAC 10 10 10  8 10 |     GGC 14 15 14 12  5
+    GTA  0  0  0  1  1 |     GCA  0  1  1  3  2 | Glu GAA  2  2  7  4  4 |     GGA  0  1  0  3  3
+    GTG 21 19 21 14 14 |     GCG  7  4  3  0  0 |     GAG 10  9 10  5  6 |     GGG  1  1  1  2  2
+--------------------------------------------------------------------------------------------------
+
+Codon position x base (3x4) table for each sequence.
+
+#1: human          
+position  1:    T:0.12982    C:0.25965    A:0.21404    G:0.39649
+position  2:    T:0.29474    C:0.26667    A:0.30526    G:0.13333
+position  3:    T:0.18947    C:0.41404    A:0.03509    G:0.36140
+
+#2: goat-cow       
+position  1:    T:0.13684    C:0.23509    A:0.22807    G:0.40000
+position  2:    T:0.30526    C:0.24211    A:0.31228    G:0.14035
+position  3:    T:0.21754    C:0.39649    A:0.03509    G:0.35088
+
+#3: rabbit         
+position  1:    T:0.14386    C:0.24912    A:0.24561    G:0.36140
+position  2:    T:0.29474    C:0.23860    A:0.32982    G:0.13684
+position  3:    T:0.19298    C:0.40351    A:0.04912    G:0.35439
+
+#4: rat            
+position  1:    T:0.14737    C:0.22807    A:0.24561    G:0.37895
+position  2:    T:0.28070    C:0.23860    A:0.32632    G:0.15439
+position  3:    T:0.25965    C:0.38596    A:0.07018    G:0.28421
+
+#5: marsupial      
+position  1:    T:0.17895    C:0.22105    A:0.24561    G:0.35439
+position  2:    T:0.28772    C:0.27018    A:0.30877    G:0.13333
+position  3:    T:0.25965    C:0.38596    A:0.06316    G:0.29123
+
+Sums of codon usage counts
+------------------------------------------------------------------------------
+Phe F TTT      25 | Ser S TCT      25 | Tyr Y TAT      10 | Cys C TGT       8
+      TTC      51 |       TCC      31 |       TAC      19 |       TGC       9
+Leu L TTA       0 |       TCA       1 | *** * TAA       0 | *** * TGA       0
+      TTG      12 |       TCG       3 |       TAG       0 | Trp W TGG      16
+------------------------------------------------------------------------------
+Leu L CTT       6 | Pro P CCT      23 | His H CAT      21 | Arg R CGT       7
+      CTC      24 |       CCC      25 |       CAC      68 |       CGC       1
+      CTA       6 |       CCA       3 | Gln Q CAA       1 |       CGA       0
+      CTG     123 |       CCG       5 |       CAG      25 |       CGG       2
+------------------------------------------------------------------------------
+Ile I ATT       6 | Thr T ACT      24 | Asn N AAT      16 | Ser S AGT      13
+      ATC      12 |       ACC      53 |       AAC      35 |       AGC      19
+      ATA       1 |       ACA       2 | Lys K AAA      20 | Arg R AGA       3
+Met M ATG      17 |       ACG       0 |       AAG      98 |       AGG      17
+------------------------------------------------------------------------------
+Val V GTT      24 | Ala A GCT      50 | Asp D GAT      31 | Gly G GGT      30
+      GTC      19 |       GCC      92 |       GAC      48 |       GGC      60
+      GTA       2 |       GCA       7 | Glu E GAA      19 |       GGA       7
+      GTG      89 |       GCG      14 |       GAG      40 |       GGG       7
+------------------------------------------------------------------------------
+
+
+Codon position x base (3x4) table, overall
+
+position  1:    T:0.14737    C:0.23860    A:0.23579    G:0.37825
+position  2:    T:0.29263    C:0.25123    A:0.31649    G:0.13965
+position  3:    T:0.22386    C:0.39719    A:0.05053    G:0.32842
+
+
+Nei & Gojobori 1986. dN/dS (dN, dS)
+(Note: This matrix is not used in later m.l. analysis.
+Use runmode = -2 for ML pairwise comparison.)
+
+human               
+goat-cow             0.2507 (0.0863 0.3443)
+rabbit               0.2627 (0.0867 0.3301) 0.2943 (0.1054 0.3581)
+rat                  0.2045 (0.1261 0.6164) 0.2462 (0.1493 0.6065) 0.2178 (0.1348 0.6187)
+marsupial            0.1902 (0.1931 1.0148) 0.1891 (0.1910 1.0099) 0.2184 (0.2111 0.9668) 0.2716 (0.2404 0.8852)
+
+pairwise comparison, codon frequencies: F3x4.
+
+
+2 (goat-cow) ... 1 (human)
+lnL =-1508.607268
+  0.47825  2.29137  0.19479
+
+t= 0.4783  S=   186.0  N=   669.0  dN/dS= 0.1948  dN= 0.0839  dS= 0.4309
+
+
+3 (rabbit) ... 1 (human)
+lnL =-1512.583367
+  0.46755  2.19039  0.19819
+
+t= 0.4676  S=   179.9  N=   675.1  dN/dS= 0.1982  dN= 0.0842  dS= 0.4247
+
+
+3 (rabbit) ... 2 (goat-cow)
+lnL =-1557.337680
+  0.53837  2.26427  0.22670
+
+t= 0.5384  S=   183.5  N=   671.5  dN/dS= 0.2267  dN= 0.1036  dS= 0.4570
+
+
+4 (rat) ... 1 (human)
+lnL =-1649.727994
+  0.82576  1.78920  0.15108
+
+t= 0.8258  S=   190.2  N=   664.8  dN/dS= 0.1511  dN= 0.1223  dS= 0.8097
+
+
+4 (rat) ... 2 (goat-cow)
+lnL =-1677.101606
+  0.88091  2.40576  0.18757
+
+t= 0.8809  S=   200.2  N=   654.8  dN/dS= 0.1876  dN= 0.1458  dS= 0.7773
+
+
+4 (rat) ... 3 (rabbit)
+lnL =-1666.440696
+  0.85281  2.21652  0.16114
+
+t= 0.8528  S=   193.2  N=   661.8  dN/dS= 0.1611  dN= 0.1306  dS= 0.8105
+
+
+5 (marsupial) ... 1 (human)
+lnL =-1769.079306
+  2.29076  0.98664  0.05689
+
+t= 2.2908  S=   176.2  N=   678.8  dN/dS= 0.0569  dN= 0.1729  dS= 3.0396
+
+
+5 (marsupial) ... 2 (goat-cow)
+lnL =-1774.766235
+  1.80490  1.19637  0.08052
+
+t= 1.8049  S=   180.8  N=   674.2  dN/dS= 0.0805  dN= 0.1762  dS= 2.1879
+
+
+5 (marsupial) ... 3 (rabbit)
+lnL =-1794.595175
+  2.09985  1.06589  0.06930
+
+t= 2.0998  S=   173.1  N=   681.9  dN/dS= 0.0693  dN= 0.1882  dS= 2.7162
+
+
+5 (marsupial) ... 4 (rat)
+lnL =-1842.638722
+  1.66307  1.02118  0.12318
+
+t= 1.6631  S=   180.6  N=   674.4  dN/dS= 0.1232  dN= 0.2214  dS= 1.7973

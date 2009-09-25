@@ -1,0 +1,58 @@
+LOCUS       U71225                  1164 bp    DNA     linear   VRT 27-NOV-2001
+DEFINITION  Desmognathus quadramaculatus 12S ribosomal RNA gene, partial
+            sequence; tRNA-Val gene, complete sequence; and 16S ribosomal RNA
+            gene, partial sequence, mitochondrial genes for mitochondrial RNAs.
+ACCESSION   U71225
+VERSION     U71225.1  GI:2804359
+KEYWORDS    .
+SOURCE      mitochondrion Desmognathus quadramaculatus (black-bellied
+            salamander)
+  ORGANISM  Desmognathus quadramaculatus
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Amphibia; Batrachia; Caudata; Salamandroidea; Plethodontidae;
+            Desmognathinae; Desmognathus.
+REFERENCE   1  (bases 1 to 1164)
+  AUTHORS   Titus,T.A. and Larson,A.
+  TITLE     Molecular phylogenetics of Desmognathine salamanders (Caudata:
+            Plethodontidae): A reevaluation of evolution in ecology, life
+            history, and morphology
+  JOURNAL   Syst. Biol. 45, 451-472 (1996)
+REFERENCE   2  (bases 1 to 1164)
+  AUTHORS   Titus,T.A.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (19-SEP-1996) Biology, University of Oregon, Eugene, OR
+            97403, USA
+FEATURES             Location/Qualifiers
+     source          1..1164
+                     /organism="Desmognathus quadramaculatus"
+                     /organelle="mitochondrion"
+                     /mol_type="genomic DNA"
+                     /db_xref="taxon:52105"
+     rRNA            <1..638
+                     /product="12S ribosomal RNA"
+     tRNA            639..706
+                     /product="tRNA-Val"
+     rRNA            707..>1164
+                     /product="16S ribosomal RNA"
+ORIGIN      
+        1 ggcccaaagg gtagttttag gtgaaataaa atagaattta aaatttatct agtagttata
+       61 tataaacata aaatgtaaaa tcaaaaacga aagtcatact atataacctt gaatctacta
+      121 cagctgagaa acaaactagg attagatacc ctactatgct caactttaaa atggaccttc
+      181 ccgccagagc actacgagcc acagcttaaa actcaaagga cttggcggtg ctctacaccc
+      241 acctagagga gcctgttcta taatcgacac tccccgataa acctcaccac ctcttgctaa
+      301 tacagcctat ataccaccgc cctcagttca cccttcaaaa gaataatagt gaacaaaata
+      361 atttaaaata aaaaagtcag gtcaaggtgc agcaaatgaa gtggaaagaa atgggctaca
+      421 ttttttatag taaaaaatac ggaatattct atgaaataaa atataaagga ggatttagaa
+      481 gtaaaaagaa aaaagagtgt tctttttaaa ttggcaatag agcacgcaca caccgcccgt
+      541 caccctcttc aaaattaaat aaactaaata aatatataaa tttataagaa aaggtaagtc
+      601 gtaacatggt aagtctaccg gaaggtggcc ttggatatcg aagtatagct taaataaagc
+      661 attttgctta caccaaaaaa atatttgtta acccaaatta ccttaaattt taaatctatg
+      721 ctaaatataa aatactactt cctaatacac aaaacattat tatatgatag tacgggcgac
+      781 agaaaactta ttagcgcaat agaaaaagta ctgtaaagga aagatgaaat aaaattgaaa
+      841 taaaataaaa atataaaaga gcaaagatta taacttttac ctttagcata atggtctagc
+      901 cagtctatat taacataaag aattttagtt atataccccg aaaccaggcg agctacccta
+      961 aaacagcaat atatgagcga actcttctct gtggcaaaag agtgagaaga atttttggta
+     1021 gaggcgaaaa accaaacgag cccggatata gctggttact tgagaatgaa ttttagttca
+     1081 attaaaagca taaatattat aaaaacataa cgcttttatt ataattaatt gaggtacagc
+     1141 ccaattaata aaggaaacaa ccta
+//

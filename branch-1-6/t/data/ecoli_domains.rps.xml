@@ -1,0 +1,610 @@
+RPS-BLAST 2.1.3 [Apr-1-2001]
+<?xml version="1.0"?>
+<!DOCTYPE BlastOutput PUBLIC "-//NCBI//NCBI BlastOutput/EN" "NCBI_BlastOutput.dtd"><BlastOutput>
+  <BlastOutput_program>blastp</BlastOutput_program>
+  <BlastOutput_version>blastp 2.1.3 [Apr-1-2001]</BlastOutput_version>
+  <BlastOutput_reference>~Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, ~Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), ~&quot;Gapped BLAST and PSI-BLAST: a new generation of protein database search~programs&quot;,  Nucleic Acids Res. 25:3389-3402.</BlastOutput_reference>
+  <BlastOutput_db>/data_2/jason/db/cdd/cdd/Pfam</BlastOutput_db>
+  <BlastOutput_query-ID>lcl|QUERY_0</BlastOutput_query-ID>
+  <BlastOutput_query-def>gi|1786182|gb|AAC73112.1| (AE000111) thr operon leader peptide [Escherichia coli]</BlastOutput_query-def>
+  <BlastOutput_query-len>21</BlastOutput_query-len>
+  <BlastOutput_param>
+    <Parameters>
+      <Parameters_matrix>BLOSUM62</Parameters_matrix>
+      <Parameters_expect>1e-05</Parameters_expect>
+      <Parameters_include>0</Parameters_include>
+      <Parameters_sc-match>0</Parameters_sc-match>
+      <Parameters_sc-mismatch>0</Parameters_sc-mismatch>
+      <Parameters_gap-open>11</Parameters_gap-open>
+      <Parameters_gap-extend>1</Parameters_gap-extend>
+      <Parameters_filter>F</Parameters_filter>
+    </Parameters>
+  </BlastOutput_param>
+  <BlastOutput_iterations>
+    <Iteration>
+      <Iteration_iter-num>1</Iteration_iter-num>
+      <Iteration_stat>
+        <Statistics>
+          <Statistics_db-num>0</Statistics_db-num>
+          <Statistics_db-len>0</Statistics_db-len>
+          <Statistics_hsp-len>0</Statistics_hsp-len>
+          <Statistics_eff-space>4.16497e+11</Statistics_eff-space>
+          <Statistics_kappa>0.041</Statistics_kappa>
+          <Statistics_lambda>0.267</Statistics_lambda>
+          <Statistics_entropy>0.14</Statistics_entropy>
+        </Statistics>
+      </Iteration_stat>
+    </Iteration>
+  </BlastOutput_iterations>
+</BlastOutput>
+<?xml version="1.0"?>
+<!DOCTYPE BlastOutput PUBLIC "-//NCBI//NCBI BlastOutput/EN" "NCBI_BlastOutput.dtd"><BlastOutput>
+  <BlastOutput_program>blastp</BlastOutput_program>
+  <BlastOutput_version>blastp 2.1.3 [Apr-1-2001]</BlastOutput_version>
+  <BlastOutput_reference>~Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, ~Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), ~&quot;Gapped BLAST and PSI-BLAST: a new generation of protein database search~programs&quot;,  Nucleic Acids Res. 25:3389-3402.</BlastOutput_reference>
+  <BlastOutput_db>/data_2/jason/db/cdd/cdd/Pfam</BlastOutput_db>
+  <BlastOutput_query-ID>lcl|QUERY_1</BlastOutput_query-ID>
+  <BlastOutput_query-def>gi|1786183|gb|AAC73113.1| (AE000111) aspartokinase I, homoserine dehydrogenase I [Escherichia coli]</BlastOutput_query-def>
+  <BlastOutput_query-len>820</BlastOutput_query-len>
+  <BlastOutput_param>
+    <Parameters>
+      <Parameters_matrix>BLOSUM62</Parameters_matrix>
+      <Parameters_expect>1e-05</Parameters_expect>
+      <Parameters_include>0</Parameters_include>
+      <Parameters_sc-match>0</Parameters_sc-match>
+      <Parameters_sc-mismatch>0</Parameters_sc-mismatch>
+      <Parameters_gap-open>11</Parameters_gap-open>
+      <Parameters_gap-extend>1</Parameters_gap-extend>
+      <Parameters_filter>F</Parameters_filter>
+    </Parameters>
+  </BlastOutput_param>
+  <BlastOutput_iterations>
+    <Iteration>
+      <Iteration_iter-num>1</Iteration_iter-num>
+      <Iteration_hits>
+        <Hit>
+          <Hit_num>1</Hit_num>
+          <Hit_id>gnl|Pfam|pfam00742</Hit_id>
+          <Hit_def>HomoS_dh, HomoS dehydrogenase</Hit_def>
+          <Hit_accession>pfam00742</Hit_accession>
+          <Hit_len>310</Hit_len>
+          <Hit_hsps>
+            <Hsp>
+              <Hsp_num>1</Hsp_num>
+              <Hsp_bit-score>327.405</Hsp_bit-score>
+              <Hsp_score>838</Hsp_score>
+              <Hsp_evalue>1.46134e-90</Hsp_evalue>
+              <Hsp_query-from>498</Hsp_query-from>
+              <Hsp_query-to>815</Hsp_query-to>
+              <Hsp_hit-from>3</Hsp_hit-from>
+              <Hsp_hit-to>310</Hsp_hit-to>
+              <Hsp_pattern-from>0</Hsp_pattern-from>
+              <Hsp_pattern-to>0</Hsp_pattern-to>
+              <Hsp_query-frame>1</Hsp_query-frame>
+              <Hsp_hit-frame>1</Hsp_hit-frame>
+              <Hsp_identity>123</Hsp_identity>
+              <Hsp_positive>171</Hsp_positive>
+              <Hsp_gaps>26</Hsp_gaps>
+              <Hsp_align-len>326</Hsp_align-len>
+              <Hsp_density>0</Hsp_density>
+              <Hsp_qseq>LRVCGVANSKALLTNVHGLNLENWQEELAQAKEPF-NLGRLIRLVKEYHLLN----PVIVDCTSSQAVAD-QYADFLREGFHVVTPNKKANTSSMDYYHQLRYAAEKSRRKFLYDTNVGAGLPVIENLQNLLNAGDELMKFSGILSGSLSYIFGKLDE-GMSFSEATTLAREMGYTEPDPRDDLSGMDVARKLLILARET-GRELELADIEIEPVLPAEFNAEGDVAAFMANLSQLDDLFAARVAKARDEGKVLRYVGNIDEDGVCRVKIAEVDGNDPLFKVKNGENALAFYSHYYQPLPLVLRGYGAGNDVTAAGVFADLLRTLS</Hsp_qseq>
+              <Hsp_hseq>GVVTGITDSREMLLSRIGLPLEIWKVALRDLEKPRKDLGKLDLTDDAFAVVDDPDIDVVVELTGGIEVARELYLDALEEGKHVVTANKALNASHGDEYLAL---AEKSGVDVLYEAAVAGGIPIIKTLRELLATGDRILKIEGIFNGTTNFILSEMDEKGLPFSDVLAEAQELGYTEADPRDDVEGIDAARKLAILARIAFGIELELDDVYVEGISPITAEDISSADEFGYTLKLLDEAMRQRVEDAESGGEVLRYPTLIPE-------------DHPLASVKGSDNAVAVEGEAYG--PLMFYGPGAGAEPTASAVVADIVRIAR</Hsp_hseq>
+              <Hsp_midline>  V G+ +S+ +L +  GL LE W+  L   ++P  +LG+L      + +++     V+V+ T    VA   Y D L EG HVVT NK  N S  D Y  L   AEKS    LY+  V  G+P+I+ L+ LL  GD ++K  GI +G+ ++I  ++DE G+ FS+    A+E+GYTE DPRDD+ G+D ARKL ILAR   G ELEL D+ +E + P           F   L  LD+    RV  A   G+VLRY   I E             + PL  VK  +NA+A     Y   PL+  G GAG + TA+ V AD++R   </Hsp_midline>
+            </Hsp>
+          </Hit_hsps>
+        </Hit>
+        <Hit>
+          <Hit_num>2</Hit_num>
+          <Hit_id>gnl|Pfam|pfam00696</Hit_id>
+          <Hit_def>aakinase, Amino acid kinase family. This family includes kinases that phosphorylate a variety of amino acid substrates, as well as uridylate kinase and carbamate kinase. This family includes: Aspartokinase EC:2.7.2.4, AcetylE kinase EC:2.7.2.8, E 5-kinase EC:2.7.2.11, Uridylate kinase EC:2.7.4.-, Carbamate kinase EC:2.7.2.2</Hit_def>
+          <Hit_accession>pfam00696</Hit_accession>
+          <Hit_len>236</Hit_len>
+          <Hit_hsps>
+            <Hsp>
+              <Hsp_num>1</Hsp_num>
+              <Hsp_bit-score>123.25</Hsp_bit-score>
+              <Hsp_score>308</Hsp_score>
+              <Hsp_evalue>4.18565e-29</Hsp_evalue>
+              <Hsp_query-from>1</Hsp_query-from>
+              <Hsp_query-to>284</Hsp_query-to>
+              <Hsp_hit-from>2</Hsp_hit-from>
+              <Hsp_hit-to>236</Hsp_hit-to>
+              <Hsp_pattern-from>0</Hsp_pattern-from>
+              <Hsp_pattern-to>0</Hsp_pattern-to>
+              <Hsp_query-frame>1</Hsp_query-frame>
+              <Hsp_hit-frame>1</Hsp_hit-frame>
+              <Hsp_identity>75</Hsp_identity>
+              <Hsp_positive>115</Hsp_positive>
+              <Hsp_gaps>71</Hsp_gaps>
+              <Hsp_align-len>295</Hsp_align-len>
+              <Hsp_density>0</Hsp_density>
+              <Hsp_qseq>MRVLKFGGTSVANA--ERFLRVADILESNARQG-QVATVLSAPAKITNHLVAMIEKTISGQDALPNISDAERIFAELLTGLAAAQPGFPLAQLKTFVDQEFAQIKHVLHGISLLGQCPDSINAALICRGEKMSIAIMAGVLEARGHNVTVIDPVEKLLAV--GHYLESTVDIAESTRRIAASRIPADHMVLMAGFTAGNEKGELVVLGRNGSDYSAAVLAACLRADCCEIWTDVDGVYTCDPRQVPDARLLKSMSYQEAMELSY------FGAKVLHPRTITPIAQFQIPCLIKN</Hsp_qseq>
+              <Hsp_hseq>RIVIKLGGSALSDEDDERLERVAEEIAKLREEGREVVVVHGGGPQVGRLLLKL-----------------------------AKKPGSRVTDAATL--------------------------DALGAVGEGLSGALLSAALEAPGIPAGQLSGTEDFGIDAEGRGGNAVVDSVGVEKEAIEELLEKGKIPIVAGGGGVPV-----TLGRGDSDTAAALLAALLKADLLIILTDVDGVYTADPKKVPDAKLIDELSYEEALELAGGESGFGTGGMVPKVRAAILAVRSGIPVIITN</Hsp_hseq>
+              <Hsp_midline>  V+K GG+++++   ER  RVA+ +     +G +V  V     ++   L+ +                             A +PG  +    T                            AL   GE +S A+++  LEA G     +   E       G    + VD     +      +    + ++AG            LGR  SD +AA+LAA L+AD   I TDVDGVYT DP++VPDA+L+  +SY+EA+EL+        G  V   R      +  IP +I N</Hsp_midline>
+            </Hsp>
+          </Hit_hsps>
+        </Hit>
+      </Iteration_hits>
+      <Iteration_stat>
+        <Statistics>
+          <Statistics_db-num>0</Statistics_db-num>
+          <Statistics_db-len>0</Statistics_db-len>
+          <Statistics_hsp-len>0</Statistics_hsp-len>
+          <Statistics_eff-space>3.82682e+07</Statistics_eff-space>
+          <Statistics_kappa>0.041</Statistics_kappa>
+          <Statistics_lambda>0.267</Statistics_lambda>
+          <Statistics_entropy>0.14</Statistics_entropy>
+        </Statistics>
+      </Iteration_stat>
+    </Iteration>
+  </BlastOutput_iterations>
+</BlastOutput>
+<?xml version="1.0"?>
+<!DOCTYPE BlastOutput PUBLIC "-//NCBI//NCBI BlastOutput/EN" "NCBI_BlastOutput.dtd"><BlastOutput>
+  <BlastOutput_program>blastp</BlastOutput_program>
+  <BlastOutput_version>blastp 2.1.3 [Apr-1-2001]</BlastOutput_version>
+  <BlastOutput_reference>~Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, ~Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), ~&quot;Gapped BLAST and PSI-BLAST: a new generation of protein database search~programs&quot;,  Nucleic Acids Res. 25:3389-3402.</BlastOutput_reference>
+  <BlastOutput_db>/data_2/jason/db/cdd/cdd/Pfam</BlastOutput_db>
+  <BlastOutput_query-ID>lcl|QUERY_2</BlastOutput_query-ID>
+  <BlastOutput_query-def>gi|1786184|gb|AAC73114.1| (AE000111) homoserine kinase [Escherichia coli]</BlastOutput_query-def>
+  <BlastOutput_query-len>310</BlastOutput_query-len>
+  <BlastOutput_param>
+    <Parameters>
+      <Parameters_matrix>BLOSUM62</Parameters_matrix>
+      <Parameters_expect>1e-05</Parameters_expect>
+      <Parameters_include>0</Parameters_include>
+      <Parameters_sc-match>0</Parameters_sc-match>
+      <Parameters_sc-mismatch>0</Parameters_sc-mismatch>
+      <Parameters_gap-open>11</Parameters_gap-open>
+      <Parameters_gap-extend>1</Parameters_gap-extend>
+      <Parameters_filter>F</Parameters_filter>
+    </Parameters>
+  </BlastOutput_param>
+  <BlastOutput_iterations>
+    <Iteration>
+      <Iteration_iter-num>1</Iteration_iter-num>
+      <Iteration_hits>
+        <Hit>
+          <Hit_num>1</Hit_num>
+          <Hit_id>gnl|Pfam|pfam00288</Hit_id>
+          <Hit_def>GHMP_kinases, GHMP kinases putative ATP-binding protein</Hit_def>
+          <Hit_accession>pfam00288</Hit_accession>
+          <Hit_len>73</Hit_len>
+          <Hit_hsps>
+            <Hsp>
+              <Hsp_num>1</Hsp_num>
+              <Hsp_bit-score>55.4546</Hsp_bit-score>
+              <Hsp_score>132</Hsp_score>
+              <Hsp_evalue>4.05207e-09</Hsp_evalue>
+              <Hsp_query-from>69</Hsp_query-from>
+              <Hsp_query-to>132</Hsp_query-to>
+              <Hsp_hit-from>1</Hsp_hit-from>
+              <Hsp_hit-to>73</Hsp_hit-to>
+              <Hsp_pattern-from>0</Hsp_pattern-from>
+              <Hsp_pattern-to>0</Hsp_pattern-to>
+              <Hsp_query-frame>1</Hsp_query-frame>
+              <Hsp_hit-frame>1</Hsp_hit-frame>
+              <Hsp_identity>22</Hsp_identity>
+              <Hsp_positive>34</Hsp_positive>
+              <Hsp_gaps>9</Hsp_gaps>
+              <Hsp_align-len>73</Hsp_align-len>
+              <Hsp_density>0</Hsp_density>
+              <Hsp_qseq>WERFCQELGK----QIPVAMTLEKNMPIGSGLGSSAC-SVVAALMAMNE----HCGKPLNDTRLLALMGELEG</Hsp_qseq>
+              <Hsp_hseq>WANYLKGGLKVIQPLPGLDVVISSNIPLGSGLGSSAAIAVVAGAVLANEFVAGLNGLKLSLANIQHLENQFEG</Hsp_hseq>
+              <Hsp_midline>W  + +   K       + + +  N+P+GSGLGSSA  +VVA  +  NE      G  L+   +  L  + EG</Hsp_midline>
+            </Hsp>
+          </Hit_hsps>
+        </Hit>
+      </Iteration_hits>
+      <Iteration_stat>
+        <Statistics>
+          <Statistics_db-num>0</Statistics_db-num>
+          <Statistics_db-len>0</Statistics_db-len>
+          <Statistics_hsp-len>0</Statistics_hsp-len>
+          <Statistics_eff-space>3.85928e+07</Statistics_eff-space>
+          <Statistics_kappa>0.041</Statistics_kappa>
+          <Statistics_lambda>0.267</Statistics_lambda>
+          <Statistics_entropy>0.14</Statistics_entropy>
+        </Statistics>
+      </Iteration_stat>
+    </Iteration>
+  </BlastOutput_iterations>
+</BlastOutput>
+<?xml version="1.0"?>
+<!DOCTYPE BlastOutput PUBLIC "-//NCBI//NCBI BlastOutput/EN" "NCBI_BlastOutput.dtd"><BlastOutput>
+  <BlastOutput_program>blastp</BlastOutput_program>
+  <BlastOutput_version>blastp 2.1.3 [Apr-1-2001]</BlastOutput_version>
+  <BlastOutput_reference>~Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, ~Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), ~&quot;Gapped BLAST and PSI-BLAST: a new generation of protein database search~programs&quot;,  Nucleic Acids Res. 25:3389-3402.</BlastOutput_reference>
+  <BlastOutput_db>/data_2/jason/db/cdd/cdd/Pfam</BlastOutput_db>
+  <BlastOutput_query-ID>lcl|QUERY_3</BlastOutput_query-ID>
+  <BlastOutput_query-def>gi|1786185|gb|AAC73115.1| (AE000111) threonine synthase [Escherichia coli]</BlastOutput_query-def>
+  <BlastOutput_query-len>428</BlastOutput_query-len>
+  <BlastOutput_param>
+    <Parameters>
+      <Parameters_matrix>BLOSUM62</Parameters_matrix>
+      <Parameters_expect>1e-05</Parameters_expect>
+      <Parameters_include>0</Parameters_include>
+      <Parameters_sc-match>0</Parameters_sc-match>
+      <Parameters_sc-mismatch>0</Parameters_sc-mismatch>
+      <Parameters_gap-open>11</Parameters_gap-open>
+      <Parameters_gap-extend>1</Parameters_gap-extend>
+      <Parameters_filter>F</Parameters_filter>
+    </Parameters>
+  </BlastOutput_param>
+  <BlastOutput_iterations>
+    <Iteration>
+      <Iteration_iter-num>1</Iteration_iter-num>
+      <Iteration_hits>
+        <Hit>
+          <Hit_num>1</Hit_num>
+          <Hit_id>gnl|Pfam|pfam00291</Hit_id>
+          <Hit_def>PALP, Pyridoxal-phosphate dependent enzyme. Members of this family are all pyridoxal-phosphate dependent enzymes. This family includes: S dehydratase EC:4.2.1.13 P20132, threonine dehydratase EC:4.2.1.16, tryptophan synthase beta chain EC:4.2.1.20, threonine synthase EC:4.2.99.2, cysteine synthase EC:4.2.99.8 P11096, cystathionine beta-synthase EC:4.2.1.22, 1-aminocyclopropane-1-carboxylate deaminase EC:4.1.99.4</Hit_def>
+          <Hit_accession>pfam00291</Hit_accession>
+          <Hit_len>298</Hit_len>
+          <Hit_hsps>
+            <Hsp>
+              <Hsp_num>1</Hsp_num>
+              <Hsp_bit-score>129.028</Hsp_bit-score>
+              <Hsp_score>323</Hsp_score>
+              <Hsp_evalue>3.98147e-31</Hsp_evalue>
+              <Hsp_query-from>96</Hsp_query-from>
+              <Hsp_query-to>363</Hsp_query-to>
+              <Hsp_hit-from>28</Hsp_hit-from>
+              <Hsp_hit-to>280</Hsp_hit-to>
+              <Hsp_pattern-from>0</Hsp_pattern-from>
+              <Hsp_pattern-to>0</Hsp_pattern-to>
+              <Hsp_query-frame>1</Hsp_query-frame>
+              <Hsp_hit-frame>1</Hsp_hit-frame>
+              <Hsp_identity>69</Hsp_identity>
+              <Hsp_positive>101</Hsp_positive>
+              <Hsp_gaps>19</Hsp_gaps>
+              <Hsp_align-len>270</Hsp_align-len>
+              <Hsp_density>0</Hsp_density>
+              <Hsp_qseq>LELFHGPTLAFKDFGGRFMAQMLTHIAGDKPVTILTATSGDTGAAVAHAFYGLPNVKVVILYPRGKISPLQEKLFCTLGGNIETVAIDGDFDACQALVKQAFDDEELKVALGLNSANSINISRLLAQICYYFEAVAQLPQETRNQL-VVSVPSGNFGDLTAGLLAKSLGLPVKRFIAATNVNDTVPRFLHDGQWSPKATQATLSNAMDVSQPNNWPRVEELFRRKIWQLKELGYAAVDDETTQQTMREL-KELGYTSEPHAAVAYRALRD</Hsp_qseq>
+              <Hsp_hseq>LEDLN-PTGSFKDRGA-LNMILLAEKLGKKGGIVPGATSGNTGIALAYA-AALLGLKCTIVMPAT-TSREKVAQLRALGAENIVVPVVGGFDDLADAVKKALELAEENPK-NAYLVNQ-FDNPANVEA-GQKTIGLEIWEQLGGKPDAVVVPVGGGGTIAGIARYLKELLPVKVIGVEPEGSAVLSGFLKPG--SPVTLPETLSIAIGLGVPFVFPILDELL--------DDEVVTVTDEEALEAARLLAREEGIFVEPSSGAAVAAALK</Hsp_hseq>
+              <Hsp_midline>LE  + PT +FKD G      +L    G K   +  ATSG+TG A+A+A   L  +K  I+ P    S  +      LG     V + G FD     VK+A +  E          N    +    +         ++ ++   +   V VP G  G +          LPVK        +  +  FL  G  SP     TLS A+ +  P  +P ++EL         +     V DE   +  R L +E G   EP +  A  A</Hsp_midline>
+            </Hsp>
+          </Hit_hsps>
+        </Hit>
+      </Iteration_hits>
+      <Iteration_stat>
+        <Statistics>
+          <Statistics_db-num>0</Statistics_db-num>
+          <Statistics_db-len>0</Statistics_db-len>
+          <Statistics_hsp-len>0</Statistics_hsp-len>
+          <Statistics_eff-space>1.52967e+08</Statistics_eff-space>
+          <Statistics_kappa>0.041</Statistics_kappa>
+          <Statistics_lambda>0.267</Statistics_lambda>
+          <Statistics_entropy>0.14</Statistics_entropy>
+        </Statistics>
+      </Iteration_stat>
+    </Iteration>
+  </BlastOutput_iterations>
+</BlastOutput>
+<?xml version="1.0"?>
+<!DOCTYPE BlastOutput PUBLIC "-//NCBI//NCBI BlastOutput/EN" "NCBI_BlastOutput.dtd"><BlastOutput>
+  <BlastOutput_program>blastp</BlastOutput_program>
+  <BlastOutput_version>blastp 2.1.3 [Apr-1-2001]</BlastOutput_version>
+  <BlastOutput_reference>~Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, ~Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), ~&quot;Gapped BLAST and PSI-BLAST: a new generation of protein database search~programs&quot;,  Nucleic Acids Res. 25:3389-3402.</BlastOutput_reference>
+  <BlastOutput_db>/data_2/jason/db/cdd/cdd/Pfam</BlastOutput_db>
+  <BlastOutput_query-ID>lcl|QUERY_4</BlastOutput_query-ID>
+  <BlastOutput_query-def>gi|1786186|gb|AAC73116.1| (AE000111) orf, hypothetical protein [Escherichia coli]</BlastOutput_query-def>
+  <BlastOutput_query-len>98</BlastOutput_query-len>
+  <BlastOutput_param>
+    <Parameters>
+      <Parameters_matrix>BLOSUM62</Parameters_matrix>
+      <Parameters_expect>1e-05</Parameters_expect>
+      <Parameters_include>0</Parameters_include>
+      <Parameters_sc-match>0</Parameters_sc-match>
+      <Parameters_sc-mismatch>0</Parameters_sc-mismatch>
+      <Parameters_gap-open>11</Parameters_gap-open>
+      <Parameters_gap-extend>1</Parameters_gap-extend>
+      <Parameters_filter>F</Parameters_filter>
+    </Parameters>
+  </BlastOutput_param>
+  <BlastOutput_iterations>
+    <Iteration>
+      <Iteration_iter-num>1</Iteration_iter-num>
+      <Iteration_stat>
+        <Statistics>
+          <Statistics_db-num>0</Statistics_db-num>
+          <Statistics_db-len>0</Statistics_db-len>
+          <Statistics_hsp-len>0</Statistics_hsp-len>
+          <Statistics_eff-space>3.59021e+11</Statistics_eff-space>
+          <Statistics_kappa>0.041</Statistics_kappa>
+          <Statistics_lambda>0.267</Statistics_lambda>
+          <Statistics_entropy>0.14</Statistics_entropy>
+        </Statistics>
+      </Iteration_stat>
+    </Iteration>
+  </BlastOutput_iterations>
+</BlastOutput>
+<?xml version="1.0"?>
+<!DOCTYPE BlastOutput PUBLIC "-//NCBI//NCBI BlastOutput/EN" "NCBI_BlastOutput.dtd"><BlastOutput>
+  <BlastOutput_program>blastp</BlastOutput_program>
+  <BlastOutput_version>blastp 2.1.3 [Apr-1-2001]</BlastOutput_version>
+  <BlastOutput_reference>~Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, ~Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), ~&quot;Gapped BLAST and PSI-BLAST: a new generation of protein database search~programs&quot;,  Nucleic Acids Res. 25:3389-3402.</BlastOutput_reference>
+  <BlastOutput_db>/data_2/jason/db/cdd/cdd/Pfam</BlastOutput_db>
+  <BlastOutput_query-ID>lcl|QUERY_5</BlastOutput_query-ID>
+  <BlastOutput_query-def>gi|1786187|gb|AAC73117.1| (AE000111) orf, hypothetical protein [Escherichia coli]</BlastOutput_query-def>
+  <BlastOutput_query-len>258</BlastOutput_query-len>
+  <BlastOutput_param>
+    <Parameters>
+      <Parameters_matrix>BLOSUM62</Parameters_matrix>
+      <Parameters_expect>1e-05</Parameters_expect>
+      <Parameters_include>0</Parameters_include>
+      <Parameters_sc-match>0</Parameters_sc-match>
+      <Parameters_sc-mismatch>0</Parameters_sc-mismatch>
+      <Parameters_gap-open>11</Parameters_gap-open>
+      <Parameters_gap-extend>1</Parameters_gap-extend>
+      <Parameters_filter>F</Parameters_filter>
+    </Parameters>
+  </BlastOutput_param>
+  <BlastOutput_iterations>
+    <Iteration>
+      <Iteration_iter-num>1</Iteration_iter-num>
+      <Iteration_stat>
+        <Statistics>
+          <Statistics_db-num>0</Statistics_db-num>
+          <Statistics_db-len>0</Statistics_db-len>
+          <Statistics_hsp-len>0</Statistics_hsp-len>
+          <Statistics_eff-space>3.3722e+11</Statistics_eff-space>
+          <Statistics_kappa>0.041</Statistics_kappa>
+          <Statistics_lambda>0.267</Statistics_lambda>
+          <Statistics_entropy>0.14</Statistics_entropy>
+        </Statistics>
+      </Iteration_stat>
+    </Iteration>
+  </BlastOutput_iterations>
+</BlastOutput>
+<?xml version="1.0"?>
+<!DOCTYPE BlastOutput PUBLIC "-//NCBI//NCBI BlastOutput/EN" "NCBI_BlastOutput.dtd"><BlastOutput>
+  <BlastOutput_program>blastp</BlastOutput_program>
+  <BlastOutput_version>blastp 2.1.3 [Apr-1-2001]</BlastOutput_version>
+  <BlastOutput_reference>~Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, ~Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), ~&quot;Gapped BLAST and PSI-BLAST: a new generation of protein database search~programs&quot;,  Nucleic Acids Res. 25:3389-3402.</BlastOutput_reference>
+  <BlastOutput_db>/data_2/jason/db/cdd/cdd/Pfam</BlastOutput_db>
+  <BlastOutput_query-ID>lcl|QUERY_6</BlastOutput_query-ID>
+  <BlastOutput_query-def>gi|1786188|gb|AAC73118.1| (AE000111) inner membrane transport protein [Escherichia coli]</BlastOutput_query-def>
+  <BlastOutput_query-len>476</BlastOutput_query-len>
+  <BlastOutput_param>
+    <Parameters>
+      <Parameters_matrix>BLOSUM62</Parameters_matrix>
+      <Parameters_expect>1e-05</Parameters_expect>
+      <Parameters_include>0</Parameters_include>
+      <Parameters_sc-match>0</Parameters_sc-match>
+      <Parameters_sc-mismatch>0</Parameters_sc-mismatch>
+      <Parameters_gap-open>11</Parameters_gap-open>
+      <Parameters_gap-extend>1</Parameters_gap-extend>
+      <Parameters_filter>F</Parameters_filter>
+    </Parameters>
+  </BlastOutput_param>
+  <BlastOutput_iterations>
+    <Iteration>
+      <Iteration_iter-num>1</Iteration_iter-num>
+      <Iteration_hits>
+        <Hit>
+          <Hit_num>1</Hit_num>
+          <Hit_id>gnl|Pfam|pfam01235</Hit_id>
+          <Hit_def>Na_Ala_symp, Sodium:alanine symporter family</Hit_def>
+          <Hit_accession>pfam01235</Hit_accession>
+          <Hit_len>415</Hit_len>
+          <Hit_hsps>
+            <Hsp>
+              <Hsp_num>1</Hsp_num>
+              <Hsp_bit-score>558.525</Hsp_bit-score>
+              <Hsp_score>1438</Hsp_score>
+              <Hsp_evalue>2.26239e-160</Hsp_evalue>
+              <Hsp_query-from>48</Hsp_query-from>
+              <Hsp_query-to>458</Hsp_query-to>
+              <Hsp_hit-from>7</Hsp_hit-from>
+              <Hsp_hit-to>415</Hsp_hit-to>
+              <Hsp_pattern-from>0</Hsp_pattern-from>
+              <Hsp_pattern-to>0</Hsp_pattern-to>
+              <Hsp_query-frame>1</Hsp_query-frame>
+              <Hsp_hit-frame>1</Hsp_hit-frame>
+              <Hsp_identity>233</Hsp_identity>
+              <Hsp_positive>300</Hsp_positive>
+              <Hsp_gaps>2</Hsp_gaps>
+              <Hsp_align-len>411</Hsp_align-len>
+              <Hsp_density>0</Hsp_density>
+              <Hsp_qseq>KNSIHPQPGGLTSFQSLCTSLAARVGSGNLAGVALAITAGGPGAVFWMWVAAFIGMATSFAECSLAQLYKERDVNGQFRGGPAWYMARGLGMRWMGVLFAVFLLIAYGIIFSGVQANAVARALSFSFDFPPLVTGIILAVFTLLAITRGLHGVARLMQGFVPLMAIIWVLTSLVICVMNIGQLPHVIWSIFESAFGWQEAAGGAAGYTLSQAITNGFQRSMFSNEAGMGSTPNAAAAAASWPPHPAAQGIVQMIGIFIDTLVICTASAMLILLAGNGTTYMPLEGIQLIQKAMRVLMGSWGAEFVTLVVILFAFSSIVANYIYAENNLFFLRLNNPKAIWCLRICTFATVIGGTLLSLPLMWQLADIIMACMAITNLTAILLLSPVVHTIASDYLRQRKLGVRPVFDPLRY</Hsp_qseq>
+              <Hsp_hseq>KFGKKDEGGDVSSFQALTTSLAGRVGTGNIAGVATAIAAGGPGAVFWMWVTAFIGMATAFVESTLAQLYKERDKDGNFRGGPAYYIKKGLGMRWLAILFAVAVIVSFGVIFSGVQANSIADAMSNAFGIPPLVTGIVLAILTALIIFGGVKRIAAISSIVVPFMAIIYLITALAIIAMNIEKVPDVIGLIFKSAFGFDAAAGGALGATVSKAIMWGVKRGLFSNEAGMGSAPNAAAAAHVS--HPAKQGLVQMLGIFLDTFIVCTATALVILLTGNYTNVETLKGAQLTQKAFDTLIGGFGATFVAIALLLFAFSTIIANYYYAETNLAYLVRSGPRGVALYRLAYLAAVFYGTVLSLTLVWALADIVMGIMALPNLIAILLLSKVAYEALKDYERQLKQGKDPEFDADEY</Hsp_hseq>
+              <Hsp_midline>K     + G ++SFQ+L TSLA RVG+GN+AGVA AI AGGPGAVFWMWV AFIGMAT+F E +LAQLYKERD +G FRGGPA+Y+ +GLGMRW+ +LFAV +++++G+IFSGVQAN++A A+S +F  PPLVTGI+LA+ T L I  G+  +A +    VP MAII+++T+L I  MNI ++P VI  IF+SAFG+  AAGGA G T+S+AI  G +R +FSNEAGMGS PNAAAAA     HPA QG+VQM+GIF+DT ++CTA+A++ILL GN T    L+G QL QKA   L+G +GA FV + ++LFAFS+I+ANY YAE NL +L  + P+ +   R+   A V  GT+LSL L+W LADI+M  MA+ NL AILLLS V +    DY RQ K G  P FD   Y</Hsp_midline>
+            </Hsp>
+          </Hit_hsps>
+        </Hit>
+      </Iteration_hits>
+      <Iteration_stat>
+        <Statistics>
+          <Statistics_db-num>0</Statistics_db-num>
+          <Statistics_db-len>0</Statistics_db-len>
+          <Statistics_hsp-len>0</Statistics_hsp-len>
+          <Statistics_eff-space>1.95607e+08</Statistics_eff-space>
+          <Statistics_kappa>0.041</Statistics_kappa>
+          <Statistics_lambda>0.267</Statistics_lambda>
+          <Statistics_entropy>0.14</Statistics_entropy>
+        </Statistics>
+      </Iteration_stat>
+    </Iteration>
+  </BlastOutput_iterations>
+</BlastOutput>
+<?xml version="1.0"?>
+<!DOCTYPE BlastOutput PUBLIC "-//NCBI//NCBI BlastOutput/EN" "NCBI_BlastOutput.dtd"><BlastOutput>
+  <BlastOutput_program>blastp</BlastOutput_program>
+  <BlastOutput_version>blastp 2.1.3 [Apr-1-2001]</BlastOutput_version>
+  <BlastOutput_reference>~Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, ~Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), ~&quot;Gapped BLAST and PSI-BLAST: a new generation of protein database search~programs&quot;,  Nucleic Acids Res. 25:3389-3402.</BlastOutput_reference>
+  <BlastOutput_db>/data_2/jason/db/cdd/cdd/Pfam</BlastOutput_db>
+  <BlastOutput_query-ID>lcl|QUERY_7</BlastOutput_query-ID>
+  <BlastOutput_query-def>gi|1786189|gb|AAC73119.1| (AE000111) transaldolase B [Escherichia coli]</BlastOutput_query-def>
+  <BlastOutput_query-len>317</BlastOutput_query-len>
+  <BlastOutput_param>
+    <Parameters>
+      <Parameters_matrix>BLOSUM62</Parameters_matrix>
+      <Parameters_expect>1e-05</Parameters_expect>
+      <Parameters_include>0</Parameters_include>
+      <Parameters_sc-match>0</Parameters_sc-match>
+      <Parameters_sc-mismatch>0</Parameters_sc-mismatch>
+      <Parameters_gap-open>11</Parameters_gap-open>
+      <Parameters_gap-extend>1</Parameters_gap-extend>
+      <Parameters_filter>F</Parameters_filter>
+    </Parameters>
+  </BlastOutput_param>
+  <BlastOutput_iterations>
+    <Iteration>
+      <Iteration_iter-num>1</Iteration_iter-num>
+      <Iteration_hits>
+        <Hit>
+          <Hit_num>1</Hit_num>
+          <Hit_id>gnl|Pfam|pfam00923</Hit_id>
+          <Hit_def>Transaldolase, Transaldolase</Hit_def>
+          <Hit_accession>pfam00923</Hit_accession>
+          <Hit_len>282</Hit_len>
+          <Hit_hsps>
+            <Hsp>
+              <Hsp_num>1</Hsp_num>
+              <Hsp_bit-score>306.99</Hsp_bit-score>
+              <Hsp_score>785</Hsp_score>
+              <Hsp_evalue>7.90128e-85</Hsp_evalue>
+              <Hsp_query-from>13</Hsp_query-from>
+              <Hsp_query-to>313</Hsp_query-to>
+              <Hsp_hit-from>1</Hsp_hit-from>
+              <Hsp_hit-to>282</Hsp_hit-to>
+              <Hsp_pattern-from>0</Hsp_pattern-from>
+              <Hsp_pattern-to>0</Hsp_pattern-to>
+              <Hsp_query-frame>1</Hsp_query-frame>
+              <Hsp_hit-frame>1</Hsp_hit-frame>
+              <Hsp_identity>161</Hsp_identity>
+              <Hsp_positive>191</Hsp_positive>
+              <Hsp_gaps>29</Hsp_gaps>
+              <Hsp_align-len>306</Hsp_align-len>
+              <Hsp_density>0</Hsp_density>
+              <Hsp_qseq>TVVADTGDIAAMKLYQP----QDATTNPSLILNAAQIPEYRKLIDDAVAWAKQQSNDRAQQIVDATDKLAVNIGLEILKLVPGRISTEVDARLSYDTEASIAKAKRLIKLYNDAGISNDRILIKLASTWQGIRAAEQLEKEGINCNLTLLFSFAQARACAEAGVFLISPFVGRILDWYKANTDKKEYAPAEDPGVVSVSEIYQYYKEHGYETVVMGASFRNIGEILE-LAGCDRLTIAPALLKELAESEGAIERKLSYTGEVKARPARITESEFLWQHNQDPMAVDKLAEGIRKFAIDQEKLEKMI</Hsp_qseq>
+              <Hsp_hseq>KVFLDTGDIEEIKKLAPIGIIQGVTTNPSLIAKAAKKSAYEKL----DAVGKKKGKTIKEQVENACDKLAVEF-PEILKIVPGRVSTEVDARLSFDAEAMIKEAKRLIKL-----ISKPNIVIKIPVTWEGLKAVKALEAEGIPVNVTLLFSAAQALAAAEAGVTYISPFVGRIDDWIDALTDK---NYEGDPGVQSVKDIYQYYKKHGYKTEVLAASFRNPGYILELLAGCDSLTIPPALLDQLLDHEPL---------NRKETGEKISEKKF--NIDEDAMAVELLDEGIRKFKKDFEKLLKST</Hsp_hseq>
+              <Hsp_midline> V  DTGDI  +K   P    Q  TTNPSLI  AA+   Y KL     A  K++     +Q+ +A DKLAV    EILK+VPGR+STEVDARLS+D EA I +AKRLIKL     IS   I+IK+  TW+G++A + LE EGI  N+TLLFS AQA A AEAGV  ISPFVGRI DW  A TDK       DPGV SV +IYQYYK+HGY+T V+ ASFRN G ILE LAGCD LTI PALL +L + E             K    +I+E +F    ++D MAV+ L EGIRKF  D EKL K  </Hsp_midline>
+            </Hsp>
+          </Hit_hsps>
+        </Hit>
+      </Iteration_hits>
+      <Iteration_stat>
+        <Statistics>
+          <Statistics_db-num>0</Statistics_db-num>
+          <Statistics_db-len>0</Statistics_db-len>
+          <Statistics_hsp-len>0</Statistics_hsp-len>
+          <Statistics_eff-space>1.4562e+08</Statistics_eff-space>
+          <Statistics_kappa>0.041</Statistics_kappa>
+          <Statistics_lambda>0.267</Statistics_lambda>
+          <Statistics_entropy>0.14</Statistics_entropy>
+        </Statistics>
+      </Iteration_stat>
+    </Iteration>
+  </BlastOutput_iterations>
+</BlastOutput>
+<?xml version="1.0"?>
+<!DOCTYPE BlastOutput PUBLIC "-//NCBI//NCBI BlastOutput/EN" "NCBI_BlastOutput.dtd"><BlastOutput>
+  <BlastOutput_program>blastp</BlastOutput_program>
+  <BlastOutput_version>blastp 2.1.3 [Apr-1-2001]</BlastOutput_version>
+  <BlastOutput_reference>~Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, ~Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), ~&quot;Gapped BLAST and PSI-BLAST: a new generation of protein database search~programs&quot;,  Nucleic Acids Res. 25:3389-3402.</BlastOutput_reference>
+  <BlastOutput_db>/data_2/jason/db/cdd/cdd/Pfam</BlastOutput_db>
+  <BlastOutput_query-ID>lcl|QUERY_8</BlastOutput_query-ID>
+  <BlastOutput_query-def>gi|1786190|gb|AAC73120.1| (AE000111) required for the efficient incorporation of molybdate into molybdoproteins [Escherichia coli]</BlastOutput_query-def>
+  <BlastOutput_query-len>195</BlastOutput_query-len>
+  <BlastOutput_param>
+    <Parameters>
+      <Parameters_matrix>BLOSUM62</Parameters_matrix>
+      <Parameters_expect>1e-05</Parameters_expect>
+      <Parameters_include>0</Parameters_include>
+      <Parameters_sc-match>0</Parameters_sc-match>
+      <Parameters_sc-mismatch>0</Parameters_sc-mismatch>
+      <Parameters_gap-open>11</Parameters_gap-open>
+      <Parameters_gap-extend>1</Parameters_gap-extend>
+      <Parameters_filter>F</Parameters_filter>
+    </Parameters>
+  </BlastOutput_param>
+  <BlastOutput_iterations>
+    <Iteration>
+      <Iteration_iter-num>1</Iteration_iter-num>
+      <Iteration_stat>
+        <Statistics>
+          <Statistics_db-num>0</Statistics_db-num>
+          <Statistics_db-len>0</Statistics_db-len>
+          <Statistics_hsp-len>0</Statistics_hsp-len>
+          <Statistics_eff-space>3.35238e+11</Statistics_eff-space>
+          <Statistics_kappa>0.041</Statistics_kappa>
+          <Statistics_lambda>0.267</Statistics_lambda>
+          <Statistics_entropy>0.14</Statistics_entropy>
+        </Statistics>
+      </Iteration_stat>
+    </Iteration>
+  </BlastOutput_iterations>
+</BlastOutput>
+<?xml version="1.0"?>
+<!DOCTYPE BlastOutput PUBLIC "-//NCBI//NCBI BlastOutput/EN" "NCBI_BlastOutput.dtd"><BlastOutput>
+  <BlastOutput_program>blastp</BlastOutput_program>
+  <BlastOutput_version>blastp 2.1.3 [Apr-1-2001]</BlastOutput_version>
+  <BlastOutput_reference>~Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, ~Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), ~&quot;Gapped BLAST and PSI-BLAST: a new generation of protein database search~programs&quot;,  Nucleic Acids Res. 25:3389-3402.</BlastOutput_reference>
+  <BlastOutput_db>/data_2/jason/db/cdd/cdd/Pfam</BlastOutput_db>
+  <BlastOutput_query-ID>lcl|QUERY_9</BlastOutput_query-ID>
+  <BlastOutput_query-def>gi|1786191|gb|AAC73121.1| (AE000111) orf, hypothetical protein [Escherichia coli]</BlastOutput_query-def>
+  <BlastOutput_query-len>188</BlastOutput_query-len>
+  <BlastOutput_param>
+    <Parameters>
+      <Parameters_matrix>BLOSUM62</Parameters_matrix>
+      <Parameters_expect>1e-05</Parameters_expect>
+      <Parameters_include>0</Parameters_include>
+      <Parameters_sc-match>0</Parameters_sc-match>
+      <Parameters_sc-mismatch>0</Parameters_sc-mismatch>
+      <Parameters_gap-open>11</Parameters_gap-open>
+      <Parameters_gap-extend>1</Parameters_gap-extend>
+      <Parameters_filter>F</Parameters_filter>
+    </Parameters>
+  </BlastOutput_param>
+  <BlastOutput_iterations>
+    <Iteration>
+      <Iteration_iter-num>1</Iteration_iter-num>
+      <Iteration_hits>
+        <Hit>
+          <Hit_num>1</Hit_num>
+          <Hit_id>gnl|Pfam|pfam01184</Hit_id>
+          <Hit_def>Grp1_Fun34_YaaH, GPR1/FUN34/yaaH family</Hit_def>
+          <Hit_accession>pfam01184</Hit_accession>
+          <Hit_len>210</Hit_len>
+          <Hit_hsps>
+            <Hsp>
+              <Hsp_num>1</Hsp_num>
+              <Hsp_bit-score>218.009</Hsp_bit-score>
+              <Hsp_score>554</Hsp_score>
+              <Hsp_evalue>2.86271e-58</Hsp_evalue>
+              <Hsp_query-from>5</Hsp_query-from>
+              <Hsp_query-to>188</Hsp_query-to>
+              <Hsp_hit-from>16</Hsp_hit-from>
+              <Hsp_hit-to>210</Hsp_hit-to>
+              <Hsp_pattern-from>0</Hsp_pattern-from>
+              <Hsp_pattern-to>0</Hsp_pattern-to>
+              <Hsp_query-frame>1</Hsp_query-frame>
+              <Hsp_hit-frame>1</Hsp_hit-frame>
+              <Hsp_identity>137</Hsp_identity>
+              <Hsp_positive>146</Hsp_positive>
+              <Hsp_gaps>13</Hsp_gaps>
+              <Hsp_align-len>196</Hsp_align-len>
+              <Hsp_density>0</Hsp_density>
+              <Hsp_qseq>KLANPAPLGLMGFGMTTILLNLHNVGYFALD--GIILAMGIFYGGIAQIFAGLLEYKKGNTFGLTAFTSYGSFWLTLVAILLMPKLGLTDAPNAQ-----FLGVYLGLWGVFTLFMFFGTLKGARVLQFVFFSLTVLFALLAIGNIAGNAAIIHFAGWIGLICGASAIYLAMGEVLNEQFGRTV-----LPIGESH</Hsp_qseq>
+              <Hsp_hseq>KFANPAPLGLSGFALTTIVLSLHNVGAFGLDNPGIIVGMAIFYGGIAQIFAGLWEYKKENTFGLTALTSYGGFWLSLVAIL-MPKFGITDAYNDQIEVQNALGVYLGGWGVFTLFLFFCTLKSTRVFFFLFFSLTVTFLLLAIANITGNAAIIHFGGWLGLICAFSAIYLAYAGVANEQNSYIVPVPLDLPIGEKH</Hsp_hseq>
+              <Hsp_midline>K ANPAPLGL GF +TTI+L+LHNVG F LD  GII+ M IFYGGIAQIFAGL EYKK NTFGLTA TSYG FWL+LVAIL MPK G+TDA N Q      LGVYLG WGVFTLF+FF TLK  RV  F+FFSLTV F LLAI NI GNAAIIHF GW+GLIC  SAIYLA   V NEQ    V     LPIGE H</Hsp_midline>
+            </Hsp>
+          </Hit_hsps>
+        </Hit>
+      </Iteration_hits>
+      <Iteration_stat>
+        <Statistics>
+          <Statistics_db-num>0</Statistics_db-num>
+          <Statistics_db-len>0</Statistics_db-len>
+          <Statistics_hsp-len>0</Statistics_hsp-len>
+          <Statistics_eff-space>8.17579e+07</Statistics_eff-space>
+          <Statistics_kappa>0.041</Statistics_kappa>
+          <Statistics_lambda>0.267</Statistics_lambda>
+          <Statistics_entropy>0.14</Statistics_entropy>
+        </Statistics>
+      </Iteration_stat>
+    </Iteration>
+  </BlastOutput_iterations>
+</BlastOutput>

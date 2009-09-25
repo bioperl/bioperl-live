@@ -1,0 +1,25 @@
+#NEXUS
+
+BEGIN TAXA;
+      dimensions ntax=8;
+      taxlabels A B C D E F G H;  
+END;
+
+BEGIN CHARACTERS;
+      dimensions nchar=5;
+      format datatype=protein missing=? gap=-;
+      charlabels one two three four five;
+      matrix
+A     --ONE
+B     --ONE
+C     TWO--
+D     THREE
+E     F-OUR
+F     FIVE-
+G     SIX--
+H     SEVEN;
+END;
+
+BEGIN TREES;
+       tree basic_ladder = (((((((A:1,B:1):1,C:2):1,D:3):1,E:4):1,F:5):1,G:6):1,H:7);
+END;

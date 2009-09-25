@@ -1,0 +1,42 @@
+>Vector C02HBa0064B17.2 Screen: VecScreen Database: NCBI UniVec vector sequences
+No hits found
+
+>Vector C02HBa0066C13.1 Screen: VecScreen Database: NCBI UniVec vector sequences
+No hits found
+
+>Vector C02HBa0072A04.1 Screen: VecScreen Database: NCBI UniVec vector sequences
+Moderate match
+60522   60548
+
+
+>Vector SL_FOS91h17_SP6_0 Screen: VecScreen Database: NCBI UniVec vector sequences
+Strong match
+60      122
+
+>Vector SL_FOS91h18_T7_0 Screen: VecScreen Database: NCBI UniVec vector sequences
+Strong match
+35      102
+Moderate match
+76      103
+Weak match
+82      104
+Suspect origin
+1       34
+
+>Vector SL_FOS91i01_SP6_0 Screen: VecScreen Database: NCBI UniVec vector sequences
+Strong match
+46      110
+Suspect origin
+1       45
+
+>Vector SL_FOS92b12_T7_0 Screen: VecScreen Database: NCBI UniVec vector sequences
+Strong match
+41      108
+Moderate match
+82      109
+Weak match
+88      110
+1313    1329
+Suspect origin
+1       40
+1330    1334

@@ -1,0 +1,116 @@
+Deobfuscator version 0.0.3
+
+The Deobfuscator was written to make it easier to determine the methods that
+are available from a given BioPerl module.
+
+BioPerl is a highly object-oriented software package, with often multiple
+levels of inheritance. Although each individual module is usually well 
+documented for the methods specific to it, identifying the inherited methods
+is less straightforward.
+
+The Deobfuscator indexes all of the BioPerl POD documentation, taking account
+of the inheritance tree, and then presents all of the methods available to
+each module through a searchable web interface.
+
+
+DOCUMENTATION
+
+All of the code in this distribution have POD documentation, which can be read using the perldoc command. For example,
+
+    perldoc lib/Deobfuscator.pm
+
+will show the POD documentation for the Deobfuscator module.
+
+Also, there are two files in the cgi-bin directory which may be helpful:
+
+cgi-bin/deob_help.html
+cgi-bin/deob_flowchart.png
+
+
+INSTALLATION
+
+Installation of the Deobfuscator package requires a little bit more than a
+typical CPAN module because there are some cgi scripts, and these need to be
+placed in a directory accessible to a webserver.
+
+Follow these steps to install the Deobfuscator on your system:
+
+1) Follow the standard CPAN installation procedure to install the Deobfuscator.pm module and the deob_index.pl program.
+
+Run the following commands:
+
+    perl Makefile.PL
+    make
+    make test
+    make install
+
+
+Alternatively, to install with Module::Build, you can use the following commands:
+
+    perl Build.PL
+    ./Build
+    ./Build test
+    ./Build install
+
+2) Copy the contents of the cgi-bin directory to your cgi-bin directory, or
+any directory from which the webserver allows scripts to be executed over the
+web.
+
+3) Make sure deob_interface.cgi and deob_detail.cgi are world-executable. On a
+UNIX system, the command
+
+    chmod o+x deob_interface.cgi deob_detail.cgi
+
+should do it.
+
+4) Run deob_index.pl. For a default installation, run it from your webserver's cgi-bin directory. On UNIX systems, it should be something like:
+
+	cd /Library/WebServer/CGI-Executables
+    deob_index.pl /Library/Perl/5.8.6/Bio .
+
+When the command finishes, it should show you some stats on the indexing. On my system it looked like this for BioPerl 1.5.1:
+
+This indexing run found:
+  803 files
+  798 pkg_name
+  772 desc
+  788 synopsis
+ 5660 methods
+
+If the number of files is much lower than this (like 0), then deob_index.pl may have been pointed to the wrong directory.
+
+There should also be some new files in the directory you ran it from:
+packages.db
+methods.db
+package_list.txt
+deob_index.log
+
+You can move or delete deob_index.log and the Deobfuscator should still work,
+but the other three files need to be in the same directory as deob_interface.cgi and deob_index.cgi unless you change the hardcoded variables in those scripts. See their documentation if you want to do that.
+
+5) Test your installation by pointing your browser to the deob_interface.cgi script. On my system, the URL is:
+
+http://localhost/cgi-bin/deob_interface.cgi
+
+If you get an error, check the permissions on the cgi-scripts and the files that deob_index.pl created in the last step. Your webserver error log may also be helpful.
+
+If you moved any of the files outside of your webserver's cgi-bin directory, make sure that the hardcoded variables in deob_interface.cgi point to their new location.
+
+6) That should be it! As always, check the POD documentation in the individual files for more information. And if you have comments, suggesions, or problems, send an email to the BioPerl mailing list <bioperl-l@bioperl.org>.
+
+
+DEPENDENCIES
+
+- version              Available from CPAN.
+- Class::Inspector     Available from CPAN.
+- Test::Pod            Available from CPAN.
+- BioPerl              Tested with v1.5.1, but other versions should work
+                       too. Get the latest from http://www.bioperl.org.
+
+
+COPYRIGHT AND LICENSE
+
+Copyright (C) 2006, Dave Messina and Laura Kavanaugh
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.

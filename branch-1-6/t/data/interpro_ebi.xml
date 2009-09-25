@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<E	BIInterProScanResults xmlns="http://www.ebi.ac.uk/schema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="http://www.ebi.ac.uk/schema/InterProScanResult.xsd">
+  <Header>
+	 <program name="InterProScan" version="4.0"
+		citation="PMID:11590104"/>
+	 <parameters>
+		<sequences total="1"/>
+		<databases total="10">
+		  <database number="1" name="PRODOM" type="sequences"/>
+		  <database number="2" name="PRINTS" type="matrix"/>
+		  <database number="3" name="PIR" type="model"/>
+		  <database number="4" name="PFAM" type="model"/>
+		  <database number="5" name="SMART" type="model"/>
+		  <database number="6" name="TIGRFAMs" type="model"/>
+		  <database number="7" name="PROSITE" type="strings"/>
+		  <database number="8" name="SUPERFAMILY" type="model"/>
+		  <database number="9" name="SIGNALP" type="model"/>
+		  <database number="10" name="TMHMM" type="model"/>
+		</databases>
+	 </parameters>
+  </Header>
+
+  <interpro_matches>
+
+	 <protein id="Sequence_1" length="85" crc64="E5E52028293ABD62">
+		
+		<interpro id="IPR009366" name="Protein of unknown function DUF1021" type="Family">
+		  <match id="PF06257.1" name="Protein of unknown function (DUF1021)"
+			 dbname="PFAM">
+			 <location start="5" end="78" score="3.7e-47" status="T"
+				evidence="HMMPfam"/>
+		  </match>
+		</interpro>
+
+		<interpro id="noIPR" name="unintegrated" type="unintegrated">
+		  <match id="PD061839" name="Q92F78_LISMO_Q92F78;" dbname="PRODOM">
+			 <location start="4" end="76" score="2e-36" status="T"
+				evidence="BlastProDom"/>
+		  </match>
+		</interpro>
+
+   </protein>
+	 
+  </interpro_matches>
+</EBIInterProScanResults>

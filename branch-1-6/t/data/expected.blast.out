@@ -1,0 +1,16 @@
+QUERY	Q_LEN	SBJCT	S_LEN	EXPCT	SCORE	BITS	HSPS	IDEN	CONSV	Q_ALN	S_ALN	Q_GAP	S_GAP	Q_BEG	Q_END	S_BEG	S_END	Q_STR	S_STR	FRAM	DESC
+-----	-----	-----	-----	-----	-----	-----	-----	-----	-----	-----	-----	-----	-----	-----	-----	-----	-----	-----	-----	-----	-----
+gi|1401126	504	gb|U49928|HSU49928	3096	0.0e+00	2580	1009	1	1.00	1.00	504	504	0	0	1	504	21	1532		1		Homo sapiens TAK1 binding protein (TAB1) mRNA, complete cds
+gi|1401126	504	emb|Z36985|PTPP2CMR	969	4.0e-07	137	57	1	0.25	0.43	261	221	2	42	64	324	182	844		1		P.tetraurelia mRNA for protein phosphatase type 2C
+gi|1401126	504	emb|X77116|ATMRABI1	1981	1.0e-05	124	52	1	0.24	0.43	242	191	6	57	55	296	918	1490		1		A.thaliana mRNA for ABI1 protein
+gi|1401126	504	gb|U12856|ATU12856	2000	1.0e-05	124	52	1	0.24	0.43	242	191	6	57	55	296	918	1490		1		Arabidopsis thaliana Col-0 abscisic acid insensitive protein (ABI1) mRNA, complete cds
+
+
+QUERY	Q_LEN	SBJCT	S_LEN	EXPCT	SCORE	BITS	HSPS	FR_ID	FR_CN	FR_ALQ	FR_ALS	Q_ALN	S_ALN	Q_GAP	S_GAP	Q_BEG	Q_END	S_BEG	S_END	AMBIG
+-----	-----	------	-----	-----	-----	-----	-----	-----	-----	-----	-----	-----	-----	-----	-----	-----	-----	-----	-----	-----
+gi|1401126	504	gb|U49928|HSU49928	3096	0.0e+00	2580	1009	1	1.00	1.00	1.00	0.49	504	504	0	0	1	504	21	1532	-	Homo sapiens TAK1 binding protein (TAB1) mRNA, complete cds
+gi|1401126	504	emb|Z36985|PTPP2CMR	969	4.0e-07	137	57	1	0.25	0.43	0.52	0.68	261	221	2	42	64	324	182	844	-	P.tetraurelia mRNA for protein phosphatase type 2C
+gi|1401126	504	emb|X77116|ATMRABI1	1981	1.0e-05	124	52	1	0.24	0.43	0.48	0.29	242	191	6	57	55	296	918	1490	-	A.thaliana mRNA for ABI1 protein
+gi|1401126	504	gb|U12856|ATU12856	2000	1.0e-05	124	52	1	0.24	0.43	0.48	0.29	242	191	6	57	55	296	918	1490	-	Arabidopsis thaliana Col-0 abscisic acid insensitive protein (ABI1) mRNA, complete cds
+
+

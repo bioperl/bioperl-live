@@ -1,0 +1,85 @@
+<seqDiff id="M20132" moltype="rna" offset="362" sysname="[c.+4G|A|T;c.+31C|A]" trivname="[E2|K|X;Q11|K]">
+    <DNA number="1.1" start="4" end="4" length="1" isMutation="0">
+        <label>point</label>
+        <label>transition</label>
+        <proof>computed</proof>
+        <upFlank>gaagattcagccaagctcaaggatg</upFlank>
+        <allele_ori>g</allele_ori>
+        <allele_mut>a</allele_mut>
+        <dnFlank>aagtgcagttagggctgggaagggt</dnFlank>
+        <restriction_changes>-BccI</restriction_changes>
+    </DNA>
+    <DNA number="1.2" start="4" end="4" length="1" isMutation="0">
+        <label>point</label>
+        <label>transversion</label>
+        <proof>computed</proof>
+        <upFlank>gaagattcagccaagctcaaggatg</upFlank>
+        <allele_ori>g</allele_ori>
+        <allele_mut>t</allele_mut>
+        <dnFlank>aagtgcagttagggctgggaagggt</dnFlank>
+        <restriction_changes>-BccI</restriction_changes>
+    </DNA>
+    <RNA number="1.1" start="4" end="4" length="1" isMutation="0">
+        <label>missense</label>
+        <proof>experimental</proof>
+        <upFlank>gaagattcagccaagctcaaggatg</upFlank>
+        <allele_ori>g</allele_ori>
+        <allele_mut>a</allele_mut>
+        <dnFlank>aagtgcagttagggctgggaagggt</dnFlank>
+        <codon codon_ori="gaa" codon_mut="aaa" codon_pos="1"></codon>
+        <restriction_changes>-BccI</restriction_changes>
+        <region>coding</region>
+    </RNA>
+    <RNA number="1.2" start="4" end="4" length="1" isMutation="0">
+        <label>nonsense</label>
+        <proof>experimental</proof>
+        <upFlank>gaagattcagccaagctcaaggatg</upFlank>
+        <allele_ori>g</allele_ori>
+        <allele_mut>t</allele_mut>
+        <dnFlank>aagtgcagttagggctgggaagggt</dnFlank>
+        <codon codon_ori="gaa" codon_mut="taa" codon_pos="1"></codon>
+        <restriction_changes>-BccI</restriction_changes>
+        <region>coding</region>
+    </RNA>
+    <AA number="1.1" start="2" end="2" length="1" isMutation="0">
+        <label>substitution</label>
+        <label>conservative</label>
+        <proof>computed</proof>
+        <allele_ori>E</allele_ori>
+        <allele_mut>K</allele_mut>
+    </AA>
+    <AA number="1.2" start="2" end="2" length="1" isMutation="0">
+        <label>truncation</label>
+        <proof>computed</proof>
+        <allele_ori>E</allele_ori>
+        <allele_mut>*</allele_mut>
+    </AA>
+    <DNA number="2" start="31" end="31" length="1" isMutation="0">
+        <label>point</label>
+        <label>transversion</label>
+        <proof>computed</proof>
+        <upFlank>gaagattcagccaagctcaaggatg</upFlank>
+        <allele_ori>c</allele_ori>
+        <allele_mut>a</allele_mut>
+        <dnFlank>aagtgcagttagggctgggaagggt</dnFlank>
+        <restriction_changes>-CviRI, -SfaNI</restriction_changes>
+    </DNA>
+    <RNA number="2" start="31" end="31" length="1" isMutation="0">
+        <label>missense</label>
+        <proof>experimental</proof>
+        <upFlank>gaagattcagccaagctcaaggatg</upFlank>
+        <allele_ori>c</allele_ori>
+        <allele_mut>a</allele_mut>
+        <dnFlank>aagtgcagttagggctgggaagggt</dnFlank>
+        <codon codon_ori="caa" codon_mut="aaa" codon_pos="1"></codon>
+        <restriction_changes>-CviRI, -SfaNI</restriction_changes>
+        <region>coding</region>
+    </RNA>
+    <AA number="2" start="11" end="11" length="1" isMutation="0">
+        <label>substitution</label>
+        <label>conservative</label>
+        <proof>computed</proof>
+        <allele_ori>Q</allele_ori>
+        <allele_mut>K</allele_mut>
+    </AA>
+</seqDiff>

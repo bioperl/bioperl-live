@@ -1,0 +1,28 @@
+
+Training set:	"/home/Administrator/pyrR.epn":
+		40 sequences of length 43
+Cutoff:		1.00  
+
+Database:	"AE016879.fna"
+		5227266 nucleotides to be processed in 1 sequence
+		ATGC ratios: 0.322  0.324  0.176  0.178
+E-value at cutoff 1.0 for 5.2Mb double strand data: 4.59e-02
+
+>gi|30260185|gb|AE016879.1| Bacillus anthracis str. Ames, complete genome
+FW   1 5181155..5181183  30.36  1.68e-05
+CTTT.aacc--.CAACC.CCGTGA.GGTTG.a.GAAG
+>gi|30260185|gb|AE016879.1| Bacillus anthracis str. Ames, complete genome
+RC   1 3709092..3709121  28.97  5.61e-05
+CTTT.taatt-.CAGTC.CTGTGA.GACCG.g.AAAG
+RC   2 3710524..3710553  27.97  1.31e-04
+TTTT.aaatg-.TAGTC.CTGTGA.GGCTG.c.CAAA
+RC   3 3711223..3711251  31.64  4.44e-06
+CTTT.aaca--.CAGCC.CCGTGA.GGTTG.a.GAAG
+
+-------- at level 1 --------
+10454532 bases processed
+cutoff: 1.00
+6 config. per site
+10 hits
+4 independent hits
+

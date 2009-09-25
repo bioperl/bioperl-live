@@ -1,0 +1,111 @@
+VV  TRANSFAC FRAGMENT TABLE, Release 11.1 - licensed - 2007-03-31, (C) Biobase GmbH
+XX
+//
+AC  FR0000001
+XX
+ID  FR0000001
+XX
+DT  5.0.h2el(ct2a)k0. ;055d re
+DT  tp5. )00m0e22 d5d;ul.a(k.5
+CO  Copyright (C), Biobase GmbH.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; primates
+XX
+SQ  TGGGCTCCTGGCATCGTTTACGCGAGCTGGTTCCAGGAAAGGCACCTCGGTTCATGCGAG
+SQ  GCGCTGATTCTATTGTGTAAACTGTTTCGAGTGACTAGGCCACGAAACCTTTTCATGTAA
+SQ  GGTGAATTGGGGGTTTTCATTTAACGCGGGGTACGGTTCGTTGGTGGGAAGTGGTTTCGG
+SQ  ATGTAACGTGGTACGTCGGATATATTGCATGGATTAATACGAAGACGCTCGAGAAAGTCG
+SQ  AGAGTACAGAAAGTTAAACCGCGGGTTTACGAAAGCATAACTAAAGAAGGTAAATTGATA
+SQ  GATTCACAGAATGCGGTTGTATGAAACCTATTGACAGCGTCCGTTCGTGCGTTAGATGGT
+SQ  GTTCTGCGGGGTTCAATATCATGTGAGCGGTCGTGAGGGCAGTTATCGATACTACATGTG
+SQ  TCGGGGGGCATGCGCTCACCGACTTATCATGGCGGGTACGAACGAACGGGAATCGGATTG
+SQ  AGGAGGAGCAAAGGATTAGAATTAAAGAGCGGACTTACTGATGGTTCAGACCGTCGTCTT
+SQ  ACAACAACATCGTATGCTACTGGGAAGTATCAGCTCATCGGGTGGCGATCACGAGAATCG
+SQ  AAACATACATTGTCTATGTACTGGCGGATCAAAACCCATTCAGTATATACTAGGTTTTTG
+SQ  TTCGGACTAGCTGGCTGTGCGTACGCCATTGGAGACAACAGTCCGTGGGCAATGCTACAT
+SQ  AAGTGGGATTGGCGACTGTGGTCGCCCAGACAACCGGAGCAAGACTGTCCTGTTTCCGGA
+SQ  CTTAGGGGAGTAAGGCGCTACAGCTAGGGATCATTAGGCAGAATAGGCAATAATCAGCAT
+SQ  TTTGACTGGGTTATATCACAACCAAACGGGTGTAGGAGGGGCCGAGATCATATAGTGAGG
+SQ  GAGATTTTCCTTGTATGTAGGCTGCATATTATCATTACGGACGTGACTTATTAAATCCAG
+SQ  TATTCATATAACACGAACCCTACCAGAGTGAGTCGAACCTAGTGTTTTGATAAGTGTAAT
+SQ  TAAATTCTTGCTCGTCGCTTAATTGTGGACCATGTACAGTGATGTACTCATTTAATCGGG
+SQ  TTTGCTCGATGGGCACACTGGCCGCAAAATTAGGGTTACTCCTCAGTAGCCAT
+XX
+SC  uRr. d0.)140H 1R1O6iF.621W40D.6(AS_620C:lh7y0a8MA1 7B 1
+XX
+BF  T00140; c-Myc; Quality: 6; Species: human, Homo sapiens; Cellular source: 0123, Jurkat.
+XX
+MM  h hruCgnded -a-IntiehPothilo re-cysyacginriloo
+XX
+DR  (:94B9L3AM:39F3)8; .5114E.12 80 695
+RN  [1]; RE0035138.
+RX  PUBMED: 14980218.
+RA  o,r.emWCVmaTkog.J,r Tk. kwls a  o,r laWtneSsihB, at ek aPmrG   aSlnRR.m ,l. eA knK Soa..hu   nn.SuiAlHl,nn,  BeEe.PKGi.bA iKviaraCea.l ,e,Mahw taeeJ, ygp..,r . o.nS,a B,aH,a t oWk Y ., .S ipnrS  cDP eg H,vNb..e,..l,ngcJDegma, H  m rahen.i.ceroe n.
+RT  iedgmisnnrNdngcpbor smr2ittlpocasiep.ei ogdanoft gAaoo nt2Uud ndp i iasfpu r taw  mo n ninsnsfngnlaoimtboot2cec  dR er anarn o hsosoiieas1h
+RL  -10.542(69 9C)el0l1: 049
+RN  [2]; RE0035139.
+RX  PUBMED: 11988577.
+RA    k a,rv    eeE.k.G rePaolL,gnJrR,rgvwBKsr,.S na r .ebuoPai..n., a,Fr .. eDsTwo od yStn..ipR oaSCS
+RT  ntcaostccid sir1ntra  aevyo rn-la msago.mlLtr p2o2esehina 2ici
+RL  e01ic0269 2 S6ec:-1992n.9()
+XX
+//
+AC  FR0002267
+XX
+ID  FR0002267
+XX
+DT  )er2.. 0;00aet9cd(0hl5 .k7
+DT  0m00  07.p.2dl;ae)5(9.ktud
+CO  Copyright (C), Biobase GmbH.
+XX
+DE  Gene: G020751; Gene: G020752.
+XX
+OS  human, Homo sapiens
+OC  eukaryota; animalia; metazoa; chordata; vertebrata; tetrapoda; mammalia; eutheria; primates
+XX
+SQ  gtggcgggcctctataacgtacacggctccgctgggccttcccgctgtaaaccgggaatt
+SQ  acgtcgagaggtgcaaggtgaaaccaccgactgaccccggccggagaccggagcagcgca
+SQ  ctccgtcccaactacatgctgttcctgccacatgcaagcgttccctagtgaatctcgcgg
+SQ  cgggactggcgcattacgcgcactccggtttcgagcgcggtcacaaccttacgttttacc
+SQ  gcgttggttatgaccggtggtatgcggcgccggtgctgggcagatcagggtggtttcgct
+SQ  gtcccattcatgcctccgatttctccactccaacgtctcctcagatgttacctcgtcatg
+SQ  atcgcatacggtctgcgtagtatgggtcaccgatccggaatgcacgcgatgctgagcgtt
+SQ  atgtacgcccgaccgtgcctgcttaccccccgcgcggaagacggcggctgttgcgttctg
+SQ  GTCTACAACtGaCctActGcCtCAAGCCCcGATcCCcCctgGCAAcCGcTcGAaCcTCGt
+SQ  ACTCTTGCGGACGGAGAGCCGAAGAGCAAAGCGTCGCCGGGTAAGACGAACGCTCAAGGG
+SQ  GGTACGAGCAGCGTAACGACGGAAACGGTGACGCCCCGGGATTTGGGGCTCAGCTAGGGT
+SQ  CGCCGAGTAGGGGGCCGCGGGGACAACGGGGGCGACACGCCGCTTTCCCTGCGTCTGTGG
+SQ  AGCCTATGGTACGGCGTAACCGGTTGTGTGATGAACTGTCCAGACCGCACGTAGTCCCAG
+SQ  CGCAAGGTCTATGCCGCCTAGAGGCAAGACGGGCCGTCTCCTACTTAGTAGCCAGCTACG
+SQ  GGGCGTTGGTCCCCTCGGTAGTGCAACTATCCAGCCACGGCGTCCGCCGGGCTGAGCCTC
+SQ  AGCAGAGCTGGGGGGGTATCATTCCGACGCTGTTTAATTCGTCAGCAGGACCCACTACAC
+SQ  GCTCTGTCATTCGCCTGAGCAGTTGTAAATTAGCGCGGCGATCTTGCAAGAGACAAGGAG
+SQ  GCGAACCTGGGGTCGGGACGTAAGGACGAACGGCAGTACAGACGCTGGGGGACGCCACGT
+SQ  GCCAGAACCTCTCACGACCGGAGGTTCAACGCTGATTGGGGCGCAACAGAGGGCGGAGCA
+SQ  GCGAGGTGGCGCTGGTGGGATGGGGCGAGACAAACCCAAGCTGACGCCGAAGGGCCCGCG
+SQ  TGGCCGGGCTGGGGCCCGTAGAACGAGGGAATTGTATGCGGCGCCTGAATGGGCGCACCA
+SQ  tCAgTCTTaGcacTCcCGCATTcTtcATcACaCtcACcCAtctAaggGAAcTaCGCCgGT
+SQ  gctaagcaaggagtcgatcaacggaaaggtgctaggggtaactgggtcttgcgcggcagc
+SQ  cgtgtactcggcttgtaacgacaccgcgactgtaagcgccctacttgcgtatattaacgt
+SQ  aatgttttagtatagttcgttttatctcatctcatgagcttgttttgttgtgtctcgttt
+SQ  tcgttttttttattttgtttttcgtttttttttttctttgtgtctatcgttcattttttt
+SQ  ttatagtggacgcccctgggtagtgcgctcgggcctgtcggagatctcgtccaacgtctc
+SQ  tatcactgctagtgttgccaagcttgctgtaactgaagcggacagtcccacccccactcc
+SQ  ttaagtaagtagacttattccgtttgttttccgttagcgtcccgaagcggtttgaataac
+SQ  ctcgtgcacccgaatactgctatacacatgactaaccaggtcctcccgtgtgcccc
+XX
+SC  30997.0aADHBrM346. d68 .9(y4 iS:W.2lA2F2RC hROu4_77)48
+XX
+BF  T03828; HNF-4alpha; Quality: 6; Species: human, Homo sapiens; Cellular source: 2614, hepatocytes.
+XX
+MM  yCrtea IropnPhr-or-moa
+XX
+DR   M8C081A09:(78:1E 1.6;8L488)B3 
+RN  [1]; RE0023998.
+RX  PUBMED: 14988562.
+RA  rgSM,k .z, .E l.dBopf dn. ..,,f.A..seL  bo .aG. mHKJ l.e.e T  R.tPeR , rlIOAeoGy ,.lG DneZ.l Gc.o B.lJF rNdfe, i,.il Wh rR,erd,,oB.Tro.n ana  li rr. D  YeliL ,erN uVg or. Diuk 
+RT  aF lnn ee tscfH bt  eNarseeorc npsarr prnsCsdnaioooei vonnlit partogycir.xf
+RL  7i3)1S088e 1:n4c0-ce20(3.1 33
+XX
+//

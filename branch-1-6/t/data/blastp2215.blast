@@ -1,0 +1,135 @@
+BLASTP 2.2.15 [Oct-15-2006]
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schäffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman 
+(1997), "Gapped BLAST and PSI-BLAST: a new generation of 
+protein database search programs", Nucleic Acids Res. 25:3389-3402.
+
+Reference: Schäffer, Alejandro A., L. Aravind, Thomas L. Madden, Sergei 
+Shavirin, John L. Spouge, Yuri I. Wolf, Eugene V. Koonin, and 
+Stephen F. Altschul (2001), "Improving the accuracy of PSI-BLAST 
+protein database searches with composition-based statistics 
+and other refinements", Nucleic Acids Res. 29:2994-3005.
+
+RID: 1169055516-21385-22799250964.BLASTQ4
+
+
+Database: All non-redundant GenBank CDS
+translations+PDB+SwissProt+PIR+PRF excluding environmental samples
+           4,460,989 sequences; 1,533,424,333 total letters
+Query= gi|15608519|ref|NP_215895.1| pyrimidine regulatory protein PyrR [Mycobacterium 
+tuberculosis H37Rv]
+Length=193
+
+
+                                                                   Score     E
+Sequences producing significant alignments:                       (Bits)  Value
+
+gi|15608519|ref|NP_215895.1|  pyrimidine regulatory protein Py...   332    8e-90
+gi|55670580|pdb|1W30|A  Chain A, Pyrr Of Mycobacterium Tubercu...   331    1e-89
+gi|41407212|ref|NP_960048.1|  pyrimidine regulatory protein Py...   286    5e-76
+gi|118464931|ref|YP_882576.1|  PyrR bifunctional protein [Myco...   285    1e-75
+gi|118617395|ref|YP_905727.1|  pyrimidine operon regulatory pr...   273    2e-72
+gi|118473305|ref|YP_887358.1|  PyrR bifunctional protein [Myco...   258    1e-67
+gi|89341207|ref|ZP_01193452.1|  Phosphoribosyltransferase [Myc...   254    1e-66
+gi|120403643|ref|YP_953472.1|  Uracil phosphoribosyltransferas...   254    2e-66
+gi|92907430|ref|ZP_01276210.1|  Uracil phosphoribosyltransfera...   244    2e-63
+gi|111024097|ref|YP_707069.1|  probable uracil phosphoribosylt...   238    8e-62
+Query= gi|15595598|ref|NP_249092.1| dihydroorotase [Pseudomonas aeruginosa PAO1]
+Length=423
+
+
+                                                                   Score     E
+Sequences producing significant alignments:                       (Bits)  Value
+
+gi|15595598|ref|NP_249092.1|  dihydroorotase [Pseudomonas aeru...   775    0.0   
+gi|84324488|ref|ZP_00972546.1|  COG0044: Dihydroorotase and re...   771    0.0   
+gi|116054132|ref|YP_788575.1|  noncatalytic dihydroorotase-lik...   770    0.0   
+gi|309886|gb|AAA25977.1|  dihydroorotase-like                       768    0.0   
+gi|94415759|ref|ZP_01295595.1|  hypothetical protein PaerP_010...   744    0.0   
+gi|26991676|ref|NP_747101.1|  dihydroorotase [Pseudomonas puti...   628    4e-179
+gi|82736201|ref|ZP_00899061.1|  Dihydroorotase multifunctional...   627    7e-179
+gi|77461536|ref|YP_351043.1|  dihydroorotase [Pseudomonas fluo...   624    7e-178
+gi|66043748|ref|YP_233589.1|  dihydroorotase [Pseudomonas syri...   622    4e-177
+gi|118056991|ref|ZP_01525457.1|  dihydroorotase, multifunction...   621    5e-177
+Query= gi|15595600|ref|NP_249094.1| pyrimidine regulatory protein PyrR [Pseudomonas 
+aeruginosa PAO1]
+Length=170
+
+
+                                                                   Score     E
+Sequences producing significant alignments:                       (Bits)  Value
+
+gi|15595600|ref|NP_249094.1|  pyrimidine regulatory protein Py...   320    2e-86
+gi|49081516|gb|AAT50158.1|  PA0403 [synthetic construct]            317    2e-85
+gi|94415757|ref|ZP_01295593.1|  hypothetical protein PaerP_010...   310    3e-83
+gi|119856461|ref|ZP_01637894.1|  Uracil phosphoribosyltransfer...   262    8e-69
+gi|67154890|ref|ZP_00416635.1|  Uracil phosphoribosyltransfera...   261    2e-68
+gi|26991674|ref|NP_747099.1|  pyrimidine regulatory protein Py...   260    3e-68
+gi|28872153|ref|NP_794772.1|  pyrimidine regulatory protein Py...   258    9e-68
+gi|104783978|ref|YP_610476.1|  transcriptional regulator PyrR ...   256    3e-67
+gi|71736513|ref|YP_272777.1|  pyrimidine operon regulatory pro...   256    5e-67
+gi|70733117|ref|YP_262890.1|  pyrimidine regulatory protein Py...   256    5e-67
+Query= gi|15598723|ref|NP_252217.1| dihydroorotase [Pseudomonas aeruginosa PAO1]
+Length=348
+
+
+                                                                   Score     E
+Sequences producing significant alignments:                       (Bits)  Value
+
+gi|15598723|ref|NP_252217.1|  dihydroorotase [Pseudomonas aeru...   690    0.0   
+gi|84319753|ref|ZP_00968143.1|  COG0418: Dihydroorotase [Pseud...   687    0.0   
+gi|116051526|ref|YP_789638.1|  dihydroorotase, homodimeric typ...   686    0.0   
+gi|94415333|ref|ZP_01295177.1|  hypothetical protein PaerP_010...   677    0.0   
+gi|104780416|ref|YP_606914.1|  dihydroorotase [Pseudomonas ent...   618    5e-176
+gi|77460740|ref|YP_350247.1|  dihydroorotase [Pseudomonas fluo...   617    1e-175
+gi|26987822|ref|NP_743247.1|  dihydroorotase [Pseudomonas puti...   616    2e-175
+gi|70732180|ref|YP_261936.1|  dihydroorotase [Pseudomonas fluo...   614    8e-175
+gi|118058820|ref|ZP_01527280.1|  dihydroorotase, homodimeric t...   613    1e-174
+gi|82737454|ref|ZP_00900303.1|  Dihydroorotase homodimeric typ...   613    2e-174
+Query= gi|15600734|ref|NP_254228.1| dihydroorotase [Pseudomonas aeruginosa PAO1]
+Length=445
+
+
+                                                                   Score     E
+Sequences producing significant alignments:                       (Bits)  Value
+
+gi|15600734|ref|NP_254228.1|  dihydroorotase [Pseudomonas aeru...   871    0.0   
+gi|116053692|ref|YP_794019.1|  dihydroorotase [Pseudomonas aer...   870    0.0   
+gi|84318214|ref|ZP_00966642.1|  COG0044: Dihydroorotase and re...   869    0.0   
+gi|94417254|ref|ZP_01297073.1|  hypothetical protein PaerP_010...   831    0.0   
+gi|77461883|ref|YP_351390.1|  dihydroorotase [Pseudomonas fluo...   658    0.0   
+gi|104782179|ref|YP_608677.1|  dihydroorotase [Pseudomonas ent...   634    0.0   
+gi|70733466|ref|YP_263241.1|  dihydroorotase [Pseudomonas fluo...   622    2e-177
+gi|118059665|ref|ZP_01528121.1|  amidohydrolase [Pseudomonas m...   606    2e-172
+gi|50084596|ref|YP_046106.1|  dihydroorotase [Acinetobacter sp...   562    3e-159
+gi|117621557|ref|YP_857112.1|  dihydroorotase [Aeromonas hydro...   482    3e-135
+
+  Database: All non-redundant GenBank CDS translations+PDB+SwissProt+PIR+PRF excluding 
+environmental samples
+    Posted date:  Jan 16, 2007  5:53 PM
+  Number of letters in database: 1,533,424,333
+  Number of sequences in database:  4,460,989
+Lambda     K      H
+   0.319    0.139    0.394 
+Gapped
+Lambda     K      H
+   0.267   0.0410    0.140 
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Sequences: 4460989
+Number of Hits to DB: 469576580
+Number of extensions: 20639621
+Number of successful extensions: 52293
+Number of sequences better than 10: 358
+Number of HSP's better than 10 without gapping: 0
+Number of HSP's gapped: 52059
+Number of HSP's successfully gapped: 644
+Length of database: 1533424333
+T: 11
+A: 40
+X1: 16 (7.4 bits)
+X2: 38 (14.6 bits)
+X3: 64 (24.7 bits)
+S1: 41 (20.4 bits)
+
+

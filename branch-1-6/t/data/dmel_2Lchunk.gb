@@ -1,0 +1,456 @@
+LOCUS       2L:14000-19000          5001 bp    dna     linear   UNK 
+DEFINITION  THIS IS TEST DATA FOR THE UNFLATTENER - ERRONEOUS CDS RECORDS
+ACCESSION   unknown
+KEYWORDS    .
+SOURCE      fruit fly
+  ORGANISM  Drosophila melanogaster
+            Eukaryota; Metazoa; Arthropoda; Insecta; Pterygota; Neoptera;
+            Endopterygota; Diptera; Brachycera; Muscomorpha; Ephydroidea;
+            Drosophilidae; Drosophila.
+FEATURES             Location/Qualifiers
+     source          1..5001
+                     /location="14000..19000"
+                     /chromosome="2L"
+                     /type="tile"
+                     /organism="Drosophila melanogaster"
+                     /mol_type="genomic dna"
+                     /md5checksum="d53c791f329d9bb3953522c37087626e"
+     gene            complement(-4163..7373)
+                     /gene="l(2)gl"
+                     /comment="person=bmatthew; date=Tue May 14 09:00:55 PDT
+                     2002; text=Only one EST supports this alternative
+                     transcript"
+                     /dbxref="GO:0007391"
+                     /dbxref="GO:0005918"
+                     /dbxref="GO:0016082"
+                     /dbxref="GO:0005938"
+                     /dbxref="GO:0005578"
+                     /dbxref="GO:0017022"
+                     /dbxref="GO:0016327"
+                     /dbxref="GO:0045200"
+                     /dbxref="GO:0007559"
+                     /dbxref="GO:0008021"
+                     /dbxref="GO:0030154"
+                     /dbxref="GO:0007179"
+                     /dbxref="GO:0005856"
+                     /dbxref="GO:0002009"
+                     /dbxref="GO:0045184"
+                     /dbxref="GO:0005737"
+                     /dbxref="GO:0007269"
+                     /dbxref="GO:0008360"
+                     /dbxref="FlyBase:FBgn0002121"
+                     /dbxref="GO:0019991"
+                     /dbxref="GO:0016336"
+                     /dbxref="GO:0016335"
+                     /dbxref="GO:0016334"
+                     /dbxref="GO:0016333"
+                     /dbxref="flybase:FBan0002671"
+                     /dbxref="GO:0016332"
+                     /dbxref="GO:0005829"
+                     /dbxref="GO:0008283"
+                     /dbxref="GO:0045159"
+                     /dbxref="GO:0007399"
+                     /dbxref="GO:0005614"
+                     /dbxref="GO:0005886"
+                     /dbxref="GO:0045197"
+                     /dbxref="GO:0045175"
+                     /dbxref="GO:0045196"
+                     /dbxref="GO:0042127"
+                     /gbunit="AE003590"
+                     /sp_status="Perfect match to SwissProt real
+                     (computational)"
+                     /cyto_range="21A2-21A2"
+                     /standard_name="CG2671"
+     mRNA            complement(-4163..7373)
+                     /gene="l(2)gl"
+                     /standard_name="CG2671-RB"
+                     /product_desc="CG2671-RB transcript from_gene[CG2671
+                     l(2)gl FBgn0002121] seq_release:3 mRNA_length:5154
+                     transcript_boundaries:(2L:9,836..21,372[-])
+                     cyto:21A2-21A2 gene_info:[CG2671 gene symbol:l(2)gl
+                     FBgn0002121 (0 ""reduction of virulence"")]"
+     CDS             join(complement(-2781..-2655),complement(-2589..-2481),
+                     complement(-2220..-1778),complement(-1713..-1071),
+                     complement(-479..-374),complement(-316..875),
+                     complement(934..1712),complement(5886..5945))
+                     /translation="MLKFIRGKGQQPSADRQRYITAQHGFPHKPSALAYDPVLKLMAI
+                     GTQTGALKVFGQPGVELYGQHTLLNNSASELNVQLLEWVYGTGRILSLTAANQLILWE
+                     PVGATLLPIKTLPFDGKLKKVSSLCCSLSKDLLWIGTEGGNIYQLDLHTFTIKEPVIY
+                     HDVVLEQVPPAYKLNPGAIESIRQLPNSPSKLLVAYNRGLCVLWDFESASVQRAYIAP
+                     GHGQSVGLTVNFEGSEFTWYHADGSYATWSIDNPEPPSNVNYVPYGPDPCKSINRLYK
+                     GKRRSNDVIVFSGGMPRSAYGDHNCVSVHASDGHKVCLDFTSKVIDFFVTFENNRDVA
+                     EVLVVLLEEELCAYDLTDPNICAIKAPYLHSVHASAVTCNYLASEVVQSVYESILRAG
+                     DEQDIDYSNISWPITGGTLPDNLEESVEEDATKLYEILLTGHEDGSVKFWDCTGVLLK
+                     PIYNFKTSSIFGSESDFRDDAAADMSAEQVDEGEPPFRKSGLFDPYSDDPRLAVKKIA
+                     FCPKTGQLIVGGTAGQIVIADFIDLPEKVSLKYISMNLVSDRDGFVWKGHDQLNVRSN
+                     LLDGEAIPTTERGVNISGVLQVLPPASITCMALEASWGLVSGGTAHGLVLFDFKNFVP
+                     VFHRCTLNPNDLTGAGEQLSRRKSFKKSLRESFRKLRKGRSTRTNQSNQVPTTLEARP
+                     VERQIEARCADDGLGSMVRCLLFAKTYVTNVNITSPTLWSATNASTVSVFLLHLPPAQ
+                     TAATAVPSASGNAPPHMPRRISAQLAKEIQLKHRAPVVGISIFDQAGSPVDQLNAGEN
+                     GSPPHRVLIASEEQFKVFSLPQLKPINKYKLTANEGARIRRIHFGSFSCRISPETLQS
+                     MHGCSPTKSTRSHGDGEADPNISGSLAVSRGDVYNETALICLTNMGDIMVLSVPELKR
+                     QLNAAAVRREDINGVSSLCFTNSGEALYMMSSSELQRIALATSRVVQPTGVVPVEPLE
+                     NEESVLEENDAENNKETYACDEVVNTYEIKNPSGISICTRPAEENVGRNSVQQVNGVN
+                     ISNSPNQANETISSSIGDITVDSVRDHLNMTTTTLCSINTEETIGRLSVLSTQTNKAS
+                     TTVNMSEIPNINISNLEDLESKRNTTETSTSSVVIKSIITNISHEKTNGDNKIGTPKT
+                     APEESQF"
+                     /status="all done"
+                     /gene="l(2)gl"
+                     /product="CG2671-PB"
+                     /sp_comment="Imperfect match to REAL SP with
+                     corresponding FBgn"
+                     /author="bmatthew"
+                     /date="Tue May 14 09:05:05 PDT 2002"
+                     /protein_id="AAG22256"
+                     /codon_start=5943
+                     /timestamp="1021392305000"
+                     /standard_name="CG2671-RB"
+                     /product_desc="CG2671-PB translation from_gene[CG2671
+                     l(2)gl FBgn0002121] seq_release:3  mol_weight=125897
+                     cds_boundaries:(2L:11218..19944[-])  aa_length:1153
+                     transcript_info:[CG2671-RB  seq_release:3]
+                     gene_info:[gene symbol:l(2)gl FBgn0002121
+                     gene_boundaries:(2L:9836..21372[-])  (0 ""reduction of
+                     virulence"")]"
+     mRNA            complement(-4163..7373)
+                     /gene="l(2)gl"
+                     /standard_name="CG2671-RD"
+                     /product_desc="CG2671-RD transcript from_gene[CG2671
+                     l(2)gl FBgn0002121] seq_release:3 mRNA_length:5229
+                     transcript_boundaries:(2L:9,836..21,372[-])
+                     cyto:21A2-21A2 gene_info:[CG2671 gene symbol:l(2)gl
+                     FBgn0002121 (0 ""reduction of virulence"")]"
+     CDS             join(complement(-2781..-2655),complement(-2589..-2481),
+                     complement(-2220..-1778),complement(-1713..-1071),
+                     complement(-479..-374),complement(-316..875),
+                     complement(934..1649))
+                     /translation="MAIGTQTGALKVFGQPGVELYGQHTLLNNSASELNVQLLEWVYG
+                     TGRILSLTAANQLILWEPVGATLLPIKTLPFDGKLKKVSSLCCSLSKDLLWIGTEGGN
+                     IYQLDLHTFTIKEPVIYHDVVLEQVPPAYKLNPGAIESIRQLPNSPSKLLVAYNRGLC
+                     VLWDFESASVQRAYIAPGHGQSVGLTVNFEGSEFTWYHADGSYATWSIDNPEPPSNVN
+                     YVPYGPDPCKSINRLYKGKRRSNDVIVFSGGMPRSAYGDHNCVSVHASDGHKVCLDFT
+                     SKVIDFFVTFENNRDVAEVLVVLLEEELCAYDLTDPNICAIKAPYLHSVHASAVTCNY
+                     LASEVVQSVYESILRAGDEQDIDYSNISWPITGGTLPDNLEESVEEDATKLYEILLTG
+                     HEDGSVKFWDCTGVLLKPIYNFKTSSIFGSESDFRDDAAADMSAEQVDEGEPPFRKSG
+                     LFDPYSDDPRLAVKKIAFCPKTGQLIVGGTAGQIVIADFIDLPEKVSLKYISMNLVSD
+                     RDGFVWKGHDQLNVRSNLLDGEAIPTTERGVNISGVLQVLPPASITCMALEASWGLVS
+                     GGTAHGLVLFDFKNFVPVFHRCTLNPNDLTGAGEQLSRRKSFKKSLRESFRKLRKGRS
+                     TRTNQSNQVPTTLEARPVERQIEARCADDGLGSMVRCLLFAKTYVTNVNITSPTLWSA
+                     TNASTVSVFLLHLPPAQTAATAVPSASGNAPPHMPRRISAQLAKEIQLKHRAPVVGIS
+                     IFDQAGSPVDQLNAGENGSPPHRVLIASEEQFKVFSLPQLKPINKYKLTANEGARIRR
+                     IHFGSFSCRISPETLQSMHGCSPTKSTRSHGDGEADPNISGSLAVSRGDVYNETALIC
+                     LTNMGDIMVLSVPELKRQLNAAAVRREDINGVSSLCFTNSGEALYMMSSSELQRIALA
+                     TSRVVQPTGVVPVEPLENEESVLEENDAENNKETYACDEVVNTYEIKNPSGISICTRP
+                     AEENVGRNSVQQVNGVNISNSPNQANETISSSIGDITVDSVRDHLNMTTTTLCSINTE
+                     ETIGRLSVLSTQTNKASTTVNMSEIPNINISNLEDLESKRNTTETSTSSVVIKSIITN
+                     ISHEKTNGDNKIGTPKTAPEESQF"
+                     /status="all done"
+                     /gene="l(2)gl"
+                     /product="CG2671-PD"
+                     /sp_comment="Imperfect match to REAL SP with
+                     corresponding FBgn"
+                     /author="bmatthew"
+                     /date="Tue May 14 09:06:14 PDT 2002"
+                     /protein_id="AAN10501"
+                     /codon_start=1647
+                     /timestamp="1021392374000"
+                     /standard_name="CG2671-RD"
+                     /product_desc="CG2671-PD translation from_gene[CG2671
+                     l(2)gl FBgn0002121] seq_release:3  mol_weight=121250
+                     cds_boundaries:(2L:11218..15648[-])  aa_length:1112
+                     transcript_info:[CG2671-RD  seq_release:3]
+                     gene_info:[gene symbol:l(2)gl FBgn0002121
+                     gene_boundaries:(2L:9836..21372[-])  (0 ""reduction of
+                     virulence"")]"
+     mRNA            complement(-4163..7373)
+                     /gene="l(2)gl"
+                     /standard_name="CG2671-RE"
+                     /product_desc="CG2671-RE transcript from_gene[CG2671
+                     l(2)gl FBgn0002121] seq_release:3 mRNA_length:5224
+                     transcript_boundaries:(2L:9,836..21,372[-])
+                     cyto:21A2-21A2 gene_info:[CG2671 gene symbol:l(2)gl
+                     FBgn0002121 (0 ""reduction of virulence"")]"
+     CDS             join(complement(-2781..-2655),complement(-2589..-2481),
+                     complement(-2220..-1778),complement(-1713..-1071),
+                     complement(-479..-374),complement(-316..875),
+                     complement(934..1649))
+                     /translation="MAIGTQTGALKVFGQPGVELYGQHTLLNNSASELNVQLLEWVYG
+                     TGRILSLTAANQLILWEPVGATLLPIKTLPFDGKLKKVSSLCCSLSKDLLWIGTEGGN
+                     IYQLDLHTFTIKEPVIYHDVVLEQVPPAYKLNPGAIESIRQLPNSPSKLLVAYNRGLC
+                     VLWDFESASVQRAYIAPGHGQSVGLTVNFEGSEFTWYHADGSYATWSIDNPEPPSNVN
+                     YVPYGPDPCKSINRLYKGKRRSNDVIVFSGGMPRSAYGDHNCVSVHASDGHKVCLDFT
+                     SKVIDFFVTFENNRDVAEVLVVLLEEELCAYDLTDPNICAIKAPYLHSVHASAVTCNY
+                     LASEVVQSVYESILRAGDEQDIDYSNISWPITGGTLPDNLEESVEEDATKLYEILLTG
+                     HEDGSVKFWDCTGVLLKPIYNFKTSSIFGSESDFRDDAAADMSAEQVDEGEPPFRKSG
+                     LFDPYSDDPRLAVKKIAFCPKTGQLIVGGTAGQIVIADFIDLPEKVSLKYISMNLVSD
+                     RDGFVWKGHDQLNVRSNLLDGEAIPTTERGVNISGVLQVLPPASITCMALEASWGLVS
+                     GGTAHGLVLFDFKNFVPVFHRCTLNPNDLTGAGEQLSRRKSFKKSLRESFRKLRKGRS
+                     TRTNQSNQVPTTLEARPVERQIEARCADDGLGSMVRCLLFAKTYVTNVNITSPTLWSA
+                     TNASTVSVFLLHLPPAQTAATAVPSASGNAPPHMPRRISAQLAKEIQLKHRAPVVGIS
+                     IFDQAGSPVDQLNAGENGSPPHRVLIASEEQFKVFSLPQLKPINKYKLTANEGARIRR
+                     IHFGSFSCRISPETLQSMHGCSPTKSTRSHGDGEADPNISGSLAVSRGDVYNETALIC
+                     LTNMGDIMVLSVPELKRQLNAAAVRREDINGVSSLCFTNSGEALYMMSSSELQRIALA
+                     TSRVVQPTGVVPVEPLENEESVLEENDAENNKETYACDEVVNTYEIKNPSGISICTRP
+                     AEENVGRNSVQQVNGVNISNSPNQANETISSSIGDITVDSVRDHLNMTTTTLCSINTE
+                     ETIGRLSVLSTQTNKASTTVNMSEIPNINISNLEDLESKRNTTETSTSSVVIKSIITN
+                     ISHEKTNGDNKIGTPKTAPEESQF"
+                     /status="all done"
+                     /gene="l(2)gl"
+                     /product="CG2671-PE"
+                     /sp_comment="Imperfect match to REAL SP with
+                     corresponding FBgn"
+                     /author="bmatthew"
+                     /date="Tue May 14 09:02:48 PDT 2002"
+                     /protein_id="AAN10502"
+                     /codon_start=1647
+                     /timestamp="1021392168000"
+                     /standard_name="CG2671-RE"
+                     /product_desc="CG2671-PE translation from_gene[CG2671
+                     l(2)gl FBgn0002121] seq_release:3  mol_weight=121250
+                     cds_boundaries:(2L:11218..15648[-])  aa_length:1112
+                     transcript_info:[CG2671-RE  seq_release:3]
+                     gene_info:[gene symbol:l(2)gl FBgn0002121
+                     gene_boundaries:(2L:9836..21372[-])  (0 ""reduction of
+                     virulence"")]"
+     mRNA            complement(-4163..7373)
+                     /gene="l(2)gl"
+                     /standard_name="CG2671-RF"
+                     /product_desc="CG2671-RF transcript from_gene[CG2671
+                     l(2)gl FBgn0002121] seq_release:3 mRNA_length:5081
+                     transcript_boundaries:(2L:9,836..21,372[-])
+                     cyto:21A2-21A2 gene_info:[CG2671 gene symbol:l(2)gl
+                     FBgn0002121 (0 ""reduction of virulence"")]"
+     CDS             join(complement(-2781..-2655),complement(-2589..-2481),
+                     complement(-2220..-1778),complement(-1713..-1071),
+                     complement(-479..-374),complement(-316..875),
+                     complement(934..1649))
+                     /translation="MAIGTQTGALKVFGQPGVELYGQHTLLNNSASELNVQLLEWVYG
+                     TGRILSLTAANQLILWEPVGATLLPIKTLPFDGKLKKVSSLCCSLSKDLLWIGTEGGN
+                     IYQLDLHTFTIKEPVIYHDVVLEQVPPAYKLNPGAIESIRQLPNSPSKLLVAYNRGLC
+                     VLWDFESASVQRAYIAPGHGQSVGLTVNFEGSEFTWYHADGSYATWSIDNPEPPSNVN
+                     YVPYGPDPCKSINRLYKGKRRSNDVIVFSGGMPRSAYGDHNCVSVHASDGHKVCLDFT
+                     SKVIDFFVTFENNRDVAEVLVVLLEEELCAYDLTDPNICAIKAPYLHSVHASAVTCNY
+                     LASEVVQSVYESILRAGDEQDIDYSNISWPITGGTLPDNLEESVEEDATKLYEILLTG
+                     HEDGSVKFWDCTGVLLKPIYNFKTSSIFGSESDFRDDAAADMSAEQVDEGEPPFRKSG
+                     LFDPYSDDPRLAVKKIAFCPKTGQLIVGGTAGQIVIADFIDLPEKVSLKYISMNLVSD
+                     RDGFVWKGHDQLNVRSNLLDGEAIPTTERGVNISGVLQVLPPASITCMALEASWGLVS
+                     GGTAHGLVLFDFKNFVPVFHRCTLNPNDLTGAGEQLSRRKSFKKSLRESFRKLRKGRS
+                     TRTNQSNQVPTTLEARPVERQIEARCADDGLGSMVRCLLFAKTYVTNVNITSPTLWSA
+                     TNASTVSVFLLHLPPAQTAATAVPSASGNAPPHMPRRISAQLAKEIQLKHRAPVVGIS
+                     IFDQAGSPVDQLNAGENGSPPHRVLIASEEQFKVFSLPQLKPINKYKLTANEGARIRR
+                     IHFGSFSCRISPETLQSMHGCSPTKSTRSHGDGEADPNISGSLAVSRGDVYNETALIC
+                     LTNMGDIMVLSVPELKRQLNAAAVRREDINGVSSLCFTNSGEALYMMSSSELQRIALA
+                     TSRVVQPTGVVPVEPLENEESVLEENDAENNKETYACDEVVNTYEIKNPSGISICTRP
+                     AEENVGRNSVQQVNGVNISNSPNQANETISSSIGDITVDSVRDHLNMTTTTLCSINTE
+                     ETIGRLSVLSTQTNKASTTVNMSEIPNINISNLEDLESKRNTTETSTSSVVIKSIITN
+                     ISHEKTNGDNKIGTPKTAPEESQF"
+                     /status="all done"
+                     /gene="l(2)gl"
+                     /product="CG2671-PF"
+                     /sp_comment="Imperfect match to REAL SP with
+                     corresponding FBgn"
+                     /author="bmatthew"
+                     /date="Tue May 14 09:02:52 PDT 2002"
+                     /protein_id="AAN10503"
+                     /codon_start=1647
+                     /timestamp="1021392172000"
+                     /standard_name="CG2671-RF"
+                     /product_desc="CG2671-PF translation from_gene[CG2671
+                     l(2)gl FBgn0002121] seq_release:3  mol_weight=121250
+                     cds_boundaries:(2L:11218..15648[-])  aa_length:1112
+                     transcript_info:[CG2671-RF  seq_release:3]
+                     gene_info:[gene symbol:l(2)gl FBgn0002121
+                     gene_boundaries:(2L:9836..21372[-])  (0 ""reduction of
+                     virulence"")]"
+     mRNA            complement(-4163..4584)
+                     /gene="l(2)gl"
+                     /standard_name="CG2671-RC"
+                     /product_desc="CG2671-RC transcript from_gene[CG2671
+                     l(2)gl FBgn0002121] seq_release:3 mRNA_length:5264
+                     transcript_boundaries:(2L:9,836..18,583[-])
+                     cyto:21A2-21A2 gene_info:[CG2671 gene symbol:l(2)gl
+                     FBgn0002121 (0 ""reduction of virulence"")]"
+     CDS             join(complement(-2781..-2655),complement(-2589..-2481),
+                     complement(-2220..-1778),complement(-1713..-1071),
+                     complement(-479..-374),complement(-316..875),
+                     complement(934..1712),complement(3054..3137))
+                     /translation="MLKFIRGKGQQPSADRHRLQKDLFAYRKTAQHGFPHKPSALAYD
+                     PVLKLMAIGTQTGALKVFGQPGVELYGQHTLLNNSASELNVQLLEWVYGTGRILSLTA
+                     ANQLILWEPVGATLLPIKTLPFDGKLKKVSSLCCSLSKDLLWIGTEGGNIYQLDLHTF
+                     TIKEPVIYHDVVLEQVPPAYKLNPGAIESIRQLPNSPSKLLVAYNRGLCVLWDFESAS
+                     VQRAYIAPGHGQSVGLTVNFEGSEFTWYHADGSYATWSIDNPEPPSNVNYVPYGPDPC
+                     KSINRLYKGKRRSNDVIVFSGGMPRSAYGDHNCVSVHASDGHKVCLDFTSKVIDFFVT
+                     FENNRDVAEVLVVLLEEELCAYDLTDPNICAIKAPYLHSVHASAVTCNYLASEVVQSV
+                     YESILRAGDEQDIDYSNISWPITGGTLPDNLEESVEEDATKLYEILLTGHEDGSVKFW
+                     DCTGVLLKPIYNFKTSSIFGSESDFRDDAAADMSAEQVDEGEPPFRKSGLFDPYSDDP
+                     RLAVKKIAFCPKTGQLIVGGTAGQIVIADFIDLPEKVSLKYISMNLVSDRDGFVWKGH
+                     DQLNVRSNLLDGEAIPTTERGVNISGVLQVLPPASITCMALEASWGLVSGGTAHGLVL
+                     FDFKNFVPVFHRCTLNPNDLTGAGEQLSRRKSFKKSLRESFRKLRKGRSTRTNQSNQV
+                     PTTLEARPVERQIEARCADDGLGSMVRCLLFAKTYVTNVNITSPTLWSATNASTVSVF
+                     LLHLPPAQTAATAVPSASGNAPPHMPRRISAQLAKEIQLKHRAPVVGISIFDQAGSPV
+                     DQLNAGENGSPPHRVLIASEEQFKVFSLPQLKPINKYKLTANEGARIRRIHFGSFSCR
+                     ISPETLQSMHGCSPTKSTRSHGDGEADPNISGSLAVSRGDVYNETALICLTNMGDIMV
+                     LSVPELKRQLNAAAVRREDINGVSSLCFTNSGEALYMMSSSELQRIALATSRVVQPTG
+                     VVPVEPLENEESVLEENDAENNKETYACDEVVNTYEIKNPSGISICTRPAEENVGRNS
+                     VQQVNGVNISNSPNQANETISSSIGDITVDSVRDHLNMTTTTLCSINTEETIGRLSVL
+                     STQTNKASTTVNMSEIPNINISNLEDLESKRNTTETSTSSVVIKSIITNISHEKTNGD
+                     NKIGTPKTAPEESQF"
+                     /status="all done"
+                     /gene="l(2)gl"
+                     /product="CG2671-PC"
+                     /sp_comment="Perfect match to REAL SP with corresponding
+                     FBgn"
+                     /author="bmatthew"
+                     /date="Tue May 14 09:02:56 PDT 2002"
+                     /protein_id="AAF51570"
+                     /codon_start=3135
+                     /timestamp="1021392176000"
+                     /standard_name="CG2671-RC"
+                     /product_desc="CG2671-PC translation from_gene[CG2671
+                     l(2)gl FBgn0002121] seq_release:3  mol_weight=126893
+                     cds_boundaries:(2L:11218..17136[-])  aa_length:1161
+                     transcript_info:[CG2671-RC  seq_release:3]
+                     gene_info:[gene symbol:l(2)gl FBgn0002121
+                     gene_boundaries:(2L:9836..21372[-])  (0 ""reduction of
+                     virulence"")]"
+     mRNA            complement(-4163..4584)
+                     /gene="l(2)gl"
+                     /standard_name="CG2671-RA"
+                     /product_desc="CG2671-RA transcript from_gene[CG2671
+                     l(2)gl FBgn0002121] seq_release:3 mRNA_length:5407
+                     transcript_boundaries:(2L:9,836..18,583[-])
+                     cyto:21A2-21A2 gene_info:[CG2671 gene symbol:l(2)gl
+                     FBgn0002121 (0 ""reduction of virulence"")]"
+     CDS             join(complement(-2781..-2655),complement(-2589..-2481),
+                     complement(-2220..-1778),complement(-1713..-1071),
+                     complement(-479..-374),complement(-316..875),
+                     complement(934..1712),complement(3054..3137))
+                     /translation="MLKFIRGKGQQPSADRHRLQKDLFAYRKTAQHGFPHKPSALAYD
+                     PVLKLMAIGTQTGALKVFGQPGVELYGQHTLLNNSASELNVQLLEWVYGTGRILSLTA
+                     ANQLILWEPVGATLLPIKTLPFDGKLKKVSSLCCSLSKDLLWIGTEGGNIYQLDLHTF
+                     TIKEPVIYHDVVLEQVPPAYKLNPGAIESIRQLPNSPSKLLVAYNRGLCVLWDFESAS
+                     VQRAYIAPGHGQSVGLTVNFEGSEFTWYHADGSYATWSIDNPEPPSNVNYVPYGPDPC
+                     KSINRLYKGKRRSNDVIVFSGGMPRSAYGDHNCVSVHASDGHKVCLDFTSKVIDFFVT
+                     FENNRDVAEVLVVLLEEELCAYDLTDPNICAIKAPYLHSVHASAVTCNYLASEVVQSV
+                     YESILRAGDEQDIDYSNISWPITGGTLPDNLEESVEEDATKLYEILLTGHEDGSVKFW
+                     DCTGVLLKPIYNFKTSSIFGSESDFRDDAAADMSAEQVDEGEPPFRKSGLFDPYSDDP
+                     RLAVKKIAFCPKTGQLIVGGTAGQIVIADFIDLPEKVSLKYISMNLVSDRDGFVWKGH
+                     DQLNVRSNLLDGEAIPTTERGVNISGVLQVLPPASITCMALEASWGLVSGGTAHGLVL
+                     FDFKNFVPVFHRCTLNPNDLTGAGEQLSRRKSFKKSLRESFRKLRKGRSTRTNQSNQV
+                     PTTLEARPVERQIEARCADDGLGSMVRCLLFAKTYVTNVNITSPTLWSATNASTVSVF
+                     LLHLPPAQTAATAVPSASGNAPPHMPRRISAQLAKEIQLKHRAPVVGISIFDQAGSPV
+                     DQLNAGENGSPPHRVLIASEEQFKVFSLPQLKPINKYKLTANEGARIRRIHFGSFSCR
+                     ISPETLQSMHGCSPTKSTRSHGDGEADPNISGSLAVSRGDVYNETALICLTNMGDIMV
+                     LSVPELKRQLNAAAVRREDINGVSSLCFTNSGEALYMMSSSELQRIALATSRVVQPTG
+                     VVPVEPLENEESVLEENDAENNKETYACDEVVNTYEIKNPSGISICTRPAEENVGRNS
+                     VQQVNGVNISNSPNQANETISSSIGDITVDSVRDHLNMTTTTLCSINTEETIGRLSVL
+                     STQTNKASTTVNMSEIPNINISNLEDLESKRNTTETSTSSVVIKSIITNISHEKTNGD
+                     NKIGTPKTAPEESQF"
+                     /status="all done"
+                     /gene="l(2)gl"
+                     /product="CG2671-PA"
+                     /sp_comment="Perfect match to REAL SP with corresponding
+                     FBgn"
+                     /comment="person=bmatthew; date=Tue May 14 08:53:50 PDT
+                     2002; text=Only one EST supports this alternative
+                     transcript"
+                     /author="bmatthew"
+                     /date="Tue May 14 09:03:00 PDT 2002"
+                     /protein_id="AAG22255"
+                     /codon_start=3135
+                     /timestamp="1021392180000"
+                     /standard_name="CG2671-RA"
+                     /product_desc="CG2671-PA translation from_gene[CG2671
+                     l(2)gl FBgn0002121]seq_release:3  mol_weight=126893
+                     cds_boundaries:(2L:11218..17136[-])  aa_length:1161
+                     transcript_info:[CG2671-RA  seq_release:3]
+                     gene_info:[gene symbol:l(2)gl FBgn0002121
+                     gene_boundaries:(2L:9836..21372[-]) (0 ""reduction of
+                     virulence"")]"
+BASE COUNT     1613 a    930 c    879 g   1579 t
+ORIGIN
+        1 cttctccgtc taataagttc gatcgcacgt ttaactgatc gtgacccttc cacacaaatc
+       61 catcacgatc gctgaccaaa ttcattgaaa tgtattttaa agacactttt tcgggtaagt
+      121 ctatgaagtc ggctataact atttggcccg ctgtgccacc aacaataagt tgtccggttt
+      181 ttgggcagaa tgctattttc ttcactgcta aacgagggtc atctgaataa ggatcaaaaa
+      241 gtcctgattt ccgaaatggc ggttctcctt catcgacttg ttccgcactc atatctgcag
+      301 ctgcgtcatc tcggaagtct gactcacttc caaaaatgct gctagtttta aaattataaa
+      361 ttggtttaag caacactcca gtgcagtccc aaaatttaac agaaccatct tcgtgaccag
+      421 ttaacaaaat ctcataaagc ttagtcgcgt cctcttctac agattcttct aagttatccg
+      481 ggagagtacc gccagtgata ggccagctaa tattgctata gtcaatgtct tgttcatctc
+      541 cagctcttaa aatactttca tataccgact gtacgacttc agaagcaagg taattgcaag
+      601 tgacagctga tgcatggaca gagtgaagat atggcgcttt gatagcacaa atattagggt
+      661 cagtaagatc gtaagcgcag agttcctctt caagtagtac aacaagaact tcagcgacat
+      721 ctctattatt ttcaaaggtc acaaaaaagt caatcacttt agacgtaaag tcaagacaca
+      781 ctttgtgtcc atcgctggcg tgaacggaca cacaattgtg atcaccatat gctgaccgtg
+      841 gcatgccgcc ggaaaaaaca attacatcgt tggatctaaa agaacgagaa attagtacac
+      901 atctaaaaaa ctttgtgttt aagttatatt aaccttcgct tgcctttgta cagtcgattt
+      961 atgcttttgc atggatcagg tccataaggc acataattaa cattcgacgg cggttctggg
+     1021 ttatctatgc tccaagtggc gtatgaacca tcagcgtggt accaggtaaa ttcagatcct
+     1081 tcgaagttca ctgtaagacc aacgctctgt ccatgtccag gggctatgta tgctcgctgg
+     1141 acagatgcgc tttcaaaatc ccacaaaaca caaaggccgc gattgtatgc aactagaagt
+     1201 ttgctagggg agtttggaag ttggcggatt gactcaattg caccaggatt tagcttgtag
+     1261 gctggtggca cctgctctag cacaacgtca tggtaaatta caggctcctt aatggtaaat
+     1321 gtatgtaaat ccagttgata gatgtttcca ccttctgttc caatccatag cagatcctta
+     1381 ctgagagaac agcacagcga tgaaactttt ttaagtttgc cgtcaaacgg tagtgttttg
+     1441 attggcagca acgttgctcc aactggctcc catagaatta attgattcgc tgccgtcaac
+     1501 gaaagtatgc gaccagttcc atacacccat tcaagtaatt gtacattaag ctccgatgct
+     1561 gaattgttta acaaagtatg ctgaccgtac aattcaactc cgggttgacc gaaaactttt
+     1621 aaagcccctg tttgcgtccc tattgccata agtttcaaaa ctggatcata cgcaagagcc
+     1681 gaaggcttat gaggaaagcc atgctgtgcc gtctaaaaga aaaaaatatt aaaaagtttc
+     1741 aaaaagcaat tacagattct taataattca aaattgtttg gttcatttct taattgtaaa
+     1801 agggttttcc aaaacattct agttttttca gttcccaaga tctggtaaat cgtcagatta
+     1861 cttgccactt tatagagtcg ggaacgcttt cttaaaccat ttacatactt ttaccgaatc
+     1921 taatacagca tttttcttta caattaacgg gaataaaaac ctcaataaat attgaggttt
+     1981 gaatttaaat taagttcaaa aagcgcccaa agctttaaat gctgctctta agtatgtctc
+     2041 ttataaacat cactgtagac agcagtccct actatcatac tatatttaca ttgatcgaaa
+     2101 aaaggtttgg taaatcttat ctaattgtat aaattgtatt tttatacaaa aaaagtttta
+     2161 agaagttgct atcagatctc gttatgagtt gattttgttt gattcatatt gcaggtgtat
+     2221 ttggatttct aacgcagtta caggcgaata aattcttttt cttttgactt taaaatctta
+     2281 tcaattttac gccgtctatg acatacttat tttgtgcctg aaataagggt gtttgtgaaa
+     2341 ccaagccatt tacccaaccc attaagcaca taaaagcaat cttatcagct cccccctctt
+     2401 tctggagctg gatggcgatt acctctgacc tacttttatt tgtttaataa catgtttata
+     2461 ctaacatggg ataaaaaaaa ttcttataaa atttcatata cgtatattta ttaaactatt
+     2521 atggtaatag ggaaacatct atggtatatt taattcgaaa atatttaaaa ggaatggaca
+     2581 acattacgag cacaacgata taatagaatt tttaaagtag ccaaaaacag gcggtggaaa
+     2641 aagacactca caaaatcaac aaagcttcag gtacctcctc atatttggca ccgcatagaa
+     2701 ggagtgcaca aaagaaacga gcaaaaaagc accgtaacct tttttatgcg gtgctttgtg
+     2761 gcgcgagtct acaaaatact gtgtgtgtat gcggtttact tgtagttgcg gtggaaaaaa
+     2821 tttacctaaa tgttaatgcc caaaagtatg cacataggag aagacataac aaaagattga
+     2881 aaaggaggta tttatttatt cttaataaat tataagcttt cttctaactt ccataaaaat
+     2941 gtatttacca cccaggatca aaataaatga caccccacaa aatataccaa tcggctacat
+     3001 atacgaaaaa aaaaaaataa aatagaatgg aaagagaaaa ttgtttgttg taccttacga
+     3061 taagcaaaaa ggtccttctg taggcggtgt ctgtcagcac tgggctgctg cccttttcct
+     3121 ctgataaact ttaacataat tggttatgct cttgtggtgg gttggtttcg atgaataaat
+     3181 atgtatacta attgtggccg tatttattct aaactgaaaa taataaataa aaattaatca
+     3241 cattttcaat aagtaaaaaa ttaaaaagga acttgtatat tttttcactc ttatgaataa
+     3301 aaccgagaaa ttaaatttag gtaatactat taataccttt tatagatacg gacgatacgt
+     3361 ttaatattat tctggtatac tttaatcaaa atttgtttaa caaaaagggt tttacattct
+     3421 tggtcatagg aaattcagtg gacagataga tcttggctcc caagattttc caaactagtt
+     3481 gtgcttattt tcttaaaact tcaaagattt gcatgtaggc agtttaataa acatgtttgt
+     3541 acatatgtat atgtacatta ggaaaaatga gatgcaagat gagcgatctg tactctttgc
+     3601 aatgtgtatg tatgtacata tgtacctccc tttaatgaac tagcaattcc gtcacgcaca
+     3661 cgaaatattt ttttatttgt aaatcttttt ttaagtttgt ttaaacaatt tagttactat
+     3721 taaagctctg aaattcataa ataaataata ataaatgtat taattatgac aaaaaacaac
+     3781 ttaaaacata tacgtttatt tttgtaaaag cgttttaggc aaacgctagc tggtcggtac
+     3841 taatattttt tcgaagactg tataccgtat acatacattt atgtacgtag gtatgtatcc
+     3901 gtgagtaagc tgaggtgcaa aaccgtatca ccatttgctt ttcggctgat aaccaatacc
+     3961 aagtaagtca actgtttccc aaatgtatct gcataacaag gtgatgacct aattttgagt
+     4021 acataccgat ctttacagtt gaccagcttt gcgattgcat accggtatct gtttattcac
+     4081 atatacacac acaaattgcg tgttagacag acagcaaaat gacgactgtt aactgttggc
+     4141 gtggctgact caccgactac gcctctatgc taagaacata catatttgtg gacactttat
+     4201 ttaagaagtt tgaaatataa atcaattgcc taatcagtaa tactgttgtt gagcccttta
+     4261 cctttatgta tttccgtttg tacggttaag gcggtggccg agtaattttt tgaactattt
+     4321 tatttgctca ccaacacgca taagtttgta tgtattctta tgttgagaaa cgcccgcact
+     4381 gttcttcaca tcgttgcttt aaatgagaat aaatgaaata aacgtgtcaa ccaagaacac
+     4441 acagataata atacgaccgg tcagagctta accgtgtatc tgttttataa aacgtgaaca
+     4501 atattattag cccaaaacga tatgcgcgtc attttaacac acacaaagtc gcgatcggtg
+     4561 ggtctagtgt gcccgtgtat ctctatcgaa aaaatcatat attttttaga aggtatattt
+     4621 tccatgactg actggaatgg gtggagaaca tcgctttggg agtgaaactc cgctataaat
+     4681 tgtcatttgt ttttatagca acctttttga tatggtcgcc aacttttata taattataat
+     4741 aataattttt gtaattaatc accgctgtcg cacgaaaaat ttaggaaatg tgccaacgag
+     4801 cggaattttt cggaacgatc gatgttttac cataacctgc tatataaatt gtgaaccaca
+     4861 ttttcaacac aaaactagat gtgcttcatt tataacgcaa tgtcgtgatt ttgtgggcag
+     4921 tgtgaccatg tccaatctgc gttcaagtaa aaccatattt agtgacacaa actttccatt
+     4981 acaaaatacc aaacaacttt a
+//

@@ -1,0 +1,42 @@
+ 13 sequences
+1 A-salina
+2 C-vittat
+3 C-sp.
+4 L-aequit
+5 P-camtsc
+6 E-tenuim
+7 L-splend
+8 P-bernha
+9 P-acadia
+10 P-p(NE)
+11 P-p(GU)
+12 P-l(NE)
+13 P-l(GU)
+ 14 and   2        0.097855
+ 14 and   3        0.097855
+ 15 and  20        0.063651
+ 15 and  14        0.013271
+ 15 and   1        0.155362
+ 16 and  10        0.008043
+ 16 and  11        0.008043
+ 17 and  12        0.001340
+ 17 and  13        0.001340
+ 18 and  16        0.010389
+ 18 and  17        0.017091
+ 19 and   4        0.006702
+ 19 and   5        0.006702
+ 20 and  23        0.017147
+ 20 and  18        0.029044
+ 21 and   8        0.002681
+ 21 and   9        0.002681
+ 22 and   6        0.012064
+ 22 and  21        0.009383
+ 23 and  24        0.005306
+ 23 and  19        0.023626
+ 24 and  22        0.012958
+ 24 and   7        0.025022
+
+file:crab.dat  constant rate for NJ (negative branches allowed)
+ p-distance was used.
+Number of nucleotide sites compared 373 (nsite=421)
+outgroup:  1 A-salina

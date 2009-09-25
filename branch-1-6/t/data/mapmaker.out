@@ -1,0 +1,41 @@
+************************************************************************
+* Output from:                                Tue Aug 29 19:27:07 2001 *
+*                                                                      *
+*                             MAPMAKER/EXP                             *
+*                            (version 3.0b)                            *
+*                                                                      *
+************************************************************************
+
+data from 'P:\Chad1.TXT' are loaded
+  F2 backcross data  (30 individuals, 18 loci)
+'photo' is on: file is 'P:\Chad1.OUT'
+
+12> cent kos
+centimorgan function: Kosambi
+
+13> map
+===============================================================================
+Map:                        
+  Markers          Distance 
+    1  chad1         0.0 cM
+    2  chad2         0.0 cM
+    3  chad3         3.3 cM
+    4  chad4        10.1 cM
+    5  chad5         6.7 cM
+    6  chad6        13.7 cM
+    7  chad7        10.1 cM
+    8  chad8         3.4 cM
+    9  chad9        21.7 cM
+   10  chad10       21.7 cM
+   11  chad11        0.0 cM
+   12  chad12        3.3 cM
+   13  chad13        3.3 cM
+   14  chad14        0.0 cM
+   15  chad15       10.1 cM
+   16  chad16        0.0 cM
+   17  chad17        0.0 cM
+   18  chad18     ----------
+                   107.8 cM   18 markers   log-likelihood= -50.67
+===============================================================================
+
+14> photo off

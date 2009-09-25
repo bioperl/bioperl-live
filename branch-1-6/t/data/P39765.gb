@@ -1,0 +1,384 @@
+LOCUS       P39765                   181 aa            linear   BCT 03-MAR-2009
+DEFINITION  RecName: Full=Bifunctional protein pyrR; Includes: RecName:
+            Full=Pyrimidine operon regulatory protein; Includes: RecName:
+            Full=Uracil phosphoribosyltransferase; Short=UPRTase.
+ACCESSION   P39765
+VERSION     P39765.2  GI:20141743
+DBSOURCE    UniProtKB: locus PYRR_BACSU, accession P39765;
+            class: standard.
+            extra accessions:P25982,Q45483
+            created: Feb 1, 1995.
+            sequence updated: Jan 31, 2002.
+            annotation updated: Mar 3, 2009.
+            xrefs: M59757.2, AAA21265.2, Z99112.2, CAB13421.1, U48870.1,
+            AAB57770.1, B57986, NP_389430.1, 1A3C_A, 1A4X_A, 1A4X_B
+            xrefs (non-sequence databases): PDBsum:1A3C, PDBsum:1A4X,
+            GeneID:938030, GenomeReviews:AL009126_GR, KEGG:bsu:BSU15470,
+            NMPDR:fig|224308.1.peg.1549, SubtiList:BG10712, HOGENOM:P39765,
+            BioCyc:BSUB224308:BSU1549-MON, BRENDA:2.4.2.9, GO:0003723,
+            GO:0004845, GO:0009116, GO:0006355, GO:0006353, HAMAP:MF_01219,
+            InterPro:IPR000836, Pfam:PF00156, PROSITE:PS00103
+KEYWORDS    3D-structure; Complete proteome; Glycosyltransferase; RNA-binding;
+            Transcription; Transcription regulation; Transcription termination;
+            Transferase.
+SOURCE      Bacillus subtilis
+  ORGANISM  Bacillus subtilis
+            Bacteria; Firmicutes; Bacillales; Bacillaceae; Bacillus.
+REFERENCE   1  (residues 1 to 181)
+  AUTHORS   Quinn,C.L., Stephenson,B.T. and Switzer,R.L.
+  TITLE     Functional organization and nucleotide sequence of the Bacillus
+            subtilis pyrimidine biosynthetic operon
+  JOURNAL   J. Biol. Chem. 266 (14), 9113-9127 (1991)
+   PUBMED   1709162
+  REMARK    NUCLEOTIDE SEQUENCE [GENOMIC DNA].
+            STRAIN=1A610, and JH861
+REFERENCE   2  (residues 1 to 181)
+  AUTHORS   Turner,R.J., Lu,Y. and Switzer,R.L.
+  TITLE     Regulation of the Bacillus subtilis pyrimidine biosynthetic (pyr)
+            gene cluster by an autogenous transcriptional attenuation mechanism
+  JOURNAL   J. Bacteriol. 176 (12), 3708-3722 (1994)
+   PUBMED   8206849
+  REMARK    SEQUENCE REVISION, AND CHARACTERIZATION.
+REFERENCE   3  (residues 1 to 181)
+  AUTHORS   Switzer,R.L.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (??-MAY-1999)
+  REMARK    SEQUENCE REVISION TO 34 AND 53.
+REFERENCE   4  (residues 1 to 181)
+  AUTHORS   Kunst,F., Ogasawara,N., Moszer,I., Albertini,A.M., Alloni,G.,
+            Azevedo,V., Bertero,M.G., Bessieres,P., Bolotin,A., Borchert,S.,
+            Borriss,R., Boursier,L., Brans,A., Braun,M., Brignell,S.C.,
+            Bron,S., Brouillet,S., Bruschi,C.V., Caldwell,B., Capuano,V.,
+            Carter,N.M., Choi,S.-K., Codani,J.-J., Connerton,I.F.,
+            Cummings,N.J., Daniel,R.A., Denizot,F., Devine,K.M.,
+            Duesterhoeft,A., Ehrlich,S.D., Emmerson,P.T., Entian,K.-D.,
+            Errington,J., Fabret,C., Ferrari,E., Foulger,D., Fritz,C.,
+            Fujita,M., Fujita,Y., Fuma,S., Galizzi,A., Galleron,N., Ghim,S.-Y.,
+            Glaser,P., Goffeau,A., Golightly,E.J., Grandi,G., Guiseppi,G.,
+            Guy,B.J., Haga,K., Haiech,J., Harwood,C.R., Henaut,A., Hilbert,H.,
+            Holsappel,S., Hosono,S., Hullo,M.-F., Itaya,M., Jones,L.-M.,
+            Joris,B., Karamata,D., Kasahara,Y., Klaerr-Blanchard,M., Klein,C.,
+            Kobayashi,Y., Koetter,P., Koningstein,G., Krogh,S., Kumano,M.,
+            Kurita,K., Lapidus,A., Lardinois,S., Lauber,J., Lazarevic,V.,
+            Lee,S.-M., Levine,A., Liu,H., Masuda,S., Mauel,C., Medigue,C.,
+            Medina,N., Mellado,R.P., Mizuno,M., Moestl,D., Nakai,S., Noback,M.,
+            Noone,D., O'Reilly,M., Ogawa,K., Ogiwara,A., Oudega,B., Park,S.-H.,
+            Parro,V., Pohl,T.M., Portetelle,D., Porwollik,S., Prescott,A.M.,
+            Presecan,E., Pujic,P., Purnelle,B., Rapoport,G., Rey,M.,
+            Reynolds,S., Rieger,M., Rivolta,C., Rocha,E., Roche,B., Rose,M.,
+            Sadaie,Y., Sato,T., Scanlan,E., Schleich,S., Schroeter,R.,
+            Scoffone,F., Sekiguchi,J., Sekowska,A., Seror,S.J., Serror,P.,
+            Shin,B.-S., Soldo,B., Sorokin,A., Tacconi,E., Takagi,T.,
+            Takahashi,H., Takemaru,K., Takeuchi,M., Tamakoshi,A., Tanaka,T.,
+            Terpstra,P., Tognoni,A., Tosato,V., Uchiyama,S., Vandenbol,M.,
+            Vannier,F., Vassarotti,A., Viari,A., Wambutt,R., Wedler,E.,
+            Wedler,H., Weitzenegger,T., Winters,P., Wipat,A., Yamamoto,H.,
+            Yamane,K., Yasumoto,K., Yata,K., Yoshida,K., Yoshikawa,H.-F.,
+            Zumstein,E., Yoshikawa,H. and Danchin,A.
+  TITLE     The complete genome sequence of the gram-positive bacterium
+            Bacillus subtilis
+  JOURNAL   Nature 390 (6657), 249-256 (1997)
+   PUBMED   9384377
+  REMARK    NUCLEOTIDE SEQUENCE [LARGE SCALE GENOMIC DNA].
+            STRAIN=168
+REFERENCE   5  (residues 1 to 181)
+  AUTHORS   Pragai,Z., Tjalsma,H., Bolhuis,A., van Dijl,J.M., Venema,G. and
+            Bron,S.
+  TITLE     The signal peptidase II (Isp) gene of Bacillus subtilis
+  JOURNAL   Microbiology (Reading, Engl.) 143 (PT 4), 1327-1333 (1997)
+   PUBMED   9141696
+  REMARK    NUCLEOTIDE SEQUENCE [GENOMIC DNA] OF 1-173.
+            STRAIN=168
+REFERENCE   6  (residues 1 to 181)
+  AUTHORS   Martinussen,J., Glaser,P., Andersen,P.S. and Saxild,H.H.
+  TITLE     Two genes encoding uracil phosphoribosyltransferase are present in
+            Bacillus subtilis
+  JOURNAL   J. Bacteriol. 177 (1), 271-274 (1995)
+   PUBMED   7798145
+  REMARK    ENZYME ACTIVITY.
+REFERENCE   7  (residues 1 to 181)
+  AUTHORS   Turner,R.J., Bonner,E.R., Grabner,G.K. and Switzer,R.L.
+  TITLE     Purification and characterization of Bacillus subtilis PyrR, a
+            bifunctional pyr mRNA-binding attenuation protein/uracil
+            phosphoribosyltransferase
+  JOURNAL   J. Biol. Chem. 273 (10), 5932-5938 (1998)
+   PUBMED   9488732
+  REMARK    CHARACTERIZATION, AND MASS SPECTROMETRY.
+REFERENCE   8  (residues 1 to 181)
+  AUTHORS   Savacool,H.K. and Switzer,R.L.
+  TITLE     Characterization of the interaction of Bacillus subtilis PyrR with
+            pyr mRNA by site-directed mutagenesis of the protein
+  JOURNAL   J. Bacteriol. 184 (9), 2521-2528 (2002)
+   PUBMED   11948166
+  REMARK    MUTAGENESIS OF ARG-15; THR-18; ARG-19; HIS-22; ARG-27; THR-41;
+            HIS-140; ARG-141; ARG-146 AND LYS-152.
+REFERENCE   9  (residues 1 to 181)
+  AUTHORS   Tomchick,D.R., Turner,R.J., Switzer,R.L. and Smith,J.L.
+  TITLE     Adaptation of an enzyme to regulatory function: structure of
+            Bacillus subtilis PyrR, a pyr RNA-binding attenuation protein and
+            uracil phosphoribosyltransferase
+  JOURNAL   Structure 6 (3), 337-350 (1998)
+   PUBMED   9551555
+  REMARK    X-RAY CRYSTALLOGRAPHY (1.6 ANGSTROMS).
+COMMENT     On or before Sep 27, 2005 this sequence version replaced
+            gi:11376215, gi:730440.
+            [FUNCTION] Regulates transcriptional attenuation of the pyrimidine
+            nucleotide (pyr) operon by binding in a uridine-dependent manner to
+            specific sites on pyr mRNA. This disrupts an antiterminator hairpin
+            in the RNA and favors formation of a downstream transcription
+            terminator, leading to a reduced expression of downstream genes.
+            [FUNCTION] Also displays a weak uracil phosphoribosyltransferase
+            activity which is not physiologically significant.
+            [CATALYTIC ACTIVITY] UMP + diphosphate = uracil +
+            5-phospho-alpha-D-ribose 1-diphosphate.
+            [BIOPHYSICOCHEMICAL PROPERTIES] pH dependence: Optimum pH is 8.2
+            for UPRTase activity.
+            [SUBUNIT] Homodimer and homohexamer; in equilibrium.
+            [MASS SPECTROMETRY] Mass=20263; Mass_error=2; Method=Electrospray;
+            Range=1-181; Source=PubMed:9488732.
+            [MISCELLANEOUS] Mutagenesis studies identified four amino acid
+            residues that seem to be involved directly in binding of the
+            protein to pyr mRNA: Thr-18, His-22, Arg-141 and Arg-146. Arg-27
+            and Lys-152 were also likely to be involved in RNA-binding, but
+            mutations may have altered their subunit-subunit interactions.
+            Arg-19 was implicated in pyr regulation, but a specific role in
+            RNA-binding could not be demonstrated.
+            [MISCELLANEOUS] UMP and UTP incresase the affinity of pyrR for RNA.
+            [SIMILARITY] Belongs to the purine/pyrimidine
+            phosphoribosyltransferase family. PyrR subfamily.
+FEATURES             Location/Qualifiers
+     source          1..181
+                     /organism="Bacillus subtilis"
+                     /db_xref="taxon:1423"
+     gene            1..181
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+     Protein         1..181
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /product="Bifunctional protein pyrR"
+                     /EC_number="2.4.2.9"
+     Region          1..181
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /region_name="Mature chain"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="Bifunctional protein pyrR. /FTId=PRO_0000183030."
+     Region          3..179
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /region_name="Pribosyltran"
+                     /note="Phosphoribosyl transferase domain; cl00309"
+                     /db_xref="CDD:119714"
+     Region          4..8
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /region_name="Beta-strand region"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+     Region          10..28
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /region_name="Helical region"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+     Site            15
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /site_type="mutagenized"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="R->Q: No effect on ability to regulate the pyr
+                     operon; no effect on uprtase activity."
+     Site            18
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /site_type="mutagenized"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="T->A: No effect on ability to regulate the pyr
+                     operon only in presence of excess pyrimidines; reduced
+                     affinity for RNA; no effect on UPRTase activity."
+     Site            19
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /site_type="mutagenized"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="R->Q: Loss of ability to regulate the pyr operon;
+                     no effect on UPRTase activity."
+     Site            22
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /site_type="mutagenized"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="H->A: Loss of ability to regulate the pyr operon
+                     and to bind to RNA; no effect on UPRTase activity."
+     Site            27
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /site_type="mutagenized"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="R->Q: No effect on ability to regulate the pyr
+                     operon only in presence of excess pyrimidines; reduced
+                     affinity for RNA; no effect on UPRTase activity."
+     Region          35..40
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /region_name="Beta-strand region"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+     Region          41..58
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /region_name="Helical region"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+     Region          41..42
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /region_name="Region of interest in the sequence"
+                     /inference="non-experimental evidence, no additional
+                     details recorded"
+                     /note="Substrate-binding (By similarity)."
+     Site            41
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /site_type="mutagenized"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="T->I: Reduced ability to regulate the pyr operon;
+                     reduced affinity for RNA; loss of UPRTase activity."
+     Region          63..70
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /region_name="Beta-strand region"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+     Region          86..91
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /region_name="Beta-strand region"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+     Region          99..111
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /region_name="Beta-strand region"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+     Region          101..113
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /region_name="Short sequence motif of biological interest"
+                     /inference="non-experimental evidence, no additional
+                     details recorded"
+                     /note="PRPP-binding (By similarity)."
+     Region          105..113
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /region_name="Region of interest in the sequence"
+                     /inference="non-experimental evidence, no additional
+                     details recorded"
+                     /note="Substrate binding (By similarity)."
+     Region          112..124
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /region_name="Helical region"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+     Region          128..137
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /region_name="Beta-strand region"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+     Site            138
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /site_type="binding"
+                     /inference="non-experimental evidence, no additional
+                     details recorded"
+                     /note="Substrate (By similarity)."
+     Site            140
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /site_type="mutagenized"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="H->A: Reduced ability to regulate the pyr operon;
+                     decreased UPRTase activity."
+     Site            141
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /site_type="mutagenized"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="R->Q: Loss of ability to regulate the pyr operon;
+                     highly reduced affinity for RNA; no effect on UPRTase
+                     activity."
+     Region          142..144
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /region_name="Beta-strand region"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+     Site            146
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /site_type="mutagenized"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="R->Q: Reduced ability to regulate the pyr operon,
+                     and loss of ability to bind to RNA; no effect on UPRTase
+                     activity."
+     Region          148..153
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /region_name="Beta-strand region"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+     Site            152
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /site_type="mutagenized"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+                     /note="K->Q: No effect on ability to regulate the pyr
+                     operon only in presence of excess pyrimidines; reduced
+                     affinity for RNA; no effect on UPRTase activity."
+     Region          161..165
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /region_name="Beta-strand region"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+     Site            162
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /site_type="binding"
+                     /inference="non-experimental evidence, no additional
+                     details recorded"
+                     /note="Substrate (By similarity)."
+     Region          167..170
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /region_name="Helical region"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+     Region          174..178
+                     /gene="pyrR"
+                     /locus_tag="BSU15470"
+                     /region_name="Beta-strand region"
+                     /experiment="experimental evidence, no additional details
+                     recorded"
+ORIGIN      
+        1 mnqkavilde qairraltri ahemiernkg mnncilvgik trgiylakrl aerieqiegn
+       61 pvtvgeidit lyrddlskkt sndeplvkga dipvditdqk vilvddvlyt grtvragmda
+      121 lvdvgrpssi qlavlvdrgh relpiradyi gkniptskse kvmvqldevd qndlvaiyen
+      181 e
+//
+

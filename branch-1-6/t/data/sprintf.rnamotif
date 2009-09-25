@@ -1,0 +1,562 @@
+#RM scored
+#RM descr h5 ss h3
+#RM dfile sprintf.descr
+>gi|173609|gb|M28984|ACARRDX A.castellani 5S ribosomal RNA
+gi|173609|gb|M28984|ACARRDX -12.500,6,gcga 0      81   16 gggtgg gcga ccaccc
+>gi|1236163|gb|L41047|ANNRRO Actinoplanes sp. ribosomal RNA (rRNA)
+gi|1236163|gb|L41047|ANNRRO -15.400,6,gaaa 0     110   16 ccccgg gaaa ccgggg
+>gi|1236163|gb|L41047|ANNRRO Actinoplanes sp. ribosomal RNA (rRNA)
+gi|1236163|gb|L41047|ANNRRO -12.100,5,gaaa 0     111   14 cccgg gaaa ccggg
+>gi|173741|gb|M83548|AQF16SRRN Aquifex pyrophilus 16S ribosomal RNA (16S rRNA)
+gi|173741|gb|M83548|AQF16SRRN -15.400,6,gaaa 0     154   16 ccccgg gaaa ccgggg
+>gi|173741|gb|M83548|AQF16SRRN Aquifex pyrophilus 16S ribosomal RNA (16S rRNA)
+gi|173741|gb|M83548|AQF16SRRN -12.100,5,gaaa 0     155   14 cccgg gaaa ccggg
+>gi|173741|gb|M83548|AQF16SRRN Aquifex pyrophilus 16S ribosomal RNA (16S rRNA)
+gi|173741|gb|M83548|AQF16SRRN -14.900,7,gaaa 0    1028   18 actccgc gaaa gcggagt
+>gi|173741|gb|M83548|AQF16SRRN Aquifex pyrophilus 16S ribosomal RNA (16S rRNA)
+gi|173741|gb|M83548|AQF16SRRN -13.200,6,gaaa 0    1029   16 ctccgc gaaa gcggag
+>gi|173748|gb|M64487|ARFRRLSA A.fulgicus large subunit ribosomal RNA
+gi|173748|gb|M64487|ARFRRLSA -12.700,7,ttac 0     137   18 cgctccc ttac gggagcg
+>gi|173748|gb|M64487|ARFRRLSA A.fulgicus large subunit ribosomal RNA
+gi|173748|gb|M64487|ARFRRLSA -15.500,7,gtaa 1     154   18 cgctccc gtaa gggagcg
+>gi|173748|gb|M64487|ARFRRLSA A.fulgicus large subunit ribosomal RNA
+gi|173748|gb|M64487|ARFRRLSA -13.100,6,gtaa 1     153   16 gctccc gtaa gggagc
+>gi|470692|gb|M82686|ARIRRE05 Aristolochia gigantea 18S ribosomal RNA (18S rRNA), ca. bp 1203 to 1414 in mature rRNA
+gi|470692|gb|M82686|ARIRRE05 -12.200,7,gtca 1     174   18 gtggagg gtca cctccac
+>gi|470705|gb|M82700|ARURRE05 Arundinaria gigantea 18S ribosomal RNA (18S rRNA), ca. bp 1204 to 1414 in mature rRNA
+gi|470705|gb|M82700|ARURRE05 -12.000,7,catc 0     156   18 gcggagg catc cctccgc
+>gi|470705|gb|M82700|ARURRE05 Arundinaria gigantea 18S ribosomal RNA (18S rRNA), ca. bp 1204 to 1414 in mature rRNA
+gi|470705|gb|M82700|ARURRE05 -12.700,7,gatg 1     173   18 gcggagg gatg cctccgc
+>gi|470750|gb|M82449|AVORRE05 Persea borbonia 18S ribosomal RNA (18S rRNA), ca. bp 1205 to 1414 in mature rRNA
+gi|470750|gb|M82449|AVORRE05 -12.200,7,gata 1     172   18 gtggagg gata cctccac
+>gi|439580|gb|L15530|AZORR16SA Azoarcus sp. (strain BH72) 16S ribosomal RNA (16S rRNA)
+gi|439580|gb|L15530|AZORR16SA -12.500,5,ttcg 0      76   14 ggggc ttcg gcccc
+>gi|173823|gb|M79434|BAIRRDG02 Bacterial sp. (TH3) 16S rRNA sequence
+gi|173823|gb|M79434|BAIRRDG02 -13.100,6,gaaa 0      52   16 caccgg gaaa ccggtg
+>gi|603438|gb|L26511|BEDERRNAA Berndtia purpurea 18S ribosomal RNA (18S rRNA)
+gi|603438|gb|L26511|BEDERRNAA -13.100,6,gaaa 1     816   16 caggcg gaaa cgcctg
+>gi|304227|gb|L19406|BODRR24SA Bodo caudatus 24S ribosomal RNA large subunit
+gi|304227|gb|L19406|BODRR24SA -15.400,6,gaaa 0     512   16 cccggg gaaa cccggg
+>gi|304227|gb|L19406|BODRR24SA Bodo caudatus 24S ribosomal RNA large subunit
+gi|304227|gb|L19406|BODRR24SA -12.100,5,gaaa 0     513   14 ccggg gaaa cccgg
+>gi|173977|gb|M97571|BRARREA Branchiostoma floridae 18S ribosomal RNA (18S rRNA), 5' end
+gi|173977|gb|M97571|BRARREA -12.200,6,ttcg 0     225   16 ccgggg ttcg ccccgg
+>gi|470792|gb|M82728|BRERRE05 Brasenia schreberi 18S ribosomal RNA (18S rRNA), ca. bp 1238 to 1414 in mature rRNA
+gi|470792|gb|M82728|BRERRE05 -12.200,7,ggta 1     139   18 gtggagg ggta cctccac
+>gi|289579|gb|L14636|CCYRRDB Capnocytophaga sputigena 16S ribosomal RNA
+gi|289579|gb|L14636|CCYRRDB -12.400,7,ttcg 0      74   18 ggttacc ttcg ggtaacc
+>gi|174069|gb|M34116|CFXRRDA C.aurantiacus 16S ribosomal RNA
+gi|174069|gb|M34116|CFXRRDA -13.200,6,gaaa 0     141   16 cccgtc gaaa gacggg
+>gi|174076|gb|M62791|CHBRRDAA C.vibrioforme 16S ribosomal RNA
+gi|174076|gb|M62791|CHBRRDAA -12.200,6,gaaa 0     148   16 ccccga gaaa tcgggg
+>gi|174079|gb|M31769|CHBSSRNA C.limicola ribosomal RNA small subunit
+gi|174079|gb|M31769|CHBSSRNA -12.200,6,gaaa 0     146   16 ccccga gaaa tcgggg
+>gi|174102|gb|K03164|CHKUR5B Chicken U5B small nuclear RNA, complete
+gi|174102|gb|K03164|CHKUR5B -16.200,7,ttcg 0      97   18 gctccgc ttcg gcggagc
+>gi|174102|gb|K03164|CHKUR5B Chicken U5B small nuclear RNA, complete
+gi|174102|gb|K03164|CHKUR5B -12.800,6,ttcg 0      98   16 ctccgc ttcg gcggag
+>gi|174102|gb|K03164|CHKUR5B Chicken U5B small nuclear RNA, complete
+gi|174102|gb|K03164|CHKUR5B -12.400,7,cgaa 1     114   18 gctccgc cgaa gcggagc
+>gi|174103|gb|K00474|CHKURU4A Chicken U4a small nuclear RNA (snRNA)
+gi|174103|gb|K00474|CHKURU4A -12.000,7,tacg 0     128   18 cagtctc tacg gagactg
+>gi|174104|gb|K00475|CHKURU4B Chicken U4b small nuclear RNA (snRNA)
+gi|174104|gb|K00475|CHKURU4B -12.000,7,tacg 0     128   18 cagtctc tacg gagactg
+>gi|174144|gb|M59092|CLORR16SR Clostridium kluyveri 16S ribosomal RNA
+gi|174144|gb|M59092|CLORR16SR -13.700,7,atcg 0     809   18 ggggggt atcg acccccc
+>gi|174144|gb|M59092|CLORR16SR Clostridium kluyveri 16S ribosomal RNA
+gi|174144|gb|M59092|CLORR16SR -13.100,7,cgat 1     826   18 ggggggt cgat acccccc
+>gi|174209|gb|M20058|CRSRREA3 Chiton (C.stelleri) 18S rRNA, segment 3 of 3
+gi|174209|gb|M20058|CRSRREA3 -12.900,5,ggaa 0     118   14 ggccc ggaa gggcc
+>gi|174273|gb|M59057|DEOSSRNA Dermatophilus congolensis small subunit ribosomal RNA sequence
+gi|174273|gb|M59057|DEOSSRNA -12.100,5,gaaa 0     151   14 ccccg gaaa cgggg
+>gi|470912|gb|M82693|DRIRRE05 Drimys aromatica 18S ribosomal RNA (18S rRNA), ca. bp 1203 to 1414 in mature rRNA
+gi|470912|gb|M82693|DRIRRE05 -15.200,7,gtga 1     174   18 gtggagg gtga cctccac
+>gi|470912|gb|M82693|DRIRRE05 Drimys aromatica 18S ribosomal RNA (18S rRNA), ca. bp 1203 to 1414 in mature rRNA
+gi|470912|gb|M82693|DRIRRE05 -12.500,6,gtga 1     173   16 tggagg gtga cctcca
+>gi|174363|gb|K01260|ECOPRM1 Escherichia coli 10sb (M1) RNA; the RNA component of RNase P
+gi|174363|gb|K01260|ECOPRM1 -12.000,5,gcaa 0     152   14 cccgc gcaa gcggg
+>gi|174493|gb|M59388|ELERR18S E.cuneatus 18S ribosomal RNA
+gi|174493|gb|M59388|ELERR18S -13.300,6,gaaa 0     728   16 gtcgcc gaaa ggcgac
+>gi|174566|gb|M62683|FIBRR16SB Fibrobacter succinogenes succinogenes (strain A3C) 16S ribosomal RNA
+gi|174566|gb|M62683|FIBRR16SB -12.900,6,gttc 0     814   16 ccgggg gttc ccccgg
+>gi|174566|gb|M62683|FIBRR16SB Fibrobacter succinogenes succinogenes (strain A3C) 16S ribosomal RNA
+gi|174566|gb|M62683|FIBRR16SB -12.900,6,gaac 1     829   16 ccgggg gaac ccccgg
+>gi|174567|gb|M62684|FIBRR16SC Fibrobacter succinogenes succinogenes (strain B1) 16S ribosomal RNA
+gi|174567|gb|M62684|FIBRR16SC -12.900,6,gttc 0     810   16 ccgggg gttc ccccgg
+>gi|174567|gb|M62684|FIBRR16SC Fibrobacter succinogenes succinogenes (strain B1) 16S ribosomal RNA
+gi|174567|gb|M62684|FIBRR16SC -12.900,6,gaac 1     825   16 ccgggg gaac ccccgg
+>gi|174568|gb|M62685|FIBRR16SD Fibrobacter succinogenes succinogenes (strain BL2) 16S ribosomal RNA
+gi|174568|gb|M62685|FIBRR16SD -12.900,6,gttc 0     810   16 ccgggg gttc ccccgg
+>gi|174568|gb|M62685|FIBRR16SD Fibrobacter succinogenes succinogenes (strain BL2) 16S ribosomal RNA
+gi|174568|gb|M62685|FIBRR16SD -12.900,6,gaac 1     825   16 ccgggg gaac ccccgg
+>gi|174570|gb|M62687|FIBRR16SF Fibrobacter intestinalis (strain DR7) 16S ribosomal RNA
+gi|174570|gb|M62687|FIBRR16SF -13.900,6,gcga 0     816   16 cccggg gcga cccggg
+>gi|174572|gb|M62689|FIBRR16SH Fibrobacter succinogenes (strain HM2) 16S ribosomal RNA
+gi|174572|gb|M62689|FIBRR16SH -12.200,6,ttcg 0     809   16 ccgggg ttcg ccccgg
+>gi|174573|gb|M62690|FIBRR16SI Fibrobacter intestinalis (strain JG1) 16S ribosomal RNA
+gi|174573|gb|M62690|FIBRR16SI -13.900,6,gcga 0     816   16 cccggg gcga cccggg
+>gi|174574|gb|M62691|FIBRR16SJ Fibrobacter intestinalis (strain LH1) 16S ribosomal RNA
+gi|174574|gb|M62691|FIBRR16SJ -13.900,6,gcga 0     816   16 cccggg gcga cccggg
+>gi|174576|gb|M62693|FIBRR16SL Fibrobacter succinogenes (strain MC1) 16S ribosomal RNA
+gi|174576|gb|M62693|FIBRR16SL -12.100,6,acat 0     168   16 ccccgg acat ccgggg
+>gi|174576|gb|M62693|FIBRR16SL Fibrobacter succinogenes (strain MC1) 16S ribosomal RNA
+gi|174576|gb|M62693|FIBRR16SL -12.200,6,ttcg 0     808   16 ccgggg ttcg ccccgg
+>gi|174576|gb|M62693|FIBRR16SL Fibrobacter succinogenes (strain MC1) 16S ribosomal RNA
+gi|174576|gb|M62693|FIBRR16SL -12.100,6,atgt 1     183   16 ccccgg atgt ccgggg
+>gi|174579|gb|M62696|FIBRR16SO Fibrobacter succinogenes (strain S85) 16S ribosomal RNA
+gi|174579|gb|M62696|FIBRR16SO -12.900,6,gttc 0     811   16 ccgggg gttc ccccgg
+>gi|174579|gb|M62696|FIBRR16SO Fibrobacter succinogenes (strain S85) 16S ribosomal RNA
+gi|174579|gb|M62696|FIBRR16SO -12.900,6,gaac 1     826   16 ccgggg gaac ccccgg
+>gi|174591|gb|M59231|FLXRR16S Flexistipes sinusarabici small subunit rRNA
+gi|174591|gb|M59231|FLXRR16S -13.600,6,ttcg 0      76   16 cctccc ttcg gggagg
+>gi|174592|gb|L11306|FRARRDX Frankia sp. 16S ribosomal RNA
+gi|174592|gb|L11306|FRARRDX -12.100,5,gaaa 0     143   14 cccgg gaaa ccggg
+>gi|174596|gb|M97575|FSARREE Petromyzon marinus 18S ribosomal RNA (18S rRNA), 5' end
+gi|174596|gb|M97575|FSARREE -12.500,6,gcga 0    1714   16 gggcag gcga ctgccc
+>gi|174670|gb|M91611|GAORRITSA Gastrosuillus laricinus ribosomal RNA internal transcribed spacer
+gi|174670|gb|M91611|GAORRITSA -13.100,6,gcga 0      89   16 cgcggg gcga cccgcg
+>gi|174671|gb|M91612|GAORRITSB Gastrosuillus luricinus ribosomal RNA internal transcribed spacer
+gi|174671|gb|M91612|GAORRITSB -13.100,6,gcga 0     105   16 cgcggg gcga cccgcg
+>gi|695346|gb|L36199|HBMRRDM Heliobacillus mobilis 16S ribosomal RNA (16S rRNA)
+gi|695346|gb|L36199|HBMRRDM -13.800,6,gaaa 0     152   16 cagccc gaaa gggctg
+>gi|174809|gb|M37643|HECRR16SB Helicobacter felis 16S rRNA
+gi|174809|gb|M37643|HECRR16SB -12.700,7,gaaa 0     962   18 tccccta gaaa tagggga
+>gi|174838|gb|L04675|HLO16SRRNA Heliothrix oregonensis 16S ribosomal RNA (16S rRNA), partial rRNA
+gi|174838|gb|L04675|HLO16SRRNA -12.800,5,gaaa 1      38   14 ccccc gaaa ggggg
+>gi|174913|gb|M23820|HUMRRAUA Human U5-A ribosomal RNA
+gi|174913|gb|M23820|HUMRRAUA -12.500,7,cttg 0     101   18 gccttgc cttg gcaaggc
+>gi|174913|gb|M23820|HUMRRAUA Human U5-A ribosomal RNA
+gi|174913|gb|M23820|HUMRRAUA -12.500,7,caag 1     118   18 gccttgc caag gcaaggc
+>gi|174944|gb|K00472|HUMURU4B Human U4b small nuclear RNA (snRNA)
+gi|174944|gb|K00472|HUMURU4B -12.000,7,tacg 0     128   18 cagtctc tacg gagactg
+>gi|174959|gb|M32851|HYM28SRRNA Hymenochirus curtipes 28S ribosomal RNA, complete
+gi|174959|gb|M32851|HYM28SRRNA -13.300,7,cgcg 0     335   18 agccgcg cgcg cgcggct
+>gi|174959|gb|M32851|HYM28SRRNA Hymenochirus curtipes 28S ribosomal RNA, complete
+gi|174959|gb|M32851|HYM28SRRNA -13.300,7,cgcg 1     352   18 agccgcg cgcg cgcggct
+>gi|175002|gb|M97573|LARRREC Lampetra aepyptera 18S ribosomal RNA (18S rRNA), 5' end
+gi|175002|gb|M97573|LARRREC -12.500,6,gcga 0    1714   16 gggcag gcga ctgccc
+>gi|471872|gb|M82532|LAURRE05 Lactuca sativa 18S ribosomal RNA (18S rRNA), ca. bp 1205 to 1414 in mature rRNA
+gi|471872|gb|M82532|LAURRE05 -12.200,7,gata 1     172   18 gtggagg gata cctccac
+>gi|175039|gb|M23727|LBARRNAV L.vitulinus 16S ribosomal RNA small subunit
+gi|175039|gb|M23727|LBARRNAV -13.400,6,gaga 0    1000   16 gggacg gaga cgtccc
+>gi|175044|gb|M23729|LBARRNAZ L.catenaforme 16S ribosomal RNA small subunit
+gi|175044|gb|M23729|LBARRNAZ -15.700,7,gaga 0    1000   18 tcgcgcg gaga cgcgcga
+>gi|175044|gb|M23729|LBARRNAZ L.catenaforme 16S ribosomal RNA small subunit
+gi|175044|gb|M23729|LBARRNAZ -13.800,6,gaga 0    1001   16 cgcgcg gaga cgcgcg
+>gi|471885|gb|M82539|LIQRRE05 Liquidambar styraciflua 18S ribosomal RNA (18S rRNA), ca. bp 1205 to 1414 in mature rRNA
+gi|471885|gb|M82539|LIQRRE05 -12.200,7,gtca 1     172   18 gtggagg gtca cctccac
+>gi|175140|gb|M58822|LISRR16ST Listeria monocytogenes 16S ribosomal RNA
+gi|175140|gb|M58822|LISRR16ST -13.300,6,gaaa 0     153   16 ctccgg gaaa ccggag
+>gi|951043|gb|L33974|LTTRRD Leptothrix discophora (strain SP-6) 16S ribosomal RNA (16S rRNA)
+gi|951043|gb|L33974|LTTRRD -12.000,5,gaaa 0     135   14 ccggc gaaa gccgg
+>gi|504534|gb|L33979|LTTRRDB Leptothrix cholodnii (strain LMG 7171) 16S ribosomal RNA (16S rRNA)
+gi|504534|gb|L33979|LTTRRDB -12.000,5,gaaa 0     135   14 ccggc gaaa gccgg
+>gi|504535|gb|L33981|LTTRRDC Leptothrix sp. (strain NC-1) 16S ribosomal RNA (16S rRNA)
+gi|504535|gb|L33981|LTTRRDC -12.000,5,gaaa 0     135   14 ccggc gaaa gccgg
+>gi|308922|gb|L10943|MABRRI Marine Eubacterial sp. (aggregate agg27) PCR generated ribosomal RNA fragment
+gi|308922|gb|L10943|MABRRI -12.100,7,acat 0      81   18 gggagag acat ctctccc
+>gi|308922|gb|L10943|MABRRI Marine Eubacterial sp. (aggregate agg27) PCR generated ribosomal RNA fragment
+gi|308922|gb|L10943|MABRRI -12.100,7,atgt 1      98   18 gggagag atgt ctctccc
+>gi|175375|gb|M95654|MTBRRDB Methylobacterium sp. 16S ribosomal RNA
+gi|175375|gb|M95654|MTBRRDB -12.600,7,cttg 0     776   18 tggcctg cttg caggcca
+>gi|175375|gb|M95654|MTBRRDB Methylobacterium sp. 16S ribosomal RNA
+gi|175375|gb|M95654|MTBRRDB -12.600,7,caag 1     793   18 tggcctg caag caggcca
+>gi|175376|gb|M95655|MTBRRDC Methylobacterium sp. 16S ribosomal RNA
+gi|175376|gb|M95655|MTBRRDC -12.600,7,cttg 0     776   18 tggcctg cttg caggcca
+>gi|175376|gb|M95655|MTBRRDC Methylobacterium sp. 16S ribosomal RNA
+gi|175376|gb|M95655|MTBRRDC -12.600,7,caag 1     793   18 tggcctg caag caggcca
+>gi|175408|gb|M14414|MUSRRMA Mouse 5.4S ribosomal small nuclear RNA
+gi|175408|gb|M14414|MUSRRMA -14.000,6,gaaa 1      44   16 ccctcc gaaa ggaggg
+>gi|175433|gb|M10328|MUSUR57S Mouse 5.7S U4 small nuclear RNA type a
+gi|175433|gb|M10328|MUSUR57S -12.000,7,tacg 0     128   18 cagtctc tacg gagactg
+>gi|175434|gb|M18004|MUSUR57T Mouse 5.7S U4 small nuclear RNA type b
+gi|175434|gb|M18004|MUSUR57T -12.000,7,tacg 0     128   18 cagtctc tacg gagactg
+>gi|175446|gb|M59126|MVORR16SY Methanococcus jannaschii 16S ribosomal RNA
+gi|175446|gb|M59126|MVORR16SY -13.700,6,ttcg 0      65   16 gctccc ttcg gggagc
+>gi|175555|gb|L06168|NGORR16SB Neisseria flavescens 16S ribosomal RNA
+gi|175555|gb|L06168|NGORR16SB -13.300,6,gaga 0    1005   16 cctccg gaga cggagg
+>gi|294001|gb|L16523|NYSRR23S Nyssa sativa 26S ribosomal RNA
+gi|294001|gb|L16523|NYSRR23S -15.200,7,gaaa 0      88   18 gccagag gaaa ctctggc
+>gi|175717|gb|M59064|PSERR16SB Pseudomonas diminuta 16S ribosomal RNA
+gi|175717|gb|M59064|PSERR16SB -13.200,6,gaga 0     950   16 gccacg gaga cgtggc
+>gi|472129|gb|M82490|PTNRRE04 Platanus occidentalis 18S ribosomal RNA (18S rRNA), ca. bp 1207 to 1414 in mature rRNA
+gi|472129|gb|M82490|PTNRRE04 -12.200,7,gtca 1     170   18 gtggagg gtca cctccac
+>gi|294428|gb|L16474|PVORR16SJ Prevotella oris (ATCC 33573) 16S ribosomal RNA
+gi|294428|gb|L16474|PVORR16SJ -12.100,7,cttg 0      78   18 ggggaag cttg cttcccc
+>gi|294428|gb|L16474|PVORR16SJ Prevotella oris (ATCC 33573) 16S ribosomal RNA
+gi|294428|gb|L16474|PVORR16SJ -12.100,7,caag 1      95   18 ggggaag caag cttcccc
+>gi|408945|gb|L19921|PYWRRDX Pyrococcus abyssi 16S ribosomal RNA
+gi|408945|gb|L19921|PYWRRDX -13.400,7,ttct 0      48   18 gcgtccc ttct gggacgc
+>gi|408945|gb|L19921|PYWRRDX Pyrococcus abyssi 16S ribosomal RNA
+gi|408945|gb|L19921|PYWRRDX -12.900,6,gtac 0     603   16 ccgggg gtac ccccgg
+>gi|408945|gb|L19921|PYWRRDX Pyrococcus abyssi 16S ribosomal RNA
+gi|408945|gb|L19921|PYWRRDX -14.100,7,gctc 0    1066   18 ccctccc gctc gggaggg
+>gi|408945|gb|L19921|PYWRRDX Pyrococcus abyssi 16S ribosomal RNA
+gi|408945|gb|L19921|PYWRRDX -14.100,7,gagc 1    1083   18 ccctccc gagc gggaggg
+>gi|408945|gb|L19921|PYWRRDX Pyrococcus abyssi 16S ribosomal RNA
+gi|408945|gb|L19921|PYWRRDX -12.900,6,gtac 1     618   16 ccgggg gtac ccccgg
+>gi|408945|gb|L19921|PYWRRDX Pyrococcus abyssi 16S ribosomal RNA
+gi|408945|gb|L19921|PYWRRDX -12.900,7,agaa 1      65   18 gcgtccc agaa gggacgc
+>gi|472171|gb|M82511|RACRRE05 Ranunculus acris 18S ribosomal RNA (18S rRNA), ca. bp 1203 to 1414 in mature rRNA
+gi|472171|gb|M82511|RACRRE05 -12.200,7,ggta 1     174   18 gtggagg ggta cctccac
+>gi|175815|gb|M11057|RATUR8 Rat U8 small nuclear RNA from Novikoff hepatoma cells
+gi|175815|gb|M11057|RATUR8 -14.000,6,gaaa 1      43   16 ccctcc gaaa ggaggg
+>gi|175816|gb|K00477|RATURU4A Rat U4a small nuclear RNA (snRNA)
+gi|175816|gb|K00477|RATURU4A -12.000,7,tacg 0     128   18 cagtctc tacg gagactg
+>gi|175817|gb|K00478|RATURU4B Rat U4b small nuclear RNA (snRNA)
+gi|175817|gb|K00478|RATURU4B -12.000,7,tacg 0     128   18 cagtctc tacg gagactg
+>gi|175851|gb|M91613|RHSRRITSA Rhizopogon subcaerulescens ribosomal RNA internal transcribed spacer
+gi|175851|gb|M91613|RHSRRITSA -12.800,7,tcgc 0      40   18 gcctcgc tcgc gcgaggc
+>gi|175851|gb|M91613|RHSRRITSA Rhizopogon subcaerulescens ribosomal RNA internal transcribed spacer
+gi|175851|gb|M91613|RHSRRITSA -16.100,7,gcga 1      57   18 gcctcgc gcga gcgaggc
+>gi|175851|gb|M91613|RHSRRITSA Rhizopogon subcaerulescens ribosomal RNA internal transcribed spacer
+gi|175851|gb|M91613|RHSRRITSA -12.700,6,gcga 1      56   16 cctcgc gcga gcgagg
+>gi|294741|gb|L15196|ROLRR18S Roridula gorgonias 18S ribosomal RNA
+gi|294741|gb|L15196|ROLRR18S -12.200,7,gtca 1     628   18 gtggagg gtca cctccac
+>gi|175876|gb|M59069|RSPRR16SD Rhodospirillum salinarum 16S ribosomal RNA
+gi|175876|gb|M59069|RSPRR16SD -16.700,7,gaga 0     953   18 gcctcgg gaga ccgaggc
+>gi|175876|gb|M59069|RSPRR16SD Rhodospirillum salinarum 16S ribosomal RNA
+gi|175876|gb|M59069|RSPRR16SD -13.300,6,gaga 0     954   16 cctcgg gaga ccgagg
+>gi|175876|gb|M59069|RSPRR16SD Rhodospirillum salinarum 16S ribosomal RNA
+gi|175876|gb|M59069|RSPRR16SD -12.300,7,tctc 1     970   18 gcctcgg tctc ccgaggc
+>gi|457377|gb|L25709|SGBRRNA Solemya reidi gill symbiont ribosomal RNA
+gi|457377|gb|L25709|SGBRRNA -13.900,6,gaaa 0     140   16 cctggg gaaa cccagg
+>gi|175944|gb|M32848|SIL28SRRNA Silurana tropicalis 28S ribosomal RNA, complete
+gi|175944|gb|M32848|SIL28SRRNA -13.000,6,gcgc 0     341   16 gccggg gcgc cccggc
+>gi|175944|gb|M32848|SIL28SRRNA Silurana tropicalis 28S ribosomal RNA, complete
+gi|175944|gb|M32848|SIL28SRRNA -13.000,6,gcgc 1     356   16 gccggg gcgc cccggc
+>gi|175988|gb|M88722|SPARR16SB Spirochaeta halophila 16S ribosomal RNA
+gi|175988|gb|M88722|SPARR16SB -12.800,6,ttcg 0       2   16 cgtccc ttcg gggacg
+>gi|176013|gb|M62707|SPNRR18SA Sphaeromonas communis (strain FG) 18S ribosomal RNA
+gi|176013|gb|M62707|SPNRR18SA -12.700,7,gcaa 0     183   18 aacctgg gcaa ccaggtt
+>gi|176061|gb|M91614|SUIRRITSA Suillus grevillei ribosomal RNA internal transcribed spacer
+gi|176061|gb|M91614|SUIRRITSA -13.100,6,gcga 0     105   16 cgcggg gcga cccgcg
+>gi|176062|gb|M91615|SUIRRITSB Suillus grevillei ribosomal RNA internal transcribed spacer
+gi|176062|gb|M91615|SUIRRITSB -13.100,6,gcga 0     105   16 cgcggg gcga cccgcg
+>gi|176197|gb|M67497|THCLRRNA T.celer 23S ribosomal RNA gene sequence
+gi|176197|gb|M67497|THCLRRNA -16.600,7,gaaa 0     263   18 ctccggg gaaa cccggag
+>gi|176197|gb|M67497|THCLRRNA T.celer 23S ribosomal RNA gene sequence
+gi|176197|gb|M67497|THCLRRNA -14.000,6,gaaa 0     264   16 tccggg gaaa cccgga
+>gi|176197|gb|M67497|THCLRRNA T.celer 23S ribosomal RNA gene sequence
+gi|176197|gb|M67497|THCLRRNA -12.100,5,gaaa 0     265   14 ccggg gaaa cccgg
+>gi|176197|gb|M67497|THCLRRNA T.celer 23S ribosomal RNA gene sequence
+gi|176197|gb|M67497|THCLRRNA -13.100,6,gaaa 0    1004   16 ggggga gaaa tccccc
+>gi|176197|gb|M67497|THCLRRNA T.celer 23S ribosomal RNA gene sequence
+gi|176197|gb|M67497|THCLRRNA -12.200,7,tttc 1     280   18 ctccggg tttc cccggag
+>gi|176199|gb|M21529|THCRRD T.celer 16S ribosomal RNA
+gi|176199|gb|M21529|THCRRD -12.900,7,ggaa 0    1455   18 ccgtagg ggaa cctacgg
+>gi|176219|gb|M67498|TMORRNAA Thermotoga maritima large subunit ribosomal RNA, complete
+gi|176219|gb|M67498|TMORRNAA -12.000,5,gaaa 0     152   14 ccgcc gaaa ggcgg
+>gi|176219|gb|M67498|TMORRNAA Thermotoga maritima large subunit ribosomal RNA, complete
+gi|176219|gb|M67498|TMORRNAA -13.700,6,ttcg 0    1615   16 ggtccc ttcg gggacc
+>gi|176254|gb|M57738|TRPRRDSB Treponema succinifaciens 16S rRNA
+gi|176254|gb|M57738|TRPRRDSB -16.400,7,gaga 0    1036   18 ccgcctg gaga caggcgg
+>gi|176254|gb|M57738|TRPRRDSB Treponema succinifaciens 16S rRNA
+gi|176254|gb|M57738|TRPRRDSB -13.100,6,gaga 0    1037   16 cgcctg gaga caggcg
+>gi|176254|gb|M57738|TRPRRDSB Treponema succinifaciens 16S rRNA
+gi|176254|gb|M57738|TRPRRDSB -12.000,7,tctc 1    1053   18 ccgcctg tctc caggcgg
+>gi|176257|gb|M59294|TRPSSRNAA Treponema sp. small subunit ribosomal RNA
+gi|176257|gb|M59294|TRPSSRNAA -12.800,7,gaga 0    1026   18 tcgcatg gaga catgcga
+>gi|1220551|gb|L27800|TRRBRDNAA Trichoderma reesei 5.8S ribosomal DNA (5.8S rDNA)
+gi|1220551|gb|L27800|TRRBRDNAA -12.500,7,tatt 0     118   18 ccgccag tatt ctggcgg
+>gi|1220551|gb|L27800|TRRBRDNAA Trichoderma reesei 5.8S ribosomal DNA (5.8S rDNA)
+gi|1220551|gb|L27800|TRRBRDNAA -12.100,7,aata 1     135   18 ccgccag aata ctggcgg
+>gi|603469|gb|L26520|TRWERRNAA Trypetesa lampas 18S ribosomal RNA (18S rRNA)
+gi|603469|gb|L26520|TRWERRNAA -13.100,6,gaaa 1     818   16 caggcg gaaa cgcctg
+>gi|176260|gb|M35966|TTERRDA T.tenax 16S rRNA
+gi|176260|gb|M35966|TTERRDA -13.900,7,ggcg 0      63   18 cgcccgg ggcg ccgggcg
+>gi|176260|gb|M35966|TTERRDA T.tenax 16S rRNA
+gi|176260|gb|M35966|TTERRDA -13.200,7,cgcc 1      80   18 cgcccgg cgcc ccgggcg
+>gi|603470|gb|L26521|ULOERRNAA Ulophysema oeresundense 18S ribosomal RNA (18S rRNA)
+gi|603470|gb|L26521|ULOERRNAA -12.500,7,tcac 0     225   18 cgtgccc tcac gggcacg
+>gi|603470|gb|L26521|ULOERRNAA Ulophysema oeresundense 18S ribosomal RNA (18S rRNA)
+gi|603470|gb|L26521|ULOERRNAA -14.400,7,tgaa 0    1785   18 ccgcagg tgaa cctgcgg
+>gi|603470|gb|L26521|ULOERRNAA Ulophysema oeresundense 18S ribosomal RNA (18S rRNA)
+gi|603470|gb|L26521|ULOERRNAA -12.900,7,ttca 1    1802   18 ccgcagg ttca cctgcgg
+>gi|603470|gb|L26521|ULOERRNAA Ulophysema oeresundense 18S ribosomal RNA (18S rRNA)
+gi|603470|gb|L26521|ULOERRNAA -16.300,7,gtga 1     242   18 cgtgccc gtga gggcacg
+>gi|603470|gb|L26521|ULOERRNAA Ulophysema oeresundense 18S ribosomal RNA (18S rRNA)
+gi|603470|gb|L26521|ULOERRNAA -13.900,6,gtga 1     241   16 gtgccc gtga gggcac
+>gi|475134|gb|M82432|ZAMRREA02 Zamia ottonis 18S ribosomal RNA (18S rRNA), ca. bp 234 to 287 in mature rRNA
+gi|475134|gb|M82432|ZAMRREA02 -12.200,7,gata 1     172   18 gtggagg gata cctccac
+#RM scored
+#RM descr h5 ss h3
+#RM dfile sprintf.descr
+>gi|173609|gb|M28984|ACARRDX A.castellani 5S ribosomal RNA
+gi|173609|gb|M28984|ACARRDX -12.500,6,gcga 0      81   16 gggtgg gcga ccaccc
+>gi|1236163|gb|L41047|ANNRRO Actinoplanes sp. ribosomal RNA (rRNA)
+gi|1236163|gb|L41047|ANNRRO -15.400,6,gaaa 0     110   16 ccccgg gaaa ccgggg
+>gi|1236163|gb|L41047|ANNRRO Actinoplanes sp. ribosomal RNA (rRNA)
+gi|1236163|gb|L41047|ANNRRO -12.100,5,gaaa 0     111   14 cccgg gaaa ccggg
+>gi|173741|gb|M83548|AQF16SRRN Aquifex pyrophilus 16S ribosomal RNA (16S rRNA)
+gi|173741|gb|M83548|AQF16SRRN -15.400,6,gaaa 0     154   16 ccccgg gaaa ccgggg
+>gi|173741|gb|M83548|AQF16SRRN Aquifex pyrophilus 16S ribosomal RNA (16S rRNA)
+gi|173741|gb|M83548|AQF16SRRN -12.100,5,gaaa 0     155   14 cccgg gaaa ccggg
+>gi|173741|gb|M83548|AQF16SRRN Aquifex pyrophilus 16S ribosomal RNA (16S rRNA)
+gi|173741|gb|M83548|AQF16SRRN -14.900,7,gaaa 0    1028   18 actccgc gaaa gcggagt
+>gi|173741|gb|M83548|AQF16SRRN Aquifex pyrophilus 16S ribosomal RNA (16S rRNA)
+gi|173741|gb|M83548|AQF16SRRN -13.200,6,gaaa 0    1029   16 ctccgc gaaa gcggag
+>gi|173748|gb|M64487|ARFRRLSA A.fulgicus large subunit ribosomal RNA
+gi|173748|gb|M64487|ARFRRLSA -12.700,7,ttac 0     137   18 cgctccc ttac gggagcg
+>gi|173748|gb|M64487|ARFRRLSA A.fulgicus large subunit ribosomal RNA
+gi|173748|gb|M64487|ARFRRLSA -15.500,7,gtaa 1     154   18 cgctccc gtaa gggagcg
+>gi|173748|gb|M64487|ARFRRLSA A.fulgicus large subunit ribosomal RNA
+gi|173748|gb|M64487|ARFRRLSA -13.100,6,gtaa 1     153   16 gctccc gtaa gggagc
+>gi|470692|gb|M82686|ARIRRE05 Aristolochia gigantea 18S ribosomal RNA (18S rRNA), ca. bp 1203 to 1414 in mature rRNA
+gi|470692|gb|M82686|ARIRRE05 -12.200,7,gtca 1     174   18 gtggagg gtca cctccac
+>gi|470705|gb|M82700|ARURRE05 Arundinaria gigantea 18S ribosomal RNA (18S rRNA), ca. bp 1204 to 1414 in mature rRNA
+gi|470705|gb|M82700|ARURRE05 -12.000,7,catc 0     156   18 gcggagg catc cctccgc
+>gi|470705|gb|M82700|ARURRE05 Arundinaria gigantea 18S ribosomal RNA (18S rRNA), ca. bp 1204 to 1414 in mature rRNA
+gi|470705|gb|M82700|ARURRE05 -12.700,7,gatg 1     173   18 gcggagg gatg cctccgc
+>gi|470750|gb|M82449|AVORRE05 Persea borbonia 18S ribosomal RNA (18S rRNA), ca. bp 1205 to 1414 in mature rRNA
+gi|470750|gb|M82449|AVORRE05 -12.200,7,gata 1     172   18 gtggagg gata cctccac
+>gi|439580|gb|L15530|AZORR16SA Azoarcus sp. (strain BH72) 16S ribosomal RNA (16S rRNA)
+gi|439580|gb|L15530|AZORR16SA -12.500,5,ttcg 0      76   14 ggggc ttcg gcccc
+>gi|173823|gb|M79434|BAIRRDG02 Bacterial sp. (TH3) 16S rRNA sequence
+gi|173823|gb|M79434|BAIRRDG02 -13.100,6,gaaa 0      52   16 caccgg gaaa ccggtg
+>gi|603438|gb|L26511|BEDERRNAA Berndtia purpurea 18S ribosomal RNA (18S rRNA)
+gi|603438|gb|L26511|BEDERRNAA -13.100,6,gaaa 1     816   16 caggcg gaaa cgcctg
+>gi|304227|gb|L19406|BODRR24SA Bodo caudatus 24S ribosomal RNA large subunit
+gi|304227|gb|L19406|BODRR24SA -15.400,6,gaaa 0     512   16 cccggg gaaa cccggg
+>gi|304227|gb|L19406|BODRR24SA Bodo caudatus 24S ribosomal RNA large subunit
+gi|304227|gb|L19406|BODRR24SA -12.100,5,gaaa 0     513   14 ccggg gaaa cccgg
+>gi|173977|gb|M97571|BRARREA Branchiostoma floridae 18S ribosomal RNA (18S rRNA), 5' end
+gi|173977|gb|M97571|BRARREA -12.200,6,ttcg 0     225   16 ccgggg ttcg ccccgg
+>gi|470792|gb|M82728|BRERRE05 Brasenia schreberi 18S ribosomal RNA (18S rRNA), ca. bp 1238 to 1414 in mature rRNA
+gi|470792|gb|M82728|BRERRE05 -12.200,7,ggta 1     139   18 gtggagg ggta cctccac
+>gi|289579|gb|L14636|CCYRRDB Capnocytophaga sputigena 16S ribosomal RNA
+gi|289579|gb|L14636|CCYRRDB -12.400,7,ttcg 0      74   18 ggttacc ttcg ggtaacc
+>gi|174069|gb|M34116|CFXRRDA C.aurantiacus 16S ribosomal RNA
+gi|174069|gb|M34116|CFXRRDA -13.200,6,gaaa 0     141   16 cccgtc gaaa gacggg
+>gi|174076|gb|M62791|CHBRRDAA C.vibrioforme 16S ribosomal RNA
+gi|174076|gb|M62791|CHBRRDAA -12.200,6,gaaa 0     148   16 ccccga gaaa tcgggg
+>gi|174079|gb|M31769|CHBSSRNA C.limicola ribosomal RNA small subunit
+gi|174079|gb|M31769|CHBSSRNA -12.200,6,gaaa 0     146   16 ccccga gaaa tcgggg
+>gi|174102|gb|K03164|CHKUR5B Chicken U5B small nuclear RNA, complete
+gi|174102|gb|K03164|CHKUR5B -16.200,7,ttcg 0      97   18 gctccgc ttcg gcggagc
+>gi|174102|gb|K03164|CHKUR5B Chicken U5B small nuclear RNA, complete
+gi|174102|gb|K03164|CHKUR5B -12.800,6,ttcg 0      98   16 ctccgc ttcg gcggag
+>gi|174102|gb|K03164|CHKUR5B Chicken U5B small nuclear RNA, complete
+gi|174102|gb|K03164|CHKUR5B -12.400,7,cgaa 1     114   18 gctccgc cgaa gcggagc
+>gi|174103|gb|K00474|CHKURU4A Chicken U4a small nuclear RNA (snRNA)
+gi|174103|gb|K00474|CHKURU4A -12.000,7,tacg 0     128   18 cagtctc tacg gagactg
+>gi|174104|gb|K00475|CHKURU4B Chicken U4b small nuclear RNA (snRNA)
+gi|174104|gb|K00475|CHKURU4B -12.000,7,tacg 0     128   18 cagtctc tacg gagactg
+>gi|174144|gb|M59092|CLORR16SR Clostridium kluyveri 16S ribosomal RNA
+gi|174144|gb|M59092|CLORR16SR -13.700,7,atcg 0     809   18 ggggggt atcg acccccc
+>gi|174144|gb|M59092|CLORR16SR Clostridium kluyveri 16S ribosomal RNA
+gi|174144|gb|M59092|CLORR16SR -13.100,7,cgat 1     826   18 ggggggt cgat acccccc
+>gi|174209|gb|M20058|CRSRREA3 Chiton (C.stelleri) 18S rRNA, segment 3 of 3
+gi|174209|gb|M20058|CRSRREA3 -12.900,5,ggaa 0     118   14 ggccc ggaa gggcc
+>gi|174273|gb|M59057|DEOSSRNA Dermatophilus congolensis small subunit ribosomal RNA sequence
+gi|174273|gb|M59057|DEOSSRNA -12.100,5,gaaa 0     151   14 ccccg gaaa cgggg
+>gi|470912|gb|M82693|DRIRRE05 Drimys aromatica 18S ribosomal RNA (18S rRNA), ca. bp 1203 to 1414 in mature rRNA
+gi|470912|gb|M82693|DRIRRE05 -15.200,7,gtga 1     174   18 gtggagg gtga cctccac
+>gi|470912|gb|M82693|DRIRRE05 Drimys aromatica 18S ribosomal RNA (18S rRNA), ca. bp 1203 to 1414 in mature rRNA
+gi|470912|gb|M82693|DRIRRE05 -12.500,6,gtga 1     173   16 tggagg gtga cctcca
+>gi|174363|gb|K01260|ECOPRM1 Escherichia coli 10sb (M1) RNA; the RNA component of RNase P
+gi|174363|gb|K01260|ECOPRM1 -12.000,5,gcaa 0     152   14 cccgc gcaa gcggg
+>gi|174493|gb|M59388|ELERR18S E.cuneatus 18S ribosomal RNA
+gi|174493|gb|M59388|ELERR18S -13.300,6,gaaa 0     728   16 gtcgcc gaaa ggcgac
+>gi|174566|gb|M62683|FIBRR16SB Fibrobacter succinogenes succinogenes (strain A3C) 16S ribosomal RNA
+gi|174566|gb|M62683|FIBRR16SB -12.900,6,gttc 0     814   16 ccgggg gttc ccccgg
+>gi|174566|gb|M62683|FIBRR16SB Fibrobacter succinogenes succinogenes (strain A3C) 16S ribosomal RNA
+gi|174566|gb|M62683|FIBRR16SB -12.900,6,gaac 1     829   16 ccgggg gaac ccccgg
+>gi|174567|gb|M62684|FIBRR16SC Fibrobacter succinogenes succinogenes (strain B1) 16S ribosomal RNA
+gi|174567|gb|M62684|FIBRR16SC -12.900,6,gttc 0     810   16 ccgggg gttc ccccgg
+>gi|174567|gb|M62684|FIBRR16SC Fibrobacter succinogenes succinogenes (strain B1) 16S ribosomal RNA
+gi|174567|gb|M62684|FIBRR16SC -12.900,6,gaac 1     825   16 ccgggg gaac ccccgg
+>gi|174568|gb|M62685|FIBRR16SD Fibrobacter succinogenes succinogenes (strain BL2) 16S ribosomal RNA
+gi|174568|gb|M62685|FIBRR16SD -12.900,6,gttc 0     810   16 ccgggg gttc ccccgg
+>gi|174568|gb|M62685|FIBRR16SD Fibrobacter succinogenes succinogenes (strain BL2) 16S ribosomal RNA
+gi|174568|gb|M62685|FIBRR16SD -12.900,6,gaac 1     825   16 ccgggg gaac ccccgg
+>gi|174570|gb|M62687|FIBRR16SF Fibrobacter intestinalis (strain DR7) 16S ribosomal RNA
+gi|174570|gb|M62687|FIBRR16SF -13.900,6,gcga 0     816   16 cccggg gcga cccggg
+>gi|174572|gb|M62689|FIBRR16SH Fibrobacter succinogenes (strain HM2) 16S ribosomal RNA
+gi|174572|gb|M62689|FIBRR16SH -12.200,6,ttcg 0     809   16 ccgggg ttcg ccccgg
+>gi|174573|gb|M62690|FIBRR16SI Fibrobacter intestinalis (strain JG1) 16S ribosomal RNA
+gi|174573|gb|M62690|FIBRR16SI -13.900,6,gcga 0     816   16 cccggg gcga cccggg
+>gi|174574|gb|M62691|FIBRR16SJ Fibrobacter intestinalis (strain LH1) 16S ribosomal RNA
+gi|174574|gb|M62691|FIBRR16SJ -13.900,6,gcga 0     816   16 cccggg gcga cccggg
+>gi|174576|gb|M62693|FIBRR16SL Fibrobacter succinogenes (strain MC1) 16S ribosomal RNA
+gi|174576|gb|M62693|FIBRR16SL -12.100,6,acat 0     168   16 ccccgg acat ccgggg
+>gi|174576|gb|M62693|FIBRR16SL Fibrobacter succinogenes (strain MC1) 16S ribosomal RNA
+gi|174576|gb|M62693|FIBRR16SL -12.200,6,ttcg 0     808   16 ccgggg ttcg ccccgg
+>gi|174576|gb|M62693|FIBRR16SL Fibrobacter succinogenes (strain MC1) 16S ribosomal RNA
+gi|174576|gb|M62693|FIBRR16SL -12.100,6,atgt 1     183   16 ccccgg atgt ccgggg
+>gi|174579|gb|M62696|FIBRR16SO Fibrobacter succinogenes (strain S85) 16S ribosomal RNA
+gi|174579|gb|M62696|FIBRR16SO -12.900,6,gttc 0     811   16 ccgggg gttc ccccgg
+>gi|174579|gb|M62696|FIBRR16SO Fibrobacter succinogenes (strain S85) 16S ribosomal RNA
+gi|174579|gb|M62696|FIBRR16SO -12.900,6,gaac 1     826   16 ccgggg gaac ccccgg
+>gi|174591|gb|M59231|FLXRR16S Flexistipes sinusarabici small subunit rRNA
+gi|174591|gb|M59231|FLXRR16S -13.600,6,ttcg 0      76   16 cctccc ttcg gggagg
+>gi|174592|gb|L11306|FRARRDX Frankia sp. 16S ribosomal RNA
+gi|174592|gb|L11306|FRARRDX -12.100,5,gaaa 0     143   14 cccgg gaaa ccggg
+>gi|174596|gb|M97575|FSARREE Petromyzon marinus 18S ribosomal RNA (18S rRNA), 5' end
+gi|174596|gb|M97575|FSARREE -12.500,6,gcga 0    1714   16 gggcag gcga ctgccc
+>gi|174670|gb|M91611|GAORRITSA Gastrosuillus laricinus ribosomal RNA internal transcribed spacer
+gi|174670|gb|M91611|GAORRITSA -13.100,6,gcga 0      89   16 cgcggg gcga cccgcg
+>gi|174671|gb|M91612|GAORRITSB Gastrosuillus luricinus ribosomal RNA internal transcribed spacer
+gi|174671|gb|M91612|GAORRITSB -13.100,6,gcga 0     105   16 cgcggg gcga cccgcg
+>gi|695346|gb|L36199|HBMRRDM Heliobacillus mobilis 16S ribosomal RNA (16S rRNA)
+gi|695346|gb|L36199|HBMRRDM -13.800,6,gaaa 0     152   16 cagccc gaaa gggctg
+>gi|174809|gb|M37643|HECRR16SB Helicobacter felis 16S rRNA
+gi|174809|gb|M37643|HECRR16SB -12.700,7,gaaa 0     962   18 tccccta gaaa tagggga
+>gi|174838|gb|L04675|HLO16SRRNA Heliothrix oregonensis 16S ribosomal RNA (16S rRNA), partial rRNA
+gi|174838|gb|L04675|HLO16SRRNA -12.800,5,gaaa 1      38   14 ccccc gaaa ggggg
+>gi|174913|gb|M23820|HUMRRAUA Human U5-A ribosomal RNA
+gi|174913|gb|M23820|HUMRRAUA -12.500,7,cttg 0     101   18 gccttgc cttg gcaaggc
+>gi|174913|gb|M23820|HUMRRAUA Human U5-A ribosomal RNA
+gi|174913|gb|M23820|HUMRRAUA -12.500,7,caag 1     118   18 gccttgc caag gcaaggc
+>gi|174944|gb|K00472|HUMURU4B Human U4b small nuclear RNA (snRNA)
+gi|174944|gb|K00472|HUMURU4B -12.000,7,tacg 0     128   18 cagtctc tacg gagactg
+>gi|174959|gb|M32851|HYM28SRRNA Hymenochirus curtipes 28S ribosomal RNA, complete
+gi|174959|gb|M32851|HYM28SRRNA -13.300,7,cgcg 0     335   18 agccgcg cgcg cgcggct
+>gi|174959|gb|M32851|HYM28SRRNA Hymenochirus curtipes 28S ribosomal RNA, complete
+gi|174959|gb|M32851|HYM28SRRNA -13.300,7,cgcg 1     352   18 agccgcg cgcg cgcggct
+>gi|175002|gb|M97573|LARRREC Lampetra aepyptera 18S ribosomal RNA (18S rRNA), 5' end
+gi|175002|gb|M97573|LARRREC -12.500,6,gcga 0    1714   16 gggcag gcga ctgccc
+>gi|471872|gb|M82532|LAURRE05 Lactuca sativa 18S ribosomal RNA (18S rRNA), ca. bp 1205 to 1414 in mature rRNA
+gi|471872|gb|M82532|LAURRE05 -12.200,7,gata 1     172   18 gtggagg gata cctccac
+>gi|175039|gb|M23727|LBARRNAV L.vitulinus 16S ribosomal RNA small subunit
+gi|175039|gb|M23727|LBARRNAV -13.400,6,gaga 0    1000   16 gggacg gaga cgtccc
+>gi|175044|gb|M23729|LBARRNAZ L.catenaforme 16S ribosomal RNA small subunit
+gi|175044|gb|M23729|LBARRNAZ -15.700,7,gaga 0    1000   18 tcgcgcg gaga cgcgcga
+>gi|175044|gb|M23729|LBARRNAZ L.catenaforme 16S ribosomal RNA small subunit
+gi|175044|gb|M23729|LBARRNAZ -13.800,6,gaga 0    1001   16 cgcgcg gaga cgcgcg
+>gi|471885|gb|M82539|LIQRRE05 Liquidambar styraciflua 18S ribosomal RNA (18S rRNA), ca. bp 1205 to 1414 in mature rRNA
+gi|471885|gb|M82539|LIQRRE05 -12.200,7,gtca 1     172   18 gtggagg gtca cctccac
+>gi|175140|gb|M58822|LISRR16ST Listeria monocytogenes 16S ribosomal RNA
+gi|175140|gb|M58822|LISRR16ST -13.300,6,gaaa 0     153   16 ctccgg gaaa ccggag
+>gi|951043|gb|L33974|LTTRRD Leptothrix discophora (strain SP-6) 16S ribosomal RNA (16S rRNA)
+gi|951043|gb|L33974|LTTRRD -12.000,5,gaaa 0     135   14 ccggc gaaa gccgg
+>gi|504534|gb|L33979|LTTRRDB Leptothrix cholodnii (strain LMG 7171) 16S ribosomal RNA (16S rRNA)
+gi|504534|gb|L33979|LTTRRDB -12.000,5,gaaa 0     135   14 ccggc gaaa gccgg
+>gi|504535|gb|L33981|LTTRRDC Leptothrix sp. (strain NC-1) 16S ribosomal RNA (16S rRNA)
+gi|504535|gb|L33981|LTTRRDC -12.000,5,gaaa 0     135   14 ccggc gaaa gccgg
+>gi|308922|gb|L10943|MABRRI Marine Eubacterial sp. (aggregate agg27) PCR generated ribosomal RNA fragment
+gi|308922|gb|L10943|MABRRI -12.100,7,acat 0      81   18 gggagag acat ctctccc
+>gi|308922|gb|L10943|MABRRI Marine Eubacterial sp. (aggregate agg27) PCR generated ribosomal RNA fragment
+gi|308922|gb|L10943|MABRRI -12.100,7,atgt 1      98   18 gggagag atgt ctctccc
+>gi|175375|gb|M95654|MTBRRDB Methylobacterium sp. 16S ribosomal RNA
+gi|175375|gb|M95654|MTBRRDB -12.600,7,cttg 0     776   18 tggcctg cttg caggcca
+>gi|175375|gb|M95654|MTBRRDB Methylobacterium sp. 16S ribosomal RNA
+gi|175375|gb|M95654|MTBRRDB -12.600,7,caag 1     793   18 tggcctg caag caggcca
+>gi|175376|gb|M95655|MTBRRDC Methylobacterium sp. 16S ribosomal RNA
+gi|175376|gb|M95655|MTBRRDC -12.600,7,cttg 0     776   18 tggcctg cttg caggcca
+>gi|175376|gb|M95655|MTBRRDC Methylobacterium sp. 16S ribosomal RNA
+gi|175376|gb|M95655|MTBRRDC -12.600,7,caag 1     793   18 tggcctg caag caggcca
+>gi|175408|gb|M14414|MUSRRMA Mouse 5.4S ribosomal small nuclear RNA
+gi|175408|gb|M14414|MUSRRMA -14.000,6,gaaa 1      44   16 ccctcc gaaa ggaggg
+>gi|175433|gb|M10328|MUSUR57S Mouse 5.7S U4 small nuclear RNA type a
+gi|175433|gb|M10328|MUSUR57S -12.000,7,tacg 0     128   18 cagtctc tacg gagactg
+>gi|175434|gb|M18004|MUSUR57T Mouse 5.7S U4 small nuclear RNA type b
+gi|175434|gb|M18004|MUSUR57T -12.000,7,tacg 0     128   18 cagtctc tacg gagactg
+>gi|175446|gb|M59126|MVORR16SY Methanococcus jannaschii 16S ribosomal RNA
+gi|175446|gb|M59126|MVORR16SY -13.700,6,ttcg 0      65   16 gctccc ttcg gggagc
+>gi|175555|gb|L06168|NGORR16SB Neisseria flavescens 16S ribosomal RNA
+gi|175555|gb|L06168|NGORR16SB -13.300,6,gaga 0    1005   16 cctccg gaga cggagg
+>gi|294001|gb|L16523|NYSRR23S Nyssa sativa 26S ribosomal RNA
+gi|294001|gb|L16523|NYSRR23S -15.200,7,gaaa 0      88   18 gccagag gaaa ctctggc
+>gi|175717|gb|M59064|PSERR16SB Pseudomonas diminuta 16S ribosomal RNA
+gi|175717|gb|M59064|PSERR16SB -13.200,6,gaga 0     950   16 gccacg gaga cgtggc
+>gi|472129|gb|M82490|PTNRRE04 Platanus occidentalis 18S ribosomal RNA (18S rRNA), ca. bp 1207 to 1414 in mature rRNA
+gi|472129|gb|M82490|PTNRRE04 -12.200,7,gtca 1     170   18 gtggagg gtca cctccac
+>gi|294428|gb|L16474|PVORR16SJ Prevotella oris (ATCC 33573) 16S ribosomal RNA
+gi|294428|gb|L16474|PVORR16SJ -12.100,7,cttg 0      78   18 ggggaag cttg cttcccc
+>gi|294428|gb|L16474|PVORR16SJ Prevotella oris (ATCC 33573) 16S ribosomal RNA
+gi|294428|gb|L16474|PVORR16SJ -12.100,7,caag 1      95   18 ggggaag caag cttcccc
+>gi|408945|gb|L19921|PYWRRDX Pyrococcus abyssi 16S ribosomal RNA
+gi|408945|gb|L19921|PYWRRDX -13.400,7,ttct 0      48   18 gcgtccc ttct gggacgc
+>gi|408945|gb|L19921|PYWRRDX Pyrococcus abyssi 16S ribosomal RNA
+gi|408945|gb|L19921|PYWRRDX -12.900,6,gtac 0     603   16 ccgggg gtac ccccgg
+>gi|408945|gb|L19921|PYWRRDX Pyrococcus abyssi 16S ribosomal RNA
+gi|408945|gb|L19921|PYWRRDX -14.100,7,gctc 0    1066   18 ccctccc gctc gggaggg
+>gi|408945|gb|L19921|PYWRRDX Pyrococcus abyssi 16S ribosomal RNA
+gi|408945|gb|L19921|PYWRRDX -14.100,7,gagc 1    1083   18 ccctccc gagc gggaggg
+>gi|408945|gb|L19921|PYWRRDX Pyrococcus abyssi 16S ribosomal RNA
+gi|408945|gb|L19921|PYWRRDX -12.900,6,gtac 1     618   16 ccgggg gtac ccccgg
+>gi|408945|gb|L19921|PYWRRDX Pyrococcus abyssi 16S ribosomal RNA
+gi|408945|gb|L19921|PYWRRDX -12.900,7,agaa 1      65   18 gcgtccc agaa gggacgc
+>gi|472171|gb|M82511|RACRRE05 Ranunculus acris 18S ribosomal RNA (18S rRNA), ca. bp 1203 to 1414 in mature rRNA
+gi|472171|gb|M82511|RACRRE05 -12.200,7,ggta 1     174   18 gtggagg ggta cctccac
+>gi|175815|gb|M11057|RATUR8 Rat U8 small nuclear RNA from Novikoff hepatoma cells
+gi|175815|gb|M11057|RATUR8 -14.000,6,gaaa 1      43   16 ccctcc gaaa ggaggg
+>gi|175816|gb|K00477|RATURU4A Rat U4a small nuclear RNA (snRNA)
+gi|175816|gb|K00477|RATURU4A -12.000,7,tacg 0     128   18 cagtctc tacg gagactg
+>gi|175817|gb|K00478|RATURU4B Rat U4b small nuclear RNA (snRNA)
+gi|175817|gb|K00478|RATURU4B -12.000,7,tacg 0     128   18 cagtctc tacg gagactg
+>gi|175851|gb|M91613|RHSRRITSA Rhizopogon subcaerulescens ribosomal RNA internal transcribed spacer
+gi|175851|gb|M91613|RHSRRITSA -12.800,7,tcgc 0      40   18 gcctcgc tcgc gcgaggc
+>gi|175851|gb|M91613|RHSRRITSA Rhizopogon subcaerulescens ribosomal RNA internal transcribed spacer
+gi|175851|gb|M91613|RHSRRITSA -16.100,7,gcga 1      57   18 gcctcgc gcga gcgaggc
+>gi|175851|gb|M91613|RHSRRITSA Rhizopogon subcaerulescens ribosomal RNA internal transcribed spacer
+gi|175851|gb|M91613|RHSRRITSA -12.700,6,gcga 1      56   16 cctcgc gcga gcgagg
+>gi|294741|gb|L15196|ROLRR18S Roridula gorgonias 18S ribosomal RNA
+gi|294741|gb|L15196|ROLRR18S -12.200,7,gtca 1     628   18 gtggagg gtca cctccac
+>gi|175876|gb|M59069|RSPRR16SD Rhodospirillum salinarum 16S ribosomal RNA
+gi|175876|gb|M59069|RSPRR16SD -16.700,7,gaga 0     953   18 gcctcgg gaga ccgaggc
+>gi|175876|gb|M59069|RSPRR16SD Rhodospirillum salinarum 16S ribosomal RNA
+gi|175876|gb|M59069|RSPRR16SD -13.300,6,gaga 0     954   16 cctcgg gaga ccgagg
+>gi|175876|gb|M59069|RSPRR16SD Rhodospirillum salinarum 16S ribosomal RNA
+gi|175876|gb|M59069|RSPRR16SD -12.300,7,tctc 1     970   18 gcctcgg tctc ccgaggc
+>gi|457377|gb|L25709|SGBRRNA Solemya reidi gill symbiont ribosomal RNA
+gi|457377|gb|L25709|SGBRRNA -13.900,6,gaaa 0     140   16 cctggg gaaa cccagg
+>gi|175944|gb|M32848|SIL28SRRNA Silurana tropicalis 28S ribosomal RNA, complete
+gi|175944|gb|M32848|SIL28SRRNA -13.000,6,gcgc 0     341   16 gccggg gcgc cccggc
+>gi|175944|gb|M32848|SIL28SRRNA Silurana tropicalis 28S ribosomal RNA, complete
+gi|175944|gb|M32848|SIL28SRRNA -13.000,6,gcgc 1     356   16 gccggg gcgc cccggc
+>gi|175988|gb|M88722|SPARR16SB Spirochaeta halophila 16S ribosomal RNA
+gi|175988|gb|M88722|SPARR16SB -12.800,6,ttcg 0       2   16 cgtccc ttcg gggacg
+>gi|176013|gb|M62707|SPNRR18SA Sphaeromonas communis (strain FG) 18S ribosomal RNA
+gi|176013|gb|M62707|SPNRR18SA -12.700,7,gcaa 0     183   18 aacctgg gcaa ccaggtt
+>gi|176061|gb|M91614|SUIRRITSA Suillus grevillei ribosomal RNA internal transcribed spacer
+gi|176061|gb|M91614|SUIRRITSA -13.100,6,gcga 0     105   16 cgcggg gcga cccgcg
+>gi|176062|gb|M91615|SUIRRITSB Suillus grevillei ribosomal RNA internal transcribed spacer
+gi|176062|gb|M91615|SUIRRITSB -13.100,6,gcga 0     105   16 cgcggg gcga cccgcg
+>gi|176197|gb|M67497|THCLRRNA T.celer 23S ribosomal RNA gene sequence
+gi|176197|gb|M67497|THCLRRNA -16.600,7,gaaa 0     263   18 ctccggg gaaa cccggag
+>gi|176197|gb|M67497|THCLRRNA T.celer 23S ribosomal RNA gene sequence
+gi|176197|gb|M67497|THCLRRNA -14.000,6,gaaa 0     264   16 tccggg gaaa cccgga
+>gi|176197|gb|M67497|THCLRRNA T.celer 23S ribosomal RNA gene sequence
+gi|176197|gb|M67497|THCLRRNA -12.100,5,gaaa 0     265   14 ccggg gaaa cccgg
+>gi|176197|gb|M67497|THCLRRNA T.celer 23S ribosomal RNA gene sequence
+gi|176197|gb|M67497|THCLRRNA -13.100,6,gaaa 0    1004   16 ggggga gaaa tccccc
+>gi|176197|gb|M67497|THCLRRNA T.celer 23S ribosomal RNA gene sequence
+gi|176197|gb|M67497|THCLRRNA -12.200,7,tttc 1     280   18 ctccggg tttc cccggag
+>gi|176199|gb|M21529|THCRRD T.celer 16S ribosomal RNA
+gi|176199|gb|M21529|THCRRD -12.900,7,ggaa 0    1455   18 ccgtagg ggaa cctacgg
+>gi|176219|gb|M67498|TMORRNAA Thermotoga maritima large subunit ribosomal RNA, complete
+gi|176219|gb|M67498|TMORRNAA -12.000,5,gaaa 0     152   14 ccgcc gaaa ggcgg
+>gi|176219|gb|M67498|TMORRNAA Thermotoga maritima large subunit ribosomal RNA, complete
+gi|176219|gb|M67498|TMORRNAA -13.700,6,ttcg 0    1615   16 ggtccc ttcg gggacc
+>gi|176254|gb|M57738|TRPRRDSB Treponema succinifaciens 16S rRNA
+gi|176254|gb|M57738|TRPRRDSB -16.400,7,gaga 0    1036   18 ccgcctg gaga caggcgg
+>gi|176254|gb|M57738|TRPRRDSB Treponema succinifaciens 16S rRNA
+gi|176254|gb|M57738|TRPRRDSB -13.100,6,gaga 0    1037   16 cgcctg gaga caggcg
+>gi|176254|gb|M57738|TRPRRDSB Treponema succinifaciens 16S rRNA
+gi|176254|gb|M57738|TRPRRDSB -12.000,7,tctc 1    1053   18 ccgcctg tctc caggcgg
+>gi|176257|gb|M59294|TRPSSRNAA Treponema sp. small subunit ribosomal RNA
+gi|176257|gb|M59294|TRPSSRNAA -12.800,7,gaga 0    1026   18 tcgcatg gaga catgcga
+>gi|1220551|gb|L27800|TRRBRDNAA Trichoderma reesei 5.8S ribosomal DNA (5.8S rDNA)
+gi|1220551|gb|L27800|TRRBRDNAA -12.500,7,tatt 0     118   18 ccgccag tatt ctggcgg
+>gi|1220551|gb|L27800|TRRBRDNAA Trichoderma reesei 5.8S ribosomal DNA (5.8S rDNA)
+gi|1220551|gb|L27800|TRRBRDNAA -12.100,7,aata 1     135   18 ccgccag aata ctggcgg
+>gi|603469|gb|L26520|TRWERRNAA Trypetesa lampas 18S ribosomal RNA (18S rRNA)
+gi|603469|gb|L26520|TRWERRNAA -13.100,6,gaaa 1     818   16 caggcg gaaa cgcctg
+>gi|176260|gb|M35966|TTERRDA T.tenax 16S rRNA
+gi|176260|gb|M35966|TTERRDA -13.900,7,ggcg 0      63   18 cgcccgg ggcg ccgggcg
+>gi|176260|gb|M35966|TTERRDA T.tenax 16S rRNA
+gi|176260|gb|M35966|TTERRDA -13.200,7,cgcc 1      80   18 cgcccgg cgcc ccgggcg
+>gi|603470|gb|L26521|ULOERRNAA Ulophysema oeresundense 18S ribosomal RNA (18S rRNA)
+gi|603470|gb|L26521|ULOERRNAA -12.500,7,tcac 0     225   18 cgtgccc tcac gggcacg
+>gi|603470|gb|L26521|ULOERRNAA Ulophysema oeresundense 18S ribosomal RNA (18S rRNA)
+gi|603470|gb|L26521|ULOERRNAA -14.400,7,tgaa 0    1785   18 ccgcagg tgaa cctgcgg
+>gi|603470|gb|L26521|ULOERRNAA Ulophysema oeresundense 18S ribosomal RNA (18S rRNA)
+gi|603470|gb|L26521|ULOERRNAA -12.900,7,ttca 1    1802   18 ccgcagg ttca cctgcgg
+>gi|603470|gb|L26521|ULOERRNAA Ulophysema oeresundense 18S ribosomal RNA (18S rRNA)
+gi|603470|gb|L26521|ULOERRNAA -16.300,7,gtga 1     242   18 cgtgccc gtga gggcacg
+>gi|603470|gb|L26521|ULOERRNAA Ulophysema oeresundense 18S ribosomal RNA (18S rRNA)
+gi|603470|gb|L26521|ULOERRNAA -13.900,6,gtga 1     241   16 gtgccc gtga gggcac
+>gi|475134|gb|M82432|ZAMRREA02 Zamia ottonis 18S ribosomal RNA (18S rRNA), ca. bp 234 to 287 in mature rRNA
+gi|475134|gb|M82432|ZAMRREA02 -12.200,7,gata 1     172   18 gtggagg gata cctccac

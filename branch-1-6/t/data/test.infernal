@@ -1,0 +1,164 @@
+
+CPU time (band calc): 0.01u 0.00s 00:00:00.01 Elapsed: 00:00:00
+sequence: gi|2239287|gb|U51115.1|BSU51115
+hit 0   :  15589  15691    78.40 bits
+hit 1   :  15589  15691    78.40 bits
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+            A+ A+A+ AAAA A   :CUC:UAUAAU: :GGGAAUAUGGCCC: :AGUUUCUACC:G
+     15589 CAUGAAAUCAAAACACGACCUCAUAUAAUCUUGGGAAUAUGGCCCAUAAGUUUCUACCCG 15648   
+
+           <<<<_______>>>>>>>,,)))).))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGACUAcG.aGuaAauauuaaauauuu 102     
+           GCAACCGUAAAUUGCC:GACUA:G AG: AA + ++  +++++
+     15649 GCAACCGUAAAUUGCCGGACUAUGcAGGGAAGUGAUCGAUAAA 15691   
+
+hit 2   :  13198  13294     5.41 bits
+hit 3   :  13198  13294     5.41 bits
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+           +A+ +U + AAAA AA : :U:::A AA:C::::G A  UGGC::::G: UUU U  :: 
+     13198 UAUCUUCUUAAAAUAAGGAAUGAAAAAACCAGCUGCAC-UGGCAGCUGGUUUUUUUUGU- 13255   
+
+           <<<<_______>>>>>>>,,))))))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu 102     
+              : C  AA :U+++::  U:::A: : AUAU+   U +U 
+     13256 ---UGCAAAAGAUAAAACCAUUUCAUACGAUAUACCGUCAUG 13294   
+
+hit 4   :  11655  11756    81.29 bits
+hit 5   :  11655  11756    81.29 bits
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+           A AAAU AAA+AA A+   : CGUAUAAU::CG:GAAUAUGGC:CG::AGU UCUACCA:
+     11655 AGAAAUCAAAUAAGAUGAAUUCGUAUAAUCGCGGGAAUAUGGCUCGCAAGUCUCUACCAA 11714   
+
+           <<<<_______>>>>>>>,,))))))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu 102     
+           GC ACCGUAAAU GC:UGACUACG :   AU+U +++  UUU
+     11715 GCUACCGUAAAUGGCUUGACUACGUAAACAUUUCUUUCGUUU 11756   
+
+hit 0   :    825    748     2.84 bits
+hit 1   :    825    748     2.84 bits
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+           +AAAA+ AA AAAA  A: ::C:U:U A           UG  C+ A A   UCUAC   
+     15073 UAAAAACAACAAAAGGAGCUGCUUUUUA-----------UGCUCACACACGAUCUAC--- 15118   
+
+           <<<<_______>>>>>>>,,))))))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu 102     
+                 G AAA      +AC:A:G:: :A ++UU  AU+U+U
+     15119 ----AUGAAAA------AACAAAGCAUUACAUUUCCAUUUAU 15150   
+
+hit 2   :   4125   4023     1.38 bits
+hit 3   :   4125   4023     1.38 bits
+           :::::::::::::::::((((((((,,,<<<<<<<_______.>>>.>>>>,,,,,,,,<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGG.ccc.gagaGUuUCUACC 58      
+            AAA +AAA A  A AA: :U:::AUAA :+:G:: AU U   ::C :+:  UUUC AC 
+     11773 CAAACAAAACACUACAAAUUUGAAAUAAGCUGGUAUAUUUUCuUACaCGAAUUUUCGAC- 11831   
+
+           <<<<<<_______>>>...>>>>,,))))))))::::::::::::::
+        59 aGgcaaCCGUAAAuug...cCuGACUAcGaGuaAauauuaaauauuu 102     
+              :AAC GUA AUU:   + +GA U:::A: :A+ AU+A+AU+ + 
+     11832 ---AAACUGUAUAUUUaugAUAGAGUUUCAAUUAUCAUAAUAUUCAG 11875   
+
+hit 4   :   8105   8018     1.70 bits
+hit 5   :   8105   8018     1.70 bits
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+            A+A   A +A    AA   U:::AU A         UAUGGC ++A+ GU UC A    
+      7793 GAUACGGAUUACGGCAAAAGUGGCAUCA---------UAUGGCGUAAAGGUAUCAAG--- 7840    
+
+           <<<<_______>>>>>>>,,))))))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu 102     
+             A  CGUAA  U+C   ACU:::A   AA+A +AAA+ +++
+      7841 --AAUCGUAAUAUACGCUACUGUCAUCAAAAAGAAAAACAAA 7880    
+
+hit 6   :  11759  11658     9.64 bits
+hit 7   :  11759  11658     9.64 bits
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+           A  AA+  AAA AAA+   : CGUA  +::::: :  UA GG: :::::GU    AC: G
+      4139 AUCAAACGAAAGAAAUGUUUACGUA-GUCAAGCCAUUUACGGUAGCUUGGUAGAGACUUG 4197    
+
+           <<<<_______>>>>>>>,,.))))))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGAC.UAcGaGuaAauauuaaauauuu 102     
+           :: :CC UA  : ::C :   UACG :   AU UUA++U +UU
+      4198 CGAGCCAUAUUCCCGCGAUUaUACGAAUUCAUCUUAUUUGAUU 4240    
+
+hit 8   :  13350  13253     0.79 bits
+hit 9   :  13350  13253     0.79 bits
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+           +AA  UA   AA A + :A +C:U:    C:::  AA       :::G G   C  C:A 
+      2548 UAAGGUACCGAACAGUCAAGUCAUU---UCCAUUUAAGUAAAGCAUGGCGGCACAUCUAC 2604    
+
+           <<<<_______>>>>>>>,,))))))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu 102     
+           : :AC GUA AU: : U:A :A:G+ U: AU UU++  A+ +
+      2605 AUGACGGUAUAUCGUAUGA-AAUGGUUUUAUCUUUUGCAACA 2645    
+
+hit 10  :  13846  13740     6.35 bits
+hit 11  :  13846  13740     6.35 bits
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,.....
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCU..... 55      
+            A  A+A+A A AA AA:A  :::A A :C ::::A  A G :::: G:  UUCU     
+      2052 CAGCAAAUACACAAGAACAACUAAAAACCCGUCAUAGAAAGCAUGAUGGCGUUCUccgaa 2111    
+
+           ,,<<<<<<<_______>>>>>>>,,))))))))::::::::::::::
+        56 ACCaGgcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu 102     
+           ACC::GC :CCG    : GC::G CU:::  U:AA+  +A++   ++
+      2112 ACCGAGCGGCCGAUUCCAGCUUGCCUUUAACUGAAACCAAUUCCCAA 2158    
+
+hit 12  :  14215  14125     0.90 bits
+hit 13  :  14215  14125     0.90 bits
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+           AA    AA  AA  A    :+ :UAUA+U: :+++ A A GG   : :AGU         
+      1683 AAGCGGAAUCAACGACGCCGUAAUAUAUUCAGAAAUAAACGG---CCAAGUCA------- 1732    
+
+           <<<<_______>>>>>>>,,))))))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu 102     
+            C::CCGUAAA::GC+   CUA: +:   ++ U+ AA+++ +
+      1733 -CUGCCGUAAACAGCAGCGCUAUCGCAACUACUGCAAAUACA 1773    
+
+hit 14  :  15695  15594     7.88 bits
+hit 15  :  15695  15594     7.88 bits
+           :::::::::::::::::((((((((,,.,<<<<<<<_______>>>>>>>,,,,,,,,<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUA.aucucgggAAUAUGGcccgagaGUuUCUACCa 59      
+            A ++U+A   A  A ++ C :: AUA +:C:::::  UA GG:::::G:GU    AC::
+       203 CAGUUUUAUCGAUCACUUCCCUGCAUAgUCCGGCAAUUUACGGUUGCCGGGUAGAAACUU 262     
+
+           <<<<<_______>>>>>>>,,))))))))::::::::::::::
+        60 GgcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu 102     
+           +::::CC UA  :::: ::A U :: G + +  U++++U +UU
+       263 AUGGGCCAUAUUCCCA-AGAUUAUAUGAGGUCGUGUUUUGAUU 304     
+
+sequence: gi|633168|emb|X83878.1|
+hit 0   :    168    267    79.36 bits
+hit 1   :    168    267    79.36 bits
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+           + A A++A AA A  AA:AC+C:UAUAAU::CG:G AUAUGGC:CG::AGUUUCUACC:G
+       168 UUACAAUAUAAUAGGAACACUCAUAUAAUCGCGUGGAUAUGGCACGCAAGUUUCUACCGG 227     
+
+           <<<<_______>>>>>>>,,))))))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu 102     
+            CA CCGUAAA UG C:GACUA:G+GU:A  A+U  A+    
+       228 GCA-CCGUAAA-UGUCCGACUAUGGGUGAGCAAUGGAACCGC 267     
+
+hit 0   :    270    171     2.25 bits
+hit 1   :    270    171     2.25 bits
+           :::::::::::::::::((((((((,,,<<<<<<<_______>>>>>>>,,,,,,,,<<<
+         1 aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaG 60      
+             +    +   A    +:AC C:UA  +::: ::   UA GG :: :::GU    AC: G
+      2144 CGUGCGGUUCCAUUGCUCACCCAUA-GUCGGACAU-UUACGG-UGCCCGGUAGAAACUUG 2200    
+
+           <<<<_______>>>>>>>,,.))))))))::::::::::::::
+        61 gcaaCCGUAAAuugcCuGAC.UAcGaGuaAauauuaaauauuu 102     
+           ::::CC UA  ::::C :   UA:G GU: +  U+++AUAUU 
+      2201 CGUGCCAUAUCCACGCGAUUaUAUGAGUGUUCCUAUUAUAUUG 2243    
+
+
+CPU time (search)   : 56.03u 0.38s 00:00:56.41 Elapsed: 00:00:58
+CYK memory          :       0.66 MB
+

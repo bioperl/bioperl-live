@@ -1,0 +1,37 @@
+ID   BEL16-LTR_AG repbase; DNA   ; ANG   ; 287 BP.
+XX
+AC   .
+XX
+DT   03-APR-2003 (Rel. 8.03, Created)
+DT   03-APR-2003 (Rel. 8.03, Last updated, Version 1)
+XX
+DE   BEL16-LTR_AG is a long terminal repeat of the BEL16_AG LTR
+DE   retrotransposon - a consensus sequence.
+XX
+KW   5-bp TSD; BEL16-I_AG; BEL16-LTR_AG; BEL16_AG; Bel clade;
+KW   LTR retrotransposon; reverse transcriptase.
+XX
+OS   Anopheles gambiae str. PEST
+OC   Eukaryota; Metazoa; Arthropoda; Hexapoda; Insecta; Pterygota; Neoptera;
+OC   Endopterygota; Diptera; Nematocera; Culicoidea; Culicidae; Anophelinae;
+OC   Anopheles; Anopheles gambiae.
+XX
+RN   [1]
+RP   1-287
+RA   Kapitonov V.V., Pavlicek A., Jurka J.;
+RT   "BEL16_AG, a nonautonomous family of Bel/Pao-like LTR retrotransposons
+RT   from African malaria mosquito.";
+RL   Repbase Reports 3(3), 40-40 (2003).
+XX
+CC   [1] (Consensus)
+XX
+CC   BEL16-LTR_AG flank an internal portion of BEL16_AG (deposited as
+CC   BEL16-I_AG).
+XX
+SQ   Sequence 287 BP; 85 A; 51 C; 75 G; 76 T; 0 others;
+     tgttggaatg taagggttat gaaacggtca ttttgaattg tttgcggttg ttttgtcagt        60
+     tgggaattaa aagttaaatg tattttctgg cagcactgcc gatcgacaat ttgtgattaa       120
+     gtatgtgtgc gaataaagcg gcactagcgc atgaaactcg atacgagccg gacgtgttct       180
+     ttactttgtc tcctttggcg atcgaagacg acacaacaaa acacaacgta gggcgtagag       240
+     gcgtcaaggg ggaaaggaac caacaaacca tgttccagaa cgcaaca                     287
+//

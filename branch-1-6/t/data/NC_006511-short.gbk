@@ -1,0 +1,115 @@
+LOCUS       NC_006511            4585229 bp    DNA     circular BCT 03-DEC-2005
+DEFINITION  Salmonella enterica subsp. enterica serovar Paratyphi A str. ATCC
+            9150, complete genome.
+ACCESSION   NC_006511
+VERSION     NC_006511.1  GI:56412276
+KEYWORDS    .
+SOURCE      Salmonella enterica subsp. enterica serovar Paratyphi A str. ATCC
+            9150
+  ORGANISM  Salmonella enterica subsp. enterica serovar Paratyphi A str. ATCC
+            9150
+            Bacteria; Proteobacteria; Gammaproteobacteria; Enterobacteriales;
+            Enterobacteriaceae; Salmonella.
+REFERENCE   1  (bases 1 to 4585229)
+  AUTHORS   McClelland,M., Sanderson,K.E., Clifton,S.W., Latreille,P.,
+            Porwollik,S., Sabo,A., Meyer,R., Bieri,T., Ozersky,P., McLellan,M.,
+            Harkins,C.R., Wang,C., Nguyen,C., Berghoff,A., Elliott,G.,
+            Kohlberg,S., Strong,C., Du,F., Carter,J., Kremizki,C., Layman,D.,
+            Leonard,S., Sun,H., Fulton,L., Nash,W., Miner,T., Minx,P.,
+            Delehaunty,K., Fronick,C., Magrini,V., Nhan,M., Warren,W.,
+            Florea,L., Spieth,J. and Wilson,R.K.
+  TITLE     Comparison of genome degradation in Paratyphi A and Typhi,
+            human-restricted serovars of Salmonella enterica that cause typhoid
+  JOURNAL   Nat. Genet. 36 (12), 1268-1274 (2004)
+   PUBMED   15531882
+REFERENCE   2  (bases 1 to 4585229)
+  AUTHORS   .
+  CONSRTM   NCBI Genome Project
+  TITLE     Direct Submission
+  JOURNAL   Submitted (08-DEC-2004) National Center for Biotechnology
+            Information, NIH, Bethesda, MD 20894, USA
+REFERENCE   3  (bases 1 to 4585229)
+  AUTHORS   McClelland,M., Sanderson,K.E., Clifton,S.W., Latreille,P.,
+            Porwollik,S., Sabo,A., Meyer,R., Bieri,T., Ozersky,P., McLellan,M.,
+            Harkins,R., Wang,C., Nguyen,C., Burghoff,A., Elliott,G.,
+            Kohlberg,S., Strong,C., Ali,J., Dante,M., Du,F., Layman,D.,
+            Leonard,S., Sun,H., Fulton,L., Nash,W., Miner,T., Delehaunty,K.,
+            Fronick,C., Florea,L., Spieth,J., Nhan,M. and Wilson,R.K.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (01-OCT-2004) Genome Sequencing Center, Washington
+            University, 4444 Forest Park Ave., St. Louis, MO 63108, USA
+COMMENT     PROVISIONAL REFSEQ: This record has not yet been subject to final
+            NCBI review. The reference sequence was derived from CP000026.
+            COMPLETENESS: full length.
+FEATURES             Location/Qualifiers
+     source          1..4585229
+                     /organism="Salmonella enterica subsp. enterica serovar
+                     Paratyphi A str. ATCC 9150"
+                     /mol_type="genomic DNA"
+                     /strain="ATCC 9150"
+                     /db_xref="ATCC:9150"
+                     /db_xref="taxon:295319"
+     gene            190..255
+                     /gene="thrL"
+                     /locus_tag="SPA0001"
+                     /db_xref="GeneID:3175747"
+     CDS             190..255
+                     /gene="thrL"
+                     /locus_tag="SPA0001"
+                     /note="similar to Salmonella typhi CT18 thr operon leader
+                     peptide"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="thr operon leader peptide"
+                     /protein_id="YP_149352.1"
+                     /db_xref="GI:56412277"
+                     /db_xref="GeneID:3175747"
+                     /translation="MNRISTTTITTITITTGNGAG"
+                     /transl_table=11
+                     /product="putative major fimbrial subunit"
+                     /protein_id="YP_153436.1"
+                     /db_xref="GI:56416361"
+                     /db_xref="GeneID:3177061"
+                     /translation="MRRLYLALILLFAYSSHGYASCRRSGNEGAITITPPSQLVVDSH
+                     AYTAGEVLWQSGWVSTSEVTMDGCSRDYKVGFLYEPGSAQSNTSATINANDGNNTPVF
+                     STGISGVDIAIKTQTNAGPYDNVMPIDNTYHNGDGNKTHHAMAPAYNVELVALGGPIT
+                     SDTATFQSPLARVSFRDSATEDSGGDILTHLYLGNTQLIMKAMGCRVETPAITVDLGS
+                     VNLGSFANSQTAGTGEQDILLTCEQGTAISASLSAQPASGNNPDNSVIQLSNASAPTS
+                     ATGVGVQLGIQAPDAGFFTDSLPINQKIDLFTHTITTNADGSQTVNGGTMNMSTTLKI
+                     SARYYKTAATVTAGQANATATLNLTYN"
+     gene            4584519..4585205
+                     /gene="lasT"
+                     /locus_tag="SPA4410"
+                     /db_xref="GeneID:3177689"
+     CDS             4584519..4585205
+                     /gene="lasT"
+                     /locus_tag="SPA4410"
+                     /note="similar to Salmonella typhi CT18 putative RNA
+                     methyltransferase"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="putative RNA methyltransferase"
+                     /protein_id="YP_153444.1"
+                     /db_xref="GI:56416369"
+                     /db_xref="GeneID:3177689"
+                     /translation="MRVTIVLVAPARAENIGAAARAMKTMGFTDLRIVDSQAHLEPAT
+                     RWVAHGSGDIIDNIEVFHTLADALHDVDFTVATTARSRAKFHYYASPAELVPLLQEKS
+                     RWMRHAALVFGREDSGLTNDELALADVLTGVPMAADYPSLNLGQAVMVYCYQLAGLMQ
+                     QATESVDIADESQLQALRARLLRLLTTLEAADDHKLTDWLQQRIGLLGQRDTVMLHRL
+                     VHDIEKKLTK"
+ORIGIN      
+        1 agagattacg tctggtttca agagatcata acagagggaa ttggttgaaa ataaatatat
+       61 cgccagcagc acatgaacaa atttcggaat gtgatcaatt taaaaattta ttgacttagg
+      121 cgggcagata ctttaaccaa tataggaata caagacagac aaataaaaat gacagagtac
+      181 acaacatcca tgaaccgcat cagcaccacc accattacca ccatcaccat taccacaggt
+      241 aacggtgcgg gctgacgcgt acaggaaaca cagaaaaaag cccgcacctg aacagtgcgg
+      301 gctttttttt cgaccagaga tcacgaggta acaaccatgc gagtgttgaa gttcggcggt
+      361 acatcagtgg caaatgcaga acgttttctg cgtgttgccg atattctgga aagcaatgcc
+      421 aggcaagggc aggtagcgac cgtactttcc gcccccgcga aaattaccaa ccatctggtg
+      481 gcgatgattg aaaaaactat cggcggtcag gatgctttgc cgaatatcag cgatgccgaa
+      541 cgtatttttt ctgacctgct cgcaggactt gccagcgcgc agccgggatt cccgcttgca
+      601 cggttgaaaa tggttgtcga acaagaattc gctcagatca aacatgtttt gcatggtatc
+      661 agcctgctgg gtcagtgccc ggacagcatc aacgccgcgc tgatttgccg tggcgaaaaa
+      721 atgtcgatcg cgattatggc gggacttctg gaggcgcgtg ggcatcgcgt cacggtgatc
+      781 gatccggtag aaaaactgct ggcggtgggc cattaccttg agtctaccgt cgatatcgcg
+//

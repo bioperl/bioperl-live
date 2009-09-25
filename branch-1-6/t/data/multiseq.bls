@@ -1,0 +1,499 @@
+BLASTP 2.1.2 [Oct-19-2000]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= gi|10038724|dbj|BAB12759.1| DNA-binding protein hu-alpha
+[Buchnera sp. APS]
+         (92 letters)
+
+Database: mycge
+           1 sequences; 607 total letters
+
+Searchingdone
+
+ ***** No hits found ******
+
+  Database: mycge
+    Posted date:  May 8, 2001  3:12 PM
+  Number of letters in database: 607
+  Number of sequences in database:  1
+
+Lambda     K      H
+   0.310    0.127    0.323
+
+Gapped
+Lambda     K      H
+   0.270   0.0470    0.230
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 99
+Number of Sequences: 1
+Number of extensions: 4
+Number of successful extensions: 0
+Number of sequences better than 1.0e-15: 0
+Number of HSP's better than  0.0 without gapping: 0
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 0
+Number of HSP's gapped (non-prelim): 0
+length of query: 92
+length of database: 607
+effective HSP length: 24
+effective length of query: 68
+effective length of database: 583
+effective search space:    39644
+effective search space used:    39644
+T: 11
+A: 40
+X1: 16 ( 7.2 bits)
+X2: 38 (14.8 bits)
+X3: 64 (24.9 bits)
+S1: 42 (21.8 bits)
+S2: 156 (65.2 bits)
+BLASTP 2.1.2 [Oct-19-2000]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= gi|10038744|dbj|BAB12779.1| DNA primase [Buchnera sp. APS]
+         (577 letters)
+
+Database: mycge
+           1 sequences; 607 total letters
+
+Searchingdone
+
+                                                                   Score     E
+Sequences producing significant alignments:                        (bits) 
+Value
+
+gi|12045104|ref|NP_072915.1| DNA primase (dnaE) [Mycoplasma gen...   125  7e-33
+
+>gi|12045104|ref|NP_072915.1| DNA primase (dnaE) [Mycoplasma
+           genitalium]
+          Length = 607
+
+ Score =  125 bits (310), Expect = 7e-33
+ Identities = 118/461 (25%), Positives = 222/461 (47%), Gaps = 57/461 (12%)
+
+Query: 10  ITELLSRTNIIELI-NTRLELKKYGKNYQTNCPFHHDKTPSFTVSNEKQFYYCFGCNAHG 68
+           + ELL +  I E+I +  ++++  G +    CPFH DK PS ++S+ K  + C+ CNA G
+Sbjct: 8   LDELLKQIKITEIIQHYGVKIQTKGNSLLALCPFHDDKNPSMSISSSKNIFKCWACNAAG 67
+
+Query: 69  NAIDFLIQYEHLSFIESIEELALIHGVKIPFENTVQNSIYVKKQKLYLLMEKICKLY--- 125
+           N I F+ +++ L +  ++++   I G+K+   N+   +    KQK Y  +      Y
+Sbjct: 68  NGIAFIQKHDQLDWKTALKKAIEICGIKLENWNSNLLTKVDPKQKRYWEINNALITYYQT 127
+
+Query: 126 --KKNINVTHLANKYLARRGINQNMIDFFLIGFSSLKWNEFYKKINISKEFEQELLINNI 183
+             K+  N   + N  + +R +N+ +I+ F +G +    +++     + +  E+   IN
+Sbjct: 128 RLKRETNPNGM-NYLVEKRKLNKTLIEQFQLGLAFHNEDKY-----LCESMERYPFINPK 181
+
+Query: 184 I---------ATDKNGY-IYD------RFQGRIIFPIQDNHGRIIGFGGRSLNDMSP-KY 226
+           I          T++ G   +D       FQ +I+ PI D +G  +GF  RS+++++  KY
+Sbjct: 182 IKPSELYLFSKTNQQGLGFFDFNTKKATFQNQIMIPIHDFNGNPVGFSARSVDNINKLKY 241
+
+Query: 227 LNSPETDIFYKRKQIYGLYQVIKKCSKPVYLLVVEGYIDVITLTQYNIDYAVSILGTSTT 286
+            NS + + F K + ++  +++ K  ++   L +VEGY DV TLT    + AV+++G +
+Sbjct: 242 KNSADHEFFKKGELLFNFHRLNKNLNQ---LFIVEGYFDVFTLTNSKFE-AVALMGLALN 297
+
+Query: 287 TEHIQLL---FKNTDIIICCYDGDDAGKNAAWKTLKKALPYISDKKTLKFILL--PNQED 341
+              I+ +   FK    ++   D D +G+NA +  ++K    +++   +  I+    N +D
+Sbjct: 298 DVQIKAIKAHFKELQTLVLALDNDASGQNAVFSLIEK----LNNNNFIVEIVQWEHNYKD 353
+
+Query: 342 PDTIIRKEGREKF----QKRIDNAITMSKFFFKNILKNINLSSDDDKFHLSVHALPLINT 397
+            D +   +G E+      KR +    +  FF K  L    +++    F      L    T
+Sbjct: 354 WDELYLNKGSEQVILQANKRQNLIEYLVSFFKKQQLDQRVITNKIIAF------LTKNQT 407
+
+Query: 398 ISSD-TIRIYLRQILARMIGILDDNQFEKFLYEKETKNTQK 437
+           I +D +  I+L + L +++   D    EK LYE   K+ +K
+Sbjct: 408 ILNDHSFLIFLIKNLVKLLEYSD----EKTLYETVLKHKEK 444
+
+
+  Database: mycge
+    Posted date:  May 8, 2001  3:12 PM
+  Number of letters in database: 607
+  Number of sequences in database:  1
+
+Lambda     K      H
+   0.322    0.140    0.406
+
+Gapped
+Lambda     K      H
+   0.270   0.0470    0.230
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 932
+Number of Sequences: 1
+Number of extensions: 63
+Number of successful extensions: 4
+Number of sequences better than 1.0e-15: 1
+Number of HSP's better than  0.0 without gapping: 0
+Number of HSP's successfully gapped in prelim test: 1
+Number of HSP's that attempted gapping in prelim test: 1
+Number of HSP's gapped (non-prelim): 1
+length of query: 577
+length of database: 607
+effective HSP length: 24
+effective length of query: 553
+effective length of database: 583
+effective search space:   322399
+effective search space used:   322399
+T: 11
+A: 40
+X1: 16 ( 7.4 bits)
+X2: 38 (14.8 bits)
+X3: 64 (24.9 bits)
+S1: 41 (21.9 bits)
+S2: 164 (68.3 bits)
+BLASTP 2.1.2 [Oct-19-2000]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= gi|10038814|dbj|BAB12849.1| integration host factor
+alpha-subunit [Buchnera sp. APS]
+         (102 letters)
+
+Database: mycge
+           1 sequences; 607 total letters
+
+Searchingdone
+
+ ***** No hits found ******
+
+  Database: mycge
+    Posted date:  May 8, 2001  3:12 PM
+  Number of letters in database: 607
+  Number of sequences in database:  1
+
+Lambda     K      H
+   0.321    0.138    0.372
+
+Gapped
+Lambda     K      H
+   0.270   0.0470    0.230
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 101
+Number of Sequences: 1
+Number of extensions: 4
+Number of successful extensions: 0
+Number of sequences better than 1.0e-15: 0
+Number of HSP's better than  0.0 without gapping: 0
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 0
+Number of HSP's gapped (non-prelim): 0
+length of query: 102
+length of database: 607
+effective HSP length: 21
+effective length of query: 81
+effective length of database: 586
+effective search space:    47466
+effective search space used:    47466
+T: 11
+A: 40
+X1: 16 ( 7.4 bits)
+X2: 38 (14.8 bits)
+X3: 64 (24.9 bits)
+S1: 41 (21.9 bits)
+S2: 157 (65.6 bits)
+BLASTP 2.1.2 [Oct-19-2000]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= gi|10038947|dbj|BAB12982.1| DNA-binding protein H-ns [Buchnera
+sp. APS]
+         (135 letters)
+
+Database: mycge
+           1 sequences; 607 total letters
+
+Searchingdone
+
+ ***** No hits found ******
+
+  Database: mycge
+    Posted date:  May 8, 2001  3:12 PM
+  Number of letters in database: 607
+  Number of sequences in database:  1
+
+Lambda     K      H
+   0.319    0.137    0.390
+
+Gapped
+Lambda     K      H
+   0.270   0.0470    0.230
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 132
+Number of Sequences: 1
+Number of extensions: 3
+Number of successful extensions: 0
+Number of sequences better than 1.0e-15: 0
+Number of HSP's better than  0.0 without gapping: 0
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 0
+Number of HSP's gapped (non-prelim): 0
+length of query: 135
+length of database: 607
+effective HSP length: 23
+effective length of query: 112
+effective length of database: 584
+effective search space:    65408
+effective search space used:    65408
+T: 11
+A: 40
+X1: 16 ( 7.4 bits)
+X2: 38 (14.8 bits)
+X3: 64 (24.9 bits)
+S1: 41 (21.7 bits)
+S2: 158 (66.0 bits)
+BLASTP 2.1.2 [Oct-19-2000]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= gi|10038982|dbj|BAB13017.1| integration host factor
+beta-subunit [Buchnera sp. APS]
+         (94 letters)
+
+Database: mycge
+           1 sequences; 607 total letters
+
+Searchingdone
+
+ ***** No hits found ******
+
+  Database: mycge
+    Posted date:  May 8, 2001  3:12 PM
+  Number of letters in database: 607
+  Number of sequences in database:  1
+
+Lambda     K      H
+   0.319    0.136    0.372
+
+Gapped
+Lambda     K      H
+   0.270   0.0470    0.230
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 114
+Number of Sequences: 1
+Number of extensions: 6
+Number of successful extensions: 0
+Number of sequences better than 1.0e-15: 0
+Number of HSP's better than  0.0 without gapping: 0
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 0
+Number of HSP's gapped (non-prelim): 0
+length of query: 94
+length of database: 607
+effective HSP length: 21
+effective length of query: 73
+effective length of database: 586
+effective search space:    42778
+effective search space used:    42778
+T: 11
+A: 40
+X1: 16 ( 7.4 bits)
+X2: 38 (14.8 bits)
+X3: 64 (24.9 bits)
+S1: 41 (21.7 bits)
+S2: 157 (65.6 bits)
+BLASTP 2.1.2 [Oct-19-2000]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= gi|10038996|dbj|BAB13030.1| cold shock-like protein cspC
+[Buchnera sp. APS]
+         (69 letters)
+
+Database: mycge
+           1 sequences; 607 total letters
+
+Searchingdone
+
+ ***** No hits found ******
+
+  Database: mycge
+    Posted date:  May 8, 2001  3:12 PM
+  Number of letters in database: 607
+  Number of sequences in database:  1
+
+Lambda     K      H
+   0.316    0.136    0.399
+
+Gapped
+Lambda     K      H
+   0.270   0.0470    0.230
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 100
+Number of Sequences: 1
+Number of extensions: 5
+Number of successful extensions: 0
+Number of sequences better than 1.0e-15: 0
+Number of HSP's better than  0.0 without gapping: 0
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 0
+Number of HSP's gapped (non-prelim): 0
+length of query: 69
+length of database: 607
+effective HSP length: 20
+effective length of query: 49
+effective length of database: 587
+effective search space:    28763
+effective search space used:    28763
+T: 11
+A: 40
+X1: 16 ( 7.3 bits)
+X2: 38 (14.8 bits)
+X3: 64 (24.9 bits)
+S1: 41 (21.6 bits)
+S2: 155 (64.8 bits)
+BLASTP 2.1.2 [Oct-19-2000]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= gi|10039073|dbj|BAB13107.1| carbon storage regulator [Buchnera
+sp. APS]
+         (57 letters)
+
+Database: mycge
+           1 sequences; 607 total letters
+
+Searchingdone
+
+ ***** No hits found ******
+
+  Database: mycge
+    Posted date:  May 8, 2001  3:12 PM
+  Number of letters in database: 607
+  Number of sequences in database:  1
+
+Lambda     K      H
+   0.318    0.138    0.362
+
+Gapped
+Lambda     K      H
+   0.270   0.0470    0.230
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 64
+Number of Sequences: 1
+Number of extensions: 2
+Number of successful extensions: 0
+Number of sequences better than 1.0e-15: 0
+Number of HSP's better than  0.0 without gapping: 0
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 0
+Number of HSP's gapped (non-prelim): 0
+length of query: 57
+length of database: 607
+effective HSP length: 22
+effective length of query: 35
+effective length of database: 585
+effective search space:    20475
+effective search space used:    20475
+T: 11
+A: 40
+X1: 16 ( 7.3 bits)
+X2: 38 (14.8 bits)
+X3: 64 (24.9 bits)
+S1: 41 (21.7 bits)
+S2: 154 (64.4 bits)
+BLASTP 2.1.2 [Oct-19-2000]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= gi|10039151|dbj|BAB13185.1| cold shock-like protein cspE
+[Buchnera sp. APS]
+         (69 letters)
+
+Database: mycge
+           1 sequences; 607 total letters
+
+Searchingdone
+
+ ***** No hits found ******
+
+  Database: mycge
+    Posted date:  May 8, 2001  3:12 PM
+  Number of letters in database: 607
+  Number of sequences in database:  1
+
+Lambda     K      H
+   0.313    0.132    0.375
+
+Gapped
+Lambda     K      H
+   0.270   0.0470    0.230
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 80
+Number of Sequences: 1
+Number of extensions: 2
+Number of successful extensions: 0
+Number of sequences better than 1.0e-15: 0
+Number of HSP's better than  0.0 without gapping: 0
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 0
+Number of HSP's gapped (non-prelim): 0
+length of query: 69
+length of database: 607
+effective HSP length: 21
+effective length of query: 48
+effective length of database: 586
+effective search space:    28128
+effective search space used:    28128
+T: 11
+A: 40
+X1: 16 ( 7.2 bits)
+X2: 38 (14.8 bits)
+X3: 64 (24.9 bits)
+S1: 42 (21.9 bits)
+S2: 155 (64.8 bits)

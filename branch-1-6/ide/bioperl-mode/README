@@ -1,0 +1,48 @@
+$Id$
+
+bioperl-mode : a minor mode for BioPerl documentation and template insertion
+
+Release 0.1
+
+== Description ==
+
+bioperl-mode is an Emacs minor mode that allows rapid browsing of
+BioPerl pod and source code. It contains facilities for inserting
+coding and documentation templates that save typing and ensure BioPerl
+best practice compliance.
+
+See http://www.bioperl.org/wiki/Emacs_bioperl-mode for a full
+description and list of features.
+
+== Installation ==
+
+Copy the file dist/bioperl-mode.tar into your Emacs root directory,
+often 
+
+ /usr/share/emacs/[version]/ 
+
+in Linux, or 
+
+ C:\Program Files\emacs-[version]\ 
+
+in Windows.
+
+Untar in situ with
+
+ $ tar -xf bioperl-mode.tar
+
+In your .emacs file, add the line
+
+ (require 'bioperl-mode)
+
+and restart.
+
+Source files are available in site-lisp and etc directories.
+
+For more details, see http://www.bioperl.org/wiki/Emacs_bioperl-mode.
+
+== Support == 
+
+Please direct questions to bioperl-l@lists.open-bio.org
+
+Happy coding!

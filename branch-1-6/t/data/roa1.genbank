@@ -1,0 +1,91 @@
+LOCUS       AI129902       37 bp    mRNA            EST       27-OCT-1998
+DEFINITION  qc41b07.x1 Soares_pregnant_uterus_NbHPU Homo sapiens cDNA clone
+            IMAGE:1712149 3' similar to SW:ROA1_SCHAM P21522 HETEROGENEOUS
+            NUCLEAR RIBONUCLEOPROTEIN A1, A2/B1 HOMOLOG. ;contains MSR1.b2 MSR1
+            repetitive element ;, mRNA sequence.
+ACCESSION   AI129902
+NID         g3598416
+VERSION     AI129902.1  GI:3598416
+KEYWORDS    EST.
+SOURCE      human.
+  ORGANISM  Homo sapiens
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Mammalia;
+            Eutheria; Primates; Catarrhini; Hominidae; Homo.
+REFERENCE   1  (bases 1 to 37)
+  AUTHORS   NCI-CGAP http://www.ncbi.nlm.nih.gov/ncicgap.
+  TITLE     National Cancer Institute, Cancer Genome Anatomy Project (CGAP),
+            Tumor Gene Index
+  JOURNAL   Unpublished (1997)
+COMMENT     On May 8, 1995 this sequence version replaced gi:800643
+
+            Contact: Robert Strausberg, Ph.D.
+            Tel: (301) 496-1550
+            Email: Robert_Strausberg@nih.gov
+            This clone is available royalty-free through LLNL ; contact the
+            IMAGE Consortium (info@image.llnl.gov) for further information. 
+            Trace considered overall poor quality
+            Insert Length: 525   Std Error: 0.00
+            Seq primer: -40m13 fwd. ET from Amersham
+            High quality sequence stop: 1.
+FEATURES             Location/Qualifiers
+     source          1..37
+                     /organism="Homo sapiens"
+                     /db_xref="taxon:9606"
+                     /clone="IMAGE:1712149"
+                     /clone_lib="Soares_pregnant_uterus_NbHPU"
+                     /sex="female"
+                     /dev_stage="adult"
+                     /lab_host="DH10B"
+                     /note="Organ: uterus; Vector: pT7T3-Pac; Site_1: Not I;
+                     Site_2: Eco RI; 1st strand cDNA was primed with a Not I -
+                     oligo(dT) primer [5'
+                     AACTGGAAGAATTCGCGGCCGCCTTTTTTTTTTTTTTTTTT 3'],
+                     double-stranded cDNA was ligated to Eco RI adaptors
+                     (Pharmacia), digested with Not I and cloned into the Not I
+                     and Eco RI sites of the modified pT7T3 vector. Library
+                     went through one round of normalization.  Library
+                     constructed by M. Fatima Bonaldo."
+BASE COUNT        5 a     28 c      2 g      2 t
+ORIGIN      
+        1 ctccgcgcca actcccccca cccccccccc acacccc
+//
+LOCUS       BAB68554                 141 aa            linear   VRT 11-APR-2002
+DEFINITION  alpha D-globin [Aldabrachelys elephantina].
+ACCESSION   BAB68554
+PID         g15824047
+VERSION     BAB68554.1  GI:15824047
+DBSOURCE    accession AB072353.1
+KEYWORDS    .
+SOURCE      Aldabra giant tortoise.
+  ORGANISM  Aldabrachelys elephantina
+            Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+            Testudines; Cryptodira; Testudinoidea; Testudinidae; Aldabrachelys.
+REFERENCE   1
+  AUTHORS   Shishikura,F.
+  TITLE     The primary structure of hemoglobin D from the Aldabra giant
+            tortoise, Geochelone gigantea
+  JOURNAL   Zoolog. Sci. 19, 197-206 (2002)
+REFERENCE   2  (residues 1 to 141)
+  AUTHORS   Shishikura,F.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (29-SEP-2001) Fumio Shishikura, Nihon University School
+            of Medicine, Biology; Oyaguchi-kamimachi, 30-1, Itabashi-ku, Tokyo
+            173-8610, Japan (E-mail:fshishi@med.nihon-u.ac.jp,
+            Tel:81-3-3972-8111(ex.2291), Fax:81-3-3972-0027)
+FEATURES             Location/Qualifiers
+     source          1..141
+                     /organism="Aldabrachelys elephantina"
+                     /db_xref="taxon:167804"
+                     /note="synonym:Dipsochelys dussumieri~synonym:Geochelone
+                     gigantea"
+     Protein         1..141
+                     /product="alpha D-globin"
+     CDS             1..141
+                     /coded_by="join(AB072353.1:1..92,AB072353.1:307..511,
+                     AB072353.1:739..>864)"
+                     /note="hemoglobin D"
+ORIGIN      
+        1 mlteddkqli qhvwekvleh qedfgaeale rmfivypstk tyfphfdlhh dseqirhhgk
+       61 kvvgalgdav khidnlsatl selsnlhayn lrvdpvnfkl lshcfqvvlg ahlgreytpq
+      121 vqvaydkfla avsavlaeky r
+//

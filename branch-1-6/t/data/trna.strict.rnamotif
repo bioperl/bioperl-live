@@ -1,0 +1,199 @@
+#RM scored
+#RM descr h5 ss h5 ss h3 ss h5 ss h3 ss h5 ss h3 h3 ss
+#RM dfile trna.strict.descr
+>gi|173683|gb|M10671|ACSTRW Avian oncornavirus Trp-tRNA
+gi|173683|gb|M10671|ACSTRW    0.000 0       1   75 gacctcg tg gcg caacggtag cgc g tctga ctccaga tcaga aggctgc gtgt tcgaatc acgt cggggtc acca
+>gi|173683|gb|M10671|ACSTRW Avian oncornavirus Trp-tRNA
+gi|173683|gb|M10671|ACSTRW    0.000 0       1   75 gacctcg tg gcg caacggtag cgc g tctga ctccaga tcaga aggct gcgtg ttcgaat cacgt cggggtc acca
+>gi|173683|gb|M10671|ACSTRW Avian oncornavirus Trp-tRNA
+gi|173683|gb|M10671|ACSTRW    0.000 0       1   75 gacctcg tg gcgc aacggta gcgc g tctga ctccaga tcaga aggctgc gtgt tcgaatc acgt cggggtc acca
+>gi|173683|gb|M10671|ACSTRW Avian oncornavirus Trp-tRNA
+gi|173683|gb|M10671|ACSTRW    0.000 0       1   75 gacctcg tg gcgc aacggta gcgc g tctga ctccaga tcaga aggct gcgtg ttcgaat cacgt cggggtc acca
+>gi|173683|gb|M10671|ACSTRW Avian oncornavirus Trp-tRNA
+gi|173683|gb|M10671|ACSTRW    0.000 0       2   73 acctcg tg gcg caacggtag cgc g tctga ctccaga tcaga aggctgc gtgt tcgaatc acgt cggggt cacc
+>gi|173683|gb|M10671|ACSTRW Avian oncornavirus Trp-tRNA
+gi|173683|gb|M10671|ACSTRW    0.000 0       2   73 acctcg tg gcg caacggtag cgc g tctga ctccaga tcaga aggct gcgtg ttcgaat cacgt cggggt cacc
+>gi|173683|gb|M10671|ACSTRW Avian oncornavirus Trp-tRNA
+gi|173683|gb|M10671|ACSTRW    0.000 0       2   73 acctcg tg gcgc aacggta gcgc g tctga ctccaga tcaga aggctgc gtgt tcgaatc acgt cggggt cacc
+>gi|173683|gb|M10671|ACSTRW Avian oncornavirus Trp-tRNA
+gi|173683|gb|M10671|ACSTRW    0.000 0       2   73 acctcg tg gcgc aacggta gcgc g tctga ctccaga tcaga aggct gcgtg ttcgaat cacgt cggggt cacc
+>gi|173684|gb|M29552|ACYRR16S A.pyogenes 16S ribosomal RNA
+gi|173684|gb|M29552|ACYRR16S    0.000 0     510   76 cgcggta at acg tagggcnctag cgt t gtccg gaattat tgggc gtaaag agct cgtaggc ggtt tgttgcg cctg
+>gi|173684|gb|M29552|ACYRR16S A.pyogenes 16S ribosomal RNA
+gi|173684|gb|M29552|ACYRR16S    0.000 0     510   76 cgcggta at acgt agggcncta gcgt t gtccg gaattat tgggc gtaaag agct cgtaggc ggtt tgttgcg cctg
+>gi|173684|gb|M29552|ACYRR16S A.pyogenes 16S ribosomal RNA
+gi|173684|gb|M29552|ACYRR16S    0.000 0     511   74 gcggta at acg tagggcnctag cgt t gtccg gaattat tgggc gtaaag agct cgtaggc ggtt tgttgc gcct
+>gi|173684|gb|M29552|ACYRR16S A.pyogenes 16S ribosomal RNA
+gi|173684|gb|M29552|ACYRR16S    0.000 0     511   74 gcggta at acgt agggcncta gcgt t gtccg gaattat tgggc gtaaag agct cgtaggc ggtt tgttgc gcct
+>gi|173689|gb|M33910|ACYRRNAO A.odontolyticus 16S ribosomal RNA
+gi|173689|gb|M33910|ACYRRNAO    0.000 0      92   77 gggttg gt gga aaggttttt tct g gtggg ggatggg ctcgc ggcctatcagc ttgt tggtggg gtga tggcct acca
+>gi|173689|gb|M33910|ACYRRNAO A.odontolyticus 16S ribosomal RNA
+gi|173689|gb|M33910|ACYRRNAO    0.000 0      92   77 gggttg gt ggaa aggtttt ttct g gtggg ggatggg ctcgc ggcctatcagc ttgt tggtggg gtga tggcct acca
+>gi|173725|gb|K00230|ANITRLCAA Anacystis nidulans Leu-tRNA-CAA
+gi|173725|gb|K00230|ANITRLCAA    0.000 0       1   87 gggcaag tg gcg gaattggtaga cgc a gcaga ctcaaaa tctgc cgctagcgatagtgt gtggg ttcgagt cccac cttgccc acca
+>gi|173725|gb|K00230|ANITRLCAA Anacystis nidulans Leu-tRNA-CAA
+gi|173725|gb|K00230|ANITRLCAA    0.000 0       2   85 ggcaag tg gcg gaattggtaga cgc a gcaga ctcaaaa tctgc cgctagcgatagtgt gtggg ttcgagt cccac cttgcc cacc
+>gi|173726|gb|K00231|ANITRLCAG Anacystis nidulans Leu-tRNA-CAG
+gi|173726|gb|K00231|ANITRLCAG    0.000 0       1   87 gcggaac tg gcg aaattggtaga cgc g ctaga ttcaggt tctag tggtttcacgactgt ccggg ttcaagt cccgg gttccgc acca
+>gi|173726|gb|K00231|ANITRLCAG Anacystis nidulans Leu-tRNA-CAG
+gi|173726|gb|K00231|ANITRLCAG    0.000 0       2   85 cggaac tg gcg aaattggtaga cgc g ctaga ttcaggt tctag tggtttcacgactgt ccggg ttcaagt cccgg gttccg cacc
+>gi|173727|gb|K00311|ANITRMF Anacystis nidulans initiator Met-tRNA-f
+gi|173727|gb|K00311|ANITRMF    0.000 0       2   75 gcgggg ta gag cagcctggtag ctc g tcggg ctcataa cccga aggtc agagg ttcaaat cctct ccccgc cacc
+>gi|173727|gb|K00311|ANITRMF Anacystis nidulans initiator Met-tRNA-f
+gi|173727|gb|K00311|ANITRMF    0.000 0       2   75 gcgggg ta gagc agcctggta gctc g tcggg ctcataa cccga aggtc agagg ttcaaat cctct ccccgc cacc
+>gi|1236163|gb|L41047|ANNRRO Actinoplanes sp. ribosomal RNA (rRNA)
+gi|1236163|gb|L41047|ANNRRO    0.000 0     464   85 cgcggt aa gacg tagggcgcgag cgtt g tccg gatttat tggg cgtaaagagctcgtagg cggc ttgttgc gtcg gctgtg aaaa
+>gi|1236163|gb|L41047|ANNRRO Actinoplanes sp. ribosomal RNA (rRNA)
+gi|1236163|gb|L41047|ANNRRO    0.000 0     464   76 cgcggt aa gacg tagggcgcgag cgtt g tccg gatttat tggg cgtaaa gagct cgtaggc ggctt gttgcg tcgg
+>gi|1236163|gb|L41047|ANNRRO Actinoplanes sp. ribosomal RNA (rRNA)
+gi|1236163|gb|L41047|ANNRRO    0.000 0     464   76 cgcggta ag acg tagggcgcgag cgt t gtccg gatttat tgggc gtaaag agct cgtaggc ggct tgttgcg tcgg
+>gi|1236163|gb|L41047|ANNRRO Actinoplanes sp. ribosomal RNA (rRNA)
+gi|1236163|gb|L41047|ANNRRO    0.000 0     464   76 cgcggta ag acgt agggcgcga gcgt t gtccg gatttat tgggc gtaaag agct cgtaggc ggct tgttgcg tcgg
+>gi|1236163|gb|L41047|ANNRRO Actinoplanes sp. ribosomal RNA (rRNA)
+gi|1236163|gb|L41047|ANNRRO    0.000 0     465   74 gcggta ag acg tagggcgcgag cgt t gtccg gatttat tgggc gtaaag agct cgtaggc ggct tgttgc gtcg
+>gi|1236163|gb|L41047|ANNRRO Actinoplanes sp. ribosomal RNA (rRNA)
+gi|1236163|gb|L41047|ANNRRO    0.000 0     465   74 gcggta ag acgt agggcgcga gcgt t gtccg gatttat tgggc gtaaag agct cgtaggc ggct tgttgc gtcg
+>gi|173750|gb|M37693|ARGRRNASS Arthobacter simplex small subunit ribosomal RNA
+gi|173750|gb|M37693|ARGRRNASS    0.000 0     502   76 cgcggta at acg tagggtccnag cgt t gtccg gaattat tgggc gtaaag ggct cgtaggc ggtt tgtcgcg tcgg
+>gi|173750|gb|M37693|ARGRRNASS Arthobacter simplex small subunit ribosomal RNA
+gi|173750|gb|M37693|ARGRRNASS    0.000 0     502   76 cgcggta at acgt agggtccna gcgt t gtccg gaattat tgggc gtaaag ggct cgtaggc ggtt tgtcgcg tcgg
+>gi|173750|gb|M37693|ARGRRNASS Arthobacter simplex small subunit ribosomal RNA
+gi|173750|gb|M37693|ARGRRNASS    0.000 0     503   74 gcggta at acg tagggtccnag cgt t gtccg gaattat tgggc gtaaag ggct cgtaggc ggtt tgtcgc gtcg
+>gi|173750|gb|M37693|ARGRRNASS Arthobacter simplex small subunit ribosomal RNA
+gi|173750|gb|M37693|ARGRRNASS    0.000 0     503   74 gcggta at acgt agggtccna gcgt t gtccg gaattat tgggc gtaaag ggct cgtaggc ggtt tgtcgc gtcg
+>gi|173764|gb|K00326|ASRTRMI Asterias amurensis initiator Met-tRNA-i
+gi|173764|gb|K00326|ASRTRMI    0.000 0       1   75 agcagag tg gcg cagtggaag cgt g ctggg cccataa cccag aggtc cgagg atcgaaa cctcg ctctgct acca
+>gi|173764|gb|K00326|ASRTRMI Asterias amurensis initiator Met-tRNA-i
+gi|173764|gb|K00326|ASRTRMI    0.000 0       1   75 agcagag tg gcgc agtggaa gcgt g ctggg cccataa cccag aggtc cgagg atcgaaa cctcg ctctgct acca
+>gi|173764|gb|K00326|ASRTRMI Asterias amurensis initiator Met-tRNA-i
+gi|173764|gb|K00326|ASRTRMI    0.000 0       2   73 gcagag tg gcg cagtggaag cgt g ctggg cccataa cccag aggtc cgagg atcgaaa cctcg ctctgc tacc
+>gi|173764|gb|K00326|ASRTRMI Asterias amurensis initiator Met-tRNA-i
+gi|173764|gb|K00326|ASRTRMI    0.000 0       2   73 gcagag tg gcgc agtggaa gcgt g ctggg cccataa cccag aggtc cgagg atcgaaa cctcg ctctgc tacc
+>gi|173764|gb|K00326|ASRTRMI Asterias amurensis initiator Met-tRNA-i
+gi|173764|gb|K00326|ASRTRMI    0.000 0       2   73 gcagagt gg cgc agtggaagc gtg c tggg cccataa ccca gaggtcc gagg atcgaaa cctc gctctgc tacc
+>gi|173764|gb|K00326|ASRTRMI Asterias amurensis initiator Met-tRNA-i
+gi|173764|gb|K00326|ASRTRMI    0.000 0       3   71 cagagt gg cgc agtggaagc gtg c tggg cccataa ccca gaggtcc gagg atcgaaa cctc gctctg ctac
+>gi|173793|gb|K00141|BACTRA B.subtilis Ala-tRNA
+gi|173793|gb|K00141|BACTRA    0.000 0       1   76 ggagcct ta gct cagctgggag agc g cctgc tttgcac gcagg aggtc agcgg ttcgatc ccgct aggctcc acca
+>gi|173793|gb|K00141|BACTRA B.subtilis Ala-tRNA
+gi|173793|gb|K00141|BACTRA    0.000 0       1   76 ggagcct ta gctc agctggga gagc g cctgc tttgcac gcagg aggtc agcgg ttcgatc ccgct aggctcc acca
+>gi|173793|gb|K00141|BACTRA B.subtilis Ala-tRNA
+gi|173793|gb|K00141|BACTRA    0.000 0       2   74 gagcct ta gct cagctgggag agc g cctgc tttgcac gcagg aggtc agcgg ttcgatc ccgct aggctc cacc
+>gi|173793|gb|K00141|BACTRA B.subtilis Ala-tRNA
+gi|173793|gb|K00141|BACTRA    0.000 0       2   74 gagcct ta gctc agctggga gagc g cctgc tttgcac gcagg aggtc agcgg ttcgatc ccgct aggctc cacc
+>gi|304176|gb|L18939|BACTRCYSA Bacillus subtilis transfer RNA-Cys
+gi|304176|gb|L18939|BACTRCYSA    0.000 0       1   74 ggcggca ta gcc aagtggtaa ggc a gaggt cttcaaa acctt tatc cccgg ttcgaat ccggg tgccgcc tcca
+>gi|304176|gb|L18939|BACTRCYSA Bacillus subtilis transfer RNA-Cys
+gi|304176|gb|L18939|BACTRCYSA    0.000 0       2   72 gcggca ta gcc aagtggtaa ggc a gaggt cttcaaa acctt tatc cccgg ttcgaat ccggg tgccgc ctcc
+>gi|173794|gb|K00332|BACTRF B.stearothermophilus Phe-tRNA
+gi|173794|gb|K00332|BACTRF    0.000 0       1   76 ggctcgg ta gct cagtcggtag agc a aagga ctgaaaa tcctt gtgtc ggcgg ttcgatt ccgtc ccgagcc acca
+>gi|173794|gb|K00332|BACTRF B.stearothermophilus Phe-tRNA
+gi|173794|gb|K00332|BACTRF    0.000 0       1   76 ggctcgg ta gctc agtcggta gagc a aagga ctgaaaa tcctt gtgtc ggcgg ttcgatt ccgtc ccgagcc acca
+>gi|173794|gb|K00332|BACTRF B.stearothermophilus Phe-tRNA
+gi|173794|gb|K00332|BACTRF    0.000 0       2   74 gctcgg ta gct cagtcggtag agc a aagga ctgaaaa tcctt gtgtc ggcgg ttcgatt ccgtc ccgagc cacc
+>gi|173794|gb|K00332|BACTRF B.stearothermophilus Phe-tRNA
+gi|173794|gb|K00332|BACTRF    0.000 0       2   74 gctcgg ta gctc agtcggta gagc a aagga ctgaaaa tcctt gtgtc ggcgg ttcgatt ccgtc ccgagc cacc
+>gi|173795|gb|K00333|BACTRFA B.subtilis Phe-tRNA
+gi|173795|gb|K00333|BACTRFA    0.000 0       1   76 ggctcgg ta gct cagttggtag agc a acgga ctgaaaa tccgt gtgtc ggcgg ttcgatt ccgtc ccgagcc acca
+>gi|173795|gb|K00333|BACTRFA B.subtilis Phe-tRNA
+gi|173795|gb|K00333|BACTRFA    0.000 0       1   76 ggctcgg ta gctc agttggta gagc a acgga ctgaaaa tccgt gtgtc ggcgg ttcgatt ccgtc ccgagcc acca
+>gi|173795|gb|K00333|BACTRFA B.subtilis Phe-tRNA
+gi|173795|gb|K00333|BACTRFA    0.000 0       2   74 gctcgg ta gct cagttggtag agc a acgga ctgaaaa tccgt gtgtc ggcgg ttcgatt ccgtc ccgagc cacc
+>gi|173795|gb|K00333|BACTRFA B.subtilis Phe-tRNA
+gi|173795|gb|K00333|BACTRFA    0.000 0       2   74 gctcgg ta gctc agttggta gagc a acgga ctgaaaa tccgt gtgtc ggcgg ttcgatt ccgtc ccgagc cacc
+>gi|173796|gb|M24863|BACTRFAA B.stearothermophilus Phe-tRNA
+gi|173796|gb|M24863|BACTRFAA    0.000 0       1   76 gctcgtg ta gct cagtcggtag agc a aagga ctgaaya tcctt gtgtc ggcgg ttcgatt ccgtc cgcgagc acca
+>gi|173796|gb|M24863|BACTRFAA B.stearothermophilus Phe-tRNA
+gi|173796|gb|M24863|BACTRFAA    0.000 0       1   76 gctcgtg ta gctc agtcggta gagc a aagga ctgaaya tcctt gtgtc ggcgg ttcgatt ccgtc cgcgagc acca
+>gi|173796|gb|M24863|BACTRFAA B.stearothermophilus Phe-tRNA
+gi|173796|gb|M24863|BACTRFAA    0.000 0       2   74 ctcgtg ta gct cagtcggtag agc a aagga ctgaaya tcctt gtgtc ggcgg ttcgatt ccgtc cgcgag cacc
+>gi|173796|gb|M24863|BACTRFAA B.stearothermophilus Phe-tRNA
+gi|173796|gb|M24863|BACTRFAA    0.000 0       2   74 ctcgtg ta gctc agtcggta gagc a aagga ctgaaya tcctt gtgtc ggcgg ttcgatt ccgtc cgcgag cacc
+>gi|173797|gb|K00201|BACTRG1 B.subtilis Gly-tRNA-1
+gi|173797|gb|K00201|BACTRG1    0.000 0       1   74 gcgggtg ta gtt tagtggtaa aac c tcagc cttccaa gctga tgtc gtgag ttcgatt ctcat cacccgc tcca
+>gi|173797|gb|K00201|BACTRG1 B.subtilis Gly-tRNA-1
+gi|173797|gb|K00201|BACTRG1    0.000 0       1   74 gcgggtg ta gttt agtggta aaac c tcagc cttccaa gctga tgtc gtgag ttcgatt ctcat cacccgc tcca
+>gi|173797|gb|K00201|BACTRG1 B.subtilis Gly-tRNA-1
+gi|173797|gb|K00201|BACTRG1    0.000 0       2   72 cgggtg ta gtt tagtggtaa aac c tcagc cttccaa gctga tgtc gtgag ttcgatt ctcat cacccg ctcc
+>gi|173797|gb|K00201|BACTRG1 B.subtilis Gly-tRNA-1
+gi|173797|gb|K00201|BACTRG1    0.000 0       2   72 cgggtg ta gttt agtggta aaac c tcagc cttccaa gctga tgtc gtgag ttcgatt ctcat cacccg ctcc
+>gi|173800|gb|M26875|BACTRLC B.stearothermophilus Leu-tRNA-CAA
+gi|173800|gb|M26875|BACTRLC    0.000 0       1   86 gccgatg tg gcg gaattggcaga cgc g cacga ctcaaaa tcgtg tgggctttgcccgt gtggg ttcgact cccac catcggc acca
+>gi|173800|gb|M26875|BACTRLC B.stearothermophilus Leu-tRNA-CAA
+gi|173800|gb|M26875|BACTRLC    0.000 0       2   84 ccgatg tg gcg gaattggcaga cgc g cacga ctcaaaa tcgtg tgggctttgcccgt gtggg ttcgact cccac catcgg cacc
+>gi|173801|gb|K00310|BACTRMF B.subtilis initiator Met-tRNA-f
+gi|173801|gb|K00310|BACTRMF    0.000 0       2   75 gcgggg tg gag cagttcggtag ctc g tcggg ctcataa cccga aggtc gcagg ttcaaat cctgc ccccgc aacc
+>gi|173801|gb|K00310|BACTRMF B.subtilis initiator Met-tRNA-f
+gi|173801|gb|K00310|BACTRMF    0.000 0       2   75 gcgggg tg gagc agttcggta gctc g tcggg ctcataa cccga aggtc gcagg ttcaaat cctgc ccccgc aacc
+>gi|173802|gb|K00297|BACTRMM Bacillus subtilis Met-tRNA-m
+gi|173802|gb|K00297|BACTRMM    0.000 0       1   76 ggcggtg ta gct cagcggctag agc g tacgg ttcatac ccgtg aggtc ggggg ttcgatc ccctc cgccgct acca
+>gi|173802|gb|K00297|BACTRMM Bacillus subtilis Met-tRNA-m
+gi|173802|gb|K00297|BACTRMM    0.000 0       1   76 ggcggtg ta gctc agcggcta gagc g tacgg ttcatac ccgtg aggtc ggggg ttcgatc ccctc cgccgct acca
+>gi|173802|gb|K00297|BACTRMM Bacillus subtilis Met-tRNA-m
+gi|173802|gb|K00297|BACTRMM    0.000 0       2   74 gcggtg ta gct cagcggctag agc g tacgg ttcatac ccgtg aggtc ggggg ttcgatc ccctc cgccgc tacc
+>gi|173802|gb|K00297|BACTRMM Bacillus subtilis Met-tRNA-m
+gi|173802|gb|K00297|BACTRMM    0.000 0       2   74 gcggtg ta gctc agcggcta gagc g tacgg ttcatac ccgtg aggtc ggggg ttcgatc ccctc cgccgc tacc
+>gi|173803|gb|M27310|BACTRPA B.subtilis Pro-tRNA
+gi|173803|gb|M27310|BACTRPA    0.000 0       1   77 cgggaag ta gct cagcttggtag agc a catgg tttggga ccatg gggtc gcagg ttcgaat cctgt cttcccg acca
+>gi|173803|gb|M27310|BACTRPA B.subtilis Pro-tRNA
+gi|173803|gb|M27310|BACTRPA    0.000 0       1   77 cgggaag ta gctc agcttggta gagc a catgg tttggga ccatg gggtc gcagg ttcgaat cctgt cttcccg acca
+>gi|173803|gb|M27310|BACTRPA B.subtilis Pro-tRNA
+gi|173803|gb|M27310|BACTRPA    0.000 0       2   75 gggaag ta gct cagcttggtag agc a catgg tttggga ccatg gggtc gcagg ttcgaat cctgt cttccc gacc
+>gi|173803|gb|M27310|BACTRPA B.subtilis Pro-tRNA
+gi|173803|gb|M27310|BACTRPA    0.000 0       2   75 gggaag ta gctc agcttggta gagc a catgg tttggga ccatg gggtc gcagg ttcgaat cctgt cttccc gacc
+>gi|173804|gb|K00156|BACTRR B.subtilis Arg-tRNA
+gi|173804|gb|K00156|BACTRR    0.000 0       1   76 gcgcccg ta gct caatggatag agc g tttga ctgcgga tcaaa aggtt agggg ttcgact cccct cgggcgc gcca
+>gi|173804|gb|K00156|BACTRR B.subtilis Arg-tRNA
+gi|173804|gb|K00156|BACTRR    0.000 0       1   76 gcgcccg ta gctc aatggata gagc g tttga ctgcgga tcaaa aggtt agggg ttcgact cccct cgggcgc gcca
+>gi|173804|gb|K00156|BACTRR B.subtilis Arg-tRNA
+gi|173804|gb|K00156|BACTRR    0.000 0       2   74 cgcccg ta gct caatggatag agc g tttga ctgcgga tcaaa aggtt agggg ttcgact cccct cgggcg cgcc
+>gi|173804|gb|K00156|BACTRR B.subtilis Arg-tRNA
+gi|173804|gb|K00156|BACTRR    0.000 0       2   74 cgcccg ta gctc aatggata gagc g tttga ctgcgga tcaaa aggtt agggg ttcgact cccct cgggcg cgcc
+>gi|173805|gb|K00276|BACTRT B.subtilis Thr-tRNA
+gi|173805|gb|K00276|BACTRT    0.000 0       1   76 gccggtg ta gct caattggtag agc a actga cttgtaa tcagt aggtt ggggg ttcaagt cctct tgccggc acca
+>gi|173805|gb|K00276|BACTRT B.subtilis Thr-tRNA
+gi|173805|gb|K00276|BACTRT    0.000 0       1   76 gccggtg ta gctc aattggta gagc a actga cttgtaa tcagt aggtt ggggg ttcaagt cctct tgccggc acca
+>gi|173805|gb|K00276|BACTRT B.subtilis Thr-tRNA
+gi|173805|gb|K00276|BACTRT    0.000 0       2   74 ccggtg ta gct caattggtag agc a actga cttgtaa tcagt aggtt ggggg ttcaagt cctct tgccgg cacc
+>gi|173805|gb|K00276|BACTRT B.subtilis Thr-tRNA
+gi|173805|gb|K00276|BACTRT    0.000 0       2   74 ccggtg ta gctc aattggta gagc a actga cttgtaa tcagt aggtt ggggg ttcaagt cctct tgccgg cacc
+>gi|173806|gb|K00246|BACTRV1 B.subtilis Val-tRNA-1
+gi|173806|gb|K00246|BACTRV1    0.000 0       1   76 ggaggat ta gct cagctgggag agc a tctgc cttacaa gcaga gggtc ggcgg ttcgagc ccgtc atcctcc acca
+>gi|173806|gb|K00246|BACTRV1 B.subtilis Val-tRNA-1
+gi|173806|gb|K00246|BACTRV1    0.000 0       1   76 ggaggat ta gctc agctggga gagc a tctgc cttacaa gcaga gggtc ggcgg ttcgagc ccgtc atcctcc acca
+>gi|173806|gb|K00246|BACTRV1 B.subtilis Val-tRNA-1
+gi|173806|gb|K00246|BACTRV1    0.000 0       2   74 gaggat ta gct cagctgggag agc a tctgc cttacaa gcaga gggtc ggcgg ttcgagc ccgtc atcctc cacc
+>gi|173806|gb|K00246|BACTRV1 B.subtilis Val-tRNA-1
+gi|173806|gb|K00246|BACTRV1    0.000 0       2   74 gaggat ta gctc agctggga gagc a tctgc cttacaa gcaga gggtc ggcgg ttcgagc ccgtc atcctc cacc
+>gi|173807|gb|K01065|BACTRV2 B.stearothermophilus Val-tRNA-2
+gi|173807|gb|K01065|BACTRV2    0.000 0       1   76 gattccg ta gct cagctgggag agc g ccacc ttgacag ggtgg aggtc gctgg ttcgagc ccagt cggaatc acca
+>gi|173807|gb|K01065|BACTRV2 B.stearothermophilus Val-tRNA-2
+gi|173807|gb|K01065|BACTRV2    0.000 0       1   76 gattccg ta gctc agctggga gagc g ccacc ttgacag ggtgg aggtc gctgg ttcgagc ccagt cggaatc acca
+>gi|173807|gb|K01065|BACTRV2 B.stearothermophilus Val-tRNA-2
+gi|173807|gb|K01065|BACTRV2    0.000 0       2   74 attccg ta gct cagctgggag agc g ccacc ttgacag ggtgg aggtc gctgg ttcgagc ccagt cggaat cacc
+>gi|173807|gb|K01065|BACTRV2 B.stearothermophilus Val-tRNA-2
+gi|173807|gb|K01065|BACTRV2    0.000 0       2   74 attccg ta gctc agctggga gagc g ccacc ttgacag ggtgg aggtc gctgg ttcgagc ccagt cggaat cacc
+>gi|173809|gb|K00270|BACTRY B.stearothermophilus Tyr-tRNA
+gi|173809|gb|K00270|BACTRY    0.000 0       1   85 ggagggg ta gcg aagtggctaaa cgc g gcgga ctgtaaa tccgc tccctttgggttc ggcgg ttcgaat ccgtc cccctcc acca
+>gi|173809|gb|K00270|BACTRY B.stearothermophilus Tyr-tRNA
+gi|173809|gb|K00270|BACTRY    0.000 0       2   83 gagggg ta gcg aagtggctaaa cgc g gcgga ctgtaaa tccgc tccctttgggttc ggcgg ttcgaat ccgtc cccctc cacc
+>gi|173811|gb|K00269|BACTRYI B.subtilis Tyr-tRNA, species I and II
+gi|173811|gb|K00269|BACTRYI    0.000 0       1   85 ggagggg ta gcg aagtggctaaa cgc g gcgga ctgtaaa tccgc tccctcagggttc ggcag ttcgaat ctgcc cccctcc acca
+>gi|173811|gb|K00269|BACTRYI B.subtilis Tyr-tRNA, species I and II
+gi|173811|gb|K00269|BACTRYI    0.000 0       2   83 gagggg ta gcg aagtggctaaa cgc g gcgga ctgtaaa tccgc tccctcagggttc ggcag ttcgaat ctgcc cccctc cacc
+>gi|173880|gb|M38018|BIFRRDQ B.bifidum small subunit ribosomal RNA gene
+gi|173880|gb|M38018|BIFRRDQ    0.000 0     538   82 cggatt ta ttg ggcg taa a gggct cgtaggc ggctc gtcgcgtccggtgtgaaagtc catc gcttaac ggtg gatctg cgcc
+>gi|459692|gb|L29265|BLHRRNA Blastocrithidia culicis ribosomal RNA
+gi|459692|gb|L29265|BLHRRNA    0.000 0    1657   77 gggtctg ta gct cagctggttag agc a ccgtc ttgataa ggcgg gggtc gttgg ttcaagt ccaac tagaccc acca
+>gi|459692|gb|L29265|BLHRRNA Blastocrithidia culicis ribosomal RNA
+gi|459692|gb|L29265|BLHRRNA    0.000 0    1657   77 gggtctg ta gctc agctggtta gagc a ccgtc ttgataa ggcgg gggtc gttgg ttcaagt ccaac tagaccc acca
+>gi|459692|gb|L29265|BLHRRNA Blastocrithidia culicis ribosomal RNA
+gi|459692|gb|L29265|BLHRRNA    0.000 0    1658   75 ggtctg ta gct cagctggttag agc a ccgtc ttgataa ggcgg gggtc gttgg ttcaagt ccaac tagacc cacc
+>gi|459692|gb|L29265|BLHRRNA Blastocrithidia culicis ribosomal RNA
+gi|459692|gb|L29265|BLHRRNA    0.000 0    1658   75 ggtctg ta gctc agctggtta gagc a ccgtc ttgataa ggcgg gggtc gttgg ttcaagt ccaac tagacc cacc
+>gi|173898|gb|M22136|BLYCPTREA Hordeum vulgare chloroplast Glu-tRNA
+gi|173898|gb|M22136|BLYCPTREA    0.000 0       1   76 tccgtcg ta gtc taggdggdtag gat a ctcgg ctttcac ccgag agac ccggg ttcaagt cccgg cgacgga acca
+>gi|173898|gb|M22136|BLYCPTREA Hordeum vulgare chloroplast Glu-tRNA
+gi|173898|gb|M22136|BLYCPTREA    0.000 0       1   76 tccgtcg ta gtct aggdggdta ggat a ctcgg ctttcac ccgag agac ccggg ttcaagt cccgg cgacgga acca
+>gi|173898|gb|M22136|BLYCPTREA Hordeum vulgare chloroplast Glu-tRNA
+gi|173898|gb|M22136|BLYCPTREA    0.000 0       2   74 ccgtcg ta gtc taggdggdtag gat a ctcgg ctttcac ccgag agac ccggg ttcaagt cccgg cgacgg aacc

@@ -1,0 +1,9 @@
+#NEXUS 
+
+Begin trees;  [Treefile saved Wed Jul 26 19:40:41 2000]
+
+[output from your data run]
+
+Translate 1 TRXEcoli, 2 TRXHomo, 3 TRXSacch, 4 erCaelA, 5 erCaelB, 6 erCaelC, 7 erHomoA, 8 erHomoB, 9 erHomoC, 10 erpCaelC ; 
+
+tree PAUP_1 = [&U] (1,((2,3),((((4,10),(5,8)),(6,9)),7))); End; 

@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- edited with XML Spy v4.4 U (http://www.xmlspy.com) by LYNN WHITE (EMBL OUTSTATION THE EBI) -->
+<!DOCTYPE interprodb SYSTEM "interpro.dtd">
+<interprodb>
+  <release>
+    <dbinfo dbname="INTERPRO" version="5.1" entry_count="5630" file_date="12-JUL-2002 00:00:00"/>
+    <dbinfo dbname="SWISS" version="40.22" entry_count="110823" file_date="24-JUN-2002 00:00:00"/>
+    <dbinfo dbname="TREMBL" version="21.2" entry_count="671586" file_date="05-JUL-2002 00:00:00"/>
+    <dbinfo dbname="PRINTS" version="33.0" entry_count="1650" file_date="24-JAN-2002 00:00:00"/>
+    <dbinfo dbname="PREFILE" version="N/A" entry_count="252" file_date="18-JUL-2001 00:00:00"/>
+    <dbinfo dbname="PROSITE" version="17.5" entry_count="1565" file_date="21-JUN-2002 00:00:00"/>
+    <dbinfo dbname="PFAM" version="7.3" entry_count="3865" file_date="17-MAY-2002 00:00:00"/>
+    <dbinfo dbname="PRODOM" version="2001.3" entry_count="1346" file_date="28-JAN-2002 00:00:00"/>
+    <dbinfo dbname="SMART" version="3.1" entry_count="509" file_date="16-NOV-2000 00:00:00"/>
+    <dbinfo dbname="TIGRFAMs" version="1.2" entry_count="814" file_date="03-AUG-2001 00:00:00"/>
+  </release>
+  <interpro id="IPR000001" type="Domain" short_name="Kringle" protein_count="129">
+    <name>Kringle</name>
+    <abstract>
+Kringles are autonomous structural domains, found throughout the blood 
+               clotting and fibrinolytic proteins.
+Kringle domains are believed to play a role in binding mediators (e.g., membranes,
+other proteins or phospholipids), and in the regulation of proteolytic activity
+<cite idref="PUB00002414"/>, <cite idref="PUB00001541"/>, <cite idref="PUB00003257"/>. 
+Kringle domains <cite idref="PUB00003400"/>, <cite idref="PUB00000803"/>, <cite idref="PUB00001620"/> are characterised by a triple loop, 3-disulphide bridge structure, whose  conformation is defined by a number of hydrogen bonds and small pieces of  anti-parallel beta-sheet. They are found in a varying number  of  copies,  in some serine proteases and
+plasma proteins.</abstract>
+    <example_list>
+      <example><db_xref dbkey="P00748" db="SWISS"/>Blood coagulation factor XII (Hageman factor) (1 copy)</example>
+      <example><db_xref dbkey="P00749" db="SWISS"/>Urokinase-type plasminogen activator (1 copy)</example>
+      <example><db_xref dbkey="Q08048" db="SWISS"/>Hepatocyte growth factor (HGF) (4 copies)</example>
+      <example><db_xref dbkey="Q04756" db="SWISS"/>Hepatocyte growth factor activator <cite idref="PUB00003400"/> (1 copy) <cite idref="PUB00002776"/></example>
+      <example>
+				<db_xref dbkey="P06867" db="SWISS"/>
+Plasminogen (5 copies)
+      </example>
+      <example>
+				<db_xref dbkey="P26927" db="SWISS"/>
+Hepatocyte growth factor like protein (4 copies) <cite idref="PUB00000355"/>
+			</example>
+      <example>
+				<db_xref dbkey="P00735" db="SWISS"/>
+Thrombin (2 copies)
+      </example>
+      <example>
+				<db_xref dbkey="P15638" db="SWISS"/>
+Tissue plasminogen activator (TPA) (2 copies)
+      </example>
+      <example>
+				<db_xref dbkey="P08519" db="SWISS"/>
+Apolipoprotein A (38 copies)
+      </example>
+    </example_list>
+    <pub_list>
+      <publication id="PUB00002414">
+	<author_list>Fujikawa K., McMullen B.A.</author_list>
+	<title>Primary structure of the heavy chain of human factor XIIa.</title>
+	<db_xref db="MEDLINE" dbkey="85182674"/>
+	<journal>J. Biol. Chem.</journal>
+	<location firstpage="5328" lastpage="5341" volume="260"/>
+	<year>1985</year>
+      </publication>
+      <publication id="PUB00001541">
+	<author_list>Patthy L., Trexler M., Vali V., Banyai L., Varadi A.</author_list>
+	<title>Kringles: Modules specialized for protein binding.</title>
+	<db_xref db="MEDLINE" dbkey="84208845"/>
+	<journal>FEBS Lett.</journal>
+	<location firstpage="131" lastpage="136" volume="171"/>
+	<year>1984</year>
+      </publication>
+      <publication id="PUB00003257">
+	<author_list>Atkinson R.A., Williams R.J.P.</author_list>
+	<title>Solution structure of the kringle 4 domain from human plasminogen by 1H nuclear magnetic resonance spectroscopy and distance geometry.</title>
+	<db_xref db="MEDLINE" dbkey="90219023"/>
+	<journal>J. Mol. Biol.</journal>
+	<location firstpage="541" lastpage="552" volume="212"/>
+	<year>1990</year>
+      </publication>
+      <publication id="PUB00003400">
+	<author_list>Castellino F.J., Beals J.M.</author_list>
+	<title>The genetic relationships between the kringle domains of human plasminogen, prothrombin, tissue plasminogen activator, urokinase, and coagulation factor XII.</title>
+	<db_xref db="MEDLINE" dbkey="88230478"/>
+	<journal>J. Mol. Evol.</journal>
+	<location firstpage="358" lastpage="369" volume="26"/>
+	<year>1987</year>
+      </publication>
+      <publication id="PUB00000803">
+	<author_list>Patthy L.</author_list>
+	<title>Evolution of the proteases of blood coagulation and fibrinolysis by assembly from modules.</title>
+	<db_xref db="MEDLINE" dbkey="85228216"/>
+	<journal>Cell</journal>
+	<location firstpage="657" lastpage="663" volume="41"/>
+	<year>1985</year>
+      </publication>
+      <publication id="PUB00001620">
+	<author_list>Takahashi K., Ikeo K., Gojobori T.</author_list>
+	<title>Evolutionary origin of numerous kringles in human and simian apolipoprotein(a).</title>
+	<db_xref db="MEDLINE" dbkey="91348198"/>
+	<journal>FEBS Lett.</journal>
+	<location firstpage="146" lastpage="148" volume="287"/>
+	<year>1991</year>
+      </publication>
+      <publication id="PUB00000355">
+	<author_list>Friezner Degen S.J., Stuart L.A., Han S., Jamison C.S.</author_list>
+	<title>Characterization of the mouse cDNA and gene coding for a hepatocyte growth factor-like protein: expression during development.</title>
+	<db_xref db="MEDLINE" dbkey="92002017"/>
+	<journal>Biochemistry</journal>
+	<location firstpage="9781" lastpage="9791" volume="30"/>
+	<year>1991</year>
+      </publication>
+      <publication id="PUB00002776">
+	<author_list>Miyazawa K., Shimomura T., Kitamura A., Kondo J., Morimoto Y., Kitamura N.</author_list>
+	<title>Molecular cloning and sequence analysis of the cDNA for a human serine protease reponsible for activation of hepatocyte growth factor. Structural similarity of the protease precursor to blood coagulation factor XII.</title>
+	<db_xref db="MEDLINE" dbkey="93252878"/>
+	<journal>J. Biol. Chem.</journal>
+	<location firstpage="10024" lastpage="10028" volume="268"/>
+	<year>1993</year>
+      </publication>
+    </pub_list>
+    <member_list>
+      <db_xref protein_count="91" db="PRINTS" dbkey="PR00018" name="KRINGLE"/>
+      <db_xref protein_count="126" db="PROFILE" dbkey="PS50070" name="KRINGLE_2"/>
+      <db_xref protein_count="161" db="PROSITE" dbkey="PS00021" name="KRINGLE_1"/>
+      <db_xref protein_count="128" db="PFAM" dbkey="PF00051" name="kringle"/>
+      <db_xref protein_count="126" db="PRODOM" dbkey="PD000395" name="Kringle"/>
+      <db_xref protein_count="115" db="SMART" dbkey="SM00130" name="KR"/>
+    </member_list>
+    <external_doc_list>
+      <db_xref db="BLOCKS" dbkey="IPB000001"/>
+      <db_xref db="PDOC" dbkey="PDOC00020"/>
+    </external_doc_list>
+  </interpro>
+  <interpro id="IPR000002" type="Domain" short_name="Fizzy" protein_count="57">
+    <name>Cdc20/Fizzy</name>
+    <abstract>
+&lt;p&gt;The Cdc20/Fizzy region is almost always associated with the G-protein beta WD-40 repeat (<db_xref db="INTERPRO" dbkey="IPR001680"/>). Ubiquitin-mediated proteolysis due to the anaphase-promoting complex/cyclosome
+ (APC/C) is essential for separation of sister chromatids, requiring degradation of the anaphase inhibitor Pds1, and for exit from mitosis, requiring inactivation of cyclin B  Cdk1 kinases <cite idref="PUB00006167"/>. In <taxon tax_id="4890">yeast</taxon> Cdc20 is required for two microtubule-dependent processes, nuclear movements prior to anaphase and chromosome separation. APC(Cdc20) allows activation of Cdc14 and promotes exit from mitosis by mediating proteolysis of Pds1  and the S phase cyclin Clb5 in the yeast <taxon tax_id="4932">Saccharomyces cerevisiae</taxon>. &lt;/p&gt;
+&lt;p&gt;This domain is also found in a number of, as yet, uncharacterised proteins. These include a <taxon tax_id="40674">mammalian</taxon> protein, p55CDC, that is present in dividing cells and is
+      associated with protein kinase activity.&lt;/p&gt;
+</abstract>
+    <example_list>
+      <example>
+				<db_xref dbkey="P26309" db="SWISS"/>Cell division control protein (Cdc20) from S. cerevisiae
+      </example>
+      <example>
+				<db_xref dbkey="Q09786" db="SWISS"/>A hypothetical protein from S. pombe
+      </example>
+    </example_list>
+    <pub_list>
+      <publication id="PUB00006167">
+	<author_list>Shirayama M., Toth A., Galova M., Nasmyth K.</author_list>
+	<title>APC(Cdc20) promotes exit from mitosis by destroying the anaphase inhibitor Pds1 and cyclin Clb5.</title>
+	<db_xref db="MEDLINE" dbkey="20110935"/>
+	<journal>Nature</journal>
+	<location firstpage="203" lastpage="207" volume="402" issue="6758"/>
+	<year>1999</year>
+      </publication>
+    </pub_list>
+    <member_list>
+      <db_xref protein_count="59" db="PREFILE" dbkey="PS50218" name="FIZZY_DOMAIN"/>
+      <db_xref protein_count="55" db="PRODOM" dbkey="PD004563" name="Fizzy"/>
+    </member_list>
+    <external_doc_list>
+      <db_xref db="QDOC" dbkey="QDOC50218"/>
+    </external_doc_list>
+  </interpro>
+  <interpro id="IPR000003" type="Family" short_name="RtnoidX_receptor" protein_count="75">
+    <name>Retinoid X receptor</name>
+    <abstract>
+Steroid or nuclear hormone receptors (4A nuclear receptor, NRs) constitute an important superfamily of transcription regulators that are involved in widely diverse physiological functions, including control of embryonic development, cell differentiation and homeostasis. Members of the superfamily include the steroid hormone receptors and receptors for thyroid hormone, retinoids, 1,25-dihydroxy-vitamin D3 and a variety of other ligands. The proteins function as dimeric molecules in nuclei to regulate the transcription of target genes in a ligand-responsive manner <cite idref="PUB00004464"/>, <cite idref="PUB00006168"/>. In addition to C-terminal ligand-binding domains, these nuclear receptors contain a highly-conserved, N-terminal zinc-finger that mediates specific binding to target DNA sequences, termed ligand-responsive elements. In the absence of ligand, steroid hormone receptors are thought to be weakly associated with nuclear components; hormone binding greatly increases receptor affinity.
+
+NRs are extremely important in medical research, a large number of them being implicated in diseases such as cancer, diabetes, hormone resistance syndromes, etc. While several NRs act as ligand-inducible transcription factors, many do not yet have a defined ligand and are accordingly termed "orphan" receptors. During the last decade, more than 300 NRs have been described, many of which are orphans, which cannot easily be named due to current nomenclature confusions in the literature. However, a new system has recently been introduced in an attempt to rationalise the increasingly complex set of names used to describe superfamily members.
+
+
+&lt;p&gt;The retinoic acid (retinoid X) receptor consists of 3 functional and 
+               structural domains: an N-terminal (modulatory) domain; a DNA binding domain
+               that mediates specific binding to target DNA sequences (ligand-responsive
+               elements); and a hormone binding domain. The N-terminal domain differs 
+               between retinoic acid isoforms; the small highly-conserved DNA-binding
+               domain (~65 residues) occupies the central portion of the protein; and 
+               the ligand binding domain lies at the receptor C-terminus.&lt;/p&gt;
+&lt;p&gt;Synonym(s): 2B nuclear receptor&lt;/p&gt;
+</abstract>
+    <class_list>
+      <classification id="GO:0003677" class_type="GO">
+	<category>Molecular Function</category>
+	<description>DNA binding</description>
+      </classification>
+      <classification id="GO:0004879" class_type="GO">
+	<category>Molecular Function</category>
+	<description>ligand-dependent nuclear receptor</description>
+      </classification>
+      <classification id="GO:0005496" class_type="GO">
+	<category>Molecular Function</category>
+	<description>steroid binding</description>
+      </classification>
+      <classification id="GO:0005634" class_type="GO">
+	<category>Cellular Component</category>
+	<description>nucleus</description>
+      </classification>
+      <classification id="GO:0006355" class_type="GO">
+	<category>Biological Process</category>
+	<description>regulation of transcription</description>
+      </classification>
+    </class_list>
+    <example_list>
+      <example>
+				<db_xref dbkey="Q06726" db="SWISS"/>
+			</example>
+      <example>
+				<db_xref dbkey="P81559" db="SWISS"/>
+			</example>
+      <example>
+				<db_xref dbkey="Q64104" db="SWISS"/>
+			</example>
+      <example>
+				<db_xref dbkey="Q91766" db="SWISS"/>
+			</example>
+      <example>
+				<db_xref dbkey="P28701" db="SWISS"/>
+			</example>
+      <example>
+				<db_xref dbkey="O75454" db="SWISS"/>
+			</example>
+    </example_list>
+    <pub_list>
+      <publication id="PUB00004464">
+	<author_list>Nishihara T., Nishikawa J.-I., Kitaura M., Imagawa M.</author_list>
+	<title>Vitamin D receptor contains multiple dimerisation interfaces that are functionally different.</title>
+	<db_xref db="MEDLINE" dbkey="95206940"/>
+	<journal>Nucleic Acids Res.</journal>
+	<location firstpage="606" lastpage="611" volume="23"/>
+	<year>1995</year>
+      </publication>
+      <publication id="PUB00006168">
+	<author_list>Schmitt J., De Vos P., Verhoeven G., Stunnenberg H.G.</author_list>
+	<title>Human androgen receptor expressed in HeLa cells activates transcription in vitro.</title>
+	<db_xref db="MEDLINE" dbkey="94218237"/>
+	<journal>Nucleic Acids Res.</journal>
+	<location firstpage="1161" lastpage="1166" volume="22" issue="7"/>
+	<year>1994</year>
+      </publication>
+    </pub_list>
+    <parent_list>
+      <rel_ref ipr_ref="IPR001723"/>
+    </parent_list>
+    <contains>
+      <rel_ref ipr_ref="IPR000536"/>
+    </contains>
+    <member_list>
+      <db_xref protein_count="75" db="PRINTS" dbkey="PR00545" name="RETINOIDXR"/>
+    </member_list>
+  </interpro>
+  <interpro id="IPR000004" type="Domain" short_name="SapB" protein_count="135">
+    <name>Saposin type B</name>
+    <abstract>
+Saposins are small lysosomal proteins that serve as activators of various
+lysosomal lipid-degrading enzymes <cite idref="PUB00005747"/>. They probably act by isolating the
+lipid substrate from the membrane surroundings, thus making it more 
+accessible to the soluble degradative enzymes. All <taxon tax_id="40674">mammalian</taxon> saposins
+are synthesized as a single precursor molecule (prosaposin) which contains
+four Saposin-B domains, yielding the active saposins after proteolytic
+cleavage, and two Saposin-A domains that are removed in the activation
+reaction. 
+The Saposin-B domains also occur in other 
+proteins, many of them active in the lysis of membranes <cite idref="PUB00005721"/>, <cite idref="PUB00005765"/>. &lt;p&gt;The 3D-structure of NK-lysin has recently been determined <cite idref="PUB00005798"/> and found to
+be very different from the one predicted in <cite idref="PUB00005747"/>.
+A group of <taxon tax_id="3193">plant</taxon> aspartic proteases related to cyprosin. These proteins
+have a peculiar SAP-B domain where the two halves are 'swapped' <cite idref="PUB00005742"/>.&lt;/p&gt;
+</abstract>
+    <example_list>
+      <example>
+				<db_xref dbkey="P28039" db="SWISS"/>Mammalian Acyloxyacyl-hydrolase
+      </example>
+      <example>
+				<db_xref dbkey="P42210" db="SWISS"/>Plant aspartic proteinase
+      </example>
+      <example>
+				<db_xref dbkey="P17405" db="SWISS"/>Mammalian acid sphingomyelinase
+      </example>
+      <example>
+				<db_xref dbkey="Q07831" db="SWISS"/>Nonpathogenic pore-forming peptide from entamoeba
+      </example>
+      <example>
+				<db_xref dbkey="P10960" db="SWISS"/>Saposins Sap-A, Sap-B, Sap-C, Sap-D
+      </example>
+    </example_list>
+    <pub_list>
+      <publication id="PUB00005747">
+	<author_list>O'Hara P.J., Munford R.S., Sheppard P.O.</author_list>
+	<title>Saposin-like proteins (SAPLIP) carry out diverse functions on a common backbone structure.</title>
+	<db_xref db="MEDLINE" dbkey="96048294"/>
+	<journal>J. Lipid Res.</journal>
+	<location firstpage="1653" lastpage="1663" volume="36" issue="8"/>
+	<year>1995</year>
+      </publication>
+      <publication id="PUB00005721">
+	<author_list>Ponting C.P.</author_list>
+	<title>Acid sphingomyelinase possesses a domain homologous to its activator proteins: saposins B and D.</title>
+	<db_xref db="MEDLINE" dbkey="94272336"/>
+	<journal>Protein Sci.</journal>
+	<location firstpage="359" lastpage="361" volume="3" issue="2"/>
+	<year>1994</year>
+      </publication>
+      <publication id="PUB00005765">
+	<author_list>Hofmann K., Tschopp J.</author_list>
+	<title>Cytotoxic T cells: more weapons for new targets?</title>
+	<db_xref db="MEDLINE" dbkey="97021725"/>
+	<journal>Trends Microbiol.</journal>
+	<location firstpage="91" lastpage="94" volume="4" issue="3"/>
+	<year>1996</year>
+      </publication>
+      <publication id="PUB00005798">
+	<author_list>Liepinsh E., Otting G., Andersson M., Ruysschaert J.M.</author_list>
+	<title>Saposin fold revealed by the NMR structure of NK-lysin.</title>
+	<db_xref db="MEDLINE" dbkey="97475218"/>
+	<journal>Nat. Struct. Biol.</journal>
+	<location firstpage="793" lastpage="795" volume="4" issue="10"/>
+	<year>1997</year>
+      </publication>
+      <publication id="PUB00005742">
+	<author_list>Ponting C.P., Russell R.B.</author_list>
+	<title>Swaposins: circular permutations within genes encoding saposin homologues.</title>
+	<db_xref db="MEDLINE" dbkey="95334819"/>
+	<journal>Trends Biochem. Sci.</journal>
+	<location firstpage="179" lastpage="180" volume="20" issue="5"/>
+	<year>1995</year>
+      </publication>
+    </pub_list>
+    <child_list>
+      <rel_ref ipr_ref="IPR003258"/>
+    </child_list>
+    <member_list>
+      <db_xref protein_count="133" db="PREFILE" dbkey="PS50015" name="SAP_B"/>
+      <db_xref protein_count="71" db="PRODOM" dbkey="PD001732" name="SapB"/>
+      <db_xref protein_count="109" db="SMART" dbkey="SM00118" name="SAPB"/>
+    </member_list>
+    <external_doc_list>
+      <db_xref db="QDOC" dbkey="QDOC50015"/>
+    </external_doc_list>
+  </interpro>
+  <interpro id="IPR000005" type="Domain" short_name="HTHAraC" protein_count="765">
+    <name>Helix-turn-helix, AraC type </name>
+    <abstract>
+&lt;p&gt;Many bacterial transcription regulation proteins bind DNA through a
+'helix-turn-helix' (HTH) motif. One major subfamily of these proteins <cite idref="PUB00004444"/>, <cite idref="PUB00003566"/> is related to the arabinose 
+operon regulatory protein AraC <cite idref="PUB00004444"/>, <cite idref="PUB00003566"/>.
+Except for celD <cite idref="PUB00001933"/>, all of these proteins seem to be positive transcriptional factors.&lt;/p&gt;
+
+&lt;p&gt;Although the sequences belonging to this family differ somewhat in length, in nearly every case the HTH motif is situated towards the C-terminus in the third quarter of most of the sequences. The minimal DNA binding domain spans roughly 100 residues and comprises two HTH subdomains; the classical HTH domain and another HTH subdomain with similarity to the classical HTH domain but with an insertion of one residue in the turn-region. The  N-terminal and  central regions of these proteins are presumed
+            to interact  with  effector molecules and may be involved in dimerization <cite idref="PUB00004817"/>.&lt;/p&gt;
+
+&lt;p&gt;The known structure of MarA (<db_xref db="SWISSPROT" dbkey="P27246"/>) shows that the AraC domain is alpha helical and shows the two HTH subdomains both bind the major groove of the DNA. The two HTH subdomains are separated by only 27
+angstroms, which causes the cognate DNA to bend.&lt;/p&gt;
+</abstract>
+    <class_list>
+      <classification id="GO:0003700" class_type="GO">
+	<category>Molecular Function</category>
+	<description>transcription factor</description>
+      </classification>
+      <classification id="GO:0005622" class_type="GO">
+	<category>Cellular Component</category>
+	<description>intracellular</description>
+      </classification>
+      <classification id="GO:0006355" class_type="GO">
+	<category>Biological Process</category>
+	<description>regulation of transcription</description>
+      </classification>
+    </class_list>
+    <example_list>
+      <example>
+				<db_xref dbkey="Q04248" db="SWISS"/>Virulence regulon transcriptional activator
+      </example>
+      <example>
+				<db_xref dbkey="P28809" db="SWISS"/>mmsAB peron regulatory  protein
+      </example>
+      <example>
+				<db_xref dbkey="Q48413" db="SWISS"/>
+			</example>
+      <example>
+				<db_xref dbkey="P35319" db="SWISS"/>Transcription regulator
+      </example>
+      <example>
+				<db_xref dbkey="Q52620" db="SWISS"/>Regulatory factor of blood coagulation
+      </example>
+      <example>
+				<db_xref dbkey="P17410" db="SWISS"/>CelD, the Escherichia coli cel operon repressor.
+      </example>
+      <example>
+				<db_xref dbkey="P19219" db="SWISS"/>AdaA, a Bacillus subtilis  bifunctional protein  that   acts  both  as  a transcriptional activator of the ada operon and as a methylphosphotriester-DNA alkyltransferase.
+      </example>
+      <example>
+				<db_xref dbkey="P03021" db="SWISS"/>AraC, the arabinose operon regulatory  protein, which activates the transcription of the araBAD genes.
+      </example>
+      <example>
+				<db_xref dbkey="P27246" db="SWISS"/>MarA,  which  may  be  a transcriptional activator of genes involved in the multiple antibiotic resistance (mar) phenotype.
+      </example>
+    </example_list>
+    <pub_list>
+      <publication id="PUB00004444">
+	<author_list>Gallegos M.-T., Michan C., Ramos J.L.</author_list>
+	<title>The XylS/AraC family of regulators.</title>
+	<db_xref db="MEDLINE" dbkey="93197143"/>
+	<journal>Nucleic Acids Res.</journal>
+	<location firstpage="807" lastpage="810" volume="21"/>
+	<year>1993</year>
+      </publication>
+      <publication id="PUB00003566">
+	<author_list>Henikoff S., Wallace J.C., Brown J.P.</author_list>
+	<title>Finding protein similarities with nucleotide sequence databases.</title>
+	<db_xref db="MEDLINE" dbkey="90190362"/>
+	<journal>Meth. Enzymol.</journal>
+	<location firstpage="111" lastpage="132" volume="183"/>
+	<year>1990</year>
+      </publication>
+      <publication id="PUB00001933">
+	<author_list>Parker L.L., Hall B.G.</author_list>
+	<title>Characterisation and nucleotide sequence of the cryptic cel operon of Escherichia coli K12.</title>
+	<db_xref db="MEDLINE" dbkey="90185127"/>
+	<journal>Genetics</journal>
+	<location firstpage="455" lastpage="471" volume="124"/>
+	<year>1990</year>
+      </publication>
+      <publication id="PUB00004817">
+	<author_list>Bustos S.A., Schleif R.F.</author_list>
+	<title>Functional domains of the AraC protein.</title>
+	<db_xref db="MEDLINE" dbkey="93296193"/>
+	<journal>Proc. Natl. Acad. Sci. U.S.A.</journal>
+	<location firstpage="5638" lastpage="5642" volume="90"/>
+	<year>1993</year>
+      </publication>
+    </pub_list>
+    <member_list>
+      <db_xref protein_count="478" db="PRINTS" dbkey="PR00032" name="HTHARAC"/>
+      <db_xref protein_count="762" db="PROFILE" dbkey="PS01124" name="HTH_ARAC_FAMILY_2"/>
+      <db_xref protein_count="855" db="PROSITE" dbkey="PS00041" name="HTH_ARAC_FAMILY_1"/>
+      <db_xref protein_count="747" db="PFAM" dbkey="PF00165" name="HTH_AraC"/>
+      <db_xref protein_count="683" db="SMART" dbkey="SM00342" name="HTH_ARAC"/>
+    </member_list>
+    <external_doc_list>
+      <db_xref db="BLOCKS" dbkey="IPB000005"/>
+      <db_xref db="PDOC" dbkey="PDOC00040"/>
+    </external_doc_list>
+  </interpro>
+	<interpro id="IPR000010" type="Family" short_name="Cystatin" protein_count="219">
+		<name>Cysteine proteases inhibitor</name>
+		<abstract>
+Members of this family are inhibitors of cysteine  proteases <cite idref="PUB00005324"/>, <cite idref="PUB00003412"/>, <cite idref="PUB00001614"/>, which are found in the tissues and body fluids of <taxon tax_id="33208">animals</taxon>, as well as in <taxon tax_id="3193">plants</taxon>. They can be grouped into three distinct but related families. These are the type 1 cystatins (or stefins), type 2 cystatins, and the kininogens.
+&lt;p&gt;Kininogen is the precursor  of  the  active  peptide  bradykinin that  plays a role in blood coagulation by  helping  to  position optimally prekallikrein and factor XI next  to factor XII. They  are  also  inhibitors  of  cysteine  proteases. Structurally,  kininogens  are  made  of  three  contiguous type-2 cystatin domains, followed  by an  additional  domain  (of  variable  length)  which contains  the  sequence of bradykinin.  The  first  of  the  three cystatin domains seems to have lost its inhibitory activity.&lt;/p&gt;
+</abstract>
+		<class_list>
+			<classification id="GO:0004869" class_type="GO">
+				<category>Molecular Function</category>
+				<description>cysteine protease inhibitor</description>
+			</classification>
+		</class_list>
+		<example_list>
+			<example>
+				<db_xref dbkey="P09229" db="SWISS"/>Cysteine proteinase inhibitor of rice
+      </example>
+			<example>
+				<db_xref dbkey="P29701" db="SWISS"/>Mammalian fetuin
+      </example>
+			<example>
+				<db_xref dbkey="P28325" db="SWISS"/>Type 2 cystatin
+      </example>
+			<example>
+				<db_xref dbkey="P37842" db="SWISS"/>Potato  multicystatin, an eight-domain cysteine proteinase inhibitor
+      </example>
+			<example>
+				<db_xref dbkey="P01045" db="SWISS"/>Kininogen
+      </example>
+			<example>
+				<db_xref dbkey="Q28986" db="SWISS"/>Type 1 cystatin
+      </example>
+			<example>
+				<db_xref dbkey="P31727" db="SWISS"/>Sarcocystatin A from the flesh fish
+      </example>
+		</example_list>
+		<pub_list>
+			<publication id="PUB00005324">
+				<author_list>Barrett A.J.</author_list>
+				<journal>Trends Biochem. Sci.</journal>
+				<location firstpage="193" lastpage="196" volume="12"/>
+				<year>1987</year>
+			</publication>
+			<publication id="PUB00003412">
+				<author_list>Rawlings N.D., Barrett A.J.</author_list>
+				<title>Evolution of proteins of the cystatin superfamily.</title>
+				<db_xref db="MEDLINE" dbkey="90189177"/>
+				<journal>J. Mol. Evol.</journal>
+				<location firstpage="60" lastpage="71" volume="30"/>
+				<year>1990</year>
+			</publication>
+			<publication id="PUB00001614">
+				<author_list>Bode W., Turk V.</author_list>
+				<title>The cystatins: protein inhibitors of cysteine proteinases.</title>
+				<db_xref db="MEDLINE" dbkey="91309737"/>
+				<journal>FEBS Lett.</journal>
+				<location firstpage="213" lastpage="219" volume="285"/>
+				<year>1991</year>
+			</publication>
+		</pub_list>
+		<child_list>
+			<rel_ref ipr_ref="IPR001363"/>
+			<rel_ref ipr_ref="IPR001713"/>
+			<rel_ref ipr_ref="IPR003243"/>
+			<rel_ref ipr_ref="IPR003244"/>
+		</child_list>
+		<member_list>
+			<db_xref protein_count="199" db="PROSITE" dbkey="PS00287" name="CYSTATIN"/>
+			<db_xref protein_count="209" db="PFAM" dbkey="PF00031" name="cystatin"/>
+			<db_xref protein_count="205" db="SMART" dbkey="SM00043" name="CY"/>
+		</member_list>
+		<external_doc_list>
+			<db_xref db="BLOCKS" dbkey="IPB000010"/>
+			<db_xref db="PDOC" dbkey="PDOC00259"/>
+		</external_doc_list>
+		<sec_list>
+			<sec_ac acc="IPR000078"/>
+		</sec_list>
+	</interpro>
+	<interpro id="IPR000413" type="Family" short_name="Integrin_alpha" protein_count="126">
+		<name>Integrins alpha chain</name>
+		<abstract>
+Integrins <cite idref="PUB00000811"/>, <cite idref="PUB00001505"/> are a large family of cell surface receptors that mediate cell
+to cell as well as cell to matrix adhesion. Some integrins recognize the R-G-D
+sequence in their extracellular matrix protein ligand. Structurally, integrins
+consist of a dimer of an alpha and a beta chain.  Each  subunit  has  a  large
+N-terminal extracellular domain followed by a transmembrane domain and a short
+C-terminal cytoplasmic  region.    Some    alpha  subunits   are cleaved post-
+translationally to produce  a  heavy  and a  light chain linked by a disulfide
+bond. Integrin alpha chains  share a  conserved sequence which is found at
+the  beginning  of  the  cytoplasmic  domain,  just   after  the  end  of  the
+transmembrane region. The exact pairing of alpha- and beta-subunits determines
+ligand specificity, localisation and function. Within the N-terminal domain of alpha subunits, seven sequence repeats, each
+of approximately 60 amino acids, have been found <cite idref="PUB00006166"/>. It has been predicted 
+that these repeats assume a beta-propeller fold. The domains contain seven 
+four-stranded beta-sheets arranged in a torus around a pseudosymmetry axis
+<cite idref="PUB00005772"/>. Integrin ligands and a putative Mg&lt;sup&gt;2+&lt;/sup&gt; ion are predicted to bind to the
+upper face of the propeller, in a manner analogous to the way in which the
+trimeric G-protein beta subunit (G beta) (which also has a beta-propeller
+fold) binds the G protein alpha subunit <cite idref="PUB00005772"/>.
+</abstract>
+		<class_list>
+			<classification id="GO:0004895" class_type="GO">
+				<category>Molecular Function</category>
+				<description>cell adhesion receptor</description>
+			</classification>
+			<classification id="GO:0007155" class_type="GO">
+				<category>Biological Process</category>
+				<description>cell adhesion</description>
+			</classification>
+			<classification id="GO:0007160" class_type="GO">
+				<category>Biological Process</category>
+				<description>cell-matrix adhesion</description>
+			</classification>
+			<classification id="GO:0008305" class_type="GO">
+				<category>Cellular Component</category>
+				<description>integrin</description>
+			</classification>
+		</class_list>
+		<example_list>
+			<example>
+				<db_xref dbkey="P23229" db="SWISS"/>The alpha-6 chain (VLA-6) which,  with  the beta-1  chain, forms a platelet laminin receptor.
+      </example>
+			<example>
+				<db_xref dbkey="P53708" db="SWISS"/>The alpha-8 chain which, with the  beta-1 chain  plays  a  possible role in cell-cell interactions during axon-growth and fasciculation.
+      </example>
+			<example>
+				<db_xref dbkey="P08648" db="SWISS"/>The alpha-5 chain (VLA-5) (CD49e) which,  with  the beta-1 chain,  forms  a receptor specific to fibronectin.
+      </example>
+			<example>
+				<db_xref dbkey="P12080" db="SWISS"/>The Drosophila position-specific antigen 2 alpha chain (PS2).
+      </example>
+			<example>
+				<db_xref dbkey="P26006" db="SWISS"/>The alpha-3 chain (VLA-3) (Galactoprotein B3).
+      </example>
+			<example>
+				<db_xref dbkey="P56199" db="SWISS"/>The alpha-1 chain (VLA-1) (CD49a)  which,  with the beta-1 chain, acts as a receptor for laminin and collagen.
+      </example>
+			<example>
+				<db_xref dbkey="P13612" db="SWISS"/>The alpha-4 chain (VLA-4) (CD49d)  which,  with the beta-1 chain, interacts with vascular cell adhesion protein 1 (VCAM-1).
+      </example>
+			<example>
+				<db_xref dbkey="P17301" db="SWISS"/>The alpha-2 chain (VLA-2) (CD49b)  which,  with the beta-1 chain, acts as a receptor that binds collagen.
+      </example>
+		</example_list>
+		<pub_list>
+			<publication id="PUB00000811">
+				<author_list>Hynes R.O.</author_list>
+				<title>Integrins: a family of cell surface receptors.</title>
+				<db_xref db="MEDLINE" dbkey="87131067"/>
+				<journal>Cell</journal>
+				<location firstpage="549" lastpage="554" volume="48"/>
+				<year>1987</year>
+			</publication>
+			<publication id="PUB00001505">
+				<author_list>Albelda S.M., Buck C.A.</author_list>
+				<title>Integrins and other cell adhesion molecules.</title>
+				<db_xref db="MEDLINE" dbkey="90337122"/>
+				<journal>FASEB J.</journal>
+				<location firstpage="2868" lastpage="2880" volume="4"/>
+				<year>1990</year>
+			</publication>
+			<publication id="PUB00006166">
+				<author_list>Springer T.A., Corbi A.L., Miller L.J., O'Connor K., Larson R.S.</author_list>
+				<title>cDNA cloning and complete primary structure of the alpha subunit of a leukocyte adhesion glycoprotein, p150,95.</title>
+				<db_xref db="MEDLINE" dbkey="88166645"/>
+				<journal>EMBO J.</journal>
+				<location firstpage="4023" lastpage="4028" volume="6" issue="13"/>
+				<year>1987</year>
+			</publication>
+			<publication id="PUB00005772">
+				<author_list>Springer T.A.</author_list>
+				<title>Folding of the N-terminal, ligand-binding region of integrin alpha-subunits into a beta-propeller domain.</title>
+				<db_xref db="MEDLINE" dbkey="97144395"/>
+				<journal>Proc. Natl. Acad. Sci. U.S.A.</journal>
+				<location firstpage="65" lastpage="72" volume="94" issue="1"/>
+				<year>1997</year>
+			</publication>
+		</pub_list>
+		<member_list>
+			<db_xref protein_count="79" db="PRINTS" dbkey="PR01185" name="INTEGRINA"/>
+			<db_xref protein_count="112" db="PREFILE" dbkey="PS50107" name="INTEGRIN_ALPHA_2"/>
+			<db_xref protein_count="104" db="PROSITE" dbkey="PS00242" name="INTEGRIN_ALPHA"/>
+			<db_xref protein_count="75" db="PFAM" dbkey="PF00357" name="integrin_A"/>
+			<db_xref protein_count="117" db="PFAM" dbkey="PF01839" name="FG-GAP"/>
+			<db_xref protein_count="110" db="SMART" dbkey="SM00191" name="Int_alpha"/>
+		</member_list>
+		<external_doc_list>
+			<db_xref db="BLOCKS" dbkey="IPB000413"/>
+			<db_xref db="PDOC" dbkey="PDOC00215"/>
+			<db_xref db="PROPRO" dbkey="integrins_alpha"/>
+		</external_doc_list>
+		<sec_list>
+			<sec_ac acc="IPR002458"/>
+			<sec_ac acc="IPR002476"/>
+		</sec_list>
+	</interpro>
+  <deleted_entries>
+    <del_ref id="IPR000001"/>
+    <del_ref id="IPR000005"/>
+    <del_ref id="IPR000019"/>
+    <del_ref id="IPR000027"/>
+    <del_ref id="IPR000078"/>
+  </deleted_entries>
+</interprodb>

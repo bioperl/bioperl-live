@@ -1,0 +1,19 @@
+
+The scripts in this directory are meant for bioperl maintainers.  They
+count and test modules that make up the bioperl core library.
+
+The scripts are not expected to run under any other than UNIXy
+operating systems.
+
+Run them from this directory.
+
+Dependencies (not required for bioperl):
+========================================
+
+Module                         Script
+------------------------------------------------
+Data::Dumper                   authors.pl
+                               modules.pl
+Regexp::Common                 check_URLs.pl
+Pod::Checker                   pod.pl
+

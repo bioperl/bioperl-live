@@ -1,0 +1,16 @@
+Map:
+  mapname=THE_NAME_OF_MAP
+  Markers          Distance 
+  1  bnl5.62a         35.3 cM coremarker
+  2  npi406           15.6 cM EST
+  3  npi439a          27.2 cM
+  4  dpg11            30.7 cM ssr
+  5  bnl7.21a           33 cM
+  6  bnl23b            8.6 cM coremarker
+  7  umc58           107.9 cM
+  8  npi605a          26.5 cM EST
+  9  npi120             19 cM ssr
+  10  npi615           19.5 cM coremarker
+  11  npi407             14 cM
+  12  npi241a          45.2 cM
+  13  bnl6.32       ---------- RflP

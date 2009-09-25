@@ -1,0 +1,58 @@
+BLASTP 2.2.16 [Mar-11-2007]
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schäffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman 
+(1997), "Gapped BLAST and PSI-BLAST: a new generation of 
+protein database search programs", Nucleic Acids Res. 25:3389-3402.
+
+RID: 1174495466-9867-19326456169.BLASTQ4
+
+
+Database: All non-redundant GenBank CDS
+translations+PDB+SwissProt+PIR+PRF excluding environmental samples
+           4,750,295 sequences; 1,639,169,463 total letters
+Query=  foo
+Length=193
+
+
+                                                                 Score    E
+Sequences producing significant alignments:                      (bits) Value
+
+UniRef50_Q9X0H5 Cluster: Histidyl-tRNA synthetase; n=4; Thermoto...    23    650
+
+  Database: All non-redundant GenBank CDS translations+PDB+SwissProt+PIR+PRF excluding 
+environmental samples
+    Posted date:  Mar 20, 2007  6:13 PM
+  Number of letters in database: 1,639,169,463
+  Number of sequences in database:  4,750,295
+Lambda     K      H
+   0.319    0.139    0.394 
+Gapped
+Lambda     K      H
+   0.267   0.0410    0.140 
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Sequences: 4750295
+Number of Hits to DB: 61915690
+Number of extensions: 2579181
+Number of successful extensions: 7099
+Number of sequences better than 0.01: 55
+Number of HSP's better than 0.01 without gapping: 0
+Number of HSP's gapped: 7049
+Number of HSP's successfully gapped: 55
+Length of query: 193
+Length of database: 1639169463
+Length adjustment: 125
+Effective length of query: 68
+Effective length of database: 1045382588
+Effective search space: 71086015984
+Effective search space used: 71086015984
+T: 11
+A: 40
+X1: 16 (7.4 bits)
+X2: 38 (14.6 bits)
+X3: 64 (24.7 bits)
+S1: 41 (20.4 bits)
+S2: 99 (42.7 bits)
+
+
+

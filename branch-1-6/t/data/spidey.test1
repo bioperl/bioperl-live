@@ -1,0 +1,170 @@
+--SPIDEY version 1.40--
+Genomic: lcl|chr2 No definition line found, 145732769 bp
+mRNA: lcl|tmpseq_0 No definition line found, 1110 bp
+Strand: minus
+Number of exons: 6
+Exon 1(-): 36375691-36375798 (gen)  1-108 (mRNA)  id 97.2% mismatches 3 gaps 0  splice site (d  a): 1  0
+Exon 2(-): 36369345-36369492 (gen)  109-256 (mRNA)  id 100.0% mismatches 0 gaps 0  splice site (d  a): 0  1
+Exon 3(-): 36367232-36367437 (gen)  257-462 (mRNA)  id 100.0% mismatches 0 gaps 0  splice site (d  a): 1  1
+Exon 4(-): 36364083-36364229 (gen)  463-609 (mRNA)  id 100.0% mismatches 0 gaps 0  splice site (d  a): 1  1
+Exon 5(-): 36358231-36358489 (gen)  610-868 (mRNA)  id 100.0% mismatches 0 gaps 0  splice site (d  a): 1  1
+Exon 6(-): 36356457-36356698 (gen)  869-1110 (mRNA)  id 100.0% mismatches 0 gaps 0  splice site (d  a): 0  1
+Number of splice sites: 4
+mRNA coverage: 100%
+overall percent identity: 99.7%
+Missing mRNA ends: neither 
+
+Genomic: lcl|chr2 No definition line found
+mRNA: lcl|tmpseq_0 No definition line found
+Exon 1: 36375798-36375691 (gen)  1-108 (mRNA)
+
+
+CCTCTTTTTCTTTGCAGGGTATATACCCAGTTACTTAGACAAGGATGAGCTATGTGTAGT
+           |  ||||||||||||||||||||||||||||||||||||||||||||||
+          ATGTCAGGGTATATACCCAGTTACTTAGACAAGGATGAGCTATGTGTAGT
+           M  S  G  Y  I  P  S  Y  L  D  K  D  E  L  C  V  V 
+
+
+ATGTGGGGACAAAGCCACCGGATATCATTATCGCTGCATCACTTGTGAAGGTTGCAAGGT
+||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+ATGTGGGGACAAAGCCACCGGATATCATTATCGCTGCATCACTTGTGAAGGTTGCAAG
+  C  G  D  K  A  T  G  Y  H  Y  R  C  I  T  C  E  G  C  K 
+
+
+AAATGGCA
+
+Exon 2: 36369492-36369345 (gen)  109-256 (mRNA)
+
+
+TTGCACTTAGGGATTTTTCAGAAGAACCATTCAGAAAAACCTCCATCCAACCTATTCCTG
+          ||||||||||||||||||||||||||||||||||||||||||||||||||
+          GGATTTTTCAGAAGAACCATTCAGAAAAACCTCCATCCAACCTATTCCTG
+           G  F  F  R  R  T  I  Q  K  N  L  H  P  T  Y  S  C 
+
+
+TAAATATGAAGGAAAATGTGTGATAGACAAAGTAACAAGAAATCAGTGCCAGGAATGTCG
+||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+TAAATATGAAGGAAAATGTGTGATAGACAAAGTAACAAGAAATCAGTGCCAGGAATGTCG
+  K  Y  E  G  K  C  V  I  D  K  V  T  R  N  Q  C  Q  E  C  R 
+
+
+CTTCAAAAAATGTATCTTTGTTGGCATGGCAACAGATTGTGAGTATAT
+||||||||||||||||||||||||||||||||||||||
+CTTCAAAAAATGTATCTTTGTTGGCATGGCAACAGATT
+  F  K  K  C  I  F  V  G  M  A  T  D 
+
+
+Exon 3: 36367437-36367232 (gen)  257-462 (mRNA)
+
+
+TCCCTGCTAGTGGTGTTGGATGACAGCAAGAGGCTGGCAAAGAGGAAGCTGATAGAAGAA
+          ||||||||||||||||||||||||||||||||||||||||||||||||||
+          TGGTGTTGGATGACAGCAAGAGGCTGGCAAAGAGGAAGCTGATAGAAGAA
+          L  V  L  D  D  S  K  R  L  A  K  R  K  L  I  E  E 
+
+
+AATCGAGAGAAGAGGCGTCGGGAAGAGCTGCAGAAAACGATTGGTCACAAACCAGAACCA
+||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+AATCGAGAGAAGAGGCGTCGGGAAGAGCTGCAGAAAACGATTGGTCACAAACCAGAACCA
+ N  R  E  K  R  R  R  E  E  L  Q  K  T  I  G  H  K  P  E  P 
+
+
+ACAGATGAGGAATGGGAGCTGATCAAAATTGTCACTGAAGCACATGTGGCCACCAATGCA
+||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+ACAGATGAGGAATGGGAGCTGATCAAAATTGTCACTGAAGCACATGTGGCCACCAATGCA
+ T  D  E  E  W  E  L  I  K  I  V  T  E  A  H  V  A  T  N  A 
+
+
+CAAGGAAGCCACTGGAAGCAGAAAAGGAAATTTCTGGTAGGGACTA
+||||||||||||||||||||||||||||||||||||
+CAAGGAAGCCACTGGAAGCAGAAAAGGAAATTTCTG
+ Q  G  S  H  W  K  Q  K  R  K  F  L 
+
+
+Exon 4: 36364229-36364083 (gen)  463-609 (mRNA)
+
+
+ATATCCTTAGCCAGAAGACATTGGGCAAGCACCAATAGTTAATGCCCCAGAAGGGGGGAA
+          ||||||||||||||||||||||||||||||||||||||||||||||||||
+          CCAGAAGACATTGGGCAAGCACCAATAGTTAATGCCCCAGAAGGGGGGAA
+           P  E  D  I  G  Q  A  P  I  V  N  A  P  E  G  G  K 
+
+
+AGTGGATTTAGAAGCCTTCAGCCAGTTTACAAAAATTATCACACCAGCGATTACAAGAGT
+||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+AGTGGATTTAGAAGCCTTCAGCCAGTTTACAAAAATTATCACACCAGCGATTACAAGAGT
+  V  D  L  E  A  F  S  Q  F  T  K  I  I  T  P  A  I  T  R  V 
+
+
+GGTGGATTTTGCCAAAAAGTTGCCTATGTTTTGTGAGGTAAGACAAA
+|||||||||||||||||||||||||||||||||||||
+GGTGGATTTTGCCAAAAAGTTGCCTATGTTTTGTGAG
+  V  D  F  A  K  K  L  P  M  F  C  E 
+
+
+Exon 5: 36358489-36358231 (gen)  610-868 (mRNA)
+
+
+ATTTCTGCAGCTGCCATGTGAAGACCAGATCATCCTTCTGAAAGGCTGCTGTATGGAGAT
+          ||||||||||||||||||||||||||||||||||||||||||||||||||
+          CTGCCATGTGAAGACCAGATCATCCTTCTGAAAGGCTGCTGTATGGAGAT
+           L  P  C  E  D  Q  I  I  L  L  K  G  C  C  M  E  I 
+
+
+AATGTCCCTCCGAGCAGCAGTTCGCTATGACCCCGAGAGTGAGACTTTAACGCTAAATGG
+||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+AATGTCCCTCCGAGCAGCAGTTCGCTATGACCCCGAGAGTGAGACTTTAACGCTAAATGG
+  M  S  L  R  A  A  V  R  Y  D  P  E  S  E  T  L  T  L  N  G 
+
+
+GGAGATGGCGGTGACAAGGGGCCAGCTGAAAAATGGGGGTCTTGGCGTAGTTTCTGATGC
+||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+GGAGATGGCGGTGACAAGGGGCCAGCTGAAAAATGGGGGTCTTGGCGTAGTTTCTGATGC
+  E  M  A  V  T  R  G  Q  L  K  N  G  G  L  G  V  V  S  D  A 
+
+
+CATTTTTGACCTGGGCATGTCTCTTTCTTCATTTAACCTGGATGACACCGAGGTTGCCCT
+||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+CATTTTTGACCTGGGCATGTCTCTTTCTTCATTTAACCTGGATGACACCGAGGTTGCCCT
+  I  F  D  L  G  M  S  L  S  S  F  N  L  D  D  T  E  V  A  L 
+
+
+TCTCCAGGCTGTCCTGCTCATGTCATCAGGTGAGAACAG
+|||||||||||||||||||||||||||||
+TCTCCAGGCTGTCCTGCTCATGTCATCAG
+  L  Q  A  V  L  L  M  S  S 
+
+
+Exon 6: 36356698-36356457 (gen)  869-1110 (mRNA)
+
+
+GTATCTGCAGATCGCCCAGGCCTTGTTTGCGTCGAGAGAATAGAAAAGTGTCAAGAGGGT
+          ||||||||||||||||||||||||||||||||||||||||||||||||||
+          ATCGCCCAGGCCTTGTTTGCGTCGAGAGAATAGAAAAGTGTCAAGAGGGT
+          D  R  P  G  L  V  C  V  E  R  I  E  K  C  Q  E  G 
+
+
+TTCCTCCTGGCATTTGAACACTACATTAATTACAGAAAACACCATGTTGCACATTTTTGG
+||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+TTCCTCCTGGCATTTGAACACTACATTAATTACAGAAAACACCATGTTGCACATTTTTGG
+ F  L  L  A  F  E  H  Y  I  N  Y  R  K  H  H  V  A  H  F  W 
+
+
+CCAAAACTGCTGATGAAAGTGACAGATCTGCGAATGATTGGAGCCTGCCATGCCAGCCGC
+||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+CCAAAACTGCTGATGAAAGTGACAGATCTGCGAATGATTGGAGCCTGCCATGCCAGCCGC
+ P  K  L  L  M  K  V  T  D  L  R  M  I  G  A  C  H  A  S  R 
+
+
+TTCCTGCACATGAAGGTGGAGTGCCCCACAGAACTCTTCCCTCCATTGTTCCTGGAGGTG
+||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+TTCCTGCACATGAAGGTGGAGTGCCCCACAGAACTCTTCCCTCCATTGTTCCTGGAGGTG
+ F  L  H  M  K  V  E  C  P  T  E  L  F  P  P  L  F  L  E  V 
+
+
+TTTGAGGATTAGAGAGACTGGA
+||||||||||||
+TTTGAGGATTAG
+ F  E  D  * 
+
+

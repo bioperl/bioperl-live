@@ -1,0 +1,618 @@
+#!/usr/local/bin/perl -- # -*-Perl-*-
+
+=head1 NAME
+
+dbfetch - generic CGI program to retrieve biological database entries
+in various formats and styles (using SRS)
+
+=head1 SYNOPSIS
+
+  # URL examples:
+
+  # prints the interactive page with the HTML form
+  http://www.ebi.ac.uk/cgi-bin/dbfetch
+
+  # for backward compatibility, implements <ISINDEX>
+  # single entry queries defaulting to EMBL sequence database
+  http://www.ebi.ac.uk/cgi-bin/dbfetch?J00231
+
+  # retrieves one or more entries in default format
+  # and default style (html)
+  # returns nothing for IDs which are not valid
+  http://www.ebi.ac.uk/cgi-bin/dbfetch?id=J00231.1,hsfos,bum
+
+  # retrieve entries in fasta format without html tags
+  http://www.ebi.ac.uk/cgi-bin/dbfetch?format=fasta&style=raw&id=J00231,hsfos,bum
+
+  # retrieve a raw Ensembl entry
+  http://www.ebi.ac.uk/cgi-bin/dbfetch?db=ensembl&style=raw&id=AL122059
+
+
+=head1 DESCRIPTION
+
+This program generates a page allowing a web user to retrieve database
+entries from a local SRS in two styles: html and raw. Other
+database engines can be used to implement te same interfase.
+
+At this stage, on unique identifier queries are supported. Free text
+searches returning more than one entry per query term are not in these
+specs.
+
+In its default setup, type one or more EMBL accession numbers
+(e.g. J00231), entry name (e.g. BUM) or sequence version into the
+seach dialog to retieve hypertext linked enties.
+
+Note that for practical reasons only the first 50 identifiers
+submitted are processed.
+
+Additional input is needed to change the sequence format or suppress
+the HTML tags.  The styles are html and raw. In future there might be
+additional styles (e.g. xml). Currently XML is a 'raw' format used by
+Medline. Each style is implemented as a separate subroutine.
+
+=head1 MAINTANENCE
+
+A new database can be added simply by adding a new entry in the global hash
+%IDS. Additionally, if the database defines new formats add an entry for
+each of them into the hash %IDMATCH.  After modifying the hash, run this
+script from command line for some sanity checks with parameter debug set to
+true (e.g. dbfetch debug=1 ).
+
+Finally, the user interface needs to be updated in the L<print_prompt>
+subroutine.
+
+=head1 VERSIONS
+
+Version 3 uses EBI SRS server 6.1.3. That server is able to merge release
+and update libraries automatically which makes this script simpler. The
+other significant change is the way sequence versions are indexed. They
+used to be indexed together with the string accession
+(e.g. 'J00231.1'). Now they are indexed as integers (e.g. '1').
+
+Version 3.1 changes the command line interface. To get the debug
+information use attribute 'debug' set to true. Also, it uses File::Temp
+module to create temporary files securely.
+
+Version 3.2 fixes fasta format parsing to get the entry id.
+
+Version 3.3. Adds RefSeq to the database list.
+
+Version 3.4. Make this compliant to BioFetch specs.
+
+=head1 AUTHOR - Heikki Lehvaslaiho
+
+Email:  heikki-at-bioperl-dot-org
+
+=cut
+
+# Let the code begin...
+
+$VERSION = '3.4';
+$DATE = '28 Jan 2002';
+
+use CGI "standard";
+#use POSIX;
+use CGI::Carp qw/ fatalsToBrowser /;
+use File::Temp qw/ tempfile tempdir /;
+use strict;
+no strict "refs";
+
+use constant MAXIDS => 50;
+use constant TMPDIR => '/usr/tmp';
+
+use vars qw( $VERSION $DATE %DBS  %STYLES $RWGETZ $RGETZ  %IDMATCH %IDLIST $XEMBL $FH );
+
+BEGIN {
+
+    # paths to SRS binaries
+    $RWGETZ = '/ebi/srs/srs/bin/osf_5/wgetz -e';
+    $RGETZ = '/ebi/srs/srs/bin/osf_5/getz -e';
+    $XEMBL = "cd /ebi/www/pages/cgi-bin/xembl/; ./XEMBL.pl";
+    #$EMBOSSDIR = '/ebi/services/pkgs/emboss/bin';
+
+    # RE matching the unique ID in the db entry
+    # - key is the 
+    # - put the id string in parenthesis
+    %IDMATCH = (        #  123
+		embl => 'ID   (\w+)',
+		fasta => '>\w+.(\w+)',
+		medlinefull => '[\n><]MedlineID. ?(\w+)',
+                swissprot => 'ID   (\w+)',
+		pdb => '.{62}(\w+)',
+		bsml => 'DUMMY',
+		agave => 'DUMMY',
+		refseq => 'LOCUS       ([\w_]+)'
+		);
+    %DBS = (
+	    embl => {
+		fields => ['id', 'acc'],
+		version => 'sv',          # name of the SRS field
+		format => {
+		    default => 'embl',
+		    embl => 1,
+		    fasta => 'FastaSeqs',
+		    bsml => 1,
+		    agave => 1
+		}
+	    },
+	    medline => {
+		fields => ['id'],
+		format => {
+		    default => 'medlinefull',
+#		    medlineref => 'MedlineRef',
+		    medlinefull => 'MedlineFull'
+		    }
+	    },
+	    ensembl => {
+		fields => ['id'],
+		format => {
+		    default => 'embl',
+		    embl => 1,
+		    fasta => 'FastaSeqs'
+		    }
+	    },
+            swall => {
+		fields => ['id', 'acc'],
+		format => {
+		    default => 'swissprot',
+		    swissprot => 1,
+		    fasta => 'FastaSeqs'
+		    }
+	    },
+            pdb => {
+		fields => ['id'],
+		format => {
+		    default => 'pdb',
+		    pdb => '1'
+		    }
+	    },
+            refseq => {
+                fields => ['id', 'acc'],
+                format => {
+		    default => 'refseq',
+		    refseq => 1,
+		    fasta => 'FastaSeqs'
+                }
+            }
+            #add more databases here...
+	    );
+
+    %STYLES = (
+	       html => 1,
+	       raw => 1
+	       );
+
+    %IDLIST = (); #redundancy check list built during the execution
+}
+
+my $q = new CGI;
+
+# sanity checks if the script is running from command line
+#  and debug parameter is set.
+my $debug = protect($q->param('debug')) if $q->param('debug');
+&debugging if not $q->user_agent and $debug; 
+
+if ( $q->param('id') or $q->param('keywords')  ) {
+
+    # pacify input strings
+    my $value;
+    $value = protect($q->param('id')) if $q->param('id');
+    $value = protect($q->param('keywords')) if $q->param('keywords');
+    my $db = lc protect($q->param('db')); # let's keep the case lower
+    my $format = lc protect($q->param('format'));
+    my $style =  lc protect($q->param('style'));
+
+    # check input and set defaults
+    $style ||= 'html';  # default style
+    input_error($q, $style, "2 Unknown style [$style].") unless $STYLES{$style};
+
+    $db ||= 'embl'; # default db
+    input_error($q, $style, "1 Unknown database [$db].") unless $DBS{$db};
+
+    $format ||= $DBS{$db}{format}{default}; # default format
+    input_error($q, $style, "3 Format [$format] not known for database [$db]")  
+        unless $DBS{$db}{format}{$format};
+    $format = $DBS{$db}{format}{default} if $format eq 'default';
+
+
+    # If people choose Bsml or AGAVE, DB can only be 'embl'
+    input_error($q, $style, "1 Unknown database [$db].") 
+        if ($format eq 'bsml' or $format eq 'agave') and $db ne 'embl';
+
+    # If people choose Bsml or AGAVE, internal style has to be xml . Make it so.
+    $style = ($format =~ /(bsml|agave)/i) ? 'xml' : $style;
+
+    if ($style eq 'html') {
+        print $q->header(-type => 'text/html', -charset => 'UTF-8');
+    }
+    elsif ($style eq 'raw') { 
+        print "Content-Type: text/plain; charset=UTF-8\n\n";
+    }
+    $FH = tempfile('dbfetchXXXXXX', DIR => TMPDIR, UNLINK => 1 ); #automatic unlinking
+
+    # Check the number of IDs
+    my @ids = split (/ /, $value);
+    input_error($q, $style, "6 Too many IDs [". scalar @ids. "]. Max [". MAXIDS. "] allowed.")
+        if scalar @ids >  MAXIDS;
+
+    # XEMBL cannot 'glue' single entries due to XML setup 
+    #- we need to send things in one go.
+    if ($style eq 'xml') {
+	&xml($format, @ids);
+    } else {
+        my $counter;
+        foreach my $id (@ids) {
+            &$style($db, $id, $format);
+        }
+        no_entries($q, $value) if $style eq 'html' and tell($FH) == 0;
+    }
+    seek $FH, 0, 0;
+    print '<pre>' if $style eq 'html';
+    print $_ while <$FH>;
+} else {
+    print_prompt($q);
+}
+
+
+=head2 print_prompt
+
+ Title   : print_prompt
+ Usage   :
+ Function: Prints the default page with the query form
+           to STDOUT (Web page)
+ Args    :
+ Returns :
+
+=cut
+
+sub print_prompt {
+    print $q->header(),
+         $q->start_html(-title => 'DB Entry Retrieval',
+                        -bgcolor => 'white',
+			-author => 'heikki-at-bioperl-dot-org'
+			),
+	 '<IMG align=middle SRC="/icons/ebibanner.gif">',
+	  $q->h1('Generic DB Entry Retrieval'),
+	  $q->p("This page allows you to retrieve up to ". MAXIDS .
+		 " entries at the time from various up-to-date biological databases."),
+	  $q->p("For EMBL, enter an  accession number (e.g. J00231) or entry name (e.g.
+		 BUM) or a sequence version (e.g. J00231.1), or any combination of them
+		 separated by a non-word character into your browser's search dialog.
+		 SWALL examples are: fos_human, p53_human.
+		 For short Ensembl entries, try : AL122059, AL031002, AL031030 .
+		 'Random' Medline entry examples are: 20063307, 98276153.
+		 PDB entry examples are: 100D, 1FOS. Try NM_006732 for RefSeq.
+		 Only one copy of the latest version of the entry is returned."),
+	  $q->hr,
+	  $q->startform,
+	  $q->popup_menu(-name => 'db',
+			 -values => ['EMBL',
+				     'SWALL',
+				     'PDB',
+				     'Medline',
+				     'Ensembl',
+				     'RefSeq'
+				     ]),
+	  $q->textfield(-name => 'id',
+			 -size => 40,
+			 -maxlength => 1000),
+	  $q->popup_menu(-name => 'format',
+			 -values => ['default','Fasta','bsml','agave']),
+	  $q->popup_menu(-name => 'style',
+			 -values => ['html','raw']),
+	  $q->submit('Retrieve'),
+	  $q->endform,
+	  $q->hr,
+	  $q->h2('Direct access'),
+	  $q->p('For backward compatibility, the script defaults to EMBL:'),
+	  $q->code('<A href="http://www.ebi.ac.uk/cgi-bin/dbfetch?J00231">
+		     http://www.ebi.ac.uk/cgi-bin/dbfetch?J00231</a>'),
+	  $q->p('but the preferred way of calling it is:'),
+	  $q->code('<A href="http://www.ebi.ac.uk/cgi-bin/dbfetch?id=J00231.1,hsfos,bum">
+		     http://www.ebi.ac.uk/cgi-bin/dbfetch?id=J00231.1,hsfos,bum</a>'),
+	  $q->p('which can be extended to retrieve entries in alternative sequence formats
+		      and other databases:'),
+	  $q->code('<A href="http://www.ebi.ac.uk/cgi-bin/dbfetch?db=swall&format=fasta&id=fos_human">
+		     http://www.ebi.ac.uk/cgi-bin/dbfetch?db=swall&format=fasta&id=fos_human</a>'),
+	  $q->p('Set style to <code>raw</code> to retrieve plain text entries for computational purposes
+                 and saving to disk:'),
+	  $q->code('<A href="http://www.ebi.ac.uk/cgi-bin/dbfetch?db=medline&style=raw&id=21131735">
+                    http://www.ebi.ac.uk/cgi-bin/dbfetch?db=medline&style=raw&id=21131735</a>'),
+ 	  $q->p('There is now the possibility to retrieve EMBL sequences formatterd into two XML standards:
+                Bsml (Bioinformatic Sequence Markup Language - from 
+                Labbook, Inc.) or as AGAVE (Architecture for Genomic Annotation, 
+                Visualisation, and Exchange - from Labbook, Inc.). To do this, use the 
+                formats \'bsml\' or \'agave\', as follows:'),
+	  $q->code('<A href="http://www.ebi.ac.uk/cgi-bin/dbfetch?format=bsml&id=J00231">
+                   http://www.ebi.ac.uk/cgi-bin/dbfetch?format=bsml&id=J00231</a><br>'),
+	  $q->code('<A href="http://www.ebi.ac.uk/cgi-bin/dbfetch?format=agave&id=J00231">
+                   http://www.ebi.ac.uk/cgi-bin/dbfetch?format=agave&id=J00231</a>'),
+          $q->p("Version numbers are not supported with the XML retrieval."),
+	  $q->hr,
+          $q->address("Version $VERSION, $DATE, <a href=\"mailto:support\@ebi.ac.uk\">support\@ebi.ac.uk</a>"),
+	  $q->end_html, "\n" ;
+}
+
+=head2 protect
+
+ Title   : protect
+ Usage   : $value = protect($q->param('id'));
+ Function:
+
+           Removes potentially dangerous characters from the input
+	   string.  At the same time, converts word separators into a
+	   single space character.
+
+ Args    : scalar, string with one or more IDs or accession numbers
+ Returns : scalar
+
+=cut
+
+sub protect {
+    my ($s) = @_;
+    $s =~ s![^\w\.\_]+! !g; # allow version numbers with '.' & RefSeq IDs with '_'
+    $s =~ s|^\W+||;
+    $s =~ s|\W+$||;
+    return $s;
+}
+
+=head2 input_error
+
+ Title   : input_error
+ Usage   : input_error($q, 'html', "Error message");
+ Function: Standard error message behaviour
+ Args    : reference to the CGI object
+           scalar, string to display on input error.
+ Returns : scalar
+
+=cut
+
+sub input_error {
+    my ($q, $style, $s) = @_;
+
+    if ($style eq 'html' ) {
+	print $q->header,
+	$q->start_html(-title => 'DB Entry Retrieval: Input error', 
+		       -bgcolor => 'white'
+		       ),
+	"<h2>ERROR in input:<h2>$s\n",
+	$q->end_html, "\n";
+    } else {
+	print "Content-type: text/plain\n\n", "ERROR $s\n";
+    }
+    exit 0;
+}
+
+=head2 no_entries
+
+ Title   : no_entries
+ Usage   : no_entries($q, "Message");
+ Function: Standard behaviour when no entries found
+ Args    : reference to the CGI object
+           scalar, string to display on input error.
+ Returns : scalar
+
+=cut
+
+sub no_entries {
+    my ($q, $value) = @_;
+
+    print $q->start_html(-title => 'DB Entry Retrieval: Input warning',
+			 -bgcolor => 'white'
+			 ),
+	  "<h2>Sorry, your query retrieved no entries.</h2>",
+	  "Entries with [$value] where not found.",
+	  "Please go back or press <a href=\"dbfetch\"><b>here</b></a> to try again",
+	   $q->end_html, "\n";
+    exit 0;
+}
+
+
+=head2 raw
+
+ Title   : raw
+ Usage   :
+ Function: Retrieves a single database entry in plain text
+ Args    : scalar, an ID
+           scaler, format
+ Returns : scalar
+
+=cut
+
+sub raw {
+    my ($db, $value, $format) = @_;
+    my ($srsq, $qdb, $entry, $id);
+    my ($seqformat) = '';
+    $seqformat = '-view '. $DBS{$db}{format}{$format}
+       if $format ne $DBS{$db}{format}{default};
+
+    my $version = '';
+    $value =~ /(.+)\.(.+)/;
+    $version = $2 if $2;
+    $value = $1 if $1;
+
+    # main db
+    $qdb = $db;
+    $srsq = '';
+    foreach my $field (@{$DBS{$db}{fields}}) {
+	$srsq .= " [$qdb-$field:$value] |";
+    }
+    chop $srsq;
+
+    # if database supports versions (EMBL, GenBank, RefSeq...)
+    if ($version) {
+	my $vfname = $DBS{$db}{version};
+	$srsq = "[$qdb-$vfname:$version] & (". $srsq. ")"
+    }
+
+#    print "rsh srs $RGETZ $seqformat $srsq\n";
+    $entry = `rsh srs "$RGETZ $seqformat '$srsq'"`;
+
+    $entry =~ s|EMBL[^\n]+\n||;
+    $entry =~ s|^\s+||g;
+    $entry =~ s|\s+$|\n|g;
+
+    my $idmatch = $IDMATCH{$format};
+    ($id) = $entry =~ /$idmatch/;
+    # die if ID not found
+    input_error(' ', 'raw', "5 ID [$value] not found in database [$db].")
+	     unless $id;
+
+#    my $tmp = substr($entry, 0, 20);
+#    print "Entry:$tmp\n";
+#    print  "-----id=$id---\$1=$1----idmatch=$idmatch=format=$format=\n";
+#
+    print $FH $entry unless $IDLIST{$id};
+    $IDLIST{$id} = 1;
+}
+
+=head2 html
+
+ Title   : html
+ Usage   :
+ Function: Retrieves a single database entry with HTML
+           hypertext links in place. Limits retieved enties to 
+           ones with correct version if the string has '.' in it.
+ Args    : scalar, a UID
+           scalar, format
+ Returns : scalar
+
+=cut
+
+sub html {
+    my ($db, $value, $format) = @_;
+    my ($srsq, $qdb, $entry, $id, $idmatch);
+    my ($seqformat) = '';
+    $seqformat = '-view '. $DBS{$db}{format}{$format}
+       if $format ne $DBS{$db}{format}{default};
+
+    my $version = '';
+    $value =~ /(.+)\.(.+)/;
+    $version = $2 if $2;
+    $value = $1 if $1;
+
+    # SWALL plain format at EBI
+    $seqformat .= ' -vn 2 ' if $db eq 'swall' or $db eq 'refseq';
+    
+    $qdb = $db;
+    $srsq = '';
+    foreach my $field (@{$DBS{$db}{fields}}) {
+	$srsq .= " [$qdb-$field:$value] |";
+    }
+    chop $srsq;
+
+    # if database supports versions (EMBL...)
+    if ($version) {
+	my $vfname = $DBS{$db}{version};
+	$srsq = "[$qdb-$vfname:$version] & (". $srsq. ")"
+    }
+
+#    print "rsh srs $RWGETZ $seqformat $srsq\n";
+    ### '-id EBISRS' is (hopefully) a temporary addtion until SRS HTML output is fixed 
+    $entry = `rsh srs "$RWGETZ $seqformat '$srsq'"`;
+  
+    return if $entry =~ /SRS error/;
+
+    $entry =~ s|^Content-type:[^\n]+\n||;
+    $entry =~ s|\n<A  HREF[^\n]+\n||;
+    $entry =~ s|<A +HREF=\"?wgetz|<A HREF=http://srs6.ebi.ac.uk/srs6bin/cgi-bin/wgetz|g; #"\
+    $entry =~ s/\+-e\"/\+-e/g; #"
+    $entry =~ s|<BR>||g;
+    $entry =~ s|</?pre>||g;
+    $entry =~ s|\n+|\n|g;
+    $entry =~ s|^\n+||g;
+
+    $idmatch = $IDMATCH{$format};
+    ($id) = $entry =~ /$idmatch/;
+
+#    my $tmp = substr($entry, 0, 20);
+#    print "Entry:$tmp\n";
+#    print  "-----id=$id---\$1=$1----idmatch=$idmatch=format=$format=\n";
+    print $FH $entry unless $IDLIST{$id};
+    $IDLIST{$id} = 1;
+}
+
+=head2 xml
+
+ Title   : xml
+ Usage   : 
+ Function: Retrieves an entry formatted as XML
+ Args    : array, UID
+           scalar, format 
+ Returns : scalar
+
+=cut
+
+sub xml {
+    my ($format, @ids) = @_;
+    my ($entry, $id, $content, $counter, $reg);
+
+    $content = ($ENV{'HTTP_USER_AGENT'} =~ /MSIE/) ? "Content-type: text/xml\n\n" : 
+      "Content-type: text/plain\n\n";
+
+    $entry = "--format ".(($format eq "bsml") ? "Bsml" : "sciobj") .
+	     " " . join (" ", @ids);
+
+    $entry = `rsh mercury "$XEMBL $entry"`;
+
+    $reg = (($format eq "bsml") ? '<Sequence id=' : '<contig length-');
+    $counter++ while $entry =~ /($reg)/g;
+
+    foreach my $idl (@ids) {
+	input_error($q, " ", "5 ID [$idl] not found in database [embl].")
+	    if ($format eq "bsml" && $entry =~ "NOT EXIST: $idl") ||
+	       ($format eq "agave" && $entry =~ "NOT FOUND: $idl")
+    }
+
+    print $FH ($content . $entry);
+}
+
+=head2 debugging
+
+ Title   : debugging
+ Usage   : 'perl dbfetch'
+ Function:
+
+           Performs sanity checks on global hash %IDS when this script
+           is run from command line. %IDS holds the description of
+           formats and other crusial info for each database accessible
+           through the program.
+
+           Note that hash key 'version' is not tested as it should 
+           only be in sequence databases.
+
+ Args    : none
+ Returns : error messages to STDOUT
+
+=cut
+
+sub debugging {
+
+    foreach my $db (keys %DBS) {
+	my $status = 1;
+
+	# field
+	print "ERROR: [$db]: no SRS fields defined.".
+	    " Give an array of field names?\n" and $status = 0
+	    unless $DBS{$db}{fields};
+	print "ERROR: [$db]: SRS fields are not defined as an array.\n" and $status = 0
+	    unless ref $DBS{$db}{fields} eq 'ARRAY';
+
+	# format
+	print "ERROR: [$db]: no formats defined.\n" and $status = 0
+	    unless $DBS{$db}{format};
+	print "ERROR: [$db]: no default format defined.\n" and $status = 0
+	    unless $DBS{$db}{format}{default};
+	my $format = $DBS{$db}{format}{default};
+	print "ERROR: [$db]: no format [$format] defined.".
+	    " You declared it as a default and only.\n" and $status = 0
+	    unless $DBS{$db}{format}{$format};
+	foreach my $dbformat (keys %{$DBS{$db}{format}}) {
+	    print "ERROR: [$db]: format [$format] not defined in %IDMATCH.\n"
+		and $status = 0
+		 unless $IDMATCH{$dbformat} or $dbformat eq 'default';
+	}
+	printf "%-12s%s", "[$db]", "OK\n" if $status;
+    }
+    exit;
+}

@@ -1,0 +1,6 @@
+5 / 50  JTT model  approx ln L -1047.8 ... -1056.8  diff 9.0
+((((Bosta2,Preen),Homsa),Papan),Equca,Ratno1);
+((((Bosta2,Preen),Papan),Homsa),Equca,Ratno1);
+((((Bosta2,Preen),Equca),Homsa),Papan,Ratno1);
+(((Bosta2,(Preen,Papan)),Homsa),Equca,Ratno1);
+((Bosta2,(Preen,(Papan,Homsa))),Equca,Ratno1);

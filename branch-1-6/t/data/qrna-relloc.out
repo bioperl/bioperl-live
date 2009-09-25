@@ -1,0 +1,70 @@
+#---------------------------------------------------------------------------------
+#      qrna 1.2b (Tue Dec 18 15:04:38 CST 2001) using squid 1.5m (Sept 1997)
+#---------------------------------------------------------------------------------
+#      PAM model =  BLOSUM62 scaled by 1.000
+#---------------------------------------------------------------------------------
+#      RNA model =  /mix_tied_linux.cfg
+#---------------------------------------------------------------------------------
+#      seq file  =  tst.out
+#                   #seqs: 2 (max_len = 290)
+#---------------------------------------------------------------------------------
+#      window version: window = 150   slide = 50 -- length range = [0,9999999]
+#---------------------------------------------------------------------------------
+# 1  [+ strand] 
+>Contig1/24732-25017 (290)
+>chr5.pseudo/527251-527533 (290)
+
+length of whole alignment after removing common gaps: 290 
+
+length alignment: 150 (id=62.67)
+posX: 0-149 [0-149](150) -- (0.19 0.25 0.31 0.25) 
+posY: 0-149 [0-145](146) -- (0.14 0.31 0.25 0.31) 
+ 34.327235 39.943369 26.661628
+ 28.676235 4.323732 17.984592
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = COD 
+OTH  ends = 0 149
+COD  ends = 0 149
+RNA  ends = 76 91
+              OTH =       33.356             COD =       38.943             RNA =       25.665 
+   logoddspostOTH =        0.000  logoddspostCOD =        5.588  logoddspostRNA =       -7.691 
+
+length alignment: 150 (id=64.00)
+posX: 50-199 [50-198](149) -- (0.19 0.26 0.29 0.26) 
+posY: 50-199 [47-195](149) -- (0.17 0.29 0.24 0.30) 
+ 39.662831 22.857014 31.781677
+ 35.882277 13.531348 24.975088
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 50 199
+COD  ends = 51 197
+RNA  ends = 76 91
+              OTH =       38.764             COD =       21.859             RNA =       30.795 
+   logoddspostOTH =        0.000  logoddspostCOD =      -16.905  logoddspostRNA =       -7.970 
+
+length alignment: 150 (id=61.33)
+posX: 100-249 [100-246](147) -- (0.24 0.24 0.28 0.23) 
+posY: 100-249 [97-243](147) -- (0.22 0.26 0.28 0.24) 
+ 29.980841 -9.710794 19.504746
+ 29.998914 -25.369993 19.522819
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 249 100
+COD  ends = 100 240
+RNA  ends = 250 250
+              OTH =       29.990             COD =      -10.711             RNA =       19.514 
+   logoddspostOTH =        0.000  logoddspostCOD =      -40.701  logoddspostRNA =      -10.476 
+
+length alignment: 140 (id=62.86)
+posX: 150-289 [150-285](136) -- (0.22 0.25 0.27 0.26) 
+posY: 150-289 [146-282](137) -- (0.27 0.23 0.26 0.24) 
+ 27.136986 -17.070736 17.286579
+ 28.477528 -24.525347 18.465446
+LOCAL_DIAG_VITERBI -- [Inside SCFG]
+winner = OTH 
+OTH  ends = 289 150
+COD  ends = 154 288
+RNA  ends = 190 290
+              OTH =       27.958             COD =      -18.063             RNA =       17.993 
+   logoddspostOTH =        0.000  logoddspostCOD =      -46.020  logoddspostRNA =       -9.964 
+

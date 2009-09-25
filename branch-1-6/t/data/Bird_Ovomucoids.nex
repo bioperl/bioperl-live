@@ -1,0 +1,226 @@
+#NEXUS 
+
+
+BEGIN DATA;
+DIMENSIONS  NTAX=89 NCHAR=88;
+
+[!Data from:
+
+Laskowski, M., Jr., and W.M. Fitch.  1989.  Evolution of avian ovomucoids and of birds.  Pp. 371-387 in B.  Fernholm, K. Bremer, and H. Jšrnvall (eds.),  The Hierarchy of Life.  Elsevier Press, Amsterdam. 
+
+Thanks to Walter Fitch for supplying the data matrix,   March 1990.]
+FORMAT DATATYPE=PROTEIN  SYMBOLS = " 1 2 3 4"  MISSING=? GAP=-  MATCHCHAR=. ;
+MATRIX
+[                                        10        20        30        40        50        60        70        80       ]
+[                                        .         .         .         .         .         .         .         .        ]
+
+Struthio_camelus                VKYPNTNEEGKEVVLPKILSPIGSDGVYSNELANIEYTNVSK??????FAT--VDDYKPVPLDYMLDSKTSNKNNVVESSGTLRHFGK   [86]
+Rhea_americana                  .............L..E..N.V.T................?.D?????...--...H...S.E..........D.....N...S....   [86]
+Pterocnemia_pennata             .............L..E..N.V.A..................DHD?EV...--...H...S.E..........D.....N...S....   [86]
+Casuarius_casuarius             ........D....L.....N.........DD......A....DHDKEV...--..E....SPE.......N..DS....N...G....   [86]
+Dromaius_novaehollandiae        ........D....L.....N..........D......A..??D?????...--.......S.E.......N..D.....N...G....   [86]
+Nothoprocta_cinerascens         .....A.D.....P...TP...A.NA.FGS....V....I..DHDK?????T-..G...AT.E.F..NQ.A..A....KNV....L..   [87]
+Eudromia_elegans                .R.....D.....P...TP..V.AN....S....V....I?.?????????S-I.G...AT.EFF..NQ....A.A..KNV..N.I.E   [87]
+Pygoscelis_adeliae_f            .TF..........LVT.......T..................DHDKEVI..--.......S.E..............D.N...S....   [86]
+Pygoscelis_adeliae_y            .T...........LVT.......T..................DHDKEVI..--.......S.E..............D.N...S....   [86]
+Spheniscus_humboldti            .T.S.........LIT.......T..................D?DKEVI..--I......S.E..............D.N.I.S....   [86]
+Phalacrocorax_sulcirostris      .S.SK.......ALVT.......T..............KI..DHDKEVI..--.......S.E.............AD.N...S....   [86]
+Anhinga_novaehollandeae         .L.S.........LVT.......T................T.DHDKEVI.S--.......S.E..............D.N...S....   [86]
+Nycticorax_nycticorax           .T.S.A....R..LVT.......A..........M....I..DHDGEVIV.--.......SPEN.V.......D..AD.N...S....   [86]
+Chauna_chavaria                 .R...........L.T.T.....T..................DRDKEAV..--......AT.E....NQ....S...D.N...S....   [86]
+Anseranas_semipalmata           .R...S.......L.T.D...................A....DHDKEAV..--..E...AT.E....NQ........D.N...S....   [86]
+Dendrocygna_arcuata             .RF..........L.T.E...V.................I..D?DKEAV..--......AT.E....N..G......D.N...S....   [86]
+Dendrocygna_autumnalis          .RF..........L.T.D.....................I..DHDKEAV..--......AT.E....N..G......D.N...S....   [86]
+Dendrocygna_eytoni_d            .RF..........L.T.DVI.V............L....I..DHDKEAV..--....R.DT.E....N..G......D.N...S....   [86]
+Dendrocygna_eytoni_e            .RF..........L.T.DVI.V............L....I..DHDKEAV..--..E.R.DT.E....N..G......D.N...S....   [86]
+Dendrocygna_viduata             .RFS.........L.T.E...V.................I..D?D?EAV..--......AT.E....N..G.R....D.N...S....   [86]
+Coscoroba_coscoroba             ..F..........L.T.D.I...T...............I..DHDKEAV..--..G...ATME....N..G......D.N...S....   [86]
+Cygnus_atratus                  .RF..........L.T.D.....T...............I..DHDKEAV..--......ATME....N..G......D.N...S....   [86]
+Goose                           .RF..........L.T.D.....T...............I..DHDKEAV..--......ATVE....N..D......D.N...S....   [86]
+Anser_indicus                   .RF..........L.T.D.A...T...............I..DHDKEAV..--......ATVE....N..D......D.N...S....   [86]
+Branta_canadensis               .RF.......R..L.T.D.....T...............I..DHD???V..--......ATVE....N..G......D.N...S....   [86]
+Cereopsis_novaehollandiae       ..F..........L...DVI.T.T...............I..D?D??AV..--......ARME....N..G......D.N...S....   [86]
+Chloephaga_picta                .RF..........L.T.E.....T...............I..D??KEAV..--..G...ATME....N..G......D.N...S...E   [86]
+Duck                            .RF..........L.T.E...V.T...............I..DHDKEAV..--..G...ATME....N..G......D.N...S...E   [86]
+Anas_platyrhynchos              .RF........D.L.T.E...V.T...............I..DHDKEAV..--..G...ATME....N..G......D.N...S...E   [86]
+Megapodius_freycinet            .R...........LVTQDV?...T....?....G...??I????????LV.--......ST.EDK..NQ....S...D.N...S....   [86]
+Leipoa_ocellata                 IRH..........LVTEDS....T...............I..E?DK??VV.--..G.THAT.ELK..NQ....G..AQ.N...S....   [86]
+Ortalis_vetula                  ...........D.LA.EDPNL.......T-.......???????????..PN-...H..ALQEQKI.N..D..S...D.N...S....   [86]
+Penelope_jacquacu               ...........D.LA.EDP.........T-.........I..ERDKEA..PN-...H..ALQEQK..N..D..S...D.N...S....   [86]
+Penelope_superciliaris          ...........D.LVAEDP....................I..E?DKEA..PN-...H..ALQEQK..N..D..S...D.N...S....   [87]
+Bonasa_umbellus                 .RF........V.LV.EDPR...T.A.....M.......I..EHD???L.AS-..E...ATME.R..N..G........N.N.S...T   [87]
+Tympanuchus_cupido              .RF........D.LVTED.H...T...............I..EHD???L.AS-..E...ATME.R..N..G........N...S....   [87]
+Oreortyx_pictus                 .RF........D.LAT.E.H...T........S......I..EHDTEA..AS-..E...AT.E.R.....A........N...S....   [87]
+Callipepla_squamata_n           .RF........D.LAT.E.H...T........Y......I..EHD??A..AS-..E...DT.E.R..N..A........N...S....   [87]
+Callipepla_squamata_s           .RF........D.LAT.E.H...T........Y......I..EHD??A..AS-..E...DT.E.R..N..AS.......N...S....   [87]
+Lophortyx_californicus          .RF........D.LVT.E.Q...T........Y......I..EHD?EA..AS-..E...AT.E.R..N..A........N...S....   [87]
+Colinus_virginianus             .RF........D.LATEE.H...T....MS.MF......T..EHDTEA..AS-..E...AMSE.R..N..V........N...S....   [87]
+Cyrtonyx_montezumae_l           .RF........D.LVTEEV....T........S..A.?.I.?E?D???..AS-..E...AT.E.VI.N..G........N...S....   [87]
+Cyrtonyx_montezumae_s           .RF........D.LVTEEV....T........S..A.?.I.?E?D???..AS-..E...ATSE.VI.N..G........N...S....   [87]
+Alectoris_chukar                ARF..A.....D..VTED.R...T....T-.........I..EHDGETL.A--..E...AT.E.R.....G........N...S....   [85]
+Alectoris_rufa                  ARF..A.....D..VTED.H...T....T-.........I..EHD???L.A--..E...AT.E.R.....G........N...S....   [85]
+Francolinus_afer                .RF..A....RD..VSEN.R...TH........SM....I..EHDREAP.AS-..E...ATME.RV.NI.G......K.N...S....   [87]
+Francolinus_erckelii            .RF..A.....D.AVSEN.R...T...N-.....M....I??EHD?EAP.AS-..E...ATME.RV.NI.G......K.N...S.K..   [86]
+Francolinus_coqui_v             .RF..A....RD..VSEN.R...T.........SMN...I..E?D?EA???S-..E...GTME.RV.NI.G......K.N...S....   [87]
+Francolinus_coqui_a             .RF..A....RD.AVSEN.R...T.........SMN...I..E?D?EA???S-..E...GTME.RV.NI.G......K.N...S....   [87]
+Francolinus_francolinus_a       ARF........V.LDS.D.I...T..LHDS..S...H.KIK.EHDRE????S-..G...ETAEET..N..R........N........   [87]
+Francolinus_francolinus_v       .RF........V.LDS.D.I...T..LHDS..S...H.KIK.EHDRE????S-..G...ETAEET..N..R........N........   [87]
+Francolinus_pondicerianus       ARFS.A.....D.LVIDDPR.M.T....DS..F.M....I..EHD???LPAS-..E...DTTEER..N..G........N...S....   [87]
+Perdix_perdix                   .RF........D.LVTED.Q...T...............I..EHT???L.AS-..E...ATME.R..N..G..D.....N...N....   [87]
+Coturnix_delegorguei            .RF........DE.V.DE.RF..T....NH.MF.K....I..EQDGET???S-..E...A.K..RV.N..G........N...NR...   [87]
+Coturnix_coturnix_japonica_1    .RF........DE.V.DE.RL..T....NH.MF.K....I..EQDGETL.AS-..E...A.K..RV.N...........N...N....   [87]
+Coturnix_coturnix_japonica_2    .RF........DE.V.DE.RL..T....NH.MF.K....I..EQDGETL.AS-..E...A.K..RV.N..G........N...N....   [87]
+Arborophilia_torqueola          .RF..S.....V..VKEDPR...T.........H..T??I?.?????????S-....M.ATME.RV.N..G........N...S....   [87]
+Bambusicola_thoracica           ARF..A.....V.LDTQE.R...T.......MS......I.IK?DKE?L.AS-..E...ETAEERI.N..G........N....N...   [87]
+Tragopan_satyra                 .RF........D.LVTED.H...T...............I..GHDREAL.AS-..E...ATME.R..N..G........N...S....   [87]
+Tragopan_temmincki              .RF........D.LVTED.R...T...............I..GHD???L.AS-..E...ATME.R..N..G........N...S....   [87]
+Lophophorus_impejanus           .RF..A.....D.LVTED.R...T...............I..EHDREAL.AS-..E...ATME.R..N..G........N...S....   [87]
+Crossoptilon_auritum            .RF........D.LVAED.R...T...............I..ERDGEAL.AS-..E...ATME.R..N..G........N...S....   [87]
+Lophura_edwardsi                .RF........D.LVAED.R...T.......M.......I..ERDGEAL.AS-..E...ATME.R..N..G........N...S....   [87]
+Lophura_ignita                  .RF........D.LVGEDIR...T.......M.......N..ERDGEAL.AS-..E...ATME.R..N.SD........N...S....   [87]
+Gallus_gallus                   ARF..ADK...D.LVN.D.R...T....T.D..S..F..I..EHDKETL.AS-..E...DTAEDR..N..G........N...S....   [87]
+Grey_jungle_fowl                ARF..ADK...D.LVN.D.R...T....T.D..S..F..I..EHDKETL.AS-..E...DTVEDR..N..G........N...S....   [87]
+Phasianus_colchicus             .RF..........LVAED.R.V.T.....S.........I..EHEGEAL.AS-..E...ATME.R..N..G........N...NR..Q   [87]
+Syrmaticus_ellioti              .RF..K.....D.LVAED.H...T...............I..ER?G??L.AS-..E...ATME.R..N..G........N...S....   [87]
+Syrmaticus_reevesii             .RF..K.......LVAED.H...T.....S.........I..ERNGEAL.AS-..E...ATME.R..N..G........N...SR..E   [87]
+Chrysolophus_amherstiae         .RFL.....S.D-LVAED.H...T...............I..EHDG?AL.AS-..E...ATME.R..N..G........N...N....   [86]
+Polyplectron_bicalcaratum       .RF....K...D.LA.EEVR...T.....D.S..RD...I..EHDR?????S-..E.Q.TTTEHRVNNE.G......K.N..VS....   [87]
+Argusianus_argus_argus          .RF........D.LVSEDRH...T.....H..T......I..EHD?EAL.A--..EH..AT.EDR..N.I...D..L..N...S....   [86]
+Pavo_cristatus                  .RF..A.....D.LVSED.H...T.....H.........I..EHDREAL.AS-..E...AT.EHR..N..G........N...S....   [87]
+Afropavo_congensis              .RF........D.SAS.D.R...T.....H.........I..EHDGEAL.AS-..E...ATMEQR..N..G........N...S....   [87]
+Numida_meleagris                .RF..A.....D.LVTED.R...T......D........I.?????EAL.A--..E...ATME.R..N..D........N...S....   [86]
+Acryllium_vulturinum            .RF..A.....D.LVIED.R...T......D........I..EHD???L.A--..E...ATME.R..N..D........N...S....   [86]
+Meleagris_gallopavo             .RF........D.LVTED.R...T...H.-.........I..EHDREAL.AS-..E...AT.E.R..N..G........N...S....   [86]
+Grus_carunculatus               .T...........LVT.......T..................DHDKEAT..--......AT.E..F...........D.N...S....   [86]
+Anthropoides_virgo              .T...........LVT.......T..................DHDKEVT..--......AT.E..F...........D.N...S....   [86]
+Grus_vipio                      IT...........LVT.......T..................DHDKEAT..--......AT.E..F...........D.N...S....   [86]
+Fulica_atra                     .T...........LVT.....V.TN......S..........DYDKEVT..--..G.Q.AS.E.VF.N.....D..AD.N...S....   [86]
+Vanellus_spinosus               .T...........LVT.......T..........L.......DYDKEVI..--......AS................D.N...S..E.   [86]
+Larus_rudibundus                .T...........LAT.A...V....................DYDKEDI..--......AS................D.N...S..E.   [86]
+Turnix_sylvatica                .RF........DT.AD.D.P.........-.M.......I..EHD??T???S-..E...GMMERL..N..ND.......N...N...E   [86]
+Gallirallus_australis           .T.........V.LVT.NI..V.TN...T..S.I...S....DYD???T..??..G.QSA.Q..VF.N........AD.N...S....   [88]
+Geococcyx_californianus         .A...A......ALVTTARLH..T....G.....L.H..I..DYNKEVI.S--.N.....S.L....N..G.....AD.N...S....   [86]
+Dacelo_novaeguineae             .......D.....LVTE......T.R................EHDKEAI..-Q..EH..AT...RI.......D..MD.N...S....   [87]
+Carpococcyx_renauldi            .R...S......GLATT.R....T....G.....L....I..DYD???I..--.......T.ED...NI.H..Y..AH.N..FS....   [86]
+Podargus_strigoides             .T.......S...LVDEV.....T..........L.-..I..DRDK??I..--....Q..MG...............D.N...N....   [85]
+;
+END;
+BEGIN GENETICCode;
+StandardNUCLEAR;
+END;
+
+BEGIN CODONS;
+CODESET * UNTITLED = Universal: all ;
+END;
+
+BEGIN ASSUMPTIONS;
+	OPTIONS  DEFTYPE=unord PolyTcount=MINSTEPS ;
+END; 
+
+BEGIN TREES; 
+
+	TRANSLATE
+		1	Struthio_camelus,
+		2	Rhea_americana,
+		3	Pterocnemia_pennata,
+		4	Casuarius_casuarius,
+		5	Dromaius_novaehollandiae,
+		6	Nothoprocta_cinerascens,
+		7	Eudromia_elegans,
+		8	Pygoscelis_adeliae_f,
+		9	Pygoscelis_adeliae_y,
+		10	Spheniscus_humboldti,
+		11	Phalacrocorax_sulcirostris,
+		12	Anhinga_novaehollandeae,
+		13	Nycticorax_nycticorax,
+		14	Chauna_chavaria,
+		15	Anseranas_semipalmata,
+		16	Dendrocygna_arcuata,
+		17	Dendrocygna_autumnalis,
+		18	Dendrocygna_eytoni_d,
+		19	Dendrocygna_eytoni_e,
+		20	Dendrocygna_viduata,
+		21	Coscoroba_coscoroba,
+		22	Cygnus_atratus,
+		23	Goose,
+		24	Anser_indicus,
+		25	Branta_canadensis,
+		26	Cereopsis_novaehollandiae,
+		27	Chloephaga_picta,
+		28	Duck,
+		29	Anas_platyrhynchos,
+		30	Megapodius_freycinet,
+		31	Leipoa_ocellata,
+		32	Ortalis_vetula,
+		33	Penelope_jacquacu,
+		34	Penelope_superciliaris,
+		35	Bonasa_umbellus,
+		36	Tympanuchus_cupido,
+		37	Oreortyx_pictus,
+		38	Callipepla_squamata_n,
+		39	Callipepla_squamata_s,
+		40	Lophortyx_californicus,
+		41	Colinus_virginianus,
+		42	Cyrtonyx_montezumae_l,
+		43	Cyrtonyx_montezumae_s,
+		44	Alectoris_chukar,
+		45	Alectoris_rufa,
+		46	Francolinus_afer,
+		47	Francolinus_erckelii,
+		48	Francolinus_coqui_v,
+		49	Francolinus_coqui_a,
+		50	Francolinus_francolinus_a,
+		51	Francolinus_francolinus_v,
+		52	Francolinus_pondicerianus,
+		53	Perdix_perdix,
+		54	Coturnix_delegorguei,
+		55	Coturnix_coturnix_japonica_1,
+		56	Coturnix_coturnix_japonica_2,
+		57	Arborophilia_torqueola,
+		58	Bambusicola_thoracica,
+		59	Tragopan_satyra,
+		60	Tragopan_temmincki,
+		61	Lophophorus_impejanus,
+		62	Crossoptilon_auritum,
+		63	Lophura_edwardsi,
+		64	Lophura_ignita,
+		65	Gallus_gallus,
+		66	Grey_jungle_fowl,
+		67	Phasianus_colchicus,
+		68	Syrmaticus_ellioti,
+		69	Syrmaticus_reevesii,
+		70	Chrysolophus_amherstiae,
+		71	Polyplectron_bicalcaratum,
+		72	Argusianus_argus_argus,
+		73	Pavo_cristatus,
+		74	Afropavo_congensis,
+		75	Numida_meleagris,
+		76	Acryllium_vulturinum,
+		77	Meleagris_gallopavo,
+		78	Grus_carunculatus,
+		79	Anthropoides_virgo,
+		80	Grus_vipio,
+		81	Fulica_atra,
+		82	Vanellus_spinosus,
+		83	Larus_rudibundus,
+		84	Turnix_sylvatica,
+		85	Gallirallus_australis,
+		86	Geococcyx_californianus,
+		87	Dacelo_novaeguineae,
+		88	Carpococcyx_renauldi,
+		89	Podargus_strigoides
+	;
+	TREE  * PAUP_1 =  [&R] (1,(((2,3),(4,5)),((((((((((6,7),((30,31),(((32,33),34),(((((((35,57),((((53,67),70),(62,(63,64),(68,69))),(((54,(55,56)),84),74))),(((46,(48,49)),47),71)),((36,59),60),(61,(75,76))),(72,73),77),((44,45),((((50,51),58),52),(65,66)))),(((37,((38,39),40)),41),(42,43)))))),14),15),((((16,20),(18,19)),17),((((21,26),(27,(28,29))),22),((23,24),25)))),(78,79,80)),87),((81,85),(82,83))),(8,9,(10,((11,(86,88)),13),12))),89)));
+
+END;
+
+
+BEGIN NOTES;
+	TEXT  TAXON=26 TEXT= G_removed_from_end_of_sequence;
+END;
+
+BEGIN MACCLADE;
+Version 3.05;
+LastModified -1425155265;
+Singles 1000&/0;
+END;

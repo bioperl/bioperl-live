@@ -1,0 +1,258 @@
+ID   ROA1_HUMAN     STANDARD;      PRT;   371 AA.
+AC   P09651;
+DT   01-MAR-1989 (Rel. 10, Created)
+DT   01-AUG-1990 (Rel. 15, Last sequence update)
+DT   01-NOV-1997 (Rel. 35, Last annotation update)
+DE   HETEROGENEOUS NUCLEAR RIBONUCLEOPROTEIN A1 (HELIX-DESTABILIZING
+DE   PROTEIN) (SINGLE-STRAND BINDING PROTEIN) (HNRNP CORE PROTEIN A1).
+GN   HNRPA1.
+OS   Homo sapiens (Human).
+OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Mammalia;
+OC   Eutheria; Primates; Catarrhini; Hominidae; Homo.
+RN   [1]
+RP   SEQUENCE OF 1-250 AND 303-371 FROM N.A.
+RC   TISSUE=LIVER;
+RX   MEDLINE; 89342435.
+RA   BIAMONTI G., BUVOLI M., BASSI M.T., MORANDI C., COBIANCHI F., RIVA S.;
+RT   "Isolation of an active gene encoding human hnRNP protein A1.
+RT   Evidence for alternative splicing.";
+RL   J. Mol. Biol. 207:491-503(1989).
+RN   [2]
+RP   SEQUENCE OF 1-250 AND 303-371 FROM N.A.
+RC   TISSUE=FIBROBLAST;
+RX   MEDLINE; 88233978.
+RA   BUVOLI M., BIAMONTI G., GHETTI A., RIVA S., BASSI M.T., HORANDI C.;
+RT   "cDNA cloning of human hnRNP protein A1 reveals the existence of
+RT   multiple mRNA isoforms.";
+RL   Nucleic Acids Res. 16:3751-3770(1988).
+RN   [3]
+RP   SEQUENCE OF 1-250 AND 303-371 FROM N.A.
+RC   TISSUE=LUNG;
+RA   KNUDSEN S.M., LEFFERS H.;
+RL   Submitted (JUN-1994) to the EMBL/GenBank/DDBJ databases.
+RN   [4]
+RP   SEQUENCE OF 124-250 AND 303-371 FROM N.A.
+RC   TISSUE=LIVER;
+RX   MEDLINE; 87053868.
+RA   RIVA S., MORANDI C., TSOULFAS P., PANDOLFO M., BIAMONTI G.,
+RA   MERRILL B., WILLIAMS K.R., MULTHAUP G., BEYREUTHER K., WERR H.,
+RA   HEINRICH B., SCHAEFER K.P.;
+RT   "Mammalian single-stranded DNA binding protein UP I is derived from
+RT   the hnRNP core protein A1.";
+RL   EMBO J. 5:2267-2273(1986).
+RN   [5]
+RP   SEQUENCE OF 251-302 FROM N.A.
+RX   MEDLINE; 90214633.
+RA   BUVOLI M., COBIANCHI F., BESTAGNO M.G., MANGIAROTTI A., BASSI M.T.,
+RA   BIAMONTI G., RIVA S.;
+RT   "Alternative splicing in the human gene for the core protein A1
+RT   generates another hnRNP protein.";
+RL   EMBO J. 9:1229-1235(1990).
+RN   [6]
+RP   NUCLEAR LOCALIZATION DOMAIN.
+RX   MEDLINE; 95247808.
+RA   SIOMI H., DREYFUSS G.;
+RT   "A nuclear localization domain in the hnRNP A1 protein.";
+RL   J. Cell Biol. 129:551-560(1995).
+RN   [7]
+RP   NUCLEAR LOCALIZATION DOMAIN, AND NUCLEAR EXPORT.
+RX   MEDLINE; 96067639.
+RA   MICHAEL W.M., CHOI M., DREYFUSS G.;
+RT   "A nuclear export signal in hnRNP A1: a signal-mediated, temperature-
+RT   dependent nuclear protein export pathway.";
+RL   Cell 83:415-422(1995).
+RN   [8]
+RP   NUCLEAR LOCALIZATION DOMAIN.
+RX   MEDLINE; 95286702.
+RA   WEIGHARDT F., BIAMONTI G., RIVA S.;
+RT   "Nucleo-cytoplasmic distribution of human hnRNP proteins: a search
+RT   for the targeting domains in hnRNP A1.";
+RL   J. Cell Sci. 108:545-555(1995).
+RN   [9]
+RP   3D-STRUCTURE MODELING OF 106-189.
+RX   MEDLINE; 91099515.
+RA   GHETTI A., BOLOGNESI M., COBIANCHI F., MORANDI C.;
+RT   "Modeling by homology of RNA binding domain in A1 hnRNP protein.";
+RL   FEBS Lett. 277:272-276(1990).
+RN   [10]
+RP   X-RAY CRYSTALLOGRAPHY (1.75 ANGSTROMS) OF 8-180.
+RX   MEDLINE; 97307256.
+RA   SHAMOO Y., KRUEGER U., RICE L.M., WILLIAMS K.R., STEITZ T.A.;
+RT   "Crystal structure of the two RNA binding domains of human hnRNP A1
+RT   at 1.75-A resolution.";
+RL   Nat. Struct. Biol. 4:215-222(1997).
+RN   [11]
+RP   X-RAY CRYSTALLOGRAPHY (1.9 ANGSTROMS) OF 6-181.
+RX   MEDLINE; 97277240.
+RA   XU R.M., JOKHAN L., CHENG X., MAYEDA A., KRAINER A.R.;
+RT   "Crystal structure of human UP1, the domain of hnRNP A1 that contains
+RT   two RNA-recognition motifs.";
+RL   Structure 5:559-570(1997).
+CC   -!- FUNCTION: INVOLVED IN THE PACKAGING OF PRE-MRNA INTO HNRNP
+CC       PARTICLES, TRANSPORT OF POLY-A MRNA FROM THE NUCLEUS TO THE
+CC       CYTOPLASM AND MAY MODULATE SPLICE SITE SELECTION.
+CC   -!- SUBCELLULAR LOCATION: NUCLEAR. SHUTTLES CONTINUOUSLY BETWEEN THE
+CC       NUCLEUS AND THE CYTOPLASM ALONG WITH MRNA. COMPONENT OF
+CC       RIBONUCLEOSOMES.
+CC   -!- ALTERNATIVE PRODUCTS: A1-A (SHOWN HERE) AND A1-B ARE OBTAINED BY
+CC       ALTERNATIVE SPLICING OF THE SAME GENE. A1-A IS TWENTY TIMES MORE
+CC       ABUNDANT THEN A1-B.
+CC   -!- SIMILARITY: BELONGS TO THE A/B GROUP OF HNRNP, WHICH ARE BASIC AND
+CC       GLY-RICH PROTEINS.
+CC   -!- SIMILARITY: CONTAINS 2 RNA RECOGNITION MOTIFS (RNP).
+CC   --------------------------------------------------------------------------
+CC   This SWISS-PROT entry is copyright. It is produced through a collaboration
+CC   between  the Swiss Institute of Bioinformatics  and the  EMBL outstation -
+CC   the European Bioinformatics Institute.  There are no  restrictions on  its
+CC   use  by  non-profit  institutions as long  as its content  is  in  no  way
+CC   modified and this statement is not removed.  Usage  by  and for commercial
+CC   entities requires a license agreement (See http://www.isb-sib.ch/announce/
+CC   or send an email to license@isb-sib.ch).
+CC   --------------------------------------------------------------------------
+DR   EMBL; X12671; CAA31191.1; -.
+DR   EMBL; X06747; CAA29922.1; ALT_SEQ.
+DR   EMBL; X04347; CAA27874.1; -.
+DR   EMBL; X79536; CAA56072.1; -.
+DR   PIR; S04617; S04617.
+DR   PIR; A24894; A24894.
+DR   PIR; S02061; S02061.
+DR   PDB; 1HA1; 15-MAY-97.
+DR   PDB; 1UP1; 17-SEP-97.
+DR   AARHUS/GHENT-2DPAGE; 207; NEPHGE.
+DR   AARHUS/GHENT-2DPAGE; 2114; NEPHGE.
+DR   AARHUS/GHENT-2DPAGE; 3612; NEPHGE.
+DR   MIM; 164017; -.
+DR   PFAM; PF00076; rrm; 2.
+DR   PROSITE; PS00030; RNP_1; 2.
+PE   1: Evidence at protein level;
+KW   Nuclear protein; RNA-binding; Repeat; Ribonucleoprotein;
+KW   Methylation; Alternative splicing; 3D-structure.
+FT   INIT_MET      0      0
+FT   DOMAIN        3     93       GLOBULAR A DOMAIN.
+FT   DOMAIN       94    184       GLOBULAR B DOMAIN.
+FT   DOMAIN      194    371       GLY-RICH.
+FT   DOMAIN       15     20       RNA-BINDING (RNP2) (BY SIMILARITY).
+FT   DOMAIN       54     61       RNA-BINDING (RNP1).
+FT   DOMAIN      106    111       RNA-BINDING (RNP2) (BY SIMILARITY).
+FT   DOMAIN      145    152       RNA-BINDING (RNP1).
+FT   DOMAIN      217    239       RNA-BINDING RGG-BOX.
+FT   DOMAIN      319    356       NUCLEAR TARGETING SEQUENCE (M9).
+FT   MOD_RES     193    193       METHYLATION (BY SIMILARITY).
+FT   VARSPLIC    251    302       MISSING (IN FORM A1-A).
+FT   MUTAGEN     325    325       G->A: NO NUCLEAR IMPORT NOR EXPORT.
+FT   MUTAGEN     326    326       P->A: NO NUCLEAR IMPORT NOR EXPORT.
+FT   MUTAGEN     333    334       GG->LL: NORMAL NUCLEAR IMPORT AND EXPORT.
+FT   CONFLICT    139    139       R -> P (IN REF. 4).
+SQ   SEQUENCE   371 AA;  38715 MW;  ECBA15FB CRC32;
+     SKSESPKEPE QLRKLFIGGL SFETTDESLR SHFEQWGTLT DCVVMRDPNT KRSRGFGFVT
+     YATVEEVDAA MNARPHKVDG RVVEPKRAVS REDSQRPGAH LTVKKIFVGG IKEDTEEHHL
+     RDYFEQYGKI EVIEIMTDRG SGKKRGFAFV TFDDHDSVDK IVIQKYHTVN GHNCEVRKAL
+     SKQEMASASS SQRGRSGSGN FGGGRGGGFG GNDNFGRGGN FSGRGGFGGS RGGGGYGGSG
+     DGYNGFGNDG GYGGGGPGYS GGSRGYGSGG QGYGNQGSGY GGSGSYDSYN NGGGRGFGGG
+     SGSNFGGGGS YNDFGNYNNQ SSNFGPMKGG NFGGRSSGPY GGGGQYFAKP RNQGGYGGSS
+     SSSSYGSGRR F
+//
+ID   A2S3_RAT       STANDARD;      PRT;   913 AA.
+AC   Q8R2H7; Q8R2H6; Q8R4G3;
+DT   28-FEB-2003 (Rel. 41, Created)
+DT   15-MAR-2004 (Rel. 43, Last sequence update)
+DT   15-MAR-2004 (Rel. 43, Last annotation update)
+DE   Amyotrophic lateral sclerosis 2 chromosomal region candidate gene
+DE   protein 3 homolog (GABA-A receptor interacting factor-1) (GRIF-1) (O-
+DE   GlcNAc transferase-interacting protein of 98 kDa).
+GN   ALS2CR3 OR GRIF1 OR OIP98.
+OS   Rattus norvegicus (Rat).
+OC   Eukaryota; Metazoa; Chordata; Craniata; Vertebrata; Euteleostomi;
+OC   Mammalia; Eutheria; Rodentia; Sciurognathi; Muridae; Murinae; Rattus.
+OX   NCBI_TaxID=10116;
+RN   [1]
+RP   SEQUENCE FROM N.A. (ISOFORMS 1 AND 2), SUBCELLULAR LOCATION, AND
+RP   INTERACTION WITH GABA-A RECEPTOR.
+RC   TISSUE=Brain;
+RX   MEDLINE=22162448; PubMed=12034717;
+RA   Beck M., Brickley K., Wilkinson H.L., Sharma S., Smith M.,
+RA   Chazot P.L., Pollard S., Stephenson F.A.;
+RT   "Identification, molecular cloning, and characterization of a novel
+RT   GABAA receptor-associated protein, GRIF-1.";
+RL   J. Biol. Chem. 277:30079-30090(2002).
+RN   [2]
+RP   REVISIONS TO 579 AND 595-596, AND VARIANTS VAL-609 AND PRO-820.
+RA   Stephenson F.A.;
+RL   Submitted (FEB-2003) to the EMBL/GenBank/DDBJ databases.
+RN   [3]
+RP   SEQUENCE FROM N.A. (ISOFORM 3), INTERACTION WITH O-GLCNAC TRANSFERASE,
+RP   AND O-GLYCOSYLATION.
+RC   STRAIN=Sprague-Dawley; TISSUE=Brain;
+RX   MEDLINE=22464403; PubMed=12435728;
+RA   Iyer S.P.N., Akimoto Y., Hart G.W.;
+RT   "Identification and cloning of a novel family of coiled-coil domain
+RT   proteins that interact with O-GlcNAc transferase.";
+RL   J. Biol. Chem. 278:5399-5409(2003).
+CC   -!- SUBUNIT: Interacts with GABA-A receptor and O-GlcNac transferase.
+CC   -!- SUBCELLULAR LOCATION: Cytoplasmic.
+CC   -!- ALTERNATIVE PRODUCTS:
+CC       Event=Alternative splicing; Named isoforms=3;
+CC       Name=1; Synonyms=GRIF-1a;
+CC         IsoId=Q8R2H7-1; Sequence=Displayed;
+CC       Name=2; Synonyms=GRIF-1b;
+CC         IsoId=Q8R2H7-2; Sequence=VSP_003786, VSP_003787;
+CC       Name=3;
+CC         IsoId=Q8R2H7-3; Sequence=VSP_003788;
+CC   -!- PTM: O-glycosylated.
+CC   -!- SIMILARITY: TO HUMAN OIP106.
+CC   --------------------------------------------------------------------------
+CC   This SWISS-PROT entry is copyright. It is produced through a collaboration
+CC   between  the Swiss Institute of Bioinformatics  and the  EMBL outstation -
+CC   the European Bioinformatics Institute.  There are no  restrictions on  its
+CC   use  by  non-profit  institutions as long  as its content  is  in  no  way
+CC   modified and this statement is not removed.  Usage  by  and for commercial
+CC   entities requires a license agreement (See http://www.isb-sib.ch/announce/
+CC   or send an email to license@isb-sib.ch).
+CC   --------------------------------------------------------------------------
+DR   EMBL; AJ288898; CAC81785.2; -.
+DR   EMBL; AJ288898; CAC81786.2; -.
+DR   EMBL; AF474163; AAL84588.1; -.
+DR   GO; GO:0005737; C:cytoplasm; IEP.
+DR   GO; GO:0005634; C:nucleus; IDA.
+DR   GO; GO:0005886; C:plasma membrane; IEP.
+DR   GO; GO:0005478; F:intracellular transporter activity; NAS.
+DR   GO; GO:0005515; F:protein binding; IPI.
+DR   GO; GO:0005102; F:receptor binding; IPI.
+DR   GO; GO:0006836; P:neurotransmitter transport; NAS.
+DR   GO; GO:0006493; P:O-linked glycosylation; IDA.
+DR   GO; GO:0006605; P:protein targeting; IDA.
+DR   GO; GO:0006357; P:regulation of transcription from Pol II pro...; IDA.
+DR   InterPro; IPR006933; HAP1_N.
+DR   Pfam; PF04849; HAP1_N; 1.
+KW   Coiled coil; Alternative splicing; Polymorphism.
+FT   DOMAIN      134    355       COILED COIL (POTENTIAL).
+FT   DOMAIN      502    519       COILED COIL (POTENTIAL).
+FT   VARSPLIC    653    672       VATSNPGKCLSFTNSTFTFT -> ALVSHHCPVEAVRAVHP
+FT                                TRL (in isoform 2).
+FT                                /FTId=VSP_003786.
+FT   VARSPLIC    673    913       Missing (in isoform 2).
+FT                                /FTId=VSP_003787.
+FT   VARSPLIC    620    687       VQQPLQLEQKPAPPPPVTGIFLPPMTSAGGPVSVATSNPGK
+FT                                CLSFTNSTFTFTTCRILHPSDITQVTP -> GSAASSTGAE
+FT                                ACTTPASNGYLPAAHDLSRGTSL (in isoform 3).
+FT                                /FTId=VSP_003788.
+FT   VARIANT     609    609       E -> V.
+FT   VARIANT     820    820       S -> P.
+SQ   SEQUENCE   913 AA;  101638 MW;  D0E135DBEC30C28C CRC64;
+     MSLSQNAIFK SQTGEENLMS SNHRDSESIT DVCSNEDLPE VELVNLLEEQ LPQYKLRVDS
+     LFLYENQDWS QSSHQQQDAS ETLSPVLAEE TFRYMILGTD RVEQMTKTYN DIDMVTHLLA
+     ERDRDLELAA RIGQALLKRN HVLSEQNESL EEQLGQAFDQ VNQLQHELSK KEELLRIVSI
+     ASEESETDSS CSTPLRFNES FSLSQGLLQL DMMHEKLKEL EEENMALRSK ACHIKTETFT
+     YEEKEQKLIN DCVNELRETN AQMSRMTEEL SGKSDELLRY QEEISSLLSQ IVDLQHKLKE
+     HVIEKEELRL HLQASKDAQR QLTMELHELQ DRNMECLGML HESQEEIKEL RNKAGPSAHL
+     CFSQAYGVFA GESLAAEIEG TMRKKLSLDE ESVFKQKAQQ KRVFDTVKVA NDTRGRSVTF
+     PVLLPIPGSN RSSVIMTAKP FESGVQQTED KTLPNQGSST EVPGNSHPRD PPGLPEDSDL
+     ATALHRLSLR RQNYLSEKQF FAEEWERKLQ ILAEQEEEVS SCEALTENLA SFCTDQSETT
+     ELGSAGCLRG FMPEKLQIVK PLEGSQTLHH WQQLAQPNLG TILDPRPGVI TKGFTQMPKD
+     AVYHISDLEE DEEVGITFQV QQPLQLEQKP APPPPVTGIF LPPMTSAGGP VSVATSNPGK
+     CLSFTNSTFT FTTCRILHPS DITQVTPSSG FPSLSCGSSA GSASNTAVNS PAASYRLSIG
+     ESITNRRDST ITFSSTRSLA KLLQERGISA KVYHSPASEN PLLQLRPKAL ATPSTPPNSP
+     SQSPCSSPVP FEPRVHVSEN FLASRPAETF LQEMYGLRPS RAPPDVGQLK MNLVDRLKRL
+     GIARVVKTPV PRENGKSREA EMGLQKPDSA VYLNSGGSLL GGLRRNQSLP VMMGSFGAPV
+     CTTSPKMGIL KED
+//

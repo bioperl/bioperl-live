@@ -1,0 +1,93 @@
+Codon usage table
+
+Pan troglodytes [gbpri]  325  CDS's
+
+AmAcid   Codon             Number       /1000    Fraction
+
+Pro      CCC              2351.00       22.55        0.41
+Pro      CCT              1234.00       11.84        0.22
+Pro      CCA              1158.00       11.11        0.20
+Pro      CCG               923.00        8.85        0.16
+
+Leu      CTC              2553.00       24.49        0.24
+Leu      CTT               985.00        9.45        0.09
+Leu      CTA               802.00        7.69        0.08
+Leu      CTG              4997.00       47.93        0.48
+
+His      CAC              1745.00       16.74        0.63
+His      CAT              1041.00        9.99        0.37
+Gln      CAA               925.00        8.87        0.17
+Gln      CAG              4576.00       43.90        0.83
+
+Arg      CGC              1580.00       15.16        0.24
+Arg      CGT               397.00        3.81        0.06
+Arg      CGA               592.00        5.68        0.09
+Arg      CGG              1208.00       11.59        0.19
+
+Ser      TCC              2158.00       20.70        0.27
+Ser      TCT              1651.00       15.84        0.21
+Ser      TCA               923.00        8.85        0.12
+Ser      TCG               417.00        4.00        0.05
+
+Phe      TTC              2447.00       23.47        0.70
+Phe      TTT              1025.00        9.83        0.30
+Leu      TTA               423.00        4.06        0.04
+Leu      TTG               733.00        7.03        0.07
+
+Tyr      TAC              2585.00       24.80        0.69
+Tyr      TAT              1153.00       11.06        0.31
+Ter      TAA                68.00        0.65        0.17
+Ter      TAG                69.00        0.66        0.17
+
+Cys      TGC              1448.00       13.89        0.63
+Cys      TGT               851.00        8.16        0.37
+Ter      TGA               275.00        2.64        0.67
+Trp      TGG              2178.00       20.89        1.00
+
+Thr      ACC              3341.00       32.05        0.50
+Thr      ACT              1121.00       10.75        0.17
+Thr      ACA              1452.00       13.93        0.22
+Thr      ACG               821.00        7.88        0.12
+
+Ile      ATC              2742.00       26.30        0.62
+Ile      ATT              1065.00       10.22        0.24
+Ile      ATA               643.00        6.17        0.14
+Met      ATG              2152.00       20.64        1.00
+
+Asn      AAC              1941.00       18.62        0.67
+Asn      AAT               949.00        9.10        0.33
+Lys      AAA              1276.00       12.24        0.32
+Lys      AAG              2707.00       25.97        0.68
+
+Ser      AGC              1872.00       17.96        0.24
+Ser      AGT               828.00        7.94        0.11
+Arg      AGA              1250.00       11.99        0.19
+Arg      AGG              1467.00       14.07        0.23
+
+Ala      GCC              3337.00       32.01        0.39
+Ala      GCT              2211.00       21.21        0.26
+Ala      GCA              1374.00       13.18        0.16
+Ala      GCG              1671.00       16.03        0.19
+
+Val      GTC              1610.00       15.44        0.24
+Val      GTT               774.00        7.42        0.12
+Val      GTA               397.00        3.81        0.06
+Val      GTG              3873.00       37.15        0.58
+
+Asp      GAC              3294.00       31.60        0.70
+Asp      GAT              1427.00       13.69        0.30
+Glu      GAA              1326.00       12.72        0.22
+Glu      GAG              4666.00       44.76        0.78
+
+Gly      GGC              2639.00       25.31        0.37
+Gly      GGT               782.00        7.50        0.11
+Gly      GGA              1562.00       14.98        0.22
+Gly      GGG              2206.00       21.16        0.31
+
+
+
+Coding GC 57.49%
+1st letter GC 57.76%
+2nd letter GC 45.35%
+3rd letter GC 45.35%
+Genetic code 1

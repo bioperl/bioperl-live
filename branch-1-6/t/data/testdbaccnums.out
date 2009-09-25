@@ -1,0 +1,443 @@
+BLASTP 2.2.4 [Aug-26-2002]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+RID: 1036160600-011802-21377
+Query= test_result
+         (8 letters)
+
+Database: All non-redundant GenBank CDS
+translations+PDB+SwissProt+PIR+PRF 
+           1,220,597 sequences; 388,937,031 total letters
+
+
+
+                                                                 Score    E
+Sequences producing significant alignments:                      (bits) Value
+
+gb|NP_065733.1|CYT19 (NM_020682) Cyt19 protein; likely ortholog of r...    31   0.18 
+emb|XP_053690.4|Cyt19 (XM_053690) similar to Cyt19 protein; likely or...    31   0.18 
+dbj|NP_056277.2|DKFZP586L0724 (NM_015462) DKFZP586L0724 protein [Homo sapiens...    21   113  
+pir||T14789 hypothetical protein DKFZp586L0724.1 - human >gi|581...    21   113  
+prf||XP_064862.2 (XM_064862) similar to pheromone receptor [Homo...    21   152  
+pdb|BAB13968.1|1 (AK022138) unnamed protein product [Homo sapiens]      21   204  
+sp|Q16478|GLK5_HUMAN Glutamate receptor, ionotropic kainate 5 pr...    21   204  
+pat|US|NP_002079.2 (NM_002088) glutamate receptor, ionotropic, kai...    21   204  
+bbs|NP_079463.2| (NM_025187) hypothetical protein FLJ12076 [Homo...    21   204  
+gnl|db1|NP_002444.1 (NM_002453) mitochondrial translational initiat...    21   204  
+ref|XP_051877.1| (XM_051877) similar to NS1-binding protein-like...    20   274  
+lcl|AAH16829.1| (BC016829) Unknown (protein for IMAGE:413...    20   274  
+gi|1|gb|NP_065733.1|CYT19 (NM_020682) Cyt19 protein; likely ortholog of r...    31   0.18 
+gi|2|emb|XP_053690.4|Cyt19 (XM_053690) similar to Cyt19 protein; likely or...    31   0.18 
+gi|3|dbj|NP_056277.2|DKFZP586L0724 (NM_015462) DKFZP586L0724 protein [Homo sapiens...    21   113  
+gi|4|pir||T14789 hypothetical protein DKFZp586L0724.1 - human >gi|581...    21   113  
+gi|5|prf||XP_064862.2 (XM_064862) similar to pheromone receptor [Homo...    21   152  
+gi|6|pdb|BAB13968.1|1 (AK022138) unnamed protein product [Homo sapiens]      21   204  
+gi|7|sp|Q16478|GLK5_HUMAN Glutamate receptor, ionotropic kainate 5 pr...    21   204  
+gi|8|pat|US|NP_002079.2 (NM_002088) glutamate receptor, ionotropic, kai...    21   204  
+gi|9|bbs|NP_079463.2| (NM_025187) hypothetical protein FLJ12076 [Homo...    21   204  
+gi|10|gnl|db1|NP_002444.1 (NM_002453) mitochondrial translational initiat...    21   204  
+gi|11|ref|XP_051877.1| (XM_051877) similar to NS1-binding protein-like...    20   274  
+gi|12|lcl|AAH16829.1| (BC016829) Unknown (protein for IMAGE:413...    20   274  
+MY_test_ID (BC016829) Unknown (protein for IMAGE:413...    20   274  
+
+ALIGNMENTS
+>pir||T14789 hypothetical protein DKFZp586L0724.1 - human
+ emb|CAB53709.1| (AL110271) hypothetical protein [Homo sapiens]
+ gb|AAH01726.1|AAH01726 (BC001726) Similar to DKFZP586L0724 protein [Homo sapiens]
+          Length = 314
+
+ Score = 21.4 bits (43), Expect =   113
+ Identities = 6/8 (75%), Positives = 7/8 (87%)
+
+Query: 1   LMFDANFT 8
+           L+ DANFT
+Sbjct: 247 LLLDANFT 254
+
+
+>gb|NP_065733.1|CYT19 (NM_020682) Cyt19 protein; likely ortholog of rat methyltransferase
+           Cyt19; S-adenosylmethionine:arsenic (III)
+           methyltransferase [Homo sapiens]
+ gb|AAG09731.1|AF226730_1 (AF226730) Cyt19 [Homo sapiens]
+          Length = 338
+
+ Score = 30.8 bits (65), Expect = 0.18
+ Identities = 8/8 (100%), Positives = 8/8 (100%)
+
+Query: 1   LMFDANFT 8
+           LMFDANFT
+Sbjct: 286 LMFDANFT 293
+
+
+>emb|XP_053690.4|Cyt19 (XM_053690) similar to Cyt19 protein; likely ortholog of rat
+           methyltransferase Cyt19; S-adenosylmethionine:arsenic
+           (III) methyltransferase [Homo sapiens]
+          Length = 375
+
+ Score = 30.8 bits (65), Expect = 0.18
+ Identities = 8/8 (100%), Positives = 8/8 (100%)
+
+Query: 1   LMFDANFT 8
+           LMFDANFT
+Sbjct: 286 LMFDANFT 293
+
+
+>dbj|NP_056277.2|DKFZP586L0724 (NM_015462) DKFZP586L0724 protein [Homo sapiens]
+ dbj|BAB14647.1| (AK023702) unnamed protein product [Homo sapiens]
+          Length = 719
+
+ Score = 21.4 bits (43), Expect =   113
+ Identities = 6/8 (75%), Positives = 7/8 (87%)
+
+Query: 1   LMFDANFT 8
+           L+ DANFT
+Sbjct: 652 LLLDANFT 659
+
+
+>prf||XP_064862.2 (XM_064862) similar to pheromone receptor [Homo sapiens]
+          Length = 370
+
+ Score = 21.0 bits (42), Expect =   152
+ Identities = 5/5 (100%), Positives = 5/5 (100%)
+
+Query: 2   MFDAN 6
+           MFDAN
+Sbjct: 348 MFDAN 352
+
+
+>pdb|BAB13968.1|1 (AK022138) unnamed protein product [Homo sapiens]
+          Length = 258
+
+ Score = 20.6 bits (41), Expect =   204
+ Identities = 5/5 (100%), Positives = 5/5 (100%)
+
+Query: 1  LMFDA 5
+          LMFDA
+Sbjct: 45 LMFDA 49
+
+
+>sp|Q16478|GLK5_HUMAN Glutamate receptor, ionotropic kainate 5 precursor (Glutamate
+           receptor KA-2) (KA2) (Excitatory amino acid receptor 2)
+           (EAA2)
+ pir||I57936 glutamate receptor subunit - human
+ gb|AAB22591.1| (S40369) glutamate receptor subunit; EAA2; excitatory amino acid
+           receptor 2 [Homo sapiens]
+          Length = 980
+
+ Score = 20.6 bits (41), Expect =   204
+ Identities = 5/5 (100%), Positives = 5/5 (100%)
+
+Query: 1   LMFDA 5
+           LMFDA
+Sbjct: 306 LMFDA 310
+
+
+>pat|US|NP_002079.2 (NM_002088) glutamate receptor, ionotropic, kainate 5 [Homo
+           sapiens]
+ emb|CAC80547.1| (AJ249209) kainate receptor subunit KA2a [Homo sapiens]
+          Length = 981
+
+ Score = 20.6 bits (41), Expect =   204
+ Identities = 5/5 (100%), Positives = 5/5 (100%)
+
+Query: 1   LMFDA 5
+           LMFDA
+Sbjct: 306 LMFDA 310
+
+
+>bbs|NP_079463.2| (NM_025187) hypothetical protein FLJ12076 [Homo sapiens]
+ sp|Q9BSU1|U183_HUMAN UPF0183 protein
+ gb|AAH04556.1|AAH04556 (BC004556) Similar to CG7083 gene product [Homo sapiens]
+ gb|AAK96888.1| (AF176088) lin-10-like protein [Homo sapiens]
+          Length = 422
+
+ Score = 20.6 bits (41), Expect =   204
+ Identities = 5/5 (100%), Positives = 5/5 (100%)
+
+Query: 1  LMFDA 5
+          LMFDA
+Sbjct: 67 LMFDA 71
+
+
+
+ Score = 16.8 bits (32), Expect =  2880
+ Identities = 4/5 (80%), Positives = 5/5 (100%)
+
+Query: 2   MFDAN 6
+           +FDAN
+Sbjct: 296 LFDAN 300
+
+
+>gnl|db1|NP_002444.1 (NM_002453) mitochondrial translational initiation factor 2
+           precursor; IF-2mt [Homo sapiens]
+ sp|P46199|IF2M_HUMAN Translation initiation factor IF-2, mitochondrial precursor
+           (IF-2Mt) (IF-2(Mt))
+ pir||A55628 translation initiation factor IF-2 precursor, mitochondrial - human
+ gb|AAA67038.1| (L34600) initiation factor 2 [Homo sapiens]
+ gb|AAM14617.1|AF494407_1 (AF494407) mitochondrial translation-initiation factor 2 [Homo
+           sapiens]
+ gb|AAM70196.1| (AF495546) translation initiation factor 2 [Homo sapiens]
+          Length = 727
+
+ Score = 20.6 bits (41), Expect =   204
+ Identities = 5/6 (83%), Positives = 5/6 (83%)
+
+Query: 1   LMFDAN 6
+           LMFD N
+Sbjct: 398 LMFDEN 403
+
+
+>ref|XP_051877.1| (XM_051877) similar to NS1-binding protein-like protein [Homo
+          sapiens]
+ dbj|BAA74873.1| (AB020657) KIAA0850 protein [Homo sapiens]
+ emb|CAB72329.1| (AL078644) bG279B7.1.1 (NS1-binding protein (KIAA0850, BTB/POZ
+          domain and Kelch motifs containing protein)) [Homo
+          sapiens]
+ gb|AAG43485.1| (AF205218) NS1-binding protein-like protein [Homo sapiens]
+          Length = 642
+
+ Score = 20.2 bits (40), Expect =   274
+ Identities = 6/8 (75%), Positives = 6/8 (75%), Gaps = 1/8 (12%)
+
+Query: 1  LMF-DANF 7
+          LMF D NF
+Sbjct: 7  LMFEDENF 14
+
+
+>lcl|AAH16829.1| (BC016829) Unknown (protein for IMAGE:4132295) [Homo sapiens]
+          Length = 391
+
+ Score = 20.2 bits (40), Expect =   274
+ Identities = 5/6 (83%), Positives = 5/6 (83%)
+
+Query: 3  FDANFT 8
+          FD NFT
+Sbjct: 32 FDTNFT 37
+
+>gi|1|gb|NP_065733.1|CYT19 (NM_020682) Cyt19 protein; likely ortholog of rat methyltransferase
+           Cyt19; S-adenosylmethionine:arsenic (III)
+           methyltransferase [Homo sapiens]
+ gb|AAG09731.1|AF226730_1 (AF226730) Cyt19 [Homo sapiens]
+          Length = 338
+
+ Score = 30.8 bits (65), Expect = 0.18
+ Identities = 8/8 (100%), Positives = 8/8 (100%)
+
+Query: 1   LMFDANFT 8
+           LMFDANFT
+Sbjct: 286 LMFDANFT 293
+
+
+>gi|2|emb|XP_053690.4|Cyt19 (XM_053690) similar to Cyt19 protein; likely ortholog of rat
+           methyltransferase Cyt19; S-adenosylmethionine:arsenic
+           (III) methyltransferase [Homo sapiens]
+          Length = 375
+
+ Score = 30.8 bits (65), Expect = 0.18
+ Identities = 8/8 (100%), Positives = 8/8 (100%)
+
+Query: 1   LMFDANFT 8
+           LMFDANFT
+Sbjct: 286 LMFDANFT 293
+
+
+>gi|3|dbj|NP_056277.2|DKFZP586L0724 (NM_015462) DKFZP586L0724 protein [Homo sapiens]
+ dbj|BAB14647.1| (AK023702) unnamed protein product [Homo sapiens]
+          Length = 719
+
+ Score = 21.4 bits (43), Expect =   113
+ Identities = 6/8 (75%), Positives = 7/8 (87%)
+
+Query: 1   LMFDANFT 8
+           L+ DANFT
+Sbjct: 652 LLLDANFT 659
+
+
+>gi|4|pir||T14789 hypothetical protein DKFZp586L0724.1 - human
+ emb|CAB53709.1| (AL110271) hypothetical protein [Homo sapiens]
+ gb|AAH01726.1|AAH01726 (BC001726) Similar to DKFZP586L0724 protein [Homo sapiens]
+          Length = 314
+
+ Score = 21.4 bits (43), Expect =   113
+ Identities = 6/8 (75%), Positives = 7/8 (87%)
+
+Query: 1   LMFDANFT 8
+           L+ DANFT
+Sbjct: 247 LLLDANFT 254
+
+
+>gi|5|prf||XP_064862.2 (XM_064862) similar to pheromone receptor [Homo sapiens]
+          Length = 370
+
+ Score = 21.0 bits (42), Expect =   152
+ Identities = 5/5 (100%), Positives = 5/5 (100%)
+
+Query: 2   MFDAN 6
+           MFDAN
+Sbjct: 348 MFDAN 352
+
+
+>gi|6|pdb|BAB13968.1|1 (AK022138) unnamed protein product [Homo sapiens]
+          Length = 258
+
+ Score = 20.6 bits (41), Expect =   204
+ Identities = 5/5 (100%), Positives = 5/5 (100%)
+
+Query: 1  LMFDA 5
+          LMFDA
+Sbjct: 45 LMFDA 49
+
+
+>gi|7|sp|Q16478|GLK5_HUMAN Glutamate receptor, ionotropic kainate 5 precursor (Glutamate
+           receptor KA-2) (KA2) (Excitatory amino acid receptor 2)
+           (EAA2)
+ pir||I57936 glutamate receptor subunit - human
+ gb|AAB22591.1| (S40369) glutamate receptor subunit; EAA2; excitatory amino acid
+           receptor 2 [Homo sapiens]
+          Length = 980
+
+ Score = 20.6 bits (41), Expect =   204
+ Identities = 5/5 (100%), Positives = 5/5 (100%)
+
+Query: 1   LMFDA 5
+           LMFDA
+Sbjct: 306 LMFDA 310
+
+
+>gi|8|pat|US|NP_002079.2 (NM_002088) glutamate receptor, ionotropic, kainate 5 [Homo
+           sapiens]
+ emb|CAC80547.1| (AJ249209) kainate receptor subunit KA2a [Homo sapiens]
+          Length = 981
+
+ Score = 20.6 bits (41), Expect =   204
+ Identities = 5/5 (100%), Positives = 5/5 (100%)
+
+Query: 1   LMFDA 5
+           LMFDA
+Sbjct: 306 LMFDA 310
+
+
+>gi|9|bbs|NP_079463.2| (NM_025187) hypothetical protein FLJ12076 [Homo sapiens]
+ sp|Q9BSU1|U183_HUMAN UPF0183 protein
+ gb|AAH04556.1|AAH04556 (BC004556) Similar to CG7083 gene product [Homo sapiens]
+ gb|AAK96888.1| (AF176088) lin-10-like protein [Homo sapiens]
+          Length = 422
+
+ Score = 20.6 bits (41), Expect =   204
+ Identities = 5/5 (100%), Positives = 5/5 (100%)
+
+Query: 1  LMFDA 5
+          LMFDA
+Sbjct: 67 LMFDA 71
+
+
+
+ Score = 16.8 bits (32), Expect =  2880
+ Identities = 4/5 (80%), Positives = 5/5 (100%)
+
+Query: 2   MFDAN 6
+           +FDAN
+Sbjct: 296 LFDAN 300
+
+
+>gi|10|gnl|db1|NP_002444.1 (NM_002453) mitochondrial translational initiation factor 2
+           precursor; IF-2mt [Homo sapiens]
+ sp|P46199|IF2M_HUMAN Translation initiation factor IF-2, mitochondrial precursor
+           (IF-2Mt) (IF-2(Mt))
+ pir||A55628 translation initiation factor IF-2 precursor, mitochondrial - human
+ gb|AAA67038.1| (L34600) initiation factor 2 [Homo sapiens]
+ gb|AAM14617.1|AF494407_1 (AF494407) mitochondrial translation-initiation factor 2 [Homo
+           sapiens]
+ gb|AAM70196.1| (AF495546) translation initiation factor 2 [Homo sapiens]
+          Length = 727
+
+ Score = 20.6 bits (41), Expect =   204
+ Identities = 5/6 (83%), Positives = 5/6 (83%)
+
+Query: 1   LMFDAN 6
+           LMFD N
+Sbjct: 398 LMFDEN 403
+
+
+>gi|11|ref|XP_051877.1| (XM_051877) similar to NS1-binding protein-like protein [Homo
+          sapiens]
+ dbj|BAA74873.1| (AB020657) KIAA0850 protein [Homo sapiens]
+ emb|CAB72329.1| (AL078644) bG279B7.1.1 (NS1-binding protein (KIAA0850, BTB/POZ
+          domain and Kelch motifs containing protein)) [Homo
+          sapiens]
+ gb|AAG43485.1| (AF205218) NS1-binding protein-like protein [Homo sapiens]
+          Length = 642
+
+ Score = 20.2 bits (40), Expect =   274
+ Identities = 6/8 (75%), Positives = 6/8 (75%), Gaps = 1/8 (12%)
+
+Query: 1  LMF-DANF 7
+          LMF D NF
+Sbjct: 7  LMFEDENF 14
+
+
+>gi|12|lcl|AAH16829.1| (BC016829) Unknown (protein for IMAGE:4132295) [Homo sapiens]
+          Length = 391
+
+ Score = 20.2 bits (40), Expect =   274
+ Identities = 5/6 (83%), Positives = 5/6 (83%)
+
+Query: 3  FDANFT 8
+          FD NFT
+Sbjct: 32 FDTNFT 37
+
+>MY_test_ID (BC016829) Unknown (protein for IMAGE:4132295) [Homo sapiens]
+          Length = 391
+
+ Score = 20.2 bits (40), Expect =   274
+ Identities = 5/6 (83%), Positives = 5/6 (83%)
+
+Query: 3  FDANFT 8
+          FD NFT
+Sbjct: 32 FDTNFT 37
+
+
+  Database: All non-redundant GenBank CDS
+  translations+PDB+SwissProt+PIR+PRF
+    Posted date:  Oct 31, 2002  3:52 AM
+  Number of letters in database: 388,937,031
+  Number of sequences in database:  1,220,597
+  
+Lambda     K      H
+   0.328    0.274     1.77 
+
+Gapped
+Lambda     K      H
+   0.294    0.110    0.610 
+
+
+Matrix: PAM30
+Gap Penalties: Existence: 9, Extension: 1
+Number of Hits to DB: 660,045
+Number of Sequences: 1220597
+Number of extensions: 3731
+Number of successful extensions: 3028
+Number of sequences better than 200000.0: 2850
+Number of HSP's better than 200000.0 without gapping: 2850
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 0
+Number of HSP's gapped (non-prelim): 3028
+length of query: 8
+length of database: 35,444,647
+effective HSP length: 0
+effective length of query: 9
+effective length of database: 35,444,647
+effective search space: 319001823
+effective search space used: 319001823
+T: 11
+A: 40
+X1: 15 ( 7.1 bits)
+X2: 35 (14.8 bits)
+X3: 58 (24.6 bits)
+S1: 18 (10.4 bits)
+S2: 18 (10.8 bits)
+
+

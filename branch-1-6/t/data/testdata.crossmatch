@@ -1,0 +1,98 @@
+cross_match 34_1_5_MSX1DF.seq msx1_ens2.fasta -alignments 
+cross_match version 0.990329
+
+Run date:time  080103:101214
+Query file(s):  34_1_5_MSX1DF.seq
+Subject file(s):   msx1_ens2.fasta
+Presumed sequence type: DNA
+
+Pairwise comparison algorithm: banded Smith-Waterman
+
+Score matrix (set by value of penalty: -2)
+    A   C   G   T   N   X
+A   1  -2  -2  -2   0  -3
+C  -2   1  -2  -2   0  -3
+G  -2  -2   1  -2   0  -3
+T  -2  -2  -2   1   0  -3
+N   0   0   0   0   0   0
+X  -3  -3  -3  -3   0  -3
+
+Gap penalties: gap_init: -4, gap_ext: -3, ins_gap_ext: -3, del_gap_ext: -3, 
+Using complexity-adjusted scores. Assumed background frequencies:
+ A: 0.250  C: 0.250  G: 0.250  T: 0.250  N: 0.000  X: 0.000  
+
+minmatch: 14, maxmatch: 14, max_group_size: 20, minscore: 30, bandwidth: 14, indexwordsize: 10
+vector_bound: 0
+word_raw: 0
+masklevel: 80
+
+Sequence file: 34_1_5_MSX1DF.seq    1 entries
+Residue counts:
+  A      123
+  C      148
+  G      170
+  N        1
+  T      161
+Total    603
+
+NO QUALITY FILE 34_1_5_MSX1DF.seq.qual WAS FOUND. REMAINING INPUT QUALITIES SET TO 15.
+Maximal single base matches (low complexity regions):
+
+ 538  1.37 0.51 0.34  C:\Program       19   603 (0)    msx1_ens2     2824  3409 (3856)  
+
+  C:\Program          19 TCCCAA-CGTCTAAGACTGAGCCATTAA-GTGGACTCCAGGTGCCCAAGG 66
+                               -      i              -                     
+  msx1_ens2         2824 TCCCAAACGTCTAGGACTGAGCCATTAAAGTGGACTCCAGGTGCCCAAGG 2873
+
+  C:\Program          67 CGGTTCGCTCCAAGGCCTCACGGCCCCCTGGCTGCTCTACTCAGAGAACA 116
+                                                                           
+  msx1_ens2         2874 CGGTTCGCTCCAAGGCCTCACGGCCCCCTGGCTGCTCTACTCAGAGAACA 2923
+
+  C:\Program         117 CGCTCGGAGATATTTCAGGAGCACGGGAAATTCCCAAGTTTTCCTCGTTT 166
+                                                                           
+  msx1_ens2         2924 CGCTCGGAGATATTTCAGGAGCACGGGAAATTCCCAAGTTTTCCTCGTTT 2973
+
+  C:\Program         167 CCTCCGATTATTTTGCTCGGCATAATAGCAGCCAGATTTCAATGGCGTGA 216
+                                                                           
+  msx1_ens2         2974 CCTCCGATTATTTTGCTCGGCATAATAGCAGCCAGATTTCAATGGCGTGA 3023
+
+  C:\Program         217 TGCTGAGGAATGATTTTTATCTGGGGATTAAACGTCTTTGAAAGGCCAGT 266
+                                                                           
+  msx1_ens2         3024 TGCTGAGGAATGATTTTTATCTGGGGATTAAACGTCTTTGAAAGGCCAGT 3073
+
+  C:\Program         267 CCCTCCCTAAGCCTAATGGCCGGAGAAGGTGGCCCCGCTCTGGGTTGTCG 316
+                                                                           
+  msx1_ens2         3074 CCCTCCCTAAGCCTAATGGCCGGAGAAGGTGGCCCCGCTCTGGGTTGTCG 3123
+
+  C:\Program         317 CCGCTGAAGGGAGTGACGTTTCTCTCGGCGCCCGCCCCTCGGGCGGCCCG 366
+                                                                           
+  msx1_ens2         3124 CCGCTGAAGGGAGTGACGTTTCTCTCGGCGCCCGCCCCTCGGGCGGCCCG 3173
+
+  C:\Program         367 GCGGAAAGCTAGTTGGGGGCCAAGCGCTTCCCGGACTCCCGGTGGCCTCC 416
+                                                                           
+  msx1_ens2         3174 GCGGAAAGCTAGTTGGGGGCCAAGCGCTTCCCGGACTCCCGGTGGCCTCC 3223
+
+  C:\Program         417 AGCAGGGAAGAAGCGGGGTGTTAACACGAGATTTCGTTTTGACTCACATC 466
+                                                                -          
+  msx1_ens2         3224 AGCAGGGAAGAAGCGGGGTGTTAACACGAGATTTCGTTT-GACTCACATC 3272
+
+  C:\Program         467 CTGGTGGTCTGAAAGTCCAAAGGATCGTTGTGTTTTCTTTGTTTAGTCAT 516
+                                                                     v  iv 
+  msx1_ens2         3273 CTGGTGGTCTGAAAGTCCAAAGGATCGTTGTGTTTTCTTTGTTTTGTTTT 3322
+
+  C:\Program         517 GTTTNTTCTGTTTGTTTGTGGTTGTTTTTTAGAGAGGTGTGAAAAAATGC 566
+                             ?                                             
+  msx1_ens2         3323 GTTTTTTCTGTTTGTTTGTGGTTGTTTTTTAGAGAGGTGTGAAAAAATGC 3372
+
+  C:\Program         567 ATACTTAGGGCAAAACCGCGGTGGTGAA-CATCTTCGA 603
+                                  -       vvv        -         
+  msx1_ens2         3373 ATACTTAGG-CAAAACCCGCGTGGTGAAACATCTTCGA 3409
+
+Transitions / transversions = 0.40 (2 / 5)
+Gap_init rate = 0.01 (5 / 586), avg. gap size = 1.00 (5 / 5)  
+
+
+1 matching entries (first file).
+
+Discrepancy summary:
+Qual algn  cum    rcum    (%)    unalgn X    N  sub del ins  total (%)   cum  rcum (%)

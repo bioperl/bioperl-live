@@ -1,0 +1,80 @@
+C4 Alignment display:
+  Model: est2genome
+  Raw score: 1615
+  Aligned positions 65->416 of query
+  Aligned positions 0->939 of target
+
+Query: ln27 
+Target: Contig124
+
+  66 : GTGATGTAGGAAAGAAGCCGGCTGGGACTGGCGCGGTGATATCGACGTGA : 115
+       |||||||||||||||| |||||||||||||||||||||||||||||||||
+   1 : GTGATGTAGGAAAGAAACCGGCTGGGACTGGCGCGGTGATATCGACGTGA :  50
+
+ 116 : TTGTTCATGCTGCCGCTAGGCTGGGAGTCTTCAAGGCGACAGGCATCGCT : 165
+       ||||||||||||||||||||||||||||||||||||||||||||||||||
+  51 : TTGTTCATGCTGCCGCTAGGCTGGGAGTCTTCAAGGCGACAGGCATCGCT : 100
+
+ 166 : GCAATAAGTGTCTCGTGGATTGTC  <<<< Intron 1 <<<<  CAAT : 193
+       ||||||||||||||||||||||||         53 bp        ||||
+ 101 : GCAATAAGTGTCTCGTGGATTGTCct..................acCAAT : 181
+
+ 194 : TGTTTAGAGCAAGCCAAACACCAAGCAGTATCCATACCCATATCAATCAT : 243
+       ||||||||||||||||||||||||||||||||||||||||||||||||||
+ 182 : TGTTTAGAGCAAGCCAAACACCAAGCAGTATCCATACCCATATCAATCAT : 231
+
+ 244 : AGTCATTTTGAGCGGTATTGTGTCGGGCCAAGAGTGATTGTAGATGTAGA : 293
+       ||||||||||||||||||||||||||||||||||||||||||||||||||
+ 232 : AGTCATTTTGAGCGGTATTGTGTCGGGCCAAGAGTGATTGTAGATGTAGA : 281
+
+ 294 : AGGGTAAAGAAAACGGGGCTGTTACAAGACAAAGGAGAAGAGAGTCGTCC : 343
+       ||||||||||||||||||||||||||||||||||||||||||||||||||
+ 282 : AGGGTAAAGAAAACGGGGCTGTTACAAGACAAAGGAGAAGAGAGTCGTCC : 331
+
+ 344 : GAGGGAGTTAGTGATGGGGAGAGTCGAAATGC  <<<< Intron 2 << : 375
+       ||||||||||||||||||||||||||||||||        535 bp    
+ 332 : GAGGGAGTTAGTGATGGGGAGAGTCGAAATGCct................ : 898
+
+ 376 : <<  CTACACCAGGCTGCAATATTCTCGCCTATAATTCTGCGCTT : 416
+           |||||||||||||||||||||||||||||||||||||||||
+ 899 : ..acCTACACCAGGCTGCAATATTCTCGCCTATAATTCTGCGCTT : 939
+
+cigar: ln27 65 416 - Contig124 0 939 + 1615 M 124 D 53 M 186 D 535 M 41
+C4 Alignment display:
+  Model: est2genome
+  Raw score: 1152
+  Aligned positions 385->644 of query
+  Aligned positions 900->1296 of target
+
+Query: ln74
+Target: Contig275
+
+  386 : CTTGGGGTCCTTCTCCGATTCACTGCTTCCACCGCTGCTGCCGC  <<<< :  429
+        ||||||||||||||||||||||||||||||||||||||||||||      
+  901 : CTTGGGGTCCTTCTCCGATTCACTGCTTCCACCGCTGCTGCCGCct.... :  997
+
+  430 :  Intron 1 <<<<  ACTTTTGCAAAATGAAGACATTTTCCCTCTTACC :  463
+           53 bp        ||||||||||||||||||||||||||||||||||
+  998 : ..............acACTTTTGCAAAATGAAGACATTTTCCCTCTTACC : 1031
+
+  464 : ACCCCACTTTTCCAAGGCGTCCTTGACGCTCTTACTGTTTTTGTACATTT :  513
+        ||||||||||||||||||||||||||||||||||||||||||||||||||
+ 1032 : ACCCCACTTTTCCAAGGCGTCCTTGACGCTCTTACTGTTTTTGTACATTT : 1081
+
+  514 : GAGCACAATCAATGTAGGTGTACCCGGTCTTCAAGGCTGAGACGAGATGC :  563
+        ||||||||||||||||||||||||||||||||||||||||||||||||||
+ 1082 : GAGCACAATCAATGTAGGTGTACCCGGTCTTCAAGGCTGAGACGAGATGC : 1131
+
+  564 : TCAACGCATTCCTTGCCGTAGTGGGTGGTGC  <<<< Intron 2 <<< :  594
+        |||||||||||||||||||||||||||||||         84 bp     
+ 1132 : TCAACGCATTCCTTGCCGTAGTGGGTGGTGCct................. : 1246
+
+  595 : <  CAAGACCAAACCCAATTTTGGGGATCTTGACACCATCATTGAGAGTT :  641
+           |||||||||||||||||||||||||||||||||||||||||||||||
+ 1247 : .acCAAGACCAAACCCAATTTTGGGGATCTTGACACCATCATTGAGAGTT : 1293
+
+  642 : ATG :  644
+        |||
+ 1294 : ATG : 1296
+
+cigar: ln74 385 644 - Contig275 900 1296 + 1152 M 44 D 53 M 165 D 84 M 50

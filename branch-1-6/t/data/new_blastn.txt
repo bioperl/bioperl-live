@@ -1,0 +1,134 @@
+BLASTN 2.2.13 [Nov-27-2005]
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schäffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman 
+(1997), "Gapped BLAST and PSI-BLAST: a new generation of 
+protein database search programs", Nucleic Acids Res. 25:3389-3402.
+
+RID: 1141079027-8324-8848328247.BLASTQ4
+
+
+Database: All GenBank+EMBL+DDBJ+PDB sequences (but no EST, STS,
+GSS,environmental samples or phase 0, 1 or 2 HTGS sequences)
+           3,742,891 sequences; 16,670,205,594 total letters
+Query=  pyrR, 558 bases, FB21E40C checksum.
+Length=558
+
+
+                                                                   Score     E
+Sequences producing significant alignments:                        (Bits)  Value
+
+gi|41400296|gb|AE016958.1|  Mycobacterium avium subsp. paratub...   236    6e-59
+gi|54013472|dbj|AP006618.1|  Nocardia farcinica IFM 10152 DNA, co   127    4e-26
+gi|57546753|dbj|BA000030.2|  Streptomyces avermitilis MA-4680 gen   119    1e-23
+
+ALIGNMENTS
+>gi|41400296|gb|AE016958.1| Mycobacterium avium subsp. paratuberculosis str. k10, complete 
+genome
+Length=4829781
+
+ Features in this part of subject sequence:
+   PyrR
+
+ Score =  236 bits (119),  Expect = 6e-59
+ Identities = 248/291 (85%), Gaps = 0/291 (0%)
+ Strand=Plus/Plus
+
+Query  262      CCGCCGCGTCCGCTGGAGGCCACCTCCATTCCCGCGGGCGGTGTCGACGACGCGATCGTC  321
+                |||||||| ||||||||||||||||| || || || |||||  ||||||||||| | || 
+Sbjct  1166897  CCGCCGCGGCCGCTGGAGGCCACCTCGATCCCGGCCGGCGGCATCGACGACGCGCTGGTG  1166956
+
+Query  322      ATCCTCGTCGACGACGTCCTGTACTCGGGCCGCTCGGTCCGCTCGGCGCTGGACGCGCTG  381
+                ||||| ||||||||||| || ||||| ||||||||||| |||||||| ||||||||||||
+Sbjct  1166957  ATCCTGGTCGACGACGTGCTCTACTCCGGCCGCTCGGTGCGCTCGGCACTGGACGCGCTG  1167016
+
+Query  382      CGCGACATCGGTCGCCCCCGCATCGTGCAGCTGGCGGTGCTGGTCGACCGCGGGCACCGC  441
+                |||||| | || ||||| ||  | ||||| ||||||||||||||||||||||| ||||||
+Sbjct  1167017  CGCGACGTGGGCCGCCCGCGGGTGGTGCAACTGGCGGTGCTGGTCGACCGCGGTCACCGC  1167076
+
+Query  442      GAGCTGCCCATCCGGGCCGACTACGTGGGCAAGAACGTCCCGACCTCACGCAGCGAAAGC  501
+                ||||||||  | || ||||||||||| |||||||||||||| ||||| ||||| || |||
+Sbjct  1167077  GAGCTGCCGCTGCGCGCCGACTACGTCGGCAAGAACGTCCCCACCTCGCGCAGTGAGAGC  1167136
+
+Query  502      GTCCACGTGCTGCTCAGCGAACACGACGACCGCGACGGAGTGGTGATCTCG  552
+                || |||||||||||   ||| ||||||| |  |||||| ||||||||||||
+Sbjct  1167137  GTGCACGTGCTGCTGGCCGAGCACGACGGCGCCGACGGGGTGGTGATCTCG  1167187
+
+
+>gi|54013472|dbj|AP006618.1| Nocardia farcinica IFM 10152 DNA, complete genome
+Length=6021225
+
+ Features in this part of subject sequence:
+   putative pyrimidine operon regulator
+
+ Score =  127 bits (64),  Expect = 4e-26
+ Identities = 85/92 (92%), Gaps = 0/92 (0%)
+ Strand=Plus/Minus
+
+Query  406      GTGCAGCTGGCGGTGCTGGTCGACCGCGGGCACCGCGAGCTGCCCATCCGGGCCGACTAC  465
+                ||||||||||| ||||||||||||||||| |||||||||||||| ||||| |||||||||
+Sbjct  3837536  GTGCAGCTGGCCGTGCTGGTCGACCGCGGCCACCGCGAGCTGCCGATCCGCGCCGACTAC  3837477
+
+Query  466      GTGGGCAAGAACGTCCCGACCTCACGCAGCGA  497
+                |||||||||||||| || ||||| ||||||||
+Sbjct  3837476  GTGGGCAAGAACGTGCCCACCTCCCGCAGCGA  3837445
+
+
+>gi|57546753|dbj|BA000030.2| Streptomyces avermitilis MA-4680 genomic DNA, complete genome
+Length=9025608
+
+ Features in this part of subject sequence:
+   putative pyrimidine operon regulatory protein
+
+ Score =  119 bits (60),  Expect = 1e-23
+ Identities = 135/160 (84%), Gaps = 0/160 (0%)
+ Strand=Plus/Plus
+
+Query  323      TCCTCGTCGACGACGTCCTGTACTCGGGCCGCTCGGTCCGCTCGGCGCTGGACGCGCTGC  382
+                ||||||||||||||||||| | ||| |||||| |  ||||| | || || ||||||||| 
+Sbjct  8189890  TCCTCGTCGACGACGTCCTCTTCTCCGGCCGCACCATCCGCGCCGCCCTCGACGCGCTGA  8189949
+
+Query  383      GCGACATCGGTCGCCCCCGCATCGTGCAGCTGGCGGTGCTGGTCGACCGCGGGCACCGCG  442
+                 ||||||||| ||||| |||  ||| ||||| ||||| || ||||||||||| |||||||
+Sbjct  8189950  ACGACATCGGCCGCCCGCGCGCCGTACAGCTCGCGGTCCTCGTCGACCGCGGTCACCGCG  8190009
+
+Query  443      AGCTGCCCATCCGGGCCGACTACGTGGGCAAGAACGTCCC  482
+                | ||||||||||| ||||||||||| ||||||||| ||||
+Sbjct  8190010  AACTGCCCATCCGCGCCGACTACGTCGGCAAGAACCTCCC  8190049
+
+
+
+  Database: All GenBank+EMBL+DDBJ+PDB sequences (but no EST, STS, GSS,environmental 
+samples or phase 0, 1 or 2 HTGS sequences)
+    Posted date:  Feb 23, 2006  9:00 AM
+  Number of letters in database: -509,663,586
+  Number of sequences in database:  3,742,891
+Lambda     K      H
+    1.37    0.711     1.31 
+Gapped
+Lambda     K      H
+    1.37    0.711     1.31 
+Matrix: blastn matrix:1 -3
+Gap Penalties: Existence: 5, Extension: 2
+Number of Sequences: 3742891
+Number of Hits to DB: 2465616
+Number of extensions: 117843
+Number of successful extensions: 1771
+Number of sequences better than 1e-23: 0
+Number of HSP's better than 1e-23 without gapping: 0
+Number of HSP's gapped: 1771
+Number of HSP's successfully gapped: 0
+Length of query: 558
+Length of database: 16670205594
+Length adjustment: 22
+Effective length of query: 536
+Effective length of database: 16670205594
+Effective search space: 8935230198384
+Effective search space used: 8891094027712
+A: 0
+X1: 11 (21.8 bits)
+X2: 15 (29.7 bits)
+X3: 25 (49.6 bits)
+S1: 14 (28.2 bits)
+S2: 60 (119.4 bits)
+
+

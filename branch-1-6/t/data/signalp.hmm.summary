@@ -1,0 +1,103 @@
+*********************** SignalP 3.0 predictions ***********************
+Using hidden Markov models (HMM) trained on eukaryotes
+
+----------------------------------------------------------------------
+>BC1G_00001.1 predicted protein (translation)
+
+SignalP-HMM result:
+>BC1G_00001.1
+Prediction: Non-secretory protein
+Signal peptide probability: 0.000
+Signal anchor probability: 0.000
+Max cleavage site probability: 0.000 between pos. -1 and  0
+
+----------------------------------------------------------------------
+>BC1G_00002.1 predicted protein (translation)
+
+SignalP-HMM result:
+>BC1G_00002.1
+Prediction: Non-secretory protein
+Signal peptide probability: 0.000
+Signal anchor probability: 0.000
+Max cleavage site probability: 0.000 between pos. 21 and 22
+
+----------------------------------------------------------------------
+>BC1G_00003.1 hypothetical protein (translation)
+
+SignalP-HMM result:
+>BC1G_00003.1
+Prediction: Signal peptide
+Signal peptide probability: 0.999
+Signal anchor probability: 0.000
+Max cleavage site probability: 0.973 between pos. 21 and 22
+
+----------------------------------------------------------------------
+>BC1G_00004.1 hypothetical protein (translation)
+
+SignalP-HMM result:
+>BC1G_00004.1
+Prediction: Non-secretory protein
+Signal peptide probability: 0.003
+Signal anchor probability: 0.000
+Max cleavage site probability: 0.001 between pos. 18 and 19
+
+----------------------------------------------------------------------
+>BC1G_00005.1 predicted protein (translation)
+
+SignalP-HMM result:
+>BC1G_00005.1
+Prediction: Non-secretory protein
+Signal peptide probability: 0.008
+Signal anchor probability: 0.000
+Max cleavage site probability: 0.007 between pos. 21 and 22
+
+----------------------------------------------------------------------
+>BC1G_00006.1 hypothetical protein (translation)
+
+SignalP-HMM result:
+>BC1G_00006.1
+Prediction: Non-secretory protein
+Signal peptide probability: 0.000
+Signal anchor probability: 0.000
+Max cleavage site probability: 0.000 between pos. 22 and 23
+
+----------------------------------------------------------------------
+>BC1G_00007.1 predicted protein (translation)
+
+SignalP-HMM result:
+>BC1G_00007.1
+Prediction: Non-secretory protein
+Signal peptide probability: 0.240
+Signal anchor probability: 0.000
+Max cleavage site probability: 0.228 between pos. 21 and 22
+
+----------------------------------------------------------------------
+>BC1G_00008.1 Homologue of M.grisea pathogenicity protein (translation)
+
+SignalP-HMM result:
+>BC1G_00008.1
+Prediction: Non-secretory protein
+Signal peptide probability: 0.222
+Signal anchor probability: 0.067
+Max cleavage site probability: 0.061 between pos. 21 and 22
+
+----------------------------------------------------------------------
+>BC1G_00009.1 hypothetical protein (translation)
+
+SignalP-HMM result:
+>BC1G_00009.1
+Prediction: Non-secretory protein
+Signal peptide probability: 0.000
+Signal anchor probability: 0.000
+Max cleavage site probability: 0.000 between pos. 19 and 20
+
+----------------------------------------------------------------------
+>BC1G_00010.1 hypothetical protein (translation)
+
+SignalP-HMM result:
+>BC1G_00010.1
+Prediction: Non-secretory protein
+Signal peptide probability: 0.000
+Signal anchor probability: 0.000
+Max cleavage site probability: 0.000 between pos. -1 and  0
+

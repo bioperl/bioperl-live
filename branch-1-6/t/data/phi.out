@@ -1,0 +1,397 @@
+BLASTP 2.0.14 [Jun-29-2000]
+
+
+Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+
+Query= CYS1_DICDI
+         (351 letters)
+
+Database: /home/peter/blast/data/swissprot
+           88,780 sequences; 31,984,247 total letters
+
+Searching......................................................................................................................................................
+3 occurrence(s) of pattern in query
+  CYS1_DICDI; PATTERN.
+ pattern P-E-E-Q at position 23 of query sequence
+effective database length=3.2e+07
+ pattern probability=8.9e-06
+lengthXprobability=2.8e+02
+
+Number of occurrences of pattern in the database is 349
+  CYS1_DICDI; PATTERN.
+ pattern P-E-E-Q at position 120 of query sequence
+effective database length=3.2e+07
+ pattern probability=8.9e-06
+lengthXprobability=2.8e+02
+
+Number of occurrences of pattern in the database is 349
+  CYS1_DICDI; PATTERN.
+ pattern P-E-E-Q at position 237 of query sequence
+effective database length=3.2e+07
+ pattern probability=8.9e-06
+lengthXprobability=2.8e+02
+
+Number of occurrences of pattern in the database is 349
+done
+
+
+                                                                   Score     E
+                                                                   (bits)  Value
+
+Significant matches for pattern occurrence 1 at position 23
+
+
+sp|P04988|CYS1_DICDI CYSTEINE PROTEINASE 1 PRECURSOR                  688  0.0
+sp|P30957|RYNC_RABIT RYANODINE RECEPTOR, CARDIAC MUSCLE                 8  4.8
+sp|Q08862|GTC_RABIT GLUTATHIONE S-TRANSFERASE YC (ALPHA II) (GST...     7  6.0
+sp|O95801|TTC4_HUMAN TETRATRICOPEPTIDE REPEAT PROTEIN 4                 7  7.6
+sp|P36114|YKZ8_YEAST HYPOTHETICAL 81.8 KDA PROTEIN IN YPT52-DBP7...     7  9.6
+
+
+Significant matches for pattern occurrence 2 at position 120
+
+
+sp|P11559|MCRA_METVO METHYL-COENZYME M REDUCTASE ALPHA SUBUNIT         13  0.13
+sp|Q49605|MCRA_METKA METHYL-COENZYME M REDUCTASE I ALPHA SUBUNIT...    11  0.43
+sp|P81901|FER_PYRIS FERREDOXIN (SEVEN-IRON FERREDOXIN)                 11  0.55
+sp|Q58256|MCRX_METJA METHYL-COENZYME M REDUCTASE II ALPHA SUBUNI...    10  1.1
+sp|P53203|YG14_YEAST HYPOTHETICAL 52.9 KD PROTEIN IN ERP6-TFG2 I...     8  3.0
+sp|P55002|MGP1_MOUSE MICROFIBRIL-ASSOCIATED GLYCOPROTEIN PRECURS...     7  6.0
+sp|Q06234|ASH1_XENLA ACHAETE-SCUTE HOMOLOG 1                            7  7.6
+sp|P20918|PLMN_MOUSE PLASMINOGEN PRECURSOR [CONTAINS: ANGIOSTATIN]      7  7.6
+
+
+Significant matches for pattern occurrence 3 at position 237
+
+
+sp|P49362|GCSB_FLAPR GLYCINE DEHYDROGENASE [DECARBOXYLATING] B, ...     9  1.4
+sp|P49361|GCSA_FLAPR GLYCINE DEHYDROGENASE [DECARBOXYLATING] A, ...     9  1.4
+sp|O49852|GCSP_FLATR GLYCINE DEHYDROGENASE [DECARBOXYLATING], MI...     8  4.8
+sp|P32767|PDR6_YEAST PLEIOTROPIC DRUG RESISTANCE REGULATORY PROT...     7  6.0
+sp|O49850|GCSP_FLAAN GLYCINE DEHYDROGENASE [DECARBOXYLATING], MI...     7  9.6
+
+
+Significant alignments for pattern occurrence 1 at position 23
+
+>sp|P04988|CYS1_DICDI CYSTEINE PROTEINASE 1 PRECURSOR
+          Length = 343
+
+ Score =  688 bits (1789), Expect = 0.0
+ Identities = 343/351 (97%), Positives = 343/351 (97%), Gaps = 8/351 (2%)
+
+Query:  1   MKVILLFVLAVFTVFVSSRGIPPEEQSQFLEFQDKFNKKYSHEEYLERFEIFKSNLGKIE 60
+pattern 23                        ****
+            MKVILLFVLAVFTVFVSSRGIPPEEQSQFLEFQDKFNKKYSHEEYLERFEIFKSNLGKIE
+Sbjct:  1   MKVILLFVLAVFTVFVSSRGIPPEEQSQFLEFQDKFNKKYSHEEYLERFEIFKSNLGKIE 60
+
+Query:  61  ELNLIAINHKADTKFGVNKFADLSSDEFKNYYLNNKEAIFTDDLPVADYLDDEFINSIPP 120
+pattern 120                                                            *
+            ELNLIAINHKADTKFGVNKFADLSSDEFKNYYLNNKEAIFTDDLPVADYLDDEFINSIP 
+Sbjct:  61  ELNLIAINHKADTKFGVNKFADLSSDEFKNYYLNNKEAIFTDDLPVADYLDDEFINSIP- 119
+
+Query:  121 EEQTAFDWRTRGAVTPVKNQGQCGSCWSFSTTGNVEGQHFISQNKLVSLSEQNLVDCDHE 180
+pattern 121 ***
+               TAFDWRTRGAVTPVKNQGQCGSCWSFSTTGNVEGQHFISQNKLVSLSEQNLVDCDHE
+Sbjct:  120 ---TAFDWRTRGAVTPVKNQGQCGSCWSFSTTGNVEGQHFISQNKLVSLSEQNLVDCDHE 176
+
+Query:  181 CMEYEGEEACDEGCNGGLQPNAYNYIIKNGGIQTESSYPYTAETGTQCNFNSANIGPEEQ 240
+pattern 237                                                         ****
+            CMEYEGEEACDEGCNGGLQPNAYNYIIKNGGIQTESSYPYTAETGTQCNFNSANIG    
+Sbjct:  177 CMEYEGEEACDEGCNGGLQPNAYNYIIKNGGIQTESSYPYTAETGTQCNFNSANIG---- 232
+
+Query:  241 AKISNFTMIPKNETVMAGYIVSTGPLAIAADAVEWQFYIGGVFDIPCNPNSLDHGILIVG 300
+            AKISNFTMIPKNETVMAGYIVSTGPLAIAADAVEWQFYIGGVFDIPCNPNSLDHGILIVG
+Sbjct:  233 AKISNFTMIPKNETVMAGYIVSTGPLAIAADAVEWQFYIGGVFDIPCNPNSLDHGILIVG 292
+
+Query:  301 YSAKNTIFRKNMPYWIVKNSWGADWGEQGYIYLRRGKNTCGVSNFVSTSII 351
+            YSAKNTIFRKNMPYWIVKNSWGADWGEQGYIYLRRGKNTCGVSNFVSTSII
+Sbjct:  293 YSAKNTIFRKNMPYWIVKNSWGADWGEQGYIYLRRGKNTCGVSNFVSTSII 343
+
+
+>sp|P30957|RYNC_RABIT RYANODINE RECEPTOR, CARDIAC MUSCLE
+          Length = 4969
+
+ Score =  7.8 bits (25), Expect = 4.8
+ Identities = 14/39 (35%), Positives = 19/39 (47%)
+
+Query:  23   PEEQSQFLEFQDKFNKKYSHEEYLERFEIFKSNLGKIEE 61
+pattern 23   ****
+             PEEQ +F E + K  +K   EE     E  +   G+ EE
+Sbjct:  4414 PEEQEKFQEQKTKEEEKEEKEETKSEPEKAEGEDGEKEE 4452
+
+
+>sp|Q08862|GTC_RABIT GLUTATHIONE S-TRANSFERASE YC (ALPHA II) (GST CLASS-ALPHA)
+          Length = 221
+
+ Score =  7.4 bits (24), Expect = 6.0
+ Identities = 19/67 (28%), Positives = 35/67 (51%), Gaps = 12/67 (17%)
+
+Query:  21  IPPEEQ-SQFLEFQDKFNKKY---------SH-EEYLERFEIFKSNLGKIEEL-NLIAIN 68
+pattern 23    ****
+            +PPEEQ ++  + +DK   +Y         SH ++YL   ++ K+++  +E L N+  +N
+Sbjct:  112 LPPEEQEAKLAQIKDKAKNRYFPAFEKVLKSHGQDYLVGNKLSKADILLVELLYNVEELN 171
+
+Query:  69  HKADTKF 75
+              A   F
+Sbjct:  172 PGATASF 178
+
+
+>sp|O95801|TTC4_HUMAN TETRATRICOPEPTIDE REPEAT PROTEIN 4
+          Length = 356
+
+ Score =  7.1 bits (23), Expect = 7.6
+ Identities = 14/67 (20%), Positives = 32/67 (46%), Gaps = 5/67 (7%)
+
+Query:  23  PEEQSQFLEFQDKFNKKYSHEEYLERFEIFKSNLGK---IEELNLIAINHKADTKFGVNK 79
+pattern 23  ****
+            PEEQ++   ++D+ N  +  ++Y +    +   L K     +LN +   ++A  ++ +  
+Sbjct:  75  PEEQAK--TYKDEGNDYFKEKDYKKAVISYTEGLKKKCADPDLNAVLYTNRAAAQYYLGN 132
+
+Query:  80  FADLSSD 86
+            F    +D
+Sbjct:  133 FRSALND 139
+
+
+>sp|P36114|YKZ8_YEAST HYPOTHETICAL 81.8 KDA PROTEIN IN YPT52-DBP7 INTERGENIC REGION
+          Length = 725
+
+ Score =  6.8 bits (22), Expect = 9.6
+ Identities = 21/99 (21%), Positives = 43/99 (43%), Gaps = 21/99 (21%)
+
+Query:  21  IPPEEQ--SQFLEFQDKFNKKYSHEEYLERFEIFKSNLGKIEELNLIAINHKADTKFGVN 78
+pattern 23    ****
+            + PEEQ     L+F ++      H    ER  +  +++G    +N      +   + G+ 
+Sbjct:  213 LTPEEQKDKDLLQFAEQI-----HSMRTER--LSGAHIGNSPAIN------RLRGELGLQ 259
+
+Query:  79  KFADLSSDEFKNYYLNNKEAIFTDDLPVADYLDDEFINS 117
+               DL  +E  ++       + +DD+ ++    DEF++S
+Sbjct:  260 AMEDLPEEEITDH------KVLSDDIDLSQATIDEFVHS 292
+
+
+
+Significant alignments for pattern occurrence 2 at position 120
+
+>sp|P11559|MCRA_METVO METHYL-COENZYME M REDUCTASE ALPHA SUBUNIT
+          Length = 555
+
+ Score = 13.0 bits (40), Expect = 0.13
+ Identities = 16/28 (57%), Positives = 18/28 (64%), Gaps = 3/28 (10%)
+
+Query:  99  IFTDDLPVADYLDDEF---INSIPPEEQ 123
+pattern 120                         ****
+            IFT D  +AD LDD F   IN + PEEQ
+Sbjct:  170 IFTGDDELADELDDRFVIDINKLFPEEQ 197
+
+
+>sp|Q49605|MCRA_METKA METHYL-COENZYME M REDUCTASE I ALPHA SUBUNIT (MCR I ALPHA)
+          Length = 553
+
+ Score = 11.2 bits (35), Expect = 0.43
+ Identities = 14/28 (50%), Positives = 18/28 (64%), Gaps = 3/28 (10%)
+
+Query:  99  IFTDDLPVADYLDDEFINSIP---PEEQ 123
+pattern 120                         ****
+            I T DL +AD +DD+F+  I    PEEQ
+Sbjct:  168 IITGDLELADEIDDKFLIDIEKLFPEEQ 195
+
+
+>sp|P81901|FER_PYRIS FERREDOXIN (SEVEN-IRON FERREDOXIN)
+          Length = 101
+
+ Score = 10.9 bits (34), Expect = 0.55
+ Identities = 12/23 (52%), Positives = 16/23 (69%), Gaps = 1/23 (4%)
+
+Query:  114 FINSIPPEEQTAF-DWRTRGAVT 135
+pattern 120       ****
+            F  S+ PEEQ AF +W+TR  +T
+Sbjct:  78  FGKSLTPEEQRAFEEWKTRYGIT 100
+
+
+>sp|Q58256|MCRX_METJA METHYL-COENZYME M REDUCTASE II ALPHA SUBUNIT (MCR II ALPHA)
+          Length = 553
+
+ Score =  9.8 bits (31), Expect = 1.1
+ Identities = 14/28 (50%), Positives = 17/28 (60%), Gaps = 3/28 (10%)
+
+Query:  99  IFTDDLPVADYLDDEF---INSIPPEEQ 123
+pattern 120                         ****
+            IFT D  +AD +D  F   IN + PEEQ
+Sbjct:  168 IFTGDDELADEIDKRFLIDINKLFPEEQ 195
+
+
+>sp|P53203|YG14_YEAST HYPOTHETICAL 52.9 KD PROTEIN IN ERP6-TFG2 INTERGENIC REGION
+          Length = 462
+
+ Score =  8.5 bits (27), Expect = 3.0
+ Identities = 13/39 (33%), Positives = 21/39 (53%), Gaps = 9/39 (23%)
+
+Query:  112 DEFINSIP-------PEEQT--AFDWRTRGAVTPVKNQG 141
+pattern 120                ****
+            DEF+N+ P       PEEQ+  A++W  +  +  + N G
+Sbjct:  308 DEFLNTSPSPEVFTLPEEQSGMAWEWHDKDWMLDLTNDG 346
+
+
+>sp|P55002|MGP1_MOUSE MICROFIBRIL-ASSOCIATED GLYCOPROTEIN PRECURSOR (MAGP) (MAGP-1)
+          Length = 183
+
+ Score =  7.4 bits (24), Expect = 6.0
+ Identities = 11/37 (29%), Positives = 18/37 (47%)
+
+Query:  100 FTDDLPVADYLDDEFINSIPPEEQTAFDWRTRGAVTP 136
+pattern 120                     ****
+            + D +  ADY D + ++   PEEQ     + +  V P
+Sbjct:  37  YGDQIDNADYYDYQEVSPRTPEEQFQSQQQVQQEVIP 73
+
+
+>sp|Q06234|ASH1_XENLA ACHAETE-SCUTE HOMOLOG 1
+          Length = 199
+
+ Score =  7.1 bits (23), Expect = 7.6
+ Identities = 11/27 (40%), Positives = 15/27 (54%), Gaps = 1/27 (3%)
+
+Query:  105 PVADYLDDE-FINSIPPEEQTAFDWRT 130
+pattern 120                 ****
+            PV+ Y  DE   + + PEEQ   D+ T
+Sbjct:  171 PVSSYSSDEGSYDPLSPEEQELLDFTT 197
+
+
+>sp|P20918|PLMN_MOUSE PLASMINOGEN PRECURSOR [CONTAINS: ANGIOSTATIN]
+          Length = 812
+
+ Score =  7.1 bits (23), Expect = 7.6
+ Identities = 8/13 (61%), Positives = 11/13 (84%)
+
+Query:  112 DEFINSIPPEEQT 124
+pattern 120         ****
+            D+  +S+PPEEQT
+Sbjct:  359 DQSDSSVPPEEQT 371
+
+
+
+Significant alignments for pattern occurrence 3 at position 237
+
+>sp|P49362|GCSB_FLAPR GLYCINE DEHYDROGENASE [DECARBOXYLATING] B, MITOCHONDRIAL PRECURSOR
+            (GLYCINE DECARBOXYLASE B) (GLYCINE CLEAVAGE SYSTEM
+            P-PROTEIN B)
+          Length = 1034
+
+ Score =  9.5 bits (30), Expect = 1.4
+ Identities = 21/79 (26%), Positives = 39/79 (48%), Gaps = 13/79 (16%)
+
+Query:  231 NSANIGPEEQAKISNFTMIPKNETVMAGYIVSTGPLAIAADAVEWQFYIGGVFDIPCNPN 290
+pattern 237       ****
+            NSA   PEEQ K++ F   P  +++    I +T P +I  D++++  +  G+ +     +
+Sbjct:  80  NSAT--PEEQTKMAEFVGFPNLDSL----IDATVPKSIRLDSMKYSKFDEGLTESQMIAH 133
+
+Query:  291 SLDHGILIVGYSAKNTIFR 309
+              D        ++KN IF+
+Sbjct:  134 MQD-------LASKNKIFK 145
+
+
+>sp|P49361|GCSA_FLAPR GLYCINE DEHYDROGENASE [DECARBOXYLATING] A, MITOCHONDRIAL PRECURSOR
+            (GLYCINE DECARBOXYLASE A) (GLYCINE CLEAVAGE SYSTEM
+            P-PROTEIN A)
+          Length = 1037
+
+ Score =  9.5 bits (30), Expect = 1.4
+ Identities = 21/79 (26%), Positives = 39/79 (48%), Gaps = 13/79 (16%)
+
+Query:  231 NSANIGPEEQAKISNFTMIPKNETVMAGYIVSTGPLAIAADAVEWQFYIGGVFDIPCNPN 290
+pattern 237       ****
+            NSA   PEEQ K++ F   P  +++    I +T P +I  D++++  +  G+ +     +
+Sbjct:  83  NSAT--PEEQTKMAEFVGFPNLDSL----IDATVPKSIRLDSMKYSKFDEGLTESQMIAH 136
+
+Query:  291 SLDHGILIVGYSAKNTIFR 309
+              D        ++KN IF+
+Sbjct:  137 MQD-------LASKNKIFK 148
+
+
+>sp|O49852|GCSP_FLATR GLYCINE DEHYDROGENASE [DECARBOXYLATING], MITOCHONDRIAL PRECURSOR
+            (GLYCINE DECARBOXYLASE) (GLYCINE CLEAVAGE SYSTEM
+            P-PROTEIN)
+          Length = 1034
+
+ Score =  7.8 bits (25), Expect = 4.8
+ Identities = 21/79 (26%), Positives = 38/79 (47%), Gaps = 13/79 (16%)
+
+Query:  231 NSANIGPEEQAKISNFTMIPKNETVMAGYIVSTGPLAIAADAVEWQFYIGGVFDIPCNPN 290
+pattern 237       ****
+            NSA   PEEQ K++ F      +++    I +T P AI  D++++  +  G+ +     +
+Sbjct:  80  NSAT--PEEQTKMAEFVGFSNLDSL----IDATVPKAIRLDSMKYSKFDEGLTESQMIAH 133
+
+Query:  291 SLDHGILIVGYSAKNTIFR 309
+              D        ++KN IF+
+Sbjct:  134 MQD-------LASKNKIFK 145
+
+
+>sp|P32767|PDR6_YEAST PLEIOTROPIC DRUG RESISTANCE REGULATORY PROTEIN 6
+          Length = 1081
+
+ Score =  7.4 bits (24), Expect = 6.0
+ Identities = 25/93 (26%), Positives = 37/93 (38%), Gaps = 17/93 (18%)
+
+Query:  159 HFISQNKLVSLSEQNLVDCDHECMEYEGEEACDEGCNGGLQPNAYNYI-IKNGGIQTESS 217
+            +F S+N+   +S   L     E M  +      E C   L P   ++I   N  I  +S+
+Sbjct:  642 NFTSKNEQEKISNDKL-----EVMVIKTVSTLCETCREELTPYLMHFISFLNTVIMPDSN 696
+
+Query:  218 YPYTAETG--------TQCNFNSANIGPEEQAK 242
+pattern 237                            ****
+              +   T          QC  ++   GPEEQAK
+Sbjct:  697 VSHFTRTKLVRSIGYVVQCQVSN---GPEEQAK 726
+
+
+>sp|O49850|GCSP_FLAAN GLYCINE DEHYDROGENASE [DECARBOXYLATING], MITOCHONDRIAL PRECURSOR
+            (GLYCINE DECARBOXYLASE) (GLYCINE CLEAVAGE SYSTEM
+            P-PROTEIN)
+          Length = 1034
+
+ Score =  6.8 bits (22), Expect = 9.6
+ Identities = 20/79 (25%), Positives = 38/79 (47%), Gaps = 13/79 (16%)
+
+Query:  231 NSANIGPEEQAKISNFTMIPKNETVMAGYIVSTGPLAIAADAVEWQFYIGGVFDIPCNPN 290
+pattern 237       ****
+            NSA   PEEQ K++ F      +++    I +T P +I  D++++  +  G+ +     +
+Sbjct:  80  NSAT--PEEQTKMAEFVGFSNLDSL----IDATVPKSIRLDSMKYSKFDEGLTESQMIAH 133
+
+Query:  291 SLDHGILIVGYSAKNTIFR 309
+              D        ++KN IF+
+Sbjct:  134 MQD-------LASKNKIFK 145
+
+
+  Database: /home/peter/blast/data/swissprot
+    Posted date:  Oct 10, 2000 10:43 AM
+  Number of letters in database: 31,984,247
+  Number of sequences in database:  88,780
+  
+Lambda     K      H      C
+   0.270   0.0470    0.230    0.500 
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Number of Hits to DB: 1047
+Number of Sequences: 88780
+Number of extensions: 1047
+Number of successful extensions: 36
+Number of sequences better than 10.0: 36
+Number of HSP's better than 10.0 without gapping: 0
+Number of HSP's successfully gapped in prelim test: 0
+Number of HSP's that attempted gapping in prelim test: 0
+Number of HSP's gapped (non-prelim): 0
+length of query: 351
+length of database: 31,984,247
+effective HSP length: 50
+effective length of query: 301
+effective length of database: 27,545,247
+effective search space: 8291119347
+effective search space used: 8291119347
+T: 11
+A: 40
+X1: 16 ( 7.3 bits)
+X2: 38 (14.8 bits)
+X3: 64 (24.9 bits)
+S1: 41 (21.6 bits)
+S2: 65 (29.7 bits)

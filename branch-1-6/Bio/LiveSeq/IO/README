@@ -1,0 +1,29 @@
+# $Id$
+
+README for Bio::LiveSeq::IO
+
+LiveSeq objects representing known gene structures and their sequences
+have to be created from nucleotide sequence files. The current IO
+files do it by reading in EMBL entries and parsing out sequences as
+well as CDS, exon and primary_transcript features from the feature
+table.
+
+Bio::LiveSeq::IO::Loader
+
+	is a superclass holding methods common to other methods.
+
+Bio::LiveSeq::IO::BioPerl
+
+	is the preferred method which uses Bio::DB::EMBL to retrive
+	sequences over the Web by accession number.
+
+Bio::LiveSeq::IO::SRS
+
+        outdated, removed from distribution 13 Jan 2006
+
+	retrieves sequences from a local installation of SRS. It needs
+        srsperl.pm which is part of SRS. SRS is short for Sequence
+        Retrieval System, a comprehensive program suite for indexing
+        and serving biological databases. SRS is a product of Lion
+        BioSciences (http://www.lionbio.co.uk/). The license for
+        academic users is free.

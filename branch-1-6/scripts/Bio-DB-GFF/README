@@ -1,0 +1,4 @@
+These are scripts that go with the Bio::DB::GFF module, a basic
+seqfeature database.  Install these scripts if you wish to use the
+LDAS distributed annotation server or the Generic Genome Browser.
+
