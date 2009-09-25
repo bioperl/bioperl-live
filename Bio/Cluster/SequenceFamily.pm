@@ -18,8 +18,6 @@ Bio::Cluster::SequenceFamily - Sequence Family object
 
 =head1 SYNOPSIS
 
-  use Bio::Cluster::SequenceFamily;
-
   use Bio::SeqIO;
   use Bio::Cluster::SequenceFamily;
   use File::Spec;
