@@ -6,11 +6,9 @@ use strict;
 BEGIN {
    use lib '.';
    use Bio::Root::Test;
-   
    test_begin(-tests => 64,
-              -requires_modules => [qw(DB_File
-                                       Storable
-                                       Fcntl)]);
+              -requires_modules => [qw( Storable
+                                        Fcntl)]);
    
    use_ok('Bio::Index::Fasta');
    use_ok('Bio::Index::Qual');
@@ -47,16 +45,17 @@ isa_ok $seq, 'Bio::PrimarySeqI';
 $ind = Bio::Index::Fasta->new(-filename => 'multifa_index',
 										-write_flag => 1,
 										-verbose => 0);
+
 $ind->make_index(test_input_file('multifa.seq.qual'));
 
-ok ( -e "multifa_index" );
+ok ( -e "multifa_index" || -e "multifa_index.pag" );
 
 $ind = Bio::Index::Qual->new(-filename => 'multifa_qual_index',
 									  -write_flag => 1,
 									  -verbose => 0);
 $ind->make_index(test_input_file('multifa.seq.qual'));
 
-ok ( -e "multifa_qual_index" );
+ok ( -e "multifa_qual_index" || -e "multifa_qual_index.pag" );
 
 ok ( defined($seq) );
 isa_ok $seq, 'Bio::SeqI';
@@ -94,13 +93,14 @@ $seq = $ind->fetch('P09651');
 is ($seq->display_id(), 'ROA1_HUMAN');
 
 # test id_parser
-$ind = Bio::Index::Swissprot->new(-filename   => 'Wibbl4',
+$ind = Bio::Index::Swissprot->new(-filename   => 'Wibbl4a',
 											 -write_flag => 1);
+
 $ind->id_parser(\&get_id);
 $ind->make_index(test_input_file('roa1.swiss'));
-ok ( -e "Wibbl4" || -e "Wibbl4.pag" );
+ok ( -e "Wibbl4a" || -e "Wibbl4a.pag" );
 $seq = $ind->fetch('X12671');
-is ($seq->length,371);
+ is ($seq->length,371);
 
 
 my $gb_ind = Bio::Index::GenBank->new(-filename => 'Wibbl5',
@@ -119,9 +119,9 @@ my $cache = Bio::DB::InMemoryCache->new( -seqdb => $gb_ind );
 ok ( $cache->get_Seq_by_id('AI129902') );
 
 SKIP: {
-   test_skip(-tests => 22, -requires_module => 'Bio::DB::FileCache');
-
-   $cache = Bio::DB::FileCache->new(-seqdb => $gb_ind,
+  test_skip(-tests => 22, -requires_module => 'Bio::DB::FileCache');
+  
+  $cache = Bio::DB::FileCache->new(-seqdb => $gb_ind,
 												-keep  => 1,
 												-file  => 'filecache.idx');
    # problem:
@@ -167,12 +167,12 @@ SKIP: {
 }
 
 # test id_parser
-$gb_ind = Bio::Index::GenBank->new(-filename => 'Wibbl5',
+$gb_ind = Bio::Index::GenBank->new(-filename => 'Wibbl5a',
 											  -write_flag =>1,
 											  -verbose    => 0);
 $gb_ind->id_parser(\&get_id);
 $gb_ind->make_index(test_input_file('roa1.genbank'));
-ok ( -e "Wibbl5" || -e "Wibbl5.pag" );
+ok ( -e "Wibbl5a" || -e "Wibbl5a.pag" );
 $seq = $gb_ind->fetch('alpha D-globin');
 is ($seq->length,141);
 
@@ -187,7 +187,8 @@ END {
 }
 
 sub cleanup {
-	for my $root ( qw( Wibbl Wibbl2 Wibbl3 Wibbl4 Wibbl5
+	for my $root ( qw( Wibbl Wibbl2 Wibbl3 Wibbl4
+                      Wibbl4a Wibbl5 Wibbl5a
                       multifa_index multifa_qual_index ) ) {
 		unlink $root if( -e $root );
 		unlink "$root.pag" if( -e "$root.pag");
