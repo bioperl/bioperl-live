@@ -384,7 +384,7 @@ it under the same terms as Perl itself.
 package Bio::DB::Qual;
 
 BEGIN {
-  @AnyDBM_File::ISA = qw(DB_File GDBM_File NDBM_File SDBM_File)
+  @AnyDBM_File::ISA = qw(DB_File Bio::DB::SQLite_File GDBM_File NDBM_File SDBM_File)
 }
 
 use strict;
@@ -569,6 +569,7 @@ sub index_dir {
 
     # we've been having troubles with corrupted index files on Windows systems,
     # so possibly closing and reopening will help
+
     $self->_close_index($self->{offsets});
 
     return $self->{offsets}  = $self->_open_index($index);
