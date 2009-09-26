@@ -16,7 +16,31 @@ Bio::DB::Flat::BinarySearch - BinarySearch search indexing system for sequence f
 
 =head1 SYNOPSIS
 
-  TODO: SYNOPSIS NEEDED!
+  # define patterns to identify keys
+  my $start_pattern   = '^>'; # beginning of record
+  my $primary_pattern = '^>(\S+)'; # primary key within record
+
+  # create index
+  my $index = Bio::DB::Flat::BinarySearch->new(
+           -directory         => "/home/max/",
+           -dbname            => "mydb",
+           -start_pattern     => $start_pattern,
+	   -primary_pattern   => $primary_pattern,
+           -primary_namespace => "ID",
+           -format            => "fasta" );
+  my @files = ("file1","file2","file3");
+  $index->build_index(@files);
+
+  # get sequences
+  my $entry = $index->get_entry_by_id('HBA_HUMAN');
+  # or...
+  my $fh = $index->get_stream_by_id('HBA_HUMAN');
+  my $seq = Bio::SeqIO->new(-fh     => $fh,
+                            -format => 'fasta');
+  # or...
+  my $seq = $index->get_Seq_by_id('HBA_HUMAN');
+  
+  # see DESCRIPTION for more code
 
 =head1 DESCRIPTION
 
