@@ -29,7 +29,7 @@ Bio::DB::SQLite_File - A minimal DBM using SQLite
  
 =head1 DESCRIPTION
 
-This a simple wrapper around L<Bio::DB::SQLiteHASH>, also in this
+This is a simple wrapper around L<Bio::DB::SQLiteHASH>, also in this
 file, that allows a hash to be tied to a SQLite DB via L<DBI> plus
 L<DBD::SQLite>. The class does not currently have the functionality of
 a L<DB_File>, but is suitable for L<Bio::DB::FileCache>, for which it
