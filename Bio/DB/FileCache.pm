@@ -73,7 +73,13 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::DB::FileCache;
 
-use DB_File;
+BEGIN {
+    require Bio::DB::SQLite_File;
+    @AnyDBM_File::ISA = qw(DB_File Bio::DB::SQLite_File GDBM_File NDBM_File SDBM_File);
+}
+
+# use DB_File;
+use AnyDBM_File;
 use Storable qw(freeze thaw);
 use Fcntl qw(O_CREAT O_RDWR O_RDONLY);
 use File::Temp 'tmpnam';
@@ -118,14 +124,18 @@ sub new {
     my $self = Bio::Root::Root->new();
     bless $self,$class;
 
-    my ($seqdb,$file_name,$keep) = $self->_rearrange([qw(SEQDB FILE
-							 KEEP)],@args);
+    my ($seqdb,$file_name,$keep,$dbmargs) = $self->_rearrange([qw(SEQDB FILE
+							 KEEP DBMARGS)],@args);
 
     if( !defined $seqdb || !ref $seqdb ||
 	! $seqdb->isa('Bio::DB::RandomAccessI') ) {
        $self->throw("Must be a randomaccess database not a [$seqdb]");
     }
-
+    
+    if (!defined($dbmargs) && eval "require DB_File; 1") {
+	$dbmargs = ['$DB_BTREE'];
+    }
+    $self->dbmargs($dbmargs);
     $self->seqdb($seqdb);
     $file_name ||= tmpnam();
     $self->file_name($file_name);
@@ -329,12 +339,34 @@ sub _open_database {
   my $self = shift;
   my $file = shift;
   my $flags = O_CREAT|O_RDWR;
+  my @dbmargs = $self->dbmargs;
   my %db;
-  tie(%db,'DB_File',$file,$flags,0666,$DB_BTREE)
+#  tie(%db,'AnyDBM_File',$file,$flags,0666,$DB_BTREE)
+  tie(%db,'AnyDBM_File',$file,$flags,0666,@dbmargs)
     or $self->throw("Could not open primary index file");
   $self->{db} = \%db;
   unlink $file unless $self->keep;
 }
+
+=head2 dbmargs
+
+ Title   : dbmargs
+ Usage   : $obj->dbmargs($newval)
+ Function: container for DBM args
+ Example : 
+ Returns : array of scalar args
+ Args    : arrayref of scalar args
+
+=cut
+
+sub dbmargs {
+    my $self = shift;
+    my $val = shift;
+    return @{$self->{'dbmargs'} = $val} if $val;
+    return unless $self->{'dbmargs'};
+    return @{$self->{'dbmargs'}};
+}
+
 
 ## End of Package
 
