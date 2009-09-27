@@ -1,3 +1,21 @@
+package BioPerl;
+
+use strict;
+use lib '.';
+
+# At some future point, when we break the current core into more maintainable
+# bits, this will have a direct VERSION number, but for now we will be using
+# the root version for everything
+
+use Bio::Root::Version;
+
+our $VERSION = $Bio::Root::Version::VERSION;
+eval $VERSION;
+
+1;
+
+__END__
+
 =head1 NAME
 
 BioPerl - Perl Modules for Biology

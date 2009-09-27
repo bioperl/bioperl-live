@@ -209,6 +209,9 @@ sub process_script_files {
         $final =~ s/^/bp_/ unless $final =~ /^bp/; # add the "bp" prefix
         $final = File::Spec->catfile($script_dir, $final);
         $self->log_info("$result -> $final\n");
+        if (-e $final) {
+            unlink $final || warn "[WARNING] Deleting '$final' failed!\n";
+        }
         File::Copy::move($result, $final) or die "Can't rename '$result' to '$final': $!";
     }
 }
