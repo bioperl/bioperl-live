@@ -1,5 +1,3 @@
-#!/usr/bin/perl -w
-
 # $Id$
 #
 # BioPerl module for Bio::Root::Build
