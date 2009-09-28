@@ -95,7 +95,7 @@ is ($seq->display_id(), 'ROA1_HUMAN');
 
 # test id_parser
 $ind = Bio::Index::Swissprot->new(-filename   => 'Wibbl4',
-											 -write_flag => 1);
+								-write_flag => 1);
 $ind->id_parser(\&get_id);
 $ind->make_index(test_input_file('roa1.swiss'));
 ok ( -e "Wibbl4" || -e "Wibbl4.pag" );
