@@ -31,7 +31,7 @@ SKIP: {
 	is $entries, 7;
 	
 	SKIP: {
-		test_skip(-tests => 2, -requires_modules => [qw(DB_File BerkeleyDB)]);
+		test_skip(-tests => 2, -requires_modules => [qw(DB_File)]);
 		
 		my $bdb = Bio::DB::Flat->new(-directory  => $tmpdir,
 					 -dbname     => 'testbdb',
@@ -45,7 +45,7 @@ SKIP: {
 	
 	SKIP: {
 		test_skip(-tests => 9,
-                  -requires_modules => [qw(LWP::UserAgent HTTP::Request::Common BerkeleyDB)],
+                  -requires_modules => [qw(LWP::UserAgent HTTP::Request::Common)],
                   -requires_networking => 1);
 		
 		my $registry = Bio::DB::Registry->new();
@@ -61,7 +61,7 @@ SKIP: {
 		is $sequence, "MAHARVLLLALAVLATAAVAVASSSSFADSNPIRPVTDRAASTLESAVLGALGRTRHALRFARFAVRYGKSYESAAEVRRRFRIFSESLEEVRSTNRKGLPYRLGINRFSDMSWEEFQATRLGAAQTCSATLAGNHLMRDAAALPETKDWREDGIVSPVKNQAHCGSCWTFSTTGALEAAYTQATGKNISLSEQQLVDCAGGFNNFGCNGGLPSQAFEYIKYNGGIDTEESYPYKGVNGVCHYKAENAAVQVLDSVNITLNAEDELKNAVGLVRPVSVAFQVIDGFRQYKSGVYTSDHCGTTPDDVNHAVLAVGYGVENGVPYWLIKNSWGADWGDNGYFKMEMGKNMCAIATCASYPVVAA";
 	
 		SKIP: {
-			test_skip(-tests => 4, -requires_modules => [qw(DB_File BerkeleyDB)]);
+			test_skip(-tests => 4, -requires_modules => [qw(DB_File)]);
 			
 			ok grep /testbdb/,@available_services;
 			$db = $registry->get_database('testbdb');
