@@ -17,6 +17,12 @@ http://www.bioperl.org/wiki/Change_log.  Bugs remaining to be addressed
 are online at http://bugzilla.open-bio.org, with specific bugs intended
 for this release series highlighted in BUGS.
 
+1.6.0_5 Sept. 27, 2009 (fifth 1.6.1 alpha)
+    * Possible fix for RT 49950 (Strawberry Perl installation) [cjfields]
+    * [RT 50048] - removed redundant VERSION, which was borking CPANPLUS
+      [cjfields]
+    * BioPerl.pod -> BioPerl.pm (Perl Best Practices) [cjfields]
+
 1.6.0_4 Sept. 25, 2009 (fourth 1.6.1 alpha)
     * WinXP test fixes [cjfields, maj]
     * BioPerl.pod added for descriptive information, fixes CPAN indexing

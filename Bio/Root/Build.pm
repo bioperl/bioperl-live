@@ -1,5 +1,3 @@
-#!/usr/bin/perl -w
-
 # $Id$
 #
 # BioPerl module for Bio::Root::Build
@@ -87,7 +85,7 @@ BEGIN {
 use strict;
 use warnings;
 
-our $VERSION = '1.006000_004';
+our $VERSION = '1.006000_005';
 our @extra_types = qw(options excludes_os feature_requires test); # test must always be last in the list!
 our $checking_types = "requires|conflicts|".join("|", @extra_types);
 
@@ -209,6 +207,9 @@ sub process_script_files {
         $final =~ s/^/bp_/ unless $final =~ /^bp/; # add the "bp" prefix
         $final = File::Spec->catfile($script_dir, $final);
         $self->log_info("$result -> $final\n");
+        if (-e $final) {
+            unlink $final || warn "[WARNING] Deleting '$final' failed!\n";
+        }
         File::Copy::move($result, $final) or die "Can't rename '$result' to '$final': $!";
     }
 }
