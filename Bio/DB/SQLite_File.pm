@@ -21,6 +21,13 @@ Bio::DB::SQLite_File - A minimal DBM using SQLite
  # tie a simple hash to a SQLite DB file
  my %db;
  tie(%db, 'Bio::DB::SQLite_File', 'my.db');
+
+ # tie an array
+ my @db;
+ tie(@db, 'Bio::DB::SQLite_File', 'my.db');
+
+ # tie to a tempfile
+ tie(%db, 'Bio::DB::SQLite_File', undef);
  
  # use as an option in AnyDBM_File
  @AnyDBM_File::ISA = qw( DB_File Bio::DB::SQLite_File SDBM );
@@ -29,10 +36,9 @@ Bio::DB::SQLite_File - A minimal DBM using SQLite
  
 =head1 DESCRIPTION
 
-This is a simple wrapper around L<Bio::DB::SQLiteHASH>, also in this
-file, that allows a hash to be tied to a SQLite DB via L<DBI> plus
-L<DBD::SQLite>. The class does not currently have the functionality of
-a L<DB_File>, but is suitable for L<Bio::DB::FileCache>, for which it
+This module allows a hash or an array to be tied to a SQLite DB via
+L<DBI> plus L<DBD::SQLite>, in a way that emulates some features of
+DB_File. The class is suitable for L<Bio::DB::FileCache>, for which it
 was written. In particular, this module offers another choice for
 ActiveState users, who may find it difficult to get a working
 L<DB_File> (based on Berkeley DB) installed, but can't failover to
@@ -98,50 +104,17 @@ BEGIN {
     unless (eval "require DBD::SQLite; 1") {
  	Bio::Root::Root->throw( "SQLite_File requires DBD::SQLite" );
      }
-    use vars qw( $DB_HASH $DB_BTREE $DB_RECNO );
     use Exporter;
     our @ISA = qw( Exporter );
-    our @EXPORT = qw( $DB_HASH $DB_BTREE $DB_RECNO );
+    our @EXPORT = qw( $DB_HASH $DB_BTREE $DB_RECNO R_DUP);
 }
+
+our $DB_HASH = { 'type' => 'HASH' };
+our $DB_BTREE = { 'type' => 'BINARY' };
+our $DB_RECNO = { 'type' => 'RECNO' };
+sub R_DUP { 32678 }
 
 # Object preamble - inherits from Bio::Root::Root
-use Bio::Root::Root;
-
-use base qw(Bio::Root::Root );
-
-push @Bio::DB::SQLite_File::ISA, qw(Bio::DB::SQLiteTIED);
-$DB_HASH = { 'type' => 'HASH' };
-$DB_BTREE = { 'type' => 'BINARY' };
-$DB_RECNO = { 'type' => 'RECNO' };
-
-sub TIEHASH {
-    my $class = shift;
-    my ($file, $flags, $mode, $index, @args) = @_;
-    my $keep = pop @args;
-    my $self = TIEHASH($file, $flags, $index, $keep);
-    $self->{_ref} = 'HASH';
-    bless ($self, $class);
-}
-
-sub TIEARRAY {
-    my $class = shift;
-    my ($file, $flags, $mode, $index, @args) = @_;
-    my $keep = pop @args;
-    my $self = TIEARRAY($file, $flags, $index, $keep);
-    $self->{_ref} = 'ARRAY';
-    bless ($self, $class);
-}
-
-# HASH or ARRAY?
-sub ref {
-    my $self = shift;
-    return $self->{_ref};
-}
-1;
-
-package Bio::DB::SQLiteTIED;
-use strict;
-use warnings;
 
 # my notes /maj
 # FileCache.pm does the following using DB_File
@@ -163,39 +136,41 @@ use warnings;
 
 # SO..this module provides the tied SQLite hash class.
 
+use Bio::Root::Root;
 use DBI;
 use File::Temp qw( tempfile );
-use Fcntl;
-
-my %KEYTBL; # for accounting for pop/push/shift/unshift without
+use Fcntl qw(O_CREAT O_RDWR O_RDONLY);
+use base qw( Bio::Root::Root );
+our %KEYTBL; # for accounting for pop/push/shift/unshift without
             # modifying the db
-my $AUTOKEY = 0;
+our $AUTOKEY = 0;
 
 sub TIEHASH {
     my $class = shift;
-    my ($file, $flags, $index, $keep) = @_;
+    my ($file, $flags, $mode, $index, $keep) = @_;
     my $self = {};
     bless($self, $class);
+    $self->{ref} = 'HASH';
     my $infix;
-    # you'll love this...
-    for ($flags) {
-	!defined && do {
-	    $infix = ">";
-	    last;
-	};
-	($_ & O_CREAT) && do {
-	    $infix = (-e $file ? '<' : '>');
-	};
-	($_ & O_RDWR) && do {
-	    $infix = '+'.($infix ? $infix : '>');
-	};
-	do { # O_RDONLY
-	    $infix = '<' unless $infix;
-	};
-    }
     my $fh;
     # db file handling
     if ($file) {
+	# you'll love this...
+	for ($flags) {
+	    !defined && do {
+		$infix = ">";
+		last;
+	    };
+	    ($_ & O_CREAT) && do {
+		$infix = (-e $file ? '<' : '>');
+	    };
+	    ($_ & O_RDWR) && do {
+		$infix = '+'.($infix ? $infix : '>');
+	    };
+	    do { # O_RDONLY
+		$infix = '<' unless $infix;
+	    };
+	}
 	open($fh, $infix, $file) or $self->throw("Can't open db file: $!");
 	# if file explicitly specified, but keep is not, 
 	# retain file at destroy...
@@ -211,67 +186,90 @@ sub TIEHASH {
     $self->file($file);
     $self->_fh($fh);
     $self->keep($keep);
-    
+
+    # create SQL statements
      my $hash_tbl = <<END;
     (
       id      blob,
       obj     blob not null
     );
 END
-
+    my $hash_tbl_dup = <<END;
+    ( id      blob,
+      obj     blob,
+      dup     integer primary key autoincrement
+    );
+END
     my $create_idx = <<END;
     CREATE INDEX IF NOT EXISTS id_idx ON hash ( id );
 END
-    
+    my $create_idx_dup = <<END;
+    CREATE INDEX IF NOT EXISTS id_idx ON hash ( id, dup );
+END
     my $dbh = DBI->connect("dbi:SQLite:dbname=".$self->file,"","",
 			   {RaiseError => 1, AutoCommit => 1});
     $self->dbh( $dbh );
-    $self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
     # rudimentary DB_File emulation:
     if (defined $index) {
 	$self->throw("Index selector must be a hashref") unless ref($index) eq 'HASH';
 	for ($index->{'type'}) {
 	    $_ eq 'BINARY' && do {
-		$self->dbh->do($create_idx);
+		if ($index->{flags} eq R_DUP()) {
+		    $self->dup(1);
+		    $self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl_dup");
+		    $self->dbh->do($create_idx_dup);
+		}
+		else {
+		    $self->dup(0);
+		    $self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
+		    $self->dbh->do($create_idx);
+		}
 	    };
 	    $_ eq 'HASH' && do {
+		$self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
 		last;
 	    };
 	    $_ eq 'RECNO' && do {
+		$self->throw("$DB_RECNO is not meaningful for tied hashes");
 		last;
 	    };
 	    !defined && do {
+		$self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
 		last;
 	    };
 	}
+    }
+    else {
+	$self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
     }
     return $self;
 }
 
 sub TIEARRAY {
     my $class = shift;
-    my ($file, $flags, $index, $keep) = @_;
+    my ($file, $flags, $mode, $index, $keep) = @_;
     my $self = {};
     bless($self, $class);
-    my $infix;
-    for ($flags) {
-	!defined && do {
-	    $infix = ">";
-	    last;
-	};
-	($_ & O_CREAT) && do {
-	    $infix = (-e $file ? '<' : '>');
-	};
-	($_ & O_RDWR) && do {
-	    $infix = '+'.($infix ? $infix : '>');
-	};
-	do { # O_RDONLY
-	    $infix = '<' unless $infix;
-	};
-    }
+    $self->{ref} = 'ARRAY';
     my $fh;
     # db file handling
     if ($file) {
+	my $infix;
+	for ($flags) {
+	    !defined && do {
+		$infix = ">";
+		last;
+	    };
+	    ($_ & O_CREAT) && do {
+		$infix = (-e $file ? '<' : '>');
+	    };
+	    ($_ & O_RDWR) && do {
+		$infix = '+'.($infix ? $infix : '>');
+	    };
+	    do { # O_RDONLY
+		$infix = '<' unless $infix;
+	    };
+	}
 	open($fh, $infix, $file) or $self->throw("Can't open db file: $!");
 	# if file explicitly specified, but keep is not, 
 	# retain file at destroy...
@@ -288,13 +286,13 @@ sub TIEARRAY {
     $self->_fh($fh);
     $self->keep($keep);
     
-     my $arr_tbl = <<END;
+    my $arr_tbl = <<END;
     (
       id      integer primary key,
       obj     blob not null
     );
 END
-
+    
     my $create_idx = <<END;
     CREATE INDEX IF NOT EXISTS id_idx ON hash ( id );
 END
@@ -302,26 +300,36 @@ END
     my $dbh = DBI->connect("dbi:SQLite:dbname=".$self->file,"","",
 			   {RaiseError => 1, AutoCommit => 1});
     $self->dbh( $dbh );
-    $self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
     # rudimentary DB_File emulation:
     if (defined $index) {
 	$self->throw("Index selector must be a hashref") unless ref($index) eq 'HASH';
 	for ($index->{'type'}) {
 	    $_ eq 'BINARY' && do {
-		$self->dbh->do($create_idx);
+		$self->dbh->disconnect;
+		$self->throw("$DB_BTREE is not meaningful for a tied array");
+		last;
 	    };
 	    $_ eq 'HASH' && do {
+		$self->dbh->disconnect;
+		$self->throw("$DB_HASH is not meaningful for a tied array");
 		last;
 	    };
 	    $_ eq 'RECNO' && do {
+		$self->dbh->do("CREATE TABLE IF NOT EXISTS hash $arr_tbl");
 		$self->dbh->do($create_idx);
 	    };
 	    !defined && do {
+		$self->dbh->do("CREATE TABLE IF NOT EXISTS hash $arr_tbl");
 		last;
 	    };
 	}
     }
-    $self->{i} = 0;
+    else {
+	$self->dbh->do("CREATE TABLE IF NOT EXISTS hash $arr_tbl");
+	$self->dbh->do($create_idx);
+    }
+
+    $self->{len} = 0;
     return $self;
 }
 
@@ -333,10 +341,15 @@ sub FETCH {
     my $self = shift;
     my $key = shift;
     return unless $self->dbh;
-    if (!$self->get_sth) {
-	$self->get_sth( $self->dbh->prepare("SELECT obj FROM hash WHERE id = ?") );
+    if (!$self->{ref} or $self->{ref} eq 'HASH') {
+	$self->get_sth->execute($key);
     }
-    $self->get_sth->execute($key);
+    elsif ($self->{ref} eq 'ARRAY') {
+	$self->get_sth->execute($self->get_key($key));
+    }
+    else { # type not recognized
+	return; 
+    }
     my $ret = $self->get_sth->fetch;
     return $ret unless $ret;
     return $ret->[0];
@@ -346,16 +359,21 @@ sub STORE {
     my $self = shift;
     my ($key, $value) = @_;
     return unless $self->dbh;
-    if (!$self->put_sth) {
-	$self->put_sth(
-	    $self->dbh->prepare("INSERT INTO hash (id, obj) VALUES ( ?, ? )")
-	    );
-    }
     if ( !defined $self->{ref} or $self->{ref} eq 'HASH' ) {
+	$value =~ s{'}{::}g;
 	$self->put_sth->execute($key, $value);
     }
     elsif ( $self->{ref} eq 'ARRAY' ) {
-	$self->put_sth->execute($self->get_key($key), $value);
+	# need to check if the key is already present
+	if ($self->is_empty($self->get_key($key))) {
+	    $self->put_sth->execute($self->get_key($key), $value);
+	}
+	else {
+	    # escape quotes (or SQL will barf)
+	    $value =~ s{'}{::}g;
+	    my $sth = $self->dbh->do("UPDATE hash SET obj = '$value' WHERE id = ".$self->get_key($key));
+
+	}
 	$self->inc;
     }
     $value;
@@ -410,30 +428,44 @@ sub FETCHSIZE {
     my $self = shift;
     return unless $self->dbh;
     return if (!$self->{ref} or $self->{ref} ne 'ARRAY');
-    $self->len - 1;
+    $self->len;
 }
 
 sub STORESIZE {
     my $self = shift;
+    my $count = shift;
     return unless $self->dbh;
     return if (!$self->{ref} or $self->{ref} ne 'ARRAY');
-    $self->len;
+    if ($count > $self->len) {
+	foreach ($count - $self->len .. $count) {
+	    $self->STORE($_, '');
+	}
+    }
+    elsif ($count < $self->len) {
+	foreach (0 .. $self->len - $count - 2) {
+	    $self->POP();
+	}
+    }
+}
+
+# EXTEND is no-op
+sub EXTEND {
+    my $self = shift;
+    my $count = shift;
+    return;
 }
 
 sub POP {
     my $self = shift;
     return unless $self->dbh;
     return if (!$self->{ref} or $self->{ref} ne 'ARRAY');
-    if (!$self->get_sth) {
-	$self->get_sth( $self->dbh->prepare("SELECT obj FROM hash WHERE id = ?") );
-    }
     $self->get_sth->execute($self->get_key($self->len-1));
     my $ret = $self->get_sth->fetch;
     $self->dbh->do("DELETE FROM hash WHERE id = ".$self->get_key($self->len-1));
     # bookkeeping
     $self->rm_key($self->len-1);
     $self->dec;
-    return $ret;
+    return defined $ret ? $ret->[0] : $ret;
 }
 
 sub PUSH {
@@ -442,19 +474,15 @@ sub PUSH {
     return unless $self->dbh;
     return if (!$self->{ref} or $self->{ref} ne 'ARRAY');
     my $ret = @values;
-    if (!$self->put_sth) {
-	$self->put_sth(
-	    $self->dbh->prepare("INSERT INTO hash (id, obj) VALUES ( ?, ? )")
-	    );
-    }
     my $beg = $self->len;
     my $end = $self->len + @values - 1;
     # if the bookkeeping has been right, 
     # none of these indices should be assigned
     # in %KEYTBL...
     for my $i ($beg..$end) {
-	$self->put_sth->execute($self->get_key($i), shift @values)
+	$self->put_sth->execute($self->get_key($i), shift @values);
     }
+    $self->{len} += $ret;
     return $ret;
 }
 
@@ -462,14 +490,12 @@ sub SHIFT {
     my $self = shift;
     return unless $self->dbh;
     return if (!$self->{ref} or $self->{ref} ne 'ARRAY');
-    if (!$self->get_sth) {
-	$self->get_sth( $self->dbh->prepare("SELECT obj FROM hash WHERE id = ?") );
-    }
-    my $ret = $self->get_sth->execute( $self->get_key(0) );
+    $self->get_sth->execute( $self->get_key(0) );
+    my $ret = $self->get_sth->fetch;
     $self->dbh->do("DELETE FROM hash WHERE id = ".$self->get_key(0));
     # bookkeeping
     $self->shift_key;
-    return $ret;
+    return defined $ret ? $ret->[0] : $ret;
 }
 
 sub UNSHIFT {
@@ -478,14 +504,10 @@ sub UNSHIFT {
     return if (!$self->{ref} or $self->{ref} ne 'ARRAY');
     my $n = @values;
     return unless $self->dbh;
-    if (!$self->put_sth) {
-	$self->put_sth(
-	    $self->dbh->prepare("INSERT INTO hash (id, obj) VALUES ( ?, ? )")
-	    );
-    }
     for ($self->unshift_key($n)) {
 	$self->put_sth->execute($_,shift @values);
     }
+    $self->{len}+=$n;
     return $n;
 }
 
@@ -495,61 +517,6 @@ sub SPLICE {
     return if (!$self->{ref} or $self->{ref} ne 'ARRAY');
     die "Won't do splice yet."
 }
-
-sub inc {
-    my $self = shift;
-    return ++($self->{len});
-}
-
-sub dec {
-    my $self = shift;
-    return $self->{len} ? --($self->{len}) : 0;
-}
-
-sub len {
-    my $self = shift;
-    $self->{len};
-}
-
-sub get_key {
-    my $self = shift;
-    my $index = shift;
-    return defined $KEYTBL{$index} ? $KEYTBL{$index} = $AUTOKEY++ : $KEYTBL{$index};
-}
-
-sub shift_key {
-    my $self = shift;
-    return if !$self->len;
-    for my $i (0..$self->len-1) {
-	$KEYTBL{$i} = $KEYTBL{$i+1}; # should undef the last elt
-    }
-    $self->dec;
-    return;
-}
-
-# returns the set of new db ids to use
-sub unshift_key {
-    my $self = shift;
-    my $n = shift; # number of new elements
-    my (@new, @old);
-    for my $i (0..$n-1) {
-	push @new, $AUTOKEY++;
-    }
-    @old=@KEYTBL{ (0..$self->len-1) };
-    @KEYTBL{ (0..$n-1) } = @new;
-    @KEYTBL{ ($n..$self->len+$n-1) } = @old;
-    $self->{len}+=$n;
-    return @new;
-}
-
-sub rm_key {
-    my $self = shift;
-    my $index = shift;
-    unless (delete $KEYTBL{$index}) {
-	warn "Element $index did not exist";
-    }
-}
-
 # destructors
 
 sub UNTIE {
@@ -600,17 +567,20 @@ sub dbh {
 
  Title   : get_sth
  Usage   : $obj->get_sth($new_handle)
- Function: select statement handle
+ Function: returns a select statement handle
+           prepares a new one if necessary
  Example : 
  Returns : value of get_sth (a statement handle)
- Args    : [optional] new handle
+ Args    : none
 
 =cut
 
 sub get_sth {
     my $self = shift;
-    
-    return $self->{'get_sth'} = shift if @_;
+    $self->throw ("No active database handle") unless $self->dbh;
+    if (!$self->{'get_sth'}) {
+	$self->{'get_sth'} =  $self->dbh->prepare("SELECT obj FROM hash WHERE id = ?");
+    }
     return $self->{'get_sth'};
 }
 
@@ -619,17 +589,20 @@ sub get_sth {
 
  Title   : put_sth
  Usage   : $obj->put_sth($new_handle)
- Function: insert statement handle
+ Function: returns an insert statement handle
+           prepares a new one if necessary
  Example : 
  Returns : value of put_sth (a statement handle)
- Args    : [optional] new handle
+ Args    : none
 
 =cut
 
 sub put_sth {
     my $self = shift;
-    
-    return $self->{'put_sth'} = shift if @_;
+    $self->throw ("No active database handle") unless $self->dbh;
+    if (!$self->{'put_sth'}) {
+	$self->{'put_sth'} = $self->dbh->prepare("INSERT INTO hash (id, obj) VALUES ( ?, ? )");
+    }
     return $self->{'put_sth'};
 }
 
@@ -708,5 +681,241 @@ sub keep {
     return $self->{'keep'} = shift if @_;
     return $self->{'keep'};
 }
+
+# HASH or ARRAY?
+sub ref {
+    my $self = shift;
+    return $self->{_ref};
+}
+
+=head2 dup
+
+ Title   : dup
+ Usage   : $obj->dup($newval)
+ Function: flag to indicate whether duplicate keys are handled
+           (compare R_DUP of DB_File)
+ Example : 
+ Returns : value of dup (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+=cut
+
+sub dup {
+    my $self = shift;
+    return $self->{'dup'} = shift if @_;
+    return $self->{'dup'};
+}
+
+=head2 BDB API Emulation
+
+
+
+=head2 get()
+
+ Title   : get
+ Usage   : $X->get($key,\$value)
+ Function: see DB_File
+ Returns : 
+ Args    : 
+
+=cut
+
+sub get {
+    my $self = shift;
+    my ($key, $value) = @_;
+    $$value = $self->FETCH($key);
+    return 0 if defined $$value;
+    return 1;
+}
+
+
+
+=head2 put()
+
+ Title   : put
+ Usage   : $X->put($key, $value)
+ Function: see DB_File
+ Returns : 
+ Args    : 
+
+=cut
+
+sub put {
+    my $self = shift;
+    my ($key, $value) = @_;
+    my $status = $self->STORE($key, $value);
+    return 0 if $status;
+    return 1;
+}
+
+=head2 get_dup()
+
+ Title   : get_dup
+ Usage   : 
+ Function: as in DB_File
+ Returns : 
+ Args    : 
+
+=cut
+
+sub get_dup {
+    my $self = shift;
+    my ($key, $aa) = @_;
+    return unless $self->dbh;
+    unless ($self->dup) {
+	warn("DB not created in dup context; ignoring");
+	return;
+    }
+    $self->get_sth->execute($key);
+    my $ret = $self->get_sth->fetchall_arrayref;
+    return scalar @$ret unless wantarray;
+    my @ret = map {$_->[0]} @$ret;
+    if (!$aa) {
+	return @ret;
+    }
+    else {
+	my %h;
+	$h{$_}++ for @ret;
+	return %h;
+    }
+}
+
+=head2 find_dup()
+
+ Title   : find_dup
+ Usage   : 
+ Function: as in DB_File
+ Returns : 
+ Args    : 
+ Note    : no cursor functionality
+=cut
+
+sub find_dup {
+    my $self = shift;
+    my ($key, $value) = @_;
+    return unless $self->dbh;
+    unless ($self->dup) {
+	warn("DB not created in dup context; ignoring");
+	return;
+    }
+    $self->get_sth->execute($key);
+    my $ret = $self->get_sth->fetchall_arrayref;
+    return 0 if grep(/^$value$/, map {$_->[0]} @$ret);
+    return 1;
+}
+
+=head2 del_dup()
+
+ Title   : del_dup
+ Usage   : 
+ Function: as in DB_File
+ Returns : 
+ Args    : 
+
+=cut
+
+sub del_dup {
+    my $self = shift;
+    my ($key, $value) = @_;
+    return unless $self->dbh;
+    unless ($self->dup) {
+	warn("DB not created in dup context; ignoring");
+	return;
+    }
+    if ($self->dbh->do("DELETE FROM hash WHERE id = '$key' AND obj = '$value'")) {
+	return 0; # success
+    }
+    else {
+	return 1; # fail
+    }
+}
+
+=head2 Array object helper functions
+
+=cut
+
+sub inc {
+    return ++(shift->{len});
+}
+
+sub dec {
+    my $self = shift;
+    return $self->{len} ? --($self->{len}) : 0;
+}
+
+sub len {
+    shift->{len};
+}
+
+sub get_key {
+    my $self = shift;
+    my $index = shift;
+    return $KEYTBL{$index} if defined $KEYTBL{$index};
+    $KEYTBL{$index} = $AUTOKEY++;
+}
+
+sub shift_key {
+    my $self = shift;
+    return if !$self->len;
+    for my $i (0..$self->len-1) {
+	$KEYTBL{$i} = $KEYTBL{$i+1}; # should undef the last elt
+    }
+    $self->dec;
+    return;
+}
+
+# returns the set of new db ids to use
+sub unshift_key {
+    my $self = shift;
+    my $n = shift; # number of new elements
+    my (@new, @old);
+    for my $i (0..$n-1) {
+	push @new, $AUTOKEY++;
+    }
+    @old=@KEYTBL{ (0..$self->len-1) };
+    @KEYTBL{ (0..$n-1) } = @new;
+    @KEYTBL{ ($n..$self->len+$n-1) } = @old;
+    return @new;
+}
+
+sub rm_key {
+    my $self = shift;
+    my $index = shift;
+    unless (delete $KEYTBL{$index}) {
+	warn "Element $index did not exist";
+    }
+}
+
+
+
+=head2 is_empty()
+
+ Title   : is_empty
+ Usage   : 
+ Function: check if the DB array slot is already occupied
+           by examining the values of %KEYTBL
+ Returns : 
+ Args    : actual hash.id value
+
+=cut
+
+sub is_empty {
+    my $self = shift;
+    my $k = shift;
+    # TODO: better to sort only when necessary
+    my @ids = sort {$a <=> $b} values %KEYTBL;
+    my $ret = 1;
+    foreach (@ids) {
+	if ( $k == $_ ) {
+	    $ret = 0;
+	    last;
+	}
+	elsif ( $k < $_ ) {
+	    last;
+	}
+    }
+    return $ret;
+}
+
 
 1;
