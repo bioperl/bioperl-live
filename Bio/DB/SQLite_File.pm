@@ -28,7 +28,13 @@ Bio::DB::SQLite_File - A minimal DBM using SQLite
 
  # tie to a tempfile
  tie(%db, 'Bio::DB::SQLite_File', undef);
- 
+
+ # get attributes of the tied object
+
+ $SQLite_handle = (tied %db)->dbh;
+ $db_file = (tied %db)->file;
+
+=head2 SQL interface 
  # use as an option in AnyDBM_File
  @AnyDBM_File::ISA = qw( DB_File Bio::DB::SQLite_File SDBM );
  my %db;
@@ -92,13 +98,19 @@ Internal methods are usually preceded with a _
 
 =cut
 
+# for pod discussion
+#
+# R_CURSOR points to a record, not between records
+#
+# interaction between the two APIs
+# duplicate protection and handling
+
+
 # Let the code begin...
 
 package Bio::DB::SQLite_File;
 use strict;
 use warnings;
-
-
 
 BEGIN {
     unless (eval "require DBD::SQLite; 1") {
@@ -106,13 +118,29 @@ BEGIN {
      }
     use Exporter;
     our @ISA = qw( Exporter );
-    our @EXPORT = qw( $DB_HASH $DB_BTREE $DB_RECNO R_DUP);
+    our @EXPORT = qw( 
+                       $DB_HASH $DB_BTREE $DB_RECNO 
+                       R_DUP R_CURSOR R_FIRST R_LAST 
+                       R_NEXT R_PREV R_IAFTER R_IBEFORE 
+                       R_NOOVERWRITE R_SETCURSOR
+                    );
 }
 
 our $DB_HASH = { 'type' => 'HASH' };
 our $DB_BTREE = { 'type' => 'BINARY' };
 our $DB_RECNO = { 'type' => 'RECNO' };
+
+# constants hacked out of DB_File:
 sub R_DUP { 32678 }
+sub R_CURSOR { 27 }
+sub R_FIRST { 7 }
+sub R_LAST { 15 }
+sub R_NEXT { 16 }
+sub R_PREV { 23 }
+sub R_IAFTER { 1 }
+sub R_IBEFORE { 3 }
+sub R_NOOVERWRITE { 20 }
+sub R_SETCURSOR { -100 }
 
 # Object preamble - inherits from Bio::Root::Root
 
@@ -136,14 +164,57 @@ sub R_DUP { 32678 }
 
 # SO..this module provides the tied SQLite hash class.
 
+# strange bug using t/data/taxdump/names.db
+#
+# with r16188, getting a crash in transfac_pro.t with "database locked" 
+# error - couldn't debug or trace to it. This was a hash element set.
+# 
+# offending records were of name 'rhodotorula', about 8-10 entries
+# with this name
+# Removing all 'rhodotoruala' records beyond 3 allows the test to proceed.
+#
+# My intuition is that the sqlite hashing alg couldn't create a
+# unique hashkey for all these entries.
+#
+# My fix will be to add an autoincrementing primary key to the table.
+# That didn't work.
+# 
+
+
 use Bio::Root::Root;
 use DBI;
 use File::Temp qw( tempfile );
 use Fcntl qw(O_CREAT O_RDWR O_RDONLY);
 use base qw( Bio::Root::Root );
+
+# these globals probably need to be associated with the object
+# for multiple objects to be present.
+
 our %KEYTBL; # for accounting for pop/push/shift/unshift without
             # modifying the db
 our $AUTOKEY = 0;
+# for providing DB_File seq functionality
+our @SEQIDX;
+our $AUTOPK = 0;
+our $CURSOR = 0;
+
+sub KEYTBL {
+    my $self = shift;
+    return $self->{KEYTBL} = {} if (!defined $self->{KEYTBL});
+    return $self->{KEYTBL};
+}
+
+sub SEQIDX {
+    my $self = shift;
+    return $self->{SEQIDX} = [] if (!defined $self->{SEQIDX});
+    return $self->{SEQIDX};
+}
+
+sub CURSOR {
+    my $self = shift;
+    $self->{CURSOR} = 0 if (!defined $self->{CURSOR});
+    return \$self->{CURSOR};
+}
 
 sub TIEHASH {
     my $class = shift;
@@ -191,20 +262,12 @@ sub TIEHASH {
      my $hash_tbl = <<END;
     (
       id      blob,
-      obj     blob not null
-    );
-END
-    my $hash_tbl_dup = <<END;
-    ( id      blob,
-      obj     blob,
-      dup     integer primary key autoincrement
+      obj     blob not null,
+      pk      integer primary key autoincrement
     );
 END
     my $create_idx = <<END;
-    CREATE INDEX IF NOT EXISTS id_idx ON hash ( id );
-END
-    my $create_idx_dup = <<END;
-    CREATE INDEX IF NOT EXISTS id_idx ON hash ( id, dup );
+    CREATE INDEX IF NOT EXISTS id_idx ON hash ( id, pk );
 END
     my $dbh = DBI->connect("dbi:SQLite:dbname=".$self->file,"","",
 			   {RaiseError => 1, AutoCommit => 1});
@@ -216,8 +279,8 @@ END
 	    $_ eq 'BINARY' && do {
 		if ($index->{flags} eq R_DUP()) {
 		    $self->dup(1);
-		    $self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl_dup");
-		    $self->dbh->do($create_idx_dup);
+		    $self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
+		    $self->dbh->do($create_idx);
 		}
 		else {
 		    $self->dup(0);
@@ -341,40 +404,58 @@ sub FETCH {
     my $self = shift;
     my $key = shift;
     return unless $self->dbh;
-    if (!$self->{ref} or $self->{ref} eq 'HASH') {
-	$self->get_sth->execute($key);
+    if (!$self->{ref} or $self->ref eq 'HASH') {
+	$self->get_sth->execute($key); # fetches on column 'id'
     }
-    elsif ($self->{ref} eq 'ARRAY') {
+    elsif ($self->ref eq 'ARRAY') {
 	$self->get_sth->execute($self->get_key($key));
     }
     else { # type not recognized
 	return; 
     }
     my $ret = $self->get_sth->fetch;
-    return $ret unless $ret;
-    return $ret->[0];
+    if ($ret) {
+	$self->_last_pk( $ret->[1] ); # store the returned pk
+	return $ret->[0]; # always returns the object
+    }
+    else {
+	$self->_last_pk( undef ); # fail in pk
+	return $ret;
+    }
 }
 
 sub STORE {
     my $self = shift;
     my ($key, $value) = @_;
     return unless $self->dbh;
-    if ( !defined $self->{ref} or $self->{ref} eq 'HASH' ) {
-	$value =~ s{'}{::}g;
-	$self->put_sth->execute($key, $value);
+    $value =~ s{'}{`}g;
+    if ( !defined $self->{ref} or $self->ref eq 'HASH' ) {
+	if ( $self->dup ) { # allowing duplicates
+	    my $pk = $self->_get_pk;
+	    $self->put_sth->execute($key, $value, $pk);
+	    push @{$self->SEQIDX}, $pk;
+	}
+	else { # no duplicates...
+	    #need to check if key is already present
+	    if ( $self->EXISTS($key) ) {
+		$self->upd_sth->execute( $value, $key, $self->_last_pk )
+	    }
+	    else {
+		my $pk = $self->_get_pk;
+		$self->put_sth->execute( $key, $value, $pk );
+		push @{$self->SEQIDX}, $pk;
+	    }
+	}
     }
-    elsif ( $self->{ref} eq 'ARRAY' ) {
+    elsif ( $self->ref eq 'ARRAY' ) {
 	# need to check if the key is already present
-	if ($self->is_empty($self->get_key($key))) {
+	if (!defined $KEYTBL{$key} ) {
 	    $self->put_sth->execute($self->get_key($key), $value);
+	    $self->inc;
 	}
 	else {
-	    # escape quotes (or SQL will barf)
-	    $value =~ s{'}{::}g;
-	    my $sth = $self->dbh->do("UPDATE hash SET obj = '$value' WHERE id = ".$self->get_key($key));
-
+	    $self->upd_sth->execute($value,$self->get_key($key));
 	}
-	$self->inc;
     }
     $value;
 }
@@ -383,8 +464,30 @@ sub DELETE {
     my $self = shift;
     my $key = shift;
     return unless $self->dbh;
-    my $oldval = $self->FETCH($key);
-    $self->dbh->do("DELETE FROM hash WHERE id = '$key'") if $oldval;
+    my $oldval;
+    if (!$self->ref or $self->ref eq 'HASH') {
+	return unless $self->get_sth->execute($key);
+	my $ret = $self->get_sth->fetch;
+	$oldval = $ret->[0];
+	$self->dbh->do("DELETE FROM hash WHERE id = '$key'");
+	# update the sequential side
+	for (@{$self->SEQIDX}) { # not very efficient.
+	    if ($_ == $ret->[1]) {
+		undef $_;
+		last;
+	    }
+	}
+    }
+    elsif ($self->ref eq 'ARRAY') {
+	if ($KEYTBL{$key}) {
+	    $oldval = $self->FETCH($KEYTBL{$key});
+	    $self->dbh->do("DELETE FROM hash WHERE id = '$KEYTBL{$key}'");
+	    delete $KEYTBL{$key};
+	}
+    }
+    else {
+	$self->throw( "tied type not recognized" );
+    }
     return $oldval;
 }
 
@@ -395,20 +498,20 @@ sub EXISTS {
     return $self->FETCH($key) ? 1 : 0;
 }
 
-# hash methods
-
 sub CLEAR {
     my $self = shift;
     return unless $self->dbh;
-    return if ($self->{ref} and $self->{ref} ne 'HASH');
     $self->dbh->do("DELETE FROM hash");
+    @{$self->SEQIDX} = ();
     return 1;
 }
+
+# hash methods
 
 sub FIRSTKEY {
     my $self = shift;
     return unless $self->dbh;
-    return if ($self->{ref} and $self->{ref} ne 'HASH');
+    return if ($self->{ref} and $self->ref ne 'HASH');
     my $ids = $self->dbh->selectall_arrayref("SELECT id FROM hash");
     return unless $ids;
     return $self->_keys($ids);
@@ -418,7 +521,7 @@ sub NEXTKEY {
     my $self = shift;
     my $lastkey = shift;
     return unless $self->dbh;
-    return if ($self->{ref} and $self->{ref} ne 'HASH');
+    return if ($self->{ref} and $self->ref ne 'HASH');
     return $self->_keys;
 }
 
@@ -427,7 +530,7 @@ sub NEXTKEY {
 sub FETCHSIZE {
     my $self = shift;
     return unless $self->dbh;
-    return if (!$self->{ref} or $self->{ref} ne 'ARRAY');
+    return if (!$self->{ref} or $self->ref ne 'ARRAY');
     $self->len;
 }
 
@@ -435,7 +538,7 @@ sub STORESIZE {
     my $self = shift;
     my $count = shift;
     return unless $self->dbh;
-    return if (!$self->{ref} or $self->{ref} ne 'ARRAY');
+    return if (!$self->ref or $self->ref ne 'ARRAY');
     if ($count > $self->len) {
 	foreach ($count - $self->len .. $count) {
 	    $self->STORE($_, '');
@@ -458,7 +561,7 @@ sub EXTEND {
 sub POP {
     my $self = shift;
     return unless $self->dbh;
-    return if (!$self->{ref} or $self->{ref} ne 'ARRAY');
+    return if (!$self->{ref} or $self->ref ne 'ARRAY');
     $self->get_sth->execute($self->get_key($self->len-1));
     my $ret = $self->get_sth->fetch;
     $self->dbh->do("DELETE FROM hash WHERE id = ".$self->get_key($self->len-1));
@@ -472,7 +575,7 @@ sub PUSH {
     my $self = shift;
     my @values = @_;
     return unless $self->dbh;
-    return if (!$self->{ref} or $self->{ref} ne 'ARRAY');
+    return if (!$self->{ref} or $self->ref ne 'ARRAY');
     my $ret = @values;
     my $beg = $self->len;
     my $end = $self->len + @values - 1;
@@ -489,7 +592,7 @@ sub PUSH {
 sub SHIFT {
     my $self = shift;
     return unless $self->dbh;
-    return if (!$self->{ref} or $self->{ref} ne 'ARRAY');
+    return if (!$self->{ref} or $self->ref ne 'ARRAY');
     $self->get_sth->execute( $self->get_key(0) );
     my $ret = $self->get_sth->fetch;
     $self->dbh->do("DELETE FROM hash WHERE id = ".$self->get_key(0));
@@ -501,7 +604,7 @@ sub SHIFT {
 sub UNSHIFT {
     my $self = shift;
     my @values = @_;
-    return if (!$self->{ref} or $self->{ref} ne 'ARRAY');
+    return if (!$self->{ref} or $self->ref ne 'ARRAY');
     my $n = @values;
     return unless $self->dbh;
     for ($self->unshift_key($n)) {
@@ -514,9 +617,10 @@ sub UNSHIFT {
 sub SPLICE {
     my $self = shift;
     return if !$self->dbh;
-    return if (!$self->{ref} or $self->{ref} ne 'ARRAY');
+    return if (!$self->{ref} or $self->ref ne 'ARRAY');
     die "Won't do splice yet."
 }
+
 # destructors
 
 sub UNTIE {
@@ -526,24 +630,22 @@ sub UNTIE {
 
 sub DESTROY {
     my $self = shift;
-    $self->put_sth->finish if $self->put_sth;
-    $self->get_sth->finish if $self->get_sth;
-    undef $self->{put_sth};
-    undef $self->{get_sth};
+    # finish and destroy stmt handles
+    for ( qw( put_sth put_seq_sth get_sth get_seq_sth upd_sth upd_seq_sth ) ) {
+	$self->$_->finish if $self->$_;
+	undef $self->{$_};
+    }
+    # disconnect
     $self->dbh->disconnect;
+    # remove file if nec
     $self->_fh->close() if $self->_fh;
     unlink $self->file if (!$self->keep && $self->_fh);
     $self->throw("SQLite_File unlink issue: $!") if $!;
     1;
 }
 
-=head2 Bio::DB::SQLiteTIED
 
-This module implements the tie; see L<perltie> for details. Other object methods follow; they are essentially internal, but can be accessed as follows:
-
- # %db is a tied hash...
- $SQLite_handle = (tied %db)->dbh;
- $db_file = (tied %db)->file;
+=head2 SQL interface
 
 =head2 dbh
 
@@ -578,8 +680,17 @@ sub dbh {
 sub get_sth {
     my $self = shift;
     $self->throw ("No active database handle") unless $self->dbh;
+    # prepare a new stmt if dne or if the column requested is different...
     if (!$self->{'get_sth'}) {
-	$self->{'get_sth'} =  $self->dbh->prepare("SELECT obj FROM hash WHERE id = ?");
+	if (!$self->{ref} or $self->ref eq 'HASH') {
+	    $self->{'get_sth'} =  $self->dbh->prepare("SELECT obj, pk FROM hash WHERE id = ?");
+	}
+	elsif ($self->ref eq 'ARRAY') {
+	    $self->{'get_sth'} =  $self->dbh->prepare("SELECT obj FROM hash WHERE id = ?");
+	}
+	else {
+	    $self->throw("tied type not recognized");
+	}
     }
     return $self->{'get_sth'};
 }
@@ -601,32 +712,140 @@ sub put_sth {
     my $self = shift;
     $self->throw ("No active database handle") unless $self->dbh;
     if (!$self->{'put_sth'}) {
-	$self->{'put_sth'} = $self->dbh->prepare("INSERT INTO hash (id, obj) VALUES ( ?, ? )");
+	if (!$self->{ref} or $self->ref eq 'HASH') {
+	    $self->{'put_sth'} = $self->dbh->prepare("INSERT INTO hash (id, obj, pk) VALUES ( ?, ?, ? )");
+	}
+	elsif ($self->{ref} eq 'ARRAY') {
+	    $self->{'put_sth'} = $self->dbh->prepare("INSERT INTO hash (id, obj) VALUES ( ?, ?)");
+	}
+	else {
+	    $self->throw("tied type not recognized");
+	}
     }
     return $self->{'put_sth'};
 }
 
-=head2 _keys
+=head2 upd_sth
 
- Title   : _keys
- Usage   : internal
- Function: points to a hash to make iterating easy and fun
+ Title   : upd_sth
+ Usage   : $obj->upd_sth($new_handle)
+ Function: returns an update statement handle
+           prepares a new one if necessary
  Example : 
- Returns : value of _keys (a hashref)
- Args    : on set, an arrayref of scalar keys
+ Returns : value of upd_sth (a statement handle)
+ Args    : none
 
 =cut
 
-sub _keys {
+sub upd_sth {
     my $self = shift;
-    my $load = shift;
-    if ($load) {
-	$self->{'_keys'} = {};
-	@{$self->{'_keys'}}{ map {$_->[0]} @$load } = (undef) x @$load;
-	my $a = keys %{$self->{'_keys'}}; #reset each
+    $self->throw ("No active database handle") unless $self->dbh;
+    if (!$self->{'upd_sth'}) {
+	if (!$self->{ref} or $self->ref eq 'HASH') {
+	    $self->{'upd_sth'} = $self->dbh->prepare("UPDATE hash SET obj = ? WHERE id = ? AND pk = ?");
+	}
+	elsif ($self->ref eq 'ARRAY') {
+	    $self->{'upd_sth'} = $self->dbh->prepare("UPDATE hash SET obj = ? WHERE id = ?");
+	}
+	else {
+	    $self->throw("tied type not recognized");
+	}
     }
-    return each %{$self->{'_keys'}};
+    return $self->{'upd_sth'};
 }
+
+=head2 get_seq_sth
+
+ Title   : get_seq_sth
+ Usage   : $obj->get_seq_sth($new_handle)
+ Function: returns a select statement handle
+           prepares a new one if necessary
+ Example : 
+ Returns : value of get_seq_sth (a statement handle)
+ Args    : none
+
+=cut
+
+sub get_seq_sth {
+    my $self = shift;
+    my $col = shift;
+    $col ||= "id";
+    $self->throw ("No active database handle") unless $self->dbh;
+    # prepare a new stmt if dne or if the column requested is different...
+    if (!$self->{'get_seq_sth'}) {
+	if (!$self->{ref} or $self->ref eq 'HASH') {
+	    $self->{'get_seq_sth'} =  $self->dbh->prepare("SELECT id, obj FROM hash WHERE pk = ?");
+	}
+	elsif ($self->ref eq 'ARRAY') {
+	    $self->{'get_seq_sth'} =  $self->dbh->prepare("SELECT obj FROM hash WHERE pk = ?");
+	}
+	else {
+	    $self->throw("tied type not recognized");
+	}
+    }
+    return $self->{'get_seq_sth'};
+}
+
+
+=head2 put_seq_sth
+
+ Title   : put_seq_sth
+ Usage   : $obj->put_seq_sth($new_handle)
+ Function: returns an insert statement handle
+           prepares a new one if necessary
+ Example : 
+ Returns : value of put_seq_sth (a statement handle)
+ Args    : none
+
+=cut
+
+sub put_seq_sth {
+    my $self = shift;
+    $self->throw ("No active database handle") unless $self->dbh;
+    if (!$self->{'put_seq_sth'}) {
+	if (!$self->{ref} or $self->ref eq 'HASH') {
+	    $self->{'put_seq_sth'} = $self->dbh->prepare("INSERT INTO hash (id, obj, pk) VALUES ( ?, ?, ? )");
+	}
+	elsif ($self->{ref} eq 'ARRAY') {
+	    $self->{'put_seq_sth'} = $self->dbh->prepare("INSERT INTO hash (id, obj, pk) VALUES ( ?, ?, ?)");
+	}
+	else {
+	    $self->throw("tied type not recognized");
+	}
+    }
+    return $self->{'put_seq_sth'};
+}
+
+=head2 upd_seq_sth
+
+ Title   : upd_seq_sth
+ Usage   : $obj->upd_seq_sth($new_handle)
+ Function: returns an update statement handle
+           prepares a new one if necessary
+ Example : 
+ Returns : value of upd_seq_sth (a statement handle)
+ Args    : none
+
+=cut
+
+sub upd_seq_sth {
+    my $self = shift;
+    $self->throw ("No active database handle") unless $self->dbh;
+    if (!$self->{'upd_seq_sth'}) {
+	if (!$self->{ref} or $self->ref eq 'HASH') {
+	    $self->{'upd_seq_sth'} = $self->dbh->prepare("UPDATE hash SET obj = ? WHERE pk = ?");
+	}
+	elsif ($self->ref eq 'ARRAY') {
+	    $self->{'upd_seq_sth'} = $self->dbh->prepare("UPDATE hash SET obj = ? WHERE pk = ?");
+	}
+	else {
+	    $self->throw("tied type not recognized");
+	}
+    }
+    return $self->{'upd_seq_sth'};
+}
+
+=head2 Attribute accessors
 
 =head2 file
 
@@ -685,8 +904,376 @@ sub keep {
 # HASH or ARRAY?
 sub ref {
     my $self = shift;
-    return $self->{_ref};
+    return $self->{ref};
 }
+
+=head2 _keys
+
+ Title   : _keys
+ Usage   : internal
+ Function: points to a hash to make iterating easy and fun
+ Example : 
+ Returns : value of _keys (a hashref)
+ Args    : on set, an arrayref of scalar keys
+
+=cut
+
+sub _keys {
+    my $self = shift;
+    my $load = shift;
+    if ($load) {
+	$self->{'_keys'} = {};
+	@{$self->{'_keys'}}{ map {$_->[0]} @$load } = (undef) x @$load;
+	my $a = keys %{$self->{'_keys'}}; #reset each
+    }
+    return each %{$self->{'_keys'}};
+}
+
+=head2 Array object helper functions
+
+=cut
+
+sub inc {
+    return ++(shift->{len});
+}
+
+sub dec {
+    my $self = shift;
+    return $self->{len} ? --($self->{len}) : 0;
+}
+
+sub len {
+    shift->{len};
+}
+
+sub get_key {
+    my $self = shift;
+    my $index = shift;
+    return $KEYTBL{$index} if defined $KEYTBL{$index};
+    $KEYTBL{$index} = $AUTOKEY++;
+}
+
+sub shift_key {
+    my $self = shift;
+    return if !$self->len;
+    for my $i (0..$self->len-1) {
+	$KEYTBL{$i} = $KEYTBL{$i+1}; # should undef the last elt
+    }
+    $self->dec;
+    return;
+}
+
+# returns the set of new db ids to use
+sub unshift_key {
+    my $self = shift;
+    my $n = shift; # number of new elements
+    my (@new, @old);
+    for my $i (0..$n-1) {
+	push @new, $AUTOKEY++;
+    }
+    @old=@KEYTBL{ (0..$self->len-1) };
+    @KEYTBL{ (0..$n-1) } = @new;
+    @KEYTBL{ ($n..$self->len+$n-1) } = @old;
+    return @new;
+}
+
+sub rm_key {
+    my $self = shift;
+    my $index = shift;
+    unless (delete $KEYTBL{$index}) {
+	warn "Element $index did not exist";
+    }
+}
+
+=head2 is_empty()
+
+ Title   : is_empty
+ Usage   : 
+ Function: check if the DB array slot is already occupied
+           by examining the values of %KEYTBL
+ Returns : 
+ Args    : actual hash.id value
+
+=cut
+
+sub is_empty {
+    my $self = shift;
+    my $k = shift;
+    # TODO: better to sort only when necessary
+    my @ids = sort {$a <=> $b} values %KEYTBL;
+    my $ret = 1;
+    foreach (@ids) {
+	if ( $k == $_ ) {
+	    $ret = 0;
+	    last;
+	}
+	elsif ( $k < $_ ) {
+	    last;
+	}
+    }
+    return $ret;
+}
+
+=head2 BDB API Emulation: random access
+
+=head2 get()
+
+ Title   : get
+ Usage   : $X->get($key, $value, $flags)
+ Function: see DB_File
+ Returns : 
+ Args    : 
+
+=cut
+
+sub get {
+    my $self = shift;
+    my ($key, $value, $flags) = @_;
+    return unless $self->dbh;
+    $_[1] = $self->FETCH($key);
+    return 0 if defined $_[1];
+    return 1;
+}
+
+=head2 put()
+
+ Title   : put
+ Usage   : $X->put($key, $value, $flags)
+ Function: see DB_File
+ Returns : 
+ Args    : 
+
+=cut
+
+sub put {
+    my $self = shift;
+    my ($key, $value, $flags) = @_;
+    return unless $self->dbh;
+    my $SEQIDX = $self->SEQIDX;
+    my $CURSOR = $self->CURSOR;
+    my $status;
+    no warnings;
+    for ($flags) {
+	$_ == R_IAFTER && do {
+	    $self->_wring_SEQIDX unless $$SEQIDX[$$CURSOR];
+	    # duplicate protect
+	    return 1 unless !$self->EXISTS($key) || $self->dup;
+	    my $pk = $self->_get_pk;
+	    if ($$CURSOR == $#$SEQIDX) {
+		push @$SEQIDX, $pk;
+	    }
+	    else {
+		splice(@$SEQIDX,$$CURSOR,0,$pk);
+	    }
+	    $status = !$self->put_seq_sth->execute($key, $value, $pk);
+	    $_[0] = $$CURSOR+1 if !$status;
+	    last;
+	};
+	$_ == R_IBEFORE && do {
+	    $self->_wring_SEQIDX unless $$SEQIDX[$$CURSOR];
+	    # duplicate protect
+	    return 1 unless !$self->EXISTS($key) || $self->dup;
+	    my $pk = $self->_get_pk;
+	    if ($$CURSOR) {
+		splice(@$SEQIDX,$$CURSOR-1,0,$pk);
+	    }
+	    else {
+		unshift(@$SEQIDX, $pk);
+	    }
+	    $status = !$self->put_seq_sth->execute($key, $value, $pk);
+	    $_[0] = $$CURSOR if !$status;
+	    $$CURSOR++; # preserve cursor
+	    last;
+	};
+	$_ == R_CURSOR && do { # upd only
+	    $self->_wring_SEQIDX unless $$SEQIDX[$$CURSOR];
+	    # duplicate protect
+	    return 1 unless !$self->EXISTS($key) || $self->dup;
+	    $status = !$self->upd_seq_sth->execute($key, $value, $$SEQIDX[$$CURSOR]);
+	    last;
+	};
+	$_ == R_NOOVERWRITE && do { # put only/add to the "end"
+	    #will create a duplicate if $self->dup is set!
+	    return 1 unless !$self->EXISTS($key) || $self->dup;
+	    my $pk = $self->_get_pk;
+	    push @$SEQIDX, $pk;
+	    $self->put_seq_sth->execute($key, $value, $pk);
+	};
+	($_ == R_SETCURSOR || !defined) && do { # put or upd
+	    $self->EXISTS($key);
+	    my $pk = $self->_last_pk;
+	    return 1 if $pk && !$self->dup; # don't create a duplicate
+	    if ($pk) {
+		$self->upd_seq_sth->execute($key, $value, $pk);
+	    }
+	    else {
+		$pk = $self->_get_pk;
+		$status = !$self->put_seq_sth->execute($key, $value, $pk);
+		unless ($status) {
+		    push @$SEQIDX, $pk;
+		    $$CURSOR = $#$SEQIDX if $_ == R_SETCURSOR;
+		}
+	    }
+	}
+    }
+    use warnings;
+    return $status;
+}
+
+=head2 del()
+
+ Title   : del
+ Usage   : 
+ Function: as in DB_file
+ Returns : 
+ Args    : 
+
+=cut
+
+sub del {
+    my $self = shift;
+    my ($key, $flags) = @_;
+    return unless $self->dbh;
+    my $SEQIDX = $self->SEQIDX;
+    my $CURSOR = $self->CURSOR;
+    my $status;
+    if ($flags eq R_CURSOR) {
+	_wring_SEQIDX($self->SEQIDX) unless $$SEQIDX[$$CURSOR];
+	my $pk = $$SEQIDX[$$CURSOR];
+	$status = $self->dbh->do("DELETE FROM hash WHERE pk = $pk");
+	if ($status) { # successful delete
+	    $$SEQIDX[$$CURSOR] = undef;
+	    $self->_wring_SEQIDX;
+	}
+	1;
+    }
+    else {
+	# delete all matches
+	$status = $self->DELETE($key);
+	1;
+    }
+    return 0 if $status;
+    return 1;
+}
+
+=head2 BDB API Emulation : sequential access
+
+=head2 seq()
+
+ Title   : seq
+ Usage   : 
+ Function: as in DB_File
+ Returns : 
+ Args    : 
+
+=cut
+
+sub seq {
+    my $self = shift;
+    my ($key, $value, $flags) = @_;
+    return 1 unless $flags;
+    # to modify $key, set $_[0]
+    # to modify $value, set $_[1]
+    my $SEQIDX = $self->SEQIDX;
+    my $CURSOR = $self->CURSOR;
+    $self->_wring_SEQIDX unless defined $$SEQIDX[$$CURSOR];
+    for ($flags) {
+	$_ eq R_CURSOR && do {
+	    last;
+	};
+	$_ eq R_FIRST && do {
+	    $$CURSOR = 0;
+	    $self->_wring_SEQIDX() unless defined $$SEQIDX[$$CURSOR];
+	    last;
+	};
+	$_ eq R_LAST && do {
+	    $$CURSOR = $#$SEQIDX;
+	    # the ff is necessary: the original cursor may have been
+	    # defined, but not the new one
+	    $self->_wring_SEQIDX() unless defined $$SEQIDX[$$CURSOR];
+	    last;
+	};
+	$_ eq R_NEXT && do {
+	    return 1 if ($$CURSOR >= $#$SEQIDX);
+	    ($$CURSOR)++;
+	    # the ff is necessary: the original cursor may have been
+	    # defined, but not the new one
+	    $self-> _wring_SEQIDX() unless defined $$SEQIDX[$$CURSOR];
+	    last;
+	};
+	$_ eq R_PREV && do {
+	    return 1 if $$CURSOR == 0;
+	    ($$CURSOR)--;
+	    # the ff is necessary: the original cursor may have been
+	    # defined, but not the new one
+	    $self->_wring_SEQIDX() unless defined $$SEQIDX[$$CURSOR];
+	    last;
+	};
+    }
+    # get by pk, set key and value.
+    $self->get_seq_sth->execute($$SEQIDX[$$CURSOR]);
+    my $ret = $self->get_seq_sth->fetch;
+    ($_[0], $_[1]) = ($$ret[0], $$ret[1]);
+    return 0;
+}
+
+# remove undefs from @SEQIDX
+# taking care of the cursor
+sub _wring_SEQIDX {
+    my $self = shift;
+    my $SEQIDX = $self->SEQIDX;
+    my $CURSOR = $self->CURSOR;
+    my ($i, $j, @a);
+    $j = 0;
+    for $i (0..$#$SEQIDX) {
+	if (defined $$SEQIDX[$i]) {
+	    $$CURSOR = $j if $$CURSOR == $i;
+	    $a[$j++] = $$SEQIDX[$i];
+	}
+	else {
+	    $$CURSOR = $i+1 if $$CURSOR == $i;
+	}
+    }
+    @$SEQIDX = @a;
+    return;
+}
+    
+
+=head2 _get_pk()
+
+ Title   : _get_pk
+ Usage   : 
+ Function: provide an unused primary key integer for seq access
+ Returns : scalar int
+ Args    : none
+
+=cut
+
+sub _get_pk {
+    my $self = shift;
+    # do the primary key auditing for the cursor functions...
+    return ++$AUTOPK;
+}
+
+=head2 _last_pk
+
+ Title   : _last_pk
+ Usage   : $obj->_last_pk($newval)
+ Function: the primary key integer returned on the last FETCH
+ Example : 
+ Returns : value of _last_pk (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+=cut
+
+sub _last_pk {
+    my $self = shift;
+    
+    return $self->{'_last_pk'} = shift if @_;
+    return $self->{'_last_pk'};
+}
+
+=head2 BDB API Emulation: dup
 
 =head2 dup
 
@@ -704,48 +1291,6 @@ sub dup {
     my $self = shift;
     return $self->{'dup'} = shift if @_;
     return $self->{'dup'};
-}
-
-=head2 BDB API Emulation
-
-
-
-=head2 get()
-
- Title   : get
- Usage   : $X->get($key,\$value)
- Function: see DB_File
- Returns : 
- Args    : 
-
-=cut
-
-sub get {
-    my $self = shift;
-    my ($key, $value) = @_;
-    $$value = $self->FETCH($key);
-    return 0 if defined $$value;
-    return 1;
-}
-
-
-
-=head2 put()
-
- Title   : put
- Usage   : $X->put($key, $value)
- Function: see DB_File
- Returns : 
- Args    : 
-
-=cut
-
-sub put {
-    my $self = shift;
-    my ($key, $value) = @_;
-    my $status = $self->STORE($key, $value);
-    return 0 if $status;
-    return 1;
 }
 
 =head2 get_dup()
@@ -829,93 +1374,5 @@ sub del_dup {
 	return 1; # fail
     }
 }
-
-=head2 Array object helper functions
-
-=cut
-
-sub inc {
-    return ++(shift->{len});
-}
-
-sub dec {
-    my $self = shift;
-    return $self->{len} ? --($self->{len}) : 0;
-}
-
-sub len {
-    shift->{len};
-}
-
-sub get_key {
-    my $self = shift;
-    my $index = shift;
-    return $KEYTBL{$index} if defined $KEYTBL{$index};
-    $KEYTBL{$index} = $AUTOKEY++;
-}
-
-sub shift_key {
-    my $self = shift;
-    return if !$self->len;
-    for my $i (0..$self->len-1) {
-	$KEYTBL{$i} = $KEYTBL{$i+1}; # should undef the last elt
-    }
-    $self->dec;
-    return;
-}
-
-# returns the set of new db ids to use
-sub unshift_key {
-    my $self = shift;
-    my $n = shift; # number of new elements
-    my (@new, @old);
-    for my $i (0..$n-1) {
-	push @new, $AUTOKEY++;
-    }
-    @old=@KEYTBL{ (0..$self->len-1) };
-    @KEYTBL{ (0..$n-1) } = @new;
-    @KEYTBL{ ($n..$self->len+$n-1) } = @old;
-    return @new;
-}
-
-sub rm_key {
-    my $self = shift;
-    my $index = shift;
-    unless (delete $KEYTBL{$index}) {
-	warn "Element $index did not exist";
-    }
-}
-
-
-
-=head2 is_empty()
-
- Title   : is_empty
- Usage   : 
- Function: check if the DB array slot is already occupied
-           by examining the values of %KEYTBL
- Returns : 
- Args    : actual hash.id value
-
-=cut
-
-sub is_empty {
-    my $self = shift;
-    my $k = shift;
-    # TODO: better to sort only when necessary
-    my @ids = sort {$a <=> $b} values %KEYTBL;
-    my $ret = 1;
-    foreach (@ids) {
-	if ( $k == $_ ) {
-	    $ret = 0;
-	    last;
-	}
-	elsif ( $k < $_ ) {
-	    last;
-	}
-    }
-    return $ret;
-}
-
 
 1;
