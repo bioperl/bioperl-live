@@ -18,7 +18,7 @@ are online at http://bugzilla.open-bio.org, with specific bugs intended
 for this release series highlighted in BUGS.
 
 1.6.1   Sept. 29, 2009 (point release)
-    * No change from last alpha except VERSION [cjfields]
+    * No change from last alpha except VERSION and doc updates [cjfields]
 
 1.6.0_6 Sept. 27, 2009 (sixth 1.6.1 alpha)
     * Fix for silent OBDA bug related to FASTA validation [cjfields]

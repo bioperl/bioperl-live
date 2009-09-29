@@ -101,8 +101,8 @@ and analyze in case of any problem.
 
 Download, then unpack the tar file. For example:
 
- >tar xvfz BioPerl-1.6.0.tar.gz
- >cd BioPerl-1.6.0
+ >tar xvfz BioPerl-1.6.1.tar.gz
+ >cd BioPerl-1.6.1
 
 Now issue the build commands:
 
@@ -162,11 +162,11 @@ Then find the name of the BioPerl version you want:
  
  Distribution B/BI/BIRNEY/bioperl-1.2.tar.gz
  Distribution B/BI/BIRNEY/bioperl-1.4.tar.gz
- Distribution C/CJ/CJFIELDS/BioPerl-1.6.0.tar.gz
+ Distribution C/CJ/CJFIELDS/BioPerl-1.6.1.tar.gz
 
 Now install:
 
- cpan>install C/CJ/CJFIELDS/BioPerl-1.6.0.tar.gz
+ cpan>install C/CJ/CJFIELDS/BioPerl-1.6.1.tar.gz
 
 If you've installed everything perfectly and all the network
 connections are working then you may pass all the tests run in the
@@ -181,7 +181,7 @@ tests, a few failed tests may not affect your usage of BioPerl.
 If you decide that the failed tests will not affect how you intend to
 use BioPerl and you'd like to install anyway do:
 
- cpan>force install C/CJ/CJFIELDS/BioPerl-1.6.0.tar.gz
+ cpan>force install C/CJ/CJFIELDS/BioPerl-1.6.1.tar.gz
 
 This is what most experienced BioPerl users would do. However, if
 you're concerned about a failed test and need assistance or advice
