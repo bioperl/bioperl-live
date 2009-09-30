@@ -190,19 +190,9 @@ use base qw( Bio::Root::Root );
 # these globals probably need to be associated with the object
 # for multiple objects to be present.
 
-our %KEYTBL; # for accounting for pop/push/shift/unshift without
-            # modifying the db
 our $AUTOKEY = 0;
 # for providing DB_File seq functionality
-our @SEQIDX;
 our $AUTOPK = 0;
-our $CURSOR = 0;
-
-sub KEYTBL {
-    my $self = shift;
-    return $self->{KEYTBL} = {} if (!defined $self->{KEYTBL});
-    return $self->{KEYTBL};
-}
 
 sub SEQIDX {
     my $self = shift;
@@ -408,10 +398,16 @@ sub FETCH {
 	$self->get_sth->execute($key); # fetches on column 'id'
     }
     elsif ($self->ref eq 'ARRAY') {
-	$self->get_sth->execute($self->get_key($key));
+	if (defined ${$self->SEQIDX}[$key]) {
+	    $self->get_sth->execute($self->get_idx($key));
+	}
+	else {
+	    $self->_last_pk(undef);
+	    return undef;
+	}
     }
     else { # type not recognized
-	return; 
+        $self->throw("tied type not recognized");
     }
     my $ret = $self->get_sth->fetch;
     if ($ret) {
@@ -449,12 +445,11 @@ sub STORE {
     }
     elsif ( $self->ref eq 'ARRAY' ) {
 	# need to check if the key is already present
-	if (!defined $KEYTBL{$key} ) {
-	    $self->put_sth->execute($self->get_key($key), $value);
-	    $self->inc;
+	if (!defined ${$self->SEQIDX}[$key] ) {
+	    $self->put_sth->execute($self->get_idx($key), $value);
 	}
 	else {
-	    $self->upd_sth->execute($value,$self->get_key($key));
+	    $self->upd_sth->execute($value,$self->get_idx($key));
 	}
     }
     $value;
@@ -479,10 +474,11 @@ sub DELETE {
 	}
     }
     elsif ($self->ref eq 'ARRAY') {
-	if ($KEYTBL{$key}) {
-	    $oldval = $self->FETCH($KEYTBL{$key});
-	    $self->dbh->do("DELETE FROM hash WHERE id = '$KEYTBL{$key}'");
-	    delete $KEYTBL{$key};
+	my $SEQIDX = $self->SEQIDX;
+	if ($$SEQIDX[$key]) {
+	    $oldval = $self->FETCH($$SEQIDX[$key]);
+	    $self->dbh->do("DELETE FROM hash WHERE id = '$$SEQIDX[$key]'");
+	    $self->rm_idx($key);
 	}
     }
     else {
@@ -495,7 +491,22 @@ sub EXISTS {
     my $self = shift;
     my $key = shift;
     return unless $self->dbh;
-    return $self->FETCH($key) ? 1 : 0;
+    if (!$self->ref or $self->ref eq 'HASH') {
+	return $self->FETCH($key) ? 1 : 0;
+    }
+    elsif ($self->ref eq 'ARRAY') {
+	if (defined(${$self->SEQIDX}[$key])) {
+	    $self->_last_pk(${$self->SEQIDX}[$key]);
+	    return 1;
+	}
+	else {
+	    $self->_last_pk(undef);
+	    return 0;
+	}
+    }
+    else {
+	$self->throw("tied type not recognized");
+    }
 }
 
 sub CLEAR {
@@ -562,12 +573,11 @@ sub POP {
     my $self = shift;
     return unless $self->dbh;
     return if (!$self->{ref} or $self->ref ne 'ARRAY');
-    $self->get_sth->execute($self->get_key($self->len-1));
+    $self->get_sth->execute($self->get_idx($self->len-1));
     my $ret = $self->get_sth->fetch;
-    $self->dbh->do("DELETE FROM hash WHERE id = ".$self->get_key($self->len-1));
+    $self->dbh->do("DELETE FROM hash WHERE id = ".$self->get_idx($self->len-1));
     # bookkeeping
-    $self->rm_key($self->len-1);
-    $self->dec;
+    $self->rm_idx($self->len-1);
     return defined $ret ? $ret->[0] : $ret;
 }
 
@@ -579,13 +589,9 @@ sub PUSH {
     my $ret = @values;
     my $beg = $self->len;
     my $end = $self->len + @values - 1;
-    # if the bookkeeping has been right, 
-    # none of these indices should be assigned
-    # in %KEYTBL...
     for my $i ($beg..$end) {
-	$self->put_sth->execute($self->get_key($i), shift @values);
+	$self->put_sth->execute($self->get_idx($i), shift @values);
     }
-    $self->{len} += $ret;
     return $ret;
 }
 
@@ -593,11 +599,11 @@ sub SHIFT {
     my $self = shift;
     return unless $self->dbh;
     return if (!$self->{ref} or $self->ref ne 'ARRAY');
-    $self->get_sth->execute( $self->get_key(0) );
+    $self->get_sth->execute( $self->get_idx(0) );
     my $ret = $self->get_sth->fetch;
-    $self->dbh->do("DELETE FROM hash WHERE id = ".$self->get_key(0));
+    $self->dbh->do("DELETE FROM hash WHERE id = ".$self->get_idx(0));
     # bookkeeping
-    $self->shift_key;
+    $self->shift_idx;
     return defined $ret ? $ret->[0] : $ret;
 }
 
@@ -607,10 +613,9 @@ sub UNSHIFT {
     return if (!$self->{ref} or $self->ref ne 'ARRAY');
     my $n = @values;
     return unless $self->dbh;
-    for ($self->unshift_key($n)) {
+    for ($self->unshift_idx($n)) {
 	$self->put_sth->execute($_,shift @values);
     }
-    $self->{len}+=$n;
     return $n;
 }
 
@@ -632,7 +637,7 @@ sub DESTROY {
     my $self = shift;
     # finish and destroy stmt handles
     for ( qw( put_sth put_seq_sth get_sth get_seq_sth upd_sth upd_seq_sth ) ) {
-	$self->$_->finish if $self->$_;
+	$self->$_->finish if $self->{$_};
 	undef $self->{$_};
     }
     # disconnect
@@ -686,7 +691,7 @@ sub get_sth {
 	    $self->{'get_sth'} =  $self->dbh->prepare("SELECT obj, pk FROM hash WHERE id = ?");
 	}
 	elsif ($self->ref eq 'ARRAY') {
-	    $self->{'get_sth'} =  $self->dbh->prepare("SELECT obj FROM hash WHERE id = ?");
+	    $self->{'get_sth'} =  $self->dbh->prepare("SELECT obj, id FROM hash WHERE id = ?");
 	}
 	else {
 	    $self->throw("tied type not recognized");
@@ -768,8 +773,6 @@ sub upd_sth {
 
 sub get_seq_sth {
     my $self = shift;
-    my $col = shift;
-    $col ||= "id";
     $self->throw ("No active database handle") unless $self->dbh;
     # prepare a new stmt if dne or if the column requested is different...
     if (!$self->{'get_seq_sth'}) {
@@ -777,7 +780,7 @@ sub get_seq_sth {
 	    $self->{'get_seq_sth'} =  $self->dbh->prepare("SELECT id, obj FROM hash WHERE pk = ?");
 	}
 	elsif ($self->ref eq 'ARRAY') {
-	    $self->{'get_seq_sth'} =  $self->dbh->prepare("SELECT obj FROM hash WHERE pk = ?");
+	    $self->{'get_seq_sth'} =  $self->dbh->prepare("SELECT id, obj FROM hash WHERE id = ?");
 	}
 	else {
 	    $self->throw("tied type not recognized");
@@ -807,7 +810,7 @@ sub put_seq_sth {
 	    $self->{'put_seq_sth'} = $self->dbh->prepare("INSERT INTO hash (id, obj, pk) VALUES ( ?, ?, ? )");
 	}
 	elsif ($self->{ref} eq 'ARRAY') {
-	    $self->{'put_seq_sth'} = $self->dbh->prepare("INSERT INTO hash (id, obj, pk) VALUES ( ?, ?, ?)");
+	    $self->{'put_seq_sth'} = $self->dbh->prepare("INSERT INTO hash (obj, id) VALUES ( ?, ?)");
 	}
 	else {
 	    $self->throw("tied type not recognized");
@@ -833,10 +836,10 @@ sub upd_seq_sth {
     $self->throw ("No active database handle") unless $self->dbh;
     if (!$self->{'upd_seq_sth'}) {
 	if (!$self->{ref} or $self->ref eq 'HASH') {
-	    $self->{'upd_seq_sth'} = $self->dbh->prepare("UPDATE hash SET obj = ? WHERE pk = ?");
+	    $self->{'upd_seq_sth'} = $self->dbh->prepare("UPDATE hash SET id = ?, obj = ? WHERE pk = ?");
 	}
 	elsif ($self->ref eq 'ARRAY') {
-	    $self->{'upd_seq_sth'} = $self->dbh->prepare("UPDATE hash SET obj = ? WHERE pk = ?");
+	    $self->{'upd_seq_sth'} = $self->dbh->prepare("UPDATE hash SET obj = ? WHERE id = ?");
 	}
 	else {
 	    $self->throw("tied type not recognized");
@@ -943,77 +946,40 @@ sub dec {
 }
 
 sub len {
-    shift->{len};
+    scalar @{shift->SEQIDX};
 }
 
-sub get_key {
+sub get_idx {
     my $self = shift;
     my $index = shift;
-    return $KEYTBL{$index} if defined $KEYTBL{$index};
-    $KEYTBL{$index} = $AUTOKEY++;
+    my $SEQIDX = $self->SEQIDX;
+    return $$SEQIDX[$index] if defined $$SEQIDX[$index];
+    push @$SEQIDX, $AUTOKEY;
+    $$SEQIDX[$index] = $AUTOKEY++;
 }
 
-sub shift_key {
+sub shift_idx {
     my $self = shift;
-    return if !$self->len;
-    for my $i (0..$self->len-1) {
-	$KEYTBL{$i} = $KEYTBL{$i+1}; # should undef the last elt
-    }
-    $self->dec;
-    return;
+    return shift( @{$self->SEQIDX} );
 }
 
 # returns the set of new db ids to use
-sub unshift_key {
+sub unshift_idx {
     my $self = shift;
-    my $n = shift; # number of new elements
-    my (@new, @old);
-    for my $i (0..$n-1) {
-	push @new, $AUTOKEY++;
-    }
-    @old=@KEYTBL{ (0..$self->len-1) };
-    @KEYTBL{ (0..$n-1) } = @new;
-    @KEYTBL{ ($n..$self->len+$n-1) } = @old;
+    my $n = shift;
+    my @new;
+    push(@new, $AUTOKEY++) for (0..$n-1);
+    unshift @{$self->SEQIDX}, @new;
     return @new;
 }
 
-sub rm_key {
+sub rm_idx {
     my $self = shift;
     my $index = shift;
-    unless (delete $KEYTBL{$index}) {
+    unless (delete ${$self->SEQIDX}[$index]) {
 	warn "Element $index did not exist";
     }
 }
-
-=head2 is_empty()
-
- Title   : is_empty
- Usage   : 
- Function: check if the DB array slot is already occupied
-           by examining the values of %KEYTBL
- Returns : 
- Args    : actual hash.id value
-
-=cut
-
-sub is_empty {
-    my $self = shift;
-    my $k = shift;
-    # TODO: better to sort only when necessary
-    my @ids = sort {$a <=> $b} values %KEYTBL;
-    my $ret = 1;
-    foreach (@ids) {
-	if ( $k == $_ ) {
-	    $ret = 0;
-	    last;
-	}
-	elsif ( $k < $_ ) {
-	    last;
-	}
-    }
-    return $ret;
-}
-
 =head2 BDB API Emulation: random access
 
 =head2 get()
@@ -1051,36 +1017,38 @@ sub put {
     return unless $self->dbh;
     my $SEQIDX = $self->SEQIDX;
     my $CURSOR = $self->CURSOR;
-    my $status;
+    my ($status, $pk, @parms);
     no warnings;
     for ($flags) {
 	$_ == R_IAFTER && do {
 	    $self->_wring_SEQIDX unless $$SEQIDX[$$CURSOR];
 	    # duplicate protect
-	    return 1 unless !$self->EXISTS($key) || $self->dup;
-	    my $pk = $self->_get_pk;
+	    return 1 unless ($self->ref eq 'ARRAY') || $self->dup || !$self->EXISTS($key);
+	    $pk = $self->_get_pk;
 	    if ($$CURSOR == $#$SEQIDX) {
 		push @$SEQIDX, $pk;
 	    }
 	    else {
 		splice(@$SEQIDX,$$CURSOR,0,$pk);
 	    }
-	    $status = !$self->put_seq_sth->execute($key, $value, $pk);
+	    @parms = ($self->ref eq 'ARRAY' ? ($value, $pk) : ($key, $value, $pk));
+	    $status = !$self->put_seq_sth->execute(@parms);
 	    $_[0] = $$CURSOR+1 if !$status;
 	    last;
 	};
 	$_ == R_IBEFORE && do {
 	    $self->_wring_SEQIDX unless $$SEQIDX[$$CURSOR];
 	    # duplicate protect
-	    return 1 unless !$self->EXISTS($key) || $self->dup;
-	    my $pk = $self->_get_pk;
+	    return 1 unless ($self->ref eq 'ARRAY') || $self->dup || !$self->EXISTS($key);
+	    $pk = $self->_get_pk;
 	    if ($$CURSOR) {
 		splice(@$SEQIDX,$$CURSOR-1,0,$pk);
 	    }
 	    else {
 		unshift(@$SEQIDX, $pk);
 	    }
-	    $status = !$self->put_seq_sth->execute($key, $value, $pk);
+	    @parms = ($self->ref eq 'ARRAY' ? ($value, $pk) : ($key, $value, $pk));
+	    $status = !$self->put_seq_sth->execute(@parms);
 	    $_[0] = $$CURSOR if !$status;
 	    $$CURSOR++; # preserve cursor
 	    last;
@@ -1088,27 +1056,30 @@ sub put {
 	$_ == R_CURSOR && do { # upd only
 	    $self->_wring_SEQIDX unless $$SEQIDX[$$CURSOR];
 	    # duplicate protect
-	    return 1 unless !$self->EXISTS($key) || $self->dup;
-	    $status = !$self->upd_seq_sth->execute($key, $value, $$SEQIDX[$$CURSOR]);
+	    return 1 unless ($self->ref eq 'ARRAY') || $self->dup || !$self->EXISTS($key);
+	    $pk = $$SEQIDX[$$CURSOR];
+	    @parms = ($self->ref eq 'ARRAY' ? ($value, $pk) : ($key, $value, $pk));
+	    $status = !$self->upd_seq_sth->execute(@parms);
 	    last;
 	};
 	$_ == R_NOOVERWRITE && do { # put only/add to the "end"
 	    #will create a duplicate if $self->dup is set!
-	    return 1 unless !$self->EXISTS($key) || $self->dup;
-	    my $pk = $self->_get_pk;
+	    return 1 unless ($self->ref eq 'ARRAY') || $self->dup || !$self->EXISTS($key);
+	    $pk = $self->_get_pk;
 	    push @$SEQIDX, $pk;
-	    $self->put_seq_sth->execute($key, $value, $pk);
+	    @parms = ($self->ref eq 'ARRAY' ? ($value, $pk) : ($key, $value, $pk));
+	    $self->put_seq_sth->execute(@parms);
 	};
 	($_ == R_SETCURSOR || !defined) && do { # put or upd
 	    $self->EXISTS($key);
 	    my $pk = $self->_last_pk;
-	    return 1 if $pk && !$self->dup; # don't create a duplicate
-	    if ($pk) {
-		$self->upd_seq_sth->execute($key, $value, $pk);
+	    @parms = ($self->ref eq 'ARRAY' ? ($value, $pk) : ($key, $value, $pk));
+	    if ($pk && !$self->dup) {
+		$self->upd_seq_sth->execute(@parms);
 	    }
 	    else {
 		$pk = $self->_get_pk;
-		$status = !$self->put_seq_sth->execute($key, $value, $pk);
+		$status = !$self->put_seq_sth->execute(@parms);
 		unless ($status) {
 		    push @$SEQIDX, $pk;
 		    $$CURSOR = $#$SEQIDX if $_ == R_SETCURSOR;
@@ -1140,7 +1111,8 @@ sub del {
     if ($flags eq R_CURSOR) {
 	_wring_SEQIDX($self->SEQIDX) unless $$SEQIDX[$$CURSOR];
 	my $pk = $$SEQIDX[$$CURSOR];
-	$status = $self->dbh->do("DELETE FROM hash WHERE pk = $pk");
+	my $col = ($self->ref eq 'ARRAY' ? 'id' : 'pk');
+	$status = $self->dbh->do("DELETE FROM hash WHERE $col = $pk");
 	if ($status) { # successful delete
 	    $$SEQIDX[$$CURSOR] = undef;
 	    $self->_wring_SEQIDX;
@@ -1182,7 +1154,7 @@ sub seq {
 	    last;
 	};
 	$_ eq R_FIRST && do {
-	    $$CURSOR = 0;
+	    $$CURSOR  = 0;
 	    $self->_wring_SEQIDX() unless defined $$SEQIDX[$$CURSOR];
 	    last;
 	};
@@ -1213,7 +1185,7 @@ sub seq {
     # get by pk, set key and value.
     $self->get_seq_sth->execute($$SEQIDX[$$CURSOR]);
     my $ret = $self->get_seq_sth->fetch;
-    ($_[0], $_[1]) = ($$ret[0], $$ret[1]);
+    ($_[0], $_[1]) = (($self->ref eq 'ARRAY' ? $$CURSOR : $$ret[0]), $$ret[1]);
     return 0;
 }
 

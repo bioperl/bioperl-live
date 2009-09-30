@@ -5,7 +5,7 @@ BEGIN {
     use lib '../..';
     use Bio::Root::Test;
     @AnyDBM_File::ISA = qw( Bio::DB::SQLite_File );
-    test_begin( -tests => 100,
+    test_begin( -tests => 51,
 		-requires_module => 'DBD::SQLite' );
     use Fcntl qw(O_CREAT O_RDWR O_RDONLY);
     use_ok( AnyDBM_File );
