@@ -1028,7 +1028,7 @@ sub _location_sql {
 
   # the additional join on the location_list table badly impacts performance
   # so we build a copy of the table in memory
-  my $seqid = $self->_locationid($seq_id) || 0; # zero is an invalid primary ID, so will return empty
+  my $seqid = $self->_locationid_nocreate($seq_id) || 0; # zero is an invalid primary ID, so will return empty
 
   $start = MIN_INT unless defined $start;
   $end   = MAX_INT unless defined $end;
@@ -1486,6 +1486,9 @@ sub _typeid {
 }
 sub _locationid {
   shift->_genericid('locationlist','seqname',shift,1);
+}
+sub _locationid_nocreate {
+  shift->_genericid('locationlist','seqname',shift,0);
 }
 sub _attributeid {
   shift->_genericid('attributelist','tag',shift,1);

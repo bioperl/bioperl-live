@@ -157,7 +157,7 @@ use constant MAX_INT =>  2_147_483_647;
 use constant MIN_INT => -2_147_483_648;
 use constant MAX_BIN =>  1_000_000_000;  # size of largest feature = 1 Gb
 use constant MIN_BIN =>  1000;           # smallest bin we'll make - on a 100 Mb chromosome, there'll be 100,000 of these
-use constant DEBUG_NONSPATIAL=>0;
+use constant USE_SPATIAL=>0;
 
 my (@BINS,%BINS);
 {
@@ -385,10 +385,7 @@ sub _create_spatial_index{
     my $dbh   = $self->dbh;
     local $dbh->{PrintError} = 0;
     $dbh->do("DROP TABLE IF EXISTS feature_index"); # spatial index
-    if (DEBUG_NONSPATIAL) {
-	warn "DELIBERATELY BREAKING RTREE FUNCTIONALITY";
-	$dbh->do("CREATE VIRTUAL TABLE feature_index USING BTREE(id,seqid,bin,start,end)");
-    } else {
+    if (USE_SPATIAL) {
 	$dbh->do("CREATE VIRTUAL TABLE feature_index USING RTREE(id,seqid,bin,start,end)");
     }
 }
@@ -681,7 +678,7 @@ sub _location_sql {
 
   # the additional join on the location_list table badly impacts performance
   # so we build a copy of the table in memory
-  my $seqid = $self->_locationid($seq_id) || 0; # zero is an invalid primary ID, so will return empty
+  my $seqid = $self->_locationid_nocreate($seq_id) || 0; # zero is an invalid primary ID, so will return empty
 
   my $feature_index = $self->_feature_index_table;
   my $from  = "$feature_index as fi";
@@ -999,7 +996,7 @@ sub _genericid {
   my ($table,$namefield,$name,$add_if_missing) = @_;
   my $qualified_table = $self->_qualify($table);
   my $sth = $self->_prepare(<<END);
-SELECT id FROM $qualified_table WHERE $namefield=?
+SELECT id FROM $qualified_table WHERE lower($namefield)=lower(?)
 END
   $sth->execute($name) or die $sth->errstr;
   my ($id) = $sth->fetchrow_array;
