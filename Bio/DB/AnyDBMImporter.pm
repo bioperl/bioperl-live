@@ -7,11 +7,11 @@ use strict;
 =head1 SYNOPSIS
 
  BEGIN {
-    @AnyDBM_File::ISA = qw( DB_File SDBM_File );
+    @AnyDBM_File::ISA = qw( DB_File SDBM_File ) unless @AnyDBM_File::ISA;
  }
  use AnyDBM_File;
- use Bio::DB::AnyDBMImporter; 
- use Fcntl; # often required; do if you get an error involving 'O_SVWST'
+ use vars qw( $DB_BTREE &R_DUP); # must declare the globals you expect to use
+ use Bio::DB::AnyDBMImporter qw(:bdb); # an import tag is REQUIRED
 
  my %db;
  $DB_BTREE->{'flags'} = R_DUP;
@@ -30,35 +30,118 @@ behavior. Specifically, at the time of DBM module selection,
 C<AnyDBM_File> sets its C<@ISA> to a length 1 array containing the
 package name of the selected DBM module.
 
+=head1 USAGE NOTES
+
+Use of AnyDBMImporter within module code requires a kludge.
+Symbols of imported variables or constants need to
+be declared globals, as in the SYNOPSIS above. This is not necessary
+when AnyDBMImporter is used in package main.
+
+AnyDBMImporter consists entirely of an import function. To import the
+symbols, a tag must be given. More than one tag can be supplied. Symbols
+cannot be individually specified at the moment.
+
+ :bdb    DB_File (BDB) symbols ($DB_*, R_*, O_*)
+ :db     $DB_* type hashrefs
+ :R      R_* constants (R_DUP, R_FIRST, etc)
+ :O      O_* constants (O_CREAT, O_RDWR, etc)
+ :other  Exportable symbols not in any of the above groups
+ :all    All exportable symbols
+ 
 =head1 AUTHOR - Mark A. Jensen
 
  Email: maj -at- fortinbras -dot- us
 
 =cut
 
-my ($pkg, @goob) = caller;
-if (!@AnyDBM_File::ISA) {
-    die "No packages specified for AnyDBM_File (have you forgotten to include AnyDBM_File?)"
-}
-elsif (@AnyDBM_File::ISA > 1) {
-    warn "AnyDBM_File has not selected a single DBM package; returning..."
-}
-else {
-    my @export = eval "\@$AnyDBM_File::ISA[0]::EXPORT";
-    for (@export) {
-	m/^\$(.*)/ && do {
-	    eval "\$${pkg}::$1 = \$$AnyDBM_File::ISA[0]\::$1";
+# if ( $pkg eq 'main' and $fn =~ /Bio.*?\.pm/ ) {
+#     $DB::single=1;
+#     $fn =~ s/\.pm$//;
+#     my @a = split( /[\\\/]/, $fn);
+#     while ($_ = shift @a) {
+# 	next if !/Bio/;
+#     };
+#     $pkg = "Bio::".join("::", @a);
+# }
+
+use constant { R_CONST => 1, O_CONST => 2, DB_TYPES => 4, OTHER => 8 };
+
+sub import {
+    my ($class, @args) = @_;
+    my ($pkg, $fn, $ln) = caller;
+    my $flags = 0;
+    for (@args) {
+	/^:all$/ && do {
+	    $flags |= (R_CONST | O_CONST |  DB_TYPES | OTHER );
+	    next;
 	};
-	m/^\@(.*)/ && do {
-	    eval "\@${pkg}::$1 = \@$AnyDBM_File::ISA[0]\::$1";
+	/^:other$/ && do {
+	    $flags |= OTHER;
+	    next;
 	};
-	m/^\%(.*)/ && do {
-	    eval "\%${pkg}::$1 = \%$AnyDBM_File::ISA[0]\::$1";
+	/^:bdb/ && do {
+	    $flags |= (R_CONST | O_CONST |  DB_TYPES );
+	    next;
 	};
-	m/^[^\$@%]/ && do {
-	    eval "*{${pkg}::$_\} = \\\&$AnyDBM_File::ISA[0]\::$_";
+	/^:db$/ && do {
+	    $flags |= DB_TYPES;
+	    next;
 	};
-	die $@ if $@;
+	/^:R$/ && do {
+	    $flags |= R_CONST;
+	    next;
+	};
+	/^:O$/ && do {
+	    $flags |= O_CONST;
+	    next;
+	};
+	do {
+	    die "Tag '$_' not recognized";
+	};
+    }
+    die "No symbols exported" unless $flags;
+    
+    if (!@AnyDBM_File::ISA) {
+	die "No packages specified for AnyDBM_File (have you forgotten to include AnyDBM_File?)"
+    }
+    elsif (@AnyDBM_File::ISA > 1) {
+	warn "AnyDBM_File has not selected a single DBM package; returning..."
+    }
+    else {
+	my @export = eval "(\@$AnyDBM_File::ISA[0]::EXPORT, \@$AnyDBM_File::ISA[0]::EXPORT_OK)";
+	my $ref;
+	for (@export) {
+	    m/^\$(.*)/ && do {
+		$_ = substr $_, 1;
+		eval "\$ref = *${pkg}::$_\{SCALAR}";
+		if ( ($flags & DB_TYPES and ($1 =~ /^DB_/)) ||
+		     ($flags & OTHER and ($1 !~ /^DB_/)) ) {
+		    $$ref = eval "\$$AnyDBM_File::ISA[0]\::$_";
+		}
+	    };
+	    m/^\@(.*)/ && do {
+		$_ = substr $_, 1;
+		eval "\$ref = *${pkg}::$_\{ARRAY}";
+		if  ($flags & OTHER) {
+		    $$ref = eval "\@$AnyDBM_File::ISA[0]\::$1";
+		}
+	    };
+	    m/^\%(.*)/ && do {
+		$_ = substr $_, 1;
+		eval "\$ref = *${pkg}::$_\{HASH}";
+		if  ($flags & OTHER) {
+		    $$ref = eval "\%$AnyDBM_File::ISA[0]\::$1";
+		}
+	    };
+	    m/^[^\$@%]/ && do {
+		eval "*{${pkg}::$_\} = \\\&$AnyDBM_File::ISA[0]\::$_" if 
+		   ( ($flags & R_CONST and /^R_/) ||
+		    ($flags & O_CONST and /^O_/) ||
+		     ($flags & OTHER and /^[RO]_/) );
+	    };
+	    die $@ if $@;
+	}
     }
 }
+
 1;
