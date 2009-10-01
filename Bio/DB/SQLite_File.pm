@@ -116,15 +116,15 @@ BEGIN {
     unless (eval "require DBD::SQLite; 1") {
  	Bio::Root::Root->throw( "SQLite_File requires DBD::SQLite" );
      }
-    use Exporter;
-    our @ISA = qw( Exporter );
-    our @EXPORT = qw( 
-                       $DB_HASH $DB_BTREE $DB_RECNO 
-                       R_DUP R_CURSOR R_FIRST R_LAST 
-                       R_NEXT R_PREV R_IAFTER R_IBEFORE 
-                       R_NOOVERWRITE R_SETCURSOR
-                    );
 }
+
+our @EXPORT = qw( 
+                 $DB_HASH $DB_BTREE $DB_RECNO 
+                 R_DUP R_CURSOR R_FIRST R_LAST 
+                 R_NEXT R_PREV R_IAFTER R_IBEFORE 
+                 R_NOOVERWRITE R_SETCURSOR
+                 O_CREAT O_RDWR O_RDONLY O_SVWST
+                 );
 
 our $DB_HASH = { 'type' => 'HASH' };
 our $DB_BTREE = { 'type' => 'BINARY' };
@@ -141,6 +141,28 @@ sub R_IAFTER { 1 }
 sub R_IBEFORE { 3 }
 sub R_NOOVERWRITE { 20 }
 sub R_SETCURSOR { -100 }
+
+sub O_CREAT { 512 };
+sub O_RDWR { 2 };
+sub O_RDONLY  { 0 };
+sub O_SVWST { 514 };
+
+# exporter...
+# AnyDBM_File performs a require, but Exporter only exports at compile time.
+# so we have to kludge it...
+# my ($pkg, $fn, $ln) = caller;
+
+# no warnings; # avoid fscking "uninit" warns
+# for (@EXPORT) {
+#     m/^\$(.*)/ && do {
+# 	eval "\$${pkg}::$1 = \$Bio::DB::SQLite_File::$1";
+#     };
+#     m/^[^\$@%]/ && do {
+# 	eval "\*\{${pkg}::$_\} = \\&Bio::DB::SQLite_File::$_";
+#     };
+#     print STDERR $@ if $@;
+# }
+# use warnings;
 
 # Object preamble - inherits from Bio::Root::Root
 
@@ -222,6 +244,9 @@ sub TIEHASH {
 		$infix = ">";
 		last;
 	    };
+	    $_ eq 'O_SVWST' && do { #bullsith kludge
+		$_ = 514;
+	    };
 	    ($_ & O_CREAT) && do {
 		$infix = (-e $file ? '<' : '>');
 	    };
@@ -266,8 +291,12 @@ END
     if (defined $index) {
 	$self->throw("Index selector must be a hashref") unless ref($index) eq 'HASH';
 	for ($index->{'type'}) {
+	    !defined && do {
+		$self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
+		last;
+	    };
 	    $_ eq 'BINARY' && do {
-		if ($index->{flags} eq R_DUP()) {
+		if ($index->{flags} & R_DUP ) {
 		    $self->dup(1);
 		    $self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
 		    $self->dbh->do($create_idx);
@@ -286,10 +315,7 @@ END
 		$self->throw("$DB_RECNO is not meaningful for tied hashes");
 		last;
 	    };
-	    !defined && do {
-		$self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
-		last;
-	    };
+
 	}
     }
     else {
@@ -1071,19 +1097,20 @@ sub put {
 	    $self->put_seq_sth->execute(@parms);
 	};
 	($_ == R_SETCURSOR || !defined) && do { # put or upd
-	    $self->EXISTS($key);
-	    my $pk = $self->_last_pk;
-	    @parms = ($self->ref eq 'ARRAY' ? ($value, $pk) : ($key, $value, $pk));
-	    if ($pk && !$self->dup) {
-		$self->upd_seq_sth->execute(@parms);
-	    }
-	    else {
+	    if ($self->dup) { # just make a new one
 		$pk = $self->_get_pk;
+		@parms = ($self->ref eq 'ARRAY' ? ($value, $pk) : ($key, $value, $pk));
 		$status = !$self->put_seq_sth->execute(@parms);
 		unless ($status) {
 		    push @$SEQIDX, $pk;
 		    $$CURSOR = $#$SEQIDX if $_ == R_SETCURSOR;
 		}
+	    }
+	    else {
+		$self->get($key);
+		$pk = $self->_last_pk;
+		@parms = ($self->ref eq 'ARRAY' ? ($value, $pk) : ($key, $value, $pk));
+		$self->upd_seq_sth->execute(@parms);
 	    }
 	}
     }
