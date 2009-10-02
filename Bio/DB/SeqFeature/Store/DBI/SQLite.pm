@@ -959,6 +959,8 @@ sub _get_location_and_bin {
     return ($seqid,$start,$end,$strand,$self->calculate_bin($start,$end));
 }
 
+
+
 ###
 # Insert one Bio::SeqFeatureI into database. primary_id must be undef
 #
@@ -980,16 +982,43 @@ END
   $self->flag_for_indexing($dbh->func('last_insert_rowid')) if $self->{bulk_update_in_progress};
 }
 
-=head2 types
+=head2 toplevel_types
 
- Title   : types
- Usage   : @type_list = $db->types
- Function: Get all the types in the database
+ Title   : toplevel_types
+ Usage   : @type_list = $db->toplevel_types
+ Function: Get the toplevel types in the database
  Returns : array of Bio::DB::GFF::Typename objects
  Args    : none
  Status  : public
 
+This is similar to types() but only returns the types of
+INDEXED (toplevel) features.
+
 =cut
+
+sub toplevel_types {
+    my $self = shift;
+    eval "require Bio::DB::GFF::Typename" 
+	unless Bio::DB::GFF::Typename->can('new');
+    my $typelist_table      = $self->_typelist_table;
+    my $feature_table       = $self->_feature_table;
+    my $sql = <<END;
+SELECT distinct(tag) from $typelist_table as tl,$feature_table as f
+ WHERE tl.id=f.typeid
+   AND f."indexed"=1
+END
+;
+    $self->_print_query($sql) if DEBUG || $self->debug;
+    my $sth = $self->_prepare($sql);
+    $sth->execute() or $self->throw($sth->errstr);
+
+    my @results;
+    while (my($tag) = $sth->fetchrow_array) {
+	push @results,Bio::DB::GFF::Typename->new($tag);
+    }
+    $sth->finish;
+    return @results;
+}
 
 sub _genericid {
   my $self = shift;
