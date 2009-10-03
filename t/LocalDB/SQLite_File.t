@@ -4,21 +4,20 @@
 BEGIN {
     use lib '../..';
     use Bio::Root::Test;
-    @AnyDBM_File::ISA = qw( Bio::DB::SQLite_File );
+    @AnyDBM_File::ISA = qw( DB_File Bio::DB::SQLite_File );
     test_begin( -tests => 51,
-		-requires_module => 'DBD::SQLite' );
+		-requires_module => 'DBD::SQLite',
+		-requires_module => 'Bio::DB::AnyDBMImporter' );
     use Fcntl qw(O_CREAT O_RDWR O_RDONLY);
     use_ok( AnyDBM_File );
 }
 
-use constant ( R_DUP => Bio::DB::SQLite_File::R_DUP() );
-my $DB_HASH = $Bio::DB::SQLite_File::DB_HASH;
-my $DB_BTREE = $Bio::DB::SQLite_File::DB_BTREE;
-my $DB_RECNO = $Bio::DB::SQLite_File::DB_RECNO;
+use vars qw( $DB_HASH $DB_TREE $DB_RECNO &R_DUP );
+use Bio::DB::AnyDBMImporter qw(:bdb);
 
 my %db;
 my $flags = O_CREAT | O_RDWR;
-ok tie( %db, 'AnyDBM_File', 'my.db', $flags, 0666, undef, 0), "tie";
+ok tie( %db, 'AnyDBM_File', 'my.db', $flags, 0666, $DB_HASH, 0), "tie";
 ok $db{'butcher'} = 1, "set";
 ok $db{'baker'} = 2, "set";
 ok $db{'candlestick maker'} = 3, "set";

@@ -5,26 +5,17 @@ BEGIN {
     use lib '../..';
     use Bio::Root::Test;
     @AnyDBM_File::ISA = qw( Bio::DB::SQLite_File );
-    test_begin( -tests => 100,
+    test_begin( -tests => 85,
 		-requires_module => 'DBD::SQLite' );
     use Fcntl qw(O_CREAT O_RDWR O_RDONLY);
     use_ok( AnyDBM_File );
 }
+use vars qw( $DB_HASH $DB_BTREE $DB_RECNO
+             &R_DUP &R_CURSOR &R_FIRST &R_LAST
+             &R_NEXT &R_PREV &R_IAFTER &R_IBEFORE
+             &R_NOOVERWRITE &R_SETCURSOR );	       
 
-my $DB_HASH = $Bio::DB::SQLite_File::DB_HASH;
-my $DB_BTREE = $Bio::DB::SQLite_File::DB_BTREE;
-my $DB_RECNO = $Bio::DB::SQLite_File::DB_RECNO;
-use constant { R_DUP => Bio::DB::SQLite_File::R_DUP(),
-	       R_CURSOR => Bio::DB::SQLite_File::R_CURSOR(),
-	       R_FIRST => Bio::DB::SQLite_File::R_FIRST(),
-	       R_LAST => Bio::DB::SQLite_File::R_LAST(),
-	       R_NEXT => Bio::DB::SQLite_File::R_NEXT(),
-	       R_PREV => Bio::DB::SQLite_File::R_PREV(),
-	       R_IAFTER => Bio::DB::SQLite_File::R_IAFTER(),
-	       R_IBEFORE => Bio::DB::SQLite_File::R_IBEFORE(),
-	       R_NOOVERWRITE => Bio::DB::SQLite_File::R_NOOVERWRITE(),
-	       R_SETCURSOR => Bio::DB::SQLite_File::R_SETCURSOR()
-};
+use Bio::DB::AnyDBMImporter qw(:bdb);
 
 my %db;
 my $flags = O_CREAT | O_RDWR;
@@ -83,7 +74,7 @@ is($value, 'Z', "correct put R_IBEFORE");
 $key = 101;
 $value = 'X';
 ok !$db->put($key, $value, R_SETCURSOR), "put R_SETCURSOR";
-ok !$db->get($key, $value, R_CURSOR), "what's at the cursor";
+ok !$db->seq($key, $value, R_CURSOR), "what's at the cursor";
 is ($value, 'X', "cursor floated");
 $key = 102;
 $value = 'Y';

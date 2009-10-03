@@ -234,11 +234,12 @@ sub TIEHASH {
     my $self = {};
     bless($self, $class);
     $self->{ref} = 'HASH';
-    my $infix;
     my $fh;
     # db file handling
     if ($file) {
 	# you'll love this...
+	my $infix;
+	my $setmode;
 	for ($flags) {
 	    !defined && do {
 		$infix = ">";
@@ -248,16 +249,18 @@ sub TIEHASH {
 		$_ = 514;
 	    };
 	    ($_ & O_CREAT) && do {
+		$setmode = 1 if ! -e $file;
 		$infix = (-e $file ? '<' : '>');
 	    };
 	    ($_ & O_RDWR) && do {
-		$infix = '+'.($infix ? $infix : '>');
+		$infix = '+'.($infix ? $infix : '<');
 	    };
 	    do { # O_RDONLY
 		$infix = '<' unless $infix;
 	    };
 	}
 	open($fh, $infix, $file) or $self->throw("Can't open db file: $!");
+	chmod $mode, $file if $setmode;
 	# if file explicitly specified, but keep is not, 
 	# retain file at destroy...
 	$keep = 1 if !defined $keep;
@@ -290,13 +293,14 @@ END
     # rudimentary DB_File emulation:
     if (defined $index) {
 	$self->throw("Index selector must be a hashref") unless ref($index) eq 'HASH';
+	my $flags = $index->{flags} || 0;
 	for ($index->{'type'}) {
 	    !defined && do {
 		$self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
 		last;
 	    };
 	    $_ eq 'BINARY' && do {
-		if ($index->{flags} & R_DUP ) {
+		if ($flags & R_DUP ) {
 		    $self->dup(1);
 		    $self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
 		    $self->dbh->do($create_idx);
@@ -334,22 +338,28 @@ sub TIEARRAY {
     # db file handling
     if ($file) {
 	my $infix;
+	my $setmode;
 	for ($flags) {
 	    !defined && do {
 		$infix = ">";
 		last;
 	    };
+	    $_ eq 'O_SVWST' && do { #bullsith kludge
+		$_ = 514;
+	    };
 	    ($_ & O_CREAT) && do {
+		$setmode = 1 if ! -e $file;
 		$infix = (-e $file ? '<' : '>');
 	    };
 	    ($_ & O_RDWR) && do {
-		$infix = '+'.($infix ? $infix : '>');
+		$infix = '+'.($infix ? $infix : '<');
 	    };
 	    do { # O_RDONLY
 		$infix = '<' unless $infix;
 	    };
 	}
 	open($fh, $infix, $file) or $self->throw("Can't open db file: $!");
+	chmod $mode, $file if $setmode;
 	# if file explicitly specified, but keep is not, 
 	# retain file at destroy...
 	$keep = 1 if !defined $keep;
@@ -438,6 +448,8 @@ sub FETCH {
     my $ret = $self->get_sth->fetch;
     if ($ret) {
 	$self->_last_pk( $ret->[1] ); # store the returned pk
+	$ret->[0] =~ s{<SQUOT>}{'}g;
+	$ret->[0] =~ s{<DQUOT>}{"}g;
 	return $ret->[0]; # always returns the object
     }
     else {
@@ -450,7 +462,8 @@ sub STORE {
     my $self = shift;
     my ($key, $value) = @_;
     return unless $self->dbh;
-    $value =~ s{'}{`}g;
+    $value =~ s{'}{<SQUOT>}g;
+    $value =~ s{"}{<DQUOT>}g;
     if ( !defined $self->{ref} or $self->ref eq 'HASH' ) {
 	if ( $self->dup ) { # allowing duplicates
 	    my $pk = $self->_get_pk;
@@ -518,7 +531,7 @@ sub EXISTS {
     my $key = shift;
     return unless $self->dbh;
     if (!$self->ref or $self->ref eq 'HASH') {
-	return $self->FETCH($key) ? 1 : 0;
+	return defined $self->FETCH($key) ? 1 : 0;
     }
     elsif ($self->ref eq 'ARRAY') {
 	if (defined(${$self->SEQIDX}[$key])) {
@@ -672,6 +685,7 @@ sub DESTROY {
     $self->_fh->close() if $self->_fh;
     unlink $self->file if (!$self->keep && $self->_fh);
     $self->throw("SQLite_File unlink issue: $!") if $!;
+    undef $self;
     1;
 }
 
@@ -1022,7 +1036,7 @@ sub get {
     my $self = shift;
     my ($key, $value, $flags) = @_;
     return unless $self->dbh;
-    $_[1] = $self->FETCH($key);
+    $_[1] = ($self->ref eq 'ARRAY' ? $self->FETCH(${$self->SEQIDX}[$key]) : $self->FETCH($key));
     return 0 if defined $_[1];
     return 1;
 }
@@ -1044,8 +1058,43 @@ sub put {
     my $SEQIDX = $self->SEQIDX;
     my $CURSOR = $self->CURSOR;
     my ($status, $pk, @parms);
-    no warnings;
     for ($flags) {
+	(!defined || $_ == R_SETCURSOR) && do { # put or upd
+	    if ($self->dup) { # just make a new one
+		$pk = $self->_get_pk;
+		@parms = ($self->ref eq 'ARRAY' ? ($value, $pk) : ($key, $value, $pk));
+		$status = !$self->put_seq_sth->execute(@parms);
+		unless ($status) {
+		    push @$SEQIDX, $pk;
+		    $$CURSOR = $#$SEQIDX if $_ == R_SETCURSOR;
+		}
+	    }
+	    else {
+
+		$self->FETCH($key);
+		$pk = $self->_last_pk || $self->_get_pk;
+		@parms = ($self->ref eq 'ARRAY' ? ($value, $pk) : ($key, $value, $pk));
+		if ($self->_last_pk) {
+		    $status = !$self->upd_seq_sth->execute(@parms);
+		}
+		else {
+		    $status = !$self->put_seq_sth->execute(@parms);
+		    push @$SEQIDX, $pk;
+		}
+		$_ && do { # R_SETCURSOR
+		    if ( $pk = $$SEQIDX[-1] ) {
+			$$CURSOR = $#$SEQIDX;
+		    }
+		    else {
+			for (my $i=0; $i<@$SEQIDX; $i++) {
+			    $$CURSOR = $i;
+			    last if $$SEQIDX[$i] == $pk;
+			}
+		    };
+		}
+	    }
+	    last;
+	};
 	$_ == R_IAFTER && do {
 	    $self->_wring_SEQIDX unless $$SEQIDX[$$CURSOR];
 	    # duplicate protect
@@ -1095,24 +1144,9 @@ sub put {
 	    push @$SEQIDX, $pk;
 	    @parms = ($self->ref eq 'ARRAY' ? ($value, $pk) : ($key, $value, $pk));
 	    $self->put_seq_sth->execute(@parms);
+	    last;
 	};
-	($_ == R_SETCURSOR || !defined) && do { # put or upd
-	    if ($self->dup) { # just make a new one
-		$pk = $self->_get_pk;
-		@parms = ($self->ref eq 'ARRAY' ? ($value, $pk) : ($key, $value, $pk));
-		$status = !$self->put_seq_sth->execute(@parms);
-		unless ($status) {
-		    push @$SEQIDX, $pk;
-		    $$CURSOR = $#$SEQIDX if $_ == R_SETCURSOR;
-		}
-	    }
-	    else {
-		$self->get($key);
-		$pk = $self->_last_pk;
-		@parms = ($self->ref eq 'ARRAY' ? ($value, $pk) : ($key, $value, $pk));
-		$self->upd_seq_sth->execute(@parms);
-	    }
-	}
+
     }
     use warnings;
     return $status;
