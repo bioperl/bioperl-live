@@ -131,38 +131,21 @@ our $DB_BTREE = { 'type' => 'BINARY' };
 our $DB_RECNO = { 'type' => 'RECNO' };
 
 # constants hacked out of DB_File:
-sub R_DUP { 32678 }
-sub R_CURSOR { 27 }
-sub R_FIRST { 7 }
-sub R_LAST { 15 }
-sub R_NEXT { 16 }
-sub R_PREV { 23 }
-sub R_IAFTER { 1 }
-sub R_IBEFORE { 3 }
-sub R_NOOVERWRITE { 20 }
-sub R_SETCURSOR { -100 }
+sub R_DUP () { 32678 }
+sub R_CURSOR () { 27 }
+sub R_FIRST () { 7 }
+sub R_LAST () { 15 }
+sub R_NEXT () { 16 }
+sub R_PREV () { 23 }
+sub R_IAFTER () { 1 }
+sub R_IBEFORE () { 3 }
+sub R_NOOVERWRITE () { 20 }
+sub R_SETCURSOR () { -100 }
 
-sub O_CREAT { 512 };
-sub O_RDWR { 2 };
-sub O_RDONLY  { 0 };
-sub O_SVWST { 514 };
-
-# exporter...
-# AnyDBM_File performs a require, but Exporter only exports at compile time.
-# so we have to kludge it...
-# my ($pkg, $fn, $ln) = caller;
-
-# no warnings; # avoid fscking "uninit" warns
-# for (@EXPORT) {
-#     m/^\$(.*)/ && do {
-# 	eval "\$${pkg}::$1 = \$Bio::DB::SQLite_File::$1";
-#     };
-#     m/^[^\$@%]/ && do {
-# 	eval "\*\{${pkg}::$_\} = \\&Bio::DB::SQLite_File::$_";
-#     };
-#     print STDERR $@ if $@;
-# }
-# use warnings;
+sub O_CREAT  () { 512 };
+sub O_RDWR () { 2 };
+sub O_RDONLY () { 0 };
+sub O_SVWST (){ 514 };
 
 # Object preamble - inherits from Bio::Root::Root
 
@@ -186,31 +169,10 @@ sub O_SVWST { 514 };
 
 # SO..this module provides the tied SQLite hash class.
 
-# strange bug using t/data/taxdump/names.db
-#
-# with r16188, getting a crash in transfac_pro.t with "database locked" 
-# error - couldn't debug or trace to it. This was a hash element set.
-# 
-# offending records were of name 'rhodotorula', about 8-10 entries
-# with this name
-# Removing all 'rhodotoruala' records beyond 3 allows the test to proceed.
-#
-# My intuition is that the sqlite hashing alg couldn't create a
-# unique hashkey for all these entries.
-#
-# My fix will be to add an autoincrementing primary key to the table.
-# That didn't work.
-# 
-
-
 use Bio::Root::Root;
 use DBI;
 use File::Temp qw( tempfile );
-use Fcntl qw(O_CREAT O_RDWR O_RDONLY);
 use base qw( Bio::Root::Root );
-
-# these globals probably need to be associated with the object
-# for multiple objects to be present.
 
 our $AUTOKEY = 0;
 # for providing DB_File seq functionality
@@ -279,7 +241,7 @@ sub TIEHASH {
     # create SQL statements
      my $hash_tbl = <<END;
     (
-      id      blob,
+      id      blob collate NOCASE,
       obj     blob not null,
       pk      integer primary key autoincrement
     );
@@ -481,6 +443,7 @@ sub STORE {
 		push @{$self->SEQIDX}, $pk;
 	    }
 	}
+	$self->{_stale} = 1;
     }
     elsif ( $self->ref eq 'ARRAY' ) {
 	# need to check if the key is already present
@@ -505,10 +468,13 @@ sub DELETE {
 	$oldval = $ret->[0];
 	$self->dbh->do("DELETE FROM hash WHERE id = '$key'");
 	# update the sequential side
-	for (@{$self->SEQIDX}) { # not very efficient.
-	    if ($_ == $ret->[1]) {
-		undef $_;
-		last;
+	if ($ret->[1]) {
+	    for (@{$self->SEQIDX}) { # not very efficient.
+		!defined $_ && do { next; };
+		if ($_ == $ret->[1]) {
+		    undef $_;
+		    last;
+		}
 	    }
 	}
     }
@@ -690,7 +656,7 @@ sub DESTROY {
 }
 
 
-=head2 SQL interface
+=head2 SQL interface : internal
 
 =head2 dbh
 
@@ -972,18 +938,9 @@ sub _keys {
     return each %{$self->{'_keys'}};
 }
 
-=head2 Array object helper functions
+=head2 Array object helper functions : internal
 
 =cut
-
-sub inc {
-    return ++(shift->{len});
-}
-
-sub dec {
-    my $self = shift;
-    return $self->{len} ? --($self->{len}) : 0;
-}
 
 sub len {
     scalar @{shift->SEQIDX};
@@ -1066,7 +1023,7 @@ sub put {
 		$status = !$self->put_seq_sth->execute(@parms);
 		unless ($status) {
 		    push @$SEQIDX, $pk;
-		    $$CURSOR = $#$SEQIDX if $_ == R_SETCURSOR;
+		    $$CURSOR = $#$SEQIDX if $_;
 		}
 	    }
 	    else {
@@ -1148,7 +1105,7 @@ sub put {
 	};
 
     }
-    use warnings;
+    $self->{_stale} = 1;
     return $status;
 }
 
@@ -1185,6 +1142,7 @@ sub del {
 	$status = $self->DELETE($key);
 	1;
     }
+    $self->{_stale} = 1;
     return 0 if $status;
     return 1;
 }
@@ -1205,13 +1163,19 @@ sub seq {
     my $self = shift;
     my ($key, $value, $flags) = @_;
     return 1 unless $flags;
+    my $status;
     # to modify $key, set $_[0]
     # to modify $value, set $_[1]
+    $self->_reindex if $self->_index_is_stale;
     my $SEQIDX = $self->SEQIDX;
     my $CURSOR = $self->CURSOR;
     $self->_wring_SEQIDX unless defined $$SEQIDX[$$CURSOR];
     for ($flags) {
 	$_ eq R_CURSOR && do {
+	    # find and set cursor
+	    # need partial key matching as in DB_File
+            # for Bio::DB::GFF::Adaptor::berkeleydb
+#	    $self->_wring_SEQIDX() unless defined $$SEQIDX[$$CURSOR];
 	    last;
 	};
 	$_ eq R_FIRST && do {
@@ -1244,14 +1208,148 @@ sub seq {
 	};
     }
     # get by pk, set key and value.
-    $self->get_seq_sth->execute($$SEQIDX[$$CURSOR]);
-    my $ret = $self->get_seq_sth->fetch;
-    ($_[0], $_[1]) = (($self->ref eq 'ARRAY' ? $$CURSOR : $$ret[0]), $$ret[1]);
+    if (($flags == R_CURSOR ) && $self->ref eq 'HASH') {
+	$status = $self->partial_match($key, $value);
+	$_[0] = $key; $_[1] = $value;
+	return $status;
+    }
+    else {
+	$self->get_seq_sth->execute($$SEQIDX[$$CURSOR]);
+	my $ret = $self->get_seq_sth->fetch;
+	($_[0], $_[1]) = (($self->ref eq 'ARRAY' ? $$CURSOR : $$ret[0]), $$ret[1]);
+    }
     return 0;
 }
 
-# remove undefs from @SEQIDX
-# taking care of the cursor
+=head2 sync()
+
+ Title   : sync
+ Usage   : 
+ Function: stub for BDB sync 
+ Returns : 1
+ Args    : 
+
+=cut
+
+sub sync { 0 };
+
+=head2 BDB API Emulation : internals
+
+=head2 partial_match()
+
+ Title   : partial_match
+ Usage   : 
+ Function: emulate the partial matching of DB_File::seq() with
+           R_CURSOR flag
+ Returns : 
+ Args    : $key
+
+=cut
+
+sub partial_match {
+    my $self = shift;
+    my ($key, $value) = @_;
+    my ($status,$ret, $pk);
+    unless ($self->ref ne 'ARRAY') {
+	$self->throw("Partial matches not meaningful for arrays");
+    }
+    my $SEQIDX = $self->SEQIDX;
+    my $CURSOR = $self->CURSOR;
+    # create a special statement for this
+    unless ($self->{part_seq_sth}) {
+	$self->{part_seq_sth} = $self->dbh->prepare( "SELECT id, obj, pk FROM hash WHERE id >= ? LIMIT 1" );
+    }
+    $status = !$self->{part_seq_sth}->execute( $key );
+    if (!$status) { # success
+	if ($ret = $self->{part_seq_sth}->fetch) {
+	    $_[0] = $ret->[0]; $_[1] = $ret->[1];
+	    $pk = $ret->[2];
+ 	    unless ($$CURSOR = _find_idx($pk,$SEQIDX)) {
+		$self->throw("Primary key value disappeared!");
+	    }
+	    return 0;
+	}
+    }
+    return 1;
+}
+
+=head2 _index_is_stale()
+
+ Title   : _index_is_stale
+ Usage   : 
+ Function: predicate indicating whether a _reindex has been
+           performed since adding or updating the db
+ Returns : 
+ Args    : none
+
+=cut
+
+sub _index_is_stale {
+    my $self = shift;
+    return $self->{_stale};
+}
+
+=head2 _reindex()
+
+ Title   : _reindex
+ Usage   : 
+ Function: reorder SEQIDX to reflect BTREE ordering,
+           preserving cursor
+ Returns : true on success
+ Args    : none
+
+=cut
+
+sub _reindex {
+    my $self = shift;
+    my ($q, @order);
+    my $SEQIDX = $self->SEQIDX;
+    my $CURSOR = $self->CURSOR;
+    $self->_wring_SEQIDX;
+    $q = $self->dbh->selectall_arrayref("SELECT pk, id FROM hash ORDER BY id");
+    unless ($q) {
+	return 0;
+    }
+    @order = map { $$_[0] } @$q;
+    $$CURSOR = _find_idx($$SEQIDX[$$CURSOR],\@order);
+    $self->{SEQIDX} = \@order;
+    $self->{_stale} = 0;
+    return 1;
+}
+
+=head2 _find_idx()
+
+ Title   : _find_idx
+ Usage   : 
+ Function: search of array for index corresponding
+           to a given value
+ Returns : scalar int (target array index)
+ Args    : scalar int (target value), array ref (index array)
+
+=cut
+
+
+sub _find_idx {
+    my ($pk, $seqidx) = @_;
+    my $i;
+    for (0..$#$seqidx) {
+	$i = $_;
+	last if $pk == $$seqidx[$_];
+    }
+    return ($pk == $$seqidx[$i] ? $i : undef);
+}
+
+=head2 _wring_SEQIDX()
+
+ Title   : _wring_SEQIDX
+ Usage   : 
+ Function: remove undef'ed values from SEQIDX,
+           preserving cursor
+ Returns : 
+ Args    : none
+
+=cut
+
 sub _wring_SEQIDX {
     my $self = shift;
     my $SEQIDX = $self->SEQIDX;
