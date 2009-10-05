@@ -170,7 +170,7 @@ sub O_SVWST (){ 514 };
 # SO..this module provides the tied SQLite hash class.
 
 use Bio::Root::Root;
-use DBI;
+use DBI qw(:sql_types);
 use File::Temp qw( tempfile );
 use base qw( Bio::Root::Root );
 
@@ -424,22 +424,35 @@ sub STORE {
     my $self = shift;
     my ($key, $value) = @_;
     return unless $self->dbh;
+
     $value =~ s{'}{<SQUOT>}g;
     $value =~ s{"}{<DQUOT>}g;
     if ( !defined $self->{ref} or $self->ref eq 'HASH' ) {
 	if ( $self->dup ) { # allowing duplicates
 	    my $pk = $self->_get_pk;
-	    $self->put_sth->execute($key, $value, $pk);
+	    my $sth = $self->put_sth;
+	    $sth->bind_param(1,$key);
+	    $sth->bind_param(2,$value, SQL_BLOB);
+	    $sth->bind_param(3,$pk);
+	    $self->put_sth->execute();
 	    push @{$self->SEQIDX}, $pk;
 	}
 	else { # no duplicates...
 	    #need to check if key is already present
 	    if ( $self->EXISTS($key) ) {
-		$self->upd_sth->execute( $value, $key, $self->_last_pk )
+		my $sth = $self->upd_sth;
+		$sth->bind_param(1,$value, SQL_BLOB);
+		$sth->bind_param(2,$key);
+		$sth->bind_param(3,$self->_last_pk);
+		$sth->execute();
 	    }
 	    else {
 		my $pk = $self->_get_pk;
-		$self->put_sth->execute( $key, $value, $pk );
+		my $sth = $self->put_sth;
+		$sth->bind_param(1,$key);
+		$sth->bind_param(2,$value, SQL_BLOB);
+		$sth->bind_param(3,$pk);
+		$sth->execute();
 		push @{$self->SEQIDX}, $pk;
 	    }
 	}
@@ -461,6 +474,7 @@ sub DELETE {
     my $self = shift;
     my $key = shift;
     return unless $self->dbh;
+    $self->_reindex if $self->_index_is_stale;
     my $oldval;
     if (!$self->ref or $self->ref eq 'HASH') {
 	return unless $self->get_sth->execute($key);
@@ -469,13 +483,7 @@ sub DELETE {
 	$self->dbh->do("DELETE FROM hash WHERE id = '$key'");
 	# update the sequential side
 	if ($ret->[1]) {
-	    for (@{$self->SEQIDX}) { # not very efficient.
-		!defined $_ && do { next; };
-		if ($_ == $ret->[1]) {
-		    undef $_;
-		    last;
-		}
-	    }
+	    delete ${$self->SEQIDX}[_find_idx($ret->[1],$self->SEQIDX)];
 	}
     }
     elsif ($self->ref eq 'ARRAY') {
@@ -1044,40 +1052,37 @@ sub put {
     my $SEQIDX = $self->SEQIDX;
     my $CURSOR = $self->CURSOR;
     my ($status, $pk, @parms);
+    my ($sth, $do_cursor);
     for ($flags) {
 	(!defined || $_ == R_SETCURSOR) && do { # put or upd
 	    if ($self->dup) { # just make a new one
 		$pk = $self->_get_pk;
-		@parms = ($self->ref eq 'ARRAY' ? ($value, $pk) : ($key, $value, $pk));
-		$status = !$self->put_seq_sth->execute(@parms);
-		unless ($status) {
+		$sth = $self->put_seq_sth;
+		$do_cursor = sub {
 		    push @$SEQIDX, $pk;
-		    $$CURSOR = $#$SEQIDX if $_;
-		}
+		    $$CURSOR = $#$SEQIDX if $flags;
+		};
 	    }
 	    else {
-
 		$self->FETCH($key);
 		$pk = $self->_last_pk || $self->_get_pk;
-		@parms = ($self->ref eq 'ARRAY' ? ($value, $pk) : ($key, $value, $pk));
-		if ($self->_last_pk) {
-		    $status = !$self->upd_seq_sth->execute(@parms);
-		}
-		else {
-		    $status = !$self->put_seq_sth->execute(@parms);
-		    push @$SEQIDX, $pk;
-		}
-		$_ && do { # R_SETCURSOR
-		    if ( $pk = $$SEQIDX[-1] ) {
-			$$CURSOR = $#$SEQIDX;
-		    }
-		    else {
-			for (my $i=0; $i<@$SEQIDX; $i++) {
-			    $$CURSOR = $i;
-			    last if $$SEQIDX[$i] == $pk;
+		$sth = ($self->_last_pk ? 
+			   $self->upd_seq_sth :
+			   $self->put_seq_sth);
+		$do_cursor = sub {
+		    push @$SEQIDX, $pk if !$self->_last_pk;
+		    $flags && do { # R_SETCURSOR
+			if ( $pk = $$SEQIDX[-1] ) {
+			    $$CURSOR = $#$SEQIDX;
 			}
+			else {
+			    for (my $i=0; $i<@$SEQIDX; $i++) {
+				$$CURSOR = $i;
+				last if $$SEQIDX[$i] == $pk;
+			    }
+			};
 		    };
-		}
+		};
 	    }
 	    last;
 	};
@@ -1086,15 +1091,16 @@ sub put {
 	    # duplicate protect
 	    return 1 unless ($self->ref eq 'ARRAY') || $self->dup || !$self->EXISTS($key);
 	    $pk = $self->_get_pk;
-	    if ($$CURSOR == $#$SEQIDX) {
-		push @$SEQIDX, $pk;
-	    }
-	    else {
-		splice(@$SEQIDX,$$CURSOR,0,$pk);
-	    }
-	    @parms = ($self->ref eq 'ARRAY' ? ($value, $pk) : ($key, $value, $pk));
-	    $status = !$self->put_seq_sth->execute(@parms);
-	    $_[0] = $$CURSOR+1 if !$status;
+	    $sth = $self->put_seq_sth;
+	    $_[0] = $$CURSOR+1;
+	    $do_cursor = sub {
+		if ($$CURSOR == $#$SEQIDX) {
+		    push @$SEQIDX, $pk;
+		}
+		else {
+		    splice(@$SEQIDX,$$CURSOR,0,$pk);
+		}
+	    };
 	    last;
 	};
 	$_ == R_IBEFORE && do {
@@ -1102,16 +1108,17 @@ sub put {
 	    # duplicate protect
 	    return 1 unless ($self->ref eq 'ARRAY') || $self->dup || !$self->EXISTS($key);
 	    $pk = $self->_get_pk;
-	    if ($$CURSOR) {
-		splice(@$SEQIDX,$$CURSOR-1,0,$pk);
-	    }
-	    else {
-		unshift(@$SEQIDX, $pk);
-	    }
-	    @parms = ($self->ref eq 'ARRAY' ? ($value, $pk) : ($key, $value, $pk));
-	    $status = !$self->put_seq_sth->execute(@parms);
-	    $_[0] = $$CURSOR if !$status;
-	    $$CURSOR++; # preserve cursor
+	    $sth = $self->put_seq_sth;
+	    $_[0] = $$CURSOR;
+	    $do_cursor = sub {
+		if ($$CURSOR) {
+		    splice(@$SEQIDX,$$CURSOR-1,0,$pk);
+		}
+		else {
+		    unshift(@$SEQIDX, $pk);
+		}
+		$$CURSOR++; # preserve cursor
+	    };
 	    last;
 	};
 	$_ == R_CURSOR && do { # upd only
@@ -1119,21 +1126,32 @@ sub put {
 	    # duplicate protect
 	    return 1 unless ($self->ref eq 'ARRAY') || $self->dup || !$self->EXISTS($key);
 	    $pk = $$SEQIDX[$$CURSOR];
-	    @parms = ($self->ref eq 'ARRAY' ? ($value, $pk) : ($key, $value, $pk));
-	    $status = !$self->upd_seq_sth->execute(@parms);
+	    $sth = $self->upd_seq_sth;
+	    $do_cursor = sub {};
 	    last;
 	};
 	$_ == R_NOOVERWRITE && do { # put only/add to the "end"
 	    #will create a duplicate if $self->dup is set!
 	    return 1 unless ($self->ref eq 'ARRAY') || $self->dup || !$self->EXISTS($key);
 	    $pk = $self->_get_pk;
-	    push @$SEQIDX, $pk;
-	    @parms = ($self->ref eq 'ARRAY' ? ($value, $pk) : ($key, $value, $pk));
-	    $self->put_seq_sth->execute(@parms);
+	    $sth = $self->put_seq_sth;
+	    $do_cursor = sub {
+		push @$SEQIDX, $pk;
+	    };
 	    last;
 	};
-
     }
+    if ($self->ref eq 'ARRAY') {
+	$sth->bind_param(1, $value, SQL_BLOB);
+	$sth->bind_param(2, $pk);
+    }
+    else {
+	$sth->bind_param(1, $key);
+	$sth->bind_param(2, $value, SQL_BLOB);
+	$sth->bind_param(3, $pk);
+    }
+    $status = !$sth->execute;
+    $do_cursor->() if !$status;
     $self->{_stale} = 1;
     return $status;
 }
@@ -1152,6 +1170,7 @@ sub del {
     my $self = shift;
     my ($key, $flags) = @_;
     return unless $self->dbh;
+    $self->_reindex if $self->_index_is_stale;
     my $SEQIDX = $self->SEQIDX;
     my $CURSOR = $self->CURSOR;
     my $status;
@@ -1359,9 +1378,10 @@ sub _find_idx {
     my $i;
     for (0..$#$seqidx) {
 	$i = $_;
+	next unless defined $$seqidx[$_];
 	last if $pk == $$seqidx[$_];
     }
-    return ($pk == $$seqidx[$i] ? $i : undef);
+    return (defined $$seqidx[$i] and $pk == $$seqidx[$i] ? $i : undef);
 }
 
 =head2 _wring_SEQIDX()
@@ -1502,7 +1522,7 @@ sub find_dup {
     $self->get_sth->execute($key);
     my $ret = $self->get_sth->fetchall_arrayref;
     return 0 if grep(/^$value$/, map {$_->[0]} @$ret);
-    return 1;
+    return;
 }
 
 =head2 del_dup()
@@ -1518,17 +1538,28 @@ sub find_dup {
 sub del_dup {
     my $self = shift;
     my ($key, $value) = @_;
+    my $ret;
     return unless $self->dbh;
     unless ($self->dup) {
 	warn("DB not created in dup context; ignoring");
 	return;
     }
-    # kludge for when mem cruft exists in the $value
-    if ( $value =~ /[\x00-\x7F]/ ) { # "binary" data
-	# create an SQLite blob literal
-	$value = 'X"'.unpack('H*',$value).'"';
+    my $sth = $self->dbh->prepare("SELECT pk FROM hash WHERE id = '$key' AND obj = ?");
+    $sth->bind_param(1, $value, SQL_BLOB);
+    $sth->execute();
+    $ret = $sth->fetchall_arrayref;
+    unless ($ret) {
+	return 1;
     }
-    if ($self->dbh->do("DELETE FROM hash WHERE id = '$key' AND obj = '$value'")) {
+    $sth = $self->dbh->prepare("DELETE FROM hash WHERE id = '$key' and obj = ?");
+    $sth->bind_param(1, $value, SQL_BLOB);
+    if ($sth->execute) {
+	# update SEQIDX
+	foreach (map { $$_[0] } @$ret) {
+	    delete ${$self->SEQIDX}[_find_idx($_,$self->SEQIDX)];
+	}
+	$self->_wring_SEQIDX;
+	$sth->finish;
 	return 0; # success
     }
     else {
