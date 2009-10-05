@@ -641,7 +641,7 @@ sub UNTIE {
 sub DESTROY {
     my $self = shift;
     # finish and destroy stmt handles
-    for ( qw( put_sth put_seq_sth get_sth get_seq_sth upd_sth upd_seq_sth ) ) {
+    for ( qw( put_sth put_seq_sth get_sth get_seq_sth upd_sth upd_seq_sth part_seq_sth ) ) {
 	$self->$_->finish if $self->{$_};
 	undef $self->{$_};
     }
@@ -852,6 +852,35 @@ sub upd_seq_sth {
 	}
     }
     return $self->{'upd_seq_sth'};
+}
+
+=head2 upd_seq_sth
+
+ Title   : upd_seq_sth
+ Usage   : $obj->upd_seq_sth($new_handle)
+ Function: returns an update statement handle
+           prepares a new one if necessary
+ Example : 
+ Returns : value of upd_seq_sth (a statement handle)
+ Args    : none
+
+=cut
+
+sub part_seq_sth {
+    my $self = shift;
+    $self->throw ("No active database handle") unless $self->dbh;
+    if (!$self->{'part_seq_sth'}) {
+	if (!$self->{ref} or $self->ref eq 'HASH') {
+	$self->{part_seq_sth} = $self->dbh->prepare( "SELECT id, obj, pk FROM hash WHERE id >= ? LIMIT 1" );
+	}
+	elsif ($self->ref eq 'ARRAY') {
+	    $self->throw("Partial matches not meaningful for arrays");
+	}
+	else {
+	    $self->throw("tied type not recognized");
+	}
+    }
+    return $self->{'part_seq_sth'};
 }
 
 =head2 Attribute accessors
@@ -1255,11 +1284,7 @@ sub partial_match {
     }
     my $SEQIDX = $self->SEQIDX;
     my $CURSOR = $self->CURSOR;
-    # create a special statement for this
-    unless ($self->{part_seq_sth}) {
-	$self->{part_seq_sth} = $self->dbh->prepare( "SELECT id, obj, pk FROM hash WHERE id >= ? LIMIT 1" );
-    }
-    $status = !$self->{part_seq_sth}->execute( $key );
+    $status = !$self->part_seq_sth->execute( $key );
     if (!$status) { # success
 	if ($ret = $self->{part_seq_sth}->fetch) {
 	    $_[0] = $ret->[0]; $_[1] = $ret->[1];
@@ -1497,6 +1522,11 @@ sub del_dup {
     unless ($self->dup) {
 	warn("DB not created in dup context; ignoring");
 	return;
+    }
+    # kludge for when mem cruft exists in the $value
+    if ( $value =~ /[\x00-\x7F]/ ) { # "binary" data
+	# create an SQLite blob literal
+	$value = 'X"'.unpack('H*',$value).'"';
     }
     if ($self->dbh->do("DELETE FROM hash WHERE id = '$key' AND obj = '$value'")) {
 	return 0; # success
