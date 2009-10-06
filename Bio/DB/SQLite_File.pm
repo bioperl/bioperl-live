@@ -196,6 +196,8 @@ sub TIEHASH {
     my $self = {};
     bless($self, $class);
     $self->{ref} = 'HASH';
+    $index ||= $DB_HASH;
+    $self->{index} = $index;
     my $fh;
     # db file handling
     if ($file) {
@@ -296,6 +298,10 @@ sub TIEARRAY {
     my $self = {};
     bless($self, $class);
     $self->{ref} = 'ARRAY';
+    $index ||= $DB_RECNO;
+    $self->throw("Arrays must be tied to type RECNO") unless 
+	$index->{type} eq 'RECNO';
+    $self->{index} = $index;
     my $fh;
     # db file handling
     if ($file) {
@@ -474,7 +480,7 @@ sub DELETE {
     my $self = shift;
     my $key = shift;
     return unless $self->dbh;
-    $self->_reindex if $self->_index_is_stale;
+    $self->_reindex if ($self->index->{type} eq 'BINARY' and $self->_index_is_stale);
     my $oldval;
     if (!$self->ref or $self->ref eq 'HASH') {
 	return unless $self->get_sth->execute($key);
@@ -953,6 +959,25 @@ sub ref {
     return $self->{ref};
 }
 
+=head2 index
+
+ Title   : index
+ Usage   : $obj->index($newval)
+ Function: access the index type structure ($DB_BTREE, $DB_HASH, $DB_RECNO)
+           that initialized this instance
+ Example : 
+ Returns : value of index (a hashref)
+ Args    : 
+
+=cut
+
+sub index {
+    my $self = shift;
+    return $self->{'index'};
+}
+
+
+
 =head2 _keys
 
  Title   : _keys
@@ -1061,6 +1086,7 @@ sub put {
 		$do_cursor = sub {
 		    push @$SEQIDX, $pk;
 		    $$CURSOR = $#$SEQIDX if $flags;
+		    $self->_reindex if $self->index->{type} eq 'BINARY';
 		};
 	    }
 	    else {
@@ -1076,11 +1102,9 @@ sub put {
 			    $$CURSOR = $#$SEQIDX;
 			}
 			else {
-			    for (my $i=0; $i<@$SEQIDX; $i++) {
-				$$CURSOR = $i;
-				last if $$SEQIDX[$i] == $pk;
-			    }
+			    $$CURSOR = _find_idx($pk, $SEQIDX);
 			};
+			$self->_reindex if $self->index->{type} eq 'BINARY';
 		    };
 		};
 	    }
@@ -1090,6 +1114,8 @@ sub put {
 	    $self->_wring_SEQIDX unless $$SEQIDX[$$CURSOR];
 	    # duplicate protect
 	    return 1 unless ($self->ref eq 'ARRAY') || $self->dup || !$self->EXISTS($key);
+	    $self->throw("R_IAFTER flag meaningful only for RECNO type") unless
+		$self->index->{type} eq 'RECNO';
 	    $pk = $self->_get_pk;
 	    $sth = $self->put_seq_sth;
 	    $_[0] = $$CURSOR+1;
@@ -1107,6 +1133,8 @@ sub put {
 	    $self->_wring_SEQIDX unless $$SEQIDX[$$CURSOR];
 	    # duplicate protect
 	    return 1 unless ($self->ref eq 'ARRAY') || $self->dup || !$self->EXISTS($key);
+	    $self->throw("R_IBEFORE flag meaningful only for RECNO type") unless
+		$self->index->{type} eq 'RECNO';
 	    $pk = $self->_get_pk;
 	    $sth = $self->put_seq_sth;
 	    $_[0] = $$CURSOR;
@@ -1127,7 +1155,9 @@ sub put {
 	    return 1 unless ($self->ref eq 'ARRAY') || $self->dup || !$self->EXISTS($key);
 	    $pk = $$SEQIDX[$$CURSOR];
 	    $sth = $self->upd_seq_sth;
-	    $do_cursor = sub {};
+	    $do_cursor = sub {
+		$self->_reindex if $self->index->{type} eq 'BINARY';
+	    };
 	    last;
 	};
 	$_ == R_NOOVERWRITE && do { # put only/add to the "end"
@@ -1137,6 +1167,7 @@ sub put {
 	    $sth = $self->put_seq_sth;
 	    $do_cursor = sub {
 		push @$SEQIDX, $pk;
+		$self->_reindex if $self->index->{type} eq 'BINARY';
 	    };
 	    last;
 	};
@@ -1152,7 +1183,7 @@ sub put {
     }
     $status = !$sth->execute;
     $do_cursor->() if !$status;
-    $self->{_stale} = 1;
+    $self->{_stale} = 0 if $self->index->{type} eq 'BINARY';
     return $status;
 }
 
@@ -1170,7 +1201,7 @@ sub del {
     my $self = shift;
     my ($key, $flags) = @_;
     return unless $self->dbh;
-    $self->_reindex if $self->_index_is_stale;
+    $self->_reindex if ($self->index->{type} eq 'BINARY' and $self->_index_is_stale);
     my $SEQIDX = $self->SEQIDX;
     my $CURSOR = $self->CURSOR;
     my $status;
@@ -1214,47 +1245,33 @@ sub seq {
     my $status;
     # to modify $key, set $_[0]
     # to modify $value, set $_[1]
-    $self->_reindex if $self->_index_is_stale;
+    $self->_reindex if ($self->index->{type} eq 'BINARY' and $self->_index_is_stale);
     my $SEQIDX = $self->SEQIDX;
     my $CURSOR = $self->CURSOR;
-    $self->_wring_SEQIDX unless defined $$SEQIDX[$$CURSOR];
     for ($flags) {
 	$_ eq R_CURSOR && do {
-	    # find and set cursor
-	    # need partial key matching as in DB_File
-            # for Bio::DB::GFF::Adaptor::berkeleydb
-#	    $self->_wring_SEQIDX() unless defined $$SEQIDX[$$CURSOR];
 	    last;
 	};
 	$_ eq R_FIRST && do {
 	    $$CURSOR  = 0;
-	    $self->_wring_SEQIDX() unless defined $$SEQIDX[$$CURSOR];
 	    last;
 	};
 	$_ eq R_LAST && do {
 	    $$CURSOR = $#$SEQIDX;
-	    # the ff is necessary: the original cursor may have been
-	    # defined, but not the new one
-	    $self->_wring_SEQIDX() unless defined $$SEQIDX[$$CURSOR];
 	    last;
 	};
 	$_ eq R_NEXT && do {
 	    return 1 if ($$CURSOR >= $#$SEQIDX);
 	    ($$CURSOR)++;
-	    # the ff is necessary: the original cursor may have been
-	    # defined, but not the new one
-	    $self-> _wring_SEQIDX() unless defined $$SEQIDX[$$CURSOR];
 	    last;
 	};
 	$_ eq R_PREV && do {
 	    return 1 if $$CURSOR == 0;
 	    ($$CURSOR)--;
-	    # the ff is necessary: the original cursor may have been
-	    # defined, but not the new one
-	    $self->_wring_SEQIDX() unless defined $$SEQIDX[$$CURSOR];
 	    last;
 	};
     }
+    $self->_wring_SEQIDX() unless defined $$SEQIDX[$$CURSOR];
     # get by pk, set key and value.
     if (($flags == R_CURSOR ) && $self->ref eq 'HASH') {
 	$status = $self->partial_match($key, $value);
@@ -1274,7 +1291,7 @@ sub seq {
  Title   : sync
  Usage   : 
  Function: stub for BDB sync 
- Returns : 1
+ Returns : 0
  Args    : 
 
 =cut
@@ -1308,7 +1325,7 @@ sub partial_match {
 	if ($ret = $self->{part_seq_sth}->fetch) {
 	    $_[0] = $ret->[0]; $_[1] = $ret->[1];
 	    $pk = $ret->[2];
- 	    unless ($$CURSOR = _find_idx($pk,$SEQIDX)) {
+ 	    unless (defined($$CURSOR = _find_idx($pk,$SEQIDX))) {
 		$self->throw("Primary key value disappeared!");
 	    }
 	    return 0;
