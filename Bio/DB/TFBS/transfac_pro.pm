@@ -115,7 +115,16 @@ use Bio::Map::GeneMap;
 use Bio::Map::TranscriptionFactor;
 use Bio::Map::Position;
 use Bio::Map::Relative;
-use DB_File;
+#use DB_File;
+
+BEGIN {
+    use lib '../../..';
+    use vars qw( $DB_BTREE $DB_HASH $DB_RECNO &R_DUP &R_NEXT &O_CREAT &O_RDWR );
+    @AnyDBM_File::ISA = qw(DB_File Bio::DB::SQLite_File) unless @AnyDBM_File::ISA == 1;
+}
+use AnyDBM_File;
+use Bio::DB::AnyDBMImporter qw(:bdb);
+
 
 use constant SEPARATOR => ':!:';
 use constant INTERNAL_SEPARATOR => '!:!';
@@ -156,7 +165,6 @@ sub new {
     if ($dat_dir) {
         $self->_build_index($dat_dir, $force);
     }
-    
     $self->_db_connect;
     return $self;
 }
@@ -177,7 +185,7 @@ sub _get_ids {
         my $multiple = 0;
         while (my ($type, $value) = each %args) {
             unless ($value) {
-                $self->warn("Arguement '$type' has no value, ignored");
+                $self->warn("Argument '$type' has no value, ignored");
                 next;
             }
             $type =~ s/-//;
@@ -214,6 +222,7 @@ sub _get_ids {
         
         my ($key, $prev_key, $value) = ('_!_', '!_!');
         my @ids;
+
         while (1) {
             $db_file_hash->seq($key, $value, R_NEXT);
             last if $prev_key eq $key;
@@ -779,7 +788,6 @@ sub _build_index {
     # MLDBM would give us transparent complex data structures with DB_File,
     # allowing just one index file, but its yet another requirment and we
     # don't strictly need it
-    
     my $index_dir = $self->index_directory;
     my $gene_index = "$index_dir/gene.dat.index";
     my $reference_index = "$index_dir/reference.dat.index";
@@ -794,37 +802,37 @@ sub _build_index {
         
         my %references;
         unlink $reference_index;
-        my $ref = tie(%references, 'DB_File', $reference_index, O_RDWR|O_CREAT, 0644, $DB_HASH) || $self->throw("Cannot open file '$reference_index': $!");	
+        my $ref = tie(%references, 'AnyDBM_File', $reference_index, O_RDWR|O_CREAT, 0644, $DB_HASH) || $self->throw("Cannot open file '$reference_index': $!");	
         
         my %pubmed;
         my $reference_pubmed = $reference_index.'.pubmed';
         unlink $reference_pubmed;
-        my $pub = tie(%pubmed, 'DB_File', $reference_pubmed, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$reference_pubmed': $!");
+        my $pub = tie(%pubmed, 'AnyDBM_File', $reference_pubmed, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$reference_pubmed': $!");
         
         my %gene;
         my $reference_gene = $gene_index.'.reference';
         unlink $reference_gene;
-        my $gene = tie(%gene, 'DB_File', $reference_gene, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$reference_gene': $!");
+        my $gene = tie(%gene, 'AnyDBM_File', $reference_gene, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$reference_gene': $!");
         
         my %site;
         my $reference_site = $site_index.'.reference';
         unlink $reference_site;
-        my $site = tie(%site, 'DB_File', $reference_site, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$reference_site': $!");
+        my $site = tie(%site, 'AnyDBM_File', $reference_site, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$reference_site': $!");
         
         my %fragment;
         my $reference_fragment = $fragment_index.'.reference';
         unlink $reference_fragment;
-        my $fragment = tie(%fragment, 'DB_File', $reference_fragment, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$reference_fragment': $!");
+        my $fragment = tie(%fragment, 'AnyDBM_File', $reference_fragment, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$reference_fragment': $!");
         
         my %factor;
         my $reference_factor = $factor_index.'.reference';
         unlink $reference_factor;
-        my $factor = tie(%factor, 'DB_File', $reference_factor, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$reference_factor': $!");
+        my $factor = tie(%factor, 'AnyDBM_File', $reference_factor, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$reference_factor': $!");
         
         my %matrix;
         my $reference_matrix = $matrix_index.'.reference';
         unlink $reference_matrix;
-        my $matrix = tie(%matrix, 'DB_File', $reference_matrix, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$reference_matrix': $!");
+        my $matrix = tie(%matrix, 'AnyDBM_File', $reference_matrix, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$reference_matrix': $!");
         
         # skip the first three header lines
         <REF>; <REF>; <REF>;
@@ -889,42 +897,42 @@ sub _build_index {
         
         my %genes;
         unlink $gene_index;
-        my $gene = tie(%genes, 'DB_File', $gene_index, O_RDWR|O_CREAT, 0644, $DB_HASH) || $self->throw("Cannot open file '$gene_index': $!");	
+        my $gene = tie(%genes, 'AnyDBM_File', $gene_index, O_RDWR|O_CREAT, 0644, $DB_HASH) || $self->throw("Cannot open file '$gene_index': $!");	
         
         my %id;
         my $gene_id = $gene_index.'.id';
         unlink $gene_id;
-        my $id = tie(%id, 'DB_File', $gene_id, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$gene_id': $!");
+        my $id = tie(%id, 'AnyDBM_File', $gene_id, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$gene_id': $!");
         
         my %name;
         my $gene_name = $gene_index.'.name';
         unlink $gene_name;
-        my $name = tie(%name, 'DB_File', $gene_name, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$gene_name': $!");
+        my $name = tie(%name, 'AnyDBM_File', $gene_name, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$gene_name': $!");
         
         my %species;
         my $gene_species = $gene_index.'.species';
         unlink $gene_species;
-        my $species = tie(%species, 'DB_File', $gene_species, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$gene_species': $!");
+        my $species = tie(%species, 'AnyDBM_File', $gene_species, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$gene_species': $!");
         
         my %site;
         my $gene_site = $site_index.'.gene';
         unlink $gene_site;
-        my $site = tie(%site, 'DB_File', $gene_site, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$gene_site': $!");
+        my $site = tie(%site, 'AnyDBM_File', $gene_site, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$gene_site': $!");
         
         my %factor;
         my $gene_factor = $factor_index.'.gene';
         unlink $gene_factor;
-        my $factor = tie(%factor, 'DB_File', $gene_factor, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$gene_factor': $!");
+        my $factor = tie(%factor, 'AnyDBM_File', $gene_factor, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$gene_factor': $!");
         
         my %fragment;
         my $gene_fragment = $fragment_index.'.gene';
         unlink $gene_fragment;
-        my $fragment = tie(%fragment, 'DB_File', $gene_fragment, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$gene_fragment': $!");
+        my $fragment = tie(%fragment, 'AnyDBM_File', $gene_fragment, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$gene_fragment': $!");
         
         my %reference;
         my $gene_reference = $reference_index.'.gene';
         unlink $gene_reference;
-        my $reference = tie(%reference, 'DB_File', $gene_reference, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$gene_reference': $!");
+        my $reference = tie(%reference, 'AnyDBM_File', $gene_reference, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$gene_reference': $!");
         
         # skip the first three header lines
         <GEN>; <GEN>; <GEN>;
@@ -995,42 +1003,42 @@ sub _build_index {
         
         my %sites;
         unlink $site_index;
-        my $site = tie(%sites, 'DB_File', $site_index, O_RDWR|O_CREAT, 0644, $DB_HASH) || $self->throw("Cannot open file '$site_index': $!");
+        my $site = tie(%sites, 'AnyDBM_File', $site_index, O_RDWR|O_CREAT, 0644, $DB_HASH) || $self->throw("Cannot open file '$site_index': $!");
         
         my %id;
         my $site_id = $site_index.'.id';
         unlink $site_id;
-        my $id = tie(%id, 'DB_File', $site_id, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$site_id': $!");
+        my $id = tie(%id, 'AnyDBM_File', $site_id, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$site_id': $!");
         
         my %species;
         my $site_species = $site_index.'.species';
         unlink $site_species;
-        my $species = tie(%species, 'DB_File', $site_species, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$site_species': $!");
+        my $species = tie(%species, 'AnyDBM_File', $site_species, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$site_species': $!");
         
         my %qualities;
         my $site_qualities = $site_index.'.qual';
         unlink $site_qualities;
-        my $quality = tie(%qualities, 'DB_File', $site_qualities, O_RDWR|O_CREAT, 0644, $DB_HASH) || $self->throw("Cannot open file '$site_qualities': $!");
+        my $quality = tie(%qualities, 'AnyDBM_File', $site_qualities, O_RDWR|O_CREAT, 0644, $DB_HASH) || $self->throw("Cannot open file '$site_qualities': $!");
         
         my %gene;
         my $site_gene = $gene_index.'.site';
         unlink $site_gene;
-        my $gene = tie(%gene, 'DB_File', $site_gene, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$site_gene': $!");
+        my $gene = tie(%gene, 'AnyDBM_File', $site_gene, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$site_gene': $!");
         
         my %matrix;
         my $site_matrix = $matrix_index.'.site';
         unlink $site_matrix;
-        my $matrix = tie(%matrix, 'DB_File', $site_matrix, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$site_matrix': $!");
+        my $matrix = tie(%matrix, 'AnyDBM_File', $site_matrix, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$site_matrix': $!");
         
         my %factor;
         my $site_factor = $factor_index.'.site';
         unlink $site_factor;
-        my $factor = tie(%factor, 'DB_File', $site_factor, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$site_factor': $!");	
+        my $factor = tie(%factor, 'AnyDBM_File', $site_factor, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$site_factor': $!");	
         
         my %reference;
         my $site_reference = $reference_index.'.site';
         unlink $site_reference;
-        my $reference = tie(%reference, 'DB_File', $site_reference, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$site_reference': $!");
+        my $reference = tie(%reference, 'AnyDBM_File', $site_reference, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$site_reference': $!");
         
         # skip the first three header lines
         <SIT>; <SIT>; <SIT>;
@@ -1121,32 +1129,32 @@ sub _build_index {
         
         my %matrices;
         unlink $matrix_index;
-        my $matrix = tie(%matrices, 'DB_File', $matrix_index, O_RDWR|O_CREAT, 0644, $DB_HASH) || $self->throw("Cannot open file '$matrix_index': $!");	
+        my $matrix = tie(%matrices, 'AnyDBM_File', $matrix_index, O_RDWR|O_CREAT, 0644, $DB_HASH) || $self->throw("Cannot open file '$matrix_index': $!");	
         
         my %id;
         my $matrix_id = $matrix_index.'.id';
         unlink $matrix_id;
-        my $id = tie(%id, 'DB_File', $matrix_id, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$matrix_id': $!");
+        my $id = tie(%id, 'AnyDBM_File', $matrix_id, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$matrix_id': $!");
         
         my %name;
         my $matrix_name = $matrix_index.'.name';
         unlink $matrix_name;
-        my $name = tie(%name, 'DB_File', $matrix_name, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$matrix_name': $!");
+        my $name = tie(%name, 'AnyDBM_File', $matrix_name, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$matrix_name': $!");
         
         my %site;
         my $matrix_site = $site_index.'.matrix';
         unlink $matrix_site;
-        my $site = tie(%site, 'DB_File', $matrix_site, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$matrix_site': $!");
+        my $site = tie(%site, 'AnyDBM_File', $matrix_site, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$matrix_site': $!");
         
         my %factor;
         my $matrix_factor = $factor_index.'.matrix';
         unlink $matrix_factor;
-        my $factor = tie(%factor, 'DB_File', $matrix_factor, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$matrix_factor': $!");
+        my $factor = tie(%factor, 'AnyDBM_File', $matrix_factor, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$matrix_factor': $!");
         
         my %reference;
         my $matrix_reference = $reference_index.'.matrix';
         unlink $matrix_reference;
-        my $reference = tie(%reference, 'DB_File', $matrix_reference, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$matrix_reference': $!");
+        my $reference = tie(%reference, 'AnyDBM_File', $matrix_reference, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$matrix_reference': $!");
         
         # skip the first three header lines
         <MAT>; <MAT>; <MAT>;
@@ -1239,52 +1247,52 @@ sub _build_index {
         
         my %factors;
         unlink $factor_index;
-        my $factor = tie(%factors, 'DB_File', $factor_index, O_RDWR|O_CREAT, 0644, $DB_HASH) || $self->throw("Cannot open file '$factor_index': $!");	
+        my $factor = tie(%factors, 'AnyDBM_File', $factor_index, O_RDWR|O_CREAT, 0644, $DB_HASH) || $self->throw("Cannot open file '$factor_index': $!");	
         
         my %id;
         my $factor_id = $factor_index.'.id';
         unlink $factor_id;
-        my $id = tie(%id, 'DB_File', $factor_id, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file 'factor_id': $!");
+        my $id = tie(%id, 'AnyDBM_File', $factor_id, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file 'factor_id': $!");
         
         my %name;
         my $factor_name = $factor_index.'.name';
         unlink $factor_name;
-        my $name = tie(%name, 'DB_File', $factor_name, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$factor_name': $!");
+        my $name = tie(%name, 'AnyDBM_File', $factor_name, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$factor_name': $!");
         
         my %species;
         my $factor_species = $factor_index.'.species';
         unlink $factor_species;
-        my $species = tie(%species, 'DB_File', $factor_species, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$factor_species': $!");
+        my $species = tie(%species, 'AnyDBM_File', $factor_species, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$factor_species': $!");
         
         my %interactors;
         my $factor_interactors = $factor_index.'.interactors';
         unlink $factor_interactors;
-        my $interact = tie(%interactors, 'DB_File', $factor_interactors, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$factor_interactors': $!");
+        my $interact = tie(%interactors, 'AnyDBM_File', $factor_interactors, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$factor_interactors': $!");
         
         my %gene;
         my $factor_gene = $gene_index.'.factor';
         unlink $factor_gene;
-        my $gene = tie(%gene, 'DB_File', $factor_gene, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$factor_gene': $!");
+        my $gene = tie(%gene, 'AnyDBM_File', $factor_gene, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$factor_gene': $!");
         
         my %matrix;
         my $factor_matrix = $matrix_index.'.factor';
         unlink $factor_matrix;
-        my $matrix = tie(%matrix, 'DB_File', $factor_matrix, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$factor_matrix': $!");
+        my $matrix = tie(%matrix, 'AnyDBM_File', $factor_matrix, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$factor_matrix': $!");
         
         my %site;
         my $factor_site = $site_index.'.factor';
         unlink $factor_site;
-        my $site = tie(%site, 'DB_File', $factor_site, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$factor_site': $!");
+        my $site = tie(%site, 'AnyDBM_File', $factor_site, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$factor_site': $!");
         
         my %fragment;
         my $factor_fragment = $fragment_index.'.factor';
         unlink $factor_fragment;
-        my $fragment = tie(%fragment, 'DB_File', $factor_fragment, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$factor_fragment': $!");
+        my $fragment = tie(%fragment, 'AnyDBM_File', $factor_fragment, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$factor_fragment': $!");
         
         my %reference;
         my $factor_reference = $reference_index.'.factor';
         unlink $factor_reference;
-        my $reference = tie(%reference, 'DB_File', $factor_reference, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$factor_reference': $!");
+        my $reference = tie(%reference, 'AnyDBM_File', $factor_reference, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$factor_reference': $!");
         
         # skip the first three header lines
         <FAC>; <FAC>; <FAC>;
@@ -1365,37 +1373,37 @@ sub _build_index {
         if (open(FRA, $fragment_dat)) {
             my %fragments;
             unlink $fragment_index;
-            my $fragment = tie(%fragments, 'DB_File', $fragment_index, O_RDWR|O_CREAT, 0644, $DB_HASH) || $self->throw("Cannot open file '$fragment_index': $!");
+            my $fragment = tie(%fragments, 'AnyDBM_File', $fragment_index, O_RDWR|O_CREAT, 0644, $DB_HASH) || $self->throw("Cannot open file '$fragment_index': $!");
             
             my %id;
             my $fragment_id = $fragment_index.'.id';
             unlink $fragment_id;
-            my $id = tie(%id, 'DB_File', $fragment_id, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$fragment_id': $!");
+            my $id = tie(%id, 'AnyDBM_File', $fragment_id, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$fragment_id': $!");
             
             my %qualities;
             my $fragment_qualities = $fragment_index.'.qual';
             unlink $fragment_qualities;
-            my $quality = tie(%qualities, 'DB_File', $fragment_qualities, O_RDWR|O_CREAT, 0644, $DB_HASH) || $self->throw("Cannot open file '$fragment_qualities': $!");
+            my $quality = tie(%qualities, 'AnyDBM_File', $fragment_qualities, O_RDWR|O_CREAT, 0644, $DB_HASH) || $self->throw("Cannot open file '$fragment_qualities': $!");
             
             my %species;
             my $fragment_species = $fragment_index.'.species';
             unlink $fragment_species;
-            my $species = tie(%species, 'DB_File', $fragment_species, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$fragment_species': $!");
+            my $species = tie(%species, 'AnyDBM_File', $fragment_species, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$fragment_species': $!");
             
             my %gene;
             my $fragment_gene = $gene_index.'.fragment';
             unlink $fragment_gene;
-            my $gene = tie(%gene, 'DB_File', $fragment_gene, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$fragment_gene': $!");
+            my $gene = tie(%gene, 'AnyDBM_File', $fragment_gene, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$fragment_gene': $!");
             
             my %factor;
             my $fragment_factor = $factor_index.'.fragment';
             unlink $fragment_factor;
-            my $factor = tie(%factor, 'DB_File', $fragment_factor, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$fragment_factor': $!");	
+            my $factor = tie(%factor, 'AnyDBM_File', $fragment_factor, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$fragment_factor': $!");	
             
             my %reference;
             my $fragment_reference = $reference_index.'.fragment';
             unlink $fragment_reference;
-            my $reference = tie(%reference, 'DB_File', $fragment_reference, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$fragment_reference': $!");
+            my $reference = tie(%reference, 'AnyDBM_File', $fragment_reference, O_RDWR|O_CREAT, 0644, $DB_BTREE) || $self->throw("Cannot open file '$fragment_reference': $!");
             
             # skip the first three header lines
             <FRA>; <FRA>; <FRA>;
@@ -1491,107 +1499,107 @@ sub _db_connect {
     # reference
     {
         $self->{reference}->{data} = {};
-        tie (%{$self->{reference}->{data}}, 'DB_File', $reference_index, O_RDWR, undef, $DB_HASH) || $self->throw("Cannot open file '$reference_index': $!");
+        tie (%{$self->{reference}->{data}}, 'AnyDBM_File', $reference_index, O_RDWR, undef, $DB_HASH) || $self->throw("Cannot open file '$reference_index': $!");
         
         my $reference_pubmed = $reference_index.'.pubmed';
-        $self->{reference}->{pubmed} = tie (%{$self->{reference}->{pubmed}}, 'DB_File', $reference_pubmed, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$reference_pubmed': $!");
+        $self->{reference}->{pubmed} = tie (%{$self->{reference}->{pubmed}}, 'AnyDBM_File', $reference_pubmed, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$reference_pubmed': $!");
         
         my $reference_gene = $gene_index.'.reference';
-        $self->{gene}->{reference} = tie (%{$self->{gene}->{reference}}, 'DB_File', $reference_gene, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$reference_gene': $!");
+        $self->{gene}->{reference} = tie (%{$self->{gene}->{reference}}, 'AnyDBM_File', $reference_gene, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$reference_gene': $!");
         
         my $reference_site = $site_index.'.reference';
-        $self->{site}->{reference} = tie (%{$self->{site}->{reference}}, 'DB_File', $reference_site, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$reference_site': $!");
+        $self->{site}->{reference} = tie (%{$self->{site}->{reference}}, 'AnyDBM_File', $reference_site, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$reference_site': $!");
         
         my $reference_fragment = $fragment_index.'.reference';
-        $self->{fragment}->{reference} = tie (%{$self->{fragment}->{reference}}, 'DB_File', $reference_fragment, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$reference_fragment': $!");
+        $self->{fragment}->{reference} = tie (%{$self->{fragment}->{reference}}, 'AnyDBM_File', $reference_fragment, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$reference_fragment': $!");
         
         my $reference_factor = $factor_index.'.reference';
-        $self->{factor}->{reference} = tie (%{$self->{factor}->{reference}}, 'DB_File', $reference_factor, undef, 0644, $DB_BTREE) || $self->throw("Cannot open file '$reference_factor': $!");
+        $self->{factor}->{reference} = tie (%{$self->{factor}->{reference}}, 'AnyDBM_File', $reference_factor, undef, 0644, $DB_BTREE) || $self->throw("Cannot open file '$reference_factor': $!");
         
         my $reference_matrix = $matrix_index.'.reference';
-        $self->{matrix}->{reference} = tie (%{$self->{matrix}->{reference}}, 'DB_File', $reference_matrix, undef, 0644, $DB_BTREE) || $self->throw("Cannot open file '$reference_matrix': $!");
+        $self->{matrix}->{reference} = tie (%{$self->{matrix}->{reference}}, 'AnyDBM_File', $reference_matrix, undef, 0644, $DB_BTREE) || $self->throw("Cannot open file '$reference_matrix': $!");
     }
     
     # gene
     {
         $self->{gene}->{data} = {};
-        tie (%{$self->{gene}->{data}}, 'DB_File', $gene_index, O_RDWR, undef, $DB_HASH) || $self->throw("Cannot open file '$gene_index': $!");
+        tie (%{$self->{gene}->{data}}, 'AnyDBM_File', $gene_index, O_RDWR, undef, $DB_HASH) || $self->throw("Cannot open file '$gene_index': $!");
         
         my $gene_id = $gene_index.'.id';
-        $self->{gene}->{id} = tie(%{$self->{gene}->{id}}, 'DB_File', $gene_id, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$gene_id': $!");
+        $self->{gene}->{id} = tie(%{$self->{gene}->{id}}, 'AnyDBM_File', $gene_id, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$gene_id': $!");
         
         my $gene_name = $gene_index.'.name';
-        $self->{gene}->{name} = tie(%{$self->{gene}->{name}}, 'DB_File', $gene_name, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$gene_name': $!");
+        $self->{gene}->{name} = tie(%{$self->{gene}->{name}}, 'AnyDBM_File', $gene_name, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$gene_name': $!");
         
         my $gene_species = $gene_index.'.species';
-        $self->{gene}->{species} = tie(%{$self->{gene}->{species}}, 'DB_File', $gene_species, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$gene_species': $!");
+        $self->{gene}->{species} = tie(%{$self->{gene}->{species}}, 'AnyDBM_File', $gene_species, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$gene_species': $!");
         
         my $gene_site = $site_index.'.gene';
-        $self->{site}->{gene} = tie(%{$self->{site}->{gene}}, 'DB_File', $gene_site, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$gene_site': $!");
+        $self->{site}->{gene} = tie(%{$self->{site}->{gene}}, 'AnyDBM_File', $gene_site, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$gene_site': $!");
         
         my $gene_fragment = $fragment_index.'.gene';
-        $self->{fragment}->{gene} = tie(%{$self->{fragment}->{gene}}, 'DB_File', $gene_fragment, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$gene_fragment': $!");
+        $self->{fragment}->{gene} = tie(%{$self->{fragment}->{gene}}, 'AnyDBM_File', $gene_fragment, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$gene_fragment': $!");
         
         my $gene_factor = $factor_index.'.gene';
-        $self->{factor}->{gene} = tie(%{$self->{factor}->{gene}}, 'DB_File', $gene_factor, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$gene_factor': $!");
+        $self->{factor}->{gene} = tie(%{$self->{factor}->{gene}}, 'AnyDBM_File', $gene_factor, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$gene_factor': $!");
         
         my $gene_reference = $reference_index.'.gene';
-        $self->{reference}->{gene} = tie(%{$self->{reference}->{gene}}, 'DB_File', $gene_reference, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$gene_reference': $!");
+        $self->{reference}->{gene} = tie(%{$self->{reference}->{gene}}, 'AnyDBM_File', $gene_reference, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$gene_reference': $!");
     }
     
     # site
     {
         $self->{site}->{data} = {};
-        tie (%{$self->{site}->{data}}, 'DB_File', $site_index, O_RDWR, undef, $DB_HASH) || $self->throw("Cannot open file '$site_index': $!");
+        tie (%{$self->{site}->{data}}, 'AnyDBM_File', $site_index, O_RDWR, undef, $DB_HASH) || $self->throw("Cannot open file '$site_index': $!");
         
         my $site_id = $site_index.'.id';
-        $self->{site}->{id} = tie(%{$self->{site}->{id}}, 'DB_File', $site_id, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$site_id': $!");
+        $self->{site}->{id} = tie(%{$self->{site}->{id}}, 'AnyDBM_File', $site_id, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$site_id': $!");
         
         my $site_species = $site_index.'.species';
-        $self->{site}->{species} = tie(%{$self->{site}->{species}}, 'DB_File', $site_species, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file $site_species': $!");
+        $self->{site}->{species} = tie(%{$self->{site}->{species}}, 'AnyDBM_File', $site_species, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file $site_species': $!");
         
         #*** quality not actually used by anything (yet)
         my $site_qualities = $site_index.'.qual';
         $self->{quality} = {};
-        tie(%{$self->{quality}}, 'DB_File', $site_qualities, O_RDWR, undef, $DB_HASH) || $self->throw("Cannot open file '$site_qualities': $!");
+        tie(%{$self->{quality}}, 'AnyDBM_File', $site_qualities, O_RDWR, undef, $DB_HASH) || $self->throw("Cannot open file '$site_qualities': $!");
         
         my $site_gene = $gene_index.'.site';
-        $self->{gene}->{site} = tie(%{$self->{gene}->{site}}, 'DB_File', $site_gene, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$site_gene': $!");
+        $self->{gene}->{site} = tie(%{$self->{gene}->{site}}, 'AnyDBM_File', $site_gene, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$site_gene': $!");
         
         my $site_matrix = $matrix_index.'.site';
-        $self->{matrix}->{site} = tie(%{$self->{matrix}->{site}}, 'DB_File', $site_matrix, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$site_matrix': $!");
+        $self->{matrix}->{site} = tie(%{$self->{matrix}->{site}}, 'AnyDBM_File', $site_matrix, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$site_matrix': $!");
         
         my $site_factor = $factor_index.'.site';
-        $self->{factor}->{site} = tie(%{$self->{factor}->{site}}, 'DB_File', $site_factor, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$site_factor': $!");
+        $self->{factor}->{site} = tie(%{$self->{factor}->{site}}, 'AnyDBM_File', $site_factor, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$site_factor': $!");
         
         my $site_reference = $reference_index.'.site';
-        $self->{reference}->{site} = tie(%{$self->{reference}->{site}}, 'DB_File', $site_reference, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$site_reference': $!");
+        $self->{reference}->{site} = tie(%{$self->{reference}->{site}}, 'AnyDBM_File', $site_reference, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$site_reference': $!");
     }
     
     # fragment (may not be in older databases)
     if (-e $fragment_index) {
         $self->{fragment}->{data} = {};
-        tie (%{$self->{fragment}->{data}}, 'DB_File', $fragment_index, O_RDWR, undef, $DB_HASH) || $self->throw("Cannot open file '$fragment_index': $!");
+        tie (%{$self->{fragment}->{data}}, 'AnyDBM_File', $fragment_index, O_RDWR, undef, $DB_HASH) || $self->throw("Cannot open file '$fragment_index': $!");
         
         my $fragment_id = $fragment_index.'.id';
-        $self->{fragment}->{id} = tie(%{$self->{fragment}->{id}}, 'DB_File', $fragment_id, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$fragment_id': $!");
+        $self->{fragment}->{id} = tie(%{$self->{fragment}->{id}}, 'AnyDBM_File', $fragment_id, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$fragment_id': $!");
         
         my $fragment_species = $fragment_index.'.species';
-        $self->{fragment}->{species} = tie(%{$self->{fragment}->{species}}, 'DB_File', $fragment_species, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file $fragment_species': $!");
+        $self->{fragment}->{species} = tie(%{$self->{fragment}->{species}}, 'AnyDBM_File', $fragment_species, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file $fragment_species': $!");
         
         #*** quality not actually used by anything (yet)
         my $fragment_qualities = $fragment_index.'.qual';
         $self->{fragment_quality} = {};
-        tie(%{$self->{fragment_quality}}, 'DB_File', $fragment_qualities, O_RDWR, undef, $DB_HASH) || $self->throw("Cannot open file '$fragment_qualities': $!");
+        tie(%{$self->{fragment_quality}}, 'AnyDBM_File', $fragment_qualities, O_RDWR, undef, $DB_HASH) || $self->throw("Cannot open file '$fragment_qualities': $!");
         
         my $fragment_gene = $gene_index.'.fragment';
-        $self->{gene}->{fragment} = tie(%{$self->{gene}->{fragment}}, 'DB_File', $fragment_gene, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$fragment_gene': $!");
+        $self->{gene}->{fragment} = tie(%{$self->{gene}->{fragment}}, 'AnyDBM_File', $fragment_gene, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$fragment_gene': $!");
         
         my $fragment_factor = $factor_index.'.fragment';
-        $self->{factor}->{fragment} = tie(%{$self->{factor}->{fragment}}, 'DB_File', $fragment_factor, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$fragment_factor': $!");
+        $self->{factor}->{fragment} = tie(%{$self->{factor}->{fragment}}, 'AnyDBM_File', $fragment_factor, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$fragment_factor': $!");
         
         my $fragment_reference = $reference_index.'.fragment';
-        $self->{reference}->{fragment} = tie(%{$self->{reference}->{fragment}}, 'DB_File', $fragment_reference, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$fragment_reference': $!");
+        $self->{reference}->{fragment} = tie(%{$self->{reference}->{fragment}}, 'AnyDBM_File', $fragment_reference, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$fragment_reference': $!");
     }
     else {
         die "no fragment_index at '$fragment_index'\n";
@@ -1600,55 +1608,55 @@ sub _db_connect {
     # matrix
     {
         $self->{matrix}->{data} = {};
-        tie (%{$self->{matrix}->{data}}, 'DB_File', $matrix_index, O_RDWR, undef, $DB_HASH) || $self->throw("Cannot open file '$matrix_index': $!");
+        tie (%{$self->{matrix}->{data}}, 'AnyDBM_File', $matrix_index, O_RDWR, undef, $DB_HASH) || $self->throw("Cannot open file '$matrix_index': $!");
         
         my $matrix_id = $matrix_index.'.id';
-        $self->{matrix}->{id} = tie(%{$self->{matrix}->{id}}, 'DB_File', $matrix_id, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$matrix_id': $!");
+        $self->{matrix}->{id} = tie(%{$self->{matrix}->{id}}, 'AnyDBM_File', $matrix_id, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$matrix_id': $!");
         
         my $matrix_name = $matrix_index.'.name';
-        $self->{matrix}->{name} = tie(%{$self->{matrix}->{name}}, 'DB_File', $matrix_name, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$matrix_name': $!");
+        $self->{matrix}->{name} = tie(%{$self->{matrix}->{name}}, 'AnyDBM_File', $matrix_name, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$matrix_name': $!");
         
         my $matrix_site = $site_index.'.matrix';
-        $self->{site}->{matrix} = tie(%{$self->{site}->{matrix}}, 'DB_File', $matrix_site, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$matrix_site': $!");
+        $self->{site}->{matrix} = tie(%{$self->{site}->{matrix}}, 'AnyDBM_File', $matrix_site, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$matrix_site': $!");
         
         my $matrix_factor = $factor_index.'.matrix';
-        $self->{factor}->{matrix} = tie(%{$self->{factor}->{matrix}}, 'DB_File', $matrix_factor, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$matrix_factor': $!");
+        $self->{factor}->{matrix} = tie(%{$self->{factor}->{matrix}}, 'AnyDBM_File', $matrix_factor, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$matrix_factor': $!");
         
         my $matrix_reference = $reference_index.'.matrix';
-        $self->{reference}->{matrix} = tie(%{$self->{reference}->{matrix}}, 'DB_File', $matrix_reference, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$matrix_reference': $!");
+        $self->{reference}->{matrix} = tie(%{$self->{reference}->{matrix}}, 'AnyDBM_File', $matrix_reference, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$matrix_reference': $!");
     }
     
     # factor
     {
         $self->{factor}->{data} = {};
-        tie (%{$self->{factor}->{data}}, 'DB_File', $factor_index, O_RDWR, undef, $DB_HASH) || $self->throw("Cannot open file '$factor_index': $!");
+        tie (%{$self->{factor}->{data}}, 'AnyDBM_File', $factor_index, O_RDWR, undef, $DB_HASH) || $self->throw("Cannot open file '$factor_index': $!");
         
         my $factor_id = $factor_index.'.id';
-        $self->{factor}->{id} = tie(%{$self->{factor}->{id}}, 'DB_File', $factor_id, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file 'factor_id': $!");
+        $self->{factor}->{id} = tie(%{$self->{factor}->{id}}, 'AnyDBM_File', $factor_id, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file 'factor_id': $!");
         
         my $factor_name = $factor_index.'.name';
-        $self->{factor}->{name} = tie(%{$self->{factor}->{name}}, 'DB_File', $factor_name, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$factor_name': $!");
+        $self->{factor}->{name} = tie(%{$self->{factor}->{name}}, 'AnyDBM_File', $factor_name, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$factor_name': $!");
         
         my $factor_species = $factor_index.'.species';
-        $self->{factor}->{species} = tie(%{$self->{factor}->{species}}, 'DB_File', $factor_species, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$factor_species': $!");
+        $self->{factor}->{species} = tie(%{$self->{factor}->{species}}, 'AnyDBM_File', $factor_species, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$factor_species': $!");
         
         my $factor_interactors = $factor_index.'.interactors';
-        $self->{factor}->{interactors} = tie(%{$self->{factor}->{interactors}}, 'DB_File', $factor_interactors, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$factor_interactors': $!");
+        $self->{factor}->{interactors} = tie(%{$self->{factor}->{interactors}}, 'AnyDBM_File', $factor_interactors, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$factor_interactors': $!");
         
         my $factor_gene = $gene_index.'.factor';
-        $self->{gene}->{factor} = tie(%{$self->{gene}->{factor}}, 'DB_File', $factor_gene, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$factor_gene': $!");
+        $self->{gene}->{factor} = tie(%{$self->{gene}->{factor}}, 'AnyDBM_File', $factor_gene, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$factor_gene': $!");
         
         my $factor_matrix = $matrix_index.'.factor';
-        $self->{matrix}->{factor} = tie(%{$self->{matrix}->{factor}}, 'DB_File', $factor_matrix, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$factor_matrix': $!");
+        $self->{matrix}->{factor} = tie(%{$self->{matrix}->{factor}}, 'AnyDBM_File', $factor_matrix, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$factor_matrix': $!");
         
         my $factor_site = $site_index.'.factor';
-        $self->{site}->{factor} = tie(%{$self->{site}->{factor}}, 'DB_File', $factor_site, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$factor_site': $!");
+        $self->{site}->{factor} = tie(%{$self->{site}->{factor}}, 'AnyDBM_File', $factor_site, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$factor_site': $!");
         
         my $factor_fragment = $fragment_index.'.factor';
-        $self->{fragment}->{factor} = tie(%{$self->{fragment}->{factor}}, 'DB_File', $factor_fragment, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$factor_fragment': $!");
+        $self->{fragment}->{factor} = tie(%{$self->{fragment}->{factor}}, 'AnyDBM_File', $factor_fragment, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$factor_fragment': $!");
         
         my $factor_reference = $reference_index.'.factor';
-        $self->{reference}->{factor} = tie(%{$self->{reference}->{factor}}, 'DB_File', $factor_reference, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$factor_reference': $!");
+        $self->{reference}->{factor} = tie(%{$self->{reference}->{factor}}, 'AnyDBM_File', $factor_reference, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$factor_reference': $!");
     }
     
     $self->{'_initialized'}  = 1;

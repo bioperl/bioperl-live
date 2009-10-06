@@ -122,7 +122,17 @@ it under the same terms as Perl itself.
 
 use strict;
 
-use DB_File;
+BEGIN {
+    use lib '../../../..';
+    @AnyDBM_File::ISA = qw( DB_File Bio::DB::SQLite_File )
+	unless @AnyDBM_File::ISA == 1;
+}
+#use DB_File;
+use AnyDBM_File;
+use vars qw($DB_BTREE &O_CREAT &O_RDWR &O_RDONLY &R_DUP &R_CURSOR &R_NEXT);
+use Bio::DB::AnyDBMImporter qw(:bdb);
+
+use lib '../../../..';
 use File::Path 'mkpath';
 use File::Spec;
 use File::Temp 'tempfile';
@@ -232,8 +242,7 @@ sub _open_databases {
   my $flags = O_RDONLY;
   $flags   |= O_RDWR  if $write;
   $flags   |= O_CREAT if $create;
-
-  tie(%db,'DB_File',$self->_index_file,$flags,0666,$DB_BTREE)
+  tie(%db,'AnyDBM_File',$self->_index_file,$flags,0666,$DB_BTREE)
     or $self->throw("Couldn't tie ".$self->_index_file.": $!");
   $self->{db}   = \%db;
   $self->{data} = FeatureStore->new($self->_data_file,$write,$create);
@@ -776,7 +785,7 @@ sub _get_features_by_search_options {
     # note: there is a race condition possible here, if someone reuses the
     # same name between the time we get the tmpfile name and the time we
     # ask DB_File to open it.
-    tie(%results_table,'DB_File',$temp_file,O_RDWR|O_CREAT,0666,$DB_BTREE)
+    tie(%results_table,'AnyDBM_File',$temp_file,O_RDWR|O_CREAT,0666,$DB_BTREE)
       or $self->throw("Couldn't tie temporary file ".$temp_file." for writing: $!");
     $results = \%results_table;
   } else {

@@ -116,7 +116,10 @@ BEGIN {
     unless (eval "require DBD::SQLite; 1") {
  	Bio::Root::Root->throw( "SQLite_File requires DBD::SQLite" );
      }
+    use Fcntl qw(O_CREAT O_RDWR O_RDONLY);
 }
+
+
 
 our @EXPORT = qw( 
                  $DB_HASH $DB_BTREE $DB_RECNO 
@@ -142,10 +145,10 @@ sub R_IBEFORE () { 3 }
 sub R_NOOVERWRITE () { 20 }
 sub R_SETCURSOR () { -100 }
 
-sub O_CREAT  () { 512 };
-sub O_RDWR () { 2 };
-sub O_RDONLY () { 0 };
-sub O_SVWST (){ 514 };
+#sub O_CREAT  () { 512 };
+#sub O_RDWR () { 2 };
+#sub O_RDONLY () { 0 };
+sub O_SVWST (){ O_CREAT() | O_RDWR() };
 
 # Object preamble - inherits from Bio::Root::Root
 
@@ -254,9 +257,8 @@ END
     my $dbh = DBI->connect("dbi:SQLite:dbname=".$self->file,"","",
 			   {RaiseError => 1, AutoCommit => 1});
     $self->dbh( $dbh );
-    # rudimentary DB_File emulation:
+
     if (defined $index) {
-	$self->throw("Index selector must be a hashref") unless ref($index) eq 'HASH';
 	my $flags = $index->{flags} || 0;
 	for ($index->{'type'}) {
 	    !defined && do {
@@ -433,10 +435,11 @@ sub STORE {
 
     $value =~ s{'}{<SQUOT>}g;
     $value =~ s{"}{<DQUOT>}g;
+    my ($pk, $sth);
     if ( !defined $self->{ref} or $self->ref eq 'HASH' ) {
 	if ( $self->dup ) { # allowing duplicates
-	    my $pk = $self->_get_pk;
-	    my $sth = $self->put_sth;
+	    $pk = $self->_get_pk;
+	    $sth = $self->put_sth;
 	    $sth->bind_param(1,$key);
 	    $sth->bind_param(2,$value, SQL_BLOB);
 	    $sth->bind_param(3,$pk);
@@ -446,15 +449,15 @@ sub STORE {
 	else { # no duplicates...
 	    #need to check if key is already present
 	    if ( $self->EXISTS($key) ) {
-		my $sth = $self->upd_sth;
+		$sth = $self->upd_sth;
 		$sth->bind_param(1,$value, SQL_BLOB);
 		$sth->bind_param(2,$key);
 		$sth->bind_param(3,$self->_last_pk);
 		$sth->execute();
 	    }
 	    else {
-		my $pk = $self->_get_pk;
-		my $sth = $self->put_sth;
+		$pk = $self->_get_pk;
+		$sth = $self->put_sth;
 		$sth->bind_param(1,$key);
 		$sth->bind_param(2,$value, SQL_BLOB);
 		$sth->bind_param(3,$pk);
@@ -660,7 +663,7 @@ sub DESTROY {
 	undef $self->{$_};
     }
     # disconnect
-    $self->dbh->disconnect;
+    $self->dbh->disconnect if $self->dbh;
     # remove file if nec
     $self->_fh->close() if $self->_fh;
     unlink $self->file if (!$self->keep && $self->_fh);
@@ -1585,3 +1588,46 @@ sub del_dup {
 }
 
 1;
+
+package Bio::DB::SQLite_File::HASHINFO;
+use strict;
+use warnings;
+
+# a hashinfo class stub
+sub new {
+    my $class = shift;
+    my $self = bless({}, $class);
+    $self->{type} = 'HASH';
+    return $self;
+}
+
+1;
+
+package Bio::DB::SQLite_File::BTREEINFO;
+use strict;
+use warnings;
+
+# a btreeinfo class stub
+sub new {
+    my $class = shift;
+    my $self = bless({}, $class);
+    $self->{type} = 'BINARY';
+    return $self;
+}
+
+1;
+
+package Bio::DB::SQLite_File::RECNOINFO;
+use strict;
+use warnings;
+
+# a recnoinfo class stub
+sub new {
+    my $class = shift;
+    my $self = bless({}, $class);
+    $self->{type} = 'RECNO';
+    return $self;
+}
+
+1;
+

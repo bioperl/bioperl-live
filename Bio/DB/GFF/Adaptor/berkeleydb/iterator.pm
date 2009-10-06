@@ -32,18 +32,29 @@ This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =cut
-
+# $Id$
 package Bio::DB::GFF::Adaptor::berkeleydb::iterator;
 use strict;
-# $Id$
-use DB_File qw(R_FIRST R_NEXT);
+
+# use DB_File qw(R_FIRST R_NEXT);
+
+BEGIN {
+use lib '../../../../..';
+@AnyDBM_File::ISA = qw(DB_File Bio::DB::SQLite_File) unless
+ @AnyDBM_File::ISA == 1;
+}
+
+use AnyDBM_File;
+use vars qw( $DB_BTREE $DB_HASH $DB_RECNO &R_DUP &R_FIRST &R_NEXT);
+use Bio::DB::AnyDBMImporter qw(:bdb);
+
 
 # this module needs to be cleaned up and documented
 use Bio::Root::Version;
 *next_seq = \&next_feature;
 
 sub new {
-  my $class = shift;
+    my $class = shift;
   my ($data,$callback,$tmpfile) = @_;
   return bless {data     => $data,
 		callback => $callback,

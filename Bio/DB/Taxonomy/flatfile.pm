@@ -86,8 +86,17 @@ use vars qw($DEFAULT_INDEX_DIR $DEFAULT_NODE_INDEX 	    $DEFAULT_NAME2ID_INDEX $
 	    $NCBI_TAXONOMY_HOSTNAME $DEFAULT_PARENT_INDEX
 	    $NCBI_TAXONOMY_FILE @DIVISIONS);
 use strict;
+
 use Bio::Taxon;
-use DB_File;
+BEGIN {
+    use lib '../../..';
+    use vars qw($DB_BTREE $DB_HASH $DB_RECNO &R_DUP);
+    @AnyDBM_File::ISA = qw( DB_File Bio::DB::SQLite_File ) unless @AnyDBM_File::ISA == 1;
+}
+use AnyDBM_File;
+use Bio::DB::AnyDBMImporter qw(:bdb);
+use Fcntl qw(O_CREAT O_RDWR);
+
 
 use constant SEPARATOR => ':';
 
@@ -340,9 +349,9 @@ sub _build_index {
         
         unlink $nodeindex;
         unlink $parent2childindex;
-        my $nh = tie ( @nodes, 'DB_File', $nodeindex, O_RDWR|O_CREAT, 0644, $DB_RECNO) || 
+        my $nh = tie ( @nodes, 'AnyDBM_File', $nodeindex, O_RDWR|O_CREAT, 0644, $DB_RECNO) || 
             $self->throw("Cannot open file '$nodeindex': $!");	
-        my $btree = tie( %parent2children, 'DB_File', $parent2childindex, O_RDWR|O_CREAT, 0644, $DB_BTREE) || 
+        my $btree = tie( %parent2children, 'AnyDBM_File', $parent2childindex, O_RDWR|O_CREAT, 0644, $DB_BTREE) || 
             $self->throw("Cannot open file '$parent2childindex': $!");	
         
         while (<NODES>) {
@@ -372,9 +381,9 @@ sub _build_index {
         unlink $name2idindex;
         unlink $id2nameindex;
         my (@id2name,%name2id);
-        my $idh = tie (@id2name, 'DB_File', $id2nameindex, O_RDWR|O_CREAT, 0644, $DB_RECNO) || 
+        my $idh = tie (@id2name, 'AnyDBM_File', $id2nameindex, O_RDWR|O_CREAT, 0644, $DB_RECNO) || 
             $self->throw("Cannot open file '$id2nameindex': $!");
-        my $nameh = tie ( %name2id, 'DB_File', $name2idindex, O_RDWR|O_CREAT, 0644, $DB_HASH) || 
+        my $nameh = tie ( %name2id, 'AnyDBM_File', $name2idindex, O_RDWR|O_CREAT, 0644, $DB_HASH) || 
             $self->throw("Cannot open file '$name2idindex': $!");
         
         while (<NAMES>) {
@@ -403,7 +412,6 @@ sub _build_index {
                 $taxids{$taxid} = 1;
                 $name2id{$lc_name} = join(SEPARATOR, keys %taxids);
             }
-            
             # store unique names in name2id
             if ($unique_name) {
                 $name2id{lc($unique_name)} = $taxid;
@@ -455,15 +463,15 @@ sub _db_connect {
 	$self->warn("Index files have not been created");
 	return 0;
     }
-    tie ( @{$self->{'_nodes'}}, 'DB_File', $nodeindex, O_RDWR,undef, $DB_RECNO) 
+    tie ( @{$self->{'_nodes'}}, 'AnyDBM_File', $nodeindex, O_RDWR,undef, $DB_RECNO) 
 	|| $self->throw("$! $nodeindex");
-    tie (@{$self->{'_id2name'}}, 'DB_File', $id2nameindex,O_RDWR, undef, 
+    tie (@{$self->{'_id2name'}}, 'AnyDBM_File', $id2nameindex,O_RDWR, undef, 
 	 $DB_RECNO) || $self->throw("$! $id2nameindex");
     
-    tie ( %{$self->{'_name2id'}}, 'DB_File', $name2idindex, O_RDWR,undef, 
+    tie ( %{$self->{'_name2id'}}, 'AnyDBM_File', $name2idindex, O_RDWR,undef, 
 	  $DB_HASH) || $self->throw("$! $name2idindex");
     $self->{'_parentbtree'} = tie( %{$self->{'_parent2children'}},
-				   'DB_File', $parent2childindex, 
+				   'AnyDBM_File', $parent2childindex, 
 				   O_RDWR, 0644, $DB_BTREE);
     $self->{'_initialized'}  = 1;
 }

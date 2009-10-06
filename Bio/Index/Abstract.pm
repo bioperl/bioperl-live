@@ -85,10 +85,17 @@ methods are usually preceded with an "_" (underscore).
 package Bio::Index::Abstract;
 
 use strict;
+BEGIN {
+    use lib '../..';
+    # use the AnyDBM_File system to choose DB_File first, SQLite emulation 2nd
+    # fallback to SDBM occurs in dbm_package() /maj
+    @AnyDBM_File::ISA = qw(DB_File Bio::DB::SQLite_File) 
+	unless @AnyDBM_File::ISA == 1;
+}
+
 use Fcntl qw( O_RDWR O_CREAT O_RDONLY );
 use vars qw( $TYPE_AND_VERSION_KEY
-             $USE_DBM_TYPE $DB_HASH );
-
+             $USE_DBM_TYPE $DB_HASH $DB_BTREE $DB_RECNO &R_DUP);
 
 use Bio::Root::IO;
 use Symbol;
@@ -198,7 +205,7 @@ sub new {
            the package variable $USE_DBM_TYPE or if that is
            unset, then it chooses the best available dbm type,
            choosing 'DB_File' in preference to 'SDBM_File'. 
-           Bio::Abstract::Index may work with other dbm file
+           Bio::Index::Abstract may work with other dbm file
            types.
 
  Returns : The current value of dbm_package
@@ -211,14 +218,15 @@ sub dbm_package {
 	my( $self, $value ) = @_;
 	my $to_require = 0;
 	if( $value || ! $self->{'_dbm_package'} ) {
-		my $type = $value || $USE_DBM_TYPE || 'DB_File';
-		if( $type =~ /DB_File/i ) {
+		my $type = $value || $USE_DBM_TYPE || 'AnyDBM_File';
+		if( $type =~ /AnyDBM_File/i ) {
 			eval {
-				require DB_File;
+				require AnyDBM_File;
+				Bio::DB::AnyDBMImporter->import( qw(:bdb) );
 			};
-			$type = ( $@ ) ? 'SDBM_File' : 'DB_File';
+			$type = ( $@ ) ? 'SDBM_File' : 'AnyDBM_File';
 		}
-		if( $type ne 'DB_File' ) {
+		if( $type ne 'AnyDBM_File' ) {
 			eval { require "$type.pm"; };
 			$self->throw($@) if( $@ );
 		}
@@ -386,8 +394,9 @@ sub open_dbm {
 	my $mode_flags = $self->write_flag ? O_RDWR|O_CREAT : O_RDONLY;
  
 	# Open the dbm file
-	if ($dbm_type eq 'DB_File') {
-		my $hash_inf = DB_File::HASHINFO->new();
+	if ($dbm_type eq 'AnyDBM_File') {
+	    my $hashclass = $AnyDBM_File::ISA[0]."::HASHINFO";
+		my $hash_inf = $hashclass->new();
 		my $cache = $self->cachesize();
 		my $ffactor = $self->ffactor();
 		if ($cache){

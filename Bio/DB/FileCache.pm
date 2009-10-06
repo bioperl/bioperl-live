@@ -74,12 +74,13 @@ methods. Internal methods are usually preceded with a _
 package Bio::DB::FileCache;
 
 BEGIN {
-    require Bio::DB::SQLite_File;
-    @AnyDBM_File::ISA = qw(DB_File Bio::DB::SQLite_File GDBM_File NDBM_File SDBM_File);
+    @AnyDBM_File::ISA = qw(DB_File Bio::DB::SQLite_File)
+	unless @AnyDBM_File::ISA == 1;
 }
 
-# use DB_File;
+use vars qw( $DB_BTREE );
 use AnyDBM_File;
+use Bio::DB::AnyDBMImporter qw(:db);
 use Storable qw(freeze thaw);
 use Fcntl qw(O_CREAT O_RDWR O_RDONLY);
 use File::Temp 'tmpnam';
@@ -132,8 +133,8 @@ sub new {
        $self->throw("Must be a randomaccess database not a [$seqdb]");
     }
     
-    if (!defined($dbmargs) && eval "require DB_File; 1") {
-	$dbmargs = ['$DB_BTREE'];
+    if (!defined($dbmargs)) {
+	$dbmargs = [$DB_BTREE];
     }
     $self->dbmargs($dbmargs);
     $self->seqdb($seqdb);
@@ -341,7 +342,6 @@ sub _open_database {
   my $flags = O_CREAT|O_RDWR;
   my @dbmargs = $self->dbmargs;
   my %db;
-#  tie(%db,'AnyDBM_File',$file,$flags,0666,$DB_BTREE)
   tie(%db,'AnyDBM_File',$file,$flags,0666,@dbmargs)
     or $self->throw("Could not open primary index file");
   $self->{db} = \%db;
