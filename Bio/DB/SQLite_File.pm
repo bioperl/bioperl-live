@@ -111,6 +111,7 @@ Internal methods are usually preceded with a _
 package Bio::DB::SQLite_File;
 use strict;
 use warnings;
+use vars qw( $AUTOLOAD ) ;
 
 BEGIN {
     unless (eval "require DBD::SQLite; 1") {
@@ -152,34 +153,45 @@ sub O_SVWST (){ O_CREAT() | O_RDWR() };
 
 # Object preamble - inherits from Bio::Root::Root
 
-# my notes /maj
-# FileCache.pm does the following using DB_File
-# $cache object first looks for the sequence in the cache (with _get)
-#   if found, returns the sequence
-#   if not found, finds the sequence in the database, 
-#    and inserts it in the cache (with _store), then returns it
-#
-# the _store method: freezes the object with Storable, then 
-# puts it in the cacheDB by using the tied hash
-# very simple: just ${type}_${id} => $frozen_objects
-# 
-# the _get method:
-# gets the frozen object via the tied hash ($self->db->{"${type}_${id}"})
-# thaws it out with Storable, and returns the real object.
-
-# SO... FileCache.pm can be used almost verbatim, but the tied hash
-# representing the cacheDB implemented in SQLite needs to be built.
-
-# SO..this module provides the tied SQLite hash class.
-
 use Bio::Root::Root;
 use DBI qw(:sql_types);
 use File::Temp qw( tempfile );
 use base qw( Bio::Root::Root );
 
+$Bio::DB::SQLite_File::MAXPEND = 250;
+
 our $AUTOKEY = 0;
 # for providing DB_File seq functionality
 our $AUTOPK = 0;
+
+# statement tables
+our %STMT = (
+    HASH => {
+	put     => "INSERT INTO hash (id, obj, pk) VALUES ( ?, ?, ? )",
+	put_seq => "INSERT INTO hash (id, obj, pk) VALUES ( ?, ?, ? )",
+	get     => "SELECT obj, pk FROM hash WHERE id = ?",
+	get_seq => "SELECT id, obj FROM hash WHERE pk = ?",
+	upd     => "UPDATE hash SET obj = ? WHERE id = ? AND pk = ?",
+	upd_seq => "UPDATE hash SET id = ?, obj = ? WHERE pk = ?",
+	del     => "DELETE FROM hash WHERE id = ?",
+	del_seq => "DELETE FROM hash WHERE pk = ?",
+	del_dup => "DELETE FROM hash WHERE id = ? AND obj = ?",
+	sel_dup => "SELECT pk FROM hash WHERE id = ? AND obj = ?",
+	part_seq=> "SELECT id, obj, pk FROM hash WHERE id >= ? LIMIT 1"
+    },
+    ARRAY => {
+	put     => "INSERT INTO hash (id, obj) VALUES ( ?, ?)",
+	put_seq => "INSERT INTO hash (obj, id) VALUES ( ?, ?)",
+	get     => "SELECT obj, id FROM hash WHERE id = ?",
+	get_seq => "SELECT id, obj FROM hash WHERE id = ?",
+	upd     => "UPDATE hash SET obj = ? WHERE id = ?",
+	upd_seq => "UPDATE hash SET obj = ? WHERE id = ?",
+	del     => "DELETE FROM hash WHERE id = ?",
+	del_seq => "DELETE FROM hash WHERE id = ?"
+    }
+    );
+
+	
 
 sub SEQIDX {
     my $self = shift;
@@ -201,6 +213,7 @@ sub TIEHASH {
     $self->{ref} = 'HASH';
     $index ||= $DB_HASH;
     $self->{index} = $index;
+    $self->{pending} = 0;
     my $fh;
     # db file handling
     if ($file) {
@@ -255,9 +268,9 @@ END
     CREATE INDEX IF NOT EXISTS id_idx ON hash ( id, pk );
 END
     my $dbh = DBI->connect("dbi:SQLite:dbname=".$self->file,"","",
-			   {RaiseError => 1, AutoCommit => 1});
+			   {RaiseError => 1, AutoCommit => 0});
     $self->dbh( $dbh );
-
+#    $dbh->do("PRAGMA journal_mode = OFF");
     if (defined $index) {
 	my $flags = $index->{flags} || 0;
 	for ($index->{'type'}) {
@@ -291,6 +304,7 @@ END
     else {
 	$self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
     }
+    $self->commit(1);
     return $self;
 }
 
@@ -304,6 +318,7 @@ sub TIEARRAY {
     $self->throw("Arrays must be tied to type RECNO") unless 
 	$index->{type} eq 'RECNO';
     $self->{index} = $index;
+    $self->{pending} = 0;
     my $fh;
     # db file handling
     if ($file) {
@@ -357,7 +372,7 @@ END
 END
     
     my $dbh = DBI->connect("dbi:SQLite:dbname=".$self->file,"","",
-			   {RaiseError => 1, AutoCommit => 1});
+			   {RaiseError => 1, AutoCommit => 0});
     $self->dbh( $dbh );
     # rudimentary DB_File emulation:
     if (defined $index) {
@@ -387,7 +402,7 @@ END
 	$self->dbh->do("CREATE TABLE IF NOT EXISTS hash $arr_tbl");
 	$self->dbh->do($create_idx);
     }
-
+    $self->commit;
     $self->{len} = 0;
     return $self;
 }
@@ -400,6 +415,7 @@ sub FETCH {
     my $self = shift;
     my $key = shift;
     return unless $self->dbh;
+    $self->commit;
     if (!$self->{ref} or $self->ref eq 'HASH') {
 	$self->get_sth->execute($key); # fetches on column 'id'
     }
@@ -476,6 +492,7 @@ sub STORE {
 	    $self->upd_sth->execute($value,$self->get_idx($key));
 	}
     }
+    ++$self->{pending};
     $value;
 }
 
@@ -489,7 +506,8 @@ sub DELETE {
 	return unless $self->get_sth->execute($key);
 	my $ret = $self->get_sth->fetch;
 	$oldval = $ret->[0];
-	$self->dbh->do("DELETE FROM hash WHERE id = '$key'");
+#	$self->dbh->do("DELETE FROM hash WHERE id = '$key'");
+	$self->del_sth->execute($key); # del on id
 	# update the sequential side
 	if ($ret->[1]) {
 	    delete ${$self->SEQIDX}[_find_idx($ret->[1],$self->SEQIDX)];
@@ -499,13 +517,15 @@ sub DELETE {
 	my $SEQIDX = $self->SEQIDX;
 	if ($$SEQIDX[$key]) {
 	    $oldval = $self->FETCH($$SEQIDX[$key]);
-	    $self->dbh->do("DELETE FROM hash WHERE id = '$$SEQIDX[$key]'");
+#	    $self->dbh->do("DELETE FROM hash WHERE id = '$$SEQIDX[$key]'");
+	    $self->del_sth->execute($$SEQIDX[$key]); # del on id
 	    $self->rm_idx($key);
 	}
     }
     else {
 	$self->throw( "tied type not recognized" );
     }
+    ++$self->{pending};
     return $oldval;
 }
 
@@ -513,6 +533,7 @@ sub EXISTS {
     my $self = shift;
     my $key = shift;
     return unless $self->dbh;
+    $self->commit;
     if (!$self->ref or $self->ref eq 'HASH') {
 	return defined $self->FETCH($key) ? 1 : 0;
     }
@@ -534,7 +555,10 @@ sub EXISTS {
 sub CLEAR {
     my $self = shift;
     return unless $self->dbh;
-    $self->dbh->do("DELETE FROM hash");
+    $self->dbh->commit;
+    my $sth = $self->dbh->prepare("DELETE FROM hash");
+    $sth->execute;
+    $self->dbh->commit;
     @{$self->SEQIDX} = ();
     return 1;
 }
@@ -544,6 +568,7 @@ sub CLEAR {
 sub FIRSTKEY {
     my $self = shift;
     return unless $self->dbh;
+    $self->commit;
     return if ($self->{ref} and $self->ref ne 'HASH');
     my $ids = $self->dbh->selectall_arrayref("SELECT id FROM hash");
     return unless $ids;
@@ -594,10 +619,12 @@ sub EXTEND {
 sub POP {
     my $self = shift;
     return unless $self->dbh;
+    $self->commit;
     return if (!$self->{ref} or $self->ref ne 'ARRAY');
     $self->get_sth->execute($self->get_idx($self->len-1));
     my $ret = $self->get_sth->fetch;
-    $self->dbh->do("DELETE FROM hash WHERE id = ".$self->get_idx($self->len-1));
+#    $self->dbh->do("DELETE FROM hash WHERE id = ".$self->get_idx($self->len-1));
+    $self->del_sth->execute($self->get_idx($self->len-1));
     # bookkeeping
     $self->rm_idx($self->len-1);
     return defined $ret ? $ret->[0] : $ret;
@@ -614,16 +641,19 @@ sub PUSH {
     for my $i ($beg..$end) {
 	$self->put_sth->execute($self->get_idx($i), shift @values);
     }
+    ++$self->{pending};
     return $ret;
 }
 
 sub SHIFT {
     my $self = shift;
     return unless $self->dbh;
+    $self->commit;
     return if (!$self->{ref} or $self->ref ne 'ARRAY');
     $self->get_sth->execute( $self->get_idx(0) );
     my $ret = $self->get_sth->fetch;
-    $self->dbh->do("DELETE FROM hash WHERE id = ".$self->get_idx(0));
+#    $self->dbh->do("DELETE FROM hash WHERE id = ".$self->get_idx(0));
+    $self->del_sth->execute($self->get_idx(0));
     # bookkeeping
     $self->shift_idx;
     return defined $ret ? $ret->[0] : $ret;
@@ -638,6 +668,7 @@ sub UNSHIFT {
     for ($self->unshift_idx($n)) {
 	$self->put_sth->execute($_,shift @values);
     }
+    ++$self->{pending};
     return $n;
 }
 
@@ -645,7 +676,8 @@ sub SPLICE {
     my $self = shift;
     return if !$self->dbh;
     return if (!$self->{ref} or $self->ref ne 'ARRAY');
-    die "Won't do splice yet."
+    die "Won't do splice yet.";
+    ++$self->{pending};
 }
 
 # destructors
@@ -657,13 +689,17 @@ sub UNTIE {
 
 sub DESTROY {
     my $self = shift;
+    $self->dbh->commit; #'hard' commit
+    my $tbl = $STMT{$self->ref};
     # finish and destroy stmt handles
-    for ( qw( put_sth put_seq_sth get_sth get_seq_sth upd_sth upd_seq_sth part_seq_sth ) ) {
-	$self->$_->finish if $self->{$_};
-	undef $self->{$_};
+    for ( keys %$tbl ) {
+	$self->{$_."_sth"}->finish if $self->{$_."_sth"};
+	undef $self->{$_."_sth"};
     }
     # disconnect
-    $self->dbh->disconnect if $self->dbh;
+    $self->throw($self->dbh->errstr) unless $self->dbh->disconnect;
+    $self->{dbh}->DESTROY;
+    undef $self->{dbh};
     # remove file if nec
     $self->_fh->close() if $self->_fh;
     unlink $self->file if (!$self->keep && $self->_fh);
@@ -693,211 +729,104 @@ sub dbh {
     return $self->{'dbh'};
 }
 
-=head2 get_sth
 
- Title   : get_sth
- Usage   : $obj->get_sth($new_handle)
- Function: returns a select statement handle
-           prepares a new one if necessary
- Example : 
- Returns : value of get_sth (a statement handle)
- Args    : none
+
+=head2 sth()
+
+ Title   : sth
+ Usage   : $obj->sth($stmt_descriptor)
+ Function: statement handle generator
+ Returns : a prepared DBI statement handle
+ Args    : scalar string (statement descriptor)
+ Note    : calls such as $obj->put_sth are autoloaded through
+           this method
+=cut
+
+sub sth {
+    my $self = shift;
+    my $desc = shift;
+    $self->throw("No active database handle") unless $self->dbh;
+    my $tbl = $STMT{$self->ref};
+    unless ($tbl) {
+	$self->throw("Tied type '".$self->ref."' not recognized");
+    }
+    if (!$self->{"${desc}_sth"}) {
+	$self->throw("Statement descriptor '$desc' not recognized for type ".$self->ref) unless grep(/^$desc$/,keys %$tbl);
+	$self->{"${desc}_sth"} = $self->dbh->prepare($tbl->{$desc});
+    }
+    return $self->{"${desc}_sth"};
+}
+
+# autoload statement handle getters
+
+sub AUTOLOAD {
+    my $self = shift;
+    my @pth = split(/::/, $AUTOLOAD); 
+    my $desc = $pth[-1];
+    unless ($desc =~ /^(.*?)_sth$/) {
+	$self->throw("Subroutine '$AUTOLOAD' is undefined in ".__PACKAGE__);
+    }
+    $desc = $1;
+    unless (grep /^$desc$/, keys %{$STMT{$self->ref}}) {
+	$self->throw("Statement accessor ${desc}_sth not defined for type ".$self->ref);
+    }
+    $self->sth($desc);
+}
+=head2 commit()
+
+ Title   : commit
+ Usage   : 
+ Function: commit transactions
+ Returns : 
+ Args    : commit(1) forces, commit() commits when
+           number of pending transactions > $MAXPEND
 
 =cut
 
-sub get_sth {
+sub commit {
+
     my $self = shift;
-    $self->throw ("No active database handle") unless $self->dbh;
-    # prepare a new stmt if dne or if the column requested is different...
-    if (!$self->{'get_sth'}) {
-	if (!$self->{ref} or $self->ref eq 'HASH') {
-	    $self->{'get_sth'} =  $self->dbh->prepare("SELECT obj, pk FROM hash WHERE id = ?");
-	}
-	elsif ($self->ref eq 'ARRAY') {
-	    $self->{'get_sth'} =  $self->dbh->prepare("SELECT obj, id FROM hash WHERE id = ?");
-	}
-	else {
-	    $self->throw("tied type not recognized");
-	}
+    if (@_ or ($self->{pending} > $Bio::DB::SQLite_File::MAXPEND)) {
+	$self->warn("commit failed") unless $self->dbh->commit();
+	$self->{pending} = 0;
     }
-    return $self->{'get_sth'};
+    return 1;
 }
 
 
-=head2 put_sth
 
- Title   : put_sth
- Usage   : $obj->put_sth($new_handle)
- Function: returns an insert statement handle
-           prepares a new one if necessary
- Example : 
- Returns : value of put_sth (a statement handle)
- Args    : none
+=head2 pending()
+
+ Title   : pending
+ Usage   : $obj->pending
+ Function: count of pending (uncommitted) transactions
+ Returns : scalar int
+ Args    : none (rdonly)
 
 =cut
 
-sub put_sth {
-    my $self = shift;
-    $self->throw ("No active database handle") unless $self->dbh;
-    if (!$self->{'put_sth'}) {
-	if (!$self->{ref} or $self->ref eq 'HASH') {
-	    $self->{'put_sth'} = $self->dbh->prepare("INSERT INTO hash (id, obj, pk) VALUES ( ?, ?, ? )");
-	}
-	elsif ($self->{ref} eq 'ARRAY') {
-	    $self->{'put_sth'} = $self->dbh->prepare("INSERT INTO hash (id, obj) VALUES ( ?, ?)");
-	}
-	else {
-	    $self->throw("tied type not recognized");
-	}
-    }
-    return $self->{'put_sth'};
+sub pending {
+    shift->{pending};
 }
 
-=head2 upd_sth
+=head2 trace()
 
- Title   : upd_sth
- Usage   : $obj->upd_sth($new_handle)
- Function: returns an update statement handle
-           prepares a new one if necessary
- Example : 
- Returns : value of upd_sth (a statement handle)
- Args    : none
+ Title   : trace
+ Usage   : 
+ Function: invoke the DBI trace logging service
+ Returns : 
+ Args    : scalar int trace level
 
 =cut
 
-sub upd_sth {
+sub trace {
     my $self = shift;
-    $self->throw ("No active database handle") unless $self->dbh;
-    if (!$self->{'upd_sth'}) {
-	if (!$self->{ref} or $self->ref eq 'HASH') {
-	    $self->{'upd_sth'} = $self->dbh->prepare("UPDATE hash SET obj = ? WHERE id = ? AND pk = ?");
-	}
-	elsif ($self->ref eq 'ARRAY') {
-	    $self->{'upd_sth'} = $self->dbh->prepare("UPDATE hash SET obj = ? WHERE id = ?");
-	}
-	else {
-	    $self->throw("tied type not recognized");
-	}
-    }
-    return $self->{'upd_sth'};
-}
-
-=head2 get_seq_sth
-
- Title   : get_seq_sth
- Usage   : $obj->get_seq_sth($new_handle)
- Function: returns a select statement handle
-           prepares a new one if necessary
- Example : 
- Returns : value of get_seq_sth (a statement handle)
- Args    : none
-
-=cut
-
-sub get_seq_sth {
-    my $self = shift;
-    $self->throw ("No active database handle") unless $self->dbh;
-    # prepare a new stmt if dne or if the column requested is different...
-    if (!$self->{'get_seq_sth'}) {
-	if (!$self->{ref} or $self->ref eq 'HASH') {
-	    $self->{'get_seq_sth'} =  $self->dbh->prepare("SELECT id, obj FROM hash WHERE pk = ?");
-	}
-	elsif ($self->ref eq 'ARRAY') {
-	    $self->{'get_seq_sth'} =  $self->dbh->prepare("SELECT id, obj FROM hash WHERE id = ?");
-	}
-	else {
-	    $self->throw("tied type not recognized");
-	}
-    }
-    return $self->{'get_seq_sth'};
-}
-
-
-=head2 put_seq_sth
-
- Title   : put_seq_sth
- Usage   : $obj->put_seq_sth($new_handle)
- Function: returns an insert statement handle
-           prepares a new one if necessary
- Example : 
- Returns : value of put_seq_sth (a statement handle)
- Args    : none
-
-=cut
-
-sub put_seq_sth {
-    my $self = shift;
-    $self->throw ("No active database handle") unless $self->dbh;
-    if (!$self->{'put_seq_sth'}) {
-	if (!$self->{ref} or $self->ref eq 'HASH') {
-	    $self->{'put_seq_sth'} = $self->dbh->prepare("INSERT INTO hash (id, obj, pk) VALUES ( ?, ?, ? )");
-	}
-	elsif ($self->{ref} eq 'ARRAY') {
-	    $self->{'put_seq_sth'} = $self->dbh->prepare("INSERT INTO hash (obj, id) VALUES ( ?, ?)");
-	}
-	else {
-	    $self->throw("tied type not recognized");
-	}
-    }
-    return $self->{'put_seq_sth'};
-}
-
-=head2 upd_seq_sth
-
- Title   : upd_seq_sth
- Usage   : $obj->upd_seq_sth($new_handle)
- Function: returns an update statement handle
-           prepares a new one if necessary
- Example : 
- Returns : value of upd_seq_sth (a statement handle)
- Args    : none
-
-=cut
-
-sub upd_seq_sth {
-    my $self = shift;
-    $self->throw ("No active database handle") unless $self->dbh;
-    if (!$self->{'upd_seq_sth'}) {
-	if (!$self->{ref} or $self->ref eq 'HASH') {
-	    $self->{'upd_seq_sth'} = $self->dbh->prepare("UPDATE hash SET id = ?, obj = ? WHERE pk = ?");
-	}
-	elsif ($self->ref eq 'ARRAY') {
-	    $self->{'upd_seq_sth'} = $self->dbh->prepare("UPDATE hash SET obj = ? WHERE id = ?");
-	}
-	else {
-	    $self->throw("tied type not recognized");
-	}
-    }
-    return $self->{'upd_seq_sth'};
-}
-
-=head2 upd_seq_sth
-
- Title   : upd_seq_sth
- Usage   : $obj->upd_seq_sth($new_handle)
- Function: returns an update statement handle
-           prepares a new one if necessary
- Example : 
- Returns : value of upd_seq_sth (a statement handle)
- Args    : none
-
-=cut
-
-sub part_seq_sth {
-    my $self = shift;
-    $self->throw ("No active database handle") unless $self->dbh;
-    if (!$self->{'part_seq_sth'}) {
-	if (!$self->{ref} or $self->ref eq 'HASH') {
-	$self->{part_seq_sth} = $self->dbh->prepare( "SELECT id, obj, pk FROM hash WHERE id >= ? LIMIT 1" );
-	}
-	elsif ($self->ref eq 'ARRAY') {
-	    $self->throw("Partial matches not meaningful for arrays");
-	}
-	else {
-	    $self->throw("tied type not recognized");
-	}
-    }
-    return $self->{'part_seq_sth'};
+    my $level = shift;
+    return unless $self->dbh;
+    $level ||= 3;
+    $self->dbh->{TraceLevel} = $level;
+    $self->dbh->trace;
+    return $level;
 }
 
 =head2 Attribute accessors
@@ -979,8 +908,6 @@ sub index {
     return $self->{'index'};
 }
 
-
-
 =head2 _keys
 
  Title   : _keys
@@ -1039,9 +966,10 @@ sub rm_idx {
     my $self = shift;
     my $index = shift;
     unless (delete ${$self->SEQIDX}[$index]) {
-	warn "Element $index did not exist";
+	$self->warn("Element $index did not exist");
     }
 }
+
 =head2 BDB API Emulation: random access
 
 =head2 get()
@@ -1186,6 +1114,7 @@ sub put {
     }
     $status = !$sth->execute;
     $do_cursor->() if !$status;
+    $self->{pending} = 1;
     $self->{_stale} = 0 if $self->index->{type} eq 'BINARY';
     return $status;
 }
@@ -1211,8 +1140,9 @@ sub del {
     if ($flags eq R_CURSOR) {
 	_wring_SEQIDX($self->SEQIDX) unless $$SEQIDX[$$CURSOR];
 	my $pk = $$SEQIDX[$$CURSOR];
-	my $col = ($self->ref eq 'ARRAY' ? 'id' : 'pk');
-	$status = $self->dbh->do("DELETE FROM hash WHERE $col = $pk");
+#	my $col = ($self->ref eq 'ARRAY' ? 'id' : 'pk');
+#	$status = $self->dbh->do("DELETE FROM hash WHERE $col = $pk");
+	$self->del_seq_sth->execute($pk);
 	if ($status) { # successful delete
 	    $$SEQIDX[$$CURSOR] = undef;
 	    $self->_wring_SEQIDX;
@@ -1225,6 +1155,7 @@ sub del {
 	1;
     }
     $self->{_stale} = 1;
+    $self->{pending} = 1;
     return 0 if $status;
     return 1;
 }
@@ -1245,6 +1176,7 @@ sub seq {
     my $self = shift;
     my ($key, $value, $flags) = @_;
     return 1 unless $flags;
+    $self->commit;
     my $status;
     # to modify $key, set $_[0]
     # to modify $value, set $_[1]
@@ -1299,7 +1231,7 @@ sub seq {
 
 =cut
 
-sub sync { 0 };
+sub sync { !shift->commit };
 
 =head2 BDB API Emulation : internals
 
@@ -1503,8 +1435,9 @@ sub get_dup {
     my $self = shift;
     my ($key, $aa) = @_;
     return unless $self->dbh;
+    $self->commit;
     unless ($self->dup) {
-	warn("DB not created in dup context; ignoring");
+	$self->warn("DB not created in dup context; ignoring");
 	return;
     }
     $self->get_sth->execute($key);
@@ -1535,8 +1468,9 @@ sub find_dup {
     my $self = shift;
     my ($key, $value) = @_;
     return unless $self->dbh;
+    $self->commit;
     unless ($self->dup) {
-	warn("DB not created in dup context; ignoring");
+	$self->warn("DB not created in dup context; ignoring");
 	return;
     }
     $self->get_sth->execute($key);
@@ -1561,25 +1495,28 @@ sub del_dup {
     my $ret;
     return unless $self->dbh;
     unless ($self->dup) {
-	warn("DB not created in dup context; ignoring");
+	$self->warn("DB not created in dup context; ignoring");
 	return;
     }
-    my $sth = $self->dbh->prepare("SELECT pk FROM hash WHERE id = '$key' AND obj = ?");
-    $sth->bind_param(1, $value, SQL_BLOB);
-    $sth->execute();
-    $ret = $sth->fetchall_arrayref;
+#    my $sth = $self->dbh->prepare("SELECT pk FROM hash WHERE id = '$key' AND obj = ?");
+    $self->sel_dup_sth->bind_param(1, $key);
+    $self->sel_dup_sth->bind_param(2, $value, SQL_BLOB);
+    $self->sel_dup_sth->execute;
+    $ret = $self->sel_dup_sth->fetchall_arrayref;
     unless ($ret) {
 	return 1;
     }
-    $sth = $self->dbh->prepare("DELETE FROM hash WHERE id = '$key' and obj = ?");
-    $sth->bind_param(1, $value, SQL_BLOB);
-    if ($sth->execute) {
+#    $sth = $self->dbh->prepare("DELETE FROM hash WHERE id = '$key' and obj = ?");
+    
+    $self->del_dup_sth->bind_param(1, $key);
+    $self->del_dup_sth->bind_param(2, $value, SQL_BLOB);
+    if ($self->del_dup_sth->execute) {
 	# update SEQIDX
 	foreach (map { $$_[0] } @$ret) {
 	    delete ${$self->SEQIDX}[_find_idx($_,$self->SEQIDX)];
 	}
 	$self->_wring_SEQIDX;
-	$sth->finish;
+	$self->{pending} = 1;
 	return 0; # success
     }
     else {
