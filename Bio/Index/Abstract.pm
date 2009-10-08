@@ -222,7 +222,7 @@ sub dbm_package {
 		if( $type =~ /AnyDBM_File/i ) {
 			eval {
 				require AnyDBM_File;
-				Bio::DB::AnyDBMImporter->import( qw(:bdb) );
+				Bio::DB::AnyDBMImporter::import( qw(:bdb) );
 			};
 			$type = ( $@ ) ? 'SDBM_File' : 'AnyDBM_File';
 		}
