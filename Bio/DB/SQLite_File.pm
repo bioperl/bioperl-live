@@ -703,7 +703,8 @@ sub DESTROY {
     # remove file if nec
     $self->_fh->close() if $self->_fh;
     unlink $self->file if (!$self->keep && $self->_fh);
-    $self->throw("SQLite_File unlink issue: $!") if $!;
+    # below, reduce the severity of unlink warnings...need verbose > 0...
+    $self->warn("SQLite_File unlink issue: $!") if ($! and $self->verbose > 0);
     undef $self;
     1;
 }
