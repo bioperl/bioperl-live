@@ -1053,6 +1053,7 @@ sub NEXTKEY  { tied(%{shift->{offsets}})->NEXTKEY(@_);  }
 
 sub DESTROY {
   my $self = shift;
+  untie %{$self->{offsets}};
   if ($self->{indexing}) {  # killed prematurely, so index file is no good!
     warn "indexing was interrupted, so unlinking $self->{indexing}";
     unlink $self->{indexing};

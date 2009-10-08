@@ -111,7 +111,7 @@ use strict;
 use Bio::DB::GFF::Feature;
 use Bio::DB::GFF::Util::Rearrange;
 use Bio::RangeI;
-
+use Scalar::Util qw(weaken);
 use base qw(Bio::DB::GFF::Segment);
 
 use overload '""' => 'asString',
@@ -211,7 +211,7 @@ sub new {
 
   $package = ref $package if ref $package;
   $factory or $package->throw("new(): provide a -factory argument");
-
+#  weaken($factory); # crossing fingers/maj
   # to allow people to use segments as sources
   if (ref($name) && $name->isa('Bio::DB::GFF::Segment')) {
     $start = 1              unless defined $start;
@@ -255,7 +255,7 @@ sub new {
 
     # partially fill in object
     my $self = bless { factory => $factory },$package;
-
+    weaken($self->{factory});
     $absstrand ||= '+';
 
     if ($absstart > $absstop) { # AAARGH!  DATA FORMAT ERROR!  FIX.
@@ -1142,6 +1142,11 @@ sub union {
 
 sub version { 0 }
 
+sub DESTROY {
+    # eliminate factory reference. Argh!
+    my $self = shift;
+    undef $self->{factory};
+}
 
 1;
 

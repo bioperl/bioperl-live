@@ -712,6 +712,8 @@ arguments.
 
 #'
 
+use Scalar::Util qw(weaken); # see segment() kludge/maj
+
 sub new {
   my $package   = shift;
   my ($adaptor,$aggregators,$args,$refclass,$preferred_groups);
@@ -758,6 +760,9 @@ sub new {
 
   # default settings go here.....
   $self->automerge(1);  # set automerge to true
+
+  # ensure tied hashes get cleaned up
+  $self->_register_for_cleanup(\&do_untie);
 
   $self;
 }
@@ -963,6 +968,7 @@ a scalar context.
 
 sub segment {
   my $self = shift;
+  weaken($self); # want to destroy myself on time/maj
   my @segments =  Bio::DB::GFF::RelSegment->new(-factory => $self,
 						$self->setup_segment_args(@_));
   foreach (@segments) {
@@ -1941,7 +1947,6 @@ sub load_fasta {
   return $result;
 }
 
-
 =head2 load_fasta_file
 
  Title   : load_fasta_file
@@ -1963,7 +1968,6 @@ sub load_fasta_file {
   my $fh = IO::File->new($file) or return;
   return $self->do_load_fasta($fh);
 }
-
 
 =head2 load_sequence_string
 
@@ -3783,6 +3787,15 @@ sub _delete_fattribute_to_features {
   $self->throw('_delete_fattribute_to_features is not implemented in this adaptor');
 }
 
+# cleanup routines/maj
+
+sub do_untie {
+    my $self = shift;
+
+    untie %{$self->{db}} if $self->{db};
+    untie %{$self->{dna_db}} if $self->{dna_db};
+    undef $self;
+}
 
 sub unescape {
   my $v = shift;
@@ -3790,7 +3803,6 @@ sub unescape {
   $v =~ s/%([0-9a-fA-F]{2})/chr hex($1)/ge;
   return $v;
 }
-
 
 package Bio::DB::GFF::ID_Iterator;
 use strict;

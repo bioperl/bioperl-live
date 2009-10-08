@@ -263,6 +263,7 @@ sub _open_databases {
 sub _close_databases {
   my $self = shift;
   delete $self->{db};
+  delete $self->{dna_db}; # was this an oversight?/maj
   delete $self->{data};
   delete $self->{notes};
 }
@@ -304,6 +305,7 @@ sub _delete {
   my $deleted = $self->{db}{__count__};
   $self->{data} = FeatureStore->new($self->_data_file,1,1);
   %{$self->{db}}   = ();
+  %{$self->{dna_db}} = () if $self->{dna_db}; # this is a key fix, IMHO /maj
   $deleted;
 }
 
@@ -1132,6 +1134,5 @@ sub _string2feature {
   $feature{group_id} = undef;
   \%feature;
 }
-
 
 1;
