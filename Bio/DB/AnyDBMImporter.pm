@@ -56,6 +56,10 @@ cannot be individually specified at the moment.
 
 use constant { R_CONST => 1, O_CONST => 2, DB_TYPES => 4, OTHER => 8 };
 
+# ignore "Prototype mismatch:... none vs. ()" warnings
+# for now...
+no warnings qw(prototype); 
+
 sub import {
     my ($class, @args) = @_;
     my ($pkg, $fn, $ln) = caller;
