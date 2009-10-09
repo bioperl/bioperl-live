@@ -1514,10 +1514,10 @@ sub _db_connect {
         $self->{fragment}->{reference} = tie (%{$self->{fragment}->{reference}}, 'AnyDBM_File', $reference_fragment, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$reference_fragment': $!");
         
         my $reference_factor = $factor_index.'.reference';
-        $self->{factor}->{reference} = tie (%{$self->{factor}->{reference}}, 'AnyDBM_File', $reference_factor, undef, 0644, $DB_BTREE) || $self->throw("Cannot open file '$reference_factor': $!");
-        
+        $self->{factor}->{reference} = tie (%{$self->{factor}->{reference}}, 'AnyDBM_File', $reference_factor, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$reference_factor': $!");
+
         my $reference_matrix = $matrix_index.'.reference';
-        $self->{matrix}->{reference} = tie (%{$self->{matrix}->{reference}}, 'AnyDBM_File', $reference_matrix, undef, 0644, $DB_BTREE) || $self->throw("Cannot open file '$reference_matrix': $!");
+        $self->{matrix}->{reference} = tie (%{$self->{matrix}->{reference}}, 'AnyDBM_File', $reference_matrix, O_RDWR, undef, $DB_BTREE) || $self->throw("Cannot open file '$reference_matrix': $!");
     }
     
     # gene
