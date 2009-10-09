@@ -30,6 +30,7 @@ closedir(INDIR);
 
 # now use this temporary dir for the db file
 my $db = Bio::DB::Qual->new($test_dbdir, -reindex => 1);
+diag( "BDB using ".$AnyDBM_File::ISA[0]);
 ok($db);
 my @ids = $db->ids;
 is(scalar(@ids), 15);

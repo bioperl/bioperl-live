@@ -19,7 +19,7 @@ my $tax_db = Bio::DB::Taxonomy->new(-source => 'flatfile',
                                     -directory => $temp_dir,
                                     -nodesfile => test_input_file('taxdump', 'nodes.dmp'),
                                     -namesfile => test_input_file('taxdump', 'names.dmp'));
-
+diag( "BDB using ".$AnyDBM_File::ISA[0]);
 # test transfac pro (local flat files)
 {
     ok my $db = Bio::DB::TFBS->new(-source => 'transfac_pro',

@@ -2,7 +2,7 @@
 # $Id$
 
 use strict;
-
+no warnings qw(redefine);
 BEGIN {
    use lib '.';
    use Bio::Root::Test;
@@ -24,7 +24,7 @@ my $ind = Bio::Index::Fasta->new(-filename => 'Wibbl',
 											-verbose => 0);
 $ind->make_index(test_input_file('multifa.seq'));
 $ind->make_index(test_input_file('seqs.fas'));
-
+diag( "BDB using ".$AnyDBM_File::ISA[0]);
 ok ( -e "Wibbl" || -e "Wibbl.pag" );
 my $seq = $ind->fetch('HSEARLOBE');
 is($seq->length,321);

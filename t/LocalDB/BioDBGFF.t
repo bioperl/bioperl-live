@@ -3,25 +3,27 @@
 
 use strict;
 use Module::Build;
-
+use vars qw(&refcount);
+use File::Spec;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    
-    test_begin(-tests => 279);
+    @AnyDBM_File::ISA = qw( DB_File Bio::DB::SQLite_File );
+    test_begin(-tests => 280);
 	
 	use_ok('Bio::DB::GFF');
+    use_ok('AnyDBM_File');
 }
 
 my $fasta_files = test_input_file('dbfa');
 my $gff_file1   = test_input_file('biodbgff', 'test.gff');
 my $gff_file2   = test_input_file('biodbgff', 'test.gff3');
-
 my $build = Module::Build->current;
 my $test_dsn = $build->notes('test_dsn');
 
 my $adaptor = $test_dsn ? $test_dsn : 'memory';
 $adaptor    = shift if @ARGV;
+$adaptor = 'berkeleydb' if $build->notes('use_bdb_for_gff');
 
 my @args;
 if ($adaptor =~ /^dbi/) {
@@ -45,7 +47,7 @@ if ($adaptor =~ /^dbi/) {
 }
 
 push @args,('-aggregators' => ['transcript','processed_transcript']);
-
+diag("BDB using ".$AnyDBM_File::ISA[0]) if ($adaptor eq 'berkeleydb');
 SKIP: {
 for my $FILE ($gff_file1,$gff_file2) {
 
@@ -444,8 +446,12 @@ SKIP: {
 
 }
 
-
-
 END {
+    # cleanup!
+    opendir my $d, File::Spec->catdir($ENV{TEMP},'test');
+    my @f = readdir $d;
+    @f = grep /^bdb_/, @f;
+    chdir File::Spec->catdir($ENV{TEMP},'test');
+    unlink @f;
   unlink $fasta_files."/directory.index";
 }

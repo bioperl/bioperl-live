@@ -2,7 +2,7 @@
 # $Id$
 
 use strict;
-
+no warnings qw(redefine);
 BEGIN {
 	use lib '.';
 	use Bio::Root::Test;
@@ -21,6 +21,7 @@ END {  unlink qw( Wibbl Wibbl.pag Wibbl.dir Wibbl.index); }
 
 my $index = Bio::Index::Blast->new(-filename => 'Wibbl',
 											  -write_flag => 1);
+diag( "BDB using ".$AnyDBM_File::ISA[0]);
 ok($index);
 
 $index->make_index(test_input_file('multi_blast.bls'));

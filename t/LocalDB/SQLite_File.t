@@ -2,17 +2,15 @@
 # $Id$
 
 BEGIN {
-    use lib '../..';
     use Bio::Root::Test;
-    @AnyDBM_File::ISA = qw( DB_File Bio::DB::SQLite_File );
-    test_begin( -tests => 51,
+    @AnyDBM_File::ISA = qw( Bio::DB::SQLite_File );
+    test_begin( -tests => 49,
 		-requires_module => 'DBD::SQLite',
-		-requires_module => 'Bio::DB::AnyDBMImporter' );
-    use Fcntl qw(O_CREAT O_RDWR O_RDONLY);
-    use_ok( AnyDBM_File );
+		-requires_module => 'Bio::DB::AnyDBMImporter',
+		-requires_module => 'AnyDBM_File');
 }
 
-use vars qw( $DB_HASH $DB_TREE $DB_RECNO &R_DUP );
+use vars qw( $DB_HASH $DB_TREE $DB_RECNO &R_DUP &O_CREAT &O_RDWR &O_RDONLY);
 use Bio::DB::AnyDBMImporter qw(:bdb);
 
 my %db;
@@ -23,7 +21,7 @@ ok $db{'baker'} = 2, "set";
 ok $db{'candlestick maker'} = 3, "set";
 ok $db{'ooh, isnt this a very very very very very very very very very very long key, my goodness gracious me'} = 4, "set";
 ok $a = $db{'baker'}, "access";
-is($a, 2), "value correct";
+is($a, 2, "value correct");
 ok exists $db{'baker'}, "exists";
 ok delete $db{'baker'}, "delete";
 ok !exists $db{'baker'}, "delete deletes";
@@ -65,7 +63,7 @@ is(@d, 3, "get_dup (array)");
 ok my %d = (tied %db)->get_dup('B',1);
 is($d{'2'},2,"get_dup (hash 1)");
 is($d{'3'},1,"get_dup (hash 2)");
-ok untie %db;
+untie %db;
 
 ok tie( @db, 'AnyDBM_File', undef, $flags, 0666, $DB_RECNO), "tied array";
 my $aro = tied @db;
@@ -93,7 +91,6 @@ is ($db[1], 'Y',"correct set");
 pop @db for (1..3);
 is ($db[-1], 'e', "pop some");
 shift @db for (1..3);
-#FIXME
 is ($db[0], 'a', "shift some");
 
 undef $aro;

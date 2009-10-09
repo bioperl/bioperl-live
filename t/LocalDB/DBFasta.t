@@ -34,6 +34,7 @@ closedir(INDIR);
 
 # now use this temporary dir for the db file
 my $db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1);
+diag( "BDB using ".$AnyDBM_File::ISA[0]);
 ok($db);
 cmp_ok($db->length('CEESC13F'), '>', 0);
 is(length $db->seq('CEESC13F:1,10'), 10);

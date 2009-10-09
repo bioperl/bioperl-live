@@ -5,7 +5,6 @@ use strict;
 use constant TEST_COUNT => 69;
 
 BEGIN {
-    use lib '/home/lstein/projects/bioperl-live';
     use lib '.';
     use Bio::Root::Test;
 	
@@ -13,10 +12,13 @@ BEGIN {
     
     $ENV{ORACLE_HOME} ||= '/home/oracle/Home';
 	
-    use_ok('Bio::DB::SeqFeature::Store');
-    use_ok('Bio::DB::SeqFeature::Store::GFF3Loader');
 }
 
+SKIP : {
+    test_skip( -tests => TEST_COUNT, 
+	       -requires_module => 'DB_File') if ($ARGV[1] !~ /dbi/i);
+    use_ok('Bio::DB::SeqFeature::Store');
+    use_ok('Bio::DB::SeqFeature::Store::GFF3Loader');
 my $gff_file = test_input_file('seqfeaturedb','test.gff3');
 
 my (@f,$f,@s,$s,$seq1,$seq2);
@@ -25,6 +27,7 @@ my @args = @ARGV;
 @args = (-adaptor => 'memory') unless @args;
 
 SKIP: {
+
 my $db = eval { Bio::DB::SeqFeature::Store->new(@args) };
 skip "DB load failed? Skipping all! $@", (TEST_COUNT - 2) if $@;
 ok($db);
@@ -234,3 +237,4 @@ is(scalar @results,2,'keyword search; 1 term');
 is(scalar @results,2,'keyword search; 2 terms');
 
 }
+} # SKIP

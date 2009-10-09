@@ -2,18 +2,17 @@
 # $Id$
 
 BEGIN {
-    use lib '../..';
     use Bio::Root::Test;
     @AnyDBM_File::ISA = qw( Bio::DB::SQLite_File );
-    test_begin( -tests => 79,
-		-requires_module => 'DBD::SQLite' );
-    use Fcntl qw(O_CREAT O_RDWR O_RDONLY);
-    use_ok( AnyDBM_File );
+    test_begin( -tests => 76,
+		-requires_module => 'DBD::SQLite',
+		-requires_module => 'AnyDBM_File');
 }
 use vars qw( $DB_HASH $DB_BTREE $DB_RECNO
              &R_DUP &R_CURSOR &R_FIRST &R_LAST
              &R_NEXT &R_PREV &R_IAFTER &R_IBEFORE
-             &R_NOOVERWRITE &R_SETCURSOR );	       
+             &R_NOOVERWRITE &R_SETCURSOR 
+             &O_CREAT &O_RDWR &O_RDONLY);	       
 
 use Bio::DB::AnyDBMImporter qw(:bdb);
 
@@ -60,7 +59,7 @@ is ($key, 'h', "key correct seq R_LAST");
 is ($value, 8, "value correct seq R_LAST");
 # note following, NO "!"
 ok $db->seq($key, $value, R_NEXT), "check fail for R_NEXT";
-!$db->seq($key, $value, R_FIRST);
+$db->seq($key, $value, R_FIRST);
 ok $db->seq($key, $value, R_PREV), "check fail for R_PREV";
 # put with flags
 $key = 'Y';
@@ -77,10 +76,8 @@ ok !$db->seq($key, $value, R_LAST), "what's at the bottom?";
 is($value, 102, "what we just put");
 # no '!'
 ok $db->put($key, $value, R_NOOVERWRITE), "put R_NOOVERWRITE";
-
-
 undef $db;
-ok untie %db;
+untie %db;
 
 # array tests 
 
@@ -122,7 +119,7 @@ is ($key, 5, "key correct seq R_LAST");
 is ($value, 'h', "value correct seq R_LAST");
 # note following, NO "!"
 ok $db->seq($key, $value, R_NEXT), "check fail for R_NEXT";
-!$db->seq($key, $value, R_FIRST);
+$db->seq($key, $value, R_FIRST);
 ok $db->seq($key, $value, R_PREV), "check fail for R_PREV";
 # put with flags
 $key = 100; # key will be ignored for arrays
@@ -146,8 +143,7 @@ ok !$db->seq($key, $value, R_NEXT), "what's after the cursor?";
 is($value, 'Y', "what we just put");
 ok !$db->seq($key, $value, R_LAST), "what's at the bottom?";
 is($value, 'Y', "what we just put");
-
 undef $db;
-ok untie(@db);
+untie(@db);
 
 1;
