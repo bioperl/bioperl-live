@@ -121,18 +121,16 @@ it under the same terms as Perl itself.
 =cut
 
 use strict;
-
+use warnings;
 BEGIN {
-    use lib '../../../..';
     @AnyDBM_File::ISA = qw( DB_File Bio::DB::SQLite_File )
 	unless @AnyDBM_File::ISA == 1;
 }
-#use DB_File;
 use AnyDBM_File;
+
 use vars qw($DB_BTREE &O_CREAT &O_RDWR &O_RDONLY &R_DUP &R_CURSOR &R_NEXT);
 use Bio::DB::AnyDBMImporter qw(:bdb);
 
-use lib '../../../..';
 use File::Path 'mkpath';
 use File::Spec;
 use File::Temp 'tempfile';
@@ -274,7 +272,10 @@ sub _delete_features {
   my $removed = 0;
   my $last_id = $self->{data}->last_id;
   for my $id (@feature_ids) {
-    next unless $id >= 0 && $id < $last_id;
+#      $DB::single = 1 if !defined unpack("l",$id);
+      # a terrible kludge:
+      my $test_id = (defined unpack("l",$id) ? unpack("l",$id) : $id);
+    next unless $test_id >= 0 && $test_id < $last_id; 
     my $feat  = $self->{data}->get($id) or next;
     $self->{data}->remove($id);
     $self->_bump_class_count($feat->{gclass},-1);
@@ -916,8 +917,8 @@ sub retrieve_features {
 sub retrieve_features_range {
   my ($self) = shift;
   my ($table, $start, $do_while, $filter, $result) = rearrange(['TABLE','START','DO_WHILE', 'FILTER', 'RESULT'],@_);
-  local $^W = 0;  # because _hash_to_array will generate lots of uninit warnings
-
+#  local $^W = 0;  # because _hash_to_array will generate lots of uninit warnings
+  no warnings qw(uninitialized);
   my @result;
   $result ||= \@result;
   my ($id, $key, $value);
@@ -959,7 +960,7 @@ sub filter_features {
   my $data = $self->{data};
   $data->reset;
   while (my $feat = $data->next) {
-
+      no warnings qw(uninitialized);
     my $filter_result = $filter ? $filter->($feat) : 1;
     next unless $filter_result;
 
@@ -1073,6 +1074,7 @@ sub get {
   $offset ||= 0;
   seek($fh,$offset,SEEK_SET);
   return unless read($fh,$length,2);
+  return undef if (unpack("n",$length) == 0); #/maj
   return unless read($fh,$value,unpack("n",$length));
   $self->{next_idx} = tell($fh);
   return if substr($value,0,1) eq "\0";
@@ -1085,19 +1087,20 @@ sub next {
   my $result;
   do {
     $result = $self->get(pack("L",$self->{next_idx}));
-  } until $result || eof($fh);
-  $self->{next_idx} = 0 unless $result;
+  } until $result || (!defined $result) || eof($fh);
+  $self->{next_idx} = 0 unless $result; #/maj
   $result;
 }
 
 sub remove {
   my $self   = shift;
   my $id     = shift;
-  my $offset = unpack("L",$id);
+  my $offset = (defined unpack("L",$id) ? unpack("L",$id) : $id);
   my $fh     = $self->{fh};
   my ($value,$length);
   seek($fh,$offset,SEEK_SET);
   return unless read($fh,$length,2);
+  $length = (defined unpack("s", $length) ? unpack("s",$length) : $length); # a terrible companion kludge/maj
   print $fh "\0"x$length;  # null it out
   1;
 }
