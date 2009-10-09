@@ -262,20 +262,27 @@ sub TIEHASH {
     $self->keep($keep);
 
     # create SQL statements
-     my $hash_tbl = <<END;
-    (
-      id      blob collate NOCASE,
+     my $hash_tbl = sub {
+	 my $col = shift;
+	 $col ||= 'nocase';
+	 return <<END;
+    (	 
+      id      blob collate $col,
       obj     blob not null,
       pk      integer primary key autoincrement
     );
 END
+     };
     my $create_idx = <<END;
     CREATE INDEX IF NOT EXISTS id_idx ON hash ( id, pk );
 END
-    my $dbh = DBI->connect("dbi:SQLite:dbname=".$self->file,"","",
+    my $dbh = DBI->connect("DBI:SQLite:dbname=".$self->file,"","",
 			   {RaiseError => 1, AutoCommit => 0});
     $self->dbh( $dbh );
-#    $dbh->do("PRAGMA journal_mode = OFF");
+    # pragmata inspired by Bio::DB::SeqFeature::Store::DBI::SQLite
+    $dbh->do("PRAGMA synchronous = OFF");
+    $dbh->do("PRAGMA temp_store = MEMORY");
+    $dbh->do("PRAGMA cache_size = ".($index->{cachesize} || 20000));
     for ($index->{'type'}) {
 	my $flags = $index->{flags} || 0;
 	!defined && do {
@@ -283,20 +290,25 @@ END
 	    last;
 	};
 	$_ eq 'BINARY' && do {
+	    my $col = 'nocase';
+	    if (ref($index->{'compare'}) eq 'CODE') {
+		$self->dbh->func( 'usr', $index->{'compare'}, "create_collation");
+		$col = 'usr';
+	    }
 	    if ($flags & R_DUP ) {
 		$self->dup(1);
-		$self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
+		$self->dbh->do("CREATE TABLE IF NOT EXISTS hash ".$hash_tbl->($col));
 		$self->dbh->do($create_idx);
 	    }
 	    else {
 		$self->dup(0);
-		$self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
+		$self->dbh->do("CREATE TABLE IF NOT EXISTS hash ".$hash_tbl->($col));
 		$self->dbh->do($create_idx);
 	    }
 	    last;
 	};
 	$_ eq 'HASH' && do {
-	    $self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
+	    $self->dbh->do("CREATE TABLE IF NOT EXISTS hash ".$hash_tbl->());
 	    last;
 	};
 	$_ eq 'RECNO' && do {
@@ -679,12 +691,24 @@ sub UNSHIFT {
 }
 
 sub SPLICE {
-    my $self = shift;
-    return if !$self->dbh;
-    return if (!$self->{ref} or $self->ref ne 'ARRAY');
-    die "Won't do splice yet.";
-    ++$self->{pending};
-}
+    my $self   = shift;
+    my $offset = shift || 0;
+    my $length = shift || $self->FETCHSIZE() - $offset;
+    my @list   = @_;
+    my $SEQIDX = $self->SEQIDX;
+    $self->_wring_SEQIDX;
+    my @pk = map { $self->get_idx($_)} ($offset..$offset+$length-1);
+    my @ret;
+    for (@pk) {
+	$self->get_sth->execute($_);
+	push @ret, ${$self->get_sth->fetch}[0];
+	$self->del_sth->execute($_);
+    }
+    my @new_idx = map { $AUTOKEY++ } @list;
+    splice( @$SEQIDX, $offset, $length, @new_idx );
+    $self->put_sth->execute($_, shift @list) for @new_idx;
+    return @ret;
+}    
 
 # destructors
 

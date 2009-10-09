@@ -3,8 +3,9 @@
 
 BEGIN {
     use Bio::Root::Test;
+
     @AnyDBM_File::ISA = qw( Bio::DB::SQLite_File );
-    test_begin( -tests => 49,
+    test_begin( -tests => 54,
 		-requires_module => 'DBD::SQLite',
 		-requires_module => 'Bio::DB::AnyDBMImporter',
 		-requires_module => 'AnyDBM_File');
@@ -65,6 +66,22 @@ is($d{'2'},2,"get_dup (hash 1)");
 is($d{'3'},1,"get_dup (hash 2)");
 untie %db;
 
+# test user-supplied collation via $DB_BTREE->{'compare'}
+$DB_BTREE->{'compare'} = sub { my ($a, $b) = @_; -( $a cmp $b ) };
+ok tie( %db, 'AnyDBM_File', undef, $flags, 0666, $DB_BTREE), "tie w/reverse collation";
+$db = tied %db;
+@db{qw( a b c d e f )} = (1,2,3,4,5,6);
+my ($key, $val, @rev);
+$db->seq($key, $val, R_FIRST);
+push @rev, $val;
+while (!$db->seq($key, $val, R_NEXT)) {
+    push @rev, $val;
+}
+is_deeply(\@rev, [6,5,4,3,2,1], "reverse collation correct");
+undef $db;
+untie %db;
+
+
 ok tie( @db, 'AnyDBM_File', undef, $flags, 0666, $DB_RECNO), "tied array";
 my $aro = tied @db;
 
@@ -92,7 +109,9 @@ pop @db for (1..3);
 is ($db[-1], 'e', "pop some");
 shift @db for (1..3);
 is ($db[0], 'a', "shift some");
-
+ok( my @rem = splice(@db, 1, 2, 'x', 'y', 'z'),"splice" );
+is_deeply( \@rem, ['b','m'], "splice remove correct");
+is_deeply( \@db, ['a','x','y','z','d','e'], "splice insert correct");
 undef $aro;
 untie(@db);
 
