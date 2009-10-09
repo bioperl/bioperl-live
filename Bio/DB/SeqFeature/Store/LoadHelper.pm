@@ -1,5 +1,5 @@
 package Bio::DB::SeqFeature::Store::LoadHelper;
-
+use lib '../../../..';
 # $Id$
 
 =head1 NAME
@@ -36,11 +36,20 @@ it under the same terms as Perl itself.
 =cut
 
 use strict;
-use DB_File;
+#use DB_File;
+use vars qw($DB_TREE $DB_RECNO $DB_HASH &O_CREAT &O_RDWR
+            &R_CURSOR &R_NEXT &R_FIRST &R_DUP);
+BEGIN {
+    @AnyDBM_File::ISA = qw( DB_File Bio::DB::SQLite_File ) unless
+	@AnyDBM_File::ISA == 1;
+}
+use AnyDBM_File;
+use Bio::DB::AnyDBMImporter qw(:bdb);
+
 use File::Path 'rmtree';
 use File::Temp 'tempdir';
 use File::Spec;
-use Fcntl qw(O_CREAT O_RDWR);
+# use Fcntl qw(O_CREAT O_RDWR);
 
 sub new {
     my $class   = shift;
@@ -57,6 +66,9 @@ sub new {
 
 sub DESTROY {
     my $self = shift;
+    for ( qw( IndexIt Local2Global TopLevel Parent2Child ) ) {
+	untie %{$self->{$_}};
+    }
     rmtree $self->{tmppath};
 #    File::Temp::cleanup() unless $self->{keep};
 }
@@ -66,22 +78,22 @@ sub create_dbs {
     my $tmp  = shift;
     my %self;
 
-    my $hash_options           = DB_File::HASHINFO->new();
+    my $hash_options           = eval "$AnyDBM_File::ISA[0]\::HASHINFO->new()";
 
     # Each of these hashes allow only unique keys
     for my $dbname qw(IndexIt TopLevel Local2Global) {
 	my %h;
-	tie(%h,'DB_File',File::Spec->catfile($tmp,$dbname),
+	tie(%h,'AnyDBM_File',File::Spec->catfile($tmp,$dbname),
 	    O_CREAT|O_RDWR,0666,$hash_options);
 	$self{$dbname} = \%h;
     }
 
     # The Parent2Child hash allows duplicate keys, so we
     # create it with the R_DUP flag.
-    my $btree_options           = DB_File::BTREEINFO->new();
+    my $btree_options           = eval "$AnyDBM_File::ISA[0]\::BTREEINFO->new()";
     $btree_options->{flags}     = R_DUP;
     my %h;
-    tie(%h,'DB_File',File::Spec->catfile($tmp,'Parent2Child'),
+    tie(%h,'AnyDBM_File',File::Spec->catfile($tmp,'Parent2Child'),
 	O_CREAT|O_RDWR,0666,$btree_options);
     $self{Parent2Child} = \%h;
 
