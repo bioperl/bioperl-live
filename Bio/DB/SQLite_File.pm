@@ -135,17 +135,17 @@ our $DB_BTREE = new Bio::DB::SQLite_File::BTREEINFO;
 our $DB_RECNO = new Bio::DB::SQLite_File::RECNOINFO;
 
 # constants hacked out of DB_File:
-sub R_DUP () { 32678 }
-sub R_CURSOR () { 27 }
-sub R_FIRST () { 7 }
-sub R_LAST () { 15 }
-sub R_NEXT () { 16 }
-sub R_PREV () { 23 }
-sub R_IAFTER () { 1 }
-sub R_IBEFORE () { 3 }
-sub R_NOOVERWRITE () { 20 }
-sub R_SETCURSOR () { -100 }
-sub O_SVWST (){ O_CREAT() | O_RDWR() };
+sub R_DUP  { 32678 }
+sub R_CURSOR  { 27 }
+sub R_FIRST { 7 }
+sub R_LAST  { 15 }
+sub R_NEXT  { 16 }
+sub R_PREV  { 23 }
+sub R_IAFTER  { 1 }
+sub R_IBEFORE  { 3 }
+sub R_NOOVERWRITE  { 20 }
+sub R_SETCURSOR  { -100 }
+sub O_SVWST { O_CREAT() | O_RDWR() };
 
 # Object preamble - inherits from Bio::Root::Root
 
@@ -710,7 +710,7 @@ sub DESTROY {
     $self->_fh->close() if $self->_fh;
     unlink $self->file if (!$self->keep && $self->_fh);
     # below, reduce the severity of unlink warnings...need verbose > 0...
-    $self->warn("SQLite_File unlink issue: $!") if ($! and $self->verbose > 0);
+    $self->warn("SQLite_File unlink issue: $!") if ($! and $self->verbose and $self->verbose > 0);
     undef $self;
     1;
 }
