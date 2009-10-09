@@ -49,7 +49,7 @@ my $build = Bio::Root::Build->new(
                             # we actually need 1.01 of Class::AutoClass, but unfortunately it is versioned as 1.0
                             'Clone'                     => '0/cloning objects/Bio::Tools::Primer3',
                             'Convert::Binary::C'        => '0/strider functionality/Bio::SeqIO::strider',
-                            'DB_File'                   => '0/Berkley DB as an AnyDBM_File option/various',
+                            'DB_File'                   => '0/Berkeley DB/various',
                             # we specifically want Graph::Directed, but that has no VERSION
                             'Graph'                     => '0/ontology engine implementation for the GO parser/Bio::PhyloNetwork',
                             'GraphViz'                  => '0/Phylogenetic Network Visulization/Bio::PhyloNetwork::GraphViz',
@@ -90,7 +90,7 @@ my $build = Bio::Root::Build->new(
                             BioDBGFF              => {
                                                         description      => "BioDBGFF database tests (will need to answer questions before really enabling)",
                                                         feature_requires => { 'DBI' => 0 },
-                                                        excludes_os      => ['mswin'],
+                                                        excludes_os      => [],
                                                         test             => \&test_biodbgff # Bio::Root::Build unique requirement that after everything else succeeds, supplied code ref must also return undef
                                                      },
                             BioDBSeqFeature_mysql => {
@@ -181,7 +181,12 @@ sub make_bdb_test {
     unlink($path) if (-e $path); 
     open(my $F, ">", $path) || die "Can't create test file\n";
     print $F <<END;
-system '$^X $path0 -adaptor berkeleydb -create 1 -temp 1';
+use Bio::Root::Test;
+test_begin(-tests => 1);
+SKIP: {
+test_skip( -tests => 1, -requires_module=>'DB_File');
+is( system '$^X "$path0" -adaptor berkeleydb -create 1 -temp 1', 0);
+}
 END
     close $F;
     $build->add_to_cleanup($path);
@@ -226,8 +231,8 @@ END
 sub test_biodbgff {
     eval {require DBI;};  # if not installed, this sub won't actually be called
     @drivers = DBI->available_drivers;
-    unless (grep {/mysql|Pg|Oracle/i} @drivers) {
-        return "MySQL, Pg nor Oracle DBI drivers are installed";
+    unless (grep {/mysql|Pg|Oracle|SQLite/i} @drivers) {
+        return "MySQL, Pg, Oracle nor SQLite DBI drivers are installed";
     }
     return;
 }
@@ -247,11 +252,30 @@ sub prompt_for_biodb {
                 push(@driver_choices, $choice);
             }
         }
-        
+        ### BioDBGFF via BDB
+	my $use_bdb_for_gff = $build->y_n("Should I use Berkeley DB (via DB_File) to test Bio::DB::GFF? y/n", 'n');
+	if ($use_bdb_for_gff) {
+	    if (! eval "require DB_File; 1") {
+		if ( grep /SQLite/i, @drivers ) {
+		    $use_bdb_for_gff = $build->y_n("Berkeley DB is not available on your system, but SQLite is. Should I use SQLite emulation of BDB to test Bio::DB::GFF? y/n", 'y');
+		    $build->log_info("  - using Bio::DB::SQLite_File to test Bio::DB::GFF\n")
+		}
+		else {
+		    $use_bdb_for_gff = 0;
+		    $build->prompt("Unfortunately, neither BDB nor SQLite is available; I can't run the BDB test of Bio::DB::GFF. [hit return to continue]","");
+		    $build->log_info("  - user requested BDB test of Bio::DB::GFF, but neither DB_File nor SQLite is available\n");
+		}
+	    }
+	    else {
+		$build->log_info("  - using DB_File to test Bio::DB::GFF\n");
+	    }
+	}
+	$build->notes( 'use_bdb_for_gff' => $use_bdb_for_gff );
+
         my $driver;
         if (@driver_choices > 1) {
             my ($default) = $driver_choices[0] =~ /\[(.)/;
-            $driver = $build->prompt("Which database driver should be used? ".join(" ", @driver_choices), $default);
+            $driver = $build->prompt("Which database driver should be used for Bio::DB::SeqFeature::Store" . ($use_bdb_for_gff ? "" : " and Bio::DB::GFF") . "? ".join(" ", @driver_choices), $default);
         }
         else {
             ($driver) = $driver_choices[0] =~ /\[(.)/;
