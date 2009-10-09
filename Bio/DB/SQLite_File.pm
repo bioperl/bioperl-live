@@ -130,9 +130,9 @@ our @EXPORT = qw(
                  O_CREAT O_RDWR O_RDONLY O_SVWST
                  );
 
-our $DB_HASH = { 'type' => 'HASH' };
-our $DB_BTREE = { 'type' => 'BINARY' };
-our $DB_RECNO = { 'type' => 'RECNO' };
+our $DB_HASH = new Bio::DB::SQLite_File::HASHINFO; 
+our $DB_BTREE = new Bio::DB::SQLite_File::BTREEINFO;
+our $DB_RECNO = new Bio::DB::SQLite_File::RECNOINFO;
 
 # constants hacked out of DB_File:
 sub R_DUP () { 32678 }
@@ -145,10 +145,6 @@ sub R_IAFTER () { 1 }
 sub R_IBEFORE () { 3 }
 sub R_NOOVERWRITE () { 20 }
 sub R_SETCURSOR () { -100 }
-
-#sub O_CREAT  () { 512 };
-#sub O_RDWR () { 2 };
-#sub O_RDONLY () { 0 };
 sub O_SVWST (){ O_CREAT() | O_RDWR() };
 
 # Object preamble - inherits from Bio::Root::Root
@@ -201,7 +197,6 @@ sub SEQIDX {
 
 sub CURSOR {
     my $self = shift;
-    $self->{CURSOR} = 0 if (!defined $self->{CURSOR});
     return \$self->{CURSOR};
 }
 
@@ -210,15 +205,25 @@ sub TIEHASH {
     my ($file, $flags, $mode, $index, $keep) = @_;
     my $self = {};
     bless($self, $class);
-    $self->{ref} = 'HASH';
+    # allow $mode to be skipped
+    if (ref($mode) =~ /INFO$/) { # it's the index type
+	$index = $mode;
+	$mode = 0644;
+    }
+    #defaults
+    $mode ||= 0644;
     $index ||= $DB_HASH;
+    unless (defined $index and ref($index) =~ /INFO$/) {
+	$self->throw("Index type selector must be a HASHINFO, BTREEINFO, or RECNOINFO object");
+    }
+    
+    $self->{ref} = 'HASH';
     $self->{index} = $index;
     $self->{pending} = 0;
-    my $fh;
+    my ($infix,$fh);
     # db file handling
     if ($file) {
 	# you'll love this...
-	my $infix;
 	my $setmode;
 	for ($flags) {
 	    !defined && do {
@@ -271,39 +276,38 @@ END
 			   {RaiseError => 1, AutoCommit => 0});
     $self->dbh( $dbh );
 #    $dbh->do("PRAGMA journal_mode = OFF");
-    if (defined $index) {
+    for ($index->{'type'}) {
 	my $flags = $index->{flags} || 0;
-	for ($index->{'type'}) {
-	    !defined && do {
+	!defined && do {
+	    $self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
+	    last;
+	};
+	$_ eq 'BINARY' && do {
+	    if ($flags & R_DUP ) {
+		$self->dup(1);
 		$self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
-		last;
-	    };
-	    $_ eq 'BINARY' && do {
-		if ($flags & R_DUP ) {
-		    $self->dup(1);
-		    $self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
-		    $self->dbh->do($create_idx);
-		}
-		else {
-		    $self->dup(0);
-		    $self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
-		    $self->dbh->do($create_idx);
-		}
-	    };
-	    $_ eq 'HASH' && do {
+		$self->dbh->do($create_idx);
+	    }
+	    else {
+		$self->dup(0);
 		$self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
-		last;
-	    };
-	    $_ eq 'RECNO' && do {
-		$self->throw("$DB_RECNO is not meaningful for tied hashes");
-		last;
-	    };
-
-	}
+		$self->dbh->do($create_idx);
+	    }
+	    last;
+	};
+	$_ eq 'HASH' && do {
+	    $self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
+	    last;
+	};
+	$_ eq 'RECNO' && do {
+	    $self->throw("$DB_RECNO is not meaningful for tied hashes");
+	    last;
+	};
+	do {
+	    $self->throw("Index type not defined or not recognized");
+	};
     }
-    else {
-	$self->dbh->do("CREATE TABLE IF NOT EXISTS hash $hash_tbl");
-    }
+    $self->_index if ($infix =~ /</ and $index->{type} eq 'BINARY');
     $self->commit(1);
     return $self;
 }
@@ -314,15 +318,23 @@ sub TIEARRAY {
     my $self = {};
     bless($self, $class);
     $self->{ref} = 'ARRAY';
+    # allow $mode to be skipped
+    if (ref($mode) =~ /INFO$/) { # it's the index type
+	$index = $mode;
+	$mode = 0644;
+    }
+    $mode ||= 0644;
     $index ||= $DB_RECNO;
+    unless (defined $index and ref($index) =~ /INFO$/) {
+	$self->throw("Index type selector must be a HASHINFO, BTREEINFO, or RECNOINFO object");
+    }
     $self->throw("Arrays must be tied to type RECNO") unless 
 	$index->{type} eq 'RECNO';
     $self->{index} = $index;
     $self->{pending} = 0;
-    my $fh;
+    my ($infix,$fh);
     # db file handling
     if ($file) {
-	my $infix;
 	my $setmode;
 	for ($flags) {
 	    !defined && do {
@@ -374,35 +386,29 @@ END
     my $dbh = DBI->connect("dbi:SQLite:dbname=".$self->file,"","",
 			   {RaiseError => 1, AutoCommit => 0});
     $self->dbh( $dbh );
-    # rudimentary DB_File emulation:
-    if (defined $index) {
-	$self->throw("Index selector must be a hashref") unless ref($index) eq 'HASH';
-	for ($index->{'type'}) {
-	    $_ eq 'BINARY' && do {
-		$self->dbh->disconnect;
-		$self->throw("$DB_BTREE is not meaningful for a tied array");
-		last;
-	    };
-	    $_ eq 'HASH' && do {
-		$self->dbh->disconnect;
-		$self->throw("$DB_HASH is not meaningful for a tied array");
-		last;
-	    };
-	    $_ eq 'RECNO' && do {
-		$self->dbh->do("CREATE TABLE IF NOT EXISTS hash $arr_tbl");
-		$self->dbh->do($create_idx);
-	    };
-	    !defined && do {
-		$self->dbh->do("CREATE TABLE IF NOT EXISTS hash $arr_tbl");
-		last;
-	    };
-	}
+
+    for ($index->{'type'}) {
+	my $flags = $index->{flags} || 0;
+	$_ eq 'BINARY' && do {
+	    $self->dbh->disconnect;
+	    $self->throw("$DB_BTREE is not meaningful for a tied array");
+	    last;
+	};
+	$_ eq 'HASH' && do {
+	    $self->dbh->disconnect;
+	    $self->throw("$DB_HASH is not meaningful for a tied array");
+	    last;
+	};
+	$_ eq 'RECNO' && do {
+	    $self->dbh->do("CREATE TABLE IF NOT EXISTS hash $arr_tbl");
+	    $self->dbh->do($create_idx);
+	    last;
+	};
+	do {
+	    $self->throw("Index type not defined or not recognized");
+	};
     }
-    else {
-	$self->dbh->do("CREATE TABLE IF NOT EXISTS hash $arr_tbl");
-	$self->dbh->do($create_idx);
-    }
-    $self->commit;
+    $self->commit(1);
     $self->{len} = 0;
     return $self;
 }
@@ -1286,6 +1292,34 @@ sub _index_is_stale {
     return $self->{_stale};
 }
 
+
+
+=head2 _index()
+
+ Title   : _index
+ Usage   : 
+ Function: initial the internal index array (maps sequential 
+           coordinates to db primary key integers)
+ Returns : 1 on success
+ Args    : none
+
+=cut
+
+sub _index {
+    my $self = shift;
+    $self->throw("_index not meaningful for index type '".$self->index->{type}."'") unless $self->index->{type} eq 'BINARY';
+    my ($q, @order);
+    $q = $self->dbh->selectall_arrayref("SELECT pk, id FROM hash ORDER BY id");
+    unless ($q) {
+	return 0;
+    }
+    @order = map { $$_[0] } @$q;
+    $self->{SEQIDX} = \@order;
+    ${$self->CURSOR} = 0;
+    $self->{_stale} = 0;
+    return 1;
+}
+
 =head2 _reindex()
 
  Title   : _reindex
@@ -1299,6 +1333,7 @@ sub _index_is_stale {
 
 sub _reindex {
     my $self = shift;
+    $self->throw("_reindex not meaningful for index type '".$self->index->{type}."'") unless $self->index->{type} eq 'BINARY';
     my ($q, @order);
     my $SEQIDX = $self->SEQIDX;
     my $CURSOR = $self->CURSOR;
@@ -1308,7 +1343,12 @@ sub _reindex {
 	return 0;
     }
     @order = map { $$_[0] } @$q;
-    $$CURSOR = _find_idx($$SEQIDX[$$CURSOR],\@order);
+    if (defined $$CURSOR) {
+	$$CURSOR = _find_idx($$SEQIDX[$$CURSOR],\@order);
+    }
+    else {
+	$$CURSOR = 0;
+    }
     $self->{SEQIDX} = \@order;
     $self->{_stale} = 0;
     return 1;
@@ -1352,6 +1392,7 @@ sub _wring_SEQIDX {
     my $self = shift;
     my $SEQIDX = $self->SEQIDX;
     my $CURSOR = $self->CURSOR;
+    $$CURSOR = 0 unless defined $$CURSOR;
     my ($i, $j, @a);
     $j = 0;
     for $i (0..$#$SEQIDX) {
