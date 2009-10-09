@@ -307,7 +307,7 @@ END
 	    $self->throw("Index type not defined or not recognized");
 	};
     }
-    $self->_index if ($infix =~ /</ and $index->{type} eq 'BINARY');
+    $self->_index if ($infix and $infix =~ /</ and $index->{type} eq 'BINARY');
     $self->commit(1);
     return $self;
 }
@@ -1149,7 +1149,7 @@ sub del {
 	my $pk = $$SEQIDX[$$CURSOR];
 #	my $col = ($self->ref eq 'ARRAY' ? 'id' : 'pk');
 #	$status = $self->dbh->do("DELETE FROM hash WHERE $col = $pk");
-	$self->del_seq_sth->execute($pk);
+	$status = $self->del_seq_sth->execute($pk);
 	if ($status) { # successful delete
 	    $$SEQIDX[$$CURSOR] = undef;
 	    $self->_wring_SEQIDX;
