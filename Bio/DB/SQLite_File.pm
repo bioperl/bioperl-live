@@ -14,7 +14,7 @@
 
 =head1 NAME
 
-Bio::DB::SQLite_File - A minimal DBM using SQLite
+Bio::DB::SQLite_File - A DB_File-like DBM using SQLite
 
 =head1 SYNOPSIS
 
@@ -34,7 +34,6 @@ Bio::DB::SQLite_File - A minimal DBM using SQLite
  $SQLite_handle = (tied %db)->dbh;
  $db_file = (tied %db)->file;
 
-=head2 SQL interface 
  # use as an option in AnyDBM_File
  @AnyDBM_File::ISA = qw( DB_File Bio::DB::SQLite_File SDBM );
  my %db;
@@ -43,14 +42,92 @@ Bio::DB::SQLite_File - A minimal DBM using SQLite
 =head1 DESCRIPTION
 
 This module allows a hash or an array to be tied to a SQLite DB via
-L<DBI> plus L<DBD::SQLite>, in a way that emulates some features of
-DB_File. The class is suitable for L<Bio::DB::FileCache>, for which it
-was written. In particular, this module offers another choice for
-ActiveState users, who may find it difficult to get a working
-L<DB_File> (based on Berkeley DB) installed, but can't failover to
-SDBM due to its record length restrictions. Bio::DB::SQLite_File
-requires L<DBD::SQLite>, which has SQLite built-in -- no external
-application install required.
+L<DBI> plus L<DBD::SQLite>, in a way that emulates many features of
+Berkeley-DB-based DB_File. The class is suitable for replacing
+L<DB_File> for many of its indexing uses in BioPerl, including
+L<Bio::DB::FileCache>, L<Bio::DB::GFF>, L<Bio::Index::Abstract>, which
+is its orginal purpose.  In particular, this module offers another
+choice for ActiveState users, who may find it difficult to get a
+working L<DB_File> installed, but can't failover to SDBM due to its
+record length restrictions. Bio::DB::SQLite_File requires
+L<DBD::SQLite>, which has SQLite built-in -- no external application
+install required.
+
+=head2 DB_File Emulation
+
+The intention was to create a DBM that could almost completely substitute for 
+C<DB_File>, so that C<DB_File> could be replaced everywhere in the code by
+C<AnyDBM_File>, and things would just work. Currently, it is slightly more 
+complicated than that, but not too much more. 
+
+Versions of C<$DB_HASH>, C<$DB_BTREE>, and C<$DB_RECNO>, as well as
+the necessary flags (C<R_DUP>, C<R_FIRST>, C<R_NEXT>, etc.) are
+imported by using the L<Bio::DB::AnyDBMImporter> module. The desired
+constants need to be declared global in the calling program, as well
+as imported, to avoid compilation errors (at this point). See
+L<Converting from DB_File> below.
+
+Arguments to the C<tie> function mirror those of C<DB_File>, and all should 
+work the same way. See L<Converting from DB_File>.
+
+All of C<DB_File>'s random and sequential access functions work:
+
+ get()
+ put()
+ del()
+ seq()
+
+as well as the duplicate key handlers
+
+ get_dup()
+ del_dup()
+ find_dup()
+
+C<seq()> works by finding partial matches, like C<DB_File::seq()>.
+The extra array functions ( C<shift()>, C<pop()>, etc. ) are not yet
+implemented as method calls, though all these functions (including
+C<splice> are available on the tied arrays.
+
+Some C<HASHINFO> fields are functional:
+
+ $DB_BTREE->{'compare'} = sub { - shift cmp shift };
+
+will provide sequential access in reverse lexographic order, for example. 
+
+ $DB_HASH->{'cachesize'} = 20000;
+
+will enforce C<PRAGMA cache_size = 20000>.
+
+=head2 Converting from DB_File
+
+To failover to C<Bio::DB::SQLite_File> from C<DB_File>, go from this:
+
+ use DB_File;
+ # ...
+ $DB_BTREE->{cachesize} = 100000;
+ $DB_BTREE->{flags} = R_DUP;
+ my %db;
+ my $obj = tie( %db, 'DB_File', 'my.db', $flags, 0666, $DB_BTREE);
+
+to this:
+  
+  use vars qw( $DB_HASH &R_DUP );
+  BEGIN {
+    @AnyDBM_File::ISA = qw( DB_File Bio::DB::SQLite_File )
+      unless @AnyDBM_File::ISA == 1; # 
+  }
+  use AnyDBM_File;
+  use Bio::DB::AnyDBMImporter qw(:bdb);
+  # ...
+
+  $DB_BTREE->{cachesize} = 100000;
+  $DB_BTREE->{flags} = R_DUP;
+  my %db;
+  my $obj = tie( %db, 'AnyDBM_File', 'my.db', $flags, 0666, $DB_BTREE);
+
+=head1 SEE ALSO
+
+L<Bio::DB::AnyDBMImporter>, L<DBD::SQLite>, L<DB_File>, L<AnyDBM_File>
 
 =head1 FEEDBACK
 
@@ -120,8 +197,6 @@ BEGIN {
     use Fcntl qw(O_CREAT O_RDWR O_RDONLY);
 }
 
-
-
 our @EXPORT = qw( 
                  $DB_HASH $DB_BTREE $DB_RECNO 
                  R_DUP R_CURSOR R_FIRST R_LAST 
@@ -187,7 +262,7 @@ our %STMT = (
     }
     );
 
-	
+# our own private index
 
 sub SEQIDX {
     my $self = shift;
@@ -425,9 +500,7 @@ END
     return $self;
 }
 
-
-
-# common methods
+# common methods for hashes and arrays
 
 sub FETCH {
     my $self = shift;
@@ -739,127 +812,6 @@ sub DESTROY {
     1;
 }
 
-
-=head2 SQL interface : internal
-
-=head2 dbh
-
- Title   : dbh
- Usage   : $obj->dbh($newval)
- Function: database handle
- Example : 
- Returns : value of dbh (a scalar)
- Args    : on set, new value (a scalar or undef, optional)
-
-=cut
-
-sub dbh {
-    my $self = shift;
-    
-    return $self->{'dbh'} = shift if @_;
-    return $self->{'dbh'};
-}
-
-
-
-=head2 sth()
-
- Title   : sth
- Usage   : $obj->sth($stmt_descriptor)
- Function: statement handle generator
- Returns : a prepared DBI statement handle
- Args    : scalar string (statement descriptor)
- Note    : calls such as $obj->put_sth are autoloaded through
-           this method
-=cut
-
-sub sth {
-    my $self = shift;
-    my $desc = shift;
-    $self->throw("No active database handle") unless $self->dbh;
-    my $tbl = $STMT{$self->ref};
-    unless ($tbl) {
-	$self->throw("Tied type '".$self->ref."' not recognized");
-    }
-    if (!$self->{"${desc}_sth"}) {
-	$self->throw("Statement descriptor '$desc' not recognized for type ".$self->ref) unless grep(/^$desc$/,keys %$tbl);
-	$self->{"${desc}_sth"} = $self->dbh->prepare($tbl->{$desc});
-    }
-    return $self->{"${desc}_sth"};
-}
-
-# autoload statement handle getters
-
-sub AUTOLOAD {
-    my $self = shift;
-    my @pth = split(/::/, $AUTOLOAD); 
-    my $desc = $pth[-1];
-    unless ($desc =~ /^(.*?)_sth$/) {
-	$self->throw("Subroutine '$AUTOLOAD' is undefined in ".__PACKAGE__);
-    }
-    $desc = $1;
-    unless (grep /^$desc$/, keys %{$STMT{$self->ref}}) {
-	$self->throw("Statement accessor ${desc}_sth not defined for type ".$self->ref);
-    }
-    $self->sth($desc);
-}
-=head2 commit()
-
- Title   : commit
- Usage   : 
- Function: commit transactions
- Returns : 
- Args    : commit(1) forces, commit() commits when
-           number of pending transactions > $MAXPEND
-
-=cut
-
-sub commit {
-
-    my $self = shift;
-    if (@_ or ($self->{pending} > $Bio::DB::SQLite_File::MAXPEND)) {
-	$self->warn("commit failed") unless $self->dbh->commit();
-	$self->{pending} = 0;
-    }
-    return 1;
-}
-
-
-
-=head2 pending()
-
- Title   : pending
- Usage   : $obj->pending
- Function: count of pending (uncommitted) transactions
- Returns : scalar int
- Args    : none (rdonly)
-
-=cut
-
-sub pending {
-    shift->{pending};
-}
-
-=head2 trace()
-
- Title   : trace
- Usage   : 
- Function: invoke the DBI trace logging service
- Returns : 
- Args    : scalar int trace level
-
-=cut
-
-sub trace {
-    my $self = shift;
-    my $level = shift;
-    return unless $self->dbh;
-    $level ||= 3;
-    $self->dbh->{TraceLevel} = $level;
-    $self->dbh->trace;
-    return $level;
-}
-
 =head2 Attribute accessors
 
 =head2 file
@@ -916,7 +868,17 @@ sub keep {
     return $self->{'keep'};
 }
 
-# HASH or ARRAY?
+=head2 ref()
+
+ Title   : ref
+ Usage   : $obj->ref
+ Function: HASH or ARRAY? Find out.
+ Returns : scalar string : 'HASH' or 'ARRAY'
+ Args    : none
+
+=cut
+
+
 sub ref {
     my $self = shift;
     return $self->{ref};
@@ -959,46 +921,6 @@ sub _keys {
 	my $a = keys %{$self->{'_keys'}}; #reset each
     }
     return each %{$self->{'_keys'}};
-}
-
-=head2 Array object helper functions : internal
-
-=cut
-
-sub len {
-    scalar @{shift->SEQIDX};
-}
-
-sub get_idx {
-    my $self = shift;
-    my $index = shift;
-    my $SEQIDX = $self->SEQIDX;
-    return $$SEQIDX[$index] if defined $$SEQIDX[$index];
-    push @$SEQIDX, $AUTOKEY;
-    $$SEQIDX[$index] = $AUTOKEY++;
-}
-
-sub shift_idx {
-    my $self = shift;
-    return shift( @{$self->SEQIDX} );
-}
-
-# returns the set of new db ids to use
-sub unshift_idx {
-    my $self = shift;
-    my $n = shift;
-    my @new;
-    push(@new, $AUTOKEY++) for (0..$n-1);
-    unshift @{$self->SEQIDX}, @new;
-    return @new;
-}
-
-sub rm_idx {
-    my $self = shift;
-    my $index = shift;
-    unless (delete ${$self->SEQIDX}[$index]) {
-	$self->warn("Element $index did not exist");
-    }
 }
 
 =head2 BDB API Emulation: random access
@@ -1171,8 +1093,6 @@ sub del {
     if ($flags eq R_CURSOR) {
 	_wring_SEQIDX($self->SEQIDX) unless $$SEQIDX[$$CURSOR];
 	my $pk = $$SEQIDX[$$CURSOR];
-#	my $col = ($self->ref eq 'ARRAY' ? 'id' : 'pk');
-#	$status = $self->dbh->do("DELETE FROM hash WHERE $col = $pk");
 	$status = $self->del_seq_sth->execute($pk);
 	if ($status) { # successful delete
 	    $$SEQIDX[$$CURSOR] = undef;
@@ -1209,8 +1129,6 @@ sub seq {
     return 1 unless $flags;
     $self->commit;
     my $status;
-    # to modify $key, set $_[0]
-    # to modify $value, set $_[1]
     $self->_reindex if ($self->index->{type} eq 'BINARY' and $self->_index_is_stale);
     my $SEQIDX = $self->SEQIDX;
     my $CURSOR = $self->CURSOR;
@@ -1263,209 +1181,6 @@ sub seq {
 =cut
 
 sub sync { !shift->commit };
-
-=head2 BDB API Emulation : internals
-
-=head2 partial_match()
-
- Title   : partial_match
- Usage   : 
- Function: emulate the partial matching of DB_File::seq() with
-           R_CURSOR flag
- Returns : 
- Args    : $key
-
-=cut
-
-sub partial_match {
-    my $self = shift;
-    my ($key, $value) = @_;
-    my ($status,$ret, $pk);
-    unless ($self->ref ne 'ARRAY') {
-	$self->throw("Partial matches not meaningful for arrays");
-    }
-    my $SEQIDX = $self->SEQIDX;
-    my $CURSOR = $self->CURSOR;
-    $status = !$self->part_seq_sth->execute( $key );
-    if (!$status) { # success
-	if ($ret = $self->{part_seq_sth}->fetch) {
-	    $_[0] = $ret->[0]; $_[1] = $ret->[1];
-	    $pk = $ret->[2];
- 	    unless (defined($$CURSOR = _find_idx($pk,$SEQIDX))) {
-		$self->throw("Primary key value disappeared!");
-	    }
-	    return 0;
-	}
-    }
-    return 1;
-}
-
-=head2 _index_is_stale()
-
- Title   : _index_is_stale
- Usage   : 
- Function: predicate indicating whether a _reindex has been
-           performed since adding or updating the db
- Returns : 
- Args    : none
-
-=cut
-
-sub _index_is_stale {
-    my $self = shift;
-    return $self->{_stale};
-}
-
-
-
-=head2 _index()
-
- Title   : _index
- Usage   : 
- Function: initial the internal index array (maps sequential 
-           coordinates to db primary key integers)
- Returns : 1 on success
- Args    : none
-
-=cut
-
-sub _index {
-    my $self = shift;
-    $self->throw("_index not meaningful for index type '".$self->index->{type}."'") unless $self->index->{type} eq 'BINARY';
-    my ($q, @order);
-    $q = $self->dbh->selectall_arrayref("SELECT pk, id FROM hash ORDER BY id");
-    unless ($q) {
-	return 0;
-    }
-    @order = map { $$_[0] } @$q;
-    $self->{SEQIDX} = \@order;
-    ${$self->CURSOR} = 0;
-    $self->{_stale} = 0;
-    return 1;
-}
-
-=head2 _reindex()
-
- Title   : _reindex
- Usage   : 
- Function: reorder SEQIDX to reflect BTREE ordering,
-           preserving cursor
- Returns : true on success
- Args    : none
-
-=cut
-
-sub _reindex {
-    my $self = shift;
-    $self->throw("_reindex not meaningful for index type '".$self->index->{type}."'") unless $self->index->{type} eq 'BINARY';
-    my ($q, @order);
-    my $SEQIDX = $self->SEQIDX;
-    my $CURSOR = $self->CURSOR;
-    $self->_wring_SEQIDX;
-    $q = $self->dbh->selectall_arrayref("SELECT pk, id FROM hash ORDER BY id");
-    unless ($q) {
-	return 0;
-    }
-    @order = map { $$_[0] } @$q;
-    if (defined $$CURSOR) {
-	$$CURSOR = _find_idx($$SEQIDX[$$CURSOR],\@order);
-    }
-    else {
-	$$CURSOR = 0;
-    }
-    $self->{SEQIDX} = \@order;
-    $self->{_stale} = 0;
-    return 1;
-}
-
-=head2 _find_idx()
-
- Title   : _find_idx
- Usage   : 
- Function: search of array for index corresponding
-           to a given value
- Returns : scalar int (target array index)
- Args    : scalar int (target value), array ref (index array)
-
-=cut
-
-
-sub _find_idx {
-    my ($pk, $seqidx) = @_;
-    my $i;
-    for (0..$#$seqidx) {
-	$i = $_;
-	next unless defined $$seqidx[$_];
-	last if $pk == $$seqidx[$_];
-    }
-    return (defined $$seqidx[$i] and $pk == $$seqidx[$i] ? $i : undef);
-}
-
-=head2 _wring_SEQIDX()
-
- Title   : _wring_SEQIDX
- Usage   : 
- Function: remove undef'ed values from SEQIDX,
-           preserving cursor
- Returns : 
- Args    : none
-
-=cut
-
-sub _wring_SEQIDX {
-    my $self = shift;
-    my $SEQIDX = $self->SEQIDX;
-    my $CURSOR = $self->CURSOR;
-    $$CURSOR = 0 unless defined $$CURSOR;
-    my ($i, $j, @a);
-    $j = 0;
-    for $i (0..$#$SEQIDX) {
-	if (defined $$SEQIDX[$i]) {
-	    $$CURSOR = $j if $$CURSOR == $i;
-	    $a[$j++] = $$SEQIDX[$i];
-	}
-	else {
-	    $$CURSOR = $i+1 if $$CURSOR == $i;
-	}
-    }
-    @$SEQIDX = @a;
-    return;
-}
-    
-
-=head2 _get_pk()
-
- Title   : _get_pk
- Usage   : 
- Function: provide an unused primary key integer for seq access
- Returns : scalar int
- Args    : none
-
-=cut
-
-sub _get_pk {
-    my $self = shift;
-    # do the primary key auditing for the cursor functions...
-    return ++$AUTOPK;
-}
-
-=head2 _last_pk
-
- Title   : _last_pk
- Usage   : $obj->_last_pk($newval)
- Function: the primary key integer returned on the last FETCH
- Example : 
- Returns : value of _last_pk (a scalar)
- Args    : on set, new value (a scalar or undef, optional)
-
-=cut
-
-sub _last_pk {
-    my $self = shift;
-    
-    return $self->{'_last_pk'} = shift if @_;
-    return $self->{'_last_pk'};
-}
 
 =head2 BDB API Emulation: dup
 
@@ -1564,7 +1279,6 @@ sub del_dup {
 	$self->warn("DB not created in dup context; ignoring");
 	return;
     }
-#    my $sth = $self->dbh->prepare("SELECT pk FROM hash WHERE id = '$key' AND obj = ?");
     $self->sel_dup_sth->bind_param(1, $key);
     $self->sel_dup_sth->bind_param(2, $value, SQL_BLOB);
     $self->sel_dup_sth->execute;
@@ -1572,8 +1286,6 @@ sub del_dup {
     unless ($ret) {
 	return 1;
     }
-#    $sth = $self->dbh->prepare("DELETE FROM hash WHERE id = '$key' and obj = ?");
-    
     $self->del_dup_sth->bind_param(1, $key);
     $self->del_dup_sth->bind_param(2, $value, SQL_BLOB);
     if ($self->del_dup_sth->execute) {
@@ -1587,6 +1299,366 @@ sub del_dup {
     }
     else {
 	return 1; # fail
+    }
+}
+
+=head2 BDB API Emulation : internals
+
+=head2 partial_match()
+
+ Title   : partial_match
+ Usage   : 
+ Function: emulate the partial matching of DB_File::seq() with
+           R_CURSOR flag
+ Returns : 
+ Args    : $key
+
+=cut
+
+sub partial_match {
+    my $self = shift;
+    my ($key, $value) = @_;
+    my ($status,$ret, $pk);
+    unless ($self->ref ne 'ARRAY') {
+	$self->throw("Partial matches not meaningful for arrays");
+    }
+    my $SEQIDX = $self->SEQIDX;
+    my $CURSOR = $self->CURSOR;
+    $status = !$self->part_seq_sth->execute( $key );
+    if (!$status) { # success
+	if ($ret = $self->{part_seq_sth}->fetch) {
+	    $_[0] = $ret->[0]; $_[1] = $ret->[1];
+	    $pk = $ret->[2];
+ 	    unless (defined($$CURSOR = _find_idx($pk,$SEQIDX))) {
+		$self->throw("Primary key value disappeared!");
+	    }
+	    return 0;
+	}
+    }
+    return 1;
+}
+
+=head2 SQL interface : internal
+
+=head2 dbh
+
+ Title   : dbh
+ Usage   : $obj->dbh($newval)
+ Function: database handle
+ Example : 
+ Returns : value of dbh (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+=cut
+
+sub dbh {
+    my $self = shift;
+    
+    return $self->{'dbh'} = shift if @_;
+    return $self->{'dbh'};
+}
+
+
+
+=head2 sth()
+
+ Title   : sth
+ Usage   : $obj->sth($stmt_descriptor)
+ Function: statement handle generator
+ Returns : a prepared DBI statement handle
+ Args    : scalar string (statement descriptor)
+ Note    : calls such as $obj->put_sth are autoloaded through
+           this method
+=cut
+
+sub sth {
+    my $self = shift;
+    my $desc = shift;
+    $self->throw("No active database handle") unless $self->dbh;
+    my $tbl = $STMT{$self->ref};
+    unless ($tbl) {
+	$self->throw("Tied type '".$self->ref."' not recognized");
+    }
+    if (!$self->{"${desc}_sth"}) {
+	$self->throw("Statement descriptor '$desc' not recognized for type ".$self->ref) unless grep(/^$desc$/,keys %$tbl);
+	$self->{"${desc}_sth"} = $self->dbh->prepare($tbl->{$desc});
+    }
+    return $self->{"${desc}_sth"};
+}
+
+# autoload statement handle getters
+
+sub AUTOLOAD {
+    my $self = shift;
+    my @pth = split(/::/, $AUTOLOAD); 
+    my $desc = $pth[-1];
+    unless ($desc =~ /^(.*?)_sth$/) {
+	$self->throw("Subroutine '$AUTOLOAD' is undefined in ".__PACKAGE__);
+    }
+    $desc = $1;
+    unless (grep /^$desc$/, keys %{$STMT{$self->ref}}) {
+	$self->throw("Statement accessor ${desc}_sth not defined for type ".$self->ref);
+    }
+    $self->sth($desc);
+}
+
+=head2 commit()
+
+ Title   : commit
+ Usage   : 
+ Function: commit transactions
+ Returns : 
+ Args    : commit(1) forces, commit() commits when
+           number of pending transactions > $MAXPEND
+
+=cut
+
+sub commit {
+
+    my $self = shift;
+    if (@_ or ($self->{pending} > $Bio::DB::SQLite_File::MAXPEND)) {
+	$self->warn("commit failed") unless $self->dbh->commit();
+	$self->{pending} = 0;
+    }
+    return 1;
+}
+
+=head2 pending()
+
+ Title   : pending
+ Usage   : $obj->pending
+ Function: count of pending (uncommitted) transactions
+ Returns : scalar int
+ Args    : none (rdonly)
+
+=cut
+
+sub pending {
+    shift->{pending};
+}
+
+=head2 trace()
+
+ Title   : trace
+ Usage   : 
+ Function: invoke the DBI trace logging service
+ Returns : 
+ Args    : scalar int trace level
+
+=cut
+
+sub trace {
+    my $self = shift;
+    my $level = shift;
+    return unless $self->dbh;
+    $level ||= 3;
+    $self->dbh->{TraceLevel} = $level;
+    $self->dbh->trace;
+    return $level;
+}
+
+=head2 Private index methods : Internal
+
+=head2 _index_is_stale()
+
+ Title   : _index_is_stale
+ Usage   : 
+ Function: predicate indicating whether a _reindex has been
+           performed since adding or updating the db
+ Returns : 
+ Args    : none
+
+=cut
+
+sub _index_is_stale {
+    my $self = shift;
+    return $self->{_stale};
+}
+
+=head2 _index()
+
+ Title   : _index
+ Usage   : 
+ Function: initial the internal index array (maps sequential 
+           coordinates to db primary key integers)
+ Returns : 1 on success
+ Args    : none
+
+=cut
+
+sub _index {
+    my $self = shift;
+    $self->throw("_index not meaningful for index type '".$self->index->{type}."'") unless $self->index->{type} eq 'BINARY';
+    my ($q, @order);
+    $q = $self->dbh->selectall_arrayref("SELECT pk, id FROM hash ORDER BY id");
+    unless ($q) {
+	return 0;
+    }
+    @order = map { $$_[0] } @$q;
+    $self->{SEQIDX} = \@order;
+    ${$self->CURSOR} = 0;
+    $self->{_stale} = 0;
+    return 1;
+}
+
+=head2 _reindex()
+
+ Title   : _reindex
+ Usage   : 
+ Function: reorder SEQIDX to reflect BTREE ordering,
+           preserving cursor
+ Returns : true on success
+ Args    : none
+
+=cut
+
+sub _reindex {
+    my $self = shift;
+    $self->throw("_reindex not meaningful for index type '".$self->index->{type}."'") unless $self->index->{type} eq 'BINARY';
+    my ($q, @order);
+    my $SEQIDX = $self->SEQIDX;
+    my $CURSOR = $self->CURSOR;
+    $self->_wring_SEQIDX;
+    $q = $self->dbh->selectall_arrayref("SELECT pk, id FROM hash ORDER BY id");
+    unless ($q) {
+	return 0;
+    }
+    @order = map { $$_[0] } @$q;
+    if (defined $$CURSOR) {
+	$$CURSOR = _find_idx($$SEQIDX[$$CURSOR],\@order);
+    }
+    else {
+	$$CURSOR = 0;
+    }
+    $self->{SEQIDX} = \@order;
+    $self->{_stale} = 0;
+    return 1;
+}
+
+=head2 _find_idx()
+
+ Title   : _find_idx
+ Usage   : 
+ Function: search of array for index corresponding
+           to a given value
+ Returns : scalar int (target array index)
+ Args    : scalar int (target value), array ref (index array)
+
+=cut
+
+sub _find_idx {
+    my ($pk, $seqidx) = @_;
+    my $i;
+    for (0..$#$seqidx) {
+	$i = $_;
+	next unless defined $$seqidx[$_];
+	last if $pk == $$seqidx[$_];
+    }
+    return (defined $$seqidx[$i] and $pk == $$seqidx[$i] ? $i : undef);
+}
+
+=head2 _wring_SEQIDX()
+
+ Title   : _wring_SEQIDX
+ Usage   : 
+ Function: remove undef'ed values from SEQIDX,
+           preserving cursor
+ Returns : 
+ Args    : none
+
+=cut
+
+sub _wring_SEQIDX {
+    my $self = shift;
+    my $SEQIDX = $self->SEQIDX;
+    my $CURSOR = $self->CURSOR;
+    $$CURSOR = 0 unless defined $$CURSOR;
+    my ($i, $j, @a);
+    $j = 0;
+    for $i (0..$#$SEQIDX) {
+	if (defined $$SEQIDX[$i]) {
+	    $$CURSOR = $j if $$CURSOR == $i;
+	    $a[$j++] = $$SEQIDX[$i];
+	}
+	else {
+	    $$CURSOR = $i+1 if $$CURSOR == $i;
+	}
+    }
+    @$SEQIDX = @a;
+    return;
+}
+
+=head2 _get_pk()
+
+ Title   : _get_pk
+ Usage   : 
+ Function: provide an unused primary key integer for seq access
+ Returns : scalar int
+ Args    : none
+
+=cut
+
+sub _get_pk {
+    my $self = shift;
+    # do the primary key auditing for the cursor functions...
+    return ++$AUTOPK;
+}
+
+=head2 _last_pk
+
+ Title   : _last_pk
+ Usage   : $obj->_last_pk($newval)
+ Function: the primary key integer returned on the last FETCH
+ Example : 
+ Returns : value of _last_pk (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+=cut
+
+sub _last_pk {
+    my $self = shift;
+    
+    return $self->{'_last_pk'} = shift if @_;
+    return $self->{'_last_pk'};
+}
+
+=head2 Array object helper functions : internal
+
+=cut
+
+sub len {
+    scalar @{shift->SEQIDX};
+}
+
+sub get_idx {
+    my $self = shift;
+    my $index = shift;
+    my $SEQIDX = $self->SEQIDX;
+    return $$SEQIDX[$index] if defined $$SEQIDX[$index];
+    push @$SEQIDX, $AUTOKEY;
+    $$SEQIDX[$index] = $AUTOKEY++;
+}
+
+sub shift_idx {
+    my $self = shift;
+    return shift( @{$self->SEQIDX} );
+}
+
+# returns the set of new db ids to use
+sub unshift_idx {
+    my $self = shift;
+    my $n = shift;
+    my @new;
+    push(@new, $AUTOKEY++) for (0..$n-1);
+    unshift @{$self->SEQIDX}, @new;
+    return @new;
+}
+
+sub rm_idx {
+    my $self = shift;
+    my $index = shift;
+    unless (delete ${$self->SEQIDX}[$index]) {
+	$self->warn("Element $index did not exist");
     }
 }
 
