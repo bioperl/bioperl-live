@@ -867,7 +867,7 @@ From "http://www.ebi.ac.uk/help/formats.html".
 sub _possibly_raw
 {
     my ($line, $lineno) = (shift, shift);
-    return ($line =~ /^(?:[sA-IK-NP-Z]+|[sa-ik-np-z]+)$/);
+    return ($line =~ /^(?:[\sA-IK-NP-Z]+|[\sa-ik-np-z]+)$/);
 }
 
 =head2 _possibly_rsf
