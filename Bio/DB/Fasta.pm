@@ -403,7 +403,7 @@ disclaimers of warranty.
 package Bio::DB::Fasta;
 
 BEGIN {
-  @AnyDBM_File::ISA = qw(DB_File Bio::DB::SQLite_File GDBM_File NDBM_File SDBM_File) 
+  @AnyDBM_File::ISA = qw(DB_File SQLite_File GDBM_File NDBM_File SDBM_File) 
       unless @AnyDBM_File::ISA == 1;
 }
 
@@ -412,7 +412,7 @@ use IO::File;
 use lib '../..';
 use AnyDBM_File;
 use vars qw($DB_BTREE $DB_HASH $DB_RECNO &R_DUP &O_CREAT &O_RDWR &O_RDONLY);
-use Bio::DB::AnyDBMImporter qw(:bdb);
+use AnyDBM_File::Importer qw(:bdb);
 use Fcntl;
 use File::Basename qw(basename dirname);
 

@@ -123,13 +123,13 @@ it under the same terms as Perl itself.
 use strict;
 use warnings;
 BEGIN {
-    @AnyDBM_File::ISA = qw( DB_File Bio::DB::SQLite_File )
+    @AnyDBM_File::ISA = qw( DB_File SQLite_File )
 	unless @AnyDBM_File::ISA == 1;
 }
 use AnyDBM_File;
 
 use vars qw($DB_BTREE &O_CREAT &O_RDWR &O_RDONLY &R_DUP &R_CURSOR &R_NEXT);
-use Bio::DB::AnyDBMImporter qw(:bdb);
+use AnyDBM_File::Importer qw(:bdb);
 
 use File::Path 'mkpath';
 use File::Spec;

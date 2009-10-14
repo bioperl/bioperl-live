@@ -91,10 +91,10 @@ use Bio::Taxon;
 BEGIN {
     use lib '../../..';
     use vars qw($DB_BTREE $DB_HASH $DB_RECNO &R_DUP);
-    @AnyDBM_File::ISA = qw( DB_File Bio::DB::SQLite_File ) unless @AnyDBM_File::ISA == 1;
+    @AnyDBM_File::ISA = qw( DB_File SQLite_File ) unless @AnyDBM_File::ISA == 1;
 }
 use AnyDBM_File;
-use Bio::DB::AnyDBMImporter qw(:bdb);
+use AnyDBM_File::Importer qw(:bdb);
 use Fcntl qw(O_CREAT O_RDWR);
 
 

@@ -120,10 +120,10 @@ use Bio::Map::Relative;
 BEGIN {
     use lib '../../..';
     use vars qw( $DB_BTREE $DB_HASH $DB_RECNO &R_DUP &R_NEXT &O_CREAT &O_RDWR );
-    @AnyDBM_File::ISA = qw(DB_File Bio::DB::SQLite_File) unless @AnyDBM_File::ISA == 1;
+    @AnyDBM_File::ISA = qw(DB_File SQLite_File) unless @AnyDBM_File::ISA == 1;
 }
 use AnyDBM_File;
-use Bio::DB::AnyDBMImporter qw(:bdb);
+use AnyDBM_File::Importer qw(:bdb);
 
 
 use constant SEPARATOR => ':!:';

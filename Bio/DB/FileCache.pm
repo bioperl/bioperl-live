@@ -74,13 +74,13 @@ methods. Internal methods are usually preceded with a _
 package Bio::DB::FileCache;
 
 BEGIN {
-    @AnyDBM_File::ISA = qw(DB_File Bio::DB::SQLite_File)
+    @AnyDBM_File::ISA = qw(DB_File SQLite_File)
 	unless @AnyDBM_File::ISA == 1;
 }
 
 use vars qw( $DB_BTREE );
 use AnyDBM_File;
-use Bio::DB::AnyDBMImporter qw(:db);
+use AnyDBM_File::Importer qw(:db);
 use Storable qw(freeze thaw);
 use Fcntl qw(O_CREAT O_RDWR O_RDONLY);
 use File::Temp 'tmpnam';

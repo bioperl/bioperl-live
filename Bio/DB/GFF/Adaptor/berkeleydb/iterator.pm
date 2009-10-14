@@ -40,13 +40,13 @@ use strict;
 
 BEGIN {
 use lib '../../../../..';
-@AnyDBM_File::ISA = qw(DB_File Bio::DB::SQLite_File) unless
+@AnyDBM_File::ISA = qw(DB_File SQLite_File) unless
  @AnyDBM_File::ISA == 1;
 }
 
 use AnyDBM_File;
 use vars qw( $DB_BTREE $DB_HASH $DB_RECNO &R_DUP &R_FIRST &R_NEXT);
-use Bio::DB::AnyDBMImporter qw(:bdb);
+use AnyDBM_File::Importer qw(:bdb);
 
 
 # this module needs to be cleaned up and documented

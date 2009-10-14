@@ -384,7 +384,7 @@ it under the same terms as Perl itself.
 package Bio::DB::Qual;
 
 BEGIN {
-  @AnyDBM_File::ISA = qw(DB_File Bio::DB::SQLite_File GDBM_File NDBM_File SDBM_File)
+  @AnyDBM_File::ISA = qw(DB_File SQLite_File GDBM_File NDBM_File SDBM_File)
 }
 
 use strict;

@@ -361,15 +361,18 @@ sub new {
   $adaptor ||= 'DBI::mysql';
   $args->{WRITE}++  if $create;
   $args->{CREATE}++ if $create;
-
+  $compress ||= 0; # need a definition for settings() call in do_compress/maj
+  $args->{META} = { -compress => $compress };
   my $class = "Bio::DB::SeqFeature::Store::$adaptor";
   eval "require $class " or croak $@;
   $cache &&= eval "require Tie::Cacher; 1";
   my $obj = $class->new_instance();
   $obj->debug($debug) if defined $debug;
+
+  $DB::single=1;  
   $obj->init($args);
   $obj->init_cache($cache) if $cache;
-  $obj->do_compress($compress);
+#  $obj->do_compress($compress);
   $obj->serializer($serializer)               if defined $serializer;
   $obj->index_subfeatures($index_subfeatures) if defined $index_subfeatures;
   $obj->seqfeature_class('Bio::DB::SeqFeature');
@@ -1571,8 +1574,9 @@ sub serializer {
 sub do_compress {
   my $self = shift;
   if (@_) {
-    my $do_compress = shift;
-    $self->setting(compress => $do_compress);
+      $self->warn("We're trying this another way");
+#    my $do_compress = shift;
+#    $self->setting(compress => $do_compress);
   }
   my $d    = $self->setting('compress');
   if ($d) {

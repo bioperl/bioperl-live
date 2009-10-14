@@ -40,11 +40,11 @@ use strict;
 use vars qw($DB_TREE $DB_RECNO $DB_HASH &O_CREAT &O_RDWR
             &R_CURSOR &R_NEXT &R_FIRST &R_DUP);
 BEGIN {
-    @AnyDBM_File::ISA = qw( DB_File Bio::DB::SQLite_File ) unless
+    @AnyDBM_File::ISA = qw( DB_File SQLite_File ) unless
 	@AnyDBM_File::ISA == 1;
 }
 use AnyDBM_File;
-use Bio::DB::AnyDBMImporter qw(:bdb);
+use AnyDBM_File::Importer qw(:bdb);
 
 use File::Path 'rmtree';
 use File::Temp 'tempdir';
