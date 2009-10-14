@@ -42,6 +42,7 @@ my $build = Bio::Root::Build->new(
                             'Ace'                       => '0/access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace',
                             'Algorithm::Munkres'        => '0/Phylogenetic Networks/Bio::PhyloNetwork',
                             'Array::Compare'            => '0/Phylogenetic Networks/Bio::PhyloNetwork',
+			    'AnyDBM_File::Importer'     => '0/For SQLite emulation of DB_File/various',
                             # this won't actually install due to circular dep, but we have no way of doing a post-install
                             # the [circular dependency!] specifies it is only installed on explicit request for this specific module,
                             # not when simply choosing to install 'all' modules
@@ -64,6 +65,7 @@ my $build = Bio::Root::Build->new(
                             'SOAP::Lite'                => '0/Bibliographic queries/Bio::DB::Biblio::soap',
                             'Spreadsheet::ParseExcel'   => '0/parsing Excel files/Bio::SeqIO::excel,Bio::Microarray::Tools::ReseqChip',
                             'Spreadsheet::WriteExcel'   => '0/writing Excel files/Bio::Microarray::Tools::ReseqChip',
+			    'SQLite_File'               => '0.02/for SQLite emulation of DB_File/various',
                             'Storable'                  => '2.05/storing sequence objects in local file cache/Bio::DB::FileCache,Bio::SeqFeature::Collection,Bio::PopGen::HtSNP,Bio::PopGen::TagHaplotype,Bio::DB::GFF::Adaptor::berkeleydb',
                             'SVG'                       => '2.26/creating SVG images/Bio::Draw::Pictogram',
                             'SVG::Graph'                => '0.01/creating SVG images/Bio::TreeIO::svggraph',
@@ -258,7 +260,7 @@ sub prompt_for_biodb {
 	    if (! eval "require DB_File; 1") {
 		if ( grep /SQLite/i, @drivers ) {
 		    $use_bdb_for_gff = $build->y_n("Berkeley DB is not available on your system, but SQLite is. Should I use SQLite emulation of BDB to test Bio::DB::GFF? y/n", 'y');
-		    $build->log_info("  - using Bio::DB::SQLite_File to test Bio::DB::GFF\n")
+		    $build->log_info("  - using SQLite_File to test Bio::DB::GFF\n")
 		}
 		else {
 		    $use_bdb_for_gff = 0;
