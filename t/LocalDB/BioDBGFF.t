@@ -8,7 +8,7 @@ use File::Spec;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    @AnyDBM_File::ISA = qw( DB_File Bio::DB::SQLite_File );
+    @AnyDBM_File::ISA = qw( DB_File SQLite_File );
     test_begin(-tests => 280);
 	
 	use_ok('Bio::DB::GFF');
