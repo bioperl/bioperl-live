@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 38);
+    test_begin(-tests => 51);
 	
     use_ok('Bio::SeqFeature::Generic');
 }
@@ -50,6 +50,21 @@ foreach my $range (@$subtracted) {
     ok($range->end == 99 || $range->end == 1000);
 }
 
+
+$feature1 =  Bio::SeqFeature::Generic->new( -start => 1, -end =>
+1000, -strand => 1);
+my $feature2 =  Bio::SeqFeature::Generic->new( -start => 100, -end =>
+900, -strand => -1);
+
+my $subtracted = $feature1->subtract($feature2);
+ok(defined($subtracted));
+is(scalar(@$subtracted), 2);
+foreach my $range (@$subtracted) {
+    ok($range->start == 1 || $range->start == 901);
+    ok($range->end == 99 || $range->end == 1000);
+}
+
+
 $subtracted = $feature2->subtract($feature1);
 ok(!defined($subtracted));
 $subtracted = $feature1->subtract($feature2, 'weak');
@@ -65,3 +80,29 @@ is scalar(@$subtracted), 1;
 my $subtracted_i = @$subtracted[0];
 is($subtracted_i->start, 1);
 is($subtracted_i->end, 499);
+
+
+# ---------------
+# Added Bio::Location::SplitLocationI support to subtract().  --jhannah 20091018
+$feature1 =  Bio::SeqFeature::Generic->new();
+$feature2 =  Bio::SeqFeature::Generic->new();
+my $loc = Bio::Location::Split->new();
+$loc->add_sub_Location(Bio::Location::Simple->new(-start=>100, -end=>200, -strand=>1));
+$loc->add_sub_Location(Bio::Location::Simple->new(-start=>300, -end=>400, -strand=>1));
+$loc->add_sub_Location(Bio::Location::Simple->new(-start=>500, -end=>600, -strand=>1));
+$feature1->location($loc);
+$loc = Bio::Location::Split->new();
+$loc->add_sub_Location(Bio::Location::Simple->new(-start=>350, -end=>400, -strand=>1));
+$loc->add_sub_Location(Bio::Location::Simple->new(-start=>500, -end=>510, -strand=>1));
+$feature2->location($loc);
+my $subtracted = $feature1->subtract($feature2);
+is(@$subtracted, 3,                              "subtract() of split features");
+is($subtracted->[0]->start, 100,                 "   0 start");
+is($subtracted->[0]->end,   200,                 "   0 end");
+is($subtracted->[1]->start, 300,                 "   1 start");
+is($subtracted->[1]->end,   349,                 "   1 end");
+is($subtracted->[2]->start, 511,                 "   2 start");
+is($subtracted->[2]->end,   600,                 "   2 end");
+# ---------------
+
+

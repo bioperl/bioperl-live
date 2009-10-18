@@ -623,34 +623,52 @@ deprecated; use $self instead");
     $range->throw("Input a Bio::RangeI object") unless
 $range->isa('Bio::RangeI');
 
-    if (!$self->overlaps($range)) {
-        return;
+    my @sub_locations; 
+    if ($self->location->isa('Bio::Location::SplitLocationI') ) {
+       @sub_locations = $self->location->sub_Location;
+    } else {
+       @sub_locations = $self;
     }
 
-    ##Subtracts everything
-    if ($range->contains($self)) {
-        return;   
+    my @outranges;
+    foreach my $sl (@sub_locations) {
+       if (!$sl->overlaps($range)) {
+          push(@outranges, 
+             $self->new('-start' =>$sl->start,
+                        '-end'   =>$sl->end, 
+                        '-strand'=>$sl->strand,
+          ));
+          next;
+       }
+   
+       ##Subtracts everything
+       if ($range->contains($sl)) {
+          next;   
+       }
+   
+       my ($start, $end, $strand) = $sl->intersection($range, $so);
+       ##Subtract intersection from $self range
+   
+       if ($sl->start < $start) {
+          push(@outranges, 
+             $self->new('-start' =>$sl->start,
+                        '-end'   =>$start - 1,
+                        '-strand'=>$sl->strand,
+          ));   
+       }
+       if ($sl->end > $end) {
+          push(@outranges, 
+             $self->new('-start' =>$end + 1,
+                        '-end'   =>$sl->end,
+                        '-strand'=>$sl->strand,
+          ));   
+       }
     }
 
-    my ($start, $end, $strand) = $self->intersection($range, $so);
-    ##Subtract intersection from $self range
-
-    my @outranges = ();
-    if ($self->start < $start) {
-        push(@outranges, 
-		 $self->new('-start'=>$self->start,
-			    '-end'=>$start - 1,
-			    '-strand'=>$self->strand,
-			   ));   
+    if (@outranges) {
+       return \@outranges;
     }
-    if ($self->end > $end) {
-        push(@outranges, 
-		 $self->new('-start'=>$end + 1,
-			    '-end'=>$self->end,
-			    '-strand'=>$self->strand,
-			   ));   
-    }
-    return \@outranges;
+    return;
 }
 
 1;
