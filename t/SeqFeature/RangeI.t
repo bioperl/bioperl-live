@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 51);
+    test_begin(-tests => 45);
 	
     use_ok('Bio::SeqFeature::Generic');
 }
@@ -49,21 +49,6 @@ foreach my $range (@$subtracted) {
     ok($range->start == 1 || $range->start == 901);
     ok($range->end == 99 || $range->end == 1000);
 }
-
-
-$feature1 =  Bio::SeqFeature::Generic->new( -start => 1, -end =>
-1000, -strand => 1);
-my $feature2 =  Bio::SeqFeature::Generic->new( -start => 100, -end =>
-900, -strand => -1);
-
-my $subtracted = $feature1->subtract($feature2);
-ok(defined($subtracted));
-is(scalar(@$subtracted), 2);
-foreach my $range (@$subtracted) {
-    ok($range->start == 1 || $range->start == 901);
-    ok($range->end == 99 || $range->end == 1000);
-}
-
 
 $subtracted = $feature2->subtract($feature1);
 ok(!defined($subtracted));
