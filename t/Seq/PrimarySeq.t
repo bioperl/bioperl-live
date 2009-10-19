@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 62 );
+    test_begin( -tests => 64 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -223,3 +223,9 @@ is( $seq->alphabet, 'dna' );
 $seq = Bio::PrimarySeq->new( -display_id => 0, -seq => 'GATC' );
 
 is $seq->display_id, 0, "Bug #2864";
+
+# Test that the check for terminators inside the translated protein
+# works when the terminator isn't '*':
+
+$seq = Bio::PrimarySeq->new(-seq=>'ATGCTCTAAGCAGGGTAA'); # ML*AG*
+eval { $aa = $seq->translate(-complete=>1, -throw=>1, -terminator=>'#') 
