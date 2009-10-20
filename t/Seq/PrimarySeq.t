@@ -229,3 +229,5 @@ is $seq->display_id, 0, "Bug #2864";
 
 $seq = Bio::PrimarySeq->new(-seq=>'ATGCTCTAAGCAGGGTAA'); # ML*AG*
 eval { $aa = $seq->translate(-complete=>1, -throw=>1, -terminator=>'#') 
+$aa = $seq->translate(-complete=>1, -throw=>1, -terminator=>'#');
+is $aa->seq, 'MLAG';
