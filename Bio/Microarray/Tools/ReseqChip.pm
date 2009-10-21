@@ -16,6 +16,9 @@ Bio::Microarray::Tools::ReseqChip - Class for analysing additional probe oligonu
 
 =head1 SYNOPSIS
 
+ #see also ../../../t/Microarray/Tools/ReseqChip.t for the corresponding test script and a complete working example. This script uses parameter settings that 
+ #that had been optimized with more than 100 mitochip samples.
+
  use Bio::Microarray::Tools::ReseqChip;
  
  # fasta file with reference sequence context useed for the Chip (MitoChip in that case)
@@ -99,15 +102,16 @@ were x is the most frequently called base, then x is included in the final seque
 
 
 Assumption:
-Gaps which are inserted in several fragments and in the reference sequence itself refer to the reference sequence.
-The reference sequence is given as input parameter.
-Optionshash, specifying the explained parameter and some further options is provided by the user:
-we recommend to only specify the following hash-values that correnspod to the hash-keys resp. parameters:
-  flank_right (K-neighbourhood up and downstream of the genotype position in question)
-  call_threshold (minU)
-  depth (minP)
-  allowed_n_flank (maxN in K-neighbourhood)
-
+Position of gaps (marked by the character "-") which are inserted in several fragments and in the reference sequence itself 
+refer to the numbering given by the reference sequence, as defined in the design file. 
+The reference sequence and the design file must be given as input parameters.
+The parameter hash containing the different program options (%options_hash), specifying the explained parameter and some further 
+options is provided by the user: we recommend to only specify the following hash-values that correnspod to the hash-keys (parameters):
+ - flank_right (K-neighbourhood up and downstream of the genotype position in question)
+ - call_threshold (minU)
+ - depth (minP)
+ - allowed_n_flank (maxN in K-neighbourhood)
+for each substitutions, insertions and deletions. Note, for deletions only the parameters "depth" and "call_threshold" is applicable.
 
 This module depends on the following modules:
 use Bio::Microarray::Tools::MitoChipV2Parser
@@ -127,7 +131,7 @@ Marian Thieme (marian.thieme@gmail.com)
 
 =head1 COPYRIGHT
 
-Copyright (c) 2007 Institute of Functional Genomics, University Regensburg, granted by Baygene. All Rights Reserved.
+Copyright (c) 2007-2009 Institute of Functional Genomics, University Regensburg, granted by Baygene. All Rights Reserved.
 
 This module is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
