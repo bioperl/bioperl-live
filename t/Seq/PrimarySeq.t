@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 64 );
+    test_begin( -tests => 62 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -228,6 +228,10 @@ is $seq->display_id, 0, "Bug #2864";
 # works when the terminator isn't '*':
 
 $seq = Bio::PrimarySeq->new(-seq=>'ATGCTCTAAGCAGGGTAA'); # ML*AG*
-eval { $aa = $seq->translate(-complete=>1, -throw=>1, -terminator=>'#') 
+eval { $aa = $seq->translate(-complete=>1, -throw=>1, -terminator=>'#') };
+my $error = $@;
+ok $error =~ /\QTerminator codon inside CDS!\E/, 'Terminator + inside sequence';
+
+$seq = Bio::PrimarySeq->new(-seq=>'ATGCTCGCAGGGTAA'); # MLAG*
 $aa = $seq->translate(-complete=>1, -throw=>1, -terminator=>'#');
 is $aa->seq, 'MLAG';
