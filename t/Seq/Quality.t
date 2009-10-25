@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 61);
+    test_begin(-tests => 64);
 
     use_ok('Bio::Seq::Quality');
 }
@@ -275,7 +275,12 @@ my $seqio = Bio::SeqIO->new(
 );
 
 while ( my $seq = $seqio->next_seq() ) {
-    $seq->threshold(15);
-    lives_ok { my $newqualobj = $seq->get_clear_range };
+    my $newqualobj;
+    lives_ok { $newqualobj = $seq->get_clear_range(0) };
+    if ($newqualobj) {
+        is($newqualobj->id, $seq->id, 'Bug 2845');
+    } else {
+        ok(0, "No object returned via get_clear_range()");
+    }
 }
 

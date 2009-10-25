@@ -604,7 +604,8 @@ sub get_clear_range {
 
 	return Bio::Seq::Quality->new
 	    ( -seq => $self->subseq(  $_->{start}, $_->{end}),
-	      -qual => $self->subqual($_->{start}, $_->{end})
+	      -qual => $self->subqual($_->{start}, $_->{end}),
+	      -id => $self->id
 	    );
     }
 }
