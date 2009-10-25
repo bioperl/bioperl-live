@@ -1589,25 +1589,25 @@ sub _write_line_GenBank_regex {
     my $subl = $length - (length $pre1) - 2;
     my @lines = ();
 
-  CHUNK: while($line) {
-      foreach my $pat ($regex, '[,;\.\/-]\s|'.$regex, '[,;\.\/-]|'.$regex) {
-	  if($line =~ m/^(.{1,$subl})($pat)(.*)/ ) {
-	      my $l = $1.$2;
-	      my $newl = $3;
-	      $line = substr($line,length($l));
-	      # be strict about not padding spaces according to
-	      # genbank format
-	      $l =~ s/\s+$//;
-	      push(@lines, $l);
-	      next CHUNK;
-	  }
-      }
-      # if we get here none of the patterns matched $subl or less chars
-      $self->warn("trouble dissecting \"$line\"\n     into chunks ".
-		  "of $subl chars or less - this tag won't print right");
-      # insert a space char to prevent infinite loops
-      $line = substr($line,0,$subl) . " " . substr($line,$subl);
-  }
+    CHUNK: while($line) {
+        foreach my $pat ($regex, '[,;\.\/-]\s|'.$regex, '[,;\.\/-]|'.$regex) {
+          if($line =~ m/^(.{0,$subl})($pat)(.*)/ ) {
+              my $l = $1.$2;
+              $line = substr($line,length($l));
+              # be strict about not padding spaces according to
+              # genbank format
+              $l =~ s/\s+$//;
+              next CHUNK if ($l eq '');
+              push(@lines, $l);
+              next CHUNK;
+          }
+        }
+        # if we get here none of the patterns matched $subl or less chars
+        $self->warn("trouble dissecting \"$line\"\n     into chunks ".
+            "of $subl chars or less - this tag won't print right");
+        # insert a space char to prevent infinite loops
+        $line = substr($line,0,$subl) . " " . substr($line,$subl);
+    }
     my $s = shift @lines;
     $self->_print("$pre1$s\n") if $s;
     foreach my $s ( @lines ) {
