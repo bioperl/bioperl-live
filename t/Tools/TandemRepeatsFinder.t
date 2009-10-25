@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 65);
+    test_begin(-tests => 66);
 	
 	use_ok('Bio::Tools::TandemRepeatsFinder');
 }
@@ -169,3 +169,12 @@ is ( $consensus_sequence, "T", "correctly parsed consensus_sequence for third re
 
 my $empty_feat = $trf->next_result();
 ok( !defined($empty_feat), "correctly return undef when no features are left" );
+
+
+ $trf =
+   Bio::Tools::TandemRepeatsFinder->new( -file => test_input_file('tandem_repeats_finder_no_desc.dat')
+  );
+
+my $feat_with_seqid = $trf->next_result();
+#ensuring that we can parse out seq_id in the file even in the absent of description
+is( $feat_with_seqid->seq_id(),"DDB0169550", "Correctly parsed seq_id even if description does not exist" );

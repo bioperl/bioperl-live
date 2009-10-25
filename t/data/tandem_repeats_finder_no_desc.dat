@@ -1,0 +1,60 @@
+Tandem Repeats Finder Program writen by:
+
+
+
+Gary Benson
+
+Department of Biomathematical Sciences
+
+Mount Sinai School of Medicine
+
+Version 4.00
+
+
+
+
+
+Sequence: DDB0169550
+
+
+
+
+
+
+
+Parameters: 2 7 7 80 10 50 12
+
+
+
+
+
+13936 13960 12 2.1 12 100 0 50 16 8 52 24 1.70 GGCGTAATGGGT GGCGTAATGGGTGGCGTAATGGGTG
+
+16937 16965 9 3.2 9 100 0 58 44 0 10 44 1.38 TATATAGTA TATATAGTATATATAGTATATATAGTATA
+
+
+
+
+
+
+
+Sequence: DDB0215018 |Masked Chromosomal Sequence| on chromosome: 2F
+
+
+
+
+
+
+
+Parameters: 2 7 7 80 10 50 12
+
+
+
+
+
+1649 1679 1 31.0 1 100 0 62 0 0 0 100 0.00 T TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+
+
+
+
+
