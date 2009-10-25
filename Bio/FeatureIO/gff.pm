@@ -900,7 +900,7 @@ sub _write_feature_3 {
   my $max    = $feature->end     || '.';
   my $strand = $feature->strand == 1 ? '+' : $feature->strand == -1 ? '-' : '.';
   my $score  = defined($feature->score) ? (ref($feature->score) ? $feature->score->value : $feature->score) : undef;
-  my $phase  = $feature->phase->value;
+  my $phase  = defined($feature->phase) ? (ref($feature->phase) ? $feature->phase->value : $feature->phase) : undef;
 
   my @attr;
   if(my @v = ($feature->get_Annotations('Name'))){
