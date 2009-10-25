@@ -80,7 +80,7 @@ $loc = Bio::Location::Split->new();
 $loc->add_sub_Location(Bio::Location::Simple->new(-start=>350, -end=>400, -strand=>1));
 $loc->add_sub_Location(Bio::Location::Simple->new(-start=>500, -end=>510, -strand=>1));
 $feature2->location($loc);
-my $subtracted = $feature1->subtract($feature2);
+$subtracted = $feature1->subtract($feature2);
 is(@$subtracted, 3,                              "subtract() of split features");
 is($subtracted->[0]->start, 100,                 "   0 start");
 is($subtracted->[0]->end,   200,                 "   0 end");
