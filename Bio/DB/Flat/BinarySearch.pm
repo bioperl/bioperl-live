@@ -897,7 +897,7 @@ sub _index_file {
 	$self->_add_id_position($id,$pos,$fileid,$length,\%secondary_id);
 	$count++;
     
-	close(FILE);
+	close($FILE);
 	$count;
 }
 
