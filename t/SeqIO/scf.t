@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 78);
+    test_begin(-tests => 80);
 	
     use_ok('Bio::SeqIO::scf');
     use_ok('Bio::Seq::SequenceTrace');
@@ -287,3 +287,22 @@ for my $f (sort keys %file_map) {
 	}
 	is_deeply($seq1->qual, $seq2->qual, 'qual scores match');
 }
+
+# synthesizing traces roundtrip (bug 2881):
+
+my @sequences=('A',
+               'ATGGAGCTCATCAAAGAATCGACTCATATATCCATCCCTGAACGGCTGACTCACATTAATGGTTGA');
+foreach my $sequence (@sequences) {
+    my $qualstr=join ' ', map { 65 } (1 .. length($sequence));
+    my $seq_qual=Bio::Seq::Quality->new(-seq=>$sequence, -qual=>$qualstr);
+
+    my $outfile=test_output_file();
+    my $out=Bio::SeqIO->new(-file=>">$outfile", -format=>'scf');
+    $out->write_seq(-target=>$seq_qual);
+
+    my $in=Bio::SeqIO->new(-file=>$outfile, -format=>'scf');
+    my $in_seq=$in->next_seq();
+
+    is_deeply($seq_qual, $in_seq->{swq}, 'Bio::Sequence::Quality matches');
+}
+
