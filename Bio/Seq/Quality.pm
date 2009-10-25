@@ -2,7 +2,8 @@
 #
 # BioPerl module for Bio::Seq::Quality
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to
+# <bioperl-l@bioperl.org>
 #
 # Cared for by Heikki Lehvaslaiho
 #
@@ -14,7 +15,8 @@
 
 =head1 NAME
 
-Bio::Seq::Quality - Implementation of sequence with residue quality and trace values
+Bio::Seq::Quality - Implementation of sequence with residue quality
+                    and trace values
 
 =head1 SYNOPSIS
 
@@ -58,12 +60,13 @@ This object stores base quality values together with the sequence
 string.
 
 It is a reimplementation of Chad Matsalla's Bio::Seq::SeqWithQuality
-module using Bio::Seq::MetaI. 
+module using Bio::Seq::MetaI.
 
 The implementation is based on Bio::Seq::Meta::Array. qual() and
 trace() are base methods to store and retrieve information that have
 extensions to retrieve values as a scalar (e.g. qual_text() ), or get
-or set subvalues (e.g. subqual() ). See L<Bio::Seq::MetaI> for more details.
+or set subvalues (e.g. subqual() ). See L<Bio::Seq::MetaI> for more
+details.
 
 All the functional code is in Bio::Seq::Meta::Array.
 
@@ -79,13 +82,13 @@ object is a composite of two independent objects: a Bio::PrimarySeq
 object and Bio::Seq::PrimaryQual object. Both of these objects can be
 created separately and merged into Bio::Seq::SeqWithQuality.
 
-This implementation is based on Bio::Seq::Meta::Array that is a subclass
-of Bio::PrimarySeq that stores any number of meta information in
-unnamed arrays.
+This implementation is based on Bio::Seq::Meta::Array that is a
+subclass of Bio::PrimarySeq that stores any number of meta information
+in unnamed arrays.
 
-Here we assume that two meta sets, called 'qual' and 'trace_indices' are
-attached to a sequence. (But there is nothing that prevents you to add
-as many named meta sets as you need using normal meta() methods).
+Here we assume that two meta sets, called 'qual' and 'trace_indices'
+are attached to a sequence. (But there is nothing that prevents you to
+add as many named meta sets as you need using normal meta() methods).
 
 qual() is an alias to meta(), qualat($loc) is an alias to
 submeta($loc,$loc).
@@ -102,8 +105,8 @@ After the latest rewrite, the meta information sets (quality and
 trace) no longer cover all the residues automatically. Methods to
 check the length of meta information (L<quality_length>,
 L<trace_length>)and to see if the ends are flushed to the sequence
-have been added (L<quality_is_flush>, L<trace_is_flush>). To force
-the old functinality, set L<force_flush> to true.
+have been added (L<quality_is_flush>, L<trace_is_flush>). To force the
+old functinality, set L<force_flush> to true.
 
 qual_obj() and seq_obj() methods do not exist!
 
@@ -113,7 +116,7 @@ accession_number) for the object.
 
 =head1 SEE ALSO
 
-L<Bio::Seq::MetaI>, 
+L<Bio::Seq::MetaI>,
 L<Bio::Seq::Meta::Array>
 
 =head1 FEEDBACK
@@ -175,6 +178,8 @@ use strict;
 
 use base qw(Bio::Seq::Meta::Array);
 
+## Is this the right place (and way) to define this?
+our $MASK_CHAR = 'X';
 
 BEGIN {
 
@@ -193,8 +198,9 @@ BEGIN {
 	          -id  => 'human_id',
 	          -accession_number => 'S000012',
 	        );
- Function: Constructor for Bio::Seq::Quality class.
-           Note that you can provide an empty quality and trace strings.
+ Function: Constructor for Bio::Seq::Quality class.  Note that you can
+           provide an empty quality and trace strings.
+
  Returns : a new Bio::Seq::Quality object
 
 =cut
@@ -226,6 +232,9 @@ sub new {
 }
 
 
+
+## QUAL
+
 =head2 qual
 
  Title   : qual
@@ -242,8 +251,7 @@ sub new {
  Returns : reference to an array of meta data
  Args    : new value, string or array ref or Bio::Seq::PrimaryQual, optional
 
-Setting quality values resets the cached good quality ranges that
-depend on the set threshold value.
+Setting quality values resets the clear range.
 
 =cut
 
@@ -254,7 +262,7 @@ sub qual {
         if ref($value) and ref($value) ne 'ARRAY' and
            $value->isa('Bio::Seq::PrimaryQual');
     $self->_empty_cache if $value;
-    $self->named_meta($DEFAULT_NAME, $value);
+    return $self->named_meta($DEFAULT_NAME, $value);
 }
 
 =head2 qual_text
@@ -269,7 +277,7 @@ sub qual {
 =cut
 
 sub qual_text {
-    return join ' ', @{shift->submeta(@_)};
+    return join ' ', @{shift->named_submeta($DEFAULT_NAME, @_)};
 }
 
 =head2 subqual
@@ -311,9 +319,8 @@ sub subqual {
 =cut
 
 sub subqual_text {
-    return join ' ', @{shift->submeta(@_)};
+    return join ' ', @{shift->named_submeta($DEFAULT_NAME, @_)};
 }
-
 
 =head2 quality_length
 
@@ -327,10 +334,8 @@ sub subqual_text {
 
 sub quality_length {
    my ($self) = @_;
-   return $self->named_meta_length('DEFAULT');
+   return $self->named_meta_length($DEFAULT_NAME);
 }
-
-
 
 =head2 quality_is_flush
 
@@ -347,6 +352,9 @@ sub quality_is_flush {
     return shift->is_flush('quality');
 }
 
+
+
+## TRACE
 
 =head2 trace
 
@@ -367,7 +375,9 @@ sub quality_is_flush {
 =cut
 
 sub trace {
-    return shift->named_meta('trace', shift);
+    my $self = shift;
+    my $value = shift;
+    return $self->named_meta('trace', $value);
 }
 
 =head2 trace_text
@@ -428,7 +438,6 @@ sub subtrace_text {
     return join ' ', @{shift->named_submeta('trace', @_)};
 }
 
-
 =head2 trace_length
 
  Title   : trace_length()
@@ -459,6 +468,8 @@ sub trace_is_flush {
     return shift->is_flush('trace');
 }
 
+
+
 =head2 get_trace_graph
 
  Title    : get_trace_graph
@@ -471,9 +482,9 @@ sub trace_is_flush {
             0 and the provided value, a scale value of '0' performs no
             scaling
  Returns  : Array or 0
- Args     : string, trace to retrieve, one of a, g, c or t
-            integer, scale, for scaling of trace between 0 and scale,
-                or 0 for no scaling, optional
+ Args     : string, trace to retrieve, one of a, g, c or t integer,
+            scale, for scaling of trace between 0 and scale, or 0 for
+            no scaling, optional
 
 =cut
 
@@ -485,15 +496,16 @@ sub get_trace_graph
 			      SCALE
 			      )],
 			  @_);
-	unless (grep { lc($trace) eq $_ } ('a', 'g', 'c', 't')) { return 0 }
 	unless (defined($self->{trace_data})) { return 0 }
+	unless (grep { lc($trace) eq $_ } ('a', 'g', 'c', 't')) { return 0 }
 	$trace = lc($trace) . "_trace";
-	my @trace_data = exists $self->{trace_data}->{$trace} && ref $self->{trace_data}->{$trace} eq 'ARRAY' ?
-        @{$self->{trace_data}->{$trace}} : ();
+	my @trace_data = exists $self->{trace_data}->{$trace} &&
+	    ref $self->{trace_data}->{$trace} eq 'ARRAY' ?
+	    @{$self->{trace_data}->{$trace}} : ();
 	my $max = $self->{trace_data}->{max_height};
 	if (defined($scale) and $scale != 0)
 	{
-		@trace_data = map { $_ / $max * $scale } @trace_data;
+	    @trace_data = map { $_ / $max * $scale } @trace_data;
 	}
 	return @trace_data;
 }
@@ -503,7 +515,7 @@ sub get_trace_graph
 
   Title   : threshold
   Usage   : $qual->threshold($value);
-  Function: Sets the threshold for good quality values.
+  Function: Sets the quality threshold.
   Returns : an integer
   Args    : new value, optional
 
@@ -516,7 +528,7 @@ sub threshold {
     my $value = shift;
     if (defined $value) {
 	$self->throw("Threshold needs to be an integer [$value]")
-	    unless $value =~ /^[-+]?\d+?$/;
+	    unless $value =~ /^[-+]?\d+$/;
 	$self->_empty_cache 
 	    if defined $self->{_threshold} and $self->{_threshold} ne $value;
 	$self->{_threshold} = $value;
@@ -524,6 +536,46 @@ sub threshold {
     return $self->{_threshold};
 }
 
+
+=head2 mask_below_threshold
+
+  Title   : mask_below_threshold
+  Usage   : $count = $obj->count_clear_ranges($threshold);
+  Function: Counts number of ranges in the sequence where quality
+            values are above the threshold
+  Returns : count integer
+  Args    : threshold integer, optional
+
+Set threshold first using method L<threshold>.
+
+=cut
+
+sub mask_below_threshold {
+    my $self = shift;
+    my $threshold = shift;
+
+    $self->threshold($threshold) if defined $threshold;
+
+    # populate the cache if needed
+    $self->_find_clear_ranges unless defined $self->{_ranges};
+
+    my $maskSeq = $self->seq;
+    my $maskQual = $self->qual;
+
+    ## There must be a more efficient way than this!
+    for(my $i=0; $i<length($maskSeq); $i++){
+	#print join ("\t", $i, $maskQual->[$i]), "\n";
+	substr($maskSeq, $i, 1, $MASK_CHAR)
+	    if $maskQual->[$i] < $self->{_threshold};
+    }
+
+    ## This is the *wrong* way to do it!
+    #for my $r (@{$self->{_ranges}} ){
+    #	substr($maskSeq, $r->{start}, $r->{length}, $MASK_CHAR x $r->{length});
+    #}
+
+    return $maskSeq;
+}
 
 =head2 count_clear_ranges
 
@@ -546,7 +598,7 @@ sub count_clear_ranges {
     # populate the cache if needed
     $self->_find_clear_ranges unless defined $self->{_ranges};
 
-    return scalar @{$self->{_ranges}}
+    return scalar @{$self->{_ranges}};
 }
 
 =head2 clear_ranges_length
@@ -559,6 +611,9 @@ sub count_clear_ranges {
   Args    : threshold, optional
 
 Set threshold first using method L<threshold>.
+
+I think this method needs a better name! count_high_quality_bases? or
+sum_clear_ranges?
 
 =cut
 
@@ -580,11 +635,15 @@ sub clear_ranges_length {
   Title   : get_clear_range
   Usage   : $newqualobj = $obj->get_clear_range($threshold);
   Function: Return longest subsequence that has quality values above
-            the threshold
+            the given threshold, or a default value of 13
   Returns : a new Bio::Seq::Quality object
   Args    : threshold, optional
 
 Set threshold first using method L<threshold>.
+
+Note, this method could be implemented using some gaussian smoothing
+of the quality scores. Currently one base below the threshold is
+enough to end the clear range.
 
 =cut
 
@@ -601,12 +660,14 @@ sub get_clear_range {
 
     # pick the longest
     for (sort {$b->{length} <=> $a->{length} } @{$self->{_ranges}} ){
-
-	return Bio::Seq::Quality->new
-	    ( -seq => $self->subseq(  $_->{start}, $_->{end}),
-	      -qual => $self->subqual($_->{start}, $_->{end}),
-	      -id => $self->id
-	    );
+        my $newqualobj = Bio::Seq::Quality->new(
+                        -seq  => $self->subseq(  $_->{start}, $_->{end}),
+                        -qual => $self->subqual($_->{start}, $_->{end}),
+                        -id   => $self->id);
+        
+        $newqualobj->threshold($threshold);
+    
+        return $newqualobj;
     }
 }
 
@@ -627,11 +688,10 @@ Set threshold first using method L<threshold>.
 
 sub get_all_clean_ranges {
     my $self = shift;
-    my $minl = shift;
+    my $minl = shift || 0;
 
-    $minl ||= 0;
     $self->throw("Mimimum length needs to be zero or a positive integer [$minl]")
-        unless $minl =~ /^\+?\d+?$/;
+        unless $minl =~ /^\+?\d+$/;
 
     # populate the cache if needed
     $self->_find_clear_ranges unless defined $self->{_ranges};
@@ -640,10 +700,12 @@ sub get_all_clean_ranges {
     my @ranges;
     for my $r (sort {$b->{start} <=> $a->{start} } @{$self->{_ranges}} ){
 	next if $r->{length} < $minl;
-
+	
+	## Constructor should allow "-threshold => ..."!
 	push @ranges, Bio::Seq::Quality->new
 	    ( -seq => $self->subseq(  $r->{start}, $r->{end}),
-	      -qual => $self->subqual($r->{start}, $r->{end})
+	      -qual => $self->subqual($r->{start}, $r->{end}),
+          -id   => $self->id
 	    );
     }
     return @ranges;
@@ -656,39 +718,51 @@ sub get_all_clean_ranges {
 
 sub _find_clear_ranges {
     my $self = shift;
-
+    my $qual = $self->qual;
+    
     $self->throw("You need to set the threshold value first")
         unless defined $self->threshold;
-
-    my $flag = 0;
+    
     my $threshold = $self->threshold;
-    my $i = 0;
-    foreach my $q (@{$self->qual}) {
-	$i++;
-	# print "$i -- $q\n";
-	if ( $flag ){
-	    if ($q < $threshold) {
+    
+    my $rangeFlag = 0;
+    
+    for(my $i=0; $i<@$qual; $i++){
+	## Are we currently within a clear range or not?
+	if($rangeFlag){
+	    ## Did we just leave the clear range?
+	    if($qual->[$i]<$threshold){
+		## Log the range
 		my $range;
 		$range->{end} = $i-1;
-		$range->{start}  = $flag;
-		$range->{length} = $i - $flag;
+		$range->{start}  = $rangeFlag;
+		$range->{length} = $i - $rangeFlag;
 		push @{$self->{_ranges}}, $range;
-		$flag = 0;  # reset flag
+		## and reset the range flag.
+		$rangeFlag = 0;
 	    }
-	} else {
-	    $flag = $i if $q >= $threshold;
+	    ## else nothing changes
+	}
+	else{
+	    ## Did we just enter a clear range?
+	    if($qual->[$i]>=$threshold){
+		## then set the range flag!
+		$rangeFlag = $i;
+	    }
+	    ## else nothing changes
 	}
     }
-
-    if( $flag ){
+    ## Did we exit the last clear range?
+    if($rangeFlag){
+	my $i = scalar(@$qual);
 	## Log the range
 	my $range;
-	$range->{end} = $i;
-	$range->{start}  = $flag;
-	$range->{length} = $i - $flag + 1;
+	$range->{end} = $i-1;
+	$range->{start}  = $rangeFlag;
+	$range->{length} = $i - $rangeFlag;
 	push @{$self->{_ranges}}, $range;
     }
-
+    
     1;
 }
 
