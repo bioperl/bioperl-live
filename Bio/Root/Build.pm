@@ -293,13 +293,17 @@ sub check_autofeatures {
     $self->log_info("\n");
 }
 
+# TODO: STDERR output redirect is causing some installations to fail, commenting
+# out until a fix is in place
+
 # overriden just to hide pointless ugly warnings
 sub check_installed_status {
     my $self = shift;
-    open (my $olderr, ">&", \*STDERR);
+    
+    open (my $olderr, ">&". fileno(STDERR));
     open(STDERR, "/dev/null");
     my $return = $self->SUPER::check_installed_status(@_);
-    open(STDERR, ">&", $olderr);
+    open(STDERR, ">&". fileno($olderr));
     return $return;
 }
 
