@@ -168,6 +168,7 @@ my %HANDLERS = (
         'VERSION'       => \&_generic_version,
         'KEYWORDS'      => \&_generic_keywords,
         'DBSOURCE'      => \&_genbank_dbsource,
+        'DBLINK'        => \&_genbank_dbsource,
         'SOURCE'        => \&_generic_species,
         'REFERENCE'     => \&_generic_reference,
         'COMMENT'       => \&_generic_comment,
@@ -975,15 +976,20 @@ sub _genbank_dbsource {
               -version => $version,
               -database => $db || 'GenBank',
               -tagname => 'dblink'));
-        } elsif ( $dbsource =~ /(\S+)\.(\d+)/ ) {
-            my ($id,$version) = ($1,$2);
-            $annotation->add_Annotation
-            ('dblink',
-             Bio::Annotation::DBLink->new
-             (-primary_id => $id,
-              -version => $version,
-              -database => 'GenBank',
-              -tagname => 'dblink'));
+        } elsif ( $dbsource =~ /(\S+)([\.:])(\d+)/ ) {
+            my ($id, $db, $version);
+            if ($2 eq ':') {
+                ($db, $id) = ($1, $3);
+            } else {
+                ($db, $id, $version) = ('GenBank', $1, $3);
+            }
+            $annotation->add_Annotation('dblink',
+                Bio::Annotation::DBLink->new(
+                    -primary_id => $id,
+                    -version => $version,
+                    -database => $db,
+                    -tagname => 'dblink')
+                );
         } else {
             $self->warn("Unrecognized DBSOURCE data: $dbsource\n");
         }
@@ -1123,7 +1129,10 @@ sub _generic_seqfeatures {
 
 ####################### ODDS AND ENDS #######################
 
-# Those things that don't fit anywhere else...
+# Those things that don't fit anywhere else.  If a specific name 
+# maps to the below table, that class and method are used, otherwise
+# it goes into a SimpleValue (I think this is a good argument for why
+# we need a generic mechanism for storing annotation)
 
 sub _generic_simplevalue {
     my ($self, $data) = @_;

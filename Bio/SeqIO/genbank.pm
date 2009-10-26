@@ -215,7 +215,7 @@ our %DBSOURCE = map {$_ => 1} qw(
     PhotoList    Gramene    WormBase    WormPep    Genew    ZFIN
     PeroxiBase    MaizeDB    TAIR    DrugBank    REBASE    HPA
     swissprot    GenBank    GenPept    REFSEQ    embl    PDB    UniProtKB
-    DIP    PeptideAtlas    PRIDE    CYGD    HOGENOME    Gene3D);
+    DIP    PeptideAtlas    PRIDE    CYGD    HOGENOME    Gene3D Project);
 
 our %VALID_ALPHABET = (
     'bp' => 'dna',
@@ -466,7 +466,7 @@ sub next_seq {
 		next;
 	    }
 	    # Corresponding Genbank nucleotide id, Genpept only
-	    elsif( /^DBSOURCE\s+(\S.+)/ ) {
+	    elsif( /^DB(?:SOURCE|LINK)\s+(\S.+)/ ) {
 		if ($annotation) {
 		    my $dbsource = $1;
 		    while (defined($_ = $self->_readline)) {
@@ -578,15 +578,20 @@ sub next_seq {
                       -version => $version,
                       -database => $db || 'GenBank',
                       -tagname => 'dblink'));
-                } elsif ( $dbsource =~ /(\S+)\.(\d+)/ ) {
-                    my ($id,$version) = ($1,$2);
-                    $annotation->add_Annotation
-                    ('dblink',
-                     Bio::Annotation::DBLink->new
-                     (-primary_id => $id,
-                      -version => $version,
-                      -database => 'GenBank',
-                      -tagname => 'dblink'));
+                } elsif ( $dbsource =~ /(\S+)([\.:])(\d+)/ ) {
+                    my ($id, $db, $version);
+                    if ($2 eq ':') {
+                        ($db, $id) = ($1, $3);
+                    } else {
+                        ($db, $id, $version) = ('GenBank', $1, $3);
+                    }
+                    $annotation->add_Annotation('dblink',
+                        Bio::Annotation::DBLink->new(
+                            -primary_id => $id,
+                            -version => $version,
+                            -database => $db,
+                            -tagname => 'dblink')
+                        );
                 } else {
                     $self->warn("Unrecognized DBSOURCE data: $dbsource\n");
                 }
@@ -843,12 +848,11 @@ sub write_seq {
 
 	# if there, write the DBSOURCE line
 	foreach my $ref ( $seq->annotation->get_Annotations('dblink') ) {
-	    # if ($ref->comment eq 'DBSOURCE') {
-        my $text = $ref->display_text(
-            sub{($ref->database eq 'GenBank' ? '' : $_[0]->database.' ').
-                'accession '.$_[0]->primary_id});
-	    $self->_print("DBSOURCE    $text\n");
-	    # }
+        my ($db, $id) = ($ref->database, $ref->primary_id);
+        my $prefix = $db eq 'Project' ? 'DBLINK' : 'DBSOURCE';
+        my $text =  $db eq 'GenBank' ? ''           :
+                    $db eq 'Project' ? "$db:$id"    :  "$db accession $id";
+	    $self->_print(sprintf ("%-11s %s\n",$prefix, $text));
 	}
 
 	# if there, write the keywords line
