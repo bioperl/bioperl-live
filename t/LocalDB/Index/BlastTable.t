@@ -22,8 +22,7 @@ my @test_cases = qw(multi.blast.m9);
 
 for my $file (@test_cases) {
     my $index = Bio::Index::BlastTable->new(-filename => 'Wibbl',
-                                        -write_flag => 1,
-                                        -verbose    => 1);
+                                        -write_flag => 1);
     ok($index);
     $index->id_parser(\&my_id_parser);
     $index->make_index(test_input_file($file));
