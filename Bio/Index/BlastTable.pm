@@ -194,15 +194,19 @@ sub _index_file {
 	my $indexpoint = 0;
 	my $lastline = 0;
     my $last_query = '';
+    my $is_m9;
 	while( <$BLAST> ) {
-		if(m{^#\s+T?BLAST[PNX]}i ) {
-            my $len = length $_;
-            $indexpoint = tell($BLAST)-$len;
-		}
-        next if m{^#};
+        if (m{^#}) {
+            $is_m9 ||= 1;
+            if(m{^#\s+T?BLAST[PNX]}i ) {
+                $indexpoint = tell($BLAST) - length($_);
+            }
+            next
+        }
         
         if (/^(?:([^\t]+)\t)(?:[^\t]+\t){7,}/) {
             next if $last_query eq $1;
+            $indexpoint = tell($BLAST) - length($_) unless $is_m9;
             foreach my $id ($self->id_parser()->($1)) {
 				$self->debug("id is $id, begin is $indexpoint\n");
 				$self->add_record($id, $i, $indexpoint);
