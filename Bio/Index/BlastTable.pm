@@ -14,8 +14,8 @@
 
 =head1 NAME
 
-Bio::Index::BlastTable - Indexes tabular Blast reports (-m 9 format) and supports
-retrieval based on query accession(s)
+Bio::Index::BlastTable - Indexes tabular Blast reports (-m 8 or -m 9 format) and
+supports retrieval based on query accession(s)
 
 =head1 SYNOPSIS
 
