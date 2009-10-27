@@ -16,7 +16,7 @@ BEGIN {
 }
 
                        # -m 9                -m 8
-my @test_cases = qw(multi.blast.m9      multi.blast.m9);
+my @test_cases = qw(multi.blast.m9      multi.blast.m8);
 
 for my $file (@test_cases) {
     my $index = Bio::Index::BlastTable->new(-filename => 'Wibbl',
