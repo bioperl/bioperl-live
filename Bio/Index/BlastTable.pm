@@ -22,7 +22,7 @@ retrieval based on query accession(s)
     use strict;
     use Bio::Index::BlastTable;
     my ($indexfile,$file1,$file2,$query);
-    my $index = Bio::Index::Blast->new(-filename => $indexfile,
+    my $index = Bio::Index::BlastTable->new(-filename => $indexfile,
 				                          -write_flag => 1);
     $index->make_index($file1,$file2);
 
@@ -138,11 +138,8 @@ sub _version {
 =cut
 
 sub new {
-
   my($class,@args) = @_;
-
   my $self = $class->SUPER::new(@args);
-
 }
 
 =head2 Bio::Index::Blast implemented methods
@@ -193,18 +190,16 @@ sub _index_file {
 		 $i,    # Index-number of file being indexed
 	  ) = @_;
 
-	my( $begin,  # Offset from start of file of the start
-		          # of the last found record.
-	  );
-
 	open(my $BLAST, '<', $file) or $self->throw("cannot open file $file\n");
 	my $indexpoint = 0;
 	my $lastline = 0;
+    my $last_query = '';
 	while( <$BLAST> ) {
-		if(m{^#\s+T?BLAST[PNX]} ) {
+		if(m{^#\s+T?BLAST[PNX]}i ) {
             my $len = length $_;
             $indexpoint = tell($BLAST)-$len;
 		}
+        
         if(m{^#\s+Query:\s+([^\n]+)}) {
             foreach my $id ($self->id_parser()->($1)) {
 				$self->debug("id is $id, begin is $indexpoint\n");
