@@ -517,6 +517,17 @@ sub _readline {
 
 =cut
 
+# fix for bug 843, this reveals some unsupported behavior
+    
+#sub _pushback {
+#    my ($obj, $value) = @_;    
+#    if (index($value, $/) >= 0) {
+#        push @{$obj->{'_readbuffer'}}, $value;
+#    } else {
+#        $obj->throw("Pushing modifed data back not supported: $value");
+#    }
+#}
+
 sub _pushback {
     my ($obj, $value) = @_;
     return unless $value;
