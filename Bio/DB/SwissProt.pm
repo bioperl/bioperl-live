@@ -468,26 +468,11 @@ sub request_format {
 
 sub idtracker {
     my ($self, $id) = @_;
-    return unless defined $id;
-    my $st = $self->servertype;
-    my $base = ($st eq 'expasy') ? "http://".$HOSTS{$st}->{'hosts'}->{$self->hostlocation}
-        : $DEFAULTIDTRACKER;
-    my $url = $base.'/cgi-bin/idtracker?id='.$id;
-    my $response;
-    eval {$response = $self->ua->get($url)};
-    if ($@ || $response->is_error) {
-        my $error = $@ || $response->error_as_HTML;
-        $self->throw("Error:\n".$error);
-    }
-    if ($response->content =~ /was renamed to <b>(.*?)<\/b>/) {
-        return $1;
-    } elsif ($response->content =~ /<tr><th>Entry name<\/th><th>Accession number<\/th><th>Release created<\/th><\/tr>/){
-        # output indicates no mapping needed, return original ID
-        return $id;
-    } else {
-        $self->warn("Unknown response:\n".$response->content);
-        return
-    }
+    $self->deprecated(
+         -message => 'The SwissProt IDTracker service is no longer available',
+         -warn_version    => 1.006 # warn if $VERSION is >= this version
+         -throw_version   => 1.007 # throw if $VERSION is >= this version
+         );
 }
 
 1;
