@@ -1083,16 +1083,18 @@ sub move_id_to_bootstrap{
 }
 
 
-=head2 add_traits
+=head2 add_trait
 
-  Example    : $key = $stat->add_traits($tree, $trait_file, 3);
+  Example    : $key = $tree->add_trait($trait_file, 3);
   Description: Add traits to a Bio::Tree:Tree nodes
                of a tree from a file.
   Returns    : trait name
   Exceptions : log an error if a node has no value in the file
+  Args       : name of trait file (scalar string), 
+               index of trait file column (scalar int)
   Caller     : main()
 
-The trait file is a tab-delimied text file and need to have a header
+The trait file is a tab-delimited text file and needs to have a header
 line giving names to traits. The first column contains the leaf node
 ids. Subsequent columns contain different trait value sets. Columns
 numbering starts from 0. The default trait column is the second
