@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 15,
+	test_begin(-tests => 27,
 		-requires_module => 'IO::String');
     
 	use_ok('Cwd');
@@ -15,10 +15,8 @@ BEGIN {
 	use_ok('Bio::Index::BlastTable');
 }
 
-END {  unlink qw( Wibbl Wibbl.pag Wibbl.dir Wibbl.index); }
-
                        # -m 9                -m 8
-my @test_cases = qw(multi.blast.m9);
+my @test_cases = qw(multi.blast.m9      multi.blast.m9);
 
 for my $file (@test_cases) {
     my $index = Bio::Index::BlastTable->new(-filename => 'Wibbl',
@@ -29,8 +27,6 @@ for my $file (@test_cases) {
     ($index->dbm_package eq 'SDBM_File') ? 
         (ok(-e "Wibbl.pag" && -e "Wibbl.dir")) :
         (ok(-e "Wibbl"));
-    
-    
     
     foreach my $id ( qw(SP130_MOUSE IKZF1_MOUSE) ) {
         my $fh = $index->get_stream($id);
@@ -45,6 +41,7 @@ for my $file (@test_cases) {
         
         like( $index->fetch_report($id)->query_name, qr/$id/);
     }
+    unlink qw( Wibbl Wibbl.pag Wibbl.dir Wibbl.index);
 }
 
 # test id_parser

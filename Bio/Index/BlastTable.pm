@@ -199,12 +199,15 @@ sub _index_file {
             my $len = length $_;
             $indexpoint = tell($BLAST)-$len;
 		}
+        next if m{^#};
         
-        if(m{^#\s+Query:\s+([^\n]+)}) {
+        if (/^(?:([^\t]+)\t)(?:[^\t]+\t){7,}/) {
+            next if $last_query eq $1;
             foreach my $id ($self->id_parser()->($1)) {
 				$self->debug("id is $id, begin is $indexpoint\n");
 				$self->add_record($id, $i, $indexpoint);
 			}
+            $last_query = $1;
         }
 	}
 }
