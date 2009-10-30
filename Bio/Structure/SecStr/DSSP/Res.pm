@@ -1185,36 +1185,18 @@ sub _toDsspKey {
     # fast access.  Could be built during parse of input.
 
     my $self = shift;
-    my $arg_str;
+ 
+    my ( $key_num, $chain_id, $ins_code ) = @_;
 
-    my ( $key_num, $chain_id, $ins_code );
-
-    # check to see how many args are given
-    if ( $#_ > 1 ) { # multiple args
-	$key_num = shift;
-	if ( $#_ > 1 ) { # still multiple args => ins. code, too
-	    $ins_code = shift;
-	    $chain_id = shift;
-	}
-	else { # just one more arg. => chain_id
-	    $chain_id = shift;
-	}
-    }
-    else { # only single arg.  Might be number or string
-	$arg_str = shift;
-	if ( $arg_str =~ /:/ ) {
-	    # a chain is specified
-	    ( $chain_id ) = ( $arg_str =~ /:(.)/);
-	    $arg_str =~ s/:.//;
-	}
-	if ( $arg_str =~ /[A-Z]|[a-z]/ ) {
-	    # an insertion code is specified
-	    ( $ins_code ) = ( $arg_str =~ /([A-Z]|[a-z])/ );
-	    $arg_str =~ s/[A-Z]|[a-z]//g;
-	}
-	#now, get the number bit-> everything still around
-	$key_num = $arg_str;
-    }
+    if ( ! $chain_id) { # parse the lone argument
+	( $key_num, $chain_id, $ins_code ) 
+	    = $key_num =~ m/([0-9]+)
+                            ([a-zA-z]?)
+                            (?::([a-zA-Z]))?/xms
+              ? ( $1, $2, $3 )
+	      : $self->throw("Could not derive PDB key $key_num");
+     }
+    
 
     # Now find the residue which fits this description.  Linear search is
     # probably not the best way to do this, but oh well...
@@ -1232,7 +1214,7 @@ sub _toDsspKey {
 				return $i;
 			    }
 			}
-			else { # no isertion code specified, this is it
+			elsif ( $self->{'Res'}->[$i]->{'insertionco'} eq ''  ) { # no isertion code specified, but need to check that the located residue doesn't have an insertion code E.g. pdb1aye fails on this
 			    return $i;
 			}
 		    }
