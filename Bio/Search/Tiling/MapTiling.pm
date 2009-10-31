@@ -882,7 +882,7 @@ sub _calc_coverage_map {
 	@map = sort { $a->[0][0]<=>$b->[0][0] } @map;
 	$self->{"coverage_map_${type}_${context}"} = [@map];
 	# set the _contig_intersection attribute here (side effect)
-	$self->{"_contig_intersection_${type}_${context}"} = [map { $$_[0] } @dj_set];
+	$self->{"_contig_intersection_${type}_${context}"} = [map { $$_[0] } @map];
     }
 
     return 1; # success
