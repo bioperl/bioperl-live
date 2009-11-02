@@ -442,7 +442,8 @@ Email birney@ebi.ac.uk
 
 =head1 CONTRIBUTORS
 
-Jason Stajich E<lt>jason@bioperl.orgE<gt>
+ Jason Stajich E<lt>jason@bioperl.orgE<gt>
+ Mark A. Jensen maj -at- fortinbras -dot- us
 
 =head1 APPENDIX
 
@@ -962,6 +963,21 @@ sub annotation {
     return $obj->{'_annotation'};
 }
 
+
+
+=head2 get_Annotations()
+
+ Title   : get_Annotations
+ Usage   : @annots = $seq->get_Annotations()
+ Function: obtain Annotations for this object
+ Returns : array of AnnotationI objects
+ Args    : [optional] scalar string (tag)
+ Note    : see Bio::AnnotationCollectionI
+
+=cut
+
+sub get_Annotations { shift->annotation->get_Annotations(@_); }
+
 =head1 Methods to implement Bio::FeatureHolderI
 
 This includes methods for retrieving, adding, and removing features.
@@ -980,26 +996,32 @@ This includes methods for retrieving, adding, and removing features.
            feature object in order to traverse all features associated
            with this sequence.
 
+           Top-level features can be obtained by tag, specified in 
+           the argument.
+
            Use get_all_SeqFeatures() if you want the feature tree
            flattened into one single array.
 
  Example :
  Returns : an array of Bio::SeqFeatureI implementing objects
- Args    : none
+ Args    : [optional] scalar string (feature tag)
 
-At some day we may want to expand this method to allow for a feature
-filter to be passed in.
 
 =cut
 
 sub get_SeqFeatures{
    my $self = shift;
+   my $tag = shift;
 
    if( !defined $self->{'_as_feat'} ) {
        $self->{'_as_feat'} = [];
    }
-
-   return @{$self->{'_as_feat'}};
+   if ($tag) {
+       return map { $_->primary_tag eq $tag ? $_ : () } @{$self->{'_as_feat'}};
+   }
+   else {
+       return @{$self->{'_as_feat'}};
+   }
 }
 
 =head2 get_all_SeqFeatures

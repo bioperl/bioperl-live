@@ -78,6 +78,7 @@ Email hlapp at gmx.net
 =head1 CONTRIBUTORS
 
 Steffen Grossmann [SG], grossman-at-molgen.mpg.de
+Mark A. Jensen, maj -at- fortinbras -dot- us
 
 =head1 APPENDIX
 
@@ -99,14 +100,12 @@ use base qw(Bio::Root::RootI);
 
 =head2 get_SeqFeatures()
 
- Usage   :
+ Usage   : @feats = $obj->get_SeqFeatures()
  Function: Get the feature objects held by this feature holder.
  Example :
  Returns : an array of Bio::SeqFeatureI implementing objects
- Args    : none
-
-At some day we may want to expand this method to allow for a feature
-filter to be passed in.
+           if tag specified, return features having that tag
+ Args    : [optional] scalar string (feature tag)
 
 =cut
 
