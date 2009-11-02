@@ -101,20 +101,61 @@ Installation using the Perl Package Manager
 
   Comand-line Installation
 
-           1) Follow steps 1) and 2) from 'GUI Installation' above, if you
-           haven't done so already.
+           Use the ActiveState ppm-shell:
 
-           2) Open a cmd window by going to Start >> Run and typing 'cmd' and
-           pressing return.
+	   1) Open a cmd window by going to Start >> Run and typing
+	   'cmd' and pressing return.
 
-           3) Type the following into the cmd window:
-            
-             ppm-shell
-             search bioperl
-             install #
+           2) Do 
+	      C:> ppm-shell
+	      ppm>
+           
+           3) Make sure you have the module PPM-Repositories. Try
+           installing it:
+              ppm> install PPM-Repositories
 
-            (where the number matches the bioperl version needed) You can use '-force'
-            to force install if needed.
+           4) For BioPerl 1.6.1, we require at least the following
+           repositories. You may have some present already.
+
+              ppm> repo add http://bioperl.org/DIST
+              ppm> repo add uwinnipeg
+              ppm> repo add trouchelle
+
+           Because you have installed PPM-Repositories, PPM will know
+           your Perl version, and select the correct repo from the
+           table above.
+
+           5) Install BioPerl (not "bioperl"). 
+
+              ppm> install BioPerl
+
+           If you are running ActiveState Perl 5.10, you may have a
+           glitch involving SOAP::Lite. Use the following workaround:
+
+           1) Get the index numbers for your active repositories: 
+
+              ppm> repo
+
+              | id | pkgs  | name                           |
+              |  1 | 11431 | ActiveState Package Repository |
+              |  2 |    14 | bioperl.org                    |
+              |  3 |   291 | uwinnipeg                      |
+              |  4 | 11755 | trouchelle                     | 
+
+           2) Execute the following commands. (The session here is
+           based on the above table. Substitute the correct index
+           numbers for your situation.)
+
+              rem -turn off ActiveState, trouchelle repos
+              ppm> repo off 1
+              ppm> repo off 4
+              rem -to get SOAP-Lite-0.69 from uwinnipeg...
+              ppm> install SOAP-Lite
+              rem -turn ActiveState, trouchelle back on...
+              ppm> repo on 1
+              ppm> repo on 4
+              rem -now try...
+              ppm> install BioPerl
 
 Installation using CPAN or manual installation
 
