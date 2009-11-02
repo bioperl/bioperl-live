@@ -1020,6 +1020,7 @@ sub remove_Annotations { shift->annotation->remove_Annotations(@_) }
 =head2 get_num_of_annotations()
 
  Usage   : my $count = $seq->get_num_of_annotations()
+ Alias   : num_Annotations
  Function: Returns the count of all annotations stored for this sequence
            object      
  Returns : integer
