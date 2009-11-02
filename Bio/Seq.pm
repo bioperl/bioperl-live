@@ -463,7 +463,7 @@ use strict;
 use Bio::Annotation::Collection;
 use Bio::PrimarySeq;
 
-use base qw(Bio::Root::Root Bio::SeqI Bio::IdentifiableI Bio::DescribableI Bio::AnnotatableI Bio::FeatureHolderI);
+use base qw(Bio::Root::Root Bio::SeqI Bio::IdentifiableI Bio::DescribableI Bio::AnnotatableI Bio::FeatureHolderI Bio::AnnotationCollectionI);
 
 =head2 new
 
@@ -963,20 +963,72 @@ sub annotation {
     return $obj->{'_annotation'};
 }
 
-
+=head1 Methods for delegating Bio::AnnotationCollectionI
 
 =head2 get_Annotations()
 
- Title   : get_Annotations
- Usage   : @annots = $seq->get_Annotations()
- Function: obtain Annotations for this object
- Returns : array of AnnotationI objects
- Args    : [optional] scalar string (tag)
- Note    : see Bio::AnnotationCollectionI
+ Usage   : my @annotations = $seq->get_Annotations('key')
+ Function: Retrieves all the Bio::AnnotationI objects for a specific key
+           for this object
+ Returns : list of Bio::AnnotationI - empty if no objects stored for a key
+ Args    : string which is key for annotations
 
 =cut
 
 sub get_Annotations { shift->annotation->get_Annotations(@_); }
+
+=head2 add_Annotation()
+
+ Usage   : $seq->add_Annotation('reference',$object);
+           $seq->add_Annotation($object,'Bio::MyInterface::DiseaseI');
+           $seq->add_Annotation($object);
+           $seq->add_Annotation('disease',$object,'Bio::MyInterface::DiseaseI');
+ Function: Adds an annotation for a specific key for this sequence object.
+
+           If the key is omitted, the object to be added must provide a value
+           via its tagname().
+
+           If the archetype is provided, this and future objects added under
+           that tag have to comply with the archetype and will be rejected
+           otherwise.
+
+ Returns : none
+ Args    : annotation key ('disease', 'dblink', ...)
+           object to store (must be Bio::AnnotationI compliant)
+           [optional] object archetype to map future storage of object
+           of these types to
+
+=cut
+
+sub add_Annotation { shift->annotation->add_Annotation(@_) }
+
+=head2 remove_Annotations()
+
+ Usage   : $seq->remove_Annotations()
+ Function: Remove the annotations for the specified key from this sequence 
+           object
+ Returns : an list of Bio::AnnotationI compliant objects which were stored
+           under the given key(s) for this sequence object
+ Args    : the key(s) (tag name(s), one or more strings) for which to
+           remove annotations (optional; if none given, flushes all
+           annotations)
+
+=cut
+
+sub remove_Annotations { shift->annotation->remove_Annotations(@_) }
+
+=head2 get_num_of_annotations()
+
+ Usage   : my $count = $seq->get_num_of_annotations()
+ Function: Returns the count of all annotations stored for this sequence
+           object      
+ Returns : integer
+ Args    : none
+
+=cut
+
+sub get_num_of_annotations { shift->annotation->get_num_of_annotations(@_) }
+sub num_Annotations { shift->get_num_of_annotations }; #DWYM
 
 =head1 Methods to implement Bio::FeatureHolderI
 
