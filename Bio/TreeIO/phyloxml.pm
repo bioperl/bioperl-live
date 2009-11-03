@@ -265,7 +265,7 @@ sub add_attribute
 
 }
 
-=ehead2 add_phyloXML_annotation
+=head2 add_phyloXML_annotation
 
  Title   : add_phyloXML_annotation
  Usage   : my $node = $treeio->add_phyloXML_annotation(-obj=>$node, -xml=>$xmlstring)
