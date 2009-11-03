@@ -178,10 +178,99 @@ sub next_tree
   return $tree;
 }
 
-=head2 add_phyloXML_annotation
+=head2 add_attribute
+
+ Title   : add_phyloXML_annotation
+ Usage   : my $node = $treeio->add_phyloXML_annotation(-obj=>$node, -attr=>"id_source = \"A\"")
+ Function: add attributes to an object 
+ Returns : the node that we added annotations to
+ Args    : -obj   => object that will have the Annotation. (Bio::Tree::AnnotatableNode)
+           -attr  => string in the form "A = B", where A is the attribute name and B is the attribute value
+
+=cut
+
+sub add_attribute
+{
+  my ($self, @args) = @_;
+  my ($obj, $attr) = $self->_rearrange([qw(OBJ ATTR)], @args);
+
+  if ($attr) { 
+    $attr = '<dummy '.$attr.'/>';
+  }
+  
+  my $oldreader = $self->{'_reader'};   # save reader
+  $self->{'_reader'} = XML::LibXML::Reader->new( 
+                string => $attr,
+                no_blanks => 1
+                );      
+  my $reader = $self->{'_reader'};
+  $self->{'_currentannotation'} = []; # holds annotationcollection 
+  $self->{'_currenttext'} = '';
+  #$self->{'_id_link'} = {};
+
+  # pretend we saw a <clade> element 
+  $self->{'_lastitem'}->{'dummy'}++;
+  push @{$self->{'_lastitem'}->{'current'}}, { 'dummy'=>{}};  # current holds current element and empty hash for its attributes
+
+  # push object to annotate
+  push @{$self->{'_currentitems'}}, $obj;
+
+  # read attributes of element
+  while ($reader->read) 
+  {
+    #$self->processXMLNode;
+    $self->processAttribute($self->current_attr);
+  }
+
+  # if there is id_source add sequence to _id_link
+  if (exists $self->current_attr->{'id_source'}) { 
+    my $idsrc = $self->current_attr->{'id_source'}; 
+    $self->{'_id_link'}->{$idsrc} = $obj;
+  }
+
+  # check idref
+  my $idref = '';
+  if (exists $self->current_attr->{'id_ref'}) { 
+    $idref = $self->current_attr->{'id_ref'}; 
+  }
+
+  my $srcbyidref = '';
+  $srcbyidref = $self->{'_id_link'}->{$idref};
+
+  # exception when id_ref is defined but id_src is not, or vice versa.
+  if ($idref xor $srcbyidref) {
+    $self->throw("id_ref and id_src incompatible: $idref, $srcbyidref");
+  }
+
+  # if attribute exists then add Annotation::Collection with tag '_attr'
+  my $newac = $obj->annotation;
+  if ( scalar keys %{$self->current_attr} ) {
+    my $newattr = Bio::Annotation::Collection->new();
+    foreach my $tag (keys %{$self->current_attr}) {
+      my $sv = Bio::Annotation::SimpleValue->new(
+          -value => $self->current_attr->{$tag}
+          );
+      $newattr->add_Annotation($tag, $sv);
+    }
+    $newac->add_Annotation('_attr', $newattr);
+  }
+
+  # pop from temporary list
+  pop @{$self->{'_currentitems'}};
+  $self->{'_lastitem'}->{ $reader->name }-- if $reader->name;
+  pop @{$self->{'_lastitem'}->{'current'}};
+
+  $self->{'_reader'} = $oldreader;  # restore reader
+  return $obj;
+
+}
+
+=ehead2 add_phyloXML_annotation
 
  Title   : add_phyloXML_annotation
  Usage   : my $node = $treeio->add_phyloXML_annotation(-obj=>$node, -xml=>$xmlstring)
+           my $tree = $treeio->add_phyloXML_annotation('-obj'=>$tree, '-xml'=>'<sequence_relation id_ref_0="A" id_ref_1="B" type="orthology"/>')
+
  Function: add annotations to a node in the phyloXML format string
  Returns : the node that we added annotations to
  Args    : -obj   => object that will have the Annotation. (Bio::Tree::AnnotatableNode)
@@ -192,10 +281,12 @@ sub next_tree
 sub add_phyloXML_annotation
 {
   my ($self, @args) = @_;
-  my ($obj, $xml_string, $attr) = $self->_rearrange([qw(OBJ XML ATTR)], @args);
+  my ($obj, $xml_string) = $self->_rearrange([qw(OBJ XML)], @args);
   
   $xml_string = '<phyloxml>'.$xml_string.'</phyloxml>';
   $self->debug( $xml_string );
+
+  my $oldreader = $self->{'_reader'};   # save reader
   $self->{'_reader'} = XML::LibXML::Reader->new( 
                 string => $xml_string,
                 no_blanks => 1
@@ -203,7 +294,7 @@ sub add_phyloXML_annotation
   my $reader = $self->{'_reader'};
   $self->{'_currentannotation'} = []; # holds annotationcollection 
   $self->{'_currenttext'} = '';
-  $self->{'_id_link'} = {};
+  #$self->{'_id_link'} = {};
 
   # pretend we saw a <clade> element 
   $self->{'_lastitem'}->{'clade'}++;
@@ -223,6 +314,7 @@ sub add_phyloXML_annotation
   $self->{'_lastitem'}->{ $reader->name }-- if $reader->name;
   pop @{$self->{'_lastitem'}->{'current'}};
   
+  $self->{'_reader'} = $oldreader;  # restore reader
   return $obj;
 }
 
@@ -787,6 +879,8 @@ sub end_element_relation
   my @srcbyidref = ();
   $srcbyidref[0] = $self->{'_id_link'}->{$id_ref_0};
   $srcbyidref[1] = $self->{'_id_link'}->{$id_ref_1};
+  
+  print %{$self->{'_id_link'}}, "\n";
 
   # exception when id_ref is defined but id_src is not, or vice versa.
   if ( ($id_ref_0 xor $srcbyidref[0])||($id_ref_1 xor $srcbyidref[1]) ) {

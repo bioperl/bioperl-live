@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
 	use Bio::Root::Test;
   
-	test_begin(-tests => 97,
+	test_begin(-tests => 98,
 			   -requires_modules => [qw(XML::LibXML XML::LibXML::Reader)]);
 	
 	use_ok('Bio::TreeIO');
@@ -68,10 +68,10 @@ SKIP: {
 	  diag("\ntest write_tree");
 	}
 	my $FILE1 = test_output_file();
-	my $treeio = Bio::TreeIO->new(-verbose => $verbose,
+	my $treeout = Bio::TreeIO->new(-verbose => $verbose,
 		-format => 'phyloxml',
 		-file   => ">$FILE1");
-	$treeio->write_tree($tree);
+	$treeout->write_tree($tree);
 	ok -s $FILE1;
 	if ($verbose > 0) {
 	  diag(`cat $FILE1`);
@@ -110,10 +110,10 @@ SKIP: {
 	  diag("\ntest write_tree");
 	}
 	my $FILE1 = test_output_file();
-	my $treeio = Bio::TreeIO->new(-verbose => $verbose,
+	my $treeout = Bio::TreeIO->new(-verbose => $verbose,
 		-format => 'phyloxml',
 		-file   => ">$FILE1");
-	$treeio->write_tree($tree);
+	$treeout->write_tree($tree);
 	ok -s $FILE1;
 	if ($verbose > 0) {
 	  diag(`cat $FILE1`);
@@ -148,10 +148,10 @@ SKIP: {
 	  diag("\ntest write_tree");
 	}
 	my $FILE1 = test_output_file();
-	my $treeio = Bio::TreeIO->new(-verbose => $verbose,
+	my $treeout = Bio::TreeIO->new(-verbose => $verbose,
 		-format => 'phyloxml',
 		-file   => ">$FILE1");
-	$treeio->write_tree($tree);
+	$treeout->write_tree($tree);
 	ok -s $FILE1;
 	if ($verbose > 0) {
 	  diag(`cat $FILE1`);
@@ -203,10 +203,10 @@ SKIP: {
 	  diag("\ntest write_tree");
 	}
 	my $FILE1 = test_output_file();
-	my $treeio = Bio::TreeIO->new(-verbose => $verbose,
+	my $treeout = Bio::TreeIO->new(-verbose => $verbose,
 		-format => 'phyloxml',
 		-file   => ">$FILE1");
-	$treeio->write_tree($tree);
+	$treeout->write_tree($tree);
 	ok -s $FILE1;
 	if ($verbose > 0) {
 	  diag(`cat $FILE1`);
@@ -265,10 +265,10 @@ SKIP: {
 	  diag("\ntest write_tree");
 	}
 	my $FILE1 = test_output_file();
-	my $treeio = Bio::TreeIO->new(-verbose => $verbose,
+	my $treeout = Bio::TreeIO->new(-verbose => $verbose,
 		-format => 'phyloxml',
 		-file   => ">$FILE1");
-	$treeio->write_tree($tree);
+	$treeout->write_tree($tree);
 	ok -s $FILE1;
 	if ($verbose > 0) {
 	  diag(`cat $FILE1`);
@@ -307,16 +307,35 @@ SKIP: {
 	}
 	my ($z_seqname_text2) = $treeio->read_annotation('-obj'=>$z_seq, '-path'=>'name');
 	is ($z_seqname_text->value, $z_seqname_text2);
-  
+	my ($y) = $leaves[1];
+	my $y_seq = $y->sequence->[0];
+	isa_ok ($y_seq, 'Bio::SeqI');
+
+  # add attribute id_source
+  $treeio->add_attribute(
+        '-obj' => $z_seq,
+        '-attr' => "id_source = \"A\""
+        );
+  $treeio->add_attribute(
+        '-obj' => $y_seq,
+        '-attr' => "id_source = \"B\""
+        );
+ 
+  # add sequence relation
+  $treeio->add_phyloXML_annotation(
+          '-obj'=>$tree,
+          '-xml'=>'<sequence_relation id_ref_0="A" id_ref_1="B" type="orthology"/>'
+          );      
+ 
   # write_tree
 	if ($verbose > 0) {
 	  diag("\ntest write_tree");
 	}
 	my $FILE1 = test_output_file();
-	my $treeio = Bio::TreeIO->new(-verbose => $verbose,
+	my $treeout = Bio::TreeIO->new(-verbose => $verbose,
 		-format => 'phyloxml',
 		-file   => ">$FILE1");
-	$treeio->write_tree($tree);
+	$treeout->write_tree($tree);
 	ok -s $FILE1;
 	if ($verbose > 0) {
 	  diag(`cat $FILE1`);
@@ -364,10 +383,10 @@ SKIP: {
 	  diag("\ntest write_tree");
 	}
 	my $FILE1 = test_output_file();
-	my $treeio = Bio::TreeIO->new(-verbose => $verbose,
+	my $treeout = Bio::TreeIO->new(-verbose => $verbose,
 		-format => 'phyloxml',
 		-file   => ">$FILE1");
-	$treeio->write_tree($tree);
+	$treeout->write_tree($tree);
 	ok -s $FILE1;
 	if ($verbose > 0) {
 	  diag(`cat $FILE1`);
@@ -410,10 +429,10 @@ SKIP: {
 	  diag("\ntest write_tree");
 	}
 	my $FILE1 = test_output_file();
-	my $treeio = Bio::TreeIO->new(-verbose => $verbose,
+	my $treeout = Bio::TreeIO->new(-verbose => $verbose,
 		-format => 'phyloxml',
 		-file   => ">$FILE1");
-	$treeio->write_tree($tree);
+	$treeout->write_tree($tree);
 	ok -s $FILE1;
 	if ($verbose > 0) {
 	  diag(`cat $FILE1`);
@@ -453,10 +472,10 @@ SKIP: {
 	  diag("\ntest write_tree");
 	}
 	my $FILE1 = test_output_file();
-	my $treeio = Bio::TreeIO->new(-verbose => $verbose,
+	my $treeout = Bio::TreeIO->new(-verbose => $verbose,
 		-format => 'phyloxml',
 		-file   => ">$FILE1");
-	$treeio->write_tree($tree);
+	$treeout->write_tree($tree);
 	ok -s $FILE1;
 	if ($verbose > 0) {
 	  diag(`cat $FILE1`);
@@ -507,10 +526,10 @@ SKIP: {
 	  diag("\ntest write_tree");
 	}
 	my $FILE1 = test_output_file();
-	my $treeio = Bio::TreeIO->new(-verbose => $verbose,
+	my $treeout = Bio::TreeIO->new(-verbose => $verbose,
 		-format => 'phyloxml',
 		-file   => ">$FILE1");
-	$treeio->write_tree($tree);
+	$treeout->write_tree($tree);
 	ok -s $FILE1;
 	if ($verbose > 0) {
 	  diag(`cat $FILE1`);
@@ -556,10 +575,10 @@ SKIP: {
 	  diag("\ntest write_tree");
 	}
 	my $FILE1 = test_output_file();
-	my $treeio = Bio::TreeIO->new(-verbose => $verbose,
+	my $treeout = Bio::TreeIO->new(-verbose => $verbose,
 		-format => 'phyloxml',
 		-file   => ">$FILE1");
-	$treeio->write_tree($tree);
+	$treeout->write_tree($tree);
 	ok -s $FILE1;
 	if ($verbose > 0) {
 	  diag(`cat $FILE1`);
@@ -586,15 +605,17 @@ SKIP: {
 	for (@children) {
 	  push @leaves, $_ if $_->is_Leaf;
 	}
-	my ($D) = $leaves[0];
+  my ($D) = $tree->find_node(-id => 'A');
 	my ($dateunit) =  $treeio->read_annotation('-obj'=>$D, '-path'=>'date/unit', '-attr'=>1);
-	my ($daterange) =  $treeio->read_annotation('-obj'=>$D, '-path'=>'date/range', '-attr'=>1);
+	my ($datemin) =  $treeio->read_annotation('-obj'=>$D, '-path'=>'date/minimum' );
+	my ($datemax) =  $treeio->read_annotation('-obj'=>$D, '-path'=>'date/maximum' );
 	my ($datevalue) =  $treeio->read_annotation('-obj'=>$D, '-path'=>'date/value');
 	is ($dateunit, 'mya');
-	is ($daterange, '30');
-	is ($datevalue, '600');
+	is ($datemin, '416.0');
+	is ($datemax, '443.7');
+	is ($datevalue, '425');
 	if ($verbose > 0) {
-	  diag("node date unit: $dateunit range $daterange value $datevalue");
+	  diag("node date unit: $dateunit min $datemin max $datemax value $datevalue");
 	}
   
   # write_tree
@@ -602,10 +623,10 @@ SKIP: {
 	  diag("\ntest write_tree");
 	}
 	my $FILE1 = test_output_file();
-	my $treeio = Bio::TreeIO->new(-verbose => $verbose,
+	my $treeout = Bio::TreeIO->new(-verbose => $verbose,
 		-format => 'phyloxml',
 		-file   => ">$FILE1");
-	$treeio->write_tree($tree);
+	$treeout->write_tree($tree);
 	ok -s $FILE1;
 	if ($verbose > 0) {
 	  diag(`cat $FILE1`);
@@ -647,28 +668,26 @@ SKIP: {
 	$treeio->add_phyloXML_annotation(
 			  -obj => $D, 
 			  -xml => "            <name>D</name>
-			  <date unit=\"mya\" range=\"30\">
+			  <date unit=\"mya\">
 				 <desc>my date</desc>
-				 <value>veryveryold</value>
+				 <value>manymany million years</value>
 			  </date>
   "
 			  );
 	my ($dateunit) =  $treeio->read_annotation('-obj'=>$D, '-path'=>'date/unit', '-attr'=>1);
-	my ($daterange) =  $treeio->read_annotation('-obj'=>$D, '-path'=>'date/range', '-attr'=>1);
 	my ($datevalue) =  $treeio->read_annotation('-obj'=>$D, '-path'=>'date/value');
 	is ($dateunit, 'mya');
-	is ($daterange, '30');
-	is ($datevalue, 'veryveryold');
+	is ($datevalue, 'manymany million years');
   
   # write_tree
 	if ($verbose > 0) {
 	  diag("\ntest write_tree");
 	}
 	my $FILE1 = test_output_file();
-	my $treeio = Bio::TreeIO->new(-verbose => $verbose,
+	my $treeout = Bio::TreeIO->new(-verbose => $verbose,
 		-format => 'phyloxml',
 		-file   => ">$FILE1");
-	$treeio->write_tree($tree);
+	$treeout->write_tree($tree);
 	ok -s $FILE1;
 	if ($verbose > 0) {
 	  diag(`cat $FILE1`);
@@ -676,6 +695,7 @@ SKIP: {
   }
   
   
+  # tree14: convert between nhx and phyloxml
   # convert between nhx-phyloxml
   {
 	if ($verbose > 0) {
@@ -697,5 +717,31 @@ SKIP: {
 	  diag(`cat $FILE1`);
 	}
   }
+
+  # to-do 1. validation
+TODO: {
+  local $TODO = 'validation not implemented yet';
+
+  my $xsd = "http://www.phyloxml.org/1.10/phyloxml.xsd";
+#  for my $XSD ($xsd, XML::LibXML::Schema->new(location => $xsd)) {
+#    {
+#      my $reader = new XML::LibXML::Reader(
+#  location => "test/schema/demo.xml",
+#  Schema => $XSD,
+#       );
+#      ok($reader->finish, "validate using ".(ref($XSD) ? 'XML::LibXML::Schema' : 'Schema file'));
+#    }
+#    {
+#      my $reader = new XML::LibXML::Reader(
+#  location => "test/schema/invaliddemo.xml",
+#  Schema => $XSD,
+#       );
+#      eval { $reader->finish };
+#      ok($@, "catch validation error for ".(ref($XSD) ? 'XML::LibXML::Schema' : 'Schema file'));
+#    }
+#
+#  }
+
+} 
   
 }
