@@ -1,28 +1,36 @@
 #Author: William McCaig
 #Date: 06/16/2006
 #Purpose:  To print visual images of alignments
-
-#Requires:  An alignment file
-
-#Produces:  An image file
-
-#Revision History: 
-#09/01/2006 - WDM - Introduction of "wrap" flag, allowing alignment to be wrapped at a set base and stacked vertically
-#		    Addition of internal members y_num and y_size for tracking of number of vertical panels and size of panels, respectively
 #
-#09/06/2006 - WDM - Introduction of "p_legend" flag, for printing of an optional colored legend when protein coloring is selected
+#Requires:  An alignment file
+#
+#Produces:  An image file
+#
+#Revision History: 
+#09/01/2006 - WDM - Introduction of "wrap" flag, allowing alignment to be
+#                   wrapped at a set base and stacked vertically
+#                   Addition of internal members y_num and y_size for tracking
+#                   of number of vertical panels and size of panels,
+#                   respectively
+#
+#09/06/2006 - WDM - Introduction of "p_legend" flag, for printing of an optional
+#                   colored legend when protein coloring is selected
 #
 #09/24/2008 - WDM - Test file created for the module
 #
-#03/01/2009	- YH  - Introduction of "show_nonsynonymous" flag which enables highlighting of nonsynonymous mutations in nucleotide
-#			alignments. Addition of internal members codon_table and missense_pos for translating codons -> amino acids and for
-#			keeping track of missense mutation positions respectively.
+#03/01/2009 - YH -  Introduction of "show_nonsynonymous" flag which enables
+#                   highlighting of nonsynonymous mutations in nucleotide
+#                   alignments. Addition of internal members codon_table and
+#                   missense_pos for translating codons -> amino acids and for
+#                   keeping track of missense mutation positions respectively.
 #
-#03/05/2009 - YH  - Swapped names of subroutines x_label and y_label to match both documentation and intuition. Finalized
-#			implementation of show_nonsynonymous functionality.
+#03/05/2009 - YH  - Swapped names of subroutines x_label and y_label to match
+#                   both documentation and intuition. Finalized implementation
+#                   of show_nonsynonymous functionality.
+
+# docs after the code!
 
 package Bio::Align::Graphics;
-#package AlignGraphics;
 
 use vars qw( @PRINT_PARAMS %OK_FIELD);
 
@@ -1118,6 +1126,8 @@ a set of tag/value pairs as follows:
 
 Note that all arrays and hashes must be passed by reference.
 
+=back
+
 =head1 OBJECT METHODS
 
 =over 4
@@ -1145,6 +1155,8 @@ Get the format of the alignment submitted to new().
 =item $draw_align-E<gt>no_sequences();
 
 Get the number of sequences in the alignment submitted to new().
+
+=back
 
 =head1 AUTHORS AND CONTRIBUTORS
 
