@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 62 );
+    test_begin( -tests => 64 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
