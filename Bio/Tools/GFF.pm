@@ -157,6 +157,10 @@ use base qw(Bio::Root::Root Bio::SeqAnalysisParserI Bio::Root::IO);
 my $i = 0;
 my %GFF3_ID_Tags = map { $_ => $i++ } qw(ID Parent Target);
 
+# for skipping data that may be represented elsewhere; currently, this is
+# only the score
+my %SKIPPED_TAGS = map { $_ => 1 } qw(score);
+
 =head2 new
 
  Title   : new
@@ -749,11 +753,12 @@ sub _gff1_string{
 		 $strand,
 		 $frame);
 
-   foreach my $tag ( $feat->all_tags ) {
-       foreach my $value ( $feat->each_tag_value($tag) ) {
-	   $str .= " $tag=$value" if $value;
-       }
-   }
+    foreach my $tag ( $feat->all_tags ) {
+        next if exists $SKIPPED_TAGS{$tag};
+        foreach my $value ( $feat->each_tag_value($tag) ) {
+        $str .= " $tag=$value" if $value;
+        }
+    }
 
 
    return $str;
@@ -830,6 +835,7 @@ sub _gff2_string{
    my @group;
    if (@all_tags) {  # only play this game if it is worth playing...
        foreach my $tag ( @all_tags ) {
+       next if exists $SKIPPED_TAGS{$tag};
 	   my @v;
 	   foreach my $value ( $feat->each_tag_value($tag) ) {
  	       unless( defined $value && length($value) ) {
@@ -929,6 +935,7 @@ sub _gff25_string {
 	foreach my $tag ( @all_tags ) {
 	    my @v;
 	    foreach my $value ( $feat->each_tag_value($tag) ) {
+        next if exists $SKIPPED_TAGS{$tag};
 		unless( defined $value && length($value) ) {
 		    $value = '""';
 		} elsif ($value =~ /[^A-Za-z0-9_]/){
@@ -1028,6 +1035,7 @@ sub _gff3_string {
     }
 
     for my $tag ( @all_tags ) {
+    next if exists $SKIPPED_TAGS{$tag};
 	# next if $tag eq 'Target';
 	if ($tag eq 'Target' && ! $origfeat->isa('Bio::SeqFeature::FeaturePair')){  
 	    # simple Target,start,stop
@@ -1044,7 +1052,7 @@ sub _gff3_string {
 	# for this tag, with quoted free text and 
 	# space-separated individual values.
 	my @v;
-	for my $value ( $feat->each_tag_value($tag) ) {	    
+	for my $value ( $feat->each_tag_value($tag) ) {
 	    if(  defined $value && length($value) ) { 
 				#$value =~ tr/ /+/;  #spaces are allowed now
                 if ( ref $value eq 'Bio::Annotation::Comment') {
