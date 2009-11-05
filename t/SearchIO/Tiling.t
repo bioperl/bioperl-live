@@ -10,7 +10,7 @@ BEGIN {
     use Bio::Root::Test;
     $EXHAUSTIVE = $ENV{BIOPERL_TILING_EXHAUSTIVE_TESTS};
     $VERBOSE    = $ENV{BIOPERL_TILING_VERBOSE_TESTS};
-    test_begin(-tests => ($EXHAUSTIVE ? 6471 : 1093) );
+    test_begin(-tests => ($EXHAUSTIVE ? 6475 : 1097) );
 }
 
 use_ok('Bio::Search::Tiling::MapTiling');
@@ -98,6 +98,9 @@ my %test_files = (
                )],
     'psiblast' => [qw(
                psiblastreport.out
+               )],
+    'bug2942'  => [qw(
+               bug2942.blastx
                )]
     );
 
@@ -334,6 +337,24 @@ foreach my $alg (@normal_formats, @xltd_formats) {
     }
 }
 
+# bug 2942
+
+my %expected_ranges = ( 'm0' => [7, 11037], #query
+			'm1' => [1170, 10865], #query 
+			'm2' => [2462, 14599], #query
+			'all' => [231, 3563] #subject
+    );
+$blio = Bio::SearchIO->new( -file=>test_input_file( $test_files{'bug2942'}->[0] ),
+			    -format => 'blast' );
+$hit = $blio->next_result->next_hit;
+$tiling = Bio::Search::Tiling::MapTiling->new($hit);
+for ( 'm0', 'm1', 'm2' ) {
+    is_deeply( [$tiling->range('query',$_)], $expected_ranges{$_}, "bug2942: query $_: range correct");
+}
+is_deeply( [$tiling->range('subject', 'all')], $expected_ranges{'all'}, "bug2942: subject all : range correct" );
+
+
+
 package Bio::Search::Tiling::MapTiling;
 
 sub cmp_frac {
@@ -354,6 +375,8 @@ sub cmp_frac {
 }
 
 sub f { my ($d,$val) = @_; sprintf("%.${d}f",$val) }       
+
+    
 
     
 1;
