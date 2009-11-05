@@ -126,7 +126,8 @@ use base qw(Bio::Assembly::IO);
  Title   : next_assembly
  Usage   : $unigene = $stream->next_assembly()
  Function: returns the next assembly in the stream
- Returns : Bio::Assembly::Scaffold object
+ Returns : a Bio::Assembly::Scaffold object, or undef if no contigs or singlets
+             were found
  Args    : NONE
 
 =cut
@@ -441,7 +442,8 @@ sub next_assembly {
 
     $assembly->update_seq_list();
 
-    $assembly->get_nof_contigs ? return $assembly : return;
+    #$assembly->get_nof_contigs ? return $assembly : return;
+    return $assembly;
 }
 
 =head2 write_assembly

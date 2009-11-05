@@ -210,7 +210,7 @@ END
  Returns : guessed format of filename (lower case)
  Args    :
  Notes   : formats that _filehandle() will guess includes
-           only phrap, by now.
+           ace, phrap and tigr at the moment
 
 =cut
 
@@ -219,8 +219,9 @@ sub _guess_format {
    my $arg   = shift;
 
    return unless defined($arg);
-   return 'ace' if ($arg =~ /\.ace\.\d+$/i);
-   return 'phrap' if ($arg =~ /\.phrap\.out$/i);
+   return 'ace'   if ($arg =~ /\.ace/i);
+   return 'phrap' if ($arg =~ /\.phrap/i);
+   return 'tigr'  if ($arg =~ /\.tigr/i);
 }
 
 sub DESTROY {
