@@ -5,7 +5,8 @@
 use strict;
 
 BEGIN {
-   use lib '.';
+#    use lib '.';
+    use lib '../..';
    use Bio::Root::Test;
    
    test_begin(-tests => 49);
@@ -15,7 +16,7 @@ BEGIN {
    use_ok('Bio::Tools::GuessSeqFormat');
 }
 
-my @seqformats = qw{ ace embl fasta gcg genbank mase
+my @seqformats = qw{ ace embl fasta fastq gcg genbank mase
                         pfam pir raw swiss tab game};
 
 my $format;
@@ -76,7 +77,7 @@ foreach $format (@seqformats) {
 # AlignIO formats
 #
 
-@seqformats = qw{ aln:clustalw fasta mase msf nexus pfam phylip
+@seqformats = qw{ aln:clustalw fasta fastq mase msf nexus pfam phylip
                   prodom stockholm}; # not selex (same as pfam, mainly)
 
 my %no_alignio_module = map {$_=>1} qw {};
@@ -126,4 +127,8 @@ gtagttatgc
 #
 
     ok new Bio::Tools::GuessSeqFormat( -text => $string )->guess, 'fasta';
+}
+
+sub test_input_file {
+    return "/cygwin/usr/local/lib/perl5/bioperl-live/t/data/".shift;
 }
