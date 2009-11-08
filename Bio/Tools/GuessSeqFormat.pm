@@ -90,6 +90,10 @@ FastA sequence ("fasta")
 
 =item *
 
+FastQ sequence ("fastq")
+
+=item *
+
 FastXY/FastA alignment ("fastxy")
 
 =item *
@@ -228,6 +232,7 @@ Andreas Kähäri, andreas.kahari@ebi.ac.uk
 =head1 CONTRIBUTORS
 
 Heikki Lehväslaiho, heikki-at-bioperl-dot-org
+Mark A. Jensen, maj-at-fortinbras-dot-us
 
 =cut
 
@@ -410,6 +415,7 @@ our %formats = (
     codata      => { test => \&_possibly_codata     },
     embl        => { test => \&_possibly_embl       },
     fasta       => { test => \&_possibly_fasta      },
+    fastq       => { test => \&_possibly_fastq      },
     fastxy      => { test => \&_possibly_fastxy     },
     game        => { test => \&_possibly_game       },
     gcg         => { test => \&_possibly_gcg        },
@@ -597,6 +603,19 @@ sub _possibly_fasta
     my ($line, $lineno) = (shift, shift);
     return (($lineno != 1 && $line =~ /^[A-IK-NP-Z]+$/i) ||
             $line =~ /^>\s*\w/);
+}
+
+=head2 _possibly_fastq
+
+From bioperl test data.
+
+=cut
+
+sub _possibly_fastq
+{
+    my ($line, $lineno) = (shift, shift);
+    return ( ($lineno == 1 && $line =~ /^@/) ||
+	     ($lineno == 3 && $line =~ /^\+/) );
 }
 
 =head2 _possibly_fastxy
