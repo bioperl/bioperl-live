@@ -222,6 +222,7 @@ sub _guess_format {
    return 'ace'   if ($arg =~ /\.ace/i);
    return 'phrap' if ($arg =~ /\.phrap/i);
    return 'tigr'  if ($arg =~ /\.tigr/i);
+   return 'maq'   if ($arg =~ /\.maq/i);
 }
 
 sub DESTROY {
