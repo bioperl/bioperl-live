@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 51,
+    test_begin(-tests => 58,
 	-requires_module => 'DB_File');
 	
 	use_ok('Bio::Assembly::IO');
@@ -195,4 +195,18 @@ my $asm_out = Bio::Assembly::IO->new(
 );
 
 ok $asm_out->write_assembly( -scaffold => $scaf_in);
+
+#
+# Testing maq
+# /maj
+#
+
+ok $aio = Bio::Assembly::IO->new( -file => test_input_file('test.maq'),
+				  -format => 'maq' ), "init maq IO object";
+ok $assembly = $aio->next_assembly, "get maq assy";
+is( $assembly->get_nof_contigs, 11, "got all contigs");
+ok open(my $tf, test_input_file('test.maq')), "read test file as text";
+my @lines = <$tf>;
+is( $assembly->get_nof_contig_seqs, scalar @lines, "recorded all maq reads");
+ok !$assembly->get_nof_singlets, "no singlets";
 
