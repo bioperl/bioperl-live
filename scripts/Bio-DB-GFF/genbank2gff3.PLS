@@ -465,6 +465,7 @@ for my $file ( @files ) {
                   @to_print= print_held($out, $gffio, \@to_print) if ($action == GM_NEW_TOPLEVEL);
                   push(@to_print, $feature);
                 }
+
             }
             
             # otherwise handle as generic feats with IDHandler labels 
@@ -830,7 +831,9 @@ sub gene_features {
 #           $f->remove_tag("translation");
 #           $f->add_tag_value("translation","length.".length($aa)); # hack for odd chado gbl problem
 #         }
-        
+    } elsif ( /region/ ) {       
+        $f->primary_tag('gene_component_region');
+        $f->add_tag_value( Parent => $gene_id ); 
     } else {
         return GM_NOT_PART unless $gene_id;
         $f->add_tag_value( Parent => $gene_id );  
