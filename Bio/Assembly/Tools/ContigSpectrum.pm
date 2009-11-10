@@ -76,7 +76,7 @@ Bio::Assembly::Tools::ContigSpectrum - create and manipulate contig spectra
 
   # Score a contig spectrum (the more abundant the contigs and the larger their
   # size, the larger the score)
-
+  my $csp_score = $csp->score( $csp->nof_seq );
 
 =head1 DESCRIPTION
 
