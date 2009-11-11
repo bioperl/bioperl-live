@@ -178,7 +178,6 @@ sub next_assembly {
     # Contig and read related
     my ($contigobj, %contiginfo, %readinfo);
     
-
     $self->_parse_cns_file or
         $self->throw("Associated maq consensus file is not available");
 
@@ -321,7 +320,9 @@ sub _parse_cns_file {
     my @cons;
 
     $self->{'_cns_parsed'} = 1;
-    my ($fname, $dir, $suf) = fileparse($self->file, ".maq");
+    my $file = $self->file;
+    $file =~ s/^[<>+]*//; # byebye parasitic mode chars
+    my ($fname, $dir, $suf) = fileparse($file, ".maq");
     my $cnsf = File::Spec->catdir($dir, "$fname.cns.fastq");
     return unless (-e $cnsf );
     my $fqio = Bio::SeqIO->new( -file => $cnsf );
@@ -452,12 +453,12 @@ sub _store_read {
 sub _store_singlet {
     my ($self, $readinfo, $contiginfo, $scaffoldobj) = @_;
 
-    my $singletobj = Bio::Assembly::Singlet->new( -seqref => $$readinfo{seq} );
+    my $singletobj = Bio::Assembly::Singlet->new( -seqref => $$readinfo{qualobj} );
     $scaffoldobj->add_singlet($singletobj);
 
     # Add other misc contig information as features of the contig
    # Add other misc read information as subsequence feature
-    my @other = grep !/asmbl_id|qualobj/, keys %$contiginfo;
+    my @other = grep !/_sfc|_assembly|_elem/, keys %$contiginfo; # remove the objects; _elem contains a code ref and can't be frozen. Just shooting blind here.
     my %other;
     @other{@other} = @$contiginfo{@other};
     my $contigtags = Bio::SeqFeature::Generic->new(
@@ -470,13 +471,13 @@ sub _store_singlet {
     );
     $singletobj->add_features([ $contigtags ], 1);
 
-    $$readinfo{'aln_start'} = $$readinfo{'posn'};
-    $$readinfo{'aln_end'} = $$readinfo{'posn'} + length($$readinfo{'seqstr'})-1;
+    $$readinfo{'aln_start'} = $$readinfo{'start'};
+    $$readinfo{'aln_end'} = $$readinfo{'end'};
     $$readinfo{'strand'} = ($$readinfo{strand} eq '+' ? 1 : -1);
     my $alncoord = Bio::SeqFeature::Generic->new(
         -primary_tag => "_aligned_coord:$$readinfo{read_name}",
-        -start       => $$readinfo{'aln_start'},
-        -end         => $$readinfo{'aln_end'},
+        -start       => $$readinfo{'start'},
+        -end         => $$readinfo{'end'},
         -strand      => $$readinfo{'strand'},
         -tag         => { 'contig' => $$contiginfo{asmbl_id} }
         );
