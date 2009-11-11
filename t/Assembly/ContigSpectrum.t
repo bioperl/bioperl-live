@@ -3,7 +3,7 @@ use strict;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 141);
+    test_begin(-tests => 143);
     use_ok('Bio::Assembly::IO');
     use_ok('Bio::Assembly::Tools::ContigSpectrum');
 }
@@ -17,7 +17,7 @@ my $sc = $in->next_assembly;
 isa_ok($sc, 'Bio::Assembly::Scaffold');
 
 # Try all the get/set methods
-ok(my $csp = Bio::Assembly::Tools::ContigSpectrum->new);
+ok(my $csp = Bio::Assembly::Tools::ContigSpectrum->new, 'get/set methods');
 isa_ok($csp, 'Bio::Assembly::Tools::ContigSpectrum');
 ok($csp->id('asdf'));
 is($csp->id, 'asdf');
@@ -43,7 +43,7 @@ ok($csp->eff_asm_params(1));
 is($csp->eff_asm_params, 1);
 
 # contig spectrum based on simple spectrum
-ok(my $spectrum_csp = Bio::Assembly::Tools::ContigSpectrum->new);
+ok(my $spectrum_csp = Bio::Assembly::Tools::ContigSpectrum->new, 'simple spectrum');
 ok($spectrum_csp->spectrum({1=>1, 2=>2, 3=>3}));
 is($spectrum_csp->eff_asm_params, 0);
 is($spectrum_csp->nof_seq, 14);
@@ -66,7 +66,7 @@ is($string, "1\n2\n3");
 # mixed contig spectrum imported from assembly
 ok(my $mixed_csp = Bio::Assembly::Tools::ContigSpectrum->new(
   -assembly       => $sc,
-  -eff_asm_params => 1 ));
+  -eff_asm_params => 1 ), 'mixed contig spectrum');
 is(scalar @{$mixed_csp->assembly()}, 1);
 is_deeply($mixed_csp->spectrum, {1=>0, 9=>1}); # [0 0 0 0 0 0 0 0 1]
 is($mixed_csp->eff_asm_params, 1);
@@ -82,7 +82,7 @@ float_is($mixed_csp->avg_seq_len, 100.222222222222);
 
 # dissolved contig spectrum
 ok(my $dissolved_csp = Bio::Assembly::Tools::ContigSpectrum->new(
-  -dissolve => [$mixed_csp, 'ZZZ'] ));
+  -dissolve => [$mixed_csp, 'ZZZ'] ), 'dissolved contig spectrum');
 is_deeply($dissolved_csp->spectrum, {1=>1}); # [1]
 is($dissolved_csp->eff_asm_params, 0);
 is($dissolved_csp->nof_seq, 1);
@@ -150,11 +150,11 @@ float_is($dissolved_csp->avg_seq_len, 100.75);
 
 # cross contig spectrum
 ok(my $cross_csp = Bio::Assembly::Tools::ContigSpectrum->new(
-  -cross => $mixed_csp));
+  -cross => $mixed_csp), 'cross-contig spectrum');
 is_deeply($cross_csp->spectrum, {1=>2, 9=>1}); # [2 0 0 0 0 0 0 0 1]
 
 # sum of contig spectra
-ok(my $sum_csp = Bio::Assembly::Tools::ContigSpectrum->new(-eff_asm_params=>1));
+ok(my $sum_csp = Bio::Assembly::Tools::ContigSpectrum->new(-eff_asm_params=>1), 'contig spectrum sum');
 ok($sum_csp->add($dissolved_csp));
 ok($sum_csp->add($mixed_csp));
 is_deeply($sum_csp->spectrum, {1=>1, 7=>1, 9=>1}); # [1 0 0 0 0 0 1 0 1]
@@ -170,7 +170,7 @@ float_is($sum_csp->avg_identity, 99.5879120879121);
 float_is($sum_csp->avg_seq_len, 100.470588235294);
 
 # average of contig spectra
-ok(my $avg_csp = Bio::Assembly::Tools::ContigSpectrum->new);
+ok(my $avg_csp = Bio::Assembly::Tools::ContigSpectrum->new, 'average contig spectrum');
 ok($avg_csp = $avg_csp->average([$dissolved_csp, $mixed_csp]));
 is_deeply($avg_csp->spectrum, {1=>0.5, 7=>0.5, 9=>0.5}); # [0.5 0 0 0 0 0 0.5 0 0.5]
 is($avg_csp->eff_asm_params, 1);
@@ -185,12 +185,15 @@ float_is($avg_csp->avg_identity, 99.5879120879121);
 float_is($avg_csp->avg_seq_len, 100.470588235294);
 
 # drop assembly info from contig spectrum
-ok($mixed_csp->drop_assembly());
+ok($mixed_csp->drop_assembly(), 'drop assembly');
 is(scalar @{$mixed_csp->assembly()}, 0);
 
 # score
 my $test_csp;
-my $spectrum = {1=>120};
+my $spectrum;
+ok($test_csp = Bio::Assembly::Tools::ContigSpectrum->new(-spectrum=>$spectrum), 'contig spectrum score');
+is($test_csp->score, undef);
+$spectrum = {1=>120};
 ok($test_csp = Bio::Assembly::Tools::ContigSpectrum->new(-spectrum=>$spectrum));
 is($test_csp->score, 0);
 $spectrum = {120=>1};

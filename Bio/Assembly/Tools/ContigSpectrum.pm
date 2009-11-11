@@ -807,24 +807,23 @@ sub average {
 
 sub score {
   my ($self, $nof_seqs) = @_;
-  # Main
-  my $score = 0;
+  # Sanity check
   my $n = $self->nof_seq;
-  if ( $n > 0 ) {
-    # Calculate X
-    my $q_max = $self->max_size;
-    my $spec = $self->spectrum;
-    for my $q ( 1 .. $q_max ) {
-      my $c_q = $spec->{$q};
-      if ( $q == 1 && $nof_seqs ) {
-        $c_q += $nof_seqs - $n;
-        $n = $nof_seqs;
-      }
-      next if not $c_q;
-      $score += $c_q * $q ** 2;
+  return undef if ($n <= 0);
+  # Calculate X
+  my $score = 0;
+  my $q_max = $self->max_size;
+  my $spec = $self->spectrum;
+  for my $q ( 1 .. $q_max ) {
+    my $c_q = $spec->{$q};
+    if ( $q == 1 && $nof_seqs ) {
+      $c_q += $nof_seqs - $n;
+      $n = $nof_seqs;
     }
-    $score /= $n ** 2;
+    next if not $c_q;
+    $score += $c_q * $q ** 2;
   }
+  $score /= $n ** 2;
   # Rescale X to obtain the score
   $score = $n/($n-1) * ($score - 1/$n);
   return $score;
