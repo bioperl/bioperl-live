@@ -252,7 +252,7 @@ sub generate_unique_persistent_id{
    if (!$sf->isa("Bio::SeqFeatureI")) {
        $sf->throw("not a Bio::SeqFeatureI");
    }
-   my $seq_id = $sf->seq_id || $sf->throw("seq_id must be set");
+   my $seq_id = $sf->seq_id || $sf->throw("seq_id must be set: ".$sf->display_name);
    #my $seq_id = $sf->seq_id || 'unknown_seq';
    if ($sf->has_tag('transcript_id')) {
        ($id) = $sf->get_tag_values('transcript_id');
@@ -261,11 +261,11 @@ sub generate_unique_persistent_id{
        ($id) = $sf->get_tag_values('protein_id');
    }
    else {
-       my $source = $sf->source_tag || $sf->throw("source tag must be set");
+       my $source = $sf->source_tag || $sf->throw("source tag must be set: ".$sf->display_name);
        #my $source = $sf->source_tag || 'unknown_source';
-       my $start = $sf->start || $sf->throw("start must be set");
+       my $start = $sf->start || $sf->throw("start must be set or is zero: ".$sf->display_name);
        my $end = $sf->end || $sf->throw("end must be set");
-       my $type = $sf->primary_tag || $sf->throw("primary_tag must be set");
+       my $type = $sf->primary_tag || $sf->throw("primary_tag/type must be set: ".$sf->display_name);
 
        $id = "$source:$type:$seq_id:$start:$end";
    }
