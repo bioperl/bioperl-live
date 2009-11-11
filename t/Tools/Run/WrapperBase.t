@@ -6,16 +6,16 @@ use strict;
 BEGIN { 
     use lib '.';
     use Bio::Root::Test;
-    
+
     test_begin(-tests => 27);
-	
-	use_ok('Bio::Tools::Run::WrapperBase');
+
+    use_ok('Bio::Tools::Run::WrapperBase');
 }
 
 my @params = qw(test1 test_2);
 my @switches = qw(Test3 test_4);
 *Bio::Tools::Run::WrapperBase::new = sub {
-	my ($class, @args) = @_;
+    my ($class, @args) = @_;
     my $self = $class->Bio::Tools::Run::WrapperBase::SUPER::new(@args);
     
     $self->_set_from_args(\@args, -methods => [@params, @switches],
@@ -30,16 +30,16 @@ isa_ok($obj, 'Bio::Tools::Run::WrapperBase');
 # it is interface-like with throw_not_implemented methods; check their
 # existance
 foreach my $method (qw(run program_dir program_name version)) {
-	ok $obj->can($method), "$method() exists";
+    ok $obj->can($method), "$method() exists";
 }
 
 ## most methods are defined; check their function
 
 # simple get/setters
 foreach my $method (qw(error_string arguments no_param_checks save_tempfiles
-					   outfile_name quiet)) {
-	$obj->$method(1);
-	is $obj->$method(), 1, "$method could be set";
+                       outfile_name quiet)) {
+    $obj->$method(1);
+    is $obj->$method(), 1, "$method could be set";
 }
 
 # tempdir
@@ -65,17 +65,17 @@ is $io1, $io2, 'io() always returns the same instance of IO';
 # program_dir and program_name need to be defined for program_path and
 # executable to work
 {
-	no warnings 'redefine';
-	*Bio::Tools::Run::WrapperBase::program_dir = sub {
-		my $self = shift;
-		if (@_) { $self->{pdir} = shift }
-		return $self->{pdir} || '';
-	};
-	*Bio::Tools::Run::WrapperBase::program_name = sub {
-		my $self = shift;
-		if (@_) { $self->{pname} = shift }
-		return $self->{pname} || '';
-	};
+    no warnings 'redefine';
+    *Bio::Tools::Run::WrapperBase::program_dir = sub {
+        my $self = shift;
+        if (@_) { $self->{pdir} = shift }
+        return $self->{pdir} || '';
+    };
+    *Bio::Tools::Run::WrapperBase::program_name = sub {
+        my $self = shift;
+        if (@_) { $self->{pname} = shift }
+        return $self->{pname} || '';
+    };
 }
 $obj->program_dir('test_dir');
 $obj->program_name('test_name');
@@ -86,44 +86,44 @@ is $obj->program_path, File::Spec->catfile('test_dir', 'test_name'.($^O =~ /mswi
 # executable
 ok ! $obj->executable, 'pretend program name not found as executable';
 $obj->program_name('perl');
-ok $obj->executable, 'perl found as exectuable';
+ok $obj->executable, 'perl found as executable';
 
 # _setparams
 my $params = $obj->_setparams(-params => \@params,
-							  -switches => \@switches);
+                              -switches => \@switches);
 is $params, ' test_2 2 Test3', 'params string correct';
 $params = $obj->_setparams(-params => \@params,
-						   -switches => \@switches,
-						   -join => '=');
+                           -switches => \@switches,
+                           -join => '=');
 is $params, ' test_2=2 Test3', 'params string correct';
 $params = $obj->_setparams(-params => \@params,
-						   -switches => \@switches,
-						   -join => '=',
-						   -lc => 1);
+                           -switches => \@switches,
+                           -join => '=',
+                           -lc => 1);
 is $params, ' test_2=2 test3', 'params string correct';
 $params = $obj->_setparams(-params => \@params,
-						   -switches => \@switches,
-						   -join => '=',
-						   -lc => 1,
-						   -dash => 1);
+                           -switches => \@switches,
+                           -join => '=',
+                           -lc => 1,
+                           -dash => 1);
 is $params, ' -test_2=2 -test3', 'params string correct';
 $params = $obj->_setparams(-params => \@params,
-						   -switches => \@switches,
-						   -join => '=',
-						   -lc => 1,
-						   -double_dash => 1);
+                           -switches => \@switches,
+                           -join => '=',
+                           -lc => 1,
+                           -double_dash => 1);
 is $params, ' --test_2=2 --test3', 'params string correct';
 $params = $obj->_setparams(-params => \@params,
-						   -switches => \@switches,
-						   -join => '=',
-						   -lc => 1,
-						   -double_dash => 1,
-						   -underscore_to_dash => 1);
+                           -switches => \@switches,
+                           -join => '=',
+                           -lc => 1,
+                           -double_dash => 1,
+                           -underscore_to_dash => 1);
 is $params, ' --test-2=2 --test3', 'params string correct';
 $params = $obj->_setparams(-params => {(test1 => 't1', test_2 => 't_2')},
-						   -switches => {(Test3 => 'T3', test_4 => 't4')},
-						   -join => '=',
-						   -lc => 1,
-						   -double_dash => 1,
-						   -underscore_to_dash => 1);
+                           -switches => {(Test3 => 'T3', test_4 => 't4')},
+                           -join => '=',
+                           -lc => 1,
+                           -double_dash => 1,
+                           -underscore_to_dash => 1);
 is $params, ' --t-2=2 --t3', 'params string correct';

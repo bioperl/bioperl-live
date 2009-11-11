@@ -314,7 +314,7 @@ sub executable {
         my $prog_path = $self->program_path;
         
         if ($prog_path) {
-            if (-e $prog_path && -x $prog_path) {
+            if (-f $prog_path && -x $prog_path) {
                 $self->{'_pathtoexe'} = $prog_path;
             }
             elsif ($self->program_dir) {
@@ -323,7 +323,7 @@ sub executable {
         }
         unless ($self->{'_pathtoexe'}) {
             my $exe;
-            if (($exe = $self->io->exists_exe($self->program_name)) && -x $exe) {
+            if ( $exe = $self->io->exists_exe($self->program_name) ) {
                 $self->{'_pathtoexe'} = $exe;
             }
             else {
@@ -332,7 +332,7 @@ sub executable {
             }
         }
     }
-    $self->{'_pathtoexe'};
+    return $self->{'_pathtoexe'};
 }
 
 =head2 program_path

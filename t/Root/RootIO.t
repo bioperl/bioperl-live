@@ -42,6 +42,29 @@ is $verbobj->verbose(), 1, 'set verbosity to 1';
 ok $obj->verbose(-1);
 
 #############################################
+# tests for finding executables
+#############################################
+ok(my $io = Bio::Root::IO->new());
+# An executable file
+my $test_file = 'test_file.txt';
+open FILE, '>', $test_file or die "Could not write file '$test_file': $!\n";
+print FILE 'test';
+close FILE;
+chmod 0777, $test_file or die "Could not change permission of file '$test_file': $!\n";
+ok ($obj->exists_exe($test_file), 'executable file');
+# A not executable file
+chmod 0444, $test_file or die "Could not change permission of file '$test_file': $!\n";
+ok (! $obj->exists_exe($test_file), 'non-executable file');
+unlink $test_file or die "Could not delete file '$test_file': $!\n";
+# An executable dir
+my $test_dir = 'test_dir';
+mkdir $test_dir or die "Could not write dir '$test_dir': $!\n";
+chmod 0777, $test_dir or die "Could not change permission of dir '$test_dir': $!\n";
+ok (! $obj->exists_exe($test_dir), 'executable dir');
+rmdir $test_dir or die "Could not delete dir '$test_dir': $!\n";
+
+
+#############################################
 # tests for handle read and write abilities
 #############################################
 
@@ -90,6 +113,7 @@ isnt $line5, $line4;
 
 ok close($I);
 ok close($O);
+
 
 ##############################################
 # tests http retrieval

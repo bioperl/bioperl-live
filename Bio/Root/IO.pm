@@ -658,23 +658,22 @@ sub _io_cleanup {
 
 sub exists_exe {
     my ($self, $exe) = @_;
-	$self->throw("Must pass a defined value to exists_exe") unless defined $exe;
+    $self->throw("Must pass a defined value to exists_exe") unless defined $exe;
     $exe = $self if (!(ref($self) || $exe));
     $exe .= '.exe' if(($^O =~ /mswin/i) && ($exe !~ /\.(exe|com|bat|cmd)$/i));
-    return $exe if (-e $exe); # full path and exists
+    return $exe if ( -f $exe && -x $exe ); # full path and exists
 
     # Ewan's comment. I don't think we need this. People should not be
     # asking for a program with a pathseparator starting it
-    
     # $exe =~ s/^$PATHSEP//;
 
     # Not a full path, or does not exist. Let's see whether it's in the path.
     if($FILESPECLOADED) {
-	foreach my $dir (File::Spec->path()) {
-	    my $f = Bio::Root::IO->catfile($dir, $exe);	    
-	    return $f if(-e $f && -x $f );
-	}
-    }    
+        foreach my $dir (File::Spec->path()) {
+            my $f = Bio::Root::IO->catfile($dir, $exe);
+            return $f if( -f $f && -x $f );
+        }
+    }
     return 0;
 }
 
