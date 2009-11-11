@@ -811,22 +811,19 @@ sub score {
   my $score = 0;
   my $n = $self->nof_seq;
   if ( $n > 0 ) {
-    # Contig spectrum info
-    my $q_max = $self->max_size;
-    my $spec  = $self->spectrum;
-    # Adjust number of 1-contigs
-    if ( $nof_seqs ) {
-      $spec->{'1'} += $nof_seqs - $n;
-      $n = $nof_seqs;
-    }
     # Calculate X
+    my $q_max = $self->max_size;
+    my $spec = $self->spectrum;
     for my $q ( 1 .. $q_max ) {
-      if ( $spec->{$q} ) {
-        my $c_q = $spec->{$q};
-        $score += $c_q * $q ** 2;
+      my $c_q = $spec->{$q};
+      if ( $q == 1 && $nof_seqs ) {
+        $c_q += $nof_seqs - $n;
+        $n = $nof_seqs;
       }
+      next if not $c_q;
+      $score += $c_q * $q ** 2;
     }
-    $score /= $n ** 2; 
+    $score /= $n ** 2;
   }
   # Rescale X to obtain the score
   $score = $n/($n-1) * ($score - 1/$n);

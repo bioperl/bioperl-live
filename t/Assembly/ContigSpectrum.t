@@ -3,7 +3,7 @@ use strict;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 134);
+    test_begin(-tests => 141);
     use_ok('Bio::Assembly::IO');
     use_ok('Bio::Assembly::Tools::ContigSpectrum');
 }
@@ -187,3 +187,16 @@ float_is($avg_csp->avg_seq_len, 100.470588235294);
 # drop assembly info from contig spectrum
 ok($mixed_csp->drop_assembly());
 is(scalar @{$mixed_csp->assembly()}, 0);
+
+# score
+my $test_csp;
+my $spectrum = {1=>120};
+ok($test_csp = Bio::Assembly::Tools::ContigSpectrum->new(-spectrum=>$spectrum));
+is($test_csp->score, 0);
+$spectrum = {120=>1};
+ok($test_csp = Bio::Assembly::Tools::ContigSpectrum->new(-spectrum=>$spectrum));
+is($test_csp->score, 1);
+is($test_csp->score(240), 0.248953974895397);
+$spectrum = {1=>120, 120=>1};
+ok($test_csp = Bio::Assembly::Tools::ContigSpectrum->new(-spectrum=>$spectrum));
+is($test_csp->score, 0.248953974895397);

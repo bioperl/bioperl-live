@@ -123,13 +123,36 @@ isa_ok $ace_contigs[0], "Bio::Assembly::Contig",'the contig is a Bio::Assembly::
 is $assembly->get_nof_sequences_in_contigs, 6;
 is($assembly->get_nof_singlets, 33, "get_nof_singlets");
 my @ace_singlets = $assembly->all_singlets();
-isa_ok $ace_singlets[0], "Bio::Assembly::Contig",'the singlet is a Bio::Assembly::Contig';
-isa_ok $ace_singlets[0], "Bio::Assembly::Singlet",'the singlet is a Bio::Assembly::Singlet';
-is($assembly->get_contig_seq_ids, 6, "get_contig_seq_ids");
-is($assembly->get_contig_ids, 3, "get_contig_ids");
-is($assembly->get_singlet_ids, 33, "get_singlet_ids");
-
-
+isa_ok $ace_singlets[0], "Bio::Assembly::Contig", 'the singlet is a Bio::Assembly::Contig';
+isa_ok $ace_singlets[0], "Bio::Assembly::Singlet", 'the singlet is a Bio::Assembly::Singlet';
+my @contig_seq_ids;
+ok(@contig_seq_ids = $assembly->get_contig_seq_ids, "get_contig_seq_ids");
+is(@contig_seq_ids, 6);
+for my $contig_seq_id (@contig_seq_ids) {
+  ok (not $contig_seq_id =~ m/contig/i);
+}
+my @contig_ids;
+ok(@contig_ids = $assembly->get_contig_ids, "get_contig_ids");
+is(@contig_ids, 3);
+for my $contig_id (@contig_ids) {
+  ok ($contig_id =~ m/contig/i);
+}
+my @singlet_ids;
+ok(@singlet_ids = $assembly->get_singlet_ids, "get_singlet_ids");
+is(@singlet_ids, 33);
+for my $singlet_id (@singlet_ids) {
+  ok ($singlet_id =~ m/contig/i);
+}
+my @all_seq_ids;
+ok(@all_seq_ids = $assembly->get_all_seq_ids, "get_all_seq_ids");
+for my $seq_id (@all_seq_ids) {
+  ok (not $seq_id =~ m/contig/i, 'test');
+  if ($seq_id =~ m/contig/i) {
+    warn "TODO: The ID of the sequence composing a singlet is wrong (Bug 2648)\n";
+    last;
+  }
+}
+is(@all_seq_ids, 39);
 
 
 #
