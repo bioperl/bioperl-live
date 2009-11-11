@@ -800,7 +800,7 @@ sub average {
              The score ranges from 0 (singlets only) to 1 (a single large contig)
              It is possible to specify a value for the number of sequences to
               assume in the contig spectrum.
-  Returns : contig score
+  Returns : contig score, or undef if there were no sequences in the contig spectrum
   Args    : number of total sequences to assume [optional]
 
 =cut
