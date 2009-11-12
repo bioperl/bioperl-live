@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 70);
+    test_begin(-tests => 73);
 	
 	use_ok('Bio::Seq');
 	use_ok('Bio::Seq::RichSeq');
@@ -208,3 +208,21 @@ ok !$xseq->transcribe;
 ok $seq = $xseq->rev_transcribe;
 is $seq->seq, 'attTcgcatgT';
 is $seq->alphabet, 'dna';
+
+# test ->seq returning correct type object and reference weakened
+# (to prevent circular dependency):
+{
+    my $feature;
+    {
+        my $seq=Bio::Seq->new(-seq=>'actg', -alphabet=>'dna');
+
+        $feature=Bio::SeqFeature::Generic->new(-strand=>1, -primary=>'source', -start=>2, -end=>3);
+        $feature->add_tag_value('db_xref'=>'TEST:D1');
+        $seq->add_SeqFeature($feature);
+
+        my $feature_seq=$feature->seq;
+        ok ref($feature_seq), 'Bio::Seq'; # same as $seq
+        ok $feature_seq->seq, 'ct';
+    }
+    ok !defined $feature->{_gsf_seq}, 'Seq gone (not PrimarySeq).';
+}
