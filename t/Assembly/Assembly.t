@@ -74,8 +74,17 @@ is($sc->get_singlet_ids, 2, "get_singlet_ids");
 #
 
 my $aio = Bio::Assembly::IO->new(
-	-file=>test_input_file('consed_project','edit_dir','test_project.fasta.screen.ace.2'),
-	-format=>'ace',
+    -file=>test_input_file('consed_project','edit_dir','test_project.fasta.screen.ace.2'),
+    -format=>'ace'
+);
+
+while (my $obj = $aio->next_contig) {
+    isa_ok $obj, 'Bio::Assembly::Contig'; # Singlets are contigs too
+}
+
+$aio = Bio::Assembly::IO->new(
+    -file=>test_input_file('consed_project','edit_dir','test_project.fasta.screen.ace.2'),
+    -format=>'ace'
 );
 
 my $assembly = $aio->next_assembly();
@@ -87,7 +96,7 @@ is $direction, 1;
 
 my $features =  $contigs[0]->get_features_collection;
 my @contig_features = $features->get_all_features;
-is @contig_features, 8;
+is @contig_features, 8, 'contig features';
 
 my @annotations = grep {$_->primary_tag eq 'Annotation'} @contig_features;
 is @annotations, 2;
@@ -171,8 +180,8 @@ isa_ok($scaf_in, 'Bio::Assembly::Scaffold');
 is($scaf_in->id, 'NoName');
 is($scaf_in->get_nof_contigs, 13);
 is($scaf_in->get_nof_sequences_in_contigs, 36);
-is($scaf_in->get_nof_singlets, 0);
-my @seqids = sort qw(sdsu|SDSU1_RFPERU_001_A09.x01.phd.1
+is($scaf_in->get_nof_singlets, 1);
+my @contigseqids = sort qw(sdsu|SDSU1_RFPERU_001_A09.x01.phd.1
 sdsu|SDSU1_RFPERU_001_B03.x01.phd.1 sdsu|SDSU1_RFPERU_001_B04.x01.phd.1
 sdsu|SDSU1_RFPERU_001_E04.x01.phd.1 sdsu|SDSU_RFPERU_002_A01.x01.phd.1
 sdsu|SDSU_RFPERU_002_B07.x01.phd.1 sdsu|SDSU_RFPERU_002_C12.x01.phd.1
@@ -191,13 +200,16 @@ sdsu|SDSU_RFPERU_013_H05.x01.phd.1 sdsu|SDSU_RFPERU_014_H06.x01.phd.1
 sdsu|SDSU_RFPERU_015_A05.x01.phd.1 sdsu|SDSU_RFPERU_015_C06.x01.phd.1
 sdsu|SDSU_RFPERU_015_E04.x01.phd.1 sdsu|SDSU_RFPERU_015_G04.x01.phd.1
 sdsu|SDSU_RFPERU_015_H03.x01.phd.1);
-my @contigids = sort qw(106 144 148 17 185 2 210 36 453 500 613 668 93);
-is_deeply([sort $scaf_in->get_contig_seq_ids], \@seqids);
-is_deeply([sort $scaf_in->get_contig_ids], \@contigids);
-is_deeply([$scaf_in->get_singlet_ids], []);
+my @contigids     = sort qw(106 144 148 17 185 2 210 36 453 500 613 668 93);
+my @singletids    = sort qw(123);
+my @singletseqids = sort qw(asdf);
+is_deeply([sort $scaf_in->get_contig_seq_ids], \@contigseqids);
+is_deeply([sort $scaf_in->get_contig_ids],     \@contigids   );
+is_deeply([sort $scaf_in->get_singlet_ids],    \@singletids  , "TODO: The ID of the sequence composing a singlet is wrong (Bug 2648)");
 isa_ok($scaf_in->get_seq_by_id('sdsu|SDSU1_RFPERU_001_A09.x01.phd.1'),'Bio::LocatableSeq');
 my $contig = $scaf_in->get_contig_by_id('106');
 isa_ok($contig,'Bio::Assembly::Contig');
+
 # check Contig object SeqFeature::Collection
 # should add more specific Contig tests...
 my @sfs = $contig->get_features_collection->get_all_features;

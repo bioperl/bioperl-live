@@ -98,7 +98,8 @@ use base qw(Bio::Root::Root Bio::Root::IO);
 =head2 new
 
  Title   : new
- Usage   : Bio::Assembly::IO->new(-file =>$filename,-format=>'format')
+ Usage   : $stream = Bio::Assembly::IO->new( -file =>$filename,
+                                                -format=>'format')
  Function: Returns a new assembly stream
  Returns : A Bio::Assembly::IO::Handler initialised
            with the appropriate format
@@ -114,24 +115,24 @@ sub new {
     # or do we want to call SUPER on an object if $caller is an
     # object?
     if( $class =~ /Bio::Assembly::IO::(\S+)/ ) {
-	my ($self) = $class->SUPER::new(@args);
-	$self->_initialize(@args);
-	return $self;
+        my ($self) = $class->SUPER::new(@args);
+        $self->_initialize(@args);
+        return $self;
     } else {
 
-	my %param = @args;
-	@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
+        my %param = @args;
+        @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
 
-	$class->throw("Need at least a file name to proceed!")
-	    unless (defined $param{'-file'} || defined $ARGV[0]);
+        $class->throw("Need at least a file name to proceed!")
+            unless (defined $param{'-file'} || defined $ARGV[0]);
 
-	my $format = $param{'-format'} ||
-	    $class->_guess_format( $param{-file} || $ARGV[0] );
-	$format = "\L$format";	# normalize capitalization to lower case
+        my $format = $param{'-format'} ||
+        $class->_guess_format( $param{-file} || $ARGV[0] );
+        $format = "\L$format";	# normalize capitalization to lower case
 
-	# normalize capitalization
-	return unless( $class->_load_format_module($format) );
-	return "Bio::Assembly::IO::$format"->new(@args);
+        # normalize capitalization
+        return unless( $class->_load_format_module($format) );
+        return "Bio::Assembly::IO::$format"->new(@args);
     }
 }
 
@@ -146,7 +147,7 @@ sub _initialize {
 =head2 next_assembly
 
  Title   : next_assembly
- Usage   : $cluster = $stream->next_assembly()
+ Usage   : $scaffold = $stream->next_assembly()
  Function: Reads the next assembly object from the stream and returns it.
  Returns : a Bio::Assembly::ScaffoldI compliant object
  Args    : none
@@ -154,14 +155,29 @@ sub _initialize {
 =cut
 
 sub next_assembly {
-   my ($self, $seq) = @_;
-   $self->throw("Sorry, you cannot read from a generic Bio::Assembly::IO object.");
+   my ($self) = @_;
+   $self->throw("Cannot read from a generic Bio::Assembly::IO object.");
+}
+
+=head2 next_contig
+
+ Title   : next_contig
+ Usage   : $contig = $stream->next_contig()
+ Function: Reads the next contig or singlet from the stream and returns it.
+ Returns : a Bio::Assembly::Contig or Bio::Contig::Assembly::Singlet
+ Args    : none
+
+=cut
+
+sub next_contig {
+   my ($self) = @_;
+   $self->throw("Cannot read from a generic Bio::Assembly::IO object.");
 }
 
 =head2 write_assembly
 
   Title   : write_assembly
-  Usage   : $ass_io->write_assembly($assembly)
+  Usage   : $stream->write_assembly($assembly)
   Function: Write the assembly object in Phrap compatible ACE format
   Returns : 1 on success, 0 for error
   Args    : A Bio::Assembly::Scaffold object
@@ -169,7 +185,8 @@ sub next_assembly {
 =cut
 
 sub write_assembly {
-   shift->throw_not_implemented;
+   my ($self) = @_;
+   $self->throw("Cannot write from a generic Bio::Assembly::IO object.");
 }
 
 =head2 _load_format_module
@@ -240,17 +257,16 @@ sub TIEHANDLE {
 }
 
 sub READLINE {
-  my $self = shift;
-  return $self->{'seqio'}->next_seq() unless wantarray;
-  my (@list, $obj);
-  push @list, $obj while $obj = $self->{'seqio'}->next_seq();
-  return @list;
+    my $self = shift;
+    return $self->{'seqio'}->next_seq() unless wantarray;
+    my (@list, $obj);
+    push @list, $obj while $obj = $self->{'seqio'}->next_seq();
+    return @list;
 }
 
 sub PRINT {
-  my $self = shift;
-  $self->{'seqio'}->write_seq(@_);
+    my $self = shift;
+    $self->{'seqio'}->write_seq(@_);
 }
 
 1;
-

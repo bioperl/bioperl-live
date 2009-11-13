@@ -17,11 +17,17 @@ Bio::Assembly::IO::ace - module to load ACE files from various assembly programs
     # Building an input stream
     use Bio::Assembly::IO;
 
-    # Assembly loading methods
-    $io = Bio::Assembly::IO->new( -file=>"SGC0-424.fasta.screen.ace.1",
-                                  -format=>"ace" );
+    # Load an assembly stream
+    my $io = Bio::Assembly::IO->new( -file   => 'results.ace',
+                                     -format => 'ace'        );
 
-    $assembly = $io->next_assembly;
+    # Read the entire scaffold
+    my $scaffold = $io->next_assembly;
+
+    # Or read one contig at a time to save resources
+    while ( my $contig = $io->next_contig ) {
+      # Do something ...
+    }
 
 =head1 DESCRIPTION
 
@@ -121,73 +127,104 @@ use base qw(Bio::Assembly::IO);
 
 =head1 Parser methods
 
+
 =head2 next_assembly
 
  Title   : next_assembly
- Usage   : $unigene = $stream->next_assembly()
+ Usage   : $scaffold = $stream->next_assembly()
  Function: returns the next assembly in the stream
- Returns : a Bio::Assembly::Scaffold object, or undef if no contigs or singlets
-             were found
- Args    : NONE
+ Returns : a Bio::Assembly::Scaffold object
+ Args    : none
 
 =cut
 
 sub next_assembly {
-    my $self = shift; # Object reference
-    my $lingering_read;
-    local $/ = "\n";
+    my $self = shift;
 
-    # Resetting assembly data structure
     my $assembly = Bio::Assembly::Scaffold->new();
 
-    # Looping over all ACE file lines
-    my ($contigOBJ,$read_name);
+    # Load contigs and singlets in the scaffold
+    while ( my $obj = $self->next_contig()) {
+        # Add contig /singlet to assembly
+        if ($obj->isa('Bio::Assembly::Singlet')) { # a singlet
+            $assembly->add_singlet($obj);
+        } else { # a contig
+            $assembly->add_contig($obj);
+        }
+    }
+    $assembly->update_seq_list();
+
+    # Load annotations of assembly and contigs
+    $self->scaffold_annotations($assembly);
+
+    #$assembly->get_nof_contigs ? return $assembly : return;
+    return $assembly;
+}
+
+
+=head2 next_contig
+
+ Title   : next_contig
+ Usage   : $scaffold = $stream->next_contig()
+ Function: Returns the next contig or singlet in the stream.
+ Returns : a Bio::Assembly::Contig or Bio::Assembly::Single object
+ Args    : none
+
+=cut
+
+sub next_contig {
+    my ($self) = shift;
+    local $/ = "\n";
+    #my $lingering_read;
+    my $contigOBJ;
+    my $read_name;
     my $read_data = {}; # Temporary holder for read data
-    while ($_ = $self->_readline) { # By now, ACE files hold a single assembly
+    # Keep reading the ACE stream starting at where we stopped
+    while ($_ = $self->_readline) {
         chomp;
 
-        # Loading assembly information (ASsembly field)
-        #(/^AS\s+(\d+)\s+(\d+)/) && do {
-        #    $assembly->_set_nof_contigs($1);
-        #    $assembly->_set_nof_sequences_in_contigs($2);
-        #};
-        
         # Loading contig sequence (COntig sequence field)
-        (/^CO\s(\w+)\s(\d+)\s(\d+)\s(\d+)\s(\w+)/xms) && do { # New contig found!
-            my $contigID = $1;      # Contig ID
-            #my $nof_bases = $2;    # Contig length in base pairs
-            my $nof_reads = $3;     # Number of reads in this contig
-            #my $nof_segments = $4; # Number of read segments selected for consensus assembly
-            my $ori = $5;           # 'C' if contig was complemented or U if not (default)
-            $ori = ($ori eq 'U' ? 1 : -1);
-            # Create a singlet if necessary
-            if ($nof_reads < 1) {
-                $self->throw("Expecting a strictly positive number of reads in a contig");
-            } elsif ($nof_reads == 1) { # This is a singlet
-                $contigOBJ = Bio::Assembly::Singlet->new( );
-            } else { # $nof_reads > 1 # This is a contig
-                $contigOBJ = Bio::Assembly::Contig->new( -id => $contigID );
-                $contigOBJ->strand($ori);
+        (/^CO\s(\w+)\s(\d+)\s(\d+)\s(\d+)\s(\w+)/xms) && do { # New contig starts!
 
-            }
-            my $consensus_sequence = undef;
-            while ($_ = $self->_readline) { # Looping over contig lines
-                chomp;                      # Drop <ENTER> (\n) on current line
-                last if (/^$/);             # Stop if empty line (contig end) is found
-                s/\*/-/g;                   # Forcing '-' as gap symbol
-                $consensus_sequence .= $_;
-            }
-            $consensus_sequence = Bio::LocatableSeq->new(
-                -seq   => $consensus_sequence,
-                -start => 1,
-                -id    => $contigID
-            );
-            if ($contigOBJ->isa('Bio::Assembly::Singlet')) { # a singlet
-                $contigOBJ->seqref($consensus_sequence);
-                $assembly->add_singlet($contigOBJ);
-            } else { # a contig
-                $contigOBJ->set_consensus_sequence($consensus_sequence);
-                $assembly->add_contig($contigOBJ);
+            if (not $contigOBJ) {
+                # Start a new contig object
+                my $contigID = $1;      # Contig ID
+                #my $nof_bases = $2;    # Contig length in base pairs
+                my $nof_reads = $3;     # Number of reads in this contig
+                #my $nof_segments = $4; # Number of read segments selected for consensus assembly
+                my $ori = $5;           # 'C' if contig was complemented or U if not (default)
+                $ori = ($ori eq 'U' ? 1 : -1);
+                # Create a singlet if necessary
+                if ($nof_reads < 1) {
+                    $self->throw("Expecting a strictly positive number of reads in a contig");
+                } elsif ($nof_reads == 1) { # This is a singlet
+                    $contigOBJ = Bio::Assembly::Singlet->new( );
+                } else { # $nof_reads > 1 # This is a contig
+                    $contigOBJ = Bio::Assembly::Contig->new( -id => $contigID );
+                    $contigOBJ->strand($ori);
+                }
+                my $consensus_sequence = undef;
+                while ($_ = $self->_readline) { # Looping over contig lines
+                    chomp;                      # Drop <ENTER> (\n) on current line
+                    last if (/^$/);             # Stop if empty line (contig end) is found
+                    s/\*/-/g;                   # Forcing '-' as gap symbol
+                    $consensus_sequence .= $_;
+                }
+                $consensus_sequence = Bio::LocatableSeq->new(
+                    -seq   => $consensus_sequence,
+                    -start => 1,
+                    -id    => $contigID
+                );
+                if ($contigOBJ->isa('Bio::Assembly::Singlet')) { # a singlet
+                    $contigOBJ->seqref($consensus_sequence);
+                } else { # a contig
+                    $contigOBJ->set_consensus_sequence($consensus_sequence);
+                }
+            } else {
+                # A second contig is about to start. Backtrack one line and go
+                # to the return statement
+                $self->_pushback($_);
+                last;
             }
         };
 
@@ -234,10 +271,10 @@ sub next_assembly {
             $ori = ( $ori eq 'U' ? 1 : -1);
             $read_data->{$read_name}{'strand'}  = $ori;
         };
-        
-        # Loading base segments definitions (Base Segment field)
+
+        # Base segments definitions (Base Segment field)
         # They indicate which read segments were used to calculate the consensus
-        # Safe to ignore
+        # Ignore it
         # /^BS (\d+) (\d+) (\S+)/ && do {
         #     if (exists($self->{'contigs'}[$contig]{'reads'}{$3}{'segments'})) {
         #         $self->{'contigs'}[$contig]{'reads'}{$3}{'segments'} .= " " . $1 . " " . $2;
@@ -245,8 +282,9 @@ sub next_assembly {
         #         $self->{'contigs'}[$contig]{'reads'}{$3}{'segments'} = $1 . " " . $2
         #     }
         # };
-        
+
         # Loading reads... (ReaD sequence field)
+        # They define the reads in each contig
         /^RD (\S+) (-*\d+) (\d+) (\d+)/ && do {
             next if $contigOBJ->isa('Bio::Assembly::Singlet');
             $read_name = $1;
@@ -267,7 +305,7 @@ sub next_assembly {
                                                -id=>$read_name,
                                                -primary_id=>$read_name,
                                                -alphabet=>'dna' );
-            $lingering_read = $read;
+            #$lingering_read = $read;
             # Adding read location and sequence to contig ("gapped consensus" coordinates)
             my $padded_start = $read_data->{$read_name}{'padded_start'};
             my $padded_end   = $padded_start + $read_data->{$read_name}{'length'} - 1;
@@ -293,7 +331,7 @@ sub next_assembly {
                 $align_feat->attach_seq( $contigOBJ->get_seq_by_name($read_name) );
                 $contigOBJ->add_features([ $align_feat ], 0);
             }
-            
+
             unless ($qual_start == -1 && $qual_end == -1) {
                 $qual_start  = $contigOBJ->change_coord("aligned $read_name",'gapped consensus',$qual_start);
                 $qual_end    = $contigOBJ->change_coord("aligned $read_name",'gapped consensus',$qual_end);
@@ -305,7 +343,7 @@ sub next_assembly {
                 $contigOBJ->add_features([ $qual_feat ], 0);
             }
         };
-        
+
         # Loading read description (DeScription fields)
         # chad was here! easter 2004.
         # lingering read is a locatableseq. is there a better way to do this?
@@ -338,6 +376,74 @@ sub next_assembly {
         #    };
         #};
 
+        # Loading Read Tags
+        /^RT\s*\{/ && do {
+            next if $contigOBJ->isa('Bio::Assembly::Singlet');
+            my ($readID,$type,$source,$start,$end,$date) = split(' ',$self->_readline);
+            my $extra_info = undef;
+            while ($_ = $self->_readline) {
+                last if (/\}/);
+                $extra_info .= $_;
+            }
+            $start  = $contigOBJ->change_coord("aligned $read_name",'gapped consensus',$start);
+            $end    = $contigOBJ->change_coord("aligned $read_name",'gapped consensus',$end);
+            my $read_tag = Bio::SeqFeature::Generic->new( -start=>$start,
+                                                          -end=>$end,
+                                                          -primary=>$type,
+                                                          -tag=>{ 'source' => $source,
+                                                                  'creation_date' => $date,
+                                                                  'extra_info' => $extra_info } );
+            my $contig = $read_data->{$readID}{'contig'};
+            my $coord  = $contig->get_seq_coord( $contig->get_seq_by_name($readID) );
+            $coord->add_sub_SeqFeature($read_tag);
+        };
+
+    }
+
+    return $contigOBJ;
+}
+
+
+=head2 scaffold_annotations
+
+ Title   : scaffold_annotations
+ Usage   : $stream->scaffold_annotations($scaffold)
+ Function: Adds ssembly and contig annotations to a scaffold. In the ACE format,
+           annotations are the WA and CT tags.
+ Returns : 1 for success
+ Args    : a Bio::Assembly::Scaffold object to attach the annotations to
+
+=cut
+
+sub scaffold_annotations {
+    my ($self, $assembly) = @_;
+    local $/ = "\n";;
+    # Read the ACE stream from the beginning again
+    seek($self->_fh, 0, 0); 
+    while ($_ = $self->_readline) {
+        chomp;
+
+        # Assembly information (ASsembly field)
+        # Ignore it
+        #(/^AS\s+(\d+)\s+(\d+)/) && do {
+        #    my $nof_contigs = $1;
+        #    my $nof_seq_in_contigs = $2;
+        #};
+
+        # Loading Whole Assembly tags
+        /^WA\s*\{/ && do {
+            my ($type,$source,$date) = split(' ',$self->_readline);
+            my $extra_info = undef;
+            while ($_ = $self->_readline) {
+                last if (/\}/);
+                $extra_info = $_;
+            }
+            my $assembly_tags = join(" ","TYPE: ",$type,"PROGRAM:",$source,
+                "DATE:",$date,"DATA:",$extra_info);
+            $assembly_tags = Bio::Annotation::SimpleValue->new(-value=>$assembly_tags);
+            $assembly->annotation->add_Annotation('whole assembly',$assembly_tags);
+        };
+
         # Loading Contig Tags (a.k.a. Bioperl features)
         /^CT\s*\{/ && do {
             my ($contigID,$type,$source,$start,$end,$date) = split(' ',$self->_readline);
@@ -364,87 +470,10 @@ sub next_assembly {
             $contig->add_features([ $contig_tag ],1);
         };
 
-        # Loading Read Tags
-        /^RT\s*\{/ && do {
-            next if $contigOBJ->isa('Bio::Assembly::Singlet');
-            my ($readID,$type,$source,$start,$end,$date) = split(' ',$self->_readline);
-            my $extra_info = undef;
-            while ($_ = $self->_readline) {
-                last if (/\}/);
-                $extra_info .= $_;
-            }
-            $start  = $contigOBJ->change_coord("aligned $read_name",'gapped consensus',$start);
-            $end    = $contigOBJ->change_coord("aligned $read_name",'gapped consensus',$end);
-            my $read_tag = Bio::SeqFeature::Generic->new( -start=>$start,
-                                                          -end=>$end,
-                                                          -primary=>$type,
-                                                          -tag=>{ 'source' => $source,
-                                                                  'creation_date' => $date,
-                                                                  'extra_info' => $extra_info } );
-            my $contig = $read_data->{$readID}{'contig'};
-            my $coord  = $contig->get_seq_coord( $contig->get_seq_by_name($readID) );
-            $coord->add_sub_SeqFeature($read_tag);
-        };
-        
-        # Loading Whole Assembly tags
-        /^WA\s*\{/ && do {
-            my ($type,$source,$date) = split(' ',$self->_readline);
-            my $extra_info = undef;
-            while ($_ = $self->_readline) {
-                last if (/\}/);
-                $extra_info = $_;
-            }
-            #? push(@line,\@extra_info);
-            my $assembly_tag = join(" ","TYPE: ",$type,"PROGRAM:",$source,
-                "DATE:",$date,"DATA:",$extra_info);
-            $assembly_tag = Bio::Annotation::SimpleValue->new(-value=>$assembly_tag);
-            $assembly->annotation->add_Annotation('whole assembly',$assembly_tag);
-        };
-
-    } # while ($_ = $self->_readline)
-
-    # hmm. what about singlets?
-    # Singlets are expected to be present in the ACE file, not elsewhere
-    #my $singletsfilename = $self->file();
-    #$singletsfilename =~ s/\.ace.*$/.singlets/;
-    #$singletsfilename =~ s/\<//;
-    #if (-f $singletsfilename) {
-    #    # oh deario, there are singlets here
-    #    # print("Opening the singletsfile (".$singletsfilename.")\n");
-    #    my $singlets_fh = Bio::SeqIO->new( -file   => "<$singletsfilename",
-    #                                       -format => 'fasta' );
-    #    my $adder;
-    #    while (my $seq = $singlets_fh->next_seq()) {
-    #        # find the name of this singlet and attempt to get the phd from phd_dir instead
-    #        my ($phdfilename,$chromatfilename) = qw(unset unset);
-    #        if ($seq->desc() =~ /PHD_FILE: (\S+)/) {
-    #            $phdfilename = $1;
-    #        }
-    #        if ($seq->desc() =~ /CHROMAT_FILE: (\S+)/)  {
-    #            $chromatfilename = $1;
-    #        }
-    #        # should chromatfile and phdfile be put in a Bio::SeqFeature::Generic object?
-    #        (my $phdfile = $singletsfilename) =~ s/edit_dir.*//;
-    #        $phdfile .= "phd_dir/$phdfilename";
-    #        my $singlet = Bio::Assembly::Singlet->new();
-    #        if (-f $phdfile) {
-    #            # print STDERR ("Reading singlet data from this phdfile ($phdfile)\n");
-    #            my $phd_fh = Bio::SeqIO->new( -file => "<$phdfile", -format => 'phd');
-    #            my $swq = $phd_fh->next_seq();
-    #            $adder = $swq;
-    #        } else {
-    #            $adder = $seq;
-    #        }
-    #        $singlet->seqref($adder);
-    #        $assembly->add_singlet($singlet);
-    #    }
-    #}
-
-    $assembly->update_seq_list();
-
-    #$assembly->get_nof_contigs ? return $assembly : return;
-    return $assembly;
+    }
+    return 1;
 }
+
 
 =head2 write_assembly
 
