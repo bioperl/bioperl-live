@@ -45,7 +45,7 @@ following files need to be available:
     $ maq cns2fq [basename].cns > [basename].cns.fastq
 
 C<maq> produces only one "contig"; all reads map to the reference
-sequence, which covers everthing. This module breaks the reads into
+sequence, which covers everything. This module breaks the reads into
 contigs by dividing the C<maq> consensus into pieces for which there
 are contiguous non-zero quality values.
 
@@ -201,7 +201,6 @@ sub next_assembly {
 sub next_contig {
     my $self = shift; # object reference
 
-
     # Read the file of consensus sequences if it has not already been done for
     # this Bio:::Assembly::IO stream already
     if (not defined $self->_cons) {
@@ -234,12 +233,13 @@ sub next_contig {
             );
 
         if ( not defined $contiginfo{start} ) {
-            # First read in the shiny new contig
-            $contiginfo{'seqnum'}  = 1;
-            $contiginfo{'qualobj'} = $self->_next_cons;
-            $contiginfo{start} = $contiginfo{'qualobj'}->start;
-            $contiginfo{end}   = $contiginfo{'qualobj'}->end;
+            # First read of new contig or singlet
+            $contiginfo{'seqnum'}   = 1;
+            $contiginfo{'qualobj'}  = $self->_next_cons;
+            $contiginfo{'start'}    = $contiginfo{'qualobj'}->start;
+            $contiginfo{'end'}      = $contiginfo{'qualobj'}->end;
             $contiginfo{'asmbl_id'} = 'maq_assy['.$self->_basename.']/'.$contiginfo{start}.'-'.$contiginfo{end};
+            # It may be a singlet, but assume it's a contig for now
             $contigobj = $self->_init_contig(\%contiginfo);
             $self->_store_read(\%readinfo, $contigobj);
         } else {
@@ -252,8 +252,9 @@ sub next_contig {
                 if ($contiginfo{'seqnum'} > 1) {
                     $self->_store_contig(\%contiginfo, $contigobj);
                 }
-                else { #singlet
-                    $self->_store_singlet(\%contiginfo, $contigobj);
+                else { # singlet
+                    # Create a new singlet object from the read info
+                    $contigobj = $self->_store_singlet(\%contiginfo, $contigobj);
                 }
                 # do a pushback
                 $self->_pushback($_);
@@ -261,7 +262,7 @@ sub next_contig {
             }
         }
     }
-    
+
     return $contigobj;
 }
 
@@ -292,7 +293,7 @@ sub _init_contig {
 
     Title   : _store_contig
     Usage   : my $contigobj; $contigobj = $self->_store_contig(
-              \%contiginfo, $contigobj, $scaffoldobj);
+              \%contiginfo, $contigobj);
     Function: store information of a contig belonging to a scaffold
               in the appropriate object
     Returns : Bio::Assembly::Contig object
@@ -435,7 +436,7 @@ sub _store_read {
    my $readobj = Bio::LocatableSeq->new(
        -display_id => $$readinfo{'read_name'},
        -primary_id => $$readinfo{'read_name'},
-       -seq        => $$readinfo{'seqstr'},      
+       -seq        => $$readinfo{'seqstr'},
        -start      => 1,
        -strand     => $$readinfo{'strand'},
        -alphabet   => 'dna'
@@ -443,7 +444,7 @@ sub _store_read {
 
    # Add read location and sequence to contig (in 'gapped consensus' coordinates)
    $$readinfo{'aln_start'} = $$readinfo{'posn'};
-   $$readinfo{'aln_end'} = $$readinfo{'posn'} + length($$readinfo{'seqstr'})-1;
+   $$readinfo{'aln_end'}   = $$readinfo{'posn'} + length($$readinfo{'seqstr'})-1;
 
    my $alncoord = Bio::SeqFeature::Generic->new(
        -primary_tag => $readobj->id,
@@ -487,52 +488,54 @@ sub _store_read {
 =cut
 
 sub _store_singlet {
-    my ($self, $readinfo, $contiginfo) = @_;
+    my ($self, $contiginfo, $contigobj) = @_;
 
-    my $singletobj = Bio::Assembly::Singlet->new( -id     => $$readinfo{'read_name'},
-                                                  -seqref => $$readinfo{'qualobj'}   );
+    my $contigid = $$contiginfo{'asmbl_id'};
+    my $seqref = ($contigobj->each_seq())[0];
+    my $singletobj = Bio::Assembly::Singlet->new( -id     => $contigid,
+                                                  -seqref => $seqref   );
 
     # Add other misc contig information as features of the contig
-   # Add other misc read information as subsequence feature
-    my @other = grep !/_sfc|_assembly|_elem/, keys %$contiginfo; # remove the objects; _elem contains a code ref and can't be frozen. Just shooting blind here.
-    my %other;
-    @other{@other} = @$contiginfo{@other};
-    my $contigtags = Bio::SeqFeature::Generic->new(
-        -primary_tag => "_main_contig_feature:$$contiginfo{asmbl_id}",
-        -start       => 1,
-         -end         => $singletobj->get_consensus_length(),
-        -strand      => 1,
-        # dumping ground:
-        -tag         => \%other
-    );
-    $singletobj->add_features([ $contigtags ], 1);
+    # Add other misc read information as subsequence feature
+    #my @other = grep !/_sfc|_assembly|_elem/, keys %$contiginfo; # remove the objects; _elem contains a code ref and can't be frozen. Just shooting blind here.
+    #my %other;
+    #@other{@other} = @$contiginfo{@other};
+    #my $contigtags = Bio::SeqFeature::Generic->new(
+    #    -primary_tag => "_main_contig_feature:$$contiginfo{asmbl_id}",
+    #    -start       => 1,
+    #     -end         => $singletobj->get_consensus_length(),
+    #    -strand      => 1,
+    #    # dumping ground:
+    #    -tag         => \%other
+    #);
+    #$singletobj->add_features([ $contigtags ], 1);
 
-    $$readinfo{'aln_start'} = $$readinfo{'start'};
-    $$readinfo{'aln_end'} = $$readinfo{'end'};
-    $$readinfo{'strand'} = ($$readinfo{strand} eq '+' ? 1 : -1);
-    my $alncoord = Bio::SeqFeature::Generic->new(
-        -primary_tag => "_aligned_coord:$$readinfo{read_name}",
-        -start       => $$readinfo{'start'},
-        -end         => $$readinfo{'end'},
-        -strand      => $$readinfo{'strand'},
-        -tag         => { 'contig' => $$contiginfo{asmbl_id} }
-        );
-    $alncoord->attach_seq($singletobj->seqref);
-    $singletobj->add_features([ $alncoord ], 0);
+    #$$readinfo{'aln_start'} = $$readinfo{'start'};
+    #$$readinfo{'aln_end'} = $$readinfo{'end'};
+    #$$readinfo{'strand'} = ($$readinfo{strand} eq '+' ? 1 : -1);
+    #my $alncoord = Bio::SeqFeature::Generic->new(
+    #    -primary_tag => "_aligned_coord:$$readinfo{read_name}",
+    #    -start       => $$readinfo{'start'},
+    #    -end         => $$readinfo{'end'},
+    #    -strand      => $$readinfo{'strand'},
+    #    -tag         => { 'contig' => $$contiginfo{asmbl_id} }
+    #    );
+    #$alncoord->attach_seq($singletobj->seqref);
+    #$singletobj->add_features([ $alncoord ], 0);
 
     # Add other misc read information as subsequence feature
-    my @other = grep !/seqstr|strand/, keys %$readinfo;
-    my %other;
-    @other{@other} = @$readinfo{@other};
-    my $readtags = Bio::SeqFeature::Generic->new(
-        -primary_tag => "_main_read_feature:$$readinfo{read_name}",
-        -start       => $$readinfo{'aln_start'},
-        -end         => $$readinfo{'aln_end'},
-        -strand      => $$readinfo{'strand'},
-        # dumping ground:
-        -tag         => \%other
-        );
-    $alncoord->add_sub_SeqFeature($readtags);
+    #my @other = grep !/seqstr|strand/, keys %$readinfo;
+    #my %other;
+    #@other{@other} = @$readinfo{@other};
+    #my $readtags = Bio::SeqFeature::Generic->new(
+    #    -primary_tag => "_main_read_feature:$$readinfo{read_name}",
+    #    -start       => $$readinfo{'aln_start'},
+    #    -end         => $$readinfo{'aln_end'},
+    #    -strand      => $$readinfo{'strand'},
+    #    # dumping ground:
+    #    -tag         => \%other
+    #    );
+    #$alncoord->add_sub_SeqFeature($readtags);
 
     return $singletobj;
 }
@@ -550,7 +553,7 @@ sub _store_singlet {
 =cut
 
 sub write_assembly {
-    my ($self,@args) = @_;    
+    my ($self,@args) = @_;
     $self->throw("Writes not currently available for maq assemblies. Complain to author.")
 }
 

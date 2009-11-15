@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin( -tests => 217,
+    test_begin( -tests => 807,
                 -requires_module => 'DB_File' );
 
     use_ok('Bio::Assembly::IO');
@@ -269,19 +269,59 @@ ok $asm_out->write_assembly( -scaffold => $scaf_in);
 # Testing maq
 # /maj
 #
-
-ok $aio = Bio::Assembly::IO->new( -file => test_input_file('test.maq'),
-                                  -format => 'maq' );
+my $file = 'test.maq';
+ok $aio = Bio::Assembly::IO->new( -file => test_input_file($file),
+                                  -format => 'maq' ), "init maq IO object";
 ok $assembly = $aio->next_assembly, "get maq assy";
 is( $assembly->get_nof_contigs, 11, "got all contigs");
-ok open(my $tf, test_input_file('test.maq')), "read test file as text";
+ok open(my $tf, test_input_file($file)), "read test file as text";
 my @lines = <$tf>;
 is( $assembly->get_nof_contig_seqs, scalar @lines, "recorded all maq reads");
 ok !$assembly->get_nof_singlets, "no singlets";
 
-ok $aio = Bio::Assembly::IO->new( -file => test_input_file('test.maq'),
-                                  -format => 'maq' ), "init maq IO object";
+ok $aio = Bio::Assembly::IO->new( -file => test_input_file($file),
+                                  -format => 'maq' );
 isa_ok($aio, 'Bio::Assembly::IO');
+while (my $contig = $aio->next_contig) {
+    isa_ok($contig, 'Bio::Assembly::Contig');
+}
+
+#
+# Testing maq with singlets
+#
+$file = 'test_singlets.maq';
+ok $aio = Bio::Assembly::IO->new( -file => test_input_file($file),
+                                  -format => 'maq' );
+ok $assembly = $aio->next_assembly, "get maq assy";
+isa_ok($aio, 'Bio::Assembly::IO');
+
+@contig_seq_ids;
+ok(@contig_seq_ids = $assembly->get_contig_seq_ids, "get_contig_seq_ids");
+is(@contig_seq_ids, 246);
+for my $contig_seq_id (@contig_seq_ids) {
+  ok (not $contig_seq_id =~ m/maq_assy/i);
+}
+@contig_ids;
+ok(@contig_ids = $assembly->get_contig_ids, "get_contig_ids");
+is(@contig_ids, 37);
+for my $contig_id (@contig_ids) {
+  ok ($contig_id =~ m/maq_assy/i);
+}
+@singlet_ids;
+ok(@singlet_ids = $assembly->get_singlet_ids, "get_singlet_ids");
+is(@singlet_ids, 4);
+for my $singlet_id (@singlet_ids) {
+  ok ($singlet_id =~ m/maq_assy/i);
+}
+@all_seq_ids;
+ok(@all_seq_ids = $assembly->get_all_seq_ids, "get_all_seq_ids");
+for my $seq_id (@all_seq_ids) {
+  ok (not $seq_id =~ m/maq_assy/i);
+}
+is(@all_seq_ids, 250);
+
+ok $aio = Bio::Assembly::IO->new( -file => test_input_file($file),
+                                  -format => 'maq' );
 while (my $contig = $aio->next_contig) {
     isa_ok($contig, 'Bio::Assembly::Contig');
 }
