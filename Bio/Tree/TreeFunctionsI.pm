@@ -798,6 +798,7 @@ sub _simplify_helper {
  Function: returns the distance between two given nodes
  Returns : numerical distance
  Args    : -nodes => arrayref of nodes to test
+           or ($node1, $node2)
 
 =cut
 
@@ -805,7 +806,17 @@ sub distance {
     my ($self,@args) = @_;
     my ($nodes) = $self->_rearrange([qw(NODES)],@args);
     if( ! defined $nodes ) {
-	$self->warn("Must supply -nodes parameter to distance() method");
+	$self->warn("Must supply two nodes or -nodes parameter to distance() method");
+	return;
+    }
+    elsif (ref($nodes) eq 'ARRAY') {
+	1;
+    }
+    elsif ( @args == 2) { # assume these are nodes...
+	    $nodes = \@args;
+    }
+    else {
+	$self->warn("Must supply two nodes or -nodes parameter to distance() method");
 	return;
     }
     $self->throw("Must provide 2 nodes") unless @{$nodes} == 2;
