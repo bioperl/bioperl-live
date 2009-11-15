@@ -292,8 +292,8 @@ sub add_phyloXML_annotation
                 no_blanks => 1
                 );
   my $reader = $self->{'_reader'};
-  $self->{'_currentannotation'} = []; # holds annotationcollection 
-  $self->{'_currenttext'} = '';
+  #$self->{'_currentannotation'} = []; # holds annotationcollection 
+  #$self->{'_currenttext'} = '';
   #$self->{'_id_link'} = {};
 
   # pretend we saw a <clade> element 
@@ -515,12 +515,27 @@ sub _relation_to_string {
   my ($id_ref_1) = $rel->to->annotation->get_nested_Annotations( 
                                       '-keys' => ['id_source'],
                                       '-recursive' => 1); 
+
+  my $confidence = $rel->confidence();
+  my $confidence_type = $rel->confidence_type(); 
   $str .= "<";
   $str .= $rel->tagname;
   $str .= " id_ref_0=\"".$id_ref_0->value."\"";
   $str .= " id_ref_1=\"".$id_ref_1->value."\"";
   $str .= " type=\"".$rel->type."\"";
-  $str .= "/>";
+  if ($confidence) {
+    $str .= " ><confidence";
+    if ($confidence_type) {
+      $str .= " type=\"".$confidence_type."\"";
+    }
+    $str .= ">";
+    $str .= $confidence;
+    $str .= "</confidence>";
+    $str .= "</ sequence_relation>";
+  }
+  else {
+    $str .= "/>";
+  }
   return $str;
 }
 
@@ -857,21 +872,6 @@ sub element_relation
 {
   my ($self) = @_;
   $self->processAttribute($self->current_attr);
-}
-
-=head2 end_element_relation
-
- Title   : end_element_relation
- Usage   : $treeio->end_element_relation
- Function: ends the parsing of clade relation & sequence relation
- Returns : none 
- Args    : none
-
-=cut
-
-sub end_element_relation
-{
-  my ($self) = @_;
   my $relationtype = $self->current_attr->{'type'};
   my $id_ref_0 = $self->current_attr->{'id_ref_0'};
   my $id_ref_1 = $self->current_attr->{'id_ref_1'};
@@ -880,8 +880,6 @@ sub end_element_relation
   $srcbyidref[0] = $self->{'_id_link'}->{$id_ref_0};
   $srcbyidref[1] = $self->{'_id_link'}->{$id_ref_1};
   
-  print %{$self->{'_id_link'}}, "\n";
-
   # exception when id_ref is defined but id_src is not, or vice versa.
   if ( ($id_ref_0 xor $srcbyidref[0])||($id_ref_1 xor $srcbyidref[1]) ) {
     $self->throw("id_ref and id_src incompatible: $id_ref_0, $id_ref_1, ", $srcbyidref[0], $srcbyidref[1]);
@@ -903,7 +901,23 @@ sub end_element_relation
                     '-tagname' => $self->current_element
                     );
   $ac1->add_Annotation($self->current_element, $newann);
-  
+  push (@{$self->{'_currentannotation'}}, $newann);
+}
+
+=head2 end_element_relation
+
+ Title   : end_element_relation
+ Usage   : $treeio->end_element_relation
+ Function: ends the parsing of clade relation & sequence relation
+ Returns : none 
+ Args    : none
+
+=cut
+
+sub end_element_relation
+{
+  my ($self) = @_;
+  my $ac = pop (@{$self->{'_currentannotation'}});
 }
 
 
@@ -958,6 +972,10 @@ sub element_default
       $ac->add_Annotation($current, $newann);
       # push to current annotation
       push (@{$self->{'_currentannotation'}}, $newann);
+  }
+  # we are within sequence_relation or clade_relation
+  elsif ($prev eq 'clade_relation' || $prev eq 'sequence_relation') {
+    # do nothing?
   }
   # we are already within an annotation
   else {
@@ -1014,17 +1032,20 @@ sub end_element_default
   }
   # we are within sequence_relation or clade_relation
   elsif ($prev eq 'clade_relation' || $prev eq 'sequence_relation') {
+    my $ann_relation = $self->{'_currentannotation'}->[-1];
     # we are here only with <confidence>
     if ($current eq 'confidence') {
-      # need to take care of confidence
-      # not implemented yet..
+      if (exists $self->current_attr->{'type'}) {
+        $ann_relation->confidence_type($self->current_attr->{'type'});
+      }
+      $ann_relation->confidence($self->{'_currenttext'});
     }
     else {
       $self->throw($current, " is not allowed within <*_relation>");
     }
   }
   # we are annotating a Node
-  if (( $srcbyidref && $srcbyidref->isa($self->nodetype)) || ((!$srcbyidref) && $prev eq 'clade'))  
+  elsif (( $srcbyidref && $srcbyidref->isa($self->nodetype)) || ((!$srcbyidref) && $prev eq 'clade'))  
   {
     # pop from current annotation
     my $ac = pop (@{$self->{'_currentannotation'}});
@@ -1388,7 +1409,7 @@ sub print_attr
     $str .= ' ';
     $str .= $attr->tagname;
     $str .= '=';
-    $str .= $attr->value;
+    $str .= '"'.$attr->value.'"';
   }
   return $str;
 } 

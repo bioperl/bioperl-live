@@ -258,6 +258,47 @@ sub to{
     return $self->{'to'};
 }
 
+=head2 confidence
+
+ Title   : confidence
+ Usage   : $self->confidence($newval)
+ Function: Gives the confidence value.
+ Example :
+ Returns : value of confidence
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub confidence{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'confidence'} = $value;
+    }
+    return $self->{'confidence'};
+
+}
+
+=head2 confidence_type
+
+ Title   : confidence_type
+ Usage   : $self->confidence_type($newtype)
+ Function: Gives the confidence type.
+ Example :
+ Returns : type of confidence
+ Args    : newtype (optional)
+
+
+=cut
+
+sub confidence_type{
+   my ($self,$type) = @_;
+   if( defined $type) {
+      $self->{'confidence_type'} = $type;
+    }
+    return $self->{'confidence_type'};
+}
+
 =head2 tag_term
 
  Title   : tag_term
