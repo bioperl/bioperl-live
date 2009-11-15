@@ -238,6 +238,8 @@ use Bio::Assembly::Singlet;
 
 use base qw(Bio::Assembly::IO);
 
+our $progname = 'TIGR_Assembler';
+
 =head2 next_assembly
 
  Title   : next_assembly
@@ -251,7 +253,7 @@ use base qw(Bio::Assembly::IO);
 sub next_assembly {
     my $self = shift;
 
-    my $assembly = Bio::Assembly::Scaffold->new();
+    my $assembly = Bio::Assembly::Scaffold->new( -source => $progname );
 
     # Load contigs and singlets in the scaffold
     while ( my $obj = $self->next_contig()) {
@@ -262,7 +264,6 @@ sub next_assembly {
             $assembly->add_contig($obj);
         }
     }
-    $assembly->update_seq_list();
 
     return $assembly;
 }
@@ -469,7 +470,7 @@ sub _store_contig {
 
     Title   : _store_read
     Usage   : my $readobj = $self->_store_read(\%readinfo, $contigobj);
-    Function: store information of a read belonging to a contig in the appropriate object
+    Function: store information of a read belonging to a contig in a contig object
     Returns : Bio::LocatableSeq
     Args    : hash, Bio::Assembly::Contig
 
@@ -535,7 +536,7 @@ sub _store_read {
 
     Title   : _store_singlet
     Usage   : my $singletobj = $self->_store_read(\%readinfo, \%contiginfo);
-    Function: store information of a singlet belonging to a scaffold in the appropriate object
+    Function: store information of a singlet belonging to a scaffold in a singlet object
     Returns : Bio::Assembly::Singlet
     Args    : hash, hash
 
@@ -552,7 +553,7 @@ sub _store_singlet {
     # Create a sequence object
     #$$contiginfo{'llength'} = length($$contiginfo{'lsequence'});
     my $seqobj = Bio::Seq::Quality->new(
-       -primary_id => $contigid, # unique id in assembly (contig name)
+       -primary_id => $readid,
        -display_id => $readid,
        -seq        => $$contiginfo{'lsequence'}, # do not use $$readinfo as ambiguities are uppercase
        -start      => 1,
@@ -562,7 +563,10 @@ sub _store_singlet {
    );
 
    # Create singlet from sequence and add it to scaffold
-   my $singletobj = Bio::Assembly::Singlet->new( -seqref => $seqobj );
+   my $singletobj = Bio::Assembly::Singlet->new(
+     -id     => $contigid,
+     -seqref => $seqobj
+   );
 
    # Add other misc contig information as features of the singlet
    my $contigtags = Bio::SeqFeature::Generic->new(

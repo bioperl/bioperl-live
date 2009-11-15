@@ -152,12 +152,10 @@ sub next_assembly {
             $assembly->add_contig($obj);
         }
     }
-    $assembly->update_seq_list();
 
     # Load annotations of assembly and contigs
     $self->scaffold_annotations($assembly);
 
-    #$assembly->get_nof_contigs ? return $assembly : return;
     return $assembly;
 }
 
@@ -166,7 +164,7 @@ sub next_assembly {
 
  Title   : next_contig
  Usage   : $scaffold = $stream->next_contig()
- Function: Returns the next contig or singlet in the stream.
+ Function: Returns the next contig or singlet in the ACE stream.
  Returns : a Bio::Assembly::Contig or Bio::Assembly::Single object
  Args    : none
 
@@ -179,6 +177,7 @@ sub next_contig {
     my $contigOBJ;
     my $read_name;
     my $read_data = {}; # Temporary holder for read data
+
     # Keep reading the ACE stream starting at where we stopped
     while ($_ = $self->_readline) {
         chomp;
@@ -194,32 +193,34 @@ sub next_contig {
                 #my $nof_segments = $4; # Number of read segments selected for consensus assembly
                 my $ori = $5;           # 'C' if contig was complemented or U if not (default)
                 $ori = ($ori eq 'U' ? 1 : -1);
-                # Create a singlet if necessary
-                if ($nof_reads < 1) {
-                    $self->throw("Expecting a strictly positive number of reads in a contig");
-                } elsif ($nof_reads == 1) { # This is a singlet
+
+                # Create a singlet or contig
+                if ($nof_reads == 1) { # This is a singlet
                     $contigOBJ = Bio::Assembly::Singlet->new( );
-                } else { # $nof_reads > 1 # This is a contig
-                    $contigOBJ = Bio::Assembly::Contig->new( -id => $contigID );
-                    $contigOBJ->strand($ori);
+                } elsif ( $nof_reads > 1 ) { # This is a contig
+                    $contigOBJ = Bio::Assembly::Contig->new( );
                 }
-                my $consensus_sequence = undef;
-                while ($_ = $self->_readline) { # Looping over contig lines
-                    chomp;                      # Drop <ENTER> (\n) on current line
-                    last if (/^$/);             # Stop if empty line (contig end) is found
-                    s/\*/-/g;                   # Forcing '-' as gap symbol
-                    $consensus_sequence .= $_;
-                }
-                $consensus_sequence = Bio::LocatableSeq->new(
-                    -seq   => $consensus_sequence,
-                    -start => 1,
-                    -id    => $contigID
-                );
-                if ($contigOBJ->isa('Bio::Assembly::Singlet')) { # a singlet
-                    $contigOBJ->seqref($consensus_sequence);
-                } else { # a contig
+
+                $contigOBJ->id($contigID);
+                $contigOBJ->strand($ori);
+
+                if ( $nof_reads > 1 ) { # This is a contig
+                    # Contig consensus sequence
+                    my $consensus_sequence;
+                    while ($_ = $self->_readline) { # Looping over contig lines
+                        chomp;                      # Drop <ENTER> (\n) on current line
+                        last if (/^$/);             # Stop if empty line (contig end) is found
+                        s/\*/-/g;                   # Forcing '-' as gap symbol
+                        $consensus_sequence .= $_;
+                    }
+                    $consensus_sequence = Bio::LocatableSeq->new(
+                        -seq   => $consensus_sequence,
+                        -start => 1,
+                    );
+                    $consensus_sequence->id($contigID);
                     $contigOBJ->set_consensus_sequence($consensus_sequence);
                 }
+
             } else {
                 # A second contig is about to start. Backtrack one line and go
                 # to the return statement
@@ -230,6 +231,9 @@ sub next_contig {
 
         # Loading contig qualities... (Base Quality field)
         /^BQ/ && do {
+
+            next if ($contigOBJ->isa('Bio::Assembly::Singlet'));
+
             my $consensus = $contigOBJ->get_consensus_sequence()->seq();
             my ($i,$j,@tmp);
             my @quality = ();
@@ -286,12 +290,13 @@ sub next_contig {
         # Loading reads... (ReaD sequence field)
         # They define the reads in each contig
         /^RD (\S+) (-*\d+) (\d+) (\d+)/ && do {
-            next if $contigOBJ->isa('Bio::Assembly::Singlet');
             $read_name = $1;
             $read_data->{$read_name}{'length'} = $2; # number_of_padded_bases
             $read_data->{$read_name}{'contig'} = $contigOBJ;
             # $read_data->{$read_name}{'number_of_read_info_items'} = $3;
             # $read_data->{$read_name}{'number_of_tags'}            = $4;
+
+            # Add a read to a contig
             my $read_sequence;
             while ($_ = $self->_readline) {
                 chomp;
@@ -299,26 +304,35 @@ sub next_contig {
                 s/\*/-/g; # Forcing '-' as gap symbol
                 $read_sequence .= $_; # aligned read sequence
             }
-            my $read = Bio::LocatableSeq->new( -seq=>$read_sequence,
-                                               -start=>1,
-                                               -strand=>$read_data->{$read_name}{'strand'},
-                                               -id=>$read_name,
-                                               -primary_id=>$read_name,
-                                               -alphabet=>'dna' );
+            my $read = Bio::LocatableSeq->new( -seq        => $read_sequence,
+                                               -start      => 1,
+                                               -strand     => $read_data->{$read_name}{'strand'},
+                                               -id         => $read_name,
+                                               -primary_id => $read_name,
+                                               -alphabet   => 'dna' );
             #$lingering_read = $read;
             # Adding read location and sequence to contig ("gapped consensus" coordinates)
             my $padded_start = $read_data->{$read_name}{'padded_start'};
             my $padded_end   = $padded_start + $read_data->{$read_name}{'length'} - 1;
-            my $coord = Bio::SeqFeature::Generic->new( -start=>$padded_start,
-                                                       -end=>$padded_end,
-                                                       -strand=>$read_data->{$read_name}{'strand'},
-                                                       -tag => { 'contig' => $contigOBJ->id } );
-            $contigOBJ->set_seq_coord($coord,$read);
+            my $coord = Bio::SeqFeature::Generic->new( -start  => $padded_start,
+                                                       -end    => $padded_end,
+                                                       -strand => $read_data->{$read_name}{'strand'},
+                                                       -tag    => { 'contig' => $contigOBJ->id } );
+
+            if ($contigOBJ->isa('Bio::Assembly::Singlet')) {
+                # Set the the sequence in the singlet
+                $contigOBJ->seqref($read);
+            } else { # a contig
+                $contigOBJ->set_seq_coord($coord,$read);
+            }
+
         };
 
         # Loading read trimming and alignment ranges...
         /^QA (-?\d+) (-?\d+) (-?\d+) (-?\d+)/ && do {
+
             next if $contigOBJ->isa('Bio::Assembly::Singlet');
+
             my ($qual_start, $qual_end, $align_start, $align_end) =
                 ($1, $2, $3, $4);
             unless ($align_start == -1 && $align_end == -1) {

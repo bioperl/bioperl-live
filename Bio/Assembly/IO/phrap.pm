@@ -18,10 +18,16 @@ Bio::Assembly::IO::phrap - driver to load phrap.out files.
     use Bio::Assembly::IO;
 
     # Assembly loading methods
-    $io = Bio::Assembly::IO->new(-file=>"SGC0-424.phrap.out",
-                                -format=>"phrap");
+    my $io = Bio::Assembly::IO->new( -file   => 'results.phrap',
+                                     -format => 'phrap');
 
-    $assembly = $io->next_assembly;
+    # Read the entire scaffold
+    my $scaffold = $io->next_assembly;
+
+    # Or read one contig at a time to save resources
+    while ( my $contig = $io->next_contig ) {
+      # Do something ...
+    }
 
 =head1 DESCRIPTION
 
@@ -161,76 +167,102 @@ use Bio::SeqFeature::Generic;
 
 use base qw(Bio::Assembly::IO);
 
+our $progname = 'phrap';
+
+=head1 Parser methods
+
+
 =head2 next_assembly
 
  Title   : next_assembly
- Usage   : $unigene = $stream->next_assembly()
+ Usage   : $scaffold = $stream->next_assembly()
  Function: returns the next assembly in the stream
- Returns : Bio::Assembly::Scaffold object
- Args    : NONE
+ Returns : a Bio::Assembly::Scaffold object
+ Args    : none
 
 =cut
 
 sub next_assembly {
+    my $self = shift;
+
+    my $assembly = Bio::Assembly::Scaffold->new( -source => $progname );
+
+    # Load contigs and singlets in the scaffold
+    while ( my $obj = $self->next_contig()) {
+        # Add contig /singlet to assembly
+        if ($obj->isa('Bio::Assembly::Singlet')) { # a singlet
+            $assembly->add_singlet($obj);
+        } else { # a contig
+            $assembly->add_contig($obj);
+        }
+    }
+
+    # Load annotations of assembly and contigs
+    $self->scaffold_annotations($assembly);
+
+    return $assembly;
+}
+
+
+=head2 next_contig
+
+ Title   : next_contig
+ Usage   : $scaffold = $stream->next_contig()
+ Function: Returns the next contig or singlet in the PHRAP stream.
+ Returns : a Bio::Assembly::Contig or Bio::Assembly::Single object
+ Args    : none
+
+=cut
+
+sub next_contig {
   my $self = shift; # Package reference
 
-  # Resetting assembly data structure
-  my $Assembly = Bio::Assembly::Scaffold->new(-source=>'phrap');
-
   # Looping over all phrap out file lines
-  my ($contigOBJ);
+  my $contigOBJ;
   while ($_ = $self->_readline) {
     chomp;
 
-    # Loading exact dupicated reads list
-    # /Exact duplicate reads:/ && do {
-    #   my @exact_dupl;
-    #   while (<FILE>) {
-    #     last if (/^\s*$/);
-    #     /(\S+)\s+(\S+)/ && do {
-    #       push(@exact_dupl,[$1,$2]);
-    #     };
-    #     $self->{'assembly'}{'exact_dupl_reads'} =
-    #       new Data::Table(\@exact_dupl,['included','excluded'],0);
-    #   }
-    # };
-
     # Loading singlets reads data
-    /^(\d+) isolated singlet/ && do { # should it match 'singlets' and 'singletons'?
-      while ($_ = $self->_readline) {
-        chomp;
-        last if (/^$/);
-        if (/^\s+(\S+)\s+(\d+)\s+\((\d+)\)/) {
+    #/^(\d+) isolated singlet/ && do { # should it match 'singlets' and 'singletons'?
+    #  while ($_ = $self->_readline) {
+    #    chomp;
+    #    last if (/^$/);
+
+        /^\s+(\S+)\s+(\d+)\s+\((\d+)\)/ && do {
           my ($singletID, $length, $nof_trimmed_nonX) = ($1, $2, $3);
           # Create singlet object, and add it to scaffold
           my $seq = Bio::LocatableSeq->new(
-            -start      => 1,
-            -end        => $length,
-            -strand     => 1,
+            -id            => $singletID,
+            -primary_id    => $singletID,
+            -start         => 1,
+            -end           => $length,
+            -strand        => 1,
             -nowarnonempty => 1,
-            -id         => $singletID,
-            -primary_id => $singletID,
-            -alphabet   => 'dna');
-          my $singletOBJ = Bio::Assembly::Singlet->new(-seqref=>$seq,
-                                                       -verbose => $self->verbose);
+            -alphabet      => 'dna'
+          );
+          $contigOBJ = Bio::Assembly::Singlet->new( -id      => $singletID,
+                                                    -seqref  => $seq,
+                                                    -verbose => $self->verbose );
           my $feat = Bio::SeqFeature::Generic->new(
             -start   => 1,
             -end     => $length,
-            -primary => "_main_contig_feature:".$singletOBJ->id(),
+            -primary => "_main_contig_feature:".$contigOBJ->id(),
             -tag     => { '_nof_trimmed_nonX' => $nof_trimmed_nonX }
-          );                         
-          $singletOBJ->add_features([ $feat ],1);
-          $Assembly->add_singlet($singletOBJ);
-        }
-      }
-    };
-  
+          );
+          $contigOBJ->add_features([ $feat ],1);
+          # Go to return statement
+          last;
+        };
+
+    #  }
+    #};
+
     # Loading contig information
     /^Contig (\d+)\.\s+(\d+) reads?; (\d+) bp \(untrimmed\), (\d+) \(trimmed\)\./ && do {
       my ($contigID, $nof_reads, $length, $trimmed_length) = ($1, $2, $3, $4);
-      $contigOBJ = Bio::Assembly::Contig->new( -id     => $contigID,
-                                              -verbose => $self->verbose,
-                                               -source => 'phrap'   );
+      $contigOBJ = Bio::Assembly::Contig->new( -id      => $contigID,
+                                               -verbose => $self->verbose,
+                                               -source  => 'phrap'   );
       my $feat   = Bio::SeqFeature::Generic->new(
         -start   => 1,
         -end     => $length,
@@ -238,9 +270,8 @@ sub next_assembly {
         -tag     => { '_trimmed_length' => $trimmed_length }
       );
       $contigOBJ->add_features([ $feat ],1);
-      $Assembly->add_contig($contigOBJ);
     };
-  
+
     # Loading read information
     /^(C?)\s+(-?\d+)\s+(\d+)\s+(\S+)\s+(\d+)\s+\(\s*(\d+)\)\s+(\d+\.\d*)\s+(\d+\.\d*)\s+(\d+\.\d*)/ && do {
       my ($strand, $start, $end, $readID, $primary_score, $secondary_score,
@@ -269,53 +300,96 @@ sub next_assembly {
       $contigOBJ->add_seq($seq);
       $contigOBJ->add_features([ $unalign_coord ]);
     };
-  
-    # Loading INTERNAL clones description
-    /INTERNAL\s+Contig\s+(\d+)\s+opp\s+sense/ && do {
-      my $contigID = $1;
-      my $contig = $Assembly->get_contig_by_id($contigID);
-      while ($_ = $self->_readline) {
-        my (@data,$rejected,$c1_strand,$c2_strand);
-  
-        (@data = /\s+(\*?)\s+(C?)\s+(\S+)\s+(C?)\s+(\S+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)/) && do {
-           if ($data[0] eq '*') { $rejected = 1 } else { $rejected = 0 }
-           $c1_strand = ($data[1] eq 'C' ? -1 : 1);
-           $c2_strand = ($data[3] eq 'C' ? -1 : 1);
-           (my $clone_name = $data[2]) =~ s/^(\S+)\.\w.*/$1/;
-           my $clone = Bio::SeqFeature::Generic->new(
-             -start   => $data[6],
-             -end     => $data[7],
-             -strand  => 0,
-             -primary => "_internal_clone:$clone_name",
-             -tag     => {'_1st_strand'=>,$c1_strand,
-                          '_2nd_strand'=>,$c2_strand,
-                          '_1st_name'=>$data[2],
-                          '_2nd_name'=>$data[4],
-                          '_length'=>$data[5],
-                          '_rejected'=>$rejected}
-          );
-          $contig->add_features([ $clone ]);
-        };
-  
-        /Covered regions:/ && do {
-          my %coord  = /(\d+)/g; my $i = 0;
-          foreach my $start (sort { $a <=> $b } keys %coord) {
-            my $cov = Bio::SeqFeature::Generic->new(
-              -start   => $start,
-              -end     => $coord{$start},
-              -primary => '_covered_region:'.++$i
-            );
-            # 1: attach feature to contig consensus, if any
-            $contig->add_features([ $cov ],1);
-          }
-          last; # exit while loop
-        }; # /Covered regions:/
 
-      } # while ($_ = $self->_readline)
-    }; # /INTERNAL\s+Contig\s+(\d+)\s+opp\s+sense/
+    /^$/ && do { # blank line, could be the end of a contig
+      if ($contigOBJ) {
+        # Go to the return statement
+        last;
+      }
+    };
+
   } # while ($_ = $self->_readline)
 
-  return $Assembly;
+  return $contigOBJ;
+}
+
+
+=head2 scaffold_annotations
+
+ Title   : scaffold_annotations
+ Usage   : $stream->scaffold_annotations($scaffold)
+ Function: Adds ssembly and contig annotations to a scaffold. In the PHRAP
+           format, this is the section starting with "INTERNAL"
+ Returns : 1 for success
+ Args    : a Bio::Assembly::Scaffold object to attach the annotations to
+
+=cut
+
+sub scaffold_annotations {
+    my ($self, $assembly) = @_;
+
+    # Read the PHRAP stream from the beginning again
+    seek($self->_fh, 0, 0);
+    while ($_ = $self->_readline) {
+        chomp;
+
+        # Loading exact dupicated reads list
+        # /Exact duplicate reads:/ && do {
+        #   my @exact_dupl;
+        #   while (<FILE>) {
+        #     last if (/^\s*$/);
+        #     /(\S+)\s+(\S+)/ && do {
+        #       push(@exact_dupl,[$1,$2]);
+        #     };
+        #     $self->{'assembly'}{'exact_dupl_reads'} =
+        #       new Data::Table(\@exact_dupl,['included','excluded'],0);
+        #   }
+        # };
+
+        # Loading INTERNAL clones description
+        /INTERNAL\s+Contig\s+(\d+)\s+opp\s+sense/ && do {
+            my $contigID = $1;
+            my $contig = $assembly->get_contig_by_id($contigID);
+            while ($_ = $self->_readline) {
+                my (@data,$rejected,$c1_strand,$c2_strand);
+
+                (@data = /\s+(\*?)\s+(C?)\s+(\S+)\s+(C?)\s+(\S+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)/) && do {
+                    if ($data[0] eq '*') { $rejected = 1 } else { $rejected = 0 }
+                    $c1_strand = ($data[1] eq 'C' ? -1 : 1);
+                    $c2_strand = ($data[3] eq 'C' ? -1 : 1);
+                    (my $clone_name = $data[2]) =~ s/^(\S+)\.\w.*/$1/;
+                    my $clone = Bio::SeqFeature::Generic->new(
+                        -start   => $data[6],
+                        -end     => $data[7],
+                        -strand  => 0,
+                        -primary => "_internal_clone:$clone_name",
+                        -tag     => {'_1st_strand'=>,$c1_strand,
+                                     '_2nd_strand'=>,$c2_strand,
+                                     '_1st_name'=>$data[2],
+                                     '_2nd_name'=>$data[4],
+                                     '_length'=>$data[5],
+                                     '_rejected'=>$rejected}
+                    );
+                    $contig->add_features([ $clone ]);
+                };
+
+                /Covered regions:/ && do {
+                    my %coord  = /(\d+)/g; my $i = 0;
+                    foreach my $start (sort { $a <=> $b } keys %coord) {
+                        my $cov = Bio::SeqFeature::Generic->new(
+                            -start   => $start,
+                            -end     => $coord{$start},
+                            -primary => '_covered_region:'.++$i
+                        );
+                        # 1: attach feature to contig consensus, if any
+                        $contig->add_features([ $cov ],1);
+                    }
+                    last; # exit while loop
+                }; # /Covered regions:/
+            } # while ($_ = $self->_readline)
+        }; # /INTERNAL\s+Contig\s+(\d+)\s+opp\s+sense/
+    } # while ($_ = $self->_readline)
+    return 1;
 }
 
 =head2 write_assembly (NOT IMPLEMENTED)

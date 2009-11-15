@@ -7,10 +7,10 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 58,
-	-requires_module => 'DB_File');
-	
-	use_ok('Bio::Assembly::IO');
+    test_begin( -tests => 144,
+                -requires_module => 'DB_File' );
+
+    use_ok('Bio::Assembly::IO');
 }
 
 #
@@ -22,28 +22,29 @@ BEGIN {
 #
 
 my $in = Bio::Assembly::IO->new
-	(-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'));
-
+    (-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'));
 isa_ok($in, 'Bio::Assembly::IO');
-
-my $sc;
-
-TODO: {
-	local $TODO = "phrap parser doesn't include the sequence string in the sequence objects.";
-	$in->verbose(2);
-	eval {$sc = $in->next_assembly};
-	ok(!$@);
+while (my $contig = $in->next_contig) {
+    isa_ok($contig, 'Bio::Assembly::Contig');
 }
 
 $in = Bio::Assembly::IO->new
-	(-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'));
+    (-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'));
+isa_ok($in, 'Bio::Assembly::IO');
+my $sc;
+TODO: {
+    local $TODO = "phrap parser doesn't include the sequence string in the sequence objects.";
+    $in->verbose(2);
+    eval {$sc = $in->next_assembly};
+    ok(!$@);
+}
 
 $in->verbose(-1);
+$in = Bio::Assembly::IO->new
+    (-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'));
+ok($sc = $in->next_assembly);
+isa_ok($sc, 'Bio::Assembly::Scaffold');
 
-$sc = $in->next_assembly;
-
-isa_ok($sc,
-	   'Bio::Assembly::Scaffold');
 
 #
 # Testing Scaffold
@@ -61,6 +62,38 @@ is($sc->get_contig_seq_ids, 2, "get_contig_seq_ids");
 is($sc->get_contig_ids, 1, "get_contig_ids");
 is($sc->get_singlet_ids, 2, "get_singlet_ids");
 
+my @phrap_contigs = $sc->all_contigs();
+isa_ok $phrap_contigs[0], "Bio::Assembly::Contig",'the contig is a Bio::Assembly::Contig';
+my @singlets = $sc->all_singlets();
+isa_ok $singlets[0], "Bio::Assembly::Contig", 'the singlet is a Bio::Assembly::Contig';
+isa_ok $singlets[0], "Bio::Assembly::Singlet", 'the singlet is a Bio::Assembly::Singlet';
+
+my @contig_seq_ids;
+ok(@contig_seq_ids = $sc->get_contig_seq_ids, "get_contig_seq_ids");
+is(@contig_seq_ids, 2);
+for my $contig_seq_id (@contig_seq_ids) {
+  ok (not $contig_seq_id =~ m/contig/i);
+}
+my @contig_ids;
+ok(@contig_ids = $sc->get_contig_ids, "get_contig_ids");
+is(@contig_ids, 1);
+for my $contig_id (@contig_ids) {
+  ok (not $contig_id =~ m/contig/i);
+}
+my @singlet_ids;
+ok(@singlet_ids = $sc->get_singlet_ids, "get_singlet_ids");
+is(@singlet_ids, 2);
+for my $singlet_id (@singlet_ids) {
+  ok (not $singlet_id =~ m/contig/i);
+}
+my @all_seq_ids;
+ok(@all_seq_ids = $sc->get_all_seq_ids, "get_all_seq_ids");
+for my $seq_id (@all_seq_ids) {
+  ok (not $seq_id =~ m/contig/i);
+}
+is(@all_seq_ids, 4);
+
+
 #
 # Testing Contig
 #
@@ -74,15 +107,6 @@ is($sc->get_singlet_ids, 2, "get_singlet_ids");
 #
 
 my $aio = Bio::Assembly::IO->new(
-    -file=>test_input_file('consed_project','edit_dir','test_project.fasta.screen.ace.2'),
-    -format=>'ace'
-);
-
-while (my $obj = $aio->next_contig) {
-    isa_ok $obj, 'Bio::Assembly::Contig'; # Singlets are contigs too
-}
-
-$aio = Bio::Assembly::IO->new(
     -file=>test_input_file('consed_project','edit_dir','test_project.fasta.screen.ace.2'),
     -format=>'ace'
 );
@@ -102,14 +126,14 @@ my @annotations = grep {$_->primary_tag eq 'Annotation'} @contig_features;
 is @annotations, 2;
 my $had_tag = 0;
 foreach my $an (@annotations) {
-	if ($an->has_tag('extra_info')) {
-		$had_tag++;
-		is (($an->get_tag_values('extra_info'))[0], "contig extra\ninfo\n");
-	}
-	elsif ($an->has_tag('comment')){
-		$had_tag++;
-		is (($an->get_tag_values('comment'))[0], "contig tag\ncomment\n");
-	}
+    if ($an->has_tag('extra_info')) {
+        $had_tag++;
+        is (($an->get_tag_values('extra_info'))[0], "contig extra\ninfo\n");
+    }
+    elsif ($an->has_tag('comment')){
+        $had_tag++;
+        is (($an->get_tag_values('comment'))[0], "contig tag\ncomment\n");
+    }
 }
 is $had_tag, 2;
 
@@ -120,46 +144,47 @@ is($assembly->get_contig_seq_ids, 2, "get_contig_seq_ids");
 is($assembly->get_contig_ids, 1, "get_contig_ids");
 is($assembly->get_singlet_ids, 0, "get_singlet_ids");
 
+$aio = Bio::Assembly::IO->new(
+    -file   => test_input_file('assembly_with_singlets.ace'),
+    -format => 'ace',
+);
+
+while (my $obj = $aio->next_contig) {
+    isa_ok $obj, 'Bio::Assembly::Contig'; # Singlets are contigs too
+}
 
 $aio = Bio::Assembly::IO->new(
-	-file=>test_input_file('assembly_with_singlets.ace'),
-	-format=>'ace',
+    -file   => test_input_file('assembly_with_singlets.ace'),
+    -format => 'ace',
 );
+
 $assembly = $aio->next_assembly();
 is $assembly->get_nof_contigs, 3;
 my @ace_contigs = $assembly->all_contigs();
 isa_ok $ace_contigs[0], "Bio::Assembly::Contig",'the contig is a Bio::Assembly::Contig';
 is $assembly->get_nof_sequences_in_contigs, 6;
 is($assembly->get_nof_singlets, 33, "get_nof_singlets");
-my @ace_singlets = $assembly->all_singlets();
-isa_ok $ace_singlets[0], "Bio::Assembly::Contig", 'the singlet is a Bio::Assembly::Contig';
-isa_ok $ace_singlets[0], "Bio::Assembly::Singlet", 'the singlet is a Bio::Assembly::Singlet';
-my @contig_seq_ids;
+@singlets = $assembly->all_singlets();
+isa_ok $singlets[0], "Bio::Assembly::Contig", 'the singlet is a Bio::Assembly::Contig';
+isa_ok $singlets[0], "Bio::Assembly::Singlet", 'the singlet is a Bio::Assembly::Singlet';
 ok(@contig_seq_ids = $assembly->get_contig_seq_ids, "get_contig_seq_ids");
 is(@contig_seq_ids, 6);
 for my $contig_seq_id (@contig_seq_ids) {
   ok (not $contig_seq_id =~ m/contig/i);
 }
-my @contig_ids;
 ok(@contig_ids = $assembly->get_contig_ids, "get_contig_ids");
 is(@contig_ids, 3);
 for my $contig_id (@contig_ids) {
   ok ($contig_id =~ m/contig/i);
 }
-my @singlet_ids;
 ok(@singlet_ids = $assembly->get_singlet_ids, "get_singlet_ids");
 is(@singlet_ids, 33);
 for my $singlet_id (@singlet_ids) {
   ok ($singlet_id =~ m/contig/i);
 }
-my @all_seq_ids;
 ok(@all_seq_ids = $assembly->get_all_seq_ids, "get_all_seq_ids");
 for my $seq_id (@all_seq_ids) {
-  ok (not $seq_id =~ m/contig/i, 'test');
-  if ($seq_id =~ m/contig/i) {
-    warn "TODO: The ID of the sequence composing a singlet is wrong (Bug 2648)\n";
-    last;
-  }
+  ok (not $seq_id =~ m/contig/i);
 }
 is(@all_seq_ids, 39);
 
@@ -174,8 +199,16 @@ my $asm_in = Bio::Assembly::IO->new(
     -file => test_input_file("sample_dataset.tasm "),
     -format=>'tigr'
 );
-my $scaf_in = $asm_in->next_assembly;
+while (my $obj = $aio->next_contig) {
+    isa_ok $obj, 'Bio::Assembly::Contig'; # Singlets are contigs too
+}
 
+$asm_in = Bio::Assembly::IO->new(
+    -file => test_input_file("sample_dataset.tasm "),
+    -format=>'tigr'
+);
+
+my $scaf_in = $asm_in->next_assembly;
 isa_ok($scaf_in, 'Bio::Assembly::Scaffold');
 is($scaf_in->id, 'NoName');
 is($scaf_in->get_nof_contigs, 13);
@@ -205,7 +238,7 @@ my @singletids    = sort qw(123);
 my @singletseqids = sort qw(asdf);
 is_deeply([sort $scaf_in->get_contig_seq_ids], \@contigseqids);
 is_deeply([sort $scaf_in->get_contig_ids],     \@contigids   );
-is_deeply([sort $scaf_in->get_singlet_ids],    \@singletids  , "TODO: The ID of the sequence composing a singlet is wrong (Bug 2648)");
+is_deeply([sort $scaf_in->get_singlet_ids],    \@singletids  );
 isa_ok($scaf_in->get_seq_by_id('sdsu|SDSU1_RFPERU_001_A09.x01.phd.1'),'Bio::LocatableSeq');
 my $contig = $scaf_in->get_contig_by_id('106');
 isa_ok($contig,'Bio::Assembly::Contig');
@@ -219,7 +252,8 @@ ok exists $primary_tags{'_aligned_coord:sdsu|SDSU_RFPERU_006_E04.x01.phd.1'};
 is($sfs[1]->seq_id(), undef); # should this be undef?
 
 isa_ok($scaf_in->annotation, 'Bio::AnnotationCollectionI');
-is($scaf_in->annotation->get_all_annotation_keys, 0,"no annotations in Annotation collection?");
+is($scaf_in->annotation->get_all_annotation_keys, 0, "no annotations in Annotation collection?");
+
 
 # Exporting an assembly
 

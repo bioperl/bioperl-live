@@ -34,7 +34,10 @@ Bio::Assembly::Singlet - Perl module to hold and manipulate
     # OR, if you want to build the singlet yourself,
 
     use Bio::Assembly::Singlet;
-    $singlet = Bio::Assembly::Singlet->new( -seqref => $seq );
+    $singlet = Bio::Assembly::Singlet->new(
+        -id     => 'Singlet1',
+        -seqref => $seq
+    );
 
 =head1 DESCRIPTION
 
@@ -132,13 +135,13 @@ sub seqref {
     Title   : _seq_to_singlet
     Usage   : $singlet->seqref($seq)
     Function: Transform a sequence into a singlet
-    Returns : A Bio::Assembly::Singlet object
+    Returns : 1 for sucess
     Args    : A Bio::Seq-compliant object
 
 =cut
 
 sub _seq_to_singlet {
-    my ($self, $seq) = @_;    
+    my ($self, $seq) = @_;
     # Object type checking
     $self->throw("Unable to process non Bio::Seq-compliant object [".ref($seq)."]")
       unless (defined $seq && ($seq->isa("Bio::Seq") || $seq->isa("Bio::LocatableSeq")) );
@@ -156,14 +159,13 @@ sub _seq_to_singlet {
     );
     # Add new sequence
     $self->add_seq($lseq);
-    # Creating singlet ID, seqref and consensus
-    $self->id($seq_id);
+    # Creating singlet seqref and consensus
     $self->{'_seqref'} = $seq;
     $self->set_consensus_sequence($lseq);
     if ($seq->isa("Bio::Seq::Quality")) {
         $self->set_consensus_quality($seq);
     }
-    return;
+    return 1;
 }
 
 1;
