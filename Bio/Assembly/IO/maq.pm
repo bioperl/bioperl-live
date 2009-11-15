@@ -159,10 +159,10 @@ use constant {
 
 my $progname = 'maq';
 
-=head2 next_assembly()
+=head2 next_assembly
 
  Title   : next_assembly
- Usage   : my $scaffold = $asmio->next_assembly()
+ Usage   : $scaffold = $stream->next_assembly()
  Function: return the assembly defined by the map and cns files
  Returns : Bio::Assembly::Scaffold object
  Args    : none
@@ -170,70 +170,99 @@ my $progname = 'maq';
 =cut
 
 sub next_assembly {
+    my $self = shift;
+
+    my $assembly = Bio::Assembly::Scaffold->new( -progname => $progname );
+
+    # Load contigs and singlets in the scaffold
+    while ( my $obj = $self->next_contig()) {
+        # Add contig /singlet to assembly
+        if ($obj->isa('Bio::Assembly::Singlet')) { # a singlet
+            $assembly->add_singlet($obj);
+        } else { # a contig
+            $assembly->add_contig($obj);
+        }
+    }
+
+    return $assembly;
+}
+
+
+=head2 next_contig
+
+ Title   : next_contig
+ Usage   : $scaffold = $stream->next_contig()
+ Function: Returns the next contig or singlet in the ACE stream.
+ Returns : a Bio::Assembly::Contig or Bio::Assembly::Single object
+ Args    : none
+
+=cut
+
+sub next_contig {
     my $self = shift; # object reference
-    
-    # Create a new scaffold to hold the contigs
-    my $scaffoldobj = Bio::Assembly::Scaffold->new(-source => $progname);
-    
+
+
+    # Read the file of consensus sequences if it has not already been done for
+    # this Bio:::Assembly::IO stream already
+    if (not defined $self->_cons) {
+        $self->_parse_cns_file or
+            $self->throw("Associated maq consensus file is not available");
+    }
+
     # Contig and read related
-    my ($contigobj, %contiginfo, %readinfo);
-    
-    $self->_parse_cns_file or
-        $self->throw("Associated maq consensus file is not available");
+    my $contigobj;
+    my %contiginfo;
 
     # Loop over all assembly file lines
     while ($_ = $self->_readline) {
         chomp;
+        next if /^$/;
+
         # mapview format parsing ; every line is a read...
-        undef %readinfo;
+        my %readinfo;
         @readinfo{ qw(read_name chr posn strand insert_size
             paired_flag map_qual se_map_qual alt_map_qual
             num_mm_best_hit sum_qual_mm_best_hit zero_mm_hits
             one_mm_hits read_len seqstr qualstr) } = split(/\s+/);
+
         # sanger conversion
         my @qual = map { ord($_)-33 } split('', $readinfo{qualstr});
         $readinfo{seq} = Bio::Seq::Quality->new(
-            -id => $readinfo{read_name},
-            -seq => $readinfo{seqstr},
+            -id   => $readinfo{read_name},
+            -seq  => $readinfo{seqstr},
             -qual => \@qual
             );
 
-        if (!defined $contiginfo{start} || 
-            $readinfo{'posn'} > $contiginfo{end} ) {
-            # new contig
-            # close old contigobj, if nec.
-            if (defined $contiginfo{start}) {
-                # store old contig object
-                if ($contiginfo{'seqnum'} > 1) {
-                    $self->_store_contig(\%contiginfo, $contigobj, $scaffoldobj);
-                }
-                else { #singlet
-                    $self->_store_singlet(\%contiginfo, $contigobj, $scaffoldobj);
-                    1;
-                }
-            }
-            # create new contigobj
-
-            $contiginfo{'seqnum'} = 1;
+        if ( not defined $contiginfo{start} ) {
+            # First read in the shiny new contig
+            $contiginfo{'seqnum'}  = 1;
             $contiginfo{'qualobj'} = $self->_next_cons;
             $contiginfo{start} = $contiginfo{'qualobj'}->start;
-            $contiginfo{end} = $contiginfo{'qualobj'}->end;
+            $contiginfo{end}   = $contiginfo{'qualobj'}->end;
             $contiginfo{'asmbl_id'} = 'maq_assy['.$self->_basename.']/'.$contiginfo{start}.'-'.$contiginfo{end};
-            $contigobj = $self->_init_contig(\%contiginfo, $scaffoldobj);
-
+            $contigobj = $self->_init_contig(\%contiginfo);
             $self->_store_read(\%readinfo, $contigobj);
+        } else {
+            if ( $readinfo{'posn'} <= $contiginfo{end} ) {
+                # Add read to existing contig
+                $contiginfo{'seqnum'}++;
+                $self->_store_read(\%readinfo, $contigobj);
+            } else {
+                # Read belongs in a new contig
+                if ($contiginfo{'seqnum'} > 1) {
+                    $self->_store_contig(\%contiginfo, $contigobj);
+                }
+                else { #singlet
+                    $self->_store_singlet(\%contiginfo, $contigobj);
+                }
+                # do a pushback
+                $self->_pushback($_);
+                last;
+            }
         }
-        else {
-            # update this contig's info...
-            $contiginfo{'seqnum'}++;
-            $self->_store_read(\%readinfo, $contigobj);
-        }
-
     }
-
-    $scaffoldobj->update_seq_list();
     
-    return $scaffoldobj;
+    return $contigobj;
 }
 
 =head2 _init_contig()
@@ -249,14 +278,13 @@ sub next_assembly {
 =cut
 
 sub _init_contig {
-    my ($self, $contiginfo, $scaffoldobj) = @_;
+    my ($self, $contiginfo) = @_;
     # Create a contig and attach it to scaffold
     my $contigobj = Bio::Assembly::Contig->new(
         -id     => $$contiginfo{'asmbl_id'},
         -source => $progname,
         -strand => 1
     );
-    $scaffoldobj->add_contig($contigobj);
     return $contigobj;
 }
 
@@ -268,12 +296,12 @@ sub _init_contig {
     Function: store information of a contig belonging to a scaffold
               in the appropriate object
     Returns : Bio::Assembly::Contig object
-    Args    : hash, Bio::Assembly::Contig, Bio::Assembly::Scaffold
+    Args    : hash, Bio::Assembly::Contig
 
 =cut
 
 sub _store_contig {
-    my ($self, $contiginfo, $contigobj, $scaffoldobj) = @_;
+    my ($self, $contiginfo, $contigobj) = @_;
 
     $self->throw("Contig object must be defined") unless $contigobj;
 
@@ -286,10 +314,10 @@ sub _store_contig {
     $contigobj->set_consensus_quality($$contiginfo{qualobj});
 
     # Add other misc contig information as features of the contig
-   # Add other misc read information as subsequence feature
-   my @other = grep !/asmbl_id|end|qualobj|start/, keys %$contiginfo;
-   my %other;
-   @other{@other} = @$contiginfo{@other};
+    # Add other misc read information as subsequence feature
+    my @other = grep !/asmbl_id|end|qualobj|start/, keys %$contiginfo;
+    my %other;
+    @other{@other} = @$contiginfo{@other};
     my $contigtags = Bio::SeqFeature::Generic->new(
         -primary_tag => "_main_contig_feature:$$contiginfo{'asmbl_id'}",
         -start       => 1,
@@ -353,6 +381,7 @@ sub _parse_cns_file {
     return 1;
 }
 
+
 =head2 _cons()
 
  Title   : _cons
@@ -363,14 +392,22 @@ sub _parse_cns_file {
 
 =cut
 
-sub _cons { @{shift->{'_cons'}} };
+sub _cons {
+    my $self = shift;
+    my $cons = undef;
+    if (defined $self->{'_cons'}) {
+      $cons = $self->{'_cons'};
+    }
+    return $cons;
+}
 
 
 =head2 _next_cons()
 
 =cut
 
-sub _next_cons() { shift(@{shift->{'_cons'}}) }
+sub _next_cons { shift(@{shift->{'_cons'}}) }
+
 
 =head2 _store_read()
 
@@ -442,19 +479,18 @@ sub _store_read {
 =head2 _store_singlet()
 
     Title   : _store_singlet
-    Usage   : my $singletobj = $self->_store_read(\%readinfo, \%contiginfo,
-                  $scaffoldobj);
-    Function: store information of a singlet belonging to a scaffold in the appropriate object
+    Usage   : my $singletobj = $self->_store_read(\%readinfo, \%contiginfo);
+    Function: store information of a singlet belonging to a scaffold in a singlet object
     Returns : Bio::Assembly::Singlet
-    Args    : hash, hash, Bio::Assembly::Scaffold
+    Args    : hash, hash
 
 =cut
 
 sub _store_singlet {
-    my ($self, $readinfo, $contiginfo, $scaffoldobj) = @_;
+    my ($self, $readinfo, $contiginfo) = @_;
 
-    my $singletobj = Bio::Assembly::Singlet->new( -seqref => $$readinfo{qualobj} );
-    $scaffoldobj->add_singlet($singletobj);
+    my $singletobj = Bio::Assembly::Singlet->new( -id     => $$readinfo{'read_name'},
+                                                  -seqref => $$readinfo{'qualobj'}   );
 
     # Add other misc contig information as features of the contig
    # Add other misc read information as subsequence feature
@@ -530,7 +566,7 @@ sub write_assembly {
 
 =cut
 
-    sub _basename {
+sub _basename {
     my $self = shift;
     return (fileparse($self->file, ".maq"))[0];
 }
