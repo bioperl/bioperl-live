@@ -1,0 +1,9 @@
+15 Nov 2009 00:32:00 UTC
+   - added bioperl-source-mode for source viewing
+     'i' mapped to imenu in bioperl-source-mode
+     'q' now quits and closes source viewer
+   - when running 'bioperl-view-pod' (RETURN key) in pod
+     view mode, the default completion namespace is the 
+     namespace of the module that is currently being 
+     viewed (rather than plain 'Bio::')
+   
