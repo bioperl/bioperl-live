@@ -91,6 +91,11 @@
   nil
   bioperl-abstract-method-skel)
 
+(define-skeleton bioperl-generic-class
+  "Insert a generic package pod template."
+  nil
+  bioperl-generic-class-pod-skel)
+
 (defvar bioperl-method-pod-skel 
       '((prompt-once "Method name:")
 	\N 
@@ -105,6 +110,37 @@
 	\N "=cut" \N)
 "Skeleton for a basic method pod header."
  )
+
+(defvar bioperl-generic-class-pod-skel
+  '(
+    (prompt-once "Class name: ")
+    "package " str ";" \N
+    "use strict;" \N
+    "use warnings;" \N
+    \N
+    "=head1 NAME" \N 
+    \N 
+    str " - " - "DESCRIPTION of Object" \N 
+    \N
+    "=head1 SYNOPSIS" \N 
+    \N
+    "Give standard usage here" \N
+    \N
+    "=head1 DESCRIPTION" \N
+    \N
+    _ "Describe the object here" \N
+    \N
+    ( (prompt-once "Author: ")
+      "=head1 AUTHOR - " str \N )
+    \N
+    "=head1 METHODS" \N
+    \N
+    "=cut" \N
+    \N
+    "# Let the code begin..." \N
+    \N \N \N
+    "1;")
+  "Skeleton for a generic package template")
 
 (defvar bioperl-class-pod-skel
   '(

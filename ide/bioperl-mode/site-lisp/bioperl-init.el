@@ -116,6 +116,8 @@
     (define-key map "\C-c\C-A" 'bioperl-insert-array-accessor)
     (define-key map "\C-c\C-b" 'bioperl-insert-class)
     (define-key map "\C-c\C-M" 'bioperl-insert-class)
+    (define-key map "\C-c\C-k" 'bioperl-insert-generic-class)
+    (define-key map "\C-c\C-g" 'bioperl-insert-generic-class)
     (define-key map "\C-c\C-p" 'bioperl-insert-method-pod)
     (define-key map [menu-bar] nil)
     (define-key map [menu-bar bp-ins]
@@ -232,7 +234,7 @@ come."
   (bioperl-skel-elements))
 
 (define-minor-mode bioperl-view-mode 
-  "An easily-quittable View mode deriviation for bioperl-mode."
+  "A derived view mode for bioperl pod."
   :init-value nil
   :lighter "[bio]"
   :keymap ( let ( (map (copy-keymap (cdr (assoc 'view-mode minor-mode-map-alist)))) )
@@ -242,6 +244,24 @@ come."
 		  (define-key map [menu-bar bp-doc] (list 'menu-item "BP Docs" menu-bar-bioperl-doc-menu))
 		  (define-key map "q" 'View-kill-and-leave)
 		  (define-key map "f" 'bioperl-view-source)
+		  (define-key map "\C-m" 'bioperl-view-pod)
+		  (define-key map "\C-\M-m" 'bioperl-view-pod-method)))
+	    map )
+  ;; and now, a total kludge.
+    (view-mode))
+
+(define-minor-mode bioperl-source-mode 
+  "A derived view mode for bioperl source code."
+  :init-value nil
+  :lighter "[bio]"
+  :keymap ( let ( (map (copy-keymap (cdr (assoc 'view-mode minor-mode-map-alist)))) )
+	    (if map
+		(progn
+		  (define-key map [menu-bar] nil)
+		  (define-key map [menu-bar bp-doc] (list 'menu-item "BP Docs" menu-bar-bioperl-doc-menu))
+		  (define-key map "q" 'View-kill-and-leave)
+		  (define-key map "f" 'bioperl-view-source)
+		  (define-key map "i" 'imenu)
 		  (define-key map "\C-m" 'bioperl-view-pod)
 		  (define-key map "\C-\M-m" 'bioperl-view-pod-method)))
 	    map )

@@ -205,13 +205,21 @@ Use `bioperl-add-module-names-to-cache' to, well, do it.")
 ;;
 
 ;; TODO: refactor bioperl-view-pod to take separate nmspc mod parms...
+
 (defun bioperl-view-pod (module &optional n)
   "View the full pod for a BioPerl module. Use completion facilities to browse interactively.
 MODULE is in double-colon format. N is an index associated with a
 component of `bioperl-module-path'."
   (interactive
-   (let (
-	 (mod (bioperl-completing-read (bioperl-module-at-point) nil t "[pod] "))
+   (let* (
+	 (mod-at-pt (bioperl-module-at-point))
+	 (mod (bioperl-completing-read 
+	       (if mod-at-pt
+		   mod-at-pt
+		 (if (and (boundp 'bioperl-source-file) bioperl-source-file)
+		     ;; in pod view --
+		     (elt (bioperl-perl-from-path bioperl-source-file) 0)
+		   nil)) nil t "[pod] "))
 	 )
      (if (not (member nil (mapcar 'not mod))) (signal 'quit t))     
      (list (apply 'concat 
@@ -289,7 +297,7 @@ N is an index associated with a component of `bioperl-module-path'."
       (set-buffer (generate-new-buffer "*BioPerl Src*"))
       (insert-file fname)
       (perl-mode)
-      (view-mode)
+      (bioperl-source-mode)
       (pop-to-buffer (current-buffer)))))
 
 ;; "uninstall..."
@@ -352,7 +360,7 @@ component of bioperl-module-path."
     (error "String required at arg MODULE"))
   (unless (stringp section) 
     (error "String required at arg SECTION"))
-  (unless (member (upcase section) '("SYNOPSIS" "DESCRIPTION" "APPENDIX"))
+  (unless (member (upcase section) '("SYNOPSIS" "DESCRIPTION" "METHODS" "APPENDIX"))
     (error "SECTION not recognized or handled yet"))
   (unless (or (not n) (numberp n))
     (error "Number required at arg N"))
@@ -821,6 +829,28 @@ N is the index of the desired bioperl-module-path component."
       (setq pth (bioperl-path-from-perl module n)))
     pth))
 
+(defun bioperl-perl-from-path (pth)
+  "Return a list (namespace module) represented by the path in PTH.
+Returns nil if the path can't be parsed reasonably. namespace is returned
+in double colon format."
+  (unless pth
+    nil)
+  (let (
+	(pth-components) (nmspc "Bio") (mod) (pc)
+	)
+    (setq pth (replace-regexp-in-string "\\\\" "/" pth))
+    (setq pth-components (split-string pth "/"))
+    (while (and pth-components (not (string-equal "Bio" (pop pth-components))))
+      nil)
+    (if (not pth-components) 
+	nil
+      (while pth-components
+	(setq pc (pop pth-components))
+	(if (string-match "\\([a-zA-Z0-9_]+\\)\.pm" pc)
+	    (setq mod (match-string 1 pc))
+	  (setq nmspc (concat nmspc "::" pc))))
+      (list nmspc mod))
+    ))
 
 (defun bioperl-path-from-perl (module &optional dir-first n) 
   "Return a path to the module file represented by the perl string MODULE.
