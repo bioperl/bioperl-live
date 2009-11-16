@@ -124,6 +124,12 @@ or the web:
 
 Email maj -at- fortinbras -dot- us
 
+
+=head1 CONTRIBUTORS
+
+Further improvements by Florent Angly 
+(florent dot angly at gmail dot com) 
+
 =head1 ACKNOWLEDGEMENT
 
 Code and some POD text ripped liberally from Florent Angly's
