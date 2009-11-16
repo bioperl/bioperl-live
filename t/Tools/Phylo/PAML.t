@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 202,
+    test_begin(-tests => 211,
 			   -requires_module => 'IO::String');
 	
 	use_ok('Bio::Tools::Phylo::PAML');
@@ -402,3 +402,21 @@ is($MLmat->[0]->[1]->{'omega'}, 0.29075);
 is($MLmat->[0]->[1]->{'dN'}, '0.0874');
 is($MLmat->[0]->[1]->{'dS'}, 0.3006);
 is($MLmat->[0]->[1]->{'lnL'}, -1596.739984);
+
+## PAML 4.23
+$paml = Bio::Tools::Phylo::PAML->new(-file => test_input_file('codeml43.mlc'));
+$result = $paml->next_result;
+
+is($result->model, 'One dN/dS ratio for branches');
+like($result->version, qr'4\.3', 'codeml 4.3');
+$MLmat = $result->get_MLmatrix;
+$NGmat = $result->get_NGmatrix;
+
+is($NGmat->[0]->[2]->{'omega'}, 0.2627);
+is($NGmat->[0]->[2]->{'dN'}, 0.0867);
+is($NGmat->[0]->[2]->{'dS'}, 0.3301);
+
+is($MLmat->[0]->[2]->{'omega'}, 0.19819);
+is($MLmat->[0]->[2]->{'dN'}, '0.0842');
+is($MLmat->[0]->[2]->{'dS'}, 0.4247);
+is($MLmat->[0]->[2]->{'lnL'}, -1512.583367);

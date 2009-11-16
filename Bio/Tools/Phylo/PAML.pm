@@ -117,6 +117,9 @@ baseml, basemlg, codemlsites and yn00.  You can use the
 Bio::Tools::Run::Phylo::PAML::* modules to actually run some of the
 PAML programs, but this module is only useful to parse the output.
 
+This module has fledgling support for PAML version 4.3a (August 2009).
+Please report any problems to the mailing list (see FEEDBACK below).
+
 =head1 TO DO
 
 Implement get_posteriors(). For NSsites models, obtain arrayrefs of 
@@ -175,6 +178,7 @@ Email amackey-at-virginia.edu
 
 Albert Vilella avilella-AT-gmail-DOT-com
 Sendu Bala     bix@sendu.me.uk
+Dave Messina   dmessina@cpan.org
 
 =head1 TODO
 
@@ -478,6 +482,16 @@ sub _parse_summary {
         {
             @{ $self->{'_summary'} }{qw(seqtype version seqfile model)} =
               ( $1, $2, $3, $4 );
+              
+            # in 4.3, the model is on its own line
+            if ( !defined $self->{'_summary'}->{'model'} ) {
+                my $model_line = $self->_readline;
+                chomp $model_line;
+                if ($model_line =~ /^Model:/) {
+                    $self->{'_summary'}->{'model'} = $model_line;
+                }
+            }
+              
             defined $self->{'_summary'}->{'model'}
               && $self->{'_summary'}->{'model'} =~ s/Model:\s+//;
             $self->_pushback($_)
@@ -496,7 +510,8 @@ sub _parse_summary {
         {                                                     #No gap
             $self->_parse_seqs;
         }
-        elsif (/Printing out site pattern counts/) {
+        elsif ( (/Printing out site pattern counts/)
+            && ( $self->{'_already_parsed_seqs'} != 1 ) ) {
             $self->_parse_patterns;
         }
     }
@@ -601,7 +616,7 @@ sub _parse_codon_freqs {
             last;
         }
         last if ($done);
-        if (/^Codon frequencies under model, for use in evolver:/) {
+        if (/^Codon frequencies under model, for use in evolver/) {
             while ( defined( $_ = $self->_readline ) ) {
                 last if (/^\s+$/);
                 s/^\s+//;
