@@ -81,6 +81,10 @@
       '(menu-item "Insert method pod template" bioperl-insert-method-pod
 		  :help "Insert Bioperl standard method pod template"
 		  :keys "\\[bioperl-insert-method-pod]"))
+    (define-key map [bp-ins-genpod]
+      '(menu-item "Insert generic class pod template" bioperl-insert-generic-class
+		  :help "Insert package declaration plus std pod"
+		  :keys "\\[bioperl-insert-generic-class]"))
     (define-key map [bp-ins-acc]
       '(menu-item "Insert accessor template" bioperl-insert-accessor
 		  :help "Insert accessor (getter/setter) with std pod"

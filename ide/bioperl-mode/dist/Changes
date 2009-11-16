@@ -1,3 +1,4 @@
+$Id$
 15 Nov 2009 00:32:00 UTC
    - added bioperl-source-mode for source viewing
      'i' mapped to imenu in bioperl-source-mode
@@ -6,4 +7,6 @@
      view mode, the default completion namespace is the 
      namespace of the module that is currently being 
      viewed (rather than plain 'Bio::')
+   - added a generic method pod template inserter, accessed 
+     with C-c C-k or C-c C-g
    

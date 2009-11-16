@@ -91,7 +91,7 @@
   nil
   bioperl-abstract-method-skel)
 
-(define-skeleton bioperl-generic-class
+(define-skeleton bioperl-insert-generic-class
   "Insert a generic package pod template."
   nil
   bioperl-generic-class-pod-skel)
