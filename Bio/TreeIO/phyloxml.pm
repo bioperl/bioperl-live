@@ -531,7 +531,9 @@ sub _relation_to_string {
     $str .= ">";
     $str .= $confidence;
     $str .= "</confidence>";
-    $str .= "</ sequence_relation>";
+    $str .= "</";
+    $str .= $rel->tagname;
+    $str .= ">";
   }
   else {
     $str .= "/>";
