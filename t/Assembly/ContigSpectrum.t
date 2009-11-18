@@ -3,13 +3,13 @@ use strict;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 143);
+    test_begin(-tests => 155);
     use_ok('Bio::Assembly::IO');
     use_ok('Bio::Assembly::Tools::ContigSpectrum');
 }
 
 my $in = Bio::Assembly::IO->new(
-  -file => test_input_file("contigspectrumtest.asm"),
+  -file => test_input_file("contigspectrumtest.tigr"),
   -format => 'tigr'
 );
 isa_ok($in, 'Bio::Assembly::IO');
@@ -68,64 +68,81 @@ ok(my $mixed_csp = Bio::Assembly::Tools::ContigSpectrum->new(
   -assembly       => $sc,
   -eff_asm_params => 1 ), 'mixed contig spectrum');
 is(scalar @{$mixed_csp->assembly()}, 1);
-is_deeply($mixed_csp->spectrum, {1=>0, 9=>1}); # [0 0 0 0 0 0 0 0 1]
+is_deeply($mixed_csp->spectrum, {1=>0, 2=>3, 6=>1, 9=>1}); # [0 3 0 0 0 1 0 0 1]
 is($mixed_csp->eff_asm_params, 1);
-is($mixed_csp->nof_seq, 9);
 is($mixed_csp->max_size, 9);
 is($mixed_csp->nof_rep, 1);
-is($mixed_csp->nof_overlaps, 8);
+is($mixed_csp->nof_seq, 21);
+float_is($mixed_csp->avg_seq_len, 303.81);
+is($mixed_csp->nof_overlaps, 16);
 is($mixed_csp->min_overlap, 35);
-is($mixed_csp->avg_overlap, 71.875);
-float_is($mixed_csp->min_identity, 97.1153846153846);
-float_is($mixed_csp->avg_identity, 99.6394230769231);
-float_is($mixed_csp->avg_seq_len, 100.222222222222);
+is($mixed_csp->avg_overlap, 155.875);
+float_is($mixed_csp->min_identity, 96.8421);
+float_is($mixed_csp->avg_identity, 98.8826);
 
 # dissolved contig spectrum
 ok(my $dissolved_csp = Bio::Assembly::Tools::ContigSpectrum->new(
   -dissolve => [$mixed_csp, 'ZZZ'] ), 'dissolved contig spectrum');
-is_deeply($dissolved_csp->spectrum, {1=>1}); # [1]
+is_deeply($dissolved_csp->spectrum, {1=>2, 2=>1}); # [2 1]
 is($dissolved_csp->eff_asm_params, 0);
-is($dissolved_csp->nof_seq, 1);
-is($dissolved_csp->max_size, 1);
+is($dissolved_csp->max_size, 2);
 is($dissolved_csp->nof_rep, 1);
+is($dissolved_csp->nof_seq, 4);
+float_is($dissolved_csp->avg_seq_len, 321);
+# eff_asm_params haven't been requested
 is($dissolved_csp->nof_overlaps, 0);
 is($dissolved_csp->min_overlap, undef);
 is($dissolved_csp->avg_overlap, 0);
 is($dissolved_csp->min_identity, undef);
 is($dissolved_csp->avg_identity, 0);
-is($dissolved_csp->avg_seq_len, 96);
+
+ok($dissolved_csp = Bio::Assembly::Tools::ContigSpectrum->new(
+  -dissolve => [$mixed_csp, 'sdsu'] ));
+is_deeply($dissolved_csp->spectrum, {1=>3, 6=>1}); # [3 0 0 0 0 1]
+is($dissolved_csp->eff_asm_params, 0);
+is($dissolved_csp->max_size, 6);
+is($dissolved_csp->nof_rep, 1);
+is($dissolved_csp->nof_seq, 9);
+float_is($dissolved_csp->avg_seq_len, 441.222222222222);
+# eff_asm_params haven't been requested
+is($dissolved_csp->nof_overlaps, 0);
+is($dissolved_csp->min_overlap, undef);
+is($dissolved_csp->avg_overlap, 0);
+is($dissolved_csp->min_identity, undef);
+is($dissolved_csp->avg_identity, 0);
 
 ok($dissolved_csp = Bio::Assembly::Tools::ContigSpectrum->new(
   -dissolve => [$mixed_csp, 'ABC'] ));
-is_deeply($dissolved_csp->spectrum, {1=>1, 7=>1}); # [1 0 0 0 0 0 1]
+is_deeply($dissolved_csp->spectrum, {1=>2, 6=>1}); # [2 0 0 0 0 1]
 is($dissolved_csp->eff_asm_params, 0);
-is($dissolved_csp->nof_seq, 8);
-is($dissolved_csp->max_size, 7);
+is($dissolved_csp->max_size, 6);
 is($dissolved_csp->nof_rep, 1);
+is($dissolved_csp->nof_seq, 8);
+is($dissolved_csp->avg_seq_len, 140.625);
+# eff_asm_params haven't been requested
 is($dissolved_csp->nof_overlaps, 0);
 is($dissolved_csp->min_overlap, undef);
 is($dissolved_csp->avg_overlap, 0);
 is($dissolved_csp->min_identity, undef);
 is($dissolved_csp->avg_identity, 0);
-is($dissolved_csp->avg_seq_len, 100.75);
 
 ok($dissolved_csp = Bio::Assembly::Tools::ContigSpectrum->new(
   -min_overlap  => 62,
   -min_identity => 1,
   -dissolve     => [$mixed_csp, 'ABC'] ));
-is_deeply($dissolved_csp->spectrum, {1=>1, 7=>1}); # [1 0 0 0 0 0 1]
+is_deeply($dissolved_csp->spectrum, {1=>2, 6=>1}); # [2 0 0 0 0 1]
 
 ok($dissolved_csp = Bio::Assembly::Tools::ContigSpectrum->new(
    -min_overlap  => 63,
    -min_identity => 1,
    -dissolve     => [$mixed_csp, 'ABC'] ));
-is_deeply($dissolved_csp->spectrum, {1=>1, 2=>1, 5=>1}); # [1 1 0 0 1]
+is_deeply($dissolved_csp->spectrum, {1=>3, 5=>1}); # [3 0 0 0 1]
 
 ok($dissolved_csp = Bio::Assembly::Tools::ContigSpectrum->new(
   -min_overlap  => 62,
   -min_identity => 97,
   -dissolve     => [$mixed_csp, 'ABC'] ));
-is_deeply($dissolved_csp->spectrum, {1=>1, 7=>1}); # [1 0 0 0 0 0 1]
+is_deeply($dissolved_csp->spectrum, {1=>2, 6=>1}); # [2 0 0 0 0 1]
 
 ok($dissolved_csp = Bio::Assembly::Tools::ContigSpectrum->new(
    -min_overlap  => 62,
@@ -136,53 +153,53 @@ is_deeply($dissolved_csp->spectrum, {1=>2, 6=>1}); # [2 0 0 0 0 1]
 ok($dissolved_csp = Bio::Assembly::Tools::ContigSpectrum->new(
   -dissolve       => [$mixed_csp, 'ABC'],
   -eff_asm_params => 1 ));
-is_deeply($dissolved_csp->spectrum, {1=>1, 7=>1}); # [1 0 0 0 0 0 1]
+is_deeply($dissolved_csp->spectrum, {1=>2, 6=>1}); # [2 0 0 0 0 1]
 is($dissolved_csp->eff_asm_params, 1);
-is($dissolved_csp->nof_seq, 8);
-is($dissolved_csp->max_size, 7);
+is($dissolved_csp->max_size, 6);
 is($dissolved_csp->nof_rep, 1);
-is($dissolved_csp->nof_overlaps, 6);
+is($dissolved_csp->nof_seq, 8);
+float_is($dissolved_csp->avg_seq_len, 140.625);
+is($dissolved_csp->nof_overlaps, 5);
 is($dissolved_csp->min_overlap, 62);
-float_is($dissolved_csp->avg_overlap, 81.3333333333333);
-float_is($dissolved_csp->min_identity, 97.1153846153846);
-float_is($dissolved_csp->avg_identity, 99.5192307692308);
-float_is($dissolved_csp->avg_seq_len, 100.75);
+float_is($dissolved_csp->avg_overlap, 76.8);
+float_is($dissolved_csp->min_identity, 100.0);
+float_is($dissolved_csp->avg_identity, 100.0);
 
 # cross contig spectrum
 ok(my $cross_csp = Bio::Assembly::Tools::ContigSpectrum->new(
   -cross => $mixed_csp), 'cross-contig spectrum');
-is_deeply($cross_csp->spectrum, {1=>2, 9=>1}); # [2 0 0 0 0 0 0 0 1]
+is_deeply($cross_csp->spectrum, {1=>7, 2=>2, 9=>1}); # [2 0 0 0 0 0 0 0 1]
 
 # sum of contig spectra
 ok(my $sum_csp = Bio::Assembly::Tools::ContigSpectrum->new(-eff_asm_params=>1), 'contig spectrum sum');
 ok($sum_csp->add($dissolved_csp));
 ok($sum_csp->add($mixed_csp));
-is_deeply($sum_csp->spectrum, {1=>1, 7=>1, 9=>1}); # [1 0 0 0 0 0 1 0 1]
+is_deeply($sum_csp->spectrum, {1=>2, 2=>3, 6=>2, 9=>1}); # [2 3 0 0 0 2 0 0 1]
 is($sum_csp->eff_asm_params, 1);
-is($sum_csp->nof_seq, 17);
 is($sum_csp->max_size, 9);
 is($sum_csp->nof_rep, 2);
-is($sum_csp->nof_overlaps, 14);
+is($sum_csp->nof_seq, 29);
+float_is($sum_csp->avg_seq_len, 258.7934);
+is($sum_csp->nof_overlaps, 21);
 is($sum_csp->min_overlap, 35);
-float_is($sum_csp->avg_overlap, 75.9285714285714);
-float_is($sum_csp->min_identity, 97.1153846153846);
-float_is($sum_csp->avg_identity, 99.5879120879121);
-float_is($sum_csp->avg_seq_len, 100.470588235294);
+float_is($sum_csp->avg_overlap, 137.0476);
+float_is($sum_csp->min_identity, 96.8421);
+float_is($sum_csp->avg_identity, 99.1487);
 
 # average of contig spectra
 ok(my $avg_csp = Bio::Assembly::Tools::ContigSpectrum->new, 'average contig spectrum');
 ok($avg_csp = $avg_csp->average([$dissolved_csp, $mixed_csp]));
-is_deeply($avg_csp->spectrum, {1=>0.5, 7=>0.5, 9=>0.5}); # [0.5 0 0 0 0 0 0.5 0 0.5]
+is_deeply($avg_csp->spectrum, {1=>1, 2=>1.5, 6=>1, 9=>0.5}); # [1 1 0 0 0 1 0 0 0.5]
 is($avg_csp->eff_asm_params, 1);
-is($avg_csp->nof_seq, 8.5);
 is($avg_csp->max_size, 9);
 is($avg_csp->nof_rep, 2);
-is($avg_csp->nof_overlaps, 7);
+is($avg_csp->nof_seq, 14.5);
+float_is($avg_csp->avg_seq_len, 258.7934);
+is($avg_csp->nof_overlaps, 10.5);
 is($avg_csp->min_overlap, 35);
-float_is($avg_csp->avg_overlap, 75.9285714285714);
-float_is($avg_csp->min_identity, 97.1153846153846);
-float_is($avg_csp->avg_identity, 99.5879120879121);
-float_is($avg_csp->avg_seq_len, 100.470588235294);
+float_is($avg_csp->avg_overlap, 137.0476);
+float_is($avg_csp->min_identity, 96.8421);
+float_is($avg_csp->avg_identity, 99.1487);
 
 # drop assembly info from contig spectrum
 ok($mixed_csp->drop_assembly(), 'drop assembly');

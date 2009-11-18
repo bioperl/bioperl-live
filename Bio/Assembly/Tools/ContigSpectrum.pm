@@ -122,27 +122,32 @@ implements an object containing a contig spectrum hash and additional
 information. The get/set methods to access them are:
 
     id              contig spectrum ID
-    nof_seq         number of sequences
     nof_rep         number of repetitions (assemblies) used
     max_size        size of (number of sequences in) the largest contig
-    nof_overlaps    number of overlaps
-    min_overlap     minimum overlap length for building a contig
-    min_identity    minimum sequence identity over the overlap length
-    avg_overlap     average overlap length
-    avg_identity    average overlap identity
-    avg_seq_length  average sequence length
-    eff_asm_params  effective assembly parameters
     spectrum        hash representation of a contig spectrum
+
+    nof_seq         number of sequences
+    avg_seq_length  average sequence length
+
+    eff_asm_params  reports effective assembly parameters
+
+    nof_overlaps    number of overlaps (needs eff_asm_params)
+    min_overlap     minimum overlap length in a contig (needs eff_asm_params)
+    min_identity    minimum sequence identity percentage (needs eff_asm_params)
+    avg_overlap     average overlap length (needs eff_asm_params)
+    avg_identity    average overlap identity percentage (needs eff_asm_params)
 
   Operations on the contig spectra:
 
     to_string       create a string representation of the spectrum
     spectrum        import a hash contig spectrum
     assembly        determine a contig spectrum from an assembly
-    dissolve        calculate a dissolved contig spectrum (based on assembly)
-    cross           produce a cross contig spectrum (based on assembly)
+    dissolve        calculate a dissolved contig spectrum (depends on assembly)
+    cross           produce a cross contig spectrum (depends on assembly)
     add             add a contig spectrum to an existing one
     average         make an average of several contig spectra
+    score           score a contig spectrum: the higher the number of contigs
+                      and the larger their size, the higher the score.
 
 When using operations that rely on knowing "where" (from what
 metagenomes) a sequence came from (i.e. when creating a dissolved or
@@ -575,7 +580,7 @@ sub assembly {
   Function: Remove all assembly objects associated with a contig spectrum.
             Assembly objects can be big. This method allows to free some memory
             when assembly information is not needed anymore.
-  Returns : 1 for success, 0 for failure
+  Returns : 1 for success
   Args    : none
 
 =cut
@@ -597,7 +602,7 @@ sub drop_assembly {
             (or several) assembly object(s). Additionally, min_overlap and
             min_identity must have been set (either manually using min_overlap
             or automatically by switching on the eff_asm_params option).
-  Returns : 1 for success, 0 for failure
+  Returns : 1 for success
   Args    : Bio::Assembly::Tools::ContigSpectrum reference
             sequence header string
 
@@ -616,7 +621,7 @@ sub dissolve {
   Title   : cross
   Usage   : $cross_csp->cross($mixed_csp);
   Function: Calculate a cross contig_spectrum based on a mixed contig_spectrum.
-  Returns : 1 for success, 0 for failure
+  Returns : 1 for success
   Args    : Bio::Assembly::Tools::ContigSpectrum reference
 
 =cut
@@ -672,7 +677,7 @@ sub to_string {
   Usage   : $csp->add($additional_csp);
   Function: Add a contig spectrum to an existing one: sums the spectra, update
             the number of sequences, number of repetitions, ...
-  Returns : 1 for success, 0 for failure
+  Returns : 1 for success
   Args    : Bio::Assembly::Tools::ContigSpectrum object
 
 =cut
@@ -1248,7 +1253,7 @@ sub _new_cross_csp {
   Title   : _import_assembly
   Usage   : $csp->_import_assembly($assemblyobj);
   Function: Update a contig spectrum object based on an assembly object
-  Returns : 1 for success, 0 for error
+  Returns : 1 for success
   Args    : Bio::Assembly::Scaffold assembly object
 
 =cut
@@ -1275,7 +1280,7 @@ sub _import_assembly {
   Function: update a contig spectrum object based on a contig spectrum
             represented as a hash (key: contig size, value: number of contigs of
             this size)
-  Returns : 1 for success, 0 for error
+  Returns : 1 for success
   Args    : contig spectrum as a hash reference
 
 =cut
@@ -1317,7 +1322,7 @@ sub _import_spectrum {
   Usage   : $csp->_import_dissolved_csp($mixed_csp, $seq_header);
   Function: Update a contig spectrum object by dissolving a mixed contig
             spectrum based on the header of the sequences
-  Returns : 1 for success, 0 for error
+  Returns : 1 for success
   Args    : Bio::Assembly::Tools::ContigSpectrum
             sequence header string
 
@@ -1344,7 +1349,7 @@ sub _import_dissolved_csp {
   Usage   : $csp->_import_cross_csp($mixed_csp);
   Function: Update a contig spectrum object by calculating the cross contig
             spectrum based on a mixed contig spectrum
-  Returns : 1 for success, 0 for error
+  Returns : 1 for success
   Args    : Bio::Assembly::Tools::ContigSpectrum
 
 =cut
@@ -1390,25 +1395,23 @@ sub _get_seq_stats {
 
   my $avg_seq_len = 0;
   my $nof_seq = 0;
-  for my $contigobj ($assemblyobj->all_contigs) {
+  for my $contigobj ($assemblyobj->all_contigs, $assemblyobj->all_singlets) {
     for my $seqobj ($contigobj->each_seq) {
-      my $seq_id = $seqobj->id;
-      next if defined $seq_hash && !defined $$seq_hash{$seq_id};
+      next if defined $seq_hash && !defined $$seq_hash{$seqobj->id};
       $nof_seq++;
-      my $seq_string = $seqobj->seq;
-      $seq_string =~ s/-//g;
-      $avg_seq_len += length($seq_string);
+      my $seq_string;
+      if ($contigobj->isa('Bio::Assembly::Singlet')) { # a singlet
+        $seq_string = $contigobj->seqref->seq;
+      } else { # a contig
+        $seq_string = $seqobj->seq;
+      }
+      # Number of non-gap characters in the sequence
+      my $seq_len = length($seq_string) - ($seq_string =~ tr/-//);
+      $avg_seq_len += $seq_len;
     }
   }
-  for my $singletobj ($assemblyobj->all_singlets) {
-    my $seq_id = $singletobj->seqref->id;
-    next if defined $seq_hash && !defined $$seq_hash{$seq_id};
-    $nof_seq++;
-    my $seq_string = $singletobj->seqref->seq;
-    $seq_string =~ s/-//g;
-    $avg_seq_len += length($seq_string);
-  }
   $avg_seq_len /= $nof_seq unless $nof_seq == 0;
+
   return $nof_seq, $avg_seq_len;
 }
 
@@ -1490,7 +1493,7 @@ sub _get_overlap_stats {
           $target_id     = $tmp_target_id;
         }
       }
-      
+
       # Update our overlap statistics
       if (defined $best_score) {
         $avg_length += $best_length;
@@ -1529,68 +1532,75 @@ sub _get_overlap_stats {
             Bio::LocatableSeq contig sequence 1
             Bio::LocatableSeq contig sequence 2
             minium overlap length [optional]
-            minimum overlap percentage identity [optional]
+            minimum overlap identity percentage[optional]
 
 =cut
 
 sub _overlap_alignment {
   my ($self, $contig, $qseq, $tseq, $min_overlap, $min_identity) = @_;
-  # get query sequence position  
+  # get query and target sequence position  
   my $qpos   = $contig->get_seq_coord($qseq);
-  my $qstart = $qpos->start;
-  my $qend   = $qpos->end;
-  # get target sequence position
   my $tpos   = $contig->get_seq_coord($tseq);
-  my $tstart = $tpos->start;
-  my $tend   = $tpos->end;
   # check that there is an overlap
-  return if $qstart > $tend || $qend < $tstart;
+  my $qend   = $qpos->end;
+  my $tstart = $tpos->start;
+  return if $qend < $tstart;
+  my $qstart = $qpos->start;
+  my $tend   = $tpos->end;
+  return if $qstart > $tend;
   # get overlap boundaries and check overlap length
-  my $left = $qstart;
-  $left = $tstart if $qstart < $tstart;
-  my $right = $qend;
-  $right = $tend if $qend > $tend;
+  my $left;
+  if ($qstart >= $tstart) {
+    $left = $qstart
+  } else {
+    $left = $tstart;
+  }
+  my $right;
+  if ($qend > $tend) {
+    $right = $tend;
+  } else {
+    $right = $qend;
+  }
   my $overlap = $right - $left + 1;
   return if defined $min_overlap && $overlap < $min_overlap;
   # slice query and target sequence to overlap boundaries
-  my $qleft = $contig->change_coord('gapped consensus', "aligned ".$qseq->id,
-    $left);
-  my $qright = $qleft + $overlap - 1;
-  my $qstring = $qseq->seq;
-  $qstring = substr($qstring, $qleft - 1, $overlap);
-  my $tleft = $contig->change_coord('gapped consensus', "aligned ".$tseq->id, 
-    $left);
-  my $tright = $tleft + $overlap - 1;
-  my $tstring = $tseq->seq;
-  $tstring = substr($tstring, $tleft - 1, $overlap);
+  my $qleft =
+    $contig->change_coord('gapped consensus', "aligned ".$qseq->id, $left);
+  my $qstring = substr($qseq->seq, $qleft - 1, $overlap);
+  my $tleft =
+    $contig->change_coord('gapped consensus', "aligned ".$tseq->id, $left);
+  my $tstring = substr($tseq->seq, $tleft - 1, $overlap);
   # remove gaps present in both sequences at the same position
   for (my $pos = 0 ; $pos < $overlap ; $pos++) {
     my $qnt = substr($qstring, $pos, 1);
-    my $tnt = substr($tstring, $pos, 1);
-    if ($qnt eq '-' && $tnt eq '-') {
-      substr($qstring, $pos, 1, '');
-      substr($tstring, $pos, 1, '');
-      $pos--;
-      $overlap--;
+    if ($qnt eq '-') {
+      my $tnt = substr($tstring, $pos, 1);
+      if ($tnt eq '-') {
+        substr($qstring, $pos, 1, '');
+        substr($tstring, $pos, 1, '');
+        $pos--;
+        $overlap--;
+      }
     }
   }
   return if defined $min_overlap && $overlap < $min_overlap;
-  # make an aligned object
+  # make an alignment object with the query and target sequences
   my $aln = Bio::SimpleAlign->new;
-  my $qalseq = Bio::LocatableSeq->new(
+  my $alseq = Bio::LocatableSeq->new(
         -id       => 1,
         -seq      => $qstring,
         -start    => 1,
-        -alphabet => 'dna'
+        -alphabet => 'dna',
   );
-  $aln->add_seq($qalseq);
-  my $talseq = Bio::LocatableSeq->new(
+  $aln->add_seq($alseq);
+  $alseq = Bio::LocatableSeq->new(
         -id       => 2,
         -seq      => $tstring,
         -start    => 1,
-        -alphabet => 'dna'
+        -alphabet => 'dna',
   );
-  $aln->add_seq($talseq);
+  $aln->add_seq($alseq);
+
   # check overlap percentage identity
   my $identity = $aln->overall_percentage_identity;
   return if defined $min_identity && $identity < $min_identity;
