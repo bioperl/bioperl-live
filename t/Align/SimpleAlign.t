@@ -101,11 +101,11 @@ is $aln->num_sequences, 16,   'num_sequences';
 is( sprintf( "%.2f", $aln->overall_percentage_identity() ),
     33.06, 'overall_percentage_identity' );
 is( sprintf( "%.2f", $aln->overall_percentage_identity('align') ),
-    33.06, 'overall_percentage_identity' );
+    33.06, 'overall_percentage_identity (align)' );
 is( sprintf( "%.2f", $aln->overall_percentage_identity('short') ),
-    35.24, 'overall_percentage_identity' );
+    35.24, 'overall_percentage_identity (short)' );
 is( sprintf( "%.2f", $aln->overall_percentage_identity('long') ),
-    33.47, 'overall_percentage_identity' );
+    33.47, 'overall_percentage_identity (long)' );
 is( sprintf( "%.2f", $aln->average_percentage_identity() ),
     66.91, 'average_percentage_identity' );
 

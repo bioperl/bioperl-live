@@ -2504,73 +2504,66 @@ sequence in the alignment. Method modification code by Hongyu Zhang.
 sub overall_percentage_identity{
    my ($self, $length_measure) = @_;
 
-   my @alphabet = ('A','B','C','D','E','F','G','H','I','J','K','L','M',
-                   'N','O','P','Q','R','S','T','U','V','W','X','Y','Z');
+   my %alphabet = map {$_ => undef} qw (A C G T U B D E F H I J K L M N O P Q R S V W X Y Z);
 
-   my ($len, $total, @seqs, @countHashes);
-
-   my %enum = map {$_ => 1} qw (align short long);
+   my %enum = map {$_ => undef} qw (align short long);
 
    $self->throw("Unknown argument [$length_measure]") 
-       if $length_measure and not $enum{$length_measure};
+       if $length_measure and not exists $enum{$length_measure};
    $length_measure ||= 'align';
 
    if (! $self->is_flush()) {
        $self->throw("All sequences in the alignment must be the same length");
    }
 
-   @seqs = $self->each_seq();
-   $len = $self->length();
+   # Count the residues seen at each position
+   my $len;
+   my $total = 0; # number of positions with identical residues
+   my @countHashes;
+   my @seqs = $self->each_seq;
+   my $nof_seqs = scalar @seqs;
+   my $aln_len = $self->length();
+   for my $seq (@seqs)  {
+       my $seqstr = $seq->seq;
 
-   # load the each hash with correct keys for existence checks
-   for( my $index=0; $index < $len; $index++) {
-       foreach my $letter (@alphabet) {
-	   $countHashes[$index]->{$letter} = 0;
-       }
-   }
-   foreach my $seq (@seqs)  {
-       my @seqChars = split //, $seq->seq();
-       for( my $column=0; $column < @seqChars; $column++ ) {
-	   my $char = uc($seqChars[$column]);
-	   if (exists $countHashes[$column]->{$char}) {
-	       $countHashes[$column]->{$char}++;
-	   }
-       }
-   }
+       # Count residues for given sequence
+       for my $column (0 .. $aln_len-1) {
+           my $char = uc( substr($seqstr, $column, 1) );
+           if ( exists $alphabet{$char} ) {
 
-   $total = 0;
-   for(my $column =0; $column < $len; $column++) {
-       my %hash = %{$countHashes[$column]};
-       foreach ( values %hash ) {
-	   next if( $_ == 0 );
-	   $total++ if( $_ == scalar @seqs );
-	   last;
-       }
-   }
+               # This is a valid char
+               if ( defined $countHashes[$column]->{$char} ) {
+                 $countHashes[$column]->{$char}++;
+               } else {
+                 $countHashes[$column]->{$char} = 1;
+               }
 
-   if ($length_measure eq 'short') {
-       ## find the shortest length
-       $len = 0;
-       foreach my $seq ($self->each_seq) {
-           my $count = $seq->seq =~ tr/[A-Za-z]//;
-           if ($len) {
-               $len = $count if $count < $len;
-           } else {
-               $len = $count;
+               if ( $countHashes[$column]->{$char} == $nof_seqs ) {
+                   # All sequences have this same residue
+                   $total++;
+               }
+
            }
        }
-   }
-   elsif ($length_measure eq 'long') {
-       ## find the longest length
-       $len = 0;
-       foreach my $seq ($self->each_seq) {
-           my $count = $seq->seq =~ tr/[A-Za-z]//;
-           if ($len) {
-               $len = $count if $count > $len;
-           } else {
-               $len = $count;
+
+       # Sequence length
+       if ($length_measure eq 'short' || $length_measure eq 'long') {
+           my $seq_len = $seqstr =~ tr/[A-Za-z]//;
+           if ($length_measure eq 'short') {
+               if ( (not defined $len) || ($seq_len < $len) ) {
+                   $len = $seq_len;
+               }
+           } elsif ($length_measure eq 'long') {
+               if ( (not defined $len) || ($seq_len > $len) ) {
+                   $len = $seq_len;
+               }
            }
        }
+
+   }
+
+   if ($length_measure eq 'align') {
+       $len = $aln_len;
    }
 
    return ($total / $len ) * 100.0;
