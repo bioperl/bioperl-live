@@ -1168,9 +1168,10 @@ sub _new_cross_csp {
       my @seq_origins;
       my @seq_ids;
       for my $seq ($contig->each_seq) {
-        # current sequence origin
+        # Current sequence origin. Example: sequence with ID 
+        # 'metagenome1|gi|9626988|ref|NC_001508.1|' has header 'metagenome1'
         my $seq_id = $seq->id;
-        $seq_id =~ m/^(.+)\|/;
+        $seq_id =~ m/^(.+?)\|/;
         my $seq_header = $1;
         $self->warn("Sequence $seq_id does not seem to have a header. Skipping".
           " it...") if not defined $seq_header;
