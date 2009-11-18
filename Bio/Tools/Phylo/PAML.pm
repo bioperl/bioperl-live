@@ -117,7 +117,7 @@ baseml, basemlg, codemlsites and yn00.  You can use the
 Bio::Tools::Run::Phylo::PAML::* modules to actually run some of the
 PAML programs, but this module is only useful to parse the output.
 
-This module has fledgling support for PAML version 4.3a (August 2009).
+This module has fledgling support for PAML version 4.3a (October 2009).
 Please report any problems to the mailing list (see FEEDBACK below).
 
 =head1 TO DO

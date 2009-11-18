@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 211,
+    test_begin(-tests => 247,
 			   -requires_module => 'IO::String');
 	
 	use_ok('Bio::Tools::Phylo::PAML');
@@ -369,8 +369,8 @@ is($site->[10]->{'Yang95_aa_prob'},'0.992');
 
 
 ## PAML 3.15
-$paml = Bio::Tools::Phylo::PAML->new(-file => test_input_file('codeml315.mlc'));
-$result = $paml->next_result;
+my $paml315 = Bio::Tools::Phylo::PAML->new(-file => test_input_file('codeml315.mlc'));
+$result = $paml315->next_result;
 
 is($result->model, 'One dN/dS ratio');
 like($result->version, qr'3\.15');
@@ -386,8 +386,8 @@ is($MLmat->[0]->[1]->{'dN'}, '0.0210');
 is($MLmat->[0]->[1]->{'dS'}, 0.0644);
 
 ## PAML 4
-$paml = Bio::Tools::Phylo::PAML->new(-file => test_input_file('codeml4.mlc'));
-$result = $paml->next_result;
+my $codeml4 = Bio::Tools::Phylo::PAML->new(-file => test_input_file('codeml4.mlc'));
+$result = $codeml4->next_result;
 
 is($result->model, 'One dN/dS ratio');
 like($result->version, qr'4');
@@ -403,12 +403,13 @@ is($MLmat->[0]->[1]->{'dN'}, '0.0874');
 is($MLmat->[0]->[1]->{'dS'}, 0.3006);
 is($MLmat->[0]->[1]->{'lnL'}, -1596.739984);
 
-## PAML 4.23
-$paml = Bio::Tools::Phylo::PAML->new(-file => test_input_file('codeml43.mlc'));
-$result = $paml->next_result;
+## PAML 4.3a
+# codeml pairwise ML comparison (runmode=-2)
+my $codeml43 = Bio::Tools::Phylo::PAML->new(-file => test_input_file('codeml43.mlc'));
+$result = $codeml43->next_result;
 
 is($result->model, 'One dN/dS ratio for branches');
-like($result->version, qr'4\.3', 'codeml 4.3');
+like($result->version, qr'4\.3', 'codeml 4.3 runmode=-2');
 $MLmat = $result->get_MLmatrix;
 $NGmat = $result->get_NGmatrix;
 
@@ -420,3 +421,65 @@ is($MLmat->[0]->[2]->{'omega'}, 0.19819);
 is($MLmat->[0]->[2]->{'dN'}, '0.0842');
 is($MLmat->[0]->[2]->{'dS'}, 0.4247);
 is($MLmat->[0]->[2]->{'lnL'}, -1512.583367);
+
+## PAML 4.3a 
+# codeml NSSites parsing (two NSSites models, 1 and 2)
+{
+    my $codeml43_nssites = Bio::Tools::Phylo::PAML->new
+        (-file => test_input_file('codeml43_nssites.mlc'));
+    ok($codeml43_nssites);
+
+    my $result = $codeml43_nssites->next_result;
+    ok($result);
+
+    is($result->model, 'One dN/dS ratio for branches');
+    like($result->version, qr'4\.3', 'codeml 4.3 two NSSites models');
+    my $NGmat = $result->get_NGmatrix;
+    ok($NGmat);
+
+    is($NGmat->[0]->[1]->{'omega'}, 0.2507);
+    is($NGmat->[0]->[1]->{'dN'}, 0.0863);
+    is($NGmat->[0]->[1]->{'dS'}, 0.3443);
+    is($NGmat->[1]->[2]->{'omega'}, 0.2943);
+    is($NGmat->[1]->[2]->{'dN'}, 0.1054);
+    is($NGmat->[1]->[2]->{'dS'}, 0.3581);
+
+    # these are
+    # "model num" description "number of site classes" kappa log-likelihood "tree length" "time used"
+    my @tstr = ([qw(1 NearlyNeutral     2 2.06684 -2970.527521 2.898 0:08)],
+                [qw(2 PositiveSelection 3 2.18136 -2965.809712 3.589 0:26)],);
+    my $iter = 0;
+    my $lastmodel;
+    foreach my $model ( $result->get_NSSite_results ) {    
+        my $i = 0;
+        my $r = shift @tstr;
+        is($model->model_num, $r->[$i++]);
+        like($model->model_description, qr/$r->[$i++]/);
+        is($model->num_site_classes,$r->[$i++]);
+        my $tree = $model->next_tree;
+        is($model->kappa, $r->[$i++]);
+        is($model->likelihood,$r->[$i]);
+        is($tree->score, $r->[$i++]);
+        like($tree->total_branch_length, qr/$r->[$i++]/);
+        if( $iter == 1 ) {
+    	    my $class = $model->dnds_site_classes;
+    	    is($class->{'p'}->[0], '0.83347');
+    	    is($class->{'w'}->[1], '1.00000');
+        }
+        $iter++;
+        $lastmodel = $model;
+    }
+
+    my @sites = $lastmodel->get_NEB_pos_selected_sites;
+    my $firstsite = $sites[0];
+    my $lastsite  = $sites[-1];
+    is($firstsite->[0], 35, 'NEB positively selected sites');
+    is($firstsite->[1], 'S');
+    is($firstsite->[2], 0.643);
+    is($firstsite->[4], '4.400');
+    is( $lastsite->[0], 264);
+    is( $lastsite->[1], 'P');
+    is( $lastsite->[2], 0.971);
+    is( $lastsite->[3], '*');
+    is( $lastsite->[4], 6.134);
+}
