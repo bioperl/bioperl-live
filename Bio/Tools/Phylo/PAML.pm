@@ -300,7 +300,11 @@ sub next_result {
             elsif (
                 m/^Model\s+(\d+)/
                 || ( ( !$has_model_line && m/^TREE/ )
-                    && $seqtype eq 'CODONML' )
+                    && $seqtype eq 'CODONML' 
+                    && ($self->{'_summary'}->{'version'} !~ /4/))
+                    # last bit to keep PAML >= 4 from being caught here
+                    # bug 2482. Not sure this is the right fix, but tests
+                    # pass and the bug's test case passes.
               )
             {
                 $self->_pushback($_);
