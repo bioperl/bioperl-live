@@ -303,7 +303,7 @@ sub next_aln {
 
  Title   : write_aln
  Usage   : $stream->write_aln(@aln)
- Function: writes the $aln object into the stream in MSF format
+ Function: writes the $aln object into the stream in phylip format
  Returns : 1 for success and 0 for error
  Args    : L<Bio::Align::AlignI> object
 
