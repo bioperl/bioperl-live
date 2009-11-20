@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 289);
+    test_begin(-tests => 301);
 	
 	use_ok('Bio::SearchIO');
 }
@@ -356,7 +356,7 @@ $result = $searchio->next_result;
 like($result->database_name, qr/wormpep190/, 'TFASTXY');
 is($result->database_letters, 10449259);
 is($result->database_entries, 23771);
-is($result->algorithm, 'FASTA');
+is($result->algorithm, 'FASTP');
 is($result->algorithm_version, '35.04');
 is($result->query_name, 'BOSS_DROME');
 is($result->query_length, 896);
@@ -403,3 +403,30 @@ while ( my $result = $searchio->next_result() ) {
 }
 
 
+# bug 2937 and version 35.04
+$searchio = Bio::SearchIO->new(
+   -format => 'fasta',
+   -file   => test_input_file('bug2937.fasta'),
+);
+ok($searchio, 'bug 2937 and FASTA version 3.5');
+
+while ( my $result = $searchio->next_result() ) {
+   is ($result->algorithm_version, '35.04', 'algorithm version');
+   is($result->query_name, 'ILTV-miR1', 'query name');
+   is($result->query_description, '', 'query description');
+   is($result->query_length, 70, 'query length');
+   is($result->algorithm, 'FASTN', 'algorithm');
+   
+   while( my $hit = $result->next_hit ) {
+      # process the Bio::Search::Hit::HitI object
+      while( my $hsp = $hit->next_hsp ) {
+         # process the Bio::Search::HSP::HSPI object
+         is($hsp->num_identical, 26, "num_identical()");
+         is($hsp->num_conserved, 26, "num_conserved()");
+         is($hsp->strand('hit'), '1', 'hsp->strand(hit)');
+		 is($hsp->hit->strand, '1', 'hsp->hit->strand');
+		 is($hsp->strand('query'), '-1', 'hsp->strand(query)');
+		 is($hsp->query->strand, '-1', 'hsp->query->strand');
+      }
+   }
+}
