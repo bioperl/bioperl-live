@@ -342,8 +342,18 @@ sub _initialize_io {
 	    $self->throw("Could not open $file: $!");
 	$self->file($file);
     }
-    if ( defined($fh) && !(ref($fh) && ((ref($fh) eq "GLOB") || $fh->isa('IO::Handle') || $fh->isa('IO::String')))  ) {
-        $self->throw("file handle $fh doesn't appear to be a handle");
+
+    if (defined $fh) {
+        # check filehandle to ensure it's one of:
+        # a GLOB reference, as in: open(my $fh, "myfile");
+        # an IO::Handle or IO::String object
+        # the UNIVERSAL::can added to fix Bug2863
+        unless ( ( ref $fh && ( ref $fh eq 'GLOB' ) )
+                 || ( ref $fh && ( UNIVERSAL::can( $fh, 'can' ) 
+                    && ( $fh->isa('IO::Handle') || $fh->isa('IO::String') ) ) ) 
+               ) {
+            $self->throw("file handle $fh doesn't appear to be a handle");
+        }
     }
     $self->_fh($fh) if $fh; # if not provided, defaults to STDIN and STDOUT
 
