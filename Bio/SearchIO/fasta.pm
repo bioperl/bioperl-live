@@ -244,8 +244,16 @@ sub next_result {
                     'Data' => $self->{'_reporttype'}
                 }
             );
-            $_ = $self->_readline();
-            my ($version) = (/version\s+(\S+)/);
+            my $version;
+            # version 35 version string on same line
+            if (/version/) {
+                ($version) = (/version\s+(\S+)/);
+            }
+            # earlier versions, it's on the next line
+            else {
+                $_ = $self->_readline();
+                ($version) = (/version\s+(\S+)/);
+            }
             $version = '' unless defined $version;
             $self->{'_version'} = $version;
             $self->element(
@@ -540,6 +548,12 @@ sub next_result {
                 {
                     'Name' => 'Parameters_ktup',
                     'Data' => $3
+                }
+            );
+            $self->element(
+                {
+                    'Name' => 'FastaOutput_program',
+                    'Data' => $self->{'_reporttype'}
                 }
             );
         }
