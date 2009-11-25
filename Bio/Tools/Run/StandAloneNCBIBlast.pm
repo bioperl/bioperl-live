@@ -89,7 +89,7 @@ our %GENERAL_PARAMS  = (i => 'input',
                         o => 'outfile',
                         p => 'program',
                         d => 'database');
-our @BLASTALL_PARAMS = qw(A B C D E F G K L M O P Q R S W X Y Z a b e f l m q r t v w y z);
+our @BLASTALL_PARAMS = qw(A B C D E F G K L M O P Q R S W X Y Z a b e f l m q r t v w y z n);
 our @BLASTALL_SWITCH = qw(I g J T U n V s);
 our @BLASTPGP_PARAMS = qw(A B C E F G H I J K L M N O P Q R S T U W X Y Z a b c e f h j k l m q s t u v y z);
 our @RPSBLAST_PARAMS = qw(F I J L N O P T U V X Y Z a b e l m v y z);
