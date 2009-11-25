@@ -49,7 +49,7 @@ Bio::Assembly::Tools::ContigSpectrum - create and manipulate contig spectra
   print "The contig spectrum from assembly is ".$from_assembly->to_string."\n";
 
   # Report advanced information (possible because eff_asm_params = 1)
-  print "Average sequence length: ".$from_assembly->avg_seq_length." bp\n";
+  print "Average sequence length: ".$from_assembly->avg_seq_len." bp\n";
   print "Minimum overlap length: ".$from_assembly->min_overlap." bp\n";
   print "Average overlap length: ".$from_assembly->avg_overlap." bp\n";
   print "Minimum overlap match: ".$from_assembly->min_identity." %\n";
@@ -127,7 +127,7 @@ information. The get/set methods to access them are:
     spectrum        hash representation of a contig spectrum
 
     nof_seq         number of sequences
-    avg_seq_length  average sequence length
+    avg_seq_len     average sequence length
 
     eff_asm_params  reports effective assembly parameters
 
@@ -206,7 +206,7 @@ use Bio::Root::Root;
 use Bio::Assembly::Scaffold;
 use Bio::SimpleAlign;
 use Bio::LocatableSeq;
-use Bio::Align::PairwiseStatistics;
+use Graph::Undirected;
 
 use base 'Bio::Root::Root';
 
@@ -1436,84 +1436,123 @@ sub _get_seq_stats {
 sub _get_overlap_stats {
   my ($self, $assembly_obj, $seq_hash) = @_;
 
-  # sanity check
+  # Sanity check
   $self->throw("Must provide a Bio::Assembly::ScaffoldI object")
     if (!defined $assembly_obj || !$assembly_obj->isa("Bio::Assembly::ScaffoldI"));
   $self->throw("Expecting a hash reference. Got [".ref($seq_hash)."]")
     if (defined $seq_hash && ! ref($seq_hash) eq 'HASH');
-  
+
   my $matchdef = $self->{'_eff_asm_params'};
   my ($min_length, $avg_length, $min_identity, $avg_identity, $nof_overlaps)
     = (undef, 0, undef, 0, 0);
-  
-  # Look at all the contigs (and I really mean no singlets!)
-  for my $contig_obj ($assembly_obj->all_contigs) {
-    my $nof_seq = 0;
 
-    # Look at best overlap possible with previous sequences in contig
-    my @all_seq_objs = $contig_obj->each_seq;
-    # sequences should be ordered by starting position
-    for (my $i = 0 ; $i < scalar(@all_seq_objs) ; $i++) {
-      my $seq_obj    = $all_seq_objs[$i];
-      my $seq_id    = $seq_obj->id;
-      
-      # skip this sequence if not in list of wanted sequences
+  # Look at all the contigs (no singlets!)
+  for my $contig_obj ($assembly_obj->all_contigs()) {
+
+    my @seq_objs = $contig_obj->each_seq;
+    my $nof_seqs = scalar @seq_objs;
+
+    # Skip contigs of 1 sequence (there shouldn't be any...)
+    next if $nof_seqs <= 1;
+
+    # Calculate alignment between all pairs of reads
+    my %overlaps;
+    for my $i (0 .. $nof_seqs-1) {
+
+      my $seq_obj = $seq_objs[$i];
+      my $seq_id  = $seq_obj->id;
+
+      # Skip this read if not in list of wanted sequences
       next if defined $seq_hash && !defined $$seq_hash{$seq_id};
-      $nof_seq++;
-      
-      # skip the first sequence (no other sequence to compare against)
-      next if $nof_seq <= 1;
-      
-      # what is the best previous sequence to align to?
-      my $stats = Bio::Align::PairwiseStatistics->new;
-      my $target_obj;
-      my $target_id;
+
+      # What is the best sequence to align to?
       my $best_score;
       my $best_length;
       my $best_identity;
-      
-      for (my $j = $i-1 ; $j >= 0 ; $j--) {
-        my $tmp_target_obj = $all_seq_objs[$j];
-        my $tmp_target_id = $tmp_target_obj->id;
-        
-        # skip this sequence if not in list of wanted sequences
-        next if defined $seq_hash && !defined $$seq_hash{$tmp_target_id};
-        
-        # find overlap with that sequence
-        my ($aln_obj, $tmp_length, $tmp_identity)
-          = $self->_overlap_alignment($contig_obj, $seq_obj, $tmp_target_obj);
+
+      for my $j ($i+1 .. $nof_seqs-1) {
+
+        # Skip this sequence if not in list of wanted sequences
+        my $target_obj = $seq_objs[$j];
+        my $target_id = $target_obj->id;
+        next if defined $seq_hash && !defined $$seq_hash{$target_id};
+
+        # Score the overlap with this sequence
+        my ($aln_obj, $length, $identity)
+          = $self->_overlap_alignment($contig_obj, $seq_obj, $target_obj);
         next if ! defined $aln_obj; # there was no sequence overlap
-        my $tmp_score = $stats->score_nuc($aln_obj);
-        
-        # update score and best sequence for overlap
-        if (!defined $best_score || $best_score < $tmp_score) {
-          $best_score    = $tmp_score;
-          $best_length   = $tmp_length;
-          $best_identity = $tmp_identity;
-          $target_obj    = $tmp_target_obj;
-          $target_id     = $tmp_target_id;
-        }
+        my $score = $length * $identity / 100; # number of conserved residues
+
+        # Record overlap
+        $overlaps{$i}{$j} = [$seq_id, $target_id, $score, $length, $identity];
       }
 
-      # Update our overlap statistics
-      if (defined $best_score) {
-        $avg_length += $best_length;
-        $avg_identity += $best_identity;
-        $min_length = $best_length if ! defined $min_length ||
-          $best_length < $min_length;
-        $min_identity = $best_identity if ! defined $min_identity ||
-          $best_identity < $min_identity;
+    }
+
+    # Process overlaps
+    my $nof_pairs = scalar keys %overlaps;
+    if ($nof_pairs == 0) {
+      next; # next contig
+
+    } elsif ($nof_pairs == 1) {
+      # Get the unique overlap
+      my ($id1, $id2, $score, $length, $identity) = @{$overlaps{0}{1}};
+
+      # Update assembly minimum overlap length and identity
+      $nof_overlaps++;
+      $avg_length   += $length;
+      $avg_identity += $identity;
+      if ( (not defined $min_length) || ($length < $min_length) ) {
+        $min_length = $length;
+      }
+      if ( (not defined $min_identity) || ($identity < $min_identity) ) {
+        $min_identity = $identity;
+      }
+
+    } else {
+      # At least 2 overlaps
+      # Find the set of overlaps that goes through all the reads of the contig
+      # and maximizes the total overlap score. Use the graph theory minimum
+      # spanning tree (MST) method to solve this problem
+      my $g = Graph::Undirected->new();
+      for my $i (keys %overlaps) {
+        for my $j (keys %{$overlaps{$i}}) {
+          my $score  = @{$overlaps{$i}{$j}}[2];
+          my $weight = -$score;
+          $g->add_weighted_edge($i, $j, $weight);
+        }
+      }
+      $g = $g->MST_Kruskal();
+
+      # Calculate minimum overlap length and identity for this contig
+      for my $edge ( $g->edges ) {
+
+        # Retrieve overlap information
+        my ($i,$j) = $$edge[0]<$$edge[1] ? ($$edge[0],$$edge[1]) : ($$edge[1],$$edge[0]) ;
+        my ($id1, $id2, $score, $length, $identity) = @{$overlaps{$i}{$j}};
+
+        # Update assembly minimum overlap length and identity
         $nof_overlaps++;
+        $avg_length   += $length;
+        $avg_identity += $identity;
+        if ( (not defined $min_length) || ($length < $min_length) ) {
+          $min_length = $length;
+        }
+        if ( (not defined $min_identity) || ($identity < $min_identity) ) {
+          $min_identity = $identity;
+        }
+
       }
     }
+
   }
-  
-  # averaging
+
+  # Averaging
   unless ($nof_overlaps == 0) {
     $avg_length /= $nof_overlaps;
     $avg_identity /= $nof_overlaps;
   }
-  
+
   return $nof_overlaps, $min_length, $avg_length, $min_identity, $avg_identity;
 }
 

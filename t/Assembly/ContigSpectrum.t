@@ -3,13 +3,14 @@ use strict;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 155);
+    test_begin( -tests            => 170,
+                -requires_modules => [qw(Graph::Undirected)] );
     use_ok('Bio::Assembly::IO');
     use_ok('Bio::Assembly::Tools::ContigSpectrum');
 }
 
 my $in = Bio::Assembly::IO->new(
-  -file => test_input_file("contigspectrumtest.tigr"),
+  -file => test_input_file('contigspectrumtest.tigr'),
   -format => 'tigr'
 );
 isa_ok($in, 'Bio::Assembly::IO');
@@ -220,3 +221,27 @@ is($test_csp->score(240), 0.248953974895397);
 $spectrum = {1=>120, 120=>1};
 ok($test_csp = Bio::Assembly::Tools::ContigSpectrum->new(-spectrum=>$spectrum));
 is($test_csp->score, 0.248953974895397);
+
+# large contig (27 reads)
+$in = Bio::Assembly::IO->new(
+  -file   => test_input_file('27-contig_Newbler.ace'),
+  -format => 'ace'
+);
+isa_ok($in, 'Bio::Assembly::IO');
+$sc = $in->next_assembly;
+isa_ok($sc, 'Bio::Assembly::Scaffold');
+ok(my $large_csp = Bio::Assembly::Tools::ContigSpectrum->new(
+  -assembly       => $sc,
+  -eff_asm_params => 1 ), 'large contig');
+is(scalar @{$large_csp->assembly()}, 1);
+is_deeply($large_csp->spectrum, {1=>0, 27=>1});
+is($large_csp->eff_asm_params, 1);
+is($large_csp->max_size, 27);
+is($large_csp->nof_rep, 1);
+is($large_csp->nof_seq, 27);
+float_is($large_csp->avg_seq_len, 100);
+is($large_csp->nof_overlaps, 26);
+is($large_csp->min_overlap, 54);
+is($large_csp->avg_overlap, 88.7692307692308);
+float_is($large_csp->min_identity, 33.3333);
+float_is($large_csp->avg_identity, 74.7486);
