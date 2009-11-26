@@ -38,13 +38,48 @@ downloaded at L<http://samtools.sourceforge.net/>.
 
 =over
 
+=item * Compressed FASTA files
+
+...are allowed, if L<IO::Uncompress::Gunzip> is installed. Get it from
+your local CPAN mirror.
+
 =item * BAM vs. SAM
+
+The input alignment should be in (possibly gzipped) binary SAM
+(C<.bam>) format. If it isn't, you will get a message explaining how
+to convert it, viz.:
+
+ $ samtools view -Sb mysam.sam > mysam.bam
 
 =item * Contigs
 
+Contigs are calculated using the 'coverage' feature of the
+L<Bio::DB::Sam> object. A contig represents a contiguous portion of a
+reference sequence having non-zero coverage at each base.
+
+The bwa assembler (L<http://bio-bwa.sourceforge.net/>) can assign read
+sequences to multiple reference sequence locations. The present
+implementation currently assigns such reads only to the first contig
+in which they appear.
+
 =item * Consensus sequences
 
+Consensus sequence and quality objects are calculates in the present
+implementation, using the C<pileup> callback feature of
+C<Bio::DB::Sam>. The consensus is (currently) simply the residue at a
+position that has the maximum sum of quality values. The consensus
+quality is the integer portion of the simple average of quality
+values for the consensus residue.
+
 =back
+
+=head1 TODO
+
+Supporting both text SAM (TAM) and binary SAM (BAM)
+
+Other useful info as SeqFeatures, both contigs and reads
+
+- CIGAR string
 
 =head1 FEEDBACK
 
@@ -106,14 +141,19 @@ use Bio::Assembly::Singlet;
 use Bio::SeqIO;
 use File::Spec;
 use File::Basename;
+use File::Temp qw(tempfile);
 use Carp;
 use Bio::Root::Root;
-use base qw(Bio::Root::Root Bio::Assembly::IO );
+use base qw(Bio::Root::Root Bio::Assembly::IO Bio::Root::IO);
 
+our $HAVE_IO_UNCOMPRESS;
 BEGIN {
 # check requirements
     unless ( eval "require Bio::DB::Sam; 1" ) {
 	Bio::Root::Root->throw("__PACKAGE__ requires installation of samtools (libbam) and Bio::DB::Sam (available on CPAN; not part of BioPerl)");
+    }
+    unless ( eval "require IO::Uncompress::Gunzip; \$HAVE_IO_UNCOMPRESS = 1") {
+	Bio::Root::Root->warn("IO::Uncompress::Gunzip is not available; you'll have to do your decompression by hand.");
     }
 }
 
@@ -396,7 +436,7 @@ sub _init_sam {
 			  -methods => [qw( _basename)],
 			  -create => 1);
     if (!defined $fasfile) {
-	for (qw( fas fa fasta )) {
+	for (qw( fas fa fasta fas.gz fa.gz fasta.gz )) {
 	    $fasfile = File::Spec->catdir($dir, $self->_basename.$_);
 	    last if -e $fasfile;
 	    undef $fasfile;
@@ -406,6 +446,37 @@ sub _init_sam {
 	croak( "Can't find associated reference fasta db" );
     }
     !$self->refdb && $self->refdb($fasfile);
+    # compression
+    if ($fasfile =~ /\.gz[^.]*$/) {
+	unless ($HAVE_IO_UNCOMPRESS) {
+	    croak( "IO::Uncompress::Gunzip not available; can't decompress on the fly");
+	}
+	my ($tfh, $tf) = tempfile( UNLINK => 1);
+	my $z = IO::Uncompress::Gunzip->new($fasfile) or croak("Can't expand: $@");
+	while (<$z>) { print $tfh $_ }
+	close $tfh;
+	$fasfile = $tf;
+    }
+    if ($file =~ /\.gz[^.]*$/) {
+	unless ($HAVE_IO_UNCOMPRESS) {
+	    croak( "IO::Uncompress::Gunzip not available; can't decompress on the fly");
+	}
+	my ($tfh, $tf) = tempfile( UNLINK => 1);
+	my $z = IO::Uncompress::Gunzip->new($file) or croak("Can't expand: $@");
+	while (<$z>) { 
+	    print $tfh $_;
+	    1;
+	}
+	close $tfh;
+	$file = $tf;
+    }
+    # sam conversion : just barf for now
+    if (-T $file) {
+	my $bam = $file;
+	$bam =~ s/\.sam/\.bam/;
+	croak( "'$file' looks like a text file.\n\tTo convert to the required .bam (binary SAM) format, run\n\t\$ samtools view -Sb $file > $bam\n");
+    }
+
     $sam = Bio::DB::Sam->new( -bam => $file, 
 			      -fasta => $fasfile );
     unless (defined $sam) {
@@ -548,18 +619,18 @@ sub _calc_consensus {
 	my ($seqid, $pos, $p) = @_;
         return unless ($seg->start <= $pos and $pos <= $seg->end);
 	my %wt_tbl;
-	my $n =0;
-	my $acc = 0;
+	my %n;
 	for my $pileup (@$p) {
 	    my $b = $pileup->alignment;
-	    $acc += $b->qscore->[$pileup->qpos] || 0;
-	    $wt_tbl{substr($b->qseq,$pileup->qpos,1)} += 
-		$b->qscore->[$pileup->qpos] || 0;
-	    $n++;
+	    my $res = substr($b->qseq,$pileup->qpos,1);
+	    $wt_tbl{$res} += $b->qscore->[$pileup->qpos] || 0;
+	    $n{$res} ||= 0;
+	    $n{$res}++;
 	}
 	# really simple
-	$conseq .= (sort { $wt_tbl{$b}<=>$wt_tbl{$a} } keys %wt_tbl)[0];
-	push @quals, int($acc/$n);
+	my $c = (sort { $wt_tbl{$b}<=>$wt_tbl{$a} } keys %wt_tbl)[0];
+	$conseq .= $c;
+	push @quals, int($wt_tbl{$c}/$n{$c});
 
     };
 
