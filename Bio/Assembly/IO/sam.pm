@@ -18,7 +18,8 @@ Bio::Assembly::IO::sam - An IO module for assemblies in Sam format *ALPHA*
 
 =head1 SYNOPSIS
 
- $aio = Bio::Assembly::IO( -file => "mysam.bam", -refdb => "myrefseqs.fas");
+ $aio = Bio::Assembly::IO( -file => "mysam.bam",
+                           -refdb => "myrefseqs.fas");
  $assy = $aio->next_assembly;
 
 =head1 DESCRIPTION
@@ -38,7 +39,7 @@ downloaded at L<http://samtools.sourceforge.net/>.
 
 =over
 
-item * Required files
+=item * Required files
 
 A binary SAM (C<.bam>) alignment and a reference sequence database in
 FASTA format are required. Various required indexes (C<.fai>, C<.bai>)
@@ -59,9 +60,9 @@ to convert it, viz.:
 
 =item * Contigs
 
-Contigs are calculated using the 'coverage' feature of the
-L<Bio::DB::Sam> object. A contig represents a contiguous portion of a
-reference sequence having non-zero coverage at each base.
+Contigs are calculated by this module, using the 'coverage' feature of
+the L<Bio::DB::Sam> object. A contig represents a contiguous portion
+of a reference sequence having non-zero coverage at each base.
 
 The bwa assembler (L<http://bio-bwa.sourceforge.net/>) can assign read
 sequences to multiple reference sequence locations. The present
@@ -70,16 +71,16 @@ in which they appear.
 
 =item * Consensus sequences
 
-Consensus sequence and quality objects are calculates in the present
-implementation, using the C<pileup> callback feature of
-C<Bio::DB::Sam>. The consensus is (currently) simply the residue at a
-position that has the maximum sum of quality values. The consensus
-quality is the integer portion of the simple average of quality
-values for the consensus residue.
+Consensus sequence and quality objects are calculated by this module,
+using the C<pileup> callback feature of C<Bio::DB::Sam>. The consensus
+is (currently) simply the residue at a position that has the maximum
+sum of quality values. The consensus quality is the integer portion of
+the simple average of quality values for the consensus residue.
 
 =item * SeqFeatures
 
-Read sequences stored in contigs are accompanied by the following features
+Read sequences stored in contigs are accompanied by the following
+features:
  
  contig : name of associated contig
  cigar  : CIGAR string for this read
@@ -98,8 +99,11 @@ These features are obtained as follows:
  $an_id = $id[0]; # or whatever
  $seq = $contig->get_seq_by_name($an_id);
  # Bio::LocatableSeq's aren't SeqFeature containers, so...
- $feat = $contig->get_seq_feat_by_tag( $seq, "_aligned_coord:".$s->id );
+ $feat = $contig->get_seq_feat_by_tag( 
+            $seq, "_aligned_coord:".$s->id
+         );
  ($cigar) = $feat->get_tag_values('cigar');
+ # etc.
 
 =back
 
@@ -293,6 +297,21 @@ sub next_contig {
     return $contigobj;
 }
 
+=head2 write_assembly()
+
+ Title   : write_assembly
+ Usage   : 
+ Function: not implemented (module currrently read-only)
+ Returns : 
+ Args    : 
+
+=cut
+
+sub write_assembly {
+    my $self = shift;
+    $self->throw( "This module is currently read-only" );
+}
+
 =head1 Internal
 
 =head2  _store_contig()
@@ -433,21 +452,6 @@ sub _store_singlet {
 #    my $qual = $contigobj->get_qual_by_name($readseq->id);    
 
     return $singletobj;
-}
-
-=head2 write_assembly()
-
- Title   : write_assembly
- Usage   : 
- Function: not implemented (module currrently read-only)
- Returns : 
- Args    : 
-
-=cut
-
-sub write_assembly {
-    my $self = shift;
-    $self->throw( "This module is currently read-only" );
 }
 
 =head1 REALLY Internal
