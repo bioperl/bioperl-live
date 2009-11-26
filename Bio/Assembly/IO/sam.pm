@@ -19,10 +19,32 @@ Bio::Assembly::IO::sam - An IO module for assemblies in Sam format *Pre-ALPHA!*
 =head1 SYNOPSIS
 
  $aio = Bio::Assembly::IO( -file => "mysam.bam", -refdb => "myrefseqs.fas");
+ $assy = $aio->next_assembly;
 
 =head1 DESCRIPTION
 
-Requires L<Bio::DB::Sam>.
+This is a (currently) read-only IO module designed to convert
+Sequence/Alignment Map (SAM; L<http://samtools.sourceforge.net/>)
+formatted alignments to L<Bio::Assembly::Scaffold> representations,
+containing .L<Bio::Assembly::Contig> and L<Bio::Assembly::Singlet>
+objects. It uses lstein's L<Bio::DB::Sam> to parse binary formatted SAM
+(.bam) files guided by a reference sequence fasta database.
+
+B<NB>: C<Bio::DB::Sam> is not a BioPerl module; it can be obtained via
+CPAN. It in turn requires the C<libbam> library; source can be
+downloaded at L<http://samtools.sourceforge.net/>. 
+
+=head1 DETAILS
+
+=over
+
+=item * BAM vs. SAM
+
+=item * Contigs
+
+=item * Consensus sequences
+
+=back
 
 =head1 FEEDBACK
 
@@ -57,12 +79,6 @@ the web:
 =head1 AUTHOR - Mark A. Jensen
 
 Email maj -at- fortinbras -dot- us
-
-Describe contact details here
-
-=head1 CONTRIBUTORS
-
-Additional contributors names and emails here
 
 =head1 APPENDIX
 
