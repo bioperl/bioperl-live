@@ -14,7 +14,7 @@
 
 =head1 NAME
 
-Bio::Assembly::IO::sam - An IO module for assemblies in Sam format *Pre-ALPHA!*
+Bio::Assembly::IO::sam - An IO module for assemblies in Sam format *ALPHA*
 
 =head1 SYNOPSIS
 
@@ -38,10 +38,16 @@ downloaded at L<http://samtools.sourceforge.net/>.
 
 =over
 
-=item * Compressed FASTA files
+item * Required files
 
-...are allowed, if L<IO::Uncompress::Gunzip> is installed. Get it from
-your local CPAN mirror.
+A binary SAM (C<.bam>) alignment and a reference sequence database in
+FASTA format are required. Various required indexes (C<.fai>, C<.bai>)
+will be created as necessary (via L<Bio::DB::Sam>).
+
+=item * Compressed files
+
+...can be specified directly , if L<IO::Uncompress::Gunzip> is
+installed. Get it from your local CPAN mirror.
 
 =item * BAM vs. SAM
 
@@ -71,15 +77,39 @@ position that has the maximum sum of quality values. The consensus
 quality is the integer portion of the simple average of quality
 values for the consensus residue.
 
+=item * SeqFeatures
+
+Read sequences stored in contigs are accompanied by the following features
+ 
+ contig : name of associated contig
+ cigar  : CIGAR string for this read
+
+If the read is paired with a successfully mapped mate, these features
+will also be available:
+
+ mate_start  : coordinate of to which the mate was aligned
+ mate_len    : length of mate read
+ mate_strand : strand of mate (-1 or 1)
+ insert_size : size of insert spanned by the mate pair
+
+These features are obtained as follows:
+
+ @ids = $contig->get_seq_ids;
+ $an_id = $id[0]; # or whatever
+ $seq = $contig->get_seq_by_name($an_id);
+ # Bio::LocatableSeq's aren't SeqFeature containers, so...
+ $feat = $contig->get_seq_feat_by_tag( $seq, "_aligned_coord:".$s->id );
+ ($cigar) = $feat->get_tag_values('cigar');
+
 =back
 
 =head1 TODO
 
-Supporting both text SAM (TAM) and binary SAM (BAM)
+=over
 
-Other useful info as SeqFeatures, both contigs and reads
+=item * Supporting both text SAM (TAM) and binary SAM (BAM)
 
-- CIGAR string
+=back
 
 =head1 FEEDBACK
 
@@ -323,7 +353,6 @@ sub _store_contig {
 sub _store_read {
     my $self = shift;
     my ($read, $contigobj) = @_;
-
     my $readseq = Bio::LocatableSeq->new(
 	-display_id => $read->name,
 	-primary_id => $read->name,
@@ -337,13 +366,26 @@ sub _store_read {
 	-qual       => [$read->qscore]
 	);
 
+    # add pair information
+    my @pair_info;
+    if ($read->proper_pair) { # mate also aligned
+	@pair_info = (
+	    mate_start => $read->mate_start,
+	    mate_len   => $read->mate_len,
+	    mate_strand => $read->mstrand,
+	    insert_size => $read->isize
+	    );
+    }
+	    
     my $alncoord = Bio::SeqFeature::Generic->new(
 	-primary_tag => $read->name,
 	-start      => $read->start,
 	-end        => $read->end,
 	-strand     => $read->strand,
 	-qual       => join(' ',$read->qscore),
-	-tag        => { 'contig' => $contigobj->id }
+	-tag        => { 'contig' => $contigobj->id,
+			 'cigar'  => $read->cigar_str,
+			 @pair_info }
 	
 	);
 
@@ -478,7 +520,8 @@ sub _init_sam {
     }
 
     $sam = Bio::DB::Sam->new( -bam => $file, 
-			      -fasta => $fasfile );
+			      -fasta => $fasfile,
+			      -expand_flags => 1);
     unless (defined $sam) {
 	croak( "Couldn't create the Bio::DB::Sam object" );
     }
