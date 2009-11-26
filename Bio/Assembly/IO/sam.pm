@@ -101,8 +101,9 @@ BEGIN {
     }
 }
 
-# or is it bwa?
 my $progname = 'sam';
+
+my %_ASSIGNED; # scratch pad 
 
 sub new {
     my $class = shift;
@@ -150,7 +151,6 @@ sub next_assembly {
 	    }
 	}
     }
-$DB::single=1;    
     return $assembly;
 }
 
@@ -176,27 +176,33 @@ sub next_contig {
 	croak("No current refseq id set");
     }
     my $contig_segs = $self->_segset($self->_current_refseq_id);
-    unless ($contig_segs) {
+    unless ($contig_segs && @$contig_segs) {
 	croak("No contig segset for current id '".$self->_current_refseq_id."'")
     }
     # each segment in @$contig_segs represents a contig within the
     # current refseq
     my $contig_seg = $$contig_segs[$self->_current_contig_seg_idx];
+    return if (!defined $contig_seg); # iterator finished
     # each 'feature' in $contig_seg represents a read;
     # $seqio lets us iterate efficiently over the reads:
     my $seqio = $contig_seg->features(-iterator => 1);
-    return if (!defined $contig_seg); # iterator finished
+
 
     # Contig and read related
     my $contigobj = $self->_store_contig($contig_seg);
     my $numseq = 0;
 
     while ( my $read = $seqio->next_seq ) {
+	if ($_ASSIGNED{$read->name}) {
+	    1;
+	    next;
+	}
+	$_ASSIGNED{$read->name}=1;
 	$self->_store_read($read, $contigobj);
 	$numseq++;
     }
     if ($numseq == 1) { # ooh! a singlet!
-	$contigobj = $self->_store_singlet($contig_seg, $contigobj);
+	$contigobj = $self->_store_singlet($contigobj);
     }
     return $contigobj;
 }
@@ -308,33 +314,25 @@ sub _store_read {
 =head2  _store_singlet()
 
     Title   : _store_singlet
-    Usage   : my $singletobj = $self->_store_singlet($contig_seg, $contigobj);
-    Function: store information of a singlet belonging to a scaffold 
-              in a singlet object
+    Usage   : my $singletobj = $self->_store_singlet($contigobj);
+    Function: convert a contig object containing a single read into
+              a singlet object
     Returns : Bio::Assembly::Singlet
-    Args    : Bio::DB::Sam::Segment (containing one feature, hopefully),
-              Bio::Assembly::Contig (previously loaded)
+    Args    : Bio::Assembly::Contig (previously loaded with only one seq)
 
 =cut
 
 sub _store_singlet {
     my $self = shift;
-    my ($contig_seg,$contigobj) = @_;
-    my ($read) = $contig_seg->features;
+    my ($contigobj) = @_;
 
-    my $readseq = Bio::LocatableSeq->new(
-	-display_id => $read->name,
-	-primary_id => $read->name,
-	-seq        => $read->dna,
-	-start      => 1
-	-strand     => $read->strand,
-	-alphabet   => 'dna'
-	);
+    my ($readseq) = $contigobj->each_seq;
 
     my $singletobj = Bio::Assembly::Singlet->new( -id => $contigobj->id,
 						  -seqref => $readseq );
 
-    # may want to attach quality, etc. as SeqFeature sometime...
+# may want to attach this someday
+#    my $qual = $contigobj->get_qual_by_name($readseq->id);    
 
     return $singletobj;
 }
@@ -442,7 +440,7 @@ sub _get_contig_segs_from_coverage {
     for (0..$#covdata) {
 	if ($covdata[$_]) {
 	    if ($in_contig) {
-		$rt_end = $_;
+		$rt_end = $_+1;
 		next;
 	    }
 	    else {
@@ -451,7 +449,7 @@ sub _get_contig_segs_from_coverage {
 		if (defined $lf_end && defined $rt_end) {
 		    push @rngs, [$lf_end, $rt_end];
 		}
-		$lf_end = $_;
+		$lf_end = $_+1;
 	    }
 	    
 	}
@@ -468,7 +466,9 @@ sub _get_contig_segs_from_coverage {
 	return;
     }
     for (@rngs) {
-	push @segs, $self->sam->segment(-seq_id=>'NC_009749', -start=>$$_[0], -end=>$$_[1]);
+	push @segs, $self->sam->segment(-seq_id=>$segment->seq_id,
+					-start=>$$_[0], 
+					-end=>$$_[1]);
     }
     return @segs;
 }
@@ -536,9 +536,9 @@ sub _calc_consensus {
 	my $acc = 0;
 	for my $pileup (@$p) {
 	    my $b = $pileup->alignment;
-	    $acc += $b->qscore->[$pileup->qpos];
+	    $acc += $b->qscore->[$pileup->qpos] || 0;
 	    $wt_tbl{substr($b->qseq,$pileup->qpos,1)} += 
-		$b->qscore->[$pileup->qpos];
+		$b->qscore->[$pileup->qpos] || 0;
 	    $n++;
 	}
 	# really simple
@@ -629,6 +629,7 @@ sub _current_contig_seg_idx {
     return $self->{'_current_contig_seg_idx'} = shift if @_;
     return $self->{'_current_contig_seg_idx'};
 }
+
 
 =head2 sam()
 
