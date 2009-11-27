@@ -240,6 +240,8 @@ sub _guess_format {
    return 'phrap' if ($arg =~ /\.phrap/i);
    return 'tigr'  if ($arg =~ /\.tigr/i);
    return 'maq'   if ($arg =~ /\.maq/i);
+   return 'sam'   if ($arg =~ /\.[bs]am/i);
+
 }
 
 sub DESTROY {
