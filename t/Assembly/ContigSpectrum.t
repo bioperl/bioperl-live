@@ -3,7 +3,7 @@ use strict;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin( -tests            => 170,
+    test_begin( -tests            => 188,
                 -requires_modules => [qw(Graph::Undirected)] );
     use_ok('Bio::Assembly::IO');
     use_ok('Bio::Assembly::Tools::ContigSpectrum');
@@ -245,3 +245,27 @@ is($large_csp->min_overlap, 54);
 is($large_csp->avg_overlap, 88.7692307692308);
 float_is($large_csp->min_identity, 33.3333);
 float_is($large_csp->avg_identity, 74.7486);
+
+# one contig at a time
+$in = Bio::Assembly::IO->new(
+  -file => test_input_file('contigspectrumtest.tigr'),
+  -format => 'tigr'
+);
+$sc = $in->next_assembly;
+ok($csp = Bio::Assembly::Tools::ContigSpectrum->new(
+  -eff_asm_params => 1 ), 'one contig at a time');
+for my $contig ($sc->all_contigs) {
+  ok($csp->contig($contig));
+}
+is(scalar @{$csp->assembly()}, 5);
+is_deeply($csp->spectrum, {1=>0, 2=>3, 6=>1, 9=>1}); # [0 3 0 0 0 1 0 0 1]
+is($csp->eff_asm_params, 1);
+is($csp->max_size, 9);
+is($csp->nof_rep, 5);
+is($csp->nof_seq, 21);
+float_is($csp->avg_seq_len, 303.81);
+is($csp->nof_overlaps, 16);
+is($csp->min_overlap, 35);
+is($csp->avg_overlap, 155.875);
+float_is($csp->min_identity, 96.8421);
+float_is($csp->avg_identity, 98.8826);
