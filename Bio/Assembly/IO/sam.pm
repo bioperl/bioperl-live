@@ -193,8 +193,6 @@ BEGIN {
 
 my $progname = 'sam';
 
-my %_ASSIGNED; # scratch pad 
-
 sub new {
     my $class = shift;
     my @args = @_;
@@ -203,6 +201,7 @@ sub new {
     $self->file($file);
     $refdb && $self->refdb($refdb);
     $self->_init_sam() or croak( "Sam initialization failed" );
+    $self->{_assigned} = {};
     return $self;
 }
 
@@ -283,11 +282,11 @@ sub next_contig {
     my $numseq = 0;
 
     while ( my $read = $seqio->next_seq ) {
-	if ($_ASSIGNED{$read->name}) {
+	if ($self->{_assigned}->{$read->name}) {
 	    1;
 	    next;
 	}
-	$_ASSIGNED{$read->name}=1;
+	$self->{_assigned}->{$read->name}=1;
 	$self->_store_read($read, $contigobj);
 	$numseq++;
     }
@@ -781,5 +780,10 @@ sub sam {
     return $self->{'sam'};
 }
 
+sub DESTROY {
+    my $self = shift;
+    undef $self->{'sam'};
+    delete $self->{_segset}->{$_} foreach (keys %{$self->{_segset}});
+}
 
 1;
