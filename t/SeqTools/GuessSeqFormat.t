@@ -79,7 +79,7 @@ foreach $format (@seqformats) {
 @seqformats = qw{ aln:clustalw fasta fastq mase msf nexus pfam phylip
                   prodom stockholm}; # not selex (same as pfam, mainly)
 
-my %no_alignio_module = map {$_=>1} qw {};
+my %no_alignio_module = map {$_=>1} qw { fastq };
 
 foreach my $ext (@seqformats) {
     my $format;
