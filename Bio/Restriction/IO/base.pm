@@ -123,7 +123,7 @@ sub _initialize {
         $self->throw("Format $format not retrievable using 'current'") if (!exists $FILE_FORMAT{$format});
         my $io = $self->new(-url => 'ftp://ftp.neb.com/pub/rebase/VERSION');
         chomp (my $version = $io->_readline);
-        push @args, (-url => "ftp://ftp.neb.com/pub/rebase/$FILE_FORMAT{$format}.$version");
+        push @args, (-url => "ftp://ftp.neb.com/pub/rebase/$FILE_FORMAT{$format}.$version", -retries => 1);
     }
 
     $self->_companies;
