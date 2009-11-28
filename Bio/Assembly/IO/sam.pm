@@ -14,7 +14,7 @@
 
 =head1 NAME
 
-Bio::Assembly::IO::sam - An IO module for assemblies in Sam format *ALPHA*
+Bio::Assembly::IO::sam - An IO module for assemblies in Sam format *BETA*
 
 =head1 SYNOPSIS
 
@@ -57,6 +57,10 @@ The input alignment should be in (possibly gzipped) binary SAM
 to convert it, viz.:
 
  $ samtools view -Sb mysam.sam > mysam.bam
+
+The bam file must also be sorted on coordinates: do
+
+ $ samtools sort mysam.unsorted.bam > mysam.bam
 
 =item * Contigs
 
