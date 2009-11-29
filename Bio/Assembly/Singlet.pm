@@ -144,7 +144,7 @@ sub _seq_to_singlet {
     my ($self, $seq) = @_;
     # Object type checking
     $self->throw("Unable to process non Bio::Seq-compliant object [".ref($seq)."]")
-      unless (defined $seq && ($seq->isa("Bio::Seq") || $seq->isa("Bio::LocatableSeq")) );
+      unless (defined $seq && ($seq->isa("Bio::Seq") || $seq->isa("Bio::PrimarySeq") || $seq->isa("Bio::LocatableSeq")) );
     # Sanity check
     $self->throw("Unable to have more than one seqref in a singlet")
       if (defined $self->{'_seqref'});

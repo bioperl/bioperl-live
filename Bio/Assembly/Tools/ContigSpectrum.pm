@@ -236,10 +236,10 @@ sub new {
   my $self = $class->SUPER::new(@args);
   my ( $id, $nof_seq, $nof_rep, $max_size, $nof_overlaps, $min_overlap,
     $min_identity, $avg_overlap, $avg_identity, $avg_seq_len, $spectrum,
-    $assembly, $eff_asm_params, $dissolve, $cross) = $self->_rearrange( [qw(ID
-    NOF_SEQ NOF_REP MAX_SIZE NOF_OVERLAPS MIN_OVERLAP MIN_IDENTITY AVG_OVERLAP
-    AVG_IDENTITY AVG_SEQ_LEN SPECTRUM ASSEMBLY EFF_ASM_PARAMS DISSOLVE CROSS)],
-    @args );
+    $contig, $assembly, $eff_asm_params, $dissolve, $cross) = $self->_rearrange(
+    [qw(ID NOF_SEQ NOF_REP MAX_SIZE NOF_OVERLAPS MIN_OVERLAP MIN_IDENTITY
+    AVG_OVERLAP AVG_IDENTITY AVG_SEQ_LEN SPECTRUM CONTIG ASSEMBLY EFF_ASM_PARAMS
+    DISSOLVE CROSS)], @args );
 
   # First set up some defauts
   $self->{'_id'}             = 'NoName';
@@ -271,12 +271,13 @@ sub new {
 
   # Finally get stuff that can be obtained in an automated way
   $self->_import_spectrum($spectrum) if defined($spectrum);
+  $self->_import_contig($contig)     if defined($contig);
   $self->_import_assembly($assembly) if defined($assembly);
+  $self->_import_cross_csp($cross)   if defined($cross);
   if (defined($dissolve)) {
     my ($mixed_csp, $header) = (@$dissolve[0], @$dissolve[1]);
     $self->_import_dissolved_csp($mixed_csp, $header);
   }
-  $self->_import_cross_csp($cross)   if defined($cross);
 
   return $self;
 }
@@ -1693,16 +1694,19 @@ sub _update_overlap_stats {
   if (not defined $n_min_identity) { $n_min_identity = $n_avg_identity };
 
   # Update overlap statistics
-  my $nof_overlaps = $p_nof_overlaps + $n_nof_overlaps;
-  my $avg_length = ($p_avg_length * $p_nof_overlaps + $n_avg_length * $n_nof_overlaps) / $nof_overlaps;
-  my $avg_identity = ($p_avg_identity * $p_nof_overlaps + $n_avg_identity * $n_nof_overlaps) / $nof_overlaps;
-  my $min_length = $p_min_length;
-  if ( (not defined $p_min_length) || ($n_min_length < $p_min_length) ) {
-    $min_length = $n_min_length;
-  }
-  my $min_identity = $p_min_identity;
-  if ( (not defined $p_min_identity) || ($n_min_identity < $p_min_identity) ) {
-    $min_identity = $n_min_identity;
+  my ($avg_length, $avg_identity, $min_length, $min_identity, $nof_overlaps) = (0, 0, undef, undef, 0);
+  $nof_overlaps = $p_nof_overlaps + $n_nof_overlaps;
+  if ($nof_overlaps > 0) {
+    $avg_length = ($p_avg_length * $p_nof_overlaps + $n_avg_length * $n_nof_overlaps) / $nof_overlaps;
+    $avg_identity = ($p_avg_identity * $p_nof_overlaps + $n_avg_identity * $n_nof_overlaps) / $nof_overlaps;
+    $min_length = $p_min_length;
+    if ( (not defined $p_min_length) || ($n_min_length < $p_min_length) ) {
+      $min_length = $n_min_length;
+    }
+    $min_identity = $p_min_identity;
+    if ( (not defined $p_min_identity) || ($n_min_identity < $p_min_identity) ) {
+      $min_identity = $n_min_identity;
+    }
   }
 
   return $avg_length, $avg_identity, $min_length, $min_identity, $nof_overlaps;
