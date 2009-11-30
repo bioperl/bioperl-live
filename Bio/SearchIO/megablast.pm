@@ -138,7 +138,7 @@ BEGIN {
 	  );
 
 
-    $DEFAULT_BLAST_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
+    $DEFAULT_BLAST_WRITER_CLASS = 'Bio::SearchIO::Writer::HitTableWriter';
 }
 
 

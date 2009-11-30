@@ -117,7 +117,7 @@ use base qw(Bio::SearchIO);
      'WiseOutput_query-len' => 'RESULT-query_length',
     );
 
-$DEFAULT_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
+$DEFAULT_WRITER_CLASS = 'Bio::SearchIO::Writer::HitTableWriter';
 
 
 use Bio::Tools::Genewise;

@@ -155,7 +155,7 @@ use base qw(Bio::SearchIO);
     'ExonerateOutput_query-len' => 'RESULT-query_length',
     );
 
-$DEFAULT_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
+$DEFAULT_WRITER_CLASS = 'Bio::SearchIO::Writer::HitTableWriter';
 
 $MIN_INTRON=30; # This is the minimum intron size
 

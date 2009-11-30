@@ -83,7 +83,7 @@ use Bio::Search::Hit::HitFactory;
 use Bio::Search::HSP::HSPFactory;
 
 $DefaultProgramName = 'BLASTN';
-$DEFAULT_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
+$DEFAULT_WRITER_CLASS = 'Bio::SearchIO::Writer::HitTableWriter';
 
 # mapping of terms to Bioperl hash keys
 %MODEMAP = (

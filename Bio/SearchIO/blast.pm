@@ -321,7 +321,7 @@ BEGIN {
         $MAPPING{$key} = $val;
     }
 
-    $DEFAULT_BLAST_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
+    $DEFAULT_BLAST_WRITER_CLASS = 'Bio::SearchIO::Writer::HitTableWriter';
     $MAX_HSP_OVERLAP   = 2;           # Used when tiling multiple HSPs.
     $DEFAULTREPORTTYPE = 'BLASTP';    # for bl2seq
 }

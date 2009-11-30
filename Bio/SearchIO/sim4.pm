@@ -99,7 +99,7 @@ use Bio::SearchIO::SearchResultEventBuilder;
 use base qw(Bio::SearchIO);
 
 $DEFAULTFORMAT = 'SIM4';
-$DEFAULT_WRITER_CLASS = 'Bio::Search::Writer::HitTableWriter';
+$DEFAULT_WRITER_CLASS = 'Bio::SearchIO::Writer::HitTableWriter';
 
 %ALIGN_TYPES = (
     0 => 'Ruler',
