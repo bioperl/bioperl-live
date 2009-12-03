@@ -588,7 +588,7 @@ sub revcom_with_features{
     } 
 
     #move features
-    $revcom->add_SeqFeature(map {$self->_feature_revcom($_, $seq->length)} $seq->get_SeqFeatures);
+    $revcom->add_SeqFeature(map {$self->_feature_revcom($_, $seq->length)} reverse $seq->get_SeqFeatures);
     return $revcom;
 }
 
