@@ -127,7 +127,7 @@ sub write_seq {
             $self->warn("You can't write FASTQ without supplying a Bio::Seq::Quality object! ", ref($seq), "\n");
             next;
         }
-        my $str = $seq->seq;
+        my $str = $seq->seq || '';
         my @qual = @{$seq->qual};
         
         # this should be the origin of the sequence (illumina, solexa, sanger)
@@ -137,9 +137,6 @@ sub write_seq {
         if (my $desc = $seq->desc()) {
             $desc =~ s/\n//g;
             $top .= " $desc";
-        }
-        if(length($str) == 0) {
-            $str = "\n";
         }
         my $qual = '';
         my $qual_map =
