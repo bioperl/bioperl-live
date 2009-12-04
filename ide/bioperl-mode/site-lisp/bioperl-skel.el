@@ -254,7 +254,7 @@
 (defvar bioperl-accessor-skel
   '(
     (prompt-once "Field name: ")
-    "=head2 " str \N
+    "=head2 " str "()" \N
     \N
     " Title   : " str \N 
     " Usage   : $obj->" str "($newval)" \N 

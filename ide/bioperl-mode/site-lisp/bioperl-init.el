@@ -241,7 +241,10 @@ come."
   "A derived view mode for bioperl pod."
   :init-value nil
   :lighter "[bio]"
-  :keymap ( let ( (map (copy-keymap (cdr (assoc 'view-mode minor-mode-map-alist)))) )
+  :keymap ( let* (
+		  (vmap (cdr (assoc 'view-mode minor-mode-map-alist)))
+		  (map (if vmap (copy-keymap vmap) (make-sparse-keymap)  ))
+		  )
 	    (if map
 		(progn
 		  (define-key map [menu-bar] nil)
