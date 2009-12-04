@@ -126,8 +126,8 @@ sub new {
                           );
 
 	#Check if successful
-	$self->throw("$self->{'url'} error: ", $response->status_line) unless $response->is_success;
-	$self->throw("Bad content type at $self->{'url'} ", $response->content_type) unless $response->content_type eq 'text/html';
+	$self->throw("$url error: ".$response->status_line) unless $response->is_success;
+	$self->throw("Bad content type at $url ".$response->content_type) unless $response->content_type eq 'text/html';
 
 	my $protParamOutput=$response->decoded_content;
 	
