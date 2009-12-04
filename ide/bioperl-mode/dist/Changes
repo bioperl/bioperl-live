@@ -1,4 +1,8 @@
 $Id$
+04 Dec 2009 22:15:00 UTC
+   - fixed a bug that led to borks when 'view-mode' not
+     present in minor-mode-alist
+   - little template tweak
 15 Nov 2009 00:32:00 UTC
    - added bioperl-source-mode for source viewing
      'i' mapped to imenu in bioperl-source-mode
