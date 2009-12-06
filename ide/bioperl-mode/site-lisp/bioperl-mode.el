@@ -306,7 +306,7 @@ MODULE is in double-colon format. Most useful when called from a pod view."
     (let* (
 	   (pth-comp (if (boundp 'bioperl-source-file-path-component)
 			 bioperl-source-file-path-component nil))
-	  (pmfile (bioperl-path-from-perl module pth-comp))
+	  (pmfile (bioperl-path-from-perl module nil pth-comp))
 	  (parents)
 	  (mod)
 	  )
