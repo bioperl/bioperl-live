@@ -1,4 +1,7 @@
 $Id$
+07 Dec 2009 03:57:00 UTC
+   - add parent/base class browse functionality to 
+     source view too
 06 Dec 2009 22:38:00 UTC
    - new feature : browse the pod of parent/base classes
      (press [B] or [P] in pod view)

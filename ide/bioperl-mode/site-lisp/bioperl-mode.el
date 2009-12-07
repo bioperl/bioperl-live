@@ -336,12 +336,15 @@ path to the source of the module whose pod is being viewed."
   (interactive)
   (if (not (file-exists-p bioperl-source-file))
       nil
-    (let ( (fname bioperl-source-file) )
+    (let ( (fname bioperl-source-file) 
+	   (pth-comp bioperl-source-file-path-component) )
       (set-buffer (generate-new-buffer "*BioPerl Src*"))
       (insert-file fname)
       (perl-mode)
       (bioperl-source-mode)
-      (pop-to-buffer (current-buffer)))))
+      (pop-to-buffer (current-buffer))
+      (setq bioperl-source-file fname)
+      (setq bioperl-source-file-path-component pth-comp))))
 
 (defun bioperl-view-parents ()
   "Browse pod of base classes for the file in `bioperl-source-file' by completion menu.  
@@ -356,6 +359,32 @@ path to the source of the module whose pod is being viewed."
       (mapcar (lambda (x) (setq mod (if mod (concat mod "::" x) x)))
 	      (bioperl-perl-from-path bioperl-source-file))
       (bioperl-view-pod-parents mod))))
+
+(defun bioperl-view-parents-this-buffer ()
+  "Browse the pod for BioPerl modules from which the current source inherits.
+Callable from bioperl-source-mode only."
+  (interactive)
+  (unless bioperl-source-file
+    (error "This function current works in bioperl-source-mode only."))
+  (let* (
+	 (pth-comp (if (boundp 'bioperl-source-file-path-component)
+		       bioperl-source-file-path-component nil))
+	 (parents)
+	 (mod)
+	 )
+    (setq parents (bioperl-find-class-parents (current-buffer)))
+    (if (not parents)
+	(error "Unable to identify module parents")
+      ;; create a degenerate alist
+      (setq parents (mapcar 'list parents))
+      (setq mod (completing-read "[pod]: " parents nil t 
+				 (if (= (length parents) 1) 
+				     (elt parents 0)
+				   "Bio::")))
+      (if mod
+	  (bioperl-view-pod mod pth-comp)
+	nil))))
+
 
 ;; "uninstall..."
 

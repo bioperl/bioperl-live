@@ -271,6 +271,8 @@ come."
 		  (define-key map "q" 'View-kill-and-leave)
 		  (define-key map "g" 'goto-line)
 		  (define-key map "i" 'imenu)
+		  (define-key map "P" 'bioperl-view-parents-this-buffer)
+		  (define-key map "B" 'bioperl-view-parents-this-buffer)
 		  (define-key map "\C-m" 'bioperl-view-pod)
 		  (define-key map "\C-\M-m" 'bioperl-view-pod-method)))
 	    map )
