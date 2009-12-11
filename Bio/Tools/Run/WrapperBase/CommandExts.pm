@@ -410,6 +410,8 @@ Internal methods are usually preceded with a _
 
 package Bio::Tools::Run::WrapperBase;
 use strict;
+use warnings;
+no warnings qw(redefine);
 
 use Bio::Root::Root;
 use File::Spec;
@@ -494,9 +496,13 @@ sub new {
     } else {
 	$self->{'_options'}->{'_join'}      = $join;
     }
+    if ($name =~ /^\*/) {
+	$self->is_pseudo(1);
+	$name =~ s/^\*//;
+    }
     $self->program_name($name) if not defined $self->program_name();
     $self->program_dir($dir) if not defined $self->program_dir();
-    if ($^O =~ /cygwin/ and ! $name =~ /^\*/) {
+    if ($^O =~ /cygwin/ and !$self->is_pseudo) {
 	my @kludge = `PATH=\$PATH:/usr/bin:/usr/local/bin which $name`;
 	chomp $kludge[0];
 	$self->program_name($kludge[0]);
@@ -663,6 +669,61 @@ sub _translate_params {
   return \@options;
 }
 
+=head2 executable()
+
+ Title   : executable
+ Usage   : 
+ Function: find the full path to the main executable,
+           or to the command executable for pseudo-programs
+ Returns : full path, if found
+ Args    : [optional] explicit path to the executable
+           (will set the appropriate command exec if
+            applicable)
+            
+=cut
+
+sub executable {
+    my $self = shift;
+    my ($exe, $warn) = @_;
+    if ($self->is_pseudo) {
+	return $self->{_pathtoexe} = $self->executables($self->command,$exe);
+    }
+    # otherwise
+    # setter
+    if (defined $exe) {
+	$self->throw("binary '$exe' does not exist") unless -e $exe;
+	$self->throw("'$exe' is not executable") unless -x $exe;
+	return $self->{_pathtoexe} = $exe;
+    }
+    # getter
+    return $self->{_pathtoexe} unless !defined $self->{_pathstoexe};
+    # finder
+
+    $self->throw("Program directory must be specified; use program_dir(\$path)") unless $self->program_dir;
+    my $dir = $self->program_dir;
+    my $program_path = File::Spec->catfile($dir, $self->program_name);
+    if ( -x $program_path ) { # note this allows symlinks!!!
+	$self->{_pathtoexe} = $program_path;
+    }
+    elsif ( -x $program_path.'.exe' ) {
+	$self->{_pathtoexe} = $program_path.'.exe';
+    }
+    else { # look in syspath using io...
+	for ($self->io->exists_exe($self->program_name)) {
+	    !$_ && do {
+		$self->throw("Cannot find executable for program '".$self->program_name."'");
+		last;
+	    };
+	    do { # else, found it
+		$self->{_pathtoexe} = $_;
+	    };
+	}
+    }
+    #ran the gauntlet, return
+    return $self->{_pathtoexe};
+    
+}
+
 =head2 executables()
 
  Title   : executables
@@ -678,7 +739,7 @@ sub executables {
     my $self = shift;
     my ($cmd, $exe) = @_;
     # for now, barf if this is not a pseudo program
-    $self->throw("This wrapper represents a single program with commands, not multiple programs; can't use executables()") unless $self->program_name =~ /^\*/;
+    $self->throw("This wrapper represents a single program with commands, not multiple programs; can't use executables()") unless $self->is_pseudo;
     $self->throw("Command name required at arg 1") unless defined $cmd;
     $self->throw("The desired executable '$cmd' is not registered as a command") unless grep /^$cmd$/, @{$self->{_options}->{_commands}};
     # setter
@@ -957,6 +1018,25 @@ sub stderr {
     return $self->{'stderr'};
 }
 
+=head2 is_pseudo()
+
+ Title   : is_pseudo
+ Usage   : $obj->is_pseudo($newval)
+ Function: returns true if this factory represents
+           a pseudo-program
+ Example : 
+ Returns : value of is_pseudo (boolean)
+ Args    : on set, new value (a scalar or undef, optional)
+
+=cut
+
+sub is_pseudo {
+    my $self = shift;
+    
+    return $self->{'is_pseudo'} = shift if @_;
+    return $self->{'is_pseudo'};
+}
+
 =head2 AUTOLOAD
 
 AUTOLOAD permits 
@@ -979,7 +1059,6 @@ sub AUTOLOAD {
     }
     my ($cmd) = $tok =~ m/new_(.*)/;
     return $class->new( -command => $cmd, @args );
-
 }
 
 =head1 Bio:ParameterBaseI compliance
