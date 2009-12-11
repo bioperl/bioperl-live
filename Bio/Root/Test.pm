@@ -502,7 +502,12 @@ sub _check_module {
     eval "require $mod;";
     
     if ($@) {
-        return "The optional module $mod (or dependencies thereof) was not installed";
+	if ($@ =~ /Can't locate/) {
+	    return "The optional module $mod (or dependencies thereof) was not installed";
+	}
+	else {
+	    return "The optional module $mod generated the following error: \n$@";
+	}
     }
     elsif ($desired_version) {
         no strict 'refs';
