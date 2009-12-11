@@ -696,7 +696,7 @@ sub executables {
     # program dir, and that the command names within the module are the 
     # same as the program names.
     my $exereg = $self->{_pathstoexe};
-    $self->throw("Program directory must be specified in wrapper configuration") unless $self->program_dir;
+    $self->throw("Program directory must be specified; use program_dir(\$path)") unless $self->program_dir;
     my $dir = $self->program_dir;
     my $program_path = File::Spec->catfile($dir, $cmd);
     if ( -x $program_path ) { # note this allows symlinks!!!
@@ -970,15 +970,16 @@ as an alias for
 =cut
 
 sub AUTOLOAD {
-    my $self = shift;
+    my $class = shift;
     my $tok = $AUTOLOAD;
     my @args = @_;
-    $tok = s/.*:://;
+    $tok =~ s/.*:://;
+    unless ($tok =~ /^new_/) {
+	Bio::Root::Root->throw("Can't locate object method '$tok' via package '".ref($class)?ref($class):$class); 
+    }
     my ($cmd) = $tok =~ m/new_(.*)/;
-    unless (grep /^$cmd$/, @{$self->{_options}->{_commands}}) {
-	$self->throw("Can't locate object method '$tok' via package '".ref($self)) }
-    my $pkg = ref($self);
-    return $pkg->new( -command => $cmd, @args );
+    return $class->new( -command => $cmd, @args );
+
 }
 
 =head1 Bio:ParameterBaseI compliance
