@@ -50,8 +50,7 @@ my $build = Bio::Root::Build->new(
                             # we actually need 1.01 of Class::AutoClass, but unfortunately it is versioned as 1.0
                             'Clone'                     => '0/cloning objects/Bio::Tools::Primer3',
                             'Convert::Binary::C'        => '0/strider functionality/Bio::SeqIO::strider',
-                            # we specifically want Graph::Directed, but that has no VERSION
-                            'Graph'                     => '0/ontology engine implementation for the GO parser/Bio::PhyloNetwork',
+                            'Graph'                     => '0/Phylogenetic Networks, ontology engine implementation, contig analysis/Bio::PhyloNetwork,Bio::Ontology::SimpleGOEngine::GraphAdaptor,Bio::Assembly::Tools::ContigSpectrum',
                             'GraphViz'                  => '0/Phylogenetic Network Visulization/Bio::PhyloNetwork::GraphViz',
                             'HTML::Entities'            => '0/remote analysis POST submissions/Bio::SearchIO::blastxml',
                             'HTML::HeadParser'          => '3/parsing <HEAD> section of HTML docs/Bio::Tools::Analysis::DNA::ESEfinder',

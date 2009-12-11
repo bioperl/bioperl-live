@@ -118,11 +118,13 @@ NB: This list of packages is not authoritative. See the 'requires',
 | Distribution              | Module used - Description            | Min. ver. |
 |---------------------------+--------------------------------------+-----------|
 | Graph                     | * Graph::Directed - NA               |   None    |
+|                           | * Graph::Undirected - NA             |   None    |
 |==============================================================================|
 | Used by:                                                                     |
 |------------------------------------------------------------------------------|
 | * Bio::PhyloNetwork - Graph::Directed                                        |
 | * Bio::Ontology::SimpleGOEngine::GraphAdaptor - Graph::Directed              |
+| * Bio::Assembly::Tools::ContigSpectrum - Graph::Undirected                   |
  ==============================================================================
  ==============================================================================
 | Distribution              | Module used - Description            | Min. ver. |
