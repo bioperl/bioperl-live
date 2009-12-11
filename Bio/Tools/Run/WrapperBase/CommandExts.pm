@@ -415,6 +415,7 @@ no warnings qw(redefine);
 
 use Bio::Root::Root;
 use File::Spec;
+use IPC::Run;
 use base qw(Bio::Root::Root Bio::ParameterBaseI);
 
 our $AUTOLOAD;
@@ -596,7 +597,6 @@ sub program_dir {
 
 sub _translate_params {
   my ($self)   = @_;
-
   # Get option string
   my ($params, $switches, $join, $dash, $translat) =
       @{$self->{_options}}{qw(_params _switches _join _dash _translation)};
@@ -605,7 +605,7 @@ sub _translate_params {
   my @dash_args;
   $dash ||= 1; # default as advertised
   for ($dash) {
-      $_ == 1 && do {
+      $_ eq '1' && do {
 	  @dash_args = ( -dash => 1 );
 	  last;
       };
@@ -642,7 +642,8 @@ sub _translate_params {
 	if ($name =~ /command/i) {
 	    $name = $options[$i+2]; # get the command
 	    splice @options, $i, 4;
-	    unshift @options, $name; # put it first
+	    # don't add the command if this is a pseudo-program
+	    unshift @options, $name unless ($self->is_pseudo); # put command first
 	}
 	elsif (defined $$translat{$name}) {
 	    $options[$i] = $prefix.$$translat{$name};
@@ -897,7 +898,7 @@ sub _collate_subcmd_args {
  Title   : _run
  Usage   : $fac->_run( @file_args )
  Function: Run a command as specified during object contruction
- Returns : 
+ Returns : true on success
  Args    : a specification of the files to operate on according
            to the filespec
 
@@ -978,8 +979,7 @@ sub _run {
 	$self->throw("$exe call crashed: $@");
     }
 
-    # return arguments as specified on call
-    return @args;
+    return 1;
 }
 
 =head2 stdout()
