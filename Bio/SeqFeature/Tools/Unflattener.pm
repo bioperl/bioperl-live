@@ -2393,6 +2393,73 @@ sub _resolve_container_for_sf{
                $inside = 0;
            }
        }
+
+       # SPECIAL CASE FOR /ribosomal_slippage
+       # See: http://www.ncbi.nlm.nih.gov/collab/FT/
+       if (!$inside && $sf->has_tag('ribosomal_slippage')) {
+	   if ($self->verbose > 0) {
+	       printf STDERR "    Checking for ribosomal_slippage\n";
+	   }
+	   my @transcript_splice_sites = @container_coords;
+	   my @cds_splice_sites = @coords;
+	   # find the the first splice site within the CDS
+	   while (scalar(@transcript_splice_sites) &&
+		  $transcript_splice_sites[0] < $cds_splice_sites[0]) {
+	       shift @transcript_splice_sites;
+	   }
+
+	   if ($transcript_splice_sites[0] == $cds_splice_sites[0]) {
+	       my @slips = ();
+	       my $in_exon = 1;
+	       $inside = 1;   # innocent until proven guilty..
+	       while (@cds_splice_sites) {
+		   if (!@transcript_splice_sites) {
+		       $inside = 0; # guilty!
+		       last;
+		   }
+		   if ($cds_splice_sites[0] == $transcript_splice_sites[0]) {
+		       shift @cds_splice_sites;
+		       shift @transcript_splice_sites;
+		   }
+		   else {
+		       # mismatch
+		       if ($cds_splice_sites[0] < $transcript_splice_sites[0]) {
+			   # potential slippage
+			   #             v
+			   # ---TTTTTTTTTT----
+			   # ---CCCC--CCCC----
+			   #       ^
+			   my $p1 = shift @cds_splice_sites;
+			   my $p2 = shift @cds_splice_sites;
+			   if ($self->verbose > 0) {
+			       printf STDERR "    Found the ribosomal_slippage: $p1..$p2\n";
+			   }
+			   push(@slips, ($p2-$p1)-1);
+		       }
+		       else {
+			   # not a potential ribosomal slippage
+			   $inside = 0; # guilty!
+			   last;
+		       }
+		   }
+	       }
+	       if ($inside) {
+		   # TODO: this is currently completely arbitrary. How many ribosomal slippages do we allow?
+		   # perhaps we need some mini-statistical model here....?
+		   if (@slips > 1) {
+		       $inside = 0;
+		   }
+		   # TODO: this is currently completely arbitrary. What is the maximum size of a ribosomal slippage?
+		   # perhaps we need some mini-statistical model here....?
+		   if (grep {$_ > 2} @slips) {
+		       $inside = 0;
+		   }
+	       }
+	   }
+	   else {
+	       # not a ribosomal_slippage, sorry
+	   }
+       }
        if ($self->verbose > 0) {
 	   printf STDERR "    Checking containment:[$inside] (@container_coords) IN ($splice_uniq_str)\n";
        }
@@ -2404,7 +2471,6 @@ sub _resolve_container_for_sf{
 		$_=>$score);
        }
    }
-   # return array ( $sf1=>$score1, $sf2=>$score2, ...)
    return @sf_score_pairs;
 }
 
