@@ -93,6 +93,7 @@ use strict;
 
 use Bio::Seq;
 use Bio::Seq::SeqFactory;
+use Bio::Species;
 use XML::LibXML;
 use XML::LibXML::Reader;
 
@@ -139,7 +140,7 @@ sub next_seq {
 =cut
 
 sub write_seq {
-    my ($self, $seq) = @_;
+    my ( $self, $seq ) = @_;
     $self->throw("SeqXML writing not implemented yet.");
 }
 
@@ -181,7 +182,7 @@ sub _initialize {
 
         # data structures used during parsing
         ## holds version and source data
-        $self->{'_seqxml_metadata'}    = {};
+        $self->{'_seqxml_metadata'} = {};
         ## holds data temporarily during parsing
         $self->{'_current_entry_data'} = {};
 
@@ -308,7 +309,7 @@ sub processXMLnode {
         );
     }
 
-    if ($self->debug) {
+    if ( $self->debug ) {
         printf "%d %d %s %d\n",
           (
             $reader->depth, $reader->nodeType,
@@ -392,15 +393,40 @@ sub element_entry {
 
  Title   : element_entry
  Usage   : $self->element_entry
- Function: processes a <species> node
+ Function: processes a <species> node, creating a Bio::Species object
  Returns : none
  Args    : none
+ Throws  : Exception if <species> tag exists but is empty,
+           or if the attributes 'name' or 'ncbiTaxID' are undefined
 
 =cut
 
 sub element_species {
     my ($self) = @_;
     my $reader = $self->{'_reader'};
+    my $data   = $self->{'_current_entry_data'};
+
+    my $species_data = {};
+    my $species_obj;
+
+    if ( $reader->hasAttributes() ) {
+        $self->processAttribute($species_data);
+    }
+    else {
+        $self->throw("no species information!");
+    }
+
+    if (   defined $species_data->{'name'}
+        && defined $species_data->{'ncbiTaxID'} )
+    {
+        $species_obj =
+          Bio::Species->new( -ncbi_taxid => $species_data->{'ncbiTaxID'}, );
+        $species_obj->species( $species_data->{'name'} );
+        $data->{'species'} = $species_obj;
+    }
+    else {
+        $self->throw("<species> attributes name and ncbiTaxID are undefined");
+    }
 
 }
 
@@ -432,6 +458,10 @@ sub element_description {
 sub element_rnaSeq {
     my ($self) = @_;
     my $reader = $self->{'_reader'};
+
+    my $data = $self->{'_current_entry_data'};
+    $data->{'alphabet'} = 'rna';
+    $data->{'sequence'} = $data->{'rnaSeq'};
 
 }
 
@@ -600,29 +630,31 @@ sub end_element_entry {
     my $data = $self->{'_current_entry_data'};
 
     # make sure we've got at least a seq, an ID, and an alphabet
-    unless ($data->{'sequence'}) {
-        $self->throw("this entry lacks a sequence")
+    unless ( $data->{'sequence'} ) {
+        $self->throw("this entry lacks a sequence");
     }
-    unless ($data->{'id'}) {
-        $self->throw("this entry lacks an id")
+    unless ( $data->{'id'} ) {
+        $self->throw("this entry lacks an id");
     }
-    unless ($data->{'alphabet'}) {
-        $self->throw("this entry lacks an alphabet")
+    unless ( $data->{'alphabet'} ) {
+        $self->throw("this entry lacks an alphabet");
     }
 
     # create new sequnce object with minimum necessary parameters
     my $seq_obj = $self->sequence_factory->create(
-        -seq      => $data->{'sequence'},
-        -alphabet => $data->{'alphabet'},
-        -id       => $data->{'id'},
+        -seq        => $data->{'sequence'},
+        -alphabet   => $data->{'alphabet'},
+        -id         => $data->{'id'},
         -primary_id => $data->{'id'},
     );
 
     # add additional parameters if available
-    if ($data->{'description'}) {
-        $seq_obj->desc($data->{'description'});
+    if ( $data->{'description'} ) {
+        $seq_obj->desc( $data->{'description'} );
     }
-
+    if ( $data->{'species'} ) {
+        $seq_obj->species( $data->{'species'} );
+    }
 
     # empty the temporary data store
     $self->{'_current_entry_data'} = {};
@@ -645,6 +677,5 @@ sub end_element_default {
     my $reader = $self->{'_reader'};
 
 }
-
 
 1;

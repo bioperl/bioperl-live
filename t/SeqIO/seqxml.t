@@ -6,7 +6,7 @@ use strict;
 BEGIN {
     use Bio::Root::Test;
     test_begin(
-        -tests            => 12,
+        -tests            => 14,
         -requires_modules => [qw(XML::LibXML XML::LibXML::Reader)]
     );
 
@@ -48,6 +48,9 @@ SKIP: {
     is($seq_obj->desc, 'Blah ... ', 'description');
     is($seq_obj->seq, 'AAGGC----UGAUGUC.....ACAU', 'sequence');
     is($seq_obj->length, 25, 'length');
-    is($seq_obj->species, 'Homo sapiens', 'species');
+    isa_ok($seq_obj->species, 'Bio::Species', 'species');
+    is($seq_obj->species->species, 'Homo sapiens', 'species name');
+    is($seq_obj->species->ncbi_taxid, '9606', 'NCBI tax id');
+    
 
 }
