@@ -94,6 +94,7 @@ use strict;
 use Bio::Seq;
 use Bio::Seq::SeqFactory;
 use Bio::Species;
+use Bio::Annotation::DBLink;
 use XML::LibXML;
 use XML::LibXML::Reader;
 
@@ -104,7 +105,7 @@ use base qw(Bio::SeqIO);
  Title   : next_seq
  Usage   : $seq = $stream->next_seq()
  Function: returns the next sequence in the stream
- Returns : L<Bio::Seq::RichSeq> object, or nothing if no more available
+ Returns : L<Bio::Seq> object, or nothing if no more available
  Args    : none
 
 =cut
@@ -163,7 +164,7 @@ sub _initialize {
         $self->sequence_factory(
             Bio::Seq::SeqFactory->new(
                 -verbose => $self->verbose(),
-                -type    => 'Bio::Seq::RichSeq',
+                -type    => 'Bio::Seq',
             )
         );
     }
@@ -230,14 +231,14 @@ sub _initialize_seqxml_node_methods {
     $self->{'_start_elements'} = \%start_elements;
 
     my %end_elements = (
-        'seqXML'        => \&end_element_seqXML,
+        'seqXML'        => \&end_element_default,
         'entry'         => \&end_element_entry,
         'species'       => \&end_element_default,
         'description'   => \&end_element_default,
         'rnaSeq'        => \&end_element_rnaSeq,
         'dnaSeq'        => \&end_element_dnaSeq,
         'aaSeq'         => \&end_element_aaSeq,
-        'alternativeID' => \&end_element_alternativeID,
+        'alternativeID' => \&end_element_default,
         'property'      => \&end_element_default,
     );
     $self->{'_end_elements'} = \%end_elements;
@@ -255,6 +256,8 @@ sub _initialize_seqxml_node_methods {
  Function: reads the XML node and processes according to the node type
  Returns : none
  Args    : none
+ Throws  : Exception on unexpected XML node type, warnings on unexpected
+           XML element names.
 
 =cut
 
@@ -274,14 +277,6 @@ sub processXMLnode {
             my $name = $reader->name;
             $self->warn("unexpected start element encountered: $name");
         }
-
-        # if ( $reader->isEmptyElement ) {
-        #     # element is complete
-        #     # set nodetype so it can jump and
-        #     # do procedures for XML_READER_TYPE_END_ELEMENT
-        #     $nodetype = XML_READER_TYPE_END_ELEMENT;
-        # }
-
     }
     elsif ( $nodetype == XML_READER_TYPE_TEXT ) {
 
@@ -356,7 +351,8 @@ sub element_seqXML {
     my ($self) = @_;
     my $reader = $self->{'_reader'};
 
-    # reset for every new <seqXML></seqXML> block
+    # reset for every new <seqXML> block
+    $self->{'_seqxml_metadata'} = {};
 
     if ( $reader->hasAttributes() ) {
         $self->processAttribute( $self->{'_seqxml_metadata'} );
@@ -434,7 +430,9 @@ sub element_species {
 
  Title   : element_description
  Usage   : $self->element_description
- Function: processes a sequence <description> node
+ Function: processes a sequence <description> node;
+           a no-op -- description text is read by
+           processXMLnode
  Returns : none
  Args    : none
 
@@ -442,7 +440,6 @@ sub element_species {
 
 sub element_description {
     my ($self) = @_;
-    my $reader = $self->{'_reader'};
 }
 
 =head2 element_rnaSeq
@@ -509,7 +506,8 @@ sub element_aaSeq {
 
  Title   : element_alternativeID
  Usage   : $self->element_alternativeID
- Function: processes a sequence <alternativeID> node
+ Function: processes a sequence <alternativeID> node,
+           creating a Bio::Annotation::DBLink object
  Returns : none
  Args    : none
 
@@ -518,14 +516,39 @@ sub element_aaSeq {
 sub element_alternativeID {
     my ($self) = @_;
     my $reader = $self->{'_reader'};
+    my $data   = $self->{'_current_entry_data'};
 
+    my $alternativeID = {};
+    my $annotation_obj;
+
+    if ( $reader->hasAttributes() ) {
+        $self->processAttribute($alternativeID);
+    }
+    else {
+        $self->throw("no alternative ID data!");
+    }
+
+    if (   defined $alternativeID->{'source'}
+        && defined $alternativeID->{'id'} )
+    {
+        $annotation_obj = Bio::Annotation::DBLink->new(
+            -primary_id => $alternativeID->{'id'},
+            -database   => $alternativeID->{'source'},
+            -tagname    => 'dblink',
+        );
+        push @{ $data->{'alternativeIDs'} }, $annotation_obj;
+    }
+    else {
+        $self->throw("malformed alternative ID data!");
+    }
 }
 
 =head2 element_property
 
  Title   : element_property
  Usage   : $self->element_property
- Function: processes a sequence <property> node
+ Function: processes a sequence <property> node, creating a
+           Bio::Annotation::SimpleValue object
  Returns : none
  Args    : none
 
@@ -534,23 +557,50 @@ sub element_alternativeID {
 sub element_property {
     my ($self) = @_;
     my $reader = $self->{'_reader'};
+    my $data   = $self->{'_current_entry_data'};
 
+    my $property = {};
+    my $annotation_obj;
+
+    if ( $reader->hasAttributes() ) {
+        $self->processAttribute($property);
+    }
+    else {
+        $self->throw("no property data!");
+    }
+
+    if (defined $property->{'name'}) {
+        $annotation_obj = Bio::Annotation::SimpleValue->new(
+            -tagname => $property->{'name'});
+            
+        if (defined $property->{'value'}) {
+            $annotation_obj->value($property->{'value'});
+        }
+        
+        push @{ $data->{'properties'} }, $annotation_obj;
+    }
+    else {
+        $self->throw("malformated property!");
+    }
 }
 
-=head2 end_element_seqXML
+=head2 end_element_rnaSeq
 
- Title   : end_element_seqXML
- Usage   : $self->end_element_seqXML
- Function: processes the closing </seqXML> node
+ Title   : end_element_rnaSeq
+ Usage   : $self->end_element_rnaSeq
+ Function: processes a sequence <rnaSeq> node
  Returns : none
  Args    : none
 
 =cut
 
-sub end_element_seqXML {
+sub end_element_rnaSeq {
     my ($self) = @_;
     my $reader = $self->{'_reader'};
 
+    my $data = $self->{'_current_entry_data'};
+    $data->{'alphabet'} = 'rna';
+    $data->{'sequence'} = $data->{'rnaSeq'};
 }
 
 =head2 end_element_dnaSeq
@@ -571,25 +621,6 @@ sub end_element_dnaSeq {
     $data->{'alphabet'} = 'dna';
     $data->{'sequence'} = $data->{'dnaSeq'};
 
-}
-
-=head2 end_element_rnaSeq
-
- Title   : end_element_rnaSeq
- Usage   : $self->end_element_rnaSeq
- Function: processes a sequence <rnaSeq> node
- Returns : none
- Args    : none
-
-=cut
-
-sub end_element_rnaSeq {
-    my ($self) = @_;
-    my $reader = $self->{'_reader'};
-
-    my $data = $self->{'_current_entry_data'};
-    $data->{'alphabet'} = 'rna';
-    $data->{'sequence'} = $data->{'rnaSeq'};
 }
 
 =head2 end_element_aaSeq
@@ -617,7 +648,7 @@ sub end_element_aaSeq {
  Title   : end_element_entry
  Usage   : $self->end_element_entry
  Function: processes the closing </entry> node, creating the Seq object
- Returns : a Bio::Seq::RichSeq object
+ Returns : a Bio::Seq object
  Args    : none
  Throws  : Exception if sequence, sequence ID, or alphabet are missing
 
@@ -655,6 +686,16 @@ sub end_element_entry {
     if ( $data->{'species'} ) {
         $seq_obj->species( $data->{'species'} );
     }
+    if ( $data->{'alternativeIDs'} ) {
+        foreach my $annotation_obj ( @{ $data->{'alternativeIDs'} } ) {
+            $seq_obj->add_Annotation($annotation_obj);
+        }
+    }
+    if ( $data->{'properties'} ) {
+        foreach my $annotation_obj ( @{ $data->{'properties'} } ) {
+            $seq_obj->add_Annotation($annotation_obj);
+        }
+    }
 
     # empty the temporary data store
     $self->{'_current_entry_data'} = {};
@@ -666,7 +707,8 @@ sub end_element_entry {
 
  Title   : end_element_default
  Usage   : $self->end_element_default
- Function: processes all other nodes
+ Function: processes all other closing tags;
+           a no-op.
  Returns : none
  Args    : none
 
@@ -674,8 +716,6 @@ sub end_element_entry {
 
 sub end_element_default {
     my ($self) = @_;
-    my $reader = $self->{'_reader'};
-
 }
 
 1;

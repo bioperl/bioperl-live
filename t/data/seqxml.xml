@@ -1,25 +1,24 @@
 <?xml version="1.0"?>
-<seqXML source="Ensembl" sourceVersion="52" seqXMLversion="0.1">
+<seqXML source="Ensembl" sourceVersion="56" seqXMLversion="0.1">
     <entry id="ENSG00000173402">
         <species name="Homo sapiens" ncbiTaxID="9606"/>
-        <description>Blah ... </description>
+        <description>dystroglycan 1</description>
         <rnaSeq>AAGGC----UGAUGUC.....ACAU</rnaSeq>
-        <alternativeID source="GenBank" id="1234"/>
-        <property name="" value=""/>
-        <property name=""/>
+        <alternativeID source="GenBank" id="NM_004393"/>
+        <property name="prediction_method" value="manual curation"/>
+        <property name="has_splice_variants"/>
     </entry>
     <entry id="ENSG000001734023">
         <species name="Homo sapiens" ncbiTaxID="9606"/>
-        <description>Blah2 ... </description>
+        <description>example description.</description>
         <aaSeq>AAGGCGAAA----AA*AAAAAGT.....CACJOXA</aaSeq>
     </entry>
     <entry id="ENSG0000017340233">
         <species name="Homo sapiens" ncbiTaxID="9606"/>
-        <description>Blah2 ... </description>
+        <description>another example description</description>
         <dnaSeq>AAGGCGTTAAA----AAAAAAAGT.....CACTA</dnaSeq>
     </entry>
     <entry id="A12345">
         <dnaSeq>NNNNACTG--AAATGTGCCCGGG</dnaSeq>
     </entry>
-    
 </seqXML>
