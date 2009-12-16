@@ -37,7 +37,7 @@ Bio::SeqIO::seqxml - SeqXML sequence input/output stream
   
   # write a SeqXML file
   #
-  # Note that you can (optionally) specify the sequence source
+  # Note that you can (optionally) specify the source
   # (usually a database) and source version.
   my $seqwriter = Bio::SeqIO->new(-format        => 'seqxml',
                                   -file          => ">outfile.xml",
@@ -49,6 +49,10 @@ Bio::SeqIO::seqxml - SeqXML sequence input/output stream
 
 This object can transform Bio::Seq objects to and from SeqXML format.
 For more information on the SeqXML standard, visit L<http://www.seqxml.org>.
+
+In short, SeqXML is a lightweight sequence format that takes advantage
+of the validation capabilities of XML while not overburdening the user
+with a strict and complicated schema.
 
 This module is based in part (particularly the XML-parsing part) on 
 Bio::TreeIO::phyloxml by Mira Han.
@@ -112,6 +116,94 @@ use XML::LibXML::Reader;
 use XML::Writer;
 
 use base qw(Bio::SeqIO);
+
+=head2 _initialize
+
+ Title   : _initialize
+ Usage   : $self->_initialize(@args) 
+ Function: constructor (for internal use only).
+ 
+           Besides the usual SeqIO arguments (-file, -fh, etc.),
+           Bio::SeqIO::seqxml accepts three arguments which are used
+           when writing out a seqxml file. They are all optional.
+ Returns : none
+ Args    : -source         => source string (usually a database name)
+           -sourceVersion  => source version. The version number of the source
+           -seqXMLversion  => the version of seqXML that will be used
+ Throws  : Exception if XML::LibXML::Reader or XML::Writer
+           is not initialized
+
+=cut
+
+sub _initialize {
+    my ( $self, @args ) = @_;
+
+    $self->SUPER::_initialize(@args);
+    if ( !defined $self->sequence_factory ) {
+        $self->sequence_factory(
+            Bio::Seq::SeqFactory->new(
+                -verbose => $self->verbose(),
+                -type    => 'Bio::Seq',
+            )
+        );
+    }
+
+    # holds version and source data
+    $self->{'_seqxml_metadata'} = {};
+
+    # load any passed parameters
+    my %params = @args;
+    if ($params{'-sourceVersion'}) {
+        $self->sourceVersion($params{'-sourceVersion'});
+    }
+    if ($params{'-source'}) {
+        $self->source($params{'-source'});
+    }
+    if ($params{'-seqXMLversion'}) {
+        $self->seqXMLversion($params{'-seqXMLversion'});
+    }
+    # reading in SeqXML
+    if ( $self->mode eq 'r' ) {
+        if ( $self->_fh ) {
+            $self->{'_reader'} = XML::LibXML::Reader->new(
+                IO        => $self->_fh,
+                no_blanks => 1,
+            );
+        }
+        if ( !$self->{'_reader'} ) {
+            $self->throw("XML::LibXML::Reader not initialized");
+        }
+
+        # holds data temporarily during parsing
+        $self->{'_current_entry_data'} = {};
+
+        $self->_initialize_seqxml_node_methods();
+    }
+
+    # writing out SeqXML
+    elsif ( $self->mode eq 'w' ) {
+        if ( $self->_fh ) {
+            $self->{'_writer'} = XML::Writer->new(
+                OUTPUT      => $self->_fh,
+                DATA_MODE   => 1,
+                DATA_INDENT => 1,
+            );
+            if ( !$self->{'_writer'} ) {
+                $self->throw("XML::Writer not initialized");
+            }
+
+            # write SeqXML header
+            $self->{'_writer'}->xmlDecl("UTF-8");
+            $self->{'_writer'}->startTag(
+                'seqXML',
+                'source'        => $self->source,
+                'sourceVersion' => $self->sourceVersion,
+                'seqXMLversion' => $self->seqXMLversion,
+            );
+        }
+    }
+
+}
 
 =head2 next_seq
 
@@ -253,94 +345,6 @@ sub write_seq {
         $self->flush if $self->_flush_on_write && defined $self->_fh;
         return 1;
     }
-}
-
-=head2 _initialize
-
- Title   : _initialize
- Usage   : $self->_initialize(@args) 
- Function: constructor (for internal use only).
- 
-           Besides the usual SeqIO arguments (-file, -fh, etc.),
-           Bio::SeqIO::seqxml accepts three arguments which are used
-           when writing out a seqxml file. They are all optional.
- Returns : none
- Args    : -source         => source string (usually a database name)
-           -sourceVersion  => source version. The version number of the source
-           -seqXMLversion  => the version of seqXML that will be used
- Throws  : Exception if XML::LibXML::Reader or XML::Writer
-           is not initialized
-
-=cut
-
-sub _initialize {
-    my ( $self, @args ) = @_;
-
-    $self->SUPER::_initialize(@args);
-    if ( !defined $self->sequence_factory ) {
-        $self->sequence_factory(
-            Bio::Seq::SeqFactory->new(
-                -verbose => $self->verbose(),
-                -type    => 'Bio::Seq',
-            )
-        );
-    }
-
-    # holds version and source data
-    $self->{'_seqxml_metadata'} = {};
-
-    # load any passed parameters
-    my %params = @args;
-    if ($params{'-sourceVersion'}) {
-        $self->sourceVersion($params{'-sourceVersion'});
-    }
-    if ($params{'-source'}) {
-        $self->source($params{'-source'});
-    }
-    if ($params{'-seqXMLversion'}) {
-        $self->seqXMLversion($params{'-seqXMLversion'});
-    }
-    # reading in SeqXML
-    if ( $self->mode eq 'r' ) {
-        if ( $self->_fh ) {
-            $self->{'_reader'} = XML::LibXML::Reader->new(
-                IO        => $self->_fh,
-                no_blanks => 1,
-            );
-        }
-        if ( !$self->{'_reader'} ) {
-            $self->throw("XML::LibXML::Reader not initialized");
-        }
-
-        # holds data temporarily during parsing
-        $self->{'_current_entry_data'} = {};
-
-        $self->_initialize_seqxml_node_methods();
-    }
-
-    # writing out SeqXML
-    elsif ( $self->mode eq 'w' ) {
-        if ( $self->_fh ) {
-            $self->{'_writer'} = XML::Writer->new(
-                OUTPUT      => $self->_fh,
-                DATA_MODE   => 1,
-                DATA_INDENT => 1,
-            );
-            if ( !$self->{'_writer'} ) {
-                $self->throw("XML::Writer not initialized");
-            }
-
-            # write SeqXML header
-            $self->{'_writer'}->xmlDecl("UTF-8");
-            $self->{'_writer'}->startTag(
-                'seqXML',
-                'source'        => $self->source,
-                'sourceVersion' => $self->sourceVersion,
-                'seqXMLversion' => $self->seqXMLversion,
-            );
-        }
-    }
-
 }
 
 =head2 _initialize_seqxml_node_methods
