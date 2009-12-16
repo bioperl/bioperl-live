@@ -22,16 +22,28 @@ Bio::SeqIO::seqxml - SeqXML sequence input/output stream
   # Do not use this module directly.  Use it via the Bio::SeqIO class.
 
   use Bio::SeqIO;
+  
+  # read a SeqXML file
   my $seqio = Bio::SeqIO->new(-format => 'seqxml',
                               -file   => 'my_seqs.xml');
 
-  my $seq_object = $seqio->next_seq;
-
-  print join("\t", 
-             $seq_object->display_id,
-             $seq_object->description,
-             $seq_object->seq,           
-            ), "\n";
+  while (my $seq_object = $seqio->next_seq) {
+      print join("\t", 
+                 $seq_object->display_id,
+                 $seq_object->description,
+                 $seq_object->seq,           
+                ), "\n";
+  }
+  
+  # write a SeqXML file
+  #
+  # Note that you can (optionally) specify the sequence source
+  # (usually a database) and source version.
+  my $seqwriter = Bio::SeqIO->new(-format        => 'seqxml',
+                                  -file          => ">outfile.xml",
+                                  -source        => 'Ensembl',
+                                  -sourceVersion => '56');
+  $seqwriter->write_seq($seq_object);
 
 =head1 DESCRIPTION
 
@@ -97,6 +109,7 @@ use Bio::Species;
 use Bio::Annotation::DBLink;
 use XML::LibXML;
 use XML::LibXML::Reader;
+use XML::Writer;
 
 use base qw(Bio::SeqIO);
 
@@ -141,18 +154,122 @@ sub next_seq {
 =cut
 
 sub write_seq {
-    my ( $self, $seq ) = @_;
-    $self->throw("SeqXML writing not implemented yet.");
+    my ( $self, @seqs ) = @_;
+    my $writer = $self->{'_writer'};
+
+    foreach my $seqobj (@seqs) {
+        $self->throw("Trying to write with no seq!") unless defined $seqobj;
+
+        if ( !ref $seqobj || !$seqobj->isa('Bio::SeqI') ) {
+            $self->warn(
+" $seqobj is not a SeqI compliant module. Attempting to dump, but may fail!"
+            );
+        }
+
+        # opening tag and ID
+        my $id = $seqobj->display_id;
+        if ($id) {
+            $writer->startTag( 'entry', 'id' => $id );
+        }
+        else {
+            $self->throw(" $seqobj has no ID!");
+        }
+
+        # species and NCBI taxID
+        if ( $seqobj->species ) {
+            my $name  = $seqobj->species->species;
+            my $taxid = $seqobj->species->ncbi_taxid;
+            if ( $name && ( $taxid =~ /[0-9]+/ ) ) {
+                $writer->emptyTag(
+                    'species',
+                    'name'      => $seqobj->species->species,
+                    'ncbiTaxID' => $seqobj->species->ncbi_taxid
+                );
+            }
+            else {
+                $self->throw("$seqobj has malformed species data");
+            }
+        }
+
+        # description
+        if ( $seqobj->desc ) {
+            $writer->dataElement( 'description', $seqobj->desc );
+        }
+
+        # sequence
+        if ( $seqobj->seq ) {
+            my $alphabet = $seqobj->alphabet;
+            my %seqtype  = (
+                'rna'     => 'rnaSeq',
+                'dna'     => 'dnaSeq',
+                'protein' => 'aaSeq'
+            );
+            unless ( exists( $seqtype{$alphabet} ) ) {
+                $self->throw("invalid sequence alphabet $alphabet!");
+            }
+            $writer->dataElement( $seqtype{$alphabet}, $seqobj->seq );
+        }
+
+        # alternative IDs
+        my @dblinks = $seqobj->get_Annotations('dblink');
+        foreach my $dblink (@dblinks) {
+            unless ( $dblink->database && $dblink->primary_id ) {
+                $self->throw("dblink $dblink is malformed");
+            }
+            $writer->emptyTag(
+                'alternativeID',
+                'source' => $dblink->database,
+                'id'     => $dblink->primary_id,
+            );
+        }
+
+        # properties
+        my @annotations = $seqobj->get_Annotations();
+        foreach my $annot_obj (@annotations) {
+            next if ( $annot_obj->tagname eq 'dblink' );
+            unless ( $annot_obj->tagname ) {
+                $self->throw("property $annot_obj is missing a tagname");
+            }
+            if ( $annot_obj->value ) {
+                $writer->emptyTag(
+                    'property',
+                    'name'  => $annot_obj->tagname,
+                    'value' => $annot_obj->value,
+                );
+            }
+            else {
+                $writer->emptyTag(
+                    'property',
+                    'name' => $annot_obj->tagname,
+                );
+            }
+
+        }
+
+        # closing tag
+        $writer->endTag('entry');
+
+        # make sure it gets written to the file
+        $self->flush if $self->_flush_on_write && defined $self->_fh;
+        return 1;
+    }
 }
 
 =head2 _initialize
 
  Title   : _initialize
  Usage   : $self->_initialize(@args) 
- Function: constructor (for internal use only)
+ Function: constructor (for internal use only).
+ 
+           Besides the usual SeqIO arguments (-file, -fh, etc.),
+           Bio::SeqIO::seqxml accepts three arguments which are used
+           when writing out a seqxml file. They are all optional.
  Returns : none
- Args    : none
- Throws  : Exception if XML::LibXML::Reader is not initialized
+ Args    : -source         => source string (usually a database name)
+           -sourceVersion  => source version. The version number of the source
+           -seqXMLversion  => the version of seqXML that will be used
+ Throws  : Exception if XML::LibXML::Reader or XML::Writer
+           is not initialized
 
 =cut
 
@@ -169,22 +286,33 @@ sub _initialize {
         );
     }
 
+    # holds version and source data
+    $self->{'_seqxml_metadata'} = {};
+
+    # load any passed parameters
+    my %params = @args;
+    if ($params{'-sourceVersion'}) {
+        $self->sourceVersion($params{'-sourceVersion'});
+    }
+    if ($params{'-source'}) {
+        $self->source($params{'-source'});
+    }
+    if ($params{'-seqXMLversion'}) {
+        $self->seqXMLversion($params{'-seqXMLversion'});
+    }
     # reading in SeqXML
     if ( $self->mode eq 'r' ) {
         if ( $self->_fh ) {
             $self->{'_reader'} = XML::LibXML::Reader->new(
                 IO        => $self->_fh,
-                no_blanks => 1
+                no_blanks => 1,
             );
         }
         if ( !$self->{'_reader'} ) {
             $self->throw("XML::LibXML::Reader not initialized");
         }
 
-        # data structures used during parsing
-        ## holds version and source data
-        $self->{'_seqxml_metadata'} = {};
-        ## holds data temporarily during parsing
+        # holds data temporarily during parsing
         $self->{'_current_entry_data'} = {};
 
         $self->_initialize_seqxml_node_methods();
@@ -192,13 +320,25 @@ sub _initialize {
 
     # writing out SeqXML
     elsif ( $self->mode eq 'w' ) {
+        if ( $self->_fh ) {
+            $self->{'_writer'} = XML::Writer->new(
+                OUTPUT      => $self->_fh,
+                DATA_MODE   => 1,
+                DATA_INDENT => 1,
+            );
+            if ( !$self->{'_writer'} ) {
+                $self->throw("XML::Writer not initialized");
+            }
 
-        # print default lines
-        $self->_print( '<?xml version="1.0" encoding="UTF-8"?>', "\n" );
-        $self->_print(
-'<seqxml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.seqxml.org http://www.seqxml.org/1.00/seqxml.xsd" xmlns="http://www.seqxml.org">',
-            "\n"
-        );
+            # write SeqXML header
+            $self->{'_writer'}->xmlDecl("UTF-8");
+            $self->{'_writer'}->startTag(
+                'seqXML',
+                'source'        => $self->source,
+                'sourceVersion' => $self->sourceVersion,
+                'seqXMLversion' => $self->seqXMLversion,
+            );
+        }
     }
 
 }
@@ -243,6 +383,74 @@ sub _initialize_seqxml_node_methods {
     );
     $self->{'_end_elements'} = \%end_elements;
 
+}
+
+=head2 source
+
+ Title   : source
+ Usage   : $self->source
+ Function: gets/sets the data source in the <seqXML> header
+ Returns : the data source string
+ Args    : To set the source, call with a source string as the argument.
+
+=cut
+
+sub source {
+    my ( $self, $value ) = @_;
+    my $metadata = $self->{'_seqxml_metadata'};
+
+    # set if a value is supplied
+    if ($value) {
+        $metadata->{'source'} = $value;
+    }
+
+    return $metadata->{'source'};
+}
+
+=head2 sourceVersion
+
+ Title   : sourceVersion
+ Usage   : $self->sourceVersion
+ Function: gets/sets the data source version in the <seqXML> header
+ Returns : the data source version string
+ Args    : To set the source version, call with a source version string
+           as the argument.
+
+=cut
+
+sub sourceVersion {
+    my ( $self, $value ) = @_;
+    my $metadata = $self->{'_seqxml_metadata'};
+
+    # set if a value is supplied
+    if ($value) {
+        $metadata->{'sourceVersion'} = $value;
+    }
+
+    return $metadata->{'sourceVersion'};
+}
+
+=head2 seqXMLversion
+
+ Title   : seqXMLversion
+ Usage   : $self->seqXMLversion
+ Function: gets/sets the seqXML version in the <seqXML> header
+ Returns : the seqXML version string.
+ Args    : To set the seqXML version, call with a seqXML version string
+           as the argument.
+
+=cut
+
+sub seqXMLversion {
+    my ( $self, $value ) = @_;
+    my $metadata = $self->{'_seqxml_metadata'};
+
+    # set if a value is supplied
+    if ($value) {
+        $metadata->{'seqXMLversion'} = $value;
+    }
+
+    return $metadata->{'seqXMLversion'};
 }
 
 =head1 Methods for parsing the XML document
@@ -569,14 +777,14 @@ sub element_property {
         $self->throw("no property data!");
     }
 
-    if (defined $property->{'name'}) {
-        $annotation_obj = Bio::Annotation::SimpleValue->new(
-            -tagname => $property->{'name'});
-            
-        if (defined $property->{'value'}) {
-            $annotation_obj->value($property->{'value'});
+    if ( defined $property->{'name'} ) {
+        $annotation_obj =
+          Bio::Annotation::SimpleValue->new( -tagname => $property->{'name'} );
+
+        if ( defined $property->{'value'} ) {
+            $annotation_obj->value( $property->{'value'} );
         }
-        
+
         push @{ $data->{'properties'} }, $annotation_obj;
     }
     else {
@@ -716,6 +924,27 @@ sub end_element_entry {
 
 sub end_element_default {
     my ($self) = @_;
+}
+
+=head2 DESTROY
+
+ Title   : DESTROY
+ Usage   : called automatically by Perl just before object
+           goes out of scope
+ Function: writes closing </seqXML> tag and performs a write flush
+ Returns : none
+ Args    : none
+
+=cut
+
+sub DESTROY {
+    my $self = shift;
+    if ( $self->mode eq 'w' ) {
+        $self->{'_writer'}->endTag("seqXML");
+        $self->{'_writer'}->end();
+        $self->flush if $self->_flush_on_write && defined $self->_fh;
+    }
+    $self->SUPER::DESTROY;
 }
 
 1;
