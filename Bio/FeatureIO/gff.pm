@@ -298,12 +298,20 @@ sub write_feature {
  Returns : value of fasta_mode (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
+Side effect: rewind the file handle a little bit to get the last carriage return
+that was swallowed when the previous line was processed.
 
 =cut
 
 sub fasta_mode {
   my($self,$val) = @_;
+
   $self->{'fasta_mode'} = $val if defined($val);
+
+  if ($val == 1) {
+    seek $self->_fh(), -1, 1; #rewind 1 byte to get the previous line's \n
+  }
+
   return $self->{'fasta_mode'};
 }
 
