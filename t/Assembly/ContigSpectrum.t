@@ -188,7 +188,7 @@ float_is($sum_csp->min_identity, 96.8421);
 float_is($sum_csp->avg_identity, 99.1487);
 
 # average of contig spectra
-ok(my $avg_csp = Bio::Assembly::Tools::ContigSpectrum->new, 'average contig spectrum');
+ok(my $avg_csp = Bio::Assembly::Tools::ContigSpectrum->new(-eff_asm_params=>1), 'average contig spectrum');
 ok($avg_csp = $avg_csp->average([$dissolved_csp, $mixed_csp]));
 is_deeply($avg_csp->spectrum, {1=>1, 2=>1.5, 6=>1, 9=>0.5}); # [1 1 0 0 0 1 0 0 0.5]
 is($avg_csp->eff_asm_params, 1);

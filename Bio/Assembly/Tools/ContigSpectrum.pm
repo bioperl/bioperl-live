@@ -781,7 +781,7 @@ sub average {
   }
   # New average contig spectrum object
   my $avg = Bio::Assembly::Tools::ContigSpectrum->new;
-  $avg->{'_eff_asm_params'} = 1;
+  $avg->{'_eff_asm_params'} = $self->{'_eff_asm_params'};
 
   # Cycle through contig spectra
   my $tot_nof_rep = 0;
