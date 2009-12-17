@@ -976,10 +976,29 @@ sub _run {
 	    die ("There was a problem running $exe : $!");
     };
     if ($@) {
-	$self->throw("$exe call crashed: $@");
+	$self->throw("$exe call crashed: $@") unless $self->no_throw_on_crash;
+	return 0;
     }
 
     return 1;
+}
+
+
+
+=head2 no_throw_on_crash()
+
+ Title   : no_throw_on_crash
+ Usage   : 
+ Function: prevent throw on execution error
+ Returns : 
+ Args    : [optional] boolean
+
+=cut
+
+sub no_throw_on_crash {
+    my $self = shift;
+    return $self->{'_no_throw'} = shift if @_;
+    return $self->{'_no_throw'};
 }
 
 =head2 stdout()
@@ -1055,7 +1074,7 @@ sub AUTOLOAD {
     my @args = @_;
     $tok =~ s/.*:://;
     unless ($tok =~ /^new_/) {
-	Bio::Root::Root->throw("Can't locate object method '$tok' via package '".ref($class)?ref($class):$class); 
+	$class->throw("Can't locate object method '$tok' via package '".ref($class)?ref($class):$class); 
     }
     my ($cmd) = $tok =~ m/new_(.*)/;
     return $class->new( -command => $cmd, @args );
@@ -1083,11 +1102,12 @@ sub set_parameters {
     my $translation = $opts->{'_translation'};
     my $use_dash = $opts->{'_dash'};
     my $join = $opts->{'_join'};
-    unless (grep /command/, @args) {
+    unless (($self->can('command') && $self->command) 
+	    || (grep /command/, @args)) {
 	push @args, '-command', 'run';
     }
     my %args = @args;
-    my $cmd = $args{'-command'} || $args{'command'};
+    my $cmd = $args{'-command'} || $args{'command'} || ($self->can('command') && $self->command);
     if ($cmd) {
 	my (@p,@s, %x);
 	$self->warn('Command present, but no commands registered') unless $self->{'_options'}->{'_commands'};
@@ -1146,6 +1166,12 @@ sub reset_parameters {
     my $use_dash = $opts->{'_dash'};
     my $join = $opts->{'_join'};
 
+    # handle command name
+    my %args = @args;
+    my $cmd = $args{'-command'} || $args{'command'} || $self->command;
+    $args{'command'} = $cmd;
+    delete $args{'-command'};
+    @args = %args;
     # don't like this, b/c _set_program_args will create a bunch of
     # accessors with undef values, but oh well for now /maj
 
@@ -1254,7 +1280,7 @@ sub get_parameters {
 	    last;
 	};
 	m/^a/i && do { # all
-	    for (@{$opts->{'_params'}},@{$opts->{'_switches'}}) {
+	    for ((@{$opts->{'_params'}},@{$opts->{'_switches'}})) {
 		push(@ret, $_, $self->$_) if $self->can($_) && defined $self->$_;
 	    }
 	    last;
