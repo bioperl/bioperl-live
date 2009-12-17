@@ -51,7 +51,7 @@ This object can transform Bio::Seq objects to and from SeqXML format.
 For more information on the SeqXML standard, visit L<http://www.seqxml.org>.
 
 In short, SeqXML is a lightweight sequence format that takes advantage
-of the validation capabilities of XML while not overburdening the user
+of the validation capabilities of XML while not overburdening you
 with a strict and complicated schema.
 
 This module is based in part (particularly the XML-parsing part) on 
@@ -178,6 +178,9 @@ sub _initialize {
         $self->{'_current_entry_data'} = {};
 
         $self->_initialize_seqxml_node_methods();
+        
+        # read SeqXML header
+        $self->parseHeader();
     }
 
     # writing out SeqXML
@@ -546,6 +549,39 @@ sub processAttribute {
             $data->{ $reader->name() } = $reader->value;
         } while ( $reader->moveToNextAttribute );
         $reader->moveToElement;
+    }
+}
+
+=head2 parseHeader
+
+ Title   : parseHeader
+ Usage   : $self->parseHeader();
+ Function: reads the opening <seqXML> block and grabs the metadata from it,
+           namely the source, sourceVersion, and seqXMLversion.
+ Returns : none
+ Args    : none
+ Throws  : Exception if it hits an <entry> tag, because that means it's
+           missed the <seqXML> tag and read too far into the file.
+
+=cut
+
+sub parseHeader {
+    my ($self) = @_;
+    my $reader = $self->{'_reader'};
+
+    while($reader->read) {
+        
+        # just read the header
+        if ( $reader->nodeType == XML_READER_TYPE_ELEMENT ) {
+            if ( $reader->name eq 'seqXML' ) {
+                $self->element_seqXML();
+                last;
+            }
+            elsif ( $reader->name eq 'entry' ) {
+                my $name = $reader->name;
+                $self->throw("Missed the opening <seqXML> tag. Got $name instead.");
+            }
+        }
     }
 }
 

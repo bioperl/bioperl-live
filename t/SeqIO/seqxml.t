@@ -6,7 +6,7 @@ use strict;
 BEGIN {
     use Bio::Root::Test;
     test_begin(
-        -tests            => 41,
+        -tests            => 44,
         -requires_modules => [qw(XML::LibXML XML::LibXML::Reader XML::Writer)]
     );
 
@@ -43,6 +43,12 @@ SKIP: {
         'stream ok',
     );
 
+    # check metadata
+    is( $seq_stream->seqXMLversion, '0.1',     'seqXML version' );
+    is( $seq_stream->source,        'Ensembl', 'source' );
+    is( $seq_stream->sourceVersion, '56',      'source version' );
+
+    # now get and check the sequence entry itself
     my $seq_obj = $seq_stream->next_seq;
     isa_ok( $seq_obj, 'Bio::Seq' );
     is( $seq_obj->display_id, 'ENSG00000173402',           'display id' );
