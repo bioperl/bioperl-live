@@ -975,6 +975,7 @@ sub _run {
 	IPC::Run::run(\@ipc_args, $in, $out, $err) or
 	    die ("There was a problem running $exe : $!");
     };
+
     if ($@) {
 	$self->throw("$exe call crashed: $@") unless $self->no_throw_on_crash;
 	return 0;
@@ -1176,10 +1177,10 @@ sub reset_parameters {
     # accessors with undef values, but oh well for now /maj
 
     for my $p (@$params) {
-	push(@reset_args, $p => undef) unless grep /^$p$/, @args;
+	push(@reset_args, $p => undef) unless grep /^[-]?$p$/, @args;
     }
     for my $s (@$switches) {
-	push(@reset_args, $s => undef) unless grep /^$s$/, @args;
+	push(@reset_args, $s => undef) unless grep /^[-]?$s$/, @args;
     }
     push @args, @reset_args;
     $self->set_parameters(@args);
