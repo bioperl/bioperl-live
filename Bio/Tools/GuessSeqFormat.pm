@@ -192,6 +192,10 @@ Swissprot ("swiss")
 
 Tab ("tab")
 
+=item *
+
+Crossbow ("crossbow")
+
 =back
 
 =head1 FEEDBACK
@@ -440,7 +444,8 @@ our %formats = (
     selex       => { test => \&_possibly_selex      },
     stockholm   => { test => \&_possibly_stockholm  },
     swiss       => { test => \&_possibly_swiss      },
-    tab         => { test => \&_possibly_tab        }
+    tab         => { test => \&_possibly_tab        },
+    crossbow    => { test => \&_possibly_crossbow   }
 );
 
 sub guess
@@ -960,5 +965,19 @@ sub _possibly_tab
     my ($line, $lineno) = (shift, shift);
     return ($lineno == 1 && $line =~ /^[^\t]+\t[^\t]+/) ;
 }
+
+=head2 _possibly_crossbow
+
+Contributed by kortsch.
+
+=cut
+
+sub _possibly_crossbow
+{
+    my ($line, $lineno) = (shift, shift);
+    return ($line =~ /^[[:alnum:]]+(?:\t([[:alpha:]]+)\t([ -~]+))(?:\t([[:alpha:]]+)\t([ -~]+))?$/)
+            && length($1)==length($2) && (defined($3) ? length($3):0)==(defined($4) ? length($4):0);
+}
+
 
 1;
