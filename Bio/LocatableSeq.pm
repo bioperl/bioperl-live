@@ -327,8 +327,8 @@ sub get_nse{
    $self->throw("Attribute end not set") unless defined($end);
    
    #Stockholm Rfam includes version if present so it is optional
-   my $v = $self->version ? '.'.$self->version : ''; 
-   return $id . $v. $char1 . $st . $char2 . $end ;
+   my $v = $self->version ? '.'.$self->version : '';
+   return join('',$id, $v, $char1, $st, $char2, $end);
 }
 
 =head2 force_nse
