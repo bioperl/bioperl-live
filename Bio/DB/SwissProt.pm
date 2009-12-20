@@ -470,7 +470,7 @@ sub idtracker {
     my ($self, $id) = @_;
     $self->deprecated(
          -message => 'The SwissProt IDTracker service is no longer available',
-         -warn_version    => 1.006 # warn if $VERSION is >= this version
+         -warn_version    => 1.006, # warn if $VERSION is >= this version
          -throw_version   => 1.007 # throw if $VERSION is >= this version
          );
 }
