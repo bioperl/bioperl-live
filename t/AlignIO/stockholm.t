@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 83);
+    test_begin(-tests => 84);
 	
 	use_ok('Bio::AlignIO::stockholm');
 }
@@ -77,7 +77,8 @@ is($meta_str, '...<<<<<..........>>>>>........<<<<......<<<<......>>>>>>>>'.
 $aln = $str->next_aln();
 is($aln->source, 'stockholm');
 isa_ok($aln,'Bio::Align::AlignI');
-is($aln->get_seq_by_pos(1)->get_nse, 'AJ295015.1/1-58');
+is($aln->get_seq_by_pos(1)->get_nse, 'AJ295015.1/58-1');
+is($aln->get_seq_by_pos(1)->strand, -1);
 is($aln->accession, 'RF00008');
 is($aln->id, 'Hammerhead_3');
 is($aln->description,'Hammerhead ribozyme (type III)');
