@@ -461,6 +461,7 @@ sub next_result {
         next if (/^\s+$/);       # skip empty lines
         next if (/CPU time:/);
         next if (/^>\s*$/);
+        next if (/\Q***** No hits found ******\E/);
         if (
                /^((?:\S+?)?BLAST[NPX]?)\s+(.+)$/i  # NCBI BLAST, PSIBLAST
                                                    # RPSBLAST, MEGABLAST
@@ -1801,6 +1802,10 @@ sub next_result {
                     $self->{"\_$type"}->{'begin'} = $start
                       unless $self->{"_$type"}->{'begin'};
                     $self->{"\_$type"}->{'end'} = $end;
+                } elsif (/^((Query|Sbjct):?\s+(\-?0+)\s*)/) {
+                   # Bug from NCBI's BLAST: unaligned output
+                   $_ = $self->_readline() for 0..1;
+                   last;
                 } else {
                     $self->throw("no data for midline $_")
                       unless ( defined $_ && defined $len );
