@@ -642,6 +642,7 @@ sub _translate_params {
 	if ($name =~ /command/i) {
 	    $name = $options[$i+2]; # get the command
 	    splice @options, $i, 4;
+	    $i--;
 	    # don't add the command if this is a pseudo-program
 	    unshift @options, $name unless ($self->is_pseudo); # put command first
 	}
