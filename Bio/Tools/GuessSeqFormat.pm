@@ -82,6 +82,10 @@ Codata ("codata")
 
 =item *
 
+Crossbow ("crossbow")
+
+=item *
+
 EMBL ("embl")
 
 =item *
@@ -191,10 +195,6 @@ Swissprot ("swiss")
 =item *
 
 Tab ("tab")
-
-=item *
-
-Crossbow ("crossbow")
 
 =back
 
@@ -415,8 +415,10 @@ sub text
 our %formats = (
     ace         => { test => \&_possibly_ace        },
     blast       => { test => \&_possibly_blast      },
+    bowtie      => { test => \&_possibly_bowtie     },
     clustalw    => { test => \&_possibly_clustalw   },
     codata      => { test => \&_possibly_codata     },
+    crossbow    => { test => \&_possibly_crossbow   },
     embl        => { test => \&_possibly_embl       },
     fasta       => { test => \&_possibly_fasta      },
     fastq       => { test => \&_possibly_fastq      },
@@ -444,8 +446,7 @@ our %formats = (
     selex       => { test => \&_possibly_selex      },
     stockholm   => { test => \&_possibly_stockholm  },
     swiss       => { test => \&_possibly_swiss      },
-    tab         => { test => \&_possibly_tab        },
-    crossbow    => { test => \&_possibly_crossbow   }
+    tab         => { test => \&_possibly_tab        }
 );
 
 sub guess
@@ -558,6 +559,19 @@ sub _possibly_blast
         $line =~ /^[[:upper:]]*BLAST[[:upper:]]*.*\[.*\]$/);
 }
 
+=head2 _possibly_bowtie
+
+Contributed by kortsch.
+
+=cut
+
+sub _possibly_bowtie
+{
+    my ($line, $lineno) = (shift, shift);
+    return ($line =~ /^[[:graph:]]+\t[-+]\t[[:graph:]]+\t\d+\t([[:alpha:]]+)\t([[:graph:]]+)\t\d+\t[[:graph:]]?/)
+            && length($1)==length($2);
+}
+
 =head2 _possibly_clustalw
 
 From "http://www.ebi.ac.uk/help/formats.html".
@@ -582,6 +596,19 @@ sub _possibly_codata
     return (($lineno == 1 && $line =~ /^ENTRY/) ||
             ($lineno == 2 && $line =~ /^SEQUENCE/) ||
             $line =~ m{^(?:ENTRY|SEQUENCE|///)});
+}
+
+=head2 _possibly_crossbow
+
+Contributed by kortsch.
+
+=cut
+
+sub _possibly_crossbow
+{
+    my ($line, $lineno) = (shift, shift);
+    return ($line =~ /^[[:graph:]]+(?:\t([[:alpha:]]+)\t([ -~]+))(?:\t([[:alpha:]]+)\t([ -~]+))?$/)
+            && length($1)==length($2) && (defined($3) ? length($3):0)==(defined($4) ? length($4):0);
 }
 
 =head2 _possibly_embl
@@ -964,19 +991,6 @@ sub _possibly_tab
 {
     my ($line, $lineno) = (shift, shift);
     return ($lineno == 1 && $line =~ /^[^\t]+\t[^\t]+/) ;
-}
-
-=head2 _possibly_crossbow
-
-Contributed by kortsch.
-
-=cut
-
-sub _possibly_crossbow
-{
-    my ($line, $lineno) = (shift, shift);
-    return ($line =~ /^[[:alnum:]]+(?:\t([[:alpha:]]+)\t([ -~]+))(?:\t([[:alpha:]]+)\t([ -~]+))?$/)
-            && length($1)==length($2) && (defined($3) ? length($3):0)==(defined($4) ? length($4):0);
 }
 
 
