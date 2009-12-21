@@ -45,6 +45,10 @@ Bio::SeqIO::seqxml - SeqXML sequence input/output stream
                                   -sourceVersion => '56');
   $seqwriter->write_seq($seq_object);
 
+  # once you've written all of your seqs, you may want to do
+  # an explicit close to get the closing </seqXML> tag
+  $seqwriter->close; 
+
 =head1 DESCRIPTION
 
 This object can transform Bio::Seq objects to and from SeqXML format.
@@ -197,12 +201,20 @@ sub _initialize {
 
             # write SeqXML header
             $self->{'_writer'}->xmlDecl("UTF-8");
-            $self->{'_writer'}->startTag(
-                'seqXML',
-                'source'        => $self->source,
-                'sourceVersion' => $self->sourceVersion,
-                'seqXMLversion' => $self->seqXMLversion,
-            );
+            if ($self->source && $self->sourceVersion) {
+                $self->{'_writer'}->startTag(
+                    'seqXML',
+                    'seqXMLversion' => $self->seqXMLversion(0.1),
+                    'source'        => $self->source,
+                    'sourceVersion' => $self->sourceVersion
+                );                
+            }
+            else {
+                $self->{'_writer'}->startTag(
+                    'seqXML',
+                    'seqXMLversion' => $self->seqXMLversion(0.1),
+                );
+            }
         }
     }
 
@@ -971,7 +983,7 @@ sub end_element_default {
  Title   : DESTROY
  Usage   : called automatically by Perl just before object
            goes out of scope
- Function: writes closing </seqXML> tag and performs a write flush
+ Function: performs a write flush
  Returns : none
  Args    : none
 
@@ -979,12 +991,32 @@ sub end_element_default {
 
 sub DESTROY {
     my $self = shift;
+    $self->flush if $self->_flush_on_write && defined $self->_fh;
+    $self->SUPER::DESTROY;
+}
+
+=head2 close
+
+ Title   : close
+ Usage   : $seqio_obj->close(). 
+ Function: writes closing </seqXML> tag.
+ 
+           close() will be called automatically by Perl when your
+           program exits, but if you want to use the seqXML file
+           you've written before then, you'll need to do an explicit
+           close first to get the final </seqXML> tag.
+ Returns : none
+ Args    : none
+
+=cut
+
+sub close {
+    my $self = shift;
     if ( $self->mode eq 'w' ) {
         $self->{'_writer'}->endTag("seqXML");
         $self->{'_writer'}->end();
-        $self->flush if $self->_flush_on_write && defined $self->_fh;
     }
-    $self->SUPER::DESTROY;
+    $self->SUPER::close();
 }
 
 1;
