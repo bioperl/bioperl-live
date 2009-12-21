@@ -8,7 +8,7 @@ BEGIN {
 #    use List::MoreUtils qw(uniq);
     use Bio::Root::Test;
     
-    test_begin(-tests => 51);
+    test_begin(-tests => 53);
 	
 	use_ok('Bio::PrimarySeq');
 	use_ok('Bio::SeqUtils');
@@ -271,9 +271,14 @@ is_deeply([sort map{$_->get_tagset_values('note')}$trunc->get_SeqFeatures], [sor
 
 my $revcom=Bio::SeqUtils->revcom_with_features($seq2);
 is $revcom->seq, 'ttttaacc';
-my @revfeat=$revcom->get_SeqFeatures;
-is $revfeat[0]->location->to_FTstring, 'complement(5..8)';
-is $revfeat[1]->location->to_FTstring, '1..4';
+my ($rf1) = $revcom->get_SeqFeatures('hotspot');
+is $rf1->primary_tag, $ft3->primary_tag, 'primary_tag matches original feature...';
+is $rf1->location->to_FTstring, '1..4', 'but tagged sf is now revcom';
+
+my ($rf2) = $revcom->get_SeqFeatures('source');
+is $rf2->primary_tag, $ft2->primary_tag, 'primary_tag matches original feature...';
+is $rf2->location->to_FTstring, 'complement(5..8)', 'but tagged sf is now revcom';
+
 is_deeply([uniq_sort(map{$_->get_all_tags}$revcom->get_SeqFeatures)], [sort qw(note comment)], 'revcom_with_features - has expected tags');
 is_deeply([sort map{$_->get_tagset_values('note')}$revcom->get_SeqFeatures], [sort qw(note2 note3a note3b)], 'revcom_with_features - has expected tag values');
 # check circularity
