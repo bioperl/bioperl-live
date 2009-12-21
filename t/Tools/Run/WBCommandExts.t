@@ -6,14 +6,12 @@ use warnings;
 our $home;
 BEGIN {
     use Bio::Root::Test;
-    use Cwd;
     use lib '.';
-    use lib getcwd();
+    use lib 't/Tools/Run';
     $home = '../../..'; # set to '.' for Build use, 
                       # '../../..' for debugging from .t file
     unshift @INC, $home;
-    $DB::single=1;
-    test_begin(-tests => 21,
+    test_begin(-tests => 22,
 	       -requires_modules => [qw(Bio::Tools::Run::WrapperBase
                                         Bio::Tools::Run::WrapperBase::CommandExts)]);
 }
@@ -28,10 +26,11 @@ ok my $fac = Dummy->new( -command => 'goob',
 			 -schlurb => 'breb',
 			 -freen => 1 ), "make factory";
 ok $fac->parameters_changed, "parm changed flag set";
-is $fac->program_name, '*flurb', "correct prog name";
+is $fac->program_name, 'flurb', "correct prog name";
+ok $fac->is_pseudo, "is pseudo";
 is $fac->narf, 42, "correct parm set";
 ok !$fac->parameters_changed, "parm flag cleared";
-is join(' ',@{$fac->_translate_params}), 'goob --schlurb breb -n 42 -f', "translate opts to command line";
+is join(' ',@{$fac->_translate_params}), '--schlurb breb -n 42 -f', "translate opts to command line";
 
 ok $fac->reset_parameters, "parm reset";
 ok !$fac->narf, "parm cleared after reset";

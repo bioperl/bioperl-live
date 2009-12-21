@@ -3,8 +3,7 @@ use strict;
 use warnings;
 
 use lib '.';
-use lib '../live';
-use lib '../run/lib';
+use lib '..';
 use Dummy::Config;
 
 use Bio::Tools::Run::WrapperBase;
