@@ -8,7 +8,7 @@ BEGIN {
    use lib '.';
    use Bio::Root::Test;
    
-   test_begin(-tests => 51);
+   test_begin(-tests => 52);
    
    use_ok('Bio::SeqIO');
    use_ok('Bio::AlignIO');
