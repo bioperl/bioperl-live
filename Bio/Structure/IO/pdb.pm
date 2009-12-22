@@ -1025,7 +1025,7 @@ sub _read_PDB_jrnl {
 	my ($self, $buffer) = @_;
 
 	$_ = $$buffer;
-	my ($auth, $titl,$edit,$ref,$publ,$refn);
+	my ($auth, $titl,$edit,$ref,$publ,$refn, $pmid, $doi);
 	while (defined( $_ ||= $self->_readline )) {
 		if (/^JRNL /) {
 			# this code belgons in a seperate method (shared with
@@ -1037,6 +1037,8 @@ sub _read_PDB_jrnl {
 			$ref  = $self->_concatenate_lines($ref ,$rol) if ($subr eq "REF");
 			$publ = $self->_concatenate_lines($publ,$rol) if ($subr eq "PUBL");
 			$refn = $self->_concatenate_lines($refn,$rol) if ($subr eq "REFN");
+			$pmid = $self->_concatenate_lines($pmid,$rol) if ($subr eq "PMID");
+			$doi = $self->_concatenate_lines($doi,$rol) if ($subr eq "DOI");
 		} else {
 			last;
 		}
@@ -1053,6 +1055,8 @@ sub _read_PDB_jrnl {
 	$jrnl_ref->publisher($publ);
 	$jrnl_ref->editors($edit);
 	$jrnl_ref->encoded_ref($refn);
+	$jrnl_ref->pubmed($pmid);
+	$jrnl_ref->doi($doi);
 
 	return $jrnl_ref;
 } # sub _read_PDB_jrnl
@@ -1072,7 +1076,7 @@ sub _read_PDB_remark_1 {
 	my ($self, $buffer) = @_;
 
 	$_ = $$buffer;
-	my ($auth, $titl,$edit,$ref,$publ,$refn,$refnum);
+	my ($auth, $titl,$edit,$ref,$publ,$refn,$refnum,$pmid, $doi);
 	my @refs;
 
 	while (defined( $_ ||= $self->_readline )) {
@@ -1087,6 +1091,8 @@ sub _read_PDB_remark_1 {
 					$rref->publisher($publ);
 					$rref->editors($edit);
 					$rref->encoded_ref($refn);
+					$rref->pubmed($pmid);
+					$rref->doi($doi);
 					$auth = $titl = $edit = $ref = $publ = $refn = undef;
 					push @refs, $rref;
 				}
@@ -1100,6 +1106,8 @@ sub _read_PDB_remark_1 {
 				$ref  = $self->_concatenate_lines($ref ,$rol) if ($subr eq "REF");
 				$publ = $self->_concatenate_lines($publ,$rol) if ($subr eq "PUBL");
 				$refn = $self->_concatenate_lines($refn,$rol) if ($subr eq "REFN");
+				$pmid = $self->_concatenate_lines($pmid,$rol) if ($subr eq "PMID");
+				$doi = $self->_concatenate_lines($doi,$rol) if ($subr eq "DOI");
 			}
 		} else {
 			# have we seen any reference at all (could be single REMARK  1 line
@@ -1115,6 +1123,8 @@ sub _read_PDB_remark_1 {
 			$rref->publisher($publ);
 			$rref->editors($edit);
 			$rref->encoded_ref($refn);
+			$rref->pubmed($pmid);
+			$rref->doi($doi);
 			push @refs, $rref;
 			last;
 		}
