@@ -681,6 +681,7 @@ sub _translate_params {
  Args    : [optional] explicit path to the executable
            (will set the appropriate command exec if
             applicable)
+ Note    : overrides WrapperBase.pm
             
 =cut
 
@@ -934,7 +935,7 @@ sub _run {
 	!defined($args{$_}) && $self->throw("Required filearg '$_' not specified") for @req;
 	# set up redirects
 	for (@$filespec) {
-	    m/^1?>(.*)/ && do {
+	    m/^1?>#?(.*)/ && do {
 		defined($args{$1}) && ( open($out,">", $args{$1}) or $self->throw("Open for write error : $!"));
 		next;
 	    };
