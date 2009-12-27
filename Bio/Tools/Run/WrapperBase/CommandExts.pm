@@ -397,7 +397,7 @@ Describe contact details here
 
 =head1 CONTRIBUTORS
 
-Additional contributors names and emails here
+Dan Kortschak ( dan -dot- kortschak -at- adelaide -dot- edu -dot au )
 
 =head1 APPENDIX
 
@@ -918,6 +918,7 @@ sub _run {
     $self->throw("No command specified for the object") unless $cmd;
     # setup files necessary for this command
     my $filespec = $opts->{'_files'}->{$cmd};
+    my @switches;
     my ($in, $out, $err);
     # some applications rely completely on switches
     if (defined $filespec && @$filespec) {
@@ -933,7 +934,7 @@ sub _run {
 	    $s
 	} grep !/[#]/, @$filespec;
 	!defined($args{$_}) && $self->throw("Required filearg '$_' not specified") for @req;
-	# set up redirects
+	# set up redirects and file switches
 	for (@$filespec) {
 	    m/^1?>#?(.*)/ && do {
 		defined($args{$1}) && ( open($out,">", $args{$1}) or $self->throw("Open for write error : $!"));
@@ -946,7 +947,12 @@ sub _run {
 	    m/^<#?(.*)/ && do {
 		defined($args{$1}) && (open($in, "<", $args{$1}) or $self->throw("Open for read error : $!"));
 		next;
-	    }
+	    };
+	    if (m/^-(.*)\|/) {
+		push @switches, $self->_dash_switch($1);
+	    } else {
+		push @switches, undef;
+            }
 	}
     }
     my $dum;
@@ -961,6 +967,7 @@ sub _run {
     # Get file specs sans redirects in correct order
     my @specs = map { 
 	my $s = $_; 
+	$s =~ s/^-.*\|//;
 	$s =~ s/[^a-zA-Z0-9_]//g; 
 	$s
     } grep !/[<>]/, @$filespec;
@@ -969,7 +976,10 @@ sub _run {
     my $l = $#files;
     for (0..$l) {
 	splice(@files, $_, 1, @{$files[$_]}) if (ref($files[$_]) eq 'ARRAY');
+	splice(@switches, $_, 1, split(' ',"$switches[$_] " x @{$files[$_]})) 
+	    if (ref($files[$_]) eq 'ARRAY');
     }
+    @files = map { ($_, shift @files) } @switches;
     @files = map { defined $_ ? $_ : () } @files; # squish undefs
     my @ipc_args = ( $exe, @$options, @files );
 
@@ -1002,6 +1012,47 @@ sub no_throw_on_crash {
     my $self = shift;
     return $self->{'_no_throw'} = shift if @_;
     return $self->{'_no_throw'};
+}
+
+=head2 _dash_switch()
+
+ Title   : _dash_switch
+ Usage   : $version = $bowtiefac->_dash_switch( $switch )
+ Function: Returns an appropriately dashed switch for the executable
+ Args    : A string containing a switch without dashes
+ Returns : string representing location and version of the program
+
+=cut
+
+sub _dash_switch {
+	my ($self, $switch) = @_;
+
+	my $dash = $self->{'_options'}->{'_dash'};
+	for ($dash) {
+		$_ == 1 && do {
+			$switch = '-'.$switch;
+			last;
+		};
+		/^s/ && do { #single dash only
+			$switch = '-'.$switch;
+			last;
+		};
+		/^d/ && do { # double dash only
+			$switch = '--'.$switch;
+			last;
+		};
+		/^m/ && do { # mixed dash: one-letter opts get -,
+			$switch = '-'.$switch;
+			$switch =~ s/(-[a-z0-9](?:\s|$))/-$1/gi;
+			last;
+		};
+		do { 
+			$self->warn( "Dash spec '$dash' not recognized; using 'single'" );
+			$switch = '-'.$switch;
+		};
+	}
+
+	return $switch;
 }
 
 =head2 stdout()
