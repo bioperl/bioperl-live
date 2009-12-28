@@ -975,9 +975,10 @@ sub _run {
     # expand arrayrefs
     my $l = $#files;
     for (0..$l) {
-	splice(@files, $_, 1, @{$files[$_]}) if (ref($files[$_]) eq 'ARRAY');
-	splice(@switches, $_, 1, split(' ',"$switches[$_] " x @{$files[$_]})) 
-	    if (ref($files[$_]) eq 'ARRAY');
+	if (ref($files[$_]) eq 'ARRAY') {
+	    splice(@files, $_, 1, @{$files[$_]});
+	    splice(@switches, $_, 1, ($switches[$_]) x @{$files[$_]});
+	}
     }
     @files = map { ($_, shift @files) } @switches;
     @files = map { defined $_ ? $_ : () } @files; # squish undefs
