@@ -689,7 +689,7 @@ sub _index_file {
             caches it in the @{$index->_filehandle} array.
             If the requested filehandle is already open,
             it simply returns it from the array.
-  Example : $fist_file_indexed = $index->_file_handle( 0 );
+  Example : $first_file_indexed = $index->_file_handle( 0 );
   Returns : ref to a filehandle
   Args    : INT
 
