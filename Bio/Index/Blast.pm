@@ -53,7 +53,7 @@ This also allows for ID parsing using a callback:
    # here is where the retrieval key is specified
    sub get_id {
       my $line = shift;
-      $line =~ /^>.+gi\|(\d+)/;
+      $line =~ /^gi\|(\d+)/;
       $1;
    }
 
@@ -140,11 +140,11 @@ sub _version {
 =cut
 
 sub new {
-
-  my($class,@args) = @_;
-
-  my $self = $class->SUPER::new(@args);
-
+    my($class,@args) = @_;
+    my $self = $class->SUPER::new(@args);
+    my ($type) = $self->_rearrange([qw(PARSER)], @args);
+    $type && $self->blast_parser_type($type);
+    $self;
 }
 
 =head2 Bio::Index::Blast implemented methods
@@ -166,11 +166,24 @@ sub fetch_report{
 	my ($self,$id) = @_;
 	my $fh = $self->get_stream($id);
 	my $report = Bio::SearchIO->new(-noclose => 1,
-											 -format => 'blast',
-											 -fh => $fh);
+                                    -format => $self->blast_parser_type,
+                                    -fh => $fh);
 	return $report->next_result;
 }
 
+=head2 fetch_result
+
+ Title   : fetch_result
+ Usage   : my $blastreport = $idx->fetch_result($id);
+ Function: Returns a Bio::SearchIO report object 
+           for a specific blast report
+ Returns : Bio::SearchIO
+ Args    : valid id
+ Note    : alias of fetch_report()
+
+=cut
+
+*fetch_result = \&fetch_report;
 
 =head2 Require methods from Bio::Index::Abstract
 
@@ -277,6 +290,32 @@ sub default_id_parser {
 	} else {
 		return;
 	}
+}
+
+=head2 blast_parser_type
+
+  Title   : blast_parser_type
+  Usage   : $index->blast_parser_type() # returns 
+  Function: Get/Set SearchIO-based text (-m0) BLAST parser. Only values in
+            local %VALID_PARSERS hash allowed.
+  Returns : String
+  Args    : [optional] 
+  Note    : This only allows simple text-based parsing options; tabular, XML,
+            or others are not supported (see Bio::Index::BlastTable for tab
+            output).
+  
+=cut
+
+my %VALID_PARSERS = map {$_ =>1} qw(blast blast_pull);
+
+sub blast_parser_type {
+    my ($self, $type) = @_;
+    if ($type) {
+        $self->throw("$type is not a supported BLAST text parser") unless
+            exists $VALID_PARSERS{$type};
+        $self->{_blast_parser_type} = $type;
+    }
+    return $self->{_blast_parser_type} || 'blast';
 }
 
 =head2 Bio::Index::Abstract methods
