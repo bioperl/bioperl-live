@@ -135,6 +135,11 @@ sub _discover_header {
 	my $self = shift;
 	$self->_chunk_seek(0);
 	my $header = $self->_get_chunk_by_end("Value\n");
+	if (!$header) {
+	    $header = $self->_get_chunk_by_end("***** No hits found ******\n");
+	    $self->_fields->{_next_hit_index} = -1;
+	}
+	$self->throw("Invalid header returned") unless $header;
 	$self->{_after_header} = $self->_chunk_tell;
 	
 	($self->_fields->{query_name}) = $header =~ /^\s*(\S+)/;
@@ -223,8 +228,8 @@ sub _discover_next_hit {
 	#*** needs to inherit piped_behaviour, and we need to deal with _sequential
 	#    ourselves
 	$self->_fields->{next_hit} = Bio::Search::Hit::BlastPullHit->new(-parent => $self,
-																	-chunk => [$self->chunk, $start, $end],
-																	-hit_data => $hit_row);
+								-chunk => [$self->chunk, $start, $end],
+								-hit_data => $hit_row);
 	
 	$self->{_next_hit_index}++;
 	
