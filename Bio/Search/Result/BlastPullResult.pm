@@ -112,17 +112,18 @@ sub new {
 	
 	$self->_setup(@args);
 	
-	foreach my $field (qw( header hit_table hsp_table alignments next_model models query_length stats_and_params)) {
+	foreach my $field (qw( header hit_table hsp_table alignments next_model
+	models query_length stats_and_params)) {
 		$self->_fields->{$field} = undef;
 	}
 	
 	$self->_dependencies( { ( query_name => 'header',
                               query_accession => 'header',
                               query_description => 'header',
-							  query_length => 'header',
+			    query_length => 'header',
                               hit_table => 'header',
-							  num_hits => 'hit_table',
-							  no_hits_found => 'hit_table' ) } );
+			    num_hits => 'hit_table',
+			    no_hits_found => 'hit_table' ) } );
     
     return $self;
 }
@@ -137,7 +138,7 @@ sub _discover_header {
 	my $header = $self->_get_chunk_by_end("Value\n");
 	if (!$header) {
 	    $header = $self->_get_chunk_by_end("***** No hits found ******\n");
-	    $self->_fields->{_next_hit_index} = -1;
+	    $self->{_no_hits_found} = 1;
 	}
 	$self->throw("Invalid header returned") unless $header;
 	$self->{_after_header} = $self->_chunk_tell;
@@ -164,11 +165,11 @@ sub _discover_header {
 
 sub _discover_hit_table {
 	my $self = shift;
-	
 	$self->_chunk_seek($self->{_after_header});
+	
 	my $table = $self->_get_chunk_by_end("\n>");
 	
-	unless ($table) {
+	if (!$table && !$self->{_no_hits_found}) {
 		# no alignments, presumably; hit table comprises the remainder of this
 		# result
 		while (my $line = $self->_get_chunk_by_nol(1)) {
@@ -176,8 +177,8 @@ sub _discover_hit_table {
 		}
 	}
     
-    $table ||= '';
-    
+	$table ||= '';
+	
 	$self->{_after_hit_table} = $self->_chunk_tell;
 	
 	my $evalue_cutoff = $self->get_field('evalue_cutoff');
