@@ -472,10 +472,9 @@ sub location {
   my $self = shift;
   require Bio::Location::Simple unless Bio::Location::Simple->can('new');  
   my $loc = Bio::Location::Simple->new(-start  => $self->start,
-				    -end    => $self->end,
+				       -end    => $self->end,
 				       -strand => $self->strand);
   $loc->strand($self->strand);
-  warn("strand will be ", $self->strand, "\n") if $self->strand < 0;
   return $loc;
 }
 sub primary_id   {
