@@ -222,7 +222,9 @@ sub _discover_start_end {
 
 sub _discover_next_hsp {
 	my $self = shift;
-    $self->_chunk_seek($self->{_end_of_previous_hsp} || $self->{_after_header});
+    my $pos = $self->{_end_of_previous_hsp} || $self->{_after_header};
+    return unless $pos;
+    $self->_chunk_seek($pos);
     
     my ($start, $end) = $self->_find_chunk_by_end("\n Score = ");
     if ((defined $end && ($end + $self->_chunk_true_start) > $self->_chunk_true_end) || ! $end) {
