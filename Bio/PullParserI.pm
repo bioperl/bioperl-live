@@ -487,6 +487,7 @@ sub _line_ending {
 
 sub _chunk_seek {
     my ($self, $pos) = @_;
+    $self->throw("Undefined position passed") unless defined $pos;
     return if $self->_sequential;
     
     my $fh = $self->chunk->_fh;
