@@ -928,7 +928,8 @@ sub _run {
 	s/^-// for @args;
 	# validate
 	my @req = map { 
-	    my $s = $_; 
+	    my $s = $_;
+	    $s =~ s/^-.*\|//;
 	    $s =~ s/^[012]?[<>]//;
 	    $s =~ s/[^a-zA-Z0-9_]//g; 
 	    $s
