@@ -975,6 +975,8 @@ sub _new_from_assembly {
   # 2: Set overlap statistics: nof_overlaps, min_overlap, avg_overlap,
   #  min_identity and avg_identity
   $csp->{'_eff_asm_params'} = $self->{'_eff_asm_params'};
+  $csp->{'_min_overlap'}    = $self->{'_min_overlap'};
+  $csp->{'_min_identity'}   = $self->{'_min_identity'};
   if ($csp->{'_eff_asm_params'} > 0) {
     ( $csp->{'_avg_overlap'}, $csp->{'_avg_identity'}, $csp->{'_min_overlap'},
       $csp->{'_min_identity'}, $csp->{'_nof_overlaps'} )
@@ -1026,6 +1028,8 @@ sub _new_from_contig {
   # 2: Set overlap statistics: nof_overlaps, min_overlap, avg_overlap,
   #  min_identity and avg_identity
   $csp->{'_eff_asm_params'} = $self->{'_eff_asm_params'};
+  $csp->{'_min_overlap'}    = $self->{'_min_overlap'};
+  $csp->{'_min_identity'}   = $self->{'_min_identity'};
   if ($csp->{'_eff_asm_params'} > 0) {
      ( $csp->{'_avg_overlap'}, $csp->{'_avg_identity'}, $csp->{'_min_overlap'}, 
        $csp->{'_min_identity'}, $csp->{'_nof_overlaps'} )
@@ -1052,7 +1056,6 @@ sub _new_from_contig {
   Function: 
   Returns : 
   Args    : 
-
 
 =cut
 
@@ -1085,18 +1088,21 @@ sub _new_dissolved_csp {
   # New dissolved contig spectrum object
   my $dissolved = Bio::Assembly::Tools::ContigSpectrum->new();
 
-  # take parent attributes if existent or mixed attributes otherwise
+  # Take parent attributes if existent or mixed attributes otherwise
   if ($self->{'_eff_asm_params'}) {
     $dissolved->{'_eff_asm_params'} = $self->{'_eff_asm_params'};
   } else {
     $dissolved->{'_eff_asm_params'} = $mixed_csp->{'_eff_asm_params'};
   }
-  if ($self->{'_min_overlap'} && $self->{'_min_identity'}) {
-    ( $dissolved->{'_min_overlap'}, $dissolved->{'_min_identity'} ) = 
-      ( $self->{'_min_overlap'}, $self->{'_min_identity'} );
+  if ($self->{'_min_overlap'}) {
+    $dissolved->{'_min_overlap'} = $self->{'_min_overlap'};
   } else {
-    ( $dissolved->{'_min_overlap'}, $dissolved->{'_min_identity'} ) = 
-      ( $mixed_csp->{'_min_overlap'}, $mixed_csp->{'_min_identity'} );
+    $dissolved->{'_min_overlap'} = $mixed_csp->{'_min_overlap'};
+  }
+  if ($self->{'_min_identity'}) {
+    $dissolved->{'_min_identity'} = $self->{'_min_identity'};
+  } else {
+    $dissolved->{'_min_identity'} = $mixed_csp->{'_min_identity'};
   }
 
   # Dissolve each assembly
@@ -1220,12 +1226,15 @@ sub _new_cross_csp {
   } else {
     $cross->{'_eff_asm_params'} = $mixed_csp->{'_eff_asm_params'};
   }
-  if ($self->{'_min_overlap'} && $self->{'_min_identity'}) {
-    ( $cross->{'_min_overlap'}, $cross->{'_min_identity'} ) = 
-      ( $self->{'_min_overlap'}, $self->{'_min_identity'} );
+  if ($self->{'_min_overlap'}) {
+    $cross->{'_min_overlap'} = $self->{'_min_overlap'};
   } else {
-    ( $cross->{'_min_overlap'}, $cross->{'_min_identity'} ) = 
-      ( $mixed_csp->{'_min_overlap'}, $mixed_csp->{'_min_identity'} );
+    $cross->{'_min_overlap'} = $mixed_csp->{'_min_overlap'};
+  }
+  if ($self->{'_min_identity'}) {
+    $cross->{'_min_identity'} = $self->{'_min_identity'};
+  } else {
+    $cross->{'_min_identity'} = $mixed_csp->{'_min_identity'};
   }
 
   # Get cross contig spectrum for each assembly
@@ -1617,7 +1626,13 @@ sub _get_assembly_overlap_stats {
   Title   : _get_contig_overlap_stats
   Usage   : my ($avglength, $avgidentity, $minlength, $min_identity, $nof_overlaps)
               = $csp->_get_contig_overlap_stats($contigobj);
-  Function: Get statistics about pairwise overlaps in a contig or singlet
+  Function: Get statistics about pairwise overlaps in a contig or singlet. The
+              statistics are obtained using graph theory: each read is a node
+              and the edges between 2 reads are weighted by minus the number of
+              conserved residues in the alignment between the 2 reads. The
+              minimum spanning tree of this graph represents the overlaps that
+              form the contig. Overlaps that do not satisfy the minimum overlap
+              length and similarity get a malus on their score.
   Returns : average overlap length
             average identity percent
             minimum overlap length
@@ -1666,11 +1681,23 @@ sub _get_contig_overlap_stats {
       my $target_id = $target_obj->id;
       next if defined $seq_hash && !defined $$seq_hash{$target_id};
 
-      # Score the overlap with this sequence
+      # How much overlap with this sequence?
       my ($aln_obj, $length, $identity)
         = $self->_overlap_alignment($contig_obj, $seq_obj, $target_obj);
       next if ! defined $aln_obj; # there was no sequence overlap
-      my $score = $length * $identity / 100; # number of conserved residues
+
+      # Score the overlap as the number of conserved residues. In practice, it
+      # seems to work better than giving +1 for match and -3 for errors
+      # (mismatch or indels)
+      my $score = $length * $identity / 100;
+
+      # Apply a malus (square root) for scores that do not satisfy the minimum
+      # overlap length similarity. It is necessary for overlaps that get a high
+      # score without satisfying both the minimum values.
+      if ( ( $self->min_overlap  && ($length   < $self->min_overlap ) ) ||
+           ( $self->min_identity && ($identity < $self->min_identity) ) ) {
+        $score = sqrt($score);
+      }
 
       # Record overlap
       $overlaps{$i}{$j} = [$seq_id, $target_id, $score, $length, $identity];
@@ -1863,6 +1890,7 @@ sub _overlap_alignment {
   # check overlap percentage identity
   my $identity = $aln->overall_percentage_identity;
   return if defined $min_identity && $identity < $min_identity;
+
   # all checks passed, return alignment
   return $aln, $overlap, $identity;
 }
