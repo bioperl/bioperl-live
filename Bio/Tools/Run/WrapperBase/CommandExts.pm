@@ -914,7 +914,7 @@ sub _run {
     # -- provide these as arguments to this function
     my $cmd = $self->command if $self->can('command');
     my $opts = $self->{_options};
-    my %args = @args; 
+    my %args; 
     $self->throw("No command specified for the object") unless $cmd;
     # setup files necessary for this command
     my $filespec = $opts->{'_files'}->{$cmd};
@@ -926,6 +926,7 @@ sub _run {
 	# require named args
 	$self->throw("Named args are required") unless !(@args % 2);
 	s/^-// for @args;
+	%args = @args;
 	# validate
 	my @req = map { 
 	    my $s = $_;
