@@ -397,7 +397,7 @@ Describe contact details here
 
 =head1 CONTRIBUTORS
 
-Dan Kortschak ( dan -dot- kortschak -at- adelaide -dot- edu -dot au )
+Dan Kortschak ( dan -dot- kortschak -at- adelaide -dot- edu -dot- au )
 
 =head1 APPENDIX
 
@@ -408,7 +408,7 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-package Bio::Tools::Run::WrapperBase;
+package Bio::Tools::Run::WrapperBase::CommandExts;
 use strict;
 use warnings;
 no warnings qw(redefine);
@@ -681,6 +681,7 @@ sub _translate_params {
  Args    : [optional] explicit path to the executable
            (will set the appropriate command exec if
             applicable)
+           [optional] boolean flag whether or not to warn when exe no found
  Note    : overrides WrapperBase.pm
             
 =cut
@@ -691,6 +692,7 @@ sub executable {
     if ($self->is_pseudo) {
 	return $self->{_pathtoexe} = $self->executables($self->command,$exe);
     }
+
     # otherwise
     # setter
     if (defined $exe) {
@@ -698,33 +700,12 @@ sub executable {
 	$self->throw("'$exe' is not executable") unless -x $exe;
 	return $self->{_pathtoexe} = $exe;
     }
-    # getter
-    return $self->{_pathtoexe} unless !defined $self->{_pathstoexe};
-    # finder
 
-    $self->throw("Program directory must be specified; use program_dir(\$path)") unless $self->program_dir;
-    my $dir = $self->program_dir;
-    my $program_path = File::Spec->catfile($dir, $self->program_name);
-    if ( -x $program_path ) { # note this allows symlinks!!!
-	$self->{_pathtoexe} = $program_path;
-    }
-    elsif ( -x $program_path.'.exe' ) {
-	$self->{_pathtoexe} = $program_path.'.exe';
-    }
-    else { # look in syspath using io...
-	for ($self->io->exists_exe($self->program_name)) {
-	    !$_ && do {
-		$self->throw("Cannot find executable for program '".$self->program_name."'");
-		last;
-	    };
-	    do { # else, found it
-		$self->{_pathtoexe} = $_;
-	    };
-	}
-    }
-    #ran the gauntlet, return
-    return $self->{_pathtoexe};
-    
+    # getter
+    return $self->{_pathtoexe} if defined $self->{_pathstoexe};
+
+    # finder
+    return $self->{_pathtoexe} = $self->_find_executable($exe, $warn);
 }
 
 =head2 executables()
@@ -735,16 +716,18 @@ sub executable {
  Returns : full path (scalar string)
  Args    : command (scalar string), 
            [optional] explicit path to this command exe
+           [optional] boolean flag whether or not to warn when exe no found
 
 =cut
 
 sub executables {
     my $self = shift;
-    my ($cmd, $exe) = @_;
+    my ($cmd, $exe, $warn) = @_;
     # for now, barf if this is not a pseudo program
     $self->throw("This wrapper represents a single program with commands, not multiple programs; can't use executables()") unless $self->is_pseudo;
     $self->throw("Command name required at arg 1") unless defined $cmd;
     $self->throw("The desired executable '$cmd' is not registered as a command") unless grep /^$cmd$/, @{$self->{_options}->{_commands}};
+
     # setter
     if (defined $exe) {
 	$self->throw("binary '$exe' does not exist") unless -e $exe;
@@ -752,36 +735,52 @@ sub executables {
 	$self->{_pathstoexe} = {} unless defined $self->{_pathstoexe};
 	return $self->{_pathstoexe}->{$cmd} = $exe;
     }
+
     # getter
-    return $self->{_pathstoexe}->{$cmd} unless !defined $self->{_pathstoexe}->{$cmd};
+    return $self->{_pathstoexe}->{$cmd} if defined $self->{_pathstoexe}->{$cmd};
+
     # finder
-    
-    # we're expecting to find all command exes (or links) in the 
-    # program dir, and that the command names within the module are the 
-    # same as the program names.
-    my $exereg = $self->{_pathstoexe};
-    $self->throw("Program directory must be specified; use program_dir(\$path)") unless $self->program_dir;
-    my $dir = $self->program_dir;
-    my $program_path = File::Spec->catfile($dir, $cmd);
-    if ( -x $program_path ) { # note this allows symlinks!!!
-	$exereg->{$cmd} = $program_path;
+    return $self->{_pathstoexe}->{$cmd} = $self->_find_executable($exe, $warn);
+}
+
+=head2 _find_executable()
+
+ Title   : _find_executable
+ Usage   : my $exe_path = $fac->_find_executable($exe, $warn);
+ Function: find the full path to a named executable,
+ Returns : full path, if found
+ Args    : name of executable to find
+           [optional] boolean flag whether or not to warn when exe no found
+ Note    : differs from executable and executables in not
+           setting any object attributes
+
+=cut
+
+sub _find_executable {
+    my $self = shift;
+    my ($exe, $warn) = @_;
+
+    $exe ||= $self->program_path;
+
+    my $path;
+    if ($self->program_dir) {
+	$path = File::Spec->catfile($self->program_dir, $exe);
+    } else {
+	$path = $exe;
+	$self->warn('Program directory not specified; use program_dir($path).') if $warn;
     }
-    elsif ( -x $program_path.'.exe' ) {
-	$exereg->{$cmd} = $program_path.'.exe';
+
+    # use provided info - we are allowed to follow symlinks, but refuse directories
+    map { return $path.$_ if ( -x $path.$_ && !(-d $path.$_) ) } (undef, '.exe') if defined $path;
+
+    # couldn't get path to executable from provided info, so use system path
+    $path = $path ? " in $path" : undef;
+    $self->warn("Executable $exe not found$path, trying system path...") if $warn;
+    if ($path = $self->io->exists_exe($exe)) {
+	return $path;
+    } else {
+	$self->throw("Cannot find executable for program '".$self->program_name."'");
     }
-    else { # look in syspath using io...
-	for ($self->io->exists_exe($cmd)) {
-	    !$_ && do {
-		$self->throw("Cannot find executable for command '$cmd'");
-		last;
-	    };
-	    do { # else, found it
-		$exereg->{$cmd} = $_;
-	    };
-	}
-    }
-    #ran the gauntlet, return
-    return $exereg->{$cmd};
 }
 
 =head2 _register_composite_commands()
