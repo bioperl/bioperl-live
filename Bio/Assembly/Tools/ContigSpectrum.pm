@@ -1732,22 +1732,6 @@ sub _get_contig_overlap_stats {
         $g->add_weighted_edge($i, $j, $weight);
       }
     }
-
-    ###########
-    # Display the graph
-    use GraphViz;
-    my $tree = GraphViz->new( layout => 'dot', directed => 0);
-    for my $i (keys %overlaps) {
-      for my $j (keys %{$overlaps{$i}}) {
-        my ($id1, $id2, $score, $length, $identity) = @{$overlaps{$i}{$j}};
-        $tree->add_node($i, label => $id1);
-        $tree->add_node($j, label => $id2);
-        $tree->add_edge($i => $j, label => "score = $score\nlength = $length bp\nidentity = $identity %");
-      }
-    }
-    $tree->as_png("/home/floflooo/Desktop/test_amos/contig_overlaps.png");
-    ###########
-
     $g = $g->MST_Kruskal();
 
     # Calculate minimum overlap length and identity for this contig
@@ -1759,19 +1743,6 @@ sub _get_contig_overlap_stats {
       my @overlap_stats = ($length, $identity);
       @contig_stats = $self->_update_overlap_stats(@contig_stats, @overlap_stats);
     }
-
-    ###########
-    # Display the minimum spanning tree
-    $tree = GraphViz->new( layout => 'dot', directed => 0);
-    for my $edge ( $g->edges ) {
-      my ($i,$j) = $$edge[0]<$$edge[1] ? ($$edge[0],$$edge[1]) : ($$edge[1],$$edge[0]) ;
-      my ($id1, $id2, $score, $length, $identity) = @{$overlaps{$i}{$j}};
-      $tree->add_node($i, label => $id1);
-      $tree->add_node($j, label => $id2);
-      $tree->add_edge($i => $j, label => "score = $score\nlength = $length bp\nidentity = $identity %");
-    }
-    $tree->as_png("/home/floflooo/Desktop/test_amos/contig_min_span_tree.png");
-    ###########
   }
 
   return @contig_stats;
