@@ -1022,7 +1022,7 @@ sub no_throw_on_crash {
  Usage   : $version = $fac->_dash_switch( $switch )
  Function: Returns an appropriately dashed switch for the executable
  Args    : A string containing a switch without dashes
- Returns : string representing location and version of the program
+ Returns : string containing an appropriately dashed switch for the current executable
 
 =cut
 
