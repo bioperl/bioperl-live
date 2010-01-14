@@ -236,11 +236,12 @@ sub _guess_format {
    my $arg   = shift;
 
    return unless defined($arg);
-   return 'ace'   if ($arg =~ /\.ace/i);
-   return 'phrap' if ($arg =~ /\.phrap/i);
-   return 'tigr'  if ($arg =~ /\.tigr/i);
-   return 'maq'   if ($arg =~ /\.maq/i);
-   return 'sam'   if ($arg =~ /\.[bs]am/i);
+   return 'ace'    if ($arg =~ /\.ace/i);
+   return 'phrap'  if ($arg =~ /\.phrap/i);
+   return 'tigr'   if ($arg =~ /\.tigr/i);
+   return 'maq'    if ($arg =~ /\.maq/i);
+   return 'sam'    if ($arg =~ /\.[bs]am/i);
+   return 'bowtie' if ($arg =~ /\.bowtie/i);
 
 }
 
