@@ -771,7 +771,7 @@ sub _find_executable {
     }
 
     # use provided info - we are allowed to follow symlinks, but refuse directories
-    map { return $path.$_ if ( -x $path.$_ && !(-d $path.$_) ) } (undef, '.exe') if defined $path;
+    map { return $path.$_ if ( -x $path.$_ && !(-d $path.$_) ) } ('', '.exe') if defined $path;
 
     # couldn't get path to executable from provided info, so use system path
     $path = $path ? " in $path" : undef;
