@@ -201,7 +201,7 @@ sub _initialize {
 
             # write SeqXML header
             $self->{'_writer'}->xmlDecl("UTF-8");
-            if ($self->source && $self->sourceVersion) {
+            if ($self->source || $self->sourceVersion) {
                 $self->{'_writer'}->startTag(
                     'seqXML',
                     'seqXMLversion' => $self->seqXMLversion(0.1),
@@ -304,7 +304,13 @@ sub write_seq {
         }
 
         # sequence
+        # - throws if seq is empty or missing because having a sequence
+        #   is a SeqXML requirement
         if ( $seqobj->seq ) {
+            # check that there's actually sequence in there
+            unless ( length($seqobj->seq) > 0 ) {
+                $self->throw("sequence entry $id lacks a sequence!");
+            }
             my $alphabet = $seqobj->alphabet;
             my %seqtype  = (
                 'rna'     => 'rnaSeq',
@@ -315,6 +321,9 @@ sub write_seq {
                 $self->throw("invalid sequence alphabet $alphabet!");
             }
             $writer->dataElement( $seqtype{$alphabet}, $seqobj->seq );
+        }
+        else {
+            $self->throw("sequence entry $id lacks a sequence!");
         }
 
         # alternative IDs
@@ -921,7 +930,7 @@ sub end_element_entry {
     my $data = $self->{'_current_entry_data'};
 
     # make sure we've got at least a seq, an ID, and an alphabet
-    unless ( $data->{'sequence'} ) {
+    unless ( $data->{'sequence'} && length($data->{'sequence'}) > 0) {
         $self->throw("this entry lacks a sequence");
     }
     unless ( $data->{'id'} ) {
