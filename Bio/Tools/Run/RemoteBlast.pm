@@ -164,6 +164,14 @@ use Bio::SearchIO;
 use LWP;
 use HTTP::Request::Common;
 
+use constant {
+    NOT_FINISHED => 0,
+    ERR_QBSTATUS => 1,
+    ERR_NOCONTENT => 2, 
+    ERR_HTTPFAIL => 4,
+    ERR_QBNONSPEC => 8
+};
+   
 use base qw(Bio::Root::Root Bio::Root::IO);
 
 BEGIN {
@@ -560,9 +568,15 @@ sub submit_blast {
  Title   : retrieve_blast
  Usage   : my $blastreport = $blastfactory->retrieve_blast($rid);
  Function: Attempts to retrieve a blast report from remote blast queue
- Returns : -1 on error,
-           0 on 'job not finished',
-           Bio::SearchIO object
+ Returns : scalar int (constant) or Bio::SearchIO object
+           Constants:
+            NOT_FINISHED (= 0)   : 'job not finished'
+            code on error:
+              ERR_QBSTATUS (= 1) : return line matches 'Status=ERROR'
+              ERR_NOCONTENT (= 2): HTTP request successful, but no content
+                                   returned
+              ERR_HTTPFAIL (= 4) : HTTP request failed
+              ERR_QBNONSPEC (= 8): return line matches 'ERROR' (not status line)
  Args    : Remote Blast ID (RID)
 
 =cut
@@ -611,7 +625,7 @@ sub retrieve_blast {
                         open(my $ERR, "<$tempfile") or $self->throw("cannot open file $tempfile");
                         $self->warn(join("", <$ERR>));
                         close $ERR;
-                        return -1;
+                        return ERR_QBSTATUS;
                     } elsif( $status eq 'READY' ) {
                         $waiting = 0;
                         last;
@@ -625,7 +639,7 @@ sub retrieve_blast {
                 open(my $ERR, "<$tempfile") or $self->throw("cannot open file $tempfile");
                 $self->warn(join("", <$ERR>));
                 close $ERR;
-                return -1;
+                return ERR_QBNONSPEC;
             }
             
         }
@@ -645,14 +659,14 @@ sub retrieve_blast {
         } elsif (!$got_content) {
             # server returned no content, can't be good
             $self->warn("Server failed to return any data");
-            return -1
+            return ERR_NOCONTENT;
         } else {		# still working
             return 0;
         }
 	
     } else {
         $self->warn($response->error_as_HTML);
-        return -1;
+        return ERR_HTTPFAIL;
     }
 }
 
