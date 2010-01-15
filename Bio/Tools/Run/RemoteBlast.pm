@@ -172,8 +172,11 @@ use constant {
     ERR_QBNONSPEC => 8
 };
    
-use base qw(Bio::Root::Root Bio::Root::IO);
+use base qw(Bio::Root::Root Bio::Root::IO Exporter);
 
+BEGIN {
+    our @EXPORT = qw( NOT_FINISHED ERR_QBSTATUS ERR_NOCONTENT ERR_HTTPFAIL ERR_QBNONSPEC );
+}
 BEGIN {
     $MODVERSION = $Bio::Root::Version::VERSION;
     $URLBASE = 'http://blast.ncbi.nlm.nih.gov/Blast.cgi';
@@ -266,6 +269,7 @@ BEGIN {
 			);
     
     $RIDLINE = 'RID\s+=\s+(\S+)';
+    
 }
 
 sub new {
