@@ -284,12 +284,12 @@ sub write_seq {
 
         # species and NCBI taxID
         if ( $seqobj->species ) {
-            my $name  = $seqobj->species->species;
+            my $name  = $seqobj->species->binomial;
             my $taxid = $seqobj->species->ncbi_taxid;
             if ( $name && ( $taxid =~ /[0-9]+/ ) ) {
                 $writer->emptyTag(
                     'species',
-                    'name'      => $seqobj->species->species,
+                    'name'      => $seqobj->species->binomial,
                     'ncbiTaxID' => $seqobj->species->ncbi_taxid
                 );
             }
@@ -343,6 +343,10 @@ sub write_seq {
         my @annotations = $seqobj->get_Annotations();
         foreach my $annot_obj (@annotations) {
             next if ( $annot_obj->tagname eq 'dblink' );
+
+            # SeqXML doesn't support references
+            next if ( $annot_obj->tagname eq 'reference' );
+
             unless ( $annot_obj->tagname ) {
                 $self->throw("property $annot_obj is missing a tagname");
             }
@@ -686,7 +690,7 @@ sub element_species {
     {
         $species_obj =
           Bio::Species->new( -ncbi_taxid => $species_data->{'ncbiTaxID'}, );
-        $species_obj->species( $species_data->{'name'} );
+        $species_obj->binomial( $species_data->{'name'} );
         $data->{'species'} = $species_obj;
     }
     else {
