@@ -256,10 +256,12 @@ sub classification {
  Title   : species
  Usage   : $self->species( $species );
            $species = $self->species();
- Function: Get or set the scientific species name.
- Example : $self->species('Homo sapiens');
- Returns : Scientific species name as string
- Args    : Scientific species name as string
+ Function: Get or set the species name.
+           Note that this is  NOT genus and species
+           -- use $self->binomial() for that.
+ Example : $self->species('sapiens');
+ Returns : species name as string (NOT genus and species)
+ Args    : species name as string (NOT genus and species)
 
 =cut
 
