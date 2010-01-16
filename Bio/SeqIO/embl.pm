@@ -433,7 +433,8 @@ sub next_seq {
             }
         }
     }
-    if ( $buffer !~ /^SQ/  ) {
+if ($buffer !~ /^\/\//) { # if no SQ lines following CO (bug#2958)
+    if ( $buffer !~ /^SQ/ ) {
         while ( defined ($_ = $self->_readline) ) {
             /^SQ/ && last;
         }
@@ -445,6 +446,7 @@ sub next_seq {
         s/[^A-Za-z]//g;
         $seqc .= $_;
     }
+}
     my $seq = $self->sequence_factory->create
         (-verbose => $self->verbose(),
          -division => $div,
