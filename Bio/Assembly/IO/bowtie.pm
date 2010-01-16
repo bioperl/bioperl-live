@@ -34,9 +34,10 @@ L<Bio::DB::Sam> to parse binary formatted SAM (.bam) files guided by a
 reference sequence fasta database.
 
 Some information is lost in conversion from bowtie format to SAM/BAM format
-that is provided by Bowtie using the Sam output option. If you plan to use SAM/BAM
-format it is preferable to use this Bowtie option rather convert the format
-after the fact.
+that is provided by Bowtie using the SAM output option and the conversion
+to SAM format from bowtie format is slower than using bowtie's SAM option.
+If you plan to use SAM/BAM format it is preferable to use this Bowtie
+option rather than convert the format after the fact.
 
 See the Bio::Assembly::IO::sam documentation for relevant details.
 
@@ -46,7 +47,8 @@ See the Bio::Assembly::IO::sam documentation for relevant details.
 
 =item * Required files
 
-A bowtie (C<.bowtie>) alignment and a bowtie index are required.
+A bowtie (C<.bowtie>) alignment and the bowtie index or fasta
+file used to generate the alignment are required.
 
 =item * Compressed files
 
@@ -63,8 +65,8 @@ User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to
 the Bioperl mailing list.  Your participation is much appreciated.
 
-bioperl-l@bioperl.org                  - General discussion
-http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+  bioperl-l@bioperl.org                  - General discussion
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
 =head2 Support
 
@@ -115,30 +117,61 @@ our $HD = "\@HD\tVN:1.0\tSO:unsorted\n";
 our $PG = "\@PG\tID=Bowtie\n";
 
 our $HAVE_IO_UNCOMPRESS;
+our $HAVE_BOWTIE;
+
 BEGIN {
 # check requirements
-    unless ( eval "require Bio::Tools::Run::Bowtie;") {
-	Bio::Root::Root->throw("Bio::Tools::Run::Bowtie is not available - cannot extract refdb from index.");
-    }
+    eval "require Bio::Tools::Run::Bowtie; \$HAVE_BOWTIE = 1";
     unless ( eval "require IO::Uncompress::Gunzip; \$HAVE_IO_UNCOMPRESS = 1") {
 	Bio::Root::Root->warn("IO::Uncompress::Gunzip is not available; you'll have to do your decompression by hand.");
     }
 }
+
+=head2 new()
+
+ Title   : new
+ Usage   : my $obj = new Bio::Assembly::IO::bowtie();
+ Function: Builds a new Bio::Assembly::IO object
+ Returns : an instance of Bio::Assembly::IO
+ Args    : hash of options:
+
+            -file    => bowtie_output_file
+            -index   => bowtie_index or fasta_file used to create index
+            -no_head => boolean skip SAM header
+            -no_sq   => boolean skip SQ lines of SAM header
+
+ Note    : bowtie_output and fasta files may be gzipped
+
+=cut
 
 sub new {
 	my $class = shift;
 	my @args = @_;
 	my $self = $class->SUPER::new(@args);
 	$self->_initialize(@args);
+	$self->{'_tempdir'} = $self->tempdir(CLEANUP=>1);
 	my ($file, $index, $no_head, $no_sq) = $self->_rearrange([qw(FILE INDEX NO_HEAD NO_SQ)], @args);
 	$file =~ s/^<//;
 	$self->{'_no_head'} = $no_head;
 	$self->{'_no_sq'} = $no_sq;
-	# get the sequence so samtools can work with it
-	my $inspector = Bio::Tools::Run::Bowtie->new( -command => 'inspect' );
-	my $refdb = $inspector->run($index);
+
+	# get the sequence so Bio::DB::Sam can work with it
+        my $refdb;
+	if (-e $index && -r $index) {
+		$refdb = $self->_uncompress($index) if ($index =~ m/\.gz[^.]*$/);
+		my $guesser = Bio::Tools::GuessSeqFormat->new(-file=>$refdb);
+		$self->throw("'$index' is not a fasta file.")
+			unless $guesser->guess =~ m/^fasta$/;
+	} elsif ($HAVE_BOWTIE) {
+		my $inspector = Bio::Tools::Run::Bowtie->new( -command => 'inspect' );
+		my $refdb = $inspector->run($index);
+	} else {
+		$self->throw("Bio::Tools::Run::Bowtie is not available - cannot extract refdb from index.");
+	}
+
 	my $bam_file = $self->_make_bam($self->_bowtie_to_sam($file, $refdb));
 	my $sam = Bio::Assembly::IO->new( -file => "<$bam_file", -refdb => $refdb , -format => 'sam' );
+
 	return $sam;
 }
 
@@ -147,6 +180,15 @@ sub _bowtie_to_sam {
 
 	$self->throw("'$file' does not exist or is not readable.")
 		unless ( -e $file && -r $file );
+
+	if ($file =~ m/\.gz[^.]*$/) {
+		$file = $self->_uncompress($file);
+		$self->close;
+		open (my $fh,$file);
+		$self->file($file);
+		$self->_fh($fh);
+	}
+
 	my $guesser = Bio::Tools::GuessSeqFormat->new(-file=>$file);
 	$self->throw("'$file' is not a bowtie formatted file.") unless $guesser->guess =~ m/^bowtie$/;
 
@@ -156,19 +198,8 @@ sub _bowtie_to_sam {
 	my @mate_line;
 	my $mlen;
 
-	if ($file =~ m/\.gz[^.]*$/) {
-		unless ($HAVE_IO_UNCOMPRESS) {
-			croak( "IO::Uncompress::Gunzip not available, can't expand '$_'" );
-		}
-		my ($tfh, $tf) = $self->tempfile;
-		my $z = IO::Uncompress::Gunzip->new($_);
-		while (<$z>) { print $tfh $_ }
-		close $tfh;
-		$file = $tf;
-	}
-
 	# create temp file for working
-	my ($sam_tmp_h, $sam_tmp_f) = $self->tempfile( -dir => $self->tempdir(), -suffix => '.sam' );
+	my ($sam_tmp_h, $sam_tmp_f) = $self->tempfile( -dir => $self->{'_tempdir'}, -suffix => '.sam' );
 	
 	while (my $line = $self->_readline) {
 		chomp($line);
@@ -228,7 +259,7 @@ sub _bowtie_to_sam {
 	
 	return $sam_tmp_f if $self->{'_no_head'};
 
-	my ($samh, $samf) = $self->tempfile( -dir => $self->tempdir(), -suffix => '.sam' );
+	my ($samh, $samf) = $self->tempfile( -dir => $self->{'_tempdir'}, -suffix => '.sam' );
 
 	# print header
 	print $samh $HD;
@@ -258,6 +289,21 @@ sub _bowtie_to_sam {
 	return $samf;
 }
 
+sub _uncompress {
+	my ($self, $file) = @_;
+
+	unless ($HAVE_IO_UNCOMPRESS) {
+		croak( "IO::Uncompress::Gunzip not available, can't expand '$file'" );
+	}
+	my ($tfh, $tf) = $self->tempfile( -dir => $self->{'_tempdir'} );
+	my $z = IO::Uncompress::Gunzip->new($file);
+	while (my $block = $z->getline) { print $tfh $block }
+	close $tfh;
+	$file = $tf;
+
+	return $file
+}
+
 sub _make_bam {
 	my ($self, $file) = @_;
 	
@@ -265,8 +311,8 @@ sub _make_bam {
 		unless ( -e $file && -r $file );
 
 	# make a sorted bam file from a sam file input
-	my ($bamh, $bamf) = $self->tempfile( -dir => $self->tempdir(), -suffix => '.bam' );
-	my ($srth, $srtf) = $self->tempfile( -dir => $self->tempdir(), -suffix => '.srt' );
+	my ($bamh, $bamf) = $self->tempfile( -dir => $self->{'_tempdir'}, -suffix => '.bam' );
+	my ($srth, $srtf) = $self->tempfile( -dir => $self->{'_tempdir'}, -suffix => '.srt' );
 	$_->close for ($bamh, $srth);
 	
 	my $samt = Bio::Tools::Run::Samtools->new( -command => 'view',
