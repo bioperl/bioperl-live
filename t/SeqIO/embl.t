@@ -5,9 +5,10 @@ use strict;
 
 BEGIN {
 	use lib '.';
+	use lib '../..';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 69);
+	test_begin(-tests => 83);
 	
     use_ok('Bio::SeqIO::embl');
 }
@@ -189,3 +190,24 @@ is($cds_dblink->tagname, 'dblink', 'CDS - OX tagname');
 is($cds_dblink->database, 'NCBI_TaxID', 'CDS - OX database');
 is($cds_dblink->primary_id, '9606', 'CDS - OX primary_id');
 
+#bug 2982 - parsing contig descriptions sans sequence data
+
+ok( $embl = Bio::SeqIO->new(-file => test_input_file('bug2982.embl'),
+			    -format => 'embl') );
+my $i;
+for ($i=0; my $seq = $embl->next_seq; $i++) {
+    ok !$seq->seq;
+    is ( ($seq->get_SeqFeatures)[1]->primary_tag, 'CONTIG' );
+    ok( ($seq->get_SeqFeatures)[1]->location );
+}
+is $i, 4;
+
+sub test_input_file { 
+    my $f = shift;
+    if ( -e 'C:/cygwin/usr/local/lib/perl5/bioperl-live/t/data/'.$f ){
+	return 'C:/cygwin/usr/local/lib/perl5/bioperl-live/t/data/'.$f;
+    }
+    else {
+	return '../data/'.$f;
+    }
+}
