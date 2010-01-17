@@ -760,6 +760,17 @@ sub _find_executable {
     my $self = shift;
     my ($exe, $warn) = @_;
 
+    if ($self->is_pseudo && !$exe) {
+	if (!$self->command) {
+	    $self->throw( 
+		"The ".__PACKAGE__." wrapper represents several different programs;".
+		"arg1 to _find_executable must be specified explicitly,".
+		"or the command() attribute set");
+	}
+	else {
+	    $exe = $self->command;
+	}
+    }
     $exe ||= $self->program_path;
 
     my $path;
