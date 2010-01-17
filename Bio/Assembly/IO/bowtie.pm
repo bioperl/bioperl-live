@@ -14,12 +14,13 @@
 
 =head1 NAME
 
-Bio::Assembly::IO::bowtie - An IO module for assemblies in Bowtie format *ALPHA*
+Bio::Assembly::IO::bowtie - An IO module for assemblies in Bowtie format *BETA*
 
 =head1 SYNOPSIS
 
- $aio = Bio::Assembly::IO( -file => "mybowtie.bowtie",
-                           -refdb => "myindex");
+ $aio = Bio::Assembly::IO( -file   => "mybowtie.bowtie",
+                           -index  => "myindex",
+                           -format => "bowtie");
  $assy = $aio->next_assembly;
 
 =head1 DESCRIPTION
@@ -72,7 +73,7 @@ the Bioperl mailing list.  Your participation is much appreciated.
 
 Please direct usage questions or support issues to the mailing list:
 
-L<bioperl-l@bioperl.org>
+  L<bioperl-l@bioperl.org>
 
 rather than to the module maintainer directly. Many experienced and
 reponsive experts will be able look at the problem and quickly
@@ -157,8 +158,8 @@ sub new {
 
 	# get the sequence so Bio::DB::Sam can work with it
         my $refdb;
-	if (-e $index && -r $index) {
-		$refdb = $self->_uncompress($index) if ($index =~ m/\.gz[^.]*$/);
+	if (-e $index && -r _ ) {
+		$refdb = ($index =~ m/\.gz[^.]*$/) ? $self->_uncompress($index) : $index;
 		my $guesser = Bio::Tools::GuessSeqFormat->new(-file=>$refdb);
 		$self->throw("'$index' is not a fasta file.")
 			unless $guesser->guess =~ m/^fasta$/;
@@ -179,7 +180,7 @@ sub _bowtie_to_sam {
 	my ($self, $file, $refdb) = @_;
 
 	$self->throw("'$file' does not exist or is not readable.")
-		unless ( -e $file && -r $file );
+		unless ( -e $file && -r _ );
 
 	if ($file =~ m/\.gz[^.]*$/) {
 		$file = $self->_uncompress($file);
@@ -308,7 +309,7 @@ sub _make_bam {
 	my ($self, $file) = @_;
 	
 	$self->throw("'$file' does not exist or is not readable")
-		unless ( -e $file && -r $file );
+		unless ( -e $file && -r _ );
 
 	# make a sorted bam file from a sam file input
 	my ($bamh, $bamf) = $self->tempfile( -dir => $self->{'_tempdir'}, -suffix => '.bam' );
