@@ -82,10 +82,6 @@ Codata ("codata")
 
 =item *
 
-Crossbow ("crossbow")
-
-=item *
-
 EMBL ("embl")
 
 =item *
@@ -418,7 +414,6 @@ our %formats = (
     bowtie      => { test => \&_possibly_bowtie     },
     clustalw    => { test => \&_possibly_clustalw   },
     codata      => { test => \&_possibly_codata     },
-    crossbow    => { test => \&_possibly_crossbow   },
     embl        => { test => \&_possibly_embl       },
     fasta       => { test => \&_possibly_fasta      },
     fastq       => { test => \&_possibly_fastq      },
@@ -596,19 +591,6 @@ sub _possibly_codata
     return (($lineno == 1 && $line =~ /^ENTRY/) ||
             ($lineno == 2 && $line =~ /^SEQUENCE/) ||
             $line =~ m{^(?:ENTRY|SEQUENCE|///)});
-}
-
-=head2 _possibly_crossbow
-
-Contributed by kortsch.
-
-=cut
-
-sub _possibly_crossbow
-{
-    my ($line, $lineno) = (shift, shift);
-    return ($line =~ /^[[:graph:]]+(?:\t([[:alpha:]]+)\t([ -~]+))(?:\t([[:alpha:]]+)\t([ -~]+))?$/)
-            && length($1)==length($2) && (defined($3) ? length($3):0)==(defined($4) ? length($4):0);
 }
 
 =head2 _possibly_embl
