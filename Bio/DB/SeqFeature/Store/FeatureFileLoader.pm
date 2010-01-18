@@ -544,9 +544,11 @@ sub handle_feature {
   my $feature = $ld->{CurrentFeature};
   
   $ld->{OldPartType} = $ld->{PartType};
-  $ld->{PartType}    = $attr->{Type}[0] if exists $attr->{Type};
-  $ld->{PartType}    = $attr->{type}[0] if exists $attr->{type};
-  $ld->{PartType}   ||= $type;
+  if (exists $attr->{Type} || exists $attr->{type})  {
+      $ld->{PartType}   = $attr->{Type}[0] || $attr->{type}[0];
+  } else {
+      $ld->{PartType}   = $type;
+  }
 
   if ($feature) {
       local $^W = 0;  # avoid uninit warning when display_name() is called
