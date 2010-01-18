@@ -306,6 +306,7 @@ sub _uncompress {
 }
 
 sub _make_bam {
+$DB::single=1;
 	my ($self, $file) = @_;
 	
 	$self->throw("'$file' does not exist or is not readable")
