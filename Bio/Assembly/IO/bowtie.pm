@@ -177,6 +177,7 @@ sub new {
 }
 
 sub _bowtie_to_sam {
+$DB::single=1;
 	my ($self, $file, $refdb) = @_;
 
 	$self->throw("'$file' does not exist or is not readable.")
@@ -306,7 +307,6 @@ sub _uncompress {
 }
 
 sub _make_bam {
-$DB::single=1;
 	my ($self, $file) = @_;
 	
 	$self->throw("'$file' does not exist or is not readable")
