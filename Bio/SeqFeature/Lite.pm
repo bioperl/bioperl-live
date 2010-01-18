@@ -818,7 +818,8 @@ sub format_attributes {
     my @values = $self->each_tag_value($t);
     push @result,join '=',$self->escape($t),join(',', map {$self->escape($_)} @values) if @values;
   }
-  my $id        = $self->escape($self->_real_or_dummy_id) || $fallback_id;
+#  my $id        = $self->escape($self->_real_or_dummy_id) || $fallback_id;
+  my $id        = $fallback_id || $self->escape($self->_real_or_dummy_id);
 
   my $parent_id;
   if (@$parent) {
