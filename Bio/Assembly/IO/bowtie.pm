@@ -165,7 +165,7 @@ sub new {
 			unless $guesser->guess =~ m/^fasta$/;
 	} elsif ($HAVE_BOWTIE) {
 		my $inspector = Bio::Tools::Run::Bowtie->new( -command => 'inspect' );
-		my $refdb = $inspector->run($index);
+		$refdb = $inspector->run($index);
 	} else {
 		$self->throw("Bio::Tools::Run::Bowtie is not available - cannot extract refdb from index.");
 	}
