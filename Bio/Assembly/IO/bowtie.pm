@@ -158,13 +158,14 @@ sub new {
 
 	# get the sequence so Bio::DB::Sam can work with it
         my $refdb;
+        my $inspector;
 	if (-e $index && -r _ ) {
 		$refdb = ($index =~ m/\.gz[^.]*$/) ? $self->_uncompress($index) : $index;
 		my $guesser = Bio::Tools::GuessSeqFormat->new(-file=>$refdb);
 		$self->throw("'$index' is not a fasta file.")
 			unless $guesser->guess =~ m/^fasta$/;
 	} elsif ($HAVE_BOWTIE) {
-		my $inspector = Bio::Tools::Run::Bowtie->new( -command => 'inspect' );
+		$inspector = Bio::Tools::Run::Bowtie->new( -command => 'inspect' );
 		$refdb = $inspector->run($index);
 	} else {
 		$self->throw("Bio::Tools::Run::Bowtie is not available - cannot extract refdb from index.");
@@ -177,7 +178,6 @@ sub new {
 }
 
 sub _bowtie_to_sam {
-$DB::single=1;
 	my ($self, $file, $refdb) = @_;
 
 	$self->throw("'$file' does not exist or is not readable.")
