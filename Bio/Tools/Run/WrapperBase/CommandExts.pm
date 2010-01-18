@@ -1042,7 +1042,7 @@ sub _dash_switch {
 
 	my $dash = $self->{'_options'}->{'_dash'};
 	for ($dash) {
-		$_ == 1 && do {
+		$_ eq '1' && do {
 			$switch = '-'.$switch;
 			last;
 		};
