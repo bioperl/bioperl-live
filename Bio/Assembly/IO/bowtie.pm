@@ -314,7 +314,7 @@ sub _make_bam {
 
 	# make a sorted bam file from a sam file input
 	my ($bamh, $bamf) = $self->tempfile( -dir => $self->{'_tempdir'}, -suffix => '.bam' );
-	my ($srth, $srtf) = $self->tempfile( -dir => $self->tempdir(CLEANUP=>1), -suffix => '.srt' );
+	my ($srth, $srtf) = $self->tempfile( -dir => $self->{'_tempdir'}, -suffix => '.srt' );
 	$_->close for ($bamh, $srth);
 	
 	my $samt = Bio::Tools::Run::Samtools->new( -command => 'view',
