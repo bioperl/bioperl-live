@@ -1056,7 +1056,7 @@ sub _dash_switch {
 		};
 		/^m/ && do { # mixed dash: one-letter opts get -,
 			$switch = '-'.$switch;
-			$switch =~ s/^(-[a-z0-9](?:\w*|$))/-$1/i;
+			$switch =~ s/^(-[a-z0-9](?:\w+))$/-$1/i;
 			last;
 		};
 		do { 
