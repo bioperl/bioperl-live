@@ -111,6 +111,7 @@ use warnings;
 use Bio::SeqIO;
 use Bio::Tools::Run::Samtools;
 use Bio::Assembly::IO;
+use POSIX;
 
 use base qw( Bio::Assembly::IO );
 
@@ -151,10 +152,12 @@ sub new {
 	my $self = $class->SUPER::new(@args);
 	$self->_initialize(@args);
 	$self->{'_tempdir'} = $self->tempdir(CLEANUP=>1);
-	my ($file, $index, $no_head, $no_sq) = $self->_rearrange([qw(FILE INDEX NO_HEAD NO_SQ)], @args);
+	my ($file, $index, $no_head, $no_sq, $color) =
+		$self->_rearrange([qw(FILE INDEX NO_HEAD NO_SQ COLOR_SPACE)], @args);
 	$file =~ s/^<//;
 	$self->{'_no_head'} = $no_head;
 	$self->{'_no_sq'} = $no_sq;
+	$self->{'_color_space'} = $color;
 
 	# get the sequence so Bio::DB::Sam can work with it
         my $refdb;
@@ -214,7 +217,7 @@ sub _bowtie_to_sam {
 		my $first_f =  ($qname =~ m#/1#) ? 0x40 : 0;
 		my $second_f = ($qname =~ m#/2#) ? 0x80 : 0;
 		my $flag = $paired_f | $strand_f | $op_strand_f | $first_f | $second_f;
-
+		
 		$pos++;
 		my $len = length $seq;
 		die unless $len == length $qual;
@@ -232,28 +235,35 @@ sub _bowtie_to_sam {
 		}
 		push @mismatch, $len-$last_pos;
 		@mismatch = reverse @mismatch if $strand eq '-';
-		my $mismatch = join('',('MD:Z:',@mismatch));
-
+		my $mismatch = 'XA:i:'.scalar @detail; # we can't know seed length so assume v-mode
+		$mismatch .= "\t".join('',('MD:Z:',@mismatch));
+		
+		my @line = ($qname, $flag, $rname, $pos, $mapq, $cigar, undef, undef, undef, $seq, $qual, $mismatch, $dist);
+		
+		# someone who actually uses CS should confirm that this is always valid
+		push @line, 'CM:i:'.ceil(scalar (grep /!/,split('',$qual))/2) if $self->{'_color_space'};
+		
 		if ($paired_f) {
-			my $mrnm = '=';
+			$line[6] = '='; #NRNM
 			if ($in_pair) {
 				my $mpos = $mate_line[3];
 				$mate_line[7] = $pos;
-				my $isize = $mpos-$pos-$len;
-				$mate_line[8] = -$isize;
+				$line[8] = $mpos-$pos-$len; #ISIZE
+				$mate_line[8] = -$line[8]; #mate's ISIZE
 				print $sam_tmp_h join("\t",@mate_line),"\n";
-				print $sam_tmp_h join("\t",$qname, $flag, $rname, $pos, $mapq, $cigar, $mrnm, $mpos, $isize, $seq, $qual, $mismatch, $dist),"\n";
+				print $sam_tmp_h join("\t",@line),"\n";
 				$in_pair = 0;
 			} else {
 				$mlen = $len;
-				@mate_line = ($qname, $flag, $rname, $pos, $mapq, $cigar, $mrnm, undef, undef, $seq, $qual, $mismatch, $dist);
+				@mate_line = ($qname, $flag, $rname, $pos, $mapq, $cigar, '=', undef, undef, $seq, $qual, $mismatch, $dist);
+				push @mate_line, 'CM:i:'.ceil(scalar (grep /!/,split('',$qual))/2) if $self->{'_color_space'};
 				$in_pair = 1;
 			}
 		} else {
-			my $mrnm = '*';
-			my $mpos = 0;
-			my $isize = 0;
-			print $sam_tmp_h join("\t",$qname, $flag, $rname, $pos, $mapq, $cigar, $mrnm, $mpos, $isize, $seq, $qual, $mismatch, $dist),"\n";
+			$line[6] = '*'; #NRNM
+			$line[7] = 0; #MPOS
+			$line[8] = 0; #ISIZE
+			print $sam_tmp_h join("\t",@line),"\n";
 		}
 	}
 
