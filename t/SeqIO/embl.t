@@ -197,17 +197,8 @@ ok( $embl = Bio::SeqIO->new(-file => test_input_file('bug2982.embl'),
 my $i;
 for ($i=0; my $seq = $embl->next_seq; $i++) {
     ok !$seq->seq;
-    is ( ($seq->get_SeqFeatures)[1]->primary_tag, 'CONTIG' );
-    ok( ($seq->get_SeqFeatures)[1]->location );
+    ok ( my $ann = ($seq->annotation->get_Annotations('contig'))[0] );
+    like $ann->value, qr/join\(/;
 }
 is $i, 4;
 
-sub test_input_file { 
-    my $f = shift;
-    if ( -e 'C:/cygwin/usr/local/lib/perl5/bioperl-live/t/data/'.$f ){
-	return 'C:/cygwin/usr/local/lib/perl5/bioperl-live/t/data/'.$f;
-    }
-    else {
-	return '../data/'.$f;
-    }
-}

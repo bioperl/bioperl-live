@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 260);
+	test_begin(-tests => 262 );
 	
     use_ok('Bio::SeqIO::genbank');
 }
@@ -561,3 +561,14 @@ is($dblinks[0]->database, 'UniProtKB');
 is($dblinks[0]->primary_id, 'PYRR_BACSU');
 is($dblinks[0]->version, undef);
 is($dblinks[0]->display_text, 'UniProtKB:PYRR_BACSU','operator overloading in AnnotationI is deprecated');
+
+#bug 2982 embl/genbank contig handling
+
+$ast = Bio::SeqIO->new( -file => 'bug2982.gb', 
+			-format => 'genbank' );
+
+$seq = $ast->next_seq;
+
+ok my @ctg = $seq->annotation->get_Annotations('contig');
+like $ctg[0]->value, qr/join\(.*?gap.*?complement/;
+
