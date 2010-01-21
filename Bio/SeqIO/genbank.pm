@@ -678,12 +678,17 @@ sub next_seq {
 	if( defined ($_) ) {
 	    if( /^CONTIG/o ) {
 		my @contig;
+		my $ctg = '';
 		while($_ !~ m{^//}) { # end of file
 		    $_ =~ /^(?:CONTIG)?\s+(.*)/;
-		    $annotation->add_Annotation(
-						Bio::Annotation::SimpleValue->new(-value   => $1,
-										  -tagname => 'contig'));
+		    $ctg .= $1;
 		    $_ = $self->_readline;
+		}
+		if ($ctg) {
+		    $annotation->add_Annotation( 
+			Bio::Annotation::SimpleValue->new(-tagname => 'contig',
+							  -value => $ctg )
+			);
 		}
 		$self->_pushback($_);
 	    } elsif( /^WGS|WGS_SCAFLD\s+/o ) { # catch WGS/WGS_SCAFLD lines

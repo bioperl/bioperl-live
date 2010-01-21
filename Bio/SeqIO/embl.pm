@@ -421,16 +421,13 @@ sub next_seq {
     }
 
     if ( $buffer =~ /^CO/  ) {
+	# bug#2982
+	# special : create contig as annotation
         until ( !defined ($buffer) ) {
-            my $ftunit = $self->_read_FTHelper_EMBL(\$buffer);
-            # process ftunit
-            push(@features,
-                 $ftunit->_generic_seqfeature($self->location_factory(),
-                                              $name));
-
+	    $annotation->add_Annotation($_) for $self->_read_EMBL_Contig(\$buffer);
             if ( $buffer !~ /^CO/ ) {
                 last;
-            }
+	    }
         }
     }
 if ($buffer !~ /^\/\//) { # if no SQ lines following CO (bug#2958)
@@ -728,7 +725,6 @@ sub write_seq {
             }
             $self->_print("XX\n") || return;
         }
-
         # Reference lines
         my $t = 1;
         if ( $seq->can('annotation') && defined $seq->annotation ) {
@@ -841,52 +837,64 @@ sub write_seq {
 
         # finished printing features.
 
-        $str =~ tr/A-Z/a-z/;
+	# print contig if present : bug#2982
+	if ( $seq->can('annotation') && defined $seq->annotation) {
+	    foreach my $ctg ( $seq->annotation->get_Annotations('contig') ) {
+		if ($ctg->value) {
+		    $self->_write_line_EMBL_regex("CO   ","CO   ", $ctg->value,
+						  '[,]|$', 80) || return;
+		}
+	    }
+	}
+	# print sequence lines only if sequence is present! bug#2982
+	if (length($str)) {
+	    $str =~ tr/A-Z/a-z/;
 
-        # Count each nucleotide
-        my $alen = $str =~ tr/a/a/;
-        my $clen = $str =~ tr/c/c/;
-        my $glen = $str =~ tr/g/g/;
-        my $tlen = $str =~ tr/t/t/;
+	    # Count each nucleotide
+	    my $alen = $str =~ tr/a/a/;
+	    my $clen = $str =~ tr/c/c/;
+	    my $glen = $str =~ tr/g/g/;
+	    my $tlen = $str =~ tr/t/t/;
+	    
+	    my $len = $seq->length();
+	    my $olen = $seq->length() - ($alen + $tlen + $clen + $glen);
+	    if ( $olen < 0 ) {
+		$self->warn("Weird. More atgc than bases. Problem!");
+	    }
+	    
+	    $self->_print("SQ   Sequence $len BP; $alen A; $clen C; $glen G; $tlen T; $olen other;\n") || return;
 
-        my $len = $seq->length();
-        my $olen = $seq->length() - ($alen + $tlen + $clen + $glen);
-        if ( $olen < 0 ) {
-            $self->warn("Weird. More atgc than bases. Problem!");
-        }
+	    my $nuc = 60;       # Number of nucleotides per line
+	    my $whole_pat = 'a10' x 6; # Pattern for unpacking a whole line
+	    my $out_pat   = 'A11' x 6; # Pattern for packing a line
+	    my $length = length($str);
+	    
+	    # Calculate the number of nucleotides which fit on whole lines
+	    my $whole = int($length / $nuc) * $nuc;
 
-        $self->_print("SQ   Sequence $len BP; $alen A; $clen C; $glen G; $tlen T; $olen other;\n") || return;
-
-        my $nuc = 60;       # Number of nucleotides per line
-        my $whole_pat = 'a10' x 6; # Pattern for unpacking a whole line
-        my $out_pat   = 'A11' x 6; # Pattern for packing a line
-        my $length = length($str);
-
-        # Calculate the number of nucleotides which fit on whole lines
-        my $whole = int($length / $nuc) * $nuc;
-
-        # Print the whole lines
-        my( $i );
-        for ($i = 0; $i < $whole; $i += $nuc) {
-            my $blocks = pack $out_pat,
+	    # Print the whole lines
+	    my( $i );
+	    for ($i = 0; $i < $whole; $i += $nuc) {
+		my $blocks = pack $out_pat,
                 unpack $whole_pat,
-                    substr($str, $i, $nuc);
-            $self->_print(sprintf("     $blocks%9d\n", $i + $nuc)) || return;
-        }
+		substr($str, $i, $nuc);
+		$self->_print(sprintf("     $blocks%9d\n", $i + $nuc)) || return;
+	    }
 
-        # Print the last line
-        if (my $last = substr($str, $i)) {
-            my $last_len = length($last);
-            my $last_pat = 'a10' x int($last_len / 10) .'a'. $last_len % 10;
-            my $blocks = pack $out_pat,
+	    # Print the last line
+	    if (my $last = substr($str, $i)) {
+		my $last_len = length($last);
+		my $last_pat = 'a10' x int($last_len / 10) .'a'. $last_len % 10;
+		my $blocks = pack $out_pat,
                 unpack($last_pat, $last);
-            $self->_print(sprintf("     $blocks%9d\n", $length)) ||
-                return;         # Add the length to the end
-        }
-
-        $self->_print( "//\n") || return;
-
-        $self->flush if $self->_flush_on_write && defined $self->_fh;
+		$self->_print(sprintf("     $blocks%9d\n", $length)) ||
+		    return;         # Add the length to the end
+	    }
+	}
+	    
+	$self->_print( "//\n") || return;
+	
+	$self->flush if $self->_flush_on_write && defined $self->_fh;
     }
     return 1;
 }
@@ -952,6 +960,36 @@ sub _print_EMBL_FTHelper {
         return 1;
     }
 
+
+
+=head2 _read_EMBL_Contig()
+
+ Title   : _read_EMBL_Contig
+ Usage   : 
+ Function: convert CO lines into annotations
+ Returns : 
+ Args    : 
+
+=cut
+
+sub _read_EMBL_Contig {
+    my ($self, $buffer) = @_;
+    my @ret;
+    if ( $$buffer !~ /^CO/ ) {
+        warn("Not parsing line '$$buffer' which maybe important");
+    }
+    $self->_pushback($$buffer);
+    while ( defined ($_ = $self->_readline) ) {
+	/^C/ || last;
+	/^CO\s+(.*)/ && do {
+	push @ret, Bio::Annotation::SimpleValue->new( -tagname => 'contig',
+						      -value => $1);
+	};
+    }
+    $$buffer = $_;
+    return @ret;
+
+}
 #'
 =head2 _read_EMBL_References
 
