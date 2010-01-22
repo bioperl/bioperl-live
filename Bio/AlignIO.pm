@@ -380,9 +380,10 @@ sub fh {
 
 sub _initialize {
   my($self,@args) = @_;
-  my ($flat) = $self->_rearrange([qw(DISPLAYNAME_FLAT)],
+  my ($flat,$alphabet) = $self->_rearrange([qw(DISPLAYNAME_FLAT ALPHABET)],
 				 @args);
   $self->force_displayname_flat($flat) if defined $flat;
+  $self->alphabet($alphabet);
   $self->_initialize_io(@args);
   1;
 }
@@ -521,5 +522,28 @@ sub force_displayname_flat{
     return $self->{'_force_displayname_flat'} = shift if @_;
     return $self->{'_force_displayname_flat'} || 0;
 }
+
+=head2 alphabet
+
+ Title   : alphabet
+ Usage   : $obj->alphabet($newval)
+ Function: Get/Set alphabet for purpose of passing to Bio::LocatableSeq creation
+ Example : $obj->alphabet('dna');
+ Returns : value of alphabet (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+
+=cut
+
+sub alphabet {
+    my $self = shift;
+    my $value = shift;
+    if ( defined $value ) {
+        $self->throw("Invalid alphabet $value") unless $value eq 'rna' || $value eq 'protein' || $value eq 'dna';
+        $self->{'_alphabet'} = $value;
+    }
+    return $self->{'_alphabet'};
+}
+
 
 1;
