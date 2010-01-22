@@ -101,7 +101,7 @@ sub _initialize {
 
 sub next_seq {
     my ($self) = @_;
-    my $largeseq = $self->sequence_factory->create();
+    my $largeseq = $self->sequence_factory->create(-alphabet=>$self->alphabet);
     my ($id,$fulldesc,$entry);
     my $count = 0;
     my $seen = 0;

@@ -163,11 +163,11 @@ sub next_aln{
        my $s = $seqs{$seqname};
        $s =~ s/[$Bio::LocatableSeq::GAP_SYMBOLS]+//g;
        my $end = length($s);
-       my $seq = Bio::LocatableSeq->new(-alphabet => $alphabet,
-				       -id => $seqname,
-				       -seq => $seqs{$seqname},
-				       -start => 1,
-				       -end   => $end);
+       my $seq = Bio::LocatableSeq->new('-alphabet'   => $alphabet,
+					'-display_id' => $seqname,
+					'-seq'        => $seqs{$seqname},
+					'-start'      => 1,
+					'-end'        => $end);
 
        $aln->add_seq($seq);
    }

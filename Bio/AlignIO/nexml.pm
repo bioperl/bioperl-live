@@ -63,7 +63,6 @@ package Bio::AlignIO::nexml;
 
 use strict;
 use lib '../..';
-use Bio::LocatableSeq;
 use Bio::Nexml::Factory;
 use Bio::Phylo::IO qw(parse unparse);
 

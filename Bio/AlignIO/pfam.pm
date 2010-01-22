@@ -106,10 +106,11 @@ sub next_aln {
 	$seq = $4;
 
 
-	$add = Bio::LocatableSeq->new('-seq'=>$seq,
-			    '-id'=>$name,
-			    '-start'=>$start,
-			    '-end'=>$end,
+	$add = Bio::LocatableSeq->new('-seq'         => $seq,
+				      '-display_id'  => $name,
+				      '-start'       => $start,
+				      '-end'         => $end,
+				      '-alphabet'    => $self->alphabet,
 			    );
 
 	$aln->add_seq($add);

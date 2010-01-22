@@ -100,10 +100,11 @@ sub next_aln {
 
 	   $names{'fake_id'} = $fake_id;
 
-	   $add = Bio::LocatableSeq->new('-seq'=>$seq,
-			       '-id'=>$acc,
-			       '-start'=>$start,
-			       '-end'=>$end,
+	   $add = Bio::LocatableSeq->new('-seq'      => $seq,
+					 '-id'       => $acc,
+					 '-start'    => $start,
+					 '-end'      => $end,
+					 '-alphabet' => $self->alphabet,
 			       );
 
 	   $aln->add_seq($add);

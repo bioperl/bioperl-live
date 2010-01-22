@@ -286,11 +286,12 @@ sub next_aln {
 	$self->throw("Length of sequence [$seqname] is not [$residuecount] it is ".CORE::length($hash{$count})."! ")
 	    unless CORE::length($hash{$count}) == $residuecount;
 
-       $seq = Bio::LocatableSeq->new('-seq'=>$hash{$count},
-				    '-id'=>$seqname,
-				    '-start'=>$start,
-				    '-end'=>$end,
-				   );
+	$seq = Bio::LocatableSeq->new('-seq'           => $hash{$count},
+				      '-display_id'    => $seqname,
+				      '-start'         => $start,
+				      '-end'           => $end,
+				      '-alphabet'      => $self->alphabet,
+				      );
 	$aln->add_seq($seq);
 
    }

@@ -133,7 +133,7 @@ sub next_aln {
                 $self->{state}->{in_curly_block} = 1;
                 next SCAN;
             }
-            $cur_data =~ s{["']}{}g;
+            $cur_data =~ s{[\"\']}{}g;
             $cur_data =~ s{\s*$}{};
             # per alignment annotation data (i.e. Sample Blocks) or
             # annotation data retained for each alignment?
@@ -209,9 +209,10 @@ sub _process_sequence {
     return unless defined $raw;
     $raw =~ s{(?:^\s+|\s+$)}{}g;
     my ($id, $samples, $seq) = split(' ', $raw);
-    my $ls = Bio::LocatableSeq->new(-seq => $seq,
-                                    -start => 1,
-                                    -id => $id);
+    my $ls = Bio::LocatableSeq->new('-seq'        => $seq,
+                                    '-start'      => 1,
+                                    '-display_id' => $id,
+				    '-alphabet'   => $self->alphabet);
     return($ls, $samples);
 }
 

@@ -230,14 +230,15 @@ sub _process_seq {
         $self->throw("Line does not comform to XMFA format:\n$entry");
     }
     my $seqobj = Bio::LocatableSeq->new(
-             -nowarnonempty => 1,
-             -strand      => $strand,
-             -seq         => $seq,
-             -display_id  => $seqname,
-             -description => $desc || $all,
-             -start       => $start,
-             -end         => $end,
-             );
+					-nowarnonempty => 1,
+					-strand      => $strand,
+					-seq         => $seq,
+					-display_id  => $seqname,
+					-description => $desc || $all,
+					-start       => $start,
+					-end         => $end,
+					-alphabet    => $self->alphabet,
+					);
     $self->debug("Reading $seqname\n");
     return $seqobj;
 }

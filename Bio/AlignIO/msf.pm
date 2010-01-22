@@ -89,72 +89,73 @@ BEGIN {
 =cut
 
 sub next_aln {
-	my $self = shift;
-	my $entry;
-	my (%hash,$name,$str,@names,$seqname,$start,$end,$count,$seq);
+    my $self = shift;
+    my $entry;
+    my (%hash,$name,$str,@names,$seqname,$start,$end,$count,$seq);
 
-	my $aln =  Bio::SimpleAlign->new(-source => 'gcg' );
+    my $aln =  Bio::SimpleAlign->new(-source => 'gcg' );
 
-	while( $entry = $self->_readline) {
-		$entry =~ m{//} && last; # move to alignment section
-		$entry =~ /Name:\s+(\S+)/ && do { $name = $1;
+    while( $entry = $self->_readline) {
+	$entry =~ m{//} && last; # move to alignment section
+	$entry =~ /Name:\s+(\S+)/ && do { $name = $1;
 					  $hash{$name} = ""; # blank line
 					  push(@names,$name); # we need it ordered!
-				       };
-		# otherwise - skip
+				      };
+	# otherwise - skip
+    }
+
+    # alignment section
+
+    while( $entry = $self->_readline) {
+	next if ( $entry =~ /^\s+(\d+)/ ) ;
+	$entry =~ /^\s*(\S+)\s+(.*)$/ && do {
+	    $name = $1;
+	    $str = $2;
+	    if( ! exists $hash{$name} ) {
+		$self->throw("$name exists as an alignment line but not in the header. Not confident of what is going on!");
+	    }
+	    $str =~ s/\s//g;
+	    $str =~ s/~/-/g;
+	    $hash{$name} .= $str;
+	};
+    }
+
+    # return 0 if scalar @names < 1;
+    if (scalar(@names) < 1) {
+	undef $aln;
+	return $aln;
+    }
+
+    # now got this as a name - sequence hash. Let's make some sequences!
+
+    for $name ( @names ) {
+	if( $name =~ m{(\S+)/(\d+)-(\d+)} ) {
+	    $seqname = $1;
+	    $start = $2;
+	    $end = $3;
+	} else {
+	    $seqname = $name;
+	    $start = 1;
+	    $str = $hash{$name};
+	    $str =~ s/[^0-9A-Za-z$Bio::LocatableSeq::OTHER_SYMBOLS]//g;
+
+	    $end = length($str);
 	}
 
-   # alignment section
-
-   while( $entry = $self->_readline) {
-		next if ( $entry =~ /^\s+(\d+)/ ) ;
-		$entry =~ /^\s*(\S+)\s+(.*)$/ && do {
-			$name = $1;
-			$str = $2;
-			if( ! exists $hash{$name} ) {
-				$self->throw("$name exists as an alignment line but not in the header. Not confident of what is going on!");
-			}
-			$str =~ s/\s//g;
-			$str =~ s/~/-/g;
-			$hash{$name} .= $str;
-		};
-   }
-
-   # return 0 if scalar @names < 1;
-	if (scalar(@names) < 1) {
-		undef $aln;
-		return $aln;
-	}
-
-   # now got this as a name - sequence hash. Let's make some sequences!
-
-   foreach $name ( @names ) {
-		if( $name =~ m{(\S+)/(\d+)-(\d+)} ) {
-			$seqname = $1;
-			$start = $2;
-			$end = $3;
-		} else {
-			$seqname = $name;
-			$start = 1;
-			$str = $hash{$name};
-			$str =~ s/[^0-9A-Za-z$Bio::LocatableSeq::OTHER_SYMBOLS]//g;
-
-			$end = length($str);
-		}
-
-		$seq = Bio::LocatableSeq->new(-seq   => $hash{$name},
-					      -id    => $seqname,
-					      -start => $start,
-					      -end   => $end,
-											 );
-		$aln->add_seq($seq);
+	$seq = Bio::LocatableSeq->new('-seq'        => $hash{$name},
+				      '-display_id' => $seqname,
+				      '-start'      => $start,
+				      '-end'        => $end,
+				      '-alphabet'   => $self->alphabet,
+				      );
+	$aln->add_seq($seq);
 
 #  If $end <= 0, we have either reached the end of
 #  file in <> or we have encountered some other error
 
-   }
-   return $aln if $aln->num_sequences;
-   return;
+    }
+    return $aln if $aln->num_sequences;
+    return;
 }
 
 

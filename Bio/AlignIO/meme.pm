@@ -154,12 +154,14 @@ sub next_aln {
 			# Make the sequence.  Meme gives the start coordinate at the left
 			# hand side of the motif relative to the INPUT sequence.
 			my $end_pos = $start_pos + length($central) - 1;
-			my $seq = Bio::LocatableSeq->new(-seq    => $central,
-													  -id     => $seq_name,
-													  -start  => $start_pos,
-													  -end    => $end_pos,
-													  -strand => $strand
-													 );
+			my $seq = Bio::LocatableSeq->new
+			    ('-seq'            => $central,
+			     '-display_id'     => $seq_name,
+			     '-start'          => $start_pos,
+			     '-end'            => $end_pos,
+			     '-strand'         => $strand,
+			     '-alphabet'       => $self->alphabet,
+			     );
 			# Add the sequence motif to the alignment
 			$aln->add_seq($seq);
 		} elsif (($line =~ /^\-/) || ($line =~ /Sequence name/)){

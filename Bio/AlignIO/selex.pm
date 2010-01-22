@@ -138,6 +138,7 @@ sub next_aln {
 	     '-end'              => $end,
 	     '-description'      => $desc{$name},
 	     '-accession_number' => $accession{$name},
+ 	     '-alphabet'         => $self->alphabet,
 	     );
 
 	$aln->add_seq($seq);

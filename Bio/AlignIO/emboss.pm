@@ -227,11 +227,13 @@ sub next_aln {
     foreach my $seqname ( qw(seq1 seq2) ) {
 	return unless ( defined $data{$seqname} );
 	$data{$seqname}->{'name'} ||= $seqname;
-	my $seq = Bio::LocatableSeq->new('-seq' => $data{$seqname}->{'data'},
-					'-id'  => $data{$seqname}->{'name'},
-					'-start'=> $data{$seqname}->{'start'},
-					'-end' => $data{$seqname}->{'end'},
-					);
+	my $seq = Bio::LocatableSeq->new
+	    ('-seq'         => $data{$seqname}->{'data'},
+	     '-display_id'  => $data{$seqname}->{'name'},
+	     '-start'       => $data{$seqname}->{'start'},
+	     '-end'         => $data{$seqname}->{'end'},
+	     '-alphabet'    => $self->alphabet,
+	     );
 	$aln->add_seq($seq);
     }
     return $aln;

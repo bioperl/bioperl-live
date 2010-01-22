@@ -125,13 +125,15 @@ sub next_aln {
 
 	    if($name =~ /(\S+)\/(\d+)-(\d+)/) {
 		$seq = Bio::LocatableSeq->new(
-					     '-display_id' => $1,
-					     '-start'      => $2,
-					     '-end'        => $3,
+					      '-display_id' => $1,
+					      '-start'      => $2,
+					      '-end'        => $3,
+					      '-alphabet'   => $self->alphabet,
 					    );
 
 	    } else {
-		$seq = Bio::LocatableSeq->new('-display_id' => $name);
+		$seq = Bio::LocatableSeq->new('-display_id'=> $name,
+					      '-alphabet'  => $self->alphabet);
 	    }
 
 	    # store sequences in a list initially, because can't guarantee
@@ -141,7 +143,7 @@ sub next_aln {
 	    push @{$seqs}, {
 			    'seq' => $seq,
 			    'str' => '',
-			   };
+			};
 	}
 	elsif($entry =~ /^SOURCEINFO=(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.*)/) {
 	    $seq->desc($5);

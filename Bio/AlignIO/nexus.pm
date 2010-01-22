@@ -281,7 +281,7 @@ sub next_aln {
 	    }
 	    /^\s*;/ and last;		# stop if colon at end of matrix is on it's own line
 	    $count = 0, next if $entry =~ /^\s*$/;
-	    if (/^\s*('([^']*?)'|([^']\S*))\s+(.*)$/) { #'
+	    if (/^\s*(\'([^\']*?)\'|([^\']\S*))\s+(.*)$/) { 
 		$str = $4;
 		$str =~ s/[\s;]//g;
 		$count++;
@@ -292,35 +292,31 @@ sub next_aln {
 	    /;/ and last;	# stop if colon at end of matrix is on the same line as the last seq
 	}
     }
-
+    
     return 0 if @names < 1;
-
+    
     # sequence creation
     $count = 0;
     foreach $name ( @names ) {
 	$count++;
 	if( $name =~ /(\S+)\/(\d+)-(\d+)/ ) {
-	    $seqname = $1;
-	    $start = $2;
-	    $end = $3;
+	    ($seqname,$start,$end) = ($1,$2,$3);
 	} else {
-	    $seqname=$name;
-	    $start = 1;
-	    $str = $hash{$count};
+	    ($seqname,$start,$str) = ($name,1,$hash{$count});
 	    $str =~ s/[$Bio::LocatableSeq::GAP_SYMBOLS]//g;
 	    $end = length($str);
 	}
-
+	
 	# consistency test
 	$self->throw("Length of sequence [$seqname] is not [$residuecount]; got".CORE::length($hash{$count}))
 	    unless CORE::length($hash{$count}) == $residuecount;
-
-	$seq = Bio::LocatableSeq->new('-seq'=>$hash{$count},
-				     '-id'=>$seqname,
-				     '-start'=>$start,
-				     '-end'=>$end,
-				     'alphabet'=>$alphabet
-				     );
+	
+	$seq = Bio::LocatableSeq->new('-seq'        => $hash{$count},
+				      '-display_id' => $seqname,
+				      '-start'      => $start,
+				      '-end'        => $end,
+				     '-alphabet'    => $alphabet
+				      );
 	$aln->add_seq($seq);
     }
 

@@ -223,11 +223,12 @@ sub next_aln {
             $end = length($str);
         }
         my $seq = Bio::LocatableSeq->new(
-            -seq   => $alignments{$name},
-            -id    => $sname,
-            -start => $start,
-            -end   => $end
-        );
+					 -seq      => $alignments{$name},
+					 -id       => $sname,
+					 -start    => $start,
+					 -end      => $end,
+					 -alphabet => $self->alphabet,
+					 );
         $aln->add_seq($seq);
     }
     

@@ -124,7 +124,8 @@ sub next_aln {
 	my $seq = Bio::LocatableSeq->new(-seq => $seqs{$id},
 					-id  => $id,
 					-start => 1,
-					-end   => length($seqs{$id}) - $gaps
+					-end   => length($seqs{$id}) - $gaps,
+					 -alphabet => $self->alphabet,
                     );
 	$aln->add_seq($seq);
     }

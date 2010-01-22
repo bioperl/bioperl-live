@@ -141,11 +141,12 @@ sub next_aln {
 
         defined $sequence && $sequence =~ s/\s//g; # Remove whitespace
 
-        $seq = Bio::Seq::Meta->new('-seq'=>$sequence,
-				   '-id'=>$id,
-				   '-start'=>$start,
-				   '-end'=>$end
-				  );
+        $seq = Bio::Seq::Meta->new('-seq'        => $sequence,
+				   '-display_id' => $id,
+				   '-start'      => $start,
+				   '-end'        => $end,
+				   '-alphabet'   => $self->alphabet,
+				   );
 
         foreach my $meta (@metas) {
             my ($name,$string) = split /\n/, $meta;
