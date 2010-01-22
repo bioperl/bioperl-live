@@ -665,25 +665,6 @@ sub line_length {
     return $self->{'_line_length'};
 }
 
-=head2 alphabet
-
- Title   : alphabet
- Usage   : $obj->alphabet('dna')
- Function: Set the sequence data alphabet
- Returns : sequence data type
- Args    : newvalue (optional)
-
-=cut
-
-sub alphabet {
-    my ( $self, $value ) = @_;
-    if ( defined $value ) {
-        $self->throw("Invalid alphabet $value") unless $value eq 'rna' || $value eq 'protein' || $value eq 'dna';
-        $self->{'_alphabet'} = $value;
-    }
-    return $self->{'_alphabet'};
-};
-
 =head2 spaces
 
  Title   : spaces
