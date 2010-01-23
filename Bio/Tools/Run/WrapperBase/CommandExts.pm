@@ -992,7 +992,11 @@ sub _run {
 	    splice(@switches, $_, 1, ($switches[$_]) x @{$files[$_]});
 	}
     }
-    @files = map { ($_, shift @files) } @switches;
+    @files = map {
+	if (my $f = shift @files) {
+	    ($_, $f)
+        }
+    } @switches;
     @files = map { defined $_ ? $_ : () } @files; # squish undefs
     my @ipc_args = ( $exe, @$options, @files );
 
