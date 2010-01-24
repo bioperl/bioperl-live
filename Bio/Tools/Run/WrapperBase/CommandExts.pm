@@ -993,10 +993,9 @@ sub _run {
 	}
     }
     @files = map {
-	if (my $f = shift @files) {
-	    ($_, $f)
-        }
-    } @switches;
+        my $s = shift @switches;
+        defined $_ ? ($s, $_): ()
+    } @files;
     @files = map { defined $_ ? $_ : () } @files; # squish undefs
     my @ipc_args = ( $exe, @$options, @files );
 
