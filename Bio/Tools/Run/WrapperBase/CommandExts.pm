@@ -508,7 +508,7 @@ sub new {
 	chomp $kludge[0];
 	$self->program_name($kludge[0]);
     }
-    $self->{_pathstoexe} = {};
+#    $self->{_pathstoexe} = {};
     $self->set_parameters(@args);
     $self->parameters_changed(1); # set on instantiation, per Bio::ParameterBaseI
     return $self;
@@ -973,7 +973,7 @@ sub _run {
     $err || ($err = \$self->{'stderr'});
     
     # Get program executable
-    my $exe = $self->executable || $self->executables($self->command);
+    my $exe = $self->is_pseudo ? $self->executable :$self->executables($self->command);
     # Get command-line options
     my $options = $self->_translate_params();
     # Get file specs sans redirects in correct order
