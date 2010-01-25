@@ -603,7 +603,8 @@ sub D_F81{
  Title   : D_Uncorrected
  Usage   : my $d = $stats->D_Uncorrected($aln)
  Function: Calculate a distance D, no correction for multiple substitutions 
-           is used.
+           is used.  In rare cases where sequences may not overlap, 'NA' is
+           substituted for the distance.
  Returns : L<Bio::Matrix::PhylipDist>
  Args    : L<Bio::Align::AlignI> (DNA Alignment)
            [optional] gap penalty
