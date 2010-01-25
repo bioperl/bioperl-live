@@ -636,12 +636,14 @@ sub D_Uncorrected {
 	   my $m = ( $matrix->[0]->[0] + 
 		     $matrix->[1]->[1] +
 		     $matrix->[2]->[2] +
-		     $matrix->[3]->[3] ); 
-	   my $D = 1 - ( $m / ( $len - $gaps + ( $gaps * $gappenalty)));
+		     $matrix->[3]->[3] );
+       my $denom = ( $len - $gaps + ( $gaps * $gappenalty));
+       
+	   my $D = $denom ? 1 - ( $m / $denom) : 'NA';
 	   # fwd and rev lookup
 	   $dist{$names[$i]}->{$names[$j]} = [$i,$j];
-	   $dist{$names[$j]}->{$names[$i]} = [$i,$j];	   
-	   $values[$j][$i] = $values[$i][$j] = sprintf($precisionstr,$D);
+	   $dist{$names[$j]}->{$names[$i]} = [$i,$j];
+	   $values[$j][$i] = $values[$i][$j] = $denom ? sprintf($precisionstr,$D) : $D;
            # (diagonals) distance is 0 for same sequence
 	   $dist{$names[$j]}->{$names[$j]} = [$j,$j];	   
 	   $values[$j][$j] = sprintf($precisionstr,0); 
