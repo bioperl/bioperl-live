@@ -640,11 +640,15 @@ sub D_Uncorrected {
 		     $matrix->[3]->[3] );
        my $denom = ( $len - $gaps + ( $gaps * $gappenalty));
        
+       $self->warn("No distance calculated between $names[$i] and $names[$j], inserting 'NA'")
+            unless $denom;
+       
 	   my $D = $denom ? 1 - ( $m / $denom) : 'NA';
 	   # fwd and rev lookup
 	   $dist{$names[$i]}->{$names[$j]} = [$i,$j];
 	   $dist{$names[$j]}->{$names[$i]} = [$i,$j];
-	   $values[$j][$i] = $values[$i][$j] = $denom ? sprintf($precisionstr,$D) : $D;
+	   $values[$j][$i] = $values[$i][$j] = $denom ? sprintf($precisionstr,$D)
+                                                  : sprintf("%-*s", $Precision + 2, $D);
            # (diagonals) distance is 0 for same sequence
 	   $dist{$names[$j]}->{$names[$j]} = [$j,$j];	   
 	   $values[$j][$j] = sprintf($precisionstr,0); 
