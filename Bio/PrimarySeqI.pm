@@ -671,6 +671,72 @@ sub translate {
     return $out;
 }
 
+=head2 transcribe()
+
+ Title   : transcribe
+ Usage   : $xseq = $seq->transcribe
+ Function: Convert base T to base U
+ Returns : PrimarySeqI object of alphabet 'rna' or 
+           undef if $seq->alphabet ne 'dna'
+ Args    : 
+
+=cut
+
+sub transcribe {
+    my $self = shift;
+    return unless $self->alphabet eq 'dna';
+    my $s = $self->seq;
+    $s =~ tr/tT/uU/;
+    my $class;
+    if ($self->can_call_new) {
+	$class = ref($self);
+    } else {
+	$class = 'Bio::PrimarySeq';
+	$self->_attempt_to_load_Seq;
+    }
+    return $class->new( 
+	'-seq' => $s,
+	'-alphabet' => 'rna',
+	'-display_id'  => $self->display_id,
+	'-accession_number' => $self->accession_number,
+	'-desc' => $self->desc . "[TRANSCRIBED]",
+	'-verbose' => $self->verbose
+	);
+}
+
+=head2 rev_transcribe()
+
+ Title   : rev_transcribe
+ Usage   : $rtseq = $seq->rev_transcribe
+ Function: Convert base U to base T
+ Returns : PrimarySeqI object of alphabet 'dna' or 
+           undef if $seq->alphabet ne 'rna'
+ Args    : 
+
+=cut
+
+sub rev_transcribe {
+    my $self = shift;
+    return unless $self->alphabet eq 'rna';
+    my $s = $self->seq;
+    $s =~ tr/uU/tT/;
+    my $class;
+    if ($self->can_call_new) {
+	$class = ref($self);
+    } else {
+	$class = 'Bio::PrimarySeq';
+	$self->_attempt_to_load_Seq;
+    }
+    return $class->new( 
+	'-seq' => $s,
+	'-alphabet' => 'dna',
+	'-display_id'  => $self->display_id,
+	'-accession_number' => $self->accession_number,
+	'-desc' => $self->desc . "[REVERSE TRANSCRIBED]",
+	'-verbose' => $self->verbose
+	);
+}
+
 =head2 id
 
  Title   : id
