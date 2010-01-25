@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 43);
+    test_begin(-tests => 45);
 	
 	use_ok('Bio::Align::DNAStatistics');
 	use_ok('Bio::Align::ProteinStatistics');
@@ -132,3 +132,18 @@ eval {
   Bio::Align::DNAStatistics->count_syn_sites($seq); 
 };
 like($@, qr/not integral number of codons/);
+
+# bug 2901
+$in = Bio::AlignIO->new(-file => test_input_file('bug2901.fa'),
+                        -formay => 'fasta');
+
+$stats = Bio::Align::DNAStatistics->new(-verbose => 2);
+$aln = $in->next_aln();
+my $matrix;
+throws_ok {
+$matrix = $stats->distance(-align=>$aln,-method=>'Uncorrected');
+} qr/No distance calculated between seq3 and seq4/, "Warn if seqs don't overlap";
+$stats->verbose(-1);
+$matrix = $stats->distance(-align=>$aln,-method=>'Uncorrected');
+like($matrix->print_matrix, qr/NA/);
+
