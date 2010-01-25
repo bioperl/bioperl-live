@@ -636,6 +636,7 @@ sub translate {
 		 }
 		 # test if there are terminator characters inside the protein sequence!
 		 if ($output =~ /\Q$terminator\E/) {
+             $id ||= '';
 			 $throw && $self->throw("Seq [$id]: Terminator codon inside CDS!");
 			 $self->warn("Seq [$id]: Terminator codon inside CDS!");
 		 }
