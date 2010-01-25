@@ -973,7 +973,7 @@ sub _run {
     $err || ($err = \$self->{'stderr'});
     
     # Get program executable
-    my $exe = $self->is_pseudo ? $self->executable :$self->executables($self->command);
+    my $exe = $self->executable; # 
     # Get command-line options
     my $options = $self->_translate_params();
     # Get file specs sans redirects in correct order
