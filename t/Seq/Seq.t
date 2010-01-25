@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 62);
+    test_begin(-tests => 70);
 	
 	use_ok('Bio::Seq');
 	use_ok('Bio::Seq::RichSeq');
@@ -195,3 +195,16 @@ is ($seq->primary_id, $seq->primary_seq->primary_id);
 $seq = Bio::Seq->new(-display_id => 0, -seq => 'GATC');
 
 is $seq->display_id, 0, "Bug #2864";
+
+# transcribe/rev_transcribe
+
+$seq = Bio::Seq->new( -id => 'seq1', -alphabet=>'dna',
+		      -seq=> 'attTcgcatgT' );
+ok my $xseq = $seq->transcribe;
+is $xseq->alphabet, 'rna';
+ok !($xseq->seq =~ /[tT]/);
+is $xseq->seq, 'auuUcgcaugU';
+ok !$xseq->transcribe;
+ok $seq = $xseq->rev_transcribe;
+is $seq->seq, 'attTcgcatgT';
+is $seq->alphabet, 'dna';
