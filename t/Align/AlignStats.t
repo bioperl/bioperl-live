@@ -145,5 +145,5 @@ $matrix = $stats->distance(-align=>$aln,-method=>'Uncorrected');
 } qr/No distance calculated between seq3 and seq4/, "Warn if seqs don't overlap";
 $stats->verbose(-1);
 $matrix = $stats->distance(-align=>$aln,-method=>'Uncorrected');
-like($matrix->print_matrix, qr/NA/);
+like($matrix->print_matrix, qr/-1/);
 

@@ -640,10 +640,10 @@ sub D_Uncorrected {
 		     $matrix->[3]->[3] );
        my $denom = ( $len - $gaps + ( $gaps * $gappenalty));
        
-       $self->warn("No distance calculated between $names[$i] and $names[$j], inserting 'NA'")
+       $self->warn("No distance calculated between $names[$i] and $names[$j], inserting -1")
             unless $denom;
        
-	   my $D = $denom ? 1 - ( $m / $denom) : 'NA';
+	   my $D = $denom ? 1 - ( $m / $denom) : -1;
 	   # fwd and rev lookup
 	   $dist{$names[$i]}->{$names[$j]} = [$i,$j];
 	   $dist{$names[$j]}->{$names[$i]} = [$i,$j];
