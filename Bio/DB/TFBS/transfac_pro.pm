@@ -428,6 +428,8 @@ sub get_matrix {
 
 =cut
 
+my %VALID_STRAND = map {$_ => 1} qw(-1 0 1);
+
 sub get_aln {
     my ($self, $id, $via_factors) = @_;
     $id || return;
@@ -556,6 +558,8 @@ sub get_aln {
     foreach (@blocks) {
         my ($seq, $seq_acc, $start, $strand) = split('_', $_);
         
+        $self->throw("Invalid strand $strand found in block $_")
+            unless exists $VALID_STRAND{$strand};
         # we can get back multiple different subparts of the same site (sequence),
         # so $seq_acc isn't unique across this loop. Can't use it as the seq id
         # of the alignment (ids must be unique in SimpleAlign), so we
