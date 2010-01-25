@@ -503,12 +503,6 @@ sub new {
     }
     $self->program_name($name) if not defined $self->program_name();
     $self->program_dir($dir) if not defined $self->program_dir();
-    if ($^O =~ /cygwin/ and !$self->is_pseudo) {
-	my @kludge = `PATH=\$PATH:/usr/bin:/usr/local/bin which $name`;
-	chomp $kludge[0];
-	$self->program_name($kludge[0]);
-    }
-#    $self->{_pathstoexe} = {};
     $self->set_parameters(@args);
     $self->parameters_changed(1); # set on instantiation, per Bio::ParameterBaseI
     return $self;
