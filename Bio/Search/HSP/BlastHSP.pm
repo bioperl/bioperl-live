@@ -262,11 +262,6 @@ sub new {
     return $self;
 }
 
-#sub DESTROY {
-#    my $self = shift;
-#    #print STDERR "--->DESTROYING $self\n";
-#}
-
 
 # Title   : _id_str;
 # Purpose : Intended for internal use only to provide a string for use
