@@ -111,7 +111,7 @@ sub _initialize
   elsif ($self->mode eq 'w') {
     # print default lines
     $self->_print('<?xml version="1.0" encoding="UTF-8"?>',"\n");
-    $self->_print('<phyloxml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.phyloxml.org http://www.phyloxml.org/1.00/phyloxml.xsd" xmlns="http://www.phyloxml.org">', "\n");
+    $self->_print('<phyloxml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.phyloxml.org" xsi:schemaLocation="http://www.phyloxml.org http://www.phyloxml.org/1.10/phyloxml.xsd">');
   }
 
   $self->treetype($args{-treetype});
@@ -343,6 +343,20 @@ sub write_tree
         $attr_str .= " ".$tag."=\"".$_."\"";
       }
     }
+    # check if rooted
+    my ($b_rooted) = $tree->get_tag_values('rooted');
+    print "b_rooted: $b_rooted\n";
+    if ($b_rooted) {
+      $attr_str .= " rooted=\"true\"";
+    }
+    else {
+      if($tree->is_binary($tree->get_root_node)) {
+        $attr_str .= " rooted=\"true\"";
+      }
+      else {
+        $attr_str .= " rooted=\"false\"";
+      }
+    }
     $self->_print($attr_str); 
     $self->_print(">");
     if ($root->isa('Bio::Tree::AnnotatableNode')) {
@@ -361,7 +375,6 @@ sub write_tree
       $self->_print($str);
     }
     $self->_print("</phylogeny>");
-    $self->_print("\n");
   }
   $self->flush if $self->_flush_on_write && defined $self->_fh;
   return;
@@ -458,8 +471,9 @@ sub _write_tree_Helper_generic
   foreach my $tag (@tags) {
     my @values = $node->get_tag_values($tag);
     foreach my $val (@values) {
-      $str .= "<property applies_to=\"clade\" ref=\"$tag:$val\"> ";
-      $str .= " </property>";
+      $str .= "<property datatype=\"xsd:string\" ref=\"tag:$tag\" applies_to=\"clade\">";
+      $str .=$val;
+      $str .= "</property>";
     }
   }
 
@@ -1494,4 +1508,3 @@ sub print_seq_annotation
 }
 
 1;
-
