@@ -127,7 +127,7 @@ sub create {
     
     my $sequence = $param{'-seq'};
     my $fulldesc = $param{'-desc'};
-    my $id       = $param{'-id'} || $param{'-primary_id'};
+    my $id       = defined $param{'-id'} ? $param{'-id'} : $param{'-primary_id'};
     my $alphabet = $param{'-alphabet'};
 
     my $seq = bless {}, "Bio::Seq";
