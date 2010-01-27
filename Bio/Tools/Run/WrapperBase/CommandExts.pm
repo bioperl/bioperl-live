@@ -756,6 +756,8 @@ sub _find_executable {
 
     if ($self->is_pseudo && !$exe) {
 	if (!$self->command) {
+	    # this throw probably appropriate
+	    # the rest are now warns if $warn.../maj
 	    $self->throw( 
 		"The ".__PACKAGE__." wrapper represents several different programs;".
 		"arg1 to _find_executable must be specified explicitly,".
@@ -784,7 +786,8 @@ sub _find_executable {
     if ($path = $self->io->exists_exe($exe)) {
 	return $path;
     } else {
-	$self->throw("Cannot find executable for program '".$self->program_name."'");
+	$self->warn("Cannot find executable for program '".$self->program_name."'") if $warn;
+	return;
     }
 }
 
@@ -1003,7 +1006,7 @@ sub _run {
 	return 0;
     }
 
-    return 1;
+     return 1;
 }
 
 
