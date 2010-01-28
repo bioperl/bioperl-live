@@ -207,7 +207,7 @@ sub new {
         -methods => [@PARAMS, qw(eutil history correspondence id_file)]);
     $self->eutil() || $self->eutil('efetch');
     $self->tool() || $self->tool('bioperl');
-    $self->email() || $self->throw('The -email parameter is now required, per NCBI E-utilities policy');
+    $self->email() || $self->warn('The -email parameter is now required, per NCBI E-utilities policy');
     # set default retmode if not explicitly set    
     $self->set_default_retmode if (!$retmode);
     $self->{'_statechange'} = 1;
