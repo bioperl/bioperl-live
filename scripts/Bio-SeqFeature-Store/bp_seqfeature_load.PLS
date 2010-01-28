@@ -77,6 +77,7 @@ END
 if ($FAST) {
   -d $TMP && -w $TMP
     or die "Fast loading is requested, but I cannot write into the directory $TMP";
+  $DSN .= ";mysql_local_infile=1" if $ADAPTOR =~ /mysql/i && $DSN !~ /mysql_local_infile/;
 }
 
 my @options;

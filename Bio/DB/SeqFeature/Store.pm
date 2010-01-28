@@ -606,7 +606,9 @@ sub delete {
   my $success = 1;
   for my $object (@_) {
     my $id = $object->primary_id;
-    $success &&= $self->_deleteid($id);
+    my $result = $self->_deleteid($id);
+    warn "Could not delete feature with id=$id" unless $result;
+    $success &&= $result;
   }
   $success;
 }
