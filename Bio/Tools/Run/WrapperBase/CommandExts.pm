@@ -995,10 +995,10 @@ sub _run {
     } @files;
     @files = map { defined $_ ? $_ : () } @files; # squish undefs
     my @ipc_args = ( $exe, @$options, @files );
-
+    $DB::single=1;
     eval {
-	IPC::Run::run(\@ipc_args, \$in, \$out, \$err) or
-	    die ("There was a problem running $exe : ".$err);
+	IPC::Run::run(\@ipc_args, $in, $out, $err) or
+	    die ("There was a problem running $exe : ".$$err);
     };
 
     if ($@) {
