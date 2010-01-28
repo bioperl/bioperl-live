@@ -14,8 +14,8 @@
 
 =head1 NAME
 
-Bio::Tools::EUtilities::EUtilParameters - Manipulation of NCBI eutil-based parameters for
-remote database requests.
+Bio::Tools::EUtilities::EUtilParameters - Manipulation of NCBI eutil-based
+parameters for remote database requests.
 
 =head1 SYNOPSIS
 
@@ -43,9 +43,9 @@ remote database requests.
 
 =head1 DESCRIPTION
 
-Bio::Tools::EUtilities::EUtilParameters is-a Bio::ParameterBaseI implementation that allows
-simple manipulation of NCBI eutil parameters for CGI-based queries. SOAP-based
-methods may be added in the future.
+Bio::Tools::EUtilities::EUtilParameters is-a Bio::ParameterBaseI implementation
+that allows simple manipulation of NCBI eutil parameters for CGI-based queries.
+SOAP-based methods may be added in the future.
 
 For simplicity parameters do not require dashes when passed and do not need URI
 encoding (spaces are converted to '+', symbols encoded, etc). Also, the
@@ -207,6 +207,7 @@ sub new {
         -methods => [@PARAMS, qw(eutil history correspondence id_file)]);
     $self->eutil() || $self->eutil('efetch');
     $self->tool() || $self->tool('bioperl');
+    $self->email() || $self->throw('The -email parameter is now required, per NCBI E-utilities policy');
     # set default retmode if not explicitly set    
     $self->set_default_retmode if (!$retmode);
     $self->{'_statechange'} = 1;
