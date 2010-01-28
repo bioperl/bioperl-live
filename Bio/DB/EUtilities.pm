@@ -139,6 +139,12 @@ sub new {
 
 =cut
 
+sub get_Response {
+    my $self = shift;
+    $self->parameter_base->email() || $self->warn('The -email parameter is now required, per NCBI E-utilities policy');
+    $self->SUPER::get_Response(@_);
+}
+
 =head2 delay
 
  Title   : delay
