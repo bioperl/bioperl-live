@@ -997,8 +997,8 @@ sub _run {
     my @ipc_args = ( $exe, @$options, @files );
 
     eval {
-	IPC::Run::run(\@ipc_args, $in, $out, $err) or
-	    die ("There was a problem running $exe : $!");
+	IPC::Run::run(\@ipc_args, \$in, \$out, \$err) or
+	    die ("There was a problem running $exe : ".$err);
     };
 
     if ($@) {
