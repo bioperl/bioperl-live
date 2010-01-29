@@ -372,6 +372,22 @@ sub test_network {
     return $build->notes('network');
 }
 
+=head2 test_email
+
+ Title   : test_email
+ Usage   : my $do_network_tests = test_email();
+ Function: Ask if email address provided
+ Returns : boolean
+ Args    : none
+
+=cut
+
+sub test_email {
+    require Module::Build;
+    my $build = Module::Build->current();
+    return $build->notes('email');
+}
+
 =head2 test_debug
 
  Title   : test_debug
@@ -432,7 +448,10 @@ sub _skip {
     
     my $req_net = $args{'-requires_networking'};
     delete $args{'-requires_networking'};
-
+    
+    my $req_email = $args{'-requires_email'};
+    delete $args{'-requires_email'};
+    
     my $req_env = $args{'-requires_env'};
     delete $args{'-requires_env'};
 
@@ -474,7 +493,11 @@ sub _skip {
     if ($req_net && ! test_network()) {
         return ('Network tests have not been requested', $tests, $framework);
     }
-    
+
+    if ($req_email && ! test_email()) {
+        return ('Valid email not provided; required for tests', $tests, $framework);
+    }
+
     if ($req_exe && !$req_exe->executable) {
         my $msg = 'Required executable for '.ref($req_exe).' is not present';
         diag($msg);
