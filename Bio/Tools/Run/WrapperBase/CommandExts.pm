@@ -786,7 +786,7 @@ sub _find_executable {
     if ($path = $self->io->exists_exe($exe)) {
 	return $path;
     } else {
-	$self->warn("Cannot find executable for program '".$self->program_name."'") if $warn;
+	$self->warn("Cannot find executable for program '".($self->is_pseudo ? $self->command : $self->program_name)."'") if $warn;
 	return;
     }
 }
@@ -970,7 +970,8 @@ sub _run {
     $err || ($err = \$self->{'stderr'});
     
     # Get program executable
-    my $exe = $self->executable; # 
+    my $exe = $self->executable;
+    $self->throw("Can't find executable for '".($self->is_pseudo ? $self->command : $self->program_name)."'; can't continue") unless $exe;
     # Get command-line options
     my $options = $self->_translate_params();
     # Get file specs sans redirects in correct order
