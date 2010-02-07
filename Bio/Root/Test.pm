@@ -184,6 +184,10 @@ our @EXPORT = qw(ok use_ok require_ok
                  float_is
                  );
 
+if (Test::More->can('done_testing')) {
+    push @EXPORT, 'done_testing';
+}
+
 our $GLOBAL_FRAMEWORK = 'Test::More';
 our @TEMP_FILES;
 
