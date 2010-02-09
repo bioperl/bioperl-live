@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 35);
+    test_begin(-tests => 38);
 	
     use_ok('Bio::Root::IO');
 }
@@ -92,6 +92,19 @@ is $rio->mode, 'r', 'handle, read';
 
 ok $wio = Bio::Root::IO->new(-fh=>$O);
 is $wio->mode, 'w', 'handle, write';
+
+SKIP: {
+    my $warn;
+    local $SIG{__WARN__} = sub { $warn = shift };
+    my $tempfile = eval { require File::Temp; File::Temp->new }
+	or skip 'could not create File::Temp object, maybe your File::Temp is 10 years old', 3;
+    my $temp_io;
+    ok $temp_io = Bio::Root::IO->new( -fh => $tempfile );
+    is $temp_io->mode, 'w', 'is a write handle';
+    # wish i could just use Test::Warn.  but then there's ... THE DEPENDENCY HOBGOBLIN! (TM)
+    $temp_io->close;
+    ok !$warn, 'no warnings';
+}
 
 ##############################################
 # tests _pushback for multi-line buffering

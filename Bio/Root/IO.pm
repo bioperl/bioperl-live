@@ -557,17 +557,20 @@ sub _pushback {
 
 sub close {
    my ($self) = @_;
-   return if $self->noclose; # don't close if we explictly asked not to
-   if( defined $self->{'_filehandle'} ) {
+
+   # don't close if we explictly asked not to
+   return if $self->noclose;
+
+   if( defined( my $fh = $self->{'_filehandle'} )) {
        $self->flush;
-       return if( \*STDOUT == $self->_fh ||
-		  \*STDERR == $self->_fh ||
-		  \*STDIN == $self->_fh
-		  ); # don't close STDOUT fh
-       if( ! ref($self->{'_filehandle'}) ||
-	   ! $self->{'_filehandle'}->isa('IO::String') ) {
-	   close($self->{'_filehandle'});
-       }
+       return if     ref $fh eq 'GLOB'
+		 && (    \*STDOUT == $fh
+		      || \*STDERR == $fh
+		      || \*STDIN  == $fh
+                    );
+
+       # don't close IO::Strings
+       close $fh unless ref $fh && $fh->isa('IO::String');
    }
    $self->{'_filehandle'} = undef;
    delete $self->{'_readbuffer'};
