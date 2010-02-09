@@ -328,7 +328,7 @@ while (my $contig = $aio->next_contig) {
 
 SKIP : {
 
-    test_skip(-tests => 828+755,
+    test_skip(-tests => 828,
 	      -requires_module => 'Bio::DB::Sam');
 
 #
@@ -378,12 +378,21 @@ SKIP : {
     }
     is(@all_seq_ids, 369);
     
+}
+
+SKIP : {
+
+    test_skip(-tests => 755,
+	      -requires_modules => qw(Bio::DB::Sam Bio::Tools::Run::Samtools),
+	      -requires_executable => 'Bio::Tools::Run::Samtools');
+
 #
 # Testing bowtie
 #
 
-    $file = 'test.bowtie';
-    $refdb = 'test.ref.fas';
+
+    my $file = 'test.bowtie';
+    my $refdb = 'test.ref.fas';
     ok $aio = Bio::Assembly::IO->new( -file => test_input_file($file),
 				      -index => test_input_file($refdb),
 				      -format => 'bowtie' ), "init bowtie IO object";
