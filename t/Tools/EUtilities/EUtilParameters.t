@@ -33,8 +33,17 @@ is($pobj->parameters_changed, 1);
 
 my $request = $pobj->to_request; # 'exhaust' state 
 isa_ok($request, 'HTTP::Request');
-is($request->url, 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nucleotide&retmode=xml&id=6679096%2C31543332%2C134288853%2C483581%2C20805941%2C187951953%2C169158074%2C123228044%2C148676374%2C114326469%2C148707003%2C187952787%2C123233807%2C148694865%2C148694864%2C148694863%2C148694861%2C148694862%2C8705244%2C8568086&tool=bioperl&email=me%40foo.bar');
-is($pobj->to_string(), 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nucleotide&retmode=xml&id=6679096%2C31543332%2C134288853%2C483581%2C20805941%2C187951953%2C169158074%2C123228044%2C148676374%2C114326469%2C148707003%2C187952787%2C123233807%2C148694865%2C148694864%2C148694863%2C148694861%2C148694862%2C8705244%2C8568086&tool=bioperl&email=me%40foo.bar');
+is($request->url, 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?'.
+   'db=nucleotide&retmode=xml&id=6679096%2C31543332%2C134288853%2C483581%2C'.
+   '20805941%2C187951953%2C169158074%2C123228044%2C148676374%2C114326469%2C'.
+   '148707003%2C187952787%2C123233807%2C148694865%2C148694864%2C148694863%2C'.
+   '148694861%2C148694862%2C8705244%2C8568086&tool=BioPerl&email=me%40foo.bar');
+is($pobj->to_string(), 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/'.
+   'efetch.fcgi?db=nucleotide&retmode=xml&id=6679096%2C31543332%2C134288853%2C'.
+   '483581%2C20805941%2C187951953%2C169158074%2C123228044%2C148676374%2C'.
+   '114326469%2C148707003%2C187952787%2C123233807%2C148694865%2C148694864%2C'.
+   '148694863%2C148694861%2C148694862%2C8705244%2C8568086'.
+   '&tool=BioPerl&email=me%40foo.bar');
 is($pobj->parameters_changed, 0);
 
 # state won't change if the same parameters are passed
