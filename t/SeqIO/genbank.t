@@ -564,7 +564,7 @@ is($dblinks[0]->display_text, 'UniProtKB:PYRR_BACSU','operator overloading in An
 
 #bug 2982 embl/genbank contig handling
 
-$ast = Bio::SeqIO->new( -file => 'bug2982.gb', 
+$ast = Bio::SeqIO->new( -file => test_input_file('bug2982.gb'), 
 			-format => 'genbank' );
 
 $seq = $ast->next_seq;
