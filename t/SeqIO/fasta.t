@@ -31,7 +31,7 @@ foreach my $method (@methods) {
 
 # checking the first sequence object
 my $seq_obj = $seqio_obj->next_seq();
-isa_ok($seq_obj, 'Bio::Seq');
+isa_ok($seq_obj, 'Bio::PrimarySeq');
 my %expected = ('seq'         => 'MVNSNQNQNGNSNGHDDDFPQDSITEPEHMRKLFIGGL' .
 						   		 'DYRTTDENLKAHEKWGNIVDVVVMKDPRTKRSRGFGFI' .
 								 'TYSHSSMIDEAQKSRPHKIDGRVEPKRAVPRQDIDSPN' .
@@ -43,18 +43,18 @@ my %expected = ('seq'         => 'MVNSNQNQNGNSNGHDDDFPQDSITEPEHMRKLFIGGL' .
 								 'QQNYGGGPQRGGGNFNNNRMQPYQGGGGFKAGGGNQGN' .
 								 'YGNNQGFNNGGNNRRY',
 				'length'      => '358',
-				'primary_id'  => 'roa1_drome',
+				'id'          => 'roa1_drome',
 				'description' => qr(Rea guano receptor type III),
 			   );
 is   ($seq_obj->seq(),         $expected{'seq'},         'sequence');
 is   ($seq_obj->length(),      $expected{'length'},      'length');
-is   ($seq_obj->primary_id(),  $expected{'primary_id'},  'primary_id');
+is   ($seq_obj->id(),          $expected{'id'},          'id');
 like ($seq_obj->description(), $expected{'description'}, 'description');
 
 
 # checking the second sequence object
 my $seq_obj2  = $seqio_obj->next_seq();
-isa_ok($seq_obj2, 'Bio::Seq');
+isa_ok($seq_obj2, 'Bio::PrimarySeq');
 my %expected2 = ('seq'         => 'MVNSNQNQNGNSNGHDDDFPQDSITEPEHMRKLFIGGL' .
 			 					  'DYRTTDENLKAHEKWGNIVDVVVMKDPTSTSTSTSTST' .
 								  'STSTSTMIDEAQKSRPHKIDGRVEPKRAVPRQDIDSPN' .
@@ -66,12 +66,12 @@ my %expected2 = ('seq'         => 'MVNSNQNQNGNSNGHDDDFPQDSITEPEHMRKLFIGGL' .
 								  'QQNYGGGPQRGGGNFNNNRMQPYQGGGGFKAGGGNQGN' .
 								  'YGNNQGFNNGGNNRRY',
 				 'length'      => '358',
-				 'primary_id'  => 'roa2_drome',
+				 'id'          => 'roa2_drome',
 				 'description' => qr(Rea guano ligand),
 			    );
 is   ($seq_obj2->seq(),         $expected2{'seq'},         'sequence');
 is   ($seq_obj2->length(),      $expected2{'length'},      'length');
-is   ($seq_obj2->primary_id(),  $expected2{'primary_id'},  'primary_id');
+is   ($seq_obj2->id(),          $expected2{'id'},          'id');
 like ($seq_obj2->description(), $expected2{'description'}, 'description');
 	
 # from testformats.pl

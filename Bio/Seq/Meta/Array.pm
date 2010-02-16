@@ -27,7 +27,7 @@ sequence class with residue-based meta information
                                    -start=>2434,
                                    -start=>2443,
                                    -strand=>1,
-                                   -varbose=>1, # to see warnings
+                                   -verbose=>1, # to see warnings
                                   );
 
   # to test this is a meta seq object
@@ -43,7 +43,7 @@ sequence class with residue-based meta information
                                     -start=>2443,
                                     -strand=>1,
                                     -meta=>'1 2 3 4 5 6 7 8 9 10',
-                                    -varbose=>1, # to see warnings
+                                    -verbose=>1, # to see warnings
                                    );
 
 

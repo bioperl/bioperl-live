@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 6);
+    test_begin(-tests => 8);
 	
 	use_ok('Bio::SeqIO::metafasta');
 }
@@ -21,5 +21,7 @@ my $io = Bio::SeqIO->new(-format => 'metafasta',
 isa_ok($io, 'Bio::SeqIO');
 ok(my $seq = $io->next_seq);
 isa_ok($seq, 'Bio::Seq::Meta');
-is($seq->seq, "ABCDEFHIJKLMNOPQRSTUVWXYZ");
+is($seq->seq, 'ABCDEFHIJKLMNOPQRSTUVWXYZ');
 is($seq->display_id,'test');
+ok(my $charge = $seq->named_meta('charge'));
+is($charge, 'NBNAANCNJCNNNONNCNNUNNXNZ');

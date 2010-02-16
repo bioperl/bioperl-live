@@ -111,7 +111,7 @@ sub _initialize {
   my ($width) = $self->_rearrange([qw(WIDTH)], @args);
   $width && $self->width($width);
   unless ( defined $self->sequence_factory ) {
-      $self->sequence_factory(Bio::Seq::SeqFastaSpeedFactory->new());
+      $self->sequence_factory(Bio::Seq::SeqFastaSpeedFactory->new(-type => 'Bio::PrimarySeq'));
   }
 }
 
@@ -177,7 +177,6 @@ sub next_seq {
 					   -direct      => 1,
 													  );
 
-	$seq = $seq->primary_seq;
 	bless $seq, 'Bio::Seq::Meta';
 
 	foreach my $meta (@metas) {

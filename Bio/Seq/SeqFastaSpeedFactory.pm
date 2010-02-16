@@ -14,7 +14,7 @@
 
 =head1 NAME
 
-Bio::Seq::SeqFastaSpeedFactory - Instantiates a new Bio::PrimarySeqI (or derived class) through a factory
+Bio::Seq::SeqFastaSpeedFactory - Rapid instantiation of new Bio::SeqI objects through a factory using FASTA files.
 
 =head1 SYNOPSIS
 
@@ -25,13 +25,12 @@ Bio::Seq::SeqFastaSpeedFactory - Instantiates a new Bio::PrimarySeqI (or derived
 
     # If you want the factory to create Bio::Seq objects instead
     # of the default Bio::PrimarySeq objects, use the -type parameter:
-
-    my $factory = Bio::Seq::SeqFastaSpeedFactory->new(-type => 'Bio::Seq');
-
+    my $factory = Bio::Seq::SeqFactory->new(-type => 'Bio::Seq');
 
 =head1 DESCRIPTION
 
-This object will build Bio::Seq objects generically.
+This factory is quick at building simple L<Bio::PrimarySeqI> and L<Bio::SeqI>
+objects generically derived from FASTA files (no annotations). 
 
 =head1 FEEDBACK
 
@@ -84,7 +83,9 @@ use strict;
 use Bio::Seq;
 use Bio::PrimarySeq;
 
-use base qw(Bio::Root::Root Bio::Factory::SequenceFactoryI);
+use base qw(Bio::Root::Root Bio::Seq::SeqFactory);
+# a Bio::Seq::SeqFactory is also a Bio::Factory::SequenceFactoryI
+
 
 =head2 new
 
@@ -100,6 +101,8 @@ use base qw(Bio::Root::Root Bio::Factory::SequenceFactoryI);
 sub new {
   my($class,@args) = @_;
   my $self = $class->SUPER::new(@args);
+  my ($type) = $self->_rearrange([qw(TYPE)], @args);
+  $self->type($type);
   return $self;
 }
 
@@ -108,10 +111,11 @@ sub new {
 
  Title   : create
  Usage   : my $seq = $seqbuilder->create(-seq => 'CAGT', -id => 'name');
- Function: Instantiates a new Bio::Seq object, correctly built but very
-           fast, knowing stuff about Bio::PrimarySeq and Bio::Seq
- Returns : Bio::Seq
-
+ Function: Instantiates new Bio::SeqI (or one of its child classes)
+           This object allows us to genericize the instantiation of sequence
+           objects.
+ Returns : Bio::PrimarySeq object (default)
+           The return type is configurable using new(-type =>"...").
  Args    : initialization parameters specific to the type of sequence
            object we want.  Typically 
            -seq        => $str,
@@ -119,6 +123,7 @@ sub new {
 
 =cut
 
+# Overloading the 'create' method of Bio::Seq::SeqFactory
 sub create {
     my ($self,@args) = @_;
     
@@ -130,21 +135,50 @@ sub create {
     my $id       = defined $param{'-id'} ? $param{'-id'} : $param{'-primary_id'};
     my $alphabet = $param{'-alphabet'};
 
-    my $seq = bless {}, "Bio::Seq";
-    my $t_pseq = $seq->{'primary_seq'} = bless {}, "Bio::PrimarySeq";
+    # Constructing Bio::PrimarySeq object
+    my $t_pseq = bless {}, 'Bio::PrimarySeq';
     $t_pseq->{'seq'}  = $sequence;
     $t_pseq->{'desc'} = $fulldesc;
     $t_pseq->{'display_id'} = $id;
-    $t_pseq->{'primary_id'} = $id;
-    $seq->{'primary_id'} = $id; # currently Bio::Seq does not delegate this
     if( $sequence and !$alphabet ) {
 	$t_pseq->_guess_alphabet();
     } elsif ( $sequence and $alphabet ) {
         $t_pseq->{'alphabet'} = $alphabet;
     }
+    
+    my $seq;
+    my $type = $self->type;
+    if ($type eq 'Bio::Seq') {
+      # Constructing Bio::Seq object
+      $seq = bless {}, 'Bio::Seq';
+      $seq->{'primary_seq'} = $t_pseq;
+    } elsif ($type eq 'Bio::PrimarySeq') {
+      # Nothing more to do for a Bio::PrimarySeq
+      $seq = $t_pseq;
+    } else {
+      # Should not have any other sequence type
+      $self->warn("Expected sequence type Bio::Seq or Bio::Primary. Got ".
+        "$type. Defaulting to Bio::PrimarySeq\n");
+      $self->type('Bio::PrimarySeq');
+      $seq = $t_pseq;
+    }
 
     return $seq;
 }
+
+
+=head2 type
+
+ Title   : type
+ Usage   : $obj->type($newval)
+ Function: 
+ Returns : value of type
+ Args    : newvalue (optional)
+
+=cut
+
+# Using the 'type' method from Bio::Seq::SeqFactory
+
 
 1;
 
