@@ -136,7 +136,7 @@ ok close($O);
 SKIP: {
   test_skip(-tests => 2, -requires_networking => 1);
 
-  my $TESTURL = 'http://www.google.com';
+  my $TESTURL = 'http://www.google.com/index.html';
   
   ok $rio = Bio::Root::IO->new(-url=>$TESTURL), 'default -url method';
   
