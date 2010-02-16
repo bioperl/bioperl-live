@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin( -tests => 1264 + 755;
+    test_begin( -tests => 1266 + 755,
                 -requires_module => 'DB_File' );
 
     use_ok('Bio::Assembly::IO');
