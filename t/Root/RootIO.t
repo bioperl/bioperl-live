@@ -2,6 +2,7 @@
 # $Id$
 
 use strict;
+use warnings;
 
 BEGIN {
     use lib '.';
@@ -135,18 +136,10 @@ ok close($O);
 SKIP: {
   test_skip(-tests => 2, -requires_networking => 1);
 
-  my $TESTURL = 'http://www.google.com/index.html';
+  my $TESTURL = 'http://www.google.com';
   
   ok $rio = Bio::Root::IO->new(-url=>$TESTURL), 'default -url method';
   
-  TODO: {
-    local $TODO = 'HTTPget is not passing some tests on Ubuntu ';
-    if ($Bio::Root::IO::HAS_LWP) {
-      $Bio::Root::IO::HAS_LWP = 0;
-      lives_ok {$rio = Bio::Root::IO->new(-url=>$TESTURL)};
-    } 
-    else {
-      ok 1, 'non-LWP -url method not needed as non-LWP was default';
-    }
-  }
+  $Bio::Root::IO::HAS_LWP = 0;
+  lives_ok {$rio = Bio::Root::IO->new(-url=>$TESTURL)};
 }
