@@ -307,7 +307,7 @@ sub _initialize_io {
       } else { #use Bio::Root::HTTPget
         #$self->warn("no lwp");
 
-        $fh = Bio::Root::HTTPget->getFH($url);
+        $fh = Bio::Root::HTTPget::getFH($url);
       }
     }
 
