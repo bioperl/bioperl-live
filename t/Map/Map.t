@@ -674,7 +674,7 @@ use_ok('Bio::Map::Prediction');
         
         skip('Failed to retreive anything from Ensembl; not sure why', 19) unless $success;
         
-        is $gene->get_transcript_position($map1)->toString($pos->absolute_relative), '1001..85193';
+        is $gene->get_transcript_position($map1)->toString($pos->absolute_relative), '1001..84737';
         is $gene->get_transcript_position($map2)->toString($pos->absolute_relative), '501..47617';
         is $gene->get_transcript_position($map4)->toString($pos->absolute_relative), '1373..37665';
         like $gene->description($map1), qr/Breast cancer type 2 susceptibility protein \(Fanconi anemia group D1 protein\)/;
@@ -694,11 +694,11 @@ use_ok('Bio::Map::Prediction');
         
         # now the gene has a database connection, its maps and positions can get sequence
         ok my $seq = $map1->seq;
-        is length($seq), 85193;
-        is substr($seq, 0, 20), 'AGAACCAACGAATTCGGAGA'; # start of upstream
-        is substr($seq, -20, 20), 'CTTTCAAATTGGCACTGATT'; # end of gene since no downstream
+        is length($seq), 84737;
+        is substr($seq, 0, 20), 'TGTTACAGAACCAACGAATT'; # start of upstream
+        is substr($seq, -20, 20), 'CTACAAGTATTATTTTACAA'; # end of gene since no downstream
         is substr($map1->subseq($gene->coding_position($map1)), 0, 3), 'ATG';
-        my $exon1_str = 'GTGGCGCGAGCTTCTGAAACTAGGCGGCAGAGGCGGAGCCGCTGTGGCACTGCTGCGCCTCTGCTGCGCCTCGGGTGTCTTTTGCGGCGGTGGGTCGCCGCCGGGAGAAGCGTGAGGGGACAGATTTGTGACCGGCGCGGTTTTTGTCAGCTTACTCCGGCCAAAAAAGAACTGCACCTCTGGAGCGG';
+        my $exon1_str = 'GGGCTTGTGGCGCGAGCTTCTGAAACTAGGCGGCAGAGGCGGAGCCGCTGTGGCACTGCTGCGCCTCTGCTGCG';
         my $exon1_pos = $gene->get_exon_position($map1, 1);
         is $map1->subseq($exon1_pos), $exon1_str;
         is $exon1_pos->seq, $exon1_str;
