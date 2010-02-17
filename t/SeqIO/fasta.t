@@ -31,7 +31,7 @@ foreach my $method (@methods) {
 
 # checking the first sequence object
 my $seq_obj = $seqio_obj->next_seq();
-isa_ok($seq_obj, 'Bio::PrimarySeq');
+isa_ok($seq_obj, 'Bio::Seq');
 my %expected = ('seq'         => 'MVNSNQNQNGNSNGHDDDFPQDSITEPEHMRKLFIGGL' .
 						   		 'DYRTTDENLKAHEKWGNIVDVVVMKDPRTKRSRGFGFI' .
 								 'TYSHSSMIDEAQKSRPHKIDGRVEPKRAVPRQDIDSPN' .
@@ -54,7 +54,7 @@ like ($seq_obj->description(), $expected{'description'}, 'description');
 
 # checking the second sequence object
 my $seq_obj2  = $seqio_obj->next_seq();
-isa_ok($seq_obj2, 'Bio::PrimarySeq');
+isa_ok($seq_obj2, 'Bio::Seq');
 my %expected2 = ('seq'         => 'MVNSNQNQNGNSNGHDDDFPQDSITEPEHMRKLFIGGL' .
 			 					  'DYRTTDENLKAHEKWGNIVDVVVMKDPTSTSTSTSTST' .
 								  'STSTSTMIDEAQKSRPHKIDGRVEPKRAVPRQDIDSPN' .

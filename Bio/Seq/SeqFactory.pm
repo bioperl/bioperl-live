@@ -82,7 +82,7 @@ use strict;
 
 use base qw(Bio::Root::Root Bio::Factory::SequenceFactoryI);
 
-our $default_type = 'Bio::PrimarySeq';
+our $default_type = 'Bio::Seq';
 
 =head2 new
 
@@ -91,7 +91,7 @@ our $default_type = 'Bio::PrimarySeq';
  Function: Builds a new Bio::Seq::SeqFactory object 
  Returns : Bio::Seq::SeqFactory
  Args    : -type => string, name of a PrimarySeqI derived class
-                    This is optional. Default=Bio::PrimarySeq.
+                    This is optional. Default=Bio::Seq
 
 =cut
 
@@ -111,7 +111,7 @@ sub new {
  Function: Instantiates new Bio::SeqI (or one of its child classes)
            This object allows us to genericize the instantiation of sequence
            objects.
- Returns : Bio::PrimarySeq object (default)
+ Returns : Bio::Seq object (default)
            The return type is configurable using new(-type =>"...").
  Args    : initialization parameters specific to the type of sequence
            object we want.  Typically 

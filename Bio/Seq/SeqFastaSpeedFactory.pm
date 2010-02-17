@@ -23,9 +23,9 @@ Bio::Seq::SeqFastaSpeedFactory - Rapid instantiation of new Bio::SeqI objects th
     my $seq = $factory->create(-seq => 'WYRAVLC',
 			       -id  => 'name');
 
-    # If you want the factory to create Bio::Seq objects instead
-    # of the default Bio::PrimarySeq objects, use the -type parameter:
-    my $factory = Bio::Seq::SeqFactory->new(-type => 'Bio::Seq');
+    # If you want the factory to create Bio::PrimarySeq objects instead
+    # of the default Bio::Seq objects, use the -type parameter:
+    my $factory = Bio::Seq::SeqFactory->new(-type => 'Bio::PrimarySeq');
 
 =head1 DESCRIPTION
 
@@ -94,7 +94,7 @@ use base qw(Bio::Root::Root Bio::Seq::SeqFactory);
  Function: Builds a new Bio::Seq::SeqFastaSpeedFactory object 
  Returns : Bio::Seq::SeqFastaSpeedFactory
  Args    : -type => string, name of a PrimarySeqI derived class
-                    This is optional. Default=Bio::PrimarySeq.
+                    This is optional. Default=Bio::Seq.
 
 =cut
 
@@ -114,7 +114,7 @@ sub new {
  Function: Instantiates new Bio::SeqI (or one of its child classes)
            This object allows us to genericize the instantiation of sequence
            objects.
- Returns : Bio::PrimarySeq object (default)
+ Returns : Bio::Seq object (default)
            The return type is configurable using new(-type =>"...").
  Args    : initialization parameters specific to the type of sequence
            object we want.  Typically 
@@ -157,7 +157,7 @@ sub create {
       $seq = $t_pseq;
     } else {
       # Should not have any other sequence type
-      $self->warn("Expected sequence type Bio::Seq or Bio::Primary. Got ".
+      $self->warn("Expected sequence type Bio::Seq or Bio::PrimarySeq. Got ".
         "$type. Defaulting to Bio::PrimarySeq\n");
       $self->type('Bio::PrimarySeq');
       $seq = $t_pseq;
