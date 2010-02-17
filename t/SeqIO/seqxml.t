@@ -59,7 +59,7 @@ SKIP: {
 
     # species
     isa_ok( $seq_obj->species, 'Bio::Species', 'species' );
-    is( $seq_obj->species->species,    'Homo sapiens', 'species name' );
+    is( $seq_obj->species->node_name,    'Homo sapiens', 'species name' );
     is( $seq_obj->species->ncbi_taxid, '9606',         'NCBI tax id' );
 
     # alternative IDs
@@ -128,7 +128,7 @@ SKIP: {
 
         # species
         isa_ok( $new_seqobj->species, 'Bio::Species', 'species' );
-        is( $new_seqobj->species->species,    'Homo sapiens', 'species name' );
+        is( $new_seqobj->species->node_name,    'Homo sapiens', 'species name' );
         is( $new_seqobj->species->ncbi_taxid, '9606',         'NCBI tax id' );
 
         # alternative IDs
@@ -158,9 +158,15 @@ SKIP: {
 
     # write data from a Seq object created from a fasta file
     {
+        # forcing a Bio::Seq to be created
+        # due to SeqIO::fasta creating a PrimarySeq by default
+        # as of r16838
+        my $factory = Bio::Seq::SeqFactory->new(-type => 'Bio::Seq');
+        
         my $seq_stream = Bio::SeqIO->new(
             -file   => test_input_file("test.fasta"),
             -format => 'fasta',
+            -seqfactory => $factory,
         );
 
         my $outfile = test_output_file();

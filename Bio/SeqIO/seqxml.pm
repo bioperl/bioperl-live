@@ -284,13 +284,13 @@ sub write_seq {
 
         # species and NCBI taxID
         if ( $seqobj->species ) {
-            my $name  = $seqobj->species->binomial;
+            my $name  = $seqobj->species->node_name;
             my $taxid = $seqobj->species->ncbi_taxid;
             if ( $name && ( $taxid =~ /[0-9]+/ ) ) {
                 $writer->emptyTag(
                     'species',
-                    'name'      => $seqobj->species->binomial,
-                    'ncbiTaxID' => $seqobj->species->ncbi_taxid
+                    'name'      => $name,
+                    'ncbiTaxID' => $taxid
                 );
             }
             else {
@@ -690,7 +690,7 @@ sub element_species {
     {
         $species_obj =
           Bio::Species->new( -ncbi_taxid => $species_data->{'ncbiTaxID'}, );
-        $species_obj->binomial( $species_data->{'name'} );
+        $species_obj->node_name( $species_data->{'name'} );
         $data->{'species'} = $species_obj;
     }
     else {
