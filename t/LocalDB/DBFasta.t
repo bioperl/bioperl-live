@@ -6,9 +6,8 @@ BEGIN {
     use lib '.';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 15,
-			   -requires_module => 'Bio::DB::Fasta');
-	
+    test_begin(-tests => 17,
+	       -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 	use_ok('Bio::Root::IO');
 	use_ok('File::Copy');
 }
@@ -55,3 +54,22 @@ ok($dna2 = $h{'AW057146:10,1'});
 my $revcom = reverse $dna1;
 $revcom =~ tr/gatcGATC/ctagCTAG/;
 is($dna2, $revcom);
+
+# test out writing the Bio::PrimarySeq::Fasta objects with SeqIO
+
+$db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1);
+my $out = Bio::SeqIO->new(-format => 'genbank');
+$primary_seq = Bio::Seq->new(-primary_seq => $db->get_Seq_by_acc('AW057119'));
+eval {
+    warn(ref($primary_seq),"\n");
+    $out->write_seq($primary_seq) 
+};
+ok(!$@);
+
+$out = Bio::SeqIO->new(-format => 'embl');
+
+eval {
+    $out->write_seq($primary_seq) 
+};
+ok(!$@);
+
