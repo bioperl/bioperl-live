@@ -1967,7 +1967,7 @@ sub getaliascoords_query {
 sub bin_query {
   my $self = shift;
   my ($start,$stop,$minbin,$maxbin) = @_;
-  if ($start < 0 && $stop > 0) {  # split the queries
+  if ($start && $start < 0 && $stop > 0) {  # split the queries
     my ($lower_query,@lower_args) = $self->_bin_query($start,0,$minbin,$maxbin);
     my ($upper_query,@upper_args) = $self->_bin_query(0,$stop,$minbin,$maxbin);
     my $query = "$lower_query\n\t OR $upper_query";
