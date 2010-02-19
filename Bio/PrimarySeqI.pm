@@ -694,12 +694,13 @@ sub transcribe {
 	$class = 'Bio::PrimarySeq';
 	$self->_attempt_to_load_Seq;
     }
+    my $desc = $self->desc || '';
     return $class->new( 
 	'-seq' => $s,
 	'-alphabet' => 'rna',
 	'-display_id'  => $self->display_id,
 	'-accession_number' => $self->accession_number,
-	'-desc' => $self->desc . "[TRANSCRIBED]",
+	'-desc' => "${desc}[TRANSCRIBED]",
 	'-verbose' => $self->verbose
 	);
 }
