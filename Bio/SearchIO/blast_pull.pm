@@ -103,6 +103,7 @@ use base qw(Bio::SearchIO Bio::PullParserI);
            -score    => integer or scientific notation number to be used
                         as a score value cutoff for hits
            -piped_behaviour => 'temp_file'|'memory'|'sequential_read'
+	   -noclose  => Boolean, passed onto Bio::Root::IO::noclose
 
            -piped_behaviour defines what the parser should do if the input is
             an unseekable filehandle (eg. piped input), see
@@ -115,12 +116,14 @@ sub _initialize {
     
     # don't do normal SearchIO initialization
     
-    my ($writer, $file, $fh, $piped_behaviour, $evalue, $score) =
+    my ($writer, $file, $fh, $noclose, $piped_behaviour, $evalue, $score) =
                             $self->_rearrange([qw(WRITER
-                                                  FILE FH
+                                                  FILE FH NOCLOSE
                                                   PIPED_BEHAVIOUR
                                                   EVALUE
                                                   SCORE)], @args);
+			    
+    $noclose 	&& $self->noclose($noclose);
     $self->writer($writer) if $writer;
     
     $self->_fields( { ( header => undef,

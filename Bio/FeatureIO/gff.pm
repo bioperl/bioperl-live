@@ -308,7 +308,7 @@ sub fasta_mode {
 
   $self->{'fasta_mode'} = $val if defined($val);
 
-  if ($val == 1) {
+  if ($val && $val == 1) {
   #  seek $self->_fh(), -1, 1; #rewind 1 byte to get the previous line's \n
     $self->_pushback("\n");
   }
