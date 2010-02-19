@@ -43,12 +43,12 @@ my %expected = ('seq'         => 'MVNSNQNQNGNSNGHDDDFPQDSITEPEHMRKLFIGGL' .
 								 'QQNYGGGPQRGGGNFNNNRMQPYQGGGGFKAGGGNQGN' .
 								 'YGNNQGFNNGGNNRRY',
 				'length'      => '358',
-				'id'          => 'roa1_drome',
+				'primary_id'  => 'roa1_drome',
 				'description' => qr(Rea guano receptor type III),
 			   );
 is   ($seq_obj->seq(),         $expected{'seq'},         'sequence');
 is   ($seq_obj->length(),      $expected{'length'},      'length');
-is   ($seq_obj->id(),          $expected{'id'},          'id');
+is   ($seq_obj->primary_id(),  $expected{'primary_id'},  'primary_id');
 like ($seq_obj->description(), $expected{'description'}, 'description');
 
 
@@ -66,12 +66,12 @@ my %expected2 = ('seq'         => 'MVNSNQNQNGNSNGHDDDFPQDSITEPEHMRKLFIGGL' .
 								  'QQNYGGGPQRGGGNFNNNRMQPYQGGGGFKAGGGNQGN' .
 								  'YGNNQGFNNGGNNRRY',
 				 'length'      => '358',
-				 'id'          => 'roa2_drome',
+				 'primary_id'  => 'roa2_drome',
 				 'description' => qr(Rea guano ligand),
 			    );
 is   ($seq_obj2->seq(),         $expected2{'seq'},         'sequence');
 is   ($seq_obj2->length(),      $expected2{'length'},      'length');
-is   ($seq_obj2->id(),          $expected2{'id'},          'id');
+is   ($seq_obj2->primary_id(),  $expected2{'primary_id'},  'primary_id');
 like ($seq_obj2->description(), $expected2{'description'}, 'description');
 	
 # from testformats.pl
