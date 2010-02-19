@@ -345,7 +345,7 @@ sub write_tree
     }
     # check if rooted
     my ($b_rooted) = $tree->get_tag_values('rooted');
-    print "b_rooted: $b_rooted\n";
+    print "b_rooted: $b_rooted\n" if $b_rooted;
     if ($b_rooted) {
       $attr_str .= " rooted=\"true\"";
     }
