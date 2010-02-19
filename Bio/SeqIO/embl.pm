@@ -419,18 +419,19 @@ sub next_seq {
     while ( defined ($buffer) && $buffer =~ /^XX/ ) {
         $buffer = $self->_readline();
     }
-
+    
     if ( $buffer =~ /^CO/  ) {
 	# bug#2982
 	# special : create contig as annotation
-        until ( !defined ($buffer) ) {
+        while ( defined ($buffer) ) {
 	    $annotation->add_Annotation($_) for $self->_read_EMBL_Contig(\$buffer);
-            if ( $buffer !~ /^CO/ ) {
+            if ( !$buffer || $buffer !~ /^CO/ ) {
                 last;
 	    }
         }
+        $buffer ||= '';
     }
-if ($buffer !~ /^\/\//) { # if no SQ lines following CO (bug#2958)
+    if ($buffer !~ /^\/\//) { # if no SQ lines following CO (bug#2958)
     if ( $buffer !~ /^SQ/ ) {
         while ( defined ($_ = $self->_readline) ) {
             /^SQ/ && last;
