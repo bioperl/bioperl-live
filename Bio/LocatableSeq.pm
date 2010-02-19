@@ -327,7 +327,7 @@ sub get_nse{
    $self->throw("Attribute start not set") unless defined($st);
    $self->throw("Attribute end not set") unless defined($end);
    
-   if ($strand == -1) {
+   if ($strand && $strand == -1) {
       ($st, $end) = ($end, $st);
    }
    
