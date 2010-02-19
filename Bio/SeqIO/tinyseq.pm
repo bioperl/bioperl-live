@@ -98,7 +98,7 @@ sub _initialize {
     $self->SUPER::_initialize(@args);
 
     unless (defined $self->sequence_factory) {
-	$self->sequence_factory(Bio::Seq::SeqFastaSpeedFactory->new(-type => 'Bio::Seq'));
+	$self->sequence_factory(Bio::Seq::SeqFastaSpeedFactory->new());
     }
 
     $self->{'_species_objects'} = {};

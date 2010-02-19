@@ -111,7 +111,7 @@ sub _initialize {
   my ($width) = $self->_rearrange([qw(WIDTH)], @args);
   $width && $self->width($width);
   unless ( defined $self->sequence_factory ) {
-      $self->sequence_factory(Bio::Seq::SeqFastaSpeedFactory->new(-type => 'Bio::Seq'));
+      $self->sequence_factory(Bio::Seq::SeqFastaSpeedFactory->new());
   }
 }
 
