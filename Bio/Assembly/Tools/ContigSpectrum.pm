@@ -1175,9 +1175,7 @@ sub _dissolve_contig {
 
   # Update spectrum
   my $size = scalar @contig_seqs;
-  if ($size == 0) {
-    next;
-  } elsif ($size == 1) {
+  if ($size == 1) {
     $$asm_spectrum{1}++;
   } elsif ($size > 1) {
     # Reassemble good sequences
@@ -1188,9 +1186,7 @@ sub _dissolve_contig {
     for my $qsize (keys %$contig_spectrum) {
       $$asm_spectrum{$qsize} += $$contig_spectrum{$qsize};
     }
-  } else {
-     $self->throw("The size is not valid... how could that happen?");
-  }
+  } 
 
   return $asm_spectrum, $good_seqs;
 }
@@ -1707,11 +1703,7 @@ sub _get_contig_overlap_stats {
 
   # Process overlaps
   my $nof_pairs = scalar keys %overlaps;
-  if ($nof_pairs == 0) {
-    # No overlaps
-    next; # process next contig
-
-  } elsif ($nof_pairs == 1) {
+  if ($nof_pairs == 1) {
     # A unique overlap
     my $i = (keys %overlaps)[0];
     my $j = (keys %{$overlaps{$i}})[0];
@@ -1720,7 +1712,7 @@ sub _get_contig_overlap_stats {
     my @overlap_stats = ($length, $identity);
     @contig_stats = $self->_update_overlap_stats(@contig_stats, @overlap_stats);
 
-  } else {
+  } elsif ($nof_pairs > 1) {
     # At least 2 overlaps. Find the set of overlaps that goes through all the
     # reads of the contig and maximizes the total overlap score. Use the graph
     # theory minimum spanning tree (MST) method to solve this problem.
