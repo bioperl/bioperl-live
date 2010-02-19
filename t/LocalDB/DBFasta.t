@@ -58,15 +58,16 @@ is($dna2, $revcom);
 # test out writing the Bio::PrimarySeq::Fasta objects with SeqIO
 
 $db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1);
-my $out = Bio::SeqIO->new(-format => 'genbank');
+my $out = Bio::SeqIO->new(-format => 'genbank',
+			  -file  => '>'.test_output_file());
 $primary_seq = Bio::Seq->new(-primary_seq => $db->get_Seq_by_acc('AW057119'));
 eval {
-    warn(ref($primary_seq),"\n");
+    #warn(ref($primary_seq),"\n");
     $out->write_seq($primary_seq) 
 };
 ok(!$@);
 
-$out = Bio::SeqIO->new(-format => 'embl');
+$out = Bio::SeqIO->new(-format => 'embl', -file  => '>'.test_output_file());
 
 eval {
     $out->write_seq($primary_seq) 
