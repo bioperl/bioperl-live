@@ -443,14 +443,10 @@ sub _initialize {
 
 	my ($seqfact,$locfact,$objbuilder, $alphabet) =
 	  $self->_rearrange([qw(SEQFACTORY
-                                LOCFACTORY
-                                OBJBUILDER
-                                ALPHABET)
-                                          ], @args);
-
-        # Florent 2010-02-16: It would probably be better to make the name of
-        # the attributes SEQFACTORY, LOCFACTORY, OBJBUILDER match the method
-        # names sequence_factory, location_factory and object_builder
+			      LOCFACTORY
+			      OBJBUILDER
+                  ALPHABET)
+							  ], @args);
 
 	$locfact = Bio::Factory::FTLocationFactory->new(-verbose => $self->verbose)
 	  if ! $locfact;

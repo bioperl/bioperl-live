@@ -28,7 +28,7 @@ Do not use this module directly; use the SeqIO handler system:
 
 This object reads and writes Bio::Seq objects to and from TinySeq XML
 format.  A TinySeq is a lightweight XML file of sequence information,
-analogous to FASTA format.
+analgous to FASTA format.
 
 See L<http://www.ncbi.nlm.nih.gov/dtd/NCBI_TSeq.mod.dtd> for the DTD.
 

@@ -25,7 +25,9 @@ Bio::Seq::SeqFactory - Instantiates a new Bio::PrimarySeqI (or derived class) th
 
     # If you want the factory to create Bio::Seq objects instead
     # of the default Bio::PrimarySeq objects, use the -type parameter:
+
     my $factory = Bio::Seq::SeqFactory->new(-type => 'Bio::Seq');
+
 
 =head1 DESCRIPTION
 
@@ -80,9 +82,8 @@ Internal methods are usually preceded with a _
 package Bio::Seq::SeqFactory;
 use strict;
 
-use base qw(Bio::Root::Root Bio::Factory::SequenceFactoryI);
 
-our $default_type = 'Bio::Seq';
+use base qw(Bio::Root::Root Bio::Factory::SequenceFactoryI);
 
 =head2 new
 
@@ -91,7 +92,7 @@ our $default_type = 'Bio::Seq';
  Function: Builds a new Bio::Seq::SeqFactory object 
  Returns : Bio::Seq::SeqFactory
  Args    : -type => string, name of a PrimarySeqI derived class
-                    This is optional. Default=Bio::Seq
+                    This is optional. Default=Bio::PrimarySeq.
 
 =cut
 
@@ -99,6 +100,9 @@ sub new {
   my($class,@args) = @_;
   my $self = $class->SUPER::new(@args);
   my ($type) = $self->_rearrange([qw(TYPE)], @args);
+  if( ! defined $type ) { 
+      $type = 'Bio::PrimarySeq';
+  }
   $self->type($type);
   return $self;
 }
@@ -111,7 +115,7 @@ sub new {
  Function: Instantiates new Bio::SeqI (or one of its child classes)
            This object allows us to genericize the instantiation of sequence
            objects.
- Returns : Bio::Seq object (default)
+ Returns : Bio::PrimarySeq object (default)
            The return type is configurable using new(-type =>"...").
  Args    : initialization parameters specific to the type of sequence
            object we want.  Typically 
@@ -133,26 +137,21 @@ sub create {
  Returns : value of type
  Args    : newvalue (optional)
 
+
 =cut
 
-sub type {
+sub type{
    my ($self,$value) = @_;
    if( defined $value) {
-       # Set the sequence type
        eval "require $value";
-       if( $@ ) { $self->throw("$@: Unrecognized sequence type for SeqFactory '$value'");}
+       if( $@ ) { $self->throw("$@: Unrecognized Sequence type for SeqFactory '$value'");}
+       
        my $a = bless {},$value;
        unless( $a->isa('Bio::PrimarySeqI') ||
 	       $a->isa('Bio::Seq::QualI') ) {
 	   $self->throw("Must provide a valid Bio::PrimarySeqI or Bio::Seq::QualI or child class to SeqFactory Not $value");
        }
       $self->{'type'} = $value;
-    } else {
-      # Get the sequence type 
-      if (not defined $self->{'type'}) {
-        # Set the sequence type if not specified
-        $self->{'type'} = $default_type;
-      }
     }
     return $self->{'type'};
 }

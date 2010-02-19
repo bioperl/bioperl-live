@@ -176,6 +176,7 @@ sub next_seq {
 					   -alphabet    => $alphabet,
 					   -direct      => 1,
 													  );
+
 	$seq = $seq->primary_seq;
 	bless $seq, 'Bio::Seq::Meta';
 
