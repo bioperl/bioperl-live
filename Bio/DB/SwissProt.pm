@@ -502,6 +502,8 @@ sub idtracker {
  Args    : -from : database mapping from
            -to   : database mapped to
            -ids  : a single ID or array ref of IDs to map
+ Note    : For a list of valid database IDs, see:
+           http://www.uniprot.org/faq/28#id_mapping_examples
 
 =cut
 
