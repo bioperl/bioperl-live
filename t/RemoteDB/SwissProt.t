@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 19,
+	test_begin(-tests => 21,
 			   -requires_modules => [qw(IO::String
 									    LWP::UserAgent
 										HTTP::Request::Common)],
@@ -67,21 +67,25 @@ ok $gb = Bio::DB::SwissProt->new(-retrievaltype =>'pipeline',
                                  -delay => 0,
                                  -verbose => -1); 
 
-TODO: {
-    local $TODO = "idtracker() not working (may be temporary)";
+SKIP: {
+    my $map;
+    # check old ID
+    eval {$map = $gb->id_mapper(-from => 'ACC+ID',
+                                  -to   => 'ACC',
+                                  -ids  => [qw(MYOD1_PIG YNB3_YEAST)])
+                                  };
+    skip("Problem with idtracker(), skipping these tests: $@", 4) if $@;
     
-    SKIP: {
-        my $newid;
-        # check old ID
-        eval {$newid = $gb->idtracker('myod_pig');};
-        skip("Problem with idtracker(), skipping these tests", 2) if $@;
-        is($newid, 'MYOD1_PIG');
-        # check ID that is current
-        eval {$newid = $gb->idtracker('YNB3_YEAST');};
-        skip("Problem with idtracker(), skipping these tests", 1) if $@;
-        is($newid, 'YNB3_YEAST');    
-    }
+    is($map->{MYOD1_PIG}, 'P49811');
+    is($map->{YNB3_YEAST}, 'P53979');
+    eval {$map = $gb->id_mapper(-from => 'ACC+ID',
+                                -to   => 'ENSEMBL_PRO_ID',
+                                -ids  => [qw(MYOD1_PIG YNB3_YEAST)])
+                                  };
+    skip("Problem with idtracker(), skipping these tests: $@", 2) if $@;
 
+    is($map->{MYOD1_PIG}, 'ENSSSCP00000014214');
+    is($map->{YNB3_YEAST}, 'YNL013C');
 }
 
 1;
