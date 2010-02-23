@@ -222,7 +222,7 @@ use File::Basename;
 
 use vars qw/$split @filter $zip $outdir $help $ethresh
 	    $ONTOLOGY %FEATURES %DESCENDANTS @RETURN $MANUAL @GFF_LINE_FEAT
-	    $CONF $YAML $TYPE_MAP $SYN_MAP $noinfer $SOfile 
+	    $CONF $YAML $TYPE_MAP $SYN_MAP $noinfer $SO_FILE 
             $file @files $dir $summary $nolump 
             $source_type %proteinfa %exonpar $didheader $verbose $DEBUG $GFF_VERSION 
             $gene_id $rna_id $tnum $ncrna_id $rnum %method %id %seen/;
@@ -278,7 +278,7 @@ my $ok= GetOptions( 'd|dir|input:s'   => \$dir,
             's|summary' => \$summary,
             'r|noinfer' => \$noinfer,
 	    'i|conf=s' => \$CONF,
-	    'sofile=s'	=> \$SOfile,
+	    'sofile=s'	=> \$SO_FILE,
 	    'm|manual' => \$MANUAL,
             'o|outdir|output:s'=> \$outdir,
             'x|filter:s'=> \@filter,
@@ -321,7 +321,7 @@ $source_type ||= "region"; # should really parse from FT.source contents below
 my $FTSOmap;
 my $FTSOsynonyms;
 
-if (defined($SOfile) && $SOfile eq 'live') {
+if (defined($SO_FILE) && $SO_FILE eq 'live') {
     print "\nDownloading the latest SO file from ".SO_URL."\n\n";
     use LWP::UserAgent;
     my $ua = LWP::UserAgent->new(timeout => 30);
@@ -333,20 +333,20 @@ if (defined($SOfile) && $SOfile eq 'live') {
 	use File::Temp qw/ tempfile /;
 	my ($fh, $fn) = tempfile();
 	print $fh $response->content;
-	$SOfile = $fn;
+	$SO_FILE = $fn;
     } else {
 	print "Couldn't download SO file online...skipping validation.\n" 
 	    . "HTTP Status was " . $response->status_line . "\n" 
-	    and undef $SOfile
+	    and undef $SO_FILE
     }
 }
 
-if ($SOfile) {
+if ($SO_FILE) {
 
 
     my (%terms, %syn);
 
-    my $parser = Bio::OntologyIO->new( -format => "obo", -file => $SOfile );
+    my $parser = Bio::OntologyIO->new( -format => "obo", -file => $SO_FILE );
     $ONTOLOGY = $parser->next_ontology();
 
     for ($ONTOLOGY->get_all_terms) { 
@@ -576,7 +576,7 @@ for my $file ( @files ) {
         # dont like doing this after others; do after each new gene id?
         @to_print= print_held($out, $gffio, \@to_print);
 
-	gff_validate(@GFF_LINE_FEAT) if $SOfile;
+	gff_validate(@GFF_LINE_FEAT);
 
 	for my $feature (@GFF_LINE_FEAT) {
 	    my $gff= $gffio->gff_string($feature);
@@ -1262,7 +1262,7 @@ sub map_types {
 	    }
 	} 
 
-	if ( not defined($mtype)  && $syn_map) {
+	if ( ! $mtype  && $syn_map) {
 	    if ($feat->has_tag('note')) {
 
 		my @all_matches;
@@ -1769,8 +1769,10 @@ sub gff_validate {
 	}
     }
 
-    while (my ($parentID, $aChildren) = each %parent2child) {
-	parent_validate($parentID, $aChildren, \%all_ids, \%descendants, \%reserved);
+    if ($SO_FILE) {
+	while (my ($parentID, $aChildren) = each %parent2child) {
+	    parent_validate($parentID, $aChildren, \%all_ids, \%descendants, \%reserved);
+	}
     }
 
     id_validate(\%all_ids, \%reserved);	
