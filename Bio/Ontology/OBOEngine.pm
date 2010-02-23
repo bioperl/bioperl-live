@@ -882,7 +882,7 @@ sub find_similar_terms{
 
             foreach my $string ( $term->name, $term->each_synonym() ) {
                 $matching_terms{$term->identifier} = $term and next
-                    if $string =~ /$qstring/ or $qstring =~ /$string/;
+                    if $string =~ /\Q$qstring\E/ or $qstring =~ /\Q$string\E/;
             }
         }
     }

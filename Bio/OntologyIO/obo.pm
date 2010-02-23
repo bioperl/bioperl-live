@@ -662,7 +662,7 @@ sub _next_term {
                 $term->add_dbxref(-dbxrefs => $ann);
             }
             elsif ( $tag =~ /(\w*)synonym/i ) {
-                $val =~ s/['"\[\]]//g;
+                #$val =~ s/['"\[\]]//g; #NML commented out b/c need quotes
                 $term->add_synonym($val);
             }
             elsif ( $tag eq "ALT_ID" ) {

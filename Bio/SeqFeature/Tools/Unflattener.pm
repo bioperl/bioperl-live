@@ -1109,7 +1109,7 @@ sub unflatten_seq{
    my ($self,@args) = @_;
 
     my($seq, $resolver_method, $group_tag, $partonomy, 
-       $structure_type, $resolver_tag, $use_magic) =
+       $structure_type, $resolver_tag, $use_magic, $noinfer) =
 	$self->_rearrange([qw(SEQ
                               RESOLVER_METHOD
                               GROUP_TAG
@@ -1117,6 +1117,7 @@ sub unflatten_seq{
 			      STRUCTURE_TYPE
 			      RESOLVER_TAG
 			      USE_MAGIC
+			      NOINFER
 			     )],
                           @args);
 
@@ -1403,6 +1404,8 @@ sub unflatten_seq{
 	   }
        }
 
+       $need_to_infer_exons = 0 if $noinfer; #NML
+
        if ($need_to_infer_exons) {
 	   # remove exons and introns from group -
 	   # we will infer exons later, and we
@@ -1526,7 +1529,7 @@ sub unflatten_seq{
        if ($self->verbose > 0) {
 	   printf STDERR "** INFERRING mRNA from CDS\n";
        }
-       $self->infer_mRNA_from_CDS(-seq=>$seq);
+       $self->infer_mRNA_from_CDS(-seq=>$seq, -noinfer=>$noinfer);
    }
 
    # INFERRING exons
@@ -2671,9 +2674,10 @@ example, see ftp.ncbi.nih.gov/genomes/Schizosaccharomyces_pombe/)
 sub infer_mRNA_from_CDS{
    my ($self,@args) = @_;
 
-   my($sf, $seq) =
+   my($sf, $seq, $noinfer) =
      $self->_rearrange([qw(FEATURE
                            SEQ
+			   NOINFER
                           )],
                           @args);
    my @sfs = ($sf);
@@ -2699,6 +2703,9 @@ sub infer_mRNA_from_CDS{
        if (@cdsl) {
 	   my @children = grep {$_->primary_tag ne 'CDS'} $sf->get_SeqFeatures;
 	   my @mrnas = ();
+
+	   @cdsl = () if $noinfer; #NML
+
 	   foreach my $cds (@cdsl) {
 	       
                if ($self->verbose > 0) {

@@ -249,6 +249,7 @@ sub _initialize {
 
 sub next_seq {
     my ($self,@args) = @_;
+    my %args = @args;
     my $builder = $self->sequence_builder();
     my $seq;
     my %params;
@@ -630,6 +631,12 @@ sub next_seq {
 	    $buffer = $self->_readline;
 	    # DO NOT read lines in the while condition -- this is done as a side
 	    # effect in _read_FTHelper_GenBank!
+
+#	    part of new circular spec: 
+#	    commented out for now until kinks worked out
+	    #my $sourceEnd = 0;
+	    #$sourceEnd = $2 if ($buffer =~ /(\d+?)\.\.(\d+?)$/);
+
 	    while( defined($buffer) ) {
 				# check immediately -- not at the end of the loop
 				# note: GenPept entries obviously do not have a BASE line
@@ -641,6 +648,16 @@ sub next_seq {
 				# to the last line read before returning
 
 		my $ftunit = $self->_read_FTHelper_GenBank(\$buffer);
+
+#		implement new circular spec: features that cross the origin are now
+#		seamless instead of being 2 separate joined features
+#		commented out until kinks get worked out
+		#if ((! $args{'-nojoin'}) && $ftunit->{'loc'} =~ /^join\((\d+?)\.\.(\d+?),(\d+?)..(\d+?)\)$/ 
+		#&& $sourceEnd == $2 && $3 == 1) {
+			#my $start = $1;
+			#my $end = $2 + $4;
+			#$ftunit->{'loc'} = "$start..$end";
+		#}
 
 				# fix suggested by James Diggans
 

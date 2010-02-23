@@ -27,27 +27,38 @@ genbank2gff3.pl -- Genbank-E<gt>gbrowse-friendly GFF3
   | perl gmod_bulk_load_gff3.pl -dbname mychado -organism fromdata
 
     Options:
-        --dir     -d  path to a list of genbank flatfiles
-        --outdir  -o  location to write GFF files (can be 'stdout' or '-' for pipe)
-        --zip     -z  compress GFF3 output files with gzip
-        --summary -s  print a summary of the features in each contig
-        --filter  -x  genbank feature type(s) to ignore
-        --split   -y  split output to seperate GFF and fasta files for
-                      each genbank record
-        --nolump  -n  seperate file for each reference sequence
-                      (default is to lump all records together into one 
+	--noinfer  -r  don't infer exon/mRNA subfeatures
+	--conf     -i  path to the curation configuration file that contains user preferences
+		       for Genbank entries (must be YAML format)
+		       (if --manual is passed without --ini, user will be prompted to 
+			create the file if any manual input is saved)
+	--sofile  -l  path to to the so.obo file to use for primary id mapping
+		       (--sofile live will download the latest online revision)
+	--manual   -m  when trying to guess the proper SO term, if more than
+		       one option matches the primary tag, the converter will 
+		       wait for user input to choose the correct one
+		       (only works with --sofile)
+        --dir      -d  path to a list of genbank flatfiles
+        --outdir   -o  location to write GFF files (can be 'stdout' or '-' for pipe)
+        --zip      -z  compress GFF3 output files with gzip
+        --summary  -s  print a summary of the features in each contig
+        --filter   -x  genbank feature type(s) to ignore
+        --split    -y  split output to seperate GFF and fasta files for
+                       each genbank record
+        --nolump   -n  seperate file for each reference sequence
+                       (default is to lump all records together into one 
                        output file for each input file)
-        --ethresh -e  error threshold for unflattener
-                      set this high (>2) to ignore all unflattener errors
-        --[no]CDS -c  Keep CDS-exons, or convert to alternate gene-RNA-protein-exon 
-                      model. --CDS is default. Use --CDS to keep default GFF gene model, 
-                      use --noCDS to convert to g-r-p-e.
-        --format  -f  Input format (SeqIO types): GenBank, Swiss or Uniprot, EMBL work
-                      (GenBank is default)
-        --GFF_VERSION 3 is default, 2 and 2.5 and other Bio::Tools::GFF versions available
-        --quiet       dont talk about what is being processed 
-        --typesource  SO sequence type for source (e.g. chromosome; region; contig)
-        --help    -h  display this message
+        --ethresh  -e  error threshold for unflattener
+                       set this high (>2) to ignore all unflattener errors
+        --[no]CDS  -c  Keep CDS-exons, or convert to alternate gene-RNA-protein-exon 
+                       model. --CDS is default. Use --CDS to keep default GFF gene model, 
+                       use --noCDS to convert to g-r-p-e.
+        --format   -f  Input format (SeqIO types): GenBank, Swiss or Uniprot, EMBL work
+                       (GenBank is default)
+        --GFF_VERSION  3 is default, 2 and 2.5 and other Bio::Tools::GFF versions available
+        --quiet        dont talk about what is being processed 
+        --typesource   SO sequence type for source (e.g. chromosome; region; contig)
+        --help     -h  display this message
 
 
 =head1 DESCRIPTION
@@ -204,16 +215,36 @@ use Bio::Location::SplitLocationI;
 use Bio::Location::Simple;
 use Bio::Tools::GFF;
 use Getopt::Long;
+use List::Util qw(first);
+use Bio::OntologyIO;
+use YAML qw(Dump LoadFile DumpFile);
+use File::Basename; 
 
 use vars qw/$split @filter $zip $outdir $help $ethresh
+	    $ONTOLOGY %FEATURES %DESCENDANTS @RETURN $MANUAL @GFF_LINE_FEAT
+	    $CONF $YAML $TYPE_MAP $SYN_MAP $noinfer $SOfile 
             $file @files $dir $summary $nolump 
             $source_type %proteinfa %exonpar $didheader $verbose $DEBUG $GFF_VERSION 
             $gene_id $rna_id $tnum $ncrna_id $rnum %method %id %seen/;
 
+use constant SO_URL => 
+    'http://song.cvs.sourceforge.net/viewvc/*checkout*/song/ontology/so.obo';
+use constant ALPHABET => [qw(a b c d e f g h i j k l m n o p q r s t u v w x y z)];
+use constant ALPHABET_TO_NUMBER => {
+    a => 0, b => 1, c => 2, d => 3, e => 4, f => 5, g => 6, h => 7, i => 8, 
+    j => 9, k => 10, l => 11, m => 12, n => 13, o => 14, p => 15, q => 16,
+    r => 17, s => 18, t => 19, u => 20, v => 21, w => 22, x => 23, y => 24,
+    z => 25,
+    };
+use constant ALPHABET_DIVISOR => 26;
 use constant GM_NEW_TOPLEVEL => 2;
 use constant GM_NEW_PART => 1;
 use constant GM_DUP_PART => 0;
 use constant GM_NOT_PART => -1;
+
+# Options cycle in multiples of 2 because of left side/right side pairing. 
+# You can make this number odd, but displayed matches will still round up
+use constant OPTION_CYCLE => 6; 
 
 $GFF_VERSION = 3; # allow v2 ...
 $verbose = 1; # right default? -nov to turn off
@@ -245,6 +276,10 @@ my $ok= GetOptions( 'd|dir|input:s'   => \$dir,
             'z|zip'     => \$zip, 
             'h|help'    => \$help,
             's|summary' => \$summary,
+            'r|noinfer' => \$noinfer,
+	    'i|conf=s' => \$CONF,
+	    'sofile=s'	=> \$SOfile,
+	    'm|manual' => \$MANUAL,
             'o|outdir|output:s'=> \$outdir,
             'x|filter:s'=> \@filter,
             'y|split'   => \$split,
@@ -282,7 +317,67 @@ my $idh = Bio::SeqFeature::Tools::IDHandler->new;
 # dgg
 $source_type ||= "region"; # should really parse from FT.source contents below
 
-my $FTSOmap = $tm->FT_SO_map();
+#my $FTSOmap = $tm->FT_SO_map();
+my $FTSOmap;
+my $FTSOsynonyms;
+
+if (defined($SOfile) && $SOfile eq 'live') {
+    print "\nDownloading the latest SO file from ".SO_URL."\n\n";
+    use LWP::UserAgent;
+    my $ua = LWP::UserAgent->new(timeout => 30);
+    my $request = HTTP::Request->new(GET => SO_URL);
+    my $response = $ua->request($request);
+
+
+    if ($response->status_line =~ /200/) {
+	use File::Temp qw/ tempfile /;
+	my ($fh, $fn) = tempfile();
+	print $fh $response->content;
+	$SOfile = $fn;
+    } else {
+	print "Couldn't download SO file online...skipping validation.\n" 
+	    . "HTTP Status was " . $response->status_line . "\n" 
+	    and undef $SOfile
+    }
+}
+
+if ($SOfile) {
+
+
+    my (%terms, %syn);
+
+    my $parser = Bio::OntologyIO->new( -format => "obo", -file => $SOfile );
+    $ONTOLOGY = $parser->next_ontology();
+
+    for ($ONTOLOGY->get_all_terms) { 
+	my $feat = $_;
+
+	$terms{$feat->name} = $feat->name;
+	#$terms{$feat->name} = $feat;
+
+	my @syn = $_->each_synonym;
+
+	push @{$syn{$_}}, $feat->name for @syn;
+	#push @{$syn{$_}}, $feat for @syn;
+    }
+
+    $FTSOmap = \%terms;
+    $FTSOsynonyms = \%syn;
+
+    my %hardTerms = %{ $tm->FT_SO_map() };
+    map { $FTSOmap->{$_} ||= $hardTerms{$_} } keys %hardTerms;
+
+} else { 
+    my %terms = %{ $tm->FT_SO_map() };
+    while (my ($k,$v) = each %terms) {
+	$FTSOmap->{$k} = ref($v) ? shift @$v : $v;
+    }
+}
+
+$TYPE_MAP = $FTSOmap;
+$SYN_MAP = $FTSOsynonyms;
+
+
 # #convert $FTSOmap undefined to valid SO : moved to TypeMapper->map_types( -undefined => "region")
 
 # stringify filter list if applicable
@@ -363,7 +458,7 @@ for my $file ( @files ) {
     my $in = Bio::SeqIO->new(-fh => \*FH, -format => $FORMAT, -debug=>$DEBUG);
     my $gffio = Bio::Tools::GFF->new( -noparse => 1, -gff_version => $GFF_VERSION );
 
-    while ( my $seq = $in->next_seq ) {
+    while ( my $seq = $in->next_seq() ) {
         my $seq_name = $seq->accession_number;
         my $end = $seq->length;
         my @to_print;
@@ -457,8 +552,9 @@ for my $file ( @files ) {
                   
                 } elsif ($action == GM_NOT_PART) {
                   add_generic_id( $feature, $gene_name, "nocount");
-                  my $gff= $gffio->gff_string($feature);
-                  print $out "$gff\n" if $gff;
+                  my $gff = $gffio->gff_string($feature);
+		  push @GFF_LINE_FEAT, $feature;
+                  #print $out "$gff\n" if $gff;
 
                 } elsif ($action > 0) {
                  # hold off print because exon etc. may get 2nd, 3rd parents
@@ -472,13 +568,21 @@ for my $file ( @files ) {
             else {
                 add_generic_id( $feature, $gene_name, "");
                 my $gff= $gffio->gff_string($feature);
-                print $out "$gff\n" if $gff;
+		push @GFF_LINE_FEAT, $feature;
+                #print $out "$gff\n" if $gff;
             }
         }
 
         # dont like doing this after others; do after each new gene id?
         @to_print= print_held($out, $gffio, \@to_print);
-          
+
+	gff_validate(@GFF_LINE_FEAT) if $SOfile;
+
+	for my $feature (@GFF_LINE_FEAT) {
+	    my $gff= $gffio->gff_string($feature);
+	    print $out "$gff\n" if $gff;
+	}
+
         # deal with the corresponding DNA
         my ($fa_out,$fa_outfile);
         my $dna = $seq->seq;
@@ -591,7 +695,8 @@ sub print_held {
   @$to_print = sort sort_by_feattype  @$to_print; # put exons after mRNA, otherwise chado loader chokes
   while ( my $feature = shift @$to_print) {
     my $gff= $gffio->gff_string($feature); # $gff =~ s/\'/./g; # dang bug in encode
-    print $out "$gff\n";
+    push @GFF_LINE_FEAT, $feature;
+    #print $out "$gff\n";
     }
   return (); # @to_print
 }
@@ -913,6 +1018,7 @@ sub unflatten_seq {
     
     eval {
         $unflattener->unflatten_seq( -seq => $seq, 
+				     -noinfer => $noinfer,
                                      -use_magic => 1 );
     };
     
@@ -927,9 +1033,16 @@ sub unflatten_seq {
 
     # map feature types to the sequence ontology
     ## $tm->map_types_to_SO( -seq => $seq );
-    $tm->map_types( -seq => $seq, -type_map => $FTSOmap, -undefined => "region" ); #dgg
-    
-    1;
+    #$tm->map_types( -seq => $seq, -type_map => $FTSOmap, -undefined => "region" ); #dgg
+
+    map_types( 
+	    $tm, 
+	    -seq => $seq, 
+	    -type_map  => $FTSOmap, 
+	    -syn_map  => $FTSOsynonyms, 
+	    -undefined => "region" 
+    ); #nml
+
 }
 
 sub filter {
@@ -972,12 +1085,13 @@ sub get_all_SeqFeatures  {
 sub gene_name {
     my $g = shift;
     my $gene_id = ''; # zero it;
-    
-    if ($g->has_tag('gene')) {
-        ($gene_id) = $g->get_tag_values('gene'); 
-    }
-    elsif ($g->has_tag('locus_tag')) {
+
+    if ($g->has_tag('locus_tag')) {
         ($gene_id) = $g->get_tag_values('locus_tag');
+    }
+
+    elsif ($g->has_tag('gene')) {
+        ($gene_id) = $g->get_tag_values('gene'); 
     }
     elsif ($g->has_tag('ID')) { # for non-Genbank > Entrezgene
         ($gene_id) = $g->get_tag_values('ID');
@@ -1058,3 +1172,1153 @@ sub _add_flattened_SeqFeatures  {
 
 }
 
+sub map_types {
+
+    my ($self, @args) = @_;
+
+    my($sf, $seq, $type_map, $syn_map, $undefmap) =
+	$self->_rearrange([qw(FEATURE
+		    SEQ
+		    TYPE_MAP
+		    SYN_MAP
+		    UNDEFINED
+		    )],
+		@args);
+
+    if (!$sf && !$seq) {
+	$self->throw("you need to pass in either -feature or -seq");
+    }
+
+    my @sfs = ($sf);
+    if ($seq) {
+	$seq->isa("Bio::SeqI") || $self->throw("$seq NOT A SeqI");
+	@sfs = $seq->get_all_SeqFeatures;
+    }
+
+
+    foreach my $feat (@sfs) {
+
+	$feat->isa("Bio::SeqFeatureI") || $self->throw("$feat NOT A SeqFeatureI");
+	$feat->isa("Bio::FeatureHolderI") || $self->throw("$feat NOT A FeatureHolderI");
+
+	my $primary_tag = $feat->primary_tag;
+
+	if ($primary_tag =~ /^pseudo(.*)$/) {
+	    $primary_tag = $1;
+	    $feat->primary_tag($primary_tag);
+	}
+
+	my $mtype = $type_map->{$primary_tag};
+
+	if (ref $mtype) {
+	    my $soID = pop @$mtype;
+	    $mtype = shift @$mtype;
+
+
+	    if ($soID) {
+		my ($term) = $ONTOLOGY->find_terms(-identifier => $soID);
+		$mtype = $term->name if $term;
+	    }
+
+	    $type_map->{$primary_tag} = $mtype if $mtype;
+	}
+
+	if ($CONF) {
+	    conf_read(); 
+	    my %perfect_matches;
+	    while (my ($p_tag,$rules) = each %$YAML) {
+		RULE:
+		for my $rule (@$rules) {
+		    for my $tags (@$rule) {
+			while (my ($tag,$values) = each %$tags) {
+			    for my $value (@$values) {
+				if ($feat->has_tag($tag)) {
+				    for ($feat->get_tag_values($tag)) {
+					next RULE unless $_ =~ /\Q$value\E/;
+				    }
+				} elsif ($tag eq 'primary_tag') {
+				    next RULE unless $value eq
+					$feat->primary_tag; 
+				} elsif ($tag eq 'location') {
+				    next RULE unless $value eq
+					$feat->start.'..'.$feat->end;
+				} else { next RULE }
+			    }
+			}
+		    }
+		    $perfect_matches{$p_tag}++;
+		}
+	    }
+	    if (scalar(keys %perfect_matches) == 1) {
+		$mtype = $_ for keys %perfect_matches;
+	    } elsif (scalar(keys %perfect_matches) > 1) {
+		warn "There are conflicting rules in the config file for the" .
+		     " following types: ";
+		warn "\t$_\n" for keys %perfect_matches;
+		warn "Until conflict resolution is built into the converter," .
+		     " you will have to manually edit the config file to remove the" .
+		     " conflict. Sorry :(. Skipping user preference for this entry";
+		sleep(2);
+	    }
+	} 
+
+	if ( not defined($mtype)  && $syn_map) {
+	    if ($feat->has_tag('note')) {
+
+		my @all_matches;
+
+		my @note = $feat->each_tag_value('note');
+
+		for my $k (keys %$syn_map) {
+
+		    if ($k =~ /"(.+)"/) {
+
+			my $syn = $1;
+
+			for my $note (@note) {
+
+			    # look through the notes to see if the description
+			    # is an exact match for synonyms
+			    if ( $syn eq $note ) { 
+
+				my @map = @{$syn_map->{$k}};
+
+				
+				my $best_guess = $map[0];
+
+				unshift @{$all_matches[-1]}, [$best_guess];
+
+				$mtype = $MANUAL
+				    ? manual_curation($feat, $best_guess, \@all_matches)
+				    : $best_guess;
+
+				print '#' x 78 . "\nGuessing the proper SO term for GenBank"
+				    . " entry:\n\n" . GenBank_entry($feat) . "\nis:\t$mtype\n" 
+				    . '#' x 78 . "\n\n";
+
+			    } else {
+				# check both primary tag and and note against
+				# SO synonyms for best matching description
+
+				SO_fuzzy_match( $k, $primary_tag, $note, $syn, \@all_matches); 
+			    }
+
+			}
+		    } 
+		}
+
+		#unless ($mtype) {
+		for my $note (@note) {
+		    for my $name (values %$type_map) {
+		    # check primary tag against SO names for best matching
+		    # descriptions //NML also need to check against
+		    # definition && camel case split terms
+
+			SO_fuzzy_match($name, $primary_tag, $note, $name, \@all_matches);
+		    }
+		}
+		#}
+
+		if (scalar(@all_matches) && !$mtype) {
+
+		    my $top_matches = first { defined $_ } @{$all_matches[-1]}; 
+
+		    my $best_guess = $top_matches->[0];
+
+
+
+	    # if guess has quotes, it is a synonym term. we need to 
+	    # look up the corresponding name term
+	    # otherwise, guess is a name, so we can use it directly
+		    if ($best_guess =~ /"(.+)"/) {
+
+			$best_guess = $syn_map->{$best_guess}->[0];
+
+		    } 
+
+		    @RETURN = @all_matches;
+		    $mtype = $MANUAL
+			? manual_curation($feat, $best_guess, \@all_matches)
+			: $best_guess;
+
+		    print '#' x 78 . "\nGuessing the proper SO term for GenBank"
+			. " entry:\n\n" . GenBank_entry($feat) . "\nis:\t$mtype\n" 
+			. '#' x 78 . "\n\n";
+
+		}
+	    }
+	} 
+	$mtype ||= $undefmap;
+	$feat->primary_tag($mtype);
+    }
+
+
+}
+
+sub SO_fuzzy_match {
+
+    my $candidate = shift;
+    my $primary_tag = shift;
+    my $note = shift;
+    my $SO_terms = shift;
+    my $best_matches_ref = shift;
+    my $modifier = shift; 
+
+    $modifier ||= '';
+
+	my @feat_terms;
+
+    for ( split(" |_", $primary_tag) ) {
+	#my @camelCase = /(?:[A-Z]|[a-z])(?:[A-Z]+|[a-z]*)(?=$|[A-Z])/g;
+	my @camelCase = /(?:[A-Z]|[a-z])(?:[A-Z]+|[a-z]*)(?=$|[A-Z]|[;:.,])/g;
+	push @feat_terms, @camelCase;
+    }
+
+    for ( split(" |_", $note) ) {
+	#my @camelCase = /(?:[A-Z]|[a-z])(?:[A-Z]+|[a-z]*)(?=$|[A-Z])/g;
+	#my @camelCase = /(?:[A-Z]|[a-z])(?:[A-Z]+|[a-z]*)(?=$|[A-Z]|[;:.,])/g;
+	(my $word = $_) =~ s/[;:.,]//g;
+	push @feat_terms, $word;
+    }
+
+
+    my @SO_terms = split(" |_", $SO_terms);
+
+# fuzzy match works on a simple point system. When 2 words match,
+# the $plus counter adds one. When they don't, the $minus counter adds
+# one. This is used to sort similar matches together. Better matches
+# are found at the end of the array, near the top.
+
+    # NML: can we improve best match by using synonym tags
+    # EXACT,RELATED,NARROW,BROAD?
+
+    my ($plus, $minus) = (0, 0); 
+    my %feat_terms;
+    my %SO_terms;
+
+    #unique terms
+    map {$feat_terms{$_} = 1} @feat_terms;
+    map {$SO_terms{$_} = 1} @SO_terms;
+
+    for my $st (keys %SO_terms) {
+	for my $ft (keys %feat_terms) {
+
+	    ($st =~ m/$modifier\Q$ft\E/) ? $plus++ : $minus++;
+
+	}
+    }
+
+    push @{$$best_matches_ref[$plus][$minus]}, $candidate if $plus;
+
+}
+
+sub manual_curation {
+
+    my ($feat, $default_opt,  $all_matches) = @_; 
+
+    my @all_matches = @$all_matches;
+
+    # convert all SO synonyms into names and filter
+    # all matches into unique term list because
+    # synonyms can map to multiple duplicate names
+
+    my (@unique_SO_terms, %seen);
+    for (reverse @all_matches) {
+	for (@$_) {
+	    for (@$_) {
+		#my @names;
+		if ($_ =~ /"(.+)"/) {
+		    for (@{$SYN_MAP->{$_}}) {
+			push @unique_SO_terms, $_ unless $seen{$_};
+			$seen{$_}++;
+		    }
+		} else { 
+		    push @unique_SO_terms, $_ unless $seen{$_};
+		    $seen{$_}++;
+		}
+	    }
+	}
+    }
+
+    my $s = scalar(@unique_SO_terms);
+
+    my $choice = 0;
+
+    my $more = 
+	"[a]uto   : automatic input (selects best guess for remaining entries)\r" .
+	"[f]ind   : search for other SO terms matching your query (e.g. f gene)\r" . 
+	"[i]nput  : add a specific term\r" .
+	"[r]eset  : reset to the beginning of matches\r" .
+	"[s]kip   : skip this entry (selects best guess for this entry)\r"
+    ;
+
+    $more .= 
+	"[n]ext   : view the next ".OPTION_CYCLE." terms\r" .
+	"[p]rev   : view the previous ".OPTION_CYCLE." terms" if ($s > OPTION_CYCLE);
+
+    my $msg = #"\n\n" . '-' x 156 . "\n"
+	 "The converter found $s possible matches for the following GenBank entry: ";
+
+    my $directions = 
+	"Type a number to select the SO term that best matches"
+	. " the genbank entry, or use any of the following options:\r" . '_' x 76 . "\r$more"; 
+
+
+    # lookup filtered list to pull out definitions
+    my @options = map { 
+	my $term = $_;
+	my %term;
+	for (['name', 'name'], ['def', 'definition'], ['synonym',
+		'each_synonym']) {
+	    my ($label, $method) = @$_;
+	    $term{$label} = \@{[$term->$method]};
+	}
+	[++$choice, $_->name, ($_->definition || 'none'), \%term, $_->each_synonym ];
+    }  map { $ONTOLOGY->find_terms(-name => $_) } @unique_SO_terms;
+
+
+    my $option = options_cycle(0, OPTION_CYCLE, $msg, $feat, $directions,
+	    $default_opt, @options);
+
+    if ($option eq 'skip') { return $default_opt 
+    } elsif ($option eq 'auto') {
+	$MANUAL = 0;
+	return $default_opt;
+    } else { return $option }
+
+}
+
+sub options_cycle {
+
+    my ($start, $stop, $msg, $feat, $directions, $best_guess, @opt) = @_;
+
+    #NML: really should only call GenBank_entry once. Will need to change
+    #method to return array & shift off header
+    my $entry = GenBank_entry($feat, "\r");
+
+    my $total = scalar(@opt);
+
+    ($start,$stop) = (0, OPTION_CYCLE) 
+	if ( ($start < 0) && ($stop > 0) );
+
+    ($start,$stop) = (0, OPTION_CYCLE) 
+	if ( ( ($stop - $start) < OPTION_CYCLE ) && $stop < $total);
+
+    ($start,$stop) = ($total - OPTION_CYCLE, $total) if $start < 0;
+    ($start,$stop) = (0, OPTION_CYCLE) if $start >= $total;
+
+    $stop = $total if $stop > $total;
+
+    my $dir_copy = $directions;
+    my $msg_copy = $msg;
+    my $format = "format STDOUT = \n" .
+	'-' x 156 . "\n" . 
+	'^' . '<' x 77 .  '| Available Commands:' . "\n" .
+	'$msg_copy' . "\n" .
+	'-' x 156 . "\n" . 
+	' ' x 78 . "|\n" .
+	'^' . '<' x 77 . '| ^' . '<' x 75 . '~' . "\n" .
+	'$entry' . ' ' x 74 . '$dir_copy,' . "\n" .
+	(' ' x 20 . '^' . '<' x 57 . '| ^' . '<' x 75 . '~' . "\n" .
+	' ' x 20 . '$entry,' . ' ' x 53 . '$dir_copy,' . "\n") x 1000  . ".\n";
+
+    {
+	# eval throws redefined warning that breaks formatting. 
+	# Turning off warnings just for the eval to fix this.
+	local $^W = 0;
+	eval $format;
+    }
+
+    write;
+
+    print '-' x 156 . "\n" .
+	'Showing results ' . ( $stop ? ( $start + 1 ) : $start ) . 
+	" - $stop of possible SO term matches: (best guess is \"$best_guess\")" .
+	"\n" . '-' x 156 . "\n"; 
+
+    for  (my $i = $start; $i < $stop; $i+=2) {
+
+	my ($left, $right) = @opt[$i,$i+1];
+
+	my ($nL, $nmL, $descL, $termL, @synL) = @$left;
+
+	#odd numbered lists can cause fatal undefined errors, so check
+	#to make sure we have data
+	
+	my ($nR, $nmR, $descR, $termR, @synR) = ref($right) ? @$right : (undef, undef, undef);
+
+#die Dumper $termL;
+
+	my $format = "format STDOUT = \n";
+
+	$format .=
+	    ' ' x 78 . "|\n" .
+
+	    '@>>: name: ^' . '<' x 64 . '~' . ' |' .
+		( ref($right) ? ('@>>: name: ^' . '<' x 64 . '~' ) : '' ) .  "\n" .
+	    '$nL,' . ' ' x 7 . '$nmL,' .
+		( ref($right) ? (' ' x 63 . '$nR,' .  ' ' x 7 .  "\$nmR,") : '' ) . "\n" .
+
+	    ' ' x 11 . '^' . '<' x 61 . '...~' . ' |' . 
+		(ref($right) ? ('           ^' . '<' x 61 .  '...~') : '') . "\n" .
+	    ' ' x 11 . '$nmL,' . 
+		(ref($right) ? (' ' x 74 . '$nmR,') : '') . "\n" .
+	    #' ' x 78 . '|' . "\n" .
+
+
+	    '     def:  ^' . '<' x 65 . ' |' . 
+		(ref($right) ? ('     def:  ^' . '<' x 64 . '~') : '') . "\n" .
+	    ' ' x 11 . '$descL,' . 
+		(ref($right) ? (' ' x 72 . '$descR,') : '') . "\n" .
+
+
+	    ('           ^' . '<' x 65 . ' |' . 
+		(ref($right) ? ('           ^' . '<' x 64 . '~') : '') . "\n" .
+	    ' ' x 11 . '$descL,' . 
+		(ref($right) ? (' ' x 72 . '$descR,') : '') . "\n") x 5 .
+
+
+	    '           ^' . '<' x 61 . '...~ |' . 
+		(ref($right) ? ('           ^' . '<' x 61 . '...~') : '') . "\n" .
+	    ' ' x 11 . '$descL,' . 
+		(ref($right) ? (' ' x 72 . '$descR,') : '') . "\n" .
+
+	    ".\n";
+
+	{
+	    # eval throws redefined warning that breaks formatting. 
+	    # Turning off warnings just for the eval to fix this.
+	    local $^W = 0;
+	    eval $format;
+	}
+	write;
+
+    }   
+    print '-' x 156 . "\nenter a command:";
+
+    while (<STDIN>) {
+
+	(my $input = $_) =~ s/\s+$//;
+
+	if ($input =~ /^\d+$/) {
+	    if ( $input && defined $opt[$input-1] ) {
+		return $opt[$input-1]->[1]
+	    } else {
+		print "\nThat number is not an option. Please enter a valid number.\n:";
+	    }
+	} elsif ($input =~ /^n/i | $input =~ /next/i ) {
+	    return options_cycle($start + OPTION_CYCLE, $stop + OPTION_CYCLE, $msg, 
+		    $feat, $directions, $best_guess, @opt)
+	} elsif ($input =~ /^p/i | $input =~ /prev/i ) {
+	    return options_cycle($start - OPTION_CYCLE, $stop - OPTION_CYCLE, $msg,
+		    $feat, $directions, $best_guess, @opt)
+	} elsif ( $input =~ /^s/i || $input =~ /skip/i ) { return 'skip' 
+	} elsif ( $input =~ /^a/i || $input =~ /auto/i ) { return 'auto' 
+	} elsif ( $input =~ /^r/i || $input =~ /reset/i ) { 
+	    return manual_curation($feat, $best_guess, \@RETURN );
+	} elsif ( $input =~ /^f/i || $input =~ /find/i ) {
+
+	    my ($query, @query_results);
+
+	    if ($input =~ /(?:^f|find)\s+?(.*?)$/) { $query = $1;
+	    } else {
+
+		#do a SO search
+		print "Type your search query\n:";
+		while (<STDIN>) { chomp($query = $_); last }
+	    }
+
+	    for (keys(%$TYPE_MAP), keys(%$SYN_MAP)) {
+		SO_fuzzy_match($_, $query, '', $_, \@query_results, '(?i)');
+	    }
+
+	    return manual_curation($feat, $best_guess, \@query_results);
+
+	} elsif ( $input =~ /^i/i || $input =~ /input/i ) {
+
+	    #NML fast input for later
+	    #my $query;
+	    #if ($input =~ /(?:^i|input)\s+?(.*?)$/) { $query = $1 };
+
+	    #manual input
+	    print "Type the term you want to use\n:";
+	    while (<STDIN>) {
+		chomp(my $input = $_);
+
+		if (! $TYPE_MAP->{$input}) {
+
+		    print "\"$input\" doesn't appear to be a valid SO term. Are ".
+			"you sure you want to use it? (y or n)\n:";
+
+		    while (<STDIN>) {
+
+			chomp(my $choice = $_);
+
+			if ($choice eq 'y') {
+			    print 
+				"\nWould you like to save your preference for " .
+				"future use (so you don't have to redo manual " .
+				"curation for this feature everytime you run " . 
+				"the converter)? (y or n)\n";
+
+			    #NML: all these while loops are a mess. Really should condense it.
+			    while (<STDIN>) {
+
+				chomp(my $choice = $_);
+
+				if ($choice eq 'y') {
+				    curation_save($feat, $input);
+				    return $input;
+				} elsif ($choice eq 'n') {
+				    return $input
+				} else {
+				    print "\nDidn't recognize that command. Please " . 
+					"type y or n.\n:" 
+				}
+			    }
+
+				
+			} elsif ($choice eq 'n') {
+			    return options_cycle($start, $stop, $msg, $feat,
+				    $directions, $best_guess, @opt)
+			} else {
+			    print "\nDidn't recognize that command. Please " . 
+				"type y or n.\n:" 
+			}
+		    }
+
+		} else { 
+		    print 
+			"\nWould you like to save your preference for " .
+			"future use (so you don't have to redo manual " .
+			"curation for this feature everytime you run  " . 
+			"the converter)? (y or n)\n";
+
+		    #NML: all these while loops are a mess. Really should condense it.
+		    while (<STDIN>) {
+
+			chomp(my $choice = $_);
+
+			if ($choice eq 'y') {
+			    curation_save($feat, $input);
+			    return $input;
+			} elsif ($choice eq 'n') {
+			    return $input
+			} else {
+			    print "\nDidn't recognize that command. Please " . 
+				"type y or n.\n:" 
+			}
+		    }
+
+		} 
+
+	    }
+	} else { 
+	    print "\nDidn't recognize that command. Please re-enter your choice.\n:" 
+	}
+    }
+
+}
+
+sub GenBank_entry {
+    my ($f, $delimiter, $num) = @_;
+
+    $delimiter ||= "\n";
+
+
+    my $entry  = 
+
+	($num ? ' [1] ' : ' ' x 5) . $f->primary_tag 
+	. ($num 
+	    ? ' ' x (12 - length $f->primary_tag ) . ' [2] '
+	    : ' ' x (15 - length $f->primary_tag) 
+	  )
+	. $f->start.'..'.$f->end
+
+	. "$delimiter";
+
+    if ($num) {
+	words_tag($f, \$entry);
+    } else {
+	for my $tag ($f->all_tags) {
+	    for my $val ( $f->each_tag_value($tag) ) {
+		$entry .= ' ' x 20;
+		#$entry .= "/$tag=\"$val\"$delimiter";
+		$entry .= $val eq '_no_value'
+		    ? "/$tag$delimiter"
+		    : "/$tag=\"$val\"$delimiter";
+	    }
+	}
+
+    }
+
+    return $entry;
+}
+
+
+sub gff_validate {
+    warn "Validating GFF file\n" if $DEBUG;
+    my @feat = @_;
+
+    my (%parent2child, %all_ids, %descendants, %reserved);
+
+    for my $f (@feat) {
+	for my $aTags (['Parent', \%parent2child], ['ID', \%all_ids]) {
+	    map { push @{$$aTags[1]->{$_}}, $f } $f->get_tag_values($$aTags[0])
+		if $f->has_tag($$aTags[0]); 
+	}
+    }
+
+    while (my ($parentID, $aChildren) = each %parent2child) {
+	parent_validate($parentID, $aChildren, \%all_ids, \%descendants, \%reserved);
+    }
+
+    id_validate(\%all_ids, \%reserved);	
+}
+
+sub parent_validate {
+    my ($parentID, $aChildren, $hAll, $hDescendants, $hReserved) = @_;
+
+    my $aParents = $hAll->{$parentID};
+
+    map { 
+	my $child = $_;
+	$child->add_tag_value( validation_error => 
+	"feature tried to add Parent tag, but no Parent found with ID $parentID"
+	);
+	my %parents;
+	map { $parents{$_} = 1 } $child->get_tag_values('Parent');
+	delete $parents{$parentID};
+	my @parents = keys %parents;
+
+	$child->remove_tag('Parent');
+
+	unless ($child->has_tag('ID')) {
+	    my $id = gene_name($child);
+	    $child->add_tag_value('ID', $id);
+	    push @{$hAll->{$id}}, $child
+	}
+
+	$child->add_tag_value('Parent', @parents) if @parents;
+
+    } @$aChildren and return unless scalar(@$aParents);
+
+    my $par = join(',', map { $_->primary_tag } @$aParents);
+    warn scalar(@$aParents)." POSSIBLE PARENT(S): $par" if $DEBUG;
+
+    #NML manual curation needs to happen here
+
+
+    my %parentsToRemove;
+
+    CHILD:
+    for my $child (@$aChildren) {
+	my $childType  = $child->primary_tag;
+
+	warn "WORKING ON $childType at ".$child->start.' to '.$child->end 
+	    if $DEBUG;
+
+	for (my $i = 0; $i < scalar(@$aParents); $i++) {
+	    my $parent = $aParents->[$i];
+	    my $parentType = $parent->primary_tag;
+
+	    warn "CHECKING $childType against $parentType" if $DEBUG;
+
+	    #cache descendants so we don't have to do repeat searches
+	    unless ($hDescendants->{$parentType}) {
+
+		for my $term ($ONTOLOGY->find_terms(
+			-name => $parentType
+		    ) ) {
+		    
+		    map {
+			$hDescendants->{$parentType}{$_->name}++
+		    } $ONTOLOGY->get_descendant_terms($term);
+
+		}
+
+		# NML: hopefully temporary fix.
+		# SO doesn't consider exon/CDS to be a child of mRNA
+		# even though common knowledge dictates that they are
+		# This cheat fixes the false positives for now
+		if ($parentType eq 'mRNA') {
+		    $hDescendants->{$parentType}{'exon'} = 1;
+		    $hDescendants->{$parentType}{'CDS'} = 1;
+		}
+
+	    }
+
+	    warn "\tCAN $childType at " . $child->start . ' to ' . $child->end .
+		" be a child of $parentType?" if $DEBUG;
+	    if ($hDescendants->{$parentType}{$childType}) {
+		warn "\tYES, $childType can be a child of $parentType" if $DEBUG;
+
+		#NML need to deal with multiple children matched to multiple different
+		#parents. This model only assumes the first parent id that matches a child will
+		#be the reserved feature. 
+
+		$hReserved->{$parentID}{$parent}{'parent'} = $parent;
+		push @{$hReserved->{$parentID}{$parent}{'children'}}, $child;
+
+		#mark parent for later removal from all IDs 
+		#so we don't accidentally change any parents
+
+		$parentsToRemove{$i}++;
+
+		next CHILD;
+	    } 
+	}
+
+
+	
+#NML shouldn't have to check this; somehow child can lose Parent
+#it's happening W3110
+#need to track this down
+	if ( $child->has_tag('Parent') ) {
+
+	    warn "\tNO, @{[$child->primary_tag]} cannot be a child of $parentID"
+		if $DEBUG;
+
+	    my %parents;
+
+	    map { $parents{$_} = 1 } $child->get_tag_values('Parent');
+
+	    delete $parents{$parentID};
+	    my @parents = keys %parents;
+
+	    warn 'VALIDATION ERROR '.$child->primary_tag." at ".$child->start .
+		' to ' . $child->end . " cannot be a child of ID $parentID"
+		if $DEBUG;
+
+	    $child->add_tag_value( validation_error => 
+		    "feature cannot be a child of $parentID");
+
+	    $child->remove_tag('Parent');
+
+	    unless ($child->has_tag('ID')) {
+		my $id = gene_name($child);
+		$child->add_tag_value('ID', $id);
+		push @{$hAll->{$id}}, $child
+	    }
+
+	    $child->add_tag_value('Parent', @parents) if @parents;
+	}
+
+    }
+    
+    #delete $aParents->[$_] for keys %parentsToRemove;
+    splice(@$aParents, $_, 1) for keys %parentsToRemove;
+}
+
+sub id_validate {
+    my ($hAll, $hReserved) = @_;
+
+
+    for my $id (keys %$hAll) {
+
+	#since 1 feature can have this id, 
+	#let's just shift it off and uniquify
+	#the rest (unless it's reserved)
+
+	shift @{$hAll->{$id}} unless $hReserved->{$id};
+	for my $feat (@{$hAll->{$id}}) {
+	    id_uniquify(0, $id, $feat, $hAll);
+	}
+    }
+
+    for my $parentID (keys %$hReserved) {
+
+	my @keys = keys %{$hReserved->{$parentID}};
+
+	shift @keys;
+
+	for my $k (@keys) {
+	    my $parent = $hReserved->{$parentID}{$k}{'parent'};
+	    my $aChildren= $hReserved->{$parentID}{$k}{'children'};
+
+	    my $value = id_uniquify(0, $parentID, $parent, $hAll);
+	    for my $child (@$aChildren) {
+
+		my %parents;
+		map { $parents{$_}++ } $child->get_tag_values('Parent');
+		$child->remove_tag('Parent');
+		delete $parents{$parentID};
+		$parents{$value}++;
+		my @parents = keys %parents;
+		$child->add_tag_value('Parent', @parents);
+	    }
+
+	}
+    }
+}
+
+sub id_uniquify {
+    my ($count, $value, $feat, $hAll) = @_;
+
+    warn "UNIQUIFYING $value" if $DEBUG;
+
+    if (! $count) {
+	$feat->add_tag_value(Alias => $value);
+	$value .= ('.' . $feat->primary_tag) 
+    } elsif ($count == 1) {
+	$value .= ".$count" 
+    } else { 
+	chop $value;
+	$value .= $count 
+    }
+    $count++;
+
+    warn "ENDED UP WITH $value" if $DEBUG;
+    if ( $hAll->{$value} ) { 
+	warn "$value IS ALREADY TAKEN" if $DEBUG;
+	id_uniquify($count, $value, $feat, $hAll);
+    } else { 
+	#warn "something's breaking ".$feat->primary_tag.' at '.$feat->start.' to '.$feat->end;
+	$feat->remove_tag('ID');
+	$feat->add_tag_value('ID', $value);
+	push @{$hAll->{$value}}, $value;
+    }
+
+    $value;
+}
+
+sub conf_read {
+
+    print "\nCannot read $CONF. Change file permissions and retry, " .
+	"or enter another file\n" and conf_locate() unless -r $CONF;
+
+    print "\nCannot write $CONF. Change file permissions and retry, " .
+	"or enter another file\n" and conf_locate() unless -w $CONF;
+
+    $YAML = LoadFile($CONF);
+
+}
+
+sub conf_create {
+
+    my ($path, $input) = @_;
+
+    print "Cannot write to $path. Change directory permissions and retry " .
+	"or enter another save path\n" and conf_locate() unless -w $path;
+
+    $CONF = $input;
+
+    open(FH, '>', $CONF);
+    close(FH);
+    conf_read();
+
+
+}
+
+sub conf_write { DumpFile($CONF, $YAML) }
+
+sub conf_locate {
+
+    print "\nEnter the location of a previously saved config, or a new " .
+	"path and file name to create a new config (this step is " .
+	"necessary to save any preferences)";
+
+    print "\n\nenter a command:";
+
+    while (<STDIN>) {
+	chomp(my $input = $_);
+	my ($fn, $path, $suffix) = fileparse($input, qr/\.[^.]*/);
+
+	if (-e $input && (! -d $input)) {
+
+	    print "\nReading $input...\n";
+	    $CONF = $input;
+
+	    conf_read(); 
+	    last;
+
+	} elsif (! -d $input && $fn.$suffix) {
+
+	    print "Creating $input...\n";
+	    conf_create($path, $input);
+	    last;
+
+	} elsif (-e $input && -d $input) {
+	    print "You only entered a directory. " .
+		"Please enter BOTH a directory and filename\n";
+	} else { 
+	    print "$input does not appear to be a valid path. Please enter a " .
+		"valid directory and filename\n";
+	}
+	print "\nenter a command:";
+    }
+}
+
+sub curation_save {
+
+    my ($feat, $input) = @_;
+
+    #my $error = "Enter the location of a previously saved config, or a new " .
+	#"path and file name to create a new config (this step is " .
+	#"necessary to save any preferences)\n";
+
+    if (!$CONF) {
+	print "\n\n"; 
+	conf_locate();
+    } elsif (! -e $CONF) {
+	print "\n\nThe config file you have chosen doesn't exist.\n";
+	conf_locate();
+    } else { conf_read() }
+
+    my $entry = GenBank_entry($feat, "\r", 1);
+
+    my $msg = "Term entered: $input";
+    my $directions = "Please select any/all tags that provide evidence for the term you
+have entered. You may enter multiple tags by separating them by commas/dashes
+(e.g 1,3,5-7). For tags with more than one word value (i.e 'note'), you have
+the option of either selecting the entire note as evidence, or specific
+keywords. If a tag has multiple keywords, they will be tagged alphabetically
+for selection. To select a specific keyword in a tag field, you must enter the
+tag number followed by the keyword letter (e.g 3a). Multiple keywords may be
+selected by entering each letter separated by commas/dashes (e.g 3b,f,4a-c). The more tags you select, the more specific the GenBank entry will have
+to be to match your curation. To match the GenBank entry exactly as it
+appears, type every number (start-end), or just type 'all'. Remember, once the converter saves your
+preference, you will no longer be prompted to choose a feature type for any
+matching entries until you edit the curation.ini file.";
+    my $msg_copy = $msg;
+    my $dir_copy = $directions;
+
+    my $format = "format STDOUT = \n" .
+	'-' x 156 . "\n" . 
+	'^' . '<' x 77 .  '| Directions:' . "\n" .
+	'$msg_copy' . "\n" .
+	'-' x 156 . "\n" . 
+	' ' x 78 . "|\n" .
+	'^' . '<' x 77 . '| ^' . '<' x 75 . '~' . "\n" .
+	'$entry' . ' ' x 74 . '$dir_copy,' . "\n" .
+	(' ' x 15 . '^' . '<' x 62 . '| ^' . '<' x 75 . '~' . "\n" .
+	' ' x 15 . '$entry,' . ' ' x 58 . '$dir_copy,' . "\n") x 20  . ".\n";
+
+    {
+	# eval throws redefined warning that breaks formatting. 
+	# Turning off warnings just for the eval to fix this.
+	local $^W = 0;
+	eval $format;
+    }
+
+    write;
+    print '-' x 156 . "\nenter a command:";
+
+    my @tags = words_tag($feat); 
+
+    my $final = {};
+    my $choices;
+    while (<STDIN>) {
+
+	chomp(my $choice = $_);
+
+	if (scalar(keys %$final) && $choice =~ /^y/i) { last 
+
+	} elsif (scalar(keys %$final) && $choice =~ /^n/i) { curation_save($feat, $input) 
+
+	} elsif (scalar(keys %$final)) { print "\nInvalid selection. Please try again\n";
+
+	} elsif ($choice eq 'all') {
+
+	    $choice = '';
+	    for (my $i=1; $i < scalar(@tags); $i++) {
+		$choice .= "$i,";
+	    }
+	    chop $choice;
+	} 
+#	print "CHOICE [$choice]";
+
+	my @selections;
+	for (split(/(?<=\w)[^[:alnum:]\-]+(?=\d)/, $choice)) {
+	    if ($_ =~ /(\d+)(?:\D*)-(\d+)(.*)/) { 
+
+		for ($1..$2) { push @selections, $_ }
+
+		my $dangling_alphas = $3;
+		alpha_expand($dangling_alphas, \@selections);
+
+	    } else { 
+		alpha_expand($_, \@selections);
+	    }
+	}
+
+	foreach my $numbers (@selections) {
+
+	    my @c = split(/(?=[\w])/, $numbers);
+	    s/\W+//g foreach @c;
+	    my $num;
+	    
+	    {
+		$^W = 0;
+		$num = 0 + shift @c;
+	    }
+
+	    my $tag = $tags[$num];
+	    if (ref $tag && scalar(@c)) {
+		my $no_value;
+		foreach (@c) {
+		    if (defined $tag->{$_}) {
+			$choices .= "${num}[$_] ";
+			my ($t,$v) = @{$tag->{$_}};
+			push @{${$final->{$input}}[0]{$t}}, $v;
+
+		    } else { $no_value++ }
+    		}
+
+		if ($no_value) { 
+		    _selection_add($tag,$final,$input,\$choices,$num);
+		    #my ($t,$v) = @{$tag->{'all'}};
+		    #unless (defined ${$final->{$input}}[0]{$t}) {
+			#$choices .= "$num, ";
+			#push @{${$final->{$input}}[0]{$t}}, $v
+		    #}
+		}
+
+		$choices = substr($choices, 0, -2);
+		$choices .= ', ';
+
+	    } elsif (ref $tag) { 
+		_selection_add($tag,$final,$input,\$choices,$num);
+		#my ($t,$v) = @{$tag->{'all'}};
+		#unless (defined ${$final->{$input}}[0]{$t}) {
+		    #$choices .= "$num, ";
+		    #push @{${$final->{$input}}[0]{$t}}, $v
+		#}
+	    } 
+	}
+	$choices = substr($choices, 0, -2) if $choices;
+	if ($final) {
+	    print "\nYou have chosen the following tags:\n$choices\n";
+	    print "This will be written to the config file as:\n";
+	    print Dump $final;
+	    print "\nIs this correct? (y or n)\n";
+	} else { print "\nInvalid selection. Please try again\n" }
+    }
+    push @{$YAML->{$input}}, $final->{$input};
+    conf_write();
+}
+
+#  words_tag() splits each tag value string into multiple words so that the 
+#  user can select the parts he/she wants to use for curation
+#  it can tag 702 (a - zz) separate words; this should be enough
+
+sub words_tag {
+
+    my ($feat, $entry) = @_;
+
+    my @tags;
+
+    @tags[1,2] = ({'all' => ['primary_tag', $feat->primary_tag]}, {'all' => ['location', $feat->start.'..'.$feat->end]});
+    my $i = 3;
+    foreach my $tag ($feat->all_tags) {
+	foreach my $value ($feat->each_tag_value($tag)) {
+
+	    my ($string, $tagged_string);
+
+	    my @words = split(/(?=\w+?)/, $value);
+
+	    my $pos = 0;
+
+
+	    foreach my $word (@words) {
+
+		(my $sanitized_word = $word) =~ s/\W+?//g;
+		$string .= $word;
+
+		my $lead = int($pos/ALPHABET_DIVISOR);
+		my $lag = $pos % ALPHABET_DIVISOR;
+
+		my $a =  $lead ? ${(ALPHABET)}[$lead-1] : '';
+		$a .= $lag ? ${(ALPHABET)}[$lag] : 'a';
+
+		$tagged_string .= " ($a) $word";
+
+		$tags[$i]{$a} = [$tag, $sanitized_word];
+		$pos++;
+	    }
+
+	    $value = $tagged_string if scalar(@words) > 1;
+
+	    $$entry .= "[$i] /$tag=\"$value\"\r";
+
+	    $tags[$i]{'all'} = [$tag, $string];
+	}
+	$i++;
+    }
+
+    return @tags;
+    
+}
+
+sub alpha_expand {
+
+    my ($dangling_alphas, $selections) = @_;
+
+    if (defined($dangling_alphas) && $dangling_alphas =~ /(\d)*([[:alpha:]]+)-([[:alpha:]]+)/) {
+
+	my $digit = $1;
+	push @$selections, $digit if $digit;
+
+	my $start = $2;
+	my $stop = $3;
+
+	my @starts = split('', $start);
+	my @stops = split('', $stop);
+
+	my ($final_start, $final_stop);
+
+	for ([\$final_start, \@starts], [\$final_stop, \@stops]) {
+
+	    my ($final, $splits) = @$_;
+
+	    my $int = ${(ALPHABET_TO_NUMBER)}{$$splits[0]};
+	    my $rem;
+
+
+	    if ($$splits[1]) {
+		$rem = ${(ALPHABET_TO_NUMBER)}{$$splits[1]};
+		$int++
+	    } else {
+		$rem = $int;
+		$int = 0;
+	    }
+
+
+	    $$final = $int * ALPHABET_DIVISOR;
+	    $$final += $rem;
+
+	}
+
+	my $last_number = pop @$selections;
+	for my $pos ($final_start..$final_stop) {
+	    my $lead = int($pos/ALPHABET_DIVISOR);
+	    my $lag = $pos % ALPHABET_DIVISOR;
+	    my $alpha =  $lead ? ${(ALPHABET)}[$lead-1] : '';
+	    $alpha .= $lag ? ${(ALPHABET)}[$lag] : 'a';
+	    push @$selections, $last_number.$alpha;	
+	}
+
+    } elsif (defined($dangling_alphas)) { 
+	if ($dangling_alphas =~ /^\d/) {
+	    push @$selections, $dangling_alphas;
+	} elsif ($dangling_alphas =~ /^\D/) {
+	    #print "$dangling_alphas ".Dumper @$selections;
+	    my $last_number = pop @$selections;
+	    $last_number ||= '';
+	    push @$selections, $last_number.$dangling_alphas;
+	    #$$selections[-1] .= $dangling_alphas;
+	}
+    }
+
+}
+
+sub _selection_add {
+
+    my ($tag, $final, $input, $choices, $num) = @_;
+    my ($t,$v) = @{$tag->{'all'}};
+    unless (defined ${$final->{$input}}[0]{$t}) {
+	$$choices .= "$num, ";
+	push @{${$final->{$input}}[0]{$t}}, $v
+    }
+
+}
