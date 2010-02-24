@@ -140,7 +140,7 @@ sub read {
                      # occurring against the variables set by 
 	             # regexp matching (unless anyone has other ideas...)
 
-	my ($precut, $recog, $postcut) = ( $site =~ m/^(?:\((\w+\/\w+)\))?([\w^]+)(?:\((\w+\/\w+)\))?/ );
+	my ($precut, $recog, $postcut) = ( $site =~ m/^(?:\((-?\w+\/-?\w+)\))?([\w^]+)(?:\((-?\w+\/-?\w+)\))?/ );
 
 
         #
