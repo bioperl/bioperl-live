@@ -345,7 +345,6 @@ sub write_tree
     }
     # check if rooted
     my ($b_rooted) = $tree->get_tag_values('rooted');
-    print "b_rooted: $b_rooted\n" if $b_rooted;
     if ($b_rooted) {
       $attr_str .= " rooted=\"true\"";
     }
@@ -483,12 +482,12 @@ sub _write_tree_Helper_generic
     $str .= $node->id;
     $str .= "</name>";
   }
-  elsif ($node->branch_length) {
+  if ($node->branch_length) {
     $str .= "<branch_length>";
     $str .= $node->branch_length;
     $str .= "</branch_length>";
   }
-  elsif ($node->bootstrap) {
+  if ($node->bootstrap) {
     $str .= "<confidence type = \"bootstrap\">";
     $str .= $node->bootstrap;
     $str .= "</confidence>";
