@@ -7,10 +7,12 @@ use Bio::PrimarySeq;
 
 use lib '.';
 
-test_begin(-tests => 29);
+test_begin(-tests => 91);
 
 use_ok( 'Bio::Restriction::IO' );
 use_ok( 'Bio::Restriction::Analysis' );
+use_ok('Bio::Restriction::EnzymeCollection');
+use_ok('Bio::Restriction::Enzyme');
 
 # recog sites (not nec. cut sites!) in lc
 
@@ -147,5 +149,122 @@ ok( $analysis->cut, 'recut');
 is_deeply( [$analysis->positions('AasI')], [33, 110, 200], 'circ: AasI
 site at origin' );
 is( @fm, 13, 'circ: still 13 fragments (cut site at origin)');
+
+
+# Emmanuel's tests / bug3015
+
+use_ok('Bio::Restriction::IO');
+use_ok('Bio::Restriction::Analysis');
+
+#ATGAGCGCTcacgtcACTAG^TTCTAGAGcctcagcAATTC^CGATCccgctcGATTAATGC^TccgcAGCAGCGATATCGAG^CATGGTCATGAgaatgcGGC^ATCGATCGGCATTATATcacgtcAATCGCGTCGCTGCATGCTAGCG
+$seq = new Bio::PrimarySeq(
+     -seq        => 'ATGAGCGCTcacgtcACTAGTTCTAGAGcctcagcAATTCCGATCccgctcGATTAATGCTccgcAGCAGCGATATCGAGCATGGTCATGAgaatgcGGCATCGATCGGCATTATATcacgtcAATCGCGTCGCTGCATGCTAGCG',
+     -primary_id => 'test1',
+     -molecule   => 'dna'
+);
+
+ok( $rebase_io = Bio::Restriction::IO->new(
+     -file   => test_input_file('withrefm.906'),
+     -format => 'withrefm',
+    ), 'read withrefm file');
+
+ok( $rebase_cln = $rebase_io->read, 'parse withrefm file');
+
+my @enzs = qw/AbeI AccBSI AciI Asp26HI BmgBI/;
+
+# Get the enzymes with back cut site
+# 'AbeI'    CCTCAGC(-5/-2) #1
+# 'AccBSI'  CCGCTC(-3/-3)  #1
+# 'AciI'    CCGC(-3/-1)    #2
+# 'Asp26HI' GAATGC(1/-1)   #1
+# 'BmgBI'   CACGTC(-3/-3)  #2
+
+ok(my $collection = Bio::Restriction::EnzymeCollection->new(-empty => 1), "Collection initiated");
+
+foreach my $e (@enzs){
+
+    ok(my $enz = $rebase_cln->get_enzyme($e), "$e: found ok into collection");
+    $collection->enzymes($enz);
+}
+
+$an = { };
+bless($an, 'Bio::Restriction::Analysis');
+$an->seq($seq);
+$an->enzymes($collection);
+
+#Test all types of stuff from the enzyme
+my $data = {
+   'AbeI'    => { 'p' => [23],
+                  'm' => [26],
+                  'pos' => 2,
+                  'f' => 3,
+                  'o' => "5'",
+                  's' => 'CC^TCAGC',
+                  'r' => 'GCTGAGG',
+                  'c' => '-5',
+                  'rc' => '-2' },
+
+   'AccBSI'  => { 'p' => [42],
+                  'm' => [42],
+                  'pos' => 1,
+                  'f' => 2,
+                  'o' => "blunt",
+                  's' => 'CCG^CTC',
+                  'r' => 'GAGCGG',
+                  'c' => '-3',
+                  'rc' => '-3' },
+
+   'AciI'    => { 'p' => [42,58,100],
+                  'm' => [44,60,102],
+                  'pos' => 6,
+                  'f' => 7,
+                  'o' => "5'",
+                  's' => 'C^CGC',
+                  'r' => 'GCGG',
+                  'c' => '-3',
+                  'rc' => '-1' },
+
+   'Asp26HI' => { 'p' => [98],
+                  'm' => [90],
+                  'pos' => 1,
+                  'f' => 2,
+                  'o' => "3'",
+                  's' => 'GAATGC',
+                  'r' => 'GCATTC',
+                  'c' => 7,
+                  'rc' => '-1' },
+
+   'BmgBI'   => { 'p' => [6, 114],
+                  'm' => [6, 114],
+                  'pos' => 2,
+                  'f' => 3,
+                  'o' => "blunt",
+                  's' => 'CAC^GTC',
+                  'r' => 'GACGTG',
+                  'c' => '-3',
+                  'rc' => '-3' },
+};
+
+foreach my $e (@enzs){
+
+   my $d = $data->{$e};
+   my $z = $rebase_cln->get_enzyme($e);
+   my $minus_sites = $an->_make_cuts($seq->seq, $z, 'COMP');
+   my $plus_sites  = $an->_make_cuts($seq->seq, $z);
+
+   is_deeply($plus_sites,  $d->{p}, "$e plus");
+   is_deeply($minus_sites, $d->{m}, "$e minus");
+
+   ok(scalar($an->fragments($z)) eq $d->{f}, "$e fragment");
+   ok(scalar($an->positions($e)) eq $d->{pos}, "$e positions");
+
+   is($z->overhang(), $d->{'o'}, "$e Overhang");
+   is($z->name(), "$e", "$e name");
+   is($z->site(), $d->{s}, "$e site");
+   is($z->revcom_site(), $d->{r}, "$e revcom_site");
+   is($z->cut(), $d->{c}, "$e cut");
+   is($z->complementary_cut(), $d->{rc}, "$e complementary_cut");
+}
+
 
 1;
