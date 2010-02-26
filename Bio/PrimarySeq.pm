@@ -398,14 +398,24 @@ sub subseq {
        if( $start <= 0 ) {
 	   $self->throw("Bad start parameter ($start). Start must be positive.");
        }
-       if( $end > $self->length ) {
-	   $self->throw("Bad end parameter ($end). End must be less than the total length of sequence (total=".$self->length.")");
-       }
 
        # remove one from start, and then length is end-start
        $start--;
        my @ss_args = map { eval "defined $_"  ? $_ : () } qw( $self->{seq} $start $end-$start $replace);
        my $seqstr = eval join( '', "substr(", join(',',@ss_args), ")");
+
+       if( $end > $self->length) {
+	   if ($self->is_circular) {
+	       my $start = 0;
+	       my $end = $end - $self->length;
+	       my @ss_args = map { eval "defined $_"  ? $_ : () } qw( $self->{seq} $start $end-$start $replace);
+	       my $appendstr = eval join( '', "substr(", join(',',@ss_args), ")");
+	       $seqstr .= $appendstr;
+	   } else {
+	       $self->throw("Bad end parameter ($end). End must be less than the total length of sequence (total=".$self->length.")")
+	   }
+       } 
+
        $seqstr =~ s/[$GAP_SYMBOLS]//g if ($nogap);
        return $seqstr;
 
