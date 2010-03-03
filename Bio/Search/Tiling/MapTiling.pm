@@ -252,6 +252,135 @@ sub rewind_tilings{
     return $self->_tiling_iterator($type, $context)->('REWIND');
 }
 
+=head1 ALIGNMENTS
+
+=head2 get_tiled_alns()
+
+ Title   : get_tiled_alns
+ Usage   : @alns = $tiling->get_tiled_alns($type, $context)
+ Function: Use a tiling to construct a minimal set of alignment 
+           objects covering the region specified by $type/$context
+           by splicing adjacent HSP tiles
+ Returns : an array of Bio::SimpleAlign objects; see Note below
+ Args    : scalar $type: one of 'hit', 'subject', 'query'
+           default is 'query'
+           scalar $context: strand/frame context string
+           Following $type and $context, an array of 
+           ordered, tiled HSP objects can be specified; this is 
+           the tiling that will directly the alignment construction
+           default -- the first tiling provided by a tiling iterator
+ Notes   : Each returned alignment is a concatenation of adjacent tiles.
+           The set of alignments will cover all regions described by the 
+           $type/$context pair in the hit. The pair of sequences in each 
+           alignment have ids 'query' and 'subject', and each sequence 
+           possesses SeqFeatures that map the original query or subject 
+           coordinates to the sequence coordinates in the tiled alignment.
+           
+=cut
+
+sub get_tiled_alns {
+    my $self = shift;
+    my ($type, $context) = @_;
+    $self->_check_type_arg(\$type);
+    $self->_check_context_arg($type, \$context);
+    my $t = shift; # first arg after type/context, arrayref to a tiling
+    my @tiling;
+    if ($t && (ref($t) eq 'ARRAY')) {
+	@tiling = @$t;
+    }
+    else { # otherwise, take the first tiling available
+
+	@tiling = $self->_make_tiling_iterator($type,$context)->(); 
+    }
+    my @ret;
+
+    my @map = $self->coverage_map($type, $context);
+    my @intervals = map {$_->[0]} @map; # disjoint decomp
+    # divide into disjoint covering groups
+    my @groups = covering_groups(@intervals);
+
+    require Bio::SimpleAlign;
+    require Bio::SeqFeature::Generic;
+    # cut hsp aligns along the disjoint decomp
+    # look for gaps...or add gaps?
+    my ($q_start, $h_start, $q_strand, $h_strand);
+    # build seqs
+    for my $grp (@groups) {
+	my $taln = Bio::SimpleAlign->new();
+	my (@qfeats, @hfeats);
+	my $query_string = '';
+	my $hit_string = '';
+	for my $intvl (@$grp) {
+	    # following just chooses the first available hsp containing the
+	    # interval -- this is arbitrary, could be smarter.
+	    my $aln = ( containing_hsps($intvl, @tiling) )[0]->get_aln;
+	    my $qseq = $aln->get_seq_by_pos(1);
+	    my $hseq = $aln->get_seq_by_pos(2);
+	    # calculate the slice boundaries
+	    my ($beg, $end);
+	    for ($type) {
+		/query/ && do {
+		    $beg = $aln->column_from_residue_number($qseq->id, $intvl->[0]);
+		    $end = $aln->column_from_residue_number($qseq->id, $intvl->[1]);
+		    last;
+		};
+		/subject|hit/ && do {
+		    $beg = $aln->column_from_residue_number($hseq->id, $intvl->[0]);
+		    $end = $aln->column_from_residue_number($hseq->id, $intvl->[1]);
+		    last;
+		};
+	    }
+	    $aln = $aln->slice($beg, $end);
+	    $qseq = $aln->get_seq_by_pos(1);
+	    $hseq = $aln->get_seq_by_pos(2);
+	    push @qfeats, Bio::SeqFeature::Generic->new(
+		-start => CORE::length($query_string)+1,
+		-end => CORE::length($query_string)+CORE::length($qseq->seq),
+		-strand => $qseq->strand,
+		-primary => 'query',
+		-source_tag => 'BLAST',
+		-display_name => 'query coordinates',
+		-tag => { query_id => $qseq->id,
+			  query_desc => $qseq->desc,
+			  query_start => $qseq->start,
+			  query_end => $qseq->end}
+		);
+	    push @hfeats, Bio::SeqFeature::Generic->new(
+		-start => CORE::length($hit_string)+1,
+		-end => CORE::length($hit_string)+CORE::length($hseq->seq),
+		-strand => $hseq->strand,
+		-primary => 'subject/hit',
+		-source_tag => 'BLAST',
+		-display_name => 'subject/hit coordinates',
+		-tag => { subject_id => $hseq->id,
+			  subject_desc => $hseq->desc,
+			  subject_start => $hseq->start,
+			  subject_end => $hseq->end
+		}
+		);
+	    $query_string .= $qseq->seq;
+	    $hit_string .= $hseq->seq;
+	    # want to add features that describe the original
+	    # hsp coordinates.
+	}
+	# create the LocatableSeqs and add the features to each
+	# then add the seqs to the new aln
+	# note in MapTileUtils, Bio::FeatureHolderI methods have been
+	# mixed into Bio::LocatableSeq
+	my $qseq = Bio::LocatableSeq->new( -id => 'query',
+					   -seq => $query_string);
+	$qseq->add_SeqFeature(@qfeats);
+	my $hseq = Bio::LocatableSeq->new( -id => 'subject',
+					   -seq => $hit_string );
+	$hseq->add_SeqFeature(@hfeats);
+	$taln->add_seq($qseq);
+	$taln->add_seq($hseq);
+	push @ret, $taln;
+    }
+    
+    return @ret;
+}
+
 =head1 STATISTICS
 
 =head2 identities
@@ -1120,110 +1249,6 @@ sub _tiling_iterator {
     }
     return $self->{"_tiling_iterator_${type}_${context}"};
 }
-
-sub get_tiled_alns {
-    my $self = shift;
-    my ($type, $context) = @_;
-    $self->_check_type_arg(\$type);
-    $self->_check_context_arg($type, \$context);
-    my $t = shift; # first arg after type/context, arrayref to a tiling
-    my @tiling;
-    if ($t && (ref($t) eq 'ARRAY')) {
-	@tiling = @$t;
-    }
-    else { # otherwise, take the first tiling available
-
-	@tiling = $self->_make_tiling_iterator($type,$context)->(); 
-    }
-    my @ret;
-
-    my @map = $self->coverage_map($type, $context);
-    my @intervals = map {$_->[0]} @map; # disjoint decomp
-    # divide into disjoint covering groups
-    my @groups = covering_groups(@intervals);
-
-    require Bio::SimpleAlign;
-    require Bio::SeqFeature::Generic;
-    # cut hsp aligns along the disjoint decomp
-    # look for gaps...or add gaps?
-    my ($q_start, $h_start, $q_strand, $h_strand);
-    # build seqs
-    for my $grp (@groups) {
-	my $taln = Bio::SimpleAlign->new();
-	my (@qfeats, @hfeats);
-	my $query_string = '';
-	my $hit_string = '';
-	for my $intvl (@$grp) {
-	    # following just chooses the first available hsp containing the
-	    # interval -- this is arbitrary, could be smarter.
-	    my $aln = ( containing_hsps($intvl, @tiling) )[0]->get_aln;
-	    my $qseq = $aln->get_seq_by_pos(1);
-	    my $hseq = $aln->get_seq_by_pos(2);
-	    # calculate the slice boundaries
-	    my ($beg, $end);
-	    for ($type) {
-		/query/ && do {
-		    $beg = $aln->column_from_residue_number($qseq->id, $intvl->[0]);
-		    $end = $aln->column_from_residue_number($qseq->id, $intvl->[1]);
-		    last;
-		};
-		/subject|hit/ && do {
-		    $beg = $aln->column_from_residue_number($hseq->id, $intvl->[0]);
-		    $end = $aln->column_from_residue_number($hseq->id, $intvl->[1]);
-		    last;
-		};
-	    }
-	    $aln = $aln->slice($beg, $end);
-	    $qseq = $aln->get_seq_by_pos(1);
-	    $hseq = $aln->get_seq_by_pos(2);
-	    push @qfeats, Bio::SeqFeature::Generic->new(
-		-start => CORE::length($query_string)+1,
-		-end => CORE::length($query_string)+CORE::length($qseq->seq),
-		-strand => $qseq->strand,
-		-primary => 'query',
-		-source_tag => 'BLAST',
-		-display_name => 'query coordinates',
-		-tag => { query_id => $qseq->id,
-			  query_desc => $qseq->desc,
-			  query_start => $qseq->start,
-			  query_end => $qseq->end}
-		);
-	    push @hfeats, Bio::SeqFeature::Generic->new(
-		-start => CORE::length($hit_string)+1,
-		-end => CORE::length($hit_string)+CORE::length($hseq->seq),
-		-strand => $hseq->strand,
-		-primary => 'subject/hit',
-		-source_tag => 'BLAST',
-		-display_name => 'subject/hit coordinates',
-		-tag => { subject_id => $hseq->id,
-			  subject_desc => $hseq->desc,
-			  subject_start => $hseq->start,
-			  subject_end => $hseq->end
-		}
-		);
-	    $query_string .= $qseq->seq;
-	    $hit_string .= $hseq->seq;
-	    # want to add features that describe the original
-	    # hsp coordinates.
-	}
-	# create the LocatableSeqs and add the features to each
-	# then add the seqs to the new aln
-	# note in MapTileUtils, Bio::FeatureHolderI methods have been
-	# mixed into Bio::LocatableSeq
-	my $qseq = Bio::LocatableSeq->new( -id => 'query',
-					   -seq => $query_string);
-	$qseq->add_SeqFeature(@qfeats);
-	my $hseq = Bio::LocatableSeq->new( -id => 'subject',
-					   -seq => $hit_string );
-	$hseq->add_SeqFeature(@hfeats);
-	$taln->add_seq($qseq);
-	$taln->add_seq($hseq);
-	push @ret, $taln;
-    }
-    
-    return @ret;
-}
-
 =head2 Construction Helper Methods
 
 See also L<Bio::Search::Tiling::MapTileUtils>.
