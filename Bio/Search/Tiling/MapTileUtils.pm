@@ -9,6 +9,8 @@ BEGIN {
     our @EXPORT = qw( get_intervals_from_hsps 
                       interval_tiling 
                       decompose_interval
+                      containing_hsps
+                      covering_groups
                       _allowable_filters 
                       _set_attributes
                       _mapping_coeff);
@@ -426,6 +428,92 @@ sub _mapping_coeff {
     return;
 }
 
+# a graphical depiction of a set of intervals
+sub _ints_as_text {
+    my $ints = shift;
+    my @ints = @$ints;
+    my %pos;
+    for (@ints) {
+	$pos{$$_[0]}++;
+	$pos{$$_[1]}++;
+    }
+    
+    my @pos = sort {$a<=>$b} keys %pos;
+    @pos = map {sprintf("%03d",$_)} @pos;
+#header
+    my $max=0;
+    $max = (length > $max) ? length : $max for (@pos);
+    for my $j (0..$max-1) {
+	my $i = $max-1-$j; 
+	my @line = map { substr($_, $j, 1) || '0' } @pos;
+	print join('', @line), "\n";
+    }
+    print '-' x @pos, "\n";
+    undef %pos;
+    @pos{map {sprintf("%d",$_)} @pos} = (0..@pos);
+    foreach (@ints) {
+	print ' ' x $pos{$$_[0]}, '[', ' ' x ($pos{$$_[1]}-$pos{$$_[0]}-1), ']', ' ' x (@pos-$pos{$$_[1]}), "\n";
+    }
+}
+
+
+
+=head2 containing_hsps()
+
+ Title   : containing_hsps
+ Usage   : @hsps = containing_hsps($interval, @hsps_to_search)
+ Function: Return a list of hsps whose coordinates completely contain the
+           given $interval
+ Returns : Array of HSP objects
+ Args    : $interval : [$int1, $int2],
+           array of HSP objects
+
+=cut
+# could be more efficient if hsps are assumed ordered...
+sub containing_hsps {
+    my $intvl = shift;
+    my @hsps = @_;
+    my @ret;
+    my ($beg, $end) = @$intvl;
+    foreach my $hsp (@hsps) {
+	my ($start, $stop) = ($hsp->start, $hsp->end);
+	push @ret, $hsp if ( $start <= $beg and $end <= $stop );
+    }
+    return @ret;
+}
+
+
+
+=head2 covering_groups()
+
+ Title   : covering_groups
+ Usage   : 
+ Function: divide a list of **ordered,disjoint** intervals (as from a 
+           coverage map) into a set of disjoint covering groups
+ Returns : array of arrayrefs, each arrayref a covering set of 
+           intervals
+ Args    : array of intervals
+
+=cut
+
+sub covering_groups {
+    my @intervals = @_;
+    return unless @intervals;
+    my (@groups, $grp);
+    push @{$groups[0]}, shift @intervals;
+    $grp = $groups[0];
+    for (my $intvl = shift @intervals; @intervals; $intvl = shift @intervals) {
+	if ( $intvl->[0] - $grp->[-1][1] == 1 ) { # intervals are direcly adjacent
+	    push @$grp, $intvl;
+	}
+	else {
+	    $grp = [$intvl];
+	    push @groups, $grp;
+	}
+    }
+    return @groups;
+}
+
 1;
 # need our own subsequencer for hsps. 
 
@@ -544,34 +632,125 @@ sub matches_MT {
     }
 }
 
-package Bio::Search::Tiling::MapTileUtils;
+1;
 
-# a graphical depiction of a set of intervals
-sub _ints_as_text {
-    my $ints = shift;
-    my @ints = @$ints;
-    my %pos;
-    for (@ints) {
-	$pos{$$_[0]}++;
-	$pos{$$_[1]}++;
-    }
-    
-    my @pos = sort {$a<=>$b} keys %pos;
-    @pos = map {sprintf("%03d",$_)} @pos;
-#header
-    my $max=0;
-    $max = (length > $max) ? length : $max for (@pos);
-    for my $j (0..$max-1) {
-	my $i = $max-1-$j; 
-	my @line = map { substr($_, $j, 1) || '0' } @pos;
-	print join('', @line), "\n";
-    }
-    print '-' x @pos, "\n";
-    undef %pos;
-    @pos{map {sprintf("%d",$_)} @pos} = (0..@pos);
-    foreach (@ints) {
-	print ' ' x $pos{$$_[0]}, '[', ' ' x ($pos{$$_[1]}-$pos{$$_[0]}-1), ']', ' ' x (@pos-$pos{$$_[1]}), "\n";
+package Bio::LocatableSeq;
+use strict;
+use warnings;
+
+# mixin the Bio::FeatureHolderI implementation of 
+# Bio::Seq -- for get_tiled_aln
+
+=head2 get_SeqFeatures
+
+ Title   : get_SeqFeatures
+ Usage   :
+ Function: Get the feature objects held by this feature holder.
+
+           Features which are not top-level are subfeatures of one or
+           more of the returned feature objects, which means that you
+           must traverse the subfeature arrays of each top-level
+           feature object in order to traverse all features associated
+           with this sequence.
+
+           Top-level features can be obtained by tag, specified in 
+           the argument.
+
+           Use get_all_SeqFeatures() if you want the feature tree
+           flattened into one single array.
+
+ Example :
+ Returns : an array of Bio::SeqFeatureI implementing objects
+ Args    : [optional] scalar string (feature tag)
+
+
+=cut
+
+sub get_SeqFeatures{
+   my $self = shift;
+   my $tag = shift;
+
+   if( !defined $self->{'_as_feat'} ) {
+       $self->{'_as_feat'} = [];
+   }
+   if ($tag) {
+       return map { $_->primary_tag eq $tag ? $_ : () } @{$self->{'_as_feat'}};
+   }
+   else {
+       return @{$self->{'_as_feat'}};
+   }
+}
+
+=head2 feature_count
+
+ Title   : feature_count
+ Usage   : $seq->feature_count()
+ Function: Return the number of SeqFeatures attached to a sequence
+ Returns : integer representing the number of SeqFeatures
+ Args    : None
+
+
+=cut
+
+sub feature_count {
+    my ($self) = @_;
+    if (defined($self->{'_as_feat'})) {
+	return ($#{$self->{'_as_feat'}} + 1);
+    } else {
+	return 0;
     }
 }
-	
+
+=head2 add_SeqFeature
+
+ Title   : add_SeqFeature
+ Usage   : $seq->add_SeqFeature($feat);
+           $seq->add_SeqFeature(@feat);
+ Function: Adds the given feature object (or each of an array of feature
+           objects to the feature array of this
+           sequence. The object passed is required to implement the
+           Bio::SeqFeatureI interface.
+ Returns : 1 on success
+ Args    : A Bio::SeqFeatureI implementing object, or an array of such objects.
+
+
+=cut
+
+sub add_SeqFeature {
+   my ($self,@feat) = @_;
+   $self->{'_as_feat'} = [] unless $self->{'_as_feat'};
+   foreach my $feat ( @feat ) {
+       if( !$feat->isa("Bio::SeqFeatureI") ) {
+	   $self->throw("$feat is not a SeqFeatureI and that's what we expect...");
+       }
+       $feat->attach_seq($self);
+       push(@{$self->{'_as_feat'}},$feat);
+   }
+   return 1;
+}
+
+=head2 remove_SeqFeatures
+
+ Title   : remove_SeqFeatures
+ Usage   : $seq->remove_SeqFeatures();
+ Function: Flushes all attached SeqFeatureI objects.
+
+           To remove individual feature objects, delete those from the returned
+           array and re-add the rest.
+ Example :
+ Returns : The array of Bio::SeqFeatureI objects removed from this seq.
+ Args    : None
+
+
+=cut
+
+sub remove_SeqFeatures {
+    my $self = shift;
+
+    return () unless $self->{'_as_feat'};
+    my @feats = @{$self->{'_as_feat'}};
+    $self->{'_as_feat'} = [];
+    return @feats;
+}
+
 1;
