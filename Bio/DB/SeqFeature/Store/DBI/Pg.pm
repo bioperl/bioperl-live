@@ -122,7 +122,7 @@ additional arguments are as follows:
 
  -pass             Password for authentication.
 
- -namespace        A prefix to attach to each table. This allows you
+ -namespace        Creates a SCHEMA for the tables. This allows you
                    to have several virtual databases in the same
                    physical database.
 
@@ -224,9 +224,9 @@ sub init {
   $self->{dbh}       = $dbh;
   $self->{dbh}->{InactiveDestroy} = 1;
   $self->{is_temp}   = $is_temporary;
-  $self->{namespace} = $namespace;
   $self->{writeable} = $writeable;
-  $self->schema($schema) if ($schema);
+  $self->{namespace} = $namespace || $schema || 'public';
+  $self->schema($self->{namespace});
 
   $self->default_settings;
   $self->autoindex($autoindex)                   if defined $autoindex;
@@ -263,20 +263,20 @@ END
 	  locationlist => <<END,
 (
   id         serial primary key,
-  seqname    varchar(256)   not null
+  seqname    text   not null
 ); CREATE INDEX locationlist_seqname ON locationlist(seqname);
 END
 
 	  typelist => <<END,
 (
   id       serial primary key,
-  tag      varchar(256)  not null
+  tag      text  not null
 ); CREATE INDEX typelist_tab ON typelist(tag);
 END
 	  name => <<END,
 (
   id           int       not null,
-  name         varchar(256)  not null,
+  name         text  not null,
   display_name int       default 0
 );
   CREATE INDEX name_id ON name(id);
@@ -296,7 +296,7 @@ END
 	  attributelist => <<END,
 (
   id       serial primary key,
-  tag      varchar(256)  not null
+  tag      text  not null
 );
   CREATE INDEX attributelist_tag ON attributelist(tag);
 END
@@ -310,8 +310,8 @@ END
 
 	  meta => <<END,
 (
-  name      varchar(128) primary key,
-  value     varchar(128) not null
+  name      text primary key,
+  value     text not null
 )
 END
 	  sequence => <<END,
@@ -329,7 +329,8 @@ sub schema {
   my ($self, $schema) = @_;
   $self->{'schema'} = $schema if defined($schema);
   if ($schema) {
-    $self->dbh->do("SET search_path TO " . $self->{'schema'} . ", public");
+    $self->_check_for_namespace();
+    $self->dbh->do("SET search_path TO " . $self->{'schema'} );
   } else {
     $self->dbh->do("SET search_path TO public");
   }
@@ -343,14 +344,16 @@ sub _init_database {
   my $erase = shift;
 
   my $dbh    = $self->dbh;
+  my $namespace = $self->namespace;
   my $tables = $self->table_definitions;
+    my $temporary = $self->is_temp ? 'TEMPORARY' : '';
   foreach (keys %$tables) {
     next if $_ eq 'meta';      # don't get rid of meta data!
     my $table = $self->_qualify($_);
     $dbh->do("DROP TABLE IF EXISTS $table") if $erase;
-    my @table_exists = $dbh->selectrow_array("SELECT * FROM pg_tables WHERE tablename = '$table'");
+    my @table_exists = $dbh->selectrow_array("SELECT * FROM pg_tables WHERE tablename = '$table' AND schemaname = '$self->namespace'");
 		if (!scalar(@table_exists)) {
-			my $query = "CREATE TABLE $table $tables->{$_}";
+			my $query = "CREATE $temporary TABLE $table $tables->{$_}";
 			$dbh->do($query) or $self->throw($dbh->errstr);
 		}
   }
@@ -361,12 +364,54 @@ sub _init_database {
 sub maybe_create_meta {
   my $self = shift;
   return unless $self->writeable;
+  my $namespace    = $self->namespace;
   my $table        = $self->_qualify('meta');
   my $tables       = $self->table_definitions;
   my $temporary    = $self->is_temp ? 'TEMPORARY' : '';
-  my @table_exists = $self->dbh->selectrow_array("SELECT * FROM pg_tables WHERE tablename = '$table'");
+  my @table_exists = $self->dbh->selectrow_array("SELECT * FROM pg_tables WHERE tablename = 'meta' AND schemaname = '$namespace'");
   $self->dbh->do("CREATE $temporary TABLE $table $tables->{meta}")
-      unless @table_exists || $temporary;
+      unless @table_exists;
+}
+
+###
+# check if the namespace/schema exists, if not create it
+#
+
+sub _check_for_namespace {
+  my $self = shift;
+  my $namespace = $self->namespace;
+  return if $namespace eq 'public';
+  my $dbh  = $self->dbh;
+  my @schema_exists = $dbh->selectrow_array("SELECT * FROM pg_namespace WHERE nspname = '$namespace'");
+  if (!scalar(@schema_exists)) {
+      my $query = "CREATE SCHEMA $namespace";
+	  $dbh->do($query) or $self->throw($dbh->errstr);
+	  
+	  # if temp parameter is set and schema created for this process then enable removal in remove_namespace()
+	  if ($self->is_temp) {
+	      $self->{delete_schema} = 1;
+	  }
+  }
+}
+
+###
+# Overiding inherited mysql _qualify (We do not need to qualify for PostgreSQL as we have set the search_path above)
+#
+sub _qualify {
+  my $self = shift;
+  my $table_name = shift;
+  return $table_name;
+}
+
+###
+# when is_temp is set and the schema did not exist beforehand then we are able to remove it
+#
+sub remove_namespace {
+  my $self = shift;
+  if ($self->{delete_schema}) {
+      my $namespace = $self->namespace;
+      $self->dbh->do("DROP SCHEMA $namespace") or $self->throw($self->dbh->errstr);
+  }
 }
 
 sub _finish_bulk_update {

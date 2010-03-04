@@ -2,7 +2,7 @@
 # $Id$
 
 use strict;
-use constant TEST_COUNT => 69;
+use constant TEST_COUNT => 74;
 
 BEGIN {
     use lib '/home/lstein/projects/bioperl-live';
@@ -232,5 +232,40 @@ is(scalar @results,2,'keyword search; 1 term');
 
 @results = $db->search_notes('terribly interesting');
 is(scalar @results,2,'keyword search; 2 terms');
+
+# testing namespaces for mysql and Pg adaptor
+
+SKIP: {
+    my $adaptor;
+    
+    for (my $i=0; $i < @args; $i++) {
+        if ($args[$i] eq '-adaptor') {
+            $adaptor = $args[$i+1];
+            last;
+        }
+    }
+        
+    skip "Namespaces only supported for DBI::mysql and DBI::Pg adaptors", 5, if ($adaptor ne 'DBI::mysql' && $adaptor ne 'DBI::Pg');
+
+    push(@args, ('-namespace', 'bioperl_seqfeature_t_test_schema'));
+    $db     = eval { Bio::DB::SeqFeature::Store->new(@args) };
+    ok($db);
+
+    $loader = eval { Bio::DB::SeqFeature::Store::GFF3Loader->new(-store=>$db) };
+    ok($loader);
+
+    $loader->load($gff_file);
+
+    # there should be one gene named 'abc-1'
+    @f = $db->get_features_by_name('abc-1');
+    is(@f,1);
+
+    $f = $f[0];
+    # there should be three subfeatures of type "exon" and three of type "CDS"
+    is($f->get_SeqFeatures('exon'),3);
+    is($f->get_SeqFeatures('CDS'),3);
+    
+    $db->remove_namespace();
+}
 
 }

@@ -368,6 +368,13 @@ sub namespace {
 }
 
 ###
+# Required for Pg not mysql
+#
+sub remove_namespace {
+  return;
+}
+
+###
 # find a path that corresponds to a dump table
 #
 sub dump_path {
