@@ -95,14 +95,14 @@ while (my $result = $searchio->next_result) {
 
 is($result_count, 58, "Can we loop over multiple results properly (expecting 58)?");
 
-# bug 3121
+# bug 3021
 
 $searchio =  Bio::SearchIO->new(-format => 'gmap_f9',
-                -file   => test_input_file('bug3121.gmap'));
+                -file   => test_input_file('bug3021.gmap'));
 
 $result = $searchio->next_result;
 
-is($result->query_name, 'NM_004448', 'simple query_name now caught, bug 3121');
+is($result->query_name, 'NM_004448', 'simple query_name now caught, bug 3021');
 
 exit(0);
 
