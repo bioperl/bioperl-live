@@ -219,7 +219,7 @@ sub get_request {
 	$self->url($URL);
 
 	###1st of all search DB to check species exists and is unique
-	my $nameparts =  join "+", $self->sp =~ /(\w+)/g;
+	my $nameparts =  join "+", $self->sp =~ /(\S+)/g;
 	my $search_url = $self->url . "/codon/cgi-bin/spsearch.cgi?species=" 
 					. $nameparts . "&c=s";
 	my $rq = HTTP::Request->new(GET=>$search_url);
