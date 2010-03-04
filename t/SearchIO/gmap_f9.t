@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 51);
+    test_begin(-tests => 53);
     
     use_ok('Bio::SearchIO');
 }
@@ -27,6 +27,7 @@ isa_ok($hit, 'Bio::Search::Hit::GenericHit', 'Did we get a Hit?');
 _check_hit($hit, {name => '17',
           length => 4624,
           num_hsps => 27,
+          query_length => 4623
          } );
 
 my $hsp = $hit->next_hsp;
@@ -62,6 +63,7 @@ $hit = $result_rev->next_hit;
 _check_hit($hit, {name => '17',
           length => 4624,
           num_hsps => 27,
+          query_length => 4623
          } );
 
 $hsp = $hit->next_hsp;
@@ -102,6 +104,7 @@ sub _check_hit {
     is($hit->name, $info->{name}, 'Check the name');
     is($hit->length, $info->{length}, 'Check the hit length');
     is($hit->num_hsps, $info->{num_hsps}, 'Check the number of hsps');
+    is($hit->query_length, $info->{query_length}, 'Check the query length');
 
 }
 

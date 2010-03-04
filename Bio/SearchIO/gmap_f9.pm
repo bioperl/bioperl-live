@@ -206,11 +206,13 @@ sub next_result {
   if ($result) {
       $hit->add_hsp( $self->_hsp_from_info(\@hsp_info) ) if (@hsp_info);
 
-      my $hit_length;
+      my ($hit_length,$query_length);
       for my $hsp ($hit->hsps) {
 	  $hit_length += $hsp->length();
+      $query_length += $hsp->length('query');
       }
       $hit->length($hit_length);
+      $hit->query_length($query_length);
       # update this now that we actually know something useful.q
       $hit->name($hsp_info[0]->{hit_chromo}); 
 
