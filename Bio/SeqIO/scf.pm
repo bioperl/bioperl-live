@@ -479,9 +479,9 @@ sub _parse_v2_traces {
      my $array = 0;
      for (my $offset2 = 0; $offset2< scalar(@read); $offset2+=4) {
               push @{$traces->{'a'}},$read[$offset2];
-              push @{$traces->{'t'}},$read[$offset2+1];
+              push @{$traces->{'c'}},$read[$offset2+1];
               push @{$traces->{'g'}},$read[$offset2+3];
-              push @{$traces->{'c'}},$read[$offset2+2];
+              push @{$traces->{'t'}},$read[$offset2+2];
     }
     return $traces;
 }
