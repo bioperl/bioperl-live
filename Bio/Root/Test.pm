@@ -180,6 +180,7 @@ our @EXPORT = qw(ok use_ok require_ok
                  test_output_dir
                  test_input_file
                  test_network
+                 test_email
                  test_debug
                  float_is
                  );
@@ -284,6 +285,10 @@ sub test_begin {
            -requires_networking => 1   (if true the desired number of tests will
                                         be skipped if network tests haven't been
                                         enabled in Build.PL)
+           -requires_email      => 1   (if true the desired number of tests will
+                                        be skipped if either network tests
+                                        haven't been enabled in Build.PL or an
+                                        email hasn't been entered)
 
 =cut
 
@@ -389,6 +394,7 @@ sub test_network {
 sub test_email {
     require Module::Build;
     my $build = Module::Build->current();
+    # this should not be settable unless the network tests work
     return $build->notes('email');
 }
 

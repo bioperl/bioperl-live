@@ -1214,6 +1214,11 @@ sub prompt_for_network {
     if ($proceed) {
         $self->notes(network => 1);
         $self->log_info("  - will run internet-requiring tests\n");
+        my $use_email = $self->y_n("Do you want to run tests requiring a valid email address? y/n",'n');
+        if ($use_email) {
+            my $address = $self->prompt("Enter email address:");
+            $self->notes(email => $address || undef);
+        }
     }
     else {
         $self->notes(network => 0);
