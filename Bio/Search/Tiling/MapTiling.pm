@@ -80,6 +80,41 @@ for convenience upon object construction. These are accessed off the
 object with the L</contexts> method. If contexts don't apply for the
 given report, this returns C<('all')>. 
 
+=head1 TILED ALIGNMENTS
+
+The experimental method L<ALIGNMENTS/get_tiled_alns> will use a tiling
+to concatenate tiled hsps into a series of L<Bio::SimpleAlign>
+objects:
+
+ @alns = $tiling->get_tiled_alns($type, $context);
+
+Each alignment contains two sequences with ids 'query' and 'subject',
+and consists of a concatenation of tiling HSPs which overlap or are
+directly adjacent. The alignment are returned in C<$type> sequence
+order. When HSPs overlap, the alignment sequence is taken from the HSP
+which comes first in the coverage map array.
+
+The sequences in each alignment contain features (even though they are
+L<Bio::LocatableSeq objects) which map the original query/subject
+coordinates to the new alignment sequence coordinates. You can
+determine the original BLAST fragments this way:
+
+ $aln = ($tiling->get_tiled_alns)[0];
+ $qseq = $aln->get_seq_by_id('query');
+ $hseq = $aln->get_seq_by_id('subject');
+ foreach my $feat ($qseq->get_SeqFeatures) {
+    $org_start = ($feat->get_tag_values('query_start'))[0];
+    $org_end = ($feat->get_tag_values('query_end'))[0];
+    # original fragment as represented in the tiled alignment:
+    $org_fragment = $feat->seq;
+ }
+ foreach my $feat ($hseq->get_SeqFeatures) {
+    $org_start = ($feat->get_tag_values('subject_start'))[0];
+    $org_end = ($feat->get_tag_values('subject_end'))[0];
+    # original fragment as represented in the tiled alignment:
+    $org_fragment = $feat->seq;
+ }
+
 =head1 DESIGN NOTE
 
 The major calculations are made just-in-time, and then memoized. So,
@@ -143,6 +178,7 @@ use warnings;
 use Bio::Root::Root;
 use Bio::Search::Tiling::TilingI;
 use Bio::Search::Tiling::MapTileUtils;
+use Bio::LocatableSeq;
 
 # use base qw(Bio::Root::Root Bio::Search::Tiling::TilingI);
 use base qw(Bio::Root::Root Bio::Search::Tiling::TilingI);
@@ -310,12 +346,16 @@ sub get_tiled_alns {
 	my (@qfeats, @hfeats);
 	my $query_string = '';
 	my $hit_string = '';
+	my ($qlen,$hlen) = (0,0);
+	my ($qinc, $hinc, $qstart, $hstart);
 	for my $intvl (@$grp) {
 	    # following just chooses the first available hsp containing the
 	    # interval -- this is arbitrary, could be smarter.
 	    my $aln = ( containing_hsps($intvl, @tiling) )[0]->get_aln;
 	    my $qseq = $aln->get_seq_by_pos(1);
 	    my $hseq = $aln->get_seq_by_pos(2);
+	    $qstart ||= $qseq->start;
+	    $hstart ||= $hseq->start;
 	    # calculate the slice boundaries
 	    my ($beg, $end);
 	    for ($type) {
@@ -333,35 +373,39 @@ sub get_tiled_alns {
 	    $aln = $aln->slice($beg, $end);
 	    $qseq = $aln->get_seq_by_pos(1);
 	    $hseq = $aln->get_seq_by_pos(2);
+	    $qinc = $qseq->length - $qseq->num_gaps($Bio::LocatableSeq::GAP_SYMBOLS);
+	    $hinc = $hseq->length - $hseq->num_gaps($Bio::LocatableSeq::GAP_SYMBOLS);
+
 	    push @qfeats, Bio::SeqFeature::Generic->new(
-		-start => CORE::length($query_string)+1,
-		-end => CORE::length($query_string)+CORE::length($qseq->seq),
+		-start => $qlen+1,
+		-end => $qlen+$qinc,
 		-strand => $qseq->strand,
 		-primary => 'query',
 		-source_tag => 'BLAST',
 		-display_name => 'query coordinates',
 		-tag => { query_id => $qseq->id,
 			  query_desc => $qseq->desc,
-			  query_start => $qseq->start,
-			  query_end => $qseq->end}
+			  query_start => $qstart + (($qseq->strand && $qseq->strand < 0) ? -1 : 1)*$qlen,
+			  query_end => $qstart + (($qseq->strand && $qseq->strand < 0) ? -1 : 1)*($qlen+$qinc-1),
+		}
 		);
 	    push @hfeats, Bio::SeqFeature::Generic->new(
-		-start => CORE::length($hit_string)+1,
-		-end => CORE::length($hit_string)+CORE::length($hseq->seq),
+		-start => $hlen+1,
+		-end => $hlen+$hinc,
 		-strand => $hseq->strand,
 		-primary => 'subject/hit',
 		-source_tag => 'BLAST',
 		-display_name => 'subject/hit coordinates',
 		-tag => { subject_id => $hseq->id,
 			  subject_desc => $hseq->desc,
-			  subject_start => $hseq->start,
-			  subject_end => $hseq->end
+			  subject_start => $hstart + (($hseq->strand && $hseq->strand < 0) ? -1 : 1)*$hlen,
+			  subject_end => $hstart + (($hseq->strand && $hseq->strand < 0) ? -1 : 1)*($hlen+$hinc-1)
 		}
 		);
 	    $query_string .= $qseq->seq;
 	    $hit_string .= $hseq->seq;
-	    # want to add features that describe the original
-	    # hsp coordinates.
+	    $qlen += $qinc;
+	    $hlen += $hinc;
 	}
 	# create the LocatableSeqs and add the features to each
 	# then add the seqs to the new aln
