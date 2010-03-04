@@ -538,7 +538,7 @@ sub submit_blast {
 	$header{'QUERY'} = ">".(defined $seq->display_id() ? $seq->display_id() : "").
 		" ".(defined $seq->desc() ? $seq->desc() : "")."\n".$seq->seq();
 	my $request = POST $url_base, [%header];
-	$self->warn($request->as_string) if ( $self->verbose > 0);
+	$self->warn($request->as_string) if ( $self->verbose > 1);
 	my $response = $self->ua->request( $request);
 
 	if( $response->is_success ) {
@@ -547,7 +547,7 @@ sub submit_blast {
 	    foreach ( @subdata ) {
 			if( /$RIDLINE/ ) {
 		    	$count++;
-		    	$self->debug("RID: $1\n");
+		    	#$self->debug("RID: $1\n");
 		    	$self->add_rid($1);
 		    	last;
 			}
@@ -596,7 +596,7 @@ sub retrieve_blast {
     $self->debug("retrieve request is " . $req->as_string());
     my $response = $self->ua->request($req, $tempfile);
     if( $response->is_success ) {
-    	if( $self->verbose > 0 ) {
+    	if( $self->verbose > 1 ) {
             #print content of reply if verbose > 1
             open(my $DEBUG, $tempfile) || $self->throw("cannot open $tempfile");
             while(<$DEBUG>) { print $_; }

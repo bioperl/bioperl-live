@@ -14,7 +14,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 3,
+    test_begin(-tests => 6,
                -requires_modules => [qw(IO::String LWP LWP::UserAgent)],
                -requires_networking => 1);
 
@@ -38,36 +38,64 @@ $remote_rpsblast->retrieve_parameter('ALIGNMENT_VIEW', 'Tabular');
 # This is the key to getting job run using rpsblast:
 $Bio::Tools::Run::RemoteBlast::HEADER{'SERVICE'} = 'rpsblast'; 
 
-ok($remote_rpsblast->submit_blast($inputfilename),'rpsblast blasttable submitted');
+my $attempt = 1;
 
-print STDERR "waiting..." if( $v > 0 );
-while ( my @rids = $remote_rpsblast->each_rid ) {
-  foreach my $rid ( @rids ) {
-    my $rc = $remote_rpsblast->retrieve_blast($rid);
-    if ( !ref($rc) ) {
-      if ( $rc < 0 ) {
-	die "need a better solution for when 'Server failed to return any data'";
-      }
-      $remote_rpsblast->remove_rid($rid);
-      print STDERR "." if ( $v > 0 );
-      sleep 5;
-    } else {
-      ok(1,'retrieve_blast succeeded');
-      $remote_rpsblast->remove_rid($rid);
-      my $count = 0;
-      while (my $result = $rc->next_result) {
-	while ( my $hit = $result->next_hit ) {
-	  $count++;
-	  next unless ( $v > 0);
-	  print "sbjct name is ", $hit->name, "\n";
-	  while ( my $hsp = $hit->next_hsp ) {
-	    print "score is ", $hsp->bits, "\n";
-	  } 
+SKIP: {
+    eval{
+	ok($remote_rpsblast->submit_blast($inputfilename),'rpsblast blasttable submitted');
+    };
+    
+    skip("Error accessing remote BLAST interface: $@", 3) if $@;
+    
+    my @rids = $remote_rpsblast->each_rid;
+    is(@rids, 1, 'should only be one RID');
+    skip("Wrong number of RIDs: ".scalar(@rids), 2) if @rids != 1;
+    
+    print STDERR "waiting [$rids[0]]..." if( $v > 0 );
+    my $rc;
+    while (defined($rc = $remote_rpsblast->retrieve_blast($rids[0]))) {
+	if ( !ref($rc) ) {
+	    if ( $rc < 0 ) {
+		skip("need a better solution for when 'Server failed to return any data'",2);
+	    }
+	    sleep 5;
+	    print STDERR "Retrieval attempt: $attempt\n" if ( $v > 0 );
+	    $attempt++ < 10 ? redo : last;
+	} else {
+	    last
 	}
-      }
-      is($count, 44, 'correct result count'); # of course, this could change whenever CDD changes
     }
-  }
+    $remote_rpsblast->remove_rid($rids[0]);
+    
+    if ($rc) {
+	ok(1,'retrieve_blast succeeded');
+	$remote_rpsblast->remove_rid($rids[0]);
+	my $count = 0;
+	isa_ok($rc, 'Bio::SearchIO');
+	while (my $result = $rc->next_result) {
+	    while ( my $hit = $result->next_hit ) {
+		$count++;
+		next unless ( $v > 0);
+		print "sbjct name is ", $hit->name, "\n";
+		while ( my $hsp = $hit->next_hsp ) {
+		    print "score is ", $hsp->bits, "\n";
+		} 
+	    }
+	}
+	is($count, 44, 'HSPs returned');
+    } elsif ($attempt > 10) {
+	# have a test fail here (there should not be repeated failed attempts to
+	# get reports)
+	
+	ok(0,'Exceeded maximum attempts on server to retrieve report');
+	skip("Timeout, did not return report after ".($attempt - 1)." attempts", 1);
+    } else {
+	# have a test fail here (whatever is returned should be eval as true and
+	# be a SearchIO)
+	
+	ok(0,"Other problem on remote server, no report returned: $rc");
+	skip('Possible remote server problems', 1);
+    }
 }
 
 # To be a good citizen, we should restore the default NCBI service
