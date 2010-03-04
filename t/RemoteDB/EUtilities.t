@@ -41,7 +41,7 @@ BEGIN {
 	
 	test_begin(-tests               => $NUMTESTS,
 			   -requires_modules    => [qw(XML::Simple LWP::UserAgent)],
-			   -requires_networking => 1,
+			   -requires_email      => 1,
 			  );
     
     use_ok('Bio::DB::EUtilities');
@@ -49,6 +49,10 @@ BEGIN {
     use_ok('Bio::Tools::EUtilities');
     use_ok('Bio::Tools::EUtilities::EUtilParameters');
 }
+
+my $email = test_email();
+
+diag("Using $email for tests") if $DEBUG;
 
 # NOTE : Bio::DB::EUtilities is just a specialized pipeline to get any 
 # data available via NCBI's Entrez interface, with a few convenience methods
@@ -89,7 +93,8 @@ sub efetch {
         $eutil = Bio::DB::EUtilities->new(
                                         -db         => 'protein',
                                         -id         => [$ids[0]],
-                                        -rettype    => 'fasta'
+                                        -rettype    => 'fasta',
+                                        -email      => $email
                                           );
               
         isa_ok($eutil, 'Bio::DB::GenericWebAgent');
@@ -119,6 +124,7 @@ sub epost {
                                         -eutil      => 'epost',
                                         -db         => 'protein',
                                         -id         => \@ids,
+                                        -email      => $email
                                           );
               
         isa_ok($eutil, 'Bio::DB::GenericWebAgent');
@@ -234,6 +240,7 @@ sub esummary {
                                          -eutil      => 'esummary',
                                          -db         => 'protein',
                                          -id            => \@ids,
+                                         -email      => $email
                                            );
         isa_ok($eutil, 'Bio::DB::GenericWebAgent');
         
@@ -277,7 +284,8 @@ sub esearch {
                                         -eutil      => 'esearch',
                                         -db         => 'protein',
                                         -term       => $term,
-                                        -retmax     => 100
+                                        -retmax     => 100,
+                                        -email      => $email
                                           );
               
         isa_ok($eutil, 'Bio::DB::GenericWebAgent');
@@ -297,7 +305,8 @@ sub esearch {
                                         -db         => 'protein',
                                         -usehistory => 'y',
                                         -term       => $term,
-                                        -retmax     => 100                                        
+                                        -retmax     => 100,
+                                        -email      => $email
                                           );
         
         eval {$response = $eutil->get_Response; };
@@ -339,6 +348,7 @@ sub einfo {
         $eutil = Bio::DB::EUtilities->new(
                                         -eutil      => 'einfo',
                                         -db         => 'protein',
+                                        -email      => $email
                                           );
         isa_ok($eutil, 'Bio::DB::GenericWebAgent');
         eval {$response = $eutil->get_Response; };
@@ -358,6 +368,7 @@ sub einfo {
         # all databases (list)
         $eutil = Bio::DB::EUtilities->new(
                                         -eutil      => 'einfo',
+                                        -email      => $email
                                           );
         
         eval {$response = $eutil->get_Response; };
@@ -384,6 +395,7 @@ sub elink1 {
                                         -db         => 'taxonomy',
                                         -dbfrom     => 'protein',
                                         -id         => \@ids,
+                                        -email      => $email
                                           );
               
         isa_ok($eutil, 'Bio::DB::GenericWebAgent');
@@ -415,6 +427,7 @@ sub egquery {
     $eutil = Bio::DB::EUtilities->new(
                                     -eutil      => 'egquery',
                                     -term       => $term,
+                                    -email      => $email
                                       );
           
     isa_ok($eutil, 'Bio::DB::GenericWebAgent');
