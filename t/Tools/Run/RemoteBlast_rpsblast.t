@@ -41,9 +41,12 @@ $Bio::Tools::Run::RemoteBlast::HEADER{'SERVICE'} = 'rpsblast';
 my $attempt = 1;
 
 SKIP: {
+    my $status;
     eval{
-	ok($remote_rpsblast->submit_blast($inputfilename),'rpsblast blasttable submitted');
+	$status = $remote_rpsblast->submit_blast($inputfilename);
     };
+    
+    ok($status,'rpsblast blasttable submitted');
     
     skip("Error accessing remote BLAST interface: $@", 3) if $@;
     
