@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 28,
+    test_begin(-tests => 29,
 	       -requires_networking => 1);
 	
     use_ok('Bio::Root::HTTPget');
@@ -48,10 +48,7 @@ is ($obj->proxy(), undef);
 is_deeply([$obj->authentication], []);
 $obj->proxy('http', $TEST_PROXY);
 $obj->authentication(@TEST_AUTHENTICATION);
-TODO: {
-    local $TODO = 'proxy not working';
-    is ($obj->proxy(), $TEST_PROXY);
-}
+is ($obj->proxy(), $TEST_PROXY);
 is_deeply([$obj->authentication], \@TEST_AUTHENTICATION);
 
 # test class method calls; note that mixing class and sub calls pollutes the
@@ -67,10 +64,7 @@ is (Bio::Root::HTTPget->proxy(), undef);
 is_deeply([Bio::Root::HTTPget->authentication], []);
 Bio::Root::HTTPget->proxy('http', $TEST_PROXY);
 Bio::Root::HTTPget->authentication(@TEST_AUTHENTICATION);
-TODO: {
-    local $TODO = 'proxy not working';
-    is (Bio::Root::HTTPget->proxy('http'), $TEST_PROXY);
-}
+is (Bio::Root::HTTPget->proxy('http'), $TEST_PROXY);
 is_deeply([Bio::Root::HTTPget->authentication], \@TEST_AUTHENTICATION);
 
 # test sub calls (not called as method)
@@ -84,16 +78,15 @@ undef($fh);
 # note that mixing class and sub calls pollutes the class attributes, have to
 # manually reset
 Bio::Root::HTTPget->authentication(undef, undef);
-Bio::Root::HTTPget->proxy('http', undef);
 
+my $old = Bio::Root::HTTPget->clear_proxy('http');
 is (Bio::Root::HTTPget::proxy(), undef);
+is ($old, $TEST_PROXY);
+
 is_deeply([Bio::Root::HTTPget->authentication], [undef, undef]);
 Bio::Root::HTTPget::proxy('http', $TEST_PROXY);
 Bio::Root::HTTPget::authentication(@TEST_AUTHENTICATION);
-TODO: {
-    local $TODO = 'proxy not working';
-    is (Bio::Root::HTTPget::proxy('http'), $TEST_PROXY);
-}
+is (Bio::Root::HTTPget::proxy('http'), $TEST_PROXY);
 is_deeply([Bio::Root::HTTPget::authentication], \@TEST_AUTHENTICATION);
 
 # check to make sure new instance attributes are not polluted by class attrbutes
@@ -107,9 +100,6 @@ is ($newobj->proxy(), undef);
 is_deeply([$newobj->authentication], []);
 $newobj->proxy('http', $TEST_PROXY);
 $newobj->authentication(@TEST_AUTHENTICATION);
-TODO: {
-    local $TODO = 'proxy not working';
-    is ($newobj->proxy(), $TEST_PROXY);
-}
+is ($newobj->proxy(), $TEST_PROXY);
 is_deeply([$newobj->authentication], \@TEST_AUTHENTICATION);
 

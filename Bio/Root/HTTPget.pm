@@ -90,6 +90,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::Root::HTTPget;
 
 use strict;
+use warnings;
 use IO::Socket qw(:DEFAULT :crlf);
 
 use base qw(Bio::Root::Root);
@@ -360,7 +361,7 @@ sub _encode_base64 {
  Function: Get/Set a proxy for use of proxy. Defaults to environment variable
            http_proxy if present.
  Returns : a string indicating the proxy
- Args    : $protocol : an array ref of the protocol(s) to set/get
+ Args    : $protocol : string for the protocol to set/get
            $proxyurl : url of the proxy to use for the specified protocol
            $username : username (if proxy requires authentication)
            $password : password (if proxy requires authentication)
@@ -375,7 +376,7 @@ sub proxy {
     my ($protocol,$proxy,$username,$password) = @_;
     my $atts = ref($self) ? $self : \%attributes;
     $protocol ||= 'http';
-    unless ($proxy) {
+    if (!$proxy) {
         if (defined $ENV{http_proxy}) {
             $proxy = $ENV{http_proxy};
             if ($proxy =~ /\@/) {
@@ -384,11 +385,34 @@ sub proxy {
             }
         }
     }
-    return unless (defined $proxy);
-    # default to class method call
-    __PACKAGE__->authentication($username, $password) 
-	if ($username && $password);
-    return $atts->{'_proxy'}->{$protocol} = $proxy;
+    if (defined $proxy) {
+        # default to class method call
+        __PACKAGE__->authentication($username, $password) 
+        if ($username && $password);
+        $atts->{'_proxy'}->{$protocol} = $proxy;
+    }
+    return $atts->{'_proxy'}->{$protocol};
+}
+
+=head2 clear_proxy
+
+ Title   : clear_proxy
+ Usage   : my $old_prozy = $db->clear_proxy('http')
+ Function: Unsets (clears) the proxy for the protocol indicated 
+ Returns : a string indicating the old proxy value
+ Args    : $protocol : string for the protocol to clear
+
+=cut
+
+sub clear_proxy {
+    my $self;
+    if($_[0] && (ref($_[0]) or $_[0] =~ /^Bio::/)) {
+        $self = shift;
+    }
+    my ($protocol) = @_;
+    my $atts = ref($self) ? $self : \%attributes;
+    $protocol ||= 'http';
+    delete $atts->{'_proxy'}->{$protocol};
 }
 
 =head2 authentication

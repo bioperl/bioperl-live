@@ -211,6 +211,10 @@ our @TEMP_FILES;
            -requires_networking => 1|0 (default 0, if true all tests will be
                                         skipped if network tests haven't been
                                         enabled in Build.PL)
+           -requires_email      => 1   (if true the desired number of tests will
+                                        be skipped if either network tests
+                                        haven't been enabled in Build.PL or an
+                                        email hasn't been entered)
            -excludes_os         => str (default none, if OS suppied, all tests
                                         will skip if running on that OS (eg.
                                         'mswin'))
