@@ -95,7 +95,7 @@ order. When HSPs overlap, the alignment sequence is taken from the HSP
 which comes first in the coverage map array.
 
 The sequences in each alignment contain features (even though they are
-L<Bio::LocatableSeq objects) which map the original query/subject
+L<Bio::LocatableSeq> objects) which map the original query/subject
 coordinates to the new alignment sequence coordinates. You can
 determine the original BLAST fragments this way:
 
