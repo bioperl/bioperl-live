@@ -7,14 +7,14 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 53);
+    test_begin(-tests => 54);
     
     use_ok('Bio::SearchIO');
 }
 
 my $searchio =
     Bio::SearchIO->new(-format => 'gmap_f9',
-               -file   => 't/data/gmap_f9.txt');
+               -file   => test_input_file('gmap_f9.txt'));
 
 my $result = $searchio->next_result;
 isa_ok($result, 'Bio::Search::Result::GenericResult', 'Did we get a Result?');
@@ -50,7 +50,7 @@ _check_hsp($hsp, {algorithm => 'GMAP',
 
 my $searchio_rev =
     Bio::SearchIO->new(-format => 'gmap_f9',
-               -file   => 't/data/gmap_f9-reverse-strand.txt');
+               -file   => test_input_file('gmap_f9-reverse-strand.txt'));
 my $result_rev = $searchio_rev->next_result;
 isa_ok($result_rev,
        'Bio::Search::Result::GenericResult', 'Did we get a Result?');
@@ -86,7 +86,7 @@ _check_hsp($hsp, {algorithm => 'GMAP',
 
 
 $searchio =  Bio::SearchIO->new(-format => 'gmap_f9',
-                -file   => 't/data/gmap_f9-multiple_results.txt');
+                -file   => test_input_file('gmap_f9-multiple_results.txt'));
 
 my $result_count = 0;
 while (my $result = $searchio->next_result) {
@@ -94,6 +94,15 @@ while (my $result = $searchio->next_result) {
 }
 
 is($result_count, 58, "Can we loop over multiple results properly (expecting 58)?");
+
+# bug 3121
+
+$searchio =  Bio::SearchIO->new(-format => 'gmap_f9',
+                -file   => test_input_file('bug3121.gmap'));
+
+$result = $searchio->next_result;
+
+is($result->query_name, 'NM_004448', 'simple query_name now caught, bug 3121');
 
 exit(0);
 

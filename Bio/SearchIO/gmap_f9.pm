@@ -158,7 +158,7 @@ sub next_result {
 	      goto DONE;
 	  }
 	  else {		#    otherwise start a new one.
-	      my ($id, $desc, $md5) = m|>([^ ]*) (.*) (?:md5:(.*))?|;
+	      my ($id, $desc, $md5) = m|>([^ ]*)\s*(.*)\s*(?:md5:(.*))?|;
 
 	      $result = Bio::Search::Result::GenericResult->new();
 	      $result->algorithm('gmap');
