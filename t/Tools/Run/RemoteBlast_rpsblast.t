@@ -63,7 +63,7 @@ SKIP: {
 	    }
 	    sleep 5;
 	    print STDERR "Retrieval attempt: $attempt\n" if ( $v > 0 );
-	    $attempt++ < 10 ? redo : last;
+	    $attempt++ < 10 ? next : last;
 	} else {
 	    last
 	}
