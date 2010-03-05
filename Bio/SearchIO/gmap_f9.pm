@@ -183,8 +183,8 @@ sub next_result {
 		 m|
                    (\d+)[ ]?(.)?[\t]
                    (\d+)[ ]?(.)?[\t]
-                   # TODO chromosome isn't a number... X, Y....
-                   (\+\|\-)([\dxXyY]+):(\d+)[ ](\d+)[ ](.)
+                   # TODO chromosome isn't a number... X, Y, MT....
+                   (\+\|\-)([\dxXyY]+\|MT):(\d+)[ ](\d+)[ ](.)
                    [\t]?(.)?
                   |xo
 		);
