@@ -17,6 +17,9 @@ einfo.pl - query einfo to find all available databases or information about a
 
 Command line options:
 
+  -e/--email
+        Valid email (required by NCBI policy)
+
   -d/--db/--database
         NCBI database to query
         (default = none, which shows available databases)
@@ -36,6 +39,11 @@ Command line options:
   -h/--help
         show this documentation
 
+As per NCBI's policy regarding eutils access, a valid email is required.  This
+is not enforced here (if one is provided you will get a standard warning), but
+don't be surprised if this doesn't work after June 1, 2010 unless one is
+supplied.
+
 If -d is not specified, field and link arguments are ignored and all available
 databases are printed instead.
 
@@ -52,8 +60,9 @@ Chris Fields cjfields at bioperl dot org
 use Getopt::Long;
 use Bio::DB::EUtilities;
 
-my ($db, @fields, @links, $outfile);
+my ($db, @fields, @links, $outfile, $email);
 GetOptions(
+       'e|email:s'          => \$email,
        'd|db|database:s'    => \$db,
        'f|field:s'          => \@fields,
        'l|link:s'           => \@links,
@@ -69,12 +78,14 @@ if( $outfile ) {
 }
 
 if (!defined $db) {
-    my $eutil = Bio::DB::EUtilities->new(-eutil => 'einfo');
+    my $eutil = Bio::DB::EUtilities->new(-eutil => 'einfo',
+                                         -email => $email);
     print $outfh join("\n",$eutil->get_available_databases);
     exit;
 } else {
     my $eutil = Bio::DB::EUtilities->new(-eutil => 'einfo',
-                                         -db => $db);
+                                         -db => $db,
+                                         -email => $email);
     if (@links || @fields) {
         for my $fi ($eutil->get_FieldInfo) {
             my $code = $fi->get_field_code;
