@@ -171,7 +171,7 @@ sub read {
         #
         # references
         #
-        my ($refs) = $entry =~ /<8>(.+)/s;
+        my ($refs) = $entry =~ /<8>(.+)<1>/s;
 	my @refs = map {split /\n+/} $refs;
 
 	use warnings; 
