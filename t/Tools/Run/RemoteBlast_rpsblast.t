@@ -14,7 +14,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 6,
+    test_begin(-tests => 7,
                -requires_modules => [qw(IO::String LWP LWP::UserAgent)],
                -requires_networking => 1);
 
@@ -85,7 +85,7 @@ SKIP: {
 		} 
 	    }
 	}
-	is($count, 44, 'HSPs returned');
+	is($count, 45, 'HSPs returned');
     } elsif ($attempt > 10) {
 	# have a test fail here (there should not be repeated failed attempts to
 	# get reports)

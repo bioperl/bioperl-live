@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 15,
+    test_begin(-tests => 21,
                -requires_modules => [qw(IO::String LWP LWP::UserAgent)],
                -requires_networking => 1);
     
@@ -42,11 +42,15 @@ SKIP: {
 
     skip("Error accessing remote BLAST interface: $@", 3) if $@;
     
+    cmp_ok($remote_blast->get_rtoe, '>', 0, "Estimated retrieval time");
+    
+    diag("Time remaining: ".$remote_blast->get_rtoe) if $v;
+    
     my @rids = $remote_blast->each_rid;
     is(@rids, 1, 'should only be one RID');
     skip("Wrong number of RIDs: ".scalar(@rids), 2) if @rids != 1;
 
-    print STDERR "waiting [$rids[0]]..." if( $v > 0 );
+    diag("Retrieving $rids[0]...\n") if $v;
     my $rc;
     while (defined($rc = $remote_blast->retrieve_blast($rids[0]))) {
     if ( !ref($rc) ) {
@@ -54,7 +58,7 @@ SKIP: {
         skip("need a better solution for when 'Server failed to return any data'",2);
         }
         sleep 5;
-        print STDERR "Retrieval attempt: $attempt\n" if ( $v > 0 );
+        diag("Retrieval attempt: $attempt\n") if $v;
         $attempt++ < 10 ? next : last;
     } else {
         last
@@ -118,11 +122,14 @@ SKIP: {
 
     skip("Error accessing remote BLAST interface: $@", 3) if $@;
     
+    cmp_ok($remote_blast->get_rtoe, '>', 0, "Estimated retrieval time");
+    diag("Time remaining: ".$remote_blast->get_rtoe) if $v;
+    
     my @rids = $remote_blast->each_rid;
     is(@rids, 1, 'should only be one RID');
     skip("Wrong number of RIDs: ".scalar(@rids), 2) if @rids != 1;
 
-    print STDERR "waiting [$rids[0]]..." if( $v > 0 );
+    diag("waiting [$rids[0]]...") if $v;
     my $rc;
     while (defined($rc = $remote_blast->retrieve_blast($rids[0]))) {
     if ( !ref($rc) ) {
@@ -130,7 +137,7 @@ SKIP: {
         skip("need a better solution for when 'Server failed to return any data'",2);
         }
         sleep 5;
-        print STDERR "Retrieval attempt: $attempt\n" if ( $v > 0 );
+        diag("Retrieval attempt: $attempt") if $v;
         $attempt++ < 10 ? next : last;
     } else {
         last
@@ -193,11 +200,14 @@ SKIP: {
 
     skip("Error accessing remote BLAST interface: $@", 3) if $@;
     
+    cmp_ok($remote_blast->get_rtoe, '>', 0, "Estimated retrieval time");
+    diag("Time remaining: ".$remote_blast->get_rtoe) if $v;
+    
     my @rids = $remote_blast->each_rid;
     is(@rids, 1, 'should only be one RID');
     skip("Wrong number of RIDs: ".scalar(@rids), 2) if @rids != 1;
 
-    print STDERR "waiting [$rids[0]]..." if( $v > 0 );
+    diag("waiting [$rids[0]]...") if $v;
     my $rc;
     while (defined($rc = $remote_blast->retrieve_blast($rids[0]))) {
     if ( !ref($rc) ) {
@@ -205,7 +215,7 @@ SKIP: {
         skip("need a better solution for when 'Server failed to return any data'",2);
         }
         sleep 5;
-        print STDERR "Retrieval attempt: $attempt\n" if ( $v > 0 );
+        diag("Retrieval attempt: $attempt") if $v;
         $attempt++ < 10 ? next : last;
     } else {
         last
@@ -220,11 +230,11 @@ SKIP: {
     while (my $result = $rc->next_result) {
         while ( my $hit = $result->next_hit ) {
         $count++;
-        next unless ( $v > 0);
-        print "sbjct name is ", $hit->name, "\n";
-        while ( my $hsp = $hit->next_hsp ) {
-            print "score is ", $hsp->bits, "\n";
-        } 
+        #next unless ( $v > 0);
+        #print "sbjct name is ", $hit->name, "\n";
+        #while ( my $hsp = $hit->next_hsp ) {
+        #    print "score is ", $hsp->bits, "\n";
+        #} 
         }
     }
     is($count, 3, 'HSPs returned');

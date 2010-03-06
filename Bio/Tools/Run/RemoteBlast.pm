@@ -154,9 +154,8 @@ methods. Internal methods are usually preceded with a _
 
 package Bio::Tools::Run::RemoteBlast;
 
-use vars qw($AUTOLOAD $URLBASE %HEADER %RETRIEVALHEADER
-	    $RIDLINE $MODVERSION %PUTPARAMS %GETPARAMS);
 use strict;
+use warnings;
 
 use Bio::SeqIO;
 use IO::String;
@@ -172,144 +171,138 @@ use constant {
     ERR_QBNONSPEC => 8
 };
    
-use base qw(Bio::Root::Root Bio::Root::IO Exporter);
+# Bio::Root::IO is-a Bio::Root::Roo
+use base qw(Bio::Root::IO Exporter);
 
-BEGIN {
-    our @EXPORT = qw( NOT_FINISHED ERR_QBSTATUS ERR_NOCONTENT ERR_HTTPFAIL ERR_QBNONSPEC );
-}
-BEGIN {
-    $MODVERSION = $Bio::Root::Version::VERSION;
-    $URLBASE = 'http://blast.ncbi.nlm.nih.gov/Blast.cgi';
+our @EXPORT = qw( NOT_FINISHED ERR_QBSTATUS ERR_NOCONTENT ERR_HTTPFAIL ERR_QBNONSPEC );
+our $MODVERSION = $Bio::Root::Version::VERSION;
+our $URLBASE = 'http://www.ncbi.nlm.nih.gov/blast/Blast.cgi';
 
-    # In GET/PUTPARAMS the values are regexes which validate the input.
-    %PUTPARAMS = (
-	'AUTO_FORMAT' 	=> '(Off|(Semi|Full)auto)',	# Off, Semiauto, Fullauto
-	'COMPOSITION_BASED_STATISTICS'	=> '(0|1)',	# yes, no on NCBI's site, but actually binary 0/1
-	'DATABASE' 	=>  '.*',
-	'DB_GENETIC_CODE' => '([1-9]|1[1-6]|2(1|2))',   # 1..16,21,22
+# In GET/PUTPARAMS the values are regexes which validate the input.
+our %PUTPARAMS = (
+    'AUTO_FORMAT'       => '(Off|(Semi|Full)auto)',     # Off, Semiauto, Fullauto
+    'COMPOSITION_BASED_STATISTICS'      => '(0|1)',     # yes, no on NCBI's site, but actually binary 0/1
+    'DATABASE'  =>  '.*',
+    'DB_GENETIC_CODE' => '([1-9]|1[1-6]|2(1|2))',   # 1..16,21,22
     'DISPLAY_SORT'   => '\d',
-	'ENDPOINTS'	=> '(yes|no)',			# yes,no
-	'ENTREZ_QUERY'	=> '.*',
-	'EXPECT'	=> '\d+(\.\d+)?([eE]-\d+)?',	# Positive double
-	'FILTER'	=> '[LRm]',			# L or R or m
-	'GAPCOSTS'	=> '-?\d+(\.\d+)\s+i-?\d+(\.\d+)',
-					# Two space separated float values
-	'GENETIC_CODE'	=> '([1-9]|1[1-6]|2(1|2))',	# 1..16,21,22
-	'HITLIST_SIZE'	=> '\d+',			# Positive integer
-	'I_THRESH'	=> '-?\d+(\.\d+)([eE]-\d+)?',	# float
-	'LAYOUT'	=> '(One|Two)Windows?',		# onewindow, twowindows
-	'LCASE_MASK'	=> '(yes|no)',			# yes, no
-	'MATRIX_NAME'	=> '.*',
-	'NUCL_PENALTY'	=> '-\d+',			# Negative integer
-	'NUCL_REWARD'	=> '-?\d+',			# Integer
-	'OTHER_ADVANCED' => '.*',
-	'PERC_IDENT'	=> '\d\d+',			# Integer, 0-99 inclusive
-	'PHI_PATTERN'	=> '.*',
-	'PROGRAM'	=> 't?blast[pnx]',
-					# tblastp, tblastn, tblastx, blastp, blastn, blastx
-	'QUERY'		=> '.*',
-	'QUERY_FILE'	=> '.*',
-	'QUERY_BELIEVE_DEFLINE'	=> '(yes|no)',		# yes, no
-	'QUERY_FROM'	=> '\d+',			# Positive integer
-	'QUERY_TO'	=> '\d+',			# Positive integer
-	'SEARCHSP_EFF'	=> '\d+',			# Positive integer
-	'SERVICE'	=> '(plain|p[sh]i|(rps|mega)blast)',
-					# plain,psi,phi,rpsblast,megablast
+    'ENDPOINTS' => '(yes|no)',                  # yes,no
+    'ENTREZ_QUERY'      => '.*',
+    'EXPECT'    => '\d+(\.\d+)?([eE]-\d+)?',    # Positive double
+    'FILTER'    => '[LRm]',                     # L or R or m
+    'GAPCOSTS'  => '-?\d+(\.\d+)\s+i-?\d+(\.\d+)',
+                                    # Two space separated float values
+    'GENETIC_CODE'      => '([1-9]|1[1-6]|2(1|2))',     # 1..16,21,22
+    'HITLIST_SIZE'      => '\d+',                       # Positive integer
+    'I_THRESH'  => '-?\d+(\.\d+)([eE]-\d+)?',   # float
+    'LAYOUT'    => '(One|Two)Windows?',         # onewindow, twowindows
+    'LCASE_MASK'        => '(yes|no)',                  # yes, no
+    'MATRIX_NAME'       => '.*',
+    'NUCL_PENALTY'      => '-\d+',                      # Negative integer
+    'NUCL_REWARD'       => '-?\d+',                     # Integer
+    'OTHER_ADVANCED' => '.*',
+    'PERC_IDENT'        => '\d\d+',                     # Integer, 0-99 inclusive
+    'PHI_PATTERN'       => '.*',
+    'PROGRAM'   => 't?blast[pnx]',
+                                    # tblastp, tblastn, tblastx, blastp, blastn, blastx
+    'QUERY'             => '.*',
+    'QUERY_FILE'        => '.*',
+    'QUERY_BELIEVE_DEFLINE'     => '(yes|no)',          # yes, no
+    'QUERY_FROM'        => '\d+',                       # Positive integer
+    'QUERY_TO'  => '\d+',                       # Positive integer
+    'SEARCHSP_EFF'      => '\d+',                       # Positive integer
+    'SERVICE'   => '(plain|p[sh]i|(rps|mega)blast)',
+                                    # plain,psi,phi,rpsblast,megablast
     'SHORT_QUERY_ADJUST' => '(true|false)',
-	'THRESHOLD'	=> '-?\d+',			# Integer
-	'UNGAPPED_ALIGNMENT' => '(yes|no)',		# yes, no
-	'WORD_SIZE'	=> '\d+'			# Positive integer
-					  );
-    %GETPARAMS = (
-   'ALIGNMENTS'	=> '\d+',			# Positive integer
-	'ALIGNMENT_VIEW' =>
-		  '(Pairwise|(Flat)?QueryAnchored(NoIdentities)?|Tabular)',
-	 # Pairwise, QueryAnchored, QueryAnchoredNoIdentities, 
-  	 # FlatQueryAnchored, FlatQueryAnchoredNoIdentities, Tabular
-     'DATABASE_SORT' => '\d',
-	 'DESCRIPTIONS'	=> '\d+',			# Positive integer
-	 'ENTREZ_LINKS_NEW_WINDOW' => '(yes|no)',	# yes, no
-	 'EXPECT_LOW'	=> '\d+(\.\d+)?([eE]-\d+)?',	# Positive double
-	 'EXPECT_HIGH'	=> '\d+(\.\d+)?([eE]-\d+)?',	# Positive double
-	 'FORMAT_ENTREZ_QUERY' => '',
-	 'FORMAT_OBJECT'	=> 
-    '(Alignment|Neighbors|PSSM|SearchInfo|TaxBlast(Parent|MultiFrame)?)',
-					# Alignment, Neighbors, PSSM,  SearchInfo 
-					# TaxBlast, TaxblastParent, TaxBlastMultiFrame 
-	 'FORMAT_TYPE'	=> '((HT|X)ML|ASN\.1|Text)',
-					# HTML, Text, ASN.1, XML
-	 'NCBI_GI'	=> '(yes|no)',			# yes, no
-     'NEW_VIEW' => '(true|false)',
-	 'RID' 		=>  '.*',
-	 'RESULTS_FILE' 	=>  '(yes|no)',			# yes, no
-	 'SERVICE' 	=>  '(plain|p[sh]i|(rps|mega)blast)',
-					# plain,psi,phi,rpsblast,megablast
-	 'SHOW_OVERVIEW' =>  '(yes|no)'			# yes, no
-					  );
+    'THRESHOLD' => '-?\d+',                     # Integer
+    'UNGAPPED_ALIGNMENT' => '(yes|no)',         # yes, no
+    'WORD_SIZE' => '\d+'                        # Positive integer
+                                      );
+our %GETPARAMS = (
+    'ALIGNMENTS'        => '\d+',                       # Positive integer
+    'ALIGNMENT_VIEW' =>
+              '(Pairwise|(Flat)?QueryAnchored(NoIdentities)?|Tabular)',
+     # Pairwise, QueryAnchored, QueryAnchoredNoIdentities, 
+     # FlatQueryAnchored, FlatQueryAnchoredNoIdentities, Tabular
+    'DATABASE_SORT' => '\d',
+    'DESCRIPTIONS'      => '\d+',                       # Positive integer
+    'ENTREZ_LINKS_NEW_WINDOW' => '(yes|no)',    # yes, no
+    'EXPECT_LOW'        => '\d+(\.\d+)?([eE]-\d+)?',    # Positive double
+    'EXPECT_HIGH'       => '\d+(\.\d+)?([eE]-\d+)?',    # Positive double
+    'FORMAT_ENTREZ_QUERY' => '',
+    'FORMAT_OBJECT'     => 
+'(Alignment|Neighbors|PSSM|SearchInfo|TaxBlast(Parent|MultiFrame)?)',
+                                    # Alignment, Neighbors, PSSM,  SearchInfo 
+                                    # TaxBlast, TaxblastParent, TaxBlastMultiFrame 
+    'FORMAT_TYPE'       => '((HT|X)ML|ASN\.1|Text)',
+                                    # HTML, Text, ASN.1, XML
+    'NCBI_GI'   => '(yes|no)',                  # yes, no
+    'NEW_VIEW' => '(true|false)',
+    'RID'               =>  '.*',
+    'RESULTS_FILE'      =>  '(yes|no)',                 # yes, no
+    'SERVICE'   =>  '(plain|p[sh]i|(rps|mega)blast)',
+                                   # plain,psi,phi,rpsblast,megablast
+    'SHOW_OVERVIEW' =>  '(yes|no)'                      # yes, no
+                                      );
 
-    # Default values go in here for PUT
-    %HEADER = (
-	       'CMD'                          => 'Put',
-	       'FORMAT_OBJECT'                => 'Alignment',
-	       'COMPOSITION_BASED_STATISTICS' => 'off', 
-	       'DATABASE'	    	      => 'nr',
-	       'EXPECT'			      => '1e-3', 
-	       'FILTER'			      => 'L', 
-	       'PROGRAM'		      => 'blastp', 
-	       'SERVICE'		      => 'plain' 
-	       );
-    
-    # Default values go in here for GET
-    %RETRIEVALHEADER = (
-			'CMD'            => 'Get',
-			'ALIGNMENTS'	 => '50',
-			'ALIGNMENT_VIEW' => 'Pairwise',
-			'DESCRIPTIONS'	 => '100',
-			'FORMAT_TYPE'	 => 'Text',
-			);
-    
-    $RIDLINE = 'RID\s+=\s+(\S+)';
-    
-}
+# Default values go in here for PUT
+our %HEADER = (
+    'CMD'                          => 'Put',
+    'FORMAT_OBJECT'                => 'Alignment',
+    'COMPOSITION_BASED_STATISTICS' => 'off', 
+    'DATABASE'                => 'nr',
+    'EXPECT'                          => '1e-3', 
+    'FILTER'                          => 'L', 
+    'PROGRAM'                 => 'blastp', 
+    'SERVICE'                 => 'plain' 
+           );
 
+# Default values go in here for GET
+our %RETRIEVALHEADER = (
+    'CMD'            => 'Get',
+    'ALIGNMENTS'         => '50',
+    'ALIGNMENT_VIEW' => 'Pairwise',
+    'DESCRIPTIONS'       => '100',
+    'FORMAT_TYPE'        => 'Text',
+);
+    
 sub new {
-	my ($caller, @args) = @_;
-	# chained new
-	my $self = $caller->SUPER::new(@args);
-	# so that tempfiles are cleaned up
-	$self->_initialize_io();
-	my ($prog, $data, $readmethod, $url_base) =
+        my ($caller, @args) = @_;
+        # chained new
+        my $self = $caller->SUPER::new(@args);
+        # so that tempfiles are cleaned up
+        $self->_initialize_io();
+        my ($prog, $data, $readmethod, $url_base) =
         $self->_rearrange([qw(PROG DATA READMETHOD URL_BASE)],
-					 @args);
-	# Use these two parameters for backward-compatibility. 
-	# Overridden by PROGRAM and DATABASE if supplied.
-	$self->submit_parameter('PROGRAM',$prog) if $prog;
-	$self->submit_parameter('DATABASE',$data) if $data;
+                                         @args);
+        # Use these two parameters for backward-compatibility. 
+        # Overridden by PROGRAM and DATABASE if supplied.
+        $self->submit_parameter('PROGRAM',$prog) if $prog;
+        $self->submit_parameter('DATABASE',$data) if $data;
 
-	$readmethod = 'SearchIO' unless defined $readmethod;
-	$self->readmethod($readmethod);
+        $readmethod = 'SearchIO' unless defined $readmethod;
+        $self->readmethod($readmethod);
 
-	# Now read the rest of the parameters and set them all
+        # Now read the rest of the parameters and set them all
 
-	# PUT parameters first
-	my @putValues = $self->_rearrange([keys %PUTPARAMS],@args);
-	my %putNames;
-	@putNames{keys %PUTPARAMS} = @putValues;
-	foreach my $putName (keys %putNames) {
-		$self->submit_parameter($putName,$putNames{$putName});
-	}
-	# GET parameters second
-	my @getValues = $self->_rearrange([keys %GETPARAMS],@args);
-	my %getNames;
-	@getNames{keys %GETPARAMS} = @getValues;
-	foreach my $getName (keys %getNames) {
-		$self->retrieve_parameter($getName,$getNames{$getName});
-	}
+        # PUT parameters first
+        my @putValues = $self->_rearrange([keys %PUTPARAMS],@args);
+        my %putNames;
+        @putNames{keys %PUTPARAMS} = @putValues;
+        foreach my $putName (keys %putNames) {
+                $self->submit_parameter($putName,$putNames{$putName});
+        }
+        # GET parameters second
+        my @getValues = $self->_rearrange([keys %GETPARAMS],@args);
+        my %getNames;
+        @getNames{keys %GETPARAMS} = @getValues;
+        foreach my $getName (keys %getNames) {
+                $self->retrieve_parameter($getName,$getNames{$getName});
+        }
         # private variable to keep track of total rids
     $self->{'_total_rids'} = 0;
     $url_base ||= $URLBASE;  # default to regular NCBI BLAST URL
     $self->set_url_base($url_base);
-	return $self;
+        return $self;
 }
 
 =head2 retrieve_parameter
@@ -319,22 +312,22 @@ sub new {
  Function: Get/Set the named parameter for the retrieve_blast operation.
  Returns : string
  Args    : $name : name of GET parameter
-	 $val : optional value to set the parameter to
+         $val : optional value to set the parameter to
 
 =cut
 
 sub retrieve_parameter {
-	my ($self, $name, $val) = @_;
-	$name = uc($name);
-	$self->throw($name." is not a valid GET parameter.") unless
-	  exists $GETPARAMS{$name};
-	if (defined $val) {
-    	my $regex = $GETPARAMS{$name};
-    	$val =~ m/^$regex$/i or 
-		  $self->throw("Value ".$val." for GET parameter ".$name." does not match expression ".$regex.". Rejecting.");
-		$RETRIEVALHEADER{$name} = $val;
-	}
-	return $RETRIEVALHEADER{$name};
+        my ($self, $name, $val) = @_;
+        $name = uc($name);
+        $self->throw($name." is not a valid GET parameter.") unless
+          exists $GETPARAMS{$name};
+        if (defined $val) {
+        my $regex = $GETPARAMS{$name};
+        $val =~ m/^$regex$/i or 
+                  $self->throw("Value ".$val." for GET parameter ".$name." does not match expression ".$regex.". Rejecting.");
+                $RETRIEVALHEADER{$name} = $val;
+        }
+        return $RETRIEVALHEADER{$name};
 }
 
 =head2 submit_parameter
@@ -352,12 +345,12 @@ sub submit_parameter {
     my ($self, $name, $val) = @_;
     $name = uc($name);
     $self->throw($name." is not a valid PUT parameter.") unless
-	exists $PUTPARAMS{$name};
+        exists $PUTPARAMS{$name};
     if (defined $val) {
-    	my $regex = $PUTPARAMS{$name};
-    	$val =~ m/^$regex$/i or 
-		$self->throw("Value ".$val." for PUT parameter ".$name." does not match expression ".$regex.". Rejecting.");
-	$HEADER{$name} = $val;
+        my $regex = $PUTPARAMS{$name};
+        $val =~ m/^$regex$/i or 
+                $self->throw("Value ".$val." for PUT parameter ".$name." does not match expression ".$regex.". Rejecting.");
+        $HEADER{$name} = $val;
     }
     return $HEADER{$name};
 }
@@ -461,10 +454,10 @@ sub expect {
 sub ua {
     my ($self, $value) = @_;    
     if( ! defined $self->{'_ua'} ) {
-	$self->{'_ua'} = LWP::UserAgent->new(env_proxy => 1, parse_head => 0);
-	my $nm = ref($self);
-	$nm =~ s/::/_/g;
-	$self->{'_ua'}->agent("bioperl-$nm/$MODVERSION");
+        $self->{'_ua'} = LWP::UserAgent->new(env_proxy => 1, parse_head => 0);
+        my $nm = ref($self);
+        $nm =~ s/::/_/g;
+        $self->{'_ua'}->agent("bioperl-$nm/$MODVERSION");
     }
     return $self->{'_ua'};
 }
@@ -484,14 +477,14 @@ sub ua {
 sub proxy {
     my ($self,$protocol,$proxy) = @_;
     return if ( !defined $self->ua || !defined $protocol
-		      || !defined $proxy );
+                      || !defined $proxy );
     return $self->ua->proxy($protocol,$proxy);
 }
 
 sub add_rid {
     my ($self, @vals) = @_;
     foreach ( @vals ) {
-	$self->{'_rids'}->{$_} = $self->{'_total_rids'};
+        $self->{'_rids'}->{$_} = $self->{'_total_rids'};
         $self->{'_total_rids'}++; 
     }
     return scalar keys %{$self->{'_rids'}};
@@ -500,7 +493,7 @@ sub add_rid {
 sub remove_rid {
     my ($self, @vals) = @_;
     foreach ( @vals ) {
-	delete $self->{'_rids'}->{$_};
+        delete $self->{'_rids'}->{$_};
     }
     return scalar keys %{$self->{'_rids'}};
 }
@@ -534,35 +527,38 @@ sub submit_blast {
     my %header = $self->header;
     $header{$_} ||= $RETRIEVALHEADER{$_} foreach (keys %RETRIEVALHEADER);    
     foreach my $seq ( @seqs ) {
-	#If query has a fasta header, the output has the query line.
-	$header{'QUERY'} = ">".(defined $seq->display_id() ? $seq->display_id() : "").
-		" ".(defined $seq->desc() ? $seq->desc() : "")."\n".$seq->seq();
-	my $request = POST $url_base, [%header];
-	$self->warn($request->as_string) if ( $self->verbose > 1);
-	my $response = $self->ua->request( $request);
+        #If query has a fasta header, the output has the query line.
+        $header{'QUERY'} = ">".(defined $seq->display_id() ? $seq->display_id() : "").
+                " ".(defined $seq->desc() ? $seq->desc() : "")."\n".$seq->seq();
+        my $request = POST $url_base, [%header];
+        $self->debug($request->as_string) if ( $self->verbose > 1);
+        my $response = $self->ua->request( $request);
 
-	if( $response->is_success ) {
-	    my @subdata = split(/\n/, $response->content );
-	    my $count = 0;
-	    foreach ( @subdata ) {
-			if( /$RIDLINE/ ) {
-		    	$count++;
-		    	#$self->debug("RID: $1\n");
-		    	$self->add_rid($1);
-		    	last;
-			}
-	    }
-	    if( $count == 0 ) {
-            $self->warn("req was ". $request->as_string() . "\n");
-            $self->warn(join('', @subdata));
-	    }    	
-	    $tcount += $count;
-	} else {
-	    # should try and be a little more verbose here
-	    $self->warn("req was ". $request->as_string() . "\n" .
-			$response->error_as_HTML);
-	    $tcount = -1;
-		}
+        if( $response->is_success ) {
+            my @subdata = split(/\n/, $response->content );
+            my $count = 0;
+            foreach ( @subdata ) {
+        if( /^\s+RID\s+=\s+(\S+)/ ) {
+            $count++;
+            #$self->debug("RID: $1\n");
+            $self->add_rid($1);
+        } elsif (/^\s+RTOE\s+=\s+(.*$)/) {
+            $self->{rtoe} = $1;
+            $count++;
+        }
+        last if $count >= 2;
+            }
+            if( $count == 0 ) {
+        $self->warn("req was ". $request->as_string() . "\n");
+        $self->warn(join('', @subdata));
+            }           
+            $tcount += $count;
+        } else {
+            # should try and be a little more verbose here
+            $self->warn("req was ". $request->as_string() . "\n" .
+                        $response->error_as_HTML);
+            $tcount = -1;
+                }
     }
     return $tcount;
 }
@@ -587,87 +583,52 @@ sub submit_blast {
 
 sub retrieve_blast {
     my($self, $rid) = @_;
-    my ($fh,$tempfile) = $self->tempfile();
-    close $fh;			#explicit close
     my $url_base = $self->get_url_base;
     my %hdr = %RETRIEVALHEADER;
     $hdr{'RID'} = $rid;
-    my $req = POST $url_base, [%hdr];
-    $self->debug("retrieve request is " . $req->as_string());
-    my $response = $self->ua->request($req, $tempfile);
+    
+    my $req = HTTP::Request->new(
+            GET => $url_base."?CMD=Get&FORMAT_OBJECT=SearchInfo&RID=$rid",
+            );
+    #$self->debug("SearchInfo request is " . $req->as_string());
+    my $response = $self->ua->request($req);
     if( $response->is_success ) {
-    	if( $self->verbose > 1 ) {
-            #print content of reply if verbose > 1
-            open(my $DEBUG, $tempfile) || $self->throw("cannot open $tempfile");
-            while(<$DEBUG>) { print $_; }
-            close $DEBUG;
-    	}
-        open(my $TMP, $tempfile) || $self->throw("Error opening $tempfile");
-        ## if proper reply 
-        my $waiting = 1;
-        my $s = 0;
-        my $got_content = 0;
-        my $is_tabular = 0;
-        while(my $line = <$TMP>) {
-            if ($line =~ /./) {
-                $got_content = 1;
-            }
-            if($line =~ /<\?xml version=/ ) { # xml time
-                $waiting = 0;
-                $self->readmethod('blastxml');
-                last;
-            }
-            if($line =~ /QBlastInfoBegin/i ) {
-                $s = 1;
-            } elsif( $s ) {
-                if($line =~ /Status=(WAITING|ERROR|READY)/i ) {
-                    my $status = $1;
-                    if( $status eq 'WAITING' ) {
-                        $waiting = 1;
-                    } elsif( $status eq 'ERROR' ) {
-                        close($TMP);
-                        open(my $ERR, "<$tempfile") or $self->throw("cannot open file $tempfile");
-                        $self->warn(join("", <$ERR>));
-                        close $ERR;
-                        return ERR_QBSTATUS;
-                    } elsif( $status eq 'READY' ) {
-                        $waiting = 0;
-                        last;
-                    } else {
-                        $self->warn("Unknown status $1:\n");
-                        last;
-                    }
-                }
-            } elsif ($line =~ /ERROR/i ) {
-                close($TMP);
-                open(my $ERR, "<$tempfile") or $self->throw("cannot open file $tempfile");
-                $self->warn(join("", <$ERR>));
-                close $ERR;
-                return ERR_QBNONSPEC;
-            }
-            
+        my $status;
+        if($response->content =~ /Status=(WAITING|ERROR|FAILED|UNKNOWN|READY)/i ) {
+            $status = $1;
+            if( $status eq 'ERROR' ) {
+                $self->warn("Server Error");
+                return ERR_QBSTATUS;
+            } elsif( $status eq 'FAILED' ) {
+                $self->warn("Request Failed");
+                return ERR_QBSTATUS;
+            } 
+        } else {
+            $self->warn("Error: No status reported\n");
         }
-        close($TMP);
-        if( ! $waiting ) {
+        if ( $status ne 'READY' ) {
+            return 0;
+        } else {
+            my ($fh,$tempfile) = $self->tempfile();
+            close $fh;
+            
+            my $req = POST $url_base, [%hdr];
+            $self->debug("retrieve request is " . $req->as_string());
+            my $response = $self->ua->request($req, $tempfile);
+        
             my $blastobj;
             my $mthd = $self->readmethod;
             $mthd = ($mthd =~ /blasttable/i) ? 'blasttable' :
                     ($mthd =~ /xml/i)        ? 'blastxml'   :
                     ($mthd =~ /pull/i)       ? 'blast_pull' :
                     'blast';
-            $blastobj = Bio::SearchIO->new( -file => $tempfile,
-                               -format => $mthd);                    
+            $blastobj = Bio::SearchIO->new(
+                        -file => $tempfile,
+                        -format => $mthd);                    
             ## store filename in object ##
             $self->file($tempfile);
             return $blastobj;
-        } elsif (!$got_content) {
-            # server returned no content, can't be good
-            $self->warn("Server failed to return any data");
-            return ERR_NOCONTENT;
-        } else {		# still working
-            return 0;
-        }
-	
+        } 
     } else {
         $self->warn($response->error_as_HTML);
         return ERR_HTTPFAIL;
@@ -685,65 +646,65 @@ sub retrieve_blast {
 =cut
 
 sub save_output {
-	my ($self, $filename) = @_;
-	if( ! defined $filename ) {
-		$self->throw("Can't save blast output.  You must specify a filename to save to.");
-	}
-	my $blastfile = $self->file;
-	#open temp file and output file, have to filter out some HTML
-	open(my $TMP, $blastfile) or $self->throw("cannot open $blastfile");
+        my ($self, $filename) = @_;
+        if( ! defined $filename ) {
+                $self->throw("Can't save blast output.  You must specify a filename to save to.");
+        }
+        my $blastfile = $self->file;
+        #open temp file and output file, have to filter out some HTML
+        open(my $TMP, $blastfile) or $self->throw("cannot open $blastfile");
 
-	open(my $SAVEOUT, ">", $filename) or $self->throw("cannot open $filename");
-	my $seentop = 0;
-	while(<$TMP>) {
-		next if (/<pre>/);
-		if(/^(?:[T]?BLAST[NPX])\s*.+$/i ||
+        open(my $SAVEOUT, ">", $filename) or $self->throw("cannot open $filename");
+        my $seentop = 0;
+        while(<$TMP>) {
+                next if (/<pre>/);
+                if(/^(?:[T]?BLAST[NPX])\s*.+$/i ||
            /^RPS-BLAST\s*.+$/i ||
            /<\?xml\sversion=/ ||
            /^#\s+(?:[T]?BLAST[NPX])\s*.+$/) {
-			$seentop=1;
-		} 
+                        $seentop=1;
+                } 
         next if !$seentop;
-		if( $seentop ) {
-			print $SAVEOUT $_;
-		}
-	}
-	return 1;
+                if( $seentop ) {
+                        print $SAVEOUT $_;
+                }
+        }
+        return 1;
 }
 
 sub _load_input {
-	my ($self, $input) = @_;
+        my ($self, $input) = @_;
 
-	if( ! defined $input ) {
-		$self->throw("Calling remote blast with no input");
-	}
-	my @seqs;
-	if( ! ref $input ) {
-		if( -e $input ) {
-			my $seqio = Bio::SeqIO->new(-format => 'fasta',
-												-file => $input);
-			while( my $seq = $seqio->next_seq ) {
-				push @seqs, $seq;
-			}
-		} else {
-			$self->throw("Input $input was not a valid filename");
-		}
-	} elsif( ref($input) =~ /ARRAY/i ) {
-		foreach ( @$input ) {
-			if( ref($_) && $_->isa('Bio::PrimarySeqI') ) {
-				push @seqs, $_;
-			} else {
-				$self->warn("Trying to add a " . ref($_) .
-								" but expected a Bio::PrimarySeqI");
-			}
-		}
-		if( ! @seqs) {
-			$self->throw("Did not pass in valid input -- no sequence objects found");
-		}
-	} elsif( $input->isa('Bio::PrimarySeqI') ) {
-		push @seqs, $input;
-	}
-	return @seqs;
+        if( ! defined $input ) {
+                $self->throw("Calling remote blast with no input");
+        }
+        my @seqs;
+        if( ! ref $input ) {
+                if( -e $input ) {
+                        my $seqio = Bio::SeqIO->new(-format => 'fasta',
+                                                                                                -file => $input);
+                        while( my $seq = $seqio->next_seq ) {
+                                push @seqs, $seq;
+                        }
+                } else {
+                        $self->throw("Input $input was not a valid filename");
+                }
+        } elsif( ref($input) =~ /ARRAY/i ) {
+                foreach ( @$input ) {
+                        if( ref($_) && $_->isa('Bio::PrimarySeqI') ) {
+                                push @seqs, $_;
+                        } else {
+                                $self->warn("Trying to add a " . ref($_) .
+                                                                " but expected a Bio::PrimarySeqI");
+                        }
+                }
+                if( ! @seqs) {
+                        $self->throw("Did not pass in valid input -- no sequence objects found");
+                }
+        } elsif( $input->isa('Bio::PrimarySeqI') ) {
+                push @seqs, $input;
+        }
+        return @seqs;
 }
 
 =head2 set_url_base
@@ -776,6 +737,21 @@ sub set_url_base {
 sub get_url_base {
     my $self = shift;
     return $self->{'_urlbase'};
+}
+
+=head2 get_rtoe
+
+ Title   : get_rtoe
+ Usage   : my $url = $self->rtoe
+ Function: Retrieve the retrieval time (defined after submit_blast())
+ Returns : number
+ Args    : None
+
+=cut
+
+sub get_rtoe {
+    my $self = shift;
+    return $self->{rtoe};
 }
 
 1;
