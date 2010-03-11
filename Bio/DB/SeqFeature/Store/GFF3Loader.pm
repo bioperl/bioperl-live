@@ -128,6 +128,11 @@ pairs as described in this table:
  -ignore_seqregion  Ignore ##sequence-region directives. The default is to create a
                        feature corresponding to the directive.
 
+ -noalias_target    Don't create an Alias attribute for a target_id named in a 
+                    Target attribute. The default is to create an Alias
+                    attribute containing the target_id found in a Target 
+                    attribute.
+
 When you call new(), a connection to a Bio::DB::SeqFeature::Store
 database should already have been established and the database
 initialized (if appropriate).
@@ -166,6 +171,8 @@ sub new {
     my $self  = $class->SUPER::new(@_);
     my ($ignore_seqregion) = rearrange(['IGNORE_SEQREGION'],@_);
     $self->ignore_seqregion($ignore_seqregion);
+    my ($noalias_target) = rearrange(['NOALIAS_TARGET'],@_);
+    $self->noalias_target($noalias_target);
     $self;
 }
 
@@ -183,6 +190,24 @@ sub ignore_seqregion {
     my $self = shift;
     my $d    = $self->{ignore_seqregion};
     $self->{ignore_seqregion} = shift if @_;
+    $d;
+}
+
+=head2 noalias_target
+
+  $noalias_target = $loader->noalias_target([$new_flag])
+
+Get or set the noalias_target flag, which if true, will disable the creation of
+an Alias attribute for a target_id named in a Target attribute. The default is 
+to create an Alias attribute containing the target_id found in a Target 
+attribute.
+
+=cut
+
+sub noalias_target {
+    my $self = shift;
+    my $d    = $self->{noalias_target};
+    $self->{noalias_target} = shift if @_;
     $d;
 }
 
@@ -525,7 +550,7 @@ sub handle_feature { #overridden
 
   # POSSIBLY A PERMANENT HACK -- TARGETS BECOME ALIASES
   # THIS IS TO ALLOW FOR TARGET-BASED LOOKUPS
-  if (exists $reserved->{Target}) {
+  if (exists $reserved->{Target} && !$self->{noalias_target}) {
     my %aliases = map {$_=>1} @{$unreserved->{Alias}};
     for my $t (@{$reserved->{Target}}) {
       (my $tc = $t) =~ s/\s+.*$//;  # get rid of coordinates

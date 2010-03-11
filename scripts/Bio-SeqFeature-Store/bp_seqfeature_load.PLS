@@ -21,6 +21,7 @@ my $USER     = '';
 my $PASS     = '';
 my $COMPRESS = 0;
 my $INDEX_SUB = 1;
+my $NOALIAS_TARGET = 0;
 
 GetOptions(
        'dsn=s'          => \$DSN,
@@ -36,6 +37,7 @@ GetOptions(
        'password=s'     => \$PASS,
        'zip'            => \$COMPRESS,
        'S|subfeatures!' => \$INDEX_SUB,
+       'noalias-target' => \$NOALIAS_TARGET,
        ) || die <<END;
 Usage: $0 [options] gff_file1 gff_file2...
   Options:
@@ -56,6 +58,12 @@ Usage: $0 [options] gff_file1 gff_file2...
                           If true, then ignore ##sequence-region directives in the
                           GFF3 file (default, create a feature for each region)
           -z --zip        If true, database tables will be compressed to save space
+             --noalias-target
+                          Don't create an Alias attribute whose value is the 
+                          target_id in a Target attribute (if the feature
+                          contains a Target attribute, the default is to create
+                          an Alias attribute whose value is the target_id in the
+                          Target attribute)
 
 Please see http://www.sequenceontology.org/gff3.shtml for information
 about the GFF3 format. BioPerl extends the format slightly by adding 
@@ -108,6 +116,7 @@ my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new
     -fast               => $FAST,
     -ignore_seqregion   => $IGNORE_SEQREGION,
     -index_subfeatures  => $INDEX_SUB,
+    -noalias_target     => $NOALIAS_TARGET,
 )
 or die "Couldn't create GFF3 loader";
 
