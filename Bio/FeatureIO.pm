@@ -43,11 +43,13 @@ Bio::FeatureIO - Handler for FeatureIO
 
 =head1 DESCRIPTION
 
-An I/O iterator subsystem for genomic sequence features.
+NOTE:  This is a highly experimental I/O iterator subsystem for genomic sequence
+features. It is not complete, and is now undergoing a significant refactoring in
+a separate branch of BioPerl to address specific issues regarding the current
+implementaiton. Use at your own risk.
 
 Bio::FeatureIO is a handler module for the formats in the FeatureIO set (eg,
-Bio::FeatureIO::GFF). It is the officially sanctioned way of getting at
-the format objects, which most people should use.
+Bio::FeatureIO::GFF).
 
 The Bio::FeatureIO system can be thought of like biological file handles.
 They are attached to filehandles with smart formatting rules (eg,
