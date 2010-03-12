@@ -113,10 +113,14 @@ The rest of the documentation details each of the object methods. Internal metho
 
 
 package Bio::Root::IO;
-use vars qw($FILESPECLOADED $FILETEMPLOADED $FILEPATHLOADED
-	    $TEMPDIR $PATHSEP $ROOTDIR $OPENFLAGS $VERBOSE $ONMAC
-            $HAS_LWP
-           );
+
+our ($FILESPECLOADED,   $FILETEMPLOADED,
+    $FILEPATHLOADED,    $TEMPDIR,
+    $PATHSEP,           $ROOTDIR,
+    $OPENFLAGS,         $VERBOSE,
+    $ONMAC,             $HAS_LWP,
+    $HAS_EOL);
+
 use strict;
 
 use Symbol;
@@ -128,7 +132,6 @@ use base qw(Bio::Root::Root);
 
 my $TEMPCOUNTER;
 my $HAS_WIN32 = 0;
-#my $HAS_LWP = 1;
 
 BEGIN {
     $TEMPCOUNTER = 0;
@@ -139,19 +142,19 @@ BEGIN {
 
     # try to load those modules that may cause trouble on some systems
     eval { 
-	require File::Path;
-	$FILEPATHLOADED = 1;
+        require File::Path;
+        $FILEPATHLOADED = 1;
     }; 
     if( $@ ) {
-	print STDERR "Cannot load File::Path: $@" if( $VERBOSE > 0 );
-	# do nothing
+        print STDERR "Cannot load File::Path: $@" if( $VERBOSE > 0 );
+        # do nothing
     }
 
     eval {
-	require LWP::UserAgent;
+        require LWP::UserAgent;
     };
     if( $@ ) {
-	print STDERR "Cannot load LWP::UserAgent: $@" if( $VERBOSE > 0 );
+        print STDERR "Cannot load LWP::UserAgent: $@" if( $VERBOSE > 0 );
         $HAS_LWP = 0;
     } else {
         $HAS_LWP = 1;
@@ -160,63 +163,63 @@ BEGIN {
     # If on Win32, attempt to find Win32 package
 
     if($^O =~ /mswin/i) {
-	eval {
-	    require Win32;
-	    $HAS_WIN32 = 1;
-	};
+    eval {
+        require Win32;
+        $HAS_WIN32 = 1;
+    };
     }
 
     # Try to provide a path separator. Why doesn't File::Spec export this,
     # or did I miss it?
     if($^O =~ /mswin/i) {
-	$PATHSEP = "\\";
+        $PATHSEP = "\\";
     } elsif($^O =~ /macos/i) {
-	$PATHSEP = ":";
+        $PATHSEP = ":";
     } else { # unix
-	$PATHSEP = "/";
+        $PATHSEP = "/";
     }
     eval {
-	require File::Spec;
-	$FILESPECLOADED = 1;
-	$TEMPDIR = File::Spec->tmpdir();
-	$ROOTDIR = File::Spec->rootdir();
-	require File::Temp; # tempfile creation
-	$FILETEMPLOADED = 1;
+        require File::Spec;
+        $FILESPECLOADED = 1;
+        $TEMPDIR = File::Spec->tmpdir();
+        $ROOTDIR = File::Spec->rootdir();
+        require File::Temp; # tempfile creation
+        $FILETEMPLOADED = 1;
     };
     if( $@ ) { 
-	if(! defined($TEMPDIR)) { # File::Spec failed
-	    # determine tempdir
-	    if (defined $ENV{'TEMPDIR'} && -d $ENV{'TEMPDIR'} ) {
-		$TEMPDIR = $ENV{'TEMPDIR'};
-	    } elsif( defined $ENV{'TMPDIR'} && -d $ENV{'TMPDIR'} ) {
-		$TEMPDIR = $ENV{'TMPDIR'};
-	    }
-	    if($^O =~ /mswin/i) {
-		$TEMPDIR = 'C:\TEMP' unless $TEMPDIR;
-		$ROOTDIR = 'C:';
-	    } elsif($^O =~ /macos/i) {
-		$TEMPDIR = "" unless $TEMPDIR; # what is a reasonable default on Macs?
-		$ROOTDIR = ""; # what is reasonable??
-	    } else { # unix
-		$TEMPDIR = "/tmp" unless $TEMPDIR;
-		$ROOTDIR = "/";
-	    }
-	    if (!( -d $TEMPDIR && -w $TEMPDIR )) {
-		$TEMPDIR = '.'; # last resort
-	    }
-	}
-	# File::Temp failed (alone, or File::Spec already failed)
-	#
-	# determine open flags for tempfile creation -- we'll have to do this
-	# ourselves
-	use Fcntl;
-	use Symbol;
-	$OPENFLAGS = O_CREAT | O_EXCL | O_RDWR;
-	for my $oflag (qw/FOLLOW BINARY LARGEFILE EXLOCK NOINHERIT TEMPORARY/){
-	    my ($bit, $func) = (0, "Fcntl::O_" . $oflag);
-	    no strict 'refs';
-	    $OPENFLAGS |= $bit if eval { $bit = &$func(); 1 };
-	}
+    if(! defined($TEMPDIR)) { # File::Spec failed
+        # determine tempdir
+        if (defined $ENV{'TEMPDIR'} && -d $ENV{'TEMPDIR'} ) {
+            $TEMPDIR = $ENV{'TEMPDIR'};
+        } elsif( defined $ENV{'TMPDIR'} && -d $ENV{'TMPDIR'} ) {
+            $TEMPDIR = $ENV{'TMPDIR'};
+        }
+        if($^O =~ /mswin/i) {
+            $TEMPDIR = 'C:\TEMP' unless $TEMPDIR;
+            $ROOTDIR = 'C:';
+        } elsif($^O =~ /macos/i) {
+            $TEMPDIR = "" unless $TEMPDIR; # what is a reasonable default on Macs?
+            $ROOTDIR = ""; # what is reasonable??
+        } else { # unix
+            $TEMPDIR = "/tmp" unless $TEMPDIR;
+            $ROOTDIR = "/";
+        }
+        if (!( -d $TEMPDIR && -w $TEMPDIR )) {
+            $TEMPDIR = '.'; # last resort
+        }
+    }
+    # File::Temp failed (alone, or File::Spec already failed)
+    #
+    # determine open flags for tempfile creation -- we'll have to do this
+    # ourselves
+    use Fcntl;
+    use Symbol;
+    $OPENFLAGS = O_CREAT | O_EXCL | O_RDWR;
+    for my $oflag (qw/FOLLOW BINARY LARGEFILE EXLOCK NOINHERIT TEMPORARY/){
+        my ($bit, $func) = (0, "Fcntl::O_" . $oflag);
+        no strict 'refs';
+        $OPENFLAGS |= $bit if eval { $bit = &$func(); 1 };
+    }
     }
     $ONMAC = "\015" eq "\n";
 }
@@ -274,73 +277,74 @@ sub _initialize_io {
     $self->_register_for_cleanup(\&_io_cleanup);
 
     my ($input, $noclose, $file, $fh, $flush, $url,
-	$retries, $ua_parms) = 
-	$self->_rearrange([qw(INPUT 
-                              NOCLOSE
-                              FILE 
-                              FH 
-                              FLUSH
-                              URL
-                              RETRIES
-                              UA_PARMS)], @args);
+    $retries, $ua_parms) = 
+    $self->_rearrange([qw(INPUT NOCLOSE FILE FH  FLUSH URL RETRIES UA_PARMS)],
+                      @args);
 
     if($url){
-	$retries ||= 5;
-
-      if($HAS_LWP){ #use LWP::UserAgent
-	  require LWP::UserAgent;
-	  my $ua = LWP::UserAgent->new(%$ua_parms);
-        my $http_result;
-        my($handle,$tempfile) = $self->tempfile();
-        CORE::close($handle);
-	  
-
-        for(my $try = 1 ; $try <= $retries ; $try++){
-	    $http_result = $ua->get($url, ':content_file' => $tempfile);
-	    $self->warn("[$try/$retries] tried to fetch $url, but server threw " . $http_result->code . ".  retrying...") if !$http_result->is_success;
-	    last if $http_result->is_success;
+        $retries ||= 5;
+    
+        if($HAS_LWP) { #use LWP::UserAgent
+            require LWP::UserAgent;
+            my $ua = LWP::UserAgent->new(%$ua_parms);
+            my $http_result;
+            my($handle,$tempfile) = $self->tempfile();
+            CORE::close($handle);
+          
+    
+            for(my $try = 1 ; $try <= $retries ; $try++){
+                $http_result = $ua->get($url, ':content_file' => $tempfile);
+                $self->warn("[$try/$retries] tried to fetch $url, but server ".
+                            "threw ". $http_result->code . ".  retrying...")
+                            if !$http_result->is_success;
+                last if $http_result->is_success;
+            }
+            $self->throw("failed to fetch $url, server threw ".
+                         $http_result->code) if !$http_result->is_success;
+    
+            $input = $tempfile;
+            $file  = $tempfile;
+        } else { #use Bio::Root::HTTPget
+            #$self->warn("no lwp");
+    
+            $fh = Bio::Root::HTTPget::getFH($url);
         }
-	  $self->throw("failed to fetch $url, server threw " . $http_result->code) if !$http_result->is_success;
-
-        $input = $tempfile;
-        $file  = $tempfile;
-      } else { #use Bio::Root::HTTPget
-        #$self->warn("no lwp");
-
-        $fh = Bio::Root::HTTPget::getFH($url);
-      }
-    }
+        }
 
     delete $self->{'_readbuffer'};
     delete $self->{'_filehandle'};
     $self->noclose( $noclose) if defined $noclose;
     # determine whether the input is a file(name) or a stream
     if($input) {
-	if(ref(\$input) eq "SCALAR") {
-	    # we assume that a scalar is a filename
-	    if($file && ($file ne $input)) {
-		$self->throw("input file given twice: $file and $input disagree");
-	    }
-	    $file = $input;
-	} elsif(ref($input) &&
-		((ref($input) eq "GLOB") || $input->isa('IO::Handle'))) {
-	    # input is a stream
-	    $fh = $input;
-	} else {
-	    # let's be strict for now
-	    $self->throw("unable to determine type of input $input: ".
-			 "not string and not GLOB");
-	}
+        if(ref(\$input) eq "SCALAR") {
+            # we assume that a scalar is a filename
+            if($file && ($file ne $input)) {
+            $self->throw("input file given twice: $file and $input disagree");
+            }
+            $file = $input;
+        } elsif(ref($input) &&
+            ((ref($input) eq "GLOB") || $input->isa('IO::Handle'))) {
+            # input is a stream
+            $fh = $input;
+        } else {
+            # let's be strict for now
+            $self->throw("unable to determine type of input $input: ".
+                 "not string and not GLOB");
+        }
     }
     if(defined($file) && defined($fh)) {
-	$self->throw("Providing both a file and a filehandle for reading - only one please!");
+        $self->throw("Providing both a file and a filehandle for reading - ".
+                     "only one please!");
     }
 
     if(defined($file) && ($file ne '')) {
-	$fh = Symbol::gensym();
-	open ($fh,$file) ||
-	    $self->throw("Could not open $file: $!");
-	$self->file($file);
+        $fh = Symbol::gensym();
+        open ($fh,$file) || $self->throw("Could not open $file: $!");
+        $self->file($file);
+        if ($HAS_EOL) {
+            $self->_load_module('PerlIO::eol');
+            binmode $fh, ':raw:eol(LF-Native)';
+        }
     }
 
     if (defined $fh) {
@@ -376,7 +380,7 @@ sub _initialize_io {
 sub _fh {
     my ($obj, $value) = @_;
     if ( defined $value) {
-	$obj->{'_filehandle'} = $value;
+    $obj->{'_filehandle'} = $value;
     }
     return $obj->{'_filehandle'};
 }
@@ -401,7 +405,7 @@ sub _fh {
 
 sub mode {
     my ($obj, @arg) = @_;
-	my %param = @arg;
+    my %param = @arg;
     return $obj->{'_mode'} if defined $obj->{'_mode'} and !$param{-force};
     
     # Previous system of:
@@ -444,7 +448,7 @@ sub mode {
 sub file {
     my ($obj, $value) = @_;
     if ( defined $value) {
-	$obj->{'_file'} = $value;
+    $obj->{'_file'} = $value;
     }
     return $obj->{'_file'};
 }
@@ -497,15 +501,15 @@ sub _readline {
     # if the buffer been filled by _pushback then return the buffer
     # contents, rather than read from the filehandle
     if( @{$self->{'_readbuffer'} || [] } ) {
-	$line = shift @{$self->{'_readbuffer'}};
+    $line = shift @{$self->{'_readbuffer'}};
     } else {
-	$line = <$fh>;
+    $line = <$fh>;
     }
-
+    
     #don't strip line endings if -raw is specified
     # $line =~ s/\r\n/\n/g if( (!$param{-raw}) && (defined $line) );
     # Dave Howorth's fix
-    if( (!$param{-raw}) && (defined $line) ) {
+    if( !$HAS_EOL && !$param{-raw} && (defined $line) ) {
         $line =~ s/\015\012/\012/g; # Change all CR/LF pairs to LF
         $line =~ tr/\015/\n/ unless $ONMAC; # Change all single CRs to NEWLINE
     }
@@ -522,8 +526,8 @@ sub _readline {
  Returns : none
  Args    : newvalue
  Note    : This is only supported for pushing back data ending with the
-		   current, localized value of $/. Using this method to push modified
-		   data back onto the buffer stack is not supported; see bug 843.
+           current, localized value of $/. Using this method to push modified
+           data back onto the buffer stack is not supported; see bug 843.
 
 =cut
 
@@ -564,9 +568,9 @@ sub close {
    if( defined( my $fh = $self->{'_filehandle'} )) {
        $self->flush;
        return if     ref $fh eq 'GLOB'
-		 && (    \*STDOUT == $fh
-		      || \*STDERR == $fh
-		      || \*STDIN  == $fh
+         && (    \*STDOUT == $fh
+              || \*STDERR == $fh
+              || \*STDIN  == $fh
                     );
 
        # don't close IO::Strings
@@ -631,24 +635,24 @@ sub _io_cleanup {
 
     # we are planning to cleanup temp files no matter what    
     if( exists($self->{'_rootio_tempfiles'}) &&
-	ref($self->{'_rootio_tempfiles'}) =~ /array/i &&
+    ref($self->{'_rootio_tempfiles'}) =~ /array/i &&
     !$self->save_tempfiles) { 
-	if( $v > 0 ) {
-	    warn( "going to remove files ", 
-		  join(",",  @{$self->{'_rootio_tempfiles'}}), "\n");
-	}
-	unlink  (@{$self->{'_rootio_tempfiles'}} );
+    if( $v > 0 ) {
+        warn( "going to remove files ", 
+          join(",",  @{$self->{'_rootio_tempfiles'}}), "\n");
+    }
+    unlink  (@{$self->{'_rootio_tempfiles'}} );
     }
     # cleanup if we are not using File::Temp
     if( $self->{'_cleanuptempdir'} &&
-	exists($self->{'_rootio_tempdirs'}) &&
-	ref($self->{'_rootio_tempdirs'}) =~ /array/i &&
-    !$self->save_tempfiles) {	
-	if( $v > 0 ) {
-	    warn( "going to remove dirs ", 
-		  join(",",  @{$self->{'_rootio_tempdirs'}}), "\n");
-	}
-	$self->rmtree( $self->{'_rootio_tempdirs'});
+    exists($self->{'_rootio_tempdirs'}) &&
+    ref($self->{'_rootio_tempdirs'}) =~ /array/i &&
+    !$self->save_tempfiles) {   
+    if( $v > 0 ) {
+        warn( "going to remove dirs ", 
+          join(",",  @{$self->{'_rootio_tempdirs'}}), "\n");
+    }
+    $self->rmtree( $self->{'_rootio_tempdirs'});
     }
 }
 
@@ -715,65 +719,65 @@ sub tempfile {
 
     # map between naming with and without dash
     foreach my $key (keys(%params)) {
-	if( $key =~ /^-/  ) {
-	    my $v = $params{$key};
-	    delete $params{$key};
-	    $params{uc(substr($key,1))} = $v;
-	} else { 
-	    # this is to upper case
-	    my $v = $params{$key};
-	    delete $params{$key};	    
-	    $params{uc($key)} = $v;
-	}
+    if( $key =~ /^-/  ) {
+        my $v = $params{$key};
+        delete $params{$key};
+        $params{uc(substr($key,1))} = $v;
+    } else { 
+        # this is to upper case
+        my $v = $params{$key};
+        delete $params{$key};       
+        $params{uc($key)} = $v;
+    }
     }
     $params{'DIR'} = $TEMPDIR if(! exists($params{'DIR'}));
     unless (exists $params{'UNLINK'} && 
-	    defined $params{'UNLINK'} &&
-	    ! $params{'UNLINK'} ) {
-	$params{'UNLINK'} = 1;
+        defined $params{'UNLINK'} &&
+        ! $params{'UNLINK'} ) {
+    $params{'UNLINK'} = 1;
     } else { $params{'UNLINK'} = 0 }
-	    
+        
     if($FILETEMPLOADED) {
-	if(exists($params{'TEMPLATE'})) {
-	    my $template = $params{'TEMPLATE'};
-	    delete $params{'TEMPLATE'};
-	    ($tfh, $file) = File::Temp::tempfile($template, %params);
-	} else {
-	    ($tfh, $file) = File::Temp::tempfile(%params);
-	}
+    if(exists($params{'TEMPLATE'})) {
+        my $template = $params{'TEMPLATE'};
+        delete $params{'TEMPLATE'};
+        ($tfh, $file) = File::Temp::tempfile($template, %params);
     } else {
-	my $dir = $params{'DIR'};
-	$file = $self->catfile($dir,
-			       (exists($params{'TEMPLATE'}) ?
-				$params{'TEMPLATE'} :
-				sprintf( "%s.%s.%s",  
-					 $ENV{USER} || 'unknown', $$, 
-					 $TEMPCOUNTER++)));
+        ($tfh, $file) = File::Temp::tempfile(%params);
+    }
+    } else {
+    my $dir = $params{'DIR'};
+    $file = $self->catfile($dir,
+                   (exists($params{'TEMPLATE'}) ?
+                $params{'TEMPLATE'} :
+                sprintf( "%s.%s.%s",  
+                     $ENV{USER} || 'unknown', $$, 
+                     $TEMPCOUNTER++)));
 
-	# sneakiness for getting around long filenames on Win32?
-	if( $HAS_WIN32 ) {
-	    $file = Win32::GetShortPathName($file);
-	}
+    # sneakiness for getting around long filenames on Win32?
+    if( $HAS_WIN32 ) {
+        $file = Win32::GetShortPathName($file);
+    }
 
-	# Try to make sure this will be marked close-on-exec
-	# XXX: Win32 doesn't respect this, nor the proper fcntl,
-	#      but may have O_NOINHERIT. This may or may not be in Fcntl.
-	local $^F = 2; 
-	# Store callers umask
-	my $umask = umask();
-	# Set a known umaskr
-	umask(066);
-	# Attempt to open the file
-	if ( sysopen($tfh, $file, $OPENFLAGS, 0600) ) {
-	    # Reset umask
-	    umask($umask); 
-	} else { 
-	    $self->throw("Could not open tempfile $file: $!\n");
-	}
+    # Try to make sure this will be marked close-on-exec
+    # XXX: Win32 doesn't respect this, nor the proper fcntl,
+    #      but may have O_NOINHERIT. This may or may not be in Fcntl.
+    local $^F = 2; 
+    # Store callers umask
+    my $umask = umask();
+    # Set a known umaskr
+    umask(066);
+    # Attempt to open the file
+    if ( sysopen($tfh, $file, $OPENFLAGS, 0600) ) {
+        # Reset umask
+        umask($umask); 
+    } else { 
+        $self->throw("Could not open tempfile $file: $!\n");
+    }
     }
 
     if(  $params{'UNLINK'} ) {
-	push @{$self->{'_rootio_tempfiles'}}, $file;
+    push @{$self->{'_rootio_tempfiles'}}, $file;
     } 
 
 
@@ -799,7 +803,7 @@ sub tempfile {
 sub tempdir {
     my ( $self, @args ) = @_;
     if($FILETEMPLOADED && File::Temp->can('tempdir') ) {
-	return File::Temp::tempdir(@args);
+    return File::Temp::tempdir(@args);
     }
 
     # we have to do this ourselves, not good
@@ -807,11 +811,11 @@ sub tempdir {
     # we are planning to cleanup temp files no matter what
     my %params = @args;
     $self->{'_cleanuptempdir'} = ( defined $params{CLEANUP} && 
-				   $params{CLEANUP} == 1);
+                   $params{CLEANUP} == 1);
     my $tdir = $self->catfile($TEMPDIR,
-			      sprintf("dir_%s-%s-%s", 
-				      $ENV{USER} || 'unknown', $$, 
-				      $TEMPCOUNTER++));
+                  sprintf("dir_%s-%s-%s", 
+                      $ENV{USER} || 'unknown', $$, 
+                      $TEMPCOUNTER++));
     mkdir($tdir, 0755);
     push @{$self->{'_rootio_tempdirs'}}, $tdir; 
     return $tdir;
@@ -845,7 +849,7 @@ sub catfile {
     # this is clumsy and not very appealing, but how do we specify the
     # root directory?
     if($args[0] eq '/') {
-	$args[0] = $ROOTDIR;
+    $args[0] = $ROOTDIR;
     }
     return join($PATHSEP, @args);
 }
@@ -888,11 +892,11 @@ sub catfile {
 sub rmtree {
     my($self,$roots, $verbose, $safe) = @_;
     if( $FILEPATHLOADED ) { 
-	return File::Path::rmtree ($roots, $verbose, $safe);
+    return File::Path::rmtree ($roots, $verbose, $safe);
     }
 
     my $force_writeable = ($^O eq 'os2' || $^O eq 'dos' || $^O eq 'MSWin32'
-		       || $^O eq 'amigaos' || $^O eq 'cygwin');
+               || $^O eq 'amigaos' || $^O eq 'cygwin');
     my $Is_VMS = $^O eq 'VMS';
 
     my(@files);
@@ -900,86 +904,86 @@ sub rmtree {
     $verbose ||= 0;
     $safe ||= 0;
     if ( defined($roots) && length($roots) ) {
-	$roots = [$roots] unless ref $roots;
+    $roots = [$roots] unless ref $roots;
     } else {
-	$self->warn("No root path(s) specified\n");
-	return 0;
+    $self->warn("No root path(s) specified\n");
+    return 0;
     }
 
     my($root);
     foreach $root (@{$roots}) {
-	$root =~ s#/\z##;
-	(undef, undef, my $rp) = lstat $root or next;
-	$rp &= 07777;	# don't forget setuid, setgid, sticky bits
-	if ( -d _ ) {
-	    # notabene: 0777 is for making readable in the first place,
-	    # it's also intended to change it to writable in case we have
-	    # to recurse in which case we are better than rm -rf for 
-	    # subtrees with strange permissions
-	    chmod(0777, ($Is_VMS ? VMS::Filespec::fileify($root) : $root))
-	      or $self->warn("Can't make directory $root read+writeable: $!")
-		unless $safe;
-	    if (opendir(DIR, $root) ){
-		@files = readdir DIR;
-		closedir(DIR);
-	    } else {
-	        $self->warn( "Can't read $root: $!");
-		@files = ();
-	    }
+    $root =~ s#/\z##;
+    (undef, undef, my $rp) = lstat $root or next;
+    $rp &= 07777;   # don't forget setuid, setgid, sticky bits
+    if ( -d _ ) {
+        # notabene: 0777 is for making readable in the first place,
+        # it's also intended to change it to writable in case we have
+        # to recurse in which case we are better than rm -rf for 
+        # subtrees with strange permissions
+        chmod(0777, ($Is_VMS ? VMS::Filespec::fileify($root) : $root))
+          or $self->warn("Can't make directory $root read+writeable: $!")
+        unless $safe;
+        if (opendir(DIR, $root) ){
+        @files = readdir DIR;
+        closedir(DIR);
+        } else {
+            $self->warn( "Can't read $root: $!");
+        @files = ();
+        }
 
-	    # Deleting large numbers of files from VMS Files-11 filesystems
-	    # is faster if done in reverse ASCIIbetical order 
-	    @files = reverse @files if $Is_VMS;
-	    ($root = VMS::Filespec::unixify($root)) =~ s#\.dir\z## if $Is_VMS;
-	    @files = map("$root/$_", grep $_!~/^\.{1,2}\z/s,@files);
-	    $count += $self->rmtree([@files],$verbose,$safe);
-	    if ($safe &&
-		($Is_VMS ? !&VMS::Filespec::candelete($root) : !-w $root)) {
-		print "skipped $root\n" if $verbose;
-		next;
-	    }
-	    chmod 0777, $root
-	      or $self->warn( "Can't make directory $root writeable: $!")
-		if $force_writeable;
-	    print "rmdir $root\n" if $verbose;
-	    if (rmdir $root) {
-		++$count;
-	    }
-	    else {
-		$self->warn( "Can't remove directory $root: $!");
-		chmod($rp, ($Is_VMS ? VMS::Filespec::fileify($root) : $root))
-		    or $self->warn("and can't restore permissions to "
-		            . sprintf("0%o",$rp) . "\n");
-	    }
-	}
-	else {
+        # Deleting large numbers of files from VMS Files-11 filesystems
+        # is faster if done in reverse ASCIIbetical order 
+        @files = reverse @files if $Is_VMS;
+        ($root = VMS::Filespec::unixify($root)) =~ s#\.dir\z## if $Is_VMS;
+        @files = map("$root/$_", grep $_!~/^\.{1,2}\z/s,@files);
+        $count += $self->rmtree([@files],$verbose,$safe);
+        if ($safe &&
+        ($Is_VMS ? !&VMS::Filespec::candelete($root) : !-w $root)) {
+        print "skipped $root\n" if $verbose;
+        next;
+        }
+        chmod 0777, $root
+          or $self->warn( "Can't make directory $root writeable: $!")
+        if $force_writeable;
+        print "rmdir $root\n" if $verbose;
+        if (rmdir $root) {
+        ++$count;
+        }
+        else {
+        $self->warn( "Can't remove directory $root: $!");
+        chmod($rp, ($Is_VMS ? VMS::Filespec::fileify($root) : $root))
+            or $self->warn("and can't restore permissions to "
+                    . sprintf("0%o",$rp) . "\n");
+        }
+    }
+    else {
 
-	    if ($safe &&
-		($Is_VMS ? !&VMS::Filespec::candelete($root)
-		         : !(-l $root || -w $root)))
-	    {
-		print "skipped $root\n" if $verbose;
-		next;
-	    }
-	    chmod 0666, $root
-	      or $self->warn( "Can't make file $root writeable: $!")
-		if $force_writeable;
-	    warn "unlink $root\n" if $verbose;
-	    # delete all versions under VMS
-	    for (;;) {
-		unless (unlink $root) {
-		    $self->warn( "Can't unlink file $root: $!");
-		    if ($force_writeable) {
-			chmod $rp, $root
-			    or $self->warn("and can't restore permissions to "
-			            . sprintf("0%o",$rp) . "\n");
-		    }
-		    last;
-		}
-		++$count;
-		last unless $Is_VMS && lstat $root;
-	    }
-	}
+        if ($safe &&
+        ($Is_VMS ? !&VMS::Filespec::candelete($root)
+                 : !(-l $root || -w $root)))
+        {
+        print "skipped $root\n" if $verbose;
+        next;
+        }
+        chmod 0666, $root
+          or $self->warn( "Can't make file $root writeable: $!")
+        if $force_writeable;
+        warn "unlink $root\n" if $verbose;
+        # delete all versions under VMS
+        for (;;) {
+        unless (unlink $root) {
+            $self->warn( "Can't unlink file $root: $!");
+            if ($force_writeable) {
+            chmod $rp, $root
+                or $self->warn("and can't restore permissions to "
+                        . sprintf("0%o",$rp) . "\n");
+            }
+            last;
+        }
+        ++$count;
+        last unless $Is_VMS && lstat $root;
+        }
+    }
     }
 
     $count;
@@ -1001,7 +1005,7 @@ sub rmtree {
 sub _flush_on_write {
     my ($self,$value) = @_;
     if( defined $value) {
-	$self->{'_flush_on_write'} = $value;
+    $self->{'_flush_on_write'} = $value;
     }
     return $self->{'_flush_on_write'};
 }

@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 38);
+    test_begin(-tests => 48);
 	
     use_ok('Bio::Root::IO');
 }
@@ -111,6 +111,8 @@ SKIP: {
 # tests _pushback for multi-line buffering
 ##############################################
 
+my $rio1 = 
+
 my $line1 = $rio->_readline;
 my $line2 = $rio->_readline;
 
@@ -127,6 +129,34 @@ isnt $line5, $line4;
 
 ok close($I);
 ok close($O);
+
+##############################################
+# test Win vs UNIX line ending
+##############################################
+{
+
+my $unix_rio = Bio::Root::IO->new(-file => test_input_file('U71225.gb.unix'));
+my $win_rio = Bio::Root::IO->new(-file => test_input_file('U71225.gb.win'));
+
+for (1..5) {
+    is($unix_rio->_readline, $win_rio->_readline);
+}
+
+}
+
+##############################################
+# test Win vs UNIX line ending using PerlIO::eol
+##############################################
+
+SKIP: {
+    test_skip(-tests => 5, -requires_module => 'PerlIO::eol');
+    local $Bio::Root::IO::HAS_EOL = 1;
+    my $unix_rio = Bio::Root::IO->new(-file => test_input_file('U71225.gb.unix'));
+    my $win_rio = Bio::Root::IO->new(-file => test_input_file('U71225.gb.win'));
+    for (1..5) {
+        is($unix_rio->_readline, $win_rio->_readline);
+    }
+}
 
 
 ##############################################
