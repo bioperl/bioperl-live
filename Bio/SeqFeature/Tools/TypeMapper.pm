@@ -233,7 +233,7 @@ dgg: separated out FT_SO_map for caller changes. Update with:
 
 =cut
 
-sub ft_so_map  {
+sub FT_SO_map  {
   # $self= shift;
   # note : some of the ft_so mappings are commented out and overriden...
     return {
