@@ -513,10 +513,10 @@ sub _read_fasta_seq {
       if ($entry =~ /^>FGENESH:\s+(\d+)/) {
          # print STDERR "  this is a predicted gene\n";
          $id  = "_predicted_protein_" . $1;
-      } elsif ($entry =~ /^>FGENESH:\[mRNA\]\s+(\d+)/) {
+      } elsif ($entry =~ /^>FGENESH:\[mRNA\]\s*(\d+)/) {
 	# print STDERR "  this is an mRNA\n";
          $id  = "_predicted_mrna_" . $1;
-      } elsif ($entry =~ /^>FGENESH:\[exon\]\s+Gene:\s+(\d+)/) {
+      } elsif ($entry =~ /^>FGENESH:\[exon\]\s+Gene:\s*(\d+)/) {
          $id  = "_predicted_cds_"  . $1;
       }
       $seq = "";
