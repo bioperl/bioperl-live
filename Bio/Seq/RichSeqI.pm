@@ -28,10 +28,10 @@ Bio::Seq::RichSeqI - interface for sequences from rich data sources, mostly data
 
 =head1 DESCRIPTION
 
-This interface extends the Bio::SeqI interface to give additional functionality
-to sequences with richer data sources, in particular from database sequences
-(EMBL, GenBank and Swissprot). For more specifics, please review the
-documentation for 
+This interface extends the L<Bio::SeqI> interface to give additional
+functionality to sequences with richer data sources, in particular from database
+sequences (EMBL, GenBank and Swissprot). For a general implementation, please
+see the documentation for L<Bio::Seq::RichSeq>.
 
 =head1 FEEDBACK
 
@@ -70,7 +70,8 @@ Email birney@ebi.ac.uk
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object methods. Internal
+methods are usually preceded with a _
 
 =cut
 
