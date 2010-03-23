@@ -220,6 +220,12 @@ sub new {
     # when the sequence is set
     $alphabet && $self->alphabet($alphabet);
 
+    # bernd's idea: define ids so that invalid sequence messages
+    # can be more informative...
+    defined $id  && $self->display_id($id);
+    $acc         && $self->accession_number($acc);
+    defined $pid && $self->primary_id($pid);
+
     # if there is an alphabet, and direct is passed in, assume the alphabet
     # and sequence is ok
     
@@ -234,9 +240,6 @@ sub new {
 		 $self->seq($seq) if defined($seq);
 	 }
 
-    defined $id  && $self->display_id($id);
-    $acc         && $self->accession_number($acc);
-    defined $pid && $self->primary_id($pid);
     $desc        && $self->desc($desc);
     $description && $self->description($description);
     $is_circular && $self->is_circular($is_circular);
@@ -281,7 +284,7 @@ sub seq {
 
    if(@args) {
        if(defined($value) && (! $obj->validate_seq($value))) {
-	   $obj->throw("Attempting to set the sequence to [$value] ".
+	   $obj->throw("Attempting to set the sequence '".$obj->id."' to [$value] ".
 							"which does not look healthy");
 		}
        # if a sequence was already set we make sure that we re-adjust the
@@ -337,7 +340,7 @@ sub validate_seq {
 	return 0 unless( defined $seqstr);
 	if((CORE::length($seqstr) > 0) &&
 	   ($seqstr !~ /^([$MATCHPATTERN]+)$/)) {
-	    $self->warn("seq doesn't validate, mismatch is " .
+	    $self->warn("sequence '".$self->id."' doesn't validate, mismatch is " .
 			join(",",($seqstr =~ /([^$MATCHPATTERN]+)/g)));
 		return 0;
 	}
