@@ -247,7 +247,7 @@ sub write_aln {
             $aln->set_displayname_flat(1);
         }
         $self->_print(
-            sprintf( "CLUSTAL W(%s) multiple sequence alignment\n\n\n",
+            sprintf( "CLUSTAL W (%s) multiple sequence alignment\n\n\n",
                 $CLUSTALPRINTVERSION )
         ) or return;
         $length = $aln->length();
