@@ -1033,15 +1033,15 @@ sub unflatten_seq {
 
     # map feature types to the sequence ontology
     ## $tm->map_types_to_SO( -seq => $seq );
-    #$tm->map_types( -seq => $seq, -type_map => $FTSOmap, -undefined => "region" ); #dgg
+    $tm->map_types( -seq => $seq, -type_map => $FTSOmap, -undefined => "region" ); #dgg
 
-    map_types( 
-	    $tm, 
-	    -seq => $seq, 
-	    -type_map  => $FTSOmap, 
-	    -syn_map  => $FTSOsynonyms, 
-	    -undefined => "region" 
-    ); #nml
+    #map_types( 
+	    #$tm, 
+	    #-seq => $seq, 
+	    #-type_map  => $FTSOmap, 
+	    #-syn_map  => $FTSOsynonyms, 
+	    #-undefined => "region" 
+    #); #nml
 
 }
 
