@@ -267,7 +267,7 @@ sub FT_SO_map  {
 	"gene" => ["gene", "so:0000704"],
 	"idna" => ["idna", "so:0000723"],
 	"intron" => ["intron", "so:0000188"],
-	"mrna" => ["mrna", "so:0000234"],
+	"mRNA" => ["mRNA", "so:0000234"],
 	"mat_peptide" => ["mature_protein_region", "so:0000419"],
 	"mature_peptide" => ["mature_protein_region", "so:0000419"],
 	#"misc_rna" => ["transcript", "so:0000673"],
@@ -278,27 +278,27 @@ sub FT_SO_map  {
 	"misc_signal" => ["regulatory_region", "so:0005836"],
 	"misc_structure" => ["sequence_secondary_structure", "so:0000002"],
 	"modified_base" => ["modified_base_site", "so:0000305"],
-	"old_sequence" => ["undefined", ""],
+	"old_sequence" => ["undefined", undef],
 	"operon" => ["operon", "so:0000178"],
 	"oriT" => ["origin_of_transfer", "so:0000724"],
 	"polya_signal" => ["polyA_signal_sequence", "so:0000551"],
 	"polya_site" => ["polyA_site", "so:0000553"],
-	"precursor_rna" => ["primary_transcript", "so:0000185"],
+	"precursor_RNA" => ["primary_transcript", "so:0000185"],
 	"prim_transcript" => ["primary_transcript", "so:0000185"],
 	"primer_bind" => ["primer_binding_site", "so:0005850"],
 	"promoter" => ["promoter", "so:0000167"],
 	"protein_bind" => ["protein_binding_site", "so:0000410"],
-	"rrna" => ["rrna", "so:0000252"],
+	"rRNA" => ["rRNA", "so:0000252"],
 	"repeat_region" => ["repeat_region", "so:0000657"],
 	"repeat_unit" => ["repeat_unit", "so:0000726"],
 	"satellite" => ["satellite_dna", "so:0000005"],
-	"scrna" => ["scrna", "so:0000013"],
+	"scRNA" => ["scRNA", "so:0000013"],
 	"sig_peptide" => ["signal_peptide", "so:0000418"],
-	"snrna" => ["snrna", "so:0000274"],
-	"snorna" => ["snorna", "so:0000275"],
+	"snRNA" => ["snRNA", "so:0000274"],
+	"snoRNA" => ["snoRNA", "so:0000275"],
 	#"source" => ["databank_entry", "so:2000061"],
 	"stem_loop" => ["stem_loop", "so:0000313"],
-	"trna" => ["trna", "so:0000253"],
+	"tRNA" => ["tRNA", "so:0000253"],
 	"terminator" => ["terminator", "so:0000141"],
 	"transit_peptide" => ["transit_peptide", "so:0000725"],
 	"unsure" => "undefined",
@@ -306,10 +306,11 @@ sub FT_SO_map  {
 
 	# manually added 
 	## has parent = pseudogene ; dgg
-	"pseudomrna" => ["pseudogenic_transcript", "so:0000516"],
+	"pseudomRNA" => ["pseudogenic_transcript", "so:0000516"],
 	## from unflattener misc_rna ; dgg
 	"pseudotranscript" => ["pseudogenic_transcript", "so:0000516"],
 	"pseudoexon" => ["pseudogenic_exon", "so:0000507"],
+	"pseudoCDS" => ["pseudogenic_exon", "so:0000507"],
 	"pseudomisc_feature" => ["pseudogenic_region", "so:0000462"],
 	"pseudointron" => ["pseudogenic_region", "so:0000462"],
 
@@ -319,7 +320,7 @@ sub FT_SO_map  {
 	# this is the most generic form for rnas;
 	# we always represent the processed form of
 	# the transcript
-	misc_rna => ['mature_transcript',"so:0000233"],
+	misc_RNA => ['mature_transcript',"so:0000233"],
 
 	# not sure about this one...
 	source=>['contig', "SO:0000149"],
