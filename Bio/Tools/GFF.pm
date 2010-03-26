@@ -1006,7 +1006,7 @@ sub _gff3_string {
     if( $feat->can('frame') ) {
 	$frame = $feat->frame();
     }
-    $frame = '.' unless defined $frame;
+    $frame = '1' unless defined $frame;
 
     $strand = $feat->strand();
 

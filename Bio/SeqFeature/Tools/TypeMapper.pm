@@ -273,7 +273,7 @@ sub FT_SO_map  {
 	#"misc_RNA" => ["transcript", "so:0000673"],
 	"misc_binding" => ["binding_site", "so:0000409"],
 	"misc_difference" => ["sequence_difference", "so:0000413"],
-	"misc_feature" => ["region", "so:0000001"],
+	"misc_feature" => ["region", undef],
 	"misc_recomb" => ["recombination_feature", "so:0000298"],
 	"misc_signal" => ["regulatory_region", "so:0005836"],
 	"misc_structure" => ["sequence_secondary_structure", "so:0000002"],

@@ -32,7 +32,7 @@ genbank2gff3.pl -- Genbank-E<gt>gbrowse-friendly GFF3
 		       for Genbank entries (must be YAML format)
 		       (if --manual is passed without --ini, user will be prompted to 
 			create the file if any manual input is saved)
-	--sofile  -l  path to to the so.obo file to use for primary id mapping
+	--sofile  -l  path to to the so.obo file to use for feature type mapping
 		       (--sofile live will download the latest online revision)
 	--manual   -m  when trying to guess the proper SO term, if more than
 		       one option matches the primary tag, the converter will 
@@ -1033,15 +1033,15 @@ sub unflatten_seq {
 
     # map feature types to the sequence ontology
     ## $tm->map_types_to_SO( -seq => $seq );
-    $tm->map_types( -seq => $seq, -type_map => $FTSOmap, -undefined => "region" ); #dgg
+    #$tm->map_types( -seq => $seq, -type_map => $FTSOmap, -undefined => "region" ); #dgg
 
-    #map_types( 
-	    #$tm, 
-	    #-seq => $seq, 
-	    #-type_map  => $FTSOmap, 
-	    #-syn_map  => $FTSOsynonyms, 
-	    #-undefined => "region" 
-    #); #nml
+    map_types( 
+	    $tm, 
+	    -seq => $seq, 
+	    -type_map  => $FTSOmap, 
+	    -syn_map  => $FTSOsynonyms, 
+	    -undefined => "region" 
+    ); #nml
 
 }
 
@@ -1194,8 +1194,7 @@ sub map_types {
 	$seq->isa("Bio::SeqI") || $self->throw("$seq NOT A SeqI");
 	@sfs = $seq->get_all_SeqFeatures;
     }
-
-
+    $type_map = $type_map || $self->typemap; # dgg: was type_map;
     foreach my $feat (@sfs) {
 
 	$feat->isa("Bio::SeqFeatureI") || $self->throw("$feat NOT A SeqFeatureI");
@@ -1203,24 +1202,45 @@ sub map_types {
 
 	my $primary_tag = $feat->primary_tag;
 
-	if ($primary_tag =~ /^pseudo(.*)$/) {
-	    $primary_tag = $1;
-	    $feat->primary_tag($primary_tag);
-	}
+	#if ($primary_tag =~ /^pseudo(.*)$/) {
+	    #$primary_tag = $1;
+	    #$feat->primary_tag($primary_tag);
+	#}
 
 	my $mtype = $type_map->{$primary_tag};
+	if ($mtype) {
+	    if (ref($mtype)) {
+		if (ref($mtype) eq 'ARRAY') {
+		    my $soID;
+		    ($mtype, $soID) = @$mtype;
 
-	if (ref $mtype) {
-	    my $soID = pop @$mtype;
-	    $mtype = shift @$mtype;
+		    if ($soID && ref($ONTOLOGY)) {
+			my ($term) = $ONTOLOGY->find_terms(-identifier => $soID);
+			$mtype = $term->name if $term;
+		    } 
+# if SO ID is undefined AND we have an ontology to search, we want to delete 
+# the feature type hash entry in order to force a fuzzy search
+		    elsif (! defined $soID && ref($ONTOLOGY)) {
+			undef $mtype;
+			delete $type_map->{$primary_tag};
+		    } 
+		    elsif ($undefmap && $mtype eq 'undefined') { # dgg
+			$mtype= $undefmap;
+		    }
 
-
-	    if ($soID) {
-		my ($term) = $ONTOLOGY->find_terms(-identifier => $soID);
-		$mtype = $term->name if $term;
+		    $type_map->{$primary_tag} = $mtype if $mtype;
+		}
+		elsif (ref($mtype) eq 'CODE') {
+		    $mtype = $mtype->($feat);
+		}
+		else {
+		    $self->throw('must be scalar or CODE ref');
+		}
 	    }
-
-	    $type_map->{$primary_tag} = $mtype if $mtype;
+	    elsif ($undefmap && $mtype eq 'undefined') { # dgg
+		$mtype= $undefmap;
+	    }
+	    $feat->primary_tag($mtype);
 	}
 
 	if ($CONF) {
@@ -1347,9 +1367,9 @@ sub map_types {
 
 		}
 	    }
+	    $mtype ||= $undefmap;
+	    $feat->primary_tag($mtype);
 	} 
-	$mtype ||= $undefmap;
-	$feat->primary_tag($mtype);
     }
 
 
@@ -1547,7 +1567,6 @@ sub options_cycle {
 	
 	my ($nR, $nmR, $descR, $termR, @synR) = ref($right) ? @$right : (undef, undef, undef);
 
-#die Dumper $termL;
 
 	my $format = "format STDOUT = \n";
 
