@@ -2704,7 +2704,6 @@ sub infer_mRNA_from_CDS{
 	   my @children = grep {$_->primary_tag ne 'CDS'} $sf->get_SeqFeatures;
 	   my @mrnas = ();
 
-	   @cdsl = () if $noinfer; #NML
 
 	   foreach my $cds (@cdsl) {
 	       
@@ -2721,29 +2720,34 @@ sub infer_mRNA_from_CDS{
 						-strand=>$cdsexonloc->strand);
 		   $loc->add_sub_Location($subloc);
 	       }
-	       # share the same location
-	       my $mrna =
-		 Bio::SeqFeature::Generic->new(-location=>$loc,
-					       -primary_tag=>'mRNA');
-	       
-               ## Provide seq_id to new feature:
-               $mrna->seq_id($cds->seq_id) if $cds->seq_id;
-               $mrna->source_tag($cds->source_tag) if $cds->source_tag;
+		if ($noinfer) {
+		    push(@mrnas, $cds);
+		}
+		else {
+#		    share the same location
+		    my $mrna =
+			Bio::SeqFeature::Generic->new(-location=>$loc,
+				-primary_tag=>'mRNA');
 
-               $self->_check_order_is_consistent($mrna->location->strand,$mrna->location->each_Location);
+##		    Provide seq_id to new feature:
+		    $mrna->seq_id($cds->seq_id) if $cds->seq_id;
+		    $mrna->source_tag($cds->source_tag) if $cds->source_tag;
 
-               # make the mRNA hold the CDS; no EXPAND option,
-               # the CDS cannot be wider than the mRNA
-	       $mrna->add_SeqFeature($cds);
+		    $self->_check_order_is_consistent($mrna->location->strand,$mrna->location->each_Location);
 
-	       # mRNA steals children of CDS
-	       foreach my $subsf ($cds->get_SeqFeatures) {
-		   $mrna->add_SeqFeature($subsf);
-	       }
-	       $cds->remove_SeqFeatures;
-	       push(@mrnas, $mrna);
+#		    make the mRNA hold the CDS; no EXPAND option,
+#		    the CDS cannot be wider than the mRNA
+		    $mrna->add_SeqFeature($cds);
+
+#		    mRNA steals children of CDS
+		    foreach my $subsf ($cds->get_SeqFeatures) {
+			$mrna->add_SeqFeature($subsf);
+		    }
+		    $cds->remove_SeqFeatures;
+		    push(@mrnas, $mrna);
+		}
 	   }
-	   # change gene/CDS to gene/mRNA
+#	   change gene/CDS to gene/mRNA
 	   $sf->remove_SeqFeatures;
 	   $sf->add_SeqFeature($_) foreach (@mrnas, @children);
        }
