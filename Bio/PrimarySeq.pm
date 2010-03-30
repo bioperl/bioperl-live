@@ -284,7 +284,7 @@ sub seq {
 
    if(@args) {
        if(defined($value) && (! $obj->validate_seq($value))) {
-	   $obj->throw("Attempting to set the sequence '".$obj->id."' to [$value] ".
+	   $obj->throw("Attempting to set the sequence '".(defined($obj->id) || "[unidentified sequence]")."' to [$value] ".
 							"which does not look healthy");
 		}
        # if a sequence was already set we make sure that we re-adjust the
@@ -340,7 +340,7 @@ sub validate_seq {
 	return 0 unless( defined $seqstr);
 	if((CORE::length($seqstr) > 0) &&
 	   ($seqstr !~ /^([$MATCHPATTERN]+)$/)) {
-	    $self->warn("sequence '".$self->id."' doesn't validate, mismatch is " .
+	    $self->warn("sequence '".(defined($self->id) || "[unidentified sequence]")."' doesn't validate, mismatch is " .
 			join(",",($seqstr =~ /([^$MATCHPATTERN]+)/g)));
 		return 0;
 	}
