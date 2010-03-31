@@ -202,7 +202,7 @@ sub init {
 		   ],@_);
 
 
-  $dbi_options  ||= {};
+  $dbi_options  ||= {pg_server_prepare => 0};
   $writeable    = 1 if $is_temporary or $dump_dir;
 
   $dsn or $self->throw("Usage: ".__PACKAGE__."->init(-dsn => \$dbh || \$dsn)");
@@ -281,6 +281,7 @@ END
 );
   CREATE INDEX name_id ON name(id);
   CREATE INDEX name_name ON name(name);
+  CREATE INDEX name_name_varchar_patt_ops_idx ON name USING BTREE (lower(name) varchar_pattern_ops);
 END
 
 	  attribute => <<END,
@@ -650,8 +651,8 @@ sub _match_sql {
     $name =~ s/(^|[^\\])([%_])/$1\\$2/g;
     $name =~ s/(^|[^\\])\*/$1%/g;
     $name =~ s/(^|[^\\])\?/$1_/g;
-    $match = "ILIKE ?";
-    $string  = $name;
+    $match = "LIKE ?";
+    $string  = lc($name);
   } else {
     $match = "= lower(?)";
     $string  = lc($name);
