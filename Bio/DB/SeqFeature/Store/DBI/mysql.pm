@@ -159,6 +159,7 @@ use Cwd 'abs_path';
 use Bio::DB::GFF::Util::Rearrange 'rearrange';
 use Bio::SeqFeature::Lite;
 use File::Spec;
+use Carp 'carp','cluck';
 use constant DEBUG=>0;
 
 # from the MySQL documentation...

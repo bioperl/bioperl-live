@@ -2,11 +2,10 @@
 # $Id$
 
 use strict;
-use constant TEST_COUNT => 74;
+use constant TEST_COUNT => 83;
 
 BEGIN {
-    use lib '/home/lstein/projects/bioperl-live';
-    use lib '.';
+    use lib '.','..';
     use Bio::Root::Test;
 	
     test_begin(-tests => TEST_COUNT);
@@ -15,7 +14,11 @@ BEGIN {
 	
     use_ok('Bio::DB::SeqFeature::Store');
     use_ok('Bio::DB::SeqFeature::Store::GFF3Loader');
+    use_ok('Bio::Root::IO');
+    use_ok('File::Copy');
 }
+
+my $DEBUG = test_debug();
 
 my $gff_file = test_input_file('seqfeaturedb','test.gff3');
 
@@ -191,24 +194,24 @@ is(scalar @c,2);
 is($c[0]->phase,0);
 is($c[1]->phase,1);
 
-SKIP: {
-	test_skip(-tests => 2, -excludes_os => 'mswin');
+ SKIP: {
+     test_skip(-tests => 2, -excludes_os => 'mswin');
 	
-	if (my $child = open(F,"-|")) { # parent reads from child
-		cmp_ok(scalar <F>,'>',0);
-		close F;
-		# The challenge is to make sure that the handle
-		# still works in the parent!
-		my @f = $db->features();
-		cmp_ok(scalar @f,'>',0);
-	}
-	else { # in child
-		$db->clone;
-		my @f = $db->features();
-		my $feature_count = @f;
-		print $feature_count;
-		exit 0;
-	}
+     if (my $child = open(F,"-|")) { # parent reads from child
+	 cmp_ok(scalar <F>,'>',0);
+	 close F;
+	 # The challenge is to make sure that the handle
+	 # still works in the parent!
+	 my @f = $db->features();
+	 cmp_ok(scalar @f,'>',0);
+     }
+     else { # in child
+	 $db->clone;
+	 my @f = $db->features();
+	 my $feature_count = @f;
+	 print $feature_count;
+	 exit 0;
+     }
 }
 
 
@@ -233,39 +236,78 @@ is(scalar @results,2,'keyword search; 1 term');
 @results = $db->search_notes('terribly interesting');
 is(scalar @results,2,'keyword search; 2 terms');
 
+# test our ability to substitute a FASTA file for the database
+my $fasta_dir = make_fasta_testdir();
+my $dbfa = Bio::DB::Fasta->new($fasta_dir, -reindex => 1);
+ok($dbfa);
+ok(my $contig1=$dbfa->seq('Contig1'));
+
+$db        = Bio::DB::SeqFeature::Store->new(@args,-fasta=>$dbfa);
+$loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store=>$db);
+ok($loader->load($gff_file));
+
+ok($db->dna_accessor);
+my $f = $db->segment('Contig1');
+ok($f->dna eq $contig1);
+
+ok(my $contig2 = $dbfa->seq('Contig2'));
+($f) = $db->get_feature_by_name('match4');
+my $length = $f->length;
+ok(substr($contig2,0,$length) eq $f->dna);
+
 # testing namespaces for mysql and Pg adaptor
 
-SKIP: {
-    my $adaptor;
+ SKIP: {
+     my $adaptor;
     
-    for (my $i=0; $i < @args; $i++) {
-        if ($args[$i] eq '-adaptor') {
-            $adaptor = $args[$i+1];
-            last;
-        }
-    }
+     for (my $i=0; $i < @args; $i++) {
+	 if ($args[$i] eq '-adaptor') {
+	     $adaptor = $args[$i+1];
+	     last;
+	 }
+     }
         
-    skip "Namespaces only supported for DBI::mysql and DBI::Pg adaptors", 5, if ($adaptor ne 'DBI::mysql' && $adaptor ne 'DBI::Pg');
+     skip "Namespaces only supported for DBI::mysql and DBI::Pg adaptors", 5, if ($adaptor ne 'DBI::mysql' && $adaptor ne 'DBI::Pg');
 
-    push(@args, ('-namespace', 'bioperl_seqfeature_t_test_schema'));
-    $db     = eval { Bio::DB::SeqFeature::Store->new(@args) };
-    ok($db);
+     push(@args, ('-namespace', 'bioperl_seqfeature_t_test_schema'));
+     $db     = eval { Bio::DB::SeqFeature::Store->new(@args) };
+     ok($db);
 
-    $loader = eval { Bio::DB::SeqFeature::Store::GFF3Loader->new(-store=>$db) };
-    ok($loader);
+     $loader = eval { Bio::DB::SeqFeature::Store::GFF3Loader->new(-store=>$db) };
+     ok($loader);
 
-    $loader->load($gff_file);
+     $loader->load($gff_file);
 
-    # there should be one gene named 'abc-1'
-    @f = $db->get_features_by_name('abc-1');
-    is(@f,1);
+     # there should be one gene named 'abc-1'
+     @f = $db->get_features_by_name('abc-1');
+     is(@f,1);
 
-    $f = $f[0];
-    # there should be three subfeatures of type "exon" and three of type "CDS"
-    is($f->get_SeqFeatures('exon'),3);
-    is($f->get_SeqFeatures('CDS'),3);
+     $f = $f[0];
+     # there should be three subfeatures of type "exon" and three of type "CDS"
+     is($f->get_SeqFeatures('exon'),3);
+     is($f->get_SeqFeatures('CDS'),3);
     
-    $db->remove_namespace();
+     $db->remove_namespace();
 }
 
+
+sub make_fasta_testdir {
+    # this obfuscation is to deal with lockfiles by GDBM_File which can
+    # only be created on local filesystems apparently so will cause test
+    # to block and then fail when the testdir is on an NFS mounted system
+    my $io = Bio::Root::IO->new(-verbose => $DEBUG);
+    my $tempdir = test_output_dir();
+    my $test_dbdir = $io->catfile($tempdir, 'dbfa');
+    mkdir($test_dbdir); # make the directory
+    my $indir = test_input_file('dbfa'); 
+    opendir(INDIR,$indir) || die("cannot open dir $indir");
+    # effectively do a cp -r but only copy the files that are in there, no subdirs
+    for my $file ( map { $io->catfile($indir,$_) } readdir(INDIR) ) {
+	next unless (-f $file );
+	copy($file, $test_dbdir);
+    }
+    closedir(INDIR);
+    return $test_dbdir;
 }
+
+} # SKIP

@@ -630,7 +630,7 @@ sub get_Seq_by_id {
 
 sub set_pack_method {
   my $self = shift;
-  # Find the maximum file size:
+  # Find the maximum file size:eq
   my ($maxsize) = sort { $b <=> $a } map { -s $_ } @_;
   my $fourGB    = (2 ** 32) - 1;
 
@@ -1073,6 +1073,8 @@ sub new {
 		 stop  => $stop  || $db->length($id)
 	       },$class;
 }
+
+sub fetch_sequence { shift->seq(@_) }
 
 sub seq {
   my $self = shift;

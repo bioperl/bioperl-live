@@ -2805,6 +2805,8 @@ sub dna {
   $self->get_dna($id,$start,$stop,$class);
 }
 
+sub fetch_sequence { shift->dna(@_) } 
+
 sub features_in_range {
   my $self = shift;
   my ($range_type,$refseq,$class,$start,$stop,$types,$parent,$sparse,$automerge,$iterator,$other) =

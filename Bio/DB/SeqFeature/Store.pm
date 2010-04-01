@@ -334,7 +334,18 @@ ones:
 		    L<Bio::DB::SeqFeature::Store::GFF3Loader> for a
 		    description of this. Default is the current
                     directory.
+
  -write             Make the database writeable (implied by -create)
+
+ -fasta             Provide an alternative DNA accessor object or path.
+
+By default the database will store DNA sequences internally. However,
+you may override this behavior by passing either a path to a FASTA
+file, or any Perl object that recognizes the seq($seqid,$start,$end)
+method. In the former case, the FASTA path will be passed to
+Bio::DB::Fasta, possibly causing an index to be constructed. Suitable
+examples of the latter type of object include the Bio::DB::Sam and
+Bio::DB::Sam::Fai classes.
 
 =cut
 
@@ -343,12 +354,12 @@ ones:
 #
 sub new {
   my $self      = shift;
-  my ($adaptor,$serializer,$index_subfeatures,$cache,$compress,$debug,$create,$args);
+  my ($adaptor,$serializer,$index_subfeatures,$cache,$compress,$debug,$create,$fasta,$args);
   if (@_ == 1) {
     $args = {DSN => shift}
   }
   else {
-    ($adaptor,$serializer,$index_subfeatures,$cache,$compress,$debug,$create,$args) =
+    ($adaptor,$serializer,$index_subfeatures,$cache,$compress,$debug,$create,$fasta,$args) =
       rearrange(['ADAPTOR',
 		 'SERIALIZER',
 		 'INDEX_SUBFEATURES',
@@ -356,6 +367,7 @@ sub new {
 		 'COMPRESS',
 		 'DEBUG',
 		 'CREATE',
+		 'FASTA',
 		],@_);
   }
   $adaptor ||= 'DBI::mysql';
@@ -373,6 +385,7 @@ sub new {
   $obj->serializer($serializer)               if defined $serializer;
   $obj->index_subfeatures($index_subfeatures) if defined $index_subfeatures;
   $obj->seqfeature_class('Bio::DB::SeqFeature');
+  $obj->set_dna_accessor($fasta)              if defined $fasta;
   $obj->post_init($args);
   $obj;
 }
@@ -984,7 +997,7 @@ match all the filters are returned.
 
  Location filters:
   -seq_id        Chromosome, contig or other DNA segment
-  -seqid         Synonym for -seqid
+  -seqid         Synonym for -seq_id
   -ref           Synonym for -seqid
   -start         Start of range
   -end           End of range
@@ -1251,7 +1264,7 @@ sub fetch_sequence {
   my ($seqid,$start,$end,$class,$bioseq) = rearrange([['NAME','SEQID','SEQ_ID'],
 						      'START',['END','STOP'],'CLASS','BIOSEQ'],@_);
   $seqid = "$seqid:$class" if defined $class;
-  my $seq = $self->_fetch_sequence($seqid,$start,$end);
+  my $seq = $self->seq($seqid,$start,$end);
   return $seq unless $bioseq;
 
   require Bio::Seq unless Bio::Seq->can('new');
@@ -1568,6 +1581,54 @@ sub serializer {
     }
   }
   $d;
+}
+
+=head2 dna_accessor
+
+ Title   : dna_accessor
+ Usage   : $dna_accessor = $db->dna_accessor([$new_dna_accessor])
+ Function: get/set the name of the dna_accessor
+ Returns : the current dna_accessor object, if any
+ Args    : (optional) the dna_accessor object
+ Status  : public
+
+You can use this method to request or set the DNA accessor.
+
+=cut
+
+###
+# dna_accessor
+#
+sub dna_accessor {
+  my $self = shift;
+  my $d    = $self->{dna_accessor};
+  $self->{dna_accessor} = shift if @_;
+  $d;
+}
+
+sub can_do_seq {
+    my $self = shift;
+    my $obj  = shift;
+    return 
+	UNIVERSAL::can($obj,'seq') ||
+	UNIVERSAL::can($obj,'fetch_sequence');
+}
+
+sub set_dna_accessor {
+    my $self = shift;
+    my $accessor = shift;
+    if (-e $accessor) {  # a file, assume it is a fasta file
+	eval "require Bio::DB::Fasta" unless Bio::DB::Fasta->can('new');
+	my $a = Bio::DB::Fasta->new($accessor)
+	    or croak "Can't open FASTA file $accessor: $!";
+	$self->dna_accessor($a);
+    }
+
+    if (ref $accessor && $self->can_do_seq($accessor)) {
+	$self->dna_accessor($accessor);  # already built
+    }
+
+    return;
 }
 
 sub do_compress {
@@ -1962,6 +2023,19 @@ sequence.
 =cut
 
 sub _fetch_sequence    { shift->throw_not_implemented }
+
+sub seq {
+    my $self     = shift;
+    my ($seq_id,$start,$end) = @_;
+    if (my $a = $self->dna_accessor) {
+	return $a->can('seq')           ? $a->seq($seq_id,$start,$end)
+	      :$a->can('fetch_sequence')? $a->fetch_sequence($seq_id,$start,$end)
+          : undef;
+    }
+    else {
+	return $self->_fetch_sequence($seq_id,$start,$end);
+    }
+}
 
 =head2 _seq_ids
 

@@ -6,7 +6,7 @@ use MIME::Base64;
 
 =head1 NAME
 
-Bio::DB::SeqFeature::Store::DBI::Pg -- Mysql implementation of Bio::DB::SeqFeature::Store
+Bio::DB::SeqFeature::Store::DBI::Pg -- PostgreSQL implementation of Bio::DB::SeqFeature::Store
 
 =head1 SYNOPSIS
 
@@ -163,8 +163,6 @@ use Bio::DB::GFF::Util::Rearrange 'rearrange';
 use File::Spec;
 use constant DEBUG=>0;
 
-# from the MySQL documentation...
-# WARNING: if your sequence uses coordinates greater than 2 GB, you are out of luck!
 use constant MAX_INT =>  2_147_483_647;
 use constant MIN_INT => -2_147_483_648;
 use constant MAX_BIN =>  1_000_000_000;  # size of largest feature = 1 Gb
