@@ -1,0 +1,177 @@
+
+seed used = 785596301
+
+
+Data set 1
+     3    141
+
+all_s57600                                 CTC TTC CAC ACC TCC CAC TCC CCC CCC CTC CAC TCC TTC TTC ACC TCC CCT TCC CCC TCC CTC CTT CCC TCC CCC ACC CTC TTC CTT TTC CCC TTC CAC TCC CCC TTC CTC CGC CTC CCC TCC CTC CCC CCC CAC CAC CCC 
+all_s56012                                 CTC CTC CTC ACC TCC CAC TCC CCC CCC TTC CAC TCC TTC TTC ACC CCC CCC TCC CCC CCC CTC CTC CCC TCC CCC ACC CTC TTC CTC TTC CCC TTC CAC TCC TCC TTC CTC CGC CTC TCC TCC CTC CCC CCC CAC CAC CCC 
+all_c11513                                 CTC CTC CTC ACC TCC CAC TCC CCC CCC TTC CAC TCC TTC TTC ACC CCC CCC TCC CCC CCC CTC CTC CCC TCC CCC ACC CCC TTC CTC TTC CCC TTC CAC TCC TCC TTC CTC CGC CTC TCC TCC CTC CCC CCC CAC CAC CCC 
+
+
+
+Printing out site pattern counts
+
+
+        11         93  P
+
+all_s57600            ACC CAC CAC CAC CAC CCC CCC CCC CCC CCC CCC CCT CGC CTC CTC CTC CTC CTC CTC CTT CTT TCC TCC TCC TCC TCC TCC TCC TTC TTC TTC 
+all_s56012            ... ... ... ... .T. ... ... ... ... ... T.. ..C ... ... ... ... ... ... T.. ..C ..C C.. C.. ... ... ... ... ... C.. ... ... 
+all_c11513            ... ... ... ... .T. ... ... ... ... ... T.. ..C ... .C. ... ... ... ... T.. ..C ..C C.. C.. ... ... ... ... ... C.. ... ... 
+
+    3    3    1    1    1    1    5    1    1    1    2    1    1    1    1
+    2    1    1    1    1    1    1    1    1    1    3    1    1    1    5
+    1
+
+CODONML (in paml version 4.4, January 2010)  /scratch/davepaml17/cluster45_fake.phy
+Model: One dN/dS ratio for branches Global clock 
+Codon frequency model: F3x4
+ns =  3  ls =  47
+
+Codon usage in sequences
+--------------------------------------------------------------------------------------------------------------
+Phe TTT  0  0  0  1  0  0 | Ser TCT  0  0  0  0  0  0 | Tyr TAT  0  0  0  0  0  0 | Cys TGT  0  0  0  0  0  0
+    TTC  7  7  7  7  9  7 |     TCC  9 10  8 10  8  9 |     TAC  0  0  0  0  0  0 |     TGC  0  0  0  0  0  0
+Leu TTA  0  0  0  0  0  0 |     TCA  0  0  0  0  0  0 | *** TAA  0  0  0  0  0  0 | *** TGA  0  0  0  0  0  0
+    TTG  0  0  0  0  0  0 |     TCG  0  0  0  0  0  0 |     TAG  0  0  0  0  0  0 | Trp TGG  0  0  0  0  0  0
+--------------------------------------------------------------------------------------------------------------
+Leu CTT  2  1  1  2  1  0 | Pro CCT  1  0  0  0  0  0 | His CAT  0  0  0  0  0  0 | Arg CGT  0  0  0  0  1  0
+    CTC  7  9  4  6  8 10 |     CCC 11 11 19 12 13 12 |     CAC  6  5  4  5  4  5 |     CGC  1  1  1  0  0  1
+    CTA  0  0  0  0  0  0 |     CCA  0  0  0  0  0  0 | Gln CAA  0  0  0  0  0  0 |     CGA  0  0  0  0  0  0
+    CTG  0  0  0  0  0  0 |     CCG  0  0  0  0  0  0 |     CAG  0  0  0  0  0  0 |     CGG  0  0  0  0  0  0
+--------------------------------------------------------------------------------------------------------------
+Ile ATT  0  0  0  0  0  0 | Thr ACT  0  0  0  0  0  0 | Asn AAT  0  0  0  0  0  0 | Ser AGT  0  0  0  0  0  0
+    ATC  0  0  0  0  0  0 |     ACC  3  3  3  4  3  3 |     AAC  0  0  0  0  0  0 |     AGC  0  0  0  0  0  0
+    ATA  0  0  0  0  0  0 |     ACA  0  0  0  0  0  0 | Lys AAA  0  0  0  0  0  0 | Arg AGA  0  0  0  0  0  0
+Met ATG  0  0  0  0  0  0 |     ACG  0  0  0  0  0  0 |     AAG  0  0  0  0  0  0 |     AGG  0  0  0  0  0  0
+--------------------------------------------------------------------------------------------------------------
+Val GTT  0  0  0  0  0  0 | Ala GCT  0  0  0  0  0  0 | Asp GAT  0  0  0  0  0  0 | Gly GGT  0  0  0  0  0  0
+    GTC  0  0  0  0  0  0 |     GCC  0  0  0  0  0  0 |     GAC  0  0  0  0  0  0 |     GGC  0  0  0  0  0  0
+    GTA  0  0  0  0  0  0 |     GCA  0  0  0  0  0  0 | Glu GAA  0  0  0  0  0  0 |     GGA  0  0  0  0  0  0
+    GTG  0  0  0  0  0  0 |     GCG  0  0  0  0  0  0 |     GAG  0  0  0  0  0  0 |     GGG  0  0  0  0  0  0
+--------------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------
+Phe TTT  0  0  0  0  0 | Ser TCT  0  0  0  0  0 | Tyr TAT  0  0  0  0  0 | Cys TGT  0  0  0  0  0
+    TTC  7  8  9  7  7 |     TCC  9 12  9 10 10 |     TAC  0  0  0  0  0 |     TGC  0  0  0  0  0
+Leu TTA  0  0  0  0  0 |     TCA  0  0  0  0  0 | *** TAA  0  0  0  0  0 | *** TGA  0  0  0  0  0
+    TTG  0  0  0  0  0 |     TCG  0  0  0  0  0 |     TAG  0  0  0  0  0 | Trp TGG  0  0  0  0  0
+--------------------------------------------------------------------------------------------------
+Leu CTT  0  1  1  1  1 | Pro CCT  0  0  1  0  0 | His CAT  0  0  1  0  0 | Arg CGT  0  0  0  0  0
+    CTC  9  8  6  9  9 |     CCC 13  8 11 11 11 |     CAC  5  5  5  5  5 |     CGC  1  1  0  1  1
+    CTA  0  0  0  0  0 |     CCA  0  0  0  0  0 | Gln CAA  0  0  0  0  0 |     CGA  0  0  0  0  0
+    CTG  0  0  0  0  0 |     CCG  0  0  0  0  0 |     CAG  0  0  0  0  0 |     CGG  0  0  0  0  0
+--------------------------------------------------------------------------------------------------
+Ile ATT  0  0  0  0  0 | Thr ACT  0  0  0  0  0 | Asn AAT  0  0  0  0  0 | Ser AGT  0  0  0  0  0
+    ATC  0  0  0  0  0 |     ACC  3  4  4  3  3 |     AAC  0  0  0  0  0 |     AGC  0  0  0  0  0
+    ATA  0  0  0  0  0 |     ACA  0  0  0  0  0 | Lys AAA  0  0  0  0  0 | Arg AGA  0  0  0  0  0
+Met ATG  0  0  0  0  0 |     ACG  0  0  0  0  0 |     AAG  0  0  0  0  0 |     AGG  0  0  0  0  0
+--------------------------------------------------------------------------------------------------
+Val GTT  0  0  0  0  0 | Ala GCT  0  0  0  0  0 | Asp GAT  0  0  0  0  0 | Gly GGT  0  0  0  0  0
+    GTC  0  0  0  0  0 |     GCC  0  0  0  0  0 |     GAC  0  0  0  0  0 |     GGC  0  0  0  0  0
+    GTA  0  0  0  0  0 |     GCA  0  0  0  0  0 | Glu GAA  0  0  0  0  0 |     GGA  0  0  0  0  0
+    GTG  0  0  0  0  0 |     GCG  0  0  0  0  0 |     GAG  0  0  0  0  0 |     GGG  0  0  0  0  0
+--------------------------------------------------------------------------------------------------
+
+Codon position x base (3x4) table for each sequence.
+
+#1: all_s57600     
+position  1:    T:0.34043    C:0.59574    A:0.06383    G:0.00000
+position  2:    T:0.34043    C:0.51064    A:0.12766    G:0.02128
+position  3:    T:0.06383    C:0.93617    A:0.00000    G:0.00000
+Average         T:0.24823    C:0.68085    A:0.06383    G:0.00709
+
+#2: all_s56012     
+position  1:    T:0.34043    C:0.59574    A:0.06383    G:0.00000
+position  2:    T:0.36170    C:0.51064    A:0.10638    G:0.02128
+position  3:    T:0.00000    C:1.00000    A:0.00000    G:0.00000
+Average         T:0.23404    C:0.70213    A:0.05674    G:0.00709
+
+#3: all_c11513     
+position  1:    T:0.34043    C:0.59574    A:0.06383    G:0.00000
+position  2:    T:0.34043    C:0.53191    A:0.10638    G:0.02128
+position  3:    T:0.00000    C:1.00000    A:0.00000    G:0.00000
+Average         T:0.22695    C:0.70922    A:0.05674    G:0.00709
+
+Sums of codon usage counts
+------------------------------------------------------------------------------
+Phe F TTT       1 | Ser S TCT       0 | Tyr Y TAT       0 | Cys C TGT       0
+      TTC      82 |       TCC     104 |       TAC       0 |       TGC       0
+Leu L TTA       0 |       TCA       0 | *** * TAA       0 | *** * TGA       0
+      TTG       0 |       TCG       0 |       TAG       0 | Trp W TGG       0
+------------------------------------------------------------------------------
+Leu L CTT      11 | Pro P CCT       2 | His H CAT       1 | Arg R CGT       1
+      CTC      85 |       CCC     132 |       CAC      54 |       CGC       8
+      CTA       0 |       CCA       0 | Gln Q CAA       0 |       CGA       0
+      CTG       0 |       CCG       0 |       CAG       0 |       CGG       0
+------------------------------------------------------------------------------
+Ile I ATT       0 | Thr T ACT       0 | Asn N AAT       0 | Ser S AGT       0
+      ATC       0 |       ACC      36 |       AAC       0 |       AGC       0
+      ATA       0 |       ACA       0 | Lys K AAA       0 | Arg R AGA       0
+Met M ATG       0 |       ACG       0 |       AAG       0 |       AGG       0
+------------------------------------------------------------------------------
+Val V GTT       0 | Ala A GCT       0 | Asp D GAT       0 | Gly G GGT       0
+      GTC       0 |       GCC       0 |       GAC       0 |       GGC       0
+      GTA       0 |       GCA       0 | Glu E GAA       0 |       GGA       0
+      GTG       0 |       GCG       0 |       GAG       0 |       GGG       0
+------------------------------------------------------------------------------
+
+
+Codon position x base (3x4) table, overall
+
+position  1:    T:0.36170    C:0.56867    A:0.06963    G:0.00000
+position  2:    T:0.34623    C:0.52998    A:0.10638    G:0.01741
+position  3:    T:0.03095    C:0.96905    A:0.00000    G:0.00000
+Average         T:0.24629    C:0.68923    A:0.05867    G:0.00580
+
+Codon frequencies under model, for use in evolver (TTT TTC TTA TTG ... GGG):
+  0.00387564  0.12135585  0.00000000  0.00000000
+  0.00593254  0.18576259  0.00000000  0.00000000
+  0.00119084  0.03728811  0.00000000  0.00000000
+  0.00019486  0.00610169  0.00000000  0.00000000
+  0.00609325  0.19079477  0.00000000  0.00000000
+  0.00932709  0.29205456  0.00000000  0.00000000
+  0.00187223  0.05862409  0.00000000  0.00000000
+  0.00030636  0.00959303  0.00000000  0.00000000
+  0.00074611  0.02336262  0.00000000  0.00000000
+  0.00114209  0.03576178  0.00000000  0.00000000
+  0.00022925  0.00717846  0.00000000  0.00000000
+  0.00003751  0.00117466  0.00000000  0.00000000
+  0.00000000  0.00000000  0.00000000  0.00000000
+  0.00000000  0.00000000  0.00000000  0.00000000
+  0.00000000  0.00000000  0.00000000  0.00000000
+  0.00000000  0.00000000  0.00000000  0.00000000
+
+
+
+Nei & Gojobori 1986. dN/dS (dN, dS)
+(Note: This matrix is not used in later ML. analysis.
+Use runmode = -2 for ML pairwise comparison.)
+
+all_s57600          
+all_s56012           0.8758 (0.0717 0.0819)
+all_c11513           1.0080 (0.0826 0.0819) 0.7616 (0.0199 0.0261)
+
+pairwise comparison, codon frequencies: F3x4.
+
+
+2 (all_c56012) ... 1 (all_s57600)
+lnL = -126.880601
+  0.19045  2.92330  0.10941
+
+t= 0.1904  S=     5.8  N=   135.2  dN/dS= 0.1094  dN= 0.0476  dS= 0.4353
+
+
+3 (all_c11513) ... 1 (all_c57600)
+lnL = -142.636697
+  4.21113  0.72684  0.00175
+
+t= 4.2111  S=     4.2  N=   136.8  dN/dS= 0.0018  dN= 0.0789  dS=44.9635
+
+
+3 (all_c11513) ... 2 (all_s56012)
+lnL =  -93.410530
+  0.02176 999.00000  0.13702
+
+t= 0.0218  S=     0.0  N=   141.0  dN/dS= 0.1370  dN= 0.0073  dS=    nan

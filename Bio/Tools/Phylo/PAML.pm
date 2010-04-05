@@ -510,7 +510,7 @@ sub _parse_summary {
             my ($phylip_header) = $self->_readline;
             $self->_parse_seqs;
         }
-        elsif ( ( @lines > 3 ) && ( $self->{'_already_parsed_seqs'} != 1 ) )
+        elsif ( ( @lines >= 3 ) && ( $self->{'_already_parsed_seqs'} != 1 ) )
         {                                                     #No gap
             $self->_parse_seqs;
         }
@@ -920,23 +920,33 @@ sub _parse_PairwiseCodon {
         if (/^pairwise comparison, codon frequencies\:\s*(\S+)\./) {
             $model = $1;
         }
+        # 1st line of a pair block, e.g.
+        # 2 (all_c7259) ... 1 (all_s57600)
         elsif (/^(\d+)\s+\((\S+)\)\s+\.\.\.\s+(\d+)\s+\((\S+)\)/) {
             ( $a, $b ) = ( $1, $3 );
         }
+        # 2nd line of a pair block, e.g.
+        # lnL = -126.880601
         elsif (/^lnL\s+\=\s*(\-?\d+(\.\d+)?)/) {
             $log = $1;
             if ( defined( $_ = $self->_readline ) ) {
+                # 3rd line of a pair block, e.g.
+                # 0.19045  2.92330  0.10941
                 s/^\s+//;
                 ( $t, $kappa, $omega ) = split;
             }
         }
+        # 5th line of a pair block, e.g.
+        # t= 0.1904  S=     5.8  N=   135.2  dN/dS= 0.1094  dN= 0.0476  dS= 0.4353
+        # OR lines like (note last field; this includes a fix for bug #3040)
+        # t= 0.0439  S=     0.0  N=   141.0  dN/dS= 0.1626  dN= 0.0146  dS=    nan
         elsif (
             m/^t\=\s*(\d+(\.\d+)?)\s+
 		 S\=\s*(\d+(\.\d+)?)\s+
 		 N\=\s*(\d+(\.\d+)?)\s+
 		 dN\/dS\=\s*(\d+(\.\d+)?)\s+
 		 dN\=\s*(\d+(\.\d+)?)\s+
-		 dS\=\s*(\d+(\.\d+)?)/ox
+		 dS\=\s*(\d+(\.\d+)?|nan)/ox
           )
         {
             $result[ $b - 1 ]->[ $a - 1 ] = {
@@ -950,6 +960,7 @@ sub _parse_PairwiseCodon {
                 'dS'    => $11
             };
         }
+        # 4th line of a pair block (which is blank)
         elsif (/^\s+$/) {
             next;
         }

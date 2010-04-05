@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 247,
+    test_begin(-tests => 251,
 			   -requires_module => 'IO::String');
 	
 	use_ok('Bio::Tools::Phylo::PAML');
@@ -482,4 +482,19 @@ is($MLmat->[0]->[2]->{'lnL'}, -1512.583367);
     is( $lastsite->[2], 0.971);
     is( $lastsite->[3], '*');
     is( $lastsite->[4], 6.134);
+}
+
+# bug #3040
+{
+    my $parser = Bio::Tools::Phylo::PAML->new
+        (-file => test_input_file('codeml_nan.mlc'));
+    ok($parser);
+
+    my $result = $parser->next_result;
+    ok($result);
+    
+    my $MLmatrix = $result->get_MLmatrix();
+    ok($MLmatrix);
+    
+    is($MLmatrix->[1]->[2]->{'dS'}, 'nan', 'bug 3040');
 }
