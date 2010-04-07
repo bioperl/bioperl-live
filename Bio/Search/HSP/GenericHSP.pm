@@ -1191,7 +1191,8 @@ See documentation in L<Bio::Search::HSP::HSPI::n()|Bio::Search::HSP::HSPI>
 sub n {
     my $self = shift;
     if(@_) { $self->{'N'} = shift; }
-    defined $self->{'N'} ? $self->{'N'} : '';
+    # note that returning 1 is completely an assumption
+    defined $self->{'N'} ? $self->{'N'} : 1;
 }
 
 =head2 range

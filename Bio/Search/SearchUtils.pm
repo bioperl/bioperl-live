@@ -133,30 +133,31 @@ sub tile_hsps {
     #$sbjct->verbose(1);  # to activate debugging
     $sbjct->tiled_hsps(1);
 
-    if( $sbjct->num_hsps == 0 || $sbjct->n == 0 ) { 		
+    # changed to not rely on n() (which is unreliable here) --cjfields 4/6/10
+    if( $sbjct->num_hsps == 0) { 		
 	#print STDERR "_tile_hsps(): no hsps, nothing to tile! (", $sbjct->num_hsps, ")\n";
         _warn_about_no_hsps($sbjct);
         return (undef, undef);
 
-    } elsif( $sbjct->n == 1 or $sbjct->num_hsps == 1) {
+    } elsif($sbjct->num_hsps == 1) {
         ## Simple summation scheme. Valid if there is only one HSP.
-	#print STDERR "_tile_hsps(): single HSP, easy stats.\n";
-	my $hsp = $sbjct->hsp;
-	$sbjct->length_aln('query', $hsp->length('query'));
-	$sbjct->length_aln('hit', $hsp->length('sbjct'));
-	$sbjct->length_aln('total', $hsp->length('total'));
-	$sbjct->matches( $hsp->matches() );
-	$sbjct->gaps('query', $hsp->gaps('query'));
-	$sbjct->gaps('sbjct', $hsp->gaps('sbjct'));
+        #print STDERR "_tile_hsps(): single HSP, easy stats.\n";
+        my $hsp = $sbjct->hsp;
+        $sbjct->length_aln('query', $hsp->length('query'));
+        $sbjct->length_aln('hit', $hsp->length('sbjct'));
+        $sbjct->length_aln('total', $hsp->length('total'));
+        $sbjct->matches( $hsp->matches() );
+        $sbjct->gaps('query', $hsp->gaps('query'));
+        $sbjct->gaps('sbjct', $hsp->gaps('sbjct'));
 
         _adjust_length_aln($sbjct);
-	return (1, 1);
+        return (1, 1);
     } else {
-	#print STDERR "Sbjct: _tile_hsps: summing multiple HSPs\n";
-	$sbjct->length_aln('query', 0);
-	$sbjct->length_aln('sbjct', 0);
-	$sbjct->length_aln('total', 0); 
- 	$sbjct->matches( 0, 0);
+        #print STDERR "Sbjct: _tile_hsps: summing multiple HSPs\n";
+        $sbjct->length_aln('query', 0);
+        $sbjct->length_aln('sbjct', 0);
+        $sbjct->length_aln('total', 0); 
+        $sbjct->matches( 0, 0);
         $sbjct->gaps('query', 0);
         $sbjct->gaps('hit', 0);
     }

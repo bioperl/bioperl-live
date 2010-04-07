@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 1093);
+    test_begin(-tests => 1116);
 	
 	use_ok('Bio::SearchIO');
 }
@@ -81,6 +81,7 @@ while( $hit = $result->next_hit ) {
             is(sprintf("%.4f",$hsp->frac_identical('query')), 0.9829);
             is(sprintf("%.4f",$hsp->frac_identical('hit')), 0.9829);
             is($hsp->gaps, 0);
+            is($hsp->n, 1);
             $hsps_left--;
         }
         is($hsps_left, 0);
@@ -184,6 +185,7 @@ while( $hit = $result->next_hit ) {
             is($hsp->frac_identical('query'), 1.00);
             is($hsp->frac_identical('hit'), 1.00);
             is($hsp->gaps, 0);
+            is($hsp->n, 1);
             $hsps_left--;
         }
         is($hsps_left, 0);
@@ -262,6 +264,7 @@ while( $hit = $result->next_hit ) {
             is($hsp->frac_identical('query'), 1.00);
             is($hsp->frac_identical('hit'), 1.00);
             is($hsp->gaps, 0);
+            is($hsp->n, 1);
             $hsps_left--;
         }
         is($hsps_left, 0);
@@ -345,6 +348,7 @@ while( $hit = $result->next_hit ) {
             is(join(' ', $hsp->seq_inds('query', 'nomatch',1)), '1063-1065 1090-1095 1099-1104 1108-1113 1117-1125');
             is(join(' ', $hsp->seq_inds('hit', 'nomatch',1)), '5825-5833 5837-5842 5846-5851 5855-5860 5885-5887');            
             is($hsp->ambiguous_seq_inds, 'query/subject');
+            is($hsp->n, 1);
             $hsps_left--;
         }
         is($hsps_left, 0);
@@ -435,6 +439,7 @@ while( my $hit = $result->next_hit ) {
 			my $aln = $hsp->get_aln;
             is(sprintf("%.2f", $aln->overall_percentage_identity), 96.67);
             is(sprintf("%.2f",$aln->percentage_identity), 98.31);
+            is($hsp->n, 1);
             $hsps_left--;
         }
         is($hsps_left, 0);
@@ -523,6 +528,7 @@ while( my $hit = $result->next_hit ) {
             is(join(' ', $hsp->seq_inds('query', 'gaps',1)), '347 1004');
             is(join(' ', $hsp->seq_inds('hit', 'gaps',1)), '100 131 197 362 408');
             is($hsp->ambiguous_seq_inds, 'query');
+            is($hsp->n, 1);
             $hsps_left--;
         }
         is($hsps_left, 0);
@@ -640,6 +646,7 @@ while( my $hit = $result->next_hit ) {
             is(join(' ', $hsp->seq_inds('query', 'gaps',1)), '109 328');
             is(join(' ', $hsp->seq_inds('hit', 'gaps',1)), '5077 5170 5368 5863 6001');
             is($hsp->ambiguous_seq_inds, 'subject');
+            is($hsp->n, 1);
             $hsps_left--;
         }
         is($hsps_left, 0);
@@ -709,7 +716,8 @@ while( my $hit = $result->next_hit ) {
                 is($hsp->hit->frame(), 1);
                 is($hsp->gaps('query'), 0);
                 is($hsp->gaps('hit'), 0);
-                is($hsp->gaps, 0);	    
+                is($hsp->gaps, 0);
+                is($hsp->n, 1);
                 is($hsp->query_string, 'ALDYLLSRGFTKELINEFQIGYALDSWDFITKFLVKRGFSEAQMEKAGLLIRREDGSGY');
                 is($hsp->hit_string, 'ARQYLEKRGLSHEVIARFAIGFAPPGWDNVLKRFGGNPENRQSLIDAGMLVTNDQGRSY');
                 is($hsp->homology_string, 'A  YL  RG + E+I  F IG+A   WD + K       +   +  AG+L+  + G  Y');
@@ -744,6 +752,7 @@ while( my $hit = $result->next_hit ) {
             is($hsp->gaps('query'), 0);
             is($hsp->gaps('hit'), 0);
             is($hsp->gaps, 0);
+            is($hsp->n, 1);
             is($hsp->query_string, 'WLPRALPEKATTAP**SWIGNMTRFLKRSKYPLPSSRLIR');
             is($hsp->hit_string, 'WLSRTTVGSSTVSPRTFWITRMKVKLSSSKVTLPSTKSTR');
             is($hsp->homology_string, 'WL R     +T +P   WI  M   L  SK  LPS++  R');
@@ -806,6 +815,7 @@ while( $hit = $result->next_hit ) {
             is($hsp->frac_identical('query'), 1.00);
             is($hsp->frac_identical('hit'), 1.00);
             is($hsp->gaps, 0);
+            is($hsp->n, 1);
             $hsps_left--;
         }
         is($hsps_left, 0);
@@ -969,6 +979,7 @@ while( my $hit = $r->next_hit ) {
     is($hsp->hit->start, shift @$d);
     is($hsp->hit->end, shift @$d);
     is($hsp->hit->strand, shift @$d);
+    is($hsp->n, 1);
     $hits_left--;
 }
 is($hits_left, 0);
@@ -1070,6 +1081,7 @@ while( $iter = $result->next_iteration ) {
                     is(sprintf("%.4f",$hsp->frac_identical('query')), 0.4757);
                     is(sprintf("%.3f",$hsp->frac_identical('hit')), 0.482);
                     is($hsp->gaps, 18);
+                    is($hsp->n, 1);
                     $hsps_left--;
                 }
                 is($hsps_left, 0);
@@ -1186,6 +1198,7 @@ is($hsp->hit->strand, -1);
 is($hsp->hit->start, 1);
 is($hsp->hit->end,94);
 is($hsp->gaps, 7);
+is($hsp->n, 1);
 
 # this is blastn bl2seq 
 $searchio = Bio::SearchIO->new(-format => 'blast',
@@ -1211,6 +1224,7 @@ is($hsp->hit->strand, 1);
 is($hsp->hit->start, 86);
 is($hsp->hit->end,179);
 is($hsp->gaps, 7);
+is($hsp->n, 1);
 
 # this is blastp bl2seq
 $searchio = Bio::SearchIO->new(-format => 'blast',
@@ -1237,6 +1251,8 @@ is($hsp->query->end, 469);
 is($hsp->hit->start, 1);
 is($hsp->hit->end,469);
 is($hsp->gaps, 120);
+is($hsp->n, 1);
+
 ok($hit->next_hsp); # there is more than one HSP here, 
                     # make sure it is parsed at least
 
@@ -1271,6 +1287,7 @@ is($hsp->query->frame,0);
 is($hsp->hit->frame,0);
 is($hsp->query->strand,-1);
 is($hsp->hit->strand,0);
+is($hsp->n, 1);
 
 # this is tblastx bl2seq (self against self)
 $searchio = Bio::SearchIO->new(-format => 'blast',
@@ -1301,6 +1318,7 @@ is($hsp->query->frame,0);
 is($hsp->hit->frame,0);
 is($hsp->query->strand,1);
 is($hsp->hit->strand,1);
+is($hsp->n, 1);
 
 # this is NCBI tblastn
 $searchio = Bio::SearchIO->new(-format => 'blast',
@@ -1376,7 +1394,7 @@ is($hsp->links,'(1)-3-2');
 is($hsp->query->strand, 1);
 is($hsp->hit->strand, 1);
 is($hsp->hsp_group, '1');
-
+is($hsp->n, 1);
 ## Web blast result parsing
 
 $searchio = Bio::SearchIO->new(-format => 'blast',
@@ -1389,6 +1407,7 @@ is($hit->ncbi_gi, 40747822);
 ok($hsp = $hit->next_hsp);
 is($hsp->query->start, 1, 'query start');
 is($hsp->query->end, 528, 'query start');
+is($hsp->n, 1);
 
 # tests for new BLAST 2.2.13 output
 $searchio = Bio::SearchIO->new(-format => 'blast',
@@ -1454,6 +1473,7 @@ while( $hit = $result->next_hit ) {
             is(sprintf("%.4f",$hsp->frac_identical('query')), 0.8522);
             is(sprintf("%.4f",$hsp->frac_identical('hit')), 0.8522);
             is($hsp->gaps, 0);
+            is($hsp->n, 1);
             $hsps_left--;
         }
         is($hsps_left, 0);
@@ -1599,7 +1619,7 @@ while(my $query = $searchio->next_result) {
         $total_n += grep{$_->n} $subject->hsps;
     }
 }
-is($total_n, 10);
+is($total_n, 80);  # n = at least 1, so this was changed to reflect that
 
 sub cmp_evalue ($$) {
 	my ($tval, $aval) = @_;
