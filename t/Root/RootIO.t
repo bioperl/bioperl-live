@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 48);
+    test_begin(-tests => 53);
 	
     use_ok('Bio::Root::IO');
 }
@@ -173,3 +173,22 @@ SKIP: {
   $Bio::Root::IO::HAS_LWP = 0;
   lives_ok {$rio = Bio::Root::IO->new(-url=>$TESTURL)};
 }
+
+##############################################
+# test -string
+##############################################
+
+my $teststring = "Foo\nBar\nBaz";
+ok $rio = Bio::Root::IO->new(-string =>$teststring), 'default -string method';
+
+$line1 = $rio->_readline;
+is($line1, "Foo\n");
+
+$line2 = $rio->_readline;
+is($line2, "Bar\n");
+$rio->_pushback($line2);
+
+$line3 = $rio->_readline;
+is($line3, "Bar\n");
+$line3 = $rio->_readline;
+is($line3, "Baz");

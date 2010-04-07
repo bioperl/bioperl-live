@@ -252,6 +252,7 @@ sub new {
 
            Currently recognizes the following named parameters:
               -file     name of file to open
+              -string   a string that is to be converted to a filehandle
               -url      name of URL to open
               -input    name of file, or GLOB, or IO::Handle object
               -fh       file handle (mutually exclusive with -file)
@@ -276,9 +277,9 @@ sub _initialize_io {
 
     $self->_register_for_cleanup(\&_io_cleanup);
 
-    my ($input, $noclose, $file, $fh, $flush, $url,
+    my ($input, $noclose, $file, $fh, $string, $flush, $url,
     $retries, $ua_parms) = 
-    $self->_rearrange([qw(INPUT NOCLOSE FILE FH  FLUSH URL RETRIES UA_PARMS)],
+    $self->_rearrange([qw(INPUT NOCLOSE FILE FH STRING FLUSH URL RETRIES UA_PARMS)],
                       @args);
 
     if($url){
@@ -332,19 +333,24 @@ sub _initialize_io {
                  "not string and not GLOB");
         }
     }
+    
     if(defined($file) && defined($fh)) {
         $self->throw("Providing both a file and a filehandle for reading - ".
                      "only one please!");
     }
 
+    if ($string) {
+        if(defined($file) || defined($fh)) {
+            $self->throw("File or filehandle provided with -string,".
+                         " please unset if you are using -string as a file");
+        }
+        open($fh, "<", \$string)
+    }
+    
     if(defined($file) && ($file ne '')) {
         $fh = Symbol::gensym();
         open ($fh,$file) || $self->throw("Could not open $file: $!");
         $self->file($file);
-        if ($HAS_EOL) {
-            $self->_load_module('PerlIO::eol');
-            binmode $fh, ':raw:eol(LF-Native)';
-        }
     }
 
     if (defined $fh) {
@@ -358,6 +364,9 @@ sub _initialize_io {
                ) {
             $self->throw("file handle $fh doesn't appear to be a handle");
         }
+    }
+    if ($HAS_EOL) {
+        binmode $fh, ':raw:eol(LF-Native)';
     }
     $self->_fh($fh) if $fh; # if not provided, defaults to STDIN and STDOUT
 
