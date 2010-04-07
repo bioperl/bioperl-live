@@ -13,6 +13,40 @@ use strict;
 use lib '.';
 use Bio::Root::Build;
 
+# XML::SAX::RTF doesn't work with BioPerl, at all, nada, zilch.
+#
+# Since we're running into this now on CPAN Testers, catch it up front and
+# deal with it.
+#
+# See: https://rt.cpan.org/Ticket/Display.html?id=5943
+#      http://bugzilla.open-bio.org/show_bug.cgi?id=2975
+
+{
+
+eval {
+    use XML::SAX;
+    1;
+};
+
+unless ($@) {
+    if (grep {$_->{Name} =~ 'XML::SAX::RTF'} @{XML::SAX->parsers()}) {
+        warn <<WARN;
+############################# WARNING #############################
+
+XML::SAX::RTF is not XML::SAX-compliant but is registered as an
+XML::SAX parser.  If used as the primary parser, modules requiring
+XML::SAX will NOT work.  Please install another XML::SAX-compliant
+module and modify your local ParserDetails.ini file per XML::SAX docs
+to remove references to XML::SAX::RTF.
+
+############################# WARNING #############################
+WARN
+    sleep 3;
+    }
+}
+
+}
+
 our @drivers;
 
 my $mysql_ok = 0;
