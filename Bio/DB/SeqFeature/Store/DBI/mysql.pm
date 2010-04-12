@@ -658,23 +658,24 @@ sub _fetch_sequence {
   $start-- if defined $start;
   $end--   if defined $end;
 
-  my $offset1 = $self->_offset_boundary($seqid,$start || 'left');
-  my $offset2 = $self->_offset_boundary($seqid,$end   || 'right');
+  my $id      = $self->_locationid($seqid);
+  my $offset1 = $self->_offset_boundary($id,$start || 'left');
+  my $offset2 = $self->_offset_boundary($id,$end   || 'right');
   my $sequence_table = $self->_sequence_table;
-  my $locationlist_table = $self->_locationlist_table;
 
-  my $sth     = $self->_prepare(<<END);
+  my $sql = <<END;
 SELECT sequence,offset
-   FROM $sequence_table as s,$locationlist_table as ll
-   WHERE s.id=ll.id
-     AND ll.seqname= ?
-     AND offset >= ?
-     AND offset <= ?
-   ORDER BY offset
+   FROM $sequence_table as s
+   WHERE s.id=?
+     AND s.offset >= ?
+     AND s.offset <= ?
+   ORDER BY s.offset
 END
 
+  my $sth     = $self->_prepare($sql);
   my $seq = '';
-  $sth->execute($seqid,$offset1,$offset2) or $self->throw($sth->errstr);
+  $self->_print_query($sql,$id,$offset1,$offset2) if DEBUG || $self->debug;
+  $sth->execute($id,$offset1,$offset2) or $self->throw($sth->errstr);
 
   while (my($frag,$offset) = $sth->fetchrow_array) {
     substr($frag,0,$start-$offset) = '' if defined $start && $start > $offset;
@@ -697,11 +698,12 @@ sub _offset_boundary {
   my $locationlist_table = $self->_locationlist_table;
 
   my $sql;
-  $sql =  $position eq 'left'  ? "SELECT min(offset) FROM $sequence_table as s,$locationlist_table as ll WHERE s.id=ll.id AND ll.seqname=?"
-         :$position eq 'right' ? "SELECT max(offset) FROM $sequence_table as s,$locationlist_table as ll WHERE s.id=ll.id AND ll.seqname=?"
-	 :"SELECT max(offset) FROM $sequence_table as s,$locationlist_table as ll WHERE s.id=ll.id AND ll.seqname=? AND offset<=?";
+  $sql =  $position eq 'left'  ? "SELECT min(offset) FROM $sequence_table as s WHERE s.id=?"
+         :$position eq 'right' ? "SELECT max(offset) FROM $sequence_table as s WHERE s.id=?"
+	 :"SELECT max(offset) FROM $sequence_table as s WHERE s.id=? AND offset<=?";
   my $sth = $self->_prepare($sql);
   my @args = $position =~ /^-?\d+$/ ? ($seqid,$position) : ($seqid);
+  $self->_print_query($sql,@args) if DEBUG || $self->debug;
   $sth->execute(@args) or $self->throw($sth->errstr);
   my $boundary = $sth->fetchall_arrayref->[0][0];
   $sth->finish;
