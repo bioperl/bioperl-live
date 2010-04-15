@@ -209,6 +209,7 @@ BEGIN {
 
         'BlastOutput_program'             => 'RESULT-algorithm_name',
         'BlastOutput_version'             => 'RESULT-algorithm_version',
+        'BlastOutput_algorithm-reference' => 'RESULT-algorithm_reference',
         'BlastOutput_query-def'           => 'RESULT-query_name',
         'BlastOutput_query-len'           => 'RESULT-query_length',
         'BlastOutput_query-acc'           => 'RESULT-query_accession',
@@ -501,6 +502,26 @@ sub next_result {
                 {
                     'Name' => 'BlastOutput_inclusion-threshold',
                     'Data' => $incl_threshold
+                }
+            );
+        }
+        # parse the BLAST algorithm reference
+        elsif(/^Reference:\s+(.*)$/) {
+            # want to preserve newlines for the BLAST algorithm reference
+            my $algorithm_reference = "$1\n";
+            $_ = $self->_readline;
+            # while the current line, does not match an empty line, a RID:, or a Database:, we are still looking at the
+            # algorithm_reference, append it to what we parsed so far
+            while($_ !~ /^$/ && $_ !~ /^RID:/ && $_ !~ /^Database:/) {
+                $algorithm_reference .= "$_";
+                $_ = $self->_readline;
+            }	
+            # if we exited the while loop, we saw an empty line, a RID:, or a Database:, so push it back		
+            $self->_pushback($_);
+            $self->element(
+                {
+                    'Name' => 'BlastOutput_algorithm-reference',
+                    'Data' => $algorithm_reference
                 }
             );
         }

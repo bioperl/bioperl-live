@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 1116);
+    test_begin(-tests => 1142);
 	
 	use_ok('Bio::SearchIO');
 }
@@ -18,6 +18,12 @@ $searchio = Bio::SearchIO->new('-format' => 'blast',
 		'-file'   => test_input_file('ecolitst.bls'));
 
 $result = $searchio->next_result;
+
+is($result->algorithm_reference, 'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+');
 
 is($result->database_name, 'ecoli.aa', 'database_name()');
 is($result->database_entries, 4289);
@@ -94,6 +100,9 @@ $searchio = Bio::SearchIO->new('-format' => 'blast',
 			       '-file'   => test_input_file('ecolitst.wublastp'));
 
 $result = $searchio->next_result;
+
+is($result->algorithm_reference, 'Gish, W. (1996-2000) http://blast.wustl.edu
+'); 
 
 is($result->database_name, 'ecoli.aa');
 is($result->database_letters, 1358990);
@@ -205,7 +214,8 @@ $searchio = Bio::SearchIO->new('-format' => 'blast',
 			       '-file'   => test_input_file('ecolitst.noseqs.wublastp'));
 
 $result = $searchio->next_result;
-
+is($result->algorithm_reference, 'Gish, W. (1996-2004) http://blast.wustl.edu
+'); 
 is($result->database_name, 'ecoli.aa');
 is($result->database_letters, 1358990);
 is($result->database_entries, 4289);
@@ -278,6 +288,11 @@ $searchio = Bio::SearchIO->new('-format' => 'blast',
 			       '-file'   => test_input_file('HUMBETGLOA.tblastx'));
 
 $result = $searchio->next_result;
+is($result->algorithm_reference, 'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+');
 is($result->database_name, 'ecoli.nt');
 is($result->database_letters, 4662239);
 is($result->database_entries, 400);
@@ -364,6 +379,11 @@ $searchio = Bio::SearchIO->new('-format' => 'blast',
 
 
 $result = $searchio->next_result;
+is($result->algorithm_reference, 'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+');
 is($result->database_name, 'All GenBank+EMBL+DDBJ+PDB sequences (but no EST, STS, GSS,or phase 0, 1 or 2 HTGS sequences) ');
 is($result->database_letters, 4677375331);
 is($result->database_entries, 1083200);
@@ -454,6 +474,10 @@ $searchio = Bio::SearchIO->new('-format' => 'blast',
 			      '-file'   => test_input_file('dnaEbsub_ecoli.wublastx'));
 
 $result = $searchio->next_result;
+is($result->algorithm_reference, 'Gish, W. (1996-2000) http://blast.wustl.edu
+Gish, Warren and David J. States (1993).  Identification of protein coding
+regions by database similarity search.  Nat. Genet. 3:266-72.
+');
 is($result->database_name, 'ecoli.aa');
 is($result->database_letters, 1358990);
 is($result->database_entries, 4289);
@@ -586,6 +610,8 @@ $searchio = Bio::SearchIO->new('-format' => 'blast',
 			      '-file'   => test_input_file('dnaEbsub_ecoli.wutblastn'));
 
 $result = $searchio->next_result;
+is($result->algorithm_reference, 'Gish, W. (1996-2000) http://blast.wustl.edu
+');
 is($result->database_name, 'ecoli.nt');
 is($result->database_letters, 4662239);
 is($result->database_entries, 400);
@@ -660,6 +686,8 @@ $searchio = Bio::SearchIO->new('-format' => 'blast',
 			      '-file'   => test_input_file('dnaEbsub_ecoli.wutblastx'));
 
 $result = $searchio->next_result;
+is($result->algorithm_reference, 'Gish, W. (1996-2000) http://blast.wustl.edu
+');
 is($result->database_name, 'ecoli.nt');
 is($result->database_letters, 4662239);
 is($result->database_entries, 400);
@@ -770,7 +798,8 @@ $searchio = Bio::SearchIO->new('-format' => 'blast',
 			       '-file'   => test_input_file('echofilter.wublastn'));
 
 $result = $searchio->next_result;
-
+is($result->algorithm_reference, 'Gish, W. (1996-2006) http://blast.wustl.edu
+');
 is($result->database_name, 'NM_003201.fa');
 is($result->database_letters, 1936);
 is($result->database_entries, 1);
@@ -832,6 +861,11 @@ $searchio = Bio::SearchIO->new('-format' => 'blast',
 @expected = qw(CATH_RAT CATL_HUMAN CATL_RAT PAPA_CARPA);
 my $results_left = 4;
 while( my $result = $searchio->next_result ) {
+	is($result->algorithm_reference, 'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+');
     is($result->query_name, shift @expected, "Multiblast query test");
     $results_left--;
 }
@@ -842,7 +876,11 @@ is($results_left, 0);
 $searchio = Bio::SearchIO->new('-format' => 'blast',
 			      '-file'   => test_input_file('test.gcgblast'));
 $result = $searchio->next_result();
-
+is($result->algorithm_reference, 'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+');
 is($result->query_name, '/v0/people/staji002/test.gcg');
 is($result->algorithm, 'BLASTP');
 is($result->algorithm_version, '2.2.1 [Apr-13-2001]');
@@ -882,6 +920,11 @@ is($hsp->homology_string, 'C+AEFDF++  T  +   T                 + +   +L +    +  
 $searchio = Bio::SearchIO->new(-format => 'blast',
 				 -file   => test_input_file('testdbaccnums.out'));
 $result = $searchio->next_result;
+is($result->algorithm_reference, 'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+');
 
 @valid = ( ['pir||T14789','T14789','T14789','CAB53709','AAH01726'],
 	   ['gb|NP_065733.1|CYT19', 'NP_065733','CYT19'],
@@ -950,6 +993,10 @@ my @dcompare = ( ['Contig3700', 5631, 396, 785,'0.0', 785, '0.0', 396, 639, 12,
 		  6406, 6620, 1, 1691, 1905, 1]
     );
 
+is($r->algorithm_reference, 'Zheng Zhang, Scott Schwartz, Lukas Wagner, and Webb Miller (2000), 
+"A greedy algorithm for aligning DNA sequences", 
+J Comput Biol 2000; 7(1-2):203-14.
+');
 is($r->algorithm, 'MEGABLAST');
 is($r->query_name, '503384');
 is($r->query_description, '11337 bp 2 contigs');
@@ -990,6 +1037,7 @@ my $parser = Bio::SearchIO->new(-format => 'blast',
 			       -file   => test_input_file('ecoli_domains.rpsblast'));
 
 $r = $parser->next_result;
+is($r->algorithm_reference, undef);
 is($r->query_name, 'gi|1786183|gb|AAC73113.1|');
 is($r->query_gi, 1786183);
 is($r->num_hits, 7);
@@ -1011,7 +1059,11 @@ $searchio = Bio::SearchIO->new('-format' => 'blast',
 			       '-file'   => test_input_file('psiblastreport.out'));
 
 $result = $searchio->next_result;
-
+is($result->algorithm_reference, 'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+');
 is($result->database_name, '/home/peter/blast/data/swissprot.pr');
 is($result->database_entries, 88780);
 is($result->database_letters, 31984247);
@@ -1159,6 +1211,7 @@ $result = $searchio->next_result;
 isa_ok($result,'Bio::Search::Result::ResultI');
 is($result->query_name, '');
 is($result->algorithm, 'BLASTP');
+is($result->algorithm_reference, undef);
 $hit = $result->next_hit;
 is($hit->name, 'ALEU_HORVU');
 is($hit->length, 362);
@@ -1181,6 +1234,7 @@ $result = $searchio->next_result;
 isa_ok($result,'Bio::Search::Result::ResultI');
 is($result->query_name, '');
 is($result->algorithm, 'BLASTN');
+is($result->algorithm_reference, undef);
 is($result->query_length, 180);
 $hit = $result->next_hit;
 is($hit->length, 179);
@@ -1208,6 +1262,7 @@ isa_ok($result,'Bio::Search::Result::ResultI');
 is($result->query_name, '');
 is($result->query_length, 180);
 is($result->algorithm, 'BLASTN');
+is($result->algorithm_reference, undef);
 $hit = $result->next_hit;
 is($hit->name, 'human');
 is($hit->length, 179);
@@ -1267,6 +1322,7 @@ isa_ok($result,'Bio::Search::Result::ResultI');
 is($result->query_name, 'AE000111.1');
 is($result->query_description, 'Escherichia coli K-12 MG1655 section 1 of 400 of the complete genome');
 is($result->algorithm, 'BLASTX');
+is($result->algorithm_reference, undef);
 is($result->query_length, 720);
 $hit = $result->next_hit;
 is($hit->name, 'AK1H_ECOLI');
@@ -1296,6 +1352,7 @@ $result = $searchio->next_result;
 isa_ok($result,'Bio::Search::Result::ResultI');
 is($result->query_name, 'Escherichia');
 is($result->algorithm, 'TBLASTX');
+is($result->algorithm_reference, undef);
 is($result->query_description, 'coli K-12 MG1655 section 1 of 400 of the complete genome');
 is($result->query_length, 720);
 $hit = $result->next_hit;
@@ -1326,6 +1383,11 @@ $searchio = Bio::SearchIO->new(-format => 'blast',
 $result = $searchio->next_result;
 isa_ok($result,'Bio::Search::Result::ResultI');
 is($result->algorithm, 'TBLASTN');
+is($result->algorithm_reference, 'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+"Gapped BLAST and PSI-BLAST: a new generation of protein database search
+programs",  Nucleic Acids Res. 25:3389-3402.
+');
 $hit = $result->next_hit;
 is($hit->name,'gi|10040111|emb|AL390796.6|AL390796');
 
@@ -1333,6 +1395,8 @@ is($hit->name,'gi|10040111|emb|AL390796.6|AL390796');
 $searchio = Bio::SearchIO->new(-file   => test_input_file('no_hsps.blastp'),
 			      -format => 'blast');
 $result = $searchio->next_result;
+is($result->algorithm_reference, 'Gish, W. (1996-2003) http://blast.wustl.edu
+'); 
 is($result->query_name, 'mgri:MG00189.3');
 $hit = $result->next_hit;
 is($hit->name, 'mgri:MG00189.3');
@@ -1419,6 +1483,11 @@ is($result->database_entries, 3742891);
 is($result->database_letters, 16670205594);
 is($result->algorithm, 'BLASTN');
 is($result->algorithm_version, '2.2.13 [Nov-27-2005]');
+is($result->algorithm_reference, 'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schäffer, 
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman 
+(1997), "Gapped BLAST and PSI-BLAST: a new generation of 
+protein database search programs", Nucleic Acids Res. 25:3389-3402.
+');
 is($result->query_name, 'pyrR,');
 is($result->query_length, 558);
 is($result->get_statistic('kappa'), '0.711');
