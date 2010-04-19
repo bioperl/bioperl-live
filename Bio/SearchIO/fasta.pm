@@ -173,7 +173,7 @@ use base qw(Bio::SearchIO);
  Function: Builds a new Bio::SearchIO::fasta object 
  Returns : Bio::SearchIO::fasta
  Args    : -idlength - set ID length to something other 
-                       than the default (7), this is only
+                       than the default (6), this is only
                        necessary if you have compiled FASTA
                        with a new default id length to display
                        in the HSP alignment blocks
