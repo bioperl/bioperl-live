@@ -996,6 +996,7 @@ sub _run {
     } @files;
     @files = map { defined $_ ? $_ : () } @files; # squish undefs
     my @ipc_args = ( $exe, @$options, @files );
+    $self->{_last_execution} = join( $self->{'_options'}->{'_join'}, @ipc_args );
     eval {
 	IPC::Run::run(\@ipc_args, $in, $out, $err) or
 	    die ("There was a problem running $exe : ".$$err);
@@ -1025,6 +1026,21 @@ sub no_throw_on_crash {
     my $self = shift;
     return $self->{'_no_throw'} = shift if @_;
     return $self->{'_no_throw'};
+}
+
+=head2 last_execution()
+
+ Title   : last_execution
+ Usage   : 
+ Function: return the last executed command with options
+ Returns : string of command line sent to IPC::Run
+ Args    : 
+
+=cut
+
+sub last_execution {
+    my $self = shift;
+    return $self->{'_last_execution'};
 }
 
 =head2 _dash_switch()
