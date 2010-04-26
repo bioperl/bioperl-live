@@ -210,6 +210,7 @@ BEGIN {
         'BlastOutput_program'             => 'RESULT-algorithm_name',
         'BlastOutput_version'             => 'RESULT-algorithm_version',
         'BlastOutput_algorithm-reference' => 'RESULT-algorithm_reference',
+        'BlastOutput_rid'                 => 'RESULT-rid',
         'BlastOutput_query-def'           => 'RESULT-query_name',
         'BlastOutput_query-len'           => 'RESULT-query_length',
         'BlastOutput_query-acc'           => 'RESULT-query_accession',
@@ -522,6 +523,16 @@ sub next_result {
                 {
                     'Name' => 'BlastOutput_algorithm-reference',
                     'Data' => $algorithm_reference
+                }
+            );
+        }
+        # parse BLAST RID (Request ID)
+        elsif(/^RID:\s+(.*)$/) {
+            my $rid = $1;
+            $self->element(
+                {
+                    'Name' => 'BlastOutput_rid',
+                    'Data' => $rid
                 }
             );
         }

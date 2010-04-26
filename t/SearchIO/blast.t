@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 1142);
+    test_begin(-tests => 1147);
 	
 	use_ok('Bio::SearchIO');
 }
@@ -384,6 +384,7 @@ Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
 "Gapped BLAST and PSI-BLAST: a new generation of protein database search
 programs",  Nucleic Acids Res. 25:3389-3402.
 ');
+is($result->rid, '1012577175-3730-28291');
 is($result->database_name, 'All GenBank+EMBL+DDBJ+PDB sequences (but no EST, STS, GSS,or phase 0, 1 or 2 HTGS sequences) ');
 is($result->database_letters, 4677375331);
 is($result->database_entries, 1083200);
@@ -925,6 +926,7 @@ Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
 "Gapped BLAST and PSI-BLAST: a new generation of protein database search
 programs",  Nucleic Acids Res. 25:3389-3402.
 ');
+is($result->rid, '1036160600-011802-21377');
 
 @valid = ( ['pir||T14789','T14789','T14789','CAB53709','AAH01726'],
 	   ['gb|NP_065733.1|CYT19', 'NP_065733','CYT19'],
@@ -1464,6 +1466,7 @@ is($hsp->n, 1);
 $searchio = Bio::SearchIO->new(-format => 'blast',
 			       -file   => test_input_file('catalase-webblast.BLASTP'));
 ok($result = $searchio->next_result);
+is($result->rid, '1118324516-16598-103707467515.BLASTQ1');
 ok($hit = $result->next_hit);
 is($hit->name, 'gi|40747822|gb|EAA66978.1|', 'full hit name');
 is($hit->accession, 'EAA66978', 'hit accession');
@@ -1488,6 +1491,7 @@ Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman
 (1997), "Gapped BLAST and PSI-BLAST: a new generation of 
 protein database search programs", Nucleic Acids Res. 25:3389-3402.
 ');
+is($result->rid, '1141079027-8324-8848328247.BLASTQ4');
 is($result->query_name, 'pyrR,');
 is($result->query_length, 558);
 is($result->get_statistic('kappa'), '0.711');
@@ -1560,6 +1564,7 @@ is($result->database_entries, 4460989);
 is($result->database_letters, 1533424333);
 is($result->algorithm, 'BLASTP');
 is($result->algorithm_version, '2.2.15 [Oct-15-2006]');
+is($result->rid, '1169055516-21385-22799250964.BLASTQ4');
 is($result->query_name, 'gi|15608519|ref|NP_215895.1|');
 is($result->query_gi, 15608519);
 is($result->query_length, 193);

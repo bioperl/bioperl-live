@@ -433,6 +433,25 @@ sub algorithm_reference{
    return '';
 }
 
+=head2 rid
+
+ Title   : rid
+ Usage   : $obj->rid($newval)
+ Function:
+ Returns : value of the BLAST Request ID (eg. RID: ZABJ4EA7014)
+ Args    : newvalue (optional)
+ Comments: The default implementation in ResultI returns an empty string
+           rather than throwing a NotImplemented exception, since
+           the RID may not always be available and is not critical.
+           See: (1) http://www.ncbi.nlm.nih.gov/Class/MLACourse/Modules/BLAST/rid.html
+                (2) http://www.ncbi.nlm.nih.gov/staff/tao/URLAPI/new/node63.html
+=cut
+
+sub rid{
+   my ($self) = @_;
+   return '';
+}
+
 =head2 num_hits
 
  Title   : num_hits
