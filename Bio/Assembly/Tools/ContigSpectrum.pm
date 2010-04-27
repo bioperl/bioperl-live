@@ -141,8 +141,7 @@ information. The get/set methods to access them are:
 
     to_string       create a string representation of the spectrum
     spectrum        import a hash contig spectrum
-    contig          determine a contig spectrum from a contig
-    assembly        determine a contig spectrum from an assembly
+    assembly        determine a contig spectrum from an assembly, contig or singlet
     dissolve        calculate a dissolved contig spectrum (depends on assembly)
     cross           produce a cross contig spectrum (depends on assembly)
     add             add a contig spectrum to an existing one
@@ -553,39 +552,17 @@ sub spectrum {
   return $spectrum;
 }
 
-=head2 contig
-
-  Title   : contig
-  Usage   : my @obj_list = $csp->contig();
-  Function: Update the contig spectrum object by adding a contig or singlet
-            object / get a reference to the list of assembly, contig and singlet
-            objects used in the contig spectrum.
-  Returns : array reference of Bio::Assembly::Scaffold, Bio::Assembly::Contig and
-            Bio::Assembly::Singlet objects
-  Args    : Bio::Assembly::Contig or Bio::Assembly::Singlet object
-
-=cut
-
-sub contig {
-  my ($self, $contig) = @_;
-  if (defined $contig) {
-    $self->_import_contig($contig);
-  }
-  my @obj_list = @{$self->{'_assembly'}} if defined $self->{'_assembly'};
-  return \@obj_list;
-}
-
 
 =head2 assembly
 
   Title   : assembly
   Usage   : my @obj_list = $csp->assembly();
-  Function: Update the contig spectrum object by adding an assembly object / get
-            a reference to the list of assembly, contig and singlet objects used
-            in the contig spectrum object.
-  Returns : array reference of Bio::Assembly::Scaffold, Bio::Assembly::Contig and
-            Bio::Assembly::Singlet objects
-  Args    : Bio::Assembly::Scaffold object
+  Function: Update the contig spectrum object by adding an assembly, contig or
+            singlet object to it
+  Returns : arrayref of assembly, contig and singlet objects used in the contig
+            spectrum object (Bio::Assembly::Scaffold, Bio::Assembly::Contig and
+            Bio::Assembly::Singlet objects)
+  Args    : Bio::Assembly::Scaffold, Contig or Singlet object
 
 =cut
 
@@ -594,8 +571,24 @@ sub assembly {
   if (defined $assembly) {
     $self->_import_assembly($assembly);
   }
+  return $self->get_assembly();
+}
+
+
+=head2 get_assembly
+
+  Title   : get_assembly
+  Usage   : $csp->get_assembly();
+  Function: Get all assembly objects associated with a contig spectrum.
+  Returns : array reference of Bio::Assembly::Scaffold, Contig and Singlet objects
+  Args    : none
+
+=cut
+
+sub get_assembly {
+  my ($self) = @_;
   my @obj_list = @{$self->{'_assembly'}} if defined $self->{'_assembly'};
-  return \@obj_list;
+  return @obj_list;
 }
 
 
@@ -959,9 +952,9 @@ sub _naive_assembler {
   Title   : _new_from_assembly
   Usage   : 
   Function: Creates a new contig spectrum object based solely on the result of 
-            an assembly
-  Returns : Bio::Assembly::Tools::ContigSpectrum
-  Args    : Bio::Assembly::Scaffold
+            an assembly, contig or singlet
+  Returns : Bio::Assembly::Tools::ContigSpectrum object
+  Args    : Bio::Assembly::Scaffold, Contig or Singlet object
 
 =cut
 
@@ -985,7 +978,7 @@ sub _new_from_assembly {
   # 3: Set sequence statistics: nof_seq and avg_seq_len
   ($csp->{'_avg_seq_len'}, $csp->{'_nof_seq'}) = $self->_get_assembly_seq_stats($assemblyobj);
   # 4: Set the spectrum: spectrum and max_size
-  for my $contigobj ($assemblyobj->all_contigs) {
+  for my $contigobj ( $self->_get_contig_like($assemblyobj) ) {
     my $size = $contigobj->num_sequences;
     if (defined $csp->{'_spectrum'}{$size}) {
       $csp->{'_spectrum'}{$size}++;
@@ -994,55 +987,8 @@ sub _new_from_assembly {
     }
     $csp->{'_max_size'} = $size if $size > $csp->{'_max_size'};
   }
-  my $nof_singlets = $assemblyobj->get_nof_singlets();
-  if (defined $nof_singlets) {
-    $csp->{'_spectrum'}{1} += $nof_singlets;
-    $csp->{'_max_size'} = 1 if $nof_singlets >= 1 && $csp->{'_max_size'} < 1;
-  }
   # 5: Set list of assembly objects used
   push @{$csp->{'_assembly'}}, $assemblyobj;
-  # 6: Set number of repetitions
-  $csp->{'_nof_rep'} = 1;
-  return $csp;
-}
-
-
-=head2 _new_from_contig
-
-  Title   : _new_from_contig
-  Usage   :
-  Function: Creates a new contig spectrum object based solely on a contig or
-            singlet
-  Returns : Bio::Assembly::Tools::ContigSpectrum
-  Args    : Bio::Assembly::Contig or Bio::Assembly::Singlet
-
-=cut
-
-sub _new_from_contig {
-  # Create new contig spectrum object based purely on what we can get from a
-  # contig object
-  my ($self, $contigobj) = @_;
-  my $csp = Bio::Assembly::Tools::ContigSpectrum->new();
-  # 1: Set id
-  $csp->{'_id'} = $contigobj->id;
-  # 2: Set overlap statistics: nof_overlaps, min_overlap, avg_overlap,
-  #  min_identity and avg_identity
-  $csp->{'_eff_asm_params'} = $self->{'_eff_asm_params'};
-  $csp->{'_min_overlap'}    = $self->{'_min_overlap'};
-  $csp->{'_min_identity'}   = $self->{'_min_identity'};
-  if ($csp->{'_eff_asm_params'} > 0) {
-     ( $csp->{'_avg_overlap'}, $csp->{'_avg_identity'}, $csp->{'_min_overlap'}, 
-       $csp->{'_min_identity'}, $csp->{'_nof_overlaps'} )
-       = $csp->_get_contig_overlap_stats($contigobj);
-  }
-  # 3: Set sequence statistics: nof_seq and avg_seq_len
-  ($csp->{'_avg_seq_len'}, $csp->{'_nof_seq'}) = $csp->_get_contig_seq_stats($contigobj);
-  # 4: Set the spectrum: spectrum and max_size
-  my $size = $contigobj->num_sequences;
-  $csp->{'_spectrum'}{$size} = 1;
-  $csp->{'_max_size'} = $size;
-  # 5: Set list of assembly objects used
-  push @{$csp->{'_assembly'}}, $contigobj;
   # 6: Set number of repetitions
   $csp->{'_nof_rep'} = 1;
   return $csp;
@@ -1109,42 +1055,28 @@ sub _new_dissolved_csp {
   my $asm_spectrum = { 1 => 0 };
   my $good_seqs = {};
   for my $obj (@{$mixed_csp->{'_assembly'}}) {
+    
     # Dissolve this assembly/contig/singlet for the given sequences
-    if ($obj->isa('Bio::Assembly::Scaffold')) {
-      my $assembly = $obj;
-      # For each contig/singlet
-      for my $contig ($assembly->all_contigs, $assembly->all_singlets) {
-         ($asm_spectrum, $good_seqs) = $self->_dissolve_contig($dissolved, $contig, $seq_header, $asm_spectrum, $good_seqs);
-      }
-    } elsif ($obj->isa('Bio::Assembly::Contig')) {
-      # a contig or singlet
-      my $contig = $obj;
-      ($asm_spectrum, $good_seqs) = $self->_dissolve_contig($dissolved, $contig, $seq_header, $asm_spectrum, $good_seqs);
+    for my $contig ( $self->_get_contig_like($obj) ) {
+      ($asm_spectrum, $good_seqs) = $self->_dissolve_contig($dissolved, $contig,
+        $seq_header, $asm_spectrum, $good_seqs);
     }
 
     # Update spectrum
     $dissolved->_import_spectrum($asm_spectrum);
+
     # Update nof_rep
     $dissolved->{'_nof_rep'}--;
     $dissolved->{'_nof_rep'} += $mixed_csp->{'_nof_rep'};
 
     # Get sequence and overlap stats
-    if ($obj->isa('Bio::Assembly::Scaffold')) {
-      ($dissolved->{'_avg_seq_len'}, $dissolved->{'_nof_seq'}) =
-        $dissolved->_get_assembly_seq_stats($obj, $good_seqs);
-      if ($dissolved->{'_eff_asm_params'} > 0) {
-        ( $dissolved->{'_avg_overlap'}, $dissolved->{'_avg_identity'}, $dissolved->{'_min_overlap'},
-          $dissolved->{'_min_identity'}, $dissolved->{'_nof_overlaps'} )
-          = $dissolved->_get_assembly_overlap_stats($obj, $good_seqs);
-      }
-    } elsif ($obj->isa('Bio::Assembly::Contig')) {
-      ($dissolved->{'_avg_seq_len'}, $dissolved->{'_nof_seq'}) =
-        $dissolved->_get_contig_seq_stats($obj, $good_seqs);
-      if ($dissolved->{'_eff_asm_params'} > 0) {
-        ( $dissolved->{'_avg_overlap'}, $dissolved->{'_avg_identity'}, $dissolved->{'_min_overlap'},
-          $dissolved->{'_min_identity'}, $dissolved->{'_nof_overlaps'} )
-          = $dissolved->_get_contig_overlap_stats($obj, $good_seqs);
-      }
+    ($dissolved->{'_avg_seq_len'}, $dissolved->{'_nof_seq'}) =
+      $dissolved->_get_assembly_seq_stats($obj, $good_seqs);
+    if ($dissolved->{'_eff_asm_params'} > 0) {
+      ( $dissolved->{'_avg_overlap'}, $dissolved->{'_avg_identity'},
+        $dissolved->{'_min_overlap'}, $dissolved->{'_min_identity'},
+        $dissolved->{'_nof_overlaps'} ) 
+        = $dissolved->_get_assembly_overlap_stats($obj, $good_seqs);
     }
 
   }
@@ -1175,7 +1107,9 @@ sub _dissolve_contig {
 
   # Update spectrum
   my $size = scalar @contig_seqs;
-  if ($size == 1) {
+  if ($size == 0) {
+    # do nothing
+  } elsif ($size == 1) {
     $$asm_spectrum{1}++;
   } elsif ($size > 1) {
     # Reassemble good sequences
@@ -1186,7 +1120,9 @@ sub _dissolve_contig {
     for my $qsize (keys %$contig_spectrum) {
       $$asm_spectrum{$qsize} += $$contig_spectrum{$qsize};
     }
-  } 
+  } else {
+     $self->throw("The size is not valid... how could that happen?");
+  }
 
   return $asm_spectrum, $good_seqs;
 }
@@ -1237,35 +1173,23 @@ sub _new_cross_csp {
   my $spectrum = {1 => 0};
   my $good_seqs = {};
   for my $obj (@{$mixed_csp->{'_assembly'}}) {
-    if ($obj->isa('Bio::Assembly::Scaffold')) {
-      # Go through contigs and skip the pure ones
-      my $assembly = $obj;
-      for my $contig ($assembly->all_contigs) {
-        ($spectrum, $good_seqs) = $self->_cross_contig($cross, $contig, $spectrum, $good_seqs);
-      }
-      # Get sequence stats
-      ($cross->{'_avg_seq_len'}, $cross->{'_nof_seq'}) = $cross->_get_assembly_seq_stats($assembly, $good_seqs);
-      # Get eff_asm_param for these sequences
-      if ($cross->{'_eff_asm_params'} > 0) {
-        ( $cross->{'_avg_overlap'}, $cross->{'_avg_identity'}, $cross->{'_min_overlap'},
-          $cross->{'_min_identity'}, $cross->{'_nof_overlaps'} )
-          = $cross->_get_assembly_overlap_stats($assembly, $good_seqs);
-      }
-    } elsif ($obj->isa('Bio::Assembly::Contig')) {
-      my $contig = $obj;
-      ($spectrum, $good_seqs) = $self->_cross_contig($cross, $contig, $spectrum, $good_seqs);
-      # Get sequence stats
-      ($cross->{'_avg_seq_len'}, $cross->{'_nof_seq'}) = $cross->_get_contig_seq_stats($contig, $good_seqs);
-      # Get eff_asm_param for these sequences
-      if ($cross->{'_eff_asm_params'} > 0) {
-        ( $cross->{'_avg_overlap'}, $cross->{'_avg_identity'}, $cross->{'_min_overlap'},
-          $cross->{'_min_identity'}, $cross->{'_nof_overlaps'} )
-          = $cross->_get_contig_overlap_stats($contig, $good_seqs);
-      }  
+    # Go through contigs and skip the pure ones
+    for my $contig ( $self->_get_contig_like($obj) ) {
+      ($spectrum, $good_seqs) = $self->_cross_contig($cross, $contig, $spectrum,
+        $good_seqs);
+    }
+    # Get sequence stats
+    ( $cross->{'_avg_seq_len'}, $cross->{'_nof_seq'} )
+      = $cross->_get_assembly_seq_stats($obj, $good_seqs);
+    # Get eff_asm_param for these sequences
+    if ($cross->{'_eff_asm_params'} > 0) {
+      ( $cross->{'_avg_overlap'}, $cross->{'_avg_identity'}, $cross->{'_min_overlap'},
+        $cross->{'_min_identity'}, $cross->{'_nof_overlaps'} )
+        = $cross->_get_assembly_overlap_stats($obj, $good_seqs);
     }
   }
-
   $cross->_import_spectrum($spectrum);
+
   # Update nof_rep
   $cross->{'_nof_rep'}--;
   $cross->{'_nof_rep'} += $mixed_csp->{'_nof_rep'};
@@ -1342,18 +1266,21 @@ sub _cross_contig {
 
   Title   : _import_assembly
   Usage   : $csp->_import_assembly($assemblyobj);
-  Function: Update a contig spectrum object based on an assembly object
+  Function: Update a contig spectrum object based on an assembly, contig or
+            singlet object
   Returns : 1 for success
-  Args    : Bio::Assembly::Scaffold assembly object
+  Args    : Bio::Assembly::Scaffold, Contig or Singlet object
 
 =cut
 
 sub _import_assembly {
   my ($self, $assemblyobj) = @_;
   # Sanity check
-  if( !ref $assemblyobj || ! $assemblyobj->isa('Bio::Assembly::ScaffoldI') ) {
-        $self->throw("Unable to process non Bio::Assembly::ScaffoldI assembly ".
-        "object [".ref($assemblyobj)."]");
+  if ( ! ref $assemblyobj                                ||
+       ( ! $assemblyobj->isa('Bio::Assembly::ScaffoldI') &&
+         ! $assemblyobj->isa('Bio::Assembly::Contig')    )) {
+    $self->throw("Unable to process non Bio::Assembly::ScaffoldI, Contig or ".
+      "Singlet object [".ref($assemblyobj)."]");
   }
   # Create new object from assembly
   my $csp = $self->_new_from_assembly($assemblyobj);
@@ -1363,31 +1290,6 @@ sub _import_assembly {
   return 1;
 }
 
-=head2 _import_contig
-
-  Title   : _import_contig
-  Usage   : $csp->_import_contig($contigobj);
-  Function: Update a contig spectrum object based on an contig object
-  Returns : 1 for success
-  Args    : Bio::Assembly::Contig or Bio::Assembly::Singlet object
-
-=cut
-
-sub _import_contig {
-  my ($self, $contigobj) = @_;
-  # Sanity check
-  if( !ref $contigobj || ! $contigobj->isa('Bio::Assembly::Contig') ) {
-        $self->throw("Unable to process non Bio::Assembly::Contig or Bio::".
-        "Assembly::Singlet object [".ref($contigobj)."]");
-  }
-  # Create new object from contig
-  my $csp = $self->_new_from_contig($contigobj);
-
-  # Update current contig spectrum object with new one
-  $self->add($csp);
-
-  return 1;
-}
 
 =head2 _import_spectrum
 
@@ -1486,6 +1388,29 @@ sub _import_cross_csp {
   return 1;
 }
 
+=head2 _get_contig_like
+
+  Title   : _get_contig_like
+  Usage   : my @contig_like_objs = $csp->_get_contig_like($assembly_obj);
+  Function: Get contigs and singlets from an assembly, contig or singlet
+  Returns : array of Bio::Assembly::Contig and Singlet objects
+  Args    : a Bio::Assembly::Scaffold, Contig or singlet object
+
+=cut
+
+sub _get_contig_like {
+  my ($self, $assembly_obj) = @_;
+  my @contig_objs;
+  if ($assembly_obj->isa('Bio::Assembly::ScaffoldI')) {
+    # all contigs and singlets in the scaffold
+    push @contig_objs, ($assembly_obj->all_contigs, $assembly_obj->all_singlets);
+  } else {
+    # a contig or singlet
+    @contig_objs = $assembly_obj;
+  }
+  return @contig_objs;
+}
+
 
 =head2 _get_assembly_seq_stats
 
@@ -1495,7 +1420,7 @@ sub _import_cross_csp {
               average sequence length, number of sequences
   Returns : average sequence length (decimal)
             number of sequences (integer)
-  Args    : assembly object reference
+  Args    : Bio::Assembly::Scaffold, Contig or singlet object
             hash reference with the IDs of the sequences to consider [optional]
 
 =cut
@@ -1503,18 +1428,21 @@ sub _import_cross_csp {
 sub _get_assembly_seq_stats {
   my ($self, $assemblyobj, $seq_hash) = @_;
 
-  # Sanity check
-  $self->throw("Must provide a Bio::Assembly::Scaffold object")
-    if (!defined $assemblyobj || !$assemblyobj->isa("Bio::Assembly::ScaffoldI"));
+  # Sanity checks
+  if ( !defined $assemblyobj ||
+       ( !$assemblyobj->isa('Bio::Assembly::ScaffoldI') &&
+         !$assemblyobj->isa('Bio::Assembly::Contig')       ) ) {
+    $self->throw("Must provide a Bio::Assembly::Scaffold, Contig or Singlet object");
+  }
   $self->throw("Expecting a hash reference. Got [".ref($seq_hash)."]")
     if (defined $seq_hash && ! ref($seq_hash) eq 'HASH');
 
   # Update sequence stats
   my @asm_stats = (0,0);
   # asm_stats = (avg_seq_len, nof_seq)
-  for my $contigobj ($assemblyobj->all_contigs, $assemblyobj->all_singlets) {
-    my @contig_stats = $self->_get_contig_seq_stats($contigobj, $seq_hash);
-    @asm_stats = $self->_update_seq_stats(@asm_stats, @contig_stats);
+  for my $contigobj ( $self->_get_contig_like($assemblyobj) ) {
+    @asm_stats = $self->_update_seq_stats( @asm_stats,
+      $self->_get_contig_seq_stats($contigobj, $seq_hash) );
   }
 
   return @asm_stats;
@@ -1591,7 +1519,7 @@ sub _update_seq_stats {
             minimum overlap length
             minimum identity percent
             number of overlaps
-  Args    : assembly object reference
+  Args    : Bio::Assembly::Scaffold, Contig or Singlet object
             hash reference with the IDs of the sequences to consider [optional]
 
 =cut
@@ -1600,17 +1528,20 @@ sub _get_assembly_overlap_stats {
   my ($self, $assembly_obj, $seq_hash) = @_;
 
   # Sanity check
-  $self->throw("Must provide a Bio::Assembly::ScaffoldI object")
-    if (!defined $assembly_obj || !$assembly_obj->isa("Bio::Assembly::ScaffoldI"));
+  if ( !defined $assembly_obj ||
+       ( !$assembly_obj->isa('Bio::Assembly::ScaffoldI') &&
+         !$assembly_obj->isa('Bio::Assembly::Contig')       ) ) {
+    $self->throw("Must provide a Bio::Assembly::ScaffoldI, Contig or Singlet object");
+  }
   $self->throw("Expecting a hash reference. Got [".ref($seq_hash)."]")
     if (defined $seq_hash && ! ref($seq_hash) eq 'HASH');
 
   # Look at all the contigs (no singlets!)
   my @asm_stats = (0, 0, undef, undef, 0);
   # asm_stats = (avg_length, avg_identity, min_length, min_identity, nof_overlaps)
-  for my $contig_obj ($assembly_obj->all_contigs()) {
-    my @contig_stats = $self->_get_contig_overlap_stats($contig_obj, $seq_hash);
-    @asm_stats = $self->_update_overlap_stats(@asm_stats, @contig_stats);
+  for my $contig_obj ( $self->_get_contig_like($assembly_obj) ) {
+    @asm_stats = $self->_update_overlap_stats(  @asm_stats,
+      $self->_get_contig_overlap_stats($contig_obj, $seq_hash) );
   }
 
   return @asm_stats;
@@ -1634,7 +1565,7 @@ sub _get_assembly_overlap_stats {
             minimum overlap length
             minimum identity percent
             number of overlaps
-  Args    : contig or singlet object
+  Args    : Bio::Assembly::Contig or Singlet object
             hash reference with the IDs of the sequences to consider [optional]
 
 =cut
@@ -1654,7 +1585,7 @@ sub _get_contig_overlap_stats {
   my @seq_objs = $contig_obj->each_seq;
   my $nof_seqs = scalar @seq_objs;
 
-  # Skip contigs of 1 sequence (there shouldn't be any...)
+  # Skip contigs of 1 sequence (they have no overlap)
   if ($nof_seqs <= 1) {
     return @contig_stats;
   }
@@ -1703,7 +1634,10 @@ sub _get_contig_overlap_stats {
 
   # Process overlaps
   my $nof_pairs = scalar keys %overlaps;
-  if ($nof_pairs == 1) {
+  if ($nof_pairs == 0) {
+    # No overlaps, nothing to do
+
+  } elsif ($nof_pairs == 1) {
     # A unique overlap
     my $i = (keys %overlaps)[0];
     my $j = (keys %{$overlaps{$i}})[0];
@@ -1712,7 +1646,7 @@ sub _get_contig_overlap_stats {
     my @overlap_stats = ($length, $identity);
     @contig_stats = $self->_update_overlap_stats(@contig_stats, @overlap_stats);
 
-  } elsif ($nof_pairs > 1) {
+  } else {
     # At least 2 overlaps. Find the set of overlaps that goes through all the
     # reads of the contig and maximizes the total overlap score. Use the graph
     # theory minimum spanning tree (MST) method to solve this problem.

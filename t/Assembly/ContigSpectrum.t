@@ -56,6 +56,7 @@ is($spectrum_csp->avg_overlap, 0);
 is($spectrum_csp->min_identity, undef);
 is($spectrum_csp->avg_identity, 0);
 is($spectrum_csp->avg_seq_len, 0);
+is(scalar $spectrum_csp->get_assembly, 0);
 
 ok(my $string = $spectrum_csp->to_string(1));
 is($string, '1 2 3');
@@ -68,7 +69,6 @@ is($string, "1\n2\n3");
 ok(my $mixed_csp = Bio::Assembly::Tools::ContigSpectrum->new(
   -assembly       => $sc,
   -eff_asm_params => 1 ), 'mixed contig spectrum');
-is(scalar @{$mixed_csp->assembly()}, 1);
 is_deeply($mixed_csp->spectrum, {1=>0, 2=>3, 6=>1, 9=>1}); # [0 3 0 0 0 1 0 0 1]
 is($mixed_csp->eff_asm_params, 1);
 is($mixed_csp->max_size, 9);
@@ -80,6 +80,7 @@ is($mixed_csp->min_overlap, 35);
 is($mixed_csp->avg_overlap, 155.875);
 float_is($mixed_csp->min_identity, 96.8421);
 float_is($mixed_csp->avg_identity, 98.8826);
+is(scalar $mixed_csp->get_assembly, 1);
 
 # dissolved contig spectrum
 ok(my $dissolved_csp = Bio::Assembly::Tools::ContigSpectrum->new(
@@ -204,7 +205,6 @@ float_is($avg_csp->avg_identity, 99.1487);
 
 # drop assembly info from contig spectrum
 ok($mixed_csp->drop_assembly(), 'drop assembly');
-is(scalar @{$mixed_csp->assembly()}, 0);
 
 # score
 my $test_csp;
@@ -233,7 +233,7 @@ isa_ok($sc, 'Bio::Assembly::Scaffold');
 ok(my $large_csp = Bio::Assembly::Tools::ContigSpectrum->new(
   -assembly       => $sc,
   -eff_asm_params => 1 ), 'large contig');
-is(scalar @{$large_csp->assembly()}, 1);
+is(scalar $large_csp->get_assembly(), 1);
 is_deeply($large_csp->spectrum, {1=>0, 27=>1});
 is($large_csp->eff_asm_params, 1);
 is($large_csp->max_size, 27);
@@ -255,9 +255,11 @@ $sc = $in->next_assembly;
 ok($csp = Bio::Assembly::Tools::ContigSpectrum->new(
   -eff_asm_params => 1 ), 'one contig at a time');
 for my $contig ($sc->all_contigs) {
-  ok($csp->contig($contig));
+  ok($csp->assembly($contig));
 }
-is(scalar @{$csp->assembly()}, 5);
+
+
+is(scalar $csp->assembly(), 5);
 is_deeply($csp->spectrum, {1=>0, 2=>3, 6=>1, 9=>1}); # [0 3 0 0 0 1 0 0 1]
 is($csp->eff_asm_params, 1);
 is($csp->max_size, 9);
