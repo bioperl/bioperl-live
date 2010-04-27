@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 1147);
+    test_begin(-tests => 1153);
 	
 	use_ok('Bio::SearchIO');
 }
@@ -1699,3 +1699,29 @@ sub cmp_evalue ($$) {
 	my ($tval, $aval) = @_;
 	is(sprintf("%g",$tval), sprintf("%g",$aval));
 }
+
+# bug 3064 - All-gap Query/Subject lines for BLAST+ do not have numbering
+
+$file = test_input_file('blast_plus.blastp');
+
+$searchio = Bio::SearchIO->new(-format => 'blast',
+							  -file   => $file);
+
+my $total_hsps = 0;
+while(my $query = $searchio->next_result) {
+    while(my $subject = $query->next_hit) {
+        while (my $hsp = $subject->next_hsp) {
+            $total_hsps++;
+            if ($total_hsps == 1) {
+                is($hsp->start('query'), 5);
+                is($hsp->start('hit'), 3);
+                is($hsp->end('query'), 220);
+                is($hsp->end('hit'), 308);
+                is(length($hsp->query_string), length($hsp->hit_string));
+            }
+        }
+    }
+}
+
+is($total_hsps, 2);
+

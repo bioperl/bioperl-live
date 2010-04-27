@@ -1,0 +1,93 @@
+BLASTP 2.2.23+
+
+
+Reference: Stephen F. Altschul, Thomas L. Madden, Alejandro A.
+Schaffer, Jinghui Zhang, Zheng Zhang, Webb Miller, and David J.
+Lipman (1997), "Gapped BLAST and PSI-BLAST: a new generation of
+protein database search programs", Nucleic Acids Res. 25:3389-3402.
+
+
+
+Reference for composition-based statistics: Alejandro A. Schaffer,
+L. Aravind, Thomas L. Madden, Sergei Shavirin, John L. Spouge, Yuri
+I. Wolf, Eugene V. Koonin, and Stephen F. Altschul (2001),
+"Improving the accuracy of PSI-BLAST protein database searches with
+composition-based statistics and other refinements", Nucleic Acids
+Res. 29:2994-3005.
+
+
+
+Database: subject.fa
+           1 sequences; 311 total letters
+
+
+
+Query=  query
+Length=220
+                                                                      Score     E
+Sequences producing significant alignments:                          (Bits)  Value
+
+  subject                                                              162    4e-45
+
+
+> subject
+Length=311
+
+ Score =  162 bits (411),  Expect = 4e-45, Method: Compositional matrix adjust.
+ Identities = 110/308 (35%), Positives = 145/308 (47%), Gaps = 94/308 (30%)
+
+Query  5    NNTQISGFLLMGLSNKPELQLPIFGLFLSMYLITVFGNLLIILDISSDSHLHTPMYFF--  62
+            N + IS F L G+S  PE Q  +FG+FL MYL+T+ GNLLIIL I SD HLHTPMYFF  
+Sbjct  3    NQSSISEFFLRGISAPPEQQQSLFGIFLCMYLVTLTGNLLIILAIGSDLHLHTPMYFFLA  62
+
+Query       ------------------------------------------------------------  
+                                                                        
+Sbjct  63   NLSFVDMGLTSSTVTKMLVNIQTRHHTISYTGCLTQMYFFLMFGDLDSFFLAAMAYDRYV  122
+
+Query  63   --------------------------LANLXV--QSLMLLQLSFCSEVEIPHFFCELHQM  94
+                                      L N+     + ++ +LSFC   EI HFFC++  +
+Sbjct  123  AICHPLCYSTVMRPQVCALMLALCWVLTNIVALTHTFLMARLSFCVTGEIAHFFCDITPV  182
+
+Query  95   IQLACSDTFLNDTVIYV--STVLLACGPLTGILYSYSKIVSSICRISSAQGKYKAFSTCA  152
+            ++L+CSDT +N+ +++V   TVL+   P   I+ SY  IV +I R+ +  G  KAFSTC+
+Sbjct  183  LKLSCSDTHINEMMVFVLGGTVLIV--PFLCIVTSYIHIVPAILRVRTRGGVGKAFSTCS  240
+
+Query  153  SHLSVVSLFYCTVLGVYLSCAATQSSHGSAVASVMYTVVTPMLNPFIYSLRNKDIKEALI  212
+            SHL VV +FY T+   YL   +  S      A+ MYT+VTPMLNPFIYSLRNKD+K AL 
+Sbjct  241  SHLCVVCVFYGTLFSAYLCPPSIASEEKDIAAAAMYTIVTPMLNPFIYSLRNKDMKGALK  300
+
+Query  213  RFLRRVTI  220
+            R     +I
+Sbjct  301  RLFSHRSI  308
+
+
+ Score = 15.0 bits (27),  Expect = 1.9, Method: Compositional matrix adjust.
+ Identities = 6/10 (60%), Positives = 8/10 (80%), Gaps = 0/10 (0%)
+
+Query  125  LYSYSKIVSS  134
+            L+S+  IVSS
+Sbjct  302  LFSHRSIVSS  311
+
+
+
+Lambda     K      H
+   0.328    0.139    0.412 
+
+Gapped
+Lambda     K      H
+   0.267   0.0410    0.140 
+
+Effective search space used: 55770
+
+
+  Database: subject.fa
+    Posted date:  Apr 26, 2010  2:49 PM
+  Number of letters in database: 311
+  Number of sequences in database:  1
+
+
+
+Matrix: BLOSUM62
+Gap Penalties: Existence: 11, Extension: 1
+Neighboring words threshold: 11
+Window for multiple hits: 40
