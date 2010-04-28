@@ -80,7 +80,7 @@ sub next_dataset {
                 last FASTQ
             }
             chomp $line;
-            if (!$line) {
+            if ($line =~ /^$/) {
                 delete $self->{lastline};
                 last FASTQ;
             }
