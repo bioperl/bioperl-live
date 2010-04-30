@@ -885,7 +885,7 @@ END
 
   my $sth = $self->dbh->do_query($query);
   my @results;
-  while (my ($class,$name,$note) = $sth->fetchrow_array) {
+  while (my ($class,$name,$note,$method,$source) = $sth->fetchrow_array) {
      next unless $class && $name;    # sorry, ignore NULL objects
      my @matches = $note =~ /($regex)/g;
      my $relevance = 10*@matches;
