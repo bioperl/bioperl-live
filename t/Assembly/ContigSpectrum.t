@@ -3,7 +3,7 @@ use strict;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin( -tests            => 249,
+    test_begin( -tests            => 223,
                 -requires_modules => [qw(Graph::Undirected)] );
     use_ok('Bio::Assembly::IO');
     use_ok('Bio::Assembly::Tools::ContigSpectrum');
@@ -143,25 +143,16 @@ is_deeply($dissolved_csp->spectrum, {1=>3, 5=>1}); # [3 0 0 0 1]
 # after dissolving, the remaining assembly objects should be 3 singlets and 1 6-contig
 my @contigs = ($dissolved_csp->assembly);
 is(scalar @contigs, 4);
-my ($contig1, $contig2, $contig3, $contig4) = @contigs;
-is( $contig1->num_sequences, 1 );
-is( $contig1->isa('Bio::Assembly::Singlet'), 1) ;
-is( $contig1->seqref->id, 'ABC|SDSU_RFPERU_005_F02.x01.phd.1' );
-is( $contig2->num_sequences, 1 );
-is( $contig2->isa('Bio::Assembly::Singlet'), 1 );
-is( $contig2->seqref->id, 'ABC|9944760');
-is( $contig3->num_sequences, 1 );
-is( $contig3->isa('Bio::Assembly::Singlet'), 1 );
-is( $contig3->seqref->id, 'ABC|9970175' );
-is( $contig4->num_sequences, 5 );
-is( $contig4->isa('Bio::Assembly::Contig'), 1 );
-my @reads = $contig4->each_seq;
-my ($read1, $read2, $read3, $read4, $read5) = @reads;
-is( $read1->id, 'ABC|9980040' );
-is( $read2->id, 'ABC|9937790' );
-is( $read3->id, 'ABC|9956706' );
-is( $read4->id, 'ABC|9960711' );
-is( $read5->id, 'ABC|9976538' );
+my @contig_ids = sort qw(ABC|SDSU_RFPERU_005_F02.x01.phd.1 ABC|9944760 ABC|9970175 NoName);
+is_deeply( [sort map($_->id, @contigs)], \@contig_ids );
+my @contig_sizes = sort qw( 1 1 1 5 );
+is_deeply( [sort map($_->num_sequences, @contigs)], \@contig_sizes );
+my @contig_isas = sort qw( Bio::Assembly::Singlet Bio::Assembly::Singlet
+Bio::Assembly::Singlet Bio::Assembly::Contig );
+is_deeply( [sort map(ref $_, @contigs)], \@contig_isas );
+my @reads = ($contigs[3])->each_seq;
+my @read_ids = sort qw( ABC|9980040 ABC|9937790 ABC|9956706 ABC|9960711 ABC|9976538);
+is_deeply( [sort map($_->id, @reads)], \@read_ids );
 
 ok($dissolved_csp = Bio::Assembly::Tools::ContigSpectrum->new(
   -min_overlap  => 62,
@@ -200,30 +191,17 @@ is_deeply($cross_csp->spectrum, {1=>7, 2=>2, 9=>1}); # [7 2 0 0 0 0 0 0 1]
 # assembly should have 2 singlets and 1 9-contig
 @contigs = $cross_csp->assembly;
 is(scalar @contigs, 3);
-($contig1, $contig2, $contig3) = @contigs;
-is($contig1->num_sequences, 2);
-is($contig1->isa('Bio::Assembly::Contig'), 1);
-($read1, $read2) = $contig1->each_seq;
-is($read1->id, 'sdsu|SDSU_RFPERU_006_E04.x01.phd.1');
-is($read2->id, 'ZZZ|SDSU_RFPERU_010_B05.x01.phd.1');
-is($contig2->num_sequences, 2);
-is($contig2->isa('Bio::Assembly::Contig'), 1);
-($read1, $read2) = $contig2->each_seq;
-is($read1->id, 'sdsu|SDSU_RFPERU_013_H05.x01.phd.1');
-is($read2->id, 'ABC|SDSU_RFPERU_005_F02.x01.phd.1');
-is($contig3->num_sequences, 9);
-is($contig3->isa('Bio::Assembly::Contig'), 1);
-my ($read6, $read7, $read8, $read9);
-($read1,$read2,$read3,$read4,$read5,$read6,$read7,$read8,$read9)=$contig3->each_seq;
-is($read1->id, 'sdsu|9986984');
-is($read2->id, 'ABC|9937790');
-is($read3->id, 'ABC|9944760');
-is($read4->id, 'ABC|9956706');
-is($read5->id, 'ABC|9960711');
-is($read6->id, 'ABC|9970175');
-is($read7->id, 'ABC|9976538');
-is($read8->id, 'ABC|9980040');
-is($read9->id, 'ZZZ|9962187');
+@contig_sizes = sort qw( 2 2 9 );
+is_deeply( [sort map($_->num_sequences, @contigs)], \@contig_sizes );
+@contig_isas = sort qw( Bio::Assembly::Contig Bio::Assembly::Contig Bio::Assembly::Contig);
+is_deeply( [sort map(ref $_, @contigs)], \@contig_isas );
+@read_ids = sort qw(sdsu|SDSU_RFPERU_006_E04.x01.phd.1 ZZZ|SDSU_RFPERU_010_B05.x01.phd.1);
+is_deeply( [sort map($_->id, $contigs[0]->each_seq)], \@read_ids );
+@read_ids = sort qw(sdsu|SDSU_RFPERU_013_H05.x01.phd.1 ABC|SDSU_RFPERU_005_F02.x01.phd.1);
+is_deeply( [sort map($_->id, $contigs[1]->each_seq)], \@read_ids );
+@read_ids = sort qw( ZZZ|9962187 ABC|9937790 ABC|9944760 ABC|9956706
+        sdsu|9986984 ABC|9960711 ABC|9970175 ABC|9976538 ABC|9980040);
+is_deeply( [sort map($_->id, $contigs[2]->each_seq)], \@read_ids );
 
 # effective assembly params
 ok($cross_csp = Bio::Assembly::Tools::ContigSpectrum->new(
