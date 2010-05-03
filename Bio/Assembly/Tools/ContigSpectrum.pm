@@ -507,7 +507,7 @@ sub avg_seq_len {
   Usage   : $csp->eff_asm_params(1)
   Function: Get/set the effective assembly parameters option. It defines if the
             effective assembly parameters should be determined when a contig
-            spectrum based or derived from an assembly is calulated. The
+            spectrum based or derived from an assembly is calculated. The
             effective assembly parameters include avg_seq_length, nof_overlaps,
             min_overlap, avg_overlap, min_identity and avg_identity.
             1 = get them, 0 = don't.
@@ -557,8 +557,8 @@ sub spectrum {
 
   Title   : assembly
   Usage   : my @obj_list = $csp->assembly();
-  Function: Update the contig spectrum object by adding an assembly, contig or
-            singlet object to it
+  Function: get/set the contig spectrum object by adding an assembly, contig or
+            singlet object to it, or get the list of objects associated with it
   Returns : arrayref of assembly, contig and singlet objects used in the contig
             spectrum object (Bio::Assembly::Scaffold, Bio::Assembly::Contig and
             Bio::Assembly::Singlet objects)
@@ -571,22 +571,6 @@ sub assembly {
   if (defined $assembly) {
     $self->_import_assembly($assembly);
   }
-  return $self->get_assembly();
-}
-
-
-=head2 get_assembly
-
-  Title   : get_assembly
-  Usage   : $csp->get_assembly();
-  Function: Get all assembly objects associated with a contig spectrum.
-  Returns : array reference of Bio::Assembly::Scaffold, Contig and Singlet objects
-  Args    : none
-
-=cut
-
-sub get_assembly {
-  my ($self) = @_;
   my @obj_list = @{$self->{'_assembly'}} if defined $self->{'_assembly'};
   return @obj_list;
 }
@@ -597,8 +581,10 @@ sub get_assembly {
   Title   : drop_assembly
   Usage   : $csp->drop_assembly();
   Function: Remove all assembly objects associated with a contig spectrum.
-            Assembly objects can be big. This method allows to free some memory
-            when assembly information is not needed anymore.
+            Assembly objects can take a lot of memory, which can be freed by
+            calling this method. Don't call this method if you need the assembly
+            object later on, for example for creating a dissolved or cross
+            contig spectrum.
   Returns : 1 for success
   Args    : none
 
@@ -610,23 +596,23 @@ sub drop_assembly {
   return 1;
 }
 
+
 =head2 dissolve
 
   Title   : dissolve
   Usage   : $dissolved_csp->dissolve($mixed_csp, $seq_header);
   Function: Dissolve a mixed contig spectrum for the set of sequences that
             contain the specified header, i.e. determine the contribution of
-            these sequences to the mixed contig spectrum based on the assembly.
-            The mixed contig spectrum object must have been created based on one
-            (or several) assembly object(s). Additionally, min_overlap and
-            min_identity must have been set (either manually using min_overlap
-            or automatically by switching on the eff_asm_params option).
+            these sequences to the mixed contig spectrum. The mixed contig
+            spectrum object must have one or several assembly object(s). In
+            addition, min_overlap, min_identity and eff_asm_params are taken
+            from the mixed contig spectrum, unless they are specified manually
+            for the dissolved contig spectrum.
   Returns : 1 for success
   Args    : Bio::Assembly::Tools::ContigSpectrum reference
             sequence header string
 
 =cut
-
 
 sub dissolve {
   my ($self, $mixed_csp, $seq_header) = @_;
@@ -851,14 +837,13 @@ sub score {
 
   Title   : _naive_assembler
   Usage   : 
-  Function: Determines the contig spectrum (hash representation) of a subset of
-            sequences from a mixed contig spectrum by "reassembling" the
-            specified sequences only based on their position in the contig. This
-            naive assembly only verifies that the minimum overlap length and
-            percentage identity are respected. There is no actual alignment done
-  Returns : contig spectrum hash reference
+  Function: Reassemble the specified sequences only based on their position in
+            the contig. This naive assembly only verifies that the minimum
+            overlap length and percentage identity are respected. No actual
+            alignment is done
+  Returns : arrayref of contigs and singlets
   Args    : Bio::Assembly::Contig
-            sequence ID array reference
+            sequence ID array reference [optional]
             minimum overlap length (integer) [optional]
             minimum percentage identity (integer) [optional]
 
@@ -866,6 +851,14 @@ sub score {
 
 sub _naive_assembler {
   my ($self, $contig, $seqlist, $min_overlap, $min_identity) = @_;
+
+  # Use all reads if none was specified:
+  if (not defined $seqlist) {
+    for my $seq ($contig->each_seq) {
+      push @$seqlist, $seq->id;
+    }
+  }
+
   # Sanity checks
   if ( ! ref $seqlist || ! ref($seqlist) eq 'ARRAY') {
     $self->throw('Expecting an array reference. Got ['.ref($seqlist)."] \n");
@@ -873,16 +866,17 @@ sub _naive_assembler {
   my $max = scalar @$seqlist;
   $self->throw("Expecting at least 2 sequences as input for _naive_assembler")
     if ($max < 2);
+
   # Assembly
-  my %spectrum = (1 => 0);
   my %overlap_map;
   my %has_overlap;
+  my @objs;
+
   # Map what sequences overlap with what sequences
   for (my $i = 0 ; $i < $max-1 ; $i++) {
     # query sequence
     my $qseqid = $$seqlist[$i];
     my $qseq   = $contig->get_seq_by_name($qseqid);
-    my $is_singlet = 1;
     for (my $j = $i+1 ; $j < $max ; $j++) {
       # target sequence
       my $tseqid = $$seqlist[$j];
@@ -890,31 +884,30 @@ sub _naive_assembler {
       # try to align sequences
       my ($aln, $overlap, $identity)
         = $self->_overlap_alignment($contig, $qseq, $tseq, $min_overlap,
-        $min_identity);
-      # if there is no valid overlap, go to next sequence
+        $min_identity);    
+      # if there is no overlap, or overlap is not stringent enough, go to next sequence
       next if ! defined $aln;
       # the overlap is valid
-      $is_singlet = 0;
       push @{$overlap_map{$qseqid}}, $tseqid;
-      $has_overlap{$tseqid} = 1;
-      $has_overlap{$qseqid} = 1;
+      $has_overlap{$tseqid} = undef;
+      $has_overlap{$qseqid} = undef;
     }
+
     # check if sequence is in previously seen overlap
-    if (exists $has_overlap{$qseqid}) {
-      $is_singlet = 0;
-    }
-    if ($is_singlet == 1) {
-      $spectrum{1}++;
+    if (not exists $has_overlap{$qseqid}) {
+      # make a new singlet to put in contig list
+      push @objs, Bio::Assembly::Singlet->new(-id => $qseqid, -seqref => $qseq);
     }
   }
   # take care of last sequence
-  my $last_is_singlet = 1;
-  if (exists $has_overlap{$$seqlist[$max-1]}) {
-    $last_is_singlet = 0;
+  my $last_id  = $$seqlist[$max - 1];
+  if (not exists $has_overlap{$last_id}) {
+    # make a new singlet to put in contig list
+    my $last_seq = $contig->get_seq_by_name($last_id);
+    push @objs, Bio::Assembly::Singlet->new(-id => $last_id, -seqref => $last_seq);
   }
-  if ($last_is_singlet == 1) {
-    $spectrum{1}++;
-  }
+  %has_overlap = ();
+
   # Parse overlap map
   for my $seqid (@$seqlist) {
     # list of sequences that should go in the contig
@@ -935,15 +928,21 @@ sub _naive_assembler {
         $j--;
       }
     }
-    # update spectrum with size of contig
-    my $qsize = scalar(@overlist) + 1;
-    if (defined $spectrum{$qsize}) {
-      $spectrum{$qsize}++;
-    } else {
-      $spectrum{$qsize} = 1;
+
+    # create a new contig to put in list of contigs
+    my $subcontig = Bio::Assembly::Contig->new();
+    for my $id ($seqid, @overlist) { 
+      my $seq      = $contig->get_seq_by_name($id);
+      my $oldcoord = $contig->get_seq_coord($seq);
+      my $newcoord = Bio::SeqFeature::Generic->new(-start => $oldcoord->start,
+                                                   -end   => $oldcoord->end  );
+      $subcontig->set_seq_coord( $newcoord, $seq );
     }
+    push @objs, $subcontig;
+
   }
-  return \%spectrum;
+
+  return \@objs;
 }
 
 
@@ -970,7 +969,7 @@ sub _new_from_assembly {
   $csp->{'_eff_asm_params'} = $self->{'_eff_asm_params'};
   $csp->{'_min_overlap'}    = $self->{'_min_overlap'};
   $csp->{'_min_identity'}   = $self->{'_min_identity'};
-  if ($csp->{'_eff_asm_params'} > 0) {
+  if ( $csp->{'_eff_asm_params'} > 0 ) {
     ( $csp->{'_avg_overlap'}, $csp->{'_avg_identity'}, $csp->{'_min_overlap'},
       $csp->{'_min_identity'}, $csp->{'_nof_overlaps'} )
       = $csp->_get_assembly_overlap_stats($assemblyobj);
@@ -997,11 +996,12 @@ sub _new_from_assembly {
 
 =head2 _new_dissolved_csp
 
-  Title   : 
-  Usage   : create a dissolved contig spectrum object
-  Function: 
-  Returns : 
-  Args    : 
+  Title   : _new_dissolved_csp
+  Usage   : 
+  Function: create a dissolved contig spectrum object
+  Returns : dissolved contig spectrum
+  Args    : mixed contig spectrum
+            header of sequences to keep in this contig spectrum
 
 =cut
 
@@ -1011,14 +1011,14 @@ sub _new_dissolved_csp {
 
   # min_overlap and min_identity must be specified if there are some overlaps
   # in the mixed contig
-  unless ($mixed_csp->{'_nof_overlaps'} == 0) {
-    unless ( defined $self->{'_min_overlap'} || 
-      defined $mixed_csp->{'_min_overlap'} ) {
+  if ($mixed_csp->{'_nof_overlaps'} > 0) {
+    unless ( defined $self->{'_min_overlap'}      || 
+             defined $mixed_csp->{'_min_overlap'}  ) {
       $self->throw("min_overlap must be defined in the dissolved contig spectrum".
         " or mixed contig spectrum to dissolve a contig");
     }
-    unless ( defined $self->{'_min_identity'} ||
-      defined $mixed_csp->{'_min_identity'} ) {
+    unless ( defined $self->{'_min_identity'}      ||
+             defined $mixed_csp->{'_min_identity'}  ) {
       $self->throw("min_identity must be defined in the dissolved contig spectrum".
         " or mixed contig spectrum");
     }
@@ -1034,59 +1034,69 @@ sub _new_dissolved_csp {
   # New dissolved contig spectrum object
   my $dissolved = Bio::Assembly::Tools::ContigSpectrum->new();
 
-  # Take parent attributes if existent or mixed attributes otherwise
+  # Take attributes of the parent contig spectrum if they exist, or those of the
+  # mixed contig spectrum otherwise
+  my ($eff_asm_params, $min_overlap, $min_identity);
   if ($self->{'_eff_asm_params'}) {
-    $dissolved->{'_eff_asm_params'} = $self->{'_eff_asm_params'};
+    $eff_asm_params = $self->{'_eff_asm_params'};
   } else {
-    $dissolved->{'_eff_asm_params'} = $mixed_csp->{'_eff_asm_params'};
+    $eff_asm_params = $mixed_csp->{'_eff_asm_params'};
   }
   if ($self->{'_min_overlap'}) {
-    $dissolved->{'_min_overlap'} = $self->{'_min_overlap'};
+    $min_overlap = $self->{'_min_overlap'};
   } else {
-    $dissolved->{'_min_overlap'} = $mixed_csp->{'_min_overlap'};
+    $min_overlap = $mixed_csp->{'_min_overlap'};
   }
   if ($self->{'_min_identity'}) {
-    $dissolved->{'_min_identity'} = $self->{'_min_identity'};
+    $min_identity = $self->{'_min_identity'};
   } else {
-    $dissolved->{'_min_identity'} = $mixed_csp->{'_min_identity'};
+    $min_identity = $mixed_csp->{'_min_identity'};
   }
+  ($dissolved->{'_eff_asm_params'}, $dissolved->{'_min_overlap'},
+    $dissolved->{'_min_identity'}) = ($eff_asm_params, $min_overlap,
+    $min_identity);
 
   # Dissolve each assembly
-  my $asm_spectrum = { 1 => 0 };
-  my $good_seqs = {};
   for my $obj (@{$mixed_csp->{'_assembly'}}) {
-    
-    # Dissolve this assembly/contig/singlet for the given sequences
     for my $contig ( $self->_get_contig_like($obj) ) {
-      ($asm_spectrum, $good_seqs) = $self->_dissolve_contig($dissolved, $contig,
-        $seq_header, $asm_spectrum, $good_seqs);
+
+      # Dissolve this assembly/contig/singlet for the given sequences
+      my $dissolved_objs = $self->_dissolve_contig( $contig, $seq_header,
+        $min_overlap, $min_identity );
+
+      # Add dissolved contigs to contig spectrum
+      for my $dissolved_obj (@$dissolved_objs) {
+        $dissolved->assembly($dissolved_obj);
+        $dissolved->{'_nof_rep'}--;
+      }
+
     }
-
-    # Update spectrum
-    $dissolved->_import_spectrum($asm_spectrum);
-
-    # Update nof_rep
-    $dissolved->{'_nof_rep'}--;
-    $dissolved->{'_nof_rep'} += $mixed_csp->{'_nof_rep'};
-
-    # Get sequence and overlap stats
-    ($dissolved->{'_avg_seq_len'}, $dissolved->{'_nof_seq'}) =
-      $dissolved->_get_assembly_seq_stats($obj, $good_seqs);
-    if ($dissolved->{'_eff_asm_params'} > 0) {
-      ( $dissolved->{'_avg_overlap'}, $dissolved->{'_avg_identity'},
-        $dissolved->{'_min_overlap'}, $dissolved->{'_min_identity'},
-        $dissolved->{'_nof_overlaps'} ) 
-        = $dissolved->_get_assembly_overlap_stats($obj, $good_seqs);
-    }
-
   }
+
+  # Update nof_rep
+  $dissolved->{'_nof_rep'} += $mixed_csp->{'_nof_rep'};
+
   return $dissolved;
 }
 
 
-sub _dissolve_contig {
-  my ($self, $dissolved, $contig, $seq_header, $asm_spectrum, $good_seqs) = @_;
+=head2 _dissolve_contig
 
+  Title   : _dissolve_contig
+  Usage   : 
+  Function: dissolve a contig
+  Returns : arrayref of contigs and singlets
+  Args    : mixed contig spectrum
+            header of sequences to keep in this contig spectrum
+            minimum overlap
+            minimum identity
+
+=cut
+
+sub _dissolve_contig {
+  my ($self, $contig, $wanted_origin, $min_overlap, $min_identity) = @_;
+
+  # List of reads
   my @seqs;
   if ($contig->isa('Bio::Assembly::Singlet')) {
     @seqs = $contig->seqref;
@@ -1094,48 +1104,42 @@ sub _dissolve_contig {
     @seqs = $contig->each_seq;
   }
 
-  # Get good sequences
+  # Get sequences from the desired metagenome
   my @contig_seqs;
   for my $seq (@seqs) {
     my $seq_id = $seq->id;
     # get sequence origin
-    next unless $seq_id =~ m/^$seq_header\|/;
+    next unless $self->_seq_origin($seq_id) eq $wanted_origin;
     # add it to hash
     push @contig_seqs, $seq_id;
-    $$good_seqs{$seq_id} = 1;
   }
 
   # Update spectrum
   my $size = scalar @contig_seqs;
-  if ($size == 0) {
-    # do nothing
-  } elsif ($size == 1) {
-    $$asm_spectrum{1}++;
+  my $objs;
+  if ($size == 1) {
+    # create a singlet and add it to list of objects
+    my $id  = $contig_seqs[0]; 
+    my $seq = $contig->get_seq_by_name($id);
+    push @$objs, Bio::Assembly::Singlet->new(-id => $id, -seqref => $seq);
   } elsif ($size > 1) {
     # Reassemble good sequences
-    my $contig_spectrum = $dissolved->_naive_assembler(
-      $contig, \@contig_seqs, $dissolved->{'_min_overlap'},
-      $dissolved->{'_min_identity'});
-    # Update spectrum
-    for my $qsize (keys %$contig_spectrum) {
-      $$asm_spectrum{$qsize} += $$contig_spectrum{$qsize};
-    }
-  } else {
-     $self->throw("The size is not valid... how could that happen?");
+    my $contig_objs = $self->_naive_assembler( $contig, \@contig_seqs,
+      $min_overlap, $min_identity );
+    push @$objs, @$contig_objs;
   }
 
-  return $asm_spectrum, $good_seqs;
+  return $objs;
 }
 
 
 =head2 _new_cross_csp
 
-  Title   : 
+  Title   : _new_cross_csp
   Usage   : 
   Function: create a cross contig spectrum object
-  Returns : 
-  Args    : 
-
+  Returns : cross-contig spectrum
+  Args    : mixed contig spectrum
 
 =cut
 
@@ -1152,115 +1156,158 @@ sub _new_cross_csp {
   # New dissolved contig spectrum object
   my $cross = Bio::Assembly::Tools::ContigSpectrum->new();
   
-  # Take parent or mixed attributes
+  # Take attributes from parent or from mixed contig spectrums
+  my ($eff_asm_params, $min_overlap, $min_identity);
   if ($self->{'_eff_asm_params'}) {
-    $cross->{'_eff_asm_params'} = $self->{'_eff_asm_params'};
+    $eff_asm_params = $self->{'_eff_asm_params'};
   } else {
-    $cross->{'_eff_asm_params'} = $mixed_csp->{'_eff_asm_params'};
+    $eff_asm_params = $mixed_csp->{'_eff_asm_params'};
   }
   if ($self->{'_min_overlap'}) {
-    $cross->{'_min_overlap'} = $self->{'_min_overlap'};
+    $min_overlap = $self->{'_min_overlap'};
   } else {
-    $cross->{'_min_overlap'} = $mixed_csp->{'_min_overlap'};
+    $min_overlap = $mixed_csp->{'_min_overlap'};
   }
   if ($self->{'_min_identity'}) {
-    $cross->{'_min_identity'} = $self->{'_min_identity'};
+    $min_identity = $self->{'_min_identity'};
   } else {
-    $cross->{'_min_identity'} = $mixed_csp->{'_min_identity'};
+    $min_identity = $mixed_csp->{'_min_identity'};
   }
+  ($cross->{'_eff_asm_params'},$cross->{'_min_overlap'},$cross->{'_min_identity'})
+    = ($eff_asm_params, $min_overlap, $min_identity);
 
   # Get cross contig spectrum for each assembly
-  my $spectrum = {1 => 0};
-  my $good_seqs = {};
-  for my $obj (@{$mixed_csp->{'_assembly'}}) {
-    # Go through contigs and skip the pure ones
+  for my $obj ( @{$mixed_csp->{'_assembly'}} ) {
     for my $contig ( $self->_get_contig_like($obj) ) {
-      ($spectrum, $good_seqs) = $self->_cross_contig($cross, $contig, $spectrum,
-        $good_seqs);
-    }
-    # Get sequence stats
-    ( $cross->{'_avg_seq_len'}, $cross->{'_nof_seq'} )
-      = $cross->_get_assembly_seq_stats($obj, $good_seqs);
-    # Get eff_asm_param for these sequences
-    if ($cross->{'_eff_asm_params'} > 0) {
-      ( $cross->{'_avg_overlap'}, $cross->{'_avg_identity'}, $cross->{'_min_overlap'},
-        $cross->{'_min_identity'}, $cross->{'_nof_overlaps'} )
-        = $cross->_get_assembly_overlap_stats($obj, $good_seqs);
+
+      # Go through contigs and skip the pure ones
+      my ($cross_contigs, $nof_cross_singlets) = $self->_cross_contig($contig,
+        $min_overlap, $min_identity);
+
+      # Add cross-contig
+      for my $cross_contig ( @$cross_contigs ) {
+        $cross->assembly($cross_contig);
+        $cross->{'_nof_rep'}--;
+      }
+
+      # Add cross-singlets
+      $cross->{'_spectrum'}->{'1'} += $nof_cross_singlets;
+
     }
   }
-  $cross->_import_spectrum($spectrum);
 
   # Update nof_rep
-  $cross->{'_nof_rep'}--;
   $cross->{'_nof_rep'} += $mixed_csp->{'_nof_rep'};
 
   return $cross;
 }
 
+
+=head2 _cross_contig
+
+  Title   : _cross_contig
+  Usage   : 
+  Function: calculate cross contigs
+  Returns : arrayref of cross-contigs
+            number of cross-singlets
+  Args    : contig
+            minimum overlap
+            minimum identity
+
+=cut
+
 sub _cross_contig {
-  my ($self, $cross, $contig, $spectrum, $good_seqs) = @_;
-  # Get origins
-  my @seq_origins;
-  my @seq_ids;
+  my ($self, $contig, $min_overlap, $min_identity) = @_;
+
+  my $nof_cross_singlets = 0;
+  my @cross_contigs;
+
+  # Weed out pure contigs
+  my %all_origins;
   for my $seq ($contig->each_seq) {
-    # Current sequence origin. Example: sequence with ID
-    # 'metagenome1|gi|9626988|ref|NC_001508.1|' has header 'metagenome1'
     my $seq_id = $seq->id;
-    $seq_id =~ m/^(.+?)\|/;
-    my $seq_header = $1;
-    $self->warn("Sequence $seq_id does not seem to have a header. Skipping".
-      " it...") if not defined $seq_header;
-    $seq_header ||= '';
-    push @seq_origins, $seq_header;
-    push @seq_ids, $seq_id;
-  }
-  my $qsize = scalar(@seq_ids);
-  my @origins = sort { $a cmp $b } @seq_origins;
-  my $size = scalar(@origins);
-  for (my $i = 1 ; $i < $size ; $i++) {
-    if ($origins[$i] eq $origins[$i-1]) {
-      splice @origins, $i, 1;
-      $i--;
-      $size--;
+    my $seq_origin = $self->_seq_origin($seq_id);
+    if (not defined $seq_origin) {
+      $self->warn("Sequence $seq_id doesn't have any header. Skipping it...");
+      next;
     }
-  }
-  # Update cross-contig number in spectrum
-  if ($size > 1) { # cross-contig detected
-    # update good sequences
-    for my $seq_id (@seq_ids) {
-      $$good_seqs{$seq_id} = 1;
+    if ( scalar keys %all_origins > 1 ) {
+      # a cross-contig spectrum
+      last;
     }
-    # update number of cross q-contigs in spectrum
-    if (defined $$spectrum{$qsize}) {
-      $$spectrum{$qsize}++;
+    $all_origins{$seq_origin} = undef;
+  }
+  if ( scalar keys %all_origins <= 1 ) {
+    # a pure contig
+    return \@cross_contigs, $nof_cross_singlets;
+  }
+  %all_origins = ();
+
+  # Break the cross-contigs using the specified stringency
+  my $test_contigs = $self->_naive_assembler($contig, undef, $min_overlap, $min_identity);
+
+  # Find cross contigs and singlets
+  for my $test_contig ( @$test_contigs ) {
+
+    # Find cross-contigs
+    my %origins;
+    for my $seq ($test_contig->each_seq) {
+      my $seq_id = $seq->id;
+      my $seq_origin = $self->_seq_origin($seq_id);
+      next if not defined $seq_origin;
+      push @{$origins{$seq_origin}}, $seq_id;
+    }
+    if (scalar keys %origins > 1) {
+      # Found a cross-contig
+      push @cross_contigs, $test_contig;
     } else {
-      $$spectrum{$qsize} = 1;
+      next;
     }
-  }
-  # Update number of cross 1-contigs
-  if ($size > 1) { # cross-contig detected
-    for my $origin (@origins) {
-      # sequences to use
-      my @ids;
-      for (my $i = 0 ; $i < $qsize ; $i++) {
-        my $seq_origin = $seq_origins[$i];
-        my $seq_id = $seq_ids[$i];
-        push @ids, $seq_id if $seq_origin eq $origin;
-      }
-      if (scalar @ids == 1) {
-        $$spectrum{1}++;
-      } elsif (scalar @ids > 1) {
-        my $contig_spectrum = $cross->_naive_assembler(
-          $contig, \@ids, $cross->{'_min_overlap'},
-          $cross->{'_min_identity'});
-        $$spectrum{1} += $$contig_spectrum{1};
-      } else {
-        $self->throw("The size is <= 0. How could such a thing happen?");
+
+    # Find cross-singlets
+    for my $origin (keys %origins) {
+      my @ori_ids = @{$origins{$origin}};
+      if (scalar @ori_ids == 1) {
+        $nof_cross_singlets++;
+      } elsif (scalar @ori_ids > 1) {
+        # Dissolve contig for the given origin
+        my $ori_contigs = $self->_naive_assembler($test_contig, \@ori_ids, undef, undef);
+        for my $ori_contig (@$ori_contigs) {
+          $nof_cross_singlets++ if $ori_contig->num_sequences == 1;
+        }
       }
     }
+    
+
   }
-  return $spectrum, $good_seqs;
+
+  return \@cross_contigs, $nof_cross_singlets;
 }
+
+
+=head2 _seq_origin
+
+  Title   : _seq_origin
+  Usage   : 
+  Function: determines where a sequence comes from using its header. For example
+            the origin of the sequence 'metagenome1|gi|9626988|ref|NC_001508.1|'
+            is 'metagenome1'
+  Returns : origin
+  Args    : sequence ID
+
+=cut
+
+sub _seq_origin {
+  # Current sequence origin. Example: sequence with ID
+  # 'metagenome1|gi|9626988|ref|NC_001508.1|' has header 'metagenome1'
+  my ($self, $seq_id) = @_;
+  my $origin;
+  if ( $seq_id =~ m/^(.+?)\|/ ) {
+    $origin = $1;
+  }
+  return $origin;
+}
+
 
 =head2 _import_assembly
 
@@ -1284,6 +1331,7 @@ sub _import_assembly {
   }
   # Create new object from assembly
   my $csp = $self->_new_from_assembly($assemblyobj);
+
   # Update current contig spectrum object with new one
   $self->add($csp);
 
@@ -1381,9 +1429,13 @@ sub _import_cross_csp {
 
   # Create new object from assembly
   my $cross_csp = $self->_new_cross_csp($mixed_csp);
+  my $nof_1_cross_contigs = $cross_csp->spectrum->{1};
 
   # Update current contig spectrum object with new one
   $self->add($cross_csp);
+
+  # Remove 1-contigs
+  $self->{'_nof_seq'} -= $nof_1_cross_contigs;
 
   return 1;
 }
@@ -1474,7 +1526,7 @@ sub _get_contig_seq_stats {
       $seq_string = $seqobj->seq;
     }
     # Number of non-gap characters in the sequence
-    my $seq_len = length($seq_string) - ($seq_string =~ tr/-//);
+    my $seq_len = $seqobj->_ungapped_len;
     my @seq_stats = ($seq_len);
     @contig_stats = $self->_update_seq_stats(@contig_stats, @seq_stats);
   }
@@ -1485,10 +1537,18 @@ sub _get_contig_seq_stats {
 =head2 _update_seq_stats
 
   Title   : _update_seq_stats
-  Usage   :
-  Function:
-  Returns :
-  Args    :
+  Usage   : 
+  Function: Update the number of sequences and their average length 1
+            average identity 1
+            minimum length 1
+            minimum identity 1
+            number of overlaps 1 average sequence length
+  Returns : average sequence length
+            number of sequences
+  Args    : average sequence length 1
+            number of sequences 1
+            average sequence length 2
+            number of sequences 2           
 
 =cut
 
@@ -1678,15 +1738,28 @@ sub _get_contig_overlap_stats {
 =head2 _update_overlap_stats
 
   Title   : _update_overlap_stats
-  Usage   :
-  Function:
-  Returns :
-  Args    :
+  Usage   : 
+  Function: update the number of overlaps and their minimum and average length
+            and identity
+  Returns : 
+  Args    : average length 1
+            average identity 1
+            minimum length 1
+            minimum identity 1
+            number of overlaps 1
+            average length 2
+            average identity 2
+            minimum length 2
+            minimum identity 2
+            number of overlaps 2
+
 =cut
 
 sub _update_overlap_stats {
-  my ($self, $p_avg_length, $p_avg_identity, $p_min_length, $p_min_identity, $p_nof_overlaps,
-             $n_avg_length, $n_avg_identity, $n_min_length, $n_min_identity, $n_nof_overlaps) = @_;
+  my ($self,
+    $p_avg_length, $p_avg_identity, $p_min_length, $p_min_identity, $p_nof_overlaps,
+    $n_avg_length, $n_avg_identity, $n_min_length, $n_min_identity, $n_nof_overlaps)
+    = @_;
 
   # Defaults
   if (not defined $n_nof_overlaps) { $n_nof_overlaps = 1 };
@@ -1694,34 +1767,35 @@ sub _update_overlap_stats {
   if ((not defined $n_min_identity) && ($n_avg_identity != 0)) { $n_min_identity = $n_avg_identity };
 
   # Update overlap statistics
-  my ($avg_length, $avg_identity, $min_length, $min_identity, $nof_overlaps) = (0, 0, undef, undef, 0);
+  my ($avg_length, $avg_identity, $min_length, $min_identity, $nof_overlaps)
+    = (0, 0, undef, undef, 0);
   $nof_overlaps = $p_nof_overlaps + $n_nof_overlaps;
   if ($nof_overlaps > 0) {
     $avg_length = ($p_avg_length * $p_nof_overlaps + $n_avg_length * $n_nof_overlaps) / $nof_overlaps;
     $avg_identity = ($p_avg_identity * $p_nof_overlaps + $n_avg_identity * $n_nof_overlaps) / $nof_overlaps;
+  }
 
-    if ( not defined $p_min_length ) {
+  if ( not defined $p_min_length ) {
+    $min_length = $n_min_length;
+  } elsif ( not defined $n_min_length ) {
+    $min_length = $p_min_length;
+  } else { # both values are defined
+    if ($n_min_length < $p_min_length) {
       $min_length = $n_min_length;
-    } elsif ( not defined $n_min_length ) {
+    } else {
       $min_length = $p_min_length;
-    } else { # both values are defined
-      if ($n_min_length < $p_min_length) {
-        $min_length = $n_min_length;
-      } else {
-        $min_length = $p_min_length;
-      }
     }
+  }
 
-    if ( not defined $p_min_identity ) {
+  if ( not defined $p_min_identity ) {
+    $min_identity = $n_min_identity;
+  } elsif ( not defined $n_min_identity ) {
+    $min_identity = $p_min_identity;
+  } else { # both values are defined
+    if ($n_min_identity < $p_min_identity) {
       $min_identity = $n_min_identity;
-    } elsif ( not defined $n_min_identity ) {
+    } else {
       $min_identity = $p_min_identity;
-    } else { # both values are defined
-      if ($n_min_identity < $p_min_identity) {
-        $min_identity = $n_min_identity;
-      } else {
-        $min_identity = $p_min_identity;
-      }
     }
   }
 

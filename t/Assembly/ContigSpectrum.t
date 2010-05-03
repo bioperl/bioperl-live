@@ -3,7 +3,7 @@ use strict;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin( -tests            => 188,
+    test_begin( -tests            => 249,
                 -requires_modules => [qw(Graph::Undirected)] );
     use_ok('Bio::Assembly::IO');
     use_ok('Bio::Assembly::Tools::ContigSpectrum');
@@ -56,7 +56,7 @@ is($spectrum_csp->avg_overlap, 0);
 is($spectrum_csp->min_identity, undef);
 is($spectrum_csp->avg_identity, 0);
 is($spectrum_csp->avg_seq_len, 0);
-is(scalar $spectrum_csp->get_assembly, 0);
+is(scalar $spectrum_csp->assembly, 0);
 
 ok(my $string = $spectrum_csp->to_string(1));
 is($string, '1 2 3');
@@ -80,7 +80,7 @@ is($mixed_csp->min_overlap, 35);
 is($mixed_csp->avg_overlap, 155.875);
 float_is($mixed_csp->min_identity, 96.8421);
 float_is($mixed_csp->avg_identity, 98.8826);
-is(scalar $mixed_csp->get_assembly, 1);
+is(scalar $mixed_csp->assembly, 1);
 
 # dissolved contig spectrum
 ok(my $dissolved_csp = Bio::Assembly::Tools::ContigSpectrum->new(
@@ -140,6 +140,29 @@ ok($dissolved_csp = Bio::Assembly::Tools::ContigSpectrum->new(
    -dissolve     => [$mixed_csp, 'ABC'] ));
 is_deeply($dissolved_csp->spectrum, {1=>3, 5=>1}); # [3 0 0 0 1]
 
+# after dissolving, the remaining assembly objects should be 3 singlets and 1 6-contig
+my @contigs = ($dissolved_csp->assembly);
+is(scalar @contigs, 4);
+my ($contig1, $contig2, $contig3, $contig4) = @contigs;
+is( $contig1->num_sequences, 1 );
+is( $contig1->isa('Bio::Assembly::Singlet'), 1) ;
+is( $contig1->seqref->id, 'ABC|SDSU_RFPERU_005_F02.x01.phd.1' );
+is( $contig2->num_sequences, 1 );
+is( $contig2->isa('Bio::Assembly::Singlet'), 1 );
+is( $contig2->seqref->id, 'ABC|9944760');
+is( $contig3->num_sequences, 1 );
+is( $contig3->isa('Bio::Assembly::Singlet'), 1 );
+is( $contig3->seqref->id, 'ABC|9970175' );
+is( $contig4->num_sequences, 5 );
+is( $contig4->isa('Bio::Assembly::Contig'), 1 );
+my @reads = $contig4->each_seq;
+my ($read1, $read2, $read3, $read4, $read5) = @reads;
+is( $read1->id, 'ABC|9980040' );
+is( $read2->id, 'ABC|9937790' );
+is( $read3->id, 'ABC|9956706' );
+is( $read4->id, 'ABC|9960711' );
+is( $read5->id, 'ABC|9976538' );
+
 ok($dissolved_csp = Bio::Assembly::Tools::ContigSpectrum->new(
   -min_overlap  => 62,
   -min_identity => 97,
@@ -162,15 +185,77 @@ is($dissolved_csp->nof_rep, 1);
 is($dissolved_csp->nof_seq, 8);
 float_is($dissolved_csp->avg_seq_len, 140.625);
 is($dissolved_csp->nof_overlaps, 5);
-is($dissolved_csp->min_overlap, 62);
 float_is($dissolved_csp->avg_overlap, 76.8);
-float_is($dissolved_csp->min_identity, 100.0);
 float_is($dissolved_csp->avg_identity, 100.0);
+# min_overlap and min_identity not explicitely specified for the dissolved csp
+# min_overlap and min_identity are thus taken from the mixed csp
+is($dissolved_csp->min_overlap, 35);
+float_is($dissolved_csp->min_identity, 96.8421);
 
 # cross contig spectrum
 ok(my $cross_csp = Bio::Assembly::Tools::ContigSpectrum->new(
   -cross => $mixed_csp), 'cross-contig spectrum');
-is_deeply($cross_csp->spectrum, {1=>7, 2=>2, 9=>1}); # [2 0 0 0 0 0 0 0 1]
+is_deeply($cross_csp->spectrum, {1=>7, 2=>2, 9=>1}); # [7 2 0 0 0 0 0 0 1]
+
+# assembly should have 2 singlets and 1 9-contig
+@contigs = $cross_csp->assembly;
+is(scalar @contigs, 3);
+($contig1, $contig2, $contig3) = @contigs;
+is($contig1->num_sequences, 2);
+is($contig1->isa('Bio::Assembly::Contig'), 1);
+($read1, $read2) = $contig1->each_seq;
+is($read1->id, 'sdsu|SDSU_RFPERU_006_E04.x01.phd.1');
+is($read2->id, 'ZZZ|SDSU_RFPERU_010_B05.x01.phd.1');
+is($contig2->num_sequences, 2);
+is($contig2->isa('Bio::Assembly::Contig'), 1);
+($read1, $read2) = $contig2->each_seq;
+is($read1->id, 'sdsu|SDSU_RFPERU_013_H05.x01.phd.1');
+is($read2->id, 'ABC|SDSU_RFPERU_005_F02.x01.phd.1');
+is($contig3->num_sequences, 9);
+is($contig3->isa('Bio::Assembly::Contig'), 1);
+my ($read6, $read7, $read8, $read9);
+($read1,$read2,$read3,$read4,$read5,$read6,$read7,$read8,$read9)=$contig3->each_seq;
+is($read1->id, 'sdsu|9986984');
+is($read2->id, 'ABC|9937790');
+is($read3->id, 'ABC|9944760');
+is($read4->id, 'ABC|9956706');
+is($read5->id, 'ABC|9960711');
+is($read6->id, 'ABC|9970175');
+is($read7->id, 'ABC|9976538');
+is($read8->id, 'ABC|9980040');
+is($read9->id, 'ZZZ|9962187');
+
+# effective assembly params
+ok($cross_csp = Bio::Assembly::Tools::ContigSpectrum->new(
+  -cross          => $mixed_csp,
+  -eff_asm_params => 1 ), 'cross-contig spectrum');
+is_deeply($cross_csp->spectrum, {1=>7, 2=>2, 9=>1}); # [7 2 0 0 0 0 0 0 1]
+is($cross_csp->nof_rep, 1);
+is($cross_csp->eff_asm_params, 1);
+is($cross_csp->max_size, 9);
+is($cross_csp->nof_seq, 13);
+float_is($cross_csp->avg_seq_len, 206.308);
+is($cross_csp->nof_overlaps, 10);
+float_is($cross_csp->avg_overlap, 76.9);
+float_is($cross_csp->avg_identity, 99.2357);
+## min_overlap and min_identity not explicitely specified for the cross csp
+## min_overlap and min_identity are thus taken from the mixed csp
+is($cross_csp->min_overlap, 35);
+float_is($cross_csp->min_identity, 96.8421);
+
+# with a specified minimum overlap and identity
+ok($cross_csp = Bio::Assembly::Tools::ContigSpectrum->new(
+  -cross          => $mixed_csp,
+  -min_overlap    => 50,
+  -min_identity   => 98 ), 'cross-contig spectrum');
+is_deeply($cross_csp->spectrum, {1=>3, 2=>1, 7=>1}); # [3 1 0 0 0 0 1]
+is($cross_csp->nof_rep, 1);
+is($cross_csp->eff_asm_params, 0);
+is($cross_csp->max_size, 7);
+is($cross_csp->nof_seq, 9);
+float_is($cross_csp->avg_seq_len, 191.222);
+is($cross_csp->min_overlap, 50);
+float_is($cross_csp->min_identity, 98);
 
 # sum of contig spectra
 ok(my $sum_csp = Bio::Assembly::Tools::ContigSpectrum->new(-eff_asm_params=>1), 'contig spectrum sum');
@@ -187,6 +272,7 @@ is($sum_csp->min_overlap, 35);
 float_is($sum_csp->avg_overlap, 137.0476);
 float_is($sum_csp->min_identity, 96.8421);
 float_is($sum_csp->avg_identity, 99.1487);
+is(scalar $sum_csp->assembly, 4);
 
 # average of contig spectra
 ok(my $avg_csp = Bio::Assembly::Tools::ContigSpectrum->new(-eff_asm_params=>1), 'average contig spectrum');
@@ -202,9 +288,11 @@ is($avg_csp->min_overlap, 35);
 float_is($avg_csp->avg_overlap, 137.0476);
 float_is($avg_csp->min_identity, 96.8421);
 float_is($avg_csp->avg_identity, 99.1487);
+is(scalar $avg_csp->assembly, 4);
 
 # drop assembly info from contig spectrum
 ok($mixed_csp->drop_assembly(), 'drop assembly');
+is(scalar $mixed_csp->assembly(), 0);
 
 # score
 my $test_csp;
@@ -233,7 +321,7 @@ isa_ok($sc, 'Bio::Assembly::Scaffold');
 ok(my $large_csp = Bio::Assembly::Tools::ContigSpectrum->new(
   -assembly       => $sc,
   -eff_asm_params => 1 ), 'large contig');
-is(scalar $large_csp->get_assembly(), 1);
+is(scalar $large_csp->assembly(), 1);
 is_deeply($large_csp->spectrum, {1=>0, 27=>1});
 is($large_csp->eff_asm_params, 1);
 is($large_csp->max_size, 27);
@@ -257,7 +345,6 @@ ok($csp = Bio::Assembly::Tools::ContigSpectrum->new(
 for my $contig ($sc->all_contigs) {
   ok($csp->assembly($contig));
 }
-
 
 is(scalar $csp->assembly(), 5);
 is_deeply($csp->spectrum, {1=>0, 2=>3, 6=>1, 9=>1}); # [0 3 0 0 0 1 0 0 1]
