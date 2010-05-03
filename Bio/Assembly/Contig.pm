@@ -1407,7 +1407,7 @@ sub select {
 
              Creates a new alignment from a subset of
              sequences.  Numbering starts from 1.  Sequence positions
-             larger than num_sequences() will thow an error.
+             larger than num_sequences() will throw an error.
 
  Returns   : a Bio::Assembly::Contig object
  Args      : array of integers for the sequences
