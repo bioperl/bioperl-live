@@ -153,7 +153,7 @@ sub _seq_to_singlet {
     my $lseq = Bio::LocatableSeq->new(
         -seq    => $seq->seq(),
         -start  => 1,
-        -end    => $seq->length(),
+        -end    => $seq->end($seq->_ungapped_len),
         -strand => 1,
         -id     => $seq_id
     );
