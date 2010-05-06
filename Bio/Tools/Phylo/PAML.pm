@@ -512,7 +512,11 @@ sub _parse_summary {
         }
         elsif ( ( @lines >= 3 ) && ( $self->{'_already_parsed_seqs'} != 1 ) )
         {                                                     #No gap
-            $self->_parse_seqs;
+            # don't start parsing seqs yet if we're on a blank line
+            # (gives another opportunity to match one of the other regexes)
+            unless (/^\n$/) {
+                $self->_parse_seqs;
+            }
         }
         elsif ( (/Printing out site pattern counts/)
             && ( $self->{'_already_parsed_seqs'} != 1 ) ) {
