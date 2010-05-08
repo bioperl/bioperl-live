@@ -237,7 +237,7 @@ sub new {
     $min_identity, $avg_overlap, $avg_identity, $avg_seq_len, $spectrum,
     $contig, $assembly, $eff_asm_params, $dissolve, $cross) = $self->_rearrange(
     [qw(ID NOF_SEQ NOF_REP MAX_SIZE NOF_OVERLAPS MIN_OVERLAP MIN_IDENTITY
-    AVG_OVERLAP AVG_IDENTITY AVG_SEQ_LEN SPECTRUM CONTIG ASSEMBLY EFF_ASM_PARAMS
+    AVG_OVERLAP AVG_IDENTITY AVG_SEQ_LEN SPECTRUM ASSEMBLY EFF_ASM_PARAMS
     DISSOLVE CROSS)], @args );
 
   # First set up some defauts
@@ -270,7 +270,6 @@ sub new {
 
   # Finally get stuff that can be obtained in an automated way
   $self->_import_spectrum($spectrum) if defined($spectrum);
-  $self->_import_contig($contig)     if defined($contig);
   $self->_import_assembly($assembly) if defined($assembly);
   $self->_import_cross_csp($cross)   if defined($cross);
   if (defined($dissolve)) {
