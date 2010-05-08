@@ -120,7 +120,7 @@ is $direction, 1;
 
 my $features =  $contigs[0]->get_features_collection;
 my @contig_features = $features->get_all_features;
-is @contig_features, 8, 'contig features';
+is @contig_features, 59, 'contig features';
 
 my @annotations = grep {$_->primary_tag eq 'Annotation'} @contig_features;
 is @annotations, 2;
@@ -188,6 +188,34 @@ for my $seq_id (@all_seq_ids) {
 }
 is(@all_seq_ids, 39);
 
+# Writing ACE files
+my $asm_infile  = '27-contig_Newbler.ace';
+my $asm_outfile = test_output_file();
+my $asm_out = Bio::Assembly::IO->new(
+    -file=> ">$asm_outfile",
+    -format=>'ace'
+);
+my $asm_in;
+ok $asm_in = Bio::Assembly::IO->new(
+    -file   => test_input_file($asm_infile),
+    -format => 'ace',
+)->next_assembly, 'writing in the ACE format';
+ok $asm_out->write_assembly( -scaffold => $asm_in );
+
+$asm_infile = 'assembly_with_singlets.ace';
+ok $asm_in = Bio::Assembly::IO->new(
+    -file   => test_input_file($asm_infile),
+    -format => 'ace',
+)->next_assembly;
+ok $asm_out->write_assembly( -scaffold => $asm_in );
+
+$asm_infile = 'reference_ace.ace';
+ok $asm_in = Bio::Assembly::IO->new(
+    -file   => test_input_file($asm_infile),
+    -format => 'ace',
+)->next_assembly;
+ok $asm_out->write_assembly( -scaffold => $asm_in );
+
 
 #
 # Testing TIGR format
@@ -195,11 +223,11 @@ is(@all_seq_ids, 39);
 
 # Importing an assembly
 
-my $asm_in = Bio::Assembly::IO->new(
+$asm_in = Bio::Assembly::IO->new(
     -file => test_input_file("sample_dataset.tasm "),
     -format=>'tigr'
 );
-while (my $obj = $aio->next_contig) {
+while (my $obj = $asm_in->next_contig) {
     isa_ok $obj, 'Bio::Assembly::Contig'; # Singlets are contigs too
 }
 
@@ -256,14 +284,13 @@ is($scaf_in->annotation->get_all_annotation_keys, 0, "no annotations in Annotati
 
 
 # Exporting an assembly
-
-my $asm_outfile = test_output_file();
-my $asm_out = Bio::Assembly::IO->new(
+$asm_outfile = test_output_file();
+$asm_out = Bio::Assembly::IO->new(
     -file=> ">$asm_outfile",
     -format=>'tigr'
 );
+ok $asm_out->write_assembly( -scaffold => $scaf_in), 'writing in the TIGR format';
 
-ok $asm_out->write_assembly( -scaffold => $scaf_in);
 
 #
 # Testing maq

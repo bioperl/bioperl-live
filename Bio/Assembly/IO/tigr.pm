@@ -56,15 +56,15 @@ primary_tag:
 
     _main_read_feature:$read_id     -> misc read information
 
-Singlets are considered by TIGR Assembler as contigs of one sequence and are
-represented here with features having these primary_tag: 
+Singlets are considered by TIGR Assembler as contigs of one sequence. Contigs
+are represented here with features having these primary_tag: 
 
     _main_contig_feature:$contig_id
     _quality_clipping:$read_primary_id
     _main_read_feature:$read_primary_id
     _aligned_coord:$read_primary_id
 
-=head1 THE TIGR TASM LASSIEFORMAT
+=head1 THE TIGR TASM LASSIE FORMAT
 
 =head2 Description
 
@@ -639,18 +639,18 @@ sub _store_singlet {
               format
     Returns : 1 on success, 0 for error
     Args    : A Bio::Assembly::Scaffold object
+              1 to write singlets in the assembly file, 0 otherwise
 
 =cut
 
 sub write_assembly {
-    my ($self,@args) = @_;
+    my ($self, @args) = @_;
     my ($scaffoldobj, $singlets) = $self->_rearrange([qw(SCAFFOLD SINGLETS)], @args);
 
     # Sanity check
-    if ( !$scaffoldobj || !$scaffoldobj->isa('Bio::Assembly::Scaffold') ) {
-        $self->warn("Must provide a Bio::Align::AlignI object when calling
+    if ( !$scaffoldobj || !$scaffoldobj->isa('Bio::Assembly::ScaffoldI') ) {
+        $self->throw("Must provide a Bio::Assembly::Scaffold object when calling
             write_assembly");
-        next;
     }
 
     # Get list of objects - contigs and singlets
@@ -926,7 +926,7 @@ sub write_assembly {
     Title   : _perc_N
     Usage   : my $perc_N = $ass_io->_perc_N($sequence_string)
     Function: Calculate the percent of ambiguities in a sequence.
-              M R W S Y K X N are regarded as ambiguites in an aligned read
+              M R W S Y K X N are regarded as ambiguities in an aligned read
               sequence by TIGR Assembler. In the case of a gapped contig
               consensus sequence, all lowercase symbols are ambiguities, i.e.:
               a c g t u m r w s y k x n.

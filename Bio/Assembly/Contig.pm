@@ -1726,7 +1726,7 @@ sub length {
     $self->throw_not_implemented();
 }
 
-=head2 maxdname_length
+=head2 maxname_length
 
  Title     : maxname_length
  Usage     : $contig->maxname_length()

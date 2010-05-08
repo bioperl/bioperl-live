@@ -2,7 +2,8 @@
 #
 ## BioPerl module for Bio::Assembly::IO::ace
 #
-# Copyright by Robson F. de Souza
+# Copyright by Robson F. de Souza (the reading part) and Florent Angly (the 
+# writing part)
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -41,34 +42,43 @@ Assemblies are loaded into Bio::Assembly::Scaffold objects composed by
 Bio::Assembly::Contig and Bio::Assembly::Singlet objects. Only the ACE file is
 used, so if you need singlets, make sure that they are present in the ACE file.
 
-A description of the ACE format is
-available at http://www.cbcb.umd.edu/research/contig_representation.shtml#ACE
+A brief description of the ACE format is available at
+http://www.cbcb.umd.edu/research/contig_representation.shtml#ACE
+Read the full format description from
+http://bozeman.mbt.washington.edu/consed/distributions/README.14.0.txt
 
 In addition to default "_aligned_coord:$seqID" feature class from
 Bio::Assembly::Contig, contig objects loaded by this module will have the
 following special feature classes in their feature collection:
 
-"_align_clipping:$seqID" : location of subsequence in sequence $seqID
-                           which is aligned to the contig.  If no feature
-                           containing this tag is present the read is
-                           considered low quality by consed
+"_align_clipping:$seqID" (AF)
+    Location of subsequence in read $seqID which is aligned to the contig. The
+    coordinates are relative to the contig. If no feature containing this tag is
+    present the read is considered low quality by Consed.
 
-"_quality_clipping:$seqID" : location of good quality subsequence for
-                             sequence $seqID
+"_quality_clipping:$seqID" (AF)
+    The location of high quality subsequence in read $seqID (relative to contig)
 
-"consensus tags", as they are called in Consed's documentation, is
-equivalent to a bioperl sequence feature and, therefore, are added to
-the feature collection using their type field (see Consed's README.txt
-file) as primary tag.
+"_base_segments" (BS)
+    Location of read subsequences used to build the consensus
 
-"read tags" are also sequence features and are stored as
-sub_SeqFeatures of the sequence's coordinate feature (the
-corresponding "_aligned_coord:$seqID" feature, easily accessed through
-get_seq_coord() method).
+"_read_tags:$readID" (RT)
+    Sequence features stored as sub_SeqFeatures of the sequence's coordinate
+    feature (the corresponding "_aligned_coord:$seqID" feature, easily accessed
+    through get_seq_coord() method).
 
-"whole assembly tags" have no start and end, as they are not
-associated to any particular sequence in the assembly, and are added
-to the assembly's annotation collection using "whole assembly" as tag.
+"_read_desc:$readID" (DS)
+    Sequence features stored as sub_SeqFeatures of the read's coordinate feature
+
+"consensus tags" (CT)
+    Equivalent to a bioperl sequence feature and, therefore, are added to the
+    feature collection using their type field (see Consed's README.txt file) as
+    primary tag.
+
+"whole assembly tags" (WA)
+    They have no start and end, as they are not associated to any particular
+    sequence in the assembly, and are added to the assembly's annotation
+    collection using "whole assembly" as tag.
 
 =head1 FEEDBACK
 
@@ -124,6 +134,8 @@ use Bio::SeqIO;
 use Bio::SeqFeature::Generic;
 
 use base qw(Bio::Assembly::IO);
+
+our $line_width = 50;
 
 =head1 Parser methods
 
@@ -192,7 +204,7 @@ sub next_contig {
                 my $nof_reads = $3;     # Number of reads in this contig
                 #my $nof_segments = $4; # Number of read segments selected for consensus assembly
                 my $ori = $5;           # 'C' if contig was complemented or U if not (default)
-                $ori = ($ori eq 'U' ? 1 : -1);
+                $ori = $ori eq 'U' ? 1 : -1;
 
                 # Create a singlet or contig
                 if ($nof_reads == 1) { # This is a singlet
@@ -204,23 +216,19 @@ sub next_contig {
                 $contigOBJ->id($contigID);
                 $contigOBJ->strand($ori);
 
-                if ( $nof_reads > 1 ) { # This is a contig
-                    # Contig consensus sequence
-                    my $consensus_sequence;
-                    while ($_ = $self->_readline) { # Looping over contig lines
-                        chomp;                      # Drop <ENTER> (\n) on current line
-                        last if (/^$/);             # Stop if empty line (contig end) is found
-                        s/\*/-/g;                   # Forcing '-' as gap symbol
-                        $consensus_sequence .= $_;
-                    }
-                    $consensus_sequence = Bio::LocatableSeq->new(
-                        -seq   => $consensus_sequence,
-                        -start => 1,
-                    );
-                    $consensus_sequence->id($contigID);
-                    $contigOBJ->set_consensus_sequence($consensus_sequence);
+                my $consensus_sequence;
+                while ($_ = $self->_readline) { # Looping over contig lines
+                    chomp;                      # Drop <ENTER> (\n) on current line
+                    last if (/^$/);             # Stop if empty line (contig end) is found
+                    s/\*/-/g;                   # Forcing '-' as gap symbol
+                    $consensus_sequence .= $_;
                 }
-
+                $consensus_sequence = Bio::LocatableSeq->new(
+                    -seq   => $consensus_sequence,
+                    -start => 1,
+                );
+                $consensus_sequence->id($contigID);
+                $contigOBJ->set_consensus_sequence($consensus_sequence);
             } else {
                 # A second contig is about to start. Backtrack one line and go
                 # to the return statement
@@ -231,9 +239,6 @@ sub next_contig {
 
         # Loading contig qualities... (Base Quality field)
         /^BQ/ && do {
-
-            next if ($contigOBJ->isa('Bio::Assembly::Singlet'));
-
             my $consensus = $contigOBJ->get_consensus_sequence()->seq();
             my ($i,$j,@tmp);
             my @quality = ();
@@ -262,8 +267,8 @@ sub next_contig {
                     $j++;
                 }
             }
-            my $qual = Bio::Seq::Quality->new( -qual=>join(" ",@quality),
-                                               -id=>$contigOBJ->id() );
+            my $qual = Bio::Seq::Quality->new( -qual => join(" ", @quality),
+                                               -id   => $contigOBJ->id()     );
             $contigOBJ->set_consensus_quality($qual);
         };
 
@@ -272,20 +277,24 @@ sub next_contig {
             $read_name = $1;
             my $ori = $2;
             $read_data->{$read_name}{'padded_start'} = $3; # aligned start
-            $ori = ( $ori eq 'U' ? 1 : -1);
+            $ori = $ori eq 'U' ? 1 : -1;
             $read_data->{$read_name}{'strand'}  = $ori;
         };
 
         # Base segments definitions (Base Segment field)
         # They indicate which read segments were used to calculate the consensus
-        # Ignore it
-        # /^BS (\d+) (\d+) (\S+)/ && do {
-        #     if (exists($self->{'contigs'}[$contig]{'reads'}{$3}{'segments'})) {
-        #         $self->{'contigs'}[$contig]{'reads'}{$3}{'segments'} .= " " . $1 . " " . $2;
-        #     } else {
-        #         $self->{'contigs'}[$contig]{'reads'}{$3}{'segments'} = $1 . " " . $2
-        #     }
-        # };
+        # Coordinates are relative to the contig
+        /^BS (\d+) (\d+) (\S+)/ && do {
+            my ($start, $end, $contig_id) = ($1, $2, $3);
+            my $bs_feat = Bio::SeqFeature::Generic->new(
+                -start   => $start,
+                -end     => $end,
+                -strand  => 1,
+                -primary => '_base_segments',
+                -tag     => { 'contig_id' => $contig_id}
+            );
+            $contigOBJ->add_features([ $bs_feat ], 0);
+        };
 
         # Loading reads... (ReaD sequence field)
         # They define the reads in each contig
@@ -304,20 +313,24 @@ sub next_contig {
                 s/\*/-/g; # Forcing '-' as gap symbol
                 $read_sequence .= $_; # aligned read sequence
             }
-            my $read = Bio::LocatableSeq->new( -seq        => $read_sequence,
-                                               -start      => 1,
-                                               -strand     => $read_data->{$read_name}{'strand'},
-                                               -id         => $read_name,
-                                               -primary_id => $read_name,
-                                               -alphabet   => 'dna' );
+            my $read = Bio::LocatableSeq->new(
+                -seq        => $read_sequence,
+                -start      => 1,
+                -strand     => $read_data->{$read_name}{'strand'},
+                -id         => $read_name,
+                -primary_id => $read_name,
+                -alphabet   => 'dna'
+            );
             #$lingering_read = $read;
             # Adding read location and sequence to contig ("gapped consensus" coordinates)
             my $padded_start = $read_data->{$read_name}{'padded_start'};
             my $padded_end   = $padded_start + $read_data->{$read_name}{'length'} - 1;
-            my $coord = Bio::SeqFeature::Generic->new( -start  => $padded_start,
-                                                       -end    => $padded_end,
-                                                       -strand => $read_data->{$read_name}{'strand'},
-                                                       -tag    => { 'contig' => $contigOBJ->id } );
+            my $coord = Bio::SeqFeature::Generic->new(
+                -start  => $padded_start,
+                -end    => $padded_end,
+                -strand => $read_data->{$read_name}{'strand'},
+                -tag    => { 'contig' => $contigOBJ->id }
+            );
 
             if ($contigOBJ->isa('Bio::Assembly::Singlet')) {
                 # Set the the sequence in the singlet
@@ -326,87 +339,86 @@ sub next_contig {
                 $contigOBJ->set_seq_coord($coord,$read);
             }
 
+
         };
 
         # Loading read trimming and alignment ranges...
         /^QA (-?\d+) (-?\d+) (-?\d+) (-?\d+)/ && do {
-
-            next if $contigOBJ->isa('Bio::Assembly::Singlet');
-
-            my ($qual_start, $qual_end, $align_start, $align_end) =
+            my ($qual_start, $qual_end, $aln_start, $aln_end) =
                 ($1, $2, $3, $4);
-            unless ($align_start == -1 && $align_end == -1) {
-                $align_start = $contigOBJ->change_coord("aligned $read_name",'gapped consensus',$align_start);
-                $align_end   = $contigOBJ->change_coord("aligned $read_name",'gapped consensus',$align_end);
-                my $align_feat = Bio::SeqFeature::Generic->new( -start=>$align_start,
-                                                                -end=>$align_end,
-                                                                -strand=>$read_data->{$read_name}{'strand'},
-                                                                -primary=>"_align_clipping:$read_name");
-                $align_feat->attach_seq( $contigOBJ->get_seq_by_name($read_name) );
-                $contigOBJ->add_features([ $align_feat ], 0);
+
+            # Regions of the read that were aligned to the consensus (see BS)
+            unless ($aln_start == -1 && $aln_end == -1) {
+                $aln_start = $contigOBJ->change_coord("aligned $read_name",'gapped consensus',$aln_start);
+                $aln_end   = $contigOBJ->change_coord("aligned $read_name",'gapped consensus',$aln_end);
+                my $aln_feat = Bio::SeqFeature::Generic->new(
+                    -start   => $aln_start,
+                    -end     => $aln_end,
+                    -strand  => $read_data->{$read_name}{'strand'},
+                    -primary => "_align_clipping:$read_name"
+                );
+                $aln_feat->attach_seq( $contigOBJ->get_seq_by_name($read_name) );
+                $contigOBJ->add_features([ $aln_feat ], 0);
             }
 
+            # Regions of the read with high quality score
             unless ($qual_start == -1 && $qual_end == -1) {
-                $qual_start  = $contigOBJ->change_coord("aligned $read_name",'gapped consensus',$qual_start);
-                $qual_end    = $contigOBJ->change_coord("aligned $read_name",'gapped consensus',$qual_end);
-                my $qual_feat = Bio::SeqFeature::Generic->new( -start=>$qual_start,
-                                                               -end=>$qual_end,
-                                                               -strand=>$read_data->{$read_name}{'strand'},
-                                                               -primary=>"_quality_clipping:$read_name" );
+                $qual_start = $contigOBJ->change_coord("aligned $read_name",'gapped consensus',$qual_start);
+                $qual_end   = $contigOBJ->change_coord("aligned $read_name",'gapped consensus',$qual_end);
+                my $qual_feat = Bio::SeqFeature::Generic->new(
+                    -start   => $qual_start,
+                    -end     => $qual_end,
+                    -strand  => $read_data->{$read_name}{'strand'},
+                    -primary => "_quality_clipping:$read_name"
+                );
                 $qual_feat->attach_seq( $contigOBJ->get_seq_by_name($read_name) );
                 $contigOBJ->add_features([ $qual_feat ], 0);
             }
+
         };
 
-        # Loading read description (DeScription fields)
-        # chad was here! easter 2004.
-        # lingering read is a locatableseq. is there a better way to do this?
-        # i am simply adding more keys to the locatableseq
-        # Should that no be put in a Bio::SeqFeature::Generic object?
-        #/^DS / && do {
-        #    /CHEM: (\S+)/ && do {
-        #        $lingering_read->{'chemistry'} = $1;
-        #    };
-        #    /CHROMAT_FILE: (\S+)/ && do {
-        #        $lingering_read->{'chromatfilename'} = $1;
-        #    };
-        #    /DIRECTION: (\w+)/ && do {
-        #        my $ori = $1;
-        #        if ($ori eq 'rev') { $ori = 'C' }
-        #        elsif ($ori eq 'fwd') { $ori = 'U' }
-        #        $lingering_read->{'strand'} = $ori;
-        #    };
-        #    /DYE: (\S+)/ && do {
-        #        $lingering_read->{'dye'} = $1;
-        #    };
-        #    /PHD_FILE: (\S+)/ && do {
-        #        $lingering_read->{'phdfilename'} = $1;
-        #    };
-        #    /TEMPLATE: (\S+)/ && do {
-        #        $lingering_read->{'template'} = $1;
-        #    };
-        #    /TIME: (\S+ \S+ \d+ \d+\:\d+\:\d+ \d+)/ && do {
-        #        $lingering_read->{'phd_time'} = $1;
-        #    };
-        #};
+        # Loading read DeScription (DS)
+        /^DS\s+(.*)/ && do {
+            my $desc = $1;
+
+            # Expected tags are CHROMAT_FILE, PHD_FILE, TIME and to a lesser
+            # extent DYE, TEMPLATE, CHEM and DIRECTION, but any other tag is
+            # allowed
+            my (undef, %tags) = split /\s?(\S+):\s+/, $desc;
+
+            my $coord = $contigOBJ->get_seq_coord( $contigOBJ->get_seq_by_name($read_name) );
+            my $start = $coord->start;
+            my $end   = $coord->end;
+
+            my $read_desc = Bio::SeqFeature::Generic->new(
+                -start   => $start,
+                -end     => $end,
+                -primary => "_read_desc:$read_name",
+                -tag     => \%tags
+            );
+            $coord->add_sub_SeqFeature($read_desc);
+        
+        };
 
         # Loading Read Tags
         /^RT\s*\{/ && do {
-            next if $contigOBJ->isa('Bio::Assembly::Singlet');
             my ($readID,$type,$source,$start,$end,$date) = split(' ',$self->_readline);
             my $extra_info = undef;
             while ($_ = $self->_readline) {
                 last if (/\}/);
                 $extra_info .= $_;
             }
-            $start  = $contigOBJ->change_coord("aligned $read_name",'gapped consensus',$start);
-            $end    = $contigOBJ->change_coord("aligned $read_name",'gapped consensus',$end);
-            my $read_tag = Bio::SeqFeature::Generic->new( -start=>$start,
-                                                          -end=>$end,
-                                                          -primary=>$type,
-                                                          -tag=>{ 'source' => $source,
-                                                                  'creation_date' => $date,
-                                                                  'extra_info' => $extra_info } );
+            $start  = $contigOBJ->change_coord("aligned $readID",'gapped consensus',$start);
+            $end    = $contigOBJ->change_coord("aligned $readID",'gapped consensus',$end);
+            my $read_tag = Bio::SeqFeature::Generic->new(
+                -start   => $start,
+                -end     => $end,
+                -primary => "_read_tags:$readID",
+                -tag     => { 'type'          => $type,
+                              'source'        => $source,
+                              'creation_date' => $date,
+                              'extra_info'    => $extra_info }
+            );
             my $contig = $read_data->{$readID}{'contig'};
             my $coord  = $contig->get_seq_coord( $contig->get_seq_by_name($readID) );
             $coord->add_sub_SeqFeature($read_tag);
@@ -422,7 +434,7 @@ sub next_contig {
 
  Title   : scaffold_annotations
  Usage   : $stream->scaffold_annotations($scaffold)
- Function: Adds ssembly and contig annotations to a scaffold. In the ACE format,
+ Function: Add assembly and contig annotations to a scaffold. In the ACE format,
            annotations are the WA and CT tags.
  Returns : 1 for success
  Args    : a Bio::Assembly::Scaffold object to attach the annotations to
@@ -450,9 +462,10 @@ sub scaffold_annotations {
             my $extra_info = undef;
             while ($_ = $self->_readline) {
                 last if (/\}/);
-                $extra_info = $_;
+                $extra_info .= $_;
+
             }
-            my $assembly_tags = join(" ","TYPE: ",$type,"PROGRAM:",$source,
+            my $assembly_tags = join(" ","TYPE:",$type,"PROGRAM:",$source,
                 "DATE:",$date,"DATA:",$extra_info);
             $assembly_tags = Bio::Annotation::SimpleValue->new(-value=>$assembly_tags);
             $assembly->annotation->add_Annotation('whole assembly',$assembly_tags);
@@ -461,7 +474,7 @@ sub scaffold_annotations {
         # Loading Contig Tags (a.k.a. Bioperl features)
         /^CT\s*\{/ && do {
             my ($contigID,$type,$source,$start,$end,$date) = split(' ',$self->_readline);
-            my %tags = (source => $source, creation_date => $date);
+            my %tags = ('source' => $source, 'creation_date' => $date);
             my $tag_type = 'extra_info';
             while ($_ = $self->_readline) {
                 if (/COMMENT\s*\{/) {
@@ -474,10 +487,10 @@ sub scaffold_annotations {
                     $tags{$tag_type} .= "$_";
                 }
             }
-            my $contig_tag = Bio::SeqFeature::Generic->new( -start=>$start,
-                                                            -end=>$end,
-                                                            -primary=>$type,
-                                                            -tag=>\%tags );
+            my $contig_tag = Bio::SeqFeature::Generic->new( -start   => $start,
+                                                            -end     => $end,
+                                                            -primary => $type,
+                                                            -tag     => \%tags );
             my $contig = $assembly->get_contig_by_id($contigID);
             $self->throw("Cannot add feature to unknown contig '$contigID'")
               unless defined $contig;
@@ -500,8 +513,289 @@ sub scaffold_annotations {
 =cut
 
 sub write_assembly {
-    my $self = shift;
-    $self->throw_not_implemented();
+    my ($self, @args) = @_;
+    my ($scaf, $write_singlets) = $self->_rearrange([qw(SCAFFOLD SINGLETS)], @args);
+
+    # Sanity check
+    if ( !$scaf || !$scaf->isa('Bio::Assembly::ScaffoldI') ) {
+        $self->throw("Must provide a Bio::Assembly::Scaffold object when calling write_assembly");
+    }
+
+    # ASsembly information (AS)
+    my @contig_ids  = $scaf->get_contig_ids;
+    my $num_contigs = $scaf->get_nof_contigs;
+    my $num_reads   = $scaf->get_nof_contig_seqs;
+    if ($write_singlets) {
+        push @contig_ids, $scaf->get_singlet_ids;
+        $num_contigs += $scaf->get_nof_singlets;
+        $num_reads   += $scaf->get_nof_singlet_seqs;
+    }
+    $self->_print("AS $num_contigs $num_reads\n\n");
+
+    # Sort the contig IDs
+    @contig_ids = sort @contig_ids; # lexical sort
+
+    # Contig and read entries
+    for my $contig_id (@contig_ids) {
+        my $contig = $scaf->get_contig_by_id($contig_id) ||
+                     $scaf->get_singlet_by_id($contig_id);
+        $self->write_contig($contig);
+    }
+
+    # Whole Assembly tags (WA)
+    my $asm_anno = ($scaf->annotation->get_Annotations('whole assembly'))[0];
+    if ($asm_anno) {
+        my $asm_tags = $asm_anno->value;
+        if ($asm_tags =~ m/^TYPE: (\S+) PROGRAM: (\S+) DATE: (\S+) DATA: (.*)$/ms) {
+            my ($type, $program, $date, $data) = ($1, $2, $3, $4);
+            $data ||= '';
+            $self->_print(
+                "WA{\n".
+                "$type $program $date\n".
+                $data.
+                "}\n".
+                "\n"
+            );
+        }
+    }
+
+    # Contig Tags (CT)
+    for my $contig_id (@contig_ids) {
+        my $contig = $scaf->get_contig_by_id($contig_id) ||
+            $scaf->get_singlet_by_id($contig_id);
+        my @feats = (grep 
+            { not $_->primary_tag =~ m/^_/ }
+             $contig->get_features_collection->get_all_features
+            );
+        for my $feat (@feats) {
+            my $type   =  $feat->primary_tag;
+            my $start  =  $feat->start;
+            my $end    =  $feat->end;
+            my $source = ($feat->get_tag_values('source')       )[0];
+            my $date   = ($feat->get_tag_values('creation_date'))[0];
+            my $extra  = '';
+            if ($feat->has_tag('extra_info')) {
+                $extra = ($feat->get_tag_values('extra_info')   )[0];
+            }
+            $self->_print(
+                "CT{\n".
+                "$contig_id $type $source $start $end $date\n".
+                $extra.
+                "}\n".
+                "\n"
+            );
+        }
+    }
+
+    return 1;      
+}
+
+
+=head2 write_contig
+
+    Title   : write_contig
+    Usage   : $ass_io->write_contig($contig)
+    Function: Write a contig or singlet object in ACE compatible format
+    Returns : 1 on success, 0 for error
+    Args    : A Bio::Assembly::Contig or Singlet object
+
+=cut
+
+sub write_contig {
+    my ($self, @args) = @_;
+    my ($contig) = $self->_rearrange([qw(CONTIG)], @args);
+
+    # Sanity check
+    if ( !$contig || !$contig->isa('Bio::Assembly::Contig') ) {
+        $self->throw("Must provide a Bio::Assembly::Contig or Singlet object when calling write_contig");
+    }
+
+    my $contig_id        =  $contig->id;
+    my $contig_num_reads =  $contig->num_sequences;
+    my $cons             =  $contig->get_consensus_sequence;
+    my $cons_qual        =  $contig->get_consensus_quality->qual;
+    my $cons_seq         =  $cons->seq;
+    my $cons_len         =  $cons->length;
+    my $cons_strand      = ($contig->strand == -1) ? 'C' : 'U';
+    my @bs_feats = grep { $_->primary_tag eq '_base_segments' }
+        $contig->get_features_collection->get_all_features;
+    my $nof_segments     = scalar @bs_feats ;
+
+    $self->_print(
+        "CO $contig_id $cons_len $contig_num_reads $nof_segments $cons_strand\n".
+        _formatted_seq($cons_seq, $line_width).
+        "\n".
+        "BQ\n".
+        _formatted_qual($cons_qual, $cons_seq, $line_width).
+        "\n"
+    );
+        
+    # Read entries
+    my @reads  = $contig->each_seq;
+    for my $read (@reads) {
+        my $read_id     =  $read->id;
+        my $read_strand = ($read->strand == -1) ? 'C' : 'U';
+        my $read_start  =  $contig->change_coord("aligned $read_id",'gapped consensus',1);
+        $self->_print( "AF $read_id $read_strand $read_start\n" );
+    }
+    $self->_print( "\n" );
+
+    # Deal with base segments (BS)
+    if ( @bs_feats ) {
+        # sort segments by increasing start position
+        @bs_feats = sort { $a->start <=> $b->start } @bs_feats;
+        # write segments
+        for my $bs_feat ( @bs_feats ) {
+            my $start =  $bs_feat->start;
+            my $end   =  $bs_feat->end;
+            my $id    = ($bs_feat->get_tag_values('contig_id'))[0];
+            $self->_print( "BS $start $end $id\n" );
+         }
+        $self->_print( "\n" );
+    }
+   
+        
+    for my $read (@reads) {
+        $self->_write_read($read, $contig);
+    }
+
+    return 1;
+}
+
+
+=head2 _write_read
+
+    Title   : _write_read
+    Usage   : $ass_io->_write_read($read, $contig)
+    Function: Write a read object in ACE compatible format
+    Returns : 1 on success, 0 for error
+    Args    : a Bio::LocatableSeq read
+              the Contig or Singlet object that this read belongs to
+
+=cut
+
+sub _write_read {
+    my ($self, @args) = @_;
+    my ($read, $contig) = $self->_rearrange([qw(READ CONTIG)], @args);
+
+    # Sanity check
+    if ( !$read || !$read->isa('Bio::LocatableSeq') ) {
+        $self->throw("Must provide a Bio::LocatableSeq when calling write_read");
+    }
+    if ( !$contig || !$contig->isa('Bio::Assembly::Contig') ) {
+        $self->throw("Must provide a Bio::Assembly::Contig or Singlet object when calling write_read");
+    }
+
+    # Read info
+    my $read_id   = $read->id;
+    my $read_len  = $read->length; # aligned length
+    my $read_seq  = $read->seq;
+    my $nof_info = 0; # fea: could not find exactly what this is?
+    my @read_feats = $contig->get_seq_coord($read)->get_SeqFeatures;
+    my @read_tags = (grep { $_->primary_tag eq "_read_tags:$read_id" } @read_feats);
+    my $nof_tags  = scalar @read_tags;
+    $self->_print(
+        "RD $read_id $read_len $nof_info $nof_tags\n".
+        _formatted_seq($read_seq, $line_width).
+        "\n"
+    );
+
+    # Aligned "align clipping" and quality coordinates if read object has them
+    my $qual_clip_start = $read->start;
+    my $qual_clip_end   = $read->end;
+    my $qual_clip = (grep 
+        { $_->primary_tag eq '_quality_clipping:'.$read_id }
+        $contig->get_features_collection->get_all_features
+        )[0];
+    if ( defined $qual_clip ) {
+        $qual_clip_start = $qual_clip->location->start;
+        $qual_clip_end   = $qual_clip->location->end;
+    }
+    my $aln_clip_start = $read->start;
+    my $aln_clip_end   = $read->end;
+    my $aln_clip = (grep 
+        { $_->primary_tag eq '_align_clipping:'.$read_id }
+        $contig->get_features_collection->get_all_features
+        )[0];
+    if ( defined $aln_clip ) {
+        $aln_clip_start = $aln_clip->location->start;
+        $aln_clip_end   = $aln_clip->location->end;
+    }
+    $qual_clip_start = $contig->change_coord('gapped consensus',"aligned $read_id",$qual_clip_start);
+    $qual_clip_end   = $contig->change_coord('gapped consensus',"aligned $read_id",$qual_clip_end  );
+    $aln_clip_start  = $contig->change_coord('gapped consensus',"aligned $read_id",$aln_clip_start );
+    $aln_clip_end    = $contig->change_coord('gapped consensus',"aligned $read_id",$aln_clip_end   );
+    $self->_print(
+        "QA $qual_clip_start $qual_clip_end $aln_clip_start $aln_clip_end\n".
+        "\n"
+    );
+
+    # Read description, if read object has them
+    my $read_desc = (grep { $_->primary_tag eq "_read_desc:$read_id" } @read_feats)[0];
+    if ($read_desc) {
+        $self->_print("DS");
+        for my $tag_name ( $read_desc->get_all_tags ) {
+            my $tag_value = ($read_desc->get_tag_values($tag_name))[0];
+            $self->_print(" $tag_name: $tag_value");
+        }
+        $self->_print("\n\n");
+    }
+
+    # Read tags, if read object has them
+    for my $read_tag (@read_tags) {
+        #my $type   =  $read_tag->primary_tag;
+        my $start  =  $read_tag->start;
+        my $end    =  $read_tag->end;
+        my $type   = ($read_tag->get_tag_values('type')         )[0];
+        my $source = ($read_tag->get_tag_values('source')       )[0];
+        my $date   = ($read_tag->get_tag_values('creation_date'))[0];
+        my $extra  = ($read_tag->get_tag_values('extra_info')   )[0] || '';
+        $self->_print(
+            "RT{\n".
+            "$read_id $type $source $start $end $date\n".
+            $extra.                
+            "}\n".
+            "\n"
+        );
+    }
+
+    return 1;
+}
+
+
+sub _formatted_seq {
+    # Takes a sequence string, use '*' for gaps and split the sequence on
+    # several lines
+    my ($seq_str, $line_width) = @_;
+    my $new_str = '';
+    # In the ACE format, gaps are '*'
+    $seq_str =~ s/-/*/g;
+    # Split sequences on several lines
+    while ( my $chunk = substr $seq_str, 0, $line_width, '' ) {
+        $new_str .= "$chunk\n";
+    }
+    return $new_str;
+}
+
+
+sub _formatted_qual {
+    # Takes a quality score array and the corresponsing sequence string, remove
+    # quality score for gaps and split the quality score string on several lines
+    my ($qual_arr, $seq, $line_width) = @_;
+    my $qual_str = '';
+    # Gaps get no quality score in ACE format
+    my $gap_pos = -1;
+    while ( $gap_pos = index($seq, '-', $gap_pos + 1) ) {
+        last if $gap_pos == -1;
+        substr $seq, $gap_pos, 1, '';
+        splice @$qual_arr, $gap_pos, 1;
+        $gap_pos--;
+    }
+    # Split quality scores on several lines
+    while ( my @chunks = splice @$qual_arr, 0, $line_width ) {
+        $qual_str .= "@chunks\n";
+    }
+    return $qual_str;
 }
 
 
