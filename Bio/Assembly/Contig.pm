@@ -902,7 +902,7 @@ sub get_consensus_sequence {
  Usage     : $contig->get_consensus_quality()
  Function  : Get a reference to the consensus quality object
              for this contig.
- Returns   : A Bio::QualI object
+ Returns   : A Bio::Seq::QualI object
  Argument  : none
 
 =cut

@@ -143,7 +143,7 @@ use Bio::SeqFeature::Generic;
 use base qw(Bio::Assembly::IO);
 
 our $line_width = 50;
-
+our $qual_value = 20;
 
 =head1 Parser methods
 
@@ -613,7 +613,9 @@ sub write_assembly {
 
     Title   : write_contig
     Usage   : $ass_io->write_contig($contig)
-    Function: Write a contig or singlet object in ACE compatible format
+    Function: Write a contig or singlet object in ACE compatible format. Quality
+              scores are automatically generated if the contig does not contain
+              any
     Returns : 1 on success, 0 for error
     Args    : A Bio::Assembly::Contig or Singlet object
 
@@ -628,12 +630,12 @@ sub write_contig {
         $self->throw("Must provide a Bio::Assembly::Contig or Singlet object when calling write_contig");
     }
 
+    # Contig consensus sequence
     my $contig_id        =  $contig->id;
-    my $contig_num_reads =  $contig->num_sequences;
     my $cons             =  $contig->get_consensus_sequence;
-    my $cons_qual        =  $contig->get_consensus_quality->qual;
     my $cons_seq         =  $cons->seq;
     my $cons_len         =  $cons->length;
+    my $contig_num_reads =  $contig->num_sequences;
     my $cons_strand      = ($contig->strand == -1) ? 'C' : 'U';
     my @bs_feats = grep { $_->primary_tag eq '_base_segments' }
         $contig->get_features_collection->get_all_features;
@@ -642,9 +644,15 @@ sub write_contig {
     $self->_print(
         "CO $contig_id $cons_len $contig_num_reads $nof_segments $cons_strand\n".
         _formatted_seq($cons_seq, $line_width).
-        "\n".
+        "\n"
+    );
+
+    # Consensus quality scores
+    $cons = $contig->get_consensus_quality;
+    my $cons_qual = $cons->qual if defined $cons;
+    $self->_print(
         "BQ\n".
-        _formatted_qual($cons_qual, $cons_seq, $line_width).
+        _formatted_qual($cons_qual, $cons_seq, $line_width, $qual_value).
         "\n"
     );
         
@@ -799,8 +807,13 @@ sub _formatted_seq {
 sub _formatted_qual {
     # Takes a quality score array and the corresponsing sequence string, remove
     # quality score for gaps and split the quality score string on several lines
-    my ($qual_arr, $seq, $line_width) = @_;
+    # If the quality scores are undefined, use the provided default quality scores
+    my ($qual_arr, $seq, $line_width, $qual_score) = @_;
     my $qual_str = '';
+    # Default quality     
+    if (not defined $qual_arr) {
+      @$qual_arr = map( $qual_score, (1 .. length $seq) );
+    }
     # Gaps get no quality score in ACE format
     my $gap_pos = -1;
     while ( $gap_pos = index($seq, '-', $gap_pos + 1) ) {
