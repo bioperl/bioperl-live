@@ -206,7 +206,6 @@ use Bio::Root::Root;
 use Bio::Assembly::Scaffold;
 use Bio::SimpleAlign;
 use Bio::LocatableSeq;
-use Graph::Undirected;
 
 use base 'Bio::Root::Root';
 
@@ -235,7 +234,7 @@ sub new {
   my $self = $class->SUPER::new(@args);
   my ( $id, $nof_seq, $nof_rep, $max_size, $nof_overlaps, $min_overlap,
     $min_identity, $avg_overlap, $avg_identity, $avg_seq_len, $spectrum,
-    $contig, $assembly, $eff_asm_params, $dissolve, $cross) = $self->_rearrange(
+    $assembly, $eff_asm_params, $dissolve, $cross) = $self->_rearrange(
     [qw(ID NOF_SEQ NOF_REP MAX_SIZE NOF_OVERLAPS MIN_OVERLAP MIN_IDENTITY
     AVG_OVERLAP AVG_IDENTITY AVG_SEQ_LEN SPECTRUM ASSEMBLY EFF_ASM_PARAMS
     DISSOLVE CROSS)], @args );
@@ -1619,6 +1618,8 @@ sub _get_assembly_overlap_stats {
               minimum spanning tree of this graph represents the overlaps that
               form the contig. Overlaps that do not satisfy the minimum overlap
               length and similarity get a malus on their score.
+              Note: This function requires the optional BioPerl dependency
+              module called 'Graph'
   Returns : average overlap length
             average identity percent
             minimum overlap length
@@ -1636,7 +1637,11 @@ sub _get_contig_overlap_stats {
   $self->throw("Must provide a Bio::Assembly::Contig object")
     if (!defined $contig_obj || !$contig_obj->isa("Bio::Assembly::Contig"));
   $self->throw("Expecting a hash reference. Got [".ref($seq_hash)."]")
-    if (defined $seq_hash && ! ref($seq_hash) eq 'HASH');
+    if (defined $seq_hash && ! ref($seq_hash) eq 'HASH');   
+  if (not eval { require Graph::Undirected }) {
+    $self->throw("Error: the module 'Graph' is needed by the method ".
+      "_get_contig_overlap_stats but could not be found\n$@");
+  }
 
   my @contig_stats = (0, 0, undef, undef, 0);
   # contig_stats = (avg_length, avg_identity, min_length, min_identity, nof_overlaps)
