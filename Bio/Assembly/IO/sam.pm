@@ -325,7 +325,7 @@ sub write_assembly {
     Returns : Bio::Assembly::Contig object
     Args    : Bio::DB::Sam::Segment object
 
-=cut 
+=cut
 
 sub _store_contig {
     my ($self, $contig_seg) = @_;
@@ -337,13 +337,18 @@ sub _store_contig {
         -strand => 1
     );
     my $consobj = $self->_calc_consensus($contig_seg);
-    my $consensus = Bio::LocatableSeq->new(
+    my $consensus_seq = Bio::LocatableSeq->new(
         -id    => $contigobj->id,
         -seq   => $consobj->seq,
         -start => 1,
     );
-    $contigobj->set_consensus_sequence($consensus);
-    $contigobj->set_consensus_quality($consobj);
+    $contigobj->set_consensus_sequence($consensus_seq);
+    my $consensus_qual = Bio::Seq::PrimaryQual->new(
+        -id    => $contigobj->id,
+        -qual  => $consobj->qual,
+        -start => 1,
+    );
+    $contigobj->set_consensus_quality($consensus_qual);
 
     # Add other misc contig information as subsequence feature
 #     my @other = grep !/asmbl_id|end|qualobj|start/, keys %$contiginfo;

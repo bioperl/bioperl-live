@@ -229,8 +229,9 @@ methods. Internal methods are usually preceded with a "_".
 package Bio::Assembly::IO::tigr;
 
 use strict;
-use Bio::Seq::Quality;
+use Bio::Seq::PrimaryQual;
 use Bio::LocatableSeq;
+use Bio::Seq::Quality;
 use Bio::Assembly::IO;
 use Bio::Assembly::Scaffold;
 use Bio::Assembly::Contig;
@@ -436,10 +437,8 @@ sub _store_contig {
 
     # Create an gapped consensus quality score and attach it to contig
     $$contiginfo{'quality'} = $self->_qual_hex2dec($$contiginfo{'quality'});
-    my $qual = Bio::Seq::Quality->new(
-        -id   => $$contiginfo{'asmbl_id'},
-        -qual => $$contiginfo{'quality'}
-    );
+    my $qual = Bio::Seq::PrimaryQual->new( -qual => $$contiginfo{'quality'},
+                                           -id   => $$contiginfo{'asmbl_id'} );
     $contigobj->set_consensus_quality($qual);
 
     # Add other misc contig information as features of the contig
@@ -559,7 +558,7 @@ sub _store_singlet {
        -start      => 1,
        -strand     => $$readinfo{'strand'},
        -alphabet   => 'dna',
-       -qual => $self->_qual_hex2dec($$contiginfo{'quality'})    
+       -qual       => $self->_qual_hex2dec($$contiginfo{'quality'})    
    );
 
    # Create singlet from sequence and add it to scaffold

@@ -135,8 +135,8 @@ use Bio::Assembly::Scaffold;
 use Bio::Assembly::Contig;
 use Bio::Assembly::Singlet;
 use Bio::LocatableSeq;
+use Bio::Seq::PrimaryQual;
 use Bio::Annotation::SimpleValue;
-use Bio::Seq::Quality;
 use Bio::SeqIO;
 use Bio::SeqFeature::Generic;
 
@@ -273,8 +273,8 @@ sub next_contig {
                     $j++;
                 }
             }
-            my $qual = Bio::Seq::Quality->new( -qual => join(" ", @quality),
-                                               -id   => $contigOBJ->id()     );
+            my $qual = Bio::Seq::PrimaryQual->new(-qual => join(" ", @quality),
+                                                  -id   => $contigOBJ->id()   );
             $contigOBJ->set_consensus_quality($qual);
         };
 

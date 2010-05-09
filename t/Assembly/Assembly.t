@@ -7,11 +7,84 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin( -tests => 1266 + 755,
+    test_begin( -tests => 872 + 828 + 755,
                 -requires_module => 'DB_File' );
 
+    use_ok('Bio::Seq');
+    use_ok('Bio::LocatableSeq');
+    use_ok('Bio::Seq::Quality');
     use_ok('Bio::Assembly::IO');
+    use_ok('Bio::Assembly::Singlet');
+
 }
+
+
+#
+# Testing Singlet
+#
+my ($seq_id, $seq_str, $qual, $start, $end, $strand) = ('seq1', 'CAGT-GGT',
+  '0 1 2 3 4 5 6 7', 1, 7, -1, );
+
+my $seq = Bio::PrimarySeq->new(-seq => $seq_str, -id  => $seq_id);
+my $singlet_id = 'singlet1';
+ok my $singlet = Bio::Assembly::Singlet->new( -id => $singlet_id, -seqref =>
+  $seq), 'singlet from Bio::PrimarySeq';
+isa_ok $singlet, 'Bio::Assembly::Contig';
+isa_ok $singlet, 'Bio::Assembly::Singlet';
+is $singlet->id, $singlet_id;
+ok my $consensus = $singlet->get_consensus_sequence;
+isa_ok $consensus, 'Bio::LocatableSeq';
+is $consensus->seq, $seq_str;
+is $consensus->start, 1;
+is $consensus->end, 7;
+is $consensus->strand, 1;
+is $singlet->get_consensus_length, 8;
+is $singlet->get_consensus_quality, undef;
+ok my $seqref = $singlet->seqref;
+is $seqref->id, $seq_id;
+is $seqref->seq, $seq_str;
+is $seqref->start, 1;
+is $seqref->end, 7;
+is $seqref->length, 8;
+
+$seq = Bio::Seq::Quality->new(-seq => $seq_str, -id => $seq_id, -qual => $qual);
+ok $singlet = Bio::Assembly::Singlet->new( -id => $singlet_id, -seqref => $seq),
+  'singlet from Bio::Seq::Quality';
+is $singlet->get_consensus_length, 8;
+ok $consensus = $singlet->get_consensus_quality;
+isa_ok $consensus, 'Bio::Seq::QualI';
+is join(' ', @{$consensus->qual}), $qual;
+
+$seq = Bio::LocatableSeq->new( -seq => $seq_str, -id => $seq_id, -start =>
+  $start, -end => $end, -strand => $strand );
+ok $singlet = Bio::Assembly::Singlet->new( -id => $singlet_id, -seqref => $seq),
+  'singlet from LocatableSeq';
+ok $consensus = $singlet->get_consensus_sequence;
+is $consensus->start, 1;
+is $consensus->end, 7;
+is $consensus->strand, -1;
+ok $seqref = $singlet->seqref;
+is $seqref->start, 1;
+is $seqref->end, 7;
+is $seqref->strand, -1;
+
+($start, $end) = (20, 26);
+$seq = Bio::LocatableSeq->new( -seq => $seq_str, -id => $seq_id, -start =>
+  $start, -end => $end, -strand => $strand );
+ok $singlet = Bio::Assembly::Singlet->new( -id => $singlet_id, -seqref => $seq),
+  'singlet from LocatableSeq with set coordinates';
+ok $consensus = $singlet->get_consensus_sequence;
+is $consensus->start, 1;
+is $consensus->end, 7;
+is $consensus->strand, -1;
+ok $seqref = $singlet->seqref;
+is $seqref->start, 1;
+is $seqref->end, 7;
+is $seqref->strand, -1;
+
+#
+# Testing Contig
+#
 
 #
 # Testing IO
@@ -92,11 +165,6 @@ for my $seq_id (@all_seq_ids) {
   ok (not $seq_id =~ m/contig/i);
 }
 is(@all_seq_ids, 4);
-
-
-#
-# Testing Contig
-#
 
 #
 # Testing ContigAnalysis
@@ -353,6 +421,10 @@ while (my $contig = $aio->next_contig) {
     isa_ok($contig, 'Bio::Assembly::Contig');
 }
 
+#####
+# 872
+#####
+
 SKIP : {
 
     test_skip(-tests => 828,
@@ -408,6 +480,10 @@ SKIP : {
     is(@all_seq_ids, 369);
     
 }
+
+#####
+#1700
+#####
 
 SKIP : {
 

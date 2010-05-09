@@ -146,6 +146,7 @@ package Bio::Assembly::IO::maq;
 
 use strict;
 use Bio::Seq::Quality;
+use Bio::Seq::PrimaryQual;
 use Bio::LocatableSeq;
 use Bio::Assembly::IO;
 use Bio::Assembly::Scaffold;
@@ -312,13 +313,18 @@ sub _store_contig {
 
     $self->throw("Contig object must be defined") unless $contigobj;
 
-    my $consensus = Bio::LocatableSeq->new(
+    my $consensus_seq = Bio::LocatableSeq->new(
         -id    => $$contiginfo{'asmbl_id'},
         -seq   => $$contiginfo{'qualobj'}->seq,
         -start => 1,
     );
-    $contigobj->set_consensus_sequence($consensus);
-    $contigobj->set_consensus_quality($$contiginfo{qualobj});
+    $contigobj->set_consensus_sequence($consensus_seq);
+    my $consensus_qual = Bio::Seq::PrimaryQual->new(
+        -id    => $$contiginfo{'asmbl_id'},
+        -qual  => $$contiginfo{'qualobj'}->qual,
+        -start => 1,
+    );
+    $contigobj->set_consensus_quality($consensus_qual);
 
     # Add other misc contig information as features of the contig
     # Add other misc read information as subsequence feature

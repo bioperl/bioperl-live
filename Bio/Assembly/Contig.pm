@@ -221,7 +221,7 @@ package Bio::Assembly::Contig;
 use strict;
 
 use Bio::SeqFeature::Collection;
-use Bio::Seq::PrimaryQual;
+use Bio::Seq::PrimaryQual; # isa Bio::Seq::QualI
 
 use Scalar::Util qw(weaken);
 
@@ -852,11 +852,10 @@ sub set_consensus_sequence {
 =cut
 
 sub set_consensus_quality {
-    my $self = shift;
-    my $qual  = shift;
+    my ($self, $qual) = @_;
 
-    $self->throw("Consensus quality must be a Bio::Seq::Quality object!")
-        unless ( $qual->isa("Bio::Seq::Quality") );
+    $self->throw("Consensus quality must be a Bio::Seq::QualI object!")
+        unless ( $qual->isa("Bio::Seq::QualI") );
 
     $self->throw("Consensus quality can't be added before you set the consensus sequence!")
         unless (defined $self->{'_consensus_sequence'});
