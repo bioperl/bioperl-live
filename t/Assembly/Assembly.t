@@ -190,7 +190,7 @@ is(@all_seq_ids, 39);
 
 # Writing ACE files
 my $asm_infile  = '27-contig_Newbler.ace';
-my $asm_outfile = test_output_file();
+my $asm_outfile = test_output_file().'.ace';
 my $asm_out = Bio::Assembly::IO->new(
     -file=> ">$asm_outfile",
     -format=>'ace'
@@ -200,21 +200,21 @@ ok $asm_in = Bio::Assembly::IO->new(
     -file   => test_input_file($asm_infile),
     -format => 'ace',
 )->next_assembly, 'writing in the ACE format';
-ok $asm_out->write_assembly( -scaffold => $asm_in );
+ok $asm_out->write_assembly( -scaffold => $asm_in, -singlets => 1 );
 
 $asm_infile = 'assembly_with_singlets.ace';
 ok $asm_in = Bio::Assembly::IO->new(
     -file   => test_input_file($asm_infile),
     -format => 'ace',
 )->next_assembly;
-ok $asm_out->write_assembly( -scaffold => $asm_in );
+ok $asm_out->write_assembly( -scaffold => $asm_in, -singlets => 1  );
 
 $asm_infile = 'reference_ace.ace';
 ok $asm_in = Bio::Assembly::IO->new(
     -file   => test_input_file($asm_infile),
     -format => 'ace',
 )->next_assembly;
-ok $asm_out->write_assembly( -scaffold => $asm_in );
+ok $asm_out->write_assembly( -scaffold => $asm_in, -singlets => 1  );
 
 
 #

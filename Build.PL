@@ -95,6 +95,7 @@ my $build = Bio::Root::Build->new(
                             'PostScript::TextBlock'     => '0/EPS output/Bio::Tree::Draw::Cladogram',
                             'Set::Scalar'               => '0/proper operation/Bio::Tree::Compatible',
                             'SOAP::Lite'                => '0/Bibliographic queries/Bio::DB::Biblio::soap',
+                            'Sort::Naturally'           => '0/sort lexically, but sort numeral parts numerically/Bio::Assembly::IO::ace,Bio::Assembly::IO::tigr',
                             'Spreadsheet::ParseExcel'   => '0/parsing Excel files/Bio::SeqIO::excel,Bio::Microarray::Tools::ReseqChip',
                             'Spreadsheet::WriteExcel'   => '0/writing Excel files/Bio::Microarray::Tools::ReseqChip',
                             'Storable'                  => '2.05/storing sequence objects in local file cache/Bio::DB::FileCache,Bio::SeqFeature::Collection,Bio::PopGen::HtSNP,Bio::PopGen::TagHaplotype,Bio::DB::GFF::Adaptor::berkeleydb',

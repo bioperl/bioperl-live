@@ -19,16 +19,23 @@ Bio::Assembly::IO::ace - module to load ACE files from various assembly programs
     use Bio::Assembly::IO;
 
     # Load an assembly stream
-    my $io = Bio::Assembly::IO->new( -file   => 'results.ace',
-                                     -format => 'ace'        );
+    my $in_io = Bio::Assembly::IO->new( -file   => 'results.ace',
+                                        -format => 'ace'        );
 
     # Read the entire scaffold
-    my $scaffold = $io->next_assembly;
+    my $scaffold = $in_io->next_assembly;
 
     # Or read one contig at a time to save resources
-    while ( my $contig = $io->next_contig ) {
+    while ( my $contig = $in_io->next_contig ) {
       # Do something ...
     }
+
+    # Assembly writing methods
+    my $out_io = Bio::Assembly::IO->new( -file   => ">output.ace",
+                                         -format => 'ace' );
+    $out_io->write_assembly( -scaffold => $scaffold,
+                             -singlets => 1 );
+
 
 =head1 DESCRIPTION
 
@@ -137,8 +144,8 @@ use base qw(Bio::Assembly::IO);
 
 our $line_width = 50;
 
-=head1 Parser methods
 
+=head1 Parser methods
 
 =head2 next_assembly
 
@@ -156,7 +163,7 @@ sub next_assembly {
     my $assembly = Bio::Assembly::Scaffold->new();
 
     # Load contigs and singlets in the scaffold
-    while ( my $obj = $self->next_contig()) {
+    while ( my $obj = $self->next_contig() ) {
         # Add contig /singlet to assembly
         if ($obj->isa('Bio::Assembly::Singlet')) { # a singlet
             $assembly->add_singlet($obj);
@@ -185,7 +192,6 @@ sub next_assembly {
 sub next_contig {
     my ($self) = shift;
     local $/ = "\n";
-    #my $lingering_read;
     my $contigOBJ;
     my $read_name;
     my $read_data = {}; # Temporary holder for read data
@@ -277,6 +283,13 @@ sub next_contig {
             $read_name = $1;
             my $ori = $2;
             $read_data->{$read_name}{'padded_start'} = $3; # aligned start
+
+            ####
+            # TODO: For Newbler? It is the aligned coordinates of the full read (not just
+            # the clear range), however it can be negative because the consensus
+            # is made of the clear range of the reads and starts at position 1.
+            ####
+
             $ori = $ori eq 'U' ? 1 : -1;
             $read_data->{$read_name}{'strand'}  = $ori;
         };
@@ -321,7 +334,6 @@ sub next_contig {
                 -primary_id => $read_name,
                 -alphabet   => 'dna'
             );
-            #$lingering_read = $read;
             # Adding read location and sequence to contig ("gapped consensus" coordinates)
             my $padded_start = $read_data->{$read_name}{'padded_start'};
             my $padded_end   = $padded_start + $read_data->{$read_name}{'length'} - 1;
@@ -506,7 +518,9 @@ sub scaffold_annotations {
 
     Title   : write_assembly
     Usage   : $ass_io->write_assembly($assembly)
-    Function: Write the assembly object in ACE compatible format
+    Function: Write the assembly object in ACE compatible format. The contig IDs
+              will be sorted naturally if the Sort::Naturally module is present,
+              or lexically otherwise.
     Returns : 1 on success, 0 for error
     Args    : A Bio::Assembly::Scaffold object
 
@@ -533,7 +547,11 @@ sub write_assembly {
     $self->_print("AS $num_contigs $num_reads\n\n");
 
     # Sort the contig IDs
-    @contig_ids = sort @contig_ids; # lexical sort
+    if (eval { require Sort::Naturally }) {
+        @contig_ids = Sort::Naturally::nsort( @contig_ids ); # natural sort (better)
+    } else {
+        @contig_ids = sort @contig_ids; # lexical sort (safe)
+    }
 
     # Contig and read entries
     for my $contig_id (@contig_ids) {

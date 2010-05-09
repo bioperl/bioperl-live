@@ -636,7 +636,8 @@ sub _store_singlet {
     Title   : write_assembly
     Usage   : $ass_io->write_assembly($assembly)
     Function: Write the assembly object in TIGR Assembler compatible tasm lassie  
-              format
+              format. The contig IDs will be sorted naturally if the module
+              Sort::Naturally is present, or lexically otherwise.
     Returns : 1 on success, 0 for error
     Args    : A Bio::Assembly::Scaffold object
               1 to write singlets in the assembly file, 0 otherwise
@@ -666,8 +667,14 @@ sub write_assembly {
       $sing_ids[$i] = $primary_id;
       $did{$primary_id} = $display_id;
     }
+
+    # Sort the contig and singlet IDs
     my @ids = (@cont_ids, @sing_ids);
-    @ids = sort { $a <=> $b } @ids; # list with contig ids and singlet primary id
+    if (eval { require Sort::Naturally }) {
+        @ids = Sort::Naturally::nsort( @ids ); # natural sort (better)
+    } else {
+        @ids = sort @ids; # lexical sort (safe)
+    }
     my $numobj = scalar @ids;
 
     # Output all contigs and singlets (sorted by increasing id number)
