@@ -2,7 +2,7 @@
 # $Id$
 
 use strict;
-use constant TEST_COUNT => 83;
+use constant TEST_COUNT => 84;
 
 BEGIN {
     use lib '.','..';
@@ -15,6 +15,7 @@ BEGIN {
     use_ok('Bio::DB::SeqFeature::Store');
     use_ok('Bio::DB::SeqFeature::Store::GFF3Loader');
     use_ok('Bio::Root::IO');
+    use_ok('Bio::DB::Fasta');
     use_ok('File::Copy');
 }
 
