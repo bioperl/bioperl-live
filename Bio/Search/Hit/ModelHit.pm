@@ -351,23 +351,17 @@ See Also   : L<num_hsps()|num_hsps>
 =cut
 
 sub n {
-    my $self = shift; 
-
-    # The check for $self->{'_n'} is a remnant from the 'query' mode days
-    # in which the sbjct object would collect data from the description 
-    # line only.
-
-    my ($n);
-    if(not defined($self->{'_n'})) {
-	if( $self->hsp ) {
-	    $n = $self->hsp->n;
-	}
+    my $self = shift;
+    
+    if (defined @_) {
+        $self->{'_n'} = shift;
+    }
+    
+    if (defined $self->{'_n'}) {
+        return $self->{'_n'}
     } else {
-        $n = $self->{'_n'}; 
-    } 
-    $n ||= $self->num_hsps;
-
-    return $n;
+        return $self->num_hsps;
+    }
 }
 
 =head2 p
