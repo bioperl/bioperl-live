@@ -85,7 +85,7 @@ SKIP: {
 		} 
 	    }
 	}
-	is($count, 45, 'HSPs returned');
+	cmp_ok($count, '>=', 45, 'HSPs returned');
     } elsif ($attempt > 10) {
 	# have a test fail here (there should not be repeated failed attempts to
 	# get reports)
