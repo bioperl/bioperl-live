@@ -341,7 +341,7 @@ foreach my $alg (@normal_formats, @xltd_formats) {
 # bug 2942
 
 my %expected_ranges = ( 'm0' => [7, 11037], #query
-			'm1' => [1170, 10865], #query 
+			'm1' => [1770, 10865], #query 
 			'm2' => [2462, 14599], #query
 			'all' => [231, 3563] #subject
     );
