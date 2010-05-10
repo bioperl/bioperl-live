@@ -146,7 +146,7 @@ is($hsp->hsp_group, undef, "HSP hsp_group");
 is($hsp->hsp_length, 73, "HSP hsp_length");
 is($hsp->length, 73, "HSP length");
 is($hsp->links, undef, "HSP links");
-is($hsp->n, '', "HSP n");
+is($hsp->n, 1, "HSP n");
 float_is($hsp->pvalue, 2.906e-26, "HSP pvalue");
 isa_ok($hsp->query, 'Bio::SeqFeature::Similarity', "HSP query");
 is($hsp->query_string,
@@ -222,7 +222,7 @@ is($hsp->hsp_group, undef, "HSP hsp_group");
 is($hsp->hsp_length, 73, "HSP hsp_length");
 is($hsp->length, 73, "HSP length");
 is($hsp->links, undef, "HSP links");
-is($hsp->n, '', "HSP n");
+is($hsp->n, 1, "HSP n");
 float_is($hsp->pvalue, 6.263e-06, "HSP pvalue");
 isa_ok($hsp->query, 'Bio::SeqFeature::Similarity', "HSP query");
 is($hsp->query_string,
@@ -329,7 +329,7 @@ is($hsp->hsp_group, undef, "HSP hsp_group");
 is($hsp->hsp_length, 103, "HSP hsp_length");
 is($hsp->length, 103, "HSP length");
 is($hsp->links, undef, "HSP links");
-is($hsp->n, '', "HSP n");
+is($hsp->n, 1, "HSP n");
 float_is($hsp->pvalue, undef, "HSP pvalue");
 isa_ok($hsp->query, 'Bio::SeqFeature::Similarity', "HSP query");
 is($hsp->query_string,
@@ -373,7 +373,7 @@ is($hsp->hsp_group, undef, "HSP hsp_group");
 is($hsp->hsp_length, 103, "HSP hsp_length");
 is($hsp->length, 103, "HSP length");
 is($hsp->links, undef, "HSP links");
-is($hsp->n, '', "HSP n");
+is($hsp->n, 1, "HSP n");
 float_is($hsp->pvalue, undef, "HSP pvalue");
 isa_ok($hsp->query, 'Bio::SeqFeature::Similarity', "HSP query");
 is($hsp->query_string,
@@ -440,7 +440,7 @@ is($hsp->hsp_group, undef, "HSP hsp_group");
 is($hsp->hsp_length, 103, "HSP hsp_length");
 is($hsp->length, 103, "HSP length");
 is($hsp->links, undef, "HSP links");
-is($hsp->n, '', "HSP n");
+is($hsp->n, 1, "HSP n");
 isa_ok($hsp->query, 'Bio::SeqFeature::Similarity', "HSP query");
 is($hsp->query_string,
    'aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaGgcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu',
@@ -583,7 +583,7 @@ is($hsp->hsp_group, undef, "HSP hsp_group");
 is($hsp->hsp_length,102, "HSP hsp_length");
 is($hsp->length, 102, "HSP length");
 is($hsp->links, undef, "HSP links");
-is($hsp->n, '', "HSP n");
+is($hsp->n, 1, "HSP n");
 float_is($hsp->pvalue, 1.945e-07, "HSP pvalue");
 isa_ok($hsp->query, 'Bio::SeqFeature::Similarity', "HSP query");
 is($hsp->query_string,
@@ -627,7 +627,7 @@ is($hsp->hsp_group, undef, "HSP hsp_group");
 is($hsp->hsp_length, 102, "HSP hsp_length");
 is($hsp->length, 102, "HSP length");
 is($hsp->links, undef, "HSP links");
-is($hsp->n, '', "HSP n");
+is($hsp->n, 1, "HSP n");
 float_is($hsp->pvalue, 0.9989, "HSP pvalue");
 isa_ok($hsp->query, 'Bio::SeqFeature::Similarity', "HSP query");
 is($hsp->query_string,
@@ -694,7 +694,7 @@ is($hsp->hsp_group, undef, "HSP hsp_group");
 is($hsp->hsp_length, 102, "HSP hsp_length");
 is($hsp->length, 102, "HSP length");
 is($hsp->links, undef, "HSP links");
-is($hsp->n, '', "HSP n");
+is($hsp->n, 1, "HSP n");
 isa_ok($hsp->query, 'Bio::SeqFeature::Similarity', "HSP query");
 is($hsp->query_string,
    'aAaaauaaAaaaaaaaauaCuCgUAUAaucucgggAAUAUGGcccgagaGUuUCUACCaGgcaaCCGUAAAuugcCuGACUAcGaGuaAauauuaaauauuu',

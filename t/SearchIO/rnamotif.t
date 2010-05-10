@@ -83,7 +83,7 @@ is($hsp->hsp_group, undef, "HSP hsp_group");
 is($hsp->hsp_length, 75, "HSP hsp_length");
 is($hsp->length, 75, "HSP length");
 is($hsp->links, undef, "HSP links");
-is($hsp->n, '',"HSP n");
+is($hsp->n, 1,"HSP n");
 isa_ok($hsp->query, 'Bio::SeqFeature::Similarity', "HSP query");
 is($hsp->query_string,
    '',
