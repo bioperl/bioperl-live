@@ -435,7 +435,7 @@ sub get_aln {
     $id || return;
     my $data = $self->{matrix}->{data}->{$id} || $self->throw("matrix '$id' had no data in DB_File");
     my @data = split(SEPARATOR, $data);
-    
+
     if (! $data[5] && $via_factors) {
         # This is a matrix with no site sequences given in matrix.dat.
         # Find some matching site sequences via factors.
@@ -1205,19 +1205,26 @@ sub _build_index {
                 # sites of a matrix are pre-aligned but padded with spaces on
                 # the left and no padding on the right; pad with -s both sides
                 my $longest_seq = 0;
-                foreach my $site_seq (@site_data) {
-                    $site_seq =~ s/ /-/g;
-                    my $length = length($site_seq);
-                    if ($length > $longest_seq) {
-                        $longest_seq = $length;
-                    }
-                }
-                foreach my $site_seq (@site_data) {
-                    my $length = length($site_seq);
-                    if ($length < $longest_seq) {
-                        $site_seq .= '-' x ($longest_seq - $length);
-                    }
-                }
+                
+                # For all the work, does anything meaningful actually get passed
+                # on here? Commenting out fixes the latest crashes on trunk.
+                # 5-10-10 cjfields
+                
+                #foreach my $site_seq (map {my ($seq) = split("_", $_ ,2); $seq;} @site_data) {
+                #    $site_seq =~ s/ /-/g;
+                #    my $length = length($site_seq);
+                #    if ($length > $longest_seq) {
+                #        $longest_seq = $length;
+                #    }
+                #}
+                #foreach my $site (@site_data) {
+                #    my ($site_seq) = split("_", $site ,2);
+                #    my $length = length($site_seq);
+                #    if ($length < $longest_seq) {
+                #        $site_seq .= '-' x ($longest_seq - $length);
+                #    }
+                #}
+
                 my $site_data = join(INTERNAL_SEPARATOR, @site_data) || '';
                 
                 # accession = id name description num_of_sites matrix_data site_data
