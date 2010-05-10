@@ -511,9 +511,9 @@ sub next_result {
             # want to preserve newlines for the BLAST algorithm reference
             my $algorithm_reference = "$1\n";
             $_ = $self->_readline;
-            # while the current line, does not match an empty line, a RID:, or a Database:, we are still looking at the
-            # algorithm_reference, append it to what we parsed so far
-            while($_ !~ /^$/ && $_ !~ /^RID:/ && $_ !~ /^Database:/) {
+            # while the current line, does not match an empty line, a RID:, a Database:, or a query definition line (Query=)
+			# we are still looking at the algorithm_reference, append it to what we parsed so far
+            while($_ !~ /^$/ && $_ !~ /^RID:/ && $_ !~ /^Database:/ && $_ !~ /^Query=/) {
                 $algorithm_reference .= "$_";
                 $_ = $self->_readline;
             }	
