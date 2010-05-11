@@ -22,9 +22,9 @@ $str = Bio::AlignIO->new(
 		 -format => 'xmfa');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
-is $aln->get_seq_by_pos(1)->get_nse, 'chrY/598-1', 
+is $aln->get_seq_by_pos(1)->get_nse, 'chrY/1-598', 
   "xmfa input test ";
-is $aln->get_seq_by_pos(1)->strand, -1, 
+is $aln->get_seq_by_pos(1)->strand, 1, 
   "xmfa strand test";
 is ($aln->get_seq_by_pos(2)->description, undef, 
     "xmfa input test for description");
@@ -38,9 +38,9 @@ is ($aln->score, 111, 'xmfa alignment score');
 
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
-is $aln->get_seq_by_pos(1)->get_nse, 'chrY/1059-1000', 
+is $aln->get_seq_by_pos(1)->get_nse, 'chrY/1000-1059', 
   "xmfa input test ";
-is $aln->get_seq_by_pos(1)->strand, -1, 
+is $aln->get_seq_by_pos(1)->strand, 1, 
   "xmfa strand";
 is ($aln->get_seq_by_pos(2)->description, undef, 
     "xmfa input test for description");

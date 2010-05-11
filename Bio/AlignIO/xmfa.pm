@@ -225,7 +225,7 @@ sub _process_seq {
     # put away last name and sequence
     if ( $entry =~ m{^>\s*\d+:(\d+)-(\d+)\s([+-]{1})(?:\s+(\S+)\s*(\S\.*)?)?} ) {
         ($start, $end, $seqname, $desc) = ($1, $2, $4, $5);
-        $strand = ($4 eq '+')  ?  1  : -1;
+        $strand = ($3 eq '+')  ?  1  : -1;
     } else {
         $self->throw("Line does not comform to XMFA format:\n$entry");
     }
