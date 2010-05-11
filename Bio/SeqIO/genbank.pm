@@ -1396,9 +1396,11 @@ sub _read_GenBank_Species {
     # (we don't catch everything lower than species, but it doesn't matter -
     # this is just so we abide by previous behaviour whilst not calling a
     # species a subspecies)
-    if ($species && $species =~ /subsp\.|var\./) {
-	($species, $sub_species) = $species =~ /(.+)\s+((?:subsp\.|var\.).+)/;
+    if ($species && $species =~ /(.+)\s+((?:subsp\.|var\.).+)/) {
+        ($species, $sub_species) = ($1, $2);
     }
+
+    $self->debug("$species\n");
 
     # Don't make a species object if it's empty or "Unknown" or "None"
     # return unless $genus and  $genus !~ /^(Unknown|None)$/oi;
