@@ -1343,6 +1343,12 @@ sub next_result {
 
                         # going to skip these
                     }
+                    elsif ( /\s+\S+fasta3\d\s+/) {
+                        # this is something that looks like a path but contains
+                        # the fasta3x executable string, such as:
+                        # /usr/local/fasta3/bin/fasta35 -n -U -Q -H -A -E 2.0 -C 19 -m 0 -m 9i test.fa ../other_mirs.fa -O test.fasta35
+                        last;
+                    }
                     else {
                         $self->throw(
                             "Unrecognized alignment line ($count) '$_'");
