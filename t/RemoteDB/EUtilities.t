@@ -422,6 +422,40 @@ sub elink1 {
     }
 }
 
+sub elink2 {
+    my @genome_ids = qw(30807 33011 12997 16707 45843 31129 31141 31131 31133 32203 31135);
+    SKIP: {
+        $eutil = Bio::DB::EUtilities->new(
+                                        -eutil      => 'elink',
+                                        -db         => 'nuccore',
+                                        -dbfrom     => 'genomeprj',
+                                        -id         => @genome_ids,
+                                        -email      => $email
+                                          );
+              
+        eval {$response = $eutil->get_Response; };
+        skip("ELink HTTP error:$@", 7) if $@;
+        isa_ok($response, 'HTTP::Response');
+        like($response->content, qr(<eLinkResult>), 'ELink response');
+        # Data is too volatile to test; commenting for now...
+        #my @ids2 = qw(350054 306537 273068 83332 1394);
+        cmp_ok($eutil->get_ids, '>=', 4);
+        #is_deeply([sort $eutil->get_ids], [sort @ids2],'$elink->get_ids()');
+        
+        # Linkset tests
+        is($eutil->get_LinkSets, 1, '$elink->get_LinkSets()');
+        my $linkobj = $eutil->next_LinkSet;
+        isa_ok($linkobj, 'Bio::Tools::EUtilities::Link::LinkSet');
+        is($linkobj->get_dbfrom, 'protein', '$linkdata->get_dbfrom()');
+        #is_deeply([sort $linkobj->elink_queryids],
+        #          [sort @ids], '$linkdata->elink_queryids()');
+        my $db = $linkobj->get_dbto;
+        is($db, 'taxonomy', '$linkdata->get_dbto()');
+        #is_deeply([sort $linkobj->get_LinkIds_by_db($db)],
+        #          [sort @ids2], '$linkdata->get_LinkIds_by_db($db)');   
+    }
+}
+
 sub egquery {
     SKIP: {
     $eutil = Bio::DB::EUtilities->new(

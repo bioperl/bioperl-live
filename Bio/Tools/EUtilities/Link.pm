@@ -1,4 +1,4 @@
-# $Id$
+# $Id: Link.pm 16108 2009-09-16 17:07:49Z cjfields $
 #
 # BioPerl module for Bio::Tools::EUtilities::Link
 #

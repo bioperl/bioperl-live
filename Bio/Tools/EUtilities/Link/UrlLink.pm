@@ -1,4 +1,4 @@
-# $Id$
+# $Id: UrlLink.pm 16108 2009-09-16 17:07:49Z cjfields $
 #
 # BioPerl module for Bio::Tools::EUtilities::Link::UrlLink
 #
@@ -261,12 +261,10 @@ sub to_string {
         my ($m, $nm) = ($tags{$tag}->[0], $tags{$tag}->[1]);
         my $content = $self->$m();
         next unless $content;
-        $string .= sprintf("%-*s%-*s%s\n",
-            $level, '',
-            $pad, $nm,
-            $self->_text_wrap(':',
-                 ' ' x ($pad + $level).':',
-                 $content ));
+        $string .= $self->_text_wrap(
+                 sprintf("%-*s%-*s:",$level, '',$pad, $nm,),
+                 ' ' x ($pad).':',
+                 $content)."\n";
     }
     return $string;
 }
