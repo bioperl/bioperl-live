@@ -1133,7 +1133,11 @@ sub slice {
                 $new_seq->start( $seq->start + CORE::length($pre_start_seq)  );
             }
 	    } else {
-            $new_seq->start( $seq->start);
+            if ((defined $seq->strand)&&($seq->strand < 0)){
+                $new_seq->start( $seq->end - CORE::length($slice_seq) + 1);
+            } else {
+               $new_seq->start( $seq->start);
+            }
 	    }
         if ($new_seq->isa('Bio::Seq::MetaI')) {
             for my $meta_name ($seq->meta_names) {
