@@ -228,8 +228,8 @@ sub next_feature {
     return $self->next_feature;
   }
   
-  my $feature = Bio::SeqFeature::Annotated->new(-start  => $start, # start is 0 based
-                                                -end    => --$end, # end is not part of the feature
+  my $feature = Bio::SeqFeature::Annotated->new(-start  => ++$start, # start is 0 based; we need it 1-based
+                                                -end    => $end,     # end is one beyond the feature ends and thus already 1-based
                                                 $score  ? (-score  => $score) : (),
                                                 $strand ? (-strand => $strand eq '+' ? 1 : -1) : ());
   
