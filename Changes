@@ -21,9 +21,19 @@ CPAN releases are branched off of 'master', verified stable, and pushed to PAUSE
 
 
 1.6.1_1 RELEASE_DATE_HERE (first 1.6.2 alpha)
+    [New features]
     * Bio::SeqIO::gbxml
         - bug 2515 - new contribution [Ryan Golhar, jhannah]
-    * Repository moved from Subversion (SVN) to http://github.com/bioperl/bioperl-live [cjfields]
+    ...
+        
+    [Bug fixes]
+    * bug 3077 - Bio::SimpleAlign slice() now correctly computes seq coordinates
+      for alignment slices [Ha X. Dang, cjfields]
+    ...
+      
+    [Other]
+    * Repository moved from Subversion (SVN) to
+      http://github.com/bioperl/bioperl-live [cjfields]
 
 1.6.1   Sept. 29, 2009 (point release)
     * No change from last alpha except VERSION and doc updates [cjfields]
