@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<!DOCTYPE GBSet PUBLIC "-//NCBI//NCBI GBSeq/EN" "http://www.ncbi.nlm.nih.gov/dtd/NCBI_GBSeq.dtd">
+<GBSet>
+<GBSeq>
+  <GBSeq_locus>EG352462</GBSeq_locus>
+  <GBSeq_length>437</GBSeq_length>
+  <GBSeq_strandedness>single</GBSeq_strandedness>
+  <GBSeq_moltype>mRNA</GBSeq_moltype>
+  <GBSeq_topology>linear</GBSeq_topology>
+  <GBSeq_division>EST</GBSeq_division>
+  <GBSeq_update-date>11-OCT-2006</GBSeq_update-date>
+  <GBSeq_create-date>11-OCT-2006</GBSeq_create-date>
+  <GBSeq_definition>SAAH-aad23f02.g1 Agen 0058 Schmidtea mediterranea cDNA 5&apos; similar to sp|P35779|VA3_SOLRI Venom allergen III (Allergen Sol r 3) (Sol r III) pir|B58853 venom allergen Sol r 3 - black imported fire ant, mRNA sequence</GBSeq_definition>
+  <GBSeq_primary-accession>EG352462</GBSeq_primary-accession>
+  <GBSeq_accession-version>EG352462.1</GBSeq_accession-version>
+  <GBSeq_other-seqids>
+    <GBSeqid>gnl|dbEST|42340791</GBSeqid>
+    <GBSeqid>gb|EG352462.1|</GBSeqid>
+    <GBSeqid>gi|116038450</GBSeqid>
+  </GBSeq_other-seqids>
+  <GBSeq_keywords>
+    <GBKeyword>EST</GBKeyword>
+  </GBSeq_keywords>
+  <GBSeq_source>Schmidtea mediterranea</GBSeq_source>
+  <GBSeq_organism>Schmidtea mediterranea</GBSeq_organism>
+  <GBSeq_taxonomy>Eukaryota; Metazoa; Platyhelminthes; Turbellaria; Seriata; Tricladida; Paludicola; Dugesiidae; Schmidtea</GBSeq_taxonomy>
+  <GBSeq_references>
+    <GBReference>
+      <GBReference_reference>1</GBReference_reference>
+      <GBReference_position>1..437</GBReference_position>
+      <GBReference_authors>
+        <GBAuthor>Wilson,R.</GBAuthor>
+      </GBReference_authors>
+      <GBReference_title>WashU Planaria EST project</GBReference_title>
+      <GBReference_journal>Unpublished (2006)</GBReference_journal>
+    </GBReference>
+  </GBSeq_references>
+  <GBSeq_comment>Contact: Wilson, R.~WashU Planaria EST project~Washington University School of Medicine~4444 Forest Park Parkway, Box 8501, St. Louis, MO 63108, USA~Tel: 314 286 1800~Fax: 314 286 1810~Email: submissions@watson.wustl.edu~Library material provided by Dr. Peter Reddien Library constructed by Agencourt Bioscience Corporation Library sequenced by Washington University Genome Sequencing Center ~This trace has been recalled with phred ~original value before phred recall for SR was 516~Seq primer: -28RPpOT</GBSeq_comment>
+  <GBSeq_feature-table>
+    <GBFeature>
+      <GBFeature_key>source</GBFeature_key>
+      <GBFeature_location>1..437</GBFeature_location>
+      <GBFeature_intervals>
+        <GBInterval>
+          <GBInterval_from>1</GBInterval_from>
+          <GBInterval_to>437</GBInterval_to>
+          <GBInterval_accession>EG352462.1</GBInterval_accession>
+        </GBInterval>
+      </GBFeature_intervals>
+      <GBFeature_quals>
+        <GBQualifier>
+          <GBQualifier_name>organism</GBQualifier_name>
+          <GBQualifier_value>Schmidtea mediterranea</GBQualifier_value>
+        </GBQualifier>
+        <GBQualifier>
+          <GBQualifier_name>mol_type</GBQualifier_name>
+          <GBQualifier_value>mRNA</GBQualifier_value>
+        </GBQualifier>
+        <GBQualifier>
+          <GBQualifier_name>db_xref</GBQualifier_name>
+          <GBQualifier_value>taxon:79327</GBQualifier_value>
+        </GBQualifier>
+        <GBQualifier>
+          <GBQualifier_name>clone_lib</GBQualifier_name>
+          <GBQualifier_value>Agen 0058</GBQualifier_value>
+        </GBQualifier>
+        <GBQualifier>
+          <GBQualifier_name>lab_host</GBQualifier_name>
+          <GBQualifier_value>DH10B cells</GBQualifier_value>
+        </GBQualifier>
+        <GBQualifier>
+          <GBQualifier_name>note</GBQualifier_name>
+          <GBQualifier_value>Vector: pAGEN-1; Site_1: NotI; Site_2: EcoRV; Total RNA isolated from S.mediterranea</GBQualifier_value>
+        </GBQualifier>
+      </GBFeature_quals>
+    </GBFeature>
+  </GBSeq_feature-table>
+  <GBSeq_sequence>aataaaattacatttgttttccttttactagatttctgttctggagatctttctgatgaagatttttatctaatcttggaaatccatgacaaattccgaaaatctgtggccaatggagaagtttcgaaccaacccaaagcagcgaacatgcaacaaatggtatggagtgaagaagcggcatccagagcgcaggcaaccgcggataaatgctcatttaatcacgacacaataaatgaccgtaaatatggaaattatgaatgggttggacagaatattgccatgttcacaggaggaaatattgccaaaggcgtacaattgtggtttaacgaggtttccggatacacattttcagataatagttgttcagaaaatacttgcggacattatacacaaattgtatgggccaaatctaaagagctgggctgtggactggccaa</GBSeq_sequence>
+</GBSeq>
+</GBSet>
