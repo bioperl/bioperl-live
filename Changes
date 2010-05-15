@@ -1,21 +1,29 @@
-$Id$
-  
-Revision history for Bioperl core modules
+---------------------------------------------------------
+Revision history for BioPerl core modules
+---------------------------------------------------------
 
-Main trunk
+The comprehensive history and ongoing development of BioPerl:
 
-1.6 series
+   http://github.com/bioperl/bioperl-live
 
-The 1.6 series is derived from subversion HEAD and exists as a separate
-release branch.  This will represent the last of the alternating
-developer/stable releases.  Code in Subversion HEAD will be divided up into
-several smaller packages, including a developer subdistribution for
-code considered experimental, unstable, or untested.
+Some of that history is also highlighted on our wiki:
 
-Full detail of changes included since the 1.5.2 release are online at:
-http://www.bioperl.org/wiki/Change_log.  Bugs remaining to be addressed
-are online at http://bugzilla.open-bio.org, with specific bugs intended
-for this release series highlighted in BUGS.
+   http://www.bioperl.org/wiki/Change_log
+   http://www.bioperl.org/wiki/History_of_BioPerl
+
+Bugs to be addressed:
+
+   http://bugzilla.open-bio.org
+   specific bugs intended for the next CPAN release series highlighted in BUGS
+
+
+CPAN releases are branched off of 'master', verified stable, and pushed to PAUSE.
+
+
+1.6.1_1 RELEASE_DATE_HERE (first 1.6.2 alpha)
+    * Bio::SeqIO::gbxml
+        - bug 2515 - new contribution [Ryan Golhar, jhannah]
+    * Repository moved from Subversion (SVN) to http://github.com/bioperl/bioperl-live [cjfields]
 
 1.6.1   Sept. 29, 2009 (point release)
     * No change from last alpha except VERSION and doc updates [cjfields]
