@@ -683,8 +683,8 @@ sub uniq_seq {
 # convert middle "?" back into "N" ("?" throws errors by SimpleAlign):
 	$str2 =~ s/\?/N/g if $str2 =~ /^[atcg\-\?]+$/i;
 	my $gap='-';
-	my $end=length($str2);
-	$end -= length($1) while $str2 =~ m/($gap+)/g;
+	my $end= CORE::length($str2);
+	$end -= CORE::length($1) while $str2 =~ m/($gap+)/g;
 	my $new = Bio::LocatableSeq->new(-id   =>"ST".$order{$str},
 					 -seq  =>$str2,
 					 -start=>1,
@@ -950,7 +950,7 @@ sub seq_with_features{
 	 push @es, pos($consensus_string);
    }
 
-   push @es, length($consensus_string) if $consensus_string =~ /[^?]$/;
+   push @es, CORE::length($consensus_string) if $consensus_string =~ /[^?]$/;
 
    my $seq = Bio::Seq->new();
 
@@ -1271,7 +1271,7 @@ sub _remove_col {
             $sequence = $seq->seq unless $sequence;
             my $orig = $sequence;
             my $head =  $start > 0 ? substr($sequence, 0, $start) : '';
-            my $tail = ($end + 1) >= length($sequence) ? '' : substr($sequence, $end + 1);
+            my $tail = ($end + 1) >= CORE::length($sequence) ? '' : substr($sequence, $end + 1);
             $sequence = $head.$tail;
             # start
             unless (defined $new_seq->start) {
@@ -1288,9 +1288,9 @@ sub _remove_col {
                 }
             }
             # end
-            if (($end + 1) >= length($orig)) {
+            if (($end + 1) >= CORE::length($orig)) {
                 my $end_adjust = () = substr($orig, $start) =~ /$gap/g;
-                $new_seq->end($seq->end - (length($orig) - $start) + $end_adjust);
+                $new_seq->end($seq->end - (CORE::length($orig) - $start) + $end_adjust);
             }
             else {
                 $new_seq->end($seq->end);
