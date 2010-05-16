@@ -598,8 +598,9 @@ sub write_aln {
     my $tag = 'AC';
     for my $seq ($aln->each_seq) {
         if (my $acc = $seq->accession_number) {
-        my $text = sprintf("%-4s%-22s%-3s%s\n",$seq_ann, $seq->get_nse, $tag, $acc);
-        $self->_print($text) || return 0;
+	    my $text = sprintf("%-4s%-22s%-3s%s\n",$seq_ann, 
+			       $aln->displayname($seq->get_nse), $tag, $acc);
+	    $self->_print($text) || return 0;
         }
     }
     
@@ -611,7 +612,7 @@ sub write_aln {
                 my $db = uc $link->database;
                 my $cb = exists $LINK_CB{$db} ? $LINK_CB{$db} : $LINK_CB{_DEFAULT_};
                 my $text = sprintf("%-4s%-22s%-3s%s\n",$seq_ann,
-                                   $sf->entire_seq->get_nse,
+                                   $aln->displayname($sf->entire_seq->get_nse),
                                    $tag,
                                    $link->display_text($cb));
                 $self->_print($text) || return 0;
@@ -716,7 +717,7 @@ sub _print_seqs {
 
     for $seq ( $aln->each_seq() ) {
         my ($s, $e, $str) = ($seq->start, $seq->end, $seq->strand);
-        $namestr = $seq->get_nse();
+        $namestr = $aln->displayname($seq->get_nse());
         $self->_print(sprintf("%-*s%s\n",$maxlen+$metalen,
                               $namestr,
                               $seq->seq())) || return 0;
