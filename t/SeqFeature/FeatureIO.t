@@ -98,6 +98,12 @@ is($fcount , 6);
 #then try to read sequences again.
 while($s = $io->next_seq()){
     $scount++;
+    TODO: {
+	local $TODO = 'How did this ever work?!?';
+	if ($scount == 1) {
+	    is($s->seq, 'Test1');
+	}
+    }
 }
 is($scount , 1);
 
