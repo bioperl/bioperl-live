@@ -37,6 +37,8 @@ BEGIN {
 
 }
 
+use Bio::Root::IO;
+
 for my $test (keys %ASSEMBLY_TESTS) {
     $ASSEMBLY_TESTS{$test}->{'test_sub'}->($ASSEMBLY_TESTS{$test}->{tests});
 }
@@ -508,7 +510,10 @@ sub sam {
         is(@all_seq_ids, 369);
         
     }
-
+    for (qw(test.bam.bai test.ref.fas.fai)) {
+        my $file = Bio::Root::IO->catfile('t', 'data', $_);
+        unlink($file) if -e $file;
+    }
 }
 
 #####
