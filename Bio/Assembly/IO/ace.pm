@@ -1,9 +1,9 @@
-# $Id$
+# $Id: ace.pm 16969 2010-05-09 15:26:53Z fangly $
 #
 ## BioPerl module for Bio::Assembly::IO::ace
 #
 # Copyright by Robson F. de Souza (the reading part) and Florent Angly (the 
-# writing part)
+# writing and ACE variants part)
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -18,9 +18,9 @@ Bio::Assembly::IO::ace - module to load ACE files from various assembly programs
     # Building an input stream
     use Bio::Assembly::IO;
 
-    # Load an assembly stream
+    # Load a reference ACE assembly
     my $in_io = Bio::Assembly::IO->new( -file   => 'results.ace',
-                                        -format => 'ace'        );
+                                        -format => 'ace'          );
 
     # Read the entire scaffold
     my $scaffold = $in_io->next_assembly;
@@ -36,6 +36,14 @@ Bio::Assembly::IO::ace - module to load ACE files from various assembly programs
     $out_io->write_assembly( -scaffold => $scaffold,
                              -singlets => 1 );
 
+    # Read the '454' Newbler variant of ACE instead of the default 'consed'
+    # reference ACE variant
+    my $in_io = Bio::Assembly::IO->new( -file   => 'results.ace',
+                                        -format => 'ace-454'      );
+    # or ...
+    my $in_io = Bio::Assembly::IO->new( -file    => 'results.ace',
+                                        -format  => 'ace',
+                                        -variant => 'solexa'      );
 
 =head1 DESCRIPTION
 
@@ -86,6 +94,20 @@ following special feature classes in their feature collection:
     They have no start and end, as they are not associated to any particular
     sequence in the assembly, and are added to the assembly's annotation
     collection using "whole assembly" as tag.
+
+=head2 Variants
+
+The default ACE variant is called 'consed' and corresponds to the reference ACE
+format.
+
+The ACE files produced by the 454 GS Assembler (Newbler) do not conform to the
+reference ACE format. In 454 ACE, the consensus sequence reported covers only
+its clear range and the start of the clear range consensus is defined as position
+1. Consequently, aligned reads in the contig can have negative positions. Be sure 
+to use the '454' variant to have positive alignment positions. The reported
+consensus sequence remains untouched, i.e. only its clear range is shown, not
+the entire consensus sequence, which is not made available by Newbler.
+
 
 =head1 FEEDBACK
 
@@ -144,6 +166,8 @@ use base qw(Bio::Assembly::IO);
 
 our $line_width = 50;
 our $qual_value = 20;
+our %variant = ( 'consed' => undef, # default
+                 '454'    => undef  );
 
 =head1 Parser methods
 
@@ -194,6 +218,7 @@ sub next_contig {
     local $/ = "\n";
     my $contigOBJ;
     my $read_name;
+    my $min_start;
     my $read_data = {}; # Temporary holder for read data
 
     # Keep reading the ACE stream starting at where we stopped
@@ -230,8 +255,9 @@ sub next_contig {
                     $consensus_sequence .= $_;
                 }
                 $consensus_sequence = Bio::LocatableSeq->new(
-                    -seq   => $consensus_sequence,
-                    -start => 1,
+                    -seq    => $consensus_sequence,
+                    -start  => 1,
+                    -strand => $ori,
                 );
                 $consensus_sequence->id($contigID);
                 $contigOBJ->set_consensus_sequence($consensus_sequence);
@@ -280,18 +306,18 @@ sub next_contig {
 
         # Loading read info... (Assembled From field)
         /^AF (\S+) (C|U) (-*\d+)/ && do {
-            $read_name = $1;
-            my $ori = $2;
-            $read_data->{$read_name}{'padded_start'} = $3; # aligned start
-
-            ####
-            # TODO: For Newbler? It is the aligned coordinates of the full read (not just
-            # the clear range), however it can be negative because the consensus
-            # is made of the clear range of the reads and starts at position 1.
-            ####
+            $read_name = $1; # read ID
+            my $ori    = $2; # strand
+            my $start  = $3; # aligned start
 
             $ori = $ori eq 'U' ? 1 : -1;
-            $read_data->{$read_name}{'strand'}  = $ori;
+            $read_data->{$read_name}{'strand'}  = $ori; 
+
+            $read_data->{$read_name}{'padded_start'} = $start;
+            if ( (not defined $min_start) || ($min_start > $start) ) {
+                $min_start = $start;
+            }
+
         };
 
         # Base segments definitions (Base Segment field)
@@ -299,6 +325,10 @@ sub next_contig {
         # Coordinates are relative to the contig
         /^BS (\d+) (\d+) (\S+)/ && do {
             my ($start, $end, $contig_id) = ($1, $2, $3);
+            if ($self->variant eq '454') {
+              $start += abs($min_start) + 1;
+              $end   += abs($min_start) + 1;
+            }
             my $bs_feat = Bio::SeqFeature::Generic->new(
                 -start   => $start,
                 -end     => $end,
@@ -336,6 +366,9 @@ sub next_contig {
             );
             # Adding read location and sequence to contig ("gapped consensus" coordinates)
             my $padded_start = $read_data->{$read_name}{'padded_start'};
+            if ($self->variant eq '454') {
+              $padded_start += abs($min_start) + 1;
+            }
             my $padded_end   = $padded_start + $read_data->{$read_name}{'length'} - 1;
             my $coord = Bio::SeqFeature::Generic->new(
                 -start  => $padded_start,
@@ -343,14 +376,13 @@ sub next_contig {
                 -strand => $read_data->{$read_name}{'strand'},
                 -tag    => { 'contig' => $contigOBJ->id }
             );
-
             if ($contigOBJ->isa('Bio::Assembly::Singlet')) {
                 # Set the the sequence in the singlet
                 $contigOBJ->seqref($read);
             } else { # a contig
+                # this sets the "_aligned_coord:$seqID" feature
                 $contigOBJ->set_seq_coord($coord,$read);
             }
-
 
         };
 
@@ -689,6 +721,29 @@ sub write_contig {
 }
 
 
+=head2 variant
+
+ Title   : variant
+ Usage   : $format  = $obj->variant();
+ Function: Get and set method for the assembly variant. This is important since
+           not all assemblers respect the reference ACE format.
+ Returns : string
+ Args    : string: 'consed' (default) or '454'
+
+=cut
+
+sub variant {
+    my ($self, $enc) = @_;
+    if (defined $enc) {
+        $enc = lc $enc;
+        if (not exists $variant{$enc}) {
+            $self->throw('Not a valid ACE variant format');
+        }
+        $self->{variant} = $enc;
+    }
+    return $self->{variant};
+}
+
 =head2 _write_read
 
     Title   : _write_read
@@ -829,6 +884,14 @@ sub _formatted_qual {
     return $qual_str;
 }
 
+
+sub _initialize {
+    my($self, @args) = @_;
+    $self->SUPER::_initialize(@args);
+    my ($variant) = $self->_rearrange([qw(VARIANT)], @args);
+    $variant ||= 'consed';
+    $self->variant($variant);
+}
 
 1;
 
