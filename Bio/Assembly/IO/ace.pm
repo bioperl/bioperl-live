@@ -222,11 +222,11 @@ sub next_contig {
     my $read_data = {}; # Temporary holder for read data
 
     # Keep reading the ACE stream starting at where we stopped
-    while ($_ = $self->_readline) {
+    while ( $_ = $self->_readline) {
         chomp;
 
         # Loading contig sequence (COntig sequence field)
-        (/^CO\s(\w+)\s(\d+)\s(\d+)\s(\d+)\s(\w+)/xms) && do { # New contig starts!
+        if (/^CO\s(\w+)\s(\d+)\s(\d+)\s(\d+)\s(\w+)/xms) { # New contig starts!
 
             if (not $contigOBJ) {
                 # Start a new contig object
@@ -267,10 +267,10 @@ sub next_contig {
                 $self->_pushback($_);
                 last;
             }
-        };
+        }
 
         # Loading contig qualities... (Base Quality field)
-        /^BQ/ && do {
+        elsif (/^BQ/) {
             my $consensus = $contigOBJ->get_consensus_sequence()->seq();
             my ($i,$j,@tmp);
             my @quality = ();
@@ -302,10 +302,10 @@ sub next_contig {
             my $qual = Bio::Seq::PrimaryQual->new(-qual => join(" ", @quality),
                                                   -id   => $contigOBJ->id()   );
             $contigOBJ->set_consensus_quality($qual);
-        };
+        }
 
         # Loading read info... (Assembled From field)
-        /^AF (\S+) (C|U) (-*\d+)/ && do {
+        elsif (/^AF (\S+) (C|U) (-*\d+)/) {
             $read_name = $1; # read ID
             my $ori    = $2; # strand
             my $start  = $3; # aligned start
@@ -318,12 +318,12 @@ sub next_contig {
                 $min_start = $start;
             }
 
-        };
+        }
 
         # Base segments definitions (Base Segment field)
         # They indicate which read segments were used to calculate the consensus
         # Coordinates are relative to the contig
-        /^BS (\d+) (\d+) (\S+)/ && do {
+        elsif (/^BS (\d+) (\d+) (\S+)/) {
             my ($start, $end, $contig_id) = ($1, $2, $3);
             if ($self->variant eq '454') {
               $start += abs($min_start) + 1;
@@ -337,11 +337,11 @@ sub next_contig {
                 -tag     => { 'contig_id' => $contig_id}
             );
             $contigOBJ->add_features([ $bs_feat ], 0);
-        };
+        }
 
         # Loading reads... (ReaD sequence field)
         # They define the reads in each contig
-        /^RD (\S+) (-*\d+) (\d+) (\d+)/ && do {
+        elsif (/^RD (\S+) (-*\d+) (\d+) (\d+)/) {
             $read_name = $1;
             $read_data->{$read_name}{'length'} = $2; # number_of_padded_bases
             $read_data->{$read_name}{'contig'} = $contigOBJ;
@@ -384,10 +384,10 @@ sub next_contig {
                 $contigOBJ->set_seq_coord($coord,$read);
             }
 
-        };
+        }
 
         # Loading read trimming and alignment ranges...
-        /^QA (-?\d+) (-?\d+) (-?\d+) (-?\d+)/ && do {
+        elsif (/^QA (-?\d+) (-?\d+) (-?\d+) (-?\d+)/) {
             my ($qual_start, $qual_end, $aln_start, $aln_end) =
                 ($1, $2, $3, $4);
 
@@ -419,10 +419,10 @@ sub next_contig {
                 $contigOBJ->add_features([ $qual_feat ], 0);
             }
 
-        };
+        }
 
         # Loading read DeScription (DS)
-        /^DS\s+(.*)/ && do {
+        elsif (/^DS\s+(.*)/) {
             my $desc = $1;
 
             # Expected tags are CHROMAT_FILE, PHD_FILE, TIME and to a lesser
@@ -442,10 +442,10 @@ sub next_contig {
             );
             $coord->add_sub_SeqFeature($read_desc);
         
-        };
+        }
 
         # Loading Read Tags
-        /^RT\s*\{/ && do {
+        elsif (/^RT\s*\{/) {
             my ($readID,$type,$source,$start,$end,$date) = split(' ',$self->_readline);
             my $extra_info = undef;
             while ($_ = $self->_readline) {
@@ -466,7 +466,7 @@ sub next_contig {
             my $contig = $read_data->{$readID}{'contig'};
             my $coord  = $contig->get_seq_coord( $contig->get_seq_by_name($readID) );
             $coord->add_sub_SeqFeature($read_tag);
-        };
+        }
 
     }
 
