@@ -1138,9 +1138,13 @@ sub add_seq {
     # Our locatable sequences are always considered to be complete sequences
     $seq->start(1);
     $seq->end($seq->_ungapped_len);
-
+    
+    my $alphabet = $seq->alphabet;
+    
+    $alphabet = lc($alphabet) if defined $alphabet;
+    
     $self->warn("Adding non-nucleotidic sequence ".$seqID)
-        if (lc($seq->alphabet) ne 'dna' && lc($seq->alphabet) ne 'rna');
+        if (!$alphabet || ($alphabet ne 'dna' && $alphabet ne 'rna'));
 
     # build the symbol list for this sequence,
     # will prune out the gap and missing/match chars
