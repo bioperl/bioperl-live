@@ -17,8 +17,8 @@ use_ok('Bio::SeqIO::nexml'); # checks that your module is there and loads ok
 	ok( my $seq_obj = $SeqStream->next_seq(), 'seq obj' );
 	isa_ok($seq_obj, 'Bio::Seq');
 	is( $seq_obj->alphabet, 'dna', "alphabet" );
-	is( $seq_obj->primary_id, 'dna_seq_1', "primary_id");
-	is( $seq_obj->display_id, 'dna_seq_1', "display_id");
+	is( $seq_obj->primary_id, 'DNA sequences.seq_1', "primary_id");
+	is( $seq_obj->display_id, 'DNA sequences.seq_1', "display_id");
 	is( $seq_obj->seq, 'ACGCTCGCATCGCATC', "sequence");
 	#check taxa
 	my %expected_taxa = ('Homo sapiens' => 1, 'Pan paniscus' => 1, 'Pan troglodytes' => 1, 'Gorilla gorilla' => 1, 'Pongo pygmaeus' => 1);
@@ -35,9 +35,9 @@ use_ok('Bio::SeqIO::nexml'); # checks that your module is there and loads ok
 	#checking second sequence object
 	ok( $seq_obj = $SeqStream->next_seq() );
 	is( $seq_obj->alphabet, 'dna', "alphabet" );
-	is( $seq_obj->primary_id, 'dna_seq_2', "primary_id");
-	is( $seq_obj->display_id, 'dna_seq_2', "display_id");
-	is( $seq_obj->seq, 'ACGCTCGCATCGCATT', "sequence");
+	is( $seq_obj->primary_id, 'DNA sequences.seq_2', "primary_id");
+	is( $seq_obj->display_id, 'DNA sequences.seq_2', "display_id");
+	is( $seq_obj->seq, 'ACGCTCGCATCGCATC', "sequence");
 	$SeqStream->next_seq();
 	$SeqStream->next_seq();
 	
