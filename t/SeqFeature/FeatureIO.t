@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 42,
+    test_begin(-tests => 45,
 	       -requires_module => 'Graph');
 
     use_ok('Bio::FeatureIO');
@@ -38,6 +38,12 @@ is($fcount, 0);
 #then try to read sequences again.  should get seqs now
 while($s = $io->next_seq()){
     $scount++;
+    TODO: {
+	local $TODO = 'How did this ever work?!?';
+	if ($scount == 1) {
+	    is($s->seq, 'Test1');
+	}
+    }
 }
 is($scount,  1);
 
@@ -92,6 +98,12 @@ is($fcount , 6);
 #then try to read sequences again.
 while($s = $io->next_seq()){
     $scount++;
+    TODO: {
+	local $TODO = 'How did this ever work?!?';
+	if ($scount == 1) {
+	    is($s->seq, 'Test1');
+	}
+    }
 }
 is($scount , 1);
 
@@ -156,6 +168,12 @@ is($f , 0);
 #then try to read sequences again.
 while($s = $io->next_seq()){
     $scount++;
+    TODO: {
+	local $TODO = 'How did this ever work?!?';
+	if ($scount == 1) {
+	    is($s->seq, 'Test1');
+	}
+    }
 }
 is($scount , 1);
 

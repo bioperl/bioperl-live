@@ -24,7 +24,7 @@ Do not use this module directly.  Use it via the Bio::SeqIO class.
 This object can transform Bio::Seq objects to and from abi trace
 files.  To optionally read the trace graph data (which can be used
 to draw chromatographs, for instance), set the optional
-'-read_graph_data' flag or the read_graph_data method to a value
+'-get_trace_data' flag or the get_trace_data method to a value
 evaluating to TRUE.
 
 =head1 FEEDBACK
@@ -182,7 +182,7 @@ sub write_seq {
 
 sub get_trace_data {
 	my ($self, $val) = @_;
-	$self->{_get_trace_data} = $val ? 1 : 0;
+	$self->{_get_trace_data} = $val ? 1 : 0 if (defined $val);
 	$self->{_get_trace_data};
 }
 

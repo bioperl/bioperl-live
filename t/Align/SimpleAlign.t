@@ -640,8 +640,6 @@ foreach my $seq ( $gapless->each_seq ) {
 
 my $slice = $aln->slice(1,4);
 
-diag(aln2str($aln, 'clustalw'));
-
 for my $seq ($slice->each_seq) {
     if ( $seq->id eq 'a' ) {
         is $seq->start, 5;

@@ -158,7 +158,6 @@ use strict;
 
 use Bio::Restriction::Enzyme;
 use Bio::Restriction::IO;
-use UNIVERSAL qw(isa);
 
 use Data::Dumper;
 

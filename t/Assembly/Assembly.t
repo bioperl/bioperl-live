@@ -1,5 +1,5 @@
 # -*-Perl-*- Test Harness script for Bioperl
-# $Id$
+# $Id: Assembly.t 16980 2010-05-10 20:46:41Z cjfields $
 
 use strict;
 my %ASSEMBLY_TESTS;
@@ -18,7 +18,7 @@ BEGIN {
     # main tests now with the parser
 
     %ASSEMBLY_TESTS = (
-        'assembly_core' => {tests       => 867,
+        'assembly_core' => {tests       => 874,
                             test_sub    => \&assembly_core},
         'sam'           => {tests       => 459,
                             test_sub    => \&sam},
@@ -37,11 +37,19 @@ BEGIN {
 
 }
 
+use Bio::Root::IO;
+
 for my $test (keys %ASSEMBLY_TESTS) {
-    $ASSEMBLY_TESTS{$test}->{'test_sub'}->();
+    $ASSEMBLY_TESTS{$test}->{'test_sub'}->($ASSEMBLY_TESTS{$test}->{'tests'});
+}
+
+for (qw(test.bam.bai test.ref.fas.fai)) {
+    my $file = Bio::Root::IO->catfile('t', 'data', $_);
+    unlink($file) if -e $file;
 }
 
 sub assembly_core {
+    my $tests = shift;
     #
     # Testing Singlet
     #
@@ -112,7 +120,21 @@ sub assembly_core {
     #
     # Testing IO
     #
-    
+
+    # ACE variants
+    ok my $aio = Bio::Assembly::IO->new(
+        -file   => test_input_file('assembly_with_singlets.ace'),
+        -format => 'ace-consed',
+    );
+    is( $aio->variant, 'consed'  );
+    ok $aio = Bio::Assembly::IO->new(
+        -file   => test_input_file('assembly_with_singlets.ace'),
+        -format => 'ace',
+    );
+    is( $aio->variant, 'consed'  );
+    ok( $aio->variant('454')     );
+    is( $aio->variant, '454'     );
+
     #
     # Some PHRAP input
     #
@@ -194,14 +216,15 @@ sub assembly_core {
     #
     
     #
-    # Testing Ace 
+    # Testing ACE
     #
     
-    my $aio = Bio::Assembly::IO->new(
+    # ACE Consed variant (default)
+    $aio = Bio::Assembly::IO->new(
         -file=>test_input_file('consed_project','edit_dir','test_project.fasta.screen.ace.2'),
         -format=>'ace'
     );
-    
+
     my $assembly = $aio->next_assembly();
     
     my @contigs = $assembly->all_contigs();
@@ -279,17 +302,39 @@ sub assembly_core {
     }
     is(@all_seq_ids, 39);
     
+    # ACE 454 variant
+    $aio = Bio::Assembly::IO->new(
+        -file=>test_input_file('27-contig_Newbler.ace'),
+        -format=>'ace-454'
+    );
+    $assembly = $aio->next_assembly();
+    @contigs = $assembly->all_contigs();
+    for my $contig (@contigs) {
+       my $min_aln_coord = undef;
+       for my $read ($contig->each_seq) {
+          my $aln_coord_start  = (grep
+             { $_->primary_tag eq "_aligned_coord:".$read->id}
+             $contig->get_features_collection->get_all_features
+             )[0]->location->start;
+          if ( (not defined $min_aln_coord) or ($aln_coord_start < $min_aln_coord) ) {
+             $min_aln_coord = $aln_coord_start;
+          }
+       }
+       is ($min_aln_coord, 1, 'aligned read coordinates start at 1'); 
+    }
+
     # Writing ACE files
     my $asm_infile  = '27-contig_Newbler.ace';
     my $asm_outfile = test_output_file().'.ace';
     my $asm_out = Bio::Assembly::IO->new(
-        -file=> ">$asm_outfile",
-        -format=>'ace'
+        -file    => ">$asm_outfile",
+        -format  =>'ace',
     );
     my $asm_in;
     ok $asm_in = Bio::Assembly::IO->new(
-        -file   => test_input_file($asm_infile),
-        -format => 'ace',
+        -file    => test_input_file($asm_infile),
+        -format  => 'ace',
+        -variant => '454',
     )->next_assembly, 'writing in the ACE format';
     ok $asm_out->write_assembly( -scaffold => $asm_in, -singlets => 1 );
     
@@ -446,15 +491,13 @@ sub assembly_core {
 
 }
 
-#####
-# 872
-#####
 
 sub sam {
-
+    my $tests = shift;
+    
     SKIP : {
     
-        test_skip(-tests => 828,
+        test_skip(-tests => $tests,
                   -requires_module => 'Bio::DB::Sam');
     
     #
@@ -505,25 +548,21 @@ sub sam {
             ok ($seq_id =~ m/^SRR/i);
         }
         is(@all_seq_ids, 369);
-        
     }
-
 }
 
-#####
-#1331
-#####
 
 sub bowtie {
 
 SKIP : {
+    my $tests = shift;
 
     # this does the loading...
-    test_skip(-tests => 755,
+    test_skip(-tests => $tests,
 	      -requires_modules => [qw(Bio::Tools::Run::Samtools)]);
 SKIP : {
     # now loaded, this checks for executable...
-    test_skip(-tests => 755,    
+    test_skip(-tests => $tests,    
 	      -requires_executable => Bio::Tools::Run::Samtools->new(-command=>'view'));
 
     #

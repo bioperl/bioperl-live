@@ -624,7 +624,7 @@ sub reverse_complement {
    } else {
 
      # check this looks vaguely like DNA
-     my $n = ( $scalar =~ tr/ATGCNatgc/ATGCNatgcn/ );
+     my $n = ( $scalar =~ tr/ATGCNatgcn/ATGCNatgcn/ );
 
      if( $n < length($scalar) * 0.85 ) {
        confess("Sequence [$scalar] is less than 85% ATGCN, which doesn't look very DNA to me");
