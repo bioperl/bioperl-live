@@ -7,10 +7,9 @@
 	version="0.8" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:xml="http://www.w3.org/XML/1998/namespace"
-	xsi:schemaLocation="http://www.nexml.org/1.0 ../xsd/nexml.xsd"
+	xsi:schemaLocation="http://www.nexml.org/1.0 ../../nexml/xsd/nexml.xsd"
 	xmlns:nex="http://www.nexml.org/1.0"
-	xmlns:cdao="http://www.cs.nmsu.edu/~epontell/CURRENT.owl#"
-	xmlns="http://www.nexml.org/1.0">	        
+	xmlns="http://www.nexml.org/1.0">
 	<otus id="tax1" label="RootTaxaBlock">
 		<otu id="t1" label="human"/>
 		<otu id="t2" label="mouse"/>
@@ -47,13 +46,10 @@
 			<node id="n1" label="n1" root="true"/>
 			<node id="n2" label="n2" otu="t1"/>
 			<node id="n3" label="n3"/>
-			<node id="n4" label="n4" about="#n4">
-			    <meta 
-			        id="dict1" 
-			        property="cdao:has_tag" 
-			        content="true" 
-			        xsi:type="nex:LiteralMeta"
-			        datatype="xsd:boolean"/>
+			<node id="n4" label="n4">
+				<dict id="dict1">
+					<boolean id="has_tag">true</boolean>
+				</dict>
 			</node>
 			<node id="n5" label="n5" otu="t3"/>
 			<node id="n6" label="n6" otu="t2"/>
@@ -77,12 +73,9 @@
 			<node id="n2" label="n2" otu="t1"/>
 			<node id="n3" label="n3"/>
 			<node id="n4" label="n4">
-			    <meta 
-			        id="dict1" 
-			        property="cdao:has_tag" 
-			        content="true" 
-			        xsi:type="nex:LiteralMeta"
-			        datatype="xsd:boolean"/>
+				<dict id="dict2">
+					<boolean id="has_tag">true</boolean>
+				</dict>
 			</node>
 			<node id="n5" label="n5" otu="t3"/>
 			<node id="n6" label="n6" otu="t2"/>
@@ -101,7 +94,7 @@
 		<!--  
 			A network with int edges.
 		-->
-		<network id="tree3" xsi:type="nex:IntNetwork" label="tree2">
+		<network id="tree3" xsi:type="nex:IntNetwork" label="tree3">
 			<node id="n1" label="n1"/>
 			<node id="n2" label="n2" otu="t1"/>
 			<node id="n3" label="n3"/>
