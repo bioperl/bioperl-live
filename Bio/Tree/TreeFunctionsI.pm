@@ -91,8 +91,6 @@ Internal methods are usually preceded with a _
 package Bio::Tree::TreeFunctionsI;
 use strict;
 
-use UNIVERSAL qw(isa);
-
 use base qw(Bio::Tree::TreeI);
 
 =head2 find_node

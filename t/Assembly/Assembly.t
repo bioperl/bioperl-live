@@ -37,11 +37,19 @@ BEGIN {
 
 }
 
+use Bio::Root::IO;
+
 for my $test (keys %ASSEMBLY_TESTS) {
-    $ASSEMBLY_TESTS{$test}->{'test_sub'}->();
+    $ASSEMBLY_TESTS{$test}->{'test_sub'}->($ASSEMBLY_TESTS{$test}->{'tests'});
+}
+
+for (qw(test.bam.bai test.ref.fas.fai)) {
+    my $file = Bio::Root::IO->catfile('t', 'data', $_);
+    unlink($file) if -e $file;
 }
 
 sub assembly_core {
+    my $tests = shift;
     #
     # Testing Singlet
     #
@@ -299,8 +307,8 @@ sub assembly_core {
         -file=>test_input_file('27-contig_Newbler.ace'),
         -format=>'ace-454'
     );
-    my $assembly = $aio->next_assembly();
-    my @contigs = $assembly->all_contigs();
+    $assembly = $aio->next_assembly();
+    @contigs = $assembly->all_contigs();
     for my $contig (@contigs) {
        my $min_aln_coord = undef;
        for my $read ($contig->each_seq) {
@@ -485,10 +493,11 @@ sub assembly_core {
 
 
 sub sam {
-
+    my $tests = shift;
+    
     SKIP : {
     
-        test_skip(-tests => 828,
+        test_skip(-tests => $tests,
                   -requires_module => 'Bio::DB::Sam');
     
     #
@@ -539,22 +548,21 @@ sub sam {
             ok ($seq_id =~ m/^SRR/i);
         }
         is(@all_seq_ids, 369);
-        
     }
-
 }
 
 
 sub bowtie {
 
 SKIP : {
+    my $tests = shift;
 
     # this does the loading...
-    test_skip(-tests => 755,
+    test_skip(-tests => $tests,
 	      -requires_modules => [qw(Bio::Tools::Run::Samtools)]);
 SKIP : {
     # now loaded, this checks for executable...
-    test_skip(-tests => 755,    
+    test_skip(-tests => $tests,    
 	      -requires_executable => Bio::Tools::Run::Samtools->new(-command=>'view'));
 
     #

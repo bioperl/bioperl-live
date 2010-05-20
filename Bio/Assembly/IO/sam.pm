@@ -533,6 +533,7 @@ sub _init_sam {
 
     $sam = Bio::DB::Sam->new( -bam => $file, 
 			      -fasta => $fasfile,
+                  -autoindex  => 1,
 			      -expand_flags => 1);
     unless (defined $sam) {
 	croak( "Couldn't create the Bio::DB::Sam object" );

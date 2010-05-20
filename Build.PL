@@ -24,7 +24,7 @@ use Bio::Root::Build;
 {
 
 eval {
-    use XML::SAX;
+    require XML::SAX;
     1;
 };
 
