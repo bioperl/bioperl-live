@@ -140,13 +140,14 @@ sub new {
     }
 }
 
-# _initialize is chained for all SeqIO classes
 
+# _initialize is chained for all SeqIO classes
 sub _initialize {
     my($self, @args) = @_;
     # initialize the IO part
     $self->_initialize_io(@args);
 }
+
 
 =head2 next_assembly
 
@@ -163,6 +164,7 @@ sub next_assembly {
    $self->throw("Cannot read from a generic Bio::Assembly::IO object.");
 }
 
+
 =head2 next_contig
 
  Title   : next_contig
@@ -178,20 +180,101 @@ sub next_contig {
    $self->throw("Cannot read from a generic Bio::Assembly::IO object.");
 }
 
+
 =head2 write_assembly
 
   Title   : write_assembly
   Usage   : $stream->write_assembly($assembly)
-  Function: Write the assembly object in Phrap compatible ACE format
+  Function: Write the assembly object in desired format. This method calls
+            write_header(), write_contigs() and write_footer() internally.
   Returns : 1 on success, 0 for error
   Args    : A Bio::Assembly::Scaffold object
 
 =cut
 
 sub write_assembly {
+    my ($self, @args) = @_;
+    my ($scaf, $write_singlets) = $self->_rearrange([qw(SCAFFOLD SINGLETS)], @args);
+
+    # Sanity check
+    if ( !$scaf || !$scaf->isa('Bio::Assembly::ScaffoldI') ) {
+        $self->throw("Must provide a Bio::Assembly::Scaffold object when calling write_assembly");
+    }
+
+    # Write header
+    $self->write_header($scaf);
+
+    # ID-sorted contig and read entries
+    my @contig_ids  = $scaf->get_contig_ids;
+    if ($write_singlets) {
+        push @contig_ids, $scaf->get_singlet_ids;
+    }
+    @contig_ids = _sort(@contig_ids);
+
+    # Write contigs
+    for my $contig_id ( @contig_ids ) {
+        my $contig = $scaf->get_contig_by_id($contig_id) ||
+                     $scaf->get_singlet_by_id($contig_id);
+        $self->write_contig($contig);
+    }
+
+    # Write footer
+    $self->write_footer($scaf);
+
+    return 1;      
+}
+
+
+=head2 write_header
+
+  Title   : write_header
+  Usage   : $stream->write_header($assembly)
+  Function: Write the start of the assembly file. It can be called at any time,
+            not when starting to write the assembly file. 
+  Returns : 1 on success, 0 for error
+  Args    : A Bio::Assembly::Scaffold object or ... (check the specific format
+            driver for more details)
+
+=cut
+
+sub write_header {
    my ($self) = @_;
    $self->throw("Cannot write from a generic Bio::Assembly::IO object.");
 }
+
+
+=head2 write_contig
+
+  Title   : write_contig
+  Usage   : $stream->write_contig($contig)
+  Function: Write a contig object in the desired format.
+  Returns : 1 on success, 0 for error
+  Args    : A Bio::Assembly::Contig object
+
+=cut
+
+sub write_contig {
+   my ($self) = @_;
+   $self->throw("Cannot write from a generic Bio::Assembly::IO object.");
+}
+
+
+=head2 write_footer
+
+  Title   : write_footer
+  Usage   : $stream->write_footer($assembly)
+  Function: Write the start of the assembly file.
+  Returns : 1 on success, 0 for error
+  Args    : A Bio::Assembly::Scaffold object or ... (check the specific format
+            driver for more details)
+
+=cut
+
+sub write_footer {
+   my ($self) = @_;
+   $self->throw("Cannot write from a generic Bio::Assembly::IO object.");
+}
+
 
 =head2 _load_format_module
 
@@ -248,6 +331,30 @@ sub _guess_format {
    return 'bowtie' if ($arg =~ /\.bowtie/i);
 
 }
+
+
+=head2 _sort
+
+    Title   : _sort
+    Usage   : @sorted_values = $ass_io->_sort(@values)
+    Function: Sort a list of values naturally if Sort::Naturally is installed
+              (nicer), lexically otherwise (not as nice, but safe)
+    Returns : array of sorted values
+    Args    : array of values to sort
+
+=cut
+
+sub _sort {
+    my @arr = @_;
+    my @sorted_arr;
+    if (eval { require Sort::Naturally }) {
+        @sorted_arr = Sort::Naturally::nsort( @arr ); # natural sort (better)
+    } else {
+        @sorted_arr = sort @arr; # lexical sort (safe)
+    }
+    return @sorted_arr;
+}
+
 
 sub DESTROY {
     my $self = shift;

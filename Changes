@@ -25,8 +25,9 @@ CPAN releases are branched off of 'master', verified stable, and pushed to PAUSE
     * Bio::SeqIO::gbxml
         - bug 2515 - new contribution [Ryan Golhar, jhannah]
     * Bio::Assembly::IO
-        - new ACE variant for 454 GS Assembler (Newbler) [fangly]
-
+        - support for reading 454 GS Assembler (Newbler) ACE files [fangly]
+        - support for writing ACE files [fangly]
+        - writing whole assemblies or one contig at a time [fangly]
     ...
         
     [Bug fixes]
