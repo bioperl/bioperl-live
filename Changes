@@ -24,6 +24,9 @@ CPAN releases are branched off of 'master', verified stable, and pushed to PAUSE
     [New features]
     * Bio::SeqIO::gbxml
         - bug 2515 - new contribution [Ryan Golhar, jhannah]
+    * Bio::Assembly::IO
+        - new ACE variant for 454 GS Assembler (Newbler) [fangly]
+
     ...
         
     [Bug fixes]

@@ -115,8 +115,9 @@ sub new {
 	$self->add_sub_Location(@$locations);
     }
     $seqid  && $self->seq_id($seqid);
-    $type = lc ($type);    
-    $self->splittype($type || 'JOIN');
+    $type ||= 'JOIN';
+    $type = lc ($type);
+    $self->splittype($type);
     return $self;
 }
 

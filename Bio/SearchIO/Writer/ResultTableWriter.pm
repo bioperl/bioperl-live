@@ -208,7 +208,8 @@ sub _set_cols {
     if( ref($col_spec_ref) eq 'ARRAY') {
         # printf "%d columns to process\n", scalar(@$col_spec_ref);
         my @col_spec = @{$col_spec_ref};
-        while( my $item = lc(shift @col_spec) ) {
+        while( my $item = shift @col_spec ) {
+            $item = lc($item);
             if( not defined ($map{$item}) ) {
                 $self->throw(-class =>'Bio::Root::BadParameter',
                              -text => "Unknown column name: $item"

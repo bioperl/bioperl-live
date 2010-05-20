@@ -1,4 +1,4 @@
-# $Id$
+# $Id: IO.pm 16690 2010-01-14 07:27:29Z kortsch $
 #
 # BioPerl module for Bio::Assembly::IO
 #
@@ -98,12 +98,12 @@ use base qw(Bio::Root::Root Bio::Root::IO);
 =head2 new
 
  Title   : new
- Usage   : $stream = Bio::Assembly::IO->new( -file =>$filename,
-                                                -format=>'format')
+ Usage   : $stream = Bio::Assembly::IO->new( -file   => $filename,
+                                             -format =>'format'    )
  Function: Returns a new assembly stream
  Returns : A Bio::Assembly::IO::Handler initialised
            with the appropriate format
- Args    : -file => $filename
+ Args    : -file   => $filename
            -format => format
 
 =cut
@@ -130,7 +130,11 @@ sub new {
         $class->_guess_format( $param{-file} || $ARGV[0] );
         $format = "\L$format";	# normalize capitalization to lower case
 
-        # normalize capitalization
+        if ($format =~ /-/) {
+            ($format, my $variant) = split('-', $format, 2);
+            push @args, (-variant => $variant);
+        }
+
         return unless( $class->_load_format_module($format) );
         return "Bio::Assembly::IO::$format"->new(@args);
     }

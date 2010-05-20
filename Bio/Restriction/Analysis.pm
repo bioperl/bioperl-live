@@ -366,7 +366,7 @@ sub cut {
     $self->throw("A sequence must be supplied")
         unless $self->seq;
 
-    if (uc($opt) eq "MULTIPLE") {
+    if ($opt && uc($opt) eq "MULTIPLE") {
       $self->throw("You must supply a separate enzyme collection for multiple digests") unless $ec;
       $self->_multiple_cuts($ec); # multiple digests
     } else {

@@ -287,7 +287,8 @@ sub _check_args {
 
 	###checks parameters for matching $QUERYKEYS
 	my @args = @_;
-	while (my $key = lc(shift @args)) {
+	while (my $key = shift @args) {
+        $key = lc($key);
 		$key =~ s/\-//;
 		
 		if (!exists ($QUERY_KEYS->{$key})) {
