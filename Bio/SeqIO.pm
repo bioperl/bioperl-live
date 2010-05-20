@@ -379,9 +379,10 @@ sub new {
 		$format = Bio::Tools::GuessSeqFormat->new(-fh => $param{-fh}||$ARGV[0] )->guess;
 	    }
 	}
-	$format = "\L$format";	# normalize capitalization to lower case
-    $class->throw("Unknown format given or could not determine it [$format]")
+    $class->throw(sprintf("Unknown format given or could not determine it [%s]",$format || ''))
         unless $format;
+	$format = "\L$format";	# normalize capitalization to lower case
+
     if ($format =~ /-/) {
         ($format, my $variant) = split('-', $format, 2);
         push @args, (-variant => $variant);
