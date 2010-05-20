@@ -290,12 +290,12 @@ sub servertype {
 
 sub hostlocation {
     my ($self, $location ) = @_;
-    $location = lc $location;
     my $servertype = $self->servertype;
     $self->throw("Must have a valid servertype defined not $servertype")
 	unless defined $servertype; 
     my %hosts = %{$self->hosts->{$servertype}->{'hosts'}};
     if( defined $location && $location ne '' ) {
+    $location = lc $location;
 	if( ! $hosts{$location} ) {
 	    $self->throw("Must specify a known host, not $location,".
 			 " possible values (".
