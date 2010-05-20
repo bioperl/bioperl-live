@@ -42,7 +42,7 @@ sub read_params($$$$$) {
       }
     }
   }
-  close(ROCFILE);
+  close(PARAMSFILE);
   #print("the ncalllevel: $cur_ncall\n");
   ok($test, 'read_params');
 
@@ -191,4 +191,4 @@ process_sample($myReseqChip, $aln, $ind_id_old, \%options_hash,
 $workbook->close();
 ##test if xls file has expected size
 #print((-s $xls_filename)."xlsfile size\n");
-ok((-s $xls_filename)==1144832, 'write_alignment2xls');
+cmp_ok((-s $xls_filename), '>', 1100000, 'write_alignment2xls');
