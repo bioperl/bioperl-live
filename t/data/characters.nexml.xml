@@ -9,19 +9,9 @@
 <nex:nexml 
     version="0.8" 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.nexml.org/1.0 ../../nexml/xsd/nexml.xsd"
+    xsi:schemaLocation="http://www.nexml.org/1.0 ../xsd/nexml.xsd"
     xmlns:nex="http://www.nexml.org/1.0"
     xmlns="http://www.nexml.org/1.0">
-    
-    <!-- revision control metadata -->
-    <dict id="dict1">
-        <string id="author">$Author: rvos $</string>
-        <string id="date">$Date: 2009-03-13 01:57:49 -0400 (Fri, 13 Mar 2009) $</string>
-        <string id="header">$Header: $</string>
-        <string id="id">$Id: characters.xml 970 2009-03-13 05:57:49Z rvos $</string>
-        <string id="rev">$Rev: 970 $</string>
-        <string id="url">$URL: http://nexml.svn.sourceforge.net/svnroot/nexml/trunk/nexml/examples/characters.xml $</string>
-    </dict>          
     
     <!--  
         For more discussion of the structure of the taxa
@@ -48,7 +38,7 @@
         it may have the same additional attributes (label, xml:base, 
         xml:lang, xml:id, xlink:href and class) as the taxa element. 
     -->
-    <characters otus="taxa1" id="m1" xsi:type="nex:RestrictionSeqs">
+    <characters otus="taxa1" id="m1" xsi:type="nex:RestrictionSeqs" label="Restriction site sequences">
     	<format>
 	      <states id="states3">
 	        <state id="s1" symbol="0"/>
@@ -331,14 +321,14 @@
     	<char id="c16" states="states7" />
     </format>
     <matrix>
-            <row otu="t1" id="r1" label="dna_seq_1">
+            <row otu="t1" id="r1">
                 <seq>A C G C T C G C A T C G C A T C</seq>
             </row>
-            <row otu="t2" id="r2" label="dna_seq_2">
-                <seq>A C G C T C G C A T C G C A T T</seq>
+            <row otu="t2" id="r2">
+                <seq>A C G C T C G C A T C G C A T C</seq>
             </row>
-            <row otu="t3" id="r3" label="dna_seq_3">
-                <seq>A C G C T C G C A T C G C A T G</seq>
+            <row otu="t3" id="r3">
+                <seq>A C G C T C G C A T C G C A T C</seq>
             </row>
         </matrix>
     </characters>
