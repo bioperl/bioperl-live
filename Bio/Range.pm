@@ -243,18 +243,30 @@ sub end {
 
 =cut
 
+{
+
+my %VALID_STRAND = (
+    -1      => -1,
+    0       => 0,
+    1       => 1,
+    '+'     => 1,
+    '-'     => -1,
+    '.'     => 0
+);
+
 sub strand {
   my $self = shift;
   if(@_) {
     my $val = shift;
-    $val =~ tr/+/1/;
-    $val =~ tr/-/-1/;
-    $val =~ tr/./0/;
-    if($val == -1 || $val == 0 || $val == 1 ) {
-      $self->{'strand'} = $val;
+    if (exists $VALID_STRAND{$val}) {
+        $self->{'strand'} = $VALID_STRAND{$val};
+    } else {
+        $self->throw();
     }
   }
   return $self->{'strand'};
+}
+
 }
 
 =head2 length
