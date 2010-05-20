@@ -299,8 +299,8 @@ sub assembly_core {
         -file=>test_input_file('27-contig_Newbler.ace'),
         -format=>'ace-454'
     );
-    my $assembly = $aio->next_assembly();
-    my @contigs = $assembly->all_contigs();
+    $assembly = $aio->next_assembly();
+    @contigs = $assembly->all_contigs();
     for my $contig (@contigs) {
        my $min_aln_coord = undef;
        for my $read ($contig->each_seq) {
