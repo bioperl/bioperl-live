@@ -11,17 +11,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.nexml.org/1.0 ../../nexml/xsd/nexml.xsd"
     xmlns:nex="http://www.nexml.org/1.0"
-    xmlns="http://www.nexml.org/1.0">
-    
-    <!-- revision control metadata -->
-    <dict id="dict1">
-        <string id="author">$Author: rvos $</string>
-        <string id="date">$Date: 2009-03-13 01:57:49 -0400 (Fri, 13 Mar 2009) $</string>
-        <string id="header">$Header: $</string>
-        <string id="id">$Id: characters.xml 970 2009-03-13 05:57:49Z rvos $</string>
-        <string id="rev">$Rev: 970 $</string>
-        <string id="url">$URL: http://nexml.svn.sourceforge.net/svnroot/nexml/trunk/nexml/examples/characters.xml $</string>
-    </dict>          
+    xmlns="http://www.nexml.org/1.0">         
     
     <!--  
         For more discussion of the structure of the taxa
@@ -558,11 +548,7 @@
 			<node id="n1" label="n1" root="true"/>
 			<node id="n2" label="n2" otu="t1"/>
 			<node id="n3" label="n3"/>
-			<node id="n4" label="n4">
-				<dict id="dict1">
-					<boolean id="has_tag">true</boolean>
-				</dict>
-			</node>
+			<node id="n4" label="n4"/>
 			<node id="n5" label="n5" otu="t3"/>
 			<node id="n6" label="n6" otu="t2"/>
 			<node id="n7" label="n7"/>
@@ -584,11 +570,7 @@
 			<node id="n1" label="n1"/>
 			<node id="n2" label="n2" otu="t1"/>
 			<node id="n3" label="n3"/>
-			<node id="n4" label="n4">
-				<dict id="dict2">
-					<boolean id="has_tag">true</boolean>
-				</dict>
-			</node>
+			<node id="n4" label="n4"/>
 			<node id="n5" label="n5" otu="t3"/>
 			<node id="n6" label="n6" otu="t2"/>
 			<node id="n7" label="n7"/>
