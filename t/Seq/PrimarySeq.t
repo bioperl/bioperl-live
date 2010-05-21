@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 64 );
+    test_begin( -tests => 66 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -131,21 +131,6 @@ is $aa->seq, 'MVAST', "Translation: " . $aa->seq;
 $aa = $seq->translate( -complete => 1 );
 is $aa->seq, 'MVAST', "Translation: " . $aa->seq;
 
-# test internal PrimarySeqI _find_orfs function
-{
-    my $test_seq = 'TTTTATGGTGGCGTCAACTTAATTT';
-    #               0123456789012345678901234
-    #                   ^                 ^
-
-    my @orfs = Bio::PrimarySeqI::_find_orfs( undef,
-                                             $test_seq,
-                                             Bio::Tools::CodonTable->new,
-                                             undef,
-                                            );    # ATG GTG GCG TCA ACT
-    is_deeply( \@orfs, [[4,22,18,1]], '_find_orfs 1')
-        or diag "for $test_seq, _find_orfs returned:\n".Dumper(\@orfs);
-}
-
 # find ORF, ignore codons outside the ORF or CDS
 $seq->seq('TTTTATGGTGGCGTCAACTTAATTT');    # ATG GTG GCG TCA ACT
 $aa = $seq->translate( -orf => 1 );
@@ -251,3 +236,27 @@ ok $error =~ /\QTerminator codon inside CDS!\E/, 'Terminator + inside sequence';
 $seq = Bio::PrimarySeq->new(-seq=>'ATGCTCGCAGGGTAA'); # MLAG*
 $aa = $seq->translate(-complete=>1, -throw=>1, -terminator=>'#');
 is $aa->seq, 'MLAG';
+
+
+# test internal PrimarySeqI _find_orfs function
+{
+    my @tests = ( ['TTTTATGGTGGCGTCAACTTAATTT',
+                   [[4,22,18,1]],
+                  ],
+                  ['GAAGGCTGGTTCTGAGTTGGATCTATGTTTGATGAAGGGAAGTAGACCGGAGGTCTTGCATCAGCAATATTAGTACCAAATCCAGGTGGAGGCGCATCCTGTCTCCGTTGCATTTCAACTTTCATTTCAGCAATCTGTTGCATCAGTTGCATGATCAATTCATTCTGTTCCACTACAGTGGGCTGAGCGACCACAACGTCAGTAAGACGCCCTTCGTCATTGTTGTCTCCCATAACTGTTTTTCCTTTATCTGAATTTGATCGAGGGAAGGAATCTGTAGGACCTTTCGATCTGGTGAAGTAAGGATGATCTGCCAGCTTTATTGACACAGATCAGTAAAAAGGTACCTGAAAGGTAAAAACAACTCAAAGGCAAATTTGTTAGTGCATATCCAGAGTACAAAATGCTTAATATCGCACATAAAACCGATAAACACACAAGTCGTTTTGTTTGAGGATATCTTAACCCACGAATAAGGACGGATATATATTTTGAACAAACAGGAATTTGTTTGTTTGGCGTTATCTTGGGAAATCTG',
+                  [[98,254,156,2],[347,476,129,2],[219,303,84,0],[16,73,57,1],[403,454,51,1],[310,358,48,1],[235,280,45,1],[150,186,36,0],[5,32,27,2],[511,538,27,1],[24,45,21,0],[305,326,21,2],[450,465,15,0]],
+                  ],,
+                 );
+    foreach my $test (@tests) {
+        my ($test_seq, $orfs) = @$test;
+        my @orfs = Bio::PrimarySeqI::_find_orfs_nucleotide(
+            undef,
+            $test_seq,
+            Bio::Tools::CodonTable->new,
+            undef,
+           ); # ATG GTG GCG TCA ACT
+        is_deeply( \@orfs, $orfs, '_find_orfs 1')
+            or diag "for $test_seq, _find_orfs returned:\n"
+                    .Dumper([map [@$_], @orfs]);
+    }
+}
