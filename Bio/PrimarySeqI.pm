@@ -559,15 +559,16 @@ sub translate {
 		 ($terminator, $unknown, $frame, $codonTableId, $complete, $throw,
 		  $codonTable, $orf, $longest_orf, $start_codon, $offset) =
 			 $self->_rearrange([qw(TERMINATOR
-								UNKNOWN
-								FRAME
-								CODONTABLE_ID
-								COMPLETE
-								THROW
-								CODONTABLE
-								ORF
-								START
-								OFFSET)], @args);
+                                               UNKNOWN
+                                               FRAME
+                                               CODONTABLE_ID
+                                               COMPLETE
+                                               THROW
+                                               CODONTABLE
+                                               ORF
+                                               LONGEST_ORF
+                                               START
+                                               OFFSET)], @args);
 	 ## old API, 1.5.1 and preceding versions
 	 } else {
 		 ($terminator, $unknown, $frame, $codonTableId,
