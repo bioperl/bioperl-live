@@ -159,7 +159,7 @@ use Cwd 'abs_path';
 use Bio::DB::GFF::Util::Rearrange 'rearrange';
 use Bio::SeqFeature::Lite;
 use File::Spec;
-use Carp 'carp','cluck';
+use Carp 'carp','cluck','croak';
 use constant DEBUG=>0;
 
 # from the MySQL documentation...
@@ -168,6 +168,10 @@ use constant MAX_INT =>  2_147_483_647;
 use constant MIN_INT => -2_147_483_648;
 use constant MAX_BIN =>  1_000_000_000;  # size of largest feature = 1 Gb
 use constant MIN_BIN =>  1000;           # smallest bin we'll make - on a 100 Mb chromosome, there'll be 100,000 of these
+
+# tier 0 == 1000 bp bins
+# tier 1 == 10,000 bp bins
+# etc.
 
 memoize('_typeid');
 memoize('_locationid');
@@ -765,16 +769,16 @@ sub _features {
       $range_type,
       $fromtable,
       $iterator,
-      $sources
-     ) = rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],'STRAND',
-		    'NAME','CLASS','ALIASES',
-		    ['TYPES','TYPE','PRIMARY_TAG'],
-		    ['ATTRIBUTES','ATTRIBUTE'],
-		    'RANGE_TYPE',
-		    'FROM_TABLE',
-		    'ITERATOR',
-		    ['SOURCE','SOURCES']
-		   ],@_);
+      $sources,
+      ) = rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],'STRAND',
+		     'NAME','CLASS','ALIASES',
+		     ['TYPES','TYPE','PRIMARY_TAG'],
+		     ['ATTRIBUTES','ATTRIBUTE'],
+		     'RANGE_TYPE',
+		     'FROM_TABLE',
+		     'ITERATOR',
+		     ['SOURCE','SOURCES'],
+		    ],@_);
 
   my (@from,@where,@args,@group);
   $range_type ||= 'overlaps';
@@ -826,6 +830,7 @@ sub _features {
         $types = [map { ':'.$_ } @sources];
     }
   }
+
   if (defined($types)) {
     # last argument is the name of the features table
     my ($from,$where,$group,@a) = $self->_types_sql($types,'f');
@@ -868,12 +873,42 @@ SELECT f.id,f.object,f.typeid,f.seqid,f.start,f.end,f.strand
   WHERE $where
   $group
 END
-
+;
   $self->_print_query($query,@args) if DEBUG || $self->debug;
 
   my $sth = $self->_prepare($query) or $self->throw($self->dbh->errstr);
   $sth->execute(@args) or $self->throw($sth->errstr);
   return $iterator ? Bio::DB::SeqFeature::Store::DBI::Iterator->new($sth,$self) : $self->_sth2objs($sth);
+}
+
+sub _aggregate_bins {
+    my $self = shift;
+    my $sth  = shift;
+    my (%types,$binsize,$binstart);
+    while (my ($type,$seqname,$bin,$count,$bins,$start,$end) = $sth->fetchrow_array) {
+	$binsize                ||= ($end-$start+1)/$bins;
+	$binstart               ||= int($start/$binsize);
+	$types{$type}{seqname}  ||= $seqname;
+	$types{$type}{min}      ||= $start;
+	$types{$type}{max}      ||= $end;
+	$types{$type}{bins}     ||= [(0) x $bins];
+	$types{$type}{bins}[$bin-$binstart] = $count;
+	$types{$type}{count} += $count;
+    }
+    my @results;
+    for my $type (keys %types) {
+	my $min  = $types{$type}{min};
+	my $max  = $types{$type}{max};
+	my $seqid= $types{$type}{seqname};
+	my $f = Bio::SeqFeature::Lite->new(-seq_id => $seqid,
+					   -start  => $min,
+					   -end    => $max,
+					   -type   => "$type:bins",
+					   -score  => $types{$type}{count},
+					   -attributes => {coverage => join ',',@{$types{$type}{bins}}});
+	push @results,$f;
+    }
+    return @results;
 }
 
 sub _name_sql {
@@ -1588,7 +1623,73 @@ sub bin_where {
   return wantarray ? ($query,@args) : substitute($query,@args);
 }
 
+sub can_summarize { 1 }
 
+sub feature_summary {
+    my $self    = shift;
+    my ($seq_name,$start,$end,$types,$bins,$iterator) = 
+	rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],
+		   ['TYPES','TYPE','PRIMARY_TAG'],
+		   'BINS',
+		   'ITERATOR',
+		  ],@_);
+
+    $bins  ||= 1000;
+    $start ||= 1;
+    unless ($end) {
+	my $segment = $self->segment($seq_name) or $self->throw("unknown seq_id $seq_name");
+	$end        = $segment->end;
+    }
+
+    my $binsize = ($end-$start+1)/$bins;
+    my $seqid   = $self->_locationid_nocreate($seq_name);
+    defined $seqid or $self->throw("unknown seq_id $seq_name");
+
+    my (@from,@where,@args);
+
+    @from  = 'feature as f';
+    @where = 'seqid=?';
+    push @args,$seqid;
+
+    if (defined($types)) {
+	# last argument is the name of the features table
+	my ($from,$where,$group,@a) = $self->_types_sql($types,'f');
+	push @from,$from   if $from;
+	push @where,$where if $where;
+	push @args,@a;
+    } else {
+	$from[0] .= ' right join typelist as tl on typelist.id=feature.typeid';
+    }
+
+    my $from  = join ',',@from;
+    my $where = join ' AND ',@where;
+    chomp($where);
+
+    my $having = 'left_bin BETWEEN ? AND ?';
+    push @args,int($start/$binsize);
+    push @args,int($end/$binsize)-1;
+
+    my $query = <<END;
+SELECT tl.tag,'$seq_name',floor(pow(10,tier+3)*bin/$binsize) as left_bin,count(*),$bins,$start,$end 
+  FROM $from
+  WHERE $where
+  GROUP by tl.tag,left_bin
+  HAVING $having
+END
+;
+
+    $self->_print_query($query,@args) if DEBUG || $self->debug;
+    my $sth = $self->_prepare($query)  or $self->throw($self->dbh->errstr);
+    $sth->execute(@args)               or $self->throw($sth->errstr);
+
+    my @features = $self->_aggregate_bins($sth);
+    if ($iterator) {
+	return Bio::DB::SeqFeature::Store::DBI::FeatureIterator->new(@features);
+    } else {
+	  return @features;
+    }
+}
+    
 sub _delete_index {
   my $self = shift;
   my ($table_name,$id) = @_;

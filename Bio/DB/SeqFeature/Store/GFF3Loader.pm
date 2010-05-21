@@ -351,6 +351,12 @@ sub finish_load { #overridden
     $self->msg(sprintf "%5.2fs\n",$self->time()-$start);
   }
   eval {$self->store->commit};
+
+  if (eval{$self->summary_stats}) {
+      $self->msg("Building summary statistics for coverage graphs...");
+      $self->store->build_summary_statistics;
+  }
+
   # don't delete load data so that caller can ask for the loaded IDs
   # $self->delete_load_data;
 }
