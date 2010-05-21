@@ -732,7 +732,8 @@ sub executables {
 
     # getter
     return $self->{_pathstoexe}->{$cmd} if defined $self->{_pathstoexe}->{$cmd};
-
+    
+    $exe ||= $cmd;
     # finder
     return $self->{_pathstoexe}->{$cmd} = $self->_find_executable($exe, $warn);
 }

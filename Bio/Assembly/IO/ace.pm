@@ -222,11 +222,11 @@ sub next_contig {
     my $read_data = {}; # Temporary holder for read data
 
     # Keep reading the ACE stream starting at where we stopped
-    while ($_ = $self->_readline) {
+    while ( $_ = $self->_readline) {
         chomp;
 
         # Loading contig sequence (COntig sequence field)
-        (/^CO\s(\w+)\s(\d+)\s(\d+)\s(\d+)\s(\w+)/xms) && do { # New contig starts!
+        if (/^CO\s(\w+)\s(\d+)\s(\d+)\s(\d+)\s(\w+)/xms) { # New contig starts!
 
             if (not $contigOBJ) {
                 # Start a new contig object
@@ -267,10 +267,10 @@ sub next_contig {
                 $self->_pushback($_);
                 last;
             }
-        };
+        }
 
         # Loading contig qualities... (Base Quality field)
-        /^BQ/ && do {
+        elsif (/^BQ/) {
             my $consensus = $contigOBJ->get_consensus_sequence()->seq();
             my ($i,$j,@tmp);
             my @quality = ();
@@ -302,10 +302,10 @@ sub next_contig {
             my $qual = Bio::Seq::PrimaryQual->new(-qual => join(" ", @quality),
                                                   -id   => $contigOBJ->id()   );
             $contigOBJ->set_consensus_quality($qual);
-        };
+        }
 
         # Loading read info... (Assembled From field)
-        /^AF (\S+) (C|U) (-*\d+)/ && do {
+        elsif (/^AF (\S+) (C|U) (-*\d+)/) {
             $read_name = $1; # read ID
             my $ori    = $2; # strand
             my $start  = $3; # aligned start
@@ -318,12 +318,12 @@ sub next_contig {
                 $min_start = $start;
             }
 
-        };
+        }
 
         # Base segments definitions (Base Segment field)
         # They indicate which read segments were used to calculate the consensus
         # Coordinates are relative to the contig
-        /^BS (\d+) (\d+) (\S+)/ && do {
+        elsif (/^BS (\d+) (\d+) (\S+)/) {
             my ($start, $end, $contig_id) = ($1, $2, $3);
             if ($self->variant eq '454') {
               $start += abs($min_start) + 1;
@@ -337,11 +337,11 @@ sub next_contig {
                 -tag     => { 'contig_id' => $contig_id}
             );
             $contigOBJ->add_features([ $bs_feat ], 0);
-        };
+        }
 
         # Loading reads... (ReaD sequence field)
         # They define the reads in each contig
-        /^RD (\S+) (-*\d+) (\d+) (\d+)/ && do {
+        elsif (/^RD (\S+) (-*\d+) (\d+) (\d+)/) {
             $read_name = $1;
             $read_data->{$read_name}{'length'} = $2; # number_of_padded_bases
             $read_data->{$read_name}{'contig'} = $contigOBJ;
@@ -384,10 +384,10 @@ sub next_contig {
                 $contigOBJ->set_seq_coord($coord,$read);
             }
 
-        };
+        }
 
         # Loading read trimming and alignment ranges...
-        /^QA (-?\d+) (-?\d+) (-?\d+) (-?\d+)/ && do {
+        elsif (/^QA (-?\d+) (-?\d+) (-?\d+) (-?\d+)/) {
             my ($qual_start, $qual_end, $aln_start, $aln_end) =
                 ($1, $2, $3, $4);
 
@@ -419,10 +419,10 @@ sub next_contig {
                 $contigOBJ->add_features([ $qual_feat ], 0);
             }
 
-        };
+        }
 
         # Loading read DeScription (DS)
-        /^DS\s+(.*)/ && do {
+        elsif (/^DS\s+(.*)/) {
             my $desc = $1;
 
             # Expected tags are CHROMAT_FILE, PHD_FILE, TIME and to a lesser
@@ -442,10 +442,10 @@ sub next_contig {
             );
             $coord->add_sub_SeqFeature($read_desc);
         
-        };
+        }
 
         # Loading Read Tags
-        /^RT\s*\{/ && do {
+        elsif (/^RT\s*\{/) {
             my ($readID,$type,$source,$start,$end,$date) = split(' ',$self->_readline);
             my $extra_info = undef;
             while ($_ = $self->_readline) {
@@ -466,7 +466,7 @@ sub next_contig {
             my $contig = $read_data->{$readID}{'contig'};
             my $coord  = $contig->get_seq_coord( $contig->get_seq_by_name($readID) );
             $coord->add_sub_SeqFeature($read_tag);
-        };
+        }
 
     }
 
@@ -551,94 +551,14 @@ sub scaffold_annotations {
     Title   : write_assembly
     Usage   : $ass_io->write_assembly($assembly)
     Function: Write the assembly object in ACE compatible format. The contig IDs
-              will be sorted naturally if the Sort::Naturally module is present,
-              or lexically otherwise.
+              are sorted naturally if the Sort::Naturally module is present, or
+              lexically otherwise. Internally, write_assembly use the
+              write_contig, write_footer and write_header methods. Use these
+              methods if you want more control on the writing proces.
     Returns : 1 on success, 0 for error
     Args    : A Bio::Assembly::Scaffold object
 
 =cut
-
-sub write_assembly {
-    my ($self, @args) = @_;
-    my ($scaf, $write_singlets) = $self->_rearrange([qw(SCAFFOLD SINGLETS)], @args);
-
-    # Sanity check
-    if ( !$scaf || !$scaf->isa('Bio::Assembly::ScaffoldI') ) {
-        $self->throw("Must provide a Bio::Assembly::Scaffold object when calling write_assembly");
-    }
-
-    # ASsembly information (AS)
-    my @contig_ids  = $scaf->get_contig_ids;
-    my $num_contigs = $scaf->get_nof_contigs;
-    my $num_reads   = $scaf->get_nof_contig_seqs;
-    if ($write_singlets) {
-        push @contig_ids, $scaf->get_singlet_ids;
-        $num_contigs += $scaf->get_nof_singlets;
-        $num_reads   += $scaf->get_nof_singlet_seqs;
-    }
-    $self->_print("AS $num_contigs $num_reads\n\n");
-
-    # Sort the contig IDs
-    if (eval { require Sort::Naturally }) {
-        @contig_ids = Sort::Naturally::nsort( @contig_ids ); # natural sort (better)
-    } else {
-        @contig_ids = sort @contig_ids; # lexical sort (safe)
-    }
-
-    # Contig and read entries
-    for my $contig_id (@contig_ids) {
-        my $contig = $scaf->get_contig_by_id($contig_id) ||
-                     $scaf->get_singlet_by_id($contig_id);
-        $self->write_contig($contig);
-    }
-
-    # Whole Assembly tags (WA)
-    my $asm_anno = ($scaf->annotation->get_Annotations('whole assembly'))[0];
-    if ($asm_anno) {
-        my $asm_tags = $asm_anno->value;
-        if ($asm_tags =~ m/^TYPE: (\S+) PROGRAM: (\S+) DATE: (\S+) DATA: (.*)$/ms) {
-            my ($type, $program, $date, $data) = ($1, $2, $3, $4);
-            $data ||= '';
-            $self->_print(
-                "WA{\n".
-                "$type $program $date\n".
-                $data.
-                "}\n".
-                "\n"
-            );
-        }
-    }
-
-    # Contig Tags (CT)
-    for my $contig_id (@contig_ids) {
-        my $contig = $scaf->get_contig_by_id($contig_id) ||
-            $scaf->get_singlet_by_id($contig_id);
-        my @feats = (grep 
-            { not $_->primary_tag =~ m/^_/ }
-             $contig->get_features_collection->get_all_features
-            );
-        for my $feat (@feats) {
-            my $type   =  $feat->primary_tag;
-            my $start  =  $feat->start;
-            my $end    =  $feat->end;
-            my $source = ($feat->get_tag_values('source')       )[0];
-            my $date   = ($feat->get_tag_values('creation_date'))[0];
-            my $extra  = '';
-            if ($feat->has_tag('extra_info')) {
-                $extra = ($feat->get_tag_values('extra_info')   )[0];
-            }
-            $self->_print(
-                "CT{\n".
-                "$contig_id $type $source $start $end $date\n".
-                $extra.
-                "}\n".
-                "\n"
-            );
-        }
-    }
-
-    return 1;      
-}
 
 
 =head2 write_contig
@@ -711,12 +631,147 @@ sub write_contig {
          }
         $self->_print( "\n" );
     }
-   
-        
+    
     for my $read (@reads) {
         $self->_write_read($read, $contig);
     }
 
+    return 1;
+}
+
+
+=head2 write_header
+
+    Title   : write_header
+    Usage   : $ass_io->write_header($scaffold)
+                  or
+              $ass_io->write_header(\@contigs);
+    Function: Write ACE header (AS tags). You can call this function at any time,
+              i.e. not necessarily at the start. This is especially useful if
+              you have an undetermined number of contigs to write to ACE.
+              Example:
+              for my $contig (@list_of_contigs) {
+                $ass_io->_write_contig($contig);
+              }
+              $ass_io->_write_header(\@list_of_contigs);
+    Returns : 1 on success, 0 for error
+    Args    : A Bio::Assembly::Scaffold or an arrayref of Bio::Assembly::Contig
+              and Singlet
+
+=cut
+
+sub write_header {
+    my ($self, $input) = @_;
+
+    # Input validation
+    my @contigs;
+    my $err_msg = "Must provide a single Bio::Assembly::Scaffold object or an ".
+        "arrayref of Bio::Assembly::Contig or Singlet objects when calling ".
+        "write_header";
+    my $ref = ref $input;
+    if ( $ref eq 'ARRAY' ) {
+       for my $obj ( @$input ) {
+           $self->throw($err_msg) if not $obj->isa('Bio::Assembly::Contig');
+           push @contigs, $obj;
+       }
+    } elsif ( $ref =~ m/Bio::Assembly::Scaffold/ ) {
+       @contigs = ($input->all_contigs, $input->all_singlets);
+    } else {
+        $self->throw($err_msg);
+    } 
+
+    # Count number of contigs and reads
+    my $num_contigs = scalar @contigs;
+    my $num_reads   = 0;
+    for my $contig ( @contigs ) {
+        $num_reads += $contig->num_sequences;
+    }
+
+    # Print ASsembly tag at the start of the file
+    my $header = "AS $num_contigs $num_reads\n\n";
+    if ( tell $self->_fh > 0 ) {
+        # Not at the beginning of the file, go to start of file for writing
+        seek $self->_fh, 0, 0;
+        my $file = $self->file(); # e.g. '+>output.ace'
+        $file =~ s/^\+?[><]?//;   # e.g. 'output.ace'
+        my $prev_line = $header;
+        open my $read_fh, '<', $file or die "Error: Could not read file '$file':\n$!\n";
+        while ( my $read_line = <$read_fh> ) {
+            $self->_print( $prev_line );
+            $prev_line = $read_line;
+        }
+        $self->_print($prev_line);
+        close $read_fh;
+    } else {
+        # At first line, print header
+        $self->_print($header);
+    }    
+
+    return 1;
+}
+
+
+=head2 write_footer
+
+    Title   : write_footer
+    Usage   : $ass_io->write_footer($scaffold)
+    Function: Write ACE footer (WA and CT tags).
+    Returns : 1 on success, 0 for error
+    Args    : A Bio::Assembly::Scaffold object (optional)
+
+=cut
+
+sub write_footer {
+    my ($self, $scaf) = @_;
+    # Nothing to write if scaffold was not provided
+    return 1 if not defined $scaf;
+    # Verify that provided object is a scaffold
+    if ($scaf->isa('Bio::Assembly:ScaffoldI')) {
+        $self->throw("Must provide a Bio::Assembly::Scaffold object when calling write_footer");
+    }
+    # Whole Assembly tags (WA)
+    my $asm_anno = ($scaf->annotation->get_Annotations('whole assembly'))[0];
+    if ($asm_anno) {
+        my $asm_tags = $asm_anno->value;
+        if ($asm_tags =~ m/^TYPE: (\S+) PROGRAM: (\S+) DATE: (\S+) DATA: (.*)$/ms) {
+            my ($type, $program, $date, $data) = ($1, $2, $3, $4);
+            $data ||= '';
+            $self->_print(
+                "WA{\n".
+                "$type $program $date\n".
+                $data.
+                "}\n".
+                "\n"
+            );
+        }
+    }
+    # Contig Tags (CT)
+    for my $contig_id ( Bio::Assembly::IO::_sort( $scaf->get_contig_ids ) ) {
+        my $contig = $scaf->get_contig_by_id($contig_id) ||
+            $scaf->get_singlet_by_id($contig_id);
+        my @feats = (grep 
+            { not $_->primary_tag =~ m/^_/ }
+             $contig->get_features_collection->get_all_features
+            );
+        for my $feat (@feats) {
+            my $type   =  $feat->primary_tag;
+            my $start  =  $feat->start;
+            my $end    =  $feat->end;
+            my $source = ($feat->get_tag_values('source')       )[0];
+            my $date   = ($feat->get_tag_values('creation_date'))[0];
+            my $extra  = '';
+            if ($feat->has_tag('extra_info')) {
+                $extra = ($feat->get_tag_values('extra_info')   )[0];
+            }
+            $self->_print(
+                "CT{\n".
+                "$contig_id $type $source $start $end $date\n".
+                $extra.
+                "}\n".
+                "\n"
+            );
+        }
+    }
     return 1;
 }
 
@@ -743,6 +798,7 @@ sub variant {
     }
     return $self->{variant};
 }
+
 
 =head2 _write_read
 
@@ -844,9 +900,20 @@ sub _write_read {
 }
 
 
+=head2 _formatted_seq
+
+    Title   : _formatted_seq
+    Usage   : Bio::Assembly::IO::ace::_formatted_seq($sequence, $line_width)
+    Function: Format a sequence for ACE output:
+              i ) replace gaps in the sequence by the '*' char
+              ii) split the sequence on multiple lines as needed
+    Returns : new sequence string
+    Args    : sequence string on one line
+              maximum line width
+
+=cut
+
 sub _formatted_seq {
-    # Takes a sequence string, use '*' for gaps and split the sequence on
-    # several lines
     my ($seq_str, $line_width) = @_;
     my $new_str = '';
     # In the ACE format, gaps are '*'
@@ -859,15 +926,28 @@ sub _formatted_seq {
 }
 
 
+=head2 _formatted_qual
+
+    Title   : _formatted_qual
+    Usage   : Bio::Assembly::IO::ace::_formatted_qual($qual_arr, $sequence, $line_width, $qual_default)
+    Function: Format quality scores for ACE output:
+              i  ) use the default quality values when they are missing
+              ii ) remove gaps (they get no score in ACE)
+              iii) split the quality scores on several lines as needed
+    Returns : new quality score string
+    Args    : quality score array reference
+              corresponding sequence string
+              maximum line width
+              default quality score
+
+=cut
+
 sub _formatted_qual {
-    # Takes a quality score array and the corresponsing sequence string, remove
-    # quality score for gaps and split the quality score string on several lines
-    # If the quality scores are undefined, use the provided default quality scores
-    my ($qual_arr, $seq, $line_width, $qual_score) = @_;
+    my ($qual_arr, $seq, $line_width, $qual_default) = @_;
     my $qual_str = '';
     # Default quality     
     if (not defined $qual_arr) {
-      @$qual_arr = map( $qual_score, (1 .. length $seq) );
+      @$qual_arr = map( $qual_default, (1 .. length $seq) );
     }
     # Gaps get no quality score in ACE format
     my $gap_pos = -1;
@@ -885,6 +965,16 @@ sub _formatted_qual {
 }
 
 
+=head2 _initialize
+
+    Title   : _initialize
+    Usage   : $ass_io->_initialize(@args)
+    Function: Initialize the Bio::Assembly::IO object with the proper ACE variant
+    Returns : 
+    Args    : 
+
+=cut
+
 sub _initialize {
     my($self, @args) = @_;
     $self->SUPER::_initialize(@args);
@@ -892,6 +982,7 @@ sub _initialize {
     $variant ||= 'consed';
     $self->variant($variant);
 }
+
 
 1;
 

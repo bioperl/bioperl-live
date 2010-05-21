@@ -206,11 +206,12 @@ sub _initialize {
 sub get_taxon {
     my $self = shift;
     if (! $XMLTWIG) {
-        $self->throw("Need to have installed XML::Twig");
+        eval { require XML::Twig };
+        $self->throw("Could not load XML::Twig for get_taxon(): $@") if $@;
     }
-    
+
     my %p = $self->entrez_params;
-    
+
     # convert input request to one or more ids
     my (@taxonids, $taxonid, $want_full);
     if (@_ > 1) {

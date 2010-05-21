@@ -535,7 +535,7 @@ sub create_bphylo_aln {
     my ($self, $aln, $taxa, @args) = @_;
     
     #most of the code below ripped from Bio::Phylo::Matrices::Matrix::new_from_bioperl()
-    if ( Bio::Phylo::Matrices::Matrix::isa( $aln, 'Bio::Align::AlignI' ) ) {
+    if ( $aln->isa('Bio::Align::AlignI') ) {
             $aln->unmatch;
             $aln->map_chars('\.','-');
             my @seqs = $aln->each_seq;
