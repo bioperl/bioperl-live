@@ -153,7 +153,7 @@ is $aa->seq, 'M', "Translation: " . $aa->seq;
 $seq->verbose(2);
 $seq->seq("ggggggatgtggcccc");    # atg tgg ccc
 eval { $seq->translate( -orf => 1 ); };
-like( $@, qr/atgtggcccc\n/ );
+like( $@, qr/\batgtggccc\b/i );
 $seq->verbose(-1);
 $aa = $seq->translate( -orf => 1 );
 is $aa->seq, 'MWP', "Translation: MWP";
