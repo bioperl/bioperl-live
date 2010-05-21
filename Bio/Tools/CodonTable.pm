@@ -243,7 +243,7 @@ BEGIN {
        FFLLSSSSYY*QCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
        FFLLSSSSYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
        '' '' '' ''
-       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG   
+       FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIMMTTTTNNNKSSSSVVVVAAAADDEEGGGG
        FFLLSS*SYY*LCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
        FF*LSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG
        );
@@ -267,7 +267,7 @@ BEGIN {
        -----------------------------------M----------------------------
        -----------------------------------M----------------------------
        '' ''  '' ''
-       -----------------------------------M---------------M------------  
+       -----------------------------------M---------------M------------
        -----------------------------------M----------------------------
        --------------------------------M--M---------------M------------
        );
@@ -285,7 +285,7 @@ BEGIN {
         }
     }
     }
-    %IUPAC_DNA = Bio::Tools::IUPAC->iupac_iub();    
+    %IUPAC_DNA = Bio::Tools::IUPAC->iupac_iub();
     %IUPAC_AA = Bio::Tools::IUPAC->iupac_iup();
     %THREELETTERSYMBOLS = Bio::SeqUtils->valid_aa(2);
     $VALID_PROTEIN = '['.join('',Bio::SeqUtils->valid_aa(0)).']';
@@ -459,7 +459,7 @@ sub _translate_ambiguous_codon {
     $partial ||= 0;
     my $id = $self->id;
     my $aa;
-    my @codons = _unambiquous_codons($triplet);
+    my @codons = $self->unambiguous_codons($triplet);
     my %aas =();
     foreach my $codon (@codons) {
     $aas{substr($TABLES[$id-1],$CODONS->{$codon},1)} = 1;
@@ -529,7 +529,7 @@ sub translate_strict{
  Function: returns codons for an amino acid
 
            Returns an empty string for unknown amino acid
-           codes. Ambiquous IUPAC codes Asx,B, (Asp,D; Asn,N) and
+           codes. Ambiguous IUPAC codes Asx,B, (Asp,D; Asn,N) and
            Glx,Z (Glu,E; Gln,Q) are resolved. Both single and three
            letter amino acid codes are accepted. '*' and 'Ter' are
            used for terminator.
@@ -574,7 +574,7 @@ sub revtranslate {
           $codons[$i] =~ tr/t/u/;
        }
    }
-    
+
    return @codons;
 }
 
@@ -685,7 +685,7 @@ sub reverse_translate_best {
         if ( defined $cod_ref->{$aa} ) {
             $str .= $cod_ref->{$aa};
         } else {
-            $self->throw("Input sequence contains invalid character: $aa");         
+            $self->throw("Input sequence contains invalid character: $aa");
         }
     }
    $str;
