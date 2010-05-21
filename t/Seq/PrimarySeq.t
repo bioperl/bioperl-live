@@ -168,8 +168,8 @@ is $aa->seq, 'M', "Translation: " . $aa->seq;
 $seq->verbose(2);
 $seq->seq("ggggggatgtggcccc");    # atg tgg ccc
 eval { $seq->translate( -orf => 1 ); };
-if ($@) {
-    like( $@, qr/atgtggcccc\n/ );
+if($@) {
+    like( $@, qr/atgtggccc/i );
     $seq->verbose(-1);
     $aa = $seq->translate( -orf => 1 );
     is $aa->seq, 'MWP', "Translation: " . $aa->seq;
