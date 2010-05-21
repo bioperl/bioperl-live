@@ -511,10 +511,11 @@ sub trunc{
            -codontable_id - codon table id                  default is 1
            -complete      - complete CDS expected           default is 0
            -throw         - throw exception if not complete default is 0
-           -orf           - find 1st ORF                    default is 0
+           -longest_orf   - find longest ORF                default is 0
+           -orf           - find first ORF                  default is 0
            -start         - alternative initiation codon
            -codontable    - Bio::Tools::CodonTable object
-		   -offset        - offset for fuzzy locations      default is 0
+	   -offset        - offset for fuzzy locations      default is 0
 
  Notes   : The -start argument only applies when -orf is set to 1. By default
            all initiation codons found in the given codon table are used
@@ -551,12 +552,12 @@ For details on codon tables used by translate() see L<Bio::Tools::CodonTable>.
 sub translate {
 	 my ($self,@args) = @_;
 	 my ($terminator, $unknown, $frame, $codonTableId, $complete, $throw,
-		  $codonTable, $orf, $start_codon, $offset);
+             $codonTable, $orf, $longest_orf, $start_codon, $offset);
 
 	 ## new API with named parameters, post 1.5.1
 	 if ($args[0] && $args[0] =~ /^-[A-Z]+/i) {
 		 ($terminator, $unknown, $frame, $codonTableId, $complete, $throw,
-		  $codonTable, $orf, $start_codon, $offset) =
+		  $codonTable, $orf, $longest_orf, $start_codon, $offset) =
 			 $self->_rearrange([qw(TERMINATOR
 								UNKNOWN
 								FRAME
@@ -609,14 +610,17 @@ sub translate {
 	 }
 
     ## ignore frame if an ORF is supposed to be found
-	 if ($orf) {
-		 $seq = $self->_find_orf($seq,$codonTable,$start_codon);
+	 if ( $orf || $longest_orf ) {
+             my ($orf_region) = $self->_find_orfs( $seq, $codonTable, $start_codon, $orf && 'first_only' );
+             my $newseq = $orf_region ? substr( $seq, $orf_region->[0], $orf_region->[2] ) : '';
+             #warn Data::Dumper::Dumper($orf_region)."$seq ->\n$newseq\n";
+             $seq = $newseq;
 	 } else {
 	 ## use frame, error if frame is not 0, 1 or 2
 		 $self->throw("Valid values for frame are 0, 1, or 2, not $frame.")
 			unless ($frame == 0 or $frame == 1 or $frame == 2);
 		 $seq = substr($seq,$frame);
-    }
+         }
 
     ## Translate it
     my $output = $codonTable->translate($seq);
@@ -806,47 +810,67 @@ sub is_circular{
 These are some private functions for the PrimarySeqI interface. You do not
 need to implement these functions
 
-=head2 _find_orf
+=head2 _find_orfs
 
- Title   : _find_orf
+ Title   : _find_orfs
  Usage   :
  Function: Finds ORF starting at 1st initiation codon in nucleotide sequence.
            The ORF is not required to have a termination codon.
  Example :
- Returns : A nucleotide sequence or nothing, if no initiation codon is found.
- Args    : Nucleotide sequence, CodonTable object, alternative initiation
-           codon (optional).
+ Returns : a list of string coordinates of ORF locations (0-based half-open),
+           sorted descending by length (so that the longest is first)
+           as: [ start, end, frame, length ], [ start, end, frame, length ], ...
+ Args    : Nucleotide sequence,
+           CodonTable object,
+           (optional) alternative initiation codon (e.g. 'ATA'),
+           (optional) boolean that, if true, stops after finding the
+                      first available ORF
 
 =cut
 
-sub _find_orf {
-	my ($self,$sequence,$codonTable,$start_codon) = @_;
+sub _find_orfs {
+    my ( $self, $sequence, $codon_table, $start_codon, $first_only ) = @_;
+    $sequence    = lc $sequence;
+    $start_codon = lc $start_codon if $start_codon;
 
-	# find initiation codon and remove leading sequence
-	while ($sequence) {
-		my $codon = substr($sequence,0,3);
-		if ($start_codon) {
-			last if ( $codon =~ /$start_codon/i );
-		} else {
-			last if ($codonTable->is_start_codon($codon));
-		}
-		$sequence = substr($sequence,1);
-	}
-	return unless $sequence;
+    my $is_start = $start_codon
+        ? sub { shift eq $start_codon }
+        : sub { $codon_table->is_start_codon( shift ) };
 
-	# find termination codon and remove trailing sequence
-	my $len = CORE::length($sequence);
-	my $offset = 3;
-	while ($offset < $len) {
-		my $codon = substr($sequence,$offset,3);
-		if ( $codonTable->is_ter_codon($codon) ){
-			$sequence = substr($sequence, 0, $offset + 3);
-			return $sequence;
-		}
-		$offset += 3;
-	}
-	$self->warn("No termination codon found, will translate - sequence:\n$sequence");
-	$sequence;
+    # stores the begin index of the currently-running ORF in each
+    # reading frame
+    my @current_orf_start = (-1,-1,-1);
+
+    #< stores coordinates of longest observed orf (so far) in each
+    #  reading frame
+    my @orfs;
+
+    # go through each base of the sequence, and each reading frame for each base
+    my $seqlen = CORE::length $sequence;
+    for( my $i = 0; $i<$seqlen; $i+=3 ) {
+        for my $frame ( 0..2 ) {
+            my $j = $i+$frame;
+            next if $j >= $seqlen;
+
+            my $this_codon = substr( $sequence, $j, 3 );
+
+            # if in an orf and this is a stop codon
+            if( $current_orf_start[$frame] >= 0 && $codon_table->is_ter_codon( $this_codon ) ) {
+                # record ORF start, end (half-open), length
+                my @this_orf = ( $current_orf_start[$frame], $j+3, undef, $frame );
+                my $this_orf_length = $this_orf[2] = ( $this_orf[1] - $this_orf[0] );
+
+                return \@this_orf if $first_only;
+                push @orfs, \@this_orf;
+            }
+            # if this is a start codon
+            elsif( $is_start->($this_codon) ) {
+                $current_orf_start[$frame] = $j;
+            }
+        }
+    }
+
+    return sort { $b->[3] <=> $a->[3] } @orfs;
 }
 
 =head2 _attempt_to_load_Seq

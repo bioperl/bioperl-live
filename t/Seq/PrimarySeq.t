@@ -2,6 +2,7 @@
 # $Id$
 
 use strict;
+use Data::Dumper;
 
 BEGIN {
     use lib '.';
@@ -129,6 +130,21 @@ is $aa->seq, 'MVAST', "Translation: " . $aa->seq;
 # same test as previous, but using named parameter
 $aa = $seq->translate( -complete => 1 );
 is $aa->seq, 'MVAST', "Translation: " . $aa->seq;
+
+# test internal PrimarySeqI _find_orfs function
+{
+    my $test_seq = 'TTTTATGGTGGCGTCAACTTAATTT';
+    #               0123456789012345678901234
+    #                   ^                 ^
+
+    my @orfs = Bio::PrimarySeqI::_find_orfs( undef,
+                                             $test_seq,
+                                             Bio::Tools::CodonTable->new,
+                                             undef,
+                                            );    # ATG GTG GCG TCA ACT
+    is_deeply( \@orfs, [[4,22,18,1]], '_find_orfs 1')
+        or diag "for $test_seq, _find_orfs returned:\n".Dumper(\@orfs);
+}
 
 # find ORF, ignore codons outside the ORF or CDS
 $seq->seq('TTTTATGGTGGCGTCAACTTAATTT');    # ATG GTG GCG TCA ACT
