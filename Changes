@@ -1,7 +1,6 @@
 ---------------------------------------------------------
 Revision history for BioPerl core modules
 ---------------------------------------------------------
-
 The comprehensive history and ongoing development of BioPerl:
 
    http://github.com/bioperl/bioperl-live
@@ -11,14 +10,12 @@ Some of that history is also highlighted on our wiki:
    http://www.bioperl.org/wiki/Change_log
    http://www.bioperl.org/wiki/History_of_BioPerl
 
-Bugs to be addressed:
+Bugs and requested features list:
 
    http://bugzilla.open-bio.org
-   specific bugs intended for the next CPAN release series highlighted in BUGS
 
-
-CPAN releases are branched off of 'master', verified stable, and pushed to PAUSE.
-
+CPAN releases are branched from 'master'.
+---------------------------------------------------------
 
 1.6.1_1 RELEASE_DATE_HERE (first 1.6.2 alpha)
     [New features]
