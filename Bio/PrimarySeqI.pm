@@ -853,14 +853,16 @@ sub _find_orfs_nucleotide {
 
         # if in an orf and this is either a stop codon or the last in-frame codon in the string
         if ( $current_orf_start[$frame] >= 0 ) {
-            if ( $codon_table->is_ter_codon( $this_codon ) ||( my $is_last_codon = ($j == $seqlen-3)) ) {
-                # record ORF start, end (half-open), length
+            if ( $codon_table->is_ter_codon( $this_codon ) ||( my $is_last_codon_in_frame = ($j >= $seqlen-5)) ) {
+                # record ORF start, end (half-open), length, and frame
                 my @this_orf = ( $current_orf_start[$frame], $j+3, undef, $frame );
                 my $this_orf_length = $this_orf[2] = ( $this_orf[1] - $this_orf[0] );
 
-                $self->warn( "No termination codon found in ORF sequence "
-                                 .$self->_truncate_seq( $self->_orf_sequence( $sequence, \@this_orf )))
-                    if $first_only && $is_last_codon;
+                $self->warn( "Translating partial ORF "
+                                 .$self->_truncate_seq( $self->_orf_sequence( $sequence, \@this_orf ))
+                                 .' from end of nucleotide sequence'
+                            )
+                    if $first_only && $is_last_codon_in_frame;
 
                 return \@this_orf if $first_only;
                 push @orfs, \@this_orf;
@@ -878,7 +880,7 @@ sub _find_orfs_nucleotide {
 
 sub _truncate_seq {
     my ($self,$seq) = @_;
-    return CORE::length($seq) > 200 ? substr($seq,0,197).'...' : $seq;
+    return CORE::length($seq) > 200 ? substr($seq,0,50).'...'.substr($seq,-50) : $seq;
 }
 sub _orf_sequence {
     my ($self, $seq, $orf ) = @_;
