@@ -612,7 +612,7 @@ sub translate {
 
          ## ignore frame if an ORF is supposed to be found
 	 if ( $orf || $longest_orf ) {
-            my ($orf_region) = $self->_find_orfs( $seq, $codonTable, $start_codon, $orf && 'first_only' );
+            my ($orf_region) = $self->_find_orfs_nucleotide( $seq, $codonTable, $start_codon, $orf && 'first_only' );
             $seq = $self->_orf_sequence( $seq, $orf_region );
 	 } else {
 	 ## use frame, error if frame is not 0, 1 or 2
@@ -809,9 +809,9 @@ sub is_circular{
 These are some private functions for the PrimarySeqI interface. You do not
 need to implement these functions
 
-=head2 _find_orfs
+=head2 _find_orfs_nucleotide
 
- Title   : _find_orfs
+ Title   : _find_orfs_nucleotide
  Usage   :
  Function: Finds ORF starting at 1st initiation codon in nucleotide sequence.
            The ORF is not required to have a termination codon.
@@ -827,7 +827,7 @@ need to implement these functions
 
 =cut
 
-sub _find_orfs {
+sub _find_orfs_nucleotide {
     my ( $self, $sequence, $codon_table, $start_codon, $first_only ) = @_;
     $sequence    = uc $sequence;
     $start_codon = uc $start_codon if $start_codon;
@@ -846,37 +846,34 @@ sub _find_orfs {
 
     # go through each base of the sequence, and each reading frame for each base
     my $seqlen = CORE::length $sequence;
-    for( my $i = 0; $i<$seqlen; $i+=3 ) {
-        for my $frame ( 0..2 ) {
-            my $j = $i+$frame;
-            next if $j >= $seqlen;
+    for( my $j = 0; $j <= $seqlen-3; $j++ ) {
+        my $frame = $j % 3;
 
-            my $this_codon = substr( $sequence, $j, 3 );
+        my $this_codon = substr( $sequence, $j, 3 );
 
-            # if in an orf
-            if( $current_orf_start[$frame] >= 0 ) {
-                # and this is either a stop codon or the last in-frame codon in the string
-                if( $codon_table->is_ter_codon( $this_codon ) || ( my $is_last_codon = $j+4 == $seqlen) ) {
-                    # record ORF start, end (half-open), length
-                    my @this_orf = ( $current_orf_start[$frame], $j+3, undef, $frame );
-                    my $this_orf_length = $this_orf[2] = ( $this_orf[1] - $this_orf[0] );
+        # if in an orf and this is either a stop codon or the last in-frame codon in the string
+        if ( $current_orf_start[$frame] >= 0 ) {
+            if ( $codon_table->is_ter_codon( $this_codon ) ||( my $is_last_codon = ($j == $seqlen-3)) ) {
+                # record ORF start, end (half-open), length
+                my @this_orf = ( $current_orf_start[$frame], $j+3, undef, $frame );
+                my $this_orf_length = $this_orf[2] = ( $this_orf[1] - $this_orf[0] );
 
-                     $self->warn( "No termination codon found in ORF sequence "
-                                  .$self->_truncate_seq( $self->_orf_sequence( $sequence, \@this_orf )))
-                         if $first_only && $is_last_codon;
+                $self->warn( "No termination codon found in ORF sequence "
+                                 .$self->_truncate_seq( $self->_orf_sequence( $sequence, \@this_orf )))
+                    if $first_only && $is_last_codon;
 
-                    return \@this_orf if $first_only;
-                    push @orfs, \@this_orf;
-                }
+                return \@this_orf if $first_only;
+                push @orfs, \@this_orf;
+                $current_orf_start[$frame] = -1;
             }
-            # if this is a start codon
-            elsif( $is_start->($this_codon) ) {
-                $current_orf_start[$frame] = $j;
-            }
+        }
+        # if this is a start codon
+        elsif ( $is_start->($this_codon) ) {
+            $current_orf_start[$frame] = $j;
         }
     }
 
-    return sort { $b->[3] <=> $a->[3] } @orfs;
+    return sort { $b->[2] <=> $a->[2] } @orfs;
 }
 
 sub _truncate_seq {
