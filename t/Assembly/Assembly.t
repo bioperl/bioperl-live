@@ -360,7 +360,7 @@ sub assembly_core {
     # Importing an assembly
     
     $asm_in = Bio::Assembly::IO->new(
-        -file => test_input_file("sample_dataset.tasm "),
+        -file => test_input_file("sample_dataset.tigr "),
         -format=>'tigr'
     );
     while (my $obj = $asm_in->next_contig) {
@@ -368,7 +368,7 @@ sub assembly_core {
     }
     
     $asm_in = Bio::Assembly::IO->new(
-        -file => test_input_file("sample_dataset.tasm "),
+        -file => test_input_file("sample_dataset.tigr "),
         -format=>'tigr'
     );
     

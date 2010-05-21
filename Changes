@@ -1,7 +1,6 @@
 ---------------------------------------------------------
 Revision history for BioPerl core modules
 ---------------------------------------------------------
-
 The comprehensive history and ongoing development of BioPerl:
 
    http://github.com/bioperl/bioperl-live
@@ -11,22 +10,21 @@ Some of that history is also highlighted on our wiki:
    http://www.bioperl.org/wiki/Change_log
    http://www.bioperl.org/wiki/History_of_BioPerl
 
-Bugs to be addressed:
+Bugs and requested features list:
 
    http://bugzilla.open-bio.org
-   specific bugs intended for the next CPAN release series highlighted in BUGS
 
-
-CPAN releases are branched off of 'master', verified stable, and pushed to PAUSE.
-
+CPAN releases are branched from 'master'.
+---------------------------------------------------------
 
 1.6.1_1 RELEASE_DATE_HERE (first 1.6.2 alpha)
     [New features]
     * Bio::SeqIO::gbxml
         - bug 2515 - new contribution [Ryan Golhar, jhannah]
     * Bio::Assembly::IO
-        - new ACE variant for 454 GS Assembler (Newbler) [fangly]
-
+        - support for reading 454 GS Assembler (Newbler) ACE files [fangly]
+        - support for writing ACE files [fangly]
+        - writing whole assemblies or one contig at a time [fangly]
     ...
         
     [Bug fixes]

@@ -241,6 +241,7 @@ use base qw(Bio::Assembly::IO);
 
 our $progname = 'TIGR_Assembler';
 
+
 =head2 next_assembly
 
  Title   : next_assembly
@@ -372,6 +373,7 @@ sub next_contig {
     return $contigobj;
 }
 
+
 =head2 _qual_hex2dec
 
     Title   : _qual_hex2dec
@@ -389,6 +391,7 @@ sub _qual_hex2dec {
     return $qual;
 }
 
+
 =head2 _qual_dec2hex
 
     Title   : _qual_dec2hex
@@ -405,6 +408,7 @@ sub _qual_dec2hex {
     $qual = '0x'.$qual;
     return $qual;
 }
+
 
 =head2 _store_contig
 
@@ -464,6 +468,7 @@ sub _store_contig {
 
     return $contigobj;
 }
+
 
 =head2 _store_read
 
@@ -530,6 +535,7 @@ sub _store_read {
 
     return $readobj;
 }
+
 
 =head2 _store_singlet
 
@@ -630,157 +636,256 @@ sub _store_singlet {
    return $singletobj;
 }
 
+
 =head2 write_assembly
 
     Title   : write_assembly
-    Usage   : $ass_io->write_assembly($assembly)
-    Function: Write the assembly object in TIGR Assembler compatible tasm lassie  
-              format. The contig IDs will be sorted naturally if the module
-              Sort::Naturally is present, or lexically otherwise.
+    Usage   : $asmio->write_assembly($assembly)
+    Function: Write the assembly object in TIGR Assembler compatible format. The
+              contig IDs are sorted naturally if the Sort::Naturally module is
+              present, or lexically otherwise. Internally, write_assembly use
+              the write_contig, write_footer and write_header methods. Use these
+              methods if you want more control on the writing proces.
     Returns : 1 on success, 0 for error
     Args    : A Bio::Assembly::Scaffold object
               1 to write singlets in the assembly file, 0 otherwise
 
 =cut
 
-sub write_assembly {
+
+=head2 write_contig
+
+    Title   : write_contig
+    Usage   : $asmio->write_contig($contig)
+    Function: Write a contig or singlet object in TIGR compatible format. Quality
+              scores are automatically generated if the contig does not contain
+              any
+    Returns : 1 on success, 0 for error
+    Args    : A Bio::Assembly::Contig or Singlet object
+
+=cut
+
+sub write_contig {
     my ($self, @args) = @_;
-    my ($scaffoldobj, $singlets) = $self->_rearrange([qw(SCAFFOLD SINGLETS)], @args);
+    my ($contigobj) = $self->_rearrange([qw(CONTIG)], @args);
 
     # Sanity check
-    if ( !$scaffoldobj || !$scaffoldobj->isa('Bio::Assembly::ScaffoldI') ) {
-        $self->throw("Must provide a Bio::Assembly::Scaffold object when calling
-            write_assembly");
+    if ( !$contigobj || !$contigobj->isa('Bio::Assembly::Contig') ) {
+        $self->throw("Must provide a Bio::Assembly::Contig or Singlet object when calling write_contig");
     }
 
-    # Get list of objects - contigs and singlets
-    my @cont_ids = $scaffoldobj->get_contig_ids;
-    my @sing_ids = $scaffoldobj->get_singlet_ids;
-    my %did;
     my $decimal_format = '%.2f';
-    for (my $i = 0; $i < scalar @sing_ids ; $i++) {
-      # singlet display id (string)
-      my $display_id = $sing_ids[$i];
-      # singlet primary id (unique, numerical)
-      my $primary_id = $scaffoldobj->get_singlet_by_id($display_id)->seqref->primary_id;
-      $sing_ids[$i] = $primary_id;
-      $did{$primary_id} = $display_id;
-    }
+    my $contigid = $contigobj->id;
+    my $numseqs = $contigobj->num_sequences;
 
-    # Sort the contig and singlet IDs
-    my @ids = (@cont_ids, @sing_ids);
-    if (eval { require Sort::Naturally }) {
-        @ids = Sort::Naturally::nsort( @ids ); # natural sort (better)
-    } else {
-        @ids = sort @ids; # lexical sort (safe)
-    }
-    my $numobj = scalar @ids;
+    if ( $contigobj->isa('Bio::Assembly::Singlet') ) {
+        # This is a singlet
+        my $readid     = $contigobj->seqref->id;      
+        my $singletobj = $contigobj;
 
-    # Output all contigs and singlets (sorted by increasing id number)
-    for (my $i = 0 ; $i < $numobj ; $i++) {
-
-        my $objid = $ids[$i];
-
-        if (defined $did{$objid}) { 
-            # This is a singlet
-            next unless ($singlets);
-
-            my $contigid = $objid;
-            my $readid   = $did{$objid};            
-            my $singletobj = $scaffoldobj->get_singlet_by_id($readid);
-
-            # Get contig information
-            my $contanno = (grep
-                { $_->primary_tag eq "_main_contig_feature:$contigid" }
-                $singletobj->get_features_collection->get_all_features
+        # Get contig information
+        my $contanno = (grep
+            { $_->primary_tag eq "_main_contig_feature:$contigid" }
+            $singletobj->get_features_collection->get_all_features
             )[0];
-            my %contiginfo;
-            $contiginfo{'sequence'}   = $singletobj->seqref->seq;
-            $contiginfo{'lsequence'}  = $contiginfo{'sequence'};
-            $contiginfo{'quality'}    = $self->_qual_dec2hex(
-                join ' ', @{$singletobj->seqref->qual});
-            $contiginfo{'asmbl_id'}   = $contigid;
-            $contiginfo{'seq_id'}     = ($contanno->get_tag_values('seq_id'))[0];   
-            $contiginfo{'com_name'}   = ($contanno->get_tag_values('com_name'))[0];
-            $contiginfo{'type'}       = ($contanno->get_tag_values('type'))[0];
-            $contiginfo{'method'}     = ($contanno->get_tag_values('method'))[0];
-            $contiginfo{'ed_status'}  = ($contanno->get_tag_values('ed_status'))[0];
-            $contiginfo{'redundancy'} = sprintf($decimal_format, 1);
-            $contiginfo{'perc_N'}     = sprintf(
-                $decimal_format, $self->_perc_N($contiginfo{'sequence'}));
-            $contiginfo{'seqnum'}     = 1;
-            $contiginfo{'full_cds'}   = ($contanno->get_tag_values('full_cds'))[0];
-            $contiginfo{'cds_start'}  = ($contanno->get_tag_values('cds_start'))[0];
-            $contiginfo{'cds_end'}    = ($contanno->get_tag_values('cds_end'))[0];
-            $contiginfo{'ed_pn'}      = ($contanno->get_tag_values('ed_pn'))[0];
-            $contiginfo{'ed_date'}    = $self->_date_time;
-            $contiginfo{'comment'}    = ($contanno->get_tag_values('comment'))[0];
-            $contiginfo{'frameshift'} = ($contanno->get_tag_values('frameshift'))[0];
+        my %contiginfo;
+        $contiginfo{'sequence'}   = $singletobj->seqref->seq;
+        $contiginfo{'lsequence'}  = $contiginfo{'sequence'};
+        $contiginfo{'quality'}    = $self->_qual_dec2hex(
+            join ' ', @{$singletobj->get_consensus_quality->qual} );
+        $contiginfo{'asmbl_id'}   = $contigid;
+        $contiginfo{'seq_id'}     = ($contanno->get_tag_values('seq_id'))[0];   
+        $contiginfo{'com_name'}   = ($contanno->get_tag_values('com_name'))[0];
+        $contiginfo{'type'}       = ($contanno->get_tag_values('type'))[0];
+        $contiginfo{'method'}     = ($contanno->get_tag_values('method'))[0];
+        $contiginfo{'ed_status'}  = ($contanno->get_tag_values('ed_status'))[0];
+        $contiginfo{'redundancy'} = sprintf($decimal_format, 1);
+        $contiginfo{'perc_N'}     = sprintf(
+            $decimal_format, $self->_perc_N($contiginfo{'sequence'}));
+        $contiginfo{'seqnum'}     = 1;
+        $contiginfo{'full_cds'}   = ($contanno->get_tag_values('full_cds'))[0];
+        $contiginfo{'cds_start'}  = ($contanno->get_tag_values('cds_start'))[0];
+        $contiginfo{'cds_end'}    = ($contanno->get_tag_values('cds_end'))[0];
+        $contiginfo{'ed_pn'}      = ($contanno->get_tag_values('ed_pn'))[0];
+        $contiginfo{'ed_date'}    = $self->_date_time;
+        $contiginfo{'comment'}    = ($contanno->get_tag_values('comment'))[0];
+        $contiginfo{'frameshift'} = ($contanno->get_tag_values('frameshift'))[0];
 
-            # Check that no tag value is undef
-            $contiginfo{'seq_id'}     = '' unless defined $contiginfo{'seq_id'};
-            $contiginfo{'com_name'}   = '' unless defined $contiginfo{'com_name'};
-            $contiginfo{'type'}       = '' unless defined $contiginfo{'type'};
-            $contiginfo{'method'}     = '' unless defined $contiginfo{'method'};
-            $contiginfo{'ed_status'}  = '' unless defined $contiginfo{'ed_status'};
-            $contiginfo{'full_cds'}   = '' unless defined $contiginfo{'full_cds'};
-            $contiginfo{'cds_start'}  = '' unless defined $contiginfo{'cds_start'};
-            $contiginfo{'cds_end'}    = '' unless defined $contiginfo{'cds_end'};
-            $contiginfo{'ed_pn'}      = '' unless defined $contiginfo{'ed_pn'};
-            $contiginfo{'comment'}    = '' unless defined $contiginfo{'comment'};
-            $contiginfo{'frameshift'} = '' unless defined $contiginfo{'frameshift'};
+        # Check that no tag value is undef
+        $contiginfo{'seq_id'}     = '' unless defined $contiginfo{'seq_id'};
+        $contiginfo{'com_name'}   = '' unless defined $contiginfo{'com_name'};
+        $contiginfo{'type'}       = '' unless defined $contiginfo{'type'};
+        $contiginfo{'method'}     = '' unless defined $contiginfo{'method'};
+        $contiginfo{'ed_status'}  = '' unless defined $contiginfo{'ed_status'};
+        $contiginfo{'full_cds'}   = '' unless defined $contiginfo{'full_cds'};
+        $contiginfo{'cds_start'}  = '' unless defined $contiginfo{'cds_start'};
+        $contiginfo{'cds_end'}    = '' unless defined $contiginfo{'cds_end'};
+        $contiginfo{'ed_pn'}      = '' unless defined $contiginfo{'ed_pn'};
+        $contiginfo{'comment'}    = '' unless defined $contiginfo{'comment'};
+        $contiginfo{'frameshift'} = '' unless defined $contiginfo{'frameshift'};
             
-            # Print contig information
-            $self->_print(
-                "sequence\t$contiginfo{'sequence'}\n".
-                "lsequence\t$contiginfo{'lsequence'}\n".
-                "quality\t$contiginfo{'quality'}\n".
-                "asmbl_id\t$contiginfo{'asmbl_id'}\n".
-                "seq_id\t$contiginfo{'seq_id'}\n".
-                "com_name\t$contiginfo{'com_name'}\n".
-                "type\t$contiginfo{'type'}\n".
-                "method\t$contiginfo{'method'}\n".
-                "ed_status\t$contiginfo{'ed_status'}\n".
-                "redundancy\t$contiginfo{'redundancy'}\n".
-                "perc_N\t$contiginfo{'perc_N'}\n".
-                "seq#\t$contiginfo{'seqnum'}\n".
-                "full_cds\t$contiginfo{'full_cds'}\n".
-                "cds_start\t$contiginfo{'cds_start'}\n".
-                "cds_end\t$contiginfo{'cds_end'}\n".
-                "ed_pn\t$contiginfo{'ed_pn'}\n".
-                "ed_date\t$contiginfo{'ed_date'}\n".
-                "comment\t$contiginfo{'comment'}\n".
-                "frameshift\t$contiginfo{'frameshift'}\n".
-                "\n"
-            );
+        # Print singlet information
+        $self->_print(
+            "sequence\t$contiginfo{'sequence'}\n".
+            "lsequence\t$contiginfo{'lsequence'}\n".
+            "quality\t$contiginfo{'quality'}\n".
+            "asmbl_id\t$contiginfo{'asmbl_id'}\n".
+            "seq_id\t$contiginfo{'seq_id'}\n".
+            "com_name\t$contiginfo{'com_name'}\n".
+            "type\t$contiginfo{'type'}\n".
+            "method\t$contiginfo{'method'}\n".
+            "ed_status\t$contiginfo{'ed_status'}\n".
+            "redundancy\t$contiginfo{'redundancy'}\n".
+            "perc_N\t$contiginfo{'perc_N'}\n".
+            "seq#\t$contiginfo{'seqnum'}\n".
+            "full_cds\t$contiginfo{'full_cds'}\n".
+            "cds_start\t$contiginfo{'cds_start'}\n".
+            "cds_end\t$contiginfo{'cds_end'}\n".
+            "ed_pn\t$contiginfo{'ed_pn'}\n".
+            "ed_date\t$contiginfo{'ed_date'}\n".
+            "comment\t$contiginfo{'comment'}\n".
+            "frameshift\t$contiginfo{'frameshift'}\n".
+            "\n"
+        );
+
+        # Get read information
+        my ($seq_name, $db) = $self->_split_seq_name_and_db($readid);
+        my $clipcoord = (grep
+            { $_->primary_tag eq "_quality_clipping:$readid"}
+            $singletobj->get_features_collection->get_all_features
+            )[0];
+        my $alncoord  = (grep
+            { $_->primary_tag eq "_aligned_coord:$readid"}
+            $singletobj->get_features_collection->get_all_features
+            )[0];
+        my $readanno = (grep
+            { $_->primary_tag eq "_main_read_feature:$readid" }
+            $singletobj->get_seq_coord($singletobj->seqref)->get_SeqFeatures
+            )[0];
+        my %readinfo;
+        $readinfo{'seq_name'}  = $seq_name;
+        $readinfo{'asm_lend'}  = $alncoord->location->start;
+        $readinfo{'asm_rend'}  = $alncoord->location->end;
+        $readinfo{'seq_lend'}  = $clipcoord->location->start;
+        $readinfo{'seq_rend'}  = $clipcoord->location->end;
+        $readinfo{'best'}      = ($readanno->get_tag_values('best'))[0];
+        $readinfo{'comment'}   = ($readanno->get_tag_values('comment'))[0];
+        $readinfo{'db'}        = $db;
+        $readinfo{'offset'}    = 0;
+        # ambiguities in read sequence are uppercase
+        $readinfo{'lsequence'} = uc($contiginfo{'lsequence'});
+        
+        # Check that no tag value is undef
+        $readinfo{'best'}    = '' unless defined $readinfo{'best'};
+        $readinfo{'comment'} = '' unless defined $readinfo{'comment'};
+
+        # Print read information
+        $self->_print(
+            "seq_name\t$readinfo{'seq_name'}\n".
+            "asm_lend\t$readinfo{'asm_lend'}\n".
+            "asm_rend\t$readinfo{'asm_rend'}\n".
+            "seq_lend\t$readinfo{'seq_lend'}\n".
+            "seq_rend\t$readinfo{'seq_rend'}\n".
+            "best\t$readinfo{'best'}\n".
+            "comment\t$readinfo{'comment'}\n".
+            "db\t$readinfo{'db'}\n".
+            "offset\t$readinfo{'offset'}\n".
+            "lsequence\t$readinfo{'lsequence'}\n"
+        );
+        $self->_print("|\n");
+
+    } else {
+        # This is a contig
+        # Get contig information
+        my $contanno = (grep
+            { $_->primary_tag eq "_main_contig_feature:$contigid" }
+            $contigobj->get_features_collection->get_all_features
+            )[0];
+        my %contiginfo;
+        $contiginfo{'sequence'}   = $self->_ungap(
+            $contigobj->get_consensus_sequence->seq);
+        $contiginfo{'lsequence'}  = $contigobj->get_consensus_sequence->seq;
+        $contiginfo{'quality'}    = $self->_qual_dec2hex(
+            join ' ', @{$contigobj->get_consensus_quality->qual});
+        $contiginfo{'asmbl_id'}   = $contigid;
+        $contiginfo{'seq_id'}     = ($contanno->get_tag_values('seq_id'))[0];
+        $contiginfo{'com_name'}   = ($contanno->get_tag_values('com_name'))[0];
+        $contiginfo{'type'}       = ($contanno->get_tag_values('type'))[0];
+        $contiginfo{'method'}     = ($contanno->get_tag_values('method'))[0];
+        $contiginfo{'ed_status'}  = ($contanno->get_tag_values('ed_status'))[0];
+        $contiginfo{'redundancy'} = sprintf(
+            $decimal_format, $self->_redundancy($contigobj));
+        $contiginfo{'perc_N'}     = sprintf(
+            $decimal_format, $self->_perc_N($contiginfo{'sequence'}));
+        $contiginfo{'seqnum'}     = $contigobj->num_sequences;
+        $contiginfo{'full_cds'}   = ($contanno->get_tag_values('full_cds'))[0];
+        $contiginfo{'cds_start'}  = ($contanno->get_tag_values('cds_start'))[0];
+        $contiginfo{'cds_end'}    = ($contanno->get_tag_values('cds_end'))[0];
+        $contiginfo{'ed_pn'}      = ($contanno->get_tag_values('ed_pn'))[0];
+        $contiginfo{'ed_date'}    = $self->_date_time;
+        $contiginfo{'comment'}    = ($contanno->get_tag_values('comment'))[0];
+        $contiginfo{'frameshift'} = ($contanno->get_tag_values('frameshift'))[0];
+            
+        # Check that no tag value is undef
+        $contiginfo{'seq_id'}     = '' unless defined $contiginfo{'seq_id'};
+        $contiginfo{'com_name'}   = '' unless defined $contiginfo{'com_name'};
+        $contiginfo{'type'}       = '' unless defined $contiginfo{'type'};
+        $contiginfo{'method'}     = '' unless defined $contiginfo{'method'};
+        $contiginfo{'ed_status'}  = '' unless defined $contiginfo{'ed_status'};
+        $contiginfo{'full_cds'}   = '' unless defined $contiginfo{'full_cds'};
+        $contiginfo{'cds_start'}  = '' unless defined $contiginfo{'cds_start'};
+        $contiginfo{'cds_end'}    = '' unless defined $contiginfo{'cds_end'};
+        $contiginfo{'ed_pn'}      = '' unless defined $contiginfo{'ed_pn'};
+        $contiginfo{'comment'}    = '' unless defined $contiginfo{'comment'};
+        $contiginfo{'frameshift'} = '' unless defined $contiginfo{'frameshift'};
+
+        # Print contig information
+        $self->_print(
+            "sequence\t$contiginfo{'sequence'}\n".
+            "lsequence\t$contiginfo{'lsequence'}\n".
+            "quality\t$contiginfo{'quality'}\n".
+            "asmbl_id\t$contiginfo{'asmbl_id'}\n".
+            "seq_id\t$contiginfo{'seq_id'}\n".
+            "com_name\t$contiginfo{'com_name'}\n".
+            "type\t$contiginfo{'type'}\n".
+            "method\t$contiginfo{'method'}\n".
+            "ed_status\t$contiginfo{'ed_status'}\n".
+            "redundancy\t$contiginfo{'redundancy'}\n".
+            "perc_N\t$contiginfo{'perc_N'}\n".
+            "seq#\t$contiginfo{'seqnum'}\n".
+            "full_cds\t$contiginfo{'full_cds'}\n".
+            "cds_start\t$contiginfo{'cds_start'}\n".
+            "cds_end\t$contiginfo{'cds_end'}\n".
+            "ed_pn\t$contiginfo{'ed_pn'}\n".
+            "ed_date\t$contiginfo{'ed_date'}\n".
+            "comment\t$contiginfo{'comment'}\n".
+            "frameshift\t$contiginfo{'frameshift'}\n".
+            "\n"
+        );
+        my $seqno = 0;
+        for my $readobj ( $contigobj->each_seq() ) {
+            $seqno++;
 
             # Get read information
-            my ($seq_name, $db) = $self->_split_seq_name_and_db($readid);
-            my $clipcoord = (grep
-                { $_->primary_tag eq "_quality_clipping:$readid"}
-                $singletobj->get_features_collection->get_all_features
-            )[0];
-            my $alncoord  = (grep
-                { $_->primary_tag eq "_aligned_coord:$readid"}
-                $singletobj->get_features_collection->get_all_features
-            )[0];
-            my $readanno = (grep
-                { $_->primary_tag eq "_main_read_feature:$readid" }
-                $singletobj->get_seq_coord($singletobj->seqref)->get_SeqFeatures
-            )[0];
+            my ($seq_name, $db) = $self->_split_seq_name_and_db($readobj->id);
+            my ($asm_lend, $asm_rend, $seq_lend, $seq_rend, $offset)
+                = $self->_coord($readobj, $contigobj);
+            my $readanno = ( grep 
+               { $_->primary_tag eq '_main_read_feature:'.$readobj->primary_id }
+               $contigobj->get_seq_coord($readobj)->get_SeqFeatures
+               )[0];
             my %readinfo;
             $readinfo{'seq_name'}  = $seq_name;
-            $readinfo{'asm_lend'}  = $alncoord->location->start;
-            $readinfo{'asm_rend'}  = $alncoord->location->end;
-            $readinfo{'seq_lend'}  = $clipcoord->location->start;
-            $readinfo{'seq_rend'}  = $clipcoord->location->end;
+            $readinfo{'asm_lend'}  = $asm_lend;
+            $readinfo{'asm_rend'}  = $asm_rend;
+            $readinfo{'seq_lend'}  = $seq_lend;
+            $readinfo{'seq_rend'}  = $seq_rend;
             $readinfo{'best'}      = ($readanno->get_tag_values('best'))[0];
             $readinfo{'comment'}   = ($readanno->get_tag_values('comment'))[0];
             $readinfo{'db'}        = $db;
-            $readinfo{'offset'}    = 0;
-            # ambiguities in read sequence are uppercase
-            $readinfo{'lsequence'} = uc($contiginfo{'lsequence'});
-            
+            $readinfo{'offset'}    = $offset;
+            $readinfo{'lsequence'} = $readobj->seq(); 
+
             # Check that no tag value is undef
             $readinfo{'best'}    = '' unless defined $readinfo{'best'};
             $readinfo{'comment'} = '' unless defined $readinfo{'comment'};
@@ -798,139 +903,60 @@ sub write_assembly {
                 "offset\t$readinfo{'offset'}\n".
                 "lsequence\t$readinfo{'lsequence'}\n"
             );
-            if ($i+1 < $numobj) {
-                $self->_print("|\n");
-            }
-        } else {
-            # This is a contig
-            my $contigid = $objid;
-            my $contigobj = $scaffoldobj->get_contig_by_id($contigid);
-
-            # Skip contigs of 1 sequence (singlets) if needed
-            next if ($contigobj->num_sequences == 1) && (!$singlets);
-            
-            # Get contig information
-            my $contanno = (grep
-                { $_->primary_tag eq "_main_contig_feature:$contigid" }
-                $contigobj->get_features_collection->get_all_features
-            )[0];
-            my %contiginfo;
-            $contiginfo{'sequence'}   = $self->_ungap(
-                $contigobj->get_consensus_sequence->seq);
-            $contiginfo{'lsequence'}  = $contigobj->get_consensus_sequence->seq;
-            $contiginfo{'quality'}    = $self->_qual_dec2hex(
-                join ' ', @{$contigobj->get_consensus_quality->qual});
-            $contiginfo{'asmbl_id'}   = $contigid;
-            $contiginfo{'seq_id'}     = ($contanno->get_tag_values('seq_id'))[0];
-            $contiginfo{'com_name'}   = ($contanno->get_tag_values('com_name'))[0];
-            $contiginfo{'type'}       = ($contanno->get_tag_values('type'))[0];
-            $contiginfo{'method'}     = ($contanno->get_tag_values('method'))[0];
-            $contiginfo{'ed_status'}  = ($contanno->get_tag_values('ed_status'))[0];
-            $contiginfo{'redundancy'} = sprintf(
-                $decimal_format, $self->_redundancy($contigobj));
-            $contiginfo{'perc_N'}     = sprintf(
-                $decimal_format, $self->_perc_N($contiginfo{'sequence'}));
-            $contiginfo{'seqnum'}     = $contigobj->num_sequences;
-            $contiginfo{'full_cds'}   = ($contanno->get_tag_values('full_cds'))[0];
-            $contiginfo{'cds_start'}  = ($contanno->get_tag_values('cds_start'))[0];
-            $contiginfo{'cds_end'}    = ($contanno->get_tag_values('cds_end'))[0];
-            $contiginfo{'ed_pn'}      = ($contanno->get_tag_values('ed_pn'))[0];
-            $contiginfo{'ed_date'}    = $self->_date_time;
-            $contiginfo{'comment'}    = ($contanno->get_tag_values('comment'))[0];
-            $contiginfo{'frameshift'} = ($contanno->get_tag_values('frameshift'))[0];
-            
-            # Check that no tag value is undef
-            $contiginfo{'seq_id'}     = '' unless defined $contiginfo{'seq_id'};
-            $contiginfo{'com_name'}   = '' unless defined $contiginfo{'com_name'};
-            $contiginfo{'type'}       = '' unless defined $contiginfo{'type'};
-            $contiginfo{'method'}     = '' unless defined $contiginfo{'method'};
-            $contiginfo{'ed_status'}  = '' unless defined $contiginfo{'ed_status'};
-            $contiginfo{'full_cds'}   = '' unless defined $contiginfo{'full_cds'};
-            $contiginfo{'cds_start'}  = '' unless defined $contiginfo{'cds_start'};
-            $contiginfo{'cds_end'}    = '' unless defined $contiginfo{'cds_end'};
-            $contiginfo{'ed_pn'}      = '' unless defined $contiginfo{'ed_pn'};
-            $contiginfo{'comment'}    = '' unless defined $contiginfo{'comment'};
-            $contiginfo{'frameshift'} = '' unless defined $contiginfo{'frameshift'};
-
-            # Print contig information
-            $self->_print(
-                "sequence\t$contiginfo{'sequence'}\n".
-                "lsequence\t$contiginfo{'lsequence'}\n".
-                "quality\t$contiginfo{'quality'}\n".
-                "asmbl_id\t$contiginfo{'asmbl_id'}\n".
-                "seq_id\t$contiginfo{'seq_id'}\n".
-                "com_name\t$contiginfo{'com_name'}\n".
-                "type\t$contiginfo{'type'}\n".
-                "method\t$contiginfo{'method'}\n".
-                "ed_status\t$contiginfo{'ed_status'}\n".
-                "redundancy\t$contiginfo{'redundancy'}\n".
-                "perc_N\t$contiginfo{'perc_N'}\n".
-                "seq#\t$contiginfo{'seqnum'}\n".
-                "full_cds\t$contiginfo{'full_cds'}\n".
-                "cds_start\t$contiginfo{'cds_start'}\n".
-                "cds_end\t$contiginfo{'cds_end'}\n".
-                "ed_pn\t$contiginfo{'ed_pn'}\n".
-                "ed_date\t$contiginfo{'ed_date'}\n".
-                "comment\t$contiginfo{'comment'}\n".
-                "frameshift\t$contiginfo{'frameshift'}\n".
-                "\n"
-            );
-            my $seqno = 0;
-            for my $readobj ( $contigobj->each_seq() ) {
-                $seqno++;
-
-                # Get read information
-                my ($seq_name, $db) = $self->_split_seq_name_and_db($readobj->id);
-                my ($asm_lend, $asm_rend, $seq_lend, $seq_rend, $offset)
-                    = $self->_coord($readobj, $contigobj);
-                my $readanno = ( grep 
-                    { $_->primary_tag eq '_main_read_feature:'.$readobj->primary_id }
-                    $contigobj->get_seq_coord($readobj)->get_SeqFeatures
-                )[0];
-                my %readinfo;
-                $readinfo{'seq_name'}  = $seq_name;
-                $readinfo{'asm_lend'}  = $asm_lend;
-                $readinfo{'asm_rend'}  = $asm_rend;
-                $readinfo{'seq_lend'}  = $seq_lend;
-                $readinfo{'seq_rend'}  = $seq_rend;
-                $readinfo{'best'}      = ($readanno->get_tag_values('best'))[0];
-                $readinfo{'comment'}   = ($readanno->get_tag_values('comment'))[0];
-                $readinfo{'db'}        = $db;
-                $readinfo{'offset'}    = $offset;
-                $readinfo{'lsequence'} = $readobj->seq(); 
-
-                # Check that no tag value is undef
-                $readinfo{'best'}    = '' unless defined $readinfo{'best'};
-                $readinfo{'comment'} = '' unless defined $readinfo{'comment'};
-
-                # Print read information
-                $self->_print(
-                    "seq_name\t$readinfo{'seq_name'}\n".
-                    "asm_lend\t$readinfo{'asm_lend'}\n".
-                    "asm_rend\t$readinfo{'asm_rend'}\n".
-                    "seq_lend\t$readinfo{'seq_lend'}\n".
-                    "seq_rend\t$readinfo{'seq_rend'}\n".
-                    "best\t$readinfo{'best'}\n".
-                    "comment\t$readinfo{'comment'}\n".
-                    "db\t$readinfo{'db'}\n".
-                    "offset\t$readinfo{'offset'}\n".
-                    "lsequence\t$readinfo{'lsequence'}\n"
-                );
-                if ($seqno < $contiginfo{'seqnum'}) {
-                    $self->_print("\n");
-                } elsif (($seqno == $contiginfo{'seqnum'}) && ($i+1 < $numobj)) {
-                    $self->_print("|\n");
-                }
-            }
+            if ($seqno < $contiginfo{'seqnum'}) {
+                $self->_print("\n");
+            } else {
+                $self->_print("|\n")
+            };
         }
     }
     return 1;
 }
 
+=head2 write_header
+
+    Title   : write_header
+    Usage   : $asmio->write_header($assembly)
+    Function: In the TIGR Asseformat assembly driver, this does nothing. The
+              method is present for compatibility with other assembly drivers
+              that need to write a file header.
+    Returns : 1 on success, 0 for error
+    Args    : A Bio::Assembly::Scaffold object
+
+=cut
+
+sub write_header {
+    my ($self) = @_;
+    return 1;
+}
+
+
+=head2 write_footer
+
+    Title   : write_footer
+    Usage   : $asmio->write_footer($assembly)
+    Function: Write TIGR footer, i.e. do nothing except making sure that the
+              file does not end with a '|'.
+    Returns : 1 on success, 0 for error
+    Args    : A Bio::Assembly::Scaffold object
+
+=cut
+
+sub write_footer {
+    my ($self) = @_;
+
+    # In this implementation, the TIGR file always ends with '|\n'. Remove it.
+    seek $self->_fh, -length("|\n"), 2;
+    $self->_print("\n\n");
+
+    return 1;
+}
+
+
 =head2 _perc_N
 
     Title   : _perc_N
-    Usage   : my $perc_N = $ass_io->_perc_N($sequence_string)
+    Usage   : my $perc_N = $asmio->_perc_N($sequence_string)
     Function: Calculate the percent of ambiguities in a sequence.
               M R W S Y K X N are regarded as ambiguities in an aligned read
               sequence by TIGR Assembler. In the case of a gapped contig
@@ -955,10 +981,11 @@ sub _perc_N {
     return $perc_N;
 }
 
+
 =head2 _redundancy
 
     Title   : _redundancy
-    Usage   : my $ref = $ass_io->_redundancy($contigobj)
+    Usage   : my $ref = $asmio->_redundancy($contigobj)
     Function: Calculate the fold coverage (redundancy) of a contig consensus
               (average number of read base pairs covering the consensus)
     Returns : decimal number
@@ -1017,10 +1044,11 @@ sub _redundancy {
     return $redundancy;
 }
 
+
 =head2 _ungap
 
     Title   : _ungap
-    Usage   : my $ungapped = $ass_io->_ungap($gapped)
+    Usage   : my $ungapped = $asmio->_ungap($gapped)
     Function: Remove the gaps from a sequence. Gaps are - in TIGR Assembler
     Returns : string
     Args    : string
@@ -1033,10 +1061,11 @@ sub _ungap {
     return $seq_string;
 }
 
+
 =head2 _date_time
 
     Title   : _date_time
-    Usage   : my $timepoint = $ass_io->date_time
+    Usage   : my $timepoint = $asmio->date_time
     Function: Get date and time (MM//DD/YY HH:MM:SS)
     Returns : string
     Args    : none
@@ -1058,10 +1087,11 @@ sub _date_time {
     return $formatted_date_time;
 }
 
+
 =head2 _split_seq_name_and_db
 
     Title   : _split_seq_name_and_db
-    Usage   : my ($seqname, $db) = $ass_io->_split_seq_name_and_db($id)
+    Usage   : my ($seqname, $db) = $asmio->_split_seq_name_and_db($id)
     Function: Extract seq_name and db from sequence id
     Returns : seq_name, db
     Args    : id
@@ -1081,10 +1111,11 @@ sub _split_seq_name_and_db {
     return ($seq_name, $db);
 }
 
+
 =head2 _merge_seq_name_and_db
 
     Title   : _merge_seq_name_and_db
-    Usage   : my $id = $ass_io->_merge_seq_name_and_db($seq_name, $db)
+    Usage   : my $id = $asmio->_merge_seq_name_and_db($seq_name, $db)
     Function: Construct id from seq_name and db
     Returns : id
     Args    : seq_name, db
@@ -1102,10 +1133,11 @@ sub _merge_seq_name_and_db {
     return $id;
 }
 
+
 =head2 _coord
 
     Title   : _coord
-    Usage   : my $id = $ass_io->__coord($readobj, $contigobj)
+    Usage   : my $id = $asmio->__coord($readobj, $contigobj)
     Function: Get different coordinates for the read
     Returns : number, number, number, number, number
     Args    : Bio::Assembly::Seq, Bio::Assembly::Contig
@@ -1143,6 +1175,7 @@ sub _coord {
     
     return ($asm_lend, $asm_rend, $seq_lend, $seq_rend, $offset);
 }
+
 
 1;
 

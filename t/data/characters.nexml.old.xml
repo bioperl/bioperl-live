@@ -11,7 +11,17 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.nexml.org/1.0 ../../nexml/xsd/nexml.xsd"
     xmlns:nex="http://www.nexml.org/1.0"
-    xmlns="http://www.nexml.org/1.0">         
+    xmlns="http://www.nexml.org/1.0">
+    
+    <!-- revision control metadata -->
+    <dict id="dict1">
+        <string id="author">$Author: rvos $</string>
+        <string id="date">$Date: 2009-03-13 01:57:49 -0400 (Fri, 13 Mar 2009) $</string>
+        <string id="header">$Header: $</string>
+        <string id="id">$Id: characters.xml 970 2009-03-13 05:57:49Z rvos $</string>
+        <string id="rev">$Rev: 970 $</string>
+        <string id="url">$URL: http://nexml.svn.sourceforge.net/svnroot/nexml/trunk/nexml/examples/characters.xml $</string>
+    </dict>          
     
     <!--  
         For more discussion of the structure of the taxa
@@ -24,13 +34,6 @@
         <otu id="t4" label="Gorilla gorilla"/>
         <otu id="t5" label="Pongo pygmaeus"/>
     </otus>
-    <otus id="tax1" label="TreeTaxaBlock">
-		<otu id="t1" label="human"/>
-		<otu id="t2" label="mouse"/>
-		<otu id="t3" label="dog"/>
-		<otu id="t4" label="worm"/>
-		<otu id="t5" label="bird"/>
-	</otus>
     <!--
         This characters block encodes restriction site data, i.e.
         presence (1) / absence (0) observations. Because the states
@@ -540,73 +543,4 @@
             </row>
         </matrix>
     </characters>
-    <trees otus="tax1" id="Trees" label="TreesBlockFromXML">
-		<!--
-			A tree with float edges. 
-		-->
-		<tree id="tree1" xsi:type="nex:FloatTree" label="tree1">
-			<node id="n1" label="n1" root="true"/>
-			<node id="n2" label="n2" otu="t1"/>
-			<node id="n3" label="n3"/>
-			<node id="n4" label="n4"/>
-			<node id="n5" label="n5" otu="t3"/>
-			<node id="n6" label="n6" otu="t2"/>
-			<node id="n7" label="n7"/>
-			<node id="n8" label="n8" otu="t5"/>
-			<node id="n9" label="n9" otu="t4"/>
-			<edge source="n1" target="n3" id="e1" length="0.34534"/>			
-			<edge source="n1" target="n2" id="e2" length="0.4353"/>
-			<edge source="n3" target="n4" id="e3" length="0.324"/>
-			<edge source="n3" target="n7" id="e4" length="0.3247"/>
-			<edge source="n4" target="n5" id="e5" length="0.234"/>
-			<edge source="n4" target="n6" id="e6" length="0.3243"/>
-			<edge source="n7" target="n8" id="e7" length="0.32443"/>
-			<edge source="n7" target="n9" id="e8" length="0.2342"/>
-		</tree>
-		<!--  
-			A tree with int edges.
-		-->
-		<tree id="tree2" xsi:type="nex:IntTree" label="tree2">
-			<node id="n1" label="n1"/>
-			<node id="n2" label="n2" otu="t1"/>
-			<node id="n3" label="n3"/>
-			<node id="n4" label="n4"/>
-			<node id="n5" label="n5" otu="t3"/>
-			<node id="n6" label="n6" otu="t2"/>
-			<node id="n7" label="n7"/>
-			<node id="n8" label="n8" otu="t5"/>
-			<node id="n9" label="n9" otu="t4"/>
-			<edge source="n1" target="n3" id="e1" length="1"/>			
-			<edge source="n1" target="n2" id="e2" length="2"/>
-			<edge source="n3" target="n4" id="e3" length="3"/>
-			<edge source="n3" target="n7" id="e4" length="1"/>
-			<edge source="n4" target="n5" id="e5" length="2"/>
-			<edge source="n4" target="n6" id="e6" length="1"/>
-			<edge source="n7" target="n8" id="e7" length="1"/>
-			<edge source="n7" target="n9" id="e8" length="1"/>
-		</tree>	
-		<!--  
-			A network with int edges.
-		-->
-		<network id="tree3" xsi:type="nex:IntNetwork" label="tree3">
-			<node id="n1" label="n1"/>
-			<node id="n2" label="n2" otu="t1"/>
-			<node id="n3" label="n3"/>
-			<node id="n4" label="n4"/>
-			<node id="n5" label="n5" otu="t3"/>
-			<node id="n6" label="n6" otu="t2"/>
-			<node id="n7" label="n7"/>
-			<node id="n8" label="n8" otu="t5"/>
-			<node id="n9" label="n9" otu="t4"/>
-			<edge source="n1" target="n3" id="e1" length="1"/>			
-			<edge source="n1" target="n2" id="e2" length="2"/>
-			<edge source="n3" target="n4" id="e3" length="3"/>
-			<edge source="n3" target="n7" id="e4" length="1"/>
-			<edge source="n4" target="n5" id="e5" length="2"/>
-			<edge source="n4" target="n6" id="e6" length="1"/>
-			<edge source="n7" target="n6" id="e7" length="1"/> <!-- extra edge -->
-			<edge source="n7" target="n8" id="e9" length="1"/>
-			<edge source="n7" target="n9" id="e8" length="1"/>
-		</network>				
-	</trees>
 </nex:nexml>
