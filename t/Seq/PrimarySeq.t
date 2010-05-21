@@ -153,12 +153,10 @@ is $aa->seq, 'M', "Translation: " . $aa->seq;
 $seq->verbose(2);
 $seq->seq("ggggggatgtggcccc");    # atg tgg ccc
 eval { $seq->translate( -orf => 1 ); };
-if($@) {
-    like( $@, qr/atgtggccc/i );
-    $seq->verbose(-1);
-    $aa = $seq->translate( -orf => 1 );
-    is $aa->seq, 'MWP', "Translation: " . $aa->seq;
-}
+like( $@, qr/atgtggcccc\n/ );
+$seq->verbose(-1);
+$aa = $seq->translate( -orf => 1 );
+is $aa->seq, 'MWP', "Translation: MWP";
 $seq->verbose(0);
 
 # use non-standard codon table where terminator is read as Q
