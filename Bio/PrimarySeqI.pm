@@ -610,12 +610,10 @@ sub translate {
 		($seq) = $self->seq();
 	 }
 
-    ## ignore frame if an ORF is supposed to be found
+         ## ignore frame if an ORF is supposed to be found
 	 if ( $orf || $longest_orf ) {
-             my ($orf_region) = $self->_find_orfs( $seq, $codonTable, $start_codon, $orf && 'first_only' );
-             my $newseq = $orf_region ? substr( $seq, $orf_region->[0], $orf_region->[2] ) : '';
-             #warn Data::Dumper::Dumper($orf_region)."$seq ->\n$newseq\n";
-             $seq = $newseq;
+            my ($orf_region) = $self->_find_orfs( $seq, $codonTable, $start_codon, $orf && 'first_only' );
+            $seq = $self->_orf_sequence( $seq, $orf_region );
 	 } else {
 	 ## use frame, error if frame is not 0, 1 or 2
 		 $self->throw("Valid values for frame are 0, 1, or 2, not $frame.")
@@ -831,8 +829,8 @@ need to implement these functions
 
 sub _find_orfs {
     my ( $self, $sequence, $codon_table, $start_codon, $first_only ) = @_;
-    $sequence    = lc $sequence;
-    $start_codon = lc $start_codon if $start_codon;
+    $sequence    = uc $sequence;
+    $start_codon = uc $start_codon if $start_codon;
 
     my $is_start = $start_codon
         ? sub { shift eq $start_codon }
@@ -855,14 +853,21 @@ sub _find_orfs {
 
             my $this_codon = substr( $sequence, $j, 3 );
 
-            # if in an orf and this is a stop codon
-            if( $current_orf_start[$frame] >= 0 && $codon_table->is_ter_codon( $this_codon ) ) {
-                # record ORF start, end (half-open), length
-                my @this_orf = ( $current_orf_start[$frame], $j+3, undef, $frame );
-                my $this_orf_length = $this_orf[2] = ( $this_orf[1] - $this_orf[0] );
+            # if in an orf
+            if( $current_orf_start[$frame] >= 0 ) {
+                # and this is either a stop codon or the last in-frame codon in the string
+                if( $codon_table->is_ter_codon( $this_codon ) || ( my $is_last_codon = $j+4 == $seqlen) ) {
+                    # record ORF start, end (half-open), length
+                    my @this_orf = ( $current_orf_start[$frame], $j+3, undef, $frame );
+                    my $this_orf_length = $this_orf[2] = ( $this_orf[1] - $this_orf[0] );
 
-                return \@this_orf if $first_only;
-                push @orfs, \@this_orf;
+                     $self->warn( "No termination codon found in ORF sequence "
+                                  .$self->_truncate_seq( $self->_orf_sequence( $sequence, \@this_orf )))
+                         if $first_only && $is_last_codon;
+
+                    return \@this_orf if $first_only;
+                    push @orfs, \@this_orf;
+                }
             }
             # if this is a start codon
             elsif( $is_start->($this_codon) ) {
@@ -872,6 +877,16 @@ sub _find_orfs {
     }
 
     return sort { $b->[3] <=> $a->[3] } @orfs;
+}
+
+sub _truncate_seq {
+    my ($self,$seq) = @_;
+    return CORE::length($seq) > 200 ? substr($seq,0,197).'...' : $seq;
+}
+sub _orf_sequence {
+    my ($self, $seq, $orf ) = @_;
+    return '' unless $orf;
+    return substr( $seq, $orf->[0], $orf->[2] )
 }
 
 =head2 _attempt_to_load_Seq
