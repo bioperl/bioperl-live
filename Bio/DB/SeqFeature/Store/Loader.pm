@@ -75,6 +75,9 @@ pairs as described in this table:
 
  -index_subfeatures Indicate true if subfeatures should be indexed. Default is true.
 
+ -summary_stats     Rebuild summary stats at the end of loading (not incremental,
+                     so takes a long time)
+
 When you call new(), a connection to a Bio::DB::SeqFeature::Store
 database should already have been established and the database
 initialized (if appropriate).
@@ -111,7 +114,7 @@ default.
 sub new {
   my $self = shift;
   my ($store,$seqfeature_class,$tmpdir,$verbose,$fast,
-      $seq_chunk_size,$coordinate_mapper,$index_subfeatures) = 
+      $seq_chunk_size,$coordinate_mapper,$index_subfeatures,$summary_stats) = 
       rearrange(['STORE',
 		 ['SF_CLASS','SEQFEATURE_CLASS'],
 		 ['TMP','TMPDIR'],
@@ -120,6 +123,7 @@ sub new {
 		 'CHUNK_SIZE',
 		 'MAP_COORDS',
 		 'INDEX_SUBFEATURES',
+		 'SUMMARY_STATS'
 		],@_);
 
   $seqfeature_class ||= $self->default_seqfeature_class;
@@ -172,6 +176,7 @@ END
 		subfeatures_in_table   => $in_table,
 		coordinate_mapper      => $coordinate_mapper,
 		index_subfeatures      => $index_subfeatures,
+		summary_stats          => $summary_stats,
 	       },ref($self) || $self;
 }
 
@@ -186,6 +191,14 @@ sub index_subfeatures {
     my $self = shift;
     my $d    = $self->{index_subfeatures};
     $self->{index_subfeatures} = shift if @_;
+    $d;
+}
+
+
+sub summary_stats {
+    my $self = shift;
+    my $d    = $self->{summary_stats};
+    $self->{summary_stats} = shift if @_;
     $d;
 }
 
@@ -212,6 +225,7 @@ will happen, but it will probably not be what you expect.
 =cut
 
 sub load {
+    warn "LOAD:";
   my $self       = shift;
   my $start      = $self->time();
   my $count = 0;
@@ -222,6 +236,15 @@ sub load {
     $count += $self->load_fh($fh);
     $self->msg(sprintf "load time: %5.2fs\n",$self->time()-$start);
   }
+  
+  if ($self->summary_stats) {
+      warn "SUMMARY STATS";
+      $self->msg("Building summary statistics for coverage graphs...");
+      my $start = $self->time();
+      $self->build_summary;
+      $self->msg(sprintf "coverage graph build time: %5.2fs\n",$self->time()-$start);
+  }
+  $self->msg(sprintf "total load time: %5.2fs\n",$self->time()-$start);
   $count;
 }
 
@@ -365,11 +388,25 @@ sub finish_load {
     $self->{load_data}{start_time} = $self->time();
     $self->store->finish_bulk_update;
   }
-  eval {$self->store->commit};
   $self->msg(sprintf "%5.2fs\n",$self->time()-$self->{load_data}{start_time});
+  eval {$self->store->commit};
 
   # don't delete load data so that caller can ask for the loaded IDs
   # $self->delete_load_data;
+}
+
+=item build_summary
+
+  $loader->build_summary
+
+Call this to rebuild the summary coverage statistics. This is done automatically
+if new() was passed a true value for -summary_stats at create time.
+
+=cut
+
+sub build_summary {
+    my $self = shift;
+    $self->store->build_summary_statistics;
 }
 
 =item do_load

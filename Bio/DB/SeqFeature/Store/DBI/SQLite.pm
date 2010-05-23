@@ -151,14 +151,17 @@ use Bio::DB::GFF::Util::Rearrange 'rearrange';
 use Bio::SeqFeature::Lite;
 use File::Spec;
 use constant DEBUG=>0;
+use constant EXPERIMENTAL_COVERAGE=>1;
 
 # Using same limits as MySQL adaptor so I don't have to make something up.
 use constant MAX_INT =>  2_147_483_647;
 use constant MIN_INT => -2_147_483_648;
-use constant MAX_BIN =>  1_000_000_000;  # size of largest feature = 1 Gb
-use constant MIN_BIN =>  1000;           # smallest bin we'll make - on a 100 Mb chromosome, there'll be 100,000 of these
+use constant SUMMARY_BIN_SIZE =>  1000;  # we checkpoint coverage this often, about 20 meg overhead per feature type on hg
 use constant USE_SPATIAL=>0;
 
+# The binning scheme places each feature into a bin.
+# Bins are variably sized as powers of two. For example,
+# there are 585 bins of size 2**17 (131072 bases)
 my (@BINS,%BINS);
 {
     @BINS = map {2**$_} (17, 20, 23, 26, 29);  # TO DO: experiment with different bin sizes
@@ -180,6 +183,8 @@ my (@BINS,%BINS);
 #     2**29 =>     0
 # );
 # my @BINS = sort {$a<=>$b} keys %BINS;
+
+sub can_summarize { 1 }
 
 sub calculate_bin {
     my $self = shift;
@@ -360,8 +365,19 @@ END
 create index index_feature_location on feature_location(seqid,bin,start,end);
 END
 
-  }
+    }
 
+  if (EXPERIMENTAL_COVERAGE) {
+    $defs->{interval_stats} = <<END;
+(
+   typeid            integer not null,
+   seqid             integer not null,
+   bin               integer not null,
+   cum_count         integer not null
+);
+create unique index interval_stats_index on interval_stats(typeid,seqid,bin);
+END
+  }
   return $defs;
 }
 
@@ -433,7 +449,7 @@ sub _finish_bulk_update {
 	} elsif ($table =~ /$feature_index$/) {
 	    $sth = $dbh->prepare(
 		$self->_has_spatial_index ?"REPLACE INTO $qualified_table VALUES (?,?,?,?,?)"
-		                          :"REPLACE INTO $qualified_table VALUES (?,?,?,?,?)"
+		                          :"REPLACE INTO $qualified_table (id,seqid,bin,start,end) VALUES (?,?,?,?,?)"
 		);
 	} else { # attribute or name
 	    $sth = $dbh->prepare("REPLACE INTO $qualified_table VALUES (?,?,?)");
@@ -456,6 +472,136 @@ sub index_tables {
     my $self = shift;
     my @t    = $self->SUPER::index_tables;
     return (@t,$self->_feature_index_table);
+}
+
+sub _enable_keys  { }  # nullop
+sub _disable_keys { }  # nullop
+
+sub _fetch_indexed_features_sql {
+    my $self = shift;
+    my $location_table       = $self->_qualify('feature_location');
+    my $feature_table        = $self->_qualify('feature');
+    return <<END;
+    SELECT typeid,seqid,start-1,end
+  FROM $location_table as l,$feature_table as f 
+ WHERE l.id=f.id AND f.\"indexed\"=1 
+  ORDER BY typeid,seqid,start
+END
+}
+
+sub feature_summary {
+    my $self = shift;
+    my ($seq_name,$start,$end,$types,$bins,$iterator) = 
+	rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],
+		   ['TYPES','TYPE','PRIMARY_TAG'],
+		   'BINS',
+		   'ITERATOR',
+		  ],@_);
+    my ($coverage,$tag) = $self->coverage_array(-seqid=> $seq_name,
+						-start=> $start,
+						-end  => $end,
+						-type => $types,
+						-bins => $bins);
+    my $score = 0;
+    for (@$coverage) { $score += $_ }
+    $score /= @$coverage;
+
+    my $feature = Bio::SeqFeature::Lite->new(-seq_id => $seq_name,
+					     -start  => $start,
+					     -end    => $end,
+					     -type   => $tag,
+					     -score  => $score,
+					     -attributes => 
+					     { coverage => 
+						   join(',',map {sprintf('%.2f',$_)} @$coverage)
+					     });
+    return $iterator 
+	   ? Bio::DB::SeqFeature::Store::DBI::FeatureIterator->new($feature) 
+	   : $feature;
+}
+
+sub coverage_array {
+    my $self = shift;
+    my ($seq_name,$start,$end,$types,$bins) = 
+	rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],
+		   ['TYPES','TYPE','PRIMARY_TAG'],'BINS'],@_);
+
+    $bins  ||= 1000;
+    $start ||= 1;
+    unless ($end) {
+	my $segment = $self->segment($seq_name) or $self->throw("unknown seq_id $seq_name");
+	$end        = $segment->end;
+    }
+
+    my $binsize = ($end-$start+1)/$bins;
+    my $seqid   = $self->_locationid_nocreate($seq_name) || 0;
+
+    return [] unless $seqid;
+
+    # where each bin starts
+    my @his_bin_array = map {$start + $binsize * $_}       (0..$bins);
+    my @sum_bin_array = map {int(($_-1)/SUMMARY_BIN_SIZE)} @his_bin_array;
+
+    my $interval_stats_table    = $self->_qualify('interval_stats');
+    
+    # pick up the type ids
+    my ($from,$where,$group,@a) = $self->_types_sql($types,'b');
+    $where =~ s/.+AND//s;
+    my $sth = $self->_prepare(<<END);
+SELECT id,tag FROM $from
+WHERE  $where
+END
+;
+    my (@t,$report_tag);
+    $sth->execute(@a);
+    while (my ($t,$tag) = $sth->fetchrow_array) {
+	$report_tag ||= $tag;
+	push @t,$t;
+    }
+
+    my %bins;
+    for my $typeid (@t) {
+
+	my ($from,$where,$group,@a) = $self->_types_sql($types,'b');
+
+	my $sql = <<END;
+SELECT bin,cum_count
+  FROM $interval_stats_table
+  WHERE typeid=?
+    AND seqid=? AND bin >= ?
+  LIMIT 1
+END
+;
+	my $sth = $self->_prepare($sql);
+	for (my $i=0;$i<@sum_bin_array;$i++) {
+
+	    my @args = ($typeid,$seqid,$sum_bin_array[$i]);
+	    $self->_print_query($sql,@args) if $self->debug;
+
+	    $sth->execute(@args) or $self->throw($sth->errstr);
+	    my ($bin,$cum_count) = $sth->fetchrow_array;
+	    push @{$bins{$typeid}},[$bin,$cum_count];
+	}
+    }
+
+    my @merged_bins;
+    my $firstbin = int(($start-1)/$binsize);
+    for my $type (keys %bins) {
+	my $arry       = $bins{$type};
+	my $last_count = $arry->[0][1]-1;
+	my $last_bin   = -1;
+	my $i          = 0;
+	my $delta;
+	for my $b (@$arry) {
+	    my ($bin,$count) = @$b;
+	    $delta              = $count - $last_count if $bin > $last_bin;
+	    $merged_bins[$i++]  = $delta;
+	    $last_count         = $count;
+	    $last_bin           = $bin;
+	}
+    }
+
+    return wantarray ? (\@merged_bins,"$report_tag:bins") : \@merged_bins;
 }
 
 ###
@@ -893,7 +1039,7 @@ sub replace {
 REPLACE INTO $features (id,object,"indexed",strand,typeid) VALUES (?,?,?,?,?)
 END
 
-  my ($seqid,$start,$end,$strand,$bin) = $index_flag ? $self->_get_location_and_bin($object) : (undef)x5;
+  my ($seqid,$start,$end,$strand,$bin) = $index_flag ? $self->_get_location_and_bin($object) : (undef)x6;
 
   my $primary_tag = $object->primary_tag;
   my $source_tag  = $object->source_tag || '';
@@ -1159,8 +1305,12 @@ Nathan Weeks - Nathan.Weeks@ars.usda.gov
 
 Copyright (c) 2009 Nathan Weeks
 
+Modified 2010 to support cumulative statistics by Lincoln Stein
+<lincoln.stein@gmail.com>.
+
 This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+it under the same terms as Perl itself. See the Bioperl license for
+more details.
 
 =cut
 

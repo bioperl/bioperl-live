@@ -159,7 +159,7 @@ use Cwd 'abs_path';
 use Bio::DB::GFF::Util::Rearrange 'rearrange';
 use Bio::SeqFeature::Lite;
 use File::Spec;
-use Carp 'carp','cluck';
+use Carp 'carp','cluck','croak';
 use constant DEBUG=>0;
 
 # from the MySQL documentation...
@@ -168,6 +168,11 @@ use constant MAX_INT =>  2_147_483_647;
 use constant MIN_INT => -2_147_483_648;
 use constant MAX_BIN =>  1_000_000_000;  # size of largest feature = 1 Gb
 use constant MIN_BIN =>  1000;           # smallest bin we'll make - on a 100 Mb chromosome, there'll be 100,000 of these
+use constant SUMMARY_BIN_SIZE => 1000;
+
+# tier 0 == 1000 bp bins
+# tier 1 == 10,000 bp bins
+# etc.
 
 memoize('_typeid');
 memoize('_locationid');
@@ -314,6 +319,15 @@ END
   offset   int(10) unsigned not null,
   sequence longblob,
   primary key(id,offset)
+)
+END
+	  interval_stats => <<END,
+(
+   typeid            integer not null,
+   seqid             integer not null,
+   bin               integer not null,
+   cum_count         integer not null,
+   primary key(typeid,seqid,bin)
 )
 END
 	 };
@@ -765,16 +779,16 @@ sub _features {
       $range_type,
       $fromtable,
       $iterator,
-      $sources
-     ) = rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],'STRAND',
-		    'NAME','CLASS','ALIASES',
-		    ['TYPES','TYPE','PRIMARY_TAG'],
-		    ['ATTRIBUTES','ATTRIBUTE'],
-		    'RANGE_TYPE',
-		    'FROM_TABLE',
-		    'ITERATOR',
-		    ['SOURCE','SOURCES']
-		   ],@_);
+      $sources,
+      ) = rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],'STRAND',
+		     'NAME','CLASS','ALIASES',
+		     ['TYPES','TYPE','PRIMARY_TAG'],
+		     ['ATTRIBUTES','ATTRIBUTE'],
+		     'RANGE_TYPE',
+		     'FROM_TABLE',
+		     'ITERATOR',
+		     ['SOURCE','SOURCES'],
+		    ],@_);
 
   my (@from,@where,@args,@group);
   $range_type ||= 'overlaps';
@@ -826,6 +840,7 @@ sub _features {
         $types = [map { ':'.$_ } @sources];
     }
   }
+
   if (defined($types)) {
     # last argument is the name of the features table
     my ($from,$where,$group,@a) = $self->_types_sql($types,'f');
@@ -868,12 +883,42 @@ SELECT f.id,f.object,f.typeid,f.seqid,f.start,f.end,f.strand
   WHERE $where
   $group
 END
-
+;
   $self->_print_query($query,@args) if DEBUG || $self->debug;
 
   my $sth = $self->_prepare($query) or $self->throw($self->dbh->errstr);
   $sth->execute(@args) or $self->throw($sth->errstr);
   return $iterator ? Bio::DB::SeqFeature::Store::DBI::Iterator->new($sth,$self) : $self->_sth2objs($sth);
+}
+
+sub _aggregate_bins {
+    my $self = shift;
+    my $sth  = shift;
+    my (%types,$binsize,$binstart);
+    while (my ($type,$seqname,$bin,$count,$bins,$start,$end) = $sth->fetchrow_array) {
+	$binsize                ||= ($end-$start+1)/$bins;
+	$binstart               ||= int($start/$binsize);
+	$types{$type}{seqname}  ||= $seqname;
+	$types{$type}{min}      ||= $start;
+	$types{$type}{max}      ||= $end;
+	$types{$type}{bins}     ||= [(0) x $bins];
+	$types{$type}{bins}[$bin-$binstart] = $count;
+	$types{$type}{count} += $count;
+    }
+    my @results;
+    for my $type (keys %types) {
+	my $min  = $types{$type}{min};
+	my $max  = $types{$type}{max};
+	my $seqid= $types{$type}{seqname};
+	my $f = Bio::SeqFeature::Lite->new(-seq_id => $seqid,
+					   -start  => $min,
+					   -end    => $max,
+					   -type   => "$type:bins",
+					   -score  => $types{$type}{count},
+					   -attributes => {coverage => join ',',@{$types{$type}{bins}}});
+	push @results,$f;
+    }
+    return @results;
 }
 
 sub _name_sql {
@@ -1103,7 +1148,7 @@ sub reindex {
       my $query = $from_update_table ? "DELETE $table FROM $table,$update WHERE $table.id=$update.id"
 	                             : "DELETE FROM $table";
       $dbh->do($query);
-      $dbh->do("ALTER TABLE $table DISABLE KEYS");
+      $self->_disable_keys($dbh,$table);
     }
     my $iterator = $self->get_seq_stream(-from_table=>$from_update_table ? $update : undef);
     while (my $f = $iterator->next_seq) {
@@ -1118,7 +1163,7 @@ sub reindex {
     }
   };
   for my $table ($self->index_tables) {
-    $dbh->do("ALTER TABLE $table ENABLE KEYS");
+      $self->_enable_keys($dbh,$table);
   }
   if (@_) {
     warn "Couldn't complete transaction: $@";
@@ -1588,7 +1633,73 @@ sub bin_where {
   return wantarray ? ($query,@args) : substitute($query,@args);
 }
 
+sub can_summarize { 1 }
 
+sub feature_summary {
+    my $self    = shift;
+    my ($seq_name,$start,$end,$types,$bins,$iterator) = 
+	rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],
+		   ['TYPES','TYPE','PRIMARY_TAG'],
+		   'BINS',
+		   'ITERATOR',
+		  ],@_);
+
+    $bins  ||= 1000;
+    $start ||= 1;
+    unless ($end) {
+	my $segment = $self->segment($seq_name) or $self->throw("unknown seq_id $seq_name");
+	$end        = $segment->end;
+    }
+
+    my $binsize = ($end-$start+1)/$bins;
+    my $seqid   = $self->_locationid_nocreate($seq_name);
+    defined $seqid or $self->throw("unknown seq_id $seq_name");
+
+    my (@from,@where,@args);
+
+    @from  = 'feature as f';
+    @where = 'seqid=?';
+    push @args,$seqid;
+
+    if (defined($types)) {
+	# last argument is the name of the features table
+	my ($from,$where,$group,@a) = $self->_types_sql($types,'f');
+	push @from,$from   if $from;
+	push @where,$where if $where;
+	push @args,@a;
+    } else {
+	$from[0] .= ' right join typelist as tl on typelist.id=feature.typeid';
+    }
+
+    my $from  = join ',',@from;
+    my $where = join ' AND ',@where;
+    chomp($where);
+
+    my $having = 'left_bin BETWEEN ? AND ?';
+    push @args,int($start/$binsize);
+    push @args,int($end/$binsize)-1;
+
+    my $query = <<END;
+SELECT tl.tag,'$seq_name',floor(pow(10,tier+3)*bin/$binsize) as left_bin,count(*),$bins,$start,$end 
+  FROM $from
+  WHERE $where
+  GROUP by tl.tag,left_bin
+  HAVING $having
+END
+;
+
+    $self->_print_query($query,@args) if DEBUG || $self->debug;
+    my $sth = $self->_prepare($query)  or $self->throw($self->dbh->errstr);
+    $sth->execute(@args)               or $self->throw($sth->errstr);
+
+    my @features = $self->_aggregate_bins($sth);
+    if ($iterator) {
+	return Bio::DB::SeqFeature::Store::DBI::FeatureIterator->new(@features);
+    } else {
+	  return @features;
+    }
+}
+    
 sub _delete_index {
   my $self = shift;
   my ($table_name,$id) = @_;
@@ -1860,6 +1971,112 @@ sub _dump_update_attribute_index {
       print $fh join("\t",$id,$tagid,$dbh->quote($value)),"\n";
     }
   }
+}
+
+sub build_summary_statistics {
+    my $self   = shift;
+    my $interval_stats_table = $self->_qualify('interval_stats');
+    my $dbh    = $self->dbh;
+    $dbh->begin_work;
+
+    my $sbs = SUMMARY_BIN_SIZE;
+    
+    my $result = eval {
+	$self->_disable_keys($dbh,$interval_stats_table);
+	$dbh->do("DELETE FROM $interval_stats_table");
+
+	my $insert = $dbh->prepare(<<END) or $self->throw($dbh->errstr);
+INSERT INTO $interval_stats_table 
+           (typeid,seqid,bin,cum_count)
+    VALUES (?,?,?,?)
+END
+	    
+	my $sql    = $self->_fetch_indexed_features_sql;
+	my $select = $dbh->prepare($sql) or $self->throw($dbh->errstr);
+
+	my $current_bin = -1;
+	my ($current_type,$current_seqid,$count);
+	my $cum_count = 0;
+	my (%residuals,$last_bin);
+
+	my $le = -t \*STDERR ? "\r" : "\n";
+
+	print STDERR "\n";
+	$select->execute;
+
+	while (my($typeid,$seqid,$start,$end) = $select->fetchrow_array) {
+	    print STDERR $count," features processed\r" if ++$count % 1000 == 0;
+
+	    my $bin = int($start/$sbs);
+	    $current_type  ||= $typeid;
+	    $current_seqid ||= $seqid;
+
+            # because the input is sorted by start, no more features will contribute to the 
+	    # current bin so we can dispose of it
+	    if ($bin != $current_bin) {
+		if ($seqid != $current_seqid or $typeid != $current_type) {
+		    # load all bins left over
+		    $self->_load_bins($insert,\%residuals,\$cum_count,$current_type,$current_seqid);
+		    %residuals = () ;
+		    $cum_count = 0;
+		} else {
+		    # load all up to current one
+		    $self->_load_bins($insert,\%residuals,\$cum_count,$current_type,$current_seqid,$current_bin); 
+		}
+	    }
+
+	    $last_bin = $current_bin;
+	    ($current_seqid,$current_type,$current_bin) = ($seqid,$typeid,$bin);
+
+	    # summarize across entire spanned region
+	    my $last_bin = int(($end-1)/$sbs);
+	    for (my $b=$bin;$b<=$last_bin;$b++) {
+		$residuals{$b}++;
+	    }
+	}
+	# handle tail case
+        # load all bins left over	
+	$self->_load_bins($insert,\%residuals,\$cum_count,$current_type,$current_seqid);
+	$self->_enable_keys($dbh,$interval_stats_table);
+	1;
+    };
+	
+    if ($result) { $dbh->commit } else { warn "Can't build summary statistics: $@"; $dbh->rollback };
+    print STDERR "\n";
+}
+
+sub _load_bins {
+    my $self = shift;
+    my ($insert,$residuals,$cum_count,$type,$seqid,$stop_after) = @_;
+    for my $b (sort {$a<=>$b} keys %$residuals) {
+	last if defined $stop_after and $b > $stop_after;
+	$$cum_count += $residuals->{$b};
+	my @args    = ($type,$seqid,$b,$$cum_count);
+	$insert->execute(@args);
+	delete $residuals->{$b}; # no longer needed
+    }
+}
+
+sub _fetch_indexed_features_sql {
+    my $self           = shift;
+    my $feature_table  = $self->_qualify('feature');
+    return <<END;
+SELECT typeid,seqid,start-1,end
+  FROM $feature_table as f 
+ WHERE f.indexed=1 
+  ORDER BY typeid,seqid,start
+END
+}
+
+sub _disable_keys {
+    my $self = shift;
+    my ($dbh,$table) = @_;
+    $dbh->do("ALTER TABLE $table DISABLE KEYS");
+}
+sub _enable_keys {
+    my $self = shift;
+    my ($dbh,$table) = @_;
+    $dbh->do("ALTER TABLE $table ENABLE KEYS");
 }
 
 sub time {

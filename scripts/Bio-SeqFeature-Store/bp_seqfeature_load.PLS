@@ -22,6 +22,7 @@ my $PASS     = '';
 my $COMPRESS = 0;
 my $INDEX_SUB = 1;
 my $NOALIAS_TARGET = 0;
+my $SUMMARY_STATS  = 0;
 
 GetOptions(
        'dsn=s'          => \$DSN,
@@ -35,6 +36,7 @@ GetOptions(
        'create'         => \$CREATE,
        'user=s'         => \$USER,
        'password=s'     => \$PASS,
+       'summary'        => \$SUMMARY_STATS,
        'zip'            => \$COMPRESS,
        'S|subfeatures!' => \$INDEX_SUB,
        'noalias-target' => \$NOALIAS_TARGET,
@@ -57,6 +59,8 @@ Usage: $0 [options] gff_file1 gff_file2...
           -i --ignore-seqregion
                           If true, then ignore ##sequence-region directives in the
                           GFF3 file (default, create a feature for each region)
+          --summary       If true, generate summary statistics for fast coverage
+                             graphs
           -z --zip        If true, database tables will be compressed to save space
              --noalias-target
                           Don't create an Alias attribute whose value is the 
@@ -117,6 +121,7 @@ my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new
     -ignore_seqregion   => $IGNORE_SEQREGION,
     -index_subfeatures  => $INDEX_SUB,
     -noalias_target     => $NOALIAS_TARGET,
+    -summary_stats      => $SUMMARY_STATS,
 )
 or die "Couldn't create GFF3 loader";
 

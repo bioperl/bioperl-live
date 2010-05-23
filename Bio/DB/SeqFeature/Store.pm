@@ -1364,7 +1364,8 @@ END
 	$end   = $f->end - $rel_start + 1;
       }
     }
-    push @segments,Bio::DB::SeqFeature::Segment->new($self,$seqid,$start,$end,$strand);
+    my $id = eval{$f->primary_id};
+    push @segments,Bio::DB::SeqFeature::Segment->new($self,$seqid,$start,$end,$strand,$id);
   }
   return wantarray ? @segments : $segments[0];
 }
