@@ -373,9 +373,9 @@ END
    typeid            integer not null,
    seqid             integer not null,
    bin               integer not null,
-   cum_count         integer not null,
-   unique (typeid,seqid,bin)
+   cum_count         integer not null
 );
+create unique index interval_stats_index on interval_stats(typeid,seqid,bin);
 END
   }
   return $defs;
@@ -474,88 +474,19 @@ sub index_tables {
     return (@t,$self->_feature_index_table);
 }
 
-sub build_summary_statistics {
-    my $self   = shift;
-    my $interval_stats_table = $self->_qualify('interval_stats');
+sub _enable_keys  { }  # nullop
+sub _disable_keys { }  # nullop
+
+sub _fetch_indexed_features_sql {
+    my $self = shift;
     my $location_table       = $self->_qualify('feature_location');
     my $feature_table        = $self->_qualify('feature');
-    my $dbh    = $self->dbh;
-    $dbh->begin_work;
-
-    my $sbs = SUMMARY_BIN_SIZE;
-    
-    my $result = eval {
-	$dbh->do("DELETE FROM $interval_stats_table");
-
-	my $insert = $dbh->prepare(<<END) or $self->throw($dbh->errstr);
-INSERT INTO $interval_stats_table 
-           (typeid,seqid,bin,cum_count)
-    VALUES (?,?,?,?)
-END
-	    
-	my $select = $dbh->prepare(<<END) or $self->throw($dbh->errstr);
-SELECT typeid,seqid,start-1,end
+    return <<END;
+    SELECT typeid,seqid,start-1,end
   FROM $location_table as l,$feature_table as f 
  WHERE l.id=f.id AND f.\"indexed\"=1 
   ORDER BY typeid,seqid,start
 END
-	    
-	my $current_bin = -1;
-	my ($current_type,$current_seqid,$count);
-	my $cum_count = 0;
-	my (%residuals,$last_bin);
-
-	print STDERR "\n";
-	$select->execute;
-
-	while (my($typeid,$seqid,$start,$end) = $select->fetchrow_array) {
-	    print STDERR $count," features processed\n" if ++$count % 1000 == 0;
-
-	    my $bin = int($start/$sbs);
-	    $current_type  ||= $typeid;
-	    $current_seqid ||= $seqid;
-
-            # because the input is sorted by start, no more features will contribute to the 
-	    # current bin so we can dispose of it
-	    if ($bin != $current_bin) {
-		if ($seqid != $current_seqid or $typeid != $current_type) {
-		    # load all bins left over
-		    $self->_load_bins($insert,\%residuals,\$cum_count,$current_type,$current_seqid);
-		    %residuals = () ;
-		    $cum_count = 0;
-		} else {
-		    # load all up to current one
-		    $self->_load_bins($insert,\%residuals,\$cum_count,$current_type,$current_seqid,$current_bin); 
-		}
-	    }
-
-	    $last_bin = $current_bin;
-	    ($current_seqid,$current_type,$current_bin) = ($seqid,$typeid,$bin);
-
-	    # summarize across entire spanned region
-	    my $last_bin = int(($end-1)/$sbs);
-	    for (my $b=$bin;$b<=$last_bin;$b++) {
-		$residuals{$b}++;
-	    }
-	}
-	# handle tail case
-	$self->_load_bins($insert,\%residuals,\$cum_count,$current_type,$current_seqid);              # load all bins left over	
-	1;
-    };
-	
-    if ($result) { $dbh->commit } else { warn "Can't build summary statistics: $@"; $dbh->rollback };
-}
-
-sub _load_bins {
-    my $self = shift;
-    my ($insert,$residuals,$cum_count,$type,$seqid,$stop_after) = @_;
-    for my $b (sort {$a<=>$b} keys %$residuals) {
-	last if defined $stop_after and $b > $stop_after;
-	$$cum_count += $residuals->{$b};
-	my @args    = ($type,$seqid,$b,$$cum_count);
-	$insert->execute(@args);
-	delete $residuals->{$b}; # no longer needed
-    }
 }
 
 sub feature_summary {
@@ -653,27 +584,6 @@ END
 	}
     }
 
-#     # now we need to merge and sum over the bins
-#     my @merged_bins;
-#     for my $type (keys %bins) {
-
-# 	my $arry   = $bins{$type};
-# 	my @wanted = @sum_bin_array;
-# 	my $i      = 0;
-
-# 	while (@wanted) {
-# 	    my $c = shift @wanted;
-# 	    if ($arry->[0][0] > $c) {
-# 		$merged_bins[$i++] += $arry->[0][1];
-# 	    } else {
-# 		shift @$arry;
-# 		$merged_bins[$i++] += $arry->[0][1];
-# 	    }
-# 	}
-#     }
-#     # now convert this into a diff map
-    
-#     my @delta = map {1000 * ($merged_bins[$_+1]-$merged_bins[$_])/$binsize} (0..$#merged_bins-1);
     my @merged_bins;
     my $firstbin = int(($start-1)/$binsize);
     for my $type (keys %bins) {
@@ -686,7 +596,6 @@ END
 	    my ($bin,$count) = @$b;
 	    $delta              = $count - $last_count if $bin > $last_bin;
 	    $merged_bins[$i++]  = $delta;
-#	    $merged_bins[$i++]  = $count;
 	    $last_count         = $count;
 	    $last_bin           = $bin;
 	}
