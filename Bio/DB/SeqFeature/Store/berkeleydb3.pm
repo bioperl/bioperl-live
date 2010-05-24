@@ -431,6 +431,7 @@ sub build_summary_statistics {
     my %sort;
     my $numeric_cmp         = DB_File::BTREEINFO->new;
     $numeric_cmp->{compare} = sub { $_[0] <=> $_[1] };
+    $numeric_cmp->{flags}   = R_DUP;
     my $s = tie %sort,'DB_File',$name,0666,O_CREAT|O_RDWR,$numeric_cmp 
 	or $self->throw("Couldn't create temporary file for sorting: $!");
 
@@ -438,18 +439,20 @@ sub build_summary_statistics {
     my $db       = tied(%$index);
     my $keystart = 0;
     my ($value,$count);
-    my $le = -t \*STDERR ? "\r" : "\n";
+    my %seenit;
 
     for (my $status = $db->seq($keystart,$value,R_CURSOR);
 	 $status == 0;
 	 $status  = $db->seq($keystart,$value,R_NEXT)) {
-	print STDERR $count," features sorted$le" if ++$count % 1000 == 0;
-	
 	my ($id,$start,$end,$strand,$typeid) = unpack('i5',$value);
+	next if $seenit{$id}++;
+
+	print STDERR $count," features sorted$le" if ++$count % 1000 == 0;
 	my $seqid = int($keystart / MAX_SEQUENCES);
-	my $key   = $self->_encode_summary_key($typeid,$seqid,$start);
+	my $key   = $self->_encode_summary_key($typeid,$seqid,$start-1);
 	$sort{$key}=$end;
     }
+    print STDERR "COUNT = $count\n";
     
     my ($current_type,$current_seqid,$end);
     my $cum_count = 0;
@@ -461,10 +464,9 @@ sub build_summary_statistics {
     for (my $status = $s->seq($keystart,$end,R_CURSOR);
 	 $status == 0;
 	 $status  = $s->seq($keystart,$end,R_NEXT)) {
+
 	print STDERR $count," features processed$le" if ++$count % 1000 == 0;
-	
 	my ($typeid,$seqid,$start) = $self->_decode_summary_key($keystart);
-#	print STDERR "($typeid,$seqid,$start)","\n";
 
 	my $bin   = int($start/$sbs);
 	

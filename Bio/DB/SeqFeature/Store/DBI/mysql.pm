@@ -2054,7 +2054,7 @@ END
 	$select->execute;
 
 	while (my($typeid,$seqid,$start,$end) = $select->fetchrow_array) {
-	    print STDERR $count," features processed\r" if ++$count % 1000 == 0;
+	    print STDERR $count," features processed$le" if ++$count % 1000 == 0;
 
 	    my $bin = int($start/$sbs);
 	    $current_type  ||= $typeid;
