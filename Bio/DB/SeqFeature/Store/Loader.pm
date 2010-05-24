@@ -148,15 +148,18 @@ END
   # try to bring in highres time() function
   eval "require Time::HiRes";
 
-  $tmpdir ||= File::Spec->tmpdir();
+  $tmpdir      ||= File::Spec->tmpdir();
+
+  # remember the temporary directory in order to delete it on exit
+  my $temp_load = tempdir(
+      'BioDBSeqFeature_XXXXXXX',
+      DIR=>$tmpdir,
+      CLEANUP=>1
+      );
 
   my $tmp_store = Bio::DB::SeqFeature::Store->new(-adaptor  => 'berkeleydb',
 						  -temporary=> 1,
-						  -dsn      => tempdir(
-						       'BioDBSeqFeature_XXXXXXX',
-						       DIR=>$tmpdir,
-						       CLEANUP=>1
-						  ),
+						  -dsn      => $temp_load,
 						  -cache    => 1,
 						  -write    => 1)
       unless $normalized;
@@ -172,6 +175,7 @@ END
 		verbose          => $verbose,
 		load_data        => {},
 		tmpdir           => $tmpdir,
+		temp_load        => $temp_load,
 		subfeatures_normalized => $normalized,
 		subfeatures_in_table   => $in_table,
 		coordinate_mapper      => $coordinate_mapper,
@@ -225,7 +229,6 @@ will happen, but it will probably not be what you expect.
 =cut
 
 sub load {
-    warn "LOAD:";
   my $self       = shift;
   my $start      = $self->time();
   my $count = 0;
@@ -238,7 +241,6 @@ sub load {
   }
   
   if ($self->summary_stats) {
-      warn "SUMMARY STATS";
       $self->msg("Building summary statistics for coverage graphs...");
       my $start = $self->time();
       $self->build_summary;
@@ -710,6 +712,13 @@ sub unescape {
     my $todecode = shift;
     $todecode =~ s/%([0-9a-fA-F]{2})/chr hex($1)/ge;
     return $todecode;
+}
+
+sub DESTROY {
+    my $self = shift;
+    if (my $ld = $self->{temp_load}) {
+	unlink $ld;
+    }
 }
 
 1;
