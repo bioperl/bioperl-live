@@ -602,7 +602,7 @@ sub coverage_array {
 	}
     }
     my $returned_type = $self->_id2type($report_tag);
-    return wantarray ? (\@merged_bins,"$returned_type:bins") : \@merged_bins;
+    return wantarray ? (\@merged_bins,$returned_type) : \@merged_bins;
 }
 
 

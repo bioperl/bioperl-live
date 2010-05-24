@@ -2005,7 +2005,7 @@ END
     my $firstbin = int(($start-1)/$binsize);
     for my $type (keys %bins) {
 	my $arry       = $bins{$type};
-	my $last_count = $arry->[0][1]-1;
+	my $last_count = $arry->[0][1];
 	my $last_bin   = -1;
 	my $i          = 0;
 	my $delta;
@@ -2018,7 +2018,7 @@ END
 	}
     }
 
-    return wantarray ? (\@merged_bins,"$report_tag:bins") : \@merged_bins;
+    return wantarray ? (\@merged_bins,$report_tag) : \@merged_bins;
 }
 
 sub build_summary_statistics {
