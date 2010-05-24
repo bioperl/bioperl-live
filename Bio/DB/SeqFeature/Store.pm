@@ -2579,6 +2579,19 @@ sub feature_names {
   return (\@names,\@aliases);
 }
 
+package Bio::DB::SeqFeature::Store::FeatureIterator;
+
+sub new {
+    my $self     = shift;
+    my @features = @_;
+    return bless \@features,ref $self || $self;
+}
+sub next_seq {
+  my $self  = shift;
+  return unless @$self;
+  return shift @$self;
+}
+
 
 1;
 

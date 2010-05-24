@@ -184,8 +184,6 @@ my (@BINS,%BINS);
 # );
 # my @BINS = sort {$a<=>$b} keys %BINS;
 
-sub can_summarize { 1 }
-
 sub calculate_bin {
     my $self = shift;
     my ($start,$end) = @_;
@@ -373,9 +371,9 @@ END
    typeid            integer not null,
    seqid             integer not null,
    bin               integer not null,
-   cum_count         integer not null
+   cum_count         integer not null,
+   unique(typeid,seqid,bin)
 );
-create unique index interval_stats_index on interval_stats(typeid,seqid,bin);
 END
   }
   return $defs;

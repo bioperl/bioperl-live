@@ -59,8 +59,9 @@ Usage: $0 [options] gff_file1 gff_file2...
           -i --ignore-seqregion
                           If true, then ignore ##sequence-region directives in the
                           GFF3 file (default, create a feature for each region)
-          --summary       If true, generate summary statistics for fast coverage
-                             graphs
+          --summary       Generate summary statistics for drawing coverage graphs.
+                           This can be run on a previously loaded database or during
+                           the load.
           -z --zip        If true, database tables will be compressed to save space
              --noalias-target
                           Don't create an Alias attribute whose value is the 

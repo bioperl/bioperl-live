@@ -1633,73 +1633,6 @@ sub bin_where {
   return wantarray ? ($query,@args) : substitute($query,@args);
 }
 
-sub can_summarize { 1 }
-
-sub feature_summary {
-    my $self    = shift;
-    my ($seq_name,$start,$end,$types,$bins,$iterator) = 
-	rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],
-		   ['TYPES','TYPE','PRIMARY_TAG'],
-		   'BINS',
-		   'ITERATOR',
-		  ],@_);
-
-    $bins  ||= 1000;
-    $start ||= 1;
-    unless ($end) {
-	my $segment = $self->segment($seq_name) or $self->throw("unknown seq_id $seq_name");
-	$end        = $segment->end;
-    }
-
-    my $binsize = ($end-$start+1)/$bins;
-    my $seqid   = $self->_locationid_nocreate($seq_name);
-    defined $seqid or $self->throw("unknown seq_id $seq_name");
-
-    my (@from,@where,@args);
-
-    @from  = 'feature as f';
-    @where = 'seqid=?';
-    push @args,$seqid;
-
-    if (defined($types)) {
-	# last argument is the name of the features table
-	my ($from,$where,$group,@a) = $self->_types_sql($types,'f');
-	push @from,$from   if $from;
-	push @where,$where if $where;
-	push @args,@a;
-    } else {
-	$from[0] .= ' right join typelist as tl on typelist.id=feature.typeid';
-    }
-
-    my $from  = join ',',@from;
-    my $where = join ' AND ',@where;
-    chomp($where);
-
-    my $having = 'left_bin BETWEEN ? AND ?';
-    push @args,int($start/$binsize);
-    push @args,int($end/$binsize)-1;
-
-    my $query = <<END;
-SELECT tl.tag,'$seq_name',floor(pow(10,tier+3)*bin/$binsize) as left_bin,count(*),$bins,$start,$end 
-  FROM $from
-  WHERE $where
-  GROUP by tl.tag,left_bin
-  HAVING $having
-END
-;
-
-    $self->_print_query($query,@args) if DEBUG || $self->debug;
-    my $sth = $self->_prepare($query)  or $self->throw($self->dbh->errstr);
-    $sth->execute(@args)               or $self->throw($sth->errstr);
-
-    my @features = $self->_aggregate_bins($sth);
-    if ($iterator) {
-	return Bio::DB::SeqFeature::Store::DBI::FeatureIterator->new(@features);
-    } else {
-	  return @features;
-    }
-}
-    
 sub _delete_index {
   my $self = shift;
   my ($table_name,$id) = @_;
@@ -1972,7 +1905,6 @@ sub _dump_update_attribute_index {
     }
   }
 }
-
 sub feature_summary {
     my $self = shift;
     my ($seq_name,$start,$end,$types,$bins,$iterator) = 
@@ -2000,9 +1932,10 @@ sub feature_summary {
 						   join(',',map {sprintf('%.2f',$_)} @$coverage)
 					     });
     return $iterator 
-	   ? Bio::DB::SeqFeature::Store::DBI::FeatureIterator->new($feature) 
+	   ? Bio::DB::SeqFeature::Store::FeatureIterator->new($feature) 
 	   : $feature;
 }
+
 
 sub coverage_array {
     my $self = shift;
