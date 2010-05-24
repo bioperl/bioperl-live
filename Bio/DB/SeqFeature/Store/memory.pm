@@ -613,6 +613,36 @@ sub private_fasta_file {
   return $self->{fasta_fh} = IO::File->new($self->{fasta_file},">");
 }
 
+# summary support
+sub coverage_array {
+    my $self = shift;
+
+    my ($seq_name,$start,$end,$types,$bins) = 
+	rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],
+		   ['TYPES','TYPE','PRIMARY_TAG'],'BINS'],@_);
+
+    my @features = $self->_features(-seq_id=> $seq_name,
+				    -start => $start,
+				    -end   => $end,
+				    -types => $types);
+
+    my $binsize = ($end-$start+1)/$bins;
+    my $report_tag;
+    my @coverage_array = (0) x $bins;
+    
+    for my $f (@features) {
+	$report_tag ||= $f->primary_tag;
+	my $fs        = $f->start;
+	my $fe        = $f->end;
+	my $start_bin = int(($fs-$start)/$binsize);
+	my $end_bin   = int(($fe-$start)/$binsize);
+	$start_bin    = 0       if $start_bin < 0;
+	$end_bin      = $bins-1 if $end_bin  >= $bins;
+	$coverage_array[$_]++ for ($start_bin..$end_bin);
+    }
+    return wantarray ? (\@coverage_array,$report_tag) : \@coverage_array;
+}
+
 package Bio::DB::SeqFeature::Store::memory::Iterator;
 
 sub new {

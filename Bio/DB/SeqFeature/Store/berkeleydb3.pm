@@ -514,37 +514,6 @@ sub _load_bins {
     }
 }
 
-sub feature_summary {
-    my $self = shift;
-    my ($seq_name,$start,$end,$types,$bins,$iterator) = 
-	rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],
-		   ['TYPES','TYPE','PRIMARY_TAG'],
-		   'BINS',
-		   'ITERATOR',
-		  ],@_);
-    my ($coverage,$tag) = $self->coverage_array(-seqid=> $seq_name,
-						-start=> $start,
-						-end  => $end,
-						-type => $types,
-						-bins => $bins);
-    my $score = 0;
-    for (@$coverage) { $score += $_ }
-    $score /= @$coverage;
-
-    my $feature = Bio::SeqFeature::Lite->new(-seq_id => $seq_name,
-					     -start  => $start,
-					     -end    => $end,
-					     -type   => $tag,
-					     -score  => $score,
-					     -attributes => 
-					     { coverage => 
-						   join(',',map {sprintf('%.2f',$_)} @$coverage)
-					     });
-    return $iterator 
-	   ? Bio::DB::SeqFeature::Store::FeatureIterator->new($feature) 
-	   : $feature;
-}
-
 sub coverage_array {
     my $self = shift;
     my ($seq_name,$start,$end,$types,$bins) = 

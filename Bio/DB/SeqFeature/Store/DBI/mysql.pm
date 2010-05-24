@@ -1905,37 +1905,6 @@ sub _dump_update_attribute_index {
     }
   }
 }
-sub feature_summary {
-    my $self = shift;
-    my ($seq_name,$start,$end,$types,$bins,$iterator) = 
-	rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],
-		   ['TYPES','TYPE','PRIMARY_TAG'],
-		   'BINS',
-		   'ITERATOR',
-		  ],@_);
-    my ($coverage,$tag) = $self->coverage_array(-seqid=> $seq_name,
-						-start=> $start,
-						-end  => $end,
-						-type => $types,
-						-bins => $bins);
-    my $score = 0;
-    for (@$coverage) { $score += $_ }
-    $score /= @$coverage;
-
-    my $feature = Bio::SeqFeature::Lite->new(-seq_id => $seq_name,
-					     -start  => $start,
-					     -end    => $end,
-					     -type   => $tag,
-					     -score  => $score,
-					     -attributes => 
-					     { coverage => 
-						   join(',',map {sprintf('%.2f',$_)} @$coverage)
-					     });
-    return $iterator 
-	   ? Bio::DB::SeqFeature::Store::FeatureIterator->new($feature) 
-	   : $feature;
-}
-
 
 sub coverage_array {
     my $self = shift;
@@ -1977,11 +1946,12 @@ END
     }
 
     my %bins;
-    for my $typeid (@t) {
+    eval {
+	for my $typeid (@t) {
 
-	my ($from,$where,$group,@a) = $self->_types_sql($types,'b');
+	    my ($from,$where,$group,@a) = $self->_types_sql($types,'b');
 
-	my $sql = <<END;
+	    my $sql = <<END;
 SELECT bin,cum_count
   FROM $interval_stats_table
   WHERE typeid=?
@@ -1989,17 +1959,19 @@ SELECT bin,cum_count
   LIMIT 1
 END
 ;
-	my $sth = $self->_prepare($sql);
-	for (my $i=0;$i<@sum_bin_array;$i++) {
-
-	    my @args = ($typeid,$seqid,$sum_bin_array[$i]);
-	    $self->_print_query($sql,@args) if $self->debug;
-
-	    $sth->execute(@args) or $self->throw($sth->errstr);
-	    my ($bin,$cum_count) = $sth->fetchrow_array;
-	    push @{$bins{$typeid}},[$bin,$cum_count];
+	    my $sth = $self->_prepare($sql);
+	    for (my $i=0;$i<@sum_bin_array;$i++) {
+		
+		my @args = ($typeid,$seqid,$sum_bin_array[$i]);
+		$self->_print_query($sql,@args) if $self->debug;
+		
+		$sth->execute(@args) or $self->throw($sth->errstr);
+		my ($bin,$cum_count) = $sth->fetchrow_array;
+		push @{$bins{$typeid}},[$bin,$cum_count];
+	    }
 	}
-    }
+    };
+    return unless %bins;
 
     my @merged_bins;
     my $firstbin = int(($start-1)/$binsize);
