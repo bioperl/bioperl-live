@@ -349,7 +349,7 @@ sub next_result{
 		   if( !defined( $desc ) ){
 		       $desc = "";
 		   }
-		   push @hitinfo, [ $hitid, $desc, $eval_best, $score_best ];
+		   push @hitinfo, [ $hitid, $desc, $eval_full, $score_full ];
 		   $hitinfo{$hitid}= $#hitinfo;
 	       }
 	   }
