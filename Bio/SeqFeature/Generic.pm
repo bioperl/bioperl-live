@@ -148,7 +148,6 @@ use Bio::Location::Simple;
 use Bio::Location::Split;
 use Bio::Tools::GFF;
 #use Tie::IxHash;
-use Scalar::Util;
 
 use base qw(Bio::Root::Root Bio::SeqFeatureI Bio::FeatureHolderI Bio::AnnotatableI);
 
@@ -586,9 +585,6 @@ sub attach_seq {
    }
 
    $self->{'_gsf_seq'} = $seq;
-   # Bio::PrimarySeq can't have features, so there is no chance of a
-   # circular reference in that case:
-   Scalar::Util::weaken($self->{'_gsf_seq'}) if (ref($seq) ne 'Bio::PrimarySeq');
 
    # attach to sub features if they want it
    foreach ( $self->sub_SeqFeature() ) {

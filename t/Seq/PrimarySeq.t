@@ -7,13 +7,12 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 66 );
+    test_begin( -tests => 64 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
     use_ok('Bio::Location::Fuzzy');
     use_ok('Bio::Location::Split');
-    use_ok('Bio::SeqFeature::Generic');
 }
 
 my $seq = Bio::PrimarySeq->new(
@@ -236,14 +235,3 @@ ok $error =~ /\QTerminator codon inside CDS!\E/, 'Terminator + inside sequence';
 $seq = Bio::PrimarySeq->new(-seq=>'ATGCTCGCAGGGTAA'); # MLAG*
 $aa = $seq->translate(-complete=>1, -throw=>1, -terminator=>'#');
 is $aa->seq, 'MLAG';
-
-# test that a primary_seq attached to a feature doesn't disappear when
-# the primary_seq goes out of scope
-{
-    my $feature=Bio::SeqFeature::Generic->new(-seq_id=>'TestF');
-    {
-        my $primary_seq=Bio::PrimarySeq->new(-id=>'TestPS', -seq=>'actg');
-        $feature->attach_seq($primary_seq);
-    }
-    ok defined $feature->{_gsf_seq}, 'Seq still present (PrimarySeq)';
-}

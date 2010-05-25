@@ -1145,7 +1145,7 @@ sub add_SeqFeature {
        }
 
        # make sure we attach ourselves to the feature if the feature wants it
-       my $aseq = $self;
+       my $aseq = $self->primary_seq;
        $feat->attach_seq($aseq) if $aseq;
 
        push(@{$self->{'_as_feat'}},$feat);
