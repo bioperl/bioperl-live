@@ -86,7 +86,8 @@ use base qw(Bio::Search::Result::GenericResult);
  Usage   : my $obj = new Bio::Search::Result::hmmer3Result.pm();
  Function: Builds a new Bio::Search::Result::hmmer3Result.pm object 
  Returns : an instance of Bio::Search::Result::hmmer3Result.pm
- Args    :
+ Args    : -hmm_name => string, name of hmm file
+           -sequence_file => name of the sequence file
 
 =cut
 
@@ -96,12 +97,50 @@ sub new {
 
   my ($hmm,$seqfile) = $self->_rearrange([qw(HMM_NAME SEQUENCE_FILE)],
 					 @args);
-#  defined( $seqfile ) && $self->sequence_file( $seqfile );
-#  defined( $hmm ) && $self->hmm_name( $hmm );
+  defined( $seqfile ) && $self->sequence_file( $seqfile );
+  defined( $hmm ) && $self->hmm_name( $hmm );
 
   return $self;
 }
 
+=head2 hmm_name
+
+ Title   : hmm_name
+ Usage   : $obj->hmm_name($newval)
+ Function: Get/Set the value of hmm_name
+ Returns : value of hmm_name
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub hmm_name{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'_hmm_name'} = $value;
+    }
+    return $self->{'_hmm_name'};
+}
+
+=head2 sequence_file
+
+ Title   : sequence_file
+ Usage   : $obj->sequence_file($newval)
+ Function: Get/Set the value of sequence_file
+ Returns : value of sequence_file
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub sequence_file{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'_sequence_file'} = $value;
+    }
+    return $self->{'_sequence_file'};
+
+}
 
 =head2 next_model
 

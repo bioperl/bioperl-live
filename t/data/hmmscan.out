@@ -1,0 +1,152 @@
+# hmmscan :: search sequence(s) against a profile database
+# HMMER 3.0 (March 2010); http://hmmer.org/
+# Copyright (C) 2010 Howard Hughes Medical Institute.
+# Freely distributed under the GNU General Public License (GPLv3).
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query sequence file:             BA000019.orf1.fasta
+# target HMM database:             /data/biodata/HMMerDB/Pfam.hmm
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       BA000019.orf1  [L=198]
+Scores for complete sequence (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Model           Description
+    ------- ------ -----    ------- ------ -----   ---- --  --------        -----------
+      6e-30  105.2   0.3    6.7e-30  105.0   0.2    1.0  1  Peripla_BP_2    Periplasmic binding protein
+  ------ inclusion threshold ------
+      0.036   14.7   0.0       0.09   13.4   0.0    1.7  1  DUF2726         Protein of unknown function (DUF2726)
+      0.039   14.1   0.3      0.049   13.8   0.2    1.1  1  Pfam-B_1590     
+       0.22   12.5   0.0       0.33   12.0   0.0    1.3  1  Pfam-B_6580     
+       0.25   12.1   0.2       0.37   11.5   0.2    1.2  1  Calpain_III     Calpain large subunit, domain III
+       0.42   11.5   1.2        1.7    9.5   0.1    2.3  3  MHCassoc_trimer Class II MHC-associated invariant chain trim
+        1.2    9.2   2.2        1.3    9.1   1.5    1.1  1  DUF3498         Domain of unknown function (DUF3498)
+
+
+Domain annotation for each model (and alignments):
+>> Peripla_BP_2  Periplasmic binding protein
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !  105.0   0.2   1.5e-33   6.7e-30      59     236 ..       2     173 ..       1     175 [. 0.93
+
+  Alignments for each domain:
+  == domain 1    score: 105.0 bits;  conditional E-value: 1.5e-33
+   Peripla_BP_2  59 lkPDlvivsafgalvseieellelgipvvavessstaeslleqirllgellgeedeaeelvaelesridavkaridsl.kpktvlvfgyadegikv 153
+                    lkPDl+i+ +++   ++i+++l++ +p+v v+  s+  s+++ +r ++++l+ee++++ + +++++ri+++++r  +  ++ +v+v+g+++ +ik+
+  BA000019.orf1   2 LKPDLIIGREYQ---KNIYNQLSNFAPTVLVDWGSF-TSFQDNFRYIAQVLNEEEQGKLVLQQYQKRIRDLQDRMGERlQKIEVSVIGFSGQSIKS 93 
+                    8***********...********************9.*****************************************999999999999997777 PP
+
+   Peripla_BP_2 154 vfgsgswvgdlldaaggeni.iaeakgseseeisaEqilaadpdviivsgrgedtktgveelkenplwaelpAvkngrvyllds 236
+                    ++  +  ++++ld+ag++ i i++++++ + eis+E+++++d+dv++v       k+ +   ++nplw +l+Avk+++vy++++
+  BA000019.orf1  94 LNR-DAVFNQVLDDAGIKRIsIQKNQQERYLEISIENLNKYDADVLFVINE---SKEQLYPDLKNPLWHHLRAVKKQQVYVVNQ 173
+                    776.5678999999****99777777*************************...77777777899***************9976 PP
+
+>> DUF2726  Protein of unknown function (DUF2726)
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 ?   13.4   0.0     2e-05      0.09      79     112 ..      86     119 ..      79     130 .. 0.75
+
+  Alignments for each domain:
+  == domain 1    score: 13.4 bits;  conditional E-value: 2e-05
+        DUF2726  79 ashkqgkaekrDalkeealekAgipllrvkakks 112
+                    +s ++ k  +rDa+++++l+ Agi+ + +++ ++
+  BA000019.orf1  86 FSGQSIKSLNRDAVFNQVLDDAGIKRISIQKNQQ 119
+                    4555777999****************99954433 PP
+
+>> Pfam-B_1590  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 ?   13.8   0.2   1.1e-05     0.049       6     102 ..      78     169 ..      74     195 .. 0.75
+
+  Alignments for each domain:
+  == domain 1    score: 13.8 bits;  conditional E-value: 1.1e-05
+    Pfam-B_1590   6 risafinlfiGqsvsrktivnail.slleqkGflkrswnkinlpctyvnlsieriskfdflpilskikgkeisyklyGeteWqtidklLlnvnkhk 100
+                    +i   +  f Gqs++  +  +a++  +l++ G  + s +k n    y+++sie+++k+d   ++   + ke +y  + +  W+++      v+k++
+  BA000019.orf1  78 KIEVSVIGFSGQSIKSLNR-DAVFnQVLDDAGIKRISIQK-NQQERYLEISIENLNKYDADVLFVINESKEQLYPDLKNPLWHHLR----AVKKQQ 167
+                    5666666789999876554.34441578999999999988.56789*************98888888899****999999997654....444444 PP
+
+    Pfam-B_1590 101 af 102
+                    ++
+  BA000019.orf1 168 VY 169
+                    44 PP
+
+>> Pfam-B_6580  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 ?   12.0   0.0   7.2e-05      0.33      36      89 ..      70     124 ..      61     139 .. 0.83
+
+  Alignments for each domain:
+  == domain 1    score: 12.0 bits;  conditional E-value: 7.2e-05
+    Pfam-B_6580  36 ewLedrlataaaAalvldalqseelpr.alqrelLeaigakavvlrkdqtrrlla 89 
+                    +++ +rl+++++  +   +   + l+r a+ +++L+ +g+k + ++k+q+ r l 
+  BA000019.orf1  70 DRMGERLQKIEVSVIGFSGQSIKSLNRdAVFNQVLDDAGIKRISIQKNQQERYLE 124
+                    5677889999999999999988888862699******************999764 PP
+
+>> Calpain_III  Calpain large subunit, domain III
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 ?   11.5   0.2   8.1e-05      0.37      25      91 ..      35     102 ..      31     129 .. 0.75
+
+  Alignments for each domain:
+  == domain 1    score: 11.5 bits;  conditional E-value: 8.1e-05
+    Calpain_III  25 etfltNPqfrlslkepddedctvliaLmqknrrkkrkk.geenltigfavykv.kkkekeldkeffkkn 91 
+                     +f +N  +  ++ +++++  +++++ +qk+ r ++   ge++  i+++v+   +++ k+l+++++ ++
+  BA000019.orf1  35 TSFQDNFRYIAQVLNEEEQ-GKLVLQQYQKRIRDLQDRmGERLQKIEVSVIGFsGQSIKSLNRDAVFNQ 102
+                    48999**********9987.7999999999988776655888888999998887777788888766555 PP
+
+>> MHCassoc_trimer  Class II MHC-associated invariant chain trimerisation domain
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 ?   -3.5   0.0       4.3     2e+04      41      49 ..      29      37 ..      27      41 .. 0.78
+   2 ?    0.1   0.0      0.35   1.6e+03       4      36 ..      51      81 ..      49      96 .. 0.74
+   3 ?    9.5   0.1   0.00038       1.7       9      43 ..     139     176 ..     131     178 .. 0.73
+
+  Alignments for each domain:
+  == domain 1    score: -3.5 bits;  conditional E-value: 4.3
+                     HHHHHHHHH CS
+  MHCassoc_trimer 41 vdWksfEsW 49
+                     vdW sf s+
+    BA000019.orf1 29 VDWGSFTSF 37
+                     689999886 PP
+
+  == domain 2    score: 0.1 bits;  conditional E-value: 0.35
+                     HHHHHHHHHHH-TT---------HHHHHHHHHH CS
+  MHCassoc_trimer  4 edqvkhLllksdPkkvfPqlketlleNLksLKk 36
+                     e+q k  l++ +  k   +l++ + e L+++  
+    BA000019.orf1 51 EEQGKLVLQQYQ--KRIRDLQDRMGERLQKIEV 81
+                     556666677777..7789999999999998765 PP
+
+  == domain 3    score: 9.5 bits;  conditional E-value: 0.00038
+                      HHHHHH-TT---------HHHHHHHHHHH....S-HHHH CS
+  MHCassoc_trimer   9 hLllksdPkkvfPqlketlleNLksLKkt....mdevdW 43 
+                        + +s+ ++++P+lk+ l + L++ Kk+    ++++dW
+    BA000019.orf1 139 FVINESK-EQLYPDLKNPLWHHLRAVKKQqvyvVNQSDW 176
+                      5556666.899****************973443456666 PP
+
+>> DUF3498  Domain of unknown function (DUF3498)
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 ?    9.1   1.5   0.00029       1.3     395     425 ..      43      73 ..      35     137 .. 0.81
+
+  Alignments for each domain:
+  == domain 1    score: 9.1 bits;  conditional E-value: 0.00029
+                    ------------------------------- CS
+        DUF3498 395 yErRLlsQeeQaqklLleYqaRLedseeRLR 425
+                    y +  l  eeQ + +L++Yq+R+ d ++R+ 
+  BA000019.orf1  43 YIAQVLNEEEQGKLVLQQYQKRIRDLQDRMG 73 
+                    66788999*****************999984 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query sequence(s):                         1  (198 residues)
+Target model(s):                       31912  (6698792 nodes)
+Passed MSV filter:                      1891  (0.0592567); expected 638.2 (0.02)
+Passed bias filter:                     1237  (0.0387628); expected 638.2 (0.02)
+Passed Vit filter:                       100  (0.00313362); expected 31.9 (0.001)
+Passed Fwd filter:                         7  (0.000219353); expected 0.3 (1e-05)
+Initial search space (Z):              31912  [actual number of targets]
+Domain search space  (domZ):               7  [number of targets reported over threshold]
+# CPU time: 0.74u 0.55s 00:00:01.29 Elapsed: 00:00:07.01
+# Mc/sec: 189.21
+//
