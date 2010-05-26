@@ -178,6 +178,8 @@ sub get_taxon {
         $taxonid = shift;
     }
     
+    return unless $taxonid;
+    
     $taxonid =~ /^\d+$/ || return;
     my $node = $self->{'_nodes'}->[$taxonid] || return;
     length($node) || return;
