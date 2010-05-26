@@ -81,6 +81,11 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
   my $segment  = $db->segment('Chr1',5000=>6000);
   my @features = $segment->features(-type=>['mRNA','match']);
 
+  # getting coverage statistics across a region
+  my $summary = $db->feature_summary('Chr1',10_000=>1_110_000);
+  my $bins    = $summary->get_tag_values('coverage');
+  my $first_bin = $bins->[0];
+
   # getting & storing sequence information
   # Warning: this returns a string, and not a PrimarySeq object
   $db->insert_sequence('Chr1','GATCCCCCGGGATTCCAAAA...');
@@ -1364,7 +1369,8 @@ END
 	$end   = $f->end - $rel_start + 1;
       }
     }
-    push @segments,Bio::DB::SeqFeature::Segment->new($self,$seqid,$start,$end,$strand);
+    my $id = eval{$f->primary_id};
+    push @segments,Bio::DB::SeqFeature::Segment->new($self,$seqid,$start,$end,$strand,$id);
   }
   return wantarray ? @segments : $segments[0];
 }
@@ -2576,6 +2582,85 @@ sub feature_names {
   my @aliases = grep {defined} $obj->get_tag_values('Alias') if $obj->has_tag('Alias');
 
   return (\@names,\@aliases);
+}
+
+=head2 feature_summary
+
+ Title   : feature_summary
+ Usage   : $summary = $db->feature_summary(@args)
+ Function: returns a coverage summary across indicated region/type
+ Returns : a Bio::SeqFeatureI object containing the "coverage" tag
+ Args    : see below
+ Status  : public
+
+This method is used to get coverage density information across a
+region of interest. You provide it with a region of interest, optional
+a list of feature types, and a count of the number of bins over which
+you want to calculate the coverage density. An object is returned
+corresponding to the requested region. It contains a tag called
+"coverage" that will return an array ref of "bins" length. Each
+element of the array describes the number of features that overlap the
+bin at this postion.
+
+Arguments:
+
+  Argument       Description
+  --------       -----------
+
+  -seq_id        Sequence ID for the region
+  -start         Start of region
+  -end           End of region
+  -type/-types   Feature type of interest or array ref of types
+  -bins          Number of bins across region. Defaults to 1000.
+
+Note that this method uses an approximate algorithm that is only
+accurate to 500 bp, so when dealing with bins that are smaller than
+1000 bp, you may see some shifting of counts between adjacent bins.
+
+=cut
+
+
+sub feature_summary {
+    my $self = shift;
+    my ($seq_name,$start,$end,$types,$bins,$iterator) = 
+	rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],
+		   ['TYPES','TYPE','PRIMARY_TAG'],
+		   'BINS',
+		   'ITERATOR',
+		  ],@_);
+    my ($coverage,$tag) = $self->coverage_array(-seqid=> $seq_name,
+						-start=> $start,
+						-end  => $end,
+						-type => $types,
+						-bins => $bins) or return;
+    my $score = 0;
+    for (@$coverage) { $score += $_ }
+    $score /= @$coverage;
+
+    my $feature = Bio::SeqFeature::Lite->new(-seq_id => $seq_name,
+					     -start  => $start,
+					     -end    => $end,
+					     -type   => $tag,
+					     -score  => $score,
+					     -attributes => 
+					     { coverage => [$coverage] });
+    return $iterator 
+	   ? Bio::DB::SeqFeature::Store::FeatureIterator->new($feature) 
+	   : $feature;
+}
+
+
+package Bio::DB::SeqFeature::Store::FeatureIterator;
+
+sub new {
+    my $self     = shift;
+    my @features = @_;
+    return bless \@features,ref $self || $self;
+}
+sub next_seq {
+  my $self  = shift;
+  return unless @$self;
+  return shift @$self;
 }
 
 

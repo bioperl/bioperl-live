@@ -58,7 +58,6 @@ it under the same terms as Perl itself.
 
 =cut
 
-
 use strict;
 use base 'Bio::DB::SeqFeature::Store::berkeleydb';
 use DB_File;
@@ -67,9 +66,15 @@ use Bio::DB::GFF::Util::Rearrange 'rearrange';
 
 # can't have more sequence ids than this
 use constant MAX_SEQUENCES => 1_000_000_000;
+
+# used to construct the bin key
+use constant C1  => 500_000_000; # limits chromosome length to 500 megabases
+use constant C2  => 1000*C1;     # at most 1000 chromosomes
+
 use constant BINSIZE       => 10_000;
 use constant MININT        => -999_999_999_999;
 use constant MAXINT        => 999_999_999_999;
+use constant SUMMARY_BIN_SIZE => 1000;
 
 sub version { return 3.0 }
 
@@ -92,6 +97,7 @@ sub open_index_dbs {
 	my $path    = $self->_qualify("$idx.idx");
 	my %db;
 	my $dbtype  = $idx eq 'locations' ? $numeric_cmp
+	             :$idx eq 'summary'   ? $numeric_cmp
                      :$idx eq 'types'     ? $numeric_cmp
                      :$idx eq 'seqids'    ? $DB_HASH
                      :$idx eq 'typeids'   ? $DB_HASH
@@ -152,7 +158,7 @@ sub add_typeid {
 }
 
 sub _index_files {
-    return shift->SUPER::_index_files,'seqids','typeids';
+    return (shift->SUPER::_index_files,'seqids','typeids','summary');
 }
 
 sub _update_indexes {
@@ -198,6 +204,18 @@ sub types {
 	unless Bio::DB::GFF::Typename->can('new');
     my $db   = $self->typeid_db;
     return grep {!/^\./} map {Bio::DB::GFF::Typename->new($_)} keys %$db;
+}
+
+sub _id2type {
+    my $self = shift;
+    my $wanted_id   = shift;
+
+    my $db = $self->typeid_db;
+    while (my($key,$id) = each %$db) {
+	next if $key =~ /^\./;
+	return $key if $id == $wanted_id;
+    }
+    return;
 }
 
 # return a hash of typeids that match a human-readable type
@@ -387,6 +405,194 @@ sub filter_by_type_and_location {
 
   $self->update_filter($filter,\@results);
 }
+
+sub build_summary_statistics {
+    my $self = shift;
+
+    my $insert = $self->index_db('summary');
+    %$insert   = ();
+
+    my $current_bin = -1;
+    my (%residuals,$last_bin);
+
+    my $le = -t \*STDERR ? "\r" : "\n";
+
+    print STDERR "\n";
+
+    # iterate through all the indexed features
+    my $sbs      = SUMMARY_BIN_SIZE;
+
+    # Sadly we have to do this in two steps. In the first step, we sort
+    # features by typeid,seqid,start. In the second step, we read through
+    # this sorted list. To avoid running out of memory, we use a db_file
+    # temporary database
+    my $fh   = File::Temp->new() or $self->throw("Couldn't create temporary file for sorting: $!");
+    my $name = $fh->filename;
+    my %sort;
+    my $numeric_cmp         = DB_File::BTREEINFO->new;
+    $numeric_cmp->{compare} = sub { $_[0] <=> $_[1] };
+    $numeric_cmp->{flags}   = R_DUP;
+    my $s = tie %sort,'DB_File',$name,0666,O_CREAT|O_RDWR,$numeric_cmp 
+	or $self->throw("Couldn't create temporary file for sorting: $!");
+
+    my $index    = $self->index_db('locations');
+    my $db       = tied(%$index);
+    my $keystart = 0;
+    my ($value,$count);
+    my %seenit;
+
+    for (my $status = $db->seq($keystart,$value,R_CURSOR);
+	 $status == 0;
+	 $status  = $db->seq($keystart,$value,R_NEXT)) {
+	my ($id,$start,$end,$strand,$typeid) = unpack('i5',$value);
+	next if $seenit{$id}++;
+
+	print STDERR $count," features sorted$le" if ++$count % 1000 == 0;
+	my $seqid = int($keystart / MAX_SEQUENCES);
+	my $key   = $self->_encode_summary_key($typeid,$seqid,$start-1);
+	$sort{$key}=$end;
+    }
+    print STDERR "COUNT = $count\n";
+    
+    my ($current_type,$current_seqid,$end);
+    my $cum_count = 0;
+
+    $keystart = 0;
+    $count    = 0;
+
+    # the second step allows us to iterate through this
+    for (my $status = $s->seq($keystart,$end,R_CURSOR);
+	 $status == 0;
+	 $status  = $s->seq($keystart,$end,R_NEXT)) {
+
+	print STDERR $count," features processed$le" if ++$count % 1000 == 0;
+	my ($typeid,$seqid,$start) = $self->_decode_summary_key($keystart);
+
+	my $bin   = int($start/$sbs);
+	
+	# because the input is sorted by start, no more features will contribute to the 
+	# current bin so we can dispose of it
+	if ($bin != $current_bin) {
+	    if ($seqid != $current_seqid or $typeid != $current_type) {
+		# load all bins left over
+		$self->_load_bins($insert,\%residuals,\$cum_count,$current_type,$current_seqid);
+		%residuals = () ;
+		$cum_count = 0;
+	    } else {
+		# load all up to current one
+		$self->_load_bins($insert,\%residuals,\$cum_count,$current_type,$current_seqid,$current_bin); 
+	    }
+	}
+
+	$last_bin = $current_bin;
+	($current_seqid,$current_type,$current_bin) = ($seqid,$typeid,$bin);
+
+	# summarize across entire spanned region
+	my $last_bin = int(($end-1)/$sbs);
+	for (my $b=$bin;$b<=$last_bin;$b++) {
+	    $residuals{$b}++;
+	}
+    }
+
+    # handle tail case
+    # load all bins left over	
+    $self->_load_bins($insert,\%residuals,\$cum_count,$current_type,$current_seqid);
+
+    undef %sort;
+    undef $fh;
+}
+
+sub _load_bins {
+    my $self = shift;
+    my ($insert,$residuals,$cum_count,$typeid,$seqid,$stop_after) = @_;
+    for my $b (sort {$a<=>$b} keys %$residuals) {
+	last if defined $stop_after and $b > $stop_after;
+	$$cum_count += $residuals->{$b};
+	my $key         = $self->_encode_summary_key($typeid,$seqid,$b);
+	$insert->{$key} = $$cum_count;
+	delete $residuals->{$b}; # no longer needed
+    }
+}
+
+sub coverage_array {
+    my $self = shift;
+    my ($seq_name,$start,$end,$types,$bins) = 
+	rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],
+		   ['TYPES','TYPE','PRIMARY_TAG'],'BINS'],@_);
+
+    $bins  ||= 1000;
+    $start ||= 1;
+    unless ($end) {
+	my $segment = $self->segment($seq_name) or $self->throw("unknown seq_id $seq_name");
+	$end        = $segment->end;
+    }
+
+    my $binsize = ($end-$start+1)/$bins;
+    my $seqid   = $self->seqid_id($seq_name) || 0;
+
+    return [] unless $seqid;
+
+    # where each bin starts
+    my @his_bin_array = map {$start + $binsize * $_}       (0..$bins);
+    my @sum_bin_array = map {int(($_-1)/SUMMARY_BIN_SIZE)} @his_bin_array;
+
+    my $interval_stats_idx = $self->index_db('summary');
+    my $db                 = tied(%$interval_stats_idx);
+    my $t                  = $self->_matching_types($types);
+
+    my (%bins,$report_tag);
+    for my $typeid (sort keys %$t) {
+	$report_tag ||= $typeid;
+
+	for (my $i=0;$i<@sum_bin_array;$i++) {
+	    my $cum_count;
+	    my $bin = $sum_bin_array[$i];
+	    my $key = $self->_encode_summary_key($typeid,$seqid,$bin);
+	    my $status = $db->seq($key,$cum_count,R_CURSOR);
+	    next unless $status == 0;
+	    push @{$bins{$typeid}},[$bin,$cum_count];
+	}
+    }
+    
+    my @merged_bins;
+    my $firstbin = int(($start-1)/$binsize);
+    for my $type (keys %bins) {
+	my $arry       = $bins{$type};
+	my $last_count = $arry->[0][1]-1;
+	my $last_bin   = -1;
+	my $i          = 0;
+	my $delta;
+	for my $b (@$arry) {
+	    my ($bin,$count) = @$b;
+	    $delta              = $count - $last_count if $bin > $last_bin;
+	    $merged_bins[$i++]  = $delta;
+	    $last_count         = $count;
+	    $last_bin           = $bin;
+	}
+    }
+    my $returned_type = $self->_id2type($report_tag);
+    return wantarray ? (\@merged_bins,$returned_type) : \@merged_bins;
+}
+
+
+sub _encode_summary_key {
+    my $self                 = shift;
+    my ($typeid,$seqid,$bin) = @_;
+    $self->throw('Cannot index chromosomes larger than '.C1*SUMMARY_BIN_SIZE/1e6.' megabases')
+	if $bin > C1;
+    return ($typeid-1)*C2 + ($seqid-1)*C1 + $bin;
+}
+
+sub _decode_summary_key {
+    my $self   = shift;
+    my $key    = shift;
+    my $typeid   = int($key/C2);
+    my $residual =     $key%C2;
+    my $seqid    = int($residual/C1);
+    my $bin      =     $residual%C1;
+    return ($typeid+1,$seqid+1,$bin);
+}
+
 
 1;
 

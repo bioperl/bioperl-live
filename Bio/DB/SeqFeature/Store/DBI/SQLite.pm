@@ -151,14 +151,17 @@ use Bio::DB::GFF::Util::Rearrange 'rearrange';
 use Bio::SeqFeature::Lite;
 use File::Spec;
 use constant DEBUG=>0;
+use constant EXPERIMENTAL_COVERAGE=>1;
 
 # Using same limits as MySQL adaptor so I don't have to make something up.
 use constant MAX_INT =>  2_147_483_647;
 use constant MIN_INT => -2_147_483_648;
-use constant MAX_BIN =>  1_000_000_000;  # size of largest feature = 1 Gb
-use constant MIN_BIN =>  1000;           # smallest bin we'll make - on a 100 Mb chromosome, there'll be 100,000 of these
+use constant SUMMARY_BIN_SIZE =>  1000;  # we checkpoint coverage this often, about 20 meg overhead per feature type on hg
 use constant USE_SPATIAL=>0;
 
+# The binning scheme places each feature into a bin.
+# Bins are variably sized as powers of two. For example,
+# there are 585 bins of size 2**17 (131072 bases)
 my (@BINS,%BINS);
 {
     @BINS = map {2**$_} (17, 20, 23, 26, 29);  # TO DO: experiment with different bin sizes
@@ -360,8 +363,19 @@ END
 create index index_feature_location on feature_location(seqid,bin,start,end);
 END
 
-  }
+    }
 
+  if (EXPERIMENTAL_COVERAGE) {
+    $defs->{interval_stats} = <<END;
+(
+   typeid            integer not null,
+   seqid             integer not null,
+   bin               integer not null,
+   cum_count         integer not null,
+   unique(typeid,seqid,bin)
+);
+END
+  }
   return $defs;
 }
 
@@ -433,7 +447,7 @@ sub _finish_bulk_update {
 	} elsif ($table =~ /$feature_index$/) {
 	    $sth = $dbh->prepare(
 		$self->_has_spatial_index ?"REPLACE INTO $qualified_table VALUES (?,?,?,?,?)"
-		                          :"REPLACE INTO $qualified_table VALUES (?,?,?,?,?)"
+		                          :"REPLACE INTO $qualified_table (id,seqid,bin,start,end) VALUES (?,?,?,?,?)"
 		);
 	} else { # attribute or name
 	    $sth = $dbh->prepare("REPLACE INTO $qualified_table VALUES (?,?,?)");
@@ -456,6 +470,21 @@ sub index_tables {
     my $self = shift;
     my @t    = $self->SUPER::index_tables;
     return (@t,$self->_feature_index_table);
+}
+
+sub _enable_keys  { }  # nullop
+sub _disable_keys { }  # nullop
+
+sub _fetch_indexed_features_sql {
+    my $self = shift;
+    my $location_table       = $self->_qualify('feature_location');
+    my $feature_table        = $self->_qualify('feature');
+    return <<END;
+    SELECT typeid,seqid,start-1,end
+  FROM $location_table as l,$feature_table as f 
+ WHERE l.id=f.id AND f.\"indexed\"=1 
+  ORDER BY typeid,seqid,start
+END
 }
 
 ###
@@ -893,7 +922,7 @@ sub replace {
 REPLACE INTO $features (id,object,"indexed",strand,typeid) VALUES (?,?,?,?,?)
 END
 
-  my ($seqid,$start,$end,$strand,$bin) = $index_flag ? $self->_get_location_and_bin($object) : (undef)x5;
+  my ($seqid,$start,$end,$strand,$bin) = $index_flag ? $self->_get_location_and_bin($object) : (undef)x6;
 
   my $primary_tag = $object->primary_tag;
   my $source_tag  = $object->source_tag || '';
@@ -1159,8 +1188,12 @@ Nathan Weeks - Nathan.Weeks@ars.usda.gov
 
 Copyright (c) 2009 Nathan Weeks
 
+Modified 2010 to support cumulative statistics by Lincoln Stein
+<lincoln.stein@gmail.com>.
+
 This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
+it under the same terms as Perl itself. See the Bioperl license for
+more details.
 
 =cut
 

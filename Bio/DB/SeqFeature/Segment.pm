@@ -100,7 +100,7 @@ second argument.
 #
 sub new {
   my $class = shift;
-  my ($store,$seqid,$start,$end,$strand);
+  my ($store,$seqid,$start,$end,$strand,$id);
   if (ref $_[0] && UNIVERSAL::isa($_[0],'Bio::SeqFeatureI')) {
     my $seqfeature = shift;
     $store      = shift;
@@ -110,9 +110,10 @@ sub new {
     $start = $seqfeature->start;
     $end   = $seqfeature->end;
     $strand= $seqfeature->strand;
+    $id    = eval{$seqfeature->primary_id};
   }
   else {
-    ($store,$seqid,$start,$end,$strand) = @_;
+    ($store,$seqid,$start,$end,$strand,$id) = @_;
   }
   return bless {
 		store => $store,
@@ -120,6 +121,7 @@ sub new {
 		start => $start,
 		end   => $end,
 		strand => $strand,
+		primary_id => $id,
 	       },ref($class) || $class;
 }
 

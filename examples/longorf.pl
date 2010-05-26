@@ -124,11 +124,11 @@ __END__
 
 =head1 NAME
 
-longorf - perl script to find the longest ORF of a sequence
+longorf.pl - perl script to find the longest ORF of a sequence
 
 =head1 SYNOPSIS
 
-% longorf [-h] [-n] [-v] [-g] [-w printwidth] [-f seqformat] -i seqfile
+% longorf.pl [-h] [-n] [-v] [-g] [-w printwidth] [-f seqformat] -i seqfile
 
 =head1 DESCRIPTION
 
