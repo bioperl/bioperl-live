@@ -299,6 +299,7 @@ sub next_seq {
                   my $line = $1;
                   my ($date, $version) = split(' ', $line, 2);
                   $date =~ tr/,//d; # remove comma if new version
+                  if ($version) {
                   if ($version =~ /\(Rel\. (\d+), Created\)/xms ) {
                       my $release = Bio::Annotation::SimpleValue->new(
                                                                       -tagname    => 'creation_release',
@@ -317,6 +318,7 @@ sub next_seq {
                                                                      -value      => $2
                                                                     );
                       $annotation->add_Annotation($update);
+                  }
                   }
                   push @{$params{'-dates'}}, $date;
               }
