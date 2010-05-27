@@ -61,9 +61,6 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @EXPORT = qw( );
 
-our $VERSION = '0.01';
-
-
 # Preloaded methods go here.
 our %FONT_TABLE = (1 => gdTinyFont, 2 => gdSmallFont, 3 => gdMediumBoldFont, 4 => gdLargeFont, 5 => gdGiantFont );
 our %PROTEIN_COLORS = ('Q' => [255, 0, 204], 'E' => [255, 0, 102], 'D' =>  [255, 0, 0] , 'S' => [255, 51, 0] , 'T' => [255, 102, 0 ], 
