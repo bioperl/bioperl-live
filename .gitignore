@@ -2,6 +2,7 @@
 .tmp
 *#
 .#*
+.*.swp
 *(Autosaved)blib*
 Build
 Build.bat
