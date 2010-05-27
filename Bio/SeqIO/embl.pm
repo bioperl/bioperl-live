@@ -1352,8 +1352,13 @@ sub _read_FTHelper_EMBL {
                         last QUOTES;
                     }
 
-                    # Join to value with space if value or next line contains a space
-                    $value .= (grep /\s/, ($value, $next)) ? " $next" : $next;
+                    # Protein sequence translations need to be joined without spaces,
+                    # other qualifiers need those.
+                    if ($qualifier eq "translation") {
+                        $value .= $next;
+                    } else {
+                        $value .= " $next";
+                    }
                 }
                 # Trim leading and trailing quotes
                 $value =~ s/^"|"$//g;
