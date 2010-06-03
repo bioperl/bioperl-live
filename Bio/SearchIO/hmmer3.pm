@@ -342,10 +342,22 @@ sub next_result{
 		   #grab table data
 		   next if ( m/\-\-\-/ || m/^\s+E\-value\sscore/ || m/^$/);
 		   my (
-		       $eval_full, $score_full, $bias_full, 
-		       $eval_best, $score_best, $bias_best, 
-		       $exp, $n, $hitid, $desc
-		       ) = split(" ", $_);
+		       $eval_full, $score_full, $bias_full,
+		       $eval_best, $score_best, $bias_best,
+		       $exp, $n, $hitid, $desc, @hitline
+		       );
+                       @hitline = split(" ", $_);
+                       $eval_full  = shift @hitline;
+                       $score_full = shift @hitline;
+                       $bias_full  = shift @hitline;
+                       $eval_best  = shift @hitline;
+                       $score_best = shift @hitline;
+                       $bias_best  = shift @hitline;
+                       $exp        = shift @hitline;
+                       $n          = shift @hitline;
+                       $hitid      = shift @hitline;
+                       $desc       = join " ", @hitline;
+
 		   if( !defined( $desc ) ){
 		       $desc = "";
 		   }

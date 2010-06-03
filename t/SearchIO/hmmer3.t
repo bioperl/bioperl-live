@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 22);
+    test_begin(-tests => 23);
 
 	use_ok('Bio::SearchIO');
 }
@@ -30,6 +30,7 @@ while( my $result = $searchio->next_result ) {
     if( $hit = $result->next_model ) {
         is(ref($hit), 'Bio::Search::Hit::hmmer3Hit', 'Check for the correct hit reference type');
         is($hit->name, 'Peripla_BP_2', 'Check hit name');
+        is($hit->description, 'Periplasmic binding protein', 'Check for hit description');
         is($hit->raw_score, '105.2', 'Check hit raw_score');
         float_is($hit->significance, 6e-30, 'Check hit significance');
         is($hit->num_hsps, 1, 'Check num_hsps');
