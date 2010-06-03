@@ -346,17 +346,17 @@ sub next_result{
 		       $eval_best, $score_best, $bias_best,
 		       $exp, $n, $hitid, $desc, @hitline
 		       );
-                       @hitline = split(" ", $_);
-                       $eval_full  = shift @hitline;
-                       $score_full = shift @hitline;
-                       $bias_full  = shift @hitline;
-                       $eval_best  = shift @hitline;
-                       $score_best = shift @hitline;
-                       $bias_best  = shift @hitline;
-                       $exp        = shift @hitline;
-                       $n          = shift @hitline;
-                       $hitid      = shift @hitline;
-                       $desc       = join " ", @hitline;
+                   @hitline = split(" ", $_);
+                   $eval_full  = shift @hitline;
+                   $score_full = shift @hitline;
+                   $bias_full  = shift @hitline;
+                   $eval_best  = shift @hitline;
+                   $score_best = shift @hitline;
+                   $bias_best  = shift @hitline;
+                   $exp        = shift @hitline;
+                   $n          = shift @hitline;
+                   $hitid      = shift @hitline;
+                   $desc       = join " ", @hitline;
 
 		   if( !defined( $desc ) ){
 		       $desc = "";
