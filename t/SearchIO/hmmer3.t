@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 23);
+    test_begin(-tests => 32);
 
 	use_ok('Bio::SearchIO');
 }
@@ -44,5 +44,22 @@ while( my $result = $searchio->next_result ) {
             is($hsp->score, '105.0', 'Check for hsp score');
             float_is($hsp->evalue, 1.5e-33, 'Check for hsp c-Evalue');
         }
+    }
+}
+
+$searchio = Bio::SearchIO->new(-format  => 'hmmer3',
+                               -file    => test_input_file('hmmsearch3.out'),
+                               -verbose => 1);
+while( my $result = $searchio->next_result ) {
+    is(ref($result),'Bio::Search::Result::hmmer3Result', 'Check for the correct result reference type');
+    is($result->algorithm, 'HMMSEARCH', 'Check algorithm');
+    is($result->algorithm_version, '3.0', 'Check algorithm version');
+    is($result->hmm_name, 'Kv9.hmm', 'Check hmm_name');
+    is($result->sequence_file, '/home/pboutet/Desktop/databases/nr_May26', 'Check sequence_file');
+    is($result->query_name, 'Kv9', 'Check query_name');
+    is($result->query_length, '481', 'Check query_length');
+    is($result->query_description, '', 'Check query_description');
+    is($result->num_hits(), 2, 'Check num_hits');
+    while( my $hit = $result->next_model ) {
     }
 }

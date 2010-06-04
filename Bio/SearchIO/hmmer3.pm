@@ -335,7 +335,8 @@ sub next_result{
 	   #Complete sequence table data above inclusion threshold
 	   if( $_ =~ m/Scores for complete sequence/){
 	       while (defined( $_ = $self->_readline ) ) {
-		   if ($_ =~ m/inclusion threshold/ || m/Domain( and alignment)? annotation for each/ || m/\[No hits detected/ ){
+		   if ($_ =~ m/inclusion threshold/ || m/Domain( and alignment)? annotation for each/ ||
+                       m/\[No hits detected/ || m!^//! ){
 		       $self->_pushback($_);
 		       last;
 		   }
@@ -369,7 +370,8 @@ sub next_result{
 	   #not currently fully implemented
 	   elsif( $_ =~ m/inclusion threshold/ ){
 	       while( defined( $_ = $self->_readline ) ) {
-		   if( $_ =~ m/Domain( and alignment)? annotation for each/){
+		   if( $_ =~ m/Domain( and alignment)? annotation for each/ ||
+                       m/Internal pipeline statistics summary/ ){
 		       $self->_pushback($_);
 		       last;
 		   }
@@ -409,51 +411,7 @@ sub next_result{
  		       $name = $1;
 		       #skip hits below inclusion threshold
 		       next if( $hitinfo{$name} eq "below_inclusion");
-		       #process any open hits/hsps
-		       if ( $self->within_element('hit') ) {
-			   if ( $self->within_element('hsp') ) {
-			       $self->end_element( { 'Name' => 'Hsp' } );
-			   }
-			   $self->end_element( { 'Name' => 'Hit' } );
-		       }
-		       #start a new hit
-		       $self->start_element( { 'Name' => 'Hit' } );
-		       my $info = [
-			   @{
-			       $hit_list[ $hitinfo{$name} ] || $self->throw(
-				   "Could not find hit info for $name: Ensure that your database contains only unique sequence names"
-				   )
-			   }
-			   ];
-		       if( $info->[0] ne $name ) {
-			   $self->throw(
-			       "Somehow the domain table order does not match the order in the domain alignments (got " . $info->[0] . ", expected $name)\n"
-			       );
-		       }
-		       $self->element(
-			   {
-			       'Name' => 'Hit_id',
-			       'Data' => shift @{$info}
-			   }
-			   );
-		       $self->element(
-			   {
-			       'Name' => 'Hit_desc',
-			       'Data' => shift @{$info}
-			   }
-			   );
-		       $self->element(
-			   {
-			       'Name' => 'Hit_signif',
-			       'Data' => shift @{$info}
-			   }
-			   );
-		       $self->element(
-			   {
-			       'Name' => 'Hit_score',
-			       'Data' => shift @{$info}
-			   }
-			   );
+
 		       while( defined( $_ = $self->_readline ) ) {
 			   #grab table data for sequence
 			   if ($_ =~ m/Internal pipeline statistics/ ||
@@ -498,70 +456,7 @@ sub next_result{
 			       }
 			       $domaincounter{$name}++;
 			       push @hsp_list, [ $name, @vals ];
-			       #If no alignments in the report, then we need to grab the hsp data now
-			       if( !$self->{'_alnreport'} ){
-				   if( $self->within_element('hsp') ) {
-				       $self->end_element( { 'Name' => 'Hsp' } );
-				   }
-				   #Start a new hsp element
-				   $self->start_element( { 'Name' => 'Hsp' } );
-				   $self->element(
-				       {
-					   'Name' => 'Hsp_identity',
-					   'Data' => 0
-				       }
-				       );
-				   $self->element(
-				       {
-					   'Name' => 'Hsp_positive',
-					   'Data' => 0
-				       }
-				       );
-				   my $HSPinfo = shift @hsp_list;
-				   my $id      = shift @$HSPinfo;
-
-				   if( $id ne $name ){
-				       $self->throw(
-					   "Somehow the domain list details do not match the table (got $id, expected $name)\n"
-					   );
-				   }
-				   $self->element(
-				       {
-					   'Name' => 'Hsp_hit-from',
-					   'Data' => shift @$HSPinfo
-				       }
-				       );
-				   $self->element(
-				       {
-					   'Name' => 'Hsp_hit-to',
-					   'Data' => shift @$HSPinfo
-				       }
-				       );
-				   $self->element(
-				       {
-					   'Name' => 'Hsp_query-from',
-					   'Data' => shift @$HSPinfo
-				       }
-				       );
-				   $self->element(
-				       {
-					   'Name' => 'Hsp_query-to',
-					   'Data' => shift @$HSPinfo
-				       }
-				       );
-				   $self->element(
-				       {
-					   'Name' => 'Hsp_score',
-					   'Data' => shift @$HSPinfo
-				       }
-				       );
-				   $self->element(
-				       {
-					   'Name' => 'Hsp_evalue',
-					   'Data' => shift @$HSPinfo
-				       }
-				       );
-			       }
+                               $hspinfo{$name} = $#hsp_list;
 			   }
 			   else{
 			       print "missed this line: $_\n";
@@ -585,75 +480,6 @@ sub next_result{
 			   elsif( $_ =~ /\s\s\=\=\sdomain\s(\d+)\s+/){
 			       my $domainnum = $1;
 			       $count = 0;
-                               #process any old hit/hsp info
-			       if( $self->within_element('hsp') ) {
-				   $self->end_element( { 'Name' => 'Hsp' } );
-			       }
-			       #Start a new hsp element
-			       $self->start_element( { 'Name' => 'Hsp' } );
-			       $self->element(
-				   {
-				       'Name' => 'Hsp_identity',
-				       'Data' => 0
-				   }
-				);
-			       $self->element(
-				   {
-				       'Name' => 'Hsp_positive',
-				       'Data' => 0
-				   }
-				);
-			       my $HSPinfo = shift @hsp_list;
-			       my $id      = shift @$HSPinfo;
-
-			       if( $id ne $name ){
-				   $self->throw(
-				       "Somehow the domain list details do not match the table (got $id, expected $name)\n"
-				   );
-			       }
-			       #somecleanup
-#			       if( $domaincounter{$name} == $domaintotal ){
-#				   $hitinfo[ $hitinfo{$name} ] = undef;
-#			       }
-			       #Need to cleanup what goes where given
-			       #version differences
-
-			       $self->element(
-				   {
-				       'Name' => 'Hsp_hit-from',
-				       'Data' => shift @$HSPinfo
-				   }
-			       );
-			       $self->element(
-				   {
-				       'Name' => 'Hsp_hit-to',
-				       'Data' => shift @$HSPinfo
-				   }
-				   );
-			       $self->element(
-				   {
-				       'Name' => 'Hsp_query-from',
-				       'Data' => shift @$HSPinfo
-				   }
-				   );
-			       $self->element(
-				   {
-				       'Name' => 'Hsp_query-to',
-				       'Data' => shift @$HSPinfo
-				   }
-				   );
-			       $self->element(
-				   {
-				       'Name' => 'Hsp_score',
-				       'Data' => shift @$HSPinfo
-				   }
-				   );
-			       $self->element(
-				   {
-				       'Name' => 'Hsp_evalue',
-				       'Data' => shift @$HSPinfo
-				   }
-				   );
 
 			       $lastdomain = $name;
 			   }
@@ -715,14 +541,13 @@ sub next_result{
 			       next;
 			   }
 			   else{
-			       print "missed $_\n";
+                               print "missed $_\n";
 			   }
 		       }
 		   }
 	       }
 	   }
-	   elsif( $_ =~ m/Internal pipeline statistics/ ){
-#	       last if ( $_ =~ m/^\/\/$/ );
+	   elsif( m/Internal pipeline statistics/ || m!^//! ){
 #	       if within hit, hsp close;
 	       if ( $self->within_element('hit') ) {
 		   if ( $self->within_element('hsp') ) {
@@ -732,12 +557,80 @@ sub next_result{
 	       }
 	       #grab summary statistics of run
 	       while( defined( $_ = $self->_readline ) ) {
-		   last if ( $_ =~ m/^\/\/$/ );
+                   last if ( $_ =~ m/^\/\/$/ );
 	       }
 
 	       #Jason does a lot of processing of hits/hsps here;
-	       while( my $HSPinfo = shift @hsp_list ) {
+	       while( my $hit = shift @hit_list ) {
+                   my $hit_name = shift @$hit;
+                   my $hit_desc = shift @$hit;
+                   my $hit_signif = shift @$hit;
+                   my $hit_score = shift @$hit;
+                   my $hsp = $hsp_list[ $hspinfo{$hit_name} ];
 
+                   $self->start_element( { 'Name' => 'Hit' } );
+                   $self->element(
+                       {
+                           'Name' => 'Hit_id',
+                           'Data' => $hit_name
+                       }
+                   );
+                   $self->element(
+                       {
+                           'Name' => 'Hit_desc',
+                           'Data' => $hit_desc
+                       }
+                   );
+                   $self->element(
+                       {
+                           'Name' => 'Hit_signif',
+                           'Data' => $hit_signif
+                       }
+                   );
+                   $self->element(
+                       {
+                           'Name' => 'Hit_score',
+                           'Data' => $hit_score
+                       }
+                   );
+                   if(defined $hsp) {
+                       my $hsp_name = shift @$hsp;
+                       $self->start_element( { 'Name' => 'Hsp' } );
+                       $self->element( {
+                               'Name' => 'Hsp_identity',
+                               'Data' => 0
+                           } );
+                       $self->element( {
+                               'Name' => 'Hsp_positive',
+                               'Data' => 0
+                           } );
+                       $self->element( {
+                               'Name' => 'Hsp_hit-from',
+                               'Data' => shift @$hsp
+                           } );
+                       $self->element( {
+                               'Name' => 'Hsp_hit-to',
+                               'Data' => shift @$hsp
+                           } );
+                       $self->element( {
+                               'Name' => 'Hsp_query-from',
+                               'Data' => shift @$hsp
+                           } );
+                       $self->element( {
+                               'Name' => 'Hsp_query-to',
+                               'Data' => shift @$hsp
+                           } );
+                       $self->element( {
+                               'Name' => 'Hsp_score',
+                               'Data' => shift @$hsp
+                           } );
+                       $self->element( {
+                               'Name' => 'Hsp_evalue',
+                               'Data' => shift @$hsp
+                           } );
+                       $self->end_element( { 'Name' => 'Hsp' } );
+                   }
+                   $self->end_element( { 'Name' => 'Hit' } );
 	       }
 	       @hit_list = ();
 	       %hitinfo = ();
