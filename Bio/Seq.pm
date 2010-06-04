@@ -487,7 +487,7 @@ sub new {
 	$caller = ref($caller) if ref($caller);
     }
 
-    # we know our inherietance heirarchy
+    # we know our inherietance hierarchy
     my $self = Bio::Root::Root->new(@args);
     bless $self,$caller;
 
