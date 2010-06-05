@@ -158,7 +158,7 @@ sub get_dbto {
  Function : returns referring database
  Returns  : string
  Args     : none
- Note     : alias for get_db()
+ Note     :
 
 =cut
 

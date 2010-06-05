@@ -1636,7 +1636,7 @@ sub next_result {
                             );
                         }
                     }
-                    elsif (m/effective\s+search\s+space\s+used:\s+(\d+)/ox) {
+                    elsif (m/effective\s+search\s+space\s+used:\s+(\d+)/oxi) {
                         $self->element(
                             {
                                 'Name' => 'Statistics_eff-spaceused',
@@ -1644,7 +1644,7 @@ sub next_result {
                             }
                         );
                     }
-                    elsif (m/effective\s+search\s+space:\s+(\d+)/ox) {
+                    elsif (m/effective\s+search\s+space:\s+(\d+)/oxi) {
                         $self->element(
                             {
                                 'Name' => 'Statistics_eff-space',
@@ -1678,7 +1678,7 @@ sub next_result {
                             }
                         );
                     }
-                    elsif (/effective\s+length\s+of\s+query:\s+([\d\,]+)/) {
+                    elsif (/effective\s+length\s+of\s+query:\s+([\d\,]+)/i) {
                         my $c = $1;
                         $c =~ s/\,//g;
                         $self->element(
@@ -1688,7 +1688,7 @@ sub next_result {
                             }
                         );
                     }
-                    elsif (/effective\s+length\s+of\s+database:\s+([\d\,]+)/) {
+                    elsif (/effective\s+length\s+of\s+database:\s+([\d\,]+)/i) {
                         my $c = $1;
                         $c =~ s/\,//g;
                         $self->element(

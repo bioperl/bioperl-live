@@ -709,7 +709,7 @@ sub get_corrected_query {
 =head2 get_replaced_terms
 
  Title    : get_replaced_terms
- Usage    : my $term = $eutil->get_replaced_term
+ Usage    : my $term = $eutil->get_replaced_terms
  Function : returns array of strings replaced in the query
  Returns  : string 
  Args     : none
