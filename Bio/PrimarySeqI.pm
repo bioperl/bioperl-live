@@ -529,35 +529,35 @@ sub trunc{
 	   -offset
                offset for fuzzy locations, default 0
 
- Notes   : The -start argument only applies when -orf is set to 1. By default
-           all initiation codons found in the given codon table are used
-           but when "start" is set to some codon this codon will be used
-           exclusively as the initiation codon. Note that the default codon
-           table (NCBI "Standard") has 3 initiation codons!
+=head3 Notes
 
-           By default translate() translates termination codons to
-           the some character (default is *), both internal and trailing
-           codons. Setting "-complete" to 1 tells translate() to remove
-           the trailing character.
+The -start argument only applies when -orf is set to 1. By default all
+initiation codons found in the given codon table are used but when
+"start" is set to some codon this codon will be used exclusively as
+the initiation codon. Note that the default codon table (NCBI
+"Standard") has 3 initiation codons!
 
-		   -offset is used for seqfeatures which contain the the \codon_start
-		   tag and can be set to 1, 2, or 3.  This is the offset by which the
-		   sequence translation starts relative to the first base of the
-		   feature
+By default translate() translates termination codons to the some
+character (default is *), both internal and trailing codons. Setting
+"-complete" to 1 tells translate() to remove the trailing character.
+
+-offset is used for seqfeatures which contain the the \codon_start tag
+and can be set to 1, 2, or 3.  This is the offset by which the
+sequence translation starts relative to the first base of the feature
 
 For details on codon tables used by translate() see L<Bio::Tools::CodonTable>.
 
-           Deprecated argument set (v. 1.5.1 and prior versions)
-           where each argument is an element in an array:
+Deprecated argument set (v. 1.5.1 and prior versions)
+where each argument is an element in an array:
 
-           1: character for terminator (optional), defaults to '*'.
-           2: character for unknown amino acid (optional), defaults to 'X'.
-           3: frame (optional), valid values are 0, 1, 2, defaults to 0.
-           4: codon table id (optional), defaults to 1.
-           5: complete coding sequence expected, defaults to 0 (false).
-           6: boolean, throw exception if not complete coding sequence
-              (true), defaults to warning (false)
-           7: codontable, a custom Bio::Tools::CodonTable object (optional).
+  1: character for terminator (optional), defaults to '*'.
+  2: character for unknown amino acid (optional), defaults to 'X'.
+  3: frame (optional), valid values are 0, 1, 2, defaults to 0.
+  4: codon table id (optional), defaults to 1.
+  5: complete coding sequence expected, defaults to 0 (false).
+  6: boolean, throw exception if not complete coding sequence
+     (true), defaults to warning (false)
+  7: codontable, a custom Bio::Tools::CodonTable object (optional).
 
 =cut
 
