@@ -18,7 +18,7 @@ BEGIN {
     # main tests now with the parser
 
     %ASSEMBLY_TESTS = (
-        'assembly_core' => {tests       => 874,
+        'assembly_core' => {tests       => 880,
                             test_sub    => \&assembly_core},
         'sam'           => {tests       => 459,
                             test_sub    => \&sam},
