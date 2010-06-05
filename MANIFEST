@@ -1101,7 +1101,7 @@ t/Align/AlignUtil.t
 t/Align/SimpleAlign.t
 t/Align/TreeBuild.t
 t/Align/Utilities.t
-t/AlignGraphics.t
+t/Align/Graphics.t
 t/AlignIO/AlignIO.t
 t/AlignIO/arp.t
 t/AlignIO/bl2seq.t
