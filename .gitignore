@@ -2,6 +2,7 @@
 .tmp
 *#
 .#*
+.*.swp
 *(Autosaved)blib*
 Build
 Build.bat
@@ -14,3 +15,5 @@ pod2htm*.tmp
 .emacs.*
 t/LocalDB/SeqFeature_*.t
 blib*
+*.bak
+MYMETA.yml

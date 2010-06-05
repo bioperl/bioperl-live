@@ -1,0 +1,95 @@
+ID   NC_003888; SV 3; linear; unassigned DNA; STD; UNC; 8667507 BP.
+XX
+AC   NC_003888;
+XX
+DT   03-MAR-2010
+XX
+DE   Streptomyces coelicolor A3(2), complete genome.
+XX
+KW   complete genome
+XX
+OS   Streptomyces coelicolor A3(2) (2)
+OC   Bacteria; Actinobacteria; Actinobacteridae; Actinomycetales;
+OC   Streptomycineae; Streptomycetaceae; Streptomyces.
+XX
+RN   [1]
+RP   1-8667507
+RX   PUBMED; 12000953.
+RA   Bentley,S.D., Chater,K.F., Cerdeno-Tarraga,A.M., Challis,G.L.,
+RA   Thomson,N.R., James,K.D., Harris,D.E., Quail,M.A., Kieser,H., Harper,D.,
+RA   Bateman,A., Brown,S., Chandra,G., Chen,C.W., Collins,M., Cronin,A.,
+RA   Fraser,A., Goble,A., Hidalgo,J., Hornsby,T., Howarth,S., Huang,C.H.,
+RA   Kieser,T., Larke,L., Murphy,L., Oliver,K., O'Neil,S., Rabbinowitsch,E.,
+RA   Rajandream,M.A., Rutherford,K., Rutter,S., Seeger,K., Saunders,D.,
+RA   Sharp,S., Squares,R., Squares,S., Taylor,K., Warren,T., Wietzorrek,A.,
+RA   Woodward,J., Barrell,B.G., Parkhill,J. and Hopwood,D.A.;
+RT   Complete genome sequence of the model actinomycete Streptomyces coelicolor
+RT   A3(2);
+RL   Nature 417 (6885), 141-147 (2002)
+XX
+RN   [2]
+RP   1-8667507
+RX   PUBMED; 8843436.
+RA   Redenbach,M., Kieser,H.M., Denapaite,D., Eichner,A., Cullum,J.,
+RA   Kinashi,H. and Hopwood,D.A.;
+RT   A set of ordered cosmids and a detailed genetic and physical map for the 8
+RT   Mb Streptomyces coelicolor A3(2) chromosome;
+RL   Mol. Microbiol. 21 (1), 77-96 (1996)
+XX
+RN   [3]
+RP   1-8667507
+RA   ;
+RT   Direct Submission;
+RL   Submitted (28-MAY-2002) National Center for Biotechnology Information,
+RL   NIH, Bethesda, MD 20894, USA
+XX
+RN   [4]
+RP   1-8667507
+RA   Bentley,S.D.;
+RT   Direct Submission;
+RL   Submitted (09-MAY-2002) Sanger Institute, Wellcome Trust Genome Campus,
+RL   Hinxton, Cambridge CB10 1SA, United Kingdom
+XX
+CC   PROVISIONAL REFSEQ: This record has not yet been subject to final NCBI
+CC   review. The reference sequence was derived from AL645882. On Jun 22, 2003
+CC   this sequence version replaced gi:31340543. COMPLETENESS: full length.
+XX
+FH   Key             Location/Qualifiers
+FH
+FT   gene            5241975..5243546
+FT                   /locus_tag="SCO4814"
+FT                   /db_xref="GeneID:1100255"
+FT                   /gene_synonym="SCD63A.25"
+FT                   /gene="purH"
+FT   CDS             5241975..5243546
+FT                   /locus_tag="SCO4814"
+FT                   /gene_synonym="SCD63A.25"
+FT                   /protein_id="NP_628971.1"
+FT                   /gene="purH"
+FT                   /transl_table=11
+FT                   /note="involved in de novo purine biosynthesis"
+FT                   /db_xref="GI:21223192"
+FT                   /db_xref="GeneID:1100255"
+FT                   /codon_start=1
+FT                   /translation="MTATAGSNKRAIRRALVSVYDKTGLEDLARGLHEAGVELVSTGST
+FT                   AGRIAAAGVPVTKVEELTGFPECLDGRVKTLHPKVHAGILADLRLESHRQQLDELGVAP
+FT                   FDLVVVNLYPFRETVASGATPDECVEQIDIGGPSMVRAAAKNHPSVAVVTSPARYADVL
+FT                   LAVEGGGFDLAARKRLAAEAFQHTAAYDVAVASWFAAEYAPVDESGFPDFLGATYERAN
+FT                   TLRYGENPHQPAALYTSPEGGGLAQAEQLHGKEMSYNNYTDTDAARRAAYDHAEPCVAI
+FT                   IKHANPCGIAIGADVAEAHRKAHDCDPVSAYGGVIAVNRPVSKEMAERVAGIFTEVIVA
+FT                   PDYEDGALEALTKKKNIRVLRAPAAPAAPVEVKPIDGGALLQVTDRLQAEGDDPATWTL
+FT                   ATGEALSEAELAELAFAWRACRAVKSNAILLAKDGASVGVGMGQVNRVDSAKLAVERAG
+FT                   AERAQGAYAASDAFFPFPDGLEILTGAGVKAVVQPGGSVRDELVVEAAKKAGVTMYFTG
+FT                   TRHFFH"
+FT                   /product="bifunctional
+FT                   phosphoribosylaminoimidazolecarboxamide
+FT                   formyltransferase/IMP cyclohydrolase"
+FT                   /EC_number="3.5.4.10"
+FT                   /EC_number="2.1.2.3"
+FT   misc_feature    5242401..5243345
+FT                   /locus_tag="SCO4814"
+FT                   /gene_synonym="SCD63A.25"
+FT                   /gene="purH"
+FT                   /note="Pfam match to entry PF01808 AICARFT_IMPCHas,
+FT                   AICARFT/IMPCHase bienzyme, score 508.80, E-value 4.2e-149"
+//

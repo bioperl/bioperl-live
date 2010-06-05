@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 1153);
+    test_begin(-tests => 1230);
 	
 	use_ok('Bio::SearchIO');
 }
@@ -53,7 +53,9 @@ is($result->get_statistic('S2'), '92');
 is($result->get_statistic('S2_bits'), '40.0');
 float_is($result->get_parameter('expect'), '1.0e-03');
 is($result->get_statistic('num_extensions'), '82424');
-
+is($result->get_statistic('querylength'), 773);
+is($result->get_statistic('effectivedblength'), 1157407);
+is($result->get_statistic('effectivespaceused'), 894675611);
 
 my @valid = ( [ 'gb|AAC73113.1|', 820, 'AAC73113', '0', 1567, 4058],
 	      [ 'gb|AAC76922.1|', 810, 'AAC76922', '1e-91', 332, 850],
@@ -306,6 +308,10 @@ is($result->get_statistic('lambda'), 0.318);
 is($result->get_statistic('entropy'), 0.401);
 is($result->get_statistic('dbletters'), 4662239);
 is($result->get_statistic('dbentries'), 400);
+is($result->get_statistic('querylength'), 953);
+is($result->get_statistic('effectivedblength'), 1535279);
+is($result->get_statistic('effectivespace'), 1463120887);
+is($result->get_statistic('effectivespaceused'), 1463120887);
 is($result->get_statistic('T'), 13);
 is($result->get_statistic('X1'), 16);
 is($result->get_statistic('X1_bits'), 7.3);
@@ -395,6 +401,10 @@ is($result->query_length, 60);
 is($result->get_parameter('gapopen'), 5);
 is($result->get_parameter('gapext'), 2);
 is($result->get_parameter('ktup'), undef);
+is($result->get_statistic('querylength'), 41);
+is($result->get_statistic('effectivedblength'), 4656794531);
+is($result->get_statistic('effectivespace'), 190928575771);
+is($result->get_statistic('effectivespaceused'), 190928575771);
 
 is($result->get_statistic('lambda'), 1.37);
 is($result->get_statistic('kappa'), 0.711);
@@ -888,6 +898,10 @@ is($result->algorithm_version, '2.2.1 [Apr-13-2001]');
 is($result->database_name, 'pir');
 is($result->database_entries, 274514);
 is($result->database_letters, 93460074);
+is($result->get_statistic('querylength'), 44);
+is($result->get_statistic('effectivedblength'), 65459646);
+is($result->get_statistic('effectivespace'), 2880224424);
+is($result->get_statistic('effectivespaceused'), 2880224424);
 
 $hit = $result->next_hit;
 is($hit->description, 'F22B7.10 protein - Caenorhabditis elegans');
@@ -927,6 +941,10 @@ Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
 programs",  Nucleic Acids Res. 25:3389-3402.
 ');
 is($result->rid, '1036160600-011802-21377');
+is($result->get_statistic('querylength'), 9);
+is($result->get_statistic('effectivedblength'), 35444647);
+is($result->get_statistic('effectivespace'), 319001823);
+is($result->get_statistic('effectivespaceused'), 319001823);
 
 @valid = ( ['pir||T14789','T14789','T14789','CAB53709','AAH01726'],
 	   ['gb|NP_065733.1|CYT19', 'NP_065733','CYT19'],
@@ -1006,6 +1024,10 @@ is($r->query_length, 11337);
 is($r->database_name, 'cneoA.nt ');
 is($r->database_letters, 17206226);
 is($r->database_entries, 4935);
+is($r->get_statistic('querylength'), 11318);
+is($r->get_statistic('effectivedblength'), 17112461);
+is($r->get_statistic('effectivespace'), 193678833598);
+is($r->get_statistic('effectivespaceused'), 0);
 
 $hits_left = 4;
 while( my $hit = $r->next_hit ) {
@@ -1043,6 +1065,10 @@ is($r->algorithm_reference, undef);
 is($r->query_name, 'gi|1786183|gb|AAC73113.1|');
 is($r->query_gi, 1786183);
 is($r->num_hits, 7);
+is($r->get_statistic('querylength'), 438);
+is($r->get_statistic('effectivedblength'), 31988);
+is($r->get_statistic('effectivespace'), 14010744);
+is($r->get_statistic('effectivespaceused'), 24054976);
 $hit = $r->next_hit;
 is($hit->name, 'gnl|CDD|3919');
 float_is($hit->significance, 0.064);
@@ -1080,7 +1106,10 @@ cmp_ok($result->get_statistic('entropy'), '==', 0.230);
 is($result->get_statistic('dbletters'), 31984247);
 is($result->get_statistic('dbentries'), 88780);
 is($result->get_statistic('effective_hsplength'), 49);
+is($result->get_statistic('querylength'), 294);
+is($result->get_statistic('effectivedblength'), 27634027);
 is($result->get_statistic('effectivespace'), 8124403938);
+is($result->get_statistic('effectivespaceused'), 8124403938);
 is($result->get_parameter('matrix'), 'BLOSUM62');
 is($result->get_parameter('gapopen'), 11);
 is($result->get_parameter('gapext'), 1);
@@ -1214,6 +1243,10 @@ isa_ok($result,'Bio::Search::Result::ResultI');
 is($result->query_name, '');
 is($result->algorithm, 'BLASTP');
 is($result->algorithm_reference, undef);
+is($result->get_statistic('querylength'), 320);
+is($result->get_statistic('effectivedblength'), 339);
+is($result->get_statistic('effectivespace'), 108480);
+is($result->get_statistic('effectivespaceused'), 108480);
 $hit = $result->next_hit;
 is($hit->name, 'ALEU_HORVU');
 is($hit->length, 362);
@@ -1238,6 +1271,10 @@ is($result->query_name, '');
 is($result->algorithm, 'BLASTN');
 is($result->algorithm_reference, undef);
 is($result->query_length, 180);
+is($result->get_statistic('querylength'), 174);
+is($result->get_statistic('effectivedblength'), 173);
+is($result->get_statistic('effectivespace'), 30102);
+is($result->get_statistic('effectivespaceused'), 30102);
 $hit = $result->next_hit;
 is($hit->length, 179);
 is($hit->name, 'human');
@@ -1265,6 +1302,10 @@ is($result->query_name, '');
 is($result->query_length, 180);
 is($result->algorithm, 'BLASTN');
 is($result->algorithm_reference, undef);
+is($result->get_statistic('querylength'), 174);
+is($result->get_statistic('effectivedblength'), 173);
+is($result->get_statistic('effectivespace'), 30102);
+is($result->get_statistic('effectivespaceused'), 30102);
 $hit = $result->next_hit;
 is($hit->name, 'human');
 is($hit->length, 179);
@@ -1292,6 +1333,10 @@ is($result->query_name, 'zinc');
 is($result->algorithm, 'BLASTP');
 is($result->query_description, 'finger protein 135 (clone pHZ-17) [Homo sapiens]. neo_id RS.ctg14243-000000.6.0');
 is($result->query_length, 469);
+is($result->get_statistic('querylength'), 446);
+is($result->get_statistic('effectivedblength'), 446);
+is($result->get_statistic('effectivespace'), 198916);
+is($result->get_statistic('effectivespaceused'), 198916);
 $hit = $result->next_hit;
 is($hit->name, 'gi|4507985|');
 is($hit->ncbi_gi, 4507985);
@@ -1326,6 +1371,10 @@ is($result->query_description, 'Escherichia coli K-12 MG1655 section 1 of 400 of
 is($result->algorithm, 'BLASTX');
 is($result->algorithm_reference, undef);
 is($result->query_length, 720);
+is($result->get_statistic('querylength'), undef);
+is($result->get_statistic('effectivedblength'), 787);
+is($result->get_statistic('effectivespace'), undef);
+is($result->get_statistic('effectivespaceused'), 162122);
 $hit = $result->next_hit;
 is($hit->name, 'AK1H_ECOLI');
 is($hit->description,'P00561 Bifunctional aspartokinase/homoserine dehydrogenase I (AKI-HDI) [Includes: Aspartokinase I ; Homoserine dehydrogenase I ]');
@@ -1357,6 +1406,10 @@ is($result->algorithm, 'TBLASTX');
 is($result->algorithm_reference, undef);
 is($result->query_description, 'coli K-12 MG1655 section 1 of 400 of the complete genome');
 is($result->query_length, 720);
+is($result->get_statistic('querylength'), undef);
+is($result->get_statistic('effectivedblength'), 221);
+is($result->get_statistic('effectivespace'), undef);
+is($result->get_statistic('effectivespaceused'), 48620);
 $hit = $result->next_hit;
 is($hit->name, 'gi|1786181|gb|AE000111.1|AE000111');
 is($hit->ncbi_gi, 1786181);
@@ -1390,6 +1443,10 @@ Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
 "Gapped BLAST and PSI-BLAST: a new generation of protein database search
 programs",  Nucleic Acids Res. 25:3389-3402.
 ');
+is($result->get_statistic('querylength'), 102);
+is($result->get_statistic('effectivedblength'), 4342);
+is($result->get_statistic('effectivespace'), 442884);
+is($result->get_statistic('effectivespaceused'), 442884);
 $hit = $result->next_hit;
 is($hit->name,'gi|10040111|emb|AL390796.6|AL390796');
 
@@ -1503,7 +1560,10 @@ is($result->get_statistic('entropy_gapped'), '1.31');
 is($result->get_statistic('dbletters'), '-509663586');
 is($result->get_statistic('dbentries'), 3742891);
 is($result->get_statistic('effective_hsplength'), undef);
-is($result->get_statistic('effectivespace'), undef);
+is($result->get_statistic('effectivespace'), 8935230198384);
+is($result->get_statistic('querylength'), 536);
+is($result->get_statistic('effectivedblength'), 16670205594);
+is($result->get_statistic('effectivespaceused'), 8891094027712);
 is($result->get_parameter('matrix'), 'blastn matrix:1 -3');
 is($result->get_parameter('gapopen'), 5);
 is($result->get_parameter('gapext'), 2);
@@ -1592,6 +1652,10 @@ $searchio = Bio::SearchIO->new(-format => 'blast',
                                -verbose => -1,
 							  -file   => test_input_file('bug2246.blast'));
 $result = $searchio->next_result;
+is($result->get_statistic('querylength'), 68);
+is($result->get_statistic('effectivedblength'), 1045382588);
+is($result->get_statistic('effectivespace'), 71086015984);
+is($result->get_statistic('effectivespaceused'), 71086015984);
 $hit = $result->next_hit;
 is $hit->name, 'UniRef50_Q9X0H5';
 is $hit->length, 0;
@@ -1605,6 +1669,10 @@ $searchio = Bio::SearchIO->new(-format => 'blast',
                                -verbose => -1,
 							  -file   => test_input_file('bug1986.blastp'));
 $result = $searchio->next_result;
+is($result->get_statistic('querylength'), 335);
+is($result->get_statistic('effectivedblength'), 18683311);
+is($result->get_statistic('effectivespace'), 6258909185);
+is($result->get_statistic('effectivespaceused'), 6258909185);
 $hit = $result->next_hit;
 is $hit->name, 'ENSP00000350182';
 is $hit->length, 425;
@@ -1680,6 +1748,10 @@ $result = $searchio->next_result;
 is($result->query_name, 'c6_COX;c6_QBL;6|31508172;31503325;31478402|rs36223351|1|dbSNP|C/G');
 is($result->query_description, '');
 is($result->algorithm, 'MEGABLAST');
+is($result->get_statistic('querylength'), 85);
+is($result->get_statistic('effectivedblength'), 59358266);
+is($result->get_statistic('effectivespace'), 5045452610);
+is($result->get_statistic('effectivespaceused'), 5045452610);
 
 # bug 2399 - catching Expect(n) values
 
@@ -1709,6 +1781,10 @@ $searchio = Bio::SearchIO->new(-format => 'blast',
 
 my $total_hsps = 0;
 while(my $query = $searchio->next_result) {
+	is($query->get_statistic('querylength'), undef);
+	is($query->get_statistic('effectivedblength'), undef);
+	is($query->get_statistic('effectivespace'), undef);
+	is($query->get_statistic('effectivespaceused'), 55770);
     while(my $subject = $query->next_hit) {
         while (my $hsp = $subject->next_hsp) {
             $total_hsps++;

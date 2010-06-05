@@ -1,18 +1,15 @@
 #!usr/bin/perl -w
 use strict;
- 
-BEGIN
-{     
-  use lib 't/lib';
 
-#  use BioperlTest;
-  use Test::More tests=>41;
+use Bio::Root::Test;
+test_begin( -tests => 41,
+            -requires_modules => [qw(GD)]); 
 
 #Check if module and all its methods can be loaded
 use_ok('Bio::Align::Graphics');
 require_ok('Bio::Align::Graphics');
 can_ok('Bio::Align::Graphics', qw(new draw height width aln_length aln_format no_sequences));
-}      
+    
  
 #Get an alignment file
 my $file = Bio::Root::IO->catfile("t","data","pep-266.aln");

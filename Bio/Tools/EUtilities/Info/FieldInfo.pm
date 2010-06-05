@@ -153,10 +153,10 @@ sub new {
     return $self;
 }
 
-=head2 term_count
+=head2 get_term_count
 
- Title    : term_count
- Usage    : my $ct = $field->term_count;
+ Title    : get_term_count
+ Usage    : my $ct = $field->get_term_count;
  Function : returns number of terms for field 
  Returns  : integer
  Args     : none
