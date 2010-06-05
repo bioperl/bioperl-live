@@ -493,7 +493,7 @@ sub next_contig {
         # Pad consensus sequence
         my $cons_seq = $contigOBJ->get_consensus_sequence;
         my $cons_string = $cons_seq->seq;
-        my $l_pad_len = abs($min_start) - 1;
+        my $l_pad_len = abs($min_start) + 1;
         my $r_pad_len = $max_end - length($cons_string) - $l_pad_len;
         $cons_string = $pad_char x $l_pad_len . $cons_string . $pad_char x $r_pad_len;
         $cons_seq = Bio::LocatableSeq->new(

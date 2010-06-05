@@ -310,7 +310,7 @@ sub assembly_core {
     $assembly = $aio->next_assembly();
     @contigs = $assembly->all_contigs();
     # All read positions should be >0
-    my $contig = @contigs[0];
+    my $contig = $contigs[0];
     my $min_aln_coord = undef;
     for my $read ($contig->each_seq) {
        my $aln_coord_start  = (grep
@@ -323,8 +323,8 @@ sub assembly_core {
     }
     is ($min_aln_coord, 1, '454 ACE variant coordinates check'); 
     # The ends of the consensus should be padded
-    my $left_pad_length  = 27;
-    my $right_pad_length = 112;
+    my $left_pad_length  = 29;
+    my $right_pad_length = 110;
     my $cons_seq  = $contig->get_consensus_sequence->seq;
     is( length $cons_seq, 342 );
     $cons_seq =~ m/^(-*).*?(-*)$/;
@@ -420,7 +420,7 @@ sub assembly_core {
     is_deeply([sort $scaf_in->get_contig_ids],     \@contigids   );
     is_deeply([sort $scaf_in->get_singlet_ids],    \@singletids  );
     isa_ok($scaf_in->get_seq_by_id('sdsu|SDSU1_RFPERU_001_A09.x01.phd.1'),'Bio::LocatableSeq');
-    my $contig = $scaf_in->get_contig_by_id('106');
+    $contig = $scaf_in->get_contig_by_id('106');
     isa_ok($contig,'Bio::Assembly::Contig');
     
     # check Contig object SeqFeature::Collection
