@@ -518,9 +518,8 @@ sub trunc{
            -throw
                throw exception if not complete, default is 0
            -orf
-               find first ORF, default 0
-           -longest_orf
-               find longest ORF, default 0, conflicts with -orf
+               if 'longest', find longest ORF.  other true value, find
+               first ORF.  default 0
            -codontable
                L<Bio::Tools::CodonTable> object to use for translation
            -start
@@ -564,12 +563,12 @@ where each argument is an element in an array:
 sub translate {
 	 my ($self,@args) = @_;
 	 my ($terminator, $unknown, $frame, $codonTableId, $complete, $throw,
-             $codonTable, $orf, $longest_orf, $start_codon, $offset);
+             $codonTable, $orf, $start_codon, $offset);
 
 	 ## new API with named parameters, post 1.5.1
 	 if ($args[0] && $args[0] =~ /^-[A-Z]+/i) {
 		 ($terminator, $unknown, $frame, $codonTableId, $complete, $throw,
-		  $codonTable, $orf, $longest_orf, $start_codon, $offset) =
+		  $codonTable, $orf, $start_codon, $offset) =
 			 $self->_rearrange([qw(TERMINATOR
                                                UNKNOWN
                                                FRAME
@@ -578,7 +577,6 @@ sub translate {
                                                THROW
                                                CODONTABLE
                                                ORF
-                                               LONGEST_ORF
                                                START
                                                OFFSET)], @args);
 	 ## old API, 1.5.1 and preceding versions
@@ -623,8 +621,8 @@ sub translate {
 	 }
 
          ## ignore frame if an ORF is supposed to be found
-	 if ( $orf || $longest_orf ) {
-            my ($orf_region) = $self->_find_orfs_nucleotide( $seq, $codonTable, $start_codon, $orf && 'first_only' );
+	 if ( $orf ) {
+            my ($orf_region) = $self->_find_orfs_nucleotide( $seq, $codonTable, $start_codon, $orf eq 'longest' ? 0 : 'first_only' );
             $seq = $self->_orf_sequence( $seq, $orf_region );
 	 } else {
 	 ## use frame, error if frame is not 0, 1 or 2
