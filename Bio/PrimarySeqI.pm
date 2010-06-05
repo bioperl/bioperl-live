@@ -505,17 +505,29 @@ sub trunc{
            warning if the first codon is not a valid initiator.
 
  Returns : A Bio::PrimarySeqI implementing object
- Args    : -terminator    - character for terminator        default is *
-           -unknown       - character for unknown           default is X
-           -frame         - frame                           default is 0
-           -codontable_id - codon table id                  default is 1
-           -complete      - complete CDS expected           default is 0
-           -throw         - throw exception if not complete default is 0
-           -longest_orf   - find longest ORF                default is 0
-           -orf           - find first ORF                  default is 0
-           -start         - alternative initiation codon
-           -codontable    - Bio::Tools::CodonTable object
-	   -offset        - offset for fuzzy locations      default is 0
+ Args    : -terminator
+               character for terminator, default '*'
+           -unknown
+               character for unknown, default 'X'
+           -frame
+               frame shift (in bases), default 0
+           -codontable_id
+               codon table id, default 1
+           -complete
+               if true, complete CDS is expected. default 0
+           -throw
+               throw exception if not complete, default is 0
+           -orf
+               find first ORF, default 0
+           -longest_orf
+               find longest ORF, default 0, conflicts with -orf
+           -codontable
+               L<Bio::Tools::CodonTable> object to use for translation
+           -start
+               force a single initiation codon.  If unset, start
+               codons are determined by the CodonTable.
+	   -offset
+               offset for fuzzy locations, default 0
 
  Notes   : The -start argument only applies when -orf is set to 1. By default
            all initiation codons found in the given codon table are used
