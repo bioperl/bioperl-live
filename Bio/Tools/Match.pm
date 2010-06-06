@@ -37,7 +37,7 @@ Bio::Tools::Match - Parses output from Transfac's match(TM)
 This module is used to parse the output from Transfac's match(TM) program. It
 doesn't support the histogram output of match.
 
-Each result is a Bio::SeqFeature::Annotated representing a single matrix match.
+Each result is a Bio::SeqFeature::Generic representing a single matrix match.
 
 =head1 FEEDBACK
 
@@ -85,7 +85,7 @@ Internal methods are usually preceded with a _
 package Bio::Tools::Match;
 use strict;
 
-use Bio::SeqFeature::Annotated;
+use Bio::SeqFeature::Generic;
 use Bio::Annotation::SimpleValue;
 
 use base qw(Bio::Root::Root Bio::Root::IO);
@@ -116,7 +116,7 @@ sub new {
  Usage   : $result = $obj->next_result();
  Function: Returns the next result available from the input, or undef if there
            are no more results.
- Returns : Bio::SeqFeature::Annotated object. Features are annotated with tags
+ Returns : Bio::SeqFeature::Generic object. Features are annotated with tags
            for 'matrix_score', 'matrix_id' and a 'predicted' tag.
  Args    : none
 
@@ -164,7 +164,7 @@ sub next_result {
     # Frequency of sites per nucleotide=32.347243
     
     my ($matrix_id, $start, $strand, $core_score, $matrix_score, $seq) = $line =~ /^\s(\S+)\s+\|\s+(\d+)\s+\(([+-])\)\s+\|\s+(\S+)\s+\|\s+(\S+)\s+\|\s+(\S+)/;
-    my $feat = Bio::SeqFeature::Annotated->new(
+    my $feat = Bio::SeqFeature::Generic->new(
         -seq_id => $self->{found_seq_id},
         -start  => $start, 
         -end    => $start + length($seq) - 1,

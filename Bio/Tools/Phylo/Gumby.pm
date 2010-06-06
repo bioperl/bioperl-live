@@ -81,7 +81,7 @@ Internal methods are usually preceded with a _
 package Bio::Tools::Phylo::Gumby;
 use strict;
 
-use Bio::SeqFeature::Annotated;
+use Bio::SeqFeature::Generic;
 use Bio::Annotation::SimpleValue;
 
 use base qw(Bio::Root::Root Bio::Root::IO);
@@ -113,7 +113,7 @@ sub new {
  Usage   : $result = $obj->next_result();
  Function: Returns the next set of results available from the input, or undef if
            there are no more results.
- Returns : list of Bio::SeqFeature::Annotated (one per sequence). Features are
+ Returns : list of Bio::SeqFeature::Generic (one per sequence). Features are
            annotated with tags for pvalue and 'kind' (holding 'all', 'exon', or
            'nonexon').
 
@@ -146,7 +146,7 @@ sub next_result {
         $line || last;
         my ($seq_id, $start, $end) = split(/\s+/, $line);
         
-        my $feature = Bio::SeqFeature::Annotated->new(-seq_id => $seq_id,
+        my $feature = Bio::SeqFeature::Generic->new(-seq_id => $seq_id,
                                                       -start  => $start,
                                                       -end    => $end,
                                                       -score  => $score,

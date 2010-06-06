@@ -39,7 +39,7 @@ http://mendel.stanford.edu/sidowlab/
 
 It works on the .elems files produced by gerpelem.
 
-Each result is a Bio::SeqFeature::Annotated representing a single constrained
+Each result is a Bio::SeqFeature::Generic representing a single constrained
 element.
 
 =head1 FEEDBACK
@@ -88,7 +88,7 @@ Internal methods are usually preceded with a _
 package Bio::Tools::Phylo::Gerp;
 use strict;
 
-use Bio::SeqFeature::Annotated;
+use Bio::SeqFeature::Generic;
 use Bio::Annotation::SimpleValue;
 
 use base qw(Bio::Root::Root Bio::Root::IO);
@@ -119,7 +119,7 @@ sub new {
  Usage   : $result = $obj->next_result();
  Function: Returns the next result available from the input, or undef if there
            are no more results.
- Returns : Bio::SeqFeature::Annotated object. Features are annotated with a tag
+ Returns : Bio::SeqFeature::Generic object. Features are annotated with a tag
            for 'pvalue', and a 'predicted' tag. They have no sequence id unless
            the input GERP file is non-standard, with the seq id as the 6th
            column.
@@ -143,7 +143,7 @@ sub next_result {
     # code elsewhere adds seq_id on the end (not valid GERP), so we capture that
     # if present
     my ($start, $end, undef, $rs_score, $p_value, $seq_id) = split(/\s+/, $line);
-    my $feat = Bio::SeqFeature::Annotated->new(
+    my $feat = Bio::SeqFeature::Generic->new(
         $seq_id ? (-seq_id => $seq_id) : (),
         -start        => $start, 
         -end          => $end,
