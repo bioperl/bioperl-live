@@ -516,7 +516,6 @@ sub next_contig {
             $contigOBJ->set_consensus_quality($cons_qual);
         }
     }
-
     return $contigOBJ;
 }
 
@@ -992,20 +991,24 @@ sub _formatted_seq {
 sub _formatted_qual {
     my ($qual_arr, $seq, $line_width, $qual_default) = @_;
     my $qual_str = '';
-    # Default quality     
-    if (not defined $qual_arr) {
-      @$qual_arr = map( $qual_default, (1 .. length $seq) );
+    my @qual_arr;
+    if (defined $qual_arr) {
+      # Copy array
+      @qual_arr = @$qual_arr;
+    } else {
+      # Default quality
+      @qual_arr = map( $qual_default, (1 .. length $seq) );     
     }
     # Gaps get no quality score in ACE format
     my $gap_pos = -1;
     while ( $gap_pos = index($seq, '-', $gap_pos + 1) ) {
         last if $gap_pos == -1;
         substr $seq, $gap_pos, 1, '';
-        splice @$qual_arr, $gap_pos, 1;
+        splice @qual_arr, $gap_pos, 1;
         $gap_pos--;
     }
     # Split quality scores on several lines
-    while ( my @chunks = splice @$qual_arr, 0, $line_width ) {
+    while ( my @chunks = splice @qual_arr, 0, $line_width ) {
         $qual_str .= "@chunks\n";
     }
     return $qual_str;
