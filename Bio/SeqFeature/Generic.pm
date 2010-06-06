@@ -463,6 +463,8 @@ sub source_tag {
     return $self->{'_source_tag'};
 }
 
+*source = \&source_tag;
+
 =head2 has_tag
 
  Title   : has_tag
