@@ -272,9 +272,9 @@ sub next_contig {
         # Loading contig qualities... (Base Quality field)
         elsif (/^BQ/) {
             my $consensus = $contigOBJ->get_consensus_sequence()->seq();
-            my ($i,$j,@tmp);
+            my ($i,@tmp);
             my @quality = ();
-            $j = 0;
+            my $j = 0;
             while ($_ = $self->_readline) {
                 chomp;
                 last if (/^$/);
@@ -283,7 +283,7 @@ sub next_contig {
                 my $previous = 0;
                 my $next     = 0;
                 while ($i<=$#tmp) {
-                    # IF base is a gap, quality is the average for neighbouring sites
+                    # If base is a gap, quality is the average for neighbouring sites
                     if (substr($consensus,$j,1) eq '-') {
                         $previous = $tmp[$i-1] unless ($i == 0);
                         if ($i < $#tmp) {
@@ -1001,7 +1001,8 @@ sub _formatted_qual {
     }
     # Gaps get no quality score in ACE format
     my $gap_pos = -1;
-    while ( $gap_pos = index($seq, '-', $gap_pos + 1) ) {
+    while ( 1 ) {
+        $gap_pos = index($seq, '-', $gap_pos + 1);
         last if $gap_pos == -1;
         substr $seq, $gap_pos, 1, '';
         splice @qual_arr, $gap_pos, 1;
