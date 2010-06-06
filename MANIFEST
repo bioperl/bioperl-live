@@ -601,7 +601,6 @@ Bio/SeqAnalysisParserI.pm
 Bio/SeqEvolution/DNAPoint.pm
 Bio/SeqEvolution/EvolutionI.pm
 Bio/SeqEvolution/Factory.pm
-Bio/SeqFeature/Annotated.pm
 Bio/SeqFeature/AnnotationAdaptor.pm
 Bio/SeqFeature/Collection.pm
 Bio/SeqFeature/CollectionI.pm
@@ -1098,10 +1097,10 @@ scripts/utilities/seq_length.PLS
 scripts/utilities/TAG
 t/Align/AlignStats.t
 t/Align/AlignUtil.t
+t/Align/Graphics.t
 t/Align/SimpleAlign.t
 t/Align/TreeBuild.t
 t/Align/Utilities.t
-t/Align/Graphics.t
 t/AlignIO/AlignIO.t
 t/AlignIO/arp.t
 t/AlignIO/bl2seq.t
@@ -1240,6 +1239,7 @@ t/data/bug2942.blastx
 t/data/bug2982.embl
 t/data/bug2982.gb
 t/data/bug3021.gmap
+t/data/bug3086.embl
 t/data/c200-vs-yeast.BLASTN
 t/data/c200-vs-yeast.BLASTN.m8
 t/data/calm.swiss
@@ -2015,7 +2015,6 @@ t/SeqFeature/Primer.t
 t/SeqFeature/Range.t
 t/SeqFeature/RangeI.t
 t/SeqFeature/SeqAnalysisParser.t
-t/SeqFeature/SeqFeatAnnotated.t
 t/SeqFeature/SeqFeatCollection.t
 t/SeqFeature/SeqFeature.t
 t/SeqFeature/SeqFeaturePrimer.t
