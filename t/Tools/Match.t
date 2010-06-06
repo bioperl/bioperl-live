@@ -26,8 +26,8 @@ while (my $feat = $parser->next_result) {
     my @exp = @{shift(@expected)};
     
     # API for source/source_tag isn't consistent, so converging upon simple
-    # value per the eventual deprecation of Bio::SF::Annotated - cjfields
-    # 6-5-2010.  Just checking for the interface.
+    # value per the eventual deprecation of Bio::SF::Annotated. Just checking
+    # for the interface. - cjfields 6-5-2010. 
     
     isa_ok $feat, 'Bio::SeqFeatureI';
     
