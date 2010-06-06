@@ -25,8 +25,13 @@ while (my $feat = $parser->next_result) {
     $count++;
     my @exp = @{shift(@expected)};
     
-    isa_ok $feat, 'Bio::SeqFeature::Annotated';
-    is $feat->source->value, 'transfac_match', 'correct source';
+    # API for source/source_tag isn't consistent, so converging upon simple
+    # value per the eventual deprecation of Bio::SF::Annotated - cjfields
+    # 6-5-2010.  Just checking for the interface.
+    
+    isa_ok $feat, 'Bio::SeqFeatureI';
+    
+    is $feat->source, 'transfac_match', 'correct source';
     is $feat->start, shift(@exp), 'feature start correct';
     is $feat->end, shift(@exp), 'feature end correct';
     
