@@ -176,8 +176,18 @@ sub next_aln {
 	@names,$seqname,$start,$end,$count,$seq);
 
     my $aln =  Bio::SimpleAlign->new(-source => 'phylip');
-    $entry = $self->_readline and
-        ($seqcount, $residuecount) = $entry =~ /\s*(\d+)\s+(\d+)/;
+
+    # skip blank lines until we see header line
+    # if we see a non-blank line that isn't the seqcount and residuecount line
+    # then bail out of next_aln (return)
+    HEADER: while ($entry = $self->_readline) {
+        next if $entry =~ /^\s?$/; 
+        if ($entry =~ /\s*(\d+)\s+(\d+)/) {
+            ($seqcount, $residuecount) = ($1, $2);
+
+        }
+        last HEADER;
+    }
     return unless $seqcount and $residuecount;
 
     # first alignment section
@@ -188,6 +198,7 @@ sub next_aln {
     while( $entry = $self->_readline) {
 	last if( $entry =~ /^\s?$/ && $interleaved );
 
+    # we've hit the next entry.
 	if( $entry =~ /^\s+(\d+)\s+(\d+)\s*$/) {
 	    $self->_pushback($entry);
 	    last;

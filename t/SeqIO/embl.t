@@ -8,7 +8,7 @@ BEGIN {
 	use lib '../..';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 83);
+	test_begin(-tests => 85);
 	
     use_ok('Bio::SeqIO::embl');
 }
@@ -202,3 +202,18 @@ for ($i=0; my $seq = $embl->next_seq; $i++) {
 }
 is $i, 4;
 
+
+# bug 3086 - parsing long lines correctly
+
+ok( $embl = Bio::SeqIO->new(-file => test_input_file('bug3086.embl'),
+                            -format => 'embl',
+                            -verbose => '$verbose') );
+$seq = $embl->next_seq;
+foreach my $feature ($seq->top_SeqFeatures) {
+    if ($feature->has_tag('product')) {
+        my ($product) = $feature->get_tag_values('product');
+        is($product,
+           'bifunctional phosphoribosylaminoimidazolecarboxamide formyltransferase/IMP cyclohydrolase',
+           'Check if product was parsed correctly');
+    }
+}

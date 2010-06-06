@@ -43,7 +43,7 @@ Bio::Assembly::IO::ace - module to load ACE files from various assembly programs
     # or ...
     my $in_io = Bio::Assembly::IO->new( -file    => 'results.ace',
                                         -format  => 'ace',
-                                        -variant => 'solexa'      );
+                                        -variant => '454'      );
 
 =head1 DESCRIPTION
 
@@ -104,10 +104,10 @@ The ACE files produced by the 454 GS Assembler (Newbler) do not conform to the
 reference ACE format. In 454 ACE, the consensus sequence reported covers only
 its clear range and the start of the clear range consensus is defined as position
 1. Consequently, aligned reads in the contig can have negative positions. Be sure 
-to use the '454' variant to have positive alignment positions. The reported
-consensus sequence remains untouched, i.e. only its clear range is shown, not
-the entire consensus sequence, which is not made available by Newbler.
-
+to use the '454' variant to have positive alignment positions. No attempt is made
+to construct the missing part of the consensus sequence (beyond the clear range)
+based on the underlying reads in the contig. Instead the ends of the consensus
+are simply padded with the gap character '-'.
 
 =head1 FEEDBACK
 
@@ -312,10 +312,12 @@ sub next_contig {
 
             $ori = $ori eq 'U' ? 1 : -1;
             $read_data->{$read_name}{'strand'}  = $ori; 
-
             $read_data->{$read_name}{'padded_start'} = $start;
-            if ( (not defined $min_start) || ($min_start > $start) ) {
-                $min_start = $start;
+
+            if ( $self->variant eq '454' ) {
+                if ( (not defined $min_start) || ($start < $min_start) ) {
+                    $min_start = $start;
+                }
             }
 
         }
@@ -468,6 +470,52 @@ sub next_contig {
             $coord->add_sub_SeqFeature($read_tag);
         }
 
+    }
+
+    # Adjust consensus sequence of 454 variant by padding its start and end
+    if (($self->variant eq '454') && (defined $contigOBJ)) {
+        my $pad_char = '-';
+        my $pad_score = 0;
+        # Find maximum coordinate
+        my $max_end;
+        for my $readid ($contigOBJ->get_seq_ids) {
+            my $alncoord  = (grep
+                { $_->primary_tag eq "_aligned_coord:$readid"}
+                $contigOBJ->get_features_collection->get_all_features
+                )[0];
+            my $end = $alncoord->location->end;
+            if ( (not defined $max_end) || ($end > $max_end) ) {
+                $max_end = $end;
+            }
+        }
+        $max_end += abs($min_start) + 1;
+
+        # Pad consensus sequence
+        my $cons_seq = $contigOBJ->get_consensus_sequence;
+        my $cons_string = $cons_seq->seq;
+        my $l_pad_len = abs($min_start) - 1;
+        my $r_pad_len = $max_end - length($cons_string) - $l_pad_len;
+        $cons_string = $pad_char x $l_pad_len . $cons_string . $pad_char x $r_pad_len;
+        $cons_seq = Bio::LocatableSeq->new(
+            -seq    => $cons_string,
+            -id     => $cons_seq->id,
+            -start  => $cons_seq->start,
+            -strand => $cons_seq->strand,
+        );
+        $contigOBJ->set_consensus_sequence($cons_seq);
+        
+        # Pad consensus quality
+        my $cons_qual = $contigOBJ->get_consensus_quality;
+        if (defined $cons_qual) {
+            my $cons_score = [ ($pad_score) x $l_pad_len,
+                               @{$cons_qual->qual},
+                               ($pad_score) x $r_pad_len ];
+            $cons_qual = Bio::Seq::PrimaryQual->new(
+                -qual => join(' ', @$cons_score),
+                -id   => $cons_qual->id
+            );
+            $contigOBJ->set_consensus_quality($cons_qual);
+        }
     }
 
     return $contigOBJ;

@@ -299,6 +299,7 @@ sub next_seq {
                   my $line = $1;
                   my ($date, $version) = split(' ', $line, 2);
                   $date =~ tr/,//d; # remove comma if new version
+                  if ($version) {
                   if ($version =~ /\(Rel\. (\d+), Created\)/xms ) {
                       my $release = Bio::Annotation::SimpleValue->new(
                                                                       -tagname    => 'creation_release',
@@ -317,6 +318,7 @@ sub next_seq {
                                                                      -value      => $2
                                                                     );
                       $annotation->add_Annotation($update);
+                  }
                   }
                   push @{$params{'-dates'}}, $date;
               }
@@ -1352,8 +1354,13 @@ sub _read_FTHelper_EMBL {
                         last QUOTES;
                     }
 
-                    # Join to value with space if value or next line contains a space
-                    $value .= (grep /\s/, ($value, $next)) ? " $next" : $next;
+                    # Protein sequence translations need to be joined without spaces,
+                    # other qualifiers need those.
+                    if ($qualifier eq "translation") {
+                        $value .= $next;
+                    } else {
+                        $value .= " $next";
+                    }
                 }
                 # Trim leading and trailing quotes
                 $value =~ s/^"|"$//g;

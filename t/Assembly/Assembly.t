@@ -18,7 +18,7 @@ BEGIN {
     # main tests now with the parser
 
     %ASSEMBLY_TESTS = (
-        'assembly_core' => {tests       => 874,
+        'assembly_core' => {tests       => 880,
                             test_sub    => \&assembly_core},
         'sam'           => {tests       => 459,
                             test_sub    => \&sam},
@@ -309,20 +309,36 @@ sub assembly_core {
     );
     $assembly = $aio->next_assembly();
     @contigs = $assembly->all_contigs();
-    for my $contig (@contigs) {
-       my $min_aln_coord = undef;
-       for my $read ($contig->each_seq) {
-          my $aln_coord_start  = (grep
-             { $_->primary_tag eq "_aligned_coord:".$read->id}
-             $contig->get_features_collection->get_all_features
-             )[0]->location->start;
-          if ( (not defined $min_aln_coord) or ($aln_coord_start < $min_aln_coord) ) {
-             $min_aln_coord = $aln_coord_start;
-          }
+    # All read positions should be >0
+    my $contig = @contigs[0];
+    my $min_aln_coord = undef;
+    for my $read ($contig->each_seq) {
+       my $aln_coord_start  = (grep
+          { $_->primary_tag eq "_aligned_coord:".$read->id}
+          $contig->get_features_collection->get_all_features
+          )[0]->location->start;
+       if ( (not defined $min_aln_coord) or ($aln_coord_start < $min_aln_coord) ) {
+          $min_aln_coord = $aln_coord_start;
        }
-       is ($min_aln_coord, 1, 'aligned read coordinates start at 1'); 
     }
-
+    is ($min_aln_coord, 1, '454 ACE variant coordinates check'); 
+    # The ends of the consensus should be padded
+    my $left_pad_length  = 27;
+    my $right_pad_length = 112;
+    my $cons_seq  = $contig->get_consensus_sequence->seq;
+    is( length $cons_seq, 342 );
+    $cons_seq =~ m/^(-*).*?(-*)$/;
+    is( length $1, $left_pad_length, '454 ACE variant consensus check' );
+    is( length $2, $right_pad_length );
+    my $cons_qual = $contig->get_consensus_quality->qual;
+    is( scalar @$cons_qual, 342 );
+    $cons_qual = join ' ', @{$contig->get_consensus_quality->qual};
+    my $lpad = $left_pad_length x '0 ';
+    my $rpad = $right_pad_length x '0 ';
+    $cons_qual =~ m/^($lpad).*($rpad)$/;
+    ok( defined $1 );
+    ok( defined $2 );
+            
     # Writing ACE files
     my $asm_infile  = '27-contig_Newbler.ace';
     my $asm_outfile = test_output_file().'.ace';
