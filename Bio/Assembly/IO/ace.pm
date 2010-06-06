@@ -271,35 +271,52 @@ sub next_contig {
 
         # Loading contig qualities... (Base Quality field)
         elsif (/^BQ/) {
-            my $consensus = $contigOBJ->get_consensus_sequence()->seq();
-            my ($i,@tmp);
-            my @quality = ();
-            my $j = 0;
+            my $qual_string = '';
             while ($_ = $self->_readline) {
                 chomp;
                 last if (/^$/);
-                @tmp = grep { /^\d+$/ } split(/\s+/);
-                $i = 0;
-                my $previous = 0;
-                my $next     = 0;
-                while ($i<=$#tmp) {
-                    # If base is a gap, quality is the average for neighbouring sites
-                    if (substr($consensus,$j,1) eq '-') {
-                        $previous = $tmp[$i-1] unless ($i == 0);
-                        if ($i < $#tmp) {
-                            $next = $tmp[$i+1];
-                        } else {
-                            $next = 0;
-                        }
-                        push(@quality,int(($previous+$next)/2));
-                    } else {
-                        push(@quality,$tmp[$i]);
-                        $i++;
-                    }
-                    $j++;
-                }
+                $qual_string .= "$_ ";
             }
-            my $qual = Bio::Seq::PrimaryQual->new(-qual => join(" ", @quality),
+            my @qual_arr = $self->_input_qual($qual_string, $contigOBJ->get_consensus_sequence->seq);
+
+            ####
+            #my ($i,@tmp);
+            #my @quality = ();
+            #my $j = 0;
+            #while ($_ = $self->_readline) {
+            #    chomp;
+            #    last if (/^$/);
+            #    @tmp = grep { /^\d+$/ } split(/\s+/);
+            #    $i = 0;
+            #    my $previous = 0;
+            #    my $next     = 0;
+            #    while ($i<=$#tmp) {
+            #        # If base is a gap, quality is the average for neighbouring sites
+            #        if (substr($consensus,$j,1) eq '-') {
+            #            $previous = $tmp[$i-1] unless ($i == 0);
+            #            if ($i < $#tmp) {
+            #                $next = $tmp[$i+1];
+            #            } else {
+            #                $next = 0;
+            #            }
+            #            push(@quality,int(($previous+$next)/2));
+            #        } else {
+            #            push(@quality,$tmp[$i]);
+            #            $i++;
+            #        }
+            #        $j++;
+            #    }
+            #}
+            ####
+
+            ####
+            #print "-> ".length($contigOBJ->get_consensus_sequence->seq).' | '.scalar(@qual_arr)."\n";
+            #print $contigOBJ->get_consensus_sequence->seq."\n";
+            #print join(' ',@qual_arr)."\n";
+            #print "\n";
+            ####
+
+            my $qual = Bio::Seq::PrimaryQual->new(-qual => join(" ", @qual_arr),
                                                   -id   => $contigOBJ->id()   );
             $contigOBJ->set_consensus_quality($qual);
         }
@@ -1013,6 +1030,50 @@ sub _formatted_qual {
         $qual_str .= "@chunks\n";
     }
     return $qual_str;
+}
+
+
+=head2 _input_qual
+
+    Title   : _input_qual
+    Usage   : Bio::Assembly::IO::ace::_input_qual($qual_string, $sequence)
+    Function: Reads input quality string and converts it to an array of quality
+              scores. Gaps get a quality score equals to the average of the
+              quality score of its neighbours.
+    Returns : new quality score array
+    Args    : quality score string
+              corresponding sequence string
+
+=cut
+
+sub _input_qual {
+    my ($self, $qual_string, $sequence) = @_;
+    my $i = 0; # position in quality 
+    my $j = 0; # position in sequence
+    my @qual_arr = ();
+    my @tmp = split(/\s+/, $qual_string);
+    my $prev = 0;
+    my $next = 0;
+    for $j (0 .. length($sequence)-1) {
+        my $nt = substr($sequence, $j, 1);
+        if ($nt eq '-') {
+            if ($i > 0) {
+                $prev = $tmp[$i-1];
+            } else {
+                $prev = 0;
+            }
+            if ($i < $#tmp) {
+                $next = $tmp[$i];
+            } else {
+                $next = 0;
+            }
+            push @qual_arr, int(($prev+$next)/2);
+        } else {
+            push @qual_arr, $tmp[$i];
+            $i++;
+        }
+    }
+    return @qual_arr;
 }
 
 
