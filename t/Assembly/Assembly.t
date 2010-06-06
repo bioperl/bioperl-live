@@ -324,14 +324,16 @@ sub assembly_core {
     is ($min_aln_coord, 1, '454 ACE variant coordinates check'); 
     # The ends of the consensus should be padded
     my $left_pad_length  = 29;
-    my $right_pad_length = 110;
+    my $sequence_length  = 203;
+    my $right_pad_length = 81;
+    my $consensus_length = $left_pad_length + $sequence_length + $right_pad_length;
     my $cons_seq  = $contig->get_consensus_sequence->seq;
-    is( length $cons_seq, 342 );
+    is( length $cons_seq, $consensus_length );
     $cons_seq =~ m/^(-*).*?(-*)$/;
     is( length $1, $left_pad_length, '454 ACE variant consensus check' );
     is( length $2, $right_pad_length );
     my $cons_qual = $contig->get_consensus_quality->qual;
-    is( scalar @$cons_qual, 342 );
+    is( scalar @$cons_qual, $consensus_length );
     $cons_qual = join ' ', @{$contig->get_consensus_quality->qual};
     my $lpad = $left_pad_length x '0 ';
     my $rpad = $right_pad_length x '0 ';

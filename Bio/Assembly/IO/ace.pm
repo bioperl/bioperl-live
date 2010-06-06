@@ -488,7 +488,6 @@ sub next_contig {
                 $max_end = $end;
             }
         }
-        $max_end += abs($min_start) + 1;
 
         # Pad consensus sequence
         my $cons_seq = $contigOBJ->get_consensus_sequence;
