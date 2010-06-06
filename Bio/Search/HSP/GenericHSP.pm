@@ -306,6 +306,7 @@ sub evalue {
                              synonyms: 'hsp'
                    default = 'total'
            arg 2: [optional] frac identical value to set for the type requested
+ Note    : for translated sequences, this adjusts the length accordingly
 
 =cut
 
@@ -1069,19 +1070,11 @@ sub _calculate_seq_positions {
     }
 
     $self->{seqinds}{'_warnRes'} = '';
-    ($self->{_sbjct_offset}, $self->{_query_offset}) = (1,1);
-    if($prog =~ /^(?:PSI)?T(BLAST|FAST)(N|X|Y)/oi ) {
-        $self->{_sbjct_offset} = 3;
-        if ($1 eq 'BLAST' && $2 eq 'X') { #TBLASTX
-            $self->{_query_offset} = 3;
-            $self->{seqinds}{'_warnRes'} = 'query/subject';
-        } else {
-            $self->{seqinds}{'_warnRes'} = 'subject';
-        }
-    } elsif($prog =~ /^(BLAST|FAST)(X|Y|XY)/oi  ) {
-        $self->{_query_offset} = 3;
-        $self->{seqinds}{'_warnRes'} = 'query';
+    
+    if (!defined($self->{_sbjct_offset}) || !defined($self->{_query_offset})) {
+        $self->_calculate_seq_offsets();
     }
+    
     my ($qfs, $sfs) = (0,0);
     CHAR_LOOP:
     for my $pos (0..CORE::length($seqString)-1) {
@@ -1180,6 +1173,24 @@ sub _calculate_seq_positions {
         $resCount_sbjct += ($sdir * (scalar(@srange) + $sfs)) if !$sgap;
     }
     return 1;
+}
+
+sub _calculate_seq_offsets {
+    my $self = shift;
+    my $prog = $self->algorithm;
+    ($self->{_sbjct_offset}, $self->{_query_offset}) = (1,1);
+    if($prog =~ /^(?:PSI)?T(BLAST|FAST)(N|X|Y)/oi ) {
+        $self->{_sbjct_offset} = 3;
+        if ($1 eq 'BLAST' && $2 eq 'X') { #TBLASTX
+            $self->{_query_offset} = 3;
+            $self->{seqinds}{'_warnRes'} = 'query/subject';
+        } else {
+            $self->{seqinds}{'_warnRes'} = 'subject';
+        }
+    } elsif($prog =~ /^(BLAST|FAST)(X|Y|XY)/oi  ) {
+        $self->{_query_offset} = 3;
+        $self->{seqinds}{'_warnRes'} = 'query';
+    }
 }
 
 =head2 n
@@ -1618,6 +1629,11 @@ sub _pre_similar_stats {
 
 sub _pre_frac {
     my $self = shift;
+    if (!defined($self->{_sbjct_offset}) || !defined($self->{_query_offset})) {
+        $self->_calculate_seq_offsets();
+    }
+    
+    #my ($hit_offset, $query_offset) = @{$self}{qw(_sbjct_offset _query_offset)};
     my $hsp_len = $self->{HSP_LENGTH};
     my $hit_len = $self->{HIT_LENGTH};
     my $query_len = $self->{QUERY_LENGTH};
