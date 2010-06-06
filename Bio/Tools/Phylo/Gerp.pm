@@ -42,6 +42,15 @@ It works on the .elems files produced by gerpelem.
 Each result is a Bio::SeqFeature::Generic representing a single constrained
 element.
 
+=head1 CHANGES
+
+Due to inconsistencies between the API for Bio::SeqFeature::Generic and
+Bio::SeqFeature::Annotated, and considering that Bio::SeqFeature::Annotated is
+soon deprecated, this class now returns Bio::SeqFeature::Generic by default. The
+tests now check for the simple Bio::SeqFeatureI interface, and source() now
+aliases to source_tag() within Bio::SeqFeature::Generic and returns a simple
+value.
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
