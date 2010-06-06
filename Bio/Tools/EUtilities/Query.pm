@@ -16,14 +16,16 @@
 
 =head1 NAME
 
-Bio::Tools::EUtilities::Query - parse and collect esearch, epost, espell, egquery
-information
+Bio::Tools::EUtilities::Query - parse and collect esearch, epost, espell,
+egquery information
 
 =head1 SYNOPSIS
 
-  #### should not create instance directly; Bio::Tools::EUtilities does this ####
+  ### should not create instance directly; Bio::Tools::EUtilities does this ###
 
-  # can also use '-response' (for HTTP::Response objects) or '-fh' (for filehandles)
+  # can also use '-response' (for HTTP::Response objects) or '-fh' (for
+  # filehandles)
+  
   my $info = Bio::Tools::EUtilities->new(-eutil => 'esearch',
                                          -file => 'esearch.xml');
 
@@ -37,7 +39,7 @@ information
 
 =head1 DESCRIPTION
 
-...
+Pluggable module for handling query-related data returned from eutils.  
 
 =head1 FEEDBACK
 

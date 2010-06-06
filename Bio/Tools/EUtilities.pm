@@ -19,89 +19,85 @@ Bio::Tools::EUtilities - NCBI eutil XML parsers
 =head1 SYNOPSIS
 
   # from file or fh
-
-    my $parser = Bio::Tools::EUtilities->new(
+  my $parser = Bio::Tools::EUtilities->new(
                                        -eutil    => 'einfo',
                                        -file     => 'output.xml'
                                         );
-
+  
   # or HTTP::Response object...
-
-    my $parser = Bio::Tools::EUtilities->new(
+  my $parser = Bio::Tools::EUtilities->new(
                                        -eutil => 'esearch',
                                        -response => $response
                                         );
-
   # esearch, esummary, elink
-
-    @ids = $parser->get_ids(); # returns array or array ref of IDs
+  @ids = $parser->get_ids(); # returns array or array ref of IDs
 
   # egquery, espell
-
-    $term = $parser->get_term(); # returns array or array ref of IDs
-
+  
+  $term = $parser->get_term(); # returns array or array ref of IDs
+  
   # elink, einfo
-
-    $db = $parser->get_database(); # returns database
-
+  
+  $db = $parser->get_database(); # returns database
+  
   # Query-related methods (esearch, egquery, espell data)
   # eutil data centered on use of search terms
+  
+  my $ct = $parser->get_count; # uses optional database for egquery count
+  my $translation = $parser->get_count;
+  
+  my $corrected = $parser->get_corrected_query; # espell
 
-    my $ct = $parser->get_count; # uses optional database for egquery count
-    my $translation = $parser->get_count;
-
-    my $corrected = $parser->get_corrected_query; # espell
-
-    while (my $gquery = $parser->next_GlobalQuery) {
-       # iterates through egquery data
-    }
-
+  while (my $gquery = $parser->next_GlobalQuery) {
+     # iterates through egquery data
+  }
+  
   # Info-related methods (einfo data)
   # database-related information
-
-    my $desc = $parser->get_description;
-    my $update = $parser->get_last_update;
-    my $nm = $parser->get_menu_name;
-    my $ct = $parser->get_record_count;
-
-    while (my $field = $parser->next_FieldInfo) {
-        # ...
-    }
-    while (my $field = $parser->next_LinkInfo) {
-        # ...
-    }
-
+  
+  my $desc = $parser->get_description;
+  my $update = $parser->get_last_update;
+  my $nm = $parser->get_menu_name;
+  my $ct = $parser->get_record_count;
+  
+  while (my $field = $parser->next_FieldInfo) {
+      # ...
+  }
+  while (my $field = $parser->next_LinkInfo) {
+      # ...
+  }
+  
   # History methods (epost data, some data returned from elink)
   # data which enables one to retrieve and query against user-stored
   # information on the NCBI server
-
-    while (my $cookie = $parser->next_History) {
-        # ...
-    }
-
-    my @hists = $parser->get_Histories;
-
+  
+  while (my $cookie = $parser->next_History) {
+      # ...
+  }
+  
+  my @hists = $parser->get_Histories;
+  
   # Bio::Tools::EUtilities::Summary (esummary data)
   # information on a specific database record
-
-    # retrieve nested docsum data
-    while (my $docsum = $parser->next_DocSum) {
-        print "ID:",$docsum->get_ids,"\n";
-        while (my $item = $docsum->next_Item) {
-            # do stuff here...
-            while (my $listitem = $docsum->next_ListItem) {
-                # do stuff here...
-                while (my $listitem = $docsum->next_Structure) {
-                    # do stuff here...
-                }
-            }
-        }
-    }
-
-    # retrieve flattened item list per DocSum
-    while (my $docsum = $parser->next_DocSum) {
-        my @items = $docsum->get_all_DocSum_Items;
-    }
+  
+  # retrieve nested docsum data
+  while (my $docsum = $parser->next_DocSum) {
+      print "ID:",$docsum->get_ids,"\n";
+      while (my $item = $docsum->next_Item) {
+          # do stuff here...
+          while (my $listitem = $docsum->next_ListItem) {
+              # do stuff here...
+              while (my $listitem = $docsum->next_Structure) {
+                  # do stuff here...
+              }
+          }
+      }
+  }
+  
+  # retrieve flattened item list per DocSum
+  while (my $docsum = $parser->next_DocSum) {
+     my @items = $docsum->get_all_DocSum_Items;
+  }
 
 =head1 DESCRIPTION
 
@@ -109,11 +105,12 @@ Parses NCBI eutils XML output for retrieving IDs and other information. Part of
 the BioPerl EUtilities system.
 
 This is a general parser for eutils XML; data from efetch is NOT parsed (this
-requires separate format-dependent parsers).  All other XML for eutils is
-parsed.  These modules can be used independently of Bio::DB::EUtilities
-and Bio::Tools::EUtilities::EUtilParameters; if used in this way, only data present in the XML
-will be parsed out (other bits are retrieved from a passed in
-Bio::Tools::EUtilities::EUtilParameters instance used while querying the database)
+requires separate format-dependent parsers). All other XML for eutils is parsed.
+These modules can be used independently of Bio::DB::EUtilities and
+Bio::Tools::EUtilities::EUtilParameters; if used in this way, only data present
+in the XML will be parsed out (other bits are retrieved from a passed-in
+Bio::Tools::EUtilities::EUtilParameters instance used while querying the
+database)
 
 =head1 TODO
 
@@ -872,7 +869,7 @@ sub get_corrected_query {
 =head2 get_replaced_terms
 
  Title    : get_replaced_terms
- Usage    : my $term = $eutil->get_replaced_term
+ Usage    : my $term = $eutil->get_replaced_terms
  Function : returns array of strings replaced in the query
  Returns  : string 
  Args     : none
