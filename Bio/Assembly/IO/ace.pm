@@ -901,8 +901,8 @@ sub _write_read {
     );
 
     # Aligned "align clipping" and quality coordinates if read object has them
-    my $qual_clip_start = $read->start;
-    my $qual_clip_end   = $read->end;
+    my $qual_clip_start = 1;
+    my $qual_clip_end   = length($read->seq);
     my $qual_clip = (grep 
         { $_->primary_tag eq '_quality_clipping:'.$read_id }
         $contig->get_features_collection->get_all_features
@@ -910,9 +910,12 @@ sub _write_read {
     if ( defined $qual_clip ) {
         $qual_clip_start = $qual_clip->location->start;
         $qual_clip_end   = $qual_clip->location->end;
+        $qual_clip_start = $contig->change_coord('gapped consensus',"aligned $read_id",$qual_clip_start);
+        $qual_clip_end   = $contig->change_coord('gapped consensus',"aligned $read_id",$qual_clip_end  );
     }
-    my $aln_clip_start = $read->start;
-    my $aln_clip_end   = $read->end;
+
+    my $aln_clip_start = 1;
+    my $aln_clip_end   = length($read->seq);
     my $aln_clip = (grep 
         { $_->primary_tag eq '_align_clipping:'.$read_id }
         $contig->get_features_collection->get_all_features
@@ -920,11 +923,10 @@ sub _write_read {
     if ( defined $aln_clip ) {
         $aln_clip_start = $aln_clip->location->start;
         $aln_clip_end   = $aln_clip->location->end;
+        $aln_clip_start  = $contig->change_coord('gapped consensus',"aligned $read_id",$aln_clip_start );
+        $aln_clip_end    = $contig->change_coord('gapped consensus',"aligned $read_id",$aln_clip_end   );
     }
-    $qual_clip_start = $contig->change_coord('gapped consensus',"aligned $read_id",$qual_clip_start);
-    $qual_clip_end   = $contig->change_coord('gapped consensus',"aligned $read_id",$qual_clip_end  );
-    $aln_clip_start  = $contig->change_coord('gapped consensus',"aligned $read_id",$aln_clip_start );
-    $aln_clip_end    = $contig->change_coord('gapped consensus',"aligned $read_id",$aln_clip_end   );
+
     $self->_print(
         "QA $qual_clip_start $qual_clip_end $aln_clip_start $aln_clip_end\n".
         "\n"
