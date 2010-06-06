@@ -216,17 +216,13 @@ sub new {
 
 sub _logical_length {
     my ($self, $type) = @_;
-    my $algo = $self->algorithm;
-    my $len = $self->length($type);
-    my $logical = $len;
-    if($algo =~ /^(PSI)?T(BLAST|FAST)[NY]/oi ) {
-        $logical = $len/3 if $type =~ /sbjct|hit|tot/i;
-    } elsif($algo =~ /^(BLAST|FAST)(X|Y|XY)/oi ) {
-        $logical = $len/3 if $type =~ /query|tot/i;
-    } elsif($algo =~ /^T(BLAST|FAST)(X|Y|XY)/oi ) {
-        $logical = $len/3;
-    }
-    return $logical;
+    if (!defined($self->{_sbjct_offset}) || !defined($self->{_query_offset})) {
+        $self->_calculate_seq_offsets();
+    }    
+    my $key = $type =~ /sbjct|hit|tot/i ? 'sbjct' : 'query';
+    
+    my $offset = $self->{"_${key}_offset"};
+    return $self->length($type) / $offset ;
 }
 
 =head2 L<Bio::Search::HSP::HSPI> methods
@@ -756,7 +752,7 @@ sub rank {
            :             'conserved-not-identical' - conserved positions w/o 
            :                            identical residues
            :             The name can be shortened to 'id' or 'cons' unless
-           :             the name is ambiguous.  The default value is
+           :             the name is .  The default value is
            :             'identical'
            :
            : collapse  = boolean, if true, consecutive positions are merged
@@ -875,9 +871,12 @@ See Also   : L<Bio::Search::Hit::HSPI::seq_inds()>
 
 sub ambiguous_seq_inds {
     my $self = shift;
-    $self->_calculate_seq_positions();    
-    return $self->{seqinds}{'_warnRes'} if exists $self->{seqinds}{'_warnRes'};
-    return $self->{seqinds}{'_warnRes'} = '';
+    $self->_calculate_seq_positions();
+    my $type = ($self->{_query_offset} == 3 && $self->{_sbjct_offset} == 3) ?
+        'query/subject' :
+        ($self->{_query_offset} == 3) ? 'query' :
+        ($self->{_sbjct_offset} == 3) ? 'subject' : '';
+    return $type;
 }
 
 =head2 Inherited from L<Bio::SeqFeature::SimilarityPair>
@@ -1069,8 +1068,6 @@ sub _calculate_seq_positions {
         #$sseq =~ s![\\\/]!!g;
     }
 
-    $self->{seqinds}{'_warnRes'} = '';
-    
     if (!defined($self->{_sbjct_offset}) || !defined($self->{_query_offset})) {
         $self->_calculate_seq_offsets();
     }
@@ -1183,14 +1180,11 @@ sub _calculate_seq_offsets {
         $self->{_sbjct_offset} = 3;
         if ($1 eq 'BLAST' && $2 eq 'X') { #TBLASTX
             $self->{_query_offset} = 3;
-            $self->{seqinds}{'_warnRes'} = 'query/subject';
-        } else {
-            $self->{seqinds}{'_warnRes'} = 'subject';
-        }
+        } 
     } elsif($prog =~ /^(BLAST|FAST)(X|Y|XY)/oi  ) {
         $self->{_query_offset} = 3;
-        $self->{seqinds}{'_warnRes'} = 'query';
     }
+    1;
 }
 
 =head2 n
@@ -1629,11 +1623,7 @@ sub _pre_similar_stats {
 
 sub _pre_frac {
     my $self = shift;
-    if (!defined($self->{_sbjct_offset}) || !defined($self->{_query_offset})) {
-        $self->_calculate_seq_offsets();
-    }
     
-    #my ($hit_offset, $query_offset) = @{$self}{qw(_sbjct_offset _query_offset)};
     my $hsp_len = $self->{HSP_LENGTH};
     my $hit_len = $self->{HIT_LENGTH};
     my $query_len = $self->{QUERY_LENGTH};
