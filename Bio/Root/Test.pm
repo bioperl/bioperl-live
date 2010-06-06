@@ -238,10 +238,10 @@ sub test_begin {
         if ($skip_all) {
             eval "plan skip_all => '$skip_all';";
         }
-        elsif ($tests == 0) {
+        elsif (defined $tests && $tests == 0) {
             eval "plan skip_all => 'All tests are being skipped, probably because the module(s) being tested here are now deprecated';";
         }
-        else {
+        elsif ($tests) {
             eval "plan tests => $tests;";
         }
         
@@ -443,7 +443,7 @@ sub _skip {
     
     # handle input strictly
     my $tests = $args{'-tests'};
-    (defined $tests && $tests =~ /^\d+$/) || die "-tests must be supplied and be an int\n";
+    #(defined $tests && $tests =~ /^\d+$/) || die "-tests must be supplied and be an int\n";
     delete $args{'-tests'};
     
     my $req_mods = $args{'-requires_modules'};
