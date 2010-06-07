@@ -723,7 +723,14 @@ sub is_ter_codon{
     shift->_codon_is( shift, \@TABLES, $TERMINATOR );
 }
 
-
+# desc: compares the passed value with a single entry in the given
+#       codon table
+# args: a value (typically a three-char string like 'atg'),
+#       a reference to the appropriate set of codon tables,
+#       a single-character value to check for at the position in the
+#       given codon table
+# ret:  boolean, true if the given codon table contains the $key at the
+#       position corresponding to $value
 sub _codon_is {
    my ($self, $value, $table, $key ) = @_;
 
