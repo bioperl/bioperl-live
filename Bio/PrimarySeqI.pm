@@ -510,23 +510,26 @@ sub trunc{
            -unknown
                character for unknown, default 'X'
            -frame
-               frame shift (in bases), default 0
+               positive integer frame shift (in bases), default 0
            -codontable_id
-               codon table id, default 1
+               integer codon table id, default 1
            -complete
-               if true, complete CDS is expected. default 0
+               boolean, if true, complete CDS is expected. default false
            -throw
-               throw exception if not complete, default is 0
+               boolean, throw exception if ORF not complete, default false
            -orf
                if 'longest', find longest ORF.  other true value, find
                first ORF.  default 0
            -codontable
-               L<Bio::Tools::CodonTable> object to use for translation
+               optional L<Bio::Tools::CodonTable> object to use for
+               translation
            -start
-               force a single initiation codon.  If unset, start
-               codons are determined by the CodonTable.
+               optional three-character string to force as initiation
+               codon (e.g. 'atg'). If unset, start codons are
+               determined by the CodonTable.  Case insensitive.
 	   -offset
-               offset for fuzzy locations, default 0
+               optional positive integer offset for fuzzy locations.
+               if set, must be either 1, 2, or 3
 
 =head3 Notes
 
