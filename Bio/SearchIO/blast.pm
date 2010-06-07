@@ -257,6 +257,11 @@ BEGIN {
         'Statistics_hit_to_db' => { 'RESULT-statistics' => 'Hits_to_DB' },
         'Statistics_num_suc_extensions' =>
           { 'RESULT-statistics' => 'num_successful_extensions' },
+        'Statistics_length_adjustment' => { 'RESULT-statistics' => 'length_adjustment' },
+        'Statistics_number_of_hsps_better_than_expect_value_cutoff_without_gapping' =>
+		  { 'RESULT-statistics' => 'number_of_hsps_better_than_expect_value_cutoff_without_gapping' },
+        'Statistics_number_of_hsps_gapped' => { 'RESULT-statistics' => 'number_of_hsps_gapped' },
+        'Statistics_number_of_hsps_successfully_gapped' => { 'RESULT-statistics' => 'number_of_hsps_successfully_gapped' },
 
         # WU-BLAST stats
         'Statistics_DFA_states' => { 'RESULT-statistics' => 'num_dfa_states' },
@@ -1674,6 +1679,38 @@ sub next_result {
                         $self->element(
                             {
                                 'Name' => 'Statistics_hsp-len',
+                                'Data' => $1
+                            }
+                        );
+                    }
+                    elsif (/Number\s+of\s+HSP's\s+better\s+than\s+(\S+)\s+without\s+gapping:\s+(\d+)/) {
+                        $self->element(
+                            {
+                                'Name' => 'Statistics_number_of_hsps_better_than_expect_value_cutoff_without_gapping',
+                                'Data' => $2
+                            }
+                        );
+                    }
+                    elsif (/Number\s+of\s+HSP's\s+gapped:\s+(\d+)/) {
+                        $self->element(
+                            {
+                                'Name' => 'Statistics_number_of_hsps_gapped',
+                                'Data' => $1
+                            }
+                        );
+                    }
+                    elsif (/Number\s+of\s+HSP's\s+successfully\s+gapped:\s+(\d+)/) {
+                        $self->element(
+                            {
+                                'Name' => 'Statistics_number_of_hsps_successfully_gapped',
+                                'Data' => $1
+                            }
+                        );
+                    }
+                    elsif (/Length\s+adjustment:\s+(\d+)/) {
+                        $self->element(
+                            {
+                                'Name' => 'Statistics_length_adjustment',
                                 'Data' => $1
                             }
                         );

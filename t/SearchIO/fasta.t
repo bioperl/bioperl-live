@@ -317,8 +317,8 @@ while( my $hit = $result->next_hit ) {
             is($hsp->query->frame(), 0);
             is($hsp->hit->frame(), 0);
             is($hsp->gaps('query'), 0);
-            is($hsp->gaps('hit'), 63);
-            is($hsp->gaps, 63);
+            is($hsp->gaps('hit'), 61);
+            is($hsp->gaps, 61);
             is($hsp->query_string, 'RFALAGALGCAVTHGALTPVDVVKTRIQLEPEVYNRVGRFFNSS*GF*EL*GVVLMSQT\KGMVASFRQIIAKEGAGALLTGFGPTAVGYAIQGAFKFGG*VMMSLQITA*SRANLPISYEFWKKKAIDLVGVDKARENRQAIYLGASAIAEFFADIALCPLEATRIRLVSQPSFANGLSGGFLRILREEGPAAFYAGFGPILFKQVPYTMAKFAV*VDRTA*\YQTFG*YYRSYEVAVEKILKATGKSKDSLTGGQLTGLNLTSGLIAGLAAAVISQPADTLLSKINKTKGAPGQSTTSRLVQMAGQLGVSGLFTGMTTRLVMIGTLTAGQ');
             is($hsp->hit_string, 'KFALAGAIGCGSTHSSMVPIDVVKTRIQLEPTVYN-------------------------KGMVGSFKQIIAGEGAGALLTGFGPTLLGYSIQGAFKFGG-------------------YEVFKKFFIDNLGYDTASRYKNSVYMGSAAMAEFLADIALCPLEATRIRLVSQPQFANGLVGGFSRILKEEGIGSFYSGFTPILFKQIPYNIAKFLVFERASEF-YYGFAG------------------PKEKLSSTSTTLLNLLSGLTAGLAAAIVSQPADTLLSKVNKTKKAPGQSTVGLLAQLAKQLGFFGSFAGLPTRLVMVGTLTSLQ');
             is($hsp->homology_string, '.::::::.::. ::....:.::::::::::: :::                         ::::.::.:::: ::::::::::::: .::.:::::::::                   :: .::  :: .: : : . ....:.:..:.:::.:::::::::::::::::::.::::: ::: :::.::: ..::.:: ::::::.::..::: :    .   :  :.                    :..:.. . : ::: ::: ::::::..::::::::::.:::: ::::::.. :.:.: :::  : :.:. :::::.::::. :');
