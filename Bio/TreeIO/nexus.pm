@@ -295,6 +295,26 @@ sub _write_tree_Helper {
         $data[0] = "(" . $data[0];
         $data[-1] .= ")";
 
+        # FigTree comments start
+        my $comment_flag;
+        $comment_flag = 0
+            if ( $node->has_tag('color') or  $node->has_tag('label') );
+    
+        $data[-1] .= '[&!' if defined $comment_flag;
+    
+            if ( $node->has_tag('color')) {
+            my $color = $node->get_tag_values('color');
+                $data[-1] .= "color=$color";
+            $comment_flag++;
+            }
+            if ( $node->has_tag('label')) {
+            my $label = $node->get_tag_values('label');
+            $data[-1] .= ',' if $comment_flag;
+                $data[-1] .= 'label="'. $label. '"';
+            }
+        $data[-1] .= ']' if defined $comment_flag;
+        # FigTree comments end
+        
         # let's explicitly write out the bootstrap if we've got it
         my $b;
 
@@ -314,27 +334,6 @@ sub _write_tree_Helper {
             $b = $node2num->{$b} if ( $node2num->{$b} );    # translate node2num
             $data[-1] .= sprintf( "[%s]", $b ) if defined $b;
         }
-
-	# FigTree comments start
-	my $comment_flag;
-	$comment_flag = 0
-	    if ( $node->has_tag('color') or  $node->has_tag('label') );
-
-	$data[-1] .= '[&!' if defined $comment_flag;
-
-        if ( $node->has_tag('color')) {
-	    my $color = $node->get_tag_values('color');
-            $data[-1] .= "color=$color";
-	    $comment_flag++;
-        }
-        if ( $node->has_tag('label')) {
-	    my $label = $node->get_tag_values('label');
-	    $data[-1] .= ',' if $comment_flag;
-            $data[-1] .= 'label="'. $label. '"';
-        }
-	$data[-1] .= ']' if defined $comment_flag;
-	# FigTree comments end
-
 
     }
     else {			# leaf node
