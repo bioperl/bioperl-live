@@ -325,7 +325,7 @@ sub location_type {
 
  Example : 
  Returns : TRUE if the location is a remote location, and FALSE otherwise
- Args    : 
+ Args    : Value to set to
 
 =cut
 
