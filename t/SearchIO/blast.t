@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 1230);
+    test_begin(-tests => 1242);
 	
 	use_ok('Bio::SearchIO');
 }
@@ -1561,6 +1561,10 @@ is($result->get_statistic('dbletters'), '-509663586');
 is($result->get_statistic('dbentries'), 3742891);
 is($result->get_statistic('effective_hsplength'), undef);
 is($result->get_statistic('effectivespace'), 8935230198384);
+is($result->get_statistic('number_of_hsps_better_than_expect_value_cutoff_without_gapping'), 0); 
+is($result->get_statistic('number_of_hsps_gapped'), 1771);
+is($result->get_statistic('number_of_hsps_successfully_gapped'), 0);
+is($result->get_statistic('length_adjustment'), 22);
 is($result->get_statistic('querylength'), 536);
 is($result->get_statistic('effectivedblength'), 16670205594);
 is($result->get_statistic('effectivespaceused'), 8891094027712);
@@ -1652,6 +1656,10 @@ $searchio = Bio::SearchIO->new(-format => 'blast',
                                -verbose => -1,
 							  -file   => test_input_file('bug2246.blast'));
 $result = $searchio->next_result;
+is($result->get_statistic('number_of_hsps_better_than_expect_value_cutoff_without_gapping'), 0); 
+is($result->get_statistic('number_of_hsps_gapped'), 7049);
+is($result->get_statistic('number_of_hsps_successfully_gapped'), 55);
+is($result->get_statistic('length_adjustment'), 125);
 is($result->get_statistic('querylength'), 68);
 is($result->get_statistic('effectivedblength'), 1045382588);
 is($result->get_statistic('effectivespace'), 71086015984);
@@ -1748,6 +1756,10 @@ $result = $searchio->next_result;
 is($result->query_name, 'c6_COX;c6_QBL;6|31508172;31503325;31478402|rs36223351|1|dbSNP|C/G');
 is($result->query_description, '');
 is($result->algorithm, 'MEGABLAST');
+is($result->get_statistic('number_of_hsps_better_than_expect_value_cutoff_without_gapping'), undef); 
+is($result->get_statistic('number_of_hsps_gapped'), 0);
+is($result->get_statistic('number_of_hsps_successfully_gapped'), 0);
+is($result->get_statistic('length_adjustment'), 16);
 is($result->get_statistic('querylength'), 85);
 is($result->get_statistic('effectivedblength'), 59358266);
 is($result->get_statistic('effectivespace'), 5045452610);
