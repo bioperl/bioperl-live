@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::PrimarySeqI
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Ewan Birney <birney@ebi.ac.uk>
 #
@@ -88,15 +88,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -611,9 +611,9 @@ sub translate {
 		 $self->throw("Invalid start codon: $start_codon.") if
 			( $start_codon !~ /^[A-Z]{3}$/i );
 	 }
-	 
+
 	 my $seq;
-	 
+
 	 if ($offset) {
 		$self->throw("Offset must be 1, 2, or 3.") if
 		    ( $offset !~ /^[123]$/ );
@@ -692,9 +692,9 @@ sub translate {
  Title   : transcribe
  Usage   : $xseq = $seq->transcribe
  Function: Convert base T to base U
- Returns : PrimarySeqI object of alphabet 'rna' or 
+ Returns : PrimarySeqI object of alphabet 'rna' or
            undef if $seq->alphabet ne 'dna'
- Args    : 
+ Args    :
 
 =cut
 
@@ -711,7 +711,7 @@ sub transcribe {
 	$self->_attempt_to_load_Seq;
     }
     my $desc = $self->desc || '';
-    return $class->new( 
+    return $class->new(
 	'-seq' => $s,
 	'-alphabet' => 'rna',
 	'-display_id'  => $self->display_id,
@@ -726,9 +726,9 @@ sub transcribe {
  Title   : rev_transcribe
  Usage   : $rtseq = $seq->rev_transcribe
  Function: Convert base U to base T
- Returns : PrimarySeqI object of alphabet 'dna' or 
+ Returns : PrimarySeqI object of alphabet 'dna' or
            undef if $seq->alphabet ne 'rna'
- Args    : 
+ Args    :
 
 =cut
 
@@ -744,7 +744,7 @@ sub rev_transcribe {
 	$class = 'Bio::PrimarySeq';
 	$self->_attempt_to_load_Seq;
     }
-    return $class->new( 
+    return $class->new(
 	'-seq' => $s,
 	'-alphabet' => 'dna',
 	'-display_id'  => $self->display_id,
