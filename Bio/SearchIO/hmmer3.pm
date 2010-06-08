@@ -340,7 +340,7 @@ sub next_result{
 		       last;
 		   }
 		   #grab table data
-		   next if ( m/\-\-\-/ || m/^\s+E\-value\sscore/ || m/^$/);
+		   next if ( m/\-\-\-/ || m/^\s+E\-value\s+score/ || m/^$/);
 		   my (
 		       $eval_full, $score_full, $bias_full,
 		       $eval_best, $score_best, $bias_best,
