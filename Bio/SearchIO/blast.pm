@@ -806,21 +806,6 @@ sub next_result {
                 }
             );
         }
-        # bypasses this NCBI blast 2.2.13 extra output for now...
-		# Features in/flanking this part of subject sequence:
-        elsif (/^\sFeatures\s\w+\sthis\spart/xmso) {
-            my $featline;
-            $_ = $self->_readline;
-			while($_ !~ /^\s*$/) {
-                chomp;
-                $featline .= $_;
-        		$_ = $self->_readline;
-        	}
-			$self->_pushback($_);
-            $featline =~ s{(?:^\s+|\s+^)}{}g;
-            $featline =~ s{\n}{;}g;
-            $self->{'_last_hspdata'}->{'Hsp_features'} = $featline;
-        }
         
         # move inside of a hit
         elsif (/^>\s*(\S+)\s*(.*)?/) {
@@ -1041,19 +1026,49 @@ sub next_result {
         elsif (
             ( $self->in_element('hit') || $self->in_element('hsp') )
             &&    # ncbi blast, works with 2.2.17
+            m/^\sFeatures\s\w+\sthis\spart/xmso
+            # If the line begins with "Features in/flanking this part of subject sequence:"
+            )
+        {
+            $self->in_element('hsp')
+              && $self->end_element( { 'Name' => 'Hsp' } );
+            my $featline;
+            $_ = $self->_readline;
+            while($_ !~ /^\s*$/) {
+                chomp;
+                $featline .= $_;
+                $_ = $self->_readline;
+            }
+            $self->_pushback($_);
+            $featline =~ s{(?:^\s+|\s+^)}{}g;
+            $featline =~ s{\n}{;}g;
+            $self->start_element( { 'Name' => 'Hsp' } );
+            $self->element(
+                {
+                    'Name' => 'Hsp_features',
+                    'Data' => $featline
+                }
+            );
+            $self->{'_seen_hsp_features'} = 1;
+        }
+        elsif (
+            ( $self->in_element('hit') || $self->in_element('hsp') )
+            &&    # ncbi blast, works with 2.2.17
             m/Score\s*=\s*(\S+)\s*bits\s* # Bit score
-                (?:\((\d+)\))?,            # Missing for BLAT pseudo-BLAST fmt 
+                (?:\((\d+)\))?,            # Missing for BLAT pseudo-BLAST fmt
                 \s*Expect(?:\((\d+\+?)\))?\s*=\s*([^,\s]+) # E-value
                 /ox
           )
         {         # parse NCBI blast HSP
-            $self->in_element('hsp')
-              && $self->end_element( { 'Name' => 'Hsp' } );
+            if( !$self->{'_seen_hsp_features'} ) {
+                $self->in_element('hsp')
+                  && $self->end_element( { 'Name' => 'Hsp' } );
+                $self->start_element( { 'Name' => 'Hsp' } );
+            }
 
             # Some data clean-up so e-value will appear numeric to perl
             my ( $bits, $score, $n, $evalue ) = ( $1, $2, $3, $4 );
             $evalue =~ s/^e/1e/i;
-            $self->start_element( { 'Name' => 'Hsp' } );
             $self->element(
                 {
                     'Name' => 'Hsp_score',
@@ -2128,6 +2143,7 @@ sub end_element {
     $self->{'_last_data'} = '';    # remove read data if we are at
                                    # end of an element
     $self->{'_result'} = $rc if ( defined $type && $type eq 'result' );
+	$self->{'_seen_hsp_features'} = 0;
     return $rc;
 }
 
