@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 1242);
+    test_begin(-tests => 1348);
 	
 	use_ok('Bio::SearchIO');
 }
@@ -1812,4 +1812,137 @@ while(my $query = $searchio->next_result) {
 }
 
 is($total_hsps, 2);
+
+# BLAST 2.2.20+ output file ZABJ4EA7014.CH878695.1.blast.txt
+# Tests SearchIO blast parsing of 'Features in/flanking this part of a subject sequence'
+$searchio = Bio::SearchIO->new(-format => 'blast',
+                               -file   => test_input_file('ZABJ4EA7014.CH878695.1.blast.txt'));
+
+$result = $searchio->next_result;
+# Parse BLAST header details 
+is($result->algorithm, 'BLASTN');
+is($result->algorithm_version, '2.2.20+');
+is($result->algorithm_reference, 'Zheng Zhang, Scott Schwartz, Lukas Wagner, and
+Webb Miller (2000), "A greedy algorithm for aligning DNA
+sequences", J Comput Biol 2000; 7(1-2):203-14.
+');
+is($result->database_name, 'human build 35 genome database (reference assembly only)');
+is($result->database_entries, 378);
+is($result->database_letters, 2866055344); 
+is($result->query_name, 'gi|95131563|gb|CH878695.1|');
+is($result->query_description, 'Homo sapiens 211000035829648 genomic scaffold');
+is($result->query_length, 29324);
+# Parse BLAST footer details
+is($result->get_statistic('posted_date'), 'Jul 26, 2007  3:20 PM');
+is($result->get_statistic('dbletters'), -1428911948);
+is($result->get_statistic('lambda'), '1.33');
+is($result->get_statistic('kappa'), '0.621');
+is($result->get_statistic('entropy'), '1.12');
+is($result->get_statistic('lambda_gapped'), '1.28');
+is($result->get_statistic('kappa_gapped'), '0.460');
+is($result->get_statistic('entropy_gapped'), '0.850');
+is($result->get_parameter('matrix'), 'blastn matrix:1 -2');
+is($result->get_parameter('gapopen'), 0);
+is($result->get_parameter('gapext'), 0);
+is($result->get_statistic('num_extensions'), 216);
+is($result->get_statistic('num_successful_extensions'), 216);
+is($result->get_parameter('expect'), '0.01');
+is($result->get_statistic('seqs_better_than_cutoff'), 10);
+is($result->get_statistic('number_of_hsps_better_than_expect_value_cutoff_without_gapping'), 0);
+is($result->get_statistic('number_of_hsps_gapped'), 216);
+is($result->get_statistic('number_of_hsps_successfully_gapped'), 212);
+is($result->get_statistic('length_adjustment'), 34);
+is($result->get_statistic('querylength'), 29290);
+is($result->get_statistic('effectivedblength'), 2866042492);
+is($result->get_statistic('effectivespace'), 83946384590680);
+is($result->get_statistic('effectivespaceused'), 83946384590680);
+is($result->get_statistic('A'), 0);
+is($result->get_statistic('X1'), 23);
+is($result->get_statistic('X1_bits'), '44.2');
+is($result->get_statistic('X2'), 32);
+is($result->get_statistic('X2_bits'), '59.1');
+is($result->get_statistic('X3'), 54);
+is($result->get_statistic('X3_bits'), '99.7');
+is($result->get_statistic('S1'), 23);
+is($result->get_statistic('S1_bits'), '43.6');
+is($result->get_statistic('S2'), 29);
+is($result->get_statistic('S2_bits'), '54.7');
+# Skip the 1st hit. It doesn't have any 'Features in/flanking this part of subject sequence:'
+$hit = $result->next_hit;
+# The 2nd hit has hsps with 'Features flanking this part of subject sequence:' 
+$hit = $result->next_hit;
+is($hit->name, 'gi|51459264|ref|NT_077382.3|Hs1_77431');
+is($hit->description, 'Homo sapiens chromosome 1 genomic contig');
+is($hit->length, 237250);
+# In the 2nd hit, look at the 1st hsp 
+$hsp = $hit->next_hsp;
+is($hsp->hit_features, "16338 bp at 5' side: PRAME family member 8   11926 bp at 3' side: PRAME family member 9");
+is($hsp->bits, 7286);
+is($hsp->score, 3945);
+is($hsp->expect, '0.0');
+is($hsp->hsp_length, 6145);
+is($hsp->num_identical, 5437);
+is(int sprintf("%.2f",$hsp->percent_identity), 88);
+is($hsp->gaps, 152);
+is($hsp->start('query'), 23225);
+is($hsp->start('sbjct'), 86128); 
+is($hsp->end('query'), 29324);
+is($hsp->end('sbjct'), 92165);
+# In the 2nd hit, look at the 2nd hsp
+$hsp = $hit->next_hsp;
+is($hsp->hit_features, "25773 bp at 5' side: PRAME family member 3   3198 bp at 3' side: PRAME family member 5");
+is($hsp->bits, 4732);
+is($hsp->score, 2562);
+is($hsp->expect, '0.0');
+is($hsp->hsp_length, 4367);
+is($hsp->num_identical, 3795);
+is(int sprintf("%.2f",$hsp->percent_identity), 86);
+is($hsp->gaps, 178);
+is($hsp->start('query'), 23894);
+is($hsp->start('sbjct'), 37526); 
+is($hsp->end('query'), 28193);
+is($hsp->end('sbjct'), 41781);
+# In the 2nd hit, look at the 3rd hsp
+$hsp = $hit->next_hsp;
+is($hsp->hit_features, "16338 bp at 5' side: PRAME family member 8   14600 bp at 3' side: PRAME family member 9");
+is($hsp->bits, 3825);
+is($hsp->score, 2071);
+is($hsp->expect, '0.0');
+is($hsp->hsp_length, 3406);
+is($hsp->num_identical, 2976);
+is(int sprintf("%.2f",$hsp->percent_identity), 87);
+is($hsp->gaps, 89);
+is($hsp->start('query'), 14528);
+is($hsp->start('sbjct'), 86128); 
+is($hsp->end('query'), 17886);
+is($hsp->end('sbjct'), 89491);
+# In the 2nd hit, look at the 4th hsp
+$hsp = $hit->next_hsp;
+is($hsp->hit_features, "29101 bp at 5' side: PRAME family member 8   2120 bp at 3' side: PRAME family member 9");
+is($hsp->bits, 3241);
+is($hsp->score, 1755);
+is($hsp->expect, '0.0');
+is($hsp->hsp_length, 3158);
+is($hsp->num_identical, 2711);
+is(int sprintf("%.2f",$hsp->percent_identity), 85);
+is($hsp->gaps, 123);
+is($hsp->start('query'), 23894);
+is($hsp->start('sbjct'), 98891); 
+is($hsp->end('query'), 27005);
+is($hsp->end('sbjct'), 101971);
+# In the 2nd hit, look at the 5th hsp
+$hsp = $hit->next_hsp;
+is($hsp->hit_features, "PRAME family member 13");
+is($hsp->bits, 3142);
+is($hsp->score, 1701);
+is($hsp->expect, '0.0');
+is($hsp->hsp_length, 2507);
+is($hsp->num_identical, 2249);
+is(int sprintf("%.2f",$hsp->percent_identity), 89);
+is($hsp->gaps, 63);
+is($hsp->start('query'), 3255);
+is($hsp->start('sbjct'), 128516); 
+is($hsp->end('query'), 5720);
+is($hsp->end('sbjct'), 131000);
+
 
