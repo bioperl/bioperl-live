@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 17);
+    test_begin(-tests => 21);
 	
 	use_ok('Bio::SeqIO::phd');
 }
@@ -122,6 +122,7 @@ $in_phd  = Bio::SeqIO->new('-file' => test_input_file('multi.phd'),
 @trace = qq(98 105 119 128 143 148 162 173 185 197 202);
 
 $seq = $in_phd->next_seq;
+is($seq->id, 'ML4924F');
 is($seq->subseq(10,20),'tctcgagggta','$seq->subseq()');
 @seq_qual =$seq->subqual_text(10,20);
 is_deeply(\@seq_qual,\@qual,'$seq->subqual_tex()');
@@ -132,6 +133,7 @@ is_deeply(\@seq_trace,\@trace,'$seq->subqual_tex()');
 @trace = qq(98 104 122 128 140 147 159 167 178 190 200);
 
 $seq = $in_phd->next_seq;
+is($seq->id, 'ML4924R');
 is($seq->subseq(10,20),'gcctgcaggta','$seq->subseq()');
 @seq_qual =$seq->subqual_text(10,20);
 is_deeply(\@seq_qual,\@qual,'$seq->subqual_tex()');
@@ -166,3 +168,14 @@ is_deeply(\@seq_trace,\@trace,'$seq->subqual_tex()');
 #    print ">TRUNC 10,20\n",$trunc->seq,"\n>qual\n@{$trunc->qual}\n>trace\n@{$trunc->trace}\n";
 #}
 #
+
+# Whole-read tags in the file
+$in_phd  = Bio::SeqIO->new('-file' => test_input_file('multiseq_tags.phd'),
+			      '-format'  => 'phd',
+			      '-verbose' => $DEBUG);
+isa_ok($in_phd,'Bio::SeqIO::phd');
+my @seqs = ();
+while (my $seq = $in_phd->next_seq){
+  push @seqs, $seq;
+}
+is( scalar @seqs, 2 );

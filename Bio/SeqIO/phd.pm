@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::SeqIO::phd - .phd file input/output stream
+Bio::SeqIO::phd - phd file input/output stream
 
 =head1 SYNOPSIS
 
@@ -21,7 +21,8 @@ Do not use this module directly.  Use it via the L<Bio::SeqIO> class.
 =head1 DESCRIPTION
 
 This object can transform .phd files (from Phil Green's phred basecaller)
-to and from Bio::Seq::Quality objects
+to and from Bio::Seq::Quality objects. The phd format is described in section 10
+at this url: http://www.phrap.org/phredphrap/phred.html
 
 =head1 FEEDBACK
 
@@ -102,87 +103,84 @@ sub _initialize {
  Function: returns the next phred sequence in the stream
  Returns : Bio::Seq::Quality object
  Args    : NONE
- Notes   : This is really redundant because AFAIK there is no such thing as
-       a .phd file that contains more then one sequence. It is included as
-       an interface thing and for consistency.
 
 =cut
 
 sub next_seq {
     my ($self,@args) = @_;
-    my ($entry,$done,$qual,$seq);
-    my ($id,@lines, @bases, @qualities, @trace_indices) = ('');
-    if (!($entry = $self->_readline)) { return; }
-    my $collection = Bio::Annotation::Collection->new();
-    if ($entry =~ /^BEGIN_SEQUENCE\s+(\S+)/) {
-          $id = $1;
-     }
-     my $in_comments = 0;
-    my $in_dna = 0;
-    my $base_number = 0;
-     my $comments = {};
-    while ($entry = $self->_readline) {
-    return if (!$entry);
-    chomp($entry);
-     if ($entry =~ /^BEGIN_COMMENT/) {
-          $in_comments = 1;
-          while ($in_comments == 1) {
-              $entry = $self->_readline();
-               chomp($entry);
-              if ($entry) {
-                    if ($entry =~ /^END_COMMENT/) {
-                         $in_comments = 0;
-                    }
-                    else {
-                        my ($name,$content) = $entry =~ /^(\w+):(.*)$/;
-                         if ($content) { $content =~ s/^\s//g; }
-                        my $comment = 
-                            Bio::Annotation::Comment->new(-text => $content);
-                        $comment->tagname($name);
-                        $collection->add_Annotation('header',$comment);
-                    }
-               }
-          }
-     }
-    if ($entry =~ /^BEGIN_CHROMAT:\s+(\S+)/) {
-         # this is where I used to grab the ID
-          if (!$id) {
-               $id = $1;
-          }
-          $entry = $self->_readline();
-    }
-    if ($entry =~ /^BEGIN_DNA/) {
-        $entry =~ /^BEGIN_DNA/;
-        $in_dna = 1;
-        $entry = $self->_readline();
-    }
-    if ($entry =~ /^END_DNA/) {
-        $in_dna = 0;
-    }
-    if ($entry =~ /^END_SEQUENCE/) {
-              $entry = $self->_readline();
-              last;
-    }
-    if (!$in_dna) { next;  }
-    $entry =~ /(\S+)\s+(\S+)(?:\s+(\S+))?/;
-    push @bases,$1;
-    push @qualities,$2;
-    # Trace index values are required for phd file
-    push(@trace_indices,$3) if defined $3;
-    push(@lines,$entry);
-    }
-     # $self->debug("csmCreating objects with id = $id\n");
-    my $swq = $self->sequence_factory->create
-    (-seq        => join('',@bases),
-     -qual       => \@qualities,
-     -trace      => \@trace_indices,
-     -id         => $id,
-     -primary_id => $id,
-     -display_id => $id,
-     );
-    $swq->Bio::Seq::RichSeq::annotation($collection);
-    return $swq;
+    my $seq;
+    while (my $entry = $self->_readline) {
+        chomp $entry;
+        if ($entry =~ /^BEGIN_SEQUENCE\s+(\S+)/) {
+            if (defined $seq) {
+                # done with current sequence
+                $self->_pushback($entry);
+                last;
+            } else {
+                # start new sequence
+                my $id = $1;
+                $seq = $self->sequence_factory->create(
+                    -id         => $id,
+                    -primary_id => $id,
+                    -display_id => $id,
+                );
+            }
+        } elsif ($entry =~ /^BEGIN_COMMENT/) {
+            my $collection = Bio::Annotation::Collection->new;
+            while ($entry = $self->_readline) {
+                chomp $entry;
+                if ($entry =~ /^(\w+):\s+(.+)$/) {
+                    my ($name, $content) = ($1, $2);
+                    my $comment = Bio::Annotation::Comment->new(
+                        -text    => $content,
+                        -tagname => $name
+                    );
+                    $collection->add_Annotation('header',$comment);                  
+                } elsif ($entry =~ /^END_COMMENT/) {
+                    $seq->Bio::Seq::RichSeq::annotation($collection);
+                    last;
+                }
+            }
+        } elsif ($entry =~ /^BEGIN_DNA/) {
+            my $dna = '';
+            my @qualities = ();
+            my @trace_indices = ();
+            while ($entry = $self->_readline) {
+                chomp $entry;
+                if ( $entry =~ /(\S+)\s+(\S+)\s+(\S+)/ ) {
+                    # add nucleotide and quality scores to sequence
+                    $dna .= $1;
+                    push @qualities,$2;
+                    push(@trace_indices,$3) if defined $3; # required for phd file
+                } elsif ($entry =~ /^END_DNA/) {
+                    # end of sequence, save it
+                    $seq->seq($dna);
+                    $seq->qual(\@qualities);
+                    $seq->trace(\@trace_indices);
+                    last;
+                }
+            }
+           
+        } elsif ($entry =~ /^END_SEQUENCE/) {
+            # the sequence may be over, but some other info can come after
+            next;
+        } elsif ($entry =~ /^WR{/) {
+            # Whole-Read items 
+            # Programs like Consed or Autofinish add it to phd file. See doc:
+            #   http://www.phrap.org/consed/distributions/README.16.0.txt
+            #my ($type, $nane, $date, $time) = split(' ',$self->_readline);
+            #my $extra_info = '';
+            #while ($entry = $self->_readline) {
+            #    chomp $entry;
+            #    last if ($entry =~ /\}/);
+            #    $extra_info .= $entry;
+            #}
+            ### fea: save WR somewhere? but where?
+        } 
+    } 
+    return $seq;
 }
+
 
 =head2 write_header
 
