@@ -637,7 +637,7 @@ sub next_result {
             $_ = $self->_readline();
             my ( $score, $bits, $e ) = /Z-score: \s* (\S+) \s*
                                (?: bits: \s* (\S+) \s+ )?
-                               (?: E|expect ) \s* \(\) :? \s*(\S+)/ox;
+                               (?: E|expect ) \s* \((?:\d+)?\) :? \s*(\S+)/ox;
             $bits = $score unless defined $bits;
 
             my $v = shift @hit_signifs;
