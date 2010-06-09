@@ -264,11 +264,11 @@ sub _check_ambiguity_protein
 
     if( $t1 ne 'X' && $t1 eq $t2 ) { 
         $n = 1.0;
-    } elsif(  ((($t1 eq 'B' && $t2 eq 'DN') ||
-	       ($t2 eq 'B' && $t2 eq 'DN'))) ||
+    } elsif(  (($t1 eq 'B' && $t2 =~ /[DN]/ ) ||
+	       ($t2 eq 'B' && $t1 =~ /[DN]/ )) ||
 	      
-	      ( ($t1 eq 'Z' && $t2 eq 'EQ') ||
-		($t2 eq 'Z' && $t1 eq 'EQ'))) {
+	      (($t1 eq 'Z' && $t2 =~ /[EQ]/) ||
+	       ($t2 eq 'Z' && $t1 =~ /[EQ]/ ))) {
         $n = 0.5;
     } elsif ( $t1 eq 'X' && $t2 eq 'X' ) {
         $n = 0.0025;
