@@ -2,12 +2,13 @@
 # $Id$
 
 use strict;
+use Data::Dumper;
 
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 64 );
+    test_begin( -tests => 70 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -152,12 +153,10 @@ is $aa->seq, 'M', "Translation: " . $aa->seq;
 $seq->verbose(2);
 $seq->seq("ggggggatgtggcccc");    # atg tgg ccc
 eval { $seq->translate( -orf => 1 ); };
-if ($@) {
-    like( $@, qr/atgtggcccc\n/ );
-    $seq->verbose(-1);
-    $aa = $seq->translate( -orf => 1 );
-    is $aa->seq, 'MWP', "Translation: " . $aa->seq;
-}
+like( $@, qr/\batgtggccc\b/i );
+$seq->verbose(-1);
+$aa = $seq->translate( -orf => 1 );
+is $aa->seq, 'MWP', "Translation: MWP";
 $seq->verbose(0);
 
 # use non-standard codon table where terminator is read as Q
@@ -235,3 +234,56 @@ ok $error =~ /\QTerminator codon inside CDS!\E/, 'Terminator + inside sequence';
 $seq = Bio::PrimarySeq->new(-seq=>'ATGCTCGCAGGGTAA'); # MLAG*
 $aa = $seq->translate(-complete=>1, -throw=>1, -terminator=>'#');
 is $aa->seq, 'MLAG';
+
+
+# test internal PrimarySeqI _find_orfs function and translate( -orf => 'longest' )
+{
+    my @tests = (
+        #tiny test
+        ['TTTTATGGTGGCGTCAACTTAATTT',
+         [[4,22,18,1]],
+        ],
+
+        #bigger test (this is a tomato unigene)
+        ['GAAGGCTGGTTCTGAGTTGGATCTATGTTTGATGAAGGGAAGTAGACCGGAGGTCTTGCATCAGCAATATTAGTACCAAATCCAGGTGGAGGCGCATCCTGTCTCCGTTGCATTTCAACTTTCATTTCAGCAATCTGTTGCATCAGTTGCATGATCAATTCATTCTGTTCCACTACAGTGGGCTGAGCGACCACAACGTCAGTAAGACGCCCTTCGTCATTGTTGTCTCCCATAACTGTTTTTCCTTTATCTGAATTTGATCGAGGGAAGGAATCTGTAGGACCTTTCGATCTGGTGAAGTAAGGATGATCTGCCAGCTTTATTGACACAGATCAGTAAAAAGGTACCTGAAAGGTAAAAACAACTCAAAGGCAAATTTGTTAGTGCATATCCAGAGTACAAAATGCTTAATATCGCACATAAAACCGATAAACACACAAGTCGTTTTGTTTGAGGATATCTTAACCCACGAATAAGGACGGATATATATTTTGAACAAACAGGAATTTGTTTGTTTGGCGTTATCTTGGGAAATCTG',
+         [[98,254,156,2],[347,476,129,2],[219,303,84,0],[16,73,57,1],[403,454,51,1],[310,358,48,1],[235,280,45,1],[491,536,45,2],[150,186,36,0],[507,537,30,0],[5,32,27,2],[511,538,27,1],[24,45,21,0],[305,326,21,2],[450,465,15,0]],
+        ],
+
+
+       );
+    foreach my $test (@tests) {
+        my ($test_seq, $orfs) = @$test;
+        my @orfs = Bio::PrimarySeqI::_find_orfs_nucleotide(
+            undef,
+            $test_seq,
+            Bio::Tools::CodonTable->new,
+            undef,
+           ); # ATG GTG GCG TCA ACT
+        is_deeply( \@orfs, $orfs, '_find_orfs 1')
+            or diag "for $test_seq, _find_orfs returned:\n"
+                    .Dumper([map [@$_], @orfs]);
+
+        is_deeply( $orfs->[0],
+                   (sort {$b->[2] <=> $a->[2]} @$orfs)[0],
+                   'orfs are sorted by descending length'
+                  );
+
+        # make sure we get the same sequence by taking the longest orf
+        # nucleotide from the test data and translating it, as by
+        # calling translate with -orf => 'longest'
+        is(
+            Bio::PrimarySeq
+              ->new( -seq => $test_seq, -id => 'fake_id' )
+              ->translate( -orf => 'longest' )
+              ->seq,
+
+            Bio::PrimarySeq
+              ->new( -seq => substr( $test_seq, $orfs->[0][0], $orfs->[0][2] ),
+                     -id => 'foo'
+                    )
+              ->translate
+              ->seq,
+            'got correct -orf => "longest" seq',
+           );
+    }
+}

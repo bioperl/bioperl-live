@@ -131,7 +131,7 @@ sub new {
   my $self = $class->SUPER::new(@args);
   my ($hsps, $name,$query_len,$desc, $acc, $locus, $length,
       $score,$algo,$signif,$bits, $p,
-      $rank, $hsp_factory, $gi) = $self->_rearrange([qw(HSPS
+      $rank, $hsp_factory, $gi, $iter, $found) = $self->_rearrange([qw(HSPS
                                      NAME 
                                      QUERY_LEN
                                      DESCRIPTION
@@ -141,7 +141,9 @@ sub new {
                                      SIGNIFICANCE BITS P
                                      RANK
                                      HSP_FACTORY
-                                     NCBI_GI)], @args);
+                                     NCBI_GI
+                                     ITERATION
+                                     FOUND_AGAIN)], @args);
   
   defined $query_len && $self->query_length($query_len);
 
@@ -162,6 +164,8 @@ sub new {
   defined $rank        && $self->rank($rank);
   defined $hsp_factory && $self->hsp_factory($hsp_factory);
   defined $gi          && $self->ncbi_gi($gi);
+  defined $iter        && $self->iteration($iter);
+  defined $found       && $self->found_again($found);  
   # p() has a weird interface, so this is a hack workaround
   if (defined $p) {
       $self->{_p} = $p;
@@ -1742,6 +1746,62 @@ sub sort_hsps {
        $self->{'_hsps'} = \@sorted_hsps;
        1;
    }
+}
+
+=head2 iteration
+
+ Usage     : $hit->iteration( $iteration_num );
+ Purpose   : Gets the iteration number in which the Hit was found.
+ Example   : $iteration_num = $sbjct->iteration();
+ Returns   : Integer greater than or equal to 1
+             Non-PSI-BLAST reports may report iteration as 1, but this number
+             is only meaningful for PSI-BLAST reports.
+ Argument  : iteration_num (optional, used when setting only)
+ Throws    : none
+
+See Also   : L<found_again()|found_again>
+
+=cut
+
+sub iteration{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'_psiblast_iteration'} = $value;
+    }
+    return $self->{'_psiblast_iteration'};
+}
+
+=head2 found_again
+
+ Title     : found_again
+ Usage     : $hit->found_again;
+             $hit->found_again(1);
+ Purpose   : Gets a boolean indicator whether or not the hit has
+             been found in a previous iteration.
+             This is only applicable to PSI-BLAST reports.
+
+              This method indicates if the hit was reported in the 
+              "Sequences used in model and found again" section of the
+              PSI-BLAST report or if it was reported in the
+              "Sequences not found previously or not previously below threshold"
+              section of the PSI-BLAST report. Only for hits in iteration > 1.
+
+ Example   : if( $hit->found_again()) { ... };
+ Returns   : Boolean, true (1) if the hit has been found in a 
+             previous PSI-BLAST iteration.
+             Returns false (0 or undef) for hits that have not occurred in a
+             previous PSI-BLAST iteration.
+ Argument  : Boolean (1 or 0). Only used for setting.
+ Throws    : none
+
+See Also   : L<iteration()|iteration>
+
+=cut
+
+sub found_again {
+   my $self = shift;
+   return $self->{'_found_again'} = shift if @_;
+   return $self->{'_found_again'};
 }
 
 1;
