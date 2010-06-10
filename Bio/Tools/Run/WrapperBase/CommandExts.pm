@@ -985,12 +985,18 @@ sub _run {
     my @files = @args{@specs};
     # expand arrayrefs
     my $l = $#files;
+    
+    # Note: below code block may be brittle, see link on this:
+    # http://lists.open-bio.org/pipermail/bioperl-l/2010-June/033439.html
+    
     for (0..$l) {
 	if (ref($files[$_]) eq 'ARRAY') {
-	    splice(@files, $_, 1, @{$files[$_]});
 	    splice(@switches, $_, 1, ($switches[$_]) x @{$files[$_]});
+	    splice(@files, $_, 1, @{$files[$_]});
 	}
     }
+    
+    
     @files = map {
         my $s = shift @switches;
         defined $_ ? ($s, $_): ()
