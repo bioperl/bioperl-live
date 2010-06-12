@@ -3,7 +3,7 @@ use strict;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin( -tests            => 233,
+    test_begin( -tests            => 236,
                 -requires_modules => [qw(Graph::Undirected)] );
     use_ok('Bio::Assembly::IO');
     use_ok('Bio::Assembly::Tools::ContigSpectrum');
@@ -316,7 +316,7 @@ ok(my $large_xcsp = Bio::Assembly::Tools::ContigSpectrum->new(
   -cross          => $large_csp,
   -eff_asm_params => 1           ), 'large cross-contig spectrum');
 is($large_xcsp->nof_overlaps, 26);
-# operation returns somtimes 88.7692307692308 and sometimes 88.8076923076923...
+# operation returns sometimes 88.7692307692308 and sometimes 88.8076923076923...
 ok( $large_xcsp->avg_overlap >= 88.7692307692307 );
 ok( $large_xcsp->avg_overlap <= 88.8076923076924 );
 is_deeply($large_xcsp->spectrum, {1=>21, 27=>1});
@@ -325,13 +325,17 @@ ok( $large_xcsp = Bio::Assembly::Tools::ContigSpectrum->new(
   -cross          => $large_csp,
   -min_overlap    => 100) );
 is_deeply($large_xcsp->spectrum, {1=>18, 2=>5, 3=>1, 7=>1});
-@contigs = ($large_xcsp->assembly);
-is(scalar @contigs, 7); # the cross-1-contigs are not included
-@contig_ids = sort qw( contig00001_1 contig00001_2 contig00001_3 contig00001_4
+my @xcontigs = ($large_xcsp->assembly);
+is(scalar @xcontigs, 7); # the cross-1-contigs are not included
+my @xcontig_ids = sort qw( contig00001_1 contig00001_2 contig00001_3 contig00001_4
 contig00001_5 contig00001_6 contig00001_7 );
-is_deeply( [sort map($_->id, @contigs)], \@contig_ids );
-@contig_sizes = sort qw( 2 2 2 2 2 3 7 );
-is_deeply( [sort map($_->num_sequences, @contigs)], \@contig_sizes );
+is_deeply( [sort map($_->id, @xcontigs)], \@xcontig_ids );
+my @xcontig_sizes = sort qw( 2 2 2 2 2 3 7 );
+is_deeply( [sort map($_->num_sequences, @xcontigs)], \@xcontig_sizes );
+my $xcontig = $xcontigs[5];
+is( $xcontig->get_seq_coord($xcontig->get_seq_by_name('species1635|5973'))->start, 1);
+is( $xcontig->get_seq_coord($xcontig->get_seq_by_name('species158|7890'))->start, 1);
+is( $xcontig->get_seq_coord($xcontig->get_seq_by_name('species2742|48'))->end, 140);
 
 # one contig at a time
 $in = Bio::Assembly::IO->new(
