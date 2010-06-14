@@ -25,15 +25,36 @@ used when creating msOUT files from a collection of seq objects ( To be added
 later ). Alternatively, use get_next_hap() to get a string with 1's and 0's
 instead of a seq object.
 
-=head1 AUTHOR
+=head1 FEEDBACK
+
+=head2 Mailing Lists
+
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to the
+Bioperl mailing list. Your participation is much appreciated. 
+
+  bioperl-l@bioperl.org                  - General discussion
+  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+
+=head2 Reporting Bugs 
+
+Report bugs to the Bioperl bug tracking system to help us keep track
+of the bugs and their resolution. Bug reports can be submitted via the
+web:
+
+  http://bugzilla.open-bio.org/  
+
+=head1 AUTHOR - Warren Kretzschmar
 
 This module was written by Warren Kretzschmar
 
 email: wkretzsch@gmail.com
 
+This module grew out of a parser written by Aida Andres.
+
 =head1 COPYRIGHT
 
-=head2 PUBLIC DOMAIN NOTICE
+=head2 Public Domain Notice
 
 This software/database is ``United States Government Work'' under the
 terms of the United States Copyright Act. It was written as part of
@@ -55,13 +76,15 @@ particular purpose.
 =cut
 
 package Bio::SeqIO::msout;
-use version; our $VERSION = qv('1.001.002');
+use version; our $VERSION = qv('1.001.003');
 
 use strict;
 use base qw(Bio::SeqIO);    # This ISA Bio::SeqIO object
 use Bio::Seq::SeqFactory;
 
-=head2 _initialize
+=head2 Methods for Internal Use
+
+=head3 _initialize
 
 Title   : _initialize
 Usage   : $stream = Bio::SeqIO::msOUT->new($infile)
@@ -81,8 +104,7 @@ sub _initialize {
     unless ( defined $self->sequence_factory ) {
         $self->sequence_factory( Bio::Seq::SeqFactory->new() );
     }
-    my ( $no_og, $gunzip, $gzip ) =
-      $self->_rearrange( [qw(NO_OG)], @args );
+    my ($no_og) = $self->_rearrange( [qw(NO_OG)], @args );
 
     my %initial_values = (
         RUNS              => undef,
@@ -94,34 +116,36 @@ sub _initialize {
         NEXT_RUN_NUM      => undef, # What run is the next hap from? undef = EOF
         LAST_READ_HAP_NUM => undef, # What did we just read from
         LAST_HAPS_RUN_NUM => undef,
-		LAST_READ_POSITIONS            => [],
+        LAST_READ_POSITIONS            => [],
         LAST_READ_SEGSITES             => undef,
         BUFFER_HAP                     => undef,
         NO_OUTGROUP                    => $no_og,
-        BASE_CONVERSION_TABLE_HASH_REF => {},
-		BASE_CONVERSION_TABLE_HASH_REF => {
-	        'A' => 0,
-	        'T' => 1,
-	        'C' => 4,
-	        'G' => 5,
-	    },
+        BASE_CONVERSION_TABLE_HASH_REF => {
+            'A' => 0,
+            'T' => 1,
+            'C' => 4,
+            'G' => 5,
+        },
     );
     foreach my $key ( keys %initial_values ) {
         $self->{$key} = $initial_values{$key};
     }
 
-	# If the filehandle is defined open it and read a few lines
-    if ( ref($self->{_filehandle}) eq 'GLOB' ) {
+    # If the filehandle is defined open it and read a few lines
+    if ( ref( $self->{_filehandle} ) eq 'GLOB' ) {
         $self->_read_start();
-		return $self;
+        return $self;
     }
-	# Otherwise throw a warning
-	else {
-		throw("No filehandle defined.  Please define a file handle through -file when calling msout with Bio::SeqIO");
-	}
+
+    # Otherwise throw a warning
+    else {
+        throw(
+"No filehandle defined.  Please define a file handle through -file when calling msout with Bio::SeqIO"
+        );
+    }
 }
 
-=head2 _read_start
+=head3 _read_start
 
 Title   : _read_start
 Usage   : $stream->_read_start()
@@ -134,9 +158,8 @@ Args    : none
 sub _read_start {
     my $self = shift;
 
+    my $fh_IN = $self->{_filehandle};
 
-	my $fh_IN = $self->{_filehandle};
-	
     # get the first five lines and parse for important info
     my ( $ms_info_line, $seeds ) = $self->_get_next_clean_hap( $fh_IN, 2, 1 );
 
@@ -175,17 +198,19 @@ sub _read_start {
     my @seeds = split( /\s+/, $seeds );
 
     # Save ms info data
-    $self->{RUNS}                           = $runs;
-    $self->{SEGSITES}                       = $segsites;
-    $self->{SEEDS}                          = \@seeds;
-    $self->{MS_INFO_LINE}                   = $ms_info_line;
-    $self->{TOT_RUN_HAPS}                   = $tot_run_haps;
-    $self->{POPS}                           = [@pop_haplos];
+    $self->{RUNS}         = $runs;
+    $self->{SEGSITES}     = $segsites;
+    $self->{SEEDS}        = \@seeds;
+    $self->{MS_INFO_LINE} = $ms_info_line;
+    $self->{TOT_RUN_HAPS} = $tot_run_haps;
+    $self->{POPS}         = [@pop_haplos];
 
     return;
 }
 
-=head2 get_segsites
+=head2 Methods to Access Data
+
+=head3 get_segsites
 
 Title   : get_segsites
 Usage   : $segsites = $stream->get_segsites()
@@ -205,7 +230,7 @@ sub get_segsites {
     }
 }
 
-=head2 get_current_run_segsites
+=head3 get_current_run_segsites
 
 Title   : get_current_run_segsites
 Usage   : $segsites = $stream->get_current_run_segsites()
@@ -221,7 +246,7 @@ sub get_current_run_segsites {
     return $self->{LAST_READ_SEGSITES};
 }
 
-=head2 get_runs
+=head3 get_runs
 
 Title   : get_runs
 Usage   : $runs = $stream->get_runs()
@@ -237,7 +262,7 @@ sub get_runs {
     return $self->{RUNS};
 }
 
-=head2 get_Seeds
+=head3 get_Seeds
 
 Title   : get_Seeds
 Usage   : @seeds = $stream->get_Seeds()
@@ -255,7 +280,7 @@ sub get_Seeds {
     return @{ $self->{SEEDS} };
 }
 
-=head2 get_Positions
+=head3 get_Positions
 
 Title   : get_Positions
 Usage   : @positions = $stream->get_Positions()
@@ -273,7 +298,7 @@ sub get_Positions {
     return @{ $self->{LAST_READ_POSITIONS} };
 }
 
-=head2 get_tot_run_haps
+=head3 get_tot_run_haps
 
 Title   : get_tot_run_haps
 Usage   : $number_of_haps_per_run = $stream->get_tot_run_haps()
@@ -290,7 +315,7 @@ sub get_tot_run_haps {
     return $self->{TOT_RUN_HAPS};
 }
 
-=head2 get_ms_info_line
+=head3 get_ms_info_line
 
 Title   : get_ms_info_line
 Usage   : $ms_info_line = $stream->get_ms_info_line()
@@ -305,7 +330,7 @@ sub get_ms_info_line {
     return $self->{MS_INFO_LINE};
 }
 
-=head2 tot_haps
+=head3 tot_haps
 
 Title   : tot_haps
 Usage   : $number_of_haplotypes_in_file = $stream->tot_haps()
@@ -321,7 +346,7 @@ sub get_tot_haps {
     return ( $self->{TOT_RUN_HAPS} * $self->{RUNS} );
 }
 
-=head2 get_Pops
+=head3 get_Pops
 
 Title   : get_Pops
 Usage   : @pops = $stream->pops()
@@ -338,7 +363,7 @@ sub get_Pops {
     return @{ $self->{POPS} };
 }
 
-=head2 get_next_run_num
+=head3 get_next_run_num
 
 Title   : get_next_run_num
 Usage   : $next_run_number = $stream->next_run_num()
@@ -355,7 +380,7 @@ sub get_next_run_num {
     return $self->{NEXT_RUN_NUM};
 }
 
-=head2 get_last_haps_run_num
+=head3 get_last_haps_run_num
 
 Title   : get_last_haps_run_num
 Usage   : $last_haps_run_number = $stream->get_last_haps_run_num()
@@ -368,11 +393,11 @@ Args    : NONE
 =cut
 
 sub get_last_haps_run_num {
-	my $self = shift;
-	return $self->{LAST_HAPS_RUN_NUM};
+    my $self = shift;
+    return $self->{LAST_HAPS_RUN_NUM};
 }
 
-=head2 get_last_read_hap_num
+=head3 get_last_read_hap_num
 
 Title   : get_last_read_hap_num
 Usage   : $last_read_hap_num = $stream->get_last_read_hap_num()
@@ -389,7 +414,7 @@ sub get_last_read_hap_num {
     return $self->{LAST_READ_HAP_NUM};
 }
 
-=head2 outgroup
+=head3 outgroup
 
 Title   : outgroup
 Usage   : $outgroup = $stream->outgroup()
@@ -413,7 +438,7 @@ sub outgroup {
     else { return 0; }
 }
 
-=head2 get_next_haps_pop_num
+=head3 get_next_haps_pop_num
 
 Title   : get_next_haps_pop_num
 Usage   : ($next_haps_pop_num, $num_haps_left_in_pop) = $stream->get_next_haps_pop_num()
@@ -441,7 +466,7 @@ sub get_next_haps_pop_num {
     return ( 1, $pops[0] );
 }
 
-=head2 get_next_seq
+=head3 get_next_seq
 
 Title   : get_next_seq
 Usage   : $seq = $stream->next_seq()
@@ -482,8 +507,8 @@ sub get_next_seq {
       . '; Run '
       . $run . ';';
     my $seq = $self->sequence_factory->create(
-        -seq => $seqstring,
-        -id  => $id,
+        -seq      => $seqstring,
+        -id       => $id,
         -desc     => $description,
         -alphabet => q(dna),
         -direct   => 1,
@@ -493,7 +518,7 @@ sub get_next_seq {
 
 }
 
-=head2 get_next_hap
+=head3 get_next_hap
 
 Title   : get_next_hap
 Usage   : $hap = $stream->next_hap()
@@ -516,9 +541,9 @@ sub get_next_hap {
     if ( $self->{TOT_RUN_HAPS} == $self->{LAST_READ_HAP_NUM} + 1 ) {
         $end_run = 1;
     }
-	
-	# Setting last_haps_run_num
-	$self->{LAST_HAPS_RUN_NUM} = $self->get_next_run_num;
+
+    # Setting last_haps_run_num
+    $self->{LAST_HAPS_RUN_NUM} = $self->get_next_run_num;
 
     my ($seqstring) =
       $self->_get_next_clean_hap( $self->{_filehandle}, 1, $end_run );
@@ -531,7 +556,7 @@ sub get_next_hap {
     else { return $seqstring }
 }
 
-=head2 get_next_pop
+=head3 get_next_pop
 
 Title   : get_next_pop
 Usage   : @seqs = $stream->next_pop()
@@ -563,11 +588,12 @@ sub get_next_pop {
         my $seq = $self->get_next_seq;
         unless ( defined $seq ) {
             throw(
-"undefined \$seq object returned from next_seq().  Probably there is an error in the msOUT info line.\n");
+"undefined \$seq object returned from next_seq().  Probably there is an error in the msOUT info line.\n"
+            );
         }
 
         # Add Population number information to description
-        $seq->display_id( " Population number $next_haps_pop_num;" );
+        $seq->display_id(" Population number $next_haps_pop_num;");
         push @seqs, $seq;
     }
 
@@ -581,7 +607,7 @@ sub get_next_pop {
     return @seqs;
 }
 
-=head2 next_run
+=head3 next_run
 
 Title   : next_run
 Usage   : @seqs = $stream->next_run()
@@ -614,7 +640,8 @@ sub get_next_run {
         my $seq = $self->get_next_seq;
         unless ( defined $seq ) {
             throw(
-"undefined \$seq object returned from next_hap().  Probably there is an error in the msOUT info line.\n");
+"undefined \$seq object returned from next_hap().  Probably there is an error in the msOUT info line.\n"
+            );
         }
 
         push @seqs, $seq;
@@ -628,7 +655,7 @@ sub get_next_run {
     return @seqs;
 }
 
-=head2 Methods to retrieve constants
+=head2 Methods to Retrieve Constants
 
 =head3 base_conversion_table
 
@@ -698,7 +725,7 @@ sub _get_next_clean_hap {
 
         # If the next run is encountered here, then we have a programming
         # or format error
-        if ( $data eq '//' ) { throw( "'//' found when not expected\n") }
+        if ( $data eq '//' ) { throw("'//' found when not expected\n") }
 
         $self->{LAST_READ_HAP_NUM}++;
         push @data, $data;
@@ -751,7 +778,7 @@ sub _load_run_info {
             }
             else {
                 if ( !defined($data) ) {
-                    throw( "run $self->{NEXT_RUN_NUM} has no haps./n");
+                    throw("run $self->{NEXT_RUN_NUM} has no haps./n");
                 }
                 $self->{BUFFER_HAP} = $data;
             }
@@ -759,7 +786,8 @@ sub _load_run_info {
     }
     else {
         throw(
-"'//' not encountered when expected. There are more haplos in one of the msOUT runs than advertised in the msinfo line.");
+"'//' not encountered when expected. There are more haplos in one of the msOUT runs than advertised in the msinfo line."
+        );
     }
 
 }
