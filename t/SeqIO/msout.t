@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-use version; our $VERSION = qv('1.1.2');
+use version; our $VERSION = qv('1.1.4');
 
 use strict;
 
@@ -8,8 +8,8 @@ BEGIN {
     use Bio::Root::Test;
 
     test_begin(
-        -tests               => 87,
-        -requires_modules    => [],
+        -tests               => 125,
+        -requires_modules    => [q(Bio::SeqIO::msout 1.1.4)],
         -requires_networking => 0
     );
 
@@ -20,6 +20,8 @@ test_file_1( 1, "msout_infile1.gz" );
 test_file_1( 0, "msout_infile1" );
 test_file_2( 1, "msout_infile2.gz" );
 test_file_2( 0, "msout_infile2" );
+test_file_3( 1, "msout_infile3.gz" );
+test_file_3( 0, "msout_infile3" );
 
 sub test_file_1 {
 ##############################################################################
@@ -32,10 +34,10 @@ sub test_file_1 {
 
     print_file1( $infile, $gzip );
 
-	my $file_sequence = $infile;
-	if ($gzip){
-		$file_sequence = "gunzip -c <$file_sequence |"
-	}
+    my $file_sequence = $infile;
+    if ($gzip) {
+        $file_sequence = "gunzip -c <$file_sequence |";
+    }
     my $msout = Bio::SeqIO->new(
         -file   => "$file_sequence",
         -format => 'msout',
@@ -62,7 +64,8 @@ sub test_file_1 {
 
     foreach my $attribute ( keys %attributes ) {
         my $func = lc($attribute);
-        if ($attribute =~ m/POPS|SEEDS|POSITIONS/) {
+
+        if ( $attribute m/POPS|SEEDS|POSITIONS/ ) {
             $func = ucfirst($func);
         }
 
@@ -132,7 +135,7 @@ sub test_file_1 {
         "Get next_pop at beginning of run" );
 
     # Testing next_hap after pop
-    @data_got = $msout->get_next_hap;
+    @data_got      = $msout->get_next_hap;
     @data_expected = qw(1010101);
     is_deeply( \@data_got, \@data_expected, "Get next_hap after pop" );
 
@@ -169,10 +172,10 @@ sub test_file_2 {
 
     print_file2( $infile, $gzip );
 
-	my $file_sequence = $infile;
-	if ($gzip){
-		$file_sequence = "gunzip -c <$file_sequence |"
-	}
+    my $file_sequence = $infile;
+    if ($gzip) {
+        $file_sequence = "gunzip -c <$file_sequence |";
+    }
 
     my $msout = Bio::SeqIO->new(
         -file   => "$file_sequence",
@@ -196,7 +199,8 @@ sub test_file_2 {
 
     foreach my $attribute ( keys %attributes ) {
         my $func = lc($attribute);
-        if ($attribute =~ m/POPS|SEEDS|POSITIONS/) {
+
+        if ( $attribute m/POPS|SEEDS|POSITIONS/ ) {
             $func = ucfirst($func);
         }
 
@@ -220,9 +224,9 @@ sub test_file_2 {
     }
 
     my $rh_base_conversion_table = $msout->get_base_conversion_table;
-	
+
     # Testing next_hap at beginning of run
-    my @data_got = $msout->get_next_hap;
+    my @data_got      = $msout->get_next_hap;
     my @data_expected = '1111111';
     is_deeply( \@data_got, \@data_expected,
         "Get next_hap at beginning of run" );
@@ -294,6 +298,107 @@ sub test_file_2 {
     is_deeply( \@data_got, \@data_expected, "Get next_run after hap" );
 
     is( $msout->get_next_run_num, 5, 'next run should be 5.' );
+
+    # getting the last hap of the file via next hap
+    # Testing next_run after hap
+    @data_got      = $msout->get_next_hap;
+    @data_expected = qw( 5555555 );
+    is_deeply( \@data_got, \@data_expected, "Get last hap through next_hap" );
+
+}
+
+sub test_file_3 {
+##############################################################################
+## Test file 3
+##############################################################################
+
+    my $gzip   = shift;
+    my $infile = shift;
+    $infile = test_input_file($infile);
+
+    print_file3( $infile, $gzip );
+
+    my $file_sequence = $infile;
+    if ($gzip) {
+        $file_sequence = "gunzip -c <$file_sequence |";
+    }
+    my $msout = Bio::SeqIO->new(
+        -file   => "$file_sequence",
+        -format => 'msout',
+    );
+
+    isa_ok( $msout, 'Bio::SeqIO::msout' );
+
+    my $rh_base_conversion_table = $msout->get_base_conversion_table;
+
+    isa_ok( $msout, 'Bio::SeqIO::msout' );
+
+    my %attributes = (
+        RUNS              => 1,
+        SEGSITES          => 7,
+        SEEDS             => [qw(1 1 1)],
+        MS_INFO_LINE      => 'ms 3 1',
+        TOT_RUN_HAPS      => 3,
+        POPS              => 3,
+        NEXT_RUN_NUM      => 1,
+        LAST_READ_HAP_NUM => 0,
+        POSITIONS => [qw(79.1001 80.1001 81.101 82.101 83.10001 84.801 85)],
+        CURRENT_RUN_SEGSITES => 7
+    );
+
+    foreach my $attribute ( keys %attributes ) {
+        my $func = lc($attribute);
+
+        if ( $attribute m/POPS|SEEDS|POSITIONS/ ) {
+            $func = ucfirst($func);
+        }
+
+        $func = 'get_' . $func;
+        my @returns = $msout->$func();
+        my ( $return, $got );
+
+        # If there were more than one return value, then compare references to
+        # arrays instead of scalars
+        unless ( @returns > 1 ) {
+            $got = shift @returns;
+        }
+        else { $got = \@returns }
+
+        my $expected = $attributes{$attribute};
+
+        if ( defined $got && defined $expected ) {
+            is_deeply( $got, $expected, "Get $attribute" );
+        }
+        else { is_deeply( $got, $expected, "Get $attribute" ) }
+    }
+
+    # Testing next_hap at beginning of run
+    my @data_got =
+      convert_bases_to_nums( $rh_base_conversion_table, $msout->get_next_pop );
+    my @data_expected = qw(1111111 5555555 4444444);
+    is_deeply( \@data_got, \@data_expected, "Get next_pop at end of run" );
+
+    is( $msout->get_next_run_num, undef, 'have all lines been read?' );
+
+    # Testing what happens when we read from empty stream
+    @data_got      = $msout->get_next_pop;
+    @data_expected = ();
+    is_deeply( \@data_got, \@data_expected, "Get next_pop at eof" );
+
+    # Testing what happens when we read from empty stream
+    @data_got      = $msout->get_next_run;
+    @data_expected = ();
+    is_deeply( \@data_got, \@data_expected, "Get next_run at eof" );
+
+    # Testing what happens when we read from empty stream
+    @data_got      = $msout->get_next_hap;
+    @data_expected = undef;
+    is_deeply( \@data_got, \@data_expected, "Get next_hap at eof" );
+
+    # Testing what happens when we read from empty stream
+    @data_got      = $msout->get_next_seq;
+    @data_expected = ();
+    is_deeply( \@data_got, \@data_expected, "Get next_seq at eof" );
 
 }
 
@@ -397,6 +502,34 @@ positions: 79.1001 80.1001 81.101 82.101 83.10001 84.801 85
 5555555
 END
       ;
+
+    if ($gzip) {
+        $gzip = "| gzip";
+    }
+    else { $gzip = ' '; }
+
+    open OUT, "$gzip >$destination" or throw("Unable to open $destination\n");
+
+    print OUT $out;
+    close OUT;
+}
+
+sub print_file3 {
+
+    my $destination = shift;
+    my $gzip        = shift;
+
+    my $out = <<END ;
+ms 3 1
+1 1 1
+
+//
+segsites: 7
+positions: 79.1001 80.1001 81.101 82.101 83.10001 84.801 85
+1111111
+5555555
+4444444
+END
 
     if ($gzip) {
         $gzip = "| gzip";
