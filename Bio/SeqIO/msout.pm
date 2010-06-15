@@ -76,7 +76,7 @@ particular purpose.
 =cut
 
 package Bio::SeqIO::msout;
-use version; our $VERSION = qv('1.001.003');
+use version; our $VERSION = qv('1.001.004');
 
 use strict;
 use base qw(Bio::SeqIO);    # This ISA Bio::SeqIO object
@@ -471,7 +471,7 @@ sub get_next_haps_pop_num {
 Title   : get_next_seq
 Usage   : $seq = $stream->next_seq()
 Function: reads and returns the next sequence (haplotype) in the stream
-Returns : Bio::Seq object
+Returns : Bio::Seq object or void if end of file
 Args    : NONE
 Note	: This function is included only to conform to convention.  The
           returned Bio::Seq object holds a halpotype in coded form. Use the hash
@@ -482,9 +482,10 @@ Note	: This function is included only to conform to convention.  The
 =cut
 
 sub get_next_seq {
-    my $self = shift;
-
+    my $self      = shift;
     my $seqstring = $self->get_next_hap;
+
+    return unless ($seqstring);
 
     # Used to create unique ID;
     my $run = $self->get_last_haps_run_num;
@@ -548,12 +549,7 @@ sub get_next_hap {
     my ($seqstring) =
       $self->_get_next_clean_hap( $self->{_filehandle}, 1, $end_run );
 
-    # close file and return undef if end of file.
-    unless ( defined $seqstring ) {
-        $self->close();
-        return undef;
-    }
-    else { return $seqstring }
+    return $seqstring;
 }
 
 =head3 get_next_pop
@@ -561,7 +557,8 @@ sub get_next_hap {
 Title   : get_next_pop
 Usage   : @seqs = $stream->next_pop()
 Function: reads and returns all the remaining sequences (haplotypes) in the
-          population of the next sequence.  
+          population of the next sequence.  Returns an empty list if no more 
+          haps remain to be read in the stream  
 Returns : array of Bio::Seq objects
 Args    : NONE  
 
@@ -586,22 +583,11 @@ sub get_next_pop {
 
     for ( 1 .. $haps_to_pull ) {
         my $seq = $self->get_next_seq;
-        unless ( defined $seq ) {
-            throw(
-"undefined \$seq object returned from next_seq().  Probably there is an error in the msOUT info line.\n"
-            );
-        }
+        next unless defined $seq;
 
         # Add Population number information to description
         $seq->display_id(" Population number $next_haps_pop_num;");
         push @seqs, $seq;
-    }
-
-    #close file handle if we've gotten to the end of the file
-    if ( $next_haps_pop_num == @pops
-        && !defined $self->{NEXT_RUN_NUM} )
-    {
-        $self->close();
     }
 
     return @seqs;
@@ -612,7 +598,8 @@ sub get_next_pop {
 Title   : next_run
 Usage   : @seqs = $stream->next_run()
 Function: reads and returns all the remaining sequences (haplotypes) in the ms
-          run of the next sequence.  
+          run of the next sequence.  Returns an empty list if all haps have been
+          read from the stream.  
 Returns : array of Bio::Seq objects
 Args    : NONE  
 
@@ -638,18 +625,9 @@ sub get_next_run {
 
     for ( 1 .. $haps_to_pull ) {
         my $seq = $self->get_next_seq;
-        unless ( defined $seq ) {
-            throw(
-"undefined \$seq object returned from next_hap().  Probably there is an error in the msOUT info line.\n"
-            );
-        }
+        next unless defined $seq;
 
         push @seqs, $seq;
-    }
-
-    # If the file is done, close the file.
-    unless ( defined $self->{NEXT_RUN_NUM} ) {
-        $self->close();
     }
 
     return @seqs;
