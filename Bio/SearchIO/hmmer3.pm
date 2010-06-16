@@ -186,7 +186,7 @@ sub next_result{
    my ($self)  = @_;
    my $seentop = 0; #Placeholder for when we deal with multi-query reports
    my $reporttype;
-   my ( $last, @hitinfo, @hspinfo, %hspinfo, %hitinfo );
+   my ( $last, @hit_list, @hsp_list, %hspinfo, %hitinfo );
    local $/ = "\n";
    local $_;
 
@@ -361,8 +361,8 @@ sub next_result{
 		   if( !defined( $desc ) ){
 		       $desc = "";
 		   }
-		   push @hitinfo, [ $hitid, $desc, $eval_full, $score_full ];
-		   $hitinfo{$hitid}= $#hitinfo;
+		   push @hit_list, [ $hitid, $desc, $eval_full, $score_full ];
+		   $hitinfo{$hitid}= $#hit_list;
 	       }
 	   }
 	   #Complete sequence table data below inclusion threshold
@@ -396,7 +396,7 @@ sub next_result{
 	   }
 	   #Domain annotation for each sequence table data
 	   elsif( $_ =~ m/Domain( and alignment)? annotation for each/){
-	       @hspinfo = (); #here for multi-query reports
+	       @hsp_list = (); #here for multi-query reports
 	       my %domaincounter = ();
 	       my $name;
 
@@ -420,7 +420,7 @@ sub next_result{
 		       $self->start_element( { 'Name' => 'Hit' } );
 		       my $info = [
 			   @{
-			       $hitinfo[ $hitinfo{$name} ] || $self->throw(
+			       $hit_list[ $hitinfo{$name} ] || $self->throw(
 				   "Could not find hit info for $name: Ensure that your database contains only unique sequence names"
 				   )
 			   }
@@ -489,7 +489,7 @@ sub next_result{
 			       ){
 			       #keeping simple for now. let's customize later
 			       my @vals = ($envstart, $envstop, $hmmstart, $hmmstop, $score, $ceval);
-			       my $info = $hitinfo[ $hitinfo{$name} ];
+			       my $info = $hit_list[ $hitinfo{$name} ];
 			       if( !defined $info ){
 				   $self->warn(
 				       "Incomplete sequence information; can't find $name, hitinfo says $hitinfo{$name}\n"
@@ -497,7 +497,7 @@ sub next_result{
 				   next;
 			       }
 			       $domaincounter{$name}++;
-			       push @hspinfo, [ $name, @vals ];
+			       push @hsp_list, [ $name, @vals ];
 			       #If no alignments in the report, then we need to grab the hsp data now
 			       if( !$self->{'_alnreport'} ){
 				   if( $self->within_element('hsp') ) {
@@ -517,7 +517,7 @@ sub next_result{
 					   'Data' => 0
 				       }
 				       );
-				   my $HSPinfo = shift @hspinfo;
+				   my $HSPinfo = shift @hsp_list;
 				   my $id      = shift @$HSPinfo;
 
 				   if( $id ne $name ){
@@ -603,7 +603,7 @@ sub next_result{
 				       'Data' => 0
 				   }
 				);
-			       my $HSPinfo = shift @hspinfo;
+			       my $HSPinfo = shift @hsp_list;
 			       my $id      = shift @$HSPinfo;
 
 			       if( $id ne $name ){
@@ -736,13 +736,13 @@ sub next_result{
 	       }
 
 	       #Jason does a lot of processing of hits/hsps here;
-	       while( my $HSPinfo = shift @hspinfo ) {
-	       
+	       while( my $HSPinfo = shift @hsp_list ) {
+
 	       }
-	       @hitinfo = ();
+	       @hit_list = ();
 	       %hitinfo = ();
 	       last;
-	   }	       
+	   }
        }
        else{
 	   print "missed: $_\n";
