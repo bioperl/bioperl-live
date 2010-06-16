@@ -561,6 +561,7 @@ sub sort_by_list {
     return $aln;
 }
 
+
 =head2 sort_by_pairwise_identity
 
  Title     : sort_by_pairwise_identity()
@@ -594,6 +595,36 @@ sub sort_by_pairwise_identity {
 	1;	
 }
 
+=head2 sort_by_length
+
+ Title     : sort_by_length()
+ Usage     : $ali->sort_by_pairwise_identity()
+ Function  : Changes the order of the alignment by the ungapped length of the sequences
+ Returns   : 1
+ Argument  :
+
+=cut
+
+sub sort_by_length {
+	my $self = shift;
+	my %seq2length;
+	
+	foreach my $order (keys %{$self->{'_order'}}) {
+		my $nse=$self->{'_order'}->{$order};
+		my $seq=$self->{'_seq'}->{$nse};
+		$seq2length{$seq->get_nse}=$seq->_ungapped_len;
+	}
+	
+	%{$self->{'_order'}} = (); # reset the hash;
+	
+	my $count=0;
+	foreach my $nse (sort {$seq2length{$a}<=>$seq2length{$b}} keys %seq2length) {
+		$self->{'_order'}->{$count} = $nse;
+		$count++;
+	}
+	
+	1;
+}
 
 =head2 set_new_reference
 
@@ -2686,7 +2717,7 @@ sub overall_percentage_identity{
  Function  : Returns pairwise percentage identity of each sequence to the reference sequence(first sequence as default), or selected sequence
  				 See set_new_reference for information on reference sequence
  Returns   : A list of percentage identity to the reference sequence
- Argument  :
+ Argument  : A number for the position of the reference sequence or the sequence name of the reference sequence
 
 =cut
 
