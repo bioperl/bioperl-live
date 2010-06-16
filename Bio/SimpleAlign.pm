@@ -2679,7 +2679,83 @@ sub overall_percentage_identity{
    return ($total / $len ) * 100.0;
 }
 
+=head2 pairwise_percentage_identity
 
+ Title     : pairwise_percentage_identity()
+ Usage     : @pairwiseiden=$ali->pairwise_percentage_identity(3)
+ Function  : Returns pairwise percentage identity of each sequence to the reference sequence(first sequence as default), or selected sequence
+ 				 See set_new_reference for information on reference sequence
+ Returns   : A list of percentage identity to the reference sequence
+ Argument  :
+
+=cut
+
+sub pairwise_percentage_identity {
+	my ($self,$seqid)=@_;
+   my @alphabet = ('A','B','C','D','E','F','G','H','I','J','K','L','M',
+                   'N','O','P','Q','R','S','T','U','V','W','X','Y','Z');
+	my %alphabethash=map { $_, 1 } @alphabet;
+   my ($refseq, @seqs,@ids,@pairwise_iden);
+
+   if (! $self->is_flush()) {
+       $self->throw("All sequences in the alignment must be the same length");
+   }
+
+	foreach my $seq ( $self->each_seq() ) {
+		push @seqs, $seq;
+		push @ids, $seq->display_id;
+	}
+
+   # load the each hash with correct keys for existence checks
+   if(defined($seqid)) {
+   	my $is_num=0;
+	   if ($seqid =~ /^\d+$/) { # argument is seq position
+			$is_num=1;
+			$self->throw("The new reference sequence number has to be a positive integer >=1 and <= num_sequences ") if ($seqid < 1 || $seqid > $self->num_sequences);
+		}
+		else { # argument is a seq name
+			$self->throw("The new reference sequence not in alignment ") unless &_in_aln($seqid, \@ids);
+	   }
+		#return the requested seq as the reference seq in the pairwise comparison		
+		for (my $i=0; $i<=$#seqs; $i++) {
+			my $pos=$i+1;
+			if ( ($is_num && $pos == $seqid) || ($seqid eq $seqs[$i]->display_id) ) {
+				$refseq= $seqs[$i];
+				last;
+			}
+		}
+	}
+	else {
+		$refseq=$seqs[0];
+	}
+	
+	#calculate the length of the reference sequence
+   my @refseqchars=split //, uc($refseq->seq());
+   my $reflength=0;
+   foreach my $char (@refseqchars) {
+   	if(exists $alphabethash{$char}) {
+   		$reflength++;
+   	}
+   }
+   if($reflength==0) {
+   	$self->throw("The reference sequence should be non-zero length ");
+   }
+   
+   #calculate the pairwise identity
+   foreach my $seq (@seqs)  {
+   	my $idcount=0;
+		my @seqChars = split //, $seq->seq();
+		for( my $column=0; $column < @seqChars; $column++ ) {
+			my $char = uc($seqChars[$column]);
+			if(defined $alphabethash{$char} && defined $alphabethash{$refseqchars[$column]} && $char eq $refseqchars[$column]) {
+				$idcount++;
+			}
+		}
+		push @pairwise_iden,$idcount/$reflength;
+	}
+	
+	return @pairwise_iden;
+}
 
 =head1 Alignment positions
 
