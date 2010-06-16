@@ -1,27 +1,57 @@
 #!/usr/bin/perl -w
-use version; our $VERSION = qv('1.1.4');
+use version;
+our $API_VERSION = qv('1.1.5');
 
 use strict;
+use File::Path qw(make_path remove_tree);
 
 BEGIN {
     use lib '.';    # for core package test scripts only
     use Bio::Root::Test;
 
     test_begin(
-        -tests               => 125,
-        -requires_modules    => [q(Bio::SeqIO::msout 1.1.4)],
+        -tests               => 64,
+        -requires_modules    => [q(Bio::SeqIO::msout)],
         -requires_networking => 0
     );
 
     use_ok('Bio::SeqIO::msout');
+
 }
 
-test_file_1( 1, "msout_infile1.gz" );
-test_file_1( 0, "msout_infile1" );
-test_file_2( 1, "msout_infile2.gz" );
-test_file_2( 0, "msout_infile2" );
-test_file_3( 1, "msout_infile3.gz" );
-test_file_3( 0, "msout_infile3" );
+# skip tests if the msout.pm module is too old.
+cmp_ok( $Bio::SeqIO::msout::API_VERSION,
+    '>=', qv('1.1.5'), "Bio::SeqIO::msout is at least api version 1.1.5" );
+
+create_dir("msout");
+test_file_1( 0, "msout/msout_infile1" );
+test_file_2( 0, "msout/msout_infile2" );
+test_file_3( 0, "msout/msout_infile3" );
+
+# remove_dir("msout");
+
+sub create_dir {
+
+    my $dir = shift;
+
+    $dir = test_input_file($dir);
+
+    unless ( -d $dir ) {
+        make_path($dir);
+    }
+}
+
+sub remove_dir {
+
+    my $dir = shift;
+
+    $dir = test_input_file($dir);
+
+    if ( -d $dir ) {
+        remove_tree($dir);
+    }
+    else { warn "Tried to remove $dir, but it does not exist" }
+}
 
 sub test_file_1 {
 ##############################################################################
@@ -65,7 +95,7 @@ sub test_file_1 {
     foreach my $attribute ( keys %attributes ) {
         my $func = lc($attribute);
 
-        if ( $attribute m/POPS|SEEDS|POSITIONS/ ) {
+        if ( $attribute =~ m/POPS|SEEDS|POSITIONS/ ) {
             $func = ucfirst($func);
         }
 
@@ -200,7 +230,7 @@ sub test_file_2 {
     foreach my $attribute ( keys %attributes ) {
         my $func = lc($attribute);
 
-        if ( $attribute m/POPS|SEEDS|POSITIONS/ ) {
+        if ( $attribute =~ m/POPS|SEEDS|POSITIONS/ ) {
             $func = ucfirst($func);
         }
 
@@ -349,7 +379,7 @@ sub test_file_3 {
     foreach my $attribute ( keys %attributes ) {
         my $func = lc($attribute);
 
-        if ( $attribute m/POPS|SEEDS|POSITIONS/ ) {
+        if ( $attribute =~ m/POPS|SEEDS|POSITIONS/ ) {
             $func = ucfirst($func);
         }
 
@@ -445,7 +475,7 @@ END
         $gzip = "| gzip";
     }
     else { $gzip = ' '; }
-    open OUT, "$gzip >$destination" or throw("Unable to open $destination\n");
+    open OUT, "$gzip >$destination" or die "Unable to open $destination\n";
 
     print OUT $out;
     close OUT;
@@ -508,7 +538,7 @@ END
     }
     else { $gzip = ' '; }
 
-    open OUT, "$gzip >$destination" or throw("Unable to open $destination\n");
+    open OUT, "$gzip >$destination" or die "Unable to open $destination\n";
 
     print OUT $out;
     close OUT;
@@ -536,7 +566,7 @@ END
     }
     else { $gzip = ' '; }
 
-    open OUT, "$gzip >$destination" or throw("Unable to open $destination\n");
+    open OUT, "$gzip >$destination" or die "Unable to open $destination\n";
 
     print OUT $out;
     close OUT;
@@ -545,7 +575,7 @@ END
 sub print_to_file {
     my ( $ra_in, $out ) = @_;
     unless ( open OUT, ">$out" ) {
-        throw("\nCould not open outfile $out!!\n\n");
+        die "\nCould not open outfile $out!!\n\n";
     }
     print OUT ("@$ra_in");
     close OUT;
