@@ -559,6 +559,40 @@ sub sort_by_list {
     return $aln;
 }
 
+=head2 sort_by_pairwise_identity
+
+ Title     : sort_by_pairwise_identity()
+ Usage     : $ali->sort_by_pairwise_identity(2)
+ Function  : Changes the order of the alignment to the pairwise percentage identity of the reference sequence
+ Returns   : 1
+ Argument  :
+
+=cut
+
+sub sort_by_pairwise_identity {
+	my ($self,$seqid) = @_;
+	my ($seq,$nse,@arr,%hash,$count);
+	$seqid=defined($seqid)?$seqid:1;
+	my @pairwise_iden=$self->Newcode::pairwise_percentage_identity($seqid);
+	
+	my $seqcount = 0;
+	foreach $seq ( $self->each_seq() ) {
+		$nse = $seq->get_nse;
+		$hash{$nse} = $pairwise_iden[$seqcount++];
+	}
+
+	$count=0;
+
+	%{$self->{'_order'}} = (); # reset the hash;
+
+	foreach $nse ( sort {$hash{$b}<=>$hash{$a}} keys %hash) {
+		$self->{'_order'}->{$count} = $nse;
+		$count++;
+	}
+	1;	
+}
+
+
 =head2 set_new_reference
 
  Title     : set_new_reference
@@ -1488,6 +1522,56 @@ sub uppercase {
     return 1;
 }
 
+=head2 lowercase
+
+ Title     : lowercase()
+ Usage     : $ali->lowercase()
+ Function  : Sets all the sequences to lowercase
+ Returns   : 1
+ Argument  :
+
+=cut
+
+sub lowercase {
+    my $self = shift;
+    my $seq;
+    my $temp;
+
+    foreach $seq ( $self->each_seq() ) {
+      $temp = $seq->seq();
+      $temp =~ tr/[A-Z]/[a-z]/;
+
+      $seq->seq($temp);
+    }
+    return 1;
+}
+
+
+=head2 togglecase
+
+ Title     : togglecase()
+ Usage     : $ali->togglecase()
+ Function  : Sets all the sequences to opposite case
+ Returns   : 1
+ Argument  :
+
+=cut
+
+sub togglecase {
+    my $self = shift;
+    my $seq;
+    my $temp;
+
+    foreach $seq ( $self->each_seq() ) {
+      $temp = $seq->seq();
+      $temp =~ tr/[A-Za-z]/[a-zA-Z]/;
+
+      $seq->seq($temp);
+    }
+    return 1;
+}
+
+
 =head2 cigar_line
 
  Title    : cigar_line()
@@ -1990,6 +2074,28 @@ sub symbol_chars{
    return keys %copy;
 }
 
+=head2 mask_char
+
+ Title     : mask_char
+ Usage     : $aln->mask_char('\?')
+ Function  : Gets/sets the mask_char attribute of the alignment
+ Returns   : An mask_char string,
+ Argument  : An mask_char string (optional)
+
+=cut
+
+sub mask_char {
+	my ($self, $char) = @_;
+	
+	#may need to check whether $char is the same with _gap_char, _match_char and _missing_char
+	if (defined $char || ! defined $self->{'_mask_char'} ) {
+		$char= '\?' unless defined $char;
+		$self->throw("Single mask character, not [$char]!") if CORE::length($char) > 1;
+		$self->{'_mask_char'} = $char;
+	}
+	return $self->{'_mask_char'};
+}
+
 =head1 Alignment descriptors
 
 These read only methods describe the MSA in various ways.
@@ -2407,7 +2513,7 @@ sub num_residues {
 
 sub num_sequences {
     my $self = shift;
-    return scalar($self->each_seq);
+    return scalar(keys %{$self->{'_order'}});
 }
 
 
@@ -3170,45 +3276,69 @@ sub no_sequences {
 
 sub mask_columns {
     #based on slice(), but did not include the Bio::Seq::Meta sections as I was not sure what it is doing
-    my $self = shift;
+	my $self = shift;
 
-    my $nonres = $Bio::LocatableSeq::GAP_SYMBOLS.
-             $Bio::LocatableSeq::FRAMESHIFT_SYMBOLS;
+	my $nonres = join("",$self->gap_char, $self->match_char,$self->missing_char);
     
-    # coordinates are alignment-based, not sequence-based
-    my ($start, $end, $mask_char) = @_;
-    unless (defined $mask_char) { $mask_char = 'N' }
+	my $mask_char=$self->mask_char;
+   
+	my @coords=sort {$a<=>$b} @_;
+	
+	#Exceptions
+	$self->throw("Mask start has to be a positive integer and less than ".
+                 "alignment length, not [$coords[0]]")
+	unless $coords[0] =~ /^\d+$/ && $coords[0] > 0 && $coords[0] <= $self->length;	
 
-    $self->throw("Mask start has to be a positive integer and less than ".
-                 "alignment length, not [$start]")
-      unless $start =~ /^\d+$/ && $start > 0 && $start <= $self->length;
-    $self->throw("Mask end has to be a positive integer and less than ".
-                 "alignment length, not [$end]")
-      unless $end =~ /^\d+$/ && $end > 0 && $end <= $self->length;
-    $self->throw("Mask start [$start] has to be smaller than or equal to ".
-                 "end [$end]") unless $start <= $end;
-    $self->throw("Mask character $mask_char has to be a single character ".
-                 "and not a gap or frameshift symbol")
-      unless CORE::length($mask_char) == 1 && $mask_char !~ m{$nonres};
-    
-    my $aln = $self->new;
-    $aln->id($self->id);
-    foreach my $seq ( $self->each_seq() ) {
-        my $new_seq = Bio::LocatableSeq->new(-id => $seq->id,
-         -alphabet => $seq->alphabet,
-         -strand  => $seq->strand,
-         -verbose => $self->verbose);
-        
-        # convert from 1-based alignment coords!
-        my $masked_string = substr($seq->seq, $start - 1, $end - $start + 1);
-        $masked_string =~ s{[^$nonres]}{$mask_char}g;
-        my $new_dna_string = substr($seq->seq,0,$start-1) . $masked_string . substr($seq->seq,$end);
-        $new_seq->seq($new_dna_string);
-        $aln->add_seq($new_seq);
-    }
-    return $aln;
+   $self->throw("Mask end has to be a positive integer and less than ".
+                 "alignment length, not [$coords[$#coords]]")
+	unless $coords[$#coords] =~ /^\d+$/ && $coords[$#coords] > 0 && $coords[$#coords] <= $self->length;                 
+	
+	#calculate the coords, and make it in a continous way
+	my @newcoords=_cont_coords(@coords);
+	
+	my $aln = $self->new;
+	$aln->id($self->id);
+	
+
+	foreach my $seq ( $self->each_seq() ) {
+		my $new_seq = Bio::LocatableSeq->new(-id => $seq->id,
+				-alphabet => $seq->alphabet,
+				-strand  => $seq->strand,
+				-verbose => $self->verbose);
+		my $dna_string=$seq->seq();
+		for(my $num=0;$num<@newcoords;) {
+			my ($start,$end)=@newcoords[$num,$num+1];    
+			# convert from 1-based alignment coords!
+			substr($dna_string,$start - 1, $end - $start + 1)=$maskchar x ($end - $start + 1);
+			$num+=2;
+		}
+		$new_seq->seq($dna_string);
+		$aln->add_seq($new_seq);
+	}
+	return $aln;
 }
 
+=head2 _cont_coords
+
+ Title     : _cont_coords
+ Usage     : _cont_coords(@coords)
+ Function  : Merge the coordinates from select and remove functions in order to reduce the number of calculations in select and remove. 
+ 				 For exmaple, if the input of remove_columns is remove_columns(2,5,7..10), this function will transform (2,5,7..10) to 
+ 				 (2,2,5,5,7,10).
+ Returns   : Continuous coordinates
+ Argument  :
+
+=cut
+
+sub _cont_coords {
+	my $self=shift;
+	my @old_coords=@_;
+	my @cont_coords;
+	
+	
+	
+	return @cont_coords;
+}
 
 
 1;
