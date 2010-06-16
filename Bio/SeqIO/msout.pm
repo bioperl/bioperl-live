@@ -76,7 +76,8 @@ particular purpose.
 =cut
 
 package Bio::SeqIO::msout;
-use version; our $VERSION = qv('1.001.004');
+use version;
+our $API_VERSION = qv('1.1.5');
 
 use strict;
 use base qw(Bio::SeqIO);    # This ISA Bio::SeqIO object
