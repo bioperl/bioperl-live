@@ -3334,19 +3334,14 @@ sub no_sequences {
 =head2 mask_columns
 
  Title     : mask_columns
- Usage     : $aln2 = $aln->mask_columns(20,30)
- Function  : Masks a slice of the alignment inclusive of start and
-             end columns, and the first column in the alignment is denoted 1.
+ Usage     : $aln2 = $aln->mask_columns(2,5,7..10)
+ Function  : Masks slices of the alignment inclusive of the defined
+             columns, and the first column in the alignment is denoted 1.
              Mask beyond the length of the sequence does not do padding.
  Returns   : A Bio::SimpleAlign object
- Args      : Positive integer for start column, positive integer for end column,
-             optional string value use for the mask. Example:
-
-             $aln2 = $aln->mask_columns(20,30,'?')
- Note      : Masking must use a character that is not used for gaps or
-             frameshifts.  These can be adjusted using the relevant global
-             variables, but be aware these may be (uncontrollably) modified
-             elsewhere within BioPerl (see bug 2715)
+ Args      : Positive integers should be used to defined the column numbers
+             The mask character should be defined by $aln->mask_char() or "?" as default
+ Note      : 
 
 =cut
 
@@ -3407,12 +3402,27 @@ sub mask_columns {
 =cut
 
 sub _cont_coords {
-	my $self=shift;
 	my @old_coords=@_;
 	my @cont_coords;
-	
-	
-	
+	push @cont_coords,$old_coords[0];
+	for(my $num=0;$num<@old_coords;) {
+		if($old_coords[$num+1]-$old_coords[$num]>1) {
+			if($num+2==@old_coords) {
+				push @cont_coords,$old_coords[$num],$old_coords[$num+1],$old_coords[$num+1];
+				last;
+			}
+			else {
+				push @cont_coords,$old_coords[$num],$old_coords[$num+1];
+			}
+		}
+		else {
+			if ($num+2==@old_coords) {
+				push @cont_coords,$old_coords[$num+1];
+				last;
+			}
+		}
+		$num++;
+	}
 	return @cont_coords;
 }
 
