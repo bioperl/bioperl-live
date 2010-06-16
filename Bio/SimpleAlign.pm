@@ -573,7 +573,7 @@ sub sort_by_pairwise_identity {
 	my ($self,$seqid) = @_;
 	my ($seq,$nse,@arr,%hash,$count);
 	$seqid=defined($seqid)?$seqid:1;
-	my @pairwise_iden=$self->Newcode::pairwise_percentage_identity($seqid);
+	my @pairwise_iden=$self->pairwise_percentage_identity($seqid);
 	
 	my $seqcount = 0;
 	foreach $seq ( $self->each_seq() ) {
@@ -3385,7 +3385,7 @@ sub mask_columns {
 		for(my $num=0;$num<@newcoords;) {
 			my ($start,$end)=@newcoords[$num,$num+1];    
 			# convert from 1-based alignment coords!
-			substr($dna_string,$start - 1, $end - $start + 1)=$maskchar x ($end - $start + 1);
+			substr($dna_string,$start - 1, $end - $start + 1)=$mask_char x ($end - $start + 1);
 			$num+=2;
 		}
 		$new_seq->seq($dna_string);
