@@ -280,7 +280,7 @@ sequences.
              If -ORDER is specified, the sequence is inserted at the
              the position spec'd by -ORDER, and existing sequences
              are pushed down the storage array.
- Returns   : nothing
+ Returns   : 1
  Args      : A Bio::LocatableSeq object
              Positive integer for the sequence position (optional)
 
@@ -351,6 +351,8 @@ sub add_seq {
     }
 
     $self->{'_seq'}->{$name} = $seq;
+    
+    1;
 
 }
 
@@ -2540,9 +2542,8 @@ sub num_sequences {
 sub average_percentage_identity{
    my ($self,@args) = @_;
 
-   my @alphabet = ('A','B','C','D','E','F','G','H','I','J','K','L','M',
-                   'N','O','P','Q','R','S','T','U','V','W','X','Y','Z');
-
+	my %alphabet = map {$_ => undef} qw (A C G T U B D E F H I J K L M N O P Q R S V W X Y Z);
+   
    my ($len, $total, $subtotal, $divisor, $subdivisor, @seqs, @countHashes);
 
    if (! $self->is_flush()) {
@@ -2554,16 +2555,11 @@ sub average_percentage_identity{
 
    # load the each hash with correct keys for existence checks
 
-   for( my $index=0; $index < $len; $index++) {
-       foreach my $letter (@alphabet) {
-	   $countHashes[$index]->{$letter} = 0;
-       }
-   }
    foreach my $seq (@seqs)  {
        my @seqChars = split //, $seq->seq();
        for( my $column=0; $column < @seqChars; $column++ ) {
 	   my $char = uc($seqChars[$column]);
-	   if (exists $countHashes[$column]->{$char}) {
+	   if (exists $alphabet{$char}) {
 	       $countHashes[$column]->{$char}++;
 	   }
        }
@@ -2696,9 +2692,9 @@ sub overall_percentage_identity{
 
 sub pairwise_percentage_identity {
 	my ($self,$seqid)=@_;
-   my @alphabet = ('A','B','C','D','E','F','G','H','I','J','K','L','M',
-                   'N','O','P','Q','R','S','T','U','V','W','X','Y','Z');
-	my %alphabethash=map { $_, 1 } @alphabet;
+
+	my %alphabet = map {$_ => undef} qw (A C G T U B D E F H I J K L M N O P Q R S V W X Y Z);
+
    my ($refseq, @seqs,@ids,@pairwise_iden);
 
    if (! $self->is_flush()) {
@@ -2735,12 +2731,8 @@ sub pairwise_percentage_identity {
 	
 	#calculate the length of the reference sequence
    my @refseqchars=split //, uc($refseq->seq());
-   my $reflength=0;
-   foreach my $char (@refseqchars) {
-   	if(exists $alphabethash{$char}) {
-   		$reflength++;
-   	}
-   }
+   my $reflength=$refseq->seq()=~tr/A-Za-z//;;
+
    if($reflength==0) {
    	$self->throw("The reference sequence should be non-zero length ");
    }
@@ -2751,7 +2743,7 @@ sub pairwise_percentage_identity {
 		my @seqChars = split //, $seq->seq();
 		for( my $column=0; $column < @seqChars; $column++ ) {
 			my $char = uc($seqChars[$column]);
-			if(defined $alphabethash{$char} && defined $alphabethash{$refseqchars[$column]} && $char eq $refseqchars[$column]) {
+			if(exists $alphabet{$char} && exists $alphabet{$refseqchars[$column]} && $char eq $refseqchars[$column]) {
 				$idcount++;
 			}
 		}
