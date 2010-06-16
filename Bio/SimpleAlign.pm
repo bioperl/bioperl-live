@@ -1989,17 +1989,18 @@ sub description {
              It is generally recommended to set it to 'n' or 'N'
              for nucleotides and to 'X' for protein.
  Returns   : An missing_char string,
- Argument  : An missing_char string (optional)
+ Argument  : An missing_char string (optional), default as '?'
 
 =cut
 
 sub missing_char {
     my ($self, $char) = @_;
-
-    if (defined $char ) {
-	$self->throw("Single missing character, not [$char]!") if CORE::length($char) > 1;
-	$self->{'_missing_char'} = $char;
-    }
+	
+	if (defined $char || ! defined $self->{'_missing_char'} ) {
+		$char= '?' unless defined $char;
+		$self->throw("Single gap character, not [$char]!") if CORE::length($char) > 1;
+		$self->{'_missing_char'} = $char;
+	}
 
     return $self->{'_missing_char'};
 }
@@ -2010,17 +2011,18 @@ sub missing_char {
  Usage     : $myalign->match_char('.')
  Function  : Gets/sets the match_char attribute of the alignment
  Returns   : An match_char string,
- Argument  : An match_char string (optional)
+ Argument  : An match_char string (optional), default as '.'
 
 =cut
 
 sub match_char {
     my ($self, $char) = @_;
 
-    if (defined $char ) {
-	$self->throw("Single match character, not [$char]!") if CORE::length($char) > 1;
-	$self->{'_match_char'} = $char;
-    }
+	if (defined $char || ! defined $self->{'_match_char'} ) {
+		$char= '.' unless defined $char;
+		$self->throw("Single gap character, not [$char]!") if CORE::length($char) > 1;
+		$self->{'_match_char'} = $char;
+	}
 
     return $self->{'_match_char'};
 }
@@ -2031,19 +2033,41 @@ sub match_char {
  Usage     : $myalign->gap_char('-')
  Function  : Gets/sets the gap_char attribute of the alignment
  Returns   : An gap_char string, defaults to '-'
- Argument  : An gap_char string (optional)
+ Argument  : An gap_char string (optional), default as '-'
 
 =cut
 
 sub gap_char {
     my ($self, $char) = @_;
 
-    if (defined $char || ! defined $self->{'_gap_char'} ) {
-	$char= '-' unless defined $char;
-	$self->throw("Single gap character, not [$char]!") if CORE::length($char) > 1;
-	$self->{'_gap_char'} = $char;
-    }
-    return $self->{'_gap_char'};
+	if (defined $char || ! defined $self->{'_gap_char'} ) {
+		$char= '-' unless defined $char;
+		$self->throw("Single gap character, not [$char]!") if CORE::length($char) > 1;
+		$self->{'_gap_char'} = $char;
+	}
+	return $self->{'_gap_char'};
+}
+
+=head2 mask_char
+
+ Title     : mask_char
+ Usage     : $aln->mask_char('?')
+ Function  : Gets/sets the mask_char attribute of the alignment
+ Returns   : An mask_char string,
+ Argument  : An mask_char string (optional), default as '?'
+
+=cut
+
+sub mask_char {
+	my ($self, $char) = @_;
+	
+	#may need to check whether $char is the same with _gap_char, _match_char and _missing_char
+	if (defined $char || ! defined $self->{'_mask_char'} ) {
+		$char= '?' unless defined $char;
+		$self->throw("Single mask character, not [$char]!") if CORE::length($char) > 1;
+		$self->{'_mask_char'} = $char;
+	}
+	return $self->{'_mask_char'};
 }
 
 =head2 symbol_chars
@@ -2067,34 +2091,14 @@ sub symbol_chars{
    my %copy = %{$self->{'_symbols'}};
    if( ! $includeextra ) {
        foreach my $char ( $self->gap_char, $self->match_char,
-			  $self->missing_char) {
+			  $self->missing_char, $self->mask_char) {
 	   delete $copy{$char} if( defined $char );
        }
    }
    return keys %copy;
 }
 
-=head2 mask_char
 
- Title     : mask_char
- Usage     : $aln->mask_char('\?')
- Function  : Gets/sets the mask_char attribute of the alignment
- Returns   : An mask_char string,
- Argument  : An mask_char string (optional)
-
-=cut
-
-sub mask_char {
-	my ($self, $char) = @_;
-	
-	#may need to check whether $char is the same with _gap_char, _match_char and _missing_char
-	if (defined $char || ! defined $self->{'_mask_char'} ) {
-		$char= '\?' unless defined $char;
-		$self->throw("Single mask character, not [$char]!") if CORE::length($char) > 1;
-		$self->{'_mask_char'} = $char;
-	}
-	return $self->{'_mask_char'};
-}
 
 =head1 Alignment descriptors
 
