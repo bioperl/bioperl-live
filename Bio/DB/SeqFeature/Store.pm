@@ -526,8 +526,6 @@ sub store_noindex {
 This method saves lots of space in the database, which may in turn lead to large
 performance increases in extreme cases (over 7 million features in the db).
 
-Currently only applies to the mysql implementation.
-
 =cut
 
 sub no_blobs {

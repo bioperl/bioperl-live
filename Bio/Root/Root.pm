@@ -1,5 +1,6 @@
 package Bio::Root::Root;
 use strict;
+use Storable qw( dclone );
 
 # $Id$
 
@@ -232,6 +233,43 @@ sub new {
 	$self->verbose($param{'-VERBOSE'} || $param{'-verbose'});
     }
     return $self;
+}
+
+
+=head2 clone
+
+ Title   : clone
+ Usage   : my $clone = $obj->clone();
+           or
+           my $clone = $obj->clone( -start => 110 );
+ Function: Deep recursion copying of any object via Storable dclone()
+ Returns : A cloned object.
+ Args    : Any named parameters provided will be set on the new object.
+           Unnamed parameters are ignored.
+ Comments: Storable dclone() cannot clone CODE references.
+           Any CODE reference in your original object will remain, but
+           will not exist in the cloned object.
+=cut
+
+sub clone {
+    my ($orig, %named_params) = @_;
+
+    # Can't dclone CODE references...
+    my %put_these_back = (
+       _root_cleanup_methods => $orig->{'_root_cleanup_methods'},
+    );
+    delete $orig->{_root_cleanup_methods};
+
+    my $clone = dclone($orig);
+
+    $orig->{_root_cleanup_methods} = $put_these_back{_root_cleanup_methods};
+
+    foreach my $key (grep { /^-/ } keys %named_params) {
+       my $method = $key;
+       $method =~ s/^-//;
+       $clone->$method($named_params{$key});
+    }
+    return $clone;
 }
 
 

@@ -877,16 +877,13 @@ sub _naive_assembler {
   my $num = 1;
   if (defined $g) {
     for my $connected_reads ($g->connected_components) { # reads that belong in contigs
-      my $subcontig = Bio::Assembly::Contig->new( -id => $contig->id.'_'.$num );
+      my $sub_id = $contig->id.'_'.$num;
+      my $sub_contig = $self->_create_subcontig($contig, $connected_reads, $sub_id);
+      push @contig_objs, $sub_contig;
       $num++;
-      for my $read_id (@$connected_reads) {
-        # Add read to contig
-        my $read  = $contig->get_seq_by_name($read_id);
-        my $coord = $contig->get_seq_coord($read);
-        $subcontig->set_seq_coord($self->_obj_copy($coord), $self->_obj_copy($read));
+      for my $read_id ( @$connected_reads ) {
         delete $seq_hash{$read_id};
       }
-      push @contig_objs, $subcontig;
     }
   }
 
@@ -894,51 +891,68 @@ sub _naive_assembler {
   my @singlet_objs;
   for my $read_id ( keys %seq_hash ) {
     my $read = $contig->get_seq_by_name($read_id);
-    my $subsinglet = Bio::Assembly::Singlet->new( -id => $contig->id.'_'.$num,
-      -seqref => $self->_obj_copy($read));
+    my $sub_singlet = Bio::Assembly::Singlet->new(
+      -id => $contig->id.'_'.$num,
+      -seqref => $self->_obj_copy($read)
+    );
     $num++;
-    push @singlet_objs, $subsinglet;
-  }
-
-  # Finalize output contigs
-  my $cons_seq  = $contig->get_consensus_sequence;
-  my $cons_qual = $contig->get_consensus_quality;
-
-  if (scalar @contig_objs == 1 && $contig_objs[0]->num_sequences == $contig->num_sequences) {
-    # A unique contig, identical to the input contig. Use its ID and a copy of
-    # its consensus
-    my $out_contig = $contig_objs[0];
-    $out_contig->id($contig->id);
-    if ($cons_seq) {
-      $out_contig->set_consensus_sequence($self->_obj_copy($cons_seq));
-    }
-    if ($cons_qual) {
-      $out_contig->set_consensus_quality($self->_obj_copy($cons_qual));
-    }
-  } else {
-    # Calculate new consensus sequence for each contig
-    for my $out_contig ( @contig_objs ) {
-      # Get min and max read coordinates
-      my ($min, $max) = (undef, undef);
-      for my $seq ( $out_contig->each_seq ) {
-        my $aln_coord  = ( grep { $_->primary_tag eq "_aligned_coord:".$seq->id}
-          $contig->get_features_collection->get_all_features )[0];
-        my $seq_start = $aln_coord->location->start;
-        my $seq_end   = $aln_coord->location->end;
-        $min = $seq_start if (not defined $min) || ((defined $min) && ($seq_start < $min));
-        $max = $seq_end   if (not defined $max) || ((defined $max) && ($seq_end   > $max));
-      }
-      # Truncated copy of original consensus to new boundaries
-      $out_contig->set_consensus_sequence( $self->_obj_copy($cons_seq, $min, $max) );
-      if ($cons_qual) {
-         $out_contig->set_consensus_quality( $self->_obj_copy($cons_qual, $min, $max) );
-      }
-    }
+    push @singlet_objs, $sub_singlet;
   }
 
   return [@contig_objs, @singlet_objs];
 }
 
+
+=head2 _create_subcontig
+
+  Title   : _create_subcontig
+  Usage   : 
+  Function: Create a subcontig from another contig
+  Returns : Bio::Assembly::Contig object
+  Args    : Bio::Assembly::Contig
+            arrayref of the IDs of the reads to includes in the subcontig
+            ID to give to the subcontig
+
+=cut
+
+sub _create_subcontig {
+  my ($self, $contig, $read_ids, $sub_contig_id) = @_;
+
+  my $sub_contig = Bio::Assembly::Contig->new( -id => $sub_contig_id );
+
+  # Get min and max read coordinates
+  my ($min, $max) = (undef, undef);
+  for my $read_id ( @$read_ids ) {
+    my $aln_coord  = ( grep { $_->primary_tag eq "_aligned_coord:".$read_id}
+      $contig->get_features_collection->get_all_features )[0];
+    my $seq_start = $aln_coord->location->start;
+    my $seq_end   = $aln_coord->location->end;
+    $min = $seq_start if (not defined $min) || ((defined $min) && ($seq_start < $min));
+    $max = $seq_end   if (not defined $max) || ((defined $max) && ($seq_end   > $max));
+  }
+
+  # Add reads to subcontig
+  for my $read_id (@$read_ids) {
+    my $read  = $self->_obj_copy($contig->get_seq_by_name($read_id));
+    my $coord = $self->_obj_copy($contig->get_seq_coord($read));
+    if ($min > 1) {
+      # adjust read coordinates
+      $coord->start( $coord->start - $min + 1 );
+      $coord->end( $coord->end - $min + 1 );
+    }
+    $sub_contig->set_seq_coord($coord, $read);
+  }
+
+  # Truncate copy of original consensus to new boundaries
+  my $cons_seq  = $contig->get_consensus_sequence;
+  $sub_contig->set_consensus_sequence( $self->_obj_copy($cons_seq, $min, $max) );
+  my $cons_qual = $contig->get_consensus_quality;
+  if ($cons_qual) {
+     $sub_contig->set_consensus_quality( $self->_obj_copy($cons_qual, $min, $max) );
+  }
+
+  return $sub_contig;
+}
 
 =head2 _obj_copy
 
@@ -959,7 +973,7 @@ sub _obj_copy {
   my $new;
   if ($obj->isa('Bio::Seq::PrimaryQual')) {
     my $qual = [@{$obj->qual}]; # copy of the quality scores
-    if (defined $start && defined $end) {
+    if (defined $start && defined $end && $start !=1 && $end != scalar(@$qual)) {
       # Truncate the quality scores
       $qual = [ splice @$qual, $start - 1, $end - $start + 1 ];
     }
@@ -970,7 +984,7 @@ sub _obj_copy {
 
   } elsif ($obj->isa('Bio::LocatableSeq')) {
     my $seq = $obj->seq;
-    if (defined $start && defined $end) {
+    if (defined $start && defined $end && $start != 1 && $end != length($seq)) {
       # Truncate the aligned sequence
       $seq = substr $seq, $start - 1, $end - $start + 1;
     }
