@@ -3066,7 +3066,7 @@ sub restore_displayname {
  Usage     : $ali->sort_by_start
  Function  : Changes the order of the alignment to the start position of each
              subalignment    
- Returns   :
+ Returns   : 1
  Argument  :
 
 =cut
