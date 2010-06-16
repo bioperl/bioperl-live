@@ -134,7 +134,7 @@ BEGIN {
 
  Title   : new
  Usage   : my $obj = new Bio::SearchIO::Hmmer3->new();
- Function: Builds a new Bio::SearchIO::Hmmer3 object 
+ Function: Builds a new Bio::SearchIO::Hmmer3 object
  Returns : an instance of Bio::SearchIO::Hmmer3
  Args    : -fh/-file => HMMER filename
            -format   => 'hmmer3'
@@ -160,7 +160,7 @@ sub _initialize {
 	  -interface => 'Bio::Search::Hit::HitI'
       )
   );
-  
+
   $handler->register_factory(
       'hsp',
       Bio::Factory::ObjectFactory->new(
@@ -208,7 +208,7 @@ sub next_result{
        #Grab the program name.
        if ( $_ =~ m/^\#\s(\S+)\s\:\:\s/ ){
 	   my $prog = $1;
-	   #TO DO LATER: customize the above regex to adapt to other 
+	   #TO DO LATER: customize the above regex to adapt to other
 	   #program types!!! (hmmscan, etc)
 	   $self->start_element( { 'Name' => 'HMMER_Output' } );
 	   $self->{'_result_count'}++; #Might need to move to another block
@@ -330,9 +330,9 @@ sub next_result{
 	      (
 	       $self->{'_reporttype'} eq 'HMMSEARCH' ||
 	       $self->{'_reporttype'} eq 'HMMSCAN'
-	      ) 
+	      )
 	   ){
-	   #Complete sequence table data above inclusion threshold	
+	   #Complete sequence table data above inclusion threshold
 	   if( $_ =~ m/Scores for complete sequence/){
 	       while (defined( $_ = $self->_readline ) ) {
 		   if ($_ =~ m/inclusion threshold/ || m/Domain( and alignment)? annotation for each/ || m/\[No hits detected/ ){
@@ -427,7 +427,7 @@ sub next_result{
 			   ];
 		       if( $info->[0] ne $name ) {
 			   $self->throw(
-			       "Somehow the domain table order does not match the order in the domain alignments (got " . $info->[0] . ", expected $name)\n" 
+			       "Somehow the domain table order does not match the order in the domain alignments (got " . $info->[0] . ", expected $name)\n"
 			       );
 		       }
 		       $self->element(
@@ -471,13 +471,13 @@ sub next_result{
 			        $_ =~ m/^$/             ){
 			       next;
 			   }
-			   
+
 #			   grab hsp data from table, push into @hsp;
 			   if(
-			       my ($domain_num, $score, $bias, $ceval, 
-				   $ieval, $hmmstart, $hmmstop, 
+			       my ($domain_num, $score, $bias, $ceval,
+				   $ieval, $hmmstart, $hmmstop,
 				   $qalistart, $qalistop, $envstart,
-				   $envstop, $envbound, $acc) = 
+				   $envstop, $envbound, $acc) =
 			       m!^\s+(\d+)\s\!*\?*\s+       #domain num
                                    (\S+)\s+(\S+)\s+             #score, bias
                                    (\S+)\s+(\S+)\s+             #c-eval, i-eval
@@ -485,7 +485,7 @@ sub next_result{
                                    (\d+)\s+(\d+).+?             #query start, stop
                                    (\d+)\s+(\d+).+?             #env start, stop
                                    (\S+)                        #acc
-                                   \s*$!ox     
+                                   \s*$!ox
 			       ){
 			       #keeping simple for now. let's customize later
 			       my @vals = ($envstart, $envstop, $hmmstart, $hmmstop, $score, $ceval);
@@ -502,7 +502,7 @@ sub next_result{
 			       if( !$self->{'_alnreport'} ){
 				   if( $self->within_element('hsp') ) {
 				       $self->end_element( { 'Name' => 'Hsp' } );
-				   }			       
+				   }
 				   #Start a new hsp element
 				   $self->start_element( { 'Name' => 'Hsp' } );
 				   $self->element(
@@ -516,10 +516,10 @@ sub next_result{
 					   'Name' => 'Hsp_positive',
 					   'Data' => 0
 				       }
-				       );	
+				       );
 				   my $HSPinfo = shift @hspinfo;
 				   my $id      = shift @$HSPinfo;
-				   
+
 				   if( $id ne $name ){
 				       $self->throw(
 					   "Somehow the domain list details do not match the table (got $id, expected $name)\n"
@@ -588,7 +588,7 @@ sub next_result{
                                #process any old hit/hsp info
 			       if( $self->within_element('hsp') ) {
 				   $self->end_element( { 'Name' => 'Hsp' } );
-			       }			       
+			       }
 			       #Start a new hsp element
 			       $self->start_element( { 'Name' => 'Hsp' } );
 			       $self->element(
@@ -602,7 +602,7 @@ sub next_result{
 				       'Name' => 'Hsp_positive',
 				       'Data' => 0
 				   }
-				);	
+				);
 			       my $HSPinfo = shift @hspinfo;
 			       my $id      = shift @$HSPinfo;
 
@@ -615,9 +615,9 @@ sub next_result{
 #			       if( $domaincounter{$name} == $domaintotal ){
 #				   $hitinfo[ $hitinfo{$name} ] = undef;
 #			       }
-			       #Need to cleanup what goes where given 
+			       #Need to cleanup what goes where given
 			       #version differences
-			     
+
 			       $self->element(
 				   {
 				       'Name' => 'Hsp_hit-from',
@@ -654,7 +654,7 @@ sub next_result{
 				       'Data' => shift @$HSPinfo
 				   }
 				   );
-		
+
 			       $lastdomain = $name;
 			   }
 #Is this block actually depricated with live release or is it an option?
@@ -681,7 +681,7 @@ sub next_result{
 			   }
 			   elsif( $count == 1 ){
 			       #conservation track
-			       #storage isn't quite right - need to remove 
+			       #storage isn't quite right - need to remove
 			       #leading/lagging whitespace while preserving
 			       #gap data (latter isn't done, former is)
 			       $_ =~ s/^\s+//;
@@ -690,7 +690,7 @@ sub next_result{
 				   {
 				       'Name' => 'Hsp_midline',
 				       'Data' => $_
-				   }				   
+				   }
 			       );
 			       $count++;
 			       next;
@@ -730,7 +730,7 @@ sub next_result{
 		   }
 		   $self->end_element( { 'Name' => 'Hit' } );
 	       }
-	       #grab summary statistics of run	       
+	       #grab summary statistics of run
 	       while( defined( $_ = $self->_readline ) ) {
 		   last if ( $_ =~ m/^\/\/$/ );
 	       }
