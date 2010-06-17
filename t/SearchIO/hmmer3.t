@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 32);
+    test_begin(-tests => 116);
 
 	use_ok('Bio::SearchIO');
 }
@@ -61,5 +61,52 @@ while( my $result = $searchio->next_result ) {
     is($result->query_description, '', 'Check query_description');
     is($result->num_hits(), 2, 'Check num_hits');
     while( my $hit = $result->next_model ) {
+    }
+}
+
+$searchio = Bio::SearchIO->new(-format  => 'hmmer3',
+                               -file    => test_input_file('hmmscan_multi_domain.out'),
+                               -verbose => 1);
+
+my @multi_hits = (
+      ['PPC', 'Bacterial pre-peptidase C-terminal domain', '111.0', 3.1e-32, 6,
+        [[84, 192, 4, 59, 0.5, 0.16], [311, 397, 12, 58, -0.6, 0.36],
+         [470, 550, 1, 69, 71.3, 1.3e-23], [567, 626, 15, 25, -3.2, 2],
+         [974, 1072, 13, 36, -1.1, 0.5], [1087, 1169, 1, 69, 54.4, 2.4e-18]]],
+      ['HemolysinCabind', 'Hemolysin-type calcium-binding repeat (2 cop', '47.9', 4.7e-13, 3,
+        [[1213, 1225, 2, 13, 5.9, 0.0026], [1231, 1248, 1, 18, 10.8, 6.8e-5],
+         [1240, 1257, 4, 18, 11.4, 4.3e-05]]]
+    );
+
+while( my $result = $searchio->next_result ) {
+    is(ref($result),'Bio::Search::Result::hmmer3Result', 'Check for the correct result reference type');
+    is($result->algorithm, 'HMMSCAN', 'Check algorithm');
+    is($result->algorithm_version, '3.0', 'Check algorithm version');
+    is($result->hmm_name, '/data/biodata/HMMerDB/Pfam-A.hmm', 'Check hmm_name');
+    is($result->sequence_file, 'BA000019.orf37.fasta', 'Check sequence_file');
+    is($result->query_name, 'BA000019.orf37', 'Check query_name');
+    is($result->query_length, '1418', 'Check query_length');
+    is($result->query_description, '', 'Check query_description');
+    is($result->num_hits(), 2, 'Check num_hits');
+    my ($hsp,$hit);
+    while( $hit = $result->next_model ) {
+        my @expected = @{shift @multi_hits};
+        is(ref($hit), 'Bio::Search::Hit::hmmer3Hit', 'Check for the correct hit reference type');
+        is($hit->name, shift @expected, 'Check hit name');
+        is($hit->description, shift @expected, 'Check for hit description');
+        is($hit->raw_score, shift @expected, 'Check hit raw_score');
+        float_is($hit->significance, shift @expected, 'Check hit significance');
+        is($hit->num_hsps, shift @expected, 'Check num_hsps');
+        my @hsp_list = @{shift @expected};
+        while( defined( $hsp = $hit->next_domain ) ) {
+            my @hsp_exp = @{shift @hsp_list};
+            is(ref($hsp), 'Bio::Search::HSP::hmmer3HSP', 'Check for correct hsp reference type');
+            is($hsp->hit->start, shift @hsp_exp, 'Check for hit envfrom value');
+            is($hsp->hit->end, shift @hsp_exp, 'Check for hit env to value');
+            is($hsp->query->start, shift @hsp_exp, 'Check for query hmmfrom value');
+            is($hsp->query->end, shift @hsp_exp, 'Check for query hmm to value');
+            is($hsp->score, shift @hsp_exp, 'Check for hsp score');
+            float_is($hsp->evalue, shift @hsp_exp, 'Check for hsp c-Evalue');
+        }
     }
 }

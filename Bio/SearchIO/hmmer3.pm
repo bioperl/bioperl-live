@@ -186,7 +186,7 @@ sub next_result{
    my ($self)  = @_;
    my $seentop = 0; #Placeholder for when we deal with multi-query reports
    my $reporttype;
-   my ( $last, @hit_list, @hsp_list, %hspinfo, %hitinfo );
+   my ( $last, @hit_list, @hsp_list, %hspinfo, %hitinfo, %domaincounter );
    local $/ = "\n";
    local $_;
 
@@ -399,7 +399,6 @@ sub next_result{
 	   #Domain annotation for each sequence table data
 	   elsif( $_ =~ m/Domain( and alignment)? annotation for each/){
 	       @hsp_list = (); #here for multi-query reports
-	       my %domaincounter = ();
 	       my $name;
 
 	       while( defined( $_ = $self->_readline ) ) {
@@ -411,6 +410,7 @@ sub next_result{
  		       $name = $1;
 		       #skip hits below inclusion threshold
 		       next if( $hitinfo{$name} eq "below_inclusion");
+                       $domaincounter{$name} = 0;
 
 		       while( defined( $_ = $self->_readline ) ) {
 			   #grab table data for sequence
@@ -455,8 +455,9 @@ sub next_result{
 				   next;
 			       }
 			       $domaincounter{$name}++;
+                               my $hsp_key = $name . "_" . $domaincounter{$name};
 			       push @hsp_list, [ $name, @vals ];
-                               $hspinfo{$name} = $#hsp_list;
+                               $hspinfo{$hsp_key} = $#hsp_list;
 			   }
 			   else{
 			       print "missed this line: $_\n";
@@ -566,7 +567,7 @@ sub next_result{
                    my $hit_desc = shift @$hit;
                    my $hit_signif = shift @$hit;
                    my $hit_score = shift @$hit;
-                   my $hsp = $hsp_list[ $hspinfo{$hit_name} ];
+                   my $num_domains = $domaincounter{$hit_name};
 
                    $self->start_element( { 'Name' => 'Hit' } );
                    $self->element(
@@ -593,42 +594,46 @@ sub next_result{
                            'Data' => $hit_score
                        }
                    );
-                   if(defined $hsp) {
-                       my $hsp_name = shift @$hsp;
-                       $self->start_element( { 'Name' => 'Hsp' } );
-                       $self->element( {
-                               'Name' => 'Hsp_identity',
-                               'Data' => 0
-                           } );
-                       $self->element( {
-                               'Name' => 'Hsp_positive',
-                               'Data' => 0
-                           } );
-                       $self->element( {
-                               'Name' => 'Hsp_hit-from',
-                               'Data' => shift @$hsp
-                           } );
-                       $self->element( {
-                               'Name' => 'Hsp_hit-to',
-                               'Data' => shift @$hsp
-                           } );
-                       $self->element( {
-                               'Name' => 'Hsp_query-from',
-                               'Data' => shift @$hsp
-                           } );
-                       $self->element( {
-                               'Name' => 'Hsp_query-to',
-                               'Data' => shift @$hsp
-                           } );
-                       $self->element( {
-                               'Name' => 'Hsp_score',
-                               'Data' => shift @$hsp
-                           } );
-                       $self->element( {
-                               'Name' => 'Hsp_evalue',
-                               'Data' => shift @$hsp
-                           } );
-                       $self->end_element( { 'Name' => 'Hsp' } );
+                   for my $i (1..$num_domains) {
+                       my $key = $hit_name . "_" . $i;
+                       my $hsp = $hsp_list[ $hspinfo{$key} ];
+                       if(defined $hsp) {
+                           my $hsp_name = shift @$hsp;
+                           $self->start_element( { 'Name' => 'Hsp' } );
+                           $self->element( {
+                                   'Name' => 'Hsp_identity',
+                                   'Data' => 0
+                               } );
+                           $self->element( {
+                                   'Name' => 'Hsp_positive',
+                                   'Data' => 0
+                               } );
+                           $self->element( {
+                                   'Name' => 'Hsp_hit-from',
+                                   'Data' => shift @$hsp
+                               } );
+                           $self->element( {
+                                   'Name' => 'Hsp_hit-to',
+                                   'Data' => shift @$hsp
+                               } );
+                           $self->element( {
+                                   'Name' => 'Hsp_query-from',
+                                   'Data' => shift @$hsp
+                               } );
+                           $self->element( {
+                                   'Name' => 'Hsp_query-to',
+                                   'Data' => shift @$hsp
+                               } );
+                           $self->element( {
+                                   'Name' => 'Hsp_score',
+                                   'Data' => shift @$hsp
+                               } );
+                           $self->element( {
+                                   'Name' => 'Hsp_evalue',
+                                   'Data' => shift @$hsp
+                               } );
+                           $self->end_element( { 'Name' => 'Hsp' } );
+                       }
                    }
                    $self->end_element( { 'Name' => 'Hit' } );
 	       }
