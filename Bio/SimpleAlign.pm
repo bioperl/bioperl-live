@@ -2974,26 +2974,6 @@ sub set_displayname_normal {
     return 1;
 }
 
-=head2 source
-
- Title   : source
- Usage   : $obj->source($newval)
- Function: sets the Alignment source program
- Example :
- Returns : value of source
- Args    : newvalue (optional)
-
-
-=cut
-
-sub source{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'_source'} = $value;
-    }
-    return $self->{'_source'};
-}
-
 =head2 set_displayname_safe
 
  Title     : set_displayname_safe
@@ -3058,6 +3038,26 @@ sub restore_displayname {
       $new->add_seq($new_seq);
     }
     return $new;
+}
+
+=head2 source
+
+ Title   : source
+ Usage   : $obj->source($newval)
+ Function: sets the Alignment source program
+ Example :
+ Returns : value of source
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub source{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'_source'} = $value;
+    }
+    return $self->{'_source'};
 }
 
 =head2 sort_by_start
