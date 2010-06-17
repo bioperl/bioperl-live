@@ -426,10 +426,10 @@ sub remove_seq {
 }
 
 
-=head2 purge
+=head2 remove_redundant_Seq
 
- Title   : purge
- Usage   : $aln->purge(0.7);
+ Title   : remove_redundant_Seq
+ Usage   : $aln->remove_redundant_Seq(0.7);
  Function: Removes sequences above given sequence similarity
            This function will grind on large alignments. Beware!
  Example :
@@ -439,6 +439,14 @@ sub remove_seq {
 =cut
 
 sub purge {
+    my ($self,@args) = @_;
+    $self->deprecated("purge - deprecated method. Use remove_redundant_Seq() instead.");
+    $self->remove_redundant_Seq(@args);
+}
+
+
+
+sub remove_redundant_Seq {
 	my ($self,$perc) = @_;
 	my (%duplicate, @dups);
 
