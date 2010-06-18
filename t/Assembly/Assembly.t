@@ -302,6 +302,12 @@ sub assembly_core {
     }
     is(@all_seq_ids, 39);
 
+    # bug 2758
+    ok( $aio = Bio::Assembly::IO->new(
+        -file=>test_input_file('singlet_w_CT.ace'),
+        -format=>'ace'
+    ));
+
     # ACE 454 variant
     $aio = Bio::Assembly::IO->new(
         -file=>test_input_file('27-contig_Newbler.ace'),

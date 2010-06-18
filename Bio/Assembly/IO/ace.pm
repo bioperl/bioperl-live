@@ -560,9 +560,11 @@ sub scaffold_annotations {
                                                             -end     => $end,
                                                             -primary => $type,
                                                             -tag     => \%tags );
-            my $contig = $assembly->get_contig_by_id($contigID);
+            my $contig = $assembly->get_contig_by_id($contigID) ||
+                         $assembly->get_singlet_by_id($contigID);
             $self->throw("Cannot add feature to unknown contig '$contigID'")
               unless defined $contig;
+
             $contig->add_features([ $contig_tag ],1);
         };
 
