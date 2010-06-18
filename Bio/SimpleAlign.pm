@@ -362,7 +362,7 @@ sub add_seq {
  Title     : remove_seq
  Usage     : $aln->remove_seq($seq);
  Function  : Removes a single sequence from an alignment
- Returns   :
+ Returns   : 1
  Argument  : a Bio::LocatableSeq object
 
 =cut
@@ -507,8 +507,8 @@ sub remove_redundant_Seq {
  Usage     : $ali->sort_alphabetically
  Function  : Changes the order of the alignment to alphabetical on name
              followed by numerical by number.
- Returns   :
- Argument  :
+ Returns   : 1
+ Argument  : None
 
 =cut
 
@@ -576,7 +576,8 @@ sub sort_by_list {
  Usage     : $ali->sort_by_pairwise_identity(2)
  Function  : Changes the order of the alignment to the pairwise percentage identity of the reference sequence
  Returns   : 1
- Argument  :
+ Argument  : Optional, the position or id of reference sequences to be compared with
+             Default is the first sequence
 
 =cut
 
@@ -606,10 +607,10 @@ sub sort_by_pairwise_identity {
 =head2 sort_by_length
 
  Title     : sort_by_length()
- Usage     : $ali->sort_by_pairwise_identity()
+ Usage     : $ali->sort_by_length()
  Function  : Changes the order of the alignment by the ungapped length of the sequences
  Returns   : 1
- Argument  :
+ Argument  : None
 
 =cut
 
@@ -853,7 +854,7 @@ sub each_seq {
              in alphabetically sorted order.
              Does not change the order of the alignment.
  Returns   : Seq object
- Argument  :
+ Argument  : None
 
 =cut
 
@@ -1493,7 +1494,7 @@ alignment.
 =head2 splice_by_seq_pos
 
  Title   : splice_by_seq_pos
- Usage   : $status = splice_by_seq_pos(1);
+ Usage   : $status = $aln->splice_by_seq_pos(1);
  Function: splices all aligned sequences where the specified sequence
            has gaps.
  Example :
@@ -2945,7 +2946,7 @@ sub displayname {
  Function  : Sets the names to be name_# where # is the number of
              times this name has been used.
  Returns   : 1, on success
- Argument  :
+ Argument  : None
 
 =cut
 
@@ -2981,7 +2982,7 @@ sub set_displayname_count {
  Function  : Makes all the sequences be displayed as just their name,
              not name/start-end
  Returns   : 1
- Argument  :
+ Argument  : None
 
 =cut
 
@@ -3002,7 +3003,7 @@ sub set_displayname_flat {
  Usage     : $ali->set_displayname_normal()
  Function  : Makes all the sequences be displayed as name/start-end
  Returns   : 1, on success
- Argument  :
+ Argument  : None
 
 =cut
 
@@ -3110,7 +3111,7 @@ sub source{
  Function  : Changes the order of the alignment to the start position of each
              subalignment    
  Returns   : 1
- Argument  :
+ Argument  : None
 
 =cut
 
