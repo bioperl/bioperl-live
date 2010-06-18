@@ -1248,8 +1248,8 @@ sub slice {
 =head2 remove_columns
 
  Title     : remove_columns
- Usage     : $aln2 = $aln->remove_columns(['mismatch','weak']) or
-             $aln2 = $aln->remove_columns([0,0],[6,8])
+ Usage     : $aln2 = $aln->remove_columns('mismatch','weak') or
+             $aln2 = $aln->remove_columns(0,6..8)
  Function  : Creates an aligment with columns removed corresponding to
              the specified type or by specifying the columns by number.
  Returns   : Bio::SimpleAlign object
@@ -1259,6 +1259,29 @@ sub slice {
              The first column is 0
 
 =cut
+
+sub remove_columns {
+    my ($self,@args) = @_;
+    @args || $self->throw("Must supply column ranges or column types");
+    my $aln;
+
+	if(ref($args[0])) {
+		$self->deprecated("Defining parameters in array references is deprecated. Please use list to define the range of columns or column types.");
+		if ($args[0][0] =~ /^[a-z_]+$/i) {
+			$aln = $self->_remove_columns_by_type($args[0]);
+		} 
+		elsif ($args[0][0] =~ /^\d+$/) {
+			$aln = $self->_remove_columns_by_num(\@args);
+		}
+    
+    
+    
+    else {
+        $self->throw("You must pass array references to remove_columns(), not @args");
+    }
+    # fix for meta, sf, ann
+    $aln;
+}
 
 sub remove_columns {
     my ($self,@args) = @_;
@@ -1544,8 +1567,8 @@ sub map_chars {
  Title     : uppercase()
  Usage     : $ali->uppercase()
  Function  : Sets all the sequences to uppercase
- Returns   :
- Argument  :
+ Returns   : 1
+ Argument  : None
 
 =cut
 
@@ -1569,7 +1592,7 @@ sub uppercase {
  Usage     : $ali->lowercase()
  Function  : Sets all the sequences to lowercase
  Returns   : 1
- Argument  :
+ Argument  : None
 
 =cut
 
@@ -1594,7 +1617,7 @@ sub lowercase {
  Usage     : $ali->togglecase()
  Function  : Sets all the sequences to opposite case
  Returns   : 1
- Argument  :
+ Argument  : None
 
 =cut
 
@@ -1873,7 +1896,7 @@ sub gap_col_matrix {
 =head2 match
 
  Title     : match()
- Usage     : $ali->match()
+ Usage     : $aln->match()
  Function  : Goes through all columns and changes residues that are
              identical to residue in first sequence to match '.'
              character. Sets match_char.
@@ -1884,13 +1907,20 @@ sub gap_col_matrix {
              it.
  Returns   : 1
  Argument  : a match character, optional, defaults to '.'
+             If the character is defined, it will reset $aln->match_char 
 
 =cut
 
 sub match {
     my ($self, $match) = @_;
 
-    $match ||= '.';
+   if(defined $match) {
+		$self->match_char($match);
+	}
+	else {
+		$match=$self->match_char();
+	}
+    
     my ($matching_char) = $match;
     $matching_char = "\\$match" if $match =~ /[\^.$|()\[\]]/ ;  #';
     $self->map_chars($matching_char, '-');
@@ -1912,7 +1942,7 @@ sub match {
 	}
 	$seq->seq(join '', @varseq);
     }
-    $self->match_char($match);
+    
     return 1;
 }
 
@@ -1932,7 +1962,12 @@ See L<match> and L<match_char>
 sub unmatch {
     my ($self, $match) = @_;
 
-    $match ||= '.';
+   if(defined $match) {
+		$self->match_char($match);
+	}
+	else {
+		$match=$self->match_char();
+	}
 
     my @seqs = $self->each_seq();
     return 1 unless scalar @seqs > 1;
@@ -2373,7 +2408,7 @@ sub consensus_meta {
  Function  : Tells you whether the alignment
            : is flush, i.e. all of the same length
  Returns   : 1 or 0
- Argument  :
+ Argument  : None
 
 =cut
 
@@ -2411,7 +2446,7 @@ sub is_flush {
  Function  : Returns the maximum length of the alignment.
              To be sure the alignment is a block, use is_flush
  Returns   : Integer
- Argument  :
+ Argument  : None
 
 =cut
 
@@ -2445,7 +2480,7 @@ sub length {
  Function  : Gets the maximum length of the displayname in the
              alignment. Used in writing out various MSA formats.
  Returns   : integer
- Argument  :
+ Argument  : None
 
 =cut
 
@@ -2527,7 +2562,7 @@ sub max_metaname_length {
  Usage     : $no = $ali->num_residues
  Function  : number of residues in total in the alignment
  Returns   : integer
- Argument  :
+ Argument  : None
  Note      : replaces no_residues() 
 
 =cut
