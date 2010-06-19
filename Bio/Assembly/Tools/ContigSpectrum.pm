@@ -605,7 +605,8 @@ sub drop_assembly {
             spectrum object must have one or several assembly object(s). In
             addition, min_overlap, min_identity and eff_asm_params are taken
             from the mixed contig spectrum, unless they are specified manually
-            for the dissolved contig spectrum.
+            for the dissolved contig spectrum. The dissolved contigs underlying
+            the contig spectrum can be obtained by calling the assembly() method.
   Returns : 1 for success
   Args    : Bio::Assembly::Tools::ContigSpectrum reference
             sequence header string
@@ -624,6 +625,8 @@ sub dissolve {
   Title   : cross
   Usage   : $cross_csp->cross($mixed_csp);
   Function: Calculate a cross contig_spectrum based on a mixed contig_spectrum.
+            The underlying cross-contigs themselves can be obtained by calling 
+            the assembly() method.
   Returns : 1 for success
   Args    : Bio::Assembly::Tools::ContigSpectrum reference
 
@@ -841,9 +844,9 @@ sub score {
             alignment is done
   Returns : arrayref of contigs and singlets
   Args    : Bio::Assembly::Contig
-            sequence ID array reference [optional]
-            minimum overlap length (integer) [optional]
-            minimum percentage identity (integer) [optional]
+            array reference of sequence IDs to use [optional]
+            minimum overlap length (integer)       [optional]
+            minimum percentage identity (integer)  [optional]
 
 =cut
 
@@ -865,82 +868,142 @@ sub _naive_assembler {
   $self->throw("Expecting at least 2 sequences as input for _naive_assembler")
     if ($max < 2);
 
-  # Assembly
-  my %overlap_map;
-  my %has_overlap;
-  my @objs;
+  # Build contig graph
+  my %seq_hash = map { $_ => undef } (@$seqlist) if (scalar @$seqlist > 0);
+  my ($g, $overlaps) = $self->_contig_graph($contig, \%seq_hash, $min_overlap, $min_identity);
 
-  # Map what sequences overlap with what sequences
-  for (my $i = 0 ; $i < $max-1 ; $i++) {
-    # query sequence
-    my $qseqid = $$seqlist[$i];
-    my $qseq   = $contig->get_seq_by_name($qseqid);
-    for (my $j = $i+1 ; $j < $max ; $j++) {
-      # target sequence
-      my $tseqid = $$seqlist[$j];
-      my $tseq = $contig->get_seq_by_name($tseqid);
-      # try to align sequences
-      my ($aln, $overlap, $identity)
-        = $self->_overlap_alignment($contig, $qseq, $tseq, $min_overlap,
-        $min_identity);    
-      # if there is no overlap, or overlap is not stringent enough, go to next sequence
-      next if ! defined $aln;
-      # the overlap is valid
-      push @{$overlap_map{$qseqid}}, $tseqid;
-      $has_overlap{$tseqid} = undef;
-      $has_overlap{$qseqid} = undef;
-    }
-
-    # check if sequence is in previously seen overlap
-    if (not exists $has_overlap{$qseqid}) {
-      # make a new singlet to put in contig list
-      push @objs, Bio::Assembly::Singlet->new(-id => $qseqid, -seqref => $qseq);
-    }
-  }
-  # take care of last sequence
-  my $last_id  = $$seqlist[$max - 1];
-  if (not exists $has_overlap{$last_id}) {
-    # make a new singlet to put in contig list
-    my $last_seq = $contig->get_seq_by_name($last_id);
-    push @objs, Bio::Assembly::Singlet->new(-id => $last_id, -seqref => $last_seq);
-  }
-  %has_overlap = ();
-
-  # Parse overlap map
-  for my $seqid (@$seqlist) {
-    # list of sequences that should go in the contig
-    next if not exists $overlap_map{$seqid};
-    my @overlist = @{$overlap_map{$seqid}};
-    for (my $j = 0 ; $j < scalar(@overlist) ; $j++) {
-      my $otherseqid = $overlist[$j];
-      if (exists $overlap_map{$otherseqid}) {
-        push @overlist, @{$overlap_map{$otherseqid}};
-        delete $overlap_map{$otherseqid};
+  # Construct sub-contigs
+  my @contig_objs;
+  my $num = 1;
+  if (defined $g) {
+    for my $connected_reads ($g->connected_components) { # reads that belong in contigs
+      my $sub_id = $contig->id.'_'.$num;
+      my $sub_contig = $self->_create_subcontig($contig, $connected_reads, $sub_id);
+      push @contig_objs, $sub_contig;
+      $num++;
+      for my $read_id ( @$connected_reads ) {
+        delete $seq_hash{$read_id};
       }
     }
-    # remove duplicates from list
-    @overlist = sort @overlist;
-    for (my $j = 0 ; $j < scalar(@overlist)-1 ; $j++) {
-      if ( $overlist[$j] eq $overlist[$j+1] ) {
-        splice @overlist, $j, 1;
-        $j--;
-      }
-    }
-
-    # create a new contig to put in list of contigs
-    my $subcontig = Bio::Assembly::Contig->new();
-    for my $id ($seqid, @overlist) { 
-      my $seq      = $contig->get_seq_by_name($id);
-      my $oldcoord = $contig->get_seq_coord($seq);
-      my $newcoord = Bio::SeqFeature::Generic->new(-start => $oldcoord->start,
-                                                   -end   => $oldcoord->end  );
-      $subcontig->set_seq_coord( $newcoord, $seq );
-    }
-    push @objs, $subcontig;
-
   }
 
-  return \@objs;
+  # Construct sub-singlets
+  my @singlet_objs;
+  for my $read_id ( keys %seq_hash ) {
+    my $read = $contig->get_seq_by_name($read_id);
+    my $sub_singlet = Bio::Assembly::Singlet->new(
+      -id => $contig->id.'_'.$num,
+      -seqref => $self->_obj_copy($read)
+    );
+    $num++;
+    push @singlet_objs, $sub_singlet;
+  }
+
+  return [@contig_objs, @singlet_objs];
+}
+
+
+=head2 _create_subcontig
+
+  Title   : _create_subcontig
+  Usage   : 
+  Function: Create a subcontig from another contig
+  Returns : Bio::Assembly::Contig object
+  Args    : Bio::Assembly::Contig
+            arrayref of the IDs of the reads to includes in the subcontig
+            ID to give to the subcontig
+
+=cut
+
+sub _create_subcontig {
+  my ($self, $contig, $read_ids, $sub_contig_id) = @_;
+
+  my $sub_contig = Bio::Assembly::Contig->new( -id => $sub_contig_id );
+
+  # Get min and max read coordinates
+  my ($min, $max) = (undef, undef);
+  for my $read_id ( @$read_ids ) {
+    my $aln_coord  = ( grep { $_->primary_tag eq "_aligned_coord:".$read_id}
+      $contig->get_features_collection->get_all_features )[0];
+    my $seq_start = $aln_coord->location->start;
+    my $seq_end   = $aln_coord->location->end;
+    $min = $seq_start if (not defined $min) || ((defined $min) && ($seq_start < $min));
+    $max = $seq_end   if (not defined $max) || ((defined $max) && ($seq_end   > $max));
+  }
+
+  # Add reads to subcontig
+  for my $read_id (@$read_ids) {
+    my $read  = $self->_obj_copy($contig->get_seq_by_name($read_id));
+    my $coord = $self->_obj_copy($contig->get_seq_coord($read));
+    if ($min > 1) {
+      # adjust read coordinates
+      $coord->start( $coord->start - $min + 1 );
+      $coord->end( $coord->end - $min + 1 );
+    }
+    $sub_contig->set_seq_coord($coord, $read);
+  }
+
+  # Truncate copy of original consensus to new boundaries
+  my $cons_seq  = $contig->get_consensus_sequence;
+  $sub_contig->set_consensus_sequence( $self->_obj_copy($cons_seq, $min, $max) );
+  my $cons_qual = $contig->get_consensus_quality;
+  if ($cons_qual) {
+     $sub_contig->set_consensus_quality( $self->_obj_copy($cons_qual, $min, $max) );
+  }
+
+  return $sub_contig;
+}
+
+=head2 _obj_copy
+
+  Title   : _obj_copy
+  Usage   : 
+  Function: Copy (most of) an object, and optionally truncate it
+  Returns : another a Bio::LocatableSeq, Bio::Seq::PrimaryQual, or
+              Bio::SeqFeature::Generic object
+  Args    : a Bio::LocatableSeq, Bio::Seq::PrimaryQual, or
+              Bio::SeqFeature::Generic object
+            a start position
+            an end position
+
+=cut
+
+sub _obj_copy {
+  my ($self, $obj, $start, $end) = @_;
+  my $new;
+  if ($obj->isa('Bio::Seq::PrimaryQual')) {
+    my $qual = [@{$obj->qual}]; # copy of the quality scores
+    if (defined $start && defined $end && $start !=1 && $end != scalar(@$qual)) {
+      # Truncate the quality scores
+      $qual = [ splice @$qual, $start - 1, $end - $start + 1 ];
+    }
+    $new = Bio::Seq::PrimaryQual->new(
+      -qual   => $qual,
+      -id     => $obj->id,
+    );
+
+  } elsif ($obj->isa('Bio::LocatableSeq')) {
+    my $seq = $obj->seq;
+    if (defined $start && defined $end && $start != 1 && $end != length($seq)) {
+      # Truncate the aligned sequence
+      $seq = substr $seq, $start - 1, $end - $start + 1;
+    }
+    $new = Bio::LocatableSeq->new(
+      -seq      => $seq,
+      -id       => $obj->id,
+      -start    => $obj->start,
+      -strand   => $obj->strand,
+      -alphabet => $obj->alphabet,
+    );
+ 
+  } elsif ($obj->isa('Bio::SeqFeature::Generic')) {
+    $new = Bio::SeqFeature::Generic->new(
+      -start  => $obj->start,
+      -end    => $obj->end
+    );
+  }
+
+  return $new;
 }
 
 
@@ -974,6 +1037,7 @@ sub _new_from_assembly {
   }
   # 3: Set sequence statistics: nof_seq and avg_seq_len
   ($csp->{'_avg_seq_len'}, $csp->{'_nof_seq'}) = $self->_get_assembly_seq_stats($assemblyobj);
+  ### any use in using _naive_assembler here to re-assemble with specific minmum criteria?
   # 4: Set the spectrum: spectrum and max_size
   for my $contigobj ( $self->_get_contig_like($assemblyobj) ) {
     my $size = $contigobj->num_sequences;
@@ -1119,7 +1183,7 @@ sub _dissolve_contig {
     # create a singlet and add it to list of objects
     my $id  = $contig_seqs[0]; 
     my $seq = $contig->get_seq_by_name($id);
-    push @$objs, Bio::Assembly::Singlet->new(-id => $id, -seqref => $seq);
+    push @$objs, Bio::Assembly::Singlet->new(-id => $contig->id, -seqref => $self->_obj_copy($seq) );
   } elsif ($size > 1) {
     # Reassemble good sequences
     my $contig_objs = $self->_naive_assembler( $contig, \@contig_seqs,
@@ -1269,13 +1333,16 @@ sub _cross_contig {
         $nof_cross_singlets++;
       } elsif (scalar @ori_ids > 1) {
         # Dissolve contig for the given origin
+
+        ### consider using the minimum overlap and identity here again?
         my $ori_contigs = $self->_naive_assembler($test_contig, \@ori_ids, undef, undef);
+
         for my $ori_contig (@$ori_contigs) {
           $nof_cross_singlets++ if $ori_contig->num_sequences == 1;
         }
       }
     }
-    
+
 
   }
 
@@ -1638,97 +1705,26 @@ sub _get_contig_overlap_stats {
     if (!defined $contig_obj || !$contig_obj->isa("Bio::Assembly::Contig"));
   $self->throw("Expecting a hash reference. Got [".ref($seq_hash)."]")
     if (defined $seq_hash && ! ref($seq_hash) eq 'HASH');   
-  if (not eval { require Graph::Undirected }) {
-    $self->throw("Error: the module 'Graph' is needed by the method ".
-      "_get_contig_overlap_stats but could not be found\n$@");
-  }
 
   my @contig_stats = (0, 0, undef, undef, 0);
   # contig_stats = (avg_length, avg_identity, min_length, min_identity, nof_overlaps)
 
-  my @seq_objs = $contig_obj->each_seq;
-  my $nof_seqs = scalar @seq_objs;
+  # Build contig graph
+  ### consider providing the minima to _contig_graph here too?
+  my ($g, $overlaps) = $self->_contig_graph($contig_obj, $seq_hash);
 
-  # Skip contigs of 1 sequence (they have no overlap)
-  if ($nof_seqs <= 1) {
-    return @contig_stats;
-  }
-
-  # Calculate alignment between all pairs of reads
-  my %overlaps;
-  for my $i (0 .. $nof_seqs-1) {
-    my $seq_obj = $seq_objs[$i];
-    my $seq_id  = $seq_obj->id;
-
-    # Skip this read if not in list of wanted sequences
-    next if defined $seq_hash && !defined $$seq_hash{$seq_id};
-
-    # What is the best sequence to align to?
-    my ($best_score, $best_length, $best_identity);
-    for my $j ($i+1 .. $nof_seqs-1) {
-
-      # Skip this sequence if not in list of wanted sequences
-      my $target_obj = $seq_objs[$j];
-      my $target_id = $target_obj->id;
-      next if defined $seq_hash && !defined $$seq_hash{$target_id};
-
-      # How much overlap with this sequence?
-      my ($aln_obj, $length, $identity)
-        = $self->_overlap_alignment($contig_obj, $seq_obj, $target_obj);
-      next if ! defined $aln_obj; # there was no sequence overlap
-
-      # Score the overlap as the number of conserved residues. In practice, it
-      # seems to work better than giving +1 for match and -3 for errors
-      # (mismatch or indels)
-      my $score = $length * $identity / 100;
-
-      # Apply a malus (square root) for scores that do not satisfy the minimum
-      # overlap length similarity. It is necessary for overlaps that get a high
-      # score without satisfying both the minimum values.
-      if ( ( $self->min_overlap  && ($length   < $self->min_overlap ) ) ||
-           ( $self->min_identity && ($identity < $self->min_identity) ) ) {
-        $score = sqrt($score);
-      }
-
-      # Record overlap
-      $overlaps{$i}{$j} = [$seq_id, $target_id, $score, $length, $identity];
-    }
-
-  }
-
-  # Process overlaps
-  my $nof_pairs = scalar keys %overlaps;
-  if ($nof_pairs == 0) {
-    # No overlaps, nothing to do
-
-  } elsif ($nof_pairs == 1) {
-    # A unique overlap
-    my $i = (keys %overlaps)[0];
-    my $j = (keys %{$overlaps{$i}})[0];
-    my ($id1, $id2, $score, $length, $identity) = @{$overlaps{$i}{$j}};
-    # Update assembly minimum overlap length and identity
-    my @overlap_stats = ($length, $identity);
-    @contig_stats = $self->_update_overlap_stats(@contig_stats, @overlap_stats);
-
-  } else {
-    # At least 2 overlaps. Find the set of overlaps that goes through all the
-    # reads of the contig and maximizes the total overlap score. Use the graph
-    # theory minimum spanning tree (MST) method to solve this problem.
-    my $g = Graph::Undirected->new();
-    for my $i (keys %overlaps) {
-      for my $j (keys %{$overlaps{$i}}) {
-        my $score  = @{$overlaps{$i}{$j}}[2];
-        my $weight = -$score;
-        $g->add_weighted_edge($i, $j, $weight);
-      }
-    }
+  if ( defined $g ) {
+    # Graph minimum spanning tree (tree that goes through strongest overlaps)
     $g = $g->MST_Kruskal();
 
     # Calculate minimum overlap length and identity for this contig
     for my $edge ( $g->edges ) {
       # Retrieve overlap information
-      my ($i,$j) = $$edge[0]<$$edge[1] ? ($$edge[0],$$edge[1]) : ($$edge[1],$$edge[0]) ;
-      my ($id1, $id2, $score, $length, $identity) = @{$overlaps{$i}{$j}};
+      my ($id1, $id2) = @$edge;
+      if (not exists $$overlaps{$id1}{$id2}) {
+        ($id2, $id1) = @$edge;
+      }
+      my ($score, $length, $identity) = @{$$overlaps{$id1}{$id2}};
       # Update contig stats
       my @overlap_stats = ($length, $identity);
       @contig_stats = $self->_update_overlap_stats(@contig_stats, @overlap_stats);
@@ -1814,7 +1810,7 @@ sub _update_overlap_stats {
   Function: Produce an alignment of the overlapping section of two sequences of
             a contig. Minimum overlap length and percentage identity can be
             specified. Return undef if the sequences do not overlap or do not
-            meet the minimum overlap criteria. 
+            meet the minimum overlap criteria.
   Return  : Bio::SimpleAlign object reference
             alignment overlap length
             alignment overlap identity
@@ -1903,6 +1899,161 @@ sub _overlap_alignment {
   # all checks passed, return alignment
   return $aln, $overlap, $identity;
 }
+
+
+=head2 _contig_graph
+
+  Title   : _contig_graph
+  Usage   : 
+  Function: Creates a graph data structure of the contig.The graph is undirected.
+            The vertices are the reads of the contig and edges are the overlap
+            between the reads. The edges are weighted by the opposite of the
+            overlap, so it is negative and the better the overlap, the lower the
+            weight.
+  Return  : Graph object or undef
+            hashref of overlaps (score, length, identity) for each read pair
+  Args    : Bio::Assembly::Contig object reference
+            hash reference with the IDs of the sequences to consider [optional]
+            minimum overlap length (integer)                         [optional]
+            minimum percentage identity (integer)                    [optional]
+
+=cut
+
+sub _contig_graph {
+  my ($self, $contig_obj, $seq_hash, $min_overlap, $min_identity) = @_;
+
+  # Sanity checks
+  if( !ref $contig_obj || ! $contig_obj->isa('Bio::Assembly::Contig') ) {
+        $self->throw("Unable to process non Bio::Assembly::Contig ".
+        "object [".ref($contig_obj)."]");
+  }
+
+  if (not eval { require Graph::Undirected }) {
+    $self->throw("Error: the module 'Graph' is needed by the method ".
+      "_contig_graph but could not be found\n$@");
+  }
+
+  # Skip contigs of 1 sequence (they have no overlap)
+  my @seq_objs = $contig_obj->each_seq;
+  my $nof_seqs = scalar @seq_objs;
+
+  return if ($nof_seqs <= 1);
+
+  # Calculate alignment between all pairs of reads
+  my %overlaps;
+  for my $i (0 .. $nof_seqs-1) {
+    my $seq_obj = $seq_objs[$i];
+    my $seq_id  = $seq_obj->id;
+
+    # Skip this read if not in list of wanted sequences
+    next if defined $seq_hash && !exists $$seq_hash{$seq_id};
+
+    # What is the best sequence to align to?
+    my ($best_score, $best_length, $best_identity);
+    for my $j ($i+1 .. $nof_seqs-1) {
+
+      # Skip this sequence if not in list of wanted sequences
+      my $target_obj = $seq_objs[$j];
+      my $target_id = $target_obj->id;
+      next if defined $seq_hash && !exists $$seq_hash{$target_id};
+
+      # How much overlap with this sequence?
+      my ($aln_obj, $length, $identity)
+        = $self->_overlap_alignment($contig_obj, $seq_obj, $target_obj, $min_overlap, $min_identity);
+      next if ! defined $aln_obj; # there was no sequence overlap or overlap not good enough
+
+      # Score the overlap as the number of conserved residues. In practice, it
+      # seems to work better than giving +1 for match and -3 for errors
+      # (mismatch or indels)
+      my $score = $length * $identity / 100;
+
+      # Apply a malus (square root) for scores that do not satisfy the minimum
+      # overlap length similarity. It is necessary for overlaps that get a high
+      # score without satisfying both the minimum values.
+      if ( ( $min_overlap  && ($length   < $min_overlap ) ) ||
+           ( $min_identity && ($identity < $min_identity) ) ) {
+          $score = sqrt($score);
+      }
+      $overlaps{$seq_id}{$target_id} = [$score, $length, $identity];
+
+    }
+
+  }
+
+  # Process overlaps
+  my $g; # the Graph object
+  if (scalar keys %overlaps >= 1) {
+    # At least 1 overlap. Create a weighted undirected graph
+    $g = Graph::Undirected->new();
+    for my $seq_id (keys %overlaps) {
+      for my $target_id (keys %{$overlaps{$seq_id}}) {
+        my $score  = @{$overlaps{$seq_id}{$target_id}}[0];
+        my $weight = -$score;
+        $g->add_weighted_edge($seq_id, $target_id, $weight);
+      }
+    }
+
+  }
+
+  return $g, \%overlaps;
+
+}
+
+
+=head2 _draw_graph
+
+  Title   : _draw_graph
+  Usage   : 
+  Function: Generates a PNG picture of the contig graph. It is mostly for
+            debugging purposes.
+  Return  : 1 for success
+  Args    : a Graph object
+            hashref of overlaps (score, length, identity) for each read pair
+            name of output file
+            overlap info to display: 'score' (default), 'length' or 'identity'
+
+=cut
+
+sub _draw_graph {
+  my ($self, $g, $overlaps, $outfile, $edge_type) = @_;
+
+  $self->throw("Error: need to provide a graph as input\n") if not defined $g;
+
+  if (not eval { require GraphViz }) {
+    $self->throw("Error: the module 'GraphViz' is needed by the method ".
+      "_draw_graph but could not be found\n$@");
+  }
+
+  $edge_type ||= 'score';
+
+  my $viz = GraphViz->new( directed => 0 );
+
+  for my $edge ( $g->edges ) {
+    # Retrieve overlap information
+    my ($id1, $id2) = @$edge;
+    if (not exists $$overlaps{$id1}{$id2}) {
+      ($id2, $id1) = @$edge;
+    }
+    my ($score, $length, $identity) = @{$$overlaps{$id1}{$id2}};
+
+    my $edge_val;
+    if ($edge_type eq 'score') {
+      $edge_val = $score;
+    } elsif ($edge_type eq 'length') {
+      $edge_val = $length;
+    } elsif ($edge_type eq 'identity') {
+      $edge_val = $identity;
+    } else {
+      $self->throw("Error: invalid edge type to display, '$edge_val'");
+    }
+    $viz->add_edge($id1 => $id2, label => $edge_val);
+  }
+  open my $fh, '>', $outfile or die "Error: Could not write file '$outfile'\n$!\n";
+  print $fh $viz->as_png;
+  close $fh;
+  return 1;
+}
+
 
 1;
 

@@ -22,9 +22,10 @@ CPAN releases are branched from 'master'.
     * Bio::SeqIO::gbxml
         - bug 2515 - new contribution [Ryan Golhar, jhannah]
     * Bio::Assembly::IO
+        - support for reading Maq, Sam and Bowtie files [maj]
         - support for reading 454 GS Assembler (Newbler) ACE files [fangly]
-        - support for writing ACE files [fangly]
-        - writing whole assemblies or one contig at a time [fangly]
+        - bug 2483: support for writing ACE files [Joshua Udall, fangly]
+        - bug 2726: reading/writing granularity: whole scaffold or one contig at a time [Joshua Udall, fangly]
     ...
         
     [Bug fixes]

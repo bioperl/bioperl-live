@@ -3,7 +3,7 @@ use strict;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    test_begin( -tests            => 223,
+    test_begin( -tests            => 236,
                 -requires_modules => [qw(Graph::Undirected)] );
     use_ok('Bio::Assembly::IO');
     use_ok('Bio::Assembly::Tools::ContigSpectrum');
@@ -143,15 +143,15 @@ is_deeply($dissolved_csp->spectrum, {1=>3, 5=>1}); # [3 0 0 0 1]
 # after dissolving, the remaining assembly objects should be 3 singlets and 1 6-contig
 my @contigs = ($dissolved_csp->assembly);
 is(scalar @contigs, 4);
-my @contig_ids = sort qw(ABC|SDSU_RFPERU_005_F02.x01.phd.1 ABC|9944760 ABC|9970175 NoName);
+my @contig_ids = sort qw( 144 652_1 652_2 652_3 );
 is_deeply( [sort map($_->id, @contigs)], \@contig_ids );
 my @contig_sizes = sort qw( 1 1 1 5 );
 is_deeply( [sort map($_->num_sequences, @contigs)], \@contig_sizes );
 my @contig_isas = sort qw( Bio::Assembly::Singlet Bio::Assembly::Singlet
 Bio::Assembly::Singlet Bio::Assembly::Contig );
 is_deeply( [sort map(ref $_, @contigs)], \@contig_isas );
-my @reads = ($contigs[3])->each_seq;
-my @read_ids = sort qw( ABC|9980040 ABC|9937790 ABC|9956706 ABC|9960711 ABC|9976538);
+my @reads = ($contigs[1])->each_seq;
+my @read_ids = sort qw(ABC|9980040 ABC|9937790 ABC|9956706 ABC|9960711 ABC|9976538);
 is_deeply( [sort map($_->id, @reads)], \@read_ids );
 
 ok($dissolved_csp = Bio::Assembly::Tools::ContigSpectrum->new(
@@ -291,14 +291,14 @@ is($test_csp->score, 0.248953974895397);
 # large contig (27 reads)
 $in = Bio::Assembly::IO->new(
   -file   => test_input_file('27-contig_Newbler.ace'),
-  -format => 'ace'
+  -format => 'ace-454'
 );
 isa_ok($in, 'Bio::Assembly::IO');
 $sc = $in->next_assembly;
 isa_ok($sc, 'Bio::Assembly::Scaffold');
 ok(my $large_csp = Bio::Assembly::Tools::ContigSpectrum->new(
   -assembly       => $sc,
-  -eff_asm_params => 1 ), 'large contig');
+  -eff_asm_params => 1 ), 'large contig spectrum');
 is(scalar $large_csp->assembly(), 1);
 is_deeply($large_csp->spectrum, {1=>0, 27=>1});
 is($large_csp->eff_asm_params, 1);
@@ -311,6 +311,31 @@ is($large_csp->min_overlap, 54);
 is($large_csp->avg_overlap, 88.7692307692308);
 float_is($large_csp->min_identity, 33.3333);
 float_is($large_csp->avg_identity, 74.7486);
+
+ok(my $large_xcsp = Bio::Assembly::Tools::ContigSpectrum->new(
+  -cross          => $large_csp,
+  -eff_asm_params => 1           ), 'large cross-contig spectrum');
+is($large_xcsp->nof_overlaps, 26);
+# operation returns sometimes 88.7692307692308 and sometimes 88.8076923076923...
+ok( $large_xcsp->avg_overlap >= 88.7692307692307 );
+ok( $large_xcsp->avg_overlap <= 88.8076923076924 );
+is_deeply($large_xcsp->spectrum, {1=>21, 27=>1});
+
+ok( $large_xcsp = Bio::Assembly::Tools::ContigSpectrum->new(
+  -cross          => $large_csp,
+  -min_overlap    => 100) );
+is_deeply($large_xcsp->spectrum, {1=>18, 2=>5, 3=>1, 7=>1});
+my @xcontigs = ($large_xcsp->assembly);
+is(scalar @xcontigs, 7); # the cross-1-contigs are not included
+my @xcontig_ids = sort qw( contig00001_1 contig00001_2 contig00001_3 contig00001_4
+contig00001_5 contig00001_6 contig00001_7 );
+is_deeply( [sort map($_->id, @xcontigs)], \@xcontig_ids );
+my @xcontig_sizes = sort qw( 2 2 2 2 2 3 7 );
+is_deeply( [sort map($_->num_sequences, @xcontigs)], \@xcontig_sizes );
+my $xcontig = $xcontigs[5];
+is( $xcontig->get_seq_coord($xcontig->get_seq_by_name('species1635|5973'))->start, 1);
+is( $xcontig->get_seq_coord($xcontig->get_seq_by_name('species158|7890'))->start, 1);
+is( $xcontig->get_seq_coord($xcontig->get_seq_by_name('species2742|48'))->end, 140);
 
 # one contig at a time
 $in = Bio::Assembly::IO->new(

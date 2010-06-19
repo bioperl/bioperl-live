@@ -271,35 +271,14 @@ sub next_contig {
 
         # Loading contig qualities... (Base Quality field)
         elsif (/^BQ/) {
-            my $consensus = $contigOBJ->get_consensus_sequence()->seq();
-            my ($i,$j,@tmp);
-            my @quality = ();
-            $j = 0;
+            my $qual_string = '';
             while ($_ = $self->_readline) {
                 chomp;
                 last if (/^$/);
-                @tmp = grep { /^\d+$/ } split(/\s+/);
-                $i = 0;
-                my $previous = 0;
-                my $next     = 0;
-                while ($i<=$#tmp) {
-                    # IF base is a gap, quality is the average for neighbouring sites
-                    if (substr($consensus,$j,1) eq '-') {
-                        $previous = $tmp[$i-1] unless ($i == 0);
-                        if ($i < $#tmp) {
-                            $next = $tmp[$i+1];
-                        } else {
-                            $next = 0;
-                        }
-                        push(@quality,int(($previous+$next)/2));
-                    } else {
-                        push(@quality,$tmp[$i]);
-                        $i++;
-                    }
-                    $j++;
-                }
+                $qual_string .= "$_ ";
             }
-            my $qual = Bio::Seq::PrimaryQual->new(-qual => join(" ", @quality),
+            my @qual_arr = $self->_input_qual($qual_string, $contigOBJ->get_consensus_sequence->seq);
+            my $qual = Bio::Seq::PrimaryQual->new(-qual => join(" ", @qual_arr),
                                                   -id   => $contigOBJ->id()   );
             $contigOBJ->set_consensus_quality($qual);
         }
@@ -488,12 +467,11 @@ sub next_contig {
                 $max_end = $end;
             }
         }
-        $max_end += abs($min_start) + 1;
 
         # Pad consensus sequence
         my $cons_seq = $contigOBJ->get_consensus_sequence;
         my $cons_string = $cons_seq->seq;
-        my $l_pad_len = abs($min_start) - 1;
+        my $l_pad_len = abs($min_start) + 1;
         my $r_pad_len = $max_end - length($cons_string) - $l_pad_len;
         $cons_string = $pad_char x $l_pad_len . $cons_string . $pad_char x $r_pad_len;
         $cons_seq = Bio::LocatableSeq->new(
@@ -517,7 +495,6 @@ sub next_contig {
             $contigOBJ->set_consensus_quality($cons_qual);
         }
     }
-
     return $contigOBJ;
 }
 
@@ -886,8 +863,8 @@ sub _write_read {
     );
 
     # Aligned "align clipping" and quality coordinates if read object has them
-    my $qual_clip_start = $read->start;
-    my $qual_clip_end   = $read->end;
+    my $qual_clip_start = 1;
+    my $qual_clip_end   = length($read->seq);
     my $qual_clip = (grep 
         { $_->primary_tag eq '_quality_clipping:'.$read_id }
         $contig->get_features_collection->get_all_features
@@ -895,9 +872,12 @@ sub _write_read {
     if ( defined $qual_clip ) {
         $qual_clip_start = $qual_clip->location->start;
         $qual_clip_end   = $qual_clip->location->end;
+        $qual_clip_start = $contig->change_coord('gapped consensus',"aligned $read_id",$qual_clip_start);
+        $qual_clip_end   = $contig->change_coord('gapped consensus',"aligned $read_id",$qual_clip_end  );
     }
-    my $aln_clip_start = $read->start;
-    my $aln_clip_end   = $read->end;
+
+    my $aln_clip_start = 1;
+    my $aln_clip_end   = length($read->seq);
     my $aln_clip = (grep 
         { $_->primary_tag eq '_align_clipping:'.$read_id }
         $contig->get_features_collection->get_all_features
@@ -905,11 +885,10 @@ sub _write_read {
     if ( defined $aln_clip ) {
         $aln_clip_start = $aln_clip->location->start;
         $aln_clip_end   = $aln_clip->location->end;
+        $aln_clip_start  = $contig->change_coord('gapped consensus',"aligned $read_id",$aln_clip_start );
+        $aln_clip_end    = $contig->change_coord('gapped consensus',"aligned $read_id",$aln_clip_end   );
     }
-    $qual_clip_start = $contig->change_coord('gapped consensus',"aligned $read_id",$qual_clip_start);
-    $qual_clip_end   = $contig->change_coord('gapped consensus',"aligned $read_id",$qual_clip_end  );
-    $aln_clip_start  = $contig->change_coord('gapped consensus',"aligned $read_id",$aln_clip_start );
-    $aln_clip_end    = $contig->change_coord('gapped consensus',"aligned $read_id",$aln_clip_end   );
+
     $self->_print(
         "QA $qual_clip_start $qual_clip_end $aln_clip_start $aln_clip_end\n".
         "\n"
@@ -993,23 +972,72 @@ sub _formatted_seq {
 sub _formatted_qual {
     my ($qual_arr, $seq, $line_width, $qual_default) = @_;
     my $qual_str = '';
-    # Default quality     
-    if (not defined $qual_arr) {
-      @$qual_arr = map( $qual_default, (1 .. length $seq) );
+    my @qual_arr;
+    if (defined $qual_arr) {
+      # Copy array
+      @qual_arr = @$qual_arr;
+    } else {
+      # Default quality
+      @qual_arr = map( $qual_default, (1 .. length $seq) );     
     }
     # Gaps get no quality score in ACE format
     my $gap_pos = -1;
-    while ( $gap_pos = index($seq, '-', $gap_pos + 1) ) {
+    while ( 1 ) {
+        $gap_pos = index($seq, '-', $gap_pos + 1);
         last if $gap_pos == -1;
         substr $seq, $gap_pos, 1, '';
-        splice @$qual_arr, $gap_pos, 1;
+        splice @qual_arr, $gap_pos, 1;
         $gap_pos--;
     }
     # Split quality scores on several lines
-    while ( my @chunks = splice @$qual_arr, 0, $line_width ) {
+    while ( my @chunks = splice @qual_arr, 0, $line_width ) {
         $qual_str .= "@chunks\n";
     }
     return $qual_str;
+}
+
+
+=head2 _input_qual
+
+    Title   : _input_qual
+    Usage   : Bio::Assembly::IO::ace::_input_qual($qual_string, $sequence)
+    Function: Reads input quality string and converts it to an array of quality
+              scores. Gaps get a quality score equals to the average of the
+              quality score of its neighbours.
+    Returns : new quality score array
+    Args    : quality score string
+              corresponding sequence string
+
+=cut
+
+sub _input_qual {
+    my ($self, $qual_string, $sequence) = @_;
+    my $i = 0; # position in quality 
+    my $j = 0; # position in sequence
+    my @qual_arr = ();
+    my @tmp = split(/\s+/, $qual_string);
+    my $prev = 0;
+    my $next = 0;
+    for $j (0 .. length($sequence)-1) {
+        my $nt = substr($sequence, $j, 1);
+        if ($nt eq '-') {
+            if ($i > 0) {
+                $prev = $tmp[$i-1];
+            } else {
+                $prev = 0;
+            }
+            if ($i < $#tmp) {
+                $next = $tmp[$i];
+            } else {
+                $next = 0;
+            }
+            push @qual_arr, int(($prev+$next)/2);
+        } else {
+            push @qual_arr, $tmp[$i];
+            $i++;
+        }
+    }
+    return @qual_arr;
 }
 
 
