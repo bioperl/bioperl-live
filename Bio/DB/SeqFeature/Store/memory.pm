@@ -164,17 +164,20 @@ sub post_init {
   }
   local $self->{file_or_dir} = $file_or_dir;
   $loader->load(@argv);
+  warn $@ if $@;
 }
 
 sub commit { # reindex fasta files
   my $self = shift;
 
+  my $db;
   if (my $fh = $self->{fasta_fh}) {
       $fh->close;
-      $self->{fasta_db} = Bio::DB::Fasta->new($self->{fasta_file});
+      $db = Bio::DB::Fasta->new($self->{fasta_file});
   } elsif (exists $self->{file_or_dir} && -d $self->{file_or_dir}) {
-      $self->{fasta_db} = Bio::DB::Fasta->new($self->{file_or_dir});
+      $db = Bio::DB::Fasta->new($self->{file_or_dir});
   }
+  $self->{fasta_db} = $db if $db;
 }
 
 sub can_store_parentage { 1 }
