@@ -745,6 +745,7 @@ sub calculate_offsets {
 
   while (<$fh>) {		# don't try this at home
     $termination_length ||= /\r\n$/ ? 2 : 1; # account for crlf-terminated Windows files
+    next unless /\S/;
     if (/^>(\S+)/) {
       print STDERR "indexed $count sequences...\n" 
 	if $self->{debug} && (++$count%1000) == 0;
@@ -766,10 +767,10 @@ sub calculate_offsets {
       $l3_len= $l2_len; $l2_len= $l_len; $l_len= length($_); # need to check every line :(
       if (DIE_ON_MISSMATCHED_LINES &&
 	  $l3_len>0 && $l2_len>0 && $l3_len!=$l2_len) {
-	my $fap= substr($_,0,20)."..";
-	$self->throw("Each line of the fasta entry must be the same length except the last.
-    Line above #$. '$fap' is $l2_len != $l3_len chars.");
-  }
+	  my $fap= substr($_,0,20)."..";
+	  $self->throw("Each line of the fasta entry must be the same length except the last.
+   Line above #$. '$fap' is $l2_len != $l3_len chars.");
+      }
       $linelength ||= length($_);
       $type       ||= $self->_type($_);
       $seq_lines++;
