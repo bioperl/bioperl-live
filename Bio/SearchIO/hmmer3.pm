@@ -567,7 +567,7 @@ sub next_result{
                    my $hit_desc = shift @$hit;
                    my $hit_signif = shift @$hit;
                    my $hit_score = shift @$hit;
-                   my $num_domains = $domaincounter{$hit_name};
+                   my $num_domains = $domaincounter{$hit_name} || 0;
 
                    $self->start_element( { 'Name' => 'Hit' } );
                    $self->element(
