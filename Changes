@@ -25,7 +25,8 @@ CPAN releases are branched from 'master'.
         - support for reading Maq, Sam and Bowtie files [maj]
         - support for reading 454 GS Assembler (Newbler) ACE files [fangly]
         - bug 2483: support for writing ACE files [Joshua Udall, fangly]
-        - bug 2726: reading/writing granularity: whole scaffold or one contig at a time [Joshua Udall, fangly]
+        - bug 2726: reading/writing granularity: whole scaffold or one contig
+                    at a time [Joshua Udall, fangly]
     ...
         
     [Bug fixes]
@@ -33,9 +34,18 @@ CPAN releases are branched from 'master'.
       for alignment slices [Ha X. Dang, cjfields]
     ...
       
+    [Deprecated]
+    * Bio::Expression modules - these were originally designed to go with the
+      bioperl-microarray suite of tools, however they have never been completed
+      and so have been removed from the distribution.  The original code has
+      be moved into the inactive bioperl-microarray suite. [cjfields]
+      
     [Other]
     * Repository moved from Subversion (SVN) to
       http://github.com/bioperl/bioperl-live [cjfields]
+    * Bio::Micrarray - the tools developed for ReSeq chip analysis by Marian
+      Thieme have been moved to their own distribution (Bio-Microarray).
+      [cjfields]
 
 1.6.1   Sept. 29, 2009 (point release)
     * No change from last alpha except VERSION and doc updates [cjfields]
