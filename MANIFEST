@@ -1601,9 +1601,6 @@ t/data/mixedmast.dat
 t/data/MmCT
 t/data/mpath.ontology.test
 t/data/MSGEFTUA.gb
-t/data/msout/msout_infile1
-t/data/msout/msout_infile2
-t/data/msout/msout_infile3
 t/data/msout_infile1
 t/data/msout_infile1.gz
 t/data/msout_infile2
