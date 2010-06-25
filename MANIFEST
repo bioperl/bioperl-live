@@ -249,15 +249,6 @@ Bio/DescribableI.pm
 Bio/Draw/Pictogram.pm
 Bio/Event/EventGeneratorI.pm
 Bio/Event/EventHandlerI.pm
-Bio/Expression/Contact.pm
-Bio/Expression/DataSet.pm
-Bio/Expression/FeatureGroup.pm
-Bio/Expression/FeatureGroup/FeatureGroupMas50.pm
-Bio/Expression/FeatureI.pm
-Bio/Expression/FeatureSet/FeatureSetMas50.pm
-Bio/Expression/Platform.pm
-Bio/Expression/ProbeI.pm
-Bio/Expression/Sample.pm
 Bio/Factory/AnalysisI.pm
 Bio/Factory/ApplicationFactoryI.pm
 Bio/Factory/DriverFactory.pm
@@ -388,8 +379,6 @@ Bio/Matrix/PSM/PsmI.pm
 Bio/Matrix/PSM/SiteMatrix.pm
 Bio/Matrix/PSM/SiteMatrixI.pm
 Bio/Matrix/Scoring.pm
-Bio/Microarray/Tools/MitoChipV2Parser.pm
-Bio/Microarray/Tools/ReseqChip.pm
 Bio/MolEvol/CodonModel.pm
 Bio/Nexml/Factory.pm
 Bio/NexmlIO.pm
@@ -1694,10 +1683,6 @@ t/data/registry/flat/seqdatabase.ini
 t/data/regulation_test.obo
 t/data/rel9.swiss
 t/data/repeatmasker.fa.out
-t/data/ReseqChip_ExampleData.fasta
-t/data/ReseqChip_mtDNA_design_annotation_file_FINAL.xls
-t/data/ReseqChip_ParamsNcall.csv
-t/data/ReseqChip_RefSeq.fasta
 t/data/revcomp_mrna.gb
 t/data/rfam_tests.stk
 t/data/ribosome-slippage.gb
@@ -1921,7 +1906,6 @@ t/Matrix/Matrix.t
 t/Matrix/ProtMatrix.t
 t/Matrix/ProtPsm.t
 t/Matrix/SiteMatrix.t
-t/Microarray/Tools/ReseqChip.t
 t/nexml.t
 t/Ontology/GOterm.t
 t/Ontology/GraphAdaptor.t
