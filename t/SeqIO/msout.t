@@ -27,8 +27,7 @@ create_dir("msout");
 test_file_1( 0, "msout/msout_infile1" );
 test_file_2( 0, "msout/msout_infile2" );
 test_file_3( 0, "msout/msout_infile3" );
-
-# remove_dir("msout");
+remove_dir("msout");
 
 sub create_dir {
 
