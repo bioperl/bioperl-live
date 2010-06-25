@@ -1,6 +1,5 @@
 package Bio::Root::Root;
 use strict;
-use Storable qw( dclone );
 
 # $Id$
 
@@ -176,14 +175,14 @@ methods. Internal methods are usually preceded with a _
 
 #'
 
-use vars qw($DEBUG $ID $VERBOSITY $ERRORLOADED);
 use strict;
 use Bio::Root::IO;
 
 use base qw(Bio::Root::RootI);
 
-BEGIN { 
+our ($DEBUG, $ID, $VERBOSITY, $ERRORLOADED, $CLONE_CLASS);
 
+BEGIN { 
     $ID        = 'Bio::Root::Root';
     $DEBUG     = 0;
     $VERBOSITY = 0;
@@ -206,7 +205,7 @@ BEGIN {
         require Carp; import Carp qw( confess );
     }    
     $main::DONT_USE_ERROR;  # so that perl -w won't warn "used only once"
-
+    
 }
 
 
@@ -246,32 +245,87 @@ sub new {
  Returns : A cloned object.
  Args    : Any named parameters provided will be set on the new object.
            Unnamed parameters are ignored.
- Comments: Storable dclone() cannot clone CODE references.
-           Any CODE reference in your original object will remain, but
-           will not exist in the cloned object.
+ Comments: Where possible, faster clone methods are used, in order:
+           Clone::clone(), Storable::dclone.  If neither is present,
+           a pure perl fallback (not very well tested) is used instead.
+           Storable dclone() cannot clone CODE references.  Therefore, 
+           any CODE reference in your original object will remain, but
+           will not exist in the cloned object.  
+           This should not be used for anything other than cloning of simple
+           objects. Developers of subclasses are encouraged to override this
+           method with one of their own.
+           
 =cut
 
 sub clone {
     my ($orig, %named_params) = @_;
-
+    
+    __PACKAGE__->throw("Can't call clone() as a class method") unless
+        ref $orig && $orig->isa('Bio::Root::Root');
+    
+    # install the private _clone method lazily, defaulting to a simple recursive
+    # deep clone.  Could push this to the BEGIN block?
+    
+    if (!Bio::Root::Root->can('_clone')) {
+        for my $class (qw(Clone Storable)) {
+            eval "require $class; 1;";
+            if (!$@) {
+                $CLONE_CLASS = $class;
+                *Bio::Root::Root::_clone = $class eq 'Clone' ? 
+                    sub {shift; Clone::clone($_[0])} : 
+                    sub {shift; Storable::dclone($_[0])} ;
+                last;
+            }
+        }
+        # Pure perl fallback
+        if (!$CLONE_CLASS) {
+            $orig->_load_module('Scalar::Util');
+            *Bio::Root::Root::_clone = sub {
+                my ($self, $orig, $level) = @_;
+                my $class = Scalar::Util::blessed($orig) || '';
+                my $reftype = Scalar::Util::reftype($orig) || '';
+                my $data;
+                if (!$reftype) {
+                    $data = $orig
+                } elsif ($reftype eq "ARRAY") {
+                    $data = [map $self->_clone($_), @$orig];
+                } elsif ($reftype eq "HASH") {
+                    $data = { map { $_ => $self->_clone($orig->{$_}) } keys %$orig };
+                } elsif ($reftype eq 'CODE') { # nothing, maybe shallow copy?
+                } else { $self->throw("What type is $_?")}
+                if ($class) {
+                    bless $data, $class;
+                }
+                $data;
+            }
+        }
+    }
+    
     # Can't dclone CODE references...
+    # Should we shallow copy these? Should be harmless for these specific
+    # methods...
+    
     my %put_these_back = (
        _root_cleanup_methods => $orig->{'_root_cleanup_methods'},
     );
     delete $orig->{_root_cleanup_methods};
-
-    my $clone = dclone($orig);
+    
+    # call the proper clone method, set lazily above
+    my $clone = __PACKAGE__->_clone($orig);
 
     $orig->{_root_cleanup_methods} = $put_these_back{_root_cleanup_methods};
-
+    
     foreach my $key (grep { /^-/ } keys %named_params) {
-       my $method = $key;
-       $method =~ s/^-//;
-       $clone->$method($named_params{$key});
+        my $method = $key;
+        $method =~ s/^-//;
+        if ($clone->can($method)) {
+            $clone->$method($named_params{$key})
+        } else {
+            $orig->warn("Parameter $method is not a method for ".ref($clone));
+        }
     }
     return $clone;
 }
-
 
 =head2 verbose
 
