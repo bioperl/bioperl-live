@@ -1,5 +1,6 @@
 package Bio::Root::Root;
 use strict;
+use Scalar::Util qw(blessed reftype);
 
 # $Id$
 
@@ -204,11 +205,42 @@ BEGIN {
     if( !$ERRORLOADED ) {
         require Carp; import Carp qw( confess );
     }    
-    $main::DONT_USE_ERROR;  # so that perl -w won't warn "used only once"
     
+    # set up _dclone()
+    for my $class (qw(Clone Storable)) {
+        eval "require $class; 1;";
+        if (!$@) {
+            $CLONE_CLASS = $class;
+            *Bio::Root::Root::_dclone = $class eq 'Clone' ? 
+                sub {shift; Clone::clone($_[0])} : 
+                sub {shift; Storable::dclone($_[0])} ;
+            last;
+        }
+    }
+    if (!defined $CLONE_CLASS) {
+        *Bio::Root::Root::_dclone = sub {
+            my ($self, $orig, $level) = @_;
+            my $class = Scalar::Util::blessed($orig) || '';
+            my $reftype = Scalar::Util::reftype($orig) || '';
+            my $data;
+            if (!$reftype) {
+                $data = $orig
+            } elsif ($reftype eq "ARRAY") {
+                $data = [map $self->_dclone($_), @$orig];
+            } elsif ($reftype eq "HASH") {
+                $data = { map { $_ => $self->_dclone($orig->{$_}) } keys %$orig };
+            } elsif ($reftype eq 'CODE') { # nothing, maybe shallow copy?
+                $self->throw("Code reference cloning not supported");
+            } else { $self->throw("What type is $_?")}
+            if ($class) {
+                bless $data, $class;
+            }
+            $data;
+        }
+    }
+    
+    $main::DONT_USE_ERROR;  # so that perl -w won't warn "used only once"
 }
-
-
 
 =head2 new
 
@@ -263,44 +295,6 @@ sub clone {
     __PACKAGE__->throw("Can't call clone() as a class method") unless
         ref $orig && $orig->isa('Bio::Root::Root');
     
-    # install the private _clone method lazily, defaulting to a simple recursive
-    # deep clone.  Could push this to the BEGIN block?
-    
-    if (!Bio::Root::Root->can('_clone')) {
-        for my $class (qw(Clone Storable)) {
-            eval "require $class; 1;";
-            if (!$@) {
-                $CLONE_CLASS = $class;
-                *Bio::Root::Root::_clone = $class eq 'Clone' ? 
-                    sub {shift; Clone::clone($_[0])} : 
-                    sub {shift; Storable::dclone($_[0])} ;
-                last;
-            }
-        }
-        # Pure perl fallback
-        if (!$CLONE_CLASS) {
-            $orig->_load_module('Scalar::Util');
-            *Bio::Root::Root::_clone = sub {
-                my ($self, $orig, $level) = @_;
-                my $class = Scalar::Util::blessed($orig) || '';
-                my $reftype = Scalar::Util::reftype($orig) || '';
-                my $data;
-                if (!$reftype) {
-                    $data = $orig
-                } elsif ($reftype eq "ARRAY") {
-                    $data = [map $self->_clone($_), @$orig];
-                } elsif ($reftype eq "HASH") {
-                    $data = { map { $_ => $self->_clone($orig->{$_}) } keys %$orig };
-                } elsif ($reftype eq 'CODE') { # nothing, maybe shallow copy?
-                } else { $self->throw("What type is $_?")}
-                if ($class) {
-                    bless $data, $class;
-                }
-                $data;
-            }
-        }
-    }
-    
     # Can't dclone CODE references...
     # Should we shallow copy these? Should be harmless for these specific
     # methods...
@@ -311,7 +305,7 @@ sub clone {
     delete $orig->{_root_cleanup_methods};
     
     # call the proper clone method, set lazily above
-    my $clone = __PACKAGE__->_clone($orig);
+    my $clone = __PACKAGE__->_dclone($orig);
 
     $orig->{_root_cleanup_methods} = $put_these_back{_root_cleanup_methods};
     
@@ -326,6 +320,25 @@ sub clone {
     }
     return $clone;
 }
+
+=head2 _dclone
+
+ Title   : clone
+ Usage   : my $clone = $obj->_dclone($ref);
+           or
+           my $clone = $obj->_dclone($ref);
+ Function: Returns a copy of the object passed to it (a deep clone)
+ Returns : clone of passed argument
+ Args    : Anything
+ NOTE    : This differs from clone significantly in that it does not clone
+           self, but the data passed to it.  This code may need to be optimized
+           or overridden as needed.
+ Comments: This is set in the BEGIN block to take advantage of optimized
+           cloning methods if Clone or Storable is present, falling back to a
+           pure perl kludge. May be moved into a set of modules if the need
+           arises. At the moment, code ref cloning is not supported.
+
+=cut
 
 =head2 verbose
 
