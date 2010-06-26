@@ -307,6 +307,10 @@ sub next_seq {
     } else {
         $params{'-molecule'} = shift(@tokens);
     }
+    # take care of lower case issues
+    if ($params{'-molecule'} eq 'dna' || $params{'-molecule'} eq 'rna') {
+        $params{'-molecule'} = uc $params{'-molecule'};
+    }
     $self->throw("Unrecognized molecule type:".$params{'-molecule'}) if
         !exists($VALID_MOLTYPE{$params{'-molecule'}});
 	my $circ = shift(@tokens);
