@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 262 );
+	test_begin(-tests => 272 );
 	
     use_ok('Bio::SeqIO::genbank');
 }
@@ -22,6 +22,8 @@ $ast->verbose($verbose);
 my $as = $ast->next_seq();
 is $as->molecule, 'mRNA',$as->accession_number;
 is $as->alphabet, 'dna';
+is $as->division, 'EST';
+is join(',',$as->get_dates), '27-OCT-1998';
 is($as->primary_id, 3598416);
 my @class = $as->species->classification;
 is $class[$#class],'Eukaryota';
@@ -33,6 +35,8 @@ $ast->verbose($verbose);
 $as = $ast->next_seq();
 is $as->molecule, 'DNA',$as->accession_number;
 is $as->alphabet, 'dna';
+is $as->division, 'CON';
+is join(',',$as->get_dates), '17-OCT-2003';
 is($as->primary_id, 37539616);
 is($as->accession_number, 'NT_021877');
 
@@ -48,6 +52,8 @@ $ast->verbose($verbose);
 $as = $ast->next_seq();
 is $as->molecule, 'PRT',$as->accession_number;
 is $as->alphabet, 'protein';
+is $as->division, 'VRT';
+is join(',',$as->get_dates), '11-APR-2002';
 # Though older GenBank releases indicate SOURCE contains only the common name,
 # this is no longer true.  In general, this line will contain an abbreviated
 # form of the full organism name (but may contain the full length name),
@@ -143,6 +149,8 @@ my @refs = $seq->annotation->get_Annotations('reference');
 is(@refs, 1);
 is($seq->display_id,'Mc.janrrnA');
 is($seq->molecule ,'RNA');
+is $as->division, 'PLN';
+is join(',',$as->get_dates), '23-MAY-2005';
 
 $str  = Bio::SeqIO->new(-format => 'genbank',
                               -file   => test_input_file('AF165282.gb'),
@@ -541,9 +549,10 @@ if ($project) {
 $ast = Bio::SeqIO->new(-format => 'genbank',
                               -verbose => $verbose,
                        -file => test_input_file('P39765.gb'));
-$ast->verbose($verbose);
 $as = $ast->next_seq();
-is $as->molecule, 'PRT',$as->accession_number;;
+is $as->molecule, 'PRT',$as->accession_number;
+is $as->division, 'BCT',$as->accession_number;
+is join(',',$as->get_dates), '03-MAR-2009',$as->accession_number;
 is $as->alphabet, 'protein';
 # Though older GenBank releases indicate SOURCE contains only the common name,
 # this is no longer true.  In general, this line will contain an abbreviated
