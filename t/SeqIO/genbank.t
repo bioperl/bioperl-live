@@ -46,7 +46,7 @@ $ast = Bio::SeqIO->new(-format => 'genbank',
                        -file => test_input_file('BAB68554.gb'));
 $ast->verbose($verbose);
 $as = $ast->next_seq();
-is $as->molecule, 'linear',$as->accession_number;;
+is $as->molecule, 'PRT',$as->accession_number;
 is $as->alphabet, 'protein';
 # Though older GenBank releases indicate SOURCE contains only the common name,
 # this is no longer true.  In general, this line will contain an abbreviated
@@ -543,7 +543,7 @@ $ast = Bio::SeqIO->new(-format => 'genbank',
                        -file => test_input_file('P39765.gb'));
 $ast->verbose($verbose);
 $as = $ast->next_seq();
-is $as->molecule, 'linear',$as->accession_number;;
+is $as->molecule, 'PRT',$as->accession_number;;
 is $as->alphabet, 'protein';
 # Though older GenBank releases indicate SOURCE contains only the common name,
 # this is no longer true.  In general, this line will contain an abbreviated

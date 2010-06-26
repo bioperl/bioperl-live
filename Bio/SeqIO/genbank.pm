@@ -217,6 +217,9 @@ our %DBSOURCE = map {$_ => 1} qw(
     swissprot    GenBank    GenPept    REFSEQ    embl    PDB    UniProtKB
     DIP    PeptideAtlas    PRIDE    CYGD    HOGENOME    Gene3D Project);
 
+our %VALID_MOLTYPE = map {$_ => 1} qw(NA DNA RNA tRNA rRNA 
+    mRNA  uRNA  snRNA snoRNA);
+
 our %VALID_ALPHABET = (
     'bp' => 'dna',
     'aa' => 'protein',
@@ -299,8 +302,10 @@ sub next_seq {
 	$params{'-alphabet'} = (exists $VALID_ALPHABET{$alphabet}) ? $VALID_ALPHABET{$alphabet} :
                            $self->warn("Unknown alphabet: $alphabet");
 	# for aa there is usually no 'molecule' (mRNA etc)
-	if (($params{'-alphabet'} eq 'dna') || (@tokens > 2)) {
+	if ($params{'-alphabet'} eq 'dna') {
 	    $params{'-molecule'} = shift(@tokens);
+        $self->throw("Unrecognized molecule type:".$params{'-molecule'}) if
+            !exists($VALID_MOLTYPE{$params{'-molecule'}});
 	    my $circ = shift(@tokens);
 	    if ($circ eq 'circular') {
             $params{'-is_circular'} = 1;
@@ -311,7 +316,7 @@ sub next_seq {
                 (CORE::length($circ) == 3 ) ? $circ : shift(@tokens);
 	    }
 	} else {
-	    $params{'-molecule'} = 'PRT' if($params{'-alphabet'} eq 'aa');
+	    $params{'-molecule'} = 'PRT' if($params{'-alphabet'} eq 'protein');
 	    $params{'-division'} = shift(@tokens);
 	}
 	my $date = join(' ', @tokens); # we lump together the rest
