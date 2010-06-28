@@ -6,6 +6,7 @@
 #
 # Cared for by James Gilbert <jgrg@sanger.ac.uk>
 # Reimplemented by Sendu Bala <bix@sendu.me.uk>
+# Re-reimplemented by Chris Fields <cjfields - at - bioperl dot org>
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -13,7 +14,7 @@
 
 =head1 NAME
 
-Bio::Species - Generic species object
+Bio::Species - Generic species object.  
 
 =head1 SYNOPSIS
 
@@ -38,16 +39,16 @@ Bio::Species - Generic species object
 
 =head1 DESCRIPTION
 
-Provides a very simple object for storing phylogenetic
-information.  The classification is stored in an array,
-which is a list of nodes in a phylogenetic tree.  Access to
-getting and setting species and genus is provided, but not
-to any of the other node types (eg: "phylum", "class",
-"order", "family").  There's plenty of scope for making the
-model more sophisticated, if this is ever needed.
+B<NOTE: This class is planned for deprecation in favor of the simpler Bio::Taxon.
+Please use that class instead.>
 
-A methods are also provided for storing common
-names, and subspecies.
+Provides a very simple object for storing phylogenetic information. The
+classification is stored in an array, which is a list of nodes in a phylogenetic
+tree. Access to getting and setting species and genus is provided, but not to
+any of the other node types (eg: "phylum", "class", "order", "family"). There's
+plenty of scope for making the model more sophisticated, if this is ever needed.
+
+A methods are also provided for storing common names, and subspecies.
 
 =head1 FEEDBACK
 
@@ -86,6 +87,7 @@ James Gilbert email B<jgrg@sanger.ac.uk>
 =head1 CONTRIBUTORS
 
 Sendu Bala, bix@sendu.me.uk
+Chris Fields, cjfields at bioperl dot org
 
 =head1 APPENDIX
 
@@ -121,12 +123,14 @@ sub new {
     
     my $self = $class->SUPER::new(@args);
     
-    # Bio::Species is a proxy object that just observes the NodeI interface
-    # methods but delegates them to the proper classes (Bio::Taxon and
+    # Bio::Species is now just a proxy object that just observes the NodeI
+    # interface methods but delegates them to the proper classes (Bio::Taxon and
     # Bio::Tree::Tree). This will be surplanted by the much simpler
     # Bio::Taxon/Bio::DB::Taxonomy modules in the future.
     
-    # Using a proxy allows proper GC w/o using weaken()
+    # Using a proxy allows proper GC w/o using weaken().  This just wraps the
+    # older instances, which have no reciprocal refs (thus no circular refs).
+    # This can then run proper cleanup
     
     $self->taxon(Bio::Taxon->new(@args));
     
@@ -273,19 +277,15 @@ sub classification {
 sub species {
     my ($self, $species) = @_;
     
+    # TODO: instead of caching the raw name, cache the actual node instance.
+    #       Do the same for the other methods where a node is requested:
+    #       genus, variant, sub_species, etc.
+    
     if ($species) {
             $self->{_species} = $species;
     }
 
     if (!defined $self->{_species}) {
-        # work it out from our nodes
-        #my $species_taxon = $self->tree->find_node(-rank => 'species');
-        #unless ($species_taxon) {
-        #        # just assume we are rank species
-        #        $species_taxon = $self->taxon;
-        #}
-        #my $species_taxon = $self->taxon;
-
         # this should always be the species node (we are in Bio::Species, not
         # Bio::Genus).  If we are getting something else here, we are probably
         # missing a key error handling step early on.
@@ -300,11 +300,9 @@ sub species {
     
         my $root = $self->tree->get_root_node;
         unless ($root) {
+            # this should just die if no root is given (suggests something
+            # earlier should have been caught)
             $self->throw("No root node defined for taxon species node:$species");
-            #$self->{tree} = Bio::Tree::Tree->new(-node => $species_taxon);
-            #delete $self->{tree}->{_root_cleanup_methods};
-            #$root = $self->{tree}->get_root_node;
-            #weaken($self->{tree}->{'_rootnode'}) unless isweak($self->{tree}->{'_rootnode'});
         }
         
         my @spflds = split(' ', $species);
@@ -385,7 +383,9 @@ sub species {
 
 sub genus {
     my ($self, $genus) = @_;
-        if ($genus) {
+
+    # TODO: instead of caching the raw name, cache the actual node instance.
+    if ($genus) {
         $self->{_genus} = $genus;
     }
     unless (defined $self->{_genus}) {
@@ -414,6 +414,7 @@ sub genus {
 sub sub_species {
     my ($self, $sub) = @_;
     
+    # TODO: instead of caching the raw name, cache the actual node instance.
     if (!defined $self->{'_sub_species'}) {
         my $ss_taxon = $self->tree->find_node(-rank => 'subspecies');
         if ($ss_taxon) {
@@ -427,6 +428,11 @@ sub sub_species {
                 # value. So we 'cheat' and just store the subspecies name in
                 # our self hash, instead of the tree. Is this a problem for
                 # a Species object? Can't decide --sendu
+                
+                # This can now be changed to deal with this information on the
+                # fly.  For now, the caching remains, but maybe we should just
+                # let these things deal with mutable data as needed? -- cjfields
+                
                 $self->{'_sub_species'} = $sub;
             }
             return $ss_taxon->scientific_name;
@@ -456,6 +462,7 @@ sub sub_species {
 sub variant{
     my ($self, $var) = @_;
     
+    # TODO: instead of caching the raw name, cache the actual node instance.
     if (!defined $self->{'_variant'}) {
         my $var_taxon = $self->tree->find_node(-rank => 'variant');
         if ($var_taxon) {
@@ -564,8 +571,8 @@ sub organelle {
 =head2 Delegation
 
 The following methods delegate to the internal Bio::Taxon instance. This is
-mainly to allow older code to migrate to using Bio::Taxon and related methods in
-the future when this classs is deprecated.
+mainly to allow code continue using older methods, with the mind to migrate to
+using Bio::Taxon and related methods when this class is deprecated.
 
 =cut 
 
@@ -605,6 +612,17 @@ sub remove_Descendant { shift->taxon->remove_Descendant(@_)}
 
 sub name { shift->taxon->name(@_)}
 
+=head2 taxon
+
+ Title    : taxon
+ Usage    : $obj->taxon
+ Function : retrieve the internal Bio::Taxon instance
+ Returns  : A Bio::Taxon. If one is not previously set,
+            an instance is created lazily
+ Args     : Bio::Taxon (optional)
+ 
+=cut
+
 sub taxon {
     my ($self, $taxon) = @_;
     if (!$self->{taxon} || $taxon) {
@@ -614,10 +632,22 @@ sub taxon {
     $self->{taxon};
 }
 
+=head2 tree
+
+ Title    : tree
+ Usage    : $obj->tree
+ Function : Returns a Bio::Tree::Tree object
+ Returns  : A Bio::Tree::Tree. If one is not previously set,
+            an instance is created lazily
+ Args     : Bio::Tree::Tree (optional)
+ 
+=cut
+
 sub tree {
     my ($self, $tree) = @_;
     if (!$self->{tree} || $tree) {
         $tree ||= Bio::Tree::Tree->new();
+        delete $tree->{_root_cleanup_methods};
         $self->{tree} = $tree;
     }
     $self->{tree};
