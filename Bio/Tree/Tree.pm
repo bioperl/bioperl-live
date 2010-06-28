@@ -580,10 +580,7 @@ sub cleanup_tree {
     my $self = shift;
     unless( $self->nodelete ) {
         for my $node ($self->get_nodes(-order  => 'b', -sortby => 'none')) {
-            #$node->ancestor(undef);
-            #$node = undef;
             $node->node_cleanup;
-            undef $node;
         }
     }
     $self->{'_rootnode'} = undef;

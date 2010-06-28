@@ -213,12 +213,6 @@ sub classification {
         $taxon->db_handle($db);
         
         $self->tree(Bio::Tree::Tree->new(-node => $taxon));
-        # some things want to freeze/thaw Bio::Species objects, but tree's
-        # _root_cleanup_methods contains a CODE ref, delete it.
-        #*** even if we don't delete the cleanup methods, we still get memory
-        #    leak-like symtoms, and the actual cleanup causes a mass of
-        #    warnings... needs investigation!
-        #delete $self->{tree}->{_root_cleanup_methods};
     }
     
     @vals = ();
@@ -655,7 +649,7 @@ sub tree {
 
 sub DESTROY {
     my $self = shift;
-    $self->{tree}->cleanup_tree if $self->{tree};
+    $self->tree->cleanup_tree;
     delete $self->{tree};
     $self->taxon->node_cleanup;
 }
