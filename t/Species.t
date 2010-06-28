@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 21);
+    test_begin(-tests => 22);
 	
 	use_ok('Bio::Species');
 	use_ok('Bio::DB::Taxonomy');
@@ -62,3 +62,22 @@ SKIP: {
     is $species->species, 'rapa subsp.';
     is $species->sub_species, 'pekinensis';
 }
+
+SKIP: {
+    test_skip(-tests => 1, -requires_module => 'Test::LeakTrace');
+    require Test::LeakTrace;
+    use Test::LeakTrace;
+    leaks_cmp_ok{
+        my $species1 = Bio::Species->new( -classification => 
+				[ qw( sapiens Homo Hominidae
+				      Catarrhini Primates Eutheria 
+				      Mammalia Vertebrata
+				      Chordata Metazoa Eukaryota) ],
+				-common_name => 'human');
+        my $species2 = Bio::Species->new();
+            $sps->classification(qw( sapiens Homo Hominidae
+			 Catarrhini Primates Eutheria Mammalia Vertebrata
+			 Chordata Metazoa Eukaryota));
+    } '<', 1;
+}
+
