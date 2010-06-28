@@ -724,7 +724,7 @@ $seqio = Bio::SeqIO->new( -verbose => $verbose,
                                  -file => $outfile);
     
 $seq = $seqio->next_seq;
-isa_ok($seq->species, 'Bio::Taxon');
+isa_ok($seq->species, 'Bio::Species');
 is($seq->species->ncbi_taxid, 6239);
 
 # version, seq_update, dates (5 tests)
@@ -999,7 +999,7 @@ $seqio = Bio::SeqIO->new( -verbose => $verbose,
 
 ok($seqio);
 $seq = $seqio->next_seq;
-isa_ok($seq->species, 'Bio::Taxon');
+isa_ok($seq->species, 'Bio::Species');
 is($seq->species->ncbi_taxid, "6239");
 
 # version, seq_update, dates (5 tests)
@@ -1039,7 +1039,7 @@ $seqio = Bio::SeqIO->new( -verbose => $verbose,
 
 ok($seqio);
 $seq = $seqio->next_seq;
-isa_ok($seq->species, 'Bio::Taxon');
+isa_ok($seq->species, 'Bio::Species');
 is($seq->species->ncbi_taxid, 6239);
 
 is($seq->version, 47);
