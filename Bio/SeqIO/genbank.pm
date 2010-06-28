@@ -217,6 +217,9 @@ our %DBSOURCE = map {$_ => 1} qw(
     swissprot    GenBank    GenPept    REFSEQ    embl    PDB    UniProtKB
     DIP    PeptideAtlas    PRIDE    CYGD    HOGENOME    Gene3D Project);
 
+our %VALID_MOLTYPE = map {$_ => 1} qw(NA DNA RNA tRNA rRNA 
+    mRNA  uRNA  snRNA snoRNA PRT);
+
 our %VALID_ALPHABET = (
     'bp' => 'dna',
     'aa' => 'protein',
@@ -299,21 +302,26 @@ sub next_seq {
 	$params{'-alphabet'} = (exists $VALID_ALPHABET{$alphabet}) ? $VALID_ALPHABET{$alphabet} :
                            $self->warn("Unknown alphabet: $alphabet");
 	# for aa there is usually no 'molecule' (mRNA etc)
-	if (($params{'-alphabet'} eq 'dna') || (@tokens > 2)) {
-	    $params{'-molecule'} = shift(@tokens);
-	    my $circ = shift(@tokens);
-	    if ($circ eq 'circular') {
-            $params{'-is_circular'} = 1;
-            $params{'-division'} = shift(@tokens);
-	    } else {
-			# 'linear' or 'circular' may actually be omitted altogether
-            $params{'-division'} =
-                (CORE::length($circ) == 3 ) ? $circ : shift(@tokens);
-	    }
-	} else {
-	    $params{'-molecule'} = 'PRT' if($params{'-alphabet'} eq 'aa');
-	    $params{'-division'} = shift(@tokens);
-	}
+    if ($params{'-alphabet'} eq 'protein') {
+	    $params{'-molecule'} = 'PRT'
+    } else {
+        $params{'-molecule'} = shift(@tokens);
+    }
+    # take care of lower case issues
+    if ($params{'-molecule'} eq 'dna' || $params{'-molecule'} eq 'rna') {
+        $params{'-molecule'} = uc $params{'-molecule'};
+    }
+    $self->throw("Unrecognized molecule type:".$params{'-molecule'}) if
+        !exists($VALID_MOLTYPE{$params{'-molecule'}});
+	my $circ = shift(@tokens);
+    if ($circ eq 'circular') {
+        $params{'-is_circular'} = 1;
+        $params{'-division'} = shift(@tokens);
+    } else {
+        # 'linear' or 'circular' may actually be omitted altogether
+        $params{'-division'} =
+            (CORE::length($circ) == 3 ) ? $circ : shift(@tokens);
+    }
 	my $date = join(' ', @tokens); # we lump together the rest
 
 	# this is per request bug #1513
@@ -790,7 +798,7 @@ sub write_seq {
 	my $len = $seq->length();
 
 	if ( $seq->can('division') ) {
-	    $div=$seq->division;
+	    $div = $seq->division;
 	}
 	if( !defined $div || ! $div ) { $div = 'UNK'; }
 	my $alpha = $seq->alphabet;
@@ -814,15 +822,14 @@ sub write_seq {
 
 	    $self->warn("No whitespace allowed in GenBank display id [". $seq->display_id. "]")
 		if $seq->display_id =~ /\s/;
-
-	    $temp_line = sprintf ("%-12s%-15s%13s %s%4s%-8s%-8s %3s %-s",
+        
+	    $temp_line = sprintf ("%-12s%-15s%13s %s%4s%-8s%-8s %3s %-s\n",
 				  'LOCUS', $seq->id(),$len,
 				  (lc($alpha) eq 'protein') ? ('aa','', '') :
-				  ('bp', '',$mol),$circular,
-				  $div,$date);
+				  ('bp', '',$mol),$circular,$div,$date);
 	}
 
-	$self->_print("$temp_line\n");
+	$self->_print($temp_line);
 	$self->_write_line_GenBank_regex("DEFINITION  ", "            ",
 					 $seq->desc(),"\\s\+\|\$",80);
 

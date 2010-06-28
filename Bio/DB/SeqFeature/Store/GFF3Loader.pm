@@ -389,7 +389,10 @@ sub load_line { #overridden
     $load_data->{line}++;
 
     return unless $line =~ /^\S/;     # blank line
-    $load_data->{mode} = 'gff' if /\t/;  # if it has a tab in it, switch to gff mode
+
+    # if it has a tab in it or looks like a chrom.sizes file, switch to gff mode
+    $load_data->{mode} = 'gff' if $line =~ /\t/
+	or $line =~ /^\w+\s+\d+\s*$/;
 
     if ($line =~ /^\#\s?\#\s*(.+)/) {  ## meta instruction
       $load_data->{mode} = 'gff';
@@ -493,9 +496,15 @@ sub handle_feature { #overridden
   my $ld       = $self->{load_data};
 
   my $allow_whitespace = $self->allow_whitespace;
-  $gff_line    =~ s/\s+/\t/g if $allow_whitespace;
 
-  my @columns = map {$_ eq '.' ? undef : $_ } split /\t/,$gff_line;
+  # special case for a chrom.sizes-style line
+  my @columns;
+  if ($gff_line =~ /^(\w+)\s+(\d+)\s*$/) {
+      @columns = ($1,undef,'chromosome',1,$2,undef,undef,undef,"Name=$1");
+  } else {
+      $gff_line    =~ s/\s+/\t/g if $allow_whitespace;
+      @columns = map {$_ eq '.' ? undef : $_ } split /\t/,$gff_line;
+  }
 
   $self->invalid_gff($gff_line) if @columns < 4;
   $self->invalid_gff($gff_line) if @columns > 9 && $allow_whitespace;
