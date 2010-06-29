@@ -66,7 +66,7 @@ SKIP: {
 SKIP: {
     test_skip(-tests => 1, -requires_module => 'Test::LeakTrace');
     require Test::LeakTrace;
-    use Test::LeakTrace;
+    #use Test::LeakTrace;
     leaks_cmp_ok{
         my $species1 = Bio::Species->new( -classification => 
 				[ qw( sapiens Homo Hominidae

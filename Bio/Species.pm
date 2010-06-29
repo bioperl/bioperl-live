@@ -271,96 +271,94 @@ sub classification {
 sub species {
     my ($self, $species) = @_;
     
-    # TODO: instead of caching the raw name, cache the actual node instance.
-    #       Do the same for the other methods where a node is requested:
-    #       genus, variant, sub_species, etc.
-    
-    if ($species) {
-            $self->{_species} = $species;
-    }
+	if ($species) {
+		$self->{_species} = $species;
+	}
 
-    if (!defined $self->{_species}) {
-        # this should always be the species node (we are in Bio::Species, not
-        # Bio::Genus).  If we are getting something else here, we are probably
-        # missing a key error handling step early on.
+	unless (defined $self->{_species}) {
+		# work it out from our nodes
+		my $species_taxon = $self->tree->find_node(-rank => 'species');
+		unless ($species_taxon) {
+			# just assume we are rank species
+			$species_taxon = $self->taxon;
+		}
+
+		$species = $species_taxon->scientific_name;
         
-        $species = $self->taxon->scientific_name;
-        
-        #
-        # munge it like the Bio::SeqIO modules used to do
-        # (more or less copy/pasted from old Bio::SeqIO::genbank, hence comments
-        #  referring to 'ORGANISM' etc.)
-        #
-    
-        my $root = $self->tree->get_root_node;
-        unless ($root) {
-            # this should just die if no root is given (suggests something
-            # earlier should have been caught)
-            $self->throw("No root node defined for taxon species node:$species");
+		#
+		# munge it like the Bio::SeqIO modules used to do
+		# (more or less copy/pasted from old Bio::SeqIO::genbank, hence comments
+		#  referring to 'ORGANISM' etc.)
+		#
+
+		my $root = $self->tree->get_root_node;
+		unless ($root) {
+            $self->tree(Bio::Tree::Tree->new(-node => $species_taxon));
+            $root = $self->tree->get_root_node;
         }
         
-        my @spflds = split(' ', $species);
-        if (@spflds > 1 && $root->node_name ne 'Viruses') {
-            $species = undef;
+		my @spflds = split(' ', $species);
+		if (@spflds > 1 && $root->node_name ne 'Viruses') {
+			$species = undef;
+
+			# does the next term start with uppercase?
+			# yes: valid genus; no then unconventional
+			# e.g. leaf litter basidiomycete sp. Collb2-39
+			my $genus;
+			if ($spflds[0] =~ m/^[A-Z]/) {
+				$genus = shift(@spflds);
+			}
+			else {
+				undef $genus;
+			}
             
-            # does the next term start with uppercase?
-            # yes: valid genus; no then unconventional
-            # e.g. leaf litter basidiomycete sp. Collb2-39
-            my $genus;
-            if ($spflds[0] =~ m/^[A-Z]/) {
-                $genus = shift(@spflds);
-            }
-            else {
-                undef $genus;
-            }
-    
-            my $sub_species;
-            if (@spflds) {
-                while (my $fld = shift @spflds) {
-                    $species .= "$fld ";
-                    # does it have subspecies or varieties?
-                    last if ($fld =~ m/(sp\.|var\.)/);
-                }
-                chop $species;  # last space
-                $sub_species = join ' ',@spflds if(@spflds);
-            }
-            else {
-                $species = 'sp.';
-            }
-    
-            # does ORGANISM start with any words which make its genus undefined?
-            # these are in @unkn_genus      
-            # this in case species starts with uppercase so isn't caught above. 
-            # alter common name if required
-            my $unconv = 0; # is it unconventional species name?
-            my @unkn_genus = ('unknown','unclassified','uncultured','unidentified');
-            foreach (@unkn_genus) {
-                if ($genus && $genus =~ m/$_/i) {
-                    $species = $genus . " " . $species;
-                    undef $genus;
-                    $unconv = 1;
-                    last;
-                }
-                elsif ($species =~ m/$_/i)      {
-                    $unconv = 1;
-                    last;
-                }
-            }
-            if (!$unconv && !$sub_species && $species =~ s/^(\w+)\s(\w+)$/$1/)      {
-                # need to extract subspecies from conventional ORGANISM format.  
-                # Will the 'word' in a two element species name
-                # e.g. $species = 'thummi thummi' => $species='thummi' & 
-                # $sub_species='thummi'
-                $sub_species = $2;
-            }
-        
-            $self->genus($genus) if $genus;
-            $self->sub_species($sub_species) if $sub_species;
-        }
-    
-        $self->{_species} = $species;
+			my $sub_species;
+			if (@spflds) {
+				while (my $fld = shift @spflds) {
+					$species .= "$fld ";
+					# does it have subspecies or varieties?
+					last if ($fld =~ m/(sp\.|var\.)/);
+				}
+				chop $species;	# last space
+				$sub_species = join ' ',@spflds if(@spflds);
+			}
+			else {
+				$species = 'sp.';
+			}
+
+			# does ORGANISM start with any words which make its genus undefined?
+			# these are in @unkn_genus	
+			# this in case species starts with uppercase so isn't caught above. 
+			# alter common name if required
+			my $unconv = 0; # is it unconventional species name?
+			my @unkn_genus = ('unknown','unclassified','uncultured','unidentified');
+			foreach (@unkn_genus) {
+				if ($genus && $genus =~ m/$_/i)	{
+					$species = $genus . " " . $species;
+					undef $genus;
+					$unconv = 1;
+					last;
+				}
+				elsif ($species =~ m/$_/i)	{
+					$unconv = 1;
+					last;
+				}
+			}
+			if (!$unconv && !$sub_species && $species =~ s/^(\w+)\s(\w+)$/$1/)	{
+				# need to extract subspecies from conventional ORGANISM format.  
+				# Will the 'word' in a two element species name
+				# e.g. $species = 'thummi thummi' => $species='thummi' & 
+				# $sub_species='thummi'
+				$sub_species = $2;
+			}
+
+			$self->genus($genus) if $genus;
+			$self->sub_species($sub_species) if $sub_species;
+		}
+
+		$self->{_species} = $species;
     }
-    return $self->{_species};
+	return $self->{_species};
 }
 
 =head2 genus
