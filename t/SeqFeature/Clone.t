@@ -54,7 +54,7 @@ $splitlocation->add_sub_Location(Bio::Location::Simple->new(
    -start=>50, -end=>61, -strand=>1
 ));
 ok($orig->location($splitlocation),                      'location() Bio::Location::Split');
-ok(my $clone = $orig->clone(),                           'clone()');
+ok($clone = $orig->clone(),                           'clone()');
 ok(($clone->location->sub_Location())[1]->start(51),     'start() clone set');
 is(($clone->location->sub_Location())[1]->start,     51, 'start() clone get');
 is(($orig->location->sub_Location())[1]->start,      50, 'start() original unchanged');

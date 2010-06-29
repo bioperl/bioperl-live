@@ -149,6 +149,7 @@ Internal methods are usually preceded with a _
 
 package Bio::Taxon;
 use strict;
+use Scalar::Util qw(blessed);
 
 use Bio::DB::Taxonomy;
 
@@ -667,7 +668,8 @@ sub _get_similar_taxon_from_db {
     $self->throw("Must supply a Bio::Taxon") unless ref($taxon) && $taxon->isa("Bio::Taxon");
     ($self->id || $self->node_name) || return;
     $db ||= $self->db_handle || return;
-    
+    $self->throw("DB handle is not a Bio::DB::Taxonomy: got $db")
+        if !blessed($db) || !$db->isa('Bio::DB::Taxonomy');
     my $db_taxon = $db->get_taxon(-taxonid => $taxon->id) if $taxon->id;
     unless ($db_taxon) {
         my @try_ids = $db->get_taxonids($taxon->node_name) if $taxon->node_name;
