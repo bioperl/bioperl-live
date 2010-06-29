@@ -218,7 +218,7 @@ our %DBSOURCE = map {$_ => 1} qw(
     DIP    PeptideAtlas    PRIDE    CYGD    HOGENOME    Gene3D Project);
 
 our %VALID_MOLTYPE = map {$_ => 1} qw(NA DNA RNA tRNA rRNA 
-    mRNA  uRNA  snRNA snoRNA PRT);
+    mRNA  uRNA  ss-RNA  snRNA snoRNA PRT);
 
 our %VALID_ALPHABET = (
     'bp' => 'dna',
