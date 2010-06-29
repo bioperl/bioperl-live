@@ -150,10 +150,10 @@ normal (slow) loading.
 If you use an unnormalized feature class, such as
 Bio::SeqFeature::Generic, then the loader needs to create a temporary
 database in which to cache features until all their parts and subparts
-have been seen. This temporary databases uses the "berkeleydb" adaptor. The
--tmp option specifies the directory in which that database will be
-created. If not present, it defaults to the system default tmp
-directory specified by File::Spec-E<gt>tmpdir().
+have been seen. This temporary databases uses the "berkeleydb"
+adaptor. The -tmp option specifies the directory in which that
+database will be created. If not present, it defaults to the system
+default tmp directory specified by File::Spec-E<gt>tmpdir().
 
 The -chunk_size option allows you to tune the representation of
 DNA/Protein sequence in the Store database. By default, sequences are
@@ -519,8 +519,8 @@ sub handle_feature { #overridden
   my ($refname,$source,$method,$start,$end,$score,$strand,$phase,$attributes) = @columns;
   
   $self->invalid_gff($gff_line) unless defined $refname;
-  $self->invalid_gff($gff_line) unless $start eq '.' || $start =~ /^[\d.-]+$/;
-  $self->invalid_gff($gff_line) unless $end   eq '.' || $end   =~ /^[\d.-]+$/;
+  $self->invalid_gff($gff_line) unless !defined $start || $start =~ /^[\d.-]+$/;
+  $self->invalid_gff($gff_line) unless !defined $end   || $end   =~ /^[\d.-]+$/;
   $self->invalid_gff($gff_line) unless defined $method;
 
   $strand = $Strandedness{$strand||0};
