@@ -304,6 +304,7 @@ sub each_Descendent{
        return map { $_->[0] }
        sort { $a->[1] <=> $b->[1] } 
        map { [$_, $_->internal_id ] }
+       grep {defined $_}
        values %{$self->{'_desc'}};	   
    }
 }
