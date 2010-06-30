@@ -65,7 +65,7 @@ SKIP: {
 }
 
 SKIP: {
-    skip("Test::Weaken not installed, skipping", 1) if !$WEAKEN;
+    skip("Test::Weaken not installed, skipping", 2) if !$WEAKEN;
     # this sub leaks, should return true
     ok(Test::Weaken::leaks({
         constructor => sub { my ($a, $b); $a = \$b; $b = \$a}
@@ -79,10 +79,6 @@ SKIP: {
 				      Chordata Metazoa Eukaryota) ],
 				-common_name => 'human') },
       }
-#        my $species2 = Bio::Species->new();
-#            $sps->classification(qw( sapiens Homo Hominidae
-#			 Catarrhini Primates Eutheria Mammalia Vertebrata
-#			 Chordata Metazoa Eukaryota));
     ));
 }
 
