@@ -2,13 +2,13 @@
 # $Id$
 
 use strict;
-my $LEAKTRACE;
+my $WEAKEN;
 BEGIN {
 	use lib '.';
     use Bio::Root::Test;
-    eval {require Test::LeakTrace; 1;};
-    $LEAKTRACE = $@ ? 0 : 1;
-    test_begin(-tests => 22);
+    eval {require Test::Weaken; 1;};
+    $WEAKEN = $@ ? 0 : 1;
+    test_begin(-tests => 23);
 	
 	use_ok('Bio::Species');
 	use_ok('Bio::DB::Taxonomy');
@@ -65,18 +65,24 @@ SKIP: {
 }
 
 SKIP: {
-    skip("Test::LeakTrace not installed, skipping", 1) if !$LEAKTRACE;
-    leaks_cmp_ok{
-        my $species1 = Bio::Species->new( -classification => 
+    skip("Test::Weaken not installed, skipping", 1) if !$WEAKEN;
+    # this sub leaks, should return true
+    ok(Test::Weaken::leaks({
+        constructor => sub { my ($a, $b); $a = \$b; $b = \$a}
+    }));
+    # this sub shouldn't leak (no circ. refs)
+    ok(!Test::Weaken::leaks({
+      constructor => sub{ Bio::Species->new( -classification => 
 				[ qw( sapiens Homo Hominidae
 				      Catarrhini Primates Eutheria 
 				      Mammalia Vertebrata
 				      Chordata Metazoa Eukaryota) ],
-				-common_name => 'human');
-        my $species2 = Bio::Species->new();
-            $sps->classification(qw( sapiens Homo Hominidae
-			 Catarrhini Primates Eutheria Mammalia Vertebrata
-			 Chordata Metazoa Eukaryota));
-    } '<', 1;
+				-common_name => 'human') },
+      }
+#        my $species2 = Bio::Species->new();
+#            $sps->classification(qw( sapiens Homo Hominidae
+#			 Catarrhini Primates Eutheria Mammalia Vertebrata
+#			 Chordata Metazoa Eukaryota));
+    ));
 }
 
