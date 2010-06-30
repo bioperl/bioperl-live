@@ -2,11 +2,12 @@
 # $Id$
 
 use strict;
-
+my $LEAKTRACE;
 BEGIN {
 	use lib '.';
     use Bio::Root::Test;
-    
+    eval {use Test::LeakTrace; 1;};
+    $LEAKTRACE = $@ ? 0 : 1;
     test_begin(-tests => 22);
 	
 	use_ok('Bio::Species');
@@ -64,9 +65,7 @@ SKIP: {
 }
 
 SKIP: {
-    test_skip(-tests => 1, -requires_module => 'Test::LeakTrace');
-    require Test::LeakTrace;
-    #use Test::LeakTrace;
+    skip("Test::LeakTrace not installed, skipping", 1) if !$LEAKTRACE;
     leaks_cmp_ok{
         my $species1 = Bio::Species->new( -classification => 
 				[ qw( sapiens Homo Hominidae
