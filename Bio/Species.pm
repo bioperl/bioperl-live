@@ -183,6 +183,8 @@ sub classification {
         if (ref($vals[0]) eq 'ARRAY') {
             @vals = @{$vals[0]};
         }
+        
+        $vals[1] ||= '';
         # make sure the lineage contains us as first or second element
         # (lineage may have subspecies, species, genus ...)
         my $name = $taxon->node_name;
