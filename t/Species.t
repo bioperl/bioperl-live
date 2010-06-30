@@ -6,7 +6,7 @@ my $LEAKTRACE;
 BEGIN {
 	use lib '.';
     use Bio::Root::Test;
-    eval {use Test::LeakTrace; 1;};
+    eval {require Test::LeakTrace; 1;};
     $LEAKTRACE = $@ ? 0 : 1;
     test_begin(-tests => 22);
 	
