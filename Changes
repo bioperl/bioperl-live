@@ -16,7 +16,7 @@ Bugs and requested features list:
 
 CPAN releases are branched from 'master'.
 ---------------------------------------------------------
-
+ 
 1.6.1_1 RELEASE_DATE_HERE (first 1.6.2 alpha)
     [New features]
     * Bio::SeqIO::gbxml
