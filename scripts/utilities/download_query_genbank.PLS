@@ -59,7 +59,7 @@ GetOptions(
 									exit(0);
 								},
 			  'v|verbose'       => \$debug,
-			  'f|for	mat:s'      => \$format,
+			  'f|format:s'      => \$format,
 			  'queryfile:s'     => \$queryfile,
 			  'o|out|outfile:s' => \$outfile,
 			  'gi|gifile|gis:s' => \$gifile,

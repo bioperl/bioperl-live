@@ -35,7 +35,7 @@ is($orig->start(),      40,                   'start() original unchanged');
 # ----------
 # Verify that arguments passed into clone() are applied to the cloned object
 # and that the attributes are still independent.
-ok(my $clone = $orig->clone(-start => 150, -end => 157),   'clone() with arguments');
+ok($clone = $orig->clone(-start => 150, -end => 157),   'clone() with arguments');
 is($orig->start(),       40,                  'start() orig get');
 is($orig->end(),         80,                  'end() orig get');
 is($clone->start(),     150,                  'start() clone get');
@@ -54,7 +54,7 @@ $splitlocation->add_sub_Location(Bio::Location::Simple->new(
    -start=>50, -end=>61, -strand=>1
 ));
 ok($orig->location($splitlocation),                      'location() Bio::Location::Split');
-ok(my $clone = $orig->clone(),                           'clone()');
+ok($clone = $orig->clone(),                           'clone()');
 ok(($clone->location->sub_Location())[1]->start(51),     'start() clone set');
 is(($clone->location->sub_Location())[1]->start,     51, 'start() clone get');
 is(($orig->location->sub_Location())[1]->start,      50, 'start() original unchanged');

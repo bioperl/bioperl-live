@@ -1,6 +1,6 @@
 package Bio::Root::Root;
 use strict;
-use Storable qw( dclone );
+use Scalar::Util qw(blessed reftype);
 
 # $Id$
 
@@ -176,14 +176,14 @@ methods. Internal methods are usually preceded with a _
 
 #'
 
-use vars qw($DEBUG $ID $VERBOSITY $ERRORLOADED);
 use strict;
 use Bio::Root::IO;
 
 use base qw(Bio::Root::RootI);
 
-BEGIN { 
+our ($DEBUG, $ID, $VERBOSITY, $ERRORLOADED, $CLONE_CLASS);
 
+BEGIN { 
     $ID        = 'Bio::Root::Root';
     $DEBUG     = 0;
     $VERBOSITY = 0;
@@ -205,11 +205,42 @@ BEGIN {
     if( !$ERRORLOADED ) {
         require Carp; import Carp qw( confess );
     }    
+    
+    # set up _dclone()
+    for my $class (qw(Clone Storable)) {
+        eval "require $class; 1;";
+        if (!$@) {
+            $CLONE_CLASS = $class;
+            *Bio::Root::Root::_dclone = $class eq 'Clone' ? 
+                sub {shift; Clone::clone($_[0])} : 
+                sub {shift; Storable::dclone($_[0])} ;
+            last;
+        }
+    }
+    if (!defined $CLONE_CLASS) {
+        *Bio::Root::Root::_dclone = sub {
+            my ($self, $orig, $level) = @_;
+            my $class = Scalar::Util::blessed($orig) || '';
+            my $reftype = Scalar::Util::reftype($orig) || '';
+            my $data;
+            if (!$reftype) {
+                $data = $orig
+            } elsif ($reftype eq "ARRAY") {
+                $data = [map $self->_dclone($_), @$orig];
+            } elsif ($reftype eq "HASH") {
+                $data = { map { $_ => $self->_dclone($orig->{$_}) } keys %$orig };
+            } elsif ($reftype eq 'CODE') { # nothing, maybe shallow copy?
+                $self->throw("Code reference cloning not supported");
+            } else { $self->throw("What type is $_?")}
+            if ($class) {
+                bless $data, $class;
+            }
+            $data;
+        }
+    }
+    
     $main::DONT_USE_ERROR;  # so that perl -w won't warn "used only once"
-
 }
-
-
 
 =head2 new
 
@@ -246,32 +277,68 @@ sub new {
  Returns : A cloned object.
  Args    : Any named parameters provided will be set on the new object.
            Unnamed parameters are ignored.
- Comments: Storable dclone() cannot clone CODE references.
-           Any CODE reference in your original object will remain, but
-           will not exist in the cloned object.
+ Comments: Where possible, faster clone methods are used, in order:
+           Clone::clone(), Storable::dclone.  If neither is present,
+           a pure perl fallback (not very well tested) is used instead.
+           Storable dclone() cannot clone CODE references.  Therefore, 
+           any CODE reference in your original object will remain, but
+           will not exist in the cloned object.  
+           This should not be used for anything other than cloning of simple
+           objects. Developers of subclasses are encouraged to override this
+           method with one of their own.
+           
 =cut
 
 sub clone {
     my ($orig, %named_params) = @_;
-
+    
+    __PACKAGE__->throw("Can't call clone() as a class method") unless
+        ref $orig && $orig->isa('Bio::Root::Root');
+    
     # Can't dclone CODE references...
+    # Should we shallow copy these? Should be harmless for these specific
+    # methods...
+    
     my %put_these_back = (
        _root_cleanup_methods => $orig->{'_root_cleanup_methods'},
     );
     delete $orig->{_root_cleanup_methods};
-
-    my $clone = dclone($orig);
+    
+    # call the proper clone method, set lazily above
+    my $clone = __PACKAGE__->_dclone($orig);
 
     $orig->{_root_cleanup_methods} = $put_these_back{_root_cleanup_methods};
-
+    
     foreach my $key (grep { /^-/ } keys %named_params) {
-       my $method = $key;
-       $method =~ s/^-//;
-       $clone->$method($named_params{$key});
+        my $method = $key;
+        $method =~ s/^-//;
+        if ($clone->can($method)) {
+            $clone->$method($named_params{$key})
+        } else {
+            $orig->warn("Parameter $method is not a method for ".ref($clone));
+        }
     }
     return $clone;
 }
 
+=head2 _dclone
+
+ Title   : clone
+ Usage   : my $clone = $obj->_dclone($ref);
+           or
+           my $clone = $obj->_dclone($ref);
+ Function: Returns a copy of the object passed to it (a deep clone)
+ Returns : clone of passed argument
+ Args    : Anything
+ NOTE    : This differs from clone significantly in that it does not clone
+           self, but the data passed to it.  This code may need to be optimized
+           or overridden as needed.
+ Comments: This is set in the BEGIN block to take advantage of optimized
+           cloning methods if Clone or Storable is present, falling back to a
+           pure perl kludge. May be moved into a set of modules if the need
+           arises. At the moment, code ref cloning is not supported.
+
+=cut
 
 =head2 verbose
 

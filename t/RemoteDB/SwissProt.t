@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 21,
+	test_begin(-tests => 20,
 			   -requires_modules => [qw(IO::String
 									    LWP::UserAgent
 										HTTP::Request::Common)],
@@ -80,12 +80,11 @@ SKIP: {
     is($map->{YNB3_YEAST}, 'P53979');
     eval {$map = $gb->id_mapper(-from => 'ACC+ID',
                                 -to   => 'ENSEMBL_PRO_ID',
-                                -ids  => [qw(MYOD1_PIG YNB3_YEAST)])
+                                -ids  => [qw(MYOD1_PIG)])
                                   };
-    skip("Problem with idtracker(), skipping these tests: $@", 2) if $@;
+    skip("Problem with idtracker(), skipping these tests: $@", 1) if $@;
 
     is($map->{MYOD1_PIG}, 'ENSSSCP00000014214');
-    is($map->{YNB3_YEAST}, 'YNL013C');
 }
 
 1;

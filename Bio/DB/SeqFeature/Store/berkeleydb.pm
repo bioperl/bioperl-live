@@ -1428,7 +1428,7 @@ sub db_version {
 sub DESTROY {
   my $self = shift;
   $self->_close_databases();
-  rmtree($self->directory,0,1) if $self->temporary;
+  rmtree($self->directory,0,1) if $self->temporary && -e $self->directory;
 }
 
 # TIE interface -- a little annoying because we are storing magic ".variable"
