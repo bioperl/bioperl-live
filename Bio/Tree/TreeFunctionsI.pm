@@ -713,37 +713,6 @@ sub simplify_to_leaves_string {
     return join(',', @data);
 }
 
-# safe tree clone that doesn't seg fault
-
-=head2 clone()
-
- Title   : clone
- Alias   : _clone
- Usage   : $tree_copy = $tree->clone();
-           $subtree_copy = $tree->clone($internal_node);
- Function: Safe tree clone that doesn't segfault
-           (of Sendu)
- Returns : Bio::Tree::Tree object
- Args    : [optional] $start_node, Bio::Tree::Node object
-
-=cut
-
-sub clone {
-    my ($self, $parent, $parent_clone) = @_;
-    $parent ||= $self->get_root_node;
-    $parent_clone ||= $self->_clone_node($parent);
-
-    foreach my $node ($parent->each_Descendent()) {
-        my $child = $self->_clone_node($node);
-        $child->ancestor($parent_clone);
-        $self->_clone($node, $child);
-    }
-    $parent->ancestor && return;
-
-    my $tree = $self->new(-root => $parent_clone);
-    return $tree;
-}
-
 # alias
 sub _clone { shift->clone(@_) }
 

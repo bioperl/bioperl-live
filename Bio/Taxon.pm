@@ -149,6 +149,7 @@ Internal methods are usually preceded with a _
 
 package Bio::Taxon;
 use strict;
+use Scalar::Util qw(blessed);
 
 use Bio::DB::Taxonomy;
 
@@ -503,17 +504,14 @@ sub pub_date {
 sub ancestor {
     my $self = shift;
     my $ancestor = $self->SUPER::ancestor(@_);
-    my $dbh = $self->db_handle || return $ancestor;
-    
     if ($ancestor) {
         return $ancestor;
     }
-    else {
-        #*** could avoid the db lookup if we knew our current id was definitely
-        #    information from the db...
-        my $definitely_from_dbh = $self->_get_similar_taxon_from_db($self);
-        return $dbh->ancestor($definitely_from_dbh);
-    }
+    my $dbh = $self->db_handle;
+    #*** could avoid the db lookup if we knew our current id was definitely
+    #    information from the db...
+    my $definitely_from_dbh = $self->_get_similar_taxon_from_db($self);
+    return $dbh->ancestor($definitely_from_dbh);
 }
 
 =head2 get_Parent_Node
@@ -667,7 +665,9 @@ sub _get_similar_taxon_from_db {
     $self->throw("Must supply a Bio::Taxon") unless ref($taxon) && $taxon->isa("Bio::Taxon");
     ($self->id || $self->node_name) || return;
     $db ||= $self->db_handle || return;
-    
+    if (!blessed($db) || !$db->isa('Bio::DB::Taxonomy')) {
+        $self->throw("DB handle is not a Bio::DB::Taxonomy: got $db in node ".$self->node_name)
+    }
     my $db_taxon = $db->get_taxon(-taxonid => $taxon->id) if $taxon->id;
     unless ($db_taxon) {
         my @try_ids = $db->get_taxonids($taxon->node_name) if $taxon->node_name;
