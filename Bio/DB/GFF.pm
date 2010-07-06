@@ -2946,6 +2946,15 @@ adaptor it is not used.
 
 =cut
 
+=head2 feature_summary(), coverage_array()
+
+The DBI adaptors provide methods for rapidly fetching coverage
+statistics across a region of interest. Please see
+L<Bio::DB::GFF::Adaptor::dbi> for more information about these
+methods.
+
+=cut
+
 sub get_features{
   my $self = shift;
   my ($search,$options,$callback) = @_;
