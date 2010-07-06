@@ -3407,21 +3407,23 @@ sub no_sequences {
 sub mask_columns {
     #based on slice(), but did not include the Bio::Seq::Meta sections as I was not sure what it is doing
 	my $self=shift;
-	my @args=@_;
+	my ($sel, $toggle) = $self->_rearrange([qw(SELECTION TOGGLE)], @_);
+	@{$sel}=sort {$a<=>$b} @{$sel};
+	
 	my $nonres = join("",$self->gap_char, $self->match_char,$self->missing_char);
 	my $mask_char=$self->mask_char;
    
 	#Exceptions
 	$self->throw("Mask start has to be a positive integer and less than ".
-                 "alignment length, not [".$args[0][0]]."]")
-	unless $args[0][0] =~ /^\d+$/ && $args[0][0] > 0 && $args[0][0] <= $self->length;	
+                 "alignment length, not [".$sel->[0]."]")
+	unless $sel->[0] =~ /^\d+$/ && $sel->[0] > 0 && $sel->[0] <= $self->length;	
 
    $self->throw("Mask end has to be a positive integer and less than ".
-                 "alignment length, not [".$args[0][0]."]")
-	unless $coords[$#coords] =~ /^\d+$/ && $coords[$#coords] > 0 && $coords[$#coords] <= $self->length;                 
+                 "alignment length, not [".$sel->[$#$sel]."]")
+	unless $sel->[$#$sel] =~ /^\d+$/ && $sel->[$#$sel] > 0 && $sel->[$#$sel] <= $self->length;                 
 	
 	#calculate the coords, and make it in a continous way
-	my @newcoords=_cont_coords(@coords);
+	my @newcoords=@{_cont_coords($sel,$toggle,$self->length)};
 	
 	my $aln = $self->new;
 	$aln->id($self->id);
@@ -3450,8 +3452,8 @@ sub mask_columns {
  Title     : _cont_coords
  Usage     : _cont_coords(@coords)
  Function  : Merge the coordinates from select and remove functions in order to reduce the number of calculations in select and remove. 
- 				 For exmaple, if the input of remove_columns is remove_columns(2,5,7..10), this function will transform (2,5,7..10) to 
- 				 (2,2,5,5,7,10).
+ 				 For exmaple, if the input of remove_columns is remove_columns([2,5,7..10]), this function will transform ([2,5,7..10]) to 
+ 				 ([2,2,5,5,7,10]).
  Returns   : Continuous coordinates
  Argument  :
 
