@@ -1057,6 +1057,51 @@ sub seq_with_features{
 The result of these methods are horizontal or vertical subsets of the
 current MSA.
 
+=head2 select_Seqs
+
+ Title     : select_Seqs
+ Usage     : $aln2 = $aln->select_Seqs([1,5..10,15]) # three first sequences
+ Function  : Creates a new alignment from a subset of
+             sequences.  Numbering starts from 1.  Sequence positions
+             larger than num_sequences() will thow an error.
+ Returns   : a Bio::SimpleAlign object
+ Args      : An anonymous list of positive integers for the selected sequences
+             An optional parameter can be defined to toggle the coordinate selection.
+             
+
+=cut
+
+sub select_Seqs {
+	my $self=shift;
+	my ($sel, $toggle) = $self->_rearrange([qw(SELECTION TOGGLE)], @_);
+	@{$sel}=sort {$a<=>$b} @{$sel};
+
+   $self->throw("Select start has to be a positive integer, not [".$sel->[0]."]")
+	unless $sel->[0] =~ /^\d+$/ and $sel->[0] > 0;
+    $self->throw("Select end has to be a positive integer, not [".$sel->[$#$sel]."]")
+	unless $sel->[$#$sel] =~ /^\d+$/ and $sel->[$#$sel] > 0;
+	
+	my @positions;
+	if($toggle) {
+		my $newcoords=_cont_coords($sel,$toggle,$self->num_sequences);
+		for (my $num=0;$num<$#$newcoords;) {
+			push @positions,$newcoords[$num]..$newcoords[$num+1];
+			$num+=2;
+		}
+	}
+	else {
+		@positions=@{$sel};
+	}
+	
+	my $aln = $self->new;
+	foreach my $pos (@positions) {
+		$aln->add_seq($self->get_seq_by_pos($pos));
+	}
+	$aln->id($self->id);
+	# fix for meta, sf, ann    
+	return $aln;	
+}
+
 =head2 select
 
  Title     : select
@@ -1089,6 +1134,11 @@ sub select {
     # fix for meta, sf, ann    
     return $aln;
 }
+
+
+	
+
+
 
 =head2 select_noncont
 
