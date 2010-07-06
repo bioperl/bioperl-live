@@ -2,12 +2,13 @@
 # $Id$
 
 use strict;
-
+my $WEAKEN;
 BEGIN {
 	use lib '.';
     use Bio::Root::Test;
-    
-    test_begin(-tests => 21);
+    eval {require Test::Weaken; 1;};
+    $WEAKEN = $@ ? 0 : 1;
+    test_begin(-tests => 23);
 	
 	use_ok('Bio::Species');
 	use_ok('Bio::DB::Taxonomy');
@@ -62,3 +63,22 @@ SKIP: {
     is $species->species, 'rapa subsp.';
     is $species->sub_species, 'pekinensis';
 }
+
+SKIP: {
+    skip("Test::Weaken not installed, skipping", 2) if !$WEAKEN;
+    # this sub leaks, should return true
+    ok(Test::Weaken::leaks({
+        constructor => sub { my ($a, $b); $a = \$b; $b = \$a}
+    }));
+    # this sub shouldn't leak (no circ. refs)
+    ok(!Test::Weaken::leaks({
+      constructor => sub{ Bio::Species->new( -classification => 
+				[ qw( sapiens Homo Hominidae
+				      Catarrhini Primates Eutheria 
+				      Mammalia Vertebrata
+				      Chordata Metazoa Eukaryota) ],
+				-common_name => 'human') },
+      }
+    ));
+}
+

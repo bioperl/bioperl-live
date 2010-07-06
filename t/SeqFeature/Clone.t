@@ -35,7 +35,7 @@ is($orig->start(),      40,                   'start() original unchanged');
 # ----------
 # Verify that arguments passed into clone() are applied to the cloned object
 # and that the attributes are still independent.
-ok(my $clone = $orig->clone(-start => 150, -end => 157),   'clone() with arguments');
+ok($clone = $orig->clone(-start => 150, -end => 157),   'clone() with arguments');
 is($orig->start(),       40,                  'start() orig get');
 is($orig->end(),         80,                  'end() orig get');
 is($clone->start(),     150,                  'start() clone get');

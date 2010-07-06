@@ -950,9 +950,9 @@ sub set_seq_qual {
     my $previous = 0;
     my $next     = 0;
     my $i = 0; my $j = 0;
-    while ($i<=$#{$tmp}) {
+    while ($i <= $#{$tmp}) {
         # IF base is a gap, quality is the average for neighbouring sites
-        if (substr($sequence,$j,1) eq '-') {
+        if ($j > $i && substr($sequence,$j,1) eq '-') {
             $previous = $tmp->[$i-1] unless ($i == 0);
             if ($i < $#{$tmp}) {
                 $next = $tmp->[$i+1];

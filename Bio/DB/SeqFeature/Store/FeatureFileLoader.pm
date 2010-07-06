@@ -627,7 +627,7 @@ sub _make_feature {
     my ($name,$type,$strand,$attributes,$ref,$start,$end) = @_;
 
     # some basic error checking
-     $self->throw("invalid feature line: $_")
+     $self->throw("syntax error at line $.: '$_'")
  	if ($ref   && !defined $start)
  	or ($ref   && !defined $end)
  	or ($start && $start   !~  /^[-\d]+$/)
