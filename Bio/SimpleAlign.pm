@@ -1249,55 +1249,44 @@ sub slice {
 =head2 remove_columns
 
  Title     : remove_columns
- Usage     : $aln2 = $aln->remove_columns('mismatch','weak') or
-             $aln2 = $aln->remove_columns(0,6..8)
+ Usage     : $aln2 = $aln->remove_columns(['mismatch','weak']) or
+             $aln2 = $aln->remove_columns([3,6..8]) or
+             $aln2= $aln->remove_columns(-pos=>[3,6..8],-toggle=>T)
  Function  : Creates an aligment with columns removed corresponding to
              the specified type or by specifying the columns by number.
  Returns   : Bio::SimpleAlign object
  Args      : Array ref of types ('match'|'weak'|'strong'|'mismatch'|'gaps'|
              'all_gaps_columns') or array ref where the referenced array
              contains a pair of integers that specify a range.
-             The first column is 0
+             The first column is 1
 
 =cut
 
 sub remove_columns {
-    my ($self,@args) = @_;
-    @args || $self->throw("Must supply column ranges or column types");
-    my $aln;
-
-	if(ref($args[0])) {
-		$self->deprecated("Defining parameters in array references is deprecated. Please use list to define the range of columns or column types.");
-		if ($args[0][0] =~ /^[a-z_]+$/i) {
-			$aln = $self->_remove_columns_by_type($args[0]);
-		} 
-		elsif ($args[0][0] =~ /^\d+$/) {
-			$aln = $self->_remove_columns_by_num(\@args);
+	my ($self,@args) = @_;
+   @args || $self->throw("Must supply column ranges or column types");
+   my ($aln,$cont_loc);
+	if(@args) {
+		if(ref($args[0])) {
+			if ($args[0][0] =~ /^[a-z_]+$/i) {
+				$aln = $self->_remove_columns_by_type($args[0]);
+			}
+			elsif ($args[0][0] =~ /^\d+$/) {
+				$cont_loc=_cont_coords($args[0],defined($args[1])?$args[1]:0,$self->length);
+				$aln = $self->_remove_columns_by_num($cont_loc);
+			}
 		}
-    
-    
-    
-    else {
-        $self->throw("You must pass array references to remove_columns(), not @args");
-    }
-    # fix for meta, sf, ann
-    $aln;
-}
-
-sub remove_columns {
-    my ($self,@args) = @_;
-    @args || $self->throw("Must supply column ranges or column types");
-    my $aln;
-
-    if ($args[0][0] =~ /^[a-z_]+$/i) {
-        $aln = $self->_remove_columns_by_type($args[0]);
-    } elsif ($args[0][0] =~ /^\d+$/) {
-        $aln = $self->_remove_columns_by_num(\@args);
-    } else {
-        $self->throw("You must pass array references to remove_columns(), not @args");
-    }
-    # fix for meta, sf, ann
-    $aln;
+		else {
+			my ($sel, $toggle) = $self->_rearrange([qw(SELECTION TOGGLE)], @args);
+			$cont_loc=_cont_coords($sel,$toggle,$self->length);
+			$aln = $self->_remove_columns_by_num($cont_loc);
+		}
+	}
+	else {
+   	$self->throw("You must pass array references to remove_columns(), not @args");
+	}
+	# fix for meta, sf, ann
+	$aln;
 }
 
 
@@ -1365,8 +1354,8 @@ sub _remove_col {
 					     -verbose => $self->verbose);
         my $sequence = $seq->seq;
         foreach my $pair(@{$remove}){
-            my $start = $pair->[0];
-            my $end   = $pair->[1];
+            my $start = $pair->[0]-1; #edited by JY. The first column should be 1-based
+            my $end   = $pair->[1]-1;
             $sequence = $seq->seq unless $sequence;
             my $orig = $sequence;
             my $head =  $start > 0 ? substr($sequence, 0, $start) : '';
@@ -1463,25 +1452,23 @@ sub _remove_columns_by_type {
 sub _remove_columns_by_num {
 	my ($self,$positions) = @_;
 	my $aln = $self->new;
-
-	# sort the positions
-	@$positions = sort { $a->[0] <=> $b->[0] } @$positions;
-    
-    my @remove;
-    my $length = 0;
-    foreach my $pos (@{$positions}) {
-        my ($start, $end) = @{$pos};
+	
+	my @remove;
+	my $length = 0;
+	for(my $num=0;$num<@{$positions};) {
+		my ($start, $end) = ($positions->[$num],$positions->[$num+1]);
         
-        #have to offset the start and end for subsequent removes
-        $start-=$length;
-        $end  -=$length;
-        $length += ($end-$start+1);
-        push @remove, [$start,$end];
+		#have to offset the start and end for subsequent removes
+		$start-=$length;
+		$end  -=$length;
+		$length += ($end-$start+1);
+		push @remove, [$start,$end];
+		$num+=2;
     }
 
-    #remove the segments
-    $aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
-    # fix for meta, sf, ann    
+	#remove the segments
+	$aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
+	# fix for meta, sf, ann    
 	$aln;
 }
 
@@ -3405,34 +3392,32 @@ sub no_sequences {
 =head2 mask_columns
 
  Title     : mask_columns
- Usage     : $aln2 = $aln->mask_columns(2,5,7..10)
+ Usage     : $aln2 = $aln->mask_columns([2,5,7..10],1)
  Function  : Masks slices of the alignment inclusive of the defined
              columns, and the first column in the alignment is denoted 1.
              Mask beyond the length of the sequence does not do padding.
  Returns   : A Bio::SimpleAlign object
  Args      : Positive integers should be used to defined the column numbers
              The mask character should be defined by $aln->mask_char() or "?" as default
+             An optional parameter can be defined to toggle the coordinate selection.
  Note      : 
 
 =cut
 
 sub mask_columns {
     #based on slice(), but did not include the Bio::Seq::Meta sections as I was not sure what it is doing
-	my $self = shift;
-
+	my $self=shift;
+	my @args=@_;
 	my $nonres = join("",$self->gap_char, $self->match_char,$self->missing_char);
-    
 	my $mask_char=$self->mask_char;
    
-	my @coords=sort {$a<=>$b} @_;
-	
 	#Exceptions
 	$self->throw("Mask start has to be a positive integer and less than ".
-                 "alignment length, not [$coords[0]]")
-	unless $coords[0] =~ /^\d+$/ && $coords[0] > 0 && $coords[0] <= $self->length;	
+                 "alignment length, not [".$args[0][0]]."]")
+	unless $args[0][0] =~ /^\d+$/ && $args[0][0] > 0 && $args[0][0] <= $self->length;	
 
    $self->throw("Mask end has to be a positive integer and less than ".
-                 "alignment length, not [$coords[$#coords]]")
+                 "alignment length, not [".$args[0][0]."]")
 	unless $coords[$#coords] =~ /^\d+$/ && $coords[$#coords] > 0 && $coords[$#coords] <= $self->length;                 
 	
 	#calculate the coords, and make it in a continous way
@@ -3473,28 +3458,63 @@ sub mask_columns {
 =cut
 
 sub _cont_coords {
-	my @old_coords=@_;
-	my @cont_coords;
-	push @cont_coords,$old_coords[0];
-	for(my $num=0;$num<@old_coords;) {
-		if($old_coords[$num+1]-$old_coords[$num]>1) {
-			if($num+2==@old_coords) {
-				push @cont_coords,$old_coords[$num],$old_coords[$num+1],$old_coords[$num+1];
-				last;
+	my ($old_coords,$toggle,$length)=@_;
+	@{$old_coords}=sort {$a<=>$b} @{$old_coords};
+	my $cont_coords;
+	if($toggle) {
+		#if need to toggle the selection
+		if($old_coords->[0]>1) {
+			push @{$cont_coords},1,$old_coords->[0]-1;
+		}
+		
+		for(my $num=0;$num<@{$old_coords};) {
+			if($old_coords->[$num+1]-$old_coords->[$num]>1) {
+				if($num+2==@{$old_coords}) {
+					if($old_coords->[$num+1]==$length) {
+						push @{$cont_coords},$old_coords->[$num]+1,$old_coords->[$num+1]-1;
+					}
+					else {
+						push @{$cont_coords},$old_coords->[$num]+1,$old_coords->[$num+1]-1,$old_coords->[$num+1]+1,$length;
+					}
+					last;
+				}
+				else {
+					push @{$cont_coords},$old_coords->[$num]+1,$old_coords->[$num+1]-1;
+				}
 			}
 			else {
-				push @cont_coords,$old_coords[$num],$old_coords[$num+1];
+				if ($num+2==@{$old_coords}) {
+					if($old_coords->[$num+1]<$length) {
+						push @{$cont_coords},$old_coords->[$num+1]+1,$length;
+					}
+					last;
+				}
 			}
+			$num++;
 		}
-		else {
-			if ($num+2==@old_coords) {
-				push @cont_coords,$old_coords[$num+1];
-				last;
-			}
-		}
-		$num++;
 	}
-	return @cont_coords;
+	else {
+		push @{$cont_coords},$old_coords->[0];
+		for(my $num=0;$num<@{$old_coords};) {
+			if($old_coords->[$num+1]-$old_coords->[$num]>1) {
+				if($num+2==@{$old_coords}) {
+					push @{$cont_coords},$old_coords->[$num],$old_coords->[$num+1],$old_coords->[$num+1];
+					last;
+				}
+				else {
+					push @{$cont_coords},$old_coords->[$num],$old_coords->[$num+1];
+				}
+			}
+			else {
+				if ($num+2==@{$old_coords}) {
+					push @{$cont_coords},$old_coords->[$num+1];
+					last;
+				}
+			}
+			$num++;
+		}
+	}
+	return $cont_coords;
 }
 
 
