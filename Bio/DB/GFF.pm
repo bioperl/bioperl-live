@@ -2523,9 +2523,6 @@ sub _load_gff_line {
     undef $$_ if $$_ eq '.';
   }
 
-  print STDERR $self->{load_data}{count}," records$lineend" 
-    if $self->{__verbose__} && $self->{load_data}{count} % 1000 == 0;
-
   my ($gclass,$gname,$tstart,$tstop,$attributes) = $self->split_group($group,$self->{load_data}{gff3_flag});
 
   # no standard way in the GFF file to denote the class of the reference sequence -- drat!
@@ -3817,6 +3814,20 @@ sub next_seq {
   $self->throw("id does not exist") unless $segment;
   return $segment;
 }
+
+package Bio::DB::GFF::FeatureIterator;
+
+sub new {
+    my $self     = shift;
+    my @features = @_;
+    return bless \@features,ref $self || $self;
+}
+sub next_seq {
+  my $self  = shift;
+  return unless @$self;
+  return shift @$self;
+}
+
 
 1;
 

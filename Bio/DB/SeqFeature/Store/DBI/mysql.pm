@@ -1946,12 +1946,7 @@ END
     }
 
     my %bins;
-    eval {
-	for my $typeid (@t) {
-
-	    my ($from,$where,$group,@a) = $self->_types_sql($types,'b');
-
-	    my $sql = <<END;
+    my $sql = <<END;
 SELECT bin,cum_count
   FROM $interval_stats_table
   WHERE typeid=?
@@ -1959,7 +1954,11 @@ SELECT bin,cum_count
   LIMIT 1
 END
 ;
-	    my $sth = $self->_prepare($sql);
+    $sth = $self->_prepare($sql);
+
+    eval {
+	for my $typeid (@t) {
+
 	    for (my $i=0;$i<@sum_bin_array;$i++) {
 		
 		my @args = ($typeid,$seqid,$sum_bin_array[$i]);

@@ -94,6 +94,8 @@ SELECT distinct gclass,gname,fattribute_value,MATCH(fattribute_value) AGAINST (?
 END
 ;
 
+use constant SUMMARY_BIN_SIZE => 1000;
+
 =head1 DESCRIPTION
 
 This adaptor implements a specific mysql database schema that is
@@ -542,7 +544,20 @@ create table fattribute_to_feature (
         fulltext(fattribute_value)
 )type=MyISAM
 } # fattribute_to_feature table
-    }, # fattribute_to_feature
+},# fattribute_to_feature
+
+       finterval_stats => {
+table=> q{
+create table finterval_stats (
+   ftypeid            integer not null,
+   fref               varchar(100) not null,
+   fbin               integer not null,
+   fcum_count         integer not null,
+   primary key(ftypeid,fref,fbin)
+)type=MyISAM
+} # finterval_stats table
+},# finterval_stats
+
 );
   return \%schema;
 }
@@ -840,7 +855,253 @@ sub get_feature_id {
   return $fid;
 }
 
+=head2 feature_summary
+
+ Title   : feature_summary
+ Usage   : $summary = $db->feature_summary(@args)
+ Function: returns a coverage summary across indicated region/type
+ Returns : a Bio::SeqFeatureI object containing the "coverage" tag
+ Args    : see below
+ Status  : public
+
+This method is used to get coverage density information across a
+region of interest. You provide it with a region of interest, optional
+a list of feature types, and a count of the number of bins over which
+you want to calculate the coverage density. An object is returned
+corresponding to the requested region. It contains a tag called
+"coverage" that will return an array ref of "bins" length. Each
+element of the array describes the number of features that overlap the
+bin at this postion.
+
+Arguments:
+
+  Argument       Description
+  --------       -----------
+
+  -seq_id        Sequence ID for the region
+  -start         Start of region
+  -end           End of region
+  -type/-types   Feature type of interest or array ref of types
+  -bins          Number of bins across region. Defaults to 1000.
+
+Note that this method uses an approximate algorithm that is only
+accurate to 500 bp, so when dealing with bins that are smaller than
+1000 bp, you may see some shifting of counts between adjacent bins.
+
+=cut
+
+
+sub feature_summary {
+    my $self = shift;
+    my ($seq_name,$start,$end,$types,$bins,$iterator) = 
+	rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],
+		   ['TYPES','TYPE','PRIMARY_TAG'],
+		   'BINS',
+		   'ITERATOR',
+		  ],@_);
+    my ($coverage,$tag) = $self->coverage_array(-seqid=> $seq_name,
+						-start=> $start,
+						-end  => $end,
+						-type => $types,
+						-bins => $bins) or return;
+    my $score = 0;
+    for (@$coverage) { $score += $_ }
+    $score /= @$coverage;
+
+    my $feature = Bio::SeqFeature::Lite->new(-seq_id => $seq_name,
+					     -start  => $start,
+					     -end    => $end,
+					     -type   => $tag,
+					     -score  => $score,
+					     -attributes => 
+					     { coverage => [$coverage] });
+    return $iterator 
+	   ? Bio::DB::GFF::FeatureIterator->new($feature) 
+	   : $feature;
+}
+
+sub coverage_array {
+    my $self = shift;
+    my ($seq_name,$start,$end,$types,$bins) = 
+	rearrange([['SEQID','SEQ_ID','REF'],'START',['STOP','END'],
+		   ['TYPES','TYPE','PRIMARY_TAG'],'BINS'],@_);
+
+    $types = $self->parse_types($types);
+    my $dbh = $self->features_db;
+    
+    $bins  ||= 1000;
+    $start ||= 1;
+    unless ($end) {
+	my $segment = $self->segment($seq_name) or $self->throw("unknown seq_id $seq_name");
+	$end        = $segment->end;
+    }
+
+    my $binsize = ($end-$start+1)/$bins;
+    my $seqid   = $seq_name;
+
+    return [] unless $seqid;
+
+    # where each bin starts
+    my @his_bin_array = map {$start + $binsize * $_}       (0..$bins);
+    my @sum_bin_array = map {int(($_-1)/SUMMARY_BIN_SIZE)} @his_bin_array;
+
+    my $interval_stats_table    = 'finterval_stats';
+    
+    # pick up the type ids
+    my ($type_from,@a) = $self->types_query($types);
+    my $query          = "select ftypeid,fmethod,fsource from ftype where $type_from";
+    my $sth            = $dbh->prepare_delayed($query);
+    my (@t,$report_tag);
+    $sth->execute(@a);
+    while (my ($t,$method,$source) = $sth->fetchrow_array) {
+	$report_tag ||= "$method:$source";
+	push @t,$t;
+    }
+
+
+    my %bins;
+    my $sql = <<END;
+SELECT fbin,fcum_count
+  FROM $interval_stats_table
+  WHERE ftypeid=?
+    AND fref=? AND fbin >= ?
+  LIMIT 1
+END
+;
+    $sth = $dbh->prepare_delayed($sql) or warn $dbh->errstr;
+    eval {
+	for my $typeid (@t) {
+
+	    for (my $i=0;$i<@sum_bin_array;$i++) {
+		
+		my @args = ($typeid,$seqid,$sum_bin_array[$i]);
+		$self->_print_query($sql,@args) if $self->debug;
+		
+		$sth->execute(@args) or $self->throw($sth->errstr);
+		my ($bin,$cum_count) = $sth->fetchrow_array;
+		push @{$bins{$typeid}},[$bin,$cum_count];
+	    }
+	}
+    };
+    return unless %bins;
+
+    my @merged_bins;
+    my $firstbin = int(($start-1)/$binsize);
+    for my $type (keys %bins) {
+	my $arry       = $bins{$type};
+	my $last_count = $arry->[0][1];
+	my $last_bin   = -1;
+	my $i          = 0;
+	my $delta;
+	for my $b (@$arry) {
+	    my ($bin,$count) = @$b;
+	    $delta              = $count - $last_count if $bin > $last_bin;
+	    $merged_bins[$i++]  = $delta;
+	    $last_count         = $count;
+	    $last_bin           = $bin;
+	}
+    }
+
+    return wantarray ? (\@merged_bins,$report_tag) : \@merged_bins;
+}
+
+sub build_summary_statistics {
+    my $self   = shift;
+    my $interval_stats_table = 'finterval_stats';
+    my $dbh    = $self->dbh;
+    $dbh->begin_work;
+
+    my $sbs = SUMMARY_BIN_SIZE;
+    
+    my $result = eval {
+	$self->_add_interval_stats_table;
+	$dbh->do("alter table $interval_stats_table disable keys");
+	$dbh->do("DELETE FROM $interval_stats_table");
+
+	my $insert = $dbh->prepare(<<END) or $self->throw($dbh->errstr);
+INSERT INTO $interval_stats_table 
+           (ftypeid,fref,fbin,fcum_count)
+    VALUES (?,?,?,?)
+END
+
+;
+	    
+	my $sql    = 'select ftypeid,fref,fstart,fstop from fdata order by ftypeid,fref,fstart';
+	my $select = $dbh->prepare($sql) or $self->throw($dbh->errstr);
+
+	my $current_bin = -1;
+	my ($current_type,$current_seqid,$count);
+	my $cum_count = 0;
+	my (%residuals,$last_bin);
+
+	my $le = -t \*STDERR ? "\r" : "\n";
+
+	$select->execute;
+
+	while (my($typeid,$seqid,$start,$end) = $select->fetchrow_array) {
+	    print STDERR $count," features processed$le" if ++$count % 1000 == 0;
+
+	    my $bin = int($start/$sbs);
+	    $current_type  ||= $typeid;
+	    $current_seqid ||= $seqid;
+
+            # because the input is sorted by start, no more features will contribute to the 
+	    # current bin so we can dispose of it
+	    if ($bin != $current_bin) {
+		if ($seqid != $current_seqid or $typeid != $current_type) {
+		    # load all bins left over
+		    $self->_load_bins($insert,\%residuals,\$cum_count,$current_type,$current_seqid);
+		    %residuals = () ;
+		    $cum_count = 0;
+		} else {
+		    # load all up to current one
+		    $self->_load_bins($insert,\%residuals,\$cum_count,$current_type,$current_seqid,$current_bin); 
+		}
+	    }
+
+	    $last_bin = $current_bin;
+	    ($current_seqid,$current_type,$current_bin) = ($seqid,$typeid,$bin);
+
+	    # summarize across entire spanned region
+	    my $last_bin = int(($end-1)/$sbs);
+	    for (my $b=$bin;$b<=$last_bin;$b++) {
+		$residuals{$b}++;
+	    }
+	}
+	# handle tail case
+        # load all bins left over	
+	$self->_load_bins($insert,\%residuals,\$cum_count,$current_type,$current_seqid);
+	$dbh->do("alter table $interval_stats_table enable keys");
+	1;
+    };
+	
+    if ($result) { $dbh->commit } else { warn "Can't build summary statistics: $@"; $dbh->rollback };
+    print STDERR "\n";
+}
+
+sub _load_bins {
+    my $self = shift;
+    my ($insert,$residuals,$cum_count,$type,$seqid,$stop_after) = @_;
+    for my $b (sort {$a<=>$b} keys %$residuals) {
+	last if defined $stop_after and $b > $stop_after;
+	$$cum_count += $residuals->{$b};
+	my @args    = ($type,$seqid,$b,$$cum_count);
+	$insert->execute(@args) or warn $insert->errstr;
+	delete $residuals->{$b}; # no longer needed
+    }
+}
+
+sub _add_interval_stats_table {
+    my $self              = shift;
+    my $schema            = $self->schema;
+    my $create_table_stmt = $schema->{'finterval_stats'}{'table'};
+    $create_table_stmt    =~ s/create table/create table if not exists/i;
+    my $dbh               = $self->features_db;
+    $dbh->do($create_table_stmt) ||  warn $dbh->errstr;
+}
+
 1;
+
 
 
 __END__
