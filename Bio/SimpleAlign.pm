@@ -425,6 +425,25 @@ sub remove_seq {
     return 1;
 }
 
+=head2 remove_Seqs
+
+ Title     : remove_seq
+ Usage     : $aln->remove_Seqs([1,3,5..7]);
+ Function  : Removes specified sequences from the alignment
+ Returns   : 1
+ Argument  : a Bio::LocatableSeq object
+
+=cut
+
+sub remove_Seqs {
+	
+	
+	
+	
+	
+}
+
+
 
 =head2 remove_redundant_Seq
 
@@ -1130,11 +1149,6 @@ sub select {
     # fix for meta, sf, ann    
     return $aln;
 }
-
-
-	
-
-
 
 =head2 select_noncont
 
