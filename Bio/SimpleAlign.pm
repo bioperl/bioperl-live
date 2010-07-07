@@ -1192,7 +1192,7 @@ sub select_noncont {
 =head2 slice
 
  Title     : slice
- Usage     : $aln2 = $aln->slice(20,30)
+ Usage     : $newaln = $aln->slice([20,30],0,1)
  Function  : Creates a slice from the alignment inclusive of start and
              end columns, and the first column in the alignment is denoted 1.
              Sequences with no residues in the slice are excluded from the
@@ -1209,19 +1209,41 @@ sub select_noncont {
 
 sub slice {
 	my $self = shift;
-	my ($start, $end, $keep_gap_only) = @_;
+	$self->deprecated("slice - deprecated method. Use select_columns() instead.");
+	$self->select_columns([$_[0]..$_[1]],0,defined($_[2])?$_[2]:0);	
+}
 
-	$self->throw("Slice start has to be a positive integer, not [$start]")
-	  unless $start =~ /^\d+$/ and $start > 0;
-	$self->throw("Slice end has to be a positive integer, not [$end]")
-	  unless $end =~ /^\d+$/ and $end > 0;
-	$self->throw("Slice start [$start] has to be smaller than or equal to end [$end]")
-	  unless $start <= $end;
+
+sub select_columns {
+	my $self = shift;
+	#my ($start, $end, $keep_gap_only) = @_;
+	my ($sel, $toggle,$keep_gap_only) = $self->_rearrange([qw(SELECTION TOGGLE KEEPGAPONLY)], @_);
+	
+	@{$sel}=sort {$a<=$b} @{$sel};
+
+	#warnings
+	$self->throw("Slice start has to be a positive integer, not [".$sel->[0]."]")
+	  unless $sel->[0] =~ /^\d+$/ and $sel->[0] > 0;
+	$self->throw("Slice end has to be a positive integer, not [".$sel->[$#$sel]."]")
+	  unless $sel->[$#$sel] =~ /^\d+$/ and $sel->[$#$sel] > 0;
 	$self->throw("This alignment has only ". $self->length . " residues. Slice start " .
-					 "[$start] is too big.") if $start > $self->length;
+					 "[".$sel->[0]."] is too big.") if $sel->[0] > $self->length;
+
+	my $newcoords;
+	
+	if($toggle) {
+		$newcoords=_cont_coords(_toggle_selection($sel,$self->length));
+	}
+	else {
+		$newcoords=_cont_coords($sel);
+	}
+
+
     my $cons_meta = $self->consensus_meta;
 	my $aln = $self->new;
 	$aln->id($self->id);
+	my ($start,$end)=($newcoords->[0],$newcoords->[$#$newcoords]);
+	
 	foreach my $seq ( $self->each_seq() ) {
 	    my $new_seq = $seq->isa('Bio::Seq::MetaI') ?
             Bio::Seq::Meta->new
@@ -1236,10 +1258,17 @@ sub slice {
 		 -verbose => $self->verbose);
         
 	    # seq
+	    
 	    my $seq_end = $end;
 	    $seq_end = $seq->length if( $end > $seq->length );
+	    # the actual selected seq
 
-	    my $slice_seq = $seq->subseq($start, $seq_end);
+	    my $slice_seq;
+      for(my $num=0;$num<$#$newcoords;) {
+	    	$slice_seq.= $seq->subseq($newcoords->[$num], $newcoords->[$num+1]);
+	    	$num+=2;
+	   }
+	    
 	    $new_seq->seq( $slice_seq );
 
 	    $slice_seq =~ s/\W//g;
