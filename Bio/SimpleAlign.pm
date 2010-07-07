@@ -1083,11 +1083,7 @@ sub select_Seqs {
 	
 	my @positions;
 	if($toggle) {
-		my $newcoords=_cont_coords($sel,$toggle,$self->num_sequences);
-		for (my $num=0;$num<$#$newcoords;) {
-			push @positions,$newcoords[$num]..$newcoords[$num+1];
-			$num+=2;
-		}
+		@positions=@{_toggle_selection($sel)};
 	}
 	else {
 		@positions=@{$sel};
@@ -1321,14 +1317,15 @@ sub remove_columns {
 			if ($args[0][0] =~ /^[a-z_]+$/i) {
 				$aln = $self->_remove_columns_by_type($args[0]);
 			}
-			elsif ($args[0][0] =~ /^\d+$/) {
-				$cont_loc=_cont_coords($args[0],defined($args[1])?$args[1]:0,$self->length);
-				$aln = $self->_remove_columns_by_num($cont_loc);
-			}
 		}
 		else {
 			my ($sel, $toggle) = $self->_rearrange([qw(SELECTION TOGGLE)], @args);
-			$cont_loc=_cont_coords($sel,$toggle,$self->length);
+			if($toggle) {
+				$cont_loc=_cont_coords(_toggle_selection($sel,$self->length));
+			}
+			else {
+				$cont_loc=_cont_coords($sel);
+			}
 			$aln = $self->_remove_columns_by_num($cont_loc);
 		}
 	}
@@ -3473,7 +3470,13 @@ sub mask_columns {
 	unless $sel->[$#$sel] =~ /^\d+$/ && $sel->[$#$sel] > 0 && $sel->[$#$sel] <= $self->length;                 
 	
 	#calculate the coords, and make it in a continous way
-	my @newcoords=@{_cont_coords($sel,$toggle,$self->length)};
+	my @newcoords;
+	if($toggle) {
+		@newcoords=@{_cont_coords(_toggle_selection($sel,$self->length))};
+	}
+	else {
+		@newcoords=@{_cont_coords($sel)};
+	}
 	
 	my $aln = $self->new;
 	$aln->id($self->id);
@@ -3497,76 +3500,49 @@ sub mask_columns {
 	return $aln;
 }
 
-=head2 _cont_coords
-
- Title     : _cont_coords
- Usage     : _cont_coords(@coords)
- Function  : Merge the coordinates from select and remove functions in order to reduce the number of calculations in select and remove. 
- 				 For exmaple, if the input of remove_columns is remove_columns([2,5,7..10]), this function will transform ([2,5,7..10]) to 
- 				 ([2,2,5,5,7,10]).
- Returns   : Continuous coordinates
- Argument  :
-
-=cut
-
 sub _cont_coords {
-	my ($old_coords,$toggle,$length)=@_;
+	#This function is used to merge the coordinates from select and remove functions in order to reduce the number of calculations in select and #remove. For exmaple, if the input of remove_columns is remove_columns([2,5,7..10]), this function will transform ([2,5,7..10]) to 
+ 	# ([2,2,5,5,7,10]).
+	
+	my ($old_coords)=@_;
 	@{$old_coords}=sort {$a<=>$b} @{$old_coords};
+	
 	my $cont_coords;
-	if($toggle) {
-		#if need to toggle the selection
-		if($old_coords->[0]>1) {
-			push @{$cont_coords},1,$old_coords->[0]-1;
-		}
-		
-		for(my $num=0;$num<@{$old_coords};) {
-			if($old_coords->[$num+1]-$old_coords->[$num]>1) {
-				if($num+2==@{$old_coords}) {
-					if($old_coords->[$num+1]==$length) {
-						push @{$cont_coords},$old_coords->[$num]+1,$old_coords->[$num+1]-1;
-					}
-					else {
-						push @{$cont_coords},$old_coords->[$num]+1,$old_coords->[$num+1]-1,$old_coords->[$num+1]+1,$length;
-					}
-					last;
-				}
-				else {
-					push @{$cont_coords},$old_coords->[$num]+1,$old_coords->[$num+1]-1;
-				}
+	
+	push @{$cont_coords},$old_coords->[0];
+	for(my $num=0;$num<@{$old_coords};) {
+		if($old_coords->[$num+1]-$old_coords->[$num]>1) {
+			if($num+2==@{$old_coords}) {
+				push @{$cont_coords},$old_coords->[$num],$old_coords->[$num+1],$old_coords->[$num+1];
+				last;
 			}
 			else {
-				if ($num+2==@{$old_coords}) {
-					if($old_coords->[$num+1]<$length) {
-						push @{$cont_coords},$old_coords->[$num+1]+1,$length;
-					}
-					last;
-				}
+				push @{$cont_coords},$old_coords->[$num],$old_coords->[$num+1];
 			}
-			$num++;
 		}
-	}
-	else {
-		push @{$cont_coords},$old_coords->[0];
-		for(my $num=0;$num<@{$old_coords};) {
-			if($old_coords->[$num+1]-$old_coords->[$num]>1) {
-				if($num+2==@{$old_coords}) {
-					push @{$cont_coords},$old_coords->[$num],$old_coords->[$num+1],$old_coords->[$num+1];
-					last;
-				}
-				else {
-					push @{$cont_coords},$old_coords->[$num],$old_coords->[$num+1];
-				}
+		else {
+			if ($num+2==@{$old_coords}) {
+				push @{$cont_coords},$old_coords->[$num+1];
+				last;
 			}
-			else {
-				if ($num+2==@{$old_coords}) {
-					push @{$cont_coords},$old_coords->[$num+1];
-					last;
-				}
-			}
-			$num++;
 		}
+		$num++;
 	}
 	return $cont_coords;
+}
+
+
+sub _toggle_selection {
+	#This function is used to toggle the selection of sequences or columns
+	my ($old_coords,$length)=@_;
+	my %hash=map {$_=>1} @{$old_coords};
+	my $new_coords;
+	for(my $num=1;$num<=$length;$num++) {
+		unless(defined($hash{$num})) {
+			push @{$new_coords},$num;
+		}
+	}
+	return $new_coords;
 }
 
 
