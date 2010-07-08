@@ -1328,15 +1328,18 @@ sub select_columns {
 =head2 remove_columns
 
  Title     : remove_columns
- Usage     : $aln2 = $aln->remove_columns(['mismatch','weak']) or
-             $aln2 = $aln->remove_columns([3,6..8]) or
-             $aln2= $aln->remove_columns(-pos=>[3,6..8],-toggle=>T)
- Function  : Creates an aligment with columns removed corresponding to
+ Usage     : $aln->remove_columns(['mismatch','weak']) or
+             $aln->remove_columns([3,6..8]) or
+             $aln->remove_columns(-pos=>[3,6..8],-toggle=>T)
+ Function  : Modify the aligment with columns removed corresponding to
              the specified type or by specifying the columns by number.
- Returns   : Bio::SimpleAlign object
- Args      : Array ref of types ('match'|'weak'|'strong'|'mismatch'|'gaps'|
-             'all_gaps_columns') or array ref where the referenced array
+             If you dont want to modify the alignment, 
+             you can use select_columns instead
+ Returns   : 1
+ Args      : Array ref of types ('match'|'weak'|'strong'|'mismatch') 
+             or array ref where the referenced array
              contains a pair of integers that specify a range.
+             use remove_gaps to remove columns containing gaps
              The first column is 1
 
 =cut
@@ -1347,7 +1350,7 @@ sub remove_columns {
    my ($aln,$cont_loc);
 	if(@args) {
 		if(ref($args[0]) && $args[0][0] =~ /^[a-z_]+$/i) {
-			$aln = $self->_remove_columns_by_type($args[0]);
+			$self->_remove_columns_by_type($args[0]);
 		}
 		else {
 			my ($sel, $toggle) = $self->_rearrange([qw(SELECTION TOGGLE)], @args);
@@ -1357,83 +1360,75 @@ sub remove_columns {
 			else {
 				$cont_loc=_cont_coords($sel);
 			}
-			$aln = $self->_remove_columns_by_num($cont_loc);
+			$self->_remove_columns_by_num($cont_loc);
 		}
 	}
 	else {
    	$self->throw("You must pass array references to remove_columns(), not @args");
 	}
 	# fix for meta, sf, ann
-	$aln;
+	1;
 }
 
 sub _remove_col {
-    my ($self,$aln,$remove) = @_;
+    my ($self,$remove) = @_;
     my @new;
     
     my $gap = $self->gap_char;
     
     # splice out the segments and create new seq
+    my ($firststart,$firstend)=@{$remove->[0]};
     foreach my $seq($self->each_seq){
-        my $new_seq = Bio::LocatableSeq->new(
-					     -id      => $seq->id,
-					     -alphabet=> $seq->alphabet,
-					     -strand  => $seq->strand,
-					     -verbose => $self->verbose);
-        my $sequence = $seq->seq;
+		my $sequence = $seq->seq;
+		my $orig = $sequence;
+		#calculate the new start
+		if ($firststart == 0) {
+		  my $start_adjust = () = substr($orig, 0, $firstend + 1) =~ /$gap/g;
+		  $seq->start($seq->firststart + $firstend + 1 - $start_adjust);
+		}
+		else {
+		  my $start_adjust = $orig =~ /^$gap+/;
+		  if ($start_adjust) {
+		      $start_adjust = $+[0] == $firststart;
+		  }
+		  $seq->start($seq->start + $start_adjust);
+		}
+        
         foreach my $pair(@{$remove}){
-            my $start = $pair->[0]-1; #edited by JY. The first column should be 1-based
+            my $start = $pair->[0]-1;
             my $end   = $pair->[1]-1;
             $sequence = $seq->seq unless $sequence;
-            my $orig = $sequence;
+            $orig = $sequence;
             my $head =  $start > 0 ? substr($sequence, 0, $start) : '';
             my $tail = ($end + 1) >= CORE::length($sequence) ? '' : substr($sequence, $end + 1);
             $sequence = $head.$tail;
-            # start
-            unless (defined $new_seq->start) {
-                if ($start == 0) {
-                    my $start_adjust = () = substr($orig, 0, $end + 1) =~ /$gap/g;
-                    $new_seq->start($seq->start + $end + 1 - $start_adjust);
-                }
-                else {
-                    my $start_adjust = $orig =~ /^$gap+/;
-                    if ($start_adjust) {
-                        $start_adjust = $+[0] == $start;
-                    }
-                    $new_seq->start($seq->start + $start_adjust);
-                }
-            }
-            # end
+
+            #calculate the new end
             if (($end + 1) >= CORE::length($orig)) {
                 my $end_adjust = () = substr($orig, $start) =~ /$gap/g;
-                $new_seq->end($seq->end - (CORE::length($orig) - $start) + $end_adjust);
+                $seq->end($seq->end - (CORE::length($orig) - $start) + $end_adjust);
             }
             else {
-                $new_seq->end($seq->end);
+                $seq->end($seq->end);
             }
         }
         
-        if ($new_seq->end < $new_seq->start) {
+        if ($seq->end < $seq->start) {
             # we removed all columns except for gaps: set to 0 to indicate no
             # sequence
-            $new_seq->start(0);
-            $new_seq->end(0);
+            $seq->start(0);
+            $seq->end(0);
         }
         
-        $new_seq->seq($sequence) if $sequence;
-		push @new, $new_seq;
+        $seq->seq($sequence) if $sequence;
     }
-    # add the new seqs to the alignment
-    foreach my $new(@new){
-        $aln->add_seq($new);
-    }
+    
     # fix for meta, sf, ann    
-    return $aln;
+    return 1;
 }
 
 sub _remove_columns_by_type {
 	my ($self,$type) = @_;
-	my $aln = $self->new;
 	my @remove;
 
 	my $gap = $self->gap_char if (grep { $_ eq 'gaps'} @{$type});
@@ -1442,8 +1437,6 @@ sub _remove_columns_by_type {
                        'weak'             => '\.',
                        'strong'           => ':',
                        'mismatch'         => ' ',
-                       'gaps'             => '',
-                       'all_gaps_columns' => ''
                      );
 	# get the characters to delete against
 	my $del_char;
@@ -1456,9 +1449,9 @@ sub _remove_columns_by_type {
 	# do the matching to get the segments to remove
 	if($del_char){
 		while($match_line =~ m/[$del_char]/g ){
-			my $start = pos($match_line)-1;
+			my $start = pos($match_line);
 			$match_line=~/\G[$del_char]+/gc;
-			my $end = pos($match_line)-1;
+			my $end = pos($match_line);
 
 			#have to offset the start and end for subsequent removes
 			$start-=$length;
@@ -1469,17 +1462,15 @@ sub _remove_columns_by_type {
 	}
 
 	# remove the segments
-	$aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
-	$aln = $aln->remove_gaps() if $gap;
-	$aln = $aln->remove_gaps(-allgapcol=> 1) if $all_gaps_columns;
+	$self->_remove_col(\@remove) if $#remove >= 0;
+
     # fix for meta, sf, ann    
-	$aln;
+	1;
 }
 
 
 sub _remove_columns_by_num {
 	my ($self,$positions) = @_;
-	my $aln = $self->new;
 	
 	my @remove;
 	my $length = 0;
@@ -1495,9 +1486,9 @@ sub _remove_columns_by_num {
     }
 
 	#remove the segments
-	$aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
+	$self->_remove_col(\@remove) if $#remove >= 0;
 	# fix for meta, sf, ann    
-	$aln;
+	1;
 }
 
 =head2 remove_gaps
@@ -1541,7 +1532,7 @@ sub remove_gaps {
         push @{$removed_cols}, pos($gap_line);
     }
     #remove the segments
-    $aln = $#$removed_cols >= 0 ? $self->remove_columns($removed_cols) : $self;
+    $aln = $#$removed_cols >= 0 ? $self->select_columns($removed_cols,1) : $self;
     # fix for meta, sf, ann        
     return $aln;
 }
