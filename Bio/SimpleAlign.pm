@@ -542,6 +542,132 @@ sub remove_redundant_Seqs {
 	return @dups;
 }
 
+=head2 uniq_seq
+
+ Title     : uniq_seq
+ Usage     : $aln->uniq_seq():  Remove identical sequences in
+             in the alignment.  Ambiguous base ("N", "n") and
+             leading and ending gaps ("-") are NOT counted as
+             differences.
+ Function  : Make a new alignment of unique sequence types (STs)
+ Returns   : 1a. if called in a scalar context, 
+                a new Bio::SimpleAlign object (all sequences renamed as "ST")
+             1b. if called in an array context, 
+                a new Bio::SimpleAlign object, and a hashref whose keys
+                are sequence types, and whose values are arrayrefs to 
+                lists of sequence ids within the corresponding sequence type
+             2. if $aln->verbose > 0, ST of each sequence is sent to 
+                STDERR (in a tabular format)
+ Argument  : None
+
+=cut
+
+sub uniq_seq {
+    my ($self, $seqid) = @_;
+    my $aln = $self->new;
+    my (%member, %order, @seq, @uniq_str, $st);
+    my $order=0;
+    my $len = $self->length();
+    $st = {};
+    foreach my $seq ( $self->each_seq() ) {
+	my $str = $seq->seq();
+
+# it's necessary to ignore "n", "N", leading gaps and ending gaps in
+# comparing two sequence strings
+
+    # 1st, convert "n", "N" to "?" (for DNA sequence only):
+	$str =~ s/n/\?/gi if $str =~ /^[atcgn-]+$/i;
+    # 2nd, convert leading and ending gaps to "?":
+	$str = &_convert_leading_ending_gaps($str, '-', '?');
+    # Note that '?' also can mean unknown residue.
+    # I don't like making global class member changes like this, too
+    # prone to errors... -- cjfields 08-11-18
+    local $Bio::LocatableSeq::GAP_SYMBOLS = '-\?';
+	my $new = Bio::LocatableSeq->new(
+                     -id      => $seq->id(),
+					 -alphabet=> $seq->alphabet,
+					 -seq     => $str,
+					 -start   => $seq->start,
+					 -end     => $seq->end
+					 );
+	push @seq, $new;
+    }
+
+    foreach my $seq (@seq) {
+	my $str = $seq->seq();
+	my ($seen, $key) = &_check_uniq($str, \@uniq_str, $len);
+	if ($seen) { # seen before
+	    my @memb = @{$member{$key}};
+	    push @memb, $seq;
+	    $member{$key} = \@memb;
+	} else {  # not seen
+	    push @uniq_str, $key;
+	    $order++;
+	    $member{$key} = [ ($seq) ];
+	    $order{$key} = $order;
+	}
+    }
+
+    foreach my $str (sort {$order{$a} <=> $order{$b}} keys %order) { # sort by input order
+# convert leading/ending "?" back into "-" ("?" throws errors by SimpleAlign):
+	my $str2 = &_convert_leading_ending_gaps($str, '?', '-');
+# convert middle "?" back into "N" ("?" throws errors by SimpleAlign):
+	$str2 =~ s/\?/N/g if $str2 =~ /^[atcg\-\?]+$/i;
+	my $gap='-';
+	my $end= CORE::length($str2);
+	$end -= CORE::length($1) while $str2 =~ m/($gap+)/g;
+	my $new = Bio::LocatableSeq->new(-id   =>"ST".$order{$str},
+					 -seq  =>$str2,
+					 -start=>1,
+					 -end  =>$end
+					 );
+	$aln->add_seq($new);
+	foreach (@{$member{$str}}) {
+	    push @{$$st{$order{$str}}}, $_->id(); # per Tristan's patch/Bug #2805
+        $self->debug($_->id(), "\t", "ST", $order{$str}, "\n");
+        }
+    }
+    return wantarray ? ($aln, $st) : $aln;
+}
+
+sub _check_uniq {  # check if same seq exists in the alignment
+    my ($str1, $ref, $length) = @_;
+    my @char1=split //, $str1;
+    my @array=@$ref;
+
+    return (0, $str1) if @array==0; # not seen (1st sequence)
+
+    foreach my $str2 (@array) {
+	my $diff=0;
+	my @char2=split //, $str2;
+	for (my $i=0; $i<=$length-1; $i++) {
+	    next if $char1[$i] eq '?';
+	    next if $char2[$i] eq '?';
+	    $diff++ if $char1[$i] ne $char2[$i];
+	}
+	return (1, $str2) if $diff == 0;  # seen before
+    }
+
+    return (0, $str1); # not seen
+}
+
+sub _convert_leading_ending_gaps {
+    my $s=shift;
+    my $sym1=shift;
+    my $sym2=shift;
+    my @array=split //, $s;
+# convert leading char:
+    for (my $i=0; $i<=$#array; $i++) {
+	($array[$i] eq $sym1) ? ($array[$i] = $sym2):(last);
+    }
+# convert ending char:
+    for (my $i = $#array; $i>= 0; $i--) {
+	($array[$i] eq $sym1) ? ($array[$i] = $sym2):(last);
+    }
+    my $s_new=join '', @array;
+    return $s_new;
+}
+
 =head2 sort_alphabetically
 
  Title     : sort_alphabetically
@@ -676,6 +802,41 @@ sub sort_by_length {
 	1;
 }
 
+=head2 sort_by_start
+
+ Title     : sort_by_start
+ Usage     : $ali->sort_by_start
+ Function  : Changes the order of the alignment to the start position of each
+             subalignment    
+ Returns   : 1
+ Argument  : None
+
+=cut
+
+sub sort_by_start {
+    my $self = shift;
+    my ($seq,$nse,@arr,%hash,$count);
+    foreach $seq ( $self->each_seq() ) {
+        $nse = $seq->get_nse;
+        $hash{$nse} = $seq;
+    }
+    $count = 0;
+    %{$self->{'_order'}} = (); # reset the hash;
+    foreach $nse ( sort _startend keys %hash) {
+        $self->{'_order'}->{$count} = $nse;
+        $count++;
+    }
+    1;
+}
+
+sub _startend
+{
+    my ($aname,$arange) = split (/[\/]/,$a);
+    my ($bname,$brange) = split (/[\/]/,$b);
+    my ($astart,$aend) = split(/\-/,$arange);
+    my ($bstart,$bend) = split(/\-/,$brange);
+    return $astart <=> $bstart;
+}
 =head2 set_new_reference
 
  Title     : set_new_reference
@@ -728,131 +889,6 @@ sub _in_aln {  # check if input name exists in the alignment
 }
 
 
-=head2 uniq_seq
-
- Title     : uniq_seq
- Usage     : $aln->uniq_seq():  Remove identical sequences in
-             in the alignment.  Ambiguous base ("N", "n") and
-             leading and ending gaps ("-") are NOT counted as
-             differences.
- Function  : Make a new alignment of unique sequence types (STs)
- Returns   : 1a. if called in a scalar context, 
-                a new Bio::SimpleAlign object (all sequences renamed as "ST")
-             1b. if called in an array context, 
-                a new Bio::SimpleAlign object, and a hashref whose keys
-                are sequence types, and whose values are arrayrefs to 
-                lists of sequence ids within the corresponding sequence type
-             2. if $aln->verbose > 0, ST of each sequence is sent to 
-                STDERR (in a tabular format)
- Argument  : None
-
-=cut
-
-sub uniq_seq {
-    my ($self, $seqid) = @_;
-    my $aln = $self->new;
-    my (%member, %order, @seq, @uniq_str, $st);
-    my $order=0;
-    my $len = $self->length();
-    $st = {};
-    foreach my $seq ( $self->each_seq() ) {
-	my $str = $seq->seq();
-
-# it's necessary to ignore "n", "N", leading gaps and ending gaps in
-# comparing two sequence strings
-
-    # 1st, convert "n", "N" to "?" (for DNA sequence only):
-	$str =~ s/n/\?/gi if $str =~ /^[atcgn-]+$/i;
-    # 2nd, convert leading and ending gaps to "?":
-	$str = &_convert_leading_ending_gaps($str, '-', '?');
-    # Note that '?' also can mean unknown residue.
-    # I don't like making global class member changes like this, too
-    # prone to errors... -- cjfields 08-11-18
-    local $Bio::LocatableSeq::GAP_SYMBOLS = '-\?';
-	my $new = Bio::LocatableSeq->new(
-                     -id      => $seq->id(),
-					 -alphabet=> $seq->alphabet,
-					 -seq     => $str,
-					 -start   => $seq->start,
-					 -end     => $seq->end
-					 );
-	push @seq, $new;
-    }
-
-    foreach my $seq (@seq) {
-	my $str = $seq->seq();
-	my ($seen, $key) = &_check_uniq($str, \@uniq_str, $len);
-	if ($seen) { # seen before
-	    my @memb = @{$member{$key}};
-	    push @memb, $seq;
-	    $member{$key} = \@memb;
-	} else {  # not seen
-	    push @uniq_str, $key;
-	    $order++;
-	    $member{$key} = [ ($seq) ];
-	    $order{$key} = $order;
-	}
-    }
-
-    foreach my $str (sort {$order{$a} <=> $order{$b}} keys %order) { # sort by input order
-# convert leading/ending "?" back into "-" ("?" throws errors by SimpleAlign):
-	my $str2 = &_convert_leading_ending_gaps($str, '?', '-');
-# convert middle "?" back into "N" ("?" throws errors by SimpleAlign):
-	$str2 =~ s/\?/N/g if $str2 =~ /^[atcg\-\?]+$/i;
-	my $gap='-';
-	my $end= CORE::length($str2);
-	$end -= CORE::length($1) while $str2 =~ m/($gap+)/g;
-	my $new = Bio::LocatableSeq->new(-id   =>"ST".$order{$str},
-					 -seq  =>$str2,
-					 -start=>1,
-					 -end  =>$end
-					 );
-	$aln->add_seq($new);
-	foreach (@{$member{$str}}) {
-	    push @{$$st{$order{$str}}}, $_->id(); # per Tristan's patch/Bug #2805
-        $self->debug($_->id(), "\t", "ST", $order{$str}, "\n");
-        }
-    }
-    return wantarray ? ($aln, $st) : $aln;
-}
-
-sub _check_uniq {  # check if same seq exists in the alignment
-    my ($str1, $ref, $length) = @_;
-    my @char1=split //, $str1;
-    my @array=@$ref;
-
-    return (0, $str1) if @array==0; # not seen (1st sequence)
-
-    foreach my $str2 (@array) {
-	my $diff=0;
-	my @char2=split //, $str2;
-	for (my $i=0; $i<=$length-1; $i++) {
-	    next if $char1[$i] eq '?';
-	    next if $char2[$i] eq '?';
-	    $diff++ if $char1[$i] ne $char2[$i];
-	}
-	return (1, $str2) if $diff == 0;  # seen before
-    }
-
-    return (0, $str1); # not seen
-}
-
-sub _convert_leading_ending_gaps {
-    my $s=shift;
-    my $sym1=shift;
-    my $sym2=shift;
-    my @array=split //, $s;
-# convert leading char:
-    for (my $i=0; $i<=$#array; $i++) {
-	($array[$i] eq $sym1) ? ($array[$i] = $sym2):(last);
-    }
-# convert ending char:
-    for (my $i = $#array; $i>= 0; $i--) {
-	($array[$i] eq $sym1) ? ($array[$i] = $sym2):(last);
-    }
-    my $s_new=join '', @array;
-    return $s_new;
-}
 
 =head1 Sequence selection methods
 
@@ -1331,59 +1367,6 @@ sub remove_columns {
 	$aln;
 }
 
-
-=head2 remove_gaps
-
- Title     : remove_gaps
- Usage     : $aln2 = $aln->remove_gaps(-reference=>5)
- Function  : Creates an aligment with gaps removed
- Returns   : a Bio::SimpleAlign object
- Args      : -GAPCHAR a gap character(optional) if none specified taken
-                from $self->gap_char,
-             -ALLGAPCOL $all_gaps_columns flag (1 or 0, default is 0)
-                 indicates that only all-gaps columns should be deleted
-             -REFERENCE splices all aligned sequences where the specified 
-                 sequence has gaps.
-
-=cut
-
-sub remove_gaps {
-	my $self=shift @_;
-	my ($gapchar,$all_gaps_columns,$reference) = $self->_rearrange([qw(GAPCHAR ALLGAPCOL REFERENCE)], @_);
-	my $gap_line;
-   if($reference) {
-   	my $refseq=$self->get_seq_by_pos($reference);
-    	$gap_line=$refseq->seq();
-   }
-   else {
-		if ($all_gaps_columns) {
-		  $gap_line = $self->all_gap_line($gapchar);
-		} else {
-		  $gap_line = $self->gap_line($gapchar);
-		}
-	}
-    
-    my $aln = $self->new;
-
-    my $length = 0;
-    my $del_char = $gapchar || $self->gap_char;
-    # Do the matching to get the segments to remove
-    my $removed_cols;
-    while ($gap_line =~ m/[$del_char]/g) {
-        push @{$removed_cols}, pos($gap_line);
-    }
-    #remove the segments
-    $aln = $#$removed_cols >= 0 ? $self->remove_columns($removed_cols) : $self;
-    # fix for meta, sf, ann        
-    return $aln;
-}
-
-sub splice_by_seq_pos{
-    my $self = shift;
-    $self->deprecated("splice_by_seq_pos - deprecated method. Use remove_gaps() instead.");
-    $self->remove_gaps(-reference=>$_[0]);
-}
-
 sub _remove_col {
     my ($self,$aln,$remove) = @_;
     my @new;
@@ -1488,7 +1471,7 @@ sub _remove_columns_by_type {
 	# remove the segments
 	$aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
 	$aln = $aln->remove_gaps() if $gap;
-	$aln = $aln->remove_gaps('', 1) if $all_gaps_columns;
+	$aln = $aln->remove_gaps(-allgapcol=> 1) if $all_gaps_columns;
     # fix for meta, sf, ann    
 	$aln;
 }
@@ -1516,6 +1499,60 @@ sub _remove_columns_by_num {
 	# fix for meta, sf, ann    
 	$aln;
 }
+
+=head2 remove_gaps
+
+ Title     : remove_gaps
+ Usage     : $aln2 = $aln->remove_gaps(-reference=>5)
+ Function  : Creates an aligment with gaps removed
+ Returns   : a Bio::SimpleAlign object
+ Args      : -GAPCHAR a gap character(optional) if none specified taken
+                from $self->gap_char,
+             -ALLGAPCOL $all_gaps_columns flag (1 or 0, default is 0)
+                 indicates that only all-gaps columns should be deleted
+             -REFERENCE splices all aligned sequences where the specified 
+                 sequence has gaps.
+
+=cut
+
+sub remove_gaps {
+	my $self=shift @_;
+	my ($gapchar,$all_gaps_columns,$reference) = $self->_rearrange([qw(GAPCHAR ALLGAPCOL REFERENCE)], @_);
+	my $gap_line;
+   if($reference) {
+   	my $refseq=$self->get_seq_by_pos($reference);
+    	$gap_line=$refseq->seq();
+   }
+   else {
+		if ($all_gaps_columns) {
+		  $gap_line = $self->all_gap_line($gapchar);
+		} else {
+		  $gap_line = $self->gap_line($gapchar);
+		}
+	}
+    
+    my $aln = $self->new;
+
+    my $length = 0;
+    my $del_char = $gapchar || $self->gap_char;
+    # Do the matching to get the segments to remove
+    my $removed_cols;
+    while ($gap_line =~ m/[$del_char]/g) {
+        push @{$removed_cols}, pos($gap_line);
+    }
+    #remove the segments
+    $aln = $#$removed_cols >= 0 ? $self->remove_columns($removed_cols) : $self;
+    # fix for meta, sf, ann        
+    return $aln;
+}
+
+sub splice_by_seq_pos{
+    my $self = shift;
+    $self->deprecated("splice_by_seq_pos - deprecated method. Use remove_gaps() instead.");
+    $self->remove_gaps(-reference=>$_[0]);
+}
+
+
 
 sub _cont_coords {
 	#This function is used to merge the coordinates from select and remove functions in order to reduce the number of calculations in select and #remove. For exmaple, if the input of remove_columns is remove_columns([2,5,7..10]), this function will transform ([2,5,7..10]) to 
@@ -2507,6 +2544,84 @@ sub consensus_meta {
     return $self->{'_aln_meta'} 
 }
 
+
+=head2 bracket_string
+
+ Title     : bracket_string
+ Usage     : my @params = (-refseq     => 'testseq',
+                           -allele1    => 'allele1',
+                           -allele2    => 'allele2',
+                           -delimiters => '{}',
+                           -separator  => '/');
+             $str = $aln->bracket_string(@params)
+
+ Function :  When supplied with a list of parameters (see below), returns a
+             string in BIC format. This is used for allelic comparisons.
+             Briefly, if either allele contains a base change when compared to
+             the refseq, the base or gap for each allele is represented in
+             brackets in the order present in the 'alleles' parameter.
+
+             For the following data:
+
+             >testseq
+             GGATCCATTGCTACT
+             >allele1
+             GGATCCATTCCTACT
+             >allele2
+             GGAT--ATTCCTCCT
+
+             the returned string with parameters 'refseq => testseq' and
+             'alleles => [qw(allele1 allele2)]' would be:
+
+             GGAT[C/-][C/-]ATT[C/C]CT[A/C]CT
+ Returns   : BIC-formatted string
+ Argument  : Required args
+                refseq    : string (ID) of the reference sequence used
+                            as basis for comparison
+                allele1   : string (ID) of the first allele
+                allele2   : string (ID) of the second allele
+             Optional args
+                delimiters: two symbol string of left and right delimiters.
+                            Only the first two symbols are used
+                            default = '[]'
+                separator : string used as a separator.  Only the first
+                            symbol is used
+                            default = '/'
+ Throws    : On no refseq/alleles, or invalid refseq/alleles.
+
+=cut
+
+sub bracket_string {
+    my ($self, @args) = @_;
+    my ($ref, $a1, $a2, $delim, $sep) =
+        $self->_rearrange([qw(refseq allele1 allele2 delimiters separator)], @args);
+    $self->throw('Missing refseq/allele1/allele2') if (!$a1 || !$a2 || !$ref);
+    my ($ld, $rd);
+    ($ld, $rd) = split('', $delim, 2) if $delim;
+    $ld ||= '[';
+    $rd ||= ']';
+    $sep ||= '/';
+    my ($refseq, $allele1, $allele2) =
+        map {( $self->each_seq_with_id($_) )} ($ref, $a1, $a2);
+    if (!$refseq || !$allele1 || !$allele2) {
+        $self->throw("One of your refseq/allele IDs is invalid!");
+    }
+    my $len = $self->length-1;
+    my $bic = '';
+    # loop over the alignment columns
+    for my $column ( 0 .. $len ) {
+        my $string;
+        my ($compres, $res1, $res2) =
+            map{substr($_->seq, $column, 1)} ($refseq, $allele1, $allele2);
+        # are any of the allele symbols different from the refseq?
+        $string = ($compres eq $res1 && $compres eq $res2) ? $compres :
+                $ld.$res1.$sep.$res2.$rd;
+        $bic .= $string;
+    }
+    return $bic;
+}
+
+
 =head2 is_flush
 
  Title     : is_flush
@@ -3209,117 +3324,6 @@ sub source{
     return $self->{'_source'};
 }
 
-=head2 sort_by_start
-
- Title     : sort_by_start
- Usage     : $ali->sort_by_start
- Function  : Changes the order of the alignment to the start position of each
-             subalignment    
- Returns   : 1
- Argument  : None
-
-=cut
-
-sub sort_by_start {
-    my $self = shift;
-    my ($seq,$nse,@arr,%hash,$count);
-    foreach $seq ( $self->each_seq() ) {
-        $nse = $seq->get_nse;
-        $hash{$nse} = $seq;
-    }
-    $count = 0;
-    %{$self->{'_order'}} = (); # reset the hash;
-    foreach $nse ( sort _startend keys %hash) {
-        $self->{'_order'}->{$count} = $nse;
-        $count++;
-    }
-    1;
-}
-
-sub _startend
-{
-    my ($aname,$arange) = split (/[\/]/,$a);
-    my ($bname,$brange) = split (/[\/]/,$b);
-    my ($astart,$aend) = split(/\-/,$arange);
-    my ($bstart,$bend) = split(/\-/,$brange);
-    return $astart <=> $bstart;
-}
-
-=head2 bracket_string
-
- Title     : bracket_string
- Usage     : my @params = (-refseq     => 'testseq',
-                           -allele1    => 'allele1',
-                           -allele2    => 'allele2',
-                           -delimiters => '{}',
-                           -separator  => '/');
-             $str = $aln->bracket_string(@params)
-
- Function :  When supplied with a list of parameters (see below), returns a
-             string in BIC format. This is used for allelic comparisons.
-             Briefly, if either allele contains a base change when compared to
-             the refseq, the base or gap for each allele is represented in
-             brackets in the order present in the 'alleles' parameter.
-
-             For the following data:
-
-             >testseq
-             GGATCCATTGCTACT
-             >allele1
-             GGATCCATTCCTACT
-             >allele2
-             GGAT--ATTCCTCCT
-
-             the returned string with parameters 'refseq => testseq' and
-             'alleles => [qw(allele1 allele2)]' would be:
-
-             GGAT[C/-][C/-]ATT[C/C]CT[A/C]CT
- Returns   : BIC-formatted string
- Argument  : Required args
-                refseq    : string (ID) of the reference sequence used
-                            as basis for comparison
-                allele1   : string (ID) of the first allele
-                allele2   : string (ID) of the second allele
-             Optional args
-                delimiters: two symbol string of left and right delimiters.
-                            Only the first two symbols are used
-                            default = '[]'
-                separator : string used as a separator.  Only the first
-                            symbol is used
-                            default = '/'
- Throws    : On no refseq/alleles, or invalid refseq/alleles.
-
-=cut
-
-sub bracket_string {
-    my ($self, @args) = @_;
-    my ($ref, $a1, $a2, $delim, $sep) =
-        $self->_rearrange([qw(refseq allele1 allele2 delimiters separator)], @args);
-    $self->throw('Missing refseq/allele1/allele2') if (!$a1 || !$a2 || !$ref);
-    my ($ld, $rd);
-    ($ld, $rd) = split('', $delim, 2) if $delim;
-    $ld ||= '[';
-    $rd ||= ']';
-    $sep ||= '/';
-    my ($refseq, $allele1, $allele2) =
-        map {( $self->each_seq_with_id($_) )} ($ref, $a1, $a2);
-    if (!$refseq || !$allele1 || !$allele2) {
-        $self->throw("One of your refseq/allele IDs is invalid!");
-    }
-    my $len = $self->length-1;
-    my $bic = '';
-    # loop over the alignment columns
-    for my $column ( 0 .. $len ) {
-        my $string;
-        my ($compres, $res1, $res2) =
-            map{substr($_->seq, $column, 1)} ($refseq, $allele1, $allele2);
-        # are any of the allele symbols different from the refseq?
-        $string = ($compres eq $res1 && $compres eq $res2) ? $compres :
-                $ld.$res1.$sep.$res2.$rd;
-        $bic .= $string;
-    }
-    return $bic;
-}
 
 
 =head2 methods implementing Bio::FeatureHolderI
@@ -3465,20 +3469,6 @@ sub annotation {
     return $obj->{'_annotation'};
 }
 
-=head1 Deprecated methods
-
-=cut
-
-=head2 no_residues
-
- Title     : no_residues
- Usage     : $no = $ali->no_residues
- Function  : number of residues in total in the alignment
- Returns   : integer
- Argument  :
- Note      : deprecated in favor of num_residues() 
-
-=cut
 
 sub no_residues {
 	my $self = shift;
@@ -3487,17 +3477,6 @@ sub no_residues {
                       -message => 'Use of method no_residues() is deprecated, use num_residues() instead');
     $self->num_residues(@_);
 }
-
-=head2 no_sequences
-
- Title     : no_sequences
- Usage     : $depth = $ali->no_sequences
- Function  : number of sequence in the sequence alignment
- Returns   : integer
- Argument  :
- Note      : deprecated in favor of num_sequences()
-
-=cut
 
 sub no_sequences {
 	my $self = shift;
