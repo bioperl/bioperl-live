@@ -434,11 +434,12 @@ sub remove_LocatableSeq {
 
 =head2 remove_Seqs
 
- Title     : remove_seq
+ Title     : remove_Seqs
  Usage     : $aln->remove_Seqs([1,3,5..7]);
  Function  : Removes specified sequences from the alignment
- Returns   : Removed 
- Argument  : 
+ Returns   : 1 
+ Argument  : An reference list of positive integers for the selected sequences
+             An optional parameter can be defined to toggle the coordinate selection.
 
 =cut
 
@@ -465,7 +466,7 @@ sub remove_Seqs {
 		$self->remove_LocatableSeq($seq);
 	}
 
-	return $aln;		
+	return 1;
 }
 
 =head2 remove_redundant_Seqs
@@ -536,7 +537,7 @@ sub remove_redundant_Seqs {
 		}
 	}
 	foreach my $seq (@dups) {
-		$self->remove_seq($seq);
+		$self->remove_LocatableSeq($seq);
 	}
 	return @dups;
 }
@@ -1029,7 +1030,7 @@ sub get_seq_by_id {
                }
                                          );
  Function: produces a Bio::Seq object by first splicing gaps from -pos
-           (by means of a splice_by_seq_pos() call), then creating
+           (by means of a remove_gaps(-reference=>1) call), then creating
            features using non-? chars (by means of a consensus_string()
            call with stringency -consensus).
  Returns : a Bio::Seq object
@@ -1049,7 +1050,7 @@ sub seq_with_features{
 
    #first do the preparatory splice
    $self->throw("must provide a -pos argument") unless $arg{-pos};
-   $self->splice_by_seq_pos($arg{-pos});
+   $self->remove_gaps(-reference=>$arg{-pos});
 
    my $consensus_string = $self->consensus_string($arg{-consensus});
    $consensus_string = $arg{-mask}->($consensus_string)
@@ -1105,7 +1106,7 @@ current MSA.
              sequences.  Numbering starts from 1.  Sequence positions
              larger than num_sequences() will thow an error.
  Returns   : a Bio::SimpleAlign object
- Args      : An anonymous list of positive integers for the selected sequences
+ Args      : An reference list of positive integers for the selected sequences
              An optional parameter can be defined to toggle the coordinate selection.
              
 
@@ -1309,10 +1310,8 @@ sub remove_columns {
    @args || $self->throw("Must supply column ranges or column types");
    my ($aln,$cont_loc);
 	if(@args) {
-		if(ref($args[0])) {
-			if ($args[0][0] =~ /^[a-z_]+$/i) {
-				$aln = $self->_remove_columns_by_type($args[0]);
-			}
+		if(ref($args[0]) && $args[0][0] =~ /^[a-z_]+$/i) {
+			$aln = $self->_remove_columns_by_type($args[0]);
 		}
 		else {
 			my ($sel, $toggle) = $self->_rearrange([qw(SELECTION TOGGLE)], @args);
@@ -1336,51 +1335,54 @@ sub remove_columns {
 =head2 remove_gaps
 
  Title     : remove_gaps
- Usage     : $aln2 = $aln->remove_gaps
+ Usage     : $aln2 = $aln->remove_gaps(-reference=>5)
  Function  : Creates an aligment with gaps removed
  Returns   : a Bio::SimpleAlign object
- Args      : a gap character(optional) if none specified taken
+ Args      : -GAPCHAR a gap character(optional) if none specified taken
                 from $self->gap_char,
-             [optional] $all_gaps_columns flag (1 or 0, default is 0)
-                        indicates that only all-gaps columns should be deleted
-
-Used from method L<remove_columns> in most cases. Set gap character
-using L<gap_char()|gap_char>.
+             -ALLGAPCOL $all_gaps_columns flag (1 or 0, default is 0)
+                 indicates that only all-gaps columns should be deleted
+             -REFERENCE splices all aligned sequences where the specified 
+                 sequence has gaps.
 
 =cut
 
 sub remove_gaps {
-    my ($self,$gapchar,$all_gaps_columns) = @_;
-    my $gap_line;
-    if ($all_gaps_columns) {
-        $gap_line = $self->all_gap_line($gapchar);
-    } else {
-        $gap_line = $self->gap_line($gapchar);
-    }
+	my $self=shift @_;
+	my ($gapchar,$all_gaps_columns,$reference) = $self->_rearrange([qw(GAPCHAR ALLGAPCOL REFERENCE)], @_);
+	my $gap_line;
+   if($reference) {
+   	my $refseq=$self->get_seq_by_pos($reference);
+    	$gap_line=$refseq->seq();
+   }
+   else {
+		if ($all_gaps_columns) {
+		  $gap_line = $self->all_gap_line($gapchar);
+		} else {
+		  $gap_line = $self->gap_line($gapchar);
+		}
+	}
+    
     my $aln = $self->new;
 
-    my @remove;
     my $length = 0;
     my $del_char = $gapchar || $self->gap_char;
     # Do the matching to get the segments to remove
+    my $removed_cols;
     while ($gap_line =~ m/[$del_char]/g) {
-        my $start = pos($gap_line)-1;
-        $gap_line=~/\G[$del_char]+/gc;
-        my $end = pos($gap_line)-1;
-
-        #have to offset the start and end for subsequent removes
-        $start-=$length;
-        $end  -=$length;
-        $length += ($end-$start+1);
-        push @remove, [$start,$end];
+        push @{$removed_cols}, pos($gap_line);
     }
-
     #remove the segments
-    $aln = $#remove >= 0 ? $self->_remove_col($aln,\@remove) : $self;
+    $aln = $#$removed_cols >= 0 ? $self->remove_columns($removed_cols) : $self;
     # fix for meta, sf, ann        
     return $aln;
 }
 
+sub splice_by_seq_pos{
+    my $self = shift;
+    $self->deprecated("splice_by_seq_pos - deprecated method. Use remove_gaps() instead.");
+    $self->remove_gaps(-reference=>$_[0]);
+}
 
 sub _remove_col {
     my ($self,$aln,$remove) = @_;
@@ -1629,43 +1631,8 @@ sub mask_columns {
 These methods affect characters in all sequences without changing the
 alignment.
 
-=head2 splice_by_seq_pos
-
- Title   : splice_by_seq_pos
- Usage   : $status = $aln->splice_by_seq_pos(1);
- Function: splices all aligned sequences where the specified sequence
-           has gaps.
- Example :
- Returns : 1 on success
- Args    : position of sequence to splice by
 
 
-=cut
-
-sub splice_by_seq_pos{
-  my ($self,$pos) = @_;
-
-  my $guide = $self->get_seq_by_pos($pos);
-  my $guide_seq = $guide->seq;
-
-  $guide_seq =~ s/\./\-/g;
-
-  my @gaps = ();
-  $pos = -1;
-  while(($pos = index($guide_seq, '-', $pos)) > -1 ){
-    unshift @gaps, $pos;
-    $pos++;
-  }
-
-  foreach my $seq ($self->each_seq){
-    my @bases = split '', $seq->seq;
-
-    splice(@bases, $_, 1) foreach @gaps;
-    $seq->seq(join('', @bases));
-  }
-
-  1;
-}
 
 =head2 map_chars
 
