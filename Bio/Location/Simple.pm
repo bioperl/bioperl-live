@@ -135,9 +135,9 @@ sub start {
   Args    : optionaly allows the end to be set
           : using $loc->end($start)
   Note    : If start is set but end is undefined, this now assumes that start
-		    is the same as end but throws a warning (i.e. it assumes this is
-			a possible error). If start is undefined, this now throws an
-			exception.
+	    is the same as end but throws a warning (i.e. it assumes this is
+	    a possible error). If start is undefined, this now throws an
+	    exception.
 
 =cut
 
@@ -149,10 +149,10 @@ sub end {
 	#assume end is the same as start if not defined
 	if (!defined $self->{'_end'}) {
 		if (!defined $self->{'_start'}) {
-			$self->warn('Calling end without a defined start position');
+			$self->warn('Can not set Bio::Location::Simple::end() equal to start; start not set');
 			return;
 		}
-		$self->warn('Setting start equal to end');
+		$self->warn('Setting end to equal start['. $self->{'_start'}. ']');
 		$self->{'_end'} = $self->{'_start'};
 	}
 	$self->throw("Only adjacent residues when location type ".

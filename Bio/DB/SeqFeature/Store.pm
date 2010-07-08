@@ -2610,10 +2610,14 @@ Arguments:
   -end           End of region
   -type/-types   Feature type of interest or array ref of types
   -bins          Number of bins across region. Defaults to 1000.
+  -iterator      Return an iterator across the region
 
 Note that this method uses an approximate algorithm that is only
 accurate to 500 bp, so when dealing with bins that are smaller than
 1000 bp, you may see some shifting of counts between adjacent bins.
+
+Although an -iterator option is provided, the method only ever returns
+a single feature, so this is fairly useless.
 
 =cut
 
@@ -2645,6 +2649,42 @@ sub feature_summary {
     return $iterator 
 	   ? Bio::DB::SeqFeature::Store::FeatureIterator->new($feature) 
 	   : $feature;
+}
+
+=head2 coverage_array
+
+ Title   : coverage_array
+ Usage   : $arrayref = $db->coverage_array(@args)
+ Function: returns a coverage summary across indicated region/type
+ Returns : an array reference
+ Args    : see below
+ Status  : public
+
+This method is used to get coverage density information across a
+region of interest. The arguments are identical to feature_summary,
+except that instead of returning a Bio::SeqFeatureI object, it returns
+an array reference of the desired number of bins. The value of each
+element corresponds to the number of features in the bin.
+
+Arguments:
+
+  Argument       Description
+  --------       -----------
+
+  -seq_id        Sequence ID for the region
+  -start         Start of region
+  -end           End of region
+  -type/-types   Feature type of interest or array ref of types
+  -bins          Number of bins across region. Defaults to 1000.
+
+Note that this method uses an approximate algorithm that is only
+accurate to 500 bp, so when dealing with bins that are smaller than
+1000 bp, you may see some shifting of counts between adjacent bins.
+
+=cut
+
+sub coverage_array {
+    shift->throw_not_implemented;
 }
 
 
