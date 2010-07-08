@@ -357,10 +357,10 @@ sub add_seq {
 }
 
 
-=head2 remove_seq
+=head2 remove_LocatableSeq
 
- Title     : remove_seq
- Usage     : $aln->remove_seq($seq);
+ Title     : remove_LocatableSeq
+ Usage     : $aln->remove_LocatableSeq($seq);
  Function  : Removes a single sequence from an alignment
  Returns   : 1
  Argument  : a Bio::LocatableSeq object
@@ -374,6 +374,13 @@ sub removeSeq {
 }
 
 sub remove_seq {
+    my $self = shift;
+    $self->deprecated("remove_seq - deprecated method. Use remove_LocatableSeq() instead.");
+    $self->remove_seq(@_);	
+}
+
+
+sub remove_LocatableSeq {
     my $self = shift;
     my $seq = shift;
     my ($name,$id,$start,$end);
@@ -430,25 +437,41 @@ sub remove_seq {
  Title     : remove_seq
  Usage     : $aln->remove_Seqs([1,3,5..7]);
  Function  : Removes specified sequences from the alignment
- Returns   : 1
- Argument  : a Bio::LocatableSeq object
+ Returns   : Removed 
+ Argument  : 
 
 =cut
 
 sub remove_Seqs {
+	my $self=shift;
+	my ($sel, $toggle) = $self->_rearrange([qw(SELECTION TOGGLE)], @_);
+	@{$sel}=sort {$a<=>$b} @{$sel};
+
+   $self->throw("Select start has to be a positive integer, not [".$sel->[0]."]")
+	unless $sel->[0] =~ /^\d+$/ and $sel->[0] > 0;
+    $self->throw("Select end has to be a positive integer, not [".$sel->[$#$sel]."]")
+	unless $sel->[$#$sel] =~ /^\d+$/ and $sel->[$#$sel] > 0;
 	
+	#use select_Seqs to select removed Seq objects, then use remove_LocatableSeq to remove the selected Seqs
+	my $removed_aln;
+	if($toggle) {
+		$removed_aln=select_Seqs(_toggle_selection($sel));
+	}
+	else {
+		$removed_aln=select_Seqs($sel);
+	}
 	
-	
-	
-	
+	foreach my $seq ($removed_aln->each_seq) {
+		$self->remove_LocatableSeq($seq);
+	}
+
+	return $aln;		
 }
 
+=head2 remove_redundant_Seqs
 
-
-=head2 remove_redundant_Seq
-
- Title   : remove_redundant_Seq
- Usage   : $aln->remove_redundant_Seq(0.7);
+ Title   : remove_redundant_Seqs
+ Usage   : $aln->remove_redundant_Seqs(0.7);
  Function: Removes sequences above given sequence similarity
            This function will grind on large alignments. Beware!
  Example :
@@ -459,13 +482,11 @@ sub remove_Seqs {
 
 sub purge {
     my ($self,@args) = @_;
-    $self->deprecated("purge - deprecated method. Use remove_redundant_Seq() instead.");
+    $self->deprecated("purge - deprecated method. Use remove_redundant_Seqs() instead.");
     $self->remove_redundant_Seq(@args);
 }
 
-
-
-sub remove_redundant_Seq {
+sub remove_redundant_Seqs {
 	my ($self,$perc) = @_;
 	my (%duplicate, @dups);
 
@@ -1117,107 +1138,39 @@ sub select_Seqs {
 	return $aln;	
 }
 
-=head2 select
-
- Title     : select
- Usage     : $aln2 = $aln->select(1, 3) # three first sequences
- Function  : Creates a new alignment from a continuous subset of
-             sequences.  Numbering starts from 1.  Sequence positions
-             larger than num_sequences() will thow an error.
- Returns   : a Bio::SimpleAlign object
- Args      : positive integer for the first sequence
-             positive integer for the last sequence to include (optional)
-
-=cut
 
 sub select {
     my $self = shift;
-    my ($start, $end) = @_;
-
-    $self->throw("Select start has to be a positive integer, not [$start]")
-	unless $start =~ /^\d+$/ and $start > 0;
-    $self->throw("Select end has to be a positive integer, not [$end]")
-	unless $end  =~ /^\d+$/ and $end > 0;
-    $self->throw("Select $start [$start] has to be smaller than or equal to end [$end]")
-	unless $start <= $end;
-
-    my $aln = $self->new;
-    foreach my $pos ($start .. $end) {
-	$aln->add_seq($self->get_seq_by_pos($pos));
-    }
-    $aln->id($self->id);
-    # fix for meta, sf, ann    
-    return $aln;
+    $self->deprecated("select - deprecated method. Use select_Seqs() instead.");
+    $self->select_Seqs([$_[0]..$_[1]]);
 }
-
-=head2 select_noncont
-
- Title     : select_noncont
- Usage     : # 1st and 3rd sequences, sorted
-             $aln2 = $aln->select_noncont(1, 3)
-
-             # 1st and 3rd sequences, sorted (same as first)
-             $aln2 = $aln->select_noncont(3, 1)
-
-             # 1st and 3rd sequences, unsorted
-             $aln2 = $aln->select_noncont('nosort',3, 1)
-
- Function  : Creates a new alignment from a subset of sequences.  Numbering
-             starts from 1.  Sequence positions larger than num_sequences() will
-             throw an error.  Sorts the order added to new alignment by default,
-             to prevent sorting pass 'nosort' as the first argument in the list.
- Returns   : a Bio::SimpleAlign object
- Args      : array of integers for the sequences.  If the string 'nosort' is
-             passed as the first argument, the sequences will not be sorted
-             in the new alignment but will appear in the order listed.
-
-=cut
 
 sub select_noncont {
 	my $self = shift;
-    my $nosort = 0;
-	my (@pos) = @_;
-    if ($pos[0] !~ m{^\d+$}) {
-        my $sortcmd = shift @pos;
-        if ($sortcmd eq 'nosort') {
-            $nosort = 1;
-        } else {
-            $self->throw("Command not recognized: $sortcmd.  Only 'nosort' implemented at this time.");
-        }
-    }
-	
-    my $end = $self->num_sequences;
-    foreach ( @pos ) {
-		$self->throw("position must be a positive integer, > 0 and <= $end not [$_]")
-		  unless( /^\d+$/ && $_ > 0 && $_ <= $end );
-	}
-    
-	@pos = sort {$a <=> $b} @pos unless $nosort;
-	
-	my $aln = $self->new;
-	foreach my $p (@pos) {
-		$aln->add_seq($self->get_seq_by_pos($p));
-	}
-	$aln->id($self->id);
-    # fix for meta, sf, ann    
-	return $aln;
+	$self->deprecated("select_noncont - deprecated method. Use select_Seqs() instead.");
+	if($_[0] eq 'nosort') {
+    	shift;
+   }
+   $self->select_Seqs([@_]);
 }
 
-=head2 slice
+=head2 select_columns
 
- Title     : slice
- Usage     : $newaln = $aln->slice([20,30],0,1)
- Function  : Creates a slice from the alignment inclusive of start and
-             end columns, and the first column in the alignment is denoted 1.
+ Title     : select_columns
+ Usage     : $newaln = $aln->select_columns([20..30,45..48])
+ Function  : Creates a slice from the alignment from the selected columns. 
+             The first column in the alignment is denoted 1.
              Sequences with no residues in the slice are excluded from the
              new alignment and a warning is printed. Slice beyond the length of
              the sequence does not do padding.
  Returns   : A Bio::SimpleAlign object
- Args      : Positive integer for start column, positive integer for end column,
-             optional boolean which if true will keep gap-only columns in the newly
+ Args      : Positive integers for the selected colums
+             First optional boolean can be defined to toggle the coordinate selection.
+             Second optional boolean which if true will keep gap-only columns in the newly
              created slice. Example:
 
-             $aln2 = $aln->slice(20,30,1)
+             $aln2 = $aln->select_columns([20,30],0,1)
+             or $aln2 = $aln->select_columns(-selection=>[20,30],-toggle=>0,-keepgaponly=>1)
 
 =cut
 
@@ -1562,6 +1515,114 @@ sub _remove_columns_by_num {
 	$aln;
 }
 
+sub _cont_coords {
+	#This function is used to merge the coordinates from select and remove functions in order to reduce the number of calculations in select and #remove. For exmaple, if the input of remove_columns is remove_columns([2,5,7..10]), this function will transform ([2,5,7..10]) to 
+ 	# ([2,2,5,5,7,10]).
+	
+	my ($old_coords)=@_;
+	@{$old_coords}=sort {$a<=>$b} @{$old_coords};
+	
+	my $cont_coords;
+	
+	push @{$cont_coords},$old_coords->[0];
+	for(my $num=0;$num<@{$old_coords};) {
+		if($old_coords->[$num+1]-$old_coords->[$num]>1) {
+			if($num+2==@{$old_coords}) {
+				push @{$cont_coords},$old_coords->[$num],$old_coords->[$num+1],$old_coords->[$num+1];
+				last;
+			}
+			else {
+				push @{$cont_coords},$old_coords->[$num],$old_coords->[$num+1];
+			}
+		}
+		else {
+			if ($num+2==@{$old_coords}) {
+				push @{$cont_coords},$old_coords->[$num+1];
+				last;
+			}
+		}
+		$num++;
+	}
+	return $cont_coords;
+}
+
+
+sub _toggle_selection {
+	#This function is used to toggle the selection of sequences or columns
+	my ($old_coords,$length)=@_;
+	my %hash=map {$_=>1} @{$old_coords};
+	my $new_coords;
+	for(my $num=1;$num<=$length;$num++) {
+		unless(defined($hash{$num})) {
+			push @{$new_coords},$num;
+		}
+	}
+	return $new_coords;
+}
+
+=head2 mask_columns
+
+ Title     : mask_columns
+ Usage     : $aln2 = $aln->mask_columns([2,5,7..10],1)
+ Function  : Masks slices of the alignment inclusive of the defined
+             columns, and the first column in the alignment is denoted 1.
+             Mask beyond the length of the sequence does not do padding.
+ Returns   : A Bio::SimpleAlign object
+ Args      : Positive integers should be used to defined the column numbers
+             The mask character should be defined by $aln->mask_char() or "?" as default
+             An optional parameter can be defined to toggle the coordinate selection.
+ Note      : 
+
+=cut
+
+sub mask_columns {
+    #based on slice(), but did not include the Bio::Seq::Meta sections as I was not sure what it is doing
+	my $self=shift;
+	my ($sel, $toggle) = $self->_rearrange([qw(SELECTION TOGGLE)], @_);
+	@{$sel}=sort {$a<=>$b} @{$sel};
+	
+	my $nonres = join("",$self->gap_char, $self->match_char,$self->missing_char);
+	my $mask_char=$self->mask_char;
+   
+	#Exceptions
+	$self->throw("Mask start has to be a positive integer and less than ".
+                 "alignment length, not [".$sel->[0]."]")
+	unless $sel->[0] =~ /^\d+$/ && $sel->[0] > 0 && $sel->[0] <= $self->length;	
+
+   $self->throw("Mask end has to be a positive integer and less than ".
+                 "alignment length, not [".$sel->[$#$sel]."]")
+	unless $sel->[$#$sel] =~ /^\d+$/ && $sel->[$#$sel] > 0 && $sel->[$#$sel] <= $self->length;                 
+	
+	#calculate the coords, and make it in a continous way
+	my @newcoords;
+	if($toggle) {
+		@newcoords=@{_cont_coords(_toggle_selection($sel,$self->length))};
+	}
+	else {
+		@newcoords=@{_cont_coords($sel)};
+	}
+	
+	my $aln = $self->new;
+	$aln->id($self->id);
+	
+
+	foreach my $seq ( $self->each_seq() ) {
+		my $new_seq = Bio::LocatableSeq->new(-id => $seq->id,
+				-alphabet => $seq->alphabet,
+				-strand  => $seq->strand,
+				-verbose => $self->verbose);
+		my $dna_string=$seq->seq();
+		for(my $num=0;$num<@newcoords;) {
+			my ($start,$end)=@newcoords[$num,$num+1];    
+			# convert from 1-based alignment coords!
+			substr($dna_string,$start - 1, $end - $start + 1)=$mask_char x ($end - $start + 1);
+			$num+=2;
+		}
+		$new_seq->seq($dna_string);
+		$aln->add_seq($new_seq);
+	}
+	return $aln;
+}
 
 =head1 Change sequences within the MSA
 
@@ -3479,114 +3540,6 @@ sub no_sequences {
     $self->num_sequences(@_);
 }
 
-=head2 mask_columns
-
- Title     : mask_columns
- Usage     : $aln2 = $aln->mask_columns([2,5,7..10],1)
- Function  : Masks slices of the alignment inclusive of the defined
-             columns, and the first column in the alignment is denoted 1.
-             Mask beyond the length of the sequence does not do padding.
- Returns   : A Bio::SimpleAlign object
- Args      : Positive integers should be used to defined the column numbers
-             The mask character should be defined by $aln->mask_char() or "?" as default
-             An optional parameter can be defined to toggle the coordinate selection.
- Note      : 
-
-=cut
-
-sub mask_columns {
-    #based on slice(), but did not include the Bio::Seq::Meta sections as I was not sure what it is doing
-	my $self=shift;
-	my ($sel, $toggle) = $self->_rearrange([qw(SELECTION TOGGLE)], @_);
-	@{$sel}=sort {$a<=>$b} @{$sel};
-	
-	my $nonres = join("",$self->gap_char, $self->match_char,$self->missing_char);
-	my $mask_char=$self->mask_char;
-   
-	#Exceptions
-	$self->throw("Mask start has to be a positive integer and less than ".
-                 "alignment length, not [".$sel->[0]."]")
-	unless $sel->[0] =~ /^\d+$/ && $sel->[0] > 0 && $sel->[0] <= $self->length;	
-
-   $self->throw("Mask end has to be a positive integer and less than ".
-                 "alignment length, not [".$sel->[$#$sel]."]")
-	unless $sel->[$#$sel] =~ /^\d+$/ && $sel->[$#$sel] > 0 && $sel->[$#$sel] <= $self->length;                 
-	
-	#calculate the coords, and make it in a continous way
-	my @newcoords;
-	if($toggle) {
-		@newcoords=@{_cont_coords(_toggle_selection($sel,$self->length))};
-	}
-	else {
-		@newcoords=@{_cont_coords($sel)};
-	}
-	
-	my $aln = $self->new;
-	$aln->id($self->id);
-	
-
-	foreach my $seq ( $self->each_seq() ) {
-		my $new_seq = Bio::LocatableSeq->new(-id => $seq->id,
-				-alphabet => $seq->alphabet,
-				-strand  => $seq->strand,
-				-verbose => $self->verbose);
-		my $dna_string=$seq->seq();
-		for(my $num=0;$num<@newcoords;) {
-			my ($start,$end)=@newcoords[$num,$num+1];    
-			# convert from 1-based alignment coords!
-			substr($dna_string,$start - 1, $end - $start + 1)=$mask_char x ($end - $start + 1);
-			$num+=2;
-		}
-		$new_seq->seq($dna_string);
-		$aln->add_seq($new_seq);
-	}
-	return $aln;
-}
-
-sub _cont_coords {
-	#This function is used to merge the coordinates from select and remove functions in order to reduce the number of calculations in select and #remove. For exmaple, if the input of remove_columns is remove_columns([2,5,7..10]), this function will transform ([2,5,7..10]) to 
- 	# ([2,2,5,5,7,10]).
-	
-	my ($old_coords)=@_;
-	@{$old_coords}=sort {$a<=>$b} @{$old_coords};
-	
-	my $cont_coords;
-	
-	push @{$cont_coords},$old_coords->[0];
-	for(my $num=0;$num<@{$old_coords};) {
-		if($old_coords->[$num+1]-$old_coords->[$num]>1) {
-			if($num+2==@{$old_coords}) {
-				push @{$cont_coords},$old_coords->[$num],$old_coords->[$num+1],$old_coords->[$num+1];
-				last;
-			}
-			else {
-				push @{$cont_coords},$old_coords->[$num],$old_coords->[$num+1];
-			}
-		}
-		else {
-			if ($num+2==@{$old_coords}) {
-				push @{$cont_coords},$old_coords->[$num+1];
-				last;
-			}
-		}
-		$num++;
-	}
-	return $cont_coords;
-}
-
-
-sub _toggle_selection {
-	#This function is used to toggle the selection of sequences or columns
-	my ($old_coords,$length)=@_;
-	my %hash=map {$_=>1} @{$old_coords};
-	my $new_coords;
-	for(my $num=1;$num<=$length;$num++) {
-		unless(defined($hash{$num})) {
-			push @{$new_coords},$num;
-		}
-	}
-	return $new_coords;
-}
 
 
 1;
