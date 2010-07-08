@@ -257,6 +257,11 @@ BEGIN {
         'Statistics_hit_to_db' => { 'RESULT-statistics' => 'Hits_to_DB' },
         'Statistics_num_suc_extensions' =>
           { 'RESULT-statistics' => 'num_successful_extensions' },
+        'Statistics_length_adjustment' => { 'RESULT-statistics' => 'length_adjustment' },
+        'Statistics_number_of_hsps_better_than_expect_value_cutoff_without_gapping' =>
+		  { 'RESULT-statistics' => 'number_of_hsps_better_than_expect_value_cutoff_without_gapping' },
+        'Statistics_number_of_hsps_gapped' => { 'RESULT-statistics' => 'number_of_hsps_gapped' },
+        'Statistics_number_of_hsps_successfully_gapped' => { 'RESULT-statistics' => 'number_of_hsps_successfully_gapped' },
 
         # WU-BLAST stats
         'Statistics_DFA_states' => { 'RESULT-statistics' => 'num_dfa_states' },
@@ -801,21 +806,6 @@ sub next_result {
                 }
             );
         }
-        # bypasses this NCBI blast 2.2.13 extra output for now...
-		# Features in/flanking this part of subject sequence:
-        elsif (/^\sFeatures\s\w+\sthis\spart/xmso) {
-            my $featline;
-            $_ = $self->_readline;
-			while($_ !~ /^\s*$/) {
-                chomp;
-                $featline .= $_;
-        		$_ = $self->_readline;
-        	}
-			$self->_pushback($_);
-            $featline =~ s{(?:^\s+|\s+^)}{}g;
-            $featline =~ s{\n}{;}g;
-            $self->{'_last_hspdata'}->{'Hsp_features'} = $featline;
-        }
         
         # move inside of a hit
         elsif (/^>\s*(\S+)\s*(.*)?/) {
@@ -1036,19 +1026,49 @@ sub next_result {
         elsif (
             ( $self->in_element('hit') || $self->in_element('hsp') )
             &&    # ncbi blast, works with 2.2.17
+            m/^\sFeatures\s\w+\sthis\spart/xmso
+            # If the line begins with "Features in/flanking this part of subject sequence:"
+            )
+        {
+            $self->in_element('hsp')
+              && $self->end_element( { 'Name' => 'Hsp' } );
+            my $featline;
+            $_ = $self->_readline;
+            while($_ !~ /^\s*$/) {
+                chomp;
+                $featline .= $_;
+                $_ = $self->_readline;
+            }
+            $self->_pushback($_);
+            $featline =~ s{(?:^\s+|\s+^)}{}g;
+            $featline =~ s{\n}{;}g;
+            $self->start_element( { 'Name' => 'Hsp' } );
+            $self->element(
+                {
+                    'Name' => 'Hsp_features',
+                    'Data' => $featline
+                }
+            );
+            $self->{'_seen_hsp_features'} = 1;
+        }
+        elsif (
+            ( $self->in_element('hit') || $self->in_element('hsp') )
+            &&    # ncbi blast, works with 2.2.17
             m/Score\s*=\s*(\S+)\s*bits\s* # Bit score
-                (?:\((\d+)\))?,            # Missing for BLAT pseudo-BLAST fmt 
+                (?:\((\d+)\))?,            # Missing for BLAT pseudo-BLAST fmt
                 \s*Expect(?:\((\d+\+?)\))?\s*=\s*([^,\s]+) # E-value
                 /ox
           )
         {         # parse NCBI blast HSP
-            $self->in_element('hsp')
-              && $self->end_element( { 'Name' => 'Hsp' } );
+            if( !$self->{'_seen_hsp_features'} ) {
+                $self->in_element('hsp')
+                  && $self->end_element( { 'Name' => 'Hsp' } );
+                $self->start_element( { 'Name' => 'Hsp' } );
+            }
 
             # Some data clean-up so e-value will appear numeric to perl
             my ( $bits, $score, $n, $evalue ) = ( $1, $2, $3, $4 );
             $evalue =~ s/^e/1e/i;
-            $self->start_element( { 'Name' => 'Hsp' } );
             $self->element(
                 {
                     'Name' => 'Hsp_score',
@@ -1636,7 +1656,7 @@ sub next_result {
                             );
                         }
                     }
-                    elsif (m/effective\s+search\s+space\s+used:\s+(\d+)/ox) {
+                    elsif (m/effective\s+search\s+space\s+used:\s+(\d+)/oxi) {
                         $self->element(
                             {
                                 'Name' => 'Statistics_eff-spaceused',
@@ -1644,7 +1664,7 @@ sub next_result {
                             }
                         );
                     }
-                    elsif (m/effective\s+search\s+space:\s+(\d+)/ox) {
+                    elsif (m/effective\s+search\s+space:\s+(\d+)/oxi) {
                         $self->element(
                             {
                                 'Name' => 'Statistics_eff-space',
@@ -1678,7 +1698,39 @@ sub next_result {
                             }
                         );
                     }
-                    elsif (/effective\s+length\s+of\s+query:\s+([\d\,]+)/) {
+                    elsif (/Number\s+of\s+HSP's\s+better\s+than\s+(\S+)\s+without\s+gapping:\s+(\d+)/) {
+                        $self->element(
+                            {
+                                'Name' => 'Statistics_number_of_hsps_better_than_expect_value_cutoff_without_gapping',
+                                'Data' => $2
+                            }
+                        );
+                    }
+                    elsif (/Number\s+of\s+HSP's\s+gapped:\s+(\d+)/) {
+                        $self->element(
+                            {
+                                'Name' => 'Statistics_number_of_hsps_gapped',
+                                'Data' => $1
+                            }
+                        );
+                    }
+                    elsif (/Number\s+of\s+HSP's\s+successfully\s+gapped:\s+(\d+)/) {
+                        $self->element(
+                            {
+                                'Name' => 'Statistics_number_of_hsps_successfully_gapped',
+                                'Data' => $1
+                            }
+                        );
+                    }
+                    elsif (/Length\s+adjustment:\s+(\d+)/) {
+                        $self->element(
+                            {
+                                'Name' => 'Statistics_length_adjustment',
+                                'Data' => $1
+                            }
+                        );
+                    }
+                    elsif (/effective\s+length\s+of\s+query:\s+([\d\,]+)/i) {
                         my $c = $1;
                         $c =~ s/\,//g;
                         $self->element(
@@ -1688,7 +1740,7 @@ sub next_result {
                             }
                         );
                     }
-                    elsif (/effective\s+length\s+of\s+database:\s+([\d\,]+)/) {
+                    elsif (/effective\s+length\s+of\s+database:\s+([\d\,]+)/i) {
                         my $c = $1;
                         $c =~ s/\,//g;
                         $self->element(
@@ -2091,6 +2143,7 @@ sub end_element {
     $self->{'_last_data'} = '';    # remove read data if we are at
                                    # end of an element
     $self->{'_result'} = $rc if ( defined $type && $type eq 'result' );
+	$self->{'_seen_hsp_features'} = 0;
     return $rc;
 }
 

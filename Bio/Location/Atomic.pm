@@ -376,11 +376,25 @@ sub location_type {
 =head2 is_remote
 
  Title   : is_remote
- Usage   : $self->is_remote($newval)
- Function: Getset for is_remote value
- Returns : value of is_remote
- Args    : newvalue (optional)
+ Usage   : $is_remote_loc = $loc->is_remote()
+ Function: Whether or not a location is a remote location.
 
+           A location is said to be remote if it is on a different
+           'object' than the object which 'has' this
+           location. Typically, features on a sequence will sometimes
+           have a remote location, which means that the location of
+           the feature is on a different sequence than the one that is
+           attached to the feature. In such a case, $loc->seq_id will
+           be different from $feat->seq_id (usually they will be the
+           same).
+
+           While this may sound weird, it reflects the location of the
+           kind of AL445212.9:83662..166657 which can be found in GenBank/EMBL
+           feature tables.
+
+ Example : 
+ Returns : TRUE if the location is a remote location, and FALSE otherwise
+ Args    : Value to set to
 
 =cut
 
@@ -391,7 +405,6 @@ sub is_remote {
        $self->{'is_remote'} = $value;
    }
    return $self->{'is_remote'};
-
 }
 
 =head2 each_Location

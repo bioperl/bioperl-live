@@ -723,7 +723,7 @@ sub change_coord {
  Function  : Get "gapped consensus" location for aligned sequence
  Returns   : Bio::SeqFeature::Generic for coordinates or undef.
              A warning is printed if sequence coordinates were not set.
- Argument  : Bio::LocatabaleSeq object
+ Argument  : Bio::LocatableSeq object
 
 =cut
 
@@ -769,7 +769,7 @@ sub get_seq_coord {
              Note: the original feature primary tag will
                    be lost.
 
-             $seq   : a Bio::LocatabaleSeq object
+             $seq   : a Bio::LocatableSeq object
 
 =cut
 
@@ -950,9 +950,9 @@ sub set_seq_qual {
     my $previous = 0;
     my $next     = 0;
     my $i = 0; my $j = 0;
-    while ($i<=$#{$tmp}) {
+    while ($i <= $#{$tmp}) {
         # IF base is a gap, quality is the average for neighbouring sites
-        if (substr($sequence,$j,1) eq '-') {
+        if ($j > $i && substr($sequence,$j,1) eq '-') {
             $previous = $tmp->[$i-1] unless ($i == 0);
             if ($i < $#{$tmp}) {
                 $next = $tmp->[$i+1];

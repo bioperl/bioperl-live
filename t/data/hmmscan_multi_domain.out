@@ -1,0 +1,116 @@
+# hmmscan :: search sequence(s) against a profile database
+# HMMER 3.0 (March 2010); http://hmmer.org/
+# Copyright (C) 2010 Howard Hughes Medical Institute.
+# Freely distributed under the GNU General Public License (GPLv3).
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query sequence file:             BA000019.orf37.fasta
+# target HMM database:             /data/biodata/HMMerDB/Pfam-A.hmm
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       BA000019.orf37  [L=1418]
+Scores for complete sequence (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Model           Description
+    ------- ------ -----    ------- ------ -----   ---- --  --------        -----------
+    3.1e-32  111.0  11.8    7.6e-20   71.3   2.3    6.4  6  PPC             Bacterial pre-peptidase C-terminal domain
+    4.7e-13   47.9  92.9     0.0022   17.8   3.3   10.0  3  HemolysinCabind Hemolysin-type calcium-binding repeat (2 cop
+
+
+Domain annotation for each model (and alignments):
+>> PPC  Bacterial pre-peptidase C-terminal domain
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 ?    0.5   0.2      0.16   9.3e+02       4      59 ..     117     183 ..      84     192 .. 0.58
+   2 ?   -0.6   0.0      0.36   2.1e+03      12      58 ..     347     388 ..     311     397 .. 0.46
+   3 !   71.3   2.3   1.3e-23   7.6e-20       1      69 [.     470     549 ..     470     550 .. 0.95
+   4 ?   -3.2   0.1         2   1.2e+04      15      25 ..     582     603 ..     567     626 .. 0.51
+   5 ?   -1.1   0.6       0.5     3e+03      13      36 ..     987    1019 ..     974    1072 .. 0.49
+   6 !   54.4   1.0   2.4e-18   1.4e-14       1      69 [.    1087    1168 ..    1087    1169 .. 0.85
+
+  Alignments for each domain:
+  == domain 1    score: 0.5 bits;  conditional E-value: 0.16
+                     EEEE--S----EEEEEECTSS...EEEEE.EEEES.E.SSSSTTC--...-B--SEEEEEESS..... CS
+             PPC   4 vykfevpaggsltididggsg...dldLy.lldgngp.slaaydans...apsgndeyiefta....p 59 
+                     + +f+++ag+ ++i  d++s     ++L  +++++ +  ++ +  n+   +  gn+++++ft     p
+  BA000019.orf37 117 TATFTLEAGDDYSIG-DSSSEvtfYASLEeVPTPSVTpEISLSVENAtisEAEGNTTTLRFTLseppP 183
+                     446667777766665.4444222222244455555322222222222233455566777777755544 PP
+
+  == domain 2    score: -0.6 bits;  conditional E-value: 0.36
+                     ---EEEEEECTSSEEEEEEEEES.ESSSSTTC---B--SEEEEEESS CS
+             PPC  12 ggsltididggsgdldLylldgngpslaaydansapsgndeyiefta 58 
+                     g  +++  + g+ dl+++   +  +   ++d  +    +de++ f+ 
+  BA000019.orf37 347 GEIVAVR-SDGF-DLKITAKSATIQLPIQADGVA---ESDEQVVFSL 388
+                     1112222.2233.444444444444444433333...2556666665 PP
+
+  == domain 3    score: 71.3 bits;  conditional E-value: 1.3e-23
+                     -EEEEEE--S----EEEEEECTSS......EEEEEEEEES.ESSSSTTC--.....-B--SEEEEEESS.----EEEEEE CS
+             PPC   1 dvDvykfevpaggsltididggsg......dldLylldgngpslaaydans.....apsgndeyieftapqaGtYyvaVs 69 
+                     dvD+yk+e++ag++++id+d++++      d++L+l+d +g+ la++d+ +     + sg ++yieftap++G+Yyv+V+
+  BA000019.orf37 470 DVDFYKVELKAGDTIKIDTDSNQFadgrkvDTWLRLFDVSGTELASNDDGAapnevFDSGFQSYIEFTAPSDGVYYVGVT 549
+                     8******************999999***99999******************8888877789*****************96 PP
+
+  == domain 4    score: -3.2 bits;  conditional E-value: 2
+                     EEEEEECTSS...........E CS
+             PPC  15 ltididggsg...........d 25 
+                     l+i++++ +g           +
+  BA000019.orf37 582 LNISLNNPTGfvagateippgN 603
+                     5555555544333333333331 PP
+
+  == domain 5    score: -1.1 bits;  conditional E-value: 0.5
+                      --.EEEEEECTSS.....EEEEEEEEES....E CS
+             PPC   13 gs.ltididggsg.....dldLylldgng...p 36  
+                      +  l+++i + ++      ++ +ll g+g   +
+  BA000019.orf37  987 TAsLSVAIANDNIaegveTATVTLLAGDGyqiN 1019
+                      444777775555555665444555555542221 PP
+
+  == domain 6    score: 54.4 bits;  conditional E-value: 2.4e-18
+                      -EEEEEE--S----EEEEEECTSSEEE.....EEEEEES.E.....SSSSTTC--...-B--SEEEEEESS.----EEEEEE CS
+             PPC    1 dvDvykfevpaggsltididggsgdld.....Lylldgngp.....slaaydans...apsgndeyieftapqaGtYyvaVs 69  
+                      dvD+yk+++++g +l+i++d   +d++     L+++d++g+     + ++++a++   ++  nd+y+efta ++GtYyv++s
+  BA000019.orf37 1087 DVDLYKVNLKVGEKLSINVDAAEIDSKllyaqLRVFDAEGNelaktDFDDFQAAPdevFSAFNDPYLEFTAETTGTYYVGIS 1168
+                      8***********************9999788888*****96222225555777777777777******************98 PP
+
+>> HemolysinCabind  Hemolysin-type calcium-binding repeat (2 copies)
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !    5.9   0.5    0.0026        16       2      13 ..    1214    1225 ..    1213    1225 .. 0.89
+   2 !   10.8   3.1   6.8e-05      0.41       1      18 []    1231    1248 ..    1231    1248 .. 0.95
+   3 !   11.4   2.4   4.3e-05      0.26       4      18 .]    1243    1257 ..    1240    1257 .. 0.91
+
+  Alignments for each domain:
+  == domain 1    score: 5.9 bits;  conditional E-value: 0.0026
+                       ---S-EEEE--- CS
+  HemolysinCabind    2 GgaGnDtLyGga 13  
+                       G++G+DtL G++
+   BA000019.orf37 1214 GTSGDDTLIGTD 1225
+                       99*******986 PP
+
+  == domain 2    score: 10.8 bits;  conditional E-value: 6.8e-05
+                       E---S-EEEE---S-EEE CS
+  HemolysinCabind    1 yGgaGnDtLyGgaGnDtl 18  
+                       +G++GnD+Ly  +G+D+l
+   BA000019.orf37 1231 FGNGGNDILYARGGDDKL 1248
+                       69**************87 PP
+
+  == domain 3    score: 11.4 bits;  conditional E-value: 4.3e-05
+                       -S-EEEE---S-EEE CS
+  HemolysinCabind    4 aGnDtLyGgaGnDtl 18  
+                       +G+D L+GgaG+D l
+   BA000019.orf37 1243 GGDDKLFGGAGDDLL 1257
+                       6************87 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query sequence(s):                         1  (1418 residues)
+Target model(s):                       11912  (2158902 nodes)
+Passed MSV filter:                       231  (0.0193922); expected 238.2 (0.02)
+Passed bias filter:                      133  (0.0111652); expected 238.2 (0.02)
+Passed Vit filter:                        15  (0.00125923); expected 11.9 (0.001)
+Passed Fwd filter:                         2  (0.000167898); expected 0.1 (1e-05)
+Initial search space (Z):              11912  [actual number of targets]
+Domain search space  (domZ):               2  [number of targets reported over threshold]
+# CPU time: 0.57u 0.17s 00:00:00.74 Elapsed: 00:00:00.39
+# Mc/sec: 7849.55
+//

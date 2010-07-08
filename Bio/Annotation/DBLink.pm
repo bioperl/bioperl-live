@@ -80,6 +80,8 @@ use base qw(Bio::Root::Root Bio::AnnotationI Bio::IdentifiableI);
              -comment     comment text for the dbxref
              -tagname     the name of the tag under which to add this
                           instance to an annotation bundle (usually 'dblink')
+             -type        the type of information in the referenced entry
+                          (e.g. protein, mRNA, structure)
              -namespace   synonymous with -database (also overrides)
              -version     version of the referenced entry
              -authority   attribute of the Bio::IdentifiableI interface
@@ -92,12 +94,13 @@ sub new {
 
   my $self = $class->SUPER::new(@args);
 
-  my ($database,$primary_id,$optional_id,$comment,$tag,$ns,$auth,$v,$url) =
+  my ($database,$primary_id,$optional_id,$comment,$tag,$type,$ns,$auth,$v,$url) =
       $self->_rearrange([qw(DATABASE
 			    PRIMARY_ID
 			    OPTIONAL_ID
 			    COMMENT
 			    TAGNAME
+			    TYPE
 			    NAMESPACE
 			    AUTHORITY
 			    VERSION
@@ -109,6 +112,7 @@ sub new {
   $optional_id && $self->optional_id($optional_id);
   $comment     && $self->comment($comment);
   $tag         && $self->tagname($tag);
+  $type        && $self->type($type);
   # Bio::IdentifiableI parameters:
   $ns          && $self->namespace($ns); # this will override $database
   $auth        && $self->authority($auth);
@@ -319,6 +323,25 @@ sub comment{
 
     return $self->{'comment'} = shift if @_;
     return $self->{'comment'};
+}
+
+=head2 type
+
+ Title   : type
+ Usage   : $self->type($newval)
+ Function: get/set of type
+           Sets or gets the type of this dblink.
+ Example : $self->type('protein')
+ Returns : value of type
+ Args    : newvalue (optional)
+
+=cut
+
+sub type {
+    my $self = shift;
+
+    return $self->{'type'} = shift if @_;
+    return $self->{'type'};
 }
 
 =head1 Methods for Bio::IdentifiableI compliance

@@ -59,11 +59,6 @@ set_parameters() or reset_parameters():
 At this point minimal checking is done for potential errors in parameter
 passing, though these should be easily added in the future when necessary.
 
-=head1 TODO
-
-Possibly integrate SOAP-compliant methods. SOAP::Lite may be undergoing an
-complete rewrite so I'm hesitant about adding this in immediately.
-
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -413,6 +408,10 @@ sub to_string {
            Default : Builds based on allowed parameters (presence of history data
            or eutil type in %MODE).
  Note    : Changes state of object (to boolean FALSE).  Used for CGI-based GET/POST
+ TODO    : esearch, esummary, elink now accept POST for batch submission
+           (something NCBI apparently allowed but didn't advertise). Should we
+           switch most of these to utilize POST instead, or make it dep on the
+           number of submitted IDs?
 
 =cut
 
