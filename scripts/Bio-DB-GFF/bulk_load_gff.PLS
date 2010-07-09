@@ -99,6 +99,9 @@ e.g. -d instead of --database.
    --group               A list of one or more tag names (comma or space separated)
                          to be used for grouping in the 9th column.
    --gff3_munge          Activate GFF3 name munging (see Bio::DB::GFF)
+   --summary             Generate summary statistics for drawing coverage histograms.
+                           This can be run on a previously loaded database or during
+                           the load.
    --Temporary           Location of a writable scratch directory
 
 =head1 SEE ALSO
@@ -228,6 +231,7 @@ unless ($FORCE) {
   die "Aborted\n" unless $f =~ /^[yY]/;
   close TTY;
 }
+
 # postgres DBD::Pg allows 'database', but also 'dbname', and 'db':
 # and it must be Pg (not pg)
 $DSN=~s/pg:database=/Pg:/i;
@@ -637,7 +641,6 @@ elsif( $use_mysql or $use_mysqlcmap ) {
 
   if ($success) {
     print "$FEATURES features successfully loaded\n";
-    exit 0;
   } else {
     print "FAILURE: Please see standard error for details\n";
     exit -1;
@@ -647,6 +650,21 @@ elsif( $use_mysql or $use_mysqlcmap ) {
 foreach (@fasta_files_to_be_unlinked) {
   unlink "$tmpdir/$_.$$";
 }
+
+warn "Building summary statistics for coverage histograms...\n";
+my (@args,$AUTH);
+if (defined $USER) {
+  push @args,(-user=>$USER);
+  $AUTH .= " -u$USER";
+}
+if (defined $PASSWORD) {
+  push @args,(-pass=>$PASSWORD);
+  $AUTH .= " -p$PASSWORD";
+}
+push @args,(-preferred_groups=>[split(/[,\s+]+/,$GROUP_TAG)]) if defined $GROUP_TAG;
+my $db = Bio::DB::GFF->new(-adaptor=>"dbi::$ADAPTOR",-dsn => $DSN,@args)
+  or die "Can't open database: ",Bio::DB::GFF->error,"\n";
+$db->build_summary_statistics;
 
 exit 0;
 

@@ -333,10 +333,10 @@ sub write_seq {
             unless ( $dblink->database && $dblink->primary_id ) {
                 $self->throw("dblink $dblink is malformed");
             }
-            if (defined($dblink->comment)) {
+            if (defined($dblink->type)) {
                 $writer->emptyTag(
                     'DBRef',
-                    'type'   => $dblink->comment,
+                    'type'   => $dblink->type,
                     'source' => $dblink->database,
                     'id'     => $dblink->primary_id,
                 );
@@ -819,7 +819,7 @@ sub element_DBRef {
         $annotation_obj = Bio::Annotation::DBLink->new(
             -primary_id => $DBRef->{'id'},
             -database   => $DBRef->{'source'},
-            -comment    => $DBRef->{'type'},
+            -type       => $DBRef->{'type'},
             -tagname    => 'dblink',
         );
         push @{ $data->{'DBRefs'} }, $annotation_obj;

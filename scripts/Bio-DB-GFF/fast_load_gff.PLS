@@ -94,6 +94,9 @@ e.g. -d instead of --database.
    --group               A list of one or more tag names (comma or space separated)
                          to be used for grouping in the 9th column.
    --gff3_munge          Activate GFF3 name munging (see Bio::DB::GFF)
+   --summary             Generate summary statistics for drawing coverage histograms.
+                           This can be run on a previously loaded database or during
+                           the load.
    --Temporary           Location of a writable scratch directory
 
 =head1 SEE ALSO
@@ -129,7 +132,7 @@ package main;
 eval "use Time::HiRes"; undef $@;
 my $timer = defined &Time::HiRes::time;
 
-my ($DSN,$CREATE,$USER,$PASSWORD,$FASTA,$FAILED,$LOCAL,%PID,$MAX_BIN,$GROUP_TAG,$LONG_LIST,$MUNGE,$TMPDIR);
+my ($DSN,$CREATE,$USER,$PASSWORD,$FASTA,$FAILED,$LOCAL,%PID,$MAX_BIN,$GROUP_TAG,$LONG_LIST,$MUNGE,$TMPDIR,$SUMMARY_STATS);
 
 if ($DO_FAST) {
   $SIG{CHLD} = sub {
@@ -152,6 +155,7 @@ GetOptions ('database:s'    => \$DSN,
 	    'long_list:s'   => \$LONG_LIST,
             'maxbin|maxfeature:s'    => \$MAX_BIN,
 	    'gff3_munge'    => \$MUNGE,
+	    'summary'       => \$SUMMARY_STATS,
 	    'Temporary:s'   => \$TMPDIR,
 	   ) or (system('pod2text',$0), exit -1);
 
@@ -175,6 +179,7 @@ my $db = Bio::DB::GFF->new(-adaptor=>'faux',-dsn => $DSN,@args)
 $db->gff3_name_munging(1) if $MUNGE;
 
 if ($CREATE) {
+  $SUMMARY_STATS++;
   $MAX_BIN ? $db->initialize(-erase=>1,-MAX_BIN=>$MAX_BIN) : $db->initialize(1);
 }
 
@@ -227,8 +232,8 @@ my $can_disable_indexes = ($major >= 4 and $minor >= 0);
 
 # open up pipes to the database
 my (%FH,%COMMAND);
-my $MYSQL = MYSQL;
-my $tmpdir = $TMPDIR || $ENV{TMPDIR} || $ENV{TMP} || '/usr/tmp';
+my $MYSQL  = MYSQL;
+my $tmpdir = $TMPDIR || $ENV{TMPDIR} || $ENV{TMP} || File::Spec->tmpdir();
 -d $tmpdir or die <<END;
 I could not find a suitable temporary directory to write scratch files into ($tmpdir by default).
 Please select a directory and indicate its location by setting the TMP environment variable, or
@@ -437,6 +442,11 @@ if ($success) {
 } else {
   print "FAILURE: Please see standard error for details\n";
   exit -1;
+}
+
+if ($SUMMARY_STATS) {
+    warn "Building summary statistics for coverage histograms...\n";
+    $db->build_summary_statistics;
 }
 
 exit 0;
