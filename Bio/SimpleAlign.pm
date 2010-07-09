@@ -265,16 +265,16 @@ sub new {
   return $self; # success - we hope!
 }
 
-=head1 Modifier methods
+=head1 Alignment modifier methods
 
-These methods modify the MSA by adding, removing or shuffling complete
+These methods modify the original MSA by adding, removing or shuffling complete
 sequences.
 
 =head2 add_seq
 
  Title     : add_seq
- Usage     : $myalign->add_seq($newseq);
-             $myalign->add_seq(-SEQ=>$newseq, -ORDER=>5);
+ Usage     : $aln->add_seq($newseq);
+             $aln->add_seq(-SEQ=>$newseq, -ORDER=>5);
  Function  : Adds another sequence to the alignment. *Does not* align
              it - just adds it to the hashes.
              If -ORDER is specified, the sequence is inserted at the
@@ -667,6 +667,220 @@ sub _convert_leading_ending_gaps {
     my $s_new=join '', @array;
     return $s_new;
 }
+=head2 remove_columns
+
+ Title     : remove_columns
+ Usage     : $aln->remove_columns(['mismatch','weak']) or
+             $aln->remove_columns([3,6..8]) or
+             $aln->remove_columns(-pos=>[3,6..8],-toggle=>T)
+ Function  : Modify the aligment with columns removed corresponding to
+             the specified type or by specifying the columns by number.
+             If you dont want to modify the alignment, 
+             you can use select_columns instead
+ Returns   : 1
+ Args      : Array ref of types ('match'|'weak'|'strong'|'mismatch') 
+             or array ref where the referenced array
+             contains a pair of integers that specify a range.
+             use remove_gaps to remove columns containing gaps
+             The first column is 1
+
+=cut
+
+sub remove_columns {
+	my ($self,@args) = @_;
+   @args || $self->throw("Must supply column ranges or column types");
+   my ($aln,$cont_loc);
+	if(@args) {
+		if(ref($args[0]) && $args[0][0] =~ /^[a-z_]+$/i) {
+			$self->_remove_columns_by_type($args[0]);
+		}
+		else {
+			my ($sel, $toggle) = $self->_rearrange([qw(SELECTION TOGGLE)], @args);
+			if($toggle) {
+				$cont_loc=_cont_coords(_toggle_selection($sel,$self->length));
+			}
+			else {
+				$cont_loc=_cont_coords($sel);
+			}
+			$self->_remove_columns_by_num($cont_loc);
+		}
+	}
+	else {
+   	$self->throw("You must pass array references to remove_columns(), not @args");
+	}
+	# fix for meta, sf, ann
+	1;
+}
+
+sub _remove_col {
+    my ($self,$remove) = @_;
+    my @new;
+    
+    my $gap = $self->gap_char;
+    
+    # splice out the segments and create new seq
+    my ($firststart,$firstend)=($remove->[0][0]-1,$remove->[0][1]-1);
+    foreach my $seq($self->each_seq){
+		my $sequence = $seq->seq;
+		my $orig = $sequence;
+		#calculate the new start
+		if ($firststart == 0) {
+		  my $start_adjust = () = substr($orig, 0, $firstend + 1) =~ /$gap/g;
+		  $seq->start($seq->start() + $firstend + 1 - $start_adjust);
+		}
+		else {
+		  my $start_adjust = $orig =~ /^$gap+/;
+		  if ($start_adjust) {
+		      $start_adjust = $+[0] == $firststart;
+		  }
+		  $seq->start($seq->start + $start_adjust);
+		}
+        
+        foreach my $pair(@{$remove}){
+            my $start = $pair->[0]-1;
+            my $end   = $pair->[1]-1;
+            $sequence = $seq->seq unless $sequence;
+            $orig = $sequence;
+            my $head =  $start > 0 ? substr($sequence, 0, $start) : '';
+            my $tail = ($end + 1) >= CORE::length($sequence) ? '' : substr($sequence, $end + 1);
+            $sequence = $head.$tail;
+				$seq->seq($sequence) if $sequence;
+				
+            #calculate the new end
+            if (($end + 1) >= CORE::length($orig)) {
+                my $end_adjust = () = substr($orig, $start) =~ /$gap/g;
+                $seq->end($seq->end - (CORE::length($orig) - $start) + $end_adjust);
+            }
+        }
+        
+        if ($seq->end < $seq->start) {
+            # we removed all columns except for gaps: set to 0 to indicate no
+            # sequence
+            $seq->start(0);
+            $seq->end(0);
+        }
+        
+    }
+    
+    # fix for meta, sf, ann    
+    return 1;
+}
+
+sub _remove_columns_by_type {
+	my ($self,$type) = @_;
+	my @remove;
+
+	my $gap = $self->gap_char if (grep { $_ eq 'gaps'} @{$type});
+	my $all_gaps_columns = $self->gap_char if (grep /all_gaps_columns/,@{$type});
+	my %matchchars = ( 'match'           => '\*',
+                       'weak'             => '\.',
+                       'strong'           => ':',
+                       'mismatch'         => ' ',
+                     );
+	# get the characters to delete against
+	my $del_char;
+	foreach my $type (@{$type}){
+		$del_char.= $matchchars{$type};
+	}
+
+	my $length = 0;
+	my $match_line = $self->match_line;
+	# do the matching to get the segments to remove
+	if($del_char){
+		while($match_line =~ m/[$del_char]/g ){
+			my $start = pos($match_line);
+			$match_line=~/\G[$del_char]+/gc;
+			my $end = pos($match_line);
+
+			#have to offset the start and end for subsequent removes
+			$start-=$length;
+			$end  -=$length;
+			$length += ($end-$start+1);
+			push @remove, [$start,$end];
+		}
+	}
+
+	# remove the segments
+	$self->_remove_col(\@remove) if $#remove >= 0;
+
+    # fix for meta, sf, ann    
+	1;
+}
+
+
+sub _remove_columns_by_num {
+	my ($self,$positions) = @_;
+	
+	my @remove;
+	my $length = 0;
+	for(my $num=0;$num<@{$positions};) {
+		my ($start, $end) = ($positions->[$num],$positions->[$num+1]);
+        
+		#have to offset the start and end for subsequent removes
+		$start-=$length;
+		$end  -=$length;
+		$length += ($end-$start+1);
+		push @remove, [$start,$end];
+		$num+=2;
+    }
+
+	#remove the segments
+	$self->_remove_col(\@remove) if $#remove >= 0;
+	# fix for meta, sf, ann    
+	1;
+}
+
+
+sub _cont_coords {
+	#This function is used to merge the coordinates from select and remove functions in order to reduce the number of calculations in select and #remove. For exmaple, if the input of remove_columns is remove_columns([2,5,7..10]), this function will transform ([2,5,7..10]) to 
+ 	# ([2,2,5,5,7,10]).
+	
+	my ($old_coords)=@_;
+	@{$old_coords}=sort {$a<=>$b} @{$old_coords};
+	
+	my $cont_coords;
+	
+	push @{$cont_coords},$old_coords->[0];
+	for(my $num=0;$num<@{$old_coords};) {
+		if($num==@{$old_coords}-1) {
+			#for single selection
+			push @{$cont_coords},$old_coords->[$num];
+			last;
+		}
+		if($old_coords->[$num+1]-$old_coords->[$num]>1) {
+			if($num+2==@{$old_coords}) {
+				push @{$cont_coords},$old_coords->[$num],$old_coords->[$num+1],$old_coords->[$num+1];
+				last;
+			}
+			else {
+				push @{$cont_coords},$old_coords->[$num],$old_coords->[$num+1];
+			}
+		}
+		else {
+			if ($num+2==@{$old_coords}) {
+				push @{$cont_coords},$old_coords->[$num+1];
+				last;
+			}
+		}
+		$num++;
+	}
+	return $cont_coords;
+}
+
+
+sub _toggle_selection {
+	#This function is used to toggle the selection of sequences or columns
+	my ($old_coords,$length)=@_;
+	my %hash=map {$_=>1} @{$old_coords};
+	my $new_coords;
+	for(my $num=1;$num<=$length;$num++) {
+		unless(defined($hash{$num})) {
+			push @{$new_coords},$num;
+		}
+	}
+	return $new_coords;
+}
+
 
 =head2 sort_alphabetically
 
@@ -890,14 +1104,14 @@ sub _in_aln {  # check if input name exists in the alignment
 
 
 
-=head1 Sequence selection methods
+=head1 Alignment selection methods
 
-Methods returning one or more sequences objects.
+These methods are used to select the sequences or horizontal/vertical subsets of the current MSA.
 
 =head2 each_seq
 
  Title     : each_seq
- Usage     : foreach $seq ( $align->each_seq() )
+ Usage     : foreach $seq ( $aln->each_seq() )
  Function  : Gets a Seq object from the alignment
  Returns   : Seq object
  Argument  :
@@ -926,7 +1140,7 @@ sub each_seq {
 =head2 each_alphabetically
 
  Title     : each_alphabetically
- Usage     : foreach $seq ( $ali->each_alphabetically() )
+ Usage     : foreach $seq ( $aln->each_alphabetically() )
  Function  : Returns a sequence object, but the objects are returned
              in alphabetically sorted order.
              Does not change the order of the alignment.
@@ -966,7 +1180,7 @@ sub _alpha_startend {
 =head2 each_seq_with_id
 
  Title     : each_seq_with_id
- Usage     : foreach $seq ( $align->each_seq_with_id() )
+ Usage     : foreach $seq ( $aln->each_seq_with_id() )
  Function  : Gets a Seq objects from the alignment, the contents
              being those sequences with the given name (there may be
              more than one)
@@ -1047,92 +1261,6 @@ sub get_seq_by_id {
     return;
 }
 
-=head2 seq_with_features
-
- Title   : seq_with_features
- Usage   : $seq = $aln->seq_with_features(-pos => 1,
-                                          -consensus => 60
-                                          -mask =>
-           sub { my $consensus = shift;
-
-                 for my $i (1..5){
-                    my $n = 'N' x $i;
-                    my $q = '\?' x $i;
-                    while($consensus =~ /[^?]$q[^?]/){
-                       $consensus =~ s/([^?])$q([^?])/$1$n$2/;
-                    }
-                  }
-                 return $consensus;
-               }
-                                         );
- Function: produces a Bio::Seq object by first splicing gaps from -pos
-           (by means of a remove_gaps(-reference=>1) call), then creating
-           features using non-? chars (by means of a consensus_string()
-           call with stringency -consensus).
- Returns : a Bio::Seq object
- Args    : -pos : required. sequence from which to build the Bio::Seq
-             object
-           -consensus : optional, defaults to consensus_string()'s
-             default cutoff value
-           -mask : optional, a coderef to apply to consensus_string()'s
-             output before building features.  this may be useful for
-             closing gaps of 1 bp by masking over them with N, for
-             instance
-
-=cut
-
-sub seq_with_features{
-   my ($self,%arg) = @_;
-
-   #first do the preparatory splice
-   $self->throw("must provide a -pos argument") unless $arg{-pos};
-   $self->remove_gaps(-reference=>$arg{-pos});
-
-   my $consensus_string = $self->consensus_string($arg{-consensus});
-   $consensus_string = $arg{-mask}->($consensus_string)
-	 if defined($arg{-mask});
-
-   my(@bs,@es);
-
-   push @bs, 1 if $consensus_string =~ /^[^?]/;
-
-   while($consensus_string =~ /\?[^?]/g){
-	 push @bs, pos($consensus_string);
-   }
-   while($consensus_string =~ /[^?]\?/g){
-	 push @es, pos($consensus_string);
-   }
-
-   push @es, CORE::length($consensus_string) if $consensus_string =~ /[^?]$/;
-
-   my $seq = Bio::Seq->new();
-
-#   my $rootfeature = Bio::SeqFeature::Generic->new(
-#                -source_tag => 'location',
-#                -start      => $self->get_seq_by_pos($arg{-pos})->start,
-#                -end        => $self->get_seq_by_pos($arg{-pos})->end,
-#                                                  );
-#   $seq->add_SeqFeature($rootfeature);
-
-   while(my $b = shift @bs){
-	 my $e = shift @es;
-	 $seq->add_SeqFeature(
-       Bio::SeqFeature::Generic->new(
-         -start => $b - 1 + $self->get_seq_by_pos($arg{-pos})->start,
-         -end   => $e - 1 + $self->get_seq_by_pos($arg{-pos})->start,
-         -source_tag => $self->source || 'MSA',
-       )
-     );
-   }
-
-   return $seq;
-}
-
-
-=head1 Create new alignments
-
-The result of these methods are horizontal or vertical subsets of the
-current MSA.
 
 =head2 select_Seqs
 
@@ -1325,169 +1453,6 @@ sub select_columns {
 	return $aln;
 }
 
-=head2 remove_columns
-
- Title     : remove_columns
- Usage     : $aln->remove_columns(['mismatch','weak']) or
-             $aln->remove_columns([3,6..8]) or
-             $aln->remove_columns(-pos=>[3,6..8],-toggle=>T)
- Function  : Modify the aligment with columns removed corresponding to
-             the specified type or by specifying the columns by number.
-             If you dont want to modify the alignment, 
-             you can use select_columns instead
- Returns   : 1
- Args      : Array ref of types ('match'|'weak'|'strong'|'mismatch') 
-             or array ref where the referenced array
-             contains a pair of integers that specify a range.
-             use remove_gaps to remove columns containing gaps
-             The first column is 1
-
-=cut
-
-sub remove_columns {
-	my ($self,@args) = @_;
-   @args || $self->throw("Must supply column ranges or column types");
-   my ($aln,$cont_loc);
-	if(@args) {
-		if(ref($args[0]) && $args[0][0] =~ /^[a-z_]+$/i) {
-			$self->_remove_columns_by_type($args[0]);
-		}
-		else {
-			my ($sel, $toggle) = $self->_rearrange([qw(SELECTION TOGGLE)], @args);
-			if($toggle) {
-				$cont_loc=_cont_coords(_toggle_selection($sel,$self->length));
-			}
-			else {
-				$cont_loc=_cont_coords($sel);
-			}
-			$self->_remove_columns_by_num($cont_loc);
-		}
-	}
-	else {
-   	$self->throw("You must pass array references to remove_columns(), not @args");
-	}
-	# fix for meta, sf, ann
-	1;
-}
-
-sub _remove_col {
-    my ($self,$remove) = @_;
-    my @new;
-    
-    my $gap = $self->gap_char;
-    
-    # splice out the segments and create new seq
-    my ($firststart,$firstend)=($remove->[0][0]-1,$remove->[0][1]-1);
-    foreach my $seq($self->each_seq){
-		my $sequence = $seq->seq;
-		my $orig = $sequence;
-		#calculate the new start
-		if ($firststart == 0) {
-		  my $start_adjust = () = substr($orig, 0, $firstend + 1) =~ /$gap/g;
-		  $seq->start($seq->start() + $firstend + 1 - $start_adjust);
-		}
-		else {
-		  my $start_adjust = $orig =~ /^$gap+/;
-		  if ($start_adjust) {
-		      $start_adjust = $+[0] == $firststart;
-		  }
-		  $seq->start($seq->start + $start_adjust);
-		}
-        
-        foreach my $pair(@{$remove}){
-            my $start = $pair->[0]-1;
-            my $end   = $pair->[1]-1;
-            $sequence = $seq->seq unless $sequence;
-            $orig = $sequence;
-            my $head =  $start > 0 ? substr($sequence, 0, $start) : '';
-            my $tail = ($end + 1) >= CORE::length($sequence) ? '' : substr($sequence, $end + 1);
-            $sequence = $head.$tail;
-				$seq->seq($sequence) if $sequence;
-				
-            #calculate the new end
-            if (($end + 1) >= CORE::length($orig)) {
-                my $end_adjust = () = substr($orig, $start) =~ /$gap/g;
-                $seq->end($seq->end - (CORE::length($orig) - $start) + $end_adjust);
-            }
-        }
-        
-        if ($seq->end < $seq->start) {
-            # we removed all columns except for gaps: set to 0 to indicate no
-            # sequence
-            $seq->start(0);
-            $seq->end(0);
-        }
-        
-    }
-    
-    # fix for meta, sf, ann    
-    return 1;
-}
-
-sub _remove_columns_by_type {
-	my ($self,$type) = @_;
-	my @remove;
-
-	my $gap = $self->gap_char if (grep { $_ eq 'gaps'} @{$type});
-	my $all_gaps_columns = $self->gap_char if (grep /all_gaps_columns/,@{$type});
-	my %matchchars = ( 'match'           => '\*',
-                       'weak'             => '\.',
-                       'strong'           => ':',
-                       'mismatch'         => ' ',
-                     );
-	# get the characters to delete against
-	my $del_char;
-	foreach my $type (@{$type}){
-		$del_char.= $matchchars{$type};
-	}
-
-	my $length = 0;
-	my $match_line = $self->match_line;
-	# do the matching to get the segments to remove
-	if($del_char){
-		while($match_line =~ m/[$del_char]/g ){
-			my $start = pos($match_line);
-			$match_line=~/\G[$del_char]+/gc;
-			my $end = pos($match_line);
-
-			#have to offset the start and end for subsequent removes
-			$start-=$length;
-			$end  -=$length;
-			$length += ($end-$start+1);
-			push @remove, [$start,$end];
-		}
-	}
-
-	# remove the segments
-	$self->_remove_col(\@remove) if $#remove >= 0;
-
-    # fix for meta, sf, ann    
-	1;
-}
-
-
-sub _remove_columns_by_num {
-	my ($self,$positions) = @_;
-	
-	my @remove;
-	my $length = 0;
-	for(my $num=0;$num<@{$positions};) {
-		my ($start, $end) = ($positions->[$num],$positions->[$num+1]);
-        
-		#have to offset the start and end for subsequent removes
-		$start-=$length;
-		$end  -=$length;
-		$length += ($end-$start+1);
-		push @remove, [$start,$end];
-		$num+=2;
-    }
-
-	#remove the segments
-	$self->_remove_col(\@remove) if $#remove >= 0;
-	# fix for meta, sf, ann    
-	1;
-}
-
 =head2 remove_gaps
 
  Title     : remove_gaps
@@ -1538,58 +1503,6 @@ sub splice_by_seq_pos{
     my $self = shift;
     $self->deprecated("splice_by_seq_pos - deprecated method. Use remove_gaps() instead.");
     $self->remove_gaps(-reference=>$_[0]);
-}
-
-
-
-sub _cont_coords {
-	#This function is used to merge the coordinates from select and remove functions in order to reduce the number of calculations in select and #remove. For exmaple, if the input of remove_columns is remove_columns([2,5,7..10]), this function will transform ([2,5,7..10]) to 
- 	# ([2,2,5,5,7,10]).
-	
-	my ($old_coords)=@_;
-	@{$old_coords}=sort {$a<=>$b} @{$old_coords};
-	
-	my $cont_coords;
-	
-	push @{$cont_coords},$old_coords->[0];
-	for(my $num=0;$num<@{$old_coords};) {
-		if($num==@{$old_coords}-1) {
-			#for single selection
-			push @{$cont_coords},$old_coords->[$num];
-			last;
-		}
-		if($old_coords->[$num+1]-$old_coords->[$num]>1) {
-			if($num+2==@{$old_coords}) {
-				push @{$cont_coords},$old_coords->[$num],$old_coords->[$num+1],$old_coords->[$num+1];
-				last;
-			}
-			else {
-				push @{$cont_coords},$old_coords->[$num],$old_coords->[$num+1];
-			}
-		}
-		else {
-			if ($num+2==@{$old_coords}) {
-				push @{$cont_coords},$old_coords->[$num+1];
-				last;
-			}
-		}
-		$num++;
-	}
-	return $cont_coords;
-}
-
-
-sub _toggle_selection {
-	#This function is used to toggle the selection of sequences or columns
-	my ($old_coords,$length)=@_;
-	my %hash=map {$_=>1} @{$old_coords};
-	my $new_coords;
-	for(my $num=1;$num<=$length;$num++) {
-		unless(defined($hash{$num})) {
-			push @{$new_coords},$num;
-		}
-	}
-	return $new_coords;
 }
 
 =head2 mask_columns
@@ -1655,13 +1568,92 @@ sub mask_columns {
 	}
 	return $aln;
 }
+=head2 seq_with_features
+
+ Title   : seq_with_features
+ Usage   : $seq = $aln->seq_with_features(-pos => 1,
+                                          -consensus => 60
+                                          -mask =>
+           sub { my $consensus = shift;
+
+                 for my $i (1..5){
+                    my $n = 'N' x $i;
+                    my $q = '\?' x $i;
+                    while($consensus =~ /[^?]$q[^?]/){
+                       $consensus =~ s/([^?])$q([^?])/$1$n$2/;
+                    }
+                  }
+                 return $consensus;
+               }
+                                         );
+ Function: produces a Bio::Seq object by first splicing gaps from -pos
+           (by means of a remove_gaps(-reference=>1) call), then creating
+           features using non-? chars (by means of a consensus_string()
+           call with stringency -consensus).
+ Returns : a Bio::Seq object
+ Args    : -pos : required. sequence from which to build the Bio::Seq
+             object
+           -consensus : optional, defaults to consensus_string()'s
+             default cutoff value
+           -mask : optional, a coderef to apply to consensus_string()'s
+             output before building features.  this may be useful for
+             closing gaps of 1 bp by masking over them with N, for
+             instance
+
+=cut
+
+sub seq_with_features{
+   my ($self,%arg) = @_;
+
+   #first do the preparatory splice
+   $self->throw("must provide a -pos argument") unless $arg{-pos};
+   $self->remove_gaps(-reference=>$arg{-pos});
+
+   my $consensus_string = $self->consensus_string($arg{-consensus});
+   $consensus_string = $arg{-mask}->($consensus_string)
+	 if defined($arg{-mask});
+
+   my(@bs,@es);
+
+   push @bs, 1 if $consensus_string =~ /^[^?]/;
+
+   while($consensus_string =~ /\?[^?]/g){
+	 push @bs, pos($consensus_string);
+   }
+   while($consensus_string =~ /[^?]\?/g){
+	 push @es, pos($consensus_string);
+   }
+
+   push @es, CORE::length($consensus_string) if $consensus_string =~ /[^?]$/;
+
+   my $seq = Bio::Seq->new();
+
+#   my $rootfeature = Bio::SeqFeature::Generic->new(
+#                -source_tag => 'location',
+#                -start      => $self->get_seq_by_pos($arg{-pos})->start,
+#                -end        => $self->get_seq_by_pos($arg{-pos})->end,
+#                                                  );
+#   $seq->add_SeqFeature($rootfeature);
+
+   while(my $b = shift @bs){
+	 my $e = shift @es;
+	 $seq->add_SeqFeature(
+       Bio::SeqFeature::Generic->new(
+         -start => $b - 1 + $self->get_seq_by_pos($arg{-pos})->start,
+         -end   => $e - 1 + $self->get_seq_by_pos($arg{-pos})->start,
+         -source_tag => $self->source || 'MSA',
+       )
+     );
+   }
+
+   return $seq;
+}
+
 
 =head1 Change sequences within the MSA
 
 These methods affect characters in all sequences without changing the
 alignment.
-
-
 
 
 =head2 map_chars
@@ -1772,263 +1764,6 @@ sub togglecase {
 }
 
 
-=head2 cigar_line
-
- Title    : cigar_line()
- Usage    : %cigars = $align->cigar_line()
- Function : Generates a "cigar" (Compact Idiosyncratic Gapped Alignment
-            Report) line for each sequence in the alignment. Examples are
-            "1,60" or "5,10:12,58", where the numbers refer to conserved
-            positions within the alignment. The keys of the hash are the
-            NSEs (name/start/end) assigned to each sequence.
- Args     : threshold (optional, defaults to 100)
- Returns  : Hash of strings (cigar lines)
-
-=cut
-
-sub cigar_line {
-	my $self = shift;
-	my $thr=shift||100;
-	my %cigars;
-
-	my @consensus = split "",($self->consensus_string($thr));
-	my $len = $self->length;
-	my $gapchar = $self->gap_char;
-
-	# create a precursor, something like (1,4,5,6,7,33,45),
-	# where each number corresponds to a conserved position
-	foreach my $seq ( $self->each_seq ) {
-		my @seq = split "", uc ($seq->seq);
-		my $pos = 1;
-		for (my $x = 0 ; $x < $len ; $x++ ) {
-			if ($seq[$x] eq $consensus[$x]) {
-				push @{$cigars{$seq->get_nse}},$pos;
-				$pos++;
-			} elsif ($seq[$x] ne $gapchar) {
-				$pos++;
-			}
-		}
-	}
-	# duplicate numbers - (1,4,5,6,7,33,45) becomes (1,1,4,5,6,7,33,33,45,45)
-	for my $name (keys %cigars) {
-		splice @{$cigars{$name}}, 1, 0, ${$cigars{$name}}[0] if
-		  ( ${$cigars{$name}}[0] + 1 < ${$cigars{$name}}[1] );
-      push @{$cigars{$name}}, ${$cigars{$name}}[$#{$cigars{$name}}] if
-           ( ${$cigars{$name}}[($#{$cigars{$name}} - 1)] + 1 <
-		          ${$cigars{$name}}[$#{$cigars{$name}}] );
-		for ( my $x = 1 ; $x < $#{$cigars{$name}} - 1 ; $x++) {
-			if (${$cigars{$name}}[$x - 1] + 1 < ${$cigars{$name}}[$x]  &&
-		       ${$cigars{$name}}[$x + 1]  > ${$cigars{$name}}[$x] + 1) {
-	         splice @{$cigars{$name}}, $x, 0, ${$cigars{$name}}[$x];
-			}
-      }
-	}
-  # collapse series - (1,1,4,5,6,7,33,33,45,45) becomes (1,1,4,7,33,33,45,45)
-  for my $name (keys %cigars) {
-	  my @remove;
-	  for ( my $x = 0 ; $x < $#{$cigars{$name}} ; $x++) {
-		   if ( ${$cigars{$name}}[$x] == ${$cigars{$name}}[($x - 1)] + 1 &&
-			     ${$cigars{$name}}[$x] == ${$cigars{$name}}[($x + 1)] - 1 ) {
-		      unshift @remove,$x;
-	      }
-	   }
-      for my $pos (@remove) {
-		  	splice @{$cigars{$name}}, $pos, 1;
-	   }
-   }
-   # join and punctuate
-   for my $name (keys %cigars) {
- 	  my ($start,$end,$str) = "";
- 	  while ( ($start,$end) = splice @{$cigars{$name}}, 0, 2 ) {
- 		  $str .= ($start . "," . $end . ":");
- 	  }
- 	  $str =~ s/:$//;
-      $cigars{$name} = $str;
-   }
-   %cigars;
-}
-
-
-=head2 match_line
-
- Title    : match_line()
- Usage    : $line = $align->match_line()
- Function : Generates a match line - much like consensus string
-            except that a line indicating the '*' for a match.
- Args     : (optional) Match line characters ('*' by default)
-            (optional) Strong match char (':' by default)
-            (optional) Weak match char ('.' by default)
- Returns  : String
-
-=cut
-
-sub match_line {
-	my ($self,$matchlinechar, $strong, $weak) = @_;
-	my %matchchars = ('match'    => $matchlinechar || '*',
-							  'weak'     => $weak          || '.',
-							  'strong'   => $strong        || ':',
-							  'mismatch' => ' ',
-						  );
-
-	my @seqchars;
-	my $alphabet;
-	foreach my $seq ( $self->each_seq ) {
-		push @seqchars, [ split(//, uc ($seq->seq)) ];
-		$alphabet = $seq->alphabet unless defined $alphabet;
-	}
-	my $refseq = shift @seqchars;
-	# let's just march down the columns
-	my $matchline;
- POS:
-	foreach my $pos ( 0..$self->length ) {
-		my $refchar = $refseq->[$pos];
-		my $char = $matchchars{'mismatch'};
-		unless( defined $refchar ) {
-			last if $pos == $self->length; # short circuit on last residue
-			# this in place to handle jason's soon-to-be-committed
-			# intron mapping code
-			goto bottom;
-		}
-		my %col = ($refchar => 1);
-		my $dash = ($refchar eq '-' || $refchar eq '.' || $refchar eq ' ');
-		foreach my $seq ( @seqchars ) {
-			next if $pos >= scalar @$seq;
-			$dash = 1 if( $seq->[$pos] eq '-' || $seq->[$pos] eq '.' ||
-							  $seq->[$pos] eq ' ' );
-			$col{$seq->[$pos]}++ if defined $seq->[$pos];
-		}
-		my @colresidues = sort keys %col;
-
-		# if all the values are the same
-		if( $dash ) { $char =  $matchchars{'mismatch'} }
-		elsif( @colresidues == 1 ) { $char = $matchchars{'match'} }
-		elsif( $alphabet eq 'protein' ) { # only try to do weak/strong
-			# matches for protein seqs
-	    TYPE:
-			foreach my $type ( qw(strong weak) ) {
-				# iterate through categories
-				my %groups;
-				# iterate through each of the aa in the col
-				# look to see which groups it is in
-				foreach my $c ( @colresidues ) {
-					foreach my $f ( grep { index($_,$c) >= 0 } @{$CONSERVATION_GROUPS{$type}} ) {
-						push @{$groups{$f}},$c;
-					}
-				}
-			 GRP:
-				foreach my $cols ( values %groups ) {
-					@$cols = sort @$cols;
-					# now we are just testing to see if two arrays
-					# are identical w/o changing either one
-					# have to be same len
-					next if( scalar @$cols != scalar @colresidues );
-					# walk down the length and check each slot
-					for($_=0;$_ < (scalar @$cols);$_++ ) {
-						next GRP if( $cols->[$_] ne $colresidues[$_] );
-					}
-					$char = $matchchars{$type};
-					last TYPE;
-				}
-			}
-		}
-	 bottom:
-		$matchline .= $char;
-	}
-	return $matchline;
-}
-
-
-=head2 gap_line
-
- Title    : gap_line()
- Usage    : $line = $align->gap_line()
- Function : Generates a gap line - much like consensus string
-            except that a line where '-' represents gap
- Args     : (optional) gap line characters ('-' by default)
- Returns  : string
-
-=cut
-
-sub gap_line {
-    my ($self,$gapchar) = @_;
-    $gapchar = $gapchar || $self->gap_char;
-    my %gap_hsh; # column gaps vector
-    foreach my $seq ( $self->each_seq ) {
-		my $i = 0;
-    	map {$gap_hsh{$_->[0]} = undef} grep {$_->[1] eq $gapchar}
-		  map {[$i++, $_]} split(//, uc ($seq->seq));
-    }
-    my $gap_line;
-    foreach my $pos ( 0..$self->length-1 ) {
-	  $gap_line .= (exists $gap_hsh{$pos}) ? $gapchar:'.';
-    }
-    return $gap_line;
-}
-
-=head2 all_gap_line
-
- Title    : all_gap_line()
- Usage    : $line = $align->all_gap_line()
- Function : Generates a gap line - much like consensus string
-            except that a line where '-' represents all-gap column
- Args     : (optional) gap line characters ('-' by default)
- Returns  : string
-
-=cut
-
-sub all_gap_line {
-    my ($self,$gapchar) = @_;
-    $gapchar = $gapchar || $self->gap_char;
-    my %gap_hsh;		# column gaps counter hash
-    my @seqs = $self->each_seq;
-    foreach my $seq ( @seqs ) {
-	my $i = 0;
-    	map {$gap_hsh{$_->[0]}++} grep {$_->[1] eq $gapchar}
-	map {[$i++, $_]} split(//, uc ($seq->seq));
-    }
-    my $gap_line;
-    foreach my $pos ( 0..$self->length-1 ) {
-	if (exists $gap_hsh{$pos} && $gap_hsh{$pos} == scalar @seqs) {
-            # gaps column
-	    $gap_line .= $gapchar;
-	} else {
-	    $gap_line .= '.';
-	}
-    }
-    return $gap_line;
-}
-
-=head2 gap_col_matrix
-
- Title    : gap_col_matrix()
- Usage    : my $cols = $align->gap_col_matrix()
- Function : Generates an array of hashes where
-            each entry in the array is a hash reference
-            with keys of all the sequence names and
-            and value of 1 or 0 if the sequence has a gap at that column
- Args     : (optional) gap line characters ($aln->gap_char or '-' by default)
-
-=cut
-
-sub gap_col_matrix {
-    my ($self,$gapchar) = @_;
-    $gapchar = $gapchar || $self->gap_char;
-    my %gap_hsh; # column gaps vector
-    my @cols;
-    foreach my $seq ( $self->each_seq ) {
-	my $i = 0;
-	my $str = $seq->seq;
-	my $len = $seq->length;
-	my $ch;
-	my $id = $seq->display_id;
-	while( $i < $len ) {
-	    $ch = substr($str, $i, 1);
-	    $cols[$i++]->{$id} = ($ch eq $gapchar);
-	}
-    }
-    return \@cols;
-}
-
 =head2 match
 
  Title     : match()
@@ -2125,213 +1860,10 @@ sub unmatch {
     return 1;
 }
 
-=head1 MSA attributes
 
-Methods for setting and reading the MSA attributes.
+=head1 Consensus sequences
 
-Note that the methods defining character semantics depend on the user
-to set them sensibly.  They are needed only by certain input/output
-methods. Unset them by setting to an empty string ('').
-
-=head2 id
-
- Title     : id
- Usage     : $myalign->id("Ig")
- Function  : Gets/sets the id field of the alignment
- Returns   : An id string
- Argument  : An id string (optional)
-
-=cut
-
-sub id {
-    my ($self, $name) = @_;
-
-    if (defined( $name )) {
-	$self->{'_id'} = $name;
-    }
-
-    return $self->{'_id'};
-}
-
-=head2 accession
-
- Title     : accession
- Usage     : $myalign->accession("PF00244")
- Function  : Gets/sets the accession field of the alignment
- Returns   : An acc string
- Argument  : An acc string (optional)
-
-=cut
-
-sub accession {
-    my ($self, $acc) = @_;
-
-    if (defined( $acc )) {
-	$self->{'_accession'} = $acc;
-    }
-
-    return $self->{'_accession'};
-}
-
-=head2 description
-
- Title     : description
- Usage     : $myalign->description("14-3-3 proteins")
- Function  : Gets/sets the description field of the alignment
- Returns   : An description string
- Argument  : An description string (optional)
-
-=cut
-
-sub description {
-    my ($self, $name) = @_;
-
-    if (defined( $name )) {
-	$self->{'_description'} = $name;
-    }
-
-    return $self->{'_description'};
-}
-
-=head2 missing_char
-
- Title     : missing_char
- Usage     : $myalign->missing_char("?")
- Function  : Gets/sets the missing_char attribute of the alignment
-             It is generally recommended to set it to 'n' or 'N'
-             for nucleotides and to 'X' for protein.
- Returns   : An missing_char string,
- Argument  : An missing_char string (optional), default as '?'
-
-=cut
-
-sub missing_char {
-    my ($self, $char) = @_;
-	
-	if (defined $char || ! defined $self->{'_missing_char'} ) {
-		$char= '?' unless defined $char;
-		$self->throw("Single gap character, not [$char]!") if CORE::length($char) > 1;
-		$self->{'_missing_char'} = $char;
-	}
-
-    return $self->{'_missing_char'};
-}
-
-=head2 match_char
-
- Title     : match_char
- Usage     : $myalign->match_char('.')
- Function  : Gets/sets the match_char attribute of the alignment
- Returns   : An match_char string,
- Argument  : An match_char string (optional), default as '.'
-
-=cut
-
-sub match_char {
-    my ($self, $char) = @_;
-
-	if (defined $char || ! defined $self->{'_match_char'} ) {
-		$char= '.' unless defined $char;
-		$self->throw("Single gap character, not [$char]!") if CORE::length($char) > 1;
-		$self->{'_match_char'} = $char;
-	}
-
-    return $self->{'_match_char'};
-}
-
-=head2 gap_char
-
- Title     : gap_char
- Usage     : $myalign->gap_char('-')
- Function  : Gets/sets the gap_char attribute of the alignment
- Returns   : An gap_char string, defaults to '-'
- Argument  : An gap_char string (optional), default as '-'
-
-=cut
-
-sub gap_char {
-    my ($self, $char) = @_;
-
-	if (defined $char || ! defined $self->{'_gap_char'} ) {
-		$char= '-' unless defined $char;
-		$self->throw("Single gap character, not [$char]!") if CORE::length($char) > 1;
-		$self->{'_gap_char'} = $char;
-	}
-	return $self->{'_gap_char'};
-}
-
-=head2 mask_char
-
- Title     : mask_char
- Usage     : $aln->mask_char('?')
- Function  : Gets/sets the mask_char attribute of the alignment
- Returns   : An mask_char string,
- Argument  : An mask_char string (optional), default as '?'
-
-=cut
-
-sub mask_char {
-	my ($self, $char) = @_;
-	
-	#may need to check whether $char is the same with _gap_char, _match_char and _missing_char
-	if (defined $char || ! defined $self->{'_mask_char'} ) {
-		$char= '?' unless defined $char;
-		$self->throw("Single mask character, not [$char]!") if CORE::length($char) > 1;
-		$self->{'_mask_char'} = $char;
-	}
-	return $self->{'_mask_char'};
-}
-
-=head2 symbol_chars
-
- Title   : symbol_chars
- Usage   : my @symbolchars = $aln->symbol_chars;
- Function: Returns all the seen symbols (other than gaps)
- Returns : array of characters that are the seen symbols
- Args    : boolean to include the gap/missing/match characters
-
-=cut
-
-sub symbol_chars{
-   my ($self,$includeextra) = @_;
-
-   unless ($self->{'_symbols'}) {
-       foreach my $seq ($self->each_seq) {
-           map { $self->{'_symbols'}->{$_} = 1; } split(//,$seq->seq);
-       }
-   }
-   my %copy = %{$self->{'_symbols'}};
-   if( ! $includeextra ) {
-       foreach my $char ( $self->gap_char, $self->match_char,
-			  $self->missing_char, $self->mask_char) {
-	   delete $copy{$char} if( defined $char );
-       }
-   }
-   return keys %copy;
-}
-
-
-
-=head1 Alignment descriptors
-
-These read only methods describe the MSA in various ways.
-
-
-=head2 score
-
- Title     : score
- Usage     : $str = $ali->score()
- Function  : get/set a score of the alignment
- Returns   : a score for the alignment
- Argument  : an optional score to set
-
-=cut
-
-sub score {
-  my $self = shift;
-  $self->{score} = shift if @_;
-  return $self->{score};
-}
+Methods to calculate consensus sequences for the MSA
 
 =head2 consensus_string
 
@@ -2613,6 +2145,494 @@ sub bracket_string {
     }
     return $bic;
 }
+
+
+=head2 cigar_line
+
+ Title    : cigar_line()
+ Usage    : %cigars = $align->cigar_line()
+ Function : Generates a "cigar" (Compact Idiosyncratic Gapped Alignment
+            Report) line for each sequence in the alignment. Examples are
+            "1,60" or "5,10:12,58", where the numbers refer to conserved
+            positions within the alignment. The keys of the hash are the
+            NSEs (name/start/end) assigned to each sequence.
+ Args     : threshold (optional, defaults to 100)
+ Returns  : Hash of strings (cigar lines)
+
+=cut
+
+sub cigar_line {
+	my $self = shift;
+	my $thr=shift||100;
+	my %cigars;
+
+	my @consensus = split "",($self->consensus_string($thr));
+	my $len = $self->length;
+	my $gapchar = $self->gap_char;
+
+	# create a precursor, something like (1,4,5,6,7,33,45),
+	# where each number corresponds to a conserved position
+	foreach my $seq ( $self->each_seq ) {
+		my @seq = split "", uc ($seq->seq);
+		my $pos = 1;
+		for (my $x = 0 ; $x < $len ; $x++ ) {
+			if ($seq[$x] eq $consensus[$x]) {
+				push @{$cigars{$seq->get_nse}},$pos;
+				$pos++;
+			} elsif ($seq[$x] ne $gapchar) {
+				$pos++;
+			}
+		}
+	}
+	# duplicate numbers - (1,4,5,6,7,33,45) becomes (1,1,4,5,6,7,33,33,45,45)
+	for my $name (keys %cigars) {
+		splice @{$cigars{$name}}, 1, 0, ${$cigars{$name}}[0] if
+		  ( ${$cigars{$name}}[0] + 1 < ${$cigars{$name}}[1] );
+      push @{$cigars{$name}}, ${$cigars{$name}}[$#{$cigars{$name}}] if
+           ( ${$cigars{$name}}[($#{$cigars{$name}} - 1)] + 1 <
+		          ${$cigars{$name}}[$#{$cigars{$name}}] );
+		for ( my $x = 1 ; $x < $#{$cigars{$name}} - 1 ; $x++) {
+			if (${$cigars{$name}}[$x - 1] + 1 < ${$cigars{$name}}[$x]  &&
+		       ${$cigars{$name}}[$x + 1]  > ${$cigars{$name}}[$x] + 1) {
+	         splice @{$cigars{$name}}, $x, 0, ${$cigars{$name}}[$x];
+			}
+      }
+	}
+  # collapse series - (1,1,4,5,6,7,33,33,45,45) becomes (1,1,4,7,33,33,45,45)
+  for my $name (keys %cigars) {
+	  my @remove;
+	  for ( my $x = 0 ; $x < $#{$cigars{$name}} ; $x++) {
+		   if ( ${$cigars{$name}}[$x] == ${$cigars{$name}}[($x - 1)] + 1 &&
+			     ${$cigars{$name}}[$x] == ${$cigars{$name}}[($x + 1)] - 1 ) {
+		      unshift @remove,$x;
+	      }
+	   }
+      for my $pos (@remove) {
+		  	splice @{$cigars{$name}}, $pos, 1;
+	   }
+   }
+   # join and punctuate
+   for my $name (keys %cigars) {
+ 	  my ($start,$end,$str) = "";
+ 	  while ( ($start,$end) = splice @{$cigars{$name}}, 0, 2 ) {
+ 		  $str .= ($start . "," . $end . ":");
+ 	  }
+ 	  $str =~ s/:$//;
+      $cigars{$name} = $str;
+   }
+   %cigars;
+}
+
+
+=head2 match_line
+
+ Title    : match_line()
+ Usage    : $line = $aln->match_line()
+ Function : Generates a match line - much like consensus string
+            except that a line indicating the '*' for a match.
+ Args     : (optional) Match line characters ('*' by default)
+            (optional) Strong match char (':' by default)
+            (optional) Weak match char ('.' by default)
+ Returns  : String
+
+=cut
+
+sub match_line {
+	my ($self,$matchlinechar, $strong, $weak) = @_;
+	my %matchchars = ('match'    => $matchlinechar || '*',
+							  'weak'     => $weak          || '.',
+							  'strong'   => $strong        || ':',
+							  'mismatch' => ' ',
+						  );
+
+	my @seqchars;
+	my $alphabet;
+	foreach my $seq ( $self->each_seq ) {
+		push @seqchars, [ split(//, uc ($seq->seq)) ];
+		$alphabet = $seq->alphabet unless defined $alphabet;
+	}
+	my $refseq = shift @seqchars;
+	# let's just march down the columns
+	my $matchline;
+ POS:
+	foreach my $pos ( 0..$self->length ) {
+		my $refchar = $refseq->[$pos];
+		my $char = $matchchars{'mismatch'};
+		unless( defined $refchar ) {
+			last if $pos == $self->length; # short circuit on last residue
+			# this in place to handle jason's soon-to-be-committed
+			# intron mapping code
+			goto bottom;
+		}
+		my %col = ($refchar => 1);
+		my $dash = ($refchar eq '-' || $refchar eq '.' || $refchar eq ' ');
+		foreach my $seq ( @seqchars ) {
+			next if $pos >= scalar @$seq;
+			$dash = 1 if( $seq->[$pos] eq '-' || $seq->[$pos] eq '.' ||
+							  $seq->[$pos] eq ' ' );
+			$col{$seq->[$pos]}++ if defined $seq->[$pos];
+		}
+		my @colresidues = sort keys %col;
+
+		# if all the values are the same
+		if( $dash ) { $char =  $matchchars{'mismatch'} }
+		elsif( @colresidues == 1 ) { $char = $matchchars{'match'} }
+		elsif( $alphabet eq 'protein' ) { # only try to do weak/strong
+			# matches for protein seqs
+	    TYPE:
+			foreach my $type ( qw(strong weak) ) {
+				# iterate through categories
+				my %groups;
+				# iterate through each of the aa in the col
+				# look to see which groups it is in
+				foreach my $c ( @colresidues ) {
+					foreach my $f ( grep { index($_,$c) >= 0 } @{$CONSERVATION_GROUPS{$type}} ) {
+						push @{$groups{$f}},$c;
+					}
+				}
+			 GRP:
+				foreach my $cols ( values %groups ) {
+					@$cols = sort @$cols;
+					# now we are just testing to see if two arrays
+					# are identical w/o changing either one
+					# have to be same len
+					next if( scalar @$cols != scalar @colresidues );
+					# walk down the length and check each slot
+					for($_=0;$_ < (scalar @$cols);$_++ ) {
+						next GRP if( $cols->[$_] ne $colresidues[$_] );
+					}
+					$char = $matchchars{$type};
+					last TYPE;
+				}
+			}
+		}
+	 bottom:
+		$matchline .= $char;
+	}
+	return $matchline;
+}
+
+
+=head2 gap_line
+
+ Title    : gap_line()
+ Usage    : $line = $aln->gap_line()
+ Function : Generates a gap line - much like consensus string
+            except that a line where '-' represents gap
+ Args     : (optional) gap line characters ('-' by default)
+ Returns  : string
+
+=cut
+
+sub gap_line {
+    my ($self,$gapchar) = @_;
+    $gapchar = $gapchar || $self->gap_char;
+    my %gap_hsh; # column gaps vector
+    foreach my $seq ( $self->each_seq ) {
+		my $i = 0;
+    	map {$gap_hsh{$_->[0]} = undef} grep {$_->[1] eq $gapchar}
+		  map {[$i++, $_]} split(//, uc ($seq->seq));
+    }
+    my $gap_line;
+    foreach my $pos ( 0..$self->length-1 ) {
+	  $gap_line .= (exists $gap_hsh{$pos}) ? $gapchar:'.';
+    }
+    return $gap_line;
+}
+
+=head2 all_gap_line
+
+ Title    : all_gap_line()
+ Usage    : $line = $aln->all_gap_line()
+ Function : Generates a gap line - much like consensus string
+            except that a line where '-' represents all-gap column
+ Args     : (optional) gap line characters ('-' by default)
+ Returns  : string
+
+=cut
+
+sub all_gap_line {
+    my ($self,$gapchar) = @_;
+    $gapchar = $gapchar || $self->gap_char;
+    my %gap_hsh;		# column gaps counter hash
+    my @seqs = $self->each_seq;
+    foreach my $seq ( @seqs ) {
+	my $i = 0;
+    	map {$gap_hsh{$_->[0]}++} grep {$_->[1] eq $gapchar}
+	map {[$i++, $_]} split(//, uc ($seq->seq));
+    }
+    my $gap_line;
+    foreach my $pos ( 0..$self->length-1 ) {
+	if (exists $gap_hsh{$pos} && $gap_hsh{$pos} == scalar @seqs) {
+            # gaps column
+	    $gap_line .= $gapchar;
+	} else {
+	    $gap_line .= '.';
+	}
+    }
+    return $gap_line;
+}
+
+=head2 gap_col_matrix
+
+ Title    : gap_col_matrix()
+ Usage    : my $cols = $aln->gap_col_matrix()
+ Function : Generates an array of hashes where
+            each entry in the array is a hash reference
+            with keys of all the sequence names and
+            and value of 1 or 0 if the sequence has a gap at that column
+ Args     : (optional) gap line characters ($aln->gap_char or '-' by default)
+
+=cut
+
+sub gap_col_matrix {
+    my ($self,$gapchar) = @_;
+    $gapchar = $gapchar || $self->gap_char;
+    my %gap_hsh; # column gaps vector
+    my @cols;
+    foreach my $seq ( $self->each_seq ) {
+	my $i = 0;
+	my $str = $seq->seq;
+	my $len = $seq->length;
+	my $ch;
+	my $id = $seq->display_id;
+	while( $i < $len ) {
+	    $ch = substr($str, $i, 1);
+	    $cols[$i++]->{$id} = ($ch eq $gapchar);
+	}
+    }
+    return \@cols;
+}
+
+
+=head1 MSA attributes
+
+Methods for setting and reading the MSA attributes.
+
+Note that the methods defining character semantics depend on the user
+to set them sensibly.  They are needed only by certain input/output
+methods. Unset them by setting to an empty string ('').
+
+=head2 id
+
+ Title     : id
+ Usage     : $myalign->id("Ig")
+ Function  : Gets/sets the id field of the alignment
+ Returns   : An id string
+ Argument  : An id string (optional)
+
+=cut
+
+sub id {
+    my ($self, $name) = @_;
+
+    if (defined( $name )) {
+	$self->{'_id'} = $name;
+    }
+
+    return $self->{'_id'};
+}
+
+=head2 accession
+
+ Title     : accession
+ Usage     : $myalign->accession("PF00244")
+ Function  : Gets/sets the accession field of the alignment
+ Returns   : An acc string
+ Argument  : An acc string (optional)
+
+=cut
+
+sub accession {
+    my ($self, $acc) = @_;
+
+    if (defined( $acc )) {
+	$self->{'_accession'} = $acc;
+    }
+
+    return $self->{'_accession'};
+}
+
+=head2 description
+
+ Title     : description
+ Usage     : $myalign->description("14-3-3 proteins")
+ Function  : Gets/sets the description field of the alignment
+ Returns   : An description string
+ Argument  : An description string (optional)
+
+=cut
+
+sub description {
+    my ($self, $name) = @_;
+
+    if (defined( $name )) {
+	$self->{'_description'} = $name;
+    }
+
+    return $self->{'_description'};
+}
+
+=head2 source
+
+ Title   : source
+ Usage   : $aln->source($newval)
+ Function: sets the Alignment source program
+ Example :
+ Returns : value of source
+ Args    : newvalue (optional)
+
+
+=cut
+
+sub source{
+   my ($self,$value) = @_;
+   if( defined $value) {
+      $self->{'_source'} = $value;
+    }
+    return $self->{'_source'};
+}
+
+=head2 missing_char
+
+ Title     : missing_char
+ Usage     : $myalign->missing_char("?")
+ Function  : Gets/sets the missing_char attribute of the alignment
+             It is generally recommended to set it to 'n' or 'N'
+             for nucleotides and to 'X' for protein.
+ Returns   : An missing_char string,
+ Argument  : An missing_char string (optional), default as '?'
+
+=cut
+
+sub missing_char {
+    my ($self, $char) = @_;
+	
+	if (defined $char || ! defined $self->{'_missing_char'} ) {
+		$char= '?' unless defined $char;
+		$self->throw("Single gap character, not [$char]!") if CORE::length($char) > 1;
+		$self->{'_missing_char'} = $char;
+	}
+
+    return $self->{'_missing_char'};
+}
+
+=head2 match_char
+
+ Title     : match_char
+ Usage     : $myalign->match_char('.')
+ Function  : Gets/sets the match_char attribute of the alignment
+ Returns   : An match_char string,
+ Argument  : An match_char string (optional), default as '.'
+
+=cut
+
+sub match_char {
+    my ($self, $char) = @_;
+
+	if (defined $char || ! defined $self->{'_match_char'} ) {
+		$char= '.' unless defined $char;
+		$self->throw("Single gap character, not [$char]!") if CORE::length($char) > 1;
+		$self->{'_match_char'} = $char;
+	}
+
+    return $self->{'_match_char'};
+}
+
+=head2 gap_char
+
+ Title     : gap_char
+ Usage     : $myalign->gap_char('-')
+ Function  : Gets/sets the gap_char attribute of the alignment
+ Returns   : An gap_char string, defaults to '-'
+ Argument  : An gap_char string (optional), default as '-'
+
+=cut
+
+sub gap_char {
+    my ($self, $char) = @_;
+
+	if (defined $char || ! defined $self->{'_gap_char'} ) {
+		$char= '-' unless defined $char;
+		$self->throw("Single gap character, not [$char]!") if CORE::length($char) > 1;
+		$self->{'_gap_char'} = $char;
+	}
+	return $self->{'_gap_char'};
+}
+
+=head2 mask_char
+
+ Title     : mask_char
+ Usage     : $aln->mask_char('?')
+ Function  : Gets/sets the mask_char attribute of the alignment
+ Returns   : An mask_char string,
+ Argument  : An mask_char string (optional), default as '?'
+
+=cut
+
+sub mask_char {
+	my ($self, $char) = @_;
+	
+	#may need to check whether $char is the same with _gap_char, _match_char and _missing_char
+	if (defined $char || ! defined $self->{'_mask_char'} ) {
+		$char= '?' unless defined $char;
+		$self->throw("Single mask character, not [$char]!") if CORE::length($char) > 1;
+		$self->{'_mask_char'} = $char;
+	}
+	return $self->{'_mask_char'};
+}
+
+=head2 symbol_chars
+
+ Title   : symbol_chars
+ Usage   : my @symbolchars = $aln->symbol_chars;
+ Function: Returns all the seen symbols (other than gaps)
+ Returns : array of characters that are the seen symbols
+ Args    : boolean to include the gap/missing/match characters
+
+=cut
+
+sub symbol_chars{
+   my ($self,$includeextra) = @_;
+
+   unless ($self->{'_symbols'}) {
+       foreach my $seq ($self->each_seq) {
+           map { $self->{'_symbols'}->{$_} = 1; } split(//,$seq->seq);
+       }
+   }
+   my %copy = %{$self->{'_symbols'}};
+   if( ! $includeextra ) {
+       foreach my $char ( $self->gap_char, $self->match_char,
+			  $self->missing_char, $self->mask_char) {
+	   delete $copy{$char} if( defined $char );
+       }
+   }
+   return keys %copy;
+}
+
+
+
+=head1 Alignment descriptors
+
+These read only methods describe the MSA in various ways.
+
+
+=head2 score
+
+ Title     : score
+ Usage     : $str = $ali->score()
+ Function  : get/set a score of the alignment
+ Returns   : a score for the alignment
+ Argument  : an optional score to set
+
+=cut
+
+sub score {
+  my $self = shift;
+  $self->{score} = shift if @_;
+  return $self->{score};
+}
+
 
 
 =head2 is_flush
@@ -3041,17 +3061,6 @@ sub pairwise_percentage_identity {
 	return @pairwise_iden;
 }
 
-=head1 Alignment positions
-
-Methods to map a sequence position into an alignment column and back.
-column_from_residue_number() does the former. The latter is really a
-property of the sequence object and can done using
-L<Bio::LocatableSeq::location_from_column>:
-
-    # select somehow a sequence from the alignment, e.g.
-    my $seq = $aln->get_seq_by_pos(1);
-    #$loc is undef or Bio::LocationI object
-    my $loc = $seq->location_from_column(5);
 
 =head2 column_from_residue_number
 
@@ -3105,6 +3114,7 @@ sub column_from_residue_number {
 		 "containing residue number $resnumber");
 
 }
+
 
 =head1 Sequence names
 
@@ -3296,27 +3306,6 @@ sub restore_displayname {
     }
     return $new;
 }
-
-=head2 source
-
- Title   : source
- Usage   : $obj->source($newval)
- Function: sets the Alignment source program
- Example :
- Returns : value of source
- Args    : newvalue (optional)
-
-
-=cut
-
-sub source{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'_source'} = $value;
-    }
-    return $self->{'_source'};
-}
-
 
 
 =head2 methods implementing Bio::FeatureHolderI
