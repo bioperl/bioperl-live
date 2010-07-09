@@ -1160,7 +1160,7 @@ sub select_Seqs {
 	
 	my @positions;
 	if($toggle) {
-		@positions=@{_toggle_selection($sel)};
+		@positions=@{_toggle_selection($sel,$self->num_sequences)};
 	}
 	else {
 		@positions=@{$sel};
@@ -1377,14 +1377,14 @@ sub _remove_col {
     my $gap = $self->gap_char;
     
     # splice out the segments and create new seq
-    my ($firststart,$firstend)=@{$remove->[0]};
+    my ($firststart,$firstend)=($remove->[0][0]-1,$remove->[0][1]-1);
     foreach my $seq($self->each_seq){
 		my $sequence = $seq->seq;
 		my $orig = $sequence;
 		#calculate the new start
 		if ($firststart == 0) {
 		  my $start_adjust = () = substr($orig, 0, $firstend + 1) =~ /$gap/g;
-		  $seq->start($seq->firststart + $firstend + 1 - $start_adjust);
+		  $seq->start($seq->start() + $firstend + 1 - $start_adjust);
 		}
 		else {
 		  my $start_adjust = $orig =~ /^$gap+/;
@@ -1402,14 +1402,12 @@ sub _remove_col {
             my $head =  $start > 0 ? substr($sequence, 0, $start) : '';
             my $tail = ($end + 1) >= CORE::length($sequence) ? '' : substr($sequence, $end + 1);
             $sequence = $head.$tail;
-
+				$seq->seq($sequence) if $sequence;
+				
             #calculate the new end
             if (($end + 1) >= CORE::length($orig)) {
                 my $end_adjust = () = substr($orig, $start) =~ /$gap/g;
                 $seq->end($seq->end - (CORE::length($orig) - $start) + $end_adjust);
-            }
-            else {
-                $seq->end($seq->end);
             }
         }
         
@@ -1420,7 +1418,6 @@ sub _remove_col {
             $seq->end(0);
         }
         
-        $seq->seq($sequence) if $sequence;
     }
     
     # fix for meta, sf, ann    
@@ -1556,6 +1553,11 @@ sub _cont_coords {
 	
 	push @{$cont_coords},$old_coords->[0];
 	for(my $num=0;$num<@{$old_coords};) {
+		if($num==@{$old_coords}-1) {
+			#for single selection
+			push @{$cont_coords},$old_coords->[$num];
+			last;
+		}
 		if($old_coords->[$num+1]-$old_coords->[$num]>1) {
 			if($num+2==@{$old_coords}) {
 				push @{$cont_coords},$old_coords->[$num],$old_coords->[$num+1],$old_coords->[$num+1];
