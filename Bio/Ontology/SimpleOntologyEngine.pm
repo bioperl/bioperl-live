@@ -399,14 +399,17 @@ sub _add_relationship_simple{
    my ($self, $store, $rel, $inverted) = @_;
    my $parent_id;
    my $child_id;
+   my $subject = $rel->subject_term;
+   my $object  = $rel->object_term;
+
 
    if ($inverted) {
-		$parent_id = $rel->subject_term->identifier;
-		$child_id = $rel->object_term->identifier;
+		$parent_id = $subject ? $subject->identifier : '';
+		$child_id =  $object  ? $object->identifier : '';
    }
    else {
-		$parent_id = $rel->object_term->identifier;
-		$child_id = $rel->subject_term->identifier;
+		$parent_id = $object ? $object->identifier : '';
+		$child_id =  $subject ? $subject->identifier : '';
    }
    if(defined $store->{$parent_id} && (defined $store->{$parent_id}->{$child_id}) &&
       ($store->{$parent_id}->{$child_id}->name != $rel->predicate_term->name)){
