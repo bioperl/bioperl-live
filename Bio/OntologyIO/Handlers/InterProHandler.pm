@@ -473,6 +473,12 @@ sub start_element {
                 -name       => "post-translational modification"
             )
         );
+        $ont->add_term(
+            $fact->create_object(
+                -identifier => "Region",
+                -name       => "Region"
+            )
+        );
     } elsif ( $element->{Name} eq 'interpro' ) {
         my %record_args = %{ $element->{Attributes} };
         my $id          = $record_args{"id"};
