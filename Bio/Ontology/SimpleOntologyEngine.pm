@@ -391,22 +391,19 @@ sub _relationship_type_store {
 
 sub _add_relationship_simple {
     my ( $self, $store, $rel, $inverted ) = @_;
-    my $parent_id;
-    my $child_id;
-    my $subject = $rel->subject_term;
-    my $object  = $rel->object_term;
 
-    if ($inverted) {
-        $parent_id = $subject ? $subject->identifier : '';
-        $child_id  = $object  ? $object->identifier  : '';
-    } else {
-        $parent_id = $object  ? $object->identifier  : '';
-        $child_id  = $subject ? $subject->identifier : '';
-    }
-    if (   defined $store->{$parent_id}
-        && ( defined $store->{$parent_id}->{$child_id} )
-        && ( $store->{$parent_id}->{$child_id}->name != $rel->predicate_term->name ) )
-    {
+    my $subject = $rel->subject_term
+        or $self->throw('cannot add relationship, relationship has no subject_term');
+    my $object  = $rel->object_term
+        or $self->throw('cannot add relationship, relationship has no object_term');
+
+    my ( $parent_id, $child_id ) = ( $object->identifier, $subject->identifier );
+    ( $parent_id, $child_id ) = ( $child_id, $parent_id ) if $inverted;
+
+    if (     defined $store->{$parent_id}
+         &&  defined $store->{$parent_id}->{$child_id}
+         && $store->{$parent_id}->{$child_id}->name != $rel->predicate_term->name
+     ) {
         $self->throw( "relationship "
                 . Dumper( $rel->predicate_term )
                 . " between "
@@ -415,9 +412,10 @@ sub _add_relationship_simple {
                 . " already defined as "
                 . Dumper( $store->{$parent_id}->{$child_id} )
                 . "\n" );
-    } else {
-        $store->{$parent_id}->{$child_id} = $rel->predicate_term;
     }
+
+    # all is well if we get here
+    $store->{$parent_id}->{$child_id} = $rel->predicate_term;
 }
 
 =head2 add_relationship
