@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 64);
+    test_begin(-tests => 67);
 	
     use_ok('Bio::Root::IO');
 }
@@ -141,7 +141,7 @@ ok close($O);
 ok my $fio = Bio::Root::IO->new(-file=>">$file");
 ok $fio->_print("line 1\n"), '_print';
 ok $fio->_print("line 2\n");
-ok $fio->_insert("insertion at line 2\n",2), '_insert';
+ok $fio->_insert("insertion at line 2\n",2), '_insert at middle of file';
 ok $fio->_print("line 3\n");
 ok $fio->_print("line 4\n");
 $fio->close;
@@ -150,6 +150,15 @@ open my $checkio, '<', $file;
 my @content = <$checkio>;
 close $checkio;
 is_deeply \@content, ["line 1\n","insertion at line 2\n","line 2\n","line 3\n","line 4\n"];
+
+ok $fio = Bio::Root::IO->new(-file=>">$file");
+ok $fio->_insert("insertion at line 1\n",1), '_insert in empty file';
+$fio->close;
+
+open my $checkio, '<', $file;
+my @content = <$checkio>;
+close $checkio;
+is_deeply \@content, ["insertion at line 1\n"];
 
 
 ##############################################

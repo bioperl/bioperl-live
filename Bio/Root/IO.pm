@@ -483,7 +483,7 @@ sub _print {
 
     Title   : _insert
     Usage   : $obj->_insert($string,1)
-    Function: Insert some text in a file at the given line number (1-based)
+    Function: Insert some text in a file at the given line number (1-based).
     Returns : 1 on success
     Args    : string to write in file
               line number to insert the string at
@@ -510,7 +510,7 @@ sub _insert {
     {
         local @ARGV = ($file);     # input file
         local $^I = '.bac';        # in-place editing mode
-        while(<>){
+        while (<>) {
             if ($. == $line_num) { # right line for new data
                 print $string.$_;
             } else {
@@ -519,7 +519,7 @@ sub _insert {
         }
     }
     # Line number check (again)
-    if ($line_num > $.) {
+    if ( $. > 0 && $line_num > $. ) {
         $self->throw("Cannot insert text at line $line_num because there are ".
             "only $. lines in file $file");
     }
@@ -527,6 +527,10 @@ sub _insert {
     # when the next _print() statement comes
     open my $new_fh, ">>$file" or $self->throw("Cannot append to file $file: $!");
     $self->_fh($new_fh);
+    # If file is empty and we're inserting at line 1, simply append text to file
+    if ( $. == 0 && $line_num == 1 ) {
+        $self->_print($string);
+    }
     return 1;
 }
 
