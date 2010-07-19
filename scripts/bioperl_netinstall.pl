@@ -29,11 +29,11 @@ Save this to disk as "bioperl_netinstall.pl" and run:
 
    [sudo] perl bioperl_netinstall.pl
 
-=AUTHOR
+=head1 AUTHOR
 
 Scott Cain scain@cpan.org
 
-=COPYRIGHT
+=head1 COPYRIGHT
 
 2010. This script may be distributed under the same license as perl.
 

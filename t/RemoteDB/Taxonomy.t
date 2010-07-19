@@ -211,7 +211,7 @@ SKIP: {
     
     my $lca = $db_entrez->get_taxon(314146);
     my @descs = $db_entrez->get_all_Descendents($lca);
-    is @descs, 17;
+    cmp_ok @descs, '>=', 17;
 }
 
 # bug 2461
