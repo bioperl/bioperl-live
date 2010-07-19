@@ -467,7 +467,9 @@ sub start_element {
     ## and the term describing its type
 
     my $rel = Bio::Ontology::Relationship->new( -predicate_term => $is_a_rel );
-    $rel->object_term( ($ont->engine->get_term_by_identifier($record_args{"type"}))[0] );
+    my ($object_term) = $ont->find_terms( -identifier => $record_args{"type"} )
+        or $self->throw("when processing interpro ID '$id', no term found for interpro type '$record_args{type}'");
+    $rel->object_term( $object_term );
     $rel->subject_term( $self->_term );
     $rel->ontology($ont);
     $ont->add_relationship($rel);
