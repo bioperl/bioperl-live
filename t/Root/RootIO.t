@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 53);
+    test_begin(-tests => 64);
 	
     use_ok('Bio::Root::IO');
 }
@@ -78,9 +78,11 @@ ok $file;
 #test with files
 
 ok my $rio = Bio::Root::IO->new(-file=>$TESTINFILE);
+is $rio->file, $TESTINFILE;
 is $rio->mode, 'r', 'filename, read';
 
 ok my $wio = Bio::Root::IO->new(-file=>">$file");
+is $wio->file, ">$file";
 is $wio->mode, 'w', 'filename, write';
 
 # test with handles
@@ -89,9 +91,11 @@ ok open(my $I, $TESTINFILE);
 ok open(my $O, '>', $file);
 
 ok $rio = Bio::Root::IO->new(-fh=>$I);
+is $rio->_fh, $I;
 is $rio->mode, 'r', 'handle, read';
 
 ok $wio = Bio::Root::IO->new(-fh=>$O);
+is $wio->_fh, $O;
 is $wio->mode, 'w', 'handle, write';
 
 SKIP: {
@@ -129,6 +133,24 @@ isnt $line5, $line4;
 
 ok close($I);
 ok close($O);
+
+##############################################
+# test _print and _insert
+##############################################
+
+ok my $fio = Bio::Root::IO->new(-file=>">$file");
+ok $fio->_print("line 1\n"), '_print';
+ok $fio->_print("line 2\n");
+ok $fio->_insert("insertion at line 2\n",2), '_insert';
+ok $fio->_print("line 3\n");
+ok $fio->_print("line 4\n");
+$fio->close;
+
+open my $checkio, '<', $file;
+my @content = <$checkio>;
+close $checkio;
+is_deeply \@content, ["line 1\n","insertion at line 2\n","line 2\n","line 3\n","line 4\n"];
+
 
 ##############################################
 # test Win vs UNIX line ending
