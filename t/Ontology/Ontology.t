@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 52,
+    test_begin(-tests => 53,
 			   -requires_module => 'Graph');
 	
 	use_ok('Bio::OntologyIO');
@@ -22,7 +22,7 @@ my $parser = Bio::OntologyIO->new(
 		      -file      => test_input_file('sofa.ontology'));
 
 my $ont = $parser->next_ontology();
-ok ($ont);
+isa_ok ($ont, 'Bio::Ontology::Ontology');
 is ($ont->name, "Sequence Feature Ontology");
 
 my @roots = $ont->get_root_terms();
@@ -146,3 +146,11 @@ is (scalar(@rels), 5);
 is (scalar(@relset), 3);
 @relset = grep { $_->object_term->identifier eq "SO:0000233"; } @rels;
 is (scalar(@relset), 4);
+
+{
+    my $parser = Bio::OntologyIO->new(
+                        -format    => "interpro",
+                        -file      => test_input_file('interpro.xml'),
+                );
+    ok($parser->next_ontology, 'Interpro XML can be parsed');
+}
