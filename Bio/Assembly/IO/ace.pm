@@ -278,6 +278,12 @@ sub next_contig {
                 $qual_string .= "$_ ";
             }
             my @qual_arr = $self->_input_qual($qual_string, $contigOBJ->get_consensus_sequence->seq);
+
+            ####
+            #use Data::Dumper; print Dumper(\@qual_arr);
+            #print scalar @qual_arr."\n";
+            ####
+
             my $qual = Bio::Seq::PrimaryQual->new(-qual => join(" ", @qual_arr),
                                                   -id   => $contigOBJ->id()   );
             $contigOBJ->set_consensus_quality($qual);
@@ -673,17 +679,22 @@ sub write_contig {
     Usage   : $ass_io->write_header($scaffold)
                   or
               $ass_io->write_header(\@contigs);
+                  or
+              $ass_io->write_header();
     Function: Write ACE header (AS tags). You can call this function at any time,
-              i.e. not necessarily at the start. This is especially useful if
-              you have an undetermined number of contigs to write to ACE.
-              Example:
-              for my $contig (@list_of_contigs) {
-                $ass_io->_write_contig($contig);
-              }
-              $ass_io->_write_header(\@list_of_contigs);
+              i.e. not necessarily at the start of the stream - this is useful
+              if you have an undetermined number of contigs to write to ACE, e.g:
+                for my $contig (@list_of_contigs) {
+                  $ass_io->_write_contig($contig);
+                }
+                $ass_io->_write_header();
     Returns : 1 on success, 0 for error
-    Args    : A Bio::Assembly::Scaffold or an arrayref of Bio::Assembly::Contig
-              and Singlet
+    Args    : A Bio::Assembly::Scaffold
+                  or
+              an arrayref of Bio::Assembly::Contig
+                  or
+              nothing (the header is dynamically written based on the ACE file
+              content)
 
 =cut
 
@@ -692,9 +703,9 @@ sub write_header {
 
     # Input validation
     my @contigs;
-    my $err_msg = "Must provide a single Bio::Assembly::Scaffold object or an ".
-        "arrayref of Bio::Assembly::Contig or Singlet objects when calling ".
-        "write_header";
+    my $err_msg = "If an input is given to write_header, it must be a single ".
+        "Bio::Assembly::Scaffold object or an arrayref of Bio::Assembly::Contig".
+        " or Singlet objects";
     my $ref = ref $input;
     if ( $ref eq 'ARRAY' ) {
        for my $obj ( @$input ) {
@@ -703,36 +714,33 @@ sub write_header {
        }
     } elsif ( $ref =~ m/Bio::Assembly::Scaffold/ ) {
        @contigs = ($input->all_contigs, $input->all_singlets);
-    } else {
-        $self->throw($err_msg);
-    } 
-
-    # Count number of contigs and reads
-    my $num_contigs = scalar @contigs;
-    my $num_reads   = 0;
-    for my $contig ( @contigs ) {
-        $num_reads += $contig->num_sequences;
     }
 
-    # Print ASsembly tag at the start of the file
-    my $header = "AS $num_contigs $num_reads\n\n";
-    if ( tell $self->_fh > 0 ) {
-        # Not at the beginning of the file, go to start of file for writing
-        seek $self->_fh, 0, 0;
+    # Count number of contigs and reads
+    my $num_contigs = 0;
+    my $num_reads   = 0;
+    if ( scalar @contigs > 0 ) {
+        # the contigs were provided
+        $num_contigs = scalar @contigs;
+        for my $contig ( @contigs ) {
+            $num_reads += $contig->num_sequences;
+        }
+    } else {
+        # need to read the contigs from file
+        $self->flush;
         my $file = $self->file(); # e.g. '+>output.ace'
         $file =~ s/^\+?[><]?//;   # e.g. 'output.ace'
-        my $prev_line = $header;
-        open my $read_fh, '<', $file or die "Error: Could not read file '$file':\n$!\n";
-        while ( my $read_line = <$read_fh> ) {
-            $self->_print( $prev_line );
-            $prev_line = $read_line;
+        my $read_io = Bio::Assembly::IO->new( -file => $file, -format => 'ace' );
+        while ( my $contig = $read_io->next_contig ) {
+            $num_contigs++;
+            $num_reads += $contig->num_sequences;
         }
-        $self->_print($prev_line);
-        close $read_fh;
-    } else {
-        # At first line, print header
-        $self->_print($header);
-    }    
+        $read_io->close;
+    }
+
+    # Write ASsembly tag at the start of the file
+    my $header = "AS $num_contigs $num_reads\n\n";
+    $self->_insert($header, 1);
 
     return 1;
 }
