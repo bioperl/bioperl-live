@@ -509,7 +509,8 @@ sub _insert {
     # Edit the file in place, line by line (no slurping)
     {
         local @ARGV = ($file);     # input file
-        local $^I = '.bac';        # in-place editing mode
+        #local $^I = '~';          # backup file extension, e.g. ~, .bak, .ori
+        local $^I = '';            # no backup file
         while (<>) {
             if ($. == $line_num) { # right line for new data
                 print $string.$_;

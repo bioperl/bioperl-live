@@ -155,8 +155,8 @@ ok $fio = Bio::Root::IO->new(-file=>">$file");
 ok $fio->_insert("insertion at line 1\n",1), '_insert in empty file';
 $fio->close;
 
-open my $checkio, '<', $file;
-my @content = <$checkio>;
+open $checkio, '<', $file;
+@content = <$checkio>;
 close $checkio;
 is_deeply \@content, ["insertion at line 1\n"];
 
