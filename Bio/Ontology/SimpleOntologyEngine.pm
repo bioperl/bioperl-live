@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::Ontology::SimpleOntologyEngine
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Peter Dimitrov <dimitrov@gnf.org>
 #
@@ -44,15 +44,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -78,9 +78,7 @@ Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::Ontology::SimpleOntologyEngine;
 use strict;
@@ -101,21 +99,22 @@ use base qw(Bio::Root::Root Bio::Ontology::OntologyEngineI);
 
 =cut
 
-sub new{
-  my ($class, @args) = @_;
-  my $self = $class->SUPER::new(@args);
-#   my %param = @args;
+sub new {
+    my ( $class, @args ) = @_;
+    my $self = $class->SUPER::new(@args);
 
-  $self->_term_store( {} );
-  $self->_relationship_store( {} );
-  $self->_inverted_relationship_store( {} );
-  $self->_relationship_type_store( {} );
-  $self->_instantiated_terms_store( {} );
+    #   my %param = @args;
 
-  # set defaults for the factories
-  $self->relationship_factory(Bio::Ontology::RelationshipFactory->new(
-				     -type => "Bio::Ontology::Relationship"));
-  return $self;
+    $self->_term_store(                  {} );
+    $self->_relationship_store(          {} );
+    $self->_inverted_relationship_store( {} );
+    $self->_relationship_type_store(     {} );
+    $self->_instantiated_terms_store(    {} );
+
+    # set defaults for the factories
+    $self->relationship_factory(
+        Bio::Ontology::RelationshipFactory->new( -type => "Bio::Ontology::Relationship" ) );
+    return $self;
 }
 
 =head2 _instantiated_terms_store
@@ -129,13 +128,13 @@ sub new{
 
 =cut
 
-sub _instantiated_terms_store{
-	my ($self, $value) = @_;
+sub _instantiated_terms_store {
+    my ( $self, $value ) = @_;
 
-	if( defined $value) {
-		$self->{'_instantiated_terms_store'} = $value;
-	}
-	return $self->{'_instantiated_terms_store'};
+    if ( defined $value ) {
+        $self->{'_instantiated_terms_store'} = $value;
+    }
+    return $self->{'_instantiated_terms_store'};
 }
 
 =head2 mark_instantiated
@@ -153,16 +152,16 @@ sub _instantiated_terms_store{
 
 =cut
 
-sub mark_instantiated{
-  my ($self, @terms) = @_;
+sub mark_instantiated {
+    my ( $self, @terms ) = @_;
 
-  foreach my $term (@terms) {
-	  $self->throw( "term ".$term->identifier." not in the term store\n" )
-		 if !defined $self->_term_store->{$term->identifier};
-	  $self->_instantiated_terms_store->{$term->identifier} = 1;
-  }
+    foreach my $term (@terms) {
+        $self->throw( "term " . $term->identifier . " not in the term store\n" )
+            if !defined $self->_term_store->{ $term->identifier };
+        $self->_instantiated_terms_store->{ $term->identifier } = 1;
+    }
 
-  return @terms;
+    return @terms;
 }
 
 =head2 mark_uninstantiated
@@ -177,17 +176,17 @@ sub mark_instantiated{
 
 =cut
 
-sub mark_uninstantiated{
-  my ($self, @terms) = @_;
+sub mark_uninstantiated {
+    my ( $self, @terms ) = @_;
 
-  foreach my $term (@terms) {
-    $self->throw( "term ".$term->identifier." not in the term store\n" )
-      if !defined $self->_term_store->{$term->identifier};
-    delete $self->_instantiated_terms_store->{$term->identifier}
-      if defined $self->_instantiated_terms_store->{$term->identifier};
-  }
+    foreach my $term (@terms) {
+        $self->throw( "term " . $term->identifier . " not in the term store\n" )
+            if !defined $self->_term_store->{ $term->identifier };
+        delete $self->_instantiated_terms_store->{ $term->identifier }
+            if defined $self->_instantiated_terms_store->{ $term->identifier };
+    }
 
-  return @terms;
+    return @terms;
 }
 
 =head2 _term_store
@@ -201,19 +200,18 @@ sub mark_uninstantiated{
 
 =cut
 
-sub _term_store{
-  my ($self, $value) = @_;
+sub _term_store {
+    my ( $self, $value ) = @_;
 
-  if( defined $value) {
-    if ( defined $self->{'_term_store'}) {
-      $self->throw("_term_store already defined\n");
+    if ( defined $value ) {
+        if ( defined $self->{'_term_store'} ) {
+            $self->throw("_term_store already defined\n");
+        } else {
+            $self->{'_term_store'} = $value;
+        }
     }
-    else {
-      $self->{'_term_store'} = $value;
-    }
-  }
 
-  return $self->{'_term_store'};
+    return $self->{'_term_store'};
 }
 
 =head2 add_term
@@ -228,19 +226,18 @@ sub _term_store{
 
 =cut
 
-sub add_term{
-  my ($self, $term) = @_;
-  my $term_store = $self->_term_store;
+sub add_term {
+    my ( $self, $term ) = @_;
+    my $term_store = $self->_term_store;
 
-  if ( defined $term_store -> {$term->identifier}) {
-    $self->throw( "term ".$term->identifier." already defined\n" );
-  }
-  else {
-    $term_store->{$term->identifier} = $term;
-    $self->_instantiated_terms_store->{$term->identifier} = 1;
-  }
+    if ( defined $term_store->{ $term->identifier } ) {
+        $self->throw( "term " . $term->identifier . " already defined\n" );
+    } else {
+        $term_store->{ $term->identifier } = $term;
+        $self->_instantiated_terms_store->{ $term->identifier } = 1;
+    }
 
-  return $term;
+    return $term;
 }
 
 =head2 get_term_by_identifier
@@ -255,16 +252,16 @@ sub add_term{
 
 =cut
 
-sub get_term_by_identifier{
-  my ($self, @ids) = @_;
-  my @ans = ();
+sub get_term_by_identifier {
+    my ( $self, @ids ) = @_;
+    my @ans = ();
 
-  foreach my $id (@ids) {
-      my $term = $self->_term_store->{$id};
-      push @ans, $term if defined $term;
-  }
+    foreach my $id (@ids) {
+        my $term = $self->_term_store->{$id};
+        push @ans, $term if defined $term;
+    }
 
-  return @ans;
+    return @ans;
 }
 
 =head2 _get_number_rels
@@ -273,19 +270,19 @@ sub get_term_by_identifier{
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 =cut
 
-sub _get_number_rels{
-  my ($self) = @_;
-  my $num_rels = 0;
+sub _get_number_rels {
+    my ($self) = @_;
+    my $num_rels = 0;
 
-  foreach my $entry ($self->_relationship_store) {
-    $num_rels += scalar keys %$entry;
-  }
-  return $num_rels;
+    foreach my $entry ( $self->_relationship_store ) {
+        $num_rels += scalar keys %$entry;
+    }
+    return $num_rels;
 }
 
 =head2 _get_number_terms
@@ -294,15 +291,15 @@ sub _get_number_rels{
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 =cut
 
-sub _get_number_terms{
-  my ($self) = @_;
+sub _get_number_terms {
+    my ($self) = @_;
 
-  return scalar $self->_filter_unmarked( values %{$self->_term_store} );
+    return scalar $self->_filter_unmarked( values %{ $self->_term_store } );
 
 }
 
@@ -310,26 +307,25 @@ sub _get_number_terms{
 
  Title   : _storerelationship_store
  Usage   : $obj->relationship_store($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : reference to an array of Bio::Ontology::TermI objects
  Args    : reference to an array of Bio::Ontology::TermI objects
 
 =cut
 
-sub _relationship_store{
-  my ($self, $value) = @_;
+sub _relationship_store {
+    my ( $self, $value ) = @_;
 
-  if( defined $value) {
-	  if ( defined $self->{'_relationship_store'}) {
-		  $self->throw("_relationship_store already defined\n");
-	  }
-	  else {
-		  $self->{'_relationship_store'} = $value;
-	  }
-  }
+    if ( defined $value ) {
+        if ( defined $self->{'_relationship_store'} ) {
+            $self->throw("_relationship_store already defined\n");
+        } else {
+            $self->{'_relationship_store'} = $value;
+        }
+    }
 
-  return $self->{'_relationship_store'};
+    return $self->{'_relationship_store'};
 }
 
 =head2 _inverted_relationship_store
@@ -343,45 +339,43 @@ sub _relationship_store{
 
 =cut
 
-sub _inverted_relationship_store{
-	my ($self, $value) = @_;
+sub _inverted_relationship_store {
+    my ( $self, $value ) = @_;
 
-	if( defined $value) {
-		if ( defined $self->{'_inverted_relationship_store'}) {
-			$self->throw("_inverted_relationship_store already defined\n");
-		}
-		else {
-			$self->{'_inverted_relationship_store'} = $value;
-		}
-	}
+    if ( defined $value ) {
+        if ( defined $self->{'_inverted_relationship_store'} ) {
+            $self->throw("_inverted_relationship_store already defined\n");
+        } else {
+            $self->{'_inverted_relationship_store'} = $value;
+        }
+    }
 
-  return $self->{'_inverted_relationship_store'};
+    return $self->{'_inverted_relationship_store'};
 }
 
 =head2 _relationship_type_store
 
  Title   : _relationship_type_store
  Usage   : $obj->_relationship_type_store($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : reference to an array of Bio::Ontology::RelationshipType objects
  Args    : reference to an array of Bio::Ontology::RelationshipType objects
 
 =cut
 
-sub _relationship_type_store{
-  my ($self, $value) = @_;
+sub _relationship_type_store {
+    my ( $self, $value ) = @_;
 
-  if( defined $value) {
-	  if ( defined $self->{'_relationship_type_store'}) {
-		  $self->throw("_relationship_type_store already defined\n");
-	  }
-	  else {
-		  $self->{'_relationship_type_store'} = $value;
-	  }
-  }
+    if ( defined $value ) {
+        if ( defined $self->{'_relationship_type_store'} ) {
+            $self->throw("_relationship_type_store already defined\n");
+        } else {
+            $self->{'_relationship_type_store'} = $value;
+        }
+    }
 
-  return $self->{'_relationship_type_store'};
+    return $self->{'_relationship_type_store'};
 }
 
 =head2 _add_relationship_simple
@@ -390,34 +384,38 @@ sub _relationship_type_store{
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 =cut
 
-sub _add_relationship_simple{
-   my ($self, $store, $rel, $inverted) = @_;
-   my $parent_id;
-   my $child_id;
+sub _add_relationship_simple {
+    my ( $self, $store, $rel, $inverted ) = @_;
 
-   if ($inverted) {
-		$parent_id = $rel->subject_term->identifier;
-		$child_id = $rel->object_term->identifier;
-   }
-   else {
-		$parent_id = $rel->object_term->identifier;
-		$child_id = $rel->subject_term->identifier;
-   }
-   if(defined $store->{$parent_id} && (defined $store->{$parent_id}->{$child_id}) &&
-      ($store->{$parent_id}->{$child_id}->name != $rel->predicate_term->name)){
-		$self->throw("relationship ".Dumper($rel->predicate_term).
-						 " between ".$parent_id." and ".$child_id.
-						 " already defined as ".
-						 Dumper($store->{$parent_id}->{$child_id})."\n");
-   }
-   else {
-		$store->{$parent_id}->{$child_id} = $rel->predicate_term;
-   }
+    my $subject = $rel->subject_term
+        or $self->throw('cannot add relationship, relationship has no subject_term');
+    my $object  = $rel->object_term
+        or $self->throw('cannot add relationship, relationship has no object_term');
+
+    my ( $parent_id, $child_id ) = ( $object->identifier, $subject->identifier );
+    ( $parent_id, $child_id ) = ( $child_id, $parent_id ) if $inverted;
+
+    if (     defined $store->{$parent_id}
+         &&  defined $store->{$parent_id}->{$child_id}
+         && $store->{$parent_id}->{$child_id}->name != $rel->predicate_term->name
+     ) {
+        $self->throw( "relationship "
+                . Dumper( $rel->predicate_term )
+                . " between "
+                . $parent_id . " and "
+                . $child_id
+                . " already defined as "
+                . Dumper( $store->{$parent_id}->{$child_id} )
+                . "\n" );
+    }
+
+    # all is well if we get here
+    $store->{$parent_id}->{$child_id} = $rel->predicate_term;
 }
 
 =head2 add_relationship
@@ -431,17 +429,15 @@ sub _add_relationship_simple{
 
 =cut
 
-sub add_relationship{
-   my ($self, $rel) = @_;
+sub add_relationship {
+    my ( $self, $rel ) = @_;
 
-   $self->_add_relationship_simple($self->_relationship_store,
-				   $rel, 0);
-   $self->_add_relationship_simple($self->_inverted_relationship_store,
-				   $rel, 1);
-   $self->_relationship_type_store->{
-       $self->_unique_termid($rel->predicate_term)} = $rel->predicate_term;
+    $self->_add_relationship_simple( $self->_relationship_store,          $rel, 0 );
+    $self->_add_relationship_simple( $self->_inverted_relationship_store, $rel, 1 );
+    $self->_relationship_type_store->{ $self->_unique_termid( $rel->predicate_term ) } =
+        $rel->predicate_term;
 
-   return $rel;
+    return $rel;
 }
 
 =head2 get_relationships
@@ -455,58 +451,67 @@ sub add_relationship{
 
 =cut
 
-sub get_relationships{
+sub get_relationships {
     my $self = shift;
     my $term = shift;
     my @rels;
-    my $store = $self->_relationship_store;
-    my $relfact = $self->relationship_factory(); 
+    my $store   = $self->_relationship_store;
+    my $relfact = $self->relationship_factory();
 
-    my @parent_ids = $term ?
-		# if a term is supplied then only get the term's parents
-		(map { $_->identifier(); } $self->get_parent_terms($term)) :
-		  # otherwise use all parent ids
-		  (keys %{$store});
+    my @parent_ids = $term
+        ?
+
+        # if a term is supplied then only get the term's parents
+        ( map { $_->identifier(); } $self->get_parent_terms($term) )
+        :
+
+        # otherwise use all parent ids
+        ( keys %{$store} );
+
     # add the term as a parent too if one is supplied
-    push(@parent_ids,$term->identifier) if $term;
-    
+    push( @parent_ids, $term->identifier ) if $term;
+
     foreach my $parent_id (@parent_ids) {
-		 my $parent_entry = $store->{$parent_id};
+        my $parent_entry = $store->{$parent_id};
 
-		 # if a term is supplied, add a relationship for the parent to the term
-		 # except if the parent is the term itself (we added that one before)
-		 if($term && ($parent_id ne $term->identifier())) {
-			 my @parent_terms = $self->get_term_by_identifier($parent_id);
-			 foreach my $parent_term (@parent_terms) {
-				 push(@rels,
-						$relfact->create_object(-object_term    => $parent_term,
-														-subject_term   => $term,
-														-predicate_term =>
-														$parent_entry->{$term->identifier},
-														-ontology => $term->ontology())
-					  );
-			 }
-		 
-		 } else {
-			 # otherwise, i.e., no term supplied, or the parent equals the
-			 # supplied term
-			 my @parent_terms = $term ?
-				($term) : $self->get_term_by_identifier($parent_id);
-			 foreach my $child_id (keys %$parent_entry) {
-				 my $rel_info = $parent_entry->{$child_id};
-				 my ($subj_term) = $self->get_term_by_identifier($child_id);
+        # if a term is supplied, add a relationship for the parent to the term
+        # except if the parent is the term itself (we added that one before)
+        if ( $term && ( $parent_id ne $term->identifier() ) ) {
+            my @parent_terms = $self->get_term_by_identifier($parent_id);
+            foreach my $parent_term (@parent_terms) {
+                push(
+                    @rels,
+                    $relfact->create_object(
+                        -object_term    => $parent_term,
+                        -subject_term   => $term,
+                        -predicate_term => $parent_entry->{ $term->identifier },
+                        -ontology       => $term->ontology()
+                    )
+                );
+            }
 
-				 foreach my $parent_term (@parent_terms) {
-					 push(@rels,
-							$relfact->create_object(-object_term  => $parent_term,
-															-subject_term => $subj_term,
-															-predicate_term => $rel_info,
-															-ontology =>$parent_term->ontology
-														  )
-						  );
-				 }
-			 }
-		 }
+        } else {
+
+            # otherwise, i.e., no term supplied, or the parent equals the
+            # supplied term
+            my @parent_terms = $term ? ($term) : $self->get_term_by_identifier($parent_id);
+            foreach my $child_id ( keys %$parent_entry ) {
+                my $rel_info = $parent_entry->{$child_id};
+                my ($subj_term) = $self->get_term_by_identifier($child_id);
+
+                foreach my $parent_term (@parent_terms) {
+                    push(
+                        @rels,
+                        $relfact->create_object(
+                            -object_term    => $parent_term,
+                            -subject_term   => $subj_term,
+                            -predicate_term => $rel_info,
+                            -ontology       => $parent_term->ontology
+                        )
+                    );
+                }
+            }
+        }
     }
 
     return @rels;
@@ -523,7 +528,7 @@ sub get_relationships{
 
 =cut
 
-sub get_all_relationships{
+sub get_all_relationships {
     return shift->get_relationships();
 }
 
@@ -538,10 +543,10 @@ sub get_all_relationships{
 
 =cut
 
-sub get_predicate_terms{
-  my ($self) = @_;
+sub get_predicate_terms {
+    my ($self) = @_;
 
-  return values %{$self->_relationship_type_store};
+    return values %{ $self->_relationship_type_store };
 }
 
 =head2 _is_rel_type
@@ -550,23 +555,23 @@ sub get_predicate_terms{
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 =cut
 
-sub _is_rel_type{
-  my ($self, $term, @rel_types) = @_;
+sub _is_rel_type {
+    my ( $self, $term, @rel_types ) = @_;
 
-  foreach my $rel_type (@rel_types) {
-	  if($rel_type->identifier || $term->identifier) {
-		  return 1 if $rel_type->identifier eq $term->identifier;
-	  } else {
-		  return 1 if $rel_type->name eq $term->name;
-	  }
-  }
+    foreach my $rel_type (@rel_types) {
+        if ( $rel_type->identifier || $term->identifier ) {
+            return 1 if $rel_type->identifier eq $term->identifier;
+        } else {
+            return 1 if $rel_type->name eq $term->name;
+        }
+    }
 
-  return 0;
+    return 0;
 }
 
 =head2 _typed_traversal
@@ -580,38 +585,35 @@ sub _is_rel_type{
 
 =cut
 
-sub _typed_traversal{
-	my ($self, $rel_store, $level, $term_id, @rel_types) = @_;
-	return if !defined($rel_store->{$term_id});
-	my %parent_entry = %{$rel_store->{$term_id}};
-	my @children = keys %parent_entry;
+sub _typed_traversal {
+    my ( $self, $rel_store, $level, $term_id, @rel_types ) = @_;
+    return if !defined( $rel_store->{$term_id} );
+    my %parent_entry = %{ $rel_store->{$term_id} };
+    my @children     = keys %parent_entry;
 
-	my @ans;
+    my @ans;
 
-	if (@rel_types > 0) {
-		@ans = ();
+    if ( @rel_types > 0 ) {
+        @ans = ();
 
-		foreach my $child_id (@children) {
-			push @ans, $child_id
-			  if $self->_is_rel_type( $rel_store->{$term_id}->{$child_id},
-											  @rel_types);
-		}
-	}
-	else {
-		@ans = @children;
-	}
-	if ($level < 1) {
-		my @ans1 = ();
+        foreach my $child_id (@children) {
+            push @ans, $child_id
+                if $self->_is_rel_type( $rel_store->{$term_id}->{$child_id}, @rel_types );
+        }
+    } else {
+        @ans = @children;
+    }
+    if ( $level < 1 ) {
+        my @ans1 = ();
 
-		foreach my $child_id (@ans) {
-			push @ans1, $self->_typed_traversal($rel_store,
-								$level - 1, $child_id, @rel_types)
-			  if defined $rel_store->{$child_id};
-		}
-		push @ans, @ans1;
-	}
+        foreach my $child_id (@ans) {
+            push @ans1, $self->_typed_traversal( $rel_store, $level - 1, $child_id, @rel_types )
+                if defined $rel_store->{$child_id};
+        }
+        push @ans, @ans1;
+    }
 
-  return @ans;
+    return @ans;
 }
 
 =head2 get_child_terms
@@ -626,23 +628,24 @@ sub _typed_traversal{
            direct descendants.
  Example :
  Returns : Array of TermI objects.
- Args    : First argument is the term of interest, second is the list of 
+ Args    : First argument is the term of interest, second is the list of
            relationship type terms.
 
 =cut
 
-sub get_child_terms{
-	my ($self, $term, @relationship_types) = @_;
+sub get_child_terms {
+    my ( $self, $term, @relationship_types ) = @_;
 
-	$self->throw("must provide TermI compliant object") 
-	  unless defined($term) && $term->isa("Bio::Ontology::TermI");
+    $self->throw("must provide TermI compliant object")
+        unless defined($term) && $term->isa("Bio::Ontology::TermI");
 
-	return $self->_filter_unmarked(
-											 $self->get_term_by_identifier(
-						$self->_typed_traversal($self->_relationship_store,
-					   1,
-					   $term->identifier,
-					   @relationship_types) ) );
+    return $self->_filter_unmarked(
+        $self->get_term_by_identifier(
+            $self->_typed_traversal(
+                $self->_relationship_store, 1, $term->identifier, @relationship_types
+            )
+        )
+    );
 }
 
 =head2 get_descendant_terms
@@ -657,24 +660,26 @@ sub get_child_terms{
 
  Example :
  Returns : Array of TermI objects.
- Args    : First argument is the term of interest, second is the list of 
+ Args    : First argument is the term of interest, second is the list of
            relationship type terms.
 
 =cut
 
-sub get_descendant_terms{
-  my ($self, $term, @relationship_types) = @_;
+sub get_descendant_terms {
+    my ( $self, $term, @relationship_types ) = @_;
 
-  $self->throw("must provide TermI compliant object") 
-      unless defined($term) && $term->isa("Bio::Ontology::TermI");
+    $self->throw("must provide TermI compliant object")
+        unless defined($term) && $term->isa("Bio::Ontology::TermI");
 
-  return $self->_filter_unmarked(
-	     $self->_filter_repeated(
-	         $self->get_term_by_identifier(
-		     $self->_typed_traversal($self->_relationship_store,
-					     0,
-					     $term->identifier,
-					     @relationship_types) ) ) );
+    return $self->_filter_unmarked(
+        $self->_filter_repeated(
+            $self->get_term_by_identifier(
+                $self->_typed_traversal(
+                    $self->_relationship_store, 0, $term->identifier, @relationship_types
+                )
+            )
+        )
+    );
 }
 
 =head2 get_parent_terms
@@ -694,16 +699,18 @@ sub get_descendant_terms{
 
 =cut
 
-sub get_parent_terms{
-  my ($self, $term, @relationship_types) = @_;
-  $self->throw("term must be a valid object, not undef") unless defined $term;
+sub get_parent_terms {
+    my ( $self, $term, @relationship_types ) = @_;
+    $self->throw("term must be a valid object, not undef") unless defined $term;
 
-  return $self->_filter_unmarked(
-	    $self->get_term_by_identifier(
-		$self->_typed_traversal($self->_inverted_relationship_store,
-					1,
-					$term->identifier,
-					@relationship_types) ) );
+    return $self->_filter_unmarked(
+        $self->get_term_by_identifier(
+            $self->_typed_traversal(
+                $self->_inverted_relationship_store,
+                1, $term->identifier, @relationship_types
+            )
+        )
+    );
 }
 
 =head2 get_ancestor_terms
@@ -723,17 +730,20 @@ sub get_parent_terms{
 
 =cut
 
-sub get_ancestor_terms{
-  my ($self, $term, @relationship_types) = @_;
-  $self->throw("term must be a valid object, not undef") unless defined $term;
+sub get_ancestor_terms {
+    my ( $self, $term, @relationship_types ) = @_;
+    $self->throw("term must be a valid object, not undef") unless defined $term;
 
-  return $self->_filter_unmarked(
-	    $self->_filter_repeated(
-               $self->get_term_by_identifier(
-                  $self->_typed_traversal($self->_inverted_relationship_store,
-					  0,
-					  $term->identifier,
-					  @relationship_types) ) ) );
+    return $self->_filter_unmarked(
+        $self->_filter_repeated(
+            $self->get_term_by_identifier(
+                $self->_typed_traversal(
+                    $self->_inverted_relationship_store, 0,
+                    $term->identifier,                   @relationship_types
+                )
+            )
+        )
+    );
 }
 
 =head2 get_leaf_terms
@@ -747,17 +757,17 @@ sub get_ancestor_terms{
 
 =cut
 
-sub get_leaf_terms{
-  my ($self) = @_;
-  my @leaf_terms;
+sub get_leaf_terms {
+    my ($self) = @_;
+    my @leaf_terms;
 
-  foreach my $term (values %{$self->_term_store}) {
-	  push @leaf_terms, $term
-		 if !defined $self->_relationship_store->{$term->identifier} &&
-			defined $self->_instantiated_terms_store->{$term->identifier};
-  }
+    foreach my $term ( values %{ $self->_term_store } ) {
+        push @leaf_terms, $term
+            if !defined $self->_relationship_store->{ $term->identifier }
+                && defined $self->_instantiated_terms_store->{ $term->identifier };
+    }
 
-  return @leaf_terms;
+    return @leaf_terms;
 }
 
 =head2 get_root_terms
@@ -771,17 +781,17 @@ sub get_leaf_terms{
 
 =cut
 
-sub get_root_terms{
-  my ($self) = @_;
-  my @root_terms;
+sub get_root_terms {
+    my ($self) = @_;
+    my @root_terms;
 
-  foreach my $term (values %{$self->_term_store}) {
-    push @root_terms, $term
-      if !defined $self->_inverted_relationship_store->{$term->identifier} &&
-		  defined $self->_instantiated_terms_store->{$term->identifier};
-  }
+    foreach my $term ( values %{ $self->_term_store } ) {
+        push @root_terms, $term
+            if !defined $self->_inverted_relationship_store->{ $term->identifier }
+                && defined $self->_instantiated_terms_store->{ $term->identifier };
+    }
 
-  return @root_terms;
+    return @root_terms;
 }
 
 =head2 _filter_repeated
@@ -795,15 +805,15 @@ sub get_root_terms{
 
 =cut
 
-sub _filter_repeated{
-  my ($self, @args) = @_;
-  my %h;
+sub _filter_repeated {
+    my ( $self, @args ) = @_;
+    my %h;
 
-  foreach my $element (@args) {
-    $h{$element->identifier} = $element if !defined $h{$element->identifier};
-  }
+    foreach my $element (@args) {
+        $h{ $element->identifier } = $element if !defined $h{ $element->identifier };
+    }
 
-  return values %h;
+    return values %h;
 }
 
 =head2 get_all_terms
@@ -817,10 +827,10 @@ sub _filter_repeated{
 
 =cut
 
-sub get_all_terms{
-  my ($self) = @_;
+sub get_all_terms {
+    my ($self) = @_;
 
-  return $self->_filter_unmarked( values %{$self->_term_store} );
+    return $self->_filter_unmarked( values %{ $self->_term_store } );
 }
 
 =head2 find_terms
@@ -842,23 +852,22 @@ sub get_all_terms{
 
 =cut
 
-sub find_terms{
-    my ($self,@args) = @_;
+sub find_terms {
+    my ( $self, @args ) = @_;
     my @terms;
 
-    my ($id,$name) = $self->_rearrange([qw(IDENTIFIER NAME)],@args);
+    my ( $id, $name ) = $self->_rearrange( [qw(IDENTIFIER NAME)], @args );
 
-    if(defined($id)) {
-		 @terms = $self->get_term_by_identifier($id);
+    if ( defined($id) ) {
+        @terms = $self->get_term_by_identifier($id);
     } else {
-		 @terms = $self->get_all_terms();
+        @terms = $self->get_all_terms();
     }
-    if(defined($name)) {
-		 @terms = grep { $_->name() eq $name; } @terms;
+    if ( defined($name) ) {
+        @terms = grep { $_->name() eq $name; } @terms;
     }
     return @terms;
 }
-
 
 =head2 relationship_factory
 
@@ -867,14 +876,14 @@ sub find_terms{
  Function: Get/set the object factory to be used when relationship
            objects are created by the implementation on-the-fly.
 
- Example : 
+ Example :
  Returns : value of relationship_factory (a Bio::Factory::ObjectFactoryI
            compliant object)
  Args    : on set, a Bio::Factory::ObjectFactoryI compliant object
 
 =cut
 
-sub relationship_factory{
+sub relationship_factory {
     my $self = shift;
 
     return $self->{'relationship_factory'} = shift if @_;
@@ -892,20 +901,20 @@ sub relationship_factory{
            create term objects on the fly, and therefore setting this
            attribute is meaningless.
 
- Example : 
+ Example :
  Returns : value of term_factory (a Bio::Factory::ObjectFactoryI
            compliant object)
  Args    : on set, a Bio::Factory::ObjectFactoryI compliant object
 
 =cut
 
-sub term_factory{
+sub term_factory {
     my $self = shift;
 
-    if(@_) {
-		 $self->warn("setting term factory, but ".ref($self).
-						 " does not create terms on-the-fly");
-		 return $self->{'term_factory'} = shift;
+    if (@_) {
+        $self->warn(
+            "setting term factory, but " . ref($self) . " does not create terms on-the-fly" );
+        return $self->{'term_factory'} = shift;
     }
     return $self->{'term_factory'};
 }
@@ -921,18 +930,18 @@ sub term_factory{
 
 =cut
 
-sub _filter_unmarked{
-  my ($self, @terms) = @_;
-  my @filtered_terms = ();
+sub _filter_unmarked {
+    my ( $self, @terms ) = @_;
+    my @filtered_terms = ();
 
-  if ( scalar(@terms) >= 1) {
-    foreach my $term (@terms) {
-      push @filtered_terms, $term
-	if defined $self->_instantiated_terms_store->{$term->identifier};
+    if ( scalar(@terms) >= 1 ) {
+        foreach my $term (@terms) {
+            push @filtered_terms, $term
+                if defined $self->_instantiated_terms_store->{ $term->identifier };
+        }
     }
-  }
 
-  return @filtered_terms;
+    return @filtered_terms;
 }
 
 =head2 remove_term_by_id
@@ -948,18 +957,17 @@ sub _filter_unmarked{
 
 =cut
 
-sub remove_term_by_id{
-  my ($self, $id) = @_;
+sub remove_term_by_id {
+    my ( $self, $id ) = @_;
 
-  if ( $self->get_term_by_identifier($id) ) {
-	  my $term = $self->{_term_store}->{$id};
-	  delete $self->{_term_store}->{$id};
-	  return $term;
-  }
-  else {
-	  $self->warn("Term with id '$id' is not in the term store");
-	  return;
-  }
+    if ( $self->get_term_by_identifier($id) ) {
+        my $term = $self->{_term_store}->{$id};
+        delete $self->{_term_store}->{$id};
+        return $term;
+    } else {
+        $self->warn("Term with id '$id' is not in the term store");
+        return;
+    }
 }
 
 =head2 to_string
@@ -974,16 +982,16 @@ sub remove_term_by_id{
 
 =cut
 
-sub to_string{
-  my ($self) = @_;
-  my $s = "";
+sub to_string {
+    my ($self) = @_;
+    my $s = "";
 
-  $s .= "-- # Terms:\n";
-  $s .= scalar($self->get_all_terms)."\n";
-  $s .= "-- # Relationships:\n";
-  $s .= $self->_get_number_rels."\n";
+    $s .= "-- # Terms:\n";
+    $s .= scalar( $self->get_all_terms ) . "\n";
+    $s .= "-- # Relationships:\n";
+    $s .= $self->_get_number_rels . "\n";
 
-  return $s;
+    return $s;
 }
 
 =head2 _unique_termid
@@ -991,7 +999,7 @@ sub to_string{
  Title   : _unique_termid
  Usage   :
  Function: Returns a string that can be used as ID using fail-over
-           approaches. 
+           approaches.
 
            If the identifier attribute is not set, it uses the
            combination of name and ontology name, provided both are
@@ -1006,20 +1014,19 @@ sub to_string{
 
 =cut
 
-sub _unique_termid{
+sub _unique_termid {
     my $self = shift;
     my $term = shift;
 
     return $term->identifier() if $term->identifier();
     my $id = $term->ontology->name() if $term->ontology();
-    if($id) { 
-		 $id .= '|'; 
-    } else { 
-		 $id = ''; 
+    if ($id) {
+        $id .= '|';
+    } else {
+        $id = '';
     }
     $id .= $term->name();
 }
-
 
 #################################################################
 # aliases

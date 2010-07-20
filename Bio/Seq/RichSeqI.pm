@@ -209,7 +209,10 @@ sub get_dates{
  Example :
  Returns : a string
  Args    :
-
+ Note    : this differs from Bio::PrimarySeq version() in that this explicitly
+           refers to the sequence record version one would find in a typical
+           sequence file.  It is up to the implementation whether this is set
+           separately or falls back to the more generic Bio::Seq::version()
 
 =cut
 
