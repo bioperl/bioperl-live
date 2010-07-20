@@ -278,12 +278,6 @@ sub next_contig {
                 $qual_string .= "$_ ";
             }
             my @qual_arr = $self->_input_qual($qual_string, $contigOBJ->get_consensus_sequence->seq);
-
-            ####
-            #use Data::Dumper; print Dumper(\@qual_arr);
-            #print scalar @qual_arr."\n";
-            ####
-
             my $qual = Bio::Seq::PrimaryQual->new(-qual => join(" ", @qual_arr),
                                                   -id   => $contigOBJ->id()   );
             $contigOBJ->set_consensus_quality($qual);
@@ -1022,10 +1016,13 @@ sub _formatted_qual {
 
 sub _input_qual {
     my ($self, $qual_string, $sequence) = @_;
+    my @qual_arr = ();
+    # Remove whitespaces in front of qual string and split quality values
+    $qual_string =~ s/^\s+//;
+    my @tmp = split(/\s+/, $qual_string);
+    # Remove gaps
     my $i = 0; # position in quality 
     my $j = 0; # position in sequence
-    my @qual_arr = ();
-    my @tmp = split(/\s+/, $qual_string);
     my $prev = 0;
     my $next = 0;
     for $j (0 .. length($sequence)-1) {
