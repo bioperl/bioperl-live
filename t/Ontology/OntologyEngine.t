@@ -8,7 +8,7 @@ BEGIN {
     use Bio::Root::Test;
 
     test_begin(
-        -tests           => 27,
+        -tests           => 31,
         -requires_module => 'Graph::Directed'
     );
 
@@ -87,6 +87,34 @@ my @rels = (
         -ontology       => $ont,
     ],
 );
+my @bad_rels = (
+    [
+        -object_term    => undef,
+        -subject_term   => $terms[2],
+        -predicate_term => $rel_type,
+        -ontology       => $ont,
+    ],
+    [
+        -object_term    => $terms[1],
+        -subject_term   => undef,
+        -predicate_term => $rel_type,
+        -ontology       => $ont,
+    ],
+    [
+        -object_term    => $terms[1],
+        -subject_term   => $terms[2],
+        -predicate_term => $rel_type,
+        -ontology       => $ont,
+    ],
+);
+
+$bad_rels[0] = Bio::Ontology::Relationship->new( @{ $bad_rels[0] } );
+throws_ok( sub { $ont->add_relationship( $bad_rels[0] ) }, 'Bio::Root::Exception', 'adding a relationship with an undef object term fails');
+throws_ok( sub { $ont->add_relationship( $bad_rels[0] ) }, qr/MSG: cannot add relationship, relationship has no object_term/, 'adding a relationship with an undef object term fails');
+
+$bad_rels[1] = Bio::Ontology::Relationship->new( @{ $bad_rels[1] } );
+throws_ok( sub { $ont->add_relationship( $bad_rels[1] ) }, 'Bio::Root::Exception', 'adding a relationship with an undef subject term fails');
+throws_ok( sub { $ont->add_relationship( $bad_rels[1] ) }, qr/MSG: cannot add relationship, relationship has no subject_term/, 'adding a relationship with an undef subject term fails');
 
 for ( my $i = 0 ; $i < @rels ; $i++ ) {
     $rels[$i] = Bio::Ontology::Relationship->new( @{ $rels[$i] } );
