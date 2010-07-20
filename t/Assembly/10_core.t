@@ -1,32 +1,12 @@
-# -*-Perl-*- Test Harness script for Bioperl
-# $Id: Assembly.t 16980 2010-05-10 20:46:41Z cjfields $
-
 use strict;
+use warnings;
 my %ASSEMBLY_TESTS;
 
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    my $tests = 5; # base number of tests (those not in blocks)
-
-    # I have set up eutils tests to run in sections for easier test maintenance
-    # and keeping track of problematic tests. The below hash is the list of
-    # tests, with test number and coderef.
-
-    # these now run very simple tests for connectivity and data sampling
-    # main tests now with the parser
-
-    %ASSEMBLY_TESTS = (
-        'assembly_core' => {tests       => 880,
-                            test_sub    => \&assembly_core},
-        'sam'           => {tests       => 459,
-                            test_sub    => \&sam},
-        'bowtie'        => {tests       => 791,
-                            test_sub    => \&bowtie},
-    );
-    $tests += $ASSEMBLY_TESTS{$_}->{'tests'} for (keys %ASSEMBLY_TESTS);
-    test_begin( -tests => $tests,
+    test_begin( -tests => 886,
                 -requires_module => 'DB_File' );
 
     use_ok('Bio::Seq');
@@ -34,22 +14,17 @@ BEGIN {
     use_ok('Bio::Seq::Quality');
     use_ok('Bio::Assembly::IO');
     use_ok('Bio::Assembly::Singlet');
-
 }
-
 use Bio::Root::IO;
 
-for my $test (keys %ASSEMBLY_TESTS) {
-    $ASSEMBLY_TESTS{$test}->{'test_sub'}->($ASSEMBLY_TESTS{$test}->{'tests'});
-}
+test_assembly_core();
+exit;
 
-for (qw(test.bam.bai test.ref.fas.fai)) {
-    my $file = Bio::Root::IO->catfile('t', 'data', $_);
-    unlink($file) if -e $file;
-}
+###########################
 
-sub assembly_core {
-    my $tests = shift;
+
+sub test_assembly_core {
+
     #
     # Testing Singlet
     #
@@ -512,126 +487,5 @@ sub assembly_core {
     while (my $contig = $aio->next_contig) {
         isa_ok($contig, 'Bio::Assembly::Contig');
     }
-
 }
 
-
-sub sam {
-    my $tests = shift;
-
-    SKIP : {
-
-        test_skip(-tests => $tests,
-                  -requires_module => 'Bio::DB::Sam');
-
-    #
-    # Testing sam
-    # /maj
-    #
-        my ($aio, $assembly, @contig_seq_ids, @singlet_ids, @contig_ids, @all_seq_ids);
-        my $file = 'test.bam';
-        my $refdb = 'test.ref.fas';
-        ok $aio = Bio::Assembly::IO->new( -file => test_input_file($file),
-                                          -refdb => test_input_file($refdb),
-                                          -format => 'sam' ), "init sam IO object";
-        isa_ok($aio, 'Bio::Assembly::IO');
-        $aio->_current_refseq_id( ($aio->sam->seq_ids)[0] ); # kludge
-
-        while (my $contig = $aio->next_contig) {
-            isa_ok($contig, 'Bio::Assembly::Contig');
-        }
-        ok $aio = Bio::Assembly::IO->new( -file => test_input_file($file),
-                                          -refdb => test_input_file($refdb),
-                                          -format => 'sam' ),"reopen";
-        ok $assembly = $aio->next_assembly, "get sam assy";
-        is( $assembly->get_nof_contigs, 21, "got all contigs");
-
-
-        ok(@contig_seq_ids = $assembly->get_contig_seq_ids, "get_contig_seq_ids");
-        is(@contig_seq_ids, 334);
-        # trashing these for now; not much a test really anyway/maj
-        # for my $contig_seq_id (@contig_seq_ids) {
-        # 	ok ($contig_seq_id =~ m/^SRR/i);
-        # }
-
-        ok(@contig_ids = $assembly->get_contig_ids, "get_contig_ids");
-        is(@contig_ids, 21);
-        for my $contig_id (@contig_ids) {
-            ok ($contig_id =~ m/sam_assy/i);
-        }
-
-        ok(@singlet_ids = $assembly->get_singlet_ids, "get_singlet_ids");
-        is(@singlet_ids, 35);
-        # trashing these/maj
-        # for my $singlet_id (@singlet_ids) {
-        # 	ok ($singlet_id =~ m/^SRR/i);
-        # }
-
-        ok(@all_seq_ids = $assembly->get_all_seq_ids, "get_all_seq_ids");
-        for my $seq_id (@all_seq_ids) {
-            ok ($seq_id =~ m/^SRR/i);
-        }
-        is(@all_seq_ids, 369);
-    }
-}
-
-
-sub bowtie {
-
-SKIP : {
-    my $tests = shift;
-
-    # this does the loading...
-    test_skip(-tests => $tests,
-	      -requires_modules => [qw(Bio::Tools::Run::Samtools)]);
-SKIP : {
-    # now loaded, this checks for executable...
-    test_skip(-tests => $tests,
-	      -requires_executable => Bio::Tools::Run::Samtools->new(-command=>'view'));
-
-    #
-    # Testing bowtie
-    #
-
-    my ($aio, $assembly, @contig_seq_ids, @singlet_ids, @contig_ids, @all_seq_ids);
-
-    my $file = 'test.bowtie';
-    my $refdb = 'test.ref.fas';
-    ok $aio = Bio::Assembly::IO->new( -file => test_input_file($file),
-				      -index => test_input_file($refdb),
-				      -format => 'bowtie' ), "init bowtie IO object";
-    isa_ok($aio, 'Bio::Assembly::IO');
-    $aio->_current_refseq_id( ($aio->sam->seq_ids)[0] ); # kludge
-
-    while (my $contig = $aio->next_contig) {
-	isa_ok($contig, 'Bio::Assembly::Contig');
-    }
-    ok $aio = Bio::Assembly::IO->new( -file => test_input_file($file),
-				      -index => test_input_file($refdb),
-				      -format => 'bowtie' ),"reopen";
-    ok $assembly = $aio->next_assembly, "get sam assy";
-    is( $assembly->get_nof_contigs, 23, "got all contigs");
-
-    ok(@contig_seq_ids = $assembly->get_contig_seq_ids, "get_contig_seq_ids");
-    is(@contig_seq_ids, 312);
-    for my $contig_seq_id (@contig_seq_ids) {
-	ok ($contig_seq_id =~ m/^SRR/i);
-    }
-    ok(@contig_ids = $assembly->get_contig_ids, "get_contig_ids");
-    is(@contig_ids, 23);
-    for my $contig_id (@contig_ids) {
-	ok ($contig_id =~ m/sam_assy/i);
-    }
-    ok(@singlet_ids = $assembly->get_singlet_ids, "get_singlet_ids");
-    is(@singlet_ids, 36);
-    for my $singlet_id (@singlet_ids) {
-	ok ($singlet_id =~ m/^sam_assy/i);
-    }
-    ok(@all_seq_ids = $assembly->get_all_seq_ids, "get_all_seq_ids");
-    for my $seq_id (@all_seq_ids) {
-	ok ($seq_id =~ m/^SRR/i);
-    }
-    is(@all_seq_ids, 348);
-
-}}
-}
