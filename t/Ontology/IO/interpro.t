@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 55,
+    test_begin(-tests => 56,
 			   -requires_modules => [qw(XML::Parser::PerlSAX
 									    XML::Parser
 										Graph::Directed)]);
@@ -28,6 +28,7 @@ while(my $ont = $ipp->next_ontology()) {
 }
 #print $ip->to_string."\n";
 my @rt = sort { $a->name cmp $b->name; } $ip->get_root_terms();
+ok( (map { $_->get_dbxrefs } @rt), 'get_dbxrefs on a root term is non-empty');
 
 # there should be 8 root terms: InterPro Domain, InterPro Family,
 # InterPro Repeat, and InterPro PTM (Post Translational Modification),
