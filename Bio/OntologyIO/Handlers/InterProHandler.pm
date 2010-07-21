@@ -445,6 +445,12 @@ sub start_element {
         );
         $ont->add_term(
             $fact->create_object(
+                -identifier => "Conserved_site",
+                -name       => "Conserved Site"
+            )
+        );
+        $ont->add_term(
+            $fact->create_object(
                 -identifier => "Binding_site",
                 -name       => "Binding Site"
             )
