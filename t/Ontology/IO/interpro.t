@@ -18,7 +18,7 @@ BEGIN {
 my $ipp = Bio::OntologyIO->new( -format => 'interpro',
 										  -file => test_input_file('interpro_short.xml'),
 										  -ontology_engine => 'simple' );
-ok ($ipp);
+isa_ok ($ipp, 'Bio::OntologyIO::InterProParser');
 
 my $ip;
 while(my $ont = $ipp->next_ontology()) {
@@ -33,16 +33,16 @@ my @rt = sort { $a->name cmp $b->name; } $ip->get_root_terms();
 # InterPro Repeat, and InterPro PTM (Post Translational Modification),
 # Active_site, Binding_site and Region
 
-is (scalar(@rt), 7);
+is (scalar(@rt), 7, 'There are 7 root InterPro terms');
 
 # every InterPro term should have an ontology,
 foreach ($ip->get_leaf_terms, @rt) {
-	ok ($_->ontology);
+	isa_ok ($_->ontology, 'Bio::Ontology::Ontology');
 	is ($_->ontology->name, "InterPro",
 		 "term ".$_->name." in ontology InterPro");
 }
 
-# there are 6 fully instantiated InterPro terms in total, which should be returned as the leafs
+# there are 9 fully instantiated InterPro terms in total, which should be returned as the leafs
 is (scalar($ip->get_leaf_terms()), 9);
 # roots and leafs together:
 is (scalar($ip->get_all_terms()), 14);
@@ -67,4 +67,4 @@ foreach my $t ($ip->get_leaf_terms) {
 }
 
 # test for secondary accession map
-is(scalar(keys %{$ipp->secondary_accessions_map}), 2);
+is(scalar(keys %{$ipp->secondary_accessions_map}), 2, 'secondary accession map has 2 keys');
