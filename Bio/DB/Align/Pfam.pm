@@ -92,10 +92,12 @@ package Bio::DB::Align::Pfam;
 use strict;
 use warnings;
 use LWP::UserAgent;
+use HTTP::Request;
 use Bio::AlignIO;
+use Bio::Root::IO;
 use vars qw(%FORMATS %ALNTYPE $HOSTBASE $CGILOCATION);
 
-use base qw(Bio::Root::Root Bio::DB::GenericWebAgent);
+use base qw(Bio::Root::Root Bio::Root::IO Bio::DB::GenericWebAgent);
 
 BEGIN {
 	$HOSTBASE = 'http://pfam.sanger.ac.uk';
@@ -163,8 +165,6 @@ sub get_Aln_by_acc {
 	
 	my ($acc,$alignment,$format, $order, $case, $gap)=$self->_checkparameter(@args);
 	
-	my $alnfh=Bio::AlignIO->newFh(-format=>$format);
-	
 	my %params= (
 		"acc"=>$acc,
 		"alnType"=>$alignment,
@@ -173,18 +173,33 @@ sub get_Aln_by_acc {
 		"case"=>$case,
 		"gaps"=>$gap,
 		);
-	while(my($key, $value) =each %params) {	
-		print "$key $value\n";	
-	}
+
 	my $url = URI->new($HOSTBASE . $CGILOCATION);
 	$url->query_form(%params);
 	
-	my $request = $self->ua->get($url);
+	#save the retrieved file into a tempfile
+	my $dir = $self->tempdir( CLEANUP => 1);
+	my ( $fh, $tmpfile) = $self->tempfile( DIR => $dir );
+	close $fh;
+	
+	my $request = HTTP::Request->new(GET => $url);
+	#my $request = $self->ua->get($url,content_file=>$tmpfile);
+	
+	$request->proxy_authorization_basic($self->authentication)
+	  if ( $self->authentication);
 	$self->debug("request is ". $request->as_string(). "\n");
 	
-	if ( $request->is_success ) {
-		print $request->content;
-	}	
+	my $respond = $self->ua->request($request,$tmpfile);
+	
+	if( $respond->is_error  ) {
+		$self->throw("Bio::DB::Align::Pfam Request Error:\n".$request->as_string);
+	}
+	
+	#print $respond->content;
+	
+	my $alnobj=Bio::AlignIO->new(-format=>$format,-file=>$tmpfile);
+	my $aln=$alnobj->next_aln;
+	return $aln;
 }
 
 
