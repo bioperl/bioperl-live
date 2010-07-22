@@ -488,17 +488,15 @@ sub start_element {
     } elsif ( $element->{Name} eq 'interpro' ) {
         my %record_args = %{ $element->{Attributes} };
         my $id          = $record_args{"id"};
-        my $term_temp   = ( $ont->engine->get_term_by_identifier($id) )[0];
 
-        $self->_term(
-            ( !defined $term_temp )
-            ? $ont->add_term( $fact->create_object( -InterPro_id => $id, -name => $id ) )
-            : $term_temp
-        );
+        # this sets the current term
+        my $term   = ( $ont->engine->get_term_by_identifier($id) )[0] || 
+            $fact->create_object( -InterPro_id => $id, -name => $id );
+        $self->_term($term);
 
-        $self->_term->ontology($ont);
-        $self->_term->short_name( $record_args{"short_name"} );
-        $self->_term->protein_count( $record_args{"protein_count"} );
+        $term->ontology($ont);
+        $term->short_name( $record_args{"short_name"} );
+        $term->protein_count( $record_args{"protein_count"} );
         $self->_increment_record_count();
         $self->_stack( [ { interpro => undef } ] );
         $self->_names( ["interpro"] );
@@ -515,6 +513,7 @@ sub start_element {
         $rel->subject_term( $self->_term );
         $rel->ontology($ont);
         $ont->add_relationship($rel);
+        $ont->add_term($term);
     } elsif ( defined $self->_stack ) {
         my %hash = ();
 
