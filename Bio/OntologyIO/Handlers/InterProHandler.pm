@@ -665,7 +665,8 @@ sub end_element {
                         -primary_id => $db_xref->{dbkey}
                         );
                 }
-                $self->_term->add_member(@refs);
+                $self->_term->add_dbxref(-dbxrefs => \@refs,
+                                          -context => 'member_list');
             } elsif ( $element->{Name} eq 'sec_list' ) {
                 my @refs = ();
 
@@ -677,7 +678,7 @@ sub end_element {
             } elsif ( $element->{Name} eq 'example_list' ) {
                 my @refs = ();
 
-                foreach my $example ( @{ $current_hash->{example} } ) {
+                foreach my $example ( @{ $current_hash->{examples} } ) {
                     push @refs,
                         Bio::Annotation::DBLink->new(
                         -database   => $example->{db_xref}->[0]->{db},
@@ -685,7 +686,8 @@ sub end_element {
                         -comment    => $example->{comment}
                         );
                 }
-                $self->_term->add_example(@refs);
+                $self->_term->add_dbxref(-dbxrefs => \@refs,
+                                         -context => 'example_list');
             } elsif ( $element->{Name} eq 'external_doc_list' ) {
                 my @refs = ();
 
@@ -696,7 +698,8 @@ sub end_element {
                         -primary_id => $db_xref->{dbkey}
                         );
                 }
-                $self->_term->add_external_document(@refs);
+                $self->_term->add_dbxref(-dbxrefs => \@refs,
+                                         -context => 'external_doc_list');
             } elsif ( $element->{Name} eq 'class_list' ) {
                 my @refs = ();
 
@@ -707,7 +710,8 @@ sub end_element {
                         -primary_id => $classification->{id}
                         );
                 }
-                $self->_term->class_list( \@refs );
+                $self->_term->add_dbxref(-dbxrefs => \@refs,
+                                        -context => 'class_list');
             } elsif ( $element->{Name} eq 'deleted_entries' ) {
                 my @refs = ();
 
