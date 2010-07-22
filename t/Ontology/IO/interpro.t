@@ -7,13 +7,14 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 62,
+    test_begin(-tests => 64,
 			   -requires_modules => [qw(XML::Parser::PerlSAX
 									    XML::Parser
 										Graph::Directed)]);
 	
 	use_ok('Bio::OntologyIO');
 }
+use Data::Dumper;
 
 my $ipp = Bio::OntologyIO->new( -format => 'interpro',
 										  -file => test_input_file('interpro_short.xml'),
@@ -27,19 +28,26 @@ while(my $ont = $ipp->next_ontology()) {
     $ip = $ont;
 }
 #print $ip->to_string."\n";
-my @rt = sort { $a->name cmp $b->name; } $ip->get_root_terms();
-ok( (map { $_->get_dbxrefs } @rt), 'get_dbxrefs on root terms is non-empty');
-ok( (map { $_->get_dbxrefs('member_list') } @rt), 'get_dbxrefs(member_list) on root terms is non-empty');
-ok( (map { $_->get_dbxrefs('sec_list') } @rt),    'get_dbxrefs(sec_list) on root terms is non-empty');
-ok( (map { $_->get_dbxrefs('class_list') } @rt),  'get_dbxrefs(class_list) on root terms is non-empty');
-ok( (map { $_->get_dbxrefs('pub_list') } @rt),    'get_dbxrefs(pub_list) on root terms is non-empty');
-ok( (map { $_->get_dbxrefs('example_list') } @rt),'get_dbxrefs(example_list) on root terms is non-empty');
-ok( (map { $_->get_dbxrefs('external_doc_list') } @rt), 'get_dbxrefs(external_doc_list) on root terms is non-empty');
+
+# we grep for defined values because we don't want a list of undefined values to be pass any test
+my @leaves = $ip->get_leaf_terms;
+ok( ( grep { defined } map { $_->get_dbxrefs } @leaves), 'get_dbxrefs on leaf terms is non-empty');
+ok( ( grep { defined } map { $_->get_dbxrefs('member_list') } @leaves), 'get_dbxrefs(member_list) on leaf terms is non-empty');
+ok( ( grep { defined } map { $_->get_dbxrefs('sec_list') } @leaves),    'get_dbxrefs(sec_list) on leaf terms is non-empty');
+ok( ( grep { defined } map { $_->get_dbxrefs('class_list') } @leaves),  'get_dbxrefs(class_list) on leaf terms is non-empty');
+ok( ( grep { defined } map { $_->get_dbxrefs('pub_list') } @leaves),    'get_dbxrefs(pub_list) on leaf terms is non-empty');
+ok( ( grep { defined } map { $_->get_dbxrefs('example_list') } @leaves),'get_dbxrefs(example_list) on leaf terms is non-empty');
+ok( ( grep { defined } map { $_->get_dbxrefs('external_doc_list') } @leaves), 'get_dbxrefs(external_doc_list) on leaf terms is non-empty');
+
+ok( ( grep { defined } map { $_->get_members } @leaves), 'get_members on leaf terms is non-empty');
+ok( ( grep { defined } map { $_->protein_count } @leaves), 'protein_count on leaf terms is non-empty');
+
 
 # there should be 8 root terms: InterPro Domain, InterPro Family,
 # InterPro Repeat, and InterPro PTM (Post Translational Modification),
 # Active_site, Binding_site, Conserved_site and Region
 
+my @rt = sort { $a->name cmp $b->name; } $ip->get_root_terms();
 is (scalar(@rt), 8, 'There are 8 root InterPro terms');
 
 # every InterPro term should have an ontology,
