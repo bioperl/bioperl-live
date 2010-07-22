@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 64,
+    test_begin(-tests => 67,
 			   -requires_modules => [qw(XML::Parser::PerlSAX
 									    XML::Parser
 										Graph::Directed)]);
@@ -27,8 +27,6 @@ while(my $ont = $ipp->next_ontology()) {
     is ($ip, undef);
     $ip = $ont;
 }
-#print $ip->to_string."\n";
-
 # we grep for defined values because we don't want a list of undefined values to be pass any test
 my @leaves = $ip->get_leaf_terms;
 ok( ( grep { defined } map { $_->get_dbxrefs } @leaves), 'get_dbxrefs on leaf terms is non-empty');
@@ -40,6 +38,9 @@ ok( ( grep { defined } map { $_->get_dbxrefs('example_list') } @leaves),'get_dbx
 ok( ( grep { defined } map { $_->get_dbxrefs('external_doc_list') } @leaves), 'get_dbxrefs(external_doc_list) on leaf terms is non-empty');
 
 ok( ( grep { defined } map { $_->get_members } @leaves), 'get_members on leaf terms is non-empty');
+ok( ( grep { defined } map { $_->class_list } @leaves), 'class_list on leaf terms is non-empty');
+ok( ( grep { defined } map { $_->get_examples } @leaves), 'get_examples on leaf terms is non-empty');
+ok( ( grep { defined } map { $_->get_external_documents } @leaves), 'get_external_documents on leaf terms is non-empty');
 ok( ( grep { defined } map { $_->protein_count } @leaves), 'protein_count on leaf terms is non-empty');
 
 
