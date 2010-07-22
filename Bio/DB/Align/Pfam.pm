@@ -138,7 +138,7 @@ sub get_Aln_by_id {
   Usage   : $seq = $db->get_Aln_by_acc($acc);
   Function: Gets a Bio::SimpleAlign object by accession numbers
   Returns : a Bio::SimpleAlign object
-  Args    : -acc        the accession number as a string
+  Args    : -accession  the accession number as a string
             -alignment  Seed(default), Full, NCBI or metagenomics
             -format     the output format from Pfam. This will decide which
                         package to use in the Bio::AlignIO
@@ -173,7 +173,9 @@ sub get_Aln_by_acc {
 		"case"=>$case,
 		"gaps"=>$gap,
 		);
-		
+	while(my($key, $value) =each %params) {	
+		print "$key $value\n";	
+	}
 	my $url = URI->new($HOSTBASE . $CGILOCATION);
 	$url->query_form(%params);
 	
