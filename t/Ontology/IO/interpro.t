@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 67,
+    test_begin(-tests => 69,
 			   -requires_modules => [qw(XML::Parser::PerlSAX
 									    XML::Parser
 										Graph::Directed)]);
@@ -41,7 +41,11 @@ ok( ( grep { defined } map { $_->get_members } @leaves), 'get_members on leaf te
 ok( ( grep { defined } map { $_->class_list } @leaves), 'class_list on leaf terms is non-empty');
 ok( ( grep { defined } map { $_->get_examples } @leaves), 'get_examples on leaf terms is non-empty');
 ok( ( grep { defined } map { $_->get_external_documents } @leaves), 'get_external_documents on leaf terms is non-empty');
+ok( ( grep { defined } map { $_->get_references } @leaves), 'get_references on leaf terms is non-empty');
 ok( ( grep { defined } map { $_->protein_count } @leaves), 'protein_count on leaf terms is non-empty');
+
+# this could greatly be improved
+like( $leaves[0]->to_string, qr/-- InterPro id:/, 'to_string looks reasonable');
 
 
 # there should be 8 root terms: InterPro Domain, InterPro Family,
