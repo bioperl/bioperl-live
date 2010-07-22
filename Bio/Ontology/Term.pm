@@ -148,30 +148,11 @@ sub new {
     my( $class,@args ) = @_;
 
     my $self = $class->SUPER::new( @args );
-    my ( $identifier,
-        $name,
-        $definition,
-        $category,
-        $ont,
-        $version,
-        $is_obsolete,
-        $comment,
-        $dblinks,
-        $dbxrefs,
-        $references)
+    my ( $identifier, $name, $definition, $category, $ont, $version,
+        $is_obsolete, $comment, $dblinks, $dbxrefs, $references)
         = $self->_rearrange( [
-        qw(IDENTIFIER
-        NAME
-        DEFINITION
-        CATEGORY
-        ONTOLOGY
-        VERSION
-        IS_OBSOLETE
-        COMMENT
-        DBLINKS
-        DBXREFS
-        REFERENCES
-       ) ], @args );
+        qw(IDENTIFIER NAME DEFINITION CATEGORY ONTOLOGY VERSION IS_OBSOLETE
+        COMMENT DBLINKS DBXREFS REFERENCES) ], @args );
 
     $self->init();
 
@@ -578,9 +559,13 @@ sub add_dbxref {
         {
             $self->warn("DBLink exists in the dblink of $context");
         }
-        push @{$self->{_dblinks}->{$context}}, $dbxref;    
+        push @{$self->{_dblinks}->{$context}}, $dbxref;
+        print STDERR sprintf("term %s\n\t%s:%s\n\t%s\n\t%d\n",$self->name,$dbxref->database,$dbxref->primary_id, $context,scalar(@{$self->{_dblinks}->{$context}}));
     }
 } # add_dbxref
+
+# alias, for consistency
+*add_dbxrefs = \&add_dbxref;
 
 =head2 has_dblink
 
