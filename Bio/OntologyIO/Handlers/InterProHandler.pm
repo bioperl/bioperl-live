@@ -632,12 +632,15 @@ sub end_element {
                 foreach my $pub_record ( @{ $current_hash->{publication} } ) {
                     my $ref = Bio::Annotation::Reference->new;
                     my $loc = $pub_record->{location}->[0];
-
-                    $ref->location( $pub_record->{journal}->[0]->{accumulated_text_12345} . ", "
-                            . $loc->{firstpage} . "-"
-                            . $loc->{lastpage} . ", "
-                            . $loc->{volume} . ", "
-                            . $pub_record->{year}->[0]->{accumulated_text_12345} );
+                    # TODO: Getting unset stuff here; should this be an error?
+                    $ref->location(
+                        sprintf("%s, %s-%s, %s, %s",
+                        $pub_record->{journal}->[0]->{accumulated_text_12345} || '',
+                        $loc->{firstpage} || '',
+                        $loc->{lastpage}  || '',
+                        $loc->{volume}    || '',
+                        $pub_record->{year}->[0]->{accumulated_text_12345} || '')
+                    );
                     $ref->title( $pub_record->{title}->[0]->{accumulated_text_12345} );
                     my $ttt = $pub_record->{author_list}->[0];
 
