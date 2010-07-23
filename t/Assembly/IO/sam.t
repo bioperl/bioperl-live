@@ -67,3 +67,8 @@ for my $seq_id (@all_seq_ids) {
     ok ($seq_id =~ m/^SRR/i);
 }
 is(@all_seq_ids, 369);
+
+for my $f (qw(test.bam.bai test.ref.fas.fai)) {
+    my $path = Bio::Root::IO->catfile('t', 'data', $f);
+    unlink $path if -e $path
+}
