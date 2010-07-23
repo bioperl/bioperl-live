@@ -471,10 +471,16 @@ sub _setparams {
             $method_out = '-'.$method_out if ($d || ($md && ($method_length == 1)));
             $method_out = '--'.$method_out if ($dd || ($md && ($method_length > 1)));
             $method_out =~ s/_/-/g if $utd;
-            
-            # quote values that contain spaces
-            if (exists $params{$method} && $value =~ /^[^'"\s]+\s+[^'"\s]+$/) {
-                $value = '"'.$value.'"';
+
+            if ( exists $params{$method} ) {
+              # if value are quoted with " or ', re-quote it
+              if ( $value =~ m{^[\'\"]+(.+)[\'\"]+$} ) {
+                $value = '"'. $1 . '"';
+              }
+              # quote values that contain spaces
+              elsif ( $value =~ m{\s+} ) {
+                $value = '"'. $value . '"';
+              }
             }
             
             $param_string .= ' '.$method_out.(exists $switches{$method} ? '' : $join.$value);
