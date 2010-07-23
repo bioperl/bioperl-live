@@ -95,13 +95,14 @@ use LWP::UserAgent;
 use HTTP::Request;
 use Bio::AlignIO;
 use Bio::Root::IO;
-use vars qw(%FORMATS %ALNTYPE $HOSTBASE $CGILOCATION);
+use vars qw(%FORMATS %ALNTYPE $HOSTBASE $CGILOCATION $CGILOCATION_CONV);
 
 use base qw(Bio::Root::Root Bio::Root::IO Bio::DB::GenericWebAgent);
 
 BEGIN {
 	$HOSTBASE = 'http://pfam.sanger.ac.uk';
 	$CGILOCATION= '/family/alignment/download/format';
+	$CGILOCATION_CONV= '/family/acc/';
 	%FORMATS=qw(fasta 1 stockholm 1 selex 1 msf 1); #supported formats in pfam
 	%ALNTYPE=qw(seed 1 full 1 ncbi 1 metagenomics 1); #supported alignment types
 }
@@ -119,20 +120,69 @@ sub new {
 
 =head2 get_Aln_by_id
 
- Title   : get_Aln_by_id
- Usage   : $aln = $db->get_Aln_by_id('ROA1_HUMAN')
- Function: Gets a Bio::SimpleAlign object by its name
- Returns : a Bio::SimpleAlign object
- Args    : the id (as a string) of a sequence for the alignment
- Throws  : "id does not exist" exception
+	Title   : get_Aln_by_id
+	Usage   : $aln = $db->get_Aln_by_id('Piwi')
+	Function: This method uses Pfam id conversion service to convert id to accession
+	          Then, it gets a Bio::SimpleAlign object using get_Aln_by_acc
+	Returns : a Bio::SimpleAlign object
+	Args    : -id  the id as a string
+	         -alignment  Seed(default), Full, NCBI or metagenomics
+	         -format     the output format from Pfam. This will decide which
+	                     package to use in the Bio::AlignIO
+	                     possible options can be fasta (default), stockholm, selex and MSF
+	         -order      t (default)   Order by tree 
+	                     a             Order alphabetically
+	         -case       i (default)   Inserts lower case  
+	                     a             All upper case
+	         -gap        dashes (default) "-" as gap char
+	                     dots           "." as gap char
+	                     mixed         "-" and "." mixed 
+	                                   (not recommended, this may cause bug in BioPerl)
+	                     none          Unaligned
+	
+	
+	Note    : 
+	Throws  : "Bio::DB::Align::Pfam Request Error" exception
 =cut
 
 sub get_Aln_by_id {
+	my ($self,@args)=@_;
+	my $id=$self->_rearrange(["ID"],@args);
 	
+	#id 2 accession convertion
+	my $acc=$self->id2acc($id);
 	
+	#give new -accession argument
+	push @args,"-accession",$acc;
+	return $self->get_Aln_by_acc(@args);
 }
 
 
+=head2 id2acc
+
+ Title   : id2acc
+ Usage   : $acc = $db->id2acc('Piwi')
+ Function: Convert id to accession
+ Returns : Accession
+ Args    : the id (as a string) of a sequence for the alignment
+ Throws  : "Bio::DB::Align::Pfam Request Error" exception
+=cut
+
+sub id2acc {
+	my ($self,@args)=@_;
+	my $id=shift @args;
+	
+	my $url = URI->new($HOSTBASE . $CGILOCATION_CONV . $id);
+	
+	my $request = $self->ua->get($url);
+	
+	if($request->is_success) {
+		return $request->content;
+	}
+	else {
+		$self->throw("Bio::DB::Align::Pfam Request Error:\n",$request->to_string);
+	}
+}
 
 =head2 get_Aln_by_acc
 
@@ -157,7 +207,7 @@ sub get_Aln_by_id {
   
   
   Note    : 
-  Throws  : "id does not exist" exception
+  Throws  : "Bio::DB::Align::Pfam Request Error" exception
 =cut
 
 sub get_Aln_by_acc {
@@ -195,10 +245,17 @@ sub get_Aln_by_acc {
 		$self->throw("Bio::DB::Align::Pfam Request Error:\n".$request->as_string);
 	}
 	
-	#print $respond->content;
-	
 	my $alnobj=Bio::AlignIO->new(-format=>$format,-file=>$tmpfile);
 	my $aln=$alnobj->next_aln;
+	
+	#gap char
+	if($gap eq "dashes") {
+		$aln->gap_char("-");
+	}
+	elsif($gap eq "dots") {
+		$aln->gap_char(".");
+	}
+	
 	return $aln;
 }
 
