@@ -42,7 +42,6 @@
 \.tmp$
 \.#
 \.rej$
-*.sw?
 
 # Avoid OS-specific files/dirs
 # Mac OSX metadata
@@ -70,4 +69,6 @@
 \bBioPerl-[\d\.\_]+
 
 # Avoid additional run-time generated things
+t/LocalDB/SeqFeature_SQLite.t
 bioperl.lisp
+t/LocalDB/SeqFeature_BDB.t

@@ -1120,10 +1120,10 @@ t/AlignIO/xmfa.t
 t/Alphabet.t
 t/Annotation/Annotation.t
 t/Annotation/AnnotationAdaptor.t
-t/Assembly/10_core.t
-t/Assembly/20_bowtie.t
-t/Assembly/30_sam.t
 t/Assembly/ContigSpectrum.t
+t/Assembly/core.t
+t/Assembly/IO/bowtie.t
+t/Assembly/IO/sam.t
 t/Biblio/Biblio.t
 t/Biblio/biofetch.t
 t/Biblio/eutils.t
