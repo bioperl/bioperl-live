@@ -261,6 +261,7 @@ sub protein_count{
 =cut
 
 # Defined in parent class
+
 #sub get_references{
 #    my $self = shift;
 #
@@ -281,6 +282,7 @@ sub protein_count{
 =cut
 
 # Defined in parent class
+
 #sub add_reference{
 #    my $self = shift;
 #
@@ -523,75 +525,83 @@ sub class_list{
 =cut
 
 sub to_string {
-  my($self) = @_;
-  my $s = "";
+    my ($self) = @_;
+    my $s = "";
 
-  $s .= "-- InterPro id:\n";
-  $s .= $self->interpro_id()."\n";
-  if (defined $self->name) {
-    $s .= "-- Name:\n";
-    $s .= $self->name()."\n";
-    $s .= "-- Definition:\n";
-    $s .= $self->definition()."\n";
-    $s .= "-- Category:\n";
-    if ( defined( $self->ontology() ) ) {
-      $s .= $self->ontology()->name()."\n";
-    } else {
-      $s .= "\n";
+    $s .= "-- InterPro id:\n";
+    $s .= $self->interpro_id() . "\n";
+    if ( defined $self->name ) {
+        $s .= "-- Name:\n";
+        $s .= $self->name() . "\n";
+        $s .= "-- Definition:\n";
+        $s .= $self->definition() . "\n";
+        $s .= "-- Category:\n";
+        if ( defined( $self->ontology() ) ) {
+            $s .= $self->ontology()->name() . "\n";
+        }
+        else {
+            $s .= "\n";
+        }
+        $s .= "-- Version:\n";
+        $s .= ( $self->version() || '' ) . "\n";
+        $s .= "-- Is obsolete:\n";
+        $s .= $self->is_obsolete() . "\n";
+        $s .= "-- Comment:\n";
+        $s .= ( $self->comment() || '' ) . "\n";
+        if ( defined $self->get_references ) {
+            $s .= "-- References:\n";
+            foreach my $ref ( $self->get_references ) {
+                $s .=
+                    $ref->authors . "\n"
+                  . $ref->title . "\n"
+                  . $ref->location . "\n\n";
+            }
+            $s .= "\n";
+        }
+        if ( defined $self->get_members ) {
+            $s .= "-- Member List:\n";
+            foreach my $ref ( $self->get_members ) {
+                $s .= $ref->database . "\t" . $ref->primary_id . "\n";
+            }
+            $s .= "\n";
+        }
+        if ( defined $self->get_external_documents ) {
+            $s .= "-- External Document List:\n";
+            foreach my $ref ( $self->get_external_documents ) {
+                $s .= $ref->database . "\t" . $ref->primary_id . "\n";
+            }
+            $s .= "\n";
+        }
+        if ( defined $self->get_examples ) {
+            $s .= "-- Examples:\n";
+            foreach my $ref ( $self->get_examples ) {
+                $s .= join( "\t",
+                    map { $ref->$_ || '' } qw(database primary_id comment) )
+                  . "\n";
+            }
+            $s .= "\n";
+        }
+        if ( defined $self->class_list ) {
+            $s .= "-- Class List:\n";
+            foreach my $ref ( @{ $self->class_list } ) {
+                $s .= $ref->primary_id . "\n";
+            }
+            $s .= "\n";
+        }
+        if ( $self->get_secondary_ids ) {
+            $s .= "-- Secondary IDs:\n";
+            foreach my $ref ( $self->get_secondary_ids() ) {
+                # TODO: getting undef here in some cases, needs to be checked
+                next unless defined ($ref);
+                $s .= $ref . "\n";
+            }
+            $s .= "\n";
+        }
     }
-    $s .= "-- Version:\n";
-    $s .= $self->version()."\n";
-    $s .= "-- Is obsolete:\n";
-    $s .= $self->is_obsolete()."\n";
-    $s .= "-- Comment:\n";
-    $s .= $self->comment()."\n"; 
-    if (defined $self->get_references) {
-      $s .= "-- References:\n";
-      foreach my $ref ( $self->get_references ) {
-	$s .= $ref->authors."\n".$ref->title."\n".$ref->location."\n\n";
-      };
-      $s .= "\n";
+    else {
+        $s .= "InterPro term not fully instantiated\n";
     }
-    if (defined $self->get_members) {
-      $s .= "-- Member List:\n";
-      foreach my $ref ( $self->get_members ) {
-	$s .= $ref->database."\t".$ref->primary_id."\n";
-      };
-      $s .= "\n";
-    }
-    if (defined $self->get_external_documents) {
-      $s .= "-- External Document List:\n";
-      foreach my $ref ( $self->get_external_documents ) {
-	$s .= $ref->database."\t".$ref->primary_id."\n";
-      };
-      $s .= "\n";
-    }
-    if (defined $self->get_examples) {
-      $s .= "-- Examples:\n";
-      foreach my $ref ( $self->get_examples ) {
-	$s .= $ref->database."\t".$ref->primary_id."\t".$ref->comment."\n";
-      };
-      $s .= "\n";
-    }
-    if (defined $self->class_list) {
-      $s .= "-- Class List:\n";
-      foreach my $ref ( @{$self->class_list} ) {
-	$s .= $ref->primary_id."\n";
-      };
-      $s .= "\n";
-    }
-    if ($self->get_secondary_ids) {
-      $s .= "-- Secondary IDs:\n";
-      foreach my $ref ( $self->get_secondary_ids() ) {
-	$s .= $ref."\n";
-      };
-      $s .= "\n";
-    }
-  }
-  else {
-    $s .= "InterPro term not fully instantiated\n";
-  }
-  return $s;
+    return $s;
 }
 
 =head1 Deprecated methods
