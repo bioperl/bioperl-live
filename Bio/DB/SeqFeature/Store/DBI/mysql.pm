@@ -1756,7 +1756,31 @@ sub _rebuild_obj {
         
         $attribs{$attribute} = $attribute_value;
     }
-    
+
+    # if we weren't called with all the params, pull those out of the database too
+    if ( not ( grep { defined($_) } ( $typeid, $db_seqid, $start, $end, $strand ))) {
+      my $sql = qq{ SELECT start,end,tag,strand,seqname
+                    FROM feature,feature_location,typelist,locationlist
+                    WHERE feature.id=feature_location.id AND feature.typeid=typelist.id
+                    AND seqid=locationlist.id AND feature.id = ? };
+      my $sth = $self->_prepare($sql) or $self->throw($self->dbh->errstr);
+      $sth->execute($id);
+      my ($feature_start, $feature_end, $feature_type, $feature_strand,$feature_seqname);
+      $sth->bind_columns(\($feature_start, $feature_end, $feature_type, $feature_strand, $feature_seqname));
+      while ($sth->fetch()) {
+        # there should be only one row returned, but we call like this to
+        # ensure we get all rows
+      }
+      $start  ||= $feature_start;
+      $end    ||= $feature_end;
+      $strand ||= $feature_strand;
+      $seqid  ||= $feature_seqname;
+
+      my( $feature_typename , $feature_typesource ) = split /:/ , $feature_type;
+      $type   ||= $feature_typename;
+      $source ||= $feature_typesource;
+    }
+
     my $obj = Bio::SeqFeature::Lite->new(-primary_id => $id,
                                          $type ? (-type => $type) : (),
                                          $source ? (-source => $source) : (),
@@ -1765,7 +1789,7 @@ sub _rebuild_obj {
                                          defined $end ? (-end => $end) : (),
                                          defined $strand ? (-strand => $strand) : (),
                                          keys %attribs ? (-attributes => \%attribs) : ());
-    
+
     return $obj;
 }
 
