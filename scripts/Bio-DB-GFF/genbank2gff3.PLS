@@ -654,7 +654,7 @@ for my $file ( @files ) {
     }
     
      ## FIXME for piped output w/ split FA files ...
-    close($lumpfa_fh);
+    close($lumpfa_fh) if $lumpfa_fh;
     if (!$split && $outfa && $lump_fh) {     
       print $lump_fh "##FASTA\n"; # GFF3 spec
       open $lumpfa_fh, $outfa or warn "reading FA $outfa: $!";
