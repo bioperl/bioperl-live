@@ -4,6 +4,7 @@
 
 use strict;
 
+use Carp;
 use Getopt::Long;
 use File::Spec;
 use Bio::DB::SeqFeature::Store;
@@ -55,7 +56,20 @@ $SIG{TERM} = $SIG{INT} = sub {   undef $store; die "Aborted..."; };
 
 my $seq_stream = $store->get_seq_stream(@ARGV)  or die "failed to get_seq_stream(@ARGV)"; 
 while (my $seq = $seq_stream->next_seq) {
-  print $seq->gff3_string(@gff3opt) . "\n";
+  ### 20100725 // genehack
+  # Try to call a gff3_string() method, but fall back to gff_string() if $seq
+  # doesn't support that. Note that gff_string() is required per
+  # Bio::SeqFeatureI, while gff3_string() is not. Currently, only
+  # Bio::SeqFeature::Lite implements gff3_string().
+  if ( $seq->can( 'gff3_string' )) {
+    print $seq->gff3_string(@gff3opt) . "\n";
+  }
+  elsif ( $seq->can( 'gff_string' )) {
+    print $seq->gff_string . "\n";
+  }
+  else {
+    confess "sequence object $seq does not support gff3_string() or gff_string() methods!"
+  }
 }
 
 exit 0;
