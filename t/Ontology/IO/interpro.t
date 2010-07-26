@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 69,
+    test_begin(-tests => 70,
 			   -requires_modules => [qw(XML::Parser::PerlSAX
 									    XML::Parser
 										Graph::Directed)]);
@@ -56,14 +56,14 @@ my @rt = sort { $a->name cmp $b->name; } $ip->get_root_terms();
 is (scalar(@rt), 8, 'There are 8 root InterPro terms');
 
 # every InterPro term should have an ontology,
-foreach ($ip->get_leaf_terms, @rt) {
+foreach (@leaves, @rt) {
 	isa_ok ($_->ontology, 'Bio::Ontology::Ontology');
 	is ($_->ontology->name, "InterPro",
 		 "term ".$_->name." in ontology InterPro");
 }
 
 # there are 10 fully instantiated InterPro terms in total, which should be returned as the leafs
-is (scalar($ip->get_leaf_terms()), 10);
+is (scalar @leaves , 10);
 # roots and leafs together:
 is (scalar($ip->get_all_terms()), 15);
 
@@ -75,7 +75,7 @@ is (scalar($ip->get_descendant_terms($rt[4])), 3); # 3 Interpro Family
 is (scalar($ip->get_child_terms($rt[4])), 3);      # dto.
 
 # test for ancestors and parents (synonymous here because of depth 1)
-foreach my $t ($ip->get_leaf_terms) {
+foreach my $t (@leaves) {
 	# every InterPro term has exactly one parent - namely either 
 	# Domain, Region, Family, Repeat, or PTM(Post Transl. Modification)
 
@@ -83,6 +83,10 @@ foreach my $t ($ip->get_leaf_terms) {
 			|| $t->identifier =~ '_site' )) {
 		is (scalar($ip->get_parent_terms($t)), 1, $t->name . " term has one parent");
 		is (scalar($ip->get_ancestor_terms($t)), 1, $t->name . " term has one ancestor");
+
+        if ($t->name eq 'Kringle') {
+            like($t->definition, qr!<cite idref="PUB00002414"/>!, 'Kringle definition contains <cite> elements');
+        }
 	}
 }
 
