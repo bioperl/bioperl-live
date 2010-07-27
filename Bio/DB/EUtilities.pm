@@ -28,6 +28,52 @@ NCBI's eUtils
 This is a general webagent which posts and retrieves data to NCBI's eUtilities
 service using their CGI interface.
 
+=head1 TODO
+
+=over 3
+
+=item * Finish documentation
+
+HOWTOs (both standard and Cookbook).
+
+=item * Cookbook tests
+
+Set up dev-only tests for Cookbook examples to make sure they are consistently
+updated.
+
+=item * API
+
+Mark Jensen has written up the SOAP-based eUtil modules, maybe we should
+coalesce around a consistent API between the two (they are close).
+
+=item * POST/GET
+
+Most eutils now allow use of POST for large sets of IDs, even though GET is
+apparently preferred. Therefore the choice of which to use should probably come
+down to (in order) user specification, support for the mode for the specific
+eutil, and the number of IDs present.
+
+=item * Carryover of parameters
+
+Maybe add a default but configurable list of parameters that can be carried over
+between calls.  
+
+=item * Make setting certain parameters consistent
+
+Setting history is a bit inconsistent, so maybe use a common alias for this?
+
+=item * Splitting out of core
+
+This could easily belong in its own distribution, the only tie to BioPerl is the
+use of Bio::Root::Root.
+
+=item * Moosify?
+
+Not necessary, but it might make things easier and more maintainable in the long
+run.
+
+=back
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists

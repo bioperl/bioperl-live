@@ -724,7 +724,7 @@ $seqio = Bio::SeqIO->new( -verbose => $verbose,
                                  -file => $outfile);
     
 $seq = $seqio->next_seq;
-isa_ok($seq->species, 'Bio::Taxon');
+isa_ok($seq->species, 'Bio::Species');
 is($seq->species->ncbi_taxid, 6239);
 
 # version, seq_update, dates (5 tests)
@@ -999,7 +999,7 @@ $seqio = Bio::SeqIO->new( -verbose => $verbose,
 
 ok($seqio);
 $seq = $seqio->next_seq;
-isa_ok($seq->species, 'Bio::Taxon');
+isa_ok($seq->species, 'Bio::Species');
 is($seq->species->ncbi_taxid, "6239");
 
 # version, seq_update, dates (5 tests)
@@ -1039,7 +1039,7 @@ $seqio = Bio::SeqIO->new( -verbose => $verbose,
 
 ok($seqio);
 $seq = $seqio->next_seq;
-isa_ok($seq->species, 'Bio::Taxon');
+isa_ok($seq->species, 'Bio::Species');
 is($seq->species->ncbi_taxid, 6239);
 
 is($seq->version, 47);
@@ -1089,7 +1089,7 @@ $ast = Bio::SeqIO->new(-format => 'genbank',
                        -file => test_input_file('P39765.gb'));
 $ast->verbose($verbose);
 $as = $ast->next_seq();
-is $as->molecule, 'linear',$as->accession_number;;
+is $as->molecule, 'PRT',$as->accession_number;;
 is $as->alphabet, 'protein';
 # Though older GenBank releases indicate SOURCE contains only the common name,
 # this is no longer true.  In general, this line will contain an abbreviated

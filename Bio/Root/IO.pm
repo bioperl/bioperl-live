@@ -451,7 +451,6 @@ sub mode {
  Returns : value of file
  Args    : newvalue (optional)
 
-
 =cut
 
 sub file {
@@ -478,6 +477,64 @@ sub _print {
     my $ret = print $fh @_;
     return $ret;
 }
+
+
+=head2 _insert
+
+    Title   : _insert
+    Usage   : $obj->_insert($string,1)
+    Function: Insert some text in a file at the given line number (1-based).
+    Returns : 1 on success
+    Args    : string to write in file
+              line number to insert the string at
+
+=cut
+
+sub _insert {
+    my ($self, $string, $line_num) = @_;
+    # Line number check
+    if ($line_num < 1) {
+        $self->throw("Cannot insert text at line $line_num because the minimum".
+            " line number possible is 1");
+    }
+    # File check
+    my $file = $self->file;
+    if (not defined $file) {
+        $self->throw('Cannot insert a line in a IO object initialized with ".
+            "anything else than a file.');
+    }
+    $file =~ s/^\+?[><]?//; # transform '+>output.ace' into 'output.ace'
+    # Everything that needs to be written is written before we read it
+    $self->flush;
+    # Edit the file in place, line by line (no slurping)
+    {
+        local @ARGV = ($file);     # input file
+        #local $^I = '~';          # backup file extension, e.g. ~, .bak, .ori
+        local $^I = '';            # no backup file
+        while (<>) {
+            if ($. == $line_num) { # right line for new data
+                print $string.$_;
+            } else {
+                print;
+            }
+        }
+    }
+    # Line number check (again)
+    if ( $. > 0 && $line_num > $. ) {
+        $self->throw("Cannot insert text at line $line_num because there are ".
+            "only $. lines in file $file");
+    }
+    # Re-open the file in append mode to be ready to add text at the end of it
+    # when the next _print() statement comes
+    open my $new_fh, ">>$file" or $self->throw("Cannot append to file $file: $!");
+    $self->_fh($new_fh);
+    # If file is empty and we're inserting at line 1, simply append text to file
+    if ( $. == 0 && $line_num == 1 ) {
+        $self->_print($string);
+    }
+    return 1;
+}
+
 
 =head2 _readline
 

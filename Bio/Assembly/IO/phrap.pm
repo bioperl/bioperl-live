@@ -349,7 +349,8 @@ sub scaffold_annotations {
         # Loading INTERNAL clones description
         /INTERNAL\s+Contig\s+(\d+)\s+opp\s+sense/ && do {
             my $contigID = $1;
-            my $contig = $assembly->get_contig_by_id($contigID);
+            my $contig = $assembly->get_contig_by_id($contigID) ||
+                         $assembly->get_singlet_by_id($contigID);
             while ($_ = $self->_readline) {
                 my (@data,$rejected,$c1_strand,$c2_strand);
 

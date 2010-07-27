@@ -157,6 +157,17 @@ sub add_typeid {
     return $db->{$key};
 }
 
+sub _seq_ids {
+    my $self = shift;
+    if (my $fa = $self->{fasta_db}) {
+	if (my @s = eval {$fa->ids}) {
+	    return @s;
+	}
+    } 
+    my $l = $self->seqid_db or return;
+    return grep {!/^\./} keys %$l;
+}
+
 sub _index_files {
     return (shift->SUPER::_index_files,'seqids','typeids','summary');
 }

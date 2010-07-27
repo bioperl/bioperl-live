@@ -492,8 +492,19 @@ index => {
 CREATE  INDEX fattribute_to_feature_fid ON fattribute_to_feature (fid,fattribute_id)
 }
 	   } # fattribute_to_feature indexes
-} # fattribute_to_feature  
+}, # fattribute_to_feature  
 
+       finterval_stats => {
+table=> q{
+CREATE TABLE "finterval_stats" (
+   "ftypeid"          integer DEFAULT '0' NOT NULL,
+   "fref"             VARCHAR(100) DEFAULT '' NOT NULL,
+   "fbin"             integer DEFAULT '0' NOT NULL,
+   "fcum_count"       integer DEFAULT '0' NOT NULL,
+   CONSTRAINT finterval_stats_pk PRIMARY KEY (ftypeid,fref,fbin)
+)
+} # finterval_stats table
+},# finterval_stats
 
 );
   return \%schema;

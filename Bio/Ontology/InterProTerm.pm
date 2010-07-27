@@ -260,12 +260,14 @@ sub protein_count{
 
 =cut
 
-sub get_references{
-    my $self = shift;
+# Defined in parent class
 
-    return @{$self->{"_references"}} if exists($self->{"_references"});
-    return ();
-}
+#sub get_references{
+#    my $self = shift;
+#
+#    return @{$self->{"_references"}} if exists($self->{"_references"});
+#    return ();
+#}
 
 =head2 add_reference
 
@@ -279,12 +281,14 @@ sub get_references{
 
 =cut
 
-sub add_reference{
-    my $self = shift;
+# Defined in parent class
 
-    $self->{"_references"} = [] unless exists($self->{"_references"});
-    push(@{$self->{"_references"}}, @_);
-}
+#sub add_reference{
+#    my $self = shift;
+#
+#    $self->{"_references"} = [] unless exists($self->{"_references"});
+#    push(@{$self->{"_references"}}, @_);
+#}
 
 =head2 remove_references
 
@@ -299,13 +303,14 @@ sub add_reference{
 
 =cut
 
-sub remove_references{
-    my $self = shift;
-
-    my @arr = $self->get_references();
-    $self->{"_references"} = [];
-    return @arr;
-}
+# Defined in parent class
+#sub remove_references{
+#    my $self = shift;
+#
+#    my @arr = $self->get_references();
+#    $self->{"_references"} = [];
+#    return @arr;
+#}
 
 =head2 get_members
 
@@ -321,9 +326,7 @@ sub remove_references{
 
 sub get_members{
     my $self = shift;
-
-    return @{$self->{'_members'}} if exists($self->{'_members'});
-    return ();
+    return $self->get_dbxrefs('member_list');
 }
 
 =head2 add_member
@@ -340,9 +343,7 @@ sub get_members{
 
 sub add_member{
     my $self = shift;
-
-    $self->{'_members'} = [] unless exists($self->{'_members'});
-    push(@{$self->{'_members'}}, @_);
+    $self->add_dbxref(-dbxrefs => \@_, -context => 'member_list');
 }
 
 =head2 remove_members
@@ -360,10 +361,7 @@ sub add_member{
 
 sub remove_members{
     my $self = shift;
-
-    my @arr = $self->get_members();
-    $self->{'_members'} = [];
-    return @arr;
+    return $self->remove_dbxrefs('member_list');
 }
 
 =head2 get_examples
@@ -383,9 +381,7 @@ sub remove_members{
 
 sub get_examples{
     my $self = shift;
-
-    return @{$self->{'_examples'}} if exists($self->{'_examples'});
-    return ();
+    return $self->get_dbxrefs('example_list');
 }
 
 =head2 add_example
@@ -405,9 +401,7 @@ sub get_examples{
 
 sub add_example{
     my $self = shift;
-
-    $self->{'_examples'} = [] unless exists($self->{'_examples'});
-    push(@{$self->{'_examples'}}, @_);
+    return $self->add_dbxref(-dbxrefs => \@_, -context => 'example_list');
 }
 
 =head2 remove_examples
@@ -428,10 +422,7 @@ sub add_example{
 
 sub remove_examples{
     my $self = shift;
-
-    my @arr = $self->get_examples();
-    $self->{'_examples'} = [];
-    return @arr;
+    return $self->remove_dbxrefs('example_list');
 }
 
 =head2 get_external_documents
@@ -451,9 +442,7 @@ sub remove_examples{
 
 sub get_external_documents{
     my $self = shift;
-
-    return @{$self->{'_external_documents'}} if exists($self->{'_external_documents'});
-    return ();
+    return $self->get_dbxrefs('external_doc_list');
 }
 
 =head2 add_external_document
@@ -473,9 +462,7 @@ sub get_external_documents{
 
 sub add_external_document{
     my $self = shift;
-
-    $self->{'_external_documents'} = [] unless exists($self->{'_external_documents'});
-    push(@{$self->{'_external_documents'}}, @_);
+    return $self->add_dbxref(-dbxrefs => \@_, -context => 'external_doc_list');
 }
 
 =head2 remove_external_documents
@@ -496,10 +483,7 @@ sub add_external_document{
 
 sub remove_external_documents{
     my $self = shift;
-
-    my @arr = $self->get_external_documents();
-    $self->{'_external_documents'} = [];
-    return @arr;
+    return $self->remove_dbxrefs('external_doc_list');
 }
 
 =head2 class_list
@@ -511,17 +495,23 @@ sub remove_external_documents{
  Returns : reference to an array of Bio::Annotation::DBLink objects
  Args    : reference to an array of Bio::Annotation::DBLink objects
 
-
 =cut
 
+# this is inconsistent with the above, but we work around it and hope nothing
+# breaks
+
 sub class_list{
-  my ($self, $value) = @_;
-
-  if( defined $value) {
-    $self->{'class_list'} = $value;
-  }
-
-  return $self->{'class_list'};
+    my ($self, $value) = @_;
+    if( defined $value && ref $value eq 'ARRAY') {
+        if (!@$value) {
+            # passing an empty array ref is essentially same as remove_dbxrefs,
+            # so do that
+            $self->remove_dbxrefs('class_list');
+        } else {
+            $self->add_dbxref(-dbxrefs => $value, -context => 'class_list');
+        }
+    }
+    return [$self->get_dbxrefs('class_list')];
 }
 
 =head2 to_string
@@ -535,75 +525,83 @@ sub class_list{
 =cut
 
 sub to_string {
-  my($self) = @_;
-  my $s = "";
+    my ($self) = @_;
+    my $s = "";
 
-  $s .= "-- InterPro id:\n";
-  $s .= $self->interpro_id()."\n";
-  if (defined $self->name) {
-    $s .= "-- Name:\n";
-    $s .= $self->name()."\n";
-    $s .= "-- Definition:\n";
-    $s .= $self->definition()."\n";
-    $s .= "-- Category:\n";
-    if ( defined( $self->ontology() ) ) {
-      $s .= $self->ontology()->name()."\n";
-    } else {
-      $s .= "\n";
+    $s .= "-- InterPro id:\n";
+    $s .= $self->interpro_id() . "\n";
+    if ( defined $self->name ) {
+        $s .= "-- Name:\n";
+        $s .= $self->name() . "\n";
+        $s .= "-- Definition:\n";
+        $s .= $self->definition() . "\n";
+        $s .= "-- Category:\n";
+        if ( defined( $self->ontology() ) ) {
+            $s .= $self->ontology()->name() . "\n";
+        }
+        else {
+            $s .= "\n";
+        }
+        $s .= "-- Version:\n";
+        $s .= ( $self->version() || '' ) . "\n";
+        $s .= "-- Is obsolete:\n";
+        $s .= $self->is_obsolete() . "\n";
+        $s .= "-- Comment:\n";
+        $s .= ( $self->comment() || '' ) . "\n";
+        if ( defined $self->get_references ) {
+            $s .= "-- References:\n";
+            foreach my $ref ( $self->get_references ) {
+                $s .=
+                    $ref->authors . "\n"
+                  . $ref->title . "\n"
+                  . $ref->location . "\n\n";
+            }
+            $s .= "\n";
+        }
+        if ( defined $self->get_members ) {
+            $s .= "-- Member List:\n";
+            foreach my $ref ( $self->get_members ) {
+                $s .= $ref->database . "\t" . $ref->primary_id . "\n";
+            }
+            $s .= "\n";
+        }
+        if ( defined $self->get_external_documents ) {
+            $s .= "-- External Document List:\n";
+            foreach my $ref ( $self->get_external_documents ) {
+                $s .= $ref->database . "\t" . $ref->primary_id . "\n";
+            }
+            $s .= "\n";
+        }
+        if ( defined $self->get_examples ) {
+            $s .= "-- Examples:\n";
+            foreach my $ref ( $self->get_examples ) {
+                $s .= join( "\t",
+                    map { $ref->$_ || '' } qw(database primary_id comment) )
+                  . "\n";
+            }
+            $s .= "\n";
+        }
+        if ( defined $self->class_list ) {
+            $s .= "-- Class List:\n";
+            foreach my $ref ( @{ $self->class_list } ) {
+                $s .= $ref->primary_id . "\n";
+            }
+            $s .= "\n";
+        }
+        if ( $self->get_secondary_ids ) {
+            $s .= "-- Secondary IDs:\n";
+            foreach my $ref ( $self->get_secondary_ids() ) {
+                # TODO: getting undef here in some cases, needs to be checked
+                next unless defined ($ref);
+                $s .= $ref . "\n";
+            }
+            $s .= "\n";
+        }
     }
-    $s .= "-- Version:\n";
-    $s .= $self->version()."\n";
-    $s .= "-- Is obsolete:\n";
-    $s .= $self->is_obsolete()."\n";
-    $s .= "-- Comment:\n";
-    $s .= $self->comment()."\n"; 
-    if (defined $self->get_references) {
-      $s .= "-- References:\n";
-      foreach my $ref ( $self->get_references ) {
-	$s .= $ref->authors."\n".$ref->title."\n".$ref->location."\n\n";
-      };
-      $s .= "\n";
+    else {
+        $s .= "InterPro term not fully instantiated\n";
     }
-    if (defined $self->get_members) {
-      $s .= "-- Member List:\n";
-      foreach my $ref ( $self->get_members ) {
-	$s .= $ref->database."\t".$ref->primary_id."\n";
-      };
-      $s .= "\n";
-    }
-    if (defined $self->get_external_documents) {
-      $s .= "-- External Document List:\n";
-      foreach my $ref ( $self->get_external_documents ) {
-	$s .= $ref->database."\t".$ref->primary_id."\n";
-      };
-      $s .= "\n";
-    }
-    if (defined $self->get_examples) {
-      $s .= "-- Examples:\n";
-      foreach my $ref ( $self->get_examples ) {
-	$s .= $ref->database."\t".$ref->primary_id."\t".$ref->comment."\n";
-      };
-      $s .= "\n";
-    }
-    if (defined $self->class_list) {
-      $s .= "-- Class List:\n";
-      foreach my $ref ( @{$self->class_list} ) {
-	$s .= $ref->primary_id."\n";
-      };
-      $s .= "\n";
-    }
-    if ($self->get_secondary_ids) {
-      $s .= "-- Secondary IDs:\n";
-      foreach my $ref ( $self->get_secondary_ids() ) {
-	$s .= $ref."\n";
-      };
-      $s .= "\n";
-    }
-  }
-  else {
-    $s .= "InterPro term not fully instantiated\n";
-  }
-  return $s;
+    return $s;
 }
 
 =head1 Deprecated methods

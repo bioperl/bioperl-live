@@ -20,6 +20,7 @@ my %expected_lengths = (
     'AAC06201'  => 353,
     'AAD15290'  => 136,
     'P31383'    => 635,
+    '2AAA_YEAST' => 635
 );
 
 my ($gb, $seq, $seqio);

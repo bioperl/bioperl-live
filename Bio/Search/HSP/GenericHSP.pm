@@ -216,17 +216,13 @@ sub new {
 
 sub _logical_length {
     my ($self, $type) = @_;
-    my $algo = $self->algorithm;
-    my $len = $self->length($type);
-    my $logical = $len;
-    if($algo =~ /^(PSI)?T(BLAST|FAST)[NY]/oi ) {
-        $logical = $len/3 if $type =~ /sbjct|hit|tot/i;
-    } elsif($algo =~ /^(BLAST|FAST)(X|Y|XY)/oi ) {
-        $logical = $len/3 if $type =~ /query|tot/i;
-    } elsif($algo =~ /^T(BLAST|FAST)(X|Y|XY)/oi ) {
-        $logical = $len/3;
-    }
-    return $logical;
+    if (!defined($self->{_sbjct_offset}) || !defined($self->{_query_offset})) {
+        $self->_calculate_seq_offsets();
+    }    
+    my $key = $type =~ /sbjct|hit|tot/i ? 'sbjct' : 'query';
+    
+    my $offset = $self->{"_${key}_offset"};
+    return $self->length($type) / $offset ;
 }
 
 =head2 L<Bio::Search::HSP::HSPI> methods
@@ -306,6 +302,7 @@ sub evalue {
                              synonyms: 'hsp'
                    default = 'total'
            arg 2: [optional] frac identical value to set for the type requested
+ Note    : for translated sequences, this adjusts the length accordingly
 
 =cut
 
@@ -650,6 +647,7 @@ sub get_aln {
                                       '-id'    => $q_nm,
                                       '-start' => $self->query->start,
                                       '-end'   => $self->query->end,
+                                      '-strand'   => $self->query->strand,
                                       '-force_nse' => $q_nm ? 0 : 1,
                                       '-mapping' => [1, $self->{_query_mapping}]
                                       );
@@ -659,6 +657,7 @@ sub get_aln {
                                       '-id'    => $s_nm,
                                       '-start' => $self->hit->start,
                                       '-end'   => $self->hit->end,
+                                      '-strand'   => $self->hit->strand,
                                       '-force_nse' => $s_nm ? 0 : 1,
                                       '-mapping' => [1, $self->{_hit_mapping}]
                                       );
@@ -755,7 +754,7 @@ sub rank {
            :             'conserved-not-identical' - conserved positions w/o 
            :                            identical residues
            :             The name can be shortened to 'id' or 'cons' unless
-           :             the name is ambiguous.  The default value is
+           :             the name is .  The default value is
            :             'identical'
            :
            : collapse  = boolean, if true, consecutive positions are merged
@@ -874,9 +873,12 @@ See Also   : L<Bio::Search::Hit::HSPI::seq_inds()>
 
 sub ambiguous_seq_inds {
     my $self = shift;
-    $self->_calculate_seq_positions();    
-    return $self->{seqinds}{'_warnRes'} if exists $self->{seqinds}{'_warnRes'};
-    return $self->{seqinds}{'_warnRes'} = '';
+    $self->_calculate_seq_positions();
+    my $type = ($self->{_query_offset} == 3 && $self->{_sbjct_offset} == 3) ?
+        'query/subject' :
+        ($self->{_query_offset} == 3) ? 'query' :
+        ($self->{_sbjct_offset} == 3) ? 'subject' : '';
+    return $type;
 }
 
 =head2 Inherited from L<Bio::SeqFeature::SimilarityPair>
@@ -1068,20 +1070,10 @@ sub _calculate_seq_positions {
         #$sseq =~ s![\\\/]!!g;
     }
 
-    $self->{seqinds}{'_warnRes'} = '';
-    ($self->{_sbjct_offset}, $self->{_query_offset}) = (1,1);
-    if($prog =~ /^(?:PSI)?T(BLAST|FAST)(N|X|Y)/oi ) {
-        $self->{_sbjct_offset} = 3;
-        if ($1 eq 'BLAST' && $2 eq 'X') { #TBLASTX
-            $self->{_query_offset} = 3;
-            $self->{seqinds}{'_warnRes'} = 'query/subject';
-        } else {
-            $self->{seqinds}{'_warnRes'} = 'subject';
-        }
-    } elsif($prog =~ /^(BLAST|FAST)(X|Y|XY)/oi  ) {
-        $self->{_query_offset} = 3;
-        $self->{seqinds}{'_warnRes'} = 'query';
+    if (!defined($self->{_sbjct_offset}) || !defined($self->{_query_offset})) {
+        $self->_calculate_seq_offsets();
     }
+    
     my ($qfs, $sfs) = (0,0);
     CHAR_LOOP:
     for my $pos (0..CORE::length($seqString)-1) {
@@ -1180,6 +1172,21 @@ sub _calculate_seq_positions {
         $resCount_sbjct += ($sdir * (scalar(@srange) + $sfs)) if !$sgap;
     }
     return 1;
+}
+
+sub _calculate_seq_offsets {
+    my $self = shift;
+    my $prog = $self->algorithm;
+    ($self->{_sbjct_offset}, $self->{_query_offset}) = (1,1);
+    if($prog =~ /^(?:PSI)?T(BLAST|FAST)(N|X|Y)/oi ) {
+        $self->{_sbjct_offset} = 3;
+        if ($1 eq 'BLAST' && $2 eq 'X') { #TBLASTX
+            $self->{_query_offset} = 3;
+        } 
+    } elsif($prog =~ /^(BLAST|FAST)(X|Y|XY)/oi  ) {
+        $self->{_query_offset} = 3;
+    }
+    1;
 }
 
 =head2 n
@@ -1618,6 +1625,7 @@ sub _pre_similar_stats {
 
 sub _pre_frac {
     my $self = shift;
+    
     my $hsp_len = $self->{HSP_LENGTH};
     my $hit_len = $self->{HIT_LENGTH};
     my $query_len = $self->{QUERY_LENGTH};
