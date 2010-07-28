@@ -327,9 +327,9 @@ END
    typeid            int not null,
    seqid             int not null,
    bin               int not null,
-   cum_count         int not null,
-   CREATE UNIQUE INDEX interval_stats_id ON interval_stats(typeid,seqid,bin)
-)
+   cum_count         int not null
+ );
+ CREATE UNIQUE INDEX interval_stats_id ON interval_stats(typeid,seqid,bin);
 END
 	 };
 }
