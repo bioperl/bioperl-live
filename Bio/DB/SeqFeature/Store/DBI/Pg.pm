@@ -327,9 +327,9 @@ END
    typeid            int not null,
    seqid             int not null,
    bin               int not null,
-   cum_count         int not null,
+   cum_count         int not null
+);
    CREATE UNIQUE INDEX interval_stats_id ON interval_stats(typeid,seqid,bin)
-)
 END
 	 };
 }
@@ -938,5 +938,18 @@ sub _add_interval_stats_table {
 	$self->dbh->do("CREATE TABLE $interval_stats $tables->{interval_stats}");
     }
 }
+
+sub _fetch_indexed_features_sql {
+    my $self     = shift;
+    my $features = $self->_feature_table;
+    return <<END;
+SELECT typeid,seqid,start-1,"end"
+  FROM $features as f
+ WHERE f.indexed=1
+  ORDER BY typeid,seqid,start
+END
+}
+
+
 
 1;
