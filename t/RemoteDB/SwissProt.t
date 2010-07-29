@@ -74,7 +74,7 @@ SKIP: {
                                   -to   => 'ACC',
                                   -ids  => [qw(MYOD1_PIG YNB3_YEAST)])
                                   };
-    skip("Problem with idtracker(), skipping these tests: $@", 4) if $@;
+    skip("Problem with idtracker(), skipping these tests: $@", 3) if $@;
     
     is($map->{MYOD1_PIG}, 'P49811');
     is($map->{YNB3_YEAST}, 'P53979');

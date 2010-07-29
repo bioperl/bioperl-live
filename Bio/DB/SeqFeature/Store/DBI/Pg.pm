@@ -321,6 +321,16 @@ END
   primary key(id,"offset")
 )
 END
+
+    interval_stats => <<END,
+(
+   typeid            int not null,
+   seqid             int not null,
+   bin               int not null,
+   cum_count         int not null
+ );
+ CREATE UNIQUE INDEX interval_stats_id ON interval_stats(typeid,seqid,bin);
+END
 	 };
 }
 
@@ -916,5 +926,30 @@ sub _dump_store {
   }
   $count;
 }
+
+sub _enable_keys  { }  # nullop
+sub _disable_keys { }  # nullop
+
+sub _add_interval_stats_table {
+    my $self = shift;
+    my $tables          = $self->table_definitions;
+    my $interval_stats  = $self->_interval_stats_table;
+    eval {
+	$self->dbh->do("CREATE TABLE $interval_stats $tables->{interval_stats}");
+    }
+}
+
+sub _fetch_indexed_features_sql {
+    my $self     = shift;
+    my $features = $self->_feature_table;
+    return <<END;
+SELECT typeid,seqid,start-1,"end"
+  FROM $features as f
+ WHERE f.indexed=1
+  ORDER BY typeid,seqid,start
+END
+}
+
+
 
 1;

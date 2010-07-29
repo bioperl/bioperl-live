@@ -121,48 +121,48 @@ use Bio::Root::IO;
 # params : allowed parameters for that eutil
 my %MODE = (
     'einfo'     => {
-        'mode'     => 'GET',
+        'mode'     => ['GET'],
         'location' => 'einfo.fcgi',
         'params'   => [qw(db tool email)],
                    },
     'epost'     => {
-        'mode'     => 'POST',
+        'mode'     => ['POST','GET'],
         'location' => 'epost.fcgi',
         'params'   => [qw(db retmode id tool email WebEnv query_key)],
                    },
     'efetch'    => {
-        'mode'     => 'GET',
+        'mode'     => ['GET','POST'],
         'location' => 'efetch.fcgi',
         'params'   => [qw(db retmode id retmax retstart rettype strand seq_start
                        seq_stop complexity report tool email WebEnv query_key)],
                    },
     'esearch'   => {
-        'mode'     => 'GET',
+        'mode'     => ['GET','POST'],
         'location' => 'esearch.fcgi',
         'params'   => [qw(db retmode usehistory term field reldate mindate
                        maxdate datetype retmax retstart rettype sort tool email
                        WebEnv query_key)],
                    },
     'esummary'  => {
-        'mode'     => 'GET',
+        'mode'     => ['GET','POST'],
         'location' => 'esummary.fcgi',
         'params'   => [qw(db retmode id retmax retstart rettype tool email
                        WebEnv query_key)],
                    },
     'elink'     => {
-        'mode'     => 'GET',
+        'mode'     => ['GET','POST'],
         'location' => 'elink.fcgi',
         'params'   => [qw(db retmode id reldate mindate maxdate datetype term 
                     dbfrom holding cmd version tool email linkname WebEnv
                     query_key)],
                    },
     'egquery'   => {
-        'mode'     => 'GET',
+        'mode'     => ['GET','POST'],
         'location' => 'egquery.fcgi',
         'params'   => [qw(term retmode tool email)],
                    },
     'espell'    => {
-        'mode'     => 'GET',
+        'mode'     => ['GET','POST'],
         'location' => 'espell.fcgi',
         'params'   => [qw(db retmode term tool email )],
                    }
@@ -198,8 +198,10 @@ sub new {
     my ($class, @args) = @_;
     my $self = $class->SUPER::new(@args);
     my ($retmode) = $self->_rearrange(["RETMODE"],@args);
+    # order is important here, eutil must be set first so that proper error
+    # checking occurs for the later attributes
     $self->_set_from_args(\@args,
-        -methods => [@PARAMS, qw(eutil history correspondence id_file)]);
+        -methods => [@PARAMS, qw(eutil history correspondence id_file request_mode)]);
     $self->eutil() || $self->eutil('efetch');
     $self->tool() || $self->tool('BioPerl');
     # set default retmode if not explicitly set    
@@ -269,12 +271,116 @@ sub reset_parameters {
     my ($self, @args) = @_;
     # is there a better way of doing this?  probably, but this works...
     my ($retmode,$file) = $self->_rearrange([qw(RETMODE ID_FILE)],@args);
-    map { defined $self->{"_$_"} && undef $self->{"_$_"} } (@PARAMS, qw(eutil correspondence history_cache request_cache));
+    $self->_reset_from_carryover();
+    #for my $p (@PARAMS, qw(eutil correspondence history_cache request_cache)) {
+    #    undef $self->{"_$p"} if defined $self->{"_$p"};
+    #}
     $self->_set_from_args(\@args, -methods => [@PARAMS, qw(eutil correspondence history)]);
     $self->eutil() || $self->eutil('efetch');
     $self->set_default_retmode unless $retmode;
     $file && $self->id_file($file);
     $self->{'_statechange'} = 1;
+}
+
+=head2 carryover
+
+ Title    : carryover
+ Usage    : $obj->carryover(qw(email tool db))
+ Function : Carries over the designated parameters when using reset_parameters()
+ Returns  : a list of carried-over parameters
+ Args     : An array reference of parameters to carry over, followed optionally
+            by the mode ('add' or 'delete', indicating whether to append to or
+            remove the specified values passed in). To clear all values, pass in
+            an empty array reference (the mode in this case doesn't matter).
+            
+            In addition to the normal eUtil-specific parameters, the following
+            additional parameters are allowed:
+            
+            -eutil    - the eUtil to be used (default 'efetch')
+            -history  - pass a HistoryI-implementing object, which
+                       sets the WebEnv, query_key, and possibly db and linkname
+                       (the latter two only for LinkSets)
+            -correspondence - Boolean flag, set to TRUE or FALSE; indicates how
+                       IDs are to be added together for elink request where
+                       ID correspondence might be needed
+                       (default 0)
+ Default  : None (no carried over parameters)
+ Status   : NYI (dev in progress, carry on, nothing to see here)
+ 
+=cut
+
+sub carryover {
+    my ($self, $params, $mode) = @_;
+    my %allowed = map {$_ => 1} (@PARAMS, qw(eutil history correspondence));
+    if ($params) {
+        $self->throw("Must pass in an array ref of parameters") unless
+            ref($params) eq 'ARRAY';
+        my $mode ||= 'add';
+        $self->throw("Mode must be 'add' or 'delete'") unless $mode eq 'add' || $mode eq 'delete';
+        if (!scalar(@$params)) { # empty array ref
+            $self->{_carryover} = {};
+        } else {
+            for my $p (@$params) {
+                if (!exists $allowed{$p}) {
+                    $self->warn("$p is not a recognized eutil parameter");
+                    next;
+                }
+                if ($mode eq 'add') {
+                    $self->{_carryover}->{$p} = 1;
+                } else {
+                    delete $self->{_carryover}->{$p} if exists
+                        $self->{_carryover}->{$p};
+                }
+            }
+        }
+    }
+    sort keys %{$self->{_carryover}} || ();
+}
+
+sub _reset_except_carryover {
+    my $self = shift;
+    #for my $p (@PARAMS, qw(eutil correspondence history_cache request_cache)) {
+    #    undef $self->{"_$p"} if defined $self->{"_$p"};
+    #}
+}
+
+=head2 request_mode
+
+ Title    : request_mode
+ Usage    : $obj->request_mode
+ Function : get/set the mode for the user agent to use for generating a request
+ Returns  : either a preset mode (checked against the eutil) or a best-possible
+            option based upon the currently-set parameters
+ Args     : 
+ Status   :
+ 
+=cut
+
+sub request_mode {
+    my ($self, $mode) = @_;
+    $mode = uc $mode if defined $mode;
+    my $eutil = $self->eutil;
+    if ($mode) {
+        my %valid = map {$_ => 1} @{$MODE{$eutil}{mode}};
+        $self->throw("Mode $mode not supported for $eutil") unless
+            exists $valid{$mode};
+        $self->{_request_mode} = $mode;
+    }
+    return $self->{_request_mode} if $self->{_request_mode};
+    # let's try to make this a bit smarter...
+    
+    # If not explicitly set, in cases where
+    # the number of IDs is greater than 200, or the search term is longer than
+    # 200, use POST when available
+    
+    if (scalar(@{$MODE{$eutil}{mode}}) > 1) { # allows both GET and POST
+        my ($id, $term) = ($self->id || [], $self->term || '');
+        if (scalar(@$id) > 200 || CORE::length($term) > 300) {
+            return 'POST'
+        }
+    }
+    # otherwise, fallback to default
+    $MODE{$eutil}{mode}[0]; # first is default    
 }
 
 =head2 parameters_changed
@@ -422,7 +528,7 @@ sub to_request {
         $self->throw("No eutil set") if !$eutil;
         #set default retmode
         $type ||= $eutil;
-        my ($location, $mode) = ($MODE{$eutil}->{location}, $MODE{$eutil}->{mode});
+        my ($location, $mode) = ($MODE{$eutil}->{location}, $self->request_mode);
         my $request;
         my $uri = URI->new($self->url_base_address . $location);
         if ($mode eq 'GET') {

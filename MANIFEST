@@ -1024,6 +1024,7 @@ scripts/Bio-DB-GFF/README
 scripts/Bio-SeqFeature-Store/bp_seqfeature_delete.PLS
 scripts/Bio-SeqFeature-Store/bp_seqfeature_gff3.PLS
 scripts/Bio-SeqFeature-Store/bp_seqfeature_load.PLS
+scripts/bioperl_netinstall.pl
 scripts/das/das_server.pl
 scripts/das/README
 scripts/das/TAG
@@ -1119,8 +1120,10 @@ t/AlignIO/xmfa.t
 t/Alphabet.t
 t/Annotation/Annotation.t
 t/Annotation/AnnotationAdaptor.t
-t/Assembly/Assembly.t
 t/Assembly/ContigSpectrum.t
+t/Assembly/core.t
+t/Assembly/IO/bowtie.t
+t/Assembly/IO/sam.t
 t/Biblio/Biblio.t
 t/Biblio/biofetch.t
 t/Biblio/eutils.t
@@ -1481,6 +1484,7 @@ t/data/hybrid1.gff3
 t/data/hybrid2.gff3
 t/data/in.fasta
 t/data/insulin.water
+t/data/interpro.xml
 t/data/interpro_ebi.xml
 t/data/interpro_short.xml
 t/data/intrablock-comment.nex
@@ -1716,6 +1720,7 @@ t/data/sim4.for.for
 t/data/sim4.for.rev
 t/data/sim4.rev
 t/data/singleNSsite.mlc
+t/data/singlet_w_CT.ace
 t/data/so.obo
 t/data/sofa.ontology
 t/data/spaces.nex
