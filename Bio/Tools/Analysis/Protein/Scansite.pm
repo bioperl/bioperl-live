@@ -356,7 +356,7 @@ sub _run {
 							 motifs       => '',
 							 motif_groups => '',
 							 stringency   => $self->stringency(),
-						 	 domain_flag  => '',
+						 	 #domain_flag  => '',
 							 submit       => "Submit Request",
 							];
 	## raw html report, 
@@ -399,8 +399,7 @@ sub _run {
 	(scalar @results > 0 ||	
 	(scalar @results == 0 && $text =~/No sites found/));
     if ($text =~ /server\s+error/i) {
-    	$self->warn("There was an internal server error !- text below") ;
-		$self->warn($text);
+    	$self->throw("Internal server error:\n\n $text");
         return; 
     }
 }
