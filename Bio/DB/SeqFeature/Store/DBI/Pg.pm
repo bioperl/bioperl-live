@@ -939,4 +939,17 @@ sub _add_interval_stats_table {
     }
 }
 
+sub _fetch_indexed_features_sql {
+    my $self     = shift;
+    my $features = $self->_feature_table;
+    return <<END;
+SELECT typeid,seqid,start-1,"end"
+  FROM $features as f
+ WHERE f.indexed=1
+  ORDER BY typeid,seqid,start
+END
+}
+
+
+
 1;
