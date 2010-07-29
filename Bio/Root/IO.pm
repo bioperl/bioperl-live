@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::Root::IO
 #

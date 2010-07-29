@@ -1,4 +1,3 @@
-# $Id$
 # Parser module for Coil Bio::Tools::Coil
 #
 # Based on the EnsEMBL module Bio::EnsEMBL::Pipeline::Runnable::Protein::Coil

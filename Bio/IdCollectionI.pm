@@ -1,4 +1,3 @@
-# $Id$
 
 #
 # This module is licensed under the same terms as Perl itself. You use,

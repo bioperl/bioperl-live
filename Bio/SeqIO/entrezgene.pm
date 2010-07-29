@@ -1,4 +1,3 @@
-# $Id$
 # BioPerl module for Bio::SeqIO::entrezgene
 #
 # You may distribute this module under the same terms as perl itself

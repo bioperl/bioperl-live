@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module Bio::DB::Biblio::biofetch.pm
 #

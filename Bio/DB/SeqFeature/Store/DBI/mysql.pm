@@ -1,5 +1,4 @@
 package Bio::DB::SeqFeature::Store::DBI::mysql;
-# $Id$
 
 =head1 NAME
 
