@@ -1,5 +1,4 @@
 #!perl -w
-# $Id$
 #
 # oligomer_freq.pl
 # We use this to determine what primers are useful for frequent priming of

@@ -1,7 +1,6 @@
 #!perl -w
 use strict;
 use Carp;
-# $Id$
 
 use Bio::SeqIO;
 use Getopt::Long;

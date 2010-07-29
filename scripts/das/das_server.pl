@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 
 # minimal annotation server
-# $Id$
 
 use strict;
 use Apache::DBI;

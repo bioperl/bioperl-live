@@ -1,5 +1,4 @@
 #!perl -w
-# $Id$
 
 # dbfetch style caching proxy for GenBank
 use strict;

@@ -1,6 +1,5 @@
 #!/usr/bin/perl -w
 
-# $Id$
 # An example of how to use the different alignment tools in bioperl
 # to align some sequences
 

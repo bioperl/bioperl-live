@@ -1,5 +1,4 @@
 #!/usr/bin/env perl
-# $Id$
 # AUTHOR: malcolm.cook@stowers-institute.org
 
 use strict;
