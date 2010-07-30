@@ -509,7 +509,8 @@ sub guess
         close($fh);
     } elsif (ref $fh eq 'GLOB') {
         # Try seeking to the start position.
-        seek($fh, $start_pos, 0);
+        seek($fh, $start_pos, 0) || $self->throw("Failed resetting the ".
+                                        "filehandle; IO error occurred");;
     } elsif (defined $fh && $fh->can('setpos')) {
         # Seek to the start position.
         $fh->setpos($start_pos);

@@ -32,7 +32,8 @@ CPAN releases are branched from 'master'.
     [Bug fixes]
     * bug 3077 - Bio::SimpleAlign slice() now correctly computes seq coordinates
       for alignment slices [Ha X. Dang, cjfields]
-    ...
+    * bug 3122 - Catch instances where non-seekable filehandles were being seek'd
+      w/o checking for status [Stefan Kirov, Roy Chaudhuri]
       
     [Deprecated]
     * Bio::Expression modules - these were originally designed to go with the
