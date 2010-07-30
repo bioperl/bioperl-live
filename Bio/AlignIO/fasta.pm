@@ -163,7 +163,7 @@ sub next_aln {
 	foreach my $seq ( $aln->each_seq ) {
 	    if ( $seq->length < $alnlen ) {
 		my ($diff) = ($alnlen - $seq->length);
-		$seq->seq( $seq->seq() . $aln->gap_char x $diff);
+		$seq->seq( $seq->seq() . $aln->gap_char x $diff); #gap_char should be read through $aln->gap_char
 	    }
 	}
 
