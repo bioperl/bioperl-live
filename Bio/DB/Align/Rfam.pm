@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::DB::AlignIO::Pfam
+# BioPerl module for Bio::DB::AlignIO::Rfam
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
 #
@@ -16,8 +16,8 @@
 
 =head1 NAME
 
-Bio::DB::AlignIO::Pfam - webagent which interacts with and retrieves alignment 
-sequences from Pfam
+Bio::DB::AlignIO::Rfam - webagent which interacts with and retrieves alignment 
+sequences from Rfam
 
 =head1 SYNOPSIS
 
@@ -88,21 +88,22 @@ preceded with a _
 
 # Let the code begin...
 
-package Bio::DB::Align::Pfam;
+package Bio::DB::Align::Rfam;
 use strict;
 use warnings;
 use LWP::UserAgent;
 use HTTP::Request;
 use Bio::AlignIO;
+use Bio::SimpleAlign;
 use Bio::Root::IO;
 use vars qw(%FORMATS %ALNTYPE $HOSTBASE);
 
 use base qw(Bio::Root::Root Bio::Root::IO Bio::DB::GenericWebAgent);
 
 BEGIN {
-	$HOSTBASE = 'http://pfam.sanger.ac.uk';
-	%FORMATS=qw(fasta 1 stockholm 1 selex 1 msf 1); #supported formats in pfam
-	%ALNTYPE=qw(seed 1 full 1 ncbi 1 metagenomics 1); #supported alignment types
+	$HOSTBASE = 'http://rfam.sanger.ac.uk';
+	%FORMATS=qw(fasta 1 stockholm 1 pfam 1 fastau 1); #supported formats in pfam
+	%ALNTYPE=qw(seed 1 full 1); #supported alignment types
 }
 
 sub new {
@@ -120,13 +121,13 @@ sub new {
 
 	Title   : get_Aln_by_id
 	Usage   : $aln = $db->get_Aln_by_id('Piwi')
-	Function: This method uses Pfam id conversion service id2acc to convert id 
+	Function: This method uses Rfam id conversion service id2acc to convert id 
 	          to accession. Then, it gets a Bio::SimpleAlign object 
 	          using get_Aln_by_acc
 	Returns : a Bio::SimpleAlign object
 	Args    : -id  the id as a string
 	         -alignment  Seed(default), Full, NCBI or metagenomics
-	         -format     the output format from Pfam. This will decide which
+	         -format     the output format from Rfam. This will decide which
 	                     package to use in the Bio::AlignIO
 	                     possible options can be fasta (default), stockholm, selex and MSF
 	         -order      t (default)   Order by tree 
@@ -141,7 +142,7 @@ sub new {
 	
 	
 	Note    : 
-	Throws  : "Bio::DB::Align::Pfam Request Error" exception
+	Throws  : "Bio::DB::Align::Rfam Request Error" exception
 =cut
 
 sub get_Aln_by_id {
@@ -164,7 +165,7 @@ sub get_Aln_by_id {
  Function: Convert id to accession
  Returns : Accession
  Args    : the id (as a string) of a sequence for the alignment
- Throws  : "Bio::DB::Align::Pfam Request Error" exception
+ Throws  : "Bio::DB::Align::Rfam Request Error" exception
 =cut
 
 sub id2acc {
@@ -181,40 +182,35 @@ sub id2acc {
 		return $request->content;
 	}
 	else {
-		$self->throw("Bio::DB::Align::Pfam Request Error:\n",$request->to_string);
+		$self->throw("Bio::DB::Align::Rfam Request Error:\n",$request->to_string);
 	}
 }
 
 =head2 get_Aln_by_acc
 
   Title   : get_Aln_by_acc
-  Usage   : $seq = $db->get_Aln_by_acc($acc);
+  Usage   : $seq = $db->get_Aln_by_acc("RF00360");
   Function: Gets a Bio::SimpleAlign object by accession numbers
   Returns : a Bio::SimpleAlign object
   Args    : -accession  the accession number as a string
-            -alignment  Seed(default), Full, NCBI or metagenomics
-            -format     the output format from Pfam. This will decide which
+            -alignment  Seed(default) or Full
+            -format     the output format from Rfam. This will decide which
                         package to use in the Bio::AlignIO
-                        possible options can be fasta (default), stockholm, selex and MSF
-            -order      t (default)   Order by tree 
-                        a             Order alphabetically
-            -case       i (default)   Inserts lower case  
-                        a             All upper case
-            -gap        dashes (default) "-" as gap char
-                        dots           "." as gap char
-                        mixed         "-" and "." mixed 
-                                      (not recommended, this may cause bug in BioPerl)
-                        none          Unaligned
-  
+                        possible options can be fasta (default), stockholm or pfam
+            -nselabel   0 (default)   Label by species name
+                        1             Label by name/start-end
+  	         -gap        dashes (default) "-" as gap char
+	                     dots           "." as gap char
+	                     none          Unaligned
   
   Note    : 
-  Throws  : "Bio::DB::Align::Pfam Request Error" exception
+  Throws  : "Bio::DB::Align::Rfam Request Error" exception
 =cut
 
 sub get_Aln_by_acc {
 	my ($self,@args)=@_;
 	
-	my ($acc,$alignment,$format, $order, $case, $gap)=$self->_checkparameter(@args);
+	my ($acc,$alignment,$format, $nselabel,$gap)=$self->_checkparameter(@args);
 	
 	my $CGI_location= '/family/alignment/download/format';
 	
@@ -222,10 +218,8 @@ sub get_Aln_by_acc {
 		"acc"=>$acc,
 		"alnType"=>$alignment,
 		"format"=>$format,
-		"order"=>$order,
-		"case"=>$case,
-		"gaps"=>$gap,
-		);
+		"nseLabels"=>$nselabel,
+	);
 
 	my $url = URI->new($HOSTBASE . $CGI_location);
 	$url->query_form(%params);
@@ -245,18 +239,32 @@ sub get_Aln_by_acc {
 	my $respond = $self->ua->request($request,$tmpfile);
 	
 	if( $respond->is_error  ) {
-		$self->throw("Bio::DB::Align::Pfam Request Error:\n".$request->as_string);
+		$self->throw("Bio::DB::Align::Rfam Request Error:\n".$request->as_string);
 	}
 	
-	my $alnobj=Bio::AlignIO->new(-format=>$format,-file=>$tmpfile);
+	
+	my $alnobj;
+	unless($format eq "fastau") {
+		$alnobj=Bio::AlignIO->new(-format=>$format,-file=>$tmpfile);
+	}
+	else {
+		$alnobj=Bio::AlignIO->new(-format=>"fasta",-file=>$tmpfile);
+	}
 	my $aln=$alnobj->next_aln;
 	
 	#gap char
-	if($gap eq "dashes") {
+	if($gap eq "dashes" ) {
 		$aln->gap_char("-");
+		$aln->map_chars('\.','-');#the default gap_char in Rfam is ".", need to be changed to "-" upon request
 	}
 	elsif($gap eq "dots") {
+		if($format eq "fastau") {
+			$aln->map_chars('-','\.');#The panding gap char can only be "-", thus need to be substituted to "."
+		}
 		$aln->gap_char(".");
+	}
+	elsif($gap eq "none") {
+		$aln->gap_char("-");
 	}
 	
 	return $aln;
@@ -265,39 +273,35 @@ sub get_Aln_by_acc {
 
 sub _checkparameter {
 	my ($self,@args)=@_;
-	my ($acc,$alignment,$format, $order, $case, $gap)=$self->_rearrange([qw(ACCESSION ALIGNMENT FORMAT ORDER CASE GAP)],@args);
+	my ($acc,$alignment,$format, $nselabel, $gap)=$self->_rearrange([qw(ACCESSION ALIGNMENT FORMAT NSELABEL GAP)],@args);
 	#check alntype
 	if($alignment) {
 		$alignment=lc $alignment;
 		unless(defined $ALNTYPE{$alignment}) {
-			$self->throw("Only ".join(" ",sort keys %ALNTYPE)." are supported by Pfam, not [".$alignment."]");
+			$self->throw("Only [".join(" ",sort keys %ALNTYPE)."] are supported by Rfam, not [".$alignment."]");
 		}
-	}else {
-		$alignment="seed";
+	}
+	else {
+		$alignment="seed"; #default
 	}
 	#check format
 	if($format) {
 		$format=lc $format;
 		unless(defined $FORMATS{$format}) {
-			$self->throw("Only ".join(" ",sort keys %FORMATS)." are supported by Pfam, not [".$format."]");
+			$self->throw("Only [".join(" ",sort keys %FORMATS)."] are supported by Rfam, not [".$format."]");
 		}
 	}
 	else {
 		$format="fasta"; #default format
 	}
-	#check order
-	if($order&&$order=~/^a/i) {
-		$order="a";
+	#check nselabel
+	if($nselabel) {
+		unless($nselabel==0 || $nselabel==1) {
+			$self->throw("Only nseLabel [0/1] are supported by Rfam, not [".$nselabel."]");
+		}
 	}
 	else {
-		$order="t"; #default value
-	}
-	#check case
-	if($case && $case=~/^a/i) {
-		$case="a";
-	}
-	else {
-		$case="i";
+		$nselabel=""; #default value
 	}
 	#check gaps
 	if($gap) {
@@ -307,11 +311,9 @@ sub _checkparameter {
 		elsif($gap=~/dots/i||$gap eq ".") {
 			$gap="dots";
 		}
-		elsif($gap=~/mixed/i) {
-			$gap="default";
-		}
 		elsif ($gap=~/none/i) {
-			$gap="none";
+			$gap="none"; #ungapped
+			$format="fastau";
 		}
 		else {
 			$gap="dashes";
@@ -321,7 +323,7 @@ sub _checkparameter {
 		$gap="dashes";
 	}
 		
-	return ($acc,$alignment,$format, $order, $case, $gap);
+	return ($acc,$alignment,$format, $nselabel, $gap);
 }
 
 1;
