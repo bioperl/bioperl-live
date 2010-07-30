@@ -34,6 +34,7 @@ CPAN releases are branched from 'master'.
       for alignment slices [Ha X. Dang, cjfields]
     * bug 3122 - Catch instances where non-seekable filehandles were being seek'd
       w/o checking for status [Stefan Kirov, Roy Chaudhuri]
+    * bug 3126 - catch description [Toshihiko Akiba]
       
     [Deprecated]
     * Bio::Expression modules - these were originally designed to go with the

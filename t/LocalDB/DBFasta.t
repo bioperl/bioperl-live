@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
 	use Bio::Root::Test;
 	
-    test_begin(-tests => 17,
+    test_begin(-tests => 18,
 	       -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
 	use_ok('Bio::Root::IO');
 	use_ok('File::Copy');
@@ -22,14 +22,14 @@ my $io = Bio::Root::IO->new(-verbose => $DEBUG);
 my $tempdir = test_output_dir();
 my $test_dbdir = $io->catfile($tempdir, 'dbfa');
 mkdir($test_dbdir); # make the directory
-my $indir = test_input_file('dbfa'); 
-opendir(INDIR,$indir) || die("cannot open dir $indir");
+my $indir = test_input_file('dbfa');
+opendir(my $INDIR,$indir) || die("cannot open dir $indir");
 # effectively do a cp -r but only copy the files that are in there, no subdirs
-for my $file ( map { $io->catfile($indir,$_) } readdir(INDIR) ) {
+for my $file ( map { $io->catfile($indir,$_) } readdir($INDIR) ) {
 	next unless (-f $file );
 	copy($file, $test_dbdir);
 }
-closedir(INDIR);
+closedir($INDIR);
 
 # now use this temporary dir for the db file
 my $db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1);
@@ -41,6 +41,7 @@ my $primary_seq = $db->get_Seq_by_id('AW057119');
 ok($primary_seq);
 cmp_ok(length($primary_seq->seq), '>', 0);
 is($primary_seq->trunc(1,10)->length, 10);
+is($primary_seq->description, 'test description', 'bug 3126');
 ok(!defined $db->get_Seq_by_id('foobarbaz'));
 undef $db;
 undef $primary_seq;

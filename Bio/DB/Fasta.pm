@@ -1145,7 +1145,7 @@ sub description  {
     my $self = shift;
     my $header = $self->{'db'}->header($self->{id});
     # remove the id from the header
-    return (split(/\s+/,$header,2))[2];
+    return (split(/\s+/,$header,2))[1];
 }
 
 *desc = \&description;
