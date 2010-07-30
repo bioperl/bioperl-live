@@ -120,70 +120,35 @@ sub new {
 =head2 get_Aln_by_id
 
 	Title   : get_Aln_by_id
-	Usage   : $aln = $db->get_Aln_by_id('Piwi')
+	Usage   : $aln = $db->get_Aln_by_id($id)
 	Function: This method uses Rfam id conversion service id2acc to convert id 
 	          to accession. Then, it gets a Bio::SimpleAlign object 
 	          using get_Aln_by_acc
 	Returns : a Bio::SimpleAlign object
-	Args    : -id  the id as a string
-	         -alignment  Seed(default), Full, NCBI or metagenomics
-	         -format     the output format from Rfam. This will decide which
-	                     package to use in the Bio::AlignIO
-	                     possible options can be fasta (default), stockholm, selex and MSF
-	         -order      t (default)   Order by tree 
-	                     a             Order alphabetically
-	         -case       i (default)   Inserts lower case  
-	                     a             All upper case
-	         -gap        dashes (default) "-" as gap char
-	                     dots           "." as gap char
-	                     mixed         "-" and "." mixed 
-	                                   (not recommended, this may cause bug in BioPerl)
-	                     none          Unaligned
-	
-	
+	Args    : 
 	Note    : 
-	Throws  : "Bio::DB::Align::Rfam Request Error" exception
+	Throws  : not implemented exception
 =cut
 
 sub get_Aln_by_id {
 	my ($self,@args)=@_;
-	my $id=$self->_rearrange(["ID"],@args);
-	
-	#id 2 accession convertion
-	my $acc=$self->id2acc($id);
-	
-	#give new -accession argument
-	push @args,"-accession",$acc;
-	return $self->get_Aln_by_acc(@args);
+	$self->throw_not_implemented();
 }
 
 
 =head2 id2acc
 
  Title   : id2acc
- Usage   : $acc = $db->id2acc('Piwi')
+ Usage   : $acc = $db->id2acc($id)
  Function: Convert id to accession
  Returns : Accession
  Args    : the id (as a string) of a sequence for the alignment
- Throws  : "Bio::DB::Align::Rfam Request Error" exception
+ Throws  : not implemented exception
 =cut
 
 sub id2acc {
 	my ($self,@args)=@_;
-	my $id=shift @args;
-	
-	my $CGI_location= '/family/acc/';
-	
-	my $url = URI->new($HOSTBASE . $CGI_location. $id);
-	
-	my $request = $self->ua->get($url);
-	
-	if($request->is_success) {
-		return $request->content;
-	}
-	else {
-		$self->throw("Bio::DB::Align::Rfam Request Error:\n",$request->to_string);
-	}
+	$self->throw_not_implemented();
 }
 
 =head2 get_Aln_by_acc
