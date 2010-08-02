@@ -214,7 +214,8 @@ our %DBSOURCE = map {$_ => 1} qw(
     PhotoList    Gramene    WormBase    WormPep    Genew    ZFIN
     PeroxiBase    MaizeDB    TAIR    DrugBank    REBASE    HPA
     swissprot    GenBank    GenPept    REFSEQ    embl    PDB    UniProtKB
-    DIP    PeptideAtlas    PRIDE    CYGD    HOGENOME    Gene3D Project);
+    DIP    PeptideAtlas    PRIDE    CYGD    HOGENOME    Gene3D
+    Project);
 
 our %VALID_MOLTYPE = map {$_ => 1} qw(NA DNA RNA tRNA rRNA 
     mRNA  uRNA  ss-RNA  ss-DNA  snRNA snoRNA PRT);
@@ -586,7 +587,7 @@ sub next_seq {
                       -version => $version,
                       -database => $db || 'GenBank',
                       -tagname => 'dblink'));
-                } elsif ( $dbsource =~ /(\S+)([\.:])(\d+)/ ) {
+                } elsif ( $dbsource =~ /(\S+)([\.:])\s*(\d+)/ ) {
                     my ($id, $db, $version);
                     if ($2 eq ':') {
                         ($db, $id) = ($1, $3);
@@ -1405,8 +1406,6 @@ sub _read_GenBank_Species {
     if ($species && $species =~ /(.+)\s+((?:subsp\.|var\.).+)/) {
         ($species, $sub_species) = ($1, $2);
     }
-
-    $self->debug("$species\n");
 
     # Don't make a species object if it's empty or "Unknown" or "None"
     # return unless $genus and  $genus !~ /^(Unknown|None)$/oi;
