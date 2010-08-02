@@ -1033,13 +1033,6 @@ sub _gff3_string {
 	unshift @all_tags, $t if $feat->has_tag($t);
     }
 
-    #force a Name tag for anything that has an ID
-    my %all_tags;
-    map $all_tags{$_} = 1, @all_tags;
-    if ($all_tags{'ID'} && ! $all_tags{'Name'}) {
-	push @groups, "Name=".join(",",$feat->each_tag_value('ID'));
-    }
-
     for my $tag ( @all_tags ) {
     next if exists $SKIPPED_TAGS{$tag};
 	# next if $tag eq 'Target';
