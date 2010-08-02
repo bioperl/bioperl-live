@@ -587,7 +587,7 @@ sub next_seq {
                       -version => $version,
                       -database => $db || 'GenBank',
                       -tagname => 'dblink'));
-                } elsif ( $dbsource =~ /(\S+)([\.:])(\d+)/ ) {
+                } elsif ( $dbsource =~ /(\S+)([\.:])\s*(\d+)/ ) {
                     my ($id, $db, $version);
                     if ($2 eq ':') {
                         ($db, $id) = ($1, $3);

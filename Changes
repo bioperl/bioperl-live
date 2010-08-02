@@ -25,6 +25,7 @@ CPAN releases are branched from 'master'.
         - support for reading Maq, Sam and Bowtie files [maj]
         - support for reading 454 GS Assembler (Newbler) ACE files [fangly]
         - bug 2483: support for writing ACE files [Joshua Udall, fangly]
+        - bug 2599: support DBLINK annotation in GenBank files [cjfields]
         - bug 2726: reading/writing granularity: whole scaffold or one contig
                     at a time [Joshua Udall, fangly]
     ...
