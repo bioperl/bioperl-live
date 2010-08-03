@@ -95,17 +95,29 @@ use LWP::UserAgent;
 use HTTP::Request;
 use Bio::AlignIO;
 use Bio::Root::IO;
-use vars qw(%FORMATS %ALNTYPE $HOSTBASE $CGILOCATION $CGILOCATION_CONV);
+use vars qw(%FORMATS %ALNTYPE $HOSTBASE);
 
 use base qw(Bio::Root::Root Bio::Root::IO Bio::DB::GenericWebAgent);
 
 BEGIN {
 	$HOSTBASE = 'http://pfam.sanger.ac.uk';
-	$CGILOCATION= '/family/alignment/download/format';
-	$CGILOCATION_CONV= '/family/acc/';
 	%FORMATS=qw(fasta 1 stockholm 1 selex 1 msf 1); #supported formats in pfam
 	%ALNTYPE=qw(seed 1 full 1 ncbi 1 metagenomics 1); #supported alignment types
 }
+
+
+=head2 new
+
+ Title   : new
+ Usage   : $dbobj = Bio::DB::Align->new(-db=>"Pfam");
+             Or, it can be called through specific package
+             $dbobj = Bio::DB::Align::Pfam->new();
+ Function: Returns a Bio::DB::Align::Pfam stream
+ Returns : Bio::DB::Align::Pfam object
+ Args    : 
+ Note    : 
+=cut
+
 
 sub new {
 	my($class,@args) = @_;
@@ -120,29 +132,32 @@ sub new {
 
 =head2 get_Aln_by_id
 
-	Title   : get_Aln_by_id
-	Usage   : $aln = $db->get_Aln_by_id('Piwi')
-	Function: This method uses Pfam id conversion service to convert id to accession
-	          Then, it gets a Bio::SimpleAlign object using get_Aln_by_acc
-	Returns : a Bio::SimpleAlign object
-	Args    : -id  the id as a string
-	         -alignment  Seed(default), Full, NCBI or metagenomics
-	         -format     the output format from Pfam. This will decide which
-	                     package to use in the Bio::AlignIO
-	                     possible options can be fasta (default), stockholm, selex and MSF
-	         -order      t (default)   Order by tree 
-	                     a             Order alphabetically
-	         -case       i (default)   Inserts lower case  
-	                     a             All upper case
-	         -gap        dashes (default) "-" as gap char
-	                     dots           "." as gap char
-	                     mixed         "-" and "." mixed 
-	                                   (not recommended, this may cause bug in BioPerl)
-	                     none          Unaligned
-	
-	
-	Note    : 
-	Throws  : "Bio::DB::Align::Pfam Request Error" exception
+ Title   : get_Aln_by_id
+ Usage   : $aln = $dbobj->get_Aln_by_id('Piwi')
+ Function: This method uses Pfam id conversion service id2acc to convert 
+           id to accession. Then, it gets a Bio::SimpleAlign object 
+	          using get_Aln_by_acc
+ Returns : a Bio::SimpleAlign object
+ Args    : -id  the id as a string
+          -alignment  Seed(default), Full, NCBI or metagenomics
+          -format     the output format from Pfam. This will decide which
+                      package to use in the Bio::AlignIO
+                      possible options can be fasta (default), stockholm, 
+                      selex and MSF
+          -order      t (default)   Order by tree 
+                      a             Order alphabetically
+          -case       i (default)   Inserts lower case  
+                      a             All upper case
+          -gap        dashes (default) "-" as gap char
+                      dots           "." as gap char
+                      mixed         "-" and "." mixed 
+                                    (not recommended, this may cause bug 
+                                    in BioPerl)
+                      none          Unaligned
+ 
+ 
+ Note    : 
+ Throws  : "Bio::DB::Align::Pfam Request Error" exception
 =cut
 
 sub get_Aln_by_id {
@@ -161,7 +176,7 @@ sub get_Aln_by_id {
 =head2 id2acc
 
  Title   : id2acc
- Usage   : $acc = $db->id2acc('Piwi')
+ Usage   : $acc = $dbobj->id2acc('Piwi')
  Function: Convert id to accession
  Returns : Accession
  Args    : the id (as a string) of a sequence for the alignment
@@ -172,7 +187,9 @@ sub id2acc {
 	my ($self,@args)=@_;
 	my $id=shift @args;
 	
-	my $url = URI->new($HOSTBASE . $CGILOCATION_CONV . $id);
+	my $CGI_location= '/family/acc/';
+	
+	my $url = URI->new($HOSTBASE . $CGI_location. $id);
 	
 	my $request = $self->ua->get($url);
 	
@@ -186,24 +203,26 @@ sub id2acc {
 
 =head2 get_Aln_by_acc
 
-  Title   : get_Aln_by_acc
-  Usage   : $seq = $db->get_Aln_by_acc($acc);
-  Function: Gets a Bio::SimpleAlign object by accession numbers
+ Title   : get_Aln_by_acc
+ Usage   : $aln = $dbobj->get_Aln_by_acc("PF02171");
+ Function: Gets a Bio::SimpleAlign object by accession numbers
   Returns : a Bio::SimpleAlign object
-  Args    : -accession  the accession number as a string
-            -alignment  Seed(default), Full, NCBI or metagenomics
-            -format     the output format from Pfam. This will decide which
-                        package to use in the Bio::AlignIO
-                        possible options can be fasta (default), stockholm, selex and MSF
-            -order      t (default)   Order by tree 
-                        a             Order alphabetically
-            -case       i (default)   Inserts lower case  
-                        a             All upper case
-            -gap        dashes (default) "-" as gap char
-                        dots           "." as gap char
-                        mixed         "-" and "." mixed 
-                                      (not recommended, this may cause bug in BioPerl)
-                        none          Unaligned
+ Args    : -accession  the accession number as a string
+           -alignment  Seed(default), Full, NCBI or metagenomics
+           -format     the output format from Pfam. This will decide 
+                       which package to use in the Bio::AlignIO
+                       possible options can be fasta (default), 
+                       stockholm, selex and MSF
+           -order      t (default)   Order by tree 
+                       a             Order alphabetically
+           -case       i (default)   Inserts lower case  
+                       a             All upper case
+           -gap        dashes (default) "-" as gap char
+                       dots           "." as gap char
+                       mixed         "-" and "." mixed 
+                                     (not recommended, this may cause 
+                                     bug in BioPerl)
+                       none          Unaligned
   
   
   Note    : 
@@ -215,6 +234,8 @@ sub get_Aln_by_acc {
 	
 	my ($acc,$alignment,$format, $order, $case, $gap)=$self->_checkparameter(@args);
 	
+	my $CGI_location= '/family/alignment/download/format';
+	
 	my %params= (
 		"acc"=>$acc,
 		"alnType"=>$alignment,
@@ -224,7 +245,7 @@ sub get_Aln_by_acc {
 		"gaps"=>$gap,
 		);
 
-	my $url = URI->new($HOSTBASE . $CGILOCATION);
+	my $url = URI->new($HOSTBASE . $CGI_location);
 	$url->query_form(%params);
 	
 	#save the retrieved file into a tempfile
@@ -255,6 +276,9 @@ sub get_Aln_by_acc {
 	elsif($gap eq "dots") {
 		$aln->gap_char(".");
 	}
+	elsif($gap eq "none") {
+		$aln->gap_char("-");
+	}
 	
 	return $aln;
 }
@@ -267,7 +291,7 @@ sub _checkparameter {
 	if($alignment) {
 		$alignment=lc $alignment;
 		unless(defined $ALNTYPE{$alignment}) {
-			$self->throw("Only ".join(" ",sort keys %ALNTYPE)." are supported by Pfam, not [".$alignment."]");
+			$self->throw("Only [".join(" ",sort keys %ALNTYPE)."] are supported by Pfam, not [".$alignment."]");
 		}
 	}else {
 		$alignment="seed";
@@ -276,7 +300,7 @@ sub _checkparameter {
 	if($format) {
 		$format=lc $format;
 		unless(defined $FORMATS{$format}) {
-			$self->throw("Only ".join(" ",sort keys %FORMATS)." are supported by Pfam, not [".$format."]");
+			$self->throw("Only [".join(" ",sort keys %FORMATS)."] are supported by Pfam, not [".$format."]");
 		}
 	}
 	else {
@@ -322,6 +346,3 @@ sub _checkparameter {
 }
 
 1;
-
-
-                  

@@ -110,7 +110,7 @@ BEGIN {
  Usage   : $dbobj = Bio::DB::Align->new(-db=>"Prosite");
              Or, it can be called through specific package
              $dbobj = Bio::DB::Align::Prosite->new();
- Function: Returns a db stream
+ Function: Returns a Bio::DB::Align::Prosite stream
  Returns : Bio::DB::Align::Prosite object
  Args    : 
  Note    : 
