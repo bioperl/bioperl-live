@@ -106,6 +106,20 @@ BEGIN {
 	%ALNTYPE=qw(seed 1 full 1); #supported alignment types
 }
 
+
+=head2 new
+
+ Title   : new
+ Usage   : $dbobj = Bio::DB::Align->new(-db=>"Rfam");
+             Or, it can be called through specific package
+             $dbobj = Bio::DB::Align::Rfam->new();
+ Function: Returns a Bio::DB::Align::Rfam stream
+ Returns : Bio::DB::Align::Rfam object
+ Args    : 
+ Note    : 
+=cut
+
+
 sub new {
 	my($class,@args) = @_;
 	my $self = $class->SUPER::new(@args);
@@ -119,15 +133,13 @@ sub new {
 
 =head2 get_Aln_by_id
 
-	Title   : get_Aln_by_id
-	Usage   : $aln = $db->get_Aln_by_id($id)
-	Function: This method uses Rfam id conversion service id2acc to convert id 
-	          to accession. Then, it gets a Bio::SimpleAlign object 
-	          using get_Aln_by_acc
-	Returns : a Bio::SimpleAlign object
-	Args    : 
-	Note    : 
-	Throws  : "Bio::Root::NotImplemented" exception
+ Title   : get_Aln_by_id
+ Usage   : $aln = $db->get_Aln_by_id($id)
+ Function: Gets a Bio::SimpleAlign object by id
+ Returns : a Bio::SimpleAlign object
+ Args    : 
+ Note    : 
+ Throws  : "Bio::Root::NotImplemented" exception
 =cut
 
 sub get_Aln_by_id {
@@ -153,23 +165,24 @@ sub id2acc {
 
 =head2 get_Aln_by_acc
 
-  Title   : get_Aln_by_acc
-  Usage   : $seq = $db->get_Aln_by_acc("RF00360");
-  Function: Gets a Bio::SimpleAlign object by accession numbers
-  Returns : a Bio::SimpleAlign object
-  Args    : -accession  the accession number as a string
-            -alignment  Seed(default) or Full
-            -format     the output format from Rfam. This will decide which
-                        package to use in the Bio::AlignIO
-                        possible options can be fasta (default), stockholm or pfam
-            -nselabel   0 (default)   Label by species name
-                        1             Label by name/start-end
-  	         -gap        dashes (default) "-" as gap char
-	                     dots           "." as gap char
-	                     none          Unaligned
+ Title   : get_Aln_by_acc
+ Usage   : $seq = $db->get_Aln_by_acc("RF00360");
+ Function: Gets a Bio::SimpleAlign object by accession numbers
+ Returns : a Bio::SimpleAlign object
+ Args    : -accession  the accession number as a string
+           -alignment  Seed(default) or Full
+           -format     the output format from Rfam. This will decide 
+                       which package to use in the Bio::AlignIO
+                       possible options can be fasta (default), 
+                       stockholm or pfam
+           -nselabel   0 (default)   Label by species name
+                       1             Label by name/start-end
+  	        -gap        dashes (default) "-" as gap char
+	                    dots           "." as gap char
+	                    none          Unaligned
   
-  Note    : 
-  Throws  : "Bio::DB::Align::Rfam Request Error" exception
+ Note    : 
+ Throws  : "Bio::DB::Align::Rfam Request Error" exception
 =cut
 
 sub get_Aln_by_acc {
