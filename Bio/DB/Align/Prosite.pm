@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::DB::AlignIO::Rfam
+# BioPerl module for Bio::DB::AlignIO::Prosite
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
 #
@@ -16,8 +16,8 @@
 
 =head1 NAME
 
-Bio::DB::AlignIO::Rfam - webagent which interacts with and retrieves alignment 
-sequences from Rfam
+Bio::DB::AlignIO::Prosite - webagent which interacts with and retrieves alignment 
+sequences from Prosite
 
 =head1 SYNOPSIS
 
@@ -88,22 +88,20 @@ preceded with a _
 
 # Let the code begin...
 
-package Bio::DB::Align::Rfam;
+package Bio::DB::Align::Prosite;
 use strict;
 use warnings;
 use LWP::UserAgent;
 use HTTP::Request;
 use Bio::AlignIO;
-use Bio::SimpleAlign;
 use Bio::Root::IO;
 use vars qw(%FORMATS %ALNTYPE $HOSTBASE);
 
 use base qw(Bio::Root::Root Bio::Root::IO Bio::DB::GenericWebAgent);
 
 BEGIN {
-	$HOSTBASE = 'http://rfam.sanger.ac.uk';
-	%FORMATS=qw(fasta 1 stockholm 1 pfam 1 fastau 1); #supported formats in pfam
-	%ALNTYPE=qw(seed 1 full 1); #supported alignment types
+	$HOSTBASE = 'http://expasy.org';
+	%FORMATS=qw(fasta 1 clustalw 1); #supported formats in Prosite
 }
 
 sub new {
@@ -121,11 +119,14 @@ sub new {
 
 	Title   : get_Aln_by_id
 	Usage   : $aln = $db->get_Aln_by_id($id)
-	Function: This method uses Rfam id conversion service id2acc to convert id 
+	Function: This method uses Prosite id conversion service id2acc to convert id 
 	          to accession. Then, it gets a Bio::SimpleAlign object 
 	          using get_Aln_by_acc
 	Returns : a Bio::SimpleAlign object
-	Args    : 
+	Args    : -id  the id as a string
+	         -format     the output format from Prosite. This will decide which
+	                     package to use in the Bio::AlignIO
+	                     possible options can be fasta (default) or clustalw
 	Note    : 
 	Throws  : "Bio::Root::NotImplemented" exception
 =cut
@@ -154,37 +155,34 @@ sub id2acc {
 =head2 get_Aln_by_acc
 
   Title   : get_Aln_by_acc
-  Usage   : $seq = $db->get_Aln_by_acc("RF00360");
+  Usage   : $seq = $db->get_Aln_by_acc("PS51092");
   Function: Gets a Bio::SimpleAlign object by accession numbers
   Returns : a Bio::SimpleAlign object
   Args    : -accession  the accession number as a string
-            -alignment  Seed(default) or Full
-            -format     the output format from Rfam. This will decide which
+            -format     the output format from Prosite. This will decide which
                         package to use in the Bio::AlignIO
-                        possible options can be fasta (default), stockholm or pfam
-            -nselabel   0 (default)   Label by species name
-                        1             Label by name/start-end
-  	         -gap        dashes (default) "-" as gap char
-	                     dots           "." as gap char
-	                     none          Unaligned
-  
+                        possible options can be fasta (default) or clustalw
   Note    : 
-  Throws  : "Bio::DB::Align::Rfam Request Error" exception
+  Throws  : "Bio::DB::Align::Prosite Request Error" exception
 =cut
 
 sub get_Aln_by_acc {
 	my ($self,@args)=@_;
 	
-	my ($acc,$alignment,$format, $nselabel,$gap)=$self->_checkparameter(@args);
+	my ($acc,$format)=$self->_checkparameter(@args);
 	
-	my $CGI_location= '/family/alignment/download/format';
-	
-	my %params= (
-		"acc"=>$acc,
-		"alnType"=>$alignment,
-		"format"=>$format,
-		"nseLabels"=>$nselabel,
-	);
+	my $CGI_location= '/cgi-bin/aligner';
+	my %params;
+	if($format eq "fasta") {
+		%params= (
+			"psa"=>$acc,
+			"format"=>$format,
+		);
+	}
+	else {
+		#default format is clustal
+		$params{"psa"}=$acc;
+	}
 
 	my $url = URI->new($HOSTBASE . $CGI_location);
 	$url->query_form(%params);
@@ -204,33 +202,11 @@ sub get_Aln_by_acc {
 	my $respond = $self->ua->request($request,$tmpfile);
 	
 	if( $respond->is_error  ) {
-		$self->throw("Bio::DB::Align::Rfam Request Error:\n".$request->as_string);
+		$self->throw("Bio::DB::Align::Prosite Request Error:\n".$request->as_string);
 	}
 	
-	
-	my $alnobj;
-	unless($format eq "fastau") {
-		$alnobj=Bio::AlignIO->new(-format=>$format,-file=>$tmpfile);
-	}
-	else {
-		$alnobj=Bio::AlignIO->new(-format=>"fasta",-file=>$tmpfile);
-	}
+	my $alnobj=Bio::AlignIO->new(-format=>$format,-file=>$tmpfile);
 	my $aln=$alnobj->next_aln;
-	
-	#gap char
-	if($gap eq "dashes" ) {
-		$aln->gap_char("-");
-		$aln->map_chars('\.','-');#the default gap_char in Rfam is ".", need to be changed to "-" upon request
-	}
-	elsif($gap eq "dots") {
-		if($format eq "fastau") {
-			$aln->map_chars('-','\.');#The panding gap char can only be "-", thus need to be substituted to "."
-		}
-		$aln->gap_char(".");
-	}
-	elsif($gap eq "none") {
-		$aln->gap_char("-");
-	}
 	
 	return $aln;
 }
@@ -238,57 +214,20 @@ sub get_Aln_by_acc {
 
 sub _checkparameter {
 	my ($self,@args)=@_;
-	my ($acc,$alignment,$format, $nselabel, $gap)=$self->_rearrange([qw(ACCESSION ALIGNMENT FORMAT NSELABEL GAP)],@args);
-	#check alntype
-	if($alignment) {
-		$alignment=lc $alignment;
-		unless(defined $ALNTYPE{$alignment}) {
-			$self->throw("Only [".join(" ",sort keys %ALNTYPE)."] are supported by Rfam, not [".$alignment."]");
-		}
-	}
-	else {
-		$alignment="seed"; #default
-	}
+	my ($acc,$format)=$self->_rearrange([qw(ACCESSION FORMAT)],@args);
+
 	#check format
 	if($format) {
 		$format=lc $format;
 		unless(defined $FORMATS{$format}) {
-			$self->throw("Only [".join(" ",sort keys %FORMATS)."] are supported by Rfam, not [".$format."]");
+			$self->throw("Only [".join(" ",sort keys %FORMATS)."] are supported by Prosite, not [".$format."]");
 		}
 	}
 	else {
 		$format="fasta"; #default format
 	}
-	#check nselabel
-	if($nselabel) {
-		unless($nselabel==0 || $nselabel==1) {
-			$self->throw("Only nseLabel [0/1] are supported by Rfam, not [".$nselabel."]");
-		}
-	}
-	else {
-		$nselabel=""; #default value
-	}
-	#check gaps
-	if($gap) {
-		if($gap=~/dashes/i||$gap eq "-") {
-			$gap="dashes";
-		}
-		elsif($gap=~/dots/i||$gap eq ".") {
-			$gap="dots";
-		}
-		elsif ($gap=~/none/i) {
-			$gap="none"; #ungapped
-			$format="fastau";
-		}
-		else {
-			$gap="dashes";
-		}
-	}
-	else {
-		$gap="dashes";
-	}
 		
-	return ($acc,$alignment,$format, $nselabel, $gap);
+	return ($acc,$format);
 }
 
 1;
