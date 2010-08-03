@@ -95,34 +95,55 @@ use LWP::UserAgent;
 use HTTP::Request;
 use Bio::AlignIO;
 use Bio::Root::IO;
-use vars qw(%FORMATS %ALNTYPE $HOSTBASE);
 
 use base qw(Bio::Root::Root Bio::Root::IO Bio::DB::GenericWebAgent);
 
-BEGIN {
-	$HOSTBASE = 'http://pfam.sanger.ac.uk';
-	%FORMATS=qw(fasta 1 stockholm 1 selex 1 msf 1); #supported formats in pfam
-	%ALNTYPE=qw(seed 1 full 1 ncbi 1 metagenomics 1); #supported alignment types
-}
+
+=head2 new
+
+	Title   : new
+	Usage   : $dbobj = Bio::DB::Align->new(-db=>"Pfam");
+             Or, it can be called through specific package
+             $dbobj = Bio::DB::Align::Pfam->new();
+	Function: Returns a db stream
+	Returns : Bio::DB::Align initialised with the appropriate db object
+	Args    : -db    database query(case sensitive)
+	                 Currently Bio::DB::Align supports Pfam, Rfam and Prosite
+	Note    : 
+=cut
 
 sub new {
 	my($class,@args) = @_;
-	my $self = $class->SUPER::new(@args);
-   my $ua = new LWP::UserAgent(env_proxy => 1);
-   #$ua->agent(ref($self) ."/$MODVERSION");
-   $self->ua($ua);  
-   $self->{'_authentication'} = [];	
-	return $self;	
+	my %param = @args;
+	if(defined $param{"-db"}) {
+		my $db=$param{"-db"};
+		#transform the db name to the right format
+		#$db=lc $db;
+		#substr($db,0,1)=uc substr($db,0,1);
+		
+		my $module = "Bio::DB::Align::" . $db;
+		my $ok;
+	
+		eval {
+		   $ok = $class->_load_module($module);
+		};
+		if ( $@ ) {
+			$class->throw("$module not supported in BioPerl");
+		}
+		else {
+			return $module->new();
+		}
+	}
+	else {
+		$class->throw("-db parameter must be defined");
+	}
 }
-
 
 =head2 get_Aln_by_id
 
 	Title   : get_Aln_by_id
-	Usage   : $aln = $db->get_Aln_by_id('Piwi')
-	Function: This method uses Pfam id conversion service id2acc to convert id 
-	          to accession. Then, it gets a Bio::SimpleAlign object 
-	          using get_Aln_by_acc
+	Usage   : $aln = $db->get_Aln_by_id($id)
+	Function: Gets a Bio::SimpleAlign object by id
 	Returns : a Bio::SimpleAlign object
 	Args    : -id  the id as a string
 	Note    : 
