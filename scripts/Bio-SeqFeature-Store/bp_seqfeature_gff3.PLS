@@ -64,7 +64,9 @@ while (my $seq = $seq_stream->next_seq) {
     print $seq->gff3_string(@gff3opt) . "\n";
   }
   elsif ( $seq->can( 'gff_string' )) {
-    print $seq->gff_string . "\n";
+    # since we intend on getting a GFF3 string, make sure to pass the version
+    $seq->gff_format->gff_version(3);
+    print $seq->gff_string() . "\n";
   }
   else {
     confess "sequence object $seq does not support gff3_string() or gff_string() methods!"
