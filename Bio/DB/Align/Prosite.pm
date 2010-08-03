@@ -104,6 +104,19 @@ BEGIN {
 	%FORMATS=qw(fasta 1 clustalw 1); #supported formats in Prosite
 }
 
+=head2 new
+
+ Title   : new
+ Usage   : $dbobj = Bio::DB::Align->new(-db=>"Prosite");
+             Or, it can be called through specific package
+             $dbobj = Bio::DB::Align::Prosite->new();
+ Function: Returns a db stream
+ Returns : Bio::DB::Align::Prosite object
+ Args    : 
+ Note    : 
+=cut
+
+
 sub new {
 	my($class,@args) = @_;
 	my $self = $class->SUPER::new(@args);
@@ -117,18 +130,16 @@ sub new {
 
 =head2 get_Aln_by_id
 
-	Title   : get_Aln_by_id
-	Usage   : $aln = $db->get_Aln_by_id($id)
-	Function: This method uses Prosite id conversion service id2acc to convert id 
-	          to accession. Then, it gets a Bio::SimpleAlign object 
-	          using get_Aln_by_acc
-	Returns : a Bio::SimpleAlign object
-	Args    : -id  the id as a string
-	         -format     the output format from Prosite. This will decide which
-	                     package to use in the Bio::AlignIO
-	                     possible options can be fasta (default) or clustalw
-	Note    : 
-	Throws  : "Bio::Root::NotImplemented" exception
+ Title   : get_Aln_by_id
+ Usage   : $aln = $dbobj->get_Aln_by_id($id)
+ Function: Gets a Bio::SimpleAlign object by id
+ Returns : a Bio::SimpleAlign object
+ Args    : -id  the id as a string
+          -format     the output format from Prosite. This will decide which
+                      package to use in the Bio::AlignIO
+                      possible options can be fasta (default) or clustalw
+ Note    : 
+ Throws  : "Bio::Root::NotImplemented" exception
 =cut
 
 sub get_Aln_by_id {
@@ -139,16 +150,16 @@ sub get_Aln_by_id {
 
 =head2 get_Aln_by_acc
 
-  Title   : get_Aln_by_acc
-  Usage   : $seq = $db->get_Aln_by_acc("PS51092");
-  Function: Gets a Bio::SimpleAlign object by accession numbers
-  Returns : a Bio::SimpleAlign object
-  Args    : -accession  the accession number as a string
-            -format     the output format from Prosite. This will decide which
+ Title   : get_Aln_by_acc
+ Usage   : $aln = $dbobj->get_Aln_by_acc("PS51092");
+ Function: Gets a Bio::SimpleAlign object by accession numbers
+ Returns : a Bio::SimpleAlign object
+ Args    : -accession  the accession number as a string
+           -format     the output format from Prosite. This will decide which
                         package to use in the Bio::AlignIO
                         possible options can be fasta (default) or clustalw
-  Note    : 
-  Throws  : "Bio::DB::Align::Prosite Request Error" exception
+ Note    : 
+ Throws  : "Bio::DB::Align::Prosite Request Error" exception
 =cut
 
 sub get_Aln_by_acc {
