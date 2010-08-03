@@ -101,15 +101,15 @@ use base qw(Bio::Root::Root Bio::Root::IO Bio::DB::GenericWebAgent);
 
 =head2 new
 
-	Title   : new
-	Usage   : $dbobj = Bio::DB::Align->new(-db=>"Pfam");
+ Title   : new
+ Usage   : $dbobj = Bio::DB::Align->new(-db=>"Pfam");
              Or, it can be called through specific package
              $dbobj = Bio::DB::Align::Pfam->new();
-	Function: Returns a db stream
-	Returns : Bio::DB::Align initialised with the appropriate db object
-	Args    : -db    database query(case sensitive)
-	                 Currently Bio::DB::Align supports Pfam, Rfam and Prosite
-	Note    : 
+ Function: Returns a db stream
+ Returns : Bio::DB::Align initialised with the appropriate db object
+ Args    : -db    database query(case sensitive)
+                  Currently Bio::DB::Align supports Pfam, Rfam and Prosite
+ Note    : 
 =cut
 
 sub new {
@@ -141,12 +141,12 @@ sub new {
 
 =head2 get_Aln_by_id
 
-	Title   : get_Aln_by_id
-	Usage   : $aln = $db->get_Aln_by_id($id)
-	Function: Gets a Bio::SimpleAlign object by id
-	Returns : a Bio::SimpleAlign object
-	Args    : -id  the id as a string
-	Note    : 
+ Title   : get_Aln_by_id
+ Usage   : $aln = $dbobj->get_Aln_by_id($id)
+ Function: Gets a Bio::SimpleAlign object by id
+ Returns : a Bio::SimpleAlign object
+ Args    : -id  the id as a string
+ Note    : 
 =cut
 
 sub get_Aln_by_id {
@@ -157,12 +157,12 @@ sub get_Aln_by_id {
 
 =head2 get_Aln_by_acc
 
-  Title   : get_Aln_by_acc
-  Usage   : $seq = $db->get_Aln_by_acc($acc);
-  Function: Gets a Bio::SimpleAlign object by accession numbers
-  Returns : a Bio::SimpleAlign object
-  Args    : -accession  the accession number as a string
-  Note    : 
+ Title   : get_Aln_by_acc
+ Usage   : $seq = $dbobj->get_Aln_by_acc($acc);
+ Function: Gets a Bio::SimpleAlign object by accession numbers
+ Returns : a Bio::SimpleAlign object
+ Args    : -accession  the accession number as a string
+ Note    : 
 =cut
 
 sub get_Aln_by_acc {
