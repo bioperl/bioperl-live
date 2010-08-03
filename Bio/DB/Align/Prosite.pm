@@ -137,21 +137,6 @@ sub get_Aln_by_id {
 }
 
 
-=head2 id2acc
-
- Title   : id2acc
- Usage   : $acc = $db->id2acc($id)
- Function: Convert id to accession
- Returns : Accession
- Args    : the id (as a string) of a sequence for the alignment
- Throws  : "Bio::Root::NotImplemented" exception
-=cut
-
-sub id2acc {
-	my ($self,@args)=@_;
-	$self->throw_not_implemented();
-}
-
 =head2 get_Aln_by_acc
 
   Title   : get_Aln_by_acc
