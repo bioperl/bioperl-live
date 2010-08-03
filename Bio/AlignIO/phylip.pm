@@ -44,7 +44,7 @@ Bio::AlignIO::phylip - PHYLIP format sequence input/output stream
 =head1 DESCRIPTION
 
 This object can transform Bio::SimpleAlign objects to and from PHYLIP
-fotmat. By deafult it works with the interleaved format. By specifying
+format. By default it works with the interleaved format. By specifying
 the flag -interleaved =E<gt> 0 in the initialization the module can
 read or write data in sequential format.
 
@@ -226,8 +226,8 @@ sub next_aln {
 	    $str =~ s/\s//g;
 	    $count = scalar @names;
 	    $hash{$count} .= $str;
-	} elsif( $entry =~ /^(.{$idlen})\s+(.*)\s$/ ||
-		 $entry =~ /^(.{$idlen})(\S{$idlen}\s+.+)\s$/ # Handle weirdnes s when id is too long
+	} elsif( $entry =~ /^(.{$idlen})\s*(.*)\s$/ ||
+		 $entry =~ /^(.{$idlen})(\S{$idlen}\s+.+)\s$/ # Handle weirdness when id is too long
 		 ) {
 	    $name = $1;
 	    $str = $2;
@@ -289,8 +289,8 @@ sub next_aln {
 	    $seqname=$name;
 	    $start = 1;
 	    $str = $hash{$count};
-	    $str =~ s/[^A-Za-z]//g;
-	    $end = length($str);
+#	    $str =~ s/[^A-Za-z]//g;
+	    #$end = length($str);
 	}
 	# consistency test
 	$self->throw("Length of sequence [$seqname] is not [$residuecount] it is ".CORE::length($hash{$count})."! ")
@@ -299,7 +299,7 @@ sub next_aln {
 	$seq = Bio::LocatableSeq->new('-seq'           => $hash{$count},
 				      '-display_id'    => $seqname,
 				      '-start'         => $start,
-				      '-end'           => $end,
+				      (defined $end) ? ('-end'           => $end) : (),
 				      '-alphabet'      => $self->alphabet,
 				      );
 	$aln->add_seq($seq);

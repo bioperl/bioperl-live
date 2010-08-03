@@ -41,7 +41,9 @@ CPAN releases are branched from 'master'.
     * bug 3120 - bp_seqfeature_gff3.pl '-y' option [genehack, David Breimann]
     * bug 3126 - catch description [Toshihiko Akiba]
     * bug 2983 - fix score/percent ID mixup [Alexie Papanicolaou]
- 
+    * bug 2984 - let LocatableSeq decide on length of phylip aln [Adam Witney, 
+                 cjfields]
+
     [Deprecated]
     * Bio::Expression modules - these were originally designed to go with the
       bioperl-microarray suite of tools, however they have never been completed
