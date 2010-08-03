@@ -605,7 +605,7 @@ sub trunc {
     $new->strand($self->strand);
 
     # end will be automatically calculated
-    $start = $end if $self->strand == -1;
+    $start = $end if $self->strand && $self->strand == -1;
 
     $start = $self->location_from_column($start);
     $start ? ($start = $start->end) : ($start = 1);
