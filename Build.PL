@@ -64,7 +64,6 @@ my $build = Bio::Root::Build->new(
                             'perl'                      => '5.6.1',
                             'IO::String'                => 0,
                             'DB_File'                   => 0,
-			    'YAML'                      => 0,
                             'Data::Stag'                => 0.11, # Bio::SeqIO::swiss, we can change to 'recommend' if needed
                             'Scalar::Util'              => 0,    # not in Perl 5.6.1, arrived in core in 5.7.3
                             'ExtUtils::Manifest'        => '1.52', # allows spaces in file names
@@ -79,6 +78,7 @@ my $build = Bio::Root::Build->new(
                             'Ace'                       => '0/access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace',
                             'Algorithm::Munkres'        => '0/Phylogenetic Networks/Bio::PhyloNetwork',
                             'Array::Compare'            => '0/Phylogenetic Networks/Bio::PhyloNetwork',
+                            'YAML'                      => '0/for script bp_genbank2gff3',
                             # this won't actually install due to circular dep, but we have no way of doing a post-install
                             # the [circular dependency!] specifies it is only installed on explicit request for this specific module,
                             # not when simply choosing to install 'all' modules
