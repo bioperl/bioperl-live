@@ -185,7 +185,7 @@ sub parse_next_gene {
 	   #$self->debug( "1=$1, 2=$2, 4=$4\n");
        }
        elsif( /^Exon/ ) {
-	   my ($name,$len,$score,$qstart,$qend,$qseqname,
+	   my ($name,$score,$perc_ident,$qstart,$qend,$qseqname,
 	       $hstart,$hend, $hseqname) = split;
 	   $lasthseqname = $hseqname;
 	   my $query = Bio::SeqFeature::Similarity->new(-primary => $name,
@@ -198,6 +198,7 @@ sub parse_next_gene {
 						       -tag => {
 #							   'Location' => "$hstart..$hend",
 							   'Sequence' => "$hseqname",
+							   'identity' => $perc_ident,
 							   }
 						       );
 	   my $hit = Bio::SeqFeature::Similarity->new(-primary => 'exon_hit',
@@ -210,7 +211,7 @@ sub parse_next_gene {
 						     -tag => {
 #							 'Location' => "$qstart..$qend",
 							 'Sequence' => "$qseqname",
-							
+  							 'identity' => $perc_ident,
 						     }
 						     );
 	   push @features, Bio::SeqFeature::SimilarityPair->new
@@ -218,7 +219,7 @@ sub parse_next_gene {
 		-hit   => $hit,
 		-source => $self->analysis_method);
        } elsif( /^([\-\+\?])(Intron)/) {
-	   my ($name,$len,$score,$qstart,$qend,$qseqname) = split;
+	   my ($name,$score,$perc_ident,$qstart,$qend,$qseqname) = split;
 	   push @features, Bio::SeqFeature::Generic->new(-primary => $2,
 							-source => $self->analysis_method,
 							-start => $qstart,
@@ -227,6 +228,7 @@ sub parse_next_gene {
 							-score  => $score,
 							-seq_id => $qseqname,
 							-tag => {
+							 'identity' => $perc_ident,
 							    'Sequence' => $lasthseqname});
        } elsif( /^Span/ ) {
        } elsif( /^Segment/ ) {
@@ -260,7 +262,7 @@ sub _parse_gene_struct {
     	   $qstrand = -1 if $4 eq 'REVERSED GENE';
        }
        elsif( /^Exon/ ) {
-    	   my ($name,$len,$score,$qstart,$qend,$qseqname,$hstart,$hend, $hseqname) = split;
+    	   my ($name,$score,$perc_ident,$qstart,$qend,$qseqname,$hstart,$hend, $hseqname) = split;
     	   $lasthseqname = $hseqname;
     	   my $exon = Bio::SeqFeature::Gene::Exon->new(-primary => $name,
 						       -source  => $self->analysis_method,
@@ -271,6 +273,7 @@ sub _parse_gene_struct {
 						       -score   => $score,
 						       -tag => {
                             #'Location' => "$hstart..$hend",
+  							 'identity' => $perc_ident,
            							   'Sequence' => "$hseqname",
 							              }
 						       );
@@ -282,7 +285,7 @@ sub _parse_gene_struct {
          next; #intron auto matically built from exons..hope thats ok..
        } elsif( /^Span/ ) {
        } elsif( /^Segment/ ) {
-    	    my ($name,$len,$score,$qstart,$qend,$qseqname,$hstart,$hend, $hseqname) = split;
+    	    my ($name,$score,$perc_ident,$qstart,$qend,$qseqname,$hstart,$hend, $hseqname) = split;
 	         my $query = Bio::SeqFeature::Similarity->new(-primary => $name,
 						       -source  => $self->analysis_method,
 						       -seq_id => $qseqname, # FIXME WHEN WE REDO THE GENERIC NAME CHANGE
@@ -293,6 +296,7 @@ sub _parse_gene_struct {
 						       -tag => {
 #							   'Location' => "$hstart..$hend",
 							   'Sequence' => "$hseqname",
+  							 'identity' => $perc_ident,
 							   }
 						     );
       	   my $hit = Bio::SeqFeature::Similarity->new(-primary => 'exon_hit',
@@ -305,6 +309,7 @@ sub _parse_gene_struct {
                                           						     -tag => {
                                                             #	'Location' => "$qstart..$qend",
                                                							 'Sequence' => "$qseqname",
+  							 'identity' => $perc_ident,
 						                                                }
 						     );
         	   my $support =  Bio::SeqFeature::SimilarityPair->new(-query => $query,
