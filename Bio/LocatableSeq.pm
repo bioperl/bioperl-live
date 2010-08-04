@@ -212,7 +212,7 @@ sub end {
     if (defined $self->{'end'}) {
         return $self->{'end'}
     } elsif ( my $len = $self->_ungapped_len) {
-    	$self->{'end'}=$len; #Deposit the value in the hash, so it doesnot need to be calculated again when being call the second time
+    	$self->{'end'}=$len + $self->start - 1; #Deposit the value in the hash, so it doesnot need to be calculated again when being call the second time
         return $len + $self->start - 1;
     } else {
         return;

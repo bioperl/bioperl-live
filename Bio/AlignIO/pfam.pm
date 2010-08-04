@@ -96,6 +96,7 @@ sub next_aln {
 	chomp $entry;
 	$entry =~ m{^//} && last;
 	if($entry !~ m{^(\S+)/(\d+)-(\d+)\s+(\S+)\s*} ) {
+		print STDERR $entry,"\n";
 	    $self->throw("Found a bad line [$_] in the pfam format alignment");
 	    next;
 	}
