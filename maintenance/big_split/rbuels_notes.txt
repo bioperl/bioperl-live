@@ -1,0 +1,14 @@
+
+
+
+make a dist skel
+fill in its build conf, with dependencies
+
+
+
+
+
+
+
+group modules according to function (tags) and dependencies
+

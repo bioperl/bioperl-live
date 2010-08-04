@@ -1,5 +1,4 @@
 #!/usr/bin/perl -w
-# $Id$
 =head1 NAME
 
 biblio-eutils-example.pl

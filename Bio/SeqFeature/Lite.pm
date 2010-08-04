@@ -498,7 +498,7 @@ sub alphabet{
 
 sub desc {
   my $self = shift;
-  my $d    = $self->notes;
+  my ($d)    = $self->notes;
   $self->{desc} = shift if @_;
   $d;
 }

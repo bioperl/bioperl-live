@@ -1,6 +1,5 @@
 package Bio::DB::SeqFeature::Store::LoadHelper;
 
-# $Id$
 
 =head1 NAME
 

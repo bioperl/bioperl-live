@@ -1,6 +1,5 @@
 #!perl -w
 use strict;
-# $Id$
 # Author Chris Mungall <cjm-at-bioperl.org>
 
 =head1 NAME

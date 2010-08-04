@@ -1,4 +1,3 @@
-# $Id$
 #
 # Bioperl module for TargetP
 #

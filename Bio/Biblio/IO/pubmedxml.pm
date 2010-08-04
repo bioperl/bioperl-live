@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module Bio::Biblio::IO::pubmedxml.pm
 #

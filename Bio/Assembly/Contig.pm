@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::Assembly::Contig
 #   Mostly based on Bio::SimpleAlign by Ewan Birney

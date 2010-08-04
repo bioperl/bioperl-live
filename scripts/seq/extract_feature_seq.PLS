@@ -1,6 +1,5 @@
 #!perl -w
 use strict;
-# $Id$
 # Author Jason Stajich <jason@bioperl.org>
 
 =head1 NAME

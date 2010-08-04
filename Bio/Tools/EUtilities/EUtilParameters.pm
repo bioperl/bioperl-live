@@ -271,10 +271,7 @@ sub reset_parameters {
     my ($self, @args) = @_;
     # is there a better way of doing this?  probably, but this works...
     my ($retmode,$file) = $self->_rearrange([qw(RETMODE ID_FILE)],@args);
-    $self->_reset_from_carryover();
-    #for my $p (@PARAMS, qw(eutil correspondence history_cache request_cache)) {
-    #    undef $self->{"_$p"} if defined $self->{"_$p"};
-    #}
+    map { defined $self->{"_$_"} && undef $self->{"_$_"} } (@PARAMS, qw(eutil correspondence history_cache request_cache));
     $self->_set_from_args(\@args, -methods => [@PARAMS, qw(eutil correspondence history)]);
     $self->eutil() || $self->eutil('efetch');
     $self->set_default_retmode unless $retmode;

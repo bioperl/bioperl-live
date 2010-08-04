@@ -2,7 +2,6 @@ package Bio::Root::Root;
 use strict;
 use Scalar::Util qw(blessed reftype);
 
-# $Id$
 
 =head1 NAME
 

@@ -1,5 +1,4 @@
 package Bio::Search::Result::CrossMatchResult;
-# $Id$
 #
 # BioPerl module for Bio::Search::Result::CrossMatchResult
 #

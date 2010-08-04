@@ -12,7 +12,6 @@
 #
 # Author: Steve Chervitz <sac@bioperl.org>
 #
-# $Id$
 
 use strict;
 

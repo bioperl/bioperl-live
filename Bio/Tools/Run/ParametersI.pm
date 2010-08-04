@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for wrapping runtime parameters
 #

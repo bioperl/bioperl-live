@@ -1,4 +1,3 @@
-# $Id$
 # BioPerl module for Bio::ClusterIO::dbsnp
 #
 # Copyright Allen Day <allenday@ucla.edu>, Stan Nelson <snelson@ucla.edu>

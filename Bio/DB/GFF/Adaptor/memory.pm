@@ -71,7 +71,6 @@ it under the same terms as Perl itself.
 =cut
 
 use strict;
-# $Id$
 # AUTHOR: Shulamit Avraham
 # This module needs to be cleaned up and documented
 

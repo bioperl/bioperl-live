@@ -1,4 +1,3 @@
-# $Id$
 # BioPerl module for Bio::SeqIO::bsml_sax
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 

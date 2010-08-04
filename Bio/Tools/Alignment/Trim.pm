@@ -1,4 +1,3 @@
-# $Id$
 # Bio::Tools::Alignment::Trim.pm
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
