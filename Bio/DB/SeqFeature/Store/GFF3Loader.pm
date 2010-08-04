@@ -1,6 +1,5 @@
 package Bio::DB::SeqFeature::Store::GFF3Loader;
 
-# $Id$
 
 =head1 NAME
 

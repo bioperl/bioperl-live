@@ -1,5 +1,4 @@
 #!perl -w
-# $Id$
 # Author:  Jason Stajich <jason-at-bioperl-dot-org>
 
 

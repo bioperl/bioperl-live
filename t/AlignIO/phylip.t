@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 11);
+    test_begin(-tests => 16);
 	
 	use_ok('Bio::AlignIO::phylip');
 }
@@ -30,6 +30,20 @@ $strout = Bio::AlignIO->new(
     '-format' => 'phylip');
 $status = $strout->write_aln($aln);
 is $status, 1, "phylip output test";
+
+# check the LocatableSeq start/end/strand etc
+my $ls = $aln->get_seq_by_pos(2);
+is($ls->display_id, 'Pan_panisc');
+is($ls->start, 1);
+is($ls->end,47);
+
+# bug 2984
+TODO: {
+    local $TODO = 'problems with default strand, length?';
+    # shouldn't this be 0?
+    is($ls->strand,0);
+    is($ls->length,47);
+}
 
 # PHYLIP sequential/non-interleaved
 $strout = Bio::AlignIO->new('-file'  => test_input_file('noninterleaved.phy'),

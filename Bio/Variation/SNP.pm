@@ -1,4 +1,3 @@
-# $Id$
 # bioperl module for Bio::Variation::SNP
 #
 # Copyright Allen Day <allenday@ucla.edu>, Stan Nelson <snelson@ucla.edu>

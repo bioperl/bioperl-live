@@ -31,9 +31,9 @@ my @domain_color = ( 'red' , 'cyan' , 'green' );
 ok(exists $domain_start[2], 'all starts are present');
 ok(exists $domain_end[2],'all ends are present');
 ok(exists $domain_color[2], 'all colors are present');
-ok($domain_start[0]<=$domain_end[0],'first end is further than first start');   #Some  
-ok($domain_start[1]<=$domain_end[1],'second end is further than second start');	#logical
-ok($domain_start[2]<=$domain_end[2],'third end is further than third start');   #tests 
+cmp_ok($domain_start[0], '<=', $domain_end[0],'first end is further than first start');   #Some  
+cmp_ok($domain_start[1], '<=', $domain_end[1],'second end is further than second start');	#logical
+cmp_ok($domain_start[2], '<=', $domain_end[2],'third end is further than third start');   #tests 
 
 #Create Labels for the domains
 my @dml = ("CARD", "Proline Rich", "Transmembrane");
@@ -46,15 +46,15 @@ ok(exists $dml_end[2], 'domain ends are present');
 ok(exists $dml_color[2], 'domain colors are present');
 
 #Some logical tests 
-ok($dml_start[0]<=$dml_end[0],'label - first end is further than first start');         
-ok($dml_start[1]<=$dml_end[1],'label - second end is further than second start');	
-ok($dml_start[2]<=$dml_end[2],'label - third end is further than third start');          
-is($domain_start[0]=>$dml_start[0],'first label start is within domain range');        
-is($domain_start[1]=>$dml_start[1],'second label start is within domain range');        
-is($domain_start[2]=>$dml_start[2],'third label start is within domain range');        
-is($domain_end[0]=>$dml_end[0],'first label end is within domain range');        
-is($domain_end[1]=>$dml_end[1],'second label end is within domain range');        
-is($domain_end[2]=>$dml_end[2],'third label end is within domain range');        
+cmp_ok($dml_start[0], '<=', $dml_end[0],'label - first end is further than first start');         
+cmp_ok($dml_start[1], '<=', $dml_end[1],'label - second end is further than second start');	
+cmp_ok($dml_start[2], '<=', $dml_end[2],'label - third end is further than third start');          
+cmp_ok($domain_start[0], '>=', $dml_start[0],'first label start is within domain range');        
+cmp_ok($domain_start[1], '>=',$dml_start[1],'second label start is within domain range');        
+cmp_ok($domain_start[2], '>=',$dml_start[2],'third label start is within domain range');        
+cmp_ok($domain_end[0], '>=',$dml_end[0],'first label end is within domain range');        
+cmp_ok($domain_end[1], '>=',$dml_end[1],'second label end is within domain range');        
+cmp_ok($domain_end[2], '>=',$dml_end[2],'third label end is within domain range');        
  
 #Create individual labels
 my %labels = ( 145 => "Hep-c target");
@@ -80,14 +80,14 @@ isa_ok($print_align, 'Bio::Align::Graphics');
 ok( defined $print_align, 'new object is defined');
 is($print_align->{pad_bottom}, 5, '  pad_bottom is right');
 is($print_align->{pad_top}, 5, '  default pad_top is right');
-is($print_align->{domain_start}, \@domain_start,'  start point loaded');
-is($print_align->{domain_end}, \@domain_end,'  end point loaded');
-is($print_align->{domain_color}, \@domain_color,'  color of domain loaded');
-is($print_align->{dm_labels}, \@dml, '  domain labels loaded');
-is($print_align->{dm_label_start}, \@dml_start, '  label starts loaded');
-is($print_align->{dm_label_end}, \@dml_end, '  label ends loaded');
-is($print_align->{dm_label_color}, \@dml_color, '  label colors loaded');
-is($print_align->{labels}, \%labels, '  labels loaded');
+is_deeply($print_align->{domain_start}, \@domain_start,'  start point loaded');
+is_deeply($print_align->{domain_end}, \@domain_end,'  end point loaded');
+is_deeply($print_align->{domain_color}, \@domain_color,'  color of domain loaded');
+is_deeply($print_align->{dm_labels}, \@dml, '  domain labels loaded');
+is_deeply($print_align->{dm_label_start}, \@dml_start, '  label starts loaded');
+is_deeply($print_align->{dm_label_end}, \@dml_end, '  label ends loaded');
+is_deeply($print_align->{dm_label_color}, \@dml_color, '  label colors loaded');
+is_deeply($print_align->{labels}, \%labels, '  labels loaded');
 is($print_align->{out_format}, 'png', '  output file is png');
 isnt($print_align->{wrapping}, 0, '  wrapping length is not zero');
 

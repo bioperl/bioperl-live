@@ -1,6 +1,5 @@
 package Bio::DB::GFF::Adaptor::memory::feature_serializer;
 
-# $Id$
 
 =head1 NAME
 

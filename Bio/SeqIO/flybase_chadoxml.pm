@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::SeqIO::flybase_chadoxml
 #

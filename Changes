@@ -19,26 +19,36 @@ CPAN releases are branched from 'master'.
  
 1.6.1_1 RELEASE_DATE_HERE (first 1.6.2 alpha)
     [New features]
+    * Core code updated for perl 5.12.x [cjfields, Charle Tilford]
     * Bio::SeqIO::gbxml
         - bug 2515 - new contribution [Ryan Golhar, jhannah]
     * Bio::Assembly::IO
         - support for reading Maq, Sam and Bowtie files [maj]
         - support for reading 454 GS Assembler (Newbler) ACE files [fangly]
         - bug 2483: support for writing ACE files [Joshua Udall, fangly]
+        - bug 2599: support DBLINK annotation in GenBank files [cjfields]
         - bug 2726: reading/writing granularity: whole scaffold or one contig
-                    at a time [Joshua Udall, fangly]
+          at a time [Joshua Udall, fangly]
     ...
         
     [Bug fixes]
     * bug 3077 - Bio::SimpleAlign slice() now correctly computes seq coordinates
       for alignment slices [Ha X. Dang, cjfields]
-    ...
-      
+    * bug 3116, 3117 - perl 5.12.x warnings fixed [cjfields, Charles Tilford]
+    * bug 3120 - bp_seqfeature_gff3.pl round-trip fixes [genehack, jhannah]
+    * bug 3122 - Catch instances where non-seekable filehandles were being
+      seek'd w/o checking for status [Stefan Kirov, Roy Chaudhuri]
+    * bug 3120 - bp_seqfeature_gff3.pl '-y' option [genehack, David Breimann]
+    * bug 3126 - catch description [Toshihiko Akiba]
+    * bug 2983 - fix score/percent ID mixup [Alexie Papanicolaou]
+    * bug 2984 - let LocatableSeq decide on length of phylip aln [Adam Witney, 
+                 cjfields]
+
     [Deprecated]
     * Bio::Expression modules - these were originally designed to go with the
       bioperl-microarray suite of tools, however they have never been completed
       and so have been removed from the distribution.  The original code has
-      be moved into the inactive bioperl-microarray suite. [cjfields]
+      been moved into the inactive bioperl-microarray suite. [cjfields]
       
     [Other]
     * Repository moved from Subversion (SVN) to

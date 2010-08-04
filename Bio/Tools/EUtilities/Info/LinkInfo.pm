@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::Tools::EUtilities::Info::LinkInfo
 #

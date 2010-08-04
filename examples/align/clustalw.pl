@@ -3,7 +3,6 @@
 # PURPOSE  : Demonstrate possible uses of Bio::Tools::Run::Alignment::Clustalw.pm
 # AUTHOR   : Peter Schattner schattner@alum.mit.edu
 # CREATED  : Oct 06 2000
-# REVISION : $Id$
 #
 # INSTALLATION
 #

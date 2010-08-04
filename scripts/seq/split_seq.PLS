@@ -1,6 +1,5 @@
 #!perl -w
 use strict;
-# $Id$
 
 =head1 NAME
 

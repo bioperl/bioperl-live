@@ -1,5 +1,4 @@
 #!perl -w
-# $Id$
 
 use strict;
 
