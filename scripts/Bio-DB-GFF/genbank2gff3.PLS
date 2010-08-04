@@ -1147,6 +1147,10 @@ sub convert_to_name {
         ## $g->remove_tag('transposon');
         $g->add_tag_value('Name', $gene_id);
     }
+    elsif ($g->has_tag('ID')) { 
+        my ($name)= $g->get_tag_values('ID');
+        $g->add_tag_value('Name', $name);
+    }    
     return $gene_id;
 }
 
