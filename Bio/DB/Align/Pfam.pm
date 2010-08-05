@@ -172,35 +172,6 @@ sub get_Aln_by_id {
 	return $self->get_Aln_by_acc(@args);
 }
 
-
-=head2 id2acc
-
- Title   : id2acc
- Usage   : $acc = $dbobj->id2acc('Piwi')
- Function: Convert id to accession
- Returns : Accession
- Args    : the id (as a string) of a sequence for the alignment
- Throws  : "Bio::DB::Align::Pfam Request Error" exception
-=cut
-
-sub id2acc {
-	my ($self,@args)=@_;
-	my $id=shift @args;
-	
-	my $CGI_location= '/family/acc/';
-	
-	my $url = URI->new($HOSTBASE . $CGI_location. $id);
-	
-	my $request = $self->ua->get($url);
-	
-	if($request->is_success) {
-		return $request->content;
-	}
-	else {
-		$self->throw("Bio::DB::Align::Pfam Request Error:\n",$request->to_string);
-	}
-}
-
 =head2 get_Aln_by_acc
 
  Title   : get_Aln_by_acc
@@ -281,6 +252,63 @@ sub get_Aln_by_acc {
 	}
 	
 	return $aln;
+}
+
+=head2 id2acc
+
+ Title   : id2acc
+ Usage   : $acc = $dbobj->id2acc($id)
+ Function: Convert ID to Accession
+ Returns : Accession
+ Args    : ID (as a string)
+ Throws  : "Bio::DB::Align::Pfam Request Error" exception
+=cut
+
+sub id2acc {
+	my ($self,@args)=@_;
+	my $id=shift @args;
+	
+	my $CGI_location= '/family/acc/';
+	
+	my $url = URI->new($HOSTBASE . $CGI_location. $id);
+	
+	my $request = $self->ua->get($url);
+	
+	if($request->is_success) {
+		return $request->content;
+	}
+	else {
+		$self->throw("Bio::DB::Align::Pfam Request Error:\n",$request->to_string);
+	}
+}
+
+
+=head2 acc2id
+
+ Title   : acc2id
+ Usage   : $id = $db->acc2id($acc)
+ Function: Convert Accession to ID
+ Returns : ID
+ Args    : Accession (as a string)
+ Throws  : "Converting Accession failed" exception
+=cut
+
+sub acc2id {
+	my ($self,@args)=@_;
+	my $acc=shift @args;
+	
+	my $CGI_location= '/family/id/';
+	
+	my $url = URI->new($HOSTBASE . $CGI_location. $acc);
+	
+	my $request = $self->ua->get($url);
+	
+	if($request->is_success) {
+		return $request->content;
+	}
+	else {
+		$self->throw("Bio::DB::Align::Pfam Request Error:\n",$request->to_string);
+	}
 }
 
 
