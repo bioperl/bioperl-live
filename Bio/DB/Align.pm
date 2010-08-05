@@ -131,7 +131,7 @@ sub new {
 			$class->throw("$module not supported in BioPerl");
 		}
 		else {
-			return $module->new();
+			return $module->new(@args);
 		}
 	}
 	else {
