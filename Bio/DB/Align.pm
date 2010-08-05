@@ -173,6 +173,37 @@ sub get_Aln_by_acc {
     $self->throw("Sorry, you cannot read from a generic Bio::DB::Align object.");
 }
 
+=head2 id2acc
+
+ Title   : id2acc
+ Usage   : $acc = $db->id2acc($id)
+ Function: Convert id to accession
+ Returns : Accession
+ Args    : ID (as a string)
+ Note    : 
+=cut
+
+sub id2acc {
+	my ($self,@args)=@_;
+	$self->throw("Sorry, you cannot read from a generic Bio::DB::Align object.");
+}
+
+=head2 acc2id
+
+ Title   : acc2id
+ Usage   : $id = $db->acc2id($acc)
+ Function: Convert Accession to ID
+ Returns : ID
+ Args    : Accession (as a string)
+ Note    : 
+=cut
+
+sub acc2id {
+	my ($self,@args)=@_;
+	$self->throw("Sorry, you cannot read from a generic Bio::DB::Align object.");
+}
+
+
 1;
 
 
