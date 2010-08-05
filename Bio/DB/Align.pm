@@ -107,8 +107,11 @@ use base qw(Bio::Root::Root Bio::Root::IO Bio::DB::GenericWebAgent);
              $dbobj = Bio::DB::Align::Pfam->new();
  Function: Returns a db stream
  Returns : Bio::DB::Align initialised with the appropriate db object
- Args    : -db    database query(case sensitive)
-                  Currently Bio::DB::Align supports Pfam, Rfam and Prosite
+ Args    : -db     database query(case sensitive)
+                   Currently Bio::DB::Align supports Pfam, Rfam, 
+                   Prosite and ProtClustDB
+           -email  email address requested per NCBI policy 
+                   (only for Bio::DB::Align::ProtClustDB)
  Note    : 
 =cut
 
@@ -131,7 +134,7 @@ sub new {
 			$class->throw("$module not supported in BioPerl");
 		}
 		else {
-			return $module->new();
+			return $module->new(@args);
 		}
 	}
 	else {
