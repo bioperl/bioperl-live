@@ -1,5 +1,4 @@
 #!/usr/bin/perl -w
-# $Id$
 # Author: cckim@stanford.edu
 
 # Description: This program designs primers for constructing knockouts

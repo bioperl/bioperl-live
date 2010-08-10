@@ -1,6 +1,5 @@
 #!perl
 # -*-Perl-*-
-# $Id$
 #
 # Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
 # Finding flanking sequences for a variant.

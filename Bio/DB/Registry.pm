@@ -1,4 +1,3 @@
-# $Id$
 #
 # POD documentation - main docs before the code
 

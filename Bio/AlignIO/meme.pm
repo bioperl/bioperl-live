@@ -1,4 +1,3 @@
-# $Id$
 #
 #  BioPerl module for Bio::AlignIO::meme
 #   Based on the Bio::SeqIO modules

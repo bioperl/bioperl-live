@@ -1,4 +1,3 @@
-# $Id$
 # BioPerl module for Bio::Restriction::IO::itype2
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 

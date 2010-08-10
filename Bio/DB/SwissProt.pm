@@ -1,5 +1,4 @@
 #
-# $Id$
 #
 # BioPerl module for Bio::DB::SwissProt
 #

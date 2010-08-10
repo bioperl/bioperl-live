@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::LocatableSeq
 #
@@ -224,6 +223,13 @@ sub _ungapped_len {
     $string =~ s{[$GAP_SYMBOLS$FRAMESHIFT_SYMBOLS]+}{}g;
     return CORE::length($string)/($map_res/$map_coord) + $offset/($map_coord/$map_res);
 }
+
+#sub length {
+#    my $self = shift;
+#    return unless my $string = $self->seq;
+#    $string =~ s{[$GAP_SYMBOLS$FRAMESHIFT_SYMBOLS]+}{}g;
+#    return CORE::length($string);
+#}
 
 =head2 strand
 
@@ -606,7 +612,7 @@ sub trunc {
     $new->strand($self->strand);
 
     # end will be automatically calculated
-    $start = $end if $self->strand == -1;
+    $start = $end if $self->strand && $self->strand == -1;
 
     $start = $self->location_from_column($start);
     $start ? ($start = $start->end) : ($start = 1);

@@ -1,4 +1,3 @@
-# $Id$
 # 
 #
 # Helper module for Bio::SeqIO::game::featHandler

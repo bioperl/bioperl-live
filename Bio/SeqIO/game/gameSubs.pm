@@ -1,4 +1,3 @@
-# $Id$
 # some of the following code was pillaged from the CPAN module
 # XML::Handler::Subs
 #

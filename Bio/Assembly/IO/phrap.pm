@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl driver for phrap.out file
 #

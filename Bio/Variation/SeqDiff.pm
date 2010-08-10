@@ -1,4 +1,3 @@
-# $Id$
 # bioperl module for Bio::Variation::SeqDiff
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 

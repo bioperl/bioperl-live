@@ -1,5 +1,4 @@
 #!perl
-# $Id$
 use strict;
 
 # Author:      Jason Stajich <jason-at-bioperl-dot-org>

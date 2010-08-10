@@ -1,5 +1,4 @@
 #!perl -w
-# $Id$
 #
 =head1 NAME
 

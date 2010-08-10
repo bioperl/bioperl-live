@@ -1,5 +1,3 @@
-# $Id$
-# $Date$
 #
 # BioPerl module for Bio::SeqIO::chaos
 #

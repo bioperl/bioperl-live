@@ -1,6 +1,5 @@
 package Bio::DB::SeqFeature::Segment;
 
-# $Id$
 
 =head1 NAME
 

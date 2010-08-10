@@ -1,8 +1,7 @@
-# $Id$
 #
 # BioPerl module for Bio::Tools::Run::WrapperBase
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Jason Stajich <jason@bioperl.org>
 #
@@ -47,15 +46,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -136,7 +135,7 @@ sub error_string{
 
  Title   : arguments
  Usage   : $obj->arguments($newval)
- Function: Commandline parameters 
+ Function: Commandline parameters
  Returns : value of arguments
  Args    : newvalue (optional)
 
@@ -205,7 +204,7 @@ sub save_tempfiles{
 
 sub outfile_name{
    my ($self,$nm) = @_;
-   if( defined $nm || ! defined $self->{'_outfilename'} ) { 
+   if( defined $nm || ! defined $self->{'_outfilename'} ) {
        $nm = 'mlc' unless defined $nm;
        $self->{'_outfilename'} = $nm;
    }
@@ -281,7 +280,7 @@ sub io{
  Title   : version
  Usage   : $version = $wrapper->version()
  Function: Returns the program version (if available)
- Returns : string representing version of the program 
+ Returns : string representing version of the program
  Args    : [Optional] value to (re)set version string
 
 
@@ -305,14 +304,14 @@ sub version{
 
 sub executable {
     my ($self, $exe, $warn) = @_;
-    
+
     if (defined $exe) {
         $self->{'_pathtoexe'} = $exe;
     }
-    
+
     unless( defined $self->{'_pathtoexe'} ) {
         my $prog_path = $self->program_path;
-        
+
         if ($prog_path) {
             if (-f $prog_path && -x $prog_path) {
                 $self->{'_pathtoexe'} = $prog_path;
@@ -339,7 +338,7 @@ sub executable {
 
  Title   : program_path
  Usage   : my $path = $factory->program_path();
- Function: Builds path for executable 
+ Function: Builds path for executable
  Returns : string representing the full path to the exe
  Args    : none
 
@@ -359,8 +358,8 @@ sub program_path {
  Usage   : my $dir = $factory->program_dir();
  Function: Abstract get method for dir of program. To be implemented
            by wrapper.
- Returns : string representing program directory 
- Args    : none 
+ Returns : string representing program directory
+ Args    : none
 
 =cut
 
@@ -442,7 +441,7 @@ sub quiet {
 
 sub _setparams {
     my ($self, @args) = @_;
-    
+
     my ($params, $switches, $join, $lc, $d, $dd, $md, $utd) =
         $self->_rearrange([qw(PARAMS
                               SWITCHES
@@ -455,17 +454,17 @@ sub _setparams {
     $self->throw('at least one of -params or -switches is required') unless ($params || $switches);
     $self->throw("-dash, -double_dash and -mixed_dash are mutually exclusive") if (defined($d) + defined($dd) + defined($md) > 1);
     $join ||= ' ';
-    
+
     my %params = ref($params) eq 'HASH' ? %{$params} : map { $_ => $_ } @{$params};
     my %switches = ref($switches) eq 'HASH' ? %{$switches} : map { $_ => $_ } @{$switches};
-    
+
     my $param_string = '';
     for my $hash_ref (\%params, \%switches) {
         while (my ($method, $method_out) = each %{$hash_ref}) {
             my $value = $self->$method();
             next unless (defined $value);
             next if (exists $switches{$method} && ! $value);
-            
+
             $method_out = lc($method_out) if $lc;
             my $method_length = length($method_out) if $md;
             $method_out = '-'.$method_out if ($d || ($md && ($method_length == 1)));
@@ -482,11 +481,11 @@ sub _setparams {
                 $value = '"'. $value . '"';
               }
             }
-            
+
             $param_string .= ' '.$method_out.(exists $switches{$method} ? '' : $join.$value);
         }
     }
-    
+
     return $param_string;
 }
 

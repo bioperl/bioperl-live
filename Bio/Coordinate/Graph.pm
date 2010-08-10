@@ -1,4 +1,3 @@
-# $Id$
 #
 # bioperl module for Bio::Coordinate::Graph
 #

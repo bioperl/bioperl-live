@@ -1,6 +1,5 @@
 # BioPerl module for Bio::Tools::Pseudowise
 #
-# $Id$
 # 
 # Copyright Jason Stajich, Fugu Team 
 #

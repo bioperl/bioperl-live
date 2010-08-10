@@ -1,6 +1,5 @@
 package Bio::DB::SeqFeature::NormalizedFeatureI;
 
-# $Id$
 
 =head1 NAME
 

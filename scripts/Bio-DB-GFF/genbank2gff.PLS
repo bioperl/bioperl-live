@@ -2,7 +2,6 @@
 
 use lib '.';
 
-# $Id$
 use strict;
 use Bio::DB::GFF;
 use Getopt::Long;

@@ -30,7 +30,6 @@
 #   STDERR: Progress info.
 #
 # Author: Steve Chervitz <sac@bioperl.org>
-# Revision: $Id$
 
 package MyBlastWriter;
 

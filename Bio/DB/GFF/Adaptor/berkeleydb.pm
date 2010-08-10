@@ -1,6 +1,5 @@
 package Bio::DB::GFF::Adaptor::berkeleydb;
 
-# $Id$
 
 =head1 NAME
 
