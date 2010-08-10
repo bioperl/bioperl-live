@@ -154,7 +154,7 @@ my $build = Bio::Root::Build->new(
     # Extra files needed for BioPerl modules
     xml_files => {'lib/Bio/DB/HIV/lanl-schema.xml' => 'lib/Bio/DB/HIV/lanl-schema.xml'},
     
-    pm_files           => {} # modules in Bio are treated as if they were in lib and auto-installed
+    #pm_files           => {} # modules in Bio are treated as if they were in lib and auto-installed
     #script_files       => [] # scripts in scripts directory are installed on-demand
 );
 
