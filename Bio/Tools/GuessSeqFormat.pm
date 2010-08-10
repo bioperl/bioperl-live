@@ -922,7 +922,7 @@ sub _possibly_rsf
 
 From "http://www.ebc.ee/WWW/hmmer2-html/node27.html".
 
-Assuming precense of Selex file header.  Data exported by
+Assuming presence of Selex file header.  Data exported by
 Bioperl on Pfam and Selex formats are identical, but Pfam file
 only holds one alignment.
 
