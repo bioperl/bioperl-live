@@ -90,14 +90,14 @@ our $checking_types = "requires|conflicts|".join("|", @extra_types);
 
 
 # our modules are in Bio, not lib
-sub find_pm_files {
-    my $self = shift;
-    foreach my $pm (@{$self->rscan_dir('Bio', qr/\.pm$/)}) {
-        $self->{properties}{pm_files}->{$pm} = File::Spec->catfile('lib', $pm);
-    }
-    
-    $self->_find_file_by_type('pm', 'lib');
-}
+#sub find_pm_files {
+#    my $self = shift;
+#    foreach my $pm (@{$self->rscan_dir('lib', 'Bio', qr/\.pm$/)}) {
+#        $self->{properties}{pm_files}->{$pm} = File::Spec->catfile('lib', $pm);
+#    }
+#    
+#    $self->_find_file_by_type('pm', 'lib');
+#}
 
 # ask what scripts to install (this method is unique to bioperl)
 sub choose_scripts {
@@ -872,7 +872,7 @@ sub write_config {
     # ourselves to _build\lib
     # this is only possible for the core distribution where we are actually
     # present in the distribution
-    my $self_filename = File::Spec->catfile('Bio', 'Root', 'Build.pm');
+    my $self_filename = File::Spec->catfile('lib', 'Bio', 'Root', 'Build.pm');
     -e $self_filename || return;
     
     my $filename = File::Spec->catfile($self->{properties}{config_dir}, 'lib', 'Bio', 'Root', 'Build.pm');
@@ -1087,7 +1087,7 @@ sub make_ppd {
 PPD
     
     # provide section
-    foreach my $pm (@{$self->rscan_dir('Bio', qr/\.pm$/)}) {
+    foreach my $pm (@{$self->rscan_dir('lib', 'Bio', qr/\.pm$/)}) {
         # convert these filepaths to Module names
         $pm =~ s/\//::/g;
         $pm =~ s/\.pm//;

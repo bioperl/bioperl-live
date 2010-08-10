@@ -10,7 +10,7 @@
 # likely to need changing.
 
 use strict;
-use lib '.';
+use lib './lib';
 use Bio::Root::Build;
 
 # XML::SAX::RTF doesn't work with BioPerl, at all, nada, zilch.
@@ -55,7 +55,7 @@ my $mysql_ok = 0;
 my $build = Bio::Root::Build->new(
     module_name         => 'Bio',
     dist_name           => 'BioPerl',
-    dist_version_from   => 'Bio/Root/Version.pm',
+    dist_version_from   => 'lib/Bio/Root/Version.pm',
     dist_author         => 'BioPerl Team <bioperl-l@bioperl.org>',
     dist_abstract       => 'Bioinformatics Toolkit',
     license             => 'perl',
@@ -152,9 +152,9 @@ my $build = Bio::Root::Build->new(
     create_makefile_pl  => 'passthrough',
     recursive_test_files => 1,
     # Extra files needed for BioPerl modules
-    xml_files => {'./Bio/DB/HIV/lanl-schema.xml' => 'lib/Bio/DB/HIV/lanl-schema.xml'},
+    xml_files => {'lib/Bio/DB/HIV/lanl-schema.xml' => 'lib/Bio/DB/HIV/lanl-schema.xml'},
     
-    #pm_files           => {} # modules in Bio are treated as if they were in lib and auto-installed
+    pm_files           => {} # modules in Bio are treated as if they were in lib and auto-installed
     #script_files       => [] # scripts in scripts directory are installed on-demand
 );
 
