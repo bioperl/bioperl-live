@@ -23,9 +23,9 @@ my ( $str, $aln, @seqs, $seq );
 $str = Bio::AlignIO->new( -file => test_input_file('testaln.pfam') );
 isa_ok( $str, 'Bio::AlignIO' );
 $aln = $str->next_aln();
-is $aln->get_seq_by_pos(1)->get_nse, '1433_LYCES/9-246', "pfam input test";
+is $aln->get_Seq_by_pos(1)->get_nse, '1433_LYCES/9-246', "pfam input test";
 
-my $aln1 = $aln->remove_columns( ['mismatch'] );
+my $aln1 = $aln->remove_columns([]);
 is(
     $aln1->match_line,
     '::*::::*:**:*:*:***:**.***::*.*::**::**:***..**:'
@@ -34,44 +34,44 @@ is(
     'match_line'
 );
 
-my $aln2 = $aln->select( 1, 3 );
+my $aln2 = $aln->select_Seqs([1..3]);
 isa_ok( $aln2, 'Bio::Align::AlignI' );
 is( $aln2->num_sequences, 3, 'num_sequences' );
 
 # test select non continuous-sorted by default
-$aln2 = $aln->select_noncont( 6, 7, 8, 9, 10, 1, 2, 3, 4, 5 );
+$aln2 = $aln->select_Seqs([1..2]);
 is( $aln2->num_sequences, 10, 'num_sequences' );
 is(
-    $aln2->get_seq_by_pos(2)->id,
-    $aln->get_seq_by_pos(2)->id,
+    $aln2->get_Seq_by_pos(2)->id,
+    $aln->get_Seq_by_pos(2)->id,
     'select_noncont'
 );
 is(
-    $aln2->get_seq_by_pos(8)->id,
-    $aln->get_seq_by_pos(8)->id,
+    $aln2->get_Seq_by_pos(8)->id,
+    $aln->get_Seq_by_pos(8)->id,
     'select_noncont'
 );
 
 # test select non continuous-nosort option
-$aln2 = $aln->select_noncont( 'nosort', 6, 7, 8, 9, 10, 1, 2, 3, 4, 5 );
+$aln2 = $aln->select_Seqs('nosort');
 is( $aln2->num_sequences, 10, 'num_sequences' );
 is(
-    $aln2->get_seq_by_pos(2)->id,
-    $aln->get_seq_by_pos(7)->id,
+    $aln2->get_Seq_by_pos(2)->id,
+    $aln->get_Seq_by_pos(7)->id,
     'select_noncont'
 );
 is(
-    $aln2->get_seq_by_pos(8)->id,
-    $aln->get_seq_by_pos(3)->id,
+    $aln2->get_Seq_by_pos(8)->id,
+    $aln->get_Seq_by_pos(3)->id,
     'select_noncont'
 );
 
-@seqs = $aln->each_seq();
+@seqs = $aln->next_Seq();
 is scalar @seqs, 16, 'each_seq';
 is $seqs[0]->get_nse, '1433_LYCES/9-246', 'get_nse';
 is $seqs[0]->id,      '1433_LYCES',       'id';
 is $seqs[0]->num_gaps, 3,                  'num_gaps';
-@seqs = $aln->each_alphabetically();
+@seqs = $aln->next_alphabetically();
 is scalar @seqs, 16, 'each_alphabetically';
 
 is $aln->column_from_residue_number( '1433_LYCES', 10 ), 2,
@@ -89,7 +89,7 @@ is substr( $aln->consensus_string(0), 0, 60 ),
   "REDLVYLAKLAEQAERYEEMVEFMKKVAELGAPAEELSVEERNLLSVAYKNVIGARRASW",
   'consensus_string';
 
-ok( @seqs = $aln->each_seq_with_id('143T_HUMAN') );
+ok( @seqs = $aln->next_Seq_with_id('143T_HUMAN') );
 is scalar @seqs, 1, 'each_seq_with_id';
 
 is $aln->is_flush, 1, 'is_flush';
@@ -119,7 +119,7 @@ is $aln->displayname('1433_LYCES/9-246'), '1433_LYCES/9-246',
   'set_displayname_normal';
 ok $aln->uppercase;
 ok $aln->map_chars( '\.', '-' );
-@seqs = $aln->each_seq_with_id('143T_HUMAN');
+@seqs = $aln->next_Seq_with_id('143T_HUMAN');
 is substr( $seqs[0]->seq, 0, 60 ),
   'KTELIQKAKLAEQAERYDDMATCMKAVTEQGA---ELSNEERNLLSVAYKNVVGGRRSAW',
   'uppercase, map_chars';
@@ -132,17 +132,17 @@ is(
       . '*::*: .*. : *: **:****************::     ',
     'match_line'
 );
-ok $aln->remove_seq( $seqs[0] ), 'remove_seqs';
+ok $aln->remove_LocatableSeq( $seqs[0] ), 'remove_seqs';
 is $aln->num_sequences, 15, 'remove_seqs';
-ok $aln->add_seq( $seqs[0] ), 'add_seq';
+ok $aln->add_Seq( $seqs[0] ), 'add_seq';
 is $aln->num_sequences, 16, 'add_seq';
-ok $seq = $aln->get_seq_by_pos(1), 'get_seq_by_pos';
+ok $seq = $aln->get_Seq_by_pos(1), 'get_seq_by_pos';
 is( $seq->id, '1433_LYCES', 'get_seq_by_pos' );
 ok( ( $aln->missing_char(), 'P' ) and ( $aln->missing_char('X'), 'X' ) );
 ok( ( $aln->match_char(),   '.' ) and ( $aln->match_char('-'),   '-' ) );
 ok( ( $aln->gap_char(),     '-' ) and ( $aln->gap_char('.'),     '.' ) );
 
-is $aln->purge(0.7), 12, 'purge';
+is $aln->remove_redundant_Seqs(0.7), 12, 'purge';
 is $aln->num_sequences, 4, 'purge';
 
 SKIP: {
@@ -166,8 +166,8 @@ SKIP: {
         -alphabet => 'dna'
     );
     $a = Bio::SimpleAlign->new();
-    $a->add_seq($s1);
-    $a->add_seq($s2);
+    $a->add_Seq($s1);
+    $a->add_Seq($s2);
 
     is( $a->consensus_iupac, "aAWWAT-TN-", 'IO::String consensus_iupac' );
     $s1->seq('aaaaattttt');
@@ -176,8 +176,8 @@ SKIP: {
     $s2->seq('-aaaatttt-');
     $s2->end(8);
     $a = Bio::SimpleAlign->new();
-    $a->add_seq($s1);
-    $a->add_seq($s2);
+    $a->add_Seq($s1);
+    $a->add_Seq($s2);
 
     my $strout = Bio::AlignIO->new( -fh => $out, -format => 'pfam' );
     $strout->write_aln($a);
@@ -189,7 +189,7 @@ SKIP: {
 
     $out->setpos(0);
     $string = '';
-    my $b = $a->slice( 2, 9 );
+    my $b = $a->select_columns([2..9]);
     $strout->write_aln($b);
     is $string,
       "AAA/2-9    aaaatttt\n" . "BBB/1-8    aaaatttt\n",
@@ -197,7 +197,7 @@ SKIP: {
 
     $out->setpos(0);
     $string = '';
-    $b = $a->slice( 9, 10 );
+    $b = $a->select_columns([9..10]);
     $strout->write_aln($b);
     is $string,
       "AAA/9-10    tt\n" . "BBB/8-8     t-\n",
@@ -206,7 +206,7 @@ SKIP: {
     $a->verbose(-1);
     $out->setpos(0);
     $string = '';
-    $b = $a->slice( 1, 2 );
+    $b = $a->select_columns([1..2]);
     $strout->write_aln($b);
     is $string,
       "AAA/1-2    aa\n" . "BBB/1-1    -a\n",
@@ -216,7 +216,7 @@ SKIP: {
     $a->verbose(-1);
     $out->setpos(0);
     $string = '';
-    $b = $a->slice( 1, 1, 1 );
+    $b = $a->select_columns([1..1]0,1);
     $strout->write_aln($b);
     is $string,
       "AAA/1-1    a\n" . "BBB/1-0    -\n",
@@ -225,13 +225,13 @@ SKIP: {
     $a->verbose(-1);
     $out->setpos(0);
     $string = '';
-    $b = $a->slice( 2, 2 );
+    $b = $a->select_columns([2..2]);
     $strout->write_aln($b);
     is $string,
       "AAA/2-2    a\n" . "BBB/1-1    a\n",
       'IO::String write_aln slice';
 
-    eval { $b = $a->slice( 11, 13 ); };
+    eval { $b = $a->select_columns([11..13]); };
 
     like( $@, qr/EX/ );
 
@@ -240,7 +240,7 @@ SKIP: {
     $string = '';
     $str    = Bio::AlignIO->new( -file => test_input_file('mini-align.aln') );
     $aln1   = $str->next_aln;
-    $aln2   = $aln1->remove_columns( [ 0, 0 ] );
+    $aln2   = $aln1->remove_columns([]);
     $strout->write_aln($aln2);
     is $string,
         "P84139/2-33              NEGEHQIKLDELFEKLLRARLIFKNKDVLRRC\n"
@@ -252,7 +252,7 @@ SKIP: {
     # and when arguments are entered in "wrong order"?
     $out->setpos(0);
     $string = '';
-    my $aln3 = $aln1->remove_columns( [ 1, 1 ], [ 30, 30 ], [ 5, 6 ] );
+    my $aln3 = $aln1->remove_columns([]);
     $strout->write_aln($aln3);
     is $string,
         "P84139/1-33              MEGEIKLDELFEKLLRARLIFKNKDVLRC\n"
@@ -276,11 +276,11 @@ SKIP: {
         -end      => 7,
         -alphabet => 'dna'
     );
-    $a->add_seq($s3);
+    $a->add_Seq($s3);
 
-    is $a->get_seq_by_pos(2)->id, "BBB", 'sort_alphabetically - before';
+    is $a->get_Seq_by_pos(2)->id, "BBB", 'sort_alphabetically - before';
     ok $a->sort_alphabetically;
-    is $a->get_seq_by_pos(2)->id, "ABB", 'sort_alphabetically - after';
+    is $a->get_Seq_by_pos(2)->id, "ABB", 'sort_alphabetically - after';
 
     $b = $a->remove_gaps();
     is $b->consensus_string, "aaaattt", 'remove_gaps';
@@ -294,9 +294,9 @@ SKIP: {
     $str = Bio::AlignIO->new( -file => test_input_file('testaln.aln') );
     $aln = $str->next_aln();
     my $new_aln = $aln->set_new_reference(3);
-    $a       = $new_aln->get_seq_by_pos(1)->display_id;
+    $a       = $new_aln->get_Seq_by_pos(1)->display_id;
     $new_aln = $aln->set_new_reference('P851414');
-    $b       = $new_aln->get_seq_by_pos(1)->display_id;
+    $b       = $new_aln->get_Seq_by_pos(1)->display_id;
     is $a, 'P851414', 'set_new_reference';
     is $b, 'P851414', 'set_new_reference';
 
@@ -306,7 +306,7 @@ SKIP: {
         -file    => test_input_file('testaln2.fasta')
     );
     $aln     = $str->next_aln();
-    $new_aln = $aln->uniq_seq();
+    $new_aln = $aln->uniq_Seq();
     $a       = $new_aln->num_sequences;
     is $a, 11, 'uniq_seq';
 
@@ -329,16 +329,16 @@ SKIP: {
 
     $string = '';
     my $aln_negative = Bio::SimpleAlign->new();
-    $aln_negative->add_seq($seq1);
-    $aln_negative->add_seq($seq2);
+    $aln_negative->add_Seq($seq1);
+    $aln_negative->add_Seq($seq2);
     my $start_column =
       $aln_negative->column_from_residue_number(
-        $aln_negative->get_seq_by_pos(1)->display_id, 2 );
+        $aln_negative->get_Seq_by_pos(1)->display_id, 2 );
     my $end_column =
       $aln_negative->column_from_residue_number(
-        $aln_negative->get_seq_by_pos(1)->display_id, 5 );
-    $aln_negative = $aln_negative->slice( $end_column, $start_column );
-    my $seq_negative = $aln_negative->get_seq_by_pos(1);
+        $aln_negative->get_Seq_by_pos(1)->display_id, 5 );
+    $aln_negative = $aln_negative->select_columns([$end_column..$start_column]);
+    my $seq_negative = $aln_negative->get_Seq_by_pos(1);
     is( $seq_negative->start, 2, "bug 2099" );
     is( $seq_negative->end,   5, "bug 2099" );
 
@@ -346,11 +346,11 @@ SKIP: {
     my $s11 = Bio::LocatableSeq->new( -id => 'testseq1', -seq => 'AAA' );
     my $s21 = Bio::LocatableSeq->new( -id => 'testseq2', -seq => 'CCC' );
     $a = Bio::SimpleAlign->new();
-    ok( $a->add_seq( $s11, 1 ), "bug 2793" );
-    is( $a->get_seq_by_pos(1)->seq, 'AAA', "bug 2793" );
-    ok( $a->add_seq( $s21, 2 ), "bug 2793" );
-    is( $a->get_seq_by_pos(2)->seq, 'CCC', "bug 2793" );
-    throws_ok { $a->add_seq( $s21, 0 ) } qr/must be >= 1/, 'Bad sequence, bad!';
+    ok( $a->add_Seq( $s11, 1 ), "bug 2793" );
+    is( $a->get_Seq_by_pos(1)->seq, 'AAA', "bug 2793" );
+    ok( $a->add_Seq( $s21, 2 ), "bug 2793" );
+    is( $a->get_Seq_by_pos(2)->seq, 'CCC', "bug 2793" );
+    throws_ok { $a->add_Seq( $s21, 0 ) } qr/must be >= 1/, 'Bad sequence, bad!';
 }
 
 # test for Bio::SimpleAlign annotation method and
@@ -358,7 +358,7 @@ SKIP: {
 
 $aln = Bio::SimpleAlign->new;
 for my $seqset ( [qw(one AGAGGAT)], [qw(two AGACGAT)], [qw(three AGAGGTT)] ) {
-    $aln->add_seq(
+    $aln->add_Seq(
         Bio::LocatableSeq->new(
             -id  => $seqset->[0],
             -seq => $seqset->[1]
@@ -418,12 +418,12 @@ for my $feature ( $aln->get_SeqFeatures ) {
         TODO: {
             local $TODO = "This should pass but dies; see bug 2842";
             $masked->verbose(2);
-            lives_ok {my $fslice = $masked->slice( $loc->start, $loc->end )};
+            lives_ok {my $fslice = $masked->select_columns([$loc->start..$loc->end])};
         }
         $masked->verbose(-1);
-        my $fslice = $masked->slice( $loc->start, $loc->end );
+        my $fslice = $masked->select_columns([$loc->start..$loc->end]);
         is( $fslice->length, $slice_lens[ $i++ ], "slice $i len" );
-        for my $s ( $fslice->each_seq ) {
+        for my $s ( $fslice->next_Seq ) {
             like( $s->seq, qr/^\?+$/, 'correct masked seq' );
         }
     }
@@ -432,12 +432,12 @@ for my $feature ( $aln->get_SeqFeatures ) {
 # test set_displayname_safe & restore_displayname:
 $str = Bio::AlignIO->new( -file => test_input_file('pep-266.aln') );
 $aln = $str->next_aln();
-is $aln->get_seq_by_pos(3)->display_id, 'Smik_Contig1103.1',
+is $aln->get_Seq_by_pos(3)->display_id, 'Smik_Contig1103.1',
   'initial display id ok';
 my ( $new_aln, $ref ) = $aln->set_displayname_safe();
-is $new_aln->get_seq_by_pos(3)->display_id, 'S000000003', 'safe display id ok';
+is $new_aln->get_Seq_by_pos(3)->display_id, 'S000000003', 'safe display id ok';
 my $restored_aln = $new_aln->restore_displayname($ref);
-is $restored_aln->get_seq_by_pos(3)->display_id, 'Smik_Contig1103.1',
+is $restored_aln->get_Seq_by_pos(3)->display_id, 'Smik_Contig1103.1',
   'restored display id ok';
 
 # test sort_by_list:
@@ -445,7 +445,7 @@ $str = Bio::AlignIO->new( -file => test_input_file('testaln.aln') );
 my $list_file = test_input_file('testaln.list');
 $aln     = $str->next_aln();
 $new_aln = $aln->sort_by_list($list_file);
-$a       = $new_aln->get_seq_by_pos(1)->display_id;
+$a       = $new_aln->get_Seq_by_pos(1)->display_id;
 is $a, 'BAB68554', 'sort by list ok';
 
 # test for Binary/Morphological/Mixed data
@@ -476,17 +476,17 @@ my $s3 = Bio::LocatableSeq->new(
     -alphabet => 'dna'
 );
 $a = Bio::SimpleAlign->new();
-$a->add_seq($s1);
-$a->add_seq($s2);
-$a->add_seq($s3);
+$a->add_Seq($s1);
+$a->add_Seq($s2);
+$a->add_Seq($s3);
 
-@seqs = $a->each_seq;
+@seqs = $a->next_Seq;
 is( $seqs[0]->start, 12 );
 is( $seqs[1]->start, 1 );
 is( $seqs[2]->start, 31 );
 
 $a->sort_by_start;
-@seqs = $a->each_seq;
+@seqs = $a->next_Seq;
 
 is( $seqs[0]->start, 1 );
 is( $seqs[1]->start, 12 );
@@ -582,12 +582,12 @@ my $e = Bio::LocatableSeq->new(
     -end   => 111
 );
 $aln = Bio::SimpleAlign->new();
-$aln->add_seq($a);
-$aln->add_seq($b);
-$aln->add_seq($c);
+$aln->add_Seq($a);
+$aln->add_Seq($b);
+$aln->add_Seq($c);
 
 my $gapless = $aln->remove_gaps();
-foreach my $seq ( $gapless->each_seq ) {
+foreach my $seq ( $gapless->next_Seq ) {
     if ( $seq->id eq 'a' ) {
         is $seq->start, 6;
         is $seq->end,   19;
@@ -605,10 +605,10 @@ foreach my $seq ( $gapless->each_seq ) {
     }
 }
 
-$aln->add_seq($d);
-$aln->add_seq($e);
+$aln->add_Seq($d);
+$aln->add_Seq($e);
 $gapless = $aln->remove_gaps();
-foreach my $seq ( $gapless->each_seq ) {
+foreach my $seq ( $gapless->next_Seq ) {
     if ( $seq->id eq 'a' ) {
         is $seq->start, 8;
         is $seq->end,   17;
@@ -638,9 +638,9 @@ foreach my $seq ( $gapless->each_seq ) {
 
 # bug 3077
 
-my $slice = $aln->slice(1,4);
+my $slice = $aln->select_columns([1..4]);
 
-for my $seq ($slice->each_seq) {
+for my $seq ($slice->next_Seq) {
     if ( $seq->id eq 'a' ) {
         is $seq->start, 5;
         is $seq->end,   8;
@@ -680,11 +680,11 @@ my $f = Bio::LocatableSeq->new(
     -end   => 43
 );
 $aln = Bio::SimpleAlign->new();
-$aln->add_seq($a);
-$aln->add_seq($f);
+$aln->add_Seq($a);
+$aln->add_Seq($f);
 
 $gapless = $aln->remove_gaps();
-foreach my $seq ( $gapless->each_seq ) {
+foreach my $seq ( $gapless->next_Seq ) {
     if ( $seq->id eq 'a' ) {
         is $seq->start, 5;
         is $seq->end,   20;
@@ -706,14 +706,14 @@ my $h = Bio::LocatableSeq->new(
     -end   => 32
 );
 $aln = Bio::SimpleAlign->new();
-$aln->add_seq($g);
-$aln->add_seq($h);
+$aln->add_Seq($g);
+$aln->add_Seq($h);
 
 # test for new method in API get_seq_by_id
-my $retrieved = $aln->get_seq_by_id('g');
+my $retrieved = $aln->get_Seq_by_id('g');
 is( defined $retrieved, 1 );
-my $removed = $aln->remove_columns( [ 1, 3 ] );
-foreach my $seq ( $removed->each_seq ) {
+my $removed = $aln->remove_columns([]);
+foreach my $seq ( $removed->next_Seq ) {
     if ( $seq->id eq 'g' ) {
         is $seq->start, 5;
         is $seq->end,   5;
