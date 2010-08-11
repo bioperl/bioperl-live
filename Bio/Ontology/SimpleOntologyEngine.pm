@@ -401,7 +401,7 @@ sub _add_relationship_simple {
 
     if (     defined $store->{$parent_id}
          &&  defined $store->{$parent_id}->{$child_id}
-         && $store->{$parent_id}->{$child_id}->name != $rel->predicate_term->name
+         && $store->{$parent_id}->{$child_id}->name ne $rel->predicate_term->name
      ) {
         $self->throw( "relationship "
                 . Dumper( $rel->predicate_term )
