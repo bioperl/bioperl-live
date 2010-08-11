@@ -37,7 +37,7 @@ Bio::SimpleAlign - Multiple alignments held as a set of sequences
   $pos = $aln->column_from_residue_number('1433_LYCES', 14); # = 6;
 
   # Extract sequences and check values for the alignment column $pos
-  foreach $seq ($aln->each_Seq) {
+  foreach $seq ($aln->next_Seq) {
       $res = $seq->subseq($pos, $pos);
       $count{$res}++;
   }
@@ -467,7 +467,7 @@ sub remove_Seqs {
 		$removed_aln=select_Seqs($sel);
 	}
 	
-	foreach my $seq ($removed_aln->each_Seq) {
+	foreach my $seq ($removed_aln->next_Seq) {
 		$self->remove_LocatableSeq($seq);
 	}
 
@@ -496,7 +496,7 @@ sub remove_redundant_Seqs {
 	my ($self,$perc) = @_;
 	my (%duplicate, @dups);
 
-	my @seqs = $self->each_Seq();
+	my @seqs = $self->next_Seq();
 
 	for (my $i=0;$i< @seqs - 1;$i++ ) { #for each seq in alignment
 		my $seq = $seqs[$i];
@@ -581,7 +581,7 @@ sub uniq_Seq {
     my $order=0;
     my $len = $self->length();
     $st = {};
-    foreach my $seq ( $self->each_Seq() ) {
+    foreach my $seq ( $self->next_Seq() ) {
 	my $str = $seq->seq();
 
 # it's necessary to ignore "n", "N", leading gaps and ending gaps in
@@ -732,7 +732,7 @@ sub _remove_col {
     
     # splice out the segments and create new seq
     my ($firststart,$firstend)=($remove->[0][0]-1,$remove->[0][1]-1);
-    foreach my $seq($self->each_Seq){
+    foreach my $seq($self->next_Seq){
 		my $sequence = $seq->seq;
 		my $orig = $sequence;
 		#calculate the new start
@@ -909,7 +909,7 @@ sub sort_alphabetically {
     my $self = shift;
     my ($seq,$nse,@arr,%hash,$count);
 
-    foreach $seq ( $self->each_Seq() ) {
+    foreach $seq ( $self->next_Seq() ) {
 	$nse = $seq->get_nse;
 	$hash{$nse} = $seq;
     }
@@ -940,7 +940,7 @@ sub sort_by_list {
     my ($self, $list) = @_;
     my (@seq, @ids, %order);
 
-    foreach my $seq ( $self->each_Seq() ) {
+    foreach my $seq ( $self->next_Seq() ) {
         push @seq, $seq;
         push @ids, $seq->display_id;
     }
@@ -981,7 +981,7 @@ sub sort_by_pairwise_identity {
 	my @pairwise_iden=$self->pairwise_percentage_identity($seqid);
 	
 	my $seqcount = 0;
-	foreach $seq ( $self->each_Seq() ) {
+	foreach $seq ( $self->next_Seq() ) {
 		$nse = $seq->get_nse;
 		$hash{$nse} = $pairwise_iden[$seqcount++];
 	}
@@ -1042,7 +1042,7 @@ sub sort_by_length {
 sub sort_by_start {
     my $self = shift;
     my ($seq,$nse,@arr,%hash,$count);
-    foreach $seq ( $self->each_Seq() ) {
+    foreach $seq ( $self->next_Seq() ) {
         $nse = $seq->get_nse;
         $hash{$nse} = $seq;
     }
@@ -1082,7 +1082,7 @@ sub set_new_reference {
     my $aln = $self->new;
     my (@seq, @ids, @new_seq);
     my $is_num=0;
-    foreach my $seq ( $self->each_Seq() ) {
+    foreach my $seq ( $self->next_Seq() ) {
 	push @seq, $seq;
 	push @ids, $seq->display_id;
     }
@@ -1120,10 +1120,10 @@ sub _in_aln {  # check if input name exists in the alignment
 
 These methods are used to select the sequences or horizontal/vertical subsets of the current MSA.
 
-=head2 each_Seq
+=head2 next_Seq
 
- Title     : each_Seq
- Usage     : foreach $seq ( $aln->each_Seq() )
+ Title     : next_Seq
+ Usage     : foreach $seq ( $aln->next_Seq() )
  Function  : Gets a Seq object from the alignment
  Returns   : Seq object
  Argument  :
@@ -1132,17 +1132,17 @@ These methods are used to select the sequences or horizontal/vertical subsets of
 
 sub eachSeq {
     my $self = shift;
-    $self->deprecated("eachSeq - deprecated method. Use each_Seq() instead.");
-    $self->each_Seq();
+    $self->deprecated("eachSeq - deprecated method. Use next_Seq() instead.");
+    $self->next_Seq();
 }
 
 sub each_seq {
     my $self = shift;
-    $self->deprecated("each_seq - deprecated method. Use each_Seq() instead.");
-    $self->each_Seq();
+    $self->deprecated("each_seq - deprecated method. Use next_Seq() instead.");
+    $self->next_Seq();
 }
 
-sub each_Seq {
+sub next_Seq {
 	my $self = shift;
 	my (@arr,$order);
 
@@ -1155,10 +1155,10 @@ sub each_Seq {
 }
 
 
-=head2 each_alphabetically
+=head2 next_alphabetically
 
- Title     : each_alphabetically
- Usage     : foreach $seq ( $aln->each_alphabetically() )
+ Title     : next_alphabetically
+ Usage     : foreach $seq ( $aln->next_alphabetically() )
  Function  : Returns a sequence object, but the objects are returned
              in alphabetically sorted order.
              Does not change the order of the alignment.
@@ -1168,10 +1168,17 @@ sub each_Seq {
 =cut
 
 sub each_alphabetically {
+    my $self = shift;
+    $self->deprecated("each_alphabetically - deprecated method. Use next_alphabetically() instead.");
+    $self->next_Seq();	
+}
+
+
+sub next_alphabetically {
 	my $self = shift;
 	my ($seq,$nse,@arr,%hash,$count);
 
-	foreach $seq ( $self->each_Seq() ) {
+	foreach $seq ( $self->next_Seq() ) {
 		$nse = $seq->get_nse;
 		$hash{$nse} = $seq;
 	}
@@ -1195,10 +1202,10 @@ sub _alpha_startend {
     }
 }
 
-=head2 each_Seq_with_id
+=head2 next_Seq_with_id
 
- Title     : each_Seq_with_id
- Usage     : foreach $seq ( $aln->each_Seq_with_id() )
+ Title     : next_Seq_with_id
+ Usage     : foreach $seq ( $aln->next_Seq_with_id() )
  Function  : Gets a Seq objects from the alignment, the contents
              being those sequences with the given name (there may be
              more than one)
@@ -1209,21 +1216,21 @@ sub _alpha_startend {
 
 sub eachSeqWithId {
     my $self = shift;
-    $self->deprecated("eachSeqWithId - deprecated method. Use each_Seq_with_id() instead.");
-    $self->each_Seq_with_id(@_);
+    $self->deprecated("eachSeqWithId - deprecated method. Use next_Seq_with_id() instead.");
+    $self->next_Seq_with_id(@_);
 }
 
 sub each_seq_with_id {
     my $self = shift;
-    $self->deprecated("each_seq_with_id - deprecated method. Use each_Seq_with_id() instead.");
-    $self->each_Seq_with_id(@_);
+    $self->deprecated("each_seq_with_id - deprecated method. Use next_Seq_with_id() instead.");
+    $self->next_Seq_with_id(@_);
 }
 
-sub each_Seq_with_id {
+sub next_Seq_with_id {
     my $self = shift;
     my $id = shift;
 
-    $self->throw("Method each_Seq_with_id needs a sequence name argument")
+    $self->throw("Method next_Seq_with_id needs a sequence name argument")
 	unless defined $id;
 
     my (@arr, $seq);
@@ -1413,7 +1420,7 @@ sub select_columns {
 	$aln->id($self->id);
 	my ($start,$end)=($newcoords->[0],$newcoords->[$#$newcoords]);
 	
-	foreach my $seq ( $self->each_Seq() ) {
+	foreach my $seq ( $self->next_Seq() ) {
 	    my $new_seq = $seq->isa('Bio::Seq::MetaI') ?
             Bio::Seq::Meta->new
         (-id      => $seq->id,
@@ -1588,7 +1595,7 @@ sub mask_columns {
 	$aln->id($self->id);
 	
 
-	foreach my $seq ( $self->each_Seq() ) {
+	foreach my $seq ( $self->next_Seq() ) {
 		my $new_seq = Bio::LocatableSeq->new(-id => $seq->id,
 				-alphabet => $seq->alphabet,
 				-strand  => $seq->strand,
@@ -1718,7 +1725,7 @@ sub map_chars {
     $self->throw("Need exactly two arguments")
 	unless defined $from and defined $to;
 
-    foreach $seq ( $self->each_Seq() ) {
+    foreach $seq ( $self->next_Seq() ) {
 	$temp = $seq->seq();
 	$temp =~ s/$from/$to/g;
 	$seq->seq($temp);
@@ -1742,7 +1749,7 @@ sub uppercase {
     my $seq;
     my $temp;
 
-    foreach $seq ( $self->each_Seq() ) {
+    foreach $seq ( $self->next_Seq() ) {
       $temp = $seq->seq();
       $temp =~ tr/[a-z]/[A-Z]/;
 
@@ -1766,7 +1773,7 @@ sub lowercase {
     my $seq;
     my $temp;
 
-    foreach $seq ( $self->each_Seq() ) {
+    foreach $seq ( $self->next_Seq() ) {
       $temp = $seq->seq();
       $temp =~ tr/[A-Z]/[a-z]/;
 
@@ -1791,7 +1798,7 @@ sub togglecase {
     my $seq;
     my $temp;
 
-    foreach $seq ( $self->each_Seq() ) {
+    foreach $seq ( $self->next_Seq() ) {
       $temp = $seq->seq();
       $temp =~ tr/[A-Za-z]/[a-zA-Z]/;
 
@@ -1833,7 +1840,7 @@ sub match {
     $matching_char = "\\$match" if $match =~ /[\^.$|()\[\]]/ ;  #';
     $self->map_chars($matching_char, '-');
 
-    my @seqs = $self->each_Seq();
+    my @seqs = $self->next_Seq();
     return 1 unless scalar @seqs > 1;
 
     my $refseq = shift @seqs ;
@@ -1877,7 +1884,7 @@ sub unmatch {
 		$match=$self->match_char();
 	}
 
-    my @seqs = $self->each_Seq();
+    my @seqs = $self->next_Seq();
     return 1 unless scalar @seqs > 1;
 
     my $refseq = shift @seqs ;
@@ -1935,7 +1942,7 @@ sub _consensus_aa {
     my $threshold_percent = shift || -1 ;
     my ($seq,%hash,$count,$letter,$key);
     my $gapchar = $self->gap_char;
-    foreach $seq ( $self->each_Seq() ) {
+    foreach $seq ( $self->next_Seq() ) {
 	$letter = substr($seq->seq,$point,1);
 	$self->throw("--$point-----------") if $letter eq '';
 	($letter eq $gapchar || $letter =~ /\./) && next;
@@ -1982,7 +1989,7 @@ sub consensus_iupac {
     my $len = $self->length-1;
 
     # only DNA and RNA sequences are valid
-    foreach my $seq ( $self->each_Seq() ) {
+    foreach my $seq ( $self->next_Seq() ) {
 	$self->throw("Seq [". $seq->get_nse. "] is a protein")
 	    if $seq->alphabet eq 'protein';
     }
@@ -1998,7 +2005,7 @@ sub _consensus_iupac {
     my ($string, $char, $rna);
 
     #determine all residues in a column
-    foreach my $seq ( $self->each_Seq() ) {
+    foreach my $seq ( $self->next_Seq() ) {
 	$string .= substr($seq->seq, $column, 1);
     }
     $string = uc $string;
@@ -2164,7 +2171,7 @@ sub bracket_string {
     $rd ||= ']';
     $sep ||= '/';
     my ($refseq, $allele1, $allele2) =
-        map {( $self->each_Seq_with_id($_) )} ($ref, $a1, $a2);
+        map {( $self->next_Seq_with_id($_) )} ($ref, $a1, $a2);
     if (!$refseq || !$allele1 || !$allele2) {
         $self->throw("One of your refseq/allele IDs is invalid!");
     }
@@ -2209,7 +2216,7 @@ sub cigar_line {
 
 	# create a precursor, something like (1,4,5,6,7,33,45),
 	# where each number corresponds to a conserved position
-	foreach my $seq ( $self->each_Seq ) {
+	foreach my $seq ( $self->next_Seq ) {
 		my @seq = split "", uc ($seq->seq);
 		my $pos = 1;
 		for (my $x = 0 ; $x < $len ; $x++ ) {
@@ -2284,7 +2291,7 @@ sub match_line {
 
 	my @seqchars;
 	my $alphabet;
-	foreach my $seq ( $self->each_Seq ) {
+	foreach my $seq ( $self->next_Seq ) {
 		push @seqchars, [ split(//, uc ($seq->seq)) ];
 		$alphabet = $seq->alphabet unless defined $alphabet;
 	}
@@ -2365,7 +2372,7 @@ sub gap_line {
     my ($self,$gapchar) = @_;
     $gapchar = $gapchar || $self->gap_char;
     my %gap_hsh; # column gaps vector
-    foreach my $seq ( $self->each_Seq ) {
+    foreach my $seq ( $self->next_Seq ) {
 		my $i = 0;
     	map {$gap_hsh{$_->[0]} = undef} grep {$_->[1] eq $gapchar}
 		  map {[$i++, $_]} split(//, uc ($seq->seq));
@@ -2392,7 +2399,7 @@ sub all_gap_line {
     my ($self,$gapchar) = @_;
     $gapchar = $gapchar || $self->gap_char;
     my %gap_hsh;		# column gaps counter hash
-    my @seqs = $self->each_Seq;
+    my @seqs = $self->next_Seq;
     foreach my $seq ( @seqs ) {
 	my $i = 0;
     	map {$gap_hsh{$_->[0]}++} grep {$_->[1] eq $gapchar}
@@ -2427,7 +2434,7 @@ sub gap_col_matrix {
     $gapchar = $gapchar || $self->gap_char;
     my %gap_hsh; # column gaps vector
     my @cols;
-    foreach my $seq ( $self->each_Seq ) {
+    foreach my $seq ( $self->next_Seq ) {
 	my $i = 0;
 	my $str = $seq->seq;
 	my $len = $seq->length;
@@ -2633,7 +2640,7 @@ sub symbol_chars{
    my ($self,$includeextra) = @_;
 
    unless ($self->{'_symbols'}) {
-       foreach my $seq ($self->each_Seq) {
+       foreach my $seq ($self->next_Seq) {
            map { $self->{'_symbols'}->{$_} = 1; } split(//,$seq->seq);
        }
    }
@@ -2689,7 +2696,7 @@ sub is_flush {
     my $length = (-1);
     my $temp;
 
-    foreach $seq ( $self->each_Seq() ) {
+    foreach $seq ( $self->next_Seq() ) {
 	if( $length == (-1) ) {
 	    $length = CORE::length($seq->seq());
 	    next;
@@ -2733,7 +2740,7 @@ sub length {
     my $length = -1;
     my $temp;
     
-    foreach $seq ( $self->each_Seq() ) {
+    foreach $seq ( $self->next_Seq() ) {
         $temp = $seq->length();
         if( $temp > $length ) {
             $length = $temp;
@@ -2774,7 +2781,7 @@ sub maxdisplayname_length {
     my $maxname = (-1);
     my ($seq,$len);
 
-    foreach $seq ( $self->each_Seq() ) {
+    foreach $seq ( $self->next_Seq() ) {
 	$len = CORE::length $self->displayname($seq->get_nse());
 
 	if( $len > $maxname ) {
@@ -2803,7 +2810,7 @@ sub max_metaname_length {
     my ($seq,$len);
     
     # check seq meta first
-    for $seq ( $self->each_Seq() ) {
+    for $seq ( $self->next_Seq() ) {
         next if !$seq->isa('Bio::Seq::MetaI' || !$seq->meta_names);
         for my $mtag ($seq->meta_names) {
             $len = CORE::length $mtag;
@@ -2842,7 +2849,7 @@ sub num_residues {
     my $self = shift;
     my $count = 0;
 
-    foreach my $seq ($self->each_Seq) {
+    foreach my $seq ($self->next_Seq) {
 	my $str = $seq->seq();
 
 	$count += ($str =~ s/[A-Za-z]//g);
@@ -2895,7 +2902,7 @@ sub average_percentage_identity{
        $self->throw("All sequences in the alignment must be the same length");
    }
 
-   @seqs = $self->each_Seq();
+   @seqs = $self->next_Seq();
    $len = $self->length();
 
    # load the each hash with correct keys for existence checks
@@ -2975,7 +2982,7 @@ sub overall_percentage_identity{
    my $len;
    my $total = 0; # number of positions with identical residues
    my @countHashes;
-   my @seqs = $self->each_Seq;
+   my @seqs = $self->next_Seq;
    my $nof_seqs = scalar @seqs;
    my $aln_len = $self->length();
    for my $seq (@seqs)  {
@@ -3046,7 +3053,7 @@ sub pairwise_percentage_identity {
        $self->throw("All sequences in the alignment must be the same length");
    }
 
-	foreach my $seq ( $self->each_Seq() ) {
+	foreach my $seq ( $self->next_Seq() ) {
 		push @seqs, $seq;
 		push @ids, $seq->display_id;
 	}
@@ -3138,7 +3145,7 @@ sub column_from_residue_number {
     $self->throw("No sequence with name [$name]") unless $self->{'_start_end_lists'}->{$name};
     $self->throw("Second argument residue number missing") unless $resnumber;
 
-    foreach my $seq ($self->each_Seq_with_id($name)) {
+    foreach my $seq ($self->next_Seq_with_id($name)) {
 	my $col;
 	eval {
 	    $col = $seq->column_from_residue_number($resnumber);
@@ -3250,7 +3257,7 @@ sub set_displayname_flat {
     my $self = shift;
     my ($nse,$seq);
 
-    foreach $seq ( $self->each_Seq() ) {
+    foreach $seq ( $self->next_Seq() ) {
 	$nse = $seq->get_nse();
 	$self->displayname($nse,$seq->id());
     }
@@ -3271,7 +3278,7 @@ sub set_displayname_normal {
     my $self = shift;
     my ($nse,$seq);
 
-    foreach $seq ( $self->each_Seq() ) {
+    foreach $seq ( $self->next_Seq() ) {
 	$nse = $seq->get_nse();
 	$self->displayname($nse,$nse);
     }
@@ -3298,7 +3305,7 @@ sub set_displayname_safe {
     my ($seq, %phylip_name);
     my $ct=0;
     my $new=Bio::SimpleAlign->new();
-    foreach $seq ( $self->each_Seq() ) {
+    foreach $seq ( $self->next_Seq() ) {
 	$ct++;
 	my $pname="S". sprintf "%0" . ($idlength-1) . "s", $ct;
 	$phylip_name{$pname}=$seq->id();
@@ -3331,7 +3338,7 @@ sub restore_displayname {
     my $ref=shift;
     my %name=%$ref;
     my $new=Bio::SimpleAlign->new();
-    foreach my $seq ( $self->each_Seq() ) {
+    foreach my $seq ( $self->next_Seq() ) {
       $self->throw("No sequence with name") unless defined $name{$seq->id()};
       my $new_seq= Bio::LocatableSeq->new(-id       => $name{$seq->id()},
 					  -seq      => $seq->seq(),
