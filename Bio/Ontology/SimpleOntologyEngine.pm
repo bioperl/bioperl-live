@@ -229,7 +229,7 @@ sub add_term {
     my ( $self, $term ) = @_;
     my $term_store = $self->_term_store;
 
-    if ( defined $term_store->{ $term->identifier } ) {
+    if ( defined $term_store->{ $term->identifier } && $self->_instantiated_terms_store->{ $term->identifier }) {
         $self->throw( "term " . $term->identifier . " already defined\n" );
     } else {
         $term_store->{ $term->identifier } = $term;
