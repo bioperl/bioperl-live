@@ -397,6 +397,7 @@ sub remove_LocatableSeq {
     $start = $seq->start();
     $end  = $seq->end();
     $name = sprintf("%s/%d-%d",$id,$start,$end);
+    
 
     if( !exists $self->{'_seq'}->{$name} ) {
 	$self->throw("Sequence $name does not exist in the alignment to remove!");
@@ -2873,7 +2874,7 @@ sub num_residues {
 
 sub num_sequences {
     my $self = shift;
-    return scalar(keys %{$self->{'_order'}});
+    return scalar($self->next_Seq);
 }
 
 
