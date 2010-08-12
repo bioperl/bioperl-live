@@ -14,32 +14,26 @@ BEGIN {
     use_ok('Bio::SeqFeature::Generic');
     use_ok('Bio::Location::Simple');
     use_ok('Bio::Location::Split');
+    
 }
 
 my $DEBUG = test_debug();
 
-my ( $str, $aln, @seqs, $seq );
+my ( $str, $aln, $aln1,@seqs, $seq );
 
 $str = Bio::AlignIO->new( -file => test_input_file('testaln.pfam') );
 isa_ok( $str, 'Bio::AlignIO' );
 $aln = $str->next_aln();
 is $aln->get_Seq_by_pos(1)->get_nse, '1433_LYCES/9-246', "pfam input test";
 
-my $aln1 = $aln->remove_columns([]);
-is(
-    $aln1->match_line,
-    '::*::::*:**:*:*:***:**.***::*.*::**::**:***..**:'
-      . '*:*.::::*:.:*.*.**:***.**:*.:.**::**.*:***********:::*:.:*:**.*::*:'
-      . '.*.:*:**:****************::',
-    'match_line'
-);
+
 
 my $aln2 = $aln->select_Seqs([1..3]);
 isa_ok( $aln2, 'Bio::Align::AlignI' );
 is( $aln2->num_sequences, 3, 'num_sequences' );
 
 # test select non continuous-sorted by default
-$aln2 = $aln->select_Seqs([1..2]);
+$aln2 = $aln->select_Seqs([1,2,3,4,5,6,7,8,9,10]);
 is( $aln2->num_sequences, 10, 'num_sequences' );
 is(
     $aln2->get_Seq_by_pos(2)->id,
@@ -53,7 +47,7 @@ is(
 );
 
 # test select non continuous-nosort option
-$aln2 = $aln->select_Seqs('nosort');
+$aln2 = $aln->select_Seqs([1,2,3,4,5,6,7,8,9,10]);
 is( $aln2->num_sequences, 10, 'num_sequences' );
 is(
     $aln2->get_Seq_by_pos(2)->id,
@@ -145,6 +139,15 @@ ok( ( $aln->gap_char(),     '-' ) and ( $aln->gap_char('.'),     '.' ) );
 is $aln->remove_redundant_Seqs(0.7), 12, 'purge';
 is $aln->num_sequences, 4, 'purge';
 
+$aln->remove_columns(['mismatch']);
+is(
+    $aln->match_line,
+    '::*::::*:**:*:*:***:**.***::*.*::**::**:***..**:'
+      . '*:*.::::*:.:*.*.**:***.**:*.:.**::**.*:***********:::*:.:*:**.*::*:'
+      . '.*.:*:**:****************::',
+    'match_line'
+);
+
 SKIP: {
     test_skip( -tests => 24, -requires_module => 'IO::String' );
 
@@ -216,7 +219,7 @@ SKIP: {
     $a->verbose(-1);
     $out->setpos(0);
     $string = '';
-    $b = $a->select_columns([1..1]0,1);
+    $b = $a->select_columns([1..1],0,1);
     $strout->write_aln($b);
     is $string,
       "AAA/1-1    a\n" . "BBB/1-0    -\n",
@@ -240,7 +243,7 @@ SKIP: {
     $string = '';
     $str    = Bio::AlignIO->new( -file => test_input_file('mini-align.aln') );
     $aln1   = $str->next_aln;
-    $aln2   = $aln1->remove_columns([]);
+    $aln2   = $aln1->select_Seqs([1],1);
     $strout->write_aln($aln2);
     is $string,
         "P84139/2-33              NEGEHQIKLDELFEKLLRARLIFKNKDVLRRC\n"
@@ -252,7 +255,7 @@ SKIP: {
     # and when arguments are entered in "wrong order"?
     $out->setpos(0);
     $string = '';
-    my $aln3 = $aln1->remove_columns([]);
+    my $aln3 = $aln1->select_Seqs([2,6,7,31],1);
     $strout->write_aln($aln3);
     is $string,
         "P84139/1-33              MEGEIKLDELFEKLLRARLIFKNKDVLRC\n"
@@ -414,7 +417,7 @@ my $i          = 0;
 my @slice_lens = qw(1 1 2 2);
 for my $feature ( $aln->get_SeqFeatures ) {
     for my $loc ( $feature->location->each_Location ) {
-        my $masked = $aln->mask_columns( $loc->start, $loc->end, '?');
+        my $masked = $aln->mask_columns([$loc->start..$loc->end]);
         TODO: {
             local $TODO = "This should pass but dies; see bug 2842";
             $masked->verbose(2);
@@ -712,7 +715,7 @@ $aln->add_Seq($h);
 # test for new method in API get_seq_by_id
 my $retrieved = $aln->get_Seq_by_id('g');
 is( defined $retrieved, 1 );
-my $removed = $aln->remove_columns([]);
+my $removed = $aln->select_Seqs([2,3,4],1);
 foreach my $seq ( $removed->next_Seq ) {
     if ( $seq->id eq 'g' ) {
         is $seq->start, 5;
@@ -755,7 +758,7 @@ BAB68554/1-141            --------------------MLTEDDKQLIQHVWEKVLEHQEDFGAEALERMFI
 gb|443893|124775/1-331    -MRFRFGVVVPPAVAGARPELLVVGSRPELG-RWEPRGAVRLRPAGTAAGDGALALQEPGLWLGEVELA-AEEAAQDGAEPGRVDTFWYKFLKREPGGELSWEGNGPHHDRCCTYNENNLVDGVYCLPIG---HWGEATGHTNEMKHTTDFYFNIAGHQAMHYSRILPNIWLGSCPRQVEHVTIKLKHELGITAVMN-FQTEWDIVQNSSGCNRYPEPMTPDTMIKLYREEGLAYIWMP-TPDMSTEGRVQMLPQAVCLLHALLEKGHIVY-----VHCNAGVGRSTAAVCGWLQYVMGWNLRKVQYFLMAKRPAVYIDEEALARAQEDFFQKFGKVRSSVCSL------------------------------------------------------------------------------
 EOA
 
-    my $newaln = $aln->mask_columns(12,20,'?');
+    my $newaln = $aln->mask_columns([12..20]);
     is( aln2str( $newaln, 'pfam' ), <<EOA, 'looks like correct masked alignment (from clustalw)' );
 P84139/1-420              MNEGEHQIKLD?????????RKIFKNKDVLRHSYTPKDLPLRHEQIETLAQILVPVLRGETPSNIFVYG-KTGTGKTVTVK-FVTEELKRISEKYNIPVDVIYINCEIVDTHYRVLANIVNYFKDETGIGVPMVGWPTDEVYAKLKQVIDMKERFVIIVLDEIDKLVKKSGDEVLYSLTRINTELKRAKVSVIGISNDLKFKEYLDPRVLSSLSEEEVVFPPYDANQLRDILTQRAEEAFYPGVLDEGVIPLCAALAAREHGDARKALDLLRVAGEIAEREGASKVTEKHVWKAQEKIEQDMMEEVIKTRPLQSKVLLYAIVLLDENGDLPANTGDVYAVYRELCEYIDLEPLTQRRISDLINELDMLGIINAKVVSKGRYGRTKEIRLNVTSYKIRNVLRYDYSIQPLLTISLKSEQRRLI
 P814153/1-420             MNEGMHQIKLD?????????RKIFKNKDVLRHSYTPKDLPHRHEQIETLAQILVPVLRGETPSNIFVYG-KTGTGKTVTVK-FVTEELKRISEKYNIPVDVIYINCEIVDTHYRVLANIVNYFKDETGIEVPMVGWPTDEVYAKLKQVIDMKERFVIIVLDEIDKLVKKSGDEVLYSLTRINTELKRAKVSVIGISNDLKFKEYLDPRVLSSLSEEEVVFPPYDANQLRDILTQRAEEAFYPGVLDEGVIPLCAALAAREHGDARKALDLLRVAGEIAEREGASKVTEKHVWKAQEKIEQDMMEEVIKTLPLQSKVLLYAIVLLDENGDLPANTGDVYAVYRELCEYIDLEPLTQRRISDLINELDMLGIINAKVVSKGRYGRTKEIRLMVTSYKIRNVLRYDYSIQPLLTISLKSEQRRLI
@@ -785,7 +788,7 @@ new          AAAATGGNGG TGGTN----N GGTNCCNTNN NNNNNNN
 
 EOU
 
-    $newaln = $aln->mask_columns(15,20,'?');
+    $newaln = $aln->mask_columns([15..20]);
     is( aln2str( $newaln,'phylip' ), <<EOU, 'align after looks ok' );
  3 37
 seq1         AAAATGGGGG TGGT------ GGTACCT--- ------- 
