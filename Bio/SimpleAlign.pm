@@ -1601,10 +1601,12 @@ sub mask_columns {
 				-strand  => $seq->strand,
 				-verbose => $self->verbose);
 		my $dna_string=$seq->seq();
+		my $masked_string;
 		for(my $num=0;$num<@newcoords;) {
-			my ($start,$end)=@newcoords[$num,$num+1];    
-			# convert from 1-based alignment coords!
-			substr($dna_string,$start - 1, $end - $start + 1)=$mask_char x ($end - $start + 1);
+			my ($start,$end)=@newcoords[$num,$num+1];
+			$masked_string = substr($dna_string, $start - 1, $end - $start + 1);
+         $masked_string =~ s{[^$nonres]}{$mask_char}g;
+         $dna_string = substr($dna_string,0,$start-1) . $masked_string . substr($dna_string,$end);    
 			$num+=2;
 		}
 		$new_seq->seq($dna_string);
