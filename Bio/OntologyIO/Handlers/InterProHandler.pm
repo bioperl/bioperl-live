@@ -404,16 +404,13 @@ sub _create_relationship {
     }
     my $rel_type_name = $self->_top( $self->_names );
 
-    # commented out; assumption that terms need to be inverted is not correct -
-    # cjfields
-    
-    #if ( $rel_type_name eq 'parent_list' || $rel_type_name eq 'found_in' ) {
-            #$rel->object_term($term_temp);
-            #$rel->subject_term( $self->_term );
-    #} else {
+    if ( $rel_type_name eq 'parent_list' || $rel_type_name eq 'found_in' ) {
+        $rel->object_term($term_temp);
+        $rel->subject_term( $self->_term );
+    } else {
         $rel->object_term( $self->_term );
         $rel->subject_term($term_temp);
-    #}
+    }
     $rel->ontology($ont);
     $ont->add_relationship($rel);
 }
