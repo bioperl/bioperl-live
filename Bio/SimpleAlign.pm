@@ -375,13 +375,13 @@ sub add_Seq {
 sub removeSeq {
     my $self = shift;
     $self->deprecated("removeSeq - deprecated method. Use remove_seq() instead.");
-    $self->remove_seq(@_);
+    $self->remove_LocatableSeq(@_);
 }
 
 sub remove_seq {
     my $self = shift;
     $self->deprecated("remove_seq - deprecated method. Use remove_LocatableSeq() instead.");
-    $self->remove_seq(@_);	
+    $self->remove_LocatableSeq(@_);	
 }
 
 
@@ -1378,8 +1378,8 @@ sub select_noncont {
              Second optional boolean which if true will keep gap-only columns in the newly
              created slice. Example:
 
-             $aln2 = $aln->select_columns([20,30],0,1)
-             or $aln2 = $aln->select_columns(-selection=>[20,30],-toggle=>0,-keepgaponly=>1)
+             $aln2 = $aln->select_columns([20..30],0,1)
+             or $aln2 = $aln->select_columns(-selection=>[20..30],-toggle=>0,-keepgaponly=>1)
 
 =cut
 
