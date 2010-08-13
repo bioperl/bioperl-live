@@ -1387,14 +1387,16 @@ sub select_noncont {
 =head2 select_columns
 
  Title     : select_columns
- Usage     : $newaln = $aln->select_columns([20..30,45..48])
+ Usage     : $newaln = $aln->select_columns([20..30,45..48]);
+             $newaln = $aln->select_columns(['mismatch']);
  Function  : Creates a slice from the alignment from the selected columns. 
              The first column in the alignment is denoted 1.
              Sequences with no residues in the slice are excluded from the
              new alignment and a warning is printed. Slice beyond the length
              of the sequence does not do padding.
  Returns   : A Bio::SimpleAlign object
- Args      : Positive integers for the selected colums
+ Args      : Positive integers for the selected colums, or specified type
+             ('match'|'weak'|'strong'|'mismatch')
              First optional boolean can be defined to toggle the coordinate 
              selection. Second optional boolean which if true will keep gap-only 
              columns in the newly created slice. Example:
@@ -1416,14 +1418,18 @@ sub select_columns {
 	#my ($start, $end, $keep_gap_only) = @_;
 	my ($sel, $toggle,$keep_gap_only) = $self->_rearrange([qw(SELECTION TOGGLE KEEPGAPONLY)], @_);
 	
+	if($sel->[0]=~/^[a-z]/i) {
+		$sel=$self->_select_columns_by_type($sel);
+	}
+	
 	@{$sel}=sort {$a<=$b} @{$sel};
 
 	#warnings
-	$self->throw("Slice start has to be a positive integer, not [".$sel->[0]."]")
+	$self->throw("select_columns start has to be a positive integer, not [".$sel->[0]."]")
 	  unless $sel->[0] =~ /^\d+$/ and $sel->[0] > 0;
-	$self->throw("Slice end has to be a positive integer, not [".$sel->[$#$sel]."]")
+	$self->throw("select_columns end has to be a positive integer, not [".$sel->[$#$sel]."]")
 	  unless $sel->[$#$sel] =~ /^\d+$/ and $sel->[$#$sel] > 0;
-	$self->throw("This alignment has only ". $self->length . " residues. Slice start " .
+	$self->throw("This alignment has only ". $self->length . " residues. select_columns start " .
 					 "[".$sel->[0]."] is too big.") if $sel->[0] > $self->length;
 
 	my $newcoords;
@@ -1517,6 +1523,45 @@ sub select_columns {
     # fix for meta, sf, ann
 	return $aln;
 }
+
+
+sub _select_columns_by_type {
+	#code copied from _remove_columns_by_type to enable selecting columns by type
+	my ($self,$type) = @_;
+	my @selects;
+
+	my $gap = $self->gap_char if (grep { $_ eq 'gaps'} @{$type});
+	my $all_gaps_columns = $self->gap_char if (grep /all_gaps_columns/,@{$type});
+	my %matchchars = ( 'match'           => '\*',
+                       'weak'             => '\.',
+                       'strong'           => ':',
+                       'mismatch'         => ' ',
+                     );
+	# get the characters to delete against
+	my $del_char;
+	foreach my $type (@{$type}){
+		$del_char.= $matchchars{$type};
+	}
+
+	my $length = 0;
+	my $match_line = $self->match_line;
+	# do the matching to get the segments to remove
+	if($del_char){
+		while($match_line =~ m/[$del_char]/g ){
+			my $start = pos($match_line);
+			$match_line=~/\G[$del_char]+/gc;
+			my $end = pos($match_line);
+
+			#have to offset the start and end for subsequent removes
+			push @selects, $start..$end;
+		}
+	}
+
+	# remove the segments
+	return \@selects;
+}
+
+
 
 =head2 remove_gaps
 

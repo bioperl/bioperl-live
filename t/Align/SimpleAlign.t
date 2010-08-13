@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 199 );
+    test_begin( -tests => 194 );
 
     use_ok('Bio::SimpleAlign');
     use_ok('Bio::AlignIO');
@@ -49,16 +49,6 @@ is(
 # test select non continuous-nosort option
 $aln2 = $aln->select_Seqs([1,2,3,4,5,6,7,8,9,10]);
 is( $aln2->num_sequences, 10, 'num_sequences' );
-is(
-    $aln2->get_Seq_by_pos(2)->id,
-    $aln->get_Seq_by_pos(7)->id,
-    'select_noncont'
-);
-is(
-    $aln2->get_Seq_by_pos(8)->id,
-    $aln->get_Seq_by_pos(3)->id,
-    'select_noncont'
-);
 
 @seqs = $aln->next_Seq();
 is scalar @seqs, 16, 'each_seq';
@@ -136,9 +126,12 @@ ok( ( $aln->missing_char(), 'P' ) and ( $aln->missing_char('X'), 'X' ) );
 ok( ( $aln->match_char(),   '.' ) and ( $aln->match_char('-'),   '-' ) );
 ok( ( $aln->gap_char(),     '-' ) and ( $aln->gap_char('.'),     '.' ) );
 
-is $aln->remove_redundant_Seqs(0.7), 12, 'purge';
+is my @removed_seqs=$aln->remove_redundant_Seqs(0.7), 12, 'purge';
 is $aln->num_sequences, 4, 'purge';
 
+foreach my $seq (@removed_seqs) {
+	$aln->add_Seq($seq);
+}
 $aln->remove_columns(['mismatch']);
 is(
     $aln->match_line,
@@ -243,7 +236,7 @@ SKIP: {
     $string = '';
     $str    = Bio::AlignIO->new( -file => test_input_file('mini-align.aln') );
     $aln1   = $str->next_aln;
-    $aln2   = $aln1->select_Seqs([1],1);
+    $aln2   = $aln1->select_columns([1],1);
     $strout->write_aln($aln2);
     is $string,
         "P84139/2-33              NEGEHQIKLDELFEKLLRARLIFKNKDVLRRC\n"
@@ -255,7 +248,7 @@ SKIP: {
     # and when arguments are entered in "wrong order"?
     $out->setpos(0);
     $string = '';
-    my $aln3 = $aln1->select_Seqs([2,6,7,31],1);
+    my $aln3 = $aln1->select_columns([2,6,7,31],1);
     $strout->write_aln($aln3);
     is $string,
         "P84139/1-33              MEGEIKLDELFEKLLRARLIFKNKDVLRC\n"
@@ -715,7 +708,7 @@ $aln->add_Seq($h);
 # test for new method in API get_seq_by_id
 my $retrieved = $aln->get_Seq_by_id('g');
 is( defined $retrieved, 1 );
-my $removed = $aln->select_Seqs([2,3,4],1);
+my $removed = $aln->select_columns([2,3,4],1);
 foreach my $seq ( $removed->next_Seq ) {
     if ( $seq->id eq 'g' ) {
         is $seq->start, 5;
