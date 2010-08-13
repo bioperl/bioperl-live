@@ -13,6 +13,7 @@
 #  History:
 #	11/3/00 Added threshold feature to consensus and consensus_aa  - PS
 #	May 2001 major rewrite - Heikki Lehvaslaiho
+#	August 2010 refactoring - Jun Yin
 
 =head1 NAME
 
@@ -46,11 +47,13 @@ Bio::SimpleAlign - Multiple alignments held as a set of sequences
   }
 
   # Manipulate
-  $aln->remove_seq($seq);
-  $mini_aln = $aln->slice(20,30);  # get a block of columns
-  $mini_aln = $aln->select_noncont(1,3,5,7,11); # select certain sequences
-  $new_aln = $aln->remove_columns([20,30]); # remove by position
-  $new_aln = $aln->remove_columns(['mismatch']); # remove by property
+  $aln->remove_LocatableSeq($seq);
+  $mini_aln = $aln->select_columns([20..30,45..48])  # get a block of columns
+  #more parameters
+  $mini_aln = $aln->select_columns(-selection=>[20..30],-toggle=>0,-keepgaponly=>1)
+  $mini_aln = $aln->select_Seqs([1,5..10,15]) # select certain sequences
+  $aln->remove_columns([20..30]); # remove by position
+  $aln->remove_columns(['mismatch']); # remove by property
 
   # Analyze
   $str = $aln->consensus_string($threshold_percent);
@@ -83,6 +86,8 @@ C<displayname>, and generally is what is used to print out the
 alignment. They default to name/start-end.
 
 The SimpleAlign Module is derived from the Align module by Ewan Birney.
+This package is refactored by Jun Yin as part of the Google Summer of 
+Code project in 2010.
 
 =head1 FEEDBACK
 
@@ -133,6 +138,7 @@ Weigang Qiu, Weigang at GENECTR-HUNTER-CUNY-EDU
 Hongyu Zhang, forward at hongyu.org
 Jay Hannah, jay at jays.net
 Alexandr Bezginov, albezg at gmail.com
+Jun Yin, jun dot yin at ucd dot ie
 
 =head1 SEE ALSO
 
@@ -200,10 +206,13 @@ use base qw(Bio::Root::Root Bio::Align::AlignI Bio::AnnotatableI
  Args      : -source     => string representing the source program
                             where this alignment came from
              -annotation => Bio::AnnotationCollectionI
-             -seq_annotation => Bio::AnnotationCollectionI for sequences (requires -annotation also be set)
-             -seqs       => array ref containing Bio::LocatableSeq or Bio::Seq::Meta
+             -seq_annotation => Bio::AnnotationCollectionI for sequences
+                                 (requires -annotation also be set)
+             -seqs       => array ref containing Bio::LocatableSeq 
+                                                 or Bio::Seq::Meta
              -consensus  => consensus string
-             -consensus_meta  => Bio::Seq::Meta object containing consensus met information (kludge)
+             -consensus_meta  => Bio::Seq::Meta object containing 
+                                 consensus met information (kludge)
 
 =cut
 
@@ -266,8 +275,8 @@ sub new {
 
 =head1 Alignment modifier methods
 
-These methods modify the original MSA by adding, removing or shuffling complete
-sequences.
+These methods modify the original MSA by adding, removing or shuffling 
+complete sequences.
 
 =head2 add_Seq
 
@@ -444,8 +453,9 @@ sub remove_LocatableSeq {
  Usage     : $aln->remove_Seqs([1,3,5..7]);
  Function  : Removes specified sequences from the alignment
  Returns   : 1 
- Argument  : An reference list of positive integers for the selected sequences
-             An optional parameter can be defined to toggle the coordinate selection.
+ Argument  : An reference list of positive integers for the selected 
+             sequences. An optional parameter can be defined to toggle 
+             the coordinate selection.
 
 =cut
 
@@ -760,10 +770,15 @@ sub _remove_col {
 				$seq->seq($sequence) if $sequence;
 				
             #calculate the new end
-            if (($end + 1) >= CORE::length($orig)) {
-                my $end_adjust = () = substr($orig, $start) =~ /$gap/g;
-                $seq->end($seq->end - (CORE::length($orig) - $start) + $end_adjust);
-            }
+            #if (($end + 1) >= CORE::length($orig)) {
+            #	print STDERR "SA2:$end\t,",CORE::length($orig),"\n";
+             #   my $end_adjust = () = substr($orig, $start) =~ /$gap/g;
+             #   $seq->end($seq->end - (CORE::length($orig) - $start) + $end_adjust-1);
+            #}
+            #else {
+            #	print STDERR "SA:",$seq->display_id(),"\t",$seq->_ungapped_len,"\t",$seq->start,"\n";
+            	$seq->end($seq->_ungapped_len+$seq->start-1);
+            #}
         }
         
         if ($seq->end < $seq->start) {
@@ -933,7 +948,8 @@ sub sort_alphabetically {
  Usage     : $aln_ordered=$aln->sort_by_list($list_file)
  Function  : Arbitrarily order sequences in an alignment
  Returns   : A new Bio::SimpleAlign object
- Argument  : a file listing sequence names in intended order (one name per line)
+ Argument  : a file listing sequence names in intended order 
+             (one name per line)
 
 =cut
 
@@ -968,10 +984,11 @@ sub sort_by_list {
 
  Title     : sort_by_pairwise_identity()
  Usage     : $ali->sort_by_pairwise_identity(2)
- Function  : Changes the order of the alignment to the pairwise percentage identity of the reference sequence
+ Function  : Changes the order of the alignment by the pairwise percentage 
+             identity of the reference sequence
  Returns   : 1
- Argument  : Optional, the position or id of reference sequences to be compared with
-             Default is the first sequence
+ Argument  : Optional, the position or id of reference sequences to be compared 
+             with. Default is the first sequence
 
 =cut
 
@@ -1002,7 +1019,8 @@ sub sort_by_pairwise_identity {
 
  Title     : sort_by_length()
  Usage     : $ali->sort_by_length()
- Function  : Changes the order of the alignment by the ungapped length of the sequences
+ Function  : Changes the order of the alignment by the ungapped length of 
+              the sequences
  Returns   : 1
  Argument  : None
 
@@ -1033,8 +1051,8 @@ sub sort_by_length {
 
  Title     : sort_by_start
  Usage     : $ali->sort_by_start
- Function  : Changes the order of the alignment to the start position of each
-             subalignment    
+ Function  : Changes the order of the alignment to the start position of 
+             each subalignment    
  Returns   : 1
  Argument  : None
 
@@ -1067,9 +1085,9 @@ sub _startend
 =head2 set_new_reference
 
  Title     : set_new_reference
- Usage     : $aln->set_new_reference(3 or 'B31'):  Select the 3rd sequence, or
-             the sequence whoes name is "B31" (full, exact, and case-sensitive),
-             as the reference (1st) sequence
+ Usage     : $aln->set_new_reference(3 or 'B31'):  Select the 3rd sequence, 
+             or the sequence whoes name is "B31" (full, exact, and 
+             case-sensitive), as the reference (1st) sequence
  Function  : Change/Set a new reference (i.e., the first) sequence
  Returns   : a new Bio::SimpleAlign object.
              Throws an exception if designated sequence not found
@@ -1119,7 +1137,8 @@ sub _in_aln {  # check if input name exists in the alignment
 
 =head1 Alignment selection methods
 
-These methods are used to select the sequences or horizontal/vertical subsets of the current MSA.
+These methods are used to select the sequences or horizontal/vertical 
+subsets of the current MSA.
 
 =head2 next_Seq
 
@@ -1315,8 +1334,9 @@ sub get_Seq_by_id {
              sequences.  Numbering starts from 1.  Sequence positions
              larger than num_sequences() will thow an error.
  Returns   : a Bio::SimpleAlign object
- Args      : An reference list of positive integers for the selected sequences
-             An optional parameter can be defined to toggle the coordinate selection.
+ Args      : An reference list of positive integers for the selected 
+             sequences. An optional parameter can be defined to toggle the 
+             coordinate selection.
              
 
 =cut
@@ -1371,13 +1391,13 @@ sub select_noncont {
  Function  : Creates a slice from the alignment from the selected columns. 
              The first column in the alignment is denoted 1.
              Sequences with no residues in the slice are excluded from the
-             new alignment and a warning is printed. Slice beyond the length of
-             the sequence does not do padding.
+             new alignment and a warning is printed. Slice beyond the length
+             of the sequence does not do padding.
  Returns   : A Bio::SimpleAlign object
  Args      : Positive integers for the selected colums
-             First optional boolean can be defined to toggle the coordinate selection.
-             Second optional boolean which if true will keep gap-only columns in the newly
-             created slice. Example:
+             First optional boolean can be defined to toggle the coordinate 
+             selection. Second optional boolean which if true will keep gap-only 
+             columns in the newly created slice. Example:
 
              $aln2 = $aln->select_columns([20..30],0,1)
              or $aln2 = $aln->select_columns(-selection=>[20..30],-toggle=>0,-keepgaponly=>1)
@@ -1559,8 +1579,9 @@ sub splice_by_seq_pos{
              Mask beyond the length of the sequence does not do padding.
  Returns   : A Bio::SimpleAlign object
  Args      : Positive integers should be used to defined the column numbers
-             The mask character should be defined by $aln->mask_char() or "?" as default
-             An optional parameter can be defined to toggle the coordinate selection.
+             The mask character should be defined by $aln->mask_char() or "?" as 
+             default. An optional parameter can be defined to toggle the 
+             coordinate selection.
  Note      : 
 
 =cut
@@ -2886,11 +2907,11 @@ sub num_sequences {
            percentage identity of the alignment
  Returns : The average percentage identity of the alignment
  Args    : None
- Notes   : This method implemented by Kevin Howe calculates a figure that is
-           designed to be similar to the average pairwise identity of the
-           alignment (identical in the absence of gaps), without having to
-           explicitly calculate pairwise identities proposed by Richard Durbin.
-           Validated by Ewan Birney ad Alex Bateman.
+ Notes   : This method implemented by Kevin Howe calculates a figure that
+           is designed to be similar to the average pairwise identity of 
+           the alignment (identical in the absence of gaps), without having
+           to explicitly calculate pairwise identities proposed by Richard 
+           Durbin. Validated by Ewan Birney ad Alex Bateman.
 
 =cut
 
@@ -3038,10 +3059,12 @@ sub overall_percentage_identity{
 
  Title     : pairwise_percentage_identity()
  Usage     : @pairwiseiden=$ali->pairwise_percentage_identity(3)
- Function  : Returns pairwise percentage identity of each sequence to the reference sequence(first sequence as default), or selected sequence
+ Function  : Returns pairwise percentage identity of each sequence to the 
+             reference sequence(first sequence as default), or selected sequence
  				 See set_new_reference for information on reference sequence
  Returns   : A list of percentage identity to the reference sequence
- Argument  : A number for the position of the reference sequence or the sequence name of the reference sequence
+ Argument  : A number for the position of the reference sequence or the 
+             sequence name of the reference sequence
 
 =cut
 
