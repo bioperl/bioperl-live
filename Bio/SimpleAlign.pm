@@ -1475,7 +1475,13 @@ sub select_columns {
 	    $new_seq->seq( $slice_seq );
 
 	    $slice_seq =~ s/\W//g;
-
+	    my $pre_start_seq = $seq->subseq(1, $start - 1);
+	    my $after_end_seq = $seq->subseq($end+1,CORE::length($seq->seq()));
+	    
+		#How to calculate the new start and new end
+		#new_start=old_start+pre_start-1
+		#new_end=old_end-after_end+1
+		#in order to pass the $seq->end test
 	    if ($start > 1) {
             my $pre_start_seq = $seq->subseq(1, $start - 1);
             $pre_start_seq =~ s/\W//g;
