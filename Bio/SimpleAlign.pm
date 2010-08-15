@@ -1441,7 +1441,6 @@ sub select_columns {
 		$newcoords=_cont_coords($sel);
 	}
 
-
     my $cons_meta = $self->consensus_meta;
 	my $aln = $self->new;
 	$aln->id($self->id);
@@ -1474,37 +1473,63 @@ sub select_columns {
 	    
 	    $new_seq->seq( $slice_seq );
 
-	    $slice_seq =~ s/\W//g;
-	    my $pre_start_seq = $seq->subseq(1, $start - 1);
-	    my $after_end_seq = $seq->subseq($end+1,CORE::length($seq->seq()));
-	    
 		#How to calculate the new start and new end
 		#new_start=old_start+pre_start-1
 		#new_end=old_end-after_end+1
-		#in order to pass the $seq->end test
-	    if ($start > 1) {
-            my $pre_start_seq = $seq->subseq(1, $start - 1);
-            $pre_start_seq =~ s/\W//g;
-            if (!defined($seq->strand)) {
-                $new_seq->start( $seq->start + CORE::length($pre_start_seq) );
-            } elsif ($seq->strand < 0){
-                $new_seq->start( $seq->end - CORE::length($pre_start_seq) - CORE::length($slice_seq) + 1);
-            } else {
-                $new_seq->start( $seq->start + CORE::length($pre_start_seq)  );
-            }
-	    } else {
-            if ((defined $seq->strand)&&($seq->strand < 0)){
-                $new_seq->start( $seq->end - CORE::length($slice_seq) + 1);
-            } else {
-               $new_seq->start( $seq->start);
-            }
-	    }
+		#in order to pass the $seq->end test, we should assign a fake start first
+		
+		#all the non residue chars
+		my $nonres = join("",$self->gap_char, $self->match_char,$self->missing_char);
+	   
+	   my $slice_length=($slice_seq =~s/([^\Q$nonres\E])/$1/g);
+	   my ($newstart, $newend, $fakestart, $oldend);
+	   my ($pre_start_seq,$pre_start_length,$after_end_seq,$after_end_length);
+	   
+	   
+	   if($end>=CORE::length($seq->seq())) {
+	   	$after_end_length=0;
+	   }
+	   else {
+	   	$after_end_seq = $seq->subseq($end+1,CORE::length($seq->seq()));	
+	   	$after_end_length=($after_end_seq=~s/([^\Q$nonres\E])/$1/g); #need to check
+	   }
+		
+	   if($start>1) {
+	   	
+		   my $pre_start_seq = $seq->subseq(1, $start - 1);
+			my $pre_start_length=($pre_start_seq=~s/([^\Q$nonres\E])/$1/g); #need to check
+			if (defined($seq->strand) && $seq->strand < 0){
+				$newend=$seq->end-$pre_start_length;
+				$fakestart=$newend-$slice_length+1;
+				$newstart=$seq->start+$after_end_length;				
+			}
+			else {
+				$newend=$seq->end-$after_end_length;
+				$fakestart=$newend-$slice_length+1;
+				$newstart=$seq->start+$pre_start_length;
+			}
+		}
+		else {
+			if (defined($seq->strand) && $seq->strand < 0){
+				$newend=$seq->end;
+				$fakestart=$newend-$slice_length+1;
+				$newstart=$seq->start+$after_end_length;
+			}
+			else {
+				$newend=$seq->end-$after_end_length;
+				$fakestart=$newend-$slice_length+1;
+				$newstart=$seq->start;
+			}			
+		}
+		$new_seq->start($fakestart);
+		$new_seq->end($newend);
+		$new_seq->start($newstart);
+
         if ($new_seq->isa('Bio::Seq::MetaI')) {
             for my $meta_name ($seq->meta_names) {
                 $new_seq->named_meta($meta_name, $seq->named_submeta($meta_name, $start, $end));
             }
         }
-	    $new_seq->end( $new_seq->start + CORE::length($slice_seq) - 1 );
 
 	    if ($new_seq->start and $new_seq->end >= $new_seq->start) {
             $aln->add_Seq($new_seq);
