@@ -695,169 +695,27 @@ sub _convert_leading_ending_gaps {
  Title     : remove_columns
  Usage     : $aln->remove_columns(['mismatch','weak']) or
              $aln->remove_columns([3,6..8]) or
-             $aln->remove_columns(-pos=>[3,6..8],-toggle=>T)
+             $aln->remove_columns(-selection=>[3,6..8],-toggle=>1,-keepgaponly=>0)
  Function  : Modify the aligment with columns removed corresponding to
              the specified type or by specifying the columns by number.
-             If you dont want to modify the alignment, 
-             you can use select_columns instead
+             remove_columns is a variance of select_columns(-toogle=>1)
  Returns   : 1
  Args      : Array ref of types ('match'|'weak'|'strong'|'mismatch') 
              or array ref where the referenced array
              contains a pair of integers that specify a range.
              use remove_gaps to remove columns containing gaps
              The first column is 1
+             See also select_columns
 
 =cut
 
 sub remove_columns {
 	my ($self,@args) = @_;
    @args || $self->throw("Must supply column ranges or column types");
-   my ($aln,$cont_loc);
-	if(@args) {
-		if(ref($args[0]) && $args[0][0] =~ /^[a-z_]+$/i) {
-			$self->_remove_columns_by_type($args[0]);
-		}
-		else {
-			my ($sel, $toggle) = $self->_rearrange([qw(SELECTION TOGGLE)], @args);
-			if($toggle) {
-				$cont_loc=_cont_coords(_toggle_selection($sel,$self->length));
-			}
-			else {
-				$cont_loc=_cont_coords($sel);
-			}
-			$self->_remove_columns_by_num($cont_loc);
-		}
-	}
-	else {
-   	$self->throw("You must pass array references to remove_columns(), not @args");
-	}
-	# fix for meta, sf, ann
-	1;
+	my ($sel, $toggle,$gap) = $self->_rearrange([qw(SELECTION TOGGLE KEEPGAPONLY)], @args);
+	my $newaln=$self->select_columns(-selection=>$sel,-toggle=>$toggle?0:1,-keepgaponly=>$gap);
+	return $newaln;
 }
-
-sub _remove_col {
-    my ($self,$remove) = @_;
-    my @new;
-    
-    my $gap = $self->gap_char;
-    
-    # splice out the segments and create new seq
-    my ($firststart,$firstend)=($remove->[0][0]-1,$remove->[0][1]-1);
-    foreach my $seq($self->next_Seq){
-		my $sequence = $seq->seq;
-		my $orig = $sequence;
-		#calculate the new start
-		if ($firststart == 0) {
-		  my $start_adjust = () = substr($orig, 0, $firstend + 1) =~ /$gap/g;
-		  $seq->start($seq->start() + $firstend + 1 - $start_adjust);
-		}
-		else {
-		  my $start_adjust = $orig =~ /^$gap+/;
-		  if ($start_adjust) {
-		      $start_adjust = $+[0] == $firststart;
-		  }
-		  $seq->start($seq->start + $start_adjust);
-		}
-        
-        foreach my $pair(@{$remove}){
-            my $start = $pair->[0]-1;
-            my $end   = $pair->[1]-1;
-            $sequence = $seq->seq unless $sequence;
-            $orig = $sequence;
-            my $head =  $start > 0 ? substr($sequence, 0, $start) : '';
-            my $tail = ($end + 1) >= CORE::length($sequence) ? '' : substr($sequence, $end + 1);
-            $sequence = $head.$tail;
-				$seq->seq($sequence) if $sequence;
-				
-            #calculate the new end
-            #if (($end + 1) >= CORE::length($orig)) {
-            #	print STDERR "SA2:$end\t,",CORE::length($orig),"\n";
-             #   my $end_adjust = () = substr($orig, $start) =~ /$gap/g;
-             #   $seq->end($seq->end - (CORE::length($orig) - $start) + $end_adjust-1);
-            #}
-            #else {
-            #	print STDERR "SA:",$seq->display_id(),"\t",$seq->_ungapped_len,"\t",$seq->start,"\n";
-            	$seq->end($seq->_ungapped_len+$seq->start-1);
-            #}
-        }
-        
-        if ($seq->end < $seq->start) {
-            # we removed all columns except for gaps: set to 0 to indicate no
-            # sequence
-            $seq->start(0);
-            $seq->end(0);
-        }
-        
-    }
-    
-    # fix for meta, sf, ann    
-    return 1;
-}
-
-sub _remove_columns_by_type {
-	my ($self,$type) = @_;
-	my @remove;
-
-	my $gap = $self->gap_char if (grep { $_ eq 'gaps'} @{$type});
-	my $all_gaps_columns = $self->gap_char if (grep /all_gaps_columns/,@{$type});
-	my %matchchars = ( 'match'           => '\*',
-                       'weak'             => '\.',
-                       'strong'           => ':',
-                       'mismatch'         => ' ',
-                     );
-	# get the characters to delete against
-	my $del_char;
-	foreach my $type (@{$type}){
-		$del_char.= $matchchars{$type};
-	}
-
-	my $length = 0;
-	my $match_line = $self->match_line;
-	# do the matching to get the segments to remove
-	if($del_char){
-		while($match_line =~ m/[$del_char]/g ){
-			my $start = pos($match_line);
-			$match_line=~/\G[$del_char]+/gc;
-			my $end = pos($match_line);
-
-			#have to offset the start and end for subsequent removes
-			$start-=$length;
-			$end  -=$length;
-			$length += ($end-$start+1);
-			push @remove, [$start,$end];
-		}
-	}
-
-	# remove the segments
-	$self->_remove_col(\@remove) if $#remove >= 0;
-
-    # fix for meta, sf, ann    
-	1;
-}
-
-
-sub _remove_columns_by_num {
-	my ($self,$positions) = @_;
-	
-	my @remove;
-	my $length = 0;
-	for(my $num=0;$num<@{$positions};) {
-		my ($start, $end) = ($positions->[$num],$positions->[$num+1]);
-        
-		#have to offset the start and end for subsequent removes
-		$start-=$length;
-		$end  -=$length;
-		$length += ($end-$start+1);
-		push @remove, [$start,$end];
-		$num+=2;
-    }
-
-	#remove the segments
-	$self->_remove_col(\@remove) if $#remove >= 0;
-	# fix for meta, sf, ann    
-	1;
-}
-
 
 sub _cont_coords {
 	#This function is used to merge the coordinates from select and remove functions in order to reduce the number of calculations in select and #remove. For exmaple, if the input of remove_columns is remove_columns([2,5,7..10]), this function will transform ([2,5,7..10]) to 
@@ -1417,7 +1275,6 @@ sub select_columns {
 	my $self = shift;
 	#my ($start, $end, $keep_gap_only) = @_;
 	my ($sel, $toggle,$keep_gap_only) = $self->_rearrange([qw(SELECTION TOGGLE KEEPGAPONLY)], @_);
-	
 	if($sel->[0]=~/^[a-z]/i) {
 		$sel=$self->_select_columns_by_type($sel);
 	}
@@ -1435,11 +1292,9 @@ sub select_columns {
 	my $newcoords;
 	
 	if($toggle) {
-		$newcoords=_cont_coords(_toggle_selection($sel,$self->length));
+		$sel=_toggle_selection($sel,$self->length);
 	}
-	else {
-		$newcoords=_cont_coords($sel);
-	}
+	$newcoords=_cont_coords($sel);
 
     my $cons_meta = $self->consensus_meta;
 	my $aln = $self->new;
@@ -1473,30 +1328,51 @@ sub select_columns {
 	    
 	    $new_seq->seq( $slice_seq );
 
-		#How to calculate the new start and new end
-		#new_start=old_start+pre_start-1
-		#new_end=old_end-after_end+1
-		#in order to pass the $seq->end test, we should assign a fake start first
-		
 		#all the non residue chars
 		my $nonres = join("",$self->gap_char, $self->match_char,$self->missing_char);
+	   
+	   #need to convert to non-gapped start and end
+	   my ($ng_start,$ng_end); #ungapped start and ungapped end
+	   
+	   if($slice_seq=~/^[\Q$nonres\E]+$/) {
+	   	($ng_start,$ng_end)=($start,$end);
+	   }
+	   else {
+		   if($slice_seq=~/^[\Q$nonres\E]+/) {
+		   	$ng_start=$sel->[length($&)];
+		   }
+		   else {
+		   	$ng_start=$start;
+		   }
+		   
+		   if($slice_seq=~/[\Q$nonres\E]+$/) {
+		   	$ng_end=$sel->[$#$sel-length($&)-1];
+		   }
+		   else {
+		   	$ng_end=$end;
+		   }
+		} 
 	   
 	   my $slice_length=($slice_seq =~s/([^\Q$nonres\E])/$1/g);
 	   my ($newstart, $newend, $fakestart, $oldend);
 	   my ($pre_start_seq,$pre_start_length,$after_end_seq,$after_end_length);
 	   
 	   
-	   if($end>=CORE::length($seq->seq())) {
+	   if($ng_end>=CORE::length($seq->seq())) {
 	   	$after_end_length=0;
 	   }
 	   else {
-	   	$after_end_seq = $seq->subseq($end+1,CORE::length($seq->seq()));	
-	   	$after_end_length=($after_end_seq=~s/([^\Q$nonres\E])/$1/g); #need to check
+	   	$after_end_seq = $seq->subseq($ng_end+1,CORE::length($seq->seq()));	
+	   	$after_end_length=($after_end_seq=~s/([^\Q$nonres\E])/$1/g);
 	   }
 		
-	   if($start>1) {
+		#calculate the new start and new end
+		#new_start=old_start+pre_start-1
+		#new_end=old_end-after_end+1
+		#in order to pass the $seq->end test, we should assign a fake start first		
+	   if($ng_start>1) {
 	   	
-		   my $pre_start_seq = $seq->subseq(1, $start - 1);
+		   my $pre_start_seq = $seq->subseq(1, $ng_start - 1);
 			my $pre_start_length=($pre_start_seq=~s/([^\Q$nonres\E])/$1/g); #need to check
 			if (defined($seq->strand) && $seq->strand < 0){
 				$newend=$seq->end-$pre_start_length;
@@ -1527,7 +1403,7 @@ sub select_columns {
 
         if ($new_seq->isa('Bio::Seq::MetaI')) {
             for my $meta_name ($seq->meta_names) {
-                $new_seq->named_meta($meta_name, $seq->named_submeta($meta_name, $start, $end));
+                $new_seq->named_meta($meta_name, $seq->named_submeta($meta_name, $ng_start, $end));
             }
         }
 
@@ -2640,12 +2516,12 @@ sub source{
 =head2 missing_char
 
  Title     : missing_char
- Usage     : $myalign->missing_char("?")
+ Usage     : $myalign->missing_char("&")
  Function  : Gets/sets the missing_char attribute of the alignment
              It is generally recommended to set it to 'n' or 'N'
              for nucleotides and to 'X' for protein.
  Returns   : An missing_char string,
- Argument  : An missing_char string (optional), default as '?'
+ Argument  : An missing_char string (optional), default as '&'
 
 =cut
 
@@ -2653,7 +2529,7 @@ sub missing_char {
     my ($self, $char) = @_;
 	
 	if (defined $char || ! defined $self->{'_missing_char'} ) {
-		$char= '?' unless defined $char;
+		$char= '&' unless defined $char;
 		$self->throw("Single gap character, not [$char]!") if CORE::length($char) > 1;
 		$self->{'_missing_char'} = $char;
 	}
