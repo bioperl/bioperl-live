@@ -7,48 +7,54 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 194 );
+    test_begin( -tests => 196 );
 
     use_ok('Bio::SimpleAlign');
     use_ok('Bio::AlignIO');
     use_ok('Bio::SeqFeature::Generic');
     use_ok('Bio::Location::Simple');
     use_ok('Bio::Location::Split');
-    
 }
 
 my $DEBUG = test_debug();
 
-my ( $str, $aln, $aln1,@seqs, $seq );
+my ( $str, $aln, @seqs, $seq );
 
 $str = Bio::AlignIO->new( -file => test_input_file('testaln.pfam') );
 isa_ok( $str, 'Bio::AlignIO' );
 $aln = $str->next_aln();
 is $aln->get_Seq_by_pos(1)->get_nse, '1433_LYCES/9-246', "pfam input test";
 
+my $aln1 = $aln->remove_columns(['mismatch']);
+is(
+    $aln1->match_line,
+    '::*::::*:**:*:*:***:**.***::*.*::**::**:***..**:'
+      . '*:*.::::*:.:*.*.**:***.**:*.:.**::**.*:***********:::*:.:*:**.*::*:'
+      . '.*.:*:**:****************::',
+    'match_line'
+);
 
-
-my $aln2 = $aln->select_Seqs([1..3]);
+my $aln2 = $aln->select_Seqs([1]);
 isa_ok( $aln2, 'Bio::Align::AlignI' );
-is( $aln2->num_sequences, 3, 'num_sequences' );
+is( $aln2->num_sequences, 1, 'select_Seqs single selection' );
 
-# test select non continuous-sorted by default
-$aln2 = $aln->select_Seqs([1,2,3,4,5,6,7,8,9,10]);
-is( $aln2->num_sequences, 10, 'num_sequences' );
-is(
-    $aln2->get_Seq_by_pos(2)->id,
-    $aln->get_Seq_by_pos(2)->id,
-    'select_noncont'
-);
-is(
-    $aln2->get_Seq_by_pos(8)->id,
-    $aln->get_Seq_by_pos(8)->id,
-    'select_noncont'
-);
+# test select sequences
+$aln2 = $aln->select_Seqs([1..6,8,9,10]);
+is( $aln2->num_sequences, 9, 'select_Seqs multiple selection' );
+
+# test select sequences with parameter
+$aln2 = $aln->select_Seqs(-selection=>[1,2,3,4,5,6,7,8,9,10],-toggle=>0);
+is( $aln2->num_sequences, 10, 'select_Seqs parameter check' );
+
+# test remove_Seqs reverse selection
+$aln2->remove_Seqs([2..$aln2->num_sequences],1);
+is( $aln2->num_sequences, 9, 'remove_Seqs' );
+
 
 # test select non continuous-nosort option
-$aln2 = $aln->select_Seqs([1,2,3,4,5,6,7,8,9,10]);
-is( $aln2->num_sequences, 10, 'num_sequences' );
+$aln2->remove_Seqs(-selection=>[1,3,5,7..9],-toggle=>0);
+is( $aln2->num_sequences, 3, 'remove_Seqs' );
+
 
 @seqs = $aln->next_Seq();
 is scalar @seqs, 16, 'each_seq';
@@ -122,24 +128,13 @@ ok $aln->add_Seq( $seqs[0] ), 'add_seq';
 is $aln->num_sequences, 16, 'add_seq';
 ok $seq = $aln->get_Seq_by_pos(1), 'get_seq_by_pos';
 is( $seq->id, '1433_LYCES', 'get_seq_by_pos' );
-ok( ( $aln->missing_char(), 'P' ) and ( $aln->missing_char('X'), 'X' ) );
-ok( ( $aln->match_char(),   '.' ) and ( $aln->match_char('-'),   '-' ) );
-ok( ( $aln->gap_char(),     '-' ) and ( $aln->gap_char('.'),     '.' ) );
+ok( ( $aln->missing_char() eq '&' ) and ( $aln->missing_char('X') eq 'X' ) );
+ok( ( $aln->match_char() eq   '.' ) and ( $aln->match_char('-') eq   '-' ) );
+ok( ( $aln->gap_char() eq    '-' ) and ( $aln->gap_char('.') eq     '.' ) );
+ok( ( $aln->mask_char() eq    '?' ) and ( $aln->gap_char('N') eq     'N' ) );
 
-is my @removed_seqs=$aln->remove_redundant_Seqs(0.7), 12, 'purge';
+is $aln->remove_redundant_Seqs(0.7), 12, 'purge';
 is $aln->num_sequences, 4, 'purge';
-
-foreach my $seq (@removed_seqs) {
-	$aln->add_Seq($seq);
-}
-$aln->remove_columns(['mismatch']);
-is(
-    $aln->match_line,
-    '::*::::*:**:*:*:***:**.***::*.*::**::**:***..**:'
-      . '*:*.::::*:.:*.*.**:***.**:*.:.**::**.*:***********:::*:.:*:**.*::*:'
-      . '.*.:*:**:****************::',
-    'match_line'
-);
 
 SKIP: {
     test_skip( -tests => 24, -requires_module => 'IO::String' );
@@ -164,6 +159,10 @@ SKIP: {
     $a = Bio::SimpleAlign->new();
     $a->add_Seq($s1);
     $a->add_Seq($s2);
+    
+    my $a_removed=$a->remove_gaps(-reference=>2);
+    is($a_removed->length, 7, "remove_gaps reference check");
+    
 
     is( $a->consensus_iupac, "aAWWAT-TN-", 'IO::String consensus_iupac' );
     $s1->seq('aaaaattttt');
@@ -208,20 +207,30 @@ SKIP: {
       "AAA/1-2    aa\n" . "BBB/1-1    -a\n",
       'IO::String write_aln slice';
 
+    $a->verbose(-1);
+    $out->setpos(0);
+    $string = '';
+    my $c = $a->select_columns(-selection=>[3..$a->length],-toggle=>1);
+    $strout->write_aln($c);
+    is $string,
+      "AAA/1-2    aa\n" . "BBB/1-1    -a\n",
+      'IO::String write_aln slice';
+
     # not sure what coordinates this should return...
     $a->verbose(-1);
     $out->setpos(0);
     $string = '';
-    $b = $a->select_columns([1..1],0,1);
+    $b = $a->select_columns(-selection=>[1..1],-toggle=>0,-keepgaponly=>1);
     $strout->write_aln($b);
     is $string,
       "AAA/1-1    a\n" . "BBB/1-0    -\n",
       'IO::String write_aln slice';
 
+
     $a->verbose(-1);
     $out->setpos(0);
     $string = '';
-    $b = $a->select_columns([2..2]);
+    $b = $a->select_columns(-selection=>[2]);
     $strout->write_aln($b);
     is $string,
       "AAA/2-2    a\n" . "BBB/1-1    a\n",
@@ -236,7 +245,7 @@ SKIP: {
     $string = '';
     $str    = Bio::AlignIO->new( -file => test_input_file('mini-align.aln') );
     $aln1   = $str->next_aln;
-    $aln2   = $aln1->select_columns([1],1);
+    $aln2   = $aln1->remove_columns([1]);
     $strout->write_aln($aln2);
     is $string,
         "P84139/2-33              NEGEHQIKLDELFEKLLRARLIFKNKDVLRRC\n"
@@ -248,7 +257,7 @@ SKIP: {
     # and when arguments are entered in "wrong order"?
     $out->setpos(0);
     $string = '';
-    my $aln3 = $aln1->select_columns([2,6,7,31],1);
+    my $aln3 = $aln1->remove_columns(-selection=>[2,6,7,31]);
     $strout->write_aln($aln3);
     is $string,
         "P84139/1-33              MEGEIKLDELFEKLLRARLIFKNKDVLRC\n"
@@ -411,11 +420,8 @@ my @slice_lens = qw(1 1 2 2);
 for my $feature ( $aln->get_SeqFeatures ) {
     for my $loc ( $feature->location->each_Location ) {
         my $masked = $aln->mask_columns([$loc->start..$loc->end]);
-        TODO: {
-            local $TODO = "This should pass but dies; see bug 2842";
-            $masked->verbose(2);
-            lives_ok {my $fslice = $masked->select_columns([$loc->start..$loc->end])};
-        }
+        #"This should pass but dies; see bug 2842";
+        lives_ok {my $fslice = $masked->select_columns([$loc->start..$loc->end])};
         $masked->verbose(-1);
         my $fslice = $masked->select_columns([$loc->start..$loc->end]);
         is( $fslice->length, $slice_lens[ $i++ ], "slice $i len" );
@@ -471,10 +477,20 @@ my $s3 = Bio::LocatableSeq->new(
     -end      => 37,
     -alphabet => 'dna'
 );
+
+
 $a = Bio::SimpleAlign->new();
 $a->add_Seq($s1);
 $a->add_Seq($s2);
 $a->add_Seq($s3);
+
+$a->uppercase();
+is ($s1->seq,'AAWTAT-TN-', "uppercase");
+$a->lowercase();
+is ($s1->seq,'aawtat-tn-', "lowercase");
+$a->togglecase();
+is ($s1->seq,'AAWTAT-TN-', "togglecase");
+$a->lowercase();
 
 @seqs = $a->next_Seq;
 is( $seqs[0]->start, 12 );
@@ -587,7 +603,7 @@ foreach my $seq ( $gapless->next_Seq ) {
     if ( $seq->id eq 'a' ) {
         is $seq->start, 6;
         is $seq->end,   19;
-        is $seq->seq,   'tcgatcatcatc';
+        is $seq->seq,   'tcgatcatcatc','remove_gaps ok';
     }
     elsif ( $seq->id eq 'b' ) {
         is $seq->start, 30;
@@ -595,8 +611,8 @@ foreach my $seq ( $gapless->next_Seq ) {
         is $seq->seq,   'tcgatcatcatc';
     }
     elsif ( $seq->id eq 'c' ) {
-        is $seq->start, 51;
-        is $seq->end,   63;
+        is $seq->start, 50;
+        is $seq->end,   62;
         is $seq->seq,   'tcgatcatcatc';
     }
 }
@@ -616,8 +632,8 @@ foreach my $seq ( $gapless->next_Seq ) {
         is $seq->seq,   'gatcatca';
     }
     elsif ( $seq->id eq 'c' ) {
-        is $seq->start, 53;
-        is $seq->end,   61;
+        is $seq->start, 52;
+        is $seq->end,   60;
         is $seq->seq,   'gatcatca';
     }
     elsif ( $seq->id eq 'd' ) {
@@ -708,10 +724,10 @@ $aln->add_Seq($h);
 # test for new method in API get_seq_by_id
 my $retrieved = $aln->get_Seq_by_id('g');
 is( defined $retrieved, 1 );
-my $removed = $aln->select_columns([2,3,4],1);
+my $removed = $aln->remove_columns(-selection=>[1],-toggle=>1);
 foreach my $seq ( $removed->next_Seq ) {
     if ( $seq->id eq 'g' ) {
-        is $seq->start, 5;
+        is $seq->start, 5, "remove_columns toggle selection";
         is $seq->end,   5;
         is $seq->seq,   'a';
     }
@@ -760,6 +776,21 @@ P841414/1-60              ------------------------------------------------------
 BAB68554/1-141            --------------------MLTEDDKQLIQHVWEKVLEHQEDFGAEALERMFIVYPSTKTYFPHFDLHHDSEQIRHHGKK-VVGALGDAVKHIDNLSATLSELSNLHCY-NLRVDPVNFKLLSHCFQVVLGAHLG--REYTPQVQVAYDKFLAAVSAVLAEKYR-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 gb|443893|124775/1-331    -MRFRFGVVVP?????????LLVVGSRPELG-RWEPRGAVRLRPAGTAAGDGALALQEPGLWLGEVELA-AEEAAQDGAEPGRVDTFWYKFLKREPGGELSWEGNGPHHDRCCTYNENNLVDGVYCLPIG---HWGEATGHTNEMKHTTDFYFNIAGHQAMHYSRILPNIWLGSCPRQVEHVTIKLKHELGITAVMN-FQTEWDIVQNSSGCNRYPEPMTPDTMIKLYREEGLAYIWMP-TPDMSTEGRVQMLPQAVCLLHALLEKGHIVY-----VHCNAGVGRSTAAVCGWLQYVMGWNLRKVQYFLMAKRPAVYIDEEALARAQEDFFQKFGKVRSSVCSL------------------------------------------------------------------------------
 EOA
+
+$aln->mask_char('N');
+
+    my $newaln2 = $aln->mask_columns([12..20]);
+    is( aln2str( $newaln2, 'pfam' ), <<EOA, 'looks like correct masked alignment (from clustalw)' );
+P84139/1-420              MNEGEHQIKLDNNNNNNNNNRKIFKNKDVLRHSYTPKDLPLRHEQIETLAQILVPVLRGETPSNIFVYG-KTGTGKTVTVK-FVTEELKRISEKYNIPVDVIYINCEIVDTHYRVLANIVNYFKDETGIGVPMVGWPTDEVYAKLKQVIDMKERFVIIVLDEIDKLVKKSGDEVLYSLTRINTELKRAKVSVIGISNDLKFKEYLDPRVLSSLSEEEVVFPPYDANQLRDILTQRAEEAFYPGVLDEGVIPLCAALAAREHGDARKALDLLRVAGEIAEREGASKVTEKHVWKAQEKIEQDMMEEVIKTRPLQSKVLLYAIVLLDENGDLPANTGDVYAVYRELCEYIDLEPLTQRRISDLINELDMLGIINAKVVSKGRYGRTKEIRLNVTSYKIRNVLRYDYSIQPLLTISLKSEQRRLI
+P814153/1-420             MNEGMHQIKLDNNNNNNNNNRKIFKNKDVLRHSYTPKDLPHRHEQIETLAQILVPVLRGETPSNIFVYG-KTGTGKTVTVK-FVTEELKRISEKYNIPVDVIYINCEIVDTHYRVLANIVNYFKDETGIEVPMVGWPTDEVYAKLKQVIDMKERFVIIVLDEIDKLVKKSGDEVLYSLTRINTELKRAKVSVIGISNDLKFKEYLDPRVLSSLSEEEVVFPPYDANQLRDILTQRAEEAFYPGVLDEGVIPLCAALAAREHGDARKALDLLRVAGEIAEREGASKVTEKHVWKAQEKIEQDMMEEVIKTLPLQSKVLLYAIVLLDENGDLPANTGDVYAVYRELCEYIDLEPLTQRRISDLINELDMLGIINAKVVSKGRYGRTKEIRLMVTSYKIRNVLRYDYSIQPLLTISLKSEQRRLI
+P851414/1-60              -------------------------------------------------------------MKIVWCGH-ACFLVEDRGTK-ILIDPYPDVDEDRIGKVDYILQTHEHMD-HYGKTPLIAKLSD----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+P841414/1-60              -------------------------------------------------------------MKIVWCGH-ACFLVEDRGTK-ILIDPYPDVDEDRIGKVDYILVTHEHMD-HYGKTPLIAKLSD----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+BAB68554/1-141            --------------------MLTEDDKQLIQHVWEKVLEHQEDFGAEALERMFIVYPSTKTYFPHFDLHHDSEQIRHHGKK-VVGALGDAVKHIDNLSATLSELSNLHCY-NLRVDPVNFKLLSHCFQVVLGAHLG--REYTPQVQVAYDKFLAAVSAVLAEKYR-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+gb|443893|124775/1-331    -MRFRFGVVVPNNNNNNNNNLLVVGSRPELG-RWEPRGAVRLRPAGTAAGDGALALQEPGLWLGEVELA-AEEAAQDGAEPGRVDTFWYKFLKREPGGELSWEGNGPHHDRCCTYNENNLVDGVYCLPIG---HWGEATGHTNEMKHTTDFYFNIAGHQAMHYSRILPNIWLGSCPRQVEHVTIKLKHELGITAVMN-FQTEWDIVQNSSGCNRYPEPMTPDTMIKLYREEGLAYIWMP-TPDMSTEGRVQMLPQAVCLLHALLEKGHIVY-----VHCNAGVGRSTAAVCGWLQYVMGWNLRKVQYFLMAKRPAVYIDEEALARAQEDFFQKFGKVRSSVCSL------------------------------------------------------------------------------
+EOA
+
+$aln->mask_char('?');
+
 
 ###### test with phylip
 
