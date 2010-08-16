@@ -451,11 +451,13 @@ sub remove_LocatableSeq {
 
  Title     : remove_Seqs
  Usage     : $aln->remove_Seqs([1,3,5..7]);
+             $aln->remove_Seqs(-selection=>[1],-toggle=>1);
  Function  : Removes specified sequences from the alignment
  Returns   : 1 
  Argument  : An reference list of positive integers for the selected 
              sequences. An optional parameter can be defined to toggle 
              the coordinate selection.
+             See also select_Seqs
 
 =cut
 
@@ -472,10 +474,10 @@ sub remove_Seqs {
 	#use select_Seqs to select removed Seq objects, then use remove_LocatableSeq to remove the selected Seqs
 	my $removed_aln;
 	if($toggle) {
-		$removed_aln=select_Seqs(_toggle_selection($sel));
+		$removed_aln=$self->select_Seqs(_toggle_selection($sel,$self->num_sequences));
 	}
 	else {
-		$removed_aln=select_Seqs($sel);
+		$removed_aln=$self->select_Seqs($sel);
 	}
 	
 	foreach my $seq ($removed_aln->next_Seq) {
