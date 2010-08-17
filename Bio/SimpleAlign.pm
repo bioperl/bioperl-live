@@ -849,6 +849,7 @@ sub sort_by_list {
  Returns   : 1
  Argument  : Optional, the position or id of reference sequences to be compared 
              with. Default is the first sequence
+             See also set_new_reference
 
 =cut
 
@@ -1190,6 +1191,7 @@ sub get_Seq_by_id {
 
  Title     : select_Seqs
  Usage     : $aln2 = $aln->select_Seqs([1,5..10,15]) # three first sequences
+             $aln2 = $aln->select_Seqs(-selection=>[2..4,11..14],-toggle=>1) # toggle selection
  Function  : Creates a new alignment from a subset of
              sequences.  Numbering starts from 1.  Sequence positions
              larger than num_sequences() will thow an error.
@@ -1249,6 +1251,7 @@ sub select_noncont {
  Title     : select_columns
  Usage     : $newaln = $aln->select_columns([20..30,45..48]);
              $newaln = $aln->select_columns(['mismatch']);
+             $newaln = $aln->select_columns(-selection=>['mismatch'],-toggle=>1);
  Function  : Creates a slice from the alignment from the selected columns. 
              The first column in the alignment is denoted 1.
              Sequences with no residues in the slice are excluded from the
@@ -1527,7 +1530,8 @@ sub splice_by_seq_pos{
 =head2 mask_columns
 
  Title     : mask_columns
- Usage     : $aln2 = $aln->mask_columns([2,5,7..10],1)
+ Usage     : $aln2 = $aln->mask_columns([3..8,11..22])
+             $aln2 = $aln->mask_columns(-selection=>[2,5,7..10],-toggle=>1)
  Function  : Masks slices of the alignment inclusive of the defined
              columns, and the first column in the alignment is denoted 1.
              Mask beyond the length of the sequence does not do padding.
