@@ -251,6 +251,14 @@ sub get_Aln_by_acc {
 		$aln->gap_char("-");
 	}
 	
+	#record the accession and id
+	unless($aln->accession) {
+		$aln->accession($acc);
+	}
+	unless($aln->id && $aln->id ne "NoName") {
+		$aln->id($self->acc2id($acc));
+	}
+	
 	return $aln;
 }
 
@@ -261,7 +269,7 @@ sub get_Aln_by_acc {
  Function: Convert ID to Accession
  Returns : Accession
  Args    : ID (as a string)
- Throws  : "Bio::DB::Align::Pfam Request Error" exception
+ Throws  : "Converting ID failed" exception
 =cut
 
 sub id2acc {
@@ -274,14 +282,13 @@ sub id2acc {
 	
 	my $request = $self->ua->get($url);
 	
-	if($request->is_success) {
+	if($request->is_success && $request->content ne "No such family") {
 		return $request->content;
 	}
 	else {
-		$self->throw("Bio::DB::Align::Pfam Request Error:\n",$request->to_string);
+		$self->throw("Converting ID [$id] to Accession failed");
 	}
 }
-
 
 =head2 acc2id
 
@@ -303,11 +310,11 @@ sub acc2id {
 	
 	my $request = $self->ua->get($url);
 	
-	if($request->is_success) {
+	if($request->is_success && $request->content ne "No such family") {
 		return $request->content;
 	}
 	else {
-		$self->throw("Bio::DB::Align::Pfam Request Error:\n",$request->to_string);
+		$self->throw("Converting Accession [$acc] to ID failed");
 	}
 }
 

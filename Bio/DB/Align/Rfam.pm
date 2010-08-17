@@ -148,21 +148,6 @@ sub get_Aln_by_id {
 }
 
 
-=head2 id2acc
-
- Title   : id2acc
- Usage   : $acc = $db->id2acc($id)
- Function: Convert id to accession
- Returns : Accession
- Args    : the id (as a string) of a sequence for the alignment
- Throws  : "Bio::Root::NotImplemented" exception
-=cut
-
-sub id2acc {
-	my ($self,@args)=@_;
-	$self->throw_not_implemented();
-}
-
 =head2 get_Aln_by_acc
 
  Title   : get_Aln_by_acc
@@ -245,7 +230,42 @@ sub get_Aln_by_acc {
 		$aln->gap_char("-");
 	}
 	
+	#record the accession and id
+	unless ($aln->accession) {
+		$aln->accession($acc);
+	}
+	
 	return $aln;
+}
+
+=head2 id2acc
+
+ Title   : id2acc
+ Usage   : $acc = $db->id2acc($id)
+ Function: Convert id to accession
+ Returns : Accession
+ Args    : ID (as a string)
+ Throws  : "Bio::Root::NotImplemented" exception
+=cut
+
+sub id2acc {
+	my ($self,@args)=@_;
+	$self->throw_not_implemented();
+}
+
+=head2 acc2id
+
+ Title   : acc2id
+ Usage   : $id = $db->acc2id($acc)
+ Function: Convert Accession to ID
+ Returns : ID
+ Args    : Accession (as a string)
+ Throws  : "Bio::Root::NotImplemented" exception
+=cut
+
+sub acc2id {
+	my ($self,@args)=@_;
+	$self->throw_not_implemented();
 }
 
 
@@ -279,7 +299,7 @@ sub _checkparameter {
 		}
 	}
 	else {
-		$nselabel=""; #default value
+		$nselabel=0; #default value
 	}
 	#check gaps
 	if($gap) {

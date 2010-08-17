@@ -161,6 +161,9 @@ sub get_Aln_by_id {
 	
 	my $aln=$self->_get_request($acc,$id);
 	
+	$aln->accession($acc);
+	$aln->id($id);	
+	
 	return $aln;
 }
 
@@ -183,6 +186,9 @@ sub get_Aln_by_acc {
 	my $id=$self->acc2id($acc);
 	
 	my $aln=$self->_get_request($acc,$id);
+	
+	$aln->accession($acc);
+	$aln->id($id);
 		
 	return $aln;
 }
