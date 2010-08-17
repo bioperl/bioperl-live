@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 196 );
+    test_begin( -tests => 209 );
 
     use_ok('Bio::SimpleAlign');
     use_ok('Bio::AlignIO');
@@ -254,6 +254,8 @@ SKIP: {
       . "gb|443893|124775/1-32    MRFRFQIKVPPAVEGARPALLIFKSRPELGGC\n",
       'remove_columns by position';
 
+
+
     # and when arguments are entered in "wrong order"?
     $out->setpos(0);
     $string = '';
@@ -272,6 +274,12 @@ SKIP: {
     is $cigars{'P814153/1-33'},  '20,20:22,25:30,30:33,33', 'cigar_line';
     is $cigars{'BAB68554/1-14'}, '1,1:3,6:11,11:14,14',     'cigar_line';
     is $cigars{'P84139/1-33'},   '20,20:22,25:30,30:33,33', 'cigar_line';
+
+	my @idens=$aln1->pairwise_percentage_identity();
+	is join(";",map {sprintf("%0.4f",$_)} @idens),"1.0000;0.9394;0.2424;0.3333","pairwise_percentage_identity";
+
+	$aln1->sort_by_pairwise_identity;
+	is join(";",map {$_->display_id} $aln1->next_Seq),"P84139;P814153;gb|443893|124775;BAB68554","sort_by_pairwise_identity";
 
     # sort_alphabetically
     my $s3 = Bio::LocatableSeq->new(
@@ -472,9 +480,9 @@ my $s2 = Bio::LocatableSeq->new(
 );
 my $s3 = Bio::LocatableSeq->new(
     -id       => 'BBB',
-    -seq      => '-aaaat-tt-',
+    -seq      => '-aaaat-t--',
     -start    => 31,
-    -end      => 37,
+    -end      => 36,
     -alphabet => 'dna'
 );
 
@@ -500,8 +508,23 @@ is( $seqs[2]->start, 31 );
 $a->sort_by_start;
 @seqs = $a->next_Seq;
 
-is( $seqs[0]->start, 1 );
+is( $seqs[0]->start, 1 , "sort_by_start");
 is( $seqs[1]->start, 12 );
+is( $seqs[2]->start, 31 );
+
+
+$a->sort_by_length;
+@seqs = $a->next_Seq;
+
+is( $seqs[0]->start, 31 , "sort_by_length");
+is( $seqs[1]->start, 1 );
+is( $seqs[2]->start, 12 );
+
+$a->sort_by_pairwise_identity(3);
+@seqs = $a->next_Seq;
+
+is( $seqs[0]->start, 12 , "sort_by_pairwise_identity");
+is( $seqs[1]->start, 1 );
 is( $seqs[2]->start, 31 );
 
 my %testdata = (
@@ -598,6 +621,7 @@ $aln->add_Seq($a);
 $aln->add_Seq($b);
 $aln->add_Seq($c);
 
+
 my $gapless = $aln->remove_gaps();
 foreach my $seq ( $gapless->next_Seq ) {
     if ( $seq->id eq 'a' ) {
@@ -619,6 +643,8 @@ foreach my $seq ( $gapless->next_Seq ) {
 
 $aln->add_Seq($d);
 $aln->add_Seq($e);
+
+
 $gapless = $aln->remove_gaps();
 foreach my $seq ( $gapless->next_Seq ) {
     if ( $seq->id eq 'a' ) {
