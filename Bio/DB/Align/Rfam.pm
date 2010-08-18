@@ -234,7 +234,10 @@ sub get_Aln_by_acc {
 	unless ($aln->accession) {
 		$aln->accession($acc);
 	}
-	
+	unless($aln->source) {
+		$aln->source("Rfam");
+	}
+		
 	return $aln;
 }
 
