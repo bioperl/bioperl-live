@@ -307,9 +307,10 @@ which new ranges could be built.
            my $containing_range = $r1->intersection($r2); OR
            my $containing_range = Bio::Range->intersection(\@ranges);
  Function: gives the range that is contained by all ranges
- Returns : undef if they do not overlap, or
-           the range that they do overlap (in the form of an object
-            like the calling one, OR a three element array)
+ Returns : undef if they do not overlap, or the range that they do
+           overlap. In scalar contex, the return value is an object of
+           the same class as the calling one. In array context the
+           return value is a three element array.
  Args    : arg #1 = [REQUIRED] a range to compare this one to,
                     or an array ref of ranges
            arg #2 = optional strand-testing arg ('strong', 'weak', 'ignore')
@@ -388,9 +389,11 @@ sub intersection {
               my $newrange = Bio::Range->union(@ranges);
     Function: finds the minimal Range that contains all of the Ranges
     Args    : a Range or list of Range objects
-    Returns : the range containing all of the range
-              (in the form of an object like the calling one, OR
-              a three element array)
+
+    Returns : the range containing all of the range. In scalar contex,
+              the return value is an object of the same class as the
+              calling one. In array context the return value is a
+              three element array.
 
 =cut
 
