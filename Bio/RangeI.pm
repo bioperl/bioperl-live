@@ -307,7 +307,8 @@ which new ranges could be built.
            my $containing_range = $r1->intersection($r2); OR
            my $containing_range = Bio::Range->intersection(\@ranges);
  Function: gives the range that is contained by all ranges
- Returns : undef if they do not overlap, or the range that they do
+ Returns : undef if they do not overlap or if @ranges has only a
+           single range, else returns the range that they do
            overlap. In scalar contex, the return value is an object of
            the same class as the calling one. In array context the
            return value is a three element array.
@@ -330,7 +331,9 @@ sub intersection {
 		push(@ranges, $self);
 	}
     ref($given) eq 'ARRAY' ? push(@ranges, @{$given}) : push(@ranges, $given);
-    $self->throw("Need at least 2 ranges") unless @ranges >= 2;
+    #$self->throw("Need at least 2 ranges") unless @ranges >= 2;
+    # Rather than the above, I think the following is more consistent
+    return undef unless @ranges >= 2;
 
     my $intersect;
     while (@ranges > 0) {
