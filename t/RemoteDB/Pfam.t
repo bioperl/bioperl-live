@@ -8,7 +8,7 @@ BEGIN {
 	use lib '.';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 34,
+	test_begin(-tests => 35,
 			   -requires_modules => [qw(HTTP::Request
 									    LWP::UserAgent
 										Bio::AlignIO
@@ -44,8 +44,9 @@ my $id=$dbobj->acc2id("PF02171");
 is $id,"Piwi";
 
 #Test parameter based calling
-my $aln2;
-lives_ok{$aln2=$dbobj->get_Aln_by_acc(-accession=>"PF02171",-alignment=>"full",-format=>"stockholm",-order=>"a",-case=>"u",-gap=>"dots")};
+my ($dbobj2,$aln2);
+ok $dbobj2=Bio::DB::Align::Pfam->new(), 'Bio::DB::Align::Pfam';
+lives_ok{$aln2=$dbobj2->get_Aln_by_acc(-accession=>"PF02171",-alignment=>"full",-format=>"stockholm",-order=>"a",-case=>"u",-gap=>"dots")};
 is $aln->id,"Piwi";
 is $aln->accession,"PF02171";
 is $aln2->length,"1030";
