@@ -162,14 +162,12 @@ sub new {
 
 sub get_Aln_by_id {
 	my ($self,@args)=@_;
-	my $id=$self->_rearrange(["ID"],@args);
-	
+	my ($id,$alignment,$format, $order, $case, $gap)=$self->_rearrange([qw(ID ALIGNMENT FORMAT ORDER CASE GAP)],@args);
 	#id 2 accession convertion
 	my $acc=$self->id2acc($id);
 	
 	#give new -accession argument
-	push @args,"-accession",$acc;
-	return $self->get_Aln_by_acc(@args);
+	return $self->get_Aln_by_acc($acc,$alignment,$format, $order, $case, $gap);
 }
 
 =head2 get_Aln_by_acc
@@ -186,8 +184,8 @@ sub get_Aln_by_id {
                        stockholm, selex and MSF
            -order      t (default)   Order by tree 
                        a             Order alphabetically
-           -case       i (default)   Inserts lower case  
-                       a             All upper case
+           -case       l (default)   Inserts lower case  
+                       u             All upper case
            -gap        dashes (default) "-" as gap char
                        dots           "." as gap char
                        mixed         "-" and "." mixed 
@@ -257,6 +255,9 @@ sub get_Aln_by_acc {
 	}
 	unless($aln->id && $aln->id ne "NoName") {
 		$aln->id($self->acc2id($acc));
+	}
+	unless($aln->source) {
+		$aln->source("Pfam");
 	}
 	
 	return $aln;
@@ -349,11 +350,11 @@ sub _checkparameter {
 		$order="t"; #default value
 	}
 	#check case
-	if($case && $case=~/^a/i) {
-		$case="a";
+	if($case && $case=~/^u/i) {
+		$case="u";
 	}
 	else {
-		$case="i";
+		$case="l";
 	}
 	#check gaps
 	if($gap) {
