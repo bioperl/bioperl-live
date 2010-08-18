@@ -302,8 +302,8 @@ which new ranges could be built.
 =head2 intersection
 
  Title   : intersection
- Usage   : ($start, $stop, $strand) = $r1->intersection($r2); OR
-           ($start, $stop, $strand) = Bio::Range->intersection(\@ranges); OR
+ Usage   : ($start, $end, $strand) = $r1->intersection($r2); OR
+           ($start, $end, $strand) = Bio::Range->intersection(\@ranges); OR
            my $containing_range = $r1->intersection($r2); OR
            my $containing_range = Bio::Range->intersection(\@ranges);
  Function: gives the range that is contained by all ranges
@@ -383,8 +383,8 @@ sub intersection {
 =head2 union
 
    Title   : union
-    Usage   : ($start, $stop, $strand) = $r1->union($r2);
-            : ($start, $stop, $strand) = Bio::Range->union(@ranges);
+    Usage   : ($start, $end, $strand) = $r1->union($r2);
+            : ($start, $end, $strand) = Bio::Range->union(@ranges);
               my $newrange = Bio::Range->union(@ranges);
     Function: finds the minimal Range that contains all of the Ranges
     Args    : a Range or list of Range objects
