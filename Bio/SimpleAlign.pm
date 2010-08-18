@@ -298,13 +298,13 @@ See L<Bio::LocatableSeq> for more information
 
 sub addSeq {
     my $self = shift;
-    $self->deprecated("addSeq - deprecated method. Use add_Seq() instead.");
+    $self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"addSeq - deprecated method. Use add_Seq() instead.");
     $self->add_Seq(@_);
 }
 
 sub add_seq {
     my $self = shift;
-    $self->deprecated("add_seq - deprecated method. Use add_Seq() instead.");
+    $self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"add_seq - deprecated method. Use add_Seq() instead.");
     $self->add_Seq(@_);
 }
 
@@ -383,13 +383,13 @@ sub add_Seq {
 
 sub removeSeq {
     my $self = shift;
-    $self->deprecated("removeSeq - deprecated method. Use remove_seq() instead.");
+    $self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"removeSeq - deprecated method. Use remove_seq() instead.");
     $self->remove_LocatableSeq(@_);
 }
 
 sub remove_seq {
     my $self = shift;
-    $self->deprecated("remove_seq - deprecated method. Use remove_LocatableSeq() instead.");
+    $self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"remove_seq - deprecated method. Use remove_LocatableSeq() instead.");
     $self->remove_LocatableSeq(@_);	
 }
 
@@ -501,7 +501,7 @@ sub remove_Seqs {
 
 sub purge {
     my ($self,@args) = @_;
-    $self->deprecated("purge - deprecated method. Use remove_redundant_Seqs() instead.");
+    $self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"purge - deprecated method. Use remove_redundant_Seqs() instead.");
     $self->remove_redundant_Seq(@args);
 }
 
@@ -583,7 +583,7 @@ sub remove_redundant_Seqs {
 
 sub uniq_seq {
 	my ($self,@args) = @_;
-	$self->deprecated("uniq_seq - deprecated method. Use uniq_Seq() instead.");
+	$self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"uniq_seq - deprecated method. Use uniq_Seq() instead.");
 	$self->uniq_Seq(@args);	
 }
 
@@ -1013,13 +1013,13 @@ subsets of the current MSA.
 
 sub eachSeq {
     my $self = shift;
-    $self->deprecated("eachSeq - deprecated method. Use next_Seq() instead.");
+    $self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"eachSeq - deprecated method. Use next_Seq() instead.");
     $self->next_Seq();
 }
 
 sub each_seq {
     my $self = shift;
-    $self->deprecated("each_seq - deprecated method. Use next_Seq() instead.");
+    $self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"each_seq - deprecated method. Use next_Seq() instead.");
     $self->next_Seq();
 }
 
@@ -1050,7 +1050,7 @@ sub next_Seq {
 
 sub each_alphabetically {
     my $self = shift;
-    $self->deprecated("each_alphabetically - deprecated method. Use next_alphabetically() instead.");
+    $self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"each_alphabetically - deprecated method. Use next_alphabetically() instead.");
     $self->next_Seq();	
 }
 
@@ -1097,13 +1097,13 @@ sub _alpha_startend {
 
 sub eachSeqWithId {
     my $self = shift;
-    $self->deprecated("eachSeqWithId - deprecated method. Use next_Seq_with_id() instead.");
+    $self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"eachSeqWithId - deprecated method. Use next_Seq_with_id() instead.");
     $self->next_Seq_with_id(@_);
 }
 
 sub each_seq_with_id {
     my $self = shift;
-    $self->deprecated("each_seq_with_id - deprecated method. Use next_Seq_with_id() instead.");
+    $self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"each_seq_with_id - deprecated method. Use next_Seq_with_id() instead.");
     $self->next_Seq_with_id(@_);
 }
 
@@ -1136,7 +1136,7 @@ sub next_Seq_with_id {
 
 sub get_seq_by_pos {
 	my $self = shift;
-	$self->deprecated("get_seq_by_pos - deprecated method. Use get_Seq_by_pos() instead.");
+	$self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"get_seq_by_pos - deprecated method. Use get_Seq_by_pos() instead.");
 	$self->get_Seq_by_pos(@_);	
 }
 
@@ -1167,7 +1167,7 @@ sub get_Seq_by_pos {
 
 sub get_seq_by_id {
 	my $self = shift;
-	$self->deprecated("get_seq_by_id - deprecated method. Use get_Seq_by_id() instead.");
+	$self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"get_seq_by_id - deprecated method. Use get_Seq_by_id() instead.");
 	$self->get_Seq_by_id(@_);	
 }
 
@@ -1233,13 +1233,13 @@ sub select_Seqs {
 
 sub select {
     my $self = shift;
-    $self->deprecated("select - deprecated method. Use select_Seqs() instead.");
+    $self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"select - deprecated method. Use select_Seqs() instead.");
     $self->select_Seqs([$_[0]..$_[1]]);
 }
 
 sub select_noncont {
 	my $self = shift;
-	$self->deprecated("select_noncont - deprecated method. Use select_Seqs() instead.");
+	$self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"select_noncont - deprecated method. Use select_Seqs() instead.");
 	if($_[0] eq 'nosort') {
     	shift;
    }
@@ -1271,7 +1271,7 @@ sub select_noncont {
 
 sub slice {
 	my $self = shift;
-	$self->deprecated("slice - deprecated method. Use select_columns() instead.");
+	$self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"slice - deprecated method. Use select_columns() instead.");
 	$self->select_columns([$_[0]..$_[1]],0,defined($_[2])?$_[2]:0);	
 }
 
@@ -1523,7 +1523,7 @@ sub remove_gaps {
 
 sub splice_by_seq_pos{
     my $self = shift;
-    $self->deprecated("splice_by_seq_pos - deprecated method. Use remove_gaps() instead.");
+    $self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"splice_by_seq_pos - deprecated method. Use remove_gaps() instead.");
     $self->remove_gaps(-reference=>$_[0]);
 }
 
@@ -2712,7 +2712,7 @@ sub is_flush {
 
 sub length_aln {
     my $self = shift;
-    $self->deprecated("length_aln - deprecated method. Use length() instead.");
+    $self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"length_aln - deprecated method. Use length() instead.");
     $self->length(@_);
 }
 
@@ -2746,14 +2746,14 @@ sub length {
 
 sub maxname_length {
     my $self = shift;
-    $self->deprecated("maxname_length - deprecated method.".
+    $self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"maxname_length - deprecated method.".
 		      " Use maxdisplayname_length() instead.");
     $self->maxdisplayname_length();
 }
 
 sub maxnse_length {
     my $self = shift;
-    $self->deprecated("maxnse_length - deprecated method.".
+    $self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"maxnse_length - deprecated method.".
 		      " Use maxnse_length() instead.");
     $self->maxdisplayname_length();
 }
@@ -3163,13 +3163,13 @@ ways.
 
 sub get_displayname {
     my $self = shift;
-    $self->deprecated("get_displayname - deprecated method. Use displayname() instead.");
+    $self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"get_displayname - deprecated method. Use displayname() instead.");
     $self->displayname(@_);
 }
 
 sub set_displayname {
     my $self = shift;
-    $self->deprecated("set_displayname - deprecated method. Use displayname() instead.");
+    $self->deprecated(-warn_version => 1.0080, -throw_version => 1.0090, -message =>"set_displayname - deprecated method. Use displayname() instead.");
     $self->displayname(@_);
 }
 
