@@ -187,9 +187,6 @@ sub get_Aln_by_acc {
 	
 	my $aln=$self->_get_request($acc,$id);
 	
-	$aln->accession($acc);
-	$aln->id($id);
-		
 	return $aln;
 }
 
@@ -313,7 +310,14 @@ sub _get_request {
 	
 	my $alnobj;
 	$alnobj=Bio::AlignIO->new(-format=>"fasta",-file=>$tmpfile);
-	my $aln=$alnobj->next_aln;		
+	my $aln=$alnobj->next_aln;
+
+
+	$aln->accession($acc);
+	$aln->id($id);
+	unless ($aln->source) {
+		$aln->source("ProtClustDB");
+	}
 	
 	return $aln;
 }
