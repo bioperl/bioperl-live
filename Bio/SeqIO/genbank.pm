@@ -217,7 +217,7 @@ our %DBSOURCE = map {$_ => 1} qw(
     DIP    PeptideAtlas    PRIDE    CYGD    HOGENOME    Gene3D
     Project);
 
-our %VALID_MOLTYPE = map {$_ => 1} qw(NA DNA RNA tRNA rRNA 
+our %VALID_MOLTYPE = map {$_ => 1} qw(NA DNA RNA tRNA rRNA cDNA cRNA ms-DNA
     mRNA  uRNA  ss-RNA  ss-DNA  snRNA snoRNA PRT);
 
 our %VALID_ALPHABET = (
@@ -311,7 +311,7 @@ sub next_seq {
     if ($params{'-molecule'} eq 'dna' || $params{'-molecule'} eq 'rna') {
         $params{'-molecule'} = uc $params{'-molecule'};
     }
-    $self->throw("Unrecognized molecule type:".$params{'-molecule'}) if
+    $self->debug("Unrecognized molecule type:".$params{'-molecule'}) if
         !exists($VALID_MOLTYPE{$params{'-molecule'}});
 	my $circ = shift(@tokens);
     if ($circ eq 'circular') {

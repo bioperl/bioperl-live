@@ -20,6 +20,8 @@ CPAN releases are branched from 'master'.
 1.6.1_1 RELEASE_DATE_HERE (first 1.6.2 alpha)
     [New features]
     * Core code updated for perl 5.12.x [cjfields, Charle Tilford]
+    * Bio::SeqIO::msout, Bio::SeqIO::mbsout - parsers for ms and mbs
+      [Warren Kretzschmar]
     * Bio::SeqIO::gbxml
         - bug 2515 - new contribution [Ryan Golhar, jhannah]
     * Bio::Assembly::IO

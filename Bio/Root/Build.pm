@@ -205,7 +205,8 @@ sub process_script_files {
         $final =~ s/\.PLS$/\.pl/;                  # change from .PLS to .pl
         $final =~ s/^/bp_/ unless $final =~ /^bp/; # add the "bp" prefix
         $final = File::Spec->catfile($script_dir, $final);
-        $self->log_info("$result -> $final\n");
+        # silence scripts
+        #$self->log_info("$result -> $final\n");
         if (-e $final) {
             unlink $final || warn "[WARNING] Deleting '$final' failed!\n";
         }

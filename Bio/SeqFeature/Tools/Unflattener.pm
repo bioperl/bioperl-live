@@ -1122,6 +1122,9 @@ sub unflatten_seq{
 
    # seq we want to unflatten
    $seq = $seq || $self->seq;
+   if (!$self->seq) {
+       $self->seq($seq);
+   }
 
 
    # prevent bad argument combinations
@@ -2836,10 +2839,18 @@ sub _check_order_is_consistent {
 	my $rangeP = $ranges[$i-1];
 	my $range = $ranges[$i];
 	    if ($rangeP->start > $range->end) {
-                # failed - but still get one more chance..
-		$pass = 0;
-                $self->problem(2,"Ranges not in correct order. Strange ensembl genbank entry? Range: $rangestr");
-                last;
+                if ($self->seq->is_circular) {
+                    # see for example NC_006578.gbk
+                    # we make exceptions for circular genomes here.
+                    # see Re: [Gmod-ajax] flatfile-to-json.pl error with GFF
+                    # 2010-07-26
+                }
+                else {
+                    # failed - but still get one more chance..
+                    $pass = 0;
+                    $self->problem(2,"Ranges not in correct order. Strange ensembl genbank entry? Range: $rangestr");
+                    last;
+                }
 	    }
     }
     

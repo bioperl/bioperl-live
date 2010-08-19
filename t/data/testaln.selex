@@ -1,11 +1,125 @@
-AK1H_ECOLI/114-431    CPDSINAALICRGEKMSIAIMAGVLEARGH-N--VTVIDPVEKLLAVG-HYLESTVDIAESTRRIAASRIP------A-DHMVLMAGFTAGN-EKGELVVLGRNGSDYSAAVLAACLRADCCEIWTDVNGVYTCDP-------------RQVPDARLLKSMSYQEAMELSY--FGAKVLHPRTITPIAQFQIPCLIKNTGNPQAPGTL-IG--ASRDEDELP----VKGISNLN------NMAMFSVSGP-GMKGMVGMAARVFAAMS-------RARISVVLITQSSSEYSISFCVPQSDCVRAERAMLEEFY-----LELKEGLLEPLAVAERLAIISV-VGDGLRTLRGISAKF------FAALARANINIVAIA
-AKH_HAEIN/114-431     -----------------VEDAVKATIDCRGEKLSIAMMKAWFEARGY-S--VHIVDPVKQLLAKG-GYLESSVEIEESTKRVDAANIA--K-DKVVLMAGF---TAGNEKGELVLLGRNGSDYSAAC-----------------LAACLGASVCEIWTDVDGVYTCDP--RLVPDARLLPTLSYREAMELSYFGAKVIHPRTIGPLLPQNIPCVIKNTGNPSAPGSI-ID--GNVKSESLQ----VKGITNLDNLAMFNVSGPGMQGM---VGMASRVFSAMSGAGISVILITQSSSEYS---ISFCVPVKSAEVAKTVLETEFA-----NELNEHQLEPIEVIKDLSIISV-VGDGMKQAKGIAARF------FSALAQANISIVAIA
-AKH1_MAIZE/117-440    -----------------ATESFSDFVVGHGELWSAQMLSYAIQKSGT-P--CSWMDTREVLVVNPSGANQVDPDYLESEKRLEKWFSRC-P-AETIIATGF---IASTPENIPTTLKRDGSDFSAAI-----------------IGSLVKARQVTIWTDVDGVFSADP--RKVSEAVILSTLSYQEAWEMSYFGANVLHPRTIIPVMKYNIPIVIRNIFNTSAPGTM-IC--QQPANENGDLEACVKAFATIDKLALVNVEGTGMAGV---PGTANAIFGAVKDVGANVIMISQASSEHS---VCFAVPEKEVALVSAALHARFR-----EALAAGRLSKVEVIHNCSILAT-VGLRMASTPGVSATL------FDALAKANINVRAIA
-AK2H_ECOLI/112-431    -----------------INDAVYAEVVGHGEVWSARLMSAVLNQQG-----LPAAWLDAREFLRAERAAQPQVDEGLSYPLLQQLLVQH-P-GKRLVVTGF---ISRNNAGETVLLGRNGSDYSATQ-----------------IGALAGVSRVTIWSDVAGVYSADP--RKVKDACLLPLLRLDEASELARLAAPVLHARTLQPVSGSEIDLQLRCSYTPDQGSTRIERVLASGTGARIVTSHDDVCLI-EFQVPASQDFKLAHKEI--DQILKRAQVRPLAVGVHNDRQLLQFCYTSEVADSALKILDEAG---------LPGELRLRQGLALVAMVGAGVTRNPLHCHRFWQQLKGQPVEFTWQSDDGISLVAVL
-AK1_BACSU/66-374      -----------------ISPREQDLLLSCGETISSVVFTSMLLDNGVKA--AALTGAQAGFLTNDQHTNAKIIEMKPER--LFSVLAN----HDAVVVAGF---QGATEKGDTTTIGRGGSDTSAAA-----------------LGAAVDAEYIDIFTDVEGVMTADP--RVVENAKPLPVVTYTEICNLAYQGAKVISPRAVEIAMQAKVPIRVRSTYS-NDKGTLVTSHHSSKVGSDVFERLITGIAH-VKDVTQFKVPAKIGQYN-----VQTEVFKAMANAGISVDFFNITPSEIVYTVAGNKTETAQR------------ILMDMGYDPMVTRNCAKVSAVGAGIMGVPGVTSKI------VSALSEKEIPILQSA
-AK2_BACST/63-370      -----------------KRE--MDMLLSTGEQVSIALLAMSLHEKGYKA--VSLTGWQAGITTEEMHGNARIMNIDTT--RIRRCLDE----GAIVIVAGF---QGVTETGEITTLGRGGSDTTAVA-----------------LAAALKAEKCDIYTDVTGVFTTDP--RYVKTARKIKEISYDEMLELANLGAGVLHPRAVEFAKNYEVPLEVRSSME-NERGTMVK--EEVSMEQHLIVRGIAFEDQ-VTRVTVVGIEKYLQSVA--------TIFTALANRGINVDIIIQNA--------------------TNSETAS--VSFSIRTEDLPETLQVLQ-------------ALEGADVHYESGLAKVSI-VGSGMISNPGVAARV------FEVLADQGIEIKMVS
-AK2_BACSU/63-373      -----------------KRE--MDMLLATGEQVTISLLSMALQEKGYDA--VSYTGWQAGIRTEAIHGNARITDIDTS--VLADQLEK----GKIVIVAGF---QGMTEDCEITTLGRGGSDTTAVA-----------------LAAALKVDKCDIYTDVPGVFTTDP--RYVKSARKLEGISYDEMLELANLGAGVLHPRAVEFAKNYQVPLEVRSSTE-TEAGTLIE--EESSMEQNLIVRGIAFEDQ-ITRVTIYGLTSGLTTLS--------TIFTTLAKRNINVDIIIQTQ--------------------AEDKTG---ISFSVKTEDADQTVAVLEEYK---------DALEFEKIETESKLAKVSI-VGSGMVSNPGVAAEM------FAVLAQKNILIKMVS
-AKAB_CORFL/63-379     -----------------ARE--MDMLLTAGERISNALVAMAIESLGAEA--QSFTGSQAGVLTTERHGNARIVDVTPG--RVREALDE----GKICIVAGF--QGVNKETRDVTTLGRGGSDTTAVA-----------------LAAALNADVCEIYSDVDGVYTADP--RIVPNAQKLEKLSFEEMLELAAVGSKILVLRSVEYARAFNVPLRVRSSYS-NDPGTLIAGSMEDIPVEEAVLTGVATDKS-EAKVTVLGISDKPGEAA--------KVFRALADAEINIDMVLQNV--------------------SSVEDGTTDITFTCPRADGRRAMEILKKLQ---------VQGNWTNVLYDDQVDKVSL-VGAGMKSHPGVTAEF------MEALRDVNVNIELIS
-AKAB_MYCSM/63-379     -----------------PRE--MDMLLTAGERISNALVAMAIESLGAQA--RSFTGSQAGVITTGTHGNAKIIDVTPG--RLRDALDE----GQIVLVAGF--QGVSQDSKDVTTLGRGGSDTTAVA-----------------VAAALDADVCEIYTDVDGIFTADP--RIVPNARHLDTVSFEEMLEMAACGAKVLMLRCVEYARRYNVPIHVRSSYS-DKPGTIVKGSIEDIPMEDAILTGVAHDRS-EAKVTVVGLPDVPGYAA--------KVFRAVAEADVNIDMVLQNI--------------------SKIEDGKTDITFTCARDNGPRAVEKLSALK---------SEIGFSQVLYDDHIGKVSL-IGAGMRSHPGVTATF------CEALAEAGINIDLIS
-AK3_ECOLI/106-407     -----------------TSPALTDELVSHGELMSTLLFVEILRERD--V--QAQWFDVRKVMRTNDRFGRAEPDIAALAELAALQLLPR-LNEGLVITQGF---IGSENKGRTTTLGRGGSDYTAAL-----------------LAEALHASRVDIWTDVPGIYTTDP--RVVSAAKRIDEIAFAEAAEMATFGAKVLHPATLLPAVRSDIPVFVGSSKDPRAGGTLVCNKTENPPLFRALAL--RRNQT-LLTLHSLNMLHSRGFLA--------EVFGILARHNISVDLITTSEVSVALTLDTTGSTSTG----------DTLLTQSLLMELSALCRVEVEEGLALVALIG----------NDLSKACGVGKEVF
-AK_YEAST/134-472      -----------------VSSRTVDLVMSCGEKLSCLFMTALCNDRGCKAKYVDLSHIVPSDFSASALDNSFYTFLVQALKEKLAPFVSA-KERIVPVFTGF---FGLVPTGLLNGVGRGYTDLCAAL-----------------IAVAVNADELQVWKEVDGIFTADP--RKVPEARLLDSVTPEEASELTYYGSEVIHPFTMEQVIRAKIPIRIKNVQNPLGNGTIIYPDNVAKKGESTPPHPPENLSS----SFYEKRKRGATAITTKN----DIFVINIHSNKKTLSHGFLAQIFTILDKYKLVVDLISTSEVHVSMALPIPDADS-LKSLRQAEEKLRILGSVDITKKLSIVSLVGKHMKQYIGIAG---TMFTTLAEEGINIEMIS
+#=SQ HSFAU  1.00 - - 0..0:0 H.sapiens fau mRNA
+#=SQ HSFAU1 1.00 - - 0..0:0 H.sapiens fau 1 gene
+
+HSFAU  ttcctctttctcgactccatcttcgcggtagctgggaccgccgttcagtc
+HSFAU1 ctaccattttccctctcgattctatatgtacactcgggacaagttctcct
+
+HSFAU  gccaatatgcagctctttgtccgcgcccaggagctacacaccttcgaggt
+HSFAU1 gatcgaaaacggcaaaactaaggccccaagtaggaatgccttagttttcg
+
+HSFAU  gaccggccaggaaacggtcgcccagatcaaggctcatgtagcctcactgg
+HSFAU1 gggttaacaatgattaacactgagcctcacacccacgcgatgccctcagc
+
+HSFAU  agggcattgccccggaagatcaagtcgtgctcctggcaggcgcgcccctg
+HSFAU1 tcctcgctcagcgctctcaccaacagccgtagcccgcagccccgctggac
+
+HSFAU  gaggatgaggccactctgggccagtgcggggtggaggccctgactaccct
+HSFAU1 accggttctccatccccgcagcgtagcccggaacatggtagctgccatct
+
+HSFAU  ggaagtagcaggccgcatgcttggaggtaaagttcatggttccctggccc
+HSFAU1 ttacctgctacgccagccttctgtgcgcgcaactgtctggtcccgccccg
+
+HSFAU  gtgctggaaaagtgagaggtcagactcctaaggtggccaaacaggagaag
+HSFAU1 tcctgcgcgagctgctgcccaggcaggttcgccggtgcgagcgtaaaggg
+
+HSFAU  aagaagaagaagacaggtcgggctaagcggcggatgcagtacaaccggcg
+HSFAU1 gcggagctaggactgccttgggcggtacaaatagcagggaaccgcgcggt
+
+HSFAU  ctttgtcaacgttgtgcccacctttggcaagaagaagggccccaatgcca
+HSFAU1 cgctcagcagtgacgtgacacgcagcccacggtctgtactgacgcgccct
+
+HSFAU  actcttaagtcttttgtaattctggctttctctaataaaaaagccactta
+HSFAU1 cgcttcttcctctttctcgactccatcttcgcggtagctgggaccgccgt
+
+HSFAU  gttcagtcaaaaaaaaaa                                
+HSFAU1 tcaggtaagaatggggccttggctggatccgaagggcttgtagcaggttg
+
+HSFAU                                                    
+HSFAU1 gctgcggggtcagaaggcgcggggggaaccgaagaacggggcctgctccg
+
+HSFAU                                                    
+HSFAU1 tggccctgctccagtccctatccgaactccttgggaggcactggccttcc
+
+HSFAU                                                    
+HSFAU1 gcacgtgagccgccgcgaccaccatcccgtcgcgatcgtttctggaccgc
+
+HSFAU                                                    
+HSFAU1 tttccactcccaaatctcctttatcccagagcatttcttggcttctctta
+
+HSFAU                                                    
+HSFAU1 caagccgtcttttctttactcagtcgccaatatgcagctctttgtccgcg
+
+HSFAU                                                    
+HSFAU1 cccaggagctacacaccttcgaggtgaccggccaggaaacggtcgcccag
+
+HSFAU                                                    
+HSFAU1 atcaaggtaaggctgcttggtgcgccctgggttccattttcttgtgctct
+
+HSFAU                                                    
+HSFAU1 tcactctcgcggcccgagggaacgcttacgagccttatctttccctgtag
+
+HSFAU                                                    
+HSFAU1 gctcatgtagcctcactggagggcattgccccggaagatcaagtcgtgct
+
+HSFAU                                                    
+HSFAU1 cctggcaggcgcgcccctggaggatgaggccactctgggccagtgcgggg
+
+HSFAU                                                    
+HSFAU1 tggaggccctgactaccctggaagtagcaggccgcatgcttggaggtgag
+
+HSFAU                                                    
+HSFAU1 tgagagaggaatgttctttgaagtaccggtaagcgtctagtgagtgtggg
+
+HSFAU                                                    
+HSFAU1 gtgcatagtcctgacagctgagtgtcacacctatggtaatagagtacttc
+
+HSFAU                                                    
+HSFAU1 tcactgtcttcagttcagagtgattcttcctgtttacatccctcatgttg
+
+HSFAU                                                    
+HSFAU1 aacacagacgtccatgggagactgagccagagtgtagttgtatttcagtc
+
+HSFAU                                                    
+HSFAU1 acatcacgagatcctagtctggttatcagcttccacactaaaaattaggt
+
+HSFAU                                                    
+HSFAU1 cagaccaggccccaaagtgctctataaattagaagctggaagatcctgaa
+
+HSFAU                                                    
+HSFAU1 atgaaacttaagatttcaaggtcaaatatctgcaactttgttctcattac
+
+HSFAU                                                    
+HSFAU1 ctattgggcgcagcttctctttaaaggcttgaattgagaaaagaggggtt
+
+HSFAU                                                    
+HSFAU1 ctgctgggtggcaccttcttgctcttacctgctggtgccttcctttccca
+
+HSFAU                                                    
+HSFAU1 ctacaggtaaagtccatggttccctggcccgtgctggaaaagtgagaggt
+
+HSFAU                                                    
+HSFAU1 cagactcctaaggtgagtgagagtattagtggtcatggtgttaggacttt
+
+HSFAU                                                    
+HSFAU1 ttttcctttcacagctaaaccaagtccctgggctcttactcggtttgcct
+
+HSFAU                                                    
+HSFAU1 tctccctccctggagatgagcctgagggaagggatgctaggtgtggaaga
+
+HSFAU                                                    
+HSFAU1 caggaaccagggcctgattaaccttcccttctccaggtggccaaacagga
+
+HSFAU                                                    
+HSFAU1 gaagaagaagaagaagacaggtcgggctaagcggcggatgcagtacaacc
+
+HSFAU                                                    
+HSFAU1 ggcgctttgtcaacgttgtgcccacctttggcaagaagaagggccccaat
+
+HSFAU                                                    
+HSFAU1 gccaactcttaagtcttttgtaattctggctttctctaataaaaaagcca
+
+HSFAU                                                    
+HSFAU1 cttagttcagtcatcgcattgtttcatctttacttgcaaggcctcaggga
+
+HSFAU                  
+HSFAU1 gaggtgtgcttctcgg
