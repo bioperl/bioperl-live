@@ -29,7 +29,7 @@ SKIP: {
 	my ($dbobj, $aln);
 	ok $dbobj=Bio::DB::Align->new(-db=>"ProtClustDB",-email=>$email), 'Bio::DB::Align::Pfam';
 	eval{$aln=$dbobj->get_Aln_by_id("2725839")};
-	skip("Bio::DB::Align::Pfam HTTP error:$@", 8) if $@;
+	skip("Bio::DB::Align::ProtClustDB HTTP error:$@", 8) if $@;
 	
 	is $aln->id,"2725839";
 	is $aln->accession,"CLSN2725839";
@@ -54,7 +54,7 @@ SKIP: {
 	my ($dbobj2,$aln2);
 	ok $dbobj2=Bio::DB::Align::ProtClustDB->new(-email=>$email);
 	eval{$aln2=$dbobj2->get_Aln_by_acc(-accession=>"CLSN2725839")};
-	skip("Bio::DB::Align::Pfam HTTP error:$@", 8) if $@;
+	skip("Bio::DB::Align::ProtClustDB HTTP error:$@", 8) if $@;
 	is $aln2->id,"2725839";
 	is $aln2->accession,"CLSN2725839";
 	is $aln2->length,"124";
