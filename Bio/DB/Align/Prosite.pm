@@ -95,13 +95,14 @@ use LWP::UserAgent;
 use HTTP::Request;
 use Bio::AlignIO;
 use Bio::Root::IO;
-use vars qw(%FORMATS %ALNTYPE $HOSTBASE);
+use vars qw(%FORMATS %ALNTYPE $HOSTBASE $TIMEOUT);
 
 use base qw(Bio::Root::Root Bio::Root::IO Bio::DB::GenericWebAgent);
 
 BEGIN {
 	$HOSTBASE = 'http://expasy.org';
 	%FORMATS=qw(fasta 1 clustalw 1); #supported formats in Prosite
+	$TIMEOUT=1000;
 }
 
 =head2 new
@@ -123,6 +124,7 @@ sub new {
    my $ua = new LWP::UserAgent(env_proxy => 1);
    #$ua->agent(ref($self) ."/$MODVERSION");
    $self->ua($ua);  
+   $self->ua->timeout($TIMEOUT);
    $self->{'_authentication'} = [];	
 	return $self;	
 }
@@ -208,6 +210,9 @@ sub get_Aln_by_acc {
 	unless ($aln->accession) {
 		$aln->accession($acc);
 	}
+	unless ($aln->source) {
+		$aln->source("Prosite");
+	}	
 	
 	return $aln;
 }
