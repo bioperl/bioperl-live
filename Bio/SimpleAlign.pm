@@ -692,82 +692,7 @@ sub _convert_leading_ending_gaps {
     my $s_new=join '', @array;
     return $s_new;
 }
-=head2 remove_columns
 
- Title     : remove_columns
- Usage     : $aln->remove_columns(['mismatch','weak']) or
-             $aln->remove_columns([3,6..8]) or
-             $aln->remove_columns(-selection=>[3,6..8],-toggle=>1,-keepgaponly=>0)
- Function  : Modify the aligment with columns removed corresponding to
-             the specified type or by specifying the columns by number.
-             remove_columns is a variance of select_columns(-toogle=>1)
- Returns   : 1
- Args      : Array ref of types ('match'|'weak'|'strong'|'mismatch') 
-             or array ref where the referenced array
-             contains a pair of integers that specify a range.
-             use remove_gaps to remove columns containing gaps
-             The first column is 1
-             See also select_columns
-
-=cut
-
-sub remove_columns {
-	my ($self,@args) = @_;
-   @args || $self->throw("Must supply column ranges or column types");
-	my ($sel, $toggle,$gap) = $self->_rearrange([qw(SELECTION TOGGLE KEEPGAPONLY)], @args);
-	my $newaln=$self->select_columns(-selection=>$sel,-toggle=>$toggle?0:1,-keepgaponly=>$gap);
-	return $newaln;
-}
-
-sub _cont_coords {
-	#This function is used to merge the coordinates from select and remove functions in order to reduce the number of calculations in select and #remove. For exmaple, if the input of remove_columns is remove_columns([2,5,7..10]), this function will transform ([2,5,7..10]) to 
- 	# ([2,2,5,5,7,10]).
-	
-	my ($old_coords)=@_;
-	@{$old_coords}=sort {$a<=>$b} @{$old_coords};
-	
-	my $cont_coords;
-	
-	push @{$cont_coords},$old_coords->[0];
-	for(my $num=0;$num<@{$old_coords};) {
-		if($num==@{$old_coords}-1) {
-			#for single selection
-			push @{$cont_coords},$old_coords->[$num];
-			last;
-		}
-		if($old_coords->[$num+1]-$old_coords->[$num]>1) {
-			if($num+2==@{$old_coords}) {
-				push @{$cont_coords},$old_coords->[$num],$old_coords->[$num+1],$old_coords->[$num+1];
-				last;
-			}
-			else {
-				push @{$cont_coords},$old_coords->[$num],$old_coords->[$num+1];
-			}
-		}
-		else {
-			if ($num+2==@{$old_coords}) {
-				push @{$cont_coords},$old_coords->[$num+1];
-				last;
-			}
-		}
-		$num++;
-	}
-	return $cont_coords;
-}
-
-
-sub _toggle_selection {
-	#This function is used to toggle the selection of sequences or columns
-	my ($old_coords,$length)=@_;
-	my %hash=map {$_=>1} @{$old_coords};
-	my $new_coords;
-	for(my $num=1;$num<=$length;$num++) {
-		unless(defined($hash{$num})) {
-			push @{$new_coords},$num;
-		}
-	}
-	return $new_coords;
-}
 
 
 =head2 sort_alphabetically
@@ -1472,7 +1397,82 @@ sub _select_columns_by_type {
 	# remove the segments
 	return \@selects;
 }
+=head2 remove_columns
 
+ Title     : remove_columns
+ Usage     : my $newaln=$aln->remove_columns(['mismatch','weak']) or
+             my $newaln=$aln->remove_columns([3,6..8]) or
+             my $newaln=$aln->remove_columns(-selection=>[3,6..8],-toggle=>1,-keepgaponly=>0)
+ Function  : Modify the aligment with columns removed corresponding to
+             the specified type or by specifying the columns by number.
+             remove_columns is a variance of select_columns(-toogle=>1)
+ Returns   : 1
+ Args      : Array ref of types ('match'|'weak'|'strong'|'mismatch') 
+             or array ref where the referenced array
+             contains a pair of integers that specify a range.
+             use remove_gaps to remove columns containing gaps
+             The first column is 1
+             See also select_columns
+
+=cut
+
+sub remove_columns {
+	my ($self,@args) = @_;
+   @args || $self->throw("Must supply column ranges or column types");
+	my ($sel, $toggle,$gap) = $self->_rearrange([qw(SELECTION TOGGLE KEEPGAPONLY)], @args);
+	my $newaln=$self->select_columns(-selection=>$sel,-toggle=>$toggle?0:1,-keepgaponly=>$gap);
+	return $newaln;
+}
+
+sub _cont_coords {
+	#This function is used to merge the coordinates from select and remove functions in order to reduce the number of calculations in select and #remove. For exmaple, if the input of remove_columns is remove_columns([2,5,7..10]), this function will transform ([2,5,7..10]) to 
+ 	# ([2,2,5,5,7,10]).
+	
+	my ($old_coords)=@_;
+	@{$old_coords}=sort {$a<=>$b} @{$old_coords};
+	
+	my $cont_coords;
+	
+	push @{$cont_coords},$old_coords->[0];
+	for(my $num=0;$num<@{$old_coords};) {
+		if($num==@{$old_coords}-1) {
+			#for single selection
+			push @{$cont_coords},$old_coords->[$num];
+			last;
+		}
+		if($old_coords->[$num+1]-$old_coords->[$num]>1) {
+			if($num+2==@{$old_coords}) {
+				push @{$cont_coords},$old_coords->[$num],$old_coords->[$num+1],$old_coords->[$num+1];
+				last;
+			}
+			else {
+				push @{$cont_coords},$old_coords->[$num],$old_coords->[$num+1];
+			}
+		}
+		else {
+			if ($num+2==@{$old_coords}) {
+				push @{$cont_coords},$old_coords->[$num+1];
+				last;
+			}
+		}
+		$num++;
+	}
+	return $cont_coords;
+}
+
+
+sub _toggle_selection {
+	#This function is used to toggle the selection of sequences or columns
+	my ($old_coords,$length)=@_;
+	my %hash=map {$_=>1} @{$old_coords};
+	my $new_coords;
+	for(my $num=1;$num<=$length;$num++) {
+		unless(defined($hash{$num})) {
+			push @{$new_coords},$num;
+		}
+	}
+	return $new_coords;
+}
 
 
 =head2 remove_gaps
