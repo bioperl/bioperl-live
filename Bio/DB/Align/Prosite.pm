@@ -21,11 +21,36 @@ sequences from Prosite
 
 =head1 SYNOPSIS
 
-  # ...To be added!
+	use Bio::DB::Align;
+	use Bio::DB::Align::Prosite;
+	use Bio::SimpleAlign; 
+  
+	my $dbobj=Bio::DB::Align::Prosite->new(); #create a db object
+	my $dbobj2=Bio::DB::Align->new(-db=>"Prosite"); #create a db object
+	                                           #the same with above
+
+	#retrieve a Bio::SimpleAlign object
+	my $aln=$dbobj->get_Aln_by_acc("PS51092"); 
+	
+	#do something here with the align object
+	print $aln->length,"\n";
+	print $aln->num_sequences,"\n";	
+	
+	foreach my $seq ($aln->next_Seq) {
+		#do something with $seq
+	}
+	
+	#or parameter based calling
+	my $aln2=$dbobj->get_Aln_by_acc(-accession=>"PS00023",
+	                                -format=>"clustalw");
+	print $aln2->accession,"\n";
 
 =head1 DESCRIPTION
 
-	# ...To be added!
+This package uses the RESTful service provided by Prosite. It retrieves
+online alignment sequences and save it into Bio::SimpleAlign object.
+Bio::DB::Align::Prosite only supports alignment sequence retrieval using
+protein domain accession number, e.g. "RF00360".
 
 =head1 TODO
 

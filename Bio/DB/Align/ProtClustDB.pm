@@ -21,11 +21,51 @@ sequences from ProtClustDB (Entrez Protein Clusters Database)
 
 =head1 SYNOPSIS
 
-  # ...To be added!
+	use Bio::DB::Align;
+	use Bio::DB::Align::ProtClustDB;
+	use Bio::SimpleAlign; 
+  
+  	#create a db object, using either of the two methods below
+	my $dbobj=Bio::DB::Align::ProtClustDB->new(-email=>'bioperl-test@foo.bar'); 
+	my $dbobj2=Bio::DB::Align->new(-db=>"ProtClustDB",
+	                               -email=>'bioperl-test@foo.bar'); 
+	                                           
+
+	#retrieve a Bio::SimpleAlign object
+	my $aln=$dbobj->get_Aln_by_id("2725839"); 
+	
+	#do something here with the align object
+	print $aln->length,"\n";
+	print $aln->num_sequences,"\n";	
+	
+	foreach my $seq ($aln->next_Seq) {
+		#do something with $seq
+	}
+	
+	#or parameter based calling
+	my $aln2=$dbobj->get_Aln_by_acc(-accession=>"CLSN2725839");
+	print $aln2->id,"\n";
+	print $aln2->accession,"\n";
+	
+	#id accession conversion
+	my $acc=$dbobj->id2acc("2725839");
+	print $acc,"\n";
+	my $id=$dbobj->acc2id("CLSN2725839");
+	print $id,"\n";
+
 
 =head1 DESCRIPTION
 
-	# ...To be added!
+This package supports alignment sequence retrieval of protein clusters from
+NCBI Entrez Protein Clusters (ProtClustDB). It retrieves online alignment 
+sequences and save it into Bio::SimpleAlign object.This package depends 
+on Bio::DB::EUtilities, which is used to convert id and accession.
+
+The retrieval can be based on protein cluster id, e.g. "2725839", or 
+accession number, e.g. "CLSN2725839".
+
+You may need to provide your email address to use this service, as per
+NCBI E-utilities policy.
 
 =head1 TODO
 
@@ -97,15 +137,13 @@ use Bio::AlignIO;
 use Bio::SimpleAlign;
 use Bio::Root::IO;
 use Bio::DB::EUtilities;
-use vars qw(%FORMATS %ALNTYPE $HOSTBASE);
+use vars qw($HOSTBASE);
 
 use base qw(Bio::Root::Root Bio::Root::IO Bio::DB::GenericWebAgent);
 
 BEGIN {
 	$HOSTBASE = 'http://www.ncbi.nlm.nih.gov';
 	#http://www.ncbi.nlm.nih.gov/sutils/prkview.cgi?result=align&cluster=PRK00286&image=download
-	%FORMATS=qw(fasta 1 stockholm 1 pfam 1 fastau 1); #supported formats in pfam
-	%ALNTYPE=qw(seed 1 full 1); #supported alignment types
 }
 
 

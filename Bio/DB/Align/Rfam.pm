@@ -21,11 +21,39 @@ sequences from Rfam
 
 =head1 SYNOPSIS
 
-  # ...To be added!
+	use Bio::DB::Align;
+	use Bio::DB::Align::Rfam;
+	use Bio::SimpleAlign; 
+  
+	my $dbobj=Bio::DB::Align::Rfam->new(); #create a db object
+	my $dbobj2=Bio::DB::Align->new(-db=>"Rfam"); #create a db object
+	                                           #the same with above
 
+	#retrieve a Bio::SimpleAlign object
+	my $aln=$dbobj->get_Aln_by_acc("RF00360"); 
+	
+	#do something here with the align object
+	print $aln->length,"\n";
+	print $aln->num_sequences,"\n";	
+	
+	foreach my $seq ($aln->next_Seq) {
+		#do something with $seq
+	}
+	
+	#or parameter based calling
+	my $aln2=$dbobj->get_Aln_by_acc(-accession=>"RF00360",
+	                                -alignment=>"full",
+	                                -nselabel=>1, 
+	                                -format=>"stockholm",
+	                                -gap=>"dashes");
+	print $aln2->accession,"\n";
+	
 =head1 DESCRIPTION
 
-	# ...To be added!
+This package uses the RESTful service provided by Rfam. It retrieves
+online alignment sequences and save it into Bio::SimpleAlign object.
+Bio::DB::Align::Rfam only supports alignment sequence retrieval using
+RNA accession number, e.g. "RF00360".
 
 =head1 TODO
 

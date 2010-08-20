@@ -20,12 +20,50 @@ Bio::DB::Align - interface fro webagent packages retrieves alignment sequences
 from online databases, e.g. Pfam
 
 =head1 SYNOPSIS
+	
+	#Take Bio::DB::Align::Pfam as example
+	use Bio::DB::Align;
+	use Bio::DB::Align::Pfam;
+	use Bio::SimpleAlign; 
+  
+	my $dbobj=Bio::DB::Align::Pfam->new(); #create a db object
+	my $dbobj2=Bio::DB::Align->new(-db=>"Pfam"); #create a db object
+	                                           #the same with above
 
-  # ...To be added!
+	#retrieve a Bio::SimpleAlign object
+	my $aln=$dbobj->get_Aln_by_id("Piwi"); 
+	
+	#do something here with the align object
+	print $aln->length,"\n";
+	print $aln->num_sequences,"\n";	
+	
+	foreach my $seq ($aln->next_Seq) {
+		#do something with $seq
+	}
+	
+	#or parameter based calling
+	my $aln2=$dbobj->get_Aln_by_acc(-accession=>"PF02171",
+	                                -alignment=>"full",
+	                                -format=>"stockholm",
+	                                -order=>"a",
+	                                -case=>"u",
+	                                -gap=>"dots");
+	print $aln2->id,"\n";
+	print $aln2->accession,"\n";
+	
+	#id accession conversion
+	my $acc=$dbobj->id2acc("Piwi");
+	print $acc,"\n";
+	my $id=$dbobj->acc2id("PF02171");
+	print $id,"\n";
 
 =head1 DESCRIPTION
 
-	# ...To be added!
+This package is an interface to Bio::DB::Align packages. See also
+Bio::DB::Align::Pfam
+Bio::DB::Align::Rfam
+Bio::DB::Align::Prosite
+Bio::DB::Align::ProtClustDB
 
 =head1 TODO
 
