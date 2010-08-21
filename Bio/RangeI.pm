@@ -312,7 +312,7 @@ which new ranges could be built.
            overlap. In scalar contex, the return value is an object of
            the same class as the calling one. In array context the
            return value is a three element array.
- Args    : arg #1 = [REQUIRED] a range to compare this one to,
+ Args    : arg #1 = [REQUIRED] a Bio::RangeI to compare this one to,
                     or an array ref of ranges
            arg #2 = optional strand-testing arg ('strong', 'weak', 'ignore')
 
