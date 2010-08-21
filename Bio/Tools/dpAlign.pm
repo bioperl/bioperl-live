@@ -406,7 +406,7 @@ sub pairwise_alignment_score {
 	return Bio::Ext::Align::Score_Protein_Sequences($prof, $seq2->seq);
     }
     else {
-	croak("There is currently no support for the types of sequences you want to align!\n");
+	$self->throw("There is currently no support for the types of sequences you want to align!\n");
 	return;
     }
 }
