@@ -16,7 +16,8 @@
 
 =head1 NAME
 
-Bio::Tools::EUtilities::Summary - class for handlign data output (XML) from esummary.
+Bio::Tools::EUtilities::Summary - class for handling data output (XML) from
+esummary.
 
 =head1 SYNOPSIS
 

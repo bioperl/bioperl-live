@@ -52,33 +52,11 @@ Bio::Tools::EUtilities::Info::FieldInfo - class for storing einfo field data
 
     my @fields = $info->get_Fields; # grab them all (useful for grep)
 
-    while (my $link = $info->next_Link) {
-        print "Link name: ",$link->get_link_name,"\n";
-        print "Link desc: ",$link->get_link_description,"\n";
-        print "DBFrom: ",$link->get_dbfrom,"\n"; # same as get_database()
-        print "DBTo: ",$link->get_dbto,"\n"; # database linked to
-    }
-
-    my @links = $info->get_Links; # grab them all (useful for grep)
-
-    $info->rewind(); # rewinds all iterators
-    $info->rewind('links'); # rewinds Link iterator
     $info->rewind('fields'); # rewinds Field iterator
 
 =head1 DESCRIPTION
 
-This class handles data output (XML) from einfo.
-
-einfo is capable of returning two types of information: 1) a list of all
-available databases (when called w/o parameters) and 2) information about a
-specific database. The latter information includes the database description,
-record count, and date/time stamp for the last update, among other things. It
-also includes a list of fields (indices by which record data is stored which can
-be used in queries) and links (crossrefs between related records in other
-databases at NCBI). Data from the latter two are stored in two small subclasses
-(Field and Link) which can be iterated through or retrieved all at once, as
-demonstrated above. NOTE: Methods described for the Link and Field subclasses
-are unique to those classes (as they retrieve data unique to those data types).
+This class handles simple field data output (XML) from einfo.  
 
 Further documentation for Link and Field subclass methods is included below.
 

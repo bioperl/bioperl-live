@@ -30,18 +30,9 @@ Bio::Tools::EUtilities::Info::LinkInfo - class for storing einfo link data
 
 =head1 DESCRIPTION
 
-This class handles data output (XML) from einfo and elink.
-
-einfo is capable of returning two types of information: 1) a list of all
-available databases (when called w/o parameters) and 2) information about a
-specific database. The latter information includes the database description,
-record count, and date/time stamp for the last update, among other things. It
-also includes a list of fields (indices by which record data is stored which can
-be used in queries) and links (crossrefs between related records in other
-databases at NCBI). Data from the latter two are stored in two small subclasses
-(Field and Link) which can be iterated through or retrieved all at once, as
-demonstrated above. NOTE: Methods described for the Link and Field subclasses
-are unique to those classes (as they retrieve data unique to those data types). 
+This class handles data output (XML) from both einfo and elink, and centers on
+describing data that either describes how NCBI databases are linked together
+via link names, or how databases are linked to outside databases (LinkOut).
 
 Further documentation for Link and Field subclass methods is included below.
 
