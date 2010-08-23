@@ -3,7 +3,7 @@ use version;
 our $API_VERSION = qv('1.1.3');
 
 use strict;
-use File::Path qw(make_path remove_tree);
+use File::Path qw(mkpath rmtree);
 
 BEGIN {
     use lib '.';    # for core package test scripts only
@@ -34,7 +34,7 @@ sub create_dir {
     $dir = test_input_file($dir);
 
     unless ( -d $dir ) {
-        make_path($dir);
+        mkpath($dir);
     }
 }
 
