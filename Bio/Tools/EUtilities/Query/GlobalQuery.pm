@@ -21,9 +21,20 @@ Bio::Tools::EUtilities::Query::GlobalQuery - container class for egquery data
 
   #### should not create instance directly; Bio::Tools::EUtilities does this ####
 
+  my $parser = Bio::Tools::EUtilities->new(-eutil => 'egquery',
+                                           -term  => 'BRCA1');
+
+  # $gquery is a Bio::Tools::EUtilities::Query::GlobalQuery
+  while (my $gquery = $parser->next_GlobalQuery) {
+     print $gquery->to_string."\n"; # stringify
+     print "DB:".$gquery->get_db."\t".$gquery->get_count;
+  }
+
 =head1 DESCRIPTION
 
-This is a simple container class for egquery data.  
+This is a simple container class for egquery data.  Currently this just contains
+various accessors for the data, such as get_database(), get_count(), etc. for
+each item in a global query.
 
 =head1 FEEDBACK
 

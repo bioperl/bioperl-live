@@ -58,8 +58,6 @@ Bio::Tools::EUtilities::Info::FieldInfo - class for storing einfo field data
 
 This class handles simple field data output (XML) from einfo.  
 
-Further documentation for Link and Field subclass methods is included below.
-
 For more information on einfo see:
 
    http://eutils.ncbi.nlm.nih.gov/entrez/query/static/einfo_help.html
