@@ -1,4 +1,3 @@
-# $Id: EUtilParameters.pm 15052 2008-12-01 08:47:39Z heikki $
 #
 # BioPerl module for Bio::Tools::EUtilities::EUtilParameters
 #
