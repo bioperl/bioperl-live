@@ -20,12 +20,91 @@ NCBI's eUtils
 
 =head1 SYNOPSIS
 
-  # ...To be added!
+  my $eutil = Bio::DB::EUtilities->new(
+    -eutil      => 'esearch',
+    -term       => 'BRCA1',
+    -db         => 'pubmed',
+    -retmax     => 10000,
+    -email      => 'foo@bar.org'); # please use your real email
+
+  # eutil => any of esearch, esummary, elink
+  @ids = $eutil->get_ids(); # returns array or array ref of IDs
+
+  # eutil => any of egquery, espell
+  
+  $term = $eutil->get_term(); # returns array or array ref of IDs
+  
+  # eutil => any of elink, einfo
+  
+  $db = $eutil->get_database(); # returns database
+  
+  # Query-related methods (esearch, egquery, espell data)
+  # eutil data centered on use of search terms
+  
+  my $ct = $eutil->get_count; # uses optional database for egquery count
+  my $translation = $eutil->get_count;
+  
+  my $corrected = $eutil->get_corrected_query; # espell
+
+  while (my $gquery = $eutil->next_GlobalQuery) {
+     # iterates through egquery data
+  }
+  
+  # Info-related methods (einfo data)
+  # database-related information
+  
+  my $desc = $eutil->get_description;
+  my $update = $eutil->get_last_update;
+  my $nm = $eutil->get_menu_name;
+  my $ct = $eutil->get_record_count;
+  
+  while (my $field = $eutil->next_FieldInfo) {
+      # ...
+  }
+  while (my $field = $eutil->next_LinkInfo) {
+      # ...
+  }
+  
+  # History methods (epost data, some data returned from elink)
+  # data which enables one to retrieve and query against user-stored
+  # information on the NCBI server
+  
+  while (my $cookie = $eutil->next_History) {
+      # ...
+  }
+  
+  my @hists = $eutil->get_Histories;
+  
+  # Bio::Tools::EUtilities::Summary (esummary data)
+  # information on a specific database record
+  
+  # retrieve nested docsum data
+  while (my $docsum = $eutil->next_DocSum) {
+      print "ID:",$docsum->get_ids,"\n";
+      while (my $item = $docsum->next_Item) {
+          # do stuff here...
+          while (my $listitem = $docsum->next_ListItem) {
+              # do stuff here...
+              while (my $listitem = $docsum->next_Structure) {
+                  # do stuff here...
+              }
+          }
+      }
+  }
+  
+  # retrieve flattened item list per DocSum
+  while (my $docsum = $eutil->next_DocSum) {
+     my @items = $docsum->get_all_DocSum_Items;
+  }
 
 =head1 DESCRIPTION
 
-This is a general webagent which posts and retrieves data to NCBI's eUtilities
-service using their CGI interface.
+This is a general webagent which posts and retrieves data to NCBI's eUtils
+service using their CGI interface. A separate project, currently present in
+BioPerl-Run, utilizes the SOAP-based interface for eUtils.
+
+A full explanation of the eUtils interfaces are not possible within this short
+module; please see the BioPerl wiki HOWTO for more details.
 
 =head1 TODO
 
@@ -44,13 +123,6 @@ updated.
 
 Mark Jensen has written up the SOAP-based eUtil modules, maybe we should
 coalesce around a consistent API between the two (they are close).
-
-=item * POST/GET
-
-Most eutils now allow use of POST for large sets of IDs, even though GET is
-apparently preferred. Therefore the choice of which to use should probably come
-down to (in order) user specification, support for the mode for the specific
-eutil, and the number of IDs present.
 
 =item * Carryover of parameters
 
