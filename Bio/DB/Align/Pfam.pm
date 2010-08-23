@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::DB::AlignIO::Pfam
+# BioPerl module for Bio::DB::Align::Pfam
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
 #
@@ -16,7 +16,7 @@
 
 =head1 NAME
 
-Bio::DB::AlignIO::Pfam - webagent which interacts with and retrieves alignment 
+Bio::DB::Align::Pfam - webagent which interacts with and retrieves alignment 
 sequences from Pfam
 
 =head1 SYNOPSIS

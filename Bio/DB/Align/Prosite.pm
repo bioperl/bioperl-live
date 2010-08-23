@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::DB::AlignIO::Prosite
+# BioPerl module for Bio::DB::Align::Prosite
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
 #
@@ -16,7 +16,7 @@
 
 =head1 NAME
 
-Bio::DB::AlignIO::Prosite - webagent which interacts with and retrieves alignment 
+Bio::DB::Align::Prosite - webagent which interacts with and retrieves alignment 
 sequences from Prosite
 
 =head1 SYNOPSIS

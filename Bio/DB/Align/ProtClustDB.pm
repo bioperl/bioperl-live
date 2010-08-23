@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::DB::AlignIO::ProtClustDB
+# BioPerl module for Bio::DB::Align::ProtClustDB
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
 #
@@ -16,7 +16,7 @@
 
 =head1 NAME
 
-Bio::DB::AlignIO::ProtClustDB - webagent which interacts with and retrieves alignment 
+Bio::DB::Align::ProtClustDB - webagent which interacts with and retrieves alignment 
 sequences from ProtClustDB (Entrez Protein Clusters Database)
 
 =head1 SYNOPSIS

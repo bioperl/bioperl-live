@@ -1,6 +1,6 @@
 # $Id$
 #
-# BioPerl module for Bio::DB::AlignIO::Rfam
+# BioPerl module for Bio::DB::Align::Rfam
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
 #
@@ -16,7 +16,7 @@
 
 =head1 NAME
 
-Bio::DB::AlignIO::Rfam - webagent which interacts with and retrieves alignment 
+Bio::DB::Align::Rfam - webagent which interacts with and retrieves alignment 
 sequences from Rfam
 
 =head1 SYNOPSIS
