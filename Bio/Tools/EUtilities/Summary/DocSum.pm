@@ -20,11 +20,24 @@ from esummary
 
 =head1 SYNOPSIS
 
-    ****MISSING SECTION****
+  # Implement ItemContainerI
+
+  # $foo is any ItemContainerI (current implementations are DocSum and Item itself)
+  
+  while (my $item = $foo->next_Item) { # iterate through contained Items
+     # do stuff here
+  }
+  
+  @items = $foo->get_Items;  # all Items in the container (hierarchy intact)
+  @items = $foo->get_all_Items;  # all Items in the container (flattened)
+  @items = $foo->get_Items_by_name('bar'); # Specifically named Items
+  ($content) = $foo->get_contents_by_name('bar'); # content from specific Items
+  ($type) = $foo->get_type_by_name('bar'); # data type from specific Items    
 
 =head1 DESCRIPTION
 
-    ****MISSING SECTION****
+This is the basic class for Document Summary data from NCBI eUtils, returned
+from esummary.  This implements the simple ItemContainerI interface.
 
 =head1 FEEDBACK
 
