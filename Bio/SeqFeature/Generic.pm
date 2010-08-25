@@ -195,7 +195,7 @@ sub set_attributes {
     my ($self,@args) = @_;
     my ($start, $end, $strand, $primary_tag, $source_tag, $primary, 
 		  $source, $frame, $score, $tag, $gff_string, $gff1_string,
-        $seqname, $seqid, $annot, $location,$display_name) =
+        $seqname, $seqid, $annot, $location,$display_name, $pid) =
             $self->_rearrange([qw(START
                                   END
                                   STRAND
@@ -213,6 +213,7 @@ sub set_attributes {
                                   ANNOTATION
                                   LOCATION
                                   DISPLAY_NAME
+                                  PRIMARY_ID
                                   )], @args);
     $location    && $self->location($location);
     $gff_string  && $self->_from_gff_string($gff_string);
@@ -220,6 +221,8 @@ sub set_attributes {
         $self->gff_format(Bio::Tools::GFF->new('-gff_version' => 1));
         $self->_from_gff_stream($gff1_string);
     };
+    
+    $pid                    && $self->primary_id($pid);
     $primary_tag            && $self->primary_tag($primary_tag);
     $source_tag             && $self->source_tag($source_tag);
     $primary                && $self->primary_tag($primary);
