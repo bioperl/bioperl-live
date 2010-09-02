@@ -22,7 +22,7 @@ $str = Bio::AlignIO->new(
 			   '-format' => 'selex');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
-is $aln->get_seq_by_pos(1)->get_nse, 'AK1H_ECOLI/114-431', "selex format test ";
+is $aln->get_seq_by_pos(1)->get_nse, 'HSFAU/1-518', "selex format test ";
 
 $strout = Bio::AlignIO->new(
    '-file' => ">".test_output_file(), 

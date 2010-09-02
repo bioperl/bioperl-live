@@ -327,9 +327,9 @@ END
    typeid            int not null,
    seqid             int not null,
    bin               int not null,
-   cum_count         int not null,
-   CREATE UNIQUE INDEX interval_stats_id ON interval_stats(typeid,seqid,bin)
-)
+   cum_count         int not null
+ );
+ CREATE UNIQUE INDEX interval_stats_id ON interval_stats(typeid,seqid,bin);
 END
 	 };
 }
@@ -934,9 +934,28 @@ sub _add_interval_stats_table {
     my $self = shift;
     my $tables          = $self->table_definitions;
     my $interval_stats  = $self->_interval_stats_table;
-    eval {
-	$self->dbh->do("CREATE TABLE $interval_stats $tables->{interval_stats}");
+    ##check to see if it exists yet; if it does, just return because
+    ##there is a drop from in the next step
+    my $dbh = $self->dbh;
+    my @table_exists = $dbh->selectrow_array("SELECT * FROM pg_tables WHERE tablename
+ = '$interval_stats' AND schemaname = '".$self->namespace."'");
+    if (!scalar(@table_exists)) {
+        my $query = "CREATE TABLE $interval_stats $tables->{interval_stats}";
+        $dbh->do($query) or $self->throw($dbh->errstr);
     }
+}    
+
+sub _fetch_indexed_features_sql {
+    my $self     = shift;
+    my $features = $self->_feature_table;
+    return <<END;
+SELECT typeid,seqid,start-1,"end"
+  FROM $features as f
+ WHERE f.indexed=1
+  ORDER BY typeid,seqid,start
+END
 }
+
+
 
 1;

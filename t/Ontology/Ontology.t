@@ -8,7 +8,7 @@ BEGIN {
     use Bio::Root::Test;
 
     test_begin(
-        -tests           => 53,
+        -tests           => 54,
         -requires_module => 'Graph'
     );
 
@@ -160,4 +160,11 @@ is( scalar(@relset), 4 );
         -file   => test_input_file('interpro.xml'),
     );
     ok( $parser->next_ontology, 'Interpro XML can be parsed' );
+}
+{
+    my $parser = Bio::OntologyIO->new(
+        -format => "interpro",
+        -file   => test_input_file('interpro_sample.xml'),
+    );
+    ok( $parser->next_ontology, 'More Interpro XML can be parsed' );
 }

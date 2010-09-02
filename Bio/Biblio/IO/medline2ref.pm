@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module Bio::Biblio::IO::medline2ref.pm
 #

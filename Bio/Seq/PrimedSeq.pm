@@ -1,4 +1,3 @@
-# $Id$
 #
 # This is the original copyright statement. I have relied on Chad's module
 # extensively for this module.

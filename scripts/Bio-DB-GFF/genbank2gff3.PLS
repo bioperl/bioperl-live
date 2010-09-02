@@ -530,6 +530,7 @@ for my $file ( @files ) {
             #?? should gene_name from /locus_tag,/gene,/product,/transposon=xxx
             # be converted to or added as  Name=xxx (if not ID= or as well)
             ## problematic: convert_to_name ($feature); # drops /locus_tag,/gene, tags
+            convert_to_name($feature); 
             
             ## dgg: extended to protein|polypeptide
             ## this test ($feature->has_tag('gene') ||) is not good: repeat_regions over genes
@@ -1146,6 +1147,10 @@ sub convert_to_name {
         ## $g->remove_tag('transposon');
         $g->add_tag_value('Name', $gene_id);
     }
+    elsif ($g->has_tag('ID')) { 
+        my ($name)= $g->get_tag_values('ID');
+        $g->add_tag_value('Name', $name);
+    }    
     return $gene_id;
 }
 

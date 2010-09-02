@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-# $Id$
 
 use strict;
 # use lib './blib/lib';

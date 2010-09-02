@@ -1,7 +1,6 @@
 package	Bio::Root::Utilities;
 use strict;
 
-# $Id$
 
 =head1 NAME
 

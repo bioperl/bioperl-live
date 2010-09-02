@@ -2,7 +2,6 @@
 # PACKAGE : Bio::SeqIO::raw
 # AUTHOR  : Ewan Birney <birney@ebi.ac.uk>
 # CREATED : Feb 16 1999
-# REVISION: $Id$
 #
 # Copyright (c) 1997-9 bioperl, Ewan Birney. All Rights Reserved.
 #           This module is free software; you can redistribute it and/or

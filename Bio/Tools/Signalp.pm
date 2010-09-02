@@ -1,4 +1,3 @@
-# $Id$
 # Parser module for Signalp Bio::Tools::Signalp
 #
 # 

@@ -1,4 +1,15 @@
-# $Id: EUtilDataI.pm 16108 2009-09-16 17:07:49Z cjfields $
+#
+# BioPerl module for Bio::Tools::EUtilities::EUtilDataI
+#
+# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+#
+# Cared for by Chris Fields <cjfields at bioperl dot org>
+#
+# Copyright Chris Fields
+#
+# You may distribute this module under the same terms as perl itself
+#
+# POD documentation - main docs before the code
 
 =head1 NAME
 

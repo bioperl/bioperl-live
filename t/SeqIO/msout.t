@@ -3,7 +3,7 @@ use version;
 our $API_VERSION = qv('1.1.5');
 
 use strict;
-use File::Path qw(make_path remove_tree);
+use File::Path qw(mkpath rmtree);
 
 BEGIN {
     use lib '.';    # for core package test scripts only
@@ -36,7 +36,7 @@ sub create_dir {
     $dir = test_input_file($dir);
 
     unless ( -d $dir ) {
-        make_path($dir);
+        mkpath($dir);
     }
 }
 
@@ -47,7 +47,7 @@ sub remove_dir {
     $dir = test_input_file($dir);
 
     if ( -d $dir ) {
-        remove_tree($dir);
+        rmtree($dir);
     }
     else { warn "Tried to remove $dir, but it does not exist" }
 }

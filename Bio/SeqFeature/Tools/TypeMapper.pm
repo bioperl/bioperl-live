@@ -1,4 +1,3 @@
-# $Id$
 #
 # bioperl module for Bio::SeqFeature::Tools::TypeMapper
 #
@@ -192,12 +191,12 @@ sub map_types{
 		   $mtype = $mtype->($sf);
 	       }
 	       else {
-		   $self->throw('must be scalar or CODE ref');
+		   $self->throw('type_map values must be scalar or CODE ref. You said: '.$mtype.' for type: '.$type);
 	       }
 	   }
 	   elsif ($undefmap && $mtype eq 'undefined') { # dgg
 	      $mtype= $undefmap;
-	      }
+           }
 	   $sf->primary_tag($mtype);
        }
    }

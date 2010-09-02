@@ -120,7 +120,6 @@ will be lost when the script exits.
 
 =cut
 
-# $Id$
 use strict;
 use base 'Bio::DB::SeqFeature::Store';
 use Bio::DB::SeqFeature::Store::GFF3Loader;

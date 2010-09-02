@@ -1,6 +1,5 @@
 
 #
-# $Id$
 #
 # BioPerl module for Bio::DB::SeqI.pm
 #
