@@ -221,8 +221,6 @@ foreach my $feature ($seq->top_SeqFeatures) {
 # long labels handled
 
 {
-    use IO::String;
-
     # Create sequence with feature with a long label qualifier
     my $seq=Bio::Seq->new(-seq=>'actg');
     my $feature=Bio::SeqFeature::Generic->new(-primary=>'CDS', -start=>1, -end=>4);
@@ -231,11 +229,13 @@ foreach my $feature ($seq->top_SeqFeatures) {
 
     # Write EMBL
     my $string;
-    my $out=Bio::SeqIO->new(-format=>'embl', -fh=>IO::String->new($string));
+    open(my $str_fh, '>', \$string) || skip("Can't open string, skipping", 2);
+    
+    my $out=Bio::SeqIO->new(-format=>'embl', -fh => $str_fh);
     $out->write_seq($seq);
 
     # Read EMBL
-    my $in=Bio::SeqIO->new(-format=>'embl', -fh=>IO::String->new($string));
+    my $in=Bio::SeqIO->new(-format=>'embl', -string => $string);
     my $ret=eval { my $embl=$in->next_seq };
     my $error;
     $error=$@ if (!$ret);
