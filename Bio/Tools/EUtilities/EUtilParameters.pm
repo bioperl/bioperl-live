@@ -456,8 +456,9 @@ sub get_parameters {
                     }
                 }
             } else {
+                # add a check for undef
                 push @p, ref $id eq 'ARRAY' ?
-                ($param => join(',', @{ $id })):
+                ($param => join(',', grep {defined($_)} @{ $id })):
                 ($param => $id);
             }
         }

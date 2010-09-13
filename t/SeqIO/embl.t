@@ -8,7 +8,7 @@ BEGIN {
 	use lib '../..';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 85);
+	test_begin(-tests => 87);
 	
     use_ok('Bio::SeqIO::embl');
 }
@@ -216,4 +216,29 @@ foreach my $feature ($seq->top_SeqFeatures) {
            'bifunctional phosphoribosylaminoimidazolecarboxamide formyltransferase/IMP cyclohydrolase',
            'Check if product was parsed correctly');
     }
+}
+
+# long labels handled
+
+{
+    # Create sequence with feature with a long label qualifier
+    my $seq=Bio::Seq->new(-seq=>'actg');
+    my $feature=Bio::SeqFeature::Generic->new(-primary=>'CDS', -start=>1, -end=>4);
+    $feature->add_tag_value(label=>'1 2 3 4 5 6 7 8 9 a b c d e f g h i j k l m n o p q r');
+    $seq->add_SeqFeature($feature);
+
+    # Write EMBL
+    my $string;
+    open(my $str_fh, '>', \$string) || skip("Can't open string, skipping", 2);
+    
+    my $out=Bio::SeqIO->new(-format=>'embl', -fh => $str_fh);
+    $out->write_seq($seq);
+
+    # Read EMBL
+    my $in=Bio::SeqIO->new(-format=>'embl', -string => $string);
+    my $ret=eval { my $embl=$in->next_seq };
+    my $error;
+    $error=$@ if (!$ret);
+    ok($ret, 'Parse long qualifier');
+    is($error, undef);
 }
