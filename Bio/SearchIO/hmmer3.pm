@@ -446,7 +446,7 @@ sub next_result{
                                    \s*$!ox
 			       ){
 			       #keeping simple for now. let's customize later
-			       my @vals = ($hmmstart, $hmmstop, $qalistart, $qalistop, $score, $ceval);
+			       my @vals = ($hmmstart, $hmmstop, $qalistart, $qalistop, $score, $ceval, '', '', '');
 			       my $info = $hit_list[ $hitinfo{$name} ];
 			       if( !defined $info ){
 				   $self->warn(
@@ -468,6 +468,9 @@ sub next_result{
 		       my $domain_count = 0;
 		       my $count = 0; #line counter
 		       my $lastdomain;
+                       my $hsp;
+                       my ($hline, $midline, $qline);
+
 		       while( defined( $_ = $self->_readline ) ) {
 			   if( $_ =~ m/^\>\>/ ||
 			       $_ =~ m/Internal pipeline statistics/){
@@ -481,7 +484,11 @@ sub next_result{
 			   elsif( $_ =~ /\s\s\=\=\sdomain\s(\d+)\s+/){
 			       my $domainnum = $1;
 			       $count = 0;
-
+                               my $key = $name . "_" . $domainnum;
+                               $hsp = $hsp_list[ $hspinfo{$key} ];
+                               $hline = $$hsp[-3];
+                               $midline = $$hsp[-2];
+                               $qline = $$hsp[-1];
 			       $lastdomain = $name;
 			   }
 #Is this block actually depricated with live release or is it an option?
@@ -494,15 +501,10 @@ sub next_result{
 #			       next;
 #			   }
 			   elsif( $count == 0 ){
-			       #query sequence
+			       #hit sequence
 			       my @data = split(" ", $_);
 			       my $seq = $data[-2];
-			       $self->element(
-				   {
-				       'Name' => 'Hsp_hseq',
-				       'Data' => $seq
-				   }
-			       );
+                               $hline .= $seq;
 			       $count++;
 			       next;
 			   }
@@ -513,12 +515,7 @@ sub next_result{
 			       #gap data (latter isn't done, former is)
 			       $_ =~ s/^\s+//;
 			       $_ =~ s/\s+$//;
-			       $self->element(
-				   {
-				       'Name' => 'Hsp_midline',
-				       'Data' => $_
-				   }
-			       );
+                               $midline .= $_;
 			       $count++;
 			       next;
 			   }
@@ -526,12 +523,7 @@ sub next_result{
 			       #query track
 			       my @data = split(" ", $_);
 			       my $seq = $data[-2];
-			       $self->element(
-				   {
-				       'Name' => 'Hsp_qseq',
-				       'Data' => $seq
-				   }
-			       );
+                               $qline .= $seq;
 			       $count++;
 			       next;
 			   }
@@ -539,6 +531,9 @@ sub next_result{
 			       #pval track
 			       my $pvals = $_;
 			       $count = 0;
+                               $$hsp[-3] = $hline;
+                               $$hsp[-2] = $midline;
+                               $$hsp[-1] = $qline;
 			       next;
 			   }
 			   else{
@@ -630,6 +625,18 @@ sub next_result{
                                } );
                            $self->element( {
                                    'Name' => 'Hsp_evalue',
+                                   'Data' => shift @$hsp
+                               } );
+                           $self->element( {
+                                   'Name' => 'Hsp_hseq',
+                                   'Data' => shift @$hsp
+                               } );
+                           $self->element( {
+                                   'Name' => 'Hsp_midline',
+                                   'Data' => shift @$hsp
+                               } );
+                           $self->element( {
+                                   'Name' => 'Hsp_qseq',
                                    'Data' => shift @$hsp
                                } );
                            $self->end_element( { 'Name' => 'Hsp' } );

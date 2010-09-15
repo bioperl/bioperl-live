@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 116);
+    test_begin(-tests => 119);
 
 	use_ok('Bio::SearchIO');
 }
@@ -43,6 +43,9 @@ while( my $result = $searchio->next_result ) {
             is($hsp->query->end, 173, 'Check for query ali to value');
             is($hsp->score, '105.0', 'Check for hsp score');
             float_is($hsp->evalue, 1.5e-33, 'Check for hsp c-Evalue');
+            is($hsp->query_string, 'LKPDLIIGREYQ---KNIYNQLSNFAPTVLVDWGSF-TSFQDNFRYIAQVLNEEEQGKLVLQQYQKRIRDLQDRMGERlQKIEVSVIGFSGQSIKSLNR-DAVFNQVLDDAGIKRIsIQKNQQERYLEISIENLNKYDADVLFVINE---SKEQLYPDLKNPLWHHLRAVKKQQVYVVNQ', 'Check for query string');
+            is($hsp->hit_string, 'lkPDlvivsafgalvseieellelgipvvavessstaeslleqirllgellgeedeaeelvaelesridavkaridsl-kpktvlvfgyadegikvvfgsgswvgdlldaaggeni-iaeakgseseeisaEqilaadpdviivsgrgedtktgveelkenplwaelpAvkngrvyllds', 'Check for hit string');
+            is($hsp->homology_string, 'lkPDl+i+ +++   ++i+++l++ +p+v v+  s+  s+++ +r ++++l+ee++++ + +++++ri+++++r  +  ++ +v+v+g+++ +ik+++  +  ++++ld+ag++ i i++++++ + eis+E+++++d+dv++v       k+ +   ++nplw +l+Avk+++vy++++', 'Check for homology string');
         }
     }
 }
