@@ -446,7 +446,7 @@ sub next_result{
                                    \s*$!ox
 			       ){
 			       #keeping simple for now. let's customize later
-			       my @vals = ($envstart, $envstop, $hmmstart, $hmmstop, $score, $ceval);
+			       my @vals = ($hmmstart, $hmmstop, $qalistart, $qalistop, $score, $ceval);
 			       my $info = $hit_list[ $hitinfo{$name} ];
 			       if( !defined $info ){
 				   $self->warn(

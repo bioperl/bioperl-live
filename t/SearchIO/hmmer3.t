@@ -37,10 +37,10 @@ while( my $result = $searchio->next_result ) {
 
         if( defined( $hsp = $hit->next_domain ) ) {
             is(ref($hsp), 'Bio::Search::HSP::hmmer3HSP', 'Check for correct hsp reference type');
-            is($hsp->hit->start, 1, 'Check for hit envfrom value');
-            is($hsp->hit->end, 175, 'Check for hit env to value');
-            is($hsp->query->start, 59, 'Check for query hmmfrom value');
-            is($hsp->query->end, 236, 'Check for query hmm to value');
+            is($hsp->hit->start, 59, 'Check for hit hmmfrom value');
+            is($hsp->hit->end, 236, 'Check for hit hmm to value');
+            is($hsp->query->start, 2, 'Check for query alifrom value');
+            is($hsp->query->end, 173, 'Check for query ali to value');
             is($hsp->score, '105.0', 'Check for hsp score');
             float_is($hsp->evalue, 1.5e-33, 'Check for hsp c-Evalue');
         }
@@ -70,12 +70,12 @@ $searchio = Bio::SearchIO->new(-format  => 'hmmer3',
 
 my @multi_hits = (
       ['PPC', 'Bacterial pre-peptidase C-terminal domain', '111.0', 3.1e-32, 6,
-        [[84, 192, 4, 59, 0.5, 0.16], [311, 397, 12, 58, -0.6, 0.36],
-         [470, 550, 1, 69, 71.3, 1.3e-23], [567, 626, 15, 25, -3.2, 2],
-         [974, 1072, 13, 36, -1.1, 0.5], [1087, 1169, 1, 69, 54.4, 2.4e-18]]],
+        [[4, 59, 117, 183, 0.5, 0.16], [12, 58, 347, 388, -0.6, 0.36],
+         [1, 69, 470, 549, 71.3, 1.3e-23], [15, 25, 582, 603, -3.2, 2],
+         [13, 36, 987, 1019, -1.1, 0.5], [1, 69, 1087, 1168, 54.4, 2.4e-18]]],
       ['HemolysinCabind', 'Hemolysin-type calcium-binding repeat (2 cop', '47.9', 4.7e-13, 3,
-        [[1213, 1225, 2, 13, 5.9, 0.0026], [1231, 1248, 1, 18, 10.8, 6.8e-5],
-         [1240, 1257, 4, 18, 11.4, 4.3e-05]]]
+        [[2, 13, 1214, 1225, 5.9, 0.0026], [1, 18, 1231, 1248, 10.8, 6.8e-5],
+         [4, 18, 1243, 1257, 11.4, 4.3e-05]]]
     );
 
 while( my $result = $searchio->next_result ) {
