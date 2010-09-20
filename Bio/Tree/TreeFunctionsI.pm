@@ -637,7 +637,7 @@ sub force_binary {
     if (@descs > 2) {
         $self->warn("Node ".($node->can('node_name') ? ($node->node_name || $node->id) : $node->id).
                     " has more than two descendants\n(".
-                    join(", ", map { $node->can('node_name') ? ($node->node_name || $node->id) : $node->id } @descs).
+                    join(", ", map { $node->can('node_name') ? ($node->node_name || $node->id || '') : $node->id || '' } @descs).
                     ")\nWill do an arbitrary balanced split");
         my @working = @descs;
         # create an even set of artifical nodes on which to later hang the descs
@@ -971,7 +971,6 @@ sub reroot {
     
     $tmp_node = undef;
     $new_root->branch_length(undef);
-    $new_root->remove_tag('B');
 
     $old_root = undef;
     $self->set_root_node($new_root);
@@ -1054,7 +1053,7 @@ sub findnode_by_id {
 sub move_id_to_bootstrap{
    my ($tree) = shift;
    for my $node ( grep { ! $_->is_Leaf } $tree->get_nodes ) {
-       $node->bootstrap($node->id);
+       $node->bootstrap($node->id || '');
        $node->id('');
    }
 }
