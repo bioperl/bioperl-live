@@ -663,6 +663,7 @@ Bio/SeqIO/kegg.pm
 Bio/SeqIO/largefasta.pm
 Bio/SeqIO/lasergene.pm
 Bio/SeqIO/locuslink.pm
+Bio/SeqIO/mbsout.pm
 Bio/SeqIO/metafasta.pm
 Bio/SeqIO/msout.pm
 Bio/SeqIO/MultiFile.pm
@@ -737,7 +738,6 @@ Bio/Tools/ERPIN.pm
 Bio/Tools/Est2Genome.pm
 Bio/Tools/ESTScan.pm
 Bio/Tools/EUtilities.pm
-Bio/Tools/EUtilities/Cookie.pm
 Bio/Tools/EUtilities/EUtilDataI.pm
 Bio/Tools/EUtilities/EUtilParameters.pm
 Bio/Tools/EUtilities/History.pm
@@ -981,6 +981,8 @@ INSTALL.SKIP
 INSTALL.WIN
 LICENSE
 maintenance/authors.pl
+maintenance/big_split/file_classification.csv
+maintenance/big_split/rbuels_notes.txt
 maintenance/check_NAME.pl
 maintenance/check_URLs.pl
 maintenance/cvs2cl_by_file.pl
@@ -1486,6 +1488,7 @@ t/data/in.fasta
 t/data/insulin.water
 t/data/interpro.xml
 t/data/interpro_ebi.xml
+t/data/interpro_sample.xml
 t/data/interpro_short.xml
 t/data/intrablock-comment.nex
 t/data/Kingdoms_DNA.nex
@@ -1585,6 +1588,9 @@ t/data/mapmaker.txt
 t/data/mast.dat
 t/data/masta.dat
 t/data/match.output
+t/data/mbsout/mbsout_infile1
+t/data/mbsout/mbsout_infile2
+t/data/mbsout/mbsout_infile3
 t/data/Mcjanrna_rdbII.gbk
 t/data/megablast_output.paracel_btk
 t/data/meme.dat
@@ -1671,6 +1677,7 @@ t/data/psiblast.xml
 t/data/psiblastreport.out
 t/data/purine_v081.infernal
 t/data/puzzle.tre
+t/data/PX1CG.gb
 t/data/Q8GBD3.swiss
 t/data/qrna-relloc.out
 t/data/qualfile.qual
@@ -2053,6 +2060,7 @@ t/SeqIO/kegg.t
 t/SeqIO/largefasta.t
 t/SeqIO/lasergene.t
 t/SeqIO/locuslink.t
+t/SeqIO/mbsout.t
 t/SeqIO/metafasta.t
 t/SeqIO/msout.t
 t/SeqIO/MultiFile.t
