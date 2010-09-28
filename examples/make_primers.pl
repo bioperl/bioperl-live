@@ -3,7 +3,7 @@
 
 # Description: This program designs primers for constructing knockouts
 # of genes by transformation of PCR products (ref: Datsenko & Wanner,
-# PNAS 2000).  A tab-delimtied file containing ORF START STOP is read,
+# PNAS 2000).  A tab-delimited file containing ORF START STOP is read,
 # and primers flanking the start & stop coordinates are designed based
 # on the user-designated sequence file.  In addition, primers flanking
 # the knockout regions are chosen for PCR screening purposes once the
