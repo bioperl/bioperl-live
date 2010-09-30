@@ -31,8 +31,10 @@ CPAN releases are branched from 'master'.
         - bug 2599: support DBLINK annotation in GenBank files [cjfields]
         - bug 2726: reading/writing granularity: whole scaffold or one contig
           at a time [Joshua Udall, fangly]
-    ...
-        
+    * Bio::OntologyIO
+        - Added parsing of xrefs to OBO files, which are stored as secondary
+            dbxrefs of the cvterm [Naama Menda]
+
     [Bug fixes]
     * bug 3077 - Bio::SimpleAlign slice() now correctly computes seq coordinates
       for alignment slices [Ha X. Dang, cjfields]
