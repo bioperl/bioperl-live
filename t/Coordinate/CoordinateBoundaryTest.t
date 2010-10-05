@@ -251,15 +251,19 @@ is $match_on_ctg_3->strand,      +1;
 
 is $match_on_chr_3_f->seq_id, 'ctg on chr f';
 is $match_on_chr_3_f->start,            5925;
-not $match_on_chr_3_f->end,             6125; # Gets truncated to maximum!
+isnt $match_on_chr_3_f->end,            6125; # Gets truncated to maximum!
 is $match_on_chr_3_f->end,              6001; # Gets truncated to maximum!
 is $match_on_chr_3_f->strand,             +1;
 
+#print Dumper $match_on_chr_3_f, "\n";
+
 is $match_on_chr_3_r->seq_id, 'ctg on chr r';
-not $match_on_chr_3_r->start,           4877; # Gets truncated to minimum!
+isnt $match_on_chr_3_r->start,          4877; # Gets truncated to minimum!
 is $match_on_chr_3_r->start,            5001; # Gets truncated to minimum!
 is $match_on_chr_3_r->end,              5077;
 is $match_on_chr_3_r->strand,             -1; # FAIL
+
+#print Dumper $match_on_chr_3_r, "\n";
 
 
 
@@ -298,12 +302,12 @@ is $match_on_ctg_4->strand,      -1;
 
 is $match_on_chr_4_f->seq_id, 'ctg on chr f';
 is $match_on_chr_4_f->start,            5925;
-not $match_on_chr_4_f->end,             6125; # Gets truncated to maximum!
+isnt $match_on_chr_4_f->end,            6125; # Gets truncated to maximum!
 is $match_on_chr_4_f->end,              6001; # Gets truncated to maximum!
 is $match_on_chr_4_f->strand,             -1;
 
 is $match_on_chr_4_r->seq_id, 'ctg on chr r';
-not $match_on_chr_4_r->start,           4877; # Gets truncated to minimum!
+isnt $match_on_chr_4_r->start,          4877; # Gets truncated to minimum!
 is $match_on_chr_4_r->start,            5001; # Gets truncated to minimum!
 is $match_on_chr_4_r->end,              5077;
 is $match_on_chr_4_r->strand,             +1; # FAIL
@@ -476,11 +480,11 @@ isa_ok $match_on_chr_3_xr, 'Bio::Coordinate::Result';
 ## Perform some very basic sanity testing on the match objects
 
 is $match_on_chr_3_xf->start,            5925;
-not $match_on_chr_3_xf->end,             6125; # Gets truncated to maximum!
+isnt $match_on_chr_3_xf->end,            6125; # Gets truncated to maximum!
 is $match_on_chr_3_xf->end,              6001; # Gets truncated to maximum!
 is $match_on_chr_3_xf->strand,             +1;
 
-not $match_on_chr_3_xr->start,           4877; # Gets truncated to minimum!
+isnt $match_on_chr_3_xr->start,          4877; # Gets truncated to minimum!
 is $match_on_chr_3_xr->start,            5001; # Gets truncated to minimum!
 is $match_on_chr_3_xr->end,              5077;
 is $match_on_chr_3_xr->strand,             -1; # FAIL
@@ -503,11 +507,11 @@ isa_ok $match_on_chr_4_xr, 'Bio::Coordinate::Result';
 ## Perform some very basic sanity testing on the match objects
 
 is $match_on_chr_4_xf->start,            5925;
-not $match_on_chr_4_xf->end,             6125; # Gets truncated to maximum!
+isnt $match_on_chr_4_xf->end,            6125; # Gets truncated to maximum!
 is $match_on_chr_4_xf->end,              6001; # Gets truncated to maximum!
 is $match_on_chr_4_xf->strand,             -1;
 
-not $match_on_chr_4_xr->start,           4877; # Gets truncated to minimum!
+isnt $match_on_chr_4_xr->start,          4877; # Gets truncated to minimum!
 is $match_on_chr_4_xr->start,            5001; # Gets truncated to minimum!
 is $match_on_chr_4_xr->end,              5077;
 is $match_on_chr_4_xr->strand,             +1; # FAIL
