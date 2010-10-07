@@ -10,11 +10,11 @@
 Query:       BA000019.orf8  [L=348]
 Scores for complete sequence (score includes all domains):
    --- full sequence ---   --- best 1 domain ---    -#dom-
-    E-value  score  bias    E-value  score  bias    exp  N  Model    Description
-    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
-    6.7e-11   41.3   0.0    1.5e-09   37.0   0.0    2.5  2  HTH_AraC Bacterial regulatory helix-turn-helix proteins, Ara
-      0.023   13.9   0.0       0.54    9.5   0.0    2.3  2  DUF746   Domain of Unknown Function (DUF746)
-
+    E-value  score  bias    E-value  score  bias    exp  N  Model      Description
+    ------- ------ -----    ------- ------ -----   ---- --  --------   -----------
+    6.7e-11   41.3   0.0    1.5e-09   37.0   0.0    2.5  2  HTH_AraC   Bacterial regulatory helix-turn-helix proteins, Ara
+    3.8e-12   38.2  11.9    5.9e-08   25.0   2.5    2.9  2  PKSI-KS_m3 
+      0.023   13.9   0.0       0.54    9.5   0.0    2.3  2  DUF746     Domain of Unknown Function (DUF746)
 
 Domain annotation for each model (and alignments):
 >> HTH_AraC  Bacterial regulatory helix-turn-helix proteins, AraC family
@@ -37,6 +37,25 @@ Domain annotation for each model (and alignments):
                     +++i++ A++vgf S+syf+++F+k++G++P++++
   BA000019.orf8 298 EINISQAARRVGFsSRSYFATAFRKKFGINPKEFL 332
                     5789*****************************97 PP
+
+>> PKSI-KS_m3  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   25.0   2.5   3.6e-09   5.9e-08       1      16 []     538     553 ..     538     553 .. 0.99
+   2 !   17.4   0.9     9e-07   1.5e-05       1      15 [.    1672    1686 ..    1672    1687 .. 0.96
+
+  Alignments for each domain:
+  == domain 1    score: 25.0 bits;  conditional E-value: 3.6e-09
+      PKSI-KS_m3   1 GPSvtVDTACSSSLvA 16 
+                     GPSvtVDT CSSSLvA
+  AM746336.orf22 538 GPSVTVDTLCSSSLVA 553
+                     9**************9 PP
+
+  == domain 2    score: 17.4 bits;  conditional E-value: 9e-07
+      PKSI-KS_m3    1 GPSvtVDTACSSSLv 15  
+                      GP +++D ACSS Lv
+  AM746336.orf22 1672 GPNLVIDSACSSALV 1686
+                      9*************9 PP
 
 >> DUF746  Domain of Unknown Function (DUF746)
    #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc

@@ -496,7 +496,7 @@ sub next_result{
 			       $lastdomain = $name;
 			   }
                            # model data track, some reports don't have
-                           elsif( $_ =~ m/\s+\S+\sCS/ ){
+                           elsif( $_ =~ m/\s+\S+\sCS$/ ){
 			       my $modeltrack = $_;
                                $max_count++;
 			       $count++;

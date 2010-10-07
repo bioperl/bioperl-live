@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 152);
+    test_begin(-tests => 164);
 
 	use_ok('Bio::SearchIO');
 }
@@ -122,6 +122,9 @@ $searchio = Bio::SearchIO->new(-format  => 'hmmer3',
       ['HTH_AraC', 'Bacterial regulatory helix-turn-helix proteins, Ara', '41.3', 6.7e-11, 2,
         [['siadiAeevgfSpsyfsrlFkkytGvt', 'SLMELSRQVGLNDCTLKRGFRLVFDTT'],
          ['nwsiadiAeevgf-SpsyfsrlFkkytGvtPsqyr', 'EINISQAARRVGFsSRSYFATAFRKKFGINPKEFL']]],
+      ['PKSI-KS_m3', '', '38.2', 3.8e-12, 2,
+        [['GPSvtVDTACSSSLvA', 'GPSVTVDTLCSSSLVA'],
+         ['GPSvtVDTACSSSLv', 'GPNLVIDSACSSALV']]],
       ['DUF746', 'Domain of Unknown Function (DUF746)', '13.9', 0.023, 2,
         [['rllIrlLsqplslaeaadqlgtdegiiak', 'EILIRNLENPPSLMELSRQVGLNDCTLKR'],
          ['plslaeaadqlgtdeg', 'EINISQAARRVGFSSR']]]
@@ -136,7 +139,7 @@ while( my $result = $searchio->next_result ) {
     is($result->query_name, 'BA000019.orf8', 'Check query_name');
     is($result->query_length, '348', 'Check query_length');
     is($result->query_description, '', 'Check query_description');
-    is($result->num_hits(), 2, 'Check num_hits');
+    is($result->num_hits(), 3, 'Check num_hits');
     my ($hsp,$hit);
     while( $hit = $result->next_model ) {
         my @expected = @{shift @multi_hits};
