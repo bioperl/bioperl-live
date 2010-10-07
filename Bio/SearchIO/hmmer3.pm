@@ -466,7 +466,11 @@ sub next_result{
 		   }
 		   elsif ($_ =~ m/Alignments for each domain/ ) {
 		       my $domain_count = 0;
-		       my $count = 0; #line counter
+                       #line counter
+                       my $count = 0;
+                       # There's an optional block, so we sometimes need to
+                       # count to 3, and sometimes to 4.
+                       my $max_count = 3;
 		       my $lastdomain;
                        my $hsp;
                        my ($hline, $midline, $qline);
@@ -491,16 +495,14 @@ sub next_result{
                                $qline = $$hsp[-1];
 			       $lastdomain = $name;
 			   }
-#Is this block actually depricated with live release or is it an option?
-#If we bring it back in, change correspoding $count values in conditional
-#statements in the code blocks below
-#			   elsif( $count == 0 ){
-#			       #model data track, some reports don't have
-#			       my $modeltrack = $_;
-#			       $count++;
-#			       next;
-#			   }
-			   elsif( $count == 0 ){
+                           # model data track, some reports don't have
+                           elsif( $_ =~ m/\s+\S+\sCS/ ){
+			       my $modeltrack = $_;
+                               $max_count++;
+			       $count++;
+			       next;
+			   }
+			   elsif( $count == $max_count - 3 ){
 			       #hit sequence
 			       my @data = split(" ", $_);
 			       my $seq = $data[-2];
@@ -508,7 +510,7 @@ sub next_result{
 			       $count++;
 			       next;
 			   }
-			   elsif( $count == 1 ){
+			   elsif( $count == $max_count - 2 ){
 			       #conservation track
 			       #storage isn't quite right - need to remove
 			       #leading/lagging whitespace while preserving
@@ -519,7 +521,7 @@ sub next_result{
 			       $count++;
 			       next;
 			   }
-			   elsif( $count == 2 ){
+			   elsif( $count == $max_count - 1 ){
 			       #query track
 			       my @data = split(" ", $_);
 			       my $seq = $data[-2];
@@ -527,10 +529,11 @@ sub next_result{
 			       $count++;
 			       next;
 			   }
-			   elsif( $count == 3 ){
+			   elsif( $count == $max_count ){
 			       #pval track
 			       my $pvals = $_;
 			       $count = 0;
+                               $max_count = 3;
                                $$hsp[-3] = $hline;
                                $$hsp[-2] = $midline;
                                $$hsp[-1] = $qline;
