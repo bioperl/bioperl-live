@@ -364,7 +364,8 @@ sub _map {
        my $gap = Bio::Location::Simple->new;
        $gap->start($value->start);
        $gap->end($self->in->start - 1);
-       $gap->strand($value->strand);
+       #$gap->strand($value->strand);
+       $gap->strand($match->strand);
        $gap->seq_id($self->in->seq_id);
 
        bless $gap, 'Bio::Coordinate::Result::Gap';
@@ -395,7 +396,8 @@ sub _map {
        my $gap = Bio::Location::Simple->new;
        $gap->start($self->in->end + 1);
        $gap->end($value->end);
-       $gap->strand($value->strand);
+       #$gap->strand($value->strand);
+       $gap->strand($match->strand);
        $gap->seq_id($self->in->seq_id);
 
        bless $gap, 'Bio::Coordinate::Result::Gap';
@@ -424,7 +426,8 @@ sub _map {
        my $gap1 = Bio::Location::Simple->new;
        $gap1->start($value->start);
        $gap1->end($self->in->start - 1);
-       $gap1->strand($value->strand);
+       #$gap1->strand($value->strand);
+       $gap1->strand($match->strand);
        $gap1->seq_id($self->in->seq_id);
 
        bless $gap1, 'Bio::Coordinate::Result::Gap';
@@ -434,7 +437,8 @@ sub _map {
        my $gap2 = Bio::Location::Simple->new;
        $gap2->start($self->in->end + 1);
        $gap2->end($value->end);
-       $gap2->strand($value->strand);
+       #$gap2->strand($value->strand);
+       $gap2->strand($match->strand);
        $gap2->seq_id($self->in->seq_id);
 
        bless $gap2, 'Bio::Coordinate::Result::Gap';
