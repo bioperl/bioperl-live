@@ -8,7 +8,7 @@ BEGIN {
   use lib '.';
   use Bio::Root::Test;
   
-  test_begin( -tests => 166 );
+  test_begin( -tests => 174 );
   
   use_ok('Bio::Location::Simple');
   use_ok('Bio::Coordinate::Pair');
@@ -306,11 +306,15 @@ isnt $match_on_chr_4_f->end,            6125; # Gets truncated to maximum!
 is $match_on_chr_4_f->end,              6001; # Gets truncated to maximum!
 is $match_on_chr_4_f->strand,             -1;
 
+#print Dumper $match_on_chr_4_f, "\n";
+
 is $match_on_chr_4_r->seq_id, 'ctg on chr r';
 isnt $match_on_chr_4_r->start,          4877; # Gets truncated to minimum!
 is $match_on_chr_4_r->start,            5001; # Gets truncated to minimum!
 is $match_on_chr_4_r->end,              5077;
 is $match_on_chr_4_r->strand,             +1; # FAIL
+
+#print Dumper $match_on_chr_4_r, "\n";
 
 
 
