@@ -8,7 +8,7 @@ BEGIN {
     use Bio::Root::Test;
 
     test_begin(
-        -tests           => 54,
+        -tests           => 55,
         -requires_module => 'Graph'
     );
 
@@ -154,17 +154,10 @@ is( scalar(@relset), 3 );
 @relset = grep { $_->object_term->identifier eq "SO:0000233"; } @rels;
 is( scalar(@relset), 4 );
 
-{
+for my $file (qw/interpro.xml interpro_sample.xml interpro_relationship.xml/) {
     my $parser = Bio::OntologyIO->new(
         -format => "interpro",
-        -file   => test_input_file('interpro.xml'),
+        -file   => test_input_file($file),
     );
-    ok( $parser->next_ontology, 'Interpro XML can be parsed' );
-}
-{
-    my $parser = Bio::OntologyIO->new(
-        -format => "interpro",
-        -file   => test_input_file('interpro_sample.xml'),
-    );
-    ok( $parser->next_ontology, 'More Interpro XML can be parsed' );
+    ok( $parser->next_ontology, "Interpro XML file $file can be parsed" );
 }

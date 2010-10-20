@@ -1,0 +1,93 @@
+# hmmscan :: search sequence(s) against a profile database
+# HMMER 3.0 (March 2010); http://hmmer.org/
+# Copyright (C) 2010 Howard Hughes Medical Institute.
+# Freely distributed under the GNU General Public License (GPLv3).
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query sequence file:             BA000019.orf8.fasta
+# target HMM database:             Pfam-A.hmm
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       BA000019.orf8  [L=348]
+Scores for complete sequence (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Model      Description
+    ------- ------ -----    ------- ------ -----   ---- --  --------   -----------
+    6.7e-11   41.3   0.0    1.5e-09   37.0   0.0    2.5  2  HTH_AraC   Bacterial regulatory helix-turn-helix proteins, Ara
+    3.8e-12   38.2  11.9    5.9e-08   25.0   2.5    2.9  2  PKSI-KS_m3 
+      0.023   13.9   0.0       0.54    9.5   0.0    2.3  2  DUF746     Domain of Unknown Function (DUF746)
+
+Domain annotation for each model (and alignments):
+>> HTH_AraC  Bacterial regulatory helix-turn-helix proteins, AraC family
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 ?    1.5   0.0     0.038   2.3e+02      10      36 ..     251     277 ..     242     278 .. 0.80
+   2 !   37.0   0.0   2.6e-13   1.5e-09       8      41 ..     298     332 ..     295     333 .. 0.94
+
+  Alignments for each domain:
+  == domain 1    score: 1.5 bits;  conditional E-value: 0.038
+                    -HHHHHHHHTS-HHHHHHHHHHH---- CS
+       HTH_AraC  10 siadiAeevgfSpsyfsrlFkkytGvt 36 
+                    s+ +++++vg++  +++r F+ ++  t
+  BA000019.orf8 251 SLMELSRQVGLNDCTLKRGFRLVFDTT 277
+                    66689999999999*******999877 PP
+
+  == domain 2    score: 37.0 bits;  conditional E-value: 2.6e-13
+                    .--HHHHHHHHTS.-HHHHHHHHHHH----HHHHH CS
+       HTH_AraC   8 nwsiadiAeevgf.SpsyfsrlFkkytGvtPsqyr 41 
+                    +++i++ A++vgf S+syf+++F+k++G++P++++
+  BA000019.orf8 298 EINISQAARRVGFsSRSYFATAFRKKFGINPKEFL 332
+                    5789*****************************97 PP
+
+>> PKSI-KS_m3  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   25.0   2.5   3.6e-09   5.9e-08       1      16 []     538     553 ..     538     553 .. 0.99
+   2 !   17.4   0.9     9e-07   1.5e-05       1      15 [.    1672    1686 ..    1672    1687 .. 0.96
+
+  Alignments for each domain:
+  == domain 1    score: 25.0 bits;  conditional E-value: 3.6e-09
+      PKSI-KS_m3   1 GPSvtVDTACSSSLvA 16 
+                     GPSvtVDT CSSSLvA
+  AM746336.orf22 538 GPSVTVDTLCSSSLVA 553
+                     9**************9 PP
+
+  == domain 2    score: 17.4 bits;  conditional E-value: 9e-07
+      PKSI-KS_m3    1 GPSvtVDTACSSSLv 15  
+                      GP +++D ACSS Lv
+  AM746336.orf22 1672 GPNLVIDSACSSALV 1686
+                      9*************9 PP
+
+>> DUF746  Domain of Unknown Function (DUF746)
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 ?    9.5   0.0   9.1e-05      0.54       4      32 ..     240     268 ..     237     275 .. 0.85
+   2 ?    1.8   0.0     0.022   1.3e+02      13      28 ..     298     313 ..     293     319 .. 0.87
+
+  Alignments for each domain:
+  == domain 1    score: 9.5 bits;  conditional E-value: 9.1e-05
+         DUF746   4 rllIrlLsqplslaeaadqlgtdegiiak 32 
+                    + lIr L  p sl+e+++q+g+   + ++
+  BA000019.orf8 240 EILIRNLENPPSLMELSRQVGLNDCTLKR 268
+                    579******************98766655 PP
+
+  == domain 2    score: 1.8 bits;  conditional E-value: 0.022
+         DUF746  13 plslaeaadqlgtdeg 28 
+                    ++ + +aa+++g +++
+  BA000019.orf8 298 EINISQAARRVGFSSR 313
+                    6899********9876 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query sequence(s):                         1  (348 residues)
+Target model(s):                       11912  (2158902 nodes)
+Passed MSV filter:                       248  (0.0208193); expected 238.2 (0.02)
+Passed bias filter:                      220  (0.0184688); expected 238.2 (0.02)
+Passed Vit filter:                        19  (0.00159503); expected 11.9 (0.001)
+Passed Fwd filter:                         2  (0.000167898); expected 0.1 (1e-05)
+Initial search space (Z):              11912  [actual number of targets]
+Domain search space  (domZ):               2  [number of targets reported over threshold]
+# CPU time: 0.24u 0.15s 00:00:00.39 Elapsed: 00:00:00.27
+# Mc/sec: 2782.58
+//
