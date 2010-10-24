@@ -116,9 +116,9 @@ our $MODVERSION = '0.8.1';
 use base qw(Bio::DB::WebDBSeqI);
 
 # global vars
-our $DEFAULTSERVERTYPE = 'ebi';
+our $DEFAULTSERVERTYPE = 'expasy';
 our $DEFAULTFORMAT = 'swissprot';
-our $DEFAULTIDTRACKER = 'http://www.expasy.ch';
+# our $DEFAULTIDTRACKER = 'http://www.expasy.ch';
 
 # you can add your own here theoretically.
 our %HOSTS = ( 
