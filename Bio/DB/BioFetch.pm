@@ -106,7 +106,7 @@ use vars qw(%FORMATMAP);
 use base qw(Bio::DB::WebDBSeqI Bio::Root::Root);
 
 # warning: names used here must map into Bio::SeqIO::* space
-use constant DEFAULT_LOCATION => 'http://www.ebi.ac.uk/cgi-bin/dbfetch';
+use constant DEFAULT_LOCATION => 'http://www.ebi.ac.uk/Tools/dbfetch/dbfetch';
 
 BEGIN {
     
