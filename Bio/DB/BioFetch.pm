@@ -49,7 +49,7 @@ Bio::DB::BioFetch - Database object interface to BioFetch retrieval
 
 Bio::DB::BioFetch is a guaranteed best effort sequence entry fetching
 method.  It goes to the Web-based dbfetch server located at the EBI
-(http://www.ebi.ac.uk/cgi-bin/dbfetch) to retrieve sequences in the
+(http://www.ebi.ac.uk/Tools/dbfetch/dbfetch) to retrieve sequences in the
 EMBL or GenBank sequence repositories.
 
 This module implements all the Bio::DB::RandomAccessI interface, plus
@@ -176,7 +176,7 @@ defaults.
   Option         Value                            Default
   ------         -----                            -------
 
-  -baseaddress   location of dbfetch server       http://www.ebi.ac.uk/cgi-bin/dbfetch
+  -baseaddress   location of dbfetch server       http://www.ebi.ac.uk/Tools/dbfetch/dbfetch
   -retrievaltype "tempfile" or "io_string"        io_string
   -format        "embl", "fasta", "swissprot",    embl
                   or "genbank"

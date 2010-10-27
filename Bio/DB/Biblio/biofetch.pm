@@ -126,7 +126,7 @@ BEGIN {
 		   );
     $DEFAULTFORMAT = 'medlinexml';
 
-    $DEFAULT_SERVICE = 'http://www.ebi.ac.uk/cgi-bin/dbfetch';
+    $DEFAULT_SERVICE = 'http://www.ebi.ac.uk/Tools/dbfetch/dbfetch';
 	 $DEFAULTRETRIEVAL_TYPE = 'tempfile';
 }
 
