@@ -119,7 +119,7 @@ BEGIN {
     # you can add your own here theoretically.
     %HOSTS = (
 	       'dbfetch' => {
-		   baseurl => 'http://%s/cgi-bin/dbfetch?db=embl&style=raw',
+		   baseurl => 'http://%s/Tools/dbfetch/dbfetch?db=embl&style=raw',
 		   hosts   => {
 		       'ebi'  => 'www.ebi.ac.uk'
 		       }
