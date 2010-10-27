@@ -116,7 +116,7 @@ our $MODVERSION = '0.8.1';
 use base qw(Bio::DB::WebDBSeqI);
 
 # global vars
-our $DEFAULTSERVERTYPE = 'expasy';
+our $DEFAULTSERVERTYPE = 'ebi';
 our $DEFAULTFORMAT = 'swissprot';
 # our $DEFAULTIDTRACKER = 'http://www.expasy.ch';
 
@@ -142,7 +142,7 @@ our %HOSTS = (
 	   },
 	   'ebi'    => {
 	       'default' => 'uk',
-	       'baseurl' => 'http://%s/cgi-bin/dbfetch',
+	       'baseurl' => 'http://%s/Tools/dbfetch/dbfetch',
 	       'hosts' => { 
 		   'uk'   => 'www.ebi.ac.uk',
 	       },
