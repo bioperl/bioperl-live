@@ -10,22 +10,22 @@ in various formats and styles (using SRS)
   # URL examples:
 
   # prints the interactive page with the HTML form
-  http://www.ebi.ac.uk/cgi-bin/dbfetch
+  http://www.ebi.ac.uk/Tools/dbfetch/dbfetch
 
   # for backward compatibility, implements <ISINDEX>
   # single entry queries defaulting to EMBL sequence database
-  http://www.ebi.ac.uk/cgi-bin/dbfetch?J00231
+  http://www.ebi.ac.uk/Tools/dbfetch/dbfetch?J00231
 
   # retrieves one or more entries in default format
   # and default style (html)
   # returns nothing for IDs which are not valid
-  http://www.ebi.ac.uk/cgi-bin/dbfetch?id=J00231.1,hsfos,bum
+  http://www.ebi.ac.uk/Tools/dbfetch/dbfetch?id=J00231.1,hsfos,bum
 
   # retrieve entries in fasta format without html tags
-  http://www.ebi.ac.uk/cgi-bin/dbfetch?format=fasta&style=raw&id=J00231,hsfos,bum
+  http://www.ebi.ac.uk/Tools/dbfetch/dbfetch?format=fasta&style=raw&id=J00231,hsfos,bum
 
   # retrieve a raw Ensembl entry
-  http://www.ebi.ac.uk/cgi-bin/dbfetch?db=ensembl&style=raw&id=AL122059
+  http://www.ebi.ac.uk/Tools/dbfetch/dbfetch?db=ensembl&style=raw&id=AL122059
 
 
 =head1 DESCRIPTION
@@ -305,28 +305,28 @@ sub print_prompt {
 	  $q->hr,
 	  $q->h2('Direct access'),
 	  $q->p('For backward compatibility, the script defaults to EMBL:'),
-	  $q->code('<A href="http://www.ebi.ac.uk/cgi-bin/dbfetch?J00231">
-		     http://www.ebi.ac.uk/cgi-bin/dbfetch?J00231</a>'),
+	  $q->code('<A href="http://www.ebi.ac.uk/Tools/dbfetch/dbfetch?J00231">
+		     http://www.ebi.ac.uk/Tools/dbfetch/dbfetch?J00231</a>'),
 	  $q->p('but the preferred way of calling it is:'),
-	  $q->code('<A href="http://www.ebi.ac.uk/cgi-bin/dbfetch?id=J00231.1,hsfos,bum">
-		     http://www.ebi.ac.uk/cgi-bin/dbfetch?id=J00231.1,hsfos,bum</a>'),
+	  $q->code('<A href="http://www.ebi.ac.uk/Tools/dbfetch/dbfetch?id=J00231.1,hsfos,bum">
+		     http://www.ebi.ac.uk/Tools/dbfetch/dbfetch?id=J00231.1,hsfos,bum</a>'),
 	  $q->p('which can be extended to retrieve entries in alternative sequence formats
 		      and other databases:'),
-	  $q->code('<A href="http://www.ebi.ac.uk/cgi-bin/dbfetch?db=swall&format=fasta&id=fos_human">
-		     http://www.ebi.ac.uk/cgi-bin/dbfetch?db=swall&format=fasta&id=fos_human</a>'),
+	  $q->code('<A href="http://www.ebi.ac.uk/Tools/dbfetch/dbfetch?db=swall&format=fasta&id=fos_human">
+		     http://www.ebi.ac.uk/Tools/dbfetch/dbfetch?db=swall&format=fasta&id=fos_human</a>'),
 	  $q->p('Set style to <code>raw</code> to retrieve plain text entries for computational purposes
                  and saving to disk:'),
-	  $q->code('<A href="http://www.ebi.ac.uk/cgi-bin/dbfetch?db=medline&style=raw&id=21131735">
-                    http://www.ebi.ac.uk/cgi-bin/dbfetch?db=medline&style=raw&id=21131735</a>'),
+	  $q->code('<A href="http://www.ebi.ac.uk/Tools/dbfetch/dbfetch?db=medline&style=raw&id=21131735">
+                    http://www.ebi.ac.uk/Tools/dbfetch/dbfetch?db=medline&style=raw&id=21131735</a>'),
  	  $q->p('There is now the possibility to retrieve EMBL sequences formatterd into two XML standards:
                 Bsml (Bioinformatic Sequence Markup Language - from 
                 Labbook, Inc.) or as AGAVE (Architecture for Genomic Annotation, 
                 Visualisation, and Exchange - from Labbook, Inc.). To do this, use the 
                 formats \'bsml\' or \'agave\', as follows:'),
-	  $q->code('<A href="http://www.ebi.ac.uk/cgi-bin/dbfetch?format=bsml&id=J00231">
-                   http://www.ebi.ac.uk/cgi-bin/dbfetch?format=bsml&id=J00231</a><br>'),
-	  $q->code('<A href="http://www.ebi.ac.uk/cgi-bin/dbfetch?format=agave&id=J00231">
-                   http://www.ebi.ac.uk/cgi-bin/dbfetch?format=agave&id=J00231</a>'),
+	  $q->code('<A href="http://www.ebi.ac.uk/Tools/dbfetch/dbfetch?format=bsml&id=J00231">
+                   http://www.ebi.ac.uk/Tools/dbfetch/dbfetch?format=bsml&id=J00231</a><br>'),
+	  $q->code('<A href="http://www.ebi.ac.uk/Tools/dbfetch/dbfetch?format=agave&id=J00231">
+                   http://www.ebi.ac.uk/Tools/dbfetch/dbfetch?format=agave&id=J00231</a>'),
           $q->p("Version numbers are not supported with the XML retrieval."),
 	  $q->hr,
           $q->address("Version $VERSION, $DATE, <a href=\"mailto:support\@ebi.ac.uk\">support\@ebi.ac.uk</a>"),
