@@ -1,5 +1,4 @@
 #!/usr/bin/perl -w
-# $Id$
 #
 # BioPerl module for remote_blast.pl
 #

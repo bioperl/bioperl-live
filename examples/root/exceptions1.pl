@@ -14,7 +14,6 @@
 #
 # Author: Steve Chervitz <sac@bioperl.org>
 #
-# $Id$
 
 use strict;
 use lib qw(lib/ ../../);

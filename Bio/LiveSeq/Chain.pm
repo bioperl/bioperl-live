@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-# $Id$
 #
 # bioperl module for Bio::LiveSeq::Chain
 #

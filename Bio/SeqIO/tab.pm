@@ -2,7 +2,6 @@
 # PACKAGE : Bio::SeqIO::tab
 # AUTHOR  : Philip Lijnzaad <p.lijnzaad@med.uu.nl>
 # CREATED : Feb 6 2003
-# REVISION: $Id$
 #
 # Copyright (c) This module is free software; you can redistribute it
 # and/or modify it under the same terms as Perl itself.

@@ -1,4 +1,3 @@
-# $Id: EUtilities.pm 16108 2009-09-16 17:07:49Z cjfields $
 #
 # BioPerl module for Bio::Tools::EUtilities
 #
@@ -732,7 +731,7 @@ sub get_count {
         $self->warn("Unknown database $db");
         return;
     } else {
-        return $self->{'_count'};
+        return $self->{'_count'} || scalar($self->get_ids);
     }
 }
 

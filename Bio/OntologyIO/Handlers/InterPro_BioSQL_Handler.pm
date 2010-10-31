@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for InterPro_BioSQL_Handler
 #

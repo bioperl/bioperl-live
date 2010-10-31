@@ -1,4 +1,3 @@
-# $Id$
 #
 # Module for Bio::PhyloNetwork::RandomFactory
 #

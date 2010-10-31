@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::Search::HSP::GenericHSP
 #
@@ -647,6 +646,7 @@ sub get_aln {
                                       '-id'    => $q_nm,
                                       '-start' => $self->query->start,
                                       '-end'   => $self->query->end,
+                                      '-strand'   => $self->query->strand,
                                       '-force_nse' => $q_nm ? 0 : 1,
                                       '-mapping' => [1, $self->{_query_mapping}]
                                       );
@@ -656,6 +656,7 @@ sub get_aln {
                                       '-id'    => $s_nm,
                                       '-start' => $self->hit->start,
                                       '-end'   => $self->hit->end,
+                                      '-strand'   => $self->hit->strand,
                                       '-force_nse' => $s_nm ? 0 : 1,
                                       '-mapping' => [1, $self->{_hit_mapping}]
                                       );

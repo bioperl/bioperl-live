@@ -1,4 +1,3 @@
-# $Id$
 #------------------------------------------------------------------
 #
 # BioPerl module Bio::Tools::GuessSeqFormat
@@ -510,7 +509,8 @@ sub guess
         close($fh);
     } elsif (ref $fh eq 'GLOB') {
         # Try seeking to the start position.
-        seek($fh, $start_pos, 0);
+        seek($fh, $start_pos, 0) || $self->throw("Failed resetting the ".
+                                        "filehandle; IO error occurred");;
     } elsif (defined $fh && $fh->can('setpos')) {
         # Seek to the start position.
         $fh->setpos($start_pos);
@@ -922,7 +922,7 @@ sub _possibly_rsf
 
 From "http://www.ebc.ee/WWW/hmmer2-html/node27.html".
 
-Assuming precense of Selex file header.  Data exported by
+Assuming presence of Selex file header.  Data exported by
 Bioperl on Pfam and Selex formats are identical, but Pfam file
 only holds one alignment.
 

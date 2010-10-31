@@ -1,6 +1,5 @@
 package Bio::DB::SeqFeature::Store::DBI::Iterator;
 
-# $Id$
 
 =head1 NAME
 

@@ -1,5 +1,4 @@
 #
-# $Id$
 #
 # BioPerl module for Bio::Index::Fasta
 #
@@ -181,6 +180,8 @@ sub _index_file {
 
     open my $FASTA, '<', $file or $self->throw("Can't open file for read : $file");
 
+    my $offset = ( $^O =~ /mswin/i ) ? 1 : 0;
+
     # Main indexing loop
     while (<$FASTA>) {
         if (/^>/) {
@@ -188,7 +189,6 @@ sub _index_file {
             # the following was fixed to allow validation - cjfields
             
             # $begin is the position of the first character after the '>'
-            my $offset = ( $^O =~ /mswin/i ) ? 1 : 0;
             $begin = tell($FASTA) - length( $_ ) - $offset;
             
             foreach my $id (&$id_parser($_)) {

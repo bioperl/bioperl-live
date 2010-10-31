@@ -1,4 +1,3 @@
-# $Id$
 # 
 # BioPerl module for Bio::Tools::Gel
 # Copyright Allen Day <allenday@ucla.edu>

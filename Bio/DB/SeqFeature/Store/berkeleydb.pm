@@ -1,6 +1,5 @@
 package Bio::DB::SeqFeature::Store::berkeleydb;
 
-# $Id$
 
 use strict;
 use base 'Bio::DB::SeqFeature::Store';

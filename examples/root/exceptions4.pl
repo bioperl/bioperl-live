@@ -9,7 +9,6 @@
 #
 # Author: Steve Chervitz <sac@bioperl.org>
 #
-# $Id$
 
 
 # Setting this variable simulates not having Error.pm installed.

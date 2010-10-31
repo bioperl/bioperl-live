@@ -1,4 +1,3 @@
-# $Id: Summary.pm 16108 2009-09-16 17:07:49Z cjfields $
 #
 # BioPerl module for Bio::Tools::EUtilities::DocSum
 #
@@ -16,7 +15,8 @@
 
 =head1 NAME
 
-Bio::Tools::EUtilities::Summary - class for handlign data output (XML) from esummary.
+Bio::Tools::EUtilities::Summary - class for handling data output (XML) from
+esummary.
 
 =head1 SYNOPSIS
 

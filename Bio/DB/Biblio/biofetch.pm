@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module Bio::DB::Biblio::biofetch.pm
 #
@@ -117,7 +116,7 @@ BEGIN {
     # you can add your own here theoretically.
     %HOSTS = (
 	       'dbfetch' => {
-		   baseurl => 'http://%s/cgi-bin/dbfetch?db=medline&style=raw',
+		   baseurl => 'http://%s/Tools/dbfetch/dbfetch?db=medline&style=raw',
 		   hosts   => {
 		       'ebi'  => 'www.ebi.ac.uk'
 		       }
@@ -127,7 +126,7 @@ BEGIN {
 		   );
     $DEFAULTFORMAT = 'medlinexml';
 
-    $DEFAULT_SERVICE = 'http://www.ebi.ac.uk/cgi-bin/dbfetch';
+    $DEFAULT_SERVICE = 'http://www.ebi.ac.uk/Tools/dbfetch/dbfetch';
 	 $DEFAULTRETRIEVAL_TYPE = 'tempfile';
 }
 

@@ -1,6 +1,5 @@
 # POD documentation - main docs before the code
 #
-# $Id$
 #
 
 =head1 NAME

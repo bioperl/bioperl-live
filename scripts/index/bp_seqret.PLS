@@ -1,5 +1,4 @@
 #!/usr/bin/perl -w
-# $Id$
 # -*-Perl-*- mode (for emacs)
 
 =head1 NAME

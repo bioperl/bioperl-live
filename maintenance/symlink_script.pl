@@ -18,8 +18,15 @@ my $orig_dir = $build->cwd;
 chdir($install_dir);
 
 while (my ($source, $destination) = each %symlink_scripts) {
-    eval { symlink($source, $destination) };
-    $build->log_warn("Cannot create symbolic link named $destination on your system for $source in $install_dir\n") if $@;
+	if ($^O !~ /Win32/) {
+		eval { symlink($source, $destination) };
+		$build->log_warn("Cannot create symbolic link named $destination on your system for $source in $install_dir\n") if $@;
+	} else {
+		# Win32 perl does not implement symlink(), as it would not work on all filesystems.
+		require File::Copy;
+		eval { File::Copy::copy($source, $destination) };
+		$build->log_warn("Cannot create copy of script named $destination on your system for $source in $install_dir\n") if $@;
+	}
 }
 
 chdir($orig_dir);
