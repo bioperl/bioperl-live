@@ -55,7 +55,7 @@ Bio::DB::RefSeq - Database object interface for RefSeq retrieval
 Allows the dynamic retrieval of sequence objects L<Bio::Seq> from the
 RefSeq database using the dbfetch script at EBI:
 
-http://www.ebi.ac.uk/cgi-bin/dbfetch
+http://www.ebi.ac.uk/Tools/dbfetch/dbfetch
 
 In order to make changes transparent we have host type (currently only
 ebi) and location (defaults to ebi) separated out.  This allows later
@@ -124,7 +124,7 @@ BEGIN {
     # you can add your own here theoretically.
     %HOSTS = (
 	       'dbfetch' => {
-		   baseurl => 'http://%s/cgi-bin/dbfetch?db=refseq&style=raw',
+		   baseurl => 'http://%s/Tools/dbfetch/dbfetch?db=refseq&style=raw',
 		   hosts   => {
 		       'ebi'  => 'www.ebi.ac.uk'
 		       }
