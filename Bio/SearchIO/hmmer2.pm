@@ -1,5 +1,5 @@
 #
-# BioPerl module for Bio::SearchIO::hmmer
+# BioPerl module for Bio::SearchIO::hmmer2
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
 #
@@ -13,13 +13,13 @@
 
 =head1 NAME
 
-Bio::SearchIO::hmmer - A parser for HMMER output (hmmpfam, hmmsearch)
+Bio::SearchIO::hmmer2 - A parser for HMMER output (hmmpfam, hmmsearch)
 
 =head1 SYNOPSIS
 
     # do not use this class directly it is available through Bio::SearchIO
     use Bio::SearchIO;
-    my $in = Bio::SearchIO->new(-format => 'hmmer',
+    my $in = Bio::SearchIO->new(-format => 'hmmer2',
                                -file   => 't/data/L77119.hmmer');
     while( my $result = $in->next_result ) {
         # this is a Bio::Search::Result::HMMERResult object
@@ -79,7 +79,7 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-package Bio::SearchIO::hmmer;
+package Bio::SearchIO::hmmer2;
 
 use strict;
 
@@ -141,11 +141,11 @@ BEGIN {
 =head2 new
 
  Title   : new
- Usage   : my $obj = Bio::SearchIO::hmmer->new();
- Function: Builds a new Bio::SearchIO::hmmer object 
- Returns : Bio::SearchIO::hmmer
+ Usage   : my $obj = Bio::SearchIO::hmmer2->new();
+ Function: Builds a new Bio::SearchIO::hmmer2 object
+ Returns : Bio::SearchIO::hmmer2
  Args    : -fh/-file => HMMER filename
-           -format   => 'hmmer'
+           -format   => 'hmmer2'
 
 =cut
 
