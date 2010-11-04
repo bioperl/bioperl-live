@@ -148,7 +148,7 @@ sub _initialize {
   $handler->register_factory(
       'result',
       Bio::Factory::ObjectFactory->new(
-	  -type      => 'Bio::Search::Result::hmmer3Result',
+	  -type      => 'Bio::Search::Result::HMMERResult',
 	  -interface => 'Bio::Search::Result::ResultI'
       )
   );
@@ -156,7 +156,7 @@ sub _initialize {
   $handler->register_factory(
       'hit',
       Bio::Factory::ObjectFactory->new(
-	  -type      => 'Bio::Search::Hit::hmmer3Hit',
+	  -type      => 'Bio::Search::Hit::HMMERHit',
 	  -interface => 'Bio::Search::Hit::HitI'
       )
   );
@@ -164,7 +164,7 @@ sub _initialize {
   $handler->register_factory(
       'hsp',
       Bio::Factory::ObjectFactory->new(
-	-type      => 'Bio::Search::HSP::hmmer3HSP',
+	-type      => 'Bio::Search::HSP::HMMERHSP',
 	-interface => 'Bio::Search::HSP::HSPI'
 	)
   );

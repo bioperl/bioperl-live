@@ -203,7 +203,7 @@ $searchio = Bio::SearchIO->new(-format  => 'hmmer3',
                                -verbose => 1);
 
 while( my $result = $searchio->next_result ) {
-    is(ref($result),'Bio::Search::Result::hmmer3Result', 'Check for the correct result reference type');
+    is(ref($result),'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
     is($result->algorithm, 'HMMSCAN', 'Check algorithm');
     is($result->algorithm_version, '3.0', 'Check algorithm version');
     is($result->hmm_name, '/data/biodata/HMMerDB/Pfam.hmm', 'Check hmm_name');
@@ -214,7 +214,7 @@ while( my $result = $searchio->next_result ) {
     is($result->num_hits(), 1, 'Check num_hits');
     my ($hsp,$hit);
     if( $hit = $result->next_model ) {
-        is(ref($hit), 'Bio::Search::Hit::hmmer3Hit', 'Check for the correct hit reference type');
+        is(ref($hit), 'Bio::Search::Hit::HMMERHit', 'Check for the correct hit reference type');
         is($hit->name, 'Peripla_BP_2', 'Check hit name');
         is($hit->description, 'Periplasmic binding protein', 'Check for hit description');
         is($hit->raw_score, '105.2', 'Check hit raw_score');
@@ -222,7 +222,7 @@ while( my $result = $searchio->next_result ) {
         is($hit->num_hsps, 1, 'Check num_hsps');
 
         if( defined( $hsp = $hit->next_domain ) ) {
-            is(ref($hsp), 'Bio::Search::HSP::hmmer3HSP', 'Check for correct hsp reference type');
+            is(ref($hsp), 'Bio::Search::HSP::HMMERHSP', 'Check for correct hsp reference type');
             is($hsp->hit->start, 59, 'Check for hit hmmfrom value');
             is($hsp->hit->end, 236, 'Check for hit hmm to value');
             is($hsp->query->start, 2, 'Check for query alifrom value');
@@ -240,7 +240,7 @@ $searchio = Bio::SearchIO->new(-format  => 'hmmer3',
                                -file    => test_input_file('hmmsearch3.out'),
                                -verbose => 1);
 while( my $result = $searchio->next_result ) {
-    is(ref($result),'Bio::Search::Result::hmmer3Result', 'Check for the correct result reference type');
+    is(ref($result),'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
     is($result->algorithm, 'HMMSEARCH', 'Check algorithm');
     is($result->algorithm_version, '3.0', 'Check algorithm version');
     is($result->hmm_name, 'Kv9.hmm', 'Check hmm_name');
@@ -268,7 +268,7 @@ my @multi_hits = (
     );
 
 while( my $result = $searchio->next_result ) {
-    is(ref($result),'Bio::Search::Result::hmmer3Result', 'Check for the correct result reference type');
+    is(ref($result),'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
     is($result->algorithm, 'HMMSCAN', 'Check algorithm');
     is($result->algorithm_version, '3.0', 'Check algorithm version');
     is($result->hmm_name, '/data/biodata/HMMerDB/Pfam-A.hmm', 'Check hmm_name');
@@ -280,7 +280,7 @@ while( my $result = $searchio->next_result ) {
     my ($hsp,$hit);
     while( $hit = $result->next_model ) {
         my @expected = @{shift @multi_hits};
-        is(ref($hit), 'Bio::Search::Hit::hmmer3Hit', 'Check for the correct hit reference type');
+        is(ref($hit), 'Bio::Search::Hit::HMMERHit', 'Check for the correct hit reference type');
         is($hit->name, shift @expected, 'Check hit name');
         is($hit->description, shift @expected, 'Check for hit description');
         is($hit->raw_score, shift @expected, 'Check hit raw_score');
@@ -289,7 +289,7 @@ while( my $result = $searchio->next_result ) {
         my @hsp_list = @{shift @expected};
         while( defined( $hsp = $hit->next_domain ) ) {
             my @hsp_exp = @{shift @hsp_list};
-            is(ref($hsp), 'Bio::Search::HSP::hmmer3HSP', 'Check for correct hsp reference type');
+            is(ref($hsp), 'Bio::Search::HSP::HMMERHSP', 'Check for correct hsp reference type');
             is($hsp->hit->start, shift @hsp_exp, 'Check for hit envfrom value');
             is($hsp->hit->end, shift @hsp_exp, 'Check for hit env to value');
             is($hsp->query->start, shift @hsp_exp, 'Check for query hmmfrom value');
@@ -317,7 +317,7 @@ $searchio = Bio::SearchIO->new(-format  => 'hmmer3',
     );
 
 while( my $result = $searchio->next_result ) {
-    is(ref($result),'Bio::Search::Result::hmmer3Result', 'Check for the correct result reference type');
+    is(ref($result),'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
     is($result->algorithm, 'HMMSCAN', 'Check algorithm');
     is($result->algorithm_version, '3.0', 'Check algorithm version');
     is($result->hmm_name, 'Pfam-A.hmm', 'Check hmm_name');
@@ -329,7 +329,7 @@ while( my $result = $searchio->next_result ) {
     my ($hsp,$hit);
     while( $hit = $result->next_model ) {
         my @expected = @{shift @multi_hits};
-        is(ref($hit), 'Bio::Search::Hit::hmmer3Hit', 'Check for the correct hit reference type');
+        is(ref($hit), 'Bio::Search::Hit::HMMERHit', 'Check for the correct hit reference type');
         is($hit->name, shift @expected, 'Check hit name');
         is($hit->description, shift @expected, 'Check for hit description');
         is($hit->raw_score, shift @expected, 'Check hit raw_score');
@@ -338,7 +338,7 @@ while( my $result = $searchio->next_result ) {
         my @hsp_list = @{shift @expected};
         while( defined( $hsp = $hit->next_domain ) ) {
             my @hsp_exp = @{shift @hsp_list};
-            is(ref($hsp), 'Bio::Search::HSP::hmmer3HSP', 'Check for correct hsp reference type');
+            is(ref($hsp), 'Bio::Search::HSP::HMMERHSP', 'Check for correct hsp reference type');
             is($hsp->hit_string, shift @hsp_exp, 'Check hit sequence');
             is($hsp->query_string, shift @hsp_exp, 'Check query sequence');
         }
