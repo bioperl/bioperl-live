@@ -1988,7 +1988,6 @@ t/SearchIO/exonerate.t
 t/SearchIO/fasta.t
 t/SearchIO/gmap_f9.t
 t/SearchIO/hmmer.t
-t/SearchIO/hmmer3.t
 t/SearchIO/hmmer_pull.t
 t/SearchIO/infernal.t
 t/SearchIO/megablast.t
