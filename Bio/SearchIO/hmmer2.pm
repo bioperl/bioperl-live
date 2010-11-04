@@ -88,7 +88,7 @@ use Bio::Factory::ObjectFactory;
 use vars qw(%MAPPING %MODEMAP
 );
 
-use base qw(Bio::SearchIO);
+use base qw(Bio::SearchIO::hmmer);
 
 BEGIN {
 
@@ -152,30 +152,6 @@ BEGIN {
 sub _initialize {
     my ( $self, @args ) = @_;
     $self->SUPER::_initialize(@args);
-    my $handler = $self->_eventHandler;
-    $handler->register_factory(
-        'result',
-        Bio::Factory::ObjectFactory->new(
-            -type      => 'Bio::Search::Result::HMMERResult',
-            -interface => 'Bio::Search::Result::ResultI'
-        )
-    );
-
-    $handler->register_factory(
-        'hit',
-        Bio::Factory::ObjectFactory->new(
-            -type      => 'Bio::Search::Hit::HMMERHit',
-            -interface => 'Bio::Search::Hit::HitI'
-        )
-    );
-
-    $handler->register_factory(
-        'hsp',
-        Bio::Factory::ObjectFactory->new(
-            -type      => 'Bio::Search::HSP::HMMERHSP',
-            -interface => 'Bio::Search::HSP::HSPI'
-        )
-    );
     $self->{'_hmmidline'} = 'HMMER 2.2g (August 2001)';
 }
 

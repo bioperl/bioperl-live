@@ -12,7 +12,7 @@ BEGIN {
 	use_ok('Bio::SearchIO');
 }
 
-my $searchio = Bio::SearchIO->new(-format => 'hmmer2',
+my $searchio = Bio::SearchIO->new(-format => 'hmmer',
 				 -file   => test_input_file('hmmpfam.out'));
 
 while( my $result = $searchio->next_result ) {
@@ -75,7 +75,7 @@ while( my $result = $searchio->next_result ) {
 	last;
     }
 }
-$searchio = Bio::SearchIO->new(-format => 'hmmer2',
+$searchio = Bio::SearchIO->new(-format => 'hmmer',
 			      -file   => test_input_file('hmmsearch.out'));
 while( my $result = $searchio->next_result ) {
     is(ref($result),'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
@@ -103,7 +103,7 @@ while( my $result = $searchio->next_result ) {
     is($hsp->hit->seq_id(), 'Q91581', 'Check for hit seq_id');
 }
 
-$searchio = Bio::SearchIO->new(-format => 'hmmer2',
+$searchio = Bio::SearchIO->new(-format => 'hmmer',
 			      -file   => test_input_file('L77119.hmmer'));
 
 while( my $result = $searchio->next_result ) {
@@ -146,7 +146,7 @@ while( my $result = $searchio->next_result ) {
 }
 
 
-$searchio = Bio::SearchIO->new(-format => 'hmmer2',
+$searchio = Bio::SearchIO->new(-format => 'hmmer',
 			      -file   => test_input_file('cysprot1b.hmmsearch'));
 
 
@@ -189,7 +189,7 @@ while( my $result = $searchio->next_result ) {
 }
 
 # test for bug 2632 - CS lines should get ignored without breaking the parser
-$searchio = Bio::SearchIO->new(-format => 'hmmer2', -file => test_input_file('hmmpfam_cs.out'));
+$searchio = Bio::SearchIO->new(-format => 'hmmer', -file => test_input_file('hmmpfam_cs.out'));
 my $result = $searchio->next_result;
 my $hit = $result->next_hit;
 my $hsp = $hit->next_hsp;
@@ -198,7 +198,7 @@ is($hsp->seq_str, 'CGV-GFIADVNNVANHKIVVQALEALTCMEHRGACSADRDSGDGAGITTAIPWNLFQKSLQ
 
 
 # Tests for hmmer3 output here
-$searchio = Bio::SearchIO->new(-format  => 'hmmer3',
+$searchio = Bio::SearchIO->new(-format  => 'hmmer',
                                -file    => test_input_file('hmmscan.out'),
                                -verbose => 1);
 
@@ -236,7 +236,7 @@ while( my $result = $searchio->next_result ) {
     }
 }
 
-$searchio = Bio::SearchIO->new(-format  => 'hmmer3',
+$searchio = Bio::SearchIO->new(-format  => 'hmmer',
                                -file    => test_input_file('hmmsearch3.out'),
                                -verbose => 1);
 while( my $result = $searchio->next_result ) {
@@ -253,7 +253,7 @@ while( my $result = $searchio->next_result ) {
     }
 }
 
-$searchio = Bio::SearchIO->new(-format  => 'hmmer3',
+$searchio = Bio::SearchIO->new(-format  => 'hmmer',
                                -file    => test_input_file('hmmscan_multi_domain.out'),
                                -verbose => 1);
 
@@ -300,7 +300,7 @@ while( my $result = $searchio->next_result ) {
     }
 }
 
-$searchio = Bio::SearchIO->new(-format  => 'hmmer3',
+$searchio = Bio::SearchIO->new(-format  => 'hmmer',
                                -file    => test_input_file('hmmscan_sec_struct.out'),
                                -verbose => 1);
 
