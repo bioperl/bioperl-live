@@ -3,12 +3,12 @@
 
 use strict;
 
-BEGIN {     
+BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    
+
     test_begin(-tests => 116);
-	
+
 	use_ok('Bio::SearchIO');
 }
 
@@ -57,7 +57,7 @@ while( my $result = $searchio->next_result ) {
 	    float_is($hsp->evalue, 1.1e-18);
 	    is($hsp->query_string, 'LFVGALKDDHDEQSIRDYFQHFGNIVDINIVID-----KETGKKRGFAFVEFDDYDPVDKVVL-QKQHQLNGKMVDV');
 	    is($hsp->gaps('query'), 6);
-	    is($hsp->hit_string, 'lfVgNLppdvteedLkdlFskfGpivsikivrDiiekpketgkskGfaFVeFeseedAekAlealnGkelggrklrv');	 
+	    is($hsp->hit_string, 'lfVgNLppdvteedLkdlFskfGpivsikivrDiiekpketgkskGfaFVeFeseedAekAlealnGkelggrklrv');
 	    is($hsp->homology_string, 'lfVg L  d +e+ ++d+F++fG iv+i+iv+D     ketgk +GfaFVeF++++ ++k +     ++l+g+ + v');
 	    is(	length($hsp->homology_string), length($hsp->hit_string));
 	    is( length($hsp->query_string), length($hsp->homology_string));
@@ -90,7 +90,7 @@ while( my $result = $searchio->next_result ) {
     is($hsp->hit->start, 1);
     is($hsp->hit->end, 77);
     is($hsp->query->seq_id(), 'SEED');
-    is($hsp->hit->seq_id(), 'Q91581');   
+    is($hsp->hit->seq_id(), 'Q91581');
 }
 
 $searchio = Bio::SearchIO->new(-format => 'hmmer',
