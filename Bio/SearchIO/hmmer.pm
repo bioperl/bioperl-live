@@ -96,37 +96,44 @@ sub new {
     $self->_initialize(@args);
     return $self;
   } else {
-    #FIXME: There's got to be a better way to do this:
-    my $format;
+    # Try to guess the hmmer format version if it's not specified.
+    my $version;
     my $fh;
     my $fh_needs_close = 0;
     my %param = @args;
 
     @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
 
-    if (defined($param{"-fh"})) {
-        $fh = $param{"-fh"};
-    } elsif (defined($param{"-file"})) {
-      open($fh, $param{"-file"}) || return;
-      $fh_needs_close = 1;
-    }
-
-    # read second line of the file
-    <$fh>;
-    $_ = <$fh>;
-
-    if ( m/HMMER\s3/ ) {
-      $format = "hmmer3";
+    # If the caller specified a version, go for that
+    if (defined($param{"-version"})) {
+      $version = $param{"-version"};
     } else {
-      $format = "hmmer2";
+      # Check the contents of the file for the hmmer version mentioned in there
+      if (defined($param{"-fh"})) {
+          $fh = $param{"-fh"};
+      } elsif (defined($param{"-file"})) {
+        open($fh, $param{"-file"}) || return;
+        $fh_needs_close = 1;
+      }
+
+      # read second line of the file
+      <$fh>;
+      $_ = <$fh>;
+
+      if ( m/HMMER\s3/ ) {
+        $version = "3";
+      } else {
+        $version = "2";
+      }
+
+      if ($fh_needs_close) {
+          close($fh);
+      } else {
+          seek($fh, 0, 0);
+      }
     }
 
-    if ($fh_needs_close) {
-        close($fh);
-    } else {
-        seek($fh, 0, 0);
-    }
-
+    my $format = "hmmer$version";
     return unless( $class->_load_format_module($format) );
     return "Bio::SearchIO::${format}"->new(@args);
   }

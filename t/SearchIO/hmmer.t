@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 287);
+    test_begin(-tests => 295);
 
 	use_ok('Bio::SearchIO');
 }
@@ -364,4 +364,29 @@ is(ref($searchio->next_result), 'Bio::Search::Result::HMMERResult', 'Check for t
 $searchio = Bio::SearchIO->new(-format  => 'hmmer',
                                -file    => test_input_file('hmmsearch3.out'));
 is(ref($searchio), 'Bio::SearchIO::hmmer3', 'Check if loading hmmsearch3 output via the hmm3 parser directly works');
+is(ref($searchio->next_result), 'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
+
+# Make sure that you can also specify the -version parameter directly
+$searchio = Bio::SearchIO->new(-format  => 'hmmer',
+                               -file    => test_input_file('hmmpfam.out'),
+                               -version => 2);
+is(ref($searchio), 'Bio::SearchIO::hmmer2', 'Check if selecting the correct hmmpfam parser using -version works');
+is(ref($searchio->next_result), 'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
+
+$searchio = Bio::SearchIO->new(-format  => 'hmmer',
+                               -file    => test_input_file('hmmsearch.out'),
+                               -version => 2);
+is(ref($searchio), 'Bio::SearchIO::hmmer2', 'Check if selecting the correct hmmsearch2 parser using -version works');
+is(ref($searchio->next_result), 'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
+
+$searchio = Bio::SearchIO->new(-format  => 'hmmer3',
+                               -file    => test_input_file('hmmscan.out'),
+                               -version => 3);
+is(ref($searchio), 'Bio::SearchIO::hmmer3', 'Check if selecting the correct hmmscan parser using -version works');
+is(ref($searchio->next_result), 'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
+
+$searchio = Bio::SearchIO->new(-format  => 'hmmer',
+                               -file    => test_input_file('hmmsearch3.out'),
+                               -version => 3);
+is(ref($searchio), 'Bio::SearchIO::hmmer3', 'Check if selecting the correct hmmsearch3 parser using -version works');
 is(ref($searchio->next_result), 'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
