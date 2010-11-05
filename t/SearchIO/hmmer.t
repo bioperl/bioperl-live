@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 279);
+    test_begin(-tests => 287);
 
 	use_ok('Bio::SearchIO');
 }
@@ -344,3 +344,24 @@ while( my $result = $searchio->next_result ) {
         }
     }
 }
+
+# Make sure that you can also directly call the hmmer2 and hmmer3 subclasses
+$searchio = Bio::SearchIO->new(-format => 'hmmer2',
+                               -file   => test_input_file('hmmpfam.out'));
+is(ref($searchio), 'Bio::SearchIO::hmmer2', 'Check if loading hmmpfam output via the hmm2 parser directly works');
+is(ref($searchio->next_result), 'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
+
+$searchio = Bio::SearchIO->new(-format => 'hmmer2',
+                               -file   => test_input_file('hmmsearch.out'));
+is(ref($searchio), 'Bio::SearchIO::hmmer2', 'Check if loading hmmsearch2 output via the hmm2 parser directly works');
+is(ref($searchio->next_result), 'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
+
+$searchio = Bio::SearchIO->new(-format  => 'hmmer3',
+                               -file    => test_input_file('hmmscan.out'));
+is(ref($searchio), 'Bio::SearchIO::hmmer3', 'Check if loading hmmscan output via the hmm3 parser directly works');
+is(ref($searchio->next_result), 'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
+
+$searchio = Bio::SearchIO->new(-format  => 'hmmer',
+                               -file    => test_input_file('hmmsearch3.out'));
+is(ref($searchio), 'Bio::SearchIO::hmmer3', 'Check if loading hmmsearch3 output via the hmm3 parser directly works');
+is(ref($searchio->next_result), 'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
