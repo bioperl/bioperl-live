@@ -432,7 +432,7 @@ sub dna {
 
 =cut
 
-sub display_name { shift->name }
+sub display_name { shift->name(@_) }
 
 *display_id = \&display_name;
 

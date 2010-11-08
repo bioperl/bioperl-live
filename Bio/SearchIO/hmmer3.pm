@@ -80,7 +80,7 @@ use strict;
 use Data::Dumper;
 use Bio::Factory::ObjectFactory;
 use vars qw(%MAPPING %MODEMAP);
-use base qw(Bio::SearchIO);
+use base qw(Bio::SearchIO::hmmer);
 
 BEGIN {
 
@@ -144,30 +144,6 @@ BEGIN {
 sub _initialize {
   my( $self,@args ) = @_;
   $self->SUPER::_initialize(@args);
-  my $handler = $self->_eventHandler;
-  $handler->register_factory(
-      'result',
-      Bio::Factory::ObjectFactory->new(
-	  -type      => 'Bio::Search::Result::hmmer3Result',
-	  -interface => 'Bio::Search::Result::ResultI'
-      )
-  );
-
-  $handler->register_factory(
-      'hit',
-      Bio::Factory::ObjectFactory->new(
-	  -type      => 'Bio::Search::Hit::hmmer3Hit',
-	  -interface => 'Bio::Search::Hit::HitI'
-      )
-  );
-
-  $handler->register_factory(
-      'hsp',
-      Bio::Factory::ObjectFactory->new(
-	-type      => 'Bio::Search::HSP::hmmer3HSP',
-	-interface => 'Bio::Search::HSP::HSPI'
-	)
-  );
   $self->{'_hmmidline'} = 'HMMER 3.0b placeholder';
   $self->{'_alnreport'} = 1; #does report include alignments
 }
