@@ -61,7 +61,6 @@ web:
 package Bio::TreeIO::NewickParser;
 
 use strict;
-use 5.010;
 
 sub parse_newick {
   my $self = shift;
@@ -79,9 +78,9 @@ sub parse_newick {
 
   my $leaf_flag = 0;
 
-  while(defined($token)) {    
-    given ($state) {
-      when (1) { #new node
+  while(defined($token)) {
+    # backwards-compat. with 5.8.1, no Switch (but we hate if-elsif-ad-infinitum
+    if ($state == 1) { #new node
 
         $self->_start('node');
 
@@ -95,8 +94,7 @@ sub parse_newick {
           $state = 2;
           $leaf_flag = 1;
         }
-      }
-      when (2) { #naming a node
+      } elsif ($state == 2) { #naming a node
         if(!($token =~ /[\[\:\,\)\;]/)) { 
 
           if (!$leaf_flag && $self->param('internal_node_id') eq 'bootstrap') {
@@ -114,8 +112,7 @@ sub parse_newick {
           $token = next_token(\$newick, "[:,);");
         }
         $state = 3;
-      }
-      when (3) { # optional : and distance
+      } elsif ($state == 3) { # optional : and distance
         if($token eq ':') {
           $token = next_token(\$newick, "[,);");
 
@@ -128,8 +125,7 @@ sub parse_newick {
           $token .= next_token(\$newick, ",);");
         }
         $state = 4;
-      }
-      when (4) { # optional NHX tags
+      } elsif ($state == 4) { # optional NHX tags
         if($token =~ /\[\&\&NHX/) {
             # careful: this regexp gets rid of all NHX wrapping in one step
 
@@ -156,8 +152,7 @@ sub parse_newick {
             $token = next_token(\$newick, ",);"); #move to , or )
         }
         $state = 5;
-      }
-      when (5) { # end node
+      } elsif ($state == 5) { # end node
         if($token eq ')') {
 
           $self->_end('node');
@@ -195,12 +190,10 @@ sub parse_newick {
           $self->debug("[$token]]\n");
           die("parse error: expected ; or ) or ,\n");
         }
-      }
-      when (13) {
+      } elsif ($state == 13) {
         die("parse error: nothing expected after ;");
       }
     }
-  }
 
   if ($self->_eventHandler->within_element('tree')) {
     $self->_end('node');
