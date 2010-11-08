@@ -375,41 +375,21 @@ sub score{
 sub as_text {
     my $self = shift;
     my $format = shift;
-    my @parms;
+    my $params_input = shift || {};
+
     my $iomod = "Bio::TreeIO::$format";
     $self->_load_module($iomod);
-    # following currently not really necessary, but who knows?
-    my $io = $iomod->new(-format=>$format, -file=>File::Spec->devnull());
-    no strict "refs";
-    my $iowtH = *{$iomod."::_write_tree_Helper"}{CODE};
-    use strict "refs";
-    for ($format) {
-	/newick/ && do {
-	    @parms = ( $io->bootstrap_style, $io->order_by, 0 );
-	    last;
-	};
-	/nhx/ && do {
-	    @parms = ( 0 );
-	    last;
-	};
-	/tabtree/ && do {
-	    @parms = ( "" );
-	    last;
-	};
-	# default
-	$self->throw("as_text does not allow format '$format'") 
-    }
-	
 
-    # newline_each_node...
-    my $data = [$iowtH->($self->get_root_node, @parms)];
+    my $string = '';
+    open(my $fh,">",\$string) or die ("Couldn't open $string as file: $!\n");
+    my $test = $iomod->new(-format=>$format,-fh=>$fh);
 
-    if ($format eq 'tabtree') {
-	return $$data[0]."\n";
-    }
-    else {
-	return join(",", @$data).";\n";
-    }
+    # Get the default params for the given IO module.
+    $test->set_params($params_input);
+
+    $test->write_tree($self);
+    close($fh);
+    return $string;
 }
 
 =head2 Methods for associating Tag/Values with a Tree
