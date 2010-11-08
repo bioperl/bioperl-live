@@ -74,7 +74,6 @@ Internal methods are usually preceded with a _
 
 package Bio::TreeIO::newick;
 use strict;
-use Switch;
 
 use Bio::Event::EventGeneratorI;
 

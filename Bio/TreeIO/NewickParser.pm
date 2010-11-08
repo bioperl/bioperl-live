@@ -61,7 +61,7 @@ web:
 package Bio::TreeIO::NewickParser;
 
 use strict;
-use Switch;
+use 5.010;
 
 sub parse_newick {
   my $self = shift;
@@ -80,8 +80,8 @@ sub parse_newick {
   my $leaf_flag = 0;
 
   while(defined($token)) {    
-    switch ($state) {
-      case 1 { #new node
+    given ($state) {
+      when (1) { #new node
 
         $self->_start('node');
 
@@ -96,7 +96,7 @@ sub parse_newick {
           $leaf_flag = 1;
         }
       }
-      case 2 { #naming a node
+      when (2) { #naming a node
         if(!($token =~ /[\[\:\,\)\;]/)) { 
 
           if (!$leaf_flag && $self->param('internal_node_id') eq 'bootstrap') {
@@ -115,7 +115,7 @@ sub parse_newick {
         }
         $state = 3;
       }
-      case 3 { # optional : and distance
+      when (3) { # optional : and distance
         if($token eq ':') {
           $token = next_token(\$newick, "[,);");
 
@@ -129,7 +129,7 @@ sub parse_newick {
         }
         $state = 4;
       }
-      case 4 { # optional NHX tags
+      when (4) { # optional NHX tags
         if($token =~ /\[\&\&NHX/) {
             # careful: this regexp gets rid of all NHX wrapping in one step
 
@@ -157,7 +157,7 @@ sub parse_newick {
         }
         $state = 5;
       }
-      case 5 { # end node
+      when (5) { # end node
         if($token eq ')') {
 
           $self->_end('node');
@@ -196,7 +196,7 @@ sub parse_newick {
           die("parse error: expected ; or ) or ,\n");
         }
       }
-      case 13 {
+      when (13) {
         die("parse error: nothing expected after ;");
       }
     }
