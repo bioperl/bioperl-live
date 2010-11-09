@@ -5,7 +5,7 @@ use strict;
 use DBI qw(:sql_types);
 use Cwd 'abs_path';
 use File::Spec;
-
+use base qw(Bio::DB::Tree::Store);
 
 sub table_definitions {
   my $self = shift;

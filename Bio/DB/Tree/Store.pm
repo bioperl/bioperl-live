@@ -25,7 +25,11 @@ Bio::DB::Tree::Store.pm - The abstract interface for a local (or remote) persist
 
 =head1 DESCRIPTION
 
-This is the generic interface for a persistent storage database for tree and node objects.  It is essentially an interface, and to use it you will need to provide the adaptor for the actual database. 
+This is the generic interface for a persistent storage database for
+tree and node objects.  It is essentially an interface, and to use it
+you will need to provide the adaptor for the actual database. The
+design essentially follows the Bio::DB::SeqFeature::Store design
+written by Lincoln Stein.
 
 You can find the supported adaptors in the DBI sub-directory, such as
 the SQLite adaptor (DBI::SQLite).
@@ -65,6 +69,8 @@ email or the web:
 Email lapp-at-bioperl.org
 Jason Stajich - jason-at-bioperl.org
 
+The main credits really go to Lincoln Stein for designing
+Bio::DB::SeqFeature::Store.
 
 =head1 APPENDIX
 
@@ -82,6 +88,69 @@ package Bio::DB::Tree::Store.pm;
 use strict;
 
 use base qw(Bio::Root::Root);
+
+=head2 new
+
+ Title   : new
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+=cut
+
+sub new {
+    my $self = shift;
+    my @args = @_;
+    my ($adaptor) =
+        $self->_rearrange(['adaptor',
+                          ],@_);
+    $adaptor ||= 'DBI::SQLite';
+
+    my $class = "Bio::DB::SeqFeature::Store::$adaptor";
+    eval "require $class " or $self->throw($@);
+    my $obj = $class->new(@args);
+    $obj;
+}
+
+=head2 init_database
+
+ Title   : init_database
+ Usage   : $db->init_database([$erase_flag])
+ Function: initialize a database
+ Returns : true
+ Args    : (optional) flag to erase current data
+ Status  : public
+
+Call this after Bio::DB::Tree::Store-E<gt>new() to initialize a new
+database. In the case of a DBI database, this method installs the
+schema but does B<not> create the database. You have to do this
+offline using the appropriate command-line tool. In the case of the
+"berkeleydb" adaptor, this creates an empty BTREE database.
+
+If there is any data already in the database, init_database() called
+with no arguments will have no effect. To permanently erase the data
+already there and prepare to receive a fresh set of data, pass a true
+argument.
+
+=cut
+
+sub init_database {
+  my $self = shift;
+  $self->_init_database(@_);
+  $self->post_init(@_);
+}
+
+=head2 post_init
+
+This method is invoked after init_database for use by certain adaptors
+to do any post-initialization steps. It is passed a copy of the
+init_database() args.
+
+=cut
+
+sub post_init { }
 
 =head2 insert_tree
 
