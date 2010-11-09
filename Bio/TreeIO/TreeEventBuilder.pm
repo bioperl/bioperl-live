@@ -177,7 +177,8 @@ sub start_document {
 
  Title   : end_document
  Usage   : my @trees = $parser->end_document
- Function: Finishes a Phylogeny cycle
+ Function: Finishes a document, usually an input file. A document may
+           contain multiple trees.
  Returns : An array  Bio::Tree::TreeI
  Args    : none
 
