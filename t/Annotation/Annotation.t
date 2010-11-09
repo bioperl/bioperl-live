@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 158);
+    test_begin(-tests => 159);
 	
     use_ok('Bio::Annotation::Collection');
     use_ok('Bio::Annotation::DBLink');
@@ -267,6 +267,7 @@ for my $treeblock ( $aln->annotation->get_Annotations('tree') ) {
   my @nodes = sort { defined $a->id &&
 		       defined $b->id &&
 			 $a->id cmp $b->id } $treeref->get_nodes();
+  is(@nodes, 26);
   is $nodes[12]->id, '183.m01790', "add tree to AlignI";
   my $str;
   for my $seq ($aln->each_seq_with_id($nodes[12]->id)) {
