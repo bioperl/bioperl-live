@@ -14,10 +14,11 @@
 
 =head1 NAME
 
-Bio::Tree::Node - A Simple Tree Node
+Bio::Tree::Node - A Database backed Tree Node
 
 =head1 SYNOPSIS
-    use Bio::Tree::Node;
+
+    use Bio::DB::Tree::Node;
     my $nodeA = Bio::Tree::Node->new();
     my $nodeL = Bio::Tree::Node->new();
     my $nodeR = Bio::Tree::Node->new();
@@ -43,7 +44,7 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
@@ -91,13 +92,7 @@ use base qw(Bio::Root::Root Bio::Tree::NodeI);
  Usage   : my $obj = Bio::Tree::Node->new();
  Function: Builds a new Bio::Tree::Node object
  Returns : Bio::Tree::Node
- Args    : -descendents   => arrayref of descendents (they will be
-                             updated s.t. their ancestor point is this
-                             node)
-           -branch_length => branch length [integer] (optional)
-           -bootstrap     => value   bootstrap value (string)
-           -description   => description of node
-           -id            => human readable id for node
+ Args    : -node_id            => internal id
 
 =cut
 
@@ -105,36 +100,12 @@ sub new {
     my($class,@args) = @_;
 
     my $self = $class->SUPER::new(@args);
-    my ($children, $branchlen,$id,
-	$bootstrap, $desc,$d) = $self->_rearrange([qw(
-						      DESCENDENTS
-						      BRANCH_LENGTH
-						      ID
-						      BOOTSTRAP
-						      DESC
-						      DESCRIPTION
-						      STORE
-						      )],
-						  @args);
-    if( defined $d && defined $desc ) { 
-	$self->warn("can only accept -desc or -description, not both, accepting -description");
-	$desc = $d;
-    } elsif( defined $d && ! defined $desc ) {
-	$desc = $d;
-    }
-    defined $desc && $self->description($desc);
-    defined $bootstrap && $self->bootstrap($bootstrap);
-    defined $id && $self->id($id);
-    defined $branchlen && $self->branch_length($branchlen);
-    if( defined $children ) {
-	if( ref($children) !~ /ARRAY/i ) {
-	    $self->warn("Must specify a valid ARRAY reference to initialize a Node's Descendents");
-	}
-	foreach my $c ( @$children ) { 	
-	    $self->add_Descendent($c);
-
-	}
-  return $self;
+    my ($id,$store) = $self->_rearrange([qw(NODE_ID
+					    STORE
+					  )],
+					@args);
+    defined $id && $self->node_id($id);
+    return $self;
 }
 
 =head2 create_node_on_branch
@@ -154,7 +125,9 @@ sub new {
 
 sub create_node_on_branch{
    my ($self,@args) = @_;
-   my ($pos, $frac, $annot, $force) = $self->_rearrange([qw(POSITION FRACTION ANNOT FORCE)], @args);
+   my ($pos, $frac, $annot, $force) = $self->_rearrange([qw(POSITION 
+							    FRACTION ANNOT 
+							    FORCE)], @args);
 }
 
 =head2 add_Descendent
@@ -187,6 +160,9 @@ sub add_Descendent{
 =cut
 
 sub each_Descendent{
+  my $self = shift;
+  my $sortby = shift;
+  $self->dbh->_fetch_node_children($self->node_id, $sortby);
 }
 
 
@@ -202,6 +178,7 @@ sub each_Descendent{
 =cut
 
 sub remove_Descendent{
+
 }
 
 
@@ -234,7 +211,9 @@ sub remove_all_Descendents{
 =cut
 
 sub get_all_Descendents {
-
+  my $self = shift;
+  my $sortby = shift;
+  $self->dbh->_fetch_node_all_children($self->node_id, $sortby);
 }
 
 =head2 ancestor
@@ -248,6 +227,8 @@ sub get_all_Descendents {
 =cut
 
 sub ancestor {
+  my $self = shift;
+  return $self->dbh->_fetch_parent_node($self->node_id);
 }
 
 =head2 branch_length
@@ -261,6 +242,20 @@ sub ancestor {
 =cut
 
 sub branch_length{
+  my $self = shift;
+  if( @_ ) {
+    my $bl = shift;
+    if( defined $bl &&
+	$bl =~ s/\[(\d+)\]// ) {
+      $self->bootstrap($1);
+    }
+    $self->{'_branch_length'} = $bl;
+    $self->invalidate_height();
+  }
+  if ( ! exists $self->{'_branch_length'} ) {
+    $self->{'_branch_length'} = $self->dbh->_get_branch_length($self->node_id);
+  }
+  return $self->{'_branch_length'};
 }
 
 =head2 bootstrap
@@ -273,7 +268,7 @@ sub branch_length{
 
 =cut
 
-sub bootstrap { 
+sub bootstrap {
 }
 
 =head2 description
@@ -407,6 +402,7 @@ sub invalidate_height {
 =cut
 
 sub set_tag_value{
+
 }
 
 =head2 add_tag_value
