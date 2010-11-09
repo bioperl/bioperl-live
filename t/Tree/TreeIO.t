@@ -141,7 +141,7 @@ $tree = $treeio->next_tree;
 isa_ok($tree, 'Bio::Tree::TreeI');
 
 @nodes = $tree->get_nodes;
-is(@nodes, 13, "Total Nodes");
+is(@nodes, 12, "Total Nodes");
 
 my $adhy = $tree->find_node('ADHY');
 is($adhy->branch_length, 0.1);
