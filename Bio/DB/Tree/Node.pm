@@ -144,6 +144,7 @@ sub create_node_on_branch{
 =cut
 
 sub add_Descendent{
+
 }
 
 =head2 each_Descendent
@@ -250,6 +251,7 @@ sub branch_length{
     }
     $self->{'_branch_length'} = $bl;
     $self->invalidate_height();
+    $self->_to_commit;
   }
   if ( ! exists $self->{'_branch_length'} ) {
     $self->{'_branch_length'} = $self->dbh->_get_branch_length($self->node_id);
@@ -307,6 +309,14 @@ the raw string while L<id_output> to get the pre-escaped string.
 =cut
 
 sub id {
+  my $self = shift;
+  if( @_ ) {
+    $self->{'_id'} = shift;
+    $self->_to_commit;
+  } elsif ( ! exists $self->{'_label'} ) {
+    $self->{'_label'} = $self->dbh->_get_label($self->node_id);
+  }
+  return $self->{'_label'};
 }
 
 =head2 Helper Functions
@@ -360,6 +370,9 @@ interface.
 =cut
 
 sub is_Leaf {
+  my $self = shift;
+  return $self->dbh->_is_Leaf($self->node_id);
+}
 
 =head2 height
 
@@ -372,7 +385,7 @@ sub is_Leaf {
 
 =cut
 
-sub height { 
+sub height {
 }
 
 =head2 invalidate_height
@@ -501,3 +514,12 @@ sub has_tag {
 
 sub reverse_edge {
 }
+
+
+sub _to_commit {
+  my $self = shift;
+  $self->{_commit_needed} = 1;
+}
+
+1;
+
