@@ -136,6 +136,19 @@ END
   return @nodes;
 }
 
+
+sub _get_branch_length {
+  my $self = shift;
+  my $id   = shift;
+  my $sth = $self->_prepare(<<END);
+SELECT distance_to_parent FROM node WHERE node_id = ?
+END
+  my $d = @{$sth->fetchrow_array};
+  $sth->finish;
+  return $d;
+}
+
+
 sub max_id {
   my $self = shift;
   my $type = shift;
@@ -154,8 +167,9 @@ sub max_id {
   $id;
 }
 
+
 sub _init_database {
-  my $self = shift;
+  my $self  = shift;
   my $erase = shift;
 
   my $dbh    = $self->dbh;
