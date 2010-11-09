@@ -134,7 +134,7 @@ sub to_string{
    my ($self) = @_;
    my @tags = $self->get_all_tags;
    my $tagstr = '';
-   if( @tags ) {
+   if( scalar(@tags) > 0 ) {
        $tagstr = '[' . join(":", "&&NHX", 
 			    map { "$_=" .join(',',
 					      $self->get_tag_values($_))}
