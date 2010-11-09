@@ -1,3 +1,4 @@
+
 package Bio::DB::Tree::Store::DBI::SQLite;
 
 use strict;
@@ -226,7 +227,6 @@ Bio::DB::Tree::Store::DBI::SQLite -
   # Open the tree database
   my $db = Bio::DB::Tree::Store->new(-adaptor => 'DBI::SQLite',
                                      -dsn     => '/path/to/database.db');
-
 
   my $id = 1;
   my $tree = $db->fetch($id);
