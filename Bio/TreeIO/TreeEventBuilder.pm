@@ -204,7 +204,7 @@ sub end_document {
 
  Title   : start_element
  Usage   :
- Function:
+ Function: See Bio::Event::EventHandlerI documentation.
  Example :
  Returns : 
  Args    : $data => hashref with key 'Name'
@@ -231,7 +231,7 @@ sub start_element{
 
  Title   : end_element
  Usage   : 
- Function:
+ Function: See Bio::Event::EventHandlerI documentation.
  Returns : none
  Args    : $data => hashref with key 'Name'
 
@@ -286,9 +286,9 @@ sub end_element{
 
  Title   : in_element
  Usage   :
- Function:
+ Function: See Bio::Event::EventHandlerI documentation.
  Example :
- Returns : 
+ Returns : boolean
  Args    :
 
 
@@ -306,11 +306,11 @@ sub in_element{
 =head2 within_element
 
  Title   : within_element
- Usage   :
- Function:
+ Usage   : 
+ Function: See Bio::Event::EventHandlerI documentation.
  Example :
- Returns : 
- Args    :
+ Returns : boolean
+ Args    : Either "node" or "tree".
 
 
 =cut
@@ -324,7 +324,7 @@ sub within_element{
 
  Title   : characters
  Usage   : $handler->characters($text);
- Function: Processes characters 
+ Function: See Bio::Event::EventHandlerI documentation.
  Returns : none
  Args    : text string
 
