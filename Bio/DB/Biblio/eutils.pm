@@ -367,19 +367,25 @@ sub find {
   #should we be using the ids, or the count tag?
   ##
   my($count_element)  = $self->twig->get_xpath('//Count');
-  my $count = $count_element->text();
-  $self->count(scalar(@ids));
+  if (defined $count_element) {
+    my $count = $count_element->text();
+    $self->count(scalar(@ids));
+  }
 
   my($retmax_element) = $self->twig->get_xpath('//RetMax');
-  my $retmax = $retmax_element->text();
+  if (defined $retmax_element) {
+    my $retmax = $retmax_element->text();
+  }
 
   my($querykey_element) = $self->twig->get_xpath('//QueryKey');
-  my $querykey = $querykey_element->text();
-  $self->query_key($querykey);
+  if (defined $querykey_element) {
+    $self->query_key($querykey_element->text());
+  }
 
   my($webenv_element) = $self->twig->get_xpath('//WebEnv');
-  my $webenv = $webenv_element->text();
-  $self->collection_id($webenv);
+  if (defined $webenv_element) {
+    $self->collection_id($webenv_element->text());
+  }
 
   #initialize/reset cursor
   $self->cursor(0);
