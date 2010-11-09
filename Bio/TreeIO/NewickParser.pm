@@ -2,14 +2,16 @@
 
 =head1 NAME
 
-Module which implements a newick string parser as a finite state machine which enables it
-to parse the full Newick specification.
+Module which implements a newick string parser as a finite state
+machine which enables it to parse the full Newick specification.
 
-Taken largely from the Ensembl Compara file with the same name (Bio::EnsEMBL::Compara::Graph::NewickParser),
-this module adapts the parser to work with BioPerl's event handler-based parsing scheme.
+Taken largely from the Ensembl Compara file with the same name
+(Bio::EnsEMBL::Compara::Graph::NewickParser), this module adapts the
+parser to work with BioPerl's event handler-based parsing scheme.
 
-This module is used by nhx.pm and newick.pm, and is NOT called directly. Instead, both of those
-parsing modules extend this module in order to gain access to the main parsing method.
+This module is used by nhx.pm and newick.pm, and is NOT called
+directly. Instead, both of those parsing modules extend this module in
+order to gain access to the main parsing method.
 
 =head1 SYNOPSIS
 
@@ -21,8 +23,9 @@ parsing modules extend this module in order to gain access to the main parsing m
 
 =head1 DESCRIPTION
 
-This module correctly parses the Newick and NHX formats, sending calls to the BioPerl
-TreeEventHandler when appropriate in order to build and populate the node objects.
+This module correctly parses the Newick and NHX formats, sending calls
+to the BioPerl TreeEventHandler when appropriate in order to build and
+populate the node objects.
 
 =head1 FEEDBACK
 
@@ -61,6 +64,7 @@ web:
 package Bio::TreeIO::NewickParser;
 
 use strict;
+use base qw(Bio::Root::Root);
 
 sub parse_newick {
   my $self = shift;
@@ -179,7 +183,7 @@ sub parse_newick {
           $state=1;
         } elsif($token eq ';') {
           #done with tree
-          die("parse error: unbalanced ()\n") if($bracket_level ne 0);
+          $self->throw("parse error: unbalanced ()\n") if($bracket_level ne 0);
 
           $self->_end('node');
           $self->_end('tree');
@@ -188,10 +192,10 @@ sub parse_newick {
           $state=13;
         } else {
           $self->debug("[$token]]\n");
-          die("parse error: expected ; or ) or ,\n");
+          $self->throw("parse error: expected ; or ) or ,\n");
         }
       } elsif ($state == 13) {
-        die("parse error: nothing expected after ;");
+        $self->throw("parse error: nothing expected after ;");
       }
     }
 
@@ -243,7 +247,7 @@ sub next_token {
     }
   }
   unless(defined($index)) {
-    die("couldn't find delimiter $delim\n $$string");
+    $self->throw("couldn't find delimiter $delim\n $$string");
   }
 
   my $token ='';
