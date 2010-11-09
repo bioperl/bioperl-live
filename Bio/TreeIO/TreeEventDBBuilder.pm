@@ -1,11 +1,11 @@
 #
-# BioPerl module for Bio::TreeIO::TreeEventBuilder
+# BioPerl module for Bio::TreeIO::TreeEventDBBuilder
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
 #
-# Cared for by Jason Stajich <jason@bioperl.org>
+# Cared for by Hilmar Lapp <lapp@bioperl.org>
 #
-# Copyright Jason Stajich
+# Copyright Hilmar Lapp
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -13,8 +13,7 @@
 
 =head1 NAME
 
-Bio::TreeIO::TreeEventBuilder - Build Bio::Tree::Tree's and 
-  Bio::Tree::Node's from Events 
+Bio::TreeIO::TreeEventDBBuilder - Create tree and node records in a persistent storage database from parser events.
 
 =head1 SYNOPSIS
 
@@ -22,8 +21,8 @@ Bio::TreeIO::TreeEventBuilder - Build Bio::Tree::Tree's and
 
 =head1 DESCRIPTION
 
-This object will take events and build a Bio::Tree::TreeI compliant
-object makde up of Bio::Tree::NodeI objects.
+This object will take events fired by a Bio::TreeIO parser and
+populate a a persistent storage database with it.
 
 =head1 FEEDBACK
 
@@ -55,9 +54,9 @@ web:
 
   http://bugzilla.open-bio.org/
 
-=head1 AUTHOR - Jason Stajich
+=head1 AUTHOR - Hilmar Lapp
 
-Email jason-at-bioperl.org
+Email lapp-at-bioperl.org
 
 =head1 APPENDIX
 
@@ -70,7 +69,7 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::TreeIO::TreeEventBuilder;
+package Bio::TreeIO::TreeEventDBBuilder;
 use strict;
 
 use Bio::Tree::Tree;
@@ -81,9 +80,9 @@ use base qw(Bio::Root::Root Bio::Event::EventHandlerI);
 =head2 new
 
  Title   : new
- Usage   : my $obj = Bio::TreeIO::TreeEventBuilder->new();
- Function: Builds a new Bio::TreeIO::TreeEventBuilder object 
- Returns : Bio::TreeIO::TreeEventBuilder
+ Usage   : my $obj = Bio::TreeIO::TreeEventDBBuilder->new();
+ Function: Builds a new Bio::TreeIO::TreeEventDBBuilder object 
+ Returns : Bio::TreeIO::TreeEventDBBuilder
  Args    :
 
 

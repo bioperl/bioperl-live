@@ -214,7 +214,7 @@ sub _initialize {
     $self->set_param('newline_each_node',$nen);
     $self->set_param('internal_node_id',$ini);
 
-    $self->attach_EventHandler(Bio::TreeIO::TreeEventBuilder->new
+    $self->attach_EventHandler(Bio::TreeIO::TreeEventObjBuilder->new
                    (-verbose => $self->verbose(), @args));
     $self->_initialize_io(@args);
     #$self->debug_params;
