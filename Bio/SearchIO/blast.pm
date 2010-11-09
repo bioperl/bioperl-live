@@ -92,6 +92,115 @@ put - they will always be on the $hsp-E<gt>query instead of on the
 $hsp-E<gt>hit part of the feature pair for blastx and tblastn bl2seq
 produced reports.  Hope that's clear...
 
+=head1 Developer Notes
+
+Developer Notes
+---------------
+
+The following information is added in hopes of increasing the
+maintainability of this code. It runs the risk of becoming obsolete as
+the code gets updated. As always, double check against the actual
+source. If you find any discrepencies, please correct them.
+[ This documentation added on 3 Jun 2003. ]
+
+The logic is the brainchild of Jason Stajich, documented by Steve
+Chervitz. Jason: please check it over and modify as you see fit.
+
+Question:
+Elmo wants to know: How does this module unmarshall data from the input stream?
+(i.e., how does information from a raw input file get added to 
+the correct Bioperl object?)
+
+Answer:
+
+This answer is specific to SearchIO::blast, but may apply to other
+SearchIO.pm subclasses as well. The following description gives the
+basic idea. The actual processing is a little more complex for
+certain types of data (HSP, Report Parameters).
+
+You can think of blast::next_result() as faking a SAX XML parser,
+making a non-XML document behave like its XML. The overhead to do this
+is quite substantial (~650 lines of code instead of ~80 in
+blastxml.pm).
+
+0. First, add a key => value pair for the datum of interest to %MAPPING
+    Example:
+           'Foo_bar'   => 'Foo-bar',
+
+1. next_result() collects the datum of interest from the input stream, 
+   and calls element(). 
+    Example:
+            $self->element({ 'Name' => 'Foo_bar',
+                             'Data' => $foobar});
+
+2. The element() method is a convenience method that calls start_element(),
+   characters(), and end_element(). 
+
+3. start_element() checks to see if the event handler can handle a start_xxx(),
+   where xxx = the 'Name' parameter passed into element(), and calls start_xxx()
+   if so. Otherwise, start_element() does not do anything.
+
+   Data that will have such an event handler are defined in %MODEMAP.
+   Typically, there are only handler methods for the main parts of
+   the search result (e.g., Result, Iteration, Hit, HSP),
+   which have corresponding Bioperl modules. So in this example,
+   there was an earlier call such as $self->element({'Name'=>'Foo'})
+   and the Foo_bar datum is meant to ultimately go into a Foo object.
+
+   The start_foo() method in the handler will typically do any
+   data initialization necessary to prepare for creating a new Foo object.
+   Example: SearchResultEventBuilder::start_result()
+
+4. characters() takes the value of the 'Data' key from the hashref argument in
+   the elements() call and saves it in a local data member:
+   Example:
+   $self->{'_last_data'} = $data->{'Data'};
+
+5. end_element() is like start_element() in that it does the check for whether
+   the event handler can handle end_xxx() and if so, calls it, passing in 
+   the data collected from all of the characters() calls that occurred
+   since the start_xxx() call.
+
+   If there isn't any special handler for the data type specified by 'Name', 
+   end_element() will place the data saved by characters() into another
+   local data member that saves it in a hash with a key defined by %MAPPING.
+   Example:
+           $nm = $data->{'Name'};
+           $self->{'_values'}->{$MAPPING{$nm}} = $self->{'_last_data'};
+
+   In this case, $MAPPING{$nm} is 'Foo-bar'.
+
+   end_element() finishes by resetting the local data member used by 
+   characters(). (i.e., $self->{'_last_data'} = '';)
+
+6. When the next_result() method encounters the end of the Foo element in the 
+   input stream. It will invoke $self->end_element({'Name'=>'Foo'}).
+   end_element() then sends all of the data in the $self->{'_values'} hash.
+   Note that $self->{'_values'} is cleaned out during start_element(),
+   keeping it at a resonable size.
+
+   In the event handler, the end_foo() method takes the hash from end_element()
+   and creates a new hash containing the same data, but having keys lacking
+   the 'Foo' prefix (e.g., 'Foo-bar' becomes '-bar'). The handler's end_foo()
+   method then creates the Foo object, passing in this new hash as an argument.
+   Example: SearchResultEventBuilder::end_result()
+
+7. Objects created from the data in the search result are managed by 
+   the event handler which adds them to a ResultI object (using API methods
+   for that object). The ResultI object gets passed back to
+   SearchIO::end_element() when it calls end_result().
+
+   The ResultI object is then saved in an internal data member of the 
+   SearchIO object, which returns it at the end of next_result()
+   by calling end_document().
+
+   (Technical Note: All objects created by end_xxx() methods in the event 
+    handler are returned to SearchIO::end_element(), but the SearchIO object
+    only cares about the ResultI objects.)
+
+(Sesame Street aficionados note: This answer was NOT given by Mr. Noodle ;-P)
+
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -2525,112 +2634,5 @@ sub _cleanup_hits {
 1;
 
 __END__
-
-Developer Notes
----------------
-
-The following information is added in hopes of increasing the
-maintainability of this code. It runs the risk of becoming obsolete as
-the code gets updated. As always, double check against the actual
-source. If you find any discrepencies, please correct them.
-[ This documentation added on 3 Jun 2003. ]
-
-The logic is the brainchild of Jason Stajich, documented by Steve
-Chervitz. Jason: please check it over and modify as you see fit.
-
-Question:
-Elmo wants to know: How does this module unmarshall data from the input stream?
-(i.e., how does information from a raw input file get added to 
-the correct Bioperl object?)
-
-Answer:
-
-This answer is specific to SearchIO::blast, but may apply to other
-SearchIO.pm subclasses as well. The following description gives the
-basic idea. The actual processing is a little more complex for
-certain types of data (HSP, Report Parameters).
-
-You can think of blast::next_result() as faking a SAX XML parser,
-making a non-XML document behave like its XML. The overhead to do this
-is quite substantial (~650 lines of code instead of ~80 in
-blastxml.pm).
-
-0. First, add a key => value pair for the datum of interest to %MAPPING
-    Example:
-           'Foo_bar'   => 'Foo-bar',
-
-1. next_result() collects the datum of interest from the input stream, 
-   and calls element(). 
-    Example:
-            $self->element({ 'Name' => 'Foo_bar',
-                             'Data' => $foobar});
-
-2. The element() method is a convenience method that calls start_element(),
-   characters(), and end_element(). 
-
-3. start_element() checks to see if the event handler can handle a start_xxx(),
-   where xxx = the 'Name' parameter passed into element(), and calls start_xxx()
-   if so. Otherwise, start_element() does not do anything.
-
-   Data that will have such an event handler are defined in %MODEMAP.
-   Typically, there are only handler methods for the main parts of
-   the search result (e.g., Result, Iteration, Hit, HSP),
-   which have corresponding Bioperl modules. So in this example,
-   there was an earlier call such as $self->element({'Name'=>'Foo'})
-   and the Foo_bar datum is meant to ultimately go into a Foo object.
-
-   The start_foo() method in the handler will typically do any
-   data initialization necessary to prepare for creating a new Foo object.
-   Example: SearchResultEventBuilder::start_result()
-
-4. characters() takes the value of the 'Data' key from the hashref argument in
-   the elements() call and saves it in a local data member:
-   Example:
-   $self->{'_last_data'} = $data->{'Data'};
-
-5. end_element() is like start_element() in that it does the check for whether
-   the event handler can handle end_xxx() and if so, calls it, passing in 
-   the data collected from all of the characters() calls that occurred
-   since the start_xxx() call.
-
-   If there isn't any special handler for the data type specified by 'Name', 
-   end_element() will place the data saved by characters() into another
-   local data member that saves it in a hash with a key defined by %MAPPING.
-   Example:
-           $nm = $data->{'Name'};
-           $self->{'_values'}->{$MAPPING{$nm}} = $self->{'_last_data'};
-
-   In this case, $MAPPING{$nm} is 'Foo-bar'.
-
-   end_element() finishes by resetting the local data member used by 
-   characters(). (i.e., $self->{'_last_data'} = '';)
-
-6. When the next_result() method encounters the end of the Foo element in the 
-   input stream. It will invoke $self->end_element({'Name'=>'Foo'}).
-   end_element() then sends all of the data in the $self->{'_values'} hash.
-   Note that $self->{'_values'} is cleaned out during start_element(),
-   keeping it at a resonable size.
-
-   In the event handler, the end_foo() method takes the hash from end_element()
-   and creates a new hash containing the same data, but having keys lacking
-   the 'Foo' prefix (e.g., 'Foo-bar' becomes '-bar'). The handler's end_foo()
-   method then creates the Foo object, passing in this new hash as an argument.
-   Example: SearchResultEventBuilder::end_result()
-
-7. Objects created from the data in the search result are managed by 
-   the event handler which adds them to a ResultI object (using API methods
-   for that object). The ResultI object gets passed back to
-   SearchIO::end_element() when it calls end_result().
-
-   The ResultI object is then saved in an internal data member of the 
-   SearchIO object, which returns it at the end of next_result()
-   by calling end_document().
-
-   (Technical Note: All objects created by end_xxx() methods in the event 
-    handler are returned to SearchIO::end_element(), but the SearchIO object
-    only cares about the ResultI objects.)
-
-(Sesame Street aficionados note: This answer was NOT given by Mr. Noodle ;-P)
-
 
 
