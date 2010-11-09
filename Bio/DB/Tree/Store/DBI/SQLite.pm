@@ -30,9 +30,9 @@ END
        parent_id integer,
        label text,
        distance_to_parent real,
+       annotations text,
        left_idx integer,
        right_idx integer,
-       annotations text
 );
 create index ui_nodeid ON node (node_id);
 create index i_nodelabel ON node (label);
