@@ -149,6 +149,17 @@ END
   return $d;
 }
 
+sub _get_label {
+  my $self = shift;
+  my $id   = shift;
+  my $sth = $self->_prepare(<<END);
+SELECT label FROM node WHERE node_id = ?
+END
+  my $l = @{$sth->fetchrow_array};
+  $sth->finish;
+  return $l;
+}
+
 
 sub max_id {
   my $self = shift;
@@ -168,6 +179,15 @@ sub max_id {
   $id;
 }
 
+sub _is_Leaf {
+  my $self = shift;
+  my $id = shift;
+  my $sth = $self->_prepare(<<END);
+SELECT COUNT(*) FROM node WHERE node_id = ? AND left_idx == right_idx
+END
+  my ($isleaf) = @{$sth->fetchrow_arrayref};
+  return $isleaf;
+}
 
 sub _init_database {
   my $self  = shift;
