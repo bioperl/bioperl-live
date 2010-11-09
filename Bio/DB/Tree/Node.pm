@@ -1,5 +1,5 @@
 #
-# BioPerl module for Bio::Tree::Node
+# BioPerl module for Bio::DB::Tree::Node
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
 #
@@ -13,16 +13,16 @@
 
 =head1 NAME
 
-Bio::Tree::Node - A Database backed Tree Node
+Bio::DB::Tree::Node - A Database backed Tree Node
 
 =head1 SYNOPSIS
 
     use Bio::DB::Tree::Node;
-    my $nodeA = Bio::Tree::Node->new();
-    my $nodeL = Bio::Tree::Node->new();
-    my $nodeR = Bio::Tree::Node->new();
+    my $nodeA = Bio::DB::Tree::Node->new();
+    my $nodeL = Bio::DB::Tree::Node->new();
+    my $nodeR = Bio::DB::Tree::Node->new();
 
-    my $node = Bio::Tree::Node->new();
+    my $node = Bio::DB::Tree::Node->new();
     $node->add_Descendent($nodeL);
     $node->add_Descendent($nodeR);
 
@@ -66,11 +66,6 @@ the web:
 
 Email jason-at-bioperl-dot-org
 
-=head1 CONTRIBUTORS
-
-Aaron Mackey, amackey-at-virginia-dot-edu
-Sendu Bala,   bix@sendu.me.uk
-
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -80,7 +75,7 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-package Bio::Tree::DB::Node;
+package Bio::DB::Tree::Node;
 use strict;
 
 use base qw(Bio::Root::Root Bio::Tree::NodeI);
@@ -106,6 +101,25 @@ sub new {
     defined $id && $self->node_id($id);
     return $self;
 }
+
+
+=head2 node_id
+
+ Title   : node_id
+ Usage   : $obj->node_id($newval)
+ Function: a private method signifying the internal creation order
+ Returns : value of node_id
+ Args    : newvalue (optional)
+
+=cut
+
+sub node_id {
+    my $self = shift @_;
+    $self->{'_node_id'} = shift @_ if( @_);
+    return $self->{'_node_id'} || 0;
+}
+
+*_creation_id  = \&node_id;
 
 =head2 create_node_on_branch
 
@@ -352,7 +366,7 @@ sub id {
 =cut
 
 sub internal_id {
-
+}
 
 =head2 Bio::Node::NodeI decorated interface implemented
 
