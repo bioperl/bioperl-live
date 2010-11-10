@@ -1126,19 +1126,19 @@ sub add_trait {
     return $key;
 }
 
-=head2 ascii_art
+=head2 print_tree
 
- Title   : ascii_art
- Usage   : print $tree->ascii_art;
+ Title   : print_tree
+ Usage   : print $tree->print_tree;
  Function: Return a representation of this tree as ASCII text. Shamelessly
            copied / "ported" from PyCogent. http://pycogent.sourceforge.net/
  Returns : a multi-line String, suitable for printing to the console
- Args    : show_internal - 1 to show internal node labels, 0 to hide them
-           compact - 1 to use a 'compact' mode with exactly 1 line per node.
-           ignore_branchlengths - 0 to ignore branch lengths.
+ Args    : show_internal - 0 to hide internal nodes, 1 to show them (default 1)
+           compact - 1 to use a 'compact' mode with exactly 1 line per node. (default 0)
+           ignore_branchlengths - 0 to ignore branch lengths, 1 to use them. (default 0)
 =cut
 
-sub ascii_art {
+sub print_tree {
     my $self = shift;
     my $show_internal = shift;
     my $compact = shift;
@@ -1152,7 +1152,7 @@ sub ascii_art {
 
     my ($lines_arrayref,$mid) = $self->_ascii_art($root_node,'-',$char_per_bl,$show_internal,$compact,$ignore_branchlengths);
     my @lines = @{$lines_arrayref};
-    return join("\n",@lines)."\n";
+    print join("\n",@lines)."\n";
 }
 
 # Private helper method for $tree->ascii_art
@@ -1167,7 +1167,8 @@ sub _ascii_art {
 
     $char1 = '-' unless (defined $char1);
     $show_internal = 1 unless (defined $show_internal);
-    $compact = 1 unless (defined $compact);
+    $compact = 0 unless (defined $compact);
+    $ignore_branchlengths = 0 unless (defined $ignore_branchlengths);
 
     my $len = 10;
     if (!$ignore_branchlengths) {
@@ -1178,7 +1179,8 @@ sub _ascii_art {
     }
     my $pad = ' ' x $len;
     my $pa = ' ' x ($len-1);
-    my $name_str = $node->id || '';
+    my $name_str = $node->id;
+    $name_str = '' unless (defined $name_str);
 
     if (!$node->is_Leaf) {
 	my @mids;
@@ -1228,7 +1230,10 @@ sub _ascii_art {
 	@results = @new_results;
 	if ($show_internal) {
 	    my $stem = $results[$mid];
-	    $results[$mid] = substr($stem,0,1) . $name_str . substr($stem,length($name_str)+1);
+	    my $str = subst($stem,0,1);
+	    $str .= $name_str;
+	    $str .= substr($stem,length($name_str)+1);
+	    $results[$mid] = $str;
 	}
 	return (\@results,$mid);
     } else {
