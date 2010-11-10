@@ -27,9 +27,9 @@ populate a a persistent storage database with it.
 At present this event handler makes the assumption that tree nodes are
 encountered in nested containment (depth first) order, i.e., a node
 that is complete is the direct child of the most recent node that is
-not yet complete. Formats that store the hierarchy as an unordered
-list of edges or parent-child relationships will at present not work
-with this handler.
+not yet complete. Formats such as newick work in this way. Formats
+that store the hierarchy as an unordered list of edges or parent-child
+relationships will at present not work with this handler.
 
 =head1 FEEDBACK
 
@@ -194,7 +194,7 @@ sub start_element{
     if( $elem eq 'node' ) {
         push @{$self->{'_nodestack'}}, {};
         push @{$self->{'_elemstack'}}, $elem;
-    } elsif ( $name eq 'tree' ) {
+    } elsif ( $elem eq 'tree' ) {
         push @{$self->{'_elemstack'}}, $elem;
     } else {
         push @{$self->{'_attrstack'}}, $elem;
@@ -323,7 +323,7 @@ sub characters{
        } elsif ( $self->in_element('tag_value') ) {
 	   $nodeh->{'-nhx'}->{$nodeh->{'-NHXtagname'}} = $ch;
        } elsif( $self->in_element('leaf') ) {
-	   $hash->{'-leaf'} = $ch;
+	   $nodeh->{'-leaf'} = $ch;
        }
    }
    $self->debug("chars: $ch\n");
