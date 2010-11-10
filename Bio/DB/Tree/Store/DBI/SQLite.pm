@@ -96,18 +96,95 @@ END
 
 =cut
 
+=head2 insert_node
+
+ Title   : insert_node
+ Usage   : $dbkey = $store->insert_node($nodeh, $parent);
+
+ Function: Inserts a single node into the underlying storage. The
+           default assumption is that the node does not exist yet,
+           however the database defines (and/or enforces) that.
+
+ Example :
+ Returns : If successful, the primary key of the node that has been created. 
+
+ Args :    The node to be inserted (-node) as a hashref or a
+           Bio::Tree::NodeI object, and the parent (-parent) as a
+           primary key or a Bio::DB::Tree::Node object. Arguments may
+           be provided in this order, or with named arguments (as
+           given above in parentheses).
+
+           If the node ia a hashref, the key 'parent' may be used to
+           provide the primary key to the parent node instead of a
+           second argument, and the key 'tree' is expected to provide
+           the primary key to the tree of which this node is part.
+           Depending on the backing database, the parent and/or the
+           tree may be optional (and may be provided later through an
+           update).
+
+=cut
+
 sub insert_node {
-  my $self = shift;
-  my $object = shift;
-  my $annotations = join(";",map { sprintf("%s=%s",$_,
-					   join(",",$object->get_tag_values($_))) } 
-			 $object->get_all_tags);
-  my $sth = $self->_prepare(<<END);
-INSERT INTO node (node_id,parent_id,label,distance_to_parent,annotations) VALUES (?,?,?,?,?)
-END
-  $sth->execute(undef,$object->parent_id,$object->id, $annotations);
-  $sth->finish;
-  $object->node_id($self->dbh->func('last_insert_rowid'));
+    my $self = shift;
+    my ($nodeh, $parent);
+    # If the first argument is a ref, we are using positional
+    # arguments. Otherwise use rearrange().
+    if (ref($_[0])) {
+        ($nodeh, $parent) = @_;
+    } else {
+        ($nodeh, $parent) = $self->_rearrange([qw(NODE PARENT)], @_);
+    }
+    if (ref($parent)) {
+        $parent = $parent->node_id();
+    } elsif (exists($nodeh->{'-parent'} && !defined($parent))) {
+        $parent = $nodeh->{'-parent'};
+    }
+
+    # unify the hashref and object options to a single format
+    my $data;
+    if ($nodeh->isa("Bio::Tree::NodeI")) {
+        $data = {};
+        # flatten out all key-value annotations (if we have any)
+        my @tags = $nodeh->get_all_tags;
+        if (@tags) {
+            $data->{'-flatAnnotations'} = 
+                join(";",
+                     map { sprintf("%s=%s",$_,
+                                   join(",",$nodeh->get_tag_values($_)))
+                     } 
+                     @tags);
+        }
+        $data->{'-id'} = $nodeh->id();
+        $data->{'-branch_length'} = $nodeh->branch_length();
+    } else {
+        $data = $nodeh;
+        # flatten out all key-value annotations (if we have any)
+        if(exists($nodeh->{'-annotations'})) {
+            $data->{'-flatAnnotations'} = 
+                join(";",
+                     map { sprintf("%s=%s",$_,
+                                   join(",",$nodeh->{$_}))
+                     } 
+                     keys($nodeh->{'-annotations'}));        
+        }
+    }
+
+    # store in database
+    my $sth = $self->{'_sths'}->{'insertNode'};
+    if (! $sth) {
+        $sth = $self->_prepare(
+            "INSERT INTO node (parent_id,label,distance_to_parent,annotations)"
+            ." VALUES (?,?,?,?)");
+        $self->{'_sths'}->{'insertNode'} = $sth;
+    }
+    $sth->execute($parent, 
+                  $data->{'-id'}, $data->{'-branch_length'}, 
+                  $data->{'-flatAnnots'});
+    my $pk = $self->dbh->func('last_insert_rowid')
+    $nodeh->node_id($pk) if $pk && $nodeh->isa("Bio::DB::Tree::Node");
+    # cleanup 
+    delete $nodeh->{'-flatAnnotations'} if ref($nodeh) eq "HASHREF";
+    return $pk;
 }
 
 sub _create_node {
