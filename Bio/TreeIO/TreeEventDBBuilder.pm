@@ -83,32 +83,42 @@ use base qw(Bio::Root::Root Bio::Event::EventHandlerI);
  Usage   : my $obj = Bio::TreeIO::TreeEventDBBuilder->new();
  Function: Builds a new Bio::TreeIO::TreeEventDBBuilder object 
  Returns : Bio::TreeIO::TreeEventDBBuilder
- Args    :
+ Args    : Named argument-value pairs:
+
+                  -store   the Bio::DB::Tree::Store object to store the
+                           trees in
 
 
 =cut
 
 sub new {
-  my($class,@args) = @_;
+    my($class,@args) = @_;
+    
+    my $self = $class->SUPER::new(@args);
+    my ($store,$treetype, $nodetype) = 
+          $self->_rearrange([qw(STORE
+                                TREETYPE 
+				NODETYPE)], @args);
 
-  my $self = $class->SUPER::new(@args);
-  my ($treetype, $nodetype) = $self->_rearrange([qw(TREETYPE 
-						    NODETYPE)], @args);
-  $treetype ||= 'Bio::Tree::Tree';
-  $nodetype ||= 'Bio::Tree::Node';
+    $treetype ||= 'Bio::DB::Tree::Tree';
+    $nodetype ||= 'Bio::DB::Tree::Node';
+    eval { 
+        $self->_load_module($treetype);
+        $self->_load_module($nodetype);
+    };
+    if( $@ ) {
+        $self->throw("Could not load module $treetype or $nodetype. \n$@\n")
+    }
+    $self->treetype($treetype);
+    $self->nodetype($nodetype);
+    
+    if (! (ref($store) && $store->is_a("Bio::DB::Tree::Store"))) {
+        $self->throw("Need a Bio::DB::Tree::Store object for -store, not "
+                     .ref($store));
+    }
 
-  eval { 
-      $self->_load_module($treetype);
-      $self->_load_module($nodetype);
-  };
-
-  if( $@ ) {
-      $self->throw("Could not load module $treetype or $nodetype. \n$@\n")
-  }
-  $self->treetype($treetype);
-  $self->nodetype($nodetype);
-  $self->{'_treelevel'} = 0;
-  return $self;
+    $self->{'_treelevel'} = 0;
+    return $self;
 }
 
 =head2 treetype
@@ -165,10 +175,11 @@ sub nodetype{
 =cut
 
 sub start_document {
-   my ($self) = @_;   
-   $self->{'_lastitem'} = {};
-   $self->{'_currentitems'} = [];
-   $self->{'_currentnodes'} = [];
+   my ($self) = @_;
+   $self->{'_keymap'} = {};
+   $self->{'_nodestack'} = [];
+   $self->{'_elementstack'} = [];
+   $self->{'_attrstack'} = [];
    return;
 }
 
@@ -206,24 +217,24 @@ sub end_document {
  Function: See Bio::Event::EventHandlerI documentation.
  Example :
  Returns : 
- Args    : $data => hashref with key 'Name'
+
+ Args :    hashref with key 'Name' and value being the name of the
+           element being started
 
 =cut
 
 sub start_element{
-   my ($self,$data) =@_;
-   $self->{'_lastitem'}->{$data->{'Name'}}++;   
+    my $self = shift;
+    my $elem = shift->{'Name'};
 
-   $self->debug("starting element: $data->{Name}\n");   
-   push @{$self->{'_lastitem'}->{'current'}},$data->{'Name'};
-   
-   my %data;
-   
-   if( $data->{'Name'} eq 'node' ) {
-       push @{$self->{'_currentitems'}}, \%data; 
-       $self->{'_treelevel'}++;
-   } elsif ( $data->{Name} eq 'tree' ) {
-   }
+    if( $elem eq 'node' ) {
+       push @{$self->{'_nodestack'}}, {};
+       push @{$self->{'_elemstack'}}, $elem;
+    } elsif ( $name eq 'tree' ) {
+        push @{$self->{'_elemstack'}}, $elem;
+    } else {
+        push @{$self->{'_attrstack'}}, $elem;
+    }
 }
 
 =head2 end_element
@@ -232,54 +243,48 @@ sub start_element{
  Usage   : 
  Function: See Bio::Event::EventHandlerI documentation.
  Returns : none
- Args    : $data => hashref with key 'Name'
+ Args    : hashref with key 'Name' and value being the name of the
+           element that ended
 
 =cut
 
 sub end_element{
-   my ($self,$data) = @_;   
+    my $self = shift;
+    my $elem = shift->{'Name'};
 
-   $self->debug("end of element: $data->{Name}\n");
-   # this is the stack where we push/pop items from it
-   my $curcount = scalar @{$self->{'_currentnodes'}};
-   my $level   = $self->{'_treelevel'};
-   my $levelct = $self->{'_nodect'}->[$self->{'_treelevel'}+1] || 0;
+    $self->debug("end of element: $elem\n");
 
-   if( $data->{'Name'} eq 'node' ) {
-       my $tnode;
-       my $node = pop @{$self->{'_currentitems'}};	   
-
-       $tnode = $self->nodetype->new( -verbose => $self->verbose,
-				      %{$node});       
-       $self->debug( "new node will be ".$tnode->to_string."\n");
-       if ( !$node->{'-leaf'} && $levelct > 0) {
-	   $self->debug(join(',', map { $_->to_string } 
-			     @{$self->{'_currentnodes'}}). "\n");
-	   $self->throw("something wrong with event construction treelevel ".
-			"$level is recorded as having $levelct nodes  ".
-			"but current nodes at this level is $curcount\n")
-	       if( $levelct > $curcount);	
-	   for ( splice( @{$self->{'_currentnodes'}}, - $levelct)) {
-	       $self->debug("adding desc: " . $_->to_string . "\n");
-	       $tnode->add_Descendent($_);
-	   }
-	   $self->{'_nodect'}->[$self->{'_treelevel'}+1] = 0;
-       }
-       push @{$self->{'_currentnodes'}}, $tnode;
-       $self->{'_nodect'}->[$self->{'_treelevel'}]++;
-       
-       $curcount = scalar @{$self->{'_currentnodes'}};
-       $self->debug ("added node: count is now $curcount, treelevel: $level, nodect: $levelct\n");
-
-       $self->{'_treelevel'}--;       
-   } elsif(  $data->{'Name'} eq 'tree' ) { 
-       $self->debug("end of tree: nodes in stack is $curcount\n");
-   }
-
-   $self->{'_lastitem'}->{ $data->{'Name'} }--; 
-   pop @{$self->{'_lastitem'}->{'current'}};
+    if( $elem eq 'node' ) {
+        my $nodeh = pop @{$self->{'_nodestack'}};
+        delete $nodeh->{'-NHXtagname'}; # cleanup - was an internal helper
+        # if we have a lineage of parents, and one or more of them is
+        # not in the database yet, we need to create them now so we
+        # can establish parent-child relationships to create it now
+        my $parenth = $self->{'_nodestack'}->[-1] if @{$self->{'_nodestack'}};
+        my $parentkey; # will remain undef for the root
+        if ($parenth) {
+            if (!exists($parenth->{'dbkey'})) {
+                $self->_create_parents($self->{'_nodestack'});
+                $parentkey = $self->{'_nodestack'}->[-1]->{'dbkey'};
+            } else {
+                $parentkey = $parenth->{'dbkey'};
+            }
+        }
+        # if we created the node before, we need to update it now;
+        # otherwise create it
+        if (exists($nodeh->{'dbkey'})) {
+            $self->store->update_node($nodeh->{'dbkey'}, $nodeh, $parentkey);
+        } else {
+            my $dbkey = $self->store->insert_node($nodeh, $parentkey);
+            $nodeh->{'dbkey'} = $dbkey;
+        }
+        pop @{$self->{'_elemstack'}};
+    } elsif ( $elem eq 'tree' ) { 
+        pop @{$self->{'_elemstack'}};
+    } else {
+        pop @{$self->{'_attrstack'}}
+    }
 }
-
 
 =head2 in_element
 
@@ -294,12 +299,10 @@ sub end_element{
 =cut
 
 sub in_element{
-   my ($self,$e) = @_;
+    my $self = shift;
+    my $e = shift;
 
-   return 0 if ! defined $self->{'_lastitem'} || 
-       ! defined $self->{'_lastitem'}->{'current'}->[-1];
-   return ($e eq $self->{'_lastitem'}->{'current'}->[-1]);
-
+    return ($e eq $self->{'_attrstack'}->[-1]);
 }
 
 =head2 within_element
@@ -315,8 +318,9 @@ sub in_element{
 =cut
 
 sub within_element{
-   my ($self,$e) = @_;
-   return $self->{'_lastitem'}->{$e};
+    my $self = shift;
+    my $e = shift;
+    return ($e eq $self->{'_elemstack'}->[-1]);
 }
 
 =head2 characters
@@ -331,33 +335,77 @@ sub within_element{
 =cut
 
 sub characters{
-   my ($self,$ch) = @_;
-   if( $self->within_element('node') ) {
-       my $hash = pop @{$self->{'_currentitems'}};
+    my $self = shift;
+    my $ch = shift;
+    if( $self->within_element('node') ) {
+       my $nodeh = $self->{'_nodestack'}->[-1];
        if( $self->in_element('bootstrap') ) {
 	   # leading/trailing Whitespace-B-Gone
 	   $ch =~ s/^\s+//; $ch =~ s/\s+$//;  
-	   $hash->{'-bootstrap'} = $ch;
+	   $nodeh->{'-bootstrap'} = $ch;
        } elsif( $self->in_element('branch_length') ) {
 	   # leading/trailing Whitespace-B-Gone
 	   $ch =~ s/^\s+//; $ch =~ s/\s+$//;
-	   $hash->{'-branch_length'} = $ch;
+	   $nodeh->{'-branch_length'} = $ch;
        } elsif( $self->in_element('id')  ) {
-	   $hash->{'-id'} = $ch;
+	   $nodeh->{'-id'} = $ch;
        } elsif( $self->in_element('description') ) {
-	   $hash->{'-desc'} = $ch;
+	   $nodeh->{'-desc'} = $ch;
        } elsif ( $self->in_element('tag_name') ) {
-	   $hash->{'-NHXtagname'} = $ch;
+	   $nodeh->{'-NHXtagname'} = $ch;
        } elsif ( $self->in_element('tag_value') ) {
-	   $hash->{'-nhx'}->{$hash->{'-NHXtagname'}} = $ch;
-	   delete $hash->{'-NHXtagname'};
+	   $nodeh->{'-nhx'}->{$nodeh->{'-NHXtagname'}} = $ch;
        } elsif( $self->in_element('leaf') ) {
 	   $hash->{'-leaf'} = $ch;
        }
-       push @{$self->{'_currentitems'}}, $hash;
    }
    $self->debug("chars: $ch\n");
 }
 
+=head1 Private methods
+
+Private methods are used by this module internally, but should not be
+called from outside, except perhaps inheriting modules.
+
+=head2 _create_parents
+
+ Title   : _create_parents
+ Usage   :
+ Function: Takes an array of node hashes, assumed to be stacked in
+           nested containment order (i.e., the node at index i is the
+           parent of the node at index i+1, and thus recursively
+           contains all nodes at indices greater than i), and makes
+           sure that they are all created in the database, with proper
+           parent-child relationships.
+
+ Example :
+ Returns : 
+ Args    : A reference to the array of node hashes 
+
+=cut
+
+sub _create_parents{
+    my $self = shift;
+    my $parents = shift;
+
+    # Assume nested containment - i.e., stacking depth representing
+    # containment- and start at the first (highest up) node that isn't
+    # in the database yet. Retain the last primary key as the next
+    # parent key.
+    my $parentkey;
+    foreach my $parent (@$parents) {
+        my $dbkey = $parent->{'dbkey'};
+        # skip to next if key exists
+        if ($dbkey) {
+            $parentkey = $dbkey;
+            next;
+        } else {
+            # insert as presumably it doesn't exist
+            $dbkey = $self->store->insert_node($parent,$parentkey);
+            $parent->{'dbkey'} = $dbkey;
+            $parentkey = $dbkey;
+        }
+    }
+}
 
 1;
