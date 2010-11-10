@@ -7,8 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-#/maj    test_begin(-tests => 60);
-    test_begin(-tests => 62);	
+    test_begin(-tests => 66);
     use_ok('Bio::TreeIO');
 }
 
@@ -281,7 +280,32 @@ is($test_node->ancestor->bootstrap, '90',
 is($test_node->ancestor->ancestor->bootstrap, '25', 
    'Testing auto-boostrap copy during parse');
 
+sub tree_from_string {
+    my $string = shift;
+    return Bio::TreeIO->new(-string=>$string)->next_tree;
+}
 
+sub test_flip {
+    my $string = shift;
+    my $flipped_string = shift;
+    my $tree = tree_from_string($string);
+    $tree->get_root_node->flip_subtree;
+    my $test = $tree->as_text('newick');
+    is($test,$flipped_string,"Testing flip [$string] should flip to [$flipped_string]");
+}
+test_flip("(a,(b,c));","((c,b),a);");
+test_flip("(a,b,c,d,e,f,g);","(g,f,e,d,c,b,a);");
+
+sub test_rev {
+    my $string = shift;
+    my $flipped_string = shift;
+    my $tree = tree_from_string($string);
+    $tree->get_root_node->reverse_children;
+    my $test = $tree->as_text('newick');
+    is($test,$flipped_string,"Testing reverse [$string] should reverse to [$flipped_string]");
+}
+test_rev("(a,b);","(b,a);");
+test_rev("(a,(b,c,d));","((b,c,d),a);");
 
 __DATA__
 (D,(C,(A,B)));
