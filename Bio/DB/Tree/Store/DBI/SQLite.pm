@@ -136,7 +136,7 @@ sub insert_node {
     }
     if (ref($parent)) {
         $parent = $parent->node_id();
-    } elsif (exists($nodeh->{'-parent'} && !defined($parent))) {
+    } elsif (exists($nodeh->{'-parent'}) && !defined($parent)) {
         $parent = $nodeh->{'-parent'};
     }
 
@@ -165,7 +165,7 @@ sub insert_node {
                      map { sprintf("%s=%s",$_,
                                    join(",",$nodeh->{$_}))
                      } 
-                     keys($nodeh->{'-annotations'}));        
+                     keys(%{$nodeh->{'-annotations'}}));        
         }
     }
 
@@ -180,7 +180,7 @@ sub insert_node {
     $sth->execute($parent, 
                   $data->{'-id'}, $data->{'-branch_length'}, 
                   $data->{'-flatAnnots'});
-    my $pk = $self->dbh->func('last_insert_rowid')
+    my $pk = $self->dbh->func('last_insert_rowid');
     $nodeh->node_id($pk) if $pk && $nodeh->isa("Bio::DB::Tree::Node");
     # cleanup 
     delete $nodeh->{'-flatAnnotations'} if ref($nodeh) eq "HASHREF";
