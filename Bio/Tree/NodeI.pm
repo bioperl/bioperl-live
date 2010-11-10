@@ -142,6 +142,54 @@ sub add_Descendent{
    $self->throw_not_implemented();
 }
 
+=head2 children
+
+ Title   : children
+ Usage   : my @children = $node->children
+ Function: Alias for $node->each_Descendent
+ Returns : Array of Bio::Tree::NodeI objects
+ Args    : $sortby [optional] "height", "creation", "alpha", "revalpha",
+           or coderef to be used to sort the order of children nodes.
+=cut
+
+sub children {
+    my $self = shift;
+    return $self->each_Descendent;
+}
+
+=head2 leaves
+
+ Title   : leaves
+ Usage   : my @leaves = $node->leaves
+ Function: Returns all leaf nodes contained underneath the current node.
+ Returns : Array of Bio::Tree::NodeI objects
+ Args    : $sortby [optional] "height", "creation", "alpha", "revalpha",
+           or coderef to be used to sort the order of children nodes.
+=cut
+
+sub leaves {
+    my $self = shift;
+    my $sortby = shift;
+
+    my @all_nodes = $self->get_all_Descendents($sortby);
+    return grep {$_->is_Leaf} @all_nodes;
+}
+
+=head2 nodes
+
+ Title   : nodes
+ Usage   : my @nodes = $node->nodes
+ Function: Returns all nodes contained underneath the current node.
+ Returns : Array of Bio::Tree::NodeI objects
+ Args    : $sortby [optional] "height", "creation", "alpha", "revalpha",
+           or coderef to be used to sort the order of children nodes.
+=cut
+
+sub nodes {
+    my $self = shift;
+    my $sortby = shift;
+    return $self->get_all_Descendents($sortby);
+}
 
 =head2 each_Descendent
 

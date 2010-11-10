@@ -244,6 +244,109 @@ sub add_Descendent{
    return scalar keys %{$self->{'_desc'}};
 }
 
+=head2 set_children_order
+
+ Title   : set_children_order
+ Usage   : $node->set_children_order($child_a,$child_b,$child_c);
+ Function: Explicitly sets the sort order of the children beneath this node
+ Returns : nothing
+ Args    : List of Bio::Tree::Node objects, which *must* contain *all* of the direct
+           descendents of the current node
+
+=cut
+sub set_children_order {
+    my $self = shift;
+    my @nodes_in_new_order = @_;
+
+    # Collect the sorted internal_ids of all the children nodes.
+    my @internal_ids = map {$_->internal_id} $self->children;
+    @internal_ids = sort {$a <=> $b}  @internal_ids;
+
+    # Explicitly re-apply the sorted creation IDs to the new order of children
+    foreach my $child (@nodes_in_new_order) {
+	$child->_creation_id(shift @internal_ids);
+    }
+}
+
+=head2 reverse_children
+
+ Title   : reverse_children
+ Usage   : $node->reverse_children
+ Function: Reverses the order of the children directly beneath the current node.
+ Returns : nothing
+ Args    : none
+
+=cut
+sub reverse_children {
+    my $self = shift;
+
+    my @children = $self->children;
+    @children = reverse @children;
+    $self->set_children_order(@children);
+}
+
+=head2 flip_subtree
+
+ Title   : flip_subtree
+ Usage   : $node->flip_subtree
+ Function: Flips the entire subtree below the current node.
+ Returns : nothing
+ Args    : none
+
+=cut
+sub flip_subtree {
+    my $self = shift;
+
+    my @all = $self->nodes;
+    foreach my $node (@all) {
+	$node->reverse_children;
+    }
+    $self->reverse_children;
+}
+
+=head2 children
+ Title   : children
+ Usage   : my @children = $node->children
+ Function: Alias for $node->each_Descendent
+ Returns : Array of Bio::Tree::NodeI objects
+ Args    : $sortby [optional] "height", "creation", "alpha", "revalpha",
+           or coderef to be used to sort the order of children nodes.
+=cut
+sub children {
+    my $self = shift;
+    return $self->each_Descendent;
+}
+
+=head2 leaves
+ Title   : leaves
+ Usage   : my @leaves = $node->leaves
+ Function: Returns all leaf nodes contained underneath the current node.
+ Returns : Array of Bio::Tree::NodeI objects
+ Args    : $sortby [optional] "height", "creation", "alpha", "revalpha",
+           or coderef to be used to sort the order of children nodes.
+=cut
+sub leaves {
+    my $self = shift;
+    my $sortby = shift;
+
+    my @all_nodes = $self->get_all_Descendents($sortby);
+    return grep {$_->is_Leaf} @all_nodes;
+}
+
+=head2 nodes
+ Title   : nodes
+ Usage   : my @nodes = $node->nodes
+ Function: Returns all nodes contained underneath the current node.
+ Returns : Array of Bio::Tree::NodeI objects
+ Args    : $sortby [optional] "height", "creation", "alpha", "revalpha",
+           or coderef to be used to sort the order of children nodes.
+=cut
+sub nodes {
+    my $self = shift;
+    my $sortby = shift;
+    return $self->get_all_Descendents($sortby);
+}
+
 =head2 each_Descendent
 
  Title   : each_Descendent($sortby)
@@ -805,5 +908,7 @@ sub reverse_edge {
     } 
     return 0;
 }
+
+
 
 1;

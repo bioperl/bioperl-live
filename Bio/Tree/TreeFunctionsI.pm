@@ -1126,5 +1126,118 @@ sub add_trait {
     return $key;
 }
 
+=head2 ascii_art
+
+ Title   : ascii_art
+ Usage   : print $tree->ascii_art;
+ Function: Return a representation of this tree as ASCII text. Shamelessly
+           copied / "ported" from PyCogent. http://pycogent.sourceforge.net/
+ Returns : a multi-line String, suitable for printing to the console
+ Args    : show_internal - 1 to show internal node labels, 0 to hide them
+           compact - 1 to use a 'compact' mode with exactly 1 line per node.
+           ignore_branchlengths - 0 to ignore branch lengths.
+=cut
+
+sub ascii_art {
+    my $self = shift;
+    my $show_internal = shift;
+    my $compact = shift;
+    my $ignore_branchlengths = shift;
+
+    my $root_node = $self->get_root_node;
+    my $max_bl = $root_node->height;
+    my $width = 50;
+
+    my $char_per_bl = int($width / $max_bl);
+
+    my ($lines_arrayref,$mid) = $self->_ascii_art($root_node,'-',$char_per_bl,$show_internal,$compact,$ignore_branchlengths);
+    my @lines = @{$lines_arrayref};
+    return join("\n",@lines)."\n";
+}
+
+# Private helper method for $tree->ascii_art
+sub _ascii_art {
+    my $self = shift;
+    my $node = shift;
+    my $char1 = shift;
+    my $char_per_bl = shift;
+    my $show_internal = shift;
+    my $compact = shift;
+    my $ignore_branchlengths = shift;
+
+    $char1 = '-' unless (defined $char1);
+    $show_internal = 1 unless (defined $show_internal);
+    $compact = 1 unless (defined $compact);
+
+    my $len = 10;
+    if (!$ignore_branchlengths) {
+	my $bl = $node->branch_length;
+	$bl = 1 unless (defined $bl && $bl =~ /^\-?\d+(\.\d+)?$/);
+	$len = int($bl * $char_per_bl);
+	$len = 1 if ($len < 1);
+    }
+    my $pad = ' ' x $len;
+    my $pa = ' ' x ($len-1);
+    my $name_str = $node->id || '';
+
+    if (!$node->is_Leaf) {
+	my @mids;
+	my @results;
+	my @children = $node->each_Descendent;
+	for (my $i=0; $i < scalar(@children); $i++) { 
+	    my $child = $children[$i];
+	    my $char2;
+	    if ($i == 0) {
+		# First child.
+		$char2 = '/';
+	    } elsif ($i == scalar(@children) -1) {
+		# Last child.
+		$char2 = '\\';
+	    } else {
+		# Middle child.
+		$char2 = '-';
+	    }
+	    my ($clines_arrayref, $mid) = $self->_ascii_art($child,$char2,$char_per_bl,$show_internal,$compact,$ignore_branchlengths);
+	    push @mids,($mid+scalar(@results));
+	    my @clines = @$clines_arrayref;
+	    foreach my $line (@clines) {
+		push @results, $line;
+	    }
+	    if (!$compact) {
+		push @results,'';
+	    }
+	}
+	if (!$compact) {
+	    pop @results;
+	}
+	my $lo = $mids[0];
+	my $hi = $mids[scalar(@mids)-1];
+	my $end = scalar(@results);
+
+	my @prefixes = ();
+	push @prefixes, ($pad) x ($lo+1);
+	push @prefixes, ($pa.'|') x ($hi-$lo-1);
+	push @prefixes, ($pad) x ($end-$hi);
+	
+	my $mid = int(($lo + $hi) / 2);
+	$prefixes[$mid] = $char1 . '-'x($len-2) . substr($prefixes[$mid],length($prefixes[$mid])-1,1);
+	my @new_results;
+	for (my $i=0; $i < scalar(@prefixes); $i++) {
+	    push @new_results, ($prefixes[$i] . $results[$i]);
+	}
+	@results = @new_results;
+	if ($show_internal) {
+	    my $stem = $results[$mid];
+	    $results[$mid] = substr($stem,0,1) . $name_str . substr($stem,length($name_str)+1);
+	}
+	return (\@results,$mid);
+    } else {
+	my @results = ($char1 . ('-'x$len) . $name_str);
+	if ($ignore_branchlengths) {
+	    @results = ($char1 . '-' . $name_str);
+	}
+	return (\@results,0);
+    }
+}
 
 1;
