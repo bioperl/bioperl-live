@@ -9,7 +9,7 @@
 
 =head1 NAME
 
-Bio::DB::Tree::Store.pm - The abstract interface for a local (or remote) persistent storage database. 
+Bio::DB::Tree::Store.pm - The abstract interface for a local (or remote) persistent storage database.
 
 =head1 SYNOPSIS
 
@@ -20,8 +20,12 @@ Bio::DB::Tree::Store.pm - The abstract interface for a local (or remote) persist
                                      -dsn     => '/path/to/database.db');
 
   my $id = 1;
-  my $tree = $db->fetch($id);
+  my $tree = $db->fetch_tree($id);
 
+  my $node_id = 1;
+  my $node = $db->fetch_node($node_id);
+
+  my $node2 = $db->fetch(-type => 'node', -id => $node_id);
 
 =head1 DESCRIPTION
 
@@ -83,11 +87,14 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 
-package Bio::DB::Tree::Store.pm;
+package Bio::DB::Tree::Store;
 
 use strict;
 
 use base qw(Bio::Root::Root);
+
+# local version
+sub api_version { 0.1 }
 
 =head2 new
 
@@ -95,23 +102,50 @@ use base qw(Bio::Root::Root);
  Usage   :
  Function:
  Example :
- Returns : 
- Args    :
+ Returns :
+ Args    : -adaptor
 
 =cut
 
 sub new {
     my $self = shift;
-    my @args = @_;
-    my ($adaptor) =
-        $self->_rearrange(['adaptor',
-                          ],@_);
+    my ($adaptor,$args);
+    if (@_ == 1) {
+      @_ = ('DSN' => shift @_);
+    } else {
+      ($adaptor) =
+        $self->_rearrange([qw(adaptor)],@_);
+    }
     $adaptor ||= 'DBI::SQLite';
 
-    my $class = "Bio::DB::SeqFeature::Store::$adaptor";
+    my $class = "Bio::DB::Tree::Store::DBI::$adaptor";
     eval "require $class " or $self->throw($@);
-    my $obj = $class->new(@args);
+    my $obj = $class->new_instance();
+    $obj->init(@_);
+#    $obj->init_cache($cache) if $cache;
+      $obj->post_init($args);
+
     $obj;
+}
+
+=head2 new_instance
+
+ Title   : new_instance
+ Usage   : $db = $db->new_instance()
+ Function: class constructor
+ Returns : A descendent of Bio::DB::Tree::Store
+ Args    : none
+ Status  : internal
+
+This method is called internally by new() to create a new
+uninitialized instance of Bio::DB::Tree::Store. It is used
+internally and should not be called by application software.
+
+=cut
+
+sub new_instance {
+  my $class = shift;
+  return bless {},ref($class) || $class;
 }
 
 =head2 init_database
@@ -179,7 +213,7 @@ sub insert_tree{
 
 =cut
 
-sub fetch_node{
+sub fetch_node {
    my ($self,@args) = @_;
    $self->throw_not_implemented();
 }
@@ -190,7 +224,7 @@ sub fetch_node{
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 =cut
@@ -214,3 +248,12 @@ sub index_tables {
 sub enable_keys  { }  # nullop
 sub disable_keys { }  # nullop
 
+###
+# use temporary tables
+#
+sub is_temp {
+  shift->{is_temp};
+}
+
+
+1;
