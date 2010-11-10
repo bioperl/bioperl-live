@@ -84,6 +84,14 @@ use XML::LibXML;
 use XML::LibXML::Reader;
 use base qw(Bio::TreeIO);
 
+our %DISPATCH  = (
+    # all code refs get a string and an optional XML::LibXML-compliant node
+    
+    # For <clade> the order of sub-elements is:sub _name_el {}
+
+
+);
+
 sub _initialize {
     my ( $self, %args ) = @_;
     $args{-treetype} ||= 'Bio::Tree::Tree';
@@ -516,67 +524,68 @@ sub _write_tree_Helper_annotatableNode {
     return $str;
 }
 
-sub _clade_els {
-    my ( $self, $tree_node, $el) = @_;    # this self is a Bio::Tree::phyloxml
+=head2 _clade_els
 
-    my $ac = $tree_node->annotation;
+Private method to generate <clade> elements and sub-elements.
 
-    # if clade_relation exists
-    foreach ($ac->get_Annotations('clade_relation')) {
-        #my $clade_rel = $self->_relation_to_string( $tree_node, $_, '' );
-        #
-        ## set as tree attr
-        #push( @{ $self->{'_tree_attr'}->{'clade_relation'} }, $clade_rel );
-    }
+For <clade> the order of sub-elements is:
 
-    # start <clade>
-    #$str .= '<clade';
-    
-    my $clade_el = $el->addChild(XML::LibXML::Element->new('clade'));
-    
-    my ($attr) = $ac->get_Annotations('_attr');    # check id_source
-    if (defined $attr) {
-        my ($id_source) = $attr->get_Annotations('id_source');
-        if ($id_source) {
-            $clade_el->setAttribute('id_source', $id_source->value)
-            #$str .= " id_source=\"" . $id_source->value . "\"";
-        }
-    }
-    #$str .= ">";
+   1. <name>
+   2. <branch_length>
+   3. <confidence>
+   4. <width>
+   5. <color>
+   6. <taxonomy>
+   7. <sequence>
+   8. <events>
+   9. <binary_characters>
+  10. <distribution>
+  11. <date>
+  12. <reference>
+  13. <property>
+  14. <clade>
 
-    # print all descendent nodes
-    foreach my $child ( $tree_node->each_Descendent() ) {
-        $self->_clade_els( $child, $clade_el );
-    }
+=cut 
 
-    # print all annotations
-    #$str = print_annotation( $node, $str, $ac );
+#sub _clade_els {
 
-    # print all sequences
-    if ( $tree_node->has_sequence ) {
-        foreach my $seq ( @{ $tree_node->sequence } ) {
+#}
 
-            # if sequence_relation exists
-            my @relations =
-              $seq->annotation->get_Annotations('sequence_relation');
-            foreach (@relations) {
-                my $sequence_rel = $self->_relation_to_string( $seq, $_, '' );
+=head2 _sequence_els
 
-                # set as tree attr
-                push(
-                    @{ $self->{'_tree_attr'}->{'sequence_relation'} },
-                    $sequence_rel
-                );
-            }
-            #$str = print_seq_annotation( $node, $str, $seq );
-        }
-    }
+Private method to generate <sequence> elements and sub-elements.
 
-    #$str .= "</clade>";
+For <sequence>, the order is:
 
-    #return $str;
-}
+   1. <symbol>
+   2. <accession>
+   3. <name>
+   4. <location>
+   5. <mol_seq>
+   6. <uri>
+   7. <annotation>
+   8. <domain_architecture
 
+=cut
+
+=head2 _taxonomy_els
+
+Private method to generate <taxonomy> elements and sub-elements.
+
+For <taxonomy>, the order is:
+
+   1. <id>
+   2. <code>
+   3. <scientific_name>
+   4. <authority>
+   5. <common_name>
+   6. <synonym>
+   7. <rank>
+   8. <uri>
+
+=cut
+
+sub _taxonomy_els {}
 
 =head2 _write_tree_Helper_generic
 
@@ -1658,5 +1667,107 @@ sub print_seq_annotation {
     $str .= "</sequence>";
     return $str;
 }
+
+####################### OUTPUT HANDLERS #######################
+
+# These are split up into very specific methods for each piece of data; we'll
+# optimize from there
+
+# All methods get a string and an optional XML::LibXML-compliant parent node,
+# very non-BioPerl-reliant
+
+sub _branch_length_el {}
+sub _confidence_el {}
+sub _width_el {}
+sub _color_el {}
+sub _taxonomy_el {}
+sub _sequence_el {}
+sub _events_el {}
+sub _binary_characters_el {}
+sub _distribution_el {}
+sub _date_el {}
+sub _reference_el {}
+sub _property_el {}
+sub _clade_el {
+    #my ( $self, $tree_node, $el) = @_;    # this self is a Bio::Tree::phyloxml
+    #
+    #my $ac = $tree_node->annotation;
+    #
+    ## if clade_relation exists
+    #foreach ($ac->get_Annotations('clade_relation')) {
+    #    #my $clade_rel = $self->_relation_to_string( $tree_node, $_, '' );
+    #    #
+    #    ## set as tree attr
+    #    #push( @{ $self->{'_tree_attr'}->{'clade_relation'} }, $clade_rel );
+    #}
+
+    # start <clade>
+    #$str .= '<clade';
+    
+    my $clade_el = $el->addChild(XML::LibXML::Element->new('clade'));
+    
+    my ($attr) = $ac->get_Annotations('_attr');    # check id_source
+    if (defined $attr) {
+        my ($id_source) = $attr->get_Annotations('id_source');
+        if ($id_source) {
+            $clade_el->setAttribute('id_source', $id_source->value)
+            #$str .= " id_source=\"" . $id_source->value . "\"";
+        }
+    }
+    #$str .= ">";
+
+    # print all descendent nodes
+    foreach my $child ( $tree_node->each_Descendent() ) {
+        $self->_clade_els( $child, $clade_el );
+    }
+
+    # print all annotations
+    #$str = print_annotation( $node, $str, $ac );
+
+    # print all sequences
+    if ( $tree_node->has_sequence ) {
+        foreach my $seq ( @{ $tree_node->sequence } ) {
+
+            # if sequence_relation exists
+            my @relations =
+              $seq->annotation->get_Annotations('sequence_relation');
+            foreach (@relations) {
+                my $sequence_rel = $self->_relation_to_string( $seq, $_, '' );
+
+                # set as tree attr
+                push(
+                    @{ $self->{'_tree_attr'}->{'sequence_relation'} },
+                    $sequence_rel
+                );
+            }
+            #$str = print_seq_annotation( $node, $str, $seq );
+        }
+    }
+
+    #$str .= "</clade>";
+
+    #return $str;    
+}
+
+
+# For <sequence>, the order is:sub _symbol_el {}
+sub _accession_el {}
+sub _name_el {}
+sub _location_el {}
+sub _mol_seq_el {}
+sub _uri_el {}
+sub _annotation_el {}
+sub _domain_architecture_el {}
+
+   
+# For <taxonomy>, the order is:sub _id_el {}
+sub _code_el {}
+sub _scientific_name_el {}
+sub _authority_el {}
+sub _common_name_el {}
+sub _synonym_el {}
+sub _rank_el {}
+sub _uri_el {}
+
 
 1;
