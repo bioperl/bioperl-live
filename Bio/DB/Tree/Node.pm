@@ -85,8 +85,12 @@ use base qw(Bio::Root::Root Bio::Tree::NodeI);
  Title   : new
  Usage   : my $obj = Bio::Tree::Node->new();
  Function: Builds a new Bio::Tree::Node object
- Returns : Bio::Tree::Node
+ Returns : Bio::DB::Tree::Node
  Args    : -node_id            => internal id
+           -parent_id          => parent id
+           -id                 => Node label ID
+           -branch_length      => branch length
+           -store              => L<Bio::DB::Tree::Store> object
 
 =cut
 
@@ -94,11 +98,18 @@ sub new {
     my($class,@args) = @_;
 
     my $self = $class->SUPER::new(@args);
-    my ($id,$store) = $self->_rearrange([qw(NODE_ID
-					    STORE
-					  )],
-					@args);
+    my ($id,$label,$bl,$parent,$store) = $self->_rearrange([qw(NODE_ID
+							   ID
+							   BRANCH_LENGTH
+							   PARENT_ID
+							   STORE
+							 )],
+						       @args);
     defined $id && $self->node_id($id);
+    defined $label && $self->id($label);
+    defined $bl && $self->branch_length($bl);
+    defined $parent && $self->parent_id($parent);
+    defined $store && $self->store($store);
     return $self;
 }
 
@@ -107,7 +118,7 @@ sub new {
 
  Title   : node_id
  Usage   : $obj->node_id($newval)
- Function: a private method signifying the internal creation order
+ Function: DB related method signifying the internal creation order
  Returns : value of node_id
  Args    : newvalue (optional)
 
@@ -119,7 +130,49 @@ sub node_id {
     return $self->{'_node_id'} || 0;
 }
 
+=head2 parent_id
+
+ Title   : parent_id
+ Usage   : $obj->parent_id($newval)
+ Function: DB related method signifying the parent id
+ Returns : value of parent_id
+ Args    : newvalue (optional)
+
+=cut
+
+sub parent_id {
+    my $self = shift @_;
+    if ( @_ ) {
+      $self->{'_parent_id'} = shift @_;
+      $self->_to_commit;
+    } elsif ( ! defined $self->{'_parent_id'} ) {
+      $self->{'_parent_id'} = $self->store->_fetch_node_parent_id($self->node_id);
+    }
+    return $self->{'_parent_id'};
+}
+
 *_creation_id  = \&node_id;
+
+=head2 DB enabling methods
+
+=head2 store
+
+ Title   : store
+ Usage   : $obj->store($newval)
+ Function: Access to the L<Bio::DB::Tree::Store>
+ Returns : value of node_id
+ Args    : newvalue (optional)
+
+=cut
+
+sub store {
+    my $self = shift;
+    $self->{'_store'} = shift if( @_);
+    return $self->{'_store'} || 0;
+}
+
+
+=head2 Bio::Tree::NodeI methods
 
 =head2 create_node_on_branch
 
@@ -141,6 +194,7 @@ sub create_node_on_branch{
    my ($pos, $frac, $annot, $force) = $self->_rearrange([qw(POSITION 
 							    FRACTION ANNOT 
 							    FORCE)], @args);
+   # are we creating this?
 }
 
 =head2 add_Descendent
@@ -158,7 +212,8 @@ sub create_node_on_branch{
 =cut
 
 sub add_Descendent{
-
+  # are we doing this ?
+  shift->throw("not implemented");
 }
 
 =head2 each_Descendent
@@ -176,7 +231,7 @@ sub add_Descendent{
 sub each_Descendent{
   my $self = shift;
   my $sortby = shift;
-  $self->dbh->_fetch_node_children($self->node_id, $sortby);
+  $self->store->_fetch_node_children($self->node_id, $sortby);
 }
 
 
@@ -192,7 +247,8 @@ sub each_Descendent{
 =cut
 
 sub remove_Descendent{
-
+  my $self = shift;
+  $self->store->_remove_node($self->node_id);
 }
 
 
@@ -210,6 +266,8 @@ sub remove_Descendent{
 =cut
 
 sub remove_all_Descendents{
+  my $self = shift;
+    $self->store->_remove_node($self->node_id);
 
 }
 
@@ -227,7 +285,7 @@ sub remove_all_Descendents{
 sub get_all_Descendents {
   my $self = shift;
   my $sortby = shift;
-  $self->dbh->_fetch_node_all_children($self->node_id, $sortby);
+  $self->store->_fetch_node_all_children($self->node_id, $sortby);
 }
 
 =head2 ancestor
@@ -242,7 +300,7 @@ sub get_all_Descendents {
 
 sub ancestor {
   my $self = shift;
-  return $self->dbh->_fetch_parent_node($self->node_id);
+  return $self->store->_fetch_node_parent($self->node_id);
 }
 
 =head2 branch_length
@@ -266,9 +324,8 @@ sub branch_length{
     $self->{'_branch_length'} = $bl;
     $self->invalidate_height();
     $self->_to_commit;
-  }
-  if ( ! exists $self->{'_branch_length'} ) {
-    $self->{'_branch_length'} = $self->dbh->_get_branch_length($self->node_id);
+  } elsif ( ! exists $self->{'_branch_length'} ) {
+    $self->{'_branch_length'} = $self->store->_fetch_node_branch_length($self->node_id);
   }
   return $self->{'_branch_length'};
 }
@@ -284,6 +341,7 @@ sub branch_length{
 =cut
 
 sub bootstrap {
+
 }
 
 =head2 description
@@ -328,7 +386,7 @@ sub id {
     $self->{'_id'} = shift;
     $self->_to_commit;
   } elsif ( ! exists $self->{'_label'} ) {
-    $self->{'_label'} = $self->dbh->_get_label($self->node_id);
+    $self->{'_label'} = $self->store->_fetch_node_label($self->node_id);
   }
   return $self->{'_label'};
 }
@@ -385,7 +443,7 @@ interface.
 
 sub is_Leaf {
   my $self = shift;
-  return $self->dbh->_is_Leaf($self->node_id);
+  return $self->store->_is_Leaf($self->node_id);
 }
 
 =head2 height
