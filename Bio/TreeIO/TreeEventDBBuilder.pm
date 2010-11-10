@@ -321,7 +321,7 @@ sub characters{
        } elsif ( $self->in_element('tag_name') ) {
 	   $nodeh->{'-NHXtagname'} = $ch;
        } elsif ( $self->in_element('tag_value') ) {
-	   $nodeh->{'-nhx'}->{$nodeh->{'-NHXtagname'}} = $ch;
+	   $nodeh->{'-annotations'}->{$nodeh->{'-NHXtagname'}} = $ch;
        } elsif( $self->in_element('leaf') ) {
 	   $nodeh->{'-leaf'} = $ch;
        }
