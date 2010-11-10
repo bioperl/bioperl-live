@@ -186,14 +186,82 @@ init_database() args.
 
 sub post_init { }
 
+=head2 insert_node
+
+ Title   : insert_node
+ Usage   : $dbkey = $store->insert_node($nodeh, $parent);
+
+ Function: Inserts a single node into the underlying storage. The
+           default assumption is that the node does not exist yet,
+           however the database defines (and/or enforces) that.
+
+ Example :
+ Returns : If successful, the primary key of the node that has been created. 
+
+ Args :    The node to be inserted (-node) as a hashref or a
+           Bio::Tree::NodeI object, and the parent (-parent) as a
+           primary key or a Bio::DB::Tree::Node object. Arguments may
+           be provided in this order, or with named arguments (as
+           given above in parentheses).
+
+           If the node ia a hashref, the key 'parent' may be used to
+           provide the primary key to the parent node instead of a
+           second argument, and the key 'tree' is expected to provide
+           the primary key to the tree of which this node is part.
+           Depending on the backing database, the parent and/or the
+           tree may be optional (and may be provided later through an
+           update).
+
+=cut
+
+sub insert_node{
+    my ($self,@args) = @_;
+    $self->throw_not_implemented();
+}
+
+=head2 update_node
+
+ Title   : update_node
+ Usage   : $store->update_node($pkey, $nodeh, $parent);
+
+ Function: Updates a single node in the underlying storage. The node
+           must exist already.
+
+ Example :
+ Returns : True if success and false otherwise.
+
+ Args :    The primary key of the node to be updated (-pk), the node data
+           to which the database is to be updated (-node) as a hashref
+           or a Bio::Tree::NodeI compliant object, and the parent
+           (-parent) as a primary key to the parent node or a
+           Bio::DB::Tree::Node object. The parent is optional if it is
+           not being updated. Arguments may be provided in this order,
+           or with named arguments (as given above in parentheses).
+
+           If the node is a Bio::DB::Tree::Node object thas has been
+           obtained from this store before, the primary key argument
+           is optional. If the node is a hashref, the key 'parent' may
+           be used to provide the primary key to the parent node
+           instead of a third argument, and if present the key 'tree'
+           can provide a new value (as primary key) for the tree of
+           which this node is part.  The parent may also be provided
+           as a Bio::DB::Tree::Node object instead of the primary key.
+
+=cut
+
+sub update_node{
+    my ($self,@args) = @_;
+    $self->throw_not_implemented();
+}
+
 =head2 insert_tree
 
  Title   : insert_tree
- Usage   : $store->insert_tree($tree)
+ Usage   : $dbkey = $store->insert_tree($tree)
  Function: Inserts (adds) the given tree into the store.
  Example :
- Returns : True upon success, and false otherwise.
- Args    : The tree to be inserted, as a Bio::Tree::TreeI compliant object.
+ Returns : If successful, the primary key to the newly created tree.
+ Args    : The tree to be inserted, as a Bio::Tree::TreeI compliant object or a hashref.
 
 =cut
 
