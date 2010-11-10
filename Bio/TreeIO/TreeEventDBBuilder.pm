@@ -24,6 +24,13 @@ Bio::TreeIO::TreeEventDBBuilder - Create tree and node records in a persistent s
 This object will take events fired by a Bio::TreeIO parser and
 populate a a persistent storage database with it.
 
+At present this event handler makes the assumption that tree nodes are
+encountered in nested containment (depth first) order, i.e., a node
+that is complete is the direct child of the most recent node that is
+not yet complete. Formats that store the hierarchy as an unordered
+list of edges or parent-child relationships will at present not work
+with this handler.
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -72,9 +79,6 @@ Internal methods are usually preceded with a _
 package Bio::TreeIO::TreeEventDBBuilder;
 use strict;
 
-use Bio::Tree::Tree;
-use Bio::Tree::Node;
-
 use base qw(Bio::Root::Root Bio::Event::EventHandlerI);
 
 =head2 new
@@ -97,68 +101,35 @@ sub new {
     my $self = $class->SUPER::new(@args);
     my ($store,$treetype, $nodetype) = 
           $self->_rearrange([qw(STORE
-                                TREETYPE 
-				NODETYPE)], @args);
-
-    $treetype ||= 'Bio::DB::Tree::Tree';
-    $nodetype ||= 'Bio::DB::Tree::Node';
-    eval { 
-        $self->_load_module($treetype);
-        $self->_load_module($nodetype);
-    };
-    if( $@ ) {
-        $self->throw("Could not load module $treetype or $nodetype. \n$@\n")
-    }
-    $self->treetype($treetype);
-    $self->nodetype($nodetype);
+                                )], @args);
     
     if (! (ref($store) && $store->is_a("Bio::DB::Tree::Store"))) {
         $self->throw("Need a Bio::DB::Tree::Store object for -store, not "
                      .ref($store));
     }
 
-    $self->{'_treelevel'} = 0;
     return $self;
 }
 
-=head2 treetype
+=head2 store
 
- Title   : treetype
- Usage   : $obj->treetype($newval)
- Function: 
- Returns : value of treetype
- Args    : newvalue (optional)
+ Title   : store
+ Usage   : $handler->store($newval)
+ Function: Gets (or sets) the persistent storage database interface
+           object to which the data are to be serialized.
 
-
-=cut
-
-sub treetype{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'treetype'} = $value;
-    }
-    return $self->{'treetype'};
-}
-
-=head2 nodetype
-
- Title   : nodetype
- Usage   : $obj->nodetype($newval)
- Function: 
- Returns : value of nodetype
- Args    : newvalue (optional)
-
+ Example : 
+ Returns : value of store (a Bio::DB::Tree::Store object)
+ Args    : on set, new value (a Bio::DB::Tree::Store object or undef, optional)
 
 =cut
 
-sub nodetype{
-   my ($self,$value) = @_;
-   if( defined $value) {
-      $self->{'nodetype'} = $value;
-    }
-    return $self->{'nodetype'};
-}
+sub store{
+    my $self = shift;
 
+    return $self->{'store'} = shift if @_;
+    return $self->{'store'};
+}
 
 =head2 SAX methods
 
