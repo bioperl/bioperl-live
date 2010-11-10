@@ -247,7 +247,8 @@ sub next_token {
     }
   }
   unless(defined($index)) {
-    $self->throw("couldn't find delimiter $delim\n $$string");
+    # have to call as class here (this is not an instance method)
+    Bio::Root::Root->throw("couldn't find delimiter $delim\n $$string");
   }
 
   my $token ='';
