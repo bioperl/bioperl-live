@@ -148,10 +148,10 @@ sub store{
 sub start_document {
     my $self = shift;
     $self->{'_keymap'} = {};
+    $self->{'_trees'} = [];
     $self->{'_nodestack'} = [];
-    $self->{'_elementstack'} = [];
+    $self->{'_elemstack'} = [];
     $self->{'_attrstack'} = [];
-    $self->{'_rootnode'} = undef;
     return;
 }
 
@@ -195,6 +195,7 @@ sub start_element{
         push @{$self->{'_nodestack'}}, {};
         push @{$self->{'_elemstack'}}, $elem;
     } elsif ( $elem eq 'tree' ) {
+        $self->{'_rootnode'} = undef;
         push @{$self->{'_elemstack'}}, $elem;
     } else {
         push @{$self->{'_attrstack'}}, $elem;
@@ -227,26 +228,26 @@ sub end_element{
         my $parenth = $self->{'_nodestack'}->[-1] if @{$self->{'_nodestack'}};
         my $parentkey; # will remain undef for the root
         if ($parenth) {
-            if (!exists($parenth->{'dbkey'})) {
+            if (!exists($parenth->{'-pk'})) {
                 $self->_create_parents($self->{'_nodestack'});
-                $parentkey = $self->{'_nodestack'}->[-1]->{'dbkey'};
-            } else {
-                $parentkey = $parenth->{'dbkey'};
             }
+            $parentkey = $parenth->{'-pk'};
         }
         # if we created the node before, we need to update it now;
         # otherwise create it
-        if (exists($nodeh->{'dbkey'})) {
-            $self->store->update_node($nodeh->{'dbkey'}, $nodeh, $parentkey);
+        if (exists($nodeh->{'-pk'})) {
+            $self->store->update_node($nodeh, $parentkey);
         } else {
             my $dbkey = $self->store->insert_node($nodeh, $parentkey);
-            $nodeh->{'dbkey'} = $dbkey;
+            $nodeh->{'-pk'} = $dbkey;
         }
         # for nested containment, the last element to go off the stack
         # should be the root node
         $self->{'_rootnode'} = $nodeh if (! @{$self->{'_nodestack'}});
         pop @{$self->{'_elemstack'}};
     } elsif ( $elem eq 'tree' ) { 
+        my $dbkey = $self->store->insert_tree({-root => $self->{'_rootnode'}});
+        push @{$self->{'_trees'}}, $self->store->get_tree_by_id($dbkey);
         pop @{$self->{'_elemstack'}};
     } else {
         pop @{$self->{'_attrstack'}}
@@ -360,17 +361,16 @@ sub _create_parents{
     # in the database yet. Retain the last primary key as the next
     # parent key.
     my $parentkey;
-    foreach my $parent (@$parents) {
-        my $dbkey = $parent->{'dbkey'};
+    foreach my $nodeh (@$parents) {
+        my $dbkey = $nodeh->{'-pk'};
         # skip to next if key exists
         if ($dbkey) {
             $parentkey = $dbkey;
             next;
         } else {
             # insert as presumably it doesn't exist
-            $dbkey = $self->store->insert_node($parent,$parentkey);
-            $parent->{'dbkey'} = $dbkey;
-            $parentkey = $dbkey;
+            $dbkey = $self->store->insert_node($nodeh,$parentkey);
+            $nodeh->{'-pk'} = $parentkey = $dbkey;
         }
     }
 }
