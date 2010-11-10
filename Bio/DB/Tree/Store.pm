@@ -198,19 +198,16 @@ sub post_init { }
  Example :
  Returns : If successful, the primary key of the node that has been created. 
 
- Args :    The node to be inserted (-node) as a hashref or a
-           Bio::Tree::NodeI object, and the parent (-parent) as a
-           primary key or a Bio::DB::Tree::Node object. Arguments may
-           be provided in this order, or with named arguments (as
-           given above in parentheses).
+ Args :    The node to be inserted as a hashref or a Bio::Tree::NodeI
+           object, and the parent as a primary key or a
+           Bio::DB::Tree::Node object.
 
-           If the node ia a hashref, the key 'parent' may be used to
+           If the node ia a hashref, the key '-parent' may be used to
            provide the primary key to the parent node instead of a
-           second argument, and the key 'tree' is expected to provide
-           the primary key to the tree of which this node is part.
-           Depending on the backing database, the parent and/or the
-           tree may be optional (and may be provided later through an
-           update).
+           second argument, and the key '-tree' to provide the primary
+           key to the tree of which this node is part.  Depending on
+           the backing database, the parent and/or the tree may be
+           optional (and may be provided later through an update).
 
 =cut
 
@@ -222,7 +219,7 @@ sub insert_node{
 =head2 update_node
 
  Title   : update_node
- Usage   : $store->update_node($pkey, $nodeh, $parent);
+ Usage   : $store->update_node($nodeh, $parent);
 
  Function: Updates a single node in the underlying storage. The node
            must exist already.
@@ -230,22 +227,18 @@ sub insert_node{
  Example :
  Returns : True if success and false otherwise.
 
- Args :    The primary key of the node to be updated (-pk), the node data
-           to which the database is to be updated (-node) as a hashref
-           or a Bio::Tree::NodeI compliant object, and the parent
-           (-parent) as a primary key to the parent node or a
-           Bio::DB::Tree::Node object. The parent is optional if it is
-           not being updated. Arguments may be provided in this order,
-           or with named arguments (as given above in parentheses).
+ Args :    The node data to which the database is to be updated as a
+           hashref or a Bio::DB::Tree::Node object that has been
+           obtained from this store, and the parent as a primary key
+           to the parent node or also as a Bio::DB::Tree::Node
+           object. The parent is optional if it is not being updated.
 
-           If the node is a Bio::DB::Tree::Node object thas has been
-           obtained from this store before, the primary key argument
-           is optional. If the node is a hashref, the key 'parent' may
-           be used to provide the primary key to the parent node
-           instead of a third argument, and if present the key 'tree'
-           can provide a new value (as primary key) for the tree of
-           which this node is part.  The parent may also be provided
-           as a Bio::DB::Tree::Node object instead of the primary key.
+           If the node is a hashref, the primary key is expected as
+           the value for the '-pk' key, and the key '-parent' may be
+           used to provide the primary key to the parent node instead
+           of a second argument, and if present the key '-tree' can
+           provide a new value (as primary key) for the tree of which
+           this node is part.
 
 =cut
 
