@@ -108,66 +108,32 @@ END
  Example :
  Returns : If successful, the primary key of the node that has been created. 
 
- Args :    The node to be inserted (-node) as a hashref or a
-           Bio::Tree::NodeI object, and the parent (-parent) as a
-           primary key or a Bio::DB::Tree::Node object. Arguments may
-           be provided in this order, or with named arguments (as
-           given above in parentheses).
+ Args :    The node to be inserted as a hashref or a Bio::Tree::NodeI
+           object, and the parent as a primary key or a
+           Bio::DB::Tree::Node object.
 
-           If the node ia a hashref, the key 'parent' may be used to
+           If the node ia a hashref, the key '-parent' may be used to
            provide the primary key to the parent node instead of a
-           second argument, and the key 'tree' is expected to provide
-           the primary key to the tree of which this node is part.
-           Depending on the backing database, the parent and/or the
-           tree may be optional (and may be provided later through an
-           update).
+           second argument, and the key '-tree' to provide the primary
+           key to the tree of which this node is part.  Depending on
+           the backing database, the parent and/or the tree may be
+           optional (and may be provided later through an update).
 
 =cut
 
 sub insert_node {
     my $self = shift;
-    my ($nodeh, $parent);
-    # If the first argument is a ref, we are using positional
-    # arguments. Otherwise use rearrange().
-    if (ref($_[0])) {
-        ($nodeh, $parent) = @_;
-    } else {
-        ($nodeh, $parent) = $self->_rearrange([qw(NODE PARENT)], @_);
-    }
+    my ($nodeh, $parent) = @_;
+
+    # unify the parent from the different ways it can be provided
     if (ref($parent)) {
         $parent = $parent->node_id();
-    } elsif (exists($nodeh->{'-parent'}) && !defined($parent)) {
-        $parent = $nodeh->{'-parent'};
+    } elsif (!defined($parent)) {
+        $parent = $nodeh->{'-parent'} if exists($nodeh->{'-parent'});
     }
-
-    # unify the hashref and object options to a single format
-    my $data;
-    if ($nodeh->isa("Bio::Tree::NodeI")) {
-        $data = {};
-        # flatten out all key-value annotations (if we have any)
-        my @tags = $nodeh->get_all_tags;
-        if (@tags) {
-            $data->{'-flatAnnotations'} = 
-                join(";",
-                     map { sprintf("%s=%s",$_,
-                                   join(",",$nodeh->get_tag_values($_)))
-                     } 
-                     @tags);
-        }
-        $data->{'-id'} = $nodeh->id();
-        $data->{'-branch_length'} = $nodeh->branch_length();
-    } else {
-        $data = $nodeh;
-        # flatten out all key-value annotations (if we have any)
-        if(exists($nodeh->{'-annotations'})) {
-            $data->{'-flatAnnotations'} = 
-                join(";",
-                     map { sprintf("%s=%s",$_,
-                                   join(",",$nodeh->{$_}))
-                     } 
-                     keys(%{$nodeh->{'-annotations'}}));        
-        }
-    }
+    
+    # unify between node object or hashref
+    my $data = $self->_node_to_hash($nodeh);
 
     # store in database
     my $sth = $self->{'_sths'}->{'insertNode'};
@@ -179,12 +145,105 @@ sub insert_node {
     }
     $sth->execute($parent, 
                   $data->{'-id'}, $data->{'-branch_length'}, 
-                  $data->{'-flatAnnots'});
+                  $data->{'-flatAnnotations'});
     my $pk = $self->dbh->func('last_insert_rowid');
     $nodeh->node_id($pk) if $pk && $nodeh->isa("Bio::DB::Tree::Node");
-    # cleanup 
-    delete $nodeh->{'-flatAnnotations'} if ref($nodeh) eq "HASHREF";
+    # done
     return $pk;
+}
+
+=head2 _node_to_hash
+
+ Title   : _node_to_hash
+ Usage   : $nodeHash = $self->_node_to_hash($nodeObj);
+ Function: Unifies a hashref and node object representation to a
+           hashref representation. This will also flatten out the
+           key-value annotations.
+
+ Example :
+ Returns : A hashref with the standard keys set if the input object
+           had a value for them, and with the flattened annotations
+           under the -flatAnnotations key if the input object had
+           annotations. If the input object was a hashref, the
+           returned ref will have at least all keys that the input ref
+           had.
+ Args :    A hashref of node attribute names and their values, or a
+           Bio::Tree::NodeI object.
+
+=cut
+
+sub _node_to_hash {
+    my $self = shift;
+    my $obj = shift;
+
+    # unify the hashref and object options to a single format
+    my $h;
+    if ($obj->isa("Bio::Tree::NodeI")) {
+        $h = {};
+        # flatten out all key-value annotations (if we have any)
+        my $flatAnnots = _flatten_annotations($obj);
+        $h->{'-flatAnnotations'} = $flatAnnots if $flatAnnots;
+        $h->{'-id'} = $obj->id if $obj->id;
+        $h->{'-branch_length'} = $obj->branch_length if $obj->branch_length();
+        if ($obj->isa("Bio::DB::Tree::Node")) {
+            $h->{'-pk'} = $obj->node_id;
+            #can't do this right now - would trigger a recursive insert:
+            # $h->{'-parent'} = $obj->parent_id if $obj->parent_id;
+        }
+    } else {
+        $h = {%$obj};
+        # flatten out all key-value annotations (if we have any)
+        my $flatAnnots = _flatten_keyvalues($obj->{'-annotations'});
+        $h->{'-flatAnnotations'} = $flatAnnots if $flatAnnots;
+    }
+    return $h;
+}
+
+=head2 _tree_to_hash
+
+ Title   : _tree_to_hash
+ Usage   : $treeHash = $self->_tree_to_hash($treeObj);
+ Function: Unifies a hashref and tree object representation to a
+           hashref representation. This will also flatten out the
+           key-value annotations.
+
+ Example :
+ Returns : A hashref with the standard keys set if the input object
+           had a value for them, and with the flattened annotations
+           under the -flatAnnotations key if the input object had
+           annotations. If the input object was a hashref, the
+           returned ref will have at least all keys that the input ref
+           had.
+ Args :    A hashref of tree attribute names and their values, or a
+           Bio::Tree::TreeI object.
+
+=cut
+
+sub _tree_to_hash {
+    my $self = shift;
+    my $obj = shift;
+
+    # unify the hashref and object options to a single format
+    my $h;
+    if ($obj->isa("Bio::Tree::TreeI")) {
+        $h = {};
+        # flatten out all key-value annotations (if we have any)
+        my $flatAnnots = _flatten_annotations($obj);
+        $h->{'-flatAnnotations'} = $flatAnnots if $flatAnnots;
+        $h->{'-id'} = $obj->id if $obj->id;
+        $h->{'-branch_length'} = $obj->branch_length if $obj->branch_length();
+        if ($obj->isa("Bio::DB::Tree::Node")) {
+            $h->{'-pk'} = $obj->node_id;
+            #can't do this right now - would trigger a recursive insert:
+            # $h->{'-parent'} = $obj->parent_id if $obj->parent_id;
+        }
+    } else {
+        $h = {%$obj};
+        # flatten out all key-value annotations (if we have any)
+        my $flatAnnots = _flatten_keyvalues($obj->{'-annotations'});
+        $h->{'-flatAnnotations'} = $flatAnnots if $flatAnnots;
+    }
+    return $h;
 }
 
 sub _create_node {
@@ -199,16 +258,90 @@ END
 				  -store   => $self);
 
 }
+
+=head2 update_node
+
+ Title   : update_node
+ Usage   : $store->update_node($nodeh, $parent);
+
+ Function: Updates a single node in the underlying storage. The node
+           must exist already.
+
+ Example :
+ Returns : True if success and false otherwise.
+
+ Args :    The node data to which the database is to be updated as a
+           hashref or a Bio::DB::Tree::Node object that has been
+           obtained from this store, and the parent as a primary key
+           to the parent node or also as a Bio::DB::Tree::Node
+           object. The parent is optional if it is not being updated.
+
+           If the node is a hashref, the primary key is expected as
+           the value for the '-pk' key, and the key '-parent' may be
+           used to provide the primary key to the parent node instead
+           of a second argument, and if present the key '-tree' can
+           provide a new value (as primary key) for the tree of which
+           this node is part.
+
+=cut
+
+sub update_node{
+    my $self = shift;
+    my ($nodeh, $parent) = @_;
+
+    # unify the parent from the different ways it can be provided
+    if (ref($parent)) {
+        $parent = $parent->node_id();
+    } elsif (!defined($parent)) {
+        $parent = $nodeh->{'-parent'} if exists($nodeh->{'-parent'});
+    }
+
+    # unify the hashref and object options to a single format
+    my $data = $self->_node_to_hash($nodeh);
+
+    # store in database
+    my $sth = $self->{'_sths'}->{'updateNode'};
+    if (! $sth) {
+        $sth = $self->_prepare(
+            "UPDATE node SET "
+            ."parent_id = IFNULL(?,parent_id), "
+            ."label = IFNULL(?,label), "
+            ."distance_to_parent = IFNULL(?,distance_to_parent), "
+            ."annotations = IFNULL(?,annotations) "
+            ."WHERE node_id = ?");
+        $self->{'_sths'}->{'updateNode'} = $sth;
+    }
+    my $rv = $sth->execute($parent, 
+                           $data->{'-id'}, $data->{'-branch_length'}, 
+                           $data->{'-flatAnnotations'},
+                           $data->{'-pk'});
+    # done
+    return $rv;
+}
+
+=head2 insert_tree
+
+ Title   : insert_tree
+ Usage   : $dbkey = $store->insert_tree($tree)
+ Function: Inserts (adds) the given tree into the store.
+ Example :
+ Returns : If successful, the primary key to the newly created tree.
+
+ Args :    The tree to be inserted, as a Bio::Tree::TreeI compliant
+           object or a hashref.
+
+=cut
+
 sub insert_tree {
-  my $self = shift;
-  my $object = shift;
-  my $annotations = join(";",map { sprintf("%s=%s",$_,
-					   join(",",$object->get_tag_values($_))) } 
-			 $object->get_all_tags);
+    my $self = shift;
+    my $treeh = shift;
+    my $annotations = join(";",map { sprintf("%s=%s",$_,
+					   join(",",$treeh->get_tag_values($_))) } 
+			 $treeh->get_all_tags);
   my $sth = $self->_prepare(<<END);
 INSERT INTO node (tree_id,label,is_rooted,root_id,annotations) VALUES (?,?,?,?,?)
 END
-  $sth->execute(undef,$object->id,undef,$object->get_root_node,$annotations);
+  $sth->execute(undef,$treeh->id,undef,$treeh->get_root_node,$annotations);
   $sth->finish;
 }
 
@@ -457,6 +590,39 @@ sub index_tables {
 sub _enable_keys  { }  # nullop
 sub _disable_keys { }  # nullop
 
+##
+# flatten out into a string the tag/value annotations of a Bio::AnnotatableI
+##
+sub _flatten_annotations {
+    my $annHolder = shift;
+    my @tags = $annHolder->get_all_tags;
+    my $flatAnnot;
+    if (@tags) {
+        $flatAnnot = 
+            join(";",
+                 map { sprintf("%s=%s",$_,
+                               join(",",$annHolder->get_tag_values($_)))
+                 } 
+                 @tags);
+    }
+    return $flatAnnot;
+}
+
+##
+# flatten out into a string the key/value pairs of a hash
+##
+sub _flatten_keyvalues {
+    my $h = shift;
+    my $flatAnnot;
+    if ($h && keys(%$h)) {
+        $flatAnnot = join(";",
+                          map { 
+                              sprintf("%s=%s",$_,join(",",$h->{$_}))
+                          } 
+                          keys(%$h));
+    }
+    return $flatAnnot;
+}
 
 =head1 NAME
 
