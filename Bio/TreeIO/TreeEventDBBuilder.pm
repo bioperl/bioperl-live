@@ -175,12 +175,13 @@ sub nodetype{
 =cut
 
 sub start_document {
-   my ($self) = @_;
-   $self->{'_keymap'} = {};
-   $self->{'_nodestack'} = [];
-   $self->{'_elementstack'} = [];
-   $self->{'_attrstack'} = [];
-   return;
+    my $self = shift;
+    $self->{'_keymap'} = {};
+    $self->{'_nodestack'} = [];
+    $self->{'_elementstack'} = [];
+    $self->{'_attrstack'} = [];
+    $self->{'_rootnode'} = undef;
+    return;
 }
 
 =head2 end_document
@@ -195,18 +196,10 @@ sub start_document {
 =cut
 
 sub end_document {
-    my ($self,$label) = @_; 
+    my $self = shift;
+    my $label = shift;
 
-    my ($root) = @{$self->{'_currentnodes'}};
-
-    $self->debug("Root node is " . $root->to_string()."\n");
-    if( $self->verbose > 0 ) { 
-	foreach my $node ( $root->get_Descendents  ) {
-	    $self->debug("node is ". $node->to_string(). "\n");
-	}
-    }
-    my $tree = $self->treetype->new(-verbose => $self->verbose,
-				    -root => $root);
+    my $tree = $self->store->get_tree_by_root($self->{'_rootnode'});
     return $tree;       
 }
 
@@ -226,10 +219,10 @@ sub end_document {
 sub start_element{
     my $self = shift;
     my $elem = shift->{'Name'};
-
+    
     if( $elem eq 'node' ) {
-       push @{$self->{'_nodestack'}}, {};
-       push @{$self->{'_elemstack'}}, $elem;
+        push @{$self->{'_nodestack'}}, {};
+        push @{$self->{'_elemstack'}}, $elem;
     } elsif ( $name eq 'tree' ) {
         push @{$self->{'_elemstack'}}, $elem;
     } else {
@@ -278,6 +271,9 @@ sub end_element{
             my $dbkey = $self->store->insert_node($nodeh, $parentkey);
             $nodeh->{'dbkey'} = $dbkey;
         }
+        # for nested containment, the last element to go off the stack
+        # should be the root node
+        $self->{'_rootnode'} = $nodeh if (! @{$self->{'_nodestack'}});
         pop @{$self->{'_elemstack'}};
     } elsif ( $elem eq 'tree' ) { 
         pop @{$self->{'_elemstack'}};
