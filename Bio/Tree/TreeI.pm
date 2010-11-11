@@ -87,6 +87,21 @@ use strict;
 
 use base qw(Bio::Root::RootI);
 
+=head2 is_rooted
+
+ Title   : is_rooted
+ Usage   : die unless ($tree->is_rooted);
+ Function: Indicates whether this should be handled as a rooted tree.
+ Returns : 1 if this tree is rooted; 0 if unrooted.
+ Args    : none
+
+=cut
+
+sub is_rooted {
+   my ($self) = @_;
+   $self->throw_not_implemented();
+}
+
 =head2 get_nodes
 
  Title   : get_nodes

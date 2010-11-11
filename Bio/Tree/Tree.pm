@@ -163,6 +163,43 @@ sub new {
   return $self;
 }
 
+=head2 rooted
+
+ Title   : rooted
+ Usage   : $tree->rooted(0);
+ Function: Get/Set Boolean whether or not this tree should be considered
+           to be rooted or not. Note that the TreeI method is_rooted
+           is an interface to this getter.
+ Returns : boolean
+ Args    : on set, new boolean value
+
+=cut
+
+sub rooted {
+    my $self = shift;
+    return $self->{'_rooted'} = shift if @_;
+    return $self->{'_rooted'};
+}
+
+=head2 is_rooted
+
+ Title   : is_rooted
+ Usage   : die unless ($tree->is_rooted);
+ Function: Indicates whether this should be handled as a rooted tree.
+ Returns : 1 if this tree is rooted; 0 if unrooted.
+ Args    : none
+
+=cut
+
+sub is_rooted {
+    my $self = shift;
+    if (defined $self->{'_rooted'}) {
+	return $self->{'_rooted'};
+    } else {
+	# Default to a rooted tree.
+	return 1;	
+    }
+}
 
 =head2 nodelete
 
