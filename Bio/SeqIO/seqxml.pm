@@ -8,8 +8,9 @@
 #
 # You may distribute this module under the same terms as perl itself
 # _history
-# December 2009 - initial version
-#   July 2 2010 - updated for SeqXML v0.2
+# December 2009     - initial version
+#   July 2 2010     - updated for SeqXML v0.2
+#  November 11 2010 - added schemaLocation
 
 # POD documentation - main docs before the code
 
@@ -121,6 +122,12 @@ use XML::Writer;
 
 use base qw(Bio::SeqIO);
 
+# define seqXML header stuff
+# there's no API for XMLNS XMLNS_XSI; you must set them here.
+use constant SEQXML_VERSION => 0.2;
+use constant SCHEMA_LOCATION => 'http://seqXML.org/0.2 http://www.seqxml.org/0.2/seqxml.xsd';
+use constant XMLNS_XSI => 'http://www.w3.org/2001/XMLSchema-instance';
+
 =head2 _initialize
 
  Title   : _initialize
@@ -204,15 +211,19 @@ sub _initialize {
             if ($self->source || $self->sourceVersion) {
                 $self->{'_writer'}->startTag(
                     'seqXML',
-                    'seqXMLversion' => $self->seqXMLversion(0.2),
+                    'seqXMLversion' => $self->seqXMLversion(SEQXML_VERSION),
+                    'xmlns:xsi'     => XMLNS_XSI,
+                    'xsi:schemaLocation' => $self->schemaLocation(SCHEMA_LOCATION),
                     'source'        => $self->source,
-                    'sourceVersion' => $self->sourceVersion
+                    'sourceVersion' => $self->sourceVersion,
                 );                
             }
             else {
                 $self->{'_writer'}->startTag(
                     'seqXML',
-                    'seqXMLversion' => $self->seqXMLversion(0.2),
+                    'seqXMLversion' => $self->seqXMLversion(SEQXML_VERSION),
+                    'xmlns:xsi'     => XMLNS_XSI,
+                    'xsi:schemaLocation' => $self->schemaLocation(SCHEMA_LOCATION),
                 );
             }
         }
@@ -425,6 +436,28 @@ sub _initialize_seqxml_node_methods {
     );
     $self->{'_end_elements'} = \%end_elements;
 
+}
+
+=head2 schemaLocation
+
+ Title   : schemaLocation
+ Usage   : $self->schemaLocation
+ Function: gets/sets the schema location in the <seqXML> header
+ Returns : the schema location string
+ Args    : To set the schemaLocation, call with a schemaLocation as the argument.
+
+=cut
+
+sub schemaLocation {
+    my ( $self, $value ) = @_;
+    my $metadata = $self->{'_seqxml_metadata'};
+
+    # set if a value is supplied
+    if ($value) {
+        $metadata->{'schemaLocation'} = $value;
+    }
+
+    return $metadata->{'schemaLocation'};
 }
 
 =head2 source

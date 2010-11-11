@@ -6,7 +6,7 @@ use strict;
 BEGIN {
     use Bio::Root::Test;
     test_begin(
-        -tests            => 58,
+        -tests            => 59,
         -requires_modules => [qw(XML::LibXML XML::LibXML::Reader XML::Writer)]
     );
 
@@ -102,6 +102,7 @@ SKIP: {
     is( $seq_writer->seqXMLversion, '0.2',     'seqXML version' );
     is( $seq_writer->source,        'Ensembl', 'source' );
     is( $seq_writer->sourceVersion, '56',      'source version' );
+    is( $seq_writer->schemaLocation, 'http://seqXML.org/0.2 http://www.seqxml.org/0.2/seqxml.xsd',      'schemaLocation' );
 
     # write one sequence entry to file
     $seq_writer->write_seq($seq_obj);
