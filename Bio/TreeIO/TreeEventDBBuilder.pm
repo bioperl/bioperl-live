@@ -148,7 +148,7 @@ sub store{
 sub start_document {
     my $self = shift;
     $self->{'_keymap'} = {};
-    $self->{'_trees'} = [];
+    $self->{'_treestack'} = [];
     $self->{'_nodestack'} = [];
     $self->{'_elemstack'} = [];
     $self->{'_attrstack'} = [];
@@ -168,10 +168,10 @@ sub start_document {
 
 sub end_document {
     my $self = shift;
-    my $label = shift;
+    my $label = shift; # not sure yet why this would be coming in here
 
-    my $tree = $self->store->get_tree_by_root($self->{'_rootnode'});
-    return $tree;       
+    my $pk = shift @{$self->{'_treestack'}};
+    return $self->store->fetch_tree($pk);       
 }
 
 =head2 start_element
@@ -192,11 +192,12 @@ sub start_element{
     my $elem = shift->{'Name'};
     
     if( $elem eq 'node' ) {
+        push @{$self->{'_elemstack'}}, $elem;
         push @{$self->{'_nodestack'}}, {};
-        push @{$self->{'_elemstack'}}, $elem;
     } elsif ( $elem eq 'tree' ) {
-        $self->{'_rootnode'} = undef;
+        delete $self->{'_rootnode'};
         push @{$self->{'_elemstack'}}, $elem;
+        push @{$self->{'_treestack'}}, {};
     } else {
         push @{$self->{'_attrstack'}}, $elem;
     }
@@ -243,11 +244,14 @@ sub end_element{
         }
         # for nested containment, the last element to go off the stack
         # should be the root node
-        $self->{'_rootnode'} = $nodeh if (! @{$self->{'_nodestack'}});
+        if (! @{$self->{'_nodestack'}}) {
+            $self->{'_treestack'}->[-1]->{'-root'} = $nodeh->{'-pk'};
+        }
         pop @{$self->{'_elemstack'}};
     } elsif ( $elem eq 'tree' ) { 
-        my $dbkey = $self->store->insert_tree({-root => $self->{'_rootnode'}});
-        push @{$self->{'_trees'}}, $self->store->get_tree_by_id($dbkey);
+        my $dbkey = $self->store->insert_tree($self->{'_treestack'}->[-1]);
+        # replace properties hashref with primary key of new record
+        $self->{'_treestack'}->[-1] = $dbkey;
         pop @{$self->{'_elemstack'}};
     } else {
         pop @{$self->{'_attrstack'}}
@@ -326,7 +330,13 @@ sub characters{
        } elsif( $self->in_element('leaf') ) {
 	   $nodeh->{'-leaf'} = $ch;
        }
+   } elsif( $self->within_element('tree') ) {
+       my $treeh = $self->{'_treestack'}->[-1];
+       if( $self->in_element('is_rooted') ) {
+           $treeh->{'-is_rooted'} = $ch;
+       }
    }
+
    $self->debug("chars: $ch\n");
 }
 
