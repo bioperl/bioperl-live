@@ -136,11 +136,10 @@ sub document_el {
 # catch-all
 sub generic_el {
     my ($data, $parent) = @_;
-    my ($tag, $val, $attributes, $class) =
+    my ($tag, $val, $attributes, $type) =
         @{$data->{Data}}{qw(Tag Value Attributes Class)};
     
     # not using class for now
-    $class = "XML::LibXML::$class";
 
     my $node = XML::LibXML::Element->new($tag);
     
@@ -187,72 +186,6 @@ sub distribution_el {}
 sub date_el {}
 sub reference_el {}
 sub property_el {}
-
-
-
-sub clade_el {
-    my ($str, $parent) = @_;
-
-    # start <clade>
-    #$str .= '<clade';
-    
-    #my $clade_el = $parent->addChild(XML::LibXML::Element->new('clade'));
-    
-    #my ($attr) = $ac->get_Annotations('_attr');    # check id_source
-    #if (defined $attr) {
-    #    my ($id_source) = $attr->get_Annotations('id_source');
-    #    if ($id_source) {
-    #        $clade_el->setAttribute('id_source', $id_source->value)
-    #        #$str .= " id_source=\"" . $id_source->value . "\"";
-    #    }
-    #}
-    ##$str .= ">";
-    #
-    ## print all descendent nodes
-    #foreach my $child ( $tree_node->each_Descendent() ) {
-    #    $self->_clade_els( $child, $clade_el );
-    #}
-    #
-    ## print all annotations
-    ##$str = print_annotation( $node, $str, $ac );
-    #
-    ## print all sequences
-    #if ( $tree_node->has_sequence ) {
-    #    foreach my $seq ( @{ $tree_node->sequence } ) {
-    #
-    #        # if sequence_relation exists
-    #        my @relations =
-    #          $seq->annotation->get_Annotations('sequence_relation');
-    #        foreach (@relations) {
-    #            my $sequence_rel = $self->_relation_to_string( $seq, $_, '' );
-    #
-    #            # set as tree attr
-    #            push(
-    #                @{ $self->{'_tree_attr'}->{'sequence_relation'} },
-    #                $sequence_rel
-    #            );
-    #        }
-    #        #$str = print_seq_annotation( $node, $str, $seq );
-    #    }
-    #}
-    #
-    ##$str .= "</clade>";
-    #
-    ##return $str;
-}
-
-sub clade_relation_el {
-    my ($str, $parent) = @_;
-    #my $ac = $tree_node->annotation;
-    #
-    ## if clade_relation exists
-    #foreach ($ac->get_Annotations('clade_relation')) {
-    #    #my $clade_rel = $self->_relation_to_string( $tree_node, $_, '' );
-    #    #
-    #    ## set as tree attr
-    #    #push( @{ $self->{'_tree_attr'}->{'clade_relation'} }, $clade_rel );
-    #}
-}
 
 # For <sequence>, the order is:sub _symbol_el {}
 sub accession_el {}
