@@ -2,6 +2,7 @@
 package Bio::DB::Tree::Store::DBI::SQLite;
 
 use strict;
+use Scalar::Util qw(blessed);
 use DBI qw(:sql_types);
 use Cwd 'abs_path';
 use File::Spec;
@@ -40,7 +41,7 @@ sub init {
     $dbh->do("PRAGMA temp_store = MEMORY;"); # less disk I/O; some speedup
     $dbh->do("PRAGMA cache_size = 20000;"); # less disk I/O; some speedup
   }
-  $self->{dbh}       = $dbh;
+  $self->dbh($dbh);
   $self->{is_temp}   = $is_temporary;
   $self->{writeable} = $writeable;
 
@@ -136,127 +137,21 @@ sub insert_node {
     my $data = $self->_node_to_hash($nodeh);
 
     # store in database
-    my $sth = $self->{'_sths'}->{'insertNode'};
+    my $sth = $self->{sths}->{'insertNode'};
     if (! $sth) {
         $sth = $self->_prepare(
             "INSERT INTO node (parent_id,label,distance_to_parent,annotations)"
             ." VALUES (?,?,?,?)");
-        $self->{'_sths'}->{'insertNode'} = $sth;
+        $self->{sths}->{'insertNode'} = $sth;
     }
     $sth->execute($parent, 
                   $data->{'-id'}, $data->{'-branch_length'}, 
                   $data->{'-flatAnnotations'});
     my $pk = $self->dbh->func('last_insert_rowid');
-    $nodeh->node_id($pk) if $pk && $nodeh->isa("Bio::DB::Tree::Node");
+    $nodeh->node_id($pk) 
+        if $pk && blessed($nodeh) && $nodeh->isa("Bio::DB::Tree::Node");
     # done
     return $pk;
-}
-
-=head2 _node_to_hash
-
- Title   : _node_to_hash
- Usage   : $nodeHash = $self->_node_to_hash($nodeObj);
- Function: Unifies a hashref and node object representation to a
-           hashref representation. This will also flatten out the
-           key-value annotations.
-
- Example :
- Returns : A hashref with the standard keys set if the input object
-           had a value for them, and with the flattened annotations
-           under the -flatAnnotations key if the input object had
-           annotations. If the input object was a hashref, the
-           returned ref will have at least all keys that the input ref
-           had.
- Args :    A hashref of node attribute names and their values, or a
-           Bio::Tree::NodeI object.
-
-=cut
-
-sub _node_to_hash {
-    my $self = shift;
-    my $obj = shift;
-
-    # unify the hashref and object options to a single format
-    my $h;
-    if ($obj->isa("Bio::Tree::NodeI")) {
-        $h = {};
-        # flatten out all key-value annotations (if we have any)
-        my $flatAnnots = _flatten_annotations($obj);
-        $h->{'-flatAnnotations'} = $flatAnnots if $flatAnnots;
-        $h->{'-id'} = $obj->id if $obj->id;
-        $h->{'-branch_length'} = $obj->branch_length if $obj->branch_length();
-        if ($obj->isa("Bio::DB::Tree::Node")) {
-            $h->{'-pk'} = $obj->node_id;
-            #can't do this right now - would trigger a recursive insert:
-            # $h->{'-parent'} = $obj->parent_id if $obj->parent_id;
-        }
-    } else {
-        $h = {%$obj};
-        # flatten out all key-value annotations (if we have any)
-        my $flatAnnots = _flatten_keyvalues($obj->{'-annotations'});
-        $h->{'-flatAnnotations'} = $flatAnnots if $flatAnnots;
-    }
-    return $h;
-}
-
-=head2 _tree_to_hash
-
- Title   : _tree_to_hash
- Usage   : $treeHash = $self->_tree_to_hash($treeObj);
- Function: Unifies a hashref and tree object representation to a
-           hashref representation. This will also flatten out the
-           key-value annotations.
-
- Example :
- Returns : A hashref with the standard keys set if the input object
-           had a value for them, and with the flattened annotations
-           under the -flatAnnotations key if the input object had
-           annotations. If the input object was a hashref, the
-           returned ref will have at least all keys that the input ref
-           had.
- Args :    A hashref of tree attribute names and their values, or a
-           Bio::Tree::TreeI object.
-
-=cut
-
-sub _tree_to_hash {
-    my $self = shift;
-    my $obj = shift;
-
-    # unify the hashref and object options to a single format
-    my $h;
-    if ($obj->isa("Bio::Tree::TreeI")) {
-        $h = {};
-        # flatten out all key-value annotations (if we have any)
-        my $flatAnnots = _flatten_annotations($obj);
-        $h->{'-flatAnnotations'} = $flatAnnots if $flatAnnots;
-        $h->{'-id'} = $obj->id if $obj->id;
-        $h->{'is_rooted'} = $obj->is_rooted;
-        if ($obj->isa("Bio::DB::Tree::Tree")) {
-            $h->{'-pk'} = $obj->tree_id;
-            #can't do this right now - would trigger a recursive insert:
-            # $h->{'-root'} = $obj->root_node if $obj->root_node;
-        }
-    } else {
-        $h = {%$obj};
-        # flatten out all key-value annotations (if we have any)
-        my $flatAnnots = _flatten_keyvalues($obj->{'-annotations'});
-        $h->{'-flatAnnotations'} = $flatAnnots if $flatAnnots;
-    }
-    return $h;
-}
-
-sub _create_node {
-  my $self = shift;
-  my ($parent,$label,$branchlen,$annotations) = @_;
-  my $sth = $self->_prepare(<<END);
-INSERT INTO node (node_id,parent_id,label,distance_to_parent,annotations) VALUES (?,?,?,?,?)
-END
-  $sth->execute(undef,$parent,$label, $branchlen,$annotations);
-  $sth->finish;
-  return Bio::DB::Tree::Node->new(-node_id => $self->dbh->func('last_insert_rowid'),
-				  -store   => $self);
-
 }
 
 =head2 update_node
@@ -300,7 +195,7 @@ sub update_node{
     my $data = $self->_node_to_hash($nodeh);
 
     # store in database
-    my $sth = $self->{'_sths'}->{'updateNode'};
+    my $sth = $self->{sths}->{'updateNode'};
     if (! $sth) {
         $sth = $self->_prepare(
             "UPDATE node SET "
@@ -309,7 +204,7 @@ sub update_node{
             ."distance_to_parent = IFNULL(?,distance_to_parent), "
             ."annotations = IFNULL(?,annotations) "
             ."WHERE node_id = ?");
-        $self->{'_sths'}->{'updateNode'} = $sth;
+        $self->{sths}->{'updateNode'} = $sth;
     }
     my $rv = $sth->execute($parent, 
                            $data->{'-id'}, $data->{'-branch_length'}, 
@@ -318,6 +213,71 @@ sub update_node{
     # done
     return $rv;
 }
+
+=head2 fetch_node
+
+ Title   : fetch_node
+ Usage   :
+ Function: Fetch a tree node from the store.
+ Example :
+ Returns : A Bio::Tree::NodeI compliant object
+ Args    : The primary key of the node to fetch.
+
+=cut
+
+sub fetch_node {
+    my $self = shift;
+    my $pk   = shift;
+
+    my $sth = $self->{sths}->{'fetchNode'};
+    if (! $sth) {
+        $sth = $self->dbh->prepare(
+            "SELECT node_id FROM node WHERE node_id = ?");
+        $self->{sths}->{'fetchNode'} = $sth;
+    }
+    $sth->execute($pk);
+    my $row = $sth->fetchrow_arrayref;
+    return undef unless $row;
+    return Bio::DB::Tree::Node->new(-node_id => $row->[0],
+                                    -store   => $self);
+}
+
+=head2 populate_node
+
+ Title   : populate_node
+ Usage   :
+ Function: Populates a node object's state from the store.
+ Example :
+ Returns : True on success and false otherwise.
+ Args    : The Bio::DB::Tree::Node object to be populated.
+
+=cut
+
+sub populate_node {
+    my $self = shift;
+    my $node = shift;
+
+    my $sth = $self->{sths}->{'populateNode'};
+    if (! $sth) {
+        $sth = $self->dbh->prepare(
+            "SELECT parent_id,label,distance_to_parent "
+            ."FROM node WHERE node_id = ?");
+        $self->{sths}->{'populateNode'} = $sth;
+    }
+    $sth->execute($node->node_id);
+    my $row = $sth->fetchrow_arrayref;
+    return undef unless $row;
+    my $dirty = $node->_dirty; # save so we can reset to current value
+    $node->parent_id($row->[0]);
+    $node->id($row->[1]);
+    $node->branch_length($row->[2]);
+    $node->_dirty($dirty);
+    return 1;
+}
+
+=head2 Tree methods
+
+=cut
 
 =head2 insert_tree
 
@@ -340,12 +300,12 @@ sub insert_tree {
     my $data = $self->_tree_to_hash($treeh);
 
     # store in database
-    my $sth = $self->{'_sths'}->{'insertTree'};
+    my $sth = $self->{sths}->{'insertTree'};
     if (! $sth) {
         $sth = $self->_prepare(
             "INSERT INTO tree (label,is_rooted,root_id,annotations) "
             ."VALUES (?,?,?,?)");
-        $self->{'_sths'}->{'insertTree'} = $sth;
+        $self->{sths}->{'insertTree'} = $sth;
     }
     $sth->execute($data->{'-id'}, $data->{'-is_rooted'}, $data->{'-root'},    
                   $data->{'-flatAnnotations'});
@@ -371,12 +331,12 @@ sub fetch_tree{
     my $self = shift;
     my $pk = shift;
 
-    my $sth = $self->{'_sths'}->{'fetchTree'};
+    my $sth = $self->{sths}->{'fetchTree'};
     if (! $sth) {
-        $sth = $self->dbh->_prepare(
+        $sth = $self->_prepare(
             "SELECT tree_id,label,is_rooted,root_id "
             ."FROM tree WHERE tree_id = ?");
-        $self->{'_sths'}->{'fetchTree'} = $sth;
+        $self->{sths}->{'fetchTree'} = $sth;
     }
     $sth->execute($pk);
     my $row = $sth->fetchrow_arrayref;
@@ -402,30 +362,6 @@ END
     $sth->execute($parent_id,$node);
   }
   $sth->finish;
-}
-
-sub _fetch_node {
-  my $self = shift;
-  my $id   = shift;
-
-#  my $sth = $self->_prepare(<<END);
-#SELECT (node_id, parent_id, label, distance_to_parent,annotations) FROM node where node_id = ?
-#END
-
-  my $sth = $self->_prepare(<<END);
-SELECT node_id FROM node where node_id = ?
-END
-
-  $sth->execute($id);
-#  my ($nid,$pid,$lbl,$distance,$annot) = @{$sth->fetchrow_arrayref};
-  my ($nid) = @{$sth->fetchrow_arrayref};
-  return Bio::DB::Tree::Node->new(-node_id => $nid,
-				  -store   => $self);
-#				  -parent_id   => $pid,#
-#				  -id          => $lbl#,
-#				  -branch_lengths => $distance,
-#				  -annotations => $annot,
-#				  -store        => $self);
 }
 
 sub _fetch_node_children {
@@ -461,47 +397,6 @@ END
   return @nodes;
 }
 
-sub _fetch_node_branch_length {
-  my $self = shift;
-  my $id   = shift;
-  my $sth = $self->_prepare(<<END);
-SELECT distance_to_parent FROM node WHERE node_id = ?
-END
-  $sth->execute($id);
-  my ($d) = @{$sth->fetchrow_arrayref || []};
-  $sth->finish;
-  return $d;
-}
-
-sub _fetch_node_label {
-  my $self = shift;
-  my $id   = shift;
-  my $sth = $self->_prepare(<<END);
-SELECT label FROM node WHERE node_id = ?
-END
-  my $l = @{$sth->fetchrow_array};
-  $sth->finish;
-  return $l;
-}
-
-sub _fetch_node_parent_id {
-  my $self = shift;
-  my $id   = shift;
-  # being lazy - just get the parent_id and then fetch_node from that ID
-  my $sth = $self->_prepare(<<END);
-SELECT parent_id FROM node WHERE node_id = ?
-END
-  $sth->execute($id);
-  my ($pid) = @{$sth->fetchrow_arrayref};
-  $sth->finish;
-  $pid;
-}
-sub _fetch_node_parent {
-  my $self = shift;
-  $self->_fetch_node($self->_fetch_node_parent_id(shift));
-}
-
-
 sub _unset_node_parent {
   my $self = shift;
   my $id   = shift;
@@ -534,10 +429,6 @@ END
   my ($isleaf) = @{$sth->fetchrow_arrayref};
   return $isleaf;
 }
-
-=head2 Tree methods
-
-=cut
 
 sub _fetch_tree_root_node {
   my $self = shift;
@@ -613,15 +504,6 @@ sub init_tmp_database {
   1;
 }
 
-sub _prepare {
-  my $self = shift;
-  $self->{dbh}->prepare(@_);
-}
-
-sub dbh {
-  shift->{dbh}
-}
-
 sub optimize {
   my $self = shift;
   $self->dbh->do("VACUUM TABLE $_") foreach $self->index_tables;
@@ -634,6 +516,108 @@ sub index_tables {
 
 sub _enable_keys  { }  # nullop
 sub _disable_keys { }  # nullop
+
+=head1 Private methods
+
+Don't call from outside.
+
+=head2 _node_to_hash
+
+ Title   : _node_to_hash
+ Usage   : $nodeHash = $self->_node_to_hash($nodeObj);
+ Function: Unifies a hashref and node object representation to a
+           hashref representation. This will also flatten out the
+           key-value annotations.
+
+ Example :
+ Returns : A hashref with the standard keys set if the input object
+           had a value for them, and with the flattened annotations
+           under the -flatAnnotations key if the input object had
+           annotations. If the input object was a hashref, the
+           returned ref will have at least all keys that the input ref
+           had.
+ Args :    A hashref of node attribute names and their values, or a
+           Bio::Tree::NodeI object.
+
+=cut
+
+sub _node_to_hash {
+    my $self = shift;
+    my $obj = shift;
+
+    # unify the hashref and object options to a single format
+    my $h;
+    if (ref($obj) eq "HASH") {
+        $h = {%$obj};
+        # flatten out all key-value annotations (if we have any)
+        my $flatAnnots = _flatten_keyvalues($obj->{'-annotations'});
+        $h->{'-flatAnnotations'} = $flatAnnots if $flatAnnots;
+    } elsif (blessed($obj) && $obj->isa("Bio::Tree::NodeI")) {
+        $h = {};
+        # flatten out all key-value annotations (if we have any)
+        my $flatAnnots = _flatten_annotations($obj);
+        $h->{'-flatAnnotations'} = $flatAnnots if $flatAnnots;
+        $h->{'-id'} = $obj->id if $obj->id;
+        $h->{'-branch_length'} = $obj->branch_length if $obj->branch_length();
+        if ($obj->isa("Bio::DB::Tree::Node")) {
+            $h->{'-pk'} = $obj->node_id;
+            #can't do this right now - would trigger a recursive insert:
+            # $h->{'-parent'} = $obj->parent_id if $obj->parent_id;
+        }
+    } else {
+        $self->throw("don't know how to deal with ".$obj); 
+    }
+    return $h;
+}
+
+=head2 _tree_to_hash
+
+ Title   : _tree_to_hash
+ Usage   : $treeHash = $self->_tree_to_hash($treeObj);
+ Function: Unifies a hashref and tree object representation to a
+           hashref representation. This will also flatten out the
+           key-value annotations.
+
+ Example :
+ Returns : A hashref with the standard keys set if the input object
+           had a value for them, and with the flattened annotations
+           under the -flatAnnotations key if the input object had
+           annotations. If the input object was a hashref, the
+           returned ref will have at least all keys that the input ref
+           had.
+ Args :    A hashref of tree attribute names and their values, or a
+           Bio::Tree::TreeI object.
+
+=cut
+
+sub _tree_to_hash {
+    my $self = shift;
+    my $obj = shift;
+
+    # unify the hashref and object options to a single format
+    my $h;
+    if (ref($obj) eq "HASHREF") {
+        $h = {%$obj};
+        # flatten out all key-value annotations (if we have any)
+        my $flatAnnots = _flatten_keyvalues($obj->{'-annotations'});
+        $h->{'-flatAnnotations'} = $flatAnnots if $flatAnnots;
+    } elsif (blessed($obj) && $obj->isa("Bio::Tree::TreeI")) {
+        $h = {};
+        # flatten out all key-value annotations (if we have any)
+        my $flatAnnots = _flatten_annotations($obj);
+        $h->{'-flatAnnotations'} = $flatAnnots if $flatAnnots;
+        $h->{'-id'} = $obj->id if $obj->id;
+        $h->{'is_rooted'} = $obj->is_rooted;
+        if ($obj->isa("Bio::DB::Tree::Tree")) {
+            $h->{'-pk'} = $obj->tree_id;
+            #can't do this right now - would trigger a recursive insert:
+            # $h->{'-root'} = $obj->root_node if $obj->root_node;
+        }
+    } else {
+        $self->throw("don't know how to deal with ".$obj);         
+    }
+    return $h;
+}
 
 ##
 # flatten out into a string the tag/value annotations of a Bio::AnnotatableI

@@ -125,9 +125,9 @@ sub new {
 =cut
 
 sub node_id {
-    my $self = shift @_;
-    $self->{'_node_id'} = shift @_ if( @_);
-    return $self->{'_node_id'} || 0;
+    my $self = shift;
+    return $self->{'_node_id'} = shift @_ if( @_);
+    return $self->{'_node_id'};
 }
 
 =head2 parent_id
@@ -141,12 +141,13 @@ sub node_id {
 =cut
 
 sub parent_id {
-    my $self = shift @_;
+    my $self = shift;
     if ( @_ ) {
-      $self->{'_parent_id'} = shift @_;
-      $self->_to_commit;
-    } elsif ( ! defined $self->{'_parent_id'} ) {
-      $self->{'_parent_id'} = $self->store->_fetch_node_parent_id($self->node_id);
+        $self->{'_parent_id'} = shift @_;
+        delete $self->{'_ancestor'};
+        $self->_dirty(1);
+    } elsif ( ! exists($self->{'_parent_id'})) {
+        $self->_load_from_db;
     }
     return $self->{'_parent_id'};
 }
@@ -160,7 +161,7 @@ sub parent_id {
  Title   : store
  Usage   : $obj->store($newval)
  Function: Access to the L<Bio::DB::Tree::Store>
- Returns : value of node_id
+ Returns : the database store to which this object is connected
  Args    : newvalue (optional)
 
 =cut
@@ -171,6 +172,27 @@ sub store {
     return $self->{'_store'} || 0;
 }
 
+=head2 save
+
+ Title   : save
+ Usage   :
+ Function: Save the current state of the object to the database (if it
+           has diverged).
+ Example :
+ Returns : True on success and false otherwise.
+ Args    : none
+
+=cut
+
+sub save{
+    my $self = shift;
+    my $rv = 1;
+    if ($self->_dirty) {
+        $rv = $self->store->update_node($self);
+        $self->_dirty(0) if $rv;
+    }
+    return $rv;
+}
 
 =head2 Bio::Tree::NodeI methods
 
@@ -292,15 +314,29 @@ sub get_all_Descendents {
 
  Title   : ancestor
  Usage   : $obj->ancestor($newval)
- Function: Set the Ancestor
- Returns : ancestral node
- Args    : newvalue (optional)
+ Function: Get or set the Ancestor (parent node)
+ Returns : Parent node
+ Args    : on set, new value (optional)
 
 =cut
 
 sub ancestor {
-  my $self = shift;
-  return $self->store->_fetch_node_parent($self->node_id);
+    my $self = shift;
+
+    if ( @_ ) {
+        my $parent = shift;
+        if (ref($parent)) {
+            $self->{'_ancestor'} = $parent;
+        } else {
+            # if it's not a reference, assume it's a primary key
+            $self->parent_id($parent);
+            $self->{'_ancestor'} = $self->store->fetch_node($parent);
+        }
+        $self->_dirty(1);
+    } elsif (! exists($self->{'_ancestor'})) {
+        $self->{'_ancestor'} = $self->store->fetch_node($self->parent_id);
+    }
+    return $self->{'_ancestor'};
 }
 
 =head2 branch_length
@@ -323,9 +359,9 @@ sub branch_length{
     }
     $self->{'_branch_length'} = $bl;
     $self->invalidate_height();
-    $self->_to_commit;
+    $self->_dirty(1);
   } elsif ( ! exists $self->{'_branch_length'} ) {
-    $self->{'_branch_length'} = $self->store->_fetch_node_branch_length($self->node_id);
+      $self->_load_from_db;
   }
   return $self->{'_branch_length'};
 }
@@ -383,10 +419,10 @@ the raw string while L<id_output> to get the pre-escaped string.
 sub id {
   my $self = shift;
   if( @_ ) {
-    $self->{'_id'} = shift;
-    $self->_to_commit;
+    $self->{'_label'} = shift;
+    $self->_dirty(1);
   } elsif ( ! exists $self->{'_label'} ) {
-    $self->{'_label'} = $self->store->_fetch_node_label($self->node_id);
+      $self->_load_from_db;      
   }
   return $self->{'_label'};
 }
@@ -424,6 +460,7 @@ sub id {
 =cut
 
 sub internal_id {
+    shift->node_id(@_);
 }
 
 =head2 Bio::Node::NodeI decorated interface implemented
@@ -588,9 +625,49 @@ sub reverse_edge {
 }
 
 
-sub _to_commit {
-  my $self = shift;
-  $self->{_commit_needed} = 1;
+=head2 _dirty
+
+ Title   : _dirty
+ Usage   : $obj->_dirty($newval)
+ Function: Whether or not the object is "dirty", i.e., may have a
+           state that is diverged from the state in the corresponding
+           database record, and to which therefore the database needs
+           to be updated.
+ Example : 
+ Returns : True if object is dirty and false otherwise.
+ Args    : on set, new value (a scalar or undef, optional)
+
+=cut
+
+sub _dirty{
+    my $self = shift;
+
+    return $self->{'_dirty'} = shift if @_;
+    return $self->{'_dirty'};
+}
+
+=head2 _load_from_db
+
+ Title   : _load_from_db
+ Usage   : $obj->_load_from_db
+ Function: Loads the object's state from the database if it hasn't
+           been loaded before. Even after the state has been loaded,
+           there may be additional lazy-loaded attributes that are
+           loaded separately only once they are needed.
+ Example : 
+ Returns : True on success and false otherwise.
+ Args    : none
+
+=cut
+
+sub _load_from_db{
+    my $self = shift;
+    my $rv = 1;
+    if (! $self->{'_loaded'}) {
+        $rv = $self->store->populate_node($self);
+        $self->{'_loaded'} = 1 if $rv;
+    }
+    return $rv;
 }
 
 1;

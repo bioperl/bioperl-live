@@ -94,7 +94,7 @@ use strict;
 use base qw(Bio::Root::Root);
 
 # local version
-sub api_version { 0.1 }
+sub api_version { "0.1" }
 
 =head2 new
 
@@ -118,7 +118,7 @@ sub new {
     }
     $adaptor ||= 'DBI::SQLite';
 
-    my $class = "Bio::DB::Tree::Store::DBI::$adaptor";
+    my $class = "Bio::DB::Tree::Store::$adaptor";
     eval "require $class " or $self->throw($@);
     my $obj = $class->new_instance();
     $obj->init(@_);
@@ -186,6 +186,8 @@ init_database() args.
 
 sub post_init { }
 
+=head1 Managing nodes in the store
+
 =head2 insert_node
 
  Title   : insert_node
@@ -247,6 +249,40 @@ sub update_node{
     $self->throw_not_implemented();
 }
 
+=head2 fetch_node
+
+ Title   : fetch_node
+ Usage   :
+ Function: Fetch a tree node from the store.
+ Example :
+ Returns : A Bio::Tree::NodeI compliant object
+ Args    : The primary key of the node to fetch.
+
+=cut
+
+sub fetch_node {
+   my ($self,@args) = @_;
+   $self->throw_not_implemented();
+}
+
+=head2 populate_node
+
+ Title   : populate_node
+ Usage   :
+ Function: Populates a node object's state from the store.
+ Example :
+ Returns : True on success and false otherwise.
+ Args    : The Bio::DB::Tree::Node object to be populated.
+
+=cut
+
+sub populate_node {
+   my ($self,@args) = @_;
+   $self->throw_not_implemented();
+}
+
+=head1 Managing trees in the store
+
 =head2 insert_tree
 
  Title   : insert_tree
@@ -280,39 +316,6 @@ sub fetch_tree{
     $self->throw_not_implemented();
 }
 
-=head2 fetch_node
-
- Title   : fetch_node
- Usage   :
- Function: Fetch a tree node from the store.
- Example :
- Returns : A Bio::Tree::NodeI compliant object
- Args    : The primary key of the node to fetch.
-
-=cut
-
-sub fetch_node {
-   my ($self,@args) = @_;
-   $self->throw_not_implemented();
-}
-
-=head2 max_id
-
- Title   : max_id
- Usage   :
- Function:
- Example :
- Returns :
- Args    :
-
-=cut
-
-sub max_id{
-   my ($self,@args) = @_;
-
-
-}
-
 sub optimize {
     my $self = shift;
     $self->throw_not_implemented();
@@ -333,5 +336,54 @@ sub is_temp {
   shift->{is_temp};
 }
 
+=head1 Protected methods
+
+The following methods are for store implementations that inherit from
+this class.
+
+=cut
+
+
+=head2 _prepare
+
+ Title   : _prepare
+ Usage   : 
+ Function: Thin wrapper over the database handle's prepare() method
+           that basically adds checking for error (and throw() of
+           exception) upon error.
+ Example :
+ Returns : Upon success, whatever the database handles prepare()
+           method would return. If the handle is a DBI object, this
+           will be a statement handle.
+
+ Args :    The query to be prepared, and any additional arguments to be
+           passed on to the database handle's prepare method.
+
+=cut
+
+sub _prepare {
+    my $self = shift;
+    return $self->dbh->prepare(@_) or
+        $self->throw("failed to prepare statement '$_[0]': "
+                     .$self->{dbh}->errstr."\n");
+}
+
+=head2 dbh
+
+ Title   : dbh
+ Usage   : $store->dbh($newval)
+ Function: 
+ Example : 
+ Returns : the database handle for the underlying store
+ Args    : on set, the database handle to be used by this store
+
+=cut
+
+sub dbh{
+    my $self = shift;
+
+    return $self->{'dbh'} = shift if @_;
+    return $self->{'dbh'};
+}
 
 1;
