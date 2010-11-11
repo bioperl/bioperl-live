@@ -231,11 +231,11 @@ sub _tree_to_hash {
         my $flatAnnots = _flatten_annotations($obj);
         $h->{'-flatAnnotations'} = $flatAnnots if $flatAnnots;
         $h->{'-id'} = $obj->id if $obj->id;
-        $h->{'-branch_length'} = $obj->branch_length if $obj->branch_length();
-        if ($obj->isa("Bio::DB::Tree::Node")) {
-            $h->{'-pk'} = $obj->node_id;
+        $h->{'is_rooted'} = $obj->is_rooted;
+        if ($obj->isa("Bio::DB::Tree::Tree")) {
+            $h->{'-pk'} = $obj->tree_id;
             #can't do this right now - would trigger a recursive insert:
-            # $h->{'-parent'} = $obj->parent_id if $obj->parent_id;
+            # $h->{'-root'} = $obj->root_node if $obj->root_node;
         }
     } else {
         $h = {%$obj};
@@ -335,14 +335,59 @@ sub update_node{
 sub insert_tree {
     my $self = shift;
     my $treeh = shift;
-    my $annotations = join(";",map { sprintf("%s=%s",$_,
-					   join(",",$treeh->get_tag_values($_))) } 
-			 $treeh->get_all_tags);
-  my $sth = $self->_prepare(<<END);
-INSERT INTO node (tree_id,label,is_rooted,root_id,annotations) VALUES (?,?,?,?,?)
-END
-  $sth->execute(undef,$treeh->id,undef,$treeh->get_root_node,$annotations);
-  $sth->finish;
+
+    # unify between node object or hashref
+    my $data = $self->_tree_to_hash($treeh);
+
+    # store in database
+    my $sth = $self->{'_sths'}->{'insertTree'};
+    if (! $sth) {
+        $sth = $self->_prepare(
+            "INSERT INTO tree (label,is_rooted,root_id,annotations) "
+            ."VALUES (?,?,?,?)");
+        $self->{'_sths'}->{'insertTree'} = $sth;
+    }
+    $sth->execute($data->{'-id'}, $data->{'-is_rooted'}, $data->{'-root'},    
+                  $data->{'-flatAnnotations'});
+    my $pk = $self->dbh->func('last_insert_rowid');
+    $treeh->tree_id($pk) if $pk && $treeh->isa("Bio::DB::Tree::Tree");
+    # done
+    return $pk;
+}
+
+=head2 fetch_tree
+
+ Title   : fetch_tree
+ Usage   : $tree = $store->fetch_tree($key);
+ Function: Fetches a tree from the database. The tree is identified by
+           its primary key.
+ Example :
+ Returns : A Bio::DB::Tree::Tree object if found and undef otherwise
+ Args    : The primary key of the tree in the underlying storage.
+
+=cut
+
+sub fetch_tree{
+    my $self = shift;
+    my $pk = shift;
+
+    my $sth = $self->{'_sths'}->{'fetchTree'};
+    if (! $sth) {
+        $sth = $self->dbh->_prepare(
+            "SELECT tree_id,label,is_rooted,root_id "
+            ."FROM tree WHERE tree_id = ?");
+        $self->{'_sths'}->{'fetchTree'} = $sth;
+    }
+    $sth->execute($pk);
+    my $row = $sth->fetchrow_arrayref;
+    return undef unless $row;
+    my $root = Bio::DB::Tree::Node->new(-node_id => $row->[3],
+                                        -store => $self);
+    return Bio::DB::Tree::Tree->new(-tree_id   => $row->[0],
+                                    -store     => $self,
+                                    -root_node => $root,
+                                    -label     => $row->[1],
+                                    -is_rooted => $row->[2]);
 }
 
 sub _set_parent_ids {

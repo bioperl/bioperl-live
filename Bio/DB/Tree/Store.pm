@@ -263,6 +263,23 @@ sub insert_tree{
    $self->throw_not_implemented();
 }
 
+=head2 fetch_tree
+
+ Title   : fetch_tree
+ Usage   : $tree = $store->fetch_tree($key);
+ Function: Fetches a tree from the database. The tree is identified by
+           its primary key.
+ Example :
+ Returns : A Bio::DB::Tree::Tree object if found and undef otherwise
+ Args    : The primary key of the tree in the underlying storage.
+
+=cut
+
+sub fetch_tree{
+    my $self = shift;
+    $self->throw_not_implemented();
+}
+
 =head2 fetch_node
 
  Title   : fetch_node
