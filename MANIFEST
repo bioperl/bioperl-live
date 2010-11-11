@@ -859,7 +859,8 @@ Bio/TreeIO/pag.pm
 Bio/TreeIO/phyloxml.pm
 Bio/TreeIO/svggraph.pm
 Bio/TreeIO/tabtree.pm
-Bio/TreeIO/TreeEventBuilder.pm
+Bio/TreeIO/TreeEventObjBuilder.pm
+Bio/TreeIO/TreeEventDBBuilder.pm
 Bio/UpdateableSeqI.pm
 Bio/Variation/AAChange.pm
 Bio/Variation/AAReverseMutate.pm
