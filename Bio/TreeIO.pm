@@ -86,7 +86,7 @@ use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use Bio::TreeIO::TreeEventBuilder;
+use Bio::TreeIO::TreeEventObjBuilder;
 
 use base qw(Bio::Root::Root Bio::Root::IO Bio::Event::EventGeneratorI Bio::Factory::TreeFactoryI);
 
