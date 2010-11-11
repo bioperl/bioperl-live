@@ -148,6 +148,16 @@ s/([^"]*)(".+?")([^"]*)/$despace->($1) . $dequote->($2) . $despace->($3)/egsx;
     # Add the tree score afterwards if it exists.
     if (defined $tree) {
       $tree->score($score);
+
+      # Auto-set the rooted parameter according to the convention:
+      # (1) unrooted if the root node has exactly three children
+      # (2) rooted otherwise
+      $tree->rooted(1);
+      if (defined $tree->get_root_node) {
+	  my $root_node_count = scalar($tree->get_root_node->each_Descendent);
+	  $tree->rooted(0) if ($root_node_count == 3);
+      }
+      
       return $tree;
     }
 }
