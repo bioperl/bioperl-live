@@ -3,6 +3,8 @@
 
 use strict;
 
+my $ERROR_CLASS;
+
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
@@ -11,6 +13,8 @@ BEGIN {
         -tests           => 31,
         -requires_module => 'Graph::Directed'
     );
+    
+    $ERROR_CLASS = eval "require Error; 1" ? 1 : 0;
 
     use_ok('Bio::Ontology::Term');
     use_ok('Bio::Ontology::Relationship');
@@ -109,11 +113,26 @@ my @bad_rels = (
 );
 
 $bad_rels[0] = Bio::Ontology::Relationship->new( @{ $bad_rels[0] } );
-throws_ok( sub { $ont->add_relationship( $bad_rels[0] ) }, 'Bio::Root::Exception', 'adding a relationship with an undef object term fails');
+if ($ERROR_CLASS) {
+    throws_ok( sub { $ont->add_relationship( $bad_rels[0] ) }, 
+    'Bio::Root::Exception',
+    'adding a relationship with an undef object term fails');
+} else {
+    throws_ok( sub { $ont->add_relationship( $bad_rels[0] ) }, qr/Exception/,
+              'adding a relationship with an undef object term fails');
+}
 throws_ok( sub { $ont->add_relationship( $bad_rels[0] ) }, qr/MSG: cannot add relationship, relationship has no object_term/, 'adding a relationship with an undef object term fails');
 
 $bad_rels[1] = Bio::Ontology::Relationship->new( @{ $bad_rels[1] } );
-throws_ok( sub { $ont->add_relationship( $bad_rels[1] ) }, 'Bio::Root::Exception', 'adding a relationship with an undef subject term fails');
+if ($ERROR_CLASS) {
+    throws_ok( sub { $ont->add_relationship( $bad_rels[1] ) },
+    'Bio::Root::Exception',
+    'adding a relationship with an undef subject term fails');
+} else {
+    throws_ok( sub { $ont->add_relationship( $bad_rels[1] ) },
+    qr/Exception/,
+    'adding a relationship with an undef subject term fails');
+}
 throws_ok( sub { $ont->add_relationship( $bad_rels[1] ) }, qr/MSG: cannot add relationship, relationship has no subject_term/, 'adding a relationship with an undef subject term fails');
 
 for ( my $i = 0 ; $i < @rels ; $i++ ) {
