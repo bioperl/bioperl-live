@@ -271,7 +271,7 @@ sub populate_node {
     $node->parent_id($row->[0]);
     $node->id($row->[1]);
     $node->branch_length($row->[2]);
-    $node->_dirty($dirty);
+    $node->_dirty($dirty); # restore dirty flag to where it was
     return 1;
 }
 
@@ -349,6 +349,42 @@ sub fetch_tree{
                                     -label     => $row->[1],
                                     -is_rooted => $row->[2]);
 }
+
+=head2 populate_tree
+
+ Title   : populate_tree
+ Usage   :
+ Function: Populates a tree object's state from the store.
+ Example :
+ Returns : True on success and false otherwise.
+ Args    : The Bio::DB::Tree::Tree object to be populated.
+
+=cut
+
+sub populate_tree {
+    my $self = shift;
+    my $tree = shift;
+
+    my $sth = $self->{sths}->{'populateTree'};
+    if (! $sth) {
+        $sth = $self->_prepare(
+            "SELECT label,is_rooted,root_id "
+            ."FROM tree WHERE tree_id = ?");
+        $self->{sths}->{'populateTree'} = $sth;
+    }
+    $sth->execute($tree->tree_id);
+    my $row = $sth->fetchrow_arrayref;
+    return undef unless $row;
+    my $root = Bio::DB::Tree::Node->new(-node_id => $row->[2],
+                                        -store => $self);
+    my $dirty = $tree->_dirty; # save so we can reset to current value
+    $tree->root_node($root);
+    $tree->id($row->[0]);
+    $tree->rooted($row->[1]);
+    $tree->_dirty($dirty); # restore flag to where it was
+    return 1;
+}
+
 
 sub _set_parent_ids {
   my $self = shift @_;
@@ -428,18 +464,6 @@ SELECT COUNT(*) FROM node WHERE node_id = ? AND left_idx == right_idx
 END
   my ($isleaf) = @{$sth->fetchrow_arrayref};
   return $isleaf;
-}
-
-sub _fetch_tree_root_node {
-  my $self = shift;
-  my $treeid = shift;
-
-  my $sth = $self->_prepare(<<END);
-SELECT root_id FROM tree WHERE tree_id = ?
-END
-  $sth->execute($treeid);
-  my ($root_node) = @{$self->fetchrow_arrayref};
-  $self->_fetch_node($root_node);
 }
 
 =head2 DB management methods

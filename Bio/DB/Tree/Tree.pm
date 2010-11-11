@@ -116,16 +116,16 @@ sub new {
 
  Title   : tree_id
  Usage   : $obj->tree_id($newval)
- Function: DB related method signifying the internal creation order
+ Function: The primary key of the tree in the underlying storage.
  Returns : value of tree_id
  Args    : newvalue (optional)
 
 =cut
 
 sub tree_id {
-    my $self = shift @_;
-    $self->{'_tree_id'} = shift @_ if( @_);
-    return $self->{'_tree_id'} || 0;
+    my $self = shift;
+    return $self->{'_tree_id'} = shift if @_;
+    return $self->{'_tree_id'};
 }
 
 *_creation_id  = \&tree_id;
@@ -137,15 +137,15 @@ sub tree_id {
  Title   : store
  Usage   : $obj->store($newval)
  Function: Access to the L<Bio::DB::Tree::Store>
- Returns : value of node_id
- Args    : newvalue (optional)
+ Returns : the database store object
+ Args    : on set, newvalue (optional)
 
 =cut
 
 sub store {
     my $self = shift;
-    $self->{'_store'} = shift if( @_);
-    return $self->{'_store'} || 0;
+    return $self->{'_store'} = shift if @_;
+    return $self->{'_store'};
 }
 
 =head2 id
@@ -162,9 +162,9 @@ sub id {
   my $self = shift;
   if( @_ ) {
     $self->{'_id'} = shift;
-    $self->_to_commit;
+    $self->_dirty(1);
   } elsif ( ! exists $self->{'_label'} ) {
-    $self->{'_label'} = $self->store->_fetch_node_label($self->node_id);
+    $self->_load_from_db;
   }
   return $self->{'_label'};
 }
@@ -183,31 +183,99 @@ sub root_node {
   my $self = shift;
   if( @_ ) {
     $self->{'_rootnode'} = shift;
-    $self->_to_commit;
+    $self->_dirty(1);
   } elsif ( ! exists $self->{'_rootnode'} ) {
-    $self->{'_rootnode'} = $self->store->_fetch_tree_root_node($self->tree_id);
+    $self->_load_from_db;
   }
   return $self->{'_rootnode'};
 }
 
-=head2 root_node_id
+=head2 rooted
 
- Title   : root_node_id
- Usage   : $obj->root_node_id
- Function: Get the root node id for the tree
- Returns : integer for the node
- Args    : None -- use root_node method to set the root node
+ Title   : rooted
+ Usage   : $tree->rooted(0);
+ Function: Get/Set Boolean whether or not this tree should be considered
+           to be rooted or not. Note that the TreeI method is_rooted
+           is an interface to this getter.
+ Returns : boolean
+ Args    : on set, new boolean value
 
 =cut
 
-sub root_node_id {
-  shift->root_node->node_id;
+sub rooted {
+    my $self = shift;
+    if( @_ ) {
+        $self->{'_rooted'} = shift;
+        $self->_dirty(1);
+    }
+    return $self->{'_rooted'};
 }
 
-sub _to_commit {
-  my $self = shift;
-  $self->{_commit_needed} = 1;
+=head2 is_rooted
+
+ Title   : is_rooted
+ Usage   : die unless ($tree->is_rooted);
+ Function: Indicates whether this should be handled as a rooted tree.
+ Returns : 1 if this tree is rooted; 0 if unrooted.
+ Args    : none
+
+=cut
+
+sub is_rooted {
+    my $self = shift;
+    if ( ! exists $self->{'_rootnode'} ) {
+        $self->_load_from_db;
+    }
+    return $self->{'_rooted'} if defined $self->{'_rooted'};
+    # Default to a rooted tree.
+    return 1;	
 }
 
+=head1 Private methods
+
+=head2 _dirty
+
+ Title   : _dirty
+ Usage   : $obj->_dirty($newval)
+ Function: Whether or not the object is "dirty", i.e., may have a
+           state that is diverged from the state in the corresponding
+           database record, and to which therefore the database needs
+           to be updated.
+ Example : 
+ Returns : True if object is dirty and false otherwise.
+ Args    : on set, new value (a scalar or undef, optional)
+
+=cut
+
+sub _dirty{
+    my $self = shift;
+
+    return $self->{'_dirty'} = shift if @_;
+    return $self->{'_dirty'};
+}
+
+=head2 _load_from_db
+
+ Title   : _load_from_db
+ Usage   : $obj->_load_from_db
+ Function: Loads the object's state from the database if it hasn't
+           been loaded before. Even after the state has been loaded,
+           there may be additional lazy-loaded attributes that are
+           loaded separately only once they are needed.
+ Example : 
+ Returns : True on success and false otherwise.
+ Args    : none
+
+=cut
+
+sub _load_from_db{
+    my $self = shift;
+    my $rv = 1;
+    if (! $self->{'_loaded'}) {
+        $rv = $self->store->populate_tree($self);
+        $self->{'_loaded'} = 1 if $rv;
+    }
+    return $rv;
+}
 
 1;

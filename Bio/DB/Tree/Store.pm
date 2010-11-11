@@ -316,6 +316,22 @@ sub fetch_tree{
     $self->throw_not_implemented();
 }
 
+=head2 populate_tree
+
+ Title   : populate_tree
+ Usage   :
+ Function: Populates a tree object's state from the store.
+ Example :
+ Returns : True on success and false otherwise.
+ Args    : The Bio::DB::Tree::Tree object to be populated.
+
+=cut
+
+sub populate_tree {
+   my ($self,@args) = @_;
+   $self->throw_not_implemented();
+}
+
 sub optimize {
     my $self = shift;
     $self->throw_not_implemented();
