@@ -137,10 +137,8 @@ sub document_el {
 sub generic_el {
     my ($data, $parent) = @_;
     my ($tag, $val, $attributes, $type) =
-        @{$data->{Data}}{qw(Tag Value Attributes Class)};
+        @{$data->{Data}}{qw(Tag Value Attributes)};
     
-    # not using class for now
-
     my $node = XML::LibXML::Element->new($tag);
     
     # should the attributes be assigned to the parent or the new node? Latter...

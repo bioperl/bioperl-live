@@ -522,31 +522,37 @@ sub _clade_els {
         }
         , $parent_el);
     
-    $helper->create_node(
-        {
-            Name    => 'generic',
-            Data    => {
-                Tag     => 'name',
-                Value   => $nm
-            }
-        }
-        , $clade_el) if $nm;
+    # TODO: this is the proper way to set these, since both are first-class
+    # attributes.  We either need to use these or have these methods get/set
+    # the name from the nested annotation tree
     
-    if ($bl) {
-        if ($self->as_attribute('branch_length')) {
-            $clade_el->setAttribute('branch_length', $bl);
-        } else {
-            $helper->create_node(
-                {
-                    Name    => 'generic',
-                    Data    => {
-                        Tag     => 'branch_length',
-                        Value   => $bl
-                    }
-                }
-                , $clade_el);
-        }
-    }
+    # For now, I am commenting out, but it needs to be fixed
+    
+    #$helper->create_node(
+    #    {
+    #        Name    => 'generic',
+    #        Data    => {
+    #            Tag     => 'name',
+    #            Value   => $nm
+    #        }
+    #    }
+    #    , $clade_el) if $nm;
+    #
+    #if ($bl) {
+    #    if ($self->as_attribute('branch_length')) {
+    #        $clade_el->setAttribute('branch_length', $bl);
+    #    } else {
+    #        $helper->create_node(
+    #            {
+    #                Name    => 'generic',
+    #                Data    => {
+    #                    Tag     => 'branch_length',
+    #                    Value   => $bl
+    #                }
+    #            }
+    #            , $clade_el);
+    #    }
+    #}
     
     my $ac = $tree_node->annotation;
     my ($attr) = $ac->get_Annotations('_attr');    # check id_source
@@ -557,13 +563,13 @@ sub _clade_els {
         }
     }
 
+    # print all annotations
+    $self->_print_annotation( $clade_el, $ac );
+
     # print all descendent nodes
     foreach my $child ( $tree_node->each_Descendent() ) {
         $self->_clade_els( $child, $clade_el );
     }
-    
-    # print all annotations
-    $self->_print_annotation( $clade_el, $ac );
     
     ## print all sequences
     #if ( $tree_node->has_sequence ) {
@@ -591,51 +597,66 @@ sub _clade_els {
 }
 
 sub _print_annotation {
-    my ($self, $node, $ac) = @_;
+    #TODO : remove level debugging
+    
+    my ( $self, $node, $ac, $level ) = @_;
+    $level += 0;
     my $helper = $self->{helper};
+
     #my ( $self, $str, $ac ) = @_;
-        
+
     my @all_anns = $ac->get_Annotations();
     foreach my $ann (@all_anns) {
+
         my $key = $ann->tagname;
         if ( $key eq '_attr' ) {
+            # TODO: I'm seeing a LOT of empty annotation collections here; we
+            # need to create these lazily or not attach them to the tree obj
+            
             next;
         }    # attributes are already printed in the previous level
-        if ( $ann->isa('Bio::Annotation::SimpleValue') ) {
+        elsif ( $ann->isa('Bio::Annotation::SimpleValue')) {
+            # why are we creating SimpleValue w/o values?
             if ( $key eq '_text' ) {
-                $helper->create_node({
-                    Name    => 'generic',
-                    Data    => {
-                        Tag     => $key,
-                        Value   => $ann->value
-                    }
-                }
-                , $node);
-                $node->appendText($ann->value);
+                # this only sets the text in the passed node (parent)
+                $node->appendText( $ann->value);
             }
             else {
-                $helper->create_node({
+                # create a child node
+                $helper->create_node(
+                    {
+                        Name => 'generic',
+                        Data => {
+                            Tag   => $key,
+                            Value => $ann->value || ''
+                        }
+                    },
+                    $node
+                );
+            }
+        }
+        elsif ( $ann->isa('Bio::Annotation::Collection') ) {
+            # create a new node here, with a specific name
+            my $child_node = $helper->create_node({
                     Name    => 'generic',
                     Data    => {
-                        Tag     => $key,
-                        Value   => $ann->value
+                        Class   => 'Element',
+                        Tag     => $ann->tagname,
                     }
                 }
                 , $node);
                 #$str .= "<$key>";
-                #$str .= ;
-                #$str .= "</$key>";
-            }
-        }
-        elsif ( $ann->isa('Bio::Annotation::Collection') ) {
-            my @attrs = $ann->get_Annotations('_attr');
-            if (@attrs) {    # if there is a attribute collection
-                #$str .= "<$key";
-                #$self->_print_attr( $str, $attrs[0] );
-                #$str .= ">";
-            }
-            else {
-                $self->debug(Dumper($ann));
+            
+            for my $attr ($ann->get_Annotations('_attr')) {}
+                
+            #if (@attrs) {    # if there is a attribute collection
+            #    
+            #    
+            #    #$str .= "<$key";
+            #    #$self->_print_attr( $str, $attrs[0] );
+            #    #$str .= ">";
+            #}
+            #else {
                 #$helper->create_node({
                 #    Name    => 'generic',
                 #    Data    => {
@@ -646,8 +667,8 @@ sub _print_annotation {
                 #}
                 #, $node);
                 #$str .= "<$key>";
-            }
-            #$self->_print_annotation($node, $ann );
+            #}
+            $self->_print_annotation( $child_node, $ann, ++$level );
         }
     }
 }
