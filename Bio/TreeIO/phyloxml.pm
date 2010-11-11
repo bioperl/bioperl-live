@@ -524,9 +524,11 @@ sub _clade_els {
     
     # TODO: this is the proper way to set these, since both are first-class
     # attributes.  We either need to use these or have these methods get/set
-    # the name from the nested annotation tree
+    # the name from the nested annotation tree, as there is a disconnect with
+    # the data now (setting id() will not propogate to the output)
     
-    # For now, I am commenting out, but it needs to be fixed
+    # For now, I am commenting out, but it needs to be fixed one way or the
+    # other
     
     #$helper->create_node(
     #    {
@@ -571,36 +573,70 @@ sub _clade_els {
         $self->_clade_els( $child, $clade_el );
     }
     
-    ## print all sequences
-    #if ( $tree_node->has_sequence ) {
-    #    foreach my $seq ( @{ $tree_node->sequence } ) {
-    #
-    #        # if sequence_relation exists
-    #        my @relations =
-    #          $seq->annotation->get_Annotations('sequence_relation');
-    #        foreach (@relations) {
-    #            my $sequence_rel = $self->_relation_to_string( $seq, $_, '' );
-    #
-    #            # set as tree attr
-    #            push(
-    #                @{ $self->{'_tree_attr'}->{'sequence_relation'} },
-    #                $sequence_rel
-    #            );
-    #        }
-    #        #$str = print_seq_annotation( $node, $str, $seq );
-    #    }
-    #}
-    #
-    ##$str .= "</clade>";
-    #
-    ##return $str;
+    # print all sequences
+    if ( $tree_node->has_sequence ) {
+        foreach my $seq ( @{ $tree_node->sequence } ) {
+
+        # if sequence_relation exists
+        my @relations = $seq->annotation->get_Annotations('sequence_relation');
+        for my $relation (@relations) {
+            #    my ( $self, $obj, $rel, $str ) = @_;
+            my @attr = $relation->annotation->get_Annotations('_attr');    # check id_source
+            #    if (@attr) {
+            #        my @id_source = $attr[0]->get_Annotations('id_source');
+            #    }
+            my ($id_ref_0) = $seq->annotation->get_nested_Annotations(
+                '-keys'      => ['id_source'],
+                '-recursive' => 1
+            );
+            my ($id_ref_1) = $relation->to->annotation->get_nested_Annotations(
+                '-keys'      => ['id_source'],
+                '-recursive' => 1
+            );
+            
+            my $confidence      = $relation->confidence();
+            my $confidence_type = $relation->confidence_type();
+            #    $str .= "<";
+            #    $str .= $rel->tagname;
+            #    $str .= " id_ref_0=\"" . $id_ref_0->value . "\"";
+            #    $str .= " id_ref_1=\"" . $id_ref_1->value . "\"";
+            #    $str .= " type=\"" . $rel->type . "\"";
+            if ($confidence) {
+                #$str .= " ><confidence";
+                if ($confidence_type) {
+                    #$str .= " type=\"" . $confidence_type . "\"";
+                #}
+                #$str .= ">";
+                #$str .= $confidence;
+                #$str .= "</confidence>";
+                #$str .= "</";
+                #$str .= $rel->tagname;
+                #$str .= ">";
+            }
+            else {
+                #$str .= "/>";
+            }
+            #    return $str;
+            #}
+            }
+        }
+            
+            
+            #my $sequence_rel = $self->_relation_to_string( $seq, $_, '' );
+            #
+            ## set as tree attr
+            #push(
+            #    @{ $self->{'_tree_attr'}->{'sequence_relation'} },
+            #    $sequence_rel
+            #);
+        #$str = print_seq_annotation( $node, $str, $seq );
+        }
+    }
 }
 
+# TODO: this recurses, maybe refactor to iterate instead
 sub _print_annotation {
-    #TODO : remove level debugging
-    
-    my ( $self, $node, $ac, $level ) = @_;
-    $level += 0;
+    my ( $self, $node, $ac ) = @_;
     my $helper = $self->{helper};
 
     #my ( $self, $str, $ac ) = @_;
@@ -647,47 +683,16 @@ sub _print_annotation {
                 , $node);
                 #$str .= "<$key>";
             
-            for my $attr ($ann->get_Annotations('_attr')) {}
-                
-            #if (@attrs) {    # if there is a attribute collection
-            #    
-            #    
-            #    #$str .= "<$key";
-            #    #$self->_print_attr( $str, $attrs[0] );
-            #    #$str .= ">";
-            #}
-            #else {
-                #$helper->create_node({
-                #    Name    => 'generic',
-                #    Data    => {
-                #        Class   => 'Element',
-                #        Tag     => $ann->tagname,
-                #        Value   => $ann->display_text
-                #    }
-                #}
-                #, $node);
-                #$str .= "<$key>";
-            #}
-            $self->_print_annotation( $child_node, $ann, ++$level );
+            for my $attr ($ann->get_Annotations('_attr')) {
+                if ( !$attr->isa('Bio::Annotation::SimpleValue') ) {
+                    $self->throw("attribute should be a SimpleValue");
+                }
+                $child_node->setAttribute($attr->tagname, $attr->value);
+            }
+            $self->_print_annotation( $child_node, $ann );
         }
     }
 }
-
-sub _print_attr {
-    my ( $self, $str, $ac ) = @_;
-    my @all_attrs = $ac->get_Annotations();
-    foreach my $attr (@all_attrs) {
-        if ( !$attr->isa('Bio::Annotation::SimpleValue') ) {
-            $self->throw("attribute should be a SimpleValue");
-        }
-        $str .= ' ';
-        $str .= $attr->tagname;
-        $str .= '=';
-        $str .= '"' . $attr->value . '"';
-    }
-    return $str;
-}
-
 
 =head2 _write_tree_Helper_annotatableNode
 
