@@ -624,6 +624,7 @@ sub has_tag {
 sub reverse_edge {
 }
 
+=head1 Private methods
 
 =head2 _dirty
 
