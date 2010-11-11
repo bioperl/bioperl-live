@@ -28,6 +28,51 @@ Bio::TreeIO::phyloxml - TreeIO implementation for parsing PhyloXML format.
 
 This module handles parsing and writing of phyloXML format.
 
+=head2 Clade Elements
+
+For <clade> the order of sub-elements is:
+
+   1. <name>
+   2. <branch_length>
+   3. <confidence>
+   4. <width>
+   5. <color>
+   6. <taxonomy>
+   7. <sequence>
+   8. <events>
+   9. <binary_characters>
+  10. <distribution>
+  11. <date>
+  12. <reference>
+  13. <property>
+  14. <clade>
+
+=head2 Sequence Elements
+
+For <sequence>, the order is:
+
+   1. <symbol>
+   2. <accession>
+   3. <name>
+   4. <location>
+   5. <mol_seq>
+   6. <uri>
+   7. <annotation>
+   8. <domain_architecture
+
+=head2 Taxonomy Elements
+
+For <taxonomy>, the order is:
+
+   1. <id>
+   2. <code>
+   3. <scientific_name>
+   4. <authority>
+   5. <common_name>
+   6. <synonym>
+   7. <rank>
+   8. <uri>
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -78,6 +123,7 @@ use strict;
 
 use Bio::Tree::Tree;
 use Bio::Tree::AnnotatableNode;
+use Bio::TreeIO::Writer::PhyloXMLHelper;
 use Bio::Annotation::SimpleValue;
 use Bio::Annotation::Relation;
 use XML::LibXML;
@@ -97,7 +143,7 @@ sub _initialize {
     $args{-treetype} ||= 'Bio::Tree::Tree';
     $args{-nodetype} ||= 'Bio::Tree::AnnotatableNode';
     $self->SUPER::_initialize(%args);
-
+    
     # phyloxml TreeIO does not use SAX,
     # therefore no need to attach EventHandler
     # instead we will define a reader that is a pull-parser of libXML
@@ -121,6 +167,9 @@ sub _initialize {
 
     $self->treetype( $args{-treetype} );
     $self->nodetype( $args{-nodetype} );
+    
+    $self->{helper} = Bio::TreeIO::Writer::PhyloXMLHelper->new(-verbose => $self->verbose);
+    
     $self->{'_lastitem'} = {};    # holds open items and the attribute hash
     $self->_init_func();
 }
@@ -390,38 +439,44 @@ sub write_tree {
 sub write_xml {
     my ( $self, @trees ) = @_;
     
+    my $helper = $self->{helper};
+    
     # begin doc
-    my $top = XML::LibXML::Document->createDocument( '1.0', 'UTF-8' );
-    my $root_el = $top->createElement('phyloxml');
-    $top->setDocumentElement($root_el);
-    $root_el->setNamespace("http://www.w3.org/2001/XMLSchema-instance", 'xsi', 0);
-    $root_el->setNamespace("http://www.phyloxml.org");
+    my $top = $helper->create_node({Name => 'document'});
+    my $root_el = $helper->create_node({Name => 'phyloxml'}, $top);
+
+    #my $top = XML::LibXML::Document->createDocument( '1.0', 'UTF-8' );
+    #$top->setDocumentElement($root_el);
+    #$root_el->setNamespace("http://www.w3.org/2001/XMLSchema-instance", 'xsi', 0);
+    #$root_el->setNamespace("http://www.phyloxml.org");
     
     foreach my $tree (@trees) {
-        my $phylo = $root_el->addChild( XML::LibXML::Element->new('phylogeny'));
-        $top->setDocumentElement($root_el);
+        my $phylo = $helper->create_node({Name => 'phylogeny'}, $root_el);
+        
         my $root_node = $tree->get_root_node;
-
-        #$self->_print("<phylogeny");
-        my @tags = $tree->get_all_tags();
-
-        #my $attr_str = '';
-        for my $tag (qw(name description)) {    #@tags) {
-            if ( $tree->has_tag($tag) ) {
-                for my $value ($tree->get_tag_values($tag)) {
-                    my $node = $phylo->addChild( XML::LibXML::Element->new($tag) );
-                        $node->appendTextNode($value);
-                }
+        for my $tag (qw(name description)) {
+            for my $value ($tree->get_tag_values($tag)) {
+                my $node = $helper->create_node(
+                    {
+                        Name   => 'generic',
+                        Data   => {
+                            Tag     => $tag,
+                            Value   => $value,
+                            Class   => 'Element',
+                        }
+                    }
+                    , $phylo
+                );
             }
         }
-
+    
         # check if rooted
         $tree->has_tag('rooted') || $tree->is_binary( $tree->get_root_node ) ?
             $phylo->setAttribute( 'rooted', 'true' ) :
             $phylo->setAttribute( 'rooted', 'false' );
         
-        
         $self->_clade_els($root_node, $phylo);
+        
         #if ( $root_node->isa('Bio::Tree::AnnotatableNode') ) {
         #
         ##  $self->_print($self->_write_tree_Helper_annotatableNode($root_node, $phylo));
@@ -431,28 +486,140 @@ sub write_xml {
         #    #  $self->_print($self->_write_tree_Helper_generic($root_node));
         #}
         
-        #$self->_($root_node, $phylo));
-
-        # print clade relations
-        #while ( my $str =
-        #    pop( @{ $self->{'_tree_attr'}->{'clade_relation'} } ) )
-        #{
-        #
-        #    #  $self->_print($str);
-        #}
-        ## print sequence relations
-        #while ( my $str =
-        #    pop( @{ $self->{'_tree_attr'}->{'sequence_relation'} } ) )
-        #{
-        #
-        #    #  $self->_print($str);
-        #}
-
-        #$self->_print("</phylogeny>");
+    #    #$self->_($root_node, $phylo));
+    #
+    #    # print clade relations
+    #    #while ( my $str =
+    #    #    pop( @{ $self->{'_tree_attr'}->{'clade_relation'} } ) )
+    #    #{
+    #    #
+    #    #    #  $self->_print($str);
+    #    #}
+    #    ## print sequence relations
+    #    #while ( my $str =
+    #    #    pop( @{ $self->{'_tree_attr'}->{'sequence_relation'} } ) )
+    #    #{
+    #    #
+    #    #    #  $self->_print($str);
+    #    #}
+    #
+    #    #$self->_print("</phylogeny>");
     }
     $self->_print( $top->toString(1) );
     $self->flush if $self->_flush_on_write && defined $self->_fh;
     return;
+}
+
+sub _clade_els {
+    my ($self, $tree_node, $parent_el) = @_;
+    
+    my $ac = $tree_node->annotation;
+    my $helper = $self->{helper};
+    my $clade_el = $helper->create_node(
+        {
+            Name    => 'generic',
+            Data    => {
+                Tag     => 'clade',
+                Class   => 'Element'
+            }
+        }
+        , $parent_el);
+    
+    my ($attr) = $ac->get_Annotations('_attr');    # check id_source
+    if (defined $attr) {
+        my ($id_source) = $attr->get_Annotations('id_source');
+        if ($id_source) {
+            $clade_el->setAttribute('id_source', $id_source->value)
+            #$str .= " id_source=\"" . $id_source->value . "\"";
+        }
+    }
+
+    # print all descendent nodes
+    foreach my $child ( $tree_node->each_Descendent() ) {
+        $self->_clade_els( $child, $clade_el );
+    }
+    
+    # print all annotations
+    $self->_print_annotation( $clade_el, $ac );
+    
+    ## print all sequences
+    #if ( $tree_node->has_sequence ) {
+    #    foreach my $seq ( @{ $tree_node->sequence } ) {
+    #
+    #        # if sequence_relation exists
+    #        my @relations =
+    #          $seq->annotation->get_Annotations('sequence_relation');
+    #        foreach (@relations) {
+    #            my $sequence_rel = $self->_relation_to_string( $seq, $_, '' );
+    #
+    #            # set as tree attr
+    #            push(
+    #                @{ $self->{'_tree_attr'}->{'sequence_relation'} },
+    #                $sequence_rel
+    #            );
+    #        }
+    #        #$str = print_seq_annotation( $node, $str, $seq );
+    #    }
+    #}
+    #
+    ##$str .= "</clade>";
+    #
+    ##return $str;
+}
+
+sub _print_annotation {
+    my ($self, $node, $ac) = @_;
+    my $helper = $self->{helper};
+    #my ( $self, $str, $ac ) = @_;
+
+    my @all_anns = $ac->get_Annotations();
+    foreach my $ann (@all_anns) {
+        my $key = $ann->tagname;
+        if ( $key eq '_attr' ) {
+            next;
+        }    # attributes are already printed in the previous level
+        if ( $ann->isa('Bio::Annotation::SimpleValue') ) {
+            if ( $key eq '_text' ) {
+                #$helper->create_node({
+                #    Name    => 'generic',
+                #    Data    => {
+                #        Class   => 'Element',
+                #        Tag     => $key,
+                #        Value   => $ann->value
+                #    }
+                #}
+                #, $node);
+                #$node->appendText($ann->value);
+            }
+            else {
+                $helper->create_node({
+                    Name    => 'generic',
+                    Data    => {
+                        Class   => 'Element',
+                        Tag     => $key,
+                        Value   => $ann->value
+                    }
+                }
+                , $node);
+                #$str .= "<$key>";
+                #$str .= ;
+                #$str .= "</$key>";
+            }
+        }
+        elsif ( $ann->isa('Bio::Annotation::Collection') ) {
+            #my @attrs = $ann->get_Annotations('_attr');
+            #if (@attrs) {    # if there is a attribute collection
+            #    $str .= "<$key";
+            #    $str = print_attr( $self, $str, $attrs[0] );
+            #    $str .= ">";
+            #}
+            #else {
+            #    $str .= "<$key>";
+            #}
+            #$str = print_annotation( $self, $str, $ann );
+            #$str .= "</$key>";
+        }
+    }
 }
 
 =head2 _write_tree_Helper_annotatableNode
@@ -523,69 +690,6 @@ sub _write_tree_Helper_annotatableNode {
 
     return $str;
 }
-
-=head2 _clade_els
-
-Private method to generate <clade> elements and sub-elements.
-
-For <clade> the order of sub-elements is:
-
-   1. <name>
-   2. <branch_length>
-   3. <confidence>
-   4. <width>
-   5. <color>
-   6. <taxonomy>
-   7. <sequence>
-   8. <events>
-   9. <binary_characters>
-  10. <distribution>
-  11. <date>
-  12. <reference>
-  13. <property>
-  14. <clade>
-
-=cut 
-
-#sub _clade_els {
-
-#}
-
-=head2 _sequence_els
-
-Private method to generate <sequence> elements and sub-elements.
-
-For <sequence>, the order is:
-
-   1. <symbol>
-   2. <accession>
-   3. <name>
-   4. <location>
-   5. <mol_seq>
-   6. <uri>
-   7. <annotation>
-   8. <domain_architecture
-
-=cut
-
-=head2 _taxonomy_els
-
-Private method to generate <taxonomy> elements and sub-elements.
-
-For <taxonomy>, the order is:
-
-   1. <id>
-   2. <code>
-   3. <scientific_name>
-   4. <authority>
-   5. <common_name>
-   6. <synonym>
-   7. <rank>
-   8. <uri>
-
-=cut
-
-sub _taxonomy_els {}
 
 =head2 _write_tree_Helper_generic
 
@@ -1667,107 +1771,6 @@ sub print_seq_annotation {
     $str .= "</sequence>";
     return $str;
 }
-
-####################### OUTPUT HANDLERS #######################
-
-# These are split up into very specific methods for each piece of data; we'll
-# optimize from there
-
-# All methods get a string and an optional XML::LibXML-compliant parent node,
-# very non-BioPerl-reliant
-
-sub _branch_length_el {}
-sub _confidence_el {}
-sub _width_el {}
-sub _color_el {}
-sub _taxonomy_el {}
-sub _sequence_el {}
-sub _events_el {}
-sub _binary_characters_el {}
-sub _distribution_el {}
-sub _date_el {}
-sub _reference_el {}
-sub _property_el {}
-sub _clade_el {
-    #my ( $self, $tree_node, $el) = @_;    # this self is a Bio::Tree::phyloxml
-    #
-    #my $ac = $tree_node->annotation;
-    #
-    ## if clade_relation exists
-    #foreach ($ac->get_Annotations('clade_relation')) {
-    #    #my $clade_rel = $self->_relation_to_string( $tree_node, $_, '' );
-    #    #
-    #    ## set as tree attr
-    #    #push( @{ $self->{'_tree_attr'}->{'clade_relation'} }, $clade_rel );
-    #}
-
-    # start <clade>
-    #$str .= '<clade';
-    
-    my $clade_el = $el->addChild(XML::LibXML::Element->new('clade'));
-    
-    my ($attr) = $ac->get_Annotations('_attr');    # check id_source
-    if (defined $attr) {
-        my ($id_source) = $attr->get_Annotations('id_source');
-        if ($id_source) {
-            $clade_el->setAttribute('id_source', $id_source->value)
-            #$str .= " id_source=\"" . $id_source->value . "\"";
-        }
-    }
-    #$str .= ">";
-
-    # print all descendent nodes
-    foreach my $child ( $tree_node->each_Descendent() ) {
-        $self->_clade_els( $child, $clade_el );
-    }
-
-    # print all annotations
-    #$str = print_annotation( $node, $str, $ac );
-
-    # print all sequences
-    if ( $tree_node->has_sequence ) {
-        foreach my $seq ( @{ $tree_node->sequence } ) {
-
-            # if sequence_relation exists
-            my @relations =
-              $seq->annotation->get_Annotations('sequence_relation');
-            foreach (@relations) {
-                my $sequence_rel = $self->_relation_to_string( $seq, $_, '' );
-
-                # set as tree attr
-                push(
-                    @{ $self->{'_tree_attr'}->{'sequence_relation'} },
-                    $sequence_rel
-                );
-            }
-            #$str = print_seq_annotation( $node, $str, $seq );
-        }
-    }
-
-    #$str .= "</clade>";
-
-    #return $str;    
-}
-
-
-# For <sequence>, the order is:sub _symbol_el {}
-sub _accession_el {}
-sub _name_el {}
-sub _location_el {}
-sub _mol_seq_el {}
-sub _uri_el {}
-sub _annotation_el {}
-sub _domain_architecture_el {}
-
-   
-# For <taxonomy>, the order is:sub _id_el {}
-sub _code_el {}
-sub _scientific_name_el {}
-sub _authority_el {}
-sub _common_name_el {}
-sub _synonym_el {}
-sub _rank_el {}
-sub _uri_el {}
 
 
 1;
