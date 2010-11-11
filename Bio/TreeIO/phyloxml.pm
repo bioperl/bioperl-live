@@ -126,17 +126,9 @@ use Bio::Tree::AnnotatableNode;
 use Bio::TreeIO::Writer::PhyloXMLHelper;
 use Bio::Annotation::SimpleValue;
 use Bio::Annotation::Relation;
-use XML::LibXML;
 use XML::LibXML::Reader;
+use Data::Dumper;
 use base qw(Bio::TreeIO);
-
-our %DISPATCH  = (
-    # all code refs get a string and an optional XML::LibXML-compliant node
-    
-    # For <clade> the order of sub-elements is:sub _name_el {}
-
-
-);
 
 sub _initialize {
     my ( $self, %args ) = @_;
@@ -164,7 +156,11 @@ sub _initialize {
 #  $self->_print('<?xml version="1.0" encoding="UTF-8"?>',"\n");
 #  $self->_print('<phyloxml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.phyloxml.org" xsi:schemaLocation="http://www.phyloxml.org http://www.phyloxml.org/1.10/phyloxml.xsd">');
 #}
-
+    if ($args{-as_attribute} && ref $args{-as_attribute} eq 'ARRAY') {
+        for my $att (@{$args{-as_attribute}}) {
+            $self->as_attribute($att,1);
+        }
+    }
     $self->treetype( $args{-treetype} );
     $self->nodetype( $args{-nodetype} );
     
@@ -462,7 +458,6 @@ sub write_xml {
                         Data   => {
                             Tag     => $tag,
                             Value   => $value,
-                            Class   => 'Element',
                         }
                     }
                     , $phylo
@@ -476,6 +471,8 @@ sub write_xml {
             $phylo->setAttribute( 'rooted', 'false' );
         
         $self->_clade_els($root_node, $phylo);
+        
+        
         
         #if ( $root_node->isa('Bio::Tree::AnnotatableNode') ) {
         #
@@ -512,25 +509,51 @@ sub write_xml {
 
 sub _clade_els {
     my ($self, $tree_node, $parent_el) = @_;
-    
-    my $ac = $tree_node->annotation;
     my $helper = $self->{helper};
+    
+    my ($nm, $bl) =  ($tree_node->id, $tree_node->branch_length);
+    
     my $clade_el = $helper->create_node(
         {
             Name    => 'generic',
             Data    => {
                 Tag     => 'clade',
-                Class   => 'Element'
             }
         }
         , $parent_el);
     
+    $helper->create_node(
+        {
+            Name    => 'generic',
+            Data    => {
+                Tag     => 'name',
+                Value   => $nm
+            }
+        }
+        , $clade_el) if $nm;
+    
+    if ($bl) {
+        if ($self->as_attribute('branch_length')) {
+            $clade_el->setAttribute('branch_length', $bl);
+        } else {
+            $helper->create_node(
+                {
+                    Name    => 'generic',
+                    Data    => {
+                        Tag     => 'branch_length',
+                        Value   => $bl
+                    }
+                }
+                , $clade_el);
+        }
+    }
+    
+    my $ac = $tree_node->annotation;
     my ($attr) = $ac->get_Annotations('_attr');    # check id_source
     if (defined $attr) {
         my ($id_source) = $attr->get_Annotations('id_source');
         if ($id_source) {
             $clade_el->setAttribute('id_source', $id_source->value)
-            #$str .= " id_source=\"" . $id_source->value . "\"";
         }
     }
 
@@ -571,7 +594,7 @@ sub _print_annotation {
     my ($self, $node, $ac) = @_;
     my $helper = $self->{helper};
     #my ( $self, $str, $ac ) = @_;
-
+        
     my @all_anns = $ac->get_Annotations();
     foreach my $ann (@all_anns) {
         my $key = $ann->tagname;
@@ -580,22 +603,20 @@ sub _print_annotation {
         }    # attributes are already printed in the previous level
         if ( $ann->isa('Bio::Annotation::SimpleValue') ) {
             if ( $key eq '_text' ) {
-                #$helper->create_node({
-                #    Name    => 'generic',
-                #    Data    => {
-                #        Class   => 'Element',
-                #        Tag     => $key,
-                #        Value   => $ann->value
-                #    }
-                #}
-                #, $node);
-                #$node->appendText($ann->value);
+                $helper->create_node({
+                    Name    => 'generic',
+                    Data    => {
+                        Tag     => $key,
+                        Value   => $ann->value
+                    }
+                }
+                , $node);
+                $node->appendText($ann->value);
             }
             else {
                 $helper->create_node({
                     Name    => 'generic',
                     Data    => {
-                        Class   => 'Element',
                         Tag     => $key,
                         Value   => $ann->value
                     }
@@ -607,20 +628,45 @@ sub _print_annotation {
             }
         }
         elsif ( $ann->isa('Bio::Annotation::Collection') ) {
-            #my @attrs = $ann->get_Annotations('_attr');
-            #if (@attrs) {    # if there is a attribute collection
-            #    $str .= "<$key";
-            #    $str = print_attr( $self, $str, $attrs[0] );
-            #    $str .= ">";
-            #}
-            #else {
-            #    $str .= "<$key>";
-            #}
-            #$str = print_annotation( $self, $str, $ann );
-            #$str .= "</$key>";
+            my @attrs = $ann->get_Annotations('_attr');
+            if (@attrs) {    # if there is a attribute collection
+                #$str .= "<$key";
+                #$self->_print_attr( $str, $attrs[0] );
+                #$str .= ">";
+            }
+            else {
+                $self->debug(Dumper($ann));
+                #$helper->create_node({
+                #    Name    => 'generic',
+                #    Data    => {
+                #        Class   => 'Element',
+                #        Tag     => $ann->tagname,
+                #        Value   => $ann->display_text
+                #    }
+                #}
+                #, $node);
+                #$str .= "<$key>";
+            }
+            #$self->_print_annotation($node, $ann );
         }
     }
 }
+
+sub _print_attr {
+    my ( $self, $str, $ac ) = @_;
+    my @all_attrs = $ac->get_Annotations();
+    foreach my $attr (@all_attrs) {
+        if ( !$attr->isa('Bio::Annotation::SimpleValue') ) {
+            $self->throw("attribute should be a SimpleValue");
+        }
+        $str .= ' ';
+        $str .= $attr->tagname;
+        $str .= '=';
+        $str .= '"' . $attr->value . '"';
+    }
+    return $str;
+}
+
 
 =head2 _write_tree_Helper_annotatableNode
 
@@ -1648,7 +1694,7 @@ sub print_annotation {
             my @attrs = $ann->get_Annotations('_attr');
             if (@attrs) {    # if there is a attribute collection
                 $str .= "<$key";
-                $str = print_attr( $self, $str, $attrs[0] );
+                $str = $self->_print_attr($str, $attrs[0] );
                 $str .= ">";
             }
             else {
@@ -1770,6 +1816,15 @@ sub print_seq_annotation {
 
     $str .= "</sequence>";
     return $str;
+}
+
+sub as_attribute {
+    my ($self, $att, $flag) = @_;
+    return unless $att;
+    if (defined $flag) {
+        $self->{as_attribute}->{$att} = 1;
+    }
+    $self->{as_attribute}->{$att};
 }
 
 
