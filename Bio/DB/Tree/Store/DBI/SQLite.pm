@@ -65,6 +65,7 @@ sub table_definitions {
        label text not null,
        is_rooted integer default 1,
        root_id integer,
+       score real,
        annotations text
 );
 create unique index ui_tree_id on tree(tree_id);
@@ -303,11 +304,12 @@ sub insert_tree {
     my $sth = $self->{sths}->{'insertTree'};
     if (! $sth) {
         $sth = $self->_prepare(
-            "INSERT INTO tree (label,is_rooted,root_id,annotations) "
-            ."VALUES (?,?,?,?)");
+            "INSERT INTO tree (label,is_rooted,root_id,score,annotations) "
+            ."VALUES (?,?,?,?,?)");
         $self->{sths}->{'insertTree'} = $sth;
     }
-    $sth->execute($data->{'-id'}, $data->{'-is_rooted'}, $data->{'-root'},    
+    $sth->execute($data->{'-id'}, 
+                  $data->{'-is_rooted'}, $data->{'-root'}, $data->{'-score'},
                   $data->{'-flatAnnotations'});
     my $pk = $self->dbh->func('last_insert_rowid');
     $treeh->tree_id($pk) 
@@ -335,7 +337,7 @@ sub fetch_tree{
     my $sth = $self->{sths}->{'fetchTree'};
     if (! $sth) {
         $sth = $self->_prepare(
-            "SELECT tree_id,label,is_rooted,root_id "
+            "SELECT tree_id,label,is_rooted,root_id,score "
             ."FROM tree WHERE tree_id = ?");
         $self->{sths}->{'fetchTree'} = $sth;
     }
@@ -351,7 +353,8 @@ sub fetch_tree{
                                     -store     => $self,
                                     -root_node => $root,
                                     -id        => $row->[1],
-                                    -is_rooted => $row->[2]);
+                                    -is_rooted => $row->[2],
+                                    -score     => $row->[4]);
 }
 
 =head2 update_tree
@@ -390,13 +393,15 @@ sub update_tree{
             ."label = IFNULL(?,label), "
             ."root_id = IFNULL(?,root_id), "
             ."is_rooted = IFNULL(?,is_rooted), "
-            ."annotations = IFNULL(?,annotations) "
+            ."annotations = IFNULL(?,annotations), "
+            ."score = IFNULL(?,score) "
             ."WHERE tree_id = ?");
         $self->{sths}->{'updateTree'} = $sth;
     }
     my $rv = $sth->execute($data->{'-id'}, 
                            $data->{'-root'}, $data->{'-is_rooted'}, 
                            $data->{'-flatAnnotations'},
+                           $data->{'-score'},
                            $data->{'-pk'});
     # done
     return $rv;
@@ -420,7 +425,7 @@ sub populate_tree {
     my $sth = $self->{sths}->{'populateTree'};
     if (! $sth) {
         $sth = $self->_prepare(
-            "SELECT label,is_rooted,root_id "
+            "SELECT label,is_rooted,root_id,score "
             ."FROM tree WHERE tree_id = ?");
         $self->{sths}->{'populateTree'} = $sth;
     }
@@ -433,9 +438,10 @@ sub populate_tree {
                                          -store => $self);
     }
     my $dirty = $tree->_dirty; # save so we can reset to current value
-    $tree->root_node($root);
+    $tree->root($root);
     $tree->id($row->[0]);
     $tree->rooted($row->[1]);
+    $tree->score($row->[3]);
     $tree->_dirty($dirty); # restore flag to where it was
     return 1;
 }
@@ -686,9 +692,10 @@ sub _tree_to_hash {
         $h->{'-flatAnnotations'} = $flatAnnots if $flatAnnots;
         $h->{'-id'} = $obj->id if $obj->id;
         $h->{'-is_rooted'} = $obj->is_rooted;
+        $h->{'-score'} = $obj->score if $obj->score;
         if ($obj->isa("Bio::DB::Tree::Tree")) {
             $h->{'-pk'} = $obj->tree_id;
-            $h->{'-root'} = $obj->root_node->node_id if $obj->root_node;
+            $h->{'-root'} = $obj->root->node_id if $obj->root;
         }
     } else {
         $self->throw("don't know how to deal with ".$obj);         

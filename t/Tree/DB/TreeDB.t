@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 35);
+    test_begin(-tests => 37);
     
     use_ok('Bio::DB::Tree::Tree');
     use_ok('Bio::DB::Tree::Node');
@@ -28,7 +28,7 @@ my $dbh = Bio::DB::Tree::Store->new(-adaptor=>'DBI::SQLite',
 isa_ok($dbh, "Bio::DB::Tree::Store");
 
 # test creating / fetching trees in the store
-my $pk = $dbh->insert_tree({'-id' => 'tree1'});
+my $pk = $dbh->insert_tree({-id => 'tree1', -score => 4.0});
 ok($pk,"tree created in the database");
 $tree = $dbh->fetch_tree($pk);
 ok($tree,"found tree previously created");
@@ -37,8 +37,9 @@ isa_ok($tree,"Bio::Tree::TreeI");
 isa_ok($tree,"Bio::DB::Tree::Tree");
 is($tree->tree_id, $pk, "primary key matches fetch key");
 is($tree->id, "tree1", "id matches label we provided");
+is($tree->score, 4.0, "score matches what we provided");
 ok($tree->is_rooted, "by default tree is rooted");
-ok(! defined($tree->root_node), "no root node");
+ok(! defined($tree->root), "no root node");
 ok(!$tree->_dirty,"tree is still clean");
 
 # repeat with a root node
@@ -49,26 +50,28 @@ my $tree2 = $dbh->fetch_tree($pk2);
 ok($tree2,"found tree2 by key");
 is($tree2->id, "tree2", "id matches label we provided");
 ok($tree2->is_rooted, "by default tree is rooted");
-isa_ok($tree2->root_node,"Bio::DB::Tree::Node");
-is($tree2->root_node->node_id,$root,"root node is what we created");
-is($tree2->root_node->id,"tree2 root","root label is what we created");
+isa_ok($tree2->root,"Bio::DB::Tree::Node");
+is($tree2->root->node_id,$root,"root node is what we created");
+is($tree2->root->id,"tree2 root","root label is what we created");
 ok(!$tree2->_dirty,"tree is still clean");
 
 # update properties, then refetch
 $tree->rooted(0);
-$tree->root_node($dbh->fetch_node($root));
-$tree->root_node->id("mytree root");
+$tree->root($dbh->fetch_node($root));
+$tree->root->id("mytree root");
 $tree->id("mytree");
+$tree->score(3.0);
 ok($tree->_dirty, "tree is no longer clean");
-ok($tree->root_node->save,"success updating root node in the database");
+ok($tree->root->save,"success updating root node in the database");
 ok($tree->save,"success updating tree in database");
 $tree = $dbh->fetch_tree($tree->tree_id);
 is($tree->id, "mytree", "id matches updated label");
+is($tree->score, 3.0, "score matches updated value");
 ok(!$tree->is_rooted, "not rooted after update");
 ok(!$tree->rooted, "not rooted after update");
-ok(defined($tree->root_node), "has \"root\" node");
-is($tree->root_node->node_id,$root,"root node is what we set it to");
-is($tree->root_node->id,"mytree root","root node has updated state");
+ok(defined($tree->root), "has \"root\" node");
+is($tree->root->node_id,$root,"root node is what we set it to");
+is($tree->root->id,"mytree root","root node has updated state");
 
 # create a hierarchy of nodes: ((A:2.12,B:3)I1:1,C:6)
 $pk = $dbh->insert_node({-id => 'root',-branch_length => 0});

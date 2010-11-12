@@ -106,12 +106,13 @@ sub new {
 					       @args);
     defined $id && $self->tree_id($id);
     defined $label && $self->id($label);
-    defined $root && $self->root_node($root);
+    defined $root && $self->root($root);
     defined $store && $self->store($store);
     $self->_dirty(0);
     return $self;
 }
 
+=head2 DB enabling methods
 
 =head2 tree_id
 
@@ -128,10 +129,6 @@ sub tree_id {
     return $self->{'_tree_id'} = shift if @_;
     return $self->{'_tree_id'};
 }
-
-*_creation_id  = \&tree_id;
-
-=head2 DB enabling methods
 
 =head2 store
 
@@ -194,17 +191,17 @@ sub id {
   return $self->{'_label'};
 }
 
-=head2 root_node
+=head2 root
 
- Title   : root_node
- Usage   : $obj->root_node($newval)
+ Title   : root
+ Usage   : $obj->root($newval)
  Function: Get/set the Root Node for the tree (connection to the data)
- Returns : value of Bio::DB::Tree::Node
+ Returns : A Bio::Tree::NodeI object (here, implemented by Bio::DB::Tree::Node)
  Args    : newvalue (optional)
 
 =cut
 
-sub root_node {
+sub root {
   my $self = shift;
   if( @_ ) {
     $self->{'_rootnode'} = shift;
@@ -254,6 +251,29 @@ sub is_rooted {
     return $self->{'_rooted'} if defined $self->{'_rooted'};
     # Default to a rooted tree.
     return 1;	
+}
+
+=head2 score
+
+ Title   : score
+ Usage   : $score = $obj->score()
+ Function: Get (or set) the score of the tree.
+ Example : 
+ Returns : value of score (a scalar)
+ Args    : on set, new value (a scalar or undef, optional)
+
+=cut
+
+sub score{
+    my $self = shift;
+
+    if( @_ ) {
+        $self->{'_score'} = shift;
+        $self->_dirty(1);
+    } elsif ( ! exists $self->{'_score'} ) {
+        $self->_load_from_db;
+    }
+    return $self->{'_score'};
 }
 
 =head2 set_tag_value
