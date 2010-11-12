@@ -277,8 +277,9 @@ sub end_element{
 sub in_element{
     my $self = shift;
     my $e = shift;
-
-    return ($e eq $self->{'_attrstack'}->[-1]);
+    my $stack = shift || "_attrstack";
+    return 0 unless defined($e) && @{$self->{$stack}};
+    return ($e eq $self->{$stack}->[-1]);
 }
 
 =head2 within_element
@@ -294,12 +295,7 @@ sub in_element{
 =cut
 
 sub within_element{
-    my $self = shift;
-    my $e = shift;
-    # if ((! defined($e)) || (! defined($self->{'_elemstack'}->[-1]))) {
-    #     $self->throw("unexpected undefined value: \"$e\"");
-    # } 
-    return ($e eq $self->{'_elemstack'}->[-1]);
+    return shift->in_element($_[0],"_elemstack");
 }
 
 =head2 characters
@@ -316,6 +312,7 @@ sub within_element{
 sub characters{
     my $self = shift;
     my $ch = shift;
+
     if( $self->within_element('node') ) {
        my $nodeh = $self->{'_nodestack'}->[-1];
        if( $self->in_element('bootstrap') ) {
