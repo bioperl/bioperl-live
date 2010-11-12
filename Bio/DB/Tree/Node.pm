@@ -110,6 +110,7 @@ sub new {
     defined $bl && $self->branch_length($bl);
     defined $parent && $self->parent_id($parent);
     defined $store && $self->store($store);
+    $self->_dirty(0);
     return $self;
 }
 
@@ -665,8 +666,9 @@ sub _load_from_db{
     my $self = shift;
     my $rv = 1;
     if (! $self->{'_loaded'}) {
+        $self->{'_loaded'} = 1; # stop recursion while we're doing this.
         $rv = $self->store->populate_node($self);
-        $self->{'_loaded'} = 1 if $rv;
+        $self->{'_loaded'} = $rv;
     }
     return $rv;
 }

@@ -104,10 +104,11 @@ sub new {
 						   STORE
 						 )],
 					       @args);
-    defined $id && $self->node_id($id);
+    defined $id && $self->tree_id($id);
     defined $label && $self->id($label);
     defined $root && $self->root_node($root);
     defined $store && $self->store($store);
+    $self->_dirty(0);
     return $self;
 }
 
@@ -148,6 +149,30 @@ sub store {
     return $self->{'_store'};
 }
 
+=head2 save
+
+ Title   : save
+ Usage   :
+ Function: Save the current state of the object to the database (if it
+           has diverged).
+ Example :
+ Returns : True on success and false otherwise.
+ Args    : none
+
+=cut
+
+sub save{
+    my $self = shift;
+    my $rv = 1;
+    if ($self->_dirty) {
+        $rv = $self->store->update_tree($self);
+        $self->_dirty(0) if $rv;
+    }
+    return $rv;
+}
+
+=head2 Tree properties
+
 =head2 id
 
  Title   : id
@@ -161,7 +186,7 @@ sub store {
 sub id {
   my $self = shift;
   if( @_ ) {
-    $self->{'_id'} = shift;
+    $self->{'_label'} = shift;
     $self->_dirty(1);
   } elsif ( ! exists $self->{'_label'} ) {
     $self->_load_from_db;
@@ -223,12 +248,111 @@ sub rooted {
 
 sub is_rooted {
     my $self = shift;
-    if ( ! exists $self->{'_rootnode'} ) {
+    if ( ! exists $self->{'_rooted'} ) {
         $self->_load_from_db;
     }
     return $self->{'_rooted'} if defined $self->{'_rooted'};
     # Default to a rooted tree.
     return 1;	
+}
+
+=head2 set_tag_value
+
+ Title   : set_tag_value
+ Usage   : $node->set_tag_value($tag,$value)
+           $node->set_tag_value($tag,@values)
+ Function: Sets a tag value(s) to a node. Replaces old values.
+ Returns : number of values stored for this tag
+ Args    : $tag   - tag name
+           $value - value to store for the tag
+
+=cut
+
+sub set_tag_value{
+
+}
+
+=head2 add_tag_value
+
+ Title   : add_tag_value
+ Usage   : $node->add_tag_value($tag,$value)
+ Function: Adds a tag value to a node 
+ Returns : number of values stored for this tag
+ Args    : $tag   - tag name
+           $value - value to store for the tag
+
+=cut
+
+sub add_tag_value{
+}
+
+=head2 remove_tag
+
+ Title   : remove_tag
+ Usage   : $node->remove_tag($tag)
+ Function: Remove the tag and all values for this tag
+ Returns : boolean representing success (0 if tag does not exist)
+ Args    : $tag - tagname to remove
+
+
+=cut
+
+sub remove_tag {
+}
+
+=head2 remove_all_tags
+
+ Title   : remove_all_tags
+ Usage   : $node->remove_all_tags()
+ Function: Removes all tags
+ Returns : None
+ Args    : None
+
+=cut
+
+sub remove_all_tags{
+}
+
+
+=head2 get_all_tags
+
+ Title   : get_all_tags
+ Usage   : my @tags = $node->get_all_tags()
+ Function: Gets all the tag names for this Node
+ Returns : Array of tagnames
+ Args    : None
+
+=cut
+
+sub get_all_tags{
+}
+
+=head2 get_tag_values
+
+ Title   : get_tag_values
+ Usage   : my @values = $node->get_tag_values($tag)
+ Function: Gets the values for given tag ($tag)
+ Returns : In array context returns an array of values
+           or an empty list if tag does not exist.
+           In scalar context returns the first value or undef.
+ Args    : $tag - tag name
+
+=cut
+
+sub get_tag_values{
+}
+
+=head2 has_tag
+
+ Title   : has_tag
+ Usage   : $node->has_tag($tag)
+ Function: Boolean test if tag exists in the Node
+ Returns : Boolean
+ Args    : $tag - tagname
+
+=cut
+
+sub has_tag {
 }
 
 =head1 Private methods
@@ -272,8 +396,9 @@ sub _load_from_db{
     my $self = shift;
     my $rv = 1;
     if (! $self->{'_loaded'}) {
+        $self->{'_loaded'} = 1; # stop recursion while we're doing this
         $rv = $self->store->populate_tree($self);
-        $self->{'_loaded'} = 1 if $rv;
+        $self->{'_loaded'} = $rv;
     }
     return $rv;
 }

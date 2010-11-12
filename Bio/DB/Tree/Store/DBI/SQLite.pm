@@ -64,7 +64,7 @@ sub table_definitions {
        tree_id integer primary key autoincrement,
        label text not null,
        is_rooted integer default 1,
-       root_id integer not null,
+       root_id integer,
        annotations text
 );
 create unique index ui_tree_id on tree(tree_id);
@@ -310,7 +310,8 @@ sub insert_tree {
     $sth->execute($data->{'-id'}, $data->{'-is_rooted'}, $data->{'-root'},    
                   $data->{'-flatAnnotations'});
     my $pk = $self->dbh->func('last_insert_rowid');
-    $treeh->tree_id($pk) if $pk && $treeh->isa("Bio::DB::Tree::Tree");
+    $treeh->tree_id($pk) 
+        if $pk && blessed($treeh) && $treeh->isa("Bio::DB::Tree::Tree");
     # done
     return $pk;
 }
@@ -341,13 +342,64 @@ sub fetch_tree{
     $sth->execute($pk);
     my $row = $sth->fetchrow_arrayref;
     return undef unless $row;
-    my $root = Bio::DB::Tree::Node->new(-node_id => $row->[3],
-                                        -store => $self);
+    my $root;
+    if ($row->[3]) {
+        $root = Bio::DB::Tree::Node->new(-node_id => $row->[3],
+                                         -store => $self);
+    }
     return Bio::DB::Tree::Tree->new(-tree_id   => $row->[0],
                                     -store     => $self,
                                     -root_node => $root,
-                                    -label     => $row->[1],
+                                    -id        => $row->[1],
                                     -is_rooted => $row->[2]);
+}
+
+=head2 update_tree
+
+ Title   : update_tree
+ Usage   : $store->update_tree($treeh);
+
+ Function: Updates a tree record in the underlying storage. The tree
+           must exist already. This will not update the nodes of the tree.
+
+ Example :
+ Returns : True if success and false otherwise.
+
+ Args :    The tree properties to which the database is to be updated as a
+           hashref or a Bio::DB::Tree::Tree object that has been
+           obtained from this store.
+
+           If the argument is a hashref, the primary key is expected as
+           the value for the '-pk' key, and the key '-root' may be
+           used to provide the primary key to the root node.
+
+=cut
+
+sub update_tree{
+    my $self = shift;
+    my $treeh = shift;
+
+    # unify the hashref and object options to a single format
+    my $data = $self->_tree_to_hash($treeh);
+
+    # update in database
+    my $sth = $self->{sths}->{'updateTree'};
+    if (! $sth) {
+        $sth = $self->_prepare(
+            "UPDATE tree SET "
+            ."label = IFNULL(?,label), "
+            ."root_id = IFNULL(?,root_id), "
+            ."is_rooted = IFNULL(?,is_rooted), "
+            ."annotations = IFNULL(?,annotations) "
+            ."WHERE tree_id = ?");
+        $self->{sths}->{'updateTree'} = $sth;
+    }
+    my $rv = $sth->execute($data->{'-id'}, 
+                           $data->{'-root'}, $data->{'-is_rooted'}, 
+                           $data->{'-flatAnnotations'},
+                           $data->{'-pk'});
+    # done
+    return $rv;
 }
 
 =head2 populate_tree
@@ -375,8 +427,11 @@ sub populate_tree {
     $sth->execute($tree->tree_id);
     my $row = $sth->fetchrow_arrayref;
     return undef unless $row;
-    my $root = Bio::DB::Tree::Node->new(-node_id => $row->[2],
-                                        -store => $self);
+    my $root;
+    if ($row->[2]) {
+        $root = Bio::DB::Tree::Node->new(-node_id => $row->[2],
+                                         -store => $self);
+    }
     my $dirty = $tree->_dirty; # save so we can reset to current value
     $tree->root_node($root);
     $tree->id($row->[0]);
@@ -585,8 +640,7 @@ sub _node_to_hash {
         $h->{'-branch_length'} = $obj->branch_length if $obj->branch_length();
         if ($obj->isa("Bio::DB::Tree::Node")) {
             $h->{'-pk'} = $obj->node_id;
-            #can't do this right now - would trigger a recursive insert:
-            # $h->{'-parent'} = $obj->parent_id if $obj->parent_id;
+            $h->{'-parent'} = $obj->parent_id if $obj->parent_id;
         }
     } else {
         $self->throw("don't know how to deal with ".$obj); 
@@ -620,7 +674,7 @@ sub _tree_to_hash {
 
     # unify the hashref and object options to a single format
     my $h;
-    if (ref($obj) eq "HASHREF") {
+    if (ref($obj) eq "HASH") {
         $h = {%$obj};
         # flatten out all key-value annotations (if we have any)
         my $flatAnnots = _flatten_keyvalues($obj->{'-annotations'});
@@ -631,11 +685,10 @@ sub _tree_to_hash {
         my $flatAnnots = _flatten_annotations($obj);
         $h->{'-flatAnnotations'} = $flatAnnots if $flatAnnots;
         $h->{'-id'} = $obj->id if $obj->id;
-        $h->{'is_rooted'} = $obj->is_rooted;
+        $h->{'-is_rooted'} = $obj->is_rooted;
         if ($obj->isa("Bio::DB::Tree::Tree")) {
             $h->{'-pk'} = $obj->tree_id;
-            #can't do this right now - would trigger a recursive insert:
-            # $h->{'-root'} = $obj->root_node if $obj->root_node;
+            $h->{'-root'} = $obj->root_node->node_id if $obj->root_node;
         }
     } else {
         $self->throw("don't know how to deal with ".$obj);         

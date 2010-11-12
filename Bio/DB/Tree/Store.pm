@@ -316,6 +316,32 @@ sub fetch_tree{
     $self->throw_not_implemented();
 }
 
+=head2 update_tree
+
+ Title   : update_tree
+ Usage   : $store->update_tree($treeh);
+
+ Function: Updates a tree record in the underlying storage. The tree
+           must exist already. This will not update the nodes of the tree.
+
+ Example :
+ Returns : True if success and false otherwise.
+
+ Args :    The tree properties to which the database is to be updated as a
+           hashref or a Bio::DB::Tree::Tree object that has been
+           obtained from this store.
+
+           If the argument is a hashref, the primary key is expected as
+           the value for the '-pk' key, and the key '-root' may be
+           used to provide the primary key to the root node.
+
+=cut
+
+sub update_tree {
+   my ($self,@args) = @_;
+   $self->throw_not_implemented();
+}
+
 =head2 populate_tree
 
  Title   : populate_tree
