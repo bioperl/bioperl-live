@@ -137,12 +137,10 @@ sub new {
   $self->_register_for_cleanup(\&cleanup_tree);
   my ($root,$node,$nodel,$id,$score)= $self->_rearrange([qw(ROOT NODE NODELETE 
                               ID SCORE)], @args);
-  
   if ($node && ! $root) {
     $self->throw("Must supply a Bio::Tree::NodeI") unless ref($node) && $node->isa('Bio::Tree::NodeI');
     my @lineage = $self->get_lineage_nodes($node);
     $root = shift(@lineage) || $node;
-    
     # to stop us pulling in entire database of a Bio::Taxon when we later do
     # get_nodes() or similar, specifically set ancestor() for each node
     if ($node->isa('Bio::Taxon')) {
@@ -156,7 +154,6 @@ sub new {
   if ($root) {
     $self->set_root_node($root);
   }
-  
   $self->nodelete($nodel || 0);
   $self->id($id)       if defined $id;
   $self->score($score) if defined $score;
@@ -197,7 +194,7 @@ sub is_rooted {
 	return $self->{'_rooted'};
     } else {
 	# Default to a rooted tree.
-	return 1;	
+	return 1;
     }
 }
 
