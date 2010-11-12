@@ -577,59 +577,80 @@ sub _clade_els {
     if ( $tree_node->has_sequence ) {
         foreach my $seq ( @{ $tree_node->sequence } ) {
 
-        # if sequence_relation exists
-        my @relations = $seq->annotation->get_Annotations('sequence_relation');
-        for my $relation (@relations) {
-            #    my ( $self, $obj, $rel, $str ) = @_;
-            my @attr = $relation->annotation->get_Annotations('_attr');    # check id_source
-            #    if (@attr) {
-            #        my @id_source = $attr[0]->get_Annotations('id_source');
-            #    }
-            my ($id_ref_0) = $seq->annotation->get_nested_Annotations(
-                '-keys'      => ['id_source'],
-                '-recursive' => 1
-            );
-            my ($id_ref_1) = $relation->to->annotation->get_nested_Annotations(
-                '-keys'      => ['id_source'],
-                '-recursive' => 1
-            );
-            
-            my $confidence      = $relation->confidence();
-            my $confidence_type = $relation->confidence_type();
-            #    $str .= "<";
-            #    $str .= $rel->tagname;
-            #    $str .= " id_ref_0=\"" . $id_ref_0->value . "\"";
-            #    $str .= " id_ref_1=\"" . $id_ref_1->value . "\"";
-            #    $str .= " type=\"" . $rel->type . "\"";
-            if ($confidence) {
-                #$str .= " ><confidence";
-                if ($confidence_type) {
-                    #$str .= " type=\"" . $confidence_type . "\"";
-                #}
-                #$str .= ">";
-                #$str .= $confidence;
-                #$str .= "</confidence>";
-                #$str .= "</";
-                #$str .= $rel->tagname;
-                #$str .= ">";
+            # if sequence_relation exists
+            my @relations = $seq->annotation->get_Annotations('sequence_relation');
+            for my $relation (@relations) {
+                my @attr = $relation->annotation->get_Annotations('_attr');    # check id_source
+                
+                # TODO: double-check the data here
+                my ($id_ref_0) = $seq->annotation->get_nested_Annotations(
+                    '-keys'      => ['id_source'],
+                    '-recursive' => 1
+                );
+                my ($id_ref_1) = $relation->to->annotation->get_nested_Annotations(
+                    '-keys'      => ['id_source'],
+                    '-recursive' => 1
+                );
+                
+                my $confidence      = $relation->confidence();
+                my $confidence_type = $relation->confidence_type();
+                
+                my $relation_el = $helper->create_node(
+                    {   Name    => 'generic',
+                        Data    => {
+                            Tag => $relation->tagname,
+                            }
+                    },
+                    $clade_el
+                );
+                $relation_el->setAttribute('id_ref_0',$id_ref_0->value);
+                $relation_el->setAttribute('id_ref_1',$id_ref_1->value);
+                $relation_el->setAttribute('type',$relation->value);
+                if ($confidence) {
+                    my $confidence_el = $helper->create_node(
+                        {   Name    => 'generic',
+                            Data    => {
+                                Tag => $relation->tagname,
+                                Value   => $confidence
+                                }
+                        },
+                        $relation_el
+                    );                
+                    if ($confidence_type) {
+                        $relation_el->set_Attribute('type', $confidence_type);
+                    }
+                }
             }
-            else {
-                #$str .= "/>";
+
+            my $seq_el = $helper->create_node({
+                Name        => 'generic',
+                Data        => {
+                    Tag     => 'sequence',
+                    }
+                }, $clade_el);
+            if (my ($attr) = $seq->annotation->get_Annotations('_attr')) {
+                my ($id_source) = $attr->get_Annotations('id_source');
+                if ($id_source) {
+                    $seq_el->setAttribute('id_source', $id_source->value);
+                }
             }
-            #    return $str;
-            #}
+            
+            my @all_anns = $seq->annotation->get_Annotations();
+            
+            $self->_print_annotation($seq_el, $seq->annotation);
+
+            # print mol_seq
+            if ( $seq->seq() ) {
+                $helper->create_node(
+                    {
+                        Name    => 'generic',
+                        Data    => {
+                            Tag     => 'mol_seq',
+                            Value   => $seq->seq
+                            }
+                    }, $seq_el
+                    );
             }
-        }
-            
-            
-            #my $sequence_rel = $self->_relation_to_string( $seq, $_, '' );
-            #
-            ## set as tree attr
-            #push(
-            #    @{ $self->{'_tree_attr'}->{'sequence_relation'} },
-            #    $sequence_rel
-            #);
-        #$str = print_seq_annotation( $node, $str, $seq );
         }
     }
 }
@@ -685,7 +706,8 @@ sub _print_annotation {
             
             for my $attr ($ann->get_Annotations('_attr')) {
                 if ( !$attr->isa('Bio::Annotation::SimpleValue') ) {
-                    $self->throw("attribute should be a SimpleValue");
+                    next;
+                    $self->throw("attribute should be a SimpleValue, got ".ref($attr));
                 }
                 $child_node->setAttribute($attr->tagname, $attr->value);
             }
