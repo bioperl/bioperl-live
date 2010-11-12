@@ -1,5 +1,4 @@
 # -*-Perl-*- Test Harness script for Bioperl
-# $Id$
 
 use strict;
 
@@ -26,7 +25,7 @@ is(@nodes, 6);
 my ($rat) = $tree->find_node('CATL_RAT');
 ok($rat);
 is($rat->branch_length, '0.12788');
-# move the id to the bootstap
+# move the id to the bootstrap
 is($rat->ancestor->bootstrap($rat->ancestor->id), '95');
 $rat->ancestor->id('');
 # maybe this can be auto-detected, but then can't distinguish
