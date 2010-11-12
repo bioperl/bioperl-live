@@ -466,36 +466,6 @@ sub write_xml {
             $phylo->setAttribute( 'rooted', 'false' );
         
         $self->_clade_els($root_node, $phylo);
-        
-        
-        
-        #if ( $root_node->isa('Bio::Tree::AnnotatableNode') ) {
-        #
-        ##  $self->_print($self->_write_tree_Helper_annotatableNode($root_node, $phylo));
-        #}
-        #else {
-        #
-        #    #  $self->_print($self->_write_tree_Helper_generic($root_node));
-        #}
-        
-    #    #$self->_($root_node, $phylo));
-    #
-    #    # print clade relations
-    #    #while ( my $str =
-    #    #    pop( @{ $self->{'_tree_attr'}->{'clade_relation'} } ) )
-    #    #{
-    #    #
-    #    #    #  $self->_print($str);
-    #    #}
-    #    ## print sequence relations
-    #    #while ( my $str =
-    #    #    pop( @{ $self->{'_tree_attr'}->{'sequence_relation'} } ) )
-    #    #{
-    #    #
-    #    #    #  $self->_print($str);
-    #    #}
-    #
-    #    #$self->_print("</phylogeny>");
     }
     $self->_print( $top->toString(1) );
     $self->flush if $self->_flush_on_write && defined $self->_fh;
@@ -550,8 +520,15 @@ sub _clade_els {
     #            , $clade_el);
     #    }
     #}
-    
     my $ac = $tree_node->annotation;
+    
+    # TODO: clade_relations: here or higher up
+    # if clade_relation exists
+    for my $relation ($ac->get_Annotations('clade_relation')) {
+        $self->_print_relations( $tree_node, $relation, $clade_el);
+    }
+    
+    # clade id_source
     my ($attr) = $ac->get_Annotations('_attr');    # check id_source
     if (defined $attr) {
         my ($id_source) = $attr->get_Annotations('id_source');
@@ -560,66 +537,25 @@ sub _clade_els {
         }
     }
 
-    # print all annotations
+    # print all clade annotations, attch to this element node
     $self->_print_annotation( $clade_el, $ac );
 
-    # print all descendent nodes
+    # print all descendent nodes, using the current node as the parent
     foreach my $child ( $tree_node->each_Descendent() ) {
         $self->_clade_els( $child, $clade_el );
     }
 
-    #for my $relation ($seq->annotation->get_Annotations('sequence_relation')) {
-    #    my @attr = $relation->annotation->get_Annotations('_attr');    # check id_source
-    #    
-    #    # TODO: double-check the data here
-    #    my ($id_ref_0) = $seq->annotation->get_nested_Annotations(
-    #        '-keys'      => ['id_source'],
-    #        '-recursive' => 1
-    #    );
-    #    my ($id_ref_1) = $relation->to->annotation->get_nested_Annotations(
-    #        '-keys'      => ['id_source'],
-    #        '-recursive' => 1
-    #    );
-    #    
-    #    my $confidence      = $relation->confidence();
-    #    my $confidence_type = $relation->confidence_type();
-    #    
-    #    my $relation_el = $helper->create_node(
-    #        {   Name    => 'generic',
-    #            Data    => {
-    #                Tag => $relation->tagname,
-    #                }
-    #        },
-    #        $clade_el
-    #    );
-    #    $relation_el->setAttribute('id_ref_0',$id_ref_0->value);
-    #    $relation_el->setAttribute('id_ref_1',$id_ref_1->value);
-    #    $relation_el->setAttribute('type',$relation->value);
-    #    if ($confidence) {
-    #        my $confidence_el = $helper->create_node(
-    #            {   Name    => 'generic',
-    #                Data    => {
-    #                    Tag => $relation->tagname,
-    #                    Value   => $confidence
-    #                    }
-    #            },
-    #            $relation_el
-    #        );                
-    #        if ($confidence_type) {
-    #            $relation_el->set_Attribute('type', $confidence_type);
-    #        }
-    #    }
-    #}
-
     # print all sequences
     if ( $tree_node->has_sequence ) {
-        foreach my $seq ( @{ $tree_node->sequence } ) {
+        for my $seq ( @{ $tree_node->sequence } ) {
+            
             my $seq_el = $helper->create_node({
                 Name        => 'generic',
                 Data        => {
                     Tag     => 'sequence',
                     }
                 }, $clade_el);
+            
             if (my ($attr) = $seq->annotation->get_Annotations('_attr')) {
                 my ($id_source) = $attr->get_Annotations('id_source');
                 if ($id_source) {
@@ -627,6 +563,54 @@ sub _clade_els {
                 }
             }
             
+            for my $relation ($seq->annotation->get_Annotations('sequence_relation')) {
+                $self->_print_relations($seq, $relation, $seq_el);
+            }
+            
+            #$str = print_seq_annotation( $node, $str, $seq );
+                
+            #    my @attr = $relation->annotation->get_Annotations('_attr');    # check id_source
+            #    
+            #    # TODO: double-check the data here
+            #    my ($id_ref_0) = $seq->annotation->get_nested_Annotations(
+            #        '-keys'      => ['id_source'],
+            #        '-recursive' => 1
+            #    );
+            #    my ($id_ref_1) = $relation->to->annotation->get_nested_Annotations(
+            #        '-keys'      => ['id_source'],
+            #        '-recursive' => 1
+            #    );
+            #    
+            #    my $confidence      = $relation->confidence();
+            #    my $confidence_type = $relation->confidence_type();
+            #    
+            #    my $relation_el = $helper->create_node(
+            #        {   Name    => 'generic',
+            #            Data    => {
+            #                Tag => $relation->tagname,
+            #                }
+            #        },
+            #        $clade_el
+            #    );
+            #    $relation_el->setAttribute('id_ref_0',$id_ref_0->value);
+            #    $relation_el->setAttribute('id_ref_1',$id_ref_1->value);
+            #    $relation_el->setAttribute('type',$relation->value);
+            #    if ($confidence) {
+            #        my $confidence_el = $helper->create_node(
+            #            {   Name    => 'generic',
+            #                Data    => {
+            #                    Tag => $relation->tagname,
+            #                    Value   => $confidence
+            #                    }
+            #            },
+            #            $relation_el
+            #        );                
+            #        if ($confidence_type) {
+            #            $relation_el->set_Attribute('type', $confidence_type);
+            #        }
+            #    }
+            
+            # TODO: missing the attributes here?
             $self->_print_annotation($seq_el, $seq->annotation);
 
             # print mol_seq
@@ -705,6 +689,59 @@ sub _print_annotation {
         }
     }
 }
+
+sub _print_relations {
+    my ( $self, $obj, $rel, $parent_node) = @_;
+    
+    my $helper = $self->{helper};
+    
+    my @attr = $obj->annotation->get_Annotations('_attr');    # check id_source
+    
+    # this doesn't do anything
+    if (@attr) {
+        my @id_source = $attr[0]->get_Annotations('id_source');
+    }
+    
+    my ($id_ref_0) = $obj->annotation->get_nested_Annotations(
+        '-keys'      => ['id_source'],
+        '-recursive' => 1
+    );
+    my ($id_ref_1) = $rel->to->annotation->get_nested_Annotations(
+        '-keys'      => ['id_source'],
+        '-recursive' => 1
+    );
+    
+    my $confidence      = $rel->confidence();
+    my $confidence_type = $rel->confidence_type();
+    
+    my $rel_el = $helper->create_node(
+        {
+            Name    => 'generic',
+            Data    => {
+                Tag => $rel->tagname,
+                Attributes  => {
+                    id_ref_0    => $id_ref_0->value,
+                    id_ref_1    => $id_ref_1->value,
+                    type        => $rel->type
+                }
+                
+            }
+         }, $parent_node
+    );
+    if ($confidence) {
+        my $confidence_el = $helper->create_node(
+            {
+                Name    => 'generic',
+                Data    => {
+                    Tag     => 'confidence',
+                    Value   => $confidence
+                }
+            }, $rel_el
+        );
+        $confidence_el->setAttribute('type', $confidence_type) if defined($confidence_type);
+    }
+}
+
 
 =head2 _write_tree_Helper_annotatableNode
 
