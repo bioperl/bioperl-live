@@ -212,6 +212,8 @@ sub root {
   return $self->{'_rootnode'};
 }
 
+sub get_root_node { shift->root(@_) }
+
 =head2 rooted
 
  Title   : rooted
