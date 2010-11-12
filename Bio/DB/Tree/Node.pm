@@ -98,16 +98,18 @@ sub new {
     my($class,@args) = @_;
 
     my $self = $class->SUPER::new(@args);
-    my ($id,$label,$bl,$parent,$store) = $self->_rearrange([qw(NODE_ID
-							   ID
-							   BRANCH_LENGTH
-							   PARENT_ID
-							   STORE
-							 )],
-						       @args);
+    my ($id,$label,$bl,$bootstrap,$parent,$store) = 
+        $self->_rearrange([qw(NODE_ID
+			      ID
+			      BRANCH_LENGTH
+                              BOOTSTRAP
+			      PARENT_ID
+			      STORE)],
+                          @args);
     defined $id && $self->node_id($id);
     defined $label && $self->id($label);
     defined $bl && $self->branch_length($bl);
+    defined $bootstrap && $self->bootstrap($bootstrap);
     defined $parent && $self->parent_id($parent);
     defined $store && $self->store($store);
     $self->_dirty(0);
@@ -152,8 +154,6 @@ sub parent_id {
     }
     return $self->{'_parent_id'};
 }
-
-*_creation_id  = \&node_id;
 
 =head2 DB enabling methods
 
@@ -239,24 +239,29 @@ sub add_Descendent{
   shift->throw("not implemented");
 }
 
-=head2 each_Descendent
+=head2 children
 
- Title   : each_Descendent($sortby)
- Usage   : my @nodes = $node->each_Descendent;
- Function: all the descendents for this Node (but not their descendents
-					      i.e. not a recursive fetchall)
+ Title   : children($sortby)
+ Usage   : my @nodes = $node->children;
+ Function: all the children of this Node (but not recursively)
  Returns : Array of Bio::Tree::NodeI objects
  Args    : $sortby [optional] "height", "creation", "alpha", "revalpha",
            or coderef to be used to sort the order of children nodes.
 
 =cut
 
-sub each_Descendent{
-  my $self = shift;
-  my $sortby = shift;
-  $self->store->_fetch_node_children($self->node_id, $sortby);
+sub children{
+    my $self = shift;
+    my $sortby = shift;
+    
+    if (! exists($self->{'_children'})) {
+        my @nodes = $self->store->fetch_nodes_by_parent($self, $sortby);
+        $self->{'_children'} = [@nodes];
+    }
+    return @{$self->{'_children'}};
 }
 
+sub each_Descendent { shift->children(@_) }
 
 =head2 remove_Descendent
 
@@ -356,13 +361,13 @@ sub branch_length{
   my $self = shift;
   if( @_ ) {
     my $bl = shift;
-    if( defined $bl &&
-	$bl =~ s/\[(\d+)\]// ) {
+    if( defined $bl && $bl =~ s/\[([\d\.]+)\]// ) {
       $self->bootstrap($1);
+    } else {
+        $self->{'_branch_length'} = $bl;
+        $self->invalidate_height();
+        $self->_dirty(1);
     }
-    $self->{'_branch_length'} = $bl;
-    $self->invalidate_height();
-    $self->_dirty(1);
   } elsif ( ! exists $self->{'_branch_length'} ) {
       $self->_load_from_db;
   }
@@ -380,20 +385,14 @@ sub branch_length{
 =cut
 
 sub bootstrap {
-
-}
-
-=head2 description
-
- Title   : description
- Usage   : $obj->description($newval)
- Function: Get/Set the description string
- Returns : value of description
- Args    : newvalue (optional)
-
-=cut
-
-sub description {
+    my $self = shift;
+    if( @_ ) {
+        $self->{'_bootstrap'} = shift;
+        $self->_dirty(1);
+    } elsif ( ! exists $self->{'_bootstrap'} ) {
+        $self->_load_from_db;
+    }
+    return $self->{'_bootstrap'};
 }
 
 =head2 id
@@ -447,7 +446,6 @@ sub id {
 =cut
 
 # implemented in NodeI interface 
-
 
 =head2 internal_id
 
