@@ -441,11 +441,6 @@ sub write_xml {
     my $top = $helper->create_node({Name => 'document'});
     my $root_el = $helper->create_node({Name => 'phyloxml'}, $top);
 
-    #my $top = XML::LibXML::Document->createDocument( '1.0', 'UTF-8' );
-    #$top->setDocumentElement($root_el);
-    #$root_el->setNamespace("http://www.w3.org/2001/XMLSchema-instance", 'xsi', 0);
-    #$root_el->setNamespace("http://www.phyloxml.org");
-    
     foreach my $tree (@trees) {
         my $phylo = $helper->create_node({Name => 'phylogeny'}, $root_el);
         
@@ -572,56 +567,53 @@ sub _clade_els {
     foreach my $child ( $tree_node->each_Descendent() ) {
         $self->_clade_els( $child, $clade_el );
     }
-    
+
+    #for my $relation ($seq->annotation->get_Annotations('sequence_relation')) {
+    #    my @attr = $relation->annotation->get_Annotations('_attr');    # check id_source
+    #    
+    #    # TODO: double-check the data here
+    #    my ($id_ref_0) = $seq->annotation->get_nested_Annotations(
+    #        '-keys'      => ['id_source'],
+    #        '-recursive' => 1
+    #    );
+    #    my ($id_ref_1) = $relation->to->annotation->get_nested_Annotations(
+    #        '-keys'      => ['id_source'],
+    #        '-recursive' => 1
+    #    );
+    #    
+    #    my $confidence      = $relation->confidence();
+    #    my $confidence_type = $relation->confidence_type();
+    #    
+    #    my $relation_el = $helper->create_node(
+    #        {   Name    => 'generic',
+    #            Data    => {
+    #                Tag => $relation->tagname,
+    #                }
+    #        },
+    #        $clade_el
+    #    );
+    #    $relation_el->setAttribute('id_ref_0',$id_ref_0->value);
+    #    $relation_el->setAttribute('id_ref_1',$id_ref_1->value);
+    #    $relation_el->setAttribute('type',$relation->value);
+    #    if ($confidence) {
+    #        my $confidence_el = $helper->create_node(
+    #            {   Name    => 'generic',
+    #                Data    => {
+    #                    Tag => $relation->tagname,
+    #                    Value   => $confidence
+    #                    }
+    #            },
+    #            $relation_el
+    #        );                
+    #        if ($confidence_type) {
+    #            $relation_el->set_Attribute('type', $confidence_type);
+    #        }
+    #    }
+    #}
+
     # print all sequences
     if ( $tree_node->has_sequence ) {
         foreach my $seq ( @{ $tree_node->sequence } ) {
-
-            # if sequence_relation exists
-            my @relations = $seq->annotation->get_Annotations('sequence_relation');
-            for my $relation (@relations) {
-                my @attr = $relation->annotation->get_Annotations('_attr');    # check id_source
-                
-                # TODO: double-check the data here
-                my ($id_ref_0) = $seq->annotation->get_nested_Annotations(
-                    '-keys'      => ['id_source'],
-                    '-recursive' => 1
-                );
-                my ($id_ref_1) = $relation->to->annotation->get_nested_Annotations(
-                    '-keys'      => ['id_source'],
-                    '-recursive' => 1
-                );
-                
-                my $confidence      = $relation->confidence();
-                my $confidence_type = $relation->confidence_type();
-                
-                my $relation_el = $helper->create_node(
-                    {   Name    => 'generic',
-                        Data    => {
-                            Tag => $relation->tagname,
-                            }
-                    },
-                    $clade_el
-                );
-                $relation_el->setAttribute('id_ref_0',$id_ref_0->value);
-                $relation_el->setAttribute('id_ref_1',$id_ref_1->value);
-                $relation_el->setAttribute('type',$relation->value);
-                if ($confidence) {
-                    my $confidence_el = $helper->create_node(
-                        {   Name    => 'generic',
-                            Data    => {
-                                Tag => $relation->tagname,
-                                Value   => $confidence
-                                }
-                        },
-                        $relation_el
-                    );                
-                    if ($confidence_type) {
-                        $relation_el->set_Attribute('type', $confidence_type);
-                    }
-                }
-            }
-
             my $seq_el = $helper->create_node({
                 Name        => 'generic',
                 Data        => {
@@ -634,8 +626,6 @@ sub _clade_els {
                     $seq_el->setAttribute('id_source', $id_source->value);
                 }
             }
-            
-            my @all_anns = $seq->annotation->get_Annotations();
             
             $self->_print_annotation($seq_el, $seq->annotation);
 
