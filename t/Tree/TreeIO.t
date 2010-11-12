@@ -163,7 +163,7 @@ while( $tree = $treeio->next_tree ) {
     is(@leaves, 13);
 #/maj   is(@nodes, 25);
     is(@nodes, 24); # this is clear from the datafile and counting \maj
-    ($node) = $tree->find_node(-id => '18');
+    ($node) = $tree->find_node('18');
     ok($node);
     is($node->id, '18');
     is($node->branch_length, '0.030579');
@@ -186,7 +186,7 @@ is(@nodes, 24); #/maj
 is($node->id, '18');
 is($node->branch_length, '0.028117');
 
-($node) = $tree->find_node(-id => 'C-vittat');
+($node) = $tree->find_node('C-vittat');
 is($node->id, 'C-vittat');
 is($node->branch_length, '0.087619');
 is($node->ancestor->id, '14');
@@ -209,7 +209,7 @@ is($node->id, '18');
 
 is($node->branch_length, '0.029044');
 
-($node) = $tree->find_node(-id => 'C-vittat');
+($node) = $tree->find_node('C-vittat');
 is($node->id, 'C-vittat');
 is($node->branch_length, '0.097855');
 is($node->ancestor->id, '14');
@@ -226,7 +226,7 @@ SKIP: {
     ok($tree);
     is($tree->id, 'PAUP_1');
     is($tree->get_leaf_nodes, 6);
-    ($node) = $tree->find_node(-id => 'Spombe');
+    ($node) = $tree->find_node('Spombe');
     is($node->branch_length,0.221404);
     
     # test nexus MrBayes tree parsing
@@ -238,7 +238,7 @@ SKIP: {
     ok($tree);
     is($tree->id, 'rep.1');
     is($tree->get_leaf_nodes, 54);
-    ($node) = $tree->find_node(-id => 'd.madeirensis');
+    ($node) = $tree->find_node('d.madeirensis');
     is($node->branch_length,0.039223);
     while ($tree = $treeio->next_tree) {
         $ct++;
@@ -317,7 +317,7 @@ my $root = $tree->get_root_node;
 isa_ok($root, 'Bio::Tree::NodeI');
 
 my $total1 = 0;
-for my $child ($root->get_Descendents) {
+for my $child ($root->nodes) {
     $total1++;
 }
 
@@ -335,7 +335,7 @@ isa_ok($root, 'Bio::Tree::NodeI');
 TODO: {
     local $TODO = 'The nodes are garbage-collected away b/c Tree isn\'t retained in memory';
     my $total2 = 0;
-    for my $child ($root->get_Descendents) {
+    for my $child ($root->nodes) {
         $total2++;
     }
     

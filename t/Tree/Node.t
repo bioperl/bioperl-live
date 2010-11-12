@@ -99,32 +99,40 @@ my $in = Bio::TreeIO->new(
   -string => $str,
 );
 my $t = $in->next_tree;
+#  print STDERR $t->ascii;
   my $s;
   my $old_root = $t->get_root_node();
-  my ($b) = $t->find_node( -id => "B" );
+  my ($b) = $t->find_node("B");
   my $b_anc = $b->ancestor;
 
-  my $r = $b->create_node_on_branch( -FRACTION => 0.5 );
+  my $r = new $b;
   $r->id('fake');
+  $b->split_branch_with_node($r,0.5);
 
   # before reroot
   is( $t->as_text('newick',$in->params), "(A:52,(C:50,(B:23)fake:23):11,D:70)68;", 'with fake node' );
 
+#  print STDERR $t->ascii;
   # after reroot
   $t->reroot($r);
+#  print STDERR $t->ascii;
   is( $t->as_text('newick',$in->params), "(B:23,(C:50,(A:52,D:70)68:11):23)fake;",
     "after reroot on fake node" );
   $t->reroot($b);
-
+#  print STDERR $t->ascii;
   is( $t->as_text('newick',$in->params), "(((C:50,(A:52,D:70)68:11):23)fake:23)B;", "reroot on B" );
-
+#  print STDERR $t->ascii;
   $t->reroot($b_anc);
-  $t->splice( -remove_id => 'fake' );
+#  print STDERR $t->ascii;
+  $t->find('fake')->splice;
+#  print STDERR $t->ascii;
+
+#  $t->splice( -remove_id => 'fake' );
 
   is(
     $t->as_text('newick',$in->params),
-    "(B:23,C:50,(A:52,D:70)68:11);",
+    "(B:46,C:50,(A:52,D:70)68:11);",
     "remove fake node, reroot on former B anc"
   );
   $t->reroot($old_root);
-  is( $t->as_text('newick',$in->params), "(A:52,(B:23,C:50):11,D:70)68;", "roundtrip" );
+  is( $t->as_text('newick',$in->params), "(A:52,(B:46,C:50):11,D:70)68;", "roundtrip" );

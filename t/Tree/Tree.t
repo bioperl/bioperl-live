@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 66);
+    test_begin();
     use_ok('Bio::TreeIO');
 }
 
@@ -62,8 +62,7 @@ my @hADH = ( $tree->find_node('hADH1'),
 	     $tree->find_node('hADH2') );
 my ($n4) = $tree->find_node('yADH4');
 
-is($tree->is_monophyletic(-nodes    => \@hADH,
-			  -outgroup => $n4),1,'Test Monophyly');
+is($tree->is_monophyletic(\@hADH,$n4),1,'Test Monophyly');
 
 my @mixgroup = ( $tree->find_node('hADH1'),
 		 $tree->find_node('yADH2'),
@@ -74,17 +73,19 @@ my ($iADHX) = $tree->find_node('iADHX');
 
 # test height
 is($iADHX->height, 0,'Height');
-is($iADHX->depth,0.22,'Depth');
-isnt( $tree->is_monophyletic(-nodes   => \@mixgroup,
-			    -outgroup=> $iADHX),1, 'non-monophyletic group');
+is($iADHX->distance_to_root,0.22,'Distance to root');
+isnt( $tree->is_monophyletic(\@mixgroup,$iADHX),1, 'non-monophyletic group');
 
 # binary tree?
 is $tree->is_binary, 0, 'not a binary tree';
-is scalar $tree->get_nodes, 12, '12 nodes';
+#print STDERR $tree->ascii;
+is scalar $tree->nodes, 12, '12 nodes';
 $tree->verbose(-1);
+#print STDERR $tree->ascii;
 $tree->force_binary;
+#print STDERR $tree->ascii;
 is $tree->is_binary, 1, 'after force_binary() it is';
-is scalar $tree->get_nodes, 17, 'and there are more nodes (17)';
+isnt(scalar $tree->nodes, 12, 'and there are more nodes (not 12 anymore)');
 
 my $in = Bio::TreeIO->new(-format => 'newick',
 			 -fh     => \*DATA);
@@ -94,11 +95,9 @@ my ($a,$b,$c,$d) = ( $tree->find_node('A'),
 		     $tree->find_node('C'),
 		     $tree->find_node('D'));
 
-is($tree->is_monophyletic(-nodes => [$b,$c],
-			  -outgroup => $d),1, 'B,C are Monophyletic');
+is($tree->is_monophyletic([$b,$c],$d),1, 'B,C are Monophyletic');
 
-is($tree->is_monophyletic(-nodes => [$b,$a],
-			  -outgroup => $d),1,'A,B are Monophyletic');
+is($tree->is_monophyletic([$b,$a],$d),1,'A,B are Monophyletic');
 
 $tree = $in->next_tree;
 my ($e,$f,$i);
@@ -110,19 +109,15 @@ my ($e,$f,$i);
 			   $tree->find_node('F'),
 			   $tree->find_node('I'),
 			   );
-isnt( $tree->is_monophyletic(-nodes => [$b,$f],
-			    -outgroup => $d),1,'B,F are not Monophyletic' );
+isnt( $tree->is_monophyletic([$b,$f],$d),1,'B,F are not Monophyletic' );
 
-is($tree->is_monophyletic(-nodes => [$b,$a],
-			  -outgroup => $f),1, 'A,B are Monophyletic');
+is($tree->is_monophyletic([$b,$a],$f),1, 'A,B are Monophyletic');
 
 # test for paraphyly
 
-isnt(  $tree->is_paraphyletic(-nodes => [$a,$b,$c],
-			   -outgroup => $d), 1,'A,B,C are not Monophyletic w D as outgroup');
+isnt(  $tree->is_paraphyletic([$a,$b,$c],$d), 1,'A,B,C are not Monophyletic w D as outgroup');
 
-is(  $tree->is_paraphyletic(-nodes => [$a,$f,$e],
-			   -outgroup => $i), 1, 'A,F,E are monophyletic with I as outgroup');
+is(  $tree->is_paraphyletic([$a,$f,$e],$i), 1, 'A,F,E are monophyletic with I as outgroup');
 
 
 # test for rerooting the tree
@@ -131,7 +126,7 @@ my $out = Bio::TreeIO->new(-format => 'newick',
 			   -noclose => 1);
 $tree = $in->next_tree;
 $tree->verbose( -1 ) unless $verbose;
-my $node_cnt_orig = scalar($tree->get_nodes);
+my $node_cnt_orig = scalar($tree->nodes);
 # reroot on an internal node: should work fine
 $a = $tree->find_node('A');
 # removing node_count checks because re-rooting can change the
@@ -139,12 +134,12 @@ $a = $tree->find_node('A');
 my $total_length_orig = $tree->total_branch_length;
 is $tree->total_branch_length, $tree->subtree_length, 
     "subtree_length() without attributes is an alias to total_branch_lenght()";
-cmp_ok($total_length_orig, '>',$tree->subtree_length($a->ancestor), 
-       'Length of the tree is larger that lenght of a subtree');
+cmp_ok($total_length_orig, '>',$a->ancestor->subtree_length, 
+       'Length of the tree is larger than length of a subtree');
 $out->write_tree($tree) if $verbose;
 is($tree->reroot($a),1, 'Can re-root with A as outgroup');
 $out->write_tree($tree) if $verbose;
-is($node_cnt_orig, scalar($tree->get_nodes), 'Count the number of nodes');
+is($node_cnt_orig, scalar($tree->nodes), 'Count the number of nodes');
 my $total_length_new = $tree->total_branch_length;
 my $eps = 0.001 * $total_length_new;	# tolerance for checking length
 warn("orig total len ", $total_length_orig, "\n") if $verbose;
@@ -162,8 +157,8 @@ is($tree->get_root_node, $a, "Root node is A");
 # former test expected the old behavior of reroot; here is the new
 # test/maj
 my $desc = ($a->each_Descendent)[0];
-my $newroot = $desc->create_node_on_branch(-FRACTION=>0.5, -ANNOT=>{id=>'newroot'});
-$tree->reroot($newroot);
+$tree->reroot_above($desc,0.5);
+#$tree->reroot($newroot);
 is($tree->get_root_node, $a->ancestor, "Root node is A's ancestor");
 
 # try to reroot on an internal, will result in there being 1 less node
@@ -226,29 +221,34 @@ for $n ( grep {! $_->is_Leaf } $tree->get_nodes ) {
 # enable for debugging
 Bio::TreeIO->new(-format => 'newick')->write_tree($tree) if( $verbose );
 
-my $BFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'b')));
+
+my $BFSorder = join(",", map { $_->id } ( $tree->nodes_breadth_first));
 is($BFSorder, '0,1,3,2,C,D,E,F,G,H,A,B', 'BFS traversal order');
-my $DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
+my $DFSorder = join(",", map { $_->id } ( $tree->nodes_depth_first));
 is($DFSorder, '0,1,2,A,B,C,D,3,E,F,G,H', 'DFS travfersal order');
 
 
 # test some Bio::Tree::TreeFunctionI methods
 #find_node tested extensively already
 $tree->remove_Node('H');
-$DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
+$DFSorder = join(",", map { $_->id } ( $tree->nodes_depth_first));
 is($DFSorder, '0,1,2,A,B,C,D,3,E,F,G', 'DFS traversal after removing H');
 #get_lineage_nodes tested during get_lca
-$tree->splice(-remove_id => 'G');
-$DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
+#$tree->splice(-remove_id => 'G');
+$tree->find('G')->splice();
+$DFSorder = join(",", map { $_->id } ( $tree->nodes_depth_first));
 is($DFSorder, '0,1,2,A,B,C,D,3,E,F', 'DFS traversal after removing G');
-$tree->splice(-remove_id => [('E', 'F')], -keep_id => 'F');
-$DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
+$tree->find('E')->splice();
+#$tree->splice(-remove_id => [('E', 'F')], -keep_id => 'F');
+$DFSorder = join(",", map { $_->id } ( $tree->nodes_depth_first));
 # the node '3' is not explicitly removed, so it should still be there
 # I suspect that it disappeared before was due to the previously
 # automatic removal of internal degree 2 nodes../maj
 is($DFSorder, '0,1,2,A,B,C,D,3,F', 'DFS traversal after removing E');
-$tree->splice(-keep_id => [qw(0 1 2 A B C D)]);
-$DFSorder = join(",", map { $_->id } ( $tree->get_nodes(-order => 'd')));
+$tree->find('3')->splice();
+$tree->find('F')->splice();
+#$tree->splice(-keep_id => [qw(0 1 2 A B C D)]);
+$DFSorder = join(",", map { $_->id } ( $tree->nodes_depth_first));
 is($DFSorder, '0,1,2,A,B,C,D', 'DFS after removing all but 0,1,2,A,B,C,D');
 #get_lca, merge_lineage, contract_linear_paths tested in in Taxonomy.t
 
@@ -257,7 +257,7 @@ is($DFSorder, '0,1,2,A,B,C,D', 'DFS after removing all but 0,1,2,A,B,C,D');
 $treeio = Bio::TreeIO->new(-format => 'newick',
 			   -file   => test_input_file('bootstrap.tre'));
 $tree = $treeio->next_tree;
-my ($test_node) = $tree->find_node(-id => 'A');
+my ($test_node) = $tree->root->find_by_id('A');
 is($test_node->ancestor->id, 90,'Testing bootstrap copy');
 is($test_node->ancestor->ancestor->id, '25','Testing bootstrap copy');
 $tree->move_id_to_bootstrap;
@@ -271,7 +271,7 @@ $treeio = Bio::TreeIO->new(-format => 'newick',
 			   -file   => test_input_file('bootstrap.tre'),
 			   -internal_node_id => 'bootstrap');
 $tree = $treeio->next_tree;
-($test_node) = $tree->find_node(-id => 'A');
+($test_node) = $tree->root->find_by_id('A');
 is($test_node->ancestor->id, '','Testing auto-boostrap copy during parse');
 is($test_node->ancestor->ancestor->id, '',
    'Testing auto-boostrap copy during parse');
@@ -306,6 +306,50 @@ sub test_rev {
 }
 test_rev("(a,b);","(b,a);");
 test_rev("(a,(b,c,d));","((b,c,d),a);");
+
+
+# Do some re-rooting testing.
+sub test_reroot {
+    my $tree = shift;
+    my $node = shift;
+
+    my $orig_str = $tree->as_text('newick');
+    my $orig_root = $tree->root;
+    $tree->reroot($node);
+    $tree->reroot($orig_root);
+    my $str = $tree->as_text('newick');
+    is($orig_str,$str,"Testing rerooting tree on node ".$node->id);
+}
+$tree = tree_from_string("(a,(b,(c,(d,(e,(f,(g,h)))))));");
+# Test a re-root roundtrip for each of the tree's nodes.
+foreach my $node ($tree->root->nodes) {
+  test_reroot($tree,$node);
+}
+
+$tree = tree_from_string("(a[&&NHX:type=whatever],(b[&&NHX:type=however],(c[&&NHX:type=evermore],(d,(e,(f,(g,h)))))));");
+my @found;
+@found = $tree->root->find_by_tag_value('type','whatever');
+is(scalar(@found),1,"Find node by specific tag value");
+@found = $tree->root->find_by_tag_value('type','^.*ever$');
+is(scalar(@found),2,"Find nodes by tag_value regex");
+@found = $tree->root->find_by_tag_value('type','ever');
+is(scalar(@found),3,"Find nodes by tag_value regex");
+
+
+# Test force binary script.
+$tree = tree_from_string("(a,b,c,d,e,f,g,h);");
+#print STDERR $tree->ascii;
+$tree->root->force_binary();
+#print STDERR $tree->ascii;
+
+
+$tree = tree_from_string("(((((((a,b)c)d)e)f)g)h)i;");
+#print STDERR $tree->ascii;
+$tree->root->remove_elbow_nodes;
+#print STDERR $tree->ascii;
+
+
+done_testing();
 
 __DATA__
 (D,(C,(A,B)));

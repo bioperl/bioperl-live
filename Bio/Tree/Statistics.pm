@@ -94,6 +94,54 @@ use base qw(Bio::Root::Root);
 
 =cut
 
+sub _read_trait_file {
+    my $self = shift;
+    my $file = shift;
+    my $column = shift || 1;
+
+    my $traits;
+    open my $TRAIT, "<", $file or $self->("Can't find file $file: $!\n");
+
+    my $first_line = 1;
+    while (<$TRAIT>) {
+	if ($first_line) {
+	    $first_line = 0;
+	        s/['"]//g;
+    my @line = split;
+	    $traits->{'my_trait_name'} = $line[$column];
+	    next;
+	}
+	s/['"]//g;
+my @line = split;
+	last unless $line[0];
+	$traits->{$line[0]} = $line[$column];
+    }
+    return $traits;
+}
+
+sub add_trait {
+    my $self = shift;
+    my $tree = shift;
+    my $file = shift;
+    my $column = shift;
+
+    my $traits = $self->_read_trait_file($file, $column); # filename, trait column
+    my $key = $traits->{'my_trait_name'};
+    #use YAML; print Dump $traits; exit;
+    foreach my $node ($tree->get_leaf_nodes) {
+	# strip quotes from the node id
+	$node->id($1) if $node->id =~ /^['"]+(.*)['"]+$/;
+eval {
+    $node->verbose(2);
+    $node->add_tag_value($key, $traits->{ $node->id } );
+};
+	$self->throw("ERROR: No trait for node [".
+		          $node->id. "/".  $node->internal_id. "]")
+	    if $@;
+    }
+    return $key;
+}
+
 
 =head2 assess_bootstrap
 

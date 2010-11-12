@@ -28,7 +28,7 @@ while( $tree = $treeio->next_tree ) {
     is(@leaves, 13);
 #\maj    is(@nodes, 25);
     is(@nodes, 24);
-    ($node) = $tree->find_node(-id => '18');
+    ($node) = $tree->find_node('18');
     ok($node);
     is($node->id, '18');
     is($node->branch_length, '0.030579');
@@ -51,7 +51,7 @@ is(@nodes, 24); #/maj
 is($node->id, '18');
 is($node->branch_length, '0.028117');
 
-($node) = $tree->find_node(-id => 'C-vittat');
+($node) = $tree->find_node('C-vittat');
 is($node->id, 'C-vittat');
 is($node->branch_length, '0.087619');
 is($node->ancestor->id, '14');
@@ -74,7 +74,7 @@ is($node->id, '18');
 
 is($node->branch_length, '0.029044');
 
-($node) = $tree->find_node(-id => 'C-vittat');
+($node) = $tree->find_node('C-vittat');
 is($node->id, 'C-vittat');
 is($node->branch_length, '0.097855');
 is($node->ancestor->id, '14');

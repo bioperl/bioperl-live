@@ -188,10 +188,10 @@ sub end_document {
 
     my ($root) = @{$self->{'_currentnodes'}};
 
-    $self->debug("Root node is " . $root->to_string()."\n");
+    $self->debug("Root node is " . $root->id."\n");
     if( $self->verbose > 0 ) { 
 	foreach my $node ( $root->get_Descendents  ) {
-	    $self->debug("node is ". $node->to_string(). "\n");
+	    $self->debug("node is ". $node->id. "\n");
 	}
     }
     my $tree = $self->treetype->new(-verbose => $self->verbose,
@@ -251,16 +251,16 @@ sub end_element{
 
        $tnode = $self->nodetype->new( -verbose => $self->verbose,
 				      %{$node});       
-       $self->debug( "new node will be ".$tnode->to_string."\n");
+       $self->debug( "new node will be ".$tnode->id."\n");
        if ( !$node->{'-leaf'} && $levelct > 0) {
-	   $self->debug(join(',', map { $_->to_string } 
+	   $self->debug(join(',', map { $_->id } 
 			     @{$self->{'_currentnodes'}}). "\n");
 	   $self->throw("something wrong with event construction treelevel ".
 			"$level is recorded as having $levelct nodes  ".
 			"but current nodes at this level is $curcount\n")
 	       if( $levelct > $curcount);	
 	   for ( splice( @{$self->{'_currentnodes'}}, - $levelct)) {
-	       $self->debug("adding desc: " . $_->to_string . "\n");
+	       $self->debug("adding desc: " . $_->id . "\n");
 	       $tnode->add_Descendent($_);
 	   }
 	   $self->{'_nodect'}->[$self->{'_treelevel'}+1] = 0;
@@ -348,6 +348,8 @@ sub characters{
 	   $hash->{'-desc'} = $ch;
        } elsif ( $self->in_element('tag_name') ) {
 	   $hash->{'-NHXtagname'} = $ch;
+	   # If we find a NHX tag, auto-set the node type to NodeNHX.
+	   $self->nodetype("Bio::Tree::NodeNHX");
        } elsif ( $self->in_element('tag_value') ) {
 	   $hash->{'-nhx'}->{$hash->{'-NHXtagname'}} = $ch;
 	   delete $hash->{'-NHXtagname'};

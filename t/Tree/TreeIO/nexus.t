@@ -26,7 +26,7 @@ SKIP: {
     ok($tree);
     is($tree->id, 'PAUP_1');
     is($tree->get_leaf_nodes, 6);
-    my ($node) = $tree->find_node(-id => 'Spombe');
+    my ($node) = $tree->find_node('Spombe');
     is($node->branch_length,0.221404);
     
     # test nexus MrBayes tree parsing
@@ -38,7 +38,7 @@ SKIP: {
     ok($tree);
     is($tree->id, 'rep.1');
     is($tree->get_leaf_nodes, 54);
-    ($node) = $tree->find_node(-id => 'd.madeirensis');
+    ($node) = $tree->find_node('d.madeirensis');
     is($node->branch_length,0.039223);
 	while ($tree = $treeio->next_tree) {
 		$ct++;

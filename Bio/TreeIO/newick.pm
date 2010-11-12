@@ -219,7 +219,7 @@ sub _write_tree_Helper {
     my ( $node, $params ) = @_;
     my @data;
 
-    foreach my $n ( $node->each_Descendent($params->{order_by}) ) {
+    foreach my $n ( $node->each_Descendent() ) {
         push @data, $self->_write_tree_Helper( $n, $params );
     }
 
