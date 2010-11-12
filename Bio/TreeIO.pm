@@ -205,17 +205,18 @@ sub _eventHandler{
 
 sub _initialize {
     my($self, @args) = @_;
-    $self->{'_handler'} = undef;
 
     $self->get_params; # Initialize the default parameters.
 
-    my ($nen,$ini) = $self->_rearrange
-    ([qw(NEWLINE_EACH_NODE INTERNAL_NODE_ID)],@args);
+    my ($nen,$ini,$handler) = $self->_rearrange
+        ([qw(NEWLINE_EACH_NODE INTERNAL_NODE_ID HANDLER)],@args);
     $self->set_param('newline_each_node',$nen);
     $self->set_param('internal_node_id',$ini);
 
-    $self->attach_EventHandler(Bio::TreeIO::TreeEventObjBuilder->new
-                   (-verbose => $self->verbose(), @args));
+    $handler = 
+        Bio::TreeIO::TreeEventObjBuilder->new(-verbose=>$self->verbose, @args)
+        unless $handler;
+    $self->attach_EventHandler($handler);
     $self->_initialize_io(@args);
     #$self->debug_params;
 }

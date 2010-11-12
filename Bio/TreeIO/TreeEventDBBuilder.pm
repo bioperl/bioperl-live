@@ -103,9 +103,11 @@ sub new {
           $self->_rearrange([qw(STORE
                                 )], @args);
     
-    if (! (ref($store) && $store->is_a("Bio::DB::Tree::Store"))) {
+    if (defined($store)) {
         $self->throw("Need a Bio::DB::Tree::Store object for -store, not "
-                     .ref($store));
+                     .ref($store))
+            unless ref($store) && $store->isa("Bio::DB::Tree::Store");
+        $self->store($store);
     }
 
     return $self;
@@ -152,6 +154,7 @@ sub start_document {
     $self->{'_nodestack'} = [];
     $self->{'_elemstack'} = [];
     $self->{'_attrstack'} = [];
+    $self->{'_numtrees'} = 0;
     return;
 }
 
@@ -196,8 +199,9 @@ sub start_element{
         push @{$self->{'_nodestack'}}, {};
     } elsif ( $elem eq 'tree' ) {
         delete $self->{'_rootnode'};
+        $self->{'_numtrees'}++;
         push @{$self->{'_elemstack'}}, $elem;
-        push @{$self->{'_treestack'}}, {};
+        push @{$self->{'_treestack'}}, {-id => $self->{'_numtrees'}};
     } else {
         push @{$self->{'_attrstack'}}, $elem;
     }
@@ -292,6 +296,9 @@ sub in_element{
 sub within_element{
     my $self = shift;
     my $e = shift;
+    # if ((! defined($e)) || (! defined($self->{'_elemstack'}->[-1]))) {
+    #     $self->throw("unexpected undefined value: \"$e\"");
+    # } 
     return ($e eq $self->{'_elemstack'}->[-1]);
 }
 
@@ -334,6 +341,10 @@ sub characters{
        my $treeh = $self->{'_treestack'}->[-1];
        if( $self->in_element('is_rooted') ) {
            $treeh->{'-is_rooted'} = $ch;
+       } elsif( $self->in_element('id') ) {
+           $treeh->{'-id'} = $ch;
+       } elsif( $self->in_element('score') ) {
+           $treeh->{'-score'} = $ch;
        }
    }
 

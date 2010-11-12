@@ -6,6 +6,8 @@ use Scalar::Util qw(blessed);
 use DBI qw(:sql_types);
 use Cwd 'abs_path';
 use File::Spec;
+use Bio::DB::Tree::Tree;
+use Bio::DB::Tree::Node;
 use base qw(Bio::DB::Tree::Store);
 
 
