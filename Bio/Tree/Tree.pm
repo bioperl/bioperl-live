@@ -226,13 +226,13 @@ sub nodelete{
  Function: Return list of Bio::Tree::NodeI objects
  Returns : array of Bio::Tree::NodeI objects
  Args    : (named values) hash with one value 
-           order => 'b|breadth' first order or 'd|depth' first order
+           -order => 'b|breadth' first order or 'd|depth' first order
+	   -sortby => '
 
 =cut
 
 sub get_nodes{
    my ($self, @args) = @_;
-   
    my ($order, $sortby) = $self->_rearrange([qw(ORDER SORTBY)],@args);
    $order ||= 'depth';
    $sortby ||= 'none';
@@ -243,13 +243,13 @@ sub get_nodes{
         push @children, $_->each_Descendent($sortby);
        }
        return @children;
-   }
-
-   if ($order =~ m/^d|(depth)$/oi) {
+   } elsif ($order =~ m/^d|(depth)$/oi) {
        # this is depth-first search I believe
        my @children = ($node,$node->get_all_Descendents($sortby));
        return @children;
-   }
+     } else {
+       $self->throw('unrecognized ordering option, should be "d" or "depth" and "b" or "breadth"');
+     }
 }
 
 =head2 get_root_node
