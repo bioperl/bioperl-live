@@ -137,12 +137,10 @@ sub new {
   $self->_register_for_cleanup(\&cleanup_tree);
   my ($root,$node,$nodel,$id,$score)= $self->_rearrange([qw(ROOT NODE NODELETE 
                               ID SCORE)], @args);
-  
   if ($node && ! $root) {
     $self->throw("Must supply a Bio::Tree::NodeI") unless ref($node) && $node->isa('Bio::Tree::NodeI');
     my @lineage = $self->get_lineage_nodes($node);
     $root = shift(@lineage) || $node;
-    
     # to stop us pulling in entire database of a Bio::Taxon when we later do
     # get_nodes() or similar, specifically set ancestor() for each node
     if ($node->isa('Bio::Taxon')) {
@@ -156,7 +154,6 @@ sub new {
   if ($root) {
     $self->set_root_node($root);
   }
-  
   $self->nodelete($nodel || 0);
   $self->id($id)       if defined $id;
   $self->score($score) if defined $score;
@@ -197,7 +194,7 @@ sub is_rooted {
 	return $self->{'_rooted'};
     } else {
 	# Default to a rooted tree.
-	return 1;	
+	return 1;
     }
 }
 
@@ -226,13 +223,13 @@ sub nodelete{
  Function: Return list of Bio::Tree::NodeI objects
  Returns : array of Bio::Tree::NodeI objects
  Args    : (named values) hash with one value 
-           order => 'b|breadth' first order or 'd|depth' first order
+           -order => 'b|breadth' first order or 'd|depth' first order
+	   -sortby => '
 
 =cut
 
 sub get_nodes{
    my ($self, @args) = @_;
-   
    my ($order, $sortby) = $self->_rearrange([qw(ORDER SORTBY)],@args);
    $order ||= 'depth';
    $sortby ||= 'none';
@@ -243,13 +240,13 @@ sub get_nodes{
         push @children, $_->each_Descendent($sortby);
        }
        return @children;
-   }
-
-   if ($order =~ m/^d|(depth)$/oi) {
+   } elsif ($order =~ m/^d|(depth)$/oi) {
        # this is depth-first search I believe
        my @children = ($node,$node->get_all_Descendents($sortby));
        return @children;
-   }
+     } else {
+       $self->throw('unrecognized ordering option, should be "d" or "depth" and "b" or "breadth"');
+     }
 }
 
 =head2 get_root_node
