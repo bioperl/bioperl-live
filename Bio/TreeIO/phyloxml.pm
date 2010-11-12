@@ -444,6 +444,9 @@ sub write_xml {
     foreach my $tree (@trees) {
         my $phylo = $helper->create_node({Name => 'phylogeny'}, $root_el);
         
+        # cache the current top-level phylogeny node
+        $self->{phylogeny_el} = $phylo;
+        
         my $root_node = $tree->get_root_node;
         for my $tag (qw(name description)) {
             for my $value ($tree->get_tag_values($tag)) {
@@ -525,7 +528,7 @@ sub _clade_els {
     # TODO: clade_relations: here or higher up
     # if clade_relation exists
     for my $relation ($ac->get_Annotations('clade_relation')) {
-        $self->_print_relations( $tree_node, $relation, $clade_el);
+        $self->_print_relations( $tree_node, $relation, $parent_el);
     }
     
     # clade id_source
@@ -548,7 +551,6 @@ sub _clade_els {
     # print all sequences
     if ( $tree_node->has_sequence ) {
         for my $seq ( @{ $tree_node->sequence } ) {
-            
             my $seq_el = $helper->create_node({
                 Name        => 'generic',
                 Data        => {
@@ -564,7 +566,7 @@ sub _clade_els {
             }
             
             for my $relation ($seq->annotation->get_Annotations('sequence_relation')) {
-                $self->_print_relations($seq, $relation, $seq_el);
+                $self->_print_relations($seq, $relation, $parent_el);
             }
             
             #$str = print_seq_annotation( $node, $str, $seq );
@@ -681,6 +683,8 @@ sub _print_annotation {
             for my $attr ($ann->get_Annotations('_attr')) {
                 if ( !$attr->isa('Bio::Annotation::SimpleValue') ) {
                     next;
+                    
+                    # TODO: Do we need this?
                     $self->throw("attribute should be a SimpleValue, got ".ref($attr));
                 }
                 $child_node->setAttribute($attr->tagname, $attr->value);
@@ -698,9 +702,10 @@ sub _print_relations {
     my @attr = $obj->annotation->get_Annotations('_attr');    # check id_source
     
     # this doesn't do anything
-    if (@attr) {
-        my @id_source = $attr[0]->get_Annotations('id_source');
-    }
+    #if (@attr) {
+    #    $self->debug(Dumper(@attr));
+    #    my @id_source = $attr[0]->get_Annotations('id_source');
+    #}
     
     my ($id_ref_0) = $obj->annotation->get_nested_Annotations(
         '-keys'      => ['id_source'],
@@ -726,7 +731,7 @@ sub _print_relations {
                 }
                 
             }
-         }, $parent_node
+         }, $self->{phylogeny_el}
     );
     if ($confidence) {
         my $confidence_el = $helper->create_node(
