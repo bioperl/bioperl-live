@@ -90,9 +90,6 @@ Internal methods are usually preceded with a _
 package Bio::Tree::TreeFunctionsI;
 use strict;
 
-use base qw(Bio::Tree::TreeI);
-
-
 sub print_tree { print shift->ascii }
 sub ascii { shift->root->ascii }
 

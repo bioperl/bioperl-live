@@ -349,6 +349,7 @@ sub characters{
        } elsif ( $self->in_element('tag_name') ) {
 	   $hash->{'-NHXtagname'} = $ch;
 	   # If we find a NHX tag, auto-set the node type to NodeNHX.
+	   use Bio::Tree::NodeNHX;
 	   $self->nodetype("Bio::Tree::NodeNHX");
        } elsif ( $self->in_element('tag_value') ) {
 	   $hash->{'-nhx'}->{$hash->{'-NHXtagname'}} = $ch;

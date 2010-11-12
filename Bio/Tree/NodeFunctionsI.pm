@@ -3,7 +3,7 @@
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
 #
-# Cared for by Jason Stajich <jason-at-bioperl-dot-org>
+# Cared for by Jason Stajich <jason-at-bioperl-dot-org> and Greg Jordan <gjuggler-at-gmail-dot-com>
 #
 # Copyright Jason Stajich
 #
@@ -18,20 +18,17 @@ Bio::Tree::NodeFunctionsI - Decorated Interface implementing basic Node methods
 =head1 SYNOPSIS
 
   use Bio::TreeIO;
-  my $in = Bio::TreeIO->new(-format => 'newick', -file => 'tree.tre');
-
+  my $in = Bio::TreeIO->new(-string => '(a,(b,c));');
   my $tree = $in->next_tree;
 
-  my @nodes = $tree->find_node('id1');
-
-  if( $tree->is_monophyletic(-nodes => \@nodes, -outgroup => $outnode) ){
-   #...
-  }
+  print $tree->ascii;
+  my $node = $tree->find('b');
+  $tree->reroot_above($node);
 
 =head1 DESCRIPTION
 
-This interface provides a set of implementated Tree functions which
-only use the defined methods in the TreeI or NodeI interface.
+This interface provides a set of methods which only use the defined
+methods in the NodeI interface.
 
 =head1 FEEDBACK
 
@@ -63,11 +60,12 @@ web:
 
   http://bugzilla.open-bio.org/
 
-=head1 AUTHOR - Jason Stajich, Aaron Mackey, Justin Reese
+=head1 AUTHOR - Jason Stajich, Aaron Mackey, Justin Reese, Greg Jordan
 
 Email jason-at-bioperl-dot-org
 Email amackey-at-virginia.edu
 Email jtr4v-at-virginia.edu
+Email gjuggler-at-gmail-dot-com
 
 =head1 CONTRIBUTORS
 
@@ -90,8 +88,6 @@ Internal methods are usually preceded with a _
 package Bio::Tree::NodeFunctionsI;
 use strict;
 
-use base qw(Bio::Tree::NodeI);
-
 
 =head2 id_output
 
@@ -100,9 +96,8 @@ use base qw(Bio::Tree::NodeI);
  Function: Return an id suitable for output in format like newick
            so that if it contains spaces or ():; characters it is properly 
            quoted
- Returns : $id string if $node->id has a value
+ Returns : string
  Args    : none
-
 
 =cut
 
@@ -118,6 +113,17 @@ sub id_output{
     return $id;
 }
 
+=head2 depth_to_root
+
+ Title   : depth_to_root
+ Usage   : my $depth = $node->depth_to_root;
+ Function: Return the number of nodes between this node and the root,
+           including this node (i.e. $tree->root->depth_to_root() is 1)
+ Returns : int
+ Args    : none
+
+=cut
+
 sub depth_to_root {
    my ($self) = @_;
    
@@ -129,6 +135,16 @@ sub depth_to_root {
    }
    return $depth;
 }
+
+=head2 height_to_root
+
+ Title   : height_to_root
+ Usage   : my $height = $node->height_to_root
+ Function: Return the total branch length between this node and the root           
+ Returns : float
+ Args    : none
+
+=cut
 
 sub height_to_root {
     my ($self) = @_;
@@ -142,6 +158,7 @@ sub height_to_root {
    return $height;
 }
 sub distance_to_root { shift->height_to_root(@_) }
+
 
 
 sub max_distance_to_leaf{
@@ -547,7 +564,11 @@ sub _ascii_art {
 	    my $stem = $results[$mid];
 	    my $str = substr($stem,0,1);
 	    $str .= $name_str;
-	    $str .= substr($stem,length($name_str)+1);
+	    my $substr_index = length($name_str)+1;
+	    $substr_index = length($stem) if ($substr_index > length($stem));
+	    my $stem_substr = substr($stem,$substr_index);
+	    $stem_substr = '' unless (defined $stem_substr);
+	    $str .= $stem_substr;
 	    $results[$mid] = $str;
 	}
 	return (\@results,$mid);

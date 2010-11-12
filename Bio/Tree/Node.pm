@@ -85,7 +85,7 @@ package Bio::Tree::Node;
 use vars qw($CREATIONORDER);
 use strict;
 
-use base qw(Bio::Root::Root Bio::Tree::NodeFunctionsI Bio::Tree::TagValueHolder);
+use base qw(Bio::Root::Root Bio::Tree::NodeI Bio::Tree::NodeFunctionsI Bio::Tree::TagValueHolder);
 
 BEGIN {
     $CREATIONORDER = 1;

@@ -106,7 +106,7 @@ use strict;
 
 # Object preamble - inherits from Bio::Root::Root
 
-use base qw(Bio::Root::Root Bio::Tree::TreeFunctionsI Bio::Tree::TagValueHolder);
+use base qw(Bio::Root::Root Bio::Tree::TreeI Bio::Tree::TreeFunctionsI Bio::Tree::TagValueHolder);
 
 =head2 new
 
