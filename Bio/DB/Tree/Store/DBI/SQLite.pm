@@ -6,6 +6,9 @@ use Scalar::Util qw(blessed);
 use DBI qw(:sql_types);
 use Cwd 'abs_path';
 use File::Spec;
+
+use Data::Dumper;
+
 use Bio::DB::Tree::Tree;
 use Bio::DB::Tree::Node;
 use base qw(Bio::DB::Tree::Store);
@@ -278,6 +281,41 @@ sub populate_node {
     return 1;
 }
 
+=head2 fetch_nodes_by_parent
+
+ Title   : fetch_nodes_by_parent
+ Usage   : @children = $store->fetch_nodes_by_parent($parent);
+ Function: Fetches the child nodes of a node from the database. 
+ Example :
+ Returns : An array of Bio::Tree::NodeI compliant objects
+ Args :    The parent, either as a node object obtained from this store,
+           or as its primary key.
+
+=cut
+
+sub fetch_nodes_by_parent{
+    my $self   = shift;
+    my $parent = shift;
+    my $sortby = shift; # we aren't doing anything with this yet
+
+    # unify parent
+    $parent = $parent->node_id if ref($parent);
+
+    my $sth = $self->{sths}->{'nodesByParent'};
+    if (! $sth) {
+        $sth = $self->_prepare("SELECT node_id FROM node WHERE parent_id = ?");
+        $self->{sths}->{'nodesByParent'} = $sth;
+    }
+    $sth->execute($parent);
+
+    my @nodes = ();
+    while (my $row = $sth->fetchrow_arrayref) {
+        push @nodes, Bio::DB::Tree::Node->new(-node_id => $row->[0],
+                                              -store => $self);
+    }
+    return @nodes;
+}
+
 =head2 Tree methods
 
 =cut
@@ -461,22 +499,6 @@ END
     $sth->execute($parent_id,$node);
   }
   $sth->finish;
-}
-
-sub _fetch_node_children {
-  my $self = shift;
-  my $id   = shift;
-  my $sortby = shift;
-
-  my $sth = $self->_prepare(<<END);
-SELECT node_id FROM node WHERE parent_id = ?
-END
-  $sth->execute($id);
-  my @nodes;
-  for my $nid ( @{$sth->fetchrow_arrayref}) {
-    push @nodes, Bio::DB::Tree::Node->new(-node_id => $nid);
-  }
-  return @nodes;
 }
 
 

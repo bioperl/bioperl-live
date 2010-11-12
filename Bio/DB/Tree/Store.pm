@@ -281,6 +281,23 @@ sub populate_node {
    $self->throw_not_implemented();
 }
 
+=head2 fetch_nodes_by_parent
+
+ Title   : fetch_nodes_by_parent
+ Usage   : @children = $store->fetch_nodes_by_parent($parent);
+ Function: Fetches the child nodes of a node from the database. 
+ Example :
+ Returns : An array of Bio::Tree::NodeI compliant objects
+ Args :    The parent, either as a node object obtained from this store,
+           or as its primary key.
+
+=cut
+
+sub fetch_nodes_by_parent{
+   my ($self,@args) = @_;
+   $self->throw_not_implemented();
+}
+
 =head1 Managing trees in the store
 
 =head2 insert_tree

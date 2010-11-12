@@ -30,13 +30,30 @@ my $treeio = Bio::TreeIO->new(-format  => 'newick',
 ok($treeio,"success creating input stream");
 is($treeio->_eventHandler,$handler,"DB event handler installed");
 
+# parse the tree
 my $tree = $treeio->next_tree();
 ok($tree, "tree parsed");
 isa_ok($tree, "Bio::DB::Tree::Tree");
 ok($tree->root, "tree has root node");
 isa_ok($tree->root,"Bio::DB::Tree::Node");
 is($tree->id, "1", "used default id setting");
-ok($tree->is_rooted, "tree is rooted");
+ok(!$tree->is_rooted, "tree is unrooted");
+
+my @children = $tree->root->children; 
+is(scalar(@children), 3, "root has 3 children");
+is_deeply([sort {($a||'') cmp ($b||'')} (map { $_->id } @children)],
+          [(undef,"Bovine","Rodent")],
+          "children have expected ids");
+is_deeply([sort {$a <=> $b} (map { $_->branch_length } @children)],
+          [(0.54939,0.69395,1.21460)],
+          "children have expected branch lengths");
+my @nodes = ();
+while (@children) {
+    my $node = shift(@children);
+    push(@children, $node->children);
+    push(@nodes,$node);
+}
+is(scalar(@nodes),11,"tree has 11 non-root nodes");
 
 done_testing();
 unlink('test_tree.idx');
