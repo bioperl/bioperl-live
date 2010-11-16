@@ -17,18 +17,29 @@ Bio::Tree::NodeFunctionsI - Decorated Interface implementing basic Node methods
 
 =head1 SYNOPSIS
 
+  # Load a Bio::Tree::Tree from a Newick-formatted string.
   use Bio::TreeIO;
   my $in = Bio::TreeIO->new(-string => '(a,(b,c));');
   my $tree = $in->next_tree;
 
-  print $tree->ascii;
-  my $node = $tree->find('b');
-  $tree->reroot_above($node);
+  # Get the root node of the tree as a Bio::Tree::Node object
+  my $root_node = $tree->root;
+  print $root_node->ascii;
+
+  # Find the node 'b' and reroot the tree at this branch.
+  my $node_b = $root_node->find('b');
+  $tree->reroot_above($node_b);
 
 =head1 DESCRIPTION
 
-This interface provides a set of methods which only use the defined
-methods in the NodeI interface.
+This interface provides a set of methods providing tree manipulation
+and querying functionality, building up only from the five methods
+defined by the Bio::Tree::NodeI interface. Any class which implements
+the NodeI interface can gain access to the NodeFunctionsI methods by
+simply inheriting from NodeFunctionsI as well as NodeI, e.g. 'use base
+qw(Bio::Tree::NodeI Bio::Tree::NodeFunctionsI)'
+
+
 
 =head1 FEEDBACK
 
@@ -89,38 +100,31 @@ package Bio::Tree::NodeFunctionsI;
 use strict;
 
 
-=head2 id_output
+=head2 is_leaf
 
- Title   : id_output
- Usage   : my $id = $node->id_output;
- Function: Return an id suitable for output in format like newick
-           so that if it contains spaces or ():; characters it is properly 
-           quoted
- Returns : string
- Args    : none
+ Title   : is_leaf
+ Usage   : do_something_only_to_leaves() if ($node->is_leaf);
+ Function: Return true if this node is a leaf node. This
+           implementation counts the number of nodes in the
+           node->children() array to determine leaf status.
+ Returns : 1 if this node is a leaf, 0 if not
+ Args    : None
 
 =cut
 
-sub id_output{
-    my $node = shift;
-    my $id = $node->id;
-    return unless( defined $id && length($id ) );
-    # single quotes must become double quotes
-    # $id =~ s/'/''/g;
-    if( $id =~ /[\(\);:,\s]/ ) {
-	$id = '"'.$id.'"';
-    }
-    return $id;
+sub is_leaf{
+    return scalar(shift->children) == 0;
 }
+sub is_Leaf { shift->is_leaf(@_) }
 
 =head2 depth_to_root
 
  Title   : depth_to_root
- Usage   : my $depth = $node->depth_to_root;
+ Usage   : my $depth = $node->depth_to_root();
  Function: Return the number of nodes between this node and the root,
            including this node (i.e. $tree->root->depth_to_root() is 1)
- Returns : int
- Args    : none
+ Returns : Integer
+ Args    : None
 
 =cut
 
@@ -139,10 +143,12 @@ sub depth_to_root {
 =head2 height_to_root
 
  Title   : height_to_root
- Usage   : my $height = $node->height_to_root
- Function: Return the total branch length between this node and the root           
- Returns : float
- Args    : none
+ Usage   : my $height = $node->height_to_root();
+ Function: Return the total branch length between this node and the
+           root node, not including the branch length (if any) above
+           the root node
+ Returns : Float
+ Args    : None
 
 =cut
 
@@ -159,7 +165,16 @@ sub height_to_root {
 }
 sub distance_to_root { shift->height_to_root(@_) }
 
+=head2 max_distance_to_leaf
 
+ Title   : max_distance_to_leaf
+ Usage   : my $max_dist = $node->max_distance_to_leaf();
+ Function: Return the maximum total branch length between this node
+           and any leaf in the subtree beneath this node
+ Returns : Float
+ Args    : None
+
+=cut
 
 sub max_distance_to_leaf{
     my ($self) = @_;
@@ -178,6 +193,17 @@ sub max_distance_to_leaf{
 sub max_height_to_leaf { shift->max_distance_to_leaf(@_) }
 sub height { shift->max_distance_to_leaf(@_) }
 
+=head2 max_depth_to_leaf
+
+ Title   : max_depth_to_leaf
+ Usage   : my $max_depth = $node->max_depth_to_leaf;
+ Function: Return the maximum number of nodes between this node and
+           any leaf in the subtree beneath this node (including the
+           leaf, e.g., $leaf_node->max_depth_to_leaf == 1)
+ Returns : Integer
+ Args    : None
+
+=cut
 
 sub max_depth_to_leaf{
     my ($self) = @_;
@@ -193,6 +219,17 @@ sub max_depth_to_leaf{
 }
 sub depth { shift->max_depth_to_leaf(@_) }
 
+=head2 total_branch_length
+
+ Title   : total_branch_length
+ Usage   : my $total_length = $node->total_branch_length;
+ Function: Return the total summed branch length of the subtree
+           beneath the current node, NOT including the length of the
+           branch directly above the current node.
+ Returns : Float
+ Args    : None
+
+=cut
 
 sub total_branch_length {
     my $self = shift;
@@ -205,6 +242,91 @@ sub total_branch_length {
 sub subtree_length { shift->total_branch_length(@_) }
 sub subtree_size { shift->total_branch_length(@_) }
 
+=head2 distance
+
+ Title   : distance
+ Usage   : my $dist = $node_a->distance($node_b);
+ Function: Return the branch length distance between this node and another node in the tree.
+ Returns : Float, the distance between the two nodes
+ Args    : Bio::Tree::NodeI, the other node
+
+=cut
+
+sub distance {
+    my $self = shift;
+    my $other_node = shift;
+
+    my $lca = $self->lca($other_node);
+
+    my $lca_distance = $lca->distance_to_root;
+    my $my_distance = $self->distance_to_root;
+    my $other_distance = $other_node->distance_to_root;
+
+    return ($my_distance - $lca_distance) + ($other_distance - $lca_distance);
+}
+
+=head2 lca
+
+ Title   : lca
+ Usage   : my $lca = $node->lca($other_node);
+ Function: Return the lowest common ancestor (aka most recent common
+           ancestor) between this node and another node in the tree.
+ Returns : Bio::Tree::NodeI, the lowest common ancestor
+ Args    : Bio::Tree::NodeI, the other node
+
+=cut
+
+sub lca {
+    my $self = shift;
+    my $other_node = shift;
+
+    my @lineage = $self->lineage;
+    my @other_lineage = $other_node->lineage;
+
+    my $seen_ancestors;
+    my $shared_ancestors;
+
+    # Include $self and $other_node in the LCA calculation, as one
+    # node might actually be an ancestor of the other
+
+    foreach my $node ($self,$other_node,@lineage,@other_lineage) {
+	if (!defined $seen_ancestors->{$node}) {
+	    $seen_ancestors->{$node} = $node;
+	} else {
+	    # We've already seen this ancestor once, which means it's a shared ancestor.
+	    # Calculate and store its depth to the root node.
+	    $shared_ancestors->{$node} = $node;
+	}
+    }
+
+    # Every node within shared_ancestor_depths is shared, now sort by
+    # depth to find the deepest, aka lowest, common ancestor.
+    my $max_depth = 0;
+    my $max_node;
+
+    foreach my $key (keys %$shared_ancestors) {
+	my $node = $shared_ancestors->{$key};
+	my $depth = $node->depth_to_root;
+	if ($depth > $max_depth) {
+	    $max_depth = $depth;
+	    $max_node = $node;
+	}
+    }
+
+    return $max_node;
+}
+
+=head2 leaves
+
+ Title   : leaves
+ Usage   : my @leaves = $node->leaves;
+ Function: Return a list of all the leaf nodes contained in the
+           subtree beneath the current node. Returns a list containing
+           only the current node if called on a leaf node.
+ Returns : Array of Bio::Tree::NodeI objects
+ Args    : None
+
+=cut
 
 sub leaves {
     my $self = shift;
@@ -214,9 +336,21 @@ sub leaves {
 }
 sub get_all_leaves { shift->leaves(@_) }
 
+=head2 nodes
+
+ Title   : nodes
+ Usage   : my @nodes = $node->nodes;
+ Function: Return a list of all nodes contained in the subtree beneath
+           the current node. Returns a list containing only the
+           current node if called on a leaf node.
+ Returns : Array of Bio::Tree::NodeI objects
+ Args    : None
+
+=cut
 
 sub nodes {
    my ($self) = @_;
+
    my @nodes = ();
    foreach my $node ( $self->children() ) {
        push @nodes, ($node,$node->nodes());
@@ -226,11 +360,23 @@ sub nodes {
 sub get_all_Descendents { shift->nodes(@_) }
 sub get_Descendents { 
     my $self = shift;
-    $self->deprecated(-message     => 'get_Descendents() is deprecated... use nodes() instead');
+    $self->deprecated(-message => 'get_Descendents() is ambiguous and deprecated... use nodes() instead');
     $self->nodes(@_);
 }
 sub get_all_nodes { shift->nodes(@_) }
 
+=head2 _ordered_nodes
+
+ Title   : _ordered_nodes
+ Usage   : my @nodes = $node->_ordered_nodes('depth')
+ Function: Helper method for nodes_breadth_first() and
+           nodes_depth_first(). Returns a list of all nodes in the
+           subtree beneath the current node, ordered by either
+           breadth-first or depth-first traversal order.
+ Returns : Array of Bio::Tree::NodeI objects
+ Args    : 'depth' or 'breadth' to indicate desired traversal order (defaults to 'depth')
+
+=cut
 
 sub _ordered_nodes {
     my $self = shift;
@@ -253,16 +399,49 @@ sub _ordered_nodes {
    }
 }
 
+=head2 nodes_breadth_first
+
+ Title   : nodes_breadth_first
+ Usage   : my @nodes = $node->nodes_breadth_first();
+ Function: Return a list of all nodes in the subtree beneath the
+           current node, in breadth-first traversal order.
+ Returns : Array of Bio::Tree::NodeI objects
+ Args    : None
+
+=cut
+
 sub nodes_breadth_first {
     my $self = shift;
     return $self->_ordered_nodes('b');
 }
+
+=head2 nodes_depth_first
+
+ Title   : nodes_depth_first
+ Usage   : my @nodes = $node->nodes_depth_first();
+ Function: Return a list of all nodes in the subtree beneath the
+           current node, in depth-first traversal order.
+ Returns : Array of Bio::Tree::NodeI objects
+ Args    : None
+
+=cut
 
 sub nodes_depth_first {
     my $self = shift;
     return $self->_ordered_nodes('d');
 }
 
+=head2 lineage
+
+ Title   : lineage
+ Usage   : my @lineage_from_root = $node->lineage();
+ Function: Return a list of all nodes in the lineage between the
+           current node and the root node, starting with the root node
+           and NOT including the current node.
+ Returns : Array of Bio::Tree::NodeI objects
+ Args    : None
+
+=cut
 
 sub lineage {
     my $self = shift;
@@ -276,10 +455,29 @@ sub lineage {
     return @lineage;
 }
 
+=head2 change_child_to_parent
+
+ Title   : change_child_to_parent
+ Usage   : $parent_node->change_child_to_parent($child_node);
+ Function: Turns the indicated child of this node into the parent of
+           this node, bubbling this edge direction-flipping up the
+           tree all the way to the root node. This method implements
+           the main transformation involved in the Bio::Tree::Tree
+           reroot() method.
+ Returns : Nothing
+ Args    : Bio::Tree::NodeI, the child node which will become the new
+           parent of this node
+
+=cut
 
 sub change_child_to_parent {
     my $self = shift;
     my $child_to_become_parent = shift;
+
+    if ($child_to_become_parent->parent != $self) {
+	$self->warn("Called 'change_child_to_parent' using a non-child node -- check your input! Doing nothing...");
+	return;
+    }
 
     if ($self->parent) {
 	# Climb up the tree, flipping the direction of all nodes up to the root.
@@ -296,10 +494,32 @@ sub change_child_to_parent {
     $self->branch_length($bl);
 }
 
+=head2 child_count
+
+ Title   : child_count
+ Usage   : my $num_direct_children = $node->child_count;
+ Function: Return the number of children directly beneath the current node
+ Returns : Integer, the number of direct children.
+ Args    : None
+
+=cut
+
 sub child_count {
     my $self = shift;
     return scalar($self->children);
 }
+
+=head2 node_count
+
+ Title   : node_count
+ Usage   : my $number_of_nodes_beneath = $node->node_count;
+ Function: Return the total number of nodes in the subtree beneath the
+           current node, not including the curent node itself.
+ Returns : Integer, the number of nodes in the subtree beneath the
+           current node
+ Args    : None
+
+=cut
 
 sub node_count {
    my ($self) = @_;
@@ -308,27 +528,40 @@ sub node_count {
 sub descendent_count { shift->node_count(@_) }
 sub number_nodes { shift->node_count(@_) }
 
+=head2 leaf_count
+
+ Title   : leaf_count
+ Usage   : my $number_of_leaves_beneath = $node->leaf_count;
+ Function: Return the total number of leaf nodes in the subtree
+           beneath the current node, not including the curent node
+           itself.
+ Returns : Integer, the number of leaf nodes in the subtree beneath
+           the current node
+ Args    : None
+
+=cut
+
 sub leaf_count {
    my ($self) = @_;
    return scalar($self->leaves);
 }
 
-sub reverse_children {
-    my $self = shift;
+=head2 split_branch_with_node
 
-    my @children = $self->children;
-    @children = reverse @children;
-    $self->set_child_order(@children);
-}
+ Title   : split_branch_with_node
+ Usage   : $node->split_branch_with_node($new_node,0.5);
+ Function: Split the branch above the current node at a certain
+           position by splicing the passed node into the tree, Ex:
+           given (A---->B) and calling
+           B->split_branch_with_node(C, 0.5), we end up with
+           (A-->C-->B).
+ Returns : Nothing
+ Args    : Bio::Tree::NodeI, the node to insert into the branch above the
+           current node
+           Float, the fractional distance along the branch above the
+           current node at which to place the new node
 
-sub flip_subtree {
-    my $self = shift;
-
-    foreach my $node ($self->nodes) {
-	$node->reverse_children;
-    }
-    $self->reverse_children;
-}
+=cut
 
 sub split_branch_with_node {
     # Splits the branch above this node with the given node.
@@ -356,6 +589,16 @@ sub split_branch_with_node {
     return $node_to_insert;
 }
 
+=head2 remove_children
+
+ Title   : remove_children
+ Usage   : $node->remove_children;
+ Function: Remove all of the children directly beneath this node from
+           the tree
+ Returns : Nothing
+ Args    : None
+
+=cut
 
 sub remove_children{
    my ($self) = @_;
@@ -366,6 +609,17 @@ sub remove_children{
 }
 sub remove_Descendents { shift->remove_children(@_) }
 
+=head2 remove
+
+ Title   : remove
+ Usage   : $node->remove();
+ Function: Removes this node and its contained subtree from the tree
+           by calling remove_child on this node's parent
+ Returns : Nothing
+ Args    : None
+
+=cut
+
 sub remove {
     my $self = shift;
     if ($self->parent) {
@@ -373,24 +627,54 @@ sub remove {
     }
 }
 
+=head2 splice
+
+ Title   : splice
+ Usage   : $node->splice();
+ Function: Splices the current node out of the tree by removing this
+           node and re-attaching its former children to its former
+           parent, preserving the lineage branch length for each node.
+ Returns : Nothing
+ Args    : None
+
+=cut
+
 sub splice {
     my $self = shift;
 
     if ($self->parent) {
 	my $parent = $self->parent;
-	my $bl = $self->branch_length || 0;
+	my $bl = $self->branch_length;
 	foreach my $child ($self->children) {
 	    # Remove the child from me, add it to my parent.
 	    $self->remove_child($child);
 	    $parent->add_child($child);
 
 	    # Add my branch length to my child -- hence this method is called "splice"
-	    my $child_bl = $child->branch_length || 0;
-	    $child->branch_length($child_bl + $bl);
+	    my $child_bl = $child->branch_length;
+	    if (defined $bl && defined $child_bl) {
+		$child->branch_length($child_bl + $bl);
+	    } elsif (defined $child_bl) {
+		$child->branch_length($child_bl);
+	    } elsif (defined $bl) {
+		$child->branch_length($bl);
+	    }
 	}
 	$parent->remove_child($self);
     }
 }
+
+=head2 force_binary
+
+ Title   : force_binary
+ Usage   : $node->force_binary; print $node->ascii;
+ Function: Break all multifurcations in the subtree below this node by
+           separating out each multifurcation into a series of
+           bifurcations
+ Returns : Nothing
+ Args    : None
+
+=cut
 
 sub force_binary {
     my $self = shift;
@@ -416,10 +700,33 @@ sub force_binary {
     }
 }
 
+=head2 is_binary
+
+ Title   : is_binary
+ Usage   : print "Node is ok!\n" if ($node->is_binary);
+ Function: Return true if the current node is binary (without
+           considering sub-trees). Call is_subtree_binary() to test
+           for a completely binary subtree.
+ Returns : True or false
+ Args    : None
+
+=cut
+
 sub is_binary {
     my $self = shift;
     return ($self->is_leaf || scalar($self->children) == 2);
 }
+
+=head2 is_subtree_binary
+
+ Title   : is_subtree_binary
+ Usage   : print "Subtree OK!\n" if ($node->is_subtree_binary);
+ Function: Return true if the entire subtree beneath the current node
+           is binary.
+ Returns : True or false
+ Args    : None
+
+=cut
 
 sub is_subtree_binary {
     my $self = shift;
@@ -430,6 +737,17 @@ sub is_subtree_binary {
     return 1;
 }
 
+=head2 contract_linear_paths
+
+ Title   : contract_linear_paths
+ Usage   : $node->contract_linear_paths
+ Function: Splice out linear nodes (nodes with exactly 1 parent and 1
+           child) from the tree. The root node is never considered
+           linear, so it won't be affected by this method.
+ Returns : Nothing
+ Args    : None
+
+=cut
 
 sub contract_linear_paths {
     my $self = shift;
@@ -444,6 +762,19 @@ sub contract_linear_paths {
 }
 sub remove_elbow_nodes { shift->contract_linear_paths(@_) }
 
+=head2 branch_length_or_one
+
+ Title   : branch_length_or_one
+ Usage   : my $bl = $node->branch_length_or_one;
+ Function: Return the node's branch length if defined, or 1 if
+           undefined. Useful for situations where trees without
+           explicit branch lengths should be assumed to have all
+           1-length branches.
+ Returns : Nothing
+ Args    : None
+
+=cut
+
 
 sub branch_length_or_one {
     my $self = shift;
@@ -453,14 +784,12 @@ sub branch_length_or_one {
     return $bl;
 }
 
-
 =head2 ascii
-
  Title   : ascii
  Usage   : print STDERR $tree->ascii."\n";
  Function: Return a representation of this tree as ASCII text. Shamelessly
-           copied / "ported" from PyCogent. http://pycogent.sourceforge.net/
- Returns : a multi-line String, suitable for printing to the console
+           copied / ported from PyCogent code. http://pycogent.sourceforge.net/
+ Returns : A multi-line String, suitable for printing to the console
  Args    : show_internal - 0 to hide internal nodes, 1 to show them (default 1)
            compact - 1 to use a 'compact' mode with exactly 1 line per node. (default 0)
            ignore_branchlengths - 0 to ignore branch lengths, 1 to use them. (default 0)
@@ -509,7 +838,10 @@ sub _ascii_art {
     }
     my $pad = ' ' x $len;
     my $pa = ' ' x ($len-1);
-    my $name_str = $node->id;
+    my $name_str = $node;
+    if ($node->isa("Bio::Tree::LabeledNodeI")) {
+	$name_str = $node->id;
+    }
     $name_str = '' unless (defined $name_str);
 
     if (!$node->is_leaf) {
@@ -581,11 +913,25 @@ sub _ascii_art {
     }
 }
 
+=head2 find_by_id
+
+ Title   : find_by_id
+ Usage   : my $node_a = $root_node->find_by_id('a');
+ Function: Search through the tree for a given ID, returning all matching nodes.
+ Returns : (array context) An array of all nodes with a matching ID
+           (scalar context) the first node with the matching ID
+ Args    : String, the id for which to search through the tree
+
+=cut
+
 sub find_by_id {
     my $self = shift;
     my $value = shift;
 
-    my @nodes = grep { $_->id eq $value } $self->nodes;
+    my @nodes;
+    foreach my $node ($self,$self->nodes) {
+	push @nodes, $node if ($node->isa("Bio::Tree::LabeledNodeI") && $node->id eq $value);
+    }
     
     if ( wantarray) { 
 	return @nodes;
@@ -598,7 +944,41 @@ sub find_by_id {
 }
 sub find { shift->find_by_id(@_) }
 
+=head2 find_by_tag_value
 
+ Title   : find_by_tag_value
+ Usage   : my $node_a = $root_node->find_by_tag_value('a');
+ Function: Search through the tree for a given tag value, returning all matching nodes.
+ Returns : (array context) An array of all nodes with a matching tag value
+           (scalar context) the first node with the matching tag value
+ Args    : String, the tag to search within
+           String, the value to search for
+
+=cut
+
+sub find_by_tag_value {
+    my $self = shift;
+    my $tag = shift;
+    my $value = shift;
+
+    my @nodes;
+    foreach my $node ($self->nodes) {
+	next unless ($node->isa("Bio::Tree::TagValueHolder"));
+	my @values = $node->get_tag_values($tag);
+	if (grep {$_ =~ $value} @values) {
+	    push @nodes, $node ;
+	}
+    }
+
+    if ( wantarray) { 
+	return @nodes;
+    } else { 
+	if( @nodes > 1 ) { 
+	    $self->warn("More than 1 node found but caller requested scalar, only returning first node");
+       }
+	return shift @nodes;
+    }
+}
 
 
 1;

@@ -162,6 +162,16 @@ sub new {
   return $self;
 }
 
+=head2 rooted
+
+ Title   : rooted
+ Usage   : die unless ($tree->rooted);
+ Function: Get / set whether a tree should be handled as a rooted tree.
+ Returns : Integer, 1 if the tree is rooted, 0 if unrooted.
+ Args    : (optional) Integer, the new value to set
+
+=cut
+
 sub rooted {
     my $self = shift;
     $self->{'_rooted'} = shift if @_;
@@ -175,11 +185,34 @@ sub rooted {
 sub set_rooted { shift->rooted(@_) }
 sub is_rooted { shift->rooted }
 
+=head2 nodelete
+
+ Title   : nodelete
+ Usage   : $tree->nodelete(1);
+ Function: Get / set whether the tree should delete its node
+           references upon cleanup.
+ Returns : Integer, 1 if the tree should not delete, 0 if it should
+ Args    : (optional) Integer, the new value to set
+
+=cut
+
 sub nodelete{
     my $self = shift;
     return $self->{'nodelete'} = shift if @_;
     return $self->{'nodelete'};
 }
+
+=head2 root
+
+ Title   : root
+ Usage   : $tree->root->find('a');
+ Function: Get / set the root node of the tree. Note that setting a
+           new root node does not perform a whole re-root operation,
+           it merely changes the pointer to the root node of the tree.
+ Returns : Bio::Tree::NodeI, the current root node of the tree
+ Args    : (optional) Bio::Tree::NodeI, the new root node
+
+=cut
 
 sub root {
     # Getter / setter for root node.
@@ -198,6 +231,17 @@ sub root {
 sub get_root_node { shift->root }
 sub set_root_node { shift->root(@_) }
 
+=head2 id
+
+ Title   : id
+ Usage   : $tree->id($new_id_string);
+ Function: Get/set the identifier / label for the entire tree. This is
+           separate from the Bio::Tree::Node->id() method.
+ Returns : Value of the tree's identifier
+ Args    : String, new value for the tree's ID
+
+=cut
+
 sub id{
    my ($self,$val) = @_;
    if( defined $val ) { 
@@ -205,6 +249,18 @@ sub id{
    }
    return $self->{'_treeid'};
 }
+
+=head2 score
+
+ Title   : score
+ Usage   : $tree->score(0.9);
+ Function: Get/set the score for the entire tree. This may be used to
+           store an overall bootstrap or likelihood score, or any
+           other measure that naturally has just 1 value per tree
+ Returns : Float, value of the tree's score
+ Args    : Float, new score for the tree
+
+=cut
 
 sub score{
    my ($self,$val) = @_;

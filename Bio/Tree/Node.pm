@@ -18,19 +18,33 @@ Bio::Tree::Node - A Simple Tree Node
 =head1 SYNOPSIS
 
     use Bio::Tree::Node;
-    my $nodeA = Bio::Tree::Node->new();
-    my $nodeL = Bio::Tree::Node->new();
-    my $nodeR = Bio::Tree::Node->new();
+    my $nodeL = Bio::Tree::Node->new(-id => 'L');
+    my $nodeR = Bio::Tree::Node->new(-id => 'R');
+    my $node = Bio::Tree::Node->new(-id => 'parent');
+    $node->add_child($nodeL);
+    $node->add_child($nodeR);
 
-    my $node = Bio::Tree::Node->new();
-    $node->add_Descendent($nodeL);
-    $node->add_Descendent($nodeR);
-
-    print "node is not a leaf \n" if( $node->is_leaf);
+    print $node->ascii;
 
 =head1 DESCRIPTION
 
-Makes a Tree Node suitable for building a Tree.
+The Node module is the stock class for representing nodes of a
+phylogenetic tree in Bioperl.
+
+The five NodeI methods (parent, children, add_child, remove_child,
+branch_length) are implemented with parent / child links and branch
+lengths stored within the object's hashtable. The order of child nodes
+is maintained via nodes' internal_id values, allowing for the order of
+child nodes to be flipped (e.g., node.reverse_subtree() ) or set
+arbitrarily (e.g., node.set_child_order).
+
+Metadata storage is enabled by inheriting the methods from
+TagValueHolder. The node.bootstrap() and node.description() methods
+just use pre-defined tags to store these common metadata types;
+subclasses could add support for other common data types using this
+approach.
+
+
 
 =head1 FEEDBACK
 
@@ -85,7 +99,11 @@ package Bio::Tree::Node;
 use vars qw($CREATIONORDER);
 use strict;
 
-use base qw(Bio::Root::Root Bio::Tree::NodeI Bio::Tree::NodeFunctionsI Bio::Tree::TagValueHolder);
+use base ('Bio::Root::Root',
+	  'Bio::Tree::NodeI',
+	  'Bio::Tree::LabeledNodeI',
+	  'Bio::Tree::NodeFunctionsI',
+	  'Bio::Tree::TagValueHolder');
 
 BEGIN {
     $CREATIONORDER = 1;
@@ -94,16 +112,16 @@ BEGIN {
 =head2 new
 
  Title   : new
- Usage   : my $obj = Bio::Tree::Node->new();
+ Usage   : my $node = Bio::Tree::Node->new(-id => 'a',-branch_length => 0.1);
  Function: Builds a new Bio::Tree::Node object
  Returns : Bio::Tree::Node
- Args    : -descendents   => arrayref of descendents (they will be
-                             updated s.t. their ancestor point is this
+ Args    : -id            => id / label for node [string] (optional but recommended)
+           -descendents   => list of descendents [arrayref] (optional, they will be
+                             updated so their ancestor pointer is this
                              node)
            -branch_length => branch length [integer] (optional)
-           -bootstrap     => value   bootstrap value (string)
-           -description   => description of node
-           -id            => human readable id for node
+           -bootstrap     => bootstrap value [string] (optional)
+           -description   => description of the node [string] (optional)
 
 =cut
 
@@ -138,285 +156,27 @@ sub new {
 	  $self->warn("Must specify a valid ARRAY reference to initialize a Node's Descendents");
       }
       foreach my $c ( @$children ) { 	
-	  $self->add_Descendent($c);
+	  $self->add_child($c);
       }
   }
-  $self->_creation_id($CREATIONORDER++);
+  $self->sort_order($CREATIONORDER);
+  $self->{'_internal_id'} = $CREATIONORDER++;
   return $self;
 }
 
-=head2 add_child
 
- Title   : add_child
- Usage   : $node->add_child($node);
- Function: Adds a child to a node
- Returns : nothing.
- Args    : Bio::Node::NodeI
-           boolean flag, true if you want to ignore the fact that you are
-           adding a second node with the same unique id (typically memory 
-           location reference in this implementation).  default is false and 
-           will throw an error if you try and overwrite an existing node.
+=head2 parent
 
-=cut
-
-sub add_child{
-   my ($self,$node,$ignoreoverwrite) = @_;
-   return -1 if( ! defined $node );
-   
-   if( ! ref($node) ||
-       ref($node) =~ /HASH/ ||
-       ! $node->isa('Bio::Tree::NodeI') ) {
-       $self->throw("Trying to add a Descendent who is not a Bio::Tree::NodeI");
-       return -1;
-   }
-   
-   $self->{_adding_descendent} = 1;
-   # avoid infinite recurse
-   $node->ancestor($self) unless $node->{_setting_ancestor}; 
-   $self->{_adding_descendent} = 0;
-   
-   if( $self->{'_desc'}->{$node->internal_id} && ! $ignoreoverwrite ) {
-       $self->throw("Going to overwrite a node which is $node that is already stored here, set the ignore overwrite flag (parameter 2) to true to ignore this in the future");
-   }
-   $self->{'_desc'}->{$node->internal_id} = $node; # is this safely unique - we've tested before at any rate??
-   
-}
-
-=head2 remove_child
-
- Title   : remove_child
- Usage   : $node->remove_child($node_foo);
- Function: Removes a specific node from being a child of this node
- Returns : nothing
- Args    : An array of Bio::Node::NodeI objects
-
-=cut
-
-sub remove_child{
-   my ($self,@nodes) = @_;
-   my $c= 0;
-   foreach my $n ( @nodes ) { 
-       if( $self->{'_desc'}->{$n->internal_id} ) {
-        $self->{_removing_descendent} = 1;
-        $n->ancestor(undef);
-        $self->{_removing_descendent} = 0;
-	   # should be redundant
-	   $self->{'_desc'}->{$n->internal_id}->ancestor(undef);
-	   delete $self->{'_desc'}->{$n->internal_id};
-	   $c++;
-       } else { 
-	   if( $self->verbose ) {
-	       $self->debug(sprintf("no node %s (%s) listed as a descendent in this node %s (%s)\n",$n->id, $n,$self->id,$self));
-	       $self->debug("Descendents are " . join(',', keys %{$self->{'_desc'}})."\n");
-	   }
-       }
-   }
-   $c;
-}
-
-
-=head2 children
-
- Title   : children
- Usage   : my @nodes = $node->children;
- Function: all the descendents for this Node (but not their descendents
-					      i.e. not a recursive fetchall)
- Returns : Array of Bio::Tree::NodeI objects
- Args    : none.
-
-=cut
-
-sub children {
-   my ($self) = @_;
-
-   return map { $_->[0] }
-   sort { $a->[1] <=> $b->[1] } 
-   map { [$_, $_->internal_id ] }
-   grep {defined $_}
-   values %{$self->{'_desc'}};
-
-   # Ignore everything below -- we don't do sorting anymore!
-   
-   # order can be based on branch length (and sub branchlength)   
-   my $sortby;
-   $sortby ||= 'none';
-   if (ref $sortby eq 'CODE') {
-       my @values = sort { $sortby->($a,$b) } values %{$self->{'_desc'}};
-       return @values;
-   } elsif ($sortby eq 'height') {
-       return map { $_->[0] }
-       sort { $a->[1] <=> $b->[1] || 
-		  $a->[2] <=> $b->[2] } 
-       map { [$_, $_->height, $_->internal_id ] } 
-       values %{$self->{'_desc'}};
-   } elsif( $sortby eq 'alpha' ) {
-       my @set;
-       for my $v ( values %{$self->{'_desc'}} ) {
-	   unless( $v->is_Leaf ) {
-	       my @lst = ( sort { $a cmp $b } map { $_->id } 
-                          grep { $_->is_Leaf } 
-			   $v->get_all_Descendents($sortby));
-	       push @set, [$v, $lst[0], $v->internal_id];
-	   } else {
-	       push @set, [$v, $v->id, $v->internal_id];
-	   }
-       } 
-       return map { $_->[0] }
-       sort {$a->[1] cmp $b->[1] || $a->[2] <=> $b->[2] } @set;       
-   } elsif( $sortby eq 'revalpha' ) {
-       my @set;
-       for my $v ( values %{$self->{'_desc'}} ) {
-	   if( ! defined $v->id && 
-	       ! $v->is_Leaf ) {
-	       my ($l) = ( sort { $b cmp $a } map { $_->id } 
-			   grep { $_->is_Leaf } 
-			   $v->get_all_Descendents($sortby));
-	       push @set, [$v, $l, $v->internal_id];
-	   } else { 
-	       push @set, [$v, $v->id, $v->internal_id];
-	   }
-       } 
-       return map { $_->[0] }
-       sort {$b->[1] cmp $a->[1] || $b->[2] <=> $a->[2] } @set;
-   } else { # creation
-       return map { $_->[0] }
-       sort { $a->[1] <=> $b->[1] } 
-       map { [$_, $_->internal_id ] }
-       grep {defined $_}
-       values %{$self->{'_desc'}};	   
-   }
-}
-
-
-=head2 set_child_order
-
- Title   : set_child_order
- Usage   : $node->set_child_order($child_a,$child_b,$child_c);
- Function: Explicitly sets the sort order of the children beneath this node
- Returns : nothing
- Args    : List of Bio::Tree::Node objects, which *must* contain *all* of the direct
-           descendents of the current node
-
-=cut
-sub set_child_order {
-    my $self = shift;
-    my @nodes_in_new_order = @_;
-
-    # Collect the sorted internal_ids of all the children nodes.
-    my @internal_ids = map {$_->_creation_id} $self->children;
-    @internal_ids = sort {$a <=> $b}  @internal_ids;
-
-    # Explicitly re-apply the sorted creation IDs to the new order of children
-    foreach my $child (@nodes_in_new_order) {
-	$child->_creation_id(shift @internal_ids);
-    }
-}
-
-
-=head2 is_leaf
-
- Title   : is_leaf
- Usage   : if( $node->is_leaf )
- Function: Get leaf status
- Returns : boolean
+ Title   : parent
+ Usage   : my $parent = $node->parent;
+ Function: Return this node's parent, or undef if this node has no
+           parent. Implementation of the method defined in
+           Bio::Tree::NodeI.
+ Returns : Bio::Tree::NodeI or undef if no parent exists (i.e. the
+           current node is the root)
  Args    : none
 
 =cut
-
-sub is_leaf {
-    my ($self) = @_;
-    my $isleaf = ! (defined $self->{'_desc'} &&
-		 (keys %{$self->{'_desc'}} > 0) );
-    return $isleaf;
-}
-
-=head2 branch_length
-
- Title   : branch_length
- Usage   : $obj->branch_length()
- Function: Get/Set the branch length
- Returns : value of branch_length
- Args    : newvalue (optional)
-
-=cut
-
-sub branch_length{
-    my $self = shift;
-    if( @_ ) {
-	my $bl = shift;
-	if( defined $bl &&
-	    $bl =~ s/\[(\d+)\]// ) {
-	    $self->bootstrap($1);
-	}
-	$self->{'_branch_length'} = $bl;
-    }
-    my $current_bl = $self->{'_branch_length'};
-    #$current_bl = 1 unless (defined $current_bl && $current_bl =~ /^\-?\d+(\.\d+)?$/);
-    return $current_bl;
-}
-
-=head2 id
-
- Title   : id
- Usage   : $obj->id($newval)
- Function: The human readable identifier for the node 
- Returns : value of human readable id
- Args    : newvalue (optional)
-
-"A name can be any string of printable characters except blanks,
-colons, semicolons, parentheses, and square brackets. Because you may
-want to include a blank in a name, it is assumed that an underscore
-character ("_") stands for a blank; any of these in a name will be
-converted to a blank when it is read in."  
-
-from L<http://evolution.genetics.washington.edu/phylip/newicktree.html>
-
-Also note that these objects now support spaces, ();: because we can
-automatically quote the strings if they contain these characters.  The
-L<id_output> method does this for you so use the id() method to get
-the raw string while L<id_output> to get the pre-escaped string.
-
-=cut
-
-sub id {
-    my ($self, $value) = @_;
-    if (defined $value) {
-        #$self->warn("Illegal characters ();:  and space in the id [$value], converting to _ ")
-	# if $value =~ /\(\);:/ and $self->verbose >= 0;
-        #$value =~ s/[\(\);:\s]/_/g;
-        $self->{'_id'} = $value;
-    }
-    my $val = $self->{'_id'};
-    $val = '' if (!defined $val);
-    return $val;
-}
-
-sub internal_id {
-   return $_[0]->_creation_id;
-}
-
-sub bootstrap { 
-    my $self = shift;
-    if( @_ ) {
-	if( $self->has_tag('B') ) {
-	    $self->remove_tag('B');
-	}
-	$self->add_tag_value('B',shift);
-    }
-    return ($self->get_tag_values('B'))[0];
-}
-
-sub description { 
-    my $self = shift;
-    if( @_ ) {
-	if( $self->has_tag('description') ) {
-	    $self->remove_tag('description');
-	}
-	$self->add_tag_value('description',shift);
-    }
-    return ($self->get_tag_values('description'))[0];
-}
-
 
 sub parent {
     my $self = shift;
@@ -450,54 +210,348 @@ sub parent {
 }
 
 
-sub _creation_id {
-    my $self = shift @_;
-    $self->{'_creation_id'} = shift @_ if( @_);
-    return $self->{'_creation_id'} || 0;
+=head2 branch_length
+
+ Title   : branch_length
+ Usage   : $node->branch_length(0.5);
+ Function: Get/Set the length of the branch between the current node
+           and its parent. Implementation of the method defined in
+           Bio::Tree::NodeI.
+ Returns : Branch length
+ Args    : new branch length (optional)
+
+=cut
+
+sub branch_length{
+    my $self = shift;
+    if( @_ ) {
+	my $bl = shift;
+	if( defined $bl &&
+	    $bl =~ s/\[(\d+)\]// ) {
+	    $self->bootstrap($1);
+	}
+	$self->{'_branch_length'} = $bl;
+    }
+    my $current_bl = $self->{'_branch_length'};
+    #$current_bl = 1 unless (defined $current_bl && $current_bl =~ /^\-?\d+(\.\d+)?$/);
+    return $current_bl;
 }
+
+=head2 children
+
+ Title   : children
+ Usage   : my @nodes = $node->children;
+ Function: List the direct children of this node (but not all
+           descendents; use .nodes() or .leaves() for this). Child
+           nodes are sorted by their sort_order values. Implementation
+           of the method defined in Bio::Tree::NodeI.
+ Returns : Array of Bio::Tree::NodeI objects
+ Args    : none
+
+=cut
+
+sub children {
+   my ($self) = @_;
+
+   return map { $_->[0] }
+   sort { $a->[1] <=> $b->[1] } 
+   map { [$_, $_->isa("Bio::Tree::Node") ? $_->sort_order : 0 ] }
+   grep {defined $_}
+   values %{$self->{'_desc'}};
+}
+
+=head2 add_child
+
+ Title   : add_child
+ Usage   : $node->add_child($new_node);
+ Function: Add a child to a node. Implementation of the method defined
+           in Bio::Tree::NodeI.
+ Returns : Nothing
+ Args    : Bio::Tree::NodeI, the node to add as a child of the current node
+
+=cut
+
+sub add_child{
+   my ($self,$node,$ignoreoverwrite) = @_;
+   return -1 if( ! defined $node );
+   
+   if( ! ref($node) ||
+       ref($node) =~ /HASH/ ||
+       ! $node->isa('Bio::Tree::NodeI') ) {
+       $self->throw("Trying to add a Descendent who is not a Bio::Tree::NodeI");
+       return -1;
+   }
+   
+   $self->{_adding_descendent} = 1;
+   # avoid infinite recurse
+   $node->ancestor($self) unless $node->{_setting_ancestor}; 
+   $self->{_adding_descendent} = 0;
+   
+   if( $self->{'_desc'}->{$node->internal_id} && ! $ignoreoverwrite ) {
+       $self->throw("Going to overwrite a node which is $node that is already stored here, set the ignore overwrite flag (parameter 2) to true to ignore this in the future");
+   }
+   $self->{'_desc'}->{$node->internal_id} = $node;
+   
+}
+
+=head2 remove_child
+
+ Title   : remove_child
+ Usage   : $node->remove_child($child_node);
+ Function: Removes a child from the current node. Implementation of
+           the method defined in Bio::Tree::NodeI.
+ Returns : Nothing
+ Args    : Bio::Tree::NodeI, the child to remove from the current node
+
+=cut
+
+sub remove_child{
+   my ($self,@nodes) = @_;
+   my $c= 0;
+   foreach my $n ( @nodes ) { 
+       if( $self->{'_desc'}->{$n->internal_id} ) {
+        $self->{_removing_descendent} = 1;
+        $n->ancestor(undef);
+        $self->{_removing_descendent} = 0;
+	   # should be redundant
+	   $self->{'_desc'}->{$n->internal_id}->ancestor(undef);
+	   delete $self->{'_desc'}->{$n->internal_id};
+	   $c++;
+       } else { 
+	   if( $self->verbose ) {
+	       $self->debug(sprintf("no node %s (%s) listed as a descendent in this node %s (%s)\n",$n->id, $n,$self->id,$self));
+	       $self->debug("Descendents are " . join(',', keys %{$self->{'_desc'}})."\n");
+	   }
+       }
+   }
+   $c;
+}
+
+=head2 id
+
+ Title   : id
+ Usage   : $node->id($new_id_string);
+ Function: Get/set the identifier / label for the node. Implementation
+           of the method defined in Bio::Tree::LabeledNodeI.
+ Returns : Value of the node's identifier
+ Args    : String, new value for the node's ID
+
+The id() method is designed to store and return any arbitrary
+identifier string; thus, it does not produce properly Newick-escaped
+labels. Use the L<id_output> method for creating Newick-compatible
+strings.
+
+=cut
+
+sub id {
+    my ($self, $value) = @_;
+    if (defined $value) {
+        $self->{'_id'} = $value;
+    }
+    my $val = $self->{'_id'};
+    $val = '' if (!defined $val);
+    return $val;
+}
+
+=head2 set_child_order
+
+ Title   : set_child_order
+ Usage   : $node->set_child_order($child_a,$child_b,$child_c);
+ Function: Explicitly sets the sort order of the children beneath this node.
+ Returns : nothing
+ Args    : List of Bio::Tree::Node objects, which must contain all of the direct
+           descendents of the current node
+
+=cut
+
+sub set_child_order {
+    my $self = shift;
+    my @nodes_in_new_order = @_;
+
+    if (scalar(@nodes_in_new_order) != scalar($self->children)) {
+	$self->warn("Number of nodes provided to set_child_order (".scalar(@nodes_in_new_order).") does not match the child count (".scalar($self->children).")! Doing nothing.");
+	return;
+    }
+
+    # Collect the sort_orders of all the children nodes.
+    my @sort_orders = map {$_->sort_order} $self->children;
+    @sort_orders = sort {$a <=> $b}  @sort_orders;
+
+    # Explicitly re-apply the sorted creation IDs to the new order of children
+    foreach my $child (@nodes_in_new_order) {
+	$child->sort_order(shift @sort_orders);
+    }
+}
+
+=head2 reverse_children
+
+ Title   : reverse_children
+ Usage   : $node->reverse_children();
+ Function: Reverse the order of the children directly beneath this node. Non-recursive.
+ Returns : Nothing
+ Args    : None
+
+=cut
+
+sub reverse_children {
+    my $self = shift;
+
+    my @children = $self->children;
+    @children = reverse @children;
+    $self->set_child_order(@children);
+}
+
+=head2 flip_subtree
+
+ Title   : flip_subtree
+ Usage   : $node->flip_subtree();
+ Function: Flip the order of the entire sub-tree beneath this node (recursively).
+ Returns : Nothing
+ Args    : None
+
+=cut
+
+sub flip_subtree {
+    my $self = shift;
+
+    foreach my $node ($self->nodes) {
+	$node->reverse_children;
+    }
+    $self->reverse_children;
+}
+
+=head2 internal_id
+
+ Title   : internal_id
+ Usage   : my $id = $node->internal_id;
+ Function: Returns the unique internal ID of the current node. This ID
+           is tied to Bioperl object creation and *will* change if the
+           same tree is re-loaded from a file or string, but it is
+           guaranteed to be unique for a given node in the tree.
+ Returns : Integer ID
+ Args    : None
+
+=cut
+
+sub internal_id {
+    my $self = shift @_;
+    return $self->{'_internal_id'} || 0;
+}
+
+=head2 sort_order
+
+ Title   : sort_order
+ Usage   : $node->sort_order(99);
+ Function: Get/set the sort order for the current node. The sort order
+           defines how a node's children are sorted when returned by
+           the children() method. This method should not usually need
+           to be called manually; instead, use methods like
+           set_child_order or flip_subtree to handle common
+           node-reordering operations.
+ Returns : Integer, the sort order of the current node.
+ Args    : Integer, the new sort order (optional)
+
+=cut
+
+sub sort_order {
+    my $self = shift @_;
+    $self->{'_sort_order'} = shift @_ if( @_);
+    return $self->{'_sort_order'} || 0;
+}
+
+=head2 id_output
+
+ Title   : id_output
+ Usage   : my $nice_id = $node->id_output;
+ Function: Return an id suitable for output in format like newick so
+           that if it contains spaces or ():; characters it is
+           properly quoted
+ Returns : String
+ Args    : none
+
+From the Newick format description
+(L<http://evolution.genetics.washington.edu/phylip/newicktree.html>):
+
+"A name can be any string of printable characters except blanks,
+colons, semicolons, parentheses, and square brackets. Because you may
+want to include a blank in a name, it is assumed that an underscore
+character ("_") stands for a blank; any of these in a name will be
+converted to a blank when it is read in."
+
+=cut
+
+sub id_output{
+    my $node = shift;
+    my $id = $node->id;
+    return unless( defined $id && length($id ) );
+    # single quotes must become double quotes
+    # $id =~ s/'/''/g;
+    if( $id =~ /[\(\);:,\s]/ ) {
+	$id = '"'.$id.'"';
+    }
+    return $id;
+}
+
+=head2 description
+
+ Title   : description
+ Usage   : $node->description("Yet Another node.");
+ Function: Get / set the description for the current node.
+ Returns : String
+ Args    : String, the new description (optional)
+
+=cut
+
+sub description { 
+    my $self = shift;
+    if( @_ ) {
+	if( $self->has_tag('description') ) {
+	    $self->remove_tag('description');
+	}
+	$self->add_tag_value('description',shift);
+    }
+    return ($self->get_tag_values('description'))[0];
+}
+
+=head2 bootstrap
+
+ Title   : bootstrap
+ Usage   : $node->bootstrap(95);
+ Function: Get / set the bootstrap support value for the current node
+ Returns : Float
+ Args    : Float, the new bootstrap value (optional)
+
+=cut
+
+sub bootstrap { 
+    my $self = shift;
+    if( @_ ) {
+	if( $self->has_tag('B') ) {
+	    $self->remove_tag('B');
+	}
+	$self->add_tag_value('B',shift);
+    }
+    return ($self->get_tag_values('B'))[0];
+}
+
+=head2 node_cleanup
+
+ Title   : node_cleanup
+ Usage   : $node->node_cleanup();
+ Function: Cleans up this node by removing hanging references to child nodes.
+ Returns : Nothing
+ Args    : None
+
+=cut
 
 sub node_cleanup {
     my $self = shift;
     return unless defined $self;
     
-    #*** below is wrong, cleanup doesn't actually occur. Will replace with:
-    # $self->remove_all_Descendents; once further fixes in place..
-    #if( defined $self->{'_desc'} &&
-    #    ref($self->{'_desc'}) =~ /HASH/i ) {
-    #    while( my ($nodeid,$node) = each %{ $self->{'_desc'} } ) {
-    #        $node->ancestor(undef); # insure no circular references
-    #        $node = undef;
-    #    }
-    #}
-    $self->remove_children;
-    
-    #$self->{'_desc'} = {};
+    foreach my $child ($self->children) {
+	$self->remove_child($child);
+    }
     1;
 }
-
-sub find_by_tag_value {
-    my $self = shift;
-    my $tag = shift;
-    my $value = shift;
-
-    my @nodes;
-    foreach my $node ($self->nodes) {
-	next unless ($node->can('get_tag_values'));
-	my @values = $node->get_tag_values($tag);
-	if (grep {$_ =~ $value} @values) {
-	    push @nodes, $node ;
-	}
-    }
-
-    if ( wantarray) { 
-	return @nodes;
-    } else { 
-	if( @nodes > 1 ) { 
-	    $self->warn("More than 1 node found but caller requested scalar, only returning first node");
-       }
-	return shift @nodes;
-    }
-}
-
 
 1;

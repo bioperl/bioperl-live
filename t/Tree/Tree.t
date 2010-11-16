@@ -95,9 +95,9 @@ my ($a,$b,$c,$d) = ( $tree->find_node('A'),
 		     $tree->find_node('C'),
 		     $tree->find_node('D'));
 
-is($tree->is_monophyletic([$b,$c],$d),1, 'B,C are Monophyletic');
+is($tree->is_monophyletic([$b,$c],$d),0, 'B,C are NOT Monophyletic w/ D');
 
-is($tree->is_monophyletic([$b,$a],$d),1,'A,B are Monophyletic');
+is($tree->is_monophyletic([$b,$a],$c),1,'A,B are Monophyletic with C');
 
 $tree = $in->next_tree;
 my ($e,$f,$i);
@@ -109,16 +109,23 @@ my ($e,$f,$i);
 			   $tree->find_node('F'),
 			   $tree->find_node('I'),
 			   );
-isnt( $tree->is_monophyletic([$b,$f],$d),1,'B,F are not Monophyletic' );
-
+is( $tree->is_monophyletic([$b,$f],$d),0,'B,F are not Monophyletic' );
 is($tree->is_monophyletic([$b,$a],$f),1, 'A,B are Monophyletic');
 
-# test for paraphyly
+# tests for paraphyly
+is(  $tree->is_paraphyletic([$a,$b,$c],$i), 1, 'A,B,C are paraphyletic w/ I');
+is(  $tree->is_paraphyletic([$a,$b],$d), 1, 'A,B are paraphyletic w/ D');
+is(  $tree->is_paraphyletic([$a,$b],$i), 1, 'A,B are paraphyletic w/ I');
+is(  $tree->is_paraphyletic([$a,$b],$c), 1, 'A,B are paraphyletic w/ C');
+is(  $tree->is_paraphyletic([$a,$f,$e],$i), 1, 'A,F,E are paraphyletic w/ I');
+is(  $tree->is_paraphyletic([$a,$f,$e],$d), 0,'A,F,E are polyphyletic w/ D, so not paraphyletic');
 
-isnt(  $tree->is_paraphyletic([$a,$b,$c],$d), 1,'A,B,C are not Monophyletic w D as outgroup');
+# tests for polyphyly
+is(  $tree->is_polyphyletic([$a,$f,$e],$d), 1,'A,F,E are polyphyletic w/ D');
 
-is(  $tree->is_paraphyletic([$a,$f,$e],$i), 1, 'A,F,E are monophyletic with I as outgroup');
-
+# Test cloning.
+my $tree_two = $tree->clone;
+is($tree->as_text('newick'),$tree_two->as_text('newick'),"Cloned tree equals orig");
 
 # test for rerooting the tree
 my $out = Bio::TreeIO->new(-format => 'newick', 
@@ -250,6 +257,10 @@ $tree->find('F')->splice();
 #$tree->splice(-keep_id => [qw(0 1 2 A B C D)]);
 $DFSorder = join(",", map { $_->id } ( $tree->nodes_depth_first));
 is($DFSorder, '0,1,2,A,B,C,D', 'DFS after removing all but 0,1,2,A,B,C,D');
+
+my $lca = $tree->find('A')->lca($tree->find('D'));
+is($lca->id,'1',"LCA of A and D");
+
 #get_lca, merge_lineage, contract_linear_paths tested in in Taxonomy.t
 
 
@@ -342,11 +353,25 @@ $tree = tree_from_string("(a,b,c,d,e,f,g,h);");
 $tree->root->force_binary();
 #print STDERR $tree->ascii;
 
-
 $tree = tree_from_string("(((((((a,b)c)d)e)f)g)h)i;");
-#print STDERR $tree->ascii;
+
 $tree->root->remove_elbow_nodes;
-#print STDERR $tree->ascii;
+is($tree->as_text,'((a,b)c)i;',"Keep root node after removing linear paths");
+
+$lca = $tree->find('a')->lca($tree->find('b'));
+is($lca->id,'c',"LCA after contracting linear paths");
+
+$tree = tree_from_string("((a,b),(c,d))e;");
+$lca = $tree->get_lca($tree->nodes);
+is($lca,$tree->root,"LCA of all nodes is the root node");
+
+
+# Distance measurement tests
+$tree = tree_from_string("(a:1,b:2,c:3,d:4,e:5)root:2;");
+is($tree->distance($tree->find('a'),$tree->find('b')),3,"Distance betwen a and b");
+is($tree->distance($tree->find('a'),$tree->find('e')),6,"Distance betwen a and e");
+is($tree->distance($tree->find('d'),$tree->find('e')),9,"Distance betwen d and e");
+
 
 
 done_testing();

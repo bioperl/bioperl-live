@@ -17,60 +17,43 @@ Bio::Tree::NodeI - Interface describing a Tree Node
 
 =head1 SYNOPSIS
 
-    # get a Tree::NodeI somehow
-    # like from a TreeIO
-    use Bio::TreeIO;
-    # read in a clustalw NJ in phylip/newick format
-    my $treeio = Bio::TreeIO->new(-format => 'newick', -file => 'file.dnd');
-
-    my $tree = $treeio->next_tree; # we'll assume it worked for demo purposes
-                                   # you might want to test that it was defined
-
-    my $rootnode = $tree->get_root_node;
-
-    # process just the next generation
-    foreach my $node ( $rootnode->each_Descendent() ) {
-	print "branch len is ", $node->branch_length, "\n";
-    }
-
-    # process all the children
-    my $example_leaf_node;
-    foreach my $node ( $rootnode->get_all_Descendents() ) {
-	if( $node->is_Leaf ) { 
-	    print "node is a leaf ... "; 
-            # for example use below
-            $example_leaf_node = $node unless defined $example_leaf_node; 
-	}
-	print "branch len is ", $node->branch_length, "\n";
-    }
-
-    # The ancestor() method points to the parent of a node
-    # A node can only have one parent
-
-    my $parent = $example_leaf_node->ancestor;
-
-    # parent won't likely have an description because it is an internal node
-    # but child will because it is a leaf
-
-    print "Parent id: ", $parent->id," child id: ", 
-          $example_leaf_node->id, "\n";
-
-
 =head1 DESCRIPTION
 
-A NodeI is capable of the basic structure of building a tree and
-storing the branch length between nodes.  The branch length is the
-length of the branch between the node and its ancestor, thus a root
-node in a Tree will not typically have a valid branch length.
+The NodeI interface describes the core methods necessary to model a
+basic rooted tree structure as a set of Perl objects.
+
+An implementing class need only implement the five methods in NodeI
+(parent, children, add_child, remove_child, branch_length) to gain all
+of the functionality contained within NodeFunctionsI, which is a set
+of object methods built to perform more advanced tree manipulations
+using only the basic methods of the NodeI interface. An implementing
+class should use both Bio::Tree::NodeI and Bio::Tree::NodeFunctionsI
+as a base.
+
+Note that the only method in NodeI which is a combined getter / setter
+method is branch_length; all the other methods either query the tree
+structure (parent / children) to return an object or array, or perform
+an action on the tree structure (add_child / remove_child) where the
+return value doesn't matter.
+
+Nearly all of the code for performing tree manipulations is contained
+within NodeFunctionsI. Although there are similarly named TreeI,
+TreeFunctionsI and Tree classes to parallel the Node classes, a Tree
+object simply contains a pointer to the root node and some additional
+metadata, such as score, id, and description. Most Tree methods that
+perform tree manipulations simply pass the call on to the root
+node. See the TreeI, TreeFunctionsI and Tree modules for more
+information.
 
 Various implementations of NodeI may extend the basic functions and
 allow storing of other information (like attatching a species object
-or full sequences used to build a tree or alternative sequences).  If
-you don't know how to extend a Bioperl object please ask, happy to
-help, we would also greatly appreciate contributions with improvements
-or extensions of the objects back to the Bioperl code base so that
-others don't have to reinvent your ideas.
-
+or full sequences used to build a tree or alternative sequences). For
+example, most phylogenetic trees store labels and bootstrap values; in
+the stock BioPerl implementation (Node.pm) the method node.id() is
+implemented to fulfill the LabeledNodeI.pm interface, while the
+node.bootstrap() method is unique to the Node.pm implementation and
+relies on the get_tag_value and set_tag_value methods provided by the
+Bio::Tree::TagValueHolder base class.
 
 =head1 FEEDBACK
 
@@ -125,62 +108,100 @@ no warnings 'recursion';
 
 use base qw(Bio::Root::RootI);
 
+=head2 parent
+
+ Title   : parent
+ Usage   : my $parent = $node->parent;
+ Function: Return this node's parent, or undef if this node has no parent.
+ Returns : Bio::Tree::NodeI or undef if no parent exists (i.e. the
+           current node is the root)
+ Args    : none
+
+=cut
 
 sub parent{
     shift->throw_not_implemented();
 }
 sub ancestor { shift->parent(@_) }
 
+=head2 branch_length
 
-sub add_child{
-   shift->throw_not_implemented();
-}
-sub add_Descendent { shift->add_child(@_) }
+ Title   : branch_length
+ Usage   : $node->branch_length(0.5);
+ Function: Get/Set the length of the branch between the current node and its parent
+ Returns : Branch length
+ Args    : new branch length (optional)
 
-
-sub remove_child {
-    shift->throw_not_implemented();
-}
-sub remove_Descendent { shift->remove_child(@_) }
-
-
-sub children{
-   shift->throw_not_implemented();
-}
-sub each_Descendent { shift->children(@_)}
-
-
-sub set_child_order {
-    shift->throw_not_implemented();
-}
-
-
-sub is_leaf{
-    shift->throw_not_implemented();
-}
-sub is_Leaf { shift->is_leaf(@_) }
-
+=cut
 
 sub branch_length{
     shift->throw_not_implemented();
 }
 sub distance_to_parent { shift->branch_length(@_) }
 
+=head2 children
 
-sub id {
-    shift->throw_not_implemented();
-}
-sub name { shift->id(@_) }
-sub label { shift->label(@_) }
+ Title   : children
+ Usage   : my @nodes = $node->children;
 
+ Function: List the direct children of this node (but not all
+           descendents; use .nodes() or .leaves() for this). The order
+           of children need not be defined or stable in order to
+           implement this interface, but the stock Bioperl
+           implementation (in L<Bio::Tree::Node::children>) sorts
+           children by an internally-stored sort value.
 
-sub internal_id {
+ Returns : Array of Bio::Tree::NodeI objects
+ Args    : none
+
+=cut
+
+sub children{
    shift->throw_not_implemented();
 }
-sub unique_id { shift->internal_id(@_) }
+sub each_Descendent { shift->children(@_)}
 
+=head2 add_child
 
-sub bootstrap{
+ Title   : add_child
+ Usage   : $node->add_child($new_node);
+ Function: Add a child to a node.
+ Returns : Nothing
+ Args    : Bio::Tree::NodeI, the node to add as a child of the current node
+
+=cut
+
+sub add_child{
+   shift->throw_not_implemented();
+}
+sub add_Descendent { shift->add_child(@_) }
+
+=head2 remove_child
+
+ Title   : remove_child
+ Usage   : $node->remove_child($child_node);
+ Function: Removes a child from the current node.
+ Returns : Nothing
+ Args    : Bio::Tree::NodeI, the child to remove from the current node
+
+=cut
+
+sub remove_child {
+    shift->throw_not_implemented();
+}
+sub remove_Descendent { shift->remove_child(@_) }
+
+=head2 remove_child
+
+ Title   : remove_child
+ Usage   : $node->remove_child($child_node);
+ Function: Removes a child from the current node.
+ Returns : Nothing
+ Args    : Bio::Tree::NodeI, the child to remove from the current node
+
+=cut
+
+sub tree {
     shift->throw_not_implemented();
 }
 

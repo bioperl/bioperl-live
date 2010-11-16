@@ -13,25 +13,23 @@
 
 =head1 NAME
 
-Bio::Tree::TreeFunctionsI - Decorated Interface implementing basic Tree exploration methods
+Bio::Tree::TreeFunctionsI - Decorated Interface implementing basic Tree-wide methods
 
 =head1 SYNOPSIS
 
-  use Bio::TreeIO;
-  my $in = Bio::TreeIO->new(-format => 'newick', -file => 'tree.tre');
-
-  my $tree = $in->next_tree;
-
-  my @nodes = $tree->find_node('id1');
-
-  if( $tree->is_monophyletic(-nodes => \@nodes, -outgroup => $outnode) ){
-   #...
-  }
 
 =head1 DESCRIPTION
 
-This interface provides a set of implementated Tree functions which
-only use the defined methods in the TreeI or NodeI interface.
+This interface provides a set of implementated tree manipulation
+functions which depend only on the methods defined in the the TreeI and NodeI
+interfaces.
+
+Many methods which perform tree operations simply forward the method
+call to the root node, meaning that most tree operations are actually
+implemented in the NodeFunctionsI module, even if they are accessible
+to a Bio::Tree::Tree object. Only methods which require manipulation
+of the link between the Bio::Tree::TreeI object and the root
+Bio::Tree::NodeI should be implemented here: 
 
 =head1 FEEDBACK
 
@@ -103,16 +101,26 @@ sub total_branch_length { shift->root->total_branch_length(@_) }
 sub subtree_length { shift->root->subtree_length(@_) }
 sub number_nodes { shift->root->node_count(@_) } # This alias sucks...
 
+=head2 nodes
+
+ Title   : nodes
+ Usage   : my @all_nodes = $tree->nodes
+ Function: Returns all nodes within the tree, including the root node
+ Returns : Array of Bio::Tree::NodeI objects
+ Args    : None
+
+=cut
+
 sub nodes {
     my $self = shift;
 
     # Slight difference between the Node 'nodes' method and Tree 'nodes' method --
     # the Tree version includes the root node in the returned array!
 
-    return () unless ($self->root);
-    my @nodes = $self->root->nodes;
-    unshift @nodes, $self->root;
-    return @nodes;
+  return () unless ($self->root);
+  my @nodes = $self->root->nodes;
+  unshift @nodes, $self->root;
+  return @nodes;
 }
 sub get_nodes { shift->nodes }
 sub leaf_nodes { shift->root->leaves }
@@ -120,6 +128,19 @@ sub get_leaf_nodes { shift->root->leaves }
 
 sub nodes_breadth_first { shift->root->nodes_breadth_first(@_) }
 sub nodes_depth_first { shift->root->nodes_depth_first(@_) }
+
+=head2 remove_node
+
+ Title   : remove_node
+ Usage   : $tree->remove_node($node); $tree->remove_node('a');
+ Function: If given a Bio::Tree::NodeI, removes that node from the
+           tree by calling $node->remove. If given a string, searches
+           for the first node with that ID and removes it from the
+           tree.
+ Returns : Array of Bio::Tree::NodeI objects
+ Args    : None
+
+=cut
 
 sub remove_node {
     my $self = shift;
@@ -163,54 +184,19 @@ sub get_lca {
     my @nodes = @_;
     
     @nodes >= 2 or $self->throw("At least 2 nodes are required");
-    # We must go root->leaf to get the correct answer to lca (in a world where
-    # internal_id might not be uniquely assigned), but leaf->root is more
-    # forgiving (eg. lineages may not all have the same root, or they may have
-    # different numbers of 'minor' taxa inbeteen 'major' ones).
-    #
-    # I use root->leaf so that we can easily do multiple nodes at once - no
-    # matter what taxa are below the lca, the lca and all its ancestors ought to
-    # be identical.
-    my @paths;
-    foreach my $node (@nodes) {
-	unless(ref($node) && $node->isa('Bio::Tree::NodeI')) {
-	    $self->throw("Cannot process get_lca() with a non-NodeI object ($node)\n");
-	}
-        my @path = ($self->get_lineage_nodes($node), $node);
-        push(@paths, \@path);
+
+    # Go through all the nodes in the argument array, keeping track of
+    # the current LCA as we go.
+    my $lca_node = shift @nodes;
+    while (scalar(@nodes) > 0) {
+	my $other_node = shift @nodes;
+	$lca_node = $other_node->lca($lca_node);
     }
-    return unless @paths >= 2;
-    my $lca;
-    LEVEL: while ($paths[0] > 0) {
-        my %node_ids;
-        my $node;
-        foreach my $path (@paths) {
-            $node = shift(@{$path}) || last LEVEL;
-            my $node_id = $node->internal_id;
-            unless (defined $node_id) {
-                $self->warn("One of the lineages had a node with no internal_id, can't calculate the common ancestor");
-                return;
-            }
-            $node_ids{$node_id}++;
-        }
-        if (keys %node_ids == 1) {
-            $lca = $node;
-        }
-        else {
-            # at this point in the lineage the nodes are different; the previous
-            # loop had the lca
-            last LEVEL;
-        }
-    }
-    # If the tree that we are contains the lca (get_lca could have been called
-    # on an empty tree, since it works with plain Nodes), prefer to return the
-    # node object that belongs to us
-    if ($lca && $self->number_nodes > 0) {
-        my $own_lca = $self->find_node(-internal_id => $lca->internal_id);
-        $lca = $own_lca if $own_lca;
-    }
-    return $lca;
+
+    return $lca_node;
 }
+sub lca { shift->get_lca(@_) }
+
 
 =head2 merge_lineage
 
@@ -300,152 +286,179 @@ sub _clone_node {
     return $clone;
 }
 
-
 =head2 distance
 
  Title   : distance
- Usage   : distance(-nodes => \@nodes )
- Function: returns the distance between two given nodes
- Returns : numerical distance
- Args    : -nodes => arrayref of nodes to test
-           or ($node1, $node2)
+ Usage   : my $dist = $tree->distance($node_a,$node_b);
+ Function: Return the branch length distance between two given nodes in the tree
+ Returns : Float, the distance between two nodes
+ Args    : Bio::Tree::NodeI, the first node
+           Bio::Tree::NodeI, the second node
 
 =cut
 
 sub distance {
-    my ($self,@args) = @_;
-    my ($nodes) = $self->_rearrange([qw(NODES)],@args);
-    if( ! defined $nodes ) {
-	$self->warn("Must supply two nodes or -nodes parameter to distance() method");
-	return;
-    }
-    elsif (ref($nodes) eq 'ARRAY') {
-	1;
-    }
-    elsif ( @args == 2) { # assume these are nodes...
-	    $nodes = \@args;
-    }
-    else {
-	$self->warn("Must supply two nodes or -nodes parameter to distance() method");
-	return;
-    }
-    $self->throw("Must provide 2 nodes") unless @{$nodes} == 2;
-
-    my $lca = $self->get_lca(@{$nodes});
-    unless($lca) { 
-        $self->warn("could not find the lca of supplied nodes; can't find distance either");
-        return;
-    }
-
-    my $cumul_dist = 0;
-    my $warned = 0;
-    foreach my $current_node (@{$nodes}) {
-        while (1) {
-            last if $current_node eq $lca;
-            if ($current_node->branch_length) {
-                $cumul_dist += $current_node->branch_length;
-            }
-            elsif (! $warned) {
-                $self->warn("At least some nodes do not have a branch length, the distance returned could be wrong");
-                $warned = 1;
-            }
-
-            $current_node = $current_node->ancestor || last;
-        }
-    }
-
-    return $cumul_dist;
+    my $self = shift;
+    my $node_a = shift;
+    my $node_b = shift;
+    
+    return $node_a->distance($node_b);
 }
 
+=head2 is_monophyletic
+
+ Title   : is_monophyletic
+ Usage   : die unless ($tree->is_monophyletic([$node_a,$node_b],$outgroup));
+ Function: Return true if the given nodes are monophyletic relative to
+           the given outgroup. A monophyletic group is defined as a group which
+           contains its LCA and all of the LCA's descendants.
+ Returns : 1 if the nodes are monophyletic, 0 if monophyly is violated
+ Args    : Arrayref of Bio::Tree::NodeI, the set of nodes to test for monophyly
+           Bio::Tree::NodeI, the outgroup node
+
+=cut
 
 sub is_monophyletic{
    my $self = shift;
-   my $nodes = shift;
+   my $node_arrayref = shift;
    my $outgroup = shift;
 
-   if( ! defined $nodes || ! defined $outgroup ) {
+   if( ! defined $node_arrayref || ! defined $outgroup ) {
        $self->warn("Must supply nodes and outgroup parameters to the method
 is_monophyletic");
        return;
    }
-   if( ref($nodes) !~ /ARRAY/i ) {
+   if( ref($node_arrayref) !~ /ARRAY/i ) {
        $self->warn("Must provide a valid array reference for -nodes");
    }
 
-   # Do a test of monophyly for the nodes specified
-   # in comparison to a chosen outgroup
+   my @nodes = @{$node_arrayref};
 
-   my $clade_root = $self->get_lca(@{$nodes});
+   my $clade_root = $self->get_lca(@nodes);
    unless( defined $clade_root ) { 
        $self->warn("could not find clade root via lca");
        return;
    }
 
+   # Monophyly is violated if an ancestor of the outgroup node is the clade root.
    my $og_ancestor = $outgroup->ancestor;
    while( defined ($og_ancestor ) ) {
-       if( $og_ancestor->internal_id == $clade_root->internal_id ) {
+       if( $og_ancestor == $clade_root ) {
            # monophyly is violated
            return 0;
        }
        $og_ancestor = $og_ancestor->ancestor;
    }
+
+   # Monophyly is violated if the set of nodes does not contain ALL
+   # leaves underneath the clade root.
+   my $given_leaves;
+   map {$given_leaves->{$_} = $_} @nodes;
+   foreach my $leaf ($clade_root->leaves) {
+       return 0 unless ($given_leaves->{$leaf});
+   }
+
    return 1;
 }
 
+=head2 is_paraphyletic
+
+ Title   : is_paraphyletic
+ Usage   : die unless ($tree->is_paraphyletic([$node_a,$node_b],$outgroup));
+ Function: Return true if the given set of nodes is paraphyletic. A
+           paraphyletic group is an 'incomplete' monophyletic group,
+           i.e. a group with one or more descendent species removed
+ Returns : 1 if the nodes are paraphyletic, 0 if not
+ Args    : Arrayref of Bio::Tree::NodeI, the set of nodes to test for paraphyly
+           Bio::Tree::NodeI, the outgroup node
+
+=cut
+
 sub is_paraphyletic{
-    my $self = shift;
-   my $nodes = shift;
+   my $self = shift;
+   my $node_arrayref = shift;
    my $outgroup = shift;
 
-   if( ! defined $nodes || ! defined $outgroup ) {
-       $self->warn("Must suply -nodes and -outgroup parameters to the method is_paraphyletic");
+   if( ! defined $node_arrayref || ! defined $outgroup ) {
+       $self->warn("Must supply nodes and outgroup parameters to the method is_paraphyletic");
        return;
    }
-   if( ref($nodes) !~ /ARRAY/i ) { 
+   if( ref($node_arrayref) !~ /ARRAY/i ) { 
        $self->warn("Must provide a valid array reference for -nodes");
        return;
    }
 
-   # Tests whether or not a given set of nodes are paraphyletic
-   # (representing the full clade) given an outgroup
+   my @nodes = @{$node_arrayref};
 
-   # Algorithm
-   # Find the lca
-   # Find all the nodes beneath the lca
-   # Test to see that none are missing from the nodes list
-   my %nodehash;
-   foreach my $n ( @$nodes ) {
-       $nodehash{$n->internal_id} = $n;
+   if ($self->is_polyphyletic(\@nodes,$outgroup)) {
+       return 0;
    }
 
-   my $clade_root = $self->get_lca(@{$nodes});
+   my $clade_root = $self->get_lca(@nodes);
    unless( defined $clade_root ) { 
        $self->warn("could not find clade root via lca");
-       return;
+       return 0;
    }
 
-   my $og_ancestor = $outgroup->ancestor;
+   # Paraphyletic if the set of nodes does not contain ALL
+   # leaves underneath the clade root.
+   my $given_leaves;
+   map {$given_leaves->{$_} = $_} @nodes;
+   foreach my $leaf ($outgroup->parent->leaves) {
+       return 1 if (!defined $given_leaves->{$leaf});
+   }
+   
+   return 0;
+}
 
-   # Is this necessary/correct for paraphyly test?
+=head2 is_polyphyletic
+
+ Title   : is_polyphyletic
+ Usage   : die if ($tree->is_polyphyletic([$node_a,$node_b],$outgroup));
+ Function: Return true if the given set of nodes is polyphyletic. A
+           polyphyletic group is one with multiple ancestries with
+           respect to the given outgroup (e.g., the LCA of the given
+           species is ancestral to the outgroup node)
+ Returns : 1 if the nodes are polyphyletic, 0 if not
+ Args    : Arrayref of Bio::Tree::NodeI, the nodes to test for polyphyly
+           Bio::Tree::NodeI, the outgroup node
+
+=cut
+
+sub is_polyphyletic {
+   my $self = shift;
+   my $node_arrayref = shift;
+   my $outgroup = shift;
+   my @nodes = @{$node_arrayref};
+   my $clade_root = $self->get_lca(@nodes);
+
+   # Polyphyletic if an ancestor of the outgroup node is the clade root.
+   my $og_ancestor = $outgroup->parent;
    while( defined ($og_ancestor ) ) {
-       if( $og_ancestor->internal_id == $clade_root->internal_id ) {
-           # monophyly is violated, could be paraphyletic
-           return -1;
+       if( $og_ancestor == $clade_root ) {
+	   return 1;
        }
-       $og_ancestor = $og_ancestor->ancestor;
-   }
-   my $tree = Bio::Tree::Tree->new(-root     => $clade_root,
-				  -nodelete => 1);
-
-   foreach my $n ( $tree->get_nodes() ) { 
-       next unless $n->is_Leaf();
-       # if any leaf node is not in the list
-       # then it is part of the clade and so the list
-       # must be paraphyletic
-       return 1 unless (  $nodehash{$n->internal_id} );
+       $og_ancestor = $og_ancestor->parent;
    }
    return 0;
 }
+
+=head2 reroot
+
+ Title   : reroot
+ Usage   : $tree->reroot($new_root_node);
+ Function: Re-roots the tree so the passed node becomes the new root
+           node. No restrictions are placed on the allowable types of
+           node for the new root, so you may reroot the tree on a leaf
+           node (although that wouldn't make much biological
+           sense). Most users probably want to use reroot_above to
+           create a new root node along the branch above a given node,
+           causing the given node to be one of the two children of the
+           new root.
+ Returns : Nothing
+ Args    : Bio::Tree::NodeI, the node to become root
+
+=cut
 
 sub reroot {
     my ($self,$new_root) = @_;
@@ -461,7 +474,7 @@ sub reroot {
     }
     
     # Note -- this implementation neither adds nor removes any nodes!
-    # For practical purposes you may want to use reroot_above instead.
+    # Most practical re-rootings will require adding 
 
     $new_root->parent->change_child_to_parent($new_root);
     $new_root->branch_length(undef);
@@ -469,6 +482,22 @@ sub reroot {
 
     return 1;
 }
+
+=head2 reroot
+
+ Title   : reroot
+ Usage   : $tree->reroot_above($outgroup,0.5);
+ Function: Re-roots the tree by creating a new node along the branch
+           above the given node and re-rooting the tree along this
+           node.
+ Returns : Nothing
+ Args    : Bio::Tree::NodeI, the node above which to reroot the tree.
+           Float, the fractional branch length towards the parent to
+           insert the new node (0 inserts at the passed node, 1
+           inserts at its parent)
+
+=cut
+
 
 sub reroot_above {
     my $self = shift;
@@ -497,11 +526,10 @@ sub reroot_above {
 =head2 move_id_to_bootstrap
 
  Title   : move_id_to_bootstrap
- Usage   : $tree->move_id_to_bootstrap
+ Usage   : $tree->move_id_to_bootstrap()
  Function: Move internal IDs to bootstrap slot
  Returns : undef
  Args    : undef
-
 
 =cut
 
@@ -521,8 +549,8 @@ sub move_id_to_bootstrap{
  Function: Returns the tree as a string representation in the 
            desired format (currently 'newick', 'nhx', or 
            'tabtree')
- Returns : scalar string
- Args    : format type as specified by Bio::TreeIO
+ Returns : String, the tree as expressed in the desired format
+ Args    : String, format type as specified by Bio::TreeIO
  Note    : This method loads the Bio::TreeIO::$format module
            on the fly, and commandeers the _write_tree_Helper
            routine therein to create the tree string. 
