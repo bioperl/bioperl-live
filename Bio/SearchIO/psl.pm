@@ -101,8 +101,10 @@ $DEFAULT_WRITER_CLASS = 'Bio::SearchIO::Writer::HitTableWriter';
     'Hsp_evalue'      => 'HSP-evalue',
     'Hsp_query-from'  => 'HSP-query_start',
     'Hsp_query-to'    => 'HSP-query_end',
+    'Hsp_query-strand'=> 'HSP-query_strand',
     'Hsp_hit-from'    => 'HSP-hit_start',
     'Hsp_hit-to'      => 'HSP-hit_end',
+    'Hsp_hit-strand'  => 'HSP-hit_strand',
     'Hsp_positive'    => 'HSP-conserved',
     'Hsp_identity'    => 'HSP-identical',
     'Hsp_mismatches'  => 'HSP-mismatches',
@@ -150,8 +152,17 @@ use base qw(Bio::SearchIO);
 sub _initialize {
     my ( $self, @args ) = @_;
     $self->SUPER::_initialize(@args);
-    my ($pname) = $self->_rearrange( [qw(PROGRAM_NAME)], @args );
+    my ($pname, $distinct, $qt, $ht) = $self->_rearrange( [qw(PROGRAM_NAME
+                                                 DISTINCT_LOCATIONS
+                                                 QUERY_TYPE
+                                                 HIT_TYPE)], @args );
     $self->program_name( $pname || $DefaultProgramName );
+    $distinct && $self->distinct_locations(1);
+    $qt ||= 'dna';
+    $ht ||= 'dna';
+    $self->query_type($qt);
+    $self->hit_type($ht);
+    
     $self->_eventHandler->register_factory(
         'result',
         Bio::Search::Result::ResultFactory->new(
@@ -185,6 +196,29 @@ sub _initialize {
 
 sub next_result {
     my ($self) = @_;
+    unless (exists $self->{'_handlerset'}) {
+        my $line;
+        while ($line = $self->_readline) {
+            # advance to first line
+            next if $line =~ m{^\s*$};
+            # newer output starts with model name
+            if ($line =~ m{^\#\s+cmsearch\s}) {
+                $self->{'_handlerset'} = 'latest';
+			} elsif ($line =~ m{^CM\s\d+:}) {
+                $self->{'_handlerset'} = 'pre-1.0';
+            } else {
+                $self->{'_handlerset'} ='old';
+            }
+            last;
+        }
+        $self->_pushback($line);
+    }
+    return $self->{'distinct_locations'} ? $self->_parse_distinct :
+		   $self->_parse_simple;
+}
+
+sub _parse_simple {
+    my ($self) = @_;
     my ( $lastquery, $lasthit );
     local $/ = "\n";
     local $_;
@@ -202,7 +236,9 @@ sub next_result {
             $q_end,        $t_name,        $t_length,     $t_start,
             $t_end,        $block_count,   $block_sizes,  $q_starts,
             $t_starts
-        ) = split;
+        ) = split(/\s/,$_);
+        
+        # TODO: what do we do with strand of '++' or similar?
 
         $q_length > 0 or $self->throw("parse error, invalid query length '$q_length'");
         my $score = sprintf( "%.2f",  100 * ( $matches + $mismatches + $rep_matches ) / $q_length );
@@ -225,162 +261,54 @@ sub next_result {
         elsif ( !defined $lastquery ) {
             $self->{'_result_count'}++;
             $self->start_element( { 'Name' => 'PSLOutput' } );
-            $self->element(
-                {
-                    'Name' => 'PSLOutput_program',
-                    'Data' => $self->program_name
-                }
-            );
-            $self->element(
-                {
-                    'Name' => 'PSLOutput_query-def',
-                    'Data' => $q_name
-                }
-            );
-            $self->element(
-                {
-                    'Name' => 'PSLOutput_query-len',
-                    'Data' => $q_length
+            $self->element_hash({
+                    'PSLOutput_program' => $self->program_name,
+                    'PSLOutput_query-def' => $q_name,
+                    'PSLOutput_query-len' => $q_length
                 }
             );
             $self->start_element( { 'Name' => 'Hit' } );
-            $self->element(
-                {
-                    'Name' => 'Hit_id',
-                    'Data' => $t_name
-                }
-            );
-            $self->element(
-                {
-                    'Name' => 'Hit_len',
-                    'Data' => $t_length
-                }
-            );
-            $self->element(
-                {
-                    'Name' => 'Hit_score',
-                    'Data' => $score
+            $self->element_hash({
+                    'Hit_id' => $t_name,
+                    'Hit_len' => $t_length,
+                    'Hit_score' => $score
                 }
             );
         }
         elsif ( $lasthit ne $t_name ) {
             $self->end_element( { 'Name' => 'Hit' } );
             $self->start_element( { 'Name' => 'Hit' } );
-            $self->element(
-                {
-                    'Name' => 'Hit_id',
-                    'Data' => $t_name
-                }
-            );
-            $self->element(
-                {
-                    'Name' => 'Hit_len',
-                    'Data' => $t_length
-                }
-            );
-            $self->element(
-                {
-                    'Name' => 'Hit_score',
-                    'Data' => $score
+            $self->element_hash({
+                    'Hit_id' => $t_name,
+                    'Hit_len' => $t_length,
+                    'Hit_score' => $score
                 }
             );
         }
 
         my $identical = $matches + $rep_matches;
         $self->start_element( { 'Name' => 'Hsp' } );
-        $self->element(
-            {
-                'Name' => 'Hsp_score',
-                'Data' => $score
+        $self->element_hash({
+                'Hsp_score'  => $score,
+                'Hsp_identity' => $identical,
+                'Hsp_positive' => $identical,
+                'Hsp_mismatches' => $mismatches,
+                'Hsp_gaps' => $q_base_insert + $t_base_insert,
+                'Hsp_querygaps' => $t_base_insert,
+                'Hsp_hitgaps' => $q_base_insert,
+                'Hsp_query-from' => ( $strand eq '+' ) ? $q_start + 1 : $q_end,
+                'Hsp_query-to' => ( $strand eq '+' ) ? $q_end :$q_start + 1,
             }
         );
-        $self->element(
-            {
-                'Name' => 'Hsp_identity',
-                'Data' => $identical
-            }
-        );
-        $self->element(
-            {
-                'Name' => 'Hsp_positive',
-                'Data' => $identical
-            }
-        );
-        $self->element(
-            {
-                'Name' => 'Hsp_mismatches',
-                'Data' => $mismatches
-            }
-        );
-        $self->element(
-            {
-                'Name' => 'Hsp_gaps',
-                'Data' => $q_base_insert + $t_base_insert
-            }
-        );
-
-        # query gaps are the number of target inserts and vice-versa
-        $self->element(
-            {
-                'Name' => 'Hsp_querygaps',
-                'Data' => $t_base_insert
-            }
-        );
-        $self->element(
-            {
-                'Name' => 'Hsp_hitgaps',
-                'Data' => $q_base_insert
-            }
-        );
-        if ( $strand eq '+' ) {
-            $self->element(
-                {
-                    'Name' => 'Hsp_query-from',
-                    'Data' => $q_start + 1
-                }
-            );
-            $self->element(
-                {
-                    'Name' => 'Hsp_query-to',
-                    'Data' => $q_end
-                }
-            );
-        }
-        else {
-            $self->element(
-                {
-                    'Name' => 'Hsp_query-to',
-                    'Data' => $q_start + 1
-                }
-            );
-            $self->element(
-                {
-                    'Name' => 'Hsp_query-from',
-                    'Data' => $q_end
-                }
-            );
-        }
         my $hsplen =
           $q_base_insert +
           $t_base_insert +
           abs( $t_end - $t_start ) +
           abs( $q_end - $q_start );
-        $self->element(
-            {
-                'Name' => 'Hsp_hit-from',
-                'Data' => $t_start + 1
-            }
-        );
-        $self->element(
-            {
-                'Name' => 'Hsp_hit-to',
-                'Data' => $t_end
-            }
-        );
-        $self->element(
-            {
-                'Name' => 'Hsp_align-len',
-                'Data' => $hsplen
+        $self->element_hash({
+                'Hsp_hit-from' => $t_start + 1,
+                'Hsp_hit-to'   => $t_end,
+                'Hsp_align-len' => $hsplen
             }
         );
 
@@ -404,16 +332,9 @@ sub next_result {
             }
             push @hgapblocks, [ $tstarts[$i] + 1, $blocksizes[$i] ];
         }
-        $self->element(
-            {
-                'Name' => 'Hsp_qgapblocks',
-                'Data' => \@qgapblocks
-            }
-        );
-        $self->element(
-            {
-                'Name' => 'Hsp_hgapblocks',
-                'Data' => \@hgapblocks
+        $self->element_hash({
+                'Hsp_qgapblocks' => \@qgapblocks,
+                'Hsp_hgapblocks' => \@hgapblocks
             }
         );
         $self->end_element( { 'Name' => 'Hsp' } );
@@ -424,6 +345,249 @@ sub next_result {
         $self->end_element( { 'Name' => 'Hit' } );
         $self->end_element( { 'Name' => 'Result' } );
         return $self->end_document;
+    }
+}
+
+# will be merging this and the above into a more coherent group, but
+# keeping separate for now.  Noticably, this wasn't handling more
+# complex output (BLATX, TBLATN, TBLATX, etc)
+
+sub _parse_distinct {
+    my ($self) = @_;
+    my ( $lastquery );
+    local $/ = "\n";
+    local $_;
+    
+    # if these aren't passed in, we can only assume both of these are
+    # dna (the default)
+    my ($qt, $ht) = ($self->query_type, $self->hit_type);
+    
+    # skip over any header lines
+    while( defined($_ = $self->_readline) and ! /^\d+\s+\d+\s+/ ) {}
+    $self->_pushback($_);
+
+    # now start the main parsing loop
+    while ( defined( $_ = $self->_readline ) ) {
+        my (
+            $matches,      $mismatches,    $rep_matches,  $n_count,
+            $q_num_insert, $q_base_insert, $t_num_insert, $t_base_insert,
+            $strand,       $q_name,        $q_length,     $q_start,
+            $q_end,        $t_name,        $t_length,     $t_start,
+            $t_end,        $block_count,   $block_sizes,  $q_starts,
+            $t_starts
+        ) = split(/\s/,$_);
+
+        $q_length > 0 or $self->throw("parse error, invalid query length '$q_length'");
+        my $score = sprintf( "%.2f",  100 * ( $matches + $mismatches + $rep_matches ) / $q_length );
+
+        # this is overall percent identity...
+        my $match_total  = $matches + $mismatches + $rep_matches;
+        $match_total > 0
+            or $self->throw("parse error, matches + mismatches + rep_matches must be > 0!");
+        my $percent_id = sprintf("%.2f", 100 * ( $matches + $rep_matches ) / $match_total );
+
+        # Remember Jim's code is 0 based
+        if ( defined $lastquery && $lastquery ne $q_name )
+        {
+            $self->end_element( { 'Name' => 'PSLOutput' } );
+            $self->_pushback($_);
+            return $self->end_document;
+        }
+        else {
+            if (!$self->within_element('result')) {
+                $self->{'_result_count'}++;
+                $self->start_element( { 'Name' => 'PSLOutput' } );
+                $self->element_hash({
+                        'PSLOutput_program' => $self->program_name,
+                        'PSLOutput_query-def' => $q_name,
+                        'PSLOutput_query-len' => $q_length
+                    }
+                );
+            }
+            $self->start_element( { 'Name' => 'Hit' } );
+            $self->element_hash({
+                    'Hit_id' => $t_name,
+                    'Hit_len' => $t_length,
+                    'Hit_score' => $score
+                }
+            );
+
+            #my $identical = $matches + $rep_matches;
+            
+            my @blocksizes = split( /,/, $block_sizes );    # block sizes
+            my @qstarts = split( /,/, $q_starts ); # starting position of each block
+                                                   # in query
+            my @tstarts = split( /,/, $t_starts ); # starting position of each block
+                                                   # in target
+            my ($qstrand, $hstrand) = length($strand) > 1 ?
+                split('',$strand,2) : ($strand, '+');
+                
+            for my $i ( 0..$#blocksizes ) {
+                
+                # TODO: start/end coordinates may need to be adjusted based on
+                # the type of BLAT run; I don't think there is a way to tell
+                # this via PSL output, so this will have to be specified as
+                # an object attribute or based off that.
+                
+                $self->start_element( { 'Name' => 'Hsp' } );
+                                
+                my ($qstart, $qend) = ( $qstrand eq '+' ) ?
+                    ($qstarts[$i] + 1, $qstarts[$i] + $blocksizes[$i]) :
+                    ($q_length - $qstarts[$i] - $blocksizes[$i] + 1, $q_length - $qstarts[$i]);
+                my ($hstart, $hend) = ($tstarts[$i] + 1, $tstarts[$i] + $blocksizes[$i]);
+                
+                $self->debug(sprintf("Q: %d-%d:%s\nH: %d-%d:%s\n",
+                                     $qstart, $qend, $qstrand,
+                                     $hstart, $hend, $hstrand, $strand)) if $qstrand eq '-';
+                
+                # no score for HSPs in this case
+                
+                $self->element_hash({
+                        'Hsp_query-from' => $qstart,
+                        'Hsp_query-to'   => $qend,
+                        'Hsp_query-strand'   => $qstrand,
+                        'Hsp_hit-from'   => $hstart,
+                        'Hsp_hit-to'     => $hend,
+                        'Hsp_hit-strand'   => $hstrand,
+                    }
+                );
+                #$self->element(
+                #    {
+                #        'Name' => 'Hsp_score',
+                #        'Data' => $score
+                #    }
+                #);
+                #$self->element(
+                #    {
+                #        'Name' => 'Hsp_identity',
+                #        'Data' => $identical
+                #    }
+                #);
+                #$self->element(
+                #    {
+                #        'Name' => 'Hsp_positive',
+                #        'Data' => $identical
+                #    }
+                #);
+                #$self->element(
+                #    {
+                #        'Name' => 'Hsp_mismatches',
+                #        'Data' => $mismatches
+                #    }
+                #);
+                #$self->element(
+                #    {
+                #        'Name' => 'Hsp_gaps',
+                #        'Data' => $q_base_insert + $t_base_insert
+                #    }
+                #);
+                #
+                ## query gaps are the number of target inserts and vice-versa
+                #$self->element(
+                #    {
+                #        'Name' => 'Hsp_querygaps',
+                #        'Data' => $t_base_insert
+                #    }
+                #);
+                #$self->element(
+                #    {
+                #        'Name' => 'Hsp_hitgaps',
+                #        'Data' => $q_base_insert
+                #    }
+                #);
+                #if ( $strand eq '+' ) {
+                #    $self->element(
+                #        {
+                #            'Name' => 'Hsp_query-from',
+                #            'Data' => $q_start + 1
+                #        }
+                #    );
+                #    $self->element(
+                #        {
+                #            'Name' => 'Hsp_query-to',
+                #            'Data' => $q_end
+                #        }
+                #    );
+                #}
+                #else {
+                #    $self->element(
+                #        {
+                #            'Name' => 'Hsp_query-to',
+                #            'Data' => $q_start + 1
+                #        }
+                #    );
+                #    $self->element(
+                #        {
+                #            'Name' => 'Hsp_query-from',
+                #            'Data' => $q_end
+                #        }
+                #    );
+                #}
+                #my $hsplen =
+                #  $q_base_insert +
+                #  $t_base_insert +
+                #  abs( $t_end - $t_start ) +
+                #  abs( $q_end - $q_start );
+                #$self->element(
+                #    {
+                #        'Name' => 'Hsp_hit-from',
+                #        'Data' => $t_start + 1
+                #    }
+                #);
+                #$self->element(
+                #    {
+                #        'Name' => 'Hsp_hit-to',
+                #        'Data' => $t_end
+                #    }
+                #);
+                #$self->element(
+                #    {
+                #        'Name' => 'Hsp_align-len',
+                #        'Data' => $hsplen
+                #    }
+                #);
+                
+                $self->end_element( { 'Name' => 'Hsp' } );
+            }
+            $lastquery = $q_name;
+            $self->end_element( { 'Name' => 'Hit' } );
+        }
+    }
+    if ( defined $lastquery ) {
+        $self->end_element( { 'Name' => 'Result' } );
+        return $self->end_document;
+    }
+
+}
+
+=head2 element_hash
+
+ Title   : element
+ Usage   : $eventhandler->element_hash({'Hsp_hit-from' => $start,
+                                        'Hsp_hit-to'   => $end,
+                                        'Hsp_score'    => $lastscore});
+ Function: Convenience method that takes multiple simple data elements and
+           maps to appropriate parameters
+ Returns : none
+ Args    : Hash ref with the mapped key (in %MAPPING) and value
+
+=cut
+
+sub element_hash {
+    my ($self, $data) = @_;
+    $self->throw("Must provide data hash ref") if !$data || !ref($data);
+    for my $nm (sort keys %{$data}) {
+        next if $data->{$nm} && $data->{$nm} =~ m{^\s*$}o;
+        if ( $MAPPING{$nm} ) {
+            if ( ref( $MAPPING{$nm} ) =~ /hash/i ) {
+                my $key = ( keys %{ $MAPPING{$nm} } )[0];
+                $self->{'_values'}->{$key}->{ $MAPPING{$nm}->{$key} } =
+                  $data->{$nm};
+            }
+            else {
+                $self->{'_values'}->{ $MAPPING{$nm} } = $data->{$nm};
+            }
+        }
     }
 }
 
@@ -456,7 +620,6 @@ sub start_element {
         $self->{'_result'} = undef;
         $self->{'_mode'}   = '';
     }
-
 }
 
 =head2 end_element
@@ -593,8 +756,7 @@ sub _mode {
 
 sub within_element {
     my ( $self, $name ) = @_;
-    return 0
-      if (!defined $name && !defined $self->{'_elements'}
+    return 0 if (!defined $name || !defined($self->{'_elements'})
         || scalar @{ $self->{'_elements'} } == 0 );
     foreach ( @{ $self->{'_elements'} } ) {
         if ( $_ eq $name ) {
@@ -693,6 +855,38 @@ sub program_name {
 
     $self->{'program_name'} = shift if @_;
     return $self->{'program_name'} || $DefaultProgramName;
+}
+
+=head2 distinct_locations
+
+The original PSL parser parses very simple start/end information, but 
+doesn't disambiguate blocks into HSPs (though the data is stored)
+Therefore, every time the query name changes, a new Result object is
+generated; if the target ID stays the same, these are clustered together
+as one Hit object with two distinct HSP regions.
+
+This has the advantage of clustering Results/Hits/HSPs similar to BLAST
+reports, but the important disadvantage is that the blocks cannot be further
+disambiguated into subparts below that of HSPs. Since BLAT can 
+
+=cut
+
+sub distinct_locations {
+    my $self = shift;
+    return $self->{distinct_locations} = shift if @_;
+    return $self->{distinct_locations};
+}
+
+sub hit_type {
+    my $self = shift;
+    return $self->{query_type} = shift if @_;
+    return $self->{query_type};
+}
+
+sub query_type {
+    my $self = shift;
+    return $self->{hit_type} = shift if @_;
+    return $self->{hit_type};
 }
 
 1;
