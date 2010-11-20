@@ -119,14 +119,13 @@ sub new {
   if( $class =~ /Bio::TreeIO::(\S+)/ ) {
     $obj = $class->SUPER::new(@args);
     $obj->_initialize(@args);
-  } else {     
+  } else {
     my %param = @args;
     @param{ map { lc $_ } keys %param } = values %param; # lowercase keys
     my $format = $param{'-format'} || 
       $class->_guess_format( $param{'-file'} || $ARGV[0] ) ||
       'newick';
     $format = "\L$format";  # normalize capitalization to lower case
-      
     # normalize capitalization
     return undef unless( $class->_load_format_module($format) );
     $obj = "Bio::TreeIO::$format"->new(@args);
@@ -213,9 +212,8 @@ sub _initialize {
     $self->set_param('newline_each_node',$nen);
     $self->set_param('internal_node_id',$ini);
 
-    $handler = 
-        Bio::TreeIO::TreeEventObjBuilder->new(-verbose=>$self->verbose, @args)
-        unless $handler;
+    $handler = Bio::TreeIO::TreeEventObjBuilder->new(-verbose=>$self->verbose, @args)
+      unless $handler;
     $self->attach_EventHandler($handler);
     $self->_initialize_io(@args);
     #$self->debug_params;
@@ -236,7 +234,7 @@ sub _load_format_module {
   my ($self,$format) = @_;
   my $module = "Bio::TreeIO::" . $format;
   my $ok;
-  
+
   eval {
       $ok = $self->_load_module($module);
   };
@@ -304,7 +302,6 @@ sub set_params {
 
 sub get_default_params {
   my $self = shift;
-  
   return {};
 }
 
@@ -339,6 +336,7 @@ sub _guess_format {
    return 'nhx'   if /\.(nhx)$/i;
    return 'phyloxml' if /\.(xml)$/i;
    return 'svggraph' if /\.svg$/i;
+   return 'nexus' if /\.(nex|t)$/i;
    return 'lintree'  if( /\.(lin|lintree)$/i );
 }
 
