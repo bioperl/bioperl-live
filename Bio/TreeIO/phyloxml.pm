@@ -442,10 +442,10 @@ sub write_xml {
     my $root_el = $helper->create_node({Name => 'phyloxml'}, $top);
 
     foreach my $tree (@trees) {
-        my $phylo = $helper->create_node({Name => 'phylogeny'}, $root_el);
+        my $phylo_el = $helper->create_node({Name => 'phylogeny'}, $root_el);
         
         # cache the current top-level phylogeny node
-        $self->{phylogeny_el} = $phylo;
+        #$self->{phylogeny_el} = $phylo;
         
         my $root_node = $tree->get_root_node;
         for my $tag (qw(name description)) {
@@ -458,17 +458,20 @@ sub write_xml {
                             Value   => $value,
                         }
                     }
-                    , $phylo
+                    , $phylo_el
                 );
             }
         }
     
         # check if rooted
         $tree->has_tag('rooted') || $tree->is_binary( $tree->get_root_node ) ?
-            $phylo->setAttribute( 'rooted', 'true' ) :
-            $phylo->setAttribute( 'rooted', 'false' );
+            $phylo_el->setAttribute( 'rooted', 'true' ) :
+            $phylo_el->setAttribute( 'rooted', 'false' );
         
-        $self->_clade_els($root_node, $phylo);
+        # the <phylogeny> element is both the top-level element and the
+        # immediate parent here
+        
+        $self->_clade_els($root_node, $phylo_el, $phylo_el);
     }
     $self->_print( $top->toString(1) );
     $self->flush if $self->_flush_on_write && defined $self->_fh;
@@ -476,7 +479,7 @@ sub write_xml {
 }
 
 sub _clade_els {
-    my ($self, $tree_node, $parent_el) = @_;
+    my ($self, $tree_node, $parent_el, $phylo_el) = @_;
     my $helper = $self->{helper};
     
     my ($nm, $bl) =  ($tree_node->id, $tree_node->branch_length);
@@ -545,7 +548,7 @@ sub _clade_els {
 
     # print all descendent nodes, using the current node as the parent
     foreach my $child ( $tree_node->each_Descendent() ) {
-        $self->_clade_els( $child, $clade_el );
+        $self->_clade_els( $child, $clade_el, $phylo_el );
     }
 
     # print all sequences
@@ -566,7 +569,7 @@ sub _clade_els {
             }
             
             for my $relation ($seq->annotation->get_Annotations('sequence_relation')) {
-                $self->_print_relations($seq, $relation, $parent_el);
+                $self->_print_relations($seq, $relation, $phylo_el);
             }
             
             #$str = print_seq_annotation( $node, $str, $seq );
@@ -695,7 +698,7 @@ sub _print_annotation {
 }
 
 sub _print_relations {
-    my ( $self, $obj, $rel, $parent_node) = @_;
+    my ( $self, $obj, $rel, $parent_el) = @_;
     
     my $helper = $self->{helper};
     
@@ -719,6 +722,11 @@ sub _print_relations {
     my $confidence      = $rel->confidence();
     my $confidence_type = $rel->confidence_type();
     
+    # relationships are bidirectional, but we only want one copy in the output
+    # check against a marshalled cache or against parent node
+    
+    
+    
     my $rel_el = $helper->create_node(
         {
             Name    => 'generic',
@@ -731,7 +739,7 @@ sub _print_relations {
                 }
                 
             }
-         }, $self->{phylogeny_el}
+         }, $parent_el
     );
     if ($confidence) {
         my $confidence_el = $helper->create_node(
