@@ -109,7 +109,7 @@ sub new {
     defined $label && $self->id($label);
     defined $root && $self->root($root);
     defined $store && $self->store($store);
-    defined $annot && $self->_set_flat_tagvalues($annot);
+    defined $annot && $self->flatAnnotations($annot);
     $self->_dirty(0);
     return $self;
 }
@@ -283,6 +283,16 @@ sub score{
 =head2 Methods for associating Tag/Values with a Tree
 
 Implemented in Bio::DB::Tree::AnnotatedImpl
+
+=head2 set_flatAnnotations
+
+ Title   : set_flatAnnotations
+ Usage   : $tree->_setAnnotations($flatannotations)
+ Function: Directly set the tag/values hash for the object based on a FlatAnnotation format (see L<Bio::DB::Tree::Store::DBI::SQLite> for example)
+ Returns : none
+ Args    : flatannotation in the form of "key1=value1,value2;key2=value3"
+
+=cut
 
 =head2 set_tag_value
 

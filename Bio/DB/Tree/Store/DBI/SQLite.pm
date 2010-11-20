@@ -138,7 +138,7 @@ sub insert_node {
     } elsif (!defined($parent)) {
         $parent = $nodeh->{'-parent'} if exists($nodeh->{'-parent'});
     }
-    
+
     # unify between node object or hashref
     my $data = $self->_node_to_hash($nodeh);
 
@@ -212,7 +212,7 @@ sub update_node{
             ."WHERE node_id = ?");
         $self->{sths}->{'updateNode'} = $sth;
     }
-    my $rv = $sth->execute($parent, 
+    my $rv = $sth->execute($parent,
                            $data->{'-id'}, $data->{'-branch_length'}, 
                            $data->{'-flatAnnotations'},
                            $data->{'-pk'});
@@ -266,7 +266,7 @@ sub populate_node {
     my $sth = $self->{sths}->{'populateNode'};
     if (! $sth) {
         $sth = $self->dbh->prepare(
-            "SELECT parent_id,label,distance_to_parent "
+            "SELECT parent_id,label,distance_to_parent,annotations "
             ."FROM node WHERE node_id = ?");
         $self->{sths}->{'populateNode'} = $sth;
     }
@@ -277,6 +277,7 @@ sub populate_node {
     $node->parent_id($row->[0]);
     $node->id($row->[1]);
     $node->branch_length($row->[2]);
+    $node->set_flatAnnotations($row->[3]);
     $node->_dirty($dirty); # restore dirty flag to where it was
     return 1;
 }
@@ -438,7 +439,7 @@ sub update_tree{
             ."WHERE tree_id = ?");
         $self->{sths}->{'updateTree'} = $sth;
     }
-    my $rv = $sth->execute($data->{'-id'}, 
+    my $rv = $sth->execute($data->{'-id'},
                            $data->{'-root'}, $data->{'-is_rooted'}, 
                            $data->{'-flatAnnotations'},
                            $data->{'-score'},
@@ -465,7 +466,7 @@ sub populate_tree {
     my $sth = $self->{sths}->{'populateTree'};
     if (! $sth) {
         $sth = $self->_prepare(
-            "SELECT label,is_rooted,root_id,score "
+            "SELECT label,is_rooted,root_id,score,annotations "
             ."FROM tree WHERE tree_id = ?");
         $self->{sths}->{'populateTree'} = $sth;
     }
@@ -482,6 +483,7 @@ sub populate_tree {
     $tree->id($row->[0]);
     $tree->rooted($row->[1]);
     $tree->score($row->[3]);
+    $tree->set_flatAnnotations($row->[4]);
     $tree->_dirty($dirty); # restore flag to where it was
     return 1;
 }
@@ -707,7 +709,7 @@ sub _tree_to_hash {
     if (ref($obj) eq "HASH") {
         $h = {%$obj};
         # flatten out all key-value annotations (if we have any)
-        my $flatAnnots = _flatten_keyvalues($obj->{'-annotations'});
+        my $flatAnnots = _flatten_keyvalues($obj->{'_tags'});
         $h->{'-flatAnnotations'} = $flatAnnots if $flatAnnots;
     } elsif (blessed($obj) && $obj->isa("Bio::Tree::TreeI")) {
         $h = {};
@@ -722,7 +724,7 @@ sub _tree_to_hash {
             $h->{'-root'} = $obj->root->node_id if $obj->root;
         }
     } else {
-        $self->throw("don't know how to deal with ".$obj);         
+        $self->throw("don't know how to deal with ".$obj);
     }
     return $h;
 }

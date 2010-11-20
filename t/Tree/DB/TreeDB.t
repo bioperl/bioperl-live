@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 37);
+    test_begin(-tests => 49);
     
     use_ok('Bio::DB::Tree::Tree');
     use_ok('Bio::DB::Tree::Node');
@@ -93,6 +93,31 @@ $tree = $dbh->fetch_tree($dbh->insert_tree({-id => 'test tree',
 ok($tree,"created test tree");
 #my $out = Bio::TreeIO->new(-format => 'newick' );
 #$out->write_tree($tree);
+
+
+# test the get/set methods on tree
+$tree = Bio::DB::Tree::Tree->new(-id => 'test100',
+				 -store=>$dbh);
+$tree->tree_id($dbh->insert_tree($tree));
+$tree->add_tag_value('Test1','Value1');
+ok($tree->has_tag('Test1'));
+ok(! $tree->has_tag('Test2'));
+is($tree->get_all_tags,1);
+my @values = $tree->get_tag_values('Test1');
+is($values[0],'Value1');
+$tree->add_tag_value('Test4','Value5');
+$tree->add_tag_value('Test4','Value6');
+is($tree->get_all_tags,2);
+my $rv = $tree->save;
+ok($rv);
+my $tree3 = $dbh->fetch_tree($tree->tree_id);
+is($tree3->id,'test100');
+is($tree3->tree_id,$tree->tree_id);
+is($tree3->get_all_tags,2);
+is(($tree3->get_tag_values('Test1'))[0], 'Value1');
+is(($tree3->get_tag_values('Test4'))[0], 'Value5');
+is(($tree3->get_tag_values('Test4'))[1], 'Value6');
+
 
 done_testing();
 unlink('test_tree.idx');
