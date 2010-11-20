@@ -168,7 +168,6 @@ sub _parse {
         else {
             $s =~ s/(\[[^\]]+\])//g;
         }
-        
         if ( $s =~ /begin trees;(.+)(end;)?/si ) {
             my $trees = $1;
             if ( $trees =~ s/\s+translate\s+([^;]+);//i ) {
@@ -183,8 +182,8 @@ sub _parse {
                         my ($id,$tag) = ($1,$2);
                         $tag =~ s/[\s,]+$//;  # remove the extra spaces of the last taxon
                         $translate{$id} = $tag;
-                    }                    
-                }
+                    }
+		  }
             }
             else {
                 $self->debug("no translate in: $trees\n");
@@ -204,8 +203,7 @@ sub _parse {
                 my $tree = $treeio->next_tree;
                 foreach my $node ( grep { $_->is_Leaf } $tree->get_nodes ) {
                     my $id     = $node->id;
-                    my $lookup = $translate{$id};
-                    $node->id( $lookup || $id );
+                    $node->id( $translate{$id} || $id );
                 }
                 $tree->id($tree_name) if defined $tree_name;
                 push @{ $self->{'_trees'} }, $tree;
@@ -215,7 +213,7 @@ sub _parse {
             $self->debug("begin_trees failed: $s\n");
         }
     }
-    if ( !@sections ) {
+    if ( ! @sections ) {
         $self->debug("warn no sections: $line\n");
     }
 }
@@ -242,24 +240,18 @@ sub write_tree {
 
     my ( $first, $nodecter, %node2num ) = ( 0, 1 );
     foreach my $tree (@trees) {
-
-        if (   $first == 0
-            && $translate )
-        {
-            $self->_print("\tTranslate\n");
-            $self->_print(
-                join(
-                    ",\n",
-                    map {
-                        $node2num{ $_->id } = $nodecter;
-                        sprintf( "\t\t%d %s", $nodecter++, $_->id )
-                      }
-                      grep { $_->is_Leaf } $tree->get_nodes
-                ),
-                "\n;\n"
-            );
-        }
-        my @data = _write_tree_Helper( $tree->get_root_node, \%node2num );
+      if (   $first == 0 && $translate ) {
+	$self->_print("\tTranslate\n");
+	$self->_print(
+		      join(",\n", map {
+			$node2num{ $_->id } = $nodecter;
+			sprintf( "\t\t%d %s", $nodecter++, $_->id )
+		      }  grep { $_->is_Leaf } $tree->get_nodes
+			  ),
+		      "\n;\n"
+		     );
+      }
+      my @data = _write_tree_Helper( $tree->get_root_node, \%node2num );
         if ( $data[-1] !~ /\)$/ ) {
             $data[0] = "(" . $data[0];
             $data[-1] .= ")";
@@ -270,12 +262,12 @@ sub write_tree {
         $self->_print(
             sprintf(
                 "\t tree %s = [&%s] %s;\n",
-                ( $tree->id || sprintf( "Bioperl_%d", $first + 1 ) ),
-                ( $tree->get_root_node ) ? 'R' : 'U',
-                join( ',', @data )
-            )
-        );
-        $first++;
+		    ( $tree->id || sprintf( "Bioperl_%d", $first + 1 ) ),
+		    ( $tree->get_root_node ) ? 'R' : 'U',
+		    join( ',', @data )
+		   )
+		     );
+      $first++;
     }
     $self->_print("End;\n");
     $self->flush if $self->_flush_on_write && defined $self->_fh;
@@ -283,77 +275,73 @@ sub write_tree {
 }
 
 sub _write_tree_Helper {
-    my ( $node, $node2num ) = @_;
-    return () if ( !defined $node );
-    my @data;
+  my ( $node, $node2num ) = @_;
+  return () if ( !defined $node );
+  my @data;
 
-    foreach my $n ( $node->each_Descendent() ) {
-        push @data, _write_tree_Helper( $n, $node2num );
+  foreach my $n ( $node->each_Descendent() ) {
+    push @data, _write_tree_Helper( $n, $node2num );
+  }
+  if ( @data > 1 ) {		# internal node
+    $data[0] = "(" . $data[0];
+    $data[-1] .= ")";
+
+    # FigTree comments start
+    my $comment_flag;
+    $comment_flag = 0
+      if ( $node->has_tag('color') or  $node->has_tag('label') );
+
+    $data[-1] .= '[&!' if defined $comment_flag;
+
+    if ( $node->has_tag('color')) {
+      my $color = $node->get_tag_values('color');
+      $data[-1] .= "color=$color";
+      $comment_flag++;
     }
-    if ( @data > 1 ) {		# internal node
-        $data[0] = "(" . $data[0];
-        $data[-1] .= ")";
-
-        # FigTree comments start
-        my $comment_flag;
-        $comment_flag = 0
-            if ( $node->has_tag('color') or  $node->has_tag('label') );
-    
-        $data[-1] .= '[&!' if defined $comment_flag;
-    
-            if ( $node->has_tag('color')) {
-            my $color = $node->get_tag_values('color');
-                $data[-1] .= "color=$color";
-            $comment_flag++;
-            }
-            if ( $node->has_tag('label')) {
-            my $label = $node->get_tag_values('label');
-            $data[-1] .= ',' if $comment_flag;
-                $data[-1] .= 'label="'. $label. '"';
-            }
-        $data[-1] .= ']' if defined $comment_flag;
-        # FigTree comments end
-        
-        # let's explicitly write out the bootstrap if we've got it
-        my $b;
-
-        my $bl = $node->branch_length;
-        if ( !defined $bl ) {
-        }
-        elsif ( $bl =~ /\#/ ) {
-            $data[-1] .= $bl;
-        }
-        else {
-            $data[-1] .= ":$bl";
-        }
-        if ( defined( $b = $node->bootstrap ) ) {
-            $data[-1] .= sprintf( "[%s]", $b );
-        }
-        elsif ( defined( $b = $node->id ) ) {
-            $b = $node2num->{$b} if ( $node2num->{$b} );    # translate node2num
-            $data[-1] .= sprintf( "[%s]", $b ) if defined $b;
-        }
-
+    if ( $node->has_tag('label')) {
+      my $label = $node->get_tag_values('label');
+      $data[-1] .= ',' if $comment_flag;
+      $data[-1] .= 'label="'. $label. '"';
     }
-    else {			# leaf node
-        if ( defined $node->id || defined $node->branch_length ) {
-            my $id = defined $node->id ? $node->id : '';
-            if ( length($id) && $node2num->{$id} ) {
-                $id = $node2num->{$id};
-            }
-	    if ( $node->has_tag('color')) {
-		my ($color) = $node->get_tag_values('color');
-		$id .= "[&!color=$color\]";
-	    }
-            push @data,
-              sprintf( "%s%s",
-                $id,
-                defined $node->branch_length
-                ? ":" . $node->branch_length
-                : '' );
-        }
+    $data[-1] .= ']' if defined $comment_flag;
+    # FigTree comments end
+
+    # let's explicitly write out the bootstrap if we've got it
+    my $b;
+
+    my $bl = $node->branch_length;
+    if ( !defined $bl ) {
+    } elsif ( $bl =~ /\#/ ) {
+      $data[-1] .= $bl;
+    } else {
+      $data[-1] .= ":$bl";
     }
-    return @data;
+    if ( defined( $b = $node->bootstrap ) ) {
+      $data[-1] .= sprintf( "[%s]", $b );
+    } elsif ( defined( $b = $node->id ) ) {
+      $b = $node2num->{$b} if ( $node2num->{$b} ); # translate node2num
+      $data[-1] .= sprintf( "[%s]", $b ) if defined $b;
+    }
+
+  } else {			# leaf node
+    if ( defined $node->id || defined $node->branch_length ) {
+      my $id = defined $node->id ? $node->id : '';
+      if ( length($id) && $node2num->{$id} ) {
+	$id = $node2num->{$id};
+      }
+      if ( $node->has_tag('color')) {
+	my ($color) = $node->get_tag_values('color');
+	$id .= "[&!color=$color\]";
+      }
+      push @data,
+	sprintf( "%s%s",
+		 $id,
+		 defined $node->branch_length
+		 ? ":" . $node->branch_length
+		 : '' );
+    }
+  }
+  return @data;
 }
 
 =head2 header
@@ -379,8 +367,8 @@ sub header {
 
  Title   : translate_node
  Usage   : $obj->translate_node($newval)
- Function: 
- Example : 
+ Function:
+ Example :
  Returns : value of translate_node (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
