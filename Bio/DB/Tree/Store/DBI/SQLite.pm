@@ -731,34 +731,34 @@ sub _tree_to_hash {
 # flatten out into a string the tag/value annotations of a Bio::AnnotatableI
 ##
 sub _flatten_annotations {
-    my $annHolder = shift;
-    my @tags = $annHolder->get_all_tags;
-    my $flatAnnot;
-    if (@tags) {
-        $flatAnnot = 
-            join(";",
-                 map { sprintf("%s=%s",$_,
-                               join(",",$annHolder->get_tag_values($_)))
-                 } 
-                 @tags);
-    }
-    return $flatAnnot;
+  my $annHolder = shift;
+  my @tags = $annHolder->get_all_tags;
+  my $flatAnnot;
+  if (@tags) {
+    $flatAnnot = 
+      join(";",
+	   map { sprintf("%s=%s",$_,
+			 join(",",$annHolder->get_tag_values($_)))
+	       } 
+	   @tags);
+  }
+  return $flatAnnot;
 }
 
 ##
 # flatten out into a string the key/value pairs of a hash
 ##
 sub _flatten_keyvalues {
-    my $h = shift;
-    my $flatAnnot;
-    if ($h && keys(%$h)) {
-        $flatAnnot = join(";",
-                          map { 
-                              sprintf("%s=%s",$_,join(",",$h->{$_}))
-                          } 
-                          keys(%$h));
-    }
-    return $flatAnnot;
+  my $h = shift;
+  my $flatAnnot;
+  if ($h && keys(%$h)) {
+    $flatAnnot = join(";",
+		      map { 
+			sprintf("%s=%s",$_,join(",",$h->{$_}))
+		      } 
+		      keys(%$h));
+  }
+  return $flatAnnot;
 }
 
 =head1 NAME

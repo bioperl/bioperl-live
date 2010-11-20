@@ -373,7 +373,7 @@ sub update_tree {
 sub populate_tree {
    my ($self,@args) = @_;
    $self->throw_not_implemented();
-}
+ }
 
 sub optimize {
     my $self = shift;
