@@ -78,7 +78,7 @@ Internal methods are usually preceded with a _
 package Bio::DB::Tree::Node;
 use strict;
 
-use base qw(Bio::Root::Root Bio::Tree::NodeI);
+use base qw(Bio::Root::Root Bio::DB::Tree::AnnotatedImpl Bio::Tree::NodeI);
 
 =head2 new
 
@@ -253,7 +253,7 @@ sub add_Descendent{
 sub children{
     my $self = shift;
     my $sortby = shift;
-    
+
     if (! exists($self->{'_children'})) {
         my @nodes = $self->store->fetch_nodes_by_parent($self, $sortby);
         $self->{'_children'} = [@nodes];
@@ -445,7 +445,7 @@ sub id {
 
 =cut
 
-# implemented in NodeI interface 
+# implemented in NodeI interface
 
 =head2 internal_id
 
@@ -511,6 +511,10 @@ sub height {
 sub invalidate_height { 
 }
 
+=head2 Methods for associating Tag/Values with a Node
+
+Implemented in Bio::DB::Tree::AnnotatedImpl
+
 =head2 set_tag_value
 
  Title   : set_tag_value
@@ -521,12 +525,6 @@ sub invalidate_height {
  Args    : $tag   - tag name
            $value - value to store for the tag
 
-=cut
-
-sub set_tag_value{
-
-}
-
 =head2 add_tag_value
 
  Title   : add_tag_value
@@ -535,11 +533,6 @@ sub set_tag_value{
  Returns : number of values stored for this tag
  Args    : $tag   - tag name
            $value - value to store for the tag
-
-=cut
-
-sub add_tag_value{
-}
 
 =head2 remove_tag
 
@@ -550,23 +543,13 @@ sub add_tag_value{
  Args    : $tag - tagname to remove
 
 
-=cut
-
-sub remove_tag {
-}
-
 =head2 remove_all_tags
 
  Title   : remove_all_tags
  Usage   : $node->remove_all_tags()
- Function: Removes all tags
+ Function: Removes all tags 
  Returns : None
  Args    : None
-
-=cut
-
-sub remove_all_tags{
-}
 
 
 =head2 get_all_tags
@@ -577,25 +560,15 @@ sub remove_all_tags{
  Returns : Array of tagnames
  Args    : None
 
-=cut
-
-sub get_all_tags{
-}
 
 =head2 get_tag_values
 
  Title   : get_tag_values
  Usage   : my @values = $node->get_tag_values($tag)
  Function: Gets the values for given tag ($tag)
- Returns : In array context returns an array of values
-           or an empty list if tag does not exist.
-           In scalar context returns the first value or undef.
+ Returns : Array of values or empty list if tag does not exist
  Args    : $tag - tag name
 
-=cut
-
-sub get_tag_values{
-}
 
 =head2 has_tag
 
@@ -606,10 +579,6 @@ sub get_tag_values{
  Args    : $tag - tagname
 
 =cut
-
-sub has_tag {
-}
-
 
 =head2 reverse_edge
 
@@ -623,6 +592,7 @@ sub has_tag {
 =cut
 
 sub reverse_edge {
+
 }
 
 =head1 Private methods

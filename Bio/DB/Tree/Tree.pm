@@ -79,7 +79,7 @@ Internal methods are usually preceded with a _
 package Bio::DB::Tree::Tree;
 use strict;
 
-use base qw(Bio::Root::Root Bio::Tree::TreeI);
+use base qw(Bio::Root::Root Bio::DB::Tree::AnnotatedImpl Bio::Tree::TreeI);
 
 =head2 new
 
@@ -98,16 +98,18 @@ sub new {
     my($class,@args) = @_;
 
     my $self = $class->SUPER::new(@args);
-    my ($id,$label,$root,$store) = $self->_rearrange([qw(TREE_ID
-						   ID
-						   ROOT_NODE
-						   STORE
-						 )],
-					       @args);
+    my ($id,$label,$root,$store,$annot) = $self->_rearrange([qw(TREE_ID
+								ID
+								ROOT_NODE
+								STORE
+								FLATANNOTATIONS
+							      )],
+							    @args);
     defined $id && $self->tree_id($id);
     defined $label && $self->id($label);
     defined $root && $self->root($root);
     defined $store && $self->store($store);
+    defined $annot && $self->_set_flat_tagvalues($annot);
     $self->_dirty(0);
     return $self;
 }
@@ -252,7 +254,7 @@ sub is_rooted {
     }
     return $self->{'_rooted'} if defined $self->{'_rooted'};
     # Default to a rooted tree.
-    return 1;	
+    return 1;
 }
 
 =head2 score
@@ -278,104 +280,74 @@ sub score{
     return $self->{'_score'};
 }
 
+=head2 Methods for associating Tag/Values with a Tree
+
+Implemented in Bio::DB::Tree::AnnotatedImpl
+
 =head2 set_tag_value
 
  Title   : set_tag_value
- Usage   : $node->set_tag_value($tag,$value)
-           $node->set_tag_value($tag,@values)
- Function: Sets a tag value(s) to a node. Replaces old values.
+ Usage   : $tree->set_tag_value($tag,$value)
+           $tree->set_tag_value($tag,@values)
+ Function: Sets a tag value(s) to a tree. Replaces old values.
  Returns : number of values stored for this tag
  Args    : $tag   - tag name
            $value - value to store for the tag
-
-=cut
-
-sub set_tag_value{
-
-}
 
 =head2 add_tag_value
 
  Title   : add_tag_value
- Usage   : $node->add_tag_value($tag,$value)
- Function: Adds a tag value to a node 
+ Usage   : $tree->add_tag_value($tag,$value)
+ Function: Adds a tag value to a tree 
  Returns : number of values stored for this tag
  Args    : $tag   - tag name
            $value - value to store for the tag
 
-=cut
-
-sub add_tag_value{
-}
-
 =head2 remove_tag
 
  Title   : remove_tag
- Usage   : $node->remove_tag($tag)
+ Usage   : $tree->remove_tag($tag)
  Function: Remove the tag and all values for this tag
  Returns : boolean representing success (0 if tag does not exist)
  Args    : $tag - tagname to remove
 
 
-=cut
-
-sub remove_tag {
-}
-
 =head2 remove_all_tags
 
  Title   : remove_all_tags
- Usage   : $node->remove_all_tags()
- Function: Removes all tags
+ Usage   : $tree->remove_all_tags()
+ Function: Removes all tags 
  Returns : None
  Args    : None
-
-=cut
-
-sub remove_all_tags{
-}
 
 
 =head2 get_all_tags
 
  Title   : get_all_tags
- Usage   : my @tags = $node->get_all_tags()
- Function: Gets all the tag names for this Node
+ Usage   : my @tags = $tree->get_all_tags()
+ Function: Gets all the tag names for this Tree
  Returns : Array of tagnames
  Args    : None
 
-=cut
-
-sub get_all_tags{
-}
 
 =head2 get_tag_values
 
  Title   : get_tag_values
- Usage   : my @values = $node->get_tag_values($tag)
+ Usage   : my @values = $tree->get_tag_values($tag)
  Function: Gets the values for given tag ($tag)
- Returns : In array context returns an array of values
-           or an empty list if tag does not exist.
-           In scalar context returns the first value or undef.
+ Returns : Array of values or empty list if tag does not exist
  Args    : $tag - tag name
 
-=cut
-
-sub get_tag_values{
-}
 
 =head2 has_tag
 
  Title   : has_tag
- Usage   : $node->has_tag($tag)
- Function: Boolean test if tag exists in the Node
+ Usage   : $tree->has_tag($tag)
+ Function: Boolean test if tag exists in the Tree
  Returns : Boolean
  Args    : $tag - tagname
 
 =cut
-
-sub has_tag {
-}
 
 =head1 Private methods
 
@@ -387,7 +359,7 @@ sub has_tag {
            state that is diverged from the state in the corresponding
            database record, and to which therefore the database needs
            to be updated.
- Example : 
+ Example :
  Returns : True if object is dirty and false otherwise.
  Args    : on set, new value (a scalar or undef, optional)
 
@@ -408,7 +380,7 @@ sub _dirty{
            been loaded before. Even after the state has been loaded,
            there may be additional lazy-loaded attributes that are
            loaded separately only once they are needed.
- Example : 
+ Example :
  Returns : True on success and false otherwise.
  Args    : none
 
@@ -425,4 +397,20 @@ sub _load_from_db{
     return $rv;
 }
 
+sub _set_flat_tagvalues {
+  my $self = shift;
+  my $flatannot = shift;
+  # should this be implemented in the SQLite module?
+  for my $pair ( split(';',$flatannot) ) {
+    if ( $pair !~ /=/ ) {
+      $self->warn("improperly formed flat annotation field $pair\n");
+      next;
+    }
+    my ($key,$values) = split('=',$pair,2);
+    $self->{'_tags'}->{$key} = [split(',',$values)];
+    # perf test here to see if there is advantage in direct set vs calling the method
+    # $self->set_tag_values($key,split(',',$values));
+  }
+  return;
+}
 1;
