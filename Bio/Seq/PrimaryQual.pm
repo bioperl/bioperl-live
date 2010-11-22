@@ -188,6 +188,22 @@ sub qual {
     return $self->{'qual'};
 }
 
+
+=head2 seq()
+
+ Title    : seq()
+ Usager   : $sequence = $obj->seq();
+ Function : Returns the quality numbers as a space-separated string.
+ Returns  : Single string.
+ Args     : None.
+
+=cut
+
+sub seq {
+    join ' ', @{ shift->qual };
+}
+
+
 =head2 validate_qual($qualstring)
 
  Title	 : validate_qual($qualstring)
