@@ -127,7 +127,7 @@ sub next_tree {
         $dirty =~ s/^"?\s*(.+?)\s*"?$/$1/;
         return $dirty;
     };
-s/([^"]*)(".+?")([^"]*)/$despace->($1) . $dequote->($2) . $despace->($3)/egsx;
+    s/([^"]*)(".+?")([^"]*)/$despace->($1) . $dequote->($2) . $despace->($3)/egsx;
 
     if (s/^\s*\[([^\]]+)\]//) {
         my $match = $1;
@@ -157,7 +157,6 @@ s/([^"]*)(".+?")([^"]*)/$despace->($1) . $dequote->($2) . $despace->($3)/egsx;
 	  my $root_node_count = scalar($tree->get_root_node->each_Descendent);
 	  $tree->rooted(0) if ($root_node_count == 3);
       }
-      
       return $tree;
     }
 }
@@ -171,7 +170,6 @@ sub get_default_params {
     order_by => '', # ???
     bootstrap_style => 'traditional', # Can be 'traditional', 'molphy', 'nobranchlength'
     internal_node_id => 'id', # Can be 'id' or 'bootstrap'
-    
     no_branch_lengths => 0,
     no_bootstrap_values => 0,
     no_internal_node_labels => 0
@@ -208,7 +206,6 @@ sub write_tree {
       my @data = $self->_write_tree_Helper( $tree->get_root_node, $params);
       $self->_print( join( ',', @data ).";" );
     }
-    
     $self->flush if $self->_flush_on_write && defined $self->_fh;
     return;
 }
@@ -259,8 +256,7 @@ sub _node_as_string {
   if ($params->{no_branch_lengths} != 1) {
     my $blen  = $node->branch_length;
     $label_stringbuffer .= ":". $blen if (defined $blen);
-  }  
-
+  }
   if ($params->{bootstrap_style} eq 'molphy') {
     my $bootstrap = $node->bootstrap;
     $label_stringbuffer .= "[$bootstrap]" if (defined $bootstrap);
