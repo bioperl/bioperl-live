@@ -409,6 +409,7 @@ use strict;
 use IO::File;
 use AnyDBM_File;
 use Fcntl;
+use File::Glob ':glob';
 use File::Basename qw(basename dirname);
 
 use base qw(Bio::DB::SeqI Bio::Root::Root);
