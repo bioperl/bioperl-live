@@ -117,18 +117,25 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::TreeIO::phyloxml;
+use base qw(Bio::TreeIO);
 use strict;
 
 # Object preamble - inherits from Bio::Root::Root
-
+use XML::LibXML::Reader;
+use Scalar::Util qw(blessed);
 use Bio::Tree::Tree;
 use Bio::Tree::AnnotatableNode;
-use Bio::TreeIO::Writer::PhyloXMLHelper;
 use Bio::Annotation::SimpleValue;
 use Bio::Annotation::Relation;
-use XML::LibXML::Reader;
 use Data::Dumper;
-use base qw(Bio::TreeIO);
+
+our %TABLE = map {
+    $_ => 1
+} qw(name branch_length confidence width color taxonomy sequence events
+binary_characters distribution date description reference property clade symbol
+accession name location mol_seq uri annotation domain_architecture id code
+scientific_name authority common_name synonym rank uri phyloxml phylogeny
+document);
 
 sub _initialize {
     my ( $self, %args ) = @_;
@@ -163,8 +170,6 @@ sub _initialize {
     }
     $self->treetype( $args{-treetype} );
     $self->nodetype( $args{-nodetype} );
-    
-    $self->{helper} = Bio::TreeIO::Writer::PhyloXMLHelper->new(-verbose => $self->verbose);
     
     $self->{'_lastitem'} = {};    # holds open items and the attribute hash
     $self->_init_func();
@@ -308,7 +313,6 @@ sub add_attribute {
 
     $self->{'_reader'} = $oldreader;    # restore reader
     return $obj;
-
 }
 
 =head2 add_phyloXML_annotation
@@ -435,14 +439,18 @@ sub write_tree {
 sub write_xml {
     my ( $self, @trees ) = @_;
     
-    my $helper = $self->{helper};
-    
     # begin doc
-    my $top = $helper->create_node({Name => 'document'});
-    my $root_el = $helper->create_node({Name => 'phyloxml'}, $top);
+    
+    # move this to a revised Writer start_document()
+    my $top = XML::LibXML::Document->new( '1.0', 'UTF-8' );
+    
+    my $root_el = $top->createElement('phyloxml');
+    $root_el->setNamespace("http://www.w3.org/2001/XMLSchema-instance", 'xsi', 0);
+    $root_el->setNamespace("http://www.phyloxml.org");
+    $top->setDocumentElement($root_el);
 
     foreach my $tree (@trees) {
-        my $phylo_el = $helper->create_node({Name => 'phylogeny'}, $root_el);
+        my $phylo_el = $self->create_node({Name => 'phylogeny'}, $root_el);
         
         # cache the current top-level phylogeny node
         #$self->{phylogeny_el} = $phylo;
@@ -450,13 +458,10 @@ sub write_xml {
         my $root_node = $tree->get_root_node;
         for my $tag (qw(name description)) {
             for my $value ($tree->get_tag_values($tag)) {
-                my $node = $helper->create_node(
+                my $node = $self->create_node(
                     {
-                        Name   => 'generic',
-                        Data   => {
-                            Tag     => $tag,
-                            Value   => $value,
-                        }
+                        Name     => $tag,
+                        Data    => $value
                     }
                     , $phylo_el
                 );
@@ -471,25 +476,53 @@ sub write_xml {
         # the <phylogeny> element is both the top-level element and the
         # immediate parent here
         
-        $self->_clade_els($root_node, $phylo_el, $phylo_el);
+        $self->create_clade_els($root_node, $phylo_el, $phylo_el);
     }
     $self->_print( $top->toString(1) );
     $self->flush if $self->_flush_on_write && defined $self->_fh;
     return;
 }
 
+sub create_node {
+    my ($self, $data, $parent) = @_;
+    if ($parent) {
+        my $class = blessed($parent);
+        if (!defined($class) || !$parent->isa('XML::LibXML::Node')) {
+            $self->throw('The parent must be a XML::LibXML::Node, got '.ref($parent));
+        } 
+    }
+    $self->throw("Must supply a defined data 'Name' key") unless defined($data->{Name});
+    if (exists $TABLE{$data->{Name}}) {
+        my ($tag, $val, $attributes) =
+            @{$data}{qw(Name Data Attributes)};
+        
+        my $node = XML::LibXML::Element->new($tag);
+        
+        # should the attributes be assigned to the parent or the new node? Latter...
+        if ($attributes) {
+            while (my ($name, $att_value) = each(%$attributes)) {
+                $node->setAttribute( $name, $att_value);
+            }
+        }
+        
+        $node->appendTextNode($val) if $val;
+        if ($parent) {
+            $parent->addChild($node);
+        }
+        return $node;
+    } else {
+        $self->debug("Unknown event: ".$data->{Name}."\n");
+    }
+}
+
 sub _clade_els {
     my ($self, $tree_node, $parent_el, $phylo_el) = @_;
-    my $helper = $self->{helper};
     
     my ($nm, $bl) =  ($tree_node->id, $tree_node->branch_length);
     
-    my $clade_el = $helper->create_node(
+    my $clade_el = $self->create_node(
         {
-            Name    => 'generic',
-            Data    => {
-                Tag     => 'clade',
-            }
+            Name    => 'clade',
         }
         , $parent_el);
     
@@ -544,6 +577,7 @@ sub _clade_els {
     }
 
     # print all clade annotations, attch to this element node
+    
     $self->_print_annotation( $clade_el, $ac );
 
     # print all descendent nodes, using the current node as the parent
@@ -554,11 +588,8 @@ sub _clade_els {
     # print all sequences
     if ( $tree_node->has_sequence ) {
         for my $seq ( @{ $tree_node->sequence } ) {
-            my $seq_el = $helper->create_node({
-                Name        => 'generic',
-                Data        => {
-                    Tag     => 'sequence',
-                    }
+            my $seq_el = $self->create_node({
+                Name        => 'sequence',
                 }, $clade_el);
             
             if (my ($attr) = $seq->annotation->get_Annotations('_attr')) {
@@ -620,13 +651,10 @@ sub _clade_els {
 
             # print mol_seq
             if ( $seq->seq() ) {
-                $helper->create_node(
+                $self->create_node(
                     {
-                        Name    => 'generic',
-                        Data    => {
-                            Tag     => 'mol_seq',
-                            Value   => $seq->seq
-                            }
+                        Name    => 'mol_seq',
+                        Data    => $seq->seq
                     }, $seq_el
                     );
             }
@@ -637,10 +665,10 @@ sub _clade_els {
 # TODO: this recurses, maybe refactor to iterate instead
 sub _print_annotation {
     my ( $self, $node, $ac ) = @_;
-    my $helper = $self->{helper};
-
-    #my ( $self, $str, $ac ) = @_;
-
+    
+    $self->throw("Must provide an XML::LibXML::Node") unless blessed($node) &&
+        $node->isa('XML::LibXML::Node');
+    
     my @all_anns = $ac->get_Annotations();
     foreach my $ann (@all_anns) {
 
@@ -648,7 +676,7 @@ sub _print_annotation {
         if ( $key eq '_attr' ) {
             # TODO: I'm seeing a LOT of empty annotation collections here; we
             # need to create these lazily or not attach them to the tree obj
-            
+
             next;
         }    # attributes are already printed in the previous level
         elsif ( $ann->isa('Bio::Annotation::SimpleValue')) {
@@ -659,13 +687,10 @@ sub _print_annotation {
             }
             else {
                 # create a child node
-                $helper->create_node(
+                $self->create_node(
                     {
-                        Name => 'generic',
-                        Data => {
-                            Tag   => $key,
-                            Value => $ann->value || ''
-                        }
+                        Name => $key,
+                        Data => $ann->value || ''
                     },
                     $node
                 );
@@ -673,12 +698,8 @@ sub _print_annotation {
         }
         elsif ( $ann->isa('Bio::Annotation::Collection') ) {
             # create a new node here, with a specific name
-            my $child_node = $helper->create_node({
-                    Name    => 'generic',
-                    Data    => {
-                        Class   => 'Element',
-                        Tag     => $ann->tagname,
-                    }
+            my $child_node = $self->create_node({
+                    Name    => $ann->tagname
                 }
                 , $node);
                 #$str .= "<$key>";
@@ -699,8 +720,6 @@ sub _print_annotation {
 
 sub _print_relations {
     my ( $self, $obj, $rel, $parent_el) = @_;
-    
-    my $helper = $self->{helper};
     
     my @attr = $obj->annotation->get_Annotations('_attr');    # check id_source
     
@@ -727,7 +746,7 @@ sub _print_relations {
     
     
     
-    my $rel_el = $helper->create_node(
+    my $rel_el = $self->create_node(
         {
             Name    => 'generic',
             Data    => {
@@ -742,7 +761,7 @@ sub _print_relations {
          }, $parent_el
     );
     if ($confidence) {
-        my $confidence_el = $helper->create_node(
+        my $confidence_el = $self->create_node(
             {
                 Name    => 'generic',
                 Data    => {
