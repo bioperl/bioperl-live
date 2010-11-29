@@ -130,6 +130,15 @@ use strict;
 
 use base qw(Bio::Root::Root Bio::AnnotationI);
 
+# we shouldn't have to do this, but there is no canonically defined id method
+# for all bioperl objs (yet)
+ 
+our %ID_METHOD = (
+    'Bio::SeqFeatureI'  => 'display_name',
+    'Bio::Tree::NodeI'  => 'id',
+    'Bio::SeqI'         => 'object_id'
+);
+
 =head2 new
 
  Title   : new
@@ -137,9 +146,12 @@ use base qw(Bio::Root::Root Bio::AnnotationI);
  Function: Instantiate a new Relation object
  Returns : Bio::Annotation::Relation object
  Args    : -type     => $type of relation [required]
+           -class    => Class/interface of instances this relation ties together
+                        [required]
            -from     => $obj relation is from [optional], see notes
            -to       => $obj which 'from' is related to [required]
            -is_directed => is this relationship directed [optional, default = 0]
+           -id_method => method called from the class [optional]
            -tagname  => $tag to initialize the tagname [optional]
            -tag_term => ontology term representation of the tag [optional]
 
@@ -150,17 +162,24 @@ sub new{
  
     my $self = $class->SUPER::new(@args);
  
-    my ($type, $from, $to, $is_directed, $tag, $term) =
-        $self->_rearrange([qw(TYPE FROM TO IS_DIRECTED TAGNAME TAG_TERM)], @args);
+    my ($type, $from, $to, $is_directed, $tag, $term, $relation_class, $method) =
+        $self->_rearrange([qw(TYPE FROM TO IS_DIRECTED
+                           TAGNAME TAG_TERM CLASS
+                           ID_METHOD)], @args);
     
     $is_directed ||= 0;
+    $self->is_directed($is_directed);
+
+    $self->throw("Must define a relation class") unless defined $relation_class;
+    $self->relation_class($relation_class);
+
     # set the term first
     defined $term   && $self->tag_term($term);
     defined $type   && $self->type($type);
     defined $from   && $self->from($from);
     defined $to     && $self->to($to);
     defined $tag    && $self->tagname($tag);
-    $self->is_directed($is_directed);
+    defined $method && $self->id_method($method);
     
     return $self;
 }
@@ -182,10 +201,10 @@ sub new{
 
 sub as_text{
     my ($self) = @_;
-    
-    my $from = $self->from || 'self';
-    
-    return $from ."(".$self->type.") to ".$self->to->id;
+    my $method = $self->id_method;
+    my $dir = $self->is_directed ? '->' : '<->';
+    my $from = $self->from ? $self->from->$method : 'self';
+    return "$from $dir ".$self->to->$method."(".$self->type.")";
 }
 
 =head2 display_text
@@ -205,15 +224,14 @@ sub as_text{
 =cut
 
 {
-  my $DEFAULT_CB = sub { return $_[0]->as_text };
-
-  sub display_text {
-    my ($self, $cb) = @_;
-    $cb ||= $DEFAULT_CB;
-    $self->throw("Callback must be a code reference") if ref $cb ne 'CODE';
-    return $cb->($self);
-  }
-
+    my $DEFAULT_CB = sub { return $_[0]->as_text };
+  
+    sub display_text {
+        my ($self, $cb) = @_;
+        $cb ||= $DEFAULT_CB;
+        $self->throw("Callback must be a code reference") if ref $cb ne 'CODE';
+        return $cb->($self);
+    }
 }
 
 =head2 hash_tree
@@ -299,16 +317,20 @@ sub type{
  Usage   : $obj->from($newval)
  Function: Get/Set the object which $self is in relation from
  Returns : the object which the relation is from
- Args    : new target object (optional)
- Note    : if this is unset, this should be assumed to point to 'self'
+ Args    : new target object (optional), class type (optional)
+ Note    : If this is unset, this should be assumed to point to 'self'.
+           When an instance is passed, the class name of the instance is
+           used for setting the class type
 
 =cut
 
 sub from {
-   my ($self,$from) = @_;
-
-   if( defined $from) {
-      $self->{'from'} = $from;
+    my ($self,$from) = @_;
+ 
+    if( defined $from) {
+        my $c = $self->relation_class;
+        $self->throw("Object type not $c") unless $from->isa($c);
+        $self->{'from'} = $from;
     }
     return $self->{'from'};
 }
@@ -319,16 +341,17 @@ sub from {
  Usage   : $obj->to($newval)
  Function: Get/Set the object which $self is in relation to
  Returns : the object which the relation applies to
- Args    : new target object (optional)
-
+ Args    : new target object (optional), class type (optional)
 
 =cut
 
-sub to{
-   my ($self,$to) = @_;
-
-   if( defined $to) {
-      $self->{'to'} = $to;
+sub to {
+    my ($self,$to) = @_;
+ 
+    if( defined $to) {
+        my $c = $self->relation_class;
+        $self->throw("Object type not $c") unless $to->isa($c);
+        $self->{'to'} = $to;
     }
     return $self->{'to'};
 }
@@ -420,9 +443,46 @@ sub confidence_type{
 
 sub tag_term{
     my $self = shift;
-
     return $self->{'_tag_term'} = shift if @_;
     return $self->{'_tag_term'};
+}
+
+=head2 confidence_type
+
+ Title   : confidence_type
+ Usage   : $self->confidence_type($newtype)
+ Function: Gives the confidence type.
+ Example :
+ Returns : type of confidence
+ Args    : newtype (optional)
+
+=cut
+
+sub relation_class {
+    my $self = shift;
+    $self->{relation_class} = shift if @_;
+    $self->{relation_class};
+}
+
+=head2 id_method
+
+ Title   : id_method
+ Usage   : $self->id_method($newtype)
+ Function: Gives the id method called on the contained instances when
+           generating text output.
+ Example :
+ Returns : type of confidence
+ Args    : newtype (optional)
+
+=cut
+
+sub id_method {
+    my $self = shift;
+    $self->{id_method} = shift if @_;
+    $self->{id_method} ? $self->{id_method} :
+        exists $ID_METHOD{$self->relation_class} ?
+            $ID_METHOD{$self->relation_class} : 
+            'object_id';  
 }
 
 1;
