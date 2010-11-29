@@ -14,7 +14,8 @@
 
 =head1 NAME
 
-Bio::Annotation::Relation - Relationship (pairwise) with other objects SeqI and NodeI;
+Bio::Annotation::Relation - Describe a pairwise relationship (pairwise) with
+other BioPerl objects
 
 =head1 SYNOPSIS
 
@@ -22,12 +23,61 @@ Bio::Annotation::Relation - Relationship (pairwise) with other objects SeqI and 
    use Bio::Annotation::Collection;
 
    my $col = Bio::Annotation::Collection->new();
-   my $sv = Bio::Annotation::Relation->new(-type => "paralogy" -to => "someSeqI");
+   my $sv = Bio::Annotation::Relation->new(-type => "paralogy"
+                                           -to => "someSeqI");
    $col->add_Annotation('tagname', $sv);
 
 =head1 DESCRIPTION
 
-Scalar value annotation object
+Object which presents a simple but defined relation between two BioPerl objects
+of the same type (designated as 'from' and 'to'). This relationship is given a
+defined type (required) as well as an optional confidence type and confidence
+score, and may indicate directionality. 
+
+The best analogy is when describing the relations in a graph, where this
+represents the typed (and possibly scored) edge between two nodes in that graph.
+This implementation currently recognizes directionality between relationships
+with the default assumption the relationship is bidirectional (undirected).   
+
+B<NOTE:> This should not be used as a direct replacement for already-defined
+classes that are used to describe certain types of graphs within BioPerl such as
+L<Bio::Tree::Tree>, but instead should be used to describe additional relations
+of note within such a graph, such as orthologs in a phylogenetic tree. Do not be
+surprised if this class is replaced or reimplemented with something that is a
+bit more ontology friendly or utilizes something like Graph to define such
+relationships.
+
+With this current implementation, relations can defined as one of two types:
+
+=over2
+
+=item * From 'self' to another instance
+
+The object that this annotation is stored in is related to another instance. An
+example would be to describe the relationship one node in a tree has with
+another, from the perspective of the B<node>.
+
+In this case, one would not need to set 'from'; it should be assumed that an
+undefined 'from' indicates the relationship is between 'self' (the current node)
+and another node in the graph.
+
+=item * Between two instances
+
+The object that this annotation is stored in contains two other instances that
+are related to one another in some way. An example would be a annotated tree
+object, which contains two nodes that are related to one another. The key
+difference is this is from the perspective of the B<tree>, which contains the
+nodes of interest,
+
+In this case, one would set 'from' as the instance the relationship is from
+(Node A) and 'to' as the instance 'from' has a relationship to (Node B).
+
+=back
+
+=head1 NOTE
+
+Care must be taken to avoid circular references.  In particular, do not
+set 'from' in cases such as the first one above with an actual 'self' instance.
 
 =head1 FEEDBACK
 
@@ -65,10 +115,10 @@ Email mirhan@indiana.edu
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object methods. Internal
+methods are usually preceded with a _
 
 =cut
-
 
 # Let the code begin...
 
@@ -86,28 +136,33 @@ use base qw(Bio::Root::Root Bio::AnnotationI);
  Usage   : my $sv = Bio::Annotation::Relation->new();
  Function: Instantiate a new Relation object
  Returns : Bio::Annotation::Relation object
- Args    : -type    => $type of relation [optional]
-           -to     => $obj which $self is in relation to [optional]
+ Args    : -type     => $type of relation [required]
+           -from     => $obj relation is from [optional], see notes
+           -to       => $obj which 'from' is related to [required]
+           -is_directed => is this relationship directed [optional, default = 0]
            -tagname  => $tag to initialize the tagname [optional]
            -tag_term => ontology term representation of the tag [optional]
 
 =cut
 
 sub new{
-   my ($class,@args) = @_;
-
-   my $self = $class->SUPER::new(@args);
-
-   my ($type, $to, $tag, $term) =
-       $self->_rearrange([qw(TYPE TO TAGNAME TAG_TERM)], @args);
-
-   # set the term first
-   defined $term   && $self->tag_term($term);
-   defined $type && $self->type($type);
-   defined $to  && $self->to($to);
-   defined $tag    && $self->tagname($tag);
-
-   return $self;
+    my ($class,@args) = @_;
+ 
+    my $self = $class->SUPER::new(@args);
+ 
+    my ($type, $from, $to, $is_directed, $tag, $term) =
+        $self->_rearrange([qw(TYPE FROM TO IS_DIRECTED TAGNAME TAG_TERM)], @args);
+    
+    $is_directed ||= 0;
+    # set the term first
+    defined $term   && $self->tag_term($term);
+    defined $type   && $self->type($type);
+    defined $from   && $self->from($from);
+    defined $to     && $self->to($to);
+    defined $tag    && $self->tagname($tag);
+    $self->is_directed($is_directed);
+    
+    return $self;
 }
 
 
@@ -123,13 +178,14 @@ sub new{
  Returns : string
  Args    : none
 
-
 =cut
 
 sub as_text{
-   my ($self) = @_;
-
-   return $self->type." to  ".$self->to->id;
+    my ($self) = @_;
+    
+    my $from = $self->from || 'self';
+    
+    return $from ."(".$self->type.") to ".$self->to->id;
 }
 
 =head2 display_text
@@ -149,8 +205,7 @@ sub as_text{
 =cut
 
 {
-  my $DEFAULT_CB = sub { return $_[0]->type." to  ".$_[0]->to->id };
-  #my $DEFAULT_CB = sub { $_[0]->value};
+  my $DEFAULT_CB = sub { return $_[0]->as_text };
 
   sub display_text {
     my ($self, $cb) = @_;
@@ -238,6 +293,26 @@ sub type{
     return $self->{'type'};
 }
 
+=head2 from
+
+ Title   : from
+ Usage   : $obj->from($newval)
+ Function: Get/Set the object which $self is in relation from
+ Returns : the object which the relation is from
+ Args    : new target object (optional)
+ Note    : if this is unset, this should be assumed to point to 'self'
+
+=cut
+
+sub from {
+   my ($self,$from) = @_;
+
+   if( defined $from) {
+      $self->{'from'} = $from;
+    }
+    return $self->{'from'};
+}
+
 =head2 to
 
  Title   : to
@@ -258,6 +333,26 @@ sub to{
     return $self->{'to'};
 }
 
+=head2 is_directed
+
+ Title   : is_directed
+ Usage   : $obj->is_directed($newval)
+ Function: Boolean, indicates whether this relationship is directed or not
+ Returns : Boolean value (0 or 1)
+ Args    : Boolean value (Default is 0)
+
+
+=cut
+
+sub is_directed {
+    my ($self,$is_directed) = @_;
+
+    if( defined $is_directed) {
+       $self->{'is_directed'} = $is_directed ? 1 : 0;
+    }
+    return $self->{'is_directed'};
+}
+
 =head2 confidence
 
  Title   : confidence
@@ -276,7 +371,6 @@ sub confidence{
       $self->{'confidence'} = $value;
     }
     return $self->{'confidence'};
-
 }
 
 =head2 confidence_type
@@ -287,7 +381,6 @@ sub confidence{
  Example :
  Returns : type of confidence
  Args    : newtype (optional)
-
 
 =cut
 
@@ -322,7 +415,6 @@ sub confidence_type{
  Returns : a L<Bio::Ontology::TermI> compliant object, or undef
  Args    : on set, new value (a L<Bio::Ontology::TermI> compliant
            object or undef, optional)
-
 
 =cut
 
