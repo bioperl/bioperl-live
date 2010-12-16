@@ -634,6 +634,11 @@ sub next_result {
             );
 
             $_ = $self->_readline();
+	    my $strand = 1;
+	    
+	    if( /rev-comp/ ) {
+		$strand = -1;
+	    }
             my ( $score, $bits, $e ) = /Z-score: \s* (\S+) \s*
                                (?: bits: \s* (\S+) \s+ )?
                                (?: E|expect ) \s* \((?:\d+)?\) :? \s*(\S+)/ox;
@@ -656,7 +661,7 @@ sub next_result {
                 }
             );
             $self->start_element( { 'Name' => 'Hsp' } );
-
+	    
             $self->element(
                 {
                     'Name' => 'Hsp_score',
@@ -684,7 +689,7 @@ sub next_result {
                         'Data' => $1
                     }
                 );
-            }
+            } 
             if (
                 / (\d*\.?\d+)\% \s* identity
                  (?:\s* \(\s*(\S+)\% \s* (?:ungapped|similar) \) )?
@@ -718,18 +723,34 @@ sub next_result {
                     }
                 );
 
-                $self->element(
-                    {
-                        'Name' => 'Hsp_query-from',
-                        'Data' => $querystart
-                    }
-                );
-                $self->element(
-                    {
-                        'Name' => 'Hsp_query-to',
-                        'Data' => $queryend
-                    }
-                );
+		if( $strand < 0 ) {
+		    # flip query start/end when the strand is -1
+		    $self->element(
+				   {
+				       'Name' => 'Hsp_query-from',
+				       'Data' => $queryend
+				       }
+				   );
+		    $self->element(
+				   {
+				       'Name' => 'Hsp_query-to',
+				       'Data' => $querystart
+				       }
+				   );
+		} else {
+		    $self->element(
+				   {
+				       'Name' => 'Hsp_query-from',
+				       'Data' => $querystart
+				       }
+				   );
+		    $self->element(
+				   {
+				       'Name' => 'Hsp_query-to',
+				       'Data' => $queryend
+				       }
+				   );
+		}
                 $self->element(
                     {
                         'Name' => 'Hsp_hit-from',
