@@ -666,6 +666,10 @@ sub next_result {
             }
 
             $_ = $self->_readline();
+	    my $strand = 1;
+	    if( /rev-comp/ ) {
+		$strand = -1;
+	    }
             my ( $score, $bits, $e, $e2 ) = /Z-score: \s* (\S+) \s*
                                (?: bits: \s* (\S+) \s+ )?
                                (?: E|expect ) \s* \((?:\d+)?\) :? \s*(\S+)
@@ -765,7 +769,10 @@ sub next_result {
                         'Data' => $len
                     }
                 );
-
+		if( $strand < 0 ) {
+		    # flip-flop start/end when query is on opposite strand
+		    ($querystart,$queryend) = ($queryend,$querystart);
+		}
                 $self->element(
                     {
                         'Name' => 'Hsp_query-from',
