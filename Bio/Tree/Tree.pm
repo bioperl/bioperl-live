@@ -134,9 +134,16 @@ sub new {
   $self->{'_rootnode'} = undef;
   $self->{'_maxbranchlen'} = 0;
   $self->_register_for_cleanup(\&cleanup_tree);
-  my ($root,$node,$nodel,$id,$score)= $self->_rearrange([qw(ROOT NODE NODELETE 
-                              ID SCORE)], @args);
+  my ($root,$node,$nodel,$id,$score,$string)= $self->_rearrange([qw(ROOT NODE NODELETE 
+                              ID SCORE STRING)], @args);
   
+  if ($string || scalar(@args) == 1) {
+    # Convenience constructor -- if we're given a string argument, use TreeIO to parse and return.
+      my $string = $args[0] if (scalar(@args) == 1);
+      my $treeio = Bio::TreeIO->new( -string => $string);
+      return $treeio->next_tree;
+  }
+
   if ($node && ! $root) {
     $self->throw("Must supply a Bio::Tree::NodeI") unless ref($node) && $node->isa('Bio::Tree::NodeI');
     my @lineage = $self->get_lineage_nodes($node);
@@ -306,9 +313,12 @@ sub clone {
 sub cleanup_tree {
     my $self = shift;
     unless( $self->nodelete ) {
-        for my $node ($self->get_root_node->nodes) {
-            $node->node_cleanup;
-        }
+	my $root_node = $self->get_root_node;
+	if ($root_node) {
+          for my $node ($root_node->nodes) {
+              $node->node_cleanup;
+          }
+	}
     }
     $self->{'_rootnode'} = undef;
 }
