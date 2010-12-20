@@ -347,7 +347,7 @@ FASTQ flat file databases.
 
 FASTQ is a file format used frequently at the Sanger Centre and in next-gen
 sequencing to bundle a FASTA sequence and its quality data. A typical FASTQ
-entry takes the from:
+entry takes the form:
 
   @HCDPQ1D0501
   GATTTGGGGTTCAAAGCAGTATCGATCAAATAGTAAATCCATTTGTTCAACTCACAGTTT.....
@@ -359,6 +359,10 @@ where:
   @ = descriptor, followed by one or more sequence lines
   + = optional descriptor (if present, must match first one), followed by one or
       more qual lines
+
+When writing FASTQ output the redundant descriptor following the '+' is by
+default left off to save disk space. If needed, one can set the quality_header()
+flag in order for this to be printed.
 
 =head2 FASTQ and Bio::Seq::Quality mapping
 

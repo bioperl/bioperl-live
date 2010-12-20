@@ -731,7 +731,7 @@ sub get_count {
         $self->warn("Unknown database $db");
         return;
     } else {
-        return $self->{'_count'};
+        return $self->{'_count'} || scalar($self->get_ids);
     }
 }
 

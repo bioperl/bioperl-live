@@ -371,7 +371,7 @@ sub request_mode {
     
     if (scalar(@{$MODE{$eutil}{mode}}) > 1) { # allows both GET and POST
         my ($id, $term) = ($self->id || [], $self->term || '');
-        if (scalar(@$id) > 200 || CORE::length($term) > 300) {
+        if (ref $id eq 'ARRAY' && scalar(@$id) > 200 || CORE::length($term) > 300) {
             return 'POST'
         }
     }

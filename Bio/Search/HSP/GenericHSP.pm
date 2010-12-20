@@ -1419,7 +1419,7 @@ sub _pre_seq_feature {
         $queryfactor = 1;
         $querymap = 3;
     }
-    elsif ($algo =~ /^T(BLAST|FAST|SW)(X|Y|XY)/oi || $algo =~ /^(BLAST|FAST|SW)N/oi || $algo =~ /^WABA|AXT|BLAT|BLASTZ|PSL|MEGABLAST|EXONERATE|SW|SMITH\-WATERMAN|SIM4$/){
+    elsif ($algo =~ /^T(BLAST|FAST|SW)(X|Y|XY)/oi || $algo =~ /^(BLAST|FAST|SW)N/oi || $algo =~ /^WABA|AXT|BLAT|BLASTZ|PSL|MEGABLAST|EXONERATE|SW|SSEARCH|SMITH\-WATERMAN|SIM4$/){
         if ($2) {
             $hitmap = $querymap = 3;
         }

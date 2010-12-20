@@ -651,7 +651,8 @@ sub _guess_format {
    return 'phd'     if /\.(phd|phred)$/i;
    return 'pir'     if /\.pir$/i;
    return 'pln'     if /\.pln$/i;
-   return 'raw'     if /\.(txt)$/i;
+   return 'qual'    if /\.qual$/i;
+   return 'raw'     if /\.txt$/i;
    return 'scf'     if /\.scf$/i;
    return 'swiss'   if /\.(swiss|sp)$/i;
 
