@@ -226,7 +226,7 @@ sub next_contig {
         chomp;
 
         # Loading contig sequence (COntig sequence field)
-        if (/^CO\s(\w+)\s(\d+)\s(\d+)\s(\d+)\s(\w+)/xms) { # New contig starts!
+        if (/^CO\s(\S+)\s(\d+)\s(\d+)\s(\d+)\s(\w+)/xms) { # New contig starts!
 
             if (not $contigOBJ) {
                 # Start a new contig object
