@@ -267,6 +267,7 @@ sub next_seq {
     my $buffer = $line;
     local $_;
     BEFORE_FEATURE_TABLE :
+          my $ncbi_taxid;
           until ( !defined $buffer ) {
               $_ = $buffer;
               # Exit at start of Feature table
@@ -339,6 +340,10 @@ sub next_seq {
 
               # NCBI TaxID Xref
               elsif (/^OX/) {
+                  if (/NCBI_TaxID=(\d+)/) {
+                      $ncbi_taxid=$1;
+                  }
+
                   my @links = $self->_read_EMBL_TaxID_DBLink(\$buffer);
                   foreach my $dblink ( @links ) {
                       $annotation->add_Annotation('dblink',$dblink);
@@ -399,6 +404,9 @@ sub next_seq {
                 $ftunit->_generic_seqfeature($self->location_factory(), $name);
 
             # add taxon_id from source if available
+            # Notice, this will override what is found in the OX line.
+            # this is by design as this seems to be the official way
+            # of specifying a TaxID
             if ($params{'-species'} && ($feat->primary_tag eq 'source')
                 && $feat->has_tag('db_xref')
                 && (! $params{'-species'}->ncbi_taxid())) {
@@ -418,6 +426,12 @@ sub next_seq {
             }
         }
     }
+    # Set taxid found in OX line
+    if ($params{'-species'} && defined $ncbi_taxid
+        && (! $params{'-species'}->ncbi_taxid())) {
+        $params{'-species'}->ncbi_taxid($ncbi_taxid);
+    }
+
     # skip comments
     while ( defined ($buffer) && $buffer =~ /^XX/ ) {
         $buffer = $self->_readline();
@@ -726,6 +740,10 @@ sub write_seq {
             $self->_write_line_EMBL_regex("OC   ","OC   ",$OC,'; |$',80) || return;
             if ($spec->organelle) {
                 $self->_write_line_EMBL_regex("OG   ","OG   ",$spec->organelle,'; |$',80) || return;
+            }
+            my $ncbi_taxid = $spec->ncbi_taxid;
+            if ($ncbi_taxid) {
+                $self->_print("OX   NCBI_TaxID=$ncbi_taxid\n") || return;
             }
             $self->_print("XX\n") || return;
         }
