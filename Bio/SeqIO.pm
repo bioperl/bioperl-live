@@ -364,8 +364,9 @@ sub new {
 		@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
 
 	if (!defined($param{-file}) && !defined($param{-fh})) {
-	  $class->throw("file argument provided, but with an undefined value") if exists($param{'-file'});
-	  $class->throw("fh argument provided, but with an undefined value") if (exists($param{'-fh'}));
+        $class->throw("file argument provided, but with an undefined value") if exists($param{'-file'});
+        $class->throw("fh argument provided, but with an undefined value") if (exists($param{'-fh'}));
+        $class->throw("No file or fh argument provided");  # neither defined
 	}
 
 	my $format = $param{'-format'} ||
@@ -378,8 +379,9 @@ sub new {
 		$format = Bio::Tools::GuessSeqFormat->new(-fh => $param{-fh}||$ARGV[0] )->guess;
 	    }
 	}
-    $class->throw(sprintf("Unknown format given or could not determine it [%s]",$format || ''))
-        unless $format;
+    # changed 1-3-11; no need to print out an empty string (only way this
+    # exception is triggered) - cjfields
+    $class->throw("Could not guess format from file/fh") unless $format;
 	$format = "\L$format";	# normalize capitalization to lower case
 
     if ($format =~ /-/) {
