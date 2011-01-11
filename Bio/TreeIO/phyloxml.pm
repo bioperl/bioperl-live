@@ -515,7 +515,7 @@ sub create_node {
     }
 }
 
-sub _clade_els {
+sub create_clade_els {
     my ($self, $tree_node, $parent_el, $phylo_el) = @_;
     
     my ($nm, $bl) =  ($tree_node->id, $tree_node->branch_length);
@@ -582,7 +582,7 @@ sub _clade_els {
 
     # print all descendent nodes, using the current node as the parent
     foreach my $child ( $tree_node->each_Descendent() ) {
-        $self->_clade_els( $child, $clade_el, $phylo_el );
+        $self->create_clade_els( $child, $clade_el, $phylo_el );
     }
 
     # print all sequences
