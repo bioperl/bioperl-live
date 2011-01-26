@@ -1,6 +1,5 @@
 # BioPerl module for Bio::Matrix::PhylipDist
 #
-# $Id$
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
 #

@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-# $Id$
 
 use strict;
 
@@ -111,6 +110,7 @@ my $store = Bio::DB::SeqFeature::Store->new
 or die "Couldn't create connection to the database";
 
 $store->init_database('erase') if $CREATE;
+$SUMMARY_STATS++               if $CREATE; # this is a good thing
 
 my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new
 (

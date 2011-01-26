@@ -249,15 +249,6 @@ Bio/DescribableI.pm
 Bio/Draw/Pictogram.pm
 Bio/Event/EventGeneratorI.pm
 Bio/Event/EventHandlerI.pm
-Bio/Expression/Contact.pm
-Bio/Expression/DataSet.pm
-Bio/Expression/FeatureGroup.pm
-Bio/Expression/FeatureGroup/FeatureGroupMas50.pm
-Bio/Expression/FeatureI.pm
-Bio/Expression/FeatureSet/FeatureSetMas50.pm
-Bio/Expression/Platform.pm
-Bio/Expression/ProbeI.pm
-Bio/Expression/Sample.pm
 Bio/Factory/AnalysisI.pm
 Bio/Factory/ApplicationFactoryI.pm
 Bio/Factory/DriverFactory.pm
@@ -388,8 +379,6 @@ Bio/Matrix/PSM/PsmI.pm
 Bio/Matrix/PSM/SiteMatrix.pm
 Bio/Matrix/PSM/SiteMatrixI.pm
 Bio/Matrix/Scoring.pm
-Bio/Microarray/Tools/MitoChipV2Parser.pm
-Bio/Microarray/Tools/ReseqChip.pm
 Bio/MolEvol/CodonModel.pm
 Bio/Nexml/Factory.pm
 Bio/NexmlIO.pm
@@ -504,6 +493,7 @@ Bio/Search/Hit/Fasta.pm
 Bio/Search/Hit/GenericHit.pm
 Bio/Search/Hit/HitFactory.pm
 Bio/Search/Hit/HitI.pm
+Bio/Search/Hit/hmmer3Hit.pm
 Bio/Search/Hit/HMMERHit.pm
 Bio/Search/Hit/HmmpfamHit.pm
 Bio/Search/Hit/ModelHit.pm
@@ -513,6 +503,7 @@ Bio/Search/HSP/BlastHSP.pm
 Bio/Search/HSP/BlastPullHSP.pm
 Bio/Search/HSP/FastaHSP.pm
 Bio/Search/HSP/GenericHSP.pm
+Bio/Search/HSP/hmmer3HSP.pm
 Bio/Search/HSP/HMMERHSP.pm
 Bio/Search/HSP/HmmpfamHSP.pm
 Bio/Search/HSP/HSPFactory.pm
@@ -529,6 +520,7 @@ Bio/Search/Result/BlastPullResult.pm
 Bio/Search/Result/BlastResult.pm
 Bio/Search/Result/CrossMatchResult.pm
 Bio/Search/Result/GenericResult.pm
+Bio/Search/Result/hmmer3Result.pm
 Bio/Search/Result/HMMERResult.pm
 Bio/Search/Result/HmmpfamResult.pm
 Bio/Search/Result/PullResultI.pm
@@ -555,6 +547,7 @@ Bio/SearchIO/fasta.pm
 Bio/SearchIO/FastHitEventBuilder.pm
 Bio/SearchIO/gmap_f9.pm
 Bio/SearchIO/hmmer.pm
+Bio/SearchIO/hmmer3.pm
 Bio/SearchIO/hmmer_pull.pm
 Bio/SearchIO/infernal.pm
 Bio/SearchIO/IteratedSearchResultEventBuilder.pm
@@ -670,7 +663,9 @@ Bio/SeqIO/kegg.pm
 Bio/SeqIO/largefasta.pm
 Bio/SeqIO/lasergene.pm
 Bio/SeqIO/locuslink.pm
+Bio/SeqIO/mbsout.pm
 Bio/SeqIO/metafasta.pm
+Bio/SeqIO/msout.pm
 Bio/SeqIO/MultiFile.pm
 Bio/SeqIO/nexml.pm
 Bio/SeqIO/phd.pm
@@ -743,7 +738,6 @@ Bio/Tools/ERPIN.pm
 Bio/Tools/Est2Genome.pm
 Bio/Tools/ESTScan.pm
 Bio/Tools/EUtilities.pm
-Bio/Tools/EUtilities/Cookie.pm
 Bio/Tools/EUtilities/EUtilDataI.pm
 Bio/Tools/EUtilities/EUtilParameters.pm
 Bio/Tools/EUtilities/History.pm
@@ -813,6 +807,7 @@ Bio/Tools/RandomDistFunctions.pm
 Bio/Tools/RepeatMasker.pm
 Bio/Tools/RNAMotif.pm
 Bio/Tools/Run/GenericParameters.pm
+Bio/Tools/Run/hmmer3.pm
 Bio/Tools/Run/ParametersI.pm
 Bio/Tools/Run/README
 Bio/Tools/Run/RemoteBlast.pm
@@ -935,10 +930,6 @@ examples/root/exceptions1.pl
 examples/root/exceptions2.pl
 examples/root/exceptions3.pl
 examples/root/exceptions4.pl
-examples/root/lib/Bio/PrimarySeq.pm
-examples/root/lib/Bio/PrimarySeqI.pm
-examples/root/lib/Bio/Seq.pm
-examples/root/lib/Bio/SeqI.pm
 examples/root/lib/TestInterface.pm
 examples/root/lib/TestObject.pm
 examples/root/README
@@ -990,6 +981,8 @@ INSTALL.SKIP
 INSTALL.WIN
 LICENSE
 maintenance/authors.pl
+maintenance/big_split/file_classification.csv
+maintenance/big_split/rbuels_notes.txt
 maintenance/check_NAME.pl
 maintenance/check_URLs.pl
 maintenance/cvs2cl_by_file.pl
@@ -1033,6 +1026,7 @@ scripts/Bio-DB-GFF/README
 scripts/Bio-SeqFeature-Store/bp_seqfeature_delete.PLS
 scripts/Bio-SeqFeature-Store/bp_seqfeature_gff3.PLS
 scripts/Bio-SeqFeature-Store/bp_seqfeature_load.PLS
+scripts/bioperl_netinstall.pl
 scripts/das/das_server.pl
 scripts/das/README
 scripts/das/TAG
@@ -1098,10 +1092,10 @@ scripts/utilities/seq_length.PLS
 scripts/utilities/TAG
 t/Align/AlignStats.t
 t/Align/AlignUtil.t
+t/Align/Graphics.t
 t/Align/SimpleAlign.t
 t/Align/TreeBuild.t
 t/Align/Utilities.t
-t/Align/Graphics.t
 t/AlignIO/AlignIO.t
 t/AlignIO/arp.t
 t/AlignIO/bl2seq.t
@@ -1128,8 +1122,10 @@ t/AlignIO/xmfa.t
 t/Alphabet.t
 t/Annotation/Annotation.t
 t/Annotation/AnnotationAdaptor.t
-t/Assembly/Assembly.t
 t/Assembly/ContigSpectrum.t
+t/Assembly/core.t
+t/Assembly/IO/bowtie.t
+t/Assembly/IO/sam.t
 t/Biblio/Biblio.t
 t/Biblio/biofetch.t
 t/Biblio/eutils.t
@@ -1240,6 +1236,7 @@ t/data/bug2942.blastx
 t/data/bug2982.embl
 t/data/bug2982.gb
 t/data/bug3021.gmap
+t/data/bug3086.embl
 t/data/c200-vs-yeast.BLASTN
 t/data/c200-vs-yeast.BLASTN.m8
 t/data/calm.swiss
@@ -1466,7 +1463,10 @@ t/data/hg16_chroms.gff
 t/data/hmmpfam.out
 t/data/hmmpfam_cs.out
 t/data/hmmpfam_fake.out
+t/data/hmmscan.out
+t/data/hmmscan_multi_domain.out
 t/data/hmmsearch.out
+t/data/hmmsearch3.out
 t/data/hs_est.est2genome
 t/data/hs_fugu.newick
 t/data/hs_owlmonkey.aln
@@ -1486,7 +1486,9 @@ t/data/hybrid1.gff3
 t/data/hybrid2.gff3
 t/data/in.fasta
 t/data/insulin.water
+t/data/interpro.xml
 t/data/interpro_ebi.xml
+t/data/interpro_sample.xml
 t/data/interpro_short.xml
 t/data/intrablock-comment.nex
 t/data/Kingdoms_DNA.nex
@@ -1586,6 +1588,9 @@ t/data/mapmaker.txt
 t/data/mast.dat
 t/data/masta.dat
 t/data/match.output
+t/data/mbsout/mbsout_infile1
+t/data/mbsout/mbsout_infile2
+t/data/mbsout/mbsout_infile3
 t/data/Mcjanrna_rdbII.gbk
 t/data/megablast_output.paracel_btk
 t/data/meme.dat
@@ -1595,6 +1600,10 @@ t/data/mixedmast.dat
 t/data/MmCT
 t/data/mpath.ontology.test
 t/data/MSGEFTUA.gb
+t/data/msout_infile1
+t/data/msout_infile1.gz
+t/data/msout_infile2
+t/data/msout_infile2.gz
 t/data/multi.blast.m8
 t/data/multi.blast.m9
 t/data/multi.phd
@@ -1605,6 +1614,7 @@ t/data/multifa.seq
 t/data/multifa.seq.qual
 t/data/multiline-intrablock-comment.nex
 t/data/multiseq.bls
+t/data/multiseq_tags.phd
 t/data/mus.bls.xml
 t/data/mutations.dat
 t/data/mutations.old.dat
@@ -1667,6 +1677,7 @@ t/data/psiblast.xml
 t/data/psiblastreport.out
 t/data/purine_v081.infernal
 t/data/puzzle.tre
+t/data/PX1CG.gb
 t/data/Q8GBD3.swiss
 t/data/qrna-relloc.out
 t/data/qualfile.qual
@@ -1683,10 +1694,6 @@ t/data/registry/flat/seqdatabase.ini
 t/data/regulation_test.obo
 t/data/rel9.swiss
 t/data/repeatmasker.fa.out
-t/data/ReseqChip_ExampleData.fasta
-t/data/ReseqChip_mtDNA_design_annotation_file_FINAL.xls
-t/data/ReseqChip_ParamsNcall.csv
-t/data/ReseqChip_RefSeq.fasta
 t/data/revcomp_mrna.gb
 t/data/rfam_tests.stk
 t/data/ribosome-slippage.gb
@@ -1720,6 +1727,7 @@ t/data/sim4.for.for
 t/data/sim4.for.rev
 t/data/sim4.rev
 t/data/singleNSsite.mlc
+t/data/singlet_w_CT.ace
 t/data/so.obo
 t/data/sofa.ontology
 t/data/spaces.nex
@@ -1860,6 +1868,7 @@ t/data/worm_fam_2785.cdna
 t/data/X98338_Adh-mRNA.gb
 t/data/yeast.tRNAscanSE
 t/data/yn00.mlc
+t/data/ZABJ4EA7014.CH878695.1.blast.txt
 t/Draw/Pictogram.t
 t/lib/Array/Compare.pm
 t/lib/Error.pm
@@ -1909,7 +1918,6 @@ t/Matrix/Matrix.t
 t/Matrix/ProtMatrix.t
 t/Matrix/ProtPsm.t
 t/Matrix/SiteMatrix.t
-t/Microarray/Tools/ReseqChip.t
 t/nexml.t
 t/Ontology/GOterm.t
 t/Ontology/GraphAdaptor.t
@@ -2008,6 +2016,7 @@ t/Seq/Quality.t
 t/Seq/Seq.t
 t/Seq/WithQuality.t
 t/SeqEvolution.t
+t/SeqFeature/Clone.t
 t/SeqFeature/FeatureIO.t
 t/SeqFeature/Location.t
 t/SeqFeature/LocationFactory.t
@@ -2050,7 +2059,9 @@ t/SeqIO/kegg.t
 t/SeqIO/largefasta.t
 t/SeqIO/lasergene.t
 t/SeqIO/locuslink.t
+t/SeqIO/mbsout.t
 t/SeqIO/metafasta.t
+t/SeqIO/msout.t
 t/SeqIO/MultiFile.t
 t/SeqIO/Multiple_fasta.t
 t/SeqIO/nexml.t

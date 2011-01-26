@@ -432,7 +432,7 @@ sub dna {
 
 =cut
 
-sub display_name { shift->name }
+sub display_name { shift->name(@_) }
 
 *display_id = \&display_name;
 
@@ -498,7 +498,7 @@ sub alphabet{
 
 sub desc {
   my $self = shift;
-  my $d    = $self->notes;
+  my ($d)    = $self->notes;
   $self->{desc} = shift if @_;
   $d;
 }

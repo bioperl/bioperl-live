@@ -1,4 +1,3 @@
-# $Id$
 # BioPerl module for Bio::SeqIO::seqxml
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org>
@@ -9,7 +8,11 @@
 #
 # You may distribute this module under the same terms as perl itself
 # _history
-# December 2009  initial version
+#     December 2009 - initial version
+#       July 2 2010 - updated for SeqXML v0.2
+#  November 11 2010 - added schemaLocation
+#  December  9 2010 - SeqXML v0.3
+# 
 
 # POD documentation - main docs before the code
 
@@ -115,11 +118,18 @@ use Bio::Seq;
 use Bio::Seq::SeqFactory;
 use Bio::Species;
 use Bio::Annotation::DBLink;
+use Bio::Annotation::SimpleValue;
 use XML::LibXML;
 use XML::LibXML::Reader;
 use XML::Writer;
 
 use base qw(Bio::SeqIO);
+
+# define seqXML header stuff
+# there's no API for XMLNS XMLNS_XSI; you must set them here.
+use constant SEQXML_VERSION => 0.3;
+use constant SCHEMA_LOCATION => 'http://seqXML.org/0.3 http://www.seqxml.org/0.3/seqxml.xsd';
+use constant XMLNS_XSI => 'http://www.w3.org/2001/XMLSchema-instance';
 
 =head2 _initialize
 
@@ -204,15 +214,19 @@ sub _initialize {
             if ($self->source || $self->sourceVersion) {
                 $self->{'_writer'}->startTag(
                     'seqXML',
-                    'seqXMLversion' => $self->seqXMLversion(0.1),
+                    'seqXMLversion' => $self->seqXMLversion(SEQXML_VERSION),
+                    'xmlns:xsi'     => XMLNS_XSI,
+                    'xsi:schemaLocation' => $self->schemaLocation(SCHEMA_LOCATION),
                     'source'        => $self->source,
-                    'sourceVersion' => $self->sourceVersion
+                    'sourceVersion' => $self->sourceVersion,
                 );                
             }
             else {
                 $self->{'_writer'}->startTag(
                     'seqXML',
-                    'seqXMLversion' => $self->seqXMLversion(0.1),
+                    'seqXMLversion' => $self->seqXMLversion(SEQXML_VERSION),
+                    'xmlns:xsi'     => XMLNS_XSI,
+                    'xsi:schemaLocation' => $self->schemaLocation(SCHEMA_LOCATION),
                 );
             }
         }
@@ -273,9 +287,13 @@ sub write_seq {
             );
         }
 
-        # opening tag and ID
+        # opening tag, ID, and source (if present -- it's optional)
         my $id = $seqobj->display_id;
-        if ($id) {
+        my ($source_obj) = $seqobj->get_Annotations('source');
+        if (defined $source_obj && defined $id) {
+            $writer->startTag( 'entry', 'id' => $id, 'source' => $source_obj->value );
+        }
+        elsif (defined $id) {
             $writer->startTag( 'entry', 'id' => $id );
         }
         else {
@@ -313,9 +331,9 @@ sub write_seq {
             }
             my $alphabet = $seqobj->alphabet;
             my %seqtype  = (
-                'rna'     => 'rnaSeq',
-                'dna'     => 'dnaSeq',
-                'protein' => 'aaSeq'
+                'rna'     => 'RNAseq',
+                'dna'     => 'DNAseq',
+                'protein' => 'AAseq'
             );
             unless ( exists( $seqtype{$alphabet} ) ) {
                 $self->throw("invalid sequence alphabet $alphabet!");
@@ -326,23 +344,34 @@ sub write_seq {
             $self->throw("sequence entry $id lacks a sequence!");
         }
 
-        # alternative IDs
+        # Database crossreferences
         my @dblinks = $seqobj->get_Annotations('dblink');
         foreach my $dblink (@dblinks) {
             unless ( $dblink->database && $dblink->primary_id ) {
                 $self->throw("dblink $dblink is malformed");
             }
-            $writer->emptyTag(
-                'alternativeID',
-                'source' => $dblink->database,
-                'id'     => $dblink->primary_id,
-            );
+            if (defined($dblink->type)) {
+                $writer->emptyTag(
+                    'DBRef',
+                    'type'   => $dblink->type,
+                    'source' => $dblink->database,
+                    'id'     => $dblink->primary_id,
+                );
+            }
+            else {
+                $writer->emptyTag(
+                    'DBRef',
+                    'source' => $dblink->database,
+                    'id'     => $dblink->primary_id,
+                );
+            }
         }
 
         # properties
         my @annotations = $seqobj->get_Annotations();
         foreach my $annot_obj (@annotations) {
             next if ( $annot_obj->tagname eq 'dblink' );
+            next if ( $annot_obj->tagname eq 'source' ); # handled above
 
             # SeqXML doesn't support references
             next if ( $annot_obj->tagname eq 'reference' );
@@ -394,10 +423,10 @@ sub _initialize_seqxml_node_methods {
         'entry'         => \&element_entry,
         'species'       => \&element_species,
         'description'   => \&element_description,
-        'rnaSeq'        => \&element_rnaSeq,
-        'dnaSeq'        => \&element_dnaSeq,
-        'aaSeq'         => \&element_aaSeq,
-        'alternativeID' => \&element_alternativeID,
+        'RNAseq'        => \&element_RNAseq,
+        'DNAseq'        => \&element_DNAseq,
+        'AAseq'         => \&element_AAseq,
+        'DBRef' => \&element_DBRef,
         'property'      => \&element_property,
     );
     $self->{'_start_elements'} = \%start_elements;
@@ -407,14 +436,36 @@ sub _initialize_seqxml_node_methods {
         'entry'         => \&end_element_entry,
         'species'       => \&end_element_default,
         'description'   => \&end_element_default,
-        'rnaSeq'        => \&end_element_rnaSeq,
-        'dnaSeq'        => \&end_element_dnaSeq,
-        'aaSeq'         => \&end_element_aaSeq,
-        'alternativeID' => \&end_element_default,
+        'RNAseq'        => \&end_element_RNAseq,
+        'DNAseq'        => \&end_element_DNAseq,
+        'AAseq'         => \&end_element_AAseq,
+        'DBRef' => \&end_element_default,
         'property'      => \&end_element_default,
     );
     $self->{'_end_elements'} = \%end_elements;
 
+}
+
+=head2 schemaLocation
+
+ Title   : schemaLocation
+ Usage   : $self->schemaLocation
+ Function: gets/sets the schema location in the <seqXML> header
+ Returns : the schema location string
+ Args    : To set the schemaLocation, call with a schemaLocation as the argument.
+
+=cut
+
+sub schemaLocation {
+    my ( $self, $value ) = @_;
+    my $metadata = $self->{'_seqxml_metadata'};
+
+    # set if a value is supplied
+    if ($value) {
+        $metadata->{'schemaLocation'} = $value;
+    }
+
+    return $metadata->{'schemaLocation'};
 }
 
 =head2 source
@@ -715,104 +766,106 @@ sub element_description {
     my ($self) = @_;
 }
 
-=head2 element_rnaSeq
+=head2 element_RNAseq
 
- Title   : element_rnaSeq
- Usage   : $self->element_rnaSeq
- Function: processes a sequence <rnaSeq> node
+ Title   : element_RNAseq
+ Usage   : $self->element_RNAseq
+ Function: processes a sequence <RNAseq> node
  Returns : none
  Args    : none
 
 =cut
 
-sub element_rnaSeq {
+sub element_RNAseq {
     my ($self) = @_;
     my $reader = $self->{'_reader'};
 
     my $data = $self->{'_current_entry_data'};
     $data->{'alphabet'} = 'rna';
-    $data->{'sequence'} = $data->{'rnaSeq'};
+    $data->{'sequence'} = $data->{'RNAseq'};
 
 }
 
-=head2 element_dnaSeq
+=head2 element_DNAseq
 
- Title   : element_dnaSeq
- Usage   : $self->element_dnaSeq
- Function: processes a sequence <dnaSeq> node
+ Title   : element_DNAseq
+ Usage   : $self->element_DNAseq
+ Function: processes a sequence <DNAseq> node
  Returns : none
  Args    : none
 
 =cut
 
-sub element_dnaSeq {
+sub element_DNAseq {
     my ($self) = @_;
     my $reader = $self->{'_reader'};
 
     my $data = $self->{'_current_entry_data'};
     $data->{'alphabet'} = 'dna';
-    $data->{'sequence'} = $data->{'dnaSeq'};
+    $data->{'sequence'} = $data->{'DNAseq'};
 
 }
 
-=head2 element_aaSeq
+=head2 element_AAseq
 
- Title   : element_aaSeq
- Usage   : $self->element_aaSeq
- Function: processes a sequence <aaSeq> node
+ Title   : element_AAseq
+ Usage   : $self->element_AAseq
+ Function: processes a sequence <AAseq> node
  Returns : none
  Args    : none
 
 =cut
 
-sub element_aaSeq {
+sub element_AAseq {
     my ($self) = @_;
     my $reader = $self->{'_reader'};
 
     my $data = $self->{'_current_entry_data'};
     $data->{'alphabet'} = 'protein';
-    $data->{'sequence'} = $data->{'aaSeq'};
+    $data->{'sequence'} = $data->{'AAseq'};
 
 }
 
-=head2 element_alternativeID
+=head2 element_DBRef
 
- Title   : element_alternativeID
- Usage   : $self->element_alternativeID
- Function: processes a sequence <alternativeID> node,
+ Title   : element_DBRef
+ Usage   : $self->element_DBRef
+ Function: processes a sequence <DBRef> node,
            creating a Bio::Annotation::DBLink object
  Returns : none
  Args    : none
 
 =cut
 
-sub element_alternativeID {
+sub element_DBRef {
     my ($self) = @_;
     my $reader = $self->{'_reader'};
     my $data   = $self->{'_current_entry_data'};
 
-    my $alternativeID = {};
+    my $DBRef = {};
     my $annotation_obj;
 
     if ( $reader->hasAttributes() ) {
-        $self->processAttribute($alternativeID);
+        $self->processAttribute($DBRef);
     }
     else {
-        $self->throw("no alternative ID data!");
+        $self->throw("no DBRef data!");
     }
 
-    if (   defined $alternativeID->{'source'}
-        && defined $alternativeID->{'id'} )
+    if (   defined $DBRef->{'source'}
+        && defined $DBRef->{'id'}
+        && defined $DBRef->{'type'})
     {
         $annotation_obj = Bio::Annotation::DBLink->new(
-            -primary_id => $alternativeID->{'id'},
-            -database   => $alternativeID->{'source'},
+            -primary_id => $DBRef->{'id'},
+            -database   => $DBRef->{'source'},
+            -type       => $DBRef->{'type'},
             -tagname    => 'dblink',
         );
-        push @{ $data->{'alternativeIDs'} }, $annotation_obj;
+        push @{ $data->{'DBRefs'} }, $annotation_obj;
     }
     else {
-        $self->throw("malformed alternative ID data!");
+        $self->throw("malformed DBRef data!");
     }
 }
 
@@ -857,62 +910,62 @@ sub element_property {
     }
 }
 
-=head2 end_element_rnaSeq
+=head2 end_element_RNAseq
 
- Title   : end_element_rnaSeq
- Usage   : $self->end_element_rnaSeq
- Function: processes a sequence <rnaSeq> node
+ Title   : end_element_RNAseq
+ Usage   : $self->end_element_RNAseq
+ Function: processes a sequence <RNAseq> node
  Returns : none
  Args    : none
 
 =cut
 
-sub end_element_rnaSeq {
+sub end_element_RNAseq {
     my ($self) = @_;
     my $reader = $self->{'_reader'};
 
     my $data = $self->{'_current_entry_data'};
     $data->{'alphabet'} = 'rna';
-    $data->{'sequence'} = $data->{'rnaSeq'};
+    $data->{'sequence'} = $data->{'RNAseq'};
 }
 
-=head2 end_element_dnaSeq
+=head2 end_element_DNAseq
 
- Title   : end_element_dnaSeq
- Usage   : $self->end_element_dnaSeq
- Function: processes a sequence <dnaSeq> node
+ Title   : end_element_DNAseq
+ Usage   : $self->end_element_DNAseq
+ Function: processes a sequence <DNAseq> node
  Returns : none
  Args    : none
 
 =cut
 
-sub end_element_dnaSeq {
+sub end_element_DNAseq {
     my ($self) = @_;
     my $reader = $self->{'_reader'};
 
     my $data = $self->{'_current_entry_data'};
     $data->{'alphabet'} = 'dna';
-    $data->{'sequence'} = $data->{'dnaSeq'};
+    $data->{'sequence'} = $data->{'DNAseq'};
 
 }
 
-=head2 end_element_aaSeq
+=head2 end_element_AAseq
 
- Title   : end_element_aaSeq
- Usage   : $self->end_element_aaSeq
- Function: processes a sequence <aaSeq> node
+ Title   : end_element_AAseq
+ Usage   : $self->end_element_AAseq
+ Function: processes a sequence <AAseq> node
  Returns : none
  Args    : none
 
 =cut
 
-sub end_element_aaSeq {
+sub end_element_AAseq {
     my ($self) = @_;
     my $reader = $self->{'_reader'};
 
     my $data = $self->{'_current_entry_data'};
     $data->{'alphabet'} = 'protein';
-    $data->{'sequence'} = $data->{'aaSeq'};
+    $data->{'sequence'} = $data->{'AAseq'};
 
 }
 
@@ -944,7 +997,7 @@ sub end_element_entry {
         $self->throw("this entry lacks an alphabet");
     }
 
-    # create new sequnce object with minimum necessary parameters
+    # create new sequence object with minimum necessary parameters
     my $seq_obj = $self->sequence_factory->create(
         -seq        => $data->{'sequence'},
         -alphabet   => $data->{'alphabet'},
@@ -959,8 +1012,8 @@ sub end_element_entry {
     if ( $data->{'species'} ) {
         $seq_obj->species( $data->{'species'} );
     }
-    if ( $data->{'alternativeIDs'} ) {
-        foreach my $annotation_obj ( @{ $data->{'alternativeIDs'} } ) {
+    if ( $data->{'DBRefs'} ) {
+        foreach my $annotation_obj ( @{ $data->{'DBRefs'} } ) {
             $seq_obj->add_Annotation($annotation_obj);
         }
     }
@@ -968,6 +1021,13 @@ sub end_element_entry {
         foreach my $annotation_obj ( @{ $data->{'properties'} } ) {
             $seq_obj->add_Annotation($annotation_obj);
         }
+    }
+    if ( $data->{'source'} ) {
+        my $annotation_obj = Bio::Annotation::SimpleValue->new(
+            '-tagname' => 'source',
+            '-value'   => $data->{'source'},
+        );
+        $seq_obj->add_Annotation($annotation_obj);
     }
 
     # empty the temporary data store

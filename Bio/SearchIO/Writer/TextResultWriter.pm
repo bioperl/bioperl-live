@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::SearchIO::Writer::TextResultWriter
 #
@@ -250,7 +249,7 @@ sub to_string {
     }
 
     $str .= &{$self->title}($result);
-
+    $str .= $result->algorithm . " " . $result->algorithm_version . "\n\n\n";
     $str .= $result->algorithm_reference || $self->algorithm_reference($result);
     $str .= &{$self->introduction}($result);
 

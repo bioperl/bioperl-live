@@ -1,5 +1,4 @@
 #!perl -w
-# $Id$
 #
 # OBDA Registry compliant sequence retrieval script
 #

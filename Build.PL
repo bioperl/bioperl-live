@@ -78,13 +78,14 @@ my $build = Bio::Root::Build->new(
                             'Ace'                       => '0/access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace',
                             'Algorithm::Munkres'        => '0/Phylogenetic Networks/Bio::PhyloNetwork',
                             'Array::Compare'            => '0/Phylogenetic Networks/Bio::PhyloNetwork',
+                            'YAML'                      => '0/GenBank->GFF3/bp_genbank2gff3.pl',
                             # this won't actually install due to circular dep, but we have no way of doing a post-install
                             # the [circular dependency!] specifies it is only installed on explicit request for this specific module,
                             # not when simply choosing to install 'all' modules
                             'Bio::ASN1::EntrezGene'     => '0/parsing entrezgene/Bio::SeqIO::entrezgene [circular dependency!]',
-                            # we actually need 1.01 of Class::AutoClass, but unfortunately it is versioned as 1.0
                             'Clone'                     => '0/cloning objects/Bio::Tools::Primer3',
                             'Convert::Binary::C'        => '0/strider functionality/Bio::SeqIO::strider',
+                            'Error'                     => '0/OO-based exception handling (very optional)',
                             'Graph'                     => '0/Phylogenetic Networks, ontology engine implementation, contig analysis/Bio::PhyloNetwork,Bio::Ontology::SimpleGOEngine::GraphAdaptor,Bio::Assembly::Tools::ContigSpectrum',
                             'GraphViz'                  => '0/Phylogenetic Network Visulization/Bio::PhyloNetwork::GraphViz',
                             'HTML::Entities'            => '0/remote analysis POST submissions/Bio::SearchIO::blastxml',
@@ -97,8 +98,7 @@ my $build = Bio::Root::Build->new(
                             'Set::Scalar'               => '0/proper operation/Bio::Tree::Compatible',
                             'SOAP::Lite'                => '0/Bibliographic queries/Bio::DB::Biblio::soap',
                             'Sort::Naturally'           => '0/sort lexically, but sort numeral parts numerically/Bio::Assembly::IO::ace,Bio::Assembly::IO::tigr',
-                            'Spreadsheet::ParseExcel'   => '0/parsing Excel files/Bio::SeqIO::excel,Bio::Microarray::Tools::ReseqChip',
-                            'Spreadsheet::WriteExcel'   => '0/writing Excel files/Bio::Microarray::Tools::ReseqChip',
+                            'Spreadsheet::ParseExcel'   => '0/parsing Excel files/Bio::SeqIO::excel',
                             'Storable'                  => '2.05/storing sequence objects in local file cache/Bio::DB::FileCache,Bio::SeqFeature::Collection,Bio::PopGen::HtSNP,Bio::PopGen::TagHaplotype,Bio::DB::GFF::Adaptor::berkeleydb',
                             'SVG'                       => '2.26/creating SVG images/Bio::Draw::Pictogram',
                             'SVG::Graph'                => '0.01/creating SVG images/Bio::TreeIO::svggraph',

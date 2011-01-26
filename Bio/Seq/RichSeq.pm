@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::Seq::RichSeq
 #
@@ -343,7 +342,9 @@ sub get_secondary_accessions{
  Function: Get/set the sequence version
  Returns : value of seq_version (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
-
+ Note    : this differs from Bio::PrimarySeq version() in that this explicitly
+           refers to the sequence record version one would find in a typical
+           sequence file.  
 
 =cut
 

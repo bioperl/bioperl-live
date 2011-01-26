@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::Tree::TreeFunctionsI
 #
@@ -638,7 +637,7 @@ sub force_binary {
     if (@descs > 2) {
         $self->warn("Node ".($node->can('node_name') ? ($node->node_name || $node->id) : $node->id).
                     " has more than two descendants\n(".
-                    join(", ", map { $node->can('node_name') ? ($node->node_name || $node->id) : $node->id } @descs).
+                    join(", ", map { $node->can('node_name') ? ($node->node_name || $node->id || '') : $node->id || '' } @descs).
                     ")\nWill do an arbitrary balanced split");
         my @working = @descs;
         # create an even set of artifical nodes on which to later hang the descs
@@ -711,37 +710,6 @@ sub simplify_to_leaves_string {
     my @data = $self->_simplify_helper($tree->get_root_node, \%paired);
 
     return join(',', @data);
-}
-
-# safe tree clone that doesn't seg fault
-
-=head2 clone()
-
- Title   : clone
- Alias   : _clone
- Usage   : $tree_copy = $tree->clone();
-           $subtree_copy = $tree->clone($internal_node);
- Function: Safe tree clone that doesn't segfault
-           (of Sendu)
- Returns : Bio::Tree::Tree object
- Args    : [optional] $start_node, Bio::Tree::Node object
-
-=cut
-
-sub clone {
-    my ($self, $parent, $parent_clone) = @_;
-    $parent ||= $self->get_root_node;
-    $parent_clone ||= $self->_clone_node($parent);
-
-    foreach my $node ($parent->each_Descendent()) {
-        my $child = $self->_clone_node($node);
-        $child->ancestor($parent_clone);
-        $self->_clone($node, $child);
-    }
-    $parent->ancestor && return;
-
-    my $tree = $self->new(-root => $parent_clone);
-    return $tree;
 }
 
 # alias
@@ -1003,7 +971,6 @@ sub reroot {
     
     $tmp_node = undef;
     $new_root->branch_length(undef);
-    $new_root->remove_tag('B');
 
     $old_root = undef;
     $self->set_root_node($new_root);
@@ -1086,7 +1053,7 @@ sub findnode_by_id {
 sub move_id_to_bootstrap{
    my ($tree) = shift;
    for my $node ( grep { ! $_->is_Leaf } $tree->get_nodes ) {
-       $node->bootstrap($node->id);
+       $node->bootstrap($node->id || '');
        $node->id('');
    }
 }

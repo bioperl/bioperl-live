@@ -498,7 +498,21 @@ CREATE INDEX fattribute_txt_idx ON fattribute_to_feature (fattribute_value)
 CREATE INDEX fattribute_lower_idx ON fattribute_to_feature (lower(fattribute_value))
 },
 	   } # fattribute_to_feature indexes
-} # fattribute_to_feature  
+}, # fattribute_to_feature  
+
+       finterval_stats => {
+table=> q{
+CREATE TABLE "finterval_stats" (
+   "ftypeid"          integer DEFAULT '0' NOT NULL,
+   "fref"             character varying(100) DEFAULT '' NOT NULL,
+   "fbin"             integer DEFAULT '0' NOT NULL,
+   "fcum_count"       integer DEFAULT '0' NOT NULL,
+   CONSTRAINT pk_finterval_stats PRIMARY KEY (ftypeid,fref,fbin)
+)
+} # finterval_stats table
+},# finterval_stats
+
+
 
 
 );

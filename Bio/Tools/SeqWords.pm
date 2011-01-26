@@ -1,4 +1,3 @@
-# $Id$
 #---------------------------------------------------------------------------
 # PACKAGE    : Bio::Tools::SeqWords
 # PURPOSE    : To count n-mers in any sequence of characters

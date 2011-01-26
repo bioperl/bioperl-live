@@ -24,7 +24,6 @@
 #   Bio::SearchIO
 #
 # Author: Steve Chervitz <sac@bioperl.org>
-# Revision: $Id$
 
 
 use strict;

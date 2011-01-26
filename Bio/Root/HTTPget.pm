@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for fallback HTTP get operations.
 #

@@ -1,6 +1,5 @@
 package Bio::DB::SeqFeature::Store::Loader;
 
-# $Id$
 
 =head1 NAME
 
@@ -126,6 +125,7 @@ sub new {
 		 'SUMMARY_STATS'
 		],@_);
 
+
   $seqfeature_class ||= $self->default_seqfeature_class;
   eval "require $seqfeature_class" unless $seqfeature_class->can('new');
   $self->throw($@) if $@;
@@ -150,19 +150,23 @@ END
 
   $tmpdir      ||= File::Spec->tmpdir();
 
-  # remember the temporary directory in order to delete it on exit
-  my $temp_load = tempdir(
-      'BioDBSeqFeature_XXXXXXX',
-      DIR=>$tmpdir,
-      CLEANUP=>1
-      );
+  my ($tmp_store,$temp_load);
+  unless ($normalized) {
 
-  my $tmp_store = Bio::DB::SeqFeature::Store->new(-adaptor  => 'berkeleydb',
-						  -temporary=> 1,
-						  -dsn      => $temp_load,
-						  -cache    => 1,
-						  -write    => 1)
-      unless $normalized;
+      # remember the temporary directory in order to delete it on exit
+      $temp_load = tempdir(
+	  'BioDBSeqFeature_XXXXXXX',
+	  DIR=>$tmpdir,
+	  CLEANUP=>1
+	  );
+
+      $tmp_store = Bio::DB::SeqFeature::Store->new(-adaptor  => 'berkeleydb',
+						      -temporary=> 1,
+						      -dsn      => $temp_load,
+						      -cache    => 1,
+						      -write    => 1)
+	  unless $normalized;
+  }
 
   $index_subfeatures = 1 unless defined $index_subfeatures;
 

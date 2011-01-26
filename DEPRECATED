@@ -40,3 +40,4 @@ Bio::Tools::Infernal          1.5.2    1.7    Superseded by Bio::SearchIO::infer
 Bio::Tools::ERPIN             1.5.2    1.7    Superseded by Bio::SearchIO::erpin
 Bio::Seq::SeqWithQuality      1.5.1    1.7    Superceded by Bio::Seq::Quality
 Bio::DB::GDB                  1.6      1.6    Service no longer available
+Bio::Expression               -        -      Moved to inactive bioperl-microarray

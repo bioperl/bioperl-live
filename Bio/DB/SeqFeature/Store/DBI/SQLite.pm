@@ -766,7 +766,7 @@ sub _name_sql {
   my $from  = "$name_table as n";
   my ($match,$string) = $self->_match_sql($name);
 
-  my $where = "n.id=$join AND lower(n.name) $match";
+  my $where = "n.id=$join AND n.name $match";
   $where   .= " AND n.display_name>0" unless $allow_aliases;
   return ($from,$where,'',$string);
 }
@@ -1113,9 +1113,26 @@ sub _dump_update_name_index {
   my $dbh     = $self->dbh;
   my ($names,$aliases) = $self->feature_names($obj);
   # unlike DBI::mysql, don't quote, as quotes will be quoted when loaded
-  print $fh join("\t",$id,$_,1),"\n" foreach @$names;
-  print $fh join("\t",$id,$_,0),"\n" foreach @$aliases;
+  print $fh join("\t",$id,lc($_),1),"\n" foreach @$names;
+  print $fh join("\t",$id,lc($_),0),"\n" foreach @$aliases;
 }
+
+sub _update_name_index {
+  my $self = shift;
+  my ($obj,$id) = @_;
+  my $name = $self->_name_table;
+  my $primary_id = $obj->primary_id;
+
+  $self->_delete_index($name,$id);
+  my ($names,$aliases) = $self->feature_names($obj);
+
+  my $sth = $self->_prepare("INSERT INTO $name (id,name,display_name) VALUES (?,?,?)");
+
+  $sth->execute($id,lc $_,1) or $self->throw($sth->errstr)   foreach @$names;
+  $sth->execute($id,lc $_,0) or $self->throw($sth->errstr) foreach @$aliases;
+  $sth->finish;
+}
+
 
 sub _dump_update_attribute_index {
   my $self = shift;

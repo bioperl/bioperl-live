@@ -120,7 +120,6 @@ will be lost when the script exits.
 
 =cut
 
-# $Id$
 use strict;
 use base 'Bio::DB::SeqFeature::Store';
 use Bio::DB::SeqFeature::Store::GFF3Loader;
@@ -156,6 +155,7 @@ sub post_init {
   my @argv;
   if (-d $file_or_dir) {
     @argv = (
+	     bsd_glob("$file_or_dir/*.size*"),
 	     bsd_glob("$file_or_dir/*.gff"),            bsd_glob("$file_or_dir/*.gff3"),
 	     bsd_glob("$file_or_dir/*.gff.{gz,Z,bz2}"), bsd_glob("$file_or_dir/*.gff3.{gz,Z,bz2}")
 	     );
@@ -164,17 +164,20 @@ sub post_init {
   }
   local $self->{file_or_dir} = $file_or_dir;
   $loader->load(@argv);
+  warn $@ if $@;
 }
 
 sub commit { # reindex fasta files
   my $self = shift;
 
+  my $db;
   if (my $fh = $self->{fasta_fh}) {
       $fh->close;
-      $self->{fasta_db} = Bio::DB::Fasta->new($self->{fasta_file});
+      $db = Bio::DB::Fasta->new($self->{fasta_file});
   } elsif (exists $self->{file_or_dir} && -d $self->{file_or_dir}) {
-      $self->{fasta_db} = Bio::DB::Fasta->new($self->{file_or_dir});
+      $db = Bio::DB::Fasta->new($self->{file_or_dir});
   }
+  $self->{fasta_db} = $db if $db;
 }
 
 sub can_store_parentage { 1 }
@@ -641,6 +644,19 @@ sub coverage_array {
 	$coverage_array[$_]++ for ($start_bin..$end_bin);
     }
     return wantarray ? (\@coverage_array,$report_tag) : \@coverage_array;
+}
+
+sub _seq_ids {
+    my $self = shift;
+
+    if (my $fa = $self->{fasta_db}) {
+	if (my @s = eval {$fa->ids}) {
+	    return @s;
+	}
+    } 
+    
+    my $l    = $self->{_index}{location} or return;
+    return keys %$l;
 }
 
 package Bio::DB::SeqFeature::Store::memory::Iterator;

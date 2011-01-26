@@ -30,11 +30,11 @@ my @args = @ARGV;
 
 SKIP: {
 my $db = eval { Bio::DB::SeqFeature::Store->new(@args) };
-skip "DB load failed? Skipping all! $@", (TEST_COUNT - 2) if $@;
+skip "DB load failed? Skipping all! $@", (TEST_COUNT - 5) if $@;
 ok($db);
 
 my $loader = eval { Bio::DB::SeqFeature::Store::GFF3Loader->new(-store=>$db) };
-skip "GFF3 loader failed? Skipping all! $@", (TEST_COUNT - 3) if $@;
+skip "GFF3 loader failed? Skipping all! $@", (TEST_COUNT - 6) if $@;
 ok($loader);
 
 # exercise the loader

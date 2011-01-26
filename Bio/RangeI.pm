@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::RangeI
 #
@@ -303,15 +302,17 @@ which new ranges could be built.
 =head2 intersection
 
  Title   : intersection
- Usage   : ($start, $stop, $strand) = $r1->intersection($r2); OR
-           ($start, $stop, $strand) = Bio::Range->intersection(\@ranges); OR
+ Usage   : ($start, $end, $strand) = $r1->intersection($r2); OR
+           ($start, $end, $strand) = Bio::Range->intersection(\@ranges); OR
            my $containing_range = $r1->intersection($r2); OR
            my $containing_range = Bio::Range->intersection(\@ranges);
  Function: gives the range that is contained by all ranges
- Returns : undef if they do not overlap, or
-           the range that they do overlap (in the form of an object
-            like the calling one, OR a three element array)
- Args    : arg #1 = [REQUIRED] a range to compare this one to,
+ Returns : undef if they do not overlap or if @ranges has only a
+           single range, else returns the range that they do
+           overlap. In scalar contex, the return value is an object of
+           the same class as the calling one. In array context the
+           return value is a three element array.
+ Args    : arg #1 = [REQUIRED] a Bio::RangeI to compare this one to,
                     or an array ref of ranges
            arg #2 = optional strand-testing arg ('strong', 'weak', 'ignore')
 
@@ -330,7 +331,9 @@ sub intersection {
 		push(@ranges, $self);
 	}
     ref($given) eq 'ARRAY' ? push(@ranges, @{$given}) : push(@ranges, $given);
-    $self->throw("Need at least 2 ranges") unless @ranges >= 2;
+    #$self->throw("Need at least 2 ranges") unless @ranges >= 2;
+    # Rather than the above, I think the following is more consistent
+    return undef unless @ranges >= 2;
 
     my $intersect;
     while (@ranges > 0) {
@@ -384,14 +387,16 @@ sub intersection {
 =head2 union
 
    Title   : union
-    Usage   : ($start, $stop, $strand) = $r1->union($r2);
-            : ($start, $stop, $strand) = Bio::Range->union(@ranges);
+    Usage   : ($start, $end, $strand) = $r1->union($r2);
+            : ($start, $end, $strand) = Bio::Range->union(@ranges);
               my $newrange = Bio::Range->union(@ranges);
     Function: finds the minimal Range that contains all of the Ranges
     Args    : a Range or list of Range objects
-    Returns : the range containing all of the range
-              (in the form of an object like the calling one, OR
-              a three element array)
+
+    Returns : the range containing all of the range. In scalar contex,
+              the return value is an object of the same class as the
+              calling one. In array context the return value is a
+              three element array.
 
 =cut
 

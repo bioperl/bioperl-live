@@ -1,6 +1,5 @@
 #!/usr/bin/perl -w
 # -*-Perl-*- (for my emacs)
-# $Id$
 
 use strict;
 

@@ -67,6 +67,9 @@ e.g. -d instead of --database.
    --upgrade             Upgrade existing database to current schema
    --gff3_munge          Activate GFF3 name munging (see Bio::DB::GFF)
    --quiet               No progress reports
+   --summary             Generate summary statistics for drawing coverage histograms.
+                           This can be run on a previously loaded database or during
+                           the load.
 
 =head1 SEE ALSO
 
@@ -84,19 +87,20 @@ disclaimers of warranty.
 
 =cut
 
-my ($DSN,$ADAPTOR,$CREATE,$USER,$PASSWORD,$FASTA,$UPGRADE,$MAX_BIN,$GROUP_TAG,$MUNGE,$QUIET);
+my ($DSN,$ADAPTOR,$CREATE,$USER,$PASSWORD,$FASTA,$UPGRADE,$MAX_BIN,$GROUP_TAG,$MUNGE,$QUIET,$SUMMARY_STATS);
 
-GetOptions ('dsn:s'       => \$DSN,
-				'adaptor:s'   => \$ADAPTOR,
-				'u|user:s'    => \$USER,
-				'p|password:s' => \$PASSWORD,
-            'fasta:s'     => \$FASTA,
-            'upgrade'     => \$UPGRADE,
+GetOptions ('dsn:s'                  => \$DSN,
+	    'adaptor:s'              => \$ADAPTOR,
+	    'u|user:s'               => \$USER,
+	    'p|password:s'           => \$PASSWORD,
+            'fasta:s'                => \$FASTA,
+            'upgrade'                => \$UPGRADE,
             'maxbin|maxfeature:s'    => \$MAX_BIN,
-	         'group:s'     => \$GROUP_TAG,
-	         'gff3_munge'    => \$MUNGE,
-	         'quiet'       => \$QUIET,
-	         create        => \$CREATE) or (system('pod2text',$0), exit -1);
+	    'group:s'                => \$GROUP_TAG,
+	    'gff3_munge'             => \$MUNGE,
+	    'quiet'                  => \$QUIET,
+	    'summary'                => \$SUMMARY_STATS,
+	    'create'                 => \$CREATE) or (system('pod2text',$0), exit -1);
 
 # some local defaults
 $DSN     ||= 'dbi:mysql:test';
@@ -116,8 +120,9 @@ my $db = Bio::DB::GFF->new(-adaptor=>$ADAPTOR,-dsn => $DSN,@args)
 $db->gff3_name_munging(1) if $MUNGE;
 
 if ($CREATE) {
-  $MAX_BIN ? $db->initialize(-erase=>1,-MAX_BIN=>$MAX_BIN) :
-             $db->initialize(1);
+    $SUMMARY_STATS++;
+    $MAX_BIN ? $db->initialize(-erase=>1,-MAX_BIN=>$MAX_BIN) :
+               $db->initialize(1);
 } elsif ($UPGRADE) {
   warn qq(expect to see several "table already exists" messages\n);
   $db->initialize(0);
@@ -152,4 +157,9 @@ for my $file (@fasta) {
   warn "Loading fasta ",(-d $file?"directory":"file"), " $file\n";
   my $loaded = $db->load_fasta($file,!$QUIET);
   warn "$file: $loaded records loaded\n";
+}
+
+if ($SUMMARY_STATS) {
+    warn "Building summary statistics for coverage histograms...\n";
+    $db->build_summary_statistics;
 }

@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::Tree::Node
 #
@@ -85,8 +84,6 @@ Internal methods are usually preceded with a _
 package Bio::Tree::Node;
 use vars qw($CREATIONORDER);
 use strict;
-
-use Scalar::Util qw(weaken isweak);
 
 use base qw(Bio::Root::Root Bio::Tree::NodeI);
 
@@ -306,6 +303,7 @@ sub each_Descendent{
        return map { $_->[0] }
        sort { $a->[1] <=> $b->[1] } 
        map { [$_, $_->internal_id ] }
+       grep {defined $_}
        values %{$self->{'_desc'}};	   
    }
 }
@@ -358,10 +356,15 @@ sub remove_Descendent{
 
 sub remove_all_Descendents{
    my ($self) = @_;
-   # this won't cleanup the nodes themselves if you also have
+   # This won't cleanup the nodes themselves if you also have
    # a copy/pointer of them (I think)...
+   
+   # That's true.  But that's not a bug; if we retain a reference to them it's
+   # very possible we want to keep them.  The only way to truly destroy them is
+   # to call DESTROY on the instance.
+   
    while( my ($node,$val) = each %{ $self->{'_desc'} } ) {
-       $val->ancestor(undef);
+       delete $self->{'_desc'}->{$node}
    }
    $self->{'_desc'} = {};
    1;
@@ -415,7 +418,7 @@ sub ancestor {
                 $self->{_setting_ancestor} = 0;
             }
         }
-        weaken($self->{'_ancestor'} = $new_ancestor);
+        $self->{'_ancestor'} = $new_ancestor;
     }
     
     return $self->{'_ancestor'};
@@ -770,14 +773,17 @@ sub node_cleanup {
     
     #*** below is wrong, cleanup doesn't actually occur. Will replace with:
     # $self->remove_all_Descendents; once further fixes in place..
-    if( defined $self->{'_desc'} &&
-        ref($self->{'_desc'}) =~ /HASH/i ) {
-        while( my ($nodeid,$node) = each %{ $self->{'_desc'} } ) {
-            $node->ancestor(undef); # insure no circular references
-            $node = undef;
-        }
-    }
-    $self->{'_desc'} = {};
+    #if( defined $self->{'_desc'} &&
+    #    ref($self->{'_desc'}) =~ /HASH/i ) {
+    #    while( my ($nodeid,$node) = each %{ $self->{'_desc'} } ) {
+    #        $node->ancestor(undef); # insure no circular references
+    #        $node = undef;
+    #    }
+    #}
+    $self->remove_all_Descendents;
+    
+    #$self->{'_desc'} = {};
+    1;
 }
 
 =head2 reverse_edge
