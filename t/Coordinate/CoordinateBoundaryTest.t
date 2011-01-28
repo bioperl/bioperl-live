@@ -342,7 +342,7 @@ isa_ok $ctg_x, 'Bio::Location::Simple';
 
 ## The contig in the chromosome
 ok my $ctg_on_chr_f_x = Bio::Location::Simple->
-  new( #-seq_id => 'ctg on chr f',
+  new( -seq_id => 'ctg on chr f',
        -start  =>           5001,
        -end    =>           6001,
        -strand =>             +1,
@@ -352,7 +352,7 @@ isa_ok $ctg_on_chr_f_x, 'Bio::Location::Simple';
 
 ## The contig in the chromosome (again)
 ok my $ctg_on_chr_r_x = Bio::Location::Simple->
-  new( #-seq_id => 'ctg on chr r',
+  new( -seq_id => 'ctg on chr r',
        -start  =>           5001,
        -end    =>           6001,
        -strand =>             -1,
