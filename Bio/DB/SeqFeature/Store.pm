@@ -621,6 +621,11 @@ sub delete {
   my $success = 1;
   for my $object (@_) {
     my $id = $object->primary_id;
+    if ( not defined $id ) {
+      warn "Could not delete feature without primary_id: $object";
+      $success = 0;
+      next;
+    }
     my $result = $self->_deleteid($id);
     warn "Could not delete feature with id=$id" unless $result;
     $success &&= $result;
