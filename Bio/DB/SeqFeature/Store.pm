@@ -14,25 +14,28 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
                                                  -dsn     => 'dbi:mysql:test',
                                                  -create  => 1 );
 
-  # get a feature from somewhere
+  # Get a feature from somewhere
   my $feature = Bio::SeqFeature::Generic->new(...);
 
-  # store it
+  # Store it
   $db->store($feature) or die "Couldn't store!";
 
-  # primary ID of the feature is changed to indicate its primary ID
-  # in the database...
+  # If absent, a primary ID is added to the feature when it is stored in the
+  # database. Retrieve the primary ID
   my $id = $feature->primary_id;
 
-  # get the feature back out
-  my $f  = $db->fetch($id);
+  # Get the feature back out
+  my $feature = $db->fetch($id);
 
-  # change the feature and update it
+  # .... which is identical to
+  my $feature = $db->get_feature_by_primary_id($id);
+
+  # Change the feature and update it
   $f->start(100);
   $db->update($f) or die "Couldn't update!";
 
-  # searching...
-  # ...by id
+  # Retrieve multiple features at once...
+  # ...by primary id
   my @features = $db->fetch_many(@list_of_ids);
 
   # ...by name
@@ -50,9 +53,6 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
   # ...by attribute
   @features = $db->get_features_by_attribute({description => 'protein kinase'})
 
-  # ...by primary id
-  @features = $db->get_feature_by_primary_id(42); # note no plural!!!
-
   # ...by the GFF "Note" field
   @result_list = $db->search_notes('kinase');
 
@@ -64,7 +64,7 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
                             -end    => $end,
                             -attributes => $attributes);
 
-  # ...using an iterator
+  # Loop through the features using an iterator
   my $iterator = $db->get_seq_stream(-name => $name,
                                      -type => $types,
                                      -seq_id => $seqid,
@@ -80,26 +80,26 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
   my $segment  = $db->segment('Chr1',5000=>6000);
   my @features = $segment->features(-type=>['mRNA','match']);
 
-  # getting coverage statistics across a region
+  # Getting coverage statistics across a region
   my $summary = $db->feature_summary('Chr1',10_000=>1_110_000);
   my $bins    = $summary->get_tag_values('coverage');
   my $first_bin = $bins->[0];
 
-  # getting & storing sequence information
+  # Getting & storing sequence information
   # Warning: this returns a string, and not a PrimarySeq object
   $db->insert_sequence('Chr1','GATCCCCCGGGATTCCAAAA...');
   my $sequence = $db->fetch_sequence('Chr1',5000=>6000);
 
-  # what feature types are defined in the database?
+  # What feature types are defined in the database?
   my @types    = $db->types;
 
-  # create a new feature in the database
+  # Create a new feature in the database
   my $feature = $db->new_feature(-primary_tag => 'mRNA',
                                  -seq_id      => 'chr3',
                                  -start      => 10000,
                                  -end        => 11000);
 
-  # load an entire GFF3 file, using the GFF3 loader...
+  # Load an entire GFF3 file, using the GFF3 loader...
   my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new(-store    => $db,
 							   -verbose  => 1,
 							   -fast     => 1);
@@ -694,7 +694,8 @@ sub fetch {
 
 This method returns a previously-stored feature from the database
 using its primary ID. If the primary ID is invalid, it returns
-undef. This method is identical to fetch().
+undef. This method is identical to fetch(). Use fetch_many() to efficiently
+retrieve multiple features.
 
 =cut
 
