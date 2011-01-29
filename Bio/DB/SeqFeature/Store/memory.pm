@@ -135,10 +135,9 @@ use constant BINSIZE => 10_000;
 # object initialization
 #
 sub init {
-  my $self          = shift;
-  my $args          = shift;
+  my ($self, $args) = @_;
   $self->SUPER::init($args);
-  $self->{_data}     = [];
+  $self->{_data}     = {};
   $self->{_children} = {};
   $self->{_index}    = {};
   $self;
@@ -182,7 +181,7 @@ sub commit { # reindex fasta files
 
 sub can_store_parentage { 1 }
 
-# return an array ref in which each index is primary id
+# return a hash ref in which each key is primary id
 sub data {
   shift->{_data};
 }
@@ -192,29 +191,54 @@ sub _init_database { shift->init }
 sub _store {
   my $self    = shift;
   my $indexed = shift;
-  my $data    = $self->data;
+  my @objs    = @_;
+  my $data = $self->data;
   my $count = 0;
-  for my $obj (@_) {
+  for my $obj (@objs) {
     my $primary_id = $obj->primary_id;
-    $primary_id    = 1 + @{$data} unless $primary_id;  # primary id of 0 causes a downstream bug
-    $self->data->[$primary_id] = $obj;
-    $obj->primary_id($primary_id);
-    $self->{_index}{ids}{$primary_id} = undef if $indexed;
-    $self->_update_indexes($obj) if $indexed;
+    if (not defined $primary_id) {
+      # Create a unique ID
+      $primary_id = 1 + scalar keys %{$data};
+      while (exists $data->{$primary_id}) {
+        $primary_id++;
+      }
+      $obj->primary_id($primary_id);
+    } else {
+      # Verify that ID is unique
+      if (exists $data->{$primary_id}) {
+        $self->warn("Cannot add feature with primary ID $primary_id because this ID already exist in the database");
+        next;
+      }
+    }
+    # Store feature
+    $data->{$primary_id} = $obj;
+    if ($indexed) {
+      $self->{_index}{ids}{$primary_id} = undef;
+      $self->_update_indexes($obj);
+    }
     $count++;
   }
-  $count;
+  return $count;
+}
+
+sub _deleteid {
+  my ($self, $id) = @_;
+  if (exists $self->{_index}{ids}{$id}) {
+    # $indexed was true
+    $self->_update_indexes( $self->fetch($id), 1 );
+    delete $self->{_index}{ids}{$id};
+  }
+  delete $self->data->{$id};
+  return 1;
 }
 
 sub _fetch {
-  my $self = shift;
-  my $id   = shift;
-  my $data = $self->data;
-  return $data->[$id];
+  my ($self, $id) = @_;
+  return $self->data->{$id};
 }
 
 sub _add_SeqFeature {
-  my $self = shift;
+  my $self     = shift;
   my $parent   = shift;
   my @children = @_;
   my $parent_id = (ref $parent ? $parent->primary_id : $parent);
@@ -244,63 +268,100 @@ sub _fetch_SeqFeatures {
 }
 
 sub _update_indexes {
-  my $self = shift;
-  my $obj  = shift;
-  defined (my $id   = $obj->primary_id) or return;
-  $self->_update_name_index($obj,$id);
-  $self->_update_type_index($obj,$id);
-  $self->_update_location_index($obj,$id);
-  $self->_update_attribute_index($obj,$id);
+  my ($self, $obj, $del) = @_;
+  defined (my $id = $obj->primary_id) or return;
+  $del ||= 0;
+  $self->_update_name_index($obj,$id, $del);
+  $self->_update_type_index($obj,$id, $del);
+  $self->_update_location_index($obj, $id, $del);
+  $self->_update_attribute_index($obj,$id, $del);
 }
 
 sub _update_name_index {
-  my $self = shift;
-  my ($obj,$id) = @_;
-  my ($names,$aliases) = $self->feature_names($obj);
+  my ($self, $obj, $id, $del) = @_;
+  my ($names, $aliases) = $self->feature_names($obj);
   foreach (@$names) {
-    $self->{_index}{name}{lc $_}{$id}   = 1;
+    if (not $del) {
+      $self->{_index}{name}{lc $_}{$id}   = 1;
+    } else {
+      delete $self->{_index}{name}{lc $_}{$id};
+      if (scalar keys %{ $self->{_index}{name}{lc $_} } == 0) {
+        delete $self->{_index}{name}{lc $_};
+      }
+    };
   }
   foreach (@$aliases) {
-    $self->{_index}{name}{lc $_}{$id} ||= 2;
+    if (not $del) {
+      $self->{_index}{name}{lc $_}{$id} ||= 2;
+    } else {
+      delete $self->{_index}{name}{lc $_}{$id};
+      if (scalar keys %{ $self->{_index}{name}{lc $_} } == 0) {
+        delete $self->{_index}{name}{lc $_};
+      }
+    }
   }
 }
 
 sub _update_type_index {
-  my $self = shift;
-  my ($obj,$id) = @_;
-
+  my ($self, $obj, $id, $del) = @_;
   my $primary_tag = $obj->primary_tag;
-  my $source_tag  = $obj->source_tag || '';
   return unless defined $primary_tag;
-
-  $primary_tag    .= ":$source_tag";
-  $self->{_index}{type}{lc $primary_tag}{$id} = undef;
+  my $source_tag  = $obj->source_tag || '';
+  $primary_tag   .= ":$source_tag";
+  if (not $del) {
+    $self->{_index}{type}{lc $primary_tag}{$id} = undef;
+  } else {
+    delete $self->{_index}{type}{lc $primary_tag}{$id};
+    if (scalar keys %{$self->{_index}{type}{lc $primary_tag}} == 0 ) {
+      delete $self->{_index}{type}{lc $primary_tag};
+    }
+  }
 }
 
 sub _update_location_index {
-  my $self = shift;
-  my ($obj,$id) = @_;
-
+  my ($self, $obj, $id, $del) = @_;
   my $seq_id      = $obj->seq_id || '';
   my $start       = $obj->start  || 0;
   my $end         = $obj->end    || 0;
   my $strand      = $obj->strand;
   my $bin_min     = int $start/BINSIZE;
   my $bin_max     = int $end/BINSIZE;
-
   for (my $bin = $bin_min; $bin <= $bin_max; $bin++ ) {
-    $self->{_index}{location}{lc $seq_id}{$bin}{$id} = undef;
+    if (not $del) {
+      $self->{_index}{location}{lc $seq_id}{$bin}{$id} = undef;
+    } else {
+      delete $self->{_index}{location}{lc $seq_id}{$bin}{$id};
+      if (scalar keys %{$self->{_index}{location}{lc $seq_id}{$bin}{$id}} == 0) {
+        delete $self->{_index}{location}{lc $seq_id}{$bin}{$id};
+      }
+      if (scalar keys %{$self->{_index}{location}{lc $seq_id}{$bin}} == 0) {
+        delete $self->{_index}{location}{lc $seq_id}{$bin};
+      }
+      if (scalar keys %{$self->{_index}{location}{lc $seq_id}} == 0) {
+        delete $self->{_index}{location}{lc $seq_id};
+      }
+    }
   }
-
 }
 
 sub _update_attribute_index {
-  my $self = shift;
-  my ($obj,$id) = @_;
-
+  my ($self, $obj, $id, $del) = @_;
   for my $tag ($obj->get_all_tags) {
     for my $value ($obj->get_tag_values($tag)) {
-      $self->{_index}{attribute}{lc $tag}{lc $value}{$id} = undef;
+      if (not $del) {
+        $self->{_index}{attribute}{lc $tag}{lc $value}{$id} = undef;
+      } else {
+        delete $self->{_index}{attribute}{lc $tag}{lc $value}{$id};
+        if ( scalar keys %{$self->{_index}{attribute}{lc $tag}{lc $value}} == 0) {
+          delete $self->{_index}{attribute}{lc $tag}{lc $value};
+        }
+        if ( scalar keys %{$self->{_index}{attribute}{lc $tag}} == 0) {
+          delete $self->{_index}{attribute}{lc $tag};
+        }
+        if ( scalar keys %{$self->{_index}{attribute}} == 0) {
+          delete $self->{_index}{attribute};
+        }
+      }
     }
   }
 }
@@ -358,8 +419,7 @@ sub _features {
 
 
 sub filter_by_type {
-  my $self = shift;
-  my ($types,$filter) = @_;
+  my ($self, $types, $filter) = @_;
   my @types = ref $types eq 'ARRAY' ?  @$types : $types;
 
   my $index = $self->{_index}{type};
@@ -403,8 +463,7 @@ sub attributes {
 }
 
 sub filter_by_attribute {
-  my $self = shift;
-  my ($attributes,$filter) = @_;
+  my ($self, $attributes, $filter) = @_;
 
   my $index = $self->{_index}{attribute};
   my $result;
@@ -437,8 +496,7 @@ sub filter_by_attribute {
 }
 
 sub filter_by_location {
-  my $self = shift;
-  my ($seq_id,$start,$end,$strand,$range_type,$filter) = @_;
+  my ($self, $seq_id, $start, $end, $strand, $range_type, $filter) = @_;
   $strand ||= 0;
 
   my $index = $self->{_index}{location}{lc $seq_id};
@@ -482,8 +540,7 @@ sub filter_by_location {
 
 
 sub filter_by_name {
-  my $self = shift;
-  my ($name,$allow_aliases,$filter) = @_;
+  my ($self, $name, $allow_aliases, $filter) = @_;
 
   my $index = $self->{_index}{name};
 
@@ -506,8 +563,7 @@ sub filter_by_name {
 }
 
 sub glob_match {
-  my $self = shift;
-  my $term = shift;
+  my ($self, $term) = @_;
   return unless $term =~ /(?:^|[^\\])[*?]/;
   $term =~ s/(^|[^\\])([+\[\]^{}\$|\(\).])/$1\\$2/g;
   $term =~ s/(^|[^\\])\*/$1.*/g;
@@ -517,8 +573,7 @@ sub glob_match {
 
 
 sub update_filter {
-  my $self = shift;
-  my ($filter,$results) = @_;
+  my ($self, $filter, $results) = @_;
   return unless @$results;
 
   if (%$filter) {
@@ -531,8 +586,7 @@ sub update_filter {
 }
 
 sub _search_attributes {
-  my $self = shift;
-  my ($search_string,$attribute_array,$limit) = @_;
+  my ($self, $search_string, $attribute_array, $limit) = @_;
 
   $search_string =~ tr/*?//d;
 
@@ -592,8 +646,7 @@ sub types {
 
 # this is ugly
 sub _insert_sequence {
-  my $self = shift;
-  my ($seqid,$seq,$offset) = @_;
+  my ($self, $seqid, $seq, $offset) = @_;
   my $dna_fh = $self->private_fasta_file or return;
   if ($offset == 0) { # start of the sequence
     print $dna_fh ">$seqid\n";
@@ -602,8 +655,7 @@ sub _insert_sequence {
 }
 
 sub _fetch_sequence {
-  my $self = shift;
-  my ($seqid,$start,$end) = @_;
+  my ($self, $seqid, $start, $end) = @_;
   my $db = $self->{fasta_db} or return;
   $db->seq($seqid,$start,$end);
 }
@@ -662,9 +714,7 @@ sub _seq_ids {
 package Bio::DB::SeqFeature::Store::memory::Iterator;
 
 sub new {
-  my $class = shift;
-  my $store = shift;
-  my $ids   = shift;
+  my ($class, $store, $ids) = @_;
   return bless {store => $store,
 		ids   => $ids},ref($class) || $class;
 }

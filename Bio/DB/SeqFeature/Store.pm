@@ -10,9 +10,9 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
   use Bio::DB::SeqFeature::Store;
 
   # Open the feature database
-  my $db      = Bio::DB::SeqFeature::Store->new( -adaptor => 'DBI::mysql',
-                                                 -dsn     => 'dbi:mysql:test',
-                                                 -create  => 1 );
+  my $db = Bio::DB::SeqFeature::Store->new( -adaptor => 'DBI::mysql',
+                                            -dsn     => 'dbi:mysql:test',
+                                            -create  => 1 );
 
   # Get a feature from somewhere
   my $feature = Bio::SeqFeature::Generic->new(...);
@@ -34,8 +34,10 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
   $f->start(100);
   $db->update($f) or die "Couldn't update!";
 
-  # Retrieve multiple features at once...
-  # ...by primary id
+  # Get all features at once
+  my @features = $db->features( );
+
+  # Retrieve multiple features by primary id
   my @features = $db->fetch_many(@list_of_ids);
 
   # ...by name
@@ -1036,6 +1038,9 @@ it will treat the list as a feature type filter.
 
 Examples:
 
+All features:
+ @features = $db->features( );
+
 All features on chromosome 1:
 
  @features = $db->features(-seqid=>'Chr1');
@@ -1062,8 +1067,6 @@ All confirmed mRNAs and repeats on chromosome 1 strictly contained within the ra
                            -attributes=> {confirmed=>1}
                            -range_type => 'contained_in',
                           );
-
-
 
 All genes and repeats:
 
@@ -1780,7 +1783,7 @@ sub SCALAR {
 
 This method is the back end for init_database(). It must be
 implemented by an adaptor that inherits from
-Bio::DB::SeqFeature::Store. It returns true on success.
+Bio::DB::SeqFeature::Store. It returns true on success. @features = $db->features(-seqid=>'Chr1');
 
 =cut
 

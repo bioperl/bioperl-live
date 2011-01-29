@@ -2,16 +2,17 @@
 # $Id$
 
 use strict;
-use constant TEST_COUNT => 84;
+use constant TEST_COUNT => 95;
 
 BEGIN {
     use lib '.','..';
     use Bio::Root::Test;
-	
+
     test_begin(-tests => TEST_COUNT);
     
     $ENV{ORACLE_HOME} ||= '/home/oracle/Home';
-	
+
+    use_ok('Bio::SeqFeature::Generic');
     use_ok('Bio::DB::SeqFeature::Store');
     use_ok('Bio::DB::SeqFeature::Store::GFF3Loader');
     use_ok('Bio::Root::IO');
@@ -37,14 +38,43 @@ my $loader = eval { Bio::DB::SeqFeature::Store::GFF3Loader->new(-store=>$db) };
 skip "GFF3 loader failed? Skipping all! $@", (TEST_COUNT - 6) if $@;
 ok($loader);
 
+
+# test adding / fetching features
+$f = Bio::SeqFeature::Generic->new(
+    -primary_id => '_some_id',
+    -start      => 23,
+    -end        => 512,
+    -strand     => '+',
+    -display_name => 'My favorite feature'
+);
+ok( $db->store($f) );
+ok( @f = $db->fetch('_some_id') );
+is( scalar @f, 1 );
+$f = $f[0];
+is( $f->primary_id, '_some_id' );
+
+$f = Bio::SeqFeature::Generic->new(
+    -start      => 23,
+    -end        => 512,
+    -strand     => '+',
+    -display_name => 'My favorite feature'
+);
+ok( $db->store($f) );
+ok( $f->primary_id );
+is( $db->fetch('doesnotexit'), undef);
+
+# test removing features
+ok( $db->delete( $f ) );
+is( $db->fetch( $f->primary_id ), undef );
+
 # exercise the loader
 ok($loader->load($gff_file));
 
 # there should be one gene named 'abc-1'
-@f = $db->get_features_by_name('abc-1');
+ok( @f = $db->get_features_by_name('abc-1') );
 is(@f,1);
-
 $f = $f[0];
+
 # there should be three subfeatures of type "exon" and three of type "CDS"
 is($f->get_SeqFeatures('exon'),3);
 is($f->get_SeqFeatures('CDS'),3);
@@ -197,21 +227,21 @@ is($c[1]->phase,1);
 
  SKIP: {
      test_skip(-tests => 2, -excludes_os => 'mswin');
-	
+
      if (my $child = open(F,"-|")) { # parent reads from child
-	 cmp_ok(scalar <F>,'>',0);
-	 close F;
-	 # The challenge is to make sure that the handle
-	 # still works in the parent!
-	 my @f = $db->features();
-	 cmp_ok(scalar @f,'>',0);
+         cmp_ok(scalar <F>,'>',0);
+         close F;
+         # The challenge is to make sure that the handle
+         # still works in the parent!
+         my @f = $db->features();
+         cmp_ok(scalar @f,'>',0);
      }
      else { # in child
-	 $db->clone;
-	 my @f = $db->features();
-	 my $feature_count = @f;
-	 print $feature_count;
-	 exit 0;
+         $db->clone;
+         my @f = $db->features();
+         my $feature_count = @f;
+         print $feature_count;
+         exit 0;
      }
 }
 
@@ -224,7 +254,7 @@ is(scalar @f,1);
 
 $db     = eval { Bio::DB::SeqFeature::Store->new(@args) };
 $loader = eval { Bio::DB::SeqFeature::Store::GFF3Loader->new(-store=>$db,
-							     -ignore_seqregion=>1)
+                                                             -ignore_seqregion=>1)
                };
 $loader->load($gff_file);
 @f      = $db->get_features_by_name('Contig1');
@@ -262,10 +292,10 @@ ok(substr($contig2,0,$length) eq $f->dna);
      my $adaptor;
     
      for (my $i=0; $i < @args; $i++) {
-	 if ($args[$i] eq '-adaptor') {
-	     $adaptor = $args[$i+1];
-	     last;
-	 }
+         if ($args[$i] eq '-adaptor') {
+             $adaptor = $args[$i+1];
+             last;
+         }
      }
         
      skip "Namespaces only supported for DBI::mysql and DBI::Pg adaptors", 5, if ($adaptor ne 'DBI::mysql' && $adaptor ne 'DBI::Pg');
@@ -304,8 +334,8 @@ sub make_fasta_testdir {
     opendir(INDIR,$indir) || die("cannot open dir $indir");
     # effectively do a cp -r but only copy the files that are in there, no subdirs
     for my $file ( map { $io->catfile($indir,$_) } readdir(INDIR) ) {
-	next unless (-f $file );
-	copy($file, $test_dbdir);
+        next unless (-f $file );
+        copy($file, $test_dbdir);
     }
     closedir(INDIR);
     return $test_dbdir;
