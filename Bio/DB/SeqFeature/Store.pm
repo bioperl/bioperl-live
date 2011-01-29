@@ -250,6 +250,7 @@ use Scalar::Util 'blessed';
 # this probably shouldn't be here
 use Bio::DB::SeqFeature;
 
+*add_features = \&store;
 *dna = *get_dna = *get_sequence = \&fetch_sequence;
 *get_SeqFeatures = \&fetch_SeqFeatures;
 
@@ -435,6 +436,14 @@ initialization. It is passed a copy of the init_database() args.
 =cut
 
 sub post_init { }
+
+
+=head2 add_features
+
+Same as store()
+
+=cut
+
 
 =head2 store
 

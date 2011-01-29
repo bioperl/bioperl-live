@@ -2,7 +2,7 @@
 # $Id$
 
 use strict;
-use constant TEST_COUNT => 95;
+use constant TEST_COUNT => 96;
 
 BEGIN {
     use lib '.','..';
@@ -34,6 +34,8 @@ my $db = eval { Bio::DB::SeqFeature::Store->new(@args) };
 skip "DB load failed? Skipping all! $@", (TEST_COUNT - 5) if $@;
 ok($db);
 
+is( $db->isa('Bio::SeqFeature::CollectionI'), 1 );
+
 my $loader = eval { Bio::DB::SeqFeature::Store::GFF3Loader->new(-store=>$db) };
 skip "GFF3 loader failed? Skipping all! $@", (TEST_COUNT - 6) if $@;
 ok($loader);
@@ -47,7 +49,7 @@ $f = Bio::SeqFeature::Generic->new(
     -strand     => '+',
     -display_name => 'My favorite feature'
 );
-ok( $db->store($f) );
+ok( $db->add_features($f) );
 ok( @f = $db->fetch('_some_id') );
 is( scalar @f, 1 );
 $f = $f[0];
