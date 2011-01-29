@@ -83,7 +83,7 @@ See L<Bio::DB::SeqFeature::Store> for complete usage instructions.
 
 Before using the memory adaptor, populate a readable-directory on the
 file system with annotation and/or sequence files. The annotation
-files must be in GFF3 format, and shold end in the extension .gff or
+files must be in GFF3 format, and sholud end in the extension .gff or
 .gff3. They may be compressed with "compress", "gzip" or "bzip2" (in
 which case the appropriate compression extension must be present as
 well.)
@@ -109,7 +109,7 @@ single GFF3 file. Examples:
   $db  = Bio::DB::SeqFeature::Store->new( -adaptor => 'memory',
                                           -dsn     => '/usr/annotations/worm.gff3.gz');
 
-For compatibility with the Bio::DB::GFF memory adapter, -gff is
+For compatibility with the Bio::DB::GFF memory adaptor, -gff is
 recognized as an alias for -dsn.
 
 See L<Bio::DB::SeqFeature::Store> for all the access methods supported
