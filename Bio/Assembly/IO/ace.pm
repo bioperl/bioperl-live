@@ -458,10 +458,7 @@ sub next_contig {
         # Find maximum coordinate
         my $max_end;
         for my $readid ($contigOBJ->get_seq_ids) {
-            my $alncoord  = (grep
-                { $_->primary_tag eq "_aligned_coord:$readid"}
-                $contigOBJ->get_features_collection->get_all_features
-                )[0];
+            my ($alncoord) = $contigOBJ->get_features_collection->get_features_by_type("_aligned_coord:$readid");
             my $end = $alncoord->location->end;
             if ( (not defined $max_end) || ($end > $max_end) ) {
                 $max_end = $end;
@@ -616,9 +613,8 @@ sub write_contig {
     my $cons_len         =  $cons->length;
     my $contig_num_reads =  $contig->num_sequences;
     my $cons_strand      = ($contig->strand == -1) ? 'C' : 'U';
-    my @bs_feats = grep { $_->primary_tag eq '_base_segments' }
-        $contig->get_features_collection->get_all_features;
-    my $nof_segments     = scalar @bs_feats ;
+    my @bs_feats         = $contig->get_features_collection->get_features_by_type('_base_segments');
+    my $nof_segments     = scalar @bs_feats;
 
     $self->_print(
         "CO $contig_id $cons_len $contig_num_reads $nof_segments $cons_strand\n".
@@ -778,10 +774,16 @@ sub write_footer {
     for my $contig_id ( Bio::Assembly::IO::_sort( $scaf->get_contig_ids ) ) {
         my $contig = $scaf->get_contig_by_id($contig_id) ||
             $scaf->get_singlet_by_id($contig_id);
+
+        ####
         my @feats = (grep 
             { not $_->primary_tag =~ m/^_/ }
-             $contig->get_features_collection->get_all_features
+             $contig->get_features_collection->features
             );
+
+        #my @feats = $contig->get_features_collection->get_features_by_type("_aligned_coord:$readid");
+        ####
+
         for my $feat (@feats) {
             my $type   =  $feat->primary_tag;
             my $start  =  $feat->start;
@@ -857,8 +859,13 @@ sub _write_read {
     my $read_len  = $read->length; # aligned length
     my $read_seq  = $read->seq;
     my $nof_info = 0; # fea: could not find exactly what this is?
+
+    #####
     my @read_feats = $contig->get_seq_coord($read)->get_SeqFeatures;
+    ###my @read_feats = $contig->get_features_collection->get_features_by_type("_aligned_coord:$readid");
     my @read_tags = (grep { $_->primary_tag eq "_read_tags:$read_id" } @read_feats);
+    #####
+
     my $nof_tags  = scalar @read_tags;
     $self->_print(
         "RD $read_id $read_len $nof_info $nof_tags\n".
@@ -869,10 +876,7 @@ sub _write_read {
     # Aligned "align clipping" and quality coordinates if read object has them
     my $qual_clip_start = 1;
     my $qual_clip_end   = length($read->seq);
-    my $qual_clip = (grep 
-        { $_->primary_tag eq '_quality_clipping:'.$read_id }
-        $contig->get_features_collection->get_all_features
-        )[0];
+    my ($qual_clip) = $contig->get_features_collection->get_features_by_type("_quality_clipping:$read_id");
     if ( defined $qual_clip ) {
         $qual_clip_start = $qual_clip->location->start;
         $qual_clip_end   = $qual_clip->location->end;
@@ -882,10 +886,8 @@ sub _write_read {
 
     my $aln_clip_start = 1;
     my $aln_clip_end   = length($read->seq);
-    my $aln_clip = (grep 
-        { $_->primary_tag eq '_align_clipping:'.$read_id }
-        $contig->get_features_collection->get_all_features
-        )[0];
+    my ($aln_clip) = $contig->get_features_collection->get_features_by_type("_align_clipping:$read_id");
+
     if ( defined $aln_clip ) {
         $aln_clip_start = $aln_clip->location->start;
         $aln_clip_end   = $aln_clip->location->end;

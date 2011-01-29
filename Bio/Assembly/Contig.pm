@@ -219,11 +219,8 @@ package Bio::Assembly::Contig;
 
 use strict;
 
-####
-#use Bio::SeqFeature::Collection;
-use Bio::DB::SeqFeature::Store;
-####
-use Bio::Seq::PrimaryQual; # isa Bio::Seq::QualI
+use Bio::DB::SeqFeature::Store; # isa Bio::SeqFeature::CollectionI
+use Bio::Seq::PrimaryQual;      # isa Bio::Seq::QualI
 
 use Scalar::Util qw(weaken);
 
@@ -275,10 +272,7 @@ sub new {
         $self->throw("Collection must implement Bio::SeqFeature::CollectionI") unless $collection->isa('Bio::SeqFeature::CollectionI');
         $self->{'_sfc'} = $collection;
     } else {
-        ####
-        #$self->{'_sfc'} = Bio::SeqFeature::Collection->new( );
         $self->{'_sfc'} = Bio::DB::SeqFeature::Store->new( -adaptor => 'memory' );
-        ####
     }
 
     # Assembly specifics
@@ -479,11 +473,8 @@ sub add_features {
  Title     : remove_features
  Usage     : $contig->remove_features(@feat)
  Function  : Remove an array of contig features
-####
-# Returns   : number of features removed.
  Returns   : true if successful
-####
- Argument  : An array of Bio::SeqFeatureI
+ Argument  : An array of Bio::SeqFeature::Generic (Bio::SeqFeatureI)
 
 =cut
 
@@ -491,9 +482,9 @@ sub remove_features {
     my ($self, @args) = @_;
 
     # Removing shortcuts for aligned sequence features
-    foreach my $feat (@args) {
+    for my $feat (@args) {
         if (my $seq = $feat->entire_seq()) {
-            my $seqID = $seq->id() || $seq->display_id || $seq->primary_id;
+            my $seqID = $seq->id || $seq->display_id || $seq->primary_id;
             my $tag = $feat->primary_tag;
             $tag =~ s/:$seqID$/$1/g;
             delete( $self->{'_elem'}{$seqID}{'_feat'}{$tag} )
@@ -502,12 +493,13 @@ sub remove_features {
         }
     }
    
-    ####
-    ## Removing Bio::SeqFeature::Collection features
-    #return $self->{'_sfc'}->remove_features(\@args);
     # Removing Bio::SeqFeature objects
-    return $self->{'_sfc'}->delete(@args);
+
     ####
+    # check that the feature exist before removing it
+    ####
+
+    return $self->{'_sfc'}->delete(@args);
 }
 
 =head2 get_features_collection
@@ -515,7 +507,7 @@ sub remove_features {
  Title     : get_features_collection
  Usage     : $contig->get_features_collection()
  Function  : Get the collection of all contig features
- Returns   : Bio::SeqFeature::Collection
+ Returns   : Bio::DB::SeqFeature::Store (Bio::SeqFeature::CollectionI)
  Argument  : none
 
 =cut
@@ -811,9 +803,11 @@ sub set_seq_coord {
     $self->add_seq($seq);
 
     # Remove previous coordinates, if any
+
     ####
-    # how to check that there are previous coordinates already?
+    # remove feature only if it already exists
     ####
+
     $self->remove_features($feat);
 
     # Add new Bio::Generic::SeqFeature
@@ -1021,8 +1015,11 @@ sub get_seq_ids {
             $end   = $self->change_coord($type,'gapped consensus',$end);
         }
 
+        ####
         my @list = grep { $_->isa("Bio::SeqFeature::Generic") &&
         ($_->primary_tag =~ /^_aligned_coord:/) }
+        ####
+
         $self->{'_sfc'}->features_in_range( -start=>$start,
                                             -end=>$end,
                                             -contain=>0,

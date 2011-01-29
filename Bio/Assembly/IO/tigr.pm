@@ -683,10 +683,8 @@ sub write_contig {
         my $singletobj = $contigobj;
 
         # Get contig information
-        my $contanno = (grep
-            { $_->primary_tag eq "_main_contig_feature:$contigid" }
-            $singletobj->get_features_collection->get_all_features
-            )[0];
+        my ($contanno) = $singletobj->get_features_collection->get_features_by_type("_main_contig_feature:$contigid");
+
         my %contiginfo;
         $contiginfo{'sequence'}   = $singletobj->seqref->seq;
         $contiginfo{'lsequence'}  = $contiginfo{'sequence'};
@@ -749,18 +747,9 @@ sub write_contig {
 
         # Get read information
         my ($seq_name, $db) = $self->_split_seq_name_and_db($readid);
-        my $clipcoord = (grep
-            { $_->primary_tag eq "_quality_clipping:$readid"}
-            $singletobj->get_features_collection->get_all_features
-            )[0];
-        my $alncoord  = (grep
-            { $_->primary_tag eq "_aligned_coord:$readid"}
-            $singletobj->get_features_collection->get_all_features
-            )[0];
-        my $readanno = (grep
-            { $_->primary_tag eq "_main_read_feature:$readid" }
-            $singletobj->get_seq_coord($singletobj->seqref)->get_SeqFeatures
-            )[0];
+        my ($clipcoord) = $singletobj->get_features_collection->get_features_by_type("_quality_clipping:$readid");
+        my ($alncoord) = $singletobj->get_features_collection->get_features_by_type("_aligned_coord:$readid");
+        my ($readanno) = $singletobj->get_features_collection->get_features_by_type("_main_read_feature:$readid");
         my %readinfo;
         $readinfo{'seq_name'}  = $seq_name;
         $readinfo{'asm_lend'}  = $alncoord->location->start;
@@ -796,10 +785,7 @@ sub write_contig {
     } else {
         # This is a contig
         # Get contig information
-        my $contanno = (grep
-            { $_->primary_tag eq "_main_contig_feature:$contigid" }
-            $contigobj->get_features_collection->get_all_features
-            )[0];
+        my ($contanno) = $contigobj->get_features_collection->get_features_by_type("_main_contig_feature:$contigid");
         my %contiginfo;
         $contiginfo{'sequence'}   = $self->_ungap(
             $contigobj->get_consensus_sequence->seq);
@@ -1158,10 +1144,7 @@ sub _coord {
   
     # Get gapped consensus coordinates for quality-clipped reads from contig 
     # annotation and determine seq_lend and seq_rend in unaligned sequence coord
-    my $readclip = (grep
-        { $_->primary_tag eq '_quality_clipping:'.$readobj->primary_id }
-        $contigobj->get_features_collection->get_all_features
-    )[0];
+    my ($readclip) = $contigobj->get_features_collection->get_features_by_type('_quality_clipping:'.$readobj->primary_id);
     my $clip_lend = $readclip->location->start;
     my $clip_rend = $readclip->location->end;    
     $seq_lend = $contigobj->change_coord(
