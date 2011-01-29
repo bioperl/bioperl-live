@@ -4,7 +4,7 @@
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
 #
-# Cared for by Robson francisco de Souza <rfsouza@citri.iq.usp.br>
+# Cared for by Robson Francisco de Souza <rfsouza@citri.iq.usp.br>
 #
 # Copyright Robson Francisco de Souza
 #
@@ -219,7 +219,10 @@ package Bio::Assembly::Contig;
 
 use strict;
 
-use Bio::SeqFeature::Collection;
+####
+#use Bio::SeqFeature::Collection;
+use Bio::DB::SeqFeature::Store;
+####
 use Bio::Seq::PrimaryQual; # isa Bio::Seq::QualI
 
 use Scalar::Util qw(weaken);
@@ -234,9 +237,9 @@ use base qw(Bio::Root::Root Bio::Align::AlignI);
  Usage     : my $contig = Bio::Assembly::Contig->new();
  Function  : Creates a new contig object
  Returns   : Bio::Assembly::Contig
- Args      : -id => contig unique ID
+ Args      : -id => unique contig ID
              -source => string for the sequence assembly program used
-             -collection => Bio::SeqFeature::Collection instance
+             -collection => Bio::SeqFeature::CollectionI instance
 
 =cut
 
@@ -272,14 +275,17 @@ sub new {
         $self->throw("Collection must implement Bio::SeqFeature::CollectionI") unless $collection->isa('Bio::SeqFeature::CollectionI');
         $self->{'_sfc'} = $collection;
     } else {
-        $self->{'_sfc'} = Bio::SeqFeature::Collection->new()
+        ####
+        #$self->{'_sfc'} = Bio::SeqFeature::Collection->new( );
+        $self->{'_sfc'} = Bio::DB::SeqFeature::Store->new( -adaptor => 'memory' );
+        ####
     }
 
     # Assembly specifics
-    $self->{'_assembly'} = undef; # Reference to a Bio::Assembly::Scaffold object, if contig belongs to one.
+    $self->{'_assembly'} = undef; # Bio::Assembly::Scaffold the contig belongs to
     $self->{'_strand'} = 0; # Reverse (-1) or forward (1), if contig is in a scaffold. 0 otherwise
-    $self->{'_neighbor_start'} = undef; # Will hold a reference to another contig
-    $self->{'_neighbor_end'} = undef; # Will hold a reference to another contig
+    $self->{'_neighbor_start'} = undef; # Neighbor Bio::Assembly::Contig
+    $self->{'_neighbor_end'}   = undef; # Neighbor Bio::Assembly::Contig
 
     return $self; # success - we hope!
 }
@@ -473,7 +479,10 @@ sub add_features {
  Title     : remove_features
  Usage     : $contig->remove_features(@feat)
  Function  : Remove an array of contig features
- Returns   : number of features removed.
+####
+# Returns   : number of features removed.
+ Returns   : true if successful
+####
  Argument  : An array of Bio::SeqFeatureI
 
 =cut
@@ -492,9 +501,13 @@ sub remove_features {
                 $self->{'_elem'}{$seqID}{'_feat'}{$tag} eq $feat);
         }
     }
-    
-    # Removing Bio::SeqFeature::Collection features
-    return $self->{'_sfc'}->remove_features(\@args);
+   
+    ####
+    ## Removing Bio::SeqFeature::Collection features
+    #return $self->{'_sfc'}->remove_features(\@args);
+    # Removing Bio::SeqFeature objects
+    return $self->{'_sfc'}->delete(@args);
+    ####
 }
 
 =head2 get_features_collection
@@ -798,6 +811,9 @@ sub set_seq_coord {
     $self->add_seq($seq);
 
     # Remove previous coordinates, if any
+    ####
+    # how to check that there are previous coordinates already?
+    ####
     $self->remove_features($feat);
 
     # Add new Bio::Generic::SeqFeature
