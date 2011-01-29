@@ -245,7 +245,7 @@ sub _add_SeqFeature {
   defined $parent_id or $self->throw("$parent should have a primary_id");
   for my $child (@children) {
     my $child_id = ref $child ? $child->primary_id : $child;
-    defined $child_id or $self->throw("no primary ID known for $child");
+    defined $child_id or $self->throw("No primary ID known for $child");
     $self->{_children}{$parent_id}{$child_id}++;
   }
 }
@@ -306,8 +306,7 @@ sub _update_type_index {
   my ($self, $obj, $id, $del) = @_;
   my $primary_tag = $obj->primary_tag;
   return unless defined $primary_tag;
-  my $source_tag  = $obj->source_tag || '';
-  $primary_tag   .= ":$source_tag";
+  $primary_tag   .= ":".$obj->source_tag if defined $obj->source_tag;
   if (not $del) {
     $self->{_index}{type}{lc $primary_tag}{$id} = undef;
   } else {

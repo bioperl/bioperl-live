@@ -2,7 +2,7 @@
 # $Id$
 
 use strict;
-use constant TEST_COUNT => 97;
+use constant TEST_COUNT => 98;
 
 BEGIN {
     use lib '.','..';
@@ -194,13 +194,16 @@ is(@f, 1);
 
 # test iteration
 @f = $db->features;
-my $feature_count = @f;
-cmp_ok($feature_count, '>', 0);
+is(scalar @f, 29);
+@f = $db->get_all_features;
+is(scalar @f, 29);
+
 
 my $i = $db->get_seq_stream;
 ok($i);
 
 my $count;
+my $feature_count = @f;
 while ($i->next_seq) { $count++ }
 is($feature_count,$count);
 
