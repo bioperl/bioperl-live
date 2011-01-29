@@ -29,7 +29,7 @@ new database with the original berkeleydb adaptor. When opening a
 database created under the original adaptor, the old code is used for
 backward compatibility.
 
-Please see L<Bio::DB::SeqFeature::Store::berkeleydb3> for full usage
+Please see L<Bio::DB::SeqFeature::Store::berkeleydb> for full usage
 instructions.
 
 =head1 BUGS
