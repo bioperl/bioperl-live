@@ -652,10 +652,12 @@ sub delete {
   $success;
 }
 
-=head2 get_feature_by_id
+=head2 fetch / get_feature_by_id / get_feature_by_primary_id
 
- Title   : get_feature_by_id
- Usage   : $feature = $db->get_feature_by_id($primary_id)
+ Title   : fetch
+           get_feature_by_id
+           get_feature_by_primary_id
+ Usage   : $feature = $db->fetch($primary_id)
  Function: fetch a feature from the database using its primary ID
  Returns : a feature
  Args    : primary ID of desired feature
@@ -663,24 +665,7 @@ sub delete {
 
 This method returns a previously-stored feature from the database
 using its primary ID. If the primary ID is invalid, it returns undef.
-
-=cut
-
-sub get_feature_by_id {
-    my $self = shift;
-    $self->fetch(@_);
-}
-
-=head2 fetch
-
- Title   : fetch
- Usage   : $feature = $db->fetch($primary_id)
- Function: fetch a feature from the database using its primary ID
- Returns : a feature
- Args    : primary ID of desired feature
- Status  : public
-
-This is an alias for get_feature_by_id().
+Use fetch_many() to rapidly retrieve multiple features.
 
 =cut
 
@@ -701,26 +686,7 @@ sub fetch {
     return $self->_fetch($primary_id);
   }
 }
-
-=head2 get_feature_by_primary_id
-
- Title   : get_feature_by_primary_id
- Usage   : $feature = $db->get_feature_by_primary_id($primary_id)
- Function: fetch a feature from the database using its primary ID
- Returns : a feature
- Args    : primary ID of desired feature
- Status  : public
-
-This method returns a previously-stored feature from the database
-using its primary ID. If the primary ID is invalid, it returns
-undef. This method is identical to fetch(). Use fetch_many() to efficiently
-retrieve multiple features.
-
-=cut
-
-sub get_feature_by_primary_id {
-    shift->fetch(@_);
-}
+*get_feature_by_id = *get_feature_by_primary_id = \&fetch;
 
 =head2 fetch_many
 
@@ -1118,6 +1084,23 @@ sub features {
     @args = @_;
   }
   $self->_features(@args);
+}
+
+
+=head2 get_all_features
+
+ Title   : get_all_features
+ Usage   : @features = $db->get_all_features()
+ Function: get all feature in the database
+ Returns : list of features
+ Args    : none
+ Status  : Public
+
+=cut
+
+# for compatibility with Bio::SeqFeature::Collection
+sub get_all_features {
+  shift->features();
 }
 
 =head2 seq_ids

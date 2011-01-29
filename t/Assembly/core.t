@@ -200,7 +200,8 @@ my $direction = $contigs[0]->strand;
 is $direction, 1;
 
 my $features =  $contigs[0]->get_features_collection;
-my @contig_features = $features->get_all_features;
+
+my @contig_features = $features->features;
 is @contig_features, 59, 'contig features';
 
 my @annotations = grep {$_->primary_tag eq 'Annotation'} @contig_features;
@@ -288,7 +289,7 @@ my $min_aln_coord = undef;
 for my $read ($contig->each_seq) {
    my $aln_coord_start  = (grep
       { $_->primary_tag eq "_aligned_coord:".$read->id}
-      $contig->get_features_collection->get_all_features
+      $contig->get_features_collection->features
       )[0]->location->start;
    if ( (not defined $min_aln_coord) or ($aln_coord_start < $min_aln_coord) ) {
       $min_aln_coord = $aln_coord_start;
@@ -400,7 +401,7 @@ isa_ok($contig,'Bio::Assembly::Contig');
 
 # check Contig object SeqFeature::Collection
 # should add more specific Contig tests...
-my @sfs = $contig->get_features_collection->get_all_features;
+my @sfs = $contig->get_features_collection->features;
 is(scalar(@sfs), 5);
 my %primary_tags = map { $_->primary_tag => 1 } @sfs;
 ok exists $primary_tags{'_aligned_coord:sdsu|SDSU_RFPERU_006_E04.x01.phd.1'};
