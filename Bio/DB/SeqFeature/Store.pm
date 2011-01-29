@@ -250,7 +250,6 @@ use Scalar::Util 'blessed';
 # this probably shouldn't be here
 use Bio::DB::SeqFeature;
 
-*add_features = \&store;
 *dna = *get_dna = *get_sequence = \&fetch_sequence;
 *get_SeqFeatures = \&fetch_SeqFeatures;
 
@@ -440,10 +439,19 @@ sub post_init { }
 
 =head2 add_features
 
-Same as store()
+ Title   : add_features
+ Usage   : $success = $db->add_features(\@features)
+ Function: store one or more features into the database
+ Returns : true if successful
+ Args    : list of Bio::SeqFeatureI objects
+ Status  : public
 
 =cut
 
+sub add_features {
+  my ($self, $feats) = @_;
+  my $result = $self->store_and_cache(1, @$feats);
+}
 
 =head2 store
 

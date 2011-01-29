@@ -2,7 +2,7 @@
 # $Id$
 
 use strict;
-use constant TEST_COUNT => 96;
+use constant TEST_COUNT => 97;
 
 BEGIN {
     use lib '.','..';
@@ -24,7 +24,7 @@ my $DEBUG = test_debug();
 
 my $gff_file = test_input_file('seqfeaturedb','test.gff3');
 
-my (@f,$f,@s,$s,$seq1,$seq2);
+my (@f,$f,$f2,@s,$s,$seq1,$seq2);
 
 my @args = @ARGV;
 @args = (-adaptor => 'memory') unless @args;
@@ -49,25 +49,34 @@ $f = Bio::SeqFeature::Generic->new(
     -strand     => '+',
     -display_name => 'My favorite feature'
 );
-ok( $db->add_features($f) );
+ok( $db->add_features([$f]), 'adding a feature' );
 ok( @f = $db->fetch('_some_id') );
 is( scalar @f, 1 );
 $f = $f[0];
 is( $f->primary_id, '_some_id' );
 
-$f = Bio::SeqFeature::Generic->new(
-    -start      => 23,
-    -end        => 512,
-    -strand     => '+',
-    -display_name => 'My favorite feature'
+$f2 = Bio::SeqFeature::Generic->new(
+                   -start        => 10,
+                   -end          => 100,
+                   -strand       => -1,
+                   -primary      => 'repeat', # -primary_tag is a synonym
+                   -source_tag   => 'repeatmasker',
+                   -display_name => 'alu family',
+                   -score        => 1000,
+                   -tag          => { new => 1,
+                                      author => 'someone',
+                                      sillytag => 'this is silly!' }
 );
-ok( $db->store($f) );
-ok( $f->primary_id );
+ok( $db->store($f2) , 'adding a feature with no primary_id' );
+ok( $f2->primary_id );
 is( $db->fetch('doesnotexit'), undef);
 
 # test removing features
-ok( $db->delete( $f ) );
+ok( $db->delete( $f ), 'feature deletion' );
 is( $db->fetch( $f->primary_id ), undef );
+$db->delete( $f2 );
+
+ok( $db->store($f, $f2) );
 
 # exercise the loader
 ok($loader->load($gff_file));
