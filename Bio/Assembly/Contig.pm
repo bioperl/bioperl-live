@@ -496,10 +496,12 @@ sub remove_features {
     # Removing Bio::SeqFeature objects
 
     ####
-    # check that the feature exist before removing it
+    # check that the feature exists before attempting to remove it
+    my $status = 1;
+    #$status = $self->{'_sfc'}->delete(@args);
     ####
 
-    return $self->{'_sfc'}->delete(@args);
+    return $status;
 }
 
 =head2 get_features_collection
@@ -1009,6 +1011,7 @@ sub get_seq_ids {
     my ($type,$start,$end) =
     $self->_rearrange([qw(TYPE START END)], @args);
 
+    my @list;
     if (defined($start) && defined($end)) {
         if (defined($type) && ($type ne 'gapped consensus')) {
             $start = $self->change_coord($type,'gapped consensus',$start);
@@ -1016,7 +1019,7 @@ sub get_seq_ids {
         }
 
         ####
-        my @list = grep { $_->isa("Bio::SeqFeature::Generic") &&
+        @list = grep { $_->isa("Bio::SeqFeature::Generic") &&
         ($_->primary_tag =~ /^_aligned_coord:/) }
         ####
 
@@ -1026,10 +1029,12 @@ sub get_seq_ids {
                                             -strandmatch=>'ignore' );
         @list = map { $_->entire_seq->id } @list;
         return @list;
+    } else {
+      # Entire aligned sequences list
+      @list = map { $self->{'_order'}{$_} } sort { $a cmp $b } keys %{ $self->{'_order'} };
     }
 
-    # Entire aligned sequences list
-    return map { $self->{'_order'}{$_} } sort { $a cmp $b } keys %{ $self->{'_order'} };
+    return @list;
 }
 
 =head2 get_seq_feat_by_tag

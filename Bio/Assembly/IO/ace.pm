@@ -492,6 +492,7 @@ sub next_contig {
             $contigOBJ->set_consensus_quality($cons_qual);
         }
     }
+
     return $contigOBJ;
 }
 
@@ -606,6 +607,13 @@ sub write_contig {
         $self->throw("Must provide a Bio::Assembly::Contig or Singlet object when calling write_contig");
     }
 
+    ####
+    #_base_segments
+    my $collection = $contig->get_features_collection;
+    use Data::Dumper;
+    print "FEATURE_COLLECTION:\n".Dumper($collection);
+    ####
+
     # Contig consensus sequence
     my $contig_id        =  $contig->id;
     my $cons             =  $contig->get_consensus_sequence;
@@ -614,6 +622,12 @@ sub write_contig {
     my $contig_num_reads =  $contig->num_sequences;
     my $cons_strand      = ($contig->strand == -1) ? 'C' : 'U';
     my @bs_feats         = $contig->get_features_collection->get_features_by_type('_base_segments');
+
+    ####
+    use Data::Dumper;
+    print "BASE_SEGMENTS:\n".Dumper(\@bs_feats);
+    ####
+
     my $nof_segments     = scalar @bs_feats;
 
     $self->_print(
