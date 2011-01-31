@@ -2,7 +2,7 @@
 # $Id$
 
 use strict;
-use constant TEST_COUNT => 98;
+use constant TEST_COUNT => 99;
 
 BEGIN {
     use lib '.','..';
