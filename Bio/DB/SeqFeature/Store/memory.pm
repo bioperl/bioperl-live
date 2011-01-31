@@ -449,10 +449,16 @@ sub find_types {
       $source_tag  = $type->source;
     } else {
       # Allow primary_tags to contain ':', e.g. in "_aligned_coord:read123"
-      ($primary_tag,$source_tag) = ( $type =~ m/^(.*):?(.*?)$/ );
+      ($primary_tag, $source_tag) = ( $type =~ m/^(.*):?(.*?)$/ );
     }
-    push @types_found, $source_tag eq '' ? grep {/^$primary_tag:/i} keys %{$index}
-                                         : lc "$primary_tag:$source_tag";
+    if ($source_tag eq '') {
+      # Escape tag characters that could be regexp special characters
+      $primary_tag = quotemeta $primary_tag;
+      push @types_found, grep {/^$primary_tag:/i} keys %{$index};
+    } else {
+      push @types_found, lc "$primary_tag:$source_tag";
+    }
+
   }
 
   return @types_found;

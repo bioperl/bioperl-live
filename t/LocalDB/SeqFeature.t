@@ -2,7 +2,7 @@
 # $Id$
 
 use strict;
-use constant TEST_COUNT => 99;
+use constant TEST_COUNT => 100;
 
 BEGIN {
     use lib '.','..';
@@ -70,6 +70,7 @@ $f2 = Bio::SeqFeature::Generic->new(
 ok( $db->store($f2) , 'adding a feature with no primary_id' );
 ok( $f2->primary_id );
 is( $db->fetch('doesnotexit'), undef);
+is( $db->get_features_by_type('rep.*'), 0, 'queried types are quotemeta\'d' );
 
 # test removing features
 ok( $db->delete( $f ), 'feature deletion' );
