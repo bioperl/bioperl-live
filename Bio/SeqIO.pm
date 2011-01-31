@@ -363,10 +363,10 @@ sub new {
 		my %param = @args;
 		@param{ map { lc $_ } keys %param } = values %param; # lowercase keys
 
-	if (!defined($param{-file}) && !defined($param{-fh})) {
+	if (!defined($param{-file}) && !defined($param{-fh}) && !defined($param{-string})) {
         $class->throw("file argument provided, but with an undefined value") if exists($param{'-file'});
         $class->throw("fh argument provided, but with an undefined value") if (exists($param{'-fh'}));
-        $class->throw("No file or fh argument provided");  # neither defined
+        $class->throw("No file, fh, or string argument provided");  # neither defined
 	}
 
 	my $format = $param{'-format'} ||
