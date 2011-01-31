@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 70);
+    test_begin(-tests => 72);
 	
 	use_ok('Bio::Seq');
 	use_ok('Bio::Seq::RichSeq');
