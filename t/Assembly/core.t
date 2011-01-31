@@ -205,6 +205,7 @@ my @contig_features = $features->features;
 is @contig_features, 59, 'contig features';
 
 my @annotations = grep {$_->primary_tag eq 'Annotation'} @contig_features;
+my @annotations = $features->get_features_by_type('Annotation');
 is @annotations, 2;
 my $had_tag = 0;
 foreach my $an (@annotations) {
