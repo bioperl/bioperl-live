@@ -59,7 +59,7 @@ $f2 = Bio::SeqFeature::Generic->new(
                    -start        => 10,
                    -end          => 100,
                    -strand       => -1,
-                   -primary      => 'repeat', # -primary_tag is a synonym
+                   -primary      => 'repeat:123', # -primary_tag is a synonym
                    -source_tag   => 'repeatmasker',
                    -display_name => 'alu family',
                    -score        => 1000,
@@ -190,6 +190,8 @@ is(@f,1);
 
 # find all top-level features on Contig3 of type 'assembly_component'
 @f = $db->features(-seq_id=>'Contig3',-type=>'assembly_component');
+is(@f, 1);
+@f = $db->features(-type=>'repeat:123'); # primary_tag that contains a ':'
 is(@f, 1);
 
 # test iteration

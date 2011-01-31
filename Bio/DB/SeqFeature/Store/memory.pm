@@ -306,7 +306,8 @@ sub _update_type_index {
   my ($self, $obj, $id, $del) = @_;
   my $primary_tag = $obj->primary_tag;
   return unless defined $primary_tag;
-  $primary_tag   .= ":".$obj->source_tag if defined $obj->source_tag;
+  my $source_tag = $obj->source_tag || '';
+  $primary_tag  .= ":".$source_tag;
   if (not $del) {
     $self->{_index}{type}{lc $primary_tag}{$id} = undef;
   } else {
@@ -448,11 +449,13 @@ sub find_types {
       $primary_tag = $type->method;
       $source_tag  = $type->source;
     } else {
-      ($primary_tag,$source_tag) = split ':',$type,2;
+      # Allow primary_tags to contain ':', e.g. in "_aligned_coord:read123"
+      ($primary_tag,$source_tag) = ( $type =~ m/^(.*):?(.*?)$/ );
     }
-    push @types_found,defined $source_tag ? lc "$primary_tag:$source_tag"
-                                          : grep {/^$primary_tag:/i} keys %{$index};
+    push @types_found, $source_tag eq '' ? grep {/^$primary_tag:/i} keys %{$index}
+                                         : lc "$primary_tag:$source_tag";
   }
+
   return @types_found;
 }
 
