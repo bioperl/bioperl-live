@@ -306,7 +306,7 @@ sub _update_type_index {
   my ($self, $obj, $id, $del) = @_;
   my $primary_tag = $obj->primary_tag;
   return unless defined $primary_tag;
-  $primary_tag  .= ":".$obj->source_tag;
+  $primary_tag  .= ":".($obj->source_tag||'');
   if (not $del) {
     $self->{_index}{type}{lc $primary_tag}{$id} = undef;
   } else {
