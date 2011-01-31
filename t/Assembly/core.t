@@ -403,10 +403,8 @@ isa_ok($contig,'Bio::Assembly::Contig');
 # should add more specific Contig tests...
 my @sfs = $contig->get_features_collection->features;
 is(scalar(@sfs), 5);
-my %primary_tags = map { $_->primary_tag => 1 } @sfs;
-ok exists $primary_tags{'_aligned_coord:sdsu|SDSU_RFPERU_006_E04.x01.phd.1'};
 is($sfs[1]->seq_id(), undef); # should this be undef?
-
+ok( $contig->get_features_collection->get_features_by_type('_aligned_coord:sdsu|SDSU_RFPERU_006_E04.x01.phd.1') );
 isa_ok($scaf_in->annotation, 'Bio::AnnotationCollectionI');
 is($scaf_in->annotation->get_all_annotation_keys, 0, "no annotations in Annotation collection?");
 

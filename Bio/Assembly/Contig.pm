@@ -24,7 +24,7 @@ Bio::Assembly::Contig - Perl module to hold and manipulate
 
     # Assembly loading methods
     $aio = Bio::Assembly::IO->new(-file=>"test.ace.1",
-                               -format=>'phrap');
+                                  -format=>'phrap');
 
     $assembly = $aio->next_assembly;
     foreach $contig ($assembly->all_contigs) {
