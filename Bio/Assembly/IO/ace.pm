@@ -859,12 +859,14 @@ sub _write_read {
     my $read_id   = $read->id;
     my $read_len  = $read->length; # aligned length
     my $read_seq  = $read->seq;
-    my $nof_info = 0; # fea: could not find exactly what this is?
+    my $nof_info  = 0; # fea: could not find exactly the meaning of this?
 
     #####
     my @read_feats = $contig->get_seq_coord($read)->get_SeqFeatures;
-    ###my @read_feats = $contig->get_features_collection->get_features_by_type("_aligned_coord:$readid");
     my @read_tags = (grep { $_->primary_tag eq "_read_tags:$read_id" } @read_feats);
+    ###my @read_feats = $contig->get_features_collection->get_features_by_type("_aligned_coord:$readid");
+    #my @read_tags = $contig->get_features_collection->get_SeqFeatures("_read_tags:$read_id");
+    #my @read_tags = $contig->get_seq_feat_by_tag($read, "_read_tags:$read_id");
     #####
 
     my $nof_tags  = scalar @read_tags;
