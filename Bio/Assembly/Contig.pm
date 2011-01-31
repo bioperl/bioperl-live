@@ -463,7 +463,7 @@ sub add_features {
     }
 
     # Add feature to feature collection
-    my $nof_added = $self->{'_sfc'}->add_features($args);
+    my $nof_added = $self->get_features_collection->add_features($args);
 
     return $nof_added;
 }
@@ -494,14 +494,7 @@ sub remove_features {
     }
    
     # Removing Bio::SeqFeature objects
-
-    ####
-    # check that the feature exists before attempting to remove it
-    my $status = 1;
-    #$status = $self->{'_sfc'}->delete(@args);
-    ####
-
-    return $status;
+    return $self->get_features_collection->delete(@args);
 }
 
 =head2 get_features_collection
@@ -795,26 +788,18 @@ sub set_seq_coord {
         unless (defined $feat->start);
 
     my $seqID = $seq->id() || $seq->display_id || $seq->primary_id;
-    if (exists( $self->{'_elem'}{$seqID} ) &&
-    exists( $self->{'_elem'}{$seqID}{'_seq'} ) &&
-    defined( $self->{'_elem'}{$seqID}{'_seq'} ) &&
-    ($seq ne $self->{'_elem'}{$seqID}{'_seq'}) ) {
+    if ( exists( $self->{'_elem'}{$seqID} ) &&
+         exists( $self->{'_elem'}{$seqID}{'_seq'} ) &&
+         defined( $self->{'_elem'}{$seqID}{'_seq'} ) &&
+         ($seq ne $self->{'_elem'}{$seqID}{'_seq'}) ) {
         $self->warn("Replacing sequence $seqID\n");
         $self->remove_seq($self->{'_elem'}{$seqID}{'_seq'});
+        $self->remove_features($feat);
     }
+
+    # Add new sequence and Bio::Generic::SeqFeature
     $self->add_seq($seq);
-
-    # Remove previous coordinates, if any
-
-    ####
-    # remove feature only if it already exists
-    ####
-
-    $self->remove_features($feat);
-
-    # Add new Bio::Generic::SeqFeature
-    $feat->add_tag_value('contig',$self->id)
-        unless ( $feat->has_tag('contig') );
+    $feat->add_tag_value('contig',$self->id) unless ( $feat->has_tag('contig') );
     $feat->primary_tag("_aligned_coord:$seqID");
     $feat->attach_seq($seq);
     $self->{'_elem'}{$seqID}{'_feat'}{"_aligned_coord:$seqID"} = $feat;
@@ -985,9 +970,9 @@ sub set_seq_qual {
 =head2 get_seq_ids
 
  Title     : get_seq_ids
- Usage     : $contig->get_seq_ids(-start=>$start,
-                  -end=>$end,
-                  -type=>"gapped A0QR67B08.b");
+ Usage     : $contig->get_seq_ids( -start => $start,
+                                   -end   => $end,
+                                   -type  => "gapped A0QR67B08.b" );
  Function  : Get list of sequence IDs overlapping interval [$start, $end]
              The default interval is [1,$contig->length]
              Default coordinate system is "gapped contig"
@@ -996,7 +981,7 @@ sub set_seq_qual {
              -start : consensus subsequence start
              -end   : consensus subsequence end
              -type  : the coordinate system type for $start and $end arguments
-                      Coordinate system avaliable are:
+                      Coordinate system available are:
                       "gapped consensus"   : consensus coordinates with gaps
                       "ungapped consensus" : consensus coordinates without gaps
                       "aligned $ReadID"    : read $ReadID coordinates with gaps
@@ -1008,8 +993,7 @@ sub set_seq_qual {
 sub get_seq_ids {
     my ($self, @args) = @_;
 
-    my ($type,$start,$end) =
-    $self->_rearrange([qw(TYPE START END)], @args);
+    my ($type, $start, $end) = $self->_rearrange([qw(TYPE START END)], @args);
 
     my @list;
     if (defined($start) && defined($end)) {
@@ -1017,21 +1001,17 @@ sub get_seq_ids {
             $start = $self->change_coord($type,'gapped consensus',$start);
             $end   = $self->change_coord($type,'gapped consensus',$end);
         }
-
-        ####
         @list = grep { $_->isa("Bio::SeqFeature::Generic") &&
-        ($_->primary_tag =~ /^_aligned_coord:/) }
-        ####
-
-        $self->{'_sfc'}->features_in_range( -start=>$start,
-                                            -end=>$end,
-                                            -contain=>0,
-                                            -strandmatch=>'ignore' );
+                      ($_->primary_tag =~ /^_aligned_coord:/) }
+                $self->get_features_collection->features_in_range(
+                    -start       => $start,
+                    -end         => $end,
+                    -contain     => 0,
+                    -strandmatch => 'ignore' );
         @list = map { $_->entire_seq->id } @list;
-        return @list;
     } else {
-      # Entire aligned sequences list
-      @list = map { $self->{'_order'}{$_} } sort { $a cmp $b } keys %{ $self->{'_order'} };
+        # Entire aligned sequences list
+        @list = map { $self->{'_order'}{$_} } sort { $a cmp $b } keys %{ $self->{'_order'} };
     }
 
     return @list;
@@ -1041,11 +1021,7 @@ sub get_seq_ids {
 
  Title     : get_seq_feat_by_tag
  Usage     : $seq = $contig->get_seq_feat_by_tag($seq,"_aligned_coord:$seqID")
- Function  :
-
-             Get a sequence feature based on its primary_tag.
-             When you add
-
+ Function  : Get a sequence feature based on its primary_tag.
  Returns   : a Bio::SeqFeature object
  Argument  : a Bio::LocatableSeq and a string (feature primary tag)
 
@@ -1057,7 +1033,7 @@ sub get_seq_feat_by_tag {
     if( !ref $seq || ! $seq->isa('Bio::LocatableSeq') ) {
         $self->throw("Unable to process non locatable sequences [".ref($seq)."]");
     }
-    my $seqID = $seq->id() || $seq->display_id || $seq->primary_id;
+    my $seqID = $seq->id || $seq->display_id || $seq->primary_id;
 
     return $self->{'_elem'}{$seqID}{'_feat'}{$tag};
 }
@@ -2192,9 +2168,9 @@ sub _register_gaps {
 =cut
 
 sub no_residues {
-	my $self = shift;
-	$self->deprecated(-warn_version => 1.0069,
-					  -throw_version => 1.0075);
+    my $self = shift;
+    $self->deprecated(-warn_version  => 1.0069,
+                      -throw_version => 1.0075);
     $self->num_residues(@_);
 }
 
@@ -2210,9 +2186,9 @@ sub no_residues {
 =cut
 
 sub no_sequences {
-	my $self = shift;
-	$self->deprecated(-warn_version => 1.0069,
-					  -throw_version => 1.0075);
+    my $self = shift;
+    $self->deprecated(-warn_version => 1.0069,
+                      -throw_version => 1.0075);
     $self->num_sequences(@_);
 }
 
