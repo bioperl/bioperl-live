@@ -29,7 +29,7 @@ SKIP: {
 	
     eval {ok(defined($seq = $db->get_Seq_by_acc('J02231')))};
 	skip('could not connect to embl',2) if $@;
-    is( $seq->id, 'embl|J02231|J02231');
+    like( $seq->id, qr/J02231/);
     is( $seq->length, 200); 
     ok( defined($db = Bio::DB::EMBL->new(-verbose=>$verbose, 
 					-retrievaltype => 'tempfile')));

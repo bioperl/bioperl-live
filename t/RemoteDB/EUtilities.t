@@ -138,8 +138,10 @@ sub epost {
         is($eutil->get_database, 'protein', '$epost->get_database()');
         is(join(',',$eutil->get_ids), '1621261,20807972,68536103,730439,89318838', '$epost->get_ids()');
         
+        # these are the submitted IDs
+        is($eutil->get_count, 5, '$epost->get_count()');
+        
         # these are not set using epost
-        is($eutil->get_count, undef, '$epost->get_count()');
         is($eutil->get_term, undef, '$epost->get_term()');
 
         my $history = $eutil->next_History;

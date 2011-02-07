@@ -188,6 +188,22 @@ sub qual {
     return $self->{'qual'};
 }
 
+
+=head2 seq()
+
+ Title    : seq()
+ Usager   : $sequence = $obj->seq();
+ Function : Returns the quality numbers as a space-separated string.
+ Returns  : Single string.
+ Args     : None.
+
+=cut
+
+sub seq {
+    join ' ', @{ shift->qual };
+}
+
+
 =head2 validate_qual($qualstring)
 
  Title	 : validate_qual($qualstring)
@@ -461,7 +477,7 @@ sub qualat {
 sub to_string {
     my ($self,$out,$result) = shift;
     $out = "qual: ".join(',',@{$self->qual()});
-    foreach (qw(display_id accession_number primary_id desc id)) {
+    foreach (qw(display_id accession_number primary_id desc id length)) {
 	$result = $self->$_();
 	if (!$result) { $result = "<unset>"; }
 	$out .= "$_: $result\n";

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<seqXML source="Ensembl" sourceVersion="56" seqXMLversion="0.2">
-    <entry id="ENST00000308775">
+<seqXML source="Ensembl" sourceVersion="56" xmlns="http://seqXML.org/0.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://seqXML.org/0.3 http://www.seqxml.org/0.3/seqxml.xsd" seqXMLversion="0.3">
+    <entry id="ENST00000308775" source="Ensembl">
         <species name="Homo sapiens" ncbiTaxID="9606"/>
         <description>dystroglycan 1</description>
         <RNAseq>AAGGC----UGAUGUC.....ACAU</RNAseq>
@@ -8,17 +8,17 @@
         <property name="prediction_method" value="manual curation"/>
         <property name="has_splice_variants"/>
     </entry>
-    <entry id="ENSP00000312435">
+    <entry id="ENSP00000312435" source="Ensembl">
         <species name="Homo sapiens" ncbiTaxID="9606"/>
         <description>example description.</description>
         <AAseq>AAGGCGAAA----AA*AAAAAGT.....CACJOXA</AAseq>
     </entry>
-    <entry id="ENSG00000173402">
+    <entry id="ENSG00000173402" source="Ensembl">
         <species name="Homo sapiens" ncbiTaxID="9606"/>
         <description>another example description</description>
         <DNAseq>AAGGCGTTAAA----AAAAAAAGT.....CACTA</DNAseq>
     </entry>
-    <entry id="A12345">
+    <entry id="A12345" source="Genbank">
         <DNAseq>NNNNACTG--AAATGTGCCCGGG</DNAseq>
     </entry>
 </seqXML>

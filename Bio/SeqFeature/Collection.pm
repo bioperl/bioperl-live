@@ -525,10 +525,26 @@ sub _compare{
 
 sub feature_freeze {
     my $obj = shift;
-    for my $funcref ( $obj->_cleanup_methods ) {
-	$obj->_unregister_for_cleanup($funcref);
-    }
+    _remove_cleanup_methods($obj);
     return freeze($obj);
+}
+
+sub _remove_cleanup_methods {
+    my $obj = shift;
+    
+    # we have to remove any cleanup methods here for Storable
+    for my $funcref ( $obj->_cleanup_methods ) {
+        $obj->_unregister_for_cleanup($funcref);
+    }
+    
+    # ... and the same for any contained features; hopefully any implementations
+    # adhere to implementing Bio::SeqFeatureI::sub_SeqFeature
+    
+    for my $contained ($obj->sub_SeqFeature) {
+        _remove_cleanup_methods($contained);
+    }
+    
+    1;
 }
 
 sub feature_thaw {

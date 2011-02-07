@@ -209,7 +209,7 @@ sub get_Items_by_name {
 =head2 get_contents_by_name
 
  Title    : get_contents_by_name
- Usage    : my ($data) = get_contents_by_name('CreateDate')
+ Usage    : my ($data) = $eutil->get_contents_by_name('CreateDate')
  Function : Returns content for named Item(s) in DocSum (indicated by
             passed argument)
  Returns  : array of values (type varies per Item)

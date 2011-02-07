@@ -2,14 +2,16 @@
 
 =head1 NAME
 
-Module which implements a newick string parser as a finite state machine which enables it
-to parse the full Newick specification.
+Module which implements a newick string parser as a finite state
+machine which enables it to parse the full Newick specification.
 
-Taken largely from the Ensembl Compara file with the same name (Bio::EnsEMBL::Compara::Graph::NewickParser),
-this module adapts the parser to work with BioPerl's event handler-based parsing scheme.
+Taken largely from the Ensembl Compara file with the same name
+(Bio::EnsEMBL::Compara::Graph::NewickParser), this module adapts the
+parser to work with BioPerl's event handler-based parsing scheme.
 
-This module is used by nhx.pm and newick.pm, and is NOT called directly. Instead, both of those
-parsing modules extend this module in order to gain access to the main parsing method.
+This module is used by nhx.pm and newick.pm, and is NOT called
+directly. Instead, both of those parsing modules extend this module in
+order to gain access to the main parsing method.
 
 =head1 SYNOPSIS
 
@@ -21,8 +23,9 @@ parsing modules extend this module in order to gain access to the main parsing m
 
 =head1 DESCRIPTION
 
-This module correctly parses the Newick and NHX formats, sending calls to the BioPerl
-TreeEventHandler when appropriate in order to build and populate the node objects.
+This module correctly parses the Newick and NHX formats, sending calls
+to the BioPerl TreeEventHandler when appropriate in order to build and
+populate the node objects.
 
 =head1 FEEDBACK
 
@@ -61,7 +64,7 @@ web:
 package Bio::TreeIO::NewickParser;
 
 use strict;
-use Switch;
+use base qw(Bio::Root::Root);
 
 sub parse_newick {
   my $self = shift;
@@ -79,9 +82,9 @@ sub parse_newick {
 
   my $leaf_flag = 0;
 
-  while(defined($token)) {    
-    switch ($state) {
-      case 1 { #new node
+  while(defined($token)) {
+    # backwards-compat. with 5.8.1, no Switch (but we hate if-elsif-ad-infinitum
+    if ($state == 1) { #new node
 
         $self->_start('node');
 
@@ -95,8 +98,7 @@ sub parse_newick {
           $state = 2;
           $leaf_flag = 1;
         }
-      }
-      case 2 { #naming a node
+      } elsif ($state == 2) { #naming a node
         if(!($token =~ /[\[\:\,\)\;]/)) { 
 
           if (!$leaf_flag && $self->param('internal_node_id') eq 'bootstrap') {
@@ -114,8 +116,7 @@ sub parse_newick {
           $token = next_token(\$newick, "[:,);");
         }
         $state = 3;
-      }
-      case 3 { # optional : and distance
+      } elsif ($state == 3) { # optional : and distance
         if($token eq ':') {
           $token = next_token(\$newick, "[,);");
 
@@ -128,8 +129,7 @@ sub parse_newick {
           $token .= next_token(\$newick, ",);");
         }
         $state = 4;
-      }
-      case 4 { # optional NHX tags
+      } elsif ($state == 4) { # optional NHX tags
         if($token =~ /\[\&\&NHX/) {
             # careful: this regexp gets rid of all NHX wrapping in one step
 
@@ -156,8 +156,7 @@ sub parse_newick {
             $token = next_token(\$newick, ",);"); #move to , or )
         }
         $state = 5;
-      }
-      case 5 { # end node
+      } elsif ($state == 5) { # end node
         if($token eq ')') {
 
           $self->_end('node');
@@ -184,7 +183,7 @@ sub parse_newick {
           $state=1;
         } elsif($token eq ';') {
           #done with tree
-          die("parse error: unbalanced ()\n") if($bracket_level ne 0);
+          $self->throw("parse error: unbalanced ()\n") if($bracket_level ne 0);
 
           $self->_end('node');
           $self->_end('tree');
@@ -193,14 +192,12 @@ sub parse_newick {
           $state=13;
         } else {
           $self->debug("[$token]]\n");
-          die("parse error: expected ; or ) or ,\n");
+          $self->throw("parse error: expected ; or ) or ,\n");
         }
-      }
-      case 13 {
-        die("parse error: nothing expected after ;");
+      } elsif ($state == 13) {
+        $self->throw("parse error: nothing expected after ;");
       }
     }
-  }
 
   if ($self->_eventHandler->within_element('tree')) {
     $self->_end('node');
@@ -250,7 +247,8 @@ sub next_token {
     }
   }
   unless(defined($index)) {
-    die("couldn't find delimiter $delim\n $$string");
+    # have to call as class here (this is not an instance method)
+    Bio::Root::Root->throw("couldn't find delimiter $delim\n $$string");
   }
 
   my $token ='';

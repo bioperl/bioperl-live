@@ -597,6 +597,7 @@ package Bio::DB::GFF;
 use strict;
 
 use IO::File;
+use File::Glob ':glob';
 use Bio::DB::GFF::Util::Rearrange;
 use Bio::DB::GFF::RelSegment;
 use Bio::DB::GFF::Feature;
