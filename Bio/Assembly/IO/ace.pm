@@ -380,7 +380,8 @@ sub next_contig {
                     -start   => $aln_start,
                     -end     => $aln_end,
                     -strand  => $read_data->{$read_name}{'strand'},
-                    -primary => "_align_clipping:$read_name"
+                    -primary => "_align_clipping",
+                    -source  => $read_name,
                 );
                 $aln_feat->attach_seq( $contigOBJ->get_seq_by_name($read_name) );
                 $contigOBJ->add_features([ $aln_feat ], 0);
@@ -394,7 +395,8 @@ sub next_contig {
                     -start   => $qual_start,
                     -end     => $qual_end,
                     -strand  => $read_data->{$read_name}{'strand'},
-                    -primary => "_quality_clipping:$read_name"
+                    -primary => "_quality_clipping",
+                    -source  => $read_name,
                 );
                 $qual_feat->attach_seq( $contigOBJ->get_seq_by_name($read_name) );
                 $contigOBJ->add_features([ $qual_feat ], 0);
@@ -418,7 +420,9 @@ sub next_contig {
             my $read_desc = Bio::SeqFeature::Generic->new(
                 -start   => $start,
                 -end     => $end,
+                ####
                 -primary => "_read_desc:$read_name",
+                ####
                 -tag     => \%tags
             );
             $coord->add_sub_SeqFeature($read_desc);
@@ -438,7 +442,9 @@ sub next_contig {
             my $read_tag = Bio::SeqFeature::Generic->new(
                 -start   => $start,
                 -end     => $end,
+                ####
                 -primary => "_read_tags:$readID",
+                ####
                 -tag     => { 'type'          => $type,
                               'source'        => $source,
                               'creation_date' => $date,

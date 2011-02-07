@@ -288,10 +288,8 @@ $assembly = $aio->next_assembly();
 my $contig = $contigs[0];
 my $min_aln_coord = undef;
 for my $read ($contig->each_seq) {
-   my $aln_coord_start  = (grep
-      { $_->primary_tag eq "_aligned_coord:".$read->id}
-      $contig->get_features_collection->features
-      )[0]->location->start;
+   my ($feat) = $contig->get_features_collection->get_features_by_type("_aligned_coord:".$read->id);
+   my $aln_coord_start = $feat->location->start;
    if ( (not defined $min_aln_coord) or ($aln_coord_start < $min_aln_coord) ) {
       $min_aln_coord = $aln_coord_start;
    }

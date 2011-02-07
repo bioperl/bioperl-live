@@ -799,9 +799,12 @@ sub set_seq_coord {
 
     # Add new sequence and Bio::Generic::SeqFeature
     $self->add_seq($seq);
+
     $feat->add_tag_value('contig',$self->id) unless ( $feat->has_tag('contig') );
-    $feat->primary_tag("_aligned_coord:$seqID");
+    $feat->primary_tag("_aligned_coord");
+    $feat->source_tag($seqID);
     $feat->attach_seq($seq);
+
     $self->{'_elem'}{$seqID}{'_feat'}{"_aligned_coord:$seqID"} = $feat;
     $self->add_features([ $feat ]);
 }
@@ -1001,6 +1004,7 @@ sub get_seq_ids {
             $start = $self->change_coord($type,'gapped consensus',$start);
             $end   = $self->change_coord($type,'gapped consensus',$end);
         }
+        ####
         @list = grep { $_->isa("Bio::SeqFeature::Generic") &&
                       ($_->primary_tag =~ /^_aligned_coord:/) }
                 $self->get_features_collection->features_in_range(
@@ -1008,6 +1012,7 @@ sub get_seq_ids {
                     -end         => $end,
                     -contain     => 0,
                     -strandmatch => 'ignore' );
+        ####
         @list = map { $_->entire_seq->id } @list;
     } else {
         # Entire aligned sequences list
