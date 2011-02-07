@@ -452,6 +452,8 @@ sub find_types {
     }
     ($primary_tag, $source_tag) = (lc $primary_tag, lc $source_tag);
 
+    next if not exists $$self{_index}{type}{$primary_tag};
+
     if ($source_tag eq '') {
       # Match all sources for this primary_tag
       push @types_found, map {"$primary_tag:$_"} (keys %{ $$self{_index}{type}{$primary_tag} });
