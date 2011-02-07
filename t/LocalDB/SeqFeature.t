@@ -2,7 +2,7 @@
 # $Id$
 
 use strict;
-use constant TEST_COUNT => 100;
+use constant TEST_COUNT => 105;
 
 BEGIN {
     use lib '.','..';
@@ -41,9 +41,10 @@ skip "GFF3 loader failed? Skipping all! $@", (TEST_COUNT - 6) if $@;
 ok($loader);
 
 
-# test adding / fetching features
+# test adding
 $f = Bio::SeqFeature::Generic->new(
     -primary_id => '_some_id',
+    -primary    => 'repeat_123',
     -start      => 23,
     -end        => 512,
     -strand     => '+',
@@ -59,7 +60,7 @@ $f2 = Bio::SeqFeature::Generic->new(
                    -start        => 10,
                    -end          => 100,
                    -strand       => -1,
-                   -primary      => 'repeat:123', # -primary_tag is a synonym
+                   -primary      => 'repeat_123', # -primary_tag is a synonym
                    -source_tag   => 'repeatmasker',
                    -display_name => 'alu family',
                    -score        => 1000,
@@ -69,8 +70,16 @@ $f2 = Bio::SeqFeature::Generic->new(
 );
 ok( $db->store($f2) , 'adding a feature with no primary_id' );
 ok( $f2->primary_id );
+
+# fetching features
 is( $db->fetch('doesnotexit'), undef);
-is( $db->get_features_by_type('rep.*'), 0, 'queried types are quotemeta\'d' );
+is( $db->get_features_by_type('repeat_123:repeatmasker'), 1, 'simple type' );
+is( $db->get_features_by_type('repeat_123:'), 2 );
+is( $db->get_features_by_type('repeat_123'), 2 );
+is( $db->get_features_by_type('rep.*'), 0, 'queried types are not interpolated' );
+ok( @f = $db->types );
+is( @f, 2 );
+isa_ok($f[0], 'Bio::DB::GFF::Typename');
 
 # test removing features
 ok( $db->delete( $f ), 'feature deletion' );
@@ -191,8 +200,6 @@ is(@f,1);
 
 # find all top-level features on Contig3 of type 'assembly_component'
 @f = $db->features(-seq_id=>'Contig3',-type=>'assembly_component');
-is(@f, 1);
-@f = $db->features(-type=>'repeat:123'); # primary_tag that contains a ':'
 is(@f, 1);
 
 # test iteration
