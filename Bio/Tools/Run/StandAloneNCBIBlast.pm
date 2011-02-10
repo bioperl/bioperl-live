@@ -73,6 +73,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::Tools::Run::StandAloneNCBIBlast;
 
 use strict;
+use warnings;
 
 use base qw(Bio::Tools::Run::StandAloneBlast);
 
