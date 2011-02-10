@@ -3,19 +3,16 @@
 
 use strict;
 
-BEGIN {
-	use lib '.';
+BEGIN {     
+    use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 41);
+    test_begin(-tests => 45);
 	
 	use_ok('Bio::SeqIO');
 }
 
 my $verbose = test_debug();
-
-# Basic read and/or write tests for SeqIO. Specific tests for
-# given module should go into their own file.
 
 my @formats = qw(gcg fasta raw pir tab ace );
 # The following files or formats are failing: swiss genbank interpro embl
@@ -110,3 +107,28 @@ SKIP: {
         }
     }
 }
+
+# simple tests specific to Bio::SeqIO interface (applicable to all SeqIO
+# modules)
+
+############ EXCEPTION HANDLING ############
+
+throws_ok {
+    Bio::SeqIO->new();
+} qr/No file, fh, or string argument provided/, 'Must pass a file or file handle';
+
+throws_ok {
+    Bio::SeqIO->new(-fh => undef);
+} qr/fh argument provided, but with an undefined value/,
+    'Must pass a file or file handle';
+
+throws_ok {
+    Bio::SeqIO->new(-file => undef);
+} qr/file argument provided, but with an undefined value/,
+    'Must pass a file or file handle';
+
+throws_ok {
+    Bio::SeqIO->new(-file => 'foo.bar');
+} qr/Can not open 'foo.bar' for reading: No such file or directory/,
+    'Must pass a real file';
+

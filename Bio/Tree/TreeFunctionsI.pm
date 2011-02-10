@@ -88,8 +88,8 @@ Internal methods are usually preceded with a _
 package Bio::Tree::TreeFunctionsI;
 use strict;
 
-sub print_tree { print shift->ascii }
-sub ascii { shift->root->ascii }
+sub print_tree { print shift->ascii(@_) }
+sub ascii { shift->root->ascii(@_) }
 
 sub get_lineage_nodes {
     my $self = shift;

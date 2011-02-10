@@ -511,7 +511,7 @@ sub write_seq {
         }
 
         # namespace dictates database, takes precedent over division. Sorry!
-        if (defined($ns)) {
+        if (defined($ns) && $ns ne '') {
             $div = ($ns eq 'Swiss-Prot') ? 'Reviewed'    :
                 ($ns eq 'TrEMBL')     ? 'Unreviewed' :
                     $ns;

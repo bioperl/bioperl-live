@@ -20,9 +20,9 @@ which uses local flat files
 
   use Bio::DB::Taxonomy;
 
-  my $db = Bio::DB::Taxonomy->new(-source => 'flatfile'
-                                 -nodesfile => $nodesfile,
-                                 -namesfile => $namefile);
+  my $db = Bio::DB::Taxonomy->new(-source => 'flatfile',
+                                  -nodesfile => $nodesfile,
+                                  -namesfile => $namefile);
 
 =head1 DESCRIPTION
 

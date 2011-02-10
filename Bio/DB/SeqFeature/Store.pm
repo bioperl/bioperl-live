@@ -29,7 +29,7 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
 
   # change the feature and update it
   $f->start(100);
-  $db->update($f) or die "Couldn't update!";
+  $db->store($f) or die "Couldn't update!";
 
   # searching...
   # ...by id
