@@ -29,7 +29,7 @@ call to the root node, meaning that most tree operations are actually
 implemented in the NodeFunctionsI module, even if they are accessible
 to a Bio::Tree::Tree object. Only methods which require manipulation
 of the link between the Bio::Tree::TreeI object and the root
-Bio::Tree::NodeI should be implemented here: 
+Bio::Tree::NodeI, such as reroot, should be implemented here.
 
 =head1 FEEDBACK
 
@@ -488,8 +488,8 @@ sub reroot {
  Title   : reroot
  Usage   : $tree->reroot_above($outgroup,0.5);
  Function: Re-roots the tree by creating a new node along the branch
-           above the given node and re-rooting the tree along this
-           node.
+           directly above the given node and re-rooting the tree along this
+           (newly created) node.
  Returns : Nothing
  Args    : Bio::Tree::NodeI, the node above which to reroot the tree.
            Float, the fractional branch length towards the parent to
@@ -577,5 +577,45 @@ sub as_text {
     return $string;
 }
 
+sub to_string { shift->as_text(@_) }
+
+
+=head2 to_newick
+
+ Title   : to_newick
+ Usage   : $tree->to_newick()
+ Function: Convenience method to return the Newick representation of a string
+ Returns : Newick string
+ Args    : none
+
+=cut
+sub to_newick {
+    my $self = shift;
+    return $self->as_text('newick');
+}
+
+
+=head2 to_file
+
+ Title   : to_file
+ Usage   : $tree->to_file()
+ Function: Convenience method to write a tree to a file.
+ Returns : nothing
+ Args    : [Optional] A string indicating the format to use.
+
+=cut
+sub to_file {
+    my $self = shift;
+    my $file = shift;
+    my $format = shift;
+
+    $format = 'newick' unless (defined $format);
+    my $iomod = "Bio::TreeIO::$format";
+    $self->_load_module($iomod);
+
+    my $io = $iomod->new(-format=>$format,-file=>">$file");
+    $io->write_tree($self);
+    $io->close;
+}
 
 1;

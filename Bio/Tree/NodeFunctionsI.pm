@@ -17,19 +17,24 @@ Bio::Tree::NodeFunctionsI - Decorated Interface implementing basic Node methods
 
 =head1 SYNOPSIS
 
-  # Load a Bio::Tree::Tree from a Newick-formatted string.
+  # Load a Bio::Tree from a Newick-formatted string.
   use Bio::TreeIO;
   my $in = Bio::TreeIO->new(-string => '(a,(b,c));');
   my $tree = $in->next_tree;
 
   # Get the root node of the tree as a Bio::Tree::Node object
   my $root_node = $tree->root;
+  # Human-readable ASCII representation of the whole tree.
   print $root_node->ascii;
 
-  # Find the node 'b' and reroot the tree at this branch.
   my $node_b = $root_node->find('b');
   $tree->reroot_above($node_b);
+  print $tree->find('a')->depth_to_root . "\n";
 
+  # String / file output.
+  print $tree->newick."\n";
+  $tree->to_file("my_tree.nh");
+  
 =head1 DESCRIPTION
 
 This interface provides a set of methods providing tree manipulation
@@ -965,7 +970,44 @@ sub find_by_tag_value {
     foreach my $node ($self->nodes) {
 	next unless ($node->isa("Bio::Tree::TagValueHolder"));
 	my @values = $node->get_tag_values($tag);
-	if (grep {$_ =~ $value} @values) {
+	if (grep {$_ eq $value} @values) {
+	    push @nodes, $node ;
+	}
+    }
+
+    if ( wantarray) { 
+	return @nodes;
+    } else { 
+	if( @nodes > 1 ) { 
+	    $self->warn("More than 1 node found but caller requested scalar, only returning first node");
+       }
+	return shift @nodes;
+    }
+}
+
+=head2 find_by_tag_regex
+
+ Title   : find_by_tag_regex
+ Usage   : my $node_a = $root_node->find_by_tag_value('species', '.*coli.*');
+ Function: Search through the tree for a given tag value using a regular expression,
+           returning all nodes whose tag value matches the regex.
+ Returns : (array context) An array of all nodes with a matching tag value
+           (scalar context) the first node with the matching tag value
+ Args    : String, the tag to search within
+           String, the regular expression to search for
+
+=cut
+
+sub find_by_tag_regex {
+    my $self = shift;
+    my $tag = shift;
+    my $value_regex = shift;
+
+    my @nodes;
+    foreach my $node ($self->nodes) {
+	next unless ($node->isa("Bio::Tree::TagValueHolder"));
+	my @values = $node->get_tag_values($tag);
+	if (grep {$_ =~ $value_regex} @values) {
 	    push @nodes, $node ;
 	}
     }

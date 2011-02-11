@@ -9,6 +9,7 @@ BEGIN {
     
     test_begin();
     use_ok('Bio::TreeIO');
+    use_ok('Bio::Tree');
 }
 
 my $verbose = test_debug();
@@ -291,15 +292,11 @@ is($test_node->ancestor->bootstrap, '90',
 is($test_node->ancestor->ancestor->bootstrap, '25', 
    'Testing auto-boostrap copy during parse');
 
-sub tree_from_string {
-    my $string = shift;
-    return Bio::TreeIO->new(-string=>$string)->next_tree;
-}
-
+# Test flipping an entire subtree.
 sub test_flip {
     my $string = shift;
     my $flipped_string = shift;
-    my $tree = tree_from_string($string);
+    my $tree = Bio::Tree::Tree->from_string($string);
     $tree->get_root_node->flip_subtree;
     my $test = $tree->as_text('newick');
     is($test,$flipped_string,"Testing flip [$string] should flip to [$flipped_string]");
@@ -307,10 +304,11 @@ sub test_flip {
 test_flip("(a,(b,c));","((c,b),a);");
 test_flip("(a,b,c,d,e,f,g);","(g,f,e,d,c,b,a);");
 
+# Tests reversing just the direct children of a given node.
 sub test_rev {
     my $string = shift;
     my $flipped_string = shift;
-    my $tree = tree_from_string($string);
+    my $tree = Bio::Tree::Tree->from_string($string);
     $tree->get_root_node->reverse_children;
     my $test = $tree->as_text('newick');
     is($test,$flipped_string,"Testing reverse [$string] should reverse to [$flipped_string]");
@@ -331,29 +329,31 @@ sub test_reroot {
     my $str = $tree->as_text('newick');
     is($orig_str,$str,"Testing rerooting tree on node ".$node->id);
 }
-$tree = tree_from_string("(a,(b,(c,(d,(e,(f,(g,h)))))));");
+$tree = Bio::Tree::Tree->from_string("(a,(b,(c,(d,(e,(f,(g,h)))))));");
 # Test a re-root roundtrip for each of the tree's nodes.
 foreach my $node ($tree->root->nodes) {
   test_reroot($tree,$node);
 }
 
-$tree = tree_from_string("(a[&&NHX:type=whatever],(b[&&NHX:type=however],(c[&&NHX:type=evermore],(d,(e,(f,(g,h)))))));");
+$tree = Bio::Tree::Tree->from_string("(a[&&NHX:type=whatever],(b[&&NHX:type=however],(c[&&NHX:type=evermore],(d,(e,(f,(g,h)))))));");
 my @found;
 @found = $tree->root->find_by_tag_value('type','whatever');
 is(scalar(@found),1,"Find node by specific tag value");
-@found = $tree->root->find_by_tag_value('type','^.*ever$');
-is(scalar(@found),2,"Find nodes by tag_value regex");
 @found = $tree->root->find_by_tag_value('type','ever');
+is(scalar(@found),0,"Require exact tag value in find_by_tag_value");
+@found = $tree->root->find_by_tag_regex('type','^.*ever$');
+is(scalar(@found),2,"Find nodes by tag_value regex");
+@found = $tree->root->find_by_tag_regex('type','ever');
 is(scalar(@found),3,"Find nodes by tag_value regex");
 
-
 # Test force binary script.
-$tree = tree_from_string("(a,b,c,d,e,f,g,h);");
-#print STDERR $tree->ascii;
+# The actual method of converting a flat tree to a bifurcating tree is pretty arbitrary,
+# but for consistency's sake let's make sure it always acts the same.
+$tree = Bio::Tree::Tree->from_string("(a,b,c,d,e,f,g,h);");
 $tree->root->force_binary();
-#print STDERR $tree->ascii;
+is($tree->as_text('newick'), '(a,(b,(c,(d,(e,(f,(g,h)))))));', "Binarized tree");
 
-$tree = tree_from_string("(((((((a,b)c)d)e)f)g)h)i;");
+$tree = Bio::Tree::Tree->from_string("(((((((a,b)c)d)e)f)g)h)i;");
 
 $tree->root->remove_elbow_nodes;
 is($tree->as_text,'((a,b)c)i;',"Keep root node after removing linear paths");
@@ -361,18 +361,16 @@ is($tree->as_text,'((a,b)c)i;',"Keep root node after removing linear paths");
 $lca = $tree->find('a')->lca($tree->find('b'));
 is($lca->id,'c',"LCA after contracting linear paths");
 
-$tree = tree_from_string("((a,b),(c,d))e;");
+$tree = Bio::Tree::Tree->from_string("((a,b),(c,d))e;");
 $lca = $tree->get_lca($tree->nodes);
 is($lca,$tree->root,"LCA of all nodes is the root node");
 
 
 # Distance measurement tests
-$tree = tree_from_string("(a:1,b:2,c:3,d:4,e:5)root:2;");
+$tree = Bio::Tree::Tree->from_string("(a:1,b:2,c:3,d:4,e:5)root:2;");
 is($tree->distance($tree->find('a'),$tree->find('b')),3,"Distance betwen a and b");
 is($tree->distance($tree->find('a'),$tree->find('e')),6,"Distance betwen a and e");
 is($tree->distance($tree->find('d'),$tree->find('e')),9,"Distance betwen d and e");
-
-
 
 done_testing();
 

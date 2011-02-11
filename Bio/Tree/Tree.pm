@@ -13,14 +13,17 @@
 
 =head1 NAME
 
-Bio::Tree::Tree - An Implementation of TreeI interface.
+Bio::Tree - An Implementation of TreeI interface.
 
 =head1 SYNOPSIS
 
-    # like from a TreeIO
+    # Load a tree from a TreeIO
     my $treeio = Bio::TreeIO->new(-format => 'newick', -file => 'treefile.dnd');
     my $tree = $treeio->next_tree;
-    my @nodes = $tree->get_nodes;
+
+    my @nodes = $tree->nodes;
+    my @leaves = $tree->leaves;
+    
     my $root = $tree->get_root_node;
 
 
@@ -100,13 +103,45 @@ Internal methods are usually preceded with a _
 
 # Let the code begin...
 
-
 package Bio::Tree::Tree;
 use strict;
+use Bio::TreeIO;
 
 # Object preamble - inherits from Bio::Root::Root
 
 use base qw(Bio::Root::Root Bio::Tree::TreeI Bio::Tree::TreeFunctionsI Bio::Tree::TagValueHolder);
+
+=head2 from_string
+
+ Title   : from_string
+ Usage   : my $tree = Bio::Tree->from_string("(a,(b,c));");
+ Function: Convenience method to load a tree from a string.
+ Returns : A tree, or undef if the string does not parse successfully.
+ Args    : A string representation of the tree to load.
+
+=cut
+
+sub from_string {
+    my $class = shift;
+    my $string = shift;
+    return Bio::TreeIO->new(-string => $string)->next_tree;
+}
+
+=head2 from_file
+
+ Title   : from_file
+ Usage   : my $tree = Bio::Tree->from_file("(a,(b,c));");
+ Function: Convenience method to load a tree from a file.
+ Returns : A tree, or undef if the file does not parse successfully.
+ Args    : The name of the file from which to load a tree.
+
+=cut
+
+sub from_file {
+    my $class = shift;
+    my $file = shift;
+    return Bio::TreeIO->new(-file => $file)->next_tree;
+}
 
 =head2 new
 
