@@ -52,7 +52,7 @@ sub next_dataset {
     my $line = $self->{lastline} || <$fh>;
     
     FASTQ:
-    while ($line) {
+    while (defined $line) {
         $line =~ s/\015\012/\012/;
         $line =~ tr/\015/\n/;
         if ($mode eq '-seq' && $line =~ m{^@([^\n]+)$}xmso) {
