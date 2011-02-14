@@ -9,5 +9,6 @@
 (((C:50,(A:52,D:70)68:11):23)fake:23)B;
 (a[&&NHX:asdf=f]);
 (a,(b,((((c))))));
-(abracadabra, opensesame, shazaam);
+(abracadabra,opensesame,shazaam);
+(a b c d e f g h i j k l m n o p,xyz);
 (a:1,(b:2):3):4;

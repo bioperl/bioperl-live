@@ -23,7 +23,7 @@ while (my $line = <IN>) {
   my $in = Bio::TreeIO->new(-format => 'newick',
     -string => $line);
   my $tree = $in->next_tree;
-  my $out_str = $tree->as_text('newick');
+  my $out_str = $tree->as_text();
   chomp $out_str;
   is($out_str, $line, "Round-trip stress test");
 }
