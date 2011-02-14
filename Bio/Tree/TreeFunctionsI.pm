@@ -562,7 +562,7 @@ sub as_text {
     my $format = shift;
     my $params_input = shift || {};
 
-    $format = 'newick' unless (defined $format);
+    $format = 'nhx' unless (defined $format);
 
     my $iomod = "Bio::TreeIO::$format";
     $self->_load_module($iomod);
