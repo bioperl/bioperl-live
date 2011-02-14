@@ -248,6 +248,7 @@ methods. Internal methods are usually preceded with a _
 package Bio::Tools::Run::StandAloneBlast;
 
 use strict;
+use warnings;
 
 use Bio::Root::IO;
 use Bio::Seq;
