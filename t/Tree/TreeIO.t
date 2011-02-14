@@ -14,6 +14,20 @@ BEGIN {
 
 my $verbose = test_debug();
 
+
+# Some of these fail in release 1.6 (see bug3039) but were fixed
+# in the parser updates.
+open(IN, test_input_file('tree_parse_stress.txt'));
+while (my $line = <IN>) {
+  chomp $line;
+  my $in = Bio::TreeIO->new(-format => 'newick',
+    -string => $line);
+  my $tree = $in->next_tree;
+  my $out_str = $tree->as_text('newick');
+  chomp $out_str;
+  is($out_str, $line, "Round-trip stress test");
+}
+
 ok my $treeio = Bio::TreeIO->new(-verbose => $verbose,
                  -format => 'newick',
                  -file   => test_input_file('cysprot1b.newick'));
