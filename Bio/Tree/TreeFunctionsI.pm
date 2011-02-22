@@ -96,6 +96,8 @@ sub ascii { shift->root->ascii(@_) }
 
 sub translate_ids { shift->root->translate_ids(@_) }
 
+sub remove_internal_node_labels{ shift->root->remove_internal_node_labels(@_) }
+
 sub contract_linear_paths { shift->root->contract_linear_paths(@_) }
 
 sub get_lineage_nodes {

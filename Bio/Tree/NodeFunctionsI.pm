@@ -129,6 +129,19 @@ sub translate_ids {
 }
 
 
+sub remove_internal_node_labels {
+    my $self = shift;
+
+    foreach my $node ($self->nodes) {
+	if (!$node->is_leaf) {
+	    $node->id('');
+	}
+    }
+    if (!$self->is_leaf) {
+	$self->id('');
+    }
+}
+
 =head2 is_leaf
 
  Title   : is_leaf
