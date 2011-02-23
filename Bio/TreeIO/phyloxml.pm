@@ -123,7 +123,7 @@ use strict;
 # Object preamble - inherits from Bio::Root::Root
 use XML::LibXML::Reader;
 use Scalar::Util qw(blessed);
-use Bio::Tree::Tree;
+use Bio::Tree::AnnotatableTree;
 use Bio::Tree::AnnotatableNode;
 use Bio::Annotation::SimpleValue;
 use Bio::Annotation::Relation;
@@ -139,7 +139,7 @@ document);
 
 sub _initialize {
     my ( $self, %args ) = @_;
-    $args{-treetype} ||= 'Bio::Tree::Tree';
+    $args{-treetype} ||= 'Bio::Tree::AnnotatableTree';
     $args{-nodetype} ||= 'Bio::Tree::AnnotatableNode';
     $self->SUPER::_initialize(%args);
     
@@ -207,7 +207,7 @@ sub _init_func {
  Title   : next_tree
  Usage   : my $tree = $treeio->next_tree
  Function: Gets the next tree in the stream
- Returns : Bio::Tree::TreeI
+ Returns : Bio::Tree::AnnotatableTree
  Args    : none
 
 =cut
@@ -375,7 +375,7 @@ sub add_phyloXML_annotation {
  Usage   : $treeio->write_tree($tree);
  Function: Write a tree out to data stream in phyloxml format
  Returns : none
- Args    : Bio::Tree::TreeI object
+ Args    : Bio::Tree::AnnotatableTreeI object
 
 =cut
 
@@ -1299,12 +1299,16 @@ sub element_relation {
             $srcbyidref[0], $srcbyidref[1] );
     }
 
+    # TODO: this should set the relation to be stored in the tree itself (it's
+    # a top-level annotation
+
     # set id_ref_0
     my $ac0    = $srcbyidref[0]->annotation;
     my $newann = Bio::Annotation::Relation->new(
         '-type'    => $relationtype,
         '-to'      => $srcbyidref[1],
-        '-tagname' => $self->current_element
+        '-tagname' => $self->current_element,
+        '-class'   => ref($srcbyidref[1])
     );
     $ac0->add_Annotation( $self->current_element, $newann );
 
@@ -1313,7 +1317,8 @@ sub element_relation {
     $newann = Bio::Annotation::Relation->new(
         '-type'    => $relationtype,
         '-to'      => $srcbyidref[0],
-        '-tagname' => $self->current_element
+        '-tagname' => $self->current_element,
+        '-class'   => ref($srcbyidref[0])
     );
     $ac1->add_Annotation( $self->current_element, $newann );
     push( @{ $self->{'_currentannotation'} }, $newann );
@@ -1665,7 +1670,6 @@ sub current_element {
 
 sub prev_element {
     my ($self) = @_;
-
     return 0
       if !defined $self->{'_lastitem'}
           || !defined $self->{'_lastitem'}->{'current'}->[-2];
@@ -1678,7 +1682,7 @@ sub prev_element {
 
  Title   : treetype
  Usage   : $obj->treetype($newval)
- Function: returns the tree type (default is Bio::Tree::Tree)
+ Function: returns the tree type (default is Bio::Tree::AnnotatableTree)
  Returns : value of treetype
  Args    : newvalue (optional)
 
