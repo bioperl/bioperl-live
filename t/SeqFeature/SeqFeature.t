@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 247);
+    test_begin(-tests => 249);
 	
 	use_ok('Bio::Seq');
 	use_ok('Bio::SeqIO');
@@ -43,6 +43,8 @@ is $feat->end, 80, 'end of feature location';
 is $feat->primary_tag, 'exon', 'primary tag';
 is $feat->source_tag, 'internal', 'source tag';
 is $feat->phase, undef, 'undef phase by default';
+is $feat->phase(1), 1, 'phase accessor returns';
+is $feat->phase, 1, 'phase is persistent';
 
 $str = $feat->gff_string() || ""; # placate -w
 
