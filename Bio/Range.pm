@@ -260,7 +260,7 @@ sub strand {
     if (exists $VALID_STRAND{$val}) {
         $self->{'strand'} = $VALID_STRAND{$val};
     } else {
-        $self->throw();
+        $self->throw("Invalid strand: $val");
     }
   }
   return $self->{'strand'};
