@@ -106,7 +106,7 @@ SKIP: {
     is( $seq_writer->seqXMLversion, '0.3',     'seqXML version' );
     is( $seq_writer->source,        'Ensembl', 'source' );
     is( $seq_writer->sourceVersion, '56',      'source version' );
-    is( $seq_writer->schemaLocation, 'http://seqXML.org/0.3 http://www.seqxml.org/0.3/seqxml.xsd',      'schemaLocation' );
+    is( $seq_writer->schemaLocation, 'http://www.seqxml.org/0.3/seqxml.xsd', 'schemaLocation' );
 
     # write one sequence entry to file
     $seq_writer->write_seq($seq_obj);
