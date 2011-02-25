@@ -128,7 +128,7 @@ use base qw(Bio::SeqIO);
 # define seqXML header stuff
 # there's no API for XMLNS XMLNS_XSI; you must set them here.
 use constant SEQXML_VERSION => 0.3;
-use constant SCHEMA_LOCATION => 'http://seqXML.org/0.3 http://www.seqxml.org/0.3/seqxml.xsd';
+use constant SCHEMA_LOCATION => 'http://www.seqxml.org/0.3/seqxml.xsd';
 use constant XMLNS_XSI => 'http://www.w3.org/2001/XMLSchema-instance';
 
 =head2 _initialize
@@ -216,7 +216,7 @@ sub _initialize {
                     'seqXML',
                     'seqXMLversion' => $self->seqXMLversion(SEQXML_VERSION),
                     'xmlns:xsi'     => XMLNS_XSI,
-                    'xsi:schemaLocation' => $self->schemaLocation(SCHEMA_LOCATION),
+                    'xsi:noNamespaceSchemaLocation' => $self->schemaLocation(SCHEMA_LOCATION),
                     'source'        => $self->source,
                     'sourceVersion' => $self->sourceVersion,
                 );                
@@ -226,7 +226,7 @@ sub _initialize {
                     'seqXML',
                     'seqXMLversion' => $self->seqXMLversion(SEQXML_VERSION),
                     'xmlns:xsi'     => XMLNS_XSI,
-                    'xsi:schemaLocation' => $self->schemaLocation(SCHEMA_LOCATION),
+                    'xsi:noNamespaceSchemaLocation' => $self->schemaLocation(SCHEMA_LOCATION),
                 );
             }
         }

@@ -177,6 +177,7 @@ sub new {
                     -start          start position
                     -end            end position
                     -strand         strand
+                    -phase          the phase of the feature (0..2)
                     -primary_tag    primary tag 
                     -primary        (synonym for -primary_tag)
                     -source         source tag
@@ -195,7 +196,7 @@ sub set_attributes {
     my ($self,@args) = @_;
     my ($start, $end, $strand, $primary_tag, $source_tag, $primary, 
 		  $source, $frame, $score, $tag, $gff_string, $gff1_string,
-        $seqname, $seqid, $annot, $location,$display_name, $pid) =
+        $seqname, $seqid, $annot, $location,$display_name, $pid,$phase) =
             $self->_rearrange([qw(START
                                   END
                                   STRAND
@@ -214,6 +215,7 @@ sub set_attributes {
                                   LOCATION
                                   DISPLAY_NAME
                                   PRIMARY_ID
+                                  PHASE
                                   )], @args);
     $location    && $self->location($location);
     $gff_string  && $self->_from_gff_string($gff_string);
@@ -244,6 +246,7 @@ sub set_attributes {
             $self->add_tag_value($t, UNIVERSAL::isa($tag->{$t}, "ARRAY") ? @{$tag->{$t}} : $tag->{$t});
         }
     };
+    defined $phase          && $self->phase($phase);
 }
 
 
