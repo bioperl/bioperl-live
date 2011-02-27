@@ -211,7 +211,8 @@ sub new {
   $self->{start}   = $arg{-start};
   $self->{stop}    = exists $arg{-end} ? $arg{-end} : $arg{-stop};
   $self->{ref}     = $arg{-seq_id} || $arg{-ref};
-  for my $option (qw(class url seq phase desc attributes primary_id)) {
+  $self->{attributes}     = $arg{-attributes} || $arg{-tag};
+  for my $option (qw(class url seq phase desc primary_id)) {
     $self->{$option} = $arg{"-$option"} if exists $arg{"-$option"};
   }
 
