@@ -129,7 +129,7 @@ $MATCHPATTERN = 'A-Za-z\-\.\*\?=~';
 $GAP_SYMBOLS = '-~';
 
 use base qw(Bio::Root::Root Bio::PrimarySeqI
-	    Bio::IdentifiableI Bio::DescribableI);
+            Bio::IdentifiableI Bio::DescribableI);
 
 #
 # setup the allowed values for alphabet()
@@ -142,8 +142,8 @@ my %valid_type = map {$_, 1} qw( dna rna protein );
  Title   : new
  Usage   : $seq    = Bio::PrimarySeq->new( -seq => 'ATGGGGGTGGTGGTACCCT',
                                            -id  => 'human_id',
-					   -accession_number => 'AL000012',
-					   );
+                                           -accession_number => 'AL000012',
+                                           );
 
  Function: Returns a new primary seq object from
            basic constructors, being a string for the sequence
@@ -180,25 +180,25 @@ sub new {
     my($seq,$id,$acc,$pid,$ns,$auth,$v,$oid,
        $desc,$description,
        $alphabet,$given_id,$is_circular,$direct,$ref_to_seq,$len,$nowarnonempty) =
-	$self->_rearrange([qw(SEQ
-			      DISPLAY_ID
-			      ACCESSION_NUMBER
-			      PRIMARY_ID
-			      NAMESPACE
-			      AUTHORITY
-			      VERSION
-			      OBJECT_ID
-			      DESC
-			      DESCRIPTION
-			      ALPHABET
-			      ID
-			      IS_CIRCULAR
-			      DIRECT
-			      REF_TO_SEQ
-			      LENGTH
-            NOWARNONEMPTY
-			      )],
-			  @args);
+      $self->_rearrange([qw(SEQ
+                            DISPLAY_ID
+                            ACCESSION_NUMBER
+                            PRIMARY_ID
+                            NAMESPACE
+                            AUTHORITY
+                            VERSION
+                            OBJECT_ID
+                            DESC
+                            DESCRIPTION
+                            ALPHABET
+                            ID
+                            IS_CIRCULAR
+                            DIRECT
+                            REF_TO_SEQ
+                            LENGTH
+                            NOWARNONEMPTY
+                            )],
+                            @args);
   
     # private var _nowarnonempty, need to be set before calling _guess_alphabet
     $self->{'_nowarnonempty'} = $nowarnonempty; 
@@ -234,10 +234,10 @@ sub new {
           $self->_guess_alphabet();
         } # else it has been set already above
     } else {
-		 #	print STDERR "DEBUG: setting sequence to [$seq]\n";
-		 # note: the sequence string may be empty
-		 $self->seq($seq) if defined($seq);
-	 }
+        # print STDERR "DEBUG: setting sequence to [$seq]\n";
+        # note: the sequence string may be empty
+        $self->seq($seq) if defined($seq);
+    }
 
     $desc        && $self->desc($desc);
     $description && $self->description($description);
@@ -283,29 +283,27 @@ sub seq {
 
    if(@args) {
        if(defined($value) && (! $obj->validate_seq($value))) {
-	   $obj->throw("Attempting to set the sequence '".(defined($obj->id) || "[unidentified sequence]")."' to [$value] ".
-							"which does not look healthy");
-		}
+           $obj->throw("Attempting to set the sequence '".(defined($obj->id) ||
+               "[unidentified sequence]")."' to [$value] which does not look healthy");
+       }
        # if a sequence was already set we make sure that we re-adjust the
        # alphabet, otherwise we skip guessing if alphabet is already set
        # note: if the new seq is empty or undef, we don't consider that a
        # change (we wouldn't have anything to guess on anyway)
-		my $is_changed_seq =
-		  exists($obj->{'seq'}) && (CORE::length($value || '') > 0);
-		$obj->{'seq'} = $value;
+       my $is_changed_seq =
+         exists($obj->{'seq'}) && (CORE::length($value || '') > 0);
+       $obj->{'seq'} = $value;
        # new alphabet overridden by arguments?
-		if($alphabet) {
-	   # yes, set it no matter what
-			$obj->alphabet($alphabet);
-		} elsif( # if we changed a previous sequence to a new one
-				  $is_changed_seq ||
-				  # or if there is no alphabet yet at all
-				  (! defined($obj->alphabet()))) {
-			# we need to guess the (possibly new) alphabet
-			$obj->_guess_alphabet();
-		} # else (seq not changed and alphabet was defined) do nothing
-		# if the seq is changed, make sure we unset a possibly set length
-		$obj->length(undef) if $is_changed_seq || $obj->{'seq'};
+       if($alphabet) {
+           # yes, set it no matter what
+           $obj->alphabet($alphabet);
+       } elsif ($is_changed_seq || (! defined($obj->alphabet()))) {
+           # if we changed a previous sequence to a new one or if there is no
+           # alphabet yet at all, we need to guess the (possibly new) alphabet
+           $obj->_guess_alphabet();
+       } # else (seq not changed and alphabet was defined) do nothing
+       # if the seq is changed, make sure we unset a possibly set length
+       $obj->length(undef) if $is_changed_seq || $obj->{'seq'};
    }
    return $obj->{'seq'};
 }
@@ -316,7 +314,7 @@ sub seq {
  Usage   : if(! $seq->validate_seq($seq_str) ) {
                 print "sequence $seq_str is not valid for an object of
                 alphabet ",$seq->alphabet, "\n";
-	   }
+           }
  Function: Validates a given sequence string. A validating sequence string
            must be accepted by seq(). A string that does not validate will
            lead to an exception if passed to seq().
@@ -334,16 +332,17 @@ sub seq {
 =cut
 
 sub validate_seq {
-	my ($self,$seqstr) = @_;
-	if( ! defined $seqstr ){ $seqstr = $self->seq(); }
-	return 0 unless( defined $seqstr);
-	if((CORE::length($seqstr) > 0) &&
-	   ($seqstr !~ /^([$MATCHPATTERN]+)$/)) {
-	    $self->warn("sequence '".(defined($self->id) || "[unidentified sequence]")."' doesn't validate, mismatch is " .
-			join(",",($seqstr =~ /([^$MATCHPATTERN]+)/g)));
-		return 0;
-	}
-	return 1;
+    my ($self,$seqstr) = @_;
+    if( ! defined $seqstr ){ $seqstr = $self->seq(); }
+    return 0 unless( defined $seqstr);
+    if((CORE::length($seqstr) > 0) &&
+        ($seqstr !~ /^([$MATCHPATTERN]+)$/)) {
+            $self->warn("sequence '".(defined($self->id) || "[unidentified sequence]").
+            "' doesn't validate, mismatch is " .
+            join(",",($seqstr =~ /([^$MATCHPATTERN]+)/g)));
+        return 0;
+    }
+    return 1;
 }
 
 =head2 subseq
@@ -381,24 +380,24 @@ sub subseq {
        my $loc = $start;
        my $seq = "";
        foreach my $subloc ($loc->each_Location()) {
-	   my $piece = $self->subseq(-START=>$subloc->start(),
-				     '-END'=>$subloc->end(), 
-				     -REPLACE_WITH=>$replace,
-	                             -NOGAP=>$nogap);
-	   $piece =~ s/[$GAP_SYMBOLS]//g if $nogap;
-	   if($subloc->strand() < 0) {
-	       $piece = Bio::PrimarySeq->new('-seq' => $piece)->revcom()->seq();
-	   }
-	   $seq .= $piece;
+           my $piece = $self->subseq(-START=>$subloc->start(),
+                                     '-END'=>$subloc->end(), 
+                                     -REPLACE_WITH=>$replace,
+                                     -NOGAP=>$nogap);
+           $piece =~ s/[$GAP_SYMBOLS]//g if $nogap;
+           if($subloc->strand() < 0) {
+               $piece = Bio::PrimarySeq->new('-seq' => $piece)->revcom()->seq();
+           }
+           $seq .= $piece;
        }
        return $seq;
    } elsif(  defined  $start && defined $end ) {
        if( $start > $end ){
-	   $self->throw("Bad start,end parameters. Start [$start] has to be ".
-			"less than end [$end]");
+           $self->throw("Bad start,end parameters. Start [$start] has to be ".
+             "less than end [$end]");
        }
        if( $start <= 0 ) {
-	   $self->throw("Bad start parameter ($start). Start must be positive.");
+           $self->throw("Bad start parameter ($start). Start must be positive.");
        }
 
        # remove one from start, and then length is end-start
@@ -407,15 +406,15 @@ sub subseq {
        my $seqstr = eval join( '', "substr(", join(',',@ss_args), ")");
 
        if( $end > $self->length) {
-	   if ($self->is_circular) {
-	       my $start = 0;
-	       my $end = $end - $self->length;
-	       my @ss_args = map { eval "defined $_"  ? $_ : () } qw( $self->{seq} $start $end-$start $replace);
-	       my $appendstr = eval join( '', "substr(", join(',',@ss_args), ")");
-	       $seqstr .= $appendstr;
-	   } else {
-	       $self->throw("Bad end parameter ($end). End must be less than the total length of sequence (total=".$self->length.")")
-	   }
+           if ($self->is_circular) {
+               my $start = 0;
+               my $end = $end - $self->length;
+               my @ss_args = map { eval "defined $_"  ? $_ : () } qw( $self->{seq} $start $end-$start $replace);
+               my $appendstr = eval join( '', "substr(", join(',',@ss_args), ")");
+               $seqstr .= $appendstr;
+       } else {
+           $self->throw("Bad end parameter ($end). End must be less than the total length of sequence (total=".$self->length.")")
+           }
        } 
 
        $seqstr =~ s/[$GAP_SYMBOLS]//g if ($nogap);
@@ -459,14 +458,14 @@ sub length {
     my $len = CORE::length($self->seq() || '');
 
     if(@_) {
-		 my $val = shift;
-		 if(defined($val) && $len && ($len != $val)) {
-			 $self->throw("You're trying to lie about the length: ".
-							  "is $len but you say ".$val);
-		 }
-		 $self->{'_seq_length'} = $val;
+        my $val = shift;
+        if(defined($val) && $len && ($len != $val)) {
+            $self->throw("You're trying to lie about the length: ".
+                "is $len but you say ".$val);
+        }
+        $self->{'_seq_length'} = $val;
     } elsif(defined($self->{'_seq_length'})) {
-		 return $self->{'_seq_length'};
+        return $self->{'_seq_length'};
     }
     return $len;
 }
@@ -501,8 +500,8 @@ sub display_id {
    my ($obj,$value) = @_;
    if( defined $value) {
       $obj->{'display_id'} = $value;
-	}
-	return $obj->{'display_id'};
+    }
+    return $obj->{'display_id'};
 }
 
 =head2 accession_number
@@ -533,10 +532,10 @@ sub accession_number {
     my( $obj, $acc ) = @_;
 
     if (defined $acc) {
-		 $obj->{'accession_number'} = $acc;
+        $obj->{'accession_number'} = $acc;
     } else {
-		 $acc = $obj->{'accession_number'};
-		 $acc = 'unknown' unless defined $acc;
+        $acc = $obj->{'accession_number'};
+        $acc = 'unknown' unless defined $acc;
     }
     return $acc;
 }
@@ -562,10 +561,10 @@ sub primary_id {
     my $obj = shift;
 
     if(@_) {
-		 $obj->{'primary_id'} = shift;
+        $obj->{'primary_id'} = shift;
     }
     if( ! defined($obj->{'primary_id'}) ) {
-		 return "$obj";
+        return "$obj";
     }
     return $obj->{'primary_id'};
 }
@@ -592,13 +591,12 @@ sub primary_id {
 sub alphabet {
     my ($obj,$value) = @_;
     if (defined $value) {
-		 $value = lc $value;
-		 unless ( $valid_type{$value} ) {
-			 $obj->throw("Alphabet '$value' is not a valid alphabet (".
-							 join(',', map "'$_'", sort keys %valid_type) .
-							 ") lowercase");
-		 }
-		 $obj->{'alphabet'} = $value;
+        $value = lc $value;
+        unless ( $valid_type{$value} ) {
+        $obj->throw("Alphabet '$value' is not a valid alphabet (".
+            join(',', map "'$_'", sort keys %valid_type) .") lowercase");
+        }
+        $obj->{'alphabet'} = $value;
     }
     return $obj->{'alphabet'};
 }
@@ -716,7 +714,7 @@ sub object_id {
 sub version{
     my ($self,$value) = @_;
     if( defined $value) {
-		 $self->{'_version'} = $value;
+        $self->{'_version'} = $value;
     }
     return $self->{'_version'};
 }
@@ -737,7 +735,7 @@ sub version{
 sub authority {
     my ($obj,$value) = @_;
     if( defined $value) {
-		 $obj->{'authority'} = $value;
+        $obj->{'authority'} = $value;
     }
     return $obj->{'authority'};
 }
@@ -758,7 +756,7 @@ sub authority {
 sub namespace{
     my ($self,$value) = @_;
     if( defined $value) {
-		 $self->{'namespace'} = $value;
+        $self->{'namespace'} = $value;
     }
     return $self->{'namespace'} || "";
 }
@@ -863,7 +861,7 @@ These are internal methods to PrimarySeq
 
  Title   : _guess_alphabet
  Usage   :
- Function: Determines (and sets) the type of sequence: dna, rna, protein
+ Function: Automatically guess and set the type of sequence: dna, rna or protein
  Example :
  Returns : one of strings 'dna', 'rna' or 'protein'.
  Args    : none
@@ -872,40 +870,50 @@ These are internal methods to PrimarySeq
 =cut
 
 sub _guess_alphabet {
-   my ($self) = @_;
-   my $type;
+    my ($self) = @_;
+    my $type;
 
-	#return if $self->alphabet;
+    # Remove char's that clearly denote ambiguity
+    my $str = $self->seq();
+    $str =~ s/[-.?]//gi;
 
-   my $str = $self->seq();
-	# Remove char's that clearly denote ambiguity
-   $str =~ s/[-.?]//gi;
+    # Check for sequences without valid letters
+    my $total = CORE::length($str);
+    if( $total == 0 ) {
+        if (!$self->{'_nowarnonempty'}) {
+            $self->warn("Got a sequence with no letters in it ".
+               "cannot guess alphabet");
+        }
+        return '';
+    }
 
-   my $total = CORE::length($str);
-   if( $total == 0 ) {
-     if (!$self->{'_nowarnonempty'}) {
-       $self->warn("Got a sequence with no letters in it ".
-           "cannot guess alphabet");
-     }
-     return '';
-   }
+    # TODO: Decide if X is a valid DNA character, even though it is part of the
+    # IUPAC nomenclature. See test file t/data/sbay_c127.fas
+    #if ($str =~ m/[EFIJLOPQXZ]/i) {
+    if ($str =~ m/[EFIJLOPQZ]/i) {
+        # Start with a safe method to find proteins. Unambiguous IUPAC letters are:
+        #   E,F,I,J,L,O,P,Q,X,Z
+        $type = 'protein';
+    } else {
+        # Alphabet is unsure, could still be DNA, RNA or AA.
+        # DNA and RNA contain mostly A, T, U, G, C and N, but these letter are
+        # also among the 15 valid letters that a protein sequences at this stage
+        # of the code Ala, Thr, Sec, Gly, Cys and Asp resp.
+        # Make our best guess based on sequence composition. If it contains over
+        # 70% of ACGTUN, then it is likely DNA or RNA.
+        if( ($str =~ tr/ATUGCNatugcn//) / $total > 0.7 ) {
+            if ( $str =~ m/U/i ) {
+                $type = 'rna';
+            } else {
+                $type = 'dna';
+            }
+        } else {
+            $type = 'protein';
+        }
+    }
 
-   my $u = ($str =~ tr/Uu//);
-	# The assumption here is that most of sequences comprised of mainly
-   # ATGC, with some N, will be 'dna' despite the fact that N could
-	# also be Asparagine
-   my $atgc = ($str =~ tr/ATGCNatgcn//);
-
-   if( ($atgc / $total) > 0.85 ) {
-       $type = 'dna';
-   } elsif( (($atgc + $u) / $total) > 0.85 ) {
-       $type = 'rna';
-   } else {
-       $type = 'protein';
-   }
-
-   $self->alphabet($type);
-   return $type;
+    $self->alphabet($type);
+    return $type;
 }
 
 ############################################################################
@@ -916,7 +924,7 @@ sub accession {
     my $self = shift;
 
     $self->warn(ref($self)."::accession is deprecated, ".
-		"use accession_number() instead");
+        "use accession_number() instead");
     return $self->accession_number(@_);
 }
 
