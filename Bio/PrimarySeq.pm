@@ -873,7 +873,7 @@ sub _guess_alphabet {
     my ($self) = @_;
     my $type;
 
-    # Remove char's that clearly denote ambiguity
+    # Remove char's that clearly don't denote nucleic or amino acids
     my $str = $self->seq();
     $str =~ s/[-.?]//gi;
 
@@ -887,20 +887,16 @@ sub _guess_alphabet {
         return '';
     }
 
-    # TODO: Decide if X is a valid DNA character, even though it is part of the
-    # IUPAC nomenclature. See test file t/data/sbay_c127.fas
-    #if ($str =~ m/[EFIJLOPQXZ]/i) {
-    if ($str =~ m/[EFIJLOPQZ]/i) {
-        # Start with a safe method to find proteins. Unambiguous IUPAC letters are:
-        #   E,F,I,J,L,O,P,Q,X,Z
+    if ($str =~ m/[EFIJLOPQXZ]/i) {
+        # Start with a safe method to find proteins.
+        # Unambiguous IUPAC letters for proteins are: E,F,I,J,L,O,P,Q,X,Z
         $type = 'protein';
     } else {
-        # Alphabet is unsure, could still be DNA, RNA or AA.
-        # DNA and RNA contain mostly A, T, U, G, C and N, but these letter are
-        # also among the 15 valid letters that a protein sequences at this stage
-        # of the code Ala, Thr, Sec, Gly, Cys and Asp resp.
-        # Make our best guess based on sequence composition. If it contains over
-        # 70% of ACGTUN, then it is likely DNA or RNA.
+        # Alphabet is unsure, could still be DNA, RNA or protein.
+        # DNA and RNA contain mostly A, T, U, G, C and N, but the other letters
+        # they use are also among the 15 valid letters that a protein sequence
+        # can contain at this stage. Make our best guess based on sequence
+        # composition. If it contains over 70% of ACGTUN, it is likely nucleic.
         if( ($str =~ tr/ATUGCNatugcn//) / $total > 0.7 ) {
             if ( $str =~ m/U/i ) {
                 $type = 'rna';

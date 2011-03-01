@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 88 );
+    test_begin( -tests => 87 );
 
     use_ok('Bio::PrimarySeq');
     use_ok('Bio::Location::Simple');
@@ -208,15 +208,10 @@ $seq = Bio::PrimarySeq->new(
 is( $seq->description, 'Alias desc' );
 is( $seq->display_id,  'aliasid' );
 
-# test that x's are ignored and n's are assumed to be 'dna' no longer true!
-# See Bug 2438. There are protein sequences floating about which follow IUPAC
-# and are all 'X' (unknown aa)
+# Test alphabet
 
-$seq->seq('atgxxxxxx');
+$seq->seq('actgx');
 is( $seq->alphabet, 'protein', 'Alphabet' );
-$seq->seq('atgnnnnnn');
-is( $seq->alphabet, 'dna' );
-
 $seq->seq('actge');
 is( $seq->alphabet, 'protein' );
 $seq->seq('actgf');
@@ -233,33 +228,26 @@ $seq->seq('actgp');
 is( $seq->alphabet, 'protein' );
 $seq->seq('actgq');
 is( $seq->alphabet, 'protein' );
-
-
-$seq->seq('actgx');
-is( $seq->alphabet, 'dna' );
-TODO: {
-    local $TODO = "Decide if X is a valid DNA character, even though it is part".
-      " of the IUPAC nomenclature. See test file t/data/sbay_c127.fas";
-    eval { $seq->alphabet, 'protein' };
-    ok(!$@);
-}
-
 $seq->seq('actgz');
 is( $seq->alphabet, 'protein' );
-$seq->seq('acugn');
-is( $seq->alphabet, 'rna' ); # likely a RNA sequence
 $seq->seq('actgn');
-is( $seq->alphabet, 'dna' ); # likely a DNA sequence
+is( $seq->alphabet, 'dna' );
+$seq->seq('acugn');
+is( $seq->alphabet, 'rna' );
 $seq->seq('bdhkm');
-is( $seq->alphabet, 'protein' ); # likely a protein sequence
+is( $seq->alphabet, 'protein' );
 $seq->seq('rsvwx');
-is( $seq->alphabet, 'protein' ); # likely another protein sequence
+is( $seq->alphabet, 'protein' );
 $seq->seq('AAACTYAAAAGAATTGRCGG'); # valid degenerate DNA PCR primer sequence (90% ACGTN)
 is( $seq->alphabet, 'dna');
 $seq->seq('AAACTYAAAKGAATTGRCGG'); # another primer previously detected as protein (85% ACGTN)
 is( $seq->alphabet, 'dna');
-$seq->seq('YWACTYAAAKGARTTGRCGG'); # 70% ACGTN.  Everything <= 70% ACGTN is considered a protein
+$seq->seq('YWACTYAAAKGARTTGRCGG'); # 70% ACGTN. Everything <= 70% is considered a protein
 is( $seq->alphabet, 'protein');
+$seq->seq('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'); # Bug 2438
+is( $seq->alphabet, 'protein', 'Bug 2438');
+$seq->seq('CAGTCXXXXXXXXXXXXXXXXXXXXXXXXXXXCAGCG');
+is( $seq->alphabet, 'protein' );
 
 
 # Bug #2864:
