@@ -291,7 +291,7 @@ This class method creates a new database connection. The following
 
 The B<-index_subfeatures> argument, if true, tells the module to
 create indexes for a feature and all its subfeatures (and its
-subfeatues' subfeatures). Indexing subfeatures means that you will be
+subfeatures' subfeatures). Indexing subfeatures means that you will be
 able to search for the gene, its mRNA subfeatures and the exons inside
 each mRNA. It also means when you search the database for all features
 contained within a particular location, you will get the gene, the
