@@ -194,21 +194,8 @@ sub _store {
   my $data = $self->data;
   my $count = 0;
   for my $obj (@objs) {
-    my $primary_id = $obj->primary_id;
-    if (not defined $primary_id) {
-      # Create a unique ID
-      $primary_id = 1 + scalar keys %{$data};
-      while (exists $data->{$primary_id}) {
-        $primary_id++;
-      }
-      $obj->primary_id($primary_id);
-    } else {
-      # Verify that ID is unique
-      if (exists $data->{$primary_id}) {
-        $self->warn("Cannot add feature with primary ID $primary_id because this ID already exist in the database");
-        next;
-      }
-    }
+    # Add unique ID to feature if needed
+    my $primary_id = $self->_autoid($obj);
     # Store feature
     $data->{$primary_id} = $obj;
     if ($indexed) {
@@ -219,6 +206,30 @@ sub _store {
   }
   return $count;
 }
+
+
+sub _autoid {
+  # If a feature has no ID, generate a one, otherwise, make sure it unique
+  my ($self, $obj) = @_;
+  my $data = $self->data;
+  my $primary_id = $obj->primary_id;
+  if (not defined $primary_id) {
+    # Create a unique ID
+    $primary_id = 1 + scalar keys %{$data};
+    while (exists $data->{$primary_id}) {
+      $primary_id++;
+    }
+    $obj->primary_id($primary_id);
+  } else {
+    # Verify that ID is unique
+    if (exists $data->{$primary_id}) {
+      $self->throw("Cannot add feature with primary ID $primary_id because this".
+        " ID already exist in the database");
+    }
+  }
+  return $primary_id;
+}
+
 
 sub _deleteid {
   my ($self, $id) = @_;
@@ -243,7 +254,7 @@ sub _add_SeqFeature {
   my $parent_id = (ref $parent ? $parent->primary_id : $parent);
   defined $parent_id or $self->throw("$parent should have a primary_id");
   for my $child (@children) {
-    my $child_id = ref $child ? $child->primary_id : $child;
+    my $child_id = ref $child ? $self->_autoid($child) : $child;
     defined $child_id or $self->throw("No primary ID known for $child");
     $self->{_children}{$parent_id}{$child_id}++;
   }
