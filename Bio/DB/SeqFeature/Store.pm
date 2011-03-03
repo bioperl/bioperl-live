@@ -1667,7 +1667,7 @@ sub do_compress {
 
 If true, the store() method will add a searchable index to both the
 top-level feature and all its subfeatures, allowing the search
-functions to return features at any level of the conainment
+functions to return features at any level of the containment
 hierarchy. If false, only the top level feature will be indexed,
 meaning that you will only be able to get at subfeatures by fetching
 the top-level feature and then traversing downward using
