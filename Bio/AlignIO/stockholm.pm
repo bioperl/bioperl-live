@@ -337,9 +337,9 @@ our %WRITEMAP = (
 =head2 new
 
  Title   : new
- Usage   : my $alignio = Bio::AlignIO->new(-format => 'phylip'
+ Usage   : my $alignio = Bio::AlignIO->new(-format => 'stockholm'
 					  -file   => '>file');
- Function: Initialize a new L<Bio::AlignIO::phylip> reader or writer
+ Function: Initialize a new L<Bio::AlignIO::stockholm> reader or writer
  Returns : L<Bio::AlignIO> object
  Args    : -line_length :  length of the line for the alignment block
            -alphabet    :  symbol alphabet to set the sequences to.  If not set,
