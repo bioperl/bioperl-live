@@ -2023,7 +2023,7 @@ sub _insert_sequence   { shift->throw_not_implemented }
 
  Title   : _fetch_sequence
  Usage   : $sequence = $db->_fetch_sequence(-seq_id=>$seqid,-start=>$start,-end=>$end)
- Function: Fetch the indicated subsequene from the database
+ Function: Fetch the indicated subsequence from the database
  Returns : The sequence string (not a Bio::PrimarySeq object!)
  Args    : see below
  Status  : ABSTRACT METHOD; MUST BE IMPLEMENTED BY ADAPTOR
