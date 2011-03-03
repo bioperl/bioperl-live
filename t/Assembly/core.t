@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 886,
+    test_begin( -tests => 890,
                 -requires_module => 'DB_File' );
 
     use_ok('Bio::Seq');
@@ -244,7 +244,14 @@ $aio = Bio::Assembly::IO->new(
 $assembly = $aio->next_assembly();
 is $assembly->get_nof_contigs, 3;
 my @ace_contigs = $assembly->all_contigs();
-isa_ok $ace_contigs[0], "Bio::Assembly::Contig",'the contig is a Bio::Assembly::Contig';
+my $ace_contig = $ace_contigs[0];
+isa_ok $ace_contig, "Bio::Assembly::Contig",'the contig is a Bio::Assembly::Contig';
+
+ok my @test_reads = $ace_contig->get_seq_ids();
+is scalar @test_reads, 2;
+is $test_reads[0], '5704073';
+is $test_reads[1], '5762101';
+
 is $assembly->get_nof_sequences_in_contigs, 6;
 is($assembly->get_nof_singlets, 33, "get_nof_singlets");
 @singlets = $assembly->all_singlets();

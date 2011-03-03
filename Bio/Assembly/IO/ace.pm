@@ -420,9 +420,7 @@ sub next_contig {
             my $read_desc = Bio::SeqFeature::Generic->new(
                 -start   => $start,
                 -end     => $end,
-                ####
-                -primary => "_read_desc:$read_name",
-                ####
+                -primary => "_read_desc:$read_name", # primary_tag
                 -tag     => \%tags
             );
             $coord->add_sub_SeqFeature($read_desc);
@@ -442,9 +440,7 @@ sub next_contig {
             my $read_tag = Bio::SeqFeature::Generic->new(
                 -start   => $start,
                 -end     => $end,
-                ####
                 -primary => "_read_tags:$readID",
-                ####
                 -tag     => { 'type'          => $type,
                               'source'        => $source,
                               'creation_date' => $date,
@@ -781,16 +777,11 @@ sub write_footer {
     for my $contig_id ( Bio::Assembly::IO::_sort( $scaf->get_contig_ids ) ) {
         my $contig = $scaf->get_contig_by_id($contig_id) ||
             $scaf->get_singlet_by_id($contig_id);
-
-        ####
+        # Is there a better way of doing this? Grepping is not very efficient...
         my @feats = (grep 
             { not $_->primary_tag =~ m/^_/ }
              $contig->get_features_collection->features
             );
-
-        #my @feats = $contig->get_features_collection->get_features_by_type("_aligned_coord:$readid");
-        ####
-
         for my $feat (@feats) {
             my $type   =  $feat->primary_tag;
             my $start  =  $feat->start;

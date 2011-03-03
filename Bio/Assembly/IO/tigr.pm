@@ -525,9 +525,7 @@ sub _store_read {
 
     # Add other misc read information as subsequence feature
     my $readtags = Bio::SeqFeature::Generic->new(
-        ####
         -primary_tag => '_main_read_feature:'.$readobj->id,
-        ####
         -start       => $$readinfo{'aln_start'},
         -end         => $$readinfo{'aln_end'},
         -strand      => $$readinfo{'strand'},

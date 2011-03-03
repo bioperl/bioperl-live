@@ -1004,15 +1004,13 @@ sub get_seq_ids {
             $start = $self->change_coord($type,'gapped consensus',$start);
             $end   = $self->change_coord($type,'gapped consensus',$end);
         }
-        ####
-        @list = grep { $_->isa("Bio::SeqFeature::Generic") &&
-                      ($_->primary_tag =~ /^_aligned_coord:/) }
-                $self->get_features_collection->features_in_range(
-                    -start       => $start,
-                    -end         => $end,
-                    -contain     => 0,
-                    -strandmatch => 'ignore' );
-        ####
+        @list = $self->get_features_collection->features(
+           -type         => '_aligned_coord', # primary tag
+           -start        => $start,
+           -end          => $end,
+           #-contain     => 0,
+           #-strandmatch => 'ignore',
+        );
         @list = map { $_->entire_seq->id } @list;
     } else {
         # Entire aligned sequences list
