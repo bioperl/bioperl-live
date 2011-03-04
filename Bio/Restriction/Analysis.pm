@@ -520,9 +520,9 @@ sub fragment_maps {
     # for every enzyme this should cut down on the amount of
     # duplicated data we are trying to save in memory and make this
     # faster and easier for large sequences, e.g. genome analysis
-
+    
     my @cut_positions;
-    if (ref $enz eq '') {
+    if (ref $enz eq '' && exists $self->{'_cut_positions'}->{$enz}) {
         @cut_positions=@{$self->{'_cut_positions'}->{$enz}};
     } elsif ($enz->isa("Bio::Restriction::EnzymeI")) {
         @cut_positions=@{$self->{'_cut_positions'}->{$enz->name}};
@@ -553,6 +553,7 @@ sub fragment_maps {
 
     my $start=1; my $stop; my %seq; my %stop;
     foreach $stop (@cuts) {
+        next if !$stop; # cuts at beginning of sequence
         $seq{$start}=$self->{'_seq'}->subseq($start, $stop);
         $stop{$start}=$stop;
         $start=$stop+1;
