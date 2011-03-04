@@ -502,8 +502,13 @@ feature. You must manually update each subfeatures that has changed.
 # for search via attributes, name, type or location
 
 sub store {
-  my $self = shift;
-  my $result = $self->store_and_cache(1,@_);
+  my ($self, @feats) = @_;
+  for my $feat (@feats) {
+    if ( (not ref $feat) || (not $feat->isa('Bio::SeqFeatureI')) ) {
+      die "Cannot store non-Bio::SeqFeatureI object '$feat'\n";
+    }
+  }
+  my $result = $self->store_and_cache(1,@feats);
 }
 
 =head2 store_noindex
@@ -1498,8 +1503,9 @@ sub finish_bulk_update { shift->_finish_bulk_update(@_) }
  Title   : add_SeqFeature
  Usage   : $count = $db->add_SeqFeature($parent,@children)
  Function: store a parent/child relationship between $parent and @children
+           features that are stored in the database
  Returns : number of children successfully stored
- Args    : parent feature and one or more children
+ Args    : parent primary ID and children primary IDs
  Status  : OPTIONAL; MAY BE IMPLEMENTED BY ADAPTORS
 
 If can_store_parentage() returns true, then some store-aware features
@@ -1518,7 +1524,7 @@ sub add_SeqFeature  { shift->_add_SeqFeature(@_)   }
  Usage   : @children = $db->fetch_SeqFeatures($parent_feature)
  Function: return the immediate subfeatures of the indicated feature
  Returns : list of subfeatures
- Args    : the parent feature
+ Args    : the parent feature and an optional list of children types
  Status  : OPTIONAL; MAY BE IMPLEMENTED BY ADAPTORS
 
 If can_store_parentage() returns true, then some store-aware features
@@ -2347,7 +2353,7 @@ sub setup_segment_args {
  Usage   : $success = $db->store_and_cache(@features)
  Function: store features into database and update cache
  Returns : number of features stored
- Args    : list of features
+ Args    : index the features? (0 or 1) and  list of features
  Status  : private
 
 This private method stores the list of Bio::SeqFeatureI objects into
