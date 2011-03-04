@@ -196,7 +196,8 @@ sub _store {
   for my $obj (@objs) {
     # Add unique ID to feature if needed
     my $primary_id = $self->_autoid($obj);
-    # Store feature
+    # Store feature (overwriting any existing feature with the same primary ID
+    # as required by Bio::DB::SF::Store)
     $data->{$primary_id} = $obj;
     if ($indexed) {
       $self->{_index}{ids}{$primary_id} = undef;
@@ -209,7 +210,7 @@ sub _store {
 
 
 sub _autoid {
-  # If a feature has no ID, generate a one, otherwise, make sure it unique
+  # If a feature has no ID, assign it a unique ID
   my ($self, $obj) = @_;
   my $data = $self->data;
   my $primary_id = $obj->primary_id;
@@ -220,12 +221,6 @@ sub _autoid {
       $primary_id++;
     }
     $obj->primary_id($primary_id);
-  } else {
-    # Verify that ID is unique
-    if (exists $data->{$primary_id}) {
-      $self->throw("Cannot add feature with primary ID $primary_id because this".
-        " ID already exist in the database");
-    }
   }
   return $primary_id;
 }
@@ -248,16 +243,17 @@ sub _fetch {
 }
 
 sub _add_SeqFeature {
-  my $self     = shift;
-  my $parent   = shift;
-  my @children = @_;
-  my $parent_id = (ref $parent ? $parent->primary_id : $parent);
-  defined $parent_id or $self->throw("$parent should have a primary_id");
+  my ($self, $parent, @children) = @_;
+  my $count = 0;
+  my $parent_id = ref $parent ? $parent->primary_id : $parent;
+  defined $parent_id or $self->throw("Parent $parent should have a primary ID");
   for my $child (@children) {
-    my $child_id = ref $child ? $self->_autoid($child) : $child;
-    defined $child_id or $self->throw("No primary ID known for $child");
+    my $child_id = ref $child ? $child->primary_id : $child;
+    defined $child_id or $self->throw("Child $child should have a primary ID");
     $self->{_children}{$parent_id}{$child_id}++;
+    $count++;
   }
+  return $count;
 }
 
 sub _fetch_SeqFeatures {
