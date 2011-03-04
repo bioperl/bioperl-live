@@ -531,7 +531,7 @@ sub fragment_maps {
         @cut_positions=@{$self->{'_cut_positions'}->{'multiple_digest'}};
     }
 
-    unless ($cut_positions[0]) {
+    unless (defined($cut_positions[0])) {
         # it doesn't cut
         # return the whole sequence
         # this should probably have the is_circular command
