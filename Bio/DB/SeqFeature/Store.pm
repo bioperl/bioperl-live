@@ -443,7 +443,7 @@ sub post_init { }
  Usage   : $success = $db->add_features(\@features)
  Function: store one or more features into the database
  Returns : true if successful
- Args    : list of Bio::SeqFeatureI objects
+ Args    : array reference of Bio::SeqFeatureI objects
  Status  : public
 
 =cut
