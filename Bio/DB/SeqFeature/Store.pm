@@ -485,7 +485,7 @@ Subfeatures will be indexed for separate retrieval based on the
 current value of index_subfeatures().
 
 If you call store() with one or more features that already have valid
-primary_ids, then an existing object(s) will be B<replaced>. Note that
+primary_ids, then any existing objects will be B<replaced>. Note that
 when using normalized features such as Bio::DB::SeqFeature, the
 subfeatures are not recursively updated when you update the parent
 feature. You must manually update each subfeatures that has changed.
