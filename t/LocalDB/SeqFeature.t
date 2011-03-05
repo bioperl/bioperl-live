@@ -2,7 +2,7 @@
 # $Id$
 
 use strict;
-use constant TEST_COUNT => 113;
+use constant TEST_COUNT => 115;
 
 BEGIN {
     use lib '.','..';
@@ -24,7 +24,7 @@ my $DEBUG = test_debug();
 
 my $gff_file = test_input_file('seqfeaturedb','test.gff3');
 
-my (@f,$f,$f2,$sf1,$sf2,$sf3,@s,$s,$seq1,$seq2);
+my (@f,$f,$f2,$sf1,$sf2,$sf3,$sf4,@s,$s,$seq1,$seq2);
 
 my @args = @ARGV;
 @args = (-adaptor => 'memory') unless @args;
@@ -95,6 +95,7 @@ $sf3 = Bio::SeqFeature::Generic->new( -primary=>'seqfeat1', -start=>23, -end=>51
 ok $db->add_features([$sf1, $sf2, $sf3]), 'adding subfeatures';
 is $db->add_SeqFeature($f, $sf1), 1;
 is $db->add_SeqFeature($f, $sf2, $sf3), 2;
+is $db->add_SeqFeature($f, $sf1, $sf2, $sf3), 3;
 
 # test fetching seqfeatures
 is $db->fetch_SeqFeatures($f), 3;
@@ -102,6 +103,7 @@ is $db->fetch_SeqFeatures($f, 'seqfeat2'), 1;
 is $db->fetch_SeqFeatures($f, 'seqfeat1:dna'), 1;
 is $db->fetch_SeqFeatures($f, 'seqfeat1'), 2;
 is $db->fetch_SeqFeatures($f, 'seqfeat1', 'seqfeat2'), 3;
+is $db->fetch_SeqFeatures($f, 'seqfeat4'), 0;
 
 # exercise the loader
 ok($loader->load($gff_file));

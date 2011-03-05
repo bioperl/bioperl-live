@@ -275,10 +275,14 @@ sub _fetch_SeqFeatures {
       $source_tag ||= '';
       if ($source_tag eq '') {
         for my $source (keys %{$$data{$primary_tag}}) {
-          push @children, @{$$data{$primary_tag}{$source_tag}};
+          if (exists $$data{$primary_tag}{$source_tag}) {
+            push @children, @{$$data{$primary_tag}{$source_tag}};
+          }
         }
       } else {
-        push @children, @{$$data{$primary_tag}{$source_tag}};
+        if (exists $$data{$primary_tag}{$source_tag}) {
+          push @children, @{$$data{$primary_tag}{$source_tag}};
+        }
       }
     }
   }
