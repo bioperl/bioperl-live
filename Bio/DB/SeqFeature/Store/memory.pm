@@ -257,20 +257,33 @@ sub _add_SeqFeature {
 }
 
 sub _fetch_SeqFeatures {
-  my $self   = shift;
-  my $parent = shift;
-  my @types  = @_;
+  my ($self, $parent, @types) = @_;
   my $parent_id = $parent->primary_id;
-  defined $parent_id or $self->throw("$parent should have a primary_id");
+  defined $parent_id or $self->throw("Parent $parent should have a primary ID");
   my @children_ids  = keys %{$self->{_children}{$parent_id}};
   my @children      = map {$self->fetch($_)} @children_ids;
-
+  
   if (@types) {
-    my $regexp = join '|',map {quotemeta($_)} $self->find_types(@types);
-    return grep {($_->primary_tag.':'.$_->source_tag) =~ /^$regexp$/i} @children;
-  } else {
-    return @children;
+    my $data;
+    for my $c (@children) {
+      push @{$$data{$c->primary_tag}{$c->source_tag||''}}, $c;
+    }
+    @children = ();
+    for my $type (@types) {
+      $type .= ':' if (not $type =~ m/:/);
+      my ($primary_tag, undef, $source_tag) = ($type =~ m/^(.*?)(:(.*?))$/);
+      $source_tag ||= '';
+      if ($source_tag eq '') {
+        for my $source (keys %{$$data{$primary_tag}}) {
+          push @children, @{$$data{$primary_tag}{$source_tag}};
+        }
+      } else {
+        push @children, @{$$data{$primary_tag}{$source_tag}};
+      }
+    }
   }
+
+  return @children;
 }
 
 sub _update_indexes {
@@ -430,8 +443,7 @@ sub filter_by_type {
   my @types_req = ref $types_req eq 'ARRAY' ?  @$types_req : $types_req;
 
   my $types = $self->{_index}{type};
-
-  my @types_found = $self->find_types(@types_req);
+  my @types_found = $self->find_types(\@types_req);
 
   my @results;
   for my $type_found (@types_found) {
@@ -444,10 +456,12 @@ sub filter_by_type {
 }
 
 sub find_types {
-  my $self = shift;
-  my @types_req = @_;
+  my ($self, $types_req) = @_;
   my @types_found;
-  for my $type_req (@types_req) {
+
+  my $types = $self->{_index}{type};
+
+  for my $type_req (@$types_req) {
 
     # Type is the primary tag and an optional source tag
     my ($primary_tag, $source_tag);
@@ -459,11 +473,11 @@ sub find_types {
     }
     ($primary_tag, $source_tag) = (lc $primary_tag, lc $source_tag);
 
-    next if not exists $$self{_index}{type}{$primary_tag};
+    next if not exists $$types{$primary_tag};
 
     if ($source_tag eq '') {
       # Match all sources for this primary_tag
-      push @types_found, map {"$primary_tag:$_"} (keys %{ $$self{_index}{type}{$primary_tag} });
+      push @types_found, map {"$primary_tag:$_"} (keys %{ $$types{$primary_tag} });
     } else {
       # Match only the requested source
       push @types_found, "$primary_tag:$source_tag";
