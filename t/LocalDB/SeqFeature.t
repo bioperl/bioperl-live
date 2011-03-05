@@ -24,7 +24,7 @@ my $DEBUG = test_debug();
 
 my $gff_file = test_input_file('seqfeaturedb','test.gff3');
 
-my (@f,$f,$f2,$sf1,$sf2,$sf3,$sf4,@s,$s,$seq1,$seq2);
+my (@f,$f,$f2,$sf1,$sf2,$sf3,@s,$s,$seq1,$seq2);
 
 my @args = @ARGV;
 @args = (-adaptor => 'memory') unless @args;
