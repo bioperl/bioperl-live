@@ -380,7 +380,7 @@ sub next_contig {
                     -start   => $aln_start,
                     -end     => $aln_end,
                     -strand  => $read_data->{$read_name}{'strand'},
-                    -primary => "_align_clipping",
+                    -primary => '_align_clipping',
                     -source  => $read_name,
                 );
                 $aln_feat->attach_seq( $contigOBJ->get_seq_by_name($read_name) );
@@ -395,7 +395,7 @@ sub next_contig {
                     -start   => $qual_start,
                     -end     => $qual_end,
                     -strand  => $read_data->{$read_name}{'strand'},
-                    -primary => "_quality_clipping",
+                    -primary => '_quality_clipping',
                     -source  => $read_name,
                 );
                 $qual_feat->attach_seq( $contigOBJ->get_seq_by_name($read_name) );
@@ -420,11 +420,12 @@ sub next_contig {
             my $read_desc = Bio::SeqFeature::Generic->new(
                 -start   => $start,
                 -end     => $end,
-                -primary => "_read_desc:$read_name", # primary_tag
+                -primary => '_read_desc', # primary_tag
+                -source  => $read_name,
                 -tag     => \%tags
             );
-            $coord->add_sub_SeqFeature($read_desc);
-        
+            $contigOBJ->get_features_collection->add_features([$read_desc]);
+            $contigOBJ->get_features_collection->add_SeqFeature($coord, $read_desc);
         }
 
         # Loading Read Tags
@@ -440,7 +441,8 @@ sub next_contig {
             my $read_tag = Bio::SeqFeature::Generic->new(
                 -start   => $start,
                 -end     => $end,
-                -primary => "_read_tags:$readID",
+                -primary => '_read_tags',
+                -source  => $readID,
                 -tag     => { 'type'          => $type,
                               'source'        => $source,
                               'creation_date' => $date,
@@ -448,7 +450,8 @@ sub next_contig {
             );
             my $contig = $read_data->{$readID}{'contig'};
             my $coord  = $contig->get_seq_coord( $contig->get_seq_by_name($readID) );
-            $coord->add_sub_SeqFeature($read_tag);
+            $contig->get_features_collection->add_features([$read_tag]);
+            $contig->get_features_collection->add_SeqFeature($coord, $read_tag);
         }
 
     }
@@ -857,15 +860,8 @@ sub _write_read {
     my $read_len  = $read->length; # aligned length
     my $read_seq  = $read->seq;
     my $nof_info  = 0; # fea: could not find exactly the meaning of this?
-
-    #####
-    my @read_feats = $contig->get_seq_coord($read)->get_SeqFeatures;
-    my @read_tags = (grep { $_->primary_tag eq "_read_tags:$read_id" } @read_feats);
-    ###my @read_feats = $contig->get_features_collection->get_features_by_type("_aligned_coord:$readid");
-    #my @read_tags = $contig->get_features_collection->get_SeqFeatures("_read_tags:$read_id");
-    #my @read_tags = $contig->get_seq_feat_by_tag($read, "_read_tags:$read_id");
-    #####
-
+    my @read_tags = $contig->get_features_collection->get_SeqFeatures(
+        $contig->get_seq_coord($read), "_read_tags:$read_id");
     my $nof_tags  = scalar @read_tags;
     $self->_print(
         "RD $read_id $read_len $nof_info $nof_tags\n".
@@ -901,7 +897,8 @@ sub _write_read {
     );
 
     # Read description, if read object has them
-    my $read_desc = (grep { $_->primary_tag eq "_read_desc:$read_id" } @read_feats)[0];
+    my $read_desc = ( $contig->get_features_collection->get_SeqFeatures(
+        $contig->get_seq_coord($read), "_read_desc:$read_id") )[0];
     if ($read_desc) {
         $self->_print("DS");
         for my $tag_name ( $read_desc->get_all_tags ) {

@@ -188,8 +188,8 @@ is(@all_seq_ids, 4);
 
 # ACE Consed variant (default)
 $aio = Bio::Assembly::IO->new(
-    -file=>test_input_file('consed_project','edit_dir','test_project.fasta.screen.ace.2'),
-    -format=>'ace'
+    -file   => test_input_file('consed_project','edit_dir','test_project.fasta.screen.ace.2'),
+    -format => 'ace'
 );
 
 my $assembly = $aio->next_assembly();
@@ -202,7 +202,7 @@ is $direction, 1;
 my $features =  $contigs[0]->get_features_collection;
 
 my @contig_features = $features->features;
-is @contig_features, 59, 'contig features';
+is @contig_features, 61, 'contig features'; # 59 contig features + 2 seqfeatures
 
 my @annotations = $features->get_features_by_type('Annotation');
 is @annotations, 2;
@@ -407,8 +407,8 @@ isa_ok($contig,'Bio::Assembly::Contig');
 
 # check Contig object SeqFeature::Collection
 # should add more specific Contig tests...
-my @sfs = $contig->get_features_collection->features;
-is(scalar(@sfs), 5);
+my @sfs = $contig->get_features_collection->features; # 5 contig features + 2 seqfeatures
+is(scalar @sfs, 7);
 is($sfs[1]->seq_id(), undef); # should this be undef?
 ok( $contig->get_features_collection->get_features_by_type('_aligned_coord:sdsu|SDSU_RFPERU_006_E04.x01.phd.1') );
 isa_ok($scaf_in->annotation, 'Bio::AnnotationCollectionI');

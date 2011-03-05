@@ -234,8 +234,8 @@ use base qw(Bio::Root::Root Bio::Align::AlignI);
  Usage     : my $contig = Bio::Assembly::Contig->new();
  Function  : Creates a new contig object
  Returns   : Bio::Assembly::Contig
- Args      : -id => unique contig ID
-             -source => string for the sequence assembly program used
+ Args      : -id         => unique contig ID
+             -source     => string for the sequence assembly program used
              -collection => Bio::SeqFeature::CollectionI instance
 
 =cut
@@ -272,7 +272,10 @@ sub new {
         $self->throw("Collection must implement Bio::SeqFeature::CollectionI") unless $collection->isa('Bio::SeqFeature::CollectionI');
         $self->{'_sfc'} = $collection;
     } else {
-        $self->{'_sfc'} = Bio::DB::SeqFeature::Store->new( -adaptor => 'memory' );
+        $self->{'_sfc'} = Bio::DB::SeqFeature::Store->new(
+            -adaptor           => 'memory',
+            -index_subfeatures => 1,
+        );
     }
 
     # Assembly specifics
@@ -501,7 +504,7 @@ sub remove_features {
 
  Title     : get_features_collection
  Usage     : $contig->get_features_collection()
- Function  : Get the collection of all contig features
+ Function  : Get the collection of all contig features and seqfeatures
  Returns   : Bio::DB::SeqFeature::Store (Bio::SeqFeature::CollectionI)
  Argument  : none
 
