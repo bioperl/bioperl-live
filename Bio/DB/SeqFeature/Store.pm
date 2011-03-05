@@ -1502,10 +1502,10 @@ sub finish_bulk_update { shift->_finish_bulk_update(@_) }
 
  Title   : add_SeqFeature
  Usage   : $count = $db->add_SeqFeature($parent,@children)
- Function: store a parent/child relationship between $parent and @children
-           features that are stored in the database
+ Function: store a parent/child relationship between a $parent and @children
+           features that are already stored in the database
  Returns : number of children successfully stored
- Args    : parent primary ID and children primary IDs
+ Args    : parent feature or primary ID and children features or primary IDs
  Status  : OPTIONAL; MAY BE IMPLEMENTED BY ADAPTORS
 
 If can_store_parentage() returns true, then some store-aware features
@@ -1533,12 +1533,11 @@ feature/subfeature relationships from the database.
 
 =cut
 
-# _get_SeqFeatures($parent,@list_of_child_types)
+# _get_SeqFeatures($parent,@child_types)
 sub fetch_SeqFeatures {
-  my $self = shift;
-  my $obj  = shift;
-  return unless defined $obj->primary_id;
-  $self->_fetch_SeqFeatures($obj,@_);
+  my ($self, $parent, @child_types) = @_;
+  return unless defined $parent->primary_id;
+  $self->_fetch_SeqFeatures($parent,@child_types);
 }
 
 
