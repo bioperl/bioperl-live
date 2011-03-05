@@ -11,7 +11,6 @@ Bio::DB::SeqFeature::Store::memory -- In-memory implementation of Bio::DB::SeqFe
   # Open the sequence database
   my $db      = Bio::DB::SeqFeature::Store->new( -adaptor => 'memory',
                                                  -dsn     => '/var/databases/test');
-
   # search... by id
   my @features = $db->fetch_many(@list_of_ids);
 
@@ -195,22 +194,10 @@ sub _store {
   my $data = $self->data;
   my $count = 0;
   for my $obj (@objs) {
-    my $primary_id = $obj->primary_id;
-    if (not defined $primary_id) {
-      # Create a unique ID
-      $primary_id = 1 + scalar keys %{$data};
-      while (exists $data->{$primary_id}) {
-        $primary_id++;
-      }
-      $obj->primary_id($primary_id);
-    } else {
-      # Verify that ID is unique
-      if (exists $data->{$primary_id}) {
-        $self->warn("Cannot add feature with primary ID $primary_id because this ID already exist in the database");
-        next;
-      }
-    }
-    # Store feature
+    # Add unique ID to feature if needed
+    my $primary_id = $self->_autoid($obj);
+    # Store feature (overwriting any existing feature with the same primary ID
+    # as required by Bio::DB::SF::Store)
     $data->{$primary_id} = $obj;
     if ($indexed) {
       $self->{_index}{ids}{$primary_id} = undef;
@@ -220,6 +207,24 @@ sub _store {
   }
   return $count;
 }
+
+
+sub _autoid {
+  # If a feature has no ID, assign it a unique ID
+  my ($self, $obj) = @_;
+  my $data = $self->data;
+  my $primary_id = $obj->primary_id;
+  if (not defined $primary_id) {
+    # Create a unique ID
+    $primary_id = 1 + scalar keys %{$data};
+    while (exists $data->{$primary_id}) {
+      $primary_id++;
+    }
+    $obj->primary_id($primary_id);
+  }
+  return $primary_id;
+}
+
 
 sub _deleteid {
   my ($self, $id) = @_;
@@ -238,33 +243,51 @@ sub _fetch {
 }
 
 sub _add_SeqFeature {
-  my $self     = shift;
-  my $parent   = shift;
-  my @children = @_;
-  my $parent_id = (ref $parent ? $parent->primary_id : $parent);
-  defined $parent_id or $self->throw("$parent should have a primary_id");
+  my ($self, $parent, @children) = @_;
+  my $count = 0;
+  my $parent_id = ref $parent ? $parent->primary_id : $parent;
+  defined $parent_id or $self->throw("Parent $parent should have a primary ID");
   for my $child (@children) {
     my $child_id = ref $child ? $child->primary_id : $child;
-    defined $child_id or $self->throw("no primary ID known for $child");
+    defined $child_id or $self->throw("Child $child should have a primary ID");
     $self->{_children}{$parent_id}{$child_id}++;
+    $count++;
   }
+  return $count;
 }
 
 sub _fetch_SeqFeatures {
-  my $self   = shift;
-  my $parent = shift;
-  my @types  = @_;
+  my ($self, $parent, @types) = @_;
   my $parent_id = $parent->primary_id;
-  defined $parent_id or $self->throw("$parent should have a primary_id");
+  defined $parent_id or $self->throw("Parent $parent should have a primary ID");
   my @children_ids  = keys %{$self->{_children}{$parent_id}};
   my @children      = map {$self->fetch($_)} @children_ids;
-
+  
   if (@types) {
-    my $regexp = join '|',map {quotemeta($_)} $self->find_types(@types);
-    return grep {($_->primary_tag.':'.$_->source_tag) =~ /^$regexp$/i} @children;
-  } else {
-    return @children;
+    my $data;
+    for my $c (@children) {
+      push @{$$data{$c->primary_tag}{$c->source_tag||''}}, $c;
+    }
+    @children = ();
+    for my $type (@types) {
+      $type .= ':' if (not $type =~ m/:/);
+      my ($primary_tag, undef, $source_tag) = ($type =~ m/^(.*?)(:(.*?))$/);
+      $source_tag ||= '';
+      if ($source_tag eq '') {
+        for my $source (keys %{$$data{$primary_tag}}) {
+          if (exists $$data{$primary_tag}{$source_tag}) {
+            push @children, @{$$data{$primary_tag}{$source_tag}};
+          }
+        }
+      } else {
+        if (exists $$data{$primary_tag}{$source_tag}) {
+          push @children, @{$$data{$primary_tag}{$source_tag}};
+        }
+      }
+    }
   }
+
+  return @children;
 }
 
 sub _update_indexes {
@@ -304,16 +327,17 @@ sub _update_name_index {
 
 sub _update_type_index {
   my ($self, $obj, $id, $del) = @_;
-  my $primary_tag = $obj->primary_tag;
-  return unless defined $primary_tag;
-  my $source_tag  = $obj->source_tag || '';
-  $primary_tag   .= ":$source_tag";
+  my $primary_tag = lc($obj->primary_tag) || return;
+  my $source_tag  = lc($obj->source_tag ) || '';
   if (not $del) {
-    $self->{_index}{type}{lc $primary_tag}{$id} = undef;
+    $self->{_index}{type}{$primary_tag}{$source_tag}{$id} = undef;
   } else {
-    delete $self->{_index}{type}{lc $primary_tag}{$id};
-    if (scalar keys %{$self->{_index}{type}{lc $primary_tag}} == 0 ) {
-      delete $self->{_index}{type}{lc $primary_tag};
+    delete $self->{_index}{type}{$primary_tag}{$source_tag}{$id};
+    if ( scalar keys %{$self->{_index}{type}{$primary_tag}{$source_tag}} == 0 ) {
+      delete $self->{_index}{type}{$primary_tag}{$source_tag};
+      if (scalar keys %{$self->{_index}{type}{$primary_tag}} == 0 ) {
+        delete $self->{_index}{type}{$primary_tag};
+      }
     }
   }
 }
@@ -419,47 +443,57 @@ sub _features {
 
 
 sub filter_by_type {
-  my ($self, $types, $filter) = @_;
-  my @types = ref $types eq 'ARRAY' ?  @$types : $types;
+  my ($self, $types_req, $filter) = @_;
+  my @types_req = ref $types_req eq 'ARRAY' ?  @$types_req : $types_req;
 
-  my $index = $self->{_index}{type};
-
-  my @types_found = $self->find_types(@types);
+  my $types = $self->{_index}{type};
+  my @types_found = $self->find_types(\@types_req);
 
   my @results;
-  for my $type (@types_found) {
-    next unless exists $index->{$type};
-    push @results,keys %{$index->{$type}};
+  for my $type_found (@types_found) {
+    my ($primary_tag, undef, $source_tag) = ($type_found =~ m/^(.*?)(:(.*?))$/);
+    next unless exists $types->{$primary_tag}{$source_tag};
+    push @results, keys %{$types->{$primary_tag}{$source_tag}};
   }
 
   $self->update_filter($filter,\@results);
 }
 
 sub find_types {
-  my $self = shift;
-  my @types = @_;
-
+  my ($self, $types_req) = @_;
   my @types_found;
-  my $index = $self->{_index}{type};
 
-  for my $type (@types) {
+  my $types = $self->{_index}{type};
 
-    my ($primary_tag,$source_tag);
-    if (ref $type && $type->isa('Bio::DB::GFF::Typename')) {
-      $primary_tag = $type->method;
-      $source_tag  = $type->source;
+  for my $type_req (@$types_req) {
+
+    # Type is the primary tag and an optional source tag
+    my ($primary_tag, $source_tag);
+    if (ref $type_req && $type_req->isa('Bio::DB::GFF::Typename')) {
+      $primary_tag = $type_req->method;
+      $source_tag  = $type_req->source;
     } else {
-      ($primary_tag,$source_tag) = split ':',$type,2;
+      ($primary_tag, undef, $source_tag) = ($type_req =~ m/^(.*?)(:(.*))?$/); 
     }
-    push @types_found,defined $source_tag ? lc "$primary_tag:$source_tag"
-                                          : grep {/^$primary_tag:/i} keys %{$index};
+    ($primary_tag, $source_tag) = (lc $primary_tag, lc $source_tag);
+
+    next if not exists $$types{$primary_tag};
+
+    if ($source_tag eq '') {
+      # Match all sources for this primary_tag
+      push @types_found, map {"$primary_tag:$_"} (keys %{ $$types{$primary_tag} });
+    } else {
+      # Match only the requested source
+      push @types_found, "$primary_tag:$source_tag";
+    }
+
   }
   return @types_found;
 }
 
 sub attributes {
-    my $self = shift;
-    return keys %{$self->{_index}{attribute}};
+  my $self = shift;
+  return keys %{$self->{_index}{attribute}};
 }
 
 sub filter_by_attribute {
@@ -636,12 +670,16 @@ sub _search_attributes {
 =cut
 
 sub types {
-    my $self = shift;
-    eval "require Bio::DB::GFF::Typename" 
-	unless Bio::DB::GFF::Typename->can('new');
-    return map {
-	Bio::DB::GFF::Typename->new($_);
-    } keys %{$self->{_index}{type}};
+  my $self = shift;
+  eval "require Bio::DB::GFF::Typename" unless Bio::DB::GFF::Typename->can('new');
+  my @types;
+  for my $primary_tag ( keys %{$$self{_index}{type}} ) {
+    for my $source_tag ( keys %{$$self{_index}{type}{$primary_tag}} ) {
+      my $type = $$self{_index}{type}{$primary_tag}{$source_tag};
+      push @types, Bio::DB::GFF::Typename->new($type);
+    }
+  }
+  return @types;
 }
 
 # this is ugly

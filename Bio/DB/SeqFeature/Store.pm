@@ -291,7 +291,7 @@ This class method creates a new database connection. The following
 
 The B<-index_subfeatures> argument, if true, tells the module to
 create indexes for a feature and all its subfeatures (and its
-subfeatues' subfeatures). Indexing subfeatures means that you will be
+subfeatures' subfeatures). Indexing subfeatures means that you will be
 able to search for the gene, its mRNA subfeatures and the exons inside
 each mRNA. It also means when you search the database for all features
 contained within a particular location, you will get the gene, the
@@ -443,7 +443,7 @@ sub post_init { }
  Usage   : $success = $db->add_features(\@features)
  Function: store one or more features into the database
  Returns : true if successful
- Args    : list of Bio::SeqFeatureI objects
+ Args    : array reference of Bio::SeqFeatureI objects
  Status  : public
 
 =cut
@@ -485,7 +485,7 @@ Subfeatures will be indexed for separate retrieval based on the
 current value of index_subfeatures().
 
 If you call store() with one or more features that already have valid
-primary_ids, then an existing object(s) will be B<replaced>. Note that
+primary_ids, then any existing objects will be B<replaced>. Note that
 when using normalized features such as Bio::DB::SeqFeature, the
 subfeatures are not recursively updated when you update the parent
 feature. You must manually update each subfeatures that has changed.
@@ -502,8 +502,13 @@ feature. You must manually update each subfeatures that has changed.
 # for search via attributes, name, type or location
 
 sub store {
-  my $self = shift;
-  my $result = $self->store_and_cache(1,@_);
+  my ($self, @feats) = @_;
+  for my $feat (@feats) {
+    if ( (not ref $feat) || (not $feat->isa('Bio::SeqFeatureI')) ) {
+      die "Cannot store non-Bio::SeqFeatureI object '$feat'\n";
+    }
+  }
+  my $result = $self->store_and_cache(1,@feats);
 }
 
 =head2 store_noindex
@@ -652,10 +657,12 @@ sub delete {
   $success;
 }
 
-=head2 get_feature_by_id
+=head2 fetch / get_feature_by_id / get_feature_by_primary_id
 
- Title   : get_feature_by_id
- Usage   : $feature = $db->get_feature_by_id($primary_id)
+ Title   : fetch
+           get_feature_by_id
+           get_feature_by_primary_id
+ Usage   : $feature = $db->fetch($primary_id)
  Function: fetch a feature from the database using its primary ID
  Returns : a feature
  Args    : primary ID of desired feature
@@ -663,24 +670,7 @@ sub delete {
 
 This method returns a previously-stored feature from the database
 using its primary ID. If the primary ID is invalid, it returns undef.
-
-=cut
-
-sub get_feature_by_id {
-    my $self = shift;
-    $self->fetch(@_);
-}
-
-=head2 fetch
-
- Title   : fetch
- Usage   : $feature = $db->fetch($primary_id)
- Function: fetch a feature from the database using its primary ID
- Returns : a feature
- Args    : primary ID of desired feature
- Status  : public
-
-This is an alias for get_feature_by_id().
+Use fetch_many() to rapidly retrieve multiple features.
 
 =cut
 
@@ -701,26 +691,7 @@ sub fetch {
     return $self->_fetch($primary_id);
   }
 }
-
-=head2 get_feature_by_primary_id
-
- Title   : get_feature_by_primary_id
- Usage   : $feature = $db->get_feature_by_primary_id($primary_id)
- Function: fetch a feature from the database using its primary ID
- Returns : a feature
- Args    : primary ID of desired feature
- Status  : public
-
-This method returns a previously-stored feature from the database
-using its primary ID. If the primary ID is invalid, it returns
-undef. This method is identical to fetch(). Use fetch_many() to efficiently
-retrieve multiple features.
-
-=cut
-
-sub get_feature_by_primary_id {
-    shift->fetch(@_);
-}
+*get_feature_by_id = *get_feature_by_primary_id = \&fetch;
 
 =head2 fetch_many
 
@@ -1120,6 +1091,23 @@ sub features {
   $self->_features(@args);
 }
 
+
+=head2 get_all_features
+
+ Title   : get_all_features
+ Usage   : @features = $db->get_all_features()
+ Function: get all feature in the database
+ Returns : list of features
+ Args    : none
+ Status  : Public
+
+=cut
+
+# for compatibility with Bio::SeqFeature::Collection
+sub get_all_features {
+  shift->features();
+}
+
 =head2 seq_ids
 
  Title   : seq_ids
@@ -1514,9 +1502,10 @@ sub finish_bulk_update { shift->_finish_bulk_update(@_) }
 
  Title   : add_SeqFeature
  Usage   : $count = $db->add_SeqFeature($parent,@children)
- Function: store a parent/child relationship between $parent and @children
+ Function: store a parent/child relationship between a $parent and @children
+           features that are already stored in the database
  Returns : number of children successfully stored
- Args    : parent feature and one or more children
+ Args    : parent feature or primary ID and children features or primary IDs
  Status  : OPTIONAL; MAY BE IMPLEMENTED BY ADAPTORS
 
 If can_store_parentage() returns true, then some store-aware features
@@ -1535,7 +1524,7 @@ sub add_SeqFeature  { shift->_add_SeqFeature(@_)   }
  Usage   : @children = $db->fetch_SeqFeatures($parent_feature)
  Function: return the immediate subfeatures of the indicated feature
  Returns : list of subfeatures
- Args    : the parent feature
+ Args    : the parent feature and an optional list of children types
  Status  : OPTIONAL; MAY BE IMPLEMENTED BY ADAPTORS
 
 If can_store_parentage() returns true, then some store-aware features
@@ -1544,12 +1533,11 @@ feature/subfeature relationships from the database.
 
 =cut
 
-# _get_SeqFeatures($parent,@list_of_child_types)
+# _get_SeqFeatures($parent,@child_types)
 sub fetch_SeqFeatures {
-  my $self = shift;
-  my $obj  = shift;
-  return unless defined $obj->primary_id;
-  $self->_fetch_SeqFeatures($obj,@_);
+  my ($self, $parent, @child_types) = @_;
+  return unless defined $parent->primary_id;
+  $self->_fetch_SeqFeatures($parent,@child_types);
 }
 
 
@@ -1684,7 +1672,7 @@ sub do_compress {
 
 If true, the store() method will add a searchable index to both the
 top-level feature and all its subfeatures, allowing the search
-functions to return features at any level of the conainment
+functions to return features at any level of the containment
 hierarchy. If false, only the top level feature will be indexed,
 meaning that you will only be able to get at subfeatures by fetching
 the top-level feature and then traversing downward using
@@ -2040,7 +2028,7 @@ sub _insert_sequence   { shift->throw_not_implemented }
 
  Title   : _fetch_sequence
  Usage   : $sequence = $db->_fetch_sequence(-seq_id=>$seqid,-start=>$start,-end=>$end)
- Function: Fetch the indicated subsequene from the database
+ Function: Fetch the indicated subsequence from the database
  Returns : The sequence string (not a Bio::PrimarySeq object!)
  Args    : see below
  Status  : ABSTRACT METHOD; MUST BE IMPLEMENTED BY ADAPTOR
@@ -2364,7 +2352,7 @@ sub setup_segment_args {
  Usage   : $success = $db->store_and_cache(@features)
  Function: store features into database and update cache
  Returns : number of features stored
- Args    : list of features
+ Args    : index the features? (0 or 1) and  list of features
  Status  : private
 
 This private method stores the list of Bio::SeqFeatureI objects into

@@ -2,7 +2,7 @@
 # $Id$
 
 use strict;
-use constant TEST_COUNT => 97;
+use constant TEST_COUNT => 115;
 
 BEGIN {
     use lib '.','..';
@@ -24,7 +24,7 @@ my $DEBUG = test_debug();
 
 my $gff_file = test_input_file('seqfeaturedb','test.gff3');
 
-my (@f,$f,$f2,@s,$s,$seq1,$seq2);
+my (@f,$f,$f2,$sf1,$sf2,$sf3,@s,$s,$seq1,$seq2);
 
 my @args = @ARGV;
 @args = (-adaptor => 'memory') unless @args;
@@ -41,9 +41,10 @@ skip "GFF3 loader failed? Skipping all! $@", (TEST_COUNT - 6) if $@;
 ok($loader);
 
 
-# test adding / fetching features
+# test adding
 $f = Bio::SeqFeature::Generic->new(
     -primary_id => '_some_id',
+    -primary    => 'repeat_123',
     -start      => 23,
     -end        => 512,
     -strand     => '+',
@@ -59,7 +60,7 @@ $f2 = Bio::SeqFeature::Generic->new(
                    -start        => 10,
                    -end          => 100,
                    -strand       => -1,
-                   -primary      => 'repeat', # -primary_tag is a synonym
+                   -primary      => 'repeat_123', # -primary_tag is a synonym
                    -source_tag   => 'repeatmasker',
                    -display_name => 'alu family',
                    -score        => 1000,
@@ -69,7 +70,16 @@ $f2 = Bio::SeqFeature::Generic->new(
 );
 ok( $db->store($f2) , 'adding a feature with no primary_id' );
 ok( $f2->primary_id );
+
+# test fetching features
 is( $db->fetch('doesnotexit'), undef);
+is( $db->get_features_by_type('repeat_123:repeatmasker'), 1, 'simple type' );
+is( $db->get_features_by_type('repeat_123:'), 2 );
+is( $db->get_features_by_type('repeat_123'), 2 );
+is( $db->get_features_by_type('rep.*'), 0, 'queried types are not interpolated' );
+ok( @f = $db->types );
+is( @f, 2 );
+isa_ok($f[0], 'Bio::DB::GFF::Typename');
 
 # test removing features
 ok( $db->delete( $f ), 'feature deletion' );
@@ -77,6 +87,23 @@ is( $db->fetch( $f->primary_id ), undef );
 $db->delete( $f2 );
 
 ok( $db->store($f, $f2) );
+
+# test adding seqfeatures
+$sf1 = Bio::SeqFeature::Generic->new( -primary=>'seqfeat1', -start=>23, -end=>512 );
+$sf2 = Bio::SeqFeature::Generic->new( -primary=>'seqfeat2', -start=>23, -end=>512 );
+$sf3 = Bio::SeqFeature::Generic->new( -primary=>'seqfeat1', -start=>23, -end=>512, source_tag => 'dna' );
+ok $db->add_features([$sf1, $sf2, $sf3]), 'adding subfeatures';
+is $db->add_SeqFeature($f, $sf1), 1;
+is $db->add_SeqFeature($f, $sf2, $sf3), 2;
+is $db->add_SeqFeature($f, $sf1, $sf2, $sf3), 3;
+
+# test fetching seqfeatures
+is $db->fetch_SeqFeatures($f), 3;
+is $db->fetch_SeqFeatures($f, 'seqfeat2'), 1;
+is $db->fetch_SeqFeatures($f, 'seqfeat1:dna'), 1;
+is $db->fetch_SeqFeatures($f, 'seqfeat1'), 2;
+is $db->fetch_SeqFeatures($f, 'seqfeat1', 'seqfeat2'), 3;
+is $db->fetch_SeqFeatures($f, 'seqfeat4'), 0;
 
 # exercise the loader
 ok($loader->load($gff_file));
@@ -194,13 +221,16 @@ is(@f, 1);
 
 # test iteration
 @f = $db->features;
-my $feature_count = @f;
-cmp_ok($feature_count, '>', 0);
+is(scalar @f, 32);
+@f = $db->get_all_features;
+is(scalar @f, 32);
+
 
 my $i = $db->get_seq_stream;
 ok($i);
 
 my $count;
+my $feature_count = @f;
 while ($i->next_seq) { $count++ }
 is($feature_count,$count);
 
@@ -296,6 +326,7 @@ ok(my $contig2 = $dbfa->seq('Contig2'));
 ($f) = $db->get_feature_by_name('match4');
 my $length = $f->length;
 ok(substr($contig2,0,$length) eq $f->dna);
+
 
 # testing namespaces for mysql and Pg adaptor
 

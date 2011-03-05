@@ -6,7 +6,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 886,
+    test_begin( -tests => 890,
                 -requires_module => 'DB_File' );
 
     use_ok('Bio::Seq');
@@ -188,8 +188,8 @@ is(@all_seq_ids, 4);
 
 # ACE Consed variant (default)
 $aio = Bio::Assembly::IO->new(
-    -file=>test_input_file('consed_project','edit_dir','test_project.fasta.screen.ace.2'),
-    -format=>'ace'
+    -file   => test_input_file('consed_project','edit_dir','test_project.fasta.screen.ace.2'),
+    -format => 'ace'
 );
 
 my $assembly = $aio->next_assembly();
@@ -200,11 +200,13 @@ my $direction = $contigs[0]->strand;
 is $direction, 1;
 
 my $features =  $contigs[0]->get_features_collection;
-my @contig_features = $features->get_all_features;
-is @contig_features, 59, 'contig features';
 
-my @annotations = grep {$_->primary_tag eq 'Annotation'} @contig_features;
+my @contig_features = $features->features;
+is @contig_features, 61, 'contig features'; # 59 contig features + 2 seqfeatures
+
+my @annotations = $features->get_features_by_type('Annotation');
 is @annotations, 2;
+
 my $had_tag = 0;
 foreach my $an (@annotations) {
     if ($an->has_tag('extra_info')) {
@@ -242,7 +244,14 @@ $aio = Bio::Assembly::IO->new(
 $assembly = $aio->next_assembly();
 is $assembly->get_nof_contigs, 3;
 my @ace_contigs = $assembly->all_contigs();
-isa_ok $ace_contigs[0], "Bio::Assembly::Contig",'the contig is a Bio::Assembly::Contig';
+my $ace_contig = $ace_contigs[0];
+isa_ok $ace_contig, "Bio::Assembly::Contig",'the contig is a Bio::Assembly::Contig';
+
+ok my @test_reads = $ace_contig->get_seq_ids();
+is scalar @test_reads, 2;
+is $test_reads[0], '5704073';
+is $test_reads[1], '5762101';
+
 is $assembly->get_nof_sequences_in_contigs, 6;
 is($assembly->get_nof_singlets, 33, "get_nof_singlets");
 @singlets = $assembly->all_singlets();
@@ -286,10 +295,8 @@ $assembly = $aio->next_assembly();
 my $contig = $contigs[0];
 my $min_aln_coord = undef;
 for my $read ($contig->each_seq) {
-   my $aln_coord_start  = (grep
-      { $_->primary_tag eq "_aligned_coord:".$read->id}
-      $contig->get_features_collection->get_all_features
-      )[0]->location->start;
+   my ($feat) = $contig->get_features_collection->get_features_by_type("_aligned_coord:".$read->id);
+   my $aln_coord_start = $feat->location->start;
    if ( (not defined $min_aln_coord) or ($aln_coord_start < $min_aln_coord) ) {
       $min_aln_coord = $aln_coord_start;
    }
@@ -400,12 +407,10 @@ isa_ok($contig,'Bio::Assembly::Contig');
 
 # check Contig object SeqFeature::Collection
 # should add more specific Contig tests...
-my @sfs = $contig->get_features_collection->get_all_features;
-is(scalar(@sfs), 5);
-my %primary_tags = map { $_->primary_tag => 1 } @sfs;
-ok exists $primary_tags{'_aligned_coord:sdsu|SDSU_RFPERU_006_E04.x01.phd.1'};
+my @sfs = $contig->get_features_collection->features; # 5 contig features + 2 seqfeatures
+is(scalar @sfs, 7);
 is($sfs[1]->seq_id(), undef); # should this be undef?
-
+ok( $contig->get_features_collection->get_features_by_type('_aligned_coord:sdsu|SDSU_RFPERU_006_E04.x01.phd.1') );
 isa_ok($scaf_in->annotation, 'Bio::AnnotationCollectionI');
 is($scaf_in->annotation->get_all_annotation_keys, 0, "no annotations in Annotation collection?");
 

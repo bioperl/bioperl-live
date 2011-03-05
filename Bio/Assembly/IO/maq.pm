@@ -331,7 +331,8 @@ sub _store_contig {
     my %other;
     @other{@other} = @$contiginfo{@other};
     my $contigtags = Bio::SeqFeature::Generic->new(
-        -primary_tag => "_main_contig_feature:$$contiginfo{'asmbl_id'}",
+        -primary     => '_main_contig_feature',
+        -source      => $$contiginfo{'asmbl_id'},
         -start       => 1,
         -end         => $contigobj->get_consensus_length(),
         -strand      => 1,
@@ -458,7 +459,7 @@ sub _store_read {
    $$readinfo{'aln_end'}   = $$readinfo{'posn'} + length($$readinfo{'seqstr'})-1;
 
    my $alncoord = Bio::SeqFeature::Generic->new(
-       -primary_tag => $readobj->id,
+       -primary     => $readobj->id,
        -start       => $$readinfo{'aln_start'},
        -end         => $$readinfo{'aln_end'},
        -strand      => $$readinfo{'strand'},
@@ -474,14 +475,16 @@ sub _store_read {
    my %other;
    @other{@other} = @$readinfo{@other};
    my $readtags = Bio::SeqFeature::Generic->new(
-       -primary_tag => '_main_read_feature:'.$readobj->id,
+       -primary     => '_main_read_feature',
+       -source      => $readobj->id,
        -start       => $$readinfo{'aln_start'},
        -end         => $$readinfo{'aln_end'},
        -strand      => $$readinfo{'strand'},
        # dumping ground:
        -tag         => \%other
    );
-   $alncoord->add_sub_SeqFeature($readtags);
+   $contigobj->get_features_collection->add_features([$readtags]);
+   $contigobj->get_features_collection->add_SeqFeature($alncoord, $readtags);
 
    return $readobj;
 }
@@ -512,9 +515,10 @@ sub _store_singlet {
     #my %other;
     #@other{@other} = @$contiginfo{@other};
     #my $contigtags = Bio::SeqFeature::Generic->new(
-    #    -primary_tag => "_main_contig_feature:$$contiginfo{asmbl_id}",
+    #    -primary     => '_main_contig_feature',
+    #    -source      => $$contiginfo{asmbl_id},
     #    -start       => 1,
-    #     -end         => $singletobj->get_consensus_length(),
+    #    -end         => $singletobj->get_consensus_length(),
     #    -strand      => 1,
     #    # dumping ground:
     #    -tag         => \%other
@@ -525,7 +529,8 @@ sub _store_singlet {
     #$$readinfo{'aln_end'} = $$readinfo{'end'};
     #$$readinfo{'strand'} = ($$readinfo{strand} eq '+' ? 1 : -1);
     #my $alncoord = Bio::SeqFeature::Generic->new(
-    #    -primary_tag => "_aligned_coord:$$readinfo{read_name}",
+    #    -primary     => '_aligned_coord',
+    #    -source      => $$readinfo{read_name},
     #    -start       => $$readinfo{'start'},
     #    -end         => $$readinfo{'end'},
     #    -strand      => $$readinfo{'strand'},
@@ -539,14 +544,16 @@ sub _store_singlet {
     #my %other;
     #@other{@other} = @$readinfo{@other};
     #my $readtags = Bio::SeqFeature::Generic->new(
-    #    -primary_tag => "_main_read_feature:$$readinfo{read_name}",
+    #    -primary     => '_main_read_feature',
+    #    -source      => $$readinfo{read_name},
     #    -start       => $$readinfo{'aln_start'},
     #    -end         => $$readinfo{'aln_end'},
     #    -strand      => $$readinfo{'strand'},
     #    # dumping ground:
     #    -tag         => \%other
     #    );
-    #$alncoord->add_sub_SeqFeature($readtags);
+    #$singletobj->get_features_collection->add_features([$readtags]);
+    #$singletobj->get_features_collection->add_SeqFeature($alncoord, $readtags);
 
     return $singletobj;
 }
