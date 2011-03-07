@@ -144,7 +144,6 @@ sub leaf_nodes { shift->root->leaves }
 sub leaves { shift->root->leaves }
 sub get_leaves { shift->root->leaves }
 sub get_leaf_nodes { shift->root->leaves }
-sub leaves { shift->root->leaves }
 
 sub nodes_breadth_first { shift->root->nodes_breadth_first(@_) }
 sub nodes_depth_first { shift->root->nodes_depth_first(@_) }

@@ -1108,6 +1108,19 @@ sub find_by_tag_regex {
 }
 
 
+sub enclosed_leaves_string {
+  my $self = shift;
+
+  if ($self->is_leaf) {
+    return $self->id;
+  }
+
+  my @leaves_beneath = map {$_->id} $self->leaves;
+  my $leaf_string = join(" ", sort {$a cmp $b} @leaves_beneath);
+  return $leaf_string;
+}
+
+
 # Extracts the minimum spanning subtree defined by the given nodes. Nodes can either be 
 # leaf or internal nodes, and by default all 'elbow' nodes left after the subtree extraction
 # are spliced out of the tree. To keep the internal nodes, call the method
@@ -1198,6 +1211,5 @@ sub _slice {
     }
     return $clone;
 }
-
 
 1;
