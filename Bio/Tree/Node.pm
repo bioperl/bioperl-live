@@ -109,6 +109,36 @@ BEGIN {
     $CREATIONORDER = 1;
 }
 
+
+# Clones this node and the subtree below.
+sub clone {
+    my $self = shift;
+
+    return _clone_and_add_children($self);
+}
+
+sub _clone_and_add_children {
+    my $orig_node = shift;
+    
+    my $clone_node = $orig_node->SUPER::clone;
+
+    # Remove the cloned node from its parent (remove hanging ref)
+    $clone_node->remove_from_parent;
+    foreach my $clone_child ($clone_node->children) {
+	# Remove children from the cloned node (remove hanging refs)
+	$clone_node->remove_child($clone_child);
+    }
+
+    # Recurse, cloning children of the original node and adding them
+    # to the current cloned node.
+    foreach my $orig_child ($orig_node->children) {
+	$clone_node->add_child(_clone_and_add_children($orig_child));
+    }
+    
+    # Return the cloned node.
+    return $clone_node;
+}
+
 =head2 new
 
  Title   : new

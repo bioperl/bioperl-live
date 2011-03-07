@@ -88,11 +88,21 @@ Internal methods are usually preceded with a _
 package Bio::Tree::TreeFunctionsI;
 use strict;
 
+sub slice { return shift->root->slice(@_) }
+sub slice_by_ids { return shift->root->slice_by_ids(@_) }
+
 sub print_tree { print shift->ascii(@_) }
 sub ascii { shift->root->ascii(@_) }
+sub as_text { shift->root->as_text(@_) }
+sub to_string { shift->root->as_text(@_) }
+sub to_newick { shift->root->to_newick(@_) }
+sub newick { shift->root->to_newick(@_) }
 
-sub to_string { shift->as_text(@_) }
-sub to_newick { shift->to_newick(@_) }
+sub translate_ids { shift->root->translate_ids(@_) }
+
+sub remove_internal_node_labels{ shift->root->remove_internal_node_labels(@_) }
+
+sub contract_linear_paths { shift->root->contract_linear_paths(@_) }
 
 sub get_lineage_nodes {
     my $self = shift;
@@ -102,6 +112,10 @@ sub get_lineage_nodes {
 
 sub total_branch_length { shift->root->total_branch_length(@_) }
 sub subtree_length { shift->root->subtree_length(@_) }
+
+sub max_distance_to_leaf { shift->root->max_distance_to_leaf(@_) }
+sub max_depth_to_leaf { shift->root->max_depth_to_leaf(@_) }
+
 sub number_nodes { shift->root->node_count(@_) } # This alias sucks...
 
 =head2 nodes
@@ -130,6 +144,7 @@ sub leaf_nodes { shift->root->leaves }
 sub leaves { shift->root->leaves }
 sub get_leaves { shift->root->leaves }
 sub get_leaf_nodes { shift->root->leaves }
+sub leaves { shift->root->leaves }
 
 sub nodes_breadth_first { shift->root->nodes_breadth_first(@_) }
 sub nodes_depth_first { shift->root->nodes_depth_first(@_) }
@@ -488,9 +503,9 @@ sub reroot {
     return 1;
 }
 
-=head2 reroot
+=head2 reroot_above
 
- Title   : reroot
+ Title   : reroot_above
  Usage   : $tree->reroot_above($outgroup,0.5);
  Function: Re-roots the tree by creating a new node along the branch
            directly above the given node and re-rooting the tree along this

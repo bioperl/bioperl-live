@@ -144,6 +144,44 @@ sub to_newick {
   my $self = shift;
 
   return $self->as_text('nhx');
+
+}
+
+=head2 translate_ids
+
+ Title   : translate_ids
+ Usage   : $node->translate_ids({a => 'Aardvark', b => 'Baobab'});
+ Function: Translates the IDs of all nodes beneath the given node based
+           on the key-value names of an input hash reference.
+ Returns : Nothing (IDs are translated in place)
+ Args    : Hashmap, containing key-value pairs where the key is the old
+           ID of a node and the value is the desired new ID
+
+=cut
+sub translate_ids {
+    my $self = shift;
+    my $id_map = shift;
+
+    foreach my $node ($self->nodes) {
+	my $new_id = $id_map->{$node->id};
+	if (defined $new_id) {
+	    $node->id($new_id);
+	}
+    }
+}
+
+
+sub remove_internal_node_labels {
+    my $self = shift;
+
+    foreach my $node ($self->nodes) {
+	if (!$node->is_leaf) {
+	    $node->id('');
+	}
+    }
+    if (!$self->is_leaf) {
+	$self->id('');
+    }
 }
 
 =head2 is_leaf
@@ -677,6 +715,7 @@ sub remove {
 	$self->parent->remove_child($self);
     }
 }
+sub remove_from_parent { shift->remove(@_) }
 
 =head2 splice
 
@@ -1066,6 +1105,98 @@ sub find_by_tag_regex {
        }
 	return shift @nodes;
     }
+}
+
+
+# Extracts the minimum spanning subtree defined by the given nodes. Nodes can either be 
+# leaf or internal nodes, and by default all 'elbow' nodes left after the subtree extraction
+# are spliced out of the tree. To keep the internal nodes, call the method
+# subtree_with_internals
+# Note: this CLONES the tree and returns a slice of the clone, so the original tree structure
+# is not modified!
+sub slice {
+    my $self = shift;
+    return $self->_slice(1, @_);
+}
+
+sub slice_by_ids {
+    my $self = shift;
+    my @ids = @_;
+
+    my @nodes;
+    foreach my $id (@ids) {
+	my $node = $self->find($id);
+	push @nodes, $node;
+    }
+    return $self->slice(@nodes);
+}
+
+sub slice_with_internals {
+    my $self = shift;
+    return $self->_slice(0, @_);
+}
+
+sub _get_equivalent_nodes_in_cloned_tree {
+    my $self = shift;
+    my $cloned_tree = shift;
+    my @node_list = @_;
+
+    my @node_indices;
+    my @nodes = $self->nodes;
+    for (my $i=0; $i < scalar(@nodes); $i++) {
+	my $cur_node = $nodes[$i];
+	if (grep {$cur_node == $_} @node_list) {
+	    push @node_indices, $i;
+	}
+    }
+    
+    my @cloned_list;
+    my @cloned_nodes = $cloned_tree->nodes;
+    foreach my $index (@node_indices) {
+	push @cloned_list, $cloned_nodes[$index];
+    }
+    return @cloned_list;
+}
+
+sub _slice {
+    my $self = shift;
+    my $remove_internals = shift;
+    my @nodes_to_keep = @_;
+
+    # Create a clone of the current tree, and match up the original nodes_to_keep
+    # with their equivalent in the new tree.
+    my $clone = $self->clone;
+    @nodes_to_keep = $self->_get_equivalent_nodes_in_cloned_tree($clone, @nodes_to_keep);
+
+    # Keep a hash where the keys are refs to the nodes we want to keep.
+    my $keepers_hash;
+    foreach my $node (@nodes_to_keep) {
+	$keepers_hash->{$node} = 1;
+	# Get the array of all nodes from the root to this node.
+	my @lineage = $node->lineage;
+	foreach my $lineage_node (@lineage) {
+	    $keepers_hash->{$lineage_node} = 1;
+	}
+    }
+    
+    # Create an array of nodes to remove. Don't remove a node if it's in the
+    # keepers hash.
+    my @remove_me;
+    foreach my $node ($clone->nodes) {
+	if (!defined $keepers_hash->{$node}) {
+	    push @remove_me, $node;
+	}
+    }
+
+    # Go through each node in the remove_me list and remove it from the tree.
+    foreach my $remove_node (@remove_me) {
+	$remove_node->remove;
+    }
+
+    if ($remove_internals) {
+	$clone->contract_linear_paths;
+    }
+    return $clone;
 }
 
 
