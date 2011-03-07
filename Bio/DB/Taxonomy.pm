@@ -308,7 +308,7 @@ sub _handle_internal_id {
     if (defined $TAXON_IIDS->{taxids}->{$taxid}) {
         # a little dangerous to use this internal method of Bio::Tree::Node;
         # but it is how internal_id() is set
-        $taxon->_creation_id($TAXON_IIDS->{taxids}->{$taxid});
+      #$taxon->_creation_id($TAXON_IIDS->{taxids}->{$taxid});
     }
     else {
         $TAXON_IIDS->{taxids}->{$taxid} = $taxon->internal_id;

@@ -199,12 +199,20 @@ sub write_tree {
     foreach my $tree (@trees) {
       if (  !defined $tree
             || ref($tree) =~ /ARRAY/i
-            || !$tree->isa('Bio::Tree::TreeI') )
+            || !($tree->isa('Bio::Tree::TreeI') or $tree->isa('Bio::Tree::NodeI')
+            )
+        )
       {
         $self->throw(
-                     "Calling write_tree with non Bio::Tree::TreeI object\n");
+                     "Calling write_tree with non Bio::Tree::TreeI object: [$tree]\n");
       }
-      my @data = $self->_write_tree_Helper( $tree->get_root_node, $params);
+      my $node;
+      if ($tree->isa('Bio::Tree::TreeI')) {
+        $node = $tree->get_root_node;
+      } else {
+        $node = $tree;
+      }
+      my @data = $self->_write_tree_Helper( $node, $params);
       $self->_print( join( ',', @data ).";" );
     }
     

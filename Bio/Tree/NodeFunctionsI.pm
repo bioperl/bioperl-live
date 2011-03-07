@@ -105,6 +105,47 @@ package Bio::Tree::NodeFunctionsI;
 use strict;
 
 
+=head2 as_text
+
+ Title   : as_text
+ Usage   : my $tree_as_string = $tree->as_text($format)
+ Function: Returns the tree as a string representation in the 
+           desired format (currently 'newick', 'nhx', or 
+           'tabtree')
+ Returns : String, the tree as expressed in the desired format
+ Args    : String, format type as specified by Bio::TreeIO
+ Note    : This method loads the Bio::TreeIO::$format module
+           on the fly, and commandeers the _write_tree_Helper
+           routine therein to create the tree string. 
+
+=cut
+
+sub as_text {
+    my $self = shift;
+    my $format = shift;
+    my $params_input = shift || {};
+
+    $format = 'nhx' unless (defined $format);
+
+    my $iomod = "Bio::TreeIO::$format";
+    $self->_load_module($iomod);
+
+    my $string = '';
+    open(my $fh,">",\$string) or die ("Couldn't open $string as file: $!\n");
+    my $test = $iomod->new(-format=>$format,-fh=>$fh);
+
+    $test->set_params($params_input);
+    $test->write_tree($self);
+    close($fh);
+    return $string;
+}
+
+sub to_newick {
+  my $self = shift;
+
+  return $self->as_text('nhx');
+}
+
 =head2 is_leaf
 
  Title   : is_leaf
@@ -283,7 +324,12 @@ sub distance {
 
 sub lca {
     my $self = shift;
-    my $other_node = shift;
+    my @other_nodes = @_;
+
+    my $other_node = shift @other_nodes;
+    foreach my $other_other (@other_nodes) {
+      $other_node = $other_node->lca($other_other);
+    }
 
     my @lineage = $self->lineage;
     my @other_lineage = $other_node->lineage;
