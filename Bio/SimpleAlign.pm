@@ -3209,5 +3209,78 @@ sub mask_columns {
 }
 
 
+sub pretty_print {
+  my $self = shift;
+  my $params = shift;
+
+  $params = {} if (!defined $params);
+
+  my $full = $params->{'full'} || 0;
+  my $length = $params->{'length'} || $params->{width} || 150;
+
+  $full = 1 if (!$full && $length > $self->length + 10);
+  
+  if ($full) {
+    my $num_slices = int($self->length / $length);
+    
+    for (my $i=0; $i <= $num_slices; $i++) {
+      my $start = $i*$length+1;
+      my $end = ($i+1)*$length;
+
+      my $top_string = "";
+      for (my $j=0; $j < $length && ($start+$j) < $self->length; $j++) {
+	if ($j % 10 == 0) {
+	  my $pos_string = "".($start+$j);
+	  $top_string .= $pos_string;
+	  $j += CORE::length($pos_string)-1;
+	} else {
+	  $top_string .= " ";
+	}
+      }
+      printf(" %-20.20s  %s\n","",$top_string);
+
+      foreach my $seq ($self->each_seq) {
+        $end = $seq->length if ($end > $seq->length);
+        last if ($start > $seq->length || $end > $seq->length);
+	my $seq_str = $seq->subseq($start,$end);
+	printf(">%-20.20s  %s\n",$seq->id,$seq_str);
+      }
+    }
+    return;
+  }
+  
+  $length = ($length - 20)/2;
+
+  my $aln_length = ($self->length)." cols";
+  my $empty_str = " "x$length;
+  printf(" %-20.20s  %s   [ %10s ]   %s\n",
+	 "",
+	 $empty_str,
+	 $aln_length,
+	 $empty_str
+	 );
+	 
+  foreach my $seq ($self->each_seq) {
+    my $seq_str = $seq->seq;
+    my $end = substr($seq_str,-$length);
+    my $start = substr($seq_str,0,$length);
+    my $mid_str = "";
+    if (CORE::length($seq_str) > 2*$length) {
+      my $mid = substr($seq_str,$length,-$length);
+      my $bases = $mid;
+      $bases =~ s/-//g;
+      my $gaps = $mid;
+      $gaps =~ s/[^-]//g;
+      my $percent = CORE::length($gaps)/CORE::length($mid) * 100;
+      $mid_str = sprintf("(%1.1d%% gaps)",
+			 $percent
+			 );
+    }
+
+    printf(">%-20.20s  %s ... %10s ... %s\n",$seq->id,$start,$mid_str,$end);
+  }
+}
+
+
 
 1;
