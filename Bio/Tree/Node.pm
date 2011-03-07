@@ -120,13 +120,22 @@ sub clone {
 sub _clone_and_add_children {
     my $orig_node = shift;
     
-    my $clone_node = $orig_node->SUPER::clone;
+    #my $clone_node = $orig_node->SUPER::clone;
+
+    # Do a manual clone of all the node's object data.
+    my $clone_node = new $orig_node;
+    $clone_node->id($orig_node->id);
+    $clone_node->branch_length($orig_node->branch_length);
+    $clone_node->bootstrap($orig_node->bootstrap);
+    my $tags = { %{$orig_node->{_tags}} };
+    $clone_node->{_tags} = $tags;
+
 
     # Remove the cloned node from its parent (remove hanging ref)
     $clone_node->remove_from_parent;
     foreach my $clone_child ($clone_node->children) {
-	# Remove children from the cloned node (remove hanging refs)
-	$clone_node->remove_child($clone_child);
+    	# Remove children from the cloned node (remove hanging refs)
+    	$clone_node->remove_child($clone_child);
     }
 
     # Recurse, cloning children of the original node and adding them
