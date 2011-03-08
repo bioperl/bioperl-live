@@ -111,6 +111,7 @@ sub new {
 
 sub next_result {
     my ($self) = @_;
+    local $_;
     while (defined($_=$self->_readline()) ) {
 	if (/no repetitive sequences detected/) {
 	    $self->warn( "RepeatMasker didn't find any repetitive sequences\n");
