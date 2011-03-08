@@ -133,7 +133,7 @@ sub next_result {
 		($hit_start, $hit_end) = @line[11, 12];
 		$strand = 1;
 	    } elsif ($strand eq 'C') {
-		($hit_start, $hit_end) = @line[12, 13];
+		($hit_end, $hit_start) = @line[12, 13];
 		$strand = -1;
 	    }
 	    my $rf = Bio::SeqFeature::Generic->new
@@ -144,7 +144,7 @@ sub next_result {
 		 -strand      => $strand,
 		 -source_tag  => 'RepeatMasker',
 		 -primary_tag => $repeat_class,
-		 -tag => { 'Target'=> [$repeat_name,$hit_start,$hit_end]},
+		 -tag => { 'Target'=> [$repeat_name, $hit_start, $hit_end]},
 		);
 
 	    my $rf2 = Bio::SeqFeature::Generic->new
