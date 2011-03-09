@@ -355,8 +355,10 @@ sub filter_by_type {
     } else {
       ($primary_tag,$source_tag) = split ':',$type,2;
     }
-    my $match = defined $source_tag ? "^$primary_tag:$source_tag\$" : "^$primary_tag:";
     $source_tag ||= '';
+    $primary_tag  = quotemeta($primary_tag);
+    $source_tag    = quotemeta($source_tag);
+    my $match = length $source_tag ? "^$primary_tag:$source_tag\$" : "^$primary_tag:";
     my $key      = lc "$primary_tag:$source_tag";
     my $value;
 

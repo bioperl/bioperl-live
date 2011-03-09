@@ -776,8 +776,9 @@ sub _add_SeqFeature {
   for my $child (@children) {
     my $child_id = ref $child ? $child->primary_id : $child;
     defined $child_id or $self->throw("no primary ID known for $child");
-    $p->{$parent_id} = $child_id;
+    $p->{$parent_id} = $child_id if tied(%$p)->find_dup($parent_id,$child_id);
   }
+  return scalar @children;
 }
 
 sub _fetch_SeqFeatures {
@@ -792,10 +793,19 @@ sub _fetch_SeqFeatures {
   my @children      = map {$self->fetch($_)} @children_ids;
 
   if (@types) {
-    my $regexp = join '|',map {quotemeta($_)} $self->find_types(@types);
-    return grep {($_->primary_tag.':'.$_->source_tag) =~ /^$regexp$/i} @children;
+      foreach (@types) { 
+	  my ($a,$b) = split ':',$_,2;
+	  $_  = quotemeta($a);
+	  if (length $b) {
+	      $_ .= ":".quotemeta($b).'$';
+	  } else {
+	      $_ .= ':';
+	  }
+      }
+      my $regexp = join '|', @types;
+      return grep {($_->primary_tag.':'.$_->source_tag) =~ /^($regexp)/i} @children;
   } else {
-    return @children;
+      return @children;
   }
 }
 
@@ -1478,6 +1488,7 @@ sub _deleteid {
   my $obj  = $self->fetch($id) or return;
   $self->_delete_indexes($obj,$id);
   delete $self->db->{$id};
+  1;
 }
 
 sub _clearall {

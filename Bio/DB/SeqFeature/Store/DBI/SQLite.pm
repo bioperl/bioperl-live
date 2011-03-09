@@ -332,7 +332,7 @@ END
   id    integer not null,
   child integer not null
 );
-create index index_parent2child_id_child on parent2child(id,child);
+create unique index index_parent2child_id_child on parent2child(id,child);
 END
 
 	  meta => <<END,
@@ -882,7 +882,7 @@ sub _types_sql {
       ($primary_tag,$source_tag) = split ':',$type,2;
     }
 
-    if (defined $source_tag) {
+    if (length $source_tag) {
       push @matches,"lower(tl.tag)=lower(?)";
       push @args,"$primary_tag:$source_tag";
     } else {
@@ -981,7 +981,7 @@ sub bulk_replace {
 sub _get_location_and_bin {
     my $self = shift;
     my $obj  = shift;
-    my $seqid   = $self->_locationid($obj->seq_id);
+    my $seqid   = $self->_locationid($obj->seq_id||'');
     my $start   = $obj->start;
     my $end     = $obj->end;
     my $strand  = $obj->strand;

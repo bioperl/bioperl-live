@@ -302,7 +302,7 @@ END
 (
   id               int(10)       not null,
   child            int(10)       not null,
-  index(id,child)
+  unique index(id,child)
 )
 END
 
@@ -1057,7 +1057,7 @@ sub _types_sql {
       ($primary_tag,$source_tag) = split ':',$type,2;
     }
 
-    if (defined $source_tag) {
+    if (length $source_tag) {
       if (length($primary_tag)) {
         push @matches,"tl.tag=?";
         push @args,"$primary_tag:$source_tag";
@@ -1594,7 +1594,7 @@ sub _attributeid {
 sub _get_location_and_bin {
   my $self = shift;
   my $feature = shift;
-  my $seqid   = $self->_locationid($feature->seq_id);
+  my $seqid   = $self->_locationid($feature->seq_id||'');
   my $start   = $feature->start;
   my $end     = $feature->end;
   my $strand  = $feature->strand || 0;

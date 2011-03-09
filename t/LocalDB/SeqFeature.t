@@ -41,24 +41,24 @@ ok($loader);
 
 $new_features = 0;
 SKIP: {
-    skip("skipping memory adaptor-specific tests",27)
-	unless $db->isa('Bio::DB::SeqFeature::Store::memory');
+#    skip("skipping memory adaptor-specific tests",27)
+#	unless $db->isa('Bio::DB::SeqFeature::Store::memory');
 	
 
 # test adding
-    $f = Bio::SeqFeature::Generic->new(
-	-primary_id => '_some_id',
+    my $n = Bio::SeqFeature::Generic->new(
+#	-primary_id => '_some_id',  # you're not allowed to do this!!
 	-primary    => 'repeat_123',
 	-start      => 23,
 	-end        => 512,
 	-strand     => '+',
 	-display_name => 'My favorite feature'
 	);
-    ok( $db->add_features([$f]), 'adding a feature' );
-    ok( @f = $db->fetch('_some_id') );
+    ok( my $id = $db->add_features([$n]), 'adding a feature' );
+    ok( @f = $db->fetch($n->primary_id));
     is( scalar @f, 1 );
     $f = $f[0];
-    is( $f->primary_id, '_some_id' );
+    is( $f->primary_id, $n->primary_id);
     
     $f2 = Bio::SeqFeature::Generic->new(
 	-start        => 10,
@@ -78,8 +78,8 @@ SKIP: {
 # test fetching features
     is( $db->fetch('doesnotexit'), undef);
     is( $db->get_features_by_type('repeat_123:repeatmasker'), 1, 'simple type' );
-    is( $db->get_features_by_type('repeat_123:'), 2 );
-    is( $db->get_features_by_type('repeat_123'), 2 );
+    is( $db->get_features_by_type('repeat_123:'), 2, 'base type with colon' );
+    is( $db->get_features_by_type('repeat_123'), 2, 'base type alone' );
     is( $db->get_features_by_type('rep.*'), 0, 'queried types are not interpolated' );
     ok( @f = $db->types );
     is( @f, 2 );

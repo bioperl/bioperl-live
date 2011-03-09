@@ -304,7 +304,7 @@ END
   id               int       not null,
   child            int       not null
 );
-  CREATE INDEX parent2child_id_child ON parent2child(id,child);
+  CREATE UNIQUE INDEX parent2child_id_child ON parent2child(id,child);
 END
 
 	  meta => <<END,
