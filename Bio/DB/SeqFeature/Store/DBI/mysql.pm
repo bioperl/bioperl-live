@@ -515,7 +515,7 @@ sub _store {
 
   my $dbh = $self->dbh;
   local $dbh->{RaiseError} = 1;
-  $dbh->begin_work;
+  $self->begin_work;
   eval {
     for my $obj (@_) {
       $self->replace($obj,$indexed);
@@ -526,10 +526,10 @@ sub _store {
 
   if ($@) {
     warn "Transaction aborted because $@";
-    $dbh->rollback;
+    $self->rollback;
   }
   else {
-    $dbh->commit;
+    $self->commit;
   }
 
   # remember whether we are have ever stored a non-indexed feature
@@ -554,6 +554,7 @@ sub autoindex {
 sub _start_bulk_update {
   my $self = shift;
   my $dbh  = $self->dbh;
+  $self->begin_work;
   $self->{bulk_update_in_progress}++;
 }
 
@@ -571,6 +572,7 @@ sub _finish_bulk_update {
   }
   delete $self->{bulk_update_in_progress};
   delete $self->{filehandles};
+  $self->commit;
 }
 
 
@@ -599,7 +601,7 @@ END
   my $parent_id = (ref $parent ? $parent->primary_id : $parent) 
     or $self->throw("$parent should have a primary_id");
 
-  $dbh->begin_work or $self->throw($dbh->errstr);
+  $self->begin_work or $self->throw($dbh->errstr);
   eval {
     for my $child (@children) {
       my $child_id = ref $child ? $child->primary_id : $child;
@@ -611,10 +613,10 @@ END
 
   if ($@) {
     warn "Transaction aborted because $@";
-    $dbh->rollback;
+    $self->rollback;
   }
   else {
-    $dbh->commit;
+    $self->commit;
   }
   $sth->finish;
   $count;
@@ -1143,7 +1145,7 @@ sub reindex {
   # to each individual feature
   local $self->{reindexing} = 1;
 
-  $dbh->begin_work;
+  $self->begin_work;
   eval {
     my $update = $from_update_table;
     for my $table ($self->index_tables) {
@@ -1169,10 +1171,10 @@ sub reindex {
   }
   if (@_) {
     warn "Couldn't complete transaction: $@";
-    $dbh->rollback;
+    $self->rollback;
     return;
   } else {
-    $dbh->commit;
+    $self->commit;
     return 1;
   }
 }
@@ -2023,7 +2025,7 @@ sub build_summary_statistics {
     my $self   = shift;
     my $interval_stats = $self->_interval_stats_table;
     my $dbh    = $self->dbh;
-    $dbh->begin_work;
+    $self->begin_work;
 
     my $sbs = SUMMARY_BIN_SIZE;
     
@@ -2088,7 +2090,7 @@ END
 	1;
     };
 	
-    if ($result) { $dbh->commit } else { warn "Can't build summary statistics: $@"; $dbh->rollback };
+    if ($result) { $self->commit } else { warn "Can't build summary statistics: $@"; $self->rollback };
     print STDERR "\n";
 }
 
@@ -2147,5 +2149,30 @@ sub DESTROY {
     }
   }
 }
+
+sub begin_work {
+    my $self = shift;
+    return if $self->{_in_transaction}++;
+    my $dbh  = $self->dbh;
+    return unless $dbh->{AutoCommit};
+    $dbh->begin_work;
+}
+
+sub commit {
+    my $self = shift;
+    return unless $self->{_in_transaction};
+    delete $self->{_in_transaction};
+    $self->dbh->commit;
+}
+
+sub rollback {
+    my $self = shift;
+    return unless $self->{_in_transaction};
+    delete $self->{_in_transaction};
+    $self->dbh->rollback;
+}
+
+
+
 
 1;

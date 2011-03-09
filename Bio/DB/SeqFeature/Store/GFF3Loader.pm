@@ -403,8 +403,8 @@ sub load_line { #overridden
     }
 
     elsif ($line =~ /^>\s*(\S+)/) { # FASTA lines are coming
-      $load_data->{mode} = 'fasta';
-      $self->start_or_finish_sequence($1);
+	$load_data->{mode} = 'fasta';
+	$self->start_or_finish_sequence($1);
     }
 
     elsif ($load_data->{mode} eq 'fasta') {

@@ -417,7 +417,7 @@ sub _finish_bulk_update {
   my $dbh  = $self->dbh;
   my $dir = $self->{dumpdir} || '.';
 
-  $dbh->begin_work; # making this a transaction greatly improves performance
+  $self->begin_work; # making this a transaction greatly improves performance
   
   for my $table ('feature', $self->index_tables) {
     my $fh = $self->dump_filehandle($table);
@@ -461,7 +461,7 @@ sub _finish_bulk_update {
     $fh->close();
     unlink $path;
   }
-  $dbh->commit; # commit the transaction
+  $self->commit; # commit the transaction
   delete $self->{bulk_update_in_progress};
   delete $self->{filehandles};
 }

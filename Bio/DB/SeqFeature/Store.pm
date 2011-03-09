@@ -2714,6 +2714,9 @@ sub next_seq {
   return shift @$self;
 }
 
+sub begin_work { }# noop 
+sub commit     { }# noop 
+sub rollback   { }# noop 
 
 1;
 

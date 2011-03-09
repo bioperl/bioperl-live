@@ -303,7 +303,9 @@ sub _features {
 
   my @result;
   unless (defined $name or defined $seq_id or defined $types or defined $attributes) {
-    @result = grep {!/^\./} keys %{$self->db};
+      my $is_indexed = $self->index_db('is_indexed');
+      @result = $is_indexed ? grep {$is_indexed->{$_}} keys %{$self->db}
+                            : grep { !/^\./ }keys %{$self->db};
   }
 
   my %found = ();

@@ -1,6 +1,5 @@
 package Bio::DB::SeqFeature::Store::berkeleydb;
 
-
 use strict;
 use base 'Bio::DB::SeqFeature::Store';
 use Bio::DB::GFF::Util::Rearrange 'rearrange';
@@ -645,8 +644,9 @@ sub open_index_dbs {
     for my $idx ($self->_index_files) {
 	my $path = $self->_qualify("$idx.idx");
 	my %db;
-	tie(%db,'DB_File',$path,$flags,0666,$DB_BTREE)
-	    or $self->throw("Couldn't tie $path: $!");
+	my $result = tie(%db,'DB_File',$path,$flags,0666,$DB_BTREE);
+	# for backward compatibility, allow a failure when trying to open the is_indexed index.
+	$self->throw("Couldn't tie $path: $!") unless $result || $idx eq 'is_indexed';
 	%db = () if $create;
 	$self->index_db($idx=>\%db);
     }
@@ -731,12 +731,14 @@ sub _store {
   my $self    = shift;
   my $indexed = shift;
   my $db   = $self->db;
+  my $is_indexed = $self->index_db('is_indexed');
   my $count = 0;
   for my $obj (@_) {
     my $primary_id = $obj->primary_id;
     $self->_delete_indexes($obj,$primary_id)  if $indexed && $primary_id;
     $primary_id    = $db->{'.next_id'}++      unless defined $primary_id;
     $db->{$primary_id} = $self->freeze($obj);
+    $is_indexed->{$primary_id} = $indexed if $is_indexed;
     $obj->primary_id($primary_id);
     $self->_update_indexes($obj)              if $indexed;
     $count++;
@@ -933,6 +935,14 @@ sub notes_db {
   $d;
 }
 
+# the is_indexed_db 
+sub is_indexed_db {
+  my $self = shift;
+  my $d = $self->setting('is_indexed_db');
+  $self->setting(is_indexed_db=>shift) if @_;
+  $d;
+}
+
 # The indicated index berkeley db
 sub index_db {
   my $self = shift;
@@ -951,7 +961,7 @@ sub _mtime {
 
 # return names of all the indexes
 sub _index_files {
-  return qw(names types locations attributes);
+  return qw(names types locations attributes is_indexed);
 }
 
 # the directory in which we store our indexes
@@ -1044,7 +1054,9 @@ sub _features {
 
   my @result;
   unless (defined $name or defined $seq_id or defined $types or defined $attributes) {
-    @result = grep {!/^\./} keys %{$self->db};
+      my $is_indexed = $self->index_db('is_indexed');
+      @result = $is_indexed ? grep {$is_indexed->{$_}} keys %{$self->db}
+                            : grep { !/^\./ }keys %{$self->db};
   }
 
   my %found = ();

@@ -475,7 +475,7 @@ sub _add_SeqFeature {
   my $parent_id = (ref $parent ? $parent->primary_id : $parent) 
     or $self->throw("$parent should have a primary_id");
 
-  $dbh->begin_work or $self->throw($dbh->errstr);
+  $self->begin_work or $self->throw($dbh->errstr);
   eval {
     for my $child (@children) {
       my $child_id = ref $child ? $child->primary_id : $child;
@@ -488,10 +488,10 @@ sub _add_SeqFeature {
 
   if ($@) {
     warn "Transaction aborted because $@";
-    $dbh->rollback;
+    $self->rollback;
   }
   else {
-    $dbh->commit;
+    $self->commit;
   }
   $sth->finish;
   $count;
