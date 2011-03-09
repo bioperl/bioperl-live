@@ -337,6 +337,56 @@ sub _features {
                    : map {$self->fetch($_)} @result;
 }
 
+sub filter_by_type {
+  my $self = shift;
+  my ($types,$filter) = @_;
+  my @types = ref $types eq 'ARRAY' ?  @$types : $types;
+
+  my $index = $self->index_db('types');
+  my $db    = tied(%$index);
+
+  my @results;
+
+  for my $type (@types) {
+    my ($primary_tag,$source_tag);
+    if (ref $type && $type->isa('Bio::DB::GFF::Typename')) {
+      $primary_tag = $type->method;
+      $source_tag  = $type->source;
+    } else {
+      ($primary_tag,$source_tag) = split ':',$type,2;
+    }
+    my $match = defined $source_tag ? "^$primary_tag:$source_tag\$" : "^$primary_tag:";
+    $source_tag ||= '';
+    my $key      = lc "$primary_tag:$source_tag";
+    my $value;
+
+    # If filter is already provided, then it is usually faster to
+    # fetch each object.
+    if (%$filter) {  
+	for my $id (keys %$filter) {
+	    my $obj = $self->_fetch($id) or next;
+	    push @results,$id if $obj->type =~ /$match/i;
+	}
+
+    }
+
+    else {
+	my $types   = $self->typeid_db;
+	my @typeids = map {$types->{$_}} grep {/$match/} keys %$types;
+	for my $t (@typeids) {
+	    my $k = $t;
+	    for (my $status = $db->seq($k,$value,R_CURSOR);
+		 $status == 0 && $k == $t;
+		 $status = $db->seq($k,$value,R_NEXT)) {
+		next if %$filter && !$filter->{$value};  # don't even bother
+		push @results,$value;
+	    }
+	}
+    }
+  }
+  $self->update_filter($filter,\@results);
+}
+
 sub filter_by_type_and_location {
   my $self = shift;
   my ($seq_id,$start,$end,$strand,$range_type,$typelist,$filter) = @_;

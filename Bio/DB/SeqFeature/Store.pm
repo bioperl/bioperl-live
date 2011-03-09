@@ -469,6 +469,12 @@ successfully stored, the method returns true. In the DBI
 implementation, the store is performed as a single transaction and the
 transaction is rolled back if one or more store operations failed.
 
+In most cases, you should let the database assign the primary id. If
+the object you store already has a primary_id, then the ID must adhere
+to the datatype expected by the adaptor: an integer in the
+case of the various DB adaptors, and a string in the case of the
+memory and berkeley adaptors.
+
 You can find out what the primary ID of the feature has become by
 calling the feature's primary_id() method:
 

@@ -2,7 +2,7 @@
 # $Id$
 
 use strict;
-use constant TEST_COUNT => 114;
+use constant TEST_COUNT => 116;
 
 BEGIN {
     use lib '.','..','./t/lib';
@@ -43,6 +43,7 @@ $new_features = 0;
 SKIP: {
     skip("skipping memory adaptor-specific tests",27)
 	unless $db->isa('Bio::DB::SeqFeature::Store::memory');
+	
 
 # test adding
     $f = Bio::SeqFeature::Generic->new(
@@ -187,6 +188,10 @@ is($shared1->primary_id, $shared2->primary_id);
 is($shared1->phase, 0);
 is($shared1->strand, +1);
 is(($f->attributes('expressed'))[0], 'yes');
+
+# test type getting
+is (scalar $db->get_features_by_type('transcript'), 4, 'base type');
+is (scalar $db->get_features_by_type('transcript:confirmed'), 2, 'base:source type');
 
 # test autoloading
 my ($gene3a) = grep { $_->display_name eq 'gene3.a'} @transcripts;
