@@ -446,9 +446,9 @@ sub next_contig {
                 -source  => $readID,
                 -tag     => { 'type'          => $type,
                               'source'        => $source,
-                              'creation_date' => $date,
-                              'extra_info'    => $extra_info }
+                              'creation_date' => $date}
             );
+            $read_tag->add_tag_value('extra_info', $extra_info) if defined $extra_info;
             my $contig = $read_data->{$readID}{'contig'};
             my $coord  = $contig->get_seq_coord( $contig->get_seq_by_name($readID) );
             $contig->get_features_collection->add_features([$read_tag]);
@@ -918,7 +918,8 @@ sub _write_read {
         my $type   = ($read_tag->get_tag_values('type')         )[0];
         my $source = ($read_tag->get_tag_values('source')       )[0];
         my $date   = ($read_tag->get_tag_values('creation_date'))[0];
-        my $extra  = ($read_tag->get_tag_values('extra_info')   )[0] || '';
+        my $extra  = $read_tag->has_tag('extra_info') ?
+                ($read_tag->get_tag_values('extra_info')   )[0] : '';
         $self->_print(
             "RT{\n".
             "$read_id $type $source $start $end $date\n".
