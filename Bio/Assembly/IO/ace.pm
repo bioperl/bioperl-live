@@ -313,6 +313,7 @@ sub next_contig {
             my $bs_feat = Bio::SeqFeature::Generic->new(
                 -start   => $start,
                 -end     => $end,
+                -source  => 'ace',
                 -strand  => 1,
                 -primary => '_base_segments',
                 -tag     => { 'contig_id' => $contig_id}
@@ -562,6 +563,7 @@ sub scaffold_annotations {
             my $contig_tag = Bio::SeqFeature::Generic->new( -start   => $start,
                                                             -end     => $end,
                                                             -primary => $type,
+                                                            -source  => 'ace',
                                                             -tag     => \%tags );
             my $contig = $assembly->get_contig_by_id($contigID) ||
                          $assembly->get_singlet_by_id($contigID);
