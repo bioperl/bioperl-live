@@ -1085,11 +1085,9 @@ sub DESTROY {
 
 sub close {
     my $self = shift;
-    if ( $self->mode eq 'w' ) {
-        if ($self->{'_writer'}->in_element('seqXML')) {
-            $self->{'_writer'}->endTag("seqXML");
-            $self->{'_writer'}->end();
-        }
+    if ( $self->mode eq 'w' && $self->{'_writer'}->within_element('seqXML') ) {
+        $self->{'_writer'}->endTag("seqXML");
+        $self->{'_writer'}->end();
     }
     $self->SUPER::close();
 }
