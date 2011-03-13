@@ -355,6 +355,7 @@ sub next_contig {
             my $coord = Bio::SeqFeature::Generic->new(
                 -start  => $padded_start,
                 -end    => $padded_end,
+                -source => 'ace',
                 -strand => $read_data->{$read_name}{'strand'},
                 -tag    => { 'contig' => $contigOBJ->id }
             );
@@ -397,7 +398,7 @@ sub next_contig {
                     -end     => $qual_end,
                     -strand  => $read_data->{$read_name}{'strand'},
                     -primary => '_quality_clipping',
-                    -source  => $read_name,
+                    -source  => $read_name || '',
                 );
                 $qual_feat->attach_seq( $contigOBJ->get_seq_by_name($read_name) );
                 $contigOBJ->add_features([ $qual_feat ], 0);
@@ -422,7 +423,7 @@ sub next_contig {
                 -start   => $start,
                 -end     => $end,
                 -primary => '_read_desc', # primary_tag
-                -source  => $read_name,
+                -source  => $read_name || '',
                 -tag     => \%tags
             );
             $contigOBJ->get_features_collection->add_features([$read_desc]);
@@ -443,7 +444,7 @@ sub next_contig {
                 -start   => $start,
                 -end     => $end,
                 -primary => '_read_tags',
-                -source  => $readID,
+                -source  => $readID || '',
                 -tag     => { 'type'          => $type,
                               'source'        => $source,
                               'creation_date' => $date}
