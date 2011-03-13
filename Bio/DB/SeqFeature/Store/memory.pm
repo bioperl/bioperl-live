@@ -475,7 +475,7 @@ sub find_types {
     } else {
       ($primary_tag, undef, $source_tag) = ($type_req =~ m/^(.*?)(:(.*))?$/); 
     }
-    ($primary_tag, $source_tag) = (lc $primary_tag, lc $source_tag);
+    ($primary_tag, $source_tag) = (lc $primary_tag, lc($source_tag || ''));
 
     next if not exists $$types{$primary_tag};
 
