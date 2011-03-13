@@ -16,12 +16,11 @@ BEGIN {
 ok my $obj = Bio::Root::Root->new();
 isa_ok($obj, 'Bio::Root::RootI');
 
-eval { $obj->throw('Testing throw') };
-ok $@ =~ /Testing throw/;# 'throw failed';
+throws_ok { $obj->throw('Testing throw') } qr/Testing throw/;# 'throw failed';
 
 # test throw_not_implemented()
-eval { $obj->throw_not_implemented() };
-ok $@ =~ /EXCEPTION: Bio::Root::NotImplemented/;
+throws_ok { $obj->throw_not_implemented() } qr/EXCEPTION Bio::Root::NotImplemented/;
+
 {
     package Bio::FooI;
     use base qw(Bio::Root::RootI);
