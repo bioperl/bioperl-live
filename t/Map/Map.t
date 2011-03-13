@@ -681,7 +681,7 @@ use_ok('Bio::Map::Prediction');
         is $gene->display_id($map1), 'ENSG00000139618';
         is $gene->display_id($map2), 'ENSMUSG00000041147';
         is $gene->display_id($map4), 'ENSGALG00000017073';
-        is $gene->display_xref($map4), 'NP_989607.1';
+        is $gene->display_xref($map4), 'Q8QFV6_CHICK';
         is $gene->external_name($map1), 'BRCA2';
         is $gene->biotype($map2), 'protein_coding';
         is $gene->source($map4), 'ensembl';
@@ -697,8 +697,10 @@ use_ok('Bio::Map::Prediction');
         is length($seq), 84737;
         is substr($seq, 0, 20), 'TGTTACAGAACCAACGAATT'; # start of upstream
         is substr($seq, -20, 20), 'CTACAAGTATTATTTTACAA'; # end of gene since no downstream
-        is substr($map1->subseq($gene->coding_position($map1)), 0, 3), 'ATG';
-        my $exon1_str = 'GGGCTTGTGGCGCGAGCTTCTGAAACTAGGCGGCAGAGGCGGAGCCGCTGTGGCACTGCTGCGCCTCTGCTGCG';
+        is substr($map1->subseq($gene->coding_position($map1)), 0, 3), 'GGG';
+        my $exon1_str = 'GGGCTTGTGGCGCGAGCTTCTGAAACTAGGCGGCAGAGGCGGAGCCGCTGTG'.
+            'GCACTGCTGCGCCTCTGCTGCGCCTCGGGTGTCTTTTGCGGCGGTGGGTCGCCGCCGGGAGAAG'.
+            'CGTGAGGGGACAGA';
         my $exon1_pos = $gene->get_exon_position($map1, 1);
         is $map1->subseq($exon1_pos), $exon1_str;
         is $exon1_pos->seq, $exon1_str;
