@@ -474,7 +474,7 @@ sub throw {
     }
     else {
         $class ||= '';
-        $class = ' '.$class if $class;
+        $class = ': '.$class if $class;
         my $std = $self->stack_trace_dump();
         my $title = "------------- EXCEPTION$class -------------";
         my $footer = ('-' x CORE::length($title))."\n";

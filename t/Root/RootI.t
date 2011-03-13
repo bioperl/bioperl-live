@@ -19,7 +19,7 @@ isa_ok($obj, 'Bio::Root::RootI');
 throws_ok { $obj->throw('Testing throw') } qr/Testing throw/;# 'throw failed';
 
 # test throw_not_implemented()
-throws_ok { $obj->throw_not_implemented() } qr/EXCEPTION Bio::Root::NotImplemented/;
+throws_ok { $obj->throw_not_implemented() } qr/EXCEPTION: Bio::Root::NotImplemented/;
 
 {
     package Bio::FooI;
@@ -32,8 +32,7 @@ throws_ok { $obj->throw_not_implemented() } qr/EXCEPTION Bio::Root::NotImplement
 	};
 }
 $obj = Bio::FooI->new();
-eval { $obj->throw_not_implemented() };
-ok $@ =~ /EXCEPTION /;
+throws_ok { $obj->throw_not_implemented() } qr/EXCEPTION /;
 $obj = Bio::Root::Root->new();
 
 # doesn't work in perl 5.00405
@@ -52,15 +51,12 @@ $obj = Bio::Root::Root->new();
 #'verbose(0) warn did not work properly' . $val;
 
 $obj->verbose(-1);
-eval { $obj->throw('Testing throw') };
-ok $@=~ /Testing throw/;# 'verbose(-1) throw did not work properly' . $@;
+throws_ok { $obj->throw('Testing throw') } qr/Testing throw/;# 'verbose(-1) throw did not work properly' . $@;
 
-eval { $obj->warn('Testing warn') };
-ok !$@;
+lives_ok { $obj->warn('Testing warn') };
 
 $obj->verbose(1);
-eval { $obj->throw('Testing throw') };
-ok $@ =~ /Testing throw/;# 'verbose(1) throw did not work properly' . $@;
+throws_ok { $obj->throw('Testing throw') } qr/Testing throw/;# 'verbose(1) throw did not work properly' . $@;
 
 # doesn't work in perl 5.00405
 #undef $val;
