@@ -313,6 +313,7 @@ sub next_contig {
             my $bs_feat = Bio::SeqFeature::Generic->new(
                 -start   => $start,
                 -end     => $end,
+                -source  => 'ace',
                 -strand  => 1,
                 -primary => '_base_segments',
                 -tag     => { 'contig_id' => $contig_id}
@@ -354,6 +355,7 @@ sub next_contig {
             my $coord = Bio::SeqFeature::Generic->new(
                 -start  => $padded_start,
                 -end    => $padded_end,
+                -source => 'ace',
                 -strand => $read_data->{$read_name}{'strand'},
                 -tag    => { 'contig' => $contigOBJ->id }
             );
@@ -396,7 +398,7 @@ sub next_contig {
                     -end     => $qual_end,
                     -strand  => $read_data->{$read_name}{'strand'},
                     -primary => '_quality_clipping',
-                    -source  => $read_name,
+                    -source  => $read_name || '',
                 );
                 $qual_feat->attach_seq( $contigOBJ->get_seq_by_name($read_name) );
                 $contigOBJ->add_features([ $qual_feat ], 0);
@@ -421,7 +423,7 @@ sub next_contig {
                 -start   => $start,
                 -end     => $end,
                 -primary => '_read_desc', # primary_tag
-                -source  => $read_name,
+                -source  => $read_name || '',
                 -tag     => \%tags
             );
             $contigOBJ->get_features_collection->add_features([$read_desc]);
@@ -442,12 +444,12 @@ sub next_contig {
                 -start   => $start,
                 -end     => $end,
                 -primary => '_read_tags',
-                -source  => $readID,
+                -source  => $readID || '',
                 -tag     => { 'type'          => $type,
                               'source'        => $source,
-                              'creation_date' => $date,
-                              'extra_info'    => $extra_info }
+                              'creation_date' => $date}
             );
+            $read_tag->add_tag_value('extra_info', $extra_info) if defined $extra_info;
             my $contig = $read_data->{$readID}{'contig'};
             my $coord  = $contig->get_seq_coord( $contig->get_seq_by_name($readID) );
             $contig->get_features_collection->add_features([$read_tag]);
@@ -562,6 +564,7 @@ sub scaffold_annotations {
             my $contig_tag = Bio::SeqFeature::Generic->new( -start   => $start,
                                                             -end     => $end,
                                                             -primary => $type,
+                                                            -source  => 'ace',
                                                             -tag     => \%tags );
             my $contig = $assembly->get_contig_by_id($contigID) ||
                          $assembly->get_singlet_by_id($contigID);
@@ -916,7 +919,8 @@ sub _write_read {
         my $type   = ($read_tag->get_tag_values('type')         )[0];
         my $source = ($read_tag->get_tag_values('source')       )[0];
         my $date   = ($read_tag->get_tag_values('creation_date'))[0];
-        my $extra  = ($read_tag->get_tag_values('extra_info')   )[0] || '';
+        my $extra  = $read_tag->has_tag('extra_info') ?
+                ($read_tag->get_tag_values('extra_info')   )[0] : '';
         $self->_print(
             "RT{\n".
             "$read_id $type $source $start $end $date\n".

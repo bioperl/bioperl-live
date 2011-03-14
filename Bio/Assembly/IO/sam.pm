@@ -362,7 +362,7 @@ sub _store_contig {
     #    # dumping ground:
     #    -tag         => \%other
     #);
-    $contigobj->add_features([ $contigtags ], 1);
+    #$contigobj->add_features([ $contigtags ], 1);
 
     return $contigobj;
 }

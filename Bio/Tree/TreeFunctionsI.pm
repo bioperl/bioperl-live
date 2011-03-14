@@ -635,10 +635,12 @@ sub force_binary {
 
     my @descs = $node->each_Descendent;
     if (@descs > 2) {
-        $self->warn("Node ".($node->can('node_name') ? ($node->node_name || $node->id) : $node->id).
-                    " has more than two descendants\n(".
-                    join(", ", map { $node->can('node_name') ? ($node->node_name || $node->id || '') : $node->id || '' } @descs).
-                    ")\nWill do an arbitrary balanced split");
+        # Removed overly verbose warning - cjfields 3-12-11
+        
+        # Many nodes have no identifying names, a simple warning is probably
+        # enough.
+
+        $self->warn("Node has more than two descendants\nWill do an arbitrary balanced split");
         my @working = @descs;
         # create an even set of artifical nodes on which to later hang the descs
         my $half = @working / 2;
