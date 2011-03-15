@@ -568,6 +568,9 @@ element in an array:
 
 =cut
 
+# cache the default codon table if one isn't passed
+my $CODON_TABLE;
+
 sub translate {
 	 my ($self,@args) = @_;
      my ($terminator, $unknown, $frame, $codonTableId, $complete,
@@ -577,17 +580,9 @@ sub translate {
 	 if ($args[0] && $args[0] =~ /^-[A-Z]+/i) {
          ($terminator, $unknown, $frame, $codonTableId, $complete,
          $complete_codons, $throw,$codonTable, $orf, $start_codon, $offset) =
-			 $self->_rearrange([qw(TERMINATOR
-                                               UNKNOWN
-                                               FRAME
-                                               CODONTABLE_ID
-                                               COMPLETE
-                                               COMPLETE_CODONS
-                                               THROW
-                                               CODONTABLE
-                                               ORF
-                                               START
-                                               OFFSET)], @args);
+             $self->_rearrange([qw(TERMINATOR UNKNOWN FRAME CODONTABLE_ID
+             COMPLETE COMPLETE_CODONS THROW CODONTABLE ORF START OFFSET)],
+                                               @args);
 	 ## old API, 1.5.1 and preceding versions
 	 } else {
 		 ($terminator, $unknown, $frame, $codonTableId,
@@ -606,10 +601,10 @@ sub translate {
 		 $self->throw("Need a Bio::Tools::CodonTable object, not ". $codonTable)
 			unless $codonTable->isa('Bio::Tools::CodonTable');
     } else {
-        
-        # shouldn't this be cached?  Seems wasteful to have a new instance
-        # every time...
-		$codonTable = Bio::Tools::CodonTable->new( -id => $codonTableId);
+        # cache
+        $CODON_TABLE ||= Bio::Tools::CodonTable->new();
+        $CODON_TABLE->id($codonTableId);
+		$codonTable = $CODON_TABLE;
 	 }
 
     ## Error if alphabet is "protein"

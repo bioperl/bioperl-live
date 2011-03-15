@@ -98,7 +98,6 @@ use Bio::Location::Simple;
 use Bio::Location::Split;
 use Bio::Location::Fuzzy;
 
-
 use base qw(Bio::Root::Root Bio::Factory::LocationFactoryI);
 
 BEGIN {
@@ -124,6 +123,28 @@ BEGIN {
 
 =cut
 
+sub new {
+    my ($class, @args) = @_;
+    my $self = $class->SUPER::new(@args);
+    my ($cache) = $self->_rearrange([qw(CACHE)], @args);
+    $self->{will_cache} = $cache || 0;
+    $self;
+}
+
+my %loc_cache;
+
+sub cache {
+    my $self = shift;
+    return $self->{cache} = shift if @_;
+    return $self->{cache} || 0;
+}
+
+sub clear_cache {
+    my $self = shift;
+    %loc_cache = {};
+    1;
+}
+
 =head2 from_string
 
  Title   : from_string
@@ -139,11 +160,16 @@ BEGIN {
 
 =cut
 
+
 sub from_string {
     my ($self,$locstr,$op) = @_;
-    my $loc;
     
-    #$self->debug("$locstr\n");
+    # enable caching
+    if ($self->{cache} && exists($loc_cache{$locstr})) {
+        return $loc_cache{$locstr}->clone;
+    }
+    
+    my $loc;
     
     # $op for operator (error handling)
     
@@ -215,15 +241,18 @@ sub from_string {
         if ($ct > 1) {
             $loc = Bio::Location::Split->new();
             $loc->add_sub_Location(shift @loc_objs) while (@loc_objs);
+            $loc_cache{$locstr} = $loc if $self->{cache};
             return $loc;
         } else {
             $loc = shift @loc_objs;
+            $loc_cache{$locstr} = $loc if $self->{cache};
             return $loc;
         }
     } else { # simple location(s)
         $loc = $self->_parse_location($locstr);
         $loc->strand(-1) if ($op && $op eq 'complement');
     }
+    $loc_cache{$locstr} = $loc if $self->{cache};
     return $loc;
 }
 
