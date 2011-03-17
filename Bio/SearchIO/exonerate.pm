@@ -219,7 +219,7 @@ sub next_result{
    my (@q_ex, @m_ex, @h_ex); ## gc addition
    while( defined($_ = $self->_readline) ) {
        # warn( "Reading $_");
-       if( /^\s+Query:\s+(\S+)\s*(.+)?/ ) {
+       if( /^\s*Query:\s+(\S+)\s*(.+)?/ ) {
 	   if( $seentop ) {
 	       $self->end_element({'Name' => 'ExonerateOutput'});
 	       $self->_pushback($_);
