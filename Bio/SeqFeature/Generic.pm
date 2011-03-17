@@ -482,7 +482,7 @@ sub source_tag {
 
 sub has_tag {
     my ($self, $tag) = @_;
-    return exists $self->{'_gsf_tag_hash'}->{$tag};
+    return exists $_[0]->{'_gsf_tag_hash'}->{$tag};
 }
 
 =head2 add_tag_value
