@@ -402,18 +402,19 @@ sub stack_trace{
 =cut
 
 sub _rearrange {
-    my $dummy = shift;
+    shift; #discard self
     my $order = shift;
-    
-    return @_ unless (substr($_[0]||'',0,1) eq '-');
-    push @_,undef unless $#_ %2;
+
+    return @_ unless $_[0] && $_[0] =~ /^\-/;
+
+    push @_, undef unless $#_ % 2;
+
     my %param;
-    while( @_ ) {
-        (my $key = shift) =~ tr/a-z\055/A-Z/d; #deletes all dashes!
-        $param{$key} = shift;
+    for( my $i = 0; $i < @_; $i += 2 ) {
+        (my $key = $_[$i]) =~ tr/a-z\055/A-Z/d; #deletes all dashes!
+        $param{$key} = $_[$i+1];
     }
-    map { $_ = uc($_) } @$order; # for bug #1343, but is there perf hit here?
-    return @param{@$order};
+    return @param{map uc, @$order};
 }
 
 =head2 _set_from_args
