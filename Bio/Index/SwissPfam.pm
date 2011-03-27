@@ -21,7 +21,7 @@ Bio::Index::SwissPfam - Interface for indexing swisspfam files
 
     my $Index_File_Name = shift;
     my $inx = Bio::Index::SwissPfam->new('-filename' => $Index_File_Name, 
-                         					 '-write_flag' => 'WRITE');
+                         		 '-write_flag' => 'WRITE');
     $inx->make_index(@ARGV);
 
     use Bio::Index::SwissPfam;
@@ -80,7 +80,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  http://redmine.open-bio.org/
 
 =head1 AUTHOR - Ewan Birney
 

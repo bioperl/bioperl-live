@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
 =head1 NAME
 
@@ -86,7 +86,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  http://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Ewan Birney
 
@@ -126,12 +126,15 @@ BEGIN {
 }
 
 my $dir = $ENV{'BIOPERL_INDEX'};
-my $type = $ENV{'BIOPER_INDEX_TYPE'};
+my $type = $ENV{'BIOPERL_INDEX_TYPE'};
 my $fmt = 'Fasta';
 my $verbose = 0;
 
 use Getopt::Long;
-&GetOptions("fmt=s" => \$fmt,"dir=s" => \$dir,"type=s" => \$type, "v!" => \$verbose);
+&GetOptions("f|fmt=s" => \$fmt,
+	    "d|dir=s" => \$dir,
+	    "t|type=s" => \$type,
+	    "v!" => \$verbose);
 
 exec('perldoc',$0) unless @ARGV;
 

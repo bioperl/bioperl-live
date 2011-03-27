@@ -50,7 +50,7 @@ with code and data examples if at all possible.
  of the bugs and their resolution. Bug reports can be submitted the
  web:
 
-  http://bugzilla.open-bio.org/
+  http://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Balamurugan Kumarasamy
 
