@@ -88,7 +88,7 @@ the bugs and their resolution.
 
 Bug reports can be submitted via email or the web:
 
-  http://redmine.open-bio.org/projects/bioperl/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Hilmar Lapp
 

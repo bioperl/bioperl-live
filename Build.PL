@@ -19,7 +19,7 @@ use Bio::Root::Build;
 # deal with it.
 #
 # See: https://rt.cpan.org/Ticket/Display.html?id=5943
-#      http://redmine.open-bio.org/projects/bioperl/show_bug.cgi?id=2975
+#      https://redmine.open-bio.org/issues/2975
 
 {
 

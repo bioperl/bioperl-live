@@ -95,7 +95,7 @@ with code and data examples if at all possible.
  the bugs and their resolution.
  Bug reports can be submitted via the web:
 
-  http://redmine.open-bio.org/projects/bioperl/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head2 Things Still to Do
 

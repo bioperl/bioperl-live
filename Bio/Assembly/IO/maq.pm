@@ -117,7 +117,7 @@ the bugs and their resolution. Bug reports can be submitted via email
 or the web:
 
   bioperl-bugs@bio.perl.org
-  http://redmine.open-bio.org/projects/bioperl/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Mark A. Jensen
 

@@ -478,7 +478,7 @@ Report bugs to the Bioperl bug trackingi system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://redmine.open-bio.org/projects/bioperl/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Martin Senger
 

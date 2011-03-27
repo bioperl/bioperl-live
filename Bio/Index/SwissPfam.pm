@@ -78,7 +78,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://redmine.open-bio.org/project/bioperl
+  https://redmine.open-bio.org/project/bioperl
 
 =head1 AUTHOR - Ewan Birney
 
