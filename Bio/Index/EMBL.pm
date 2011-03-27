@@ -104,7 +104,6 @@ methods. Internal methods are usually preceded with a _
 package Bio::Index::EMBL;
 
 use strict;
-
 use Bio::Seq;
 
 use base qw(Bio::Index::AbstractSeq);
