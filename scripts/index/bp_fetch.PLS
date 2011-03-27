@@ -118,6 +118,7 @@ Ewan Birney E<lt>birney@ebi.ac.ukE<gt>
 =cut
 
 use strict;
+use warnings;
 use Getopt::Long;
 
 #
@@ -126,43 +127,45 @@ use Getopt::Long;
 #
 # use Bio::Index::Fasta etc, rather than this
 #
-
+use Bio::SeqIO;
 BEGIN {
+  eval {
+    require Bio::Index::Fasta;
+    require Bio::Index::EMBL;
+    require Bio::Index::GenBank;
+    require Bio::Index::Swissprot;
+    require Bio::Index::SwissPfam;
+  };
+  if ( $@ ) {
+    # one up from here is Bio directory - we hope!
+    push(@INC,"..");
     eval {
-	require Bio::Index::Fasta;
-	require Bio::Index::EMBL;
-	require Bio::Index::GenBank;
-	require Bio::Index::Swissprot;
-        require Bio::SeqIO;
+      require Bio::Index::Fasta;
+      require Bio::Index::EMBL;
+      require Bio::Index::GenBank;
+      require Bio::Index::Swissprot;
+      require Bio::Index::SwissPfam;
     };
     if ( $@ ) {
-	# one up from here is Bio directory - we hope!
-	push(@INC,"..");
-	eval {
-	    require Bio::Index::Fasta;
-	    require Bio::Index::EMBL;
-	    require Bio::Index::Swissprot;
-            require Bio::SeqIO;
-	};
-	if ( $@ ) {
-	    print STDERR ("\nbp_index cannot find Bio::Index::Fasta and Bio::Index::EMBL\nbp_index needs to have bioperl installed for it to run.\nBioperl is very easy to install\nSee http://bio.perl.org for more information\n\n");
-	    exit(1);
-	} else {
-	    print STDERR ("\nYou are running bp_index.pl without installing bioperl.\nYou have done it from bioperl/scripts, and so we can find the necessary information\nbut it is much better to install bioperl\n\nPlease read the README in the bioperl distribution\n\n");
-	}
+      print STDERR ("\nbp_index cannot find Bio::Index::Fasta and Bio::Index::EMBL\nbp_index needs to have bioperl installed for it to run.\nBioperl is very easy to install\nSee http://bio.perl.org for more information\n\n");
+      exit(1);
+    } else {
+      print STDERR ("\nYou are running bp_index.pl without installing bioperl.\nYou have done it from bioperl/scripts, and so we can find the necessary information\nbut it is much better to install bioperl\n\nPlease read the README in the bioperl distribution\n\n");
     }
+  }
 
-    eval {
-	require Bio::DB::GenBank;
-	require Bio::DB::GenPept;
-	require Bio::DB::EMBL;
-    };
+  eval {
+    require Bio::DB::GenBank;
+    require Bio::DB::GenPept;
+    require Bio::DB::EMBL;
+    require Bio::DB::SwissProt;
+  };
 
-    if( $@ ) {
-	if( !exists $ENV{'BIOPERL_SAVVY'} ) {
-	    print STDERR ("\nbp_fetch cannot find Bio::DB::GenBank and Bio::DB::EMBL modules\nThis is most likely because LWP has not been installed\nThis does not effect local indexing\nset environment variable BIOPERL_SAVVY to supress this message\n\n");
-	}
+  if ( $@ ) {
+    if ( !exists $ENV{'BIOPERL_SAVVY'} ) {
+      print STDERR ("\nbp_fetch cannot find Bio::DB::GenBank and Bio::DB::EMBL modules\nThis is most likely because LWP has not been installed\nThis does not effect local indexing\nset environment variable BIOPERL_SAVVY to supress this message\n\n");
     }
+  }
 }
 
 #
@@ -170,10 +173,13 @@ BEGIN {
 #
 
 my $dir = $ENV{'BIOPERL_INDEX'};
-my $type = $ENV{'BIOPER_INDEX_TYPE'};
+my $type = $ENV{'BIOPERL_INDEX_TYPE'};
 my $fmt = 'Fasta';
 my $useacc = 0;
-my $ret = GetOptions('dir=s' => \$dir,'fmt=s' => \$fmt , 'type=s' => \$type , 'acc!' => \$useacc);
+my $ret = GetOptions('f|dir=s' => \$dir,
+		     'f|fmt=s' => \$fmt ,
+		     't|type=s' => \$type ,
+		     'acc!' => \$useacc);
 
 #
 # print pod documentation if we have no arguments
@@ -181,7 +187,7 @@ my $ret = GetOptions('dir=s' => \$dir,'fmt=s' => \$fmt , 'type=s' => \$type , 'a
 
 exec('perldoc',$0) unless @ARGV;
 
-my($isnet,$db,$dbobj,$id,$seq,$seqio,$out,$meta);
+my ($isnet,$db,$dbobj,$id,$seq,$seqio,$out,$meta);
 
 #
 # Reset the type if needed
@@ -194,118 +200,122 @@ if( $type ) {
 #
 # Build at run time the SeqIO output
 #
-
-$out = Bio::SeqIO->new(-fh => \*STDOUT , -format => $fmt);
+if ( $fmt !~ /swisspfam|pfam/ ) {
+  $out = Bio::SeqIO->new(-fh => \*STDOUT , -format => $fmt);
+}
 
 #
 # Main loop over remaining arguments
 #
 
-foreach my $arg ( @ARGV ) {
-    $_= $arg;
+for my $arg ( @ARGV ) {
+  $_= $arg;
+  # strip out meta:: if there
+  if ( /^(\w+)::/ ) {
+    $meta = $1;
+    s/^(\w+):://;
+  } else {
+    $meta = 'local';
+  }
 
-    
-    # strip out meta:: if there
-    if( /^(\w+)::/ ) {
-	$meta = $1;
-	s/^(\w+):://;
-    } else {
-	$meta = 'local';
-    }
+  # parse to db:id 
 
-    # parse to db:id 
+  /^(\S+)\:(\S+)$/ || do { warn "$_ is not parsed as db:name\n"; next; };
+  ($db,$id) = split/:/,$_,2;
+  #
+  # the eval block catches exceptions if they occur
+  # in the code in the block. The exception goes in $@
+  #
 
-    /^(\S+)\:(\S+)$/ || do { print STDERR "$_ is not parsed as db:name\n"; next;};
-($db,$id) = split/:/,$_,2;
-
-    #
-    # the eval block catches exceptions if they occur
-    # in the code in the block. The exception goes in $@
-    #
-
-    eval {
-	SWITCH : {
-	    $_ = $meta;
-	    /^net$/ && do {
-		if( $db =~ /genbank/i ) {
-		    $dbobj = Bio::DB::GenBank->new(-format => $fmt);
-		}
-		elsif( $db =~ /genpept/i ) {
-		    $dbobj = Bio::DB::GenPept->new();
-		} elsif( $db =~ /embl/i ) {
-                    $dbobj = Bio::DB::EMBL->new();
-                } else {
-		    die "Net database $db not available";
-		} 
-		last SWITCH;
-	    };
-	    /^ace$/ && do {
-
-		# yank in Bio::DB::Ace at runtime
-		eval {
-		    require Bio::DB::Ace;		    
-		};
-		if ( $@ ) {
-		    die "Unable to load Bio::DB::Ace for ace::$db\n\n$@\n";
-		}
-
-		# db is server,port
-		my ($server,$port);
-
-		$db =~ /(\S+)\,(\d+)/ || die "$db is not server.name,port for acedb database";
-		$server = $1;
-		$port = $2;
-		# print STDERR "Connecting to $server,$port\n";
-
-		$dbobj = Bio::DB::Ace->new(-host => $server, -port => $port);
-		last SWITCH;
-	    };
-	    /^local$/ && do {
-		if( !$dir ) {
-		    die "\nNo directory specified for index\nDirectory must be specified by the environment varaible BIOPERL_INDEX or --dir option\ngo bp_index with no arguments for more help\n\n";
-		}
-
-		#
-		# $db gets re-blessed to the correct index when
-		# it is made from the abstract class. Cute eh?
-		#
-
-		$dbobj = Bio::Index::Abstract->new("$dir/$db");
-		last SWITCH;
-	    };
-	    die "Meta database $meta is not valid";
-	}
-    }; # end of eval to get db
-    if( $@ ) {
-	warn("Database $db in $arg is not loadable. Skipping\n\nError $@");
-	next;
-    }
-
-    #
-    # We expect the databases to adhere to the BioSeqI
-    # the sequence index databases and the GenBank/GenPept do already
-    #
-
-    if( ! $dbobj->isa('Bio::DB::RandomAccessI') ) {
-	warn("$db in $arg does not inherit from Bio::DB::RandomAccessI, so is not expected to work under the DB guidlines. Going to try it anyway");
-    }
-
-    eval {
-	if( $useacc == 0 ) {
-	    $seq = $dbobj->get_Seq_by_id($id);
+  eval {
+    SWITCH : {
+      $_ = $meta;
+      /^net$/ && do {
+	if ( $db =~ /genbank/i ) {
+	  $dbobj = Bio::DB::GenBank->new(-format => $fmt);
+	} elsif ( $db =~ /genpept/i ) {
+	  $dbobj = Bio::DB::GenPept->new();
+	} elsif ( $db =~ /embl/i ) {
+	  $dbobj = Bio::DB::EMBL->new();
 	} else {
-	    $seq = $dbobj->get_Seq_by_acc($id);
+	  die "Net database $db not available";
+	}
+	last SWITCH;
+      };
+      /^ace$/ && do {
+	# yank in Bio::DB::Ace at runtime
+	eval {
+	  require Bio::DB::Ace;
+	};
+	if ( $@ ) {
+	  die "Unable to load Bio::DB::Ace for ace::$db\n\n$@\n";
 	}
 
-    };
-    if( $@ ) {
-	warn("Sequence $id in Database $db in $arg is not loadable. Skipping.\n\nError $@");
-	next;
-    }
-    if( !defined $seq ) {
-	warn("Sequence $id in Database $db is not present\n");
-	next;
-    }
+	# db is server,port
+	my ($server,$port);
 
-    $out->write_seq($seq);
+	$db =~ /(\S+)\,(\d+)/ || die "$db is not server.name,port for acedb database";
+	$server = $1;
+	$port = $2;
+	# print STDERR "Connecting to $server,$port\n";
+
+	$dbobj = Bio::DB::Ace->new(-host => $server, -port => $port);
+	last SWITCH;
+      };
+      /^local$/ && do {
+	if ( !$dir ) {
+	  die "\nNo directory specified for index\nDirectory must be specified by the environment varaible BIOPERL_INDEX or --dir option\ngo bp_index with no arguments for more help\n\n";
+	}
+
+	#
+	# $db gets re-blessed to the correct index when
+	# it is made from the abstract class. Cute eh?
+	#
+
+	$dbobj = Bio::Index::Abstract->new("$dir/$db");
+	last SWITCH;
+      };
+      die "Meta database $meta is not valid";
+    }
+    };				# end of eval to get db
+  if ( $@ ) {
+    warn("Database $db in $arg is not loadable. Skipping\n\nError $@");
+    next;
+  }
+
+  #
+  # We expect the databases to adhere to the BioSeqI
+  # the sequence index databases and the GenBank/GenPept do already
+  #
+  if ( $dbobj->isa("Bio::Index::SwissPfam") ) {
+    my $seq = $dbobj->fetch($id);
+    if ( $seq ) {
+      my $started;
+      while ( <$seq> ) {
+	last if ( /^\s+$/ );
+	print;
+      }
+    } else {
+      warn("Cannot find $id\n");
+    }
+    next;
+  }
+  if ( ! $dbobj->isa('Bio::DB::RandomAccessI') ) {
+    warn("$db in $arg does not inherit from Bio::DB::RandomAccessI, so is not expected to work under the DB guidlines. Going to try it anyway");
+  }
+  eval {
+    if ( $useacc == 0 ) {
+      $seq = $dbobj->get_Seq_by_id($id);
+    } else {
+      $seq = $dbobj->get_Seq_by_acc($id);
+    }
+  };
+  if ( $@ ) {
+    warn("Sequence $id in Database $db in $arg is not loadable. Skipping.\n\nError $@");
+    next;
+  } elsif ( !defined $seq ) {
+    warn("Sequence $id in Database $db is not present\n");
+    next;
+  }
+  $out->write_seq($seq);
 }
