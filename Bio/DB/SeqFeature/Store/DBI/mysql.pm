@@ -1057,8 +1057,8 @@ sub _types_sql {
       ($primary_tag,$source_tag) = split ':',$type,2;
     }
 
-    if (length $source_tag) {
-      if (length($primary_tag)) {
+    if (defined $source_tag && length $source_tag) {
+      if (defined $primary_tag && length($primary_tag)) {
         push @matches,"tl.tag=?";
         push @args,"$primary_tag:$source_tag";
       }
