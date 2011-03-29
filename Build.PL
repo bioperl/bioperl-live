@@ -246,7 +246,7 @@ sub make_dbi_test {
     my $user = $build->notes('test_user');
     my $pass = $build->notes('test_pass');
     open my $F,">$path";
-    my $str = "$path0 -adaptor DBI::$driver -create 1 -temp 1 -dsn $dsn";
+    my $str = "$path0 -adaptor DBI::$driver -create 1 -temp 1 -dsn \"$dsn\"";
     $str .= " -user $user" if $user;
     $str .= " -password $pass" if $pass;
     print $F <<END;
