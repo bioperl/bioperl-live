@@ -1,11 +1,9 @@
 #
-#
 # BioPerl module for Bio::Index::SwissPfam
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
 #
-# Cared for by Ewan Birney <birney@sanger.ac.uk>
-#
+
 # You may distribute this module under the same terms as perl itself
 
 # POD documentation - main docs before the code
@@ -21,7 +19,7 @@ Bio::Index::SwissPfam - Interface for indexing swisspfam files
 
     my $Index_File_Name = shift;
     my $inx = Bio::Index::SwissPfam->new('-filename' => $Index_File_Name, 
-                         					 '-write_flag' => 'WRITE');
+                         		 '-write_flag' => 'WRITE');
     $inx->make_index(@ARGV);
 
     use Bio::Index::SwissPfam;
@@ -80,11 +78,9 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/project/bioperl
 
 =head1 AUTHOR - Ewan Birney
-
-Email - birney@sanger.ac.uk
 
 =head1 APPENDIX
 
@@ -92,17 +88,18 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let's begin the code...
-
 
 package Bio::Index::SwissPfam;
 
 use strict;
-
 use Bio::Seq;
 
 use base qw(Bio::Index::Abstract);
+
+sub _type_stamp {
+    return '__SWISSPFAM_FLAT__'; # What kind of index are we?
+}
 
 sub _version {
     return 0.1;
@@ -115,9 +112,9 @@ sub _version {
   Function: Specialist function to index swisspfam format files.
             Is provided with a filename and an integer
             by make_index in its SUPER class.
-  Example : 
-  Returns : 
-  Args    : 
+  Example :
+  Returns :
+  Args    :
 
 =cut
 
@@ -126,7 +123,7 @@ sub _index_file {
         $file, # File name
         $i     # Index-number of file being indexed
         ) = @_;
-    
+
     my( $begin, # Offset from start of file of the start
                 # of the last found record.
         $end,   # Offset from start of file of the end
@@ -186,9 +183,7 @@ sub fetch {
     my $db = $self->db();
     if (my $rec = $db->{ $id }) {
         my( @record );
-        
         my ($file, $begin, $end) = $self->unpack_record( $rec );
-        
         # Get the (possibly cached) filehandle
         my $fh = $self->_file_handle( $file );
 

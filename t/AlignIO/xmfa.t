@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 18);
+    test_begin(-tests => 30);
 	
 	use_ok('Bio::AlignIO::xmfa');
 }
@@ -22,19 +22,33 @@ $str = Bio::AlignIO->new(
 		 -format => 'xmfa');
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');
-is $aln->get_seq_by_pos(1)->get_nse, 'chrY/1-598', 
-  "xmfa input test ";
-is $aln->get_seq_by_pos(1)->strand, 1, 
-  "xmfa strand test";
-is ($aln->get_seq_by_pos(2)->description, undef, 
-    "xmfa input test for description");
-is ($aln->get_seq_by_pos(3)->display_id, 'chr7',
-    "xmfa input test for id");
-is ($aln->get_seq_by_pos(2)->start, 5000,
-    "xmfa input test for end");
-is ($aln->get_seq_by_pos(2)->end, 5534,
-    "xmfa input test for end");
-is ($aln->score, 111, 'xmfa alignment score');
+
+# test seqs
+
+my @test_data = (
+    # 1:1-598 + chrY 
+    [ 'chrY/1-598', 1, 598, 1, 'chrY', undef],
+
+    # 2:5000-5534 - chr17 
+    [ 'chr17/5534-5000', 5000, 5534, -1, 'chr17', undef],
+
+    # 3:19000-19537 - chr7
+    [ 'chr7/19537-19000', 19000, 19537, -1, 'chr7', undef],
+);
+
+for my $pos (1..3) {
+    my $seq = $aln->get_seq_by_pos($pos);
+    my @seq_data = @{shift @test_data};
+    is $seq->get_nse, shift @seq_data,  "xmfa input test ";
+    is $seq->start, shift @seq_data, "xmfa input test for start";
+    is $seq->end, shift @seq_data, "xmfa input test for end";
+    is $seq->strand, shift @seq_data,  "xmfa strand test";
+    is $seq->display_id, shift @seq_data, "xmfa input test for id";
+    is $seq->description, shift @seq_data, "xmfa input test for id";
+}
+
+# test aln
+is $aln->score, 111, 'xmfa alignment score';
 
 $aln = $str->next_aln();
 isa_ok($aln,'Bio::Align::AlignI');

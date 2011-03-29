@@ -259,7 +259,7 @@ END
 	  locationlist => <<END,
 (
   id         int(10)       auto_increment primary key,
-  seqname    varchar(256)   not null,
+  seqname    varchar(255)   not null,
   index(seqname)
 )
 END
@@ -267,14 +267,14 @@ END
 	  typelist => <<END,
 (
   id       int(10) auto_increment primary key,
-  tag      varchar(256)  not null,
+  tag      varchar(255)  not null,
   index(tag)
 )
 END
 	  name => <<END,
 (
   id           int(10)       not null,
-  name         varchar(256)  not null,
+  name         varchar(255)  not null,
   display_name tinyint       default 0,
   index(id),
   index(name)
@@ -294,7 +294,7 @@ END
 	  attributelist => <<END,
 (
   id       int(10) auto_increment primary key,
-  tag      varchar(256)  not null,
+  tag      varchar(255)  not null,
   index(tag)
 )
 END

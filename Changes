@@ -12,7 +12,7 @@ Some of that history is also highlighted on our wiki:
 
 Bugs and requested features list:
 
-   http://bugzilla.open-bio.org
+   https://redmine.open-bio.org/projects/bioperl
 
 CPAN releases are branched from 'master'.
 ---------------------------------------------------------
@@ -856,7 +856,7 @@ Since initial 1.2.0, 3000 separate changes have been made to make this release.
     o New HowTo documents located in doc/howto describing 
       a domain of Bioperl.
 
-    o Note that bugs are now stored at bugzilla.bioperl.org
+    o Note that bugs are now stored at redmine.open-bio.org/projects/bioperl/
       and all old bugs are searchable through the bugzilla interface.
 
     o Several reported bugs in Bio::Tools::Sigcleave and Bio::SimpleAlign 
