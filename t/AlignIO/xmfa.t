@@ -12,7 +12,7 @@ BEGIN {
 	use_ok('Bio::AlignIO::xmfa');
 }
 
-my $DEBUG = test_debug();
+my $DEBUG = test_debug(); # foo
 
 my ($str,$aln,$strout,$status);
 
