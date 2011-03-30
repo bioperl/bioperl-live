@@ -191,6 +191,10 @@ Swissprot ("swiss")
 
 Tab ("tab")
 
+=item *
+
+Variant Call Format ("vcf")
+
 =back
 
 =head1 FEEDBACK
@@ -440,7 +444,8 @@ our %formats = (
     selex       => { test => \&_possibly_selex      },
     stockholm   => { test => \&_possibly_stockholm  },
     swiss       => { test => \&_possibly_swiss      },
-    tab         => { test => \&_possibly_tab        }
+    tab         => { test => \&_possibly_tab        },
+    vcf         => { test => \&_possibly_vcf        }
 );
 
 sub guess
@@ -974,6 +979,23 @@ sub _possibly_tab
     my ($line, $lineno) = (shift, shift);
     return ($lineno == 1 && $line =~ /^[^\t]+\t[^\t]+/) ;
 }
+
+=head2 _possibly_vcf
+
+From "http://www.1000genomes.org/wiki/analysis/vcf4.0".
+
+Assumptions made about sanity - format and date lines are line 1 and 2
+respectively. This is not specified in the format document.
+
+=cut
+
+sub _possibly_vcf
+{
+    my ($line, $lineno) = (shift, shift);
+    return (($lineno == 1 && $line =~ /##fileformat=VCFv/) ||
+            ($lineno == 2 && $line =~ /##fileDate=/));
+}
+
 
 
 1;
