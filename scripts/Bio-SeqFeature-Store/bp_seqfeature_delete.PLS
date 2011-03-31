@@ -15,6 +15,7 @@ my $TYPE     = 0;
 my $ID       = 0;
 my $VERBOSE  = 1;
 my $TEST     = 0;
+my $FAST     = 0;
 
 GetOptions(
 	   'dsn|d=s'       => \$DSN,
@@ -24,6 +25,7 @@ GetOptions(
            'name|n'      => \$NAME,
            'type|t'      => \$TYPE,
            'id'          => \$ID,
+           'fast|f'          => \$FAST,
 	   'user=s'      => \$USER,
 	   'password=s'  => \$PASS,
 	   ) || die <<END;
@@ -39,6 +41,7 @@ Usage: $0 [options] <feature1> <feature2> <feature3>
           --dryrun        Dry run; report features to be deleted without actually deleting them
           -u --user       User to connect to database as
           -p --password   Password to use to connect to database
+          -f --fast       Deletes each item instantly not atomic for full dataset (mainly for deleting massive datasets linked to a type)
 
 Examples:
   
@@ -107,11 +110,26 @@ if ($VERBOSE || $TEST) {
 }
 
 if (@features && !$TEST) {
-    my $deleted = $store->delete(@features);
-    if ($VERBOSE && $deleted) {
-	print scalar(@features)," features successfully deleted.\n";
-    } elsif (!$deleted) {
-	die "An error occurred. Some or all of the indicated features could not be deleted.";
+    if($FAST) {
+      my $del = 0;
+      foreach my $feat(@features) {
+        my @tmp_feat = ($feat);
+        my $deleted = $store->delete(@tmp_feat);
+        $del++ if($deleted);
+        if ($VERBOSE && $deleted) {
+          print 'Feature ',$del," successfully deleted.\n";
+        } elsif (!$deleted) {
+          die "An error occurred. Some or all of the indicated features could not be deleted.";
+        }
+      }
+    }
+    else {
+        my $deleted = $store->delete(@features);
+        if ($VERBOSE && $deleted) {
+	        print scalar(@features)," features successfully deleted.\n";
+        } elsif (!$deleted) {
+	        die "An error occurred. Some or all of the indicated features could not be deleted.";
+        }
     }
 }
 
