@@ -3819,7 +3819,6 @@ loader, bp_seqfeature_load.pl.
 END
 ;
 
-  my $h = <>;
   return;
 }
 
