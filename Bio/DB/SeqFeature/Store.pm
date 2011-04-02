@@ -84,7 +84,7 @@ Bio::DB::SeqFeature::Store -- Storage and retrieval of sequence annotation data
 
   # Getting coverage statistics across a region
   my $summary = $db->feature_summary('Chr1',10_000=>1_110_000);
-  my $bins    = $summary->get_tag_values('coverage');
+  my ($bins)  = $summary->get_tag_values('coverage');
   my $first_bin = $bins->[0];
 
   # Getting & storing sequence information

@@ -1954,19 +1954,27 @@ sub coverage_array {
     return [] unless $seqid;
 
     # where each bin starts
-    my @his_bin_array = map {$start + $binsize * $_}       (0..$bins);
+    my @his_bin_array = map {$start + $binsize * $_}       (0..$bins-1);
     my @sum_bin_array = map {int(($_-1)/SUMMARY_BIN_SIZE)} @his_bin_array;
 
     my $interval_stats    = $self->_interval_stats_table;
     
-    # pick up the type ids
-    my ($from,$where,$group,@a) = $self->_types_sql($types,'b');
-    $where =~ s/.+AND//s;
-    my $sth = $self->_prepare(<<END);
+    my ($sth,@a);
+    if ($types) {
+	# pick up the type ids
+	my ($from,$where,$group);
+	($from,$where,$group,@a) = $self->_types_sql($types,'b');
+	$where =~ s/.+AND//s;
+	$sth = $self->_prepare(<<END);
 SELECT id,tag FROM $from
 WHERE  $where
 END
 ;
+    } else {
+	$sth = $self->_prepare(<<END);
+SELECT id,tag FROM typelist
+END
+    }
     my (@t,$report_tag);
     $sth->execute(@a);
     while (my ($t,$tag) = $sth->fetchrow_array) {
@@ -2011,10 +2019,10 @@ END
 	my $delta;
 	for my $b (@$arry) {
 	    my ($bin,$count) = @$b;
-	    $delta              = $count - $last_count if $bin > $last_bin;
-	    $merged_bins[$i++]  = $delta;
-	    $last_count         = $count;
-	    $last_bin           = $bin;
+	    $delta               = $count - $last_count if $bin > $last_bin;
+	    $merged_bins[$i++]  += $delta;
+	    $last_count          = $count;
+	    $last_bin            = $bin;
 	}
     }
 
