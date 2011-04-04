@@ -746,26 +746,31 @@ sub calculate_offsets {
   while (<$fh>) {		# don't try this at home
     $termination_length ||= /\r\n$/ ? 2 : 1; # account for crlf-terminated Windows files
     next unless /\S/;
-    if (/^>(\S+)/) {
-      print STDERR "indexed $count sequences...\n" 
-	if $self->{debug} && (++$count%1000) == 0;
-      my $pos = tell($fh);
-      if (@id) {
-	my $seqlength    = $pos - $offset - length($_);
-	$seqlength      -= $termination_length * $seq_lines;
-	my $ppos = &{$self->{packmeth}}($offset,$seqlength,
-				       $linelength,$firstline,
-				       $type,$base);
-	for my $id (@id) { $offsets->{$id}  = $ppos }
-      }
-      @id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
-      ($offset,$firstline,$linelength) = ($pos,length($_),0);
-      $self->_check_linelength($linelength);
-      ($l3_len,$l2_len,$l_len)=(0,0,0);
-      $seq_lines = 0;
+    if (index($_, ">") == 0) {
+        if (/^>(\S+)/) {
+          print STDERR "indexed $count sequences...\n" 
+        if $self->{debug} && (++$count%1000) == 0;
+          
+        
+          my $pos = tell($fh);
+          if (@id) {
+        my $seqlength    = $pos - $offset - length($_);
+        $seqlength      -= $termination_length * $seq_lines;
+        my $ppos = &{$self->{packmeth}}($offset,$seqlength,
+                           $linelength,$firstline,
+                           $type,$base);
+        for my $id (@id) { $offsets->{$id}  = $ppos }
+          }
+          @id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
+          ($offset,$firstline,$linelength) = ($pos,length($_),0);
+          $self->_check_linelength($linelength);
+          ($l3_len,$l2_len,$l_len)=(0,0,0);
+          $seq_lines = 0;
+        } else {
+          # catch bad header lines, bug 3172
+          $self->throw("FASTA header doesn't match '>(\\S+)': $_")
+        }
     } else {
-      # catch bad header lines, bug 3172
-      if (index($_, ">") == 0) { $self->throw("FASTA header doesn't match '>(\\S+)': $_") }
       $l3_len= $l2_len; $l2_len= $l_len; $l_len= length($_); # need to check every line :(
       if (DIE_ON_MISSMATCHED_LINES &&
 	  $l3_len>0 && $l2_len>0 && $l3_len!=$l2_len) {
