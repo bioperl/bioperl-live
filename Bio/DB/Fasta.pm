@@ -764,6 +764,8 @@ sub calculate_offsets {
       ($l3_len,$l2_len,$l_len)=(0,0,0);
       $seq_lines = 0;
     } else {
+      # catch bad header lines, bug 3172
+      if (index($_, ">") == 0) { $self->throw("FASTA header doesn't match '>(\\S+)': $_") }
       $l3_len= $l2_len; $l2_len= $l_len; $l_len= length($_); # need to check every line :(
       if (DIE_ON_MISSMATCHED_LINES &&
 	  $l3_len>0 && $l2_len>0 && $l3_len!=$l2_len) {
