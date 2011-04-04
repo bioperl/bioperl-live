@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::SearchIO::axt
 #
@@ -65,7 +64,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -171,13 +170,13 @@ sub next_result{
 						   $6,$7,$8,$9);
 	    $self->{'_reporttype'} = 'AXT';
 	    # Jim's code is 0 based
-	    $qstart++;  $qend++; $hstart++; $hend++;
-	    if( defined $curquery && 
-		$curquery ne $qname ) { 
-		$self->end_element({'Name' => 'Hit'});
-		$self->_pushback($_);
-		$self->end_element({'Name' => 'AXTOutput'});
-		return $self->end_document();
+        # yes, but axt format is one-based, see bug 3145 - cjfields 10-11-10
+	    #$qstart++;  $qend++; $hstart++; $hend++;
+	    if( defined $curquery &&  $curquery ne $qname ) { 
+            $self->end_element({'Name' => 'Hit'});
+            $self->_pushback($_);
+            $self->end_element({'Name' => 'AXTOutput'});
+            return $self->end_document();
 	    }
 	    
 	    if( defined $curhit &&

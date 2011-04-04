@@ -2,7 +2,6 @@
 # PACKAGE : Bio::SeqIO::tab
 # AUTHOR  : Philip Lijnzaad <p.lijnzaad@med.uu.nl>
 # CREATED : Feb 6 2003
-# REVISION: $Id$
 #
 # Copyright (c) This module is free software; you can redistribute it
 # and/or modify it under the same terms as Perl itself.
@@ -87,7 +86,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.
 Bug reports can be submitted via the web:
 
-  http://bugzilla.bioperl.org
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHORS
 

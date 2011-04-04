@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 45,
+    test_begin(-tests => 47,
 	       -requires_module => 'Graph');
 
     use_ok('Bio::FeatureIO');
@@ -341,3 +341,19 @@ is($fcount , 367);
 
     is_deeply(\@vs_features,\@expected_features,'vecscreen_simple gets the correct features');
 }
+
+###############################################################################
+#
+# use FeatureIO to get some attributes from a GFF file
+#
+
+ok( $io = Bio::FeatureIO->new( -file => test_input_file('knownGene.gff3') ) );
+
+while($f = $io->next_feature()){
+    if ($f->get_Annotations('Target')) {
+        # the last feature in the file should have a Target attribute
+        my $value_obj = $f->get_Annotations('Target');
+        is($value_obj->target_id, "BC046356.1%20space%20test"); 
+    }
+}
+

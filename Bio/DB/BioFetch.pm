@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::DB::BioFetch
 #
@@ -50,7 +49,7 @@ Bio::DB::BioFetch - Database object interface to BioFetch retrieval
 
 Bio::DB::BioFetch is a guaranteed best effort sequence entry fetching
 method.  It goes to the Web-based dbfetch server located at the EBI
-(http://www.ebi.ac.uk/cgi-bin/dbfetch) to retrieve sequences in the
+(http://www.ebi.ac.uk/Tools/dbfetch/dbfetch) to retrieve sequences in the
 EMBL or GenBank sequence repositories.
 
 This module implements all the Bio::DB::RandomAccessI interface, plus
@@ -86,7 +85,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Lincoln Stein
 
@@ -107,7 +106,7 @@ use vars qw(%FORMATMAP);
 use base qw(Bio::DB::WebDBSeqI Bio::Root::Root);
 
 # warning: names used here must map into Bio::SeqIO::* space
-use constant DEFAULT_LOCATION => 'http://www.ebi.ac.uk/cgi-bin/dbfetch';
+use constant DEFAULT_LOCATION => 'http://www.ebi.ac.uk/Tools/dbfetch/dbfetch';
 
 BEGIN {
     
@@ -177,7 +176,7 @@ defaults.
   Option         Value                            Default
   ------         -----                            -------
 
-  -baseaddress   location of dbfetch server       http://www.ebi.ac.uk/cgi-bin/dbfetch
+  -baseaddress   location of dbfetch server       http://www.ebi.ac.uk/Tools/dbfetch/dbfetch
   -retrievaltype "tempfile" or "io_string"        io_string
   -format        "embl", "fasta", "swissprot",    embl
                   or "genbank"

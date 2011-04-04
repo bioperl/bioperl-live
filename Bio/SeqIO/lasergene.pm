@@ -2,7 +2,6 @@
 # PACKAGE : Bio::SeqIO::lasergene
 # AUTHOR  : Malcolm Cook <mec@stowers-institute.org>
 # CREATED : Feb 16 1999
-# REVISION: $Id$
 #
 # _History_
 #
@@ -62,7 +61,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.bioperl.org
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHORS
 

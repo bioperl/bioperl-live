@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::SeqIO::excel
 #
@@ -89,7 +88,7 @@ the bugs and their resolution.
 
 Bug reports can be submitted via email or the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Hilmar Lapp
 

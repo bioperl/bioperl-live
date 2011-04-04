@@ -11,7 +11,6 @@ Bio::DB::SeqFeature::Store::memory -- In-memory implementation of Bio::DB::SeqFe
   # Open the sequence database
   my $db      = Bio::DB::SeqFeature::Store->new( -adaptor => 'memory',
                                                  -dsn     => '/var/databases/test');
-
   # search... by id
   my @features = $db->fetch_many(@list_of_ids);
 
@@ -22,7 +21,7 @@ Bio::DB::SeqFeature::Store::memory -- In-memory implementation of Bio::DB::SeqFe
   @features = $db->get_features_by_alias('sma-3');
 
   # ...by type
-  @features = $db->get_features_by_name('gene');
+  @features = $db->get_features_by_type('gene');
 
   # ...by location
   @features = $db->get_features_by_location(-seq_id=>'Chr1',-start=>4000,-end=>600000);
@@ -83,7 +82,7 @@ See L<Bio::DB::SeqFeature::Store> for complete usage instructions.
 
 Before using the memory adaptor, populate a readable-directory on the
 file system with annotation and/or sequence files. The annotation
-files must be in GFF3 format, and shold end in the extension .gff or
+files must be in GFF3 format, and sholud end in the extension .gff or
 .gff3. They may be compressed with "compress", "gzip" or "bzip2" (in
 which case the appropriate compression extension must be present as
 well.)
@@ -109,7 +108,7 @@ single GFF3 file. Examples:
   $db  = Bio::DB::SeqFeature::Store->new( -adaptor => 'memory',
                                           -dsn     => '/usr/annotations/worm.gff3.gz');
 
-For compatibility with the Bio::DB::GFF memory adapter, -gff is
+For compatibility with the Bio::DB::GFF memory adaptor, -gff is
 recognized as an alias for -dsn.
 
 See L<Bio::DB::SeqFeature::Store> for all the access methods supported
@@ -120,7 +119,6 @@ will be lost when the script exits.
 
 =cut
 
-# $Id$
 use strict;
 use base 'Bio::DB::SeqFeature::Store';
 use Bio::DB::SeqFeature::Store::GFF3Loader;
@@ -136,10 +134,9 @@ use constant BINSIZE => 10_000;
 # object initialization
 #
 sub init {
-  my $self          = shift;
-  my $args          = shift;
+  my ($self, $args) = @_;
   $self->SUPER::init($args);
-  $self->{_data}     = [];
+  $self->{_data}     = {};
   $self->{_children} = {};
   $self->{_index}    = {};
   $self;
@@ -156,6 +153,7 @@ sub post_init {
   my @argv;
   if (-d $file_or_dir) {
     @argv = (
+	     bsd_glob("$file_or_dir/*.size*"),
 	     bsd_glob("$file_or_dir/*.gff"),            bsd_glob("$file_or_dir/*.gff3"),
 	     bsd_glob("$file_or_dir/*.gff.{gz,Z,bz2}"), bsd_glob("$file_or_dir/*.gff3.{gz,Z,bz2}")
 	     );
@@ -164,22 +162,25 @@ sub post_init {
   }
   local $self->{file_or_dir} = $file_or_dir;
   $loader->load(@argv);
+  warn $@ if $@;
 }
 
 sub commit { # reindex fasta files
   my $self = shift;
 
+  my $db;
   if (my $fh = $self->{fasta_fh}) {
       $fh->close;
-      $self->{fasta_db} = Bio::DB::Fasta->new($self->{fasta_file});
+      $db = Bio::DB::Fasta->new($self->{fasta_file});
   } elsif (exists $self->{file_or_dir} && -d $self->{file_or_dir}) {
-      $self->{fasta_db} = Bio::DB::Fasta->new($self->{file_or_dir});
+      $db = Bio::DB::Fasta->new($self->{file_or_dir});
   }
+  $self->{fasta_db} = $db if $db;
 }
 
 sub can_store_parentage { 1 }
 
-# return an array ref in which each index is primary id
+# return a hash ref in which each key is primary id
 sub data {
   shift->{_data};
 }
@@ -189,115 +190,202 @@ sub _init_database { shift->init }
 sub _store {
   my $self    = shift;
   my $indexed = shift;
-  my $data    = $self->data;
+  my @objs    = @_;
+  my $data = $self->data;
   my $count = 0;
-  for my $obj (@_) {
-    my $primary_id = $obj->primary_id;
-    $primary_id    = 1 + @{$data} unless $primary_id;  # primary id of 0 causes a downstream bug
-    $self->data->[$primary_id] = $obj;
-    $obj->primary_id($primary_id);
-    $self->{_index}{ids}{$primary_id} = undef if $indexed;
-    $self->_update_indexes($obj) if $indexed;
+  for my $obj (@objs) {
+    # Add unique ID to feature if needed
+    my $primary_id = $self->_autoid($obj);
+    # Store feature (overwriting any existing feature with the same primary ID
+    # as required by Bio::DB::SF::Store)
+    $data->{$primary_id} = $obj;
+    if ($indexed) {
+      $self->{_index}{ids}{$primary_id} = undef;
+      $self->_update_indexes($obj);
+    }
     $count++;
   }
-  $count;
+  return $count;
+}
+
+
+sub _autoid {
+  # If a feature has no ID, assign it a unique ID
+  my ($self, $obj) = @_;
+  my $data = $self->data;
+  my $primary_id = $obj->primary_id;
+  if (not defined $primary_id) {
+    # Create a unique ID
+    $primary_id = 1 + scalar keys %{$data};
+    while (exists $data->{$primary_id}) {
+      $primary_id++;
+    }
+    $obj->primary_id($primary_id);
+  }
+  return $primary_id;
+}
+
+
+sub _deleteid {
+  my ($self, $id) = @_;
+  if (exists $self->{_index}{ids}{$id}) {
+    # $indexed was true
+    $self->_update_indexes( $self->fetch($id), 1 );
+    delete $self->{_index}{ids}{$id};
+  }
+  delete $self->data->{$id};
+  return 1;
 }
 
 sub _fetch {
-  my $self = shift;
-  my $id   = shift;
-  my $data = $self->data;
-  return $data->[$id];
+  my ($self, $id) = @_;
+  return $self->data->{$id};
 }
 
 sub _add_SeqFeature {
-  my $self = shift;
-  my $parent   = shift;
-  my @children = @_;
-  my $parent_id = (ref $parent ? $parent->primary_id : $parent);
-  defined $parent_id or $self->throw("$parent should have a primary_id");
+  my ($self, $parent, @children) = @_;
+  my $count = 0;
+  my $parent_id = ref $parent ? $parent->primary_id : $parent;
+  defined $parent_id or $self->throw("Parent $parent should have a primary ID");
   for my $child (@children) {
     my $child_id = ref $child ? $child->primary_id : $child;
-    defined $child_id or $self->throw("no primary ID known for $child");
+    defined $child_id or $self->throw("Child $child should have a primary ID");
     $self->{_children}{$parent_id}{$child_id}++;
+    $count++;
   }
+  return $count;
 }
 
 sub _fetch_SeqFeatures {
-  my $self   = shift;
-  my $parent = shift;
-  my @types  = @_;
+  my ($self, $parent, @types) = @_;
   my $parent_id = $parent->primary_id;
-  defined $parent_id or $self->throw("$parent should have a primary_id");
+  defined $parent_id or $self->throw("Parent $parent should have a primary ID");
   my @children_ids  = keys %{$self->{_children}{$parent_id}};
   my @children      = map {$self->fetch($_)} @children_ids;
-
+  
   if (@types) {
-    my $regexp = join '|',map {quotemeta($_)} $self->find_types(@types);
-    return grep {($_->primary_tag.':'.$_->source_tag) =~ /^$regexp$/i} @children;
-  } else {
-    return @children;
+    my $data;
+    for my $c (@children) {
+      push @{$$data{$c->primary_tag}{$c->source_tag||''}}, $c;
+    }
+    @children = ();
+    for my $type (@types) {
+      $type .= ':' if (not $type =~ m/:/);
+      my ($primary_tag, undef, $source_tag) = ($type =~ m/^(.*?)(:(.*?))$/);
+      $source_tag ||= '';
+      if ($source_tag eq '') {
+        for my $source (keys %{$$data{$primary_tag}}) {
+          if (exists $$data{$primary_tag}{$source_tag}) {
+            push @children, @{$$data{$primary_tag}{$source_tag}};
+          }
+        }
+      } else {
+        if (exists $$data{$primary_tag}{$source_tag}) {
+          push @children, @{$$data{$primary_tag}{$source_tag}};
+        }
+      }
+    }
   }
+
+  return @children;
 }
 
 sub _update_indexes {
-  my $self = shift;
-  my $obj  = shift;
-  defined (my $id   = $obj->primary_id) or return;
-  $self->_update_name_index($obj,$id);
-  $self->_update_type_index($obj,$id);
-  $self->_update_location_index($obj,$id);
-  $self->_update_attribute_index($obj,$id);
+  my ($self, $obj, $del) = @_;
+  defined (my $id = $obj->primary_id) or return;
+  $del ||= 0;
+  $self->_update_name_index($obj,$id, $del);
+  $self->_update_type_index($obj,$id, $del);
+  $self->_update_location_index($obj, $id, $del);
+  $self->_update_attribute_index($obj,$id, $del);
 }
 
 sub _update_name_index {
-  my $self = shift;
-  my ($obj,$id) = @_;
-  my ($names,$aliases) = $self->feature_names($obj);
+  my ($self, $obj, $id, $del) = @_;
+  my ($names, $aliases) = $self->feature_names($obj);
   foreach (@$names) {
-    $self->{_index}{name}{lc $_}{$id}   = 1;
+    if (not $del) {
+      $self->{_index}{name}{lc $_}{$id}   = 1;
+    } else {
+      delete $self->{_index}{name}{lc $_}{$id};
+      if (scalar keys %{ $self->{_index}{name}{lc $_} } == 0) {
+        delete $self->{_index}{name}{lc $_};
+      }
+    };
   }
   foreach (@$aliases) {
-    $self->{_index}{name}{lc $_}{$id} ||= 2;
+    if (not $del) {
+      $self->{_index}{name}{lc $_}{$id} ||= 2;
+    } else {
+      delete $self->{_index}{name}{lc $_}{$id};
+      if (scalar keys %{ $self->{_index}{name}{lc $_} } == 0) {
+        delete $self->{_index}{name}{lc $_};
+      }
+    }
   }
 }
 
 sub _update_type_index {
-  my $self = shift;
-  my ($obj,$id) = @_;
-
-  my $primary_tag = $obj->primary_tag;
-  my $source_tag  = $obj->source_tag || '';
-  return unless defined $primary_tag;
-
-  $primary_tag    .= ":$source_tag";
-  $self->{_index}{type}{lc $primary_tag}{$id} = undef;
+  my ($self, $obj, $id, $del) = @_;
+  my $primary_tag = lc($obj->primary_tag) || return;
+  my $source_tag  = lc($obj->source_tag || '');
+  if (not $del) {
+    $self->{_index}{type}{$primary_tag}{$source_tag}{$id} = undef;
+  } else {
+    delete $self->{_index}{type}{$primary_tag}{$source_tag}{$id};
+    if ( scalar keys %{$self->{_index}{type}{$primary_tag}{$source_tag}} == 0 ) {
+      delete $self->{_index}{type}{$primary_tag}{$source_tag};
+      if (scalar keys %{$self->{_index}{type}{$primary_tag}} == 0 ) {
+        delete $self->{_index}{type}{$primary_tag};
+      }
+    }
+  }
 }
 
 sub _update_location_index {
-  my $self = shift;
-  my ($obj,$id) = @_;
-
+  my ($self, $obj, $id, $del) = @_;
   my $seq_id      = $obj->seq_id || '';
   my $start       = $obj->start  || 0;
   my $end         = $obj->end    || 0;
   my $strand      = $obj->strand;
   my $bin_min     = int $start/BINSIZE;
   my $bin_max     = int $end/BINSIZE;
-
   for (my $bin = $bin_min; $bin <= $bin_max; $bin++ ) {
-    $self->{_index}{location}{lc $seq_id}{$bin}{$id} = undef;
+    if (not $del) {
+      $self->{_index}{location}{lc $seq_id}{$bin}{$id} = undef;
+    } else {
+      delete $self->{_index}{location}{lc $seq_id}{$bin}{$id};
+      if (scalar keys %{$self->{_index}{location}{lc $seq_id}{$bin}{$id}} == 0) {
+        delete $self->{_index}{location}{lc $seq_id}{$bin}{$id};
+      }
+      if (scalar keys %{$self->{_index}{location}{lc $seq_id}{$bin}} == 0) {
+        delete $self->{_index}{location}{lc $seq_id}{$bin};
+      }
+      if (scalar keys %{$self->{_index}{location}{lc $seq_id}} == 0) {
+        delete $self->{_index}{location}{lc $seq_id};
+      }
+    }
   }
-
 }
 
 sub _update_attribute_index {
-  my $self = shift;
-  my ($obj,$id) = @_;
-
+  my ($self, $obj, $id, $del) = @_;
   for my $tag ($obj->get_all_tags) {
     for my $value ($obj->get_tag_values($tag)) {
-      $self->{_index}{attribute}{lc $tag}{lc $value}{$id} = undef;
+      if (not $del) {
+        $self->{_index}{attribute}{lc $tag}{lc $value}{$id} = undef;
+      } else {
+        delete $self->{_index}{attribute}{lc $tag}{lc $value}{$id};
+        if ( scalar keys %{$self->{_index}{attribute}{lc $tag}{lc $value}} == 0) {
+          delete $self->{_index}{attribute}{lc $tag}{lc $value};
+        }
+        if ( scalar keys %{$self->{_index}{attribute}{lc $tag}} == 0) {
+          delete $self->{_index}{attribute}{lc $tag};
+        }
+        if ( scalar keys %{$self->{_index}{attribute}} == 0) {
+          delete $self->{_index}{attribute};
+        }
+      }
     }
   }
 }
@@ -355,53 +443,61 @@ sub _features {
 
 
 sub filter_by_type {
-  my $self = shift;
-  my ($types,$filter) = @_;
-  my @types = ref $types eq 'ARRAY' ?  @$types : $types;
+  my ($self, $types_req, $filter) = @_;
+  my @types_req = ref $types_req eq 'ARRAY' ?  @$types_req : $types_req;
 
-  my $index = $self->{_index}{type};
-
-  my @types_found = $self->find_types(@types);
+  my $types = $self->{_index}{type};
+  my @types_found = $self->find_types(\@types_req);
 
   my @results;
-  for my $type (@types_found) {
-    next unless exists $index->{$type};
-    push @results,keys %{$index->{$type}};
+  for my $type_found (@types_found) {
+    my ($primary_tag, undef, $source_tag) = ($type_found =~ m/^(.*?)(:(.*?))$/);
+    next unless exists $types->{$primary_tag}{$source_tag};
+    push @results, keys %{$types->{$primary_tag}{$source_tag}};
   }
 
   $self->update_filter($filter,\@results);
 }
 
 sub find_types {
-  my $self = shift;
-  my @types = @_;
-
+  my ($self, $types_req) = @_;
   my @types_found;
-  my $index = $self->{_index}{type};
 
-  for my $type (@types) {
+  my $types = $self->{_index}{type};
 
-    my ($primary_tag,$source_tag);
-    if (ref $type && $type->isa('Bio::DB::GFF::Typename')) {
-      $primary_tag = $type->method;
-      $source_tag  = $type->source;
+  for my $type_req (@$types_req) {
+
+    # Type is the primary tag and an optional source tag
+    my ($primary_tag, $source_tag);
+    if (ref $type_req && $type_req->isa('Bio::DB::GFF::Typename')) {
+      $primary_tag = $type_req->method;
+      $source_tag  = $type_req->source;
     } else {
-      ($primary_tag,$source_tag) = split ':',$type,2;
+      ($primary_tag, undef, $source_tag) = ($type_req =~ m/^(.*?)(:(.*))?$/); 
     }
-    push @types_found,defined $source_tag ? lc "$primary_tag:$source_tag"
-                                          : grep {/^$primary_tag:/i} keys %{$index};
+    ($primary_tag, $source_tag) = (lc $primary_tag, lc($source_tag || ''));
+
+    next if not exists $$types{$primary_tag};
+
+    if ($source_tag eq '') {
+      # Match all sources for this primary_tag
+      push @types_found, map {"$primary_tag:$_"} (keys %{ $$types{$primary_tag} });
+    } else {
+      # Match only the requested source
+      push @types_found, "$primary_tag:$source_tag";
+    }
+
   }
   return @types_found;
 }
 
 sub attributes {
-    my $self = shift;
-    return keys %{$self->{_index}{attribute}};
+  my $self = shift;
+  return keys %{$self->{_index}{attribute}};
 }
 
 sub filter_by_attribute {
-  my $self = shift;
-  my ($attributes,$filter) = @_;
+  my ($self, $attributes, $filter) = @_;
 
   my $index = $self->{_index}{attribute};
   my $result;
@@ -434,8 +530,7 @@ sub filter_by_attribute {
 }
 
 sub filter_by_location {
-  my $self = shift;
-  my ($seq_id,$start,$end,$strand,$range_type,$filter) = @_;
+  my ($self, $seq_id, $start, $end, $strand, $range_type, $filter) = @_;
   $strand ||= 0;
 
   my $index = $self->{_index}{location}{lc $seq_id};
@@ -479,8 +574,7 @@ sub filter_by_location {
 
 
 sub filter_by_name {
-  my $self = shift;
-  my ($name,$allow_aliases,$filter) = @_;
+  my ($self, $name, $allow_aliases, $filter) = @_;
 
   my $index = $self->{_index}{name};
 
@@ -503,8 +597,7 @@ sub filter_by_name {
 }
 
 sub glob_match {
-  my $self = shift;
-  my $term = shift;
+  my ($self, $term) = @_;
   return unless $term =~ /(?:^|[^\\])[*?]/;
   $term =~ s/(^|[^\\])([+\[\]^{}\$|\(\).])/$1\\$2/g;
   $term =~ s/(^|[^\\])\*/$1.*/g;
@@ -514,8 +607,7 @@ sub glob_match {
 
 
 sub update_filter {
-  my $self = shift;
-  my ($filter,$results) = @_;
+  my ($self, $filter, $results) = @_;
   return unless @$results;
 
   if (%$filter) {
@@ -528,8 +620,7 @@ sub update_filter {
 }
 
 sub _search_attributes {
-  my $self = shift;
-  my ($search_string,$attribute_array,$limit) = @_;
+  my ($self, $search_string, $attribute_array, $limit) = @_;
 
   $search_string =~ tr/*?//d;
 
@@ -579,18 +670,21 @@ sub _search_attributes {
 =cut
 
 sub types {
-    my $self = shift;
-    eval "require Bio::DB::GFF::Typename" 
-	unless Bio::DB::GFF::Typename->can('new');
-    return map {
-	Bio::DB::GFF::Typename->new($_);
-    } keys %{$self->{_index}{type}};
+  my $self = shift;
+  eval "require Bio::DB::GFF::Typename" unless Bio::DB::GFF::Typename->can('new');
+  my @types;
+  for my $primary_tag ( keys %{$$self{_index}{type}} ) {
+    for my $source_tag ( keys %{$$self{_index}{type}{$primary_tag}} ) {
+      my $type = $$self{_index}{type}{$primary_tag}{$source_tag};
+      push @types, Bio::DB::GFF::Typename->new($type);
+    }
+  }
+  return @types;
 }
 
 # this is ugly
 sub _insert_sequence {
-  my $self = shift;
-  my ($seqid,$seq,$offset) = @_;
+  my ($self, $seqid, $seq, $offset) = @_;
   my $dna_fh = $self->private_fasta_file or return;
   if ($offset == 0) { # start of the sequence
     print $dna_fh ">$seqid\n";
@@ -599,8 +693,7 @@ sub _insert_sequence {
 }
 
 sub _fetch_sequence {
-  my $self = shift;
-  my ($seqid,$start,$end) = @_;
+  my ($self, $seqid, $start, $end) = @_;
   my $db = $self->{fasta_db} or return;
   $db->seq($seqid,$start,$end);
 }
@@ -643,12 +736,23 @@ sub coverage_array {
     return wantarray ? (\@coverage_array,$report_tag) : \@coverage_array;
 }
 
+sub _seq_ids {
+    my $self = shift;
+
+    if (my $fa = $self->{fasta_db}) {
+	if (my @s = eval {$fa->ids}) {
+	    return @s;
+	}
+    } 
+    
+    my $l    = $self->{_index}{location} or return;
+    return keys %$l;
+}
+
 package Bio::DB::SeqFeature::Store::memory::Iterator;
 
 sub new {
-  my $class = shift;
-  my $store = shift;
-  my $ids   = shift;
+  my ($class, $store, $ids) = @_;
   return bless {store => $store,
 		ids   => $ids},ref($class) || $class;
 }

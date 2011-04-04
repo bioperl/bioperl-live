@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::Tools::GFF
 #
@@ -122,7 +121,7 @@ with code and data examples if at all possible.
 Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Matthew Pocock
 
@@ -745,17 +744,17 @@ sub _gff1_string{
 
    $str = join("\t",
                  $name,
-		 $feat->source_tag(),
-		 $feat->primary_tag(),
-		 $feat->start(),
-		 $feat->end(),
+		 $feat->source_tag,
+		 $feat->primary_tag,
+		 $feat->start,
+		 $feat->end,
 		 $score,
 		 $strand,
 		 $frame);
 
-    foreach my $tag ( $feat->all_tags ) {
+    foreach my $tag ( $feat->get_all_tags ) {
         next if exists $SKIPPED_TAGS{$tag};
-        foreach my $value ( $feat->each_tag_value($tag) ) {
+        foreach my $value ( $feat->get_tag_values($tag) ) {
         $str .= " $tag=$value" if $value;
         }
     }

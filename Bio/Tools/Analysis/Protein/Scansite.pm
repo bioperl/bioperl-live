@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::Tools::Analysis::Protein::Scansite
 #
@@ -139,7 +138,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHORS
 
@@ -356,7 +355,7 @@ sub _run {
 							 motifs       => '',
 							 motif_groups => '',
 							 stringency   => $self->stringency(),
-						 	 domain_flag  => '',
+						 	 #domain_flag  => '',
 							 submit       => "Submit Request",
 							];
 	## raw html report, 
@@ -399,8 +398,7 @@ sub _run {
 	(scalar @results > 0 ||	
 	(scalar @results == 0 && $text =~/No sites found/));
     if ($text =~ /server\s+error/i) {
-    	$self->warn("There was an internal server error !- text below") ;
-		$self->warn($text);
+    	$self->throw("Internal server error:\n\n $text");
         return; 
     }
 }

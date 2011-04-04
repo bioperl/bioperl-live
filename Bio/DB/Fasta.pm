@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::DB::Fasta
 #
@@ -410,6 +409,7 @@ use strict;
 use IO::File;
 use AnyDBM_File;
 use Fcntl;
+use File::Glob ':glob';
 use File::Basename qw(basename dirname);
 
 use base qw(Bio::DB::SeqI Bio::Root::Root);
@@ -745,31 +745,39 @@ sub calculate_offsets {
 
   while (<$fh>) {		# don't try this at home
     $termination_length ||= /\r\n$/ ? 2 : 1; # account for crlf-terminated Windows files
-    if (/^>(\S+)/) {
-      print STDERR "indexed $count sequences...\n" 
-	if $self->{debug} && (++$count%1000) == 0;
-      my $pos = tell($fh);
-      if (@id) {
-	my $seqlength    = $pos - $offset - length($_);
-	$seqlength      -= $termination_length * $seq_lines;
-	my $ppos = &{$self->{packmeth}}($offset,$seqlength,
-				       $linelength,$firstline,
-				       $type,$base);
-	for my $id (@id) { $offsets->{$id}  = $ppos }
-      }
-      @id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
-      ($offset,$firstline,$linelength) = ($pos,length($_),0);
-      $self->_check_linelength($linelength);
-      ($l3_len,$l2_len,$l_len)=(0,0,0);
-      $seq_lines = 0;
+    next unless /\S/;
+    if (index($_, ">") == 0) {
+        if (/^>(\S+)/) {
+          print STDERR "indexed $count sequences...\n" 
+        if $self->{debug} && (++$count%1000) == 0;
+          
+        
+          my $pos = tell($fh);
+          if (@id) {
+        my $seqlength    = $pos - $offset - length($_);
+        $seqlength      -= $termination_length * $seq_lines;
+        my $ppos = &{$self->{packmeth}}($offset,$seqlength,
+                           $linelength,$firstline,
+                           $type,$base);
+        for my $id (@id) { $offsets->{$id}  = $ppos }
+          }
+          @id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
+          ($offset,$firstline,$linelength) = ($pos,length($_),0);
+          $self->_check_linelength($linelength);
+          ($l3_len,$l2_len,$l_len)=(0,0,0);
+          $seq_lines = 0;
+        } else {
+          # catch bad header lines, bug 3172
+          $self->throw("FASTA header doesn't match '>(\\S+)': $_")
+        }
     } else {
       $l3_len= $l2_len; $l2_len= $l_len; $l_len= length($_); # need to check every line :(
       if (DIE_ON_MISSMATCHED_LINES &&
 	  $l3_len>0 && $l2_len>0 && $l3_len!=$l2_len) {
-	my $fap= substr($_,0,20)."..";
-	$self->throw("Each line of the fasta entry must be the same length except the last.
-    Line above #$. '$fap' is $l2_len != $l3_len chars.");
-  }
+	  my $fap= substr($_,0,20)."..";
+	  $self->throw("Each line of the fasta entry must be the same length except the last.
+   Line above #$. '$fap' is $l2_len != $l3_len chars.");
+      }
       $linelength ||= length($_);
       $type       ||= $self->_type($_);
       $seq_lines++;
@@ -1145,7 +1153,7 @@ sub description  {
     my $self = shift;
     my $header = $self->{'db'}->header($self->{id});
     # remove the id from the header
-    return (split(/\s+/,$header,2))[2];
+    return (split(/\s+/,$header,2))[1];
 }
 
 *desc = \&description;

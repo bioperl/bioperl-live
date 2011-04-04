@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::Root::Build
 #
@@ -58,7 +57,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Sendu Bala
 
@@ -206,7 +205,8 @@ sub process_script_files {
         $final =~ s/\.PLS$/\.pl/;                  # change from .PLS to .pl
         $final =~ s/^/bp_/ unless $final =~ /^bp/; # add the "bp" prefix
         $final = File::Spec->catfile($script_dir, $final);
-        $self->log_info("$result -> $final\n");
+        # silence scripts
+        #$self->log_info("$result -> $final\n");
         if (-e $final) {
             unlink $final || warn "[WARNING] Deleting '$final' failed!\n";
         }

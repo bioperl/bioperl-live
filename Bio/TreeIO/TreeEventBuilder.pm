@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::TreeIO::TreeEventBuilder
 #
@@ -54,7 +53,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -186,14 +185,8 @@ sub start_document {
 
 sub end_document {
     my ($self,$label) = @_; 
-    my $root = $self->nodetype->new(
-	-id => $label,
-	-verbose => $self->verbose);
-    # aggregate the nodes into trees basically ad-hoc.
-    while ( @{$self->{'_currentnodes'}} ) {	
-	my ($node) = ( shift @{$self->{'_currentnodes'}});
-	$root->add_Descendent($node);
-    }
+
+    my ($root) = @{$self->{'_currentnodes'}};
 
     $self->debug("Root node is " . $root->to_string()."\n");
     if( $self->verbose > 0 ) { 
@@ -228,8 +221,8 @@ sub start_element{
    
    if( $data->{'Name'} eq 'node' ) {
        push @{$self->{'_currentitems'}}, \%data; 
-   } elsif ( $data->{Name} eq 'tree' ) {
        $self->{'_treelevel'}++;
+   } elsif ( $data->{Name} eq 'tree' ) {
    }
 }
 
@@ -275,15 +268,15 @@ sub end_element{
        push @{$self->{'_currentnodes'}}, $tnode;
        $self->{'_nodect'}->[$self->{'_treelevel'}]++;
        
-       $self->debug ("added node: nodes in stack is $curcount, treelevel: $level, nodect: $levelct\n");
-       
+       $curcount = scalar @{$self->{'_currentnodes'}};
+       $self->debug ("added node: count is now $curcount, treelevel: $level, nodect: $levelct\n");
+
+       $self->{'_treelevel'}--;       
    } elsif(  $data->{'Name'} eq 'tree' ) { 
        $self->debug("end of tree: nodes in stack is $curcount\n");
-       $self->{'_treelevel'}--;
    }
 
    $self->{'_lastitem'}->{ $data->{'Name'} }--; 
-   
    pop @{$self->{'_lastitem'}->{'current'}};
 }
 

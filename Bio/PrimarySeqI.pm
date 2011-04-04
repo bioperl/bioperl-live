@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::PrimarySeqI
 #
@@ -105,7 +104,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Ewan Birney
 
@@ -484,7 +483,7 @@ sub trunc{
  Usage   : $protein_seq_obj = $dna_seq_obj->translate
 
            Or if you expect a complete coding sequence (CDS) translation,
-           with inititator at the beginning and terminator at the end:
+           with initiator at the beginning and terminator at the end:
 
            $protein_seq_obj = $cds_seq_obj->translate(-complete => 1);
 
@@ -515,6 +514,12 @@ sub trunc{
                integer codon table id, default 1
            -complete
                boolean, if true, complete CDS is expected. default false
+           -complete_codons
+               boolean, if true, codons which are incomplete are translated if a
+               suitable amino acid is found. For instance, if the incomplete
+               codon is 'GG', the completed codon is 'GGN', which is glycine
+               (G). Defaults to 'false'; setting '-complete' also makes this
+               true.
            -throw
                boolean, throw exception if ORF not complete, default false
            -orf
@@ -527,7 +532,7 @@ sub trunc{
                optional three-character string to force as initiation
                codon (e.g. 'atg'). If unset, start codons are
                determined by the CodonTable.  Case insensitive.
-	   -offset
+           -offset
                optional positive integer offset for fuzzy locations.
                if set, must be either 1, 2, or 3
 
@@ -549,8 +554,8 @@ sequence translation starts relative to the first base of the feature
 
 For details on codon tables used by translate() see L<Bio::Tools::CodonTable>.
 
-Deprecated argument set (v. 1.5.1 and prior versions)
-where each argument is an element in an array:
+Deprecated argument set (v. 1.5.1 and prior versions) where each argument is an
+element in an array:
 
   1: character for terminator (optional), defaults to '*'.
   2: character for unknown amino acid (optional), defaults to 'X'.
@@ -565,18 +570,19 @@ where each argument is an element in an array:
 
 sub translate {
 	 my ($self,@args) = @_;
-	 my ($terminator, $unknown, $frame, $codonTableId, $complete, $throw,
-             $codonTable, $orf, $start_codon, $offset);
+     my ($terminator, $unknown, $frame, $codonTableId, $complete,
+     $complete_codons, $throw, $codonTable, $orf, $start_codon, $offset);
 
 	 ## new API with named parameters, post 1.5.1
 	 if ($args[0] && $args[0] =~ /^-[A-Z]+/i) {
-		 ($terminator, $unknown, $frame, $codonTableId, $complete, $throw,
-		  $codonTable, $orf, $start_codon, $offset) =
+         ($terminator, $unknown, $frame, $codonTableId, $complete,
+         $complete_codons, $throw,$codonTable, $orf, $start_codon, $offset) =
 			 $self->_rearrange([qw(TERMINATOR
                                                UNKNOWN
                                                FRAME
                                                CODONTABLE_ID
                                                COMPLETE
+                                               COMPLETE_CODONS
                                                THROW
                                                CODONTABLE
                                                ORF
@@ -587,19 +593,23 @@ sub translate {
 		 ($terminator, $unknown, $frame, $codonTableId,
 		  $complete, $throw, $codonTable, $offset) = @args;
 	 }
-
+    
     ## Initialize termination codon, unknown codon, codon table id, frame
     $terminator = '*'    unless (defined($terminator) and $terminator ne '');
     $unknown = "X"       unless (defined($unknown) and $unknown ne '');
     $frame = 0           unless (defined($frame) and $frame ne '');
     $codonTableId = 1    unless (defined($codonTableId) and $codonTableId ne '');
-
+    $complete_codons ||= $complete || 0;
+    
     ## Get a CodonTable, error if custom CodonTable is invalid
     if ($codonTable) {
 		 $self->throw("Need a Bio::Tools::CodonTable object, not ". $codonTable)
 			unless $codonTable->isa('Bio::Tools::CodonTable');
     } else {
-		 $codonTable = Bio::Tools::CodonTable->new( -id => $codonTableId);
+        
+        # shouldn't this be cached?  Seems wasteful to have a new instance
+        # every time...
+		$codonTable = Bio::Tools::CodonTable->new( -id => $codonTableId);
 	 }
 
     ## Error if alphabet is "protein"
@@ -635,7 +645,7 @@ sub translate {
          }
 
     ## Translate it
-    my $output = $codonTable->translate($seq);
+    my $output = $codonTable->translate($seq, $complete_codons);
     # Use user-input terminator/unknown
     $output =~ s/\*/$terminator/g;
     $output =~ s/X/$unknown/g;

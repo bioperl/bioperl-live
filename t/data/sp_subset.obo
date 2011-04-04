@@ -1,0 +1,32 @@
+format-version: 1.2
+date: 22:09:2010 14:30
+auto-generated-by: OBO-Edit 2.1-beta4
+default-namespace: solanaceae_phenotype
+
+
+[Term]
+id: SP:0000002
+name: plant size
+synonym: "TO:0000207" RELATED []
+xref: PATO:0000117
+xref: PO:0000003
+xref: PO:0007130
+xref: TO:0000207
+is_a: SP:0000205 ! whole plant phenotype
+
+
+[Term]
+id: SP:0000205
+name: whole plant phenotype
+def: "A phenotype of the entire plant, including roots, shoots and leaves, at any stage of its life cycle." [SGN:AP]
+xref: PO:0000003
+is_a: SP:0001000 ! Solanaceae phenotype ontology
+
+
+[Term]
+id: SP:0001000
+name: Solanaceae phenotype ontology
+
+[Typedef]
+id: part_of
+name: part of

@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 222);
+    test_begin(-tests => 249);
 	
 	use_ok('Bio::Seq');
 	use_ok('Bio::SeqIO');
@@ -42,6 +42,9 @@ is $feat->start, 40, 'start of feature location';
 is $feat->end, 80, 'end of feature location';
 is $feat->primary_tag, 'exon', 'primary tag';
 is $feat->source_tag, 'internal', 'source tag';
+is $feat->phase, undef, 'undef phase by default';
+is $feat->phase(1), 1, 'phase accessor returns';
+is $feat->phase, 1, 'phase is persistent';
 
 $str = $feat->gff_string() || ""; # placate -w
 
@@ -53,11 +56,13 @@ $feat2 = Bio::SeqFeature::Generic->new( -start => 400,
 				       -strand => 1,
 				       -primary => 'other',
 				       -source  => 'program_a',
+                                       -phase => 1,
 				       -tag => {
 					   silly => 20,
 					   new => 1
 					   }
 				       );
+is $feat2->phase, 1, 'set phase from constructor';
 
 ok defined $feat2;
 $pair->feature1($feat);
@@ -377,3 +382,45 @@ lives_ok {
   is_deeply( [$sf->get_tagset_values('notag') ], [], 'get_tagset_values no tag values found');
 } 'get_tagset_values lives with no tag';
 throws_ok { $sf->get_tag_values('notag') } qr/tag value that does not exist/, 'get_tag_values throws with no tag';
+
+# circular sequence SeqFeature tests
+$seqin = Bio::SeqIO->new(-format => 'genbank',
+                         -file   => test_input_file('PX1CG.gb'));
+
+$seq = $seqin->next_seq;
+ok($seq->is_circular, 'Phi-X174 genome is circular');
+
+# retrieving the spliced sequence from any split location requires
+# spliced_seq()
+
+my %sf_data = (
+    #       start
+    'A'  => [3981, 136, 1, 1542, 'join(3981..5386,1..136)', 'ATGGTTCGTT'],
+    'A*' => [4497, 136, 1, 1026, 'join(4497..5386,1..136)', 'ATGAAATCGC'],
+    'B'  => [5075, 136, 1, 363,  'join(5075..5386,1..51)',  'ATGGAACAAC'],
+);
+
+my @split_sfs = grep {
+    $_->location->isa('Bio::Location::SplitLocationI')
+    } $seq->get_SeqFeatures();
+
+is(@split_sfs, 3, 'only 3 split locations');
+
+for my $sf (@split_sfs) {
+    isa_ok($sf->location, 'Bio::Location::SplitLocationI');
+    my ($tag) = $sf->get_tag_values('product');
+    my ($start, $end, $strand, $length, $ftstring, $first_ten) = @{$sf_data{$tag}};
+    
+    # these pass
+    is($sf->location->to_FTstring, $ftstring, 'feature string');
+    is($sf->spliced_seq->subseq(1,10), $first_ten, 'first ten nucleotides');
+        is($sf->strand, $strand, 'strand');
+
+    TODO: {
+        local $TODO = "Need to define how to deal with start, end length for circular sequences";
+        is($sf->start, $start, 'start');
+        is($sf->end, $end, 'end');
+        is($sf->length, $length, 'expected length');
+    }
+}
+

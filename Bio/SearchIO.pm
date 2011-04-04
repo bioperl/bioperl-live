@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::SearchIO
 #
@@ -55,7 +54,7 @@ A list of module names and formats is below:
   waba       WABA output
   axt        AXT format
   sim4       Sim4
-  hmmer      HMMER hmmpfam and hmmsearch
+  hmmer      HMMER2 hmmpfam and hmmsearch or HMMER3 hmmscan and hmmsearch
   exonerate  Exonerate CIGAR and VULGAR format
   blastxml   NCBI BLAST XML
   wise       Genewise -genesf format
@@ -91,7 +90,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich & Steve Chervitz
 

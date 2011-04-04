@@ -136,7 +136,7 @@ with code and data examples if at all possible.
 Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Robson Francisco de Souza
 
@@ -226,7 +226,7 @@ sub next_contig {
         chomp;
 
         # Loading contig sequence (COntig sequence field)
-        if (/^CO\s(\w+)\s(\d+)\s(\d+)\s(\d+)\s(\w+)/xms) { # New contig starts!
+        if (/^CO\s(\S+)\s(\d+)\s(\d+)\s(\d+)\s(\w+)/xms) { # New contig starts!
 
             if (not $contigOBJ) {
                 # Start a new contig object
@@ -313,6 +313,7 @@ sub next_contig {
             my $bs_feat = Bio::SeqFeature::Generic->new(
                 -start   => $start,
                 -end     => $end,
+                -source  => 'ace',
                 -strand  => 1,
                 -primary => '_base_segments',
                 -tag     => { 'contig_id' => $contig_id}
@@ -354,6 +355,7 @@ sub next_contig {
             my $coord = Bio::SeqFeature::Generic->new(
                 -start  => $padded_start,
                 -end    => $padded_end,
+                -source => 'ace',
                 -strand => $read_data->{$read_name}{'strand'},
                 -tag    => { 'contig' => $contigOBJ->id }
             );
@@ -380,7 +382,8 @@ sub next_contig {
                     -start   => $aln_start,
                     -end     => $aln_end,
                     -strand  => $read_data->{$read_name}{'strand'},
-                    -primary => "_align_clipping:$read_name"
+                    -primary => '_align_clipping',
+                    -source  => $read_name,
                 );
                 $aln_feat->attach_seq( $contigOBJ->get_seq_by_name($read_name) );
                 $contigOBJ->add_features([ $aln_feat ], 0);
@@ -394,7 +397,8 @@ sub next_contig {
                     -start   => $qual_start,
                     -end     => $qual_end,
                     -strand  => $read_data->{$read_name}{'strand'},
-                    -primary => "_quality_clipping:$read_name"
+                    -primary => '_quality_clipping',
+                    -source  => $read_name || '',
                 );
                 $qual_feat->attach_seq( $contigOBJ->get_seq_by_name($read_name) );
                 $contigOBJ->add_features([ $qual_feat ], 0);
@@ -418,11 +422,12 @@ sub next_contig {
             my $read_desc = Bio::SeqFeature::Generic->new(
                 -start   => $start,
                 -end     => $end,
-                -primary => "_read_desc:$read_name",
+                -primary => '_read_desc', # primary_tag
+                -source  => $read_name || '',
                 -tag     => \%tags
             );
-            $coord->add_sub_SeqFeature($read_desc);
-        
+            $contigOBJ->get_features_collection->add_features([$read_desc]);
+            $contigOBJ->get_features_collection->add_SeqFeature($coord, $read_desc);
         }
 
         # Loading Read Tags
@@ -438,15 +443,17 @@ sub next_contig {
             my $read_tag = Bio::SeqFeature::Generic->new(
                 -start   => $start,
                 -end     => $end,
-                -primary => "_read_tags:$readID",
+                -primary => '_read_tags',
+                -source  => $readID || '',
                 -tag     => { 'type'          => $type,
                               'source'        => $source,
-                              'creation_date' => $date,
-                              'extra_info'    => $extra_info }
+                              'creation_date' => $date}
             );
+            $read_tag->add_tag_value('extra_info', $extra_info) if defined $extra_info;
             my $contig = $read_data->{$readID}{'contig'};
             my $coord  = $contig->get_seq_coord( $contig->get_seq_by_name($readID) );
-            $coord->add_sub_SeqFeature($read_tag);
+            $contig->get_features_collection->add_features([$read_tag]);
+            $contig->get_features_collection->add_SeqFeature($coord, $read_tag);
         }
 
     }
@@ -458,10 +465,7 @@ sub next_contig {
         # Find maximum coordinate
         my $max_end;
         for my $readid ($contigOBJ->get_seq_ids) {
-            my $alncoord  = (grep
-                { $_->primary_tag eq "_aligned_coord:$readid"}
-                $contigOBJ->get_features_collection->get_all_features
-                )[0];
+            my ($alncoord) = $contigOBJ->get_features_collection->get_features_by_type("_aligned_coord:$readid");
             my $end = $alncoord->location->end;
             if ( (not defined $max_end) || ($end > $max_end) ) {
                 $max_end = $end;
@@ -495,6 +499,7 @@ sub next_contig {
             $contigOBJ->set_consensus_quality($cons_qual);
         }
     }
+
     return $contigOBJ;
 }
 
@@ -559,10 +564,13 @@ sub scaffold_annotations {
             my $contig_tag = Bio::SeqFeature::Generic->new( -start   => $start,
                                                             -end     => $end,
                                                             -primary => $type,
+                                                            -source  => 'ace',
                                                             -tag     => \%tags );
-            my $contig = $assembly->get_contig_by_id($contigID);
+            my $contig = $assembly->get_contig_by_id($contigID) ||
+                         $assembly->get_singlet_by_id($contigID);
             $self->throw("Cannot add feature to unknown contig '$contigID'")
               unless defined $contig;
+
             $contig->add_features([ $contig_tag ],1);
         };
 
@@ -614,9 +622,8 @@ sub write_contig {
     my $cons_len         =  $cons->length;
     my $contig_num_reads =  $contig->num_sequences;
     my $cons_strand      = ($contig->strand == -1) ? 'C' : 'U';
-    my @bs_feats = grep { $_->primary_tag eq '_base_segments' }
-        $contig->get_features_collection->get_all_features;
-    my $nof_segments     = scalar @bs_feats ;
+    my @bs_feats         = $contig->get_features_collection->get_features_by_type('_base_segments');
+    my $nof_segments     = scalar @bs_feats;
 
     $self->_print(
         "CO $contig_id $cons_len $contig_num_reads $nof_segments $cons_strand\n".
@@ -671,17 +678,22 @@ sub write_contig {
     Usage   : $ass_io->write_header($scaffold)
                   or
               $ass_io->write_header(\@contigs);
+                  or
+              $ass_io->write_header();
     Function: Write ACE header (AS tags). You can call this function at any time,
-              i.e. not necessarily at the start. This is especially useful if
-              you have an undetermined number of contigs to write to ACE.
-              Example:
-              for my $contig (@list_of_contigs) {
-                $ass_io->_write_contig($contig);
-              }
-              $ass_io->_write_header(\@list_of_contigs);
+              i.e. not necessarily at the start of the stream - this is useful
+              if you have an undetermined number of contigs to write to ACE, e.g:
+                for my $contig (@list_of_contigs) {
+                  $ass_io->_write_contig($contig);
+                }
+                $ass_io->_write_header();
     Returns : 1 on success, 0 for error
-    Args    : A Bio::Assembly::Scaffold or an arrayref of Bio::Assembly::Contig
-              and Singlet
+    Args    : A Bio::Assembly::Scaffold
+                  or
+              an arrayref of Bio::Assembly::Contig
+                  or
+              nothing (the header is dynamically written based on the ACE file
+              content)
 
 =cut
 
@@ -690,9 +702,9 @@ sub write_header {
 
     # Input validation
     my @contigs;
-    my $err_msg = "Must provide a single Bio::Assembly::Scaffold object or an ".
-        "arrayref of Bio::Assembly::Contig or Singlet objects when calling ".
-        "write_header";
+    my $err_msg = "If an input is given to write_header, it must be a single ".
+        "Bio::Assembly::Scaffold object or an arrayref of Bio::Assembly::Contig".
+        " or Singlet objects";
     my $ref = ref $input;
     if ( $ref eq 'ARRAY' ) {
        for my $obj ( @$input ) {
@@ -701,36 +713,33 @@ sub write_header {
        }
     } elsif ( $ref =~ m/Bio::Assembly::Scaffold/ ) {
        @contigs = ($input->all_contigs, $input->all_singlets);
-    } else {
-        $self->throw($err_msg);
-    } 
-
-    # Count number of contigs and reads
-    my $num_contigs = scalar @contigs;
-    my $num_reads   = 0;
-    for my $contig ( @contigs ) {
-        $num_reads += $contig->num_sequences;
     }
 
-    # Print ASsembly tag at the start of the file
-    my $header = "AS $num_contigs $num_reads\n\n";
-    if ( tell $self->_fh > 0 ) {
-        # Not at the beginning of the file, go to start of file for writing
-        seek $self->_fh, 0, 0;
+    # Count number of contigs and reads
+    my $num_contigs = 0;
+    my $num_reads   = 0;
+    if ( scalar @contigs > 0 ) {
+        # the contigs were provided
+        $num_contigs = scalar @contigs;
+        for my $contig ( @contigs ) {
+            $num_reads += $contig->num_sequences;
+        }
+    } else {
+        # need to read the contigs from file
+        $self->flush;
         my $file = $self->file(); # e.g. '+>output.ace'
         $file =~ s/^\+?[><]?//;   # e.g. 'output.ace'
-        my $prev_line = $header;
-        open my $read_fh, '<', $file or die "Error: Could not read file '$file':\n$!\n";
-        while ( my $read_line = <$read_fh> ) {
-            $self->_print( $prev_line );
-            $prev_line = $read_line;
+        my $read_io = Bio::Assembly::IO->new( -file => $file, -format => 'ace' );
+        while ( my $contig = $read_io->next_contig ) {
+            $num_contigs++;
+            $num_reads += $contig->num_sequences;
         }
-        $self->_print($prev_line);
-        close $read_fh;
-    } else {
-        # At first line, print header
-        $self->_print($header);
-    }    
+        $read_io->close;
+    }
+
+    # Write ASsembly tag at the start of the file
+    my $header = "AS $num_contigs $num_reads\n\n";
+    $self->_insert($header, 1);
 
     return 1;
 }
@@ -774,9 +783,10 @@ sub write_footer {
     for my $contig_id ( Bio::Assembly::IO::_sort( $scaf->get_contig_ids ) ) {
         my $contig = $scaf->get_contig_by_id($contig_id) ||
             $scaf->get_singlet_by_id($contig_id);
+        # Is there a better way of doing this? Grepping is not very efficient...
         my @feats = (grep 
             { not $_->primary_tag =~ m/^_/ }
-             $contig->get_features_collection->get_all_features
+             $contig->get_features_collection->features
             );
         for my $feat (@feats) {
             my $type   =  $feat->primary_tag;
@@ -852,9 +862,9 @@ sub _write_read {
     my $read_id   = $read->id;
     my $read_len  = $read->length; # aligned length
     my $read_seq  = $read->seq;
-    my $nof_info = 0; # fea: could not find exactly what this is?
-    my @read_feats = $contig->get_seq_coord($read)->get_SeqFeatures;
-    my @read_tags = (grep { $_->primary_tag eq "_read_tags:$read_id" } @read_feats);
+    my $nof_info  = 0; # fea: could not find exactly the meaning of this?
+    my @read_tags = $contig->get_features_collection->get_SeqFeatures(
+        $contig->get_seq_coord($read), "_read_tags:$read_id");
     my $nof_tags  = scalar @read_tags;
     $self->_print(
         "RD $read_id $read_len $nof_info $nof_tags\n".
@@ -865,10 +875,7 @@ sub _write_read {
     # Aligned "align clipping" and quality coordinates if read object has them
     my $qual_clip_start = 1;
     my $qual_clip_end   = length($read->seq);
-    my $qual_clip = (grep 
-        { $_->primary_tag eq '_quality_clipping:'.$read_id }
-        $contig->get_features_collection->get_all_features
-        )[0];
+    my ($qual_clip) = $contig->get_features_collection->get_features_by_type("_quality_clipping:$read_id");
     if ( defined $qual_clip ) {
         $qual_clip_start = $qual_clip->location->start;
         $qual_clip_end   = $qual_clip->location->end;
@@ -878,10 +885,8 @@ sub _write_read {
 
     my $aln_clip_start = 1;
     my $aln_clip_end   = length($read->seq);
-    my $aln_clip = (grep 
-        { $_->primary_tag eq '_align_clipping:'.$read_id }
-        $contig->get_features_collection->get_all_features
-        )[0];
+    my ($aln_clip) = $contig->get_features_collection->get_features_by_type("_align_clipping:$read_id");
+
     if ( defined $aln_clip ) {
         $aln_clip_start = $aln_clip->location->start;
         $aln_clip_end   = $aln_clip->location->end;
@@ -895,7 +900,8 @@ sub _write_read {
     );
 
     # Read description, if read object has them
-    my $read_desc = (grep { $_->primary_tag eq "_read_desc:$read_id" } @read_feats)[0];
+    my $read_desc = ( $contig->get_features_collection->get_SeqFeatures(
+        $contig->get_seq_coord($read), "_read_desc:$read_id") )[0];
     if ($read_desc) {
         $self->_print("DS");
         for my $tag_name ( $read_desc->get_all_tags ) {
@@ -913,7 +919,8 @@ sub _write_read {
         my $type   = ($read_tag->get_tag_values('type')         )[0];
         my $source = ($read_tag->get_tag_values('source')       )[0];
         my $date   = ($read_tag->get_tag_values('creation_date'))[0];
-        my $extra  = ($read_tag->get_tag_values('extra_info')   )[0] || '';
+        my $extra  = $read_tag->has_tag('extra_info') ?
+                ($read_tag->get_tag_values('extra_info')   )[0] : '';
         $self->_print(
             "RT{\n".
             "$read_id $type $source $start $end $date\n".
@@ -1012,10 +1019,13 @@ sub _formatted_qual {
 
 sub _input_qual {
     my ($self, $qual_string, $sequence) = @_;
+    my @qual_arr = ();
+    # Remove whitespaces in front of qual string and split quality values
+    $qual_string =~ s/^\s+//;
+    my @tmp = split(/\s+/, $qual_string);
+    # Remove gaps
     my $i = 0; # position in quality 
     my $j = 0; # position in sequence
-    my @qual_arr = ();
-    my @tmp = split(/\s+/, $qual_string);
     my $prev = 0;
     my $next = 0;
     for $j (0 .. length($sequence)-1) {

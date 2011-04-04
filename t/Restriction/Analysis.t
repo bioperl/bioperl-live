@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 177);
+    test_begin(-tests => 180);
 	
     use_ok('Bio::Restriction::Enzyme');
     use_ok('Bio::Restriction::Enzyme::MultiCut');
@@ -292,3 +292,22 @@ eval {$re = Bio::Restriction::Enzyme->new(
 
 ok $@;
 like($@, qr(Unrecognized characters in site), 'bug 2139');
+
+# 0-pos bug (Elia Stupka)
+
+$seq = Bio::Seq->new(
+    -display_name   => 'foo',
+    -alphabet       => 'dna',
+    -seq            => 'GATCNNNNGATC'
+);
+
+$ra = Bio::Restriction::Analysis->new(-seq=>$seq);
+
+is $ra->fragments('HindIII'), 1, 'number of HindIII fragments';
+is $ra->fragments('BfuCI'), 2, 'number of EcoRI fragments';
+
+# passing a bad enzyme name
+
+is $ra->fragments('FooBarI'), 1, 'number of RsaI fragments';
+
+

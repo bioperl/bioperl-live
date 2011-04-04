@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::Ontology::Term
 #
@@ -76,7 +75,7 @@ with code and data examples if at all possible.
 Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR
 
@@ -148,30 +147,11 @@ sub new {
     my( $class,@args ) = @_;
 
     my $self = $class->SUPER::new( @args );
-    my ( $identifier,
-        $name,
-        $definition,
-        $category,
-        $ont,
-        $version,
-        $is_obsolete,
-        $comment,
-        $dblinks,
-        $dbxrefs,
-        $references)
+    my ( $identifier, $name, $definition, $category, $ont, $version,
+        $is_obsolete, $comment, $dblinks, $dbxrefs, $references)
         = $self->_rearrange( [
-        qw(IDENTIFIER
-        NAME
-        DEFINITION
-        CATEGORY
-        ONTOLOGY
-        VERSION
-        IS_OBSOLETE
-        COMMENT
-        DBLINKS
-        DBXREFS
-        REFERENCES
-       ) ], @args );
+        qw(IDENTIFIER NAME DEFINITION CATEGORY ONTOLOGY VERSION IS_OBSOLETE
+        COMMENT DBLINKS DBXREFS REFERENCES) ], @args );
 
     $self->init();
 
@@ -578,9 +558,12 @@ sub add_dbxref {
         {
             $self->warn("DBLink exists in the dblink of $context");
         }
-        push @{$self->{_dblinks}->{$context}}, $dbxref;    
+        push @{$self->{_dblinks}->{$context}}, $dbxref;
     }
 } # add_dbxref
+
+# alias, for consistency
+*add_dbxrefs = \&add_dbxref;
 
 =head2 has_dblink
 

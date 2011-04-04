@@ -54,7 +54,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR
 
@@ -63,7 +63,7 @@ the web:
 =head1 CONTRIBUTORS
 
  Steffen Grossmann, <grossman@molgen.mpg.de>
- Scott Cain, <cain@cshl.edu>
+ Scott Cain, <scain@cpan.org>
  Rob Edwards <rob@salmonella.org>
 
 =head1 APPENDIX
@@ -103,6 +103,8 @@ sub _initialize {
 
   $self->version( $arg{-version}        || DEFAULT_VERSION);
   $self->validate($arg{-validate_terms} || 0);
+
+  $self->ignore_seq_region($arg{-ignore_seq_region} || 0);
 
   if ($arg{-file} =~ /^>.*/ ) {
     $self->_print("##gff-version " . $self->version() . "\n");
@@ -444,6 +446,19 @@ sub _buffer_feature {
 }
 
 
+=head1 ignore_seq_region
+
+Set this flag to keep FeatureIO from returning 
+a feature for a ##sequence-region directive
+
+=cut
+
+sub ignore_seq_region {
+  my($self,$val) = @_;
+  $self->{'ignore_seq_region'} = $val if defined($val);
+  return $self->{'ignore_seq_region'};
+}
+
 =head1 _handle_directive()
 
 this method is called for lines beginning with '##'.
@@ -467,6 +482,8 @@ sub _handle_directive {
     # RAE: Sequence regions are in the format sequence-region seqid start end
     # for these we want to store the seqid, start, and end. Then when we validate
     # we want to make sure that the features are within the seqid/start/end
+
+    return if $self->ignore_seq_region();
 
     $self->throw('Both start and end for sequence region should be defined')
       unless $arg[1] && $arg[2];
@@ -620,7 +637,14 @@ sub _handle_feature {
       $values =~ s/^["']//;
       $values =~ s/["']$//; #' terminate the quote for emacs
 
-      my @values = map{uri_unescape($_)} split ',', $values;
+      my @values;
+      if ($key eq 'Target') {
+          #dont unescape Target values
+          @values = split ',', $values;
+      }
+      else {
+          @values = map{uri_unescape($_)} split ',', $values
+      }
 
      #minor hack to allow for multiple instances of the same tag
       if ($attr{$key}) {

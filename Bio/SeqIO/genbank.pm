@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::SeqIO::genbank
 #
@@ -147,7 +146,7 @@ with code and data examples if at all possible.
 Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution. Bug reports can be submitted via the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Bioperl Project
 
@@ -215,7 +214,11 @@ our %DBSOURCE = map {$_ => 1} qw(
     PhotoList    Gramene    WormBase    WormPep    Genew    ZFIN
     PeroxiBase    MaizeDB    TAIR    DrugBank    REBASE    HPA
     swissprot    GenBank    GenPept    REFSEQ    embl    PDB    UniProtKB
-    DIP    PeptideAtlas    PRIDE    CYGD    HOGENOME    Gene3D Project);
+    DIP    PeptideAtlas    PRIDE    CYGD    HOGENOME    Gene3D
+    Project);
+
+our %VALID_MOLTYPE = map {$_ => 1} qw(NA DNA RNA tRNA rRNA cDNA cRNA ms-DNA
+    mRNA  uRNA  ss-RNA  ss-DNA  snRNA snoRNA PRT);
 
 our %VALID_ALPHABET = (
     'bp' => 'dna',
@@ -299,21 +302,26 @@ sub next_seq {
 	$params{'-alphabet'} = (exists $VALID_ALPHABET{$alphabet}) ? $VALID_ALPHABET{$alphabet} :
                            $self->warn("Unknown alphabet: $alphabet");
 	# for aa there is usually no 'molecule' (mRNA etc)
-	if (($params{'-alphabet'} eq 'dna') || (@tokens > 2)) {
-	    $params{'-molecule'} = shift(@tokens);
-	    my $circ = shift(@tokens);
-	    if ($circ eq 'circular') {
-            $params{'-is_circular'} = 1;
-            $params{'-division'} = shift(@tokens);
-	    } else {
-			# 'linear' or 'circular' may actually be omitted altogether
-            $params{'-division'} =
-                (CORE::length($circ) == 3 ) ? $circ : shift(@tokens);
-	    }
-	} else {
-	    $params{'-molecule'} = 'PRT' if($params{'-alphabet'} eq 'aa');
-	    $params{'-division'} = shift(@tokens);
-	}
+    if ($params{'-alphabet'} eq 'protein') {
+	    $params{'-molecule'} = 'PRT'
+    } else {
+        $params{'-molecule'} = shift(@tokens);
+    }
+    # take care of lower case issues
+    if ($params{'-molecule'} eq 'dna' || $params{'-molecule'} eq 'rna') {
+        $params{'-molecule'} = uc $params{'-molecule'};
+    }
+    $self->debug("Unrecognized molecule type:".$params{'-molecule'}) if
+        !exists($VALID_MOLTYPE{$params{'-molecule'}});
+	my $circ = shift(@tokens);
+    if ($circ eq 'circular') {
+        $params{'-is_circular'} = 1;
+        $params{'-division'} = shift(@tokens);
+    } else {
+        # 'linear' or 'circular' may actually be omitted altogether
+        $params{'-division'} =
+            (CORE::length($circ) == 3 ) ? $circ : shift(@tokens);
+    }
 	my $date = join(' ', @tokens); # we lump together the rest
 
 	# this is per request bug #1513
@@ -579,7 +587,7 @@ sub next_seq {
                       -version => $version,
                       -database => $db || 'GenBank',
                       -tagname => 'dblink'));
-                } elsif ( $dbsource =~ /(\S+)([\.:])(\d+)/ ) {
+                } elsif ( $dbsource =~ /(\S+)([\.:])\s*(\d+)/ ) {
                     my ($id, $db, $version);
                     if ($2 eq ':') {
                         ($db, $id) = ($1, $3);
@@ -790,7 +798,7 @@ sub write_seq {
 	my $len = $seq->length();
 
 	if ( $seq->can('division') ) {
-	    $div=$seq->division;
+	    $div = $seq->division;
 	}
 	if( !defined $div || ! $div ) { $div = 'UNK'; }
 	my $alpha = $seq->alphabet;
@@ -814,15 +822,14 @@ sub write_seq {
 
 	    $self->warn("No whitespace allowed in GenBank display id [". $seq->display_id. "]")
 		if $seq->display_id =~ /\s/;
-
-	    $temp_line = sprintf ("%-12s%-15s%13s %s%4s%-8s%-8s %3s %-s",
+        
+	    $temp_line = sprintf ("%-12s%-15s%13s %s%4s%-8s%-8s %3s %-s\n",
 				  'LOCUS', $seq->id(),$len,
 				  (lc($alpha) eq 'protein') ? ('aa','', '') :
-				  ('bp', '',$mol),$circular,
-				  $div,$date);
+				  ('bp', '',$mol),$circular,$div,$date);
 	}
 
-	$self->_print("$temp_line\n");
+	$self->_print($temp_line);
 	$self->_write_line_GenBank_regex("DEFINITION  ", "            ",
 					 $seq->desc(),"\\s\+\|\$",80);
 
@@ -1399,8 +1406,6 @@ sub _read_GenBank_Species {
     if ($species && $species =~ /(.+)\s+((?:subsp\.|var\.).+)/) {
         ($species, $sub_species) = ($1, $2);
     }
-
-    $self->debug("$species\n");
 
     # Don't make a species object if it's empty or "Unknown" or "None"
     # return unless $genus and  $genus !~ /^(Unknown|None)$/oi;

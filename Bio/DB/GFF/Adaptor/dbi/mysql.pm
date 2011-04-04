@@ -470,7 +470,7 @@ table=> q{
     unique index(fref,fbin,fstart,fstop,ftypeid,gid),
     index(ftypeid),
     index(gid)
-		   ) type=MyISAM
+		   )
 }  # fdata table
 }, # fdata
 
@@ -482,7 +482,7 @@ create table fgroup (
     gname   varchar(100),
     primary key(gid),
     unique(gclass,gname)
-) type=MyISAM
+)
 }
 },
 
@@ -496,7 +496,7 @@ create table ftype (
     index(fmethod),
     index(fsource),
     unique ftype (fmethod,fsource)
-)type=MyISAM
+)
 }  #ftype table
 }, #ftype
 
@@ -507,7 +507,7 @@ create table fdna (
 	        foffset int(10) unsigned not null,
 	        fdna    longblob,
 		primary key(fref,foffset)
-)type=MyISAM
+)
 } # fdna table
 },#fdna
 
@@ -517,7 +517,7 @@ create table fmeta (
 		fname   varchar(255) not null,
 	        fvalue  varchar(255) not null,
 		primary key(fname)
-)type=MyISAM
+)
 } # fmeta table
 },#fmeta
 
@@ -527,7 +527,7 @@ create table fattribute (
 	fattribute_id     int(10)         unsigned not null auto_increment,
         fattribute_name   varchar(255)    not null,
 	primary key(fattribute_id)
-)type=MyISAM
+)
 } #fattribute table
 },#fattribute
 
@@ -540,9 +540,22 @@ create table fattribute_to_feature (
         key(fid,fattribute_id),
 	key(fattribute_value(48)),
         fulltext(fattribute_value)
-)type=MyISAM
+)
 } # fattribute_to_feature table
-    }, # fattribute_to_feature
+},# fattribute_to_feature
+
+       finterval_stats => {
+table=> q{
+create table finterval_stats (
+   ftypeid            integer not null,
+   fref               varchar(100) not null,
+   fbin               integer not null,
+   fcum_count         integer not null,
+   primary key(ftypeid,fref,fbin)
+)
+} # finterval_stats table
+},# finterval_stats
+
 );
   return \%schema;
 }
@@ -840,7 +853,31 @@ sub get_feature_id {
   return $fid;
 }
 
+sub _add_interval_stats_table {
+    my $self              = shift;
+    my $schema            = $self->schema;
+    my $create_table_stmt = $schema->{'finterval_stats'}{'table'};
+    $create_table_stmt    =~ s/create table/create table if not exists/i;
+    my $dbh               = $self->features_db;
+    $dbh->do($create_table_stmt) ||  warn $dbh->errstr;
+}
+
+sub disable_keys {
+    my $self = shift;
+    my $table = shift;
+    my $dbh   = $self->dbh;
+    $dbh->do("alter table $table disable keys");
+}
+sub enable_keys {
+    my $self = shift;
+    my $table = shift;
+    my $dbh   = $self->dbh;
+    $dbh->do("alter table $table enable keys");
+}
+
+
 1;
+
 
 
 __END__

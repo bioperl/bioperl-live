@@ -1,5 +1,3 @@
-#
-#
 # BioPerl module for Bio::Index::Fastq
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
@@ -82,7 +80,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Tony Cox
 
@@ -162,11 +160,10 @@ sub _index_file {
     # Main indexing loop
     while (<$FASTQ>) {
         if (/^@/) {
-            # $begin is the position of the first character after the '@'
-            my $begin = tell($FASTQ) - length( $_ ) + 1;
+            my $begin = tell($FASTQ) - length( $_ );
             foreach my $id (&$id_parser($_)) {
                 $self->add_record($id, $i, $begin);
-		$c++;
+                $c++;
             }
         }
     }

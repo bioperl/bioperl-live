@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl driver for phrap.out file
 #
@@ -140,7 +139,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 
 =head1 AUTHOR - Robson Francisco de Souza
@@ -246,7 +245,8 @@ sub next_contig {
           my $feat = Bio::SeqFeature::Generic->new(
             -start   => 1,
             -end     => $length,
-            -primary => "_main_contig_feature:".$contigOBJ->id(),
+            -primary => "_main_contig_feature",
+            -source  => $contigOBJ->id,
             -tag     => { '_nof_trimmed_nonX' => $nof_trimmed_nonX }
           );
           $contigOBJ->add_features([ $feat ],1);
@@ -266,7 +266,8 @@ sub next_contig {
       my $feat   = Bio::SeqFeature::Generic->new(
         -start   => 1,
         -end     => $length,
-        -primary => "_main_contig_feature:".$contigOBJ->id(),
+        -primary => "_main_contig_feature",
+        -source  => $contigOBJ->id,
         -tag     => { '_trimmed_length' => $trimmed_length }
       );
       $contigOBJ->add_features([ $feat ],1);
@@ -289,7 +290,8 @@ sub next_contig {
       my $unalign_coord = Bio::SeqFeature::Generic->new(
         -start   => $start,
         -end     => $end,
-        -primary => "_unalign_coord:$readID",
+        -primary => "_unalign_coord",
+        -source  => $readID,
         -tag     => {'_primary_score'=>$primary_score,
                      '_secondary_score'=>$secondary_score,
                      '_substitutions'=>$substitutions,
@@ -349,7 +351,8 @@ sub scaffold_annotations {
         # Loading INTERNAL clones description
         /INTERNAL\s+Contig\s+(\d+)\s+opp\s+sense/ && do {
             my $contigID = $1;
-            my $contig = $assembly->get_contig_by_id($contigID);
+            my $contig = $assembly->get_contig_by_id($contigID) ||
+                         $assembly->get_singlet_by_id($contigID);
             while ($_ = $self->_readline) {
                 my (@data,$rejected,$c1_strand,$c2_strand);
 
@@ -362,7 +365,8 @@ sub scaffold_annotations {
                         -start   => $data[6],
                         -end     => $data[7],
                         -strand  => 0,
-                        -primary => "_internal_clone:$clone_name",
+                        -primary => "_internal_clone",
+                        -source  => $clone_name,
                         -tag     => {'_1st_strand'=>,$c1_strand,
                                      '_2nd_strand'=>,$c2_strand,
                                      '_1st_name'=>$data[2],
@@ -379,7 +383,8 @@ sub scaffold_annotations {
                         my $cov = Bio::SeqFeature::Generic->new(
                             -start   => $start,
                             -end     => $coord{$start},
-                            -primary => '_covered_region:'.++$i
+                            -primary => '_covered_region',
+                            -source  => ++$i,
                         );
                         # 1: attach feature to contig consensus, if any
                         $contig->add_features([ $cov ],1);

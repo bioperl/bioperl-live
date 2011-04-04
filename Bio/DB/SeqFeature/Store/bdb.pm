@@ -1,10 +1,14 @@
 package Bio::DB::SeqFeature::Store::bdb;
 
-# $Id$
 
 =head1 NAME
 
 Bio::DB::SeqFeature::Store::bdb - fetch and store objects from a BerkeleyDB
+
+=head1 DESCRIPTION
+
+This is a partial implementation -- just enough has been implemented so that we can
+fetch and store objects. It is used as a temporary failsafe store by the GFF3Loader module
 
 =cut
 
@@ -15,9 +19,6 @@ use DB_File;
 use Fcntl qw(O_RDWR O_CREAT);
 use File::Temp 'tempdir';
 use File::Path 'rmtree';
-
-# this is a partial implementation -- just enough has been implemented so that we can
-# fetch and store objects. It is used as a temporary failsafe store by the GFF3Loader module
 
 ###
 # object initialization

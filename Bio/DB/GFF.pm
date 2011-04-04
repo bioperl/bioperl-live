@@ -1,4 +1,3 @@
-# $Id$
 
 =head1 NAME
 
@@ -598,6 +597,7 @@ package Bio::DB::GFF;
 use strict;
 
 use IO::File;
+use File::Glob ':glob';
 use Bio::DB::GFF::Util::Rearrange;
 use Bio::DB::GFF::RelSegment;
 use Bio::DB::GFF::Feature;
@@ -2491,6 +2491,12 @@ sub _load_gff_line {
   my $lineend = $self->{load_data}{lineend};
 
   $self->{load_data}{gff3_flag}++           if $line =~ /^\#\#\s*gff-version\s+3/;
+
+  if (defined $self->{load_data}{gff3_flag} and !defined $self->{load_data}{gff3_warning}) {
+    $self->print_gff3_warning();
+    $self->{load_data}{gff3_warning}=1;
+  }
+
   $self->preferred_groups(split(/\s+/,$1))  if $line =~ /^\#\#\s*group-tags?\s+(.+)/;
 
   if ($line =~ /^\#\#\s*sequence-region\s+(\S+)\s+(-?\d+)\s+(-?\d+)/i) { # header line
@@ -2522,9 +2528,6 @@ sub _load_gff_line {
   foreach (\$score,\$strand,\$phase) {
     undef $$_ if $$_ eq '.';
   }
-
-  print STDERR $self->{load_data}{count}," records$lineend" 
-    if $self->{__verbose__} && $self->{load_data}{count} % 1000 == 0;
 
   my ($gclass,$gname,$tstart,$tstop,$attributes) = $self->split_group($group,$self->{load_data}{gff3_flag});
 
@@ -2946,6 +2949,15 @@ line.  The module does not depend on this ID in any way, but it is
 available via Bio::DB::GFF-E<gt>id() if wanted.  In the dbi::mysql and
 dbi::mysqlopt adaptor, the ID is a unique row ID.  In the acedb
 adaptor it is not used.
+
+=cut
+
+=head2 feature_summary(), coverage_array()
+
+The DBI adaptors provide methods for rapidly fetching coverage
+statistics across a region of interest. Please see
+L<Bio::DB::GFF::Adaptor::dbi> for more information about these
+methods.
 
 =cut
 
@@ -3793,6 +3805,23 @@ sub unescape {
   return $v;
 }
 
+sub print_gff3_warning {
+  my $self = shift;
+  print STDERR <<END
+
+You are loading a Bio::DB::GFF database with GFF3 formatted data.
+While this will likely work fine, the Bio::DB::GFF schema does not
+always faithfully capture the complexity represented in GFF3 files.
+Unless you have a specific reason for using Bio::DB::GFF, we suggest
+that you use a Bio::DB::SeqFeature::Store database and its corresponding
+loader, bp_seqfeature_load.pl.
+
+END
+;
+
+  return;
+}
+
 
 package Bio::DB::GFF::ID_Iterator;
 use strict;
@@ -3817,6 +3846,20 @@ sub next_seq {
   $self->throw("id does not exist") unless $segment;
   return $segment;
 }
+
+package Bio::DB::GFF::FeatureIterator;
+
+sub new {
+    my $self     = shift;
+    my @features = @_;
+    return bless \@features,ref $self || $self;
+}
+sub next_seq {
+  my $self  = shift;
+  return unless @$self;
+  return shift @$self;
+}
+
 
 1;
 

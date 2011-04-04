@@ -1,4 +1,3 @@
-# $Id$
 #
 # bioperl module for Bio::Coordinate::GeneMapper
 #
@@ -136,7 +135,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Heikki Lehvaslaiho
 

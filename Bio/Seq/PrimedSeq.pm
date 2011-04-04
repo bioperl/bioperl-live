@@ -1,4 +1,3 @@
-# $Id$
 #
 # This is the original copyright statement. I have relied on Chad's module
 # extensively for this module.
@@ -134,7 +133,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR
 

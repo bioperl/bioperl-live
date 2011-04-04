@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module Bio::Restriction::Analysis
 #
@@ -166,7 +165,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR
 
@@ -521,9 +520,9 @@ sub fragment_maps {
     # for every enzyme this should cut down on the amount of
     # duplicated data we are trying to save in memory and make this
     # faster and easier for large sequences, e.g. genome analysis
-
+    
     my @cut_positions;
-    if (ref $enz eq '') {
+    if (ref $enz eq '' && exists $self->{'_cut_positions'}->{$enz}) {
         @cut_positions=@{$self->{'_cut_positions'}->{$enz}};
     } elsif ($enz->isa("Bio::Restriction::EnzymeI")) {
         @cut_positions=@{$self->{'_cut_positions'}->{$enz->name}};
@@ -532,7 +531,7 @@ sub fragment_maps {
         @cut_positions=@{$self->{'_cut_positions'}->{'multiple_digest'}};
     }
 
-    unless ($cut_positions[0]) {
+    unless (defined($cut_positions[0])) {
         # it doesn't cut
         # return the whole sequence
         # this should probably have the is_circular command
@@ -554,6 +553,7 @@ sub fragment_maps {
 
     my $start=1; my $stop; my %seq; my %stop;
     foreach $stop (@cuts) {
+        next if !$stop; # cuts at beginning of sequence
         $seq{$start}=$self->{'_seq'}->subseq($start, $stop);
         $stop{$start}=$stop;
         $start=$stop+1;

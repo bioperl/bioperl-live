@@ -1,0 +1,18 @@
+# hmmsearch :: search profile(s) against a sequence database
+# HMMER 3.0 (March 2010); http://hmmer.org/
+# Copyright (C) 2010 Howard Hughes Medical Institute.
+# Freely distributed under the GNU General Public License (GPLv3).
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query HMM file:                  Kv9.hmm
+# target sequence database:        /home/pboutet/Desktop/databases/nr_May26
+# max ASCII text line length:      unlimited
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       Kv9  [M=481]
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence                              Description
+    ------- ------ -----    ------- ------ -----   ---- --  --------                              -----------
+   1.1e-260  874.4   2.2   1.2e-260  874.3   1.5    1.0  1  gi|281344220|gb|EFB19804.1|           hypothetical protein PANDA_002980 [Ailuropoda melanoleuca]
+   2.2e-259  870.1   2.8   2.5e-259  869.9   1.9    1.0  1  gi|296224438|ref|XP_002758060.1|      PREDICTED: potassium voltage-gated channel subfamily S member 3 [Callithrix jacchus]
+//

@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
 	use Bio::Root::Test;
 	
-	test_begin(-tests => 56);
+	test_begin(-tests => 61);
     
 	use_ok('Bio::Tools::CodonTable');
 	use_ok('Bio::CodonUsage::IO');
@@ -46,24 +46,39 @@ eval {
 };
 ok ($@ =~ /EX/) ;
 
+# Automatically completing translation of incomplete codons is no longer default
+# behavior b/c of inconsistent behavior compared with Bio::PrimarySeq::translate
+# and unexpected side effects (e.g. what if the last few bases isn't supposed to
+# be translated). To re-establish this, pass a second argument to the method.
+
 is $myCodonTable->translate(''), '';
 
 my @ii  = qw(ACT acu ATN gt ytr sar);
 my @res = qw(T   T   X   V  L   Z  );
 my $test = 1;
 for my $i (0..$#ii) {
-    if ($res[$i] ne $myCodonTable->translate($ii[$i]) ) {
-	$test = 0; 
-	print $ii[$i], ": |", $res[$i], "| ne |", $myCodonTable->translate($ii[$i]), "|\n" if( $DEBUG);
-	last ;
+    if ($res[$i] ne $myCodonTable->translate($ii[$i], 1) ) {
+        $test = 0; 
+        print $ii[$i], ": |", $res[$i], "| ne |",
+        $myCodonTable->translate($ii[$i], 1), "|\n" if( $DEBUG);
+        last ;
     }
 }
 ok ($test);
 is $myCodonTable->translate('ag'), '';
+is $myCodonTable->translate('ag',1), '';
+
 is $myCodonTable->translate('jj'), '';
+is $myCodonTable->translate('jj',1), '';
+
 is $myCodonTable->translate('jjg'), 'X';
-is $myCodonTable->translate('gt'), 'V'; 
+is $myCodonTable->translate('jjg',1), 'X';
+
+is $myCodonTable->translate('gt'), ''; 
+is $myCodonTable->translate('gt',1), 'V';
+
 is $myCodonTable->translate('g'), '';
+is $myCodonTable->translate('g',1), '';
 
 # a more comprehensive test on ambiguous codes
 my $seq = <<SEQ;

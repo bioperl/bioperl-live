@@ -6,7 +6,7 @@ use strict;
 BEGIN {
     use Bio::Root::Test;
     test_begin(
-        -tests            => 58,
+        -tests            => 61,
         -requires_modules => [qw(XML::LibXML XML::LibXML::Reader XML::Writer)]
     );
 
@@ -44,18 +44,21 @@ SKIP: {
     );
 
     # check metadata
-    is( $seq_stream->seqXMLversion, '0.1',     'seqXML version' );
+    is( $seq_stream->seqXMLversion, '0.3',     'seqXML version' );
     is( $seq_stream->source,        'Ensembl', 'source' );
     is( $seq_stream->sourceVersion, '56',      'source version' );
 
     # now get and check the sequence entry itself
     my $seq_obj = $seq_stream->next_seq;
     isa_ok( $seq_obj, 'Bio::Seq' );
-    is( $seq_obj->display_id, 'ENSG00000173402',           'display id' );
-    is( $seq_obj->primary_id, 'ENSG00000173402',           'primary id' );
+    is( $seq_obj->display_id, 'ENST00000308775',           'display id' );
+    is( $seq_obj->primary_id, 'ENST00000308775',           'primary id' );
     is( $seq_obj->desc,       'dystroglycan 1',            'description' );
     is( $seq_obj->seq,        'AAGGC----UGAUGUC.....ACAU', 'sequence' );
     is( $seq_obj->length,     25,                          'length' );
+
+    my ($source) = $seq_obj->get_Annotations('source');
+    if ($source) { is($source->value, 'Ensembl', 'entry source'); }
 
     # species
     isa_ok( $seq_obj->species, 'Bio::Species', 'species' );
@@ -66,13 +69,14 @@ SKIP: {
     my @dblinks = $seq_obj->get_Annotations('dblink');
     my $dblink  = shift @dblinks;
     isa_ok( $dblink, 'Bio::Annotation::DBLink' );
-    is( $dblink->database,   'GenBank',   'dblink source' );
+    is( $dblink->database,   'RefSeq',   'dblink source' );
     is( $dblink->primary_id, 'NM_004393', 'dblink ID' );
 
     # properties
     my @annotations = $seq_obj->get_Annotations();
     foreach my $annot_obj (@annotations) {
         next if ( $annot_obj->tagname eq 'dblink' );
+        next if ( $annot_obj->tagname eq 'source' );        
         isa_ok( $annot_obj, 'Bio::Annotation::SimpleValue' );
         if ( $annot_obj->tagname eq 'has_splice_variants' ) {
             is( $annot_obj->value, undef, 'boolean property' );
@@ -91,7 +95,7 @@ SKIP: {
             -verbose       => $verbose,
             -source        => 'Ensembl',
             -sourceVersion => '56',
-            -seqXMLversion => '0.1',
+            -seqXMLversion => '0.3',
         ),
         'writer ok',
     );
@@ -99,9 +103,10 @@ SKIP: {
     ok( -s $outfile, 'outfile is created' );
 
     # check metadata
-    is( $seq_writer->seqXMLversion, '0.1',     'seqXML version' );
+    is( $seq_writer->seqXMLversion, '0.3',     'seqXML version' );
     is( $seq_writer->source,        'Ensembl', 'source' );
     is( $seq_writer->sourceVersion, '56',      'source version' );
+    is( $seq_writer->schemaLocation, 'http://www.seqxml.org/0.3/seqxml.xsd', 'schemaLocation' );
 
     # write one sequence entry to file
     $seq_writer->write_seq($seq_obj);
@@ -120,11 +125,15 @@ SKIP: {
 
         my $new_seqobj = $new_in->next_seq;
         isa_ok( $new_seqobj, 'Bio::Seq' );
-        is( $new_seqobj->display_id, 'ENSG00000173402', 'display id' );
-        is( $new_seqobj->primary_id, 'ENSG00000173402', 'primary id' );
+        is( $new_seqobj->display_id, 'ENST00000308775', 'display id' );
+        is( $new_seqobj->primary_id, 'ENST00000308775', 'primary id' );
         is( $new_seqobj->desc,       'dystroglycan 1',  'description' );
         is( $new_seqobj->seq, 'AAGGC----UGAUGUC.....ACAU', 'sequence' );
         is( $new_seqobj->length, 25, 'length' );
+
+        my ($new_source) = $new_seqobj->get_Annotations('source');
+        if ($new_source) { is($new_source->value, 'Ensembl', 'entry source'); }
+
 
         # species
         isa_ok( $new_seqobj->species, 'Bio::Species', 'species' );
@@ -135,13 +144,14 @@ SKIP: {
         my @dblinks = $new_seqobj->get_Annotations('dblink');
         my $dblink  = shift @dblinks;
         isa_ok( $dblink, 'Bio::Annotation::DBLink' );
-        is( $dblink->database,   'GenBank',   'dblink source' );
+        is( $dblink->database,   'RefSeq',   'dblink source' );
         is( $dblink->primary_id, 'NM_004393', 'dblink ID' );
 
         # properties
         my @annotations = $new_seqobj->get_Annotations();
         foreach my $annot_obj (@annotations) {
             next if ( $annot_obj->tagname eq 'dblink' );
+            next if ( $annot_obj->tagname eq 'source' );
             isa_ok( $annot_obj, 'Bio::Annotation::SimpleValue' );
             if ( $annot_obj->tagname eq 'has_splice_variants' ) {
                 is( $annot_obj->value, undef, 'boolean property' );
@@ -192,7 +202,7 @@ SKIP: {
         );
 
         # check header
-        is( $in->seqXMLversion, '0.1', 'seqXML version' );
+        is( $in->seqXMLversion, '0.3', 'seqXML version' );
         is( $in->source,        undef, 'source' );
         is( $in->sourceVersion, undef, 'source version' );
 

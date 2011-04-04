@@ -1,5 +1,4 @@
 #!perl -w
-# $Id$
 
 # dbfetch style caching proxy for GenBank
 use strict;
@@ -125,7 +124,7 @@ A URL for biofetch consists of four sections:
 			e.g.
 1. protocol		http://
 2. host			www.ebi.ac.uk
-3. path to program	/cgi-bin/dbfetch
+3. path to program	/Tools/dbfetch/dbfetch
 4. query string		?style=raw;format=embl;db=embl;id=J00231
 
 

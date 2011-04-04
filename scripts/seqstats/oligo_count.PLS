@@ -1,5 +1,4 @@
 #!perl -w
-# $Id$
 #
 # oligomer_freq.pl
 # We use this to determine what primers are useful for frequent priming of
@@ -232,7 +231,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Charles C. Kim
 

@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::Seq
 #
@@ -257,7 +256,7 @@ more information).
   $seqobj->subseq(5,10);       # part of the sequence as a string
   $seqobj->accession_number(); # when there, the accession number
   $seqobj->alphabet();         # one of 'dna','rna',or 'protein'
-  $seqobj->seq_version()       # when there, the version
+  $seqobj->version()           # when there, the version
   $seqobj->keywords();         # when there, the Keywords line
   $seqobj->length()            # length
   $seqobj->desc();             # description
@@ -434,7 +433,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Ewan Birney, inspired by Ian Korf objects
 

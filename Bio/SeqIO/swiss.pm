@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::SeqIO::swiss
 #
@@ -177,7 +176,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.
 Bug reports can be submitted via the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Elia Stupka
 
@@ -512,7 +511,7 @@ sub write_seq {
         }
 
         # namespace dictates database, takes precedent over division. Sorry!
-        if (defined($ns)) {
+        if (defined($ns) && $ns ne '') {
             $div = ($ns eq 'Swiss-Prot') ? 'Reviewed'    :
                 ($ns eq 'TrEMBL')     ? 'Unreviewed' :
                     $ns;

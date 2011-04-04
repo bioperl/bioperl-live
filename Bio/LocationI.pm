@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::LocationI
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
@@ -57,7 +56,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -333,7 +332,7 @@ sub seq_id {
            same).
 
            While this may sound weird, it reflects the location of the
-           kind of AB18375:450-900 which can be found in GenBank/EMBL
+           kind of AL445212.9:83662..166657 which can be found in GenBank/EMBL
            feature tables.
 
  Example : 

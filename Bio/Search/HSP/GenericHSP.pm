@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::Search::HSP::GenericHSP
 #
@@ -94,7 +93,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich and Steve Chervitz
 
@@ -647,6 +646,7 @@ sub get_aln {
                                       '-id'    => $q_nm,
                                       '-start' => $self->query->start,
                                       '-end'   => $self->query->end,
+                                      '-strand'   => $self->query->strand,
                                       '-force_nse' => $q_nm ? 0 : 1,
                                       '-mapping' => [1, $self->{_query_mapping}]
                                       );
@@ -656,6 +656,7 @@ sub get_aln {
                                       '-id'    => $s_nm,
                                       '-start' => $self->hit->start,
                                       '-end'   => $self->hit->end,
+                                      '-strand'   => $self->hit->strand,
                                       '-force_nse' => $s_nm ? 0 : 1,
                                       '-mapping' => [1, $self->{_hit_mapping}]
                                       );
@@ -1418,7 +1419,7 @@ sub _pre_seq_feature {
         $queryfactor = 1;
         $querymap = 3;
     }
-    elsif ($algo =~ /^T(BLAST|FAST|SW)(X|Y|XY)/oi || $algo =~ /^(BLAST|FAST|SW)N/oi || $algo =~ /^WABA|AXT|BLAT|BLASTZ|PSL|MEGABLAST|EXONERATE|SW|SMITH\-WATERMAN|SIM4$/){
+    elsif ($algo =~ /^T(BLAST|FAST|SW)(X|Y|XY)/oi || $algo =~ /^(BLAST|FAST|SW)N/oi || $algo =~ /^WABA|AXT|BLAT|BLASTZ|PSL|MEGABLAST|EXONERATE|SW|SSEARCH|SMITH\-WATERMAN|SIM4$/){
         if ($2) {
             $hitmap = $querymap = 3;
         }

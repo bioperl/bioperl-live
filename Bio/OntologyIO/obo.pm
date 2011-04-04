@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::OntologyIO::obo
 #
@@ -64,7 +63,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR
 
@@ -613,7 +612,7 @@ sub _next_term {
           if (
             (
                 $line !~
-/^(\[|id:|name:|is_a:|relationship:|namespace:|is_obsolete:|alt_id:|def:|xref_analog:|exact_synonym:|broad_synonym:|related_synonym:|synonym:|comment:)/
+/^(\[|id:|name:|is_a:|relationship:|namespace:|is_obsolete:|alt_id:|def:|xref_analog:|exact_synonym:|broad_synonym:|related_synonym:|synonym:|comment:|xref:)/
             )
             || $skip_stanza_flag
           );
@@ -668,6 +667,9 @@ sub _next_term {
             elsif ( $tag eq "ALT_ID" ) {
                 $term->add_secondary_id($val);
             }
+	    elsif ( $tag =~ /XREF/i ) {
+		$term->add_secondary_id($val);
+	    }
             elsif ( $tag eq "IS_OBSOLETE" ) {
 
                 if ( $val eq 'true' ) {

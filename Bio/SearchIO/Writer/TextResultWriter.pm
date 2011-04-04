@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::SearchIO::Writer::TextResultWriter
 #
@@ -108,7 +107,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -250,7 +249,7 @@ sub to_string {
     }
 
     $str .= &{$self->title}($result);
-
+    $str .= $result->algorithm . " " . $result->algorithm_version . "\n\n\n";
     $str .= $result->algorithm_reference || $self->algorithm_reference($result);
     $str .= &{$self->introduction}($result);
 

@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::Assembly::IO::tigr
 #
@@ -213,7 +212,7 @@ the bugs and their resolution. Bug reports can be submitted via email
 or the web:
 
   bioperl-bugs@bio.perl.org
-  http://bugzilla.bioperl.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Florent E Angly
 
@@ -447,7 +446,8 @@ sub _store_contig {
 
     # Add other misc contig information as features of the contig
     my $contigtags = Bio::SeqFeature::Generic->new(
-        -primary_tag => "_main_contig_feature:$$contiginfo{'asmbl_id'}",
+        -primary     => '_main_contig_feature',
+        -source      => $$contiginfo{'asmbl_id'},
         -start       => 1,
         -end         => $contigobj->get_consensus_length(),
         -strand      => 1,
@@ -501,7 +501,7 @@ sub _store_read {
     $$readinfo{'aln_start'} = $$readinfo{'offset'} + 1; # seq offset is in gapped coordinates
     $$readinfo{'aln_end'} = $$readinfo{'aln_start'} + length($$readinfo{'lsequence'}) - 1; # lsequence is aligned seq
     my $alncoord = Bio::SeqFeature::Generic->new(
-        -primary_tag => $readobj->id,
+        -primary     => $readobj->id,
         -start       => $$readinfo{'aln_start'},
         -end         => $$readinfo{'aln_end'},
         -strand      => $$readinfo{'strand'},
@@ -514,7 +514,8 @@ sub _store_read {
     $$readinfo{'clip_start'} = $contigobj->change_coord('aligned '.$readobj->id, 'gapped consensus', $$readinfo{'seq_lend'});
     $$readinfo{'clip_end'}   = $contigobj->change_coord('aligned '.$readobj->id, 'gapped consensus', $$readinfo{'seq_rend'});
     my $clipcoord = Bio::SeqFeature::Generic->new(
-        -primary_tag => '_quality_clipping:'.$readobj->id,
+        -primary     => '_quality_clipping',
+        -source      => $readobj->id,
         -start       => $$readinfo{'clip_start'},
         -end         => $$readinfo{'clip_end'},
         -strand      => $$readinfo{'strand'}
@@ -524,14 +525,16 @@ sub _store_read {
 
     # Add other misc read information as subsequence feature
     my $readtags = Bio::SeqFeature::Generic->new(
-        -primary_tag => '_main_read_feature:'.$readobj->id,
+        -primary     => '_main_read_feature',
+        -source      => $readobj->id,
         -start       => $$readinfo{'aln_start'},
         -end         => $$readinfo{'aln_end'},
         -strand      => $$readinfo{'strand'},
         -tag         => { 'best'    => $$readinfo{'best'},
                           'comment' => $$readinfo{'comment'} }
     );
-    $alncoord->add_sub_SeqFeature($readtags);
+    $contigobj->get_features_collection->add_features([$readtags]);
+    $contigobj->get_features_collection->add_SeqFeature($alncoord, $readtags);
 
     return $readobj;
 }
@@ -575,7 +578,8 @@ sub _store_singlet {
 
    # Add other misc contig information as features of the singlet
    my $contigtags = Bio::SeqFeature::Generic->new(
-        -primary_tag => "_main_contig_feature:$contigid",
+        -primary     => '_main_contig_feature',
+        -source      => $contigid,
         -start       => 1,
         -end         => $singletobj->get_consensus_length(),
         -strand      => 1,
@@ -599,7 +603,8 @@ sub _store_singlet {
    $$readinfo{'aln_end'} = $$readinfo{'aln_start'} + length($$readinfo{'lsequence'}) - 1; # lsequence is aligned seq
 
    my $alncoord = Bio::SeqFeature::Generic->new(
-       -primary_tag => "_aligned_coord:$readid",
+       -primary     => '_aligned_coord',
+       -source      => $readid,
        -start       => $$readinfo{'aln_start'},
        -end         => $$readinfo{'aln_end'},
        -strand      => $$readinfo{'strand'},
@@ -613,7 +618,8 @@ sub _store_singlet {
    $$readinfo{'clip_start'} = $$readinfo{'seq_lend'};
    $$readinfo{'clip_end'}   = $$readinfo{'seq_rend'};
    my $clipcoord = Bio::SeqFeature::Generic->new(
-       -primary_tag => "_quality_clipping:$readid",
+       -primary     => '_quality_clipping',
+       -source      => $readid,
        -start       => $$readinfo{'clip_start'},
        -end         => $$readinfo{'clip_end'},
        -strand      => $$readinfo{'strand'},
@@ -624,14 +630,16 @@ sub _store_singlet {
 
    # Add other misc read information as subsequence feature
    my $readtags = Bio::SeqFeature::Generic->new(
-       -primary_tag => "_main_read_feature:$readid",
+       -primary     => '_main_read_feature',
+       -source      => $readid,
        -start       => $$readinfo{'aln_start'},
        -end         => $$readinfo{'aln_end'},
        -strand      => $$readinfo{'strand'},
        -tag         => { 'best'    => $$readinfo{'best'},
                          'comment' => $$readinfo{'comment'} }
    );
-   $alncoord->add_sub_SeqFeature($readtags);
+   $singletobj->get_features_collection->add_features([$readtags]);
+   $singletobj->get_features_collection->add_SeqFeature($alncoord, $readtags);
 
    return $singletobj;
 }
@@ -684,10 +692,8 @@ sub write_contig {
         my $singletobj = $contigobj;
 
         # Get contig information
-        my $contanno = (grep
-            { $_->primary_tag eq "_main_contig_feature:$contigid" }
-            $singletobj->get_features_collection->get_all_features
-            )[0];
+        my ($contanno) = $singletobj->get_features_collection->get_features_by_type("_main_contig_feature:$contigid");
+
         my %contiginfo;
         $contiginfo{'sequence'}   = $singletobj->seqref->seq;
         $contiginfo{'lsequence'}  = $contiginfo{'sequence'};
@@ -750,18 +756,9 @@ sub write_contig {
 
         # Get read information
         my ($seq_name, $db) = $self->_split_seq_name_and_db($readid);
-        my $clipcoord = (grep
-            { $_->primary_tag eq "_quality_clipping:$readid"}
-            $singletobj->get_features_collection->get_all_features
-            )[0];
-        my $alncoord  = (grep
-            { $_->primary_tag eq "_aligned_coord:$readid"}
-            $singletobj->get_features_collection->get_all_features
-            )[0];
-        my $readanno = (grep
-            { $_->primary_tag eq "_main_read_feature:$readid" }
-            $singletobj->get_seq_coord($singletobj->seqref)->get_SeqFeatures
-            )[0];
+        my ($clipcoord) = $singletobj->get_features_collection->get_features_by_type("_quality_clipping:$readid");
+        my ($alncoord) = $singletobj->get_features_collection->get_features_by_type("_aligned_coord:$readid");
+        my ($readanno) = $singletobj->get_features_collection->get_features_by_type("_main_read_feature:$readid");
         my %readinfo;
         $readinfo{'seq_name'}  = $seq_name;
         $readinfo{'asm_lend'}  = $alncoord->location->start;
@@ -797,10 +794,7 @@ sub write_contig {
     } else {
         # This is a contig
         # Get contig information
-        my $contanno = (grep
-            { $_->primary_tag eq "_main_contig_feature:$contigid" }
-            $contigobj->get_features_collection->get_all_features
-            )[0];
+        my ($contanno) = $contigobj->get_features_collection->get_features_by_type("_main_contig_feature:$contigid");
         my %contiginfo;
         $contiginfo{'sequence'}   = $self->_ungap(
             $contigobj->get_consensus_sequence->seq);
@@ -870,10 +864,11 @@ sub write_contig {
             my ($seq_name, $db) = $self->_split_seq_name_and_db($readobj->id);
             my ($asm_lend, $asm_rend, $seq_lend, $seq_rend, $offset)
                 = $self->_coord($readobj, $contigobj);
-            my $readanno = ( grep 
-               { $_->primary_tag eq '_main_read_feature:'.$readobj->primary_id }
-               $contigobj->get_seq_coord($readobj)->get_SeqFeatures
-               )[0];
+
+            my $readanno = ($contigobj->get_features_collection->get_SeqFeatures(
+               $contigobj->get_seq_coord($readobj) ,
+               '_main_read_feature:'.$readobj->primary_id) )[0];
+
             my %readinfo;
             $readinfo{'seq_name'}  = $seq_name;
             $readinfo{'asm_lend'}  = $asm_lend;
@@ -1159,10 +1154,7 @@ sub _coord {
   
     # Get gapped consensus coordinates for quality-clipped reads from contig 
     # annotation and determine seq_lend and seq_rend in unaligned sequence coord
-    my $readclip = (grep
-        { $_->primary_tag eq '_quality_clipping:'.$readobj->primary_id }
-        $contigobj->get_features_collection->get_all_features
-    )[0];
+    my ($readclip) = $contigobj->get_features_collection->get_features_by_type('_quality_clipping:'.$readobj->primary_id);
     my $clip_lend = $readclip->location->start;
     my $clip_rend = $readclip->location->end;    
     $seq_lend = $contigobj->change_coord(

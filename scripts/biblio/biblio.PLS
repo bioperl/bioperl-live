@@ -16,7 +16,6 @@
 #   martin.senger@gmail.com
 #   February 2002
 #
-#   $Id$
 #-----------------------------------------------------------------------------
 
 use strict;
@@ -479,7 +478,7 @@ Report bugs to the Bioperl bug trackingi system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Martin Senger
 

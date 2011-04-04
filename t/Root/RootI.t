@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 56);
+    test_begin(-tests => 63);
 	
 	use_ok('Bio::Root::Root');
     use_ok('Bio::Seq');
@@ -16,8 +16,24 @@ BEGIN {
 ok my $obj = Bio::Root::Root->new();
 isa_ok($obj, 'Bio::Root::RootI');
 
-eval { $obj->throw('Testing throw') };
-ok $@ =~ /Testing throw/;# 'throw failed';
+throws_ok { $obj->throw('Testing throw') } qr/Testing throw/;# 'throw failed';
+
+# test throw_not_implemented()
+throws_ok { $obj->throw_not_implemented() } qr/EXCEPTION: Bio::Root::NotImplemented/;
+
+{
+    package Bio::FooI;
+    use base qw(Bio::Root::RootI);
+    sub new {
+            my $class = shift;
+            my $self = {};
+            bless $self, ref($class) || $class;
+            return $self;
+	};
+}
+$obj = Bio::FooI->new();
+throws_ok { $obj->throw_not_implemented() } qr/EXCEPTION /;
+$obj = Bio::Root::Root->new();
 
 # doesn't work in perl 5.00405
 #my $val;
@@ -35,15 +51,12 @@ ok $@ =~ /Testing throw/;# 'throw failed';
 #'verbose(0) warn did not work properly' . $val;
 
 $obj->verbose(-1);
-eval { $obj->throw('Testing throw') };
-ok $@=~ /Testing throw/;# 'verbose(-1) throw did not work properly' . $@;
+throws_ok { $obj->throw('Testing throw') } qr/Testing throw/;# 'verbose(-1) throw did not work properly' . $@;
 
-eval { $obj->warn('Testing warn') };
-ok !$@;
+lives_ok { $obj->warn('Testing warn') };
 
 $obj->verbose(1);
-eval { $obj->throw('Testing throw') };
-ok $@ =~ /Testing throw/;# 'verbose(1) throw did not work properly' . $@;
+throws_ok { $obj->throw('Testing throw') } qr/Testing throw/;# 'verbose(1) throw did not work properly' . $@;
 
 # doesn't work in perl 5.00405
 #undef $val;
@@ -73,9 +86,6 @@ is $seq->verbose, 1;
 my @vals = Bio::Root::RootI->_rearrange([qw(apples pears)], 
 					-apples => 'up the',
 					-pears  => 'stairs');
-eval { $obj->throw_not_implemented() };
-ok $@ =~ /Bio::Root::NotImplemented/;
-
 is shift @vals, 'up the';
 is shift @vals, 'stairs';
 
@@ -117,26 +127,29 @@ throws_ok{ $root->deprecated(-message => 'Test6',
 # Let's not pollute Bio::Root::Root namespace if possible
 # Create temp classes instead which inherit Bio::Root::Root, then test
 
-package Bio::Foo1;
-use base qw(Bio::Root::Root);
-sub new {
-		my $class = shift;
-		my $self = {};
-		bless $self, ref($class) || $class;
-	
-		$self->_set_from_args(\@_);
-		
-		return $self;
-	};
+{
 
-package main;
+    package Bio::Foo1;
+    use base qw(Bio::Root::Root);
+    sub new {
+        my $class = shift;
+        my $self = {};
+        bless $self, ref($class) || $class;
+    
+        $self->_set_from_args(\@_);
+        
+        return $self;
+	};
+}
 
 $obj = Bio::Foo1->new(-verbose => 1, t1 => 1, '--Test-2' => 2);
 #ok ! $obj->can('t1'), 'arg not callable';
 
-package Bio::Foo2;
-use base qw(Bio::Root::Root);
-sub new {
+{
+
+    package Bio::Foo2;
+    use base qw(Bio::Root::Root);
+    sub new {
 		my $class = shift;
 		my $self = {};
 		bless $self, ref($class) || $class;
@@ -146,7 +159,7 @@ sub new {
 		return $self;
 	};
 
-package main;
+}
 
 $obj = Bio::Foo2->new(-verbose => 1, t3 => 1, '--Test-4' => 2);
 ok $obj->can('t3'), 'arg callable since method was created';
@@ -156,19 +169,19 @@ for my $m (qw(t3 test_4)) {
     ok (!Bio::Root::Root->can($m), "Methods don't pollute original Bio::Root::Root namespace");
 }
 
-package Bio::Foo3;
-use base qw(Bio::Root::Root);
-sub new {
-		my $class = shift;
-		my $self = {};
-		bless $self, ref($class) || $class;
-	
-		$self->_set_from_args(\@_, -methods => ['verbose', 't5'], -create => 1);
-		
-		return $self;
-	};
-
-package main;
+{
+    package Bio::Foo3;
+    use base qw(Bio::Root::Root);
+    sub new {
+        my $class = shift;
+        my $self = {};
+        bless $self, ref($class) || $class;
+    
+        $self->_set_from_args(\@_, -methods => ['verbose', 't5'], -create => 1);
+        
+        return $self;
+    };
+}
 
 $obj = Bio::Foo3->new(-verbose => 1, t5 => 1, '--Test-6' => 2);
 can_ok($obj, 't5');
@@ -177,25 +190,26 @@ ok ! $obj->can('test_6'), 'arg not in method list not created';
 can_ok ('Bio::Foo3','t5');
 ok (!UNIVERSAL::can('Bio::Root::Root','t5'), "Methods don't pollute original Bio::Root::Root namespace");
 
-package Bio::Foo4;
-use base qw(Bio::Root::Root);
-sub new {
-		my $class = shift;
-		my $self = {};
-		bless $self, ref($class) || $class;
-		
-		my %args = @_;
-		
-		$self->_set_from_args(\%args, -methods => {(verbose => 'v',
-									         		test7 => 't7',
-													test_8 => 't8')},
-								      -create => 1);
-		
-		return $self;
+{
+    package Bio::Foo4;
+    use base qw(Bio::Root::Root);
+    sub new {
+            my $class = shift;
+            my $self = {};
+            bless $self, ref($class) || $class;
+            
+            my %args = @_;
+            
+            $self->_set_from_args(\%args, -methods => {(verbose => 'v',
+                                                        test7 => 't7',
+                                                        test_8 => 't8')},
+                                          -create => 1);
+            
+            return $self;
 	};
+}
 
 # with synonyms
-package main;
 
 $obj = Bio::Foo4->new(-verbose => 1, t7 => 1, '--Test-8' => 2);
 is $obj->verbose, 1, 'verbose was set correctly';
@@ -209,56 +223,73 @@ for my $m (qw(t7 test7 test_8 t8)) {
     ok(!UNIVERSAL::can('Bio::Root::Root','t7'), "Methods don't pollute original Bio::Root::Root namespace");
 }
 
+# test basic Root::clone()
+
+my $clone = $obj->clone;
+
+is($clone->t7, $obj->t7, 'clone');
+is($clone->test7, $obj->test7, 'clone');
+is($clone->test_8, $obj->test_8, 'clone');
+$clone->test_8('xyz');
+isnt($clone->test_8, $obj->test_8, 'clone changed, original didn\'t');
+
+# test Root::clone() with parameter passing, only works for methods
+# (introspection via can())
+
+my $clone2 = $obj->clone(-t7 => 'foo');
+
+is($clone2->t7, 'foo', 'parameters passed to clone() modify object');
+is($obj->t7, 1, 'original is not modified');
+
 # test deprecations using start_version
-
-package Bio::Foo5;
-use base qw(Bio::Root::Root);
-
-our $v = $Bio::Root::Version::VERSION;
-
-sub not_good {
-	my $self = shift;
-	$self->deprecated(-message => 'This is not good',
-					  -warn_version  => $v,
-					  -throw_version => $v + 0.001);
+{
+    package Bio::Foo5;
+    use base qw(Bio::Root::Root);
+    
+    our $v = $Bio::Root::Version::VERSION;
+    
+    sub not_good {
+        my $self = shift;
+        $self->deprecated(-message => 'This is not good',
+                          -warn_version  => $v,
+                          -throw_version => $v + 0.001);
+    }
+    
+    sub not_good2 {
+        my $self = shift;
+        # note, due to _rearrange, ordering is throw version, then warn version
+        $self->deprecated('This is not good',$v + 0.001,$v);
+    }
+    
+    sub really_not_good {
+        my $self = shift;
+        $self->deprecated(-message => 'This is really not good',
+                          -warn_version  => $v - 0.001,
+                          -throw_version => $v,);
+    }
+    
+    # version is the same as throw_version (and vice versa)
+    sub still_very_bad {
+        my $self = shift;
+        $self->deprecated(-message => 'This is still very bad',
+                          -warn_version  => $v - 0.001,
+                          -version => $v);
+    }
+    
+    sub okay_for_now {
+        my $self = shift;
+        $self->deprecated(-message => 'This is okay for now',
+                          -warn_version  => $v + 0.001,
+                          -throw_version => $v + 0.002);
+    }
+    
+    sub plain_incorrect {
+        my $self = shift;
+        $self->deprecated(-message => 'This is not going to work',
+                          -warn_version  => '1.2.3.4',
+                          -throw_version => 'a.b.c.d');
+    }
 }
-
-sub not_good2 {
-	my $self = shift;
-	# note, due to _rearrange, ordering is throw version, then warn version
-	$self->deprecated('This is not good',$v + 0.001,$v);
-}
-
-sub really_not_good {
-	my $self = shift;
-	$self->deprecated(-message => 'This is really not good',
-					  -warn_version  => $v - 0.001,
-					  -throw_version => $v,);
-}
-
-# version is the same as throw_version (and vice versa)
-sub still_very_bad {
-	my $self = shift;
-	$self->deprecated(-message => 'This is still very bad',
-					  -warn_version  => $v - 0.001,
-					  -version => $v);
-}
-
-sub okay_for_now {
-	my $self = shift;
-	$self->deprecated(-message => 'This is okay for now',
-					  -warn_version  => $v + 0.001,
-					  -throw_version => $v + 0.002);
-}
-
-sub plain_incorrect {
-	my $self = shift;
-	$self->deprecated(-message => 'This is not going to work',
-					  -warn_version  => '1.2.3.4',
-					  -throw_version => 'a.b.c.d');
-}
-
-package main;
 
 my $foo = Bio::Foo5->new();
 
@@ -277,4 +308,5 @@ throws_ok { $foo->really_not_good } qr/This is really not good/,
 throws_ok { $foo->still_very_bad } qr/This is still very bad/,
 	'throws for versions >= '.$Bio::Root::Version::VERSION;
 lives_ok { $foo->okay_for_now } 'No warnings/exceptions below '.$Bio::Root::Version::VERSION;
+
 

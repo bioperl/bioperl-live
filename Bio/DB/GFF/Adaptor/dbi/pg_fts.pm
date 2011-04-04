@@ -1,6 +1,5 @@
 package Bio::DB::GFF::Adaptor::dbi::pg_fts;
 
-# $Id$
 
 =head1 NAME
 

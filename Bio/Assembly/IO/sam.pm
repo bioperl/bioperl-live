@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::Assembly::IO::sam
 #
@@ -147,7 +146,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Mark A. Jensen
 
@@ -351,18 +350,19 @@ sub _store_contig {
     $contigobj->set_consensus_quality($consensus_qual);
 
     # Add other misc contig information as subsequence feature
-#     my @other = grep !/asmbl_id|end|qualobj|start/, keys %$contiginfo;
-#     my %other;
-#     @other{@other} = @$contiginfo{@other};
-#     my $contigtags = Bio::SeqFeature::Generic->new(
-#         -primary_tag => "_main_contig_feature:$$contiginfo{'asmbl_id'}",
-#         -start       => 1,
-#         -end         => $contig_seg->length,
-#         -strand      => 1,
-#         # dumping ground:
-#         -tag         => \%other
-#     );
-#     $contigobj->add_features([ $contigtags ], 1);
+    #my @other = grep !/asmbl_id|end|qualobj|start/, keys %$contiginfo;
+    #my %other;
+    #@other{@other} = @$contiginfo{@other};
+    #my $contigtags = Bio::SeqFeature::Generic->new(
+    #    -primary     => '_main_contig_feature',
+    #    -source      => $$contiginfo{'asmbl_id'},
+    #    -start       => 1,
+    #    -end         => $contig_seg->length,
+    #    -strand      => 1,
+    #    # dumping ground:
+    #    -tag         => \%other
+    #);
+    #$contigobj->add_features([ $contigtags ], 1);
 
     return $contigobj;
 }
@@ -405,7 +405,7 @@ sub _store_read {
     }
 	    
     my $alncoord = Bio::SeqFeature::Generic->new(
-	-primary_tag => $read->name,
+	-primary    => $read->name,
 	-start      => $read->start,
 	-end        => $read->end,
 	-strand     => $read->strand,
@@ -413,25 +413,26 @@ sub _store_read {
 	-tag        => { 'contig' => $contigobj->id,
 			 'cigar'  => $read->cigar_str,
 			 @pair_info }
-	
 	);
 
     $contigobj->set_seq_coord($alncoord, $readseq);
     $contigobj->set_seq_qual( $readseq, $qual );
 
-#add other misc read info as subsequence feature:
-#    my @other = grep !/aln_(?:end|start)|seq(?:str)?|strand/, keys %$readinfo;
-#    my %other;
-#    @other{@other} = @$readinfo{@other};
-#    my $readtags = Bio::SeqFeature::Generic->new(
-#        -primary_tag => '_main_read_feature:'.$readobj->id,
-#        -start       => $$readinfo{'aln_start'},
-#        -end         => $$readinfo{'aln_end'},
-#        -strand      => $$readinfo{'strand'},
-#        # dumping ground:
-#        -tag         => \%other
-#    );
-#    $alncoord->add_sub_SeqFeature($readtags);
+    #add other misc read info as subsequence feature:
+    #my @other = grep !/aln_(?:end|start)|seq(?:str)?|strand/, keys %$readinfo;
+    #my %other;
+    #@other{@other} = @$readinfo{@other};
+    #my $readtags = Bio::SeqFeature::Generic->new(
+    #    -primary     => '_main_read_feature',
+    #    -source      => $readobj->id,
+    #    -start       => $$readinfo{'aln_start'},
+    #    -end         => $$readinfo{'aln_end'},
+    #    -strand      => $$readinfo{'strand'},
+    #    # dumping ground:
+    #    -tag         => \%other
+    #);
+    #$contigobj->get_features_collection->add_features([$readtags]);
+    #$contigobj->get_features_collection->add_SeqFeature($alncoord, $readtags);
 
     return $readseq;
 }

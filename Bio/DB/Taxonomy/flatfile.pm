@@ -1,4 +1,3 @@
-# $Id$
 #
 # BioPerl module for Bio::DB::Taxonomy::flatfile
 #
@@ -21,9 +20,9 @@ which uses local flat files
 
   use Bio::DB::Taxonomy;
 
-  my $db = Bio::DB::Taxonomy->new(-source => 'flatfile'
-                                 -nodesfile => $nodesfile,
-                                 -namesfile => $namefile);
+  my $db = Bio::DB::Taxonomy->new(-source => 'flatfile',
+                                  -nodesfile => $nodesfile,
+                                  -namesfile => $namefile);
 
 =head1 DESCRIPTION
 
@@ -62,7 +61,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
