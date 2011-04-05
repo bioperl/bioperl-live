@@ -474,7 +474,7 @@ sub get_next_haps_pop_num {
 =head3 get_next_seq
 
 Title   : get_next_seq
-Usage   : $seq = $stream->next_seq()
+Usage   : $seq = $stream->get_next_seq()
 Function: reads and returns the next sequence (haplotype) in the stream
 Returns : Bio::Seq object or void if end of file
 Args    : NONE
@@ -522,6 +522,23 @@ sub get_next_seq {
 
     return $seq
 
+}
+
+=head3 next_seq
+
+Title   : next_seq
+Usage   : $seq = $stream->next_seq()
+Function: Alias to get_next_seq()
+Returns : Bio::Seq object or void if end of file
+Args    : NONE
+Note	: This function is only included for convention.  It calls get_next_seq().  
+          See get_next_seq() for details.
+
+=cut
+
+sub next_seq {
+    my $self      = shift;
+    return $self->get_next_seq();
 }
 
 =head3 get_next_hap
