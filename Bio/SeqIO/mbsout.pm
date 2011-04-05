@@ -145,7 +145,7 @@ sub _initialize {
 
     # Otherwise throw a warning
     else {
-        throw(
+        $self->throw(
 "No filehandle defined.  Please define a file handle through -file when calling mbsout with Bio::SeqIO"
         );
     }
@@ -712,7 +712,7 @@ sub _get_next_clean_hap {
 
         # If the next run is encountered here, then we have a programming
         # or format error
-        if ( $data eq '//' ) { throw("'//' found when not expected\n") }
+        if ( $data eq '//' ) { $self->throw("'//' found when not expected\n") }
 
         $self->{LAST_READ_HAP_NUM}++;
         push @data, $data;
@@ -773,13 +773,13 @@ sub _load_run_info {
             }
             else {
                 if ( !defined($data) ) {
-                    throw("run $self->{NEXT_RUN_NUM} has no haps./n");
+                    $self->throw("run $self->{NEXT_RUN_NUM} has no haps./n");
                 }
                 $self->{BUFFER_HAP} = $data;
             }
         }
     }
-    else { throw("'//' not encountered when expected\n") }
+    else { $self->throw("'//' not encountered when expected\n") }
 
 }
 1;

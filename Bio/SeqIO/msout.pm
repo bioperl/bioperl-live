@@ -140,7 +140,7 @@ sub _initialize {
 
     # Otherwise throw a warning
     else {
-        throw(
+        $self->throw(
 "No filehandle defined.  Please define a file handle through -file when calling msout with Bio::SeqIO"
         );
     }
@@ -183,7 +183,7 @@ sub _read_start {
 
 # if @pop_haplos contains a non-digit, then there is an error in the msinfo line.
             if ( !defined $pop_haplos[-1] || $pop_haplos[-1] =~ /\D/ ) {
-                throw(
+                $self->throw(
 "Incorrect number of populations in the ms info line (after the -I specifier)"
                 );
             }
@@ -721,7 +721,7 @@ sub _get_next_clean_hap {
 
         # If the next run is encountered here, then we have a programming
         # or format error
-        if ( $data eq '//' ) { throw("'//' found when not expected\n") }
+        if ( $data eq '//' ) { $self->throw("'//' found when not expected\n") }
 
         $self->{LAST_READ_HAP_NUM}++;
         push @data, $data;
@@ -774,14 +774,14 @@ sub _load_run_info {
             }
             else {
                 if ( !defined($data) ) {
-                    throw("run $self->{NEXT_RUN_NUM} has no haps./n");
+                    $self->throw("run $self->{NEXT_RUN_NUM} has no haps./n");
                 }
                 $self->{BUFFER_HAP} = $data;
             }
         }
     }
     else {
-        throw(
+        $self->throw(
 "'//' not encountered when expected. There are more haplos in one of the msOUT runs than advertised in the msinfo line."
         );
     }
