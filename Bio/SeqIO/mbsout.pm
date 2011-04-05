@@ -657,7 +657,7 @@ Synopsys:
 	
 	# retrieve the Bio::Seq object's sequence
 	my $haplotype = $seq->seq;
-	my $rh_base_conversion_table = $stream->base_conversion_table();
+	my $rh_base_conversion_table = $stream->get_base_conversion_table();
 	
 	# need to convert all letters to their corresponding numbers.
 	foreach my $base (keys %{$rh_base_conversion_table}){
