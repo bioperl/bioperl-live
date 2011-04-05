@@ -36,7 +36,7 @@ sub create_dir {
     $dir = test_input_file($dir);
 
     unless ( -d $dir ) {
-    mkpath($dir);
+	mkpath($dir);
     }
 }
 
@@ -47,7 +47,7 @@ sub remove_dir {
     $dir = test_input_file($dir);
 
     if ( -d $dir ) {
-    rmtree($dir);
+	rmtree($dir);
     }
     else { warn "Tried to remove $dir, but it does not exist" }
 }
