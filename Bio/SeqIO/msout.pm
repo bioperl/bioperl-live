@@ -42,7 +42,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-https://redmine.open-bio.org/projects/bioperl/  
+  https://redmine.open-bio.org/projects/bioperl/  
 
 =head1 AUTHOR - Warren Kretzschmar
 
