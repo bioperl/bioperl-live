@@ -1,0 +1,28 @@
+> ID1  Len = 893
+4655667         1        31
+ctgacgacaaccatgcaccacctgtcactct
+4655699        33       51
+ctcccgaaggagaagccctatctctagggttgtgaggatgtcaagacctgg
+4656019       353       8
+gttccct
+4656540       874        20
+tttcgaaccatgcggttcaa
+> ID1 Reverse  Len = 893
+741743        22       42
+tgaaaggcggcttcggctgtggacccgcgtcgcattagctag
+> ID2  Len = 884
+4655520         1      49 
+tcataaggggcatgatgatttgacgtcatccccacctccggtttgtcac
+4656019       500       29
+gttcctccatatctctattccactttcct
+4656317       798        39
+aagccttcatcactcacgcggcgttgctccgtcagactt
+4656376       855        29
+cctactgctgcctcccgtaggagtctggg
+> ID2 Reverse  Len = 884
+> ID3  Len = 1039
+> ID3 Reverse  Len = 1039
+4655178        27       53
+atcaattctccatagaaaggaggtgatccagccgcaccttccgatacggctac
+4656019       868       21
+gttcctccatatctctacgc

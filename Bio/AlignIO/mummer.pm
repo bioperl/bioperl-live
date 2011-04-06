@@ -64,6 +64,8 @@ methods are usually preceded with a '_'.
 
 package Bio::AlignIO::mummer;
 
+use strict;
+use warnings;
 use base qw(Bio::AlignIO);
 use Bio::SimpleAlign;
 
@@ -82,19 +84,19 @@ use Bio::SimpleAlign;
 sub next_aln {
    my $self = shift;
    my ($startg, $startl, $ref_seqname, $qry_seqname);
-   my ($seq, @lines, $tempdesc, $querylen, $reversed);
+   my ($seq, @lines, $tempdesc, $querylen, $reversed, $matchlen);
    my $aln = Bio::SimpleAlign->new();
 
-   my @lines = <$mumfh>;
-   chomp @lines;
+   #my @lines = <$mumfh>;
+   #chomp @lines;
    #only read one alignment, denoted by >ID
-   while(defined($line = $self->_readline)) {
+   while(defined(my $line = $self->_readline)) {
       chomp $line;
       if($line =~ /^\s*\>\s*(.*)/) {
+        
          #parse the header
          split /\s+/, $1;
-         if($seqname = shift) {
-         }
+         if ($qry_seqname = shift) {};
          if($tempdesc = shift) {
             if($tempdesc =~ /reverse/i) {
                $reversed = -1;
@@ -108,7 +110,7 @@ sub next_aln {
          }
 
          #FIXME kludge to get the query string info in the alignment ID
-         my $alnname = $seqname;
+         my $alnname = $qry_seqname;
          $alnname .= " Reverse" if $reversed;
          $alnname .= " Len = " . $querylen if $querylen;
          $aln->id($alnname);
@@ -159,7 +161,7 @@ sub next_aln {
 
             #FIXME kludge for SimpleAlign using a crappy hash key name
             $count++;
-            my $id = $seqname . ($reversed ? "#$count" : '');
+            my $id = $qry_seqname . ($reversed ? "#$count" : '');
 
             #completed locatableseq, add to the alignment
             my $t = Bio::Seq::RefLocatableSeq->new('-seq' => $seq,
