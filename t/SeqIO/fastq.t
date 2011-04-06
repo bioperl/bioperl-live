@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 127 );
+    test_begin( -tests => 139 );
 
     use_ok('Bio::SeqIO::fastq');
     use_ok('Bio::Seq::Quality');
@@ -200,6 +200,8 @@ for my $example (sort keys %example_files) {
         is(join(' ', map {sprintf("%.0f", $_)} @{$sample_seq->qual}),
                 $example_files{$example}->{qual},
                 "qual() matches $example");
+        my $truncated = $sample_seq->trunc(1,10);
+        is(scalar(@{$truncated->meta}), $truncated->length);
     }
 }
 
