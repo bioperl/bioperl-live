@@ -7,10 +7,12 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 245);
+    test_begin(-tests => 247);
 	
     use_ok('Bio::SeqIO::swiss');
 }
+
+use Bio::Annotation::SimpleValue;
 
 my $verbose = test_debug();
 
@@ -444,3 +446,42 @@ SKIP: {
     is( $seq_third->id,  $seq_first->id,  'Roundtrip, seqids match');
     is( $seq_third->seq, $seq_first->seq, 'Roundtrip, sequences match');
 };
+
+# bug 3153
+
+# the default type for gene_name is Bio::Annotation::TagTree, but we need to
+# allow Bio::Annotation::SimpleValue as well for output (even though we will not
+# support parsing it)
+
+$seqio = Bio::SeqIO->new(-format => 'swiss',
+                         -file =>  'out.swiss');
+
+$seq = $seqio->next_seq;
+
+$seq->annotation->remove_Annotations('gene_name');
+
+$seq->add_Annotation('gene_name',
+        Bio::Annotation::SimpleValue->new(-name   => 'foo', -value  => 'bar'));
+
+$outfile = test_output_file();
+
+my $seqout = Bio::SeqIO->new(-format => 'swiss',
+                             -file   => ">$outfile");
+
+lives_ok {$seqout->write_seq($seq)};
+
+$seqout->close;
+
+open(my $swissfh, '<', $outfile) || die "Can't open $outfile: $!";
+
+my $seen_gn;
+while (<$swissfh>) {
+    if (/^GN\s+(\S+)/) {
+        $seen_gn = $1;
+        last
+    }
+}
+
+close $swissfh;
+
+is $seen_gn, 'bar';
