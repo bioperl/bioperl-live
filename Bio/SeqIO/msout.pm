@@ -77,7 +77,7 @@ particular purpose.
 
 package Bio::SeqIO::msout;
 use version;
-our $API_VERSION = qv('1.1.5');
+our $API_VERSION = qv('1.1.6');
 
 use strict;
 use base qw(Bio::SeqIO);    # This ISA Bio::SeqIO object
@@ -739,6 +739,11 @@ sub _load_run_info {
     my ( $self, $fh ) = @_;
 
     my $data = <$fh>;
+    
+    # getting rid of excess newlines
+    while (defined($data) && $data !~ /./){
+	$data = <$fh>;
+    }
 
     # In this case we are at EOF
     if ( !defined($data) ) { $self->{NEXT_RUN_NUM} = undef; return; }
