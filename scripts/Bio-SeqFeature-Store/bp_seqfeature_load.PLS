@@ -39,7 +39,7 @@ GetOptions(
        'S|subfeatures!' => \$INDEX_SUB,
        'noalias-target' => \$NOALIAS_TARGET,
        'summary'        => \$SUMMARY_STATS,
-       ) || die usage;
+       ) || die &usage;
 
 
 
