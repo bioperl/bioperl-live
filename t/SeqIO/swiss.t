@@ -454,7 +454,7 @@ SKIP: {
 # support parsing it)
 
 $seqio = Bio::SeqIO->new(-format => 'swiss',
-                         -file =>  'out.swiss');
+                         -file =>  test_input_file('test.swiss'));
 
 $seq = $seqio->next_seq;
 
