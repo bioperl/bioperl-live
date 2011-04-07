@@ -1171,9 +1171,12 @@ sub _read_EMBL_Species {
     foreach my $i (0..$#class) {
         my $name = $class[$i];
         $names{$name}++;
-        if ($names{$name} > 1 && $name ne $class[$i - 1]) {
-            $self->throw("$acc seems to have an invalid species classification.");
-        }
+        # this code breaks examples like: Xenopus (Silurana) tropicalis
+        # commenting out, see bug 3158
+        
+        #if ($names{$name} > 1 && ($name ne $class[$i - 1])) {
+        #    $self->warn("$acc seems to have an invalid species classification:$name ne $class[$i - 1]");
+        #}
     }
     my $make = Bio::Species->new();
     $make->scientific_name($sci_name);
