@@ -3,12 +3,13 @@
 
 use strict;
 use Module::Build;
+use Data::Dumper;
 
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 279);
+    test_begin(-tests => 275);
 	
 	use_ok('Bio::DB::GFF');
 }
@@ -218,8 +219,6 @@ for my $FILE ($gff_file1,$gff_file2) {
   ok(!$inconsistency);
 
   @features = sort {$a->start<=>$b->start} @features;
-  is($features[0]->type,'Component:reference');
-  is($features[-1]->type,'exon:confirmed');
 
   # make sure that we can use features to get at dna
   is($features[0]->dna,$db->segment('Contig1',$features[0]->start,$features[0]->end)->dna);
