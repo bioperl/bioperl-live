@@ -36,6 +36,13 @@ pasting directly into a Build.PL (i.e. Module::Build)
 If set, print the dependencies in a format suitable for cutting and
 pasting directly into a Makefile.PL (i.e. Module::Install)
 
+=item -Z
+
+If set, print the dependencies in a format suitable for cutting and
+pasting directly into a dist.ini (i.e. Dist::Zilla).  Although, if
+you're using Dist::Zilla, you probably have it configured to be
+auto-discovering deps, and it will find the same deps as this script.
+
 =back
 
 =head1 AUTHOR
@@ -59,7 +66,7 @@ use Data::Dump 'dump';
 use Hash::Merge;
 
 my %opt;
-getopts('iBM', \%opt) or pod2usage();
+getopts('iBMZ', \%opt) or pod2usage();
 
 -d './lib' or -d './bin' or -d './scripts' or die "run this script from the root dir of a distribution\n";
 
@@ -119,11 +126,22 @@ if( $opt{B} ) {
       for sort keys %{$classified{requires}};
     print "test_requires '$_' => 0;\n"
       for sort keys %{$classified{build_requires}};
+} elsif( $opt{Z} ) {
+    print "[Prereqs]\n";
+    print "$_  =  0\n"
+      for sort keys %{$classified{requires}};
+
+    print "\n[Prereqs / TestRequires]\n";
+    print "$_  =  0\n"
+      for sort keys %{$classified{build_requires}};
+
 } else {
     print dump \%classified;
 }
 
 exit;
+
+################## helpers #####################
 
 sub modfile {
     my $modname = shift;
