@@ -29,7 +29,12 @@ between the files we are inspecting.
 =item -B
 
 If set, print the dependencies in a format suitable for cutting and
-pasting directly into a Build.PL
+pasting directly into a Build.PL (i.e. Module::Build)
+
+=item -M
+
+If set, print the dependencies in a format suitable for cutting and
+pasting directly into a Makefile.PL (i.e. Module::Install)
 
 =back
 
@@ -54,7 +59,7 @@ use Data::Dump 'dump';
 use Hash::Merge;
 
 my %opt;
-getopts('iB', \%opt) or pod2usage();
+getopts('iBM', \%opt) or pod2usage();
 
 -d './lib' or -d './bin' or -d './scripts' or die "run this script from the root dir of a distribution\n";
 
@@ -103,15 +108,21 @@ for my $modname ( keys %deps ) {
     }
 }
 
-# if -B option, print it in Build.PL format instead of showing
-# specific file deps.  change all the deps arrayref to 0's
+# decide which format to print in
 if( $opt{B} ) {
     for ( values %classified ) {
         $_ = 0 for values %$_;
     }
+    print dump \%classified;
+} elsif( $opt{M} ) {
+    print "requires      '$_' => 0;\n"
+      for sort keys %{$classified{requires}};
+    print "test_requires '$_' => 0;\n"
+      for sort keys %{$classified{build_requires}};
+} else {
+    print dump \%classified;
 }
 
-print dump \%classified;
 exit;
 
 sub modfile {
