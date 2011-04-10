@@ -66,13 +66,15 @@ my @perl_files = map {
               $_,
             );
         @f
-    } else {
+    } elsif( -e ) {
         if( is_perl_file($_) ) {
             $_
         } else {
             warn "WARNING: skipping user-specified file $_, since it is not a perl file.\n";
             ()
         }
+    } else {
+        ()
     }
 } @paths;
 
