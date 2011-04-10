@@ -26,6 +26,11 @@ to inspecting all perl files in the current directory.
 If set, also print internal dependencies, i.e. the inter-dependencies
 between the files we are inspecting.
 
+=item -B
+
+If set, print the dependencies in a format suitable for cutting and
+pasting directly into a Build.PL
+
 =back
 
 =head1 AUTHOR
@@ -49,7 +54,7 @@ use Data::Dump 'dump';
 use Hash::Merge;
 
 my %opt;
-getopts('i', \%opt) or pod2usage();
+getopts('iB', \%opt) or pod2usage();
 
 -d './lib' or -d './bin' or -d './scripts' or die "run this script from the root dir of a distribution\n";
 
@@ -95,6 +100,14 @@ for my $modname ( keys %deps ) {
     }
     else {
         $classified{requires}{$modname} = $deps{$modname};
+    }
+}
+
+# if -B option, print it in Build.PL format instead of showing
+# specific file deps.  change all the deps arrayref to 0's
+if( $opt{B} ) {
+    for ( values %classified ) {
+        $_ = 0 for values %$_;
     }
 }
 
