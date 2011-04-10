@@ -123,17 +123,17 @@ if( $opt{B} ) {
     print dump \%classified;
 } elsif( $opt{M} ) {
     print "requires      '$_' => 0;\n"
-      for sort keys %{$classified{requires}};
+      for sort { lc $a cmp lc $b } keys %{$classified{requires}};
     print "test_requires '$_' => 0;\n"
-      for sort keys %{$classified{build_requires}};
+      for sort { lc $a cmp lc $b } keys %{$classified{build_requires}};
 } elsif( $opt{Z} ) {
     print "[Prereqs]\n";
     print "$_  =  0\n"
-      for sort keys %{$classified{requires}};
+      for sort { lc $a cmp lc $b } keys %{$classified{requires}};
 
     print "\n[Prereqs / TestRequires]\n";
     print "$_  =  0\n"
-      for sort keys %{$classified{build_requires}};
+      for sort { lc $a cmp lc $b } keys %{$classified{build_requires}};
 
 } else {
     print dump \%classified;
