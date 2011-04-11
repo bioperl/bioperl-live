@@ -47,6 +47,128 @@ WARN
 
 }
 
+my %recommends = (
+    'Ace'                       => [0,
+        'Access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace'],
+    
+    'Algorithm::Munkres'        => [0,
+        'Phylogenetic Networks/Bio::PhyloNetwork'],
+    
+    'Array::Compare'            => [0,
+        'Phylogenetic Networks/Bio::PhyloNetwork'],
+    
+    'YAML'                      => [0,
+        'GenBank->GFF3/bp_genbank2gff3.pl'],
+    
+    # this won't actually install due to circular dep, but we have no way of doing a post-install
+    # the [circular dependency!] specifies it is only installed on explicit request for this specific module,
+    # not when simply choosing to install 'all' modules
+    
+    'Bio::ASN1::EntrezGene'     => [0,
+        'Parsing entrezgene/Bio::SeqIO::entrezgene [circular dependency!]'],
+
+    'Clone'                     => [0,
+        'Cloning objects/Bio::Tools::Primer3'],
+    
+    'Convert::Binary::C'        => [0,
+        'Strider functionality/Bio::SeqIO::strider'],
+        
+    'Error'                     => [0,
+        'OO-based exception handling (very optional)/Bio::Root::Exception'],
+    
+    'Graph'                     => [0,
+        'Phylogenetic Networks, ontology engine implementation, contig analysis'.
+        '/Bio::PhyloNetwork,Bio::Ontology::SimpleGOEngine::GraphAdaptor,'.
+        'Bio::Assembly::Tools::ContigSpectrum'],
+    
+    'GraphViz'                  => [0,
+        'Phylogenetic Network Visulization/Bio::PhyloNetwork::GraphViz'],
+    
+    'HTML::Entities'            => [0,
+        'Remote analysis POST submissions/Bio::SearchIO::blastxml'],
+    
+    'HTML::HeadParser'          => [3,
+        'Parsing <HEAD> section of HTML docs/Bio::Tools::Analysis::DNA::ESEfinder'],
+    
+    'HTTP::Request::Common'     => [0,
+        'GenBank+GenPept sequence retrieval, remote http Blast jobs'.
+        '/Bio::DB::*,Bio::Tools::Run::RemoteBlast,'.
+        'Bio::Tools::Analysis::Protein*,Bio::Tools::Analysis::DNA*'],
+    
+    'List::MoreUtils'           => [0,
+        'Back- or reverse-translation of sequences/'.
+        'Bio::Tools::SeqPattern,Bio::Tools::SeqPattern::BackTranslate'],
+    
+    'LWP::UserAgent'            => [0,
+        'Remote access/Bio::DB::*,Bio::Tools::Run::RemoteBlast,Bio::WebAgent'],
+        
+    'Math::Random'              => [0,
+        'Random Phylogenetic Networks/Bio::PhyloNetwork::RandomFactory'],
+    
+    'PostScript::TextBlock'     => [0,
+        'EPS output/Bio::Tree::Draw::Cladogram'],
+    
+    'Set::Scalar'               => [0,
+        'Proper operation/Bio::Tree::Compatible'],
+    
+    'SOAP::Lite'                => [0,
+        'Bibliographic queries/Bio::DB::Biblio::soap'],
+    
+    'Sort::Naturally'           => [0,
+        'Sort lexically, but sort numeral parts numerically/'.
+        'Bio::Assembly::IO::ace,Bio::Assembly::IO::tigr'],
+    
+    'Spreadsheet::ParseExcel'   => [0,
+        'Parsing Excel files/Bio::SeqIO::excel'],
+    
+    'Storable'                  => [2.05,
+        'Storing sequence objects in local file cache/'.
+        'Bio::DB::FileCache,Bio::SeqFeature::Collection,Bio::PopGen::HtSNP,'.
+        'Bio::PopGen::TagHaplotype,Bio::DB::GFF::Adaptor::berkeleydb'],
+    
+    'SVG'                       => [2.26,
+        'Creating SVG images/Bio::Draw::Pictogram'],
+        
+    'SVG::Graph'                => [0.01,
+        'Creating SVG images/Bio::TreeIO::svggraph'],
+    
+    'Text::ParseWords'          => [0,
+        'Test scripts/Bio::DB::SeqFeature::Store::FeatureFileLoader'],
+    
+    'URI::Escape'               => [0,
+        'Dealing with web resources/Bio::FeatureIO::gff,Bio::FeatureIO::interpro,'.
+        'Bio::DB::Biblio::eutils,Bio::DB::EUtilParameters,'.
+        'Bio::DB::Query::GenBank,Bio::DB::NCBIHelper,Bio::SeqFeature::Annotated'],
+    
+    'XML::DOM::XPath'           => [0.13,
+        'parsing interpro features/Bio::FeatureIO::interpro'],
+    
+    'XML::Parser'               => [0,
+        'parsing xml/Bio::Biblio::IO::medlinexml'],
+    
+    'XML::Parser::PerlSAX'      => [0,
+        'Parsing XML/Bio::SeqIO::tinyseq,Bio::SeqIO::game::gameSubs,',
+        'Bio::OntologyIO::InterProParser,Bio::ClusterIO::dbsnp'],
+    
+    'XML::SAX'                  => [0.15,
+        'Parsing XML/Bio::SearchIO::blastxml,Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax'],
+    
+    'XML::SAX::Writer'          => [0,
+        'Writing XML/Bio::SeqIO::tigrxml'],
+    
+    'XML::Simple'               => [0,
+        'Reading custom XML/Bio::Tools::EUtilities,Bio::DB::HIV,Bio::DB::Query::HIVQuery'],
+    
+    'XML::Twig'                 => [0,
+        'Parsing XML/Bio::Variation::IO::xml,Bio::DB::Taxonomy::entrez,'.
+        'Bio::DB::Biblio::eutils'],
+    
+    'XML::Writer'               => [0.4,
+        'Parsing and writing XML/Bio::SeqIO::agave,Bio::SeqIO::game::gameWriter,'.
+        'Bio::SeqIO::chadoxml,Bio::SeqIO::tinyseq,Bio::Variation::IO::xml,'.
+        'Bio::SearchIO::Writer::BSMLResultWriter'],
+);
+
 our @drivers;
 
 my $mysql_ok = 0;
@@ -75,43 +197,7 @@ my $build = Bio::Root::Build->new(
                             'CPAN'                      => 1.81
                            },
     recommends          => { # does what you would expect of recommends, except more informative output and generates optional_features in META.yml
-                            'Ace'                       => '0/access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace',
-                            'Algorithm::Munkres'        => '0/Phylogenetic Networks/Bio::PhyloNetwork',
-                            'Array::Compare'            => '0/Phylogenetic Networks/Bio::PhyloNetwork',
-                            'YAML'                      => '0/GenBank->GFF3/bp_genbank2gff3.pl',
-                            # this won't actually install due to circular dep, but we have no way of doing a post-install
-                            # the [circular dependency!] specifies it is only installed on explicit request for this specific module,
-                            # not when simply choosing to install 'all' modules
-                            'Bio::ASN1::EntrezGene'     => '0/parsing entrezgene/Bio::SeqIO::entrezgene [circular dependency!]',
-                            'Clone'                     => '0/cloning objects/Bio::Tools::Primer3',
-                            'Convert::Binary::C'        => '0/strider functionality/Bio::SeqIO::strider',
-                            'Error'                     => '0/OO-based exception handling (very optional)/Bio::Root::Exception',
-                            'Graph'                     => '0/Phylogenetic Networks, ontology engine implementation, contig analysis/Bio::PhyloNetwork,Bio::Ontology::SimpleGOEngine::GraphAdaptor,Bio::Assembly::Tools::ContigSpectrum',
-                            'GraphViz'                  => '0/Phylogenetic Network Visulization/Bio::PhyloNetwork::GraphViz',
-                            'HTML::Entities'            => '0/remote analysis POST submissions/Bio::SearchIO::blastxml',
-                            'HTML::HeadParser'          => '3/parsing <HEAD> section of HTML docs/Bio::Tools::Analysis::DNA::ESEfinder',
-                            'HTTP::Request::Common'     => '0/GenBank+GenPept sequence retrieval, remote http Blast jobs/Bio::DB::*,Bio::Tools::Run::RemoteBlast,Bio::Tools::Analysis::Protein*,Bio::Tools::Analysis::DNA*',
-                            'List::MoreUtils'           => '0/Back- or reverse-translation of sequences/Bio::Tools::SeqPattern,Bio::Tools::SeqPattern::BackTranslate',
-                            'LWP::UserAgent'            => '0/remote access/Bio::DB::*,Bio::Tools::Run::RemoteBlast,Bio::WebAgent',
-                            'Math::Random'              => '0/Random Phylogenetic Networks/Bio::PhyloNetwork::RandomFactory',
-                            'PostScript::TextBlock'     => '0/EPS output/Bio::Tree::Draw::Cladogram',
-                            'Set::Scalar'               => '0/proper operation/Bio::Tree::Compatible',
-                            'SOAP::Lite'                => '0/Bibliographic queries/Bio::DB::Biblio::soap',
-                            'Sort::Naturally'           => '0/sort lexically, but sort numeral parts numerically/Bio::Assembly::IO::ace,Bio::Assembly::IO::tigr',
-                            'Spreadsheet::ParseExcel'   => '0/parsing Excel files/Bio::SeqIO::excel',
-                            'Storable'                  => '2.05/storing sequence objects in local file cache/Bio::DB::FileCache,Bio::SeqFeature::Collection,Bio::PopGen::HtSNP,Bio::PopGen::TagHaplotype,Bio::DB::GFF::Adaptor::berkeleydb',
-                            'SVG'                       => '2.26/creating SVG images/Bio::Draw::Pictogram',
-                            'SVG::Graph'                => '0.01/creating SVG images/Bio::TreeIO::svggraph',
-                            'Text::ParseWords'          => '0/test scripts/Bio::DB::SeqFeature::Store::FeatureFileLoader',
-                            'URI::Escape'               => '0/dealing with web resources/Bio::FeatureIO::gff,Bio::FeatureIO::interpro,Bio::DB::Biblio::eutils,Bio::DB::EUtilParameters,Bio::DB::Query::GenBank,Bio::DB::NCBIHelper,Bio::SeqFeature::Annotated',
-                            'XML::DOM::XPath'           => '0.13/parsing interpro features/Bio::FeatureIO::interpro',
-                            'XML::Parser'               => '0/parsing xml/Bio::Biblio::IO::medlinexml',
-                            'XML::Parser::PerlSAX'      => '0/parsing xml/Bio::SeqIO::tinyseq,Bio::SeqIO::game::gameSubs,Bio::OntologyIO::InterProParser,Bio::ClusterIO::dbsnp',
-                            'XML::SAX'                  => '0.15/parsing xml/Bio::SearchIO::blastxml,Bio::SeqIO::tigrxml,Bio::SeqIO::bsml_sax',
-                            'XML::SAX::Writer'          => '0/writing xml/Bio::SeqIO::tigrxml',
-                            'XML::Simple'               => '0/reading custom XML/Bio::Tools::EUtilities,Bio::DB::HIV,Bio::DB::Query::HIVQuery',
-                            'XML::Twig'                 => '0/parsing xml/Bio::Variation::IO::xml,Bio::DB::Taxonomy::entrez,Bio::DB::Biblio::eutils',
-                            'XML::Writer'               => '0.4/parsing and writing xml/Bio::SeqIO::agave,Bio::SeqIO::game::gameWriter,Bio::SeqIO::chadoxml,Bio::SeqIO::tinyseq,Bio::Variation::IO::xml,Bio::SearchIO::Writer::BSMLResultWriter',
+        map {$_ => $recommends{$_}[0]} sort keys %recommends
     },
     get_options         => {
                             accept  => { },
