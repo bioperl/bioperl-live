@@ -989,6 +989,7 @@ maintenance/check_URLs.pl
 maintenance/cvs2cl_by_file.pl
 maintenance/dependencies.pl
 maintenance/deprecated.pl
+maintenance/find_mod_deps.pl
 maintenance/module_usage.pl
 maintenance/modules.pl
 maintenance/ncbi_blast_switches.pl
@@ -1162,7 +1163,6 @@ t/data/503384.MEGABLAST.0
 t/data/503384.MEGABLAST.2
 t/data/5X_1895.FASTXY
 t/data/8HVP.pdb
-t/data/9K_v4.psl
 t/data/a_thaliana.blastn
 t/data/AAC12660.fa
 t/data/aaml.mlc
@@ -1191,6 +1191,7 @@ t/data/ay116458.gb
 t/data/ay149291.gb
 t/data/AY763288.gb
 t/data/BAB68554.gb
+t/data/bad_dbfa/bug3172.fa
 t/data/barns-combined.nex
 t/data/baseml.pairwise
 t/data/baseml.usertree
@@ -1389,6 +1390,7 @@ t/data/eutils/esummary2.xml
 t/data/ex1.nucl.nhx
 t/data/example.hap
 t/data/example.phase
+t/data/example.vcf
 t/data/exonerate.output.dontwork
 t/data/exonerate.output.works
 t/data/exonerate.whitespace_before_query.works
@@ -1434,8 +1436,6 @@ t/data/fastq/test3_illumina.fastq
 t/data/fastq/tricky.fastq
 t/data/fastq/wrapping_issues.fastq
 t/data/fgenesh.out
-t/data/fishBlats.txt
-t/data/fishBlats_UCSC.psl
 t/data/footprinter.out
 t/data/frac_problems.blast
 t/data/frac_problems2.blast
@@ -1649,8 +1649,6 @@ t/data/noninterleaved.phy
 t/data/NT_021877.gbk
 t/data/nucmatrix.txt
 t/data/O_sat.wgs
-t/data/O_ZNF496.blast
-t/data/O_ZNF496.psl
 t/data/omim_genemap_test
 t/data/omim_genemap_test_nolinebreak
 t/data/omim_text_test
@@ -1872,7 +1870,6 @@ t/data/U71225.gb
 t/data/U71225.gb.unix
 t/data/U71225.gb.win
 t/data/U83300.bsml
-t/data/UCSC_fishBlats.txt
 t/data/UnaSmithHIV-both.nex
 t/data/unigene.data
 t/data/urease.tre.nexus
@@ -2148,6 +2145,7 @@ t/Tools/Genewise.t
 t/Tools/Genomewise.t
 t/Tools/Genpred.t
 t/Tools/GFF.t
+t/Tools/GuessSeqFormat.t
 t/Tools/Hmmer.t
 t/Tools/IUPAC.t
 t/Tools/Lucy.t
