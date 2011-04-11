@@ -27,7 +27,7 @@ Bio::DB::SeqFeature::Store::DBI::mysql -- Mysql implementation of Bio::DB::SeqFe
 
   # change the feature and update it
   $f->start(100);
-  $db->update($f) or die "Couldn't update!";
+  $f->update($f) or die "Couldn't update!";
 
   # searching...
   # ...by id
