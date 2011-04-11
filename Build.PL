@@ -169,9 +169,9 @@ my %recommends = (
         'Bio::SearchIO::Writer::BSMLResultWriter'],
 );
 
-our @drivers;
-
 my $mysql_ok = 0;
+
+my @drivers = available_drivers();
 
 # Set up the Bio::Root::Build object
 my $build = Bio::Root::Build->new(
@@ -181,7 +181,7 @@ my $build = Bio::Root::Build->new(
     dist_author         => 'BioPerl Team <bioperl-l@bioperl.org>',
     dist_abstract       => 'Bioinformatics Toolkit',
     license             => 'perl',
-    no_index            => {'dir'                       => [qw(examples/root/lib)]},
+    no_index            => {'dir'       => [qw(examples/root/lib)]},
     requires            => {
                             'perl'                      => '5.6.1',
                             'IO::String'                => 0,
@@ -190,54 +190,58 @@ my $build = Bio::Root::Build->new(
                             'Scalar::Util'              => 0,    # not in Perl 5.6.1, arrived in core in 5.7.3
                             'ExtUtils::Manifest'        => '1.52', # allows spaces in file names
                            },
+    
     build_requires      => {
                             'Test::More'                => 0,
                             'Module::Build'             => 0.2805,
                             'Test::Harness'             => 2.62,
                             'CPAN'                      => 1.81
                            },
+    
     recommends          => { # does what you would expect of recommends, except more informative output and generates optional_features in META.yml
         map {$_ => $recommends{$_}[0]} sort keys %recommends
     },
+    
     get_options         => {
-                            accept  => { },
-                            network => { } # say 'perl Build.PL --network' to manually request network tests
+        accept  => { },
+        network => { } # say 'perl Build.PL --network' to manually request network tests
                            },
+    
     auto_features       => {
-                            BioDBSeqFeature_BDB   => {
-                                                        description      => "BDB tests for Bio::DB::SeqFeature::Store",
-                                                        feature_requires => { 'DB_File' => 0 } # feature_requires is like requires, except that it doesn't trigger installation
-                                                     },
-                            BioDBGFF              => {
-                                                        description      => "BioDBGFF database tests (will need to answer questions before really enabling)",
-                                                        feature_requires => { 'DBI' => 0 },
-                                                        excludes_os      => ['mswin'],
-                                                        test             => \&test_biodbgff # Bio::Root::Build unique requirement that after everything else succeeds, supplied code ref must also return undef
-                                                     },
-                            BioDBSeqFeature_mysql => {
-                                                        description      => "MySQL tests for Bio::DB::SeqFeature::Store",
-                                                        feature_requires => { 'DBI' => 0, 'DBD::mysql' => 0 },
-                                                        test             => \&test_db_sf
-                                                     },
-                            BioDBSeqFeature_Pg    => {
-                                                        description      => "Postgres tests for Bio::DB::SeqFeature::Store",
-                                                        feature_requires => { 'DBI' => 0, 'DBD::Pg' => 0},
-                                                        test             => \&test_db_sf
-                                                     },
-                            BioDBSeqFeature_SQLite    => {
-                                                        description      => "SQLite tests for Bio::DB::SeqFeature::Store",
-                                                        feature_requires => { 'DBI' => 0, 'DBD::SQLite' => 0},
-                                                        test             => \&test_db_sf
-                                                     },
-                            Network               => {
-                                                        description      => "Enable tests that need an internet connection",
-                                                        feature_requires => { 'LWP::UserAgent' => 0 },
-                                                        test             => \&Bio::Root::Build::test_internet
-                                                     }
+        'DB_File Tests' => {
+            description => "BDB tests for Bio::DB::SeqFeature::Store",
+            requires    => { 'DB_File' => 0 } # feature_requires is like requires, except that it doesn't trigger installation
+         },
+        
+        'Bio::DB::GFF Tests' => {
+            description => "Bio::DB::GFF database tests (will need to answer questions before really enabling)",
+            requires    => { 'DBI' => 0 },
+         },
+        
+        'MySQL Tests'   => {
+            description => "MySQL-related tests for Bio::DB::SeqFeature::Store",
+            requires    => { 'DBI' => 0, 'DBD::mysql' => 0 },
+         },
+        
+        'Pg Tests'      => {
+            description => "PostgreSQL-related tests for Bio::DB::SeqFeature::Store",
+            requires    => { 'DBI' => 0, 'DBD::Pg' => 0},
+         },
+        
+        'SQLite Tests'  => {
+            description => "SQLite-related tests for Bio::DB::SeqFeature::Store",
+            requires    => { 'DBI' => 0, 'DBD::SQLite' => 0},
+         },
+        
+        'Network Tests'              => {
+            description      => "Enable tests that need an internet connection",
+            requires => { 'LWP::UserAgent' => 0 },
+        }
                            },
     dynamic_config      => 1,
     create_makefile_pl  => 'passthrough',
     recursive_test_files => 1,
+    
     # Extra files needed for BioPerl modules
     xml_files => {'./Bio/DB/HIV/lanl-schema.xml' => 'lib/Bio/DB/HIV/lanl-schema.xml'},
     
@@ -247,21 +251,26 @@ my $build = Bio::Root::Build->new(
 
 my $accept = $build->args->{accept};
 
-my $proceed = prompt_for_biodb($accept) if $build->feature('BioDBGFF') || $build->feature('BioDBSeqFeature_mysql');
+my $proceed = prompt_for_biodb($accept) if $build->feature('Bio::DB::GFF')
+    || $build->feature('MySQL Tests') || $build->feature('MySQL Tests');
 
 # Handle auto features
-if ($proceed && $build->feature('BioDBSeqFeature_BDB')) {
+if ($proceed && $build->feature('DB_File Tests')) {
     # will return without doing anything if user chose not to run tests during
-    # prompt_for_biodb() above
     make_bdb_test();
 }
-if ($proceed && ($build->feature('BioDBSeqFeature_mysql') or $build->feature('BioDBSeqFeature_Pg'))) {
+if ($proceed && ($build->feature('MySQL Tests') ||
+                 $build->feature('Pg Tests') ||
+                 $build->feature('SQLite Tests'))) {
     make_dbi_test();
 }
 
+
+
+
 # Ask questions
 $build->choose_scripts($accept);
-#prompt_for_biodbgff($accept) if $build->feature('BioDBGFF');
+
 {
     if ($build->args('network')) {
         if ($build->feature('Network')) {
@@ -283,10 +292,10 @@ $build->choose_scripts($accept);
 }
 
 # Request that some scripts run post-installation
-$build->add_post_install_script('maintenance/symlink_script.pl'); # takes a unix file path regardless of local OS
+#$build->add_post_install_script('maintenance/symlink_script.pl'); # takes a unix file path regardless of local OS
 
 # Add extra things to MANIFEST.SKIP
-$build->add_to_manifest_skip('bioperl.lisp');
+#$build->add_to_manifest_skip('bioperl.lisp');
 
 # Add additional files here
 $build->add_build_element('xml');
@@ -306,18 +315,18 @@ system '$^X $path0 -adaptor berkeleydb -create 1 -temp 1';
 END
     close $F;
     $build->add_to_cleanup($path);
-    $build->add_to_manifest_skip($path);
+    #$build->add_to_manifest_skip($path);
 }
 
-sub test_db_sf {
-    eval {require DBI;};  # if not installed, this sub won't actually be called
+sub available_drivers {
+    eval {require DBI; 1;};  # if not installed, this sub won't actually be called
     @drivers = DBI->available_drivers;
     unless (grep {/mysql|Pg|SQLite/i} @drivers) {
         $mysql_ok = 0;
         return "Only MySQL, Postgres and SQLite DBI drivers supported for Bio::DB::SeqFeature RDMS tests";
     }
     $mysql_ok = 1;
-    return;
+    return @drivers;
 }
 
 sub make_dbi_test {
@@ -341,7 +350,7 @@ END
     close $F;
     $build->add_to_cleanup($path);
     $build->add_to_cleanup($test_db) if $driver eq 'SQLite';
-    $build->add_to_manifest_skip($path);
+    #$build->add_to_manifest_skip($path);
 }
 
 sub test_biodbgff {

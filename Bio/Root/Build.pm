@@ -215,83 +215,83 @@ sub process_script_files {
 }
 
 # extended to handle extra checking types
-sub features {
-    my $self = shift;
-    my $ph = $self->{phash};
-    
-    if (@_) {
-        my $key = shift;
-        if ($ph->{features}->exists($key)) {
-            return $ph->{features}->access($key, @_);
-        }
-        
-        if (my $info = $ph->{auto_features}->access($key)) {
-            my $failures = $self->prereq_failures($info);
-            my $disabled = grep( /^(?:\w+_)?(?:$checking_types)$/, keys %$failures ) ? 1 : 0;
-            return !$disabled;
-        }
-        
-        return $ph->{features}->access($key, @_);
-    }
-  
-    # No args - get the auto_features & overlay the regular features
-    my %features;
-    my %auto_features = $ph->{auto_features}->access();
-    while (my ($name, $info) = each %auto_features) {
-        my $failures = $self->prereq_failures($info);
-        my $disabled = grep( /^(?:\w+_)?(?:$checking_types)$/, keys %$failures ) ? 1 : 0;
-        $features{$name} = $disabled ? 0 : 1;
-    }
-    %features = (%features, $ph->{features}->access());
-  
-    return wantarray ? %features : \%features;
-}
-*feature = \&features;
+#sub features {
+#    my $self = shift;
+#    my $ph = $self->{phash};
+#    
+#    if (@_) {
+#        my $key = shift;
+#        if ($ph->{features}->exists($key)) {
+#            return $ph->{features}->access($key, @_);
+#        }
+#        
+#        if (my $info = $ph->{auto_features}->access($key)) {
+#            my $failures = $self->prereq_failures($info);
+#            my $disabled = grep( /^(?:\w+_)?(?:$checking_types)$/, keys %$failures ) ? 1 : 0;
+#            return !$disabled;
+#        }
+#        
+#        return $ph->{features}->access($key, @_);
+#    }
+#  
+#    # No args - get the auto_features & overlay the regular features
+#    my %features;
+#    my %auto_features = $ph->{auto_features}->access();
+#    while (my ($name, $info) = each %auto_features) {
+#        my $failures = $self->prereq_failures($info);
+#        my $disabled = grep( /^(?:\w+_)?(?:$checking_types)$/, keys %$failures ) ? 1 : 0;
+#        $features{$name} = $disabled ? 0 : 1;
+#    }
+#    %features = (%features, $ph->{features}->access());
+#  
+#    return wantarray ? %features : \%features;
+#}
+#*feature = \&features;
 
 # overridden to fix a stupid bug in Module::Build and extended to handle extra
 # checking types
-sub check_autofeatures {
-    my ($self) = @_;
-    my $features = $self->auto_features;
-    
-    return unless %$features;
-    
-    $self->log_info("Checking features:\n");
-    
-    my $max_name_len = 0; # this wasn't set to 0 in Module::Build, causing warning in next line
-    $max_name_len = ( length($_) > $max_name_len ) ? length($_) : $max_name_len for keys %$features;
-    
-    while (my ($name, $info) = each %$features) {
-        $self->log_info("  $name" . '.' x ($max_name_len - length($name) + 4));
-        if ($name eq 'PL_files') {
-            print "got $name => $info\n";
-            print "info has:\n";
-            while (my ($key, $val) = each %$info) {
-                print "  $key => $val\n";
-            }
-        }
-        
-        if ( my $failures = $self->prereq_failures($info) ) {
-            my $disabled = grep( /^(?:\w+_)?(?:$checking_types)$/, keys %$failures ) ? 1 : 0;
-            $self->log_info( $disabled ? "disabled\n" : "enabled\n" );
-            
-            my $log_text;
-            while (my ($type, $prereqs) = each %$failures) {
-                while (my ($module, $status) = each %$prereqs) {
-                    my $required = ($type =~ /^(?:\w+_)?(?:requires|conflicts)$/) ? 1 : 0;
-                    my $prefix = ($required) ? '-' : '*';
-                    $log_text .= "    $prefix $status->{message}\n";
-                }
-            }
-            $self->log_warn($log_text) if $log_text && ! $self->quiet;
-        }
-        else {
-            $self->log_info("enabled\n");
-        }
-    }
-    
-    $self->log_info("\n");
-}
+#sub check_autofeatures {
+#    my ($self) = @_;
+#    my $features = $self->auto_features;
+#    
+#    return unless %$features;
+#    
+#    $self->log_info("Checking features:\n");
+#    
+#    my $max_name_len = 0; # this wasn't set to 0 in Module::Build, causing warning in next line
+#    $max_name_len = ( length($_) > $max_name_len ) ? length($_) : $max_name_len for keys %$features;
+#    
+#    while (my ($name, $info) = each %$features) {
+#        $self->log_info("  $name" . '.' x ($max_name_len - length($name) + 4));
+#        if ($name eq 'PL_files') {
+#            print "got $name => $info\n";
+#            print "info has:\n";
+#            while (my ($key, $val) = each %$info) {
+#                print "  $key => $val\n";
+#            }
+#        }
+#        
+#        if ( my $failures = $self->prereq_failures($info) ) {
+#            my $disabled = grep( /^(?:\w+_)?(?:$checking_types)$/, keys %$failures ) ? 1 : 0;
+#            $self->log_info( $disabled ? "disabled\n" : "enabled\n" );
+#            
+#            my $log_text;
+#            while (my ($type, $prereqs) = each %$failures) {
+#                while (my ($module, $status) = each %$prereqs) {
+#                    my $required = ($type =~ /^(?:\w+_)?(?:requires|conflicts)$/) ? 1 : 0;
+#                    my $prefix = ($required) ? '-' : '*';
+#                    $log_text .= "    $prefix $status->{message}\n";
+#                }
+#            }
+#            $self->log_warn($log_text) if $log_text && ! $self->quiet;
+#        }
+#        else {
+#            $self->log_info("enabled\n");
+#        }
+#    }
+#    
+#    $self->log_info("\n");
+#}
 
 # TODO: STDERR output redirect is causing some installations to fail, commenting
 # out until a fix is in place
@@ -311,6 +311,7 @@ sub check_autofeatures {
 # checking (which takes a code ref and must return a message only on failure)
 # and excludes_os (which takes an array ref of regexps).
 # also handles more informative output of recommends section
+
 #sub prereq_failures {
 #    my ($self, $info) = @_;
 #    
@@ -370,9 +371,9 @@ sub check_autofeatures {
 #                    $status->{message} = "$modname ($status->{have}) conflicts with this distribution";
 #                }
 #                elsif ($type =~ /^(?:\w+_)?recommends$/) {
-#                    #my ($preferred_version, $why, $by_what) = split("/", $spec);
-#                    #$by_what = join(", ", split(",", $by_what));
-#                    #$by_what =~ s/, (\S+)$/ and $1/;
+#                    my ($preferred_version, $why, $by_what) = split("/", $spec);
+#                    $by_what = join(", ", split(",", $by_what));
+#                    $by_what =~ s/, (\S+)$/ and $1/;
 #                    
 #                    $status->{message} = (!ref($status->{have}) && $status->{have} eq '<none>'
 #                                  ? "Optional prerequisite $modname is not installed"
@@ -380,13 +381,13 @@ sub check_autofeatures {
 #                    
 #                    $status->{message} .= "\n   (wanted for $why, used by $by_what)";
 #                    
-#                    #if ($by_what =~ /\[circular dependency!\]/) {
-#                    #    $preferred_version = -1;
-#                    #}
+#                    if ($by_what =~ /\[circular dependency!\]/) {
+#                        $preferred_version = -1;
+#                    }
 #                    
-#                    my $installed = $self->install_optional($modname, $preferred_version, $status->{message});
-#                    next if $installed eq 'ok';
-#                    $status->{message} = $installed unless $installed eq 'skip';
+#                    #my $installed = $self->install_optional($modname, $preferred_version, $status->{message});
+#                    #next if $installed eq 'ok';
+#                    #$status->{message} = $installed unless $installed eq 'skip';
 #                }
 #                elsif ($type =~ /^feature_requires/) {
 #                    # if there is a test code-ref, drop it to avoid
@@ -501,224 +502,224 @@ sub check_autofeatures {
 
 # there's no official way to discover if being run by CPAN, we take an approach
 # similar to that of Module::AutoInstall
-sub under_cpan {
-    my $self = shift;
-    
-    unless (defined $self->{under_cpan}) {
-        ## modified from Module::AutoInstall
-        
-        my $cpan_env = $ENV{PERL5_CPAN_IS_RUNNING};
-        if ($ENV{PERL5_CPANPLUS_IS_RUNNING}) {
-            $self->{under_cpan} = $cpan_env ? 'CPAN' : 'CPANPLUS';
-        }
-        
-        require CPAN;
-        
-        unless (defined $self->{under_cpan}) {
-            if ($CPAN::VERSION > '1.89') {
-                if ($cpan_env) {
-                    $self->{under_cpan} = 'CPAN';
-                }
-                else {
-                    $self->{under_cpan} = 0;
-                }
-            }
-        }
-        
-        unless (defined $self->{under_cpan}) {
-            # load cpan config
-            if ($CPAN::HandleConfig::VERSION) {
-                # Newer versions of CPAN have a HandleConfig module
-                CPAN::HandleConfig->load;
-            }
-            else {
-                # Older versions had the load method in Config directly
-                CPAN::Config->load;
-            }
-            
-            # Find the CPAN lock-file
-            my $lock = File::Spec->catfile($CPAN::Config->{cpan_home}, '.lock');
-            if (-f $lock) {
-                # Module::AutoInstall now goes on to open the lock file and compare
-                # its pid to ours, but we're not in a situation where we expect
-                # the pids to match, so we take the windows approach for all OSes:
-                # find out if we're in cpan_home
-                my $cwd  = File::Spec->canonpath(Cwd::cwd());
-                my $cpan = File::Spec->canonpath($CPAN::Config->{cpan_home});
-                
-                $self->{under_cpan} = index($cwd, $cpan) > -1;
-            }
-        }
-        
-        if ($self->{under_cpan}) {
-            $self->log_info("(I think I'm being run by CPAN/CPANPLUS, so will rely on it to handle prerequisite installation)\n");
-        }
-        else {
-            $self->log_info("(I think you ran Build.PL directly, so will use CPAN to install prerequisites on demand)\n");
-            $self->{under_cpan} = 0;
-        }
-    }
-    
-    return $self->{under_cpan};
-}
+#sub under_cpan {
+#    my $self = shift;
+#    
+#    unless (defined $self->{under_cpan}) {
+#        ## modified from Module::AutoInstall
+#        
+#        my $cpan_env = $ENV{PERL5_CPAN_IS_RUNNING};
+#        if ($ENV{PERL5_CPANPLUS_IS_RUNNING}) {
+#            $self->{under_cpan} = $cpan_env ? 'CPAN' : 'CPANPLUS';
+#        }
+#        
+#        require CPAN;
+#        
+#        unless (defined $self->{under_cpan}) {
+#            if ($CPAN::VERSION > '1.89') {
+#                if ($cpan_env) {
+#                    $self->{under_cpan} = 'CPAN';
+#                }
+#                else {
+#                    $self->{under_cpan} = 0;
+#                }
+#            }
+#        }
+#        
+#        unless (defined $self->{under_cpan}) {
+#            # load cpan config
+#            if ($CPAN::HandleConfig::VERSION) {
+#                # Newer versions of CPAN have a HandleConfig module
+#                CPAN::HandleConfig->load;
+#            }
+#            else {
+#                # Older versions had the load method in Config directly
+#                CPAN::Config->load;
+#            }
+#            
+#            # Find the CPAN lock-file
+#            my $lock = File::Spec->catfile($CPAN::Config->{cpan_home}, '.lock');
+#            if (-f $lock) {
+#                # Module::AutoInstall now goes on to open the lock file and compare
+#                # its pid to ours, but we're not in a situation where we expect
+#                # the pids to match, so we take the windows approach for all OSes:
+#                # find out if we're in cpan_home
+#                my $cwd  = File::Spec->canonpath(Cwd::cwd());
+#                my $cpan = File::Spec->canonpath($CPAN::Config->{cpan_home});
+#                
+#                $self->{under_cpan} = index($cwd, $cpan) > -1;
+#            }
+#        }
+#        
+#        if ($self->{under_cpan}) {
+#            $self->log_info("(I think I'm being run by CPAN/CPANPLUS, so will rely on it to handle prerequisite installation)\n");
+#        }
+#        else {
+#            $self->log_info("(I think you ran Build.PL directly, so will use CPAN to install prerequisites on demand)\n");
+#            $self->{under_cpan} = 0;
+#        }
+#    }
+#    
+#    return $self->{under_cpan};
+#}
 
 # overridden simply to not print the default answer if chosen by hitting return
-sub prompt {
-    my $self = shift;
-    my $mess = shift or die "prompt() called without a prompt message";
-    
-    my $def;
-    if ( $self->_is_unattended && !@_ ) {
-        die <<EOF;
-ERROR: This build seems to be unattended, but there is no default value
-for this question.  Aborting.
-EOF
-    }
-    $def = shift if @_;
-    ($def, my $dispdef) = defined $def ? ($def, "[$def] ") : ('', ' ');
-    
-    local $|=1;
-    print "$mess $dispdef";
-  
-    my $ans = $self->_readline();
-  
-    if ( !defined($ans)        # Ctrl-D or unattended
-         or !length($ans) ) {  # User hit return
-        #print "$def\n"; didn't like this!
-        $ans = $def;
-    }
-    
-    return $ans;
-}
+#sub prompt {
+#    my $self = shift;
+#    my $mess = shift or die "prompt() called without a prompt message";
+#    
+#    my $def;
+#    if ( $self->_is_unattended && !@_ ) {
+#        die <<EOF;
+#ERROR: This build seems to be unattended, but there is no default value
+#for this question.  Aborting.
+#EOF
+#    }
+#    $def = shift if @_;
+#    ($def, my $dispdef) = defined $def ? ($def, "[$def] ") : ('', ' ');
+#    
+#    local $|=1;
+#    print "$mess $dispdef";
+#  
+#    my $ans = $self->_readline();
+#  
+#    if ( !defined($ans)        # Ctrl-D or unattended
+#         or !length($ans) ) {  # User hit return
+#        #print "$def\n"; didn't like this!
+#        $ans = $def;
+#    }
+#    
+#    return $ans;
+#}
 
 # like the Module::Build version, except that we always get version from
 # dist_version
-sub find_dist_packages {
-    my $self = shift;
-    
-    # Only packages in .pm files are candidates for inclusion here.
-    # Only include things in the MANIFEST, not things in developer's
-    # private stock.
-    
-    my $manifest = $self->_read_manifest('MANIFEST') or die "Can't find dist packages without a MANIFEST file - run 'manifest' action first";
-    
-    # Localize
-    my %dist_files = map { $self->localize_file_path($_) => $_ } keys %$manifest;
-    
-    my @pm_files = grep {exists $dist_files{$_}} keys %{ $self->find_pm_files };
-    
-    my $actual_version = $self->dist_version;
-    
-    # First, we enumerate all packages & versions,
-    # seperating into primary & alternative candidates
-    my( %prime, %alt );
-    foreach my $file (@pm_files) {
-        next if $dist_files{$file} =~ m{^t/};  # Skip things in t/
-        
-        my @path = split( /\//, $dist_files{$file} );
-        (my $prime_package = join( '::', @path[1..$#path] )) =~ s/\.pm$//;
-        
-        my $pm_info = Module::Build::ModuleInfo->new_from_file( $file );
-        
-        foreach my $package ( $pm_info->packages_inside ) {
-            next if $package eq 'main';  # main can appear numerous times, ignore
-            next if grep /^_/, split( /::/, $package ); # private package, ignore
-            
-            my $version = $pm_info->version( $package );
-            if ($version && $version != $actual_version) {
-                $self->log_warn("Package $package had version $version!\n");
-            }
-            $version = $actual_version;
-            
-            if ( $package eq $prime_package ) {
-                if ( exists( $prime{$package} ) ) {
-                    # M::B::ModuleInfo will handle this conflict
-                    die "Unexpected conflict in '$package'; multiple versions found.\n";
-                }
-                else {
-                    $prime{$package}{file} = $dist_files{$file};
-                    $prime{$package}{version} = $version if defined( $version );
-                }
-            }
-            else {
-                push( @{$alt{$package}}, { file => $dist_files{$file}, version => $version } );
-            }
-        }
-    }
-    
-    # Then we iterate over all the packages found above, identifying conflicts
-    # and selecting the "best" candidate for recording the file & version
-    # for each package.
-    foreach my $package ( keys( %alt ) ) {
-        my $result = $self->_resolve_module_versions( $alt{$package} );
-        
-        if ( exists( $prime{$package} ) ) { # primary package selected
-            if ( $result->{err} ) {
-                # Use the selected primary package, but there are conflicting
-                 # errors amoung multiple alternative packages that need to be
-                 # reported
-                 $self->log_warn("Found conflicting versions for package '$package'\n" .
-                                 "  $prime{$package}{file} ($prime{$package}{version})\n" . $result->{err});
-            }
-            elsif ( defined( $result->{version} ) ) {
-                # There is a primary package selected, and exactly one
-                # alternative package
-                
-                if ( exists( $prime{$package}{version} ) && defined( $prime{$package}{version} ) ) {
-                    # Unless the version of the primary package agrees with the
-                    # version of the alternative package, report a conflict
-                    if ( $self->compare_versions( $prime{$package}{version}, '!=', $result->{version} ) ) {
-                        $self->log_warn("Found conflicting versions for package '$package'\n" .
-                                        "  $prime{$package}{file} ($prime{$package}{version})\n" .
-                                        "  $result->{file} ($result->{version})\n");
-                    }
-                }
-                else {
-                  # The prime package selected has no version so, we choose to
-                  # use any alternative package that does have a version
-                  $prime{$package}{file}    = $result->{file};
-                  $prime{$package}{version} = $result->{version};
-                }
-            }
-            else {
-                # no alt package found with a version, but we have a prime
-                # package so we use it whether it has a version or not
-            }
-        }
-        else { # No primary package was selected, use the best alternative
-            if ( $result->{err} ) {
-                $self->log_warn("Found conflicting versions for package '$package'\n" . $result->{err});
-            }
-            
-            # Despite possible conflicting versions, we choose to record
-            # something rather than nothing
-            $prime{$package}{file}    = $result->{file};
-            $prime{$package}{version} = $result->{version} if defined( $result->{version} );
-        }
-    }
-  
-    # Stringify versions
-    for (grep exists $_->{version}, values %prime) {
-        $_->{version} = $_->{version}->stringify if ref($_->{version});
-    }
-  
-    return \%prime;
-}
+#sub find_dist_packages {
+#    my $self = shift;
+#    
+#    # Only packages in .pm files are candidates for inclusion here.
+#    # Only include things in the MANIFEST, not things in developer's
+#    # private stock.
+#    
+#    my $manifest = $self->_read_manifest('MANIFEST') or die "Can't find dist packages without a MANIFEST file - run 'manifest' action first";
+#    
+#    # Localize
+#    my %dist_files = map { $self->localize_file_path($_) => $_ } keys %$manifest;
+#    
+#    my @pm_files = grep {exists $dist_files{$_}} keys %{ $self->find_pm_files };
+#    
+#    my $actual_version = $self->dist_version;
+#    
+#    # First, we enumerate all packages & versions,
+#    # seperating into primary & alternative candidates
+#    my( %prime, %alt );
+#    foreach my $file (@pm_files) {
+#        next if $dist_files{$file} =~ m{^t/};  # Skip things in t/
+#        
+#        my @path = split( /\//, $dist_files{$file} );
+#        (my $prime_package = join( '::', @path[1..$#path] )) =~ s/\.pm$//;
+#        
+#        my $pm_info = Module::Build::ModuleInfo->new_from_file( $file );
+#        
+#        foreach my $package ( $pm_info->packages_inside ) {
+#            next if $package eq 'main';  # main can appear numerous times, ignore
+#            next if grep /^_/, split( /::/, $package ); # private package, ignore
+#            
+#            my $version = $pm_info->version( $package );
+#            if ($version && $version != $actual_version) {
+#                $self->log_warn("Package $package had version $version!\n");
+#            }
+#            $version = $actual_version;
+#            
+#            if ( $package eq $prime_package ) {
+#                if ( exists( $prime{$package} ) ) {
+#                    # M::B::ModuleInfo will handle this conflict
+#                    die "Unexpected conflict in '$package'; multiple versions found.\n";
+#                }
+#                else {
+#                    $prime{$package}{file} = $dist_files{$file};
+#                    $prime{$package}{version} = $version if defined( $version );
+#                }
+#            }
+#            else {
+#                push( @{$alt{$package}}, { file => $dist_files{$file}, version => $version } );
+#            }
+#        }
+#    }
+#    
+#    # Then we iterate over all the packages found above, identifying conflicts
+#    # and selecting the "best" candidate for recording the file & version
+#    # for each package.
+#    foreach my $package ( keys( %alt ) ) {
+#        my $result = $self->_resolve_module_versions( $alt{$package} );
+#        
+#        if ( exists( $prime{$package} ) ) { # primary package selected
+#            if ( $result->{err} ) {
+#                # Use the selected primary package, but there are conflicting
+#                 # errors amoung multiple alternative packages that need to be
+#                 # reported
+#                 $self->log_warn("Found conflicting versions for package '$package'\n" .
+#                                 "  $prime{$package}{file} ($prime{$package}{version})\n" . $result->{err});
+#            }
+#            elsif ( defined( $result->{version} ) ) {
+#                # There is a primary package selected, and exactly one
+#                # alternative package
+#                
+#                if ( exists( $prime{$package}{version} ) && defined( $prime{$package}{version} ) ) {
+#                    # Unless the version of the primary package agrees with the
+#                    # version of the alternative package, report a conflict
+#                    if ( $self->compare_versions( $prime{$package}{version}, '!=', $result->{version} ) ) {
+#                        $self->log_warn("Found conflicting versions for package '$package'\n" .
+#                                        "  $prime{$package}{file} ($prime{$package}{version})\n" .
+#                                        "  $result->{file} ($result->{version})\n");
+#                    }
+#                }
+#                else {
+#                  # The prime package selected has no version so, we choose to
+#                  # use any alternative package that does have a version
+#                  $prime{$package}{file}    = $result->{file};
+#                  $prime{$package}{version} = $result->{version};
+#                }
+#            }
+#            else {
+#                # no alt package found with a version, but we have a prime
+#                # package so we use it whether it has a version or not
+#            }
+#        }
+#        else { # No primary package was selected, use the best alternative
+#            if ( $result->{err} ) {
+#                $self->log_warn("Found conflicting versions for package '$package'\n" . $result->{err});
+#            }
+#            
+#            # Despite possible conflicting versions, we choose to record
+#            # something rather than nothing
+#            $prime{$package}{file}    = $result->{file};
+#            $prime{$package}{version} = $result->{version} if defined( $result->{version} );
+#        }
+#    }
+#  
+#    # Stringify versions
+#    for (grep exists $_->{version}, values %prime) {
+#        $_->{version} = $_->{version}->stringify if ref($_->{version});
+#    }
+#  
+#    return \%prime;
+#}
 
 # our recommends syntax contains extra info that needs to be ignored at this
 # stage
-sub _parse_conditions {
-    my ($self, $spec) = @_;
-    
-    ($spec) = split("/", $spec);
-    
-    if ($spec =~ /^\s*([\w.]+)\s*$/) { # A plain number, maybe with dots, letters, and underscores
-        return (">= $spec");
-    }
-    else {
-        return split /\s*,\s*/, $spec;
-    }
-}
+#sub _parse_conditions {
+#    my ($self, $spec) = @_;
+#    
+#    ($spec) = split("/", $spec);
+#    
+#    if ($spec =~ /^\s*([\w.]+)\s*$/) { # A plain number, maybe with dots, letters, and underscores
+#        return (">= $spec");
+#    }
+#    else {
+#        return split /\s*,\s*/, $spec;
+#    }
+#}
 
 # when generating META.yml, we output optional_features syntax (instead of
 # recommends syntax). Note that as of CPAN v1.9402 nothing useful is done
@@ -733,79 +734,80 @@ sub _parse_conditions {
 # -cjfields 9-17-09
 
 # let us store extra things persistently in _build
-sub _construct {
-    my $self = shift;
-    
-    # calling SUPER::_construct will dump some of the input to this sub out
-    # with Data::Dumper, which will complain about code refs. So we replace
-    # any code refs with dummies first, then put them back afterwards
-    my %in_hash = @_;
-    my $auto_features = $in_hash{auto_features} if defined $in_hash{auto_features};
-    my %code_refs;
-    if ($auto_features) {
-        while (my ($key, $hash) = each %{$auto_features}) {
-            while (my ($sub_key, $val) = each %{$hash}) {
-                if (ref($val) && ref($val) eq 'CODE') {
-                    $hash->{$sub_key} = 'CODE_ref';
-                    $code_refs{$key}->{$sub_key} = $val;
-                }
-            }
-        }
-    }
-    
-    $self = $self->SUPER::_construct(@_);
-    
-    my ($p, $ph) = ($self->{properties}, $self->{phash});
-    
-    if (keys %code_refs) {
-        while (my ($key, $hash) = each %{$auto_features}) {
-            if (defined $code_refs{$key}) {
-                while (my ($sub_key, $code_ref) = each %{$code_refs{$key}}) {
-                    $hash->{$sub_key} = $code_ref;
-                }
-                $ph->{auto_features}->{$key} = $hash;
-            }
-        }
-    }
-    
-    foreach (qw(manifest_skip post_install_scripts)) {
-        my $file = File::Spec->catfile($self->config_dir, $_);
-        $ph->{$_} = Module::Build::Notes->new(file => $file);
-        $ph->{$_}->restore if -e $file;
-    }
-    
-    return $self;
-}
-sub write_config {
-    my $self = shift;
-    $self->SUPER::write_config;
-    
-    # write extra things
-    $self->{phash}{$_}->write() foreach qw(manifest_skip post_install_scripts);
-    
-    # be even more certain we can reload ourselves during a resume by copying
-    # ourselves to _build\lib
-    # this is only possible for the core distribution where we are actually
-    # present in the distribution
-    my $self_filename = File::Spec->catfile('Bio', 'Root', 'Build.pm');
-    -e $self_filename || return;
-    
-    my $filename = File::Spec->catfile($self->{properties}{config_dir}, 'lib', 'Bio', 'Root', 'Build.pm');
-    my $filedir  = File::Basename::dirname($filename);
-    
-    File::Path::mkpath($filedir);
-    warn "Can't create directory $filedir: $!" unless -d $filedir;
-    
-    File::Copy::copy($self_filename, $filename);
-    warn "Unable to copy 'Bio/Root/Build.pm' to '$filename'\n" unless -e $filename;
-}
+#sub _construct {
+#    my $self = shift;
+#    
+#    # calling SUPER::_construct will dump some of the input to this sub out
+#    # with Data::Dumper, which will complain about code refs. So we replace
+#    # any code refs with dummies first, then put them back afterwards
+#    my %in_hash = @_;
+#    my $auto_features = $in_hash{auto_features} if defined $in_hash{auto_features};
+#    my %code_refs;
+#    if ($auto_features) {
+#        while (my ($key, $hash) = each %{$auto_features}) {
+#            while (my ($sub_key, $val) = each %{$hash}) {
+#                if (ref($val) && ref($val) eq 'CODE') {
+#                    $hash->{$sub_key} = 'CODE_ref';
+#                    $code_refs{$key}->{$sub_key} = $val;
+#                }
+#            }
+#        }
+#    }
+#    
+#    $self = $self->SUPER::_construct(@_);
+#    
+#    my ($p, $ph) = ($self->{properties}, $self->{phash});
+#    
+#    if (keys %code_refs) {
+#        while (my ($key, $hash) = each %{$auto_features}) {
+#            if (defined $code_refs{$key}) {
+#                while (my ($sub_key, $code_ref) = each %{$code_refs{$key}}) {
+#                    $hash->{$sub_key} = $code_ref;
+#                }
+#                $ph->{auto_features}->{$key} = $hash;
+#            }
+#        }
+#    }
+#    
+#    foreach (qw(manifest_skip post_install_scripts)) {
+#        my $file = File::Spec->catfile($self->config_dir, $_);
+#        $ph->{$_} = Module::Build::Notes->new(file => $file);
+#        $ph->{$_}->restore if -e $file;
+#    }
+#    
+#    return $self;
+#}
+
+#sub write_config {
+#    my $self = shift;
+#    $self->SUPER::write_config;
+#    
+#    # write extra things
+#    $self->{phash}{$_}->write() foreach qw(manifest_skip post_install_scripts);
+#    
+#    # be even more certain we can reload ourselves during a resume by copying
+#    # ourselves to _build\lib
+#    # this is only possible for the core distribution where we are actually
+#    # present in the distribution
+#    my $self_filename = File::Spec->catfile('Bio', 'Root', 'Build.pm');
+#    -e $self_filename || return;
+#    
+#    my $filename = File::Spec->catfile($self->{properties}{config_dir}, 'lib', 'Bio', 'Root', 'Build.pm');
+#    my $filedir  = File::Basename::dirname($filename);
+#    
+#    File::Path::mkpath($filedir);
+#    warn "Can't create directory $filedir: $!" unless -d $filedir;
+#    
+#    File::Copy::copy($self_filename, $filename);
+#    warn "Unable to copy 'Bio/Root/Build.pm' to '$filename'\n" unless -e $filename;
+#}
 
 # add a file to the default MANIFEST.SKIP
-sub add_to_manifest_skip {
-    my $self = shift;
-    my %files = map {$self->localize_file_path($_), 1} @_;
-    $self->{phash}{manifest_skip}->write(\%files);
-}
+#sub add_to_manifest_skip {
+#    my $self = shift;
+#    my %files = map {$self->localize_file_path($_), 1} @_;
+#    $self->{phash}{manifest_skip}->write(\%files);
+#}
 
 # we always generate a new MANIFEST and MANIFEST.SKIP here, instead of allowing
 # existing files to remain
@@ -826,20 +828,20 @@ sub ACTION_manifest {
 }
 
 # extended to add extra things to the default MANIFEST.SKIP
-sub _write_default_maniskip {
-    my $self = shift;
-    $self->SUPER::_write_default_maniskip;
-    
-    my @extra = keys %{$self->{phash}{manifest_skip}->read};
-    if (@extra) {
-        open(my $fh, '>>', 'MANIFEST.SKIP') or die "Could not open MANIFEST.SKIP file\n";
-        print $fh "\n# Avoid additional run-time generated things\n";
-        foreach my $line (@extra) {
-            print $fh $line, "\n";
-        }
-        close($fh);
-    }
-}
+#sub _write_default_maniskip {
+#    my $self = shift;
+#    $self->SUPER::_write_default_maniskip;
+#    
+#    my @extra = keys %{$self->{phash}{manifest_skip}->read};
+#    if (@extra) {
+#        open(my $fh, '>>', 'MANIFEST.SKIP') or die "Could not open MANIFEST.SKIP file\n";
+#        print $fh "\n# Avoid additional run-time generated things\n";
+#        foreach my $line (@extra) {
+#            print $fh $line, "\n";
+#        }
+#        close($fh);
+#    }
+#}
 
 # extended to run scripts post-installation
 sub ACTION_install {
@@ -849,18 +851,20 @@ sub ACTION_install {
   ExtUtils::Install::install($self->install_map, !$self->quiet, 0, $self->{args}{uninst}||0);
   $self->run_post_install_scripts;
 }
-sub add_post_install_script {
-    my $self = shift;
-    my %files = map {$self->localize_file_path($_), 1} @_;
-    $self->{phash}{post_install_scripts}->write(\%files);
-}
-sub run_post_install_scripts {
-    my $self = shift;
-    my @scripts = keys %{$self->{phash}{post_install_scripts}->read};
-    foreach my $script (@scripts) {
-        $self->run_perl_script($script);
-    }
-}
+
+#sub add_post_install_script {
+#    my $self = shift;
+#    my %files = map {$self->localize_file_path($_), 1} @_;
+#    $self->{phash}{post_install_scripts}->write(\%files);
+#}
+#
+#sub run_post_install_scripts {
+#    my $self = shift;
+#    my @scripts = keys %{$self->{phash}{post_install_scripts}->read};
+#    foreach my $script (@scripts) {
+#        $self->run_perl_script($script);
+#    }
+#}
 
 # for use with auto_features, which should require LWP::UserAgent as one of
 # its reqs
