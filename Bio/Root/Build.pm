@@ -297,213 +297,207 @@ sub check_autofeatures {
 # out until a fix is in place
 
 # overriden just to hide pointless ugly warnings
-sub check_installed_status {
-    my $self = shift;
-    
-    open (my $olderr, ">&". fileno(STDERR));
-    open(STDERR, "/dev/null");
-    my $return = $self->SUPER::check_installed_status(@_);
-    open(STDERR, ">&". fileno($olderr));
-    return $return;
-}
+#sub check_installed_status {
+#    my $self = shift;
+#    
+#    open (my $olderr, ">&". fileno(STDERR));
+#    open(STDERR, "/dev/null");
+#    my $return = $self->SUPER::check_installed_status(@_);
+#    open(STDERR, ">&". fileno($olderr));
+#    return $return;
+#}
 
 # extend to handle option checking (which takes an array ref) and code test
 # checking (which takes a code ref and must return a message only on failure)
 # and excludes_os (which takes an array ref of regexps).
 # also handles more informative output of recommends section
-sub prereq_failures {
-    my ($self, $info) = @_;
-    
-    my @types = (@{ $self->prereq_action_types }, @extra_types);
-    $info ||= {map {$_, $self->$_()} @types};
-    
-    my $out = {};
-    foreach my $type (@types) {
-        my $prereqs = $info->{$type} || next;
-        
-        my $status = {};
-        if ($type eq 'test') {
-            unless (keys %$out) {
-                if (ref($prereqs) eq 'CODE') {
-                    $status->{message} = &{$prereqs};
-                    
-                    # drop the code-ref to avoid Module::Build trying to store
-                    # it with Data::Dumper, generating warnings. (And also, may
-                    # be expensive to run the sub multiple times.)
-                    $info->{$type} = $status->{message};
-                }
-                else {
-                    $status->{message} = $prereqs;
-                }
-                $out->{$type}{'test'} = $status if $status->{message};
-            }
-        }
-        elsif ($type eq 'options') {
-            my @not_ok;
-            foreach my $wanted_option (@{$prereqs}) {
-                unless ($self->args($wanted_option)) {
-                    push(@not_ok, $wanted_option);
-                }
-            }
-            
-            if (@not_ok > 0) {
-                $status->{message} = "Command line option(s) '@not_ok' not supplied";
-                $out->{$type}{'options'} = $status;
-            }
-        }
-        elsif ($type eq 'excludes_os') {
-            foreach my $os (@{$prereqs}) {
-                if ($^O =~ /$os/i) {
-                    $status->{message} = "This feature isn't supported under your OS ($os)";
-                    $out->{$type}{'excludes_os'} = $status;
-                    last;
-                }
-            }
-        }
-        else {
-            while ( my ($modname, $spec) = each %$prereqs ) {
-                $status = $self->check_installed_status($modname, $spec);
-                
-                if ($type =~ /^(?:\w+_)?conflicts$/) {
-                    next if !$status->{ok};
-                    $status->{conflicts} = delete $status->{need};
-                    $status->{message} = "$modname ($status->{have}) conflicts with this distribution";
-                }
-                elsif ($type =~ /^(?:\w+_)?recommends$/) {
-                    next if $status->{ok};
-                    
-                    my ($preferred_version, $why, $by_what) = split("/", $spec);
-                    $by_what = join(", ", split(",", $by_what));
-                    $by_what =~ s/, (\S+)$/ and $1/;
-                    
-                    $status->{message} = (!ref($status->{have}) && $status->{have} eq '<none>'
-                                  ? "Optional prerequisite $modname is not installed"
-                                  : "$modname ($status->{have}) is installed, but we prefer to have $preferred_version");
-                    
-                    $status->{message} .= "\n   (wanted for $why, used by $by_what)";
-                    
-                    if ($by_what =~ /\[circular dependency!\]/) {
-                        $preferred_version = -1;
-                    }
-                    
-                    my $installed = $self->install_optional($modname, $preferred_version, $status->{message});
-                    next if $installed eq 'ok';
-                    $status->{message} = $installed unless $installed eq 'skip';
-                }
-                elsif ($type =~ /^feature_requires/) {
-                    next if $status->{ok};
-                    
-                    # if there is a test code-ref, drop it to avoid
-                    # Module::Build trying to store it with Data::Dumper,
-                    # generating warnings.
-                    delete $info->{test};
-                }
-                else {
-                    next if $status->{ok};
-                    
-                    my $installed = $self->install_required($modname, $spec, $status->{message});
-                    next if $installed eq 'ok';
-                    $status->{message} = $installed;
-                }
-                
-                $out->{$type}{$modname} = $status;
-            }
-        }
-    }
-    
-    return keys %{$out} ? $out : return;
-}
+#sub prereq_failures {
+#    my ($self, $info) = @_;
+#    
+#    my @types = (@{ $self->prereq_action_types }, @extra_types);
+#    $info ||= {map {$_, $self->$_()} @types};
+#    
+#    my $out = {};
+#    foreach my $type (@types) {
+#        my $prereqs = $info->{$type} || next;
+#        
+#        my $status = {};
+#        if ($type eq 'test') {
+#            unless (keys %$out) {
+#                if (ref($prereqs) eq 'CODE') {
+#                    $status->{message} = &{$prereqs};
+#                    
+#                    # drop the code-ref to avoid Module::Build trying to store
+#                    # it with Data::Dumper, generating warnings. (And also, may
+#                    # be expensive to run the sub multiple times.)
+#                    $info->{$type} = $status->{message};
+#                }
+#                else {
+#                    $status->{message} = $prereqs;
+#                }
+#                $out->{$type}{'test'} = $status if $status->{message};
+#            }
+#        }
+#        elsif ($type eq 'options') {
+#            my @not_ok;
+#            foreach my $wanted_option (@{$prereqs}) {
+#                unless ($self->args($wanted_option)) {
+#                    push(@not_ok, $wanted_option);
+#                }
+#            }
+#            
+#            if (@not_ok > 0) {
+#                $status->{message} = "Command line option(s) '@not_ok' not supplied";
+#                $out->{$type}{'options'} = $status;
+#            }
+#        }
+#        elsif ($type eq 'excludes_os') {
+#            foreach my $os (@{$prereqs}) {
+#                if ($^O =~ /$os/i) {
+#                    $status->{message} = "This feature isn't supported under your OS ($os)";
+#                    $out->{$type}{'excludes_os'} = $status;
+#                    last;
+#                }
+#            }
+#        }
+#        else {
+#            while ( my ($modname, $spec) = each %$prereqs ) {
+#                $status = $self->check_installed_status($modname, $spec);
+#                next if $status->{ok};
+#
+#                if ($type =~ /^(?:\w+_)?conflicts$/) {
+#                    $status->{conflicts} = delete $status->{need};
+#                    $status->{message} = "$modname ($status->{have}) conflicts with this distribution";
+#                }
+#                elsif ($type =~ /^(?:\w+_)?recommends$/) {
+#                    #my ($preferred_version, $why, $by_what) = split("/", $spec);
+#                    #$by_what = join(", ", split(",", $by_what));
+#                    #$by_what =~ s/, (\S+)$/ and $1/;
+#                    
+#                    $status->{message} = (!ref($status->{have}) && $status->{have} eq '<none>'
+#                                  ? "Optional prerequisite $modname is not installed"
+#                                  : "$modname ($status->{have}) is installed, but we prefer to have $preferred_version");
+#                    
+#                    $status->{message} .= "\n   (wanted for $why, used by $by_what)";
+#                    
+#                    #if ($by_what =~ /\[circular dependency!\]/) {
+#                    #    $preferred_version = -1;
+#                    #}
+#                    
+#                    my $installed = $self->install_optional($modname, $preferred_version, $status->{message});
+#                    next if $installed eq 'ok';
+#                    $status->{message} = $installed unless $installed eq 'skip';
+#                }
+#                elsif ($type =~ /^feature_requires/) {
+#                    # if there is a test code-ref, drop it to avoid
+#                    # Module::Build trying to store it with Data::Dumper,
+#                    # generating warnings.
+#                    delete $info->{test};
+#                }
+#                else {
+#                    my $installed = $self->install_required($modname, $spec, $status->{message});
+#                    next if $installed eq 'ok';
+#                    $status->{message} = $installed;
+#                }
+#                
+#                $out->{$type}{$modname} = $status;
+#            }
+#        }
+#    }
+#    
+#    return keys %{$out} ? $out : return;
+#}
 
 # install an external module using CPAN prior to testing and installation
 # should only be called by install_required or install_optional
-sub install_prereq {
-    my ($self, $desired, $version, $required) = @_;
-    
-    if ($self->under_cpan) {
-        # Just add to the required hash, which CPAN >= 1.81 will check prior
-        # to install
-        $self->{properties}{requires}->{$desired} = $version;
-        $self->log_info("   I'll get CPAN to prepend the installation of this\n");
-        return 'ok';
-    }
-    else {
-        my $question = $required ?  "$desired is absolutely required prior to installation: shall I install it now using a CPAN shell?" :
-                                    "To install $desired I'll need to open a CPAN shell right now; is that OK?";
-        my $do_install = $self->y_n($question.' y/n', 'y');
-        
-        if ($do_install) {
-            # Here we use CPAN to actually install the desired module, the benefit
-            # being we continue even if installation fails, and that this works
-            # even when not using CPAN to install.
-            require Cwd;
-            require CPAN;
-            
-            # Save this because CPAN will chdir all over the place.
-            my $cwd = Cwd::cwd();
-            
-            CPAN::Shell->install($desired);
-            my $msg;
-            my $expanded = CPAN::Shell->expand("Module", $desired);
-            if ($expanded && $expanded->uptodate) {
-                $self->log_info("\n\n*** (back in BioPerl Build.PL) ***\n * You chose to install $desired and it installed fine\n");
-                $msg = 'ok';
-            }
-            else {
-                $self->log_info("\n\n*** (back in BioPerl Build.PL) ***\n");
-                $msg = "You chose to install $desired but it failed to install";
-            }
-            
-            chdir $cwd or die "Cannot chdir() back to $cwd: $!";
-            return $msg;
-        }
-        else {
-            return $required ? "You chose not to install the REQUIRED module $desired: you'd better install it yourself manually!" :
-                               "Even though you wanted the optional module $desired, you chose not to actually install it: do it yourself manually.";
-        }
-    }
-}
+#sub install_prereq {
+#    my ($self, $desired, $version, $required) = @_;
+#    
+#    if ($self->under_cpan) {
+#        # Just add to the required hash, which CPAN >= 1.81 will check prior
+#        # to install
+#        $self->{properties}{requires}->{$desired} = $version;
+#        $self->log_info("   I'll get CPAN to prepend the installation of this\n");
+#        return 'ok';
+#    }
+#    else {
+#        my $question = $required ?  "$desired is absolutely required prior to installation: shall I install it now using a CPAN shell?" :
+#                                    "To install $desired I'll need to open a CPAN shell right now; is that OK?";
+#        my $do_install = $self->y_n($question.' y/n', 'y');
+#        
+#        if ($do_install) {
+#            # Here we use CPAN to actually install the desired module, the benefit
+#            # being we continue even if installation fails, and that this works
+#            # even when not using CPAN to install.
+#            require Cwd;
+#            require CPAN;
+#            
+#            # Save this because CPAN will chdir all over the place.
+#            my $cwd = Cwd::cwd();
+#            
+#            CPAN::Shell->install($desired);
+#            my $msg;
+#            my $expanded = CPAN::Shell->expand("Module", $desired);
+#            if ($expanded && $expanded->uptodate) {
+#                $self->log_info("\n\n*** (back in BioPerl Build.PL) ***\n * You chose to install $desired and it installed fine\n");
+#                $msg = 'ok';
+#            }
+#            else {
+#                $self->log_info("\n\n*** (back in BioPerl Build.PL) ***\n");
+#                $msg = "You chose to install $desired but it failed to install";
+#            }
+#            
+#            chdir $cwd or die "Cannot chdir() back to $cwd: $!";
+#            return $msg;
+#        }
+#        else {
+#            return $required ? "You chose not to install the REQUIRED module $desired: you'd better install it yourself manually!" :
+#                               "Even though you wanted the optional module $desired, you chose not to actually install it: do it yourself manually.";
+#        }
+#    }
+#}
 
 # install required modules listed in 'requires' or 'build_requires' arg to
 # new that weren't already installed. Should only be called by prereq_failures
-sub install_required {
-    my ($self, $desired, $version, $msg) = @_;
-    
-    $self->log_info(" - ERROR: $msg\n");
-    
-    return $self->install_prereq($desired, $version, 1);
-}
+#sub install_required {
+#    my ($self, $desired, $version, $msg) = @_;
+#    
+#    $self->log_info(" - ERROR: $msg\n");
+#    
+#    return $self->install_prereq($desired, $version, 1);
+#}
 
 # install optional modules listed in 'recommends' arg to new that weren't
 # already installed. Should only be called by prereq_failures
-sub install_optional {
-    my ($self, $desired, $version, $msg) = @_;
-    
-    unless (defined $self->{ask_optional}) {
-        $self->{ask_optional} = $self->args->{accept}
-                              ? 'n' : $self->prompt("Install [a]ll optional external modules, [n]one, or choose [i]nteractively?", 'n');
-    }
-    return 'skip' if $self->{ask_optional} =~ /^n/i;
-    
-    my $install;
-    if ($self->{ask_optional} =~ /^a/i) {
-        $self->log_info(" * $msg\n");
-        $install = 1;
-    }
-    else {
-        $install = $self->y_n(" * $msg\n   Do you want to install it? y/n", 'n');
-    }
-    
-    my $orig_version = $version;
-    $version = 0 if $version == -1;
-    if ($install && ! ($self->{ask_optional} =~ /^a/i && $orig_version == -1)) {
-        return $self->install_prereq($desired, $version);
-    }
-    else {
-        my $circular = ($self->{ask_optional} =~ /^a/i && $orig_version == -1) ? " - this is a circular dependency so doesn't get installed when installing 'all' modules. If you really want it, choose modules interactively." : '';
-        $self->log_info(" * You chose not to install $desired$circular\n");
-        return 'ok';
-    }
-}
+#sub install_optional {
+#    my ($self, $desired, $version, $msg) = @_;
+#    
+#    unless (defined $self->{ask_optional}) {
+#        $self->{ask_optional} = $self->args->{accept}
+#                              ? 'n' : $self->prompt("Install [a]ll optional external modules, [n]one, or choose [i]nteractively?", 'n');
+#    }
+#    return 'skip' if $self->{ask_optional} =~ /^n/i;
+#    
+#    my $install;
+#    if ($self->{ask_optional} =~ /^a/i) {
+#        $self->log_info(" * $msg\n");
+#        $install = 1;
+#    }
+#    else {
+#        $install = $self->y_n(" * $msg\n   Do you want to install it? y/n", 'n');
+#    }
+#    
+#    my $orig_version = $version;
+#    $version = 0 if $version == -1;
+#    if ($install && ! ($self->{ask_optional} =~ /^a/i && $orig_version == -1)) {
+#        return $self->install_prereq($desired, $version);
+#    }
+#    else {
+#        my $circular = ($self->{ask_optional} =~ /^a/i && $orig_version == -1) ? " - this is a circular dependency so doesn't get installed when installing 'all' modules. If you really want it, choose modules interactively." : '';
+#        $self->log_info(" * You chose not to install $desired$circular\n");
+#        return 'ok';
+#    }
+#}
 
 # there's no official way to discover if being run by CPAN, we take an approach
 # similar to that of Module::AutoInstall
@@ -513,7 +507,7 @@ sub under_cpan {
     unless (defined $self->{under_cpan}) {
         ## modified from Module::AutoInstall
         
-        my $cpan_env = $ENV{PERl5_CPAN_IS_RUNNING};
+        my $cpan_env = $ENV{PERL5_CPAN_IS_RUNNING};
         if ($ENV{PERL5_CPANPLUS_IS_RUNNING}) {
             $self->{under_cpan} = $cpan_env ? 'CPAN' : 'CPANPLUS';
         }
