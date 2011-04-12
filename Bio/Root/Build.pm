@@ -812,13 +812,12 @@ EOF
 sub ACTION_manifest {
     my ($self) = @_;
     
-    my $maniskip = 'MANIFEST.SKIP';
-    if ( -e 'MANIFEST' || -e $maniskip ) {
+    if ( -e 'MANIFEST' || -e 'MANIFEST.SKIP' ) {
         $self->log_warn("MANIFEST files already exist, will overwrite them\n");
         unlink('MANIFEST');
-        unlink($maniskip);
+        unlink('MANIFEST.SKIP');
     }
-    $self->_write_default_maniskip($maniskip);
+    $self->_write_default_maniskip('MANIFEST.SKIP');
     
     require ExtUtils::Manifest;  # ExtUtils::Manifest is not warnings clean.
     local ($^W, $ExtUtils::Manifest::Quiet) = (0,1);
@@ -866,6 +865,10 @@ sub ACTION_install {
 
 # for use with auto_features, which should require LWP::UserAgent as one of
 # its reqs
+
+# this is no longer called - if someone wants to run network tests w/o a
+# network, then they are hanging themselves by their own shoelaces
+
 sub test_internet {
     eval {require LWP::UserAgent;};
     if ($@) {
@@ -913,6 +916,7 @@ sub dist_dir {
     
     return "$self->{properties}{dist_name}-$version";
 }
+
 sub ppm_name {
     my $self = shift;
     return $self->dist_dir.'-ppm';
@@ -924,14 +928,14 @@ sub ACTION_ppd {
     
     my $file = $self->make_ppd(%{$self->{args}});
     $self->add_to_cleanup($file);
-    $self->add_to_manifest_skip($file);
+    #$self->add_to_manifest_skip($file);
 }
 
 # add pod2htm temp files to MANIFEST.SKIP, generated during ppmdist most likely
 sub htmlify_pods {
     my $self = shift;
     $self->SUPER::htmlify_pods(@_);
-    $self->add_to_manifest_skip('pod2htm*');
+    #$self->add_to_manifest_skip('pod2htm*');
 }
 
 # don't copy across man3 docs since they're of little use under Windows and
@@ -1079,7 +1083,7 @@ EOF
     $self->make_tarball($bundle_dir);
     $self->delete_filetree($bundle_dir);
     $self->add_to_cleanup($bundle_file);
-    $self->add_to_manifest_skip($bundle_file);
+    #$self->add_to_manifest_skip($bundle_file);
     
     return $ppd_file;
 }
