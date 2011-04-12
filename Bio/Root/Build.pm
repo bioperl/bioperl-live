@@ -88,7 +88,6 @@ our $VERSION = '1.006900'; # pre-1.7
 our @extra_types = qw(options excludes_os feature_requires test); # test must always be last in the list!
 our $checking_types = "requires|conflicts|".join("|", @extra_types);
 
-
 # our modules are in Bio, not lib
 sub find_pm_files {
     my $self = shift;
@@ -564,33 +563,33 @@ sub process_script_files {
 #}
 
 # overridden simply to not print the default answer if chosen by hitting return
-#sub prompt {
-#    my $self = shift;
-#    my $mess = shift or die "prompt() called without a prompt message";
-#    
-#    my $def;
-#    if ( $self->_is_unattended && !@_ ) {
-#        die <<EOF;
-#ERROR: This build seems to be unattended, but there is no default value
-#for this question.  Aborting.
-#EOF
-#    }
-#    $def = shift if @_;
-#    ($def, my $dispdef) = defined $def ? ($def, "[$def] ") : ('', ' ');
-#    
-#    local $|=1;
-#    print "$mess $dispdef";
-#  
-#    my $ans = $self->_readline();
-#  
-#    if ( !defined($ans)        # Ctrl-D or unattended
-#         or !length($ans) ) {  # User hit return
-#        #print "$def\n"; didn't like this!
-#        $ans = $def;
-#    }
-#    
-#    return $ans;
-#}
+sub prompt {
+    my $self = shift;
+    my $mess = shift or die "prompt() called without a prompt message";
+    
+    my $def;
+    if ( $self->_is_unattended && !@_ ) {
+        die <<EOF;
+ERROR: This build seems to be unattended, but there is no default value
+for this question.  Aborting.
+EOF
+    }
+    $def = shift if @_;
+    ($def, my $dispdef) = defined $def ? ($def, "[$def] ") : ('', ' ');
+    
+    local $|=1;
+    print "$mess $dispdef";
+  
+    my $ans = $self->_readline();
+  
+    if ( !defined($ans)        # Ctrl-D or unattended
+         or !length($ans) ) {  # User hit return
+        #print "$def\n"; didn't like this!
+        $ans = $def;
+    }
+    
+    return $ans;
+}
 
 # like the Module::Build version, except that we always get version from
 # dist_version

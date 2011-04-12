@@ -21,12 +21,7 @@ use Bio::Root::Build;
 # See: https://rt.cpan.org/Ticket/Display.html?id=5943
 #      https://redmine.open-bio.org/issues/2975
 
-{
-
-eval {
-    require XML::SAX;
-    1;
-};
+{ eval { require XML::SAX; 1; };
 
 unless ($@) {
     if (grep {$_->{Name} =~ 'XML::SAX::RTF'} @{XML::SAX->parsers()}) {
@@ -35,18 +30,18 @@ unless ($@) {
 
 XML::SAX::RTF is not XML::SAX-compliant but is registered as an
 XML::SAX parser.  If used as the primary parser, modules requiring
-XML::SAX will NOT work.  Please install another XML::SAX-compliant
-module and modify your local ParserDetails.ini file per XML::SAX docs
-to remove references to XML::SAX::RTF.
+XML::SAX will NOT work. Please install another XML::SAX-compliant
+module and modify your local ParserDetails.ini file per XML::SAX
+docs to remove references to XML::SAX::RTF.
 
 ############################# WARNING #############################
 WARN
-    sleep 3;
+    sleep 2;
     }
 }
 
 }
-
+ 
 my %recommends = (
     'Ace'                       => [0,
         'Access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace'],
@@ -60,12 +55,13 @@ my %recommends = (
     'YAML'                      => [0,
         'GenBank->GFF3/bp_genbank2gff3.pl'],
     
-    # this won't actually install due to circular dep, but we have no way of doing a post-install
-    # the [circular dependency!] specifies it is only installed on explicit request for this specific module,
-    # not when simply choosing to install 'all' modules
+    # this won't actually install due to circular dep, but we have no way of
+    # doing a post-install the [circular dependency!] specifies it is only
+    # installed on explicit request for this specific module, not when simply
+    # choosing to install 'all' modules
     
-    'Bio::ASN1::EntrezGene'     => [0,
-        'Parsing entrezgene/Bio::SeqIO::entrezgene [circular dependency!]'],
+    #'Bio::ASN1::EntrezGene'     => [0,
+    #    'Parsing entrezgene/Bio::SeqIO::entrezgene [circular dependency!]'],
 
     'Clone'                     => [0,
         'Cloning objects/Bio::Tools::Primer3'],
@@ -208,6 +204,11 @@ my $build = Bio::Root::Build->new(
                            },
     
     auto_features       => {
+        'EntrezGene'    => {
+            description => "Presence of Bio::ASN1::EntrezGene",
+            requires    => { 'Bio::ASN1::EntrezGene' => 0 } # feature_requires is like requires, except that it doesn't trigger installation
+        },
+        
         'DB_File Tests' => {
             description => "BDB tests for Bio::DB::SeqFeature::Store",
             requires    => { 'DB_File' => 0 } # feature_requires is like requires, except that it doesn't trigger installation
@@ -249,7 +250,7 @@ my $build = Bio::Root::Build->new(
     #script_files       => [] # scripts in scripts directory are installed on-demand
 );
 
-my $accept = $build->args->{accept};
+my $accept = $build->args('accept');
 
 my $proceed = prompt_for_biodb($accept) if $build->feature('Bio::DB::GFF')
     || $build->feature('MySQL Tests') || $build->feature('MySQL Tests');
@@ -265,30 +266,21 @@ if ($proceed && ($build->feature('MySQL Tests') ||
     make_dbi_test();
 }
 
-
-
-
 # Ask questions
 $build->choose_scripts($accept);
 
-{
-    if ($build->args('network')) {
-        if ($build->feature('Network')) {
-            $build->notes(network => 1);
-            $build->log_info("  - will run internet-requiring tests\n");
-        }
-        else {
-            $build->notes(network => 0);
-            $build->log_info("  - will not run network tests since I seem to be missing essential network functionality\n");
-        }
+if ($build->args('network')) {
+    if ($build->feature('Network Tests')) {
+        $build->notes(network => 1);
+        $build->log_info("  - will run internet-requiring tests\n");
     }
     else {
-        $build->prompt_for_network($accept) if $build->feature('Network');
+        $build->notes(network => 0);
+        $build->log_info("  - will not run network tests since I seem to be missing essential network functionality\n");
     }
-    # then in test script:
-    #   use Bio::Root::Build;
-    #   my $build = Module::Build->current;
-    #   my $do_network_tests = $build->notes('network');
+}
+else {
+    $build->prompt_for_network($accept) if $build->feature('Network Tests');
 }
 
 # Request that some scripts run post-installation
