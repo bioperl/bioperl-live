@@ -24,6 +24,10 @@ my $test_dsn = $build->notes('test_dsn');
 my $adaptor = $test_dsn ? $test_dsn : 'memory';
 $adaptor    = shift if @ARGV;
 
+if ($adaptor =~ /sqlite/i) {
+    $adaptor = 'memory';
+}
+
 my @args;
 if ($adaptor =~ /^dbi/) {
   my $cfg = {};
