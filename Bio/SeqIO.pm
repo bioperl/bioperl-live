@@ -1,4 +1,3 @@
-#
 # BioPerl module for Bio::SeqIO
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
@@ -109,15 +108,15 @@ and
 This makes the simplest ever reformatter
 
     #!/usr/bin/perl
-
-    $format1 = shift;
-    $format2 = shift || die
+    use strict;
+    my $format1 = shift;
+    my $format2 = shift || die
        "Usage: reformat format1 format2 < input > output";
 
     use Bio::SeqIO;
 
-    $in  = Bio::SeqIO->newFh(-format => $format1, -fh => \*ARGV );
-    $out = Bio::SeqIO->newFh(-format => $format2 );
+    my $in  = Bio::SeqIO->newFh(-format => $format1, -fh => \*ARGV );
+    my $out = Bio::SeqIO->newFh(-format => $format2 );
     # Note: you might want to quote -format to keep older
     # perl's from complaining.
 
