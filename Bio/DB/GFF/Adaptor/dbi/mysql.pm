@@ -453,6 +453,8 @@ sub schema {
     my $self = shift;
     my $dbh  = $self->dbh;
     my ($version) = $dbh->selectrow_array('select version()');
+    my ($major, $minor) = split /\./, $version;
+    $version = "$major.$minor";
     my $engine    = $version >= 4.1 ? 'ENGINE' : 'TYPE';
     my %schema = (
 		fdata =>{ 
