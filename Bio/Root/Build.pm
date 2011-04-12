@@ -108,13 +108,10 @@ sub choose_scripts {
     opendir(my $scripts_dir, 'scripts') or die "Can't open directory 'scripts': $!\n";
     my $int_ok = 0;
     my @group_dirs;
+    
+    # only retain top-level script directories (the 'categories')
     while (my $thing = readdir($scripts_dir)) {
         next if $thing =~ /^\./;
-        next if $thing eq 'CVS';
-        if ($thing =~ /PLS$|pl$/) {
-            $int_ok = 0;
-            last;
-        }
         $thing = File::Spec->catfile('scripts', $thing);
         if (-d $thing) {
             $int_ok = 1;
@@ -122,7 +119,9 @@ sub choose_scripts {
         }
     }
     closedir($scripts_dir);
-    my $question = $int_ok ? "Install [a]ll BioPerl scripts, [n]one, or choose groups [i]nteractively?" : "Install [a]ll BioPerl scripts or [n]one?";
+    my $question = $int_ok ? "Install [a]ll BioPerl scripts, [n]one, ".
+        "or choose groups [i]nteractively?" : "Install [a]ll BioPerl scripts ".
+        "or [n]one?";
     
     my $prompt = $accept ? 'a' : $self->prompt($question, 'a');
     
@@ -191,7 +190,7 @@ sub process_script_files {
     my $self = shift;
     my $files = $self->find_script_files;
     return unless keys %$files;
-  
+    
     my $script_dir = File::Spec->catdir($self->blib, 'script');
     File::Path::mkpath( $script_dir );
     
@@ -848,7 +847,7 @@ sub ACTION_install {
   require ExtUtils::Install;
   $self->depends_on('build');
   ExtUtils::Install::install($self->install_map, !$self->quiet, 0, $self->{args}{uninst}||0);
-  $self->run_post_install_scripts;
+  #$self->run_post_install_scripts;
 }
 
 #sub add_post_install_script {
