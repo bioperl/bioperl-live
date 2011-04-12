@@ -866,8 +866,9 @@ sub ACTION_install {
 # for use with auto_features, which should require LWP::UserAgent as one of
 # its reqs
 
-# this is no longer called - if someone wants to run network tests w/o a
-# network, then they are hanging themselves by their own shoelaces
+# Note: as of 4-11-11, this is no longer called - if someone wants to run
+# network tests (off by default) w/o a network, then they are hanging themselves
+# by their own shoelaces.
 
 sub test_internet {
     eval {require LWP::UserAgent;};
@@ -917,26 +918,27 @@ sub dist_dir {
     return "$self->{properties}{dist_name}-$version";
 }
 
-sub ppm_name {
-    my $self = shift;
-    return $self->dist_dir.'-ppm';
-}
+# try to be as consistent as possible with Module::Build API
+#sub ppm_name {
+#    my $self = shift;
+#    return $self->dist_dir.'-ppm';
+#}
 
 # generate complete ppd4 version file
-sub ACTION_ppd {
-    my $self = shift;
-    
-    my $file = $self->make_ppd(%{$self->{args}});
-    $self->add_to_cleanup($file);
-    #$self->add_to_manifest_skip($file);
-}
+#sub ACTION_ppd {
+#    my $self = shift;
+#    
+#    my $file = $self->make_ppd(%{$self->{args}});
+#    $self->add_to_cleanup($file);
+#    #$self->add_to_manifest_skip($file);
+#}
 
 # add pod2htm temp files to MANIFEST.SKIP, generated during ppmdist most likely
-sub htmlify_pods {
-    my $self = shift;
-    $self->SUPER::htmlify_pods(@_);
-    #$self->add_to_manifest_skip('pod2htm*');
-}
+#sub htmlify_pods {
+#    my $self = shift;
+#    $self->SUPER::htmlify_pods(@_);
+#    #$self->add_to_manifest_skip('pod2htm*');
+#}
 
 # don't copy across man3 docs since they're of little use under Windows and
 # have bad filenames
@@ -964,129 +966,132 @@ sub install_types {
 }
 
 # overridden from Module::Build::PPMMaker for ppd4 compatability
-sub make_ppd {
-    my ($self, %args) = @_;
-    
-    require Module::Build::PPMMaker;
-    my $mbp = Module::Build::PPMMaker->new();
-    
-    my %dist;
-    foreach my $info (qw(name author abstract version)) {
-        my $method = "dist_$info";
-        $dist{$info} = $self->$method() or die "Can't determine distribution's $info\n";
-    }
-    $dist{codebase} = $self->ppm_name.'.tar.gz';
-    $mbp->_simple_xml_escape($_) foreach $dist{abstract}, $dist{codebase}, @{$dist{author}};
-    
-    my (undef, undef, undef, $mday, $mon, $year) = localtime();
-    $year += 1900;
-    $mon++;
-    my $date = "$year-$mon-$mday";
-    
-    my $softpkg_version = $self->dist_dir;
-    $softpkg_version =~ s/^$dist{name}-//;
-    
-    # to avoid a ppm bug, instead of including the requires in the softpackage
-    # for the distribution we're making, we'll make a seperate Bundle::
-    # softpackage that contains all the requires, and require only the Bundle in
-    # the real softpackage
-    my ($bundle_name) = $dist{name} =~ /^.+-(.+)/;
-    $bundle_name ||= 'core';
-    $bundle_name =~ s/^(\w)/\U$1/;
-    my $bundle_dir = "Bundle-BioPerl-$bundle_name-$softpkg_version-ppm";
-    my $bundle_file = "$bundle_dir.tar.gz";
-    my $bundle_softpkg_name = "Bundle-BioPerl-$bundle_name";
-    $bundle_name = "Bundle::BioPerl::$bundle_name";
-    
-    # header
-    my $ppd = <<"PPD";
-    <SOFTPKG NAME=\"$dist{name}\" VERSION=\"$softpkg_version\" DATE=\"$date\">
-        <TITLE>$dist{name}</TITLE>
-        <ABSTRACT>$dist{abstract}</ABSTRACT>
-@{[ join "\n", map "        <AUTHOR>$_</AUTHOR>", @{$dist{author}} ]}
-        <PROVIDE NAME=\"$dist{name}::\" VERSION=\"$dist{version}\"/>
-PPD
-    
-    # provide section
-    foreach my $pm (@{$self->rscan_dir('Bio', qr/\.pm$/)}) {
-        # convert these filepaths to Module names
-        $pm =~ s/\//::/g;
-        $pm =~ s/\.pm//;
-        
-        $ppd .= sprintf(<<'EOF', $pm, $dist{version});
-        <PROVIDE NAME="%s" VERSION="%s"/>
-EOF
-    }
-    
-    # rest of softpkg
-    $ppd .= <<"PPD";
-        <IMPLEMENTATION>
-            <ARCHITECTURE NAME=\"MSWin32-x86-multi-thread-5.8\"/>
-            <CODEBASE HREF=\"$dist{codebase}\"/>
-            <REQUIRE NAME=\"$bundle_name\" VERSION=\"$dist{version}\"/>
-        </IMPLEMENTATION>
-    </SOFTPKG>
-PPD
-    
-    # now a new softpkg for the bundle
-    $ppd .= <<"PPD";
-    
-    <SOFTPKG NAME=\"$bundle_softpkg_name\" VERSION=\"$softpkg_version\" DATE=\"$date\">
-        <TITLE>$bundle_name</TITLE>
-        <ABSTRACT>Bundle of pre-requisites for $dist{name}</ABSTRACT>
-@{[ join "\n", map "        <AUTHOR>$_</AUTHOR>", @{$dist{author}} ]}
-        <PROVIDE NAME=\"$bundle_name\" VERSION=\"$dist{version}\"/>
-        <IMPLEMENTATION>
-            <ARCHITECTURE NAME=\"MSWin32-x86-multi-thread-5.8\"/>
-            <CODEBASE HREF=\"$bundle_file\"/>
-PPD
-    
-    # required section
-    # we do both requires and recommends to make installation on Windows as
-    # easy (mindless) as possible
-    for my $type ('requires', 'recommends') {
-        my $prereq = $self->$type;
-        while (my ($modname, $version) = each %$prereq) {
-            next if $modname eq 'perl';
-            ($version) = split("/", $version) if $version =~ /\//;
-            
-            # Module names must have at least one ::
-            unless ($modname =~ /::/) {
-                $modname .= '::';
-            }
-            
-            # Bio::Root::Version number comes out as triplet number like 1.5.2;
-            # convert to our own version
-            if ($modname eq 'Bio::Root::Version') {
-                $version = $dist{version};
-            }
-            
-            $ppd .= sprintf(<<'EOF', $modname, $version || '');
-            <REQUIRE NAME="%s" VERSION="%s"/>
-EOF
-        }
-    }
-    
-    # footer
-    $ppd .= <<'EOF';
-        </IMPLEMENTATION>
-    </SOFTPKG>
-EOF
-    
-    my $ppd_file = "$dist{name}.ppd";
-    my $fh = IO::File->new(">$ppd_file") or die "Cannot write to $ppd_file: $!";
-    print $fh $ppd;
-    close $fh;
-    
-    $self->delete_filetree($bundle_dir);
-    mkdir($bundle_dir) or die "Cannot create '$bundle_dir': $!";
-    $self->make_tarball($bundle_dir);
-    $self->delete_filetree($bundle_dir);
-    $self->add_to_cleanup($bundle_file);
-    #$self->add_to_manifest_skip($bundle_file);
-    
-    return $ppd_file;
-}
+
+# note: no longer needed with more recent versions of Module::Build
+
+#sub make_ppd {
+#    my ($self, %args) = @_;
+#    
+#    require Module::Build::PPMMaker;
+#    my $mbp = Module::Build::PPMMaker->new();
+#    
+#    my %dist;
+#    foreach my $info (qw(name author abstract version)) {
+#        my $method = "dist_$info";
+#        $dist{$info} = $self->$method() or die "Can't determine distribution's $info\n";
+#    }
+#    $dist{codebase} = $self->ppm_name.'.tar.gz';
+#    $mbp->_simple_xml_escape($_) foreach $dist{abstract}, $dist{codebase}, @{$dist{author}};
+#    
+#    my (undef, undef, undef, $mday, $mon, $year) = localtime();
+#    $year += 1900;
+#    $mon++;
+#    my $date = "$year-$mon-$mday";
+#    
+#    my $softpkg_version = $self->dist_dir;
+#    $softpkg_version =~ s/^$dist{name}-//;
+#    
+#    # to avoid a ppm bug, instead of including the requires in the softpackage
+#    # for the distribution we're making, we'll make a seperate Bundle::
+#    # softpackage that contains all the requires, and require only the Bundle in
+#    # the real softpackage
+#    my ($bundle_name) = $dist{name} =~ /^.+-(.+)/;
+#    $bundle_name ||= 'core';
+#    $bundle_name =~ s/^(\w)/\U$1/;
+#    my $bundle_dir = "Bundle-BioPerl-$bundle_name-$softpkg_version-ppm";
+#    my $bundle_file = "$bundle_dir.tar.gz";
+#    my $bundle_softpkg_name = "Bundle-BioPerl-$bundle_name";
+#    $bundle_name = "Bundle::BioPerl::$bundle_name";
+#    
+#    # header
+#    my $ppd = <<"PPD";
+#    <SOFTPKG NAME=\"$dist{name}\" VERSION=\"$softpkg_version\" DATE=\"$date\">
+#        <TITLE>$dist{name}</TITLE>
+#        <ABSTRACT>$dist{abstract}</ABSTRACT>
+#@{[ join "\n", map "        <AUTHOR>$_</AUTHOR>", @{$dist{author}} ]}
+#        <PROVIDE NAME=\"$dist{name}::\" VERSION=\"$dist{version}\"/>
+#PPD
+#    
+#    # provide section
+#    foreach my $pm (@{$self->rscan_dir('Bio', qr/\.pm$/)}) {
+#        # convert these filepaths to Module names
+#        $pm =~ s/\//::/g;
+#        $pm =~ s/\.pm//;
+#        
+#        $ppd .= sprintf(<<'EOF', $pm, $dist{version});
+#        <PROVIDE NAME="%s" VERSION="%s"/>
+#EOF
+#    }
+#    
+#    # rest of softpkg
+#    $ppd .= <<"PPD";
+#        <IMPLEMENTATION>
+#            <ARCHITECTURE NAME=\"MSWin32-x86-multi-thread-5.8\"/>
+#            <CODEBASE HREF=\"$dist{codebase}\"/>
+#            <REQUIRE NAME=\"$bundle_name\" VERSION=\"$dist{version}\"/>
+#        </IMPLEMENTATION>
+#    </SOFTPKG>
+#PPD
+#    
+#    # now a new softpkg for the bundle
+#    $ppd .= <<"PPD";
+#    
+#    <SOFTPKG NAME=\"$bundle_softpkg_name\" VERSION=\"$softpkg_version\" DATE=\"$date\">
+#        <TITLE>$bundle_name</TITLE>
+#        <ABSTRACT>Bundle of pre-requisites for $dist{name}</ABSTRACT>
+#@{[ join "\n", map "        <AUTHOR>$_</AUTHOR>", @{$dist{author}} ]}
+#        <PROVIDE NAME=\"$bundle_name\" VERSION=\"$dist{version}\"/>
+#        <IMPLEMENTATION>
+#            <ARCHITECTURE NAME=\"MSWin32-x86-multi-thread-5.8\"/>
+#            <CODEBASE HREF=\"$bundle_file\"/>
+#PPD
+#    
+#    # required section
+#    # we do both requires and recommends to make installation on Windows as
+#    # easy (mindless) as possible
+#    for my $type ('requires', 'recommends') {
+#        my $prereq = $self->$type;
+#        while (my ($modname, $version) = each %$prereq) {
+#            next if $modname eq 'perl';
+#            ($version) = split("/", $version) if $version =~ /\//;
+#            
+#            # Module names must have at least one ::
+#            unless ($modname =~ /::/) {
+#                $modname .= '::';
+#            }
+#            
+#            # Bio::Root::Version number comes out as triplet number like 1.5.2;
+#            # convert to our own version
+#            if ($modname eq 'Bio::Root::Version') {
+#                $version = $dist{version};
+#            }
+#            
+#            $ppd .= sprintf(<<'EOF', $modname, $version || '');
+#            <REQUIRE NAME="%s" VERSION="%s"/>
+#EOF
+#        }
+#    }
+#    
+#    # footer
+#    $ppd .= <<'EOF';
+#        </IMPLEMENTATION>
+#    </SOFTPKG>
+#EOF
+#    
+#    my $ppd_file = "$dist{name}.ppd";
+#    my $fh = IO::File->new(">$ppd_file") or die "Cannot write to $ppd_file: $!";
+#    print $fh $ppd;
+#    close $fh;
+#    
+#    $self->delete_filetree($bundle_dir);
+#    mkdir($bundle_dir) or die "Cannot create '$bundle_dir': $!";
+#    $self->make_tarball($bundle_dir);
+#    $self->delete_filetree($bundle_dir);
+#    $self->add_to_cleanup($bundle_file);
+#    #$self->add_to_manifest_skip($bundle_file);
+#    
+#    return $ppd_file;
+#}
 
 # we make all archive formats we want, not just .tar.gz
 # we also auto-run manifest action, since we always want to re-create
@@ -1104,6 +1109,8 @@ sub ACTION_dist {
     $self->delete_filetree($dist_dir);
 }
 
+
+# define custom clean/realclean actions to rearrange config file cleanup
 sub ACTION_clean {
     my ($self) = @_;
     $self->log_info("Cleaning up build files\n");
