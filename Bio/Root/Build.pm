@@ -1101,6 +1101,27 @@ sub ACTION_dist {
     $self->delete_filetree($dist_dir);
 }
 
+sub ACTION_clean {
+    my ($self) = @_;
+    $self->log_info("Cleaning up build files\n");
+    foreach my $item (map glob($_), $self->cleanup) {
+        $self->delete_filetree($item);
+    }
+    $self->log_info("Cleaning up configuration files\n");
+    $self->delete_filetree($self->config_dir);
+}
+
+sub ACTION_realclean {
+    my ($self) = @_;
+    $self->depends_on('clean');
+    for my $method (qw(mymetafile mymetafile2 build_script)) {
+        if ($self->can($method)) {
+            $self->delete_filetree($self->$method);
+            $self->log_info("Cleaning up $method data\n");
+        }
+    }
+}
+
 # makes zip file for windows users and bzip2 files as well
 sub make_zip {
     my ($self, $dir, $file) = @_;
@@ -1130,7 +1151,7 @@ sub prompt_for_network {
     my $proceed = $accept ? 0 : $self->y_n("Do you want to run tests that require connection to servers across the internet\n(likely to cause some failures)? y/n", 'n');
     
     if ($proceed) {
-        $self->notes(network => 1);
+        $self->notes('Network Tests' => 1);
         $self->log_info("  - will run internet-requiring tests\n");
         my $use_email = $self->y_n("Do you want to run tests requiring a valid email address? y/n",'n');
         if ($use_email) {

@@ -297,6 +297,8 @@ $build->create_build_script;
 
 exit;
 
+########################## Helper subs ##########################
+
 sub make_bdb_test {
     my $path0 = File::Spec->catfile('t', 'LocalDB', 'SeqFeature.t');
     my $path = File::Spec->catfile('t', 'LocalDB','SeqFeature_BDB.t');
