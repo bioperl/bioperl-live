@@ -50,13 +50,13 @@ Used during "./Build install". Only works if the script installation directory
 used during "perl Build.pl" matches that used for the actual installation during
 "./Build install". So if you install to a special place, do
 
-perl Build.pl --install_base /home/me
-./Build install
+  perl Build.pl --install_base /home/me
+  ./Build install
 
 not
 
-perl Build.pl
-./Build install --install_base /home/me
+  perl Build.pl
+  ./Build install --install_base /home/me
 
 This script will create a symlink to a script in that same directory. It was
 written to create a symlink with the name 'bp_pg_bulk_load_gff.pl' that targeted

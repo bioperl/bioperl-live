@@ -381,7 +381,7 @@ sub test_input_file {
 sub test_network {
     require Module::Build;
     my $build = Module::Build->current();
-    return $build->notes('network');
+    return $build->notes('Network Tests');
 }
 
 =head2 test_email
@@ -398,7 +398,7 @@ sub test_email {
     require Module::Build;
     my $build = Module::Build->current();
     # this should not be settable unless the network tests work
-    return $build->notes('email');
+    return $build->notes('Email');
 }
 
 =head2 test_debug
