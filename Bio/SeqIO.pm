@@ -370,7 +370,7 @@ sub new {
 		    $class->throw("fh argument provided, but with an undefined value") 
 			if exists $param{'-fh'};
 		    $class->throw("string argument provided, but with an undefined value") 
-			if exists($param{'-string'};
+			if exists($param{'-string'});
 		    # $class->throw("No file, fh, or string argument provided"); # neither defined
 		}
 
