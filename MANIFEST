@@ -1024,9 +1024,9 @@ scripts/Bio-DB-GFF/process_gadfly.PLS
 scripts/Bio-DB-GFF/process_sgd.PLS
 scripts/Bio-DB-GFF/process_wormbase.PLS
 scripts/Bio-DB-GFF/README
-scripts/Bio-SeqFeature-Store/bp_seqfeature_delete.PLS
-scripts/Bio-SeqFeature-Store/bp_seqfeature_gff3.PLS
-scripts/Bio-SeqFeature-Store/bp_seqfeature_load.PLS
+scripts/Bio-DB-SeqFeature-Store/bp_seqfeature_delete.PLS
+scripts/Bio-DB-SeqFeature-Store/bp_seqfeature_gff3.PLS
+scripts/Bio-DB-SeqFeature-Store/bp_seqfeature_load.PLS
 scripts/bioperl_netinstall.pl
 scripts/das/das_server.pl
 scripts/das/README
