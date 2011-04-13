@@ -184,7 +184,7 @@ SKIP: {
     my $treeout = Bio::TreeIO->new(
         '-format' => 'newick',
         '-fh'     => $out_fh,
-        '-flush',
+        '-flush'  => 1
     );
 
     $treeout->write_tree($tree);
