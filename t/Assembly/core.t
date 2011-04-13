@@ -107,14 +107,16 @@ is( $aio->variant, '454'     );
 #
 
 my $in = Bio::Assembly::IO->new
-    (-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'));
+    (-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'),
+     -verbose => -1);
 isa_ok($in, 'Bio::Assembly::IO');
 while (my $contig = $in->next_contig) {
     isa_ok($contig, 'Bio::Assembly::Contig');
 }
 
 $in = Bio::Assembly::IO->new
-    (-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'));
+    (-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'),
+     -verbose => -1);
 isa_ok($in, 'Bio::Assembly::IO');
 my $sc;
 TODO: {
@@ -126,7 +128,8 @@ TODO: {
 
 $in->verbose(-1);
 $in = Bio::Assembly::IO->new
-    (-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'));
+    (-file => test_input_file('consed_project','edit_dir','test_project.phrap.out'),
+     -verbose => -1);
 ok($sc = $in->next_assembly);
 isa_ok($sc, 'Bio::Assembly::Scaffold');
 
