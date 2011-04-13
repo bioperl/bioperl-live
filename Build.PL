@@ -72,6 +72,9 @@ my %recommends = (
     'Error'                     => [0,
         'OO-based exception handling (very optional)/Bio::Root::Exception'],
     
+    'GD'                        => [0,
+        'Alignment graphic output/Bio::Align::Graphics'],
+    
     'Graph'                     => [0,
         'Phylogenetic Networks, ontology engine implementation, contig analysis'.
         '/Bio::PhyloNetwork,Bio::Ontology::SimpleGOEngine::GraphAdaptor,'.
@@ -251,6 +254,23 @@ my $build = Bio::Root::Build->new(
 );
 
 my $accept = $build->args('accept');
+
+# how much do I hate this?  Let me count the ways.....
+if (!$build->feature('EntrezGene')) {
+    warn <<WARN;
+############################# WARNING #############################
+
+Bio::ASN1::EntrezGene not found. This is an *optional* module;
+however, because it has a circular dependency with BioPerl we do not
+include it on our list of recommended modules.
+
+If you require EntrezGene functionality, you can install
+Bio::ASN1::EntrezGene after BioPerl has finished installing.  
+
+############################# WARNING #############################
+WARN
+    sleep 3;
+}
 
 my $proceed = prompt_for_biodb($accept) if $build->feature('Bio::DB::GFF')
     || $build->feature('MySQL Tests') || $build->feature('MySQL Tests');
