@@ -270,6 +270,7 @@ If you require EntrezGene functionality, you can install
 Bio::ASN1::EntrezGene after BioPerl has finished installing.  
 
 ############################# WARNING #############################
+
 WARN
     sleep 3;
 }
