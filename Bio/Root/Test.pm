@@ -398,7 +398,7 @@ sub test_email {
     require Module::Build;
     my $build = Module::Build->current();
     # this should not be settable unless the network tests work
-    return $build->notes('Email');
+    return $build->notes('email');
 }
 
 =head2 test_debug
