@@ -26,6 +26,7 @@ use Bio::Root::Build;
 unless ($@) {
     if (grep {$_->{Name} =~ 'XML::SAX::RTF'} @{XML::SAX->parsers()}) {
         warn <<WARN;
+
 ############################# WARNING #############################
 
 XML::SAX::RTF is not XML::SAX-compliant but is registered as an
@@ -35,6 +36,7 @@ module and modify your local ParserDetails.ini file per XML::SAX
 docs to remove references to XML::SAX::RTF.
 
 ############################# WARNING #############################
+
 WARN
     sleep 2;
     }
