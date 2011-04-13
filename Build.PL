@@ -283,12 +283,6 @@ else {
     $build->prompt_for_network($accept) if $build->feature('Network Tests');
 }
 
-# Request that some scripts run post-installation
-#$build->add_post_install_script('maintenance/symlink_script.pl'); # takes a unix file path regardless of local OS
-
-# Add extra things to MANIFEST.SKIP
-#$build->add_to_manifest_skip('bioperl.lisp');
-
 # Add additional files here
 $build->add_build_element('xml');
 

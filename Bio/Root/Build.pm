@@ -29,6 +29,14 @@ here are copy/pasted from there in their entirety just to change one or two
 minor things, since for the most part Module::Build::Base code is hard to
 cleanly override.
 
+B<Note>: per bug 3196, the majority of the code in this module has been revised
+or commented out to bring it in line with the Module::Build API. In particular,
+'requires/recommends' tags in the Build.PL file were not of the same format as
+those for Module::Build, and so caused serious issues with newer versions
+(including giving incorrect meta data). Other problematic methods involving
+automatic installation of prereq modules via CPAN were also removed as they do
+not work with more modern perl tools such as perlbrew and cpanm.
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
@@ -807,18 +815,15 @@ EOF
 #    $self->{phash}{manifest_skip}->write(\%files);
 #}
 
-# we always generate a new MANIFEST and MANIFEST.SKIP here, instead of allowing
-# existing files to remain
+# we always generate a new MANIFEST instead of allowing existing files to remain
+# MANIFEST.SKIP is left alone
+
 sub ACTION_manifest {
     my ($self) = @_;
-    
     if ( -e 'MANIFEST' || -e 'MANIFEST.SKIP' ) {
         $self->log_warn("MANIFEST files already exist, will overwrite them\n");
         unlink('MANIFEST');
-        unlink('MANIFEST.SKIP');
     }
-    $self->_write_default_maniskip('MANIFEST.SKIP');
-    
     require ExtUtils::Manifest;  # ExtUtils::Manifest is not warnings clean.
     local ($^W, $ExtUtils::Manifest::Quiet) = (0,1);
     ExtUtils::Manifest::mkmanifest();
