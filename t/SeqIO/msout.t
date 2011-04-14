@@ -66,7 +66,7 @@ sub test_file_1 {
     my $infile = shift;
     $infile = test_input_file($infile);
 
-    print_file1( $infile, $gzip );
+    #print_file1( $infile, $gzip );
 
     my $file_sequence = $infile;
     if ($gzip) {
@@ -202,7 +202,7 @@ sub test_file_2 {
     my $infile = shift;
     $infile = test_input_file($infile);
 
-    print_file2( $infile, $gzip );
+    #print_file2( $infile, $gzip );
 
     my $file_sequence = $infile;
     if ($gzip) {
@@ -348,7 +348,7 @@ sub test_file_3 {
     my $infile = shift;
     $infile = test_input_file($infile);
 
-    print_file3( $infile, $gzip );
+    #print_file3( $infile, $gzip );
 
     my $file_sequence = $infile;
     if ($gzip) {
@@ -446,7 +446,7 @@ sub test_file_4 {
     my $infile = shift;
     $infile = test_input_file($infile);
 
-    print_file4( $infile, $gzip );
+    #print_file4( $infile, $gzip );
 
     my $file_sequence = $infile;
     if ($gzip) {
