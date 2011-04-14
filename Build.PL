@@ -245,7 +245,7 @@ my $build = Bio::Root::Build->new(
         }
                            },
     dynamic_config      => 1,
-    create_makefile_pl  => 'passthrough',
+    #create_makefile_pl  => 'passthrough',
     recursive_test_files => 1,
     
     # Extra files needed for BioPerl modules
