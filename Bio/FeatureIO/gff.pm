@@ -637,7 +637,14 @@ sub _handle_feature {
       $values =~ s/^["']//;
       $values =~ s/["']$//; #' terminate the quote for emacs
 
-      my @values = map{uri_unescape($_)} split ',', $values;
+      my @values;
+      if ($key eq 'Target') {
+          #dont unescape Target values
+          @values = split ',', $values;
+      }
+      else {
+          @values = map{uri_unescape($_)} split ',', $values
+      }
 
      #minor hack to allow for multiple instances of the same tag
       if ($attr{$key}) {

@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 180);
+    test_begin(-tests => 182);
 	
     use_ok('Bio::Restriction::Enzyme');
     use_ok('Bio::Restriction::Enzyme::MultiCut');
@@ -240,6 +240,11 @@ is $ra->cuts_by_enzyme('XxxI'), undef;
 
 
 is my @ss = $ra->sizes('PspEI'), 2, 'expected 2 sizes for PspEI';
+is $ss[0] + $ss[1], $seq->length;
+
+# Issue 3157
+$re = Bio::Restriction::Enzyme->new(-enzyme=>'PspEI', -site=>'G^GTNACC');
+is @ss = $ra->sizes($re), 2, 'expected 2 sizes for PspEI';
 is $ss[0] + $ss[1], $seq->length;
 
 is $ra->fragments('MwoI'), 1, 'not circular expected 1 fragments for MwoI as it doesnt cut';

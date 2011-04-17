@@ -2491,6 +2491,12 @@ sub _load_gff_line {
   my $lineend = $self->{load_data}{lineend};
 
   $self->{load_data}{gff3_flag}++           if $line =~ /^\#\#\s*gff-version\s+3/;
+
+  if (defined $self->{load_data}{gff3_flag} and !defined $self->{load_data}{gff3_warning}) {
+    $self->print_gff3_warning();
+    $self->{load_data}{gff3_warning}=1;
+  }
+
   $self->preferred_groups(split(/\s+/,$1))  if $line =~ /^\#\#\s*group-tags?\s+(.+)/;
 
   if ($line =~ /^\#\#\s*sequence-region\s+(\S+)\s+(-?\d+)\s+(-?\d+)/i) { # header line
@@ -3797,6 +3803,23 @@ sub unescape {
   $v =~ tr/+/ /;
   $v =~ s/%([0-9a-fA-F]{2})/chr hex($1)/ge;
   return $v;
+}
+
+sub print_gff3_warning {
+  my $self = shift;
+  print STDERR <<END
+
+You are loading a Bio::DB::GFF database with GFF3 formatted data.
+While this will likely work fine, the Bio::DB::GFF schema does not
+always faithfully capture the complexity represented in GFF3 files.
+Unless you have a specific reason for using Bio::DB::GFF, we suggest
+that you use a Bio::DB::SeqFeature::Store database and its corresponding
+loader, bp_seqfeature_load.pl.
+
+END
+;
+
+  return;
 }
 
 

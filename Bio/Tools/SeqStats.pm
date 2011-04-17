@@ -571,16 +571,20 @@ sub get_mol_wt {
 	my $weight_lower_bound = 0;
 	my $weight_upper_bound = 0;
 	my $weight_table =  $Weights{$moltype};
-
+    my $total_res;
+    
 	# compute weight of all the residues
 	foreach $element (keys %$rcount) {
 		$weight_lower_bound += $$rcount{$element} * $$weight_table{$element}->[0];
 		$weight_upper_bound += $$rcount{$element} * $$weight_table{$element}->[1];
+        
+        # this tracks only the residues used for counting MW
+        $total_res += $$rcount{$element};
 	}
 	if ($moltype =~ /protein/) {
-    	# remove H2O during peptide bond formation.
-    	$weight_lower_bound -= $water * ($seqobj->length - 1);
-    	$weight_upper_bound -= $water * ($seqobj->length - 1);
+        # remove H2O during peptide bond formation.
+    	$weight_lower_bound -= $water * ($total_res - 1);
+    	$weight_upper_bound -= $water * ($total_res - 1);
 	} else {
     	# Correction because phosphate of 5' residue has additional OH and
     	# sugar ring of 3' residue has additional H

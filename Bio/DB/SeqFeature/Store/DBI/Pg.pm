@@ -691,7 +691,7 @@ sub _types_sql {
       ($primary_tag,$source_tag) = split ':',$type,2;
     }
 
-    if (defined $source_tag) {
+    if ($source_tag) {
       push @matches,"lower(tl.tag)=lower(?)";
       push @args,"$primary_tag:$source_tag";
     } else {

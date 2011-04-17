@@ -665,7 +665,7 @@ use_ok('Bio::Map::Prediction');
     
     SKIP: {
         test_skip(-tests => 19,
-                  -requires_modules => [qw(Bio::Tools::Run::Ensembl Bio::EnsEMBL::Registry)],
+                  -requires_modules => [qw(Bio::Tools::Run::Ensembl Bio::EnsEMBL::Registry XML::Twig)],
                   -requires_networking => 1);
         
         # make transcript, coding, exon, intron positions on all maps for gene,

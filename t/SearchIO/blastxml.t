@@ -37,7 +37,7 @@ SKIP: {
 	# don't require a certain version (multiple backends can be used) we catch
 	# and skip if needed 
 	if ($@ && $@ =~ m{Handler could not resolve external entity}) {
-		skip("XML::SAX::Expat does not work with XML tests; skipping",297);
+		skip("Older versions of XML::SAX::Expat may not work with XML tests; skipping",297);
 	} elsif ($@) {
 		skip("Problem with XML::SAX setup: $@. Check ParserDetails.ini; skipping XML tests",297);
 	}

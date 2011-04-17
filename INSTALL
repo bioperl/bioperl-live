@@ -388,7 +388,7 @@ BioPerl answer 'no' to script installation to get nicer test output
 later). 
 
 For the 1.6 release and beyond, tests have been organized into groups
-based upon the specific task or class the module ibeing tested belongs
+based upon the specific task or class the module being tested belongs
 to. If you want to investigate the behavior of a specific test such as
 the Seq test you would type: 
 

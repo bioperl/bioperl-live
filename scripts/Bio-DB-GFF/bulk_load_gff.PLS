@@ -467,6 +467,7 @@ while (<>) {
 
   elsif (/^\#\#\s*gff-version\s+(\d+)/) {
     $gff3 = ($1 >= 3);
+    $db->print_gff3_warning() if $gff3;
     next;
   }
 

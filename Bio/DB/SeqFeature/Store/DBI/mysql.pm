@@ -27,7 +27,7 @@ Bio::DB::SeqFeature::Store::DBI::mysql -- Mysql implementation of Bio::DB::SeqFe
 
   # change the feature and update it
   $f->start(100);
-  $db->update($f) or die "Couldn't update!";
+  $f->update($f) or die "Couldn't update!";
 
   # searching...
   # ...by id
@@ -259,7 +259,7 @@ END
 	  locationlist => <<END,
 (
   id         int(10)       auto_increment primary key,
-  seqname    varchar(256)   not null,
+  seqname    varchar(255)   not null,
   index(seqname)
 )
 END
@@ -267,14 +267,14 @@ END
 	  typelist => <<END,
 (
   id       int(10) auto_increment primary key,
-  tag      varchar(256)  not null,
+  tag      varchar(255)  not null,
   index(tag)
 )
 END
 	  name => <<END,
 (
   id           int(10)       not null,
-  name         varchar(256)  not null,
+  name         varchar(255)  not null,
   display_name tinyint       default 0,
   index(id),
   index(name)
@@ -294,7 +294,7 @@ END
 	  attributelist => <<END,
 (
   id       int(10) auto_increment primary key,
-  tag      varchar(256)  not null,
+  tag      varchar(255)  not null,
   index(tag)
 )
 END
@@ -566,12 +566,14 @@ sub _finish_bulk_update {
     my $fh = $self->dump_filehandle($table);
     my $path = $self->dump_path($table);
     $fh->close;
+    print STDERR "$path\n";
+    
     $dbh->do("LOAD DATA LOCAL INFILE '$path' REPLACE INTO TABLE $table FIELDS OPTIONALLY ENCLOSED BY '\\''") 
       or $self->throw($dbh->errstr);
     unlink $path;
   }
   delete $self->{bulk_update_in_progress};
-  delete $self->{filehandles};
+  delete $self->{   filehandles};
   $self->commit;
 }
 
@@ -736,7 +738,9 @@ sub _qualify {
   my $self = shift;
   my $table_name = shift;
   my $namespace = $self->namespace;
-  return $table_name unless defined $namespace;
+  return $table_name if (!defined $namespace ||
+                         # is namespace already present in table name?
+                         index($table_name, $namespace) == 0); 
   return "${namespace}_${table_name}";
 }
 
@@ -1954,19 +1958,27 @@ sub coverage_array {
     return [] unless $seqid;
 
     # where each bin starts
-    my @his_bin_array = map {$start + $binsize * $_}       (0..$bins);
+    my @his_bin_array = map {$start + $binsize * $_}       (0..$bins-1);
     my @sum_bin_array = map {int(($_-1)/SUMMARY_BIN_SIZE)} @his_bin_array;
 
     my $interval_stats    = $self->_interval_stats_table;
     
-    # pick up the type ids
-    my ($from,$where,$group,@a) = $self->_types_sql($types,'b');
-    $where =~ s/.+AND//s;
-    my $sth = $self->_prepare(<<END);
+    my ($sth,@a);
+    if ($types) {
+	# pick up the type ids
+	my ($from,$where,$group);
+	($from,$where,$group,@a) = $self->_types_sql($types,'b');
+	$where =~ s/.+AND//s;
+	$sth = $self->_prepare(<<END);
 SELECT id,tag FROM $from
 WHERE  $where
 END
 ;
+    } else {
+	$sth = $self->_prepare(<<END);
+SELECT id,tag FROM typelist
+END
+    }
     my (@t,$report_tag);
     $sth->execute(@a);
     while (my ($t,$tag) = $sth->fetchrow_array) {
@@ -2011,10 +2023,10 @@ END
 	my $delta;
 	for my $b (@$arry) {
 	    my ($bin,$count) = @$b;
-	    $delta              = $count - $last_count if $bin > $last_bin;
-	    $merged_bins[$i++]  = $delta;
-	    $last_count         = $count;
-	    $last_bin           = $bin;
+	    $delta               = $count - $last_count if $bin > $last_bin;
+	    $merged_bins[$i++]  += $delta;
+	    $last_count          = $count;
+	    $last_bin            = $bin;
 	}
     }
 
