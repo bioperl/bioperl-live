@@ -331,6 +331,7 @@ END
 
 sub available_drivers {
     eval {require DBI; 1;};  # if not installed, this sub won't actually be called
+    return if $@;
     @drivers = DBI->available_drivers;
     unless (grep {/mysql|Pg|SQLite/i} @drivers) {
         $mysql_ok = 0;
@@ -366,6 +367,7 @@ END
 
 sub test_biodbgff {
     eval {require DBI;};  # if not installed, this sub won't actually be called
+    return if $@;
     @drivers = DBI->available_drivers;
     unless (grep {/mysql|Pg|Oracle/i} @drivers) {
         return "MySQL, Pg nor Oracle DBI drivers are installed";
