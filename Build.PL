@@ -185,8 +185,8 @@ my $build = Bio::Root::Build->new(
     no_index            => {'dir'       => [qw(examples/root/lib)]},
     requires            => {
                             'perl'                      => '5.6.1',
-                            'IO::String'                => 0,
-                            'DB_File'                   => 0,
+                            'IO::String'                => 0,    # why is this required?
+                            'DB_File'                   => 0,    # why is this required?
                             'Data::Stag'                => 0.11, # Bio::SeqIO::swiss, we can change to 'recommend' if needed
                             'Scalar::Util'              => 0,    # not in Perl 5.6.1, arrived in core in 5.7.3
                             'ExtUtils::Manifest'        => '1.52', # allows spaces in file names
@@ -199,7 +199,10 @@ my $build = Bio::Root::Build->new(
                             'CPAN'                      => 1.81
                            },
     
-    recommends          => { # does what you would expect of recommends, except more informative output and generates optional_features in META.yml
+    recommends          => {
+        # reverted to a simple Module::Build-compatible hash, but we keep
+        # additional data in the %recommends hash above. May be converted to
+        # something simpler if there aren't complaints down the line.
         map {$_ => $recommends{$_}[0]} sort keys %recommends
     },
     
@@ -299,7 +302,7 @@ if ($build->args('network')) {
     }
     else {
         $build->notes(network => 0);
-        $build->log_info("  - will not run network tests since I seem to be missing essential network functionality\n");
+        $build->log_info("  - Missing LWP::UserAgent, can't run network tests\n");
     }
 }
 else {
