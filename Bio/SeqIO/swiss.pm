@@ -111,6 +111,11 @@ parser is also able to read in the older GN line syntax where genes
 are separated by AND and various symbols by OR. The first symbol is
 taken to be the 'Name' and the remaining ones are stored as 'Synonyms'.
 
+Also, for UniProt output we support using other Bio::AnnotationI, but in this
+case we only use the stringified version of the annotation. This is to allow for
+backwards compatibility with code that previously used
+Bio::Annotation::SimpleValue or other Bio::AnnotationI classes.
+
 =head2 Optional functions
 
 =over 3
@@ -176,7 +181,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.
 Bug reports can be submitted via the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Elia Stupka
 
@@ -511,7 +516,7 @@ sub write_seq {
         }
 
         # namespace dictates database, takes precedent over division. Sorry!
-        if (defined($ns)) {
+        if (defined($ns) && $ns ne '') {
             $div = ($ns eq 'Swiss-Prot') ? 'Reviewed'    :
                 ($ns eq 'TrEMBL')     ? 'Unreviewed' :
                     $ns;
@@ -592,29 +597,36 @@ sub write_seq {
         #Gene name; print out new format
         foreach my $gene ( my @genes = $seq->annotation->get_Annotations('gene_name') ) {
             # gene is a Bio::Annotation::TagTree;
-            my @genelines;
-            for my $node ($gene->findnode('gene_name')) {
-                # check for Name and Synonym first, then the rest get tagged on
-                my $geneline = "GN   ";
-                my %genedata = $node->hash;
-                for my $tag (@GENE_NAME_ORDER) {
-                    if (exists $genedata{$tag}) {
+            if ($gene->isa('Bio::Annotation::TagTree')) {
+                my @genelines;
+                for my $node ($gene->findnode('gene_name')) {
+                    # check for Name and Synonym first, then the rest get tagged on
+                    my $geneline = "GN   ";
+                    my %genedata = $node->hash;
+                    for my $tag (@GENE_NAME_ORDER) {
+                        if (exists $genedata{$tag}) {
+                            $geneline .= (ref $genedata{$tag} eq 'ARRAY') ?
+                                "$tag=".join(', ',@{$genedata{$tag}})."; " :
+                                "$tag=$genedata{$tag}; ";
+                            delete $genedata{$tag};
+                        }
+                    }
+                    # add rest
+                    for my $tag (sort keys %genedata) {
                         $geneline .= (ref $genedata{$tag} eq 'ARRAY') ?
                             "$tag=".join(', ',@{$genedata{$tag}})."; " :
                             "$tag=$genedata{$tag}; ";
                         delete $genedata{$tag};
                     }
+                    push @genelines, "$geneline\n";
                 }
-                # add rest
-                for my $tag (sort keys %genedata) {
-                    $geneline .= (ref $genedata{$tag} eq 'ARRAY') ?
-                        "$tag=".join(', ',@{$genedata{$tag}})."; " :
-                        "$tag=$genedata{$tag}; ";
-                    delete $genedata{$tag};
-                }
-                push @genelines, "$geneline\n";
+                $self->_print(join("GN   and\n",@genelines));
+            } else { # fall back to getting stringified output
+                $self->_write_line_swissprot_regex("GN   ","GN   ",
+                                                   $gene->display_text,
+                                                   "\\s\+\|\$",
+                                                   $LINE_LENGTH);
             }
-            $self->_print(join("GN   and\n",@genelines));
         }
 
         # Organism lines

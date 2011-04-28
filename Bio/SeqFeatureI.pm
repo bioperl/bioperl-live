@@ -79,7 +79,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 APPENDIX
 
@@ -681,6 +681,51 @@ sub generate_unique_persistent_id {
     require Bio::SeqFeature::Tools::IDHandler;
     Bio::SeqFeature::Tools::IDHandler->new->generate_unique_persistent_id($self);
 }
+
+
+=head2 phase
+
+ Title   : phase
+ Usage   : $obj->phase($newval)
+ Function: get/set this feature's phase.
+ Example :
+ Returns : undef if no phase is set,
+           otherwise 0, 1, or 2 (the only valid values for phase)
+ Args    : on set, the new value
+
+Most features do not have or need a defined phase.
+
+For features representing a CDS, the phase indicates where the feature
+begins with reference to the reading frame.  The phase is one of the
+integers 0, 1, or 2, indicating the number of bases that should be
+removed from the beginning of this feature to reach the first base of
+the next codon. In other words, a phase of "0" indicates that the next
+codon begins at the first base of the region described by the current
+line, a phase of "1" indicates that the next codon begins at the
+second base of this region, and a phase of "2" indicates that the
+codon begins at the third base of this region. This is NOT to be
+confused with the frame, which is simply start modulo 3.
+
+For forward strand features, phase is counted from the start
+field. For reverse strand features, phase is counted from the end
+field.
+
+=cut
+
+sub phase {
+    my $self = shift;
+    if( @_ ) {
+        $self->remove_tag('phase') if $self->has_tag('phase');
+        my $newphase = shift;
+        $self->throw("illegal phase value '$newphase', phase must be either undef, 0, 1, or 2")
+            unless !defined $newphase || $newphase == 0 || $newphase == 1 || $newphase == 2;
+        $self->add_tag_value('phase', $newphase );
+        return $newphase;
+    }
+
+    return $self->has_tag('phase') ? ($self->get_tag_values('phase'))[0] : undef;
+}
+
 
 =head1 Bio::RangeI methods
 

@@ -304,7 +304,7 @@ END
   id               int       not null,
   child            int       not null
 );
-  CREATE INDEX parent2child_id_child ON parent2child(id,child);
+  CREATE UNIQUE INDEX parent2child_id_child ON parent2child(id,child);
 END
 
 	  meta => <<END,
@@ -475,7 +475,7 @@ sub _add_SeqFeature {
   my $parent_id = (ref $parent ? $parent->primary_id : $parent) 
     or $self->throw("$parent should have a primary_id");
 
-  $dbh->begin_work or $self->throw($dbh->errstr);
+  $self->begin_work or $self->throw($dbh->errstr);
   eval {
     for my $child (@children) {
       my $child_id = ref $child ? $child->primary_id : $child;
@@ -488,10 +488,10 @@ sub _add_SeqFeature {
 
   if ($@) {
     warn "Transaction aborted because $@";
-    $dbh->rollback;
+    $self->rollback;
   }
   else {
-    $dbh->commit;
+    $self->commit;
   }
   $sth->finish;
   $count;
@@ -691,7 +691,7 @@ sub _types_sql {
       ($primary_tag,$source_tag) = split ':',$type,2;
     }
 
-    if (defined $source_tag) {
+    if ($source_tag) {
       push @matches,"lower(tl.tag)=lower(?)";
       push @args,"$primary_tag:$source_tag";
     } else {

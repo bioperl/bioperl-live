@@ -185,7 +185,7 @@ the bugs and their resolution. Bug reports can be submitted via email
 or the web:
 
   bioperl-bugs@bio.perl.org
-  http://bugzilla.bioperl.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Florent E Angly
 
@@ -923,8 +923,7 @@ sub _create_subcontig {
   # Get min and max read coordinates
   my ($min, $max) = (undef, undef);
   for my $read_id ( @$read_ids ) {
-    my $aln_coord  = ( grep { $_->primary_tag eq "_aligned_coord:".$read_id}
-      $contig->get_features_collection->get_all_features )[0];
+    my ($aln_coord) = $contig->get_features_collection->get_features_by_type("_aligned_coord:$read_id");
     my $seq_start = $aln_coord->location->start;
     my $seq_end   = $aln_coord->location->end;
     $min = $seq_start if (not defined $min) || ((defined $min) && ($seq_start < $min));

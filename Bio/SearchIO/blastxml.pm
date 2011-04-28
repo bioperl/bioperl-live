@@ -20,15 +20,30 @@ Bio::SearchIO::blastxml - A SearchIO implementation of NCBI Blast XML parsing.
     use Bio::SearchIO;
     my $searchin = Bio::SearchIO->new(-format => 'blastxml',
 				     -file   => 't/data/plague_yeast.bls.xml');
+                     
     while( my $result = $searchin->next_result ) {
+        ....
     }
 
     # one can also request that the parser NOT keep the XML data in memory
     # by using the tempfile initialization flag.
-    my $searchin = Bio::SearchIO->new(-tempfile => 1,
+    
+    $searchin = Bio::SearchIO->new(-tempfile => 1,
 				     -format => 'blastxml',
 				     -file   => 't/data/plague_yeast.bls.xml');
+                     
     while( my $result = $searchin->next_result ) {
+       ....
+    }
+    
+    # PSI-BLAST parsing (default is normal BLAST)
+    $searchin = Bio::SearchIO->new(
+                     -format => 'blastxml',
+                     -blasttype => 'psiblast',
+				     -file   => 't/data/plague_yeast.bls.xml');
+                     
+    while( my $result = $searchin->next_result ) {
+       ....
     }
 
 =head1 DESCRIPTION
@@ -40,17 +55,24 @@ be set as the default parser in ParserDetails.ini.  This file is located in the
 SAX subdirectory of XML in your local perl library (normally in the 'site'
 directory).
 
-Currently, XML::SAX::Expat will not work and will not be supported.
+Two different XML handlers currently exist to deal with logical differences
+between how normal BLAST reports and PSI-BLAST reports are logically parsed into
+BioPerl objects; this is explicitly settable using the B<-blasttype> parameter.
+The default is for parsing a normal BLAST report ('blast'), but if one is
+expecting PSI-BLAST report parsing, -blasttype B<must> be set explicitly to
+'psiblast'. This is due to a lack of any information in the XML output which
+tells the parser the report is derived from a PSI-BLAST run vs. a normal BLAST
+run.
 
-There is one additional initialization flag from the SearchIO defaults-
-that is the -tempfile flag.  If specified as true, then the parser
-will write out each report to a temporary filehandle rather than
-holding the entire report as a string in memory.  The reason this is
-done in the first place is NCBI reports have an uncessary E<lt>?xml
-version="1.0"?E<gt> at the beginning of each report and RPS-BLAST reports
-have an additional unecessary RPS-BLAST tag at the top of each report.
-So we currently have implemented the work around by preparsing the
-file (yes it makes the process slower, but it works).
+There is one additional initialization flag from the SearchIO defaults. That is
+the B<-tempfile> flag. If specified as true, then the parser will write out each
+report to a temporary filehandle rather than holding the entire report as a
+string in memory. The reason this is done in the first place is NCBI reports
+have an uncessary E<lt>?xml version="1.0"?E<gt> at the beginning of each report
+and RPS-BLAST reports have an additional unecessary RPS-BLAST tag at the top of
+each report. So we currently have implemented the work around by preparsing the
+file (yes it makes the process slower, but it works). We are open to suggestions
+on how to optimize this in the future.
 
 =head1 DEPENDENCIES
 
@@ -99,7 +121,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 

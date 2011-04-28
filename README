@@ -4,7 +4,7 @@ This is the README file for the BioPerl central distribution.
 
 o Version  
 
- This is bioperl-live, from BioPerl Subversion HEAD
+ This is bioperl-live, from the BioPerl GitHub master branch 
 
 o Getting Started
 
@@ -49,7 +49,7 @@ o Contact info
 
  Project FTP server : bioperl.org (anonymous FTP ok)
 
- Bug reports : http://bugzilla.open-bio.org/
+ Bug reports : https://redmine.open-bio.org/projects/bioperl/
 
      Please send us bugs, in particular about documentation which you
      think is unclear or problems in installation. We are also very
@@ -167,7 +167,7 @@ o Caveats, warnings, etc
  
  Not all scripts in the examples/ directory are correct and
  up-to-date. We need volunteers to help maintain these so if you find
- they do not work, submit a bug report to http://bugzilla.open-bio.org
+ they do not work, submit a bug report to https://redmine.open-bio.org/projects/bioperl/
  and consider helping out in their maintenance.
 
  If you are confused about what modules are appropriate when you try

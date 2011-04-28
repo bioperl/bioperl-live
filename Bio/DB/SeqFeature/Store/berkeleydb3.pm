@@ -29,7 +29,7 @@ new database with the original berkeleydb adaptor. When opening a
 database created under the original adaptor, the old code is used for
 backward compatibility.
 
-Please see L<Bio::DB::SeqFeature::Store::berkeleydb3> for full usage
+Please see L<Bio::DB::SeqFeature::Store::berkeleydb> for full usage
 instructions.
 
 =head1 BUGS
@@ -303,7 +303,9 @@ sub _features {
 
   my @result;
   unless (defined $name or defined $seq_id or defined $types or defined $attributes) {
-    @result = grep {!/^\./} keys %{$self->db};
+      my $is_indexed = $self->index_db('is_indexed');
+      @result = $is_indexed ? grep {$is_indexed->{$_}} keys %{$self->db}
+                            : grep { !/^\./ }keys %{$self->db};
   }
 
   my %found = ();
@@ -333,6 +335,58 @@ sub _features {
   push @result,keys %found if $result;
   return $iterator ? Bio::DB::SeqFeature::Store::berkeleydb::Iterator->new($self,\@result)
                    : map {$self->fetch($_)} @result;
+}
+
+sub filter_by_type {
+  my $self = shift;
+  my ($types,$filter) = @_;
+  my @types = ref $types eq 'ARRAY' ?  @$types : $types;
+
+  my $index = $self->index_db('types');
+  my $db    = tied(%$index);
+
+  my @results;
+
+  for my $type (@types) {
+    my ($primary_tag,$source_tag);
+    if (ref $type && $type->isa('Bio::DB::GFF::Typename')) {
+      $primary_tag = $type->method;
+      $source_tag  = $type->source;
+    } else {
+      ($primary_tag,$source_tag) = split ':',$type,2;
+    }
+    $source_tag ||= '';
+    $primary_tag  = quotemeta($primary_tag);
+    $source_tag    = quotemeta($source_tag);
+    my $match = length $source_tag ? "^$primary_tag:$source_tag\$" : "^$primary_tag:";
+    my $key      = lc "$primary_tag:$source_tag";
+    my $value;
+
+    # If filter is already provided, then it is usually faster to
+    # fetch each object.
+    if (%$filter) {  
+	for my $id (keys %$filter) {
+	    my $obj = $self->_fetch($id) or next;
+	    push @results,$id if $obj->type =~ /$match/i;
+	}
+
+    }
+
+    else {
+	my $types   = $self->typeid_db;
+	my @typeids = map {$types->{$_}} grep {/$match/} keys %$types;
+	for my $t (@typeids) {
+	    my $k = $t;
+	    for (my $status = $db->seq($k,$value,R_CURSOR);
+		 $status == 0 && $k == $t;
+		 $status = $db->seq($k,$value,R_NEXT)) {
+		next if %$filter && !$filter->{$value};  # don't even bother
+		push @results,$value;
+	    }
+	}
+    }
+  }
+  $self->update_filter($filter,\@results);
 }
 
 sub filter_by_type_and_location {

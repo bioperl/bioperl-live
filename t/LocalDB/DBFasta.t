@@ -6,30 +6,18 @@ BEGIN {
     use lib '.';
 	use Bio::Root::Test;
 	
-    test_begin(-tests => 18,
+    test_begin(-tests => 17,
 	       -requires_modules => [qw(Bio::DB::Fasta Bio::SeqIO)]);
-	use_ok('Bio::Root::IO');
-	use_ok('File::Copy');
 }
-
+use strict;
+use warnings;
+use Bio::Root::Root;
+use File::Copy;
 my $DEBUG = test_debug();
 
-# this obfuscation is to deal with lockfiles by GDBM_File which can
-# only be created on local filesystems apparently so will cause test
-# to block and then fail when the testdir is on an NFS mounted system
+{
 
-my $io = Bio::Root::IO->new(-verbose => $DEBUG);
-my $tempdir = test_output_dir();
-my $test_dbdir = $io->catfile($tempdir, 'dbfa');
-mkdir($test_dbdir); # make the directory
-my $indir = test_input_file('dbfa');
-opendir(my $INDIR,$indir) || die("cannot open dir $indir");
-# effectively do a cp -r but only copy the files that are in there, no subdirs
-for my $file ( map { $io->catfile($indir,$_) } readdir($INDIR) ) {
-	next unless (-f $file );
-	copy($file, $test_dbdir);
-}
-closedir($INDIR);
+my $test_dbdir = setup_temp_dir('dbfa');
 
 # now use this temporary dir for the db file
 my $db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1);
@@ -60,7 +48,7 @@ is($dna2, $revcom);
 
 $db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1);
 my $out = Bio::SeqIO->new(-format => 'genbank',
-			  -file  => '>'.test_output_file());
+              -file  => '>'.test_output_file());
 $primary_seq = Bio::Seq->new(-primary_seq => $db->get_Seq_by_acc('AW057119'));
 eval {
     #warn(ref($primary_seq),"\n");
@@ -74,4 +62,40 @@ eval {
     $out->write_seq($primary_seq) 
 };
 ok(!$@);
+
+# Issue 3172
+
+{
+    # squash warnings locally
+    local $SIG{__WARN__} = sub {};
+    $test_dbdir = setup_temp_dir('bad_dbfa');
+    throws_ok {$db = Bio::DB::Fasta->new($test_dbdir, -reindex => 1)}
+        qr/FASTA header doesn't match/;
+}
+
+exit;
+
+}
+
+sub setup_temp_dir {
+    # this obfuscation is to deal with lockfiles by GDBM_File which can
+    # only be created on local filesystems apparently so will cause test
+    # to block and then fail when the testdir is on an NFS mounted system
+    
+    my $data_dir = shift;
+    
+    my $io = Bio::Root::IO->new();
+    my $tempdir = test_output_dir();
+    my $test_dbdir = $io->catfile($tempdir, $data_dir);
+    mkdir($test_dbdir); # make the directory
+    my $indir = test_input_file($data_dir);
+    opendir(my $INDIR,$indir) || die("cannot open dir $indir");
+    # effectively do a cp -r but only copy the files that are in there, no subdirs
+    for my $file ( map { $io->catfile($indir,$_) } readdir($INDIR) ) {
+        next unless (-f $file );
+        copy($file, $test_dbdir);
+    }
+    closedir($INDIR);
+    return $test_dbdir
+}
 

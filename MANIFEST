@@ -1,4 +1,3 @@
-.shipit
 AUTHORS
 Bio/Align/AlignI.pm
 Bio/Align/DNAStatistics.pm
@@ -547,6 +546,7 @@ Bio/SearchIO/fasta.pm
 Bio/SearchIO/FastHitEventBuilder.pm
 Bio/SearchIO/gmap_f9.pm
 Bio/SearchIO/hmmer.pm
+Bio/SearchIO/hmmer2.pm
 Bio/SearchIO/hmmer3.pm
 Bio/SearchIO/hmmer_pull.pm
 Bio/SearchIO/infernal.pm
@@ -852,6 +852,7 @@ Bio/TreeIO.pm
 Bio/TreeIO/cluster.pm
 Bio/TreeIO/lintree.pm
 Bio/TreeIO/newick.pm
+Bio/TreeIO/NewickParser.pm
 Bio/TreeIO/nexml.pm
 Bio/TreeIO/nexus.pm
 Bio/TreeIO/nhx.pm
@@ -1161,6 +1162,7 @@ t/data/503384.MEGABLAST.0
 t/data/503384.MEGABLAST.2
 t/data/5X_1895.FASTXY
 t/data/8HVP.pdb
+t/data/9K_v4.psl
 t/data/a_thaliana.blastn
 t/data/AAC12660.fa
 t/data/aaml.mlc
@@ -1200,6 +1202,7 @@ t/data/biodbgff/test.gff
 t/data/biodbgff/test.gff3
 t/data/biofpc.cor
 t/data/biofpc.fpc
+t/data/biorecipe.nhx
 t/data/Bird_Ovomucoids.nex
 t/data/BK000016-tpa.gbk
 t/data/bl2seq.blastn
@@ -1383,10 +1386,12 @@ t/data/eutils/esearch2.xml
 t/data/eutils/espell.xml
 t/data/eutils/esummary1.xml
 t/data/eutils/esummary2.xml
+t/data/ex1.nucl.nhx
 t/data/example.hap
 t/data/example.phase
 t/data/exonerate.output.dontwork
 t/data/exonerate.output.works
+t/data/exonerate.whitespace_before_query.works
 t/data/expected.blast.out
 t/data/exsignalp.out
 t/data/factor7.embl
@@ -1429,6 +1434,8 @@ t/data/fastq/test3_illumina.fastq
 t/data/fastq/tricky.fastq
 t/data/fastq/wrapping_issues.fastq
 t/data/fgenesh.out
+t/data/fishBlats.txt
+t/data/fishBlats_UCSC.psl
 t/data/footprinter.out
 t/data/frac_problems.blast
 t/data/frac_problems2.blast
@@ -1465,6 +1472,7 @@ t/data/hmmpfam_cs.out
 t/data/hmmpfam_fake.out
 t/data/hmmscan.out
 t/data/hmmscan_multi_domain.out
+t/data/hmmscan_sec_struct.out
 t/data/hmmsearch.out
 t/data/hmmsearch3.out
 t/data/hs_est.est2genome
@@ -1488,6 +1496,7 @@ t/data/in.fasta
 t/data/insulin.water
 t/data/interpro.xml
 t/data/interpro_ebi.xml
+t/data/interpro_relationship.xml
 t/data/interpro_sample.xml
 t/data/interpro_short.xml
 t/data/intrablock-comment.nex
@@ -1629,6 +1638,7 @@ t/data/nei_gojobori_test.aln
 t/data/neighbor.dist
 t/data/new_blastn.txt
 t/data/newblast.xml
+t/data/nhx-bacteria.nhx
 t/data/NM_002254.gb
 t/data/no-genes.genscan
 t/data/no_cds_example.gb
@@ -1639,6 +1649,8 @@ t/data/noninterleaved.phy
 t/data/NT_021877.gbk
 t/data/nucmatrix.txt
 t/data/O_sat.wgs
+t/data/O_ZNF496.blast
+t/data/O_ZNF496.psl
 t/data/omim_genemap_test
 t/data/omim_genemap_test_nolinebreak
 t/data/omim_text_test
@@ -1730,6 +1742,7 @@ t/data/singleNSsite.mlc
 t/data/singlet_w_CT.ace
 t/data/so.obo
 t/data/sofa.ontology
+t/data/sp_subset.obo
 t/data/spaces.nex
 t/data/SPAN_Family4nl.nex
 t/data/SPAN_Family7n.nex
@@ -1808,6 +1821,7 @@ t/data/test2.infernal
 t/data/test2.raw
 t/data/test_badlf.gcg
 t/data/test_clear_range.fastq
+t/data/test_data.axt
 t/data/test_singlets.cns.fastq
 t/data/test_singlets.maq
 t/data/testaln.aln
@@ -1836,6 +1850,7 @@ t/data/testfile.erpin
 t/data/testfuzzy.genbank
 t/data/tmhmm.out
 t/data/tmp.fst
+t/data/tol-2010-02-18.nhx
 t/data/traits.tab
 t/data/traittree.nexus
 t/data/transfac.dat
@@ -1857,12 +1872,14 @@ t/data/U71225.gb
 t/data/U71225.gb.unix
 t/data/U71225.gb.win
 t/data/U83300.bsml
+t/data/UCSC_fishBlats.txt
 t/data/UnaSmithHIV-both.nex
 t/data/unigene.data
 t/data/urease.tre.nexus
 t/data/vecscreen_simple.test_output
 t/data/version2.scf
 t/data/version3.scf
+t/data/wellcome_tol.nhx
 t/data/withrefm.906
 t/data/worm_fam_2785.cdna
 t/data/X98338_Adh-mRNA.gb
@@ -1977,6 +1994,7 @@ t/Root/Storable.t
 t/Root/Tempfile.t
 t/Root/Utilities.t
 t/SearchDist.t
+t/SearchIO/axt.t
 t/SearchIO/blast.t
 t/SearchIO/blast_pull.t
 t/SearchIO/blasttable.t
@@ -1988,7 +2006,6 @@ t/SearchIO/exonerate.t
 t/SearchIO/fasta.t
 t/SearchIO/gmap_f9.t
 t/SearchIO/hmmer.t
-t/SearchIO/hmmer3.t
 t/SearchIO/hmmer_pull.t
 t/SearchIO/infernal.t
 t/SearchIO/megablast.t
@@ -2004,6 +2021,7 @@ t/SearchIO/Writer/GbrowseGFF.t
 t/SearchIO/Writer/HitTableWriter.t
 t/SearchIO/Writer/HSPTableWriter.t
 t/SearchIO/Writer/HTMLWriter.t
+t/SearchIO/Writer/TextWriter.t
 t/Seq/DBLink.t
 t/Seq/EncodedSeq.t
 t/Seq/LargeLocatableSeq.t
@@ -2031,7 +2049,6 @@ t/SeqFeature/SeqFeature.t
 t/SeqFeature/SeqFeaturePrimer.t
 t/SeqFeature/Unflattener.t
 t/SeqFeature/Unflattener2.t
-t/SeqIO.t
 t/SeqIO/abi.t
 t/SeqIO/ace.t
 t/SeqIO/agave.t
@@ -2073,6 +2090,7 @@ t/SeqIO/qual.t
 t/SeqIO/raw.t
 t/SeqIO/scf.t
 t/SeqIO/SeqBuilder.t
+t/SeqIO/SeqIO.t
 t/SeqIO/seqxml.t
 t/SeqIO/Splicedseq.t
 t/SeqIO/strider.t

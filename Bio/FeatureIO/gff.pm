@@ -54,7 +54,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR
 
@@ -637,7 +637,14 @@ sub _handle_feature {
       $values =~ s/^["']//;
       $values =~ s/["']$//; #' terminate the quote for emacs
 
-      my @values = map{uri_unescape($_)} split ',', $values;
+      my @values;
+      if ($key eq 'Target') {
+          #dont unescape Target values
+          @values = split ',', $values;
+      }
+      else {
+          @values = map{uri_unescape($_)} split ',', $values
+      }
 
      #minor hack to allow for multiple instances of the same tag
       if ($attr{$key}) {

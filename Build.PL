@@ -19,7 +19,7 @@ use Bio::Root::Build;
 # deal with it.
 #
 # See: https://rt.cpan.org/Ticket/Display.html?id=5943
-#      http://bugzilla.open-bio.org/show_bug.cgi?id=2975
+#      https://redmine.open-bio.org/issues/2975
 
 {
 
@@ -85,6 +85,7 @@ my $build = Bio::Root::Build->new(
                             'Bio::ASN1::EntrezGene'     => '0/parsing entrezgene/Bio::SeqIO::entrezgene [circular dependency!]',
                             'Clone'                     => '0/cloning objects/Bio::Tools::Primer3',
                             'Convert::Binary::C'        => '0/strider functionality/Bio::SeqIO::strider',
+                            'Error'                     => '0/OO-based exception handling (very optional)/Bio::Root::Exception',
                             'Graph'                     => '0/Phylogenetic Networks, ontology engine implementation, contig analysis/Bio::PhyloNetwork,Bio::Ontology::SimpleGOEngine::GraphAdaptor,Bio::Assembly::Tools::ContigSpectrum',
                             'GraphViz'                  => '0/Phylogenetic Network Visulization/Bio::PhyloNetwork::GraphViz',
                             'HTML::Entities'            => '0/remote analysis POST submissions/Bio::SearchIO::blastxml',
@@ -245,7 +246,7 @@ sub make_dbi_test {
     my $user = $build->notes('test_user');
     my $pass = $build->notes('test_pass');
     open my $F,">$path";
-    my $str = "$path0 -adaptor DBI::$driver -create 1 -temp 1 -dsn $dsn";
+    my $str = "$path0 -adaptor DBI::$driver -create 1 -temp 1 -dsn \"$dsn\"";
     $str .= " -user $user" if $user;
     $str .= " -password $pass" if $pass;
     print $F <<END;

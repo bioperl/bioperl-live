@@ -166,7 +166,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Heikki Lehvaslaiho
 
@@ -178,7 +178,6 @@ The rest of the documentation details each of the object
 methods. Internal methods are usually preceded with a _
 
 =cut
-
 
 # Let the code begin...
 
@@ -408,7 +407,7 @@ sub tables{
 =cut
 
 sub translate {
-    my ($self, $seq) = @_;
+    my ($self, $seq, $complete_codon) = @_;
     $self->throw("Calling translate without a seq argument!") unless defined $seq;
     return '' unless $seq;
 
@@ -443,7 +442,7 @@ sub translate {
             }
         }
     }
-    if ($partial == 2) { # 2 overhanging nucleotides
+    if ($partial == 2 && $complete_codon) { # 2 overhanging nucleotides
     my $triplet = substr($seq, ($partial -4)). "n";
     if( $triplet eq $CODONGAP ) {
         $protein .= $GAP;

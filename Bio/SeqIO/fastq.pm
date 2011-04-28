@@ -52,7 +52,7 @@ sub next_dataset {
     my $line = $self->{lastline} || <$fh>;
     
     FASTQ:
-    while ($line) {
+    while (defined $line) {
         $line =~ s/\015\012/\012/;
         $line =~ tr/\015/\n/;
         if ($mode eq '-seq' && $line =~ m{^@([^\n]+)$}xmso) {
@@ -437,7 +437,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHORS - Chris Fields (taken over from Tony Cox)
 

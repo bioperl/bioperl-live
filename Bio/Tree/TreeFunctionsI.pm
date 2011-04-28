@@ -61,7 +61,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich, Aaron Mackey, Justin Reese
 
@@ -635,10 +635,12 @@ sub force_binary {
 
     my @descs = $node->each_Descendent;
     if (@descs > 2) {
-        $self->warn("Node ".($node->can('node_name') ? ($node->node_name || $node->id) : $node->id).
-                    " has more than two descendants\n(".
-                    join(", ", map { $node->can('node_name') ? ($node->node_name || $node->id) : $node->id } @descs).
-                    ")\nWill do an arbitrary balanced split");
+        # Removed overly verbose warning - cjfields 3-12-11
+        
+        # Many nodes have no identifying names, a simple warning is probably
+        # enough.
+
+        $self->warn("Node has more than two descendants\nWill do an arbitrary balanced split");
         my @working = @descs;
         # create an even set of artifical nodes on which to later hang the descs
         my $half = @working / 2;
@@ -971,7 +973,6 @@ sub reroot {
     
     $tmp_node = undef;
     $new_root->branch_length(undef);
-    $new_root->remove_tag('B');
 
     $old_root = undef;
     $self->set_root_node($new_root);
@@ -1054,7 +1055,7 @@ sub findnode_by_id {
 sub move_id_to_bootstrap{
    my ($tree) = shift;
    for my $node ( grep { ! $_->is_Leaf } $tree->get_nodes ) {
-       $node->bootstrap($node->id);
+       $node->bootstrap($node->id || '');
        $node->id('');
    }
 }

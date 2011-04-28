@@ -55,7 +55,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Shawn Hoon
 
@@ -111,6 +111,7 @@ sub new {
 
 sub next_result {
     my ($self) = @_;
+    local $_;
     while (defined($_=$self->_readline()) ) {
 	if (/no repetitive sequences detected/) {
 	    $self->warn( "RepeatMasker didn't find any repetitive sequences\n");
@@ -132,7 +133,7 @@ sub next_result {
 		($hit_start, $hit_end) = @line[11, 12];
 		$strand = 1;
 	    } elsif ($strand eq 'C') {
-		($hit_start, $hit_end) = @line[12, 13];
+		($hit_end, $hit_start) = @line[12, 13];
 		$strand = -1;
 	    }
 	    my $rf = Bio::SeqFeature::Generic->new
@@ -143,7 +144,7 @@ sub next_result {
 		 -strand      => $strand,
 		 -source_tag  => 'RepeatMasker',
 		 -primary_tag => $repeat_class,
-		 -tag => { 'Target'=> [$repeat_name,$hit_start,$hit_end]},
+		 -tag => { 'Target'=> [$repeat_name, $hit_start, $hit_end]},
 		);
 
 	    my $rf2 = Bio::SeqFeature::Generic->new

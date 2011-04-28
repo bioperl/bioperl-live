@@ -120,7 +120,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -409,18 +409,13 @@ sub _initialize {
     
     # $self->{'_handler_cache'} = $handler;
 
-    my ( $min_qlen, $check_all, $overlap, $best, $rpttype ) = $self->_rearrange(
+    my ($rpttype ) = $self->_rearrange(
         [
-            qw(MIN_LENGTH CHECK_ALL_HITS
-              OVERLAP BEST
+            qw(
               REPORT_TYPE)
         ],
         @args
     );
-
-    defined $min_qlen  && $self->min_query_length($min_qlen);
-    defined $best      && $self->best_hit_only($best);
-    defined $check_all && $self->check_all_hits($check_all);
     defined $rpttype   && ( $self->{'_reporttype'} = $rpttype );
 }
 
@@ -2304,11 +2299,6 @@ sub report_count { shift->result_count }
 
 =cut
 
-# Delegates to the event handler.
-sub inclusion_threshold {
-    shift->_eventHandler->inclusion_threshold(@_);
-}
-
 =head2 max_significance
 
  Usage     : $obj->max_significance();
@@ -2323,15 +2313,11 @@ sub inclusion_threshold {
 
 =cut
 
-sub max_significance { shift->{'_handler_cache'}->max_significance(@_) }
-
 =head2 signif
 
 Synonym for L<max_significance()|max_significance>
 
 =cut
-
-sub signif { shift->max_significance(@_) }
 
 =head2 min_score
 
@@ -2346,8 +2332,6 @@ sub signif { shift->max_significance(@_) }
 
 =cut
 
-sub min_score { shift->{'_handler_cache'}->max_significance(@_) }
-
 =head2 min_query_length
 
  Usage     : $obj->min_query_length();
@@ -2359,25 +2343,6 @@ sub min_score { shift->{'_handler_cache'}->max_significance(@_) }
 
 =cut
 
-sub min_query_length {
-    my $self = shift;
-    if (@_) {
-        my $min_qlen = shift;
-        if ( $min_qlen =~ /\D/ or $min_qlen <= 0 ) {
-            $self->throw(
-                -class => 'Bio::Root::BadParameter',
-                -text  => "Invalid minimum query length value: $min_qlen\n"
-                  . "Value must be an integer > 0. Value not set.",
-                -value => $min_qlen
-            );
-        }
-        $self->{'_confirm_qlength'}  = 1;
-        $self->{'_min_query_length'} = $min_qlen;
-    }
-
-    return $self->{'_min_query_length'};
-}
-
 =head2 best_hit_only
 
  Title     : best_hit_only
@@ -2388,12 +2353,6 @@ sub min_query_length {
  Argument  : Boolean (1 | 0) (when setting)
 
 =cut
-
-sub best_hit_only {
-    my $self = shift;
-    if (@_) { $self->{'_best'} = shift; }
-    $self->{'_best'};
-}
 
 =head2 check_all_hits
 
@@ -2407,62 +2366,6 @@ sub best_hit_only {
  Argument  : Boolean (1 | 0) (when setting)
 
 =cut
-
-sub check_all_hits {
-    my $self = shift;
-    if (@_) { $self->{'_check_all'} = shift; }
-    $self->{'_check_all'};
-}
-
-# commented out, using common base class util method
-#=head2 _get_accession_version
-#
-# Title   : _get_accession_version
-# Usage   : my ($acc,$ver) = &_get_accession_version($id)
-# Function:Private function to get an accession,version pair
-#           for an ID (if it is in NCBI format)
-# Returns : 2-pule of accession, version
-# Args    : ID string to process
-#
-#
-#=cut
-#
-#sub _get_accession_version {
-#    my $id = shift;
-#
-#    # handle case when this is accidently called as a class method
-#    if ( ref($id) && $id->isa('Bio::SearchIO') ) {
-#        $id = shift;
-#    }
-#    return unless defined $id;
-#    my ( $acc, $version );
-#    if ( $id =~ /(gb|emb|dbj|sp|pdb|bbs|ref|lcl)\|(.*)\|(.*)/ ) {
-#        ( $acc, $version ) = split /\./, $2;
-#    }
-#    elsif ( $id =~ /(pir|prf|pat|gnl)\|(.*)\|(.*)/ ) {
-#        ( $acc, $version ) = split /\./, $3;
-#    }
-#    else {
-#
-#        #punt, not matching the db's at ftp://ftp.ncbi.nih.gov/blast/db/README
-#        #Database Name                     Identifier Syntax
-#        #============================      ========================
-#        #GenBank                           gb|accession|locus
-#        #EMBL Data Library                 emb|accession|locus
-#        #DDBJ, DNA Database of Japan       dbj|accession|locus
-#        #NBRF PIR                          pir||entry
-#        #Protein Research Foundation       prf||name
-#        #SWISS-PROT                        sp|accession|entry name
-#        #Brookhaven Protein Data Bank      pdb|entry|chain
-#        #Patents                           pat|country|number
-#        #GenInfo Backbone Id               bbs|number
-#        #General database identifier           gnl|database|identifier
-#        #NCBI Reference Sequence           ref|accession|locus
-#        #Local Sequence identifier         lcl|identifier
-#        $acc = $id;
-#    }
-#    return ( $acc, $version );
-#}
 
 # general private method used to make minimal hits from leftover
 # data in the hit table

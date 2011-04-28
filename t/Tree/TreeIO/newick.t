@@ -4,19 +4,19 @@
 use strict;
 
 BEGIN {
-    use lib '.';
-    use Bio::Root::Test;
+  use lib '.';
+  use Bio::Root::Test;
     
-    test_begin(-tests => 24);
-	
-    use_ok('Bio::TreeIO');
+  test_begin(-tests => 52);
+
+  use_ok('Bio::TreeIO');
 }
 
 my $verbose = test_debug();
 
 ok my $treeio = Bio::TreeIO->new(-verbose => $verbose,
-			     -format => 'newick',
-			     -file   => test_input_file('cysprot1b.newick'));
+                                 -format => 'newick',
+                                 -file => test_input_file('cysprot1b.newick'));
 
 my $tree = $treeio->next_tree;
 isa_ok($tree, 'Bio::Tree::TreeI');
@@ -132,3 +132,88 @@ $treeio = Bio::TreeIO->new(-format => 'newick',
 $tree = $treeio->next_tree;
 ok($tree);
 is($tree->get_nodes, 15);
+
+
+test_roundtrip('((a,b),c);','Round trip: simple newick');
+test_roundtrip('(a:1,b:2,c:3,d:4)TEST:1.2345;','Round trip: Root node branch length');
+test_roundtrip('(a:1,b:2,c:3,d:4):1.2345;','Round trip: Root node branch length');
+test_roundtrip('(A:0.1,B:0.2,(C:0.3,D:0.4)E:0.5)F;','Round trip: from Wikipedia');
+test_roundtrip('(a:1,b:2):0.0;','Branch length on root');
+test_roundtrip('(a:1,b:2):0.001;','Tiny branch length on root');
+test_roundtrip('(a:0,b:00):0.0;','Zero branch lenghts');
+
+# From Wikipedia:
+test_roundtrip('(,,(,));','wkp blank tree');
+test_roundtrip('(A,B,(C,D));','wkp only leaves labeled');
+test_roundtrip('(A,B,(C,D)E)F;','wkp all nodes labeled');
+test_roundtrip('(:0.1,:0.2,(:0.3,:0.4):0.5);','wkp branch lengths, no labels');
+test_roundtrip('(:0.1,:0.2,(:0.3,:0.4):0.5):0.0;','wkp branch lengths, including root');
+test_roundtrip('(A:0.1,B:0.2,(C:0.3,D:0.4):0.5);','wkp distances and leaf names');
+test_roundtrip('(A:0.1,B:0.2,(C:0.3,D:0.4)E:0.5)F;','wkp distances and all names');
+test_roundtrip('((B:0.2,(C:0.3,D:0.4)E:0.5)F:0.1)A;','wkp rooted on leaf node');
+
+# From the PHYLIP site:
+test_roundtrip('(B,(A,C,E),D);','phylip simple tree');
+test_roundtrip('(,(,,),);','phylip no labels');
+test_roundtrip('(B:6.0,(A:5.0,C:3.0,E:4.0):5.0,D:11.0);','phylip w/ branch lengths');
+test_roundtrip('(B:6.0,(A:5.0,C:3.0,E:4.0)Ancestor1:5.0,D:11.0);','phylip w/ internal label');
+test_roundtrip('((raccoon:19.19959,bear:6.80041):0.84600,((sea_lion:11.99700,seal:12.00300):7.52973,((monkey:100.85930,cat:47.14069):20.59201,weasel:18.87953):2.09460):3.87382,dog:25.46154);','phylip raccoon tree');
+test_roundtrip('(Bovine:0.69395,(Gibbon:0.36079,(Orang:0.33636,(Gorilla:0.17147,(Chimp:0.19268,Human:0.11927):0.08386):0.06124):0.15057):0.54939,Mouse:1.21460):0.10;','phylip mammal tree');
+test_roundtrip('(Bovine:0.69395,(Hylobates:0.36079,(Pongo:0.33636,(G._Gorilla:0.17147,(P._paniscus:0.19268,H._sapiens:0.11927):0.08386):0.06124):0.15057):0.54939,Rodent:1.21460);','phylip mammal tree w/ underbars');
+test_roundtrip('A;','phylip single node');
+test_roundtrip('((A,B),(C,D));','phylip_quartet');
+test_roundtrip('(Alpha,Beta,Gamma,Delta,,Epsilon,,,);','phylip greek');
+
+# bug 3039
+SKIP: {
+    test_skip(-tests => 3, -requires_module => 'IO::Scalar');
+
+    my $tree_string = '(a:1,b:2):0.0;';
+    my $in_fh = IO::Scalar->new(\$tree_string);
+    my $treein = Bio::TreeIO->new(
+        -format  => 'newick',
+        -verbose => 0,
+        -fh      => $in_fh,
+    );
+    
+    my $tree = $treein->next_tree;
+    isa_ok($tree, 'Bio::Tree::TreeI');
+
+    my $out_tree;
+    my $out_fh = IO::Scalar->new(\$out_tree);
+    my $treeout = Bio::TreeIO->new(
+        '-format' => 'newick',
+        '-fh'     => $out_fh,
+        '-flush',
+    );
+
+    $treeout->write_tree($tree);
+    ok($out_tree, 'wrote out tree');
+    chomp($out_tree);
+
+    is($tree_string, $out_tree, 'bug 3039 - root node branch length');
+}
+
+sub test_roundtrip {
+  my $string = shift;
+  my $desc = shift;
+
+  my $in = Bio::TreeIO->new(-format => 'newick',
+                            -string => $string,
+                            -verbose => $verbose
+                            );
+  my $out = '';
+  eval {
+    my $t = $in->next_tree;
+    $out = $t->as_text('newick');
+  };
+  return is($out,$string,$desc);
+}
+
+sub read_file {
+  my $file = shift;
+  open(IN,"<$file");
+  my (@lines) = <IN>;
+  @lines = map {$_ =~ s/\\n//g} @lines;
+  return join("",@lines);
+}
