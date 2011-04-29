@@ -293,21 +293,15 @@ sub _map {
    my $match = Bio::Location::Simple->new;
    $match->location_type($value->location_type);
    $match->strand($self->strand);
-   
-   ## See 'out'
-   $match->seq_id($self->out->seq_id);
-   $result->seq_id($self->out->seq_id);
 
    #within
    #       |-------------------------|
    #            |-|
    if ($start >= $self->out->start and $end <= $self->out->end) {
 
-       # match
-       if ($value->strand) {
-	   $match->strand($match->strand * $value->strand);
-	   $result->strand($match->strand);
-       }
+       $match->seq_id($self->out->seq_id);
+       $result->seq_id($self->out->seq_id);
+
        if ($self->strand >= 0) {
 	   $match->start($start);
 	   $match->end($end);
@@ -315,10 +309,13 @@ sub _map {
 	   $match->start($self->out->end - $end + $self->out->start);
 	   $match->end($self->out->end - $start + $self->out->start);
        }
+       if ($value->strand) {
+	   $match->strand($match->strand * $value->strand);
+	   $result->strand($match->strand);
+       }
        bless $match, 'Bio::Coordinate::Result::Match';
        $result->add_sub_Location($match);
    }
-   
    #out
    #       |-------------------------|
    #   |-|              or              |-|
@@ -327,11 +324,8 @@ sub _map {
 	   ($value->location_type eq 'IN-BETWEEN' and 
 	    ($end = $self->out->start or $start = $self->out->end)))  {
 
-       # id differs in this case
        $match->seq_id($self->in->seq_id);
        $result->seq_id($self->in->seq_id);
-
-       # match
        $match->start($value->start);
        $match->end($value->end);
        $match->strand($value->strand);
@@ -339,17 +333,28 @@ sub _map {
        bless $match, 'Bio::Coordinate::Result::Gap';
        $result->add_sub_Location($match);
    }
-   
    #partial I
    #       |-------------------------|
    #   |-----|
    elsif ($start < $self->out->start and $end <= $self->out->end ) {
 
-       # match
+       $result->seq_id($self->out->seq_id);
        if ($value->strand) {
 	   $match->strand($match->strand * $value->strand);
 	   $result->strand($match->strand);
        }
+       my $gap = Bio::Location::Simple->new;
+       $gap->start($value->start);
+       $gap->end($self->in->start - 1);
+       $gap->strand($value->strand);
+       $gap->seq_id($self->in->seq_id);
+
+       bless $gap, 'Bio::Coordinate::Result::Gap';
+       $result->add_sub_Location($gap);
+
+       # match
+       $match->seq_id($self->out->seq_id);
+
        if ($self->strand >= 0) {
 	   $match->start($self->out->start);
 	   $match->end($end);
@@ -359,25 +364,14 @@ sub _map {
        }
        bless $match, 'Bio::Coordinate::Result::Match';
        $result->add_sub_Location($match);
-
-       # gap
-       my $gap = Bio::Location::Simple->new;
-       $gap->start($value->start);
-       $gap->end($self->in->start - 1);
-       #$gap->strand($value->strand);
-       $gap->strand($match->strand);
-       $gap->seq_id($self->in->seq_id);
-
-       bless $gap, 'Bio::Coordinate::Result::Gap';
-       $result->add_sub_Location($gap);
    }
-   
    #partial II
    #       |-------------------------|
    #                             |------|
    elsif ($start >= $self->out->start and $end > $self->out->end ) {
 
-       # match
+       $match->seq_id($self->out->seq_id);
+       $result->seq_id($self->out->seq_id);
        if ($value->strand) {
 	   $match->strand($match->strand * $value->strand);
 	   $result->strand($match->strand);
@@ -392,60 +386,52 @@ sub _map {
        bless $match, 'Bio::Coordinate::Result::Match';
        $result->add_sub_Location($match);
 
-       # gap
        my $gap = Bio::Location::Simple->new;
        $gap->start($self->in->end + 1);
        $gap->end($value->end);
-       #$gap->strand($value->strand);
-       $gap->strand($match->strand);
+       $gap->strand($value->strand);
        $gap->seq_id($self->in->seq_id);
-
        bless $gap, 'Bio::Coordinate::Result::Gap';
        $result->add_sub_Location($gap);
+
    }
-   
    #enveloping
    #       |-------------------------|
    #   |---------------------------------|
    elsif ($start < $self->out->start and $end > $self->out->end ) {
 
-       # match
+       $result->seq_id($self->out->seq_id);
        if ($value->strand) {
 	   $match->strand($match->strand * $value->strand);
 	   $result->strand($match->strand);
        }
-       $match->seq_id($self->out->seq_id);
-
-       $match->start($self->out->start);
-       $match->end($self->out->end);
-
-       bless $match, 'Bio::Coordinate::Result::Match';
-       $result->add_sub_Location($match);
-
        # gap1
        my $gap1 = Bio::Location::Simple->new;
        $gap1->start($value->start);
        $gap1->end($self->in->start - 1);
-       #$gap1->strand($value->strand);
-       $gap1->strand($match->strand);
+       $gap1->strand($value->strand);
        $gap1->seq_id($self->in->seq_id);
-
        bless $gap1, 'Bio::Coordinate::Result::Gap';
        $result->add_sub_Location($gap1);
+
+       # match
+       $match->seq_id($self->out->seq_id);
+
+       $match->start($self->out->start);
+       $match->end($self->out->end);
+       bless $match, 'Bio::Coordinate::Result::Match';
+       $result->add_sub_Location($match);
 
        # gap2
        my $gap2 = Bio::Location::Simple->new;
        $gap2->start($self->in->end + 1);
        $gap2->end($value->end);
-       #$gap2->strand($value->strand);
-       $gap2->strand($match->strand);
+       $gap2->strand($value->strand);
        $gap2->seq_id($self->in->seq_id);
-
        bless $gap2, 'Bio::Coordinate::Result::Gap';
        $result->add_sub_Location($gap2);
-   }
 
-   else {
+   } else {
        $self->throw("Should not be here!");
    }
    return $result;
