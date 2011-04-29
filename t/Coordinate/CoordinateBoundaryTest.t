@@ -255,7 +255,8 @@ isnt $match_on_chr_3_f->end,            6125; # Gets truncated to maximum!
 is $match_on_chr_3_f->end,              6001; # Gets truncated to maximum!
 is $match_on_chr_3_f->strand,             +1;
 
-#print Dumper $match_on_chr_3_f, "\n";
+#print Dumper $match_on_ctg_3;
+#print Dumper $match_on_chr_3_f;
 
 is $match_on_chr_3_r->seq_id, 'ctg on chr r';
 isnt $match_on_chr_3_r->start,          4877; # Gets truncated to minimum!
@@ -263,7 +264,8 @@ is $match_on_chr_3_r->start,            5001; # Gets truncated to minimum!
 is $match_on_chr_3_r->end,              5077;
 is $match_on_chr_3_r->strand,             -1; # FAIL
 
-#print Dumper $match_on_chr_3_r, "\n";
+#print Dumper $match_on_ctg_3;
+#print Dumper $match_on_chr_3_r;
 
 
 
@@ -306,7 +308,8 @@ isnt $match_on_chr_4_f->end,            6125; # Gets truncated to maximum!
 is $match_on_chr_4_f->end,              6001; # Gets truncated to maximum!
 is $match_on_chr_4_f->strand,             -1;
 
-#print Dumper $match_on_chr_4_f, "\n";
+#print Dumper $match_on_ctg_4;
+#print Dumper $match_on_chr_4_f;
 
 is $match_on_chr_4_r->seq_id, 'ctg on chr r';
 isnt $match_on_chr_4_r->start,          4877; # Gets truncated to minimum!
@@ -314,7 +317,8 @@ is $match_on_chr_4_r->start,            5001; # Gets truncated to minimum!
 is $match_on_chr_4_r->end,              5077;
 is $match_on_chr_4_r->strand,             +1; # FAIL
 
-#print Dumper $match_on_chr_4_r, "\n";
+#print Dumper $match_on_ctg_4;
+#print Dumper $match_on_chr_4_r;
 
 
 
