@@ -223,7 +223,7 @@ sub new {
     }
     
     # identify available contexts
-    for my $t qw( query hit ) {
+    for my $t (qw( query hit )) {
 	my %contexts;
 	for my $i (0..$#hsps) {
 	    my $ctxt = $self->_context(
