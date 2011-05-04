@@ -355,7 +355,7 @@ sub new_sequence{
 =cut
 
 sub blast_sequence {
-    my ($seq,$verbose) = shift;
+    my ($seq,$verbose) = @_;
 
     if( !defined $verbose ) {
 	$verbose = 1;
@@ -369,7 +369,7 @@ sub blast_sequence {
 
     require Bio::Tools::Run::RemoteBlast;
 
-    my $prog = 'blastp';
+    my $prog = ( $seq->alphabet eq 'protein' ) ? 'blastp' : 'blastn';
     my $e_val= '1e-10';
 
     my @params = ( '-prog' => $prog,
