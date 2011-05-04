@@ -16,6 +16,14 @@ Bugs and requested features list:
 
 CPAN releases are branched from 'master'.
 ---------------------------------------------------------
+
+1.6.901 May 3, 2011
+
+    [Notes]
+    
+    * Minor bug fix release
+    * Bio::SeqIO::gbxml tests require XML::SAX [hartzell]
+    * Address Build.PL issues when DBI is not present [hartzell]
  
 1.6.900 April 14, 2011
 
