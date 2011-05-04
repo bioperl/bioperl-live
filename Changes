@@ -24,6 +24,8 @@ CPAN releases are branched from 'master'.
     * Minor bug fix release
     * Bio::SeqIO::gbxml tests require XML::SAX [hartzell]
     * Address Build.PL issues when DBI is not present [hartzell]
+    * Skip gbxml.t and Interpro tests when modules not installed [cjfields]
+    * Remove deprecated code for impending perl 5.14.0 release [cjfields]
  
 1.6.900 April 14, 2011
 
