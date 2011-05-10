@@ -591,7 +591,7 @@ sub get_object_conditions{
            Conditions in this implementation must be closures
            (anonymous functions). These will be passed one parameter,
            which is a hash reference with the sequence object
-           initialization paramters being the keys.
+           initialization parameters being the keys.
 
            Conditions are implicitly ANDed. If you want other
            operators, perform those tests inside of one closure

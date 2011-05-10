@@ -38,7 +38,7 @@ L<Bio::Tools::Alignment::Consed> provides methods and objects to deal
 with the output from the Consed software suite. Specifically,
 takes an C<.ace> file and provides objects for the results.
 
-A word about doublets: This module was written to accomodate a large
+A word about doublets: This module was written to accommodate a large
 EST sequencing operation. In this case, EST's were sequenced from the
 3' and from the 5' end of the EST. The objective was to find a
 consensus sequence for these two reads.  Thus, a contig of two is what
@@ -178,7 +178,7 @@ sub new {
 	      2 - noisier
 	      3 - annoyingly noisy
 
-This method for setting verbosity has largely been superseeded by a
+This method for setting verbosity has largely been superseded by a
 sub-by-sub way, where for every sub you can provide a (-verbose)
 switch. I am doing converting this bit-by-bit so do not be surprised
 if some subs do not honour this.
@@ -1598,7 +1598,7 @@ were certain "features" in the acefile that required a bit more
 detailed work be done to get the qualities for certain parts of the
 consensus sequence. In order to make _sure_ that this was done
 properly I wrote things to do all steps and then I used dump_hash()
-and checked each one to ensure expected bahavior. I have never changed
+and checked each one to ensure expected behavior. I have never changed
 this, so there you are.
 
 =cut

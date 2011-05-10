@@ -86,7 +86,7 @@ stores this information.
 
 Items listed as Annotation 'NAME' tell you the data is stored the
 associated Bio::AnnotationCollectionI object which is associated with
-Bio::Seq objects.  If it is explictly requested that no annotations
+Bio::Seq objects.  If it is explicitly requested that no annotations
 should be stored when parsing a record of course they will not be
 available when you try and get them.  If you are having this problem
 look at the type of SeqBuilder that is being used to contruct your

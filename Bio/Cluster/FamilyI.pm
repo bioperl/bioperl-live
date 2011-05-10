@@ -81,7 +81,7 @@ use base qw(Bio::ClusterI);
 
 =head2 new
 
-  We dont mandate but encourage implementors to support at least the
+  We don't mandate but encourage implementors to support at least the
   following named parameters upon object initialization.
 
  Arguments          Description

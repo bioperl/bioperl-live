@@ -239,7 +239,7 @@ sequence containing this feature; and that
 is a "unique constraint" over features
 
 The ID is persistent, so long as none of these values change - if they
-do, it is considered a seperate entity
+do, it is considered a separate entity
 
 =cut
 
