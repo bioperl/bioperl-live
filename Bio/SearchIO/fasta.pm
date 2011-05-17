@@ -65,7 +65,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  https://redmine.open-bio.org/projects/bioperl/
+  http://bugzilla.open-bio.org/
 
 =head1 AUTHOR - Jason Stajich, Aaron Mackey
 
@@ -214,6 +214,7 @@ sub next_result {
     my $data    = '';
     my $seentop = 0;
     my $current_hsp;
+    my $m9HSP = 0;
     $self->start_document();
     my @hit_signifs;
     while ( defined( $_ = $self->_readline ) ) {
@@ -222,10 +223,17 @@ sub next_result {
         if (
                m/(\S+)\s+searches\s+a\s+(protein\s+or\s+DNA\s+)?sequence/oxi
             || /(\S+)\s+compares\s+a/
-            || (   m/^\#\s+/
+	    || /(\S+)\s+performs\s+a/
+	    || /(\S+)\s+produces\s/
+	    || /(\S+)\s+finds\s+/	# for lalign, but does not work because no "The best scores are:"
+            || (   m/^\#\s+/	# has a command log line
                 && ( $_ = $self->_readline )
                 && /(\S+)\s+searches\s+a\s+(protein\s+or\s+DNA\s+)?sequence/oxi
-                || /(\S+)\s+compares\s+a/ )
+		   || /(\S+)\s+compares\s+a/
+		   || /(\S+)\s+performs\s+a/
+		   || /(\S+)\s+produces\s/
+		   || /(\S+)\s+finds\s+/	# for lalign, but does not work because no "The best scores are:"
+	    )
           )
         {
             if ($seentop) {
@@ -405,20 +413,54 @@ sub next_result {
                 }
             );
         }
-        elsif (/^\s*(Smith-Waterman).+(\S+)\s*matrix [^\]]*?(xS)?\]/) {
+        elsif (/^\s*(Smith-Waterman)/) {
+
+            $self->{'_reporttype'} = $1;
+
+	    m/\[\s*(\S+)\s+matrix \([^\)]+\)(xS)?\],/;
+
             $self->element(
                 {
                     'Name' => 'Parameters_matrix',
-                    'Data' => $2
+                    'Data' => $1
                 }
             );
             $self->element(
                 {
                     'Name' => 'Parameters_filter',
-                    'Data' => defined $3 ? 1 : 0,
+                    'Data' => defined $2 ? 1 : 0,
                 }
             );
-            $self->{'_reporttype'} = $1;
+	    if (/\s*gap\-penalty:\s*(\-?\d+)\/(\-?\d+)/) {
+		$self->element(
+		    {
+			'Name' => 'Parameters_gap-open',
+			'Data' => $1,
+		    }
+		    );
+
+		$self->element(
+		    {
+			'Name' => 'Parameters_gap-ext',
+			'Data' => $2,
+		    }
+		    );
+	    }
+	    elsif (/\s*open\/ext:\s*(\-?\d+)\/(\-?\d+)/) {
+		$self->element(
+		    {
+			'Name' => 'Parameters_gap-open',
+			'Data' => $1,
+		    }
+		    );
+
+		$self->element(
+		    {
+			'Name' => 'Parameters_gap-ext',
+			'Data' => $2,
+		    }
+		    );
+	    }
 
             $self->element(
                 {
@@ -462,6 +504,7 @@ sub next_result {
                 }
 
                 if ($line[0] eq "+-") {
+		    $m9HSP = 1;
                     # parse HSP, add to last parsed Hit
                     my %hspData;
                     
@@ -474,6 +517,9 @@ sub next_result {
 
                     next;
                 }
+		elsif ($line[0] eq '>>><<<') {
+		    last;
+		}
 
                 my (%data, %hspData);
                 @data{@labels} = @hspData{@labels} = splice( @line, @line - @labels );
@@ -541,20 +587,42 @@ sub next_result {
             $self->{'_reporttype'} = $1
               if ( $self->{'_reporttype'} !~ /FAST[PN]/i );
 
+#
+# get gap-pen line for FASTA33, which is not on the matrix line
+#
+# FASTA (3.36 June 2000) function [optimized, BL50 matrix (15:-5)] ktup: 2
+#  join: 36, opt: 24, gap-pen: -12/ -2, width:  16
+#
+	    $_ = $self->_readline();
+	    if (/(?:gap\-pen|open\/ext):\s+([\-\+]?\d+)\s*\/\s*([\-\+]?\d+)/) {
+		$self->element(
+		    {
+			'Name' => 'Parameters_gap-open',
+			'Data' => $1
+		    }
+		    );
+		$self->element(
+		    {
+			'Name' => 'Parameters_gap-ext',
+			'Data' => $2
+		    }
+		    );
+	    }
+
             $self->element(
                 {
                     'Name' => 'FastaOutput_program',
                     'Data' => $self->{'_reporttype'}
                 }
             );
+
         }
-        elsif (/^Algorithm:\s+(\S+)\s+\(([^)]+)\)\s+(\S+)/) {
+        elsif (/^Algorithm:\s+(\S+)\s+.*\s*\(([^)]+)\)\s+(\S+)/) {
             $self->{'_reporttype'} = $1
               if ( $self->{'_reporttype'} !~ /FAST[PN]/i );
         }
-        elsif (
-            /^Parameters:\s+(\S+)\s*matrix\s*(?:\(([^(]+?)\))?\s*ktup:\s*(\d+)/)
-        {    # FASTA 35.04
+        elsif ( /^Parameters:/ ) {    # FASTA 35.04/FASTA 36
+	    m/Parameters:\s+(\S+)\s+matrix\s+\([^\)]+\)(xS)?,?\s/;
             $self->element(
                 {
                     'Name' => 'Parameters_matrix',
@@ -567,12 +635,32 @@ sub next_result {
                     'Data' => defined $2 ? $2 : 0,
                 }
             );
-            $self->element(
-                {
-                    'Name' => 'Parameters_ktup',
-                    'Data' => $3
-                }
-            );
+	    if (/ktup:\s(\d+)/) {
+		$self->element(
+		    {
+			'Name' => 'Parameters_ktup',
+			'Data' => $1
+		    }
+		    );
+		if (/ktup:\s\d+$/) {
+		    $_ = $self->_readline();
+		}
+
+	    }
+	    if (/(?:gap\-pen|open\/ext):\s+([\-\+]?\d+)\s*\/\s*([\-\+]?\d+)/) {
+		$self->element(
+		    {
+			'Name' => 'Parameters_gap-open',
+			'Data' => $1
+		    }
+		    );
+		$self->element(
+		    {
+			'Name' => 'Parameters_gap-ext',
+			'Data' => $2
+		    }
+		    );
+	    }
             $self->element(
                 {
                     'Name' => 'FastaOutput_program',
@@ -581,30 +669,17 @@ sub next_result {
             );
         }
         elsif (
-/(?:gap\-pen|open\/ext):\s+([\-\+]?\d+)\s*\/\s*([\-\+]?\d+).+width:\s+(\d+)/
+	    /^\s+ktup:\s*(\d+),/
           )
         {
             $self->element(
                 {
-                    'Name' => 'Parameters_gap-open',
+                    'Name' => 'Parameters_ktup',
                     'Data' => $1
-                }
-            );
-            $self->element(
-                {
-                    'Name' => 'Parameters_gap-ext',
-                    'Data' => $2
-                }
-            );
-            $self->element(
-                {
-                    'Name' => 'Parameters_word-size',
-                    'Data' => $3
                 }
             );
         }
         elsif (/^(>--)$/ || /^>>(?!>)(.+?)\s+(?:\((\d+)\s*(aa|nt)\))?$/) {
-            
             if ( $self->in_element('hsp') ) {
                 $self->end_element( { 'Name' => 'Hsp' } );
             }
@@ -664,12 +739,12 @@ sub next_result {
                     }
                 );
             }
+	    else {
+#		push @{$hit_signifs[0]->{HSPs}}, $current_hsp;
+	    }
+
 
             $_ = $self->_readline();
-	    my $strand = 1;
-	    if( /rev-comp/ ) {
-		$strand = -1;
-	    }
             my ( $score, $bits, $e, $e2 ) = /Z-score: \s* (\S+) \s*
                                (?: bits: \s* (\S+) \s+ )?
                                (?: E|expect ) \s* \((?:\d+)?\) :? \s*(\S+)
@@ -677,10 +752,17 @@ sub next_result {
                                /ox;
             $bits = $score unless defined $bits;
 
-            
-            my $v = shift @{$hit_signifs[0]->{HSPs}}
-                if (@hit_signifs && @{$hit_signifs[0]->{HSPs}});
-            
+            my ($v);
+
+	    if ($firstHSP && !$m9HSP) {
+	      $v = shift @{$hit_signifs[0]->{HSPs}}
+		if (@hit_signifs && @{$hit_signifs[0]->{HSPs}});
+	      $current_hsp = $v;
+	    }
+	    else {
+	      $v = $current_hsp;
+	    }
+
             if ( defined $v ) {
                 @{$v}{qw(evalue evalue2 bits z-sc)} = ( $e, $e2, $bits, $score );
             }
@@ -729,6 +811,14 @@ sub next_result {
             );
             $_ = $self->_readline();
 
+            if (s/global\/.* score:\s*(\d+)\;?//) {
+                $self->element(
+                    {
+                        'Name' => 'Hsp_sw-score',
+                        'Data' => $1
+                    }
+                );
+            }
             if (s/Smith-Waterman score:\s*(\d+)\;?//) {
                 $self->element(
                     {
@@ -769,10 +859,7 @@ sub next_result {
                         'Data' => $len
                     }
                 );
-		if( $strand < 0 ) {
-		    # flip-flop start/end when query is on opposite strand
-		    ($querystart,$queryend) = ($queryend,$querystart);
-		}
+
                 $self->element(
                     {
                         'Name' => 'Hsp_query-from',
@@ -1537,6 +1624,8 @@ sub _processHits {
 
       $self->element({'Name' => 'Hsp_bit-score', 'Data' => $hsp->{bits} } )
 	if exists $hsp->{bits};
+      $self->element({'Name' => 'Hsp_sw-score', 'Data' => $hsp->{'n-w'} } )
+	if exists $hsp->{'n-w'};
       $self->element({'Name' => 'Hsp_sw-score', 'Data' => $hsp->{sw} } )
 	if exists $hsp->{sw};
       $self->element({'Name' => 'Hsp_gaps', 'Data' => $hsp->{'%_gid'} } )
