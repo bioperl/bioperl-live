@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 # deob_index.pl
 # part of the Deobfuscator package

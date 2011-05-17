@@ -35,7 +35,7 @@ via HTTP
 
   my $factory = Bio::Tools::Run::RemoteBlast->new(@params);
 
-  #change a query paramter
+  #change a query parameter
   $Bio::Tools::Run::RemoteBlast::HEADER{'ENTREZ_QUERY'} = 'Homo sapiens [ORGN]';
 
   #change a retrieval parameter

@@ -57,7 +57,7 @@ options only for expert use
 =head1 ENVIRONMENT
 
 bp_index and bp_fetch coordinate where the databases lie using the
-enviroment variable BIOPERL_INDEX. This can be overridden using the
+environment variable BIOPERL_INDEX. This can be overridden using the
 -dir option. The index type (SDBM or DB_File or another index file)
 is controlled by the BIOPERL_INDEX_TYPE variable. This defaults to 
 SDBM_File 

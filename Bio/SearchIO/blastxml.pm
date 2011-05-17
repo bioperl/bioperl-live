@@ -69,7 +69,7 @@ the B<-tempfile> flag. If specified as true, then the parser will write out each
 report to a temporary filehandle rather than holding the entire report as a
 string in memory. The reason this is done in the first place is NCBI reports
 have an uncessary E<lt>?xml version="1.0"?E<gt> at the beginning of each report
-and RPS-BLAST reports have an additional unecessary RPS-BLAST tag at the top of
+and RPS-BLAST reports have an additional unnecessary RPS-BLAST tag at the top of
 each report. So we currently have implemented the work around by preparsing the
 file (yes it makes the process slower, but it works). We are open to suggestions
 on how to optimize this in the future.

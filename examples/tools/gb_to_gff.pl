@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -w
+#!/usr/local/bin/perl
 use strict;
 
 use Bio::Tools::GFF;

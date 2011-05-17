@@ -11,7 +11,7 @@ bp_netinstall.pl
 options: 
 
  -h|--help                Show this message 
- -d|--dev                 Use the developement version of bioperl from git 
+ -d|--dev                 Use the development version of bioperl from git 
  --build_param_str=<args> Parameters that are passed in at 'perl Build.PL'
  --install_param_str=<args>
                           Use this string to predefine './Build install' 

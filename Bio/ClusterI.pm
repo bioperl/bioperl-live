@@ -88,7 +88,7 @@ define.
 
 =head2 new
 
-  We dont mandate but encourage implementors to support at least the
+  We don't mandate but encourage implementors to support at least the
   following named parameters upon object initialization.
 
   Argument        Description

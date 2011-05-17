@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 #
 # This was actually a part of the test suite - but because it starts
 # an external process it was safer not to use it as a test (the process

@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 =head1 NAME
 
 biblio-eutils-example.pl

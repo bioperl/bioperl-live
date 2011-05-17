@@ -1,7 +1,7 @@
 #
 # BioPerl module Bio::Biblio
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Martin Senger <senger@ebi.ac.uk>
 # For copyright and disclaimer see below.
@@ -37,7 +37,7 @@ Bio::Biblio - A Bibliographic Query Service module
 =head1 DESCRIPTION
 
 This is a class whose instances can access bibliographic
-repositories. It allows to query a bibliographic database (such as
+repositories. It allows one to query a bibliographic database (such as
 MEDLINE) and then to retrieve resulting citations from it. The
 citations are returned in an XML format which is native to the
 repository but there are also supporting modules for converting them
@@ -52,7 +52,7 @@ described in the B<OpenBQS> project. Its home page is at
 L<http://www.ebi.ac.uk/~senger/openbqs>.
 
 The module also gives an access to a set of controlled vocabularies
-and their values. It allows to introspect bibliographic repositories
+and their values. It allows one to introspect bibliographic repositories
 and to find what citation resource types (such as journal and book
 articles, patents or technical reports) are provided, and what
 attributes they have, eventually what attribute values are allowed.
@@ -85,8 +85,8 @@ I<Bio::DB::BiblioI> (see L<Bio::DB::BiblioI>) by delegating
 calls to a loaded low-level module (e.g. see
 L<Bio::DB::Biblio::soap>).
 
-Note that there are other modules which do not use the SOAP protocol 
-and do not implement all query methods - nevertheless they have retrieval 
+Note that there are other modules which do not use the SOAP protocol
+and do not implement all query methods - nevertheless they have retrieval
 methods and can be used in the same way:
 
    -access => biofetch
@@ -134,15 +134,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -246,14 +246,14 @@ collections. Anyway this is how the cloning can be done:
 
   # this will create a new object which will NOT send a 'destroy'
   # message to the remote server when its life ends
-  my $clone = $biblio->new (-destroy-on-exit => '0'); 
+  my $clone = $biblio->new (-destroy-on-exit => '0');
 
 =cut
 
 sub new {
     my ($caller,@args) = @_;
     my $class = ref($caller) || $caller;
-  
+
     # if $caller is an object, or if it is an underlying
     # 'real-work-doing' class (e.g. Bio::DB::Biblio::soap) then
     # we want to call SUPER to create and bless an object
@@ -279,11 +279,11 @@ sub new {
     # module and call this new() method again (unless the loaded
     # module has its own new() method)
 
-    } else { 
+    } else {
 	my %param = @args;
 	@param { map { lc $_ } keys %param } = values %param; # lowercase keys
 	my $access =
-	    $param {'-access'} || 
+	    $param {'-access'} ||
 	    $class->_guess_access ( $param {'-location'} ) ||
 	    'soap';
 	$access = "\L$access";	# normalize capitalization to lower case

@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 use version;
 our $API_VERSION = qv('1.1.3');
 
