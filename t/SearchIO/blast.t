@@ -2,6 +2,7 @@
 # $Id: SearchIO_blast.t 14995 2008-11-16 06:20:00Z cjfields $
 
 use strict;
+use warnings;
 
 BEGIN {
     use lib '.';
