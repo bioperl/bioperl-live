@@ -27,7 +27,7 @@ CPAN releases are branched from 'master'.
     * Bio::SeqIO::gbxml tests require XML::SAX [hartzell]
     * Address Build.PL issues when DBI is not present [hartzell]
     * Skip gbxml.t and Interpro tests when modules not installed [cjfields]
-    * Remove deprecated code for impending perl 5.14.0 release [cjfields]
+    * Remove deprecated code for perl 5.14.0 compat [cjfields]
     * Due to schema changes and lack of support for older versions, support
       for NeXML 0.9 is only (very) partially implemented.
       See: https://redmine.open-bio.org/issues/3207
