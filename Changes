@@ -19,6 +19,10 @@ CPAN releases are branched from 'master'.
 
 1.6.901 May 3, 2011
 
+    [Notes]
+
+    * Use of AcePerl is deprecated; Ace.pm isn't actively maintained, and
+      modules using Ace will also be deprecated [lds, cjfields]
     * Minor bug fix release
     * Bio::SeqIO::gbxml tests require XML::SAX [hartzell]
     * Address Build.PL issues when DBI is not present [hartzell]
@@ -27,6 +31,12 @@ CPAN releases are branched from 'master'.
     * Due to schema changes and lack of support for older versions, support 
       for NeXML 0.9 is only (very) partially implemented.
       See: https://redmine.open-bio.org/issues/3207
+    
+    [Bug fixes]
+    
+    * [3205] - small fix to Bio::Perl blast_sequence() to make compliant with
+      docs [genehack, cjfields]
+    
 
 1.6.900 April 14, 201
 
