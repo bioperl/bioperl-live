@@ -1,5 +1,4 @@
 # -*-Perl-*- Test Harness script for Bioperl
-# $Id$
 
 use strict;
 use warnings;
@@ -7,9 +6,9 @@ use warnings;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    
-    test_begin(-tests => 67);
-	
+
+    test_begin(-tests => 69);
+
     use_ok('Bio::Root::IO');
 }
 
@@ -184,6 +183,18 @@ SKIP: {
     for (1..5) {
         is($unix_rio->_readline, $win_rio->_readline);
     }
+}
+
+##############################################
+# test Path::Class support
+##############################################
+
+SKIP: {
+    test_skip(-tests => 2, -requires_module => 'Path::Class');
+
+    my $f = sub { Bio::Root::IO->new( -file => Path::Class::file(test_input_file('U71225.gb.unix') ) ) };
+    lives_ok(sub { $f->() } , 'Bio::Root::IO->new can handle a Path::Class object');
+    isa_ok($f->(), 'Bio::Root::IO');
 }
 
 
