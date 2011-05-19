@@ -331,6 +331,12 @@ sub executable {
             }
         }
     }
+    
+    # bail if we never found the executable
+    unless ( defined $self->{'_pathtoexe'}) {
+        $self->throw("Cannot find executable for ".$self->program_name .
+            ". path=\"".$self->program_path."\"");
+    }
     return $self->{'_pathtoexe'};
 }
 
