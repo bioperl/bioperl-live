@@ -8,7 +8,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 1350);
+    test_begin(-tests => 1352);
 
     use_ok('Bio::SearchIO');
 }
@@ -16,11 +16,17 @@ BEGIN {
 SKIP: {
     test_skip(-tests => 2, -requires_module => 'Path::Class');
 
-    my $file = Path::Class::file(test_input_file('ecolitst.bls'));
-    my $f    = sub { Bio::SearchIO->new( -file   => $file, -format => 'blast') };
 
-    lives_ok(sub { $f->() } , 'Bio::SearchIO->new can handle a Path::Class object');
-    isa_ok($f->(), 'Bio::Root::IO');
+    my $file = Path::Class::file(test_input_file('ecolitst.bls'));
+    my $f    = sub { my ($file) = @_; Bio::SearchIO->new( -file   => $file, -format => 'blast') };
+
+    lives_ok(sub { $f->($file) } , 'Bio::SearchIO->new can handle a Path::Class object');
+    isa_ok($f->($file), 'Bio::Root::IO');
+
+    $file = Path::Class::dir(File::Spec->catfile(qw/t data/))->file('ecolitst.bls');
+
+    lives_ok(sub { $f->($file) } , 'Bio::SearchIO->new can handle a Path::Class object');
+    isa_ok($f->($file), 'Bio::Root::IO');
 }
 
 my ( $searchio, $result, $iter, $hit, $hsp );
