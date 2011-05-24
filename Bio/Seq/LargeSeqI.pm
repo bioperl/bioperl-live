@@ -32,7 +32,7 @@ necessary. These sequences typically override the length() method not
 to check the sequence.
 
 The seq() method is not resetable, if you want to add to the end of the
-sequence you have to use add_sequence_as_string(), for any other sequence chnages you'll
+sequence you have to use add_sequence_as_string(), for any other sequence changes you'll
 have to create a new object.
 
 =head1 FEEDBACK

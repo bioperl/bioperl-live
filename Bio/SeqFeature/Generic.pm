@@ -945,7 +945,7 @@ sub _from_gff_string {
  Title   : _expand_region
  Usage   : $self->_expand_region($feature);
  Function: Expand the total region covered by this feature to
-           accomodate for the given feature.
+           accommodate for the given feature.
 
            May be called whenever any kind of subfeature is added to this
            feature. add_sub_SeqFeature() already does this.

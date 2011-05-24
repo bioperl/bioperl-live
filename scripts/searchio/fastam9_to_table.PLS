@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 =head1 NAME 
 
@@ -10,7 +10,7 @@ fastm9_to_table  - turn FASTA -m 9 output into NCBI -m 9 tabular output
 
 =head1 DESCRIPTION
 
-Comand line options:
+Command line options:
   -e/--evalue   evalue    -- filter by evalue
   -b/--bitscore bitscore  -- filter by bitscore
   --header                -- boolean flag to print column header 

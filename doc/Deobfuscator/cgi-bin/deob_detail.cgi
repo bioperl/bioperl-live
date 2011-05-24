@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 # Deob_detail.cgi
 # part of the Deobfuscator package

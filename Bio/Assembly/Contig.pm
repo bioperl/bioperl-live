@@ -1651,7 +1651,7 @@ These read only methods describe the MSE in various ways.
  Usage     : $str = $contig->consensus_string($threshold_percent)
  Function  : Makes a strict consensus
  Returns   :
- Argument  : Optional treshold ranging from 0 to 100.
+ Argument  : Optional threshold ranging from 0 to 100.
              The consensus residue has to appear at least threshold %
              of the sequences at a given location, otherwise a '?'
              character will be placed at that location.

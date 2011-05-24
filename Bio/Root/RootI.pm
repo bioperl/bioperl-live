@@ -385,7 +385,7 @@ sub stack_trace{
            : (-NAME=>'me', -COLOR =>'blue');
            :
            : Personal note (SAC): I have found all uppercase tags to
-           : be more managable: it involves less single-quoting,
+           : be more manageable: it involves less single-quoting,
            : the key names stand out better, and there are no method naming 
            : conflicts.
            : The drawbacks are that it's not as easy to type as lowercase,

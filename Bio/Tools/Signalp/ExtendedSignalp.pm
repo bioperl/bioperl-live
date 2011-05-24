@@ -49,7 +49,7 @@ out based on maxC maxY maxS meanS and D factor cutoff for the Neural Network (NN
 method only. The HMM method does not give any filters with 'YES' or 'NO' as result.
 
 The user must be aware that the filters can only by applied on NN method.
-Also, to ensure the compability with original Signalp parsing module, the user
+Also, to ensure the compatibility with original Signalp parsing module, the user
 must know that by default, if filters are empty, max Y and mean S filters are
 automatically used to filter results.
 

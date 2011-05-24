@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 # Author: Jason Stajich, jason@bioperl.org
 # $Revision: 6576 $
 

@@ -51,7 +51,7 @@ yourself. See L<Bio::Assembly::Contig::Coordinate_Systems> and
 L<Bio::Assembly::Contig::Feature_collection>..
 
 This driver also loads singlets into the assembly contigs as
-Bio::Assembly::Singlet objects, altough without their sequence strings.
+Bio::Assembly::Singlet objects, although without their sequence strings.
 It also adds a feature for the entire sequence, thus storing the singlet
 length in its end position, and adds a tag '_nof_trimmed_nonX' to the
 feature, which stores the number of non-vector bases in the singlet.

@@ -32,7 +32,7 @@ Bio::DBLinkContainerI - Abstract interface for any object wanting to use
 
 This interface defines the functions one can expect for any object
 wanting to use database cross-references. This class does not actually
-provide any implemention, it just provides the definitions of what
+provide any implementation, it just provides the definitions of what
 methods one can call.
 
 The database cross-references are implemented as L<Bio::Annotation::DBLink>

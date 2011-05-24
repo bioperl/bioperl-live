@@ -369,7 +369,7 @@ stop, strand) from which new positions could be built. When a PositionI is made
 it will have a map transferred to it if all the arguments shared the same map.
 If a Relative was supplied the result will have that same Relative.
 
-Note that the strand-testing args are there for compatability with the RangeI
+Note that the strand-testing args are there for compatibility with the RangeI
 interface. They have no meaning when only using PositionI objects since maps do
 not have strands. Typically you will just set the argument to undef if you want
 to supply the argument after it.

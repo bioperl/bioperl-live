@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 # 
 # Counts up all the used and inherited modules in a directory of modules to
 # help indicate which the most important modules are, graphs it also

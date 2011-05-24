@@ -35,7 +35,7 @@ a result. The query is e.g. a sequence, and a subject is either a sequence,
 too, or a database of sequences. 
 
 This interface defines methods to access analysis result data and does
-not impose any contraints on how the analysis result data is acquired.
+not impose any constraints on how the analysis result data is acquired.
 
 Note that this module does not provide support for B<running> an analysis.
 Rather, it is positioned in the subsequent parsing step (concerned with

@@ -653,7 +653,7 @@ sub _store_singlet {
               contig IDs are sorted naturally if the Sort::Naturally module is
               present, or lexically otherwise. Internally, write_assembly use
               the write_contig, write_footer and write_header methods. Use these
-              methods if you want more control on the writing proces.
+              methods if you want more control on the writing process.
     Returns : 1 on success, 0 for error
     Args    : A Bio::Assembly::Scaffold object
               1 to write singlets in the assembly file, 0 otherwise

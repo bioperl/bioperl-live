@@ -707,7 +707,7 @@ sub master {
  Usage   : $seqobj = $structure->seqres("A");
  Function: Gets a sequence object containing the sequence from the SEQRES record.
  	        if a chain-ID is given, the sequence for this chain is given, if none
-	        is provided the first chain is choosen
+	        is provided the first chain is chosen
  Returns : A Bio::PrimarySeq
  Args    : The chain-ID of the chain you want the sequence from
 

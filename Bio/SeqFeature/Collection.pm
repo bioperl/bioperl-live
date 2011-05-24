@@ -68,9 +68,9 @@ provided by the DB_File interface to the Berkeley DB.
 
 This is based on work done by Lincoln for storage in a mysql instance
 - this is intended to be an embedded in-memory implementation for
-easily quering for subsets of a large range set.
+easily querying for subsets of a large range set.
 
-Collections can be made persistant by keeping the indexfile and
+Collections can be made persistent by keeping the indexfile and
 passing in the -keep flag like this:
 
   my $collection = Bio::SeqFeature::Collection->new(-keep => 1,

@@ -277,9 +277,10 @@ END
   name         text  not null,
   display_name int       default 0
 );
-  CREATE INDEX name_id ON name(id);
-  CREATE INDEX name_name ON name(name);
-  CREATE INDEX name_name_varchar_patt_ops_idx ON name USING BTREE (lower(name) varchar_pattern_ops);
+  CREATE INDEX name_id ON name( id );
+  CREATE INDEX name_name ON name( name );
+  CREATE INDEX name_lcname ON name( lower(name) );
+  CREATE INDEX name_lcname_varchar_patt_ops ON name USING BTREE (lower(name) varchar_pattern_ops);
 END
 
 	  attribute => <<END,

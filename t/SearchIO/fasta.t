@@ -7,7 +7,7 @@ BEGIN {
 	use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 301);
+    test_begin(-tests => 299);
 	
 	use_ok('Bio::SearchIO');
 }
@@ -364,8 +364,13 @@ is($result->get_parameter('gapopen'), -10);
 is($result->get_parameter('gapext'), -2);
 is($result->get_parameter('ktup'), 2);
 is($result->get_parameter('matrix'), 'BL50');
-is($result->get_parameter('wordsize'), 16);
-is($result->get_parameter('filter'), '15:-5');
+
+# wordsize is the same as ktup, not opt width, as we used to parse
+# is($result->get_parameter('wordsize'), 16);
+
+# this is the range of the scoring matrix, not a filter (which is meant
+# to capture whether xS seg filtering used)
+# is($result->get_parameter('filter'), '15:-5');
 
 is($result->get_statistic('lambda'), 0.122629);
 is($result->get_statistic('dbletters'), 10449259);
