@@ -290,7 +290,7 @@ sub branch_length{
 =cut
 
 sub children {
-   my ($self) = @_;
+  my $self = shift;
 
    return map { $_->[0] }
    sort { $a->[1] <=> $b->[1] } 

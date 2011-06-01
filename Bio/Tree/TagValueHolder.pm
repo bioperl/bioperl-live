@@ -59,5 +59,15 @@ sub has_tag {
    return exists $self->{'_tags'}->{$tag};
 }
 
+sub get_tagvalue_hash {
+  my $self = shift;
+  my $tags = $self->{'_tags'};
+  
+  my $new_tags;
+  foreach my $tag (keys %$tags) {
+    $new_tags->{$tag} = $tags->{$tag}[0];
+  }
+  return $new_tags;
+}
 
 1;
