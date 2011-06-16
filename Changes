@@ -17,6 +17,13 @@ Bugs and requested features list:
 CPAN releases are branched from 'master'.
 ---------------------------------------------------------
 
+1.?.?
+
+    [Bug fixes]
+    
+    * [3240] Bio::AlignIO::stockholm now parses simple sequences [Bernd Web, 
+      cjfields]
+
 1.6.901 May 18, 2011
 
     [Notes]
