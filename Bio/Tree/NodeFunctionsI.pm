@@ -1140,13 +1140,16 @@ sub find_by_tag_regex {
 
 sub enclosed_leaves_string {
   my $self = shift;
+  my $sep = shift;
+
+  $sep = '|' unless (defined $sep);
 
   if ($self->is_leaf) {
     return $self->id;
   }
 
   my @leaves_beneath = map {$_->id} $self->leaves;
-  my $leaf_string = join("|", sort {$a cmp $b} @leaves_beneath);
+  my $leaf_string = join($sep, sort {$a cmp $b} @leaves_beneath);
   return $leaf_string;
 }
 
