@@ -6,9 +6,9 @@ use strict;
 BEGIN {
 	use lib '.';
     use Bio::Root::Test;
-    
-    test_begin(-tests => 84);
-	
+
+    test_begin(-tests => 87);
+
 	use_ok('Bio::AlignIO::stockholm');
 }
 
@@ -167,3 +167,12 @@ is($link->database, 'PDB');
 is($link->start, '178');
 is($link->end, '224');
 is($link->target_id, '1o67');
+
+# bug #3420
+
+my $in = Bio::AlignIO->new(-file => test_input_file('tiny.stk'),
+                            -format => 'stockholm');
+my $aln = $in->next_aln;
+is($aln->id, 'NoName');
+is($aln->get_seq_by_id('a')->display_id, 'a');
+is($aln->get_seq_by_id('b')->display_id, 'b');
