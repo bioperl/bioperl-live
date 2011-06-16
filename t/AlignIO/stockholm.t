@@ -171,7 +171,7 @@ is($link->target_id, '1o67');
 
 my $in = Bio::AlignIO->new(-file => test_input_file('tiny.stk'),
                             -format => 'stockholm');
-my $aln = $in->next_aln;
+$aln = $in->next_aln;
 is($aln->id, 'NoName');
 is($aln->get_seq_by_id('a')->display_id, 'a');
 is($aln->get_seq_by_id('b')->display_id, 'b');
