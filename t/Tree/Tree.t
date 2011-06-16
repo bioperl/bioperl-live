@@ -9,7 +9,7 @@ BEGIN {
     
     test_begin();
     use_ok('Bio::TreeIO');
-    use_ok('Bio::Tree');
+    use_ok('Bio::Tree::Tree');
 }
 
 my $verbose = test_debug();
@@ -355,7 +355,7 @@ is($tree->as_text('newick'), '(a,(b,(c,(d,(e,(f,(g,h)))))));', "Binarized tree")
 
 $tree = Bio::Tree::Tree->from_string("(((((((a,b)c)d)e)f)g)h)i;");
 
-$tree->root->remove_elbow_nodes;
+$tree->root->remove_elbow_nodes(1);
 is($tree->as_text,'((a,b)c)i;',"Keep root node after removing linear paths");
 
 $lca = $tree->find('a')->lca($tree->find('b'));

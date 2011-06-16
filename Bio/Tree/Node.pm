@@ -456,7 +456,6 @@ sub flip_subtree {
     foreach my $node ($self->nodes) {
 	$node->reverse_children;
     }
-    $self->reverse_children;
 }
 
 =head2 internal_id

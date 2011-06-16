@@ -495,7 +495,7 @@ sub _ordered_nodes {
 
    if ($order =~ m/^d|(depth)$/oi) {
        # this is depth-first search I believe
-       my @children = ($self,$self->nodes);
+       my @children = ($self->nodes);
        return @children;
    }
 }
