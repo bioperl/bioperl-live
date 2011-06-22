@@ -112,9 +112,7 @@ if( ! $done ) {
 	my ($gi,$taxid) = split;
 	$taxid4gi{$gi} = $taxid;
 	$i++;
-	if( $DEBUG && ($i % 100000 == 0)  ) {
-	    warn "$i\n";
-	}
+	warn "$i\n" if( $DEBUG && ($i % 100000 == 0)  ); 
     }
     $dbh2->sync;
 }
@@ -133,6 +131,7 @@ for my $file ( @files ) {
 	open($fh, $file) || die "$file: $!";
     }
     while(<$fh>) {
+        next if /^\#/;
 	my ($qname,$hname,$pid,$qaln,$mismatch,$gaps,
 	    $qstart,$qend,$hstart,$hend,
 	    $evalue,$bits,$score) = split(/\t/,$_);	
