@@ -67,6 +67,7 @@ my $build = Bio::Root::Build->new(
                             'Data::Stag'                => 0.11, # Bio::SeqIO::swiss, we can change to 'recommend' if needed
                             'Scalar::Util'              => 0,    # not in Perl 5.6.1, arrived in core in 5.7.3
                             'ExtUtils::Manifest'        => '1.52', # allows spaces in file names
+			    'Bio::Root'			=> '2.000',
                            },
     build_requires      => {
                             'Test::More'                => 0,
