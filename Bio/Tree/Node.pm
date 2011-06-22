@@ -290,7 +290,7 @@ sub branch_length{
 =cut
 
 sub children {
-   my ($self) = @_;
+  my $self = shift;
 
    return map { $_->[0] }
    sort { $a->[1] <=> $b->[1] } 
@@ -456,7 +456,6 @@ sub flip_subtree {
     foreach my $node ($self->nodes) {
 	$node->reverse_children;
     }
-    $self->reverse_children;
 }
 
 =head2 internal_id

@@ -88,8 +88,12 @@ Internal methods are usually preceded with a _
 package Bio::Tree::TreeFunctionsI;
 use strict;
 
-sub slice { return shift->root->slice(@_) }
-sub slice_by_ids { return shift->root->slice_by_ids(@_) }
+sub slice { 
+  return new Bio::Tree::Tree(-root => shift->root->slice(@_));
+}
+sub slice_by_ids { 
+  return new Bio::Tree::Tree(-root => shift->root->slice_by_ids(@_));
+}
 
 sub print_tree { print shift->ascii(@_) }
 sub ascii { shift->root->ascii(@_) }
@@ -129,15 +133,9 @@ sub number_nodes { shift->root->node_count(@_) } # This alias sucks...
 =cut
 
 sub nodes {
-    my $self = shift;
-
-    # Slight difference between the Node 'nodes' method and Tree 'nodes' method --
-    # the Tree version includes the root node in the returned array!
-
+  my $self = shift;
   return () unless ($self->root);
-  my @nodes = $self->root->nodes;
-  unshift @nodes, $self->root;
-  return @nodes;
+  return $self->root->nodes;
 }
 sub get_nodes { shift->nodes }
 sub leaf_nodes { shift->root->leaves }
@@ -193,8 +191,7 @@ sub is_binary { shift->root->is_subtree_binary(@_) }
  Function: given two or more nodes, returns the lowest common ancestor (aka most
            recent common ancestor)
  Returns : node object or undef if there is no common ancestor
- Args    : -nodes => arrayref of nodes to test, OR
-           just a list of nodes
+ Args    : A list of Bio::Tree::NodeI nodes
 
 =cut
 

@@ -318,13 +318,25 @@ sub depth { shift->max_depth_to_leaf(@_) }
 sub total_branch_length {
     my $self = shift;
     my $sum = 0;
-    for ( $self->nodes ) {
-    $sum += $_->branch_length || 0;
+    foreach my $node ( $self->nodes ) {
+      $sum += $node->branch_length || 0;
     }
     return $sum;
 }
 sub subtree_length { shift->total_branch_length(@_) }
 sub subtree_size { shift->total_branch_length(@_) }
+
+sub children_branch_length {
+  my $self = shift;
+
+  my $bl = 0;
+  my @children = $self->children;
+  foreach my $child (@children) {
+    $bl += $child->branch_length;
+  }
+
+  return $bl;
+}
 
 =head2 distance
 
@@ -440,9 +452,9 @@ sub get_all_leaves { shift->leaves(@_) }
 sub nodes {
    my ($self) = @_;
 
-   my @nodes = ();
+   my @nodes = ($self);
    foreach my $node ( $self->children() ) {
-       push @nodes, ($node,$node->nodes());
+       push @nodes, ($node->nodes());
    }
    return @nodes;
 }
@@ -483,7 +495,7 @@ sub _ordered_nodes {
 
    if ($order =~ m/^d|(depth)$/oi) {
        # this is depth-first search I believe
-       my @children = ($self,$self->nodes);
+       my @children = ($self->nodes);
        return @children;
    }
 }
@@ -751,6 +763,8 @@ sub splice {
 	    }
 	}
 	$parent->remove_child($self);
+    } else {
+      warn("Called splice() on a node with no parent -- sure it's not the root node?");
     }
 }
 
@@ -841,13 +855,29 @@ sub is_subtree_binary {
 
 sub contract_linear_paths {
     my $self = shift;
+    my $preserve_root = shift;
+
+    if (!defined $preserve_root) {
+      $preserve_root = 0;
+    }
 
     foreach my $child ($self->children) {
 	$child->contract_linear_paths;
     }
-    
-    if ($self->parent && $self->child_count == 1) {
-	$self->splice;
+
+    if ($self->child_count == 1) {
+      if ($preserve_root && !$self->parent) {
+        # Do nothing -- we're a root node, but want to be kept!
+      } elsif (!$self->parent) {
+        # We're a root node with an only child -- splice out the child...
+        my @children = $self->children;
+        my $only_child = $children[0];
+        $self->branch_length($only_child->branch_length);
+        $only_child->branch_length(0);
+        $only_child->splice;
+      } else {
+        $self->splice;
+      }
     }
 }
 sub remove_elbow_nodes { shift->contract_linear_paths(@_) }
@@ -1110,13 +1140,16 @@ sub find_by_tag_regex {
 
 sub enclosed_leaves_string {
   my $self = shift;
+  my $sep = shift;
+
+  $sep = '|' unless (defined $sep);
 
   if ($self->is_leaf) {
     return $self->id;
   }
 
   my @leaves_beneath = map {$_->id} $self->leaves;
-  my $leaf_string = join(" ", sort {$a cmp $b} @leaves_beneath);
+  my $leaf_string = join($sep, sort {$a cmp $b} @leaves_beneath);
   return $leaf_string;
 }
 
@@ -1139,7 +1172,11 @@ sub slice_by_ids {
     my @nodes;
     foreach my $id (@ids) {
 	my $node = $self->find($id);
-	push @nodes, $node;
+        if ($node) {
+          push @nodes, $node;
+        } else {
+          warn("Node $id not found during tree slice operation!");
+        }
     }
     return $self->slice(@nodes);
 }
@@ -1208,6 +1245,7 @@ sub _slice {
 
     if ($remove_internals) {
 	$clone->contract_linear_paths;
+        $clone->branch_length(0);
     }
     return $clone;
 }

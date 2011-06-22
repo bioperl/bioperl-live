@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 78);
+    test_begin();
     
     use_ok('Bio::TreeIO');
 }
@@ -335,7 +335,9 @@ for my $child ($root->nodes) {
     $total1++;
 }
 
-is($total1, 198);
+# This used to be 198, but the 'nodes()' method now returns all nodes including the
+# current one. So the correct answer is now 199.
+is($total1, 199);
 
 undef $tree; # GC
 
@@ -355,6 +357,8 @@ TODO: {
     
     is($total2, $total1);
 }
+
+done_testing();
 
 __DATA__
 (((A:1,B:1):1,(C:1,D:1):1):1,((E:1,F:1):1,(G:1,H:1):1):1);
