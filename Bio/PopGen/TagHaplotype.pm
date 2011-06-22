@@ -172,7 +172,7 @@ sub haplotype_block{
 
  Title   : input_block 
  Usage   : $obj->input_block()
- Function: returns haplotype block. By now will produce the same ouput than
+ Function: returns haplotype block. By now will produce the same output than
            $self->haplotype_block. but for compatiblity, this method is kept. 
            This method is deprecated.
  Returns : reference to array of array with the haplotype input value 

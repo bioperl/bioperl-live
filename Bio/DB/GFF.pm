@@ -274,7 +274,7 @@ in a vertebrate genome.  Others, such as predicted genes, correspond
 to named biological objects; you probably want to be able to fetch the
 positions of these objects by referring to them by name.
 
-To accomodate named annotations, the GFF format places the object
+To accommodate named annotations, the GFF format places the object
 class and name in the group field.  The name identifies the object,
 and the class prevents similarly-named objects, for example clones and
 sequences, from collding.
@@ -515,7 +515,7 @@ Three default aggregators are provided:
                    "similarity".
 
 In addition, this module provides the optional "wormbase_gene"
-aggregator, which accomodates the WormBase representation of genes.
+aggregator, which accommodates the WormBase representation of genes.
 This aggregator aggregates features of method "exon", "CDS", "5'UTR",
 "3'UTR", "polyA" and "TSS" into a single object.  It also expects to
 find a single feature of type "Sequence" that spans the entire gene.

@@ -42,7 +42,7 @@ This implementation handles locations which span more than one
 start/end location, or and/or lie on different sequences, and can
 work with split locations that depend on the specific order of the
 sublocations ('join') or don't have a specific order but represent
-a feature spanning discontiguous sublocations ('order', 'bond').
+a feature spanning noncontiguous sublocations ('order', 'bond').
 
 Note that the order in which sublocations are added may be very important,
 depending on the specific split location type.  For instance, a 'join'

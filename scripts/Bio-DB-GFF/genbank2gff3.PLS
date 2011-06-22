@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 #$Id$;
 
@@ -43,9 +43,9 @@ genbank2gff3.pl -- Genbank-E<gt>gbrowse-friendly GFF3
         --zip      -z  compress GFF3 output files with gzip
         --summary  -s  print a summary of the features in each contig
         --filter   -x  genbank feature type(s) to ignore
-        --split    -y  split output to seperate GFF and fasta files for
+        --split    -y  split output to separate GFF and fasta files for
                        each genbank record
-        --nolump   -n  seperate file for each reference sequence
+        --nolump   -n  separate file for each reference sequence
                        (default is to lump all records together into one 
                        output file for each input file)
         --ethresh  -e  error threshold for unflattener
@@ -56,7 +56,7 @@ genbank2gff3.pl -- Genbank-E<gt>gbrowse-friendly GFF3
         --format   -f  Input format (SeqIO types): GenBank, Swiss or Uniprot, EMBL work
                        (GenBank is default)
         --GFF_VERSION  3 is default, 2 and 2.5 and other Bio::Tools::GFF versions available
-        --quiet        dont talk about what is being processed 
+        --quiet        don't talk about what is being processed 
         --typesource   SO sequence type for source (e.g. chromosome; region; contig)
         --help     -h  display this message
 
@@ -70,13 +70,13 @@ containment hierarchies mapped for optimal display in gbrowse.
 The input files are assumed to be gzipped GenBank flatfiles for refseq
 contigs.  The files may contain multiple GenBank records.  Either a
 single file or an entire directory can be processed.  By default, the
-DNA sequence is embedded in the GFF but it can be saved into seperate
+DNA sequence is embedded in the GFF but it can be saved into separate
 fasta file with the --split(-y) option.
 
 If an input file contains multiple records, the default behaviour is
 to dump all GFF and sequence to a file of the same name (with .gff
-appended).  Using the 'nolump' option will create a seperate file for
-each genbank record.  Using the 'split' option will create seperate
+appended).  Using the 'nolump' option will create a separate file for
+each genbank record.  Using the 'split' option will create separate
 GFF and Fasta files for each genbank record.
 
 
@@ -574,7 +574,7 @@ for my $file ( @files ) {
             }
         }
 
-        # dont like doing this after others; do after each new gene id?
+        # don't like doing this after others; do after each new gene id?
         @to_print= print_held($out, $gffio, \@to_print);
 
 	gff_validate(@GFF_LINE_FEAT);

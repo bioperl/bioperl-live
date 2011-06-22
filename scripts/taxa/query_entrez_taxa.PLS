@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 # This is a -*-Perl-* file (make my emacs happy)
 
 =head1 NAME

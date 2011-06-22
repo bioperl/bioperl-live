@@ -225,7 +225,7 @@ my $DEFAULT_VALUE = "__DUMMY__";  # Permits eval{} based handlers to work
      numeric operations to the Error::value() method).
 
      It is OK to create Bio::Root::Exception objects without
-     specifing -value. In this case, an invisible dummy value is used.
+     specifying -value. In this case, an invisible dummy value is used.
 
      If you happen to specify a -value of zero (0), it will
      be replaced by the string "The number zero (0)".

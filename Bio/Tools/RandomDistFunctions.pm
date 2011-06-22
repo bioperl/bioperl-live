@@ -127,7 +127,7 @@ sub rand_birth_distribution{
  Title   : rand_geometric_distribution
  Usage   : my $randvar = $dist->rand_geometric_distribution($param);
  Function: Returns a random geometric variate distributed with 
-           paramater $param, according to
+           parameter $param, according to
            c.d.f. 1 - ( 1- param) ^ n 
  Returns : integer
  Args    : $param ( 0 > $param < 1 )

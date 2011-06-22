@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 # This is a Module::Build script for Bioperl installation.
 # See http://search.cpan.org/~kwilliams/Module-Build/lib/Module/Build.pm
@@ -45,8 +45,10 @@ WARN
 }
  
 my %recommends = (
-    'Ace'                       => [0,
-        'Access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace'],
+    # AcePerl support is deprecated, per LDS - cjfields - 5-5-2011
+    
+    #'Ace'                       => [0,
+    #    'Access of ACeDB database/Bio::DB::Ace,Bio::DB::GFF::Adaptor::ace'],
     
     'Algorithm::Munkres'        => [0,
         'Phylogenetic Networks/Bio::PhyloNetwork'],

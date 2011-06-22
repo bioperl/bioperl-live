@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 =head1 NAME
 
@@ -52,7 +52,7 @@ Jason Stajich jason_at_bioperl_dot_org
 
 use strict;
 use Bio::DB::Taxonomy;
-use DB_File;
+use DBI;
 use Env;
 use File::Spec;
 use vars qw($SEP);
@@ -65,8 +65,10 @@ my @files;
 my $zcat = 'zcat'; # or gunzip -c 
 my $prefix = File::Spec->catfile($HOME,'taxonomy');
 my $gi2taxidfile = "$prefix/gi_taxid_prot.dmp.gz";
+my $force = 0; # don't use the cached gi2taxid file
 GetOptions(
 	   'v|verbose|debug' => \$DEBUG,
+	   'force!'          => \$force,
 	   'z|zcat:s'    => \$zcat,
 	   'i|in:s'      => \@files,
 	   'e|evalue:f'  => \$evalue_filter,
@@ -92,13 +94,14 @@ my %query;
 
 my (%taxid4gi,%gi2node);
 my $dbh = tie(%gi2node, 'DB_File', 'gi2class');
-
-
 my $giidxfile = File::Spec->catfile($prefix,'idx','gi2taxid');
 my $done = -e $giidxfile;
-my $dbh2 = tie(%taxid4gi, 'DB_File', $giidxfile);
-
+$done = 0 if $force;
+my $dbh2 = my $dbh = DBI->connect("dbi:SQLite:dbname=$giidxfile","","");
 if( ! $done ) {
+   $dbh2->do("CREATE TABLE gi2taxid ( gi integer PRIMARY KEY,
+				      taxid integer NOT NULL)");
+   $dbh2->{AutoCommit} = 0;
     my $fh;
     # this file came from ftp://ftp.ncbi.nih.gov/pub/taxonomy
     # I'm interested in protein hits therefor _prot file.
@@ -108,15 +111,19 @@ if( ! $done ) {
 	open($fh, $gi2taxidfile ) || die $!;
     }
     my $i = 0;
+   my $sth = $dbh2->prepare("INSERT INTO gi2taxid (gi,taxid) VALUES (?,?)");
+
     while(<$fh>) {
 	my ($gi,$taxid) = split;
-	$taxid4gi{$gi} = $taxid;
+	$sth->execute($gi,$taxid);
 	$i++;
-	unless( $DEBUG && $i % 100000  ) {
-	    warn "$i\n";
-	}
+	if( $i % 500000 == 0 ) {
+		$dbh->commit;
+		warn("$i\n") if $DEBUG;
+	} 
     }
-    $dbh2->sync;
+    $dbh->commit;
+    $sth->finish;
 }
 
 for my $file ( @files ) {
@@ -132,11 +139,13 @@ for my $file ( @files ) {
     } else {
 	open($fh, $file) || die "$file: $!";
     }
+    my $sth = $dbh->prepare("SELECT taxid from gi2taxid WHERE gi=?");
     while(<$fh>) {
+        next if /^\#/;
 	my ($qname,$hname,$pid,$qaln,$mismatch,$gaps,
 	    $qstart,$qend,$hstart,$hend,
 	    $evalue,$bits,$score) = split(/\t/,$_);	
-	next if( $evalue > $evalue );
+	next if( $evalue > $evalue_filter );
 	if( ! exists $query{$spname}->{$qname} ) {
 	    $query{$spname}->{$qname} = {};
 	}
@@ -144,8 +153,10 @@ for my $file ( @files ) {
 	if( $hname =~ /gi\|(\d+)/) {		
 	    my $gi = $1;	    
 	    if( ! $gi2node{$gi} ){ # see if we cached the results from before
-		my $taxid = $taxid4gi{$gi};
-		if( ! $taxid ) {
+		$sth->execute($gi);
+		my $taxid;
+		$sth->bind_columns(\$taxid);
+		if( ! $sth->fetch ) {
 		    warn("no taxid for $gi\n");
 		    next;
 		}
@@ -178,8 +189,7 @@ for my $file ( @files ) {
 		    }
 		    $parent = $taxdb->get_Taxonomy_Node($parent->parent_id);
 		}		
-		$dbh->sync;
-	    }
+	    } 
 	    my ($kingdom) = $gi2node{$gi};
 #		warn("$gi2node{$gi}\n");
 	    unless( defined $kingdom && length($kingdom) ) {
@@ -192,6 +202,7 @@ for my $file ( @files ) {
 	}
     }
     last if ( $DEBUG && $i++ > 10000);
+    $sth->finish;
 }
 
 # print out the taxonomic distribution

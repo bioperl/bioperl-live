@@ -227,7 +227,7 @@ sub purge_synonyms {
 
 =head2 Twig management
 
-Each MeSH term belongs to a complex tree like hierachy of terms where
+Each MeSH term belongs to a complex tree like hierarchy of terms where
 each term can appear multiple times. The immediately surrounding nodes
 of the tree are modelled in twigs.
 

@@ -1217,7 +1217,7 @@ sub _find_silent_snps{
  Title   : _find_indet
  Usage   :
  Function: find column (SNP) with invalid or degenerated values
-           and store this values into the second parameter suplied.
+           and store this values into the second parameter supplied.
  Returns : nothing
  Args    : ref to AoA and ref to an array
  Status  : internal

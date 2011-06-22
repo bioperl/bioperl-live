@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 # longorf.pl v0208020920
 # (c) Dan Kortschak 2002
 

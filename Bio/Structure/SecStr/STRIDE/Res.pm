@@ -60,7 +60,7 @@ The methods are roughly divided into 3 sections:
       etc.).  These methods do not require an argument. 
   2.  Residue specific features ( amino acid, secondary structure,
       solvent exposed surface area, etc. ).  These methods do require an
-      arguement.  The argument is supposed to uniquely identify a
+      argument.  The argument is supposed to uniquely identify a
       residue described within the structure.  It can be of any of the
       following forms:
       ('#A:B') or ( #, 'A', 'B' )

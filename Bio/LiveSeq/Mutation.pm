@@ -219,7 +219,7 @@ sub pos {
  Function: 
 
             Sets and returns the len of the affected original allele
-            sequence.  If value is not set, defaults to the lenght of
+            sequence.  If value is not set, defaults to the length of
             the mutated sequence (seq).
 
  Example : 

@@ -120,7 +120,7 @@ by the enzyme(s).  However, this will change the start of the
 sequence!
 
 There are two separate algorithms used depending on whether your
-enzyme has ambiguity. The non-ambiguous algoritm is a lot faster,
+enzyme has ambiguity. The non-ambiguous algorithm is a lot faster,
 and if you are using very large sequences you should try and use
 this algorithm. If you have a large sequence (e.g. genome) and 
 want to use ambgiuous enzymes you may want to make separate
@@ -218,7 +218,7 @@ use Scalar::Util qw(blessed);
                  -enzymes=>Restriction::EnzymeCollection object)
 	     -seq requires a Bio::PrimarySeq object
 	     -enzymes is optional.
-              If ommitted it will use the default set of enzymes
+              If omitted it will use the default set of enzymes
 
 This is the place to start. Pass in a sequence, and you will be able
 to get the fragments back out.  Several other things are available

@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
 use vars qw($USAGE %VALIDALIGN $CODONSIZE);

@@ -11,7 +11,7 @@ hmmer_to_table  - turn HMMER output into tabular format
 
 =head1 DESCRIPTION
 
-Comand line options:
+Command line options:
   -e/--evalue   evalue    -- filter by evalue
   -b/--bitscore bitscore  -- filter by bitscore
   --header                -- boolean flag to print column header 
