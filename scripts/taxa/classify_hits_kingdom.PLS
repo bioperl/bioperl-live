@@ -112,7 +112,7 @@ if( ! $done ) {
 	my ($gi,$taxid) = split;
 	$taxid4gi{$gi} = $taxid;
 	$i++;
-	unless( $DEBUG && $i % 100000  ) {
+	if( $DEBUG && ($i % 100000 == 0)  ) {
 	    warn "$i\n";
 	}
     }
