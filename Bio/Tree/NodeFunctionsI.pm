@@ -144,7 +144,10 @@ sub to_newick {
   my $self = shift;
 
   return $self->as_text('nhx');
+}
 
+sub newick_format {
+  return shift->to_newick;
 }
 
 =head2 translate_ids
@@ -245,9 +248,54 @@ sub height_to_root {
        $height += $node->branch_length;
        $node = $node->ancestor;
    }
+    $height += $node->branch_length;
    return $height;
 }
 sub distance_to_root { shift->height_to_root(@_) }
+
+=head2 mean_path_length
+
+ Title   : mean_path_length
+ Usage   : my $mean_path = $node->mean_path_length;
+ Function: Return the mean root-to-tip path length, averaged across
+           all leaf nodes in the tree.
+ Returns : Float
+ Args    : None
+
+=cut
+
+sub mean_path_length {
+  my ($self) = @_;
+
+  my $dist = 0;
+  map {$dist += $_->height_to_root; } $self->leaves;
+  $dist = $dist / scalar($self->leaves);
+  return $dist;
+}
+
+sub scale_by {
+  my ($self, $scale_factor) = @_;
+
+  foreach my $node ($self->nodes) {
+    $node->branch_length($node->branch_length * $scale_factor);
+  }
+}
+
+sub lengthen {
+  my $self = shift;
+  my $amount = shift;
+
+  $self->branch_length($self->branch_length + $amount);
+}
+
+sub scale_mean_path_to {
+  my ($self, $target_mean_path_length) = @_;
+
+  my $mean_path_length = $self->mean_path_length;
+  my $scale_factor = $target_mean_path_length / $mean_path_length;
+  $self->scale_by($scale_factor);
+}
+
 
 =head2 max_distance_to_leaf
 
@@ -325,6 +373,13 @@ sub total_branch_length {
 }
 sub subtree_length { shift->total_branch_length(@_) }
 sub subtree_size { shift->total_branch_length(@_) }
+
+sub mean_branch_length {
+  my $self = shift;
+  my $total_bl = $self->total_branch_length;
+  my $n = scalar($self->nodes);
+  return ($total_bl / $n);
+}
 
 sub children_branch_length {
   my $self = shift;
@@ -925,11 +980,11 @@ sub ascii {
     if ($max_bl == 0) {
 	$max_bl = $self->max_depth_to_leaf;
     }
-    my $width = 80;
 
+    my $width = 120;
     my $char_per_bl = int($width / $max_bl);
 
-    my ($lines_arrayref,$mid) = $self->_ascii_art($self,'-',$char_per_bl,$show_internal,$compact,$ignore_branchlengths);
+    my ($lines_arrayref,$mid) = $self->_ascii_art($self,'',$char_per_bl,$show_internal,$compact,$ignore_branchlengths);
     my @lines = @{$lines_arrayref};
     return join("\n",@lines)."\n";
 }
@@ -950,8 +1005,9 @@ sub _ascii_art {
     $ignore_branchlengths = 1 unless (defined $ignore_branchlengths);
 
     my $len = 10;
+    my $bl = 0;
     if (!$ignore_branchlengths) {
-	my $bl = $node->branch_length;
+	$bl = $node->branch_length;
 	$bl = 1 unless (defined $bl && $bl =~ /^\-?\d+(\.\d+)?$/);
 	$len = int($bl * $char_per_bl);
 	$len = 1 if ($len < 1);
@@ -1004,7 +1060,17 @@ sub _ascii_art {
 	push @prefixes, ($pad) x ($end-$hi);
 	
 	my $mid = int(($lo + $hi) / 2);
-	$prefixes[$mid] = $char1 . '-'x($len-2) . substr($prefixes[$mid],length($prefixes[$mid])-1,1);
+
+        my $len_str = sprintf("%.3f", $bl);
+        my $str_len = length($len_str);
+        if ($str_len >= ($len - 2 - 4)) {
+          $len_str = '';
+          $str_len = 0;
+        }
+        my $len_l = int( ($len - 2 - $str_len) / 2);
+        my $len_r = $len - 2 - $len_l - $str_len;
+        
+	$prefixes[$mid] = $char1 . ('-'x$len_l).$len_str.('-'x$len_r) . substr($prefixes[$mid],length($prefixes[$mid])-1,1);
 	my @new_results;
 	for (my $i=0; $i < scalar(@prefixes); $i++) {
 	    my $p = $prefixes[$i] || '';
@@ -1025,7 +1091,18 @@ sub _ascii_art {
 	}
 	return (\@results,$mid);
     } else {
-	my @results = ($char1 . ('-'x$len) . $name_str);
+
+      my $len_str = sprintf("%.3f", $bl);
+      my $str_len = length($len_str);
+      if ($str_len >= ($len - 4)) {
+        $len_str = '';
+        $str_len = 0;
+      }
+      my $len_l = int( ($len - $str_len) / 2);
+      my $len_r = $len - $len_l - $str_len;
+      
+      #my @results = ($char1 . ('-'x$len) . $name_str);
+      my @results = ($char1 . ('-'x$len_l) . $len_str . ('-'x$len_r) . $name_str);
 	if ($ignore_branchlengths) {
 	    @results = ($char1 . '-' . $name_str);
 	}
