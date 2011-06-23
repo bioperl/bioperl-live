@@ -1180,4 +1180,100 @@ sub prompt_for_network {
     }
 }
 
+# override the build script warnings flag
+sub print_build_script {
+  my ($self, $fh) = @_;
+
+  my $build_package = $self->build_class;
+
+  my $closedata="";
+
+  my $config_requires;
+  if ( -f $self->metafile ) {
+    my $meta = eval { $self->read_metafile( $self->metafile ) };
+    $config_requires = $meta && $meta->{configure_requires}{'Module::Build'};
+  }
+  $config_requires ||= 0;
+
+  my %q = map {$_, $self->$_()} qw(config_dir base_dir);
+
+  $q{base_dir} = Win32::GetShortPathName($q{base_dir}) if $self->is_windowsish;
+
+  $q{magic_numfile} = $self->config_file('magicnum');
+
+  my @myINC = $self->_added_to_INC;
+  for (@myINC, values %q) {
+    $_ = File::Spec->canonpath( $_ );
+    s/([\\\'])/\\$1/g;
+  }
+
+  my $quoted_INC = join ",\n", map "     '$_'", @myINC;
+  my $shebang = $self->_startperl;
+  my $magic_number = $self->magic_number;
+
+  # unique to bioperl, shut off overly verbose warnings on windows, bug 3215
+  my $w = $^O =~ /win/i ? '# no warnings (win)' : '$^W = 1;  # Use warnings';
+
+  print $fh <<EOF;
+$shebang
+
+use strict;
+use Cwd;
+use File::Basename;
+use File::Spec;
+
+sub magic_number_matches {
+  return 0 unless -e '$q{magic_numfile}';
+  local *FH;
+  open FH, '$q{magic_numfile}' or return 0;
+  my \$filenum = <FH>;
+  close FH;
+  return \$filenum == $magic_number;
+}
+
+my \$progname;
+my \$orig_dir;
+BEGIN {
+  $w
+  \$progname = basename(\$0);
+  \$orig_dir = Cwd::cwd();
+  my \$base_dir = '$q{base_dir}';
+  if (!magic_number_matches()) {
+    unless (chdir(\$base_dir)) {
+      die ("Couldn't chdir(\$base_dir), aborting\\n");
+    }
+    unless (magic_number_matches()) {
+      die ("Configuration seems to be out of date, please re-run 'perl Build.PL' again.\\n");
+    }
+  }
+  unshift \@INC,
+    (
+$quoted_INC
+    );
+}
+
+close(*DATA) unless eof(*DATA); # ensure no open handles to this script
+
+use $build_package;
+Module::Build->VERSION(q{$config_requires});
+
+# Some platforms have problems setting \$^X in shebang contexts, fix it up here
+\$^X = Module::Build->find_perl_interpreter;
+
+if (-e 'Build.PL' and not $build_package->up_to_date('Build.PL', \$progname)) {
+   warn "Warning: Build.PL has been altered.  You may need to run 'perl Build.PL' again.\\n";
+}
+
+# This should have just enough arguments to be able to bootstrap the rest.
+my \$build = $build_package->resume (
+  properties => {
+    config_dir => '$q{config_dir}',
+    orig_dir => \$orig_dir,
+  },
+);
+
+\$build->dispatch;
+EOF
+}
+
 1;

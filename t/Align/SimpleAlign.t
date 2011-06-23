@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 199 );
+    test_begin( -tests => 201 );
 
     use_ok('Bio::SimpleAlign');
     use_ok('Bio::AlignIO');
@@ -745,6 +745,24 @@ EOU
     $consensus =~ s/\n//g;
 
     is( $aln->consensus_string, $consensus, 'consensus string looks ok' );
+    
+    
+    my @cons_got = $aln->consensus_conservation;
+    # 422 positions, mostly two of six sequences conserved, set as default
+    my @cons_expect = (100 * 2/6) x 422;
+    # Exceptionally columns as a mask, manually determined (1-based columns)
+    $cons_expect[$_-1] = 100 * 1/6 for (5,12,41,70,82,310,390);
+    $cons_expect[$_-1] = 100 * 3/6 for (27,30,32,36,47,49,61,66,69,71,77,79,
+        81,91,96,97,105,114,115,117,118,121,122,129,140,146,156,159,160,162,
+        183,197,217,221,229,242,247,248,261,266,282,287,295,316,323,329,335,337,344,);
+    $cons_expect[$_-1] = 100 * 4/6 for (84,93,99,100,102,107,108,112,113,119,150,);
+    $cons_expect[$_-1] = 100 * 5/6 for (81,110);
+    # Format for string comparison
+    @cons_expect = map { sprintf "%4.1f", $_ } @cons_expect;   
+    @cons_got = map { sprintf "%4.1f", $_ } @cons_got; 
+    is(length($aln->consensus_string), scalar(@cons_got),"conservation length");
+    is_deeply(\@cons_got, \@cons_expect, "conservation scores");
+        
 
     is( aln2str( $aln => 'pfam' ), <<EOA, 'looks like correct unmasked alignment (from clustalw)' );
 P84139/1-420              MNEGEHQIKLDELFEKLLRARKIFKNKDVLRHSYTPKDLPLRHEQIETLAQILVPVLRGETPSNIFVYG-KTGTGKTVTVK-FVTEELKRISEKYNIPVDVIYINCEIVDTHYRVLANIVNYFKDETGIGVPMVGWPTDEVYAKLKQVIDMKERFVIIVLDEIDKLVKKSGDEVLYSLTRINTELKRAKVSVIGISNDLKFKEYLDPRVLSSLSEEEVVFPPYDANQLRDILTQRAEEAFYPGVLDEGVIPLCAALAAREHGDARKALDLLRVAGEIAEREGASKVTEKHVWKAQEKIEQDMMEEVIKTRPLQSKVLLYAIVLLDENGDLPANTGDVYAVYRELCEYIDLEPLTQRRISDLINELDMLGIINAKVVSKGRYGRTKEIRLNVTSYKIRNVLRYDYSIQPLLTISLKSEQRRLI
