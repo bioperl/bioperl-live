@@ -203,7 +203,7 @@ is($f->seq_id, "chr1");
 
 ################################################################################
 #
-# use FeatureIO::gff to read a PTT file.
+# use FeatureIO::ptt to read a PTT file.
 #
 $fcount = 0;
 

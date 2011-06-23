@@ -132,6 +132,6 @@ throws_ok {
 
 throws_ok {
     Bio::SeqIO->new(-file => 'foo.bar');
-} qr/Can not open 'foo.bar' for reading: No such file or directory/,
+} qr/Can not open 'foo.bar' for reading:/,
     'Must pass a real file';
 

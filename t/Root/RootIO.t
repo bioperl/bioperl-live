@@ -1,5 +1,4 @@
 # -*-Perl-*- Test Harness script for Bioperl
-# $Id$
 
 use strict;
 use warnings;
@@ -7,9 +6,9 @@ use warnings;
 BEGIN {
     use lib '.';
     use Bio::Root::Test;
-    
-    test_begin(-tests => 67);
-	
+
+    test_begin(-tests => 69);
+
     use_ok('Bio::Root::IO');
 }
 
@@ -99,16 +98,13 @@ is $wio->_fh, $O;
 is $wio->mode, 'w', 'handle, write';
 
 SKIP: {
-    my $warn;
-    local $SIG{__WARN__} = sub { $warn = shift };
     my $tempfile = eval { require File::Temp; File::Temp->new }
-	or skip 'could not create File::Temp object, maybe your File::Temp is 10 years old', 3;
-    my $temp_io;
-    ok $temp_io = Bio::Root::IO->new( -fh => $tempfile );
+       or skip 'could not create File::Temp object, maybe your File::Temp is 10 years old', 3;
+
+    my $temp_io = Bio::Root::IO->new( -fh => $tempfile );
+    isa_ok($temp_io, 'Bio::Root::IO');
     is $temp_io->mode, 'w', 'is a write handle';
-    # wish i could just use Test::Warn.  but then there's ... THE DEPENDENCY HOBGOBLIN! (TM)
-    $temp_io->close;
-    ok !$warn, 'no warnings';
+    warnings_like sub { $temp_io->close }, '', 'no warnings in ->close call';
 }
 
 ##############################################
@@ -187,6 +183,18 @@ SKIP: {
     for (1..5) {
         is($unix_rio->_readline, $win_rio->_readline);
     }
+}
+
+##############################################
+# test Path::Class support
+##############################################
+
+SKIP: {
+    test_skip(-tests => 2, -requires_module => 'Path::Class');
+
+    my $f = sub { Bio::Root::IO->new( -file => Path::Class::file(test_input_file('U71225.gb.unix') ) ) };
+    lives_ok(sub { $f->() } , 'Bio::Root::IO->new can handle a Path::Class object');
+    isa_ok($f->(), 'Bio::Root::IO');
 }
 
 

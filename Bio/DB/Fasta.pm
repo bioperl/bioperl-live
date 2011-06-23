@@ -77,7 +77,7 @@ last.
 
 An error will be thrown if this is not the case.
 
-The module uses /^E<gt>(\S+)/ to extract the primary ID of each sequence 
+The module uses /^E<gt>(\S+)/ to extract the primary ID of each sequence
 from the Fasta header.  During indexing, you may pass a callback routine to
 modify this primary ID.  For example, you may wish to extract a
 portion of the gi|gb|abc|xyz nonsense that GenBank Fasta files use.
@@ -90,7 +90,7 @@ sequence plus 100,000 ESTs) takes ~5 minutes on my 300 MHz pentium
 laptop. On the same system, average access time for any 200-mer within
 the C. elegans genome was E<lt>0.02s.
 
-*Berkeley DB can be obtained free from www.sleepycat.com. After it is 
+*Berkeley DB can be obtained free from www.sleepycat.com. After it is
 installed you will need to install the BerkeleyDB Perl module.
 
 =head1 DATABASE CREATION AND INDEXING
@@ -120,7 +120,7 @@ same name=E<gt>value pairs.  Valid options are:
 
  -glob         Glob expression to use    *.{fa,fasta,fast,FA,FASTA,FAST,dna}
                for searching for Fasta
-	            files in directories. 
+	            files in directories.
 
  -makeid       A code subroutine for     None
 	            transforming Fasta IDs.
@@ -303,7 +303,7 @@ its ID, like this:
 
   my $seq = $db{CHROMOSOME_I};
 
-You may select a subsequence by appending the comma-separated range to 
+You may select a subsequence by appending the comma-separated range to
 the sequence ID in the format "$id:$start,$stop".  For example, here
 is the first 1000 bp of the sequence with the ID "CHROMOSOME_I":
 
@@ -388,7 +388,7 @@ L<bioperl>
 
 =head1 AUTHOR
 
-Lincoln Stein E<lt>lstein@cshl.orgE<gt>.  
+Lincoln Stein E<lt>lstein@cshl.orgE<gt>.
 
 Copyright (c) 2001 Cold Spring Harbor Laboratory.
 
@@ -423,7 +423,7 @@ use constant STRUCTBIG =>'QQnnCa*'; # 64-bit file offset and seq length
 use constant DNA     => 1;
 use constant RNA     => 2;
 use constant PROTEIN => 3;
-use constant DIE_ON_MISSMATCHED_LINES => 1; # if you want 
+use constant DIE_ON_MISSMATCHED_LINES => 1; # if you want
 
 # Bio::DB-like object
 # providing fast random access to a directory of FASTA files
@@ -440,7 +440,7 @@ These are optional arguments to pass in as well.
 
  -glob         Glob expression to use    *.{fa,fasta,fast,FA,FASTA,FAST}
                for searching for Fasta
-	             files in directories. 
+	             files in directories.
 
  -makeid       A code subroutine for     none
 	             transforming Fasta IDs.
@@ -503,7 +503,7 @@ sub new {
  Title   : newFh
  Function: gets a new Fh for a file
  Example : internal method
- Returns : GLOB 
+ Returns : GLOB
  Args    :
 
 =cut
@@ -524,7 +524,7 @@ sub _open_index {
   my $flags = $write ? O_CREAT|O_RDWR : O_RDONLY;
   my @dbmargs = $self->dbmargs;
   eval {
-      tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs 
+      tie %offsets,'AnyDBM_File',$index,$flags,0644,@dbmargs
 	  or die "Can't open sequence index file $index: $!";
   };
   warn $@ if $@;
@@ -650,7 +650,7 @@ sub set_pack_method {
  Usage   : $db->index_file($filename)
  Function: (re)loads a sequence file and indexes sequences offsets in the file
  Returns : seq offsets in the file
- Args    : filename, 
+ Args    : filename,
            boolean to force reloading a file
 
 =cut
@@ -702,9 +702,9 @@ sub dbmargs {
 
  Title   : index_name
  Usage   : my $indexname = $db->index_name($path,$isdir);
- Function: returns the name of the index for a specific path 
+ Function: returns the name of the index for a specific path
  Returns : string
- Args    : path to check, 
+ Args    : path to check,
            boolean if it is a dir
 
 =cut
@@ -715,7 +715,7 @@ sub index_name {
   unless ($path) {
     my $dir = $self->{dirname} or return;
     return $self->index_name($dir,-d $dir);
-  } 
+  }
   return "$path/directory.index" if $isdir;
   return "$path.index";
 }
@@ -741,17 +741,17 @@ sub calculate_offsets {
   warn "indexing $file\n" if $self->{debug};
   my ($offset,@id,$linelength,$type,$firstline,$count,
       $termination_length,$seq_lines,$last_line,%offsets);
-  my ($l3_len,$l2_len,$l_len)=(0,0,0);
+  my ($l3_len,$l2_len,$l_len, $blank_lines)=(0,0,0,0);
 
   while (<$fh>) {		# don't try this at home
     $termination_length ||= /\r\n$/ ? 2 : 1; # account for crlf-terminated Windows files
-    next unless /\S/;
+    #next unless /\S/;
     if (index($_, ">") == 0) {
         if (/^>(\S+)/) {
-          print STDERR "indexed $count sequences...\n" 
+          print STDERR "indexed $count sequences...\n"
         if $self->{debug} && (++$count%1000) == 0;
-          
-        
+
+
           my $pos = tell($fh);
           if (@id) {
         my $seqlength    = $pos - $offset - length($_);
@@ -764,19 +764,29 @@ sub calculate_offsets {
           @id = ref($self->{makeid}) eq 'CODE' ? $self->{makeid}->($_) : $1;
           ($offset,$firstline,$linelength) = ($pos,length($_),0);
           $self->_check_linelength($linelength);
-          ($l3_len,$l2_len,$l_len)=(0,0,0);
+          ($l3_len,$l2_len,$l_len,$blank_lines)=(0,0,0,0);
           $seq_lines = 0;
         } else {
           # catch bad header lines, bug 3172
           $self->throw("FASTA header doesn't match '>(\\S+)': $_")
         }
+    } elsif ($_ !~ /\S/) { # blank line
+        $blank_lines++;
+        next;
     } else {
       $l3_len= $l2_len; $l2_len= $l_len; $l_len= length($_); # need to check every line :(
-      if (DIE_ON_MISSMATCHED_LINES &&
-	  $l3_len>0 && $l2_len>0 && $l3_len!=$l2_len) {
+      if (DIE_ON_MISSMATCHED_LINES) {
+        if ($l3_len>0 && $l2_len>0 && $l3_len!=$l2_len) {
 	  my $fap= substr($_,0,20)."..";
-	  $self->throw("Each line of the fasta entry must be the same length except the last.
-   Line above #$. '$fap' is $l2_len != $l3_len chars.");
+	  $self->throw(
+    "Each line of the fasta entry must be the same length except the last.\n".
+    "Line above #$. '$fap' is $l2_len != $l3_len chars.");
+        }
+        if ($blank_lines) {
+            # shouldn't see blank lines here, otherwise there is a problem...
+            $self->throw("Blank lines can only precede header lines, found ".
+                         "preceding line #$.");
+        }
       }
       $linelength ||= length($_);
       $type       ||= $self->_type($_);
@@ -858,7 +868,7 @@ sub alphabet {
 
 }
 
-sub path { shift->{dirname} } 
+sub path { shift->{dirname} }
 
 sub header_offset {
     my $self = shift;
@@ -951,7 +961,7 @@ sub fh {
 sub header {
   my $self = shift;
   my $id   = shift;
-  my ($offset,$seqlength,$linelength,$firstline,$type,$file) 
+  my ($offset,$seqlength,$linelength,$firstline,$type,$file)
     = &{$self->{unpackmeth}}($self->{offsets}{$id}) or return;
   $offset -= $firstline;
   my $data;
@@ -1022,7 +1032,7 @@ sub _type {
  Usage   :
  Function:
  Example :
- Returns : 
+ Returns :
  Args    :
 
 =cut
@@ -1091,7 +1101,7 @@ sub seq {
 
 sub subseq {
   my $self = shift;
-  $self->trunc(@_)->seq();	
+  $self->trunc(@_)->seq();
 }
 
 sub trunc {
@@ -1106,8 +1116,8 @@ sub trunc {
 						       $self->{id},
 						       $self->{start}-($start-1),
 						       $self->{start}-($stop-1)
-						      );  
-	
+						      );
+
 }
 
 sub is_circular {
@@ -1149,7 +1159,7 @@ sub length {
 
 }
 
-sub description  { 
+sub description  {
     my $self = shift;
     my $header = $self->{'db'}->header($self->{id});
     # remove the id from the header
@@ -1197,4 +1207,3 @@ sub READLINE {
 1;
 
 __END__
-
