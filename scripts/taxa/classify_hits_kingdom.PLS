@@ -136,7 +136,7 @@ for my $file ( @files ) {
 	my ($qname,$hname,$pid,$qaln,$mismatch,$gaps,
 	    $qstart,$qend,$hstart,$hend,
 	    $evalue,$bits,$score) = split(/\t/,$_);	
-	next if( $evalue > $evalue );
+	next if( $evalue > $evalue_filter );
 	if( ! exists $query{$spname}->{$qname} ) {
 	    $query{$spname}->{$qname} = {};
 	}
