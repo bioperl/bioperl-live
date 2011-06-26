@@ -73,6 +73,7 @@ my $build = Bio::Root::Build->new(
    			    'Bio::DasI'                    => 0,
    			    'Bio::Event::EventGeneratorI'  => 0,
   			    'Bio::Event::EventHandlerI'    => 0,
+		
                                        
                            },
     build_requires      => {
