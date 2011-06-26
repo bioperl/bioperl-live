@@ -59,17 +59,21 @@ my $build = Bio::Root::Build->new(
     dist_author         => 'BioPerl Team <bioperl-l@bioperl.org>',
     dist_abstract       => 'Bioinformatics Toolkit',
     license             => 'perl',
-    no_index            => {'dir'                       => [qw(examples/root/lib)]},
+    no_index            => {'dir'                          => [qw(examples/root/lib)]},
     requires            => {
-                            'perl'                      => '5.6.1',
-                            'IO::String'                => 0,
-                            'DB_File'                   => 0,
-                            'Data::Stag'                => 0.11, # Bio::SeqIO::swiss, we can change to 'recommend' if needed
-                            'Scalar::Util'              => 0,    # not in Perl 5.6.1, arrived in core in 5.7.3
-                            'ExtUtils::Manifest'        => '1.52', # allows spaces in file names
-			    'Bio::Root'			=> '2.000',
-		            'Bio::Das'			=> '2.000',
-			    'Bio::Event'		=> '2.000',
+                            'perl'                         => '5.6.1',
+                            'IO::String'                   => 0,
+                            'DB_File'                      => 0,
+                            'Data::Stag'                   => 0.11, # Bio::SeqIO::swiss, we can change to 'recommend' if needed
+                            'Scalar::Util'                 => 0,    # not in Perl 5.6.1, arrived in core in 5.7.3
+                            'ExtUtils::Manifest'           => '1.52', # allows spaces in file names
+			    'Bio::Root::Root'		   => 0,
+		            'Bio::Das::FeatureTypeI'       => 0,
+    			    'Bio::Das::SegmentI'           => 0,
+   			    'Bio::DasI'                    => 0,
+   			    'Bio::Event::EventGeneratorI'  => 0,
+  			    'Bio::Event::EventHandlerI'    => 0,
+                                       
                            },
     build_requires      => {
                             'Test::More'                => 0,
