@@ -13,9 +13,7 @@
 
 =head1 NAME
 
-Bio::Index::Stockholm - Indexes Stockholm format alignments (such as those from
-Pfam and Rfam.  Retrieves raw stream data using the ID or a Bio::SimpleAlign
-(via Bio::AlignIO)
+Bio::Index::Stockholm
 
 =head1 SYNOPSIS
 
@@ -36,11 +34,11 @@ Pfam and Rfam.  Retrieves raw stream data using the ID or a Bio::SimpleAlign
 
 =head1 DESCRIPTION
 
-This object allows one to build an index for any file (or files)
-containing Stockholm alignment format (such as Rfam and Pfam) and provides
-quick access to the alignment based on the alignment ID.
+Indexes Stockholm format alignments such as those from Pfam and Rfam.  
+Returns raw stream data using the ID or a Bio::SimpleAlign object 
+(via Bio::AlignIO).
 
-This also allows for ID parsing using a callback:
+This module also allows for ID parsing using a callback:
 
    $inx->id_parser(\&get_id);
    # make the index
