@@ -286,39 +286,54 @@ sub mid {
       if (not $self->validate_seq($mid)) {
          $self->throw("MID is not a valid DNA sequence\n");
       }
+      # Update sequence, quality scores and description with the MID
+      $self->_update_seq_mid($mid);
+      $self->_update_qual_mid($mid) if scalar @{$self->qual_levels};
+      $self->_update_desc_mid($mid) if $self->track;
       # Set the MID value
       $self->{mid} = $mid;
-      # Update sequence, quality scores and description with the MID
-      $self->_update_seq_mid;
-      $self->_update_qual_mid if scalar @{$self->qual_levels};
-      $self->_update_desc_mid if $self->track;
    }
    return $self->{mid}
 }
 
 
 sub _update_seq_mid {
-   # Add an MID to a sequence
-   my $self = shift;
-   $self->seq( $self->mid . $self->seq );
+   # Update the MID of a sequence
+   my ($self, $mid) = @_;
+   # Remove old MID
+   my $seq = $self->seq;
+   my $old_mid = $self->{mid};
+   if (defined $old_mid) {
+      $seq =~ s/^$old_mid//;
+   }
+   # Add new MID
+   $seq = $mid . $seq;
+   $self->seq( $seq );
    return 1;
 }
 
 
 sub _update_qual_mid {
-   my $self = shift;
-   $self->qual([ ($self->qual_levels->[0]) x length($self->mid), @{$self->qual} ]);
+   # Update the MID of a quality scores
+   my ($self, $mid) = @_;
+   # Remove old MID
+   my $qual = $self->qual;
+   my $old_mid = $self->{mid};
+   if (defined $old_mid) {
+      splice @$qual, 0, length($old_mid);
+   }
+   $qual =  [($self->qual_levels->[0]) x length($mid), @$qual];
+   $self->qual( $qual );
    return 1; 
 }
 
 
 sub _update_desc_mid {
-   # Add or update MID specifications in the read description
-   my $self = shift;
-   my $mid = $self->mid;
+   # Update MID specifications in the read description
+   my ($self, $mid) = @_;
    if ($mid) {
       # Sequencing errors introduced in the read
-      my $mid_str = "mid=$mid";
+      my $mid_str = "mid=".$mid;
       my $desc_str = $self->desc;
       $desc_str =~ s/(strand=\S+)( mid=\S+)?/$1 $mid_str/g;
       $self->desc( $desc_str );
