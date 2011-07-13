@@ -7,7 +7,7 @@ use warnings;
 BEGIN { 
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 167);
+    test_begin(-tests => 168);
 
     use_ok('Bio::Seq');
     use_ok('Bio::Seq::Quality');
@@ -207,6 +207,14 @@ ok $read->mid, 'TTTAAA';
 is $read->seq, 'TTTAAATAAAAAAACCCC';
 is join(' ', @{$read->qual}), '30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30';
 is $read->desc, 'reference=human_id position=1-12 strand=+1 mid=TTTAAA description="The human genome"';
+
+
+# Edge case... mutation of the last bases of a simulated read with MID
+
+$errors = {};
+$errors->{'18'}->{'%'} = 'T';
+$read->errors($errors);
+is $read->seq, 'TTTAAATAAAAAAACCCT';
 
 
 # Try different BioPerl object types

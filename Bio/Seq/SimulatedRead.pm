@@ -397,7 +397,7 @@ sub _validate_error_specs {
    my %valid_ops = ('%' => undef, '-' => undef, '+' => undef); # valid operations
 
    # Calculate read length
-   my $read_length = $self->end - $self->start + 1;
+   my $read_length = $self->length;
    while ( my ($pos, $ops) = each %$errors ) {
 
       # Position cannot be no longer than the read length
