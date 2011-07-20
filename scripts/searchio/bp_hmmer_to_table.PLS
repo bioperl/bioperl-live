@@ -3,11 +3,11 @@ use strict;
 
 =head1 NAME 
 
-hmmer_to_table  - turn HMMER output into tabular format
+bp_hmmer_to_table  - turn HMMER output into tabular format
 
 =head1 SYNOPSIS
 
- hmmer_to_table [-e evaluefilter] [-b bitscorefilter] [--header] [-o outfile] inputfile1 inputfile2 ... 
+ bp_hmmer_to_table [-e evaluefilter] [-b bitscorefilter] [--header] [-o outfile] inputfile1 inputfile2 ... 
 
 =head1 DESCRIPTION
 

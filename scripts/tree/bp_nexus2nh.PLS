@@ -2,19 +2,19 @@
 
 =head1 NAME
 
-nexus2nh - convert nexus format trees (from PAUP* and MrBayes) to new hampshire
+bp_nexus2nh - convert nexus format trees (from PAUP* and MrBayes) to new hampshire
 
 =head1 SYNOPSIS
 
- nexus2nh file.nexus > file.nh
+ bp_nexus2nh file.nexus > file.nh
 
  # OR pipe in through STDIN
 
- cat file.nexus | nexus2nh > file.nh
+ cat file.nexus | bp_nexus2nh > file.nh
 
  # OR specify an output
 
- nexus2nh -o file.nh file.nexus
+ bp_nexus2nh -o file.nh file.nexus
 
 =head1 DESCRIPTION
 

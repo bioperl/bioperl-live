@@ -40,7 +40,7 @@ foreach my $sp ( @ARGV ) {
 
 =head1 NAME
 
-local_taxonomydb_query - query a local TaxonomyDB for species or taxonid
+bp_local_taxonomydb_query - query a local TaxonomyDB for species or taxonid
 
 =head1 DESCRIPTION
 
@@ -49,7 +49,7 @@ Taxonomy database implemented with Berkeley DB (DB_File module is needed).
 
 Usage:
 
- local_taxonomydb_query.PLS: [-v] --nodes nodes.dmp --names names.dmp "Genus1 species1" "Genus2 species2"
+ bp_local_taxonomydb_query.PLS: [-v] --nodes nodes.dmp --names names.dmp "Genus1 species1" "Genus2 species2"
 
 Providing the nodes.dmp and names.dmp files from the NCBI Taxonomy
 dump (see Bio::DB::Taxonomy::flatfile for more info) is only necessary

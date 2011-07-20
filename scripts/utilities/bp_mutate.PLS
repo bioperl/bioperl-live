@@ -2,15 +2,15 @@
 
 =head1 NAME
 
-mutate.pl - randomly mutagenize a single protein or DNA sequence
+bp_mutate.pl - randomly mutagenize a single protein or DNA sequence
 
 =head1 SYNOPSIS
 
-  ./mutate.pl -p 25 -i test.fa -n 5 -f swiss -o muts.swiss
+  ./bp_mutate.pl -p 25 -i test.fa -n 5 -f swiss -o muts.swiss
 
   #or
 
-  ./mutate.pl --percent=25 --input=test.fa --number=5 -output=x.fa
+  ./bp_mutate.pl --percent=25 --input=test.fa --number=5 -output=x.fa
 
 =head1 DESCRIPTION
 

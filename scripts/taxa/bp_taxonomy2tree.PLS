@@ -2,12 +2,12 @@
 
 =head1 NAME
 
-taxonomy2tree - Building a taxonomic tree based on the full lineages of a set of species names
+bp_taxonomy2tree - Building a taxonomic tree based on the full lineages of a set of species names
 
 =head1 DESCRIPTION
 
-taxonomy2tree.PLS: -s Orangutan -s Gorilla -s Chimpanzee -s Human
-taxonomy2tree.PLS: -s Orangutan -s Gorilla -s Chimpanzee -s "Homo Sapiens"
+bp_taxonomy2tree.PLS: -s Orangutan -s Gorilla -s Chimpanzee -s Human
+bp_taxonomy2tree.PLS: -s Orangutan -s Gorilla -s Chimpanzee -s "Homo Sapiens"
 
 Can also provide -d to specific the directory to store index files in, -o to
 specific the location of your nodes file, and -a for the names file.

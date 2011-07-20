@@ -6,24 +6,24 @@
 
 =head1 NAME 
 
-genbank2gff3.pl -- Genbank-E<gt>gbrowse-friendly GFF3
+bp_genbank2gff3.pl -- Genbank-E<gt>gbrowse-friendly GFF3
 
 =head1 SYNOPSIS
 
-  genbank2gff3.pl [options] filename(s)
+  bp_genbank2gff3.pl [options] filename(s)
 
   # process a directory containing GenBank flatfiles
-  perl genbank2gff3.pl --dir path_to_files --zip
+  perl bp_genbank2gff3.pl --dir path_to_files --zip
 
   # process a single file, ignore explicit exons and introns
-  perl genbank2gff3.pl --filter exon --filter intron file.gbk.gz
+  perl bp_genbank2gff3.pl --filter exon --filter intron file.gbk.gz
 
   # process a list of files 
-  perl genbank2gff3.pl *gbk.gz
+  perl bp_genbank2gff3.pl *gbk.gz
 
   # process data from URL, with Chado GFF model (-noCDS), and pipe to database loader
   curl ftp://ftp.ncbi.nih.gov/genomes/Saccharomyces_cerevisiae/CHR_X/NC_001142.gbk \
-  | perl genbank2gff3.pl -noCDS -in stdin -out stdout \
+  | perl bp_genbank2gff3.pl -noCDS -in stdin -out stdout \
   | perl gmod_bulk_load_gff3.pl -dbname mychado -organism fromdata
 
     Options:
@@ -132,7 +132,7 @@ model features remain the same.
 Several other improvements and bugfixes, minor but useful are included
 
   * IO pipes now work:
-    curl ftp://ncbigenomes/... | genbank2gff3 --in stdin --out stdout | gff2chado ...
+    curl ftp://ncbigenomes/... | bp_genbank2gff3 --in stdin --out stdout | gff2chado ...
 
   * GenBank main record fields are added to source feature, e.g. organism, date,
     and the sourcetype, commonly chromosome for  genomes, is used.
@@ -172,7 +172,7 @@ errors), and found corrected:
    -- unspecified errors (sample data works now).
 
  From: Eric Just <e-just <at> northwestern.edu>
- Subject: bp_genbank2gff3.pl
+ Subject: genbank2gff3.pl
  Date: 2007-01-26 17:08:49 GMT
    -- bug fixed in genbank2gff3 for multi-record handling
 

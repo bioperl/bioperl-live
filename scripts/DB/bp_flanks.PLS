@@ -183,11 +183,11 @@ sub extract {
 
 =head1 NAME
 
-flanks - finding flanking sequences for a variant in a sequence position
+bp_flanks - finding flanking sequences for a variant in a sequence position
 
 =head1 SYNOPSIS
 
-  flanks --position POS [-p POS ...]  [--flanklen INT]
+  bp_flanks --position POS [-p POS ...]  [--flanklen INT]
          accession | filename
 
 =head1 DESCRIPTION
@@ -271,7 +271,7 @@ upper case and rest of the sequence in lower case characters.
 
 =head1 EXAMPLE
 
-  % flanks ~/seq/ar.embl
+  % bp_flanks ~/seq/ar.embl
 
   >1_/HOME/HEIKKI/SEQ/AR.EMBL oripos=100 strand=1 allelepos=100
   taataactcagttcttatttgcacctacttcagtggacactgaatttggaaggtggagga

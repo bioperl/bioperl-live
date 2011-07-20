@@ -2,19 +2,19 @@
 
 =head1 NAME
 
-tree2pag - convert Bio::TreeIO parseable format trees to pagel format
+bp_tree2pag - convert Bio::TreeIO parseable format trees to pagel format
 
 =head1 SYNOPSIS
 
- tree2pag -if nexus -i file.nexus > file.pag
+ bp_tree2pag -if nexus -i file.nexus > file.pag
 
  # OR pipe in through STDIN, and use newick format instead
 
- cat file.newick | tree2pag -if newick > file.nh
+ cat file.newick | bp_tree2pag -if newick > file.nh
 
  # OR specify an output and input
 
- tree2pag -o file.pag -i file.newick
+ bp_tree2pag -o file.pag -i file.newick
 
 =head1 DESCRIPTION
 

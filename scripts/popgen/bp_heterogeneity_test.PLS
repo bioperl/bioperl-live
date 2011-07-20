@@ -5,7 +5,7 @@ use strict;
 
 =head1 NAME 
 
-heterogeneity_test - a test for distinguishing between selection and population expansion.
+bp_heterogeneity_test - a test for distinguishing between selection and population expansion.
 
 =head1 SYNOPSIS
 

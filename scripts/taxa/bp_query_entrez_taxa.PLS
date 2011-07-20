@@ -3,13 +3,13 @@
 
 =head1 NAME
 
-query_entrez_taxa - query Entrez taxonomy database and print out information 
+bp_query_entrez_taxa - query Entrez taxonomy database and print out information 
 
 =head1 USAGE
 
-query_entrez_taxa "Homo sapiens" "Saccharomyces cerevisiae" Rhizopus Metazoa
-query_entrez_taxa -gi 28800981 -gi 54301680 -db nucleotide
-query_entrez_taxa -gi 71836523 -db protein
+bp_query_entrez_taxa "Homo sapiens" "Saccharomyces cerevisiae" Rhizopus Metazoa
+bp_query_entrez_taxa -gi 28800981 -gi 54301680 -db nucleotide
+bp_query_entrez_taxa -gi 71836523 -db protein
 
  Provide the genus and species name in quotes, you can also query for
  a non-species node like Family or Order

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# BioPerl module for remote_blast.pl
+# BioPerl module for bp_remote_blast.pl
 #
 # Revived by Evan Weaver for bioperl-1.5.1
 # 3/14/2006
@@ -124,7 +124,7 @@ while ( my @rids = $blastfactory->each_rid ) {
 __END__
 
 #
-# BioPerl module for remote_blast.pl
+# BioPerl module for bp_remote_blast.pl
 #
 # Cared for by Jason Stajich <jason-at-bioperl-dot-org>
 #
@@ -136,12 +136,12 @@ __END__
 
 =head1 NAME
 
-remote_blast.pl - script for submitting jobs to a remote blast server
+bp_remote_blast.pl - script for submitting jobs to a remote blast server
 (ncbi blast queue at this time)
 
 =head1 SYNOPSIS
 
-% remote_blast.pl -p blastp -d ecoli -e 1e-5 -i myseqs.fa
+% bp_remote_blast.pl -p blastp -d ecoli -e 1e-5 -i myseqs.fa
 
 =head1 DESCRIPTION
 

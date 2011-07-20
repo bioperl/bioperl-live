@@ -4,18 +4,18 @@ use strict;
 
 =head1 NAME
 
-unflatten_seq - unflatten a genbank or genbank-style feature file into
+bp_unflatten_seq - unflatten a genbank or genbank-style feature file into
 a nested SeqFeature hierarchy
 
 =head1 SYNOPSIS
 
-  unflatten_seq.PLS -e 3 -gff ~/cvs/bioperl-live/t/data/AE003644_Adh-genomic.gb
+  bp_unflatten_seq.PLS -e 3 -gff ~/cvs/bioperl-live/t/data/AE003644_Adh-genomic.gb
 
-  unflatten_seq.PLS --detail ~/cvs/bioperl-live/t/data/AE003644_Adh-genomic.gb
+  bp_unflatten_seq.PLS --detail ~/cvs/bioperl-live/t/data/AE003644_Adh-genomic.gb
 
-  unflatten_seq.PLS -i foo.embl --from embl --to chadoxml -o out.chado.xml
+  bp_unflatten_seq.PLS -i foo.embl --from embl --to chadoxml -o out.chado.xml
 
-  unflatten_seq.PLS --notypemap --detail --to asciitree -ethresh 2 AE003644_Adh-genomic.gb
+  bp_unflatten_seq.PLS --notypemap --detail --to asciitree -ethresh 2 AE003644_Adh-genomic.gb
 
 =head1 DESCRIPTION 
 

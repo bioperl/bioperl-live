@@ -222,7 +222,7 @@ __END__
 
 =head1 NAME
 
-biofetch_genbank_proxy.pl - Caching BioFetch-compatible web proxy for GenBank
+bp_biofetch_genbank_proxy.pl - Caching BioFetch-compatible web proxy for GenBank
 
 =head1 SYNOPSIS
 

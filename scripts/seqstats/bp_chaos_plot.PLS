@@ -93,11 +93,11 @@ __END__
 
 =head1 NAME
 
-chaos_plot - a chaos plot from DNA and RNA sequences
+bp_chaos_plot - a chaos plot from DNA and RNA sequences
 
 =head1 SYNOPSIS
 
-  chaos_plot.pl -i/--input=INPUTFILE -f/--format=SEQFORMAT
+  bp_chaos_plot.pl -i/--input=INPUTFILE -f/--format=SEQFORMAT
         -o/--output=OUTPUTFILE -g/--graphics=GRAPHIC FORMAT
         -w/--width=WIGHT -h/--height=HEIGHT
 
@@ -118,15 +118,15 @@ The sequence input can be provided using any of the three methods:
 
 =item unnamed argument
 
-  chaos_plot filename
+  bp_chaos_plot filename
 
 =item named argument
 
-  chaos_plot -i filename
+  bp_chaos_plot -i filename
 
 =item standard input
 
-  chaos_plot < filename
+  bp_chaos_plot < filename
 
 =back
 

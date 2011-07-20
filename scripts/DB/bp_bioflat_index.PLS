@@ -3,7 +3,7 @@
 
 =head1 NAME
 
-bioflat_index.pl - index sequence files using Bio::DB::Flat
+bp_bioflat_index.pl - index sequence files using Bio::DB::Flat
 
 =head1 DESCRIPTION
 
@@ -13,7 +13,7 @@ bioflat_index.pl - index sequence files using Bio::DB::Flat
 
 =head1 USAGE
 
- bioflat_index.pl <options> file1 file2 file3...
+ bp_bioflat_index.pl <options> file1 file2 file3...
 
  Options:
 

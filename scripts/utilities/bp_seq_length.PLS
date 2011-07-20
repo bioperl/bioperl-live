@@ -2,15 +2,15 @@
 
 =head1 NAME
 
-seq_length.pl - lists the number of bases and number of sequences in specified sequence database files
+bp_seq_length.pl - lists the number of bases and number of sequences in specified sequence database files
 
 =head1 SYNOPSIS
 
-seq_length.pl *.fa
+bp_seq_length.pl *.fa
 
 =head1 DESCRIPTION
 
-seq_length.pl will report the total number of residues and total number of individual sequences contained within a specified sequence database file.
+bp_seq_length.pl will report the total number of residues and total number of individual sequences contained within a specified sequence database file.
 
 =head1 OPTIONS
 

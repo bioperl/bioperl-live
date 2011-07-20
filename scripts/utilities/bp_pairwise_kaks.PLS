@@ -4,11 +4,11 @@ use strict;
 
 =head1 NAME
 
-pairwise_kaks - script to calculate pairwise Ka,Ks for a set of sequences
+bp_pairwise_kaks - script to calculate pairwise Ka,Ks for a set of sequences
 
 =head1 SYNOPSIS
 
-pairwise_kaks.PLS -i t/data/worm_fam_2785.cdna [-f fasta/genbank/embl...] [-msa tcoffee/clustal] [-kaks yn00/codeml]
+bp_pairwise_kaks.PLS -i t/data/worm_fam_2785.cdna [-f fasta/genbank/embl...] [-msa tcoffee/clustal] [-kaks yn00/codeml]
 
 =head1 DESCRIPTION 
 

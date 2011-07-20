@@ -1,17 +1,17 @@
 #!perl
-# $Id: einfo.PLS 15088 2008-12-04 02:49:09Z bosborne $
+# $Id: bp_einfo.PLS 15088 2008-12-04 02:49:09Z bosborne $
 use strict;
 use warnings;
 
 =head1 NAME 
 
-einfo.pl - query einfo to find all available databases or information about a
+bp_einfo.pl - query einfo to find all available databases or information about a
             specific database (field information or links to other NCBI
             databases)
 
 =head1 SYNOPSIS
 
- einfo [-d database] [-f Field Code] [-l Link Name] [-o outfile]
+ bp_einfo [-d database] [-f Field Code] [-l Link Name] [-o outfile]
 
 =head1 DESCRIPTION
 

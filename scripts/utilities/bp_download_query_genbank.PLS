@@ -3,13 +3,13 @@
 
 =head1 NAME
 
-download_query_genbank - script to query Genbank and retrieve records
+bp_download_query_genbank - script to query Genbank and retrieve records
 
 =head1 USAGE
 
- download_query_genbank --query "Neurospora[ORGN]" --db nucest -o Ncrassa_ESTs.fa --format fasta
+ bp_download_query_genbank --query "Neurospora[ORGN]" --db nucest -o Ncrassa_ESTs.fa --format fasta
 
- download_query_genbank --queryfile 'filewithquery' --db nucest -o Ncrassa_ESTs.fa --format fasta 
+ bp_download_query_genbank --queryfile 'filewithquery' --db nucest -o Ncrassa_ESTs.fa --format fasta 
 
 =head2 Other options
 

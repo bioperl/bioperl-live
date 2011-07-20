@@ -3,11 +3,11 @@
 
 =head1 NAME 
 
-composite_LD -i filename.prettybase.txt --sortbyld E<gt> outfile
+bp_composite_LD -i filename.prettybase.txt --sortbyld E<gt> outfile
 
 =head1 SYNOPSIS
 
-  composite_LD -i filename.prettybase [-o out.LD] [-f prettybase/csv] [--sortbyld] [--noconvertindels]
+  bp_composite_LD -i filename.prettybase [-o out.LD] [-f prettybase/csv] [--sortbyld] [--noconvertindels]
 
 =head2 DESCRIPTION
 

@@ -89,11 +89,11 @@ __END__
 
 =head1 NAME
 
-generate_histogram.pl -- Generate a histogram of Bio::DB::GFF features
+bp_generate_histogram.pl -- Generate a histogram of Bio::DB::GFF features
 
 =head1 SYNOPSIS
 
-  generate_histogram.pl -d gadfly variation gene:curated
+  bp_generate_histogram.pl -d gadfly variation gene:curated
 
 =head1 DESCRIPTION
 

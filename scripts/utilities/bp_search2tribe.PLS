@@ -5,12 +5,12 @@
 #
 =head1 NAME
 
-search2tribe - Turn SearchIO parseable reports(s) into TRIBE matrix
+bp_search2tribe - Turn SearchIO parseable reports(s) into TRIBE matrix
 
 =head1 SYNOPSIS
 
 Usage:
-  search2tribe [-o outputfile] [-f reportformat] [-w/--weight] file1 file2 ..
+  bp_search2tribe [-o outputfile] [-f reportformat] [-w/--weight] file1 file2 ..
 
 =head1 DESCRIPTION
 
@@ -34,7 +34,7 @@ The options are:
 
 Additionally specify the filenames you want to process on the
 command-line.  If no files are specified then STDIN input is assumed.
-You specify this by doing: search2tribe E<lt> file1 file2 file3
+You specify this by doing: bp_search2tribe E<lt> file1 file2 file3
 
 =head1 AUTHOR
 

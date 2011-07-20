@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-search2table - turn SearchIO parseable reports into tab delimited format like NCBI's -m 9 
+bp_search2table - turn SearchIO parseable reports into tab delimited format like NCBI's -m 9 
 
 =head1 SYNOPSIS
 
-  search2table -f fasta -i file.FASTA -o output.table
+  bp_search2table -f fasta -i file.FASTA -o output.table
 
 =head1 DESCRIPTION 
 

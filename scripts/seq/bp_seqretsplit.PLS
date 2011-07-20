@@ -2,13 +2,13 @@
 #
 =head1 NAME
 
-seqretsplit - split a sequence (or stream) into a single file per sequence
+bp_seqretsplit - split a sequence (or stream) into a single file per sequence
 
 =head1 SYNOPSIS
 
-  seqretsplit file1 file2 .. 
+  bp_seqretsplit file1 file2 .. 
   # or
-  seqretsplit < file1 
+  bp_seqretsplit < file1 
 
 =head1 DESCRIPTION 
 

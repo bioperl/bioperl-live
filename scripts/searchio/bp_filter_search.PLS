@@ -5,11 +5,11 @@ use strict;
 
 =head1 NAME
 
-filter_search - filters searchio results, outputting a tab delimited summary
+bp_filter_search - filters searchio results, outputting a tab delimited summary
 
 =head1 SYNOPSIS
 
-  #filter_search -format blast -score 200 < search.bl > search.tab
+  #bp_filter_search -format blast -score 200 < search.bl > search.tab
 
 =head1 DESCRIPTION 
 

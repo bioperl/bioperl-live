@@ -5,12 +5,12 @@
 #
 =head1 NAME
 
-search2gff - Turn SearchIO parseable reports(s) into a GFF report
+bp_search2gff - Turn SearchIO parseable reports(s) into a GFF report
 
 =head1 SYNOPSIS
 
 Usage:
-  search2gff [-o outputfile] [-f reportformat] [-i inputfilename]  OR file1 file2 ..
+  bp_search2gff [-o outputfile] [-f reportformat] [-i inputfilename]  OR file1 file2 ..
 
 =head1 DESCRIPTION
 
@@ -55,7 +55,7 @@ The options are:
 
 Additionally specify the filenames you want to process on the
 command-line.  If no files are specified then STDIN input is assumed.
-You specify this by doing: search2gff E<lt> file1 file2 file3
+You specify this by doing: bp_search2gff E<lt> file1 file2 file3
 
 =head1 AUTHOR
 

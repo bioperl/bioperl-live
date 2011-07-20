@@ -4,11 +4,11 @@
 
 =head1 NAME
 
-mask_by_search - mask sequence(s) based on its alignment results
+bp_mask_by_search - mask sequence(s) based on its alignment results
 
 =head1 SYNOPSIS 
 
-  mask_by_search.pl -f blast genomefile blastfile.bls > maskedgenome.fa
+  bp_mask_by_search.pl -f blast genomefile blastfile.bls > maskedgenome.fa
 
 =head1 DESCRIPTION
 

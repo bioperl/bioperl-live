@@ -3,12 +3,12 @@ use strict;
 
 =head1 NAME
 
-split_seq - splits a sequence into equal sized chunks with an optional
+bp_split_seq - splits a sequence into equal sized chunks with an optional
             overlapping range
 
 =head1 SYNOPSIS
 
-split_seq -c 10000 [-o 1000] [-i] -f seq.in
+bp_split_seq -c 10000 [-o 1000] [-i] -f seq.in
 
 =head1 DESCRIPTION 
 

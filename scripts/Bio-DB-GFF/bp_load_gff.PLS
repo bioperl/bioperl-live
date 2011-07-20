@@ -73,7 +73,7 @@ e.g. -d instead of --database.
 
 =head1 SEE ALSO
 
-L<Bio::DB::GFF>, L<bulk_load_gff.pl>, L<load_gff.pl>
+L<Bio::DB::GFF>, L<bulk_load_gff.pl>, L<bp_load_gff.pl>
 
 =head1 AUTHOR
 

@@ -3,11 +3,11 @@
 
 =head1 NAME
 
-dbsplit - script to split an input set of database(s) into smaller pieces
+bp_dbsplit - script to split an input set of database(s) into smaller pieces
 
 =head1 SYNOPSIS
 
-  dbsplit.PLS --size 50 [-i inputfile] [-if inputformat] [-of outputformat]
+  bp_dbsplit.PLS --size 50 [-i inputfile] [-if inputformat] [-of outputformat]
               [--prefix outputprefix] [ < file1 file 2  OR file1 file2]
 
 =head1 DESCRIPTION
@@ -21,11 +21,11 @@ supported by bioperl (fasta,embl,genbank,gcg, swissprot, etc).
 You can specify the input data either as a single file with -i
 filename, or as a single file as an argument like
 
-  % dbsplit file1 file2
+  % bp_dbsplit file1 file2
 
 or as a list of sequence data with 
 
-  % cat file1 file2 file3 | dbsplit
+  % cat file1 file2 file3 | bp_dbsplit
 
 You'll want to use the C<--prefix> to specify what the output prefix will
 be.

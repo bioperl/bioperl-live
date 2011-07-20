@@ -78,15 +78,15 @@ __END__
 
 =head1 NAME
 
-gccalc - GC content of nucleotide sequences
+bp_gccalc - GC content of nucleotide sequences
 
 =head1 SYNOPSIS
 
-  gccalc [-f/--format FORMAT] [-h/--help] filename
+  bp_gccalc [-f/--format FORMAT] [-h/--help] filename
   or
-  gccalc [-f/--format FORMAT] < filename
+  bp_gccalc [-f/--format FORMAT] < filename
   or
-  gccalc [-f/--format FORMAT] -i filename
+  bp_gccalc [-f/--format FORMAT] -i filename
 
 =head1 DESCRIPTION
 
@@ -103,15 +103,15 @@ The sequence input can be provided using any of the three methods:
 
 =item unnamed argument
 
-  gccalc filename
+  bp_gccalc filename
 
 =item named argument
 
-  gccalc -i filename
+  bp_gccalc -i filename
 
 =item standard input
 
-  gccalc < filename
+  bp_gccalc < filename
 
 =back
 

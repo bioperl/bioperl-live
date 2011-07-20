@@ -13,7 +13,7 @@ use Pod::Usage;
 
 =head1 NAME
 
-revtrans-motif - Reverse translate a Profam-like protein motif
+bp_revtrans-motif - Reverse translate a Profam-like protein motif
 
 =head1 VERSION
 
@@ -27,15 +27,15 @@ our $VERSION = '0.01';
 
 From a file:
 
-    revtrans-motif.pl -i motifs.txt
+    bp_revtrans-motif.pl -i motifs.txt
 
 Using pipes:
 
-   revtrans-motif.pl < motifs.txt > output.txt
+   bp_revtrans-motif.pl < motifs.txt > output.txt
 
 Using interactively at the command prompt:
 
-   $ revtrans-motif.pl
+   $ bp_revtrans-motif.pl
    MAAEEL[VIKP]
    1.	ATGGCNGCNGARGARYTNVHN
    [^P]H(IW){2,3}

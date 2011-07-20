@@ -36,7 +36,7 @@ while (my $id = shift) {
 
 =head1 NAME
 
-biogetseq - sequence retrieval using OBDA registry
+bp_biogetseq - sequence retrieval using OBDA registry
 
 =head1 DESCRIPTION
 
@@ -46,7 +46,7 @@ file, sql database or over the web.
 
 =head1 USAGE
 
-  Usage: biogetseq --dbname embl --format embl
+  Usage: bp_biogetseq --dbname embl --format embl
                    --namespace acc id [ ids... ]
          * dbname defaults to embl
          * format defaults to embl

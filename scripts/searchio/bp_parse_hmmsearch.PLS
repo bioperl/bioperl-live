@@ -4,14 +4,14 @@ use strict;
 
 =head1 NAME
 
-parse_hmmsearch - parse single/multiple HMMSEARCH results file(s) with
+bp_parse_hmmsearch - parse single/multiple HMMSEARCH results file(s) with
                   different output options
 
 =head1 SYNOPSIS
 
-parse_hmmsearch [--po] [--ps] -s hmmsearch_file
+bp_parse_hmmsearch [--po] [--ps] -s hmmsearch_file
 
-parse_hmmsearch [--po] [--ps] -m index_file
+bp_parse_hmmsearch [--po] [--ps] -m index_file
 
 =head1 DESCRIPTION
 

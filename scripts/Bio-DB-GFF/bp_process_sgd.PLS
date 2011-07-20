@@ -83,11 +83,11 @@ __END__
 
 =head1 NAME
 
-process_sgd.pl - Massage SGD annotation flat files into a version suitable for the Generic Genome Browser
+bp_process_sgd.pl - Massage SGD annotation flat files into a version suitable for the Generic Genome Browser
 
 =head1 SYNOPSIS
 
-  % process_sgd.pl chromosomal_features.tab > yeast.gff
+  % bp_process_sgd.pl chromosomal_features.tab > yeast.gff
 
 =head1 DESCRIPTION
 
@@ -99,7 +99,7 @@ genome browser.
 To use this script, get the SGD chromosomal_features.tab file from the
 FTP site listed above, and run the following command:
 
-  % process_sgd.pl chromosomal_features.tab > yeast.gff
+  % bp_process_sgd.pl chromosomal_features.tab > yeast.gff
 
 The yeast.gff file can then be loaded into a Bio::DB::GFF database
 using the following command:

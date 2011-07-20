@@ -3,11 +3,11 @@ use strict;
 
 =head1 NAME
 
-translate_seq - translates a sequence
+bp_translate_seq - translates a sequence
 
 =head1 SYNOPSIS
 
-translate_seq E<lt> cdna_cds.fa E<gt> protein.fa
+bp_translate_seq E<lt> cdna_cds.fa E<gt> protein.fa
 
 =head1 DESCRIPTION 
 

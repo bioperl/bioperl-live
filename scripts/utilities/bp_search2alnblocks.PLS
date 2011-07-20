@@ -5,11 +5,11 @@
 
 =head1 NAME
 
-search2alnblocks - Turn SearchIO parseable reports(s) into a set of aligned blocks
+bp_search2alnblocks - Turn SearchIO parseable reports(s) into a set of aligned blocks
 
 =head1 SYNOPSIS
 
-  search2alnblocks --minid PERCENTID --minlen LEN --minevalue EVALUE file1.
+  bp_search2alnblocks --minid PERCENTID --minlen LEN --minevalue EVALUE file1.
   blast file2.blast ...> out.fas
 
 =head1 DESCRIPTION

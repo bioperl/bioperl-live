@@ -122,11 +122,11 @@ __END__
 
 =head1 NAME
 
-process_gadfly.pl - Massage Gadfly/FlyBase GFF files into a version suitable for the Generic Genome Browser
+bp_process_gadfly.pl - Massage Gadfly/FlyBase GFF files into a version suitable for the Generic Genome Browser
 
 =head1 SYNOPSIS
 
-  % process_gadfly.pl ./RELEASE2 > gadfly.gff
+  % bp_process_gadfly.pl ./RELEASE2 > gadfly.gff
 
 =head1 DESCRIPTION
 
@@ -145,7 +145,7 @@ you wish you can download the ZIP compressed versions of these files.
 Next run this script on the two files, indicating the name of the
 downloaded FASTA file first, followed by the gff file:
 
- % process_gadfly.pl na_whole-genome_genomic_dmel_RELEASE3.FASTA whole-genome_annotation-feature-region_dmel_RELEASE3.GFF > fly.gff
+ % bp_process_gadfly.pl na_whole-genome_genomic_dmel_RELEASE3.FASTA whole-genome_annotation-feature-region_dmel_RELEASE3.GFF > fly.gff
 
 The gadfly.gff file and the fasta file can now be loaded into a Bio::DB::GFF database
 using the following command:

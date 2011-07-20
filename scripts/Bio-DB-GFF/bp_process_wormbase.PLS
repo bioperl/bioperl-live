@@ -172,11 +172,11 @@ __END__
 
 =head1 NAME
 
-process_wormbase.pl - Massage WormBase GFF files into a version suitable for the Generic Genome Browser
+bp_process_wormbase.pl - Massage WormBase GFF files into a version suitable for the Generic Genome Browser
 
 =head1 SYNOPSIS
 
-  % process_wormbase.pl ./WS61 > wormbase.gff
+  % bp_process_wormbase.pl ./WS61 > wormbase.gff
 
 =head1 DESCRIPTION
 
@@ -197,7 +197,7 @@ not need to uncompress the files.
 Then give that directory as the argument to this script and capture
 the script's output to a file:
 
-  % process_wormbase.pl ./WS61 > wormbase.gff
+  % bp_process_wormbase.pl ./WS61 > wormbase.gff
 
 It may take a while before you see output from this script, since it
 must first fetch gene and protein database from the remote AceDB

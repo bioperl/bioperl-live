@@ -1,16 +1,16 @@
 #!perl
-#$Id: hivq.PL 362 2009-01-23 22:45:51Z maj $#
+#$Id: bp_hivq.PL 362 2009-01-23 22:45:51Z maj $#
 
 # command-line script for HIV sequence queries
 # using HIV.pm and HIVQuery.pm
 
 =head1 NAME
 
-hivq.PL - an interactive command-line interface to L<Bio::DB::HIV> and L<Bio::DB::Query::HIVQuery>
+bp_hivq.PL - an interactive command-line interface to L<Bio::DB::HIV> and L<Bio::DB::Query::HIVQuery>
 
 =head1 SYNOPSIS
 
- $ perl hivq.PL
+ $ perl bp_hivq.PL
  hivq> query C[subtype] SI[phenotype]
  hivq> prerun
  80 sequences returned
@@ -32,7 +32,7 @@ hivq.PL - an interactive command-line interface to L<Bio::DB::HIV> and L<Bio::DB
 The BioPerl modules L<Bio::DB::HIV> and L<Bio::DB::Query::HIVQuery>
 together allow batch queries against the Los Alamos National
 Laboratories' HIV Sequence Database using a simple query
-language. C<hivq.PL> provides both an example of the use of these
+language. C<bp_hivq.PL> provides both an example of the use of these
 modules, and a standalone interactive command-line interface to the
 LANL HIV DB. Simple commands allow the user to retrieve HIV sequences
 and annotations using the query language implemented in
@@ -41,7 +41,7 @@ more details.
 
 =head1 USAGE
 
-Run the script using C<perl hivq.PL> or, in Unix, C<./hivq.PL>. You will see
+Run the script using C<perl bp_hivq.PL> or, in Unix, C<./bp_hivq.PL>. You will see
 the
 
  hivq>
@@ -81,11 +81,11 @@ sequence hits for a query without retrieving the data. Use C<run> or
 C<do> to perform a complete query, retrieving sequence data into the
 currently set output files.
 
-To process C<hivq.PL> commands in batch, create a text file
-(C<hivq.cmd>, for example) containing desired commands one per
+To process C<bp_hivq.PL> commands in batch, create a text file
+(C<bp_hivq.cmd>, for example) containing desired commands one per
 line. Then execute the following from the shell:
 
- $ cat hivq.cmd | perl hivq.PL
+ $ cat bp_hivq.cmd | perl bp_hivq.PL
 
 =head1 COMMANDS
 

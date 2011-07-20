@@ -19,7 +19,7 @@ bp_fetch.pl - fetches sequences from bioperl indexed databases
 =head1 DESCRIPTION
 
 Fetches sequences using the DB access systems in Bioperl. The most
-common use of this is to fetch sequences from bioperl indices built
+common use of this is to bp_fetch sequences from bioperl indices built
 using bpindex.pl, or to fetch sequences from the NCBI website
 
 The format for retrieving sequences is delibrately like the

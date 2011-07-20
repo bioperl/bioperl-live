@@ -41,13 +41,13 @@ __END__
 
 =head1 NAME
 
-seqconvert - generic BioPerl sequence format converter
+bp_seqconvert - generic BioPerl sequence format converter
 
 =head1 SYNOPSIS
 
-  seqconvert --from in-format --to out-format < file.in-format > file.out-format
+  bp_seqconvert --from in-format --to out-format < file.in-format > file.out-format
   # or
-  seqconvert -f in-format -t out-format < file.in-format > file.out-format
+  bp_seqconvert -f in-format -t out-format < file.in-format > file.out-format
 
 =head1 DESCRIPTION
 

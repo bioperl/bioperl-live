@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-classify_hits_kingdom - classify BLAST hits by taxonomic kingdom
+bp_classify_hits_kingdom - classify BLAST hits by taxonomic kingdom
 
 =head2 USAGE
 
-classify_hits_kingdom [-i tab_file] [-i second_BLAST_file] [-e evalue_cutoff]
+bp_classify_hits_kingdom [-i tab_file] [-i second_BLAST_file] [-e evalue_cutoff]
                       [-t dir_where_TAXONOMY_files_are] [-g gi2taxid] 
                       [-z PATH_TO_zcat] [-v]
 

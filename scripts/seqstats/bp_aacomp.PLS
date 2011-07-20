@@ -64,15 +64,15 @@ __END__
 
 =head1 NAME
 
-aacomp - amino acid composition of protein sequences
+bp_aacomp - amino acid composition of protein sequences
 
 =head1 SYNOPSIS
 
-  aacomp [-f/--format FORMAT] [-h/--help] filename
+  bp_aacomp [-f/--format FORMAT] [-h/--help] filename
   or
-  aacomp [-f/--format FORMAT] < filename
+  bp_aacomp [-f/--format FORMAT] < filename
   or
-  aacomp [-f/--format FORMAT] -i filename
+  bp_aacomp [-f/--format FORMAT] -i filename
 
 =head1 DESCRIPTION
 
@@ -89,15 +89,15 @@ The sequence input can be provided using any of the three methods:
 
 =item unnamed argument
 
-  aacomp filename
+  bp_aacomp filename
 
 =item named argument
 
-  aacomp -i filename
+  bp_aacomp -i filename
 
 =item standard input
 
-  aacomp < filename
+  bp_aacomp < filename
 
 =back
 

@@ -2,7 +2,7 @@
 #
 =head1 NAME
 
-make_mrna_protein - Convert an input mRNA/cDNA sequence into protein
+bp_make_mrna_protein - Convert an input mRNA/cDNA sequence into protein
 
 =head1 DESCRIPTION
 

@@ -189,11 +189,11 @@ __END__
 
 =head1 NAME
 
-oligo_count - oligo count and frequency
+bp_oligo_count - oligo count and frequency
 
 =head1 SYNOPSIS
 
-  Usage:  oligo_count [-h/--help] [-l/--length OLIGOLENGTH]
+  Usage:  bp_oligo_count [-h/--help] [-l/--length OLIGOLENGTH]
           [-f/--format SEQFORMAT] [-i/--in/-s/--sequence SEQFILE]
           [-o/--out OUTFILE]
 

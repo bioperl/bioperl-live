@@ -50,11 +50,11 @@ unless( $plain  ) {
 
 =head1 NAME
 
-taxid4species - simple script which returns the NCBI Taxonomic id for a requested species
+bp_taxid4species - simple script which returns the NCBI Taxonomic id for a requested species
 
 =head1 SYNOPSIS
 
-taxid4species [-v] [-p] [-h] "Genus1 species1" "Genus2 species2"
+bp_taxid4species [-v] [-p] [-h] "Genus1 species1" "Genus2 species2"
 
 Options:
   -v   verbose

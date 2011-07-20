@@ -19,11 +19,11 @@ use constant FATTRIBUTE_TO_FEATURE => 'fattribute_to_feature';
 
 =head1 NAME
 
-bulk_load_gff.pl - Bulk-load a Bio::DB::GFF database from GFF files.
+bp_bulk_load_gff.pl - Bulk-load a Bio::DB::GFF database from GFF files.
 
 =head1 SYNOPSIS
 
-  % bulk_load_gff.pl -d testdb dna1.fa dna2.fa features1.gff features2.gff ...
+  % bp_bulk_load_gff.pl -d testdb dna1.fa dna2.fa features1.gff features2.gff ...
 
 =head1 DESCRIPTION
 

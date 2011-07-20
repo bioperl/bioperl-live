@@ -4,11 +4,11 @@ use strict;
 
 =head1 NAME
 
-extract_feature_seq - extract the corresponding sequence for a specified feature type
+bp_extract_feature_seq - extract the corresponding sequence for a specified feature type
 
 =head1 SYNOPSIS
 
-extract_feature_seq.PLS -i file --format genbank --feature=CDS -o output.fa
+bp_extract_feature_seq.PLS -i file --format genbank --feature=CDS -o output.fa
 
 =head1 DESCRIPTION 
 
