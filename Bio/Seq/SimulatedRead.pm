@@ -83,7 +83,7 @@ Public License version 3.
 use strict;
 use warnings;
 use Bio::LocatableSeq;
-use base qw( Bio::Seq::Quality Bio::LocatableSeq  );
+use base qw( Bio::Seq::Quality Bio::LocatableSeq );
 
 
 =head2 new

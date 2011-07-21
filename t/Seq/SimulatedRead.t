@@ -7,7 +7,7 @@ use warnings;
 BEGIN { 
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 168);
+    test_begin(-tests => 170);
 
     use_ok('Bio::Seq');
     use_ok('Bio::Seq::Quality');
@@ -54,6 +54,7 @@ is $read->end, 12;
 is $read->seq, 'TAAAAAAACCCC';
 is $read->track, 0;
 is $read->desc, undef;
+is $read->revcom->seq, 'GGGGTTTTTTTA';
 
 ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -track => 1 );
 is $read->start, 1;
@@ -70,6 +71,7 @@ is $read->seq, 'TAAAAAAACCCC';
 is join(' ', @{$read->qual}), '30 30 30 30 30 30 30 30 30 30 30 30';
 is $read->track, 1;
 is $read->desc, 'reference=human_id position=1-12 strand=+1 description="The human genome"';
+is $read->revcom->seq, 'GGGGTTTTTTTA';
 
 ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref2 );
 is $read->start, 1;
