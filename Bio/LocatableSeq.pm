@@ -159,16 +159,9 @@ sub start{
         my $value = shift;
         $self->{'start'} = $value;
     }
-   if(defined $self->{'start'}) {
-    	return $self->{'start'};
-   }
-   elsif ($self->seq) {
-   	$self->{'start'}=1; #Deposit the value in the hash, so it doesnot need to be calculated again when being call the second time
-   	return $self->{'start'};
-   }
-   else {
-   	return;
-   }
+    return $self->{'start'} if defined $self->{'start'};
+    return 1                if $self->seq;
+    return;
 }
 
 =head2 end
@@ -196,6 +189,7 @@ sub end {
         # other sequences in an alignment
         if ($self->seq && $st != 0 ) {
             my $len = $self->_ungapped_len;
+            #print STDERR "End:",$self->display_id,"\t",$len,"\t$st\n";
             my $calend = $st + $len - 1;
             my $id = $self->id || 'unknown';
             if ($calend != $value) {
@@ -211,7 +205,6 @@ sub end {
     if (defined $self->{'end'}) {
         return $self->{'end'}
     } elsif ( my $len = $self->_ungapped_len) {
-    	$self->{'end'}=$len + $self->start - 1; #Deposit the value in the hash, so it doesnot need to be calculated again when being call the second time
         return $len + $self->start - 1;
     } else {
         return;
