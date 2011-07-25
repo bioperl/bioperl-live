@@ -77,9 +77,9 @@ my $in = new Bio::SeqIO(-file => $input,
                         -format => $format);
 my $out;
 if ($output ) {
-    $out = new Bio::SeqIO(-file => ">$output");
+    $out = new Bio::SeqIO(-file => ">$output", -format => 'fasta');
 } else { 
-    $out = new Bio::SeqIO(); # use STDOUT for output
+    $out = new Bio::SeqIO(-format => 'fasta'); # use STDOUT for output
 }
 
 my $count = 1;
