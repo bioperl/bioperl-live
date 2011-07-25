@@ -1,9 +1,10 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 use version;
 our $API_VERSION = qv('1.1.3');
 
 use strict;
-use File::Path qw(make_path remove_tree);
+use File::Path qw(mkpath rmtree);
+use Carp;
 
 BEGIN {
     use lib '.';    # for core package test scripts only
@@ -34,7 +35,7 @@ sub create_dir {
     $dir = test_input_file($dir);
 
     unless ( -d $dir ) {
-        make_path($dir);
+        mkpath($dir);
     }
 }
 
@@ -47,7 +48,7 @@ sub test_file_1 {
     my $infile = shift;
     $infile = test_input_file($infile);
 
-    print_file1( $infile, $gzip );
+    #print_file1( $infile, $gzip );
 
     my $file_sequence = $infile;
     if ($gzip) {
@@ -179,7 +180,7 @@ sub test_file_2 {
     my $infile = shift;
     $infile = test_input_file($infile);
 
-    print_file2( $infile, $gzip );
+    #print_file2( $infile, $gzip );
 
     my $file_sequence = $infile;
     if ($gzip) {
@@ -327,7 +328,7 @@ sub test_file_3 {
     my $infile = shift;
     $infile = test_input_file($infile);
 
-    print_file3( $infile, $gzip );
+    #print_file3( $infile, $gzip );
 
     my $file_sequence = $infile;
     if ($gzip) {
@@ -455,7 +456,7 @@ END
         $gzip = "| gzip";
     }
     else { $gzip = ' '; }
-    open OUT, "$gzip >$destination" or throw("Unable to open $destination\n");
+    open OUT, "$gzip >$destination" or croak("Unable to open $destination\n");
 
     print OUT $out;
     close OUT;
@@ -520,7 +521,7 @@ END
     }
     else { $gzip = ' '; }
 
-    open OUT, "$gzip >$destination" or throw("Unable to open $destination\n");
+    open OUT, "$gzip >$destination" or croak("Unable to open $destination\n");
 
     print OUT $out;
     close OUT;
@@ -547,7 +548,7 @@ END
     }
     else { $gzip = ' '; }
 
-    open OUT, "$gzip >$destination" or throw("Unable to open $destination\n");
+    open OUT, "$gzip >$destination" or croak("Unable to open $destination\n");
 
     print OUT $out;
     close OUT;
@@ -556,7 +557,7 @@ END
 sub print_to_file {
     my ( $ra_in, $out ) = @_;
     unless ( open OUT, ">$out" ) {
-        throw("\nCould not open outfile $out!!\n\n");
+        croak("\nCould not open outfile $out!!\n\n");
     }
     print OUT ("@$ra_in");
     close OUT;

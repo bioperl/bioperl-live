@@ -24,7 +24,7 @@ Use I<Bio::Biblio> module:
 =head1 DESCRIPTION
 
 This interface describes the methods for accessing a bibliographic
-repository, for quering it and for retrieving citations from it. The
+repository, for querying it and for retrieving citations from it. The
 retrieved citations are in XML format and can be converted to perl
 objects using I<Bio::Biblio::IO>.
 
@@ -60,7 +60,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR
 

@@ -66,7 +66,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.bioperl.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Heikki Lehvaslaiho
 
@@ -312,7 +312,7 @@ which new ranges could be built.
            overlap. In scalar contex, the return value is an object of
            the same class as the calling one. In array context the
            return value is a three element array.
- Args    : arg #1 = [REQUIRED] a range to compare this one to,
+ Args    : arg #1 = [REQUIRED] a Bio::RangeI to compare this one to,
                     or an array ref of ranges
            arg #2 = optional strand-testing arg ('strong', 'weak', 'ignore')
 

@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 62);
+    test_begin(-tests => 63);
 	
 	use_ok('Bio::Root::Root');
     use_ok('Bio::Seq');
@@ -16,8 +16,24 @@ BEGIN {
 ok my $obj = Bio::Root::Root->new();
 isa_ok($obj, 'Bio::Root::RootI');
 
-eval { $obj->throw('Testing throw') };
-ok $@ =~ /Testing throw/;# 'throw failed';
+throws_ok { $obj->throw('Testing throw') } qr/Testing throw/;# 'throw failed';
+
+# test throw_not_implemented()
+throws_ok { $obj->throw_not_implemented() } qr/EXCEPTION: Bio::Root::NotImplemented/;
+
+{
+    package Bio::FooI;
+    use base qw(Bio::Root::RootI);
+    sub new {
+            my $class = shift;
+            my $self = {};
+            bless $self, ref($class) || $class;
+            return $self;
+	};
+}
+$obj = Bio::FooI->new();
+throws_ok { $obj->throw_not_implemented() } qr/EXCEPTION /;
+$obj = Bio::Root::Root->new();
 
 # doesn't work in perl 5.00405
 #my $val;
@@ -35,15 +51,12 @@ ok $@ =~ /Testing throw/;# 'throw failed';
 #'verbose(0) warn did not work properly' . $val;
 
 $obj->verbose(-1);
-eval { $obj->throw('Testing throw') };
-ok $@=~ /Testing throw/;# 'verbose(-1) throw did not work properly' . $@;
+throws_ok { $obj->throw('Testing throw') } qr/Testing throw/;# 'verbose(-1) throw did not work properly' . $@;
 
-eval { $obj->warn('Testing warn') };
-ok !$@;
+lives_ok { $obj->warn('Testing warn') };
 
 $obj->verbose(1);
-eval { $obj->throw('Testing throw') };
-ok $@ =~ /Testing throw/;# 'verbose(1) throw did not work properly' . $@;
+throws_ok { $obj->throw('Testing throw') } qr/Testing throw/;# 'verbose(1) throw did not work properly' . $@;
 
 # doesn't work in perl 5.00405
 #undef $val;
@@ -73,9 +86,6 @@ is $seq->verbose, 1;
 my @vals = Bio::Root::RootI->_rearrange([qw(apples pears)], 
 					-apples => 'up the',
 					-pears  => 'stairs');
-eval { $obj->throw_not_implemented() };
-ok $@ =~ /Bio::Root::NotImplemented/;
-
 is shift @vals, 'up the';
 is shift @vals, 'stairs';
 

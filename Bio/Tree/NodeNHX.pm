@@ -61,7 +61,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Aaron Mackey
 
@@ -134,7 +134,7 @@ sub to_string{
    my ($self) = @_;
    my @tags = $self->get_all_tags;
    my $tagstr = '';
-   if( @tags ) {
+   if( scalar(@tags) > 0 ) {
        $tagstr = '[' . join(":", "&&NHX", 
 			    map { "$_=" .join(',',
 					      $self->get_tag_values($_))}

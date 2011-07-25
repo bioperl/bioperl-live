@@ -54,7 +54,7 @@ my ($iformat,$seqformat,$oformat,$seqdb,$input,$output) = ('clustalw','fasta',
 							   'phylip');
 my ($help,$usage);
 
-$usage = "usage: bp_mrtrans.pl -i prot_alignment -if align_format -o out_dna_align -of output_format -s cDNA_seqdb -sf cDNA_seqdb\n".
+$usage = "usage: bp_mrtrans.pl -i prot_alignment -if align_format -o out_dna_align -of output_format -s cDNA_seqdb -sf fasta\n".
 "defaults: -if clustalw
           -of phylip
           -sf fasta\n";

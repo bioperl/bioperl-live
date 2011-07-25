@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
     
-    test_begin(-tests => 83,
+    test_begin(-tests => 92,
 			   -requires_module => 'Graph');
 	
 	use_ok('Bio::OntologyIO');
@@ -226,8 +226,33 @@ is($child2->identifier(),$term2->identifier(),'Got back the child');
 
 
 
+#### --- testing obo parsers for secondary identifiers
+my $parser3 = Bio::OntologyIO->new (
+	 -format => 'obo',
+	 -file => test_input_file('sp_subset.obo'));
+
+isa_ok($parser3,'Bio::OntologyIO', 'got a ontology IO handler');
 
 
+my $sp_ont = $parser3->next_ontology();
+ok ($sp_ont);
+is ($sp_ont->name(), "solanaceae_phenotype");
 
+#the term 'plant size has 4 secondary identifiers
+@terms = $sp_ont->find_terms(-name => "plant size");
+$term =  $terms[0];
+is ($term->name(), "plant size");
+
+my @xrefs = $term->get_secondary_ids();
+is(scalar(@xrefs) , 4);
+
+my ($xref) = grep { $_ eq "PATO:0000117"; } @xrefs;
+ok $xref;
+($xref) = grep { $_ eq "PO:0000003"; } @xrefs;
+ok $xref;
+($xref) = grep { $_ eq "PO:0007130"; } @xrefs;
+ok $xref;
+($xref) = grep { $_ eq "TO:0000207"; } @xrefs;
+ok $xref;
 
 

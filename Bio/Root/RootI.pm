@@ -72,8 +72,8 @@ implement C<FooI>, the C<FooI::foo()> method should consist of the
 following:
 
     sub foo {
-    	my $self = shift;
-    	$self->throw_not_implemented;
+        my $self = shift;
+        $self->throw_not_implemented;
     }
 
 So, if an implementer of C<FooI> forgets to implement C<foo()>
@@ -337,8 +337,8 @@ sub stack_trace{
  Purpose   : Rearranges named parameters to requested order.
  Example   : $self->_rearrange([qw(SEQUENCE ID DESC)],@param);
            : Where @param = (-sequence => $s,
-	       :                 -desc     => $d,
-	       :                 -id       => $i);
+           :                 -desc     => $d,
+           :                 -id       => $i);
  Returns   : @params - an array of parameters in the requested order.
            : The above example would return ($s, $i, $d).
            : Unspecified parameters will return undef. For example, if
@@ -351,7 +351,7 @@ sub stack_trace{
            :          or as an associative array with hyphenated tags
            :          (in which case the function sorts the values 
            :          according to @{$order} and returns that new array.)
-	       :	      The tags can be upper, lower, or mixed case
+           :          The tags can be upper, lower, or mixed case
            :          but they must start with a hyphen (at least the
            :          first one should be hyphenated.)
  Source    : This function was taken from CGI.pm, written by Dr. Lincoln
@@ -373,26 +373,26 @@ sub stack_trace{
            : indicate that named parameters are being used.
            : Therefore, the ('me', 'blue') list will be returned as-is.
            :
-	       : Note that Perl will confuse unquoted, hyphenated tags as 
+           : Note that Perl will confuse unquoted, hyphenated tags as 
            : function calls if there is a function of the same name 
            : in the current namespace:
            :    -name => 'foo' is interpreted as -&name => 'foo'
-	       :
+           :
            : For ultimate safety, put single quotes around the tag:
-	       : ('-name'=>'me', '-color' =>'blue');
+           : ('-name'=>'me', '-color' =>'blue');
            : This can be a bit cumbersome and I find not as readable
            : as using all uppercase, which is also fairly safe:
-	       : (-NAME=>'me', -COLOR =>'blue');
-	       :
+           : (-NAME=>'me', -COLOR =>'blue');
+           :
            : Personal note (SAC): I have found all uppercase tags to
-           : be more managable: it involves less single-quoting,
+           : be more manageable: it involves less single-quoting,
            : the key names stand out better, and there are no method naming 
            : conflicts.
            : The drawbacks are that it's not as easy to type as lowercase,
            : and lots of uppercase can be hard to read.
            :
            : Regardless of the style, it greatly helps to line
-	       : the parameters up vertically for long/complex lists.
+           : the parameters up vertically for long/complex lists.
            :
            : Note that if @param is a single string that happens to start with
            : a dash, it will be treated as a hash key and probably fail to
@@ -402,18 +402,19 @@ sub stack_trace{
 =cut
 
 sub _rearrange {
-    my $dummy = shift;
+    shift; #discard self
     my $order = shift;
-    
-    return @_ unless (substr($_[0]||'',0,1) eq '-');
-    push @_,undef unless $#_ %2;
+
+    return @_ unless $_[0] && $_[0] =~ /^\-/;
+
+    push @_, undef unless $#_ % 2;
+
     my %param;
-    while( @_ ) {
-	(my $key = shift) =~ tr/a-z\055/A-Z/d; #deletes all dashes!
-	$param{$key} = shift;
+    for( my $i = 0; $i < @_; $i += 2 ) {
+        (my $key = $_[$i]) =~ tr/a-z\055/A-Z/d; #deletes all dashes!
+        $param{$key} = $_[$i+1];
     }
-    map { $_ = uc($_) } @$order; # for bug #1343, but is there perf hit here?
-    return @param{@$order};
+    return @param{map uc, @$order};
 }
 
 =head2 _set_from_args
@@ -423,8 +424,8 @@ sub _rearrange {
            : and calls the method supplying it the corresponding value.
  Example   : $self->_set_from_args(\%args, -methods => [qw(sequence id desc)]);
            : Where %args = (-sequence    => $s,
-	       :                -description => $d,
-	       :                -ID          => $i);
+           :                -description => $d,
+           :                -ID          => $i);
            :
            : the above _set_from_args calls the following methods:
            : $self->sequence($s);
@@ -611,8 +612,8 @@ sub _rearrange_old {
     # The next few lines strip out the '-' characters which
     # preceed the keys, and capitalizes them.
     for (my $i=0;$i<@param;$i+=2) {
-	$param[$i]=~s/^\-//;
-	$param[$i]=~tr/a-z/A-Z/;
+        $param[$i]=~s/^\-//;
+        $param[$i]=~tr/a-z/A-Z/;
     }
     
     # Now we'll convert the @params variable into an associative array.
@@ -627,9 +628,9 @@ sub _rearrange_old {
     # my($key);
     
     #foreach (@{$order}) {
-	# my($value) = $param{$key};
-	# delete $param{$key};
-	#push(@return_array,$param{$_});
+    # my($value) = $param{$key};
+    # delete $param{$key};
+    #push(@return_array,$param{$_});
     #}
 
     return @param{@{$order}};
@@ -711,11 +712,11 @@ sub _cleanup_methods {
  Args    : n/a
  Throws  : A Bio::Root::NotImplemented exception.
            The message of the exception contains
-             - the name of the method 
-             - the name of the interface 
-             - the name of the implementing class 
+             - the name of the method
+             - the name of the interface
+             - the name of the implementing class
 
-  	   If this object has a throw() method, $self->throw will be used.
+           If this object has a throw() method, $self->throw will be used.
            If the object doesn't have a throw() method, 
            Carp::confess() will be used.
 
@@ -735,11 +736,19 @@ sub throw_not_implemented {
 
     my $message = $self->_not_implemented_msg;
 
-    if( $self->can('throw') ) {
-	    $self->throw(-text=>$message,
-                         -class=>'Bio::Root::NotImplemented');
+    if ( $self->can('throw') ) {
+        my @args;
+        if ( $self->isa('Bio::Root::Root') ) {
+            # Use Root::throw() hash-based arguments instead of RootI::throw()
+            # single string argument whenever possible
+            @args = ( -text  => $message, -class => 'Bio::Root::NotImplemented' );
+        } else {
+            @args = ( $message );
+        }
+        $self->throw(@args);
+
     } else {
-	    confess $message ;
+        confess $message;
     }
 }
 
@@ -772,7 +781,7 @@ sub warn_not_implemented {
     if( $self->can('warn') ) {
         $self->warn( $message );
     }else {
-	    carp $message ;
+        carp $message ;
     }
 }
 

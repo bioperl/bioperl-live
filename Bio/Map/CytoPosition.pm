@@ -79,7 +79,7 @@ report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Heikki Lehvaslaiho
 
@@ -125,7 +125,7 @@ use base qw(Bio::Map::Position);
 
             The values between -100,000 through 0 for centromere to
             100,000 would have reflected the band numbering better but
-            use of positive integers was choosen since the
+            use of positive integers was chosen since the
             transformation is very easy. These values are not metric.
 
             Each band defines a range in a chromosome. A band string

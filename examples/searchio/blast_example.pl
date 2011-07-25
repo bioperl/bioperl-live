@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 # Example that shows values returned by Bio::SearchIO::Blast.
 # Note that some methods will return objects or arrays, not text.
 # For example, $hsp->get_aln will return a Bio::SimpleAlign object,

@@ -61,7 +61,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Peter Dimitrov
 
@@ -385,24 +385,39 @@ sub _names {
  Returns :
  Args    :
 
-
 =cut
+
+{
+    
+my %relationship_cache;
+
+sub _clear_cache { %relationship_cache = () }
 
 sub _create_relationship {
     my ( $self, $ref_id, $rel_type_term ) = @_;
+    
     my $ont       = $self->ontology();
     my $fact      = $self->term_factory();
     my $term_temp = ( $ont->engine->get_term_by_identifier($ref_id) )[0];
-
-    my $rel = Bio::Ontology::Relationship->new( -predicate_term => $rel_type_term );
-
+    
     if ( !defined $term_temp ) {
         $term_temp =
             $ont->engine->add_term(
             $fact->create_object( -InterPro_id => $ref_id, -name => $ref_id, -ontology => $ont ) );
         $ont->engine->mark_uninstantiated($term_temp);
     }
+    my $marshalled = join(':', (sort $self->_term->identifier, $ref_id));
+
+    # check cache to see if the two have been seen before, using marshalled IDs
+    if ($relationship_cache{$marshalled}++) {
+        # TODO: should check that the relationship type for these terms is the
+        # inverse of the stored relationship type
+        return;
+    }
+    
     my $rel_type_name = $self->_top( $self->_names );
+
+    my $rel = Bio::Ontology::Relationship->new( -predicate_term => $rel_type_term );
 
     if ( $rel_type_name eq 'parent_list' || $rel_type_name eq 'found_in' ) {
         $rel->object_term($term_temp);
@@ -413,6 +428,8 @@ sub _create_relationship {
     }
     $rel->ontology($ont);
     $ont->add_relationship($rel);
+}
+
 }
 
 =head2 start_element
@@ -605,6 +622,7 @@ sub end_element {
     if ( $element->{Name} eq 'interprodb' ) {
         $self->debug(
             "Interpro DB Parser Finished: $record_count read, $processed_count processed\n");
+        $self->_clear_cache();
     } elsif ( $element->{Name} eq 'interpro' ) {
         $self->_clear_term;
         $self->_increment_processed_count();
@@ -778,8 +796,9 @@ sub _increment_record_count {
 =cut
 
 sub _increment_processed_count {
+    my $self = shift;
     $processed_count++;
-    print STDERR $processed_count . "\n" if $processed_count % 100 == 0;
+    $self->debug("$processed_count\n") if $processed_count % 100 == 0;
 }
 
 1;

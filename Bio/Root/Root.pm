@@ -158,7 +158,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR
 
@@ -474,7 +474,7 @@ sub throw {
     }
     else {
         $class ||= '';
-        $class = ' '.$class if $class;
+        $class = ': '.$class if $class;
         my $std = $self->stack_trace_dump();
         my $title = "------------- EXCEPTION$class -------------";
         my $footer = ('-' x CORE::length($title))."\n";

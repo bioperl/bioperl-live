@@ -1,4 +1,3 @@
-# $Id: HistoryI.pm 16108 2009-09-16 17:07:49Z cjfields $
 #
 # BioPerl module for Bio::Tools::EUtilities::HistoryI
 #
@@ -77,7 +76,7 @@ with code and data examples if at all possible.
 Report bugs to the Bioperl bug tracking system to help us keep track the bugs
 and their resolution. Bug reports can be submitted via the web.
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR 
 

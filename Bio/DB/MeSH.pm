@@ -28,7 +28,7 @@ See L<http://www.nlm.nih.gov/mesh/meshhome.html>.
 This class implements L<Bio::SimpleAnalysisI> and wraps its methods under
 L<get_exact_term>.
 
-By default, web access uses L<WWW::Mechanize>, but in its absense
+By default, web access uses L<WWW::Mechanize>, but in its absence
 falls back to bioperl module L<Bio::WebAgent> which is a subclass of
 L<LWP::UserAgent>. If not even that is not installed, it uses
 L<Bio::Root::HTTPget>.
@@ -65,7 +65,7 @@ report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR
 

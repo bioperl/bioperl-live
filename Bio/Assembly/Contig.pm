@@ -4,7 +4,7 @@
 #
 # Please direct questions and support issues to <bioperl-l@bioperl.org> 
 #
-# Cared for by Robson francisco de Souza <rfsouza@citri.iq.usp.br>
+# Cared for by Robson Francisco de Souza <rfsouza@citri.iq.usp.br>
 #
 # Copyright Robson Francisco de Souza
 #
@@ -24,7 +24,7 @@ Bio::Assembly::Contig - Perl module to hold and manipulate
 
     # Assembly loading methods
     $aio = Bio::Assembly::IO->new(-file=>"test.ace.1",
-                               -format=>'phrap');
+                                  -format=>'phrap');
 
     $assembly = $aio->next_assembly;
     foreach $contig ($assembly->all_contigs) {
@@ -201,7 +201,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Robson Francisco de Souza
 
@@ -219,8 +219,8 @@ package Bio::Assembly::Contig;
 
 use strict;
 
-use Bio::SeqFeature::Collection;
-use Bio::Seq::PrimaryQual; # isa Bio::Seq::QualI
+use Bio::DB::SeqFeature::Store; # isa Bio::SeqFeature::CollectionI
+use Bio::Seq::PrimaryQual;      # isa Bio::Seq::QualI
 
 use Scalar::Util qw(weaken);
 
@@ -234,9 +234,9 @@ use base qw(Bio::Root::Root Bio::Align::AlignI);
  Usage     : my $contig = Bio::Assembly::Contig->new();
  Function  : Creates a new contig object
  Returns   : Bio::Assembly::Contig
- Args      : -id => contig unique ID
-             -source => string for the sequence assembly program used
-             -collection => Bio::SeqFeature::Collection instance
+ Args      : -id         => unique contig ID
+             -source     => string for the sequence assembly program used
+             -collection => Bio::SeqFeature::CollectionI instance
 
 =cut
 
@@ -272,14 +272,17 @@ sub new {
         $self->throw("Collection must implement Bio::SeqFeature::CollectionI") unless $collection->isa('Bio::SeqFeature::CollectionI');
         $self->{'_sfc'} = $collection;
     } else {
-        $self->{'_sfc'} = Bio::SeqFeature::Collection->new()
+        $self->{'_sfc'} = Bio::DB::SeqFeature::Store->new(
+            -adaptor           => 'memory',
+            -index_subfeatures => 1,
+        );
     }
 
     # Assembly specifics
-    $self->{'_assembly'} = undef; # Reference to a Bio::Assembly::Scaffold object, if contig belongs to one.
+    $self->{'_assembly'} = undef; # Bio::Assembly::Scaffold the contig belongs to
     $self->{'_strand'} = 0; # Reverse (-1) or forward (1), if contig is in a scaffold. 0 otherwise
-    $self->{'_neighbor_start'} = undef; # Will hold a reference to another contig
-    $self->{'_neighbor_end'} = undef; # Will hold a reference to another contig
+    $self->{'_neighbor_start'} = undef; # Neighbor Bio::Assembly::Contig
+    $self->{'_neighbor_end'}   = undef; # Neighbor Bio::Assembly::Contig
 
     return $self; # success - we hope!
 }
@@ -463,7 +466,7 @@ sub add_features {
     }
 
     # Add feature to feature collection
-    my $nof_added = $self->{'_sfc'}->add_features($args);
+    my $nof_added = $self->get_features_collection->add_features($args);
 
     return $nof_added;
 }
@@ -473,8 +476,8 @@ sub add_features {
  Title     : remove_features
  Usage     : $contig->remove_features(@feat)
  Function  : Remove an array of contig features
- Returns   : number of features removed.
- Argument  : An array of Bio::SeqFeatureI
+ Returns   : true if successful
+ Argument  : An array of Bio::SeqFeature::Generic (Bio::SeqFeatureI)
 
 =cut
 
@@ -482,9 +485,9 @@ sub remove_features {
     my ($self, @args) = @_;
 
     # Removing shortcuts for aligned sequence features
-    foreach my $feat (@args) {
+    for my $feat (@args) {
         if (my $seq = $feat->entire_seq()) {
-            my $seqID = $seq->id() || $seq->display_id || $seq->primary_id;
+            my $seqID = $seq->id || $seq->display_id || $seq->primary_id;
             my $tag = $feat->primary_tag;
             $tag =~ s/:$seqID$/$1/g;
             delete( $self->{'_elem'}{$seqID}{'_feat'}{$tag} )
@@ -492,17 +495,17 @@ sub remove_features {
                 $self->{'_elem'}{$seqID}{'_feat'}{$tag} eq $feat);
         }
     }
-    
-    # Removing Bio::SeqFeature::Collection features
-    return $self->{'_sfc'}->remove_features(\@args);
+   
+    # Removing Bio::SeqFeature objects
+    return $self->get_features_collection->delete(@args);
 }
 
 =head2 get_features_collection
 
  Title     : get_features_collection
  Usage     : $contig->get_features_collection()
- Function  : Get the collection of all contig features
- Returns   : Bio::SeqFeature::Collection
+ Function  : Get the collection of all contig features and seqfeatures
+ Returns   : Bio::DB::SeqFeature::Store (Bio::SeqFeature::CollectionI)
  Argument  : none
 
 =cut
@@ -788,23 +791,23 @@ sub set_seq_coord {
         unless (defined $feat->start);
 
     my $seqID = $seq->id() || $seq->display_id || $seq->primary_id;
-    if (exists( $self->{'_elem'}{$seqID} ) &&
-    exists( $self->{'_elem'}{$seqID}{'_seq'} ) &&
-    defined( $self->{'_elem'}{$seqID}{'_seq'} ) &&
-    ($seq ne $self->{'_elem'}{$seqID}{'_seq'}) ) {
+    if ( exists( $self->{'_elem'}{$seqID} ) &&
+         exists( $self->{'_elem'}{$seqID}{'_seq'} ) &&
+         defined( $self->{'_elem'}{$seqID}{'_seq'} ) &&
+         ($seq ne $self->{'_elem'}{$seqID}{'_seq'}) ) {
         $self->warn("Replacing sequence $seqID\n");
         $self->remove_seq($self->{'_elem'}{$seqID}{'_seq'});
+        $self->remove_features($feat);
     }
+
+    # Add new sequence and Bio::Generic::SeqFeature
     $self->add_seq($seq);
 
-    # Remove previous coordinates, if any
-    $self->remove_features($feat);
-
-    # Add new Bio::Generic::SeqFeature
-    $feat->add_tag_value('contig',$self->id)
-        unless ( $feat->has_tag('contig') );
-    $feat->primary_tag("_aligned_coord:$seqID");
+    $feat->add_tag_value('contig',$self->id) unless ( $feat->has_tag('contig') );
+    $feat->primary_tag("_aligned_coord");
+    $feat->source_tag($seqID);
     $feat->attach_seq($seq);
+
     $self->{'_elem'}{$seqID}{'_feat'}{"_aligned_coord:$seqID"} = $feat;
     $self->add_features([ $feat ]);
 }
@@ -973,9 +976,9 @@ sub set_seq_qual {
 =head2 get_seq_ids
 
  Title     : get_seq_ids
- Usage     : $contig->get_seq_ids(-start=>$start,
-                  -end=>$end,
-                  -type=>"gapped A0QR67B08.b");
+ Usage     : $contig->get_seq_ids( -start => $start,
+                                   -end   => $end,
+                                   -type  => "gapped A0QR67B08.b" );
  Function  : Get list of sequence IDs overlapping interval [$start, $end]
              The default interval is [1,$contig->length]
              Default coordinate system is "gapped contig"
@@ -984,7 +987,7 @@ sub set_seq_qual {
              -start : consensus subsequence start
              -end   : consensus subsequence end
              -type  : the coordinate system type for $start and $end arguments
-                      Coordinate system avaliable are:
+                      Coordinate system available are:
                       "gapped consensus"   : consensus coordinates with gaps
                       "ungapped consensus" : consensus coordinates without gaps
                       "aligned $ReadID"    : read $ReadID coordinates with gaps
@@ -996,38 +999,35 @@ sub set_seq_qual {
 sub get_seq_ids {
     my ($self, @args) = @_;
 
-    my ($type,$start,$end) =
-    $self->_rearrange([qw(TYPE START END)], @args);
+    my ($type, $start, $end) = $self->_rearrange([qw(TYPE START END)], @args);
 
+    my @list;
     if (defined($start) && defined($end)) {
         if (defined($type) && ($type ne 'gapped consensus')) {
             $start = $self->change_coord($type,'gapped consensus',$start);
             $end   = $self->change_coord($type,'gapped consensus',$end);
         }
-
-        my @list = grep { $_->isa("Bio::SeqFeature::Generic") &&
-        ($_->primary_tag =~ /^_aligned_coord:/) }
-        $self->{'_sfc'}->features_in_range( -start=>$start,
-                                            -end=>$end,
-                                            -contain=>0,
-                                            -strandmatch=>'ignore' );
+        @list = $self->get_features_collection->features(
+           -type         => '_aligned_coord', # primary tag
+           -start        => $start,
+           -end          => $end,
+           #-contain     => 0,
+           #-strandmatch => 'ignore',
+        );
         @list = map { $_->entire_seq->id } @list;
-        return @list;
+    } else {
+        # Entire aligned sequences list
+        @list = map { $self->{'_order'}{$_} } sort { $a cmp $b } keys %{ $self->{'_order'} };
     }
 
-    # Entire aligned sequences list
-    return map { $self->{'_order'}{$_} } sort { $a cmp $b } keys %{ $self->{'_order'} };
+    return @list;
 }
 
 =head2 get_seq_feat_by_tag
 
  Title     : get_seq_feat_by_tag
  Usage     : $seq = $contig->get_seq_feat_by_tag($seq,"_aligned_coord:$seqID")
- Function  :
-
-             Get a sequence feature based on its primary_tag.
-             When you add
-
+ Function  : Get a sequence feature based on its primary_tag.
  Returns   : a Bio::SeqFeature object
  Argument  : a Bio::LocatableSeq and a string (feature primary tag)
 
@@ -1039,7 +1039,7 @@ sub get_seq_feat_by_tag {
     if( !ref $seq || ! $seq->isa('Bio::LocatableSeq') ) {
         $self->throw("Unable to process non locatable sequences [".ref($seq)."]");
     }
-    my $seqID = $seq->id() || $seq->display_id || $seq->primary_id;
+    my $seqID = $seq->id || $seq->display_id || $seq->primary_id;
 
     return $self->{'_elem'}{$seqID}{'_feat'}{$tag};
 }
@@ -1651,7 +1651,7 @@ These read only methods describe the MSE in various ways.
  Usage     : $str = $contig->consensus_string($threshold_percent)
  Function  : Makes a strict consensus
  Returns   :
- Argument  : Optional treshold ranging from 0 to 100.
+ Argument  : Optional threshold ranging from 0 to 100.
              The consensus residue has to appear at least threshold %
              of the sequences at a given location, otherwise a '?'
              character will be placed at that location.
@@ -2174,9 +2174,9 @@ sub _register_gaps {
 =cut
 
 sub no_residues {
-	my $self = shift;
-	$self->deprecated(-warn_version => 1.0069,
-					  -throw_version => 1.0075);
+    my $self = shift;
+    $self->deprecated(-warn_version  => 1.0069,
+                      -throw_version => 1.0075);
     $self->num_residues(@_);
 }
 
@@ -2192,9 +2192,9 @@ sub no_residues {
 =cut
 
 sub no_sequences {
-	my $self = shift;
-	$self->deprecated(-warn_version => 1.0069,
-					  -throw_version => 1.0075);
+    my $self = shift;
+    $self->deprecated(-warn_version => 1.0069,
+                      -throw_version => 1.0075);
     $self->num_sequences(@_);
 }
 

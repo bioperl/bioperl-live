@@ -114,7 +114,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via 
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Ewan Birney
 
@@ -177,6 +177,7 @@ sub new {
                     -start          start position
                     -end            end position
                     -strand         strand
+                    -phase          the phase of the feature (0..2)
                     -primary_tag    primary tag 
                     -primary        (synonym for -primary_tag)
                     -source         source tag
@@ -195,7 +196,7 @@ sub set_attributes {
     my ($self,@args) = @_;
     my ($start, $end, $strand, $primary_tag, $source_tag, $primary, 
 		  $source, $frame, $score, $tag, $gff_string, $gff1_string,
-        $seqname, $seqid, $annot, $location,$display_name) =
+        $seqname, $seqid, $annot, $location,$display_name, $pid,$phase) =
             $self->_rearrange([qw(START
                                   END
                                   STRAND
@@ -213,6 +214,8 @@ sub set_attributes {
                                   ANNOTATION
                                   LOCATION
                                   DISPLAY_NAME
+                                  PRIMARY_ID
+                                  PHASE
                                   )], @args);
     $location    && $self->location($location);
     $gff_string  && $self->_from_gff_string($gff_string);
@@ -220,6 +223,8 @@ sub set_attributes {
         $self->gff_format(Bio::Tools::GFF->new('-gff_version' => 1));
         $self->_from_gff_stream($gff1_string);
     };
+    
+    $pid                    && $self->primary_id($pid);
     $primary_tag            && $self->primary_tag($primary_tag);
     $source_tag             && $self->source_tag($source_tag);
     $primary                && $self->primary_tag($primary);
@@ -241,6 +246,7 @@ sub set_attributes {
             $self->add_tag_value($t, UNIVERSAL::isa($tag->{$t}, "ARRAY") ? @{$tag->{$t}} : $tag->{$t});
         }
     };
+    defined $phase          && $self->phase($phase);
 }
 
 
@@ -476,7 +482,7 @@ sub source_tag {
 
 sub has_tag {
     my ($self, $tag) = @_;
-    return exists $self->{'_gsf_tag_hash'}->{$tag};
+    return exists $_[0]->{'_gsf_tag_hash'}->{$tag};
 }
 
 =head2 add_tag_value
@@ -939,7 +945,7 @@ sub _from_gff_string {
  Title   : _expand_region
  Usage   : $self->_expand_region($feature);
  Function: Expand the total region covered by this feature to
-           accomodate for the given feature.
+           accommodate for the given feature.
 
            May be called whenever any kind of subfeature is added to this
            feature. add_sub_SeqFeature() already does this.

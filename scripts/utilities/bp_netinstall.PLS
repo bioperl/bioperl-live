@@ -2,16 +2,16 @@
 
 =head1 NAME
 
-bioperl_netinstall.pl
+bp_netinstall.pl
 
 =head1 SYNOPSIS
 
-  bioperl_netinstall.pl -b|--build_param_str BUILD_STRING [options]
+  bp_netinstall.pl -b|--build_param_str BUILD_STRING [options]
 
 options: 
 
  -h|--help                Show this message 
- -d|--dev                 Use the developement version of bioperl from git 
+ -d|--dev                 Use the development version of bioperl from git 
  --build_param_str=<args> Parameters that are passed in at 'perl Build.PL'
  --install_param_str=<args>
                           Use this string to predefine './Build install' 
@@ -25,9 +25,9 @@ options:
 Net-based installer of BioPerl; this is based on the GBrowse netinstaller
 and hopefully all references to GBrowse have been removed.  Let me know if not.
 
-Save this to disk as "bioperl_netinstall.pl" and run:
+Save this to disk as "bp_netinstall.pl" and run:
 
-   [sudo] perl bioperl_netinstall.pl
+   [sudo] perl bp_netinstall.pl
 
 =head1 AUTHOR
 
@@ -42,8 +42,8 @@ Scott Cain scain@cpan.org
 
 
 # Universal Net-based installer
-# Save this to disk as "bioperl_netinstall.pl" and run:
-#   perl bioperl_netinstall.pl
+# Save this to disk as "bp_netinstall.pl" and run:
+#   perl bp_netinstall.pl
 
 use warnings;
 use strict;

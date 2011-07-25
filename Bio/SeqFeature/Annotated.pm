@@ -69,7 +69,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via 
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Allen Day
 
@@ -1009,7 +1009,7 @@ sub each_target {
  Title   : _expand_region
  Usage   : $self->_expand_region($feature);
  Function: Expand the total region covered by this feature to
-           accomodate for the given feature.
+           accommodate for the given feature.
 
            May be called whenever any kind of subfeature is added to this
            feature. add_SeqFeature() already does this.

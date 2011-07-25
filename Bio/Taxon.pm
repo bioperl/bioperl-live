@@ -127,7 +127,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Sendu Bala
 
@@ -165,7 +165,7 @@ use base qw(Bio::Tree::Node Bio::IdentifiableI);
            -name              => a string representing the taxon name
                                  (scientific name)
            -id                => human readable id - typically NCBI taxid
-           -ncbi_taxid        => same as -id, but explicitely say that it is an
+           -ncbi_taxid        => same as -id, but explicitly say that it is an
                                  NCBI taxid
            -rank              => node rank (one of 'species', 'genus', etc)
            -common_names      => array ref of all common names

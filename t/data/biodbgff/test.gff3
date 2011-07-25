@@ -1,5 +1,6 @@
 ##gff-version 3
-## sequence-region Contig1 1 37450
+##sequence-region Contig1 1 37450
+#Contig1	reference	Component	1	37450	.	.	.	Name=Contig1
 Contig1	confirmed	transcript	1001	2000	42	+	.	ID=Transcript:trans-1;Gene=abc-1;Gene=xyz-2;Note=function+unknown
 Contig1	confirmed	exon	1001	1100	.	+	.	ID=Transcript:trans-1
 Contig1	confirmed	exon	1201	1300	.	+	.	ID=Transcript:trans-1
@@ -17,7 +18,7 @@ Contig1	confirmed	exon	30001	30100	.	-	.	ID=Transcript:trans-2;Gene=abc-1;Note=f
 Contig1	confirmed	exon	30701	30800	.	-	.	ID=Transcript:trans-2
 Contig1	confirmed	exon	30801	31000	.	-	.	ID=Transcript:trans-2
 
-## sequence-region Contig2 1 37450
+##sequence-region Contig2 1 37450
 Contig2	clone	Component	1	2000	.	.	.	Target=Clone:AL12345.1 1 2000 +;Note=Terribly+interesting
 Contig2	clone	Component	2001	5000	.	.	.	Target=Clone:AL11111.1 6000 3001 +
 Contig2	clone	Component	5001	20000	.	.	.	Target=Clone:AC13221.2 1 15000 +

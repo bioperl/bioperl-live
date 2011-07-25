@@ -302,7 +302,7 @@ foreach my $alg (@normal_formats, @xltd_formats) {
 	    my $tol = 0.10; # % difference accepted as approx. equal
 	    
 	    ## loop through contexts:
-	    for my $type qw( query hit ) {
+	    for my $type (qw( query hit )) {
 		for my $context ($tiling->contexts($type)) {
 		    diag(" --- $type $context ---") if $VERBOSE;
 		    if (scalar($tiling->contexts($type, $context)) == 1) {

@@ -84,7 +84,7 @@ $obj->program_name('test_name');
 is $obj->program_path, File::Spec->catfile('test_dir', 'test_name'.($^O =~ /mswin/i ?'.exe':'')), 'program_path was correct';
 
 # executable
-ok ! $obj->executable, 'pretend program name not found as executable';
+throws_ok { $obj->executable } qr/Cannot find executable/, 'pretend program name not found as executable';
 $obj->program_name('perl');
 ok $obj->executable, 'perl found as executable';
 

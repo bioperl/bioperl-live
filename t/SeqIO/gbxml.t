@@ -4,7 +4,9 @@ BEGIN {
    use lib '.';
    use Bio::Root::Test;
    
-   test_begin(-tests => 14);
+   test_begin(-tests => 14,
+              -requires_modules => [ qw(XML::SAX) ]
+              );
    
    use_ok('Bio::SeqIO::gbxml');
 }

@@ -62,7 +62,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Jason Stajich
 
@@ -127,7 +127,7 @@ sub rand_birth_distribution{
  Title   : rand_geometric_distribution
  Usage   : my $randvar = $dist->rand_geometric_distribution($param);
  Function: Returns a random geometric variate distributed with 
-           paramater $param, according to
+           parameter $param, according to
            c.d.f. 1 - ( 1- param) ^ n 
  Returns : integer
  Args    : $param ( 0 > $param < 1 )

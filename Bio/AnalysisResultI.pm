@@ -35,7 +35,7 @@ a result. The query is e.g. a sequence, and a subject is either a sequence,
 too, or a database of sequences. 
 
 This interface defines methods to access analysis result data and does
-not impose any contraints on how the analysis result data is acquired.
+not impose any constraints on how the analysis result data is acquired.
 
 Note that this module does not provide support for B<running> an analysis.
 Rather, it is positioned in the subsequent parsing step (concerned with
@@ -68,7 +68,7 @@ with code and data examples if at all possible.
 Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Steve Chervitz, Hilmar Lapp
 

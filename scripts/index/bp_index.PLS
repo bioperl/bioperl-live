@@ -86,7 +86,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Ewan Birney
 
@@ -108,6 +108,7 @@ BEGIN {
 	require Bio::Index::EMBL;
 	require Bio::Index::Swissprot;
 	require Bio::Index::GenBank;
+	require Bio::Index::SwissPfam;
     };
     if ( $@ ) {
 	# one up from here is Bio directory - we hope!
@@ -126,12 +127,15 @@ BEGIN {
 }
 
 my $dir = $ENV{'BIOPERL_INDEX'};
-my $type = $ENV{'BIOPER_INDEX_TYPE'};
+my $type = $ENV{'BIOPERL_INDEX_TYPE'};
 my $fmt = 'Fasta';
 my $verbose = 0;
 
 use Getopt::Long;
-&GetOptions("fmt=s" => \$fmt,"dir=s" => \$dir,"type=s" => \$type, "v!" => \$verbose);
+&GetOptions("f|fmt=s" => \$fmt,
+	    "d|dir=s" => \$dir,
+	    "t|type=s" => \$type,
+	    "v!" => \$verbose);
 
 exec('perldoc',$0) unless @ARGV;
 
@@ -161,6 +165,10 @@ SWITCH : {
     };
     /EMBL/i && do {
 	$index = Bio::Index::EMBL->new("$dir/$name", 'WRITE');
+	last;
+    };
+    /swisspfam|pfam/i && do {
+	$index = Bio::Index::SwissPfam->new("$dir/$name", 'WRITE');
 	last;
     };
     /swiss/i && do {

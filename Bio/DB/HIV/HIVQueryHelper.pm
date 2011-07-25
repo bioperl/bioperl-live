@@ -2,7 +2,7 @@
 #
 # BioPerl module for Bio::DB::HIV::HIVQueryHelper
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Mark A. Jensen <maj@fortinbras.us>
 #
@@ -45,15 +45,15 @@ the Bioperl mailing list.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -62,7 +62,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Mark A. Jensen
 
@@ -95,15 +95,15 @@ BEGIN {
 
 =head2 HIVSchema -  objects/methods to manipulate a version of the LANL HIV DB schema
 
-=head3 HIVSchema SYNOPSIS 
+=head3 HIVSchema SYNOPSIS
 
     $schema = new HIVSchema( 'lanl-schema.xml' );
     @tables = $schema->tables;
     @validFields = $schema->fields;
     @validAliases = $schema->aliases;
     @query_aliases_for_coreceptor = $schema->aliases( 'SEQ_SAMple.SSAM_second_receptor' );
-    $pk_for_SequenceEntry = $schema->primarykey('SequenceEntry');    # returns 'SequenceEntry.SE_id' 
-    $fk_for_SEQ_SAMple_to_SequenceEntry = 
+    $pk_for_SequenceEntry = $schema->primarykey('SequenceEntry');    # returns 'SequenceEntry.SE_id'
+    $fk_for_SEQ_SAMple_to_SequenceEntry =
               $schema->foreignkey('SEQ_SAMple', 'SequenceEntry');    # returns 'SEQ_SAMple.SSAM_SE_id'
 
     $table = $schema->tablepart('SEQ_SAMple.SSAM_badseq');           # returns 'SEQ_SAMple'
@@ -122,8 +122,9 @@ the relational database the query parameters represent.
 
 =cut
 
-package HIVSchema;
-# objects/methods to manipulate a version of the LANL HIV DB schema 
+package # hide from PAUSE
+    HIVSchema;
+# objects/methods to manipulate a version of the LANL HIV DB schema
 # stored in XML
 use XML::Simple;
 use Bio::Root::Root;
@@ -137,7 +138,7 @@ use strict;
 
  Title   : new
  Usage   : $schema = new HIVSchema( "lanl-schema.xml ");
- Function: 
+ Function:
  Example :
  Returns : an HIVSchema object
  Args    : XML filename
@@ -190,10 +191,10 @@ sub tables {
 
  Title   : columns
  Usage   : $schema->columns( [$tablename] );
- Function: return array of columns for specified table, or all columns in 
+ Function: return array of columns for specified table, or all columns in
            schema, if called w/o args
  Example :
- Returns : 
+ Returns :
  Args    : tablename or fieldname string
 
 =cut
@@ -223,7 +224,7 @@ sub columns {
  Title   : fields
  Usage   : $schema->fields();
  Function: return array of all fields in schema, in format "table.column"
- Example : 
+ Example :
  Returns : array of all fields
  Args    : none
 
@@ -244,7 +245,7 @@ sub fields {
  Usage   : $schema->options(@fieldnames)
  Function: get array of options (i.e., valid match data strings) available
            to specified field
- Example : 
+ Example :
  Returns : array of match data strings
  Args    : [array of] fieldname string[s] in "table.column" format
 
@@ -264,7 +265,7 @@ sub options {
  Title   : aliases
  Usage   : $schema->aliases(@fieldnames)
  Function: get array of aliases to specified field[s]
- Example : 
+ Example :
  Returns : array of valid query aliases for fields as spec'd in XML file
  Args    : [an array of] fieldname[s] in "table.column" format
 
@@ -295,7 +296,7 @@ sub aliases {
            (Annotation keys are used for parsing the tab-delimited response
            to Bio::DB::Query::HIVQuery::_do_lanl_request.)
  Example :
- Returns : hash ref 
+ Returns : hash ref
  Args    : [an array of] fieldname[s] in "table.column" format
 
 =cut
@@ -318,7 +319,7 @@ sub ankh {
 
  Title   : tablepart (alias: tbl)
  Usage   : $schema->tbl(@fieldnames)
- Function: return the portion of the fieldname[s] that refer to the 
+ Function: return the portion of the fieldname[s] that refer to the
            db table
  Example : $schema->tbl('SequenceEntry.SE_id'); # returns 'SequenceEntry'
  Returns : table name as string
@@ -340,7 +341,7 @@ sub tablepart {
     foreach (@sfields) {
 	push @ret, /^(.*)\./;
     }
-    if ($squish) { 
+    if ($squish) {
 	# arg order is clobbered
 	@ret{@ret} = undef;
 	@ret = keys %ret;
@@ -357,7 +358,7 @@ sub tbl {
 
  Title   : columnpart (alias: col)
  Usage   : $schema->col(@fieldnames)
- Function: return the portion of the fieldname[s] that refer to the 
+ Function: return the portion of the fieldname[s] that refer to the
            db column
  Example : $schema->col('SequenceEntry.SE_id'); # returns 'SE_id'
  Returns : column name as string
@@ -381,7 +382,7 @@ sub col {
     # columnpart alias
     shift->columnpart(@_);
 }
-	
+
 =head4 HIVSchema primarykey
 
  Title   : primarykey [alias: pk]
@@ -420,7 +421,7 @@ sub pk {
 
  Title   : foreignkey [alias: fk]
  Usage   : $schema->fk($intable [, $totable])
- Function: return foreign key fieldname in table $intable referring to 
+ Function: return foreign key fieldname in table $intable referring to
            table $totable, or all foreign keys in $intable if $totable
            unspec'd
  Example : $schema->fk('AUthor', 'SequenceEntry'); # returns 'AUthor_AU_SE_id'
@@ -473,7 +474,7 @@ sub fk {
 =cut
 
 sub foreigntable {
-    # return table name that foreign key(s) point(s) to 
+    # return table name that foreign key(s) point(s) to
     my $self = shift;
     my @fk = @_;
     my @ret;
@@ -499,10 +500,10 @@ sub ftbl {
 
  Title   : find_join
  Usage   : $sch->find_join('Table1', 'Table2')
- Function: Retrieves a set of foreign and primary keys (in table.column 
+ Function: Retrieves a set of foreign and primary keys (in table.column
            format) that represents a join path from Table1 to Table2
  Example :
- Returns : an array of keys (as table.column strings) -or- an empty 
+ Returns : an array of keys (as table.column strings) -or- an empty
            array if Table1 == Table2 -or- undef if no path exists
  Args    : two table names as strings
 
@@ -541,7 +542,7 @@ sub find_join {
            $stackref : an arrayref to an empty array
            \$found   : a scalar ref to the value 0
            $rev : if $rev==1, the arrays of table names will be reversed;
-                  this can give a shorter path if cycles exist in the 
+                  this can give a shorter path if cycles exist in the
                   schema graph
 
 =cut
@@ -553,8 +554,8 @@ sub _find_join_guts {
     my $k = $self->pk($tbl);
     if ($k) {
 	# all fks pointing to pk
-	my @fk2pk = map { 
-	    $self->fk($_, $k) || () 
+	my @fk2pk = map {
+	    $self->fk($_, $k) || ()
 	} ($rev ? reverse $self->tables : $self->tables);
 	# skip keys already on stack
 	if (@$stack) {
@@ -572,9 +573,9 @@ sub _find_join_guts {
 		$$found = 1;
 		return;
 	    }
-	    else { 
+	    else {
 		#keep looking
-		$self->_find_join_guts($self->tbl($f2p), $tgt, $stack, $found, $rev); 
+		$self->_find_join_guts($self->tbl($f2p), $tgt, $stack, $found, $rev);
 		return if $$found;
 	    }
 	}
@@ -592,7 +593,7 @@ sub _find_join_guts {
     }
     # all fks in table
     if (@fks) {
-	for my $f (@fks) { 
+	for my $f (@fks) {
 	    push @$stack, $f;
 	    if ($self->ftbl($f) eq $tgt) { #found it
 		$$found = 1;
@@ -609,23 +610,23 @@ sub _find_join_guts {
 	return;
     }
 }
-		   
+
 =head4 HIVSchema loadSchema
 
  Title   : loadHIVSchema [alias: loadSchema]
  Usage   : $schema->loadSchema( $XMLfilename )
- Function: read (LANL DB) schema spec from XML 
+ Function: read (LANL DB) schema spec from XML
  Example : $schema->loadSchema('lanl-schema.xml');
  Returns : hashref to schema data
            Keys are fieldnames in "table.column" format.
            Each value is a hashref with the following properties:
-           {name}    : HIVWEB 'table.column' format fieldname, 
+           {name}    : HIVWEB 'table.column' format fieldname,
                        can be used directly in the cgi query
-           {aliases} : ref to array containing valid aliases/shortcuts for 
+           {aliases} : ref to array containing valid aliases/shortcuts for
                        {name}; can be used in routines creating the HTML query
            {options} : ref to array containing valid matchdata for this field
                        can be used directly in the HTML query
-           {ankey}   : contains the annotation key for this field used with 
+           {ankey}   : contains the annotation key for this field used with
                        Bioperl annotation objects
            {..attr..}: ..value_of_attr.. for this field (app-specific metadata)
  Args    :
@@ -644,8 +645,8 @@ sub loadHIVSchema {
 	$ret{$_} = $h;
 	foreach my $ptr ($$h{option}, $$h{alias}) {
 	    if ($ptr) {
-		# kludge for XMLin: appears to convert to arrays, if there 
-		# exists a tag without content, but to convert to hashes 
+		# kludge for XMLin: appears to convert to arrays, if there
+		# exists a tag without content, but to convert to hashes
 		# with content as key, if all tags possess content
 		if (ref($ptr) eq 'HASH') {
 		    my @k = keys %{$ptr};
@@ -708,19 +709,19 @@ sub _sfieldh {
 
 =head2 Class QRY -  a query algebra for HIVQuery
 
-=head3 QRY SYNOPSIS  
+=head3 QRY SYNOPSIS
 
-  $Q = new QRY( 
-               new R( 
-                      new Q('coreceptor', 'CXCR4'), 
+  $Q = new QRY(
+               new R(
+                      new Q('coreceptor', 'CXCR4'),
                       new Q('country', 'ZA')
                      )
                );
   QRY::Eq(QRY::And($Q, $Q), $Q);                     # returns 1
   QRY::Eq(QRY::Or($Q, $Q), $Q);                      # returns 1
   $Q2 = $Q1->clone;
-  $Q2 = new QRY( 
-                new R( 
+  $Q2 = new QRY(
+                new R(
                        new Q( 'coreceptor', 'CCR5' ),
                        new Q( 'country', 'ZA')
                       )
@@ -751,12 +752,12 @@ together, e.g. C<(A B)[subtype]>. C<R> objects collect C<Q> objects
 that could be processed in a single HTTP request; i.e., a set of
 atomic queries each having different fields C<AND>ed together, such as
 
-  (A B)[subtype] AND ('CCR5')[coreceptor] AND (US CA)[country] 
+  (A B)[subtype] AND ('CCR5')[coreceptor] AND (US CA)[country]
 
 The C<QRY> object collects C<R>s that cannot be reduced (through
 logical operations) to a single HTTP request, e.g.
 
-  ((C)[subtype] AND (SI)[phenotype]) OR ( (D)[subtype] AND (NSI)[phenotype] ), 
+  ((C)[subtype] AND (SI)[phenotype]) OR ( (D)[subtype] AND (NSI)[phenotype] ),
 
 which cannot be got in one go through the current LANL cgi
 implementation (as far as I can tell). The parser will simplify
@@ -768,7 +769,7 @@ to the single request
 
   (C)[subtype] AND (NSI SI)[phenotype]
 
-however. 
+however.
 
 The operators C<&> and C<|> are overloaded to C<QRY::And> and
 C<QRY::Or>, to get Perl precedence and grouping for free. C<bool> is
@@ -791,12 +792,13 @@ for C<R> or C<Q>.
 #
 # & and | operations are specified for each type
 
-package QRY;
+package # hide from PAUSE
+    QRY;
 use strict;
 $QRY::NULL = new QRY();
 
 
-use overload 
+use overload
     "|" => \&Or,
     "&" => \&And,
     "bool" => \&Bool,
@@ -805,7 +807,7 @@ use overload
 
 # query language emulator
 # supports only AND and OR, any groupings
-# 
+#
 # syntax rules:
 # query atom: bareword [field] OR  (bareword ...) [field]
 # only single bareword allowed between []
@@ -816,22 +818,22 @@ use overload
 # query atoms joined with AND by default
 # barewords are associated (ORed within) the next field descriptor in the line
 
-# follow the parse tree, creating new QRY objects as needed in @q, and 
-# construct a logical expression using & and | symbols. 
+# follow the parse tree, creating new QRY objects as needed in @q, and
+# construct a logical expression using & and | symbols.
 # These are overloaded for doing ands and ors on QRY objects;
 # to get the final QRY object, eval the resulting expression $q_expr.
-# QRY object will be translated into (possibly multiple) hashes 
+# QRY object will be translated into (possibly multiple) hashes
 # conforming to HIVQuery parameter requirements.
 
 =head4 QRY _make_q
 
- Title   : _make_q 
+ Title   : _make_q
  Usage   : QRY::_make_q($parsetree)
  Function: creates hash structures suitable for HIVQuery from parse tree
            returned by QRY::_parse_q
  Example :
  Returns : array of hashrefs of query specs
- Args    : a hashref 
+ Args    : a hashref
 
 =cut
 
@@ -867,7 +869,7 @@ sub _make_q {
  Function: traverses the parse tree returned from QRY::_parse_q, checking
            syntax and creating HIVQuery-compliant query structures
  Example :
- Returns : 
+ Returns :
  Args    : $parse_tree (hashref), $query_expression (scalar string ref),
            $query_array (array ref : stack for returning query structures),
            $annotation_array (array ref : stack for returning annotation
@@ -910,17 +912,17 @@ sub _make_q_guts {
 				    $c =~ s/\s+/+/g; ###! _ to +
 				    push @words, $c;
 				}
-				else { 
+				else {
 				    push @words, split(/\s+/,$c);
 				}
 			    } while @c;
-			} 
+			}
 			last;
 		    };
 		    ($dl =~ m{\[}) && do {
 			Bio::Root::Root->throw("syntax error: empty field descriptor") unless @{$_->{cont}};
 			Bio::Root::Root->throw("syntax error: more than one field descriptor in square brackets") unless @{$_->{cont}} == 1;
-			
+
 			push @{$qarry}, new QRY( new R( new Q( $_->{cont}->[0], @words)));
 			# add default operation if nec
 			$$q_expr .= "&" unless !$$q_expr || !length($$q_expr) || (substr($$q_expr, -1, 1) =~ /[&|(]/);
@@ -952,17 +954,17 @@ sub _make_q_guts {
 		}
 		next;
 	    };
-	    do { # else, bareword 
+	    do { # else, bareword
 		if ($o) {
 		    $words[-1] .= "+$_"; ####! _ to +
-		} 
+		}
 		else {
 		    push @words, $_;
 		}
 		m/['"]/ && ($o = !$o);
 	    };
 	} # @{ptree->{cont}}
-	Bio::Root::Root->throw("query syntax error: no search fields specified") 
+	Bio::Root::Root->throw("query syntax error: no search fields specified")
 	    unless $$q_expr =~ /q\[[0-9]+\]/;
     };
     $@ ?
@@ -974,9 +976,9 @@ sub _make_q_guts {
 
 =head4 QRY _parse_q
 
- Title   : _parse_q 
+ Title   : _parse_q
  Usage   : QRY::_parse_q($query_string)
- Function: perform first pass parse of a query string with some syntax 
+ Function: perform first pass parse of a query string with some syntax
            checking, return a parse tree suitable for QRY::_make_q
  Example : QRY::_parse_q(" to[be] OR (not to)[be] ");
  Returns : hashref
@@ -986,7 +988,7 @@ sub _make_q_guts {
 
 # parse qry string into a branching tree structure
 # each branch tagged by the opening delimiter ( key 'delim' )
-# content (tokens and subbranch hashes) placed in l2r order in 
+# content (tokens and subbranch hashes) placed in l2r order in
 # @{p->{cont}}
 sub _parse_q {
     local $_;
@@ -999,10 +1001,10 @@ sub _parse_q {
     my @pstack = ();
     my @dstack = ();
     my ($ptree, $p);
-    
+
     eval { #catch
 	Bio::Root::Root->throw("query syntax error: illegal character") if $qstr =~ /$illegal/;
-	
+
 	$ptree = $p = {'delim'=>'*'};
 	foreach (@tok) {
 	    #trim whsp
@@ -1034,7 +1036,7 @@ sub _parse_q {
 	    };
 	}
     };
-    $@ ? 
+    $@ ?
 	throw Bio::Root::Root(-class=>'Bio::QueryStringSyntax::Exception',
 			      -text=>$@,
 			      -value=>"")
@@ -1051,13 +1053,13 @@ sub _parse_q {
  Usage   : $QRY = new QRY()
  Function:
  Example :
- Returns : 
+ Returns :
  Args    : array of R objects, optional
 
 =cut
 
 sub new {
-    my $class = shift; 
+    my $class = shift;
     my @args = @_;
     my $self = {};
     $self->{requests} = [];
@@ -1076,7 +1078,7 @@ sub new {
  Usage   : $QRY->requests
  Function: get/set array of requests comprising this QRY object
  Example :
- Returns : 
+ Returns :
  Args    : array of class R objects
 
 =cut
@@ -1093,7 +1095,7 @@ sub requests {
  Usage   : $QRY->put_request(@R)
  Function: add object of class R to $QRY
  Example :
- Returns : 
+ Returns :
  Args    : [an array of] of class R object[s]
 
 =cut
@@ -1163,7 +1165,7 @@ sub len {
  Function: create and return a clone of the object
  Example :
  Returns : object of class QRY
- Args    : 
+ Args    :
 
 =cut
 
@@ -1183,7 +1185,7 @@ sub clone {
 
 =head4 QRY Or
 
- Title   : Or 
+ Title   : Or
  Usage   : $QRY3 = QRY::Or($QRY1, $QRY2)
  Function: logical OR for QRY objects
  Example :
@@ -1237,7 +1239,7 @@ sub Or {
 
 =head4 QRY And
 
- Title   : And 
+ Title   : And
  Usage   : $QRY3 = QRY::And($QRY1, $QRY2)
  Function: logical AND for QRY objects
  Example :
@@ -1268,11 +1270,11 @@ sub And {
 
 =head4 QRY Bool
 
- Title   : Bool 
+ Title   : Bool
  Usage   : QRY::Bool($QRY1)
  Function: allows symbolic testing of QRY object when bool overloaded
  Example : do {stuff} if $QRY1 *same as* do {stuff} if !$QRY1->isnull
- Returns : 
+ Returns :
  Args    : a class QRY object
 
 =cut
@@ -1285,11 +1287,11 @@ sub Bool {
 
 =head4 QRY Eq
 
- Title   : Eq 
+ Title   : Eq
  Usage   : QRY::Eq($QRY1, $QRY2)
  Function: test if R objects in two QRY objects are the same
            (irrespective of order)
- Example : 
+ Example :
  Returns : 1 if equal, 0 otherwise
  Args    : two class QRY objects
 
@@ -1317,17 +1319,17 @@ sub Eq {
 
 =head2 Class R - request objects for QRY algebra
 
-=head3 R SYNOPSIS   
+=head3 R SYNOPSIS
 
   $R = new R( $q1, $q2 );
   $R->put_atoms($q3);
   $R->del_atoms('coreceptor', 'phenotype');
   return $R->clone;
   $R1 = new R( new Q('subtype', 'B') );
-  $R2 = new R( new Q('subtype', 'B C'), 
+  $R2 = new R( new Q('subtype', 'B C'),
                new Q('country', 'US') );
-  R::Eq( (R::And($R1, $R2))[0], 
-         new R( new Q('subtype', 'B' ), 
+  R::Eq( (R::And($R1, $R2))[0],
+         new R( new Q('subtype', 'B' ),
                 new Q('country', 'US') ));                 # returns 1
   QRY::Eq( new QRY(R::Or($R1, $R2)), new QRY($R1, $R2) );  # returns 1
   R::In( (R::And($R1, $R2))[0], $R1 );                     # returns 1
@@ -1341,7 +1343,8 @@ by an R object are effectively C<AND>ed.
 
 =cut
 
-package R;
+package # hide from PAUSE
+    R;
 use strict;
 $R::NULL = new R();
 
@@ -1397,9 +1400,9 @@ sub len {
  Usage   : $R->atoms( [optional $field])
  Function: get array of class Q (atomic query) objects in class R object
  Example : $R->atoms(); $R->atoms('coreceptor')
- Returns : array of class Q objects (all Qs or those corresponding to $field 
+ Returns : array of class Q objects (all Qs or those corresponding to $field
            if present)
- Args    : optional, scalar string 
+ Args    : optional, scalar string
 
 =cut
 
@@ -1428,7 +1431,7 @@ sub fields {
     my $self = shift;
     return keys %{$self->{'atoms'}};
 }
-	
+
 =head4 R put_atoms
 
  Title   : put_atoms
@@ -1459,7 +1462,7 @@ sub put_atoms {
 	else {
 	    $self->{atoms}->{$_->fld} = $_->clone;
 	}
-    }   
+    }
     return;
 }
 
@@ -1528,7 +1531,7 @@ sub A {
  Function: create and return a clone of the object
  Example :
  Returns : object of class R
- Args    : 
+ Args    :
 
 =cut
 
@@ -1548,7 +1551,7 @@ sub clone {
 
 =head4 R In
 
- Title   : In 
+ Title   : In
  Usage   : R::In($R1, $R2)
  Function: tests whether the query represented by $R1 would return a subset
            of items returned by the query represented by $R2
@@ -1578,7 +1581,7 @@ sub In {
 
 =head4 R And
 
- Title   : And 
+ Title   : And
  Usage   : @Rresult = R::And($R1, $R2)
  Function: logical AND for R objects
  Example :
@@ -1598,7 +1601,7 @@ sub And {
     # $t has at least as many fields defined than $s ($t is more restrictive)
 
     # common fields
-    my @cf = grep {defined} map {my $sf = $_; grep /$sf/, $t->fields } $s->fields; 
+    my @cf = grep {defined} map {my $sf = $_; grep /$sf/, $t->fields } $s->fields;
     my $ret = new R();
     my $v = $t->clone;
     $v->del_atoms(@cf);
@@ -1606,7 +1609,7 @@ sub And {
     $u->del_atoms(@cf);
 
     # And the atoms with identical fields
-    
+
     foreach (@cf) {
 	my ($a) = Q::qand($s->atoms($_), $t->atoms($_));
 	if ($a->isnull) {
@@ -1624,7 +1627,7 @@ sub And {
 
 =head4 R Or
 
- Title   : Or 
+ Title   : Or
  Usage   : @Rresult = R::Or($R1, $R2)
  Function: logical OR for R objects
  Example :
@@ -1646,12 +1649,12 @@ sub Or {
     }
     return $s->clone if (R::In($t, $s));
     return $t->clone if (R::In($s, $t));
-    
+
     # try simplifying
     do { my $ss = $s; $s = $t; $t = $ss } if ( $s->len > $t->len );
     # common fields
-    my @cf = grep {defined} map {my $sf = $_; grep /$sf/, $t->fields } $s->fields; 
-    # 
+    my @cf = grep {defined} map {my $sf = $_; grep /$sf/, $t->fields } $s->fields;
+    #
     if ($t->len == @cf) {
     # all atoms equal within fields but one? If yes, simplify...
 	my @df = grep {!Q::qeq($s->atoms($_), $t->atoms($_))} @cf;
@@ -1664,7 +1667,7 @@ sub Or {
 	}
     }
 
-    # neither request contains the other, and the requests cannot be 
+    # neither request contains the other, and the requests cannot be
     # simplified; reflect back (clones of) the input...
     return ($s->clone, $t->clone);
 
@@ -1672,11 +1675,11 @@ sub Or {
 
 =head4 R Eq
 
- Title   : Eq 
+ Title   : Eq
  Usage   : R::Eq($R1, $R2)
  Function: test if class Q objects in two R objects are the same
            (irrespective of order)
- Example : 
+ Example :
  Returns : 1 if equal, 0 otherwise
  Args    : two class R objects
 
@@ -1701,7 +1704,7 @@ sub Eq {
 
 =head2 Class Q -  atomic query objects for QRY algebra
 
-=head3 Q SYNOPSIS    
+=head3 Q SYNOPSIS
 
     $q = new Q('coreceptor', 'CXCR4 CCR5');
     $u = new Q('coreceptor', 'CXCR4');
@@ -1723,7 +1726,8 @@ C<qeq, qin, qand, qor>.
 
 =cut
 
-package Q;
+package # hide from PAUSE
+    Q;
 use strict;
 $Q::NULL = new Q();
 
@@ -1782,7 +1786,7 @@ sub isnull {
  Usage   : $q->fld($field)
  Function: get/set fld (field name) property
  Example :
- Returns : scalar 
+ Returns : scalar
  Args    : scalar
 
 =cut
@@ -1806,7 +1810,7 @@ sub fld {
  Usage   : $q->dta($data)
  Function: get/set dta (whsp-separated data string) property
  Example :
- Returns : scalar 
+ Returns : scalar
  Args    : scalar
 
 =cut
@@ -1838,7 +1842,7 @@ sub A {
     my $self = shift;
     Bio::Root::Root->throw("requires type Q (atom)") unless ref($self) && $self->isa('Q');
     my @a = split(/\s+/, $self->dta);
-    
+
     return "(".join(' ', sort {$a cmp $b} @a).")[".$self->fld."]";
 }
 
@@ -1849,7 +1853,7 @@ sub A {
  Function: create and return a clone of the object
  Example :
  Returns : object of class Q
- Args    : 
+ Args    :
 
 =cut
 
@@ -1858,7 +1862,7 @@ sub clone {
     Bio::Root::Root->throw("requires type Q (atom)") unless ref($self) && $self->isa('Q');
     my $ret = new Q ($self->fld, $self->dta);
     return $ret;
-} 
+}
 
 ### Q class methods
 
@@ -1866,7 +1870,7 @@ sub clone {
 
 =head4 Q qin
 
- Title   : qin 
+ Title   : qin
  Usage   : Q::qin($q1, $q2)
  Function: tests whether the query represented by $q1 would return a subset
            of items returned by the query represented by $q2
@@ -1885,11 +1889,11 @@ sub qin {
 
 =head4 Q qeq
 
- Title   : qeq 
+ Title   : qeq
  Usage   : Q::qeq($q1, $q2)
  Function: test if fld and dta properties in two class Q objects are the same
            (irrespective of order)
- Example : 
+ Example :
  Returns : 1 if equal, 0 otherwise
  Args    : two class Q objects
 
@@ -1909,11 +1913,11 @@ sub qeq {
 
 =head4 Q qor
 
- Title   : qor 
+ Title   : qor
  Usage   : @qresult = Q::qor($q1, $q2)
  Function: logical OR for Q objects
  Example :
- Returns : an array of class Q objects 
+ Returns : an array of class Q objects
  Args    : two class Q objects
 
 =cut
@@ -1941,7 +1945,7 @@ sub qor {
 
 =head4 Q qand
 
- Title   : qand 
+ Title   : qand
  Usage   : @qresult = Q::And($q1, $q2)
  Function: logical AND for R objects
  Example :
@@ -1979,8 +1983,8 @@ sub qand {
 	    foreach (@bd) {
 		$ad{$_}++;
 	    }
-	    my $r = new Q($a->fld, 
-			  grep {$_} 
+	    my $r = new Q($a->fld,
+			  grep {$_}
 			  map {$ad{$_} == 2 ? $_ : undef} keys %ad);
 	    return (length($r->dta) > 0) ? ($r) : ($Q::NULL);
 	}
@@ -1998,7 +2002,7 @@ sub qand {
  Usage   : @ua = unique(@a)
  Function: return contents of @a with duplicates removed
  Example :
- Returns : 
+ Returns :
  Args    : an array
 
 =cut
@@ -2009,7 +2013,7 @@ sub unique {
     @a{@a} = undef;
     return keys %a;
 }
-    
+
 1;
 
 =head2 Additional tools for Bio::AnnotationCollectionI
@@ -2078,13 +2082,13 @@ sub get_value {
  Example :
  Returns : scalar or a Bio::AnnotationCollection object
  Args    : $tagname, $value scalars (can be specified as -KEYS=>$tagname,
-           -VALUE=>$value) -or- 
+           -VALUE=>$value) -or-
            \@tagnames, $value (or as -KEYS=>\@tagnames, -VALUE=>$value )
- Note    : If intervening nodes do not exist, put_value creates them, replacing 
+ Note    : If intervening nodes do not exist, put_value creates them, replacing
            existing nodes. So if $ac->put_value('x', 10) was done, then later,
            $ac->put_value(['x', 'y'], 20), the original value of 'x' is trashed,
            and $ac->get_value('x') will now return the annotation collection
-           with tagname 'y'. 
+           with tagname 'y'.
 
 =cut
 

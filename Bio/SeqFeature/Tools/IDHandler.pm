@@ -54,7 +54,7 @@ report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Chris Mungall
 
@@ -239,7 +239,7 @@ sequence containing this feature; and that
 is a "unique constraint" over features
 
 The ID is persistent, so long as none of these values change - if they
-do, it is considered a seperate entity
+do, it is considered a separate entity
 
 =cut
 

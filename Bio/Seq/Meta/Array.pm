@@ -111,7 +111,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution.  Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Heikki Lehvaslaiho
 
@@ -134,19 +134,13 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Seq::Meta::Array;
-use vars qw(@ISA $DEFAULT_NAME $GAP $META_GAP);
 use strict;
-
-#use overload '""' => \&to_string;
 
 use base qw(Bio::LocatableSeq Bio::Seq Bio::Seq::MetaI);
 
-BEGIN {
-
-    $DEFAULT_NAME = 'DEFAULT';
-    $GAP = '-';
-    $META_GAP = 0;
-}
+our $DEFAULT_NAME = 'DEFAULT';
+our $GAP = '-';
+our $META_GAP = 0;
 
 =head2 new
 
@@ -165,14 +159,19 @@ BEGIN {
 
 sub new {
     my ($class, %args) = @_;
+    
+    # run-time modification of @ISA is extremely evil (you should't pick your
+    # interface on the fly); this has no obvious effect on any tests so
+    # commenting out - cjfields 2011-4-6
+    
 	#defined inheritance according to stated baseclass,
 	#if undefined then will be PrimarySeq
-	if (defined($args{'-baseclass'})) {
-		@ISA = ($args{'-baseclass'},"Bio::Seq::MetaI");
-		}
-	else {
-		@ISA = qw( Bio::LocatableSeq Bio::Seq Bio::Seq::MetaI );
-		}
+	#if (defined($args{'-baseclass'})) {
+	#	@ISA = ($args{'-baseclass'},"Bio::Seq::MetaI");
+	#	}
+	#else {
+	#	@ISA = qw( Bio::LocatableSeq Bio::Seq Bio::Seq::MetaI );
+	#	}
 
     my $self = $class->SUPER::new(%args);
 
@@ -549,6 +548,7 @@ sub force_flush {
             $self->{force_flush} = 0;
         }
     }
+
     return $self->{force_flush};
 }
 
@@ -584,7 +584,6 @@ sub _do_flush {
 }
 
 
-
 =head2 is_flush
 
  Title   : is_flush
@@ -612,7 +611,7 @@ sub is_flush {
         $sticky .= "$name " if $self->length != $self->named_meta_length($name);
     } else {
         foreach my $m ($self->meta_names) {
-            $sticky .= "$m " if $self->length != $self->named_meta_length($m);
+            $sticky .= "$m " if ($self->named_meta_length($m) > 0) && ($self->length != $self->named_meta_length($m)) ;
         }
     }
 

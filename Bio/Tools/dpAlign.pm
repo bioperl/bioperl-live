@@ -112,8 +112,8 @@ the time of this writing, it is accepted that Miller-Myers is the
 fastest single CPU implementation and using the least memory that is
 truly equivalent to original algorithm introduced by
 Needleman-Wunsch. According to Aaron Mackey, Phil Green's SWAT
-implemention introduced a heuristic that does not consider paths
-throught the matrix where the score would be less than the gap opening
+implementation introduced a heuristic that does not consider paths
+through the matrix where the score would be less than the gap opening
 penalty, yielding a 1.5-2X speedup on most comparisons. to skip the
 calculation of some cells. However, his approach is only good for
 calculating the minimum edit distance and find out the corresponding
@@ -190,7 +190,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR
 
@@ -406,7 +406,7 @@ sub pairwise_alignment_score {
 	return Bio::Ext::Align::Score_Protein_Sequences($prof, $seq2->seq);
     }
     else {
-	croak("There is currently no support for the types of sequences you want to align!\n");
+	$self->throw("There is currently no support for the types of sequences you want to align!\n");
 	return;
     }
 }

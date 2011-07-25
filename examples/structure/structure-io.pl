@@ -1,4 +1,4 @@
-#!/bin/perl -w
+#!/bin/perl
 # Getting  Entry, Chain, Residue, and Atom objects given a PDB file
 
 use Bio::Structure::IO;

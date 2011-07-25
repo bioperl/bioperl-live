@@ -91,7 +91,7 @@ SKIP: {
 	# get reports)
 	
 	ok(0,'Exceeded maximum attempts on server to retrieve report');
-	skip("Timeout, did not return report after ".($attempt - 1)." attempts", 1);
+	skip("Timeout, did not return report after ".($attempt - 1)." attempts", 2);
     } else {
 	# have a test fail here (whatever is returned should be eval as true and
 	# be a SearchIO)

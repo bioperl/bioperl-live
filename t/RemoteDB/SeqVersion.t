@@ -25,7 +25,7 @@ SKIP: {
 	is($latest_gi, 2, 'get_recent');
 
 	my @all_gis = $query->get_all(2);
-	is(scalar @all_gis, 8, 'get_all');
+	cmp_ok(@all_gis, '>=', 8, 'get_all');
 
 	$latest_gi = $query->get_recent('A00002');
 	is($latest_gi, 2, 'get_recent, string');

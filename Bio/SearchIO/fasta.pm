@@ -65,9 +65,9 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via the
 web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
-=head1 AUTHOR - Jason Stajich, Aaron Mackey
+=head1 AUTHOR - Jason Stajich, Aaron Mackey, William Pearson
 
 Email jason-at-bioperl.org
 
@@ -111,6 +111,7 @@ BEGIN {
         'Hsp_score'       => 'HSP-score',
         'Hsp_sw-score'    => 'HSP-swscore',
         'Hsp_evalue'      => 'HSP-evalue',
+        'Hsp_evalue2'     => 'HSP-evalue2',
         'Hsp_query-from'  => 'HSP-query_start',
         'Hsp_query-to'    => 'HSP-query_end',
         'Hsp_hit-from'    => 'HSP-hit_start',
@@ -213,6 +214,7 @@ sub next_result {
     my $data    = '';
     my $seentop = 0;
     my $current_hsp;
+    my $m9HSP = 0;
     $self->start_document();
     my @hit_signifs;
     while ( defined( $_ = $self->_readline ) ) {
@@ -221,10 +223,17 @@ sub next_result {
         if (
                m/(\S+)\s+searches\s+a\s+(protein\s+or\s+DNA\s+)?sequence/oxi
             || /(\S+)\s+compares\s+a/
-            || (   m/^\#\s+/
+	    || /(\S+)\s+performs\s+a/
+	    || /(\S+)\s+produces\s/
+	    || /(\S+)\s+finds\s+/	# for lalign, but does not work because no "The best scores are:"
+            || (   m/^\#\s+/	# has a command log line
                 && ( $_ = $self->_readline )
                 && /(\S+)\s+searches\s+a\s+(protein\s+or\s+DNA\s+)?sequence/oxi
-                || /(\S+)\s+compares\s+a/ )
+		   || /(\S+)\s+compares\s+a/
+		   || /(\S+)\s+performs\s+a/
+		   || /(\S+)\s+produces\s/
+		   || /(\S+)\s+finds\s+/	# for lalign, but does not work because no "The best scores are:"
+	    )
           )
         {
             if ($seentop) {
@@ -404,20 +413,54 @@ sub next_result {
                 }
             );
         }
-        elsif (/^\s*(Smith-Waterman).+(\S+)\s*matrix [^\]]*?(xS)?\]/) {
+        elsif (/^\s*(Smith-Waterman)/) {
+
+            $self->{'_reporttype'} = $1;
+
+	    m/\[\s*(\S+)\s+matrix \([^\)]+\)(xS)?\],/;
+
             $self->element(
                 {
                     'Name' => 'Parameters_matrix',
-                    'Data' => $2
+                    'Data' => $1
                 }
             );
             $self->element(
                 {
                     'Name' => 'Parameters_filter',
-                    'Data' => defined $3 ? 1 : 0,
+                    'Data' => defined $2 ? 1 : 0,
                 }
             );
-            $self->{'_reporttype'} = $1;
+	    if (/\s*gap\-penalty:\s*(\-?\d+)\/(\-?\d+)/) {
+		$self->element(
+		    {
+			'Name' => 'Parameters_gap-open',
+			'Data' => $1,
+		    }
+		    );
+
+		$self->element(
+		    {
+			'Name' => 'Parameters_gap-ext',
+			'Data' => $2,
+		    }
+		    );
+	    }
+	    elsif (/\s*open\/ext:\s*(\-?\d+)\/(\-?\d+)/) {
+		$self->element(
+		    {
+			'Name' => 'Parameters_gap-open',
+			'Data' => $1,
+		    }
+		    );
+
+		$self->element(
+		    {
+			'Name' => 'Parameters_gap-ext',
+			'Data' => $2,
+		    }
+		    );
+	    }
 
             $self->element(
                 {
@@ -437,6 +480,15 @@ sub next_result {
                     "evalue";
                 }
                 else {
+                    # canonicalize changed column headers
+                    if ($_ eq "gapl") {
+                        $_ = "lgaps";
+                    } elsif ($_ eq "gapq") {
+                        $_ = "qgaps";
+                    } elsif ($_ eq "E2()") {
+                        $_ = "evalue2";
+                    }
+                    
                     $_;
                 }
             } @labels[ $rel ? 5 : 4 .. $#labels ];
@@ -446,17 +498,34 @@ sub next_result {
             {
                 my @line = split;
 
-                if ( $line[-1] =~ m/\=/o && $labels[-1] eq 'fs' ) {
-
+                if ( $line[-1] =~ m/\=/o && $labels[-1] ne 'aln_code' ) {
                     # unlabelled alignment hit;
                     push @labels, "aln_code";
                 }
 
-                my %data;
-                @data{@labels} = splice( @line, @line - @labels );
+                if ($line[0] eq "+-") {
+		    $m9HSP = 1;
+                    # parse HSP, add to last parsed Hit
+                    my %hspData;
+                    
+                    my @line = split;
+
+                    @hspData{@labels} = splice( @line, @line - @labels );
+                    $hspData{lframe} = $hit_signifs[-1]->{lframe};
+                    
+                    push @{$hit_signifs[-1]->{HSPs}}, \%hspData;
+
+                    next;
+                }
+		elsif ($line[0] eq '>>><<<') {
+		    last;
+		}
+
+                my (%data, %hspData);
+                @data{@labels} = @hspData{@labels} = splice( @line, @line - @labels );
                 if ( $line[-1] =~ m/\[([1-6rf])\]/o ) {
                     my $fr = $1;
-                    $data{lframe} = (
+                    $hspData{lframe} = $data{lframe} = (
                         $fr =~ /\d/o
                         ? ( $fr <= 3 ? "+$fr" : "-@{[$fr-3]}" )
                         : ( $fr eq 'f' ? '+1' : '-1' )
@@ -464,7 +533,7 @@ sub next_result {
                     pop @line;
                 }
                 else {
-                    $data{lframe} = '0';
+                    $hspData{lframe} = $data{lframe} = '0';
                 }
 
                 if ( $line[-1] =~ m/^\(?(\d+)\)$/ ) {
@@ -487,7 +556,8 @@ sub next_result {
                 $acc =~ s/\.\d+$//;
 
                 @data{qw(id desc acc)} = ( $id, $desc, $acc );
-
+                $data{HSPs} = [ \%hspData ];
+                
                 push @hit_signifs, \%data;
             }
         }
@@ -517,20 +587,42 @@ sub next_result {
             $self->{'_reporttype'} = $1
               if ( $self->{'_reporttype'} !~ /FAST[PN]/i );
 
+#
+# get gap-pen line for FASTA33, which is not on the matrix line
+#
+# FASTA (3.36 June 2000) function [optimized, BL50 matrix (15:-5)] ktup: 2
+#  join: 36, opt: 24, gap-pen: -12/ -2, width:  16
+#
+	    $_ = $self->_readline();
+	    if (/(?:gap\-pen|open\/ext):\s+([\-\+]?\d+)\s*\/\s*([\-\+]?\d+)/) {
+		$self->element(
+		    {
+			'Name' => 'Parameters_gap-open',
+			'Data' => $1
+		    }
+		    );
+		$self->element(
+		    {
+			'Name' => 'Parameters_gap-ext',
+			'Data' => $2
+		    }
+		    );
+	    }
+
             $self->element(
                 {
                     'Name' => 'FastaOutput_program',
                     'Data' => $self->{'_reporttype'}
                 }
             );
+
         }
-        elsif (/^Algorithm:\s+(\S+)\s+\(([^)]+)\)\s+(\S+)/) {
+        elsif (/^Algorithm:\s+(\S+)\s+.*\s*\(([^)]+)\)\s+(\S+)/) {
             $self->{'_reporttype'} = $1
               if ( $self->{'_reporttype'} !~ /FAST[PN]/i );
         }
-        elsif (
-            /^Parameters:\s+(\S+)\s*matrix\s*(?:\(([^(]+?)\))?\s*ktup:\s*(\d+)/)
-        {    # FASTA 35.04
+        elsif ( /^Parameters:/ ) {    # FASTA 35.04/FASTA 36
+	    m/Parameters:\s+(\S+)\s+matrix\s+\([^\)]+\)(xS)?,?\s/;
             $self->element(
                 {
                     'Name' => 'Parameters_matrix',
@@ -543,12 +635,32 @@ sub next_result {
                     'Data' => defined $2 ? $2 : 0,
                 }
             );
-            $self->element(
-                {
-                    'Name' => 'Parameters_ktup',
-                    'Data' => $3
-                }
-            );
+	    if (/ktup:\s(\d+)/) {
+		$self->element(
+		    {
+			'Name' => 'Parameters_ktup',
+			'Data' => $1
+		    }
+		    );
+		if (/ktup:\s\d+$/) {
+		    $_ = $self->_readline();
+		}
+
+	    }
+	    if (/(?:gap\-pen|open\/ext):\s+([\-\+]?\d+)\s*\/\s*([\-\+]?\d+)/) {
+		$self->element(
+		    {
+			'Name' => 'Parameters_gap-open',
+			'Data' => $1
+		    }
+		    );
+		$self->element(
+		    {
+			'Name' => 'Parameters_gap-ext',
+			'Data' => $2
+		    }
+		    );
+	    }
             $self->element(
                 {
                     'Name' => 'FastaOutput_program',
@@ -557,104 +669,119 @@ sub next_result {
             );
         }
         elsif (
-/(?:gap\-pen|open\/ext):\s+([\-\+]?\d+)\s*\/\s*([\-\+]?\d+).+width:\s+(\d+)/
+	    /^\s+ktup:\s*(\d+),/
           )
         {
             $self->element(
                 {
-                    'Name' => 'Parameters_gap-open',
+                    'Name' => 'Parameters_ktup',
                     'Data' => $1
                 }
             );
-            $self->element(
-                {
-                    'Name' => 'Parameters_gap-ext',
-                    'Data' => $2
-                }
-            );
-            $self->element(
-                {
-                    'Name' => 'Parameters_word-size',
-                    'Data' => $3
-                }
-            );
         }
-        elsif (/^>>(?!>)(.+?)\s+(?:\((\d+)\s*(aa|nt)\))?$/) {
-            my ($hit_id, $len, $alphabet) = ($1, $2, $3);
-            if (!$len || !$alphabet) {
-                WRAPPED:
-                while (defined($_ = $self->_readline)) {
-                    if (/(.*?)\s+\((\d+)\s*(aa|nt)\)/) {
-                        ($len, $alphabet) = ($2, $3);
-                        $hit_id .= $1 ? " ".$1 : '';
-                        last WRAPPED;
-                    }
-                    if (/^>>(?!>)/) { # too far, throw
-                        $self->throw("Couldn't find length, bailing");
-                    }
-                }
-            }
+        elsif (/^(>--)$/ || /^>>(?!>)(.+?)\s+(?:\((\d+)\s*(aa|nt)\))?$/) {
             if ( $self->in_element('hsp') ) {
                 $self->end_element( { 'Name' => 'Hsp' } );
             }
-            if ( $self->in_element('hit') ) {
-                $self->end_element( { 'Name' => 'Hit' } );
+            
+            my $firstHSP = 0;
+            if ($1 ne ">--") {
+                $firstHSP = 1;
+
+                my ($hit_id, $len, $alphabet) = ($1, $2, $3);
+                if (!$len || !$alphabet) {
+                    WRAPPED:
+                    while (defined($_ = $self->_readline)) {
+                        if (/(.*?)\s+\((\d+)\s*(aa|nt)\)/) {
+                            ($len, $alphabet) = ($2, $3);
+                            $hit_id .= $1 ? " ".$1 : '';
+                            last WRAPPED;
+                        }
+                        if (/^>>(?!>)/) { # too far, throw
+                            $self->throw("Couldn't find length, bailing");
+                        }
+                    }
+                }
+                if ( $self->in_element('hit') ) {
+                    $self->end_element( { 'Name' => 'Hit' } );
+                    shift @hit_signifs if @hit_signifs;
+                }
+    
+                $self->start_element( { 'Name' => 'Hit' } );
+                $self->element(
+                    {
+                        'Name' => 'Hit_len',
+                        'Data' => $len
+                    }
+                );
+                my ( $id, $desc ) = split( /\s+/, $hit_id, 2 );
+                $self->element(
+                    {
+                        'Name' => 'Hit_id',
+                        'Data' => $id
+                    }
+                );
+    
+                #$self->debug("Hit ID is $id\n");
+                my @pieces = split( /\|/, $id );
+                my $acc = pop @pieces;
+                $acc =~ s/\.\d+$//;
+                $self->element(
+                    {
+                        'Name' => 'Hit_accession',
+                        'Data' => $acc
+                    }
+                );
+                $self->element(
+                    {
+                        'Name' => 'Hit_def',
+                        'Data' => $desc
+                    }
+                );
             }
+	    else {
+#		push @{$hit_signifs[0]->{HSPs}}, $current_hsp;
+	    }
 
-            $self->start_element( { 'Name' => 'Hit' } );
-            $self->element(
-                {
-                    'Name' => 'Hit_len',
-                    'Data' => $len
-                }
-            );
-            my ( $id, $desc ) = split( /\s+/, $hit_id, 2 );
-            $self->element(
-                {
-                    'Name' => 'Hit_id',
-                    'Data' => $id
-                }
-            );
-
-            #$self->debug("Hit ID is $id\n");
-            my @pieces = split( /\|/, $id );
-            my $acc = pop @pieces;
-            $acc =~ s/\.\d+$//;
-            $self->element(
-                {
-                    'Name' => 'Hit_accession',
-                    'Data' => $acc
-                }
-            );
-            $self->element(
-                {
-                    'Name' => 'Hit_def',
-                    'Data' => $desc
-                }
-            );
 
             $_ = $self->_readline();
-            my ( $score, $bits, $e ) = /Z-score: \s* (\S+) \s*
+            my ( $score, $bits, $e, $e2 ) = /Z-score: \s* (\S+) \s*
                                (?: bits: \s* (\S+) \s+ )?
-                               (?: E|expect ) \s* \((?:\d+)?\) :? \s*(\S+)/ox;
+                               (?: E|expect ) \s* \((?:\d+)?\) :? \s*(\S+)
+                               (?: \s* E2 \s* \(\) :? \s*(\S+) )?
+                               /ox;
             $bits = $score unless defined $bits;
 
-            my $v = shift @hit_signifs;
+            my ($v);
+
+	    if ($firstHSP && !$m9HSP) {
+	      $v = shift @{$hit_signifs[0]->{HSPs}}
+		if (@hit_signifs && @{$hit_signifs[0]->{HSPs}});
+	      $current_hsp = $v;
+	    }
+	    else {
+	      $v = $current_hsp;
+	    }
+
             if ( defined $v ) {
-                @{$v}{qw(evalue bits z-sc)} = ( $e, $bits, $score );
+                @{$v}{qw(evalue evalue2 bits z-sc)} = ( $e, $e2, $bits, $score );
             }
-            $self->element(
-                {
-                    'Name' => 'Hit_signif',
-                    'Data' => $v ? $v->{evalue} : $e
-                }
-            );
-            $self->element(
-                {
-                    'Name' => 'Hit_score',
-                    'Data' => $v ? $v->{bits} : $bits
-                }
-            );
+
+            if ($firstHSP) {
+                $self->element(
+                    {
+                        'Name' => 'Hit_signif',
+                        'Data' => $v ? $v->{evalue} : $e
+                    }
+                );
+                $self->element(
+                    {
+                        'Name' => 'Hit_score',
+                        'Data' => $v ? $v->{bits} : $bits
+                    }
+                );
+            }
+            
             $self->start_element( { 'Name' => 'Hsp' } );
 
             $self->element(
@@ -671,12 +798,27 @@ sub next_result {
             );
             $self->element(
                 {
+                    'Name' => 'Hsp_evalue2',
+                    'Data' => $v && exists($v->{evalue2}) ? $v->{evalue2} : $e2
+                }
+            ) if (($v && exists($v->{evalue2})) || defined $e2);
+
+            $self->element(
+                {
                     'Name' => 'Hsp_bit-score',
                     'Data' => $v ? $v->{bits} : $bits
                 }
             );
             $_ = $self->_readline();
 
+            if (s/global\/.* score:\s*(\d+)\;?//) {
+                $self->element(
+                    {
+                        'Name' => 'Hsp_sw-score',
+                        'Data' => $1
+                    }
+                );
+            }
             if (s/Smith-Waterman score:\s*(\d+)\;?//) {
                 $self->element(
                     {
@@ -823,6 +965,8 @@ sub next_result {
             }
             if ( $self->in_element('hit') ) {
                 $self->end_element( { 'Name' => 'Hit' } );
+                shift @hit_signifs if @hit_signifs;
+
             }
 
            #       $_ = $self->_readline();
@@ -841,186 +985,8 @@ sub next_result {
                 }
             }
 
-            if (@hit_signifs) {
-
-                # process remaining best hits
-                for my $h (@hit_signifs) {
-
-                    # Hsp_score Hsp_evalue Hsp_bit-score
-                    # Hsp_sw-score Hsp_gaps Hsp_identity Hsp_positive
-                    # Hsp_align-len Hsp_query-from Hsp_query-to
-                    # Hsp_hit-from Hsp_hit-to Hsp_qseq Hsp_midline
-
-                    $self->start_element( { 'Name' => 'Hit' } );
-                    $self->element(
-                        {
-                            'Name' => 'Hit_len',
-                            'Data' => $h->{hit_len}
-                        }
-                    ) if exists $h->{hit_len};
-                    $self->element(
-                        {
-                            'Name' => 'Hit_id',
-                            'Data' => $h->{id}
-                        }
-                    ) if exists $h->{id};
-                    $self->element(
-                        {
-                            'Name' => 'Hit_accession',
-                            'Data' => $h->{acc}
-                        }
-                    ) if exists $h->{acc};
-                    $self->element(
-                        {
-                            'Name' => 'Hit_def',
-                            'Data' => $h->{desc}
-                        }
-                    ) if exists $h->{desc};
-                    $self->element(
-                        {
-                            'Name' => 'Hit_signif',
-                            'Data' => $h->{evalue}
-                        }
-                    ) if exists $h->{evalue};
-                    $self->element(
-                        {
-                            'Name' => 'Hit_score',
-                            'Data' => $h->{bits}
-                        }
-                    ) if exists $h->{bits};
-
-                    $self->start_element( { 'Name' => 'Hsp' } );
-                    $self->element(
-                        { 'Name' => 'Hsp_score', 'Data' => $h->{'z-sc'} } )
-                      if exists $h->{'z-sc'};
-                    $self->element(
-                        { 'Name' => 'Hsp_evalue', 'Data' => $h->{evalue} } )
-                      if exists $h->{evalue};
-                    $self->element(
-                        { 'Name' => 'Hsp_bit-score', 'Data' => $h->{bits} } )
-                      if exists $h->{bits};
-                    $self->element(
-                        { 'Name' => 'Hsp_sw-score', 'Data' => $h->{sw} } )
-                      if exists $h->{sw};
-                    $self->element(
-                        { 'Name' => 'Hsp_gaps', 'Data' => $h->{'%_gid'} } )
-                      if exists $h->{'%_gid'};
-                    $self->element(
-                        {
-                            'Name' => 'Hsp_identity',
-                            'Data' =>
-                              sprintf( "%.0f", $h->{'%_id'} * $h->{alen} )
-                        }
-                    ) if ( exists $h->{'%_id'} && exists $h->{alen} );
-
-                    if ( exists $h->{'%_gid'} ) {
-                        $self->element(
-                            {
-                                'Name' => 'Hsp_positive',
-                                'Data' =>
-                                  sprintf( "%.0f", $h->{'%_gid'} * $h->{alen} )
-                            }
-                        ) if exists $h->{'%_gid'} && exists $h->{alen};
-                    }
-                    else {
-                        $self->element(
-                            {
-                                'Name' => 'Hsp_positive',
-                                'Data' =>
-                                  sprintf( "%.0f", $h->{'%_id'} * $h->{alen} )
-                            }
-                        ) if ( exists $h->{'%_id'} && exists $h->{alen} );
-                    }
-                    $self->element(
-                        { 'Name' => 'Hsp_align-len', 'Data' => $h->{alen} } )
-                      if exists $h->{alen};
-                    $self->element(
-                        { 'Name' => 'Hsp_query-from', 'Data' => $h->{an0} } )
-                      if exists $h->{an0};
-                    $self->element(
-                        { 'Name' => 'Hsp_query-to', 'Data' => $h->{ax0} } )
-                      if exists $h->{ax0};
-                    $self->element(
-                        { 'Name' => 'Hsp_hit-from', 'Data' => $h->{an1} } )
-                      if exists $h->{an1};
-                    $self->element(
-                        { 'Name' => 'Hsp_hit-to', 'Data' => $h->{ax1} } )
-                      if exists $h->{ax1};
-
-                    $self->element(
-                        { 'Name' => 'Hsp_querygaps', 'Data' => $h->{qgaps} } )
-                      if exists $h->{qgaps};
-                    $self->element(
-                        { 'Name' => 'Hsp_hitgaps', 'Data' => $h->{lgaps} } )
-                      if exists $h->{lgaps};
-
-                    if ( $self->{'_reporttype'} =~ m/^FAST[NXY]$/o ) {
-                        if ( 8 == scalar grep { exists $h->{$_} }
-                            qw(an0 ax0 pn0 px0 an1 ax1 pn1 px1) )
-                        {
-                            if ( $h->{ax0} < $h->{an0} ) {
-                                $self->element(
-                                    {
-                                        'Name' => 'Hsp_query-frame',
-                                        'Data' =>
-"-@{[(($h->{px0} - $h->{ax0}) % 3) + 1]}"
-                                    }
-                                );
-                            }
-                            else {
-                                $self->element(
-                                    {
-                                        'Name' => 'Hsp_query-frame',
-                                        'Data' =>
-"+@{[(($h->{an0} - $h->{pn0}) % 3) + 1]}"
-                                    }
-                                );
-                            }
-                            if ( $h->{ax1} < $h->{an1} ) {
-                                $self->element(
-                                    {
-                                        'Name' => 'Hsp_hit-frame',
-                                        'Data' =>
-"-@{[(($h->{px1} - $h->{ax1}) % 3) + 1]}"
-                                    }
-                                );
-                            }
-                            else {
-                                $self->element(
-                                    {
-                                        'Name' => 'Hsp_hit-frame',
-                                        'Data' =>
-"+@{[(($h->{an1} - $h->{pn1}) % 3) + 1]}"
-                                    }
-                                );
-                            }
-                        }
-                        else {
-                            $self->element(
-                                {
-                                    'Name' => 'Hsp_query-frame',
-                                    'Data' => $h->{lframe}
-                                }
-                            );
-                            $self->element(
-                                { 'Name' => 'Hsp_hit-frame', 'Data' => 0 } );
-                        }
-                    }
-                    else {
-                        $self->element(
-                            { 'Name' => 'Hsp_query-frame', 'Data' => 0 } );
-                        $self->element(
-                            {
-                                'Name' => 'Hsp_hit-frame',
-                                'Data' => $h->{lframe}
-                            }
-                        );
-                    }
-
-                    $self->end_element( { 'Name' => 'Hsp' } );
-                    $self->end_element( { 'Name' => 'Hit' } );
-                }
-            }
+            $self->_processHits(@hit_signifs) if @hit_signifs;
+            
             $self->end_element( { 'Name' => 'FastaOutput' } );
             return $self->end_document();
         }
@@ -1031,182 +997,12 @@ sub next_result {
                 }
                 if ( $self->in_element('hit') ) {
                     $self->end_element( { 'Name' => 'Hit' } );
+                    shift @hit_signifs if @hit_signifs;
+
                 }
 
-                if (@hit_signifs) {
-
-                    # process remaining best hits
-                    for my $h (@hit_signifs) {
-                        $self->start_element( { 'Name' => 'Hit' } );
-                        $self->element(
-                            {
-                                'Name' => 'Hit_len',
-                                'Data' => $h->{hit_len}
-                            }
-                        ) if exists $h->{hit_len};
-                        $self->element(
-                            {
-                                'Name' => 'Hit_id',
-                                'Data' => $h->{id}
-                            }
-                        ) if exists $h->{id};
-                        $self->element(
-                            {
-                                'Name' => 'Hit_accession',
-                                'Data' => $h->{acc}
-                            }
-                        ) if exists $h->{acc};
-                        $self->element(
-                            {
-                                'Name' => 'Hit_def',
-                                'Data' => $h->{desc}
-                            }
-                        ) if exists $h->{desc};
-                        $self->element(
-                            {
-                                'Name' => 'Hit_signif',
-                                'Data' => $h->{evalue}
-                            }
-                        ) if exists $h->{evalue};
-                        $self->element(
-                            {
-                                'Name' => 'Hit_score',
-                                'Data' => $h->{bits}
-                            }
-                        ) if exists $h->{bits};
-
-                        $self->start_element( { 'Name' => 'Hsp' } );
-                        $self->element(
-                            { 'Name' => 'Hsp_score', 'Data' => $h->{'z-sc'} } )
-                          if exists $h->{'z-sc'};
-                        $self->element(
-                            { 'Name' => 'Hsp_evalue', 'Data' => $h->{evalue} } )
-                          if exists $h->{evalue};
-                        $self->element(
-                            { 'Name' => 'Hsp_bit-score', 'Data' => $h->{bits} }
-                        ) if exists $h->{bits};
-                        $self->element(
-                            { 'Name' => 'Hsp_sw-score', 'Data' => $h->{sw} } )
-                          if exists $h->{sw};
-                        $self->element(
-                            { 'Name' => 'Hsp_gaps', 'Data' => $h->{'%_gid'} } )
-                          if exists $h->{'%_gid'};
-                        $self->element(
-                            {
-                                'Name' => 'Hsp_identity',
-                                'Data' =>
-                                  sprintf( "%.0f", $h->{'%_id'} * $h->{alen} )
-                            }
-                        ) if ( exists $h->{'%_id'} && exists $h->{alen} );
-
-                        if ( exists $h->{'%_gid'} ) {
-                            $self->element(
-                                {
-                                    'Name' => 'Hsp_positive',
-                                    'Data' => sprintf( "%.0f",
-                                        $h->{'%_gid'} * $h->{alen} )
-                                }
-                            ) if exists $h->{'%_gid'} && exists $h->{alen};
-                        }
-                        else {
-                            $self->element(
-                                {
-                                    'Name' => 'Hsp_positive',
-                                    'Data' => sprintf( "%.0f",
-                                        $h->{'%_id'} * $h->{alen} )
-                                }
-                            ) if ( exists $h->{'%_id'} && exists $h->{alen} );
-                        }
-                        $self->element(
-                            { 'Name' => 'Hsp_align-len', 'Data' => $h->{alen} }
-                        ) if exists $h->{alen};
-                        $self->element(
-                            { 'Name' => 'Hsp_query-from', 'Data' => $h->{an0} }
-                        ) if exists $h->{an0};
-                        $self->element(
-                            { 'Name' => 'Hsp_query-to', 'Data' => $h->{ax0} } )
-                          if exists $h->{ax0};
-                        $self->element(
-                            { 'Name' => 'Hsp_hit-from', 'Data' => $h->{an1} } )
-                          if exists $h->{an1};
-                        $self->element(
-                            { 'Name' => 'Hsp_hit-to', 'Data' => $h->{ax1} } )
-                          if exists $h->{ax1};
-
-                        $self->element(
-                            {
-                                'Name' => 'Hsp_querygaps',
-                                'Data' => $h->{qgaps}
-                            }
-                        ) if exists $h->{qgaps};
-                        $self->element(
-                            { 'Name' => 'Hsp_hitgaps', 'Data' => $h->{lgaps} } )
-                          if exists $h->{lgaps};
-
-                        if ( $self->{'_reporttype'} =~ m/^FAST[NXY]$/o ) {
-                            if ( 8 == scalar grep { exists $h->{$_} }
-                                qw(an0 ax0 pn0 px0 an1 ax1 pn1 px1) )
-                            {
-                                if ( $h->{ax0} < $h->{an0} ) {
-                                    $self->element(
-                                        {
-                                            'Name' => 'Hsp_query-frame',
-                                            'Data' => "-@{[(($h->{px0} - $h->{ax0}) % 3) + 1]}"
-                                        }
-                                    );
-                                }
-                                else {
-                                    $self->element(
-                                        {
-                                            'Name' => 'Hsp_query-frame',
-                                            'Data' => "+@{[(($h->{an0} - $h->{pn0}) % 3) + 1]}"
-                                        }
-                                    );
-                                }
-                                if ( $h->{ax1} < $h->{an1} ) {
-                                    $self->element(
-                                        {
-                                            'Name' => 'Hsp_hit-frame',
-                                            'Data' => "-@{[(($h->{px1} - $h->{ax1}) % 3) + 1]}"
-                                        }
-                                    );
-                                }
-                                else {
-                                    $self->element(
-                                        {
-                                            'Name' => 'Hsp_hit-frame',
-                                            'Data' => "+@{[(($h->{an1} - $h->{pn1}) % 3) + 1]}"
-                                        }
-                                    );
-                                }
-                            }
-                            else {
-                                $self->element(
-                                    {
-                                        'Name' => 'Hsp_query-frame',
-                                        'Data' => $h->{lframe}
-                                    }
-                                );
-                                $self->element(
-                                    { 'Name' => 'Hsp_hit-frame', 'Data' => 0 }
-                                );
-                            }
-                        }
-                        else {
-                            $self->element(
-                                { 'Name' => 'Hsp_query-frame', 'Data' => 0 } );
-                            $self->element(
-                                {
-                                    'Name' => 'Hsp_hit-frame',
-                                    'Data' => $h->{lframe}
-                                }
-                            );
-                        }
-
-                        $self->end_element( { 'Name' => 'Hsp' } );
-                        $self->end_element( { 'Name' => 'Hit' } );
-                    }
-                }
+                $self->_processHits(@hit_signifs) if (@hit_signifs);
+                
                 $self->end_element( { 'Name' => 'FastaOutput' } );
                 $self->_pushback($_);
                 return $self->end_document();
@@ -1409,6 +1205,7 @@ sub next_result {
         }
         if ( $self->in_element('hit') ) {
             $self->end_element( { 'Name' => 'Hit' } );
+            shift @hit_signifs if @hit_signifs;
         }
         $self->end_element( { 'Name' => 'FastaOutput' } );
     }
@@ -1754,6 +1551,208 @@ sub _will_handle {
 
     return $will_handle ? $handler : undef;
 }
+
+=head2 _processHits
+
+ Title   : _processHits
+ Usage   : Private method. For internal use only.
+ Function: Process/report any hits/hsps we saw in the top table, not in alignments.
+ Returns : nothing.
+ Args    : array of hits to process.
+
+=cut
+
+sub _processHits {
+
+  my ($self, @hit_signifs) = @_;
+
+  # process remaining best hits
+  for my $hit (@hit_signifs) {
+
+    # Hsp_score Hsp_evalue Hsp_bit-score
+    # Hsp_sw-score Hsp_gaps Hsp_identity Hsp_positive
+    # Hsp_align-len Hsp_query-from Hsp_query-to
+    # Hsp_hit-from Hsp_hit-to Hsp_qseq Hsp_midline
+
+    $self->start_element( { 'Name' => 'Hit' } );
+    $self->element(
+		   {
+		    'Name' => 'Hit_len',
+		    'Data' => $hit->{hit_len}
+		   }
+		  ) if exists $hit->{hit_len};
+    $self->element(
+		   {
+		    'Name' => 'Hit_id',
+		    'Data' => $hit->{id}
+		   }
+		  ) if exists $hit->{id};
+    $self->element(
+		   {
+		    'Name' => 'Hit_accession',
+		    'Data' => $hit->{acc}
+		   }
+		  ) if exists $hit->{acc};
+    $self->element(
+		   {
+		    'Name' => 'Hit_def',
+		    'Data' => $hit->{desc}
+		   }
+		  ) if exists $hit->{desc};
+    $self->element(
+		   {
+		    'Name' => 'Hit_signif',
+		    'Data' => $hit->{evalue}
+		   }
+		  ) if exists $hit->{evalue};
+    $self->element(
+		   {
+		    'Name' => 'Hit_score',
+		    'Data' => $hit->{bits}
+		   }
+		  ) if exists $hit->{bits};
+
+    for my $hsp (@{$hit->{HSPs}}) {
+
+      $self->start_element( { 'Name' => 'Hsp' } );
+      $self->element({'Name' => 'Hsp_score', 'Data' => $hsp->{'z-sc'}})
+	if exists $hsp->{'z-sc'};
+      $self->element({'Name' => 'Hsp_evalue', 'Data' => $hsp->{evalue} } )
+	if exists $hsp->{evalue};
+      $self->element({'Name' => 'Hsp_evalue2', 'Data' => $hsp->{evalue2} } )
+	if exists $hsp->{evalue2};
+
+      $self->element({'Name' => 'Hsp_bit-score', 'Data' => $hsp->{bits} } )
+	if exists $hsp->{bits};
+      $self->element({'Name' => 'Hsp_sw-score', 'Data' => $hsp->{'n-w'} } )
+	if exists $hsp->{'n-w'};
+      $self->element({'Name' => 'Hsp_sw-score', 'Data' => $hsp->{sw} } )
+	if exists $hsp->{sw};
+      $self->element({'Name' => 'Hsp_gaps', 'Data' => $hsp->{'%_gid'} } )
+	if exists $hsp->{'%_gid'};
+      $self->element({
+		      'Name' => 'Hsp_identity',
+		      'Data' =>
+		      sprintf( "%.0f", $hsp->{'%_id'} * $hsp->{alen} )
+		     }) if ( exists $hsp->{'%_id'} && exists $hsp->{alen} );
+
+      if ( exists $hsp->{'%_gid'} ) {
+	$self->element(
+		       {
+			'Name' => 'Hsp_positive',
+			'Data' =>
+			sprintf( "%.0f", $hsp->{'%_gid'} * $hsp->{alen} )
+		       }
+		      ) if exists $hsp->{'%_gid'} && exists $hsp->{alen};
+      } else {
+	$self->element(
+		       {
+			'Name' => 'Hsp_positive',
+			'Data' =>
+			sprintf( "%.0f", $hsp->{'%_id'} * $hsp->{alen} )
+		       }
+		      ) if ( exists $hsp->{'%_id'} && exists $hsp->{alen} );
+      }
+
+      $self->element(
+		     {
+		      'Name' => 'Hsp_align-len', 'Data' => $hsp->{alen} } )
+	if exists $hsp->{alen};
+      $self->element(
+		     {
+		      'Name' => 'Hsp_query-from', 'Data' => $hsp->{an0} } )
+	if exists $hsp->{an0};
+      $self->element(
+		     {
+		      'Name' => 'Hsp_query-to', 'Data' => $hsp->{ax0} } )
+	if exists $hsp->{ax0};
+      $self->element(
+		     {
+		      'Name' => 'Hsp_hit-from', 'Data' => $hsp->{an1} } )
+	if exists $hsp->{an1};
+      $self->element(
+		     {
+		      'Name' => 'Hsp_hit-to', 'Data' => $hsp->{ax1} } )
+	if exists $hsp->{ax1};
+
+      $self->element(
+		     {
+		      'Name' => 'Hsp_querygaps', 'Data' => $hsp->{qgaps} } )
+	if exists $hsp->{qgaps};
+      $self->element(
+		     {
+		      'Name' => 'Hsp_hitgaps', 'Data' => $hsp->{lgaps} } )
+	if exists $hsp->{lgaps};
+
+      if ( $self->{'_reporttype'} =~ m/^FAST[NXY]$/o ) {
+	if ( 8 == scalar grep { exists $hsp->{$_} }
+	     qw(an0 ax0 pn0 px0 an1 ax1 pn1 px1) ) {
+	  if ( $hsp->{ax0} < $hsp->{an0} ) {
+	    $self->element(
+			   {
+			    'Name' => 'Hsp_query-frame',
+			    'Data' =>
+			    "-@{[(($hsp->{px0} - $hsp->{ax0}) % 3) + 1]}"
+			   }
+			  );
+	  } else {
+	    $self->element(
+			   {
+			    'Name' => 'Hsp_query-frame',
+			    'Data' =>
+			    "+@{[(($hsp->{an0} - $hsp->{pn0}) % 3) + 1]}"
+			   }
+			  );
+	  }
+	  if ( $hsp->{ax1} < $hsp->{an1} ) {
+	    $self->element(
+			   {
+			    'Name' => 'Hsp_hit-frame',
+			    'Data' =>
+			    "-@{[(($hsp->{px1} - $hsp->{ax1}) % 3) + 1]}"
+			   }
+			  );
+	  } else {
+	    $self->element(
+			   {
+			    'Name' => 'Hsp_hit-frame',
+			    'Data' =>
+			    "+@{[(($hsp->{an1} - $hsp->{pn1}) % 3) + 1]}"
+			   }
+		);
+	  }
+	} else {
+	  $self->element(
+			 {
+			  'Name' => 'Hsp_query-frame',
+			  'Data' => $hsp->{lframe}
+			 }
+			);
+	  $self->element(
+			 {
+			  'Name' => 'Hsp_hit-frame', 'Data' => 0 } );
+	}
+      } else {
+	$self->element(
+		       {
+			'Name' => 'Hsp_query-frame', 'Data' => 0 } );
+	$self->element(
+		       {
+			'Name' => 'Hsp_hit-frame',
+			'Data' => $hsp->{lframe}
+		       }
+		      );
+      }
+
+      $self->end_element( { 'Name' => 'Hsp' } );
+    }
+
+    $self->end_element( { 'Name' => 'Hit' } );
+
+  }
+}
+
+
 
 1;
 

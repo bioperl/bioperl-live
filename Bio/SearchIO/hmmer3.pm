@@ -52,7 +52,7 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 the web:
 
-  http://bugzilla.open-bio.org/
+  https://redmine.open-bio.org/projects/bioperl/
 
 =head1 AUTHOR - Thomas Sharpton
 
@@ -80,7 +80,7 @@ use strict;
 use Data::Dumper;
 use Bio::Factory::ObjectFactory;
 use vars qw(%MAPPING %MODEMAP);
-use base qw(Bio::SearchIO);
+use base qw(Bio::SearchIO::hmmer);
 
 BEGIN {
 
@@ -144,30 +144,6 @@ BEGIN {
 sub _initialize {
   my( $self,@args ) = @_;
   $self->SUPER::_initialize(@args);
-  my $handler = $self->_eventHandler;
-  $handler->register_factory(
-      'result',
-      Bio::Factory::ObjectFactory->new(
-	  -type      => 'Bio::Search::Result::hmmer3Result',
-	  -interface => 'Bio::Search::Result::ResultI'
-      )
-  );
-
-  $handler->register_factory(
-      'hit',
-      Bio::Factory::ObjectFactory->new(
-	  -type      => 'Bio::Search::Hit::hmmer3Hit',
-	  -interface => 'Bio::Search::Hit::HitI'
-      )
-  );
-
-  $handler->register_factory(
-      'hsp',
-      Bio::Factory::ObjectFactory->new(
-	-type      => 'Bio::Search::HSP::hmmer3HSP',
-	-interface => 'Bio::Search::HSP::HSPI'
-	)
-  );
   $self->{'_hmmidline'} = 'HMMER 3.0b placeholder';
   $self->{'_alnreport'} = 1; #does report include alignments
 }
@@ -446,7 +422,7 @@ sub next_result{
                                    \s*$!ox
 			       ){
 			       #keeping simple for now. let's customize later
-			       my @vals = ($envstart, $envstop, $hmmstart, $hmmstop, $score, $ceval);
+			       my @vals = ($hmmstart, $hmmstop, $qalistart, $qalistop, $score, $ceval, '', '', '');
 			       my $info = $hit_list[ $hitinfo{$name} ];
 			       if( !defined $info ){
 				   $self->warn(
@@ -466,8 +442,15 @@ sub next_result{
 		   }
 		   elsif ($_ =~ m/Alignments for each domain/ ) {
 		       my $domain_count = 0;
-		       my $count = 0; #line counter
+                       #line counter
+                       my $count = 0;
+                       # There's an optional block, so we sometimes need to
+                       # count to 3, and sometimes to 4.
+                       my $max_count = 3;
 		       my $lastdomain;
+                       my $hsp;
+                       my ($hline, $midline, $qline);
+
 		       while( defined( $_ = $self->_readline ) ) {
 			   if( $_ =~ m/^\>\>/ ||
 			       $_ =~ m/Internal pipeline statistics/){
@@ -481,64 +464,55 @@ sub next_result{
 			   elsif( $_ =~ /\s\s\=\=\sdomain\s(\d+)\s+/){
 			       my $domainnum = $1;
 			       $count = 0;
-
+                               my $key = $name . "_" . $domainnum;
+                               $hsp = $hsp_list[ $hspinfo{$key} ];
+                               $hline = $$hsp[-3];
+                               $midline = $$hsp[-2];
+                               $qline = $$hsp[-1];
 			       $lastdomain = $name;
 			   }
-#Is this block actually depricated with live release or is it an option?
-#If we bring it back in, change correspoding $count values in conditional
-#statements in the code blocks below
-#			   elsif( $count == 0 ){
-#			       #model data track, some reports don't have
-#			       my $modeltrack = $_;
-#			       $count++;
-#			       next;
-#			   }
-			   elsif( $count == 0 ){
-			       #query sequence
-			       my @data = split(" ", $_);
-			       my $seq = $data[-2];
-			       $self->element(
-				   {
-				       'Name' => 'Hsp_hseq',
-				       'Data' => $seq
-				   }
-			       );
+                           # model data track, some reports don't have
+                           elsif( $_ =~ m/\s+\S+\sCS$/ ){
+			       my $modeltrack = $_;
+                               $max_count++;
 			       $count++;
 			       next;
 			   }
-			   elsif( $count == 1 ){
+			   elsif( $count == $max_count - 3 ){
+			       #hit sequence
+			       my @data = split(" ", $_);
+			       my $seq = $data[-2];
+                               $hline .= $seq;
+			       $count++;
+			       next;
+			   }
+			   elsif( $count == $max_count - 2 ){
 			       #conservation track
 			       #storage isn't quite right - need to remove
 			       #leading/lagging whitespace while preserving
 			       #gap data (latter isn't done, former is)
 			       $_ =~ s/^\s+//;
 			       $_ =~ s/\s+$//;
-			       $self->element(
-				   {
-				       'Name' => 'Hsp_midline',
-				       'Data' => $_
-				   }
-			       );
+                               $midline .= $_;
 			       $count++;
 			       next;
 			   }
-			   elsif( $count == 2 ){
+			   elsif( $count == $max_count - 1 ){
 			       #query track
 			       my @data = split(" ", $_);
 			       my $seq = $data[-2];
-			       $self->element(
-				   {
-				       'Name' => 'Hsp_qseq',
-				       'Data' => $seq
-				   }
-			       );
+                               $qline .= $seq;
 			       $count++;
 			       next;
 			   }
-			   elsif( $count == 3 ){
+			   elsif( $count == $max_count ){
 			       #pval track
 			       my $pvals = $_;
 			       $count = 0;
+                               $max_count = 3;
+                               $$hsp[-3] = $hline;
+                               $$hsp[-2] = $midline;
+                               $$hsp[-1] = $qline;
 			       next;
 			   }
 			   else{
@@ -630,6 +604,18 @@ sub next_result{
                                } );
                            $self->element( {
                                    'Name' => 'Hsp_evalue',
+                                   'Data' => shift @$hsp
+                               } );
+                           $self->element( {
+                                   'Name' => 'Hsp_hseq',
+                                   'Data' => shift @$hsp
+                               } );
+                           $self->element( {
+                                   'Name' => 'Hsp_midline',
+                                   'Data' => shift @$hsp
+                               } );
+                           $self->element( {
+                                   'Name' => 'Hsp_qseq',
                                    'Data' => shift @$hsp
                                } );
                            $self->end_element( { 'Name' => 'Hsp' } );
