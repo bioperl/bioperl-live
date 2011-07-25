@@ -41,6 +41,7 @@ Jason Stajich E<lt>jason-at-bioperl-dot-orgE<gt>
 =cut
 
 use strict;
+use warnings;
 
 use Bio::PopGen::IO;
 use Bio::PopGen::Statistics;

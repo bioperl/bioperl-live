@@ -3,6 +3,7 @@
 use lib '.';
 
 use strict;
+use warnings;
 use Bio::DB::GFF;
 use Getopt::Long;
 

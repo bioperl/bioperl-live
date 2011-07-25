@@ -197,6 +197,7 @@ Don Gilbert (gilbertd@indiana.edu)
 =cut
 
 use strict;
+use warnings;
 
 use lib "$ENV{HOME}/bioperl-live";
 # chad put this here to enable situations when this script is tested

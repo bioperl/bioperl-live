@@ -96,6 +96,7 @@ Ewan Birney E<lt>birney@ebi.ac.ukE<gt>
 
 #'
 use strict;
+use warnings;
 
 #
 # Doofus catcher for people who are trying this script without

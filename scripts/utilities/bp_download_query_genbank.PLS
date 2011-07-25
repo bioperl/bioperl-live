@@ -41,6 +41,7 @@ Jason Stajich, jason-AT-bioperl.org
 =cut
 
 use strict;
+use warnings;
 use Bio::DB::GenBank;
 use Bio::DB::GenPept;
 use Bio::DB::Query::GenBank;

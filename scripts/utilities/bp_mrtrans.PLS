@@ -41,6 +41,7 @@ Jason Stajich, jason-at-bioperl-dot-org
 =cut
 
 use strict;
+use warnings;
 use Bio::Align::Utilities qw(aa_to_dna_aln);
 use Bio::AlignIO;
 use Bio::SeqIO;

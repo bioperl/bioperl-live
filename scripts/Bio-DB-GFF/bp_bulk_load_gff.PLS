@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
+use warnings;
 # use lib './blib/lib';
 use DBI;
 use IO::File;

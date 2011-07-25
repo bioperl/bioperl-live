@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 use strict;
+use warnings;
 use Bio::DB::Taxonomy;
 
 use strict;

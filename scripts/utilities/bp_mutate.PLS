@@ -49,6 +49,7 @@ Brian Osborne, bosborne at alum.mit.edu
 =cut
 
 use strict;
+use warnings;
 use Getopt::Long;
 use Bio::SeqIO;
 

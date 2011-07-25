@@ -54,6 +54,7 @@ USAGE
 }
 
 use strict;
+use warnings;
 
 foreach (@ARGV) {
   $_ = "gunzip -c $_ |" if /\.gz$/;

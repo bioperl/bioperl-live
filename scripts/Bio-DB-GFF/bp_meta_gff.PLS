@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
+use warnings;
 use DBI;
 use Getopt::Long;
 use Bio::DB::GFF;
