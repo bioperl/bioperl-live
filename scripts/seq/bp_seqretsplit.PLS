@@ -45,6 +45,7 @@ Jason Stajich E<lt>jason_AT_bioperl_DOT_orgE<gt>
 =cut
 
 use strict;
+use warnings;
 use Bio::SeqIO;
 my $in = Bio::SeqIO->new(-format => 'fasta',
 			 -fh   => \*ARGV);

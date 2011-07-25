@@ -1,5 +1,6 @@
-#!perl -w
+#!perl
 use strict;
+use warnings;
 use Carp;
 
 use Bio::SeqIO;

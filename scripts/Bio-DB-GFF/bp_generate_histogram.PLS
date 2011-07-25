@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
+use warnings;
 use lib '.','./blib','../../blib/lib';
 use Bio::DB::GFF;
 use Getopt::Long;

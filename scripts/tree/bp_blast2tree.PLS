@@ -13,6 +13,7 @@
 # starting point which needs a lot more work to be made robust.
 
 use strict;
+use warnings;
 use Bio::AlignIO;
 use Bio::Tools::Run::Alignment::Clustalw;
 use Bio::Tools::Run::Phylo::Phylip::ProtDist;

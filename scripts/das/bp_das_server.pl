@@ -3,6 +3,7 @@
 # minimal annotation server
 
 use strict;
+use warnings;
 use Apache::DBI;
 use Bio::DB::GFF;
 use CGI qw/header path_info param url request_method/;

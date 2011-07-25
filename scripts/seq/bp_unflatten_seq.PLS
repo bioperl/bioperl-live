@@ -1,5 +1,6 @@
-#!perl -w
+#!perl
 use strict;
+use warnings;
 # Author Chris Mungall <cjm-at-bioperl.org>
 
 =head1 NAME

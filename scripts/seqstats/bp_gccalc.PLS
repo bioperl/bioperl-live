@@ -1,6 +1,7 @@
-#!perl -w
+#!perl
 
 use strict;
+use warnings;
 
 use Bio::SeqIO;
 use Bio::Tools::SeqStats;

@@ -2,6 +2,7 @@
 
 use constant ACEDB => 'sace://aceserver.cshl.org:2005'; 
 use strict;
+use warnings;
 use Ace;
 
 my @framework = qw(mex-3 spe-15 lin-17 unc-11 dhc-1 unc-40 smg-5

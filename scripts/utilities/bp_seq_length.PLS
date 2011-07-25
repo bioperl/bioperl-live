@@ -1,4 +1,4 @@
-#!perl -w
+#!perl
 
 =head1 NAME
 
@@ -44,6 +44,7 @@ Jason Stajich E<lt>jason@bioperl.orgE<gt>
 =cut
 
 use strict;
+use warnings;
 use Bio::SeqIO;
 use Getopt::Long;
 

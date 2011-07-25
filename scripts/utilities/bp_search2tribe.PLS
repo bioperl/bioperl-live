@@ -1,4 +1,4 @@
-#!perl -w
+#!perl
 
 # Author:      Jason Stajich <jason-at-bioperl-dot-org>
 # Description: Turn SearchIO parseable report(s) into a TRIBE matrix
@@ -43,6 +43,7 @@ Jason Stajich, jason-at-bioperl-dot-org
 =cut
 
 use strict;
+use warnings;
 use Bio::SearchIO;
 use Bio::SearchIO::FastHitEventBuilder; # employ a speedup
 use Getopt::Long;
