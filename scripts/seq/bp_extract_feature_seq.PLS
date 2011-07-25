@@ -46,15 +46,15 @@ use Getopt::Long;
 my ($input,$format,$featuretype,$output);
 $featuretype ='CDS';
 GetOptions(
-	   'i|input:s' => \$input,
-	   'format:s'  => \$format,
-	   'feature:s' => \$featuretype,
-	   'o|output:s'=> \$output);
+           'i|input:s' => \$input,
+           'format:s'  => \$format,
+           'feature:s' => \$featuretype,
+           'o|output:s'=> \$output);
 
 $input || shift if @ARGV;
 
 my $in = new Bio::SeqIO(-file => $input,
-			-format => $format);
+                        -format => $format);
 my $out;
 if ($output ) {
     $out = new Bio::SeqIO(-file => ">$output");
@@ -63,22 +63,20 @@ if ($output ) {
 }
 
 my $count = 1;
-while( my $seq = $in->next_seq ) {    
-    foreach my $f ( grep { $_->primary_tag =~ /$featuretype/i } 
-		    $seq->get_SeqFeatures ) {
-	my $s = $f->spliced_seq;
-	if( $featuretype =~ /gene|CDS/ ) {
-	    $s->display_id($f->has_tag('gene') ? join(',',sort $f->each_tag_value('gene')) :
-			   $f->has_tag('label') ? join(',',$f->each_tag_value('label')): 
-			   $s->display_id);
-	} else {
-	    $s->display_id(sprintf("%s_%s_%d",
-				   $seq->display_id, 
-				   $f->primary_tag,
-				   $count++));
-	}
-	$out->write_seq($s);
+while( my $seq = $in->next_seq ) {
+    foreach my $f ( grep { $_->primary_tag =~ /$featuretype/i }
+                    $seq->get_SeqFeatures ) {
+        my $s = $f->spliced_seq;
+        if( $featuretype =~ /gene|CDS/ ) {
+            $s->display_id($f->has_tag('gene') ? join(',',sort $f->each_tag_value('gene')) :
+                           $f->has_tag('label') ? join(',',$f->each_tag_value('label')): 
+                           $s->display_id);
+        } else {
+            $s->display_id(sprintf("%s_%s_%d",
+                                   $seq->display_id,
+                                   $f->primary_tag,
+                                   $count++));
+        }
+        $out->write_seq($s);
     }
 }
-
-__END__
