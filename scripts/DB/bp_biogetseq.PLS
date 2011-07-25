@@ -1,4 +1,4 @@
-#!perl -w
+#!perl
 #
 # OBDA Registry compliant sequence retrieval script
 #
@@ -10,6 +10,7 @@ use Bio::DB::Registry;
 use Bio::SeqIO;
 use Getopt::Long;
 use strict;
+use warnings;
 
 my ($help, $format, $namespace, $dbname) = ('', 'embl', 'acc', 'embl');
 GetOptions ("help" => \$help, "format=s" => \$format,

@@ -1,6 +1,7 @@
-#!perl -w
+#!perl
 
 use strict;
+use warnings;
 use Getopt::Long;
 use Bio::SeqIO;
 

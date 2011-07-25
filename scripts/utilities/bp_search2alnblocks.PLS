@@ -1,4 +1,4 @@
-#!perl -w
+#!perl
 # Author:      Jason Stajich <jason-at-bioperl-dot-org>
 # Description: Turn SearchIO parseable report(s) into a set of Aligned blocks
 #
@@ -48,6 +48,7 @@ Jason Stajich, jason-at-bioperl-dot-org.
 
 
 use strict;
+use warnings;
 
 use Bio::SearchIO;
 use Bio::AlignIO;

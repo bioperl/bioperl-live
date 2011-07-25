@@ -1,7 +1,8 @@
-#!perl -w
+#!perl
 
 # dbfetch style caching proxy for GenBank
 use strict;
+use warnings;
 use CGI qw(:standard);
 use HTTP::Request::Common;
 use LWP::UserAgent;

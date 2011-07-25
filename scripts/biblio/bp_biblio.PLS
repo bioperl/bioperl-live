@@ -1,4 +1,4 @@
-#!perl -w
+#!perl
 #
 #   A client showing how to use Bio::Biblio module, a module for
 #   accessing and querying a bibliographic repository.
@@ -19,6 +19,7 @@
 #-----------------------------------------------------------------------------
 
 use strict;
+use warnings;
 
 sub get_usage {
     exec('perldoc',$0);

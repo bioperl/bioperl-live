@@ -1,4 +1,4 @@
-#!perl -w
+#!perl
 
 # Author:      Jason Stajich <jason-at-bioperl-dot-org>
 # Description: Turn SearchIO parseable report(s) into a GFF report
@@ -37,6 +37,7 @@ Jason Stajich, jason-at-bioperl-dot-org
 =cut
 
 use strict;
+use warnings;
 use Getopt::Long;
 use Bio::SearchIO;
 

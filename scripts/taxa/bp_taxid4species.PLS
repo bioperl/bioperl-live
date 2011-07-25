@@ -1,4 +1,4 @@
-#!perl -w
+#!perl
 # Author:  Jason Stajich <jason@bioperl.org>
 # Purpose: Retrieve the NCBI Taxa ID for organism(s)
 
@@ -8,6 +8,7 @@
 use LWP::UserAgent;
 use XML::Twig;
 use strict;
+use warnings;
 use Getopt::Long;
 my $verbose = 0;
 my $plain   = 0;

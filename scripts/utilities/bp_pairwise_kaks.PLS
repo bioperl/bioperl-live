@@ -1,5 +1,6 @@
-#!perl -w
+#!perl
 use strict;
+use warnings;
 # Author Jason Stajich <jason-at-bioperl-dot-org>
 
 =head1 NAME

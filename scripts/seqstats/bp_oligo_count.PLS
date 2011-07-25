@@ -1,4 +1,4 @@
-#!perl -w
+#!perl
 #
 # oligomer_freq.pl
 # We use this to determine what primers are useful for frequent priming of
@@ -20,6 +20,7 @@ use Getopt::Long;
 #########################
 
 use strict;
+use warnings;
 
 my ($format, $infile, $help, $outfile, $oligomerlength) = ('fasta');
 GetOptions(

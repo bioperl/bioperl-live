@@ -1,4 +1,4 @@
-#!perl -w
+#!perl
 
 =head1 NAME
 
@@ -24,6 +24,7 @@ Convert Nexus Tree files into Newick/New Hampshire format tree files.
 =cut
 
 use strict;
+use warnings;
 use Bio::TreeIO;
 use Getopt::Long;
 
