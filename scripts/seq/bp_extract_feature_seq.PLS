@@ -1,6 +1,8 @@
 #!perl
 use strict;
 use warnings;
+use Bio::SeqIO;
+use Getopt::Long;
 # Author Jason Stajich <jason@bioperl.org>
 
 =head1 NAME
@@ -9,11 +11,32 @@ bp_extract_feature_seq - extract the corresponding sequence for a specified feat
 
 =head1 SYNOPSIS
 
-bp_extract_feature_seq.PLS -i file --format genbank --feature=CDS -o output.fa
+bp_extract_feature_seq [--format FORMAT] [--feature CDS] [--output FILE] [--input] FILE
 
-=head1 DESCRIPTION 
+=head1 DESCRIPTION
 
 This script will extract the sequence for all the features you specify.
+
+=head1 OPTIONS
+
+=over
+
+=item B<-i>, B<--input>
+
+Specifies the sequence file to be read.
+
+=item B<--format>
+
+Format of the file specifed by B<--input>. If not given, it will try to guess the
+correct format from the file extension.
+
+=item B<--feature>
+
+Feature to be extracted. By default, it extracts the CDS feature.
+
+=item B<-o>, B<--output>
+
+File where the extracted features will be saved. If not specified, STDOUT is used.
 
 =head1 FEEDBACK
 
@@ -21,10 +44,10 @@ This script will extract the sequence for all the features you specify.
 
 User feedback is an integral part of the evolution of this and other
 Bioperl modules. Send your comments and suggestions preferably to
-the Bioperl mailing list.  Your participation is much appreciated.
+the Bioperl mailing list. Your participation is much appreciated.
 
-  bioperl-l@bioperl.org                  - General discussion
-  http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
+  L<bioperl-l@bioperl.org>                  - General discussion
+  L<http://bioperl.org/wiki/Mailing_lists>  - About the mailing lists
 
 =head2 Reporting Bugs
 
@@ -32,16 +55,13 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 of the bugs and their resolution. Bug reports can be submitted via
 email or the web:
 
-  https://redmine.open-bio.org/projects/bioperl/
+  L<https://redmine.open-bio.org/projects/bioperl/>
 
 =head1 AUTHOR
 
- Jason Stajich E<lt>jason-at-bioperl-dot-orgE<gt>
+ Jason Stajich <jason-at-bioperl-dot-org>
 
 =cut
-
-use Bio::SeqIO;
-use Getopt::Long;
 
 my ($input,$format,$featuretype,$output);
 $featuretype ='CDS';
