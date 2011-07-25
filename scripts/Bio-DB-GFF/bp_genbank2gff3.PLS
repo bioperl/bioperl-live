@@ -1551,7 +1551,7 @@ sub options_cycle {
     {
 	# eval throws redefined warning that breaks formatting. 
 	# Turning off warnings just for the eval to fix this.
-	local $^W = 0;
+	no warnings 'redefine';
 	eval $format;
     }
 
@@ -1613,7 +1613,7 @@ sub options_cycle {
 	{
 	    # eval throws redefined warning that breaks formatting. 
 	    # Turning off warnings just for the eval to fix this.
-	    local $^W = 0;
+	    no warnings 'redefine';
 	    eval $format;
 	}
 	write;
@@ -2124,7 +2124,7 @@ matching entries until you edit the curation.ini file.";
     {
 	# eval throws redefined warning that breaks formatting. 
 	# Turning off warnings just for the eval to fix this.
-	local $^W = 0;
+	no warnings 'redefine';
 	eval $format;
     }
 
