@@ -31,6 +31,7 @@ Email bix@sendu.me.uk
 =cut
 
 use strict;
+use warnings;
 use Bio::DB::Taxonomy;
 use Bio::TreeIO;
 use Bio::Tree::Compatible;

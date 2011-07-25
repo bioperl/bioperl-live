@@ -51,6 +51,7 @@ Jason Stajich jason_at_bioperl-dot-org
 =cut
 
 use strict;
+use warnings;
 use Getopt::Long;
 my $hitsection = 0;
 my %data;

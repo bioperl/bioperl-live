@@ -2,6 +2,7 @@
 # AUTHOR: malcolm.cook@stowers-institute.org
 
 use strict;
+use warnings;
 
 use Carp;
 use Getopt::Long;

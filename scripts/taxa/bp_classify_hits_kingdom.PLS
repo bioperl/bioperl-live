@@ -51,6 +51,7 @@ Jason Stajich jason_at_bioperl_dot_org
 =cut
 
 use strict;
+use warnings;
 use Bio::DB::Taxonomy;
 use DBI;
 use Env;

@@ -29,6 +29,7 @@ Jason Stajich jason-at-bioperl-dot-org
 =cut
 
 use strict;
+use warnings;
 use Bio::DB::Taxonomy;
 use Getopt::Long;
 

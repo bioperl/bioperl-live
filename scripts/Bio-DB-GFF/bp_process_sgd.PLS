@@ -4,6 +4,7 @@
 # See http://db.yeastgenome.org/schema/Schema.html
 
 use strict;
+use warnings;
 
 # hard-coded length data that I couldn't get directly
 my %CHROMOSOMES = (I => 230_203,

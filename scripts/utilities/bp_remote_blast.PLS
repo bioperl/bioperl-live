@@ -12,6 +12,7 @@
 # POD documentation - main docs after the code
 
 use strict;
+use warnings;
 use vars qw($USAGE);
 
 use Bio::Tools::Run::RemoteBlast;

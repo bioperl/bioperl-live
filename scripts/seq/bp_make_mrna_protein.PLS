@@ -1,4 +1,4 @@
-#!perl -w
+#!perl
 #
 =head1 NAME
 
@@ -32,6 +32,7 @@ and the translate() method
 =cut
 
 use strict;
+use warnings;
 use Bio::SeqIO;
 use Getopt::Long;
 

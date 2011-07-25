@@ -151,6 +151,7 @@ Mark A. Jensen  E<lt>maj@fortinbras.usE<gt>
 
 $|=1;
 use strict;
+use warnings;
 use Term::ReadLine;
 use Bio::DB::HIV;
 use Bio::DB::Query::HIVQuery;

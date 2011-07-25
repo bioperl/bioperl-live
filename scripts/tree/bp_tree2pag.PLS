@@ -1,4 +1,4 @@
-#!perl -w
+#!perl
 
 =head1 NAME
 
@@ -25,6 +25,7 @@ so.  Also Pagel parsing is not yet available in bioperl.
 =cut
 
 use strict;
+use warnings;
 use Bio::TreeIO;
 use Getopt::Long;
 my ($iformat,$oformat) = ('newick', 'pag');

@@ -1,4 +1,4 @@
-#!perl -w
+#!perl
 
 # Author Jason Stajich <jason-at-bioperl-dot-org>
 # 
@@ -41,6 +41,7 @@ Jason Stajich, jason-at-bioperl-dot-org
 =cut
 
 use strict;
+use warnings;
 use Bio::SeqIO;
 use Getopt::Long;
 

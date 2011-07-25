@@ -1,4 +1,4 @@
-#!perl -w
+#!perl
 #-*-Perl-*-
 
 =head1 NAME
@@ -56,6 +56,7 @@ Jason Stajich, jason-at-bioperl-dot-org
 =cut
 
 use strict;
+use warnings;
 use Bio::SeqIO;
 use Bio::SeqIO::MultiFile;
 

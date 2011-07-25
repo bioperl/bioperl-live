@@ -38,6 +38,7 @@ email or the web:
 =cut
 
 use strict;
+use warnings;
 use Bio::SearchIO;
 use Getopt::Long;
 

@@ -44,6 +44,7 @@ corresponding options are not provided:
 =cut
 
 use strict;
+use warnings;
 use Bio::Root::Root;
 use Bio::Root::IO;
 use Bio::DB::Flat;
