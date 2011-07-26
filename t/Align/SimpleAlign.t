@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 211 );
+    test_begin( -tests => 214 );
 
     use_ok('Bio::SimpleAlign');
     use_ok('Bio::AlignIO');
@@ -739,7 +739,7 @@ my $g =
   Bio::LocatableSeq->new( -id => 'g', -seq => 'atgc', -start => 5, -end => 8 );
 my $h = Bio::LocatableSeq->new(
     -id    => 'h',
-    -seq   => '-tcg',
+    -seq   => 't-cg',
     -start => 30,
     -end   => 32
 );
@@ -758,9 +758,9 @@ foreach my $seq ( $removed->next_Seq ) {
         is $seq->seq,   'a';
     }
     elsif ( $seq->id eq 'h' ) {
-        is $seq->start, 0;
-        is $seq->end,   0;
-        is $seq->seq,   '-';
+        is $seq->start, 30;
+        is $seq->end,   30;
+        is $seq->seq,   't';
     }
 }
 
