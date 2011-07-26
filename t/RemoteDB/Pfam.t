@@ -61,13 +61,13 @@ SKIP: {
 	skip("Bio::DB::Align::Pfam HTTP error:$@", 8) if $@;
 	is $aln2->id,"Piwi";
 	is $aln2->accession,"PF02171";
-	is $aln2->length,"1030";
-	is $aln2->num_sequences,"756";
+	is $aln2->length,"1098";
+	is $aln2->num_sequences,"842";
 	is $aln2->gap_char,".";
 	is $aln2->source,"stockholm";
 	
 	my $seq=$aln2->get_Seq_by_pos(1);
-	is $seq->seq,"............................................................................................L.IVTFINE..KDKDR.IYGQMKKY.CF...QE..H..GISHQNILS.K..F.LKSKNP.................SSVASKIAQ.......QMSMK..........LGNP......LWA.IPKP.NG........I......................S.....D.K..T.M..................................VIGIDIYHKLLTN.................RRSCMGFVAYLE...S...E.C.L...N....T.F.....ARP.I...IM.....K..........E.......G....Q...EM......CHE....VGR...................................................I.TVEAISA.Y...........FE......R.....N...........G........K.........K..YLPD...TIIVFR...............DGVGNAQIEALKQTEILQM.KNA.IR........................SIN...KNYN......PQFAVI.MINK..KIN..DR.......F.FMVNGGGGQN..............................QQKQTLSNP....P.S......GSVI.........AD.KI.T.....SS.......N......F...D..Y.FIT......A......Q..Y.V..T......Q.....GTC...TPTHYRVL..ENDT..................NW.S.EE...L......F....WQF...............TYY.Q.CFNY.QNW.T....GAVRV..................PSCVQYAHKLAYLIGDTY.Q..................................................................";
+	is $seq->seq,"............................................................................................L.IVTFINE..KDKDR.IYGQMKKY.CF...QE..H..GISHQNILS.K..F.LKSKNP.................SSVASKIAQ.......QMSMK..........LGNP.......LWA.I....PKP.NG........I......................S.....D.K..T.M..................................VIGIDIYHKLLTN.................RR..SCMGFVAYLE...S...E.C.L...N....T.F.....A.RP..I...IM.....K..........E.......G....Q...EM......CHE....VGR...................................................I.TVEAISA.Y...........FE......R.....N...........G........K.........K..YLPD...TIIVFR...............DGVGNAQIEALKQTEILQM.KN.A.IR........................SIN...KNYN......PQFAVI.MINK..KIN..DR.......F.FMVNGGGGQN..............................QQKQTLSNP....P.S......GSVI.......................AD.KI.T.....SS..........N......F....D..Y.FIT......A......Q..Y..V..T......Q.....GTC...TPTHY..RV..L..ENDT..................NW.S.EE...L......F....WQ....F...............TYY.Q.CFNY..QN.W.T....GAVRV........................PSCVQYAHKLAYLIGDTY.Q.........................................................................................";
 	is $seq->display_id,"A0CB11_PARTE";
 }
 
@@ -97,6 +97,6 @@ SKIP: {
 	is $aln4->num_sequences,"74";
 	
 	my $seq3=$aln4->get_Seq_by_pos(1);
-	is $seq3->seq,"CKPHKR--P--VC------GSNGK---TYLN--HCELHRDACLT-----------GSK--IQVDYDGH-C";
-	is $seq3->get_nse,"FSTL1_MOUSE/56-96";
+	is $seq3->seq,"CPEPTSS-EQYLC------GNDGV---TYSS--ACHLRKATCLL-----------GRS--IGLAYEGK-C";
+	is $seq3->get_nse,"FST_PIG/196-239";
 }
