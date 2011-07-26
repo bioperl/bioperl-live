@@ -125,7 +125,7 @@ use vars qw(%FORMATS %ALNTYPE $HOSTBASE $TIMEOUT);
 use base qw(Bio::Root::Root Bio::Root::IO Bio::DB::GenericWebAgent);
 
 BEGIN {
-	$HOSTBASE = 'http://expasy.org';
+	$HOSTBASE = 'http://prosite.expasy.org';
 	%FORMATS=qw(fasta 1 clustalw 1); #supported formats in Prosite
 	$TIMEOUT=1000;
 }
