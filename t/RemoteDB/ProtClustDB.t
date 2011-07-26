@@ -27,7 +27,7 @@ my $email = test_email();
 #test calling from Bio::DB::Align
 SKIP: {
 	my ($dbobj, $aln);
-	ok $dbobj=Bio::DB::Align->new(-db=>"ProtClustDB",-email=>$email), 'Bio::DB::Align::Pfam';
+	ok $dbobj=Bio::DB::Align->new(-db=>"ProtClustDB",-email=>$email), 'Bio::DB::Align::ProtClustDB';
 	eval{$aln=$dbobj->get_Aln_by_id("2725839")};
 	skip("Bio::DB::Align::ProtClustDB HTTP error:$@", 8) if $@;
 	
