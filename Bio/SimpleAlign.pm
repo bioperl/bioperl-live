@@ -138,7 +138,7 @@ Weigang Qiu, Weigang at GENECTR-HUNTER-CUNY-EDU
 Hongyu Zhang, forward at hongyu.org
 Jay Hannah, jay at jays.net
 Alexandr Bezginov, albezg at gmail.com
-Jun Yin, jun dot yin at ucd dot ie
+Jun Yin, jun.yin at ucd.ie
 
 =head1 SEE ALSO
 
@@ -3474,18 +3474,6 @@ sub feature_count {
         return 0;
     }
 }
-
-=head2 get_all_SeqFeatures
-
- Title   : get_all_SeqFeatures
- Usage   : 
- Function: Get all SeqFeatures.
- Example :
- Returns : an array of Bio::SeqFeatureI implementing objects
- Args    : none
- Note    : Falls through to Bio::FeatureHolderI implementation.
-
-=cut
 
 =head2 methods for Bio::AnnotatableI
 
