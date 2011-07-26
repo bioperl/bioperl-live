@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
+use warnings;
 
 ## Used to output the 'usage' message
 use Pod::Usage;

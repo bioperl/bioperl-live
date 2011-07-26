@@ -34,6 +34,7 @@ Jason Stajich jason_AT_bioperl-dot-org
 =cut
 
 use strict;
+use warnings;
 use Bio::DB::Fasta;
 use Bio::SeqIO;
 use Getopt::Long;

@@ -6,6 +6,7 @@
 #          the application guess.
 
 use strict;
+use warnings;
 use Bio::SeqIO;
 use Bio::AlignIO;
 use Getopt::Long;
