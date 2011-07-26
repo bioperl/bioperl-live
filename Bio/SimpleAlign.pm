@@ -1975,7 +1975,7 @@ sub _consensus_counts {
     my $point = shift;
     my %hash;
     my $gapchar = $self->gap_char;
-    foreach my $seq ( $self->each_seq() ) {
+    foreach my $seq ( $self->next_Seq() ) {
         my $letter = substr($seq->seq,$point,1);
         $self->throw("--$point-----------") if $letter eq '';
         ($letter eq $gapchar || $letter =~ /\./) && next;
