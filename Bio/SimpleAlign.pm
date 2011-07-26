@@ -1946,6 +1946,43 @@ sub _consensus_aa {
     return $letter;
 }
 
+=head2 consensus_conservation
+
+ Title     : consensus_conservation
+ Usage     : @conservation = $ali->consensus_conservation();
+ Function  : Conservation (as a percent) of each position of alignment
+ Returns   : Array of percentages [0-100]. Gap columns are 0% conserved.
+ Argument  : 
+ 
+=cut
+
+sub consensus_conservation {
+    my $self = shift;
+    my @cons;
+    my $num_sequences = $self->num_sequences;
+    foreach my $point (0..$self->length-1) {
+        my %hash = $self->_consensus_counts($point);
+        # max frequency of a non-gap letter
+        my $max = (sort {$b<=>$a} values %hash )[0];
+        push @cons, 100 * $max / $num_sequences;
+    }
+    return @cons; 
+}
+
+# Frequency of each letter in one column
+sub _consensus_counts {
+    my $self = shift;
+    my $point = shift;
+    my %hash;
+    my $gapchar = $self->gap_char;
+    foreach my $seq ( $self->each_seq() ) {
+        my $letter = substr($seq->seq,$point,1);
+        $self->throw("--$point-----------") if $letter eq '';
+        ($letter eq $gapchar || $letter =~ /\./) && next;
+        $hash{$letter}++;
+    }
+    return %hash;
+}
 
 =head2 consensus_iupac
 
@@ -2588,7 +2625,6 @@ sub gap_char {
 
 =head2 mask_char
 
-<<<<<<< HEAD
  Title     : mask_char
  Usage     : $aln->mask_char('?')
  Function  : Gets/sets the mask_char attribute of the alignment
@@ -2605,97 +2641,15 @@ sub mask_char {
 		$char= '?' unless defined $char;
 		$self->throw("Single mask character, not [$char]!") if CORE::length($char) > 1;
 		$self->{'_mask_char'} = $char;
-=======
- Title     : consensus_string
- Usage     : $str = $ali->consensus_string($threshold_percent)
- Function  : Makes a strict consensus
- Returns   : Consensus string
- Argument  : Optional threshold ranging from 0 to 100.
-             The consensus residue has to appear at least threshold %
-             of the sequences at a given location, otherwise a '?'
-             character will be placed at that location.
-             (Default value = 0%)
-
-=cut
-
-sub consensus_string {
-    my $self = shift;
-    my $threshold = shift;
-
-    my $out = "";
-    my $len = $self->length - 1;
-
-    foreach ( 0 .. $len ) {
-	$out .= $self->_consensus_aa($_,$threshold);
-    }
-    return $out;
-}
-
-=head2 consensus_conservation
-
- Title     : consensus_conservation
- Usage     : @conservation = $ali->consensus_conservation();
- Function  : Conservation (as a percent) of each position of alignment
- Returns   : Array of percentages [0-100]. Gap columns are 0% conserved.
- Argument  : 
- 
-=cut
-
-sub consensus_conservation {
-    my $self = shift;
-    my @cons;
-    my $num_sequences = $self->num_sequences;
-    foreach my $point (0..$self->length-1) {
-        my %hash = $self->_consensus_counts($point);
-        # max frequency of a non-gap letter
-        my $max = (sort {$b<=>$a} values %hash )[0];
-        push @cons, 100 * $max / $num_sequences;
-    }
-    return @cons; 
-}
-
-sub _consensus_aa {
-    my $self = shift;
-    my $point = shift;
-    my $threshold_percent = shift || -1 ;
-    my ($seq,%hash,$count,$letter,$key);
-    my $gapchar = $self->gap_char;
-    %hash = $self->_consensus_counts($point);
-    my $number_of_sequences = $self->num_sequences();
-    my $threshold = $number_of_sequences * $threshold_percent / 100. ;
-    $count = -1;
-    $letter = '?';
-
-    foreach $key ( sort keys %hash ) {
-	# print "Now at $key $hash{$key}\n";
-	if( $hash{$key} > $count && $hash{$key} >= $threshold) {
-	    $letter = $key;
-	    $count = $hash{$key};
->>>>>>> 1681f9f54f836943fd370737f049afb4ef59f3c0
 	}
 	return $self->{'_mask_char'};
-}
+}		
+		
+		
 
-<<<<<<< HEAD
+
+
 =head2 symbol_chars
-=======
-# Frequency of each letter in one column
-sub _consensus_counts {
-    my $self = shift;
-    my $point = shift;
-    my %hash;
-    my $gapchar = $self->gap_char;
-    foreach my $seq ( $self->each_seq() ) {
-        my $letter = substr($seq->seq,$point,1);
-        $self->throw("--$point-----------") if $letter eq '';
-        ($letter eq $gapchar || $letter =~ /\./) && next;
-        $hash{$letter}++;
-    }
-    return %hash;
-}
-
->>>>>>> 1681f9f54f836943fd370737f049afb4ef59f3c0
-
  Title   : symbol_chars
  Usage   : my @symbolchars = $aln->symbol_chars;
  Function: Returns all the seen symbols (other than gaps)
