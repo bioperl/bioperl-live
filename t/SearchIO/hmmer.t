@@ -7,7 +7,7 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 295);
+    test_begin(-tests => 299);
 
 	use_ok('Bio::SearchIO');
 }
@@ -201,7 +201,7 @@ is($hsp->seq_str, 'CGV-GFIADVNNVANHKIVVQALEALTCMEHRGACSADRDSGDGAGITTAIPWNLFQKSLQ
 $searchio = Bio::SearchIO->new(-format  => 'hmmer',
                                -file    => test_input_file('hmmscan.out'),
                                -verbose => 1);
-
+is(ref($searchio), 'Bio::SearchIO::hmmer3', 'Check if correct searchio object is returned');
 while( my $result = $searchio->next_result ) {
     is(ref($result),'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
     is($result->algorithm, 'HMMSCAN', 'Check algorithm');
@@ -390,3 +390,13 @@ $searchio = Bio::SearchIO->new(-format  => 'hmmer',
                                -version => 3);
 is(ref($searchio), 'Bio::SearchIO::hmmer3', 'Check if selecting the correct hmmsearch3 parser using -version works');
 is(ref($searchio->next_result), 'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
+
+my $pipestr = "cat " . test_input_file('hmmpfam.out') . " |";
+open(my $pipefh, $pipestr);
+
+$searchio = Bio::SearchIO->new(-format => 'hmmer',
+                               -fh     => $pipefh);
+is(ref($searchio), 'Bio::SearchIO::hmmer2', 'Check if reading from a pipe works');
+my $result = $searchio->next_result;
+is(ref($result), 'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
+is($result->num_hits(), 2, 'Check num_hits');
