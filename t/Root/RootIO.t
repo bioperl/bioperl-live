@@ -116,8 +116,8 @@ my $rio1 =
 my $line1 = $rio->_readline;
 my $line2 = $rio->_readline;
 
-ok $rio->_pushback($line1);
 ok $rio->_pushback($line2);
+ok $rio->_pushback($line1);
 
 my $line3 = $rio->_readline;
 my $line4 = $rio->_readline;

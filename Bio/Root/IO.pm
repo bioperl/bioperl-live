@@ -610,7 +610,7 @@ sub _readline {
 sub _pushback {
     my ($obj, $value) = @_;
     return unless $value;
-    push @{$obj->{'_readbuffer'}}, $value;
+    unshift @{$obj->{'_readbuffer'}}, $value;
 }
 
 =head2 close
