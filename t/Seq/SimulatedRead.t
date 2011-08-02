@@ -7,7 +7,7 @@ use warnings;
 BEGIN { 
     use lib '.';
     use Bio::Root::Test;
-    test_begin(-tests => 160);
+    test_begin(-tests => 170);
 
     use_ok('Bio::Seq');
     use_ok('Bio::Seq::Quality');
@@ -54,6 +54,7 @@ is $read->end, 12;
 is $read->seq, 'TAAAAAAACCCC';
 is $read->track, 0;
 is $read->desc, undef;
+is $read->revcom->seq, 'GGGGTTTTTTTA';
 
 ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -track => 1 );
 is $read->start, 1;
@@ -70,6 +71,7 @@ is $read->seq, 'TAAAAAAACCCC';
 is join(' ', @{$read->qual}), '30 30 30 30 30 30 30 30 30 30 30 30';
 is $read->track, 1;
 is $read->desc, 'reference=human_id position=1-12 strand=+1 description="The human genome"';
+is $read->revcom->seq, 'GGGGTTTTTTTA';
 
 ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref2 );
 is $read->start, 1;
@@ -193,11 +195,28 @@ is $read->reference(), $ref;
 # mid() method
 
 ok $read = Bio::Seq::SimulatedRead->new(), 'mid()';
+ok $read->qual_levels([30, 10]);
 ok $read->reference($ref);
 ok $read->mid('ACGT');
 ok $read->mid, 'ACGT';
+
+is $read->seq, 'ACGTTAAAAAAACCCC';
+is join(' ', @{$read->qual}), '30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30';
+is $read->desc, 'reference=human_id position=1-12 strand=+1 mid=ACGT description="The human genome"';
+
 ok $read->mid('TTTAAA');
 ok $read->mid, 'TTTAAA';
+is $read->seq, 'TTTAAATAAAAAAACCCC';
+is join(' ', @{$read->qual}), '30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30';
+is $read->desc, 'reference=human_id position=1-12 strand=+1 mid=TTTAAA description="The human genome"';
+
+
+# Edge case... mutation of the last bases of a simulated read with MID
+
+$errors = {};
+$errors->{'18'}->{'%'} = 'T';
+$read->errors($errors);
+is $read->seq, 'TTTAAATAAAAAAACCCT';
 
 
 # Try different BioPerl object types
@@ -213,7 +232,7 @@ ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref4 ), 'Bio::LocatableS
 $errors = {};
 $errors->{'0'}->{'-'} = undef;
 ok $read = Bio::Seq::SimulatedRead->new( -reference => $ref, -errors => $errors ); # there should be a warning too
-is $read->seq, 'TAAAAAAACCCC'; 
+is $read->seq, 'TAAAAAAACCCC';
 
 $errors = {};
 $errors->{'1'}->{'-'} = undef;

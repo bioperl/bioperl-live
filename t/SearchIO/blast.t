@@ -8,13 +8,13 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin(-tests => 1352);
+    test_begin(-tests => 1354);
 
     use_ok('Bio::SearchIO');
 }
 
 SKIP: {
-    test_skip(-tests => 2, -requires_module => 'Path::Class');
+    test_skip(-tests => 4, -requires_module => 'Path::Class');
 
 
     my $file = Path::Class::file(test_input_file('ecolitst.bls'));
@@ -40,8 +40,8 @@ $result = $searchio->next_result;
 
 is(
     $result->algorithm_reference,
-    'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
-Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+    'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
 "Gapped BLAST and PSI-BLAST: a new generation of protein database search
 programs",  Nucleic Acids Res. 25:3389-3402.
 '
@@ -339,8 +339,8 @@ $searchio = Bio::SearchIO->new(
 $result = $searchio->next_result;
 is(
     $result->algorithm_reference,
-    'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
-Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+    'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
 "Gapped BLAST and PSI-BLAST: a new generation of protein database search
 programs",  Nucleic Acids Res. 25:3389-3402.
 '
@@ -448,8 +448,8 @@ $searchio = Bio::SearchIO->new(
 $result = $searchio->next_result;
 is(
     $result->algorithm_reference,
-    'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
-Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+    'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
 "Gapped BLAST and PSI-BLAST: a new generation of protein database search
 programs",  Nucleic Acids Res. 25:3389-3402.
 '
@@ -1036,8 +1036,8 @@ my $results_left = 4;
 while ( my $result = $searchio->next_result ) {
     is(
         $result->algorithm_reference,
-        'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
-Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+        'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
 "Gapped BLAST and PSI-BLAST: a new generation of protein database search
 programs",  Nucleic Acids Res. 25:3389-3402.
 '
@@ -1056,8 +1056,8 @@ $searchio = Bio::SearchIO->new(
 $result = $searchio->next_result();
 is(
     $result->algorithm_reference,
-    'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
-Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+    'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
 "Gapped BLAST and PSI-BLAST: a new generation of protein database search
 programs",  Nucleic Acids Res. 25:3389-3402.
 '
@@ -1115,8 +1115,8 @@ $searchio = Bio::SearchIO->new(
 $result = $searchio->next_result;
 is(
     $result->algorithm_reference,
-    'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
-Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+    'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
 "Gapped BLAST and PSI-BLAST: a new generation of protein database search
 programs",  Nucleic Acids Res. 25:3389-3402.
 '
@@ -1210,8 +1210,8 @@ my @dcompare = (
 
 is(
     $r->algorithm_reference,
-    'Zheng Zhang, Scott Schwartz, Lukas Wagner, and Webb Miller (2000), 
-"A greedy algorithm for aligning DNA sequences", 
+    'Zheng Zhang, Scott Schwartz, Lukas Wagner, and Webb Miller (2000),
+"A greedy algorithm for aligning DNA sequences",
 J Comput Biol 2000; 7(1-2):203-14.
 '
 );
@@ -1261,6 +1261,8 @@ my $parser = Bio::SearchIO->new(
 );
 
 $r = $parser->next_result;
+is( $r->algorithm,                           'RPS-BLAST(BLASTP)');
+is( $r->algorithm_version,                   '2.2.4 [Aug-26-2002]');
 is( $r->algorithm_reference,                 undef );
 is( $r->query_name,                          'gi|1786183|gb|AAC73113.1|' );
 is( $r->query_gi,                            1786183 );
@@ -1290,8 +1292,8 @@ $searchio = Bio::SearchIO->new(
 $result = $searchio->next_result;
 is(
     $result->algorithm_reference,
-    'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
-Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+    'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
 "Gapped BLAST and PSI-BLAST: a new generation of protein database search
 programs",  Nucleic Acids Res. 25:3389-3402.
 '
@@ -1679,8 +1681,8 @@ isa_ok( $result, 'Bio::Search::Result::ResultI' );
 is( $result->algorithm, 'TBLASTN' );
 is(
     $result->algorithm_reference,
-    'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, 
-Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), 
+    'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer,
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997),
 "Gapped BLAST and PSI-BLAST: a new generation of protein database search
 programs",  Nucleic Acids Res. 25:3389-3402.
 '
@@ -1804,9 +1806,9 @@ is( $result->algorithm,         'BLASTN' );
 is( $result->algorithm_version, '2.2.13 [Nov-27-2005]' );
 is(
     $result->algorithm_reference,
-    'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schäffer, 
-Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman 
-(1997), "Gapped BLAST and PSI-BLAST: a new generation of 
+    'Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schäffer,
+Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman
+(1997), "Gapped BLAST and PSI-BLAST: a new generation of
 protein database search programs", Nucleic Acids Res. 25:3389-3402.
 '
 );
@@ -2277,4 +2279,3 @@ is( $hsp->start('query'), 3255 );
 is( $hsp->start('sbjct'), 128516 );
 is( $hsp->end('query'),   5720 );
 is( $hsp->end('sbjct'),   131000 );
-

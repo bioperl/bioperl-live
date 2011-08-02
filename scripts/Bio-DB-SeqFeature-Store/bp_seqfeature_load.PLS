@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
 use strict;
+use warnings;
 
 ## Used to output the 'usage' message
 use Pod::Usage;
@@ -18,7 +19,7 @@ use Bio::DB::SeqFeature::Store::GFF3Loader;
 
 
 ## The available options. Note, these defaults are 'hard coded' into
-## the USAGE POD, so if you change on of the defaults (you shouldn't),
+## the USAGE POD, so if you change one of the defaults (you shouldn't),
 ## you should update the USAGE.
 
 my $DSN			= 'dbi:mysql:test';
@@ -36,6 +37,7 @@ my $COMPRESS		= 0;
 my $INDEX_SUB		= 1;
 my $NOALIAS_TARGET	= 0;
 my $SUMMARY_STATS	= 0;
+my $NOSUMMARY_STATS  = 0;
 
 ## Two flags based on http://stackoverflow.com/questions/1232116
 ## how-to-create-pod-and-use-pod2usage-in-perl
@@ -55,11 +57,12 @@ GetOptions( 'd|dsn=s'			=> \$DSN,
 	    'p|password=s'		=> \$PASS,
 	    'z|zip'			=> \$COMPRESS,
 	    'S|subfeatures!'		=> \$INDEX_SUB,
-	    
+
 	    ## Any good single letter choices here?
 	    'noalias-target'		=> \$NOALIAS_TARGET,
 	    'summary'			=> \$SUMMARY_STATS,
-	    
+        'N|nosummary'    => \$NOSUMMARY_STATS,
+
 	    ## I miss '--help' when it isn't there!
 	    'h|help!'			=> \$opt_help,
 	    'm|man!'			=> \$opt_man,
@@ -172,6 +175,12 @@ Generate summary statistics for coverage graphs (default false) This
 can be run on a previously loaded database or during the load. It will
 default to true if --create is used.
 
+=item -N, --nosummary
+
+Do not generate summary statistics to save some space and load time (default if
+--create is not specified, use this option to explicitly turn off summary
+statistics when --create is specified)
+
 =item --noalias-target
 
 Don't create an Alias attribute whose value is the target_id in a
@@ -239,7 +248,7 @@ my $loader = Bio::DB::SeqFeature::Store::GFF3Loader->new
     -ignore_seqregion   => $IGNORE_SEQREGION,
     -index_subfeatures  => $INDEX_SUB,
     -noalias_target     => $NOALIAS_TARGET,
-    -summary_stats      => $SUMMARY_STATS,
+    -summary_stats      => $NOSUMMARY_STATS ? 0 : $SUMMARY_STATS,
 )
 or die "Couldn't create GFF3 loader";
 
@@ -249,4 +258,3 @@ $SIG{TERM} = $SIG{INT} = sub {  undef $loader; undef $store; die "Aborted..."; }
 $loader->load(@ARGV);
 
 exit 0;
-

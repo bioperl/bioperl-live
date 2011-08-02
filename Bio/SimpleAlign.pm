@@ -373,15 +373,13 @@ sub removeSeq {
 sub remove_seq {
     my $self = shift;
     my $seq = shift;
-    my ($name,$id,$start,$end);
+    my ($name,$id);
 
     $self->throw("Need Bio::Locatable seq argument ")
 	unless ref $seq && $seq->isa( 'Bio::LocatableSeq');
 
     $id = $seq->id();
-    $start = $seq->start();
-    $end  = $seq->end();
-    $name = sprintf("%s/%d-%d",$id,$start,$end);
+    $name = $seq->get_nse;
 
     if( !exists $self->{'_seq'}->{$name} ) {
 	$self->throw("Sequence $name does not exist in the alignment to remove!");

@@ -380,7 +380,7 @@ sub test_input_file {
 sub test_network {
     require Module::Build;
     my $build = Module::Build->current();
-    return $build->notes('Network Tests');
+    return $build->notes('network');
 }
 
 =head2 test_email

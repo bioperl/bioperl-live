@@ -1159,14 +1159,14 @@ sub make_zip {
 # a method that can be called in a Build.PL script to ask the user if they want
 # internet tests.
 # Should only be called if you have tested for yourself that
-# $build->feature('Network') is true
+# $build->feature('Network Tests') is true
 sub prompt_for_network {
     my ($self, $accept) = @_;
 
     my $proceed = $accept ? 0 : $self->y_n("Do you want to run tests that require connection to servers across the internet\n(likely to cause some failures)? y/n", 'n');
 
     if ($proceed) {
-        $self->notes('Network Tests' => 1);
+        $self->notes('network' => 1);
         $self->log_info("  - will run internet-requiring tests\n");
         my $use_email = $self->y_n("Do you want to run tests requiring a valid email address? y/n",'n');
         if ($use_email) {
