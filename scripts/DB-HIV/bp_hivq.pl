@@ -1,5 +1,5 @@
 #!perl
-#$Id: bp_hivq.PL 362 2009-01-23 22:45:51Z maj $#
+
 
 # command-line script for HIV sequence queries
 # using HIV.pm and HIVQuery.pm
