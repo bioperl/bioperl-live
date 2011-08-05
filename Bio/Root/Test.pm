@@ -132,11 +132,11 @@ use warnings;
 # for consistency (as are any Test modules)
 use Test::Most;
 use Test::Builder;
-
-our @ISA = qw(Test::Builder::Module);
-
+use Test::Builder::Module;
 use File::Temp qw(tempdir);
 use File::Spec;
+
+our @ISA = qw(Test::Builder::Module);
 
 # TODO: Evil magic ahead; can we clean this up?
 
@@ -190,8 +190,6 @@ use File::Spec;
         return $cmp;
     }
 }
-
-#use Bio::Root::Test::Warn;
 
 our @EXPORT = (@Test::Most::EXPORT,
                #@Bio::Root::Test::Warn::EXPORT,
