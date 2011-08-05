@@ -126,10 +126,14 @@ package Bio::Root::Test;
 
 use strict;
 use warnings;
-
+use Test::Builder::Module;
 use File::Temp qw(tempdir);
 use File::Spec;
-use Exporter qw(import);
+
+# According to Ovid, 'use base' can override signal handling, so use
+# old-fashioned way. Yes, this should be a Test::Builder::Module class...
+
+our @ISA = qw(Test::Builder::Module);
 
 # TODO: we have this as a build_requires, but we override use of Test::Warn for
 # our local one (which handles BioPerl-specific warnings).  Should we be doing
@@ -138,55 +142,20 @@ use Exporter qw(import);
 use Test::Most '-Test::Warn';
 use Bio::Root::Test::Warn;
 
-# TODO: We should walk @EXPORT from Test::Most to get everything from there,
-# then add them to our export.  Otherwise the below becomes unmaintainable
-# with Test::* updates
-
-our @EXPORT = qw(
-                ok use_ok require_ok
-                is isnt like unlike is_deeply
-                cmp_ok skip todo todo_skip
-                pass fail
-                eq_array eq_hash eq_set
-                $TODO
-                plan
-                can_ok isa_ok
-                diag
-                BAIL_OUT
-                done_testing
-                
-                dies_ok
-                lives_ok
-                throws_ok
-                lives_and
-
-                warning_is
-                warnings_are
-                warning_like
-                warnings_like
-
-                all_done
-                bail_on_fail
-                die_on_fail
-                explain
-                always_explain
-                last_test_failed
-                restore_fail
-                set_failure_handler
-                show
-                always_show
-
-                 test_begin
-                 test_skip
-                 test_output_file
-                 test_output_dir
-                 test_input_file
-                 test_network
-                 test_email
-                 test_debug
-                 float_is
-                 
-                 );
+our @EXPORT = (@Test::Most::EXPORT,
+               @Bio::Root::Test::Warn::EXPORT,
+               # BioPerl-specific
+               qw(
+                test_begin
+                test_skip
+                test_output_file
+                test_output_dir
+                test_input_file
+                test_network
+                test_email
+                test_debug
+                float_is
+             ));
 
 our $GLOBAL_FRAMEWORK = 'Test::Most';
 our @TEMP_FILES;
