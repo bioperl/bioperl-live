@@ -126,24 +126,77 @@ package Bio::Root::Test;
 
 use strict;
 use warnings;
-use Test::Builder::Module;
-use File::Temp qw(tempdir);
-use File::Spec;
 
 # According to Ovid, 'use base' can override signal handling, so use
-# old-fashioned way. Yes, this should be a Test::Builder::Module class...
+# old-fashioned way. This should be a Test::Builder::Module subclass
+# for consistency (as are any Test modules)
+use Test::Most;
+use Test::Builder;
 
 our @ISA = qw(Test::Builder::Module);
 
-# TODO: we have this as a build_requires, but we override use of Test::Warn for
-# our local one (which handles BioPerl-specific warnings).  Should we be doing
-# this?
+use File::Temp qw(tempdir);
+use File::Spec;
 
-use Test::Most '-Test::Warn';
-use Bio::Root::Test::Warn;
+# TODO: Evil magic ahead; can we clean this up?
+
+{
+    my $Tester = Test::Builder->new;
+    
+    no warnings 'redefine';
+    sub Test::Warn::_canonical_got_warning {
+        my ($called_from, $msg) = @_;
+        my $warn_kind = $called_from eq 'Carp' ? 'carped' : ($called_from =~ /Bio::/ ? 'Bioperl' : 'warn');
+        
+        my $warning;
+        if ($warn_kind eq 'Bioperl') {
+            ($warning) = $msg =~ /\n--------------------- WARNING ---------------------\nMSG: (.+)\n---------------------------------------------------\n$/m;
+            $warning ||= $msg; # shouldn't ever happen
+        }
+        else {
+            my @warning_stack = split /\n/, $msg;   # some stuff of uplevel is included
+            $warning = $warning_stack[0];
+        }
+        
+        return {$warn_kind => $warning}; # return only the real message
+    }
+    
+    sub Test::Warn::_diag_found_warning {
+        foreach (@_) {
+            if (ref($_) eq 'HASH') {
+                ${$_}{carped} ? $Tester->diag("found carped warning: ${$_}{carped}")
+                              : (${$_}{Bioperl} ? $Tester->diag("found Bioperl warning: ${$_}{Bioperl}")
+                                 : $Tester->diag("found warning: ${$_}{warn}"));
+            } else {
+                $Tester->diag( "found warning: $_" );
+            }
+        }
+        $Tester->diag( "didn't find a warning" ) unless @_;
+    }
+    
+    sub Test::Warn::_cmp_got_to_exp_warning {
+        my ($got_kind, $got_msg) = %{ shift() };
+        my ($exp_kind, $exp_msg) = %{ shift() };
+        return 0 if ($got_kind eq 'warn') && ($exp_kind eq 'carped');
+        
+        my $cmp;
+        if ($got_kind eq 'Bioperl') {
+            $cmp = $got_msg =~ /^\Q$exp_msg\E$/;
+        }
+        else {
+            $cmp = $got_msg =~ /^\Q$exp_msg\E at \S+ line \d+\.?$/;
+        }
+        
+        return $cmp;
+    }
+}
+
+#use Bio::Root::Test::Warn;
 
 our @EXPORT = (@Test::Most::EXPORT,
-               @Bio::Root::Test::Warn::EXPORT,
+               #@Bio::Root::Test::Warn::EXPORT,
+               # Test::Warn method wrappers
+               
                # BioPerl-specific
                qw(
                 test_begin
