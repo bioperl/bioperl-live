@@ -13,8 +13,7 @@
 
 =head1 NAME
 
-Bio::DB::Taxonomy::flatfile - An implementation of Bio::DB::Taxonomy
-which uses local flat files
+Bio::DB::Taxonomy::flatfile - Use the NCBI taxonomy from local indexed flat files
 
 =head1 SYNOPSIS
 
@@ -26,11 +25,11 @@ which uses local flat files
 
 =head1 DESCRIPTION
 
-This is an implementation which uses local flat files and the DB_File
-module RECNO data structures to manage a local copy of the NCBI
-Taxonomy database.
+This is an implementation of Bio::DB::Taxonomy which stores and accesses the
+NCBI taxonomy using flat files stored locally on disk and indexed using the
+DB_File module RECNO data structure for fast retrieval.
 
-Required database files can be obtained from
+The required database files can be obtained from
 ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz
 
 =head1 FEEDBACK
@@ -81,9 +80,10 @@ Internal methods are usually preceded with a _
 # Let the code begin...
 
 package Bio::DB::Taxonomy::flatfile;
-use vars qw($DEFAULT_INDEX_DIR $DEFAULT_NODE_INDEX 	    $DEFAULT_NAME2ID_INDEX $DEFAULT_ID2NAME_INDEX
-	    $NCBI_TAXONOMY_HOSTNAME $DEFAULT_PARENT_INDEX
-	    $NCBI_TAXONOMY_FILE @DIVISIONS);
+use vars qw($DEFAULT_INDEX_DIR $DEFAULT_NODE_INDEX
+            $DEFAULT_NAME2ID_INDEX $DEFAULT_ID2NAME_INDEX
+            $NCBI_TAXONOMY_HOSTNAME $DEFAULT_PARENT_INDEX
+            $NCBI_TAXONOMY_FILE @DIVISIONS);
 use strict;
 use Bio::Taxon;
 use DB_File;
