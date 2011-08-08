@@ -50,7 +50,7 @@ string in the tag 'entry' it is accessible via:
 
 The winning model for any given alignment test will be the name stored
 in the primary_tag field of feature.  The bit score will stored in the
-score field.  The logoddpost is availble via the a tag/value pair.
+score field.  The logoddpost is available via the a tag/value pair.
 This example code will show how to print out the score and log odds
 post for each model.
 

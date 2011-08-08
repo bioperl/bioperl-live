@@ -40,7 +40,7 @@ this module.
 
 =head2 USING STAG OBJECTS
 
-B<non-standard bioperl stuff you dont necessarily need to know follows>
+B<non-standard bioperl stuff you don't necessarily need to know follows>
 
 This module (in write mode) is an B<event producer> - it generates XML
 events via the L<Data::Stag> module. If you only care about the final
@@ -209,7 +209,7 @@ sub default_handler_class {
  Returns : value of context_namespace (a scalar)
  Args    : on set, new value (a scalar or undef, optional)
 
-IDs will be preceeded with the context namespace
+IDs will be preceded with the context namespace
 
 =cut
 

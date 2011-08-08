@@ -68,7 +68,7 @@ sub create_dbs {
     my $hash_options           = DB_File::HASHINFO->new();
 
     # Each of these hashes allow only unique keys
-    for my $dbname qw(IndexIt TopLevel Local2Global) {
+    for my $dbname (qw(IndexIt TopLevel Local2Global)) {
 	my %h;
 	tie(%h,'DB_File',File::Spec->catfile($tmp,$dbname),
 	    O_CREAT|O_RDWR,0666,$hash_options);

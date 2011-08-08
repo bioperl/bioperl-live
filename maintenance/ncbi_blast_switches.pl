@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 # This script determines all the valid command line switches
 # from the four main NCBI BLAST tools, and produces Perl code

@@ -1,4 +1,4 @@
-#!/bin/perl -w
+#!/bin/perl
 use strict;
 use vars qw($USAGE);
 

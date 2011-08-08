@@ -1,11 +1,11 @@
 #
 # BioPerl module for InterPro_BioSQL_Handler
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Juguang Xiao, juguang@tll.org.sg
 #
-# Copyright Juguang Xiao 
+# Copyright Juguang Xiao
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -112,7 +112,7 @@ sub _initialize {
            way is to simply call
            $ontio->term_factory->type("Bio::Ontology::MyTerm").
 
- Example : 
+ Example :
  Returns : value of term_factory (a Bio::Factory::ObjectFactoryI object)
  Args    : on set, new value (a Bio::Factory::ObjectFactoryI object, optional)
 
@@ -130,7 +130,7 @@ sub term_factory{
 
  Title   : db
  Usage   : $obj->db($newval)
- Function: Sets or retrieves the database adaptor factory. 
+ Function: Sets or retrieves the database adaptor factory.
 
            The adaptor factory is a Bio::DB::DBAdaptorI compliant
            object and will be used to obtain the persistence adaptors
@@ -145,7 +145,7 @@ sub term_factory{
            you may set it to undef. Therefore, be careful not to set
            to undef before setting the desired real value.
 
- Example : 
+ Example :
  Returns : value of db (a Bio::DB::DBAdaptorI compliant object)
  Args    : on set, new value (a Bio::DB::DBAdaptorI compliant object
            or undef, optional)
@@ -157,8 +157,8 @@ sub db {
     my $self=shift;
     if(@_){
         my $db = shift;
-        if ($db && exists($self->{_db}) && ($self->{_db} != $db)) { 
-            $self->throw('db may not be modified once set'); 
+        if ($db && exists($self->{_db}) && ($self->{_db} != $db)) {
+            $self->throw('db may not be modified once set');
         }
         $self->{_db}=$db;
     }
@@ -170,21 +170,21 @@ sub db {
  Title   : persist_term_handler
  Usage   : $obj->persist_term_handler($handler,@args)
  Function: Sets or retrieves the persistence handler for terms along
-           with the constant set of arguments to be passed to the 
+           with the constant set of arguments to be passed to the
            handler.
 
            If set, the first argument will be treated as a closure and
            be called for each term to persist to the database. The
            term will be passed as a named parameter (-term), followed
            by the other arguments passed to this setter. Note that
-           this allows to pass an arbitrary configuration to the
+           this allows one to pass an arbitrary configuration to the
            handler.
 
            If not set, terms will be persisted along with their
            relationships using the respective persistence adaptor
            returned by the adaptor factory (see property db).
 
- Example : 
+ Example :
  Returns : an array reference with the values passed on set, or an empty
            array if never set
  Args    : On set, an array of values. The first value is the handler
@@ -213,14 +213,14 @@ sub persist_term_handler{
            be called for each relationship to persist to the database. The
            relationship will be passed as a named parameter (-rel), followed
            by the other arguments passed to this setter. Note that
-           this allows to pass an arbitrary configuration to the
+           this allows one to pass an arbitrary configuration to the
            handler.
 
            If not set, relationships will be persisted along with their
            relationships using the respective persistence adaptor
            returned by the adaptor factory (see property db).
 
- Example : 
+ Example :
  Returns : an array reference with the values passed on set, or an empty
            array if never set
  Args    : On set, an array of values. The first value is the handler
@@ -241,10 +241,10 @@ sub persist_relationship_handler{
 
  Title   : _persist_term
  Usage   :
- Function: Persists a term to the database, using either a previously 
+ Function: Persists a term to the database, using either a previously
            set persistence handler, or the adaptor factory directly.
  Example :
- Returns : 
+ Returns :
  Args    : the ontology term to persist
 
 
@@ -261,8 +261,8 @@ sub _persist_term {
         # no handler; we'll do this ourselves straight and simple
         my $db = $self->db();
         my $pterm = $db->create_persistent($term);
-        eval { 
-            $pterm->create(); 
+        eval {
+            $pterm->create();
             $pterm->commit();
         };
         if ($@) {
@@ -281,7 +281,7 @@ sub _persist_term {
            directly.
 
  Example :
- Returns : 
+ Returns :
  Args    : the term relationship to persist
 
 
@@ -298,8 +298,8 @@ sub _persist_relationship {
         # no handler; we'll do this ourselves straight and simple
         my $db = $self->db();
         my $prel = $db->create_persistent($rel);
-        eval { 
-            $prel->create(); 
+        eval {
+            $prel->create();
             $prel->commit();
         };
         if ($@) {
@@ -315,7 +315,7 @@ sub _persist_relationship {
 
  Title   : _persist_ontology
  Usage   :
- Function: Perists the ontology itself to the database, by either 
+ Function: Perists the ontology itself to the database, by either
            inserting or updating it.
 
            Note that this will only create or update the ontology as
@@ -339,7 +339,7 @@ sub _persist_ontology{
     my $adp = $db->get_object_adaptor($ont);
     # to avoid clobbering this ontology's properties with possibly older ones
     # from the database we'll need an object factory
-    my $ontfact = 
+    my $ontfact =
         Bio::Factory::ObjectFactory->new(-type=>"Bio::Ontology::Ontology");
     # do the lookup:
     my $found = $adp->find_by_unique_key($ont, '-obj_factory' => $ontfact);
@@ -366,22 +366,22 @@ sub start_document {
     my $self = shift;
     my $ont = $self->_ontology;
     my @iprtypes = (
-                    $self->create_term(-identifier=>'IPR:Family', 
+                    $self->create_term(-identifier=>'IPR:Family',
                                        -name=>'Family',
                                        -ontology => $ont),
-                    $self->create_term(-identifier=>'IPR:Domain', 
+                    $self->create_term(-identifier=>'IPR:Domain',
                                        -name=>'Domain',
                                        -ontology => $ont),
-                    $self->create_term(-identifier=>'IPR:Repeat', 
+                    $self->create_term(-identifier=>'IPR:Repeat',
                                        -name=>'Repeat',
                                        -ontology => $ont),
-                    $self->create_term(-identifier=>'IPR:PTM', 
+                    $self->create_term(-identifier=>'IPR:PTM',
                                        -name=>'post-translational modification',
                                        -ontology => $ont),
-                    $self->create_term(-identifier=>'IPR:Active_site', 
+                    $self->create_term(-identifier=>'IPR:Active_site',
                                        -name=>'Active_site',
                                        -ontology => $ont),
-                    $self->create_term(-identifier=>'IPR:Binding_site', 
+                    $self->create_term(-identifier=>'IPR:Binding_site',
                                        -name=>'Binding_site',
                                        -ontology => $ont),
                     );
@@ -403,10 +403,10 @@ sub start_element {
         $term->ontology($ont);
         $term->add_synonym($args{short_name});
         #$term->definition();
-        
+
         my ($object_term) =
             ($ont->engine->get_term_by_identifier("IPR:".$args{type}));
-        
+
         my $rel = Bio::Ontology::Relationship->new(
             -subject_term => $term,
             -predicate_term => $is_a_rel,
@@ -474,7 +474,7 @@ sub start_element {
     #else{
     #    $self->warn("unrecognized element '$tag', ignoring");
     #}
-        
+
     $self->_visited_count_inc($tag);
     $self->_push_tag($tag);
 }
@@ -532,7 +532,7 @@ sub characters {
 
     my $top_tag =$self->_top_tag;
     $self->_chars_hash->{$top_tag} .= $text;
-    
+
 #    $self->_chars_hash->{abstract} .= $text if $self->_visited_count('abstract');
 }
 
@@ -558,7 +558,7 @@ sub _create_publication {
     my $year = $self->_current_hash->{year} || '<no year>';
     my $page_location = $self->_current_hash->{page_location} || '<no pages>';
     my $volumn = $self->_current_hash->{volumn} || '<no volume>';
-    my $medline = 
+    my $medline =
         $self->_current_hash->{medline} || $self->_current_hash->{pubmed};
 
     $publ->authors($self->_current_hash->{author});
@@ -569,7 +569,7 @@ sub _create_publication {
         && ($self->_current_hash->{pubmed} != $medline)) {
         $publ->pubmed($self->_current_hash->{pubmed});
     }
-    
+
 # Clear the above in current hash
     $self->_current_hash->{publication} = undef;
     $self->_current_hash->{author}      = undef;

@@ -342,7 +342,7 @@ sub calc_weight {
     $model{probC}=$model->{C};
     $model{probG}=$model->{G};
     $model{probT}=$model->{T};
-    foreach my $let qw(probA probC probG probT) {
+    foreach my $let (qw(probA probC probG probT)) {
       my @str;
       $self->throw('You did not provide valid model\n') unless (($model{$let}>0) && ($model{$let}<1));
       foreach my $f (@{$self->{$let}}) {

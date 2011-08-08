@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::SeqUtils
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Heikki Lehvaslaiho <heikki-at-bioperl-dot-org>
 #
@@ -39,10 +39,10 @@ Bio::SeqUtils - Additional methods for PrimarySeq objects
     $newseq = Bio::SeqUtils-> evolve
         ($seq, $similarity, $transition_transversion_rate);
 
-
     # concatenate two or more sequences with annotations and features,
     # the first sequence will be modified
     Bio::SeqUtils->cat(@seqs);
+    my $catseq=$seqs[0];
 
     # truncate a sequence, retaining features and adjusting their
     # coordinates if necessary
@@ -75,8 +75,8 @@ forward or all six frame translations.
 The mutate() method mutates the sequence string with a mutation
 description object.
 
-The cat() method concatenates two or more sequences. The first sequence 
-is modified by addition of the remaining sequences. All annotations and 
+The cat() method concatenates two or more sequences. The first sequence
+is modified by addition of the remaining sequences. All annotations and
 sequence features will be transferred.
 
 The revcom_with_features() and trunc_with_features() methods are similar
@@ -94,15 +94,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -244,7 +244,7 @@ sub seq3in {
    my $length = (length $string) - 2;
    for (my $i = 0 ; $i < $length ; $i += 3)  {
 		$aa3 = substr($string, $i, 3);
-		$aa3 = ucfirst(lc($aa3)); 
+		$aa3 = ucfirst(lc($aa3));
 		$ONECODE{$aa3} and $aas .= $ONECODE{$aa3}, next;
 		$aas .= $ONECODE{'Xaa'};
    }
@@ -315,7 +315,7 @@ sub translate_6frames {
  Title   : valid_aa
  Usage   : my @aa = $table->valid_aa
  Function: Retrieves a list of the valid amino acid codes.
-           The list is ordered so that first 21 codes are for unique 
+           The list is ordered so that first 21 codes are for unique
            amino acids. The rest are ['B', 'Z', 'X', '*'].
  Returns : array of all the valid amino acid codes
  Args    : [optional] $code => [0 -> return list of 1 letter aa codes,
@@ -327,7 +327,7 @@ sub translate_6frames {
 sub valid_aa{
    my ($self,$code) = @_;
 
-   if( ! $code ) { 
+   if( ! $code ) {
        my @codes;
        foreach my $c ( sort values %ONECODE ) {
 	   push @codes, $c unless ( $c =~ /[BZX\*]/ );
@@ -335,7 +335,7 @@ sub valid_aa{
        push @codes, qw(B Z X *); # so they are in correct order ?
        return @codes;
   }
-   elsif( $code == 1 ) { 
+   elsif( $code == 1 ) {
        my @codes;
        foreach my $c ( sort keys %ONECODE ) {
 	   push @codes, $c unless ( $c =~ /(Asx|Glx|Xaa|Ter)/ );
@@ -343,7 +343,7 @@ sub valid_aa{
        push @codes, ('Asx', 'Glx', 'Xaa', 'Ter' );
        return @codes;
    }
-   elsif( $code == 2 ) { 
+   elsif( $code == 2 ) {
        my %codes = %ONECODE;
        foreach my $c ( keys %ONECODE ) {
 	   my $aa = $ONECODE{$c};
@@ -401,11 +401,12 @@ sub mutate {
 =head2 cat
 
   Title   : cat
-  Usage   : my $catseq = Bio::SeqUtils->cat(@seqs)
-  Function: Concatenates an array of Bio::Seq objects, using the first sequence
-            as a target. Annotations and sequence features are copied over 
-            from any additional objects. Adjusts the coordinates of copied 
-            features.
+  Usage   : Bio::SeqUtils->cat(@seqs);
+            my $catseq=$seqs[0];
+  Function: Concatenates a list of Bio::Seq objects, adding them all on to the
+            end of the first sequence. Annotations and sequence features are
+            copied over from any additional objects, and the coordinates of any
+            copied features are adjusted appropriately.
   Returns : a boolean
   Args    : array of sequence objects
 
@@ -419,7 +420,7 @@ sub cat {
     $self->throw('Object [$seq] '. 'of class ['. ref($seq).
                  '] should be a Bio::PrimarySeqI ')
         unless $seq->isa('Bio::PrimarySeqI');
-    
+
 
     for my $catseq (@seqs) {
         $self->throw('Object [$catseq] '. 'of class ['. ref($catseq).
@@ -442,9 +443,9 @@ sub cat {
                 foreach my $value ( $catseq->annotation->get_Annotations($key) ) {
                     $seq->annotation->add_Annotation($key, $value);
                 }
-            } 
+            }
         }
-        
+
         # move SeqFeatures
         if ( $seq->isa('Bio::SeqI') and $catseq->isa('Bio::SeqI')) {
             for my $feat ($catseq->get_SeqFeatures) {
@@ -483,8 +484,8 @@ sub trunc_with_features{
 	foreach my $value ( $seq->annotation->get_Annotations($key) ) {
 	    $trunc->annotation->add_Annotation($key, $value);
 	}
-    } 
-    
+    }
+
     #move features
     $trunc->add_SeqFeature(grep {$_=$self->_coord_adjust($_, 1-$start, $end+1-$start) if $_->overlaps($truncrange)} $seq->get_SeqFeatures);
     return $trunc;
@@ -544,10 +545,10 @@ sub _coord_adjust {
 	foreach my $value ( $feat->annotation->get_Annotations($key) ) {
 	    $newfeat->annotation->add_Annotation($key, $value);
 	}
-    } 
+    }
     foreach my $key ( $feat->get_all_tags() ) {
 	    $newfeat->add_tag_value($key, $feat->get_tag_values($key));
-    } 
+    }
     if (@loc==1) {
         $newfeat->location($loc[0])
     } else {
@@ -578,13 +579,13 @@ sub revcom_with_features{
                  '] should be a Bio::SeqI ')
     unless $seq->isa('Bio::SeqI');
     my $revcom=$seq->revcom;
-    
+
     #move annotations
     foreach my $key ( $seq->annotation->get_all_annotation_keys() ) {
 	foreach my $value ( $seq->annotation->get_Annotations($key) ) {
 	    $revcom->annotation->add_Annotation($key, $value);
 	}
-    } 
+    }
 
     #move features
     $revcom->add_SeqFeature(map {$self->_feature_revcom($_, $seq->length)} reverse $seq->get_SeqFeatures);
@@ -647,10 +648,10 @@ sub _feature_revcom {
 	foreach my $value ( $feat->annotation->get_Annotations($key) ) {
 	    $newfeat->annotation->add_Annotation($key, $value);
 	}
-    } 
+    }
     foreach my $key ( $feat->get_all_tags() ) {
 	    $newfeat->add_tag_value($key, $feat->get_tag_values($key));
-    } 
+    }
     if (@loc==1) {
         $newfeat->location($loc[0])
     } else {
@@ -680,7 +681,7 @@ sub _coord_revcom {
   Usage   : my $newseq = Bio::SeqUtils->
                 evolve($seq, $similarity, $transition_transversion_rate);
   Function: Mutates the sequence by point mutations until the similarity of
-            the new sequence has decreased to the required level. 
+            the new sequence has decreased to the required level.
             Transition/transversion rate is adjustable.
   Returns : A new Bio::PrimarySeq object
   Args    : sequence object
@@ -706,7 +707,7 @@ sub evolve {
     $self->throw('Object [$seq] '. 'of class ['. ref($seq).
                      '] should be a Bio::PrimarySeqI ')
             unless $seq->isa('Bio::PrimarySeqI');
-    
+
     $self->throw("[$sim] ". ' should be a positive integer or float under 100')
             unless $sim =~ /^[+\d.]+$/ and $sim <= 100;
 
@@ -729,7 +730,7 @@ sub evolve {
     # given the desired rate, find out where cut off points need to be
     # when random numbers are generated from 0 to 100
     # we are ignoring identical mutations (e.g. A->A) to speed things up
-    my $bin_size = 100/($rate + 2);  
+    my $bin_size = 100/($rate + 2);
     my $transition = 100 - (2*$bin_size);
     my $first_transversion = $transition + $bin_size;
 
@@ -790,4 +791,3 @@ sub _get_similarity  {
 }
 
 1;
-

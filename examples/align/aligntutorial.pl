@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 # An example of how to use the different alignment tools in bioperl
 # to align some sequences

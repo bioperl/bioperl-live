@@ -28,7 +28,7 @@ See L<http://www.nlm.nih.gov/mesh/meshhome.html>.
 This class implements L<Bio::SimpleAnalysisI> and wraps its methods under
 L<get_exact_term>.
 
-By default, web access uses L<WWW::Mechanize>, but in its absense
+By default, web access uses L<WWW::Mechanize>, but in its absence
 falls back to bioperl module L<Bio::WebAgent> which is a subclass of
 L<LWP::UserAgent>. If not even that is not installed, it uses
 L<Bio::Root::HTTPget>.

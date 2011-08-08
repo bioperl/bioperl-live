@@ -26,6 +26,23 @@ to inspecting all perl files in the current directory.
 If set, also print internal dependencies, i.e. the inter-dependencies
 between the files we are inspecting.
 
+=item -B
+
+If set, print the dependencies in a format suitable for cutting and
+pasting directly into a Build.PL (i.e. Module::Build)
+
+=item -M
+
+If set, print the dependencies in a format suitable for cutting and
+pasting directly into a Makefile.PL (i.e. Module::Install)
+
+=item -Z
+
+If set, print the dependencies in a format suitable for cutting and
+pasting directly into a dist.ini (i.e. Dist::Zilla).  Although, if
+you're using Dist::Zilla, you probably have it configured to be
+auto-discovering deps, and it will find the same deps as this script.
+
 =back
 
 =head1 AUTHOR
@@ -49,7 +66,7 @@ use Data::Dump 'dump';
 use Hash::Merge;
 
 my %opt;
-getopts('i', \%opt) or pod2usage();
+getopts('iBMZ', \%opt) or pod2usage();
 
 -d './lib' or -d './bin' or -d './scripts' or die "run this script from the root dir of a distribution\n";
 
@@ -66,13 +83,15 @@ my @perl_files = map {
               $_,
             );
         @f
-    } else {
+    } elsif( -e ) {
         if( is_perl_file($_) ) {
             $_
         } else {
             warn "WARNING: skipping user-specified file $_, since it is not a perl file.\n";
             ()
         }
+    } else {
+        ()
     }
 } @paths;
 
@@ -96,8 +115,33 @@ for my $modname ( keys %deps ) {
     }
 }
 
-print dump \%classified;
+# decide which format to print in
+if( $opt{B} ) {
+    for ( values %classified ) {
+        $_ = 0 for values %$_;
+    }
+    print dump \%classified;
+} elsif( $opt{M} ) {
+    print "requires      '$_' => 0;\n"
+      for sort { lc $a cmp lc $b } keys %{$classified{requires}};
+    print "test_requires '$_' => 0;\n"
+      for sort { lc $a cmp lc $b } keys %{$classified{build_requires}};
+} elsif( $opt{Z} ) {
+    print "[Prereqs]\n";
+    print "$_  =  0\n"
+      for sort { lc $a cmp lc $b } keys %{$classified{requires}};
+
+    print "\n[Prereqs / TestRequires]\n";
+    print "$_  =  0\n"
+      for sort { lc $a cmp lc $b } keys %{$classified{build_requires}};
+
+} else {
+    print dump \%classified;
+}
+
 exit;
+
+################## helpers #####################
 
 sub modfile {
     my $modname = shift;

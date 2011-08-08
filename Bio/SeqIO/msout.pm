@@ -77,7 +77,7 @@ particular purpose.
 
 package Bio::SeqIO::msout;
 use version;
-our $API_VERSION = qv('1.1.5');
+our $API_VERSION = qv('1.1.6');
 
 use strict;
 use base qw(Bio::SeqIO);    # This ISA Bio::SeqIO object
@@ -140,7 +140,7 @@ sub _initialize {
 
     # Otherwise throw a warning
     else {
-        throw(
+        $self->throw(
 "No filehandle defined.  Please define a file handle through -file when calling msout with Bio::SeqIO"
         );
     }
@@ -183,7 +183,7 @@ sub _read_start {
 
 # if @pop_haplos contains a non-digit, then there is an error in the msinfo line.
             if ( !defined $pop_haplos[-1] || $pop_haplos[-1] =~ /\D/ ) {
-                throw(
+                $self->throw(
 "Incorrect number of populations in the ms info line (after the -I specifier)"
                 );
             }
@@ -470,7 +470,7 @@ sub get_next_haps_pop_num {
 =head3 get_next_seq
 
 Title   : get_next_seq
-Usage   : $seq = $stream->next_seq()
+Usage   : $seq = $stream->get_next_seq()
 Function: reads and returns the next sequence (haplotype) in the stream
 Returns : Bio::Seq object or void if end of file
 Args    : NONE
@@ -518,6 +518,23 @@ sub get_next_seq {
 
     return $seq
 
+}
+
+=head3 next_seq
+
+Title   : next_seq
+Usage   : $seq = $stream->next_seq()
+Function: Alias to get_next_seq()
+Returns : Bio::Seq object or void if end of file
+Args    : NONE
+Note    : This function is only included for convention.  It calls get_next_seq().  
+          See get_next_seq() for details.
+
+=cut
+
+sub next_seq {
+    my $self      = shift;
+    return $self->get_next_seq();
 }
 
 =head3 get_next_hap
@@ -704,7 +721,7 @@ sub _get_next_clean_hap {
 
         # If the next run is encountered here, then we have a programming
         # or format error
-        if ( $data eq '//' ) { throw("'//' found when not expected\n") }
+        if ( $data eq '//' ) { $self->throw("'//' found when not expected\n") }
 
         $self->{LAST_READ_HAP_NUM}++;
         push @data, $data;
@@ -722,6 +739,11 @@ sub _load_run_info {
     my ( $self, $fh ) = @_;
 
     my $data = <$fh>;
+    
+    # getting rid of excess newlines
+    while (defined($data) && $data !~ /./){
+	$data = <$fh>;
+    }
 
     # In this case we are at EOF
     if ( !defined($data) ) { $self->{NEXT_RUN_NUM} = undef; return; }
@@ -757,14 +779,14 @@ sub _load_run_info {
             }
             else {
                 if ( !defined($data) ) {
-                    throw("run $self->{NEXT_RUN_NUM} has no haps./n");
+                    $self->throw("run $self->{NEXT_RUN_NUM} has no haps./n");
                 }
                 $self->{BUFFER_HAP} = $data;
             }
         }
     }
     else {
-        throw(
+        $self->throw(
 "'//' not encountered when expected. There are more haplos in one of the msOUT runs than advertised in the msinfo line."
         );
     }

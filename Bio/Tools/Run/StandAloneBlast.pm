@@ -293,7 +293,7 @@ Some of the most commonly used parameters are listed below. All
 parameters have defaults and are optional except for -p in those programs that
 have it. For a complete listing of settable parameters, run the relevant
 executable BLAST program with the option "-" as in blastall -
-Note that the input paramters (-i, -j, -input) should not be set directly by
+Note that the input parameters (-i, -j, -input) should not be set directly by
 you: this module sets them when you call one of the executable methods.
 
 Blastall

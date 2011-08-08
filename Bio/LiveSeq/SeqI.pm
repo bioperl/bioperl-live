@@ -1,7 +1,7 @@
 #
 # bioperl module for Bio::LiveSeq::SeqI
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Joseph Insana <insana@ebi.ac.uk> <jinsana@gmx.net>
 #
@@ -31,7 +31,7 @@ possible and common!
 
 Secondly, the sequence manipulation methods do not return a new
 sequence object but change the current object. The current status can
-be written out to BioPerl sequence objects. 
+be written out to BioPerl sequence objects.
 
 =head1 FEEDBACK
 
@@ -44,15 +44,15 @@ of the Bioperl mailing lists.  Your participation is much appreciated.
   bioperl-l@bioperl.org                  - General discussion
   http://bioperl.org/wiki/Mailing_lists  - About the mailing lists
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -151,7 +151,7 @@ sub all_labels {
             and normal subseq is that it uses /labels/ as arguments, instead
             than positions. This allows for faster and more efficient lookup,
             skipping the (usually) lengthy conversion of positions into labels.
-            This is expecially useful for manipulating with high power
+            This is especially useful for manipulating with high power
             LiveSeq objects, knowing the labels and exploiting their
             usefulness.
   Returns : a string
@@ -166,11 +166,11 @@ sub all_labels {
 
 =cut
 
-# NOTE: unsecuremode is to be used /ONLY/ if sure of the start and end labels, expecially that they follow each other in the correct order!!!!
+# NOTE: unsecuremode is to be used /ONLY/ if sure of the start and end labels, especially that they follow each other in the correct order!!!!
 
 sub labelsubseq {
   my ($self,$start,$length,$end,$unsecuremode) = @_;
-  if (defined $unsecuremode && $unsecuremode eq "unsecuremoderequested") 
+  if (defined $unsecuremode && $unsecuremode eq "unsecuremoderequested")
   { # to skip security checks (faster)
     unless ($start) {
       $start=$self->start;
@@ -233,7 +233,7 @@ sub labelsubseq {
                        -5  -1 1   5
                 gctagcgcccaac atggctcgctg
 
-           This allows to retrieve sequences upstream from given position.
+           This allows one to retrieve sequences upstream from given position.
 
            The precedence is from left to right: if END is given LENGTH is
            ignored.
@@ -246,7 +246,7 @@ sub labelsubseq {
  Args    : start,  integer, defaults to start of the sequence
            end,    integer, '' or undef, defaults to end of the sequence
            length, integer, '' or undef
-           an optional strand (1 or -1) 4th argument 
+           an optional strand (1 or -1) 4th argument
             if strand argument is not given, it will default to the object
             argment. This argument is useful when a call is issued from a child
             of a parent object containing the subseq method
@@ -443,7 +443,7 @@ sub primary_id {
  Usage   : $substring = $obj->change('AA', 10);
  Function: changes, modifies, mutates the LiveSequence
  Examples:
-        $obj->change('',   10);      delete nucleotide #10     
+        $obj->change('',   10);      delete nucleotide #10
         $obj->change('',   10, 2);   delete two nucleotides starting from #10
         $obj->change('G',  10);      change nuc #10 to 'G'
         $obj->change('GA', 10, 4);   replace #10 and 3 following with 'GA'
@@ -554,7 +554,7 @@ sub labelchange {
     return (-1);
   }
   my $deleted=$self->_delete($label,$length); # first delete length nucs
-  if ($deleted == -1) { # if errors
+  if ($deleted eq -1) { # if errors
     return (-1);
   } else { # then insert the newsequence
     my ($insertbegin,$insertend)=$self->_praeinsert($afterendlabel,$newseq);
@@ -793,7 +793,7 @@ sub alphabet {
             Translation objects) will be allowed to get set as coordinate start
 
   Returns : label. It returns 0 if label not found.
-  Errorcode -1 
+  Errorcode -1
   Args    : an optional reference $label that is position 1
 
 =cut
@@ -809,7 +809,7 @@ sub coordinate_start {
     }
   }
   my $coord_start = $self->{'coordinate_start'};
-  if ($coord_start) { 
+  if ($coord_start) {
     return $coord_start;
   } else {
     return $self->start();
@@ -827,10 +827,10 @@ sub coordinate_start {
   Function: returns the label of the nucleotide at $position from current
             coordinate start
   Returns : a label. It returns 0 if label not found.
-  Errorcode -1 
-  Args    : a position, 
+  Errorcode -1
+  Args    : a position,
             an optional reference $firstlabel that is to be used as position 1
-            an optional strand (1 or -1) argument 
+            an optional strand (1 or -1) argument
              if strand argument is not given, it will default to the object
              argument. This argument is useful when a call is issued from a child
              of a parent object containing the subseq method
@@ -878,7 +878,7 @@ sub label {
   Errorcode 0
   Args    : a label pointing to a certain nucleotide (e.g. start of exon)
             an optional "firstlabel" as reference to count from
-            an optional strand (1 or -1) argument 
+            an optional strand (1 or -1) argument
              if strand argument is not given, it will default to the object
              argument. This argument is useful when a call is issued from a child
              of a parent object containing the subseq method
@@ -928,7 +928,7 @@ sub position {
   Returns : 1 or 0
   Errorcode -1
   Args    : two labels
-            an optional strand (1 or -1) argument 
+            an optional strand (1 or -1) argument
              if strand argument is not given, it will default to the object
              argument. This argument is useful when a call is issued from a child
              of a parent object containing the subseq method
@@ -957,7 +957,7 @@ sub follows {
 # Function: Provides the translation of the DNA sequence
 #	    using full IUPAC ambiguities in DNA/RNA and amino acid codes.
 #
-#	    The resulting translation is identical to EMBL/TREMBL database 
+#	    The resulting translation is identical to EMBL/TREMBL database
 #	    translations.
 #
 # Returns : a string
@@ -999,21 +999,21 @@ sub follows {
 #  unless(defined($unknown) and $unknown ne '') { $unknown = "X"; }
 #  unless(defined($frame) and $frame ne '') { $frame = 0; }
 #
-#  ## the codon table ID 
+#  ## the codon table ID
 #  if ($self->translation_table) {
 #    $tableid = $self->translation_table;
 #  }
 #  unless(defined($tableid) and $tableid ne '')    { $tableid = 1; }
 #
 #  ##Error if monomer is "Amino"
-#  $self->warn("Can't translate an amino acid sequence.") 
+#  $self->warn("Can't translate an amino acid sequence.")
 #      if (defined $self->alphabet && $self->alphabet eq 'protein');
 #
 #  ##Error if frame is not 0, 1 or 2
 #  $self->warn("Valid values for frame are 0, 1, 2, not [$frame].")
 #      unless ($frame == 0 or $frame == 1 or $frame == 2);
 #
-#  #thows a warning if ID is invalid 
+#  #thows a warning if ID is invalid
 #  my $codonTable = Bio::Tools::CodonTable->new( -id => $tableid);
 #
 #  # deal with frame offset.
@@ -1029,9 +1029,9 @@ sub follows {
 #      elsif ($aa eq 'X') {
 #	    $output .= $unknown;
 #      }
-#      else { 
+#      else {
 #	   $output .= $aa ;
-#      }   
+#      }
 #  }
 #  #if( substr($output,-1,1) eq $stop ) {
 #  #    chop $output;

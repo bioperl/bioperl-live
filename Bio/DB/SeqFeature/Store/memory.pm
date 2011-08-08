@@ -675,8 +675,7 @@ sub types {
   my @types;
   for my $primary_tag ( keys %{$$self{_index}{type}} ) {
     for my $source_tag ( keys %{$$self{_index}{type}{$primary_tag}} ) {
-      my $type = $$self{_index}{type}{$primary_tag}{$source_tag};
-      push @types, Bio::DB::GFF::Typename->new($type);
+	push @types, Bio::DB::GFF::Typename->new($primary_tag,$source_tag);
     }
   }
   return @types;

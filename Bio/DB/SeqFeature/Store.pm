@@ -341,7 +341,7 @@ ones:
 		    description of this. Default is the current
                     directory.
 
- -write             Make the database writeable (implied by -create)
+ -write             Make the database writable (implied by -create)
 
  -fasta             Provide an alternative DNA accessor object or path.
 

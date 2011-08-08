@@ -1,6 +1,6 @@
 # $Id: dependencies.pl 10084 2006-07-04 22:23:29Z cjfields $
 #
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
 use warnings;

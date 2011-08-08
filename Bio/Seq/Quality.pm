@@ -170,22 +170,15 @@ Internal methods are usually preceded with a _
 
 
 package Bio::Seq::Quality;
-use vars qw($DEFAULT_NAME $GAP $META_GAP);
 use strict;
-
-#use overload '""' => \&to_string;
 
 use base qw(Bio::Seq::Meta::Array);
 
 ## Is this the right place (and way) to define this?
 our $MASK_CHAR = 'X';
-
-BEGIN {
-
-    $DEFAULT_NAME = 'DEFAULT';
-    $GAP = '-';
-    $META_GAP = ' ';
-}
+our $DEFAULT_NAME = 'DEFAULT';
+our $GAP = '-';
+our $META_GAP = ' ';
 
 =head2 new
 

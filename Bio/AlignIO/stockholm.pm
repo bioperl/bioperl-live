@@ -69,10 +69,10 @@ The following methods/tags are currently used for storing and writing
 the alignment annotation data.
 
     Tag        SimpleAlign
-                 Method  
+                 Method
     ----------------------------------------------------------------------
-     AC        accession  
-     ID        id  
+     AC        accession
+     ID        id
      DE        description
     ----------------------------------------------------------------------
 
@@ -115,13 +115,13 @@ classes are introduced. In particular, do not rely on changing the global
 variables @WRITEORDER or %WRITEMAP as these may be made private at some point.
 
 1) Use (and abuse) the 'custom' tag.  The tagname for the object can differ
-from the tagname used to store the object in the AnnotationCollection.  
+from the tagname used to store the object in the AnnotationCollection.
 
     # AnnotationCollection from the SimpleAlign object
-    my $coll = $aln->annotation; 
-    my $factory = Bio::Annotation::AnnotationFactory->new(-type => 
+    my $coll = $aln->annotation;
+    my $factory = Bio::Annotation::AnnotationFactory->new(-type =>
         Bio::Annotation::SimpleValue');
-    my $rfann = $factory->create_object(-value => $str, 
+    my $rfann = $factory->create_object(-value => $str,
                                         -tagname => 'mytag');
     $coll->add_Annotation('custom', $rfann);
     $rfann = $factory->create_object(-value => 'foo',
@@ -131,7 +131,7 @@ from the tagname used to store the object in the AnnotationCollection.
 OUTPUT:
 
     # STOCKHOLM 1.0
-    
+
     #=GF ID myID12345
     #=GF mytag katnayygqelggvnhdyddlakfyfgaglealdffnnkeaaakiinwvaEDTTRGKIQDLV??
     #=GF mytag TPtd~????LDPETQALLV???????????????????????NAIYFKGRWE?????????~??
@@ -154,12 +154,12 @@ OUTPUT:
 
     # AnnotationCollection from the SimpleAlign object
     my $coll = $aln->annotation;
-    
+
     # add to WRITEORDER
     my @order = @Bio::AlignIO::stockholm::WRITEORDER;
     push @order, 'my_stuff';
     @Bio::AlignIO::stockholm::WRITEORDER = @order;
-    
+
     # make sure new tag maps to something
     $Bio::AlignIO::stockholm::WRITEMAP{my_stuff} = 'Hobbit/SimpleValue';
 
@@ -173,7 +173,7 @@ OUTPUT:
 OUTPUT:
 
     # STOCKHOLM 1.0
-    
+
     #=GF ID myID12345
     #=GF Hobbit Frodo
     #=GF Hobbit Bilbo
@@ -181,15 +181,15 @@ OUTPUT:
 
 =head1 FEEDBACK
 
-=head2 Support 
+=head2 Support
 
 Please direct usage questions or support issues to the mailing list:
 
 I<bioperl-l@bioperl.org>
 
-rather than to the module maintainer directly. Many experienced and 
-reponsive experts will be able look at the problem and quickly 
-address it. Please include a thorough description of the problem 
+rather than to the module maintainer directly. Many experienced and
+reponsive experts will be able look at the problem and quickly
+address it. Please include a thorough description of the problem
 with code and data examples if at all possible.
 
 =head2 Reporting Bugs
@@ -202,7 +202,7 @@ web:
 
 =head1 AUTHORS - Chris Fields, Peter Schattner
 
-Email: cjfields-at-uiuc-dot-edu, schattner@alum.mit.edu 
+Email: cjfields-at-uiuc-dot-edu, schattner@alum.mit.edu
 
 =head1 CONTRIBUTORS
 
@@ -230,7 +230,7 @@ use base qw(Bio::AlignIO);
 my $STKVERSION = 'STOCKHOLM 1.0';
 
 # This maps the two-letter annotation key to a Annotation/parameter/tagname
-# combination.  Some data is stored using get/set methods ('Methods')  The rest 
+# combination.  Some data is stored using get/set methods ('Methods')  The rest
 # is mapped to Annotation objects using the parameter for the parsed data
 # and the tagname for, well, the Annotation tagname.  A few are treated differently
 # based on the type of data stored (Reference data in particular).
@@ -257,7 +257,7 @@ my %MAPPING = (
     'RA'    =>  ['REFERENCE' => 'AUTHORS'],
     'RL'    =>  ['REFERENCE' => 'JOURNAL'],
     'CC'    =>  ['ALIGNMENT_COMMENT' => 'ALIGNMENT_COMMENT'],
-    #Pfam-specific 
+    #Pfam-specific
     'AM'    =>  'BUILD_METHOD',
     'NE'    =>  'PFAM_FAMILY_ACCESSION',
     'NL'    =>  'SEQ_START_STOP',
@@ -270,12 +270,12 @@ my %MAPPING = (
 our @WRITEORDER = qw(accession
   id
   description
-  previous_ids  
+  previous_ids
   record_authors
   seed_source
   sec_structure_source
   gathering_threshold
-  trusted_cutoff 
+  trusted_cutoff
   noise_cutoff
   entry_type
   build_command
@@ -319,7 +319,7 @@ our %WRITEMAP = (
     'ref_location'          =>  'RL/location',
     'alignment_comment'     =>  'CC/Comment',
     'seq_annotation'        =>  'DR/Collection',
-    #Pfam-specific 
+    #Pfam-specific
     'build_method'          =>  'AM/SimpleValue',
     'pfam_family_accession' =>  'NE/SimpleValue',
     'seq_start_stop'        =>  'NL/SimpleValue',
@@ -378,15 +378,15 @@ sub _initialize {
 
 sub next_aln {
     my $self = shift;
-    
+
     my $handler = $self->alignhandler;
     # advance to alignment header
-    while( defined(my $line = $self->_readline) ) {        
+    while( defined(my $line = $self->_readline) ) {
         if ($line =~ m{^\#\s*STOCKHOLM\s+}xmso) {
             last;
         }
     }
-    
+
     $self->{block_line} = 0;
     # go into main body of alignment
     my ($data_chunk, $isa_primary, $name, $alphabet);
@@ -398,7 +398,7 @@ sub next_aln {
             $self->{block_line} &&= 0;
             next;
         }
-        
+
         # End of Record
         if (index($line, '//') == 0) {
             # fencepost
@@ -419,7 +419,7 @@ sub next_aln {
             }
             $align = ($primary_tag eq 'GF' || $primary_tag eq 'GR') ? 1 : 0;
         }
-        elsif ($line =~ m{^([^\#]\S+)\s+([^\s]+)\s*}) {
+        elsif ($line =~ m{^(\S+)\s+([^\s]+)\s*}) {
             $self->{block_line}++;
             ($feat, $nse, $data) = ('SEQUENCE', $1, $2);
         }
@@ -432,7 +432,7 @@ sub next_aln {
         # array refs where the two values are equal indicate the start of a
         # primary chunk of data, otherwise it is to be folded into the last
         # data chunk under a secondary tag.  These are also concatenated
-        # to previous values if the 
+        # to previous values if the
 
         if (exists($MAPPING{$feat}) && ref $MAPPING{$feat} eq 'ARRAY') {
             ($name, $secondary_tag, $isa_primary) = ( $MAPPING{$feat}->[0] eq $MAPPING{$feat}->[1] ) ?
@@ -453,7 +453,7 @@ sub next_aln {
                     'CUSTOM';
             ($secondary_tag, $isa_primary) = ('DATA', 1);
         }
-        
+
         # Since we can't determine whether data should be passed into the
         # Handler until the next round (due to concatenation and combining
         # data), we always check for the presence of the last chunk when the
@@ -461,11 +461,11 @@ sub next_aln {
         # into a new data chunk). If the data needs to be concatenated it is
         # flagged above and checked below (and passed by if the conditions
         # warrant it).
-        
+
         # We run into a bit of a fencepost problem, (one chunk left over at
         # the end); that is taken care of above when the end of the record is
         # found.
-        
+
         if ($isa_primary && defined $data_chunk && !$concat) {
             $handler->data_handler($data_chunk);
             undef $data_chunk;
@@ -481,7 +481,7 @@ sub next_aln {
         }
         $last_feat = $feat;
     }
-    
+
     my $aln = $handler->build_alignment;
     $handler->reset_parameters;
     return $aln;
@@ -524,7 +524,7 @@ sub write_aln {
     $self->_print("# $STKVERSION\n") || return 0;
     $self->spaces && $self->_print("\n");
     # annotations first
-    
+
     #=GF XX ....
     for my $param (@WRITEORDER) {
         my @anns;
@@ -592,17 +592,17 @@ sub write_aln {
             $self->_print("$text\n") || return 0;
         }
     }
-    
+
     #=GS <seq-id> AC xxxxxx
     my $tag = 'AC';
     for my $seq ($aln->each_seq) {
         if (my $acc = $seq->accession_number) {
-	    my $text = sprintf("%-4s%-22s%-3s%s\n",$seq_ann, 
+	    my $text = sprintf("%-4s%-22s%-3s%s\n",$seq_ann,
 			       $aln->displayname($seq->get_nse), $tag, $acc);
 	    $self->_print($text) || return 0;
         }
     }
-    
+
     #=GS <seq-id> DR xxxxxx
     $tag = 'DR';
     for my $sf ($aln->get_SeqFeatures) {
@@ -617,11 +617,11 @@ sub write_aln {
                 $self->_print($text) || return 0;
             }
         }
-    }    
-    
-    $self->spaces && $self->_print("\n");    
+    }
+
+    $self->spaces && $self->_print("\n");
     # now the sequences...
-    
+
     my $blocklen = $self->line_length;
     my $maxlen = $aln->maxdisplayname_length() + 3;
     my $metalen = $aln->max_metaname_length() || 0;
@@ -637,11 +637,11 @@ sub write_aln {
     } else {
         $self->_print_seqs($aln,$maxlen,$metalen);
     }
-    
+
     $self->_print("//\n") || return 0;
     }
     $self->flush() if $self->_flush_on_write && defined $self->_fh;
-    
+
     return 1;
 }
 
@@ -687,8 +687,8 @@ sub spaces {
  Title   : alignhandler
  Usage   : $stream->alignhandler($handler)
  Function: Get/Set the Bio::HandlerBaseI object
- Returns : Bio::HandlerBaseI 
- Args    : Bio::HandlerBaseI 
+ Returns : Bio::HandlerBaseI
+ Args    : Bio::HandlerBaseI
 
 =cut
 
@@ -706,12 +706,12 @@ sub alignhandler {
 
 sub _print_seqs {
     my ($self, $aln, $maxlen, $metalen) = @_;
-    
+
     my ($seq_meta, $aln_meta) = ('#=GR','#=GC');
     # modified (significantly) from AlignIO::pfam
-    
+
     my ($namestr,$seq,$add);
-    
+
     # pad extra for meta lines
 
     for $seq ( $aln->each_seq() ) {
@@ -734,7 +734,7 @@ sub _print_seqs {
         for my $mname ($ameta->meta_names) {
             $self->_print(sprintf("%-*s%s\n",$maxlen+$metalen,
                                   $aln_meta.' '.$mname,
-                                  $ameta->named_meta($mname))) || return 0; 
+                                  $ameta->named_meta($mname))) || return 0;
         }
     }
 }

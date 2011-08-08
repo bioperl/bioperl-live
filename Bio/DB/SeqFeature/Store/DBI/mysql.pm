@@ -27,7 +27,7 @@ Bio::DB::SeqFeature::Store::DBI::mysql -- Mysql implementation of Bio::DB::SeqFe
 
   # change the feature and update it
   $f->start(100);
-  $db->update($f) or die "Couldn't update!";
+  $f->update($f) or die "Couldn't update!";
 
   # searching...
   # ...by id
@@ -566,12 +566,14 @@ sub _finish_bulk_update {
     my $fh = $self->dump_filehandle($table);
     my $path = $self->dump_path($table);
     $fh->close;
+    print STDERR "$path\n";
+    
     $dbh->do("LOAD DATA LOCAL INFILE '$path' REPLACE INTO TABLE $table FIELDS OPTIONALLY ENCLOSED BY '\\''") 
       or $self->throw($dbh->errstr);
     unlink $path;
   }
   delete $self->{bulk_update_in_progress};
-  delete $self->{filehandles};
+  delete $self->{   filehandles};
   $self->commit;
 }
 
@@ -736,7 +738,9 @@ sub _qualify {
   my $self = shift;
   my $table_name = shift;
   my $namespace = $self->namespace;
-  return $table_name unless defined $namespace;
+  return $table_name if (!defined $namespace ||
+                         # is namespace already present in table name?
+                         index($table_name, $namespace) == 0); 
   return "${namespace}_${table_name}";
 }
 
