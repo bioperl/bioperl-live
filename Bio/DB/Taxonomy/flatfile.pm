@@ -19,9 +19,9 @@ Bio::DB::Taxonomy::flatfile - Use the NCBI taxonomy from local indexed flat file
 
   use Bio::DB::Taxonomy;
 
-  my $db = Bio::DB::Taxonomy->new(-source => 'flatfile',
-                                  -nodesfile => $nodesfile,
-                                  -namesfile => $namefile);
+  my $db = Bio::DB::Taxonomy->new(-source    => 'flatfile' ,
+                                  -nodesfile => 'nodes.dmp',
+                                  -namesfile => 'names.dmp');
 
 =head1 DESCRIPTION
 
