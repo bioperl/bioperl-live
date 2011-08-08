@@ -29,8 +29,9 @@ This is an implementation of Bio::DB::Taxonomy which stores and accesses the
 NCBI taxonomy using flat files stored locally on disk and indexed using the
 DB_File module RECNO data structure for fast retrieval.
 
-The required database files can be obtained from
+The required database files, nodes.dmp and names.dmp can be obtained from
 ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump.tar.gz
+
 
 =head1 FEEDBACK
 
