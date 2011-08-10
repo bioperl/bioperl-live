@@ -1,5 +1,5 @@
 #!perl
-# $Id: bp_einfo.PLS 15088 2008-12-04 02:49:09Z bosborne $
+
 use strict;
 use warnings;
 

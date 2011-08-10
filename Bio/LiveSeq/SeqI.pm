@@ -554,7 +554,7 @@ sub labelchange {
     return (-1);
   }
   my $deleted=$self->_delete($label,$length); # first delete length nucs
-  if ($deleted == -1) { # if errors
+  if ($deleted eq -1) { # if errors
     return (-1);
   } else { # then insert the newsequence
     my ($insertbegin,$insertend)=$self->_praeinsert($afterendlabel,$newseq);

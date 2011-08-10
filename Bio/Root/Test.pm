@@ -26,8 +26,9 @@ Bio::Root::Test - A common base for all Bioperl test scripts.
 
   my $do_network_tests = test_network();
   my $output_debugging = test_debug();
-
-  # carry out tests with Test::More, Test::Exception and Test::Warn syntax
+  
+  # Bio::Root::Test rewraps Test::Most, so one can carry out tests with
+  # Test::More, Test::Exception, Test::Warn, Test::Deep, Test::Diff syntax
 
   SKIP: {
     # these tests need version 2.6 of Optional::Module to work
@@ -59,10 +60,11 @@ Bio::Root::Test - A common base for all Bioperl test scripts.
 =head1 DESCRIPTION
 
 This provides a common base for all BioPerl test scripts. It safely handles the
-loading of Test::More, Test::Exception and Test::Warn (actually, a subclass
-compatible with Bioperl warnings) prior to tests being run. It also presents an
-interface to common needs such as skipping all tests if required modules aren't
-present or if network tests haven't been enabled. See test_begin().
+loading of Test::Most, itself a simple wrapper around several highly used test
+modules: Test::More, Test::Exception, Test::Warn, Test::Deep, and Test::Diff. It
+also presents an interface to common needs such as skipping all tests if
+required modules aren't present or if network tests haven't been enabled. See
+test_begin().
 
 In the same way, it allows you to skip just a subset of tests for those same
 reasons, in addition to requiring certain executables and environment variables.
@@ -109,6 +111,10 @@ the web:
 
 Email bix@sendu.me.uk
 
+=head1 CONTRIBUTORS
+
+Chris Fields  cjfields at bioperl dot org
+
 =head1 APPENDIX
 
 The rest of the documentation details each of the object methods.
@@ -121,74 +127,88 @@ package Bio::Root::Test;
 use strict;
 use warnings;
 
+# According to Ovid, 'use base' can override signal handling, so use
+# old-fashioned way. This should be a Test::Builder::Module subclass
+# for consistency (as are any Test modules)
+use Test::Most;
+use Test::Builder;
+use Test::Builder::Module;
 use File::Temp qw(tempdir);
 use File::Spec;
-use Exporter qw(import);
 
-BEGIN {
-    # For prototyping reasons, we have to load Test::More's methods now, even
-    # though theoretically in future the user may use a different Test framework
+our @ISA = qw(Test::Builder::Module);
 
-    # We want to load Test::More, Test::Exception and Test::Warn. Preferably the
-    # users own versions, but if they don't have them, the ones in t/lib.
-    # However, this module is in t/lib so t/lib is already in @INC so Test::* in
-    # t/lib will be used first, which we don't want: get rid of t/lib in @INC
-    no lib 't/lib';
-    eval { require Test::More;
-           require Test::Exception;
-           require Test::Warn; };
-    if ($@) {
-        eval "use lib 't/lib';";
+# TODO: Evil magic ahead; can we clean this up?
+
+{
+    my $Tester = Test::Builder->new;
+    
+    no warnings 'redefine';
+    sub Test::Warn::_canonical_got_warning {
+        my ($called_from, $msg) = @_;
+        my $warn_kind = $called_from eq 'Carp' ? 'carped' : ($called_from =~ /Bio::/ ? 'Bioperl' : 'warn');
+        
+        my $warning;
+        if ($warn_kind eq 'Bioperl') {
+            ($warning) = $msg =~ /\n--------------------- WARNING ---------------------\nMSG: (.+)\n---------------------------------------------------\n$/m;
+            $warning ||= $msg; # shouldn't ever happen
+        }
+        else {
+            my @warning_stack = split /\n/, $msg;   # some stuff of uplevel is included
+            $warning = $warning_stack[0];
+        }
+        
+        return {$warn_kind => $warning}; # return only the real message
     }
-    eval "use Test::More;
-          use Test::Exception;";
-    die "$@\n" if $@;
-
-    # now that the users' Test::Warn has been loaded if they had it, we can
-    # use Bio::Root::TestWarn
-    eval "use Bio::Root::Test::Warn;";
-    die "$@\n" if $@;
+    
+    sub Test::Warn::_diag_found_warning {
+        foreach (@_) {
+            if (ref($_) eq 'HASH') {
+                ${$_}{carped} ? $Tester->diag("found carped warning: ${$_}{carped}")
+                              : (${$_}{Bioperl} ? $Tester->diag("found Bioperl warning: ${$_}{Bioperl}")
+                                 : $Tester->diag("found warning: ${$_}{warn}"));
+            } else {
+                $Tester->diag( "found warning: $_" );
+            }
+        }
+        $Tester->diag( "didn't find a warning" ) unless @_;
+    }
+    
+    sub Test::Warn::_cmp_got_to_exp_warning {
+        my ($got_kind, $got_msg) = %{ shift() };
+        my ($exp_kind, $exp_msg) = %{ shift() };
+        return 0 if ($got_kind eq 'warn') && ($exp_kind eq 'carped');
+        
+        my $cmp;
+        if ($got_kind eq 'Bioperl') {
+            $cmp = $got_msg =~ /^\Q$exp_msg\E$/;
+        }
+        else {
+            $cmp = $got_msg =~ /^\Q$exp_msg\E at \S+ line \d+\.?$/;
+        }
+        
+        return $cmp;
+    }
 }
 
-# re-export Test::More, Test::Exception and Test::Warn methods and export our own
-our @EXPORT = qw(ok use_ok require_ok
-                 is isnt like unlike is_deeply
-                 cmp_ok
-                 skip todo todo_skip
-                 pass fail
-                 eq_array eq_hash eq_set
-                 $TODO
-                 plan
-                 can_ok isa_ok
-                 diag
-                 BAIL_OUT
+our @EXPORT = (@Test::Most::EXPORT,
+               #@Bio::Root::Test::Warn::EXPORT,
+               # Test::Warn method wrappers
+               
+               # BioPerl-specific
+               qw(
+                test_begin
+                test_skip
+                test_output_file
+                test_output_dir
+                test_input_file
+                test_network
+                test_email
+                test_debug
+                float_is
+             ));
 
-                 dies_ok
-                 lives_ok
-                 throws_ok
-                 lives_and
-
-                 warning_is
-                 warnings_are
-                 warning_like
-                 warnings_like
-
-                 test_begin
-                 test_skip
-                 test_output_file
-                 test_output_dir
-                 test_input_file
-                 test_network
-                 test_email
-                 test_debug
-                 float_is
-                 );
-
-if (Test::More->can('done_testing')) {
-    push @EXPORT, 'done_testing';
-}
-
-our $GLOBAL_FRAMEWORK = 'Test::More';
+our $GLOBAL_FRAMEWORK = 'Test::Most';
 our @TEMP_FILES;
 
 =head2 test_begin
@@ -217,7 +237,7 @@ our @TEMP_FILES;
            -excludes_os         => str (default none, if OS suppied, all tests
                                         will skip if running on that OS (eg.
                                         'mswin'))
-           -framework           => str (default 'Test::More', the Test module
+           -framework           => str (default 'Test::Most', the Test module
                                         to load. NB: experimental, avoid using)
 
            Note, supplying -tests => 0 is possible, allowing you to skip all
@@ -230,8 +250,8 @@ sub test_begin {
     my ($skip_all, $tests, $framework) = _skip(@_);
     $GLOBAL_FRAMEWORK = $framework;
 
-    if ($framework eq 'Test::More') {
-        # ideally we'd delay loading Test::More until this point, but see BEGIN
+    if ($framework eq 'Test::Most') {
+        # ideally we'd delay loading Test::Most until this point, but see BEGIN
         # block
 
         if ($skip_all) {
@@ -248,7 +268,7 @@ sub test_begin {
     }
     # go ahead and add support for other frameworks here
     else {
-        die "Only Test::More is supported at the current time\n";
+        die "Only Test::Most is supported at the current time\n";
     }
 
     return 0;
@@ -298,14 +318,14 @@ sub test_skip {
     my ($skip, $tests, $framework) = _skip(@_);
     $tests || die "-tests must be a number greater than 0";
 
-    if ($framework eq 'Test::More') {
+    if ($framework eq 'Test::Most') {
         if ($skip) {
             eval "skip('$skip', $tests);";
         }
     }
     # go ahead and add support for other frameworks here
     else {
-        die "Only Test::More is supported at the current time\n";
+        die "Only Test::Most is supported at the current time\n";
     }
 }
 

@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#$Id$
+
 
 =head1 NAME
 

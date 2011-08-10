@@ -195,7 +195,7 @@ my $build = Bio::Root::Build->new(
                            },
     
     build_requires      => {
-                            'Test::More'                => 0,
+                            'Test::Most'                => 0,
                             'Module::Build'             => 0.2805,
                             'Test::Harness'             => 2.62,
                             'CPAN'                      => 1.81
