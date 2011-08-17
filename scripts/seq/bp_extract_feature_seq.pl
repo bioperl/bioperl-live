@@ -38,6 +38,8 @@ Feature to be extracted. By default, it extracts the CDS feature.
 
 File where the extracted features will be saved. If not specified, STDOUT is used.
 
+=back
+
 =head1 FEEDBACK
 
 =head2 Mailing Lists
