@@ -90,12 +90,14 @@ use base qw( Bio::Seq::Quality Bio::LocatableSeq );
 
  Title    : new
  Function : Create a new simulated read object
- Usage    : my $read = Bio::Seq::SimulatedRead->new( -id        => 'read001',
-                                           -reference => $seq_obj ,
-                                           -errors    => $errors  ,
-                                           -start     => 10       ,
-                                           -end       => 135      ,
-                                           -strand    => 1          );
+ Usage    : my $read = Bio::Seq::SimulatedRead->new(
+               -id        => 'read001',
+               -reference => $seq_obj ,
+               -errors    => $errors  ,
+               -start     => 10       ,
+               -end       => 135      ,
+               -strand    => 1        ,
+            );
  Arguments: -reference => Bio::SeqI, Bio::PrimarySeqI object representing the
                           reference sequence to take the read from. See
                           reference().
@@ -350,13 +352,19 @@ sub _update_desc_mid {
  Usage    : my $errors = $read->errors();
  Arguments: Reference to a hash of the position and nature of sequencing errors.
             The positions are 1-based relative to the error-free MID-containing
-            read (not relative to the reference sequence).
-            Example:
+            read (not relative to the reference sequence). For example:
                $errors->{34}->{'%'} = 'T'  ; # substitution of residue 34 by a T
                $errors->{23}->{'+'} = 'GG' ; # insertion of GG after residue 23
                $errors->{45}->{'-'} = undef; # deletion of residue 45
-            Substitutions are for a single residue, but additions can be of
-            several residues.
+            Substitutions and deletions are for a single residue, but additions
+            can be additions of several residues.
+            An alternative way to specify errors is by using array references
+            instead of scalar for the hash values. This allows to specify
+            redundant mutations. For example, the case presented above would
+            result in the same read sequence as the example below:
+               $errors->{34}->{'%'} = ['C', 'T']    ; # substitution by a C and then a T
+               $errors->{23}->{'+'} = ['G', 'G']    ; # insertion of G and then a G
+               $errors->{45}->{'-'} = [undef, undef]; # deletion of residue, and again
  Returns  : Reference to a hash of the position and nature of sequencing errors.
 
 =cut
@@ -372,6 +380,8 @@ sub errors {
       if (not defined $self->reference) {
          $self->throw("Cannot add errors because the reference sequence was not set\n");
       }
+      # Convert scalar error specs to arrayref specs
+      $errors = $self->_scalar_to_arrayref($errors);
       # Check validity of error specifications
       $errors = $self->_validate_error_specs($errors);
       # Set the error specifications
@@ -386,8 +396,25 @@ sub errors {
       $self->_update_seq_errors;
       $self->_update_qual_errors if scalar @{$self->qual_levels};
       $self->_update_desc_errors if $self->track;
+
    }
    return $self->{errors};
+}
+
+
+sub _scalar_to_arrayref {
+   # Replace the scalar values in the error specs by more versatile arrayrefs
+   my ($self, $errors) = @_;
+   while ( my ($pos, $ops) = each %$errors ) {
+      while ( my ($op, $res) = each %$ops ) {
+         if (ref $res eq '') {
+            my $arr = [ split //, ($res || '') ];
+            $arr = [undef] if scalar @$arr == 0;
+            $$errors{$pos}{$op} = $arr;
+         }
+      }
+   }
+   return $errors;
 }
 
 
@@ -428,12 +455,20 @@ sub _validate_error_specs {
                " $pos\n");
             delete $ops->{$op};
          } else {
-            # Value has to be 1 character long, no more
-            if ( (defined $res) && ($op eq '%') && (length $res > 1) ) {
-               $self->warn("Can only substitute a single residue at a time but".
-                  " got ".length($res)." at position $pos, operation $op. ".
-                  "Ignoring residues past the first one.\n");
-               $ops->{$op} = substr $res, 0, 1;
+            # Substitutions: have to have at least one residue to substitute
+            if ( ($op eq '%') && (scalar @$res < 1) ) {
+               $self->warn("At least one residue must be provided for substitutions,".
+                  "but got ".scalar(@$res)." at position $pos.\n");
+            }
+            # Additions: have to have at least one residue to add
+            if ( ($op eq '+') && (scalar @$res < 1) ) {
+               $self->warn("At least one residue must be provided for additions,".
+                  "but got ".scalar(@$res)." at position $pos.\n");
+            }
+            # Deletions
+            if ( ($op eq '-') && (scalar @$res < 1) ) {
+               $self->warn("At least one 'undef' must be provided for deletions,".
+                  "but got ".scalar(@$res)." at position $pos.\n");
             }
          }
       }
@@ -455,18 +490,19 @@ sub _update_seq_errors {
          # Process sequencing errors at that position
          for my $type ( '%', '-', '+' ) {
             next if not exists $$errors{$pos}{$type};
-            my $val = $$errors{$pos}{$type};
+            my $arr = $$errors{$pos}{$type};
             if ($type eq '%') {
-               # Substitution at residue position
-               substr $seq_str, $pos - 1 + $off, 1, $val;
+               # Substitution at residue position. If there are multiple
+               # substitutions to do, directly skip to the last one.
+               substr $seq_str, $pos - 1 + $off, 1, $$arr[-1];
             } elsif ($type eq '-') {
                # Deletion at residue position
                substr $seq_str, $pos - 1 + $off, 1, '';
                $off--;
             } elsif ($type eq '+') {
                # Insertion after residue position
-               substr $seq_str, $pos + $off, 0, $val;
-               $off += length $val;
+               substr $seq_str, $pos + $off, 0, join('', @$arr);
+               $off += scalar @$arr;
             }
          }
       }
@@ -490,7 +526,7 @@ sub _update_qual_errors {
          # Process sequencing errors at that position
          for my $type ( '%', '-', '+' ) {
             next if not exists $$errors{$pos}{$type};
-            my $val = $$errors{$pos}{$type};
+            my $arr = $$errors{$pos}{$type};
             if ($type eq '%') {
                # Substitution at residue position
                splice @$qual, $pos - 1 + $off, 1, $bad_qual;
@@ -500,8 +536,8 @@ sub _update_qual_errors {
                $off--;
             } elsif ($type eq '+') {
                # Insertion after residue position
-               splice @$qual, $pos + $off, 0, ($bad_qual) x length($val);
-               $off += length $val;
+               splice @$qual, $pos + $off, 0, ($bad_qual) x scalar(@$arr);
+               $off += scalar @$arr;
             }
          }
       }
@@ -522,8 +558,10 @@ sub _update_desc_errors {
          # Process sequencing errors at that position
          for my $type ( '%', '-', '+' ) {
             next if not exists $$errors{$pos}{$type};
-            my $val = $$errors{$pos}{$type} || '';
-            $err_str .= $pos . $type . $val . ',';
+            for my $val ( @{$$errors{$pos}{$type}} ) {
+               $val = '' if not defined $val;
+               $err_str .= $pos . $type . $val . ',';
+            }
          }
       }
       $err_str =~ s/,$//;
