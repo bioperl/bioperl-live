@@ -397,6 +397,6 @@ open(my $pipefh, $pipestr);
 $searchio = Bio::SearchIO->new(-format => 'hmmer',
                                -fh     => $pipefh);
 is(ref($searchio), 'Bio::SearchIO::hmmer2', 'Check if reading from a pipe works');
-my $result = $searchio->next_result;
+$result = $searchio->next_result;
 is(ref($result), 'Bio::Search::Result::HMMERResult', 'Check for the correct result reference type');
 is($result->num_hits(), 2, 'Check num_hits');
