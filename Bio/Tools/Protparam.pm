@@ -1,7 +1,7 @@
 #
 # BioPerl module for Bio::Tools::Protparam
 #
-# Please direct questions and support issues to <bioperl-l@bioperl.org> 
+# Please direct questions and support issues to <bioperl-l@bioperl.org>
 #
 # Cared for by Richard Dobson, r.j.dobson at qmul dot ac dot uk
 #
@@ -17,7 +17,7 @@ Bio::Tools::Protparam - submit to and parse output from protparam ;
 
 =head1 SYNOPSIS
 
-  my $gb = new Bio::DB::GenBank(-retrievaltype => 'tempfile' , 
+  my $gb = new Bio::DB::GenBank(-retrievaltype => 'tempfile' ,
                                 -format => 'Fasta');
   my @ids=qw(O14521 O43709 O43826);
   my $seqio = $gb->get_Stream_by_acc(\@ids );
@@ -26,7 +26,7 @@ Bio::Tools::Protparam - submit to and parse output from protparam ;
 
 	my $pp = Protparam->new(seq=>$seq->seq);
 
-	print 
+	print
 	"ID : ", $seq->display_id,"\n",
 	"Amino acid number : ",$pp->amino_acid_number(),"\n",
 	"Number of negative amino acids : ",$pp->num_neg(),"\n",
@@ -99,18 +99,11 @@ use LWP 5.64;
 
 =cut
 
-
-
 sub new {
-  	
-	
 	my ($class,@args) = @_;
-	
-
-	@args=('-url'=>'http://www.expasy.org/cgi-bin/protparam','-form'=>'sequence',@args);
-
+	@args=('-url'=>'http://web.expasy.org/cgi-bin/protparam/protparam','-form'=>'sequence',@args);
 	my $self=$class->SUPER::new(@args);
- 	
+
 	my ($url,$seq,$form)=$self->_rearrange([qw(URL SEQ FORM)],@args);
 
 	my $browser = LWP::UserAgent->new;
@@ -129,9 +122,9 @@ sub new {
 	$self->throw("Bad content type at $url ".$response->content_type) unless $response->content_type eq 'text/html';
 
 	my $protParamOutput=$response->decoded_content;
-	
+
 	$self->{'output'}=$protParamOutput;
-	
+
 	return bless $self,$class;
 
 }
@@ -153,10 +146,10 @@ sub num_neg{
 	my $self=shift;
 
 	($self->{'negAA'})=$self->{'output'}=~/<B>Total number of negatively charged residues.*?<\/B>\s*(\d*)/;
-	
+
 	return $self->{'negAA'};
 
-	
+
 }
 
 =head2 num_pos
@@ -171,14 +164,9 @@ sub num_neg{
 
 
 sub num_pos{
-
 	my $self=shift;
-
 	($self->{'posAA'})=$self->{'output'}=~/<B>Total number of positively charged residues.*?<\/B>\s*(\d*)/;
-
 	return $self->{'posAA'};
-
-
 }
 
 =head2 amino_acid_number
@@ -193,9 +181,7 @@ sub num_pos{
 
 sub amino_acid_number{
 	my $self=shift;
-
 	($self->{'numAA'})=$self->{'output'}=~/<B>Number of amino acids:<\/B> (\d+)/;
-
 	return $self->{'numAA'};
 }
 
@@ -212,9 +198,7 @@ sub amino_acid_number{
 
 sub total_atoms{
 	my $self=shift;
-
 	$self->{'total_atoms'}=$self->{'output'}=~/<B>Total number of atoms:<\/B>\s*(\d*)/;
-	
 	return $self->{'total_atoms'};
 }
 
@@ -266,11 +250,8 @@ sub theoretical_pI{
 
 sub num_carbon{
 	my $self=shift;
-
 	($self->{'car'}) = $self->{'output'}=~/Carbon\s+C\s+(\d+)/;
-
 	return $self->{'car'};
-
 }
 
 =head2 num_hydrogen
@@ -286,11 +267,8 @@ sub num_carbon{
 
 sub num_hydrogen{
 	my $self=shift;
-
 	($self->{'hyd'}) = $self->{'output'}=~/Hydrogen\s+H\s+(\d+)/;
-	
 	return $self->{'hyd'}
-
 }
 
 =head2 num_nitro
@@ -306,12 +284,8 @@ sub num_hydrogen{
 
 sub num_nitro{
 	my $self=shift;
-
 	($self->{'nitro'}) = $self->{'output'}=~/Nitrogen\s+N\s+(\d+)/;
-
-
 	return $self->{'nitro'};
-	
 }
 
 =head2 num_oxygen
@@ -327,11 +301,8 @@ sub num_nitro{
 
 sub num_oxygen{
 	my $self=shift;
-
 	($self->{'oxy'}) = $self->{'output'}=~/Oxygen\s+O\s+(\d+)/;
-
 	return $self->{'oxy'};
-	
 }
 
 =head2 num_sulphur
@@ -347,9 +318,7 @@ sub num_oxygen{
 
 sub num_sulphur{
 	my $self=shift;
-
 	($self->{'sul'}) = $self->{'output'}=~/Sulfur\s+S\s+(\d+)/;
-
 	return $self->{'sul'};
 }
 
@@ -366,9 +335,7 @@ sub num_sulphur{
 
 sub half_life{
 	my $self=shift;
-
 	($self->{'half_life'}) = $self->{'output'}=~/The estimated half-life is.*?(-{0,1}\d*\.{0,1}\d*)\s*hours \(mammalian reticulocytes, in vitro\)/;
-
 	return $self->{'half_life'};
 }
 
@@ -385,7 +352,6 @@ sub half_life{
 
 sub instability_index{
 	my $self=shift;
-
 	($self->{'InstabilityIndex'})=$self->{'output'}=~/The instability index \(II\) is computed to be (-{0,1}\d*\.{0,1}\d*)/;
 	return $self->{'InstabilityIndex'};
 }
@@ -403,11 +369,8 @@ sub instability_index{
 
 sub stability{
 	my $self=shift;
-
 	($self->{'Stability'})=$self->{'output'}=~/This classifies the protein as\s(\w+)\./;
-
 	return $self->{'Stability'};
-
 }
 
 =head2 aliphatic_index
@@ -422,7 +385,6 @@ sub stability{
 
 
 sub aliphatic_index{
-
 	my $self=shift;
 	($self->{'AliphaticIndex'})=$self->{'output'}=~/<B>Aliphatic index:<\/B>\s*(-{0,1}\d*\.{0,1}\d*)/;
 	return $self->{'AliphaticIndex'};
@@ -442,7 +404,6 @@ sub aliphatic_index{
 
 sub gravy{
 	my $self=shift;
-
 	($self->{'GRAVY'})=$self->{'output'}=~/<B>Grand average of hydropathicity \(GRAVY\):<\/B>\s*(-{0,1}\d*\.{0,1}\d*)/;
 	return $self->{'GRAVY'};
 }
@@ -459,27 +420,13 @@ sub gravy{
 
 
 sub AA_comp{
-
 	my $self=shift;
 	my $aa=shift;
-
 	$aa=uc($aa);
-	
 	my $AA={qw(A Ala R Arg N Asn D Asp C Cys Q Gln E Glu G Gly H His I Ile L Leu K Lys M Met F Phe P Pro S Ser T Thr W Trp Y Tyr V Val B Asx Z Glx X Xaa)};
-	
 	($self->{$aa})= $self->{'output'}=~/$AA->{$aa} \($aa\)\s+\d+\s+(\d+\.\d+)%/;
-	
 	return $self->{$aa};
 }
 
 
 1;
-
-
-
-
-
-
-
-    
-
