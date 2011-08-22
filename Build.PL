@@ -140,7 +140,6 @@ my %recommends = (
     
     'URI::Escape'               => [0,
         'Dealing with web resources/Bio::FeatureIO::gff,Bio::FeatureIO::interpro,'.
-        'Bio::DB::Biblio::eutils,Bio::DB::EUtilParameters,'.
         'Bio::DB::Query::GenBank,Bio::DB::NCBIHelper,Bio::SeqFeature::Annotated'],
     
     'XML::DOM::XPath'           => [0.13,
@@ -158,9 +157,6 @@ my %recommends = (
     
     'XML::SAX::Writer'          => [0,
         'Writing XML/Bio::SeqIO::tigrxml'],
-    
-    'XML::Simple'               => [0,
-        'Reading custom XML/Bio::Tools::EUtilities,Bio::DB::HIV,Bio::DB::Query::HIVQuery'],
     
     'XML::Twig'                 => [0,
         'Parsing XML/Bio::Variation::IO::xml,Bio::DB::Taxonomy::entrez,'.
