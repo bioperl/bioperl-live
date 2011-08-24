@@ -1549,3 +1549,6 @@ sub annotation {
     my ($self) = @_;
     $self->throw_not_implemented();
 }
+
+1;
+
