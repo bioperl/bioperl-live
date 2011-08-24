@@ -189,6 +189,7 @@ sub end {
         # other sequences in an alignment
         if ($self->seq && $st != 0 ) {
             my $len = $self->_ungapped_len;
+            #print STDERR "End:",$self->display_id,"\t",$len,"\t$st\n";
             my $calend = $st + $len - 1;
             my $id = $self->id || 'unknown';
             if ($calend != $value) {

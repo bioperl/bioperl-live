@@ -10,15 +10,20 @@ use base qw(Bio::SeqIO);
 sub _initialize {
     my($self,@args) = @_;
     $self->SUPER::_initialize(@args);
-    my ($variant, $validate, $header) = $self->_rearrange([qw(VARIANT
+    my ($variant, $validate, $cs, $header) = $self->_rearrange([qw(VARIANT
                                                    VALIDATE
+                                                   CALC_SCORES
                                                    QUALITY_HEADER)], @args);
+    $cs = defined $cs ? $cs : 1;
+    $self->calculate_scores($cs);
+    
     $variant ||= 'sanger';
-    $validate = defined $validate ? $validate : 1;
     $self->variant($variant);
-    $self->validate($validate);
-    $header     && $self->quality_header($header);
 
+    $validate = defined $validate ? $validate : 1;
+    $self->validate($validate);
+    
+    $header     && $self->quality_header($header);
     if( ! defined $self->sequence_factory ) {
         $self->sequence_factory(Bio::Seq::SeqFactory->new(-verbose => $self->verbose(), -type => 'Bio::Seq::Quality'));
     }
@@ -103,16 +108,20 @@ sub next_dataset {
         $self->throw("Quality string [".$data->{-raw_quality}."] of length [".length($data->{-raw_quality})."]\ndoesn't match ".
                      "length of sequence ".$data->{-seq}."\n[".length($data->{-seq})."], line: $.");
     }
+    
+    # TODO: benchmark diff between method call and hash call (former is cleaner)
+    if ($self->{_calc_scores}) {
+        $data->{-qual} = [map {
+            if ($self->{_validate_qual} && !exists($self->{chr2qual}->{$_})) {
+                $self->throw("Unknown symbol with ASCII value ".ord($_)." outside of quality range")
+                # TODO: fallback?
+            }
+            $self->{qualtype} eq 'solexa' ?
+                $self->{sol2phred}->{$self->{chr2qual}->{$_}}:
+                $self->{chr2qual}->{$_};
+        } unpack("A1" x length($data->{-raw_quality}), $data->{-raw_quality})];
+    }
 
-    $data->{-qual} = [map {
-        if ($self->{_validate_qual} && !exists($self->{chr2qual}->{$_})) {
-            $self->throw("Unknown symbol with ASCII value ".ord($_)." outside of quality range")
-            # TODO: fallback?
-        }
-        $self->{qualtype} eq 'solexa' ?
-            $self->{sol2phred}->{$self->{chr2qual}->{$_}}:
-            $self->{chr2qual}->{$_};
-    } unpack("A1" x length($data->{-raw_quality}), $data->{-raw_quality})];
     return $data;
 }
 
@@ -277,7 +286,15 @@ sub quality_header{
     if (defined $val) {
         $self->{_quality_header} = $val;
     }
-    return $self->{_quality_header} || 0;
+    return $self->{_quality_header};
+}
+
+sub calculate_scores {
+    my ($self, $val) = @_;
+    if (defined $val) {
+        $self->{_calc_scores} = $val;
+    }
+    return $self->{_calc_scores};
 }
 
 1;

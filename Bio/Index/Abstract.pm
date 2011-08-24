@@ -218,7 +218,7 @@ sub dbm_package {
 			$type = ( $@ ) ? 'SDBM_File' : 'DB_File';
 		}
 		if( $type ne 'DB_File' ) {
-			eval { require "$type.pm"; };
+			eval { require $type; 1;};
 			$self->throw($@) if( $@ );
 		}
 		$self->{'_dbm_package'} = $type;

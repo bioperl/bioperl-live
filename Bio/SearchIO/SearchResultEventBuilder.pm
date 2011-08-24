@@ -178,22 +178,17 @@ sub start_result {
 sub end_result {
     my ($self,$type,$data) = @_;    
 
-    if( defined $data->{'runid'} &&
-        $data->{'runid'} !~ /^\s+$/ ) {        
+    # 'runid' is coming from BLAST XML output, and is an agglomeration of data
+    # that in other formats is split up into specific id/accession/desc. In
+    # other words, it's a workaround for some hackiness in XML output from BLAST
 
-        if( $data->{'runid'} !~ /^lcl\|/) { 
-            $data->{"RESULT-query_name"}= $data->{'runid'};
-        } else { 
-            ($data->{"RESULT-query_name"},
-	     $data->{"RESULT-query_description"}) = 
-		 split(/\s+/,$data->{"RESULT-query_description"},2);
-        }
-        
-        if( my @a = split(/\|/,$data->{'RESULT-query_name'}) ) {
-            my $acc = pop @a ; # this is for accession |1234|gb|AAABB1.1|AAABB1
-            # this is for |123|gb|ABC1.1|
-            $acc = pop @a if( ! defined $acc || $acc =~ /^\s+$/);
-            $data->{"RESULT-query_accession"}= $acc;
+    if( exists $data->{'runid'}) {
+        if ($data->{'runid'} !~ /^\s*$/) {
+        (@{$data}{qw(RESULT-query_name
+                  RESULT-query_accession
+                  RESULT-query_description)}) = 
+        &Bio::Search::SearchUtils::process_blastxml_querydata($data->{'runid'},
+                                                              $data->{'RESULT-query_description'})
         }
         delete $data->{'runid'};
     }

@@ -100,7 +100,7 @@ my %MAPPING = (
                 'BlastOutput_reference' => 'RESULT-program_reference',
                 'BlastOutput_query-def' => 'RESULT-query_description',
                 'BlastOutput_query-len' => 'RESULT-query_length',
-                'BlastOutput_query-ID'  => 'runid',                
+                'BlastOutput_query-ID'  => 'runid',
                 'Parameters_matrix'     => { 'RESULT-parameters' => 'matrix'},
                 'Parameters_expect'     => { 'RESULT-parameters' => 'expect'},
                 'Parameters_include'    => { 'RESULT-parameters' => 'include'},

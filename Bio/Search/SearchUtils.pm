@@ -800,4 +800,47 @@ sub _warn_about_no_hsps {
               );
 }
 
+=head2 process_blastxml_querydata
+
+ Title    : process_blastxml_querydata
+ Usage    : my ($queryid, $accession, $description) = &Bio::Search::process_blastxml_querydata($id, $def)
+ Function : processes a simple BLASTXML-based query ID and 
+ Returns  : three strings: the query name, the query description, and the
+            query accession
+ Args     : two strings:
+            1) the <BlastOutput_query-ID> or <Iteration_query-ID> tag
+            2) the <BlastOutput_query-def> or <Iteration_query-def> tag
+ Note     : Used in SearchResultEventBuilders for consistently processing
+            BLASTXML output. A bit of background: NCBI BLAST XML output
+            specifying query information has slightly varied over the years in
+            what the output actually includes. The query ID tag <*_query-ID> in
+            older versions of BLAST could include the indexed ID information but
+            may also include a fallback ID of some sort. With BLAST+ output
+            this has again changed, so we resort to some shenanigans to deal
+            with the variation.
+
+=cut
+
+sub process_blastxml_querydata {
+    my ($runid, $raw_desc) = @_;
+    
+    my ($qname, $qacc, $qdesc);
+    
+    # Is the query ID a fallback ID?
+    
+    if( $runid !~ /^lcl\|/) { 
+        $qname = $runid;
+    } else {
+        ($qname,$qdesc) =  split(/\s+/,$raw_desc,2);
+    }
+    
+    if( my @a = split(/\|/,$qname) ) {
+        $qacc = pop @a ; # this is for accession |1234|gb|AAABB1.1|AAABB1
+        # this is for |123|gb|ABC1.1|
+        $qacc = pop @a if( ! defined $qacc || $qacc =~ /^\s+$/);
+    }
+        
+    ($qname, $qacc, $qdesc);
+}
+
 1;

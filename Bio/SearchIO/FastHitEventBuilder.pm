@@ -180,7 +180,12 @@ sub start_result {
 =cut
 
 sub end_result {
-    my ($self,$type,$data) = @_;    
+    my ($self,$type,$data) = @_;
+    
+    # 'runid' is coming from BLAST XML output, and is an agglomeration of data
+    # that in other formats is split up into specific id/accession/desc. In
+    # other words, it's a workaround for some hackiness in XML output from BLAST
+    
     if( defined $data->{'runid'} &&
 	$data->{'runid'} !~ /^\s+$/ ) {	
 	

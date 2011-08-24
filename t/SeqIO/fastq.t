@@ -7,11 +7,13 @@ BEGIN {
     use lib '.';
     use Bio::Root::Test;
 
-    test_begin( -tests => 140 );
+    test_begin( -tests => 141 );
 
     use_ok('Bio::SeqIO::fastq');
     use_ok('Bio::Seq::Quality');
 }
+
+use Data::Dumper;
 
 my $DEBUG = test_debug();
 
@@ -422,8 +424,6 @@ for my $example (sort keys %error) {
         } } $error{$example}->{exception}, "Exception caught for $example";
 }
 
-# fastq
-
 my $in = Bio::SeqIO->new(-format    => "fastq",
                              -file      => test_input_file('fastq', 'zero_qual.fastq'),
                              -verbose   => 2);  #strictest level
@@ -432,3 +432,14 @@ lives_and {my $seq = $in->next_seq;
            is($seq->seq, 'G');}, 'edge case; single 0 in quality fails';
 
 
+# bypass PHRED score calculation (on by default, for Bio::SeqIO)
+
+$in = Bio::SeqIO->new(-format    => "fastq",
+                      -calc_scores => 0,
+                      -file      => test_input_file('fastq','test1_sanger.fastq'));  #strictest level
+
+my $data = $in->next_dataset;
+
+ok(!exists($data->{-qual}));
+
+diag( Dumper $data);

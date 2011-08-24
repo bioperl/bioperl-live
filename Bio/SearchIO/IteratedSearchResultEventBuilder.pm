@@ -238,10 +238,13 @@ sub start_result {
 
 sub end_result {
     my ($self,$type,$data) = @_;
-    #print STDERR "ISREB: end_result\n";
     ## How is runid getting set? Purpose?
-    if( defined $data->{'runid'} &&
-        $data->{'runid'} !~ /^\s+$/ ) {        
+    
+    # 'runid' is coming from BLAST XML output, and is an agglomeration of data
+    # that in other formats is split up into specific id/accession/desc. In
+    # other words, it's a workaround for some hackiness in XML output from BLAST
+    
+    if( defined $data->{'runid'}) {
 
         if( $data->{'runid'} !~ /^lcl\|/) { 
             $data->{"RESULT-query_name"}= $data->{'runid'};

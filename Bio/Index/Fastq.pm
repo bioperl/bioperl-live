@@ -156,19 +156,29 @@ sub _index_file {
 
     my $id_parser = $self->id_parser;
     my $c = 0;
-    open my $FASTQ, '<', $file or $self->throw("Can't open file for read : $file");
+    my $io = Bio::SeqIO->new(-format => 'fastq', -file => $file);
+    
+    #open my $FASTQ, '<', $file or $self->throw("Can't open file for read : $file");
     # Main indexing loop
-    while (<$FASTQ>) {
-        if (/^@/) {
-            my $begin = tell($FASTQ) - length( $_ );
-            foreach my $id (&$id_parser($_)) {
-                $self->add_record($id, $i, $begin);
-                $c++;
-            }
-        }
+    while (my $ds = $io->next_dataset) {
+        # the next_dataset is a generic hash-based data structure with all info
+        
     }
-
-    close $FASTQ;
+    
+    #$io->close();
+    
+    # old indexing loop
+    #while (<$FASTQ>) {
+    #    if (/^@/) {
+    #        my $begin = tell($FASTQ) - length( $_ );
+    #        foreach my $id (&$id_parser($_)) {
+    #            $self->add_record($id, $i, $begin);
+    #            $c++;
+    #        }
+    #    }
+    #}
+    #
+    #close $FASTQ;
     return ($c);
 }
 
